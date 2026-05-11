@@ -12,7 +12,7 @@
 
   > Advanced DPI bypass for Windows. Break through internet censorship with precision packet-level techniques — no VPN, no proxies, no DNS tricks that break your connection.
 
-  **A [Codeshare Technology Ltd](https://codeshare.me) product**
+  **A [Codeshare](https://codeshare.me) product**
 </div>
 
 ---
