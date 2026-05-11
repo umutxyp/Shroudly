@@ -1,0 +1,33 @@
+# Dependencies
+node_modules/
+
+# Next.js
+.next/
+out/
+
+# Electron build output
+dist/
+dist_*/
+release/
+
+# Generated native binary (built from native/ShroudlyEngine.cs via npm run setup)
+electron/tools/shroudly-engine/ShroudlyEngine.exe
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.eslintcache
+
+# Environment
+.env
+.env.*
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.suo
+*.user
