@@ -391,36 +391,41 @@ function createTray() {
 }
 
 // Auto-start functionality
+// Uses reg.exe directly because app.getLoginItemSettings() always returns false
+// when the process is elevated (admin), making Electron's own verification unreliable.
 function setAutoStart(enable) {
-  try {
-    if (isDev) {
-      console.log('[Shroudly] Auto-start not available in development mode');
-      addLog('warning', 'Auto-start not available in development mode');
-      return false;
-    }
+  if (isDev) {
+    addLog('warning', 'Auto-start not available in development mode');
+    return false;
+  }
 
-    app.setLoginItemSettings({
-      openAtLogin: enable,
-      openAsHidden: false,
-      path: process.execPath,
-      args: [],
-      name: 'Shroudly'
-    });
-    
-    // Verify the setting was applied
-    const settings = app.getLoginItemSettings();
-    if (settings.openAtLogin === enable) {
-      console.log(`[Shroudly] Auto-start ${enable ? 'enabled' : 'disabled'} successfully`);
-      addLog('success', `Auto-start ${enable ? 'enabled' : 'disabled'}`);
-      return true;
+  const REG_KEY = 'HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run';
+  const { execSync } = require('child_process');
+
+  try {
+    if (enable) {
+      const exePath = process.execPath.replace(/\\/g, '\\\\');
+      execSync(`reg add "${REG_KEY}" /v Shroudly /t REG_SZ /d "\\"${exePath}\\"" /f`, { windowsHide: true });
     } else {
-      console.error('[Shroudly] Failed to set auto-start');
-      addLog('error', 'Failed to set auto-start - insufficient permissions');
-      return false;
+      execSync(`reg delete "${REG_KEY}" /v Shroudly /f`, { windowsHide: true, stdio: 'ignore' });
     }
+    addLog('success', `Auto-start ${enable ? 'enabled' : 'disabled'}`);
+    return true;
   } catch (error) {
-    console.error('[Shroudly] Auto-start error:', error);
+    console.error('[Shroudly] Auto-start error:', error.message);
     addLog('error', `Auto-start error: ${error.message}`);
+    return false;
+  }
+}
+
+function getAutoStartEnabled() {
+  if (isDev) return false;
+  const REG_KEY = 'HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run';
+  const { execSync } = require('child_process');
+  try {
+    const out = execSync(`reg query "${REG_KEY}" /v Shroudly`, { windowsHide: true }).toString();
+    return out.includes('Shroudly');
+  } catch {
     return false;
   }
 }
@@ -456,10 +461,8 @@ app.whenReady().then(async () => {
   // Check and sync auto-start setting on startup
   if (!isDev) {
     const savedAutoStart = store.get('autoStart', false);
-    const currentSettings = app.getLoginItemSettings();
-    
-    // Sync if mismatch
-    if (savedAutoStart !== currentSettings.openAtLogin) {
+    const currentlyEnabled = getAutoStartEnabled();
+    if (savedAutoStart !== currentlyEnabled) {
       console.log('[Shroudly] Auto-start setting mismatch detected, syncing...');
       setAutoStart(savedAutoStart);
     }
