@@ -1,0 +1,111 @@
+{
+  "name": "shroudly",
+  "version": "1.2.0",
+  "description": "Shroudly - Unseen. Unstoppable. | A Codeshare Technology Ltd Product",
+  "main": "electron/main.js",
+  "private": true,
+  "author": "Codeshare Technology Ltd",
+  "homepage": "https://codeshare.me",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/umutxyp/Shroudly"
+  },
+  "bugs": {
+    "url": "https://github.com/umutxyp/Shroudly/issues"
+  },
+  "license": "MIT",
+  "scripts": {
+    "clean": "node scripts/clean.js",
+    "dev": "next dev",
+    "build": "next build && node scripts/fix-paths.js",
+    "setup": "node scripts/build-shroudly-engine.js",
+    "postinstall": "node scripts/build-shroudly-engine.js",
+    "create-icon": "node scripts/create-icon.js",
+    "patch:win-icon": "node scripts/patch-windows-icon.js",
+    "package:zip": "node scripts/package-unpacked-zip.js",
+    "check:translations": "node scripts/check-translations.js",
+    "verify": "npm run setup && npm run check:translations && npm run build",
+    "electron": "npm run build && electron .",
+    "electron:dev": "concurrently \"next dev\" \"wait-on http://localhost:3000 && electron .\"",
+    "electron:prod": "npm run verify && electron .",
+    "electron:dir": "npm run verify && electron-builder --win dir --publish never --config.win.signAndEditExecutable=false && npm run patch:win-icon",
+    "electron:build": "npm run create-icon && npm run verify && electron-builder --win nsis --publish never --config.win.signAndEditExecutable=false",
+    "release:dir": "npm run clean && npm run electron:dir && npm run package:zip",
+    "release:win": "npm run clean && npm run electron:build"
+  },
+  "build": {
+    "appId": "me.codeshare.shroudly",
+    "productName": "Shroudly",
+    "directories": {
+      "buildResources": "public",
+      "output": "dist"
+    },
+    "afterPack": "scripts/after-pack.js",
+    "files": [
+      "out/**/*",
+      "electron/**/*",
+      "package.json",
+      "!**/*.map",
+      "!**/README*",
+      "!**/CHANGELOG*",
+      "!**/LICENSE*",
+      "!**/docs/**",
+      "!**/test/**",
+      "!**/tests/**",
+      "!**/*.test.*",
+      "!**/*.spec.*"
+    ],
+    "asarUnpack": [
+      "electron/tools/shroudly-engine/**"
+    ],
+    "electronLanguages": ["en-US"],
+    "win": {
+      "requestedExecutionLevel": "requireAdministrator",
+      "icon": "icon.ico",
+      "artifactName": "${productName}-${version}-${arch}.${ext}",
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "installerIcon": "icon.ico",
+      "uninstallerIcon": "icon.ico",
+      "installerHeader": "icon.ico",
+      "installerHeaderIcon": "icon.ico"
+    },
+    "extraResources": [
+      {
+        "from": "public/icon.ico",
+        "to": "icon.ico"
+      },
+      {
+        "from": "public/icon-small.png",
+        "to": "icon-small.png"
+      }
+    ]
+  },
+  "dependencies": {
+    "electron-store": "^8.1.0"
+  },
+  "devDependencies": {
+    "autoprefixer": "^10.4.0",
+    "concurrently": "^8.2.2",
+    "electron": "^33.3.1",
+    "electron-builder": "^24.13.3",
+    "next": "^14.2.35",
+    "postcss": "^8.4.0",
+    "react": "^18.3.0",
+    "react-dom": "^18.3.0",
+    "tailwindcss": "^3.4.0",
+    "wait-on": "^7.2.0"
+  }
+}
