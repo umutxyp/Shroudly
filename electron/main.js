@@ -14,6 +14,8 @@ let systemLogs = [];
 let currentOverlayColor = null;
 let cleanupBeforeQuitComplete = false;
 let exitInProgress = false;
+const AUTO_START_TASK_NAME = 'Shroudly';
+const AUTO_START_LAUNCH_ARG = '--autostart';
 
 // Configuration
 const isDev = !app.isPackaged;
@@ -87,6 +89,24 @@ function enforceSafeNetworkDefaults() {
       store.set(key, value);
     }
   }
+}
+
+function isAutoStartLaunch() {
+  return process.argv.includes(AUTO_START_LAUNCH_ARG);
+}
+
+function runPowerShellSync(script, options = {}) {
+  const { execFileSync } = require('child_process');
+  return execFileSync('powershell.exe', [
+    '-NoProfile',
+    '-ExecutionPolicy',
+    'Bypass',
+    '-Command',
+    script,
+  ], {
+    windowsHide: true,
+    ...options,
+  });
 }
 
 // Check if dev server is available
@@ -308,8 +328,15 @@ async function createWindow() {
   });
 
   mainWindow.once('ready-to-show', () => {
-    mainWindow.show();
-    console.log('✅ Window ready and shown');
+    const launchToTray = isAutoStartLaunch() && store.get('minimizeToTray', true);
+    if (launchToTray) {
+      mainWindow.hide();
+      console.log('[Shroudly] Auto-start launch detected, staying in tray');
+      addLog('info', 'Application auto-started in tray');
+    } else {
+      mainWindow.show();
+    }
+    console.log(launchToTray ? '[Shroudly] Window ready in tray' : '[Shroudly] Window ready and shown');
     addLog('success', 'Application started successfully');
     addLog('info', 'DPI Bypass engine ready');
   });
@@ -391,23 +418,34 @@ function createTray() {
 }
 
 // Auto-start functionality
-// Uses reg.exe directly because app.getLoginItemSettings() always returns false
-// when the process is elevated (admin), making Electron's own verification unreliable.
+// Elevated apps launched from the HKCU Run key are unreliable on Windows login.
+// Use Task Scheduler with highest privileges so the packaged app actually starts.
 function setAutoStart(enable) {
   if (isDev) {
     addLog('warning', 'Auto-start not available in development mode');
     return false;
   }
 
-  const REG_KEY = 'HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run';
-  const { execSync } = require('child_process');
-
   try {
     if (enable) {
-      const exePath = process.execPath.replace(/\\/g, '\\\\');
-      execSync(`reg add "${REG_KEY}" /v Shroudly /t REG_SZ /d "\\"${exePath}\\"" /f`, { windowsHide: true });
+      const exePath = process.execPath.replace(/'/g, "''");
+      runPowerShellSync(`
+$taskName = '${AUTO_START_TASK_NAME}'
+$exePath = '${exePath}'
+$currentUser = [System.Security.Principal.WindowsIdentity]::GetCurrent().Name
+$action = New-ScheduledTaskAction -Execute $exePath -Argument '${AUTO_START_LAUNCH_ARG}'
+$trigger = New-ScheduledTaskTrigger -AtLogOn -User $currentUser
+$principal = New-ScheduledTaskPrincipal -UserId $currentUser -LogonType Interactive -RunLevel Highest
+$settings = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -MultipleInstances IgnoreNew
+Register-ScheduledTask -TaskName $taskName -Action $action -Trigger $trigger -Principal $principal -Settings $settings -Force | Out-Null
+`, { stdio: 'ignore' });
     } else {
-      execSync(`reg delete "${REG_KEY}" /v Shroudly /f`, { windowsHide: true, stdio: 'ignore' });
+      runPowerShellSync(`
+$task = Get-ScheduledTask -TaskName '${AUTO_START_TASK_NAME}' -ErrorAction SilentlyContinue
+if ($task) {
+  Unregister-ScheduledTask -TaskName '${AUTO_START_TASK_NAME}' -Confirm:$false
+}
+`, { stdio: 'ignore' });
     }
     addLog('success', `Auto-start ${enable ? 'enabled' : 'disabled'}`);
     return true;
@@ -420,11 +458,16 @@ function setAutoStart(enable) {
 
 function getAutoStartEnabled() {
   if (isDev) return false;
-  const REG_KEY = 'HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run';
-  const { execSync } = require('child_process');
   try {
-    const out = execSync(`reg query "${REG_KEY}" /v Shroudly`, { windowsHide: true }).toString();
-    return out.includes('Shroudly');
+    const out = runPowerShellSync(`
+$task = Get-ScheduledTask -TaskName '${AUTO_START_TASK_NAME}' -ErrorAction SilentlyContinue
+if (-not $task) { return }
+$action = $task.Actions | Select-Object -First 1
+if ($action -and $action.Execute -eq '${process.execPath.replace(/'/g, "''")}' -and $task.State -ne 'Disabled') {
+  'true'
+}
+`, { stdio: ['ignore', 'pipe', 'ignore'] }).toString().trim();
+    return out === 'true';
   } catch {
     return false;
   }

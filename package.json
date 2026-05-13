@@ -1,6 +1,6 @@
 {
   "name": "shroudly",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Shroudly - Unseen. Unstoppable. | A Codeshare Technology Ltd Product",
   "main": "electron/main.js",
   "private": true,

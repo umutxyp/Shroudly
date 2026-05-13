@@ -83,8 +83,9 @@ internal static class ShroudlyEngine
         };
 
         Options opts   = ParseOptions(args);
-        string  filter = "outbound and ip and tcp and " +
-                         "(tcp.DstPort == 80 or tcp.DstPort == 443)";
+        string  filter = "outbound and ip and " +
+                         "((tcp and (tcp.DstPort == 80 or tcp.DstPort == 443)) or " +
+                         "(udp and udp.DstPort == 443))";
 
         IntPtr handle = WinDivertOpen(filter, WINDIVERT_LAYER_NETWORK, 0, 0);
 
@@ -122,6 +123,9 @@ internal static class ShroudlyEngine
 
                 try
                 {
+                    if (ShouldDropQuic(current))
+                        continue;
+
                     if (!TryHandlePacket(handle, current, address, opts))
                         SendPacket(handle, current, address);
                 }
@@ -475,6 +479,21 @@ internal static class ShroudlyEngine
     }
 
     // ── Packet parsing ────────────────────────────────────────────────────────
+
+    private static bool ShouldDropQuic(byte[] packet)
+    {
+        if (packet.Length < 28) return false;
+
+        int version = packet[0] >> 4;
+        if (version != 4) return false;
+
+        int ipHeaderLength = (packet[0] & 0x0F) * 4;
+        if (ipHeaderLength < 20 || packet.Length < ipHeaderLength + 8) return false;
+        if (packet[9] != 17) return false; // UDP
+
+        ushort destinationPort = ReadUInt16(packet, ipHeaderLength + 2);
+        return destinationPort == 443;
+    }
 
     private static bool TryParsePacket(byte[] packet, out PacketView view)
     {
