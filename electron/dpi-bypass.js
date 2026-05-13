@@ -562,9 +562,48 @@ $ttl = Get-ItemProperty -Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Services\\Tcpip
     });
 
     this.enginePid = this.engineProcess.pid;
+    let ready = false;
+    let startupResolved = false;
+    let startupFinish = () => {};
+
+    const startupResult = new Promise((resolve) => {
+      startupFinish = (value) => {
+        if (startupResolved) {
+          return;
+        }
+
+        startupResolved = true;
+        resolve(value);
+      };
+
+      this.engineProcess.once('error', (error) => {
+        this.lastEngineError = error.message;
+        startupFinish(false);
+      });
+
+      this.engineProcess.once('close', (code) => {
+        if (!ready) {
+          this.lastEngineError = this.lastEngineError || `Exited before ready with code ${code}`;
+          startupFinish(false);
+        }
+      });
+
+      setTimeout(() => {
+        if (!ready) {
+          this.lastEngineError = this.lastEngineError || 'Timed out waiting for engine readiness';
+          startupFinish(false);
+        }
+      }, 5000);
+    });
 
     this.engineProcess.stdout.on('data', (data) => {
-      normalizeLines(data).forEach((line) => this.log('info', `ShroudlyEngine: ${line}`));
+      normalizeLines(data).forEach((line) => {
+        if (line.includes('READY ShroudlyEngine active')) {
+          ready = true;
+          startupFinish(true);
+        }
+        this.log('info', `ShroudlyEngine: ${line}`);
+      });
     });
 
     this.engineProcess.stderr.on('data', (data) => {
@@ -583,8 +622,7 @@ $ttl = Get-ItemProperty -Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Services\\Tcpip
       this.handleShroudlyEngineClosed(code);
     });
 
-    await new Promise((resolve) => setTimeout(resolve, 1200));
-    return Boolean(this.engineProcess && this.enginePid && !this.engineProcess.killed);
+    return startupResult;
   }
 
   resolveShroudlyEnginePath() {
