@@ -78,24 +78,44 @@ and the default driver-free engine (stateless DPI) continues to work.
 Flow: default engine always runs (no privileges). Advanced mode is opt-in, only
 surfaced after a failed probe, and only where a packet backend is built.
 
-## Update 2: Advanced backends for all three OSes
-
-The advanced (packet-layer) backend now exists on every platform:
+## Update 2: Advanced backends — Windows and Linux (macOS not possible)
 
 | OS      | Backend                         | File              | Privilege        |
 |---------|---------------------------------|-------------------|------------------|
 | Linux   | NFQUEUE + raw socket            | raw_linux.c       | CAP_NET_ADMIN/RAW|
 | Windows | WinDivert 2.2 (signed driver)   | raw_windows.c     | Administrator    |
-| macOS   | pf divert socket + raw socket   | raw_macos.c       | root (no kext)   |
 
-All three: intercept the first TLS/HTTP data packet, inject a low-TTL +
+Both: intercept the first TLS/HTTP data packet, inject a low-TTL +
 bad-checksum FAKE copy with XOR-scrambled SNI (reaches the DPI, dies before the
 server), then let the real packet proceed. This defeats stateful DPI.
 
-Build: `npm run build:core:advanced` (native) or `:all` (cross via zig).
-Windows advanced packaging also needs `npm run fetch:windivert` (downloads +
-SHA-256-verifies the official signed driver; not committed to the repo).
+Windows has no ARM64 backend: WinDivert ships no ARM64 driver.
 
-Graceful degradation is verified: if the driver/privilege is missing the backend
-prints an error and exits cleanly, and the app keeps using the default engine.
-The manager always reverts its firewall rule (iptables/pf) on stop/crash/exit.
+**macOS has no backend.** An earlier `raw_macos.c` targeted pf `divert-to` and
+BSD divert sockets, but neither exists on current macOS: `pfctl` rejects both
+`divert-to` and `divert-packet` as syntax errors, and divert sockets left the
+kernel with ipfw. Intercepting packets on macOS needs a Network Extension,
+which requires an Apple-signed, entitled app. zapret reaches the same
+conclusion (only its proxy, `tpws`, runs on macOS).
+
+### Elevation and lifecycle (supervise.c)
+
+The app runs unprivileged. Advanced mode starts `shroudly-core-adv` through a
+UAC prompt (Windows) or `pkexec` (Linux). Because an unprivileged process can
+neither pipe nor signal an elevated one, the engine is driven through files:
+
+- `--status-file F`: the engine writes its JSON lines (and stderr) to `F`.
+- `F.stop`: the app creates it to ask the engine to stop.
+- `--parent-pid P`: the engine exits by itself when the app is gone.
+
+On Linux the engine installs its own NFQUEUE rule (iptables, else nftables)
+and removes it on every stop path. Its injected fakes carry fwmark
+`0x10000000`, which the rule skips, so a decoy is never re-queued. The rule uses
+queue-bypass, so even a crashed engine never blocks traffic. On Windows the
+WinDivert filter disappears with the engine's handle when it exits.
+
+Build: `npm run build:core:advanced` (native) or `:all` (cross via zig; Linux
+cross-builds need a libnetfilter_queue sysroot, see the script header).
+Windows packaging also needs `npm run fetch:windivert`, which downloads the
+official release, checks its pinned SHA-256 and copies `WinDivert.dll`,
+`WinDivert64.sys` and the license next to the x64 engine.

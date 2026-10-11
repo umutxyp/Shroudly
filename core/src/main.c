@@ -22,8 +22,8 @@
 #if defined(SHROUDLY_RAW) && defined(_WIN32)
 #include "raw_windows.h"
 #endif
-#if defined(SHROUDLY_RAW) && defined(__APPLE__)
-#include "raw_macos.h"
+#if defined(SHROUDLY_RAW)
+#include "supervise.h"
 #endif
 #include <stdio.h>
 #include <string.h>
@@ -37,6 +37,8 @@ static engine_config g_cfg;
 static int g_advanced = 0;
 static int g_queue = 200;
 static int g_fake_ttl = 4;
+static char g_status_file[1024] = "";
+static long g_parent_pid = 0;
 
 static void on_signal(int sig) { (void)sig; engine_stop(); }
 
@@ -73,16 +75,20 @@ int main(int argc, char **argv) {
     else if (!strcmp(argv[i], "--advanced")) g_advanced = 1;
     else if (!strcmp(argv[i], "--queue") && i+1<argc) g_queue = atoi(argv[++i]);
     else if (!strcmp(argv[i], "--fake-ttl") && i+1<argc) g_fake_ttl = atoi(argv[++i]);
+    else if (!strcmp(argv[i], "--status-file") && i+1<argc) strncpy(g_status_file, argv[++i], sizeof(g_status_file)-1);
+    else if (!strcmp(argv[i], "--parent-pid") && i+1<argc) g_parent_pid = atol(argv[++i]);
     else if (!strcmp(argv[i], "--help")) { usage(); return 0; }
   }
 
 #if defined(SHROUDLY_RAW)
   /* Advanced (packet-layer) mode: run the per-OS fake-packet backend instead of
-   * the userspace proxy. The manager handles any firewall rule / elevation. */
+   * the userspace proxy. It runs elevated; supervise.c handles stopping. */
   if (g_advanced) {
-  #ifndef _WIN32
-    signal(SIGINT, on_signal);
-    signal(SIGTERM, on_signal);
+    if (g_status_file[0] && sup_redirect_output(g_status_file) != 0) return 2;
+  #if defined(__linux__)
+    sup_start(g_status_file, g_parent_pid, raw_linux_teardown);
+  #else
+    sup_start(g_status_file, g_parent_pid, NULL);
   #endif
     int rr;
   #if defined(__linux__)
@@ -91,9 +97,6 @@ int main(int argc, char **argv) {
   #elif defined(_WIN32)
     rr = raw_windows_start(g_fake_ttl);
     raw_windows_stop();
-  #elif defined(__APPLE__)
-    rr = raw_macos_start(g_fake_ttl);
-    raw_macos_stop();
   #else
     rr = -1;
     printf("{\"type\":\"error\",\"msg\":\"advanced mode not built on this platform\"}\n");

@@ -5,8 +5,9 @@
  * reassembles the TCP stream and so is immune to userspace split/disorder.
  *
  * Mechanism (same family as zapret's nfqws):
- *   - An nftables/iptables rule queues the first outbound data packet of each
- *     TLS/HTTP connection into NFQUEUE.
+ *   - An iptables (or, failing that, nftables) rule queues outbound IPv4
+ *     80/443 packets into NFQUEUE. Our own fakes carry SHROUDLY_FWMARK and are
+ *     excluded, so an injected decoy is never queued (and faked) again.
  *   - For each queued ClientHello we:
  *       1. send a FAKE decoy segment (same seq, scrambled SNI) via a raw socket
  *          with a LOW TTL and/or BAD checksum so it reaches the DPI but dies
@@ -16,8 +17,9 @@
  * Requires root / CAP_NET_ADMIN + CAP_NET_RAW, and is Linux-only. It is compiled
  * only when SHROUDLY_RAW is defined and linked with -lnetfilter_queue -lmnl.
  *
- * This file intentionally does NOT set up the nftables rule itself at import; the
- * manager installs/removes the rule around activation so cleanup is guaranteed.
+ * The backend installs the rule itself once the queue is bound, and removes it
+ * in raw_linux_teardown(), which runs on every stop path (see supervise.c).
+ * The rule uses queue-bypass, so even a crashed backend never blocks traffic.
  */
 #ifdef SHROUDLY_RAW
 #ifdef __linux__
@@ -36,6 +38,8 @@
 #include <netinet/ip.h>
 #include <netinet/tcp.h>
 #include <sys/socket.h>
+#include <sys/wait.h>
+#include <fcntl.h>
 #include <linux/netfilter.h>   /* NF_ACCEPT */
 
 #include <libnetfilter_queue/libnetfilter_queue.h>
@@ -51,6 +55,60 @@ static int g_fake_ttl = 4;
 static volatile int g_run = 0;
 static struct nfq_handle *g_h = NULL;
 static struct nfq_q_handle *g_qh = NULL;
+static int g_queue_num = 200;
+static enum { RULE_NONE, RULE_IPTABLES, RULE_NFT } g_rule = RULE_NONE;
+
+/* Run a firewall tool quietly. Returns its exit status, or -1. */
+static int run_quiet(char *const argv[]) {
+  pid_t pid = fork();
+  if (pid < 0) return -1;
+  if (pid == 0) {
+    int dn = open("/dev/null", O_WRONLY);
+    if (dn >= 0) { dup2(dn, 1); dup2(dn, 2); }
+    execvp(argv[0], argv);
+    _exit(127);
+  }
+  int st;
+  if (waitpid(pid, &st, 0) < 0) return -1;
+  return WIFEXITED(st) ? WEXITSTATUS(st) : -1;
+}
+
+static int iptables_rule(const char *op) {
+  char q[16], mark[32];
+  snprintf(q, sizeof(q), "%d", g_queue_num);
+  snprintf(mark, sizeof(mark), "0x%x/0x%x", SHROUDLY_FWMARK, SHROUDLY_FWMARK);
+  char *argv[] = { "iptables", "-w", "-t", "mangle", (char *)op, "OUTPUT", "-p", "tcp",
+    "-m", "multiport", "--dports", "80,443", "-m", "mark", "!", "--mark", mark,
+    "-j", "NFQUEUE", "--queue-num", q, "--queue-bypass", NULL };
+  return run_quiet(argv);
+}
+
+static int nft(const char *cmd) {
+  char *argv[] = { "nft", (char *)cmd, NULL };
+  return run_quiet(argv);
+}
+
+static int install_rule(void) {
+  while (iptables_rule("-D") == 0) {}  /* drop leftovers from a crashed run */
+  if (iptables_rule("-I") == 0) { g_rule = RULE_IPTABLES; return 0; }
+
+  char rule[256];
+  snprintf(rule, sizeof(rule),
+    "add rule ip shroudly out tcp dport { 80, 443 } meta mark and 0x%x == 0 queue num %d bypass",
+    SHROUDLY_FWMARK, g_queue_num);
+  nft("delete table ip shroudly");
+  if (nft("add table ip shroudly") == 0 &&
+      nft("add chain ip shroudly out { type filter hook output priority -150 ; }") == 0 &&
+      nft(rule) == 0) { g_rule = RULE_NFT; return 0; }
+  nft("delete table ip shroudly");
+  return -1;
+}
+
+void raw_linux_teardown(void) {
+  if (g_rule == RULE_IPTABLES) { for (int i = 0; i < 8 && iptables_rule("-D") == 0; i++) {} }
+  else if (g_rule == RULE_NFT) nft("delete table ip shroudly");
+  g_rule = RULE_NONE;
+}
 
 /* Compute IPv4 + TCP checksums for a self-made packet. */
 static uint16_t csum16(const void *data, int len, uint32_t init) {
@@ -121,13 +179,14 @@ static int cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg,
   (void)nfmsg; (void)data;
   struct nfqnl_msg_packet_hdr *ph = nfq_get_msg_packet_hdr(nfa);
   uint32_t id = ph ? ntohl(ph->packet_id) : 0;
+  if (nfq_get_nfmark(nfa) & SHROUDLY_FWMARK) return nfq_set_verdict(qh, id, NF_ACCEPT, 0, NULL);
 
   unsigned char *pkt = NULL;
   int len = nfq_get_payload(nfa, &pkt);
   if (len < (int)sizeof(struct iphdr)) return nfq_set_verdict(qh, id, NF_ACCEPT, 0, NULL);
 
   struct iphdr *ip = (struct iphdr *)pkt;
-  if (ip->protocol != IPPROTO_TCP) return nfq_set_verdict(qh, id, NF_ACCEPT, 0, NULL);
+  if (ip->version != 4 || ip->protocol != IPPROTO_TCP) return nfq_set_verdict(qh, id, NF_ACCEPT, 0, NULL);
   int iphl = ip->ihl * 4;
   if (len < iphl + (int)sizeof(struct tcphdr)) return nfq_set_verdict(qh, id, NF_ACCEPT, 0, NULL);
   struct tcphdr *tcp = (struct tcphdr *)(pkt + iphl);
@@ -148,12 +207,17 @@ static int cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg,
 
 int raw_linux_start(int queue_num, int fake_ttl) {
   g_fake_ttl = fake_ttl > 0 ? fake_ttl : 4;
+  g_queue_num = queue_num;
 
   g_raw_fd = socket(AF_INET, SOCK_RAW, IPPROTO_RAW);
   if (g_raw_fd < 0) { perror("raw socket"); return -1; }
   int one = 1;
   if (setsockopt(g_raw_fd, IPPROTO_IP, IP_HDRINCL, &one, sizeof(one)) < 0) {
     perror("IP_HDRINCL"); close(g_raw_fd); g_raw_fd = -1; return -1;
+  }
+  int mark = SHROUDLY_FWMARK;
+  if (setsockopt(g_raw_fd, SOL_SOCKET, SO_MARK, &mark, sizeof(mark)) < 0) {
+    perror("SO_MARK"); close(g_raw_fd); g_raw_fd = -1; return -1;
   }
 
   g_h = nfq_open();
@@ -163,6 +227,10 @@ int raw_linux_start(int queue_num, int fake_ttl) {
   g_qh = nfq_create_queue(g_h, (uint16_t)queue_num, &cb, NULL);
   if (!g_qh) { fprintf(stderr, "nfq_create_queue failed\n"); return -1; }
   nfq_set_mode(g_qh, NFQNL_COPY_PACKET, 0xffff);
+  if (install_rule() != 0) {
+    fprintf(stderr, "could not install the NFQUEUE rule (need iptables or nft)\n");
+    return -1;
+  }
 
   g_run = 1;
   int fd = nfq_fd(g_h);
@@ -181,6 +249,7 @@ int raw_linux_start(int queue_num, int fake_ttl) {
 
 void raw_linux_stop(void) {
   g_run = 0;
+  raw_linux_teardown();
   if (g_qh) { nfq_destroy_queue(g_qh); g_qh = NULL; }
   if (g_h) { nfq_close(g_h); g_h = NULL; }
   if (g_raw_fd >= 0) { close(g_raw_fd); g_raw_fd = -1; }

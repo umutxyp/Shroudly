@@ -13,10 +13,10 @@
  * WinDivert.dll (and needs WinDivert.sys + WinDivert64.sys present at runtime).
  * Requires Administrator (the driver loads on first open).
  *
- * The WinDivert binaries are NOT bundled in the default build; the advanced
- * Windows package ships them next to shroudly-core-adv.exe. If the driver cannot
- * load, the backend reports an error and the app falls back to the default
- * engine, exactly as on platforms with no advanced backend.
+ * The x64 Windows package ships WinDivert.dll + WinDivert64.sys next to
+ * shroudly-core-adv.exe (scripts/fetch-windivert.js). WinDivert has no ARM64
+ * build. If the driver cannot load, the backend reports an error and the app
+ * falls back to the default engine.
  */
 #ifdef SHROUDLY_RAW
 #ifdef _WIN32
@@ -34,7 +34,8 @@
 #include "proto.h"
 #include "raw_windows.h"
 
-/* ── Minimal WinDivert 2.x declarations (avoid needing the SDK header) ─────── */
+/* ── Minimal WinDivert 2.2 declarations (avoid needing the SDK header) ───────
+ * Must match include/windivert.h of the bundled release byte for byte. */
 typedef struct {
   INT64  Timestamp;
   UINT32 Layer:8;
@@ -47,23 +48,23 @@ typedef struct {
   UINT32 IPChecksum:1;
   UINT32 TCPChecksum:1;
   UINT32 UDPChecksum:1;
-  UINT32 Reserved1:4;
+  UINT32 Reserved1:8;
   UINT32 Reserved2;
   union {
-    struct { UINT32 IfIdx; UINT32 SubIfIdx; UINT8 Reserved3[64]; } Network;
-    UINT8 Reserved[72];
+    struct { UINT32 IfIdx; UINT32 SubIfIdx; } Network;
+    UINT8 Reserved3[64];
   };
-} WINDIVERT_ADDRESS;
+} WINDIVERT_ADDRESS; /* 80 bytes */
 
 #define WINDIVERT_LAYER_NETWORK 0
 #define WINDIVERT_HELPER_NO_REPLACE 0
 
-typedef HANDLE (WINAPI *PFN_Open)(const char*, int, INT16, UINT64);
-typedef BOOL   (WINAPI *PFN_Recv)(HANDLE, void*, UINT, UINT*, WINDIVERT_ADDRESS*);
-typedef BOOL   (WINAPI *PFN_Send)(HANDLE, const void*, UINT, UINT*, const WINDIVERT_ADDRESS*);
-typedef BOOL   (WINAPI *PFN_Close)(HANDLE);
-typedef BOOL   (WINAPI *PFN_Shutdown)(HANDLE, int);
-typedef BOOL   (WINAPI *PFN_CalcCsum)(void*, UINT, const WINDIVERT_ADDRESS*, UINT64);
+typedef HANDLE (*PFN_Open)(const char*, int, INT16, UINT64);
+typedef BOOL   (*PFN_Recv)(HANDLE, void*, UINT, UINT*, WINDIVERT_ADDRESS*);
+typedef BOOL   (*PFN_Send)(HANDLE, const void*, UINT, UINT*, const WINDIVERT_ADDRESS*);
+typedef BOOL   (*PFN_Close)(HANDLE);
+typedef BOOL   (*PFN_Shutdown)(HANDLE, int);
+typedef BOOL   (*PFN_CalcCsum)(void*, UINT, const WINDIVERT_ADDRESS*, UINT64);
 
 static PFN_Open     p_Open;
 static PFN_Recv     p_Recv;
