@@ -129,3 +129,9 @@ export const GlobeIcon = make(
   </>
 );
 export const TypeIcon = make(<><path d="M4 7V4h16v3" /><path d="M9 20h6" /><path d="M12 4v16" /></>);
+export const CodeIcon = make(<><path d="M8.5 7.5L4 12l4.5 4.5" /><path d="M15.5 7.5L20 12l-4.5 4.5" /><path d="M13.5 5l-3 14" /></>);
+export const ExternalLinkIcon = make(<><path d="M14 4.5h5.5V10" /><path d="M19.5 4.5L11 13" /><path d="M18 13.5V19a1.5 1.5 0 01-1.5 1.5h-11A1.5 1.5 0 014 19V8a1.5 1.5 0 011.5-1.5H11" /></>);
+export const RefreshIcon = make(<><path d="M20 11.5A8 8 0 006.1 6.4L4 8.5" /><path d="M4 4v4.5h4.5" /><path d="M4 12.5a8 8 0 0013.9 5.1L20 15.5" /><path d="M20 20v-4.5h-4.5" /></>);
+export const DownloadIcon = make(<><path d="M12 4v11" /><path d="M7.5 10.5L12 15l4.5-4.5" /><path d="M4.5 19.5h15" /></>);
+export const BugIcon = make(<><rect x="7.5" y="8" width="9" height="12" rx="4.5" /><path d="M12 12v8M9 8a3 3 0 016 0M4 13h3.5M16.5 13H20M5 8.5l2.6 1.7M19 8.5l-2.6 1.7M5 18.5l2.7-1.7M19 18.5l-2.7-1.7" /></>);
+export const FileTextIcon = make(<><path d="M14 3.5H7A1.5 1.5 0 005.5 5v14A1.5 1.5 0 007 20.5h10a1.5 1.5 0 001.5-1.5V8z" /><path d="M14 3.5V8h4.5M9 12.5h6M9 16h6" /></>);

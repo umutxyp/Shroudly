@@ -16,6 +16,15 @@ contextBridge.exposeInMainWorld('electron', {
 
   // App info
   getAppInfo: () => ipcRenderer.invoke('app:getInfo'),
+  // Auto-update (GitHub releases)
+  getUpdateState: () => ipcRenderer.invoke('update:getState'),
+  checkForUpdates: () => ipcRenderer.invoke('update:check'),
+  downloadUpdate: () => ipcRenderer.invoke('update:download'),
+  installUpdate: () => ipcRenderer.invoke('update:install'),
+  postponeUpdate: () => ipcRenderer.invoke('update:postpone'),
+  onUpdateState: (cb) => ipcRenderer.on('update:state', (e, s) => cb(s)),
+  removeUpdateListener: () => ipcRenderer.removeAllListeners('update:state'),
+
   // OS UI languages in preference order (e.g. ["tr-TR", "en-US"])
   getSystemLanguages: () => ipcRenderer.invoke('app:systemLanguages'),
 

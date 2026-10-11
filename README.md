@@ -125,6 +125,7 @@ model and test results.
 - **Real auto-probe** — finds and learns a working strategy per host.
 - **Anti-poisoning resolver** — optional multi-resolver DNS that filters spoofed answers.
 - **Honest live stats** — connections, bytes, TLS/HTTP seen and desyncs applied are real counters streamed from the engine, not estimates.
+- **Automatic updates** — new releases from GitHub install themselves (Windows, macOS, Linux AppImage and .deb).
 - **System tray, auto-start, auto mode** — per-OS login item on Windows/macOS, `.desktop` entry on Linux.
 - **15 languages** with automatic detection.
 
@@ -136,17 +137,21 @@ English, 中文, हिन्दी, Español, العربية, Русский, P
 
 ## Install
 
-**Latest version: [v2.0.3](https://github.com/umutxyp/Shroudly/releases/tag/v2.0.3)**: pick the file for your OS and CPU:
+**Latest version: [v2.0.4](https://github.com/umutxyp/Shroudly/releases/tag/v2.0.4)**: pick the file for your OS and CPU:
 
-| OS | Intel / AMD (x64) | ARM (arm64, Apple Silicon) |
-|----|-------------------|-------------|
-| **Windows** | [Shroudly-2.0.3-Windows-x64-Setup.exe](https://github.com/umutxyp/Shroudly/releases/download/v2.0.3/Shroudly-2.0.3-Windows-x64-Setup.exe) | [Shroudly-2.0.3-Windows-ARM64-Setup.exe](https://github.com/umutxyp/Shroudly/releases/download/v2.0.3/Shroudly-2.0.3-Windows-ARM64-Setup.exe) |
-| **macOS** | [Shroudly-2.0.3-macOS-Intel.dmg](https://github.com/umutxyp/Shroudly/releases/download/v2.0.3/Shroudly-2.0.3-macOS-Intel.dmg) · [Shroudly-2.0.3-macOS-Intel.zip](https://github.com/umutxyp/Shroudly/releases/download/v2.0.3/Shroudly-2.0.3-macOS-Intel.zip) | [Shroudly-2.0.3-macOS-Apple-Silicon.dmg](https://github.com/umutxyp/Shroudly/releases/download/v2.0.3/Shroudly-2.0.3-macOS-Apple-Silicon.dmg) · [Shroudly-2.0.3-macOS-Apple-Silicon.zip](https://github.com/umutxyp/Shroudly/releases/download/v2.0.3/Shroudly-2.0.3-macOS-Apple-Silicon.zip) |
-| **Linux** | [Shroudly-2.0.3-Linux-x64.AppImage](https://github.com/umutxyp/Shroudly/releases/download/v2.0.3/Shroudly-2.0.3-Linux-x64.AppImage) · [Shroudly-2.0.3-Linux-x64.deb](https://github.com/umutxyp/Shroudly/releases/download/v2.0.3/Shroudly-2.0.3-Linux-x64.deb) | [Shroudly-2.0.3-Linux-ARM64.AppImage](https://github.com/umutxyp/Shroudly/releases/download/v2.0.3/Shroudly-2.0.3-Linux-ARM64.AppImage) |
+| OS | Intel / AMD (x64) | ARM |
+|----|-------------------|-----|
+| **Windows** | [Installer (.exe)](https://github.com/umutxyp/Shroudly/releases/download/v2.0.4/Shroudly-2.0.4-Windows-x64-Setup.exe) | [Installer (.exe)](https://github.com/umutxyp/Shroudly/releases/download/v2.0.4/Shroudly-2.0.4-Windows-arm64-Setup.exe) |
+| **macOS** | Intel Macs: [.dmg](https://github.com/umutxyp/Shroudly/releases/download/v2.0.4/Shroudly-2.0.4-macOS-x64.dmg) · [.zip](https://github.com/umutxyp/Shroudly/releases/download/v2.0.4/Shroudly-2.0.4-macOS-x64.zip) | Apple Silicon (M1–M4): [.dmg](https://github.com/umutxyp/Shroudly/releases/download/v2.0.4/Shroudly-2.0.4-macOS-arm64.dmg) · [.zip](https://github.com/umutxyp/Shroudly/releases/download/v2.0.4/Shroudly-2.0.4-macOS-arm64.zip) |
+| **Linux** | [AppImage](https://github.com/umutxyp/Shroudly/releases/download/v2.0.4/Shroudly-2.0.4-Linux-x86_64.AppImage) · [.deb (Debian/Ubuntu)](https://github.com/umutxyp/Shroudly/releases/download/v2.0.4/Shroudly-2.0.4-Linux-amd64.deb) | [AppImage](https://github.com/umutxyp/Shroudly/releases/download/v2.0.4/Shroudly-2.0.4-Linux-arm64.AppImage) |
+
+Shroudly updates itself after that: it checks for new versions when it starts
+and every 30 minutes, installs them in the background and restarts (you can
+postpone it, or turn automatic installs off in Settings).
 
 - **Windows** — run the `.exe` installer.
 - **macOS** — open the `.dmg` (or unzip the `.zip`) and drag `Shroudly.app` into Applications.
-- **Linux** — `chmod +x Shroudly-*-Linux-*.AppImage` and run it, or `sudo apt install ./Shroudly-2.0.3-Linux-x64.deb`.
+- **Linux** — `chmod +x Shroudly-*.AppImage` and run it, or `sudo apt install ./Shroudly-2.0.4-Linux-amd64.deb`.
 
 > **The builds are not code-signed yet.** On first launch Windows SmartScreen may
 > show *"Windows protected your PC"* → click **More info → Run anyway**. On macOS
@@ -211,7 +216,9 @@ Shroudly/
   electron/
     main.js                   app shell, tray, IPC, auto-start
     engine-manager.js         spawns shroudly-core, parses JSON, restarts
-    system-proxy.js           set/restore OS proxy (Win/mac/Linux)
+    system-proxy.js           set/restore OS proxy (Win/mac/Linux), crash-safe
+    proxy-watchdog.js         restores the proxy if the app is killed
+    updater.js                automatic updates from GitHub releases
     advanced-mode.js          Advanced mode: elevation (UAC / pkexec) + lifecycle
     main-i18n.js              tray + notification strings (15 languages)
     tools/core/<os>-<arch>/   built engine binaries (per platform)

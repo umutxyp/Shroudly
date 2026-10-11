@@ -40,6 +40,10 @@ const PATTERNS = [
   [/^Stop failed: (.+)$/, 'logStopFailed', ['detail']],
   [/^Advanced mode failed: (.+)$/, 'logAdvancedFailed', ['detail']],
   [/^Advanced backend active \(fake TTL (\d+)\)$/, 'logAdvancedBackendActive', ['ttl']],
+  [/^Update available: version (\S+)$/, 'logUpdateAvailable', ['version']],
+  [/^Update downloaded: version (\S+)$/, 'logUpdateDownloaded', ['version']],
+  [/^Update failed: (.+)$/, 'logUpdateFailed', ['detail']],
+  [/^Installing update (\S+)$/, 'logUpdateInstalling', ['version']],
 ];
 
 export function localizeLog(message, t) {

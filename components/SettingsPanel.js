@@ -417,6 +417,7 @@ export default function SettingsPanel({ active = false }) {
           <Toggle label={t('startOnBoot')} desc={t('startOnBootDesc')} checked={settings.autoStart} onChange={(v) => save('autoStart', v)} />
           <Toggle label={t('minimizeToTray')} desc={t('minimizeToTrayDesc')} checked={settings.minimizeToTray} onChange={(v) => save('minimizeToTray', v)} />
           <Toggle label={t('showNotifications')} desc={t('showNotificationsDesc')} checked={settings.showNotifications} onChange={(v) => save('showNotifications', v)} />
+          <Toggle label={t('autoUpdate')} desc={t('autoUpdateDesc')} checked={settings.autoUpdate !== false} onChange={(v) => save('autoUpdate', v)} />
         </div>
       </Section>
     </div>

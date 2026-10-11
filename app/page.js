@@ -7,12 +7,28 @@ import SettingsPanel from '../components/SettingsPanel';
 import LogsPanel from '../components/LogsPanel';
 import StatsPanel from '../components/StatsPanel';
 import InfoPanel from '../components/InfoPanel';
+import UpdateBanner from '../components/UpdateBanner';
 import { ChartIcon, InfoIcon, LogsIcon, SettingsIcon, ShieldIcon } from '../components/icons';
 import { useLanguage } from '../contexts/LanguageContext';
 
 /* Relative path: the exported app is loaded from file://, where "/logo.png"
    would resolve to the filesystem root. */
 const LOGO_SRC = './logo.png';
+const CODESHARE_URL = 'https://codeshare.me';
+
+/* "A {brand} product": the translation decides where the brand goes. */
+function Footer({ t }) {
+  const [before, after = ''] = t('footerProduct').split('{brand}');
+  return (
+    <footer className="no-drag shrink-0 px-4 pb-2 pt-0.5 text-center text-[11px] leading-snug"
+            style={{ background: 'var(--bg-sunk)', color: 'var(--text-faint)' }}>
+      {before}
+      <a href={CODESHARE_URL} target="_blank" rel="noreferrer" dir="ltr"
+         className="footer-link font-semibold" style={{ color: 'var(--text-dim)' }}>Codeshare</a>
+      {after}
+    </footer>
+  );
+}
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState('control');
@@ -101,6 +117,8 @@ export default function Home() {
         </span>
       </header>
 
+      <UpdateBanner />
+
       {/* Content */}
       <main
         key={activeTab}
@@ -139,6 +157,8 @@ export default function Home() {
           );
         })}
       </nav>
+
+      <Footer t={t} />
     </div>
   );
 }

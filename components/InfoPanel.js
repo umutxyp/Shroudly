@@ -2,9 +2,68 @@
 
 import { useEffect, useId, useState } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
-import { ChevronDownIcon, GlobeIcon, LockIcon, ScissorsIcon, ShuffleIcon, TypeIcon, ZapIcon } from './icons';
+import {
+  BugIcon, ChevronDownIcon, CodeIcon, ExternalLinkIcon, FileTextIcon, GlobeIcon, LockIcon, RefreshIcon,
+  ScissorsIcon, SearchIcon, ShuffleIcon, SpinnerIcon, TypeIcon, ZapIcon,
+} from './icons';
+import { updateActions, useUpdate } from './useUpdate';
 
 const LOGO_SRC = './logo.png';
+const REPO_URL = 'https://github.com/umutxyp/Shroudly';
+
+function LinkRow({ href, Icon, label }) {
+  return (
+    <a href={href} target="_blank" rel="noreferrer"
+       className="row-hover -mx-2 flex w-[calc(100%+1rem)] items-center gap-3 rounded-[8px] border-t px-2 py-2.5 first:border-t-0"
+       style={{ borderColor: 'var(--line)' }}>
+      <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-[8px]"
+            style={{ background: 'var(--accent-soft)', color: 'var(--accent)' }}>
+        <Icon className="h-4 w-4" />
+      </span>
+      <span className="min-w-0 flex-1 text-[14px] font-medium leading-snug wrap-anywhere" style={{ color: 'var(--text)' }}>{label}</span>
+      <ExternalLinkIcon className="h-4 w-4 rtl:-scale-x-100" style={{ color: 'var(--text-faint)' }} />
+    </a>
+  );
+}
+
+function updateLine(u, t) {
+  if (!u) return null;
+  switch (u.status) {
+    case 'checking': return t('updChecking');
+    case 'up-to-date': return t('updUpToDate');
+    case 'available': case 'manual': return t('updAvailable', { version: u.version });
+    case 'downloading': return t('updDownloading', { version: u.version, percent: u.percent || 0 });
+    case 'ready': return t('updReady', { version: u.version });
+    case 'error': return t('updError');
+    case 'unsupported': return t('updUnsupported');
+    default: return null;
+  }
+}
+
+function UpdatesSection({ version }) {
+  const { t } = useLanguage();
+  const u = useUpdate();
+  const busy = u && ['checking', 'downloading'].includes(u.status);
+  const line = updateLine(u, t);
+  return (
+    <Section title={t('updatesTitle')} Icon={RefreshIcon}>
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+        <div className="min-w-0 flex-1">
+          {version && <p className="num text-[13px] font-medium" style={{ color: 'var(--text)' }}>{t('versionLabel', { version })}</p>}
+          {line && <p className="mt-0.5 text-[12.5px] leading-snug wrap-anywhere" style={{ color: u.status === 'error' ? 'var(--warn)' : 'var(--text-dim)' }}>{line}</p>}
+        </div>
+        {u?.status !== 'unsupported' && (
+          <button type="button" onClick={updateActions.check} disabled={busy || u?.status === 'ready'}
+                  className="btn btn-ghost inline-flex items-center gap-1.5 rounded-[8px] px-3 py-1.5 text-[12.5px] font-medium">
+            {busy ? <SpinnerIcon className="h-3.5 w-3.5 spin" /> : <RefreshIcon className="h-3.5 w-3.5" />}
+            {t('checkForUpdates')}
+          </button>
+        )}
+      </div>
+      <p className="mt-2 text-[12px] leading-snug" style={{ color: 'var(--text-faint)' }}>{t('updatesDesc')}</p>
+    </Section>
+  );
+}
 
 function Section({ title, Icon, children }) {
   return (
@@ -107,11 +166,24 @@ export default function InfoPanel({ dpiStatus, version: versionProp }) {
         <TechRow Icon={ShuffleIcon}  title={t('technique_disorder')} desc={t('technique_disorder_desc')} />
         <TechRow Icon={GlobeIcon}    title={t('technique_dns')}      desc={t('technique_dns_desc')} />
         <TechRow Icon={TypeIcon}     title={t('technique_http')}     desc={t('technique_http_desc')} />
+        <TechRow Icon={SearchIcon}   title={t('technique_probe')}    desc={t('technique_probe_desc')} />
+        <TechRow Icon={ZapIcon}      title={t('technique_advanced')} desc={t('technique_advanced_desc')} />
       </Section>
 
       {/* Safety */}
       <Section title={t('safetyTitle')} Icon={LockIcon}>
         <p className="text-[12.5px] leading-relaxed" style={{ color: 'var(--text-dim)' }}>{t('safetyDesc')}</p>
+      </Section>
+
+      <UpdatesSection version={version} />
+
+      {/* Open source */}
+      <Section title={t('openSourceTitle')} Icon={CodeIcon}>
+        <p className="mb-1.5 text-[12.5px] leading-relaxed" style={{ color: 'var(--text-dim)' }}>{t('openSourceDesc')}</p>
+        <LinkRow href={REPO_URL} Icon={CodeIcon} label={t('linkSourceCode')} />
+        <LinkRow href={`${REPO_URL}/releases`} Icon={FileTextIcon} label={t('linkReleases')} />
+        <LinkRow href={`${REPO_URL}/issues/new`} Icon={BugIcon} label={t('linkIssues')} />
+        <LinkRow href="https://codeshare.me" Icon={GlobeIcon} label={t('linkWebsite')} />
       </Section>
     </div>
   );

@@ -1,6 +1,6 @@
 {
   "name": "shroudly",
-  "version": "2.0.3",
+  "version": "2.0.4",
   "description": "Shroudly - Unseen. Unstoppable. | Cross-platform DPI bypass (self-contained engine)",
   "main": "electron/main.js",
   "private": true,
@@ -68,7 +68,7 @@
     ],
     "win": {
       "icon": "public/icon.ico",
-      "artifactName": "${productName}-${version}-${arch}.${ext}",
+      "artifactName": "${productName}-${version}-Windows-${arch}-Setup.${ext}",
       "target": [
         {
           "target": "nsis",
@@ -131,7 +131,8 @@
       ],
       "files": [
         "electron/tools/core/darwin-${arch}/**"
-      ]
+      ],
+      "artifactName": "${productName}-${version}-macOS-${arch}.${ext}"
     },
     "linux": {
       "icon": "public/icon.png",
@@ -154,16 +155,26 @@
       "maintainer": "Codeshare Technology Ltd <support@codeshare.me>",
       "files": [
         "electron/tools/core/linux-${arch}/**"
-      ]
+      ],
+      "artifactName": "${productName}-${version}-Linux-${arch}.${ext}"
     },
     "deb": {
       "recommends": [
         "libnetfilter-queue1"
       ]
-    }
+    },
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "umutxyp",
+        "repo": "Shroudly",
+        "releaseType": "release"
+      }
+    ]
   },
   "dependencies": {
-    "electron-store": "^8.1.0"
+    "electron-store": "^8.1.0",
+    "electron-updater": "6.8.9"
   },
   "devDependencies": {
     "autoprefixer": "^10.4.0",

@@ -8,6 +8,7 @@ const Store = require('electron-store');
 const EngineManager = require('./engine-manager');
 const SystemProxy = require('./system-proxy');
 const AdvancedMode = require('./advanced-mode');
+const Updater = require('./updater');
 const i18n = require('./main-i18n');
 
 /* "Shroudly --restore-proxy" runs once at login after a run that never got to
@@ -25,6 +26,7 @@ let mainWindow = null;
 let tray = null;
 let engine = null;
 let advanced = null;
+let updater = null;
 let systemLogs = [];
 let exitInProgress = false;
 
@@ -327,7 +329,25 @@ app.whenReady().then(async () => {
   advanced = new AdvancedMode(addLog);
   await engine.recover();
 
+  updater = new Updater({
+    log: addLog,
+    store,
+    notify: (version) => notify('Shroudly', tr().updateReady.replace('{version}', version)),
+    // Installing quits the app: stop the engine first so the system proxy is
+    // put back, exactly as on a normal quit.
+    beforeInstall: async () => {
+      exitInProgress = true;
+      app.isQuitting = true;
+      try { await engine.stop(); } catch {}
+      try { await advanced.stop(); } catch {}
+    },
+  });
+  updater.onState((s) => {
+    if (mainWindow && !mainWindow.isDestroyed()) mainWindow.webContents.send('update:state', s);
+  });
+
   await createWindow();
+  updater.start();
 
   // Re-register every launch so the entry always points at this install
   // (moved app, updated AppImage, 2.0.0's broken Linux entry, legacy names).
@@ -368,6 +388,7 @@ app.on('session-end', restoreForSessionEnd); // Windows
 app.whenReady().then(() => { powerMonitor.on('shutdown', restoreForSessionEnd); }); // macOS, Linux
 
 app.on('before-quit', async (e) => {
+  try { updater && updater.installOnQuit(); } catch {}
   if (exitInProgress) return;
   if (engine && engine.isActive()) {
     e.preventDefault();
@@ -438,12 +459,19 @@ ipcMain.handle('settings:getAll', () => store.store);
 ipcMain.handle('settings:set', (e, key, value) => {
   store.set(key, value);
   if (key === 'language') rebuildTrayMenu();
+  if (key === 'autoUpdate' && value !== false && updater && updater.state.status === 'available') updater.download();
   if (key === 'autoStart') {
     const ok = setAutoStart(value);
     if (!ok) { store.set('autoStart', false); return { success: false, error: 'Could not set auto-start' }; }
   }
   return { success: true };
 });
+
+ipcMain.handle('update:getState', () => (updater ? updater.state : { status: 'unsupported' }));
+ipcMain.handle('update:check', () => (updater ? updater.check(true) : null));
+ipcMain.handle('update:download', () => updater && updater.download());
+ipcMain.handle('update:install', () => updater && updater.install());
+ipcMain.handle('update:postpone', () => updater && updater.postpone());
 
 ipcMain.handle('logs:get', () => systemLogs);
 ipcMain.handle('logs:clear', () => { systemLogs = []; addLog('info', 'Logs cleared'); return true; });
