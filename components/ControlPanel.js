@@ -1,44 +1,56 @@
 'use client';
 
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
+import { PowerIcon, ShieldCheckIcon, ShieldIcon, SpinnerIcon } from './icons';
 import Toast from './Toast';
 
 export default function ControlPanel({ dpiStatus, onStatusChange }) {
   const { t } = useLanguage();
   const [loading, setLoading] = useState(false);
   const [toast, setToast] = useState(null);
-  const active = dpiStatus.active;
+  const active = !!dpiStatus.active;
+  const closeToast = useCallback(() => setToast(null), []);
 
-  const act = async (fn, okMsg) => {
+  const act = async (fn, okKey, failKey) => {
+    if (typeof window === 'undefined' || !window.electron?.[fn]) {
+      setToast({ message: t('desktopOnly'), type: 'warning' });
+      return;
+    }
     setLoading(true);
     try {
       const r = await window.electron[fn]();
-      if (r?.success) { onStatusChange(); setToast({ message: okMsg, type: 'success' }); }
-      else setToast({ message: r?.error || t('error'), type: 'error' });
+      if (r?.success) {
+        onStatusChange();
+        setToast({ message: t(okKey), type: 'success' });
+      } else {
+        setToast({ message: t(failKey), detail: r?.error, type: 'error' });
+      }
     } catch (e) {
-      setToast({ message: e.message, type: 'error' });
-    } finally { setLoading(false); }
+      setToast({ message: t(failKey), detail: e?.message, type: 'error' });
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const onClick = () => active
-    ? act('stopDPI', t('dpiBypassStopped'))
-    : act('startDPI', `${t('dpiBypassRunning')}`);
+  const onClick = () => (active
+    ? act('stopDPI', 'protectionStopped', 'stopFailed')
+    : act('startDPI', 'protectionStarted', 'startFailed'));
+
+  const ShieldGlyph = active ? ShieldCheckIcon : ShieldIcon;
+  const label = loading ? (active ? t('stopping') : t('starting')) : (active ? t('stop') : t('start'));
 
   return (
     <>
-      {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
+      {toast && <Toast message={toast.message} detail={toast.detail} type={toast.type} onClose={closeToast} />}
 
       <div className="flex min-h-full flex-col items-center justify-center gap-7 py-6">
         {/* The shield — the one bold moment */}
-        <div className="relative flex items-center justify-center">
+        <div className="relative flex shrink-0 items-center justify-center" aria-hidden>
           {active && (
             <span
               className="halo absolute rounded-full"
-              style={{
-                width: 180, height: 180,
-                background: 'radial-gradient(circle, var(--accent-soft) 0%, transparent 70%)',
-              }}
+              style={{ width: 180, height: 180, background: 'radial-gradient(circle, var(--accent-soft) 0%, transparent 70%)' }}
             />
           )}
           <div
@@ -49,44 +61,37 @@ export default function ControlPanel({ dpiStatus, onStatusChange }) {
               background: active ? 'var(--accent-soft)' : 'var(--surface)',
             }}
           >
-            <svg
-              viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            <ShieldGlyph
               className="h-16 w-16 transition-colors duration-500"
+              strokeWidth={1.5}
               style={{ color: active ? 'var(--accent)' : 'var(--text-faint)' }}
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5"
-                    d="M12 3.5l6.5 2.4v5.3c0 4.1-2.7 7.9-6.5 9-3.8-1.1-6.5-4.9-6.5-9V5.9L12 3.5z" />
-              {active && (
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.6"
-                      d="M9 12l2 2 4-4" />
-              )}
-            </svg>
+            />
           </div>
         </div>
 
         {/* Status text */}
-        <div className="text-center">
-          <h2 className="text-2xl font-semibold tracking-tight"
+        <div className="w-full max-w-sm text-center" aria-live="polite">
+          <h2 className="text-2xl font-semibold leading-tight tracking-tight wrap-anywhere"
               style={{ color: active ? 'var(--accent)' : 'var(--text)' }}>
             {active ? t('protected') : t('notProtected')}
           </h2>
-          <p className="mt-1.5 text-[13px]" style={{ color: 'var(--text-dim)' }}>
+          <p className="mt-1.5 text-[13px] leading-snug" style={{ color: 'var(--text-dim)' }}>
             {active ? t('dpiBypassRunning') : t('dpiBypassStopped')}
           </p>
         </div>
 
         {/* Primary action */}
         <button
+          type="button"
           onClick={onClick}
           disabled={loading}
-          className="w-full max-w-xs rounded-[var(--radius)] px-6 py-3.5 text-[15px] font-semibold transition-all active:scale-[0.99] disabled:opacity-60"
-          style={
-            active
-              ? { background: 'var(--danger-soft)', color: 'var(--danger)', border: '1px solid rgba(248,113,113,0.35)' }
-              : { background: 'var(--accent)', color: '#07101c', border: '1px solid transparent' }
-          }
+          aria-busy={loading}
+          className={`btn w-full max-w-xs rounded-[var(--radius)] px-5 py-3.5 text-[15px] font-semibold ${active ? 'btn-danger' : 'btn-primary'}`}
         >
-          {loading ? (active ? t('stopping') : t('starting')) : (active ? t('stop') : t('start'))}
+          {loading
+            ? <SpinnerIcon className="spin h-[18px] w-[18px]" />
+            : <PowerIcon className="h-[18px] w-[18px]" />}
+          <span className="min-w-0 wrap-anywhere">{label}</span>
         </button>
       </div>
     </>

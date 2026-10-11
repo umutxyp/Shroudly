@@ -3,8 +3,9 @@ const path = require('path');
 const vm = require('vm');
 
 const root = path.join(__dirname, '..');
-const sourceDirs = ['app', 'components'];
+const sourceDirs = ['app', 'components', 'contexts'];
 const usedKeys = new Set();
+let allSource = '';
 
 function walk(dir) {
   for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
@@ -20,7 +21,13 @@ function walk(dir) {
     }
 
     const source = fs.readFileSync(fullPath, 'utf8');
-    for (const match of source.matchAll(/\bt\(['"]([^'"]+)['"]\)/g)) {
+    allSource += source + '\n';
+    // t('key') and t('key', { params })
+    for (const match of source.matchAll(/\bt\(\s*['"]([^'"]+)['"]\s*[,)]/g)) {
+      usedKeys.add(match[1]);
+    }
+    // keys referenced indirectly via lookup tables, e.g. labelKey: 'stratAuto' or 'logCleared'
+    for (const match of source.matchAll(/(?:labelKey|key):\s*['"]([A-Za-z_]\w*)['"]/g)) {
       usedKeys.add(match[1]);
     }
   }
@@ -55,6 +62,11 @@ for (const language of languages) {
     console.log(`${language}: ok (${Object.keys(languageKeys).length} keys)`);
   }
 }
+
+// Stale keys: defined in English but never referenced as a string anywhere in
+// the UI sources (warning only — keys can be referenced through lookup tables).
+const unused = englishKeys.filter((key) => !allSource.includes(`'${key}'`) && !allSource.includes(`"${key}"`));
+if (unused.length) console.warn(`warning: possibly unused keys: ${unused.join(', ')}`);
 
 if (failed) {
   process.exit(1);

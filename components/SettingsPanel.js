@@ -1,7 +1,12 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
+import {
+  AlertTriangleIcon, CheckCircleIcon, InfoIcon, LanguagesIcon, SearchIcon, ShieldAlertIcon,
+  SpinnerIcon, XCircleIcon, ZapIcon,
+} from './icons';
+import Select from './Select';
 
 const STRATEGIES = [
   { id: 'auto', labelKey: 'stratAuto', spec: 'split(sni)', auto: true },
@@ -12,45 +17,126 @@ const STRATEGIES = [
   { id: 'split2', labelKey: 'stratSplit2', spec: 'split(2)', auto: false },
 ];
 
-function Section({ title, children }) {
+/* advancedAvailable().reasonCode → translation key */
+const ADV_REASON_KEYS = {
+  mac_unsupported: 'advReasonMacUnsupported',
+  arch_unsupported: 'advReasonArchUnsupported',
+  not_built: 'advReasonNotBuilt',
+  windivert_missing: 'advReasonWindivertMissing',
+  linux_lib_missing: 'advReasonLinuxLibMissing',
+  platform_unsupported: 'advReasonPlatformUnsupported',
+};
+/* startAdvanced().code → translation key */
+const ADV_ERROR_KEYS = {
+  declined: 'advErrorDeclined',
+  elevation_unavailable: 'advErrorElevationUnavailable',
+  start_failed: 'advErrorStartFailed',
+  timeout: 'advErrorTimeout',
+};
+const LINUX_LIB_COMMAND = 'sudo apt install libnetfilter-queue1';
+const PROBE_TIMEOUT_MS = 25000;
+
+function advReasonText(info, t) {
+  const key = info && ADV_REASON_KEYS[info.reasonCode];
+  if (key) return t(key, { command: LINUX_LIB_COMMAND });
+  return info?.reason || t('advancedUnavailable');
+}
+
+function advErrorMessage(r, t) {
+  const key = r && ADV_ERROR_KEYS[r.code];
+  if (key) {
+    return {
+      text: t(key),
+      detail: r.code === 'start_failed' ? r.error : null,
+      tone: r.code === 'declined' ? 'warn' : 'danger',
+    };
+  }
+  if (r?.error) return { text: t('advErrorGeneric'), detail: r.error, tone: 'danger' };
+  return { text: t('advErrorGeneric'), detail: null, tone: 'danger' };
+}
+
+function normalizeHost(input) {
+  let h = String(input || '').trim();
+  h = h.replace(/^[a-z][a-z0-9+.-]*:\/\//i, '');   // scheme
+  h = h.split(/[/?#]/)[0];                          // path, query
+  h = h.replace(/^[^@]*@/, '');                     // credentials
+  return h.toLowerCase();
+}
+
+function Section({ title, Icon, titleId, children }) {
   return (
     <section className="card p-4">
-      {title && <h2 className="mb-3 text-[13px] font-semibold" style={{ color: 'var(--text-dim)' }}>{title}</h2>}
+      {title && (
+        <h2 id={titleId} className="mb-3 flex items-center gap-2 text-[13px] font-semibold leading-snug" style={{ color: 'var(--text-dim)' }}>
+          {Icon && <Icon className="h-4 w-4" style={{ color: 'var(--text-faint)' }} />}
+          <span className="min-w-0">{title}</span>
+        </h2>
+      )}
       {children}
     </section>
   );
 }
 
-function Toggle({ label, desc, checked, onChange }) {
+/* Whole row is the switch: bigger click target, label read by screen readers. */
+function Toggle({ label, desc, checked, onChange, disabled }) {
+  const { isRTL } = useLanguage();
+  const descId = useId();
+  const shift = checked ? (isRTL ? -20 : 20) : 0;
   return (
-    <div className="flex items-center justify-between gap-3 py-2">
-      <div className="min-w-0">
-        <p className="text-[14px] font-medium" style={{ color: 'var(--text)' }}>{label}</p>
-        {desc && <p className="mt-0.5 text-[12px] leading-snug" style={{ color: 'var(--text-faint)' }}>{desc}</p>}
-      </div>
-      <button
-        onClick={() => onChange(!checked)}
-        role="switch" aria-checked={checked}
-        className="relative h-6 w-11 shrink-0 rounded-full transition-colors"
-        style={{ background: checked ? 'var(--accent)' : 'var(--surface-hover)' }}
-      >
+    <button
+      type="button"
+      role="switch"
+      aria-checked={!!checked}
+      aria-describedby={desc ? descId : undefined}
+      disabled={disabled}
+      onClick={() => onChange(!checked)}
+      className="row-hover -mx-2 flex w-[calc(100%+1rem)] items-center justify-between gap-4 rounded-[10px] px-2 py-2.5 text-start disabled:opacity-55"
+    >
+      <span className="min-w-0 flex-1">
+        <span className="block text-[14px] font-medium leading-snug" style={{ color: 'var(--text)' }}>{label}</span>
+        {desc && (
+          <span id={descId} className="mt-0.5 block text-[12px] leading-snug" style={{ color: 'var(--text-faint)' }}>{desc}</span>
+        )}
+      </span>
+      <span aria-hidden className="switch-track relative h-6 w-11 shrink-0 rounded-full" data-on={!!checked}>
         <span
-          className="absolute top-0.5 h-5 w-5 rounded-full bg-white transition-transform"
-          style={{ left: 2, transform: checked ? 'translateX(20px)' : 'translateX(0)' }}
+          className="switch-knob absolute top-[2px] h-[18px] w-[18px] rounded-full"
+          style={{ insetInlineStart: 2, transform: `translateX(${shift}px)` }}
         />
-      </button>
+      </span>
+    </button>
+  );
+}
+
+function Notice({ tone = 'info', Icon, children }) {
+  const c = {
+    info:   { bg: 'var(--accent-soft)', line: 'var(--accent-line)', fg: 'var(--accent)' },
+    ok:     { bg: 'var(--ok-soft)', line: 'var(--ok-line)', fg: 'var(--ok)' },
+    warn:   { bg: 'var(--warn-soft)', line: 'var(--warn-line)', fg: 'var(--warn)' },
+    danger: { bg: 'var(--danger-soft)', line: 'var(--danger-line)', fg: 'var(--danger)' },
+  }[tone];
+  return (
+    <div className="flex items-start gap-2.5 rounded-[var(--radius-sm)] p-3 text-[13px] leading-snug"
+         style={{ background: c.bg, border: `1px solid ${c.line}` }}>
+      {Icon && <Icon className="mt-[1px] h-4 w-4" style={{ color: c.fg }} />}
+      <div className="min-w-0 flex-1 wrap-anywhere">{children}</div>
     </div>
   );
 }
 
-export default function SettingsPanel() {
+export default function SettingsPanel({ active = false }) {
   const { language, setLanguage, t, availableLanguages } = useLanguage();
-  const langRef = useRef(null);
-  const [langOpen, setLangOpen] = useState(false);
+  const strategyLabelId = useId();
+  const languageLabelId = useId();
   const [testHost, setTestHost] = useState('');
+  const [testing, setTesting] = useState(null);       // host being tested
+  const [testNote, setTestNote] = useState(null);     // 'needsProtection' | 'noAnswer'
   const [probeResult, setProbeResult] = useState(null);
-  const [advInfo, setAdvInfo] = useState({ available: false, active: false, reason: null });
+  const [advInfo, setAdvInfo] = useState({ available: false, active: false, reason: null, reasonCode: null });
   const [advBusy, setAdvBusy] = useState(false);
+  const [advError, setAdvError] = useState(null);
+  const testingRef = useRef(null);
+  const timeoutRef = useRef(null);
   const [settings, setSettings] = useState({
     strategyId: 'auto', autoMode: true, dnsProtection: false, preferIpv6: false,
     autoStart: false, minimizeToTray: true, showNotifications: true,
@@ -58,118 +144,137 @@ export default function SettingsPanel() {
 
   useEffect(() => {
     (async () => {
-      if (typeof window === 'undefined' || !window.electron) return;
+      if (typeof window === 'undefined' || !window.electron?.getAllSettings) return;
       try { const all = await window.electron.getAllSettings(); setSettings((p) => ({ ...p, ...all })); } catch {}
     })();
   }, []);
 
   useEffect(() => {
-    if (typeof window === 'undefined' || !window.electron) return;
-    window.electron.advancedAvailable?.().then(setAdvInfo).catch(() => {});
-    window.electron.onProbeResult?.((p) => setProbeResult(p));
-    return () => window.electron.removeProbeListener?.();
+    if (typeof window === 'undefined' || !window.electron) return undefined;
+    window.electron.advancedAvailable?.().then((i) => i && setAdvInfo(i)).catch(() => {});
+    window.electron.onProbeResult?.((p) => {
+      // Only show results for the host the user is testing here (auto mode
+      // probes other sites in the background).
+      const want = testingRef.current;
+      if (!want || !p?.host || normalizeHost(p.host) !== want) return;
+      clearTimeout(timeoutRef.current);
+      testingRef.current = null;
+      setTesting(null);
+      setProbeResult(p);
+    });
+    return () => {
+      clearTimeout(timeoutRef.current);
+      window.electron.removeProbeListener?.();
+    };
   }, []);
 
-  useEffect(() => {
-    const onDoc = (e) => { if (langRef.current && !langRef.current.contains(e.target)) setLangOpen(false); };
-    if (langOpen) document.addEventListener('mousedown', onDoc);
-    return () => document.removeEventListener('mousedown', onDoc);
-  }, [langOpen]);
-
   async function save(key, value) {
+    const before = settings[key];
     setSettings((p) => ({ ...p, [key]: value }));
-    if (typeof window !== 'undefined' && window.electron) { try { await window.electron.setSetting(key, value); } catch {} }
+    if (typeof window !== 'undefined' && window.electron?.setSetting) {
+      try {
+        const r = await window.electron.setSetting(key, value);
+        if (r && r.success === false) setSettings((p) => ({ ...p, [key]: before }));
+      } catch { setSettings((p) => ({ ...p, [key]: before })); }
+    }
   }
 
   async function onStrategyChange(id) {
     const s = STRATEGIES.find((x) => x.id === id) || STRATEGIES[0];
-    setSettings((p) => ({ ...p, strategyId: id }));
-    if (typeof window !== 'undefined' && window.electron) {
-      await window.electron.setSetting('strategyId', id);
-      await window.electron.setSetting('strategy', s.spec);
-      if (s.auto) await window.electron.setSetting('autoMode', true);
+    setSettings((p) => ({ ...p, strategyId: id, ...(s.auto ? { autoMode: true } : {}) }));
+    if (typeof window !== 'undefined' && window.electron?.setSetting) {
+      try {
+        await window.electron.setSetting('strategyId', id);
+        await window.electron.setSetting('strategy', s.spec);
+        if (s.auto) await window.electron.setSetting('autoMode', true);
+      } catch {}
     }
   }
 
   async function runTest() {
-    const host = testHost.trim();
-    if (!host || typeof window === 'undefined' || !window.electron) return;
+    const host = normalizeHost(testHost);
+    if (!host || testing) return;
     setProbeResult(null);
+    setAdvError(null);
+    setTestNote(null);
+    if (!active) { setTestNote('needsProtection'); return; }
+    if (typeof window === 'undefined' || !window.electron?.probeHost) return;
+    testingRef.current = host;
+    setTesting(host);
+    clearTimeout(timeoutRef.current);
+    timeoutRef.current = setTimeout(() => {
+      if (testingRef.current !== host) return;
+      testingRef.current = null;
+      setTesting(null);
+      setTestNote('noAnswer');
+    }, PROBE_TIMEOUT_MS);
     try { await window.electron.probeHost(host); } catch {}
+  }
+
+  async function refreshAdv() {
+    try { const i = await window.electron.advancedAvailable(); if (i) setAdvInfo(i); } catch {}
   }
 
   async function enableAdvanced() {
     if (!window.electron?.startAdvanced) return;
     setAdvBusy(true);
+    setAdvError(null);
     try {
       const r = await window.electron.startAdvanced();
-      setAdvInfo(await window.electron.advancedAvailable());
-      if (!r?.success && r?.error) setProbeResult((p) => (p ? { ...p, advError: r.error } : p));
-    } catch {}
+      if (!r?.success) setAdvError(advErrorMessage(r, t));
+    } catch (e) {
+      setAdvError(advErrorMessage({ error: e?.message }, t));
+    }
+    await refreshAdv();
     setAdvBusy(false);
   }
 
   async function disableAdvanced() {
     if (!window.electron?.stopAdvanced) return;
     setAdvBusy(true);
-    try { await window.electron.stopAdvanced(); setAdvInfo(await window.electron.advancedAvailable()); } catch {}
+    try { await window.electron.stopAdvanced(); } catch {}
+    await refreshAdv();
     setAdvBusy(false);
   }
 
-  const curLang = availableLanguages.find((l) => l.code === language);
+  const languageOptions = availableLanguages.map((l) => ({
+    value: l.code,
+    label: l.name,
+    lang: l.locale,
+    leading: (
+      <span className="mono inline-flex h-[22px] min-w-[30px] shrink-0 items-center justify-center rounded-[6px] px-1 text-[10.5px] font-semibold uppercase tracking-wide"
+            style={{ background: 'var(--surface-hover)', color: 'var(--text-dim)', border: '1px solid var(--line)' }}>
+        {l.code}
+      </span>
+    ),
+  }));
+
+  const strategyOptions = STRATEGIES.map((s) => ({ value: s.id, label: t(s.labelKey), hint: s.spec }));
+
+  const probeBlocked = probeResult && !probeResult.ok;
 
   return (
     <div className="flex flex-col gap-3 py-4">
       {/* Language */}
-      <Section title={t('language')}>
-        <div className="relative" ref={langRef}>
-          <button
-            onClick={() => setLangOpen((v) => !v)}
-            className="card-2 flex w-full items-center justify-between px-3.5 py-3 text-left transition-colors"
-          >
-            <span className="flex items-center gap-2.5">
-              <span className="text-xl">{curLang?.flag}</span>
-              <span className="text-[14px]" style={{ color: 'var(--text)' }}>{curLang?.name}</span>
-            </span>
-            <svg className="h-4 w-4 transition-transform" style={{ color: 'var(--text-faint)', transform: langOpen ? 'rotate(180deg)' : 'none' }}
-                 viewBox="0 0 24 24" fill="none" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 9l6 6 6-6"/></svg>
-          </button>
-          {langOpen && (
-            <div className="scroll absolute left-0 right-0 z-50 mt-2 max-h-72 overflow-y-auto rounded-[var(--radius-sm)] p-1"
-                 style={{ background: 'var(--surface)', border: '1px solid var(--line-strong)', boxShadow: '0 20px 50px rgba(0,0,0,0.5)' }}>
-              {availableLanguages.map((lang) => {
-                const on = language === lang.code;
-                return (
-                  <button
-                    key={lang.code}
-                    onClick={() => { setLanguage(lang.code); setLangOpen(false); }}
-                    className="flex w-full items-center gap-2.5 rounded-[9px] px-3 py-2.5 text-left text-[14px] transition-colors"
-                    style={{ background: on ? 'var(--accent-soft)' : 'transparent', color: on ? 'var(--accent)' : 'var(--text)' }}
-                  >
-                    <span className="text-xl">{lang.flag}</span>
-                    <span>{lang.name}</span>
-                  </button>
-                );
-              })}
-            </div>
-          )}
-        </div>
+      <Section title={t('language')} Icon={LanguagesIcon} titleId={languageLabelId}>
+        <Select
+          value={language}
+          options={languageOptions}
+          onChange={setLanguage}
+          ariaLabelledBy={languageLabelId}
+        />
       </Section>
 
       {/* Bypass */}
       <Section title={t('dpiBypassTechniques')}>
-        <label className="text-[12px]" style={{ color: 'var(--text-faint)' }}>{t('strategy')}</label>
-        <div className="relative mb-3 mt-1.5">
-          <select
+        <p id={strategyLabelId} className="mb-1.5 text-[12px] font-medium" style={{ color: 'var(--text-faint)' }}>{t('strategy')}</p>
+        <div className="mb-2">
+          <Select
             value={settings.strategyId}
-            onChange={(e) => onStrategyChange(e.target.value)}
-            className="card-2 w-full appearance-none px-3.5 py-2.5 pr-9 text-[14px]"
-            style={{ color: 'var(--text)' }}
-          >
-            {STRATEGIES.map((s) => <option key={s.id} value={s.id}>{t(s.labelKey)}</option>)}
-          </select>
-          <svg className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2" style={{ color: 'var(--text-faint)' }}
-               viewBox="0 0 24 24" fill="none" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 9l6 6 6-6"/></svg>
+            options={strategyOptions}
+            onChange={onStrategyChange}
+            ariaLabelledBy={strategyLabelId}
+          />
         </div>
 
         <div className="divide-y" style={{ borderColor: 'var(--line)' }}>
@@ -177,73 +282,137 @@ export default function SettingsPanel() {
           <Toggle label={t('dnsProtection')} desc={t('dnsProtectionDesc')} checked={settings.dnsProtection} onChange={(v) => save('dnsProtection', v)} />
           <Toggle label={t('preferIpv6')} desc={t('preferIpv6Desc')} checked={settings.preferIpv6} onChange={(v) => save('preferIpv6', v)} />
         </div>
+
+        {active && (
+          <p className="mt-2 flex items-start gap-2 text-[12px] leading-snug" style={{ color: 'var(--text-faint)' }}>
+            <InfoIcon className="mt-[1px] h-3.5 w-3.5" />
+            <span className="min-w-0">{t('restartToApply')}</span>
+          </p>
+        )}
       </Section>
 
       {/* Test a site */}
-      <Section title={t('testSite')}>
-        <p className="mb-3 text-[12px]" style={{ color: 'var(--text-faint)' }}>{t('testSiteDesc')}</p>
-        <div className="flex gap-2">
+      <Section title={t('testSite')} Icon={SearchIcon}>
+        <p className="mb-3 text-[12px] leading-snug" style={{ color: 'var(--text-faint)' }}>{t('testSiteDesc')}</p>
+        <form
+          className="flex flex-wrap gap-2"
+          onSubmit={(e) => { e.preventDefault(); runTest(); }}
+        >
           <input
             value={testHost}
             onChange={(e) => setTestHost(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && runTest()}
-            placeholder="example.com"
-            className="card-2 min-w-0 flex-1 px-3.5 py-2.5 text-[14px]"
+            placeholder={t('testPlaceholder')}
+            aria-label={t('testSite')}
+            dir="ltr"
+            spellCheck={false}
+            autoCapitalize="off"
+            autoCorrect="off"
+            inputMode="url"
+            className="field min-w-[150px] flex-[1_1_180px] px-3.5 py-2.5 text-[14px]"
+            style={{ textAlign: 'start' }}
           />
           <button
-            onClick={runTest}
-            className="shrink-0 rounded-[var(--radius-sm)] px-4 py-2.5 text-[14px] font-semibold"
-            style={{ background: 'var(--accent)', color: '#07101c' }}
+            type="submit"
+            disabled={!testHost.trim() || !!testing}
+            className="btn btn-primary flex-[0_0_auto] rounded-[var(--radius-sm)] px-4 py-2.5 text-[14px] font-semibold"
           >
-            {t('test')}
+            {testing && <SpinnerIcon className="spin h-4 w-4" />}
+            <span>{testing ? t('testing') : t('test')}</span>
           </button>
-        </div>
+        </form>
+
+        {testNote === 'needsProtection' && (
+          <div className="mt-3"><Notice tone="info" Icon={InfoIcon}><p style={{ color: 'var(--text-dim)' }}>{t('testNeedsProtection')}</p></Notice></div>
+        )}
+        {testNote === 'noAnswer' && (
+          <div className="mt-3"><Notice tone="warn" Icon={AlertTriangleIcon}><p style={{ color: 'var(--text-dim)' }}>{t('probeNoAnswer')}</p></Notice></div>
+        )}
 
         {probeResult && (
-          <div className="mt-3 text-[13px]">
+          <div className="mt-3" aria-live="polite">
             {probeResult.ok && probeResult.strategy === 'none' && (
-              <p style={{ color: 'var(--text-dim)' }}>{probeResult.host}: {t('probeNotBlocked')}</p>
+              <Notice tone="info" Icon={InfoIcon}>
+                <p style={{ color: 'var(--text-dim)' }}>{t('probeNotBlocked', { host: probeResult.host })}</p>
+              </Notice>
             )}
-            {probeResult.ok && probeResult.strategy && probeResult.strategy !== 'none' && (
-              <p style={{ color: 'var(--ok)' }}>{probeResult.host}: {t('probeWorks')} ({probeResult.strategy})</p>
+            {probeResult.ok && probeResult.strategy !== 'none' && (
+              <Notice tone="ok" Icon={CheckCircleIcon}>
+                <p style={{ color: 'var(--ok)' }}>
+                  {t('probeWorks', { host: probeResult.host, strategy: probeResult.strategy || '—' })}
+                </p>
+              </Notice>
             )}
-            {!probeResult.ok && (
-              <div className="rounded-[var(--radius-sm)] p-3" style={{ background: 'var(--warn-soft)', border: '1px solid rgba(251,191,36,0.3)' }}>
-                <p className="mb-1 font-semibold" style={{ color: 'var(--warn)' }}>{t('probeBlockedTitle')}</p>
-                <p className="mb-2.5 leading-snug" style={{ color: 'var(--text-dim)' }}>{t('probeBlockedDesc')}</p>
+            {probeBlocked && (
+              <Notice tone="warn" Icon={AlertTriangleIcon}>
+                <p className="mb-1 font-semibold" style={{ color: 'var(--warn)' }}>{t('probeBlockedTitle', { host: probeResult.host })}</p>
+                <p className="mb-3 text-[12.5px]" style={{ color: 'var(--text-dim)' }}>{t('probeBlockedDesc')}</p>
                 {advInfo.available ? (
                   advInfo.active ? (
-                    <p style={{ color: 'var(--ok)' }}>{t('advancedOn')}</p>
+                    <p className="flex items-center gap-1.5 font-medium" style={{ color: 'var(--ok)' }}>
+                      <CheckCircleIcon className="h-4 w-4" />
+                      <span>{t('advancedOn')}</span>
+                    </p>
                   ) : (
-                    <button onClick={enableAdvanced} disabled={advBusy}
-                      className="rounded-[9px] px-3 py-1.5 text-[13px] font-semibold disabled:opacity-50"
-                      style={{ background: 'var(--warn)', color: '#1a1200' }}>
-                      {advBusy ? '…' : t('tryAdvanced')}
-                    </button>
+                    <div className="flex flex-col items-start gap-1.5">
+                      <button
+                        type="button"
+                        onClick={enableAdvanced}
+                        disabled={advBusy}
+                        className="btn btn-warn rounded-[9px] px-3.5 py-2 text-[13px] font-semibold"
+                      >
+                        {advBusy ? <SpinnerIcon className="spin h-4 w-4" /> : <ZapIcon className="h-4 w-4" />}
+                        <span>{advBusy ? t('starting') : t('tryAdvanced')}</span>
+                      </button>
+                      <p className="flex items-start gap-1.5 text-[12px]" style={{ color: 'var(--text-faint)' }}>
+                        <ShieldAlertIcon className="mt-[1px] h-3.5 w-3.5" />
+                        <span className="min-w-0">{t('advancedAdminHint')}</span>
+                      </p>
+                    </div>
                   )
                 ) : (
-                  <p style={{ color: 'var(--text-faint)' }}>{advInfo.reason || t('advancedUnavailable')}</p>
+                  <p className="flex items-start gap-1.5 text-[12.5px]" style={{ color: 'var(--text-dim)' }}>
+                    <InfoIcon className="mt-[1px] h-3.5 w-3.5" style={{ color: 'var(--text-faint)' }} />
+                    <span className="min-w-0">{advReasonText(advInfo, t)}</span>
+                  </p>
                 )}
-                {probeResult.advError && <p className="mt-1" style={{ color: 'var(--danger)' }}>{probeResult.advError}</p>}
-              </div>
+              </Notice>
             )}
           </div>
         )}
 
+        {advError && (
+          <div className="mt-3">
+            <Notice tone={advError.tone} Icon={advError.tone === 'warn' ? AlertTriangleIcon : XCircleIcon}>
+              <p style={{ color: advError.tone === 'warn' ? 'var(--warn)' : 'var(--danger)' }}>{advError.text}</p>
+              {advError.detail && (
+                <p className="mono mt-1 text-[11.5px]" dir="auto" style={{ color: 'var(--text-dim)' }}>{advError.detail}</p>
+              )}
+            </Notice>
+          </div>
+        )}
+
         {advInfo.active && (
-          <div className="mt-3 flex items-center justify-between rounded-[var(--radius-sm)] p-2.5"
-               style={{ background: 'var(--ok-soft)', border: '1px solid rgba(52,211,153,0.3)' }}>
-            <span className="text-[12px]" style={{ color: 'var(--ok)' }}>{t('advancedActive')}</span>
-            <button onClick={disableAdvanced} disabled={advBusy}
-              className="text-[12px] underline disabled:opacity-50" style={{ color: 'var(--text-dim)' }}>
-              {t('advancedTurnOff')}
+          <div className="mt-3 flex flex-wrap items-center justify-between gap-x-3 gap-y-2 rounded-[var(--radius-sm)] p-3"
+               style={{ background: 'var(--ok-soft)', border: '1px solid var(--ok-line)' }}>
+            <span className="flex min-w-0 flex-1 items-start gap-2 text-[12.5px] leading-snug" style={{ color: 'var(--ok)' }}>
+              <ZapIcon className="mt-[1px] h-4 w-4" />
+              <span className="min-w-0">{t('advancedActive')}</span>
+            </span>
+            <button
+              type="button"
+              onClick={disableAdvanced}
+              disabled={advBusy}
+              className="btn btn-ghost rounded-full px-3 py-1.5 text-[12px] font-medium"
+            >
+              {advBusy && <SpinnerIcon className="spin h-3.5 w-3.5" />}
+              <span>{t('advancedTurnOff')}</span>
             </button>
           </div>
         )}
       </Section>
 
       {/* App */}
-      <Section title={t('advanced')}>
+      <Section title={t('appSection')}>
         <div className="divide-y" style={{ borderColor: 'var(--line)' }}>
           <Toggle label={t('startOnBoot')} desc={t('startOnBootDesc')} checked={settings.autoStart} onChange={(v) => save('autoStart', v)} />
           <Toggle label={t('minimizeToTray')} desc={t('minimizeToTrayDesc')} checked={settings.minimizeToTray} onChange={(v) => save('minimizeToTray', v)} />

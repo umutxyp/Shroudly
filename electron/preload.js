@@ -16,6 +16,8 @@ contextBridge.exposeInMainWorld('electron', {
 
   // App info
   getAppInfo: () => ipcRenderer.invoke('app:getInfo'),
+  // OS UI languages in preference order (e.g. ["tr-TR", "en-US"])
+  getSystemLanguages: () => ipcRenderer.invoke('app:systemLanguages'),
 
   // Settings
   getSetting: (key) => ipcRenderer.invoke('settings:get', key),

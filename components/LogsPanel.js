@@ -1,7 +1,9 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
+import { LogsIcon, TrashIcon } from './icons';
+import { localizeLog } from './logText';
 
 const LEVEL = {
   error:   'var(--danger)',
@@ -10,86 +12,118 @@ const LEVEL = {
   info:    'var(--accent)',
 };
 
+const FILTERS = [
+  { id: 'all', key: 'logAll' },
+  { id: 'info', key: 'logInfo' },
+  { id: 'success', key: 'logSuccess' },
+  { id: 'warning', key: 'logWarning' },
+  { id: 'error', key: 'logError' },
+];
+
 export default function LogsPanel() {
-  const { t } = useLanguage();
+  const { t, locale } = useLanguage();
   const [logs, setLogs] = useState([]);
   const [filter, setFilter] = useState('all');
-  const endRef = useRef(null);
+  const listRef = useRef(null);
+  const stickToBottom = useRef(true);
 
   useEffect(() => {
-    const load = async () => {
-      if (typeof window !== 'undefined' && window.electron) setLogs(await window.electron.getLogs());
-    };
-    load();
-    if (typeof window !== 'undefined' && window.electron) {
-      window.electron.onNewLog((log) => setLogs((p) => [...p, log]));
-      return () => window.electron.removeLogListener();
-    }
+    if (typeof window === 'undefined' || !window.electron?.getLogs) return undefined;
+    let alive = true;
+    window.electron.getLogs().then((l) => { if (alive) setLogs(Array.isArray(l) ? l : []); }).catch(() => {});
+    window.electron.onNewLog?.((log) => setLogs((p) => [...p.slice(-499), log]));
+    return () => { alive = false; window.electron.removeLogListener?.(); };
   }, []);
 
-  useEffect(() => { endRef.current?.scrollIntoView({ block: 'end' }); }, [logs]);
+  // Follow new entries only while the user is already at the bottom.
+  const onScroll = () => {
+    const el = listRef.current;
+    if (el) stickToBottom.current = el.scrollHeight - el.scrollTop - el.clientHeight < 24;
+  };
+  useLayoutEffect(() => {
+    const el = listRef.current;
+    if (el && stickToBottom.current) el.scrollTop = el.scrollHeight;
+  }, [logs, filter]);
 
   const clear = async () => {
-    if (typeof window !== 'undefined' && window.electron) { await window.electron.clearLogs(); setLogs([]); }
+    if (typeof window === 'undefined' || !window.electron?.clearLogs) return;
+    try {
+      await window.electron.clearLogs();
+      setLogs(await window.electron.getLogs());
+    } catch { setLogs([]); }
   };
 
+  const timeFmt = useMemo(() => {
+    try { return new Intl.DateTimeFormat(locale, { hour: '2-digit', minute: '2-digit', second: '2-digit', hourCycle: 'h23' }); }
+    catch { return new Intl.DateTimeFormat(undefined, { hour: '2-digit', minute: '2-digit', second: '2-digit', hourCycle: 'h23' }); }
+  }, [locale]);
+
   const shown = filter === 'all' ? logs : logs.filter((l) => l.level === filter);
-  const filters = ['all', 'info', 'success', 'warning', 'error'];
 
   return (
-    <div className="flex h-full flex-col gap-3 py-4">
+    <div className="flex h-full min-h-[320px] flex-col gap-3 py-4">
       {/* filters */}
-      <div className="flex items-center gap-1.5 overflow-x-auto scroll pb-0.5">
-        {filters.map((lv) => {
-          const on = filter === lv;
-          return (
-            <button
-              key={lv}
-              onClick={() => setFilter(lv)}
-              className="shrink-0 rounded-full px-3 py-1 text-[12px] font-medium capitalize transition-colors"
-              style={{
-                background: on ? 'var(--accent-soft)' : 'var(--surface-2)',
-                color: on ? 'var(--accent)' : 'var(--text-dim)',
-                border: `1px solid ${on ? 'var(--accent-line)' : 'var(--line)'}`,
-              }}
-            >
-              {t(lv) || lv}
-            </button>
-          );
-        })}
+      <div className="flex flex-wrap items-center gap-1.5" role="toolbar">
+        {FILTERS.map(({ id, key }) => (
+          <button
+            key={id}
+            type="button"
+            onClick={() => setFilter(id)}
+            aria-pressed={filter === id}
+            className="chip inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[12px] font-medium leading-snug"
+          >
+            {id !== 'all' && <span className="h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: LEVEL[id] }} />}
+            {t(key)}
+          </button>
+        ))}
       </div>
 
       {/* log stream */}
-      <div className="card scroll min-h-0 flex-1 overflow-y-auto p-2.5">
+      <div
+        ref={listRef}
+        onScroll={onScroll}
+        className="card scroll min-h-0 flex-1 overflow-y-auto overflow-x-hidden p-2"
+        role="log"
+        aria-live="polite"
+      >
         {shown.length === 0 ? (
-          <div className="flex h-full min-h-[180px] items-center justify-center text-[13px]" style={{ color: 'var(--text-faint)' }}>
-            {t('noLogs')}
+          <div className="flex h-full min-h-[160px] flex-col items-center justify-center gap-2 px-4 text-center text-[13px]"
+               style={{ color: 'var(--text-faint)' }}>
+            <LogsIcon className="h-7 w-7" strokeWidth={1.5} />
+            <p>{logs.length === 0 ? t('noLogs') : t('noLogsFiltered')}</p>
           </div>
         ) : (
-          <div className="flex flex-col gap-0.5">
-            {shown.map((log, i) => (
-              <div key={i} className="flex items-start gap-2 rounded px-1.5 py-1 text-[12px] leading-relaxed">
-                <span className="num shrink-0" style={{ color: 'var(--text-faint)' }}>
-                  {new Date(log.time || log.timestamp).toLocaleTimeString()}
-                </span>
-                <span className="mt-[5px] h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: LEVEL[log.level] || 'var(--text-faint)' }} />
-                <span className="min-w-0 flex-1 break-words" style={{ color: 'var(--text)' }}>{log.message}</span>
-              </div>
-            ))}
-            <div ref={endRef} />
-          </div>
+          <ul className="flex flex-col gap-0.5">
+            {shown.map((log, i) => {
+              const d = new Date(log.time || log.timestamp);
+              const time = Number.isNaN(d.getTime()) ? '' : timeFmt.format(d);
+              return (
+                <li key={`${log.timestamp || ''}-${i}`} className="row-hover flex items-start gap-2 rounded-[8px] px-1.5 py-1 text-[12px] leading-relaxed">
+                  <span className="num shrink-0" dir="ltr" style={{ color: 'var(--text-faint)' }}>{time}</span>
+                  <span className="mt-[0.55em] h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: LEVEL[log.level] || 'var(--text-faint)' }} />
+                  <span className="min-w-0 flex-1 select-text wrap-anywhere" dir="auto" style={{ color: 'var(--text)' }}>
+                    {localizeLog(log.message, t)}
+                  </span>
+                </li>
+              );
+            })}
+          </ul>
         )}
       </div>
 
       {/* footer actions */}
-      <div className="flex items-center justify-between">
-        <span className="num text-[12px]" style={{ color: 'var(--text-faint)' }}>{shown.length}</span>
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <span className="num text-[12px]" style={{ color: 'var(--text-faint)' }}>
+          {t('logEntries', { count: shown.length })}
+        </span>
         <button
+          type="button"
           onClick={clear}
-          className="rounded-full px-3 py-1.5 text-[12px] font-medium transition-colors"
-          style={{ background: 'var(--surface-2)', color: 'var(--text-dim)', border: '1px solid var(--line)' }}
+          disabled={logs.length === 0}
+          className="btn btn-ghost rounded-full px-3 py-1.5 text-[12px] font-medium"
         >
-          {t('clearLogs')}
+          <TrashIcon className="h-3.5 w-3.5" />
+          <span>{t('clearLogs')}</span>
         </button>
       </div>
     </div>

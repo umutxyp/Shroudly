@@ -7,6 +7,7 @@ const fs = require('fs');
 const Store = require('electron-store');
 const EngineManager = require('./engine-manager');
 const AdvancedMode = require('./advanced-mode');
+const i18n = require('./main-i18n');
 
 const store = new Store();
 let mainWindow = null;
@@ -24,6 +25,10 @@ function appVersion() {
   try { return app.isPackaged ? app.getVersion() : require('../package.json').version; }
   catch { return app.getVersion(); }
 }
+
+/* Windows groups the taskbar button and shows notifications under this ID; it
+ * must match build.appId so the installer's shortcuts carry the same identity. */
+if (process.platform === 'win32') app.setAppUserModelId('me.codeshare.shroudly');
 
 /* ── single instance ─────────────────────────────────────────────────────── */
 if (!app.requestSingleInstanceLock()) {
@@ -47,10 +52,12 @@ process.on('uncaughtException', (err) => {
 process.on('unhandledRejection', (r) => console.error('[Shroudly] rejection:', r));
 
 /* ── helpers ─────────────────────────────────────────────────────────────── */
-function getAssetPath(...segments) {
+/* Icons live in public/ during development; packaged builds copy them to the
+ * root of resources/ (see build.extraResources in package.json). */
+function iconAssetPath(file) {
   return app.isPackaged
-    ? path.join(process.resourcesPath, ...segments)
-    : path.join(__dirname, '..', ...segments);
+    ? path.join(process.resourcesPath, file)
+    : path.join(__dirname, '..', 'public', file);
 }
 
 function addLog(level, message) {
@@ -74,8 +81,8 @@ function notify(title, body) {
 
 /* ── tray + status ───────────────────────────────────────────────────────── */
 function trayIconPath() {
-  return process.platform === 'win32' ? getAssetPath('public', 'icon.ico')
-                                      : getAssetPath('public', 'icon-small.png');
+  return process.platform === 'win32' ? iconAssetPath('icon.ico')
+                                      : iconAssetPath('icon-small.png');
 }
 
 function makeTrayIcon() {
@@ -85,23 +92,34 @@ function makeTrayIcon() {
   } catch { return nativeImage.createEmpty(); }
 }
 
-function rebuildTrayMenu(active) {
+function systemLanguages() {
+  try { return app.getPreferredSystemLanguages(); } catch { return [app.getLocale()]; }
+}
+
+/* Main-process strings in the user's chosen language, else the OS language. */
+function tr() {
+  return i18n.strings(i18n.resolveLanguage(store.get('language'), systemLanguages()));
+}
+
+let trayActive = false;
+function rebuildTrayMenu(active = trayActive) {
+  trayActive = active;
   if (!tray) return;
+  const s = tr();
+  const state = active ? s.active : s.inactive;
   const menu = Menu.buildFromTemplate([
-    { label: 'Open Shroudly', click: () => showWindow() },
+    { label: s.open, click: () => showWindow() },
     { type: 'separator' },
-    { label: 'Status', enabled: false },
-    { label: active ? '● Active' : '○ Inactive', enabled: false },
-    { type: 'separator' },
+    { label: `${s.status}: ${state}`, enabled: false },
     {
-      label: active ? 'Stop' : 'Start',
+      label: active ? s.stop : s.start,
       click: async () => { active ? await safeStop() : await safeStart(); },
     },
     { type: 'separator' },
-    { label: 'Exit', click: () => { app.isQuitting = true; shutdownAndQuit(); } },
+    { label: s.quit, click: () => { app.isQuitting = true; shutdownAndQuit(); } },
   ]);
   tray.setContextMenu(menu);
-  tray.setToolTip(`Shroudly — ${active ? 'Active' : 'Inactive'}`);
+  tray.setToolTip(`Shroudly — ${state}`);
 }
 
 function createTray() {
@@ -185,7 +203,7 @@ async function createWindow() {
     if (!app.isQuitting && store.get('minimizeToTray', true)) {
       e.preventDefault();
       mainWindow.hide();
-      notify('Shroudly', 'Minimized to tray');
+      notify('Shroudly', tr().minimized);
     }
   });
 
@@ -197,7 +215,7 @@ async function safeStart() {
   try {
     const r = await engine.start();
     broadcastStatus(true);
-    notify('Shroudly', 'Protection started');
+    notify('Shroudly', tr().started);
     return r || { success: true };
   } catch (e) {
     addLog('error', `Start failed: ${e.message}`);
@@ -210,6 +228,7 @@ async function safeStop() {
   try {
     await engine.stop();
     broadcastStatus(false);
+    notify('Shroudly', tr().stopped);
     return { success: true };
   } catch (e) {
     addLog('error', `Stop failed: ${e.message}`);
@@ -321,6 +340,7 @@ ipcMain.handle('dpi:stop', async () => safeStop());
 ipcMain.handle('advanced:available', () => ({
   available: advanced ? advanced.available() : false,
   reason: advanced ? advanced.reason() : 'not initialized',
+  reasonCode: advanced ? advanced.reasonCode() : 'not_built',
   active: advanced ? advanced.active : false,
 }));
 ipcMain.handle('advanced:start', async () => {
@@ -331,7 +351,7 @@ ipcMain.handle('advanced:start', async () => {
     return r || { success: true };
   } catch (e) {
     addLog('error', `Advanced mode failed: ${e.message}`);
-    return { success: false, error: e.message };
+    return { success: false, error: e.message, code: e.code || 'start_failed' };
   }
 });
 ipcMain.handle('advanced:stop', async () => {
@@ -357,9 +377,13 @@ ipcMain.handle('app:getInfo', async () => ({
 }));
 
 ipcMain.handle('settings:get', (e, key) => store.get(key));
+/* navigator.language is always en-US in packaged builds (electronLanguages
+ * strips Chromium's other locales), so the UI asks the OS directly. */
+ipcMain.handle('app:systemLanguages', () => systemLanguages());
 ipcMain.handle('settings:getAll', () => store.store);
 ipcMain.handle('settings:set', (e, key, value) => {
   store.set(key, value);
+  if (key === 'language') rebuildTrayMenu();
   if (key === 'autoStart') {
     const ok = setAutoStart(value);
     if (!ok) { store.set('autoStart', false); return { success: false, error: 'Could not set auto-start' }; }

@@ -5,60 +5,114 @@
 /* ─────────────────────────────────────────────────────────────────────────
    Shroudly design tokens — a calm "obsidian" security tool.
    Cool blue-black depth, one confident cyan→blue accent reserved for the
-   protected state, quiet slate everywhere else. The shield is the one accent
-   moment; everything around it stays disciplined.
+   protected state, quiet slate everywhere else. Every colour used by the UI
+   lives here; components only reference these variables.
    ───────────────────────────────────────────────────────────────────────── */
 :root {
   --bg:            #0b0f17;
   --bg-sunk:       #080b12;
   --surface:       #121826;
   --surface-2:     #161d2e;
-  --surface-hover: #1b2335;
+  --surface-hover: #1d2638;
+  --surface-press: #222c40;
   --line:          rgba(148, 163, 184, 0.12);
-  --line-strong:   rgba(148, 163, 184, 0.20);
+  --line-strong:   rgba(148, 163, 184, 0.22);
 
   --text:          #e8edf6;
-  --text-dim:      #9aa7bd;
-  --text-faint:    #5f6b82;
+  --text-dim:      #a3afc4;   /* ≈ 8:1 on --surface */
+  --text-faint:    #7d89a1;   /* ≈ 5:1 on --surface (AA for small text) */
 
   --accent:        #38bdf8;
+  --accent-hover:  #5ccafa;
   --accent-deep:   #2563eb;
   --accent-soft:   rgba(56, 189, 248, 0.12);
   --accent-line:   rgba(56, 189, 248, 0.38);
+  --on-accent:     #06111d;   /* text on solid accent */
 
-  --ok:        #34d399;
-  --ok-soft:   rgba(52, 211, 153, 0.12);
-  --warn:      #fbbf24;
-  --warn-soft: rgba(251, 191, 36, 0.12);
-  --danger:    #f87171;
+  --ok:          #34d399;
+  --ok-soft:     rgba(52, 211, 153, 0.12);
+  --ok-line:     rgba(52, 211, 153, 0.32);
+  --warn:        #fbbf24;
+  --warn-hover:  #fcca4a;
+  --warn-soft:   rgba(251, 191, 36, 0.10);
+  --warn-line:   rgba(251, 191, 36, 0.32);
+  --on-warn:     #1a1200;
+  --danger:      #f87171;
   --danger-soft: rgba(248, 113, 113, 0.12);
+  --danger-line: rgba(248, 113, 113, 0.36);
+  --on-danger:   #ffffff;
+  --danger-solid:#dc2626;
+
+  --knob:        #ffffff;
+  --shadow-pop:  0 18px 48px rgba(0, 0, 0, 0.55), 0 2px 8px rgba(0, 0, 0, 0.35);
+  --selection:   rgba(56, 189, 248, 0.32);
 
   --radius:    16px;
   --radius-sm: 11px;
   --radius-lg: 22px;
 
+  /* System fonts that cover every UI language on Windows, macOS and Linux:
+     Segoe UI (Latin, Cyrillic, Arabic script), Nirmala UI (Devanagari,
+     Bengali), Microsoft YaHei / Yu Gothic (CJK), then Apple and Noto. */
+  --font-sans: 'Segoe UI Variable Text', 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont,
+    'Nirmala UI', 'Microsoft YaHei UI', 'Microsoft YaHei', 'Yu Gothic UI', 'Meiryo UI',
+    'PingFang SC', 'Hiragino Sans', 'Kohinoor Bangla', 'Kohinoor Devanagari', 'Geeza Pro',
+    Roboto, 'Noto Sans', 'Noto Sans Arabic', 'Noto Sans Devanagari', 'Noto Sans Bengali',
+    'Noto Sans CJK SC', 'Helvetica Neue', Arial, sans-serif;
+  --font-mono: ui-monospace, 'Cascadia Mono', Consolas, 'SF Mono', Menlo, 'DejaVu Sans Mono', monospace;
+
   color-scheme: dark;
 }
 
-* { box-sizing: border-box; margin: 0; padding: 0; }
+/* Per-script font priorities so the right glyphs win (e.g. Japanese kanji
+   are not rendered with the Chinese font, Urdu/Persian use Arabic-script
+   UI fonts). */
+:lang(zh) { --font-sans: 'Microsoft YaHei UI', 'Microsoft YaHei', 'PingFang SC', 'Hiragino Sans GB', 'Noto Sans CJK SC', 'Segoe UI', system-ui, sans-serif; }
+:lang(ja) { --font-sans: 'Yu Gothic UI', 'Meiryo UI', 'Meiryo', 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Noto Sans CJK JP', 'Segoe UI', system-ui, sans-serif; }
+:lang(hi) { --font-sans: 'Nirmala UI', 'Kohinoor Devanagari', 'Devanagari Sangam MN', 'Noto Sans Devanagari', 'Segoe UI', system-ui, sans-serif; }
+:lang(bn) { --font-sans: 'Nirmala UI', 'Vrinda', 'Kohinoor Bangla', 'Bangla Sangam MN', 'Noto Sans Bengali', 'Segoe UI', system-ui, sans-serif; }
+:lang(ar), :lang(fa), :lang(ur) {
+  --font-sans: 'Segoe UI Variable Text', 'Segoe UI', 'Geeza Pro', 'Noto Sans Arabic', Tahoma, system-ui, sans-serif;
+}
+
+/* Tailwind's preflight defaults borders/dividers to a light gray; use the
+   dark palette's hairline instead so `border-t` / `divide-y` match. */
+*, ::before, ::after { box-sizing: border-box; margin: 0; padding: 0; border-color: var(--line); }
 
 html, body {
   height: 100%;
   overflow: hidden;
-  font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI',
-    Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
+  -webkit-text-size-adjust: 100%;
 }
+/* :lang() sets the variable on <html>; re-read it on body so it applies. */
+body { font-family: var(--font-sans); color: var(--text); background: var(--bg); }
 
-body { color: var(--text); background: var(--bg); }
+/* Scripts with tall stacked marks / no word spaces need a little more room. */
+:lang(hi) body, :lang(bn) body, :lang(ur) body { line-height: 1.6; }
+:lang(zh) body, :lang(ja) body { line-break: strict; word-break: normal; }
+/* Devanagari / Bengali / Urdu have tall vowel marks above and below the
+   line: relax the tight Tailwind leadings so marks are never clipped or
+   collide between lines (also inside truncate / line-clamp boxes). */
+:lang(hi) :is(.leading-none, .leading-tight, .leading-snug, .nav-label),
+:lang(bn) :is(.leading-none, .leading-tight, .leading-snug, .nav-label),
+:lang(ur) :is(.leading-none, .leading-tight, .leading-snug, .nav-label) { line-height: 1.55; }
+
+::selection { background: var(--selection); color: var(--text); }
+
+button, [role='button'], [role='switch'], [role='option'] { cursor: pointer; user-select: none; -webkit-user-select: none; }
+button:disabled { cursor: default; }
+button { font: inherit; color: inherit; background: none; border: 0; text-align: inherit; }
 
 .num {
   font-variant-numeric: tabular-nums;
   font-feature-settings: "tnum" 1;
   letter-spacing: -0.01em;
 }
+.mono { font-family: var(--font-mono); font-size: 0.92em; }
 
 .shell {
   position: fixed;
@@ -69,6 +123,7 @@ body { color: var(--text); background: var(--bg); }
     radial-gradient(120% 60% at 50% -10%, rgba(37, 99, 235, 0.10), transparent 60%),
     radial-gradient(90% 50% at 50% 115%, rgba(56, 189, 248, 0.06), transparent 60%),
     var(--bg);
+  transition: opacity 0.18s ease;
 }
 
 .card {
@@ -85,22 +140,103 @@ body { color: var(--text); background: var(--bg); }
 .drag    { -webkit-app-region: drag; }
 .no-drag { -webkit-app-region: no-drag; }
 
-.scroll { scrollbar-width: thin; scrollbar-color: var(--line-strong) transparent; }
-.scroll::-webkit-scrollbar { width: 8px; height: 8px; }
-.scroll::-webkit-scrollbar-track { background: transparent; }
-.scroll::-webkit-scrollbar-thumb {
+/* ── scrollbars (all scrollable areas) ── */
+* { scrollbar-width: thin; scrollbar-color: var(--line-strong) transparent; }
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track, ::-webkit-scrollbar-corner { background: transparent; }
+::-webkit-scrollbar-thumb {
   background: var(--line-strong);
   border-radius: 99px;
-  border: 2px solid transparent;
+  border: 3px solid transparent;
   background-clip: padding-box;
 }
-.scroll::-webkit-scrollbar-thumb:hover { background: var(--text-faint); background-clip: padding-box; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-faint); background-clip: padding-box; border: 3px solid transparent; }
 
-select, input { color: var(--text); background: var(--surface-2); }
-select option { background: var(--surface); color: var(--text); }
-input::placeholder { color: var(--text-faint); }
+/* ── form controls ── */
+input, textarea, select {
+  font: inherit;
+  color: var(--text);
+  background: var(--surface-2);
+  caret-color: var(--accent);
+}
+input::placeholder { color: var(--text-faint); opacity: 1; }
+.field {
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  transition: border-color 0.15s, background-color 0.15s, box-shadow 0.15s;
+}
+.field:hover { border-color: var(--line-strong); }
+.field:focus, .field:focus-visible, .field[aria-expanded='true'] {
+  outline: none;
+  border-color: var(--accent-line);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
 
+/* ── focus ring for keyboard users ── */
+:focus { outline: none; }
 :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* ── buttons ── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-width: 0;
+  text-align: center;
+  line-height: 1.25;
+  transition: background-color 0.15s, color 0.15s, border-color 0.15s, opacity 0.15s, transform 0.1s;
+}
+.btn:active:not(:disabled) { transform: scale(0.985); }
+.btn:disabled { opacity: 0.55; }
+.btn-primary { background: var(--accent); color: var(--on-accent); border: 1px solid transparent; }
+.btn-primary:hover:not(:disabled) { background: var(--accent-hover); }
+.btn-danger { background: var(--danger-soft); color: var(--danger); border: 1px solid var(--danger-line); }
+.btn-danger:hover:not(:disabled) { background: rgba(248, 113, 113, 0.2); }
+.btn-warn { background: var(--warn); color: var(--on-warn); border: 1px solid transparent; }
+.btn-warn:hover:not(:disabled) { background: var(--warn-hover); }
+.btn-ghost { background: var(--surface-2); color: var(--text-dim); border: 1px solid var(--line); }
+.btn-ghost:hover:not(:disabled) { background: var(--surface-hover); color: var(--text); border-color: var(--line-strong); }
+
+.chip { background: var(--surface-2); color: var(--text-dim); border: 1px solid var(--line); transition: background-color 0.15s, color 0.15s, border-color 0.15s; }
+.chip:hover { background: var(--surface-hover); color: var(--text); }
+.chip[aria-pressed='true'] { background: var(--accent-soft); color: var(--accent); border-color: var(--accent-line); }
+
+.row-hover { transition: background-color 0.15s; }
+.row-hover:hover { background: var(--surface-hover); }
+
+/* title-bar window buttons */
+.win-btn { color: var(--text-faint); transition: background-color 0.12s, color 0.12s; }
+.win-btn:hover { background: var(--surface-hover); color: var(--text); }
+.win-btn:active { background: var(--surface-press); }
+.win-btn-close:hover { background: var(--danger-solid); color: var(--on-danger); }
+.win-btn:focus-visible { outline-offset: -2px; }
+
+/* bottom navigation */
+.nav-btn { color: var(--text-faint); transition: color 0.15s, background-color 0.15s; }
+.nav-btn:hover { color: var(--text-dim); background: rgba(148, 163, 184, 0.05); }
+.nav-btn[aria-current='page'] { color: var(--accent); }
+.nav-btn:focus-visible { outline-offset: -3px; border-radius: 10px; }
+
+/* switch */
+.switch-track { background: var(--surface-press); border: 1px solid var(--line-strong); transition: background-color 0.2s, border-color 0.2s; }
+.switch-track[data-on='true'] { background: var(--accent); border-color: transparent; }
+.switch-knob { background: var(--knob); box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4); transition: transform 0.2s cubic-bezier(0.22, 1, 0.36, 1); }
+
+/* dropdown listbox */
+.listbox {
+  background: var(--surface);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-pop);
+}
+.option { color: var(--text); transition: background-color 0.1s; }
+.option[data-active='true'] { background: var(--surface-hover); }
+.option[aria-selected='true'] { color: var(--accent); }
+
+/* Text inside narrow containers: wrap long words (German compounds, URLs). */
+.wrap-anywhere { overflow-wrap: anywhere; word-break: normal; }
 
 @keyframes rise {
   from { opacity: 0; transform: translateY(8px); }
@@ -108,12 +244,22 @@ input::placeholder { color: var(--text-faint); }
 }
 .rise { animation: rise 0.28s cubic-bezier(0.22, 1, 0.36, 1); }
 
+@keyframes pop {
+  from { opacity: 0; transform: translateY(-4px) scale(0.98); }
+  to   { opacity: 1; transform: none; }
+}
+.pop { animation: pop 0.14s ease-out; }
+
 @keyframes halo {
   0%, 100% { opacity: 0.5; transform: scale(1); }
   50%      { opacity: 0.95; transform: scale(1.03); }
 }
 .halo { animation: halo 3.4s ease-in-out infinite; }
 
+@keyframes spin { to { transform: rotate(360deg); } }
+.spin { animation: spin 0.9s linear infinite; }
+
 @media (prefers-reduced-motion: reduce) {
-  .rise, .halo { animation: none; }
+  .rise, .halo, .pop { animation: none; }
+  .spin { animation-duration: 2.4s; }
 }
