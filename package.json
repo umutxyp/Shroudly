@@ -1,6 +1,6 @@
 {
   "name": "shroudly",
-  "version": "2.0.2",
+  "version": "2.0.3",
   "description": "Shroudly - Unseen. Unstoppable. | Cross-platform DPI bypass (self-contained engine)",
   "main": "electron/main.js",
   "private": true,
@@ -101,6 +101,13 @@
       {
         "from": "public/icon-small.png",
         "to": "icon-small.png"
+      },
+      {
+        "from": "public",
+        "to": ".",
+        "filter": [
+          "tray*Template*.png"
+        ]
       }
     ],
     "mac": {

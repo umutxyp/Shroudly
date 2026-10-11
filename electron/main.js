@@ -99,8 +99,16 @@ function trayIconPath() {
                                       : iconAssetPath('icon-small.png');
 }
 
-function makeTrayIcon() {
+/* macOS menu bar: monochrome template images (sources in scripts/tray-icons)
+ * that macOS tints for light and dark menu bars; @2x/@3x are picked up
+ * automatically. A solid pupil means protection is on. Elsewhere: app icon. */
+function makeTrayIcon(active = false) {
   try {
+    if (process.platform === 'darwin') {
+      const img = nativeImage.createFromPath(iconAssetPath(active ? 'trayTemplate.png' : 'trayInactiveTemplate.png'));
+      img.setTemplateImage(true);
+      return img;
+    }
     const img = nativeImage.createFromPath(trayIconPath());
     return img.isEmpty() ? nativeImage.createEmpty() : img;
   } catch { return nativeImage.createEmpty(); }
@@ -134,6 +142,7 @@ function rebuildTrayMenu(active = trayActive) {
   ]);
   tray.setContextMenu(menu);
   tray.setToolTip(`Shroudly — ${state}`);
+  if (process.platform === 'darwin') tray.setImage(makeTrayIcon(active));
 }
 
 function createTray() {
