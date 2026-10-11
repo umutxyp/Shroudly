@@ -1,13 +1,24 @@
 'use strict';
 
-const { app, BrowserWindow, ipcMain, Tray, Menu, nativeImage, shell, Notification } = require('electron');
+const { app, BrowserWindow, ipcMain, Tray, Menu, nativeImage, shell, Notification, powerMonitor } = require('electron');
 const path = require('path');
 const url = require('url');
 const fs = require('fs');
 const Store = require('electron-store');
 const EngineManager = require('./engine-manager');
+const SystemProxy = require('./system-proxy');
 const AdvancedMode = require('./advanced-mode');
 const i18n = require('./main-i18n');
+
+/* "Shroudly --restore-proxy" runs once at login after a run that never got to
+ * restore the system proxy (power loss, forced reboot). Restore and exit. */
+const RESTORE_PROXY_ARG = '--restore-proxy';
+const proxyStateFile = () => path.join(app.getPath('userData'), 'proxy-state.json');
+if (process.argv.includes(RESTORE_PROXY_ARG)) {
+  try { SystemProxy.recoverSync({ stateFile: proxyStateFile() }); } catch {}
+  app.exit(0);
+  return;
+}
 
 const store = new Store();
 let mainWindow = null;
@@ -70,7 +81,10 @@ function addLog(level, message) {
 }
 
 function isAutoStartLaunch() {
-  return process.argv.includes(AUTOSTART_ARG);
+  if (process.argv.includes(AUTOSTART_ARG)) return true;
+  // macOS login items get no arguments
+  if (process.platform === 'darwin') { try { return app.getLoginItemSettings().wasOpenedAtLogin; } catch {} }
+  return false;
 }
 
 function notify(title, body) {
@@ -243,22 +257,33 @@ async function shutdownAndQuit() {
 }
 
 /* ── auto-start (per-OS, no elevation) ───────────────────────────────────── */
+/* Windows Run-key value name. 2.0.0 registered under Electron's default
+ * AppUserModelId; that entry is removed so it can't keep starting the app. */
+const WIN_LOGIN_ITEM = { path: process.execPath, args: [AUTOSTART_ARG], name: 'Shroudly' };
+const WIN_LEGACY_LOGIN_NAMES = ['electron.app.Shroudly', 'me.codeshare.shroudly'];
+
+/* The real executable on disk: inside an AppImage, process.execPath is a
+ * temporary mount that is gone after a reboot. */
+function launcherPath() { return process.env.APPIMAGE || process.execPath; }
+
 function setAutoStart(enable) {
   try {
-    if (process.platform === 'darwin' || process.platform === 'win32') {
-      app.setLoginItemSettings({
-        openAtLogin: enable,
-        args: [AUTOSTART_ARG],
-        ...(process.platform === 'win32' ? { path: process.execPath } : {}),
-      });
+    if (process.platform === 'win32') {
+      for (const name of WIN_LEGACY_LOGIN_NAMES) app.setLoginItemSettings({ openAtLogin: false, path: process.execPath, name });
+      app.setLoginItemSettings({ ...WIN_LOGIN_ITEM, openAtLogin: enable });
+      return true;
+    }
+    if (process.platform === 'darwin') {
+      app.setLoginItemSettings({ openAtLogin: enable });
       return true;
     }
     const dir = path.join(app.getPath('home'), '.config', 'autostart');
     const file = path.join(dir, 'shroudly.desktop');
     if (enable) {
+      const q = (a) => `"${String(a).replace(/(["`$\\])/g, '\\$1')}"`;
       fs.mkdirSync(dir, { recursive: true });
       fs.writeFileSync(file,
-        `[Desktop Entry]\nType=Application\nName=Shroudly\nExec=${process.execPath} ${AUTOSTART_ARG}\nX-GNOME-Autostart-enabled=true\n`);
+        `[Desktop Entry]\nType=Application\nName=Shroudly\nExec=${q(launcherPath())} ${AUTOSTART_ARG}\nX-GNOME-Autostart-enabled=true\n`);
     } else if (fs.existsSync(file)) {
       fs.unlinkSync(file);
     }
@@ -273,13 +298,21 @@ function getAutoStartEnabled() {
   if (process.platform === 'linux') {
     return fs.existsSync(path.join(app.getPath('home'), '.config', 'autostart', 'shroudly.desktop'));
   }
-  try { return app.getLoginItemSettings().openAtLogin; } catch { return false; }
+  try { return app.getLoginItemSettings(process.platform === 'win32' ? WIN_LOGIN_ITEM : undefined).openAtLogin; } catch { return false; }
 }
 
 /* ── app ready ───────────────────────────────────────────────────────────── */
 app.whenReady().then(async () => {
   engine = new EngineManager(store, {
     addLog, onStatusChange: broadcastStatus,
+    proxyOptions: {
+      stateFile: proxyStateFile(),
+      watchdog: { execPath: process.execPath, script: path.join(__dirname, 'proxy-watchdog.js') },
+      restoreCommand: {
+        exe: launcherPath(),
+        args: app.isPackaged ? [RESTORE_PROXY_ARG] : [app.getAppPath(), RESTORE_PROXY_ARG],
+      },
+    },
     onProbe: (p) => { if (mainWindow && !mainWindow.isDestroyed()) mainWindow.webContents.send('dpi:probe-result', p); },
   });
   advanced = new AdvancedMode(addLog);
@@ -287,8 +320,9 @@ app.whenReady().then(async () => {
 
   await createWindow();
 
-  const savedAuto = store.get('autoStart', false);
-  if (savedAuto !== getAutoStartEnabled()) setAutoStart(savedAuto);
+  // Re-register every launch so the entry always points at this install
+  // (moved app, updated AppImage, 2.0.0's broken Linux entry, legacy names).
+  setAutoStart(store.get('autoStart', false));
 
   let started = false;
   mainWindow.webContents.on('did-finish-load', async () => {
@@ -312,6 +346,17 @@ app.whenReady().then(async () => {
 });
 
 app.on('window-all-closed', () => { /* keep running in tray */ });
+
+/* Logoff / shutdown / reboot: the OS may kill us before before-quit finishes,
+ * so put the proxy back synchronously right away (reg.exe, networksetup,
+ * gsettings: all fast). The login hook covers the case where even this
+ * doesn't get to run. */
+function restoreForSessionEnd() {
+  try { engine && engine.cleanupSync(); } catch {}
+  try { advanced && advanced.cleanupSync(); } catch {}
+}
+app.on('session-end', restoreForSessionEnd); // Windows
+app.whenReady().then(() => { powerMonitor.on('shutdown', restoreForSessionEnd); }); // macOS, Linux
 
 app.on('before-quit', async (e) => {
   if (exitInProgress) return;

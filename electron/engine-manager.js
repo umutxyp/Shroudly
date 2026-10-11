@@ -20,6 +20,11 @@ const SystemProxy = require('./system-proxy');
 
 const DEFAULT_PORT = 10808;
 const MAX_RESTARTS = 5;
+// No output at all for this long, although STATS is asked every second, means
+// the engine hangs: the system proxy then points at a dead endpoint, so treat
+// it like a crash. Generous, because a site test (PROBE) blocks the engine's
+// command loop while it runs.
+const HANG_TIMEOUT_MS = 60000;
 
 function coreBinaryPath() {
   const plat = process.platform;              // win32 | darwin | linux
@@ -44,7 +49,8 @@ class EngineManager {
     this.onStatusChange = hooks.onStatusChange || (() => {});
     this.onProbe = hooks.onProbe || (() => {});
     this.lastProbe = null;
-    this.proxy = new SystemProxy(this.log);
+    this.proxyOptions = hooks.proxyOptions || {};
+    this.proxy = new SystemProxy(this.log, this.proxyOptions);
 
     this.proc = null;
     this.active = false;
@@ -149,7 +155,9 @@ class EngineManager {
       }
 
       let buf = '';
+      this.lastOutputAt = Date.now();
       this.proc.stdout.on('data', (d) => {
+        this.lastOutputAt = Date.now();
         buf += d.toString();
         let i;
         while ((i = buf.indexOf('\n')) >= 0) {
@@ -216,7 +224,14 @@ class EngineManager {
   _startStatsPoll() {
     this._stopStatsPoll();
     this._poll = setInterval(() => {
-      if (this.proc && this.proc.stdin.writable) {
+      if (!this.proc) return;
+      if (this.active && Date.now() - this.lastOutputAt > HANG_TIMEOUT_MS) {
+        this.log('error', 'Engine stopped responding; restarting it');
+        this.lastOutputAt = Date.now();
+        try { this.proc.kill('SIGKILL'); } catch {} // _onClose restores the proxy and restarts
+        return;
+      }
+      if (this.proc.stdin.writable) {
         try { this.proc.stdin.write('STATS\n'); } catch {}
       }
     }, 1000);
@@ -297,16 +312,16 @@ class EngineManager {
   }
 
   async recover() {
-    // If a previous run left the proxy applied (store flag) but no engine is
-    // running, restore it on startup.
-    if (this.store.get('runtimeActive')) {
+    // A previous run that never restored the proxy (crash, kill, power loss)
+    // left a state file with the user's settings: put them back. 2.0.0 left
+    // only the runtimeActive flag, so fall back to switching its proxy off.
+    let restored = false;
+    try { restored = SystemProxy.recoverSync(this.proxyOptions, this.log); } catch {}
+    if (!restored && this.store.get('runtimeActive')) {
       this.log('info', 'Recovering: restoring proxy from previous session');
-      // We don't have the old snapshot; force a clean reset.
-      this.proxy.applied = true;
-      this.proxy.snapshot = null;
-      try { await this.proxy.restore(); } catch {}
-      this.store.set('runtimeActive', false);
+      try { SystemProxy.resetLegacySync(this.log); } catch {}
     }
+    this.store.set('runtimeActive', false);
   }
 }
 

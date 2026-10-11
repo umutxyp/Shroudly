@@ -4,26 +4,46 @@
  * Cross-platform system proxy control.
  *
  * The engine exposes a local SOCKS5 proxy on 127.0.0.1:<port>. To route traffic
- * through it we point the OS/browser proxy at it, and we always restore the
- * previous state on stop / crash / logout.
+ * through it we point the OS/browser proxy at it. If that setting outlives the
+ * engine, the user has no internet, so restoring it is the most important job
+ * here, and it must survive every way Shroudly can end:
  *
- * Windows : WinINET per-user proxy (HKCU, no admin). We publish the PAC over a
- *           tiny local HTTP server, because modern WinINET refuses file:// PAC
- *           URLs. We also set a direct HKCU proxy as a fallback.
+ *   clean stop / quit       restore() with the snapshot taken before applying
+ *   engine crash            EngineManager restores before restarting it
+ *   app killed / crashed    a detached watchdog (proxy-watchdog.js) notices the
+ *                           app is gone and restores within about a second
+ *   reboot / power loss     a run-once login hook starts "Shroudly --restore-proxy"
+ *                           (Windows RunOnce, Linux autostart, macOS LaunchAgent)
+ *   next launch             EngineManager.recover() restores from the state file
+ *   uninstall / update      the NSIS installer resets a leftover Shroudly proxy
+ *
+ * The snapshot lives in a state file so any of these can restore the user's
+ * exact previous settings. A recovery restores only while the settings still
+ * point at our proxy, so it never undoes a change the user made since.
+ *
+ * Windows : WinINET per-user proxy (HKCU, no admin), via reg.exe (fast and
+ *           synchronous, unlike PowerShell, so it also works while exiting).
+ *           We publish the PAC over a tiny local HTTP server, because WinINET
+ *           refuses file:// PAC URLs, and also set a direct SOCKS fallback.
  * macOS   : `networksetup -setsocksfirewallproxy` on active services. This needs
  *           admin; we detect whether non-interactive sudo is possible and, if
  *           not, fall back to per-app SOCKS (env + PAC URL) without failing.
- * Linux   : GNOME/KDE gsettings/kwriteconfig if present; always also expose a
- *           PAC URL + SOCKS address for apps. No system file edits.
- *
- * Every change is reverted by restore()/restoreSync().
+ * Linux   : GNOME gsettings if present; always also expose a PAC URL + SOCKS
+ *           address for apps. No system file edits.
  */
 
-const { execFile, execFileSync } = require('child_process');
+const { execFile, execFileSync, spawn } = require('child_process');
 const http = require('http');
 const os = require('os');
 const fs = require('fs');
 const path = require('path');
+
+const WIN_KEY = 'HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings';
+const WIN_VALUES = ['ProxyEnable', 'ProxyServer', 'AutoConfigURL', 'ProxyOverride'];
+const WIN_RUNONCE_KEY = 'HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\RunOnce';
+const WIN_RUNONCE_VALUE = 'ShroudlyProxyRestore';
+const MAC_AGENT_LABEL = 'me.codeshare.shroudly.proxy-restore';
+const OUR_PAC = /^http:\/\/127\.0\.0\.1:\d+\/proxy\.pac$/;
 
 function run(cmd, args, timeout = 8000) {
   return new Promise((resolve, reject) => {
@@ -34,16 +54,44 @@ function run(cmd, args, timeout = 8000) {
   });
 }
 
+function runSync(cmd, args, timeout = 4000) {
+  return String(execFileSync(cmd, args, { timeout, windowsHide: true, stdio: ['ignore', 'pipe', 'ignore'] }) || '');
+}
+
+// ── Windows registry (reg.exe) ───────────────────────────────────────────
+function regGet(name) {
+  try {
+    const out = runSync('reg.exe', ['query', WIN_KEY, '/v', name]);
+    const m = out.match(new RegExp(`^\\s*${name}\\s+(REG_\\w+)\\s*(.*)$`, 'mi'));
+    return m ? { type: m[1], data: m[2].trim() } : null;
+  } catch { return null; } // value not present
+}
+function regSet(name, type, data) {
+  runSync('reg.exe', ['add', WIN_KEY, '/v', name, '/t', type, '/d', String(data), '/f']);
+}
+function regDel(name) {
+  try { runSync('reg.exe', ['delete', WIN_KEY, '/v', name, '/f']); } catch {}
+}
+
 class SystemProxy {
-  constructor(log) {
+  /*
+   * opts.stateFile      where the snapshot is kept while the proxy is applied
+   * opts.watchdog       { execPath, script } to run proxy-watchdog.js detached
+   * opts.restoreCommand { exe, args } run once at next login if we never restore
+   */
+  constructor(log, opts = {}) {
     this.log = log || (() => {});
     this.platform = process.platform;
+    this.stateFile = opts.stateFile || null;
+    this.watchdogOpts = opts.watchdog || null;
+    this.restoreCommand = opts.restoreCommand || null;
     this.applied = false;
     this.snapshot = null;
     this.pacServer = null;
     this.pacPort = 0;
     this.pacUrl = null;
     this.socksPort = 0;
+    this.watchdog = null;
   }
 
   pacBody(port) {
@@ -87,9 +135,16 @@ class SystemProxy {
     if (this.applied) return;
     this.socksPort = port;
     await this.startPacServer(port);
-    if (this.platform === 'win32') await this._applyWindows(port);
-    else if (this.platform === 'darwin') await this._applyMac(port);
-    else await this._applyLinux(port);
+    try {
+      if (this.platform === 'win32') this._applyWindows(port);
+      else if (this.platform === 'darwin') await this._applyMac(port);
+      else await this._applyLinux(port);
+    } catch (e) {
+      // Undo whatever part was applied before failing.
+      this.applied = true;
+      this.restoreSync();
+      throw e;
+    }
     this.applied = true;
     this.log('success', `System routed through local proxy on port ${port}`);
   }
@@ -97,89 +152,242 @@ class SystemProxy {
   async restore() {
     if (!this.applied) { this.stopPacServer(); return; }
     try {
-      if (this.platform === 'win32') await this._restoreWindows();
+      if (this.platform === 'win32') this._restoreWindows();
       else if (this.platform === 'darwin') await this._restoreMac();
       else await this._restoreLinux();
       this.log('success', 'System proxy settings restored');
     } catch (e) {
       this.log('warning', `Proxy restore issue: ${e.message}`);
     } finally {
-      this.applied = false;
-      this.snapshot = null;
-      this.stopPacServer();
+      this._disarm();
     }
   }
 
+  /* Synchronous restore, for process exit and session end. */
   restoreSync() {
-    if (!this.applied) return;
+    if (!this.applied) { this.stopPacServer(); return; }
     try {
-      if (this.platform === 'win32') this._restoreWindowsSync();
+      if (this.platform === 'win32') this._restoreWindows();
       else if (this.platform === 'darwin') this._restoreMacSync();
       else this._restoreLinuxSync();
     } catch {}
+    this._disarm();
+  }
+
+  // ── state file + safety nets ───────────────────────────────────────────
+  /* Called once the snapshot is taken and before the first setting changes:
+   * from here on every exit path can find what to put back. */
+  _arm() {
+    if (this.stateFile) {
+      const state = { v: 1, platform: this.platform, port: this.socksPort, snapshot: this.snapshot };
+      try {
+        fs.mkdirSync(path.dirname(this.stateFile), { recursive: true });
+        fs.writeFileSync(this.stateFile, JSON.stringify(state));
+      } catch (e) { this.log('warning', `Could not save proxy state: ${e.message}`); }
+    }
+    this._installLoginHook();
+    this._startWatchdog();
+  }
+
+  _disarm() {
     this.applied = false;
+    this.snapshot = null;
     this.stopPacServer();
+    this._stopWatchdog();
+    this._removeLoginHook();
+    if (this.stateFile) { try { fs.rmSync(this.stateFile, { force: true }); } catch {} }
   }
 
-  // ── Windows (WinINET, HKCU, no admin) ──────────────────────────────────
-  async _applyWindows(port) {
-    const ps = `
-$ErrorActionPreference='Stop'
-$k='HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings'
-$cur = Get-ItemProperty -Path $k
-$snap = @{
-  ProxyEnable = [int]($cur.ProxyEnable);
-  ProxyServer = [string]$cur.ProxyServer;
-  AutoConfigURL = [string]$cur.AutoConfigURL
-} | ConvertTo-Json -Compress
-# Point WinINET at our HTTP-served PAC (file:// PACs are rejected by WinINET).
-Set-ItemProperty -Path $k -Name AutoConfigURL -Value '${this.pacUrl}'
-# Also set a direct SOCKS proxy as a fallback for stacks that ignore PAC.
-Set-ItemProperty -Path $k -Name ProxyEnable -Value 1
-Set-ItemProperty -Path $k -Name ProxyServer -Value 'socks=127.0.0.1:${port}'
-Set-ItemProperty -Path $k -Name ProxyOverride -Value '<local>;127.*;10.*;172.16.*;192.168.*;localhost'
-$snap
-`;
-    const out = await this._ps(ps);
-    this.snapshot = this._safeJson(out);
-    await this._refreshWinInet();
-  }
-
-  async _restoreWindows() {
-    const s = this.snapshot || {};
-    const ps = `
-$k='HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings'
-${s.AutoConfigURL ? `Set-ItemProperty -Path $k -Name AutoConfigURL -Value '${String(s.AutoConfigURL).replace(/'/g, "''")}'`
-                  : `Remove-ItemProperty -Path $k -Name AutoConfigURL -ErrorAction SilentlyContinue`}
-Set-ItemProperty -Path $k -Name ProxyEnable -Value ${Number(s.ProxyEnable) ? 1 : 0}
-${s.ProxyServer ? `Set-ItemProperty -Path $k -Name ProxyServer -Value '${String(s.ProxyServer).replace(/'/g, "''")}'`
-               : `Remove-ItemProperty -Path $k -Name ProxyServer -ErrorAction SilentlyContinue`}
-Remove-ItemProperty -Path $k -Name ProxyOverride -ErrorAction SilentlyContinue
-`;
-    await this._ps(ps);
-    await this._refreshWinInet();
-  }
-
-  _restoreWindowsSync() {
-    const s = this.snapshot || {};
-    const ps = `
-$k='HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings'
-${s.AutoConfigURL ? `Set-ItemProperty -Path $k -Name AutoConfigURL -Value '${String(s.AutoConfigURL).replace(/'/g, "''")}'`
-                  : `Remove-ItemProperty -Path $k -Name AutoConfigURL -ErrorAction SilentlyContinue`}
-Set-ItemProperty -Path $k -Name ProxyEnable -Value ${Number(s.ProxyEnable) ? 1 : 0}
-${s.ProxyServer ? `Set-ItemProperty -Path $k -Name ProxyServer -Value '${String(s.ProxyServer).replace(/'/g, "''")}'`
-               : `Remove-ItemProperty -Path $k -Name ProxyServer -ErrorAction SilentlyContinue`}
-Remove-ItemProperty -Path $k -Name ProxyOverride -ErrorAction SilentlyContinue
-`;
+  _startWatchdog() {
+    if (!this.watchdogOpts || !this.stateFile) return;
     try {
-      execFileSync('powershell.exe', ['-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass', '-Command', ps],
-        { windowsHide: true, timeout: 4000 });
-      this._refreshWinInetSync();
+      this.watchdog = spawn(this.watchdogOpts.execPath, [this.watchdogOpts.script, this.stateFile, String(process.pid)], {
+        detached: true,
+        stdio: 'ignore',
+        windowsHide: true,
+        env: { ...process.env, ELECTRON_RUN_AS_NODE: '1' },
+      });
+      this.watchdog.on('error', () => { this.watchdog = null; });
+      this.watchdog.unref();
+    } catch (e) {
+      this.watchdog = null;
+      this.log('warning', `Proxy watchdog not started: ${e.message}`);
+    }
+  }
+
+  _stopWatchdog() {
+    if (this.watchdog) { try { this.watchdog.kill(); } catch {} this.watchdog = null; }
+  }
+
+  /* Run "Shroudly --restore-proxy" once at the next login, in case the machine
+   * goes down (power loss, forced reboot) while the proxy is applied. */
+  _installLoginHook() {
+    const cmd = this.restoreCommand;
+    if (!cmd) return;
+    try {
+      if (this.platform === 'win32') {
+        const line = [cmd.exe, ...cmd.args].map((a) => (/\s/.test(a) ? `"${a}"` : a)).join(' ');
+        runSync('reg.exe', ['add', WIN_RUNONCE_KEY, '/v', WIN_RUNONCE_VALUE, '/t', 'REG_SZ', '/d', line, '/f']);
+      } else if (this.platform === 'darwin') {
+        const file = path.join(os.homedir(), 'Library', 'LaunchAgents', `${MAC_AGENT_LABEL}.plist`);
+        const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        const argsXml = [cmd.exe, ...cmd.args].map((a) => `    <string>${esc(a)}</string>`).join('\n');
+        fs.mkdirSync(path.dirname(file), { recursive: true });
+        fs.writeFileSync(file, `<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key><string>${MAC_AGENT_LABEL}</string>
+  <key>ProgramArguments</key>
+  <array>
+${argsXml}
+  </array>
+  <key>RunAtLoad</key><true/>
+</dict>
+</plist>
+`);
+      } else {
+        const file = path.join(os.homedir(), '.config', 'autostart', 'shroudly-proxy-restore.desktop');
+        const q = (a) => `"${String(a).replace(/(["`$\\])/g, '\\$1')}"`;
+        fs.mkdirSync(path.dirname(file), { recursive: true });
+        fs.writeFileSync(file, `[Desktop Entry]\nType=Application\nName=Shroudly proxy restore\nExec=${[cmd.exe, ...cmd.args].map(q).join(' ')}\nNoDisplay=true\nX-GNOME-Autostart-enabled=true\n`);
+      }
+    } catch (e) { this.log('warning', `Could not install proxy restore hook: ${e.message}`); }
+  }
+
+  _removeLoginHook() {
+    try {
+      if (this.platform === 'win32') runSync('reg.exe', ['delete', WIN_RUNONCE_KEY, '/v', WIN_RUNONCE_VALUE, '/f']);
+      else if (this.platform === 'darwin') fs.rmSync(path.join(os.homedir(), 'Library', 'LaunchAgents', `${MAC_AGENT_LABEL}.plist`), { force: true });
+      else fs.rmSync(path.join(os.homedir(), '.config', 'autostart', 'shroudly-proxy-restore.desktop'), { force: true });
     } catch {}
   }
 
-  _winInetRefreshScript() {
-    return `
+  /*
+   * Restore a proxy left behind by a run that never got to restore it (crash,
+   * kill, power loss). Reads the state file; restores only if the system still
+   * points at our proxy. Synchronous: used by the watchdog and at startup.
+   * Returns true if something was restored.
+   */
+  static recoverSync(opts = {}, log = () => {}) {
+    let state = null;
+    try { state = JSON.parse(fs.readFileSync(opts.stateFile, 'utf8')); } catch {}
+    const p = new SystemProxy(log, opts);
+    if (!state || state.platform !== process.platform) {
+      p._removeLoginHook();
+      if (opts.stateFile) { try { fs.rmSync(opts.stateFile, { force: true }); } catch {} }
+      return false;
+    }
+    p.socksPort = state.port;
+    p.snapshot = state.snapshot;
+    let ours = false;
+    try { ours = p._stillOursSync(); } catch {}
+    if (ours) {
+      p.applied = true;
+      p.restoreSync(); // also clears the state file and login hook
+      log('success', 'System proxy from the previous session restored');
+      return true;
+    }
+    p._disarm();
+    return false;
+  }
+
+  /*
+   * 2.0.0 kept no state file: if it left the system pointing at a local
+   * Shroudly proxy, switch that proxy off (its previous values are unknown).
+   */
+  static resetLegacySync(log = () => {}) {
+    try {
+      if (process.platform === 'win32') {
+        const server = regGet('ProxyServer');
+        const pac = regGet('AutoConfigURL');
+        const ourServer = server && /^socks=127\.0\.0\.1:\d+$/.test(server.data);
+        const ourPac = pac && OUR_PAC.test(pac.data);
+        if (!ourServer && !ourPac) return false;
+        regSet('ProxyEnable', 'REG_DWORD', '0');
+        if (ourServer) regDel('ProxyServer');
+        if (ourPac) regDel('AutoConfigURL');
+        const ov = regGet('ProxyOverride');
+        if (ov && ov.data === '<local>;127.*;10.*;172.16.*;192.168.*;localhost') regDel('ProxyOverride');
+      } else if (process.platform === 'darwin') {
+        const out = runSync('networksetup', ['-listallnetworkservices']);
+        let any = false;
+        for (const svc of out.split('\n').slice(1).map((x) => x.trim()).filter((x) => x && !x.startsWith('*'))) {
+          const cur = SystemProxy._macReadSync(svc);
+          if (cur.enabled && cur.server === '127.0.0.1') {
+            any = true;
+            const args = ['-setsocksfirewallproxystate', svc, 'off'];
+            try { runSync('networksetup', args, 3000); } catch { try { runSync('sudo', ['-n', 'networksetup', ...args], 3000); } catch {} }
+          }
+        }
+        if (!any) return false;
+      } else {
+        const host = runSync('gsettings', ['get', 'org.gnome.system.proxy.socks', 'host']).trim();
+        const mode = runSync('gsettings', ['get', 'org.gnome.system.proxy', 'mode']).trim();
+        if (host !== "'127.0.0.1'" || mode !== "'manual'") return false;
+        runSync('gsettings', ['set', 'org.gnome.system.proxy', 'mode', 'none']);
+      }
+      log('success', 'System proxy left by an earlier version switched off');
+      return true;
+    } catch { return false; }
+  }
+
+  _stillOursSync() {
+    const port = String(this.socksPort);
+    if (this.platform === 'win32') {
+      const server = regGet('ProxyServer');
+      const pac = regGet('AutoConfigURL');
+      return (server && server.data === `socks=127.0.0.1:${port}`) || (pac && OUR_PAC.test(pac.data));
+    }
+    if (this.platform === 'darwin') {
+      const snap = this.snapshot || {};
+      if (snap.mode === 'perapp') return false;
+      return (snap.services || []).some((s) => {
+        const cur = SystemProxy._macReadSync(s.name);
+        return cur.enabled && cur.server === '127.0.0.1' && cur.port === port;
+      });
+    }
+    const g = this.snapshot && this.snapshot.gnome;
+    if (!g) return false;
+    const host = runSync('gsettings', ['get', 'org.gnome.system.proxy.socks', 'host']).trim();
+    const gport = runSync('gsettings', ['get', 'org.gnome.system.proxy.socks', 'port']).trim();
+    const mode = runSync('gsettings', ['get', 'org.gnome.system.proxy', 'mode']).trim();
+    return host === "'127.0.0.1'" && gport === port && mode === "'manual'";
+  }
+
+  // ── Windows (WinINET, HKCU, no admin) ──────────────────────────────────
+  _applyWindows(port) {
+    const snap = {};
+    for (const name of WIN_VALUES) snap[name] = regGet(name);
+    this.snapshot = snap;
+    this._arm();
+    // Point WinINET at our HTTP-served PAC (file:// PACs are rejected by WinINET),
+    // plus a direct SOCKS proxy as a fallback for stacks that ignore PAC.
+    regSet('AutoConfigURL', 'REG_SZ', this.pacUrl);
+    regSet('ProxyServer', 'REG_SZ', `socks=127.0.0.1:${port}`);
+    regSet('ProxyOverride', 'REG_SZ', '<local>;127.*;10.*;172.16.*;192.168.*;localhost');
+    regSet('ProxyEnable', 'REG_DWORD', '1');
+    this._refreshWinInet();
+  }
+
+  _restoreWindows() {
+    const snap = this.snapshot || {};
+    // ProxyEnable first, so traffic goes direct even if a later step fails.
+    const order = ['ProxyEnable', 'AutoConfigURL', 'ProxyServer', 'ProxyOverride'];
+    for (const name of order) {
+      const v = snap[name];
+      if (v) regSet(name, v.type, v.data);
+      else if (name === 'ProxyEnable') regSet('ProxyEnable', 'REG_DWORD', '0');
+      else regDel(name);
+    }
+    this._refreshWinInet();
+  }
+
+  /* Tell running WinINET apps to re-read the settings. Fire and forget:
+   * PowerShell is slow to start and the registry change is what matters
+   * (Chromium-based apps watch the registry themselves). */
+  _refreshWinInet() {
+    const ps = `
 $sig = @'
 [System.Runtime.InteropServices.DllImport("wininet.dll", SetLastError=true)]
 public static extern bool InternetSetOption(IntPtr hInternet, int dwOption, IntPtr lpBuffer, int dwBufferLength);
@@ -188,23 +396,29 @@ $t = Add-Type -MemberDefinition $sig -Name WinINet -Namespace Net -PassThru
 [void]$t::InternetSetOption([IntPtr]::Zero, 39, [IntPtr]::Zero, 0)
 [void]$t::InternetSetOption([IntPtr]::Zero, 37, [IntPtr]::Zero, 0)
 `;
-  }
-  async _refreshWinInet() { try { await this._ps(this._winInetRefreshScript()); } catch {} }
-  _refreshWinInetSync() {
     try {
-      execFileSync('powershell.exe', ['-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass', '-Command', this._winInetRefreshScript()],
-        { windowsHide: true, timeout: 3000 });
+      const p = spawn('powershell.exe', ['-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass', '-Command', ps],
+        { detached: true, stdio: 'ignore', windowsHide: true });
+      p.on('error', () => {});
+      p.unref();
     } catch {}
-  }
-
-  _ps(script) {
-    return run('powershell.exe', ['-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass', '-Command', script]);
   }
 
   // ── macOS (networksetup) ───────────────────────────────────────────────
   async _macServices() {
     const out = await run('networksetup', ['-listallnetworkservices']);
     return out.split('\n').slice(1).map(s => s.trim()).filter(s => s && !s.startsWith('*'));
+  }
+
+  static _macReadSync(svc) {
+    try {
+      const info = runSync('networksetup', ['-getsocksfirewallproxy', svc]);
+      return {
+        enabled: /Enabled:\s*Yes/i.test(info),
+        server: ((info.match(/^Server:\s*(.*)$/mi) || [])[1] || '').trim(),
+        port: ((info.match(/^Port:\s*(\d+)/mi) || [])[1] || '').trim(),
+      };
+    } catch { return { enabled: false, server: '', port: '' }; }
   }
 
   // Can we run networksetup without an interactive password prompt?
@@ -218,18 +432,13 @@ $t = Add-Type -MemberDefinition $sig -Name WinINet -Namespace Net -PassThru
     // user's account already allows it / managed Macs), then non-interactive
     // sudo, and finally fall back to per-app mode so we never hang on a prompt.
     const services = await this._macServices();
-    this.snapshot = { services: [], mode: 'system' };
+    this.snapshot = { services: services.map((name) => ({ name, prev: SystemProxy._macReadSync(name) })), mode: 'system' };
+    this._arm();
     let anyOk = false;
     const sudoOk = await this._macSudoNonInteractive();
     const prefix = (args) => sudoOk ? ['sudo', '-n', 'networksetup', ...args] : ['networksetup', ...args];
 
     for (const svc of services) {
-      let prev = { enabled: false };
-      try {
-        const info = await run('networksetup', ['-getsocksfirewallproxy', svc]);
-        prev.enabled = /Enabled:\s*Yes/i.test(info);
-      } catch {}
-      this.snapshot.services.push({ name: svc, prev });
       try {
         const [c1, ...a1] = prefix(['-setsocksfirewallproxy', svc, '127.0.0.1', String(port)]);
         await run(c1, a1, 6000);
@@ -240,23 +449,32 @@ $t = Add-Type -MemberDefinition $sig -Name WinINet -Namespace Net -PassThru
     }
 
     if (!anyOk) {
+      // Nothing changed system-wide, so there is nothing to recover later.
       this.snapshot.mode = 'perapp';
+      this._stopWatchdog();
+      this._removeLoginHook();
+      if (this.stateFile) { try { fs.rmSync(this.stateFile, { force: true }); } catch {} }
       this.log('warning',
         `Could not set the macOS system proxy without a password. ` +
         `Apps can still use SOCKS 127.0.0.1:${port} directly (PAC: ${this.pacUrl}).`);
     }
   }
 
+  static _macRestoreArgs(s) {
+    const steps = [];
+    if (s.prev.server && s.prev.port) steps.push(['-setsocksfirewallproxy', s.name, s.prev.server, s.prev.port]);
+    steps.push(['-setsocksfirewallproxystate', s.name, s.prev.enabled ? 'on' : 'off']);
+    return steps;
+  }
+
   async _restoreMac() {
     const snap = this.snapshot || {};
     if (snap.mode === 'perapp') return;
     const sudoOk = await this._macSudoNonInteractive();
-    const prefix = (args) => sudoOk ? ['sudo', '-n', 'networksetup', ...args] : ['networksetup', ...args];
     for (const s of (snap.services || [])) {
-      try {
-        const [c, ...a] = prefix(['-setsocksfirewallproxystate', s.name, s.prev.enabled ? 'on' : 'off']);
-        await run(c, a, 6000);
-      } catch {}
+      for (const args of SystemProxy._macRestoreArgs(s)) {
+        try { await run(...(sudoOk ? ['sudo', ['-n', 'networksetup', ...args]] : ['networksetup', args]), 6000); } catch {}
+      }
     }
   }
 
@@ -264,55 +482,60 @@ $t = Add-Type -MemberDefinition $sig -Name WinINet -Namespace Net -PassThru
     const snap = this.snapshot || {};
     if (snap.mode === 'perapp') return;
     for (const s of (snap.services || [])) {
-      try {
-        execFileSync('networksetup', ['-setsocksfirewallproxystate', s.name, s.prev.enabled ? 'on' : 'off'], { timeout: 3000 });
-      } catch {
-        try { execFileSync('sudo', ['-n', 'networksetup', '-setsocksfirewallproxystate', s.name, s.prev.enabled ? 'on' : 'off'], { timeout: 3000 }); } catch {}
+      for (const args of SystemProxy._macRestoreArgs(s)) {
+        try { runSync('networksetup', args, 3000); }
+        catch { try { runSync('sudo', ['-n', 'networksetup', ...args], 3000); } catch {} }
       }
     }
   }
 
-  // ── Linux (GNOME gsettings or KDE; otherwise PAC/env only) ──────────────
+  // ── Linux (GNOME gsettings; otherwise PAC/env only) ──────────────────────
   async _has(cmd, args) { try { await run(cmd, args, 3000); return true; } catch { return false; } }
 
   async _applyLinux(port) {
-    this.snapshot = { gnome: null, kde: null, mode: 'perapp' };
+    this.snapshot = { gnome: null, mode: 'perapp' };
     if (await this._has('gsettings', ['get', 'org.gnome.system.proxy', 'mode'])) {
       try {
         const mode = (await run('gsettings', ['get', 'org.gnome.system.proxy', 'mode'])).trim();
-        const sh = (await run('gsettings', ['get', 'org.gnome.system.proxy.socks', 'host'])).trim();
-        const sp = (await run('gsettings', ['get', 'org.gnome.system.proxy.socks', 'port'])).trim();
-        this.snapshot.gnome = { mode, host: sh, port: sp };
+        const host = (await run('gsettings', ['get', 'org.gnome.system.proxy.socks', 'host'])).trim();
+        const sport = (await run('gsettings', ['get', 'org.gnome.system.proxy.socks', 'port'])).trim();
+        this.snapshot = { gnome: { mode, host, port: sport }, mode: 'gnome' };
+        this._arm();
         await run('gsettings', ['set', 'org.gnome.system.proxy.socks', 'host', '127.0.0.1']);
         await run('gsettings', ['set', 'org.gnome.system.proxy.socks', 'port', String(port)]);
         await run('gsettings', ['set', 'org.gnome.system.proxy', 'mode', 'manual']);
-        this.snapshot.mode = 'gnome';
         this.log('info', 'GNOME system proxy set to SOCKS 127.0.0.1');
         return;
-      } catch (e) { this.log('warning', `gsettings failed: ${e.message}`); }
+      } catch (e) {
+        this.log('warning', `gsettings failed: ${e.message}`);
+        this._restoreLinuxSync();
+        this.snapshot = { gnome: null, mode: 'perapp' };
+      }
     }
     this.log('info', `No desktop proxy API in use. Point apps at socks5://127.0.0.1:${port} (PAC: ${this.pacUrl}).`);
+  }
+
+  /* gsettings prints strings quoted ('none'); `set` takes them unquoted. */
+  static _gnomeRestoreArgs(g) {
+    const unq = (v) => String(v || '').replace(/^'(.*)'$/, '$1');
+    return [
+      ['set', 'org.gnome.system.proxy', 'mode', unq(g.mode) || 'none'],
+      ['set', 'org.gnome.system.proxy.socks', 'host', unq(g.host)],
+      ['set', 'org.gnome.system.proxy.socks', 'port', String(parseInt(g.port, 10) || 0)],
+    ];
   }
 
   async _restoreLinux() {
     const g = this.snapshot && this.snapshot.gnome;
     if (!g) return;
-    try {
-      await run('gsettings', ['set', 'org.gnome.system.proxy', 'mode', (g.mode || "'none'").replace(/'/g, '')]);
-      if (g.host) await run('gsettings', ['set', 'org.gnome.system.proxy.socks', 'host', g.host.replace(/'/g, '')]);
-      if (g.port) await run('gsettings', ['set', 'org.gnome.system.proxy.socks', 'port', g.port]);
-    } catch {}
+    for (const args of SystemProxy._gnomeRestoreArgs(g)) { try { await run('gsettings', args, 4000); } catch {} }
   }
 
   _restoreLinuxSync() {
     const g = this.snapshot && this.snapshot.gnome;
     if (!g) return;
-    try {
-      execFileSync('gsettings', ['set', 'org.gnome.system.proxy', 'mode', (g.mode || 'none').replace(/'/g, '')], { timeout: 3000 });
-    } catch {}
+    for (const args of SystemProxy._gnomeRestoreArgs(g)) { try { runSync('gsettings', args, 3000); } catch {} }
   }
-
-  _safeJson(s) { try { return JSON.parse(s); } catch { return {}; } }
 }
 
 module.exports = SystemProxy;
