@@ -5,6 +5,7 @@
 
   **Unseen. Unstoppable.**
 
+  [![Release](https://img.shields.io/github/v/release/umutxyp/Shroudly)](https://github.com/umutxyp/Shroudly/releases/latest)
   [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
   [![Electron](https://img.shields.io/badge/Electron-33-47848F?logo=electron)](https://www.electronjs.org/)
   [![Next.js](https://img.shields.io/badge/Next.js-14-000000?logo=next.js)](https://nextjs.org/)
@@ -96,11 +97,24 @@ English, 中文, हिन्दी, Español, العربية, Русский, P
 
 ## Install
 
-Download the latest build for your OS from [Releases](https://github.com/umutxyp/Shroudly/releases):
+**Latest version: [v2.0.0](https://github.com/umutxyp/Shroudly/releases/tag/v2.0.0)** — pick the file for your OS and CPU:
 
-- **Windows** — `Shroudly-<ver>-x64.exe` (NSIS installer)
-- **macOS** — `Shroudly-<ver>.dmg`
-- **Linux** — `Shroudly-<ver>.AppImage` or `.deb`
+| OS | Intel / AMD (x64) | ARM (arm64) |
+|----|-------------------|-------------|
+| **Windows** | [Shroudly-2.0.0-x64.exe](https://github.com/umutxyp/Shroudly/releases/download/v2.0.0/Shroudly-2.0.0-x64.exe) | [Shroudly-2.0.0-arm64.exe](https://github.com/umutxyp/Shroudly/releases/download/v2.0.0/Shroudly-2.0.0-arm64.exe) |
+| **macOS** | [Shroudly-2.0.0-mac.zip](https://github.com/umutxyp/Shroudly/releases/download/v2.0.0/Shroudly-2.0.0-mac.zip) (Intel) | [Shroudly-2.0.0-arm64-mac.zip](https://github.com/umutxyp/Shroudly/releases/download/v2.0.0/Shroudly-2.0.0-arm64-mac.zip) (Apple Silicon) |
+| **Linux** | [Shroudly-2.0.0.AppImage](https://github.com/umutxyp/Shroudly/releases/download/v2.0.0/Shroudly-2.0.0.AppImage) · [shroudly_2.0.0_amd64.deb](https://github.com/umutxyp/Shroudly/releases/download/v2.0.0/shroudly_2.0.0_amd64.deb) | [Shroudly-2.0.0-arm64.AppImage](https://github.com/umutxyp/Shroudly/releases/download/v2.0.0/Shroudly-2.0.0-arm64.AppImage) |
+
+- **Windows** — run the `.exe` installer.
+- **macOS** — unzip and drag `Shroudly.app` into Applications.
+- **Linux** — `chmod +x Shroudly-*.AppImage` and run it, or `sudo apt install ./shroudly_2.0.0_amd64.deb`.
+
+> **The builds are not code-signed yet.** On first launch Windows SmartScreen may
+> show *"Windows protected your PC"* → click **More info → Run anyway**. On macOS
+> Gatekeeper may block it → right-click the app → **Open**, or allow it under
+> **System Settings → Privacy & Security**.
+
+Older versions are on the [Releases](https://github.com/umutxyp/Shroudly/releases) page.
 
 No administrator / root rights are required to run it.
 
