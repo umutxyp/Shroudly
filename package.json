@@ -1,6 +1,6 @@
 {
   "name": "shroudly",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Shroudly - Unseen. Unstoppable. | Cross-platform DPI bypass (self-contained engine)",
   "main": "electron/main.js",
   "private": true,
@@ -34,7 +34,7 @@
     "dist:win": "npm run verify && electron-builder --win nsis --publish never",
     "dist:mac": "npm run verify && electron-builder --mac --publish never",
     "dist:linux": "npm run verify && electron-builder --linux AppImage deb --publish never",
-    "dist:all": "npm run build:core:all && npm run check:translations && npm run build && electron-builder -mwl --publish never",
+    "dist:all": "npm run build:core:all && npm run build:core:advanced:all && npm run fetch:windivert && npm run check:translations && npm run build && electron-builder -mwl --publish never",
     "build:core:advanced": "node scripts/build-core-advanced.js",
     "build:core:advanced:all": "node scripts/build-core-advanced.js --cross",
     "fetch:windivert": "node scripts/fetch-windivert.js"
@@ -42,6 +42,7 @@
   "build": {
     "appId": "me.codeshare.shroudly",
     "productName": "Shroudly",
+    "copyright": "Copyright © 2026 Codeshare Technology Ltd",
     "directories": {
       "buildResources": "public",
       "output": "dist"
@@ -49,6 +50,7 @@
     "files": [
       "out/**/*",
       "electron/**/*",
+      "!electron/tools/core/**",
       "package.json",
       "!**/*.map",
       "!**/*.pdb",
@@ -60,6 +62,7 @@
     "asarUnpack": [
       "electron/tools/core/**"
     ],
+    "afterPack": "scripts/after-pack.js",
     "electronLanguages": [
       "en-US"
     ],
@@ -75,7 +78,10 @@
           ]
         }
       ],
-      "signAndEditExecutable": false
+      "signAndEditExecutable": false,
+      "files": [
+        "electron/tools/core/win32-${arch}/**"
+      ]
     },
     "nsis": {
       "oneClick": false,
@@ -114,6 +120,9 @@
             "arm64"
           ]
         }
+      ],
+      "files": [
+        "electron/tools/core/darwin-${arch}/**"
       ]
     },
     "linux": {
@@ -134,7 +143,15 @@
           ]
         }
       ],
-      "maintainer": "Codeshare Technology Ltd <support@codeshare.me>"
+      "maintainer": "Codeshare Technology Ltd <support@codeshare.me>",
+      "files": [
+        "electron/tools/core/linux-${arch}/**"
+      ]
+    },
+    "deb": {
+      "recommends": [
+        "libnetfilter-queue1"
+      ]
     }
   },
   "dependencies": {
@@ -149,6 +166,7 @@
     "postcss": "^8.4.0",
     "react": "^18.3.0",
     "react-dom": "^18.3.0",
+    "resedit": "3.0.2",
     "tailwindcss": "^3.4.0",
     "wait-on": "^7.2.0"
   }

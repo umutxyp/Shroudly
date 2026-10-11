@@ -34,9 +34,10 @@ API, so the exact same technique works unprivileged on every platform — no
 kernel driver, no WinDivert, no external library.
 
 For countries with **stateful** DPI (Iran, China) there is an optional,
-opt-in [Advanced mode](#advanced-mode-stateful-dpi) that works at the packet
-layer. It needs administrator/root rights and, on Windows, the WinDivert
-driver. It is never used unless you turn it on.
+opt-in [Advanced mode](#advanced-mode-stateful-dpi) for Windows and Linux that
+works at the packet layer. It asks for administrator rights when you turn it
+on and, on Windows, uses the bundled WinDivert driver. It is never used unless
+you turn it on.
 
 While Shroudly is active it points the system (or your browser) at its local
 proxy, and it always restores the previous setting on stop, crash, or logout —
@@ -93,20 +94,22 @@ the DPI and poisons its state, then dies before it reaches the real server.
 
 - **Opt-in only.** It is offered in Settings only after a probe finds that a
   site stays blocked with the default engine.
-- **Always reverted.** The firewall rule it installs is removed on stop, crash
-  or exit.
+- **Asks first.** Turning it on shows a Windows UAC prompt or a Linux password
+  prompt (polkit). Shroudly itself keeps running as a normal user.
+- **Always reverted.** The packet hook and any firewall rule go away on stop,
+  on crash, and when Shroudly quits.
 - **Graceful fallback.** If the backend can't start, the default engine keeps
   running.
 
-| OS | Backend | Needs | Status in v2.0.0 |
-|----|---------|-------|------------------|
-| Linux | NFQUEUE + raw socket (`iptables` rule) | root / `CAP_NET_ADMIN` + `CAP_NET_RAW`, `libnetfilter_queue` | Included (x64 only) |
-| macOS | pf divert socket + raw socket (own pf anchor; no kext, no SIP changes) | root | Included |
-| Windows | WinDivert 2.2 (signed driver) | Administrator + `WinDivert.dll` / `WinDivert64.sys` | **Not usable yet:** the driver is not bundled, so Settings shows it as unavailable |
+| OS | Backend | Needs |
+|----|---------|-------|
+| Windows x64 | WinDivert 2.2 (signed driver, bundled) | Administrator (UAC prompt) |
+| Linux x64 / arm64 | NFQUEUE + raw socket (`iptables`, else `nftables` rule) | Password prompt via `pkexec`, and `libnetfilter-queue1` (the `.deb` pulls it in; AppImage users: `sudo apt install libnetfilter-queue1`) |
+| Windows on ARM | — | Not available: WinDivert has no ARM64 driver |
+| macOS | — | Not possible: macOS has no packet-divert interface without an Apple-signed Network Extension |
 
-> Shroudly does not ask for elevation by itself yet. On Linux and macOS, Advanced
-> mode only starts when the app already has the privileges listed above.
-> Otherwise it reports an error and stays on the default engine.
+> Some antivirus products flag WinDivert, as they do for every tool built on
+> it. It is only loaded while Advanced mode is on.
 
 See [`core/src/CAPABILITIES.md`](core/src/CAPABILITIES.md) for the full threat
 model and test results.
@@ -133,17 +136,17 @@ English, 中文, हिन्दी, Español, العربية, Русский, P
 
 ## Install
 
-**Latest version: [v2.0.0](https://github.com/umutxyp/Shroudly/releases/tag/v2.0.0)** — pick the file for your OS and CPU:
+**Latest version: [v2.0.1](https://github.com/umutxyp/Shroudly/releases/tag/v2.0.1)**: pick the file for your OS and CPU:
 
 | OS | Intel / AMD (x64) | ARM (arm64) |
 |----|-------------------|-------------|
-| **Windows** | [Shroudly-2.0.0-x64.exe](https://github.com/umutxyp/Shroudly/releases/download/v2.0.0/Shroudly-2.0.0-x64.exe) | [Shroudly-2.0.0-arm64.exe](https://github.com/umutxyp/Shroudly/releases/download/v2.0.0/Shroudly-2.0.0-arm64.exe) |
-| **macOS** | [Shroudly-2.0.0-mac.zip](https://github.com/umutxyp/Shroudly/releases/download/v2.0.0/Shroudly-2.0.0-mac.zip) (Intel) | [Shroudly-2.0.0-arm64-mac.zip](https://github.com/umutxyp/Shroudly/releases/download/v2.0.0/Shroudly-2.0.0-arm64-mac.zip) (Apple Silicon) |
-| **Linux** | [Shroudly-2.0.0.AppImage](https://github.com/umutxyp/Shroudly/releases/download/v2.0.0/Shroudly-2.0.0.AppImage) · [shroudly_2.0.0_amd64.deb](https://github.com/umutxyp/Shroudly/releases/download/v2.0.0/shroudly_2.0.0_amd64.deb) | [Shroudly-2.0.0-arm64.AppImage](https://github.com/umutxyp/Shroudly/releases/download/v2.0.0/Shroudly-2.0.0-arm64.AppImage) |
+| **Windows** | [Shroudly-2.0.1-x64.exe](https://github.com/umutxyp/Shroudly/releases/download/v2.0.1/Shroudly-2.0.1-x64.exe) | [Shroudly-2.0.1-arm64.exe](https://github.com/umutxyp/Shroudly/releases/download/v2.0.1/Shroudly-2.0.1-arm64.exe) |
+| **macOS** | [Shroudly-2.0.1.dmg](https://github.com/umutxyp/Shroudly/releases/download/v2.0.1/Shroudly-2.0.1.dmg) · [Shroudly-2.0.1-mac.zip](https://github.com/umutxyp/Shroudly/releases/download/v2.0.1/Shroudly-2.0.1-mac.zip) (Intel) | [Shroudly-2.0.1-arm64.dmg](https://github.com/umutxyp/Shroudly/releases/download/v2.0.1/Shroudly-2.0.1-arm64.dmg) · [Shroudly-2.0.1-arm64-mac.zip](https://github.com/umutxyp/Shroudly/releases/download/v2.0.1/Shroudly-2.0.1-arm64-mac.zip) (Apple Silicon) |
+| **Linux** | [Shroudly-2.0.1.AppImage](https://github.com/umutxyp/Shroudly/releases/download/v2.0.1/Shroudly-2.0.1.AppImage) · [shroudly_2.0.1_amd64.deb](https://github.com/umutxyp/Shroudly/releases/download/v2.0.1/shroudly_2.0.1_amd64.deb) | [Shroudly-2.0.1-arm64.AppImage](https://github.com/umutxyp/Shroudly/releases/download/v2.0.1/Shroudly-2.0.1-arm64.AppImage) |
 
 - **Windows** — run the `.exe` installer.
-- **macOS** — unzip and drag `Shroudly.app` into Applications.
-- **Linux** — `chmod +x Shroudly-*.AppImage` and run it, or `sudo apt install ./shroudly_2.0.0_amd64.deb`.
+- **macOS** — open the `.dmg` (or unzip the `.zip`) and drag `Shroudly.app` into Applications.
+- **Linux** — `chmod +x Shroudly-*.AppImage` and run it, or `sudo apt install ./shroudly_2.0.1_amd64.deb`.
 
 > **The builds are not code-signed yet.** On first launch Windows SmartScreen may
 > show *"Windows protected your PC"* → click **More info → Run anyway**. On macOS
@@ -181,10 +184,11 @@ npm run build:core:all
 npm run build:core:advanced   # or build:core:advanced:all to cross-build
 ```
 
-Linux advanced builds need `libnetfilter-queue-dev` and `libmnl-dev`. On
-Windows, Advanced mode also needs `WinDivert.dll` + `WinDivert64.sys` next to
-`shroudly-core-adv.exe`. `npm run fetch:windivert` downloads the official
-release, but you still have to copy those two files in by hand.
+Linux advanced builds need `libnetfilter-queue-dev` and `libmnl-dev` (or, when
+cross-building, a sysroot; see `scripts/build-core-advanced.js`). Windows
+packages also need `npm run fetch:windivert`, which downloads the official
+WinDivert release, verifies it and puts the driver next to
+`shroudly-core-adv.exe`.
 
 ### Project layout
 
@@ -200,20 +204,23 @@ Shroudly/
       probe.[ch]              per-host auto-probe
       engine.[ch]             SOCKS5 listener + relay
       raw_linux.[ch]          Advanced mode: NFQUEUE backend
-      raw_macos.[ch]          Advanced mode: pf divert backend
       raw_windows.[ch]        Advanced mode: WinDivert backend
+      supervise.[ch]          Advanced mode: stop / status-file handling
       main.c                  CLI + stdin control protocol
     test/test_proto.c         unit tests
   electron/
     main.js                   app shell, tray, IPC, auto-start
     engine-manager.js         spawns shroudly-core, parses JSON, restarts
     system-proxy.js           set/restore OS proxy (Win/mac/Linux)
-    advanced-mode.js          Advanced mode: firewall rule + backend lifecycle
+    advanced-mode.js          Advanced mode: elevation (UAC / pkexec) + lifecycle
+    main-i18n.js              tray + notification strings (15 languages)
     tools/core/<os>-<arch>/   built engine binaries (per platform)
   app/ components/ contexts/  Next.js + React UI
   translations.js             15-language strings
   scripts/build-core.js       native + cross compile
   scripts/build-core-advanced.js   Advanced-mode engine build
+  scripts/fetch-windivert.js       fetch + verify the WinDivert driver
+  scripts/after-pack.js            stamp icon + version info into Shroudly.exe
 ```
 
 ---

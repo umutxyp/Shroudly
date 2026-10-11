@@ -21,6 +21,9 @@ files.forEach(file => {
     content = content.replace(/href="\/tray/g, 'href="./tray');
     content = content.replace(/src="\/tray/g, 'src="./tray');
     
+    // Asset URLs inside Next's escaped inline page data (e.g. \"/_next/static/css/...\")
+    content = content.replace(/\\"\/_next\//g, '\\"./_next/');
+
     // Fix assetPrefix in inline scripts
     content = content.replace(/"assetPrefix":""/g, '"assetPrefix":"."');
     content = content.replace(/\\"assetPrefix\\":\\"\\"/g, '\\"assetPrefix\\":\\"..\\"');
