@@ -16,6 +16,14 @@
   > Break through internet censorship on **Windows, macOS and Linux**. No VPN, no drivers by default, no third-party tools, and nothing that permanently changes your network settings.
 
   **A [Codeshare](https://codeshare.me) product**
+
+  <br/>
+
+  <a href="https://www.youtube.com/watch?v=Mb4Zkq1din8">
+    <img src="https://img.youtube.com/vi/Mb4Zkq1din8/maxresdefault.jpg" alt="Shroudly launch video" width="720"/>
+  </a>
+
+  ▶ **[Watch the 2-minute launch video](https://www.youtube.com/watch?v=Mb4Zkq1din8)**
 </div>
 
 ---
