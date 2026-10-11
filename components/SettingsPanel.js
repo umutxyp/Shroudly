@@ -3,14 +3,16 @@
 import { useState, useEffect, useRef } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
 
-/* Strategy presets exposed in the UI. "auto" lets the engine probe per host. */
+/* Strategy presets exposed in the UI. "auto" lets the engine probe per host.
+ * labelKey is a translation key; the technical split/disorder names stay in a
+ * stable short form but the "auto/recommended" wording is localized. */
 const STRATEGIES = [
-  { id: 'auto', label: 'Auto (recommended)', spec: 'split(sni)', auto: true },
-  { id: 'split-sni', label: 'Split at SNI', spec: 'split(sni)', auto: false },
-  { id: 'disorder-sni', label: 'Disorder at SNI', spec: 'disorder(sni)', auto: false },
-  { id: 'split-sni-mid', label: 'Split mid-SNI', spec: 'split(sni_mid)', auto: false },
-  { id: 'double-split', label: 'Double split', spec: 'split(1),split(sni)', auto: false },
-  { id: 'split2', label: 'Split at byte 2', spec: 'split(2)', auto: false },
+  { id: 'auto', labelKey: 'stratAuto', spec: 'split(sni)', auto: true },
+  { id: 'split-sni', labelKey: 'stratSplitSni', spec: 'split(sni)', auto: false },
+  { id: 'disorder-sni', labelKey: 'stratDisorderSni', spec: 'disorder(sni)', auto: false },
+  { id: 'split-sni-mid', labelKey: 'stratSplitMid', spec: 'split(sni_mid)', auto: false },
+  { id: 'double-split', labelKey: 'stratDoubleSplit', spec: 'split(1),split(sni)', auto: false },
+  { id: 'split2', labelKey: 'stratSplit2', spec: 'split(2)', auto: false },
 ];
 
 function Toggle({ label, desc, checked, onChange }) {
@@ -185,7 +187,7 @@ export default function SettingsPanel() {
           onChange={(e) => onStrategyChange(e.target.value)}
           className="w-full mt-1 mb-3 bg-dark-400 px-3 py-2 rounded-lg text-sm"
         >
-          {STRATEGIES.map((s) => <option key={s.id} value={s.id}>{s.label}</option>)}
+          {STRATEGIES.map((s) => <option key={s.id} value={s.id}>{t(s.labelKey)}</option>)}
         </select>
 
         <Toggle
