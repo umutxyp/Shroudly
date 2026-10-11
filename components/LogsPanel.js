@@ -1,123 +1,93 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
+
+const LEVEL = {
+  error:   'var(--danger)',
+  warning: 'var(--warn)',
+  success: 'var(--ok)',
+  info:    'var(--accent)',
+};
 
 export default function LogsPanel() {
   const { t } = useLanguage();
   const [logs, setLogs] = useState([]);
   const [filter, setFilter] = useState('all');
+  const endRef = useRef(null);
 
   useEffect(() => {
-    loadLogs();
-
-    // Listen for new logs
+    const load = async () => {
+      if (typeof window !== 'undefined' && window.electron) setLogs(await window.electron.getLogs());
+    };
+    load();
     if (typeof window !== 'undefined' && window.electron) {
-      window.electron.onNewLog((log) => {
-        setLogs(prev => [...prev, log]);
-      });
-
-      return () => {
-        window.electron.removeLogListener();
-      };
+      window.electron.onNewLog((log) => setLogs((p) => [...p, log]));
+      return () => window.electron.removeLogListener();
     }
   }, []);
 
-  const loadLogs = async () => {
-    if (typeof window !== 'undefined' && window.electron) {
-      const systemLogs = await window.electron.getLogs();
-      setLogs(systemLogs);
-    }
+  useEffect(() => { endRef.current?.scrollIntoView({ block: 'end' }); }, [logs]);
+
+  const clear = async () => {
+    if (typeof window !== 'undefined' && window.electron) { await window.electron.clearLogs(); setLogs([]); }
   };
 
-  const handleClearLogs = async () => {
-    if (typeof window !== 'undefined' && window.electron) {
-      await window.electron.clearLogs();
-      setLogs([]);
-    }
-  };
-
-  const getLevelColor = (level) => {
-    switch (level) {
-      case 'error': return 'text-red-400';
-      case 'warning': return 'text-yellow-400';
-      case 'success': return 'text-green-400';
-      case 'info': return 'text-blue-400';
-      default: return 'text-gray-400';
-    }
-  };
-
-  const getLevelIcon = (level) => {
-    switch (level) {
-      case 'error': return '❌';
-      case 'warning': return '⚠️';
-      case 'success': return '✅';
-      case 'info': return 'ℹ️';
-      default: return '•';
-    }
-  };
-
-  const filteredLogs = filter === 'all' 
-    ? logs 
-    : logs.filter(log => log.level === filter);
+  const shown = filter === 'all' ? logs : logs.filter((l) => l.level === filter);
+  const filters = ['all', 'info', 'success', 'warning', 'error'];
 
   return (
-    <div className="glass-dark rounded-lg p-4 flex flex-col" style={{ minHeight: 0 }}>
-      {/* Header row */}
-      <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
-        <h2 className="text-base font-bold text-primary-400">{t('systemLogs')}</h2>
-        <div className="flex flex-wrap gap-1">
-          {['all', 'info', 'success', 'warning', 'error'].map((level) => (
+    <div className="flex h-full flex-col gap-3 py-4">
+      {/* filters */}
+      <div className="flex items-center gap-1.5 overflow-x-auto scroll pb-0.5">
+        {filters.map((lv) => {
+          const on = filter === lv;
+          return (
             <button
-              key={level}
-              onClick={() => setFilter(level)}
-              className={`px-2 py-0.5 rounded text-[11px] font-semibold uppercase tracking-wide transition-colors ${
-                filter === level
-                  ? 'bg-primary-500 text-white'
-                  : 'bg-dark-400 text-gray-400 hover:bg-dark-300'
-              }`}
+              key={lv}
+              onClick={() => setFilter(lv)}
+              className="shrink-0 rounded-full px-3 py-1 text-[12px] font-medium capitalize transition-colors"
+              style={{
+                background: on ? 'var(--accent-soft)' : 'var(--surface-2)',
+                color: on ? 'var(--accent)' : 'var(--text-dim)',
+                border: `1px solid ${on ? 'var(--accent-line)' : 'var(--line)'}`,
+              }}
             >
-              {level}
+              {t(lv) || lv}
             </button>
-          ))}
-        </div>
+          );
+        })}
       </div>
 
-      {/* Log area — grows with window, min 200px */}
-      <div
-        className="bg-dark-400 rounded-lg p-3 overflow-y-auto thin-scrollbar font-mono text-[11px] leading-relaxed space-y-0.5 flex-1"
-        style={{ minHeight: '200px', maxHeight: 'calc(100vh - 400px)' }}
-      >
-        {filteredLogs.length === 0 ? (
-          <div className="flex items-center justify-center h-full text-gray-500 text-xs">
+      {/* log stream */}
+      <div className="card scroll min-h-0 flex-1 overflow-y-auto p-2.5">
+        {shown.length === 0 ? (
+          <div className="flex h-full min-h-[180px] items-center justify-center text-[13px]" style={{ color: 'var(--text-faint)' }}>
             {t('noLogs')}
           </div>
         ) : (
-          filteredLogs.map((log, index) => (
-            <div
-              key={index}
-              className="flex items-start gap-2 hover:bg-dark-300 px-1.5 py-0.5 rounded transition-colors"
-            >
-              <span className="text-gray-600 whitespace-nowrap shrink-0 tabular-nums">
-                {new Date(log.time).toLocaleTimeString()}
-              </span>
-              <span className={`shrink-0 ${getLevelColor(log.level)}`}>
-                {getLevelIcon(log.level)}
-              </span>
-              <span className="flex-1 text-gray-300 break-all min-w-0">{log.message}</span>
-            </div>
-          ))
+          <div className="flex flex-col gap-0.5">
+            {shown.map((log, i) => (
+              <div key={i} className="flex items-start gap-2 rounded px-1.5 py-1 text-[12px] leading-relaxed">
+                <span className="num shrink-0" style={{ color: 'var(--text-faint)' }}>
+                  {new Date(log.time || log.timestamp).toLocaleTimeString()}
+                </span>
+                <span className="mt-[5px] h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: LEVEL[log.level] || 'var(--text-faint)' }} />
+                <span className="min-w-0 flex-1 break-words" style={{ color: 'var(--text)' }}>{log.message}</span>
+              </div>
+            ))}
+            <div ref={endRef} />
+          </div>
         )}
       </div>
 
-      {/* Actions */}
-      <div className="mt-2.5 flex items-center justify-between">
-        <span className="text-[10px] text-gray-600">
-          {filteredLogs.length} {t('logs') || 'logs'}
-        </span>
+      {/* footer actions */}
+      <div className="flex items-center justify-between">
+        <span className="num text-[12px]" style={{ color: 'var(--text-faint)' }}>{shown.length}</span>
         <button
-          onClick={handleClearLogs}
-          className="bg-red-600/80 hover:bg-red-600 px-3 py-1 rounded text-xs font-medium transition-colors"
+          onClick={clear}
+          className="rounded-full px-3 py-1.5 text-[12px] font-medium transition-colors"
+          style={{ background: 'var(--surface-2)', color: 'var(--text-dim)', border: '1px solid var(--line)' }}
         >
           {t('clearLogs')}
         </button>

@@ -3,9 +3,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
 
-/* Strategy presets exposed in the UI. "auto" lets the engine probe per host.
- * labelKey is a translation key; the technical split/disorder names stay in a
- * stable short form but the "auto/recommended" wording is localized. */
 const STRATEGIES = [
   { id: 'auto', labelKey: 'stratAuto', spec: 'split(sni)', auto: true },
   { id: 'split-sni', labelKey: 'stratSplitSni', spec: 'split(sni)', auto: false },
@@ -15,18 +12,32 @@ const STRATEGIES = [
   { id: 'split2', labelKey: 'stratSplit2', spec: 'split(2)', auto: false },
 ];
 
+function Section({ title, children }) {
+  return (
+    <section className="card p-4">
+      {title && <h2 className="mb-3 text-[13px] font-semibold" style={{ color: 'var(--text-dim)' }}>{title}</h2>}
+      {children}
+    </section>
+  );
+}
+
 function Toggle({ label, desc, checked, onChange }) {
   return (
-    <div className="flex items-center justify-between py-2">
-      <div className="pr-3">
-        <p className="text-sm font-semibold">{label}</p>
-        {desc ? <p className="text-xs text-gray-400 leading-snug">{desc}</p> : null}
+    <div className="flex items-center justify-between gap-3 py-2">
+      <div className="min-w-0">
+        <p className="text-[14px] font-medium" style={{ color: 'var(--text)' }}>{label}</p>
+        {desc && <p className="mt-0.5 text-[12px] leading-snug" style={{ color: 'var(--text-faint)' }}>{desc}</p>}
       </div>
       <button
         onClick={() => onChange(!checked)}
-        className={`relative w-11 h-6 rounded-full transition-colors shrink-0 ${checked ? 'bg-primary-500' : 'bg-dark-300'}`}
+        role="switch" aria-checked={checked}
+        className="relative h-6 w-11 shrink-0 rounded-full transition-colors"
+        style={{ background: checked ? 'var(--accent)' : 'var(--surface-hover)' }}
       >
-        <span className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white transition-transform ${checked ? 'translate-x-5' : ''}`} />
+        <span
+          className="absolute top-0.5 h-5 w-5 rounded-full bg-white transition-transform"
+          style={{ left: 2, transform: checked ? 'translateX(20px)' : 'translateX(0)' }}
+        />
       </button>
     </div>
   );
@@ -34,55 +45,51 @@ function Toggle({ label, desc, checked, onChange }) {
 
 export default function SettingsPanel() {
   const { language, setLanguage, t, availableLanguages } = useLanguage();
-  const languageSelectorRef = useRef(null);
-  const [showLanguageSelector, setShowLanguageSelector] = useState(false);
-  const [languageChangeNotif, setLanguageChangeNotif] = useState(false);
+  const langRef = useRef(null);
+  const [langOpen, setLangOpen] = useState(false);
   const [testHost, setTestHost] = useState('');
-  const [saved, setSaved] = useState(false);
-  const [probeResult, setProbeResult] = useState(null);   // {host, ok, suggest}
+  const [probeResult, setProbeResult] = useState(null);
   const [advInfo, setAdvInfo] = useState({ available: false, active: false, reason: null });
   const [advBusy, setAdvBusy] = useState(false);
-
   const [settings, setSettings] = useState({
-    strategyId: 'auto',
-    autoMode: true,
-    dnsProtection: false,
-    preferIpv6: false,
-    autoStart: false,
-    minimizeToTray: true,
-    showNotifications: true,
+    strategyId: 'auto', autoMode: true, dnsProtection: false, preferIpv6: false,
+    autoStart: false, minimizeToTray: true, showNotifications: true,
   });
 
-  useEffect(() => { loadSettings(); }, []);
+  useEffect(() => {
+    (async () => {
+      if (typeof window === 'undefined' || !window.electron) return;
+      try { const all = await window.electron.getAllSettings(); setSettings((p) => ({ ...p, ...all })); } catch {}
+    })();
+  }, []);
 
-  async function loadSettings() {
+  useEffect(() => {
     if (typeof window === 'undefined' || !window.electron) return;
-    try {
-      const all = await window.electron.getAllSettings();
-      setSettings((prev) => ({ ...prev, ...all }));
-    } catch {}
-  }
+    window.electron.advancedAvailable?.().then(setAdvInfo).catch(() => {});
+    window.electron.onProbeResult?.((p) => setProbeResult(p));
+    return () => window.electron.removeProbeListener?.();
+  }, []);
+
+  useEffect(() => {
+    const onDoc = (e) => { if (langRef.current && !langRef.current.contains(e.target)) setLangOpen(false); };
+    if (langOpen) document.addEventListener('mousedown', onDoc);
+    return () => document.removeEventListener('mousedown', onDoc);
+  }, [langOpen]);
 
   async function save(key, value) {
-    setSettings((prev) => ({ ...prev, [key]: value }));
-    if (typeof window === 'undefined' || !window.electron) return;
-    try { await window.electron.setSetting(key, value); } catch {}
-    flashSaved();
+    setSettings((p) => ({ ...p, [key]: value }));
+    if (typeof window !== 'undefined' && window.electron) { try { await window.electron.setSetting(key, value); } catch {} }
   }
 
   async function onStrategyChange(id) {
     const s = STRATEGIES.find((x) => x.id === id) || STRATEGIES[0];
-    setSettings((prev) => ({ ...prev, strategyId: id, autoMode: s.auto ? prev.autoMode : prev.autoMode }));
+    setSettings((p) => ({ ...p, strategyId: id }));
     if (typeof window !== 'undefined' && window.electron) {
       await window.electron.setSetting('strategyId', id);
       await window.electron.setSetting('strategy', s.spec);
-      // "auto" strategy implies the auto-probe; others keep the user's autoMode.
       if (s.auto) await window.electron.setSetting('autoMode', true);
     }
-    flashSaved();
   }
-
-  function flashSaved() { setSaved(true); setTimeout(() => setSaved(false), 1500); }
 
   async function runTest() {
     const host = testHost.trim();
@@ -96,9 +103,8 @@ export default function SettingsPanel() {
     setAdvBusy(true);
     try {
       const r = await window.electron.startAdvanced();
-      const info = await window.electron.advancedAvailable();
-      setAdvInfo(info);
-      if (!r?.success && r?.error) setProbeResult((p) => p ? { ...p, advError: r.error } : p);
+      setAdvInfo(await window.electron.advancedAvailable());
+      if (!r?.success && r?.error) setProbeResult((p) => (p ? { ...p, advError: r.error } : p));
     } catch {}
     setAdvBusy(false);
   }
@@ -106,173 +112,144 @@ export default function SettingsPanel() {
   async function disableAdvanced() {
     if (!window.electron?.stopAdvanced) return;
     setAdvBusy(true);
-    try { await window.electron.stopAdvanced(); const info = await window.electron.advancedAvailable(); setAdvInfo(info); } catch {}
+    try { await window.electron.stopAdvanced(); setAdvInfo(await window.electron.advancedAvailable()); } catch {}
     setAdvBusy(false);
   }
 
-  // Listen for probe results (incl. suggest:"advanced") and load advanced status.
-  useEffect(() => {
-    if (typeof window === 'undefined' || !window.electron) return;
-    window.electron.advancedAvailable?.().then(setAdvInfo).catch(() => {});
-    if (window.electron.onProbeResult) {
-      window.electron.onProbeResult((p) => setProbeResult(p));
-    }
-    return () => { window.electron.removeProbeListener?.(); };
-  }, []);
-
-  useEffect(() => {
-    const onClick = (e) => {
-      if (languageSelectorRef.current && !languageSelectorRef.current.contains(e.target)) {
-        setShowLanguageSelector(false);
-      }
-    };
-    if (showLanguageSelector) document.addEventListener('mousedown', onClick);
-    return () => document.removeEventListener('mousedown', onClick);
-  }, [showLanguageSelector]);
+  const curLang = availableLanguages.find((l) => l.code === language);
 
   return (
-    <div className="w-full space-y-4">
-      {saved && (
-        <div className="fixed top-14 right-4 z-[200] bg-green-600 text-white text-xs px-3 py-2 rounded-lg shadow-lg">
-          {t('settingsSaved')}
-        </div>
-      )}
-
+    <div className="flex flex-col gap-3 py-4">
       {/* Language */}
-      <div className="glass-dark rounded-lg p-4 relative z-40 overflow-visible">
-        <h2 className="text-base font-bold text-primary-400 mb-3">{t('language')}</h2>
-        <div className="relative z-50" ref={languageSelectorRef}>
+      <Section title={t('language')}>
+        <div className="relative" ref={langRef}>
           <button
-            onClick={() => setShowLanguageSelector(!showLanguageSelector)}
-            className="w-full bg-dark-400 hover:bg-dark-300 px-4 py-3 rounded-lg flex items-center justify-between transition-colors"
+            onClick={() => setLangOpen((v) => !v)}
+            className="card-2 flex w-full items-center justify-between px-3.5 py-3 text-left transition-colors"
           >
-            <span className="flex items-center space-x-3">
-              <span className="text-2xl">{availableLanguages.find((l) => l.code === language)?.flag}</span>
-              <span>{availableLanguages.find((l) => l.code === language)?.name}</span>
+            <span className="flex items-center gap-2.5">
+              <span className="text-xl">{curLang?.flag}</span>
+              <span className="text-[14px]" style={{ color: 'var(--text)' }}>{curLang?.name}</span>
             </span>
-            <svg className={`w-5 h-5 transition-transform ${showLanguageSelector ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-            </svg>
+            <svg className="h-4 w-4 transition-transform" style={{ color: 'var(--text-faint)', transform: langOpen ? 'rotate(180deg)' : 'none' }}
+                 viewBox="0 0 24 24" fill="none" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 9l6 6 6-6"/></svg>
           </button>
-          {showLanguageSelector && (
-            <>
-              <div className="fixed inset-0 z-[100]" onClick={() => setShowLanguageSelector(false)} />
-              <div className="absolute z-[101] w-full mt-2 bg-dark-400 border border-primary-800 rounded-lg shadow-2xl max-h-96 overflow-y-auto thin-scrollbar" onClick={(e) => e.stopPropagation()}>
-                {availableLanguages.map((lang) => (
+          {langOpen && (
+            <div className="scroll absolute left-0 right-0 z-50 mt-2 max-h-72 overflow-y-auto rounded-[var(--radius-sm)] p-1"
+                 style={{ background: 'var(--surface)', border: '1px solid var(--line-strong)', boxShadow: '0 20px 50px rgba(0,0,0,0.5)' }}>
+              {availableLanguages.map((lang) => {
+                const on = language === lang.code;
+                return (
                   <button
                     key={lang.code}
-                    onClick={() => { setLanguage(lang.code); setShowLanguageSelector(false); setLanguageChangeNotif(true); setTimeout(() => setLanguageChangeNotif(false), 3000); }}
-                    className={`w-full px-4 py-3 flex items-center space-x-3 hover:bg-dark-300 transition-colors ${language === lang.code ? 'bg-primary-500' : ''}`}
+                    onClick={() => { setLanguage(lang.code); setLangOpen(false); }}
+                    className="flex w-full items-center gap-2.5 rounded-[9px] px-3 py-2.5 text-left text-[14px] transition-colors"
+                    style={{ background: on ? 'var(--accent-soft)' : 'transparent', color: on ? 'var(--accent)' : 'var(--text)' }}
                   >
-                    <span className="text-2xl">{lang.flag}</span>
+                    <span className="text-xl">{lang.flag}</span>
                     <span>{lang.name}</span>
                   </button>
-                ))}
-              </div>
-            </>
+                );
+              })}
+            </div>
           )}
         </div>
-        {languageChangeNotif && (
-          <div className="mt-4 bg-green-500 text-white px-4 py-3 rounded-lg text-sm font-semibold">{t('languageSaved')}</div>
-        )}
-      </div>
+      </Section>
 
-      {/* Bypass strategy */}
-      <div className="glass-dark rounded-lg p-4">
-        <h2 className="text-base font-bold text-primary-400 mb-3">{t('dpiBypassTechniques')}</h2>
+      {/* Bypass */}
+      <Section title={t('dpiBypassTechniques')}>
+        <label className="text-[12px]" style={{ color: 'var(--text-faint)' }}>{t('strategy')}</label>
+        <div className="relative mb-3 mt-1.5">
+          <select
+            value={settings.strategyId}
+            onChange={(e) => onStrategyChange(e.target.value)}
+            className="card-2 w-full appearance-none px-3.5 py-2.5 pr-9 text-[14px]"
+            style={{ color: 'var(--text)' }}
+          >
+            {STRATEGIES.map((s) => <option key={s.id} value={s.id}>{t(s.labelKey)}</option>)}
+          </select>
+          <svg className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2" style={{ color: 'var(--text-faint)' }}
+               viewBox="0 0 24 24" fill="none" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 9l6 6 6-6"/></svg>
+        </div>
 
-        <label className="text-xs text-gray-400">{t('strategy')}</label>
-        <select
-          value={settings.strategyId}
-          onChange={(e) => onStrategyChange(e.target.value)}
-          className="w-full mt-1 mb-3 bg-dark-400 px-3 py-2 rounded-lg text-sm"
-        >
-          {STRATEGIES.map((s) => <option key={s.id} value={s.id}>{t(s.labelKey)}</option>)}
-        </select>
-
-        <Toggle
-          label={t('autoMode')} desc={t('autoModeDesc')}
-          checked={settings.autoMode}
-          onChange={(v) => save('autoMode', v)}
-        />
-        <Toggle
-          label={t('dnsProtection')} desc={t('dnsProtectionDesc')}
-          checked={settings.dnsProtection}
-          onChange={(v) => save('dnsProtection', v)}
-        />
-        <Toggle
-          label={t('preferIpv6')} desc={t('preferIpv6Desc')}
-          checked={settings.preferIpv6}
-          onChange={(v) => save('preferIpv6', v)}
-        />
-      </div>
+        <div className="divide-y" style={{ borderColor: 'var(--line)' }}>
+          <Toggle label={t('autoMode')} desc={t('autoModeDesc')} checked={settings.autoMode} onChange={(v) => save('autoMode', v)} />
+          <Toggle label={t('dnsProtection')} desc={t('dnsProtectionDesc')} checked={settings.dnsProtection} onChange={(v) => save('dnsProtection', v)} />
+          <Toggle label={t('preferIpv6')} desc={t('preferIpv6Desc')} checked={settings.preferIpv6} onChange={(v) => save('preferIpv6', v)} />
+        </div>
+      </Section>
 
       {/* Test a site */}
-      <div className="glass-dark rounded-lg p-4">
-        <h2 className="text-base font-bold text-primary-400 mb-2">{t('testSite')}</h2>
-        <p className="text-xs text-gray-400 mb-3">{t('testSiteDesc')}</p>
+      <Section title={t('testSite')}>
+        <p className="mb-3 text-[12px]" style={{ color: 'var(--text-faint)' }}>{t('testSiteDesc')}</p>
         <div className="flex gap-2">
           <input
             value={testHost}
             onChange={(e) => setTestHost(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && runTest()}
             placeholder="example.com"
-            className="flex-1 bg-dark-400 px-3 py-2 rounded-lg text-sm"
+            className="card-2 min-w-0 flex-1 px-3.5 py-2.5 text-[14px]"
           />
-          <button onClick={runTest} className="bg-primary-500 hover:bg-primary-600 px-4 py-2 rounded-lg text-sm font-semibold">
+          <button
+            onClick={runTest}
+            className="shrink-0 rounded-[var(--radius-sm)] px-4 py-2.5 text-[14px] font-semibold"
+            style={{ background: 'var(--accent)', color: '#07101c' }}
+          >
             {t('test')}
           </button>
         </div>
 
         {probeResult && (
-          <div className="mt-3 text-xs">
+          <div className="mt-3 text-[13px]">
             {probeResult.ok && probeResult.strategy === 'none' && (
-              <p className="text-gray-400">{probeResult.host}: {t('probeNotBlocked')}</p>
+              <p style={{ color: 'var(--text-dim)' }}>{probeResult.host}: {t('probeNotBlocked')}</p>
             )}
             {probeResult.ok && probeResult.strategy && probeResult.strategy !== 'none' && (
-              <p className="text-emerald-400">{probeResult.host}: {t('probeWorks')} ({probeResult.strategy})</p>
+              <p style={{ color: 'var(--ok)' }}>{probeResult.host}: {t('probeWorks')} ({probeResult.strategy})</p>
             )}
             {!probeResult.ok && (
-              <div className="rounded-lg border border-amber-500/40 bg-amber-500/10 p-3">
-                <p className="text-amber-300 font-semibold mb-1">{t('probeBlockedTitle')}</p>
-                <p className="text-amber-200/80 mb-2">{t('probeBlockedDesc')}</p>
+              <div className="rounded-[var(--radius-sm)] p-3" style={{ background: 'var(--warn-soft)', border: '1px solid rgba(251,191,36,0.3)' }}>
+                <p className="mb-1 font-semibold" style={{ color: 'var(--warn)' }}>{t('probeBlockedTitle')}</p>
+                <p className="mb-2.5 leading-snug" style={{ color: 'var(--text-dim)' }}>{t('probeBlockedDesc')}</p>
                 {advInfo.available ? (
                   advInfo.active ? (
-                    <p className="text-emerald-400">{t('advancedOn')}</p>
+                    <p style={{ color: 'var(--ok)' }}>{t('advancedOn')}</p>
                   ) : (
-                    <button
-                      onClick={enableAdvanced}
-                      disabled={advBusy}
-                      className="bg-amber-500 hover:bg-amber-600 text-black px-3 py-1.5 rounded-lg text-xs font-bold disabled:opacity-50">
+                    <button onClick={enableAdvanced} disabled={advBusy}
+                      className="rounded-[9px] px-3 py-1.5 text-[13px] font-semibold disabled:opacity-50"
+                      style={{ background: 'var(--warn)', color: '#1a1200' }}>
                       {advBusy ? '…' : t('tryAdvanced')}
                     </button>
                   )
                 ) : (
-                  <p className="text-amber-200/60">{advInfo.reason || t('advancedUnavailable')}</p>
+                  <p style={{ color: 'var(--text-faint)' }}>{advInfo.reason || t('advancedUnavailable')}</p>
                 )}
-                {probeResult.advError && <p className="text-red-400 mt-1">{probeResult.advError}</p>}
+                {probeResult.advError && <p className="mt-1" style={{ color: 'var(--danger)' }}>{probeResult.advError}</p>}
               </div>
             )}
           </div>
         )}
 
         {advInfo.active && (
-          <div className="mt-3 flex items-center justify-between rounded-lg border border-emerald-500/30 bg-emerald-500/10 p-2.5">
-            <span className="text-xs text-emerald-300">{t('advancedActive')}</span>
+          <div className="mt-3 flex items-center justify-between rounded-[var(--radius-sm)] p-2.5"
+               style={{ background: 'var(--ok-soft)', border: '1px solid rgba(52,211,153,0.3)' }}>
+            <span className="text-[12px]" style={{ color: 'var(--ok)' }}>{t('advancedActive')}</span>
             <button onClick={disableAdvanced} disabled={advBusy}
-              className="text-xs text-white/70 hover:text-white underline disabled:opacity-50">
+              className="text-[12px] underline disabled:opacity-50" style={{ color: 'var(--text-dim)' }}>
               {t('advancedTurnOff')}
             </button>
           </div>
         )}
-      </div>
+      </Section>
 
       {/* App */}
-      <div className="glass-dark rounded-lg p-4">
-        <h2 className="text-base font-bold text-primary-400 mb-3">{t('advanced')}</h2>
-        <Toggle label={t('startOnBoot')} desc={t('startOnBootDesc')} checked={settings.autoStart} onChange={(v) => save('autoStart', v)} />
-        <Toggle label={t('minimizeToTray')} desc={t('minimizeToTrayDesc')} checked={settings.minimizeToTray} onChange={(v) => save('minimizeToTray', v)} />
-        <Toggle label={t('showNotifications')} desc={t('showNotificationsDesc')} checked={settings.showNotifications} onChange={(v) => save('showNotifications', v)} />
-      </div>
+      <Section title={t('advanced')}>
+        <div className="divide-y" style={{ borderColor: 'var(--line)' }}>
+          <Toggle label={t('startOnBoot')} desc={t('startOnBootDesc')} checked={settings.autoStart} onChange={(v) => save('autoStart', v)} />
+          <Toggle label={t('minimizeToTray')} desc={t('minimizeToTrayDesc')} checked={settings.minimizeToTray} onChange={(v) => save('minimizeToTray', v)} />
+          <Toggle label={t('showNotifications')} desc={t('showNotificationsDesc')} checked={settings.showNotifications} onChange={(v) => save('showNotifications', v)} />
+        </div>
+      </Section>
     </div>
   );
 }

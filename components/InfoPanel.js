@@ -5,37 +5,24 @@ import { useLanguage } from '../contexts/LanguageContext';
 
 function Section({ title, children }) {
   return (
-    <div className="glass-dark rounded-lg p-4">
-      <p className="text-[10px] uppercase tracking-widest font-bold text-primary-400 mb-3">{title}</p>
+    <section className="card p-4">
+      <h2 className="mb-2.5 text-[13px] font-semibold" style={{ color: 'var(--text-dim)' }}>{title}</h2>
       {children}
-    </div>
+    </section>
   );
 }
 
 function TechRow({ icon, title, desc }) {
   const [open, setOpen] = useState(false);
   return (
-    <div
-      className="cursor-pointer select-none"
-      onClick={() => setOpen(!open)}
-    >
-      <div className="flex items-center gap-2 py-1.5">
-        <span className="text-base">{icon}</span>
-        <span className="text-[12px] font-bold text-white/90 flex-1">{title}</span>
-        <span className={`text-[10px] text-white/30 transition-transform ${open ? 'rotate-180' : ''}`}>▼</span>
-      </div>
-      {open && (
-        <p className="text-[11px] text-white/55 leading-relaxed pl-7 pb-1.5">{desc}</p>
-      )}
-    </div>
-  );
-}
-
-function StatusRow({ ok, label }) {
-  return (
-    <div className="flex items-center gap-2 py-0.5">
-      <span className={`h-2 w-2 rounded-full shrink-0 ${ok ? 'bg-emerald-400' : 'bg-red-500'}`} />
-      <span className={`text-[11px] ${ok ? 'text-white/75' : 'text-red-400/80'}`}>{label}</span>
+    <div className="border-t first:border-t-0" style={{ borderColor: 'var(--line)' }}>
+      <button onClick={() => setOpen((v) => !v)} className="flex w-full items-center gap-2.5 py-2.5 text-left">
+        <span className="text-[15px]">{icon}</span>
+        <span className="flex-1 text-[14px] font-medium" style={{ color: 'var(--text)' }}>{title}</span>
+        <svg className="h-4 w-4 transition-transform" style={{ color: 'var(--text-faint)', transform: open ? 'rotate(180deg)' : 'none' }}
+             viewBox="0 0 24 24" fill="none" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 9l6 6 6-6"/></svg>
+      </button>
+      {open && <p className="pb-3 pl-[26px] text-[12px] leading-relaxed" style={{ color: 'var(--text-dim)' }}>{desc}</p>}
     </div>
   );
 }
@@ -45,60 +32,48 @@ export default function InfoPanel({ dpiStatus }) {
   const [version, setVersion] = useState('2.0.0');
 
   useEffect(() => {
-    const load = async () => {
+    (async () => {
       if (typeof window !== 'undefined' && window.electron?.getAppInfo) {
-        try {
-          const info = await window.electron.getAppInfo();
-          if (info?.version) setVersion(info.version);
-        } catch {}
+        try { const i = await window.electron.getAppInfo(); if (i?.version) setVersion(i.version); } catch {}
       }
-    };
-    load();
+    })();
   }, []);
 
+  const active = dpiStatus?.active;
+
   return (
-    <div className="flex flex-col gap-3 pb-2">
-      {/* Header */}
-      <div className="glass-dark rounded-lg p-4 flex items-center gap-3">
-        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-primary-500/40 bg-primary-500/10">
-          <svg className="h-7 w-7 text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8}
-              d="M12 3.75l6.25 2.3v5.32c0 4.05-2.6 7.8-6.25 8.88-3.65-1.08-6.25-4.83-6.25-8.88V6.05L12 3.75z" />
-          </svg>
+    <div className="flex flex-col gap-3 py-4">
+      {/* Identity */}
+      <section className="card flex items-center gap-3 p-4">
+        <img src="./logo.png" alt="" className="h-11 w-11 object-contain" />
+        <div className="min-w-0">
+          <p className="text-[15px] font-semibold" style={{ color: 'var(--text)' }}>Shroudly</p>
+          <p className="num text-[12px]" style={{ color: 'var(--text-faint)' }}>v{version} · {t('madeBy')}</p>
+          <p className="mt-0.5 text-[12px]" style={{ color: 'var(--accent)' }}>{t('tagline')}</p>
         </div>
-        <div>
-          <p className="text-sm font-black uppercase tracking-widest text-white">Shroudly</p>
-          <p className="text-[10px] text-white/40">v{version} · {t('madeBy')}</p>
-          <p className="text-[10px] italic text-primary-400/70 mt-0.5">{t('tagline')}</p>
-        </div>
-      </div>
+      </section>
 
-      {/* System Status */}
+      {/* Status */}
       <Section title={t('systemStatus')}>
-        <StatusRow
-          ok={dpiStatus?.active}
-          label={dpiStatus?.active ? t('dpiBypassRunning') : t('dpiBypassStopped')}
-        />
-      </Section>
-
-      {/* Usage */}
-      <Section title={t('usageTitle')}>
-        <p className="text-[11px] text-white/60 leading-relaxed">{t('usageDesc')}</p>
+        <div className="flex items-center gap-2 py-0.5">
+          <span className="h-2 w-2 rounded-full" style={{ background: active ? 'var(--ok)' : 'var(--danger)' }} />
+          <span className="text-[13px]" style={{ color: 'var(--text-dim)' }}>
+            {active ? t('dpiBypassRunning') : t('dpiBypassStopped')}
+          </span>
+        </div>
       </Section>
 
       {/* How it works */}
       <Section title={t('howItWorks')}>
-        <div className="divide-y divide-white/5">
-          <TechRow icon="✂️" title={t('technique_frag')}     desc={t('technique_frag_desc')} />
-          <TechRow icon="🔀" title={t('technique_disorder')} desc={t('technique_disorder_desc')} />
-          <TechRow icon="🛰️" title={t('technique_dns')}      desc={t('technique_dns_desc')} />
-          <TechRow icon="🔤" title={t('technique_http')}     desc={t('technique_http_desc')} />
-        </div>
+        <TechRow icon="✂️" title={t('technique_frag')}     desc={t('technique_frag_desc')} />
+        <TechRow icon="🔀" title={t('technique_disorder')} desc={t('technique_disorder_desc')} />
+        <TechRow icon="🛰️" title={t('technique_dns')}      desc={t('technique_dns_desc')} />
+        <TechRow icon="🔤" title={t('technique_http')}     desc={t('technique_http_desc')} />
       </Section>
 
-      {/* How it stays safe */}
+      {/* Safety */}
       <Section title={t('safetyTitle')}>
-        <p className="text-[11px] text-white/55 leading-relaxed">{t('safetyDesc')}</p>
+        <p className="text-[12px] leading-relaxed" style={{ color: 'var(--text-dim)' }}>{t('safetyDesc')}</p>
       </Section>
     </div>
   );

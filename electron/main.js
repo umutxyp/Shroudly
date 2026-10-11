@@ -134,9 +134,9 @@ async function checkDevServer() {
 
 async function createWindow() {
   mainWindow = new BrowserWindow({
-    width: 520, height: 820,
-    minWidth: 420, minHeight: 680,
-    maxWidth: 620, maxHeight: 960,
+    width: 460, height: 760,
+    minWidth: 360, minHeight: 560,
+    maxWidth: 720, maxHeight: 1100,
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
@@ -146,7 +146,7 @@ async function createWindow() {
     icon: trayIconPath(),
     title: 'Shroudly — Unseen. Unstoppable.',
     frame: false,
-    backgroundColor: '#0A0E1A',
+    backgroundColor: '#0b0f17',
     show: false,
   });
 
