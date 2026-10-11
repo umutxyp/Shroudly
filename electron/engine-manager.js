@@ -198,6 +198,7 @@ class EngineManager {
         this.stats.httpSeen = msg.http;
         this.stats.probeOk = msg.probe_ok;
         this.stats.probeFail = msg.probe_fail;
+        this.stats.sampledAt = Date.now(); // lets the UI compute rates per sample
         break;
       case 'probe':
         if (msg.ok && msg.strategy === 'none') {

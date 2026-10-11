@@ -16,9 +16,13 @@
  *   its own path: read latest-mac.yml, download the zip for this CPU, verify its
  *   SHA-512, then a small script swaps the .app bundle after Shroudly quits and
  *   relaunches it.
+ *
+ * Connections go direct first, so updates never depend on Shroudly's own
+ * engine (a broken engine must still be able to fetch its fix), then through
+ * the system proxy (= the engine) for networks where GitHub itself is blocked.
  */
 
-const { app, net } = require('electron');
+const { app, net, session } = require('electron');
 const { spawn } = require('child_process');
 const crypto = require('crypto');
 const fs = require('fs');
@@ -49,9 +53,31 @@ function parseMacFeed(text) {
   return { version, files };
 }
 
-function fetchText(url) {
+/* 'direct' or 'system' (follow the OS proxy, i.e. Shroudly's engine). */
+const ROUTES = ['direct', 'system'];
+const routeSessions = {};
+async function routeSession(route) {
+  if (!routeSessions[route]) {
+    const s = session.fromPartition(`shroudly-updater-${route}`, { cache: false });
+    await s.setProxy({ mode: route });
+    routeSessions[route] = s;
+  }
+  return routeSessions[route];
+}
+
+/* Run fn(route) for each route until one succeeds. */
+async function viaRoutes(fn) {
+  let last;
+  for (const route of ROUTES) {
+    try { return await fn(route); } catch (e) { last = e; }
+  }
+  throw last;
+}
+
+async function fetchText(url, route) {
+  const ses = await routeSession(route);
   return new Promise((resolve, reject) => {
-    const req = net.request({ url, redirect: 'follow' });
+    const req = net.request({ url, redirect: 'follow', session: ses });
     let body = '';
     req.on('response', (res) => {
       if (res.statusCode !== 200) { reject(new Error(`HTTP ${res.statusCode}`)); res.resume?.(); return; }
@@ -64,9 +90,10 @@ function fetchText(url) {
   });
 }
 
-function download(url, dest, onProgress) {
+async function download(url, dest, onProgress, route) {
+  const ses = await routeSession(route);
   return new Promise((resolve, reject) => {
-    const req = net.request({ url, redirect: 'follow' });
+    const req = net.request({ url, redirect: 'follow', session: ses });
     req.on('response', (res) => {
       if (res.statusCode !== 200) { reject(new Error(`HTTP ${res.statusCode}`)); return; }
       const total = Number(res.headers['content-length']) || 0;
@@ -127,23 +154,33 @@ class Updater {
     });
     autoUpdater.on('download-progress', (p) => this._set({ status: 'downloading', percent: Math.round(p.percent || 0) }));
     autoUpdater.on('update-downloaded', (info) => this._downloaded(info.version));
-    autoUpdater.on('error', (e) => this._fail(e));
+    autoUpdater.on('error', (e) => { if (!this.euQuiet) this._fail(e); });
   }
 
   _fail(e) {
     const msg = (e && e.message ? e.message : String(e)).split('\n')[0];
-    // A failed background check is not worth alarming anyone over.
-    if (this.state.status === 'downloading') this.log('warning', `Update failed: ${msg}`);
+    if (msg !== this.lastLoggedError) { this.lastLoggedError = msg; this.log('warning', `Update failed: ${msg}`); }
     this._set({ status: 'error', error: msg });
   }
+
+  /* electron-updater has one network session: point it at a route. */
+  async _euRoute(route) { await this.eu.netSession.setProxy({ mode: route }); }
 
   async check(manual) {
     if (['checking', 'downloading', 'ready'].includes(this.state.status)) return this.state;
     if (this.state.status === 'unsupported') return this.state;
     try {
-      if (!this.mac) { await this.eu.checkForUpdates(); return this.state; }
+      if (!this.mac) {
+        // electron-updater reports failures through its 'error' event too;
+        // only the last route's failure should reach the UI.
+        this.euQuiet = true;
+        try {
+          await viaRoutes(async (route) => { this.euRoute = route; await this._euRoute(route); await this.eu.checkForUpdates(); });
+        } finally { this.euQuiet = false; }
+        return this.state;
+      }
       this._set({ status: 'checking', error: null });
-      const feed = parseMacFeed(await fetchText(`${RELEASES_URL}/download/latest-mac.yml`));
+      const feed = parseMacFeed(await viaRoutes((route) => fetchText(`${RELEASES_URL}/download/latest-mac.yml`, route)));
       if (!feed.version || !newer(feed.version, app.getVersion())) { this._set({ status: 'up-to-date' }); return this.state; }
       this._set({ status: 'available', version: feed.version });
       this.log('info', `Update available: version ${feed.version}`);
@@ -156,7 +193,15 @@ class Updater {
   async download() {
     if (!this.mac) {
       this._set({ status: 'downloading', percent: 0 });
-      try { await this.eu.downloadUpdate(); } catch (e) { this._fail(e); }
+      try {
+        // Keep the route the check succeeded on; fall back to the other one.
+        const order = [this.euRoute || 'direct', ...ROUTES.filter((r) => r !== (this.euRoute || 'direct'))];
+        let last;
+        for (const route of order) {
+          try { await this._euRoute(route); await this.eu.downloadUpdate(); return; } catch (e) { last = e; }
+        }
+        throw last;
+      } catch (e) { this._fail(e); }
       return;
     }
     const feed = this.macFeed;
@@ -170,8 +215,8 @@ class Updater {
     const zip = path.join(dir, path.basename(file.url));
     this._set({ status: 'downloading', percent: 0 });
     try {
-      const sha = await download(`https://github.com/${OWNER}/${REPO}/releases/download/v${feed.version}/${file.url}`, zip,
-        (f) => this._set({ percent: Math.round(f * 100) }));
+      const sha = await viaRoutes((route) => download(`https://github.com/${OWNER}/${REPO}/releases/download/v${feed.version}/${file.url}`, zip,
+        (f) => this._set({ percent: Math.round(f * 100) }), route));
       if (sha !== file.sha512) throw new Error('checksum mismatch');
       this.macDownload = { zip, dir, version: feed.version };
       this._downloaded(feed.version);

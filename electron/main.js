@@ -11,6 +11,7 @@ const EngineManager = require('./engine-manager');
 const SystemProxy = require('./system-proxy');
 const AdvancedMode = require('./advanced-mode');
 const Updater = require('./updater');
+const Presence = require('./presence');
 const i18n = require('./main-i18n');
 
 /* "Shroudly --restore-proxy" runs once at login after a run that never got to
@@ -29,6 +30,7 @@ let tray = null;
 let engine = null;
 let advanced = null;
 let updater = null;
+let presence = null;
 let systemLogs = [];
 let exitInProgress = false;
 
@@ -62,7 +64,7 @@ if (!app.requestSingleInstanceLock()) {
 process.on('exit', () => { try { engine && engine.cleanupSync(); } catch {} try { advanced && advanced.cleanupSync(); } catch {} });
 process.on('uncaughtException', (err) => {
   console.error('[Shroudly] uncaught:', err);
-  if (!exitInProgress) { exitInProgress = true; shutdownAndQuit(); }
+  if (!exitInProgress) shutdownAndQuit();
 });
 process.on('unhandledRejection', (r) => console.error('[Shroudly] rejection:', r));
 
@@ -190,7 +192,11 @@ async function createWindow() {
     },
     icon: trayIconPath(),
     title: 'Shroudly — Unseen. Unstoppable.',
-    frame: false,
+    // Native window buttons drawn over our own title bar (components/TitleBar):
+    // traffic lights on macOS, the system caption buttons on Windows/Linux.
+    ...(process.platform === 'darwin'
+      ? { titleBarStyle: 'hiddenInset', trafficLightPosition: { x: 13, y: 12 } }
+      : { titleBarStyle: 'hidden', titleBarOverlay: { color: '#0b0f17', symbolColor: '#a3afc4', height: 36 } }),
     backgroundColor: '#0b0f17',
     show: false,
   });
@@ -263,9 +269,9 @@ async function safeStop() {
   }
 }
 
-async function shutdownAndQuit() {
-  try { if (engine) await engine.stop(); } catch {}
-  try { if (advanced) await advanced.stop(); } catch {}
+/* Quit through before-quit, which stops the engine and restores the proxy. */
+function shutdownAndQuit() {
+  app.isQuitting = true;
   app.quit();
 }
 
@@ -351,6 +357,11 @@ app.whenReady().then(async () => {
   await createWindow();
   updater.start();
 
+  presence = new Presence({
+    onCount: (n) => { if (mainWindow && !mainWindow.isDestroyed()) mainWindow.webContents.send('presence:count', n); },
+  });
+  presence.start();
+
   // Re-register every launch so the entry always points at this install
   // (moved app, updated AppImage, 2.0.0's broken Linux entry, legacy names).
   setAutoStart(store.get('autoStart', false));
@@ -389,17 +400,26 @@ function restoreForSessionEnd() {
 app.on('session-end', restoreForSessionEnd); // Windows
 app.whenReady().then(() => { powerMonitor.on('shutdown', restoreForSessionEnd); }); // macOS, Linux
 
-app.on('before-quit', async (e) => {
+/* Every way of quitting (Cmd+Q, Dock, tray, menu, updater) lands here. Mark
+ * the app as quitting first: otherwise the window's close handler turns the
+ * quit into "minimize to tray" and the app never exits (Cmd+Q on macOS while
+ * protection was off). Restoring the proxy is capped so a slow system call
+ * can't hold the quit hostage; the 'exit' handler still restores it
+ * synchronously as a last resort. */
+const QUIT_RESTORE_LIMIT_MS = 5000;
+app.on('before-quit', (e) => {
+  app.isQuitting = true;
+  if (presence && !presence.stopped) presence.leave();
   try { updater && updater.installOnQuit(); } catch {}
   if (exitInProgress) return;
-  if (engine && engine.isActive()) {
-    e.preventDefault();
-    exitInProgress = true;
-    app.isQuitting = true;
-    addLog('info', 'Restoring system before exit...');
-    await engine.stop();
-    app.quit();
-  }
+  const engineOn = engine && engine.isActive();
+  const advancedOn = advanced && advanced.active;
+  if (!engineOn && !advancedOn) return;
+  e.preventDefault();
+  exitInProgress = true;
+  addLog('info', 'Restoring system before exit...');
+  const stops = Promise.allSettled([engineOn ? engine.stop() : null, advancedOn ? advanced.stop() : null]);
+  Promise.race([stops, new Promise((r) => setTimeout(r, QUIT_RESTORE_LIMIT_MS))]).then(() => app.quit());
 });
 
 /* ── IPC ─────────────────────────────────────────────────────────────────── */
@@ -486,6 +506,7 @@ function ipv6Available() {
   });
 }
 ipcMain.handle('net:ipv6Available', () => ipv6Available());
+ipcMain.handle('presence:get', () => (presence ? presence.online : null));
 
 ipcMain.handle('settings:set', (e, key, value) => {
   store.set(key, value);
@@ -518,5 +539,6 @@ ipcMain.handle('net:stats', async () => {
     desync: s.desync || 0,
     tlsSeen: s.tlsSeen || 0,
     uptime: s.uptime || 0,
+    sampledAt: s.sampledAt || 0,
   };
 });

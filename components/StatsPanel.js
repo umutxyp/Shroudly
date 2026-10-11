@@ -3,7 +3,7 @@
 import { useEffect, useId, useRef, useState } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
 import {
-  ArrowDownIcon, ArrowUpIcon, ClockIcon, DatabaseIcon, InfoIcon, LinkIcon, ShieldCheckIcon,
+  ArrowDownIcon, ArrowUpIcon, ClockIcon, DatabaseIcon, InfoIcon, LinkIcon, ShieldCheckIcon, UsersIcon,
 } from './icons';
 
 const HISTORY = 40;
@@ -99,21 +99,36 @@ export default function StatsPanel({ active }) {
       try {
         const s = await window.electron.getNetStats();
         setStats(s);
-        const now = Date.now();
+        // Rates come from the engine's own sample times: the UI's poll and the
+        // engine's are not in step, so a sample can be read twice (would show
+        // 0) or skipped (would show double).
+        const t = s.sampledAt || 0;
+        if (!t) { setDlRate(0); setUlRate(0); prev.current = null; return; }
+        if (prev.current && t === prev.current.t) return;
         if (prev.current) {
-          const dt = (now - prev.current.t) / 1000;
+          const dt = (t - prev.current.t) / 1000;
           if (dt > 0) {
             const dl = Math.max(0, (s.bytesDown - prev.current.down) / dt);
             const ul = Math.max(0, (s.bytesUp - prev.current.up) / dt);
             setDlRate(dl); setUlRate(ul); push(setDlHist, dl); push(setUlHist, ul);
           }
         }
-        prev.current = { t: now, down: s.bytesDown, up: s.bytesUp };
+        prev.current = { t, down: s.bytesDown, up: s.bytesUp };
       } catch {}
     };
     poll();
-    const timer = setInterval(poll, 1000);
+    const timer = setInterval(poll, 500);
     return () => clearInterval(timer);
+  }, []);
+
+  // Live number of Shroudly apps running right now (all users, anonymous)
+  const [online, setOnline] = useState(null);
+  useEffect(() => {
+    const e = typeof window !== 'undefined' ? window.electron : null;
+    if (!e?.getOnlineCount) return undefined;
+    e.getOnlineCount().then((n) => { if (n != null) setOnline(n); }).catch(() => {});
+    e.onOnlineCount?.((n) => setOnline(n));
+    return () => e.removeOnlineCountListener?.();
   }, []);
 
   const s = stats || {};
@@ -127,6 +142,23 @@ export default function StatsPanel({ active }) {
           <p className="min-w-0">{t('statsInactiveHint')}</p>
         </div>
       )}
+
+      {/* live user count */}
+      <div className="card flex items-center gap-3 p-4">
+        <span className="relative flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px]"
+              style={{ background: 'var(--ok-soft)', color: 'var(--ok)' }}>
+          <UsersIcon className="h-[18px] w-[18px]" />
+          <span aria-hidden className="live-dot absolute -end-0.5 -top-0.5 h-2.5 w-2.5 rounded-full"
+                style={{ background: 'var(--ok)', border: '2px solid var(--surface)' }} />
+        </span>
+        <div className="min-w-0 flex-1">
+          <p className="text-[12px] font-medium leading-snug" style={{ color: 'var(--text-dim)' }}>{t('onlineNow')}</p>
+          <p className="text-[11.5px] leading-snug" style={{ color: 'var(--text-faint)' }}>{t('onlineNowDesc')}</p>
+        </div>
+        <span className="num shrink-0 text-[24px] font-semibold leading-none" dir="ltr" style={{ color: 'var(--text)' }}>
+          {online == null ? '—' : online.toLocaleString()}
+        </span>
+      </div>
 
       {/* throughput */}
       <div className="card flex flex-col gap-4 p-4">

@@ -268,3 +268,8 @@ input::placeholder { color: var(--text-faint); opacity: 1; }
 .footer-link { text-decoration: none; border-radius: 4px; transition: color 120ms ease; }
 .footer-link:hover { color: var(--accent) !important; text-decoration: underline; text-underline-offset: 2px; }
 .footer-link:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* "Online now" pulse */
+@keyframes live-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+.live-dot { animation: live-pulse 2s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) { .live-dot { animation: none; } }

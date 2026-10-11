@@ -14,9 +14,6 @@ export const translations = {
     madeBy: 'A Codeshare Technology Ltd product',
 
     // ── Window title bar buttons
-    windowMinimize: 'Minimize',
-    windowMaximize: 'Maximize',
-    windowClose: 'Close',
 
     // ── Bottom navigation
     navProtection: 'Protection',
@@ -49,6 +46,8 @@ export const translations = {
     dataTransferred: 'Data transferred',
     uptime: 'Uptime',
     statsInactiveHint: 'Start protection to see live traffic.',
+    onlineNow: 'Online now',
+    onlineNowDesc: 'People using Shroudly right now, worldwide',
 
     // ── Settings screen
     language: 'Language',
@@ -211,9 +210,6 @@ export const translations = {
     madeBy: 'Codeshare Technology Ltd 出品',
 
     // ── Window title bar buttons
-    windowMinimize: '最小化',
-    windowMaximize: '最大化',
-    windowClose: '关闭',
 
     // ── Bottom navigation
     navProtection: '保护',
@@ -246,6 +242,8 @@ export const translations = {
     dataTransferred: '已传输数据',
     uptime: '运行时长',
     statsInactiveHint: '启动保护后即可查看实时流量。',
+    onlineNow: '当前在线',
+    onlineNowDesc: '全球此刻正在使用 Shroudly 的人数',
 
     // ── Settings screen
     language: '语言',
@@ -408,9 +406,6 @@ export const translations = {
     madeBy: 'Codeshare Technology Ltd का एक उत्पाद',
 
     // ── Window title bar buttons
-    windowMinimize: 'छोटा करें',
-    windowMaximize: 'बड़ा करें',
-    windowClose: 'बंद करें',
 
     // ── Bottom navigation
     navProtection: 'सुरक्षा',
@@ -443,6 +438,8 @@ export const translations = {
     dataTransferred: 'स्थानांतरित डेटा',
     uptime: 'सक्रिय समय',
     statsInactiveHint: 'लाइव ट्रैफ़िक देखने के लिए सुरक्षा शुरू करें।',
+    onlineNow: 'अभी ऑनलाइन',
+    onlineNowDesc: 'दुनिया भर में इस समय Shroudly इस्तेमाल कर रहे लोग',
 
     // ── Settings screen
     language: 'भाषा',
@@ -605,9 +602,6 @@ export const translations = {
     madeBy: 'Un producto de Codeshare Technology Ltd',
 
     // ── Window title bar buttons
-    windowMinimize: 'Minimizar',
-    windowMaximize: 'Maximizar',
-    windowClose: 'Cerrar',
 
     // ── Bottom navigation
     navProtection: 'Protección',
@@ -640,6 +634,8 @@ export const translations = {
     dataTransferred: 'Datos transferidos',
     uptime: 'Tiempo activo',
     statsInactiveHint: 'Inicia la protección para ver el tráfico en tiempo real.',
+    onlineNow: 'En línea ahora',
+    onlineNowDesc: 'Personas que usan Shroudly ahora mismo en todo el mundo',
 
     // ── Settings screen
     language: 'Idioma',
@@ -802,9 +798,6 @@ export const translations = {
     madeBy: 'منتج من Codeshare Technology Ltd',
 
     // ── Window title bar buttons
-    windowMinimize: 'تصغير',
-    windowMaximize: 'تكبير',
-    windowClose: 'إغلاق',
 
     // ── Bottom navigation
     navProtection: 'الحماية',
@@ -837,6 +830,8 @@ export const translations = {
     dataTransferred: 'البيانات المنقولة',
     uptime: 'مدة التشغيل',
     statsInactiveHint: 'ابدأ الحماية لعرض حركة المرور المباشرة.',
+    onlineNow: 'متصل الآن',
+    onlineNowDesc: 'عدد من يستخدمون Shroudly الآن حول العالم',
 
     // ── Settings screen
     language: 'اللغة',
@@ -999,9 +994,6 @@ export const translations = {
     madeBy: 'Продукт Codeshare Technology Ltd',
 
     // ── Window title bar buttons
-    windowMinimize: 'Свернуть',
-    windowMaximize: 'Развернуть',
-    windowClose: 'Закрыть',
 
     // ── Bottom navigation
     navProtection: 'Защита',
@@ -1034,6 +1026,8 @@ export const translations = {
     dataTransferred: 'Передано данных',
     uptime: 'Время работы',
     statsInactiveHint: 'Включите защиту, чтобы видеть трафик в реальном времени.',
+    onlineNow: 'Сейчас онлайн',
+    onlineNowDesc: 'Сколько человек пользуется Shroudly прямо сейчас по всему миру',
 
     // ── Settings screen
     language: 'Язык',
@@ -1196,9 +1190,6 @@ export const translations = {
     madeBy: 'Um produto da Codeshare Technology Ltd',
 
     // ── Window title bar buttons
-    windowMinimize: 'Minimizar',
-    windowMaximize: 'Maximizar',
-    windowClose: 'Fechar',
 
     // ── Bottom navigation
     navProtection: 'Proteção',
@@ -1231,6 +1222,8 @@ export const translations = {
     dataTransferred: 'Dados transferidos',
     uptime: 'Tempo ativo',
     statsInactiveHint: 'Inicie a proteção para ver o tráfego em tempo real.',
+    onlineNow: 'Online agora',
+    onlineNowDesc: 'Pessoas usando o Shroudly agora, no mundo todo',
 
     // ── Settings screen
     language: 'Idioma',
@@ -1393,9 +1386,6 @@ export const translations = {
     madeBy: 'Un produit Codeshare Technology Ltd',
 
     // ── Window title bar buttons
-    windowMinimize: 'Réduire',
-    windowMaximize: 'Agrandir',
-    windowClose: 'Fermer',
 
     // ── Bottom navigation
     navProtection: 'Protection',
@@ -1428,6 +1418,8 @@ export const translations = {
     dataTransferred: 'Données transférées',
     uptime: 'Durée d’activité',
     statsInactiveHint: 'Activez la protection pour voir le trafic en direct.',
+    onlineNow: 'En ligne maintenant',
+    onlineNowDesc: 'Personnes utilisant Shroudly en ce moment dans le monde',
 
     // ── Settings screen
     language: 'Langue',
@@ -1590,9 +1582,6 @@ export const translations = {
     madeBy: 'محصولی از Codeshare Technology Ltd',
 
     // ── Window title bar buttons
-    windowMinimize: 'کوچک کردن',
-    windowMaximize: 'بزرگ کردن',
-    windowClose: 'بستن',
 
     // ── Bottom navigation
     navProtection: 'محافظت',
@@ -1625,6 +1614,8 @@ export const translations = {
     dataTransferred: 'دادهٔ منتقل‌شده',
     uptime: 'مدت فعالیت',
     statsInactiveHint: 'برای دیدن ترافیک زنده، محافظت را شروع کنید.',
+    onlineNow: 'هم‌اکنون آنلاین',
+    onlineNowDesc: 'کسانی که هم‌اکنون در سراسر جهان از Shroudly استفاده می‌کنند',
 
     // ── Settings screen
     language: 'زبان',
@@ -1787,9 +1778,6 @@ export const translations = {
     madeBy: 'Bir Codeshare Technology Ltd ürünü',
 
     // ── Window title bar buttons
-    windowMinimize: 'Simge durumuna küçült',
-    windowMaximize: 'Ekranı kapla',
-    windowClose: 'Kapat',
 
     // ── Bottom navigation
     navProtection: 'Koruma',
@@ -1822,6 +1810,8 @@ export const translations = {
     dataTransferred: 'Aktarılan veri',
     uptime: 'Çalışma süresi',
     statsInactiveHint: 'Canlı trafiği görmek için korumayı başlatın.',
+    onlineNow: 'Şu anda çevrimiçi',
+    onlineNowDesc: 'Dünya genelinde şu anda Shroudly kullanan kişi sayısı',
 
     // ── Settings screen
     language: 'Dil',
@@ -1984,9 +1974,6 @@ export const translations = {
     madeBy: 'Codeshare Technology Ltd-এর একটি পণ্য',
 
     // ── Window title bar buttons
-    windowMinimize: 'ছোট করুন',
-    windowMaximize: 'বড় করুন',
-    windowClose: 'বন্ধ করুন',
 
     // ── Bottom navigation
     navProtection: 'সুরক্ষা',
@@ -2019,6 +2006,8 @@ export const translations = {
     dataTransferred: 'স্থানান্তরিত ডেটা',
     uptime: 'চালু থাকার সময়',
     statsInactiveHint: 'লাইভ ট্রাফিক দেখতে সুরক্ষা চালু করুন।',
+    onlineNow: 'এখন অনলাইনে',
+    onlineNowDesc: 'বিশ্বজুড়ে এই মুহূর্তে যারা Shroudly ব্যবহার করছেন',
 
     // ── Settings screen
     language: 'ভাষা',
@@ -2181,9 +2170,6 @@ export const translations = {
     madeBy: 'Codeshare Technology Ltd کی ایک پروڈکٹ',
 
     // ── Window title bar buttons
-    windowMinimize: 'چھوٹا کریں',
-    windowMaximize: 'بڑا کریں',
-    windowClose: 'بند کریں',
 
     // ── Bottom navigation
     navProtection: 'تحفظ',
@@ -2216,6 +2202,8 @@ export const translations = {
     dataTransferred: 'منتقل شدہ ڈیٹا',
     uptime: 'چلنے کا دورانیہ',
     statsInactiveHint: 'لائیو ٹریفک دیکھنے کے لیے تحفظ شروع کریں۔',
+    onlineNow: 'ابھی آن لائن',
+    onlineNowDesc: 'دنیا بھر میں اس وقت Shroudly استعمال کرنے والے لوگ',
 
     // ── Settings screen
     language: 'زبان',
@@ -2378,9 +2366,6 @@ export const translations = {
     madeBy: 'Produk dari Codeshare Technology Ltd',
 
     // ── Window title bar buttons
-    windowMinimize: 'Perkecil',
-    windowMaximize: 'Perbesar',
-    windowClose: 'Tutup',
 
     // ── Bottom navigation
     navProtection: 'Proteksi',
@@ -2413,6 +2398,8 @@ export const translations = {
     dataTransferred: 'Data ditransfer',
     uptime: 'Waktu aktif',
     statsInactiveHint: 'Mulai perlindungan untuk melihat lalu lintas secara langsung.',
+    onlineNow: 'Online sekarang',
+    onlineNowDesc: 'Orang yang sedang memakai Shroudly saat ini di seluruh dunia',
 
     // ── Settings screen
     language: 'Bahasa',
@@ -2575,9 +2562,6 @@ export const translations = {
     madeBy: 'Codeshare Technology Ltd の製品',
 
     // ── Window title bar buttons
-    windowMinimize: '最小化',
-    windowMaximize: '最大化',
-    windowClose: '閉じる',
 
     // ── Bottom navigation
     navProtection: '保護',
@@ -2610,6 +2594,8 @@ export const translations = {
     dataTransferred: '転送データ量',
     uptime: '稼働時間',
     statsInactiveHint: '保護を開始すると、リアルタイムのトラフィックが表示されます。',
+    onlineNow: '現在オンライン',
+    onlineNowDesc: 'いま世界中で Shroudly を使っている人の数',
 
     // ── Settings screen
     language: '言語',
@@ -2772,9 +2758,6 @@ export const translations = {
     madeBy: 'Ein Produkt von Codeshare Technology Ltd',
 
     // ── Window title bar buttons
-    windowMinimize: 'Minimieren',
-    windowMaximize: 'Maximieren',
-    windowClose: 'Schließen',
 
     // ── Bottom navigation
     navProtection: 'Schutz',
@@ -2807,6 +2790,8 @@ export const translations = {
     dataTransferred: 'Übertragene Daten',
     uptime: 'Laufzeit',
     statsInactiveHint: 'Schutz starten, um den Datenverkehr live zu sehen.',
+    onlineNow: 'Jetzt online',
+    onlineNowDesc: 'Menschen, die Shroudly gerade weltweit nutzen',
 
     // ── Settings screen
     language: 'Sprache',

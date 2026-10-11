@@ -1,6 +1,8 @@
 const { contextBridge, ipcRenderer } = require('electron');
 
 contextBridge.exposeInMainWorld('electron', {
+  platform: process.platform, // 'darwin' | 'win32' | 'linux'
+
   // Window controls
   minimizeWindow: () => ipcRenderer.send('window:minimize'),
   maximizeWindow: () => ipcRenderer.send('window:maximize'),
@@ -42,6 +44,10 @@ contextBridge.exposeInMainWorld('electron', {
   // Network stats (real counters from the engine)
   getNetStats: () => ipcRenderer.invoke('net:stats'),
   ipv6Available: () => ipcRenderer.invoke('net:ipv6Available'),
+  // Live count of running Shroudly apps (null until the first answer)
+  getOnlineCount: () => ipcRenderer.invoke('presence:get'),
+  onOnlineCount: (cb) => ipcRenderer.on('presence:count', (e, n) => cb(n)),
+  removeOnlineCountListener: () => ipcRenderer.removeAllListeners('presence:count'),
 
   // Advanced (packet-layer) mode — optional, stateful-DPI countries
   advancedAvailable: () => ipcRenderer.invoke('advanced:available'),

@@ -125,6 +125,7 @@ model and test results.
 - **Real auto-probe** — finds and learns a working strategy per host.
 - **Anti-poisoning resolver** — optional multi-resolver DNS that filters spoofed answers.
 - **Honest live stats** — connections, bytes, TLS/HTTP seen and desyncs applied are real counters streamed from the engine, not estimates.
+- **Live user count** — Stats shows how many people are using Shroudly right now (see [Privacy](#privacy)).
 - **Automatic updates** — new releases from GitHub install themselves (Windows, macOS, Linux AppImage and .deb).
 - **System tray, auto-start, auto mode** — per-OS login item on Windows/macOS, `.desktop` entry on Linux.
 - **15 languages** with automatic detection.
@@ -137,13 +138,13 @@ English, 中文, हिन्दी, Español, العربية, Русский, P
 
 ## Install
 
-**Latest version: [v2.0.5](https://github.com/umutxyp/Shroudly/releases/tag/v2.0.5)**: pick the file for your OS and CPU:
+**Latest version: [v2.0.6](https://github.com/umutxyp/Shroudly/releases/tag/v2.0.6)**: pick the file for your OS and CPU:
 
 | OS | Intel / AMD (x64) | ARM |
 |----|-------------------|-----|
-| **Windows** | [Installer (.exe)](https://github.com/umutxyp/Shroudly/releases/download/v2.0.5/Shroudly-2.0.5-Windows-x64-Setup.exe) | [Installer (.exe)](https://github.com/umutxyp/Shroudly/releases/download/v2.0.5/Shroudly-2.0.5-Windows-arm64-Setup.exe) |
-| **macOS** | Intel Macs: [.dmg](https://github.com/umutxyp/Shroudly/releases/download/v2.0.5/Shroudly-2.0.5-macOS-x64.dmg) · [.zip](https://github.com/umutxyp/Shroudly/releases/download/v2.0.5/Shroudly-2.0.5-macOS-x64.zip) | Apple Silicon (M1–M4): [.dmg](https://github.com/umutxyp/Shroudly/releases/download/v2.0.5/Shroudly-2.0.5-macOS-arm64.dmg) · [.zip](https://github.com/umutxyp/Shroudly/releases/download/v2.0.5/Shroudly-2.0.5-macOS-arm64.zip) |
-| **Linux** | [AppImage](https://github.com/umutxyp/Shroudly/releases/download/v2.0.5/Shroudly-2.0.5-Linux-x86_64.AppImage) · [.deb (Debian/Ubuntu)](https://github.com/umutxyp/Shroudly/releases/download/v2.0.5/Shroudly-2.0.5-Linux-amd64.deb) | [AppImage](https://github.com/umutxyp/Shroudly/releases/download/v2.0.5/Shroudly-2.0.5-Linux-arm64.AppImage) |
+| **Windows** | [Installer (.exe)](https://github.com/umutxyp/Shroudly/releases/download/v2.0.6/Shroudly-2.0.6-Windows-x64-Setup.exe) | [Installer (.exe)](https://github.com/umutxyp/Shroudly/releases/download/v2.0.6/Shroudly-2.0.6-Windows-arm64-Setup.exe) |
+| **macOS** | Intel Macs: [.dmg](https://github.com/umutxyp/Shroudly/releases/download/v2.0.6/Shroudly-2.0.6-macOS-x64.dmg) · [.zip](https://github.com/umutxyp/Shroudly/releases/download/v2.0.6/Shroudly-2.0.6-macOS-x64.zip) | Apple Silicon (M1–M4): [.dmg](https://github.com/umutxyp/Shroudly/releases/download/v2.0.6/Shroudly-2.0.6-macOS-arm64.dmg) · [.zip](https://github.com/umutxyp/Shroudly/releases/download/v2.0.6/Shroudly-2.0.6-macOS-arm64.zip) |
+| **Linux** | [AppImage](https://github.com/umutxyp/Shroudly/releases/download/v2.0.6/Shroudly-2.0.6-Linux-x86_64.AppImage) · [.deb (Debian/Ubuntu)](https://github.com/umutxyp/Shroudly/releases/download/v2.0.6/Shroudly-2.0.6-Linux-amd64.deb) | [AppImage](https://github.com/umutxyp/Shroudly/releases/download/v2.0.6/Shroudly-2.0.6-Linux-arm64.AppImage) |
 
 Shroudly updates itself after that: it checks for new versions when it starts
 and every 30 minutes, installs them in the background and restarts (you can
@@ -151,7 +152,7 @@ postpone it, or turn automatic installs off in Settings).
 
 - **Windows** — run the `.exe` installer.
 - **macOS** — open the `.dmg` (or unzip the `.zip`) and drag `Shroudly.app` into Applications.
-- **Linux** — `chmod +x Shroudly-*.AppImage` and run it, or `sudo apt install ./Shroudly-2.0.5-Linux-amd64.deb`.
+- **Linux** — `chmod +x Shroudly-*.AppImage` and run it, or `sudo apt install ./Shroudly-2.0.6-Linux-amd64.deb`.
 
 > **The builds are not code-signed yet.** On first launch Windows SmartScreen may
 > show *"Windows protected your PC"* → click **More info → Run anyway**. On macOS
@@ -253,6 +254,21 @@ Strategy syntax: `split(sni)`, `disorder(sni)`, `split(sni_mid)`,
 ```bash
 npm run test:core        # unit tests for protocol + strategy parsing
 ```
+
+---
+
+## Privacy
+
+Shroudly does not collect personal data. Two things contact servers:
+
+- **Live user count** (`shroudly.codeshare.me`): while the app runs, it sends a
+  random id that is created fresh at every launch and never stored. The
+  server only keeps those ids and when each was last seen, in memory, to count
+  how many apps are online. An id disappears when the app quits or stops
+  pinging. No IP addresses or other details are logged. The server code is in
+  [`server/stats-worker`](server/stats-worker/worker.js).
+- **Update checks** (GitHub): the app downloads the release feed from
+  `github.com/umutxyp/Shroudly`.
 
 ---
 
