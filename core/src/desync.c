@@ -79,7 +79,18 @@ int desync_send_first(sock_t up, int family,
       int dup = 0;
       for (int j = 0; j < nsplits; j++) if (splits[j] == p) dup = 1;
       if (!dup && nsplits < MAX_OPS) splits[nsplits++] = p;
-      if (k == OP_DISORDER) disorder = 1;
+      if (k == OP_DISORDER) {
+        disorder = 1;
+        /* disorder implies extra fragmentation: add a second cut just before the
+         * marker so the SNI lands in its own middle fragment even in the
+         * userspace (flush-based) path. */
+        int p2 = p > 1 ? p - 1 : p + 1;
+        if (p2 > 0 && p2 < len) {
+          int d2 = 0;
+          for (int j = 0; j < nsplits; j++) if (splits[j] == p2) d2 = 1;
+          if (!d2 && nsplits < MAX_OPS) splits[nsplits++] = p2;
+        }
+      }
     }
   }
   /* simple insertion sort */
@@ -117,10 +128,18 @@ int desync_send_first(sock_t up, int family,
   for (int i = 0; i < nsplits; i++) if (splits[i] > 0 && splits[i] < len) bounds[nb++] = splits[i];
   bounds[nb++] = len;
 
+  /* IMPORTANT: over a userspace TCP stream we cannot truly reorder segments —
+   * the kernel always transmits them in ascending sequence order, so sending a
+   * later chunk "first" with send() does not put it on the wire first. True
+   * out-of-order injection needs raw sockets (optional SHROUDLY_RAW build).
+   *
+   * What *does* reliably defeat stateless SNI/Host DPI here is fragmentation:
+   * forcing the ClientHello onto the wire as multiple small segments (with a
+   * flush between them) so the SNI never appears whole in one segment. So in the
+   * userspace path we always send in order with per-segment flushes, and treat
+   * "disorder" as a request for an extra early fragment to maximise splitting. */
+#ifdef SHROUDLY_RAW
   if (disorder && nb >= 3) {
-    /* Send later segments before earlier ones. The kernel at the receiver
-     * reorders by sequence number; a stateless DPI that reads in arrival order
-     * never sees a contiguous SNI. */
     for (int i = nb - 2; i >= 0; i--) {
       int a = bounds[i], b = bounds[i+1];
       if (b > a) {
@@ -128,13 +147,16 @@ int desync_send_first(sock_t up, int family,
         sock_wait_sent(up, 10);
       }
     }
-  } else {
-    for (int i = 0; i + 1 < nb; i++) {
-      int a = bounds[i], b = bounds[i+1];
-      if (b > a) {
-        if (sock_send_all(up, payload + a, (size_t)(b - a), 0) != 0) return -1;
-        sock_wait_sent(up, 10);
-      }
+    return 0;
+  }
+#else
+  (void)disorder;
+#endif
+  for (int i = 0; i + 1 < nb; i++) {
+    int a = bounds[i], b = bounds[i+1];
+    if (b > a) {
+      if (sock_send_all(up, payload + a, (size_t)(b - a), 0) != 0) return -1;
+      sock_wait_sent(up, 10);
     }
   }
   return 0;

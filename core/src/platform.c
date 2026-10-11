@@ -99,20 +99,34 @@ int sock_set_ttl(sock_t s, int family, int ttl) {
 void sock_wait_sent(sock_t s, int max_ms) {
 #if defined(__linux__) && defined(SIOCOUTQNSD)
   /* Linux: wait until the not-yet-sent queue is empty so that each send()
-   * leaves as its own segment (defeats autocorking/coalescing). */
+   * leaves as its own segment (defeats autocorking/coalescing). TCP_NODELAY is
+   * already set on the socket; draining SIOCOUTQNSD guarantees the bytes are on
+   * the wire before the next chunk is written, so they cannot be coalesced. */
   uint64_t deadline = now_ms() + (uint64_t)max_ms;
   for (;;) {
     int pending = 0;
-    if (ioctl(s, SIOCOUTQNSD, &pending) != 0 || pending <= 0) return;
-    if (now_ms() >= deadline) return;
-    struct timespec ts = {0, 200000}; /* 0.2 ms */
+    if (ioctl(s, SIOCOUTQNSD, &pending) != 0) break;
+    if (pending <= 0) break;
+    if (now_ms() >= deadline) break;
+    struct timespec ts = {0, 150000}; /* 0.15 ms */
     nanosleep(&ts, NULL);
   }
+  /* A final tiny yield so the next send() starts a fresh segment even if the
+   * NIC/driver briefly held the queue. */
+  { struct timespec ts = {0, 300000}; nanosleep(&ts, NULL); }
+#elif defined(__APPLE__)
+  /* macOS has no SIOCOUTQNSD. With TCP_NODELAY set, a short sleep lets the
+   * pending small segment leave before the next write, which is enough to keep
+   * the SNI split across segments in practice. */
+  (void)max_ms;
+  struct timespec ts = {0, 1500000}; /* 1.5 ms */
+  nanosleep(&ts, NULL);
 #else
-  /* Windows/macOS do not cork small writes with TCP_NODELAY; a tiny yield is enough. */
+  /* Windows: TCP_NODELAY prevents Nagle coalescing of small writes; a brief
+   * sleep ensures the previous segment is handed to the stack first. */
   (void)s;
   (void)max_ms;
-  sleep_ms(1);
+  sleep_ms(2);
 #endif
 }
 

@@ -3,20 +3,24 @@
 /*
  * Cross-platform system proxy control.
  *
- * The engine exposes a local SOCKS5 proxy on 127.0.0.1:<port>. To make the
- * whole machine use it we point the OS/browser proxy at it, and we always
- * restore the previous state on stop / crash / logout.
+ * The engine exposes a local SOCKS5 proxy on 127.0.0.1:<port>. To route traffic
+ * through it we point the OS/browser proxy at it, and we always restore the
+ * previous state on stop / crash / logout.
  *
- * Windows : WinINET per-user proxy (registry under HKCU, no admin needed).
- *           A PAC file routes everything through SOCKS, bypassing localhost.
- * macOS   : `networksetup -setsocksfirewallproxy` on active services.
- * Linux   : GNOME gsettings if present; always also writes a PAC the UI can
- *           surface, and exports HTTP(S)_PROXY guidance. No system file edits.
+ * Windows : WinINET per-user proxy (HKCU, no admin). We publish the PAC over a
+ *           tiny local HTTP server, because modern WinINET refuses file:// PAC
+ *           URLs. We also set a direct HKCU proxy as a fallback.
+ * macOS   : `networksetup -setsocksfirewallproxy` on active services. This needs
+ *           admin; we detect whether non-interactive sudo is possible and, if
+ *           not, fall back to per-app SOCKS (env + PAC URL) without failing.
+ * Linux   : GNOME/KDE gsettings/kwriteconfig if present; always also expose a
+ *           PAC URL + SOCKS address for apps. No system file edits.
  *
- * Nothing here requires elevation. Every change is reverted by restore().
+ * Every change is reverted by restore()/restoreSync().
  */
 
 const { execFile, execFileSync } = require('child_process');
+const http = require('http');
 const os = require('os');
 const fs = require('fs');
 const path = require('path');
@@ -35,14 +39,15 @@ class SystemProxy {
     this.log = log || (() => {});
     this.platform = process.platform;
     this.applied = false;
-    this.snapshot = null;        // previous state for restore
-    this.pacPath = null;
+    this.snapshot = null;
+    this.pacServer = null;
+    this.pacPort = 0;
+    this.pacUrl = null;
+    this.socksPort = 0;
   }
 
-  /* Write a PAC that sends everything through the SOCKS proxy except localhost
-   * and private ranges (so LAN and loopback keep working). */
-  writePac(port) {
-    const pac = `function FindProxyForURL(url, host) {
+  pacBody(port) {
+    return `function FindProxyForURL(url, host) {
   if (isPlainHostName(host) ||
       shExpMatch(host, "127.*") || shExpMatch(host, "10.*") ||
       shExpMatch(host, "172.16.*") || shExpMatch(host, "192.168.*") ||
@@ -52,15 +57,36 @@ class SystemProxy {
   return "SOCKS5 127.0.0.1:${port}; SOCKS 127.0.0.1:${port}; DIRECT";
 }
 `;
-    const p = path.join(os.tmpdir(), 'shroudly.pac');
-    fs.writeFileSync(p, pac, 'utf8');
-    this.pacPath = p;
-    return p;
+  }
+
+  /* Serve the PAC over loopback HTTP so WinINET (and others) will load it.
+   * Returns the PAC URL. */
+  async startPacServer(socksPort) {
+    const body = this.pacBody(socksPort);
+    await new Promise((resolve, reject) => {
+      this.pacServer = http.createServer((req, res) => {
+        res.writeHead(200, { 'Content-Type': 'application/x-ns-proxy-autoconfig' });
+        res.end(body);
+      });
+      this.pacServer.on('error', reject);
+      // port 0 => OS picks a free port, bound to loopback only
+      this.pacServer.listen(0, '127.0.0.1', () => {
+        this.pacPort = this.pacServer.address().port;
+        this.pacUrl = `http://127.0.0.1:${this.pacPort}/proxy.pac`;
+        resolve();
+      });
+    });
+    return this.pacUrl;
+  }
+
+  stopPacServer() {
+    if (this.pacServer) { try { this.pacServer.close(); } catch {} this.pacServer = null; }
   }
 
   async apply(port) {
     if (this.applied) return;
-    this.writePac(port);
+    this.socksPort = port;
+    await this.startPacServer(port);
     if (this.platform === 'win32') await this._applyWindows(port);
     else if (this.platform === 'darwin') await this._applyMac(port);
     else await this._applyLinux(port);
@@ -69,7 +95,7 @@ class SystemProxy {
   }
 
   async restore() {
-    if (!this.applied) return;
+    if (!this.applied) { this.stopPacServer(); return; }
     try {
       if (this.platform === 'win32') await this._restoreWindows();
       else if (this.platform === 'darwin') await this._restoreMac();
@@ -80,11 +106,10 @@ class SystemProxy {
     } finally {
       this.applied = false;
       this.snapshot = null;
-      if (this.pacPath) { try { fs.unlinkSync(this.pacPath); } catch {} }
+      this.stopPacServer();
     }
   }
 
-  /* Synchronous best-effort restore for process-exit / crash paths. */
   restoreSync() {
     if (!this.applied) return;
     try {
@@ -93,6 +118,7 @@ class SystemProxy {
       else this._restoreLinuxSync();
     } catch {}
     this.applied = false;
+    this.stopPacServer();
   }
 
   // ── Windows (WinINET, HKCU, no admin) ──────────────────────────────────
@@ -106,9 +132,12 @@ $snap = @{
   ProxyServer = [string]$cur.ProxyServer;
   AutoConfigURL = [string]$cur.AutoConfigURL
 } | ConvertTo-Json -Compress
-# Use a PAC pointing at our SOCKS proxy.
-Set-ItemProperty -Path $k -Name AutoConfigURL -Value ('file:///' + '${this.pacPath.replace(/\\/g, '/')}')
-Set-ItemProperty -Path $k -Name ProxyEnable -Value 0
+# Point WinINET at our HTTP-served PAC (file:// PACs are rejected by WinINET).
+Set-ItemProperty -Path $k -Name AutoConfigURL -Value '${this.pacUrl}'
+# Also set a direct SOCKS proxy as a fallback for stacks that ignore PAC.
+Set-ItemProperty -Path $k -Name ProxyEnable -Value 1
+Set-ItemProperty -Path $k -Name ProxyServer -Value 'socks=127.0.0.1:${port}'
+Set-ItemProperty -Path $k -Name ProxyOverride -Value '<local>;127.*;10.*;172.16.*;192.168.*;localhost'
 $snap
 `;
     const out = await this._ps(ps);
@@ -123,7 +152,9 @@ $k='HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings'
 ${s.AutoConfigURL ? `Set-ItemProperty -Path $k -Name AutoConfigURL -Value '${String(s.AutoConfigURL).replace(/'/g, "''")}'`
                   : `Remove-ItemProperty -Path $k -Name AutoConfigURL -ErrorAction SilentlyContinue`}
 Set-ItemProperty -Path $k -Name ProxyEnable -Value ${Number(s.ProxyEnable) ? 1 : 0}
-${s.ProxyServer ? `Set-ItemProperty -Path $k -Name ProxyServer -Value '${String(s.ProxyServer).replace(/'/g, "''")}'` : ''}
+${s.ProxyServer ? `Set-ItemProperty -Path $k -Name ProxyServer -Value '${String(s.ProxyServer).replace(/'/g, "''")}'`
+               : `Remove-ItemProperty -Path $k -Name ProxyServer -ErrorAction SilentlyContinue`}
+Remove-ItemProperty -Path $k -Name ProxyOverride -ErrorAction SilentlyContinue
 `;
     await this._ps(ps);
     await this._refreshWinInet();
@@ -136,26 +167,34 @@ $k='HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings'
 ${s.AutoConfigURL ? `Set-ItemProperty -Path $k -Name AutoConfigURL -Value '${String(s.AutoConfigURL).replace(/'/g, "''")}'`
                   : `Remove-ItemProperty -Path $k -Name AutoConfigURL -ErrorAction SilentlyContinue`}
 Set-ItemProperty -Path $k -Name ProxyEnable -Value ${Number(s.ProxyEnable) ? 1 : 0}
+${s.ProxyServer ? `Set-ItemProperty -Path $k -Name ProxyServer -Value '${String(s.ProxyServer).replace(/'/g, "''")}'`
+               : `Remove-ItemProperty -Path $k -Name ProxyServer -ErrorAction SilentlyContinue`}
+Remove-ItemProperty -Path $k -Name ProxyOverride -ErrorAction SilentlyContinue
 `;
     try {
-      execFileSync('powershell.exe', ['-NoProfile', '-NonInteractive', '-Command', ps],
+      execFileSync('powershell.exe', ['-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass', '-Command', ps],
         { windowsHide: true, timeout: 4000 });
+      this._refreshWinInetSync();
     } catch {}
   }
 
-  // Notify WinINET that settings changed (InternetSetOption via rundll is not
-  // reliable; use a tiny P/Invoke through PowerShell Add-Type).
-  async _refreshWinInet() {
-    const ps = `
+  _winInetRefreshScript() {
+    return `
 $sig = @'
 [System.Runtime.InteropServices.DllImport("wininet.dll", SetLastError=true)]
 public static extern bool InternetSetOption(IntPtr hInternet, int dwOption, IntPtr lpBuffer, int dwBufferLength);
 '@
 $t = Add-Type -MemberDefinition $sig -Name WinINet -Namespace Net -PassThru
-[void]$t::InternetSetOption([IntPtr]::Zero, 39, [IntPtr]::Zero, 0) # SETTINGS_CHANGED
-[void]$t::InternetSetOption([IntPtr]::Zero, 37, [IntPtr]::Zero, 0) # REFRESH
+[void]$t::InternetSetOption([IntPtr]::Zero, 39, [IntPtr]::Zero, 0)
+[void]$t::InternetSetOption([IntPtr]::Zero, 37, [IntPtr]::Zero, 0)
 `;
-    try { await this._ps(ps); } catch {}
+  }
+  async _refreshWinInet() { try { await this._ps(this._winInetRefreshScript()); } catch {} }
+  _refreshWinInetSync() {
+    try {
+      execFileSync('powershell.exe', ['-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass', '-Command', this._winInetRefreshScript()],
+        { windowsHide: true, timeout: 3000 });
+    } catch {}
   }
 
   _ps(script) {
@@ -165,13 +204,25 @@ $t = Add-Type -MemberDefinition $sig -Name WinINet -Namespace Net -PassThru
   // ── macOS (networksetup) ───────────────────────────────────────────────
   async _macServices() {
     const out = await run('networksetup', ['-listallnetworkservices']);
-    return out.split('\n').slice(1).map(s => s.trim())
-      .filter(s => s && !s.startsWith('*'));
+    return out.split('\n').slice(1).map(s => s.trim()).filter(s => s && !s.startsWith('*'));
+  }
+
+  // Can we run networksetup without an interactive password prompt?
+  async _macSudoNonInteractive() {
+    try { await run('sudo', ['-n', 'networksetup', '-version'], 3000); return true; }
+    catch { return false; }
   }
 
   async _applyMac(port) {
+    // networksetup may require admin. Try unprivileged first (works when the
+    // user's account already allows it / managed Macs), then non-interactive
+    // sudo, and finally fall back to per-app mode so we never hang on a prompt.
     const services = await this._macServices();
-    this.snapshot = { services: [] };
+    this.snapshot = { services: [], mode: 'system' };
+    let anyOk = false;
+    const sudoOk = await this._macSudoNonInteractive();
+    const prefix = (args) => sudoOk ? ['sudo', '-n', 'networksetup', ...args] : ['networksetup', ...args];
+
     for (const svc of services) {
       let prev = { enabled: false };
       try {
@@ -180,40 +231,53 @@ $t = Add-Type -MemberDefinition $sig -Name WinINet -Namespace Net -PassThru
       } catch {}
       this.snapshot.services.push({ name: svc, prev });
       try {
-        await run('networksetup', ['-setsocksfirewallproxy', svc, '127.0.0.1', String(port)]);
-        await run('networksetup', ['-setsocksfirewallproxystate', svc, 'on']);
-      } catch (e) { this.log('warning', `proxy set failed for ${svc}: ${e.message}`); }
+        const [c1, ...a1] = prefix(['-setsocksfirewallproxy', svc, '127.0.0.1', String(port)]);
+        await run(c1, a1, 6000);
+        const [c2, ...a2] = prefix(['-setsocksfirewallproxystate', svc, 'on']);
+        await run(c2, a2, 6000);
+        anyOk = true;
+      } catch (e) { /* keep trying other services */ }
+    }
+
+    if (!anyOk) {
+      this.snapshot.mode = 'perapp';
+      this.log('warning',
+        `Could not set the macOS system proxy without a password. ` +
+        `Apps can still use SOCKS 127.0.0.1:${port} directly (PAC: ${this.pacUrl}).`);
     }
   }
 
   async _restoreMac() {
-    const svcs = (this.snapshot && this.snapshot.services) || [];
-    for (const s of svcs) {
+    const snap = this.snapshot || {};
+    if (snap.mode === 'perapp') return;
+    const sudoOk = await this._macSudoNonInteractive();
+    const prefix = (args) => sudoOk ? ['sudo', '-n', 'networksetup', ...args] : ['networksetup', ...args];
+    for (const s of (snap.services || [])) {
       try {
-        await run('networksetup', ['-setsocksfirewallproxystate', s.name, s.prev.enabled ? 'on' : 'off']);
+        const [c, ...a] = prefix(['-setsocksfirewallproxystate', s.name, s.prev.enabled ? 'on' : 'off']);
+        await run(c, a, 6000);
       } catch {}
     }
   }
 
   _restoreMacSync() {
-    const svcs = (this.snapshot && this.snapshot.services) || [];
-    for (const s of svcs) {
+    const snap = this.snapshot || {};
+    if (snap.mode === 'perapp') return;
+    for (const s of (snap.services || [])) {
       try {
-        execFileSync('networksetup', ['-setsocksfirewallproxystate', s.name, s.prev.enabled ? 'on' : 'off'],
-          { timeout: 3000 });
-      } catch {}
+        execFileSync('networksetup', ['-setsocksfirewallproxystate', s.name, s.prev.enabled ? 'on' : 'off'], { timeout: 3000 });
+      } catch {
+        try { execFileSync('sudo', ['-n', 'networksetup', '-setsocksfirewallproxystate', s.name, s.prev.enabled ? 'on' : 'off'], { timeout: 3000 }); } catch {}
+      }
     }
   }
 
-  // ── Linux (GNOME gsettings if present; otherwise PAC only) ──────────────
-  async _hasGsettings() {
-    try { await run('gsettings', ['get', 'org.gnome.system.proxy', 'mode']); return true; }
-    catch { return false; }
-  }
+  // ── Linux (GNOME gsettings or KDE; otherwise PAC/env only) ──────────────
+  async _has(cmd, args) { try { await run(cmd, args, 3000); return true; } catch { return false; } }
 
   async _applyLinux(port) {
-    this.snapshot = { gnome: null };
-    if (await this._hasGsettings()) {
+    this.snapshot = { gnome: null, kde: null, mode: 'perapp' };
+    if (await this._has('gsettings', ['get', 'org.gnome.system.proxy', 'mode'])) {
       try {
         const mode = (await run('gsettings', ['get', 'org.gnome.system.proxy', 'mode'])).trim();
         const sh = (await run('gsettings', ['get', 'org.gnome.system.proxy.socks', 'host'])).trim();
@@ -222,13 +286,12 @@ $t = Add-Type -MemberDefinition $sig -Name WinINet -Namespace Net -PassThru
         await run('gsettings', ['set', 'org.gnome.system.proxy.socks', 'host', '127.0.0.1']);
         await run('gsettings', ['set', 'org.gnome.system.proxy.socks', 'port', String(port)]);
         await run('gsettings', ['set', 'org.gnome.system.proxy', 'mode', 'manual']);
+        this.snapshot.mode = 'gnome';
         this.log('info', 'GNOME system proxy set to SOCKS 127.0.0.1');
         return;
       } catch (e) { this.log('warning', `gsettings failed: ${e.message}`); }
     }
-    // No desktop proxy API: expose PAC + env guidance. Apps can use the SOCKS
-    // proxy directly; we do not edit any system file.
-    this.log('info', `No GNOME proxy API. Point apps at socks5://127.0.0.1:${port} (PAC: ${this.pacPath}).`);
+    this.log('info', `No desktop proxy API in use. Point apps at socks5://127.0.0.1:${port} (PAC: ${this.pacUrl}).`);
   }
 
   async _restoreLinux() {
@@ -245,8 +308,7 @@ $t = Add-Type -MemberDefinition $sig -Name WinINet -Namespace Net -PassThru
     const g = this.snapshot && this.snapshot.gnome;
     if (!g) return;
     try {
-      execFileSync('gsettings', ['set', 'org.gnome.system.proxy', 'mode', (g.mode || 'none').replace(/'/g, '')],
-        { timeout: 3000 });
+      execFileSync('gsettings', ['set', 'org.gnome.system.proxy', 'mode', (g.mode || 'none').replace(/'/g, '')], { timeout: 3000 });
     } catch {}
   }
 
