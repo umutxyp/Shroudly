@@ -27,12 +27,24 @@ test: test/test_proto.c test/test_desync.c $(SRC)
 	/tmp/shroudly_test_desync
 
 # Sanitizer build of the full test set (memory + UB checks).
-test-asan: test/test_proto.c test/test_desync.c $(SRC)
+test-asan: test/test_proto.c test/test_desync.c test/test_bogon.c $(SRC)
 	$(CC) -std=c11 -O1 -g -fsanitize=address,undefined -pthread \
 		-o /tmp/shroudly_test_asan \
 		src/platform.c src/proto.c src/strategy.c src/desync.c src/doh.c \
 		test/test_desync.c $(LDLIBS)
 	ASAN_OPTIONS=halt_on_error=0 /tmp/shroudly_test_asan
+	$(CC) -std=c11 -O1 -g -fsanitize=address,undefined -pthread \
+		-o /tmp/shroudly_test_bogon src/platform.c test/test_bogon.c $(LDLIBS)
+	ASAN_OPTIONS=halt_on_error=0 /tmp/shroudly_test_bogon
+
+# Fuzz the untrusted-input parser (random + grammar-aware) under sanitizers.
+fuzz: test/fuzz_proto.c test/fuzz_mut.c src/proto.c
+	$(CC) -std=c11 -O1 -g -DSTANDALONE -fsanitize=address,undefined \
+		-o /tmp/shroudly_fuzz_rand src/proto.c test/fuzz_proto.c
+	ASAN_OPTIONS=halt_on_error=1 /tmp/shroudly_fuzz_rand
+	$(CC) -std=c11 -O1 -g -fsanitize=address,undefined \
+		-o /tmp/shroudly_fuzz_mut src/proto.c test/fuzz_mut.c
+	ASAN_OPTIONS=halt_on_error=1 /tmp/shroudly_fuzz_mut
 
 clean:
 	rm -f $(BIN) shroudly-core shroudly-core.exe /tmp/shroudly_test

@@ -151,7 +151,8 @@ static int dns_parse(const uint8_t *r, int len, int want6,
     if (rdata + rdlen > len) return -1;
     if (type == wtype) {
       if (!want6 && rdlen == 4) {
-        uint32_t ip = (r[rdata] << 24) | (r[rdata+1] << 16) | (r[rdata+2] << 8) | r[rdata+3];
+        uint32_t ip = ((uint32_t)r[rdata] << 24) | ((uint32_t)r[rdata+1] << 16) |
+                      ((uint32_t)r[rdata+2] << 8) | (uint32_t)r[rdata+3];
         if (is_bogon_v4(ip)) { p = rdata + rdlen; continue; }
         struct sockaddr_in *s = (struct sockaddr_in *)out;
         memset(s, 0, sizeof(*s));
