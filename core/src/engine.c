@@ -121,30 +121,48 @@ static int socks5_reply(sock_t c, uint8_t rep) {
   return sock_send_all(c, r, 10, 0);
 }
 
-static sock_t dial(const char *host, uint16_t port, int prefer6, int *out_family) {
-  struct sockaddr_storage sa; socklen_t sl = 0;
-  int want6 = prefer6;
-  if (g_cfg.use_doh) {
-    if (doh_resolve(host, port, want6, &sa, &sl) != 0) {
-      if (doh_resolve(host, port, !want6, &sa, &sl) != 0) return SOCK_INVALID;
-    }
-  } else {
-    struct addrinfo hints, *res = NULL;
-    memset(&hints, 0, sizeof(hints));
-    hints.ai_family = AF_UNSPEC; hints.ai_socktype = SOCK_STREAM;
-    char ps[8]; snprintf(ps, sizeof(ps), "%u", port);
-    if (getaddrinfo(host, ps, &hints, &res) != 0 || !res) return SOCK_INVALID;
-    memcpy(&sa, res->ai_addr, res->ai_addrlen); sl = (socklen_t)res->ai_addrlen;
-    freeaddrinfo(res);
-  }
-  sock_t s = socket(sa.ss_family, SOCK_STREAM, IPPROTO_TCP);
+static sock_t connect_addr(const struct sockaddr *sa, socklen_t sl, int timeout_ms) {
+  sock_t s = socket(sa->sa_family, SOCK_STREAM, IPPROTO_TCP);
   if (s == SOCK_INVALID) return SOCK_INVALID;
-  if (sock_connect_timeout(s, (struct sockaddr *)&sa, (int)sl, 8000) != 0) {
-    sock_close(s); return SOCK_INVALID;
-  }
+  if (sock_connect_timeout(s, sa, (int)sl, timeout_ms) != 0) { sock_close(s); return SOCK_INVALID; }
   sock_set_nodelay(s, 1);
   sock_set_keepalive(s);
-  if (out_family) *out_family = sa.ss_family;
+  return s;
+}
+
+/* Connect to the first address that answers. A name often has both IPv4 and
+ * IPv6 addresses while the network only routes one of them (e.g. AAAA records
+ * handed out right after Wi-Fi comes up, with no IPv6 route): so try the
+ * preferred family first (IPv4 unless --ipv6), then the other, and move on to
+ * the next address when one fails instead of failing the whole connection. */
+#define DIAL_MAX_TRIES 6
+static sock_t dial(const char *host, uint16_t port, int prefer6, int *out_family) {
+  sock_t s = SOCK_INVALID;
+  int tries = 0;
+  if (g_cfg.use_doh) {
+    for (int pass = 0; pass < 2 && s == SOCK_INVALID; pass++) {
+      struct sockaddr_storage sa; socklen_t sl = 0;
+      if (doh_resolve(host, port, pass == 0 ? prefer6 : !prefer6, &sa, &sl) != 0) continue;
+      s = connect_addr((struct sockaddr *)&sa, sl, tries++ == 0 ? 8000 : 4000);
+      if (s != SOCK_INVALID && out_family) *out_family = sa.ss_family;
+    }
+    return s;
+  }
+  struct addrinfo hints, *res = NULL;
+  memset(&hints, 0, sizeof(hints));
+  hints.ai_family = AF_UNSPEC; hints.ai_socktype = SOCK_STREAM;
+  hints.ai_flags = AI_ADDRCONFIG; /* no AAAA answers on an IPv4-only machine */
+  char ps[8]; snprintf(ps, sizeof(ps), "%u", port);
+  if (getaddrinfo(host, ps, &hints, &res) != 0 || !res) return SOCK_INVALID;
+  for (int pass = 0; pass < 2 && s == SOCK_INVALID; pass++) {
+    int fam = (pass == 0) == !!prefer6 ? AF_INET6 : AF_INET;
+    for (struct addrinfo *p = res; p && s == SOCK_INVALID && tries < DIAL_MAX_TRIES; p = p->ai_next) {
+      if (p->ai_family != fam) continue;
+      s = connect_addr(p->ai_addr, (socklen_t)p->ai_addrlen, tries++ == 0 ? 8000 : 4000);
+      if (s != SOCK_INVALID && out_family) *out_family = fam;
+    }
+  }
+  freeaddrinfo(res);
   return s;
 }
 

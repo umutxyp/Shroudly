@@ -13,9 +13,9 @@ const REPO_URL = 'https://github.com/umutxyp/Shroudly';
 
 function LinkRow({ href, Icon, label }) {
   return (
+    <div className="-mx-2 border-t first:border-t-0" style={{ borderColor: 'var(--line)' }}>
     <a href={href} target="_blank" rel="noreferrer"
-       className="row-hover -mx-2 flex w-[calc(100%+1rem)] items-center gap-3 rounded-[8px] border-t px-2 py-2.5 first:border-t-0"
-       style={{ borderColor: 'var(--line)' }}>
+       className="row-hover my-1 flex w-full items-center gap-3 rounded-[8px] px-2 py-2">
       <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-[8px]"
             style={{ background: 'var(--accent-soft)', color: 'var(--accent)' }}>
         <Icon className="h-4 w-4" />
@@ -23,6 +23,7 @@ function LinkRow({ href, Icon, label }) {
       <span className="min-w-0 flex-1 text-[14px] font-medium leading-snug wrap-anywhere" style={{ color: 'var(--text)' }}>{label}</span>
       <ExternalLinkIcon className="h-4 w-4 rtl:-scale-x-100" style={{ color: 'var(--text-faint)' }} />
     </a>
+    </div>
   );
 }
 
@@ -81,13 +82,13 @@ function TechRow({ Icon, title, desc }) {
   const [open, setOpen] = useState(false);
   const id = useId();
   return (
-    <div className="border-t first:border-t-0" style={{ borderColor: 'var(--line)' }}>
+    <div className="-mx-2 border-t first:border-t-0" style={{ borderColor: 'var(--line)' }}>
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
         aria-controls={id}
-        className="row-hover -mx-2 flex w-[calc(100%+1rem)] items-center gap-3 rounded-[8px] px-2 py-2.5 text-start"
+        className="row-hover my-1 flex w-full items-center gap-3 rounded-[8px] px-2 py-2 text-start"
       >
         <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-[8px]"
               style={{ background: 'var(--accent-soft)', color: 'var(--accent)' }}>
@@ -98,7 +99,7 @@ function TechRow({ Icon, title, desc }) {
                          style={{ color: 'var(--text-faint)', transform: open ? 'rotate(180deg)' : 'none' }} />
       </button>
       {open && (
-        <p id={id} className="pb-3 ps-10 text-[12.5px] leading-relaxed" style={{ color: 'var(--text-dim)' }}>{desc}</p>
+        <p id={id} className="pb-3 pe-2 ps-12 text-[12.5px] leading-relaxed" style={{ color: 'var(--text-dim)' }}>{desc}</p>
       )}
     </div>
   );
@@ -160,6 +161,8 @@ export default function InfoPanel({ dpiStatus, version: versionProp }) {
         </div>
       </Section>
 
+      <UpdatesSection version={version} />
+
       {/* How it works */}
       <Section title={t('howItWorks')}>
         <TechRow Icon={ScissorsIcon} title={t('technique_frag')}     desc={t('technique_frag_desc')} />
@@ -175,7 +178,6 @@ export default function InfoPanel({ dpiStatus, version: versionProp }) {
         <p className="text-[12.5px] leading-relaxed" style={{ color: 'var(--text-dim)' }}>{t('safetyDesc')}</p>
       </Section>
 
-      <UpdatesSection version={version} />
 
       {/* Open source */}
       <Section title={t('openSourceTitle')} Icon={CodeIcon}>

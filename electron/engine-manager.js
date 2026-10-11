@@ -171,7 +171,10 @@ class EngineManager {
         if (t) { this.lastError = t; this.log('warning', `engine: ${t}`); }
       });
       this.proc.on('error', (e) => { this.lastError = e.message; this.log('error', `engine error: ${e.message}`); finish(false); });
-      this.proc.on('close', (code) => { this._onClose(code); if (!settled) finish(false); });
+      // Only this process's own exit counts: a replaced engine (restart())
+      // may close after its successor is already running.
+      const proc = this.proc;
+      proc.on('close', (code) => { if (this.proc !== proc) return; this._onClose(code); if (!settled) finish(false); });
 
       setTimeout(() => { if (!settled) { this.lastError = 'engine start timeout'; finish(false); } }, 6000);
     });
@@ -264,6 +267,41 @@ class EngineManager {
     } else {
       this.log('error', 'Engine keeps crashing; giving up. Check logs.');
       this.restarts = 0;
+    }
+  }
+
+  /* Apply changed settings while active: replace the engine process but keep
+   * the system proxy pointed at it, so the switch is a brief blip instead of a
+   * full proxy off/on cycle. */
+  async restart() {
+    if (!this.active || this.restarting) return { success: true };
+    const cfg = this._settings();
+    if (cfg.port !== this.port) { await this.stop(); return this.start(); }
+    this.restarting = true;
+    try {
+      this.expectingStop = true;
+      this._stopStatsPoll();
+      const old = this.proc;
+      if (old) {
+        try { old.stdin.write('STOP\n'); } catch {}
+        await this._waitExit(2500);
+        if (this.proc === old) { try { old.kill('SIGKILL'); } catch {} await this._waitExit(1000); }
+      }
+      this.proc = null;
+      this.expectingStop = false;
+      this.stats.strategy = cfg.strategy;
+      const ready = await this._spawn(coreBinaryPath(), this._args(cfg));
+      if (!ready) {
+        await this._cleanup(); // restores the proxy
+        this.store.set('runtimeActive', false);
+        this.onStatusChange(false);
+        throw new Error(this.lastError || 'Engine failed to restart');
+      }
+      this._startStatsPoll();
+      this.log('success', `Settings applied (strategy: ${cfg.strategy}${cfg.autoProbe ? ' + auto' : ''})`);
+      return { success: true };
+    } finally {
+      this.restarting = false;
     }
   }
 

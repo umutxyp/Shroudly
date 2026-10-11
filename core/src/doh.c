@@ -128,7 +128,10 @@ static int dns_build(uint8_t *q, const char *name, uint16_t id, int type) {
   return p;
 }
 
-/* Parse the first matching A/AAAA record; returns 0 on success. */
+/* Parse the first matching A/AAAA record; returns 0 on success, DNS_NODATA
+ * when the answer is valid but holds no usable record of that type (e.g. a
+ * name without AAAA), -1 when the reply is unusable. */
+#define DNS_NODATA (-2)
 static int dns_parse(const uint8_t *r, int len, int want6,
                      struct sockaddr_storage *out, socklen_t *outlen, uint16_t port) {
   if (len < 12) return -1;
@@ -174,7 +177,7 @@ static int dns_parse(const uint8_t *r, int len, int want6,
     }
     p = rdata + rdlen;
   }
-  return -1;
+  return DNS_NODATA;
 }
 
 /* Query one resolver over UDP; collect up to 3 replies within the window and
@@ -210,7 +213,15 @@ static int query_udp(const char *resolver, const char *name, int want6, uint16_t
     if (n < 12) continue;
     if (((r[0] << 8) | r[1]) != id) continue;          /* id mismatch = spoof */
     if (from.sin_addr.s_addr != to.sin_addr.s_addr) continue; /* wrong source */
-    if (dns_parse(r, n, want6, out, outlen, port) == 0) { rc = 0; break; }
+    int pr = dns_parse(r, n, want6, out, outlen, port);
+    if (pr == 0) { rc = 0; break; }
+    /* "No such record": don't sit out the whole window, but leave a short
+     * grace period in case it was a forged reply racing the real one. */
+    if (pr == DNS_NODATA && rc != DNS_NODATA) {
+      rc = DNS_NODATA;
+      uint64_t grace = now_ms() + 250;
+      if (grace < deadline) deadline = grace;
+    }
   }
   sock_close(s);
   return rc;
@@ -240,15 +251,20 @@ int doh_resolve(const char *name, uint16_t port, int want6,
 
   /* Query resolvers; accept the first clean answer. Trying several independent
    * resolvers means an on-path injector must poison all of them identically. */
+  int nodata = 0;
   for (int i = 0; i < MAX_RESOLVERS; i++) {
     struct sockaddr_storage cand; socklen_t cl;
-    if (query_udp(RESOLVERS[i], name, want6, port, &cand, &cl) == 0) {
+    int qr = query_udp(RESOLVERS[i], name, want6, port, &cand, &cl);
+    if (qr == 0) {
       mutex_lock(&g_cache_mx);
       cache_put(name, port, want6 ? AF_INET6 : AF_INET, &cand, cl);
       mutex_unlock(&g_cache_mx);
       memcpy(out, &cand, sizeof(cand)); *outlen = cl;
       return 0;
     }
+    /* Two independent resolvers agree the name has no record of this type:
+     * believe them (the caller then tries the other address family). */
+    if (qr == DNS_NODATA && ++nodata >= 2) return -1;
   }
 
   /* Last resort: OS resolver (may be poisoned, but better than failing). */

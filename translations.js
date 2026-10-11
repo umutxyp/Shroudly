@@ -73,7 +73,8 @@ export const translations = {
     minimizeToTrayDesc: 'Keep running in the system tray when the window is closed',
     showNotifications: 'Show notifications',
     showNotificationsDesc: 'Show a system notification when protection starts or stops',
-    restartToApply: 'Changes apply the next time protection starts.',
+    restartToApply: 'Changes apply right away; protection restarts for a moment.',
+    ipv6Unavailable: 'Your network doesn’t support IPv6, so this option is unavailable.',
 
     // ── "Test a site"
     testSite: 'Test a site',
@@ -138,6 +139,7 @@ export const translations = {
     logProxyRecoveredPrevious: 'System proxy from the previous session restored',
     logProxyLegacyOff: 'System proxy left by an earlier version switched off',
     logEngineHung: 'Engine stopped responding; restarting it',
+    logSettingsApplied: 'Settings applied (strategy: {strategy})',
     logProxyFailed: 'Could not set the system proxy: {detail}',
     logProxyRestoreIssue: 'Problem restoring proxy settings: {detail}',
     logStartFailed: 'Start failed: {detail}',
@@ -268,7 +270,8 @@ export const translations = {
     minimizeToTrayDesc: '关闭窗口后继续在系统托盘中运行',
     showNotifications: '显示通知',
     showNotificationsDesc: '在保护启动或停止时显示系统通知',
-    restartToApply: '更改将在下次启动保护时生效。',
+    restartToApply: '更改会立即生效，保护会短暂重启。',
+    ipv6Unavailable: '你的网络不支持 IPv6，因此此选项不可用。',
 
     // ── "Test a site"
     testSite: '测试网站',
@@ -333,6 +336,7 @@ export const translations = {
     logProxyRecoveredPrevious: '已恢复上次会话的系统代理设置',
     logProxyLegacyOff: '已关闭旧版本遗留的系统代理',
     logEngineHung: '引擎无响应，正在重启',
+    logSettingsApplied: '设置已应用（策略：{strategy}）',
     logProxyFailed: '无法设置系统代理：{detail}',
     logProxyRestoreIssue: '恢复代理设置时出现问题：{detail}',
     logStartFailed: '启动失败：{detail}',
@@ -463,7 +467,8 @@ export const translations = {
     minimizeToTrayDesc: 'विंडो बंद करने पर भी सिस्टम ट्रे में चलता रहे',
     showNotifications: 'सूचनाएँ दिखाएँ',
     showNotificationsDesc: 'सुरक्षा शुरू या बंद होने पर सिस्टम सूचना दिखाएँ',
-    restartToApply: 'परिवर्तन अगली बार सुरक्षा शुरू होने पर लागू होंगे।',
+    restartToApply: 'बदलाव तुरंत लागू होते हैं; सुरक्षा कुछ पल के लिए फिर से शुरू होती है।',
+    ipv6Unavailable: 'आपका नेटवर्क IPv6 का समर्थन नहीं करता, इसलिए यह विकल्प उपलब्ध नहीं है।',
 
     // ── "Test a site"
     testSite: 'साइट का परीक्षण करें',
@@ -528,6 +533,7 @@ export const translations = {
     logProxyRecoveredPrevious: 'पिछले सत्र की सिस्टम प्रॉक्सी सेटिंग बहाल की गई',
     logProxyLegacyOff: 'पुराने संस्करण द्वारा छोड़ी गई सिस्टम प्रॉक्सी बंद की गई',
     logEngineHung: 'इंजन ने जवाब देना बंद कर दिया; इसे फिर से शुरू किया जा रहा है',
+    logSettingsApplied: 'सेटिंग लागू की गईं (रणनीति: {strategy})',
     logProxyFailed: 'सिस्टम प्रॉक्सी सेट नहीं की जा सकी: {detail}',
     logProxyRestoreIssue: 'प्रॉक्सी सेटिंग्स पुनर्स्थापित करने में समस्या: {detail}',
     logStartFailed: 'शुरू करना विफल रहा: {detail}',
@@ -658,7 +664,8 @@ export const translations = {
     minimizeToTrayDesc: 'Seguir ejecutándose en la bandeja del sistema al cerrar la ventana',
     showNotifications: 'Mostrar notificaciones',
     showNotificationsDesc: 'Mostrar una notificación del sistema cuando la protección se inicie o se detenga',
-    restartToApply: 'Los cambios se aplicarán la próxima vez que se inicie la protección.',
+    restartToApply: 'Los cambios se aplican al instante; la protección se reinicia un momento.',
+    ipv6Unavailable: 'Tu red no admite IPv6, así que esta opción no está disponible.',
 
     // ── "Test a site"
     testSite: 'Probar un sitio',
@@ -723,6 +730,7 @@ export const translations = {
     logProxyRecoveredPrevious: 'Se restauró el proxy del sistema de la sesión anterior',
     logProxyLegacyOff: 'Se desactivó el proxy del sistema que dejó una versión anterior',
     logEngineHung: 'El motor dejó de responder; reiniciándolo',
+    logSettingsApplied: 'Ajustes aplicados (estrategia: {strategy})',
     logProxyFailed: 'No se pudo configurar el proxy del sistema: {detail}',
     logProxyRestoreIssue: 'Problema al restaurar la configuración de proxy: {detail}',
     logStartFailed: 'Error al iniciar: {detail}',
@@ -853,7 +861,8 @@ export const translations = {
     minimizeToTrayDesc: 'مواصلة العمل في علبة النظام عند إغلاق النافذة',
     showNotifications: 'إظهار الإشعارات',
     showNotificationsDesc: 'إظهار إشعار من النظام عند بدء الحماية أو إيقافها',
-    restartToApply: 'تُطبَّق التغييرات في المرة التالية التي تبدأ فيها الحماية.',
+    restartToApply: 'تُطبَّق التغييرات فورًا، وتُعاد تشغيل الحماية للحظة.',
+    ipv6Unavailable: 'لا تدعم شبكتك IPv6، لذا هذا الخيار غير متاح.',
 
     // ── "Test a site"
     testSite: 'اختبار موقع',
@@ -918,6 +927,7 @@ export const translations = {
     logProxyRecoveredPrevious: 'تمت استعادة إعدادات وكيل النظام من الجلسة السابقة',
     logProxyLegacyOff: 'تم إيقاف وكيل النظام الذي تركه إصدار سابق',
     logEngineHung: 'توقف المحرك عن الاستجابة؛ جارٍ إعادة تشغيله',
+    logSettingsApplied: 'تم تطبيق الإعدادات (الاستراتيجية: {strategy})',
     logProxyFailed: 'تعذّر تعيين وكيل النظام: {detail}',
     logProxyRestoreIssue: 'حدثت مشكلة أثناء استعادة إعدادات الوكيل: {detail}',
     logStartFailed: 'فشل البدء: {detail}',
@@ -1048,7 +1058,8 @@ export const translations = {
     minimizeToTrayDesc: 'Продолжать работу в системном трее после закрытия окна',
     showNotifications: 'Показывать уведомления',
     showNotificationsDesc: 'Показывать системное уведомление при включении и выключении защиты',
-    restartToApply: 'Изменения вступят в силу при следующем включении защиты.',
+    restartToApply: 'Изменения применяются сразу; защита на мгновение перезапускается.',
+    ipv6Unavailable: 'Ваша сеть не поддерживает IPv6, поэтому этот параметр недоступен.',
 
     // ── "Test a site"
     testSite: 'Проверить сайт',
@@ -1113,6 +1124,7 @@ export const translations = {
     logProxyRecoveredPrevious: 'Системный прокси из прошлого сеанса восстановлен',
     logProxyLegacyOff: 'Системный прокси, оставленный прежней версией, отключён',
     logEngineHung: 'Движок перестал отвечать; перезапуск',
+    logSettingsApplied: 'Настройки применены (стратегия: {strategy})',
     logProxyFailed: 'Не удалось настроить системный прокси: {detail}',
     logProxyRestoreIssue: 'Проблема при восстановлении настроек прокси: {detail}',
     logStartFailed: 'Ошибка запуска: {detail}',
@@ -1243,7 +1255,8 @@ export const translations = {
     minimizeToTrayDesc: 'Continuar em execução na bandeja do sistema quando a janela for fechada',
     showNotifications: 'Mostrar notificações',
     showNotificationsDesc: 'Mostrar uma notificação do sistema quando a proteção for iniciada ou parada',
-    restartToApply: 'As alterações serão aplicadas na próxima vez que a proteção for iniciada.',
+    restartToApply: 'As alterações são aplicadas na hora; a proteção reinicia por um instante.',
+    ipv6Unavailable: 'Sua rede não oferece suporte a IPv6, por isso esta opção não está disponível.',
 
     // ── "Test a site"
     testSite: 'Testar um site',
@@ -1308,6 +1321,7 @@ export const translations = {
     logProxyRecoveredPrevious: 'Proxy do sistema da sessão anterior restaurado',
     logProxyLegacyOff: 'Proxy do sistema deixado por uma versão anterior desativado',
     logEngineHung: 'O motor parou de responder; reiniciando',
+    logSettingsApplied: 'Configurações aplicadas (estratégia: {strategy})',
     logProxyFailed: 'Não foi possível definir o proxy do sistema: {detail}',
     logProxyRestoreIssue: 'Problema ao restaurar as configurações de proxy: {detail}',
     logStartFailed: 'Falha ao iniciar: {detail}',
@@ -1438,7 +1452,8 @@ export const translations = {
     minimizeToTrayDesc: 'Continuer à s’exécuter dans la barre système une fois la fenêtre fermée',
     showNotifications: 'Afficher les notifications',
     showNotificationsDesc: 'Afficher une notification système à l’activation ou à la désactivation de la protection',
-    restartToApply: 'Les modifications s’appliqueront à la prochaine activation de la protection.',
+    restartToApply: 'Les modifications s’appliquent immédiatement ; la protection redémarre un instant.',
+    ipv6Unavailable: 'Votre réseau ne prend pas en charge l’IPv6 : cette option n’est pas disponible.',
 
     // ── "Test a site"
     testSite: 'Tester un site',
@@ -1503,6 +1518,7 @@ export const translations = {
     logProxyRecoveredPrevious: 'Proxy système de la session précédente restauré',
     logProxyLegacyOff: 'Proxy système laissé par une version précédente désactivé',
     logEngineHung: 'Le moteur ne répond plus ; redémarrage',
+    logSettingsApplied: 'Réglages appliqués (stratégie : {strategy})',
     logProxyFailed: 'Impossible de configurer le proxy système : {detail}',
     logProxyRestoreIssue: 'Problème lors de la restauration des paramètres proxy : {detail}',
     logStartFailed: 'Échec du démarrage : {detail}',
@@ -1633,7 +1649,8 @@ export const translations = {
     minimizeToTrayDesc: 'ادامهٔ اجرا در سینی سیستم پس از بستن پنجره',
     showNotifications: 'نمایش اعلان‌ها',
     showNotificationsDesc: 'نمایش اعلان سیستم هنگام شروع یا توقف محافظت',
-    restartToApply: 'تغییرات از دفعهٔ بعدِ شروع محافظت اعمال می‌شوند.',
+    restartToApply: 'تغییرات بی‌درنگ اعمال می‌شوند و محافظت برای لحظه‌ای دوباره راه‌اندازی می‌شود.',
+    ipv6Unavailable: 'شبکهٔ شما از IPv6 پشتیبانی نمی‌کند، بنابراین این گزینه در دسترس نیست.',
 
     // ── "Test a site"
     testSite: 'آزمایش یک سایت',
@@ -1698,6 +1715,7 @@ export const translations = {
     logProxyRecoveredPrevious: 'تنظیمات پراکسی سیستم از نشست قبلی بازگردانده شد',
     logProxyLegacyOff: 'پراکسی سیستم باقی‌مانده از نسخهٔ قبلی خاموش شد',
     logEngineHung: 'موتور پاسخ نمی‌دهد؛ در حال راه‌اندازی دوباره',
+    logSettingsApplied: 'تنظیمات اعمال شد (راهبرد: {strategy})',
     logProxyFailed: 'تنظیم پراکسی سیستم ممکن نشد: {detail}',
     logProxyRestoreIssue: 'مشکل در بازگرداندن تنظیمات پراکسی: {detail}',
     logStartFailed: 'شروع ناموفق بود: {detail}',
@@ -1828,7 +1846,8 @@ export const translations = {
     minimizeToTrayDesc: 'Pencere kapatıldığında sistem tepsisinde çalışmaya devam et',
     showNotifications: 'Bildirimleri göster',
     showNotificationsDesc: 'Koruma başladığında veya durduğunda sistem bildirimi göster',
-    restartToApply: 'Değişiklikler, koruma bir sonraki başlatılışında geçerli olur.',
+    restartToApply: 'Değişiklikler hemen uygulanır; koruma bir anlığına yeniden başlar.',
+    ipv6Unavailable: 'Ağınız IPv6’yı desteklemiyor, bu yüzden bu seçenek kullanılamıyor.',
 
     // ── "Test a site"
     testSite: 'Site testi',
@@ -1893,6 +1912,7 @@ export const translations = {
     logProxyRecoveredPrevious: 'Önceki oturumdan kalan sistem proxy ayarı geri alındı',
     logProxyLegacyOff: 'Eski sürümden kalan sistem proxy ayarı kapatıldı',
     logEngineHung: 'Motor yanıt vermiyor; yeniden başlatılıyor',
+    logSettingsApplied: 'Ayarlar uygulandı (strateji: {strategy})',
     logProxyFailed: 'Sistem proxy ayarı yapılamadı: {detail}',
     logProxyRestoreIssue: 'Proxy ayarları geri yüklenirken sorun oluştu: {detail}',
     logStartFailed: 'Başlatma başarısız: {detail}',
@@ -2023,7 +2043,8 @@ export const translations = {
     minimizeToTrayDesc: 'উইন্ডো বন্ধ করলেও সিস্টেম ট্রেতে চালু রাখুন',
     showNotifications: 'বিজ্ঞপ্তি দেখান',
     showNotificationsDesc: 'সুরক্ষা চালু বা বন্ধ হলে সিস্টেম বিজ্ঞপ্তি দেখান',
-    restartToApply: 'পরিবর্তনগুলো পরের বার সুরক্ষা চালু হলে কার্যকর হবে।',
+    restartToApply: 'পরিবর্তন সঙ্গে সঙ্গে প্রয়োগ হয়; সুরক্ষা এক মুহূর্তের জন্য আবার চালু হয়।',
+    ipv6Unavailable: 'আপনার নেটওয়ার্ক IPv6 সমর্থন করে না, তাই এই বিকল্পটি উপলব্ধ নয়।',
 
     // ── "Test a site"
     testSite: 'সাইট পরীক্ষা',
@@ -2088,6 +2109,7 @@ export const translations = {
     logProxyRecoveredPrevious: 'আগের সেশনের সিস্টেম প্রক্সি সেটিং ফিরিয়ে আনা হয়েছে',
     logProxyLegacyOff: 'পুরোনো সংস্করণের রেখে যাওয়া সিস্টেম প্রক্সি বন্ধ করা হয়েছে',
     logEngineHung: 'ইঞ্জিন সাড়া দিচ্ছে না; আবার চালু করা হচ্ছে',
+    logSettingsApplied: 'সেটিংস প্রয়োগ হয়েছে (কৌশল: {strategy})',
     logProxyFailed: 'সিস্টেম প্রক্সি সেট করা যায়নি: {detail}',
     logProxyRestoreIssue: 'প্রক্সি সেটিংস পুনরুদ্ধারে সমস্যা: {detail}',
     logStartFailed: 'চালু করা ব্যর্থ: {detail}',
@@ -2218,7 +2240,8 @@ export const translations = {
     minimizeToTrayDesc: 'ونڈو بند ہونے پر سسٹم ٹرے میں چلتا رہے',
     showNotifications: 'اطلاعات دکھائیں',
     showNotificationsDesc: 'تحفظ شروع یا بند ہونے پر سسٹم اطلاع دکھائیں',
-    restartToApply: 'تبدیلیاں اگلی بار تحفظ شروع ہونے پر لاگو ہوں گی۔',
+    restartToApply: 'تبدیلیاں فوراً لاگو ہوتی ہیں؛ تحفظ ایک لمحے کے لیے دوبارہ شروع ہوتا ہے۔',
+    ipv6Unavailable: 'آپ کا نیٹ ورک IPv6 کو سپورٹ نہیں کرتا، اس لیے یہ آپشن دستیاب نہیں ہے۔',
 
     // ── "Test a site"
     testSite: 'سائٹ جانچیں',
@@ -2283,6 +2306,7 @@ export const translations = {
     logProxyRecoveredPrevious: 'پچھلے سیشن کی سسٹم پراکسی سیٹنگ بحال کر دی گئی',
     logProxyLegacyOff: 'پرانے ورژن کی چھوڑی ہوئی سسٹم پراکسی بند کر دی گئی',
     logEngineHung: 'انجن جواب نہیں دے رہا؛ دوبارہ شروع کیا جا رہا ہے',
+    logSettingsApplied: 'سیٹنگز لاگو ہو گئیں (حکمتِ عملی: {strategy})',
     logProxyFailed: 'سسٹم پراکسی سیٹ نہیں ہو سکی: {detail}',
     logProxyRestoreIssue: 'پراکسی ترتیبات بحال کرنے میں مسئلہ: {detail}',
     logStartFailed: 'شروع کرنا ناکام: {detail}',
@@ -2413,7 +2437,8 @@ export const translations = {
     minimizeToTrayDesc: 'Tetap berjalan di baki sistem saat jendela ditutup',
     showNotifications: 'Tampilkan notifikasi',
     showNotificationsDesc: 'Tampilkan notifikasi sistem saat perlindungan dimulai atau dihentikan',
-    restartToApply: 'Perubahan akan berlaku saat perlindungan dimulai lagi.',
+    restartToApply: 'Perubahan langsung diterapkan; perlindungan dimulai ulang sejenak.',
+    ipv6Unavailable: 'Jaringan Anda tidak mendukung IPv6, jadi opsi ini tidak tersedia.',
 
     // ── "Test a site"
     testSite: 'Uji situs',
@@ -2478,6 +2503,7 @@ export const translations = {
     logProxyRecoveredPrevious: 'Proxy sistem dari sesi sebelumnya dipulihkan',
     logProxyLegacyOff: 'Proxy sistem peninggalan versi sebelumnya dimatikan',
     logEngineHung: 'Mesin berhenti merespons; memulai ulang',
+    logSettingsApplied: 'Pengaturan diterapkan (strategi: {strategy})',
     logProxyFailed: 'Tidak dapat mengatur proxy sistem: {detail}',
     logProxyRestoreIssue: 'Masalah saat memulihkan pengaturan proxy: {detail}',
     logStartFailed: 'Gagal memulai: {detail}',
@@ -2608,7 +2634,8 @@ export const translations = {
     minimizeToTrayDesc: 'ウィンドウを閉じてもシステムトレイで実行を続けます',
     showNotifications: '通知を表示',
     showNotificationsDesc: '保護の開始時または停止時にシステム通知を表示します',
-    restartToApply: '変更は次回保護を開始したときに適用されます。',
+    restartToApply: '変更はすぐに適用されます。保護は一瞬だけ再起動します。',
+    ipv6Unavailable: 'お使いのネットワークは IPv6 に対応していないため、このオプションは使用できません。',
 
     // ── "Test a site"
     testSite: 'サイトをテスト',
@@ -2673,6 +2700,7 @@ export const translations = {
     logProxyRecoveredPrevious: '前回のセッションのシステムプロキシ設定を復元しました',
     logProxyLegacyOff: '以前のバージョンが残したシステムプロキシをオフにしました',
     logEngineHung: 'エンジンが応答しません。再起動しています',
+    logSettingsApplied: '設定を適用しました（戦略：{strategy}）',
     logProxyFailed: 'システムプロキシを設定できませんでした：{detail}',
     logProxyRestoreIssue: 'プロキシ設定の復元中に問題が発生しました：{detail}',
     logStartFailed: '開始に失敗しました：{detail}',
@@ -2803,7 +2831,8 @@ export const translations = {
     minimizeToTrayDesc: 'Nach dem Schließen des Fensters im Infobereich weiterlaufen',
     showNotifications: 'Benachrichtigungen anzeigen',
     showNotificationsDesc: 'Systembenachrichtigung anzeigen, wenn der Schutz startet oder endet',
-    restartToApply: 'Änderungen gelten beim nächsten Start des Schutzes.',
+    restartToApply: 'Änderungen gelten sofort; der Schutz startet dafür kurz neu.',
+    ipv6Unavailable: 'Ihr Netzwerk unterstützt kein IPv6, daher ist diese Option nicht verfügbar.',
 
     // ── "Test a site"
     testSite: 'Website testen',
@@ -2868,6 +2897,7 @@ export const translations = {
     logProxyRecoveredPrevious: 'System-Proxy aus der vorherigen Sitzung wiederhergestellt',
     logProxyLegacyOff: 'Von einer älteren Version hinterlassener System-Proxy ausgeschaltet',
     logEngineHung: 'Engine reagiert nicht mehr; wird neu gestartet',
+    logSettingsApplied: 'Einstellungen übernommen (Strategie: {strategy})',
     logProxyFailed: 'System-Proxy konnte nicht festgelegt werden: {detail}',
     logProxyRestoreIssue: 'Problem beim Wiederherstellen der Proxy-Einstellungen: {detail}',
     logStartFailed: 'Start fehlgeschlagen: {detail}',

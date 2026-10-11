@@ -83,6 +83,7 @@ function Toggle({ label, desc, checked, onChange, disabled }) {
   const descId = useId();
   const shift = checked ? (isRTL ? -20 : 20) : 0;
   return (
+    <div className="-mx-2">
     <button
       type="button"
       role="switch"
@@ -90,7 +91,7 @@ function Toggle({ label, desc, checked, onChange, disabled }) {
       aria-describedby={desc ? descId : undefined}
       disabled={disabled}
       onClick={() => onChange(!checked)}
-      className="row-hover -mx-2 flex w-[calc(100%+1rem)] items-center justify-between gap-4 rounded-[10px] px-2 py-2.5 text-start disabled:opacity-55"
+      className="row-hover my-1 flex w-full items-center justify-between gap-4 rounded-[8px] px-2 py-2 text-start disabled:opacity-55"
     >
       <span className="min-w-0 flex-1">
         <span className="block text-[14px] font-medium leading-snug" style={{ color: 'var(--text)' }}>{label}</span>
@@ -105,6 +106,7 @@ function Toggle({ label, desc, checked, onChange, disabled }) {
         />
       </span>
     </button>
+    </div>
   );
 }
 
@@ -141,6 +143,13 @@ export default function SettingsPanel({ active = false }) {
     strategyId: 'auto', autoMode: true, dnsProtection: false, preferIpv6: false,
     autoStart: false, minimizeToTray: true, showNotifications: true,
   });
+  // null while unknown; false greys out "Prefer IPv6" on IPv4-only networks
+  const [ipv6Ok, setIpv6Ok] = useState(null);
+
+  useEffect(() => {
+    if (typeof window === 'undefined' || !window.electron?.ipv6Available) return;
+    window.electron.ipv6Available().then(setIpv6Ok).catch(() => {});
+  }, []);
 
   useEffect(() => {
     (async () => {
@@ -280,7 +289,11 @@ export default function SettingsPanel({ active = false }) {
         <div className="divide-y" style={{ borderColor: 'var(--line)' }}>
           <Toggle label={t('autoMode')} desc={t('autoModeDesc')} checked={settings.autoMode} onChange={(v) => save('autoMode', v)} />
           <Toggle label={t('dnsProtection')} desc={t('dnsProtectionDesc')} checked={settings.dnsProtection} onChange={(v) => save('dnsProtection', v)} />
-          <Toggle label={t('preferIpv6')} desc={t('preferIpv6Desc')} checked={settings.preferIpv6} onChange={(v) => save('preferIpv6', v)} />
+          <Toggle label={t('preferIpv6')}
+                  desc={ipv6Ok === false ? t('ipv6Unavailable') : t('preferIpv6Desc')}
+                  checked={settings.preferIpv6}
+                  disabled={ipv6Ok === false && !settings.preferIpv6}
+                  onChange={(v) => save('preferIpv6', v)} />
         </div>
 
         {active && (

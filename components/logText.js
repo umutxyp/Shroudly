@@ -44,6 +44,7 @@ const PATTERNS = [
   [/^Update downloaded: version (\S+)$/, 'logUpdateDownloaded', ['version']],
   [/^Update failed: (.+)$/, 'logUpdateFailed', ['detail']],
   [/^Installing update (\S+)$/, 'logUpdateInstalling', ['version']],
+  [/^Settings applied \(strategy: (.+)\)$/, 'logSettingsApplied', ['strategy']],
 ];
 
 export function localizeLog(message, t) {

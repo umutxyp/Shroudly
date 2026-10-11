@@ -41,6 +41,7 @@ contextBridge.exposeInMainWorld('electron', {
 
   // Network stats (real counters from the engine)
   getNetStats: () => ipcRenderer.invoke('net:stats'),
+  ipv6Available: () => ipcRenderer.invoke('net:ipv6Available'),
 
   // Advanced (packet-layer) mode — optional, stateful-DPI countries
   advancedAvailable: () => ipcRenderer.invoke('advanced:available'),

@@ -4,6 +4,8 @@ const { app, BrowserWindow, ipcMain, Tray, Menu, nativeImage, shell, Notificatio
 const path = require('path');
 const url = require('url');
 const fs = require('fs');
+const os = require('os');
+const netModule = require('net');
 const Store = require('electron-store');
 const EngineManager = require('./engine-manager');
 const SystemProxy = require('./system-proxy');
@@ -456,8 +458,38 @@ ipcMain.handle('settings:get', (e, key) => store.get(key));
  * strips Chromium's other locales), so the UI asks the OS directly. */
 ipcMain.handle('app:systemLanguages', () => systemLanguages());
 ipcMain.handle('settings:getAll', () => store.store);
+/* Settings the engine reads at start: while protection is on, changing one
+ * restarts the engine (debounced, since a strategy pick sets several keys). */
+const ENGINE_SETTINGS = new Set(['strategy', 'strategyId', 'autoMode', 'dnsProtection', 'preferIpv6', 'listenPort']);
+let engineRestartTimer = null;
+function scheduleEngineRestart() {
+  clearTimeout(engineRestartTimer);
+  engineRestartTimer = setTimeout(() => {
+    if (!engine || !engine.isActive()) return;
+    engine.restart().catch((e) => { addLog('error', `Start failed: ${e.message}`); broadcastStatus(false); });
+  }, 700);
+}
+
+/* Is IPv6 actually usable here? A global address alone isn't enough (some
+ * networks hand one out without routing it), so also try to reach a public
+ * IPv6 host. */
+function ipv6Available() {
+  const nets = Object.values(os.networkInterfaces()).flat();
+  const global = nets.some((a) => a && (a.family === 'IPv6' || a.family === 6) && !a.internal && /^[23]/.test(a.address));
+  if (!global) return Promise.resolve(false);
+  return new Promise((resolve) => {
+    const sock = netModule.connect({ host: '2606:4700:4700::1111', port: 443, family: 6 });
+    const done = (ok) => { sock.destroy(); resolve(ok); };
+    sock.setTimeout(2500, () => done(false));
+    sock.once('connect', () => done(true));
+    sock.once('error', () => done(false));
+  });
+}
+ipcMain.handle('net:ipv6Available', () => ipv6Available());
+
 ipcMain.handle('settings:set', (e, key, value) => {
   store.set(key, value);
+  if (ENGINE_SETTINGS.has(key)) scheduleEngineRestart();
   if (key === 'language') rebuildTrayMenu();
   if (key === 'autoUpdate' && value !== false && updater && updater.state.status === 'available') updater.download();
   if (key === 'autoStart') {
