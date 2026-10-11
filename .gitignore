@@ -10,8 +10,16 @@ dist/
 dist_*/
 release/
 
-# Generated native binary (built from native/ShroudlyEngine.cs via npm run setup)
-electron/tools/shroudly-engine/ShroudlyEngine.exe
+# Compiled engine binaries (built from core/ via `npm run build:core`)
+electron/tools/core/
+# Legacy engine artifacts (removed)
+electron/tools/shroudly-engine/
+
+# Core native build artifacts
+core/shroudly-core
+core/shroudly-core.exe
+core/*.o
+core/*.obj
 
 # Logs
 *.log

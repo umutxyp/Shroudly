@@ -1,803 +1,348 @@
-const { app, BrowserWindow, ipcMain, Tray, Menu, nativeImage, shell } = require('electron');
+'use strict';
+
+const { app, BrowserWindow, ipcMain, Tray, Menu, nativeImage, shell, Notification } = require('electron');
 const path = require('path');
-const Store = require('electron-store');
-const DPIBypass = require('./dpi-bypass');
-const fs = require('fs');
 const url = require('url');
-const { execFile } = require('child_process');
+const fs = require('fs');
+const Store = require('electron-store');
+const EngineManager = require('./engine-manager');
 
 const store = new Store();
-let mainWindow;
+let mainWindow = null;
 let tray = null;
-let dpiBypass = null;
+let engine = null;
 let systemLogs = [];
-let currentOverlayColor = null;
-let cleanupBeforeQuitComplete = false;
 let exitInProgress = false;
-const AUTO_START_TASK_NAME = 'Shroudly';
-const AUTO_START_LAUNCH_ARG = '--autostart';
 
-// Configuration
 const isDev = !app.isPackaged;
-const PORT = process.env.PORT || 3000;
+const DEV_PORT = process.env.PORT || 3000;
+const AUTOSTART_ARG = '--autostart';
 
-// ─── Crash / hard-exit safety ─────────────────────────────────────────────────
-
-// Synchronous last resort on any process exit (including crashes / OOM kills).
-// Cannot use async here, so we only do the engine kill — network settings are
-// recovered by recoverPreviousSession() on the next app start.
-process.on('exit', () => {
-  try { dpiBypass?.killShroudlyEngineSync(); } catch {}
-});
-
-// Catch JS exceptions that bubble to the top so we can clean up before exiting.
-process.on('uncaughtException', (error) => {
-  console.error('[Shroudly] Uncaught exception:', error);
-  if (!exitInProgress) {
-    exitInProgress = true;
-    stopDPIForExit()
-      .catch(() => {})
-      .finally(() => {
-        cleanupBeforeQuitComplete = true;
-        app.quit();
-      });
-  }
-});
-
-process.on('unhandledRejection', (reason) => {
-  console.error('[Shroudly] Unhandled rejection:', reason);
-});
-
-// ─────────────────────────────────────────────────────────────────────────────
-
-function getAssetPath(...segments) {
-  if (app.isPackaged) {
-    return path.join(process.resourcesPath, ...segments);
-  }
-
-  return path.join(__dirname, '..', ...segments);
-}
-
-const gotSingleInstanceLock = app.requestSingleInstanceLock();
-const SAFE_NETWORK_DEFAULTS = {
-  allowSystemNetworkChanges: false,
-  customDNS: false,
-  nativeFrag: false,
-  ttlManipulation: false,
-};
-
-if (!gotSingleInstanceLock) {
+/* ── single instance ─────────────────────────────────────────────────────── */
+if (!app.requestSingleInstanceLock()) {
   app.quit();
+} else {
+  app.on('second-instance', () => {
+    if (mainWindow && !mainWindow.isDestroyed()) {
+      if (mainWindow.isMinimized()) mainWindow.restore();
+      mainWindow.show();
+      mainWindow.focus();
+    }
+  });
 }
 
-app.on('second-instance', () => {
-  if (!mainWindow || mainWindow.isDestroyed()) {
-    return;
-  }
-
-  if (mainWindow.isMinimized()) {
-    mainWindow.restore();
-  }
-
-  mainWindow.show();
-  mainWindow.focus();
+/* ── crash / hard-exit safety: restore the system proxy synchronously ─────── */
+process.on('exit', () => { try { engine && engine.cleanupSync(); } catch {} });
+process.on('uncaughtException', (err) => {
+  console.error('[Shroudly] uncaught:', err);
+  if (!exitInProgress) { exitInProgress = true; shutdownAndQuit(); }
 });
+process.on('unhandledRejection', (r) => console.error('[Shroudly] rejection:', r));
 
-function enforceSafeNetworkDefaults() {
-  for (const [key, value] of Object.entries(SAFE_NETWORK_DEFAULTS)) {
-    if (store.get(key) !== value) {
-      store.set(key, value);
-    }
+/* ── helpers ─────────────────────────────────────────────────────────────── */
+function getAssetPath(...segments) {
+  return app.isPackaged
+    ? path.join(process.resourcesPath, ...segments)
+    : path.join(__dirname, '..', ...segments);
+}
+
+function addLog(level, message) {
+  const entry = { timestamp: new Date().toISOString(), level, message };
+  systemLogs.push(entry);
+  if (systemLogs.length > 500) systemLogs = systemLogs.slice(-500);
+  if (mainWindow && !mainWindow.isDestroyed()) {
+    mainWindow.webContents.send('log:new', entry);
   }
 }
 
 function isAutoStartLaunch() {
-  return process.argv.includes(AUTO_START_LAUNCH_ARG);
+  return process.argv.includes(AUTOSTART_ARG);
 }
 
-function runPowerShellSync(script, options = {}) {
-  const { execFileSync } = require('child_process');
-  return execFileSync('powershell.exe', [
-    '-NoProfile',
-    '-ExecutionPolicy',
-    'Bypass',
-    '-Command',
-    script,
-  ], {
-    windowsHide: true,
-    ...options,
-  });
+function notify(title, body) {
+  if (store.get('showNotifications', true) && Notification.isSupported()) {
+    try { new Notification({ title, body, icon: trayIconPath() }).show(); } catch {}
+  }
 }
 
-// Check if dev server is available
+/* ── tray + status ───────────────────────────────────────────────────────── */
+function trayIconPath() {
+  return process.platform === 'win32' ? getAssetPath('public', 'icon.ico')
+                                      : getAssetPath('public', 'icon-small.png');
+}
+
+function makeTrayIcon() {
+  try {
+    const img = nativeImage.createFromPath(trayIconPath());
+    return img.isEmpty() ? nativeImage.createEmpty() : img;
+  } catch { return nativeImage.createEmpty(); }
+}
+
+function rebuildTrayMenu(active) {
+  if (!tray) return;
+  const menu = Menu.buildFromTemplate([
+    { label: 'Open Shroudly', click: () => showWindow() },
+    { type: 'separator' },
+    { label: 'Status', enabled: false },
+    { label: active ? '● Active' : '○ Inactive', enabled: false },
+    { type: 'separator' },
+    {
+      label: active ? 'Stop' : 'Start',
+      click: async () => { active ? await safeStop() : await safeStart(); },
+    },
+    { type: 'separator' },
+    { label: 'Exit', click: () => { app.isQuitting = true; shutdownAndQuit(); } },
+  ]);
+  tray.setContextMenu(menu);
+  tray.setToolTip(`Shroudly — ${active ? 'Active' : 'Inactive'}`);
+}
+
+function createTray() {
+  tray = new Tray(makeTrayIcon());
+  rebuildTrayMenu(false);
+  tray.on('click', () => showWindow());
+}
+
+function broadcastStatus(active) {
+  rebuildTrayMenu(active);
+  if (mainWindow && !mainWindow.isDestroyed()) {
+    mainWindow.webContents.send('dpi:status-changed', active);
+  }
+}
+
+/* ── window ──────────────────────────────────────────────────────────────── */
+function showWindow() {
+  if (mainWindow && !mainWindow.isDestroyed()) { mainWindow.show(); mainWindow.focus(); }
+}
+
 async function checkDevServer() {
   if (!isDev) return false;
-  
-  try {
+  return new Promise((resolve) => {
     const http = require('http');
-    return new Promise((resolve) => {
-      const req = http.get(`http://localhost:${PORT}`, (res) => {
-        resolve(res.statusCode === 200);
-      });
-      req.on('error', () => resolve(false));
-      req.setTimeout(1000, () => {
-        req.destroy();
-        resolve(false);
-      });
-    });
-  } catch {
-    return false;
-  }
-}
-
-// Log function
-function addLog(level, message) {
-  const log = {
-    time: new Date().toISOString(),
-    level,
-    message,
-  };
-  systemLogs.push(log);
-  
-  // Keep only last 1000 logs
-  if (systemLogs.length > 1000) {
-    systemLogs.shift();
-  }
-  
-  // Send to renderer if window exists
-  if (mainWindow && !mainWindow.isDestroyed()) {
-    mainWindow.webContents.send('log:new', log);
-  }
-  
-  console.log(`[${level.toUpperCase()}] ${message}`);
-}
-
-// Create status overlay icon (green/red dot)
-function createOverlayIcon(color) {
-  const iconPath = color === '#22c55e'
-    ? getAssetPath('icon-small.png')
-    : getAssetPath('icon.ico');
-  return nativeImage.createFromPath(iconPath);
-}
-
-// Create tray icon with status indicator
-function createTrayIcon(isActive) {
-  const iconPath = isActive
-    ? getAssetPath('icon-small.png')
-    : getAssetPath('icon.ico');
-  return nativeImage.createFromPath(iconPath);
-}
-
-// Update status indicators
-function updateStatusIndicators(isActive) {
-  const color = isActive ? '#22c55e' : '#ef4444'; // green : red
-  
-  // Update taskbar overlay (Windows footer icon)
-  if (mainWindow && !mainWindow.isDestroyed()) {
-    if (currentOverlayColor !== color) {
-      const overlay = createOverlayIcon(color);
-      mainWindow.setOverlayIcon(overlay, isActive ? 'DPI Bypass Active' : 'DPI Bypass Inactive');
-      currentOverlayColor = color;
-    }
-  }
-  
-  // Update system tray icon
-  if (tray && !tray.isDestroyed()) {
-    const trayIcon = createTrayIcon(isActive);
-    tray.setImage(trayIcon);
-    tray.setToolTip(`Shroudly - ${isActive ? 'Active' : 'Inactive'}`);
-    
-    // Update tray menu
-    const contextMenu = Menu.buildFromTemplate([
-      {
-        label: 'Open Shroudly',
-        click: () => mainWindow.show(),
-      },
-      { type: 'separator' },
-      {
-        label: 'Status',
-        enabled: false,
-      },
-      {
-        label: isActive ? '🟢 Active' : '🔴 Inactive',
-        enabled: false,
-      },
-      { type: 'separator' },
-      {
-        label: 'Exit',
-        click: async () => {
-          if (!exitInProgress) {
-            exitInProgress = true;
-            app.isQuitting = true;
-            await stopDPIForExit();
-            cleanupBeforeQuitComplete = true;
-          }
-          app.quit();
-        },
-      },
-    ]);
-    tray.setContextMenu(contextMenu);
-  }
-}
-
-function broadcastDPIStatus(isActive) {
-  updateStatusIndicators(isActive);
-
-  if (mainWindow && !mainWindow.isDestroyed()) {
-    mainWindow.webContents.send('dpi:status-changed', isActive);
-  }
-}
-
-async function stopDPIForExit() {
-  if (!dpiBypass) {
-    return;
-  }
-
-  try {
-    await Promise.race([
-      dpiBypass.stop(),
-      new Promise((_, reject) =>
-        setTimeout(() => reject(new Error('Cleanup timed out after 18s')), 18000)
-      ),
-    ]);
-  } catch (error) {
-    addLog('error', `Cleanup failed during exit: ${error.message}`);
-    // Force-kill engine as last resort so internet is not left broken.
-    try { dpiBypass.killShroudlyEngineSync(); } catch {}
-  }
+    const req = http.get(`http://localhost:${DEV_PORT}`, (res) => resolve(res.statusCode === 200));
+    req.on('error', () => resolve(false));
+    req.setTimeout(800, () => { req.destroy(); resolve(false); });
+  });
 }
 
 async function createWindow() {
   mainWindow = new BrowserWindow({
-    width: 520,
-    height: 820,
-    minWidth: 420,
-    minHeight: 680,
-    maxWidth: 620,
-    maxHeight: 960,
+    width: 520, height: 820,
+    minWidth: 420, minHeight: 680,
+    maxWidth: 620, maxHeight: 960,
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
       preload: path.join(__dirname, 'preload.js'),
       webSecurity: true,
     },
-    icon: getAssetPath('icon.ico'),
-    title: 'Shroudly - Unseen. Unstoppable.',
+    icon: trayIconPath(),
+    title: 'Shroudly — Unseen. Unstoppable.',
     frame: false,
     backgroundColor: '#0A0E1A',
     show: false,
   });
 
-  // Determine which URL to load
   let startUrl;
-  const devServerAvailable = await checkDevServer();
-  
-  if (isDev && devServerAvailable) {
-    // Development with Next.js dev server
-    startUrl = `http://localhost:${PORT}`;
-    console.log('🌐 Mode: Development (with dev server)');
+  if (isDev && await checkDevServer()) {
+    startUrl = `http://localhost:${DEV_PORT}`;
   } else {
-    // Production or development without dev server
-    const indexPath = path.join(__dirname, '../out/index.html');
-    
-    // Check if out folder exists
+    const indexPath = path.join(__dirname, '..', 'out', 'index.html');
     if (!fs.existsSync(indexPath)) {
-      console.error('❌ Build files not found! Run: npm run build');
-      addLog('error', 'Build files not found. Please run "npm run build" first.');
-      
-      // Show error dialog
       const { dialog } = require('electron');
-      dialog.showErrorBox(
-        'Build Required',
-        'Application build files not found.\n\nPlease run: npm run build\n\nOr use: npm run electron:dev for development'
-      );
+      dialog.showErrorBox('Build Required', 'Build files not found.\n\nRun: npm run build');
       app.quit();
       return;
     }
-    
-    // Use file:// protocol with proper path formatting
-    startUrl = url.format({
-      pathname: indexPath,
-      protocol: 'file:',
-      slashes: true
-    });
-    console.log('🌐 Mode: Production (using static files)');
+    startUrl = url.format({ pathname: indexPath, protocol: 'file:', slashes: true });
   }
-
-  console.log('🚀 Shroudly starting...');
-  console.log('📍 isDev:', isDev);
-  console.log('🌐 Loading URL:', startUrl);
-  
-  addLog('info', 'Shroudly initializing...');
-  addLog('info', `Loading from: ${devServerAvailable ? 'Dev Server' : 'Static Files'}`);
 
   mainWindow.loadURL(startUrl);
 
-  mainWindow.webContents.setWindowOpenHandler(({ url: targetUrl }) => {
-    if (/^https?:\/\//i.test(targetUrl)) {
-      shell.openExternal(targetUrl);
-    }
-
+  mainWindow.webContents.setWindowOpenHandler(({ url: target }) => {
+    if (/^https?:\/\//i.test(target)) shell.openExternal(target);
     return { action: 'deny' };
   });
-
-  mainWindow.webContents.on('will-navigate', (event, targetUrl) => {
-    if (targetUrl !== mainWindow.webContents.getURL()) {
-      event.preventDefault();
-    }
+  mainWindow.webContents.on('will-navigate', (e, target) => {
+    if (target !== mainWindow.webContents.getURL()) e.preventDefault();
   });
 
   mainWindow.once('ready-to-show', () => {
-    const launchToTray = isAutoStartLaunch() && store.get('minimizeToTray', true);
-    if (launchToTray) {
-      mainWindow.hide();
-      console.log('[Shroudly] Auto-start launch detected, staying in tray');
-      addLog('info', 'Application auto-started in tray');
-    } else {
-      mainWindow.show();
-    }
-    console.log(launchToTray ? '[Shroudly] Window ready in tray' : '[Shroudly] Window ready and shown');
-    addLog('success', 'Application started successfully');
-    addLog('info', 'DPI Bypass engine ready');
+    const toTray = isAutoStartLaunch() && store.get('minimizeToTray', true);
+    if (toTray) { addLog('info', 'Auto-started in tray'); }
+    else mainWindow.show();
+    addLog('success', 'Application started');
   });
 
-  // Error handling
-  mainWindow.webContents.on('did-fail-load', (event, errorCode, errorDescription, validatedURL) => {
-    console.error('❌ Failed to load:', validatedURL);
-    console.error('Error code:', errorCode);
-    console.error('Error description:', errorDescription);
-  });
-
-  mainWindow.on('close', (event) => {
-    // Check minimize to tray setting
-    const minimizeToTray = store.get('minimizeToTray', true);
-    
-    if (!app.isQuitting && minimizeToTray) {
-      event.preventDefault();
+  mainWindow.on('close', (e) => {
+    if (!app.isQuitting && store.get('minimizeToTray', true)) {
+      e.preventDefault();
       mainWindow.hide();
-      
-      // Show notification if enabled
-      const showNotifications = store.get('showNotifications', true);
-      if (showNotifications) {
-        const { Notification } = require('electron');
-        if (Notification.isSupported()) {
-          new Notification({
-            title: 'Shroudly',
-            body: 'Application minimized to system tray',
-            icon: getAssetPath('icon-small.png')
-          }).show();
-        }
-      }
+      notify('Shroudly', 'Minimized to tray');
     }
   });
 
-  // Create tray
   createTray();
-  
-  // Initialize status indicators as inactive
-  updateStatusIndicators(false);
 }
 
-function createTray() {
-  // Create initial tray icon (inactive state)
-  const trayIcon = createTrayIcon(false);
-  
-  tray = new Tray(trayIcon);
-  tray.setToolTip('Shroudly - Inactive');
-
-  const contextMenu = Menu.buildFromTemplate([
-    {
-      label: 'Open Shroudly',
-      click: () => mainWindow.show(),
-    },
-    { type: 'separator' },
-    {
-      label: 'Status',
-      enabled: false,
-    },
-    {
-      label: '🔴 Inactive',
-      enabled: false,
-    },
-    { type: 'separator' },
-    {
-      label: 'Exit',
-      click: async () => {
-        app.isQuitting = true;
-        await stopDPIForExit();
-        app.quit();
-      },
-    },
-  ]);
-
-  tray.setContextMenu(contextMenu);
-  
-  tray.on('click', () => {
-    mainWindow.show();
-  });
-}
-
-// Auto-start functionality
-// Elevated apps launched from the HKCU Run key are unreliable on Windows login.
-// Use Task Scheduler with highest privileges so the packaged app actually starts.
-function setAutoStart(enable) {
-  if (isDev) {
-    addLog('warning', 'Auto-start not available in development mode');
-    return false;
-  }
-
+/* ── engine lifecycle wrappers ───────────────────────────────────────────── */
+async function safeStart() {
   try {
-    if (enable) {
-      const exePath = process.execPath.replace(/'/g, "''");
-      runPowerShellSync(`
-$taskName = '${AUTO_START_TASK_NAME}'
-$exePath = '${exePath}'
-$currentUser = [System.Security.Principal.WindowsIdentity]::GetCurrent().Name
-$action = New-ScheduledTaskAction -Execute $exePath -Argument '${AUTO_START_LAUNCH_ARG}'
-$trigger = New-ScheduledTaskTrigger -AtLogOn -User $currentUser
-$principal = New-ScheduledTaskPrincipal -UserId $currentUser -LogonType Interactive -RunLevel Highest
-$settings = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -MultipleInstances IgnoreNew
-Register-ScheduledTask -TaskName $taskName -Action $action -Trigger $trigger -Principal $principal -Settings $settings -Force | Out-Null
-`, { stdio: 'ignore' });
-    } else {
-      runPowerShellSync(`
-$task = Get-ScheduledTask -TaskName '${AUTO_START_TASK_NAME}' -ErrorAction SilentlyContinue
-if ($task) {
-  Unregister-ScheduledTask -TaskName '${AUTO_START_TASK_NAME}' -Confirm:$false
+    const r = await engine.start();
+    broadcastStatus(true);
+    notify('Shroudly', 'Protection started');
+    return r || { success: true };
+  } catch (e) {
+    addLog('error', `Start failed: ${e.message}`);
+    broadcastStatus(false);
+    return { success: false, error: e.message };
+  }
 }
-`, { stdio: 'ignore' });
+
+async function safeStop() {
+  try {
+    await engine.stop();
+    broadcastStatus(false);
+    return { success: true };
+  } catch (e) {
+    addLog('error', `Stop failed: ${e.message}`);
+    return { success: false, error: e.message };
+  }
+}
+
+async function shutdownAndQuit() {
+  try { if (engine) await engine.stop(); } catch {}
+  app.quit();
+}
+
+/* ── auto-start (per-OS, no elevation) ───────────────────────────────────── */
+function setAutoStart(enable) {
+  try {
+    if (process.platform === 'darwin' || process.platform === 'win32') {
+      app.setLoginItemSettings({
+        openAtLogin: enable,
+        args: [AUTOSTART_ARG],
+        ...(process.platform === 'win32' ? { path: process.execPath } : {}),
+      });
+      return true;
     }
-    addLog('success', `Auto-start ${enable ? 'enabled' : 'disabled'}`);
+    const dir = path.join(app.getPath('home'), '.config', 'autostart');
+    const file = path.join(dir, 'shroudly.desktop');
+    if (enable) {
+      fs.mkdirSync(dir, { recursive: true });
+      fs.writeFileSync(file,
+        `[Desktop Entry]\nType=Application\nName=Shroudly\nExec=${process.execPath} ${AUTOSTART_ARG}\nX-GNOME-Autostart-enabled=true\n`);
+    } else if (fs.existsSync(file)) {
+      fs.unlinkSync(file);
+    }
     return true;
-  } catch (error) {
-    console.error('[Shroudly] Auto-start error:', error.message);
-    addLog('error', `Auto-start error: ${error.message}`);
+  } catch (e) {
+    addLog('error', `Auto-start: ${e.message}`);
     return false;
   }
 }
 
 function getAutoStartEnabled() {
-  if (isDev) return false;
-  try {
-    const out = runPowerShellSync(`
-$task = Get-ScheduledTask -TaskName '${AUTO_START_TASK_NAME}' -ErrorAction SilentlyContinue
-if (-not $task) { return }
-$action = $task.Actions | Select-Object -First 1
-if ($action -and $action.Execute -eq '${process.execPath.replace(/'/g, "''")}' -and $task.State -ne 'Disabled') {
-  'true'
-}
-`, { stdio: ['ignore', 'pipe', 'ignore'] }).toString().trim();
-    return out === 'true';
-  } catch {
-    return false;
+  if (process.platform === 'linux') {
+    return fs.existsSync(path.join(app.getPath('home'), '.config', 'autostart', 'shroudly.desktop'));
   }
+  try { return app.getLoginItemSettings().openAtLogin; } catch { return false; }
 }
 
-function relaunchAsAdmin() {
-  const args = isDev ? [app.getAppPath()] : [];
-  const escapedPath = process.execPath.replace(/'/g, "''");
-  const escapedArgs = args
-    .map((arg) => `'${String(arg).replace(/'/g, "''")}'`)
-    .join(',');
-  const argumentList = escapedArgs ? ` -ArgumentList @(${escapedArgs})` : '';
-
-  execFile('powershell.exe', [
-    '-NoProfile',
-    '-ExecutionPolicy',
-    'Bypass',
-    '-Command',
-    `Start-Process -FilePath '${escapedPath}'${argumentList} -Verb RunAs`,
-  ], { windowsHide: true });
-}
-
+/* ── app ready ───────────────────────────────────────────────────────────── */
 app.whenReady().then(async () => {
-  enforceSafeNetworkDefaults();
+  engine = new EngineManager(store, { addLog, onStatusChange: broadcastStatus });
+  await engine.recover();
 
-  dpiBypass = new DPIBypass(store, {
-    addLog,
-    onStatusChange: broadcastDPIStatus,
-  });
-
-  await dpiBypass.initialize();
   await createWindow();
 
-  // Check and sync auto-start setting on startup
-  if (!isDev) {
-    const savedAutoStart = store.get('autoStart', false);
-    const currentlyEnabled = getAutoStartEnabled();
-    if (savedAutoStart !== currentlyEnabled) {
-      console.log('[Shroudly] Auto-start setting mismatch detected, syncing...');
-      setAutoStart(savedAutoStart);
-    }
-  }
+  const savedAuto = store.get('autoStart', false);
+  if (savedAuto !== getAutoStartEnabled()) setAutoStart(savedAuto);
 
-  let autoStartAttempted = false; // Prevent multiple auto-start attempts
-
-  // Auto-start DPI bypass if Auto Mode is enabled
+  let started = false;
   mainWindow.webContents.on('did-finish-load', async () => {
-    if (autoStartAttempted) {
-      return; // Already attempted, skip
-    }
-    autoStartAttempted = true;
-
-    const autoMode = store.get('autoMode', true);
-    if (autoMode) {
-      addLog('info', 'Auto Mode enabled - starting DPI bypass automatically');
-      
-      // Wait a bit for UI to be ready
-      setTimeout(async () => {
-        try {
-          if (!dpiBypass) {
-            addLog('error', 'DPI Bypass engine not initialized');
-            return;
-          }
-
-          const result = await dpiBypass.start();
-          if (result && result.success) {
-            addLog('success', 'DPI bypass started automatically');
-            broadcastDPIStatus(true);
-            
-            // Show notification if enabled
-            const showNotifications = store.get('showNotifications', true);
-            if (showNotifications) {
-              const { Notification } = require('electron');
-              if (Notification.isSupported()) {
-                new Notification({
-                  title: 'Shroudly - Auto Mode',
-                  body: 'DPI bypass started automatically',
-                  icon: getAssetPath('icon.ico')
-                }).show();
-              }
-            }
-          } else {
-            const errorMsg = result?.error || 'Unknown error';
-            addLog('error', `Auto-start failed: ${errorMsg}`);
-            updateStatusIndicators(false);
-          }
-        } catch (error) {
-          addLog('error', `Auto-start error: ${error?.message || 'Unknown error'}`);
-          updateStatusIndicators(false);
-        }
-      }, 2000); // 2 second delay for UI to load
+    if (started) return;
+    started = true;
+    if (store.get('autoMode', true)) {
+      addLog('info', 'Auto Mode: starting protection');
+      setTimeout(() => { safeStart(); }, 1200);
     }
   });
 
-  // Register F12 to toggle DevTools
   if (isDev) {
     const { globalShortcut } = require('electron');
-    globalShortcut.register('F12', () => {
-      if (mainWindow) {
-        mainWindow.webContents.toggleDevTools();
-      }
-    });
+    globalShortcut.register('F12', () => mainWindow && mainWindow.webContents.toggleDevTools());
   }
 
   app.on('activate', () => {
-    if (BrowserWindow.getAllWindows().length === 0) {
-      createWindow();
-    } else if (mainWindow && !mainWindow.isDestroyed()) {
-      mainWindow.show();
-      mainWindow.focus();
-    }
+    if (BrowserWindow.getAllWindows().length === 0) createWindow();
+    else showWindow();
   });
 });
 
-app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') {
-    // Don't quit, just hide to tray
-  }
-});
+app.on('window-all-closed', () => { /* keep running in tray */ });
 
-app.on('before-quit', async (event) => {
-  if (cleanupBeforeQuitComplete || exitInProgress) {
-    return;
-  }
-
-  const pendingRestore = Boolean(store.get('dpiRuntimeState')?.pendingRestore);
-  if (dpiBypass?.isActive || pendingRestore) {
-    event.preventDefault();
+app.on('before-quit', async (e) => {
+  if (exitInProgress) return;
+  if (engine && engine.isActive()) {
+    e.preventDefault();
     exitInProgress = true;
     app.isQuitting = true;
-    addLog('info', 'Restoring network settings before exit...');
-    await stopDPIForExit();
-    cleanupBeforeQuitComplete = true;
+    addLog('info', 'Restoring system before exit...');
+    await engine.stop();
     app.quit();
   }
 });
 
-// IPC Handlers
-ipcMain.on('window:minimize', () => {
-  mainWindow.minimize();
-});
-
+/* ── IPC ─────────────────────────────────────────────────────────────────── */
+ipcMain.on('window:minimize', () => mainWindow && mainWindow.minimize());
 ipcMain.on('window:maximize', () => {
-  if (mainWindow.isMaximized()) {
-    mainWindow.unmaximize();
-  } else {
-    mainWindow.maximize();
-  }
+  if (!mainWindow) return;
+  mainWindow.isMaximized() ? mainWindow.unmaximize() : mainWindow.maximize();
 });
+ipcMain.on('window:close', () => mainWindow && mainWindow.hide());
 
-ipcMain.on('window:close', () => {
-  mainWindow.hide();
-});
-
-ipcMain.handle('dpi:start', async (event, config) => {
-  try {
-    addLog('info', 'Starting DPI Bypass...');
-    const result = await dpiBypass.start(config);
-    broadcastDPIStatus(true);
-    addLog('success', 'DPI Bypass activated successfully');
-    return result || { success: true };
-  } catch (error) {
-    addLog('error', `Failed to start DPI Bypass: ${error.message}`);
-    
-    // Check if it's an admin rights error
-    if (error.message.includes('Administrator')) {
-      const { dialog } = require('electron');
-      const result = await dialog.showMessageBox(mainWindow, {
-        type: 'warning',
-        title: 'Administrator Rights Required',
-        message: 'DPI Bypass requires administrator privileges to modify network settings.',
-        detail: 'Please restart the application as administrator.',
-        buttons: ['Restart as Admin', 'Cancel'],
-        defaultId: 0,
-        cancelId: 1
-      });
-      
-      if (result.response === 0) {
-        // Restart with admin rights
-        relaunchAsAdmin();
-        app.quit();
-      }
-    }
-    
-    return { success: false, error: error.message };
-  }
-});
-
-ipcMain.handle('dpi:stop', async () => {
-  try {
-    addLog('info', 'Stopping DPI Bypass...');
-    await dpiBypass.stop();
-    broadcastDPIStatus(false);
-    addLog('success', 'DPI Bypass stopped successfully');
-    return { success: true };
-  } catch (error) {
-    addLog('error', `Failed to stop DPI Bypass: ${error.message}`);
-    return { success: false, error: error.message };
-  }
-});
-
-ipcMain.handle('dpi:status', () => {
-  return {
-    active: dpiBypass?.isActive || false,
-    stats: dpiBypass?.getStats() || {},
-  };
-});
-
-ipcMain.handle('app:getInfo', async () => {
-  return {
-    version: app.getVersion(),
-    year: new Date().getFullYear(),
-    isAdmin: await dpiBypass?.checkAdminRights(),
-  };
-});
-
-ipcMain.handle('settings:get', (event, key) => {
-  return store.get(key);
-});
-
-ipcMain.handle('settings:set', (event, key, value) => {
-  if (Object.prototype.hasOwnProperty.call(SAFE_NETWORK_DEFAULTS, key)) {
-    store.set(key, SAFE_NETWORK_DEFAULTS[key]);
-    return {
-      success: true,
-      value: SAFE_NETWORK_DEFAULTS[key],
-      warning: 'System-level DNS, MTU and TTL changes are disabled in safe mode.',
-    };
-  }
-
-  store.set(key, value);
-  
-  // Handle special settings
-  if (key === 'autoStart') {
-    const success = setAutoStart(value);
-    if (!success && !isDev) {
-      // If setting failed, revert the store value
-      store.set('autoStart', false);
-      return { success: false, error: 'Failed to set auto-start. Try running as administrator.' };
-    }
-  }
-  
+ipcMain.handle('dpi:start', async () => safeStart());
+ipcMain.handle('dpi:stop', async () => safeStop());
+ipcMain.handle('dpi:status', () => ({
+  active: engine ? engine.isActive() : false,
+  stats: engine ? engine.getStats() : {},
+}));
+ipcMain.handle('dpi:probe', (e, host) => {
+  if (engine && typeof host === 'string' && host) engine.probe(host);
   return { success: true };
 });
 
-ipcMain.handle('settings:getAll', () => {
-  return store.store;
+ipcMain.handle('app:getInfo', async () => ({
+  version: app.getVersion(),
+  year: new Date().getFullYear(),
+  platform: process.platform,
+  isAdmin: false,
+}));
+
+ipcMain.handle('settings:get', (e, key) => store.get(key));
+ipcMain.handle('settings:getAll', () => store.store);
+ipcMain.handle('settings:set', (e, key, value) => {
+  store.set(key, value);
+  if (key === 'autoStart') {
+    const ok = setAutoStart(value);
+    if (!ok) { store.set('autoStart', false); return { success: false, error: 'Could not set auto-start' }; }
+  }
+  return { success: true };
 });
 
-ipcMain.handle('logs:get', () => {
-  return systemLogs;
-});
-
-ipcMain.handle('logs:clear', () => {
-  systemLogs = [];
-  addLog('info', 'Logs cleared');
-  return true;
-});
-
-// ── Network stats (ping + speed) ────────────────────────────────────────────
-const net = require('net');
-let _prevNetBytes = null;
-let _prevNetTime  = null;
-
-function measurePing() {
-  return new Promise((resolve) => {
-    const t0 = Date.now();
-    const s  = net.createConnection(53, '8.8.8.8');
-    s.setTimeout(3000);
-    s.once('connect', () => { s.destroy(); resolve(Date.now() - t0); });
-    s.once('error',   () => { s.destroy(); resolve(null); });
-    s.once('timeout', () => { s.destroy(); resolve(null); });
-  });
-}
-
-function measureNetSpeed() {
-  return new Promise((resolve) => {
-    const { exec } = require('child_process');
-    exec('netstat -e', { timeout: 2000 }, (err, stdout) => {
-      if (err || !stdout) return resolve({ dl: 0, ul: 0 });
-      const m = stdout.match(/Bytes\s+([\d,]+)\s+([\d,]+)/i);
-      if (!m) return resolve({ dl: 0, ul: 0 });
-      const rx = parseInt(m[1].replace(/,/g, ''));
-      const tx = parseInt(m[2].replace(/,/g, ''));
-      const now = Date.now();
-      let dl = 0, ul = 0;
-      if (_prevNetBytes && _prevNetTime) {
-        const secs = (now - _prevNetTime) / 1000;
-        if (secs > 0) {
-          dl = Math.max(0, (rx - _prevNetBytes.rx) / secs);
-          ul = Math.max(0, (tx - _prevNetBytes.tx) / secs);
-        }
-      }
-      _prevNetBytes = { rx, tx };
-      _prevNetTime  = now;
-      resolve({ dl, ul });
-    });
-  });
-}
+ipcMain.handle('logs:get', () => systemLogs);
+ipcMain.handle('logs:clear', () => { systemLogs = []; addLog('info', 'Logs cleared'); return true; });
 
 ipcMain.handle('net:stats', async () => {
-  const [ping, speed] = await Promise.all([measurePing(), measureNetSpeed()]);
-  return { ping, dl: speed.dl, ul: speed.ul };
+  const s = engine ? engine.getStats() : {};
+  return {
+    connsActive: s.connsActive || 0,
+    connsTotal: s.connsTotal || 0,
+    bytesUp: s.bytesUp || 0,
+    bytesDown: s.bytesDown || 0,
+    desync: s.desync || 0,
+    tlsSeen: s.tlsSeen || 0,
+    uptime: s.uptime || 0,
+  };
 });
-
-function updateTrayStatus(isActive) {
-  const contextMenu = Menu.buildFromTemplate([
-    {
-      label: 'Open Shroudly',
-      click: () => mainWindow.show(),
-    },
-    { type: 'separator' },
-    {
-      label: 'Status',
-      enabled: false,
-    },
-    {
-      label: isActive ? '● Active' : '○ Inactive',
-      enabled: false,
-    },
-    { type: 'separator' },
-    {
-      label: 'Exit',
-      click: async () => {
-        app.isQuitting = true;
-        await stopDPIForExit();
-        app.quit();
-      },
-    },
-  ]);
-
-  tray.setContextMenu(contextMenu);
-}

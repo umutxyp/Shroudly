@@ -8,9 +8,11 @@
   [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
   [![Electron](https://img.shields.io/badge/Electron-33-47848F?logo=electron)](https://www.electronjs.org/)
   [![Next.js](https://img.shields.io/badge/Next.js-14-000000?logo=next.js)](https://nextjs.org/)
-  [![Platform](https://img.shields.io/badge/Platform-Windows%2010%2F11-0078D6?logo=windows)](https://www.microsoft.com/windows)
+  [![Windows](https://img.shields.io/badge/Windows-0078D6?logo=windows)](#)
+  [![macOS](https://img.shields.io/badge/macOS-000000?logo=apple)](#)
+  [![Linux](https://img.shields.io/badge/Linux-FCC624?logo=linux&logoColor=black)](#)
 
-  > Advanced DPI bypass for Windows. Break through internet censorship with precision packet-level techniques — no VPN, no proxies, no DNS tricks that break your connection.
+  > Break through internet censorship on **Windows, macOS and Linux**. No VPN, no drivers, no third-party tools, and nothing that permanently changes your network settings.
 
   **A [Codeshare](https://codeshare.me) product**
 </div>
@@ -19,195 +21,180 @@
 
 ## What is Shroudly?
 
-Shroudly intercepts outbound TCP packets and manipulates them at the kernel level using **WinDivert**, making it impossible for Deep Packet Inspection (DPI) systems to identify and block your connections. Unlike DNS changers or VPNs, Shroudly never changes your network adapter settings — everything happens in-memory at the packet level, so your internet is never left broken.
+Shroudly runs a tiny local proxy and reshapes the **first packet** of each
+connection — the one that carries the TLS SNI or the HTTP `Host` header — so that
+Deep Packet Inspection (DPI) systems can no longer read which site you are
+visiting. Your traffic still goes straight to the real server; only the DPI in
+the middle is defeated.
+
+It is built on its own engine, **`shroudly-core`**, written from scratch in
+portable C. It uses nothing but the operating system's own socket API, so the
+exact same technique works unprivileged on every platform. There is no kernel
+driver, no WinDivert, no external library.
+
+While Shroudly is active it points the system (or your browser) at its local
+proxy, and it always restores the previous setting on stop, crash, or logout —
+so your internet is never left broken.
+
+---
+
+## How it works
+
+```
+Without Shroudly:
+  [Browser] --> [DPI reads SNI "example.com" -> BLOCKED] --> X
+
+With Shroudly:
+  [Browser] --> [shroudly-core local proxy]
+                     |  splits / reorders the ClientHello so the SNI is never
+                     |  readable in a single segment
+                     v
+                [DPI sees fragments it cannot reassemble -> passes]
+                     v
+                [Real server reassembles normally -> OK]
+```
+
+The engine inspects the first client payload, finds the exact SNI/Host position
+(parsing the whole TLS ClientHello, even when it spans several TCP segments —
+which modern post-quantum Chrome hellos routinely do), and applies a **desync
+strategy**:
+
+| Technique | What it does |
+|-----------|--------------|
+| **Split at SNI** | Sends the ClientHello in separate writes so the SNI is cut across segment boundaries. |
+| **Disorder** | Sends the later segment first; the server's TCP stack reorders it correctly, a stateless DPI cannot. |
+| **Mid-SNI / double split** | Extra split points inside and around the hostname for stubborn DPI. |
+| **HTTP Host scramble** | Rewrites `Host:` casing for plain HTTP. |
+| **Anti-poisoning DNS** | Resolves names against several independent public resolvers in parallel and drops spoofed / bogon answers, defeating DNS-based blocking without any encrypted-DNS dependency. |
+| **Auto-probe** | Tests strategies against a host with a real handshake and remembers the one that works — like `goodbyeDPI`/`zapret` blockcheck, built in. |
+
+> **Note on "fake packets".** Low-TTL decoy packets (as used by driver-based
+> tools) require raw-socket injection and cannot be done correctly through a
+> userspace proxy without corrupting the real stream. Shroudly therefore relies
+> on split/disorder in its default driver-free mode, which is sufficient against
+> stateless SNI/Host DPI. A raw-socket mode (`SHROUDLY_RAW`) is reserved for a
+> future optional elevated build.
 
 ---
 
 ## Features
 
-### DPI Bypass Engine
-
-| Technique | Description |
-|-----------|-------------|
-| **TCP Fragmentation** | Splits the first TCP packet of each connection into 2–3 tiny segments so DPI cannot read the full SNI/Host field |
-| **Triple Split** | Three-way split with 1-byte prefix, pre-SNI chunk, and SNI+rest — SNI is never in a single fragment |
-| **Fake Packet** | Sends a clone with scrambled SNI bytes and a deliberately corrupt TCP checksum before the real packet; DPI reads garbage, server discards it |
-| **Disorder Mode** | Sends fragments out of order (last first); destination TCP stack reassembles correctly, sequential DPI cannot |
-| **HTTP Host Scramble** | Rewrites `Host:` as `hoSt:` for plain HTTP connections to defeat exact-string DPI matchers |
-| **SNI-Aware Splitting** | Parses TLS ClientHello byte-by-byte to find the exact SNI offset and split precisely at that boundary |
-| **Aggressive Mode** | Combines all techniques with smaller fragment sizes for maximum bypass power |
-
-### Application
-
-- **Real-time Network Stats** — Live ping, download speed, and upload speed with 30-point sparkline charts
-- **Control Panel** — One-click START/STOP with active technique indicators and session statistics
-- **Settings Panel** — Full control over every bypass parameter (fragment size, TTL value, max payload, DNS servers)
-- **Logs Panel** — Color-coded system logs with Info / Success / Warning / Error filtering
-- **Info Tab** — Explains each technique, shows system status (admin check, DPI state), and answers why DNS/TTL options are disabled
-- **Status Indicators** — Green/red dot on the app logo and header badge; updates every second
-- **System Tray** — Minimizes to tray, right-click menu, click to restore
-- **Auto Mode** — Starts DPI bypass automatically on launch
-- **Start on Boot** — Optional Windows startup entry
-- **Safe Shutdown** — Closing the app or force-quitting restores all network state automatically (no stuck settings)
-- **15 Languages** — Full translations including all UI strings, settings labels, and Info tab content
+- **Cross-platform** — one engine, native builds for Windows, macOS and Linux (x64 and arm64).
+- **No elevation, no driver** — runs as a normal user; nothing is installed into the kernel.
+- **Never breaks your connection** — system proxy is snapshotted and restored on stop/crash/exit.
+- **Real auto-probe** — finds and learns a working strategy per host.
+- **Anti-poisoning resolver** — optional multi-resolver DNS that filters spoofed answers.
+- **Honest live stats** — connections, bytes, TLS/HTTP seen and desyncs applied are real counters streamed from the engine, not estimates.
+- **System tray, auto-start, auto mode** — per-OS login item on Windows/macOS, `.desktop` entry on Linux.
+- **15 languages** with automatic detection.
 
 ### Languages
 
-English · 中文 · हिन्दी · Español · العربية · Русский · Português · Français · فارسی · Türkçe · বাংলা · اردو · Bahasa Indonesia · 日本語 · Deutsch
-
-Auto-detects system language on first launch. Persists selection across restarts.
+English, 中文, हिन्दी, Español, العربية, Русский, Português, Français, فارسی, Türkçe, বাংলা, اردو, Bahasa Indonesia, 日本語, Deutsch
 
 ---
 
-## Installation
+## Install
 
-### Pre-built Installer (Recommended)
+Download the latest build for your OS from [Releases](https://github.com/umutxyp/Shroudly/releases):
 
-Download the latest `Shroudly-X.X.X-x64.exe` from [Releases](https://github.com/umutxyp/Shroudly/releases), run it, and launch Shroudly. Administrator rights are requested automatically.
+- **Windows** — `Shroudly-<ver>-x64.exe` (NSIS installer)
+- **macOS** — `Shroudly-<ver>.dmg`
+- **Linux** — `Shroudly-<ver>.AppImage` or `.deb`
 
-### Build from Source
+No administrator / root rights are required to run it.
 
-**Requirements:** Windows 10/11 64-bit · Node.js 20+ · Git · .NET Framework 4.x (for C# engine compilation)
+---
+
+## Build from source
+
+**Requirements:** Node.js 20+, plus a C compiler. Any of these works:
+- a system compiler (`cc`/`clang`/`gcc`, or MSVC `cl` on Windows), **or**
+- [`zig`](https://ziglang.org/) (`npm i -g zig` or `pip install ziglang`) — this also lets one machine cross-build every OS.
 
 ```bash
 git clone https://github.com/umutxyp/Shroudly.git
 cd Shroudly
-npm install
+npm install            # also compiles shroudly-core for your OS
 
-# Development
+# run in dev
 npm run electron:dev
 
-# Production build + installer
-npm run build
-npx electron-builder
+# package for your OS
+npm run dist:win       # or dist:mac / dist:linux
+
+# cross-build the engine for every OS/arch from one machine
+npm run build:core:all
 ```
 
-The installer outputs to `dist/`.
-
----
-
-## How It Works
-
-```
-Normal (Blocked):
-  [Your PC] ──► [DPI: reads SNI → BLOCKED] ──► ✗
-
-With Shroudly:
-  [Your PC] ──► [ShroudlyEngine]
-                    ├─ Fake packet (corrupt checksum) ──► [DPI: garbage → confused]
-                    ├─ Fragment 1 (1 byte)            ──► [DPI: incomplete → passes]
-                    ├─ Fragment 3 (SNI+rest, OOO)     ──► [DPI: out of order → passes]
-                    └─ Fragment 2 (pre-SNI)           ──► [Destination: reassembles ✓]
-```
-
-`ShroudlyEngine.exe` is a first-party C# helper that uses WinDivert v1.4 directly. It runs as a single instance, captures outbound HTTP/HTTPS packets, applies the configured bypass techniques, and exits cleanly when stopped — leaving no trace in your network settings.
-
----
-
-## Why Not DNS / TTL?
-
-Changing Windows DNS adapter settings or modifying system TTL registry values can leave your internet broken if the process is killed before restoring them. Shroudly's TCP fragmentation approach operates entirely in-memory — it never writes to your network adapter config or registry, so force-quitting the app is always safe.
-
----
-
-## Architecture
+### Project layout
 
 ```
 Shroudly/
-├── app/                  # Next.js pages (page.js — main shell + 5-tab nav)
-├── components/           # React UI components
-│   ├── ControlPanel.js   # START/STOP, stats, technique toggles
-│   ├── SettingsPanel.js  # All settings with i18n labels
-│   ├── StatsPanel.js     # Ping + speed sparkline charts
-│   ├── LogsPanel.js      # Filterable log viewer
-│   ├── InfoPanel.js      # About, techniques, system status
-│   └── TitleBar.js       # Custom window chrome
-├── contexts/
-│   └── LanguageContext.js  # i18n provider (15 languages, auto-detect)
-├── electron/
-│   ├── main.js           # Electron main process + IPC handlers
-│   ├── preload.js        # Secure context bridge
-│   └── dpi-bypass.js     # Engine spawn logic + settings → args mapping
-├── native/
-│   └── ShroudlyEngine.cs # C# packet engine (WinDivert, TLS SNI parsing)
-├── public/               # Static assets (logo, WinDivert binaries)
-├── translations.js       # 15-language translation map (105 keys each)
-└── scripts/
-    └── build-engine.js   # Compiles ShroudlyEngine.cs with csc.exe
+  core/                       the engine - portable C, no dependencies
+    src/
+      platform.[ch]           OS abstraction (Winsock / BSD sockets, threads)
+      proto.[ch]              TLS ClientHello + HTTP request parsing
+      strategy.[ch]           desync strategy spec parser + presets
+      desync.[ch]             applies a strategy to the first payload
+      doh.[ch]                anti-poisoning DNS resolver
+      probe.[ch]              per-host auto-probe
+      engine.[ch]             SOCKS5 listener + relay
+      main.c                  CLI + stdin control protocol
+    test/test_proto.c         unit tests
+  electron/
+    main.js                   app shell, tray, IPC, auto-start
+    engine-manager.js         spawns shroudly-core, parses JSON, restarts
+    system-proxy.js           set/restore OS proxy (Win/mac/Linux)
+    tools/core/<os>-<arch>/   built engine binaries (per platform)
+  app/ components/ contexts/  Next.js + React UI
+  translations.js             15-language strings
+  scripts/build-core.js       native + cross compile
 ```
 
 ---
 
-## Tech Stack
+## Engine control protocol
 
-- **Frontend:** Next.js 14 · React 18 · Tailwind CSS
-- **Desktop:** Electron 33
-- **Packet Engine:** C# / WinDivert v1.4 (kernel-level packet capture)
-- **Build:** electron-builder (NSIS installer)
-- **Storage:** electron-store
-- **Network Stats:** `netstat -e` parsing (zero-dependency, fast)
-- **Charts:** Inline SVG sparklines (no external library)
+`shroudly-core` is a standalone program. The UI drives it over stdin and reads
+JSON on stdout, but you can run it directly too:
 
----
+```bash
+shroudly-core --port 10808 --strategy "split(sni)" --auto --doh
+# then point any app at socks5://127.0.0.1:10808
+```
 
-## Comparison
-
-| Feature | Shroudly | goodbyeDPI / zapret |
-|---------|----------|--------------------|
-| GUI | Modern dark UI | CLI only |
-| Real-time stats | Ping + speed charts | None |
-| 15 languages | Full i18n | English only |
-| Auto language detect | Yes | No |
-| Technique info | Built-in Info tab | Readme |
-| Safe force-quit | Yes (in-memory only) | Depends |
-| Fake packet + disorder | Yes | Partial |
-| Installer | One-click NSIS | Manual |
+Commands on stdin: `STATS`, `PROBE <host>`, `STOP`.
+Strategy syntax: `split(sni)`, `disorder(sni)`, `split(sni_mid)`,
+`split(1),split(sni)`, `split(2)`, and so on.
 
 ---
 
-## Legal & Responsible Use
+## Testing
 
-Shroudly is built to help users access the free and open internet in regions with unjust censorship.
-
-✅ Accessing legitimately blocked services (Discord, YouTube, social media)  
-✅ Bypassing restrictive institutional network policies  
-✅ Educational and security research purposes  
-❌ Do not use for illegal activities or to bypass legitimate security controls
-
-**Users are solely responsible for complying with local laws.**
+```bash
+npm run test:core        # unit tests for protocol + strategy parsing
+```
 
 ---
 
-## Troubleshooting
+## Legal & responsible use
 
-**"Administrator privileges required"** — Right-click the app → Run as Administrator, or approve the elevation prompt.
-
-**Engine not found** — Run `npm run setup` to recompile `ShroudlyEngine.exe`.
-
-**Build fails** — Delete `node_modules`, `.next`, `out`, `dist` and run `npm install && npm run build`.
+Shroudly exists to help people reach the free and open internet where it is
+unjustly censored. You are solely responsible for complying with the laws that
+apply to you. Do not use it to attack systems or to access things you are not
+entitled to.
 
 ---
 
 ## License
 
-MIT — see [LICENSE](LICENSE)
-
----
+MIT — see [LICENSE](LICENSE).
 
 ## Credits
 
-- [WinDivert](https://github.com/basil00/Divert) — kernel-level packet interception
-- [Electron](https://www.electronjs.org/) — desktop framework
-- [Next.js](https://nextjs.org/) — React framework
-- [Tailwind CSS](https://tailwindcss.com/) — styling
-
----
-
-## Support
-
-- **Issues:** [github.com/umutxyp/Shroudly/issues](https://github.com/umutxyp/Shroudly/issues)
-- **Website:** [codeshare.me](https://codeshare.me)
-- **Email:** support@codeshare.me
+- [Electron](https://www.electronjs.org/), [Next.js](https://nextjs.org/), [Tailwind CSS](https://tailwindcss.com/)
+- Desync techniques inspired by the research behind `goodbyeDPI` and `zapret` — reimplemented independently in `shroudly-core`.
 
 ---
 
@@ -216,7 +203,5 @@ MIT — see [LICENSE](LICENSE)
 **Shroudly — Unseen. Unstoppable.**
 
 *A Codeshare Technology Ltd product*
-
-[![Star History Chart](https://api.star-history.com/svg?repos=umutxyp/Shroudly&type=Date)](https://star-history.com/#umutxyp/Shroudly&Date)
 
 </div>

@@ -42,16 +42,14 @@ function StatusRow({ ok, label }) {
 
 export default function InfoPanel({ dpiStatus }) {
   const { t } = useLanguage();
-  const [isAdmin, setIsAdmin] = useState(null);
-  const [version, setVersion] = useState('1.2.0');
+  const [version, setVersion] = useState('2.0.0');
 
   useEffect(() => {
     const load = async () => {
       if (typeof window !== 'undefined' && window.electron?.getAppInfo) {
         try {
           const info = await window.electron.getAppInfo();
-          if (info?.isAdmin != null) setIsAdmin(info.isAdmin);
-          if (info?.version)        setVersion(info.version);
+          if (info?.version) setVersion(info.version);
         } catch {}
       }
     };
@@ -78,10 +76,6 @@ export default function InfoPanel({ dpiStatus }) {
       {/* System Status */}
       <Section title={t('systemStatus')}>
         <StatusRow
-          ok={isAdmin !== false}
-          label={isAdmin === false ? t('notRunningAsAdmin') : t('runningAsAdmin')}
-        />
-        <StatusRow
           ok={dpiStatus?.active}
           label={dpiStatus?.active ? t('dpiBypassRunning') : t('dpiBypassStopped')}
         />
@@ -95,16 +89,16 @@ export default function InfoPanel({ dpiStatus }) {
       {/* How it works */}
       <Section title={t('howItWorks')}>
         <div className="divide-y divide-white/5">
-          <TechRow icon="✂️" title={t('technique_frag')}    desc={t('technique_frag_desc')} />
-          <TechRow icon="👻" title={t('technique_fake')}    desc={t('technique_fake_desc')} />
+          <TechRow icon="✂️" title={t('technique_frag')}     desc={t('technique_frag_desc')} />
           <TechRow icon="🔀" title={t('technique_disorder')} desc={t('technique_disorder_desc')} />
-          <TechRow icon="🔤" title={t('technique_http')}    desc={t('technique_http_desc')} />
+          <TechRow icon="🛰️" title={t('technique_dns')}      desc={t('technique_dns_desc')} />
+          <TechRow icon="🔤" title={t('technique_http')}     desc={t('technique_http_desc')} />
         </div>
       </Section>
 
-      {/* Why DNS/TTL disabled */}
-      <Section title={t('whyDisabled')}>
-        <p className="text-[11px] text-white/55 leading-relaxed">{t('whyDisabledDesc')}</p>
+      {/* How it stays safe */}
+      <Section title={t('safetyTitle')}>
+        <p className="text-[11px] text-white/55 leading-relaxed">{t('safetyDesc')}</p>
       </Section>
     </div>
   );

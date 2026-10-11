@@ -1,7 +1,7 @@
 {
   "name": "shroudly",
-  "version": "1.2.1",
-  "description": "Shroudly - Unseen. Unstoppable. | A Codeshare Technology Ltd Product",
+  "version": "2.0.0",
+  "description": "Shroudly - Unseen. Unstoppable. | Cross-platform DPI bypass (self-contained engine)",
   "main": "electron/main.js",
   "private": true,
   "author": "Codeshare Technology Ltd",
@@ -18,20 +18,20 @@
     "clean": "node scripts/clean.js",
     "dev": "next dev",
     "build": "next build && node scripts/fix-paths.js",
-    "setup": "node scripts/build-shroudly-engine.js",
-    "postinstall": "node scripts/build-shroudly-engine.js",
+    "build:core": "node scripts/build-core.js",
+    "build:core:all": "node scripts/build-core.js --cross",
+    "postinstall": "node scripts/build-core.js || echo \"[core] skipped (no compiler); run npm run build:core later\"",
+    "test:core": "cd core && make test",
     "create-icon": "node scripts/create-icon.js",
-    "patch:win-icon": "node scripts/patch-windows-icon.js",
-    "package:zip": "node scripts/package-unpacked-zip.js",
     "check:translations": "node scripts/check-translations.js",
-    "verify": "npm run setup && npm run check:translations && npm run build",
+    "verify": "npm run build:core && npm run check:translations && npm run build",
     "electron": "npm run build && electron .",
     "electron:dev": "concurrently \"next dev\" \"wait-on http://localhost:3000 && electron .\"",
     "electron:prod": "npm run verify && electron .",
-    "electron:dir": "npm run verify && electron-builder --win dir --publish never --config.win.signAndEditExecutable=false && npm run patch:win-icon",
-    "electron:build": "npm run create-icon && npm run verify && electron-builder --win nsis --publish never --config.win.signAndEditExecutable=false",
-    "release:dir": "npm run clean && npm run electron:dir && npm run package:zip",
-    "release:win": "npm run clean && npm run electron:build"
+    "dist:win": "npm run verify && electron-builder --win nsis --publish never",
+    "dist:mac": "npm run verify && electron-builder --mac --publish never",
+    "dist:linux": "npm run verify && electron-builder --linux AppImage deb --publish never",
+    "dist:all": "npm run build:core:all && npm run check:translations && npm run build && electron-builder -mwl --publish never"
   },
   "build": {
     "appId": "me.codeshare.shroudly",
@@ -40,47 +40,44 @@
       "buildResources": "public",
       "output": "dist"
     },
-    "afterPack": "scripts/after-pack.js",
     "files": [
       "out/**/*",
       "electron/**/*",
       "package.json",
       "!**/*.map",
+      "!**/*.pdb",
+      "!core/**",
       "!**/README*",
       "!**/CHANGELOG*",
-      "!**/LICENSE*",
-      "!**/docs/**",
-      "!**/test/**",
-      "!**/tests/**",
-      "!**/*.test.*",
-      "!**/*.spec.*"
+      "!**/*.test.*"
     ],
     "asarUnpack": [
-      "electron/tools/shroudly-engine/**"
+      "electron/tools/core/**"
     ],
-    "electronLanguages": ["en-US"],
+    "electronLanguages": [
+      "en-US"
+    ],
     "win": {
-      "requestedExecutionLevel": "requireAdministrator",
-      "icon": "icon.ico",
+      "icon": "public/icon.ico",
       "artifactName": "${productName}-${version}-${arch}.${ext}",
       "target": [
         {
           "target": "nsis",
           "arch": [
-            "x64"
+            "x64",
+            "arm64"
           ]
         }
       ]
     },
     "nsis": {
       "oneClick": false,
+      "perMachine": false,
       "allowToChangeInstallationDirectory": true,
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
-      "installerIcon": "icon.ico",
-      "uninstallerIcon": "icon.ico",
-      "installerHeader": "icon.ico",
-      "installerHeaderIcon": "icon.ico"
+      "installerIcon": "public/icon.ico",
+      "uninstallerIcon": "public/icon.ico"
     },
     "extraResources": [
       {
@@ -91,7 +88,46 @@
         "from": "public/icon-small.png",
         "to": "icon-small.png"
       }
-    ]
+    ],
+    "mac": {
+      "icon": "public/icon.ico",
+      "category": "public.app-category.utilities",
+      "target": [
+        {
+          "target": "dmg",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        },
+        {
+          "target": "zip",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        }
+      ]
+    },
+    "linux": {
+      "icon": "public/icon-small.png",
+      "category": "Network",
+      "target": [
+        {
+          "target": "AppImage",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        },
+        {
+          "target": "deb",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
+    }
   },
   "dependencies": {
     "electron-store": "^8.1.0"

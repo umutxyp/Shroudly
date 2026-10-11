@@ -4,32 +4,10 @@ import { useEffect, useState } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
 import Toast from './Toast';
 
-const safeNetworkOverrides = {
-  allowSystemNetworkChanges: false,
-  customDNS: false,
-  nativeFrag: false,
-  ttlManipulation: false,
-};
-
 export default function ControlPanel({ dpiStatus, onStatusChange }) {
   const { t } = useLanguage();
   const [loading, setLoading] = useState(false);
   const [toast, setToast] = useState(null);
-  const [config, setConfig] = useState({
-    fragmentHTTP: true,
-    fragmentHTTPS: true,
-    fragmentSize: 2,
-    ttlManipulation: false,
-    ttlValue: 5,
-    sniFragmentation: true,
-    sniFakePackets: true,
-    wrongChecksum: true,
-    nativeFrag: false,
-    customDNS: false,
-    dnsServers: ['1.1.1.1', '1.0.0.1'],
-    autoMode: true,
-    aggressiveMode: true,
-  });
 
   useEffect(() => {
     loadSettings();
@@ -44,21 +22,13 @@ export default function ControlPanel({ dpiStatus, onStatusChange }) {
     return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
   }, []);
 
-  const loadSettings = async () => {
-    if (typeof window !== 'undefined' && window.electron) {
-      const saved = await window.electron.getAllSettings();
-      if (saved && Object.keys(saved).length > 0) {
-        setConfig((prev) => ({ ...prev, ...saved, ...safeNetworkOverrides }));
-      }
-    }
-  };
+  const loadSettings = async () => { /* settings live in the Settings tab now */ };
 
   const handleStart = async () => {
     setLoading(true);
 
     try {
-      await loadSettings();
-      const result = await window.electron.startDPI({ ...config, ...safeNetworkOverrides });
+      const result = await window.electron.startDPI();
 
       if (result.success) {
         onStatusChange();

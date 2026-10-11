@@ -6,11 +6,12 @@ contextBridge.exposeInMainWorld('electron', {
   maximizeWindow: () => ipcRenderer.send('window:maximize'),
   closeWindow: () => ipcRenderer.send('window:close'),
 
-  // DPI Bypass controls
-  startDPI: (config) => ipcRenderer.invoke('dpi:start', config),
+  // Engine controls
+  startDPI: () => ipcRenderer.invoke('dpi:start'),
   stopDPI: () => ipcRenderer.invoke('dpi:stop'),
   getDPIStatus: () => ipcRenderer.invoke('dpi:status'),
-  onDPIStatusChanged: (callback) => ipcRenderer.on('dpi:status-changed', (event, active) => callback(active)),
+  probeHost: (host) => ipcRenderer.invoke('dpi:probe', host),
+  onDPIStatusChanged: (cb) => ipcRenderer.on('dpi:status-changed', (e, active) => cb(active)),
   removeDPIStatusListener: () => ipcRenderer.removeAllListeners('dpi:status-changed'),
 
   // App info
@@ -24,9 +25,9 @@ contextBridge.exposeInMainWorld('electron', {
   // Logs
   getLogs: () => ipcRenderer.invoke('logs:get'),
   clearLogs: () => ipcRenderer.invoke('logs:clear'),
-  onNewLog: (callback) => ipcRenderer.on('log:new', (event, log) => callback(log)),
+  onNewLog: (cb) => ipcRenderer.on('log:new', (e, log) => cb(log)),
   removeLogListener: () => ipcRenderer.removeAllListeners('log:new'),
 
-  // Network stats
+  // Network stats (real counters from the engine)
   getNetStats: () => ipcRenderer.invoke('net:stats'),
 });
