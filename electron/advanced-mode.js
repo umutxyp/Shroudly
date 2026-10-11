@@ -52,22 +52,34 @@ class AdvancedMode {
   }
 
   available() {
-    // Advanced backend is built only where we have a packet layer implementation.
-    return this.platform === 'linux' && fs.existsSync(advBinaryPath());
+    // Advanced backend exists on all three OSes now; just needs the binary
+    // (and on Windows, the WinDivert driver files next to it).
+    if (!fs.existsSync(advBinaryPath())) return false;
+    if (this.platform === 'win32') {
+      const dir = path.dirname(advBinaryPath());
+      if (!fs.existsSync(path.join(dir, 'WinDivert.dll'))) return false;
+    }
+    return ['linux', 'win32', 'darwin'].includes(this.platform);
   }
 
   reason() {
-    if (this.platform !== 'linux') {
-      return `Advanced mode is not yet available on ${this.platform}. It is implemented on Linux today; Windows (WinDivert) and macOS (pf) backends are planned.`;
+    if (!['linux', 'win32', 'darwin'].includes(this.platform)) {
+      return `Advanced mode is not available on ${this.platform}.`;
     }
     if (!fs.existsSync(advBinaryPath())) {
-      return 'Advanced engine not built. Run: npm run build:core:advanced (needs libnetfilter-queue-dev).';
+      return 'Advanced engine not built. Run: npm run build:core:advanced';
+    }
+    if (this.platform === 'win32') {
+      const dir = path.dirname(advBinaryPath());
+      if (!fs.existsSync(path.join(dir, 'WinDivert.dll'))) {
+        return 'WinDivert.dll / WinDivert64.sys not found next to the advanced engine. The advanced Windows package ships these; reinstall or add them.';
+      }
     }
     return null;
   }
 
   async _iptables(action) {
-    // action: 'add' | 'del'. Try nft first, then iptables; both are reverted.
+    // Linux: NFQUEUE rule on outbound 80/443. action: 'add' | 'del'.
     const chainArgs = ['OUTPUT', '-p', 'tcp', '-m', 'multiport', '--dports', '80,443',
       '-j', 'NFQUEUE', '--queue-num', String(QUEUE_NUM), '--queue-bypass'];
     const flag = action === 'add' ? '-A' : '-D';
@@ -80,6 +92,37 @@ class AdvancedMode {
     }
   }
 
+  /* macOS: load/unload a pf anchor that diverts outbound 80/443 to the backend's
+   * divert port. Never edits /etc/pf.conf; uses a named anchor we fully own. */
+  async _pf(action) {
+    const DIVERT_PORT = 10801; // must match SHROUDLY_DIVERT_PORT in raw_macos.h
+    const anchor = 'shroudly';
+    if (action === 'add') {
+      const rule = `pass out proto tcp to any port {80,443} divert-to 127.0.0.1 port ${DIVERT_PORT}\n`;
+      try {
+        // enable pf (idempotent), then load our anchor rule from stdin
+        await run('pfctl', ['-E'], 6000).catch(() => {});
+        await new Promise((resolve, reject) => {
+          const p = require('child_process').spawn('pfctl', ['-a', anchor, '-f', '-'], { stdio: ['pipe', 'ignore', 'ignore'] });
+          p.on('error', reject);
+          p.on('close', (c) => c === 0 ? resolve() : reject(new Error('pfctl load exit ' + c)));
+          p.stdin.write(rule); p.stdin.end();
+        });
+        return true;
+      } catch (e) { this.log('warning', `pf add failed: ${e.message}`); return false; }
+    } else {
+      try { await run('pfctl', ['-a', anchor, '-F', 'rules'], 6000); return true; }
+      catch (e) { this.log('warning', `pf del failed: ${e.message}`); return false; }
+    }
+  }
+
+  async _installRule(action) {
+    if (this.platform === 'linux') return this._iptables(action);
+    if (this.platform === 'darwin') return this._pf(action);
+    if (this.platform === 'win32') return true; // WinDivert filters in-driver; no rule
+    return false;
+  }
+
   async start(fakeTtl) {
     if (this.active) return { success: true, alreadyActive: true };
     const why = this.reason();
@@ -87,7 +130,7 @@ class AdvancedMode {
     this.fakeTtl = Number(fakeTtl) > 0 ? Number(fakeTtl) : 4;
 
     // 1. install the NFQUEUE firewall rule
-    const ruleOk = await this._iptables('add');
+    const ruleOk = await this._installRule("add");
     if (!ruleOk) throw new Error('Could not install firewall rule (need root / CAP_NET_ADMIN).');
     this.ruleInstalled = true;
 
@@ -126,12 +169,12 @@ class AdvancedMode {
     this.active = false;
     this.proc = null;
     this.log('warning', 'Advanced backend exited; removing firewall rule');
-    if (this.ruleInstalled) { await this._iptables('del'); this.ruleInstalled = false; }
+    if (this.ruleInstalled) { await this._installRule('del'); this.ruleInstalled = false; }
   }
 
   async stop() {
     if (this.proc) { try { this.proc.kill(); } catch {} this.proc = null; }
-    if (this.ruleInstalled) { await this._iptables('del'); this.ruleInstalled = false; }
+    if (this.ruleInstalled) { await this._installRule('del'); this.ruleInstalled = false; }
     this.active = false;
     this.log('success', 'Advanced mode stopped; firewall rule removed');
     return { success: true };
@@ -139,20 +182,24 @@ class AdvancedMode {
 
   async _cleanup() {
     if (this.proc) { try { this.proc.kill(); } catch {} this.proc = null; }
-    if (this.ruleInstalled) { await this._iptables('del').catch(() => {}); this.ruleInstalled = false; }
+    if (this.ruleInstalled) { await this._installRule('del').catch(() => {}); this.ruleInstalled = false; }
     this.active = false;
   }
 
   cleanupSync() {
     try { if (this.proc) this.proc.kill(); } catch {}
-    if (this.ruleInstalled) {
-      try {
+    if (!this.ruleInstalled) return;
+    try {
+      if (this.platform === 'linux') {
         execFileSync('iptables', ['-t', 'mangle', '-D', 'OUTPUT', '-p', 'tcp', '-m', 'multiport',
           '--dports', '80,443', '-j', 'NFQUEUE', '--queue-num', String(QUEUE_NUM), '--queue-bypass'],
           { timeout: 4000 });
-      } catch {}
-      this.ruleInstalled = false;
-    }
+      } else if (this.platform === 'darwin') {
+        execFileSync('pfctl', ['-a', 'shroudly', '-F', 'rules'], { timeout: 4000 });
+      }
+      /* win32: WinDivert filters in-driver; killing the process removes the hook. */
+    } catch {}
+    this.ruleInstalled = false;
   }
 }
 

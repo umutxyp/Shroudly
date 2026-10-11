@@ -77,3 +77,25 @@ and the default driver-free engine (stateless DPI) continues to work.
 
 Flow: default engine always runs (no privileges). Advanced mode is opt-in, only
 surfaced after a failed probe, and only where a packet backend is built.
+
+## Update 2: Advanced backends for all three OSes
+
+The advanced (packet-layer) backend now exists on every platform:
+
+| OS      | Backend                         | File              | Privilege        |
+|---------|---------------------------------|-------------------|------------------|
+| Linux   | NFQUEUE + raw socket            | raw_linux.c       | CAP_NET_ADMIN/RAW|
+| Windows | WinDivert 2.2 (signed driver)   | raw_windows.c     | Administrator    |
+| macOS   | pf divert socket + raw socket   | raw_macos.c       | root (no kext)   |
+
+All three: intercept the first TLS/HTTP data packet, inject a low-TTL +
+bad-checksum FAKE copy with XOR-scrambled SNI (reaches the DPI, dies before the
+server), then let the real packet proceed. This defeats stateful DPI.
+
+Build: `npm run build:core:advanced` (native) or `:all` (cross via zig).
+Windows advanced packaging also needs `npm run fetch:windivert` (downloads +
+SHA-256-verifies the official signed driver; not committed to the repo).
+
+Graceful degradation is verified: if the driver/privilege is missing the backend
+prints an error and exits cleanly, and the app keeps using the default engine.
+The manager always reverts its firewall rule (iptables/pf) on stop/crash/exit.

@@ -19,6 +19,12 @@
 #if defined(SHROUDLY_RAW) && defined(__linux__)
 #include "raw_linux.h"
 #endif
+#if defined(SHROUDLY_RAW) && defined(_WIN32)
+#include "raw_windows.h"
+#endif
+#if defined(SHROUDLY_RAW) && defined(__APPLE__)
+#include "raw_macos.h"
+#endif
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -70,14 +76,29 @@ int main(int argc, char **argv) {
     else if (!strcmp(argv[i], "--help")) { usage(); return 0; }
   }
 
-#if defined(SHROUDLY_RAW) && defined(__linux__)
-  /* Advanced (packet-layer) mode: run the NFQUEUE fake-packet backend instead of
-   * the userspace proxy. The manager installs the nftables rule and sets caps. */
+#if defined(SHROUDLY_RAW)
+  /* Advanced (packet-layer) mode: run the per-OS fake-packet backend instead of
+   * the userspace proxy. The manager handles any firewall rule / elevation. */
   if (g_advanced) {
+  #ifndef _WIN32
     signal(SIGINT, on_signal);
     signal(SIGTERM, on_signal);
-    int rr = raw_linux_start(g_queue, g_fake_ttl);
+  #endif
+    int rr;
+  #if defined(__linux__)
+    rr = raw_linux_start(g_queue, g_fake_ttl);
     raw_linux_stop();
+  #elif defined(_WIN32)
+    rr = raw_windows_start(g_fake_ttl);
+    raw_windows_stop();
+  #elif defined(__APPLE__)
+    rr = raw_macos_start(g_fake_ttl);
+    raw_macos_stop();
+  #else
+    rr = -1;
+    printf("{\"type\":\"error\",\"msg\":\"advanced mode not built on this platform\"}\n");
+    fflush(stdout);
+  #endif
     plat_cleanup();
     printf("{\"type\":\"stopped\"}\n"); fflush(stdout);
     return rr;
