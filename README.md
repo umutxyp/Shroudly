@@ -13,7 +13,7 @@
   [![macOS](https://img.shields.io/badge/macOS-000000?logo=apple)](#)
   [![Linux](https://img.shields.io/badge/Linux-FCC624?logo=linux&logoColor=black)](#)
 
-  > Break through internet censorship on **Windows, macOS and Linux**. No VPN, no drivers, no third-party tools, and nothing that permanently changes your network settings.
+  > Break through internet censorship on **Windows, macOS and Linux**. No VPN, no drivers by default, no third-party tools, and nothing that permanently changes your network settings.
 
   **A [Codeshare](https://codeshare.me) product**
 </div>
@@ -29,9 +29,14 @@ visiting. Your traffic still goes straight to the real server; only the DPI in
 the middle is defeated.
 
 It is built on its own engine, **`shroudly-core`**, written from scratch in
-portable C. It uses nothing but the operating system's own socket API, so the
-exact same technique works unprivileged on every platform. There is no kernel
-driver, no WinDivert, no external library.
+portable C. Its default mode uses nothing but the operating system's own socket
+API, so the exact same technique works unprivileged on every platform — no
+kernel driver, no WinDivert, no external library.
+
+For countries with **stateful** DPI (Iran, China) there is an optional,
+opt-in [Advanced mode](#advanced-mode-stateful-dpi) that works at the packet
+layer. It needs administrator/root rights and, on Windows, the WinDivert
+driver. It is never used unless you turn it on.
 
 While Shroudly is active it points the system (or your browser) at its local
 proxy, and it always restores the previous setting on stop, crash, or logout —
@@ -73,15 +78,46 @@ strategy**:
 > tools) require raw-socket injection and cannot be done correctly through a
 > userspace proxy without corrupting the real stream. Shroudly therefore relies
 > on split/disorder in its default driver-free mode, which is sufficient against
-> stateless SNI/Host DPI. A raw-socket mode (`SHROUDLY_RAW`) is reserved for a
-> future optional elevated build.
+> stateless SNI/Host DPI (e.g. Turkey). Fake packets live in the separate,
+> privileged [Advanced mode](#advanced-mode-stateful-dpi).
+
+---
+
+## Advanced mode (stateful DPI)
+
+Iran's and China's DPI reassemble the whole TCP stream before inspecting it, so
+splitting the ClientHello alone does not help. Advanced mode adds a
+packet-layer backend, `shroudly-core-adv`. It injects a decoy copy of the first
+packet with a low TTL, a bad TCP checksum and a scrambled SNI. The decoy reaches
+the DPI and poisons its state, then dies before it reaches the real server.
+
+- **Opt-in only.** It is offered in Settings only after a probe finds that a
+  site stays blocked with the default engine.
+- **Always reverted.** The firewall rule it installs is removed on stop, crash
+  or exit.
+- **Graceful fallback.** If the backend can't start, the default engine keeps
+  running.
+
+| OS | Backend | Needs | Status in v2.0.0 |
+|----|---------|-------|------------------|
+| Linux | NFQUEUE + raw socket (`iptables` rule) | root / `CAP_NET_ADMIN` + `CAP_NET_RAW`, `libnetfilter_queue` | Included (x64 only) |
+| macOS | pf divert socket + raw socket (own pf anchor; no kext, no SIP changes) | root | Included |
+| Windows | WinDivert 2.2 (signed driver) | Administrator + `WinDivert.dll` / `WinDivert64.sys` | **Not usable yet:** the driver is not bundled, so Settings shows it as unavailable |
+
+> Shroudly does not ask for elevation by itself yet. On Linux and macOS, Advanced
+> mode only starts when the app already has the privileges listed above.
+> Otherwise it reports an error and stays on the default engine.
+
+See [`core/src/CAPABILITIES.md`](core/src/CAPABILITIES.md) for the full threat
+model and test results.
 
 ---
 
 ## Features
 
 - **Cross-platform** — one engine, native builds for Windows, macOS and Linux (x64 and arm64).
-- **No elevation, no driver** — runs as a normal user; nothing is installed into the kernel.
+- **No elevation, no driver** (default mode) — runs as a normal user; nothing is installed into the kernel.
+- **Optional Advanced mode** — packet-layer fake-packet desync for stateful DPI (Iran/China), opt-in and privileged.
 - **Never breaks your connection** — system proxy is snapshotted and restored on stop/crash/exit.
 - **Real auto-probe** — finds and learns a working strategy per host.
 - **Anti-poisoning resolver** — optional multi-resolver DNS that filters spoofed answers.
@@ -116,7 +152,8 @@ English, 中文, हिन्दी, Español, العربية, Русский, P
 
 Older versions are on the [Releases](https://github.com/umutxyp/Shroudly/releases) page.
 
-No administrator / root rights are required to run it.
+No administrator / root rights are required to run it (only the optional
+[Advanced mode](#advanced-mode-stateful-dpi) needs them).
 
 ---
 
@@ -139,7 +176,15 @@ npm run dist:win       # or dist:mac / dist:linux
 
 # cross-build the engine for every OS/arch from one machine
 npm run build:core:all
+
+# optional: the privileged Advanced-mode engine
+npm run build:core:advanced   # or build:core:advanced:all to cross-build
 ```
+
+Linux advanced builds need `libnetfilter-queue-dev` and `libmnl-dev`. On
+Windows, Advanced mode also needs `WinDivert.dll` + `WinDivert64.sys` next to
+`shroudly-core-adv.exe`. `npm run fetch:windivert` downloads the official
+release, but you still have to copy those two files in by hand.
 
 ### Project layout
 
@@ -154,16 +199,21 @@ Shroudly/
       doh.[ch]                anti-poisoning DNS resolver
       probe.[ch]              per-host auto-probe
       engine.[ch]             SOCKS5 listener + relay
+      raw_linux.[ch]          Advanced mode: NFQUEUE backend
+      raw_macos.[ch]          Advanced mode: pf divert backend
+      raw_windows.[ch]        Advanced mode: WinDivert backend
       main.c                  CLI + stdin control protocol
     test/test_proto.c         unit tests
   electron/
     main.js                   app shell, tray, IPC, auto-start
     engine-manager.js         spawns shroudly-core, parses JSON, restarts
     system-proxy.js           set/restore OS proxy (Win/mac/Linux)
+    advanced-mode.js          Advanced mode: firewall rule + backend lifecycle
     tools/core/<os>-<arch>/   built engine binaries (per platform)
   app/ components/ contexts/  Next.js + React UI
   translations.js             15-language strings
   scripts/build-core.js       native + cross compile
+  scripts/build-core-advanced.js   Advanced-mode engine build
 ```
 
 ---
