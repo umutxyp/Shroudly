@@ -35,9 +35,7 @@ int desync_send_first(sock_t up, int family,
                       const proto_info *pi, const strategy *st,
                       _Atomic uint64_t *desync_counter) {
   if (len <= 0) return 0;
-#ifndef SHROUDLY_RAW
-  (void)family;
-#endif
+  (void)family; /* only used by the optional raw backend, not the stream path */
 
   /* Optional HTTP Host case-scramble. */
   for (int i = 0; i < st->n_ops; i++) {

@@ -31,7 +31,8 @@
     "dist:win": "npm run verify && electron-builder --win nsis --publish never",
     "dist:mac": "npm run verify && electron-builder --mac --publish never",
     "dist:linux": "npm run verify && electron-builder --linux AppImage deb --publish never",
-    "dist:all": "npm run build:core:all && npm run check:translations && npm run build && electron-builder -mwl --publish never"
+    "dist:all": "npm run build:core:all && npm run check:translations && npm run build && electron-builder -mwl --publish never",
+    "build:core:advanced": "node scripts/build-core-advanced.js"
   },
   "build": {
     "appId": "me.codeshare.shroudly",

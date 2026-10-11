@@ -93,20 +93,33 @@ static int test_strategy(const char *host, const strategy *st, int use_doh) {
 }
 
 int probe_host(const char *host, const engine_config *cfg) {
-  /* Baseline: does it even need help? If a plain handshake already works, no
-   * desync is needed (but we still relay). */
+  /* 1. Baseline: does a plain handshake already work? Then the host isn't
+   *    blocked here and no desync is needed. */
+  if (test_strategy(host, NULL, cfg->use_doh)) {
+    printf("{\"type\":\"probe\",\"host\":\"%s\",\"ok\":true,\"strategy\":\"none\","
+           "\"blocked\":false}\n", host);
+    fflush(stdout);
+    return -2; /* -2 = not blocked, relay as-is */
+  }
+
+  /* 2. Try each userspace strategy (split/disorder). */
   int n = strategy_preset_count();
   for (int i = 0; i < n; i++) {
     const strategy *st = strategy_preset(i);
     if (test_strategy(host, st, cfg->use_doh)) {
-      printf("{\"type\":\"probe\",\"host\":\"%s\",\"strategy\":\"%s\",\"ok\":true}\n",
-             host, st->name);
+      printf("{\"type\":\"probe\",\"host\":\"%s\",\"strategy\":\"%s\",\"ok\":true,"
+             "\"blocked\":true}\n", host, st->name);
       fflush(stdout);
       engine_learn(host, i);
       return i;
     }
   }
-  printf("{\"type\":\"probe\",\"host\":\"%s\",\"ok\":false}\n", host);
+
+  /* 3. Nothing at this level worked. The host is blocked by DPI that userspace
+   *    split/disorder cannot defeat (likely stateful reassembly, e.g. Iran/China).
+   *    Signal the UI to offer Advanced (packet-layer) mode. */
+  printf("{\"type\":\"probe\",\"host\":\"%s\",\"ok\":false,\"blocked\":true,"
+         "\"suggest\":\"advanced\"}\n", host);
   fflush(stdout);
   return -1;
 }

@@ -30,4 +30,12 @@ contextBridge.exposeInMainWorld('electron', {
 
   // Network stats (real counters from the engine)
   getNetStats: () => ipcRenderer.invoke('net:stats'),
+
+  // Advanced (packet-layer) mode — optional, stateful-DPI countries
+  advancedAvailable: () => ipcRenderer.invoke('advanced:available'),
+  startAdvanced: () => ipcRenderer.invoke('advanced:start'),
+  stopAdvanced: () => ipcRenderer.invoke('advanced:stop'),
+  onProbeResult: (cb) => ipcRenderer.on('dpi:probe-result', (e, p) => cb(p)),
+  removeProbeListener: () => ipcRenderer.removeAllListeners('dpi:probe-result'),
+
 });

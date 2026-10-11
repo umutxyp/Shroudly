@@ -6,11 +6,13 @@ const url = require('url');
 const fs = require('fs');
 const Store = require('electron-store');
 const EngineManager = require('./engine-manager');
+const AdvancedMode = require('./advanced-mode');
 
 const store = new Store();
 let mainWindow = null;
 let tray = null;
 let engine = null;
+let advanced = null;
 let systemLogs = [];
 let exitInProgress = false;
 
@@ -37,7 +39,7 @@ if (!app.requestSingleInstanceLock()) {
 }
 
 /* ── crash / hard-exit safety: restore the system proxy synchronously ─────── */
-process.on('exit', () => { try { engine && engine.cleanupSync(); } catch {} });
+process.on('exit', () => { try { engine && engine.cleanupSync(); } catch {} try { advanced && advanced.cleanupSync(); } catch {} });
 process.on('uncaughtException', (err) => {
   console.error('[Shroudly] uncaught:', err);
   if (!exitInProgress) { exitInProgress = true; shutdownAndQuit(); }
@@ -217,6 +219,7 @@ async function safeStop() {
 
 async function shutdownAndQuit() {
   try { if (engine) await engine.stop(); } catch {}
+  try { if (advanced) await advanced.stop(); } catch {}
   app.quit();
 }
 
@@ -256,7 +259,11 @@ function getAutoStartEnabled() {
 
 /* ── app ready ───────────────────────────────────────────────────────────── */
 app.whenReady().then(async () => {
-  engine = new EngineManager(store, { addLog, onStatusChange: broadcastStatus });
+  engine = new EngineManager(store, {
+    addLog, onStatusChange: broadcastStatus,
+    onProbe: (p) => { if (mainWindow && !mainWindow.isDestroyed()) mainWindow.webContents.send('dpi:probe-result', p); },
+  });
+  advanced = new AdvancedMode(addLog);
   await engine.recover();
 
   await createWindow();
@@ -309,6 +316,28 @@ ipcMain.on('window:close', () => mainWindow && mainWindow.hide());
 
 ipcMain.handle('dpi:start', async () => safeStart());
 ipcMain.handle('dpi:stop', async () => safeStop());
+
+/* Advanced (packet-layer) mode — optional, for stateful DPI (Iran/China). */
+ipcMain.handle('advanced:available', () => ({
+  available: advanced ? advanced.available() : false,
+  reason: advanced ? advanced.reason() : 'not initialized',
+  active: advanced ? advanced.active : false,
+}));
+ipcMain.handle('advanced:start', async () => {
+  try {
+    const ttl = Number(store.get('fakeTtl', 4)) || 4;
+    const r = await advanced.start(ttl);
+    addLog('success', 'Advanced mode enabled');
+    return r || { success: true };
+  } catch (e) {
+    addLog('error', `Advanced mode failed: ${e.message}`);
+    return { success: false, error: e.message };
+  }
+});
+ipcMain.handle('advanced:stop', async () => {
+  try { await advanced.stop(); return { success: true }; }
+  catch (e) { return { success: false, error: e.message }; }
+});
 ipcMain.handle('dpi:status', () => ({
   active: engine ? engine.isActive() : false,
   stats: engine ? engine.getStats() : {},

@@ -16,6 +16,9 @@
 #include "probe.h"
 #include "platform.h"
 #include "strategy.h"
+#if defined(SHROUDLY_RAW) && defined(__linux__)
+#include "raw_linux.h"
+#endif
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -25,6 +28,9 @@
 #endif
 
 static engine_config g_cfg;
+static int g_advanced = 0;
+static int g_queue = 200;
+static int g_fake_ttl = 4;
 
 static void on_signal(int sig) { (void)sig; engine_stop(); }
 
@@ -58,8 +64,30 @@ int main(int argc, char **argv) {
     else if (!strcmp(argv[i], "--auto")) g_cfg.auto_probe = 1;
     else if (!strcmp(argv[i], "--doh")) g_cfg.use_doh = 1;
     else if (!strcmp(argv[i], "--ipv6")) g_cfg.prefer_ipv6 = 1;
+    else if (!strcmp(argv[i], "--advanced")) g_advanced = 1;
+    else if (!strcmp(argv[i], "--queue") && i+1<argc) g_queue = atoi(argv[++i]);
+    else if (!strcmp(argv[i], "--fake-ttl") && i+1<argc) g_fake_ttl = atoi(argv[++i]);
     else if (!strcmp(argv[i], "--help")) { usage(); return 0; }
   }
+
+#if defined(SHROUDLY_RAW) && defined(__linux__)
+  /* Advanced (packet-layer) mode: run the NFQUEUE fake-packet backend instead of
+   * the userspace proxy. The manager installs the nftables rule and sets caps. */
+  if (g_advanced) {
+    signal(SIGINT, on_signal);
+    signal(SIGTERM, on_signal);
+    int rr = raw_linux_start(g_queue, g_fake_ttl);
+    raw_linux_stop();
+    plat_cleanup();
+    printf("{\"type\":\"stopped\"}\n"); fflush(stdout);
+    return rr;
+  }
+#else
+  if (g_advanced) {
+    printf("{\"type\":\"error\",\"msg\":\"advanced mode not built on this platform\"}\n");
+    fflush(stdout);
+  }
+#endif
 
 #ifndef _WIN32
   signal(SIGINT, on_signal);

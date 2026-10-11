@@ -42,6 +42,8 @@ class EngineManager {
     this.store = store;
     this.log = hooks.addLog || (() => {});
     this.onStatusChange = hooks.onStatusChange || (() => {});
+    this.onProbe = hooks.onProbe || (() => {});
+    this.lastProbe = null;
     this.proxy = new SystemProxy(this.log);
 
     this.proc = null;
@@ -187,8 +189,18 @@ class EngineManager {
         this.stats.probeFail = msg.probe_fail;
         break;
       case 'probe':
-        if (msg.ok) this.log('success', `Auto: ${msg.host} works with ${msg.strategy}`);
-        else this.log('warning', `Auto: no strategy worked for ${msg.host}`);
+        if (msg.ok && msg.strategy === 'none') {
+          this.log('info', `Auto: ${msg.host} is not blocked here`);
+        } else if (msg.ok) {
+          this.log('success', `Auto: ${msg.host} works with ${msg.strategy}`);
+        } else {
+          this.log('warning', `Auto: ${msg.host} stays blocked — split/disorder can't defeat this DPI`);
+        }
+        // Surface the probe result (incl. suggest:"advanced") to the app so the UI
+        // can offer Advanced mode when a site can't be unblocked at this level.
+        this.lastProbe = { host: msg.host, ok: !!msg.ok, blocked: !!msg.blocked,
+                           strategy: msg.strategy || null, suggest: msg.suggest || null };
+        if (typeof this.onProbe === 'function') this.onProbe(this.lastProbe);
         break;
       case 'error':
         this.lastError = msg.msg || `code ${msg.code}`;

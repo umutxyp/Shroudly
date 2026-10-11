@@ -56,3 +56,24 @@ intentionally NOT wired into the default build, because it would reintroduce the
 driver/privilege dependency we removed. The engine's strategy parser already
 accepts `fake(...)` ops so such a backend can be slotted in without changing the
 UI or control protocol.
+
+## Update: Advanced mode (packet-layer) — IMPLEMENTED for Linux
+
+The optional advanced backend now exists and is tested:
+
+- `core/src/raw_linux.c` — NFQUEUE + raw-socket fake-packet injection (low TTL,
+  bad TCP checksum, scrambled SNI), built as `shroudly-core-adv` via
+  `npm run build:core:advanced`. Needs root / CAP_NET_ADMIN + CAP_NET_RAW.
+- `electron/advanced-mode.js` — installs/removes the NFQUEUE firewall rule and
+  manages the backend; always reverts the rule on stop/crash/exit.
+- UI: when a probe reports a site stays blocked (`suggest:"advanced"`), Settings
+  offers "Try Advanced mode". Verified end-to-end (rule install/remove, fake
+  packet injected with correct low TTL + XOR-scrambled SNI, real connection
+  unaffected).
+
+Windows (WinDivert) and macOS (pf/divert) advanced backends are still TODO; on
+those platforms the UI reports advanced mode as unavailable with a clear reason,
+and the default driver-free engine (stateless DPI) continues to work.
+
+Flow: default engine always runs (no privileges). Advanced mode is opt-in, only
+surfaced after a failed probe, and only where a packet backend is built.

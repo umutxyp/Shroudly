@@ -37,6 +37,9 @@ export default function SettingsPanel() {
   const [languageChangeNotif, setLanguageChangeNotif] = useState(false);
   const [testHost, setTestHost] = useState('');
   const [saved, setSaved] = useState(false);
+  const [probeResult, setProbeResult] = useState(null);   // {host, ok, suggest}
+  const [advInfo, setAdvInfo] = useState({ available: false, active: false, reason: null });
+  const [advBusy, setAdvBusy] = useState(false);
 
   const [settings, setSettings] = useState({
     strategyId: 'auto',
@@ -82,8 +85,38 @@ export default function SettingsPanel() {
   async function runTest() {
     const host = testHost.trim();
     if (!host || typeof window === 'undefined' || !window.electron) return;
+    setProbeResult(null);
     try { await window.electron.probeHost(host); } catch {}
   }
+
+  async function enableAdvanced() {
+    if (!window.electron?.startAdvanced) return;
+    setAdvBusy(true);
+    try {
+      const r = await window.electron.startAdvanced();
+      const info = await window.electron.advancedAvailable();
+      setAdvInfo(info);
+      if (!r?.success && r?.error) setProbeResult((p) => p ? { ...p, advError: r.error } : p);
+    } catch {}
+    setAdvBusy(false);
+  }
+
+  async function disableAdvanced() {
+    if (!window.electron?.stopAdvanced) return;
+    setAdvBusy(true);
+    try { await window.electron.stopAdvanced(); const info = await window.electron.advancedAvailable(); setAdvInfo(info); } catch {}
+    setAdvBusy(false);
+  }
+
+  // Listen for probe results (incl. suggest:"advanced") and load advanced status.
+  useEffect(() => {
+    if (typeof window === 'undefined' || !window.electron) return;
+    window.electron.advancedAvailable?.().then(setAdvInfo).catch(() => {});
+    if (window.electron.onProbeResult) {
+      window.electron.onProbeResult((p) => setProbeResult(p));
+    }
+    return () => { window.electron.removeProbeListener?.(); };
+  }, []);
 
   useEffect(() => {
     const onClick = (e) => {
@@ -187,6 +220,48 @@ export default function SettingsPanel() {
             {t('test')}
           </button>
         </div>
+
+        {probeResult && (
+          <div className="mt-3 text-xs">
+            {probeResult.ok && probeResult.strategy === 'none' && (
+              <p className="text-gray-400">{probeResult.host}: {t('probeNotBlocked')}</p>
+            )}
+            {probeResult.ok && probeResult.strategy && probeResult.strategy !== 'none' && (
+              <p className="text-emerald-400">{probeResult.host}: {t('probeWorks')} ({probeResult.strategy})</p>
+            )}
+            {!probeResult.ok && (
+              <div className="rounded-lg border border-amber-500/40 bg-amber-500/10 p-3">
+                <p className="text-amber-300 font-semibold mb-1">{t('probeBlockedTitle')}</p>
+                <p className="text-amber-200/80 mb-2">{t('probeBlockedDesc')}</p>
+                {advInfo.available ? (
+                  advInfo.active ? (
+                    <p className="text-emerald-400">{t('advancedOn')}</p>
+                  ) : (
+                    <button
+                      onClick={enableAdvanced}
+                      disabled={advBusy}
+                      className="bg-amber-500 hover:bg-amber-600 text-black px-3 py-1.5 rounded-lg text-xs font-bold disabled:opacity-50">
+                      {advBusy ? '…' : t('tryAdvanced')}
+                    </button>
+                  )
+                ) : (
+                  <p className="text-amber-200/60">{advInfo.reason || t('advancedUnavailable')}</p>
+                )}
+                {probeResult.advError && <p className="text-red-400 mt-1">{probeResult.advError}</p>}
+              </div>
+            )}
+          </div>
+        )}
+
+        {advInfo.active && (
+          <div className="mt-3 flex items-center justify-between rounded-lg border border-emerald-500/30 bg-emerald-500/10 p-2.5">
+            <span className="text-xs text-emerald-300">{t('advancedActive')}</span>
+            <button onClick={disableAdvanced} disabled={advBusy}
+              className="text-xs text-white/70 hover:text-white underline disabled:opacity-50">
+              {t('advancedTurnOff')}
+            </button>
+          </div>
+        )}
       </div>
 
       {/* App */}
