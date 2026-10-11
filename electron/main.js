@@ -18,6 +18,11 @@ const isDev = !app.isPackaged;
 const DEV_PORT = process.env.PORT || 3000;
 const AUTOSTART_ARG = '--autostart';
 
+function appVersion() {
+  try { return app.isPackaged ? app.getVersion() : require('../package.json').version; }
+  catch { return app.getVersion(); }
+}
+
 /* ── single instance ─────────────────────────────────────────────────────── */
 if (!app.requestSingleInstanceLock()) {
   app.quit();
@@ -314,7 +319,9 @@ ipcMain.handle('dpi:probe', (e, host) => {
 });
 
 ipcMain.handle('app:getInfo', async () => ({
-  version: app.getVersion(),
+  // app.getVersion() returns Electron's own version when unpackaged; read the
+  // real product version from package.json so the UI always shows it correctly.
+  version: appVersion(),
   year: new Date().getFullYear(),
   platform: process.platform,
   isAdmin: false,

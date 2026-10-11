@@ -17,7 +17,7 @@ function HomeContent() {
     stats: {},
   });
   const [appInfo, setAppInfo] = useState({
-    version: '1.2.0',
+    version: '2.0.0',
     year: new Date().getFullYear(),
   });
 

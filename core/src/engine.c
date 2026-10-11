@@ -10,6 +10,7 @@
 
 #define RELAY_BUF   32768
 #define FIRST_WAIT  4000   /* ms to gather the client's first payload */
+#define MAX_CONNS   2048   /* hard cap on concurrent connections (loopback) */
 
 static engine_config  g_cfg;
 static engine_stats   g_stats;
@@ -265,6 +266,12 @@ static void *accept_loop(void *unused) {
     if (c == SOCK_INVALID) {
       if (!atomic_load(&g_running)) break;
       sleep_ms(5);
+      continue;
+    }
+    /* Cap concurrency so a flood of localhost connections cannot exhaust
+     * threads/memory. conns_active is decremented when each handler returns. */
+    if (atomic_load(&g_stats.conns_active) >= MAX_CONNS) {
+      sock_close(c);
       continue;
     }
     conn_arg *arg = (conn_arg *)malloc(sizeof(*arg));
