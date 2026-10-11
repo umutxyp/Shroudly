@@ -138,15 +138,15 @@ English, 中文, हिन्दी, Español, العربية, Русский, P
 
 **Latest version: [v2.0.1](https://github.com/umutxyp/Shroudly/releases/tag/v2.0.1)**: pick the file for your OS and CPU:
 
-| OS | Intel / AMD (x64) | ARM (arm64) |
+| OS | Intel / AMD (x64) | ARM (arm64, Apple Silicon) |
 |----|-------------------|-------------|
-| **Windows** | [Shroudly-2.0.1-x64.exe](https://github.com/umutxyp/Shroudly/releases/download/v2.0.1/Shroudly-2.0.1-x64.exe) | [Shroudly-2.0.1-arm64.exe](https://github.com/umutxyp/Shroudly/releases/download/v2.0.1/Shroudly-2.0.1-arm64.exe) |
-| **macOS** | [Shroudly-2.0.1.dmg](https://github.com/umutxyp/Shroudly/releases/download/v2.0.1/Shroudly-2.0.1.dmg) · [Shroudly-2.0.1-mac.zip](https://github.com/umutxyp/Shroudly/releases/download/v2.0.1/Shroudly-2.0.1-mac.zip) (Intel) | [Shroudly-2.0.1-arm64.dmg](https://github.com/umutxyp/Shroudly/releases/download/v2.0.1/Shroudly-2.0.1-arm64.dmg) · [Shroudly-2.0.1-arm64-mac.zip](https://github.com/umutxyp/Shroudly/releases/download/v2.0.1/Shroudly-2.0.1-arm64-mac.zip) (Apple Silicon) |
-| **Linux** | [Shroudly-2.0.1.AppImage](https://github.com/umutxyp/Shroudly/releases/download/v2.0.1/Shroudly-2.0.1.AppImage) · [shroudly_2.0.1_amd64.deb](https://github.com/umutxyp/Shroudly/releases/download/v2.0.1/shroudly_2.0.1_amd64.deb) | [Shroudly-2.0.1-arm64.AppImage](https://github.com/umutxyp/Shroudly/releases/download/v2.0.1/Shroudly-2.0.1-arm64.AppImage) |
+| **Windows** | [Shroudly-2.0.1-Windows-x64-Setup.exe](https://github.com/umutxyp/Shroudly/releases/download/v2.0.1/Shroudly-2.0.1-Windows-x64-Setup.exe) | [Shroudly-2.0.1-Windows-ARM64-Setup.exe](https://github.com/umutxyp/Shroudly/releases/download/v2.0.1/Shroudly-2.0.1-Windows-ARM64-Setup.exe) |
+| **macOS** | [Shroudly-2.0.1-macOS-Intel.dmg](https://github.com/umutxyp/Shroudly/releases/download/v2.0.1/Shroudly-2.0.1-macOS-Intel.dmg) · [Shroudly-2.0.1-macOS-Intel.zip](https://github.com/umutxyp/Shroudly/releases/download/v2.0.1/Shroudly-2.0.1-macOS-Intel.zip) | [Shroudly-2.0.1-macOS-Apple-Silicon.dmg](https://github.com/umutxyp/Shroudly/releases/download/v2.0.1/Shroudly-2.0.1-macOS-Apple-Silicon.dmg) · [Shroudly-2.0.1-macOS-Apple-Silicon.zip](https://github.com/umutxyp/Shroudly/releases/download/v2.0.1/Shroudly-2.0.1-macOS-Apple-Silicon.zip) |
+| **Linux** | [Shroudly-2.0.1-Linux-x64.AppImage](https://github.com/umutxyp/Shroudly/releases/download/v2.0.1/Shroudly-2.0.1-Linux-x64.AppImage) · [Shroudly-2.0.1-Linux-x64.deb](https://github.com/umutxyp/Shroudly/releases/download/v2.0.1/Shroudly-2.0.1-Linux-x64.deb) | [Shroudly-2.0.1-Linux-ARM64.AppImage](https://github.com/umutxyp/Shroudly/releases/download/v2.0.1/Shroudly-2.0.1-Linux-ARM64.AppImage) |
 
 - **Windows** — run the `.exe` installer.
 - **macOS** — open the `.dmg` (or unzip the `.zip`) and drag `Shroudly.app` into Applications.
-- **Linux** — `chmod +x Shroudly-*.AppImage` and run it, or `sudo apt install ./shroudly_2.0.1_amd64.deb`.
+- **Linux** — `chmod +x Shroudly-*-Linux-*.AppImage` and run it, or `sudo apt install ./Shroudly-2.0.1-Linux-x64.deb`.
 
 > **The builds are not code-signed yet.** On first launch Windows SmartScreen may
 > show *"Windows protected your PC"* → click **More info → Run anyway**. On macOS
