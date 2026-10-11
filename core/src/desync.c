@@ -19,36 +19,16 @@ static int resolve_pos(pos_ref ref, int offset, int len, const proto_info *pi) {
   return p;
 }
 
-#ifdef SHROUDLY_RAW
-/* Build and send a decoy ("fake") segment: same length prefix as the real first
- * chunk but with the SNI/Host bytes overwritten, sent at a low TTL so it expires
- * before reaching the server (the DPI on the path still inspects it and is
- * desynchronised). We then restore the TTL for the genuine data.
- * Only correct with raw-socket injection; see note in desync_send_first. */
-static void send_fake(sock_t up, int family, const uint8_t *payload, int upto,
-                      const proto_info *pi, const strategy *st) {
-  if (upto < 1) return;
-  uint8_t *decoy = (uint8_t *)malloc(upto);
-  if (!decoy) return;
-  memcpy(decoy, payload, upto);
-
-  /* Scramble the host bytes that fall within the decoy region. */
-  if (pi->host_off >= 0) {
-    for (int i = pi->host_off; i < pi->host_off + pi->host_len && i < upto; i++)
-      decoy[i] ^= 0x5a;
-  } else {
-    for (int i = upto / 3; i < upto; i++) decoy[i] ^= 0x5a;
-  }
-
-  int saved = sock_get_ttl(up, family);
-  int ttl = st->fake_ttl > 0 ? st->fake_ttl : 4;
-  sock_set_ttl(up, family, ttl);
-  sock_send_all(up, decoy, (size_t)upto, 0);
-  sock_wait_sent(up, 20);
-  sock_set_ttl(up, family, saved);
-  free(decoy);
-}
-#endif
+/*
+ * A correct "fake packet" desync (to beat stateful DPI such as Iran/China)
+ * cannot be done over this stream socket: it requires injecting an out-of-band
+ * decoy TCP segment with the live connection's sequence numbers and a low TTL /
+ * bad checksum, via a raw socket or a kernel queue (NFQUEUE / WinDivert / pf).
+ * That is a platform-specific packet backend and is deliberately NOT part of the
+ * portable, driver-free default build. See core/src/CAPABILITIES.md. The
+ * previous stream-socket TTL hack was removed because it corrupts the real
+ * stream (the server would receive the scrambled decoy bytes in-band).
+ */
 
 int desync_send_first(sock_t up, int family,
                       uint8_t *payload, int len,
@@ -102,21 +82,12 @@ int desync_send_first(sock_t up, int family,
 
   if (desync_counter) (*desync_counter)++;
 
-  /* NOTE: A low-TTL "fake" decoy cannot be injected in-stream over a userspace
-   * relay — it would corrupt the real TCP byte stream the server reassembles.
-   * True fake-packet injection needs a raw-socket path (optional elevated mode).
-   * In the default unprivileged relay we rely on split + disorder, which are
-   * sufficient against stateless SNI/Host DPI. The fake op is honored only when
-   * raw injection is wired in (SHROUDLY_RAW build), so by default it is skipped. */
-#ifdef SHROUDLY_RAW
-  if (do_fake) {
-    int upto = nsplits ? splits[0] : len;
-    if (upto > len) upto = len;
-    send_fake(up, family, payload, upto, pi, st);
-  }
-#else
+  /* A "fake" op is accepted by the parser but has no effect in the portable
+   * userspace build: a real decoy packet must be injected out-of-band at the
+   * packet layer (raw socket / NFQUEUE / WinDivert), which is a platform backend
+   * left out of the driver-free default. See CAPABILITIES.md. We rely on
+   * split + disorder, which defeat stateless SNI/Host DPI. */
   (void)do_fake;
-#endif
 
   if (nsplits == 0) {
     return sock_send_all(up, payload, (size_t)len, 0);
