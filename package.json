@@ -37,7 +37,8 @@
     "dist:all": "npm run build:core:all && npm run build:core:advanced:all && npm run fetch:windivert && npm run check:translations && npm run build && electron-builder -mwl --publish never",
     "build:core:advanced": "node scripts/build-core-advanced.js",
     "build:core:advanced:all": "node scripts/build-core-advanced.js --cross",
-    "fetch:windivert": "node scripts/fetch-windivert.js"
+    "fetch:windivert": "node scripts/fetch-windivert.js",
+    "publish:release": "node scripts/publish-release.js"
   },
   "build": {
     "appId": "me.codeshare.shroudly",
@@ -91,7 +92,8 @@
       "createStartMenuShortcut": true,
       "installerIcon": "public/icon.ico",
       "uninstallerIcon": "public/icon.ico",
-      "include": "scripts/installer.nsh"
+      "include": "scripts/installer.nsh",
+      "differentialPackage": false
     },
     "extraResources": [
       {
@@ -170,7 +172,10 @@
         "repo": "Shroudly",
         "releaseType": "release"
       }
-    ]
+    ],
+    "dmg": {
+      "writeUpdateInfo": false
+    }
   },
   "dependencies": {
     "electron-store": "^8.1.0",
