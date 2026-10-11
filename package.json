@@ -4,7 +4,10 @@
   "description": "Shroudly - Unseen. Unstoppable. | Cross-platform DPI bypass (self-contained engine)",
   "main": "electron/main.js",
   "private": true,
-  "author": "Codeshare Technology Ltd",
+  "author": {
+    "name": "Codeshare Technology Ltd",
+    "email": "support@codeshare.me"
+  },
   "homepage": "https://codeshare.me",
   "repository": {
     "type": "git",
@@ -71,7 +74,8 @@
             "arm64"
           ]
         }
-      ]
+      ],
+      "signAndEditExecutable": false
     },
     "nsis": {
       "oneClick": false,
@@ -93,7 +97,7 @@
       }
     ],
     "mac": {
-      "icon": "public/icon.ico",
+      "icon": "public/icon.png",
       "category": "public.app-category.utilities",
       "target": [
         {
@@ -113,7 +117,7 @@
       ]
     },
     "linux": {
-      "icon": "public/icon-small.png",
+      "icon": "public/icon.png",
       "category": "Network",
       "target": [
         {
@@ -129,7 +133,8 @@
             "x64"
           ]
         }
-      ]
+      ],
+      "maintainer": "Codeshare Technology Ltd <support@codeshare.me>"
     }
   },
   "dependencies": {
