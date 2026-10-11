@@ -46,6 +46,7 @@ contextBridge.exposeInMainWorld('electron', {
   ipv6Available: () => ipcRenderer.invoke('net:ipv6Available'),
   // Live count of running Shroudly apps (null until the first answer)
   getOnlineCount: () => ipcRenderer.invoke('presence:get'),
+  refreshOnlineCount: () => ipcRenderer.invoke('presence:refresh'),
   onOnlineCount: (cb) => ipcRenderer.on('presence:count', (e, n) => cb(n)),
   removeOnlineCountListener: () => ipcRenderer.removeAllListeners('presence:count'),
 

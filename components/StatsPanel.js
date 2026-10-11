@@ -128,7 +128,12 @@ export default function StatsPanel({ active }) {
     if (!e?.getOnlineCount) return undefined;
     e.getOnlineCount().then((n) => { if (n != null) setOnline(n); }).catch(() => {});
     e.onOnlineCount?.((n) => setOnline(n));
-    return () => e.removeOnlineCountListener?.();
+    // While this tab is on screen, re-read the count so it follows others
+    // joining and leaving; skipped while the window is hidden.
+    const refresh = () => { if (document.visibilityState === 'visible') e.refreshOnlineCount?.().catch(() => {}); };
+    refresh();
+    const timer = setInterval(refresh, 15000);
+    return () => { clearInterval(timer); e.removeOnlineCountListener?.(); };
   }, []);
 
   const s = stats || {};

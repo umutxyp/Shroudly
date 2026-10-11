@@ -507,6 +507,7 @@ function ipv6Available() {
 }
 ipcMain.handle('net:ipv6Available', () => ipv6Available());
 ipcMain.handle('presence:get', () => (presence ? presence.online : null));
+ipcMain.handle('presence:refresh', () => (presence ? presence.refresh() : null));
 
 ipcMain.handle('settings:set', (e, key, value) => {
   store.set(key, value);
