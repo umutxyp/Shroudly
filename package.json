@@ -1,6 +1,6 @@
 {
   "name": "shroudly",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "Shroudly - Unseen. Unstoppable. | Cross-platform DPI bypass (self-contained engine)",
   "main": "electron/main.js",
   "private": true,
@@ -90,7 +90,8 @@
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
       "installerIcon": "public/icon.ico",
-      "uninstallerIcon": "public/icon.ico"
+      "uninstallerIcon": "public/icon.ico",
+      "include": "scripts/installer.nsh"
     },
     "extraResources": [
       {
