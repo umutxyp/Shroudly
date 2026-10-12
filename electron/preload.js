@@ -53,6 +53,12 @@ contextBridge.exposeInMainWorld('electron', {
 
   // Advanced (packet-layer) mode — optional, stateful-DPI countries
   advancedAvailable: () => ipcRenderer.invoke('advanced:available'),
+  discordStatus: () => ipcRenderer.invoke('discord:status'),
+  discordSet: (on) => ipcRenderer.invoke('discord:set', on),
+  discordDecline: () => ipcRenderer.invoke('discord:decline'),
+  discordRestart: () => ipcRenderer.invoke('discord:restart'),
+  onDiscordState: (cb) => ipcRenderer.on('discord:state', (e, p) => cb(p)),
+  removeDiscordStateListener: () => ipcRenderer.removeAllListeners('discord:state'),
   startAdvanced: () => ipcRenderer.invoke('advanced:start'),
   stopAdvanced: () => ipcRenderer.invoke('advanced:stop'),
   onProbeResult: (cb) => ipcRenderer.on('dpi:probe-result', (e, p) => cb(p)),

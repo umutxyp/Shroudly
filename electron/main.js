@@ -1,6 +1,6 @@
 'use strict';
 
-const { app, BrowserWindow, ipcMain, Tray, Menu, nativeImage, shell, Notification, powerMonitor } = require('electron');
+const { app, BrowserWindow, ipcMain, Tray, Menu, nativeImage, shell, Notification, powerMonitor, dialog } = require('electron');
 const path = require('path');
 const url = require('url');
 const fs = require('fs');
@@ -10,6 +10,8 @@ const Store = require('electron-store');
 const EngineManager = require('./engine-manager');
 const SystemProxy = require('./system-proxy');
 const AdvancedMode = require('./advanced-mode');
+const DiscordApp = require('./discord-app');
+const DiscordRelay = require('./discord-relay');
 const Updater = require('./updater');
 const Presence = require('./presence');
 const i18n = require('./main-i18n');
@@ -33,6 +35,10 @@ let updater = null;
 let presence = null;
 let systemLogs = [];
 let exitInProgress = false;
+let discordRelay = null;
+// Logout, shutdown or an update restart: leave Discord's line in place, so a
+// Discord that starts at the next login finds the relay as soon as we are up.
+let keepDiscordLine = false;
 
 const isDev = !app.isPackaged;
 const DEV_PORT = process.env.PORT || 3000;
@@ -243,6 +249,10 @@ async function createWindow() {
     addLog('success', 'Application started');
   });
 
+  // Windows announces logoff/shutdown on the window, not the app.
+  mainWindow.on('query-session-end', () => { keepDiscordLine = true; });
+  mainWindow.on('session-end', restoreForSessionEnd);
+
   mainWindow.on('close', (e) => {
     if (!app.isQuitting && store.get('minimizeToTray', true)) {
       e.preventDefault();
@@ -380,6 +390,11 @@ app.whenReady().then(async () => {
   advanced = new AdvancedMode(addLog);
   await engine.recover();
 
+  // The relay goes through the engine while protection is on, straight to
+  // Discord while it is off, and runs whenever Shroudly does.
+  discordRelay = new DiscordRelay(addLog, () => (engine && engine.isActive() ? engine.port : null));
+  if (store.get('discordMode') === true) applyDiscordMode(true, { interactive: false }).catch(() => {});
+
   updater = new Updater({
     log: addLog,
     store,
@@ -388,6 +403,7 @@ app.whenReady().then(async () => {
     // put back, exactly as on a normal quit.
     beforeInstall: async () => {
       exitInProgress = true;
+      keepDiscordLine = true;
       app.isQuitting = true;
       try { await engine.stop(); } catch {}
       try { await advanced.stop(); } catch {}
@@ -447,6 +463,7 @@ app.on('window-all-closed', () => { /* keep running in tray */ });
  * gsettings: all fast). The login hook covers the case where even this
  * doesn't get to run. */
 function restoreForSessionEnd() {
+  keepDiscordLine = true;
   try { engine && engine.cleanupSync(); } catch {}
   try { advanced && advanced.cleanupSync(); } catch {}
 }
@@ -462,6 +479,12 @@ app.whenReady().then(() => { powerMonitor.on('shutdown', restoreForSessionEnd); 
 const QUIT_RESTORE_LIMIT_MS = 5000;
 app.on('before-quit', (e) => {
   app.isQuitting = true;
+  // Quitting on purpose: take the line out of Discord's settings, so Discord
+  // started without Shroudly goes to Discord directly, exactly as before.
+  if (!keepDiscordLine && store.get('discordMode') === true) {
+    try { patchDiscordSync(null); } catch {}
+    if (discordRelay) discordRelay.stop();
+  }
   if (presence && !presence.stopped) presence.leave();
   try { updater && updater.installOnQuit(); } catch {}
   if (exitInProgress) return;
@@ -586,6 +609,120 @@ ipcMain.handle('ui:titlebar', (_e, c) => {
 
 ipcMain.handle('presence:get', () => (presence ? presence.online : null));
 ipcMain.handle('presence:refresh', () => (presence ? presence.refresh() : null));
+
+/* ── Discord app mode ────────────────────────────────────────────────────── */
+/* What the window shows about it: whether a restart of Discord is still needed
+ * to pick the line up, and whether macOS is withholding access to its files. */
+const discordState = { needsRestart: false, needsPermission: false, pendingOn: null, foreign: false, editFailed: null, changedAt: 0 };
+
+function sendDiscordState() {
+  if (mainWindow && !mainWindow.isDestroyed()) mainWindow.webContents.send('discord:state', discordState);
+}
+
+/* Write our line (url) or remove it (null) in every Discord build present.
+ * Returns the builds whose file changed, and those that could not be read. */
+function patchDiscordSync(url, files) {
+  const changed = []; const denied = []; const failed = []; let foreign = false;
+  for (const v of DiscordApp.installed()) {
+    const file = (files && files[v.id]) || DiscordApp.settingsFile(v);
+    try {
+      const r = DiscordApp.patchSync(file, url);
+      if (r === 'changed') changed.push(v);
+      if (r === 'foreign') foreign = true;
+    } catch (e) {
+      if (e.code === 'EPERM' || e.code === 'EACCES') denied.push(v);
+      else failed.push({ v, message: e.message });
+    }
+  }
+  return { changed, denied, failed, foreign };
+}
+
+/* macOS keeps other apps' data behind a permission. Picking the folder in an
+ * open panel counts as the user's consent; the panel opens inside Discord's
+ * folder, so it is one click. */
+async function askDiscordFolder(v) {
+  const s = tr();
+  const win = mainWindow && !mainWindow.isDestroyed() && mainWindow.isVisible() ? mainWindow : undefined;
+  const pick = await dialog.showOpenDialog(win, {
+    defaultPath: v.settingsDir, properties: ['openDirectory'],
+    message: s.discordPickMessage, buttonLabel: s.discordPickButton,
+  });
+  if (pick.canceled || !pick.filePaths[0]) return null;
+  const chosen = pick.filePaths[0];
+  return path.basename(chosen) === path.basename(v.settingsDir) ? path.join(chosen, 'settings.json') : null;
+}
+
+async function applyDiscordMode(on, { interactive = true } = {}) {
+  let url = null;
+  if (on) {
+    try {
+      const port = await discordRelay.start(store.get('discordRelayPort'));
+      store.set('discordRelayPort', port);
+      url = DiscordApp.endpointUrl(port);
+    } catch (e) {
+      addLog('error', `Discord app: the relay could not start (${e.message})`);
+      return { success: false, code: 'relay' };
+    }
+  }
+
+  let r = patchDiscordSync(url);
+  if (r.denied.length && interactive && process.platform === 'darwin') {
+    const files = {};
+    for (const v of r.denied) { const f = await askDiscordFolder(v); if (f) files[v.id] = f; }
+    const again = patchDiscordSync(url, files);
+    r = { ...again, changed: [...r.changed, ...again.changed] };
+  }
+  for (const f of r.failed) addLog('error', `Discord app: ${f.message}`);
+
+  discordState.needsPermission = r.denied.length > 0;
+  discordState.foreign = r.foreign;
+  discordState.editFailed = r.failed.length ? `"${DiscordApp.KEY}": "${url || ''}"` : null;
+  discordState.pendingOn = (r.denied.length || r.failed.length) ? on : null;
+  if (r.denied.length || r.failed.length) {
+    // Turning off must not leave Discord pointed at a relay that is gone, so
+    // the relay stays up until the line could actually be removed.
+    sendDiscordState();
+    return { success: false, code: r.denied.length ? 'permission' : 'edit_failed' };
+  }
+
+  store.set('discordMode', on);
+  if (!on) discordRelay.stop();
+
+  // Discord reads the line when it starts: one that is already open needs a
+  // restart to use it (or to stop using it).
+  let running = false;
+  for (const v of r.changed) if (await DiscordApp.isRunning(v)) running = true;
+  if (r.changed.length) {
+    discordState.needsRestart = on && running;
+    discordState.changedAt = Date.now();
+    addLog('success', on ? 'Discord app mode on: Discord updates through Shroudly' : 'Discord app mode off: Discord settings restored');
+  }
+  sendDiscordState();
+  return { success: true, restartNeeded: discordState.needsRestart };
+}
+
+ipcMain.handle('discord:status', async () => {
+  const builds = DiscordApp.installed();
+  let running = false;
+  for (const v of builds) if (await DiscordApp.isRunning(v)) { running = true; break; }
+  // The relay answering Discord since the change means Discord already uses it.
+  if (discordState.needsRestart && discordRelay && discordRelay.lastOkAt > discordState.changedAt) discordState.needsRestart = false;
+  return {
+    installed: builds.length > 0,
+    mode: store.get('discordMode') ?? null,  // true, false, or null (never asked)
+    running,
+    reached: discordRelay ? discordRelay.lastOkAt : 0,
+    ...discordState,
+  };
+});
+ipcMain.handle('discord:set', async (e, on) => applyDiscordMode(on === true));
+ipcMain.handle('discord:decline', () => { if (store.get('discordMode') === undefined) store.set('discordMode', false); return { success: true }; });
+ipcMain.handle('discord:restart', async () => {
+  let ok = false;
+  for (const v of DiscordApp.installed()) if (await DiscordApp.isRunning(v)) ok = (await DiscordApp.restart(v)) || ok;
+  if (ok) { discordState.needsRestart = false; sendDiscordState(); }
+  return { success: ok };
+});
 
 ipcMain.handle('settings:set', (e, key, value) => {
   store.set(key, value);

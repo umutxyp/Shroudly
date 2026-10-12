@@ -19,6 +19,16 @@ const fs = require('fs');
 const SystemProxy = require('./system-proxy');
 const DohForwarder = require('./doh-forwarder');
 const diagnostics = require('./diagnostics');
+const { DISCORD_DOMAINS } = require('./discord-relay');
+
+/* A list that names any Discord domain gets all of them: Discord loads its
+ * pieces from a dozen domains, and a list edited before one was added would
+ * otherwise leave that piece blocked (activities, gift links, dis.gd). */
+function withDiscord(list) {
+  const lower = list.map((d) => String(d).toLowerCase());
+  if (!lower.some((d) => DISCORD_DOMAINS.includes(d))) return list;
+  return [...list, ...DISCORD_DOMAINS.filter((d) => !lower.includes(d))];
+}
 
 const DEFAULT_PORT = 10808;
 
@@ -29,9 +39,8 @@ const DEFAULT_PORT = 10808;
 // The default routing mode sends everything through Shroudly instead, so this
 // list only matters to people who narrow it down; they can edit it in Settings.
 const DEFAULT_SITE_LIST = [
-  // Discord
-  'discord.com', 'discord.gg', 'discordapp.com', 'discordapp.net', 'discord.media',
-  'discordcdn.com', 'discord.dev', 'discordstatus.com',
+  // Discord: every domain the company serves the app, media and activities from
+  ...DISCORD_DOMAINS,
   // Roblox
   'roblox.com', 'rbxcdn.com', 'robloxlabs.com',
   // Reading / writing / sharing
@@ -147,7 +156,7 @@ class EngineManager {
       // engine leaves a connection completely untouched unless it is refused:
       // ordinary browsing is relayed as-is, at the same speed as no proxy.
       routeMode: s.routeMode === 'listed' ? 'listed' : 'all',
-      siteList: Array.isArray(s.siteList) ? s.siteList : DEFAULT_SITE_LIST,
+      siteList: withDiscord(Array.isArray(s.siteList) ? s.siteList : DEFAULT_SITE_LIST),
       port: Number(s.listenPort || this.port) || DEFAULT_PORT,
     };
   }

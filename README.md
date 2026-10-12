@@ -124,6 +124,45 @@ model and test results.
 
 ---
 
+## Discord app mode
+
+The Discord app checks for updates before it opens, with its own native
+updater. That updater ignores the system proxy, so Shroudly never sees it. On
+macOS and on older Windows it also speaks at most TLS 1.2, where the server's
+certificate travels unencrypted: a filter can read `discord.com` in the
+server's reply and cut the connection, and nothing done on the client side
+helps, Advanced mode included. That is why Discord can sit on
+*Checking for updates* while discord.com works in the browser.
+
+Discord app mode fixes it on Windows and macOS, without admin rights. (Discord's
+Linux builds use an older updater that does not read this setting.)
+
+- Shroudly runs a small relay on `127.0.0.1` (port 10809, or the next free
+  one). It forwards only `GET`/`HEAD` requests for Discord's own domains, and
+  only from this machine.
+- Each request goes to Discord over **TLS 1.3**, which keeps the certificate
+  encrypted: through the engine while protection is on, directly while it is
+  off. Download links and redirects come back through the relay too.
+  Packages are passed on unchanged, and Discord checks each one against the
+  SHA-256 in its manifest.
+- To point Discord at the relay, Shroudly adds **one line to another app's
+  file**: `"NEW_UPDATE_ENDPOINT": "http://127.0.0.1:10809/"` in Discord's
+  `settings.json`. It is offered and explained in the app first, never done
+  unasked. An endpoint you set yourself is never touched.
+- The line is removed when you turn the mode off, when you quit Shroudly, and
+  by the Windows uninstaller, so a Discord started without Shroudly connects
+  as it always did. It stays across logout and shutdown, so a Discord that
+  starts at login finds the relay as soon as Shroudly is up.
+- Discord reads the line when it starts. If it is already open, Shroudly
+  offers to restart it.
+- On macOS, the system may ask once before Shroudly can change another app's
+  files.
+
+If Shroudly is removed on macOS without being quit first (after a crash, say),
+delete that line from Discord's `settings.json` yourself.
+
+---
+
 ## Features
 
 - **Cross-platform** — one engine, native builds for Windows, macOS and Linux (x64 and arm64).

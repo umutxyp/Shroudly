@@ -7,6 +7,8 @@
 const EXACT = {
   'Proxy routing updated': 'logProxyRoutingUpdated',
   'Application started': 'logAppStarted',
+  'Discord app mode on: Discord updates through Shroudly': 'logDiscordOn',
+  'Discord app mode off: Discord settings restored': 'logDiscordOff',
   'Auto-started in tray': 'logAutoStartedTray',
   'Logs cleared': 'logCleared',
   'Auto Mode: starting protection': 'logAutoModeStarting',
