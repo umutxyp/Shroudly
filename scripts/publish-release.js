@@ -42,6 +42,27 @@ const ASSETS = [
   ['latest-linux-arm64.yml', `Update data · Linux ARM ${FEED}`],
 ];
 
+/* electron-builder lists the AppImage, .deb and .rpm in latest-linux.yml but
+ * not the .pacman, and electron-updater's pacman updater finds its file by
+ * looking for that extension in the feed — so without this an Arch install
+ * would never update. Add the entry with the same fields the others carry. */
+function addPacmanToLinuxFeed() {
+  const crypto = require('crypto');
+  const yml = path.join(dist, 'latest-linux.yml');
+  const pkg = `Shroudly-${version}-Linux-x64.pacman`;
+  const file = path.join(dist, pkg);
+  if (!fs.existsSync(yml) || !fs.existsSync(file)) return;
+  let text = fs.readFileSync(yml, 'utf8');
+  if (text.includes(pkg)) return;
+  const data = fs.readFileSync(file);
+  const sha512 = crypto.createHash('sha512').update(data).digest('base64');
+  const entry = `  - url: ${pkg}\n    sha512: ${sha512}\n    size: ${data.length}\n`;
+  // Append to the end of the files: list, just before the top-level path:.
+  text = text.replace(/\npath: /, `\n${entry}path: `);
+  fs.writeFileSync(yml, text);
+  console.log(`  feed      added ${pkg} to latest-linux.yml`);
+}
+
 /* Drop the universal installer from latest.yml and point the legacy
  * top-level path at the x64 installer. */
 function cleanWindowsFeed() {
@@ -70,6 +91,7 @@ async function api(url, opts = {}) {
     throw new Error(`missing from dist:\n  ${absent.join('\n  ')}\n\ndist contains:\n  ${have.join('\n  ')}`);
   }
   cleanWindowsFeed();
+  addPacmanToLinuxFeed();
   // Notes: an explicit file argument, else release-notes/v<version>.md if the
   // repo has one (that is what the CI release job uses).
   const repoNotes = path.join(root, 'release-notes', `v${version}.md`);
