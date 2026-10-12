@@ -2,8 +2,9 @@
 
 import { useEffect, useId, useRef, useState } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
+import { ACCENTS, applyAppearance, readAppearance } from './Appearance';
 import {
-  AlertTriangleIcon, CheckCircleIcon, GlobeIcon, InfoIcon, LanguagesIcon, SearchIcon, ShieldAlertIcon,
+  AlertTriangleIcon, CheckCircleIcon, CheckIcon, GlobeIcon, PaletteIcon, InfoIcon, LanguagesIcon, SearchIcon, ShieldAlertIcon,
   SpinnerIcon, XCircleIcon, ZapIcon,
 } from './icons';
 import Select from './Select';
@@ -161,6 +162,10 @@ export default function SettingsPanel({ active = false }) {
   const [defaultList, setDefaultList] = useState([]);
   const [siteText, setSiteText] = useState(null);   // textarea draft (null until loaded)
   const [badEntries, setBadEntries] = useState([]); // lines dropped as unusable
+  const [look, setLook] = useState({ accent: 'sky', surface: 'solid' });
+
+  useEffect(() => { setLook(readAppearance()); }, []);
+  const setAppearance = (next) => { const v = { ...look, ...next }; setLook(v); applyAppearance(v); };
 
   useEffect(() => {
     if (typeof window === 'undefined' || !window.electron?.defaultSiteList) return;
@@ -300,6 +305,45 @@ export default function SettingsPanel({ active = false }) {
       </Section>
 
       {/* Bypass */}
+      <Section title={t('appearance')} Icon={PaletteIcon}>
+        <p className="mb-3 text-[12px] leading-snug" style={{ color: 'var(--text-faint)' }}>{t('accentColour')}</p>
+        {/* A nine-column grid rather than a wrapping row: the swatches scale
+            with the window instead of spilling into a stray second line at
+            narrow widths, which read as a layout accident. */}
+        <div className="grid grid-cols-9 gap-1.5 sm:gap-2.5">
+          {ACCENTS.map((a) => {
+            const on = look.accent === a.id;
+            return (
+              <button
+                key={a.id}
+                type="button"
+                aria-label={a.id}
+                aria-pressed={on}
+                onClick={() => setAppearance({ accent: a.id })}
+                className="relative aspect-square w-full rounded-full transition-transform duration-150 hover:scale-110"
+                style={{
+                  background: a.swatch,
+                  boxShadow: on
+                    ? `0 0 0 2px var(--surface), 0 0 0 4px ${a.swatch}`
+                    : 'inset 0 1px 0 rgba(255,255,255,.25)',
+                }}
+              >
+                {on && <CheckIcon className="absolute inset-0 m-auto h-[14px] w-[14px]" style={{ color: 'rgba(0,0,0,.7)' }} />}
+              </button>
+            );
+          })}
+        </div>
+
+        <div className="mt-4 border-t pt-3" style={{ borderColor: 'var(--line)' }}>
+          <Toggle
+            label={t('glassSurface')}
+            desc={t('glassSurfaceDesc')}
+            checked={look.surface === 'glass'}
+            onChange={(v) => setAppearance({ surface: v ? 'glass' : 'solid' })}
+          />
+        </div>
+      </Section>
+
       <Section title={t('dpiBypassTechniques')}>
         <p id={strategyLabelId} className="mb-1.5 text-[12px] font-medium" style={{ color: 'var(--text-faint)' }}>{t('strategy')}</p>
         <div className="mb-2">

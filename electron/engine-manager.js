@@ -90,6 +90,7 @@ class EngineManager {
     this.onStatusChange = hooks.onStatusChange || (() => {});
     this.onProbe = hooks.onProbe || (() => {});
     this.onSiteBlocked = hooks.onSiteBlocked || (() => {});
+    this.onNeedRestart = hooks.onNeedRestart || (() => {});
     this.lastProbe = null;
     this.proxyOptions = hooks.proxyOptions || {};
     this.proxy = new SystemProxy(this.log, this.proxyOptions);
@@ -257,6 +258,15 @@ class EngineManager {
     const net = `${d.iface.name} (${d.iface.kind})`;
     const dnsList = d.dnsServers.length ? d.dnsServers.join(', ') : 'unknown';
     this.log('info', `System: ${d.os} — network ${net}, DNS ${dnsList}`);
+
+    if (d.needRestart.length) {
+      // The most common report by far is "works in my browser, not in the
+      // app". It is almost always this: the program read the connection
+      // settings when it launched and has not looked since.
+      const names = d.needRestart.join(', ');
+      this.log('warning', `${names} was already running when protection started. Close and reopen it, or it will keep using the unprotected connection it started with.`);
+      if (typeof this.onNeedRestart === 'function') this.onNeedRestart(d.needRestart);
+    }
 
     if (d.conflicts.length) {
       // Two tools rewriting the same connections is the most common reason a

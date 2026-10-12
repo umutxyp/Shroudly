@@ -29,7 +29,19 @@ function fmtUptime(ms) {
 
 function Spark({ data, color }) {
   const gid = useId().replace(/:/g, '');
-  if (!data.length) return <div style={{ height: 34 }} />;
+  /* Before any traffic there is nothing to plot, but the space is still
+   * reserved so the card does not jump when the first sample arrives. Draw a
+   * resting baseline in it: an empty box of the same height reads as a
+   * rendering fault rather than as "no traffic yet". */
+  if (!data.length) {
+    return (
+      <svg viewBox="0 0 100 34" className="block w-full" style={{ height: 34 }}
+           preserveAspectRatio="none" aria-hidden>
+        <line x1="0" y1="32" x2="100" y2="32" style={{ stroke: color, opacity: 0.35 }}
+              strokeWidth="1.5" strokeDasharray="3 4" vectorEffect="non-scaling-stroke" />
+      </svg>
+    );
+  }
   const max = Math.max(...data, 1);
   const w = 100, h = 34;
   const pts = data.map((v, i) => `${(i / (HISTORY - 1)) * w},${h - (v / max) * (h - 4) - 2}`);
@@ -84,7 +96,7 @@ function Stat({ Icon, label, value, sub }) {
 }
 
 export default function StatsPanel({ active }) {
-  const { t } = useLanguage();
+  const { t, locale } = useLanguage();
   const [stats, setStats] = useState(null);
   const [dlRate, setDlRate] = useState(0);
   const [ulRate, setUlRate] = useState(0);
@@ -161,7 +173,7 @@ export default function StatsPanel({ active }) {
           <p className="text-[11.5px] leading-snug" style={{ color: 'var(--text-faint)' }}>{t('onlineNowDesc')}</p>
         </div>
         <span className="num shrink-0 text-[24px] font-semibold leading-none" dir="ltr" style={{ color: 'var(--text)' }}>
-          {online == null ? '—' : online.toLocaleString()}
+          {online == null ? '—' : online.toLocaleString(locale)}
         </span>
       </div>
 

@@ -10,6 +10,7 @@ import InfoPanel from '../components/InfoPanel';
 import UpdateBanner from '../components/UpdateBanner';
 import Onboarding from '../components/Onboarding';
 import BlockedNotice from '../components/BlockedNotice';
+import Appearance from '../components/Appearance';
 import { ChartIcon, InfoIcon, LogsIcon, SettingsIcon, ShieldIcon } from '../components/icons';
 import { useLanguage } from '../contexts/LanguageContext';
 
@@ -118,6 +119,8 @@ export default function Home() {
           <span className="truncate">{active ? t('active') : t('inactive')}</span>
         </span>
       </header>
+
+      <Appearance />
 
       <Onboarding onNavigate={setActiveTab} />
 

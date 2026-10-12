@@ -7,7 +7,7 @@
 import {
   ArrowDown, ArrowUp, Bug, ChartColumn, Check, ChevronDown, CircleCheck, CircleX, Clock, Code, Database,
   Download, ExternalLink, FileText, Globe, Info, Languages, Link, LoaderCircle, Lock, Minus, Power, RefreshCw,
-  ScrollText, Scissors, Search, Settings, Shield, ShieldAlert, ShieldCheck, Shuffle, Square, Trash2,
+  Palette, ScrollText, Scissors, Search, Settings, Shield, ShieldAlert, ShieldCheck, Shuffle, Square, Trash2,
   TriangleAlert, Type, Users, X, Zap,
 } from 'lucide-react';
 
@@ -35,6 +35,7 @@ export const PowerIcon = wrap(Power, 2);
 export const SpinnerIcon = wrap(LoaderCircle, 2);
 export const TrashIcon = wrap(Trash2);
 export const SearchIcon = wrap(Search);
+export const PaletteIcon = wrap(Palette);
 export const LanguagesIcon = wrap(Languages);
 export const ArrowDownIcon = wrap(ArrowDown);
 export const ArrowUpIcon = wrap(ArrowUp);

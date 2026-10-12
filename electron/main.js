@@ -349,6 +349,13 @@ app.whenReady().then(async () => {
     // A site that defeated every technique. Told once per site, and at most
     // once every few minutes, so a page full of blocked resources cannot turn
     // into a stream of notifications.
+    // Programs that were already open when protection started are still using
+    // the connection they were given at launch.
+    onNeedRestart: (apps) => {
+      if (mainWindow && !mainWindow.isDestroyed()) mainWindow.webContents.send('dpi:need-restart', { apps });
+      notify(tr().restartAppsTitle, tr().restartAppsBody.replace('{apps}', apps.join(', ')));
+    },
+
     onSiteBlocked: (host) => {
       const now = Date.now();
       if (now - lastBlockedNotice < 5 * 60 * 1000) return;

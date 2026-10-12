@@ -215,7 +215,19 @@ input::placeholder { color: var(--text-faint); opacity: 1; }
 
 /* bottom navigation */
 .nav-btn { color: var(--text-faint); transition: color 0.15s, background-color 0.15s; }
-.nav-btn:hover { color: var(--text-dim); background: rgba(148, 163, 184, 0.05); }
+.nav-btn { position: relative; }
+/* The hover wash is a rounded inset, not a full-height block. Against the
+   translucent navigation of the glass theme a square tint reads as a
+   misplaced rectangle rather than a highlight. */
+.nav-btn:hover { color: var(--text-dim); }
+.nav-btn:hover::before {
+  content: '';
+  position: absolute;
+  inset: 4px 6px;
+  border-radius: 10px;
+  background: rgba(148, 163, 184, 0.07);
+  pointer-events: none;
+}
 .nav-btn[aria-current='page'] { color: var(--accent); }
 .nav-btn:focus-visible { outline-offset: -3px; border-radius: 10px; }
 
@@ -278,4 +290,128 @@ input::placeholder { color: var(--text-faint); opacity: 1; }
 .tour-dim {
   background: color-mix(in srgb, var(--bg) 78%, transparent);
   backdrop-filter: blur(2px);
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   Accent colours.
+
+   Only the accent family is swappable; the greys, the status colours and the
+   contrast ratios stay exactly as they were, so no choice here can produce
+   unreadable text. Each set keeps the same relationships as the default:
+   a bright primary, a lighter hover, a deeper shade for gradients, a 12%
+   wash, a 38% line, and a near-black ink for text that sits on the solid
+   colour.
+   ───────────────────────────────────────────────────────────────────────── */
+:root[data-accent="violet"] {
+  --accent: #a78bfa; --accent-hover: #c0aafc; --accent-deep: #7c3aed;
+  --accent-soft: rgba(167, 139, 250, 0.14); --accent-line: rgba(167, 139, 250, 0.38);
+  --on-accent: #140a26; --selection: rgba(167, 139, 250, 0.32);
+}
+:root[data-accent="emerald"] {
+  --accent: #34d399; --accent-hover: #5ee0b0; --accent-deep: #059669;
+  --accent-soft: rgba(52, 211, 153, 0.14); --accent-line: rgba(52, 211, 153, 0.38);
+  --on-accent: #022c1c; --selection: rgba(52, 211, 153, 0.32);
+}
+:root[data-accent="amber"] {
+  --accent: #fbbf24; --accent-hover: #fcd34d; --accent-deep: #d97706;
+  --accent-soft: rgba(251, 191, 36, 0.14); --accent-line: rgba(251, 191, 36, 0.38);
+  --on-accent: #231704; --selection: rgba(251, 191, 36, 0.30);
+}
+:root[data-accent="rose"] {
+  --accent: #fb7185; --accent-hover: #fda4af; --accent-deep: #e11d48;
+  --accent-soft: rgba(251, 113, 133, 0.14); --accent-line: rgba(251, 113, 133, 0.38);
+  --on-accent: #2a0710; --selection: rgba(251, 113, 133, 0.30);
+}
+:root[data-accent="pink"] {
+  --accent: #f472b6; --accent-hover: #f9a8d4; --accent-deep: #db2777;
+  --accent-soft: rgba(244, 114, 182, 0.14); --accent-line: rgba(244, 114, 182, 0.38);
+  --on-accent: #2a0518; --selection: rgba(244, 114, 182, 0.30);
+}
+:root[data-accent="teal"] {
+  --accent: #2dd4bf; --accent-hover: #5eead4; --accent-deep: #0d9488;
+  --accent-soft: rgba(45, 212, 191, 0.14); --accent-line: rgba(45, 212, 191, 0.38);
+  --on-accent: #032b27; --selection: rgba(45, 212, 191, 0.32);
+}
+:root[data-accent="indigo"] {
+  --accent: #818cf8; --accent-hover: #a5b4fc; --accent-deep: #4f46e5;
+  --accent-soft: rgba(129, 140, 248, 0.14); --accent-line: rgba(129, 140, 248, 0.38);
+  --on-accent: #0c1030; --selection: rgba(129, 140, 248, 0.32);
+}
+:root[data-accent="lime"] {
+  --accent: #a3e635; --accent-hover: #bef264; --accent-deep: #65a30d;
+  --accent-soft: rgba(163, 230, 53, 0.14); --accent-line: rgba(163, 230, 53, 0.38);
+  --on-accent: #16210a; --selection: rgba(163, 230, 53, 0.28);
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   Liquid glass.
+
+   The window is opaque, so there is nothing behind it to blur. The depth has
+   to be made inside the page: a slow accent-tinted wash on the background,
+   then surfaces that are genuinely translucent and blurred over it, with a
+   lit top edge where the light would catch. Text keeps its own colours and
+   never sits directly on the blur, so legibility is unchanged.
+   ───────────────────────────────────────────────────────────────────────── */
+:root[data-surface="glass"] {
+  --surface:       rgba(16, 22, 36, 0.52);
+  --surface-2:     rgba(16, 22, 36, 0.38);
+  --surface-hover: rgba(42, 54, 78, 0.56);
+  --surface-press: rgba(52, 66, 94, 0.62);
+  --line:          rgba(226, 238, 255, 0.14);
+  --line-strong:   rgba(226, 238, 255, 0.26);
+  --bg-sunk:       rgba(8, 11, 18, 0.55);
+  --glass-blur:    22px;
+}
+
+/* The wash goes on .shell, which covers the whole window and sits behind every
+   panel — putting it on body would hide it under that very element. It has to
+   be strong enough for the blur to have something to pick up, or the panels
+   read as flat grey rather than glass. */
+:root[data-surface="glass"] .shell {
+  background:
+    radial-gradient(115% 75% at 8% -12%,
+      color-mix(in srgb, var(--accent) 52%, transparent) 0%, transparent 56%),
+    radial-gradient(105% 70% at 96% 4%,
+      color-mix(in srgb, var(--accent-deep) 58%, transparent) 0%, transparent 52%),
+    radial-gradient(130% 85% at 55% 110%,
+      color-mix(in srgb, var(--accent) 34%, transparent) 0%, transparent 58%),
+    var(--bg) !important;
+}
+
+:root[data-surface="glass"] .card,
+:root[data-surface="glass"] .card-2 {
+  backdrop-filter: blur(var(--glass-blur)) saturate(165%);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(165%);
+  /* The hairline along the top is what reads as a lit edge rather than a box. */
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.14),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.18),
+    0 10px 32px rgba(0, 0, 0, 0.34);
+}
+
+/* The chrome floats over the same wash instead of sitting on a flat panel. */
+:root[data-surface="glass"] header,
+:root[data-surface="glass"] nav {
+  background: rgba(10, 14, 22, 0.45) !important;
+  backdrop-filter: blur(18px) saturate(150%);
+  -webkit-backdrop-filter: blur(18px) saturate(150%);
+}
+
+:root[data-surface="glass"] .btn-primary {
+  background: linear-gradient(180deg, var(--accent-hover), var(--accent-deep));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.28),
+    0 6px 18px color-mix(in srgb, var(--accent) 34%, transparent);
+}
+
+/* Someone who asked for less motion gets the look without the expense. */
+@media (prefers-reduced-transparency: reduce) {
+  :root[data-surface="glass"] .card,
+  :root[data-surface="glass"] .card-2,
+  :root[data-surface="glass"] header,
+  :root[data-surface="glass"] nav {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+  :root[data-surface="glass"] { --surface: #121826; --surface-2: #161d2e; --bg-sunk: #080b12; }
 }

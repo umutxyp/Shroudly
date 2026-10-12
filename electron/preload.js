@@ -57,6 +57,8 @@ contextBridge.exposeInMainWorld('electron', {
   stopAdvanced: () => ipcRenderer.invoke('advanced:stop'),
   onProbeResult: (cb) => ipcRenderer.on('dpi:probe-result', (e, p) => cb(p)),
   onSiteBlocked: (cb) => ipcRenderer.on('dpi:site-blocked', (e, p) => cb(p)),
+  onNeedRestart: (cb) => ipcRenderer.on('dpi:need-restart', (e, p) => cb(p)),
+  removeNeedRestartListener: () => ipcRenderer.removeAllListeners('dpi:need-restart'),
   removeSiteBlockedListener: () => ipcRenderer.removeAllListeners('dpi:site-blocked'),
   removeProbeListener: () => ipcRenderer.removeAllListeners('dpi:probe-result'),
 

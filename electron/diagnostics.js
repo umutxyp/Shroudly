@@ -60,10 +60,43 @@ const CONFLICTS = [
   { re: /v2ray|xray|clash|sing-box|hiddify/i, name: 'V2Ray / Clash' },
 ];
 
-async function runningTools() {
-  const out = process.platform === 'win32'
+/* Programs that read the system proxy once, when they start.
+ *
+ * This is the single most common reason someone reports "it works in my
+ * browser but not in the app": protection was switched on while the program
+ * was already running, so it is still using the connection it was given at
+ * launch. Nothing we can do from here changes that — the program has to be
+ * restarted — so the least we can do is notice and say so, by name, instead
+ * of letting them conclude the app is broken. */
+const NEEDS_RESTART = [
+  { re: /(^|[^a-z])discord/i,              name: 'Discord' },
+  { re: /(^|[^a-z])firefox|librewolf|waterfox/i, name: 'Firefox' },
+  { re: /roblox/i,                         name: 'Roblox' },
+  { re: /(^|[^a-z])steam(webhelper)?/i,    name: 'Steam' },
+  { re: /(^|[^a-z])telegram/i,             name: 'Telegram' },
+  { re: /(^|[^a-z])spotify/i,              name: 'Spotify' },
+  { re: /(^|[^a-z])slack/i,                name: 'Slack' },
+  { re: /(^|[^a-z])whatsapp/i,             name: 'WhatsApp' },
+  { re: /thunderbird/i,                    name: 'Thunderbird' },
+];
+
+async function processList() {
+  return process.platform === 'win32'
     ? await run(winTool('tasklist.exe'), ['/fo', 'csv', '/nh'])
     : await run('/bin/ps', ['-A', '-o', 'comm=']);
+}
+
+/* Running programs that will not pick up the protection until restarted. */
+async function appsNeedingRestart() {
+  const out = await processList();
+  if (!out) return [];
+  const found = new Set();
+  for (const a of NEEDS_RESTART) if (a.re.test(out)) found.add(a.name);
+  return [...found];
+}
+
+async function runningTools() {
+  const out = await processList();
   if (!out) return [];
   const found = new Set();
   for (const c of CONFLICTS) if (c.re.test(out)) found.add(c.name);
@@ -163,8 +196,8 @@ async function systemDnsServers() {
 async function collect() {
   const ifName = await defaultRoute();
   const iface = ifName ? describeInterface(ifName) : { name: '?', kind: 'unknown' };
-  const [tools, servers, forged] = await Promise.all([
-    runningTools(), systemDnsServers(), dnsTampering(),
+  const [tools, servers, forged, restart] = await Promise.all([
+    runningTools(), systemDnsServers(), dnsTampering(), appsNeedingRestart(),
   ]);
   return {
     os: `${process.platform} ${os.release()} ${process.arch}`,
@@ -172,7 +205,8 @@ async function collect() {
     dnsServers: servers,
     conflicts: tools,
     forgedDns: forged,
+    needRestart: restart,
   };
 }
 
-module.exports = { collect, runningTools, dnsTampering, defaultRoute, describeInterface };
+module.exports = { collect, runningTools, appsNeedingRestart, dnsTampering, defaultRoute, describeInterface };

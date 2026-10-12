@@ -51,6 +51,10 @@ export const translations = {
 
     // ── Settings screen
     language: 'Language',
+    appearance: 'Appearance',
+    accentColour: 'Accent colour',
+    glassSurface: 'Liquid glass',
+    glassSurfaceDesc: 'Frosted, translucent panels over a tinted glow in your accent colour. Text keeps its own colours, so nothing becomes harder to read.',
     dpiBypassTechniques: 'DPI bypass',
     strategy: 'Bypass strategy',
     stratAuto: 'Auto (recommended)',
@@ -88,6 +92,8 @@ export const translations = {
     blockedNoticeNoAdvanced: 'Advanced mode is not available on this system, so there is nothing further to try automatically. The Logs tab has the detail — sending it to us is the fastest way to get this fixed.',
     blockedNoticeOpenSettings: 'Open settings',
     blockedNoticeOpenLogs: 'Open logs',
+    restartAppsTitle: '{apps} needs to be restarted',
+    restartAppsBody: 'A program reads the connection settings once, when it opens. {apps} was already running, so it is still using the unprotected connection it started with. Close it completely and open it again.',
     resetToDefault: 'Reset to default',
     routeAppliesNow: 'Routing changes apply right away.',
     obTitle1: 'Welcome to Shroudly',
@@ -286,6 +292,10 @@ export const translations = {
 
     // ── Settings screen
     language: '语言',
+    appearance: '外观',
+    accentColour: '强调色',
+    glassSurface: '液态玻璃',
+    glassSurfaceDesc: '在你所选强调色的柔光之上，使用磨砂半透明面板。文字颜色保持不变，可读性不受影响。',
     dpiBypassTechniques: 'DPI 绕过',
     strategy: '绕过策略',
     stratAuto: '自动（推荐）',
@@ -323,6 +333,8 @@ export const translations = {
     blockedNoticeNoAdvanced: '此系统不支持高级模式，因此没有更多可自动尝试的办法。详情在“日志”标签页——把它发给我们是最快的解决方式。',
     blockedNoticeOpenSettings: '打开设置',
     blockedNoticeOpenLogs: '打开日志',
+    restartAppsTitle: '{apps} 需要重新启动',
+    restartAppsBody: '程序只在启动时读取一次连接设置。{apps} 当时已在运行，因此仍在使用启动时那条未受保护的连接。请彻底关闭后重新打开。',
     resetToDefault: '恢复默认',
     routeAppliesNow: '路由更改立即生效。',
     obTitle1: '欢迎使用 Shroudly',
@@ -521,6 +533,10 @@ export const translations = {
 
     // ── Settings screen
     language: 'भाषा',
+    appearance: 'रूप',
+    accentColour: 'एक्सेंट रंग',
+    glassSurface: 'लिक्विड ग्लास',
+    glassSurfaceDesc: 'आपके एक्सेंट रंग की हल्की चमक पर फ्रॉस्टेड, पारभासी पैनल। टेक्स्ट अपने रंग बनाए रखता है, इसलिए कुछ भी पढ़ने में कठिन नहीं होता।',
     dpiBypassTechniques: 'DPI बायपास',
     strategy: 'बायपास रणनीति',
     stratAuto: 'स्वचालित (अनुशंसित)',
@@ -558,6 +574,8 @@ export const translations = {
     blockedNoticeNoAdvanced: 'इस सिस्टम पर उन्नत मोड उपलब्ध नहीं है, इसलिए स्वतः आज़माने को और कुछ नहीं बचा। विवरण लॉग टैब में है — उसे हमें भेजना इसे ठीक कराने का सबसे तेज़ तरीका है।',
     blockedNoticeOpenSettings: 'सेटिंग खोलें',
     blockedNoticeOpenLogs: 'लॉग खोलें',
+    restartAppsTitle: '{apps} को फिर से शुरू करना होगा',
+    restartAppsBody: 'कोई प्रोग्राम कनेक्शन सेटिंग्स केवल खुलते समय एक बार पढ़ता है। {apps} पहले से चल रहा था, इसलिए वह अब भी उसी असुरक्षित कनेक्शन का उपयोग कर रहा है। उसे पूरी तरह बंद करके दोबारा खोलें।',
     resetToDefault: 'डिफ़ॉल्ट पर रीसेट करें',
     routeAppliesNow: 'रूटिंग बदलाव तुरंत लागू होते हैं।',
     obTitle1: 'Shroudly में आपका स्वागत है',
@@ -756,6 +774,10 @@ export const translations = {
 
     // ── Settings screen
     language: 'Idioma',
+    appearance: 'Apariencia',
+    accentColour: 'Color de acento',
+    glassSurface: 'Cristal líquido',
+    glassSurfaceDesc: 'Paneles esmerilados y translúcidos sobre un resplandor en tu color de acento. El texto conserva sus colores, así que nada se vuelve más difícil de leer.',
     dpiBypassTechniques: 'Evasión de DPI',
     strategy: 'Estrategia de evasión',
     stratAuto: 'Automática (recomendada)',
@@ -793,6 +815,8 @@ export const translations = {
     blockedNoticeNoAdvanced: 'El modo Avanzado no está disponible en este sistema, así que no queda nada más que probar automáticamente. El detalle está en Registros: enviárnoslo es la forma más rápida de resolverlo.',
     blockedNoticeOpenSettings: 'Abrir ajustes',
     blockedNoticeOpenLogs: 'Abrir registros',
+    restartAppsTitle: 'Hay que reiniciar {apps}',
+    restartAppsBody: 'Un programa lee la configuración de conexión una sola vez, al abrirse. {apps} ya estaba en marcha, así que sigue usando la conexión sin protección con la que arrancó. Ciérralo del todo y vuelve a abrirlo.',
     resetToDefault: 'Restablecer',
     routeAppliesNow: 'Los cambios de enrutamiento se aplican al instante.',
     obTitle1: 'Te damos la bienvenida a Shroudly',
@@ -991,6 +1015,10 @@ export const translations = {
 
     // ── Settings screen
     language: 'اللغة',
+    appearance: 'المظهر',
+    accentColour: 'لون التمييز',
+    glassSurface: 'الزجاج السائل',
+    glassSurfaceDesc: 'ألواح شبه شفافة ومثلّجة فوق توهّج بلون التمييز الذي اخترته. يحتفظ النص بألوانه، فلا يصعب شيء على القراءة.',
     dpiBypassTechniques: 'تجاوز DPI',
     strategy: 'استراتيجية التجاوز',
     stratAuto: 'تلقائي (موصى به)',
@@ -1028,6 +1056,8 @@ export const translations = {
     blockedNoticeNoAdvanced: 'الوضع المتقدم غير متاح على هذا النظام، فلم يبق ما يُجرَّب تلقائيًا. التفاصيل في تبويب السجلات — وإرسالها إلينا أسرع طريق لحل الأمر.',
     blockedNoticeOpenSettings: 'فتح الإعدادات',
     blockedNoticeOpenLogs: 'فتح السجلات',
+    restartAppsTitle: 'يجب إعادة تشغيل {apps}',
+    restartAppsBody: 'يقرأ البرنامج إعدادات الاتصال مرة واحدة، عند فتحه. وكان {apps} يعمل بالفعل، فهو ما زال يستخدم الاتصال غير المحمي الذي بدأ به. أغلقه تمامًا ثم افتحه من جديد.',
     resetToDefault: 'إعادة الضبط',
     routeAppliesNow: 'تُطبَّق تغييرات التوجيه فورًا.',
     obTitle1: 'مرحبًا بك في Shroudly',
@@ -1226,6 +1256,10 @@ export const translations = {
 
     // ── Settings screen
     language: 'Язык',
+    appearance: 'Оформление',
+    accentColour: 'Акцентный цвет',
+    glassSurface: 'Жидкое стекло',
+    glassSurfaceDesc: 'Матовые полупрозрачные панели поверх мягкого свечения в вашем акцентном цвете. Текст сохраняет свои цвета, читаемость не меняется.',
     dpiBypassTechniques: 'Обход DPI',
     strategy: 'Стратегия обхода',
     stratAuto: 'Авто (рекомендуется)',
@@ -1263,6 +1297,8 @@ export const translations = {
     blockedNoticeNoAdvanced: 'Расширенный режим на этой системе недоступен, так что автоматически пробовать больше нечего. Подробности во вкладке «Журнал» — прислать их нам самый быстрый путь к решению.',
     blockedNoticeOpenSettings: 'Открыть настройки',
     blockedNoticeOpenLogs: 'Открыть журнал',
+    restartAppsTitle: '{apps} нужно перезапустить',
+    restartAppsBody: 'Программа читает настройки соединения один раз — при запуске. {apps} уже работал, поэтому он по-прежнему использует незащищённое соединение. Закройте его полностью и откройте заново.',
     resetToDefault: 'Сбросить',
     routeAppliesNow: 'Изменения маршрутизации применяются сразу.',
     obTitle1: 'Добро пожаловать в Shroudly',
@@ -1461,6 +1497,10 @@ export const translations = {
 
     // ── Settings screen
     language: 'Idioma',
+    appearance: 'Aparência',
+    accentColour: 'Cor de destaque',
+    glassSurface: 'Vidro líquido',
+    glassSurfaceDesc: 'Painéis foscos e translúcidos sobre um brilho na sua cor de destaque. O texto mantém suas cores, então nada fica mais difícil de ler.',
     dpiBypassTechniques: 'Evasão de DPI',
     strategy: 'Estratégia de evasão',
     stratAuto: 'Automática (recomendada)',
@@ -1498,6 +1538,8 @@ export const translations = {
     blockedNoticeNoAdvanced: 'O modo Avançado não está disponível neste sistema, então não há mais nada a tentar automaticamente. O detalhe está na aba Registros — enviá-lo para nós é o caminho mais rápido para resolver.',
     blockedNoticeOpenSettings: 'Abrir configurações',
     blockedNoticeOpenLogs: 'Abrir registros',
+    restartAppsTitle: 'É preciso reiniciar o {apps}',
+    restartAppsBody: 'Um programa lê as configurações de conexão uma vez, ao abrir. O {apps} já estava em execução, então continua usando a conexão sem proteção com que começou. Feche-o completamente e abra de novo.',
     resetToDefault: 'Redefinir',
     routeAppliesNow: 'As alterações de roteamento são aplicadas na hora.',
     obTitle1: 'Boas-vindas ao Shroudly',
@@ -1696,6 +1738,10 @@ export const translations = {
 
     // ── Settings screen
     language: 'Langue',
+    appearance: 'Apparence',
+    accentColour: 'Couleur d’accentuation',
+    glassSurface: 'Verre liquide',
+    glassSurfaceDesc: 'Des panneaux dépolis et translucides au-dessus d’une lueur teintée de votre couleur d’accentuation. Le texte garde ses couleurs : rien ne devient moins lisible.',
     dpiBypassTechniques: 'Contournement DPI',
     strategy: 'Stratégie de contournement',
     stratAuto: 'Auto (recommandé)',
@@ -1733,6 +1779,8 @@ export const translations = {
     blockedNoticeNoAdvanced: 'Le mode Avancé n’est pas disponible sur ce système, il n’y a donc plus rien à essayer automatiquement. Le détail est dans l’onglet Journaux — nous l’envoyer est le plus rapide pour corriger cela.',
     blockedNoticeOpenSettings: 'Ouvrir les réglages',
     blockedNoticeOpenLogs: 'Ouvrir les journaux',
+    restartAppsTitle: '{apps} doit être redémarré',
+    restartAppsBody: 'Un programme lit les réglages de connexion une seule fois, à son ouverture. {apps} tournait déjà : il utilise donc encore la connexion non protégée de son démarrage. Fermez-le complètement puis rouvrez-le.',
     resetToDefault: 'Réinitialiser',
     routeAppliesNow: 'Les changements de routage s’appliquent immédiatement.',
     obTitle1: 'Bienvenue dans Shroudly',
@@ -1931,6 +1979,10 @@ export const translations = {
 
     // ── Settings screen
     language: 'زبان',
+    appearance: 'ظاهر',
+    accentColour: 'رنگ تأکید',
+    glassSurface: 'شیشهٔ مایع',
+    glassSurfaceDesc: 'پنل‌های نیمه‌شفاف و مات روی درخششی به رنگ تأکید شما. متن رنگ خود را نگه می‌دارد، پس خواندن چیزی سخت‌تر نمی‌شود.',
     dpiBypassTechniques: 'دور زدن DPI',
     strategy: 'راهبرد دور زدن',
     stratAuto: 'خودکار (توصیه‌شده)',
@@ -1968,6 +2020,8 @@ export const translations = {
     blockedNoticeNoAdvanced: 'حالت پیشرفته روی این سیستم در دسترس نیست، پس چیز دیگری برای آزمودن خودکار نمانده. جزئیات در زبانهٔ گزارش‌هاست — فرستادنش برای ما سریع‌ترین راه حل است.',
     blockedNoticeOpenSettings: 'باز کردن تنظیمات',
     blockedNoticeOpenLogs: 'باز کردن گزارش‌ها',
+    restartAppsTitle: '{apps} باید دوباره اجرا شود',
+    restartAppsBody: 'برنامه تنظیمات اتصال را فقط یک‌بار، هنگام باز شدن، می‌خواند. {apps} از قبل در حال اجرا بود، پس هنوز همان اتصال محافظت‌نشدهٔ آغازین را به کار می‌برد. کاملاً ببندید و دوباره باز کنید.',
     resetToDefault: 'بازنشانی به پیش‌فرض',
     routeAppliesNow: 'تغییرات مسیریابی بی‌درنگ اعمال می‌شوند.',
     obTitle1: 'به Shroudly خوش آمدید',
@@ -2166,6 +2220,10 @@ export const translations = {
 
     // ── Settings screen
     language: 'Dil',
+    appearance: 'Görünüm',
+    accentColour: 'Vurgu rengi',
+    glassSurface: 'Sıvı cam',
+    glassSurfaceDesc: 'Vurgu renginde yumuşak bir parıltının üzerinde buzlu, yarı saydam yüzeyler. Yazılar kendi renklerini korur, hiçbir şey okunması zor hale gelmez.',
     dpiBypassTechniques: 'DPI atlatma',
     strategy: 'Atlatma stratejisi',
     stratAuto: 'Otomatik (önerilen)',
@@ -2203,6 +2261,8 @@ export const translations = {
     blockedNoticeNoAdvanced: 'Bu sistemde Gelişmiş mod yok, bu yüzden otomatik denenecek başka bir şey kalmadı. Ayrıntı Kayıtlar sekmesinde — bize göndermen bunu çözmenin en hızlı yolu.',
     blockedNoticeOpenSettings: 'Ayarları aç',
     blockedNoticeOpenLogs: 'Kayıtları aç',
+    restartAppsTitle: '{apps} yeniden başlatılmalı',
+    restartAppsBody: 'Bir program bağlantı ayarlarını yalnızca açılırken okur. {apps} zaten çalışıyordu, yani hâlâ açıldığı andaki korumasız bağlantıyı kullanıyor. Tamamen kapatıp yeniden aç.',
     resetToDefault: 'Varsayılana döndür',
     routeAppliesNow: 'Yönlendirme değişiklikleri hemen uygulanır.',
     obTitle1: 'Shroudly’ye hoş geldin',
@@ -2401,6 +2461,10 @@ export const translations = {
 
     // ── Settings screen
     language: 'ভাষা',
+    appearance: 'চেহারা',
+    accentColour: 'অ্যাকসেন্ট রং',
+    glassSurface: 'লিকুইড গ্লাস',
+    glassSurfaceDesc: 'আপনার অ্যাকসেন্ট রঙের নরম আভার উপরে ফ্রস্টেড, আধা-স্বচ্ছ প্যানেল। লেখা নিজের রং ধরে রাখে, তাই কিছুই পড়তে কঠিন হয় না।',
     dpiBypassTechniques: 'DPI বাইপাস',
     strategy: 'বাইপাস কৌশল',
     stratAuto: 'স্বয়ংক্রিয় (প্রস্তাবিত)',
@@ -2438,6 +2502,8 @@ export const translations = {
     blockedNoticeNoAdvanced: 'এই সিস্টেমে উন্নত মোড নেই, তাই স্বয়ংক্রিয়ভাবে চেষ্টা করার আর কিছু নেই। বিস্তারিত লগ ট্যাবে আছে — সেটি আমাদের পাঠানোই সমাধানের দ্রুততম উপায়।',
     blockedNoticeOpenSettings: 'সেটিংস খুলুন',
     blockedNoticeOpenLogs: 'লগ খুলুন',
+    restartAppsTitle: '{apps} আবার চালু করতে হবে',
+    restartAppsBody: 'কোনো প্রোগ্রাম সংযোগ সেটিংস কেবল একবার, খোলার সময় পড়ে। {apps} আগে থেকেই চলছিল, তাই এটি এখনও শুরুর সেই অরক্ষিত সংযোগই ব্যবহার করছে। সম্পূর্ণ বন্ধ করে আবার খুলুন।',
     resetToDefault: 'ডিফল্টে রিসেট',
     routeAppliesNow: 'রাউটিং পরিবর্তন সঙ্গে সঙ্গে প্রয়োগ হয়।',
     obTitle1: 'Shroudly-তে স্বাগতম',
@@ -2636,6 +2702,10 @@ export const translations = {
 
     // ── Settings screen
     language: 'زبان',
+    appearance: 'ظاہری شکل',
+    accentColour: 'نمایاں رنگ',
+    glassSurface: 'لیکوئڈ گلاس',
+    glassSurfaceDesc: 'آپ کے نمایاں رنگ کی ہلکی چمک پر دھندلے، نیم شفاف پینل۔ متن اپنے رنگ برقرار رکھتا ہے، اس لیے کچھ بھی پڑھنا مشکل نہیں ہوتا۔',
     dpiBypassTechniques: 'DPI بائی پاس',
     strategy: 'بائی پاس حکمت عملی',
     stratAuto: 'خودکار (تجویز کردہ)',
@@ -2673,6 +2743,8 @@ export const translations = {
     blockedNoticeNoAdvanced: 'اس سسٹم پر ایڈوانسڈ موڈ دستیاب نہیں، اس لیے خودکار طور پر آزمانے کو اور کچھ نہیں بچا۔ تفصیل لاگز ٹیب میں ہے — اسے ہمیں بھیجنا اسے ٹھیک کرانے کا تیز ترین طریقہ ہے۔',
     blockedNoticeOpenSettings: 'سیٹنگز کھولیں',
     blockedNoticeOpenLogs: 'لاگز کھولیں',
+    restartAppsTitle: '{apps} کو دوبارہ شروع کرنا ہوگا',
+    restartAppsBody: 'پروگرام کنکشن کی ترتیبات صرف ایک بار، کھلتے وقت پڑھتا ہے۔ {apps} پہلے سے چل رہا تھا، اس لیے وہ اب بھی وہی غیر محفوظ کنکشن استعمال کر رہا ہے۔ اسے مکمل بند کر کے دوبارہ کھولیں۔',
     resetToDefault: 'ڈیفالٹ پر ری سیٹ',
     routeAppliesNow: 'روٹنگ تبدیلیاں فوراً لاگو ہوتی ہیں۔',
     obTitle1: 'Shroudly میں خوش آمدید',
@@ -2871,6 +2943,10 @@ export const translations = {
 
     // ── Settings screen
     language: 'Bahasa',
+    appearance: 'Tampilan',
+    accentColour: 'Warna aksen',
+    glassSurface: 'Kaca cair',
+    glassSurfaceDesc: 'Panel buram dan tembus cahaya di atas cahaya lembut berwarna aksen Anda. Teks mempertahankan warnanya, jadi tidak ada yang menjadi sulit dibaca.',
     dpiBypassTechniques: 'Penembusan DPI',
     strategy: 'Strategi penembusan',
     stratAuto: 'Otomatis (disarankan)',
@@ -2908,6 +2984,8 @@ export const translations = {
     blockedNoticeNoAdvanced: 'Mode Lanjutan tidak tersedia di sistem ini, jadi tidak ada lagi yang bisa dicoba otomatis. Detailnya ada di tab Log — mengirimkannya ke kami adalah cara tercepat untuk memperbaikinya.',
     blockedNoticeOpenSettings: 'Buka pengaturan',
     blockedNoticeOpenLogs: 'Buka log',
+    restartAppsTitle: '{apps} perlu dimulai ulang',
+    restartAppsBody: 'Sebuah program membaca pengaturan koneksi sekali saja, saat dibuka. {apps} sudah berjalan sebelumnya, jadi masih memakai koneksi tanpa perlindungan dari awal. Tutup sepenuhnya lalu buka lagi.',
     resetToDefault: 'Setel ulang',
     routeAppliesNow: 'Perubahan perutean langsung diterapkan.',
     obTitle1: 'Selamat datang di Shroudly',
@@ -3106,6 +3184,10 @@ export const translations = {
 
     // ── Settings screen
     language: '言語',
+    appearance: '外観',
+    accentColour: 'アクセントカラー',
+    glassSurface: 'リキッドグラス',
+    glassSurfaceDesc: '選んだアクセントカラーのやわらかな光の上に、すりガラスのような半透明のパネルを重ねます。文字の色はそのままなので、読みにくくなることはありません。',
     dpiBypassTechniques: 'DPI バイパス',
     strategy: 'バイパス方式',
     stratAuto: '自動（推奨）',
@@ -3143,6 +3225,8 @@ export const translations = {
     blockedNoticeNoAdvanced: 'このシステムでは詳細モードを利用できないため、自動で試せることはもうありません。詳しい記録は「ログ」タブにあります。それを送っていただくのが解決の近道です。',
     blockedNoticeOpenSettings: '設定を開く',
     blockedNoticeOpenLogs: 'ログを開く',
+    restartAppsTitle: '{apps} を再起動してください',
+    restartAppsBody: 'プログラムは起動時に一度だけ接続設定を読み込みます。{apps} はすでに動いていたため、起動時の保護されていない接続を使い続けています。完全に終了してから開き直してください。',
     resetToDefault: '初期設定に戻す',
     routeAppliesNow: 'ルーティングの変更はすぐに適用されます。',
     obTitle1: 'Shroudly へようこそ',
@@ -3341,6 +3425,10 @@ export const translations = {
 
     // ── Settings screen
     language: 'Sprache',
+    appearance: 'Erscheinungsbild',
+    accentColour: 'Akzentfarbe',
+    glassSurface: 'Flüssiges Glas',
+    glassSurfaceDesc: 'Matte, lichtdurchlässige Flächen über einem Schimmer in deiner Akzentfarbe. Der Text behält seine Farben, nichts wird schwerer lesbar.',
     dpiBypassTechniques: 'DPI-Umgehung',
     strategy: 'Umgehungsstrategie',
     stratAuto: 'Automatisch (empfohlen)',
@@ -3378,6 +3466,8 @@ export const translations = {
     blockedNoticeNoAdvanced: 'Der erweiterte Modus ist auf diesem System nicht verfügbar, automatisch lässt sich also nichts mehr versuchen. Die Einzelheiten stehen im Tab Protokolle — sie uns zu schicken ist der schnellste Weg zur Lösung.',
     blockedNoticeOpenSettings: 'Einstellungen öffnen',
     blockedNoticeOpenLogs: 'Protokolle öffnen',
+    restartAppsTitle: '{apps} muss neu gestartet werden',
+    restartAppsBody: 'Ein Programm liest die Verbindungseinstellungen nur einmal, beim Start. {apps} lief bereits und nutzt daher weiterhin die ungeschützte Verbindung von damals. Schließe es ganz und öffne es erneut.',
     resetToDefault: 'Zurücksetzen',
     routeAppliesNow: 'Routing-Änderungen gelten sofort.',
     obTitle1: 'Willkommen bei Shroudly',
