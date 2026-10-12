@@ -212,9 +212,6 @@
         "xdg-utils",
         "libdrm",
         "mesa"
-      ],
-      "optdepends": [
-        "libnetfilter_queue: advanced mode"
       ]
     },
     "rpm": {
