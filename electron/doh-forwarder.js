@@ -160,6 +160,8 @@ class DohForwarder {
     this.cache = new Map();     // key -> { answer: Buffer, expires: ms }
     this.warmTimer = null;
     this.stopped = false;
+    this.failures = 0;
+    this.lastDowngradeWarn = 0;
   }
 
   /* Race the upstreams: the preferred one starts immediately, the rest join
@@ -246,9 +248,22 @@ class DohForwarder {
         this.resolve(msg)
           .then((answer) => {
             if (key) this.cachePut(key, answer);
+            this.failures = 0;
             try { sock.send(answer, rinfo.port, rinfo.address); } catch {}
           })
-          .catch(() => { /* drop: the engine falls back to public UDP resolvers */ });
+          .catch(() => {
+            /* Nothing is sent back, so the engine falls through to plain DNS.
+             * That is the right thing to do — a lookup that fails outright is
+             * worse — but it quietly undoes the encryption this exists to
+             * provide, and blocking three fixed addresses is a cheap way for a
+             * network to force it. Say so, rather than let it pass unnoticed. */
+            this.failures = (this.failures || 0) + 1;
+            const now = Date.now();
+            if (this.failures >= 3 && now - (this.lastDowngradeWarn || 0) > 300000) {
+              this.lastDowngradeWarn = now;
+              this.log('warning', 'Encrypted DNS is not reachable on this network; lookups are falling back to ordinary DNS, which your provider can read and change.');
+            }
+          });
       });
       sock.bind(0, '127.0.0.1', () => {
         this.sock = sock;

@@ -34,6 +34,8 @@ const ASSETS = [
   [`Shroudly-${version}-Linux-x86_64.AppImage`, 'Linux · Intel/AMD 64-bit · AppImage (any distro)'],
   [`Shroudly-${version}-Linux-amd64.deb`, 'Linux · Intel/AMD 64-bit · Debian / Ubuntu package (.deb)'],
   [`Shroudly-${version}-Linux-arm64.AppImage`, 'Linux · ARM 64-bit (e.g. Raspberry Pi 4/5) · AppImage'],
+  [`Shroudly-${version}-Linux-x86_64.pacman`, 'Linux · Intel/AMD 64-bit · Arch / Manjaro package (.pacman)'],
+  [`Shroudly-${version}-Linux-x86_64.rpm`, 'Linux · Intel/AMD 64-bit · Fedora / openSUSE package (.rpm)'],
   ['latest.yml', `Update data · Windows ${FEED}`],
   ['latest-mac.yml', `Update data · macOS ${FEED}`],
   ['latest-linux.yml', `Update data · Linux x64 ${FEED}`],

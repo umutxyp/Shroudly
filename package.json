@@ -1,6 +1,6 @@
 {
   "name": "shroudly",
-  "version": "2.4.0",
+  "version": "2.4.1",
   "description": "Shroudly - Unseen. Unstoppable. | Cross-platform DPI bypass (self-contained engine)",
   "main": "electron/main.js",
   "private": true,
@@ -152,6 +152,18 @@
           "arch": [
             "x64"
           ]
+        },
+        {
+          "target": "pacman",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "rpm",
+          "arch": [
+            "x64"
+          ]
         }
       ],
       "maintainer": "Codeshare Technology Ltd <contact@codeshare.me>",
@@ -187,6 +199,37 @@
     ],
     "dmg": {
       "writeUpdateInfo": false
+    },
+    "pacman": {
+      "depends": [
+        "gtk3",
+        "libnotify",
+        "nss",
+        "libxtst",
+        "at-spi2-core",
+        "util-linux-libs",
+        "libsecret",
+        "xdg-utils",
+        "libdrm",
+        "mesa"
+      ],
+      "optdepends": [
+        "libnetfilter_queue: advanced mode"
+      ]
+    },
+    "rpm": {
+      "depends": [
+        "gtk3",
+        "libnotify",
+        "nss",
+        "libXtst",
+        "at-spi2-core",
+        "libuuid",
+        "libsecret",
+        "xdg-utils",
+        "libdrm",
+        "mesa-libgbm"
+      ]
     }
   },
   "dependencies": {

@@ -518,7 +518,16 @@ int engine_start(const engine_config *cfg) {
   g_listener = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
   if (g_listener == SOCK_INVALID) return -1;
   int yes = 1;
+#ifdef _WIN32
+  /* SO_REUSEADDR does not mean on Windows what it means elsewhere: it lets a
+   * second process bind the same address and port and take over the
+   * connections, which for a proxy the whole system is pointed at would hand
+   * every request to whoever asked second. SO_EXCLUSIVEADDRUSE is the option
+   * that reserves the port. */
+  setsockopt(g_listener, SOL_SOCKET, SO_EXCLUSIVEADDRUSE, (const char *)&yes, sizeof(yes));
+#else
   setsockopt(g_listener, SOL_SOCKET, SO_REUSEADDR, (const char *)&yes, sizeof(yes));
+#endif
   if (bind(g_listener, (struct sockaddr *)&addr, sizeof(addr)) != 0) {
     sock_close(g_listener); g_listener = SOCK_INVALID; return -2;
   }

@@ -48,7 +48,7 @@ jobs:
 
       - name: Install Linux build dependencies
         if: matrix.platform == 'linux'
-        run: sudo apt-get update && sudo apt-get install -y libnetfilter-queue-dev libmnl-dev
+        run: sudo apt-get update && sudo apt-get install -y libnetfilter-queue-dev libmnl-dev rpm
 
       - name: Install dependencies
         run: npm ci

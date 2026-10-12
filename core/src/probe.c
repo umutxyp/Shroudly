@@ -110,12 +110,28 @@ static int dns_is_censored(const char *host) {
   return doh_addr_is_block(&sa);
 }
 
-int probe_host(const char *host, const engine_config *cfg) {
+/* The host reaches us from the UI, so it cannot be pasted into JSON as-is:
+ * one quote would corrupt the line the app parses, and every line after it. */
+static void json_host(char *out, size_t cap, const char *in) {
+  size_t j = 0;
+  for (size_t i = 0; in && in[i] && j + 1 < cap; i++) {
+    unsigned char c = (unsigned char)in[i];
+    int ok = (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') ||
+             (c >= '0' && c <= '9') || c == '.' || c == '-' || c == ':' || c == '_';
+    out[j++] = ok ? (char)c : '?';
+  }
+  out[j] = 0;
+}
+
+int probe_host(const char *host_in, const engine_config *cfg) {
+  char hbuf[256];
+  json_host(hbuf, sizeof(hbuf), host_in);
+  const char *host = host_in;
   const char *dnsb = dns_is_censored(host) ? "true" : "false";
   /* 1. Baseline: does a plain handshake already work? Then the host isn't
    *    blocked here and no desync is needed. */
   if (test_strategy(host, NULL, cfg->use_doh)) {
-    printf("{\"type\":\"probe\",\"host\":\"%s\",\"ok\":true,\"strategy\":\"none\","
+    printf("{\"type\":\"probe\",\"hbuf\":\"%s\",\"ok\":true,\"strategy\":\"none\","
            "\"blocked\":false,\"dns_blocked\":%s}\n", host, dnsb);
     fflush(stdout);
     return -2; /* -2 = not blocked, relay as-is */
@@ -131,7 +147,7 @@ int probe_host(const char *host, const engine_config *cfg) {
   uint64_t deadline = now_ms() + PROBE_BUDGET_MS;
   for (int i = 0; i < n; i++) {
     if (now_ms() >= deadline) {
-      printf("{\"type\":\"probe\",\"host\":\"%s\",\"ok\":false,\"blocked\":true,"
+      printf("{\"type\":\"probe\",\"hbuf\":\"%s\",\"ok\":false,\"blocked\":true,"
              "\"suggest\":\"advanced\",\"partial\":true,\"tried\":%d,\"dns_blocked\":%s}\n",
              host, i, dnsb);
       fflush(stdout);
@@ -139,7 +155,7 @@ int probe_host(const char *host, const engine_config *cfg) {
     }
     const strategy *st = strategy_preset(i);
     if (test_strategy(host, st, cfg->use_doh)) {
-      printf("{\"type\":\"probe\",\"host\":\"%s\",\"strategy\":\"%s\",\"ok\":true,"
+      printf("{\"type\":\"probe\",\"hbuf\":\"%s\",\"strategy\":\"%s\",\"ok\":true,"
              "\"blocked\":true,\"dns_blocked\":%s}\n", host, st->name, dnsb);
       fflush(stdout);
       engine_learn(host, i);
@@ -150,7 +166,7 @@ int probe_host(const char *host, const engine_config *cfg) {
   /* 3. Nothing at this level worked. The host is blocked by DPI that userspace
    *    split/disorder cannot defeat (likely stateful reassembly, e.g. Iran/China).
    *    Signal the UI to offer Advanced (packet-layer) mode. */
-  printf("{\"type\":\"probe\",\"host\":\"%s\",\"ok\":false,\"blocked\":true,"
+  printf("{\"type\":\"probe\",\"hbuf\":\"%s\",\"ok\":false,\"blocked\":true,"
          "\"suggest\":\"advanced\",\"dns_blocked\":%s}\n", host, dnsb);
   fflush(stdout);
   return -1;

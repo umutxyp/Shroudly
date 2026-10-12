@@ -25,6 +25,12 @@
  * cross-platform, and removes the most common censorship layer (UDP/53 reply
  * injection) without touching any system network settings.
  */
+/* rand_s is only declared when this is defined, and it has to be defined
+   before any C runtime header is pulled in. */
+#if defined(_WIN32) && !defined(_CRT_RAND_S)
+#define _CRT_RAND_S
+#endif
+#include <stdlib.h>
 #include "doh.h"
 #include "platform.h"
 #include <string.h>
@@ -149,6 +155,29 @@ void doh_set_local(const char *ip, int port) {
 }
 
 /* ── DNS wire format ────────────────────────────────────────────────────── */
+/* A spoofed reply only has to match the query id, so that id must not be
+ * guessable. Derived from the clock it would be: an attacker who knows roughly
+ * when the lookup happened can enumerate a handful of candidates. */
+static uint16_t dns_query_id(void) {
+  uint16_t v = 0;
+#ifdef _WIN32
+  unsigned int r = 0;
+  if (rand_s(&r) == 0) v = (uint16_t)r;
+#else
+  FILE *f = fopen("/dev/urandom", "rb");
+  if (f) { unsigned char b[2]; if (fread(b, 1, 2, f) == 2) v = (uint16_t)((b[0] << 8) | b[1]); fclose(f); }
+#endif
+  if (v == 0) {
+    /* Nothing better available: still mix several changing sources rather
+     * than leaning on the clock alone. */
+    static _Atomic unsigned counter;
+    unsigned c = atomic_fetch_add(&counter, 0x9e37u) + 1u;
+    uint64_t t = now_ms();
+    v = (uint16_t)((t ^ (t >> 17) ^ (uintptr_t)&counter ^ (c * 2654435761u)) & 0xffff);
+  }
+  return v;
+}
+
 static int dns_build(uint8_t *q, const char *name, uint16_t id, int type) {
   int p = 0;
   q[p++] = id >> 8; q[p++] = id & 0xff;
@@ -177,6 +206,30 @@ static int dns_build(uint8_t *q, const char *name, uint16_t id, int type) {
  * when the answer is valid but holds no usable record of that type (e.g. a
  * name without AAAA), -1 when the reply is unusable. */
 #define DNS_NODATA (-2)
+/* Does this reply echo the question we sent? A reply carrying someone else's
+ * question is not an answer to ours, however well-formed it looks. */
+static int dns_question_matches(const uint8_t *r, int len, const uint8_t *q, int qlen) {
+  if (len < 12 || qlen < 12) return 0;
+  if (((r[4] << 8) | r[5]) != 1) return 0;          /* exactly one question */
+  int i = 12, j = 12;                                /* compare name, type, class */
+  while (i < len && j < qlen) {
+    uint8_t a = r[i], b = q[j];
+    if ((a & 0xc0) || (b & 0xc0)) return 0;          /* no compression in a question */
+    if (a != b) return 0;
+    if (a == 0) { i++; j++; break; }
+    if (i + 1 + a > len || j + 1 + b > qlen) return 0;
+    for (int k = 1; k <= a; k++) {
+      uint8_t ca = r[i + k], cb = q[j + k];
+      if (ca >= 'A' && ca <= 'Z') ca = (uint8_t)(ca + 32);
+      if (cb >= 'A' && cb <= 'Z') cb = (uint8_t)(cb + 32);
+      if (ca != cb) return 0;
+    }
+    i += 1 + a; j += 1 + b;
+  }
+  if (i + 4 > len || j + 4 > qlen) return 0;
+  return memcmp(r + i, q + j, 4) == 0;               /* qtype and qclass */
+}
+
 static int dns_parse(const uint8_t *r, int len, int want6,
                      struct sockaddr_storage *out, socklen_t *outlen, uint16_t port) {
   if (len < 12) return -1;
@@ -240,11 +293,17 @@ static int query_udp_at(const char *resolver, uint16_t rport, int timeout_ms,
   to.sin_port = htons(rport);
   if (inet_pton(AF_INET, resolver, &to.sin_addr) != 1) { sock_close(s); return -1; }
 
+  /* Bind the socket to this one peer. The kernel then drops datagrams from
+   * anywhere else before they ever reach us, which is a stronger filter than
+   * checking the sender afterwards — and it means a process on this machine
+   * cannot answer our lookups. */
+  if (connect(s, (struct sockaddr *)&to, sizeof(to)) != 0) { sock_close(s); return -1; }
+
   uint8_t q[512];
-  uint16_t id = (uint16_t)(now_ms() ^ (uintptr_t)out);
+  uint16_t id = dns_query_id();
   int qlen = dns_build(q, name, id, want6 ? 28 : 1);
   if (qlen < 0) { sock_close(s); return -1; }
-  if (sendto(s, (const char *)q, qlen, 0, (struct sockaddr *)&to, sizeof(to)) < 0) {
+  if (send(s, (const char *)q, qlen, 0) < 0) {
     sock_close(s); return -1;
   }
 
@@ -259,6 +318,8 @@ static int query_udp_at(const char *resolver, uint16_t rport, int timeout_ms,
     if (n < 12) continue;
     if (((r[0] << 8) | r[1]) != id) continue;          /* id mismatch = spoof */
     if (from.sin_addr.s_addr != to.sin_addr.s_addr) continue; /* wrong source */
+    if (from.sin_port != to.sin_port) continue;        /* right host, wrong port */
+    if (!dns_question_matches(r, n, q, qlen)) continue; /* answers something else */
     int pr = dns_parse(r, n, want6, out, outlen, port);
     if (pr == 0) { rc = 0; break; }
     /* "No such record": don't sit out the whole window, but leave a short
