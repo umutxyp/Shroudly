@@ -114,12 +114,28 @@ class SystemProxy {
 
   pacBody(port) {
     const proxy = `SOCKS5 127.0.0.1:${port}; SOCKS 127.0.0.1:${port}; DIRECT`;
+    /* Anything on this machine or this network never goes through the engine.
+     * The previous list only covered 172.16, leaving the other fifteen private
+     * /16s inside 172.16/12 — plus link-local and carrier-grade NAT, which is
+     * what a phone hotspot or a mobile router hands out — to be relayed for no
+     * reason. isInNet is the right tool for ranges; the shExpMatch forms only
+     * work for whole leading octets. */
     const local = `  if (isPlainHostName(host) ||
-      shExpMatch(host, "127.*") || shExpMatch(host, "10.*") ||
-      shExpMatch(host, "172.16.*") || shExpMatch(host, "192.168.*") ||
-      shExpMatch(host, "localhost") || shExpMatch(host, "*.local")) {
+      shExpMatch(host, "localhost") || shExpMatch(host, "*.local") ||
+      shExpMatch(host, "*.localhost") || shExpMatch(host, "*.home.arpa") ||
+      shExpMatch(host, "*.internal") || shExpMatch(host, "*.lan")) {
     return "DIRECT";
-  }`;
+  }
+  if (/^\\d+\\.\\d+\\.\\d+\\.\\d+$/.test(host) && (
+      isInNet(host, "127.0.0.0", "255.0.0.0") ||
+      isInNet(host, "10.0.0.0", "255.0.0.0") ||
+      isInNet(host, "172.16.0.0", "255.240.0.0") ||
+      isInNet(host, "192.168.0.0", "255.255.0.0") ||
+      isInNet(host, "169.254.0.0", "255.255.0.0") ||
+      isInNet(host, "100.64.0.0", "255.192.0.0"))) {
+    return "DIRECT";
+  }
+  if (host.indexOf(":") !== -1) { return "DIRECT"; }`;
     if (this.mode === 'listed') {
       // Clean the list to bare domains, dedupe, and embed as a JS array.
       // Anything that is not a plain hostname is dropped rather than embedded:

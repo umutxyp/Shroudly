@@ -95,6 +95,15 @@ function isAutoStartLaunch() {
 
 let lastBlockedNotice = 0;
 
+/* Count only while protected, and only if the user left it on. */
+function syncPresence() {
+  if (!presence) return;
+  const wanted = store.get('shareOnlineCount', true) !== false &&
+                 !!(engine && engine.active);
+  if (wanted && presence.stopped) presence.restart();
+  else if (!wanted && !presence.stopped) presence.leave();
+}
+
 function notify(title, body) {
   if (store.get('showNotifications', true) && Notification.isSupported()) {
     try { new Notification({ title, body, icon: trayIconPath() }).show(); } catch {}
@@ -251,6 +260,7 @@ async function safeStart() {
     const r = await engine.start();
     broadcastStatus(true);
     notify('Shroudly', tr().started);
+    syncPresence();
     return r || { success: true };
   } catch (e) {
     addLog('error', `Start failed: ${e.message}`);
@@ -264,6 +274,7 @@ async function safeStop() {
     await engine.stop();
     broadcastStatus(false);
     notify('Shroudly', tr().stopped);
+    syncPresence();
     return { success: true };
   } catch (e) {
     addLog('error', `Stop failed: ${e.message}`);
@@ -373,10 +384,20 @@ app.whenReady().then(async () => {
   await createWindow();
   updater.start();
 
+  /* The live counter is the one thing Shroudly sends on its own, and whoever
+   * is filtering this connection can see where it goes. For someone using this
+   * because their government blocks sites, a request to our domain is a signal
+   * that they run circumvention software — which is precisely what they came
+   * here to avoid.
+   *
+   * So it only runs while protection is on, which means it travels the same
+   * protected path as everything else rather than announcing itself in the
+   * clear beforehand, and it can be switched off outright. The number is worth
+   * having; it is not worth more than the safety of the people it counts. */
   presence = new Presence({
     onCount: (n) => { if (mainWindow && !mainWindow.isDestroyed()) mainWindow.webContents.send('presence:count', n); },
   });
-  presence.start();
+  syncPresence();
 
   // Re-register every launch so the entry always points at this install
   // (moved app, updated AppImage, 2.0.0's broken Linux entry, legacy names).

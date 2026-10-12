@@ -139,5 +139,9 @@ jobs:
           ls -la dist
       - name: Publish GitHub release
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # The workflow's built-in token publishes as github-actions[bot], which
+          # puts a bot's name on the release instead of the maintainer's. Use the
+          # maintainer's own token when it is configured, and fall back only so a
+          # fork without the secret can still build.
+          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN || secrets.GITHUB_TOKEN }}
         run: node scripts/publish-release.js

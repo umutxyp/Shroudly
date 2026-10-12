@@ -43,10 +43,10 @@ class Presence {
     this.online = null;
     this.onCount = onCount || (() => {});
     this.timer = null;
-    this.stopped = false;
+    this.stopped = true;    // nothing is sent until something asks for it
   }
 
-  start() { this._ping(); }
+  start() { this.restart(); }
 
   async _ping() {
     if (this.stopped) return;
@@ -68,6 +68,15 @@ class Presence {
       if (Number.isFinite(r.online)) { this.online = r.online; this.onCount(this.online); }
     } catch {}
     return this.online;
+  }
+
+  /* Begin counting again after a leave(), with a fresh id: the previous one
+   * was discarded and nothing links the two. */
+  restart() {
+    if (!this.stopped) return;
+    this.stopped = false;
+    this.id = crypto.randomUUID();
+    this._ping();
   }
 
   /* Best effort on quit: drop out of the count right away instead of
