@@ -30,7 +30,7 @@ test: test/test_proto.c test/test_desync.c $(SRC)
 test-asan: test/test_proto.c test/test_desync.c test/test_bogon.c $(SRC)
 	$(CC) -std=c11 -O1 -g -fsanitize=address,undefined -pthread \
 		-o /tmp/shroudly_test_asan \
-		src/platform.c src/proto.c src/strategy.c src/desync.c src/doh.c \
+		src/platform.c src/proto.c src/strategy.c src/desync.c src/fake.c src/doh.c \
 		test/test_desync.c $(LDLIBS)
 	ASAN_OPTIONS=halt_on_error=0 /tmp/shroudly_test_asan
 	$(CC) -std=c11 -O1 -g -fsanitize=address,undefined -pthread \

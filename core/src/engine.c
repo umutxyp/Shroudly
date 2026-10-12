@@ -10,6 +10,7 @@
 
 #define RELAY_BUF   32768
 #define FIRST_WAIT  4000   /* ms to gather the client's first payload */
+#define QUIET_WAIT   400   /* ms to decide nobody is going to speak first */
 #define MAX_CONNS   2048   /* hard cap on concurrent connections (loopback) */
 
 /* ── attempt ladder ──────────────────────────────────────────────────────
@@ -27,7 +28,7 @@
 #define ATT_PLAIN      (-2)    /* send the payload unmodified */
 #define ATT_MAX         12
 #define ATT_BUDGET_MS   15000
-#define VERIFY_PLAIN_MS 2500
+#define VERIFY_PLAIN_MS 5000
 #define VERIFY_DESYNC_MS 3500
 
 /* Outcome of one attempt. */
@@ -217,15 +218,28 @@ static void relay(sock_t a, sock_t b) {
 /* Read the first client payload (ClientHello / HTTP request). For TLS we wait
  * until the whole first record has arrived so multi-segment ClientHellos are
  * handled correctly. Returns bytes read, or -1. */
-static int read_first(sock_t c, uint8_t *buf, int cap) {
+static int read_first(sock_t c, sock_t up, uint8_t *buf, int cap) {
   int total = 0;
   uint64_t deadline = now_ms() + FIRST_WAIT;
   int want = 0;
   while (total < cap) {
     int left = (int)(deadline - now_ms());
     if (left <= 0) break;
-    int w = sock_wait_readable(c, left);
-    if (w <= 0) break;
+    int w;
+    if (total == 0) {
+      /* Nothing from the client yet. In plenty of protocols the server speaks
+       * first — SMTP, IMAP, SSH, game clients — and a browser also opens
+       * connections it never sends anything on. Waiting out the whole window
+       * for a payload that is never coming stalls those connections for four
+       * seconds each and pins a thread while it happens, so watch both sides
+       * and stop as soon as it is clear the client is not the one talking. */
+      w = sock_wait_either(c, up, left < QUIET_WAIT ? left : QUIET_WAIT);
+      if (w <= 0) break;            /* neither spoke: hand over to the relay */
+      if (!(w & 1)) break;          /* the server spoke first */
+    } else {
+      w = sock_wait_readable(c, left);
+      if (w <= 0) break;
+    }
     int n = recv(c, (char *)buf + total, cap - total, 0);
     if (n <= 0) break;
     total += n;
@@ -354,7 +368,7 @@ static void handle(sock_t client) {
   rbuf  = (uint8_t *)malloc(RELAY_BUF);
   if (!first || !work || !rbuf) goto done;
 
-  int flen = read_first(client, first, RELAY_BUF);
+  int flen = read_first(client, up, first, RELAY_BUF);
   int rlen = 0;
 
   if (flen > 0) {
@@ -386,7 +400,7 @@ static void handle(sock_t client) {
     }
 
     uint64_t deadline = now_ms() + ATT_BUDGET_MS;
-    int saw_refusal = 0;
+    int saw_refusal = 0, silent = 0;
     for (int a = 0; a < ncand; a++) {
       if (a > 0) {
         /* Anything the client sent meanwhile belongs in the replay. */
@@ -409,7 +423,10 @@ static void handle(sock_t client) {
         atomic_fetch_add(&g_stats.probe_success, 1);
         /* Only worth reporting when something had to be done about it: a site
          * that opened untouched is not news, one that needed a technique is. */
-        if (a > 0 && cand[a] >= 0)
+        /* Only call it a bypass if something actually refused us. A server
+         * that was just slow is not a censored one, and saying so in the log
+         * would send the user chasing a block that never happened. */
+        if (a > 0 && cand[a] >= 0 && saw_refusal)
           report("bypass", key, strategy_preset(cand[a])->name, a + 1, fam);
         break;
       }
@@ -418,6 +435,13 @@ static void handle(sock_t client) {
         break;
       }
       if (r == ATT_REFUSED) saw_refusal = 1;
+      else if (++silent >= 2 && !saw_refusal) {
+        /* Twice now the far end simply said nothing, and nothing has ever been
+         * refused. That is a slow or unreachable server far more often than a
+         * censored one, and working through ten more techniques would only
+         * make an already slow page slower. Let the relay wait it out. */
+        break;
+      }
       atomic_fetch_add(&g_stats.probe_fail, 1);
       if (a + 1 >= ncand || now_ms() >= deadline) {
         /* Nothing got through. This line is what a support log needs: the host,

@@ -73,7 +73,11 @@ int strategy_parse(const char *spec, strategy *out) {
       if (op.ref == POS_ABS && args[0]) op.offset = atoi(args);
     } else if (op.kind == OP_SPLIT || op.kind == OP_DISORDER) {
       op.ref = parse_ref(args, &op.offset);
-      if (op.ref == POS_ABS && args[0]) out->split_pos = atoi(args);
+      /* A bare number is the position itself. It used to be stored in a field
+       * nothing read, so split(2) and split(76) both silently became split(1)
+       * — which made two presets duplicates of a third and quietly ignored any
+       * offset a user copied from another tool. */
+      if (op.ref == POS_ABS && args[0]) op.offset = atoi(args);
     }
     out->ops[out->n_ops++] = op;
   }

@@ -57,9 +57,11 @@ static int send_disordered(sock_t up, int family, const uint8_t *buf,
   /* The TTL must not be restored until this segment has actually been
    * transmitted, or the kernel sends it with the restored TTL and the whole
    * technique silently does nothing. Linux can be asked precisely; elsewhere a
-   * 10 ms pause is the established value. */
+   * 10 ms pause is the established value — and is all that is needed, so the
+   * generic wait (a flat sleep off Linux) is not paid on top of it. */
+#ifdef __linux__
   sock_wait_sent(up, 10);
-#ifndef __linux__
+#else
   sleep_ms(10);
 #endif
   sock_set_ttl(up, family, saved);          /* restore before the real half */
@@ -226,7 +228,10 @@ int desync_send_first(sock_t up, int family,
     if (bounds[i+1] > bounds[i]) {
       if (sock_send_all(up, payload + bounds[i],
                         (size_t)(bounds[i+1] - bounds[i]), 0) != 0) return -1;
-      sock_wait_sent(up, 10);
+      /* Only between chunks: waiting after the last one keeps the segments
+       * apart from nothing and simply delays the connection. Off Linux that
+       * wait is a flat sleep, so the saving is real. */
+      if (i + 2 < nb) sock_wait_sent(up, 10);
     }
   }
   return 0;
