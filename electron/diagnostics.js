@@ -62,6 +62,11 @@ const CONFLICTS = [
 
 /* Programs that read the system proxy once, when they start.
  *
+ * Kept to the ones people actually come here for. Naming every chat and music
+ * app that happens to be open turns a useful hint into a list of things that
+ * look wrong, and a message about a program the user was not even thinking
+ * about reads as a warning that something has gone wrong with it.
+ *
  * This is the single most common reason someone reports "it works in my
  * browser but not in the app": protection was switched on while the program
  * was already running, so it is still using the connection it was given at
@@ -69,15 +74,10 @@ const CONFLICTS = [
  * restarted — so the least we can do is notice and say so, by name, instead
  * of letting them conclude the app is broken. */
 const NEEDS_RESTART = [
-  { re: /(^|[^a-z])discord/i,              name: 'Discord' },
-  { re: /(^|[^a-z])firefox|librewolf|waterfox/i, name: 'Firefox' },
-  { re: /roblox/i,                         name: 'Roblox' },
-  { re: /(^|[^a-z])steam(webhelper)?/i,    name: 'Steam' },
-  { re: /(^|[^a-z])telegram/i,             name: 'Telegram' },
-  { re: /(^|[^a-z])spotify/i,              name: 'Spotify' },
-  { re: /(^|[^a-z])slack/i,                name: 'Slack' },
-  { re: /(^|[^a-z])whatsapp/i,             name: 'WhatsApp' },
-  { re: /thunderbird/i,                    name: 'Thunderbird' },
+  { re: /(^|[^a-z])discord/i,                     name: 'Discord' },
+  { re: /(^|[^a-z])firefox|librewolf|waterfox/i,  name: 'Firefox' },
+  { re: /roblox/i,                                name: 'Roblox' },
+  { re: /(^|[^a-z])telegram/i,                    name: 'Telegram' },
 ];
 
 async function processList() {
