@@ -494,7 +494,13 @@ export default function SettingsPanel({ active = false }) {
             {probeBlocked && (
               <Notice tone="warn" Icon={AlertTriangleIcon}>
                 <p className="mb-1 font-semibold" style={{ color: 'var(--warn)' }}>{t('probeBlockedTitle', { host: probeResult.host })}</p>
-                <p className="mb-3 text-[12.5px]" style={{ color: 'var(--text-dim)' }}>{t('probeBlockedDesc')}</p>
+                {/* This test exercises the normal mode only. With Advanced mode on,
+                    "still blocked" here says nothing about what the packet-level
+                    engine is doing, and telling the user to try a mode that is
+                    already running reads as the app contradicting itself. */}
+                <p className="mb-3 text-[12.5px]" style={{ color: 'var(--text-dim)' }}>
+                  {advInfo.active ? t('probeBlockedAdvancedOn', { host: probeResult.host }) : t('probeBlockedDesc')}
+                </p>
                 {advInfo.available ? (
                   advInfo.active ? (
                     <p className="flex items-center gap-1.5 font-medium" style={{ color: 'var(--ok)' }}>
