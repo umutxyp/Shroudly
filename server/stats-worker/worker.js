@@ -93,45 +93,91 @@ export class Presence {
 /* ── always-latest download redirects ─────────────────────────────────────
  * /dl                -> the latest release page
  * /dl/<key>          -> 302 to that platform's installer in the latest release
- * The latest-release lookup is cached ~10 min so GitHub's unauthenticated API
- * limit is never a problem. */
-const DL_PATTERNS = {
-  'windows-x64':  /Windows-x64-Setup\.exe$/i,
-  'windows-arm64':/Windows-arm64-Setup\.exe$/i,
-  'macos-arm64':  /macOS-arm64\.dmg$/i,
-  'macos-x64':    /macOS-x64\.dmg$/i,
-  'macos-arm64-zip': /macOS-arm64\.zip$/i,
-  'macos-x64-zip': /macOS-x64\.zip$/i,
-  'linux-x64':    /Linux-x86_64\.AppImage$/i,
-  'linux-arm64':  /Linux-arm64\.AppImage$/i,
-  'linux-deb':    /Linux-amd64\.deb$/i,
+ *
+ * NO GITHUB API. This used to read api.github.com/.../releases/latest, which
+ * is limited to 60 unauthenticated requests an hour per IP — and a Worker
+ * shares its egress IPs with everyone else's Workers, so the limit was often
+ * spent before we asked. The 10-minute cache did not help much: caches.default
+ * is per data centre, so most visitors landed on a cold one. Every refused
+ * lookup sent the visitor to the release page instead of the file.
+ *
+ * Now the version comes from the redirect github.com itself serves for
+ * /releases/latest (-> /releases/tag/vX.Y.Z), which is not an API call and
+ * has no such limit, and the filename is built from the fixed shape
+ * electron-builder gives every release. Each built URL is checked once with a
+ * HEAD before it is handed out, so a release whose assets are still uploading
+ * falls back to the release page rather than to a 404.
+ *
+ * Both lookups are cached per data centre for 5 minutes; a failed one is not
+ * cached, so the next request simply tries again. */
+const DL_FILES = {
+  'windows-x64':     (v) => `Shroudly-${v}-Windows-x64-Setup.exe`,
+  'windows-arm64':   (v) => `Shroudly-${v}-Windows-arm64-Setup.exe`,
+  'macos-arm64':     (v) => `Shroudly-${v}-macOS-arm64.dmg`,
+  'macos-x64':       (v) => `Shroudly-${v}-macOS-x64.dmg`,
+  'macos-arm64-zip': (v) => `Shroudly-${v}-macOS-arm64.zip`,
+  'macos-x64-zip':   (v) => `Shroudly-${v}-macOS-x64.zip`,
+  'linux-x64':       (v) => `Shroudly-${v}-Linux-x86_64.AppImage`,
+  'linux-arm64':     (v) => `Shroudly-${v}-Linux-arm64.AppImage`,
+  'linux-deb':       (v) => `Shroudly-${v}-Linux-amd64.deb`,
 };
-const RELEASES_LATEST = 'https://github.com/umutxyp/Shroudly/releases/latest';
+const REPO = 'https://github.com/umutxyp/Shroudly';
+const RELEASES_LATEST = `${REPO}/releases/latest`;
+const CACHE_SECONDS = 300;
+const TAG_RE = /\/releases\/tag\/(v?(\d+\.\d+\.\d+[^/?#]*))$/;
 
-async function latestRelease(ctx) {
-  const cache = caches.default;
-  const cacheKey = new Request('https://shroudly.codeshare.me/__latest_release');
-  let res = await cache.match(cacheKey);
-  if (!res) {
-    const gh = await fetch('https://api.github.com/repos/umutxyp/Shroudly/releases/latest', {
-      headers: { 'user-agent': 'shroudly-dl', accept: 'application/vnd.github+json' },
-    });
-    if (!gh.ok) return null;
-    res = new Response(await gh.text(), { headers: { 'content-type': 'application/json', 'cache-control': 'public, max-age=600' } });
-    ctx.waitUntil(cache.put(cacheKey, res.clone()));
+/* A tiny string cache on caches.default, keyed by a URL we never serve. */
+async function cached(name, ctx, produce) {
+  const key = new Request(`https://shroudly.codeshare.me/__cache/${encodeURIComponent(name)}`);
+  const hit = await caches.default.match(key);
+  if (hit) return hit.text();
+  const value = await produce();
+  if (value) {
+    const res = new Response(value, { headers: { 'cache-control': `public, max-age=${CACHE_SECONDS}` } });
+    ctx.waitUntil(caches.default.put(key, res));
   }
-  try { return JSON.parse(await res.text()); } catch { return null; }
+  return value;
+}
+
+/* "v2.3.0" -> { tag: "v2.3.0", version: "2.3.0" }, or null. */
+async function latestTag(ctx) {
+  const tag = await cached('latest-tag', ctx, async () => {
+    const res = await fetch(RELEASES_LATEST, {
+      method: 'HEAD',
+      redirect: 'manual',
+      headers: { 'user-agent': 'shroudly-dl' },
+    });
+    const m = (res.headers.get('location') || '').match(TAG_RE);
+    return m ? m[1] : null;
+  });
+  if (!tag) return null;
+  return { tag, version: tag.replace(/^v/, '') };
+}
+
+async function assetExists(url, ctx) {
+  const ok = await cached(`asset:${url}`, ctx, async () => {
+    const res = await fetch(url, { method: 'HEAD', redirect: 'manual', headers: { 'user-agent': 'shroudly-dl' } });
+    // github.com answers an existing asset with a redirect to its storage.
+    return res.status === 302 || res.status === 200 ? '1' : null;
+  });
+  return ok === '1';
 }
 
 async function handleDownload(pathname, ctx) {
   const key = pathname.replace(/^\/dl\/?/, '');
   if (!key) return Response.redirect(RELEASES_LATEST, 302);
-  const pat = DL_PATTERNS[key];
-  if (!pat) return new Response('unknown download key', { status: 404 });
-  const rel = await latestRelease(ctx);
-  const asset = rel && (rel.assets || []).find((a) => pat.test(a.name));
-  if (!asset) return Response.redirect(RELEASES_LATEST, 302);
-  return Response.redirect(asset.browser_download_url, 302);
+  const file = DL_FILES[key];
+  if (!file) return new Response('unknown download key', { status: 404 });
+  try {
+    const latest = await latestTag(ctx);
+    if (latest) {
+      const url = `${REPO}/releases/download/${latest.tag}/${file(latest.version)}`;
+      if (await assetExists(url, ctx)) return Response.redirect(url, 302);
+    }
+  } catch {
+    /* github.com unreachable: the release page is still the right answer */
+  }
+  return Response.redirect(RELEASES_LATEST, 302);
 }
 
 export default {
