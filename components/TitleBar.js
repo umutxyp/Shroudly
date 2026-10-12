@@ -22,7 +22,7 @@ export default function TitleBar() {
         paddingRight: platform && !mac && platform !== 'web' ? 138 : undefined,
       }}
     >
-      <span className="select-none text-[12px] font-medium tracking-wide" style={{ color: 'var(--text-faint)' }}>
+      <span className="select-none text-[12px] font-semibold tracking-wide" style={{ color: 'var(--text-dim)' }}>
         Shroudly
       </span>
     </div>

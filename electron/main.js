@@ -352,8 +352,11 @@ app.whenReady().then(async () => {
     // Programs that were already open when protection started are still using
     // the connection they were given at launch.
     onNeedRestart: (apps) => {
+      // Shown inside the window only. As a system notification this reads like
+      // something has gone wrong with the program it names, which is alarming
+      // and untrue — nothing happened to it, it simply started before the
+      // protection did.
       if (mainWindow && !mainWindow.isDestroyed()) mainWindow.webContents.send('dpi:need-restart', { apps });
-      notify(tr().restartAppsTitle, tr().restartAppsBody.replace('{apps}', apps.join(', ')));
     },
 
     onSiteBlocked: (host) => {
@@ -562,6 +565,19 @@ function ipv6Available() {
 }
 ipcMain.handle('net:ipv6Available', () => ipv6Available());
 ipcMain.handle('settings:defaultSiteList', () => EngineManager.DEFAULT_SITE_LIST);
+/* Repaint the system-drawn caption strip to match the theme. Only Windows and
+ * Linux have one; macOS draws its buttons over our own strip. A colour the
+ * renderer sends is only ever used as a colour, and an unparseable one is
+ * refused by Electron, so it is passed through inside a try. */
+ipcMain.handle('ui:titlebar', (_e, c) => {
+  if (process.platform === 'darwin') return false;
+  if (!mainWindow || mainWindow.isDestroyed() || !c) return false;
+  const ok = (v) => typeof v === 'string' && /^#[0-9a-f]{3,8}$|^rgba?\(/i.test(v.trim());
+  if (!ok(c.color) || !ok(c.symbolColor)) return false;
+  try { mainWindow.setTitleBarOverlay({ color: c.color, symbolColor: c.symbolColor, height: 36 }); return true; }
+  catch { return false; }
+});
+
 ipcMain.handle('presence:get', () => (presence ? presence.online : null));
 ipcMain.handle('presence:refresh', () => (presence ? presence.refresh() : null));
 

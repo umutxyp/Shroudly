@@ -46,6 +46,10 @@
   --knob:        #ffffff;
   --shadow-pop:  0 18px 48px rgba(0, 0, 0, 0.55), 0 2px 8px rgba(0, 0, 0, 0.35);
   --selection:   rgba(56, 189, 248, 0.32);
+  /* Windows and Linux draw their own caption buttons on a solid strip, and
+     Electron needs a concrete colour for it. Keeping it here means the strip
+     follows the theme instead of staying the one colour it was born with. */
+  --titlebar:    #0b0f17;
 
   --radius:    16px;
   --radius-sm: 11px;
@@ -346,65 +350,81 @@ input::placeholder { color: var(--text-faint); opacity: 1; }
 /* ─────────────────────────────────────────────────────────────────────────
    Liquid glass.
 
-   The window is opaque, so there is nothing behind it to blur. The depth has
-   to be made inside the page: a slow accent-tinted wash on the background,
-   then surfaces that are genuinely translucent and blurred over it, with a
-   lit top edge where the light would catch. Text keeps its own colours and
-   never sits directly on the blur, so legibility is unchanged.
+   One hue, not a palette. Depth comes from how far the accent is carried
+   between a pale tint and a deep shade, not from mixing in other colours —
+   several hues at once reads as a smear, and it drags text contrast down with
+   it. The steps are interpolated in OKLab so the run from light to dark stays
+   even instead of dipping through grey in the middle.
+
+   The wash is deliberately restrained. Everything here sits behind text, and
+   measured contrast for body copy is the limit it has to respect; glass that
+   looks impressive and cannot be read is not a trade worth making.
    ───────────────────────────────────────────────────────────────────────── */
 :root[data-surface="glass"] {
-  --surface:       rgba(16, 22, 36, 0.52);
-  --surface-2:     rgba(16, 22, 36, 0.38);
-  --surface-hover: rgba(42, 54, 78, 0.56);
-  --surface-press: rgba(52, 66, 94, 0.62);
-  --line:          rgba(226, 238, 255, 0.14);
-  --line-strong:   rgba(226, 238, 255, 0.26);
-  --bg-sunk:       rgba(8, 11, 18, 0.55);
-  --glass-blur:    22px;
+  /* A dark scrim, not a white one. With a pale accent — lime, amber — a panel
+     that brightens what is behind it leaves light text on a light field, and
+     measured contrast falls below the readable threshold. What makes this read
+     as glass is the blur and the lit edge below, not the fill. */
+  --surface:       rgba(9, 13, 22, 0.42);
+  --surface-2:     rgba(9, 13, 22, 0.30);
+  --surface-hover: rgba(30, 40, 60, 0.52);
+  --surface-press: rgba(40, 52, 76, 0.58);
+  --line:          rgba(255, 255, 255, 0.11);
+  --line-strong:   rgba(255, 255, 255, 0.20);
+  --bg-sunk:       rgba(255, 255, 255, 0.03);
+  --glass-blur:    30px;
+  --titlebar:      color-mix(in oklab, var(--accent-deep) 16%, #0b1020);
 }
 
-/* The wash goes on .shell, which covers the whole window and sits behind every
-   panel — putting it on body would hide it under that very element. It has to
-   be strong enough for the blur to have something to pick up, or the panels
-   read as flat grey rather than glass. */
 :root[data-surface="glass"] .shell {
   background:
-    radial-gradient(115% 75% at 8% -12%,
-      color-mix(in srgb, var(--accent) 52%, transparent) 0%, transparent 56%),
-    radial-gradient(105% 70% at 96% 4%,
-      color-mix(in srgb, var(--accent-deep) 58%, transparent) 0%, transparent 52%),
-    radial-gradient(130% 85% at 55% 110%,
-      color-mix(in srgb, var(--accent) 34%, transparent) 0%, transparent 58%),
-    var(--bg) !important;
+    /* grain, so the wide fields do not band on 8-bit panels */
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E"),
+    /* the same hue, carried from a light tint down to a deep shade */
+    radial-gradient(82% 46% at 14% -10%,
+      color-mix(in oklab, var(--accent) 30%, transparent) 0%, transparent 62%),
+    radial-gradient(70% 40% at 88% -4%,
+      color-mix(in oklab, var(--accent-deep) 34%, transparent) 0%, transparent 58%),
+    radial-gradient(100% 52% at 50% 106%,
+      color-mix(in oklab, var(--accent-deep) 22%, transparent) 0%, transparent 66%),
+    linear-gradient(170deg,
+      color-mix(in oklab, var(--accent-deep) 10%, #0d1220) 0%,
+      #080b12 58%) !important;
 }
 
 :root[data-surface="glass"] .card,
 :root[data-surface="glass"] .card-2 {
-  backdrop-filter: blur(var(--glass-blur)) saturate(165%);
-  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(165%);
-  /* The hairline along the top is what reads as a lit edge rather than a box. */
+  backdrop-filter: blur(var(--glass-blur)) saturate(150%);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(150%);
+  border-color: var(--line);
+  /* A bright hairline where light lands, a dark one where it does not, and the
+     panel lifted off the backdrop by a wide, soft shadow. */
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.14),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.18),
-    0 10px 32px rgba(0, 0, 0, 0.34);
+    inset 0 1px 0 rgba(255, 255, 255, 0.20),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.26),
+    0 14px 44px rgba(0, 0, 0, 0.40);
 }
 
-/* The chrome floats over the same wash instead of sitting on a flat panel. */
+/* The chrome is the same material, denser, so text over it never depends on
+   what the backdrop happens to be doing underneath. */
 :root[data-surface="glass"] header,
 :root[data-surface="glass"] nav {
-  background: rgba(10, 14, 22, 0.45) !important;
-  backdrop-filter: blur(18px) saturate(150%);
-  -webkit-backdrop-filter: blur(18px) saturate(150%);
+  background: rgba(8, 11, 20, 0.62) !important;
+  backdrop-filter: blur(26px) saturate(150%);
+  -webkit-backdrop-filter: blur(26px) saturate(150%);
 }
+:root[data-surface="glass"] header { box-shadow: inset 0 -1px 0 rgba(255, 255, 255, 0.06); }
+:root[data-surface="glass"] nav    { box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06); }
 
 :root[data-surface="glass"] .btn-primary {
-  background: linear-gradient(180deg, var(--accent-hover), var(--accent-deep));
+  background: linear-gradient(180deg,
+    color-mix(in oklab, var(--accent-hover) 92%, white 8%), var(--accent-deep));
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.28),
-    0 6px 18px color-mix(in srgb, var(--accent) 34%, transparent);
+    inset 0 1px 0 rgba(255, 255, 255, 0.32),
+    0 8px 22px color-mix(in oklab, var(--accent) 34%, transparent);
 }
 
-/* Someone who asked for less motion gets the look without the expense. */
+/* Someone who asked for less transparency gets the colour without the cost. */
 @media (prefers-reduced-transparency: reduce) {
   :root[data-surface="glass"] .card,
   :root[data-surface="glass"] .card-2,
@@ -413,5 +433,7 @@ input::placeholder { color: var(--text-faint); opacity: 1; }
     backdrop-filter: none;
     -webkit-backdrop-filter: none;
   }
-  :root[data-surface="glass"] { --surface: #121826; --surface-2: #161d2e; --bg-sunk: #080b12; }
+  :root[data-surface="glass"] {
+    --surface: #141b2c; --surface-2: #121829; --bg-sunk: #0a0e18;
+  }
 }

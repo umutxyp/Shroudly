@@ -50,6 +50,18 @@ export function applyAppearance({ accent, surface }) {
     localStorage.setItem(ACCENT_KEY, accent || 'sky');
     localStorage.setItem(SURFACE_KEY, surface || 'solid');
   } catch {}
+
+  /* On Windows and Linux the caption buttons sit on a strip the operating
+   * system paints, which would otherwise keep its original colour while the
+   * rest of the window changed around it. macOS draws its buttons straight
+   * over ours, so it needs nothing. */
+  try {
+    const cs = getComputedStyle(el);
+    window.electron?.setTitleBarColors?.({
+      color: cs.getPropertyValue('--titlebar').trim(),
+      symbolColor: cs.getPropertyValue('--text-dim').trim(),
+    });
+  } catch {}
 }
 
 /* Applies the saved choice as early as the app can run script, so the window

@@ -25,12 +25,16 @@
  * cross-platform, and removes the most common censorship layer (UDP/53 reply
  * injection) without touching any system network settings.
  */
-/* rand_s is only declared when this is defined, and it has to be defined
-   before any C runtime header is pulled in. */
-#if defined(_WIN32) && !defined(_CRT_RAND_S)
-#define _CRT_RAND_S
+/* rand_s is only declared when _CRT_RAND_S is set before the C runtime header
+   is pulled in — but only Windows needs that. Including <stdlib.h> here on
+   glibc would fix the feature-test macros before platform.h gets to set
+   _GNU_SOURCE, and struct addrinfo would then not be declared at all. */
+#ifdef _WIN32
+#  ifndef _CRT_RAND_S
+#  define _CRT_RAND_S
+#  endif
+#  include <stdlib.h>
 #endif
-#include <stdlib.h>
 #include "doh.h"
 #include "platform.h"
 #include <string.h>
