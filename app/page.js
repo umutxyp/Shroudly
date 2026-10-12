@@ -124,7 +124,7 @@ export default function Home() {
 
       <Onboarding onNavigate={setActiveTab} />
 
-      <BlockedNotice onNavigate={setActiveTab} />
+      <BlockedNotice onNavigate={setActiveTab} active={active} />
 
       <UpdateBanner />
 

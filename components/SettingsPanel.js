@@ -159,6 +159,8 @@ export default function SettingsPanel({ active = false }) {
   });
   // null while unknown; false greys out "Prefer IPv6" on IPv4-only networks
   const [ipv6Ok, setIpv6Ok] = useState(null);
+  // Discord app mode: shown only where the Discord app has been used
+  const [discord, setDiscord] = useState({ installed: false, on: false });
   const [defaultList, setDefaultList] = useState([]);
   const [siteText, setSiteText] = useState(null);   // textarea draft (null until loaded)
   const [badEntries, setBadEntries] = useState([]); // lines dropped as unusable
@@ -176,6 +178,20 @@ export default function SettingsPanel({ active = false }) {
     if (typeof window === 'undefined' || !window.electron?.ipv6Available) return;
     window.electron.ipv6Available().then(setIpv6Ok).catch(() => {});
   }, []);
+
+  useEffect(() => {
+    window.electron?.discordStatus?.()
+      .then((d) => setDiscord({ installed: !!d?.installed, on: d?.mode === true }))
+      .catch(() => {});
+  }, []);
+
+  async function setDiscordMode(on) {
+    setDiscord((d) => ({ ...d, on }));
+    try {
+      const r = await window.electron.discordSet(on);
+      if (!r?.success) setDiscord((d) => ({ ...d, on: !on }));
+    } catch { setDiscord((d) => ({ ...d, on: !on })); }
+  }
 
   useEffect(() => {
     (async () => {
@@ -363,6 +379,10 @@ export default function SettingsPanel({ active = false }) {
                   checked={settings.preferIpv6}
                   disabled={ipv6Ok === false && !settings.preferIpv6}
                   onChange={(v) => save('preferIpv6', v)} />
+          {discord.installed && (
+            <Toggle label={t('discordModeLabel')} desc={t('discordModeDesc')}
+                    checked={discord.on} onChange={setDiscordMode} />
+          )}
         </div>
 
         {active && (

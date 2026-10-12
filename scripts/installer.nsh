@@ -32,6 +32,15 @@
   DeleteRegValue HKCU "Software\Microsoft\Windows\CurrentVersion\RunOnce" "ShroudlyProxyRestore"
 !macroend
 
+; Discord app mode points the Discord app's updater at Shroudly (one line in
+; Discord's settings.json). Take our line out, so Discord keeps working once
+; Shroudly is gone. Only our own loopback value is removed; written without a
+; byte-order mark, which Discord's JSON reader would reject.
+!macro shroudlyDiscordCleanup
+  nsExec::Exec `powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command "foreach ($$d in 'discord','discordptb','discordcanary') { $$f = Join-Path $$env:APPDATA ($$d + '\settings.json'); if (Test-Path -LiteralPath $$f) { try { $$j = [IO.File]::ReadAllText($$f) | ConvertFrom-Json; if ([string]$$j.NEW_UPDATE_ENDPOINT -match '^http://127\.0\.0\.1:\d+/$$') { $$j.PSObject.Properties.Remove('NEW_UPDATE_ENDPOINT'); [IO.File]::WriteAllText($$f, ($$j | ConvertTo-Json -Depth 32)) } } catch {} } }"`
+  Pop $0
+!macroend
+
 !macro customInit
   ; Electron 43 does not run on Windows 8.1 or earlier. Without this the
   ; installer would succeed and the app would then fail to start with nothing
@@ -49,6 +58,7 @@ Shroudly, Windows 10 veya daha yenisini gerektirir."
   !insertmacro shroudlyResetProxy
   ; An update also runs the old uninstaller: keep the user's auto-start then.
   ${ifNot} ${isUpdated}
+    !insertmacro shroudlyDiscordCleanup
     DeleteRegValue HKCU "Software\Microsoft\Windows\CurrentVersion\Run" "Shroudly"
     DeleteRegValue HKCU "Software\Microsoft\Windows\CurrentVersion\Run" "electron.app.Shroudly"
     DeleteRegValue HKCU "Software\Microsoft\Windows\CurrentVersion\Run" "me.codeshare.shroudly"
