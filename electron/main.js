@@ -351,6 +351,12 @@ app.whenReady().then(async () => {
     // into a stream of notifications.
     // Programs that were already open when protection started are still using
     // the connection they were given at launch.
+    // Encrypted DNS was switched back on because a site could not be reached
+    // without it. The settings screen has to show the new state.
+    onDnsAutoEnabled: (host) => {
+      if (mainWindow && !mainWindow.isDestroyed()) mainWindow.webContents.send('dpi:dns-auto-enabled', { host });
+    },
+
     onNeedRestart: (apps) => {
       // Shown inside the window only. As a system notification this reads like
       // something has gone wrong with the program it names, which is alarming

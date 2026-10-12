@@ -26,6 +26,7 @@ const EXACT = {
 };
 
 const PATTERNS = [
+  [/^(\S+) could not be opened with encrypted DNS switched off\./, 'logDnsReenabledForBlock', ['host']],
   [/^(.+?) was already running when protection started\./, 'logAppsNeedRestart', ['apps']],
   [/^Encrypted DNS is not reachable on this network/, 'logDohDown', []],
   [/^([A-Za-z0-9.:_-]+): blocked here, opened with (\S+) \((\d+) tries, (\S+)\)$/, 'logSiteBypassed', ['host', 'strategy', 'tries', 'family']],

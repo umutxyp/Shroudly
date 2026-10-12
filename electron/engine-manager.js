@@ -91,6 +91,7 @@ class EngineManager {
     this.onProbe = hooks.onProbe || (() => {});
     this.onSiteBlocked = hooks.onSiteBlocked || (() => {});
     this.onNeedRestart = hooks.onNeedRestart || (() => {});
+    this.onDnsAutoEnabled = hooks.onDnsAutoEnabled || (() => {});
     this.lastProbe = null;
     this.proxyOptions = hooks.proxyOptions || {};
     this.proxy = new SystemProxy(this.log, this.proxyOptions);
@@ -104,6 +105,7 @@ class EngineManager {
     this.bypassed = new Set();
     this.blockedHosts = new Set();
     this._dnsAutoFixed = false;
+    this._dnsReenabledForBlock = false;
     this.port = Number(store.get('listenPort', DEFAULT_PORT)) || DEFAULT_PORT;
     this.expectingStop = false;
     this.restarts = 0;
@@ -337,6 +339,18 @@ class EngineManager {
         }
         break;
       case 'blocked':
+        // A site that defeated every technique while encrypted DNS was switched
+        // off: the most likely cause is the DNS answer itself, which none of
+        // the techniques can fix. Turn it back on and retry rather than leave
+        // the user staring at a page that will never load. Once per session.
+        if (this.store.get('dnsProtection') === false && !this._dnsReenabledForBlock) {
+          this._dnsReenabledForBlock = true;
+          this.store.set('dnsProtection', true);
+          this.log('warning', `${msg.host} could not be opened with encrypted DNS switched off. It has been switched back on.`);
+          if (typeof this.onDnsAutoEnabled === 'function') this.onDnsAutoEnabled(msg.host);
+          setTimeout(() => { if (this.active) this.restart().catch(() => {}); }, 300);
+          break;
+        }
         if (!this.blockedHosts.has(msg.host)) {
           if (this.blockedHosts.size > 400) this.blockedHosts.clear();
           this.blockedHosts.add(msg.host);
