@@ -120,6 +120,8 @@ jobs:
             dist/*.zip
             dist/*.AppImage
             dist/*.deb
+            dist/*.pacman
+            dist/*.rpm
             dist/latest*.yml
 
   release:

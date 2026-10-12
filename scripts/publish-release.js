@@ -34,7 +34,7 @@ const ASSETS = [
   [`Shroudly-${version}-Linux-x86_64.AppImage`, 'Linux · Intel/AMD 64-bit · AppImage (any distro)'],
   [`Shroudly-${version}-Linux-amd64.deb`, 'Linux · Intel/AMD 64-bit · Debian / Ubuntu package (.deb)'],
   [`Shroudly-${version}-Linux-arm64.AppImage`, 'Linux · ARM 64-bit (e.g. Raspberry Pi 4/5) · AppImage'],
-  [`Shroudly-${version}-Linux-x86_64.pacman`, 'Linux · Intel/AMD 64-bit · Arch / Manjaro package (.pacman)'],
+  [`Shroudly-${version}-Linux-x64.pacman`, 'Linux · Intel/AMD 64-bit · Arch / Manjaro package (.pacman)'],
   [`Shroudly-${version}-Linux-x86_64.rpm`, 'Linux · Intel/AMD 64-bit · Fedora / openSUSE package (.rpm)'],
   ['latest.yml', `Update data · Windows ${FEED}`],
   ['latest-mac.yml', `Update data · macOS ${FEED}`],
@@ -62,7 +62,13 @@ async function api(url, opts = {}) {
 }
 
 (async () => {
-  for (const [name] of ASSETS) if (!fs.existsSync(path.join(dist, name))) throw new Error(`missing dist/${name}`);
+  const absent = ASSETS.map(([n]) => n).filter((n) => !fs.existsSync(path.join(dist, n)));
+  if (absent.length) {
+    // Print what is actually there: every time this has fired it was a name
+    // that did not match, and guessing from the missing one alone is slow.
+    const have = fs.existsSync(dist) ? fs.readdirSync(dist).filter((f) => !f.startsWith('.')).sort() : [];
+    throw new Error(`missing from dist:\n  ${absent.join('\n  ')}\n\ndist contains:\n  ${have.join('\n  ')}`);
+  }
   cleanWindowsFeed();
   // Notes: an explicit file argument, else release-notes/v<version>.md if the
   // repo has one (that is what the CI release job uses).

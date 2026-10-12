@@ -120,6 +120,10 @@ const DL_FILES = {
   'linux-x64':       (v) => `Shroudly-${v}-Linux-x86_64.AppImage`,
   'linux-arm64':     (v) => `Shroudly-${v}-Linux-arm64.AppImage`,
   'linux-deb':       (v) => `Shroudly-${v}-Linux-amd64.deb`,
+  // electron-builder names these two differently from each other: x64 for the
+  // Arch package, x86_64 for the RPM. Copied from what it actually produces.
+  'linux-pacman':    (v) => `Shroudly-${v}-Linux-x64.pacman`,
+  'linux-rpm':       (v) => `Shroudly-${v}-Linux-x86_64.rpm`,
 };
 const REPO = 'https://github.com/umutxyp/Shroudly';
 const RELEASES_LATEST = `${REPO}/releases/latest`;
