@@ -124,6 +124,45 @@ model and test results.
 
 ---
 
+## Where it works, and what it does about each kind of filter
+
+Censors combine a few techniques, and each needs a different answer. What
+Shroudly does on its own, without the user having to know any of this:
+
+| Filter | Where (examples) | What Shroudly does |
+|--------|------------------|--------------------|
+| **Forged DNS answers** (block page, sinkhole, injected reply) | Turkey, Iran, Russia, Indonesia, India, Pakistan, China | Encrypted DNS over 17 routes from 6 operators (below). Plain-DNS answers that point at any of ~180 known block pages from 24 countries are refused. |
+| **Blocked encrypted DNS** | Iran, China, Turkmenistan | Routes reached by address with no name to filter on, plus routes by name through the engine on addresses shared with millions of sites. Routes that fail rest and are retried; the one that works is remembered. |
+| **Name (SNI) filtering on the first packet** | Turkey, Russia, India, Pakistan, many ISPs | Desync techniques, learned per site. |
+| **Filters that follow the whole connection** | Iran, China, Russia | Noticed when a site connects and is then cut (a stall halfway through a record, a reset, a request never answered): the next connection tries another technique, and the user is told, with Advanced mode offered where the machine has it. |
+| **Blocking by server address, protocol whitelisting, shutdowns** | Russia's throttling of some hosting providers, Iran during shutdowns | Cannot be fixed by any technique that leaves the address unchanged. Shroudly says so plainly and points to a VPN, rather than looking like it works. |
+
+When DNS answers on a network match a country's known block pages, the log
+says which, and on networks whose filters follow whole connections (Iran,
+China, Russia, Turkmenistan, Belarus) Advanced mode is offered up front.
+Another VPN or bypass tool running alongside (Cloudflare WARP, for one) is
+named in the window until it is closed, because two tools rewriting the same
+connections is the most common reason nothing works.
+
+Block-page addresses come from [OONI's blocking fingerprints](https://github.com/ooni/blocking-fingerprints),
+without anything in shared cloud space that could later belong to a real site.
+Background: [Iran's 2026 shutdowns](https://arxiv.org/html/2603.28753v1),
+[China's QUIC SNI filtering](https://gfw.report/publications/usenixsecurity25/en/),
+[Russia's 16 KB throttling](https://en.zona.media/article/2025/06/19/cloudflare).
+
+### Encrypted DNS routes
+
+| Kind | Routes |
+|------|--------|
+| By address, no name in the handshake | Cloudflare (1.1.1.1, 1.0.0.1, 162.159.36.1, 162.159.46.1), Google (8.8.8.8, 8.8.4.4), Quad9 (9.9.9.9, 149.112.112.112), AdGuard unfiltered (94.140.14.140/141), OpenDNS (208.67.222.222/220.220), DNS.SB (185.222.222.222, 45.11.45.11) |
+| By name, through the engine | Cloudflare's shared front end (104.16.248.249, 104.16.249.249), Mullvad (194.242.2.2) |
+
+All over HTTP/2, one connection per route, each certificate checked against
+the resolver it claims to be. Lookups race the best route, then two more of
+other kinds, then the rest.
+
+---
+
 ## Discord app mode
 
 The Discord app checks for updates before it opens, with its own native
@@ -312,8 +351,17 @@ Strategy syntax: `split(sni)`, `disorder(sni)`, `split(sni_mid)`,
 ## Testing
 
 ```bash
-npm run test:core        # unit tests for protocol + strategy parsing
+npm run test:core        # engine unit tests (protocol, strategies, desync)
+npm run test:net         # network tests: the engine against a fake censor and
+                         # hostile servers, encrypted DNS on blocked networks
+                         # and against impostor resolvers, Discord app mode,
+                         # the block-page list, the Windows uninstaller hook
+cd core && make test-asan fuzz   # sanitizers and fuzzing
 ```
+
+The [Tests workflow](.github/workflows/test.yml) runs all of it on every push,
+on Windows, Linux and macOS, x64 and ARM, and the engine tests a second time on
+an AddressSanitizer/UBSan build.
 
 ---
 
@@ -329,6 +377,11 @@ Shroudly does not collect personal data. Two things contact servers:
   [`server/stats-worker`](server/stats-worker/worker.js).
 - **Update checks** (GitHub): the app downloads the release feed from
   `github.com/umutxyp/Shroudly`.
+- **DNS lookups**, while DNS protection is on: names you visit are resolved
+  over encrypted DNS by the resolvers listed under
+  [Encrypted DNS routes](#encrypted-dns-routes), not by your provider.
+- **Discord's update servers**, only with Discord app mode on: the relay asks
+  them on the Discord app's behalf, exactly what Discord would have asked.
 
 ---
 

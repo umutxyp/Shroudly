@@ -38,7 +38,8 @@
     "build:core:advanced": "node scripts/build-core-advanced.js",
     "build:core:advanced:all": "node scripts/build-core-advanced.js --cross",
     "fetch:windivert": "node scripts/fetch-windivert.js",
-    "publish:release": "node scripts/publish-release.js"
+    "publish:release": "node scripts/publish-release.js",
+    "test:net": "node tests/net/run.js"
   },
   "build": {
     "appId": "me.codeshare.shroudly",

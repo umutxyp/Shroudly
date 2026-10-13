@@ -20,6 +20,19 @@ const SystemProxy = require('./system-proxy');
 const DohForwarder = require('./doh-forwarder');
 const diagnostics = require('./diagnostics');
 const { DISCORD_DOMAINS } = require('./discord-relay');
+const fingerprints = require('./censor-fingerprints');
+
+/* Countries whose filters follow whole connections rather than just the first
+ * packet. There the normal mode is often not enough, and Advanced mode is the
+ * thing to offer before the user has to discover it. (Research notes in
+ * README, "Where it works".) */
+const STATEFUL_REGIONS = new Set(['IR', 'CN', 'RU', 'TM', 'BY']);
+
+/* How many cuts on one host, within CUT_WINDOW_MS, before we believe it. A
+ * stall or reset is strong evidence; "no reply" is weak (a long-poll looks
+ * the same), so it needs more. */
+const CUT_WINDOW_MS = 3 * 60 * 1000;
+const CUT_NEED = { stall: 2, reset: 2, noreply: 4 };
 
 /* A list that names any Discord domain gets all of them: Discord loads its
  * pieces from a dozen domains, and a list edited before one was added would
@@ -104,7 +117,18 @@ class EngineManager {
     this.lastProbe = null;
     this.proxyOptions = hooks.proxyOptions || {};
     this.proxy = new SystemProxy(this.log, this.proxyOptions);
-    this.doh = new DohForwarder(this.log);
+    this.onAdvice = hooks.onAdvice || (() => {});
+    // What the window should tell the user about this network. Kept here, not
+    // only sent, because most of it is learned before the window has loaded.
+    this.advice = { conflicts: [], region: null, cut: null, dnsDown: false };
+    this.cuts = new Map();        // host -> [{ reason, t }]
+    this.cutHosts = new Set();    // hosts already reported this session
+    this.doh = new DohForwarder(this.log, {
+      // The route that worked is remembered, so the next start goes straight to it.
+      preferredId: store.get('dohRoute') || null,
+      onPreferred: (id) => store.set('dohRoute', id),
+      onState: (state) => this._setAdvice({ dnsDown: state === 'down' }),
+    });
     this.dohPort = 0;
 
     this.proc = null;
@@ -166,7 +190,53 @@ class EngineManager {
     if (cfg.autoProbe) a.push('--auto');
     if (cfg.useDoh) { a.push('--doh'); if (this.dohPort) a.push('--doh-port', String(this.dohPort)); }
     if (cfg.preferIpv6) a.push('--ipv6');
+    // Block pages and sinkholes of every country we know: an answer pointing
+    // at one is forged, so the engine refuses it and keeps looking.
+    for (const ip of fingerprints.ALL) a.push('--block-ip', ip);
     return a;
+  }
+
+  /* While another VPN or bypass tool is running, look again every half
+   * minute, so the warning goes away by itself once the user quits it. */
+  _watchConflicts() {
+    clearInterval(this._conflictTimer);
+    if (!this.advice.conflicts.length) return;
+    this._conflictTimer = setInterval(async () => {
+      if (!this.active) { clearInterval(this._conflictTimer); return; }
+      let tools = [];
+      try { tools = await diagnostics.runningTools(); } catch { return; }
+      this._setAdvice({ conflicts: tools });
+      if (!tools.length) {
+        clearInterval(this._conflictTimer);
+        this.log('success', 'The other VPN or bypass tool is no longer running.');
+      }
+    }, 30000);
+    if (this._conflictTimer.unref) this._conflictTimer.unref();
+  }
+
+  _setAdvice(patch) {
+    const next = { ...this.advice, ...patch };
+    if (JSON.stringify(next) === JSON.stringify(this.advice)) return;
+    this.advice = next;
+    try { this.onAdvice(this.advice); } catch {}
+  }
+
+  /* A site whose connections start and are then cut. One cut means little;
+   * several on the same host in a few minutes is the network doing it. Told
+   * once per host per session. */
+  _onCut(host, reason, kb) {
+    if (!host || this.cutHosts.has(host)) return;
+    const now = Date.now();
+    const list = (this.cuts.get(host) || []).filter((c) => now - c.t < CUT_WINDOW_MS);
+    list.push({ reason, t: now });
+    this.cuts.set(host, list);
+    if (this.cuts.size > 400) this.cuts.clear();
+    const strong = list.filter((c) => c.reason !== 'noreply').length;
+    const weak = list.length - strong;
+    if (strong < CUT_NEED.stall && weak < CUT_NEED.noreply) return;
+    this.cutHosts.add(host);
+    this.log('warning', `${host}: connects, then the network cuts it (${reason} after ${kb} KB). This network filters whole connections; Shroudly is trying other techniques for it.`);
+    this._setAdvice({ cut: { host, reason } });
   }
 
   async start() {
@@ -184,6 +254,8 @@ class EngineManager {
     this.stats = this._empty();
     this.bypassed.clear();
     this.blockedHosts.clear();
+    this.cuts.clear();
+    this._setAdvice({ cut: null });
     this._describeEnvironment();
     this.stats.strategy = cfg.strategy;
     this.expectingStop = false;
@@ -221,7 +293,10 @@ class EngineManager {
 
   _spawn(bin, args) {
     return new Promise((resolve) => {
-      this.log('info', `Starting engine: ${path.basename(bin)} ${args.join(' ')}`);
+      // The block-page list is long and the same every time: count it, don't print it.
+      const shown = args.filter((x, i) => x !== '--block-ip' && args[i - 1] !== '--block-ip');
+      const blockIps = (args.length - shown.length) / 2;
+      this.log('info', `Starting engine: ${path.basename(bin)} ${shown.join(' ')}${blockIps ? ` (+${blockIps} known block pages)` : ''}`);
       let settled = false;
       const finish = (v) => { if (!settled) { settled = true; resolve(v); } };
 
@@ -285,6 +360,14 @@ class EngineManager {
       this.log('warning', `Also running: ${d.conflicts.join(', ')}. Another bypass tool or VPN changes the same connections as Shroudly; if sites misbehave, turn one of them off.`);
       if (typeof this.onConflicts === 'function') this.onConflicts(d.conflicts);
     }
+    this._setAdvice({ conflicts: d.conflicts });
+    this._watchConflicts();
+    if (d.region) {
+      this.log('info', d.region === 'filter'
+        ? 'Your DNS service filters sites; Shroudly\'s encrypted DNS goes around it.'
+        : `DNS answers on this network match the filtering used in ${d.region}.`);
+      this._setAdvice({ region: d.region === 'filter' ? null : { country: d.region, stateful: STATEFUL_REGIONS.has(d.region) } });
+    }
 
     if (d.forgedDns.length) {
       const names = d.forgedDns.map((h) => h.host).join(', ');
@@ -314,6 +397,14 @@ class EngineManager {
     switch (msg.type) {
       case 'ready':
         this.log('success', `Engine listening on 127.0.0.1:${msg.port}`);
+        // Encrypted DNS routes that go through the engine can start now.
+        this.doh.setSocksPort(msg.port);
+        clearTimeout(this._dohReport);
+        this._dohReport = setTimeout(() => {
+          const routes = this.doh.summary();
+          if (routes && this.active) this.log('info', `Encrypted DNS answering via ${routes}`);
+        }, 6000);
+        if (this._dohReport.unref) this._dohReport.unref();
         // A session that has been up for a while has earned a fresh restart
         // budget; otherwise a handful of crashes spread over days eventually
         // leaves the engine refusing to come back at all.
@@ -369,6 +460,9 @@ class EngineManager {
           // they conclude the app simply does not work.
           if (typeof this.onSiteBlocked === 'function') this.onSiteBlocked(msg.host);
         }
+        break;
+      case 'cut':
+        this._onCut(msg.host, msg.strategy, msg.attempts);
         break;
       case 'send_failed':
         this.log('warning', `${msg.host}: connection dropped while sending (${msg.family})`);

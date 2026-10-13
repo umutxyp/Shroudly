@@ -6,95 +6,120 @@
  * Listens for ordinary DNS queries on 127.0.0.1:<port> (UDP) and answers them
  * over real RFC 8484 DoH. The engine's resolver (core/src/doh.c) sends its
  * queries here when the app passes --doh-port, so DNS resolution is encrypted
- * and cannot be read or injected on the wire.
+ * and cannot be read or forged on the wire.
  *
- * Each upstream is reached BY IP with TLS but no SNI, so the DoH connection
- * itself can't be blocked by SNI inspection. Validation still succeeds because
- * the certificates for these resolvers list their own IPs, which we check
- * explicitly against the presented certificate (tls does not verify identity
- * when servername is empty).
+ * Censors block encrypted DNS too, so it has to survive that, and keep
+ * surviving as their lists change. No single resolver can be relied on; what
+ * lasts is many routes of different kinds, and choosing among them by what
+ * actually works on this network right now:
  *
- * Speed matters as much as privacy here: a DNS lookup that takes too long is
+ *   - by address, with no name in the handshake: six operators, two
+ *     addresses each. There is no name for a filter to read; it has to know
+ *     and block every address.
+ *   - by name, through the engine, on addresses shared with a large part of
+ *     the web (Cloudflare's front end): the name is split like any other, and
+ *     blocking the address would block millions of ordinary sites with it.
+ *
+ * Every route is HTTP/2 (some resolvers accept nothing else), keeps one
+ * multiplexed connection, and has a health record: routes that fail are
+ * rested with a growing back-off and tried again later, fast ones go first,
+ * and the last one that worked is remembered across restarts. Lookups race
+ * the best route alone, then the next two, then everything still standing.
+ *
+ * Speed matters as much as privacy: a lookup that takes too long is
  * indistinguishable from a broken one, and the engine would fall back to plain
- * UDP resolvers, which are exactly what the censor poisons. So:
- *   - every upstream keeps a pooled TLS connection open (no handshake per query)
- *   - the connections are opened at startup and kept warm, so the first real
- *     lookup is as fast as the hundredth
- *   - upstreams are raced rather than chained: the preferred one goes first and
- *     the others join 300 ms later, so one slow resolver cannot stall a lookup
- *   - answers are cached for their TTL, so repeat lookups cost nothing
+ * DNS, which is exactly what censors forge. Answers are cached for their TTL.
  *
  * Nothing is logged or stored: a query comes in, a DoH request goes out, the
  * answer goes back.
  */
 
 const dgram = require('dgram');
-const https = require('https');
+const http2 = require('http2');
+const net = require('net');
 const tls = require('tls');
 
-// Upstreams by IP, with the cert names we accept for that IP.
+const CF = ['cloudflare-dns.com', 'one.one.one.one'];
 const UPSTREAMS = [
-  { ip: '1.1.1.1', names: ['cloudflare-dns.com', '1.1.1.1', 'one.one.one.one'] },
-  { ip: '9.9.9.9', names: ['dns.quad9.net', '9.9.9.9'] },
-  { ip: '8.8.8.8', names: ['dns.google', '8.8.8.8'] },
+  { id: 'cloudflare-1', op: 'cloudflare', ip: '1.1.1.1', names: CF },
+  { id: 'google-1', op: 'google', ip: '8.8.8.8', names: ['dns.google'] },
+  { id: 'quad9-1', op: 'quad9', ip: '9.9.9.9', names: ['dns.quad9.net'] },
+  { id: 'adguard-1', op: 'adguard', ip: '94.140.14.140', names: ['unfiltered.adguard-dns.com', 'dns.adguard-dns.com'] },
+  { id: 'opendns-1', op: 'opendns', ip: '208.67.222.222', names: ['doh.opendns.com', 'dns.opendns.com'] },
+  { id: 'dnssb-1', op: 'dnssb', ip: '185.222.222.222', names: ['doh.sb', 'dns.sb'] },
+  { id: 'cloudflare-2', op: 'cloudflare', ip: '1.0.0.1', names: CF },
+  { id: 'google-2', op: 'google', ip: '8.8.4.4', names: ['dns.google'] },
+  { id: 'quad9-2', op: 'quad9', ip: '149.112.112.112', names: ['dns.quad9.net'] },
+  { id: 'adguard-2', op: 'adguard', ip: '94.140.14.141', names: ['unfiltered.adguard-dns.com', 'dns.adguard-dns.com'] },
+  { id: 'opendns-2', op: 'opendns', ip: '208.67.220.220', names: ['doh.opendns.com', 'dns.opendns.com'] },
+  { id: 'dnssb-2', op: 'dnssb', ip: '45.11.45.11', names: ['doh.sb', 'dns.sb'] },
+  { id: 'cloudflare-3', op: 'cloudflare', ip: '162.159.36.1', names: CF },
+  { id: 'cloudflare-4', op: 'cloudflare', ip: '162.159.46.1', names: CF },
+  // By name, through the engine.
+  { id: 'cloudflare-front-1', op: 'cloudflare-front', ip: '104.16.248.249', sni: 'cloudflare-dns.com', viaEngine: true },
+  { id: 'cloudflare-front-2', op: 'cloudflare-front', ip: '104.16.249.249', sni: 'cloudflare-dns.com', viaEngine: true },
+  { id: 'mullvad', op: 'mullvad', ip: '194.242.2.2', sni: 'dns.mullvad.net', viaEngine: true },
 ];
 
-const QUERY_TIMEOUT_MS = 2500;  // per upstream; they are raced, not chained
-const FANOUT_DELAY_MS  = 300;   // how long the preferred upstream gets alone
+const QUERY_TIMEOUT_MS = 2500;  // per route; they are raced, not chained
+const SECOND_WAVE_MS   = 250;   // the best route goes alone this long
+const THIRD_WAVE_MS    = 900;   // then the next two; then all the rest
+const REST_BASE_MS     = 2000;  // a failing route rests 2 s, 4 s, 8 s ... 5 min
+const REST_MAX_MS      = 300000;
 const WARM_INTERVAL_MS = 120000;
+const SESSION_IDLE_MS  = 300000;
 const CACHE_MAX        = 1500;
 const TTL_MIN_S        = 20;
 const TTL_MAX_S        = 3600;
-
-for (const up of UPSTREAMS) {
-  up.agent = new https.Agent({
-    keepAlive: true,
-    keepAliveMsecs: 30000,
-    maxSockets: 8,
-    maxFreeSockets: 2,
-  });
-}
 
 function certCoversIp(cert, ip) {
   // subjectaltname like "DNS:cloudflare-dns.com, IP Address:1.1.1.1"
   const san = cert && cert.subjectaltname;
   if (!san) return false;
-  return san.split(',').map((s) => s.trim()).some((e) => e === `IP Address:${ip}`);
+  return san.split(',').map((x) => x.trim()).some((e) => e === `IP Address:${ip}`);
 }
 
-function queryUpstream(up, dnsMsg) {
+/* The certificate has to be the resolver's: its own address, or one of the
+ * names it is known by. (Without a name in the handshake the standard check
+ * has nothing to compare, so it is done here.) */
+function identityCheck(up) {
+  return (_host, cert) => {
+    if (!up.sni && certCoversIp(cert, up.ip)) return undefined;
+    for (const n of (up.sni ? [up.sni] : up.names)) {
+      if (!tls.checkServerIdentity(n, cert)) return undefined;
+    }
+    return new Error(`certificate does not belong to ${up.sni || up.ip}`);
+  };
+}
+
+/* A connection to `ip:port` through the engine's SOCKS5 port. The address is
+ * given as an IP, so the engine needs no DNS of its own for it. */
+function socksConnect(socksPort, ip, port) {
   return new Promise((resolve, reject) => {
-    const req = https.request({
-      host: up.ip,
-      servername: '', // no SNI
-      port: 443,
-      path: '/dns-query',
-      method: 'POST',
-      agent: up.agent,
-      headers: {
-        'content-type': 'application/dns-message',
-        accept: 'application/dns-message',
-        'content-length': dnsMsg.length,
-      },
-      // Verify against the IP (SAN) ourselves, since without a servername the
-      // default identity check has no hostname to match.
-      checkServerIdentity: (_host, cert) => {
-        if (certCoversIp(cert, up.ip)) return undefined;
-        // Some resolvers put only their hostname in the cert, not the IP.
-        try { return tls.checkServerIdentity(up.names[0], cert); }
-        catch (e) { return e; }
-      },
-      timeout: QUERY_TIMEOUT_MS,
-    }, (res) => {
-      if (res.statusCode !== 200) { res.resume(); reject(new Error(`HTTP ${res.statusCode}`)); return; }
-      const chunks = [];
-      res.on('data', (d) => chunks.push(d));
-      res.on('end', () => resolve(Buffer.concat(chunks)));
-      res.on('error', reject);
-    });
-    req.on('timeout', () => req.destroy(new Error('timeout')));
-    req.on('error', reject);
-    req.end(dnsMsg);
+    const s = net.connect({ host: '127.0.0.1', port: socksPort });
+    const fail = (e) => { s.destroy(); reject(e); };
+    s.setTimeout(QUERY_TIMEOUT_MS, () => fail(new Error('SOCKS timeout')));
+    s.once('error', fail);
+    let stage = 0; let buf = Buffer.alloc(0);
+    s.once('connect', () => s.write(Buffer.from([5, 1, 0])));
+    const onData = (d) => {
+      buf = Buffer.concat([buf, d]);
+      if (stage === 0) {
+        if (buf.length < 2) return;
+        if (buf[0] !== 5 || buf[1] !== 0) return fail(new Error('SOCKS refused'));
+        buf = buf.subarray(2); stage = 1;
+        s.write(Buffer.from([5, 1, 0, 1, ...ip.split('.').map(Number), port >> 8, port & 255]));
+      }
+      if (stage === 1) {
+        if (buf.length < 5) return;
+        if (buf[1] !== 0) return fail(new Error(`SOCKS connect failed (${buf[1]})`));
+        const need = buf[3] === 1 ? 10 : buf[3] === 4 ? 22 : 7 + buf[4];
+        if (buf.length < need) return;
+        s.removeListener('data', onData); s.removeListener('error', fail); s.setTimeout(0);
+        resolve(s);
+      }
+    };
+    s.on('data', onData);
   });
 }
 
@@ -152,50 +177,179 @@ function answerTtlSeconds(msg) {
 }
 
 class DohForwarder {
-  constructor(log) {
+  /* opts.preferredId: the route that worked last time (remembered by the
+   *   caller across restarts); opts.onPreferred(id) is told when it changes.
+   * opts.onState('ok' | 'down'): encrypted DNS works / is blocked outright. */
+  constructor(log, opts = {}) {
     this.log = log || (() => {});
+    this.opts = opts;
     this.sock = null;
     this.port = 0;
-    this.preferred = 0;
+    this.socksPort = 0;
     this.cache = new Map();     // key -> { answer: Buffer, expires: ms }
     this.warmTimer = null;
     this.stopped = false;
-    this.failures = 0;
+    this.failures = 0;          // lookups in a row that no route could answer
+    this.state = 'ok';
     this.lastDowngradeWarn = 0;
+    this.preferredId = opts.preferredId || null;
+    this.routes = UPSTREAMS.map((u) => ({ ...u, fails: 0, restUntil: 0, ewma: 0, session: null, opening: null }));
   }
 
-  /* Race the upstreams: the preferred one starts immediately, the rest join
-   * after a short delay. The first valid answer wins and becomes preferred. */
+  /* The engine's port, once it is up: routes that go through it wait for it. */
+  setSocksPort(port) { this.socksPort = Number(port) || 0; }
+
+  usable(r) { return !r.viaEngine || this.socksPort > 0; }
+
+  /* Best first: the remembered route, then measured speed (untried routes
+   * count as average), resting routes last. */
+  ordered() {
+    const now = Date.now();
+    const score = (r) => (r.restUntil > now ? 1e9 + r.restUntil - now : (r.ewma || 400));
+    return this.routes.filter((r) => this.usable(r)).sort((a, b) => {
+      if (a.id === this.preferredId && a.restUntil <= now) return -1;
+      if (b.id === this.preferredId && b.restUntil <= now) return 1;
+      return score(a) - score(b);
+    });
+  }
+
+  dropSession(r) {
+    const sess = r.session;
+    r.session = null; r.opening = null;
+    if (sess) { try { sess.destroy(); } catch {} }
+  }
+
+  /* One HTTP/2 connection per route, opened on demand and reused. */
+  session(r) {
+    if (r.session && !r.session.closed && !r.session.destroyed) return Promise.resolve(r.session);
+    if (r.opening) return r.opening;
+    r.opening = (async () => {
+      const raw = r.viaEngine ? await socksConnect(this.socksPort, r.ip, 443) : null;
+      return new Promise((resolve, reject) => {
+        const sock = tls.connect({
+          ...(raw ? { socket: raw } : { host: r.ip, port: 443 }),
+          servername: r.sni || '',        // no name on the wire unless the route needs one
+          ALPNProtocols: ['h2'],
+          checkServerIdentity: identityCheck(r),
+        });
+        const timer = setTimeout(() => { sock.destroy(); reject(new Error('connect timeout')); }, QUERY_TIMEOUT_MS);
+        sock.once('error', (e) => { clearTimeout(timer); reject(e); });
+        sock.once('secureConnect', () => {
+          clearTimeout(timer);
+          if (sock.alpnProtocol !== 'h2') { sock.destroy(); reject(new Error('no HTTP/2')); return; }
+          const sess = http2.connect(`https://${r.sni || r.ip}`, { createConnection: () => sock });
+          sess.on('error', () => {});
+          sess.on('close', () => { if (r.session === sess) r.session = null; });
+          sess.on('goaway', () => { if (r.session === sess) r.session = null; });
+          sess.setTimeout(SESSION_IDLE_MS, () => sess.close());
+          r.session = sess;
+          resolve(sess);
+        });
+      });
+    })().finally(() => { r.opening = null; });
+    return r.opening;
+  }
+
+  async query(r, dnsMsg) {
+    const t0 = Date.now();
+    const sess = await this.session(r);
+    const answer = await new Promise((resolve, reject) => {
+      const req = sess.request({
+        ':method': 'POST', ':path': '/dns-query',
+        'content-type': 'application/dns-message', accept: 'application/dns-message',
+        'content-length': dnsMsg.length,
+      });
+      const timer = setTimeout(() => { req.close(http2.constants.NGHTTP2_CANCEL); reject(new Error('timeout')); }, QUERY_TIMEOUT_MS);
+      let status = 0; const chunks = [];
+      req.on('response', (h) => { status = h[':status']; });
+      req.on('data', (d) => chunks.push(d));
+      req.on('end', () => {
+        clearTimeout(timer);
+        const body = Buffer.concat(chunks);
+        if (status !== 200 || body.length < 12) reject(new Error(`HTTP ${status}`));
+        else resolve(body);
+      });
+      req.on('error', (e) => { clearTimeout(timer); reject(e); });
+      req.end(dnsMsg);
+    });
+    const ms = Date.now() - t0;
+    r.ewma = r.ewma ? Math.round(r.ewma * 0.7 + ms * 0.3) : ms;
+    r.fails = 0; r.restUntil = 0;
+    return answer;
+  }
+
+  failed(r) {
+    r.fails++;
+    r.restUntil = Date.now() + Math.min(REST_MAX_MS, REST_BASE_MS * 2 ** (r.fails - 1));
+    this.dropSession(r);
+  }
+
+  /* Race the routes in waves. The first valid answer wins. */
   resolve(dnsMsg) {
     return new Promise((resolve, reject) => {
-      const order = [this.preferred, ...UPSTREAMS.map((_, i) => i).filter((i) => i !== this.preferred)];
-      let settled = false, pending = 0, started = 0, lastErr = null, timer = null;
-
-      const done = (err, ans, idx) => {
-        if (settled) return;
-        if (!err) {
-          settled = true;
-          clearTimeout(timer);
-          this.preferred = idx;
-          resolve(ans);
-          return;
-        }
-        lastErr = err;
-        if (pending === 0 && started === order.length) { settled = true; clearTimeout(timer); reject(lastErr); }
-      };
-
-      const fire = (idx) => {
+      const now = Date.now();
+      const order = this.ordered();
+      const awake = order.filter((r) => r.restUntil <= now);
+      // Everything resting: still try the three that wake soonest, rather than
+      // give up on encrypted DNS altogether.
+      let plan = awake.length ? awake : order.slice(0, 3);
+      // The second wave is the best route of the other kind and the best of
+      // another operator: when a network blocks one kind of route, it usually
+      // blocks all of that kind, and the answer should not wait for wave three.
+      if (plan.length > 2) {
+        const [first, ...rest] = plan;
+        const otherKind = rest.find((r) => !!r.viaEngine !== !!first.viaEngine);
+        const otherOp = rest.find((r) => r !== otherKind && r.op !== first.op);
+        const lead = [first, otherKind, otherOp].filter(Boolean);
+        plan = [...lead, ...rest.filter((r) => !lead.includes(r))];
+      }
+      if (!plan.length) { reject(new Error('no route')); return; }
+      let settled = false, pending = 0, started = 0, lastErr = null;
+      const timers = [];
+      const finish = () => timers.forEach((t) => { clearTimeout(t); clearInterval(t); });
+      const fire = (r) => {
         started++; pending++;
-        queryUpstream(UPSTREAMS[idx], dnsMsg)
-          .then((ans) => { pending--; done(null, ans, idx); })
-          .catch((e) => { pending--; done(e, null, idx); });
+        this.query(r, dnsMsg).then((ans) => {
+          pending--;
+          if (settled) return;
+          settled = true; finish();
+          if (this.preferredId !== r.id) {
+            this.preferredId = r.id;
+            if (typeof this.opts.onPreferred === 'function') this.opts.onPreferred(r.id);
+          }
+          resolve(ans);
+        }).catch((e) => {
+          pending--;
+          this.failed(r);
+          lastErr = e;
+          if (!settled && pending === 0 && started === plan.length) { settled = true; finish(); reject(lastErr); }
+        });
       };
-
-      fire(order[0]);
-      timer = setTimeout(() => {
-        if (!settled) for (let i = 1; i < order.length; i++) fire(order[i]);
-      }, FANOUT_DELAY_MS);
+      const upTo = (n) => { while (!settled && started < Math.min(n, plan.length)) fire(plan[started]); };
+      upTo(1);
+      timers.push(setTimeout(() => upTo(3), SECOND_WAVE_MS));
+      timers.push(setTimeout(() => upTo(plan.length), THIRD_WAVE_MS));
+      // A route that fails fast should not leave the rest waiting for their wave.
+      const early = setInterval(() => {
+        if (settled) { clearInterval(early); return; }
+        if (pending === 0) upTo(started + 1);
+      }, 50);
+      timers.push(early);
     });
+  }
+
+  setState(state) {
+    if (this.state === state) return;
+    this.state = state;
+    if (typeof this.opts.onState === 'function') this.opts.onState(state);
+  }
+
+  /* Which routes answer, for the log: "cloudflare-1 23ms, google-1 31ms". */
+  summary() {
+    const now = Date.now();
+    const up = this.routes.filter((r) => this.usable(r) && r.ewma && r.restUntil <= now)
+      .sort((a, b) => a.ewma - b.ewma).slice(0, 3).map((r) => `${r.id} ${r.ewma}ms`);
+    return up.join(', ');
   }
 
   cacheGet(key, queryMsg) {
@@ -219,14 +373,17 @@ class DohForwarder {
     this.cache.set(key, { answer: Buffer.from(answer), expires: Date.now() + ttl * 1000 });
   }
 
-  /* Open (and keep) the TLS connections before anyone browses, so the first
-   * real lookup does not pay for a handshake. */
+  /* Keep the best routes' connections open before anyone browses, so the
+   * first real lookup does not pay for a handshake; and look in on resting
+   * routes now and then, so one that comes back is noticed. */
   warm() {
     if (this.stopped) return;
     const probe = buildQuery('cloudflare.com', 1);
-    for (let i = 0; i < UPSTREAMS.length; i++) {
-      queryUpstream(UPSTREAMS[i], probe).catch(() => {});
-    }
+    const now = Date.now();
+    const order = this.ordered();
+    const best = order.filter((r) => r.restUntil <= now).slice(0, 3);
+    const due = order.filter((r) => r.restUntil > now && r.restUntil - now < WARM_INTERVAL_MS).slice(0, 2);
+    for (const r of [...best, ...due]) this.query(r, probe).catch(() => this.failed(r));
   }
 
   start() {
@@ -249,19 +406,22 @@ class DohForwarder {
           .then((answer) => {
             if (key) this.cachePut(key, answer);
             this.failures = 0;
+            this.setState('ok');
             try { sock.send(answer, rinfo.port, rinfo.address); } catch {}
           })
           .catch(() => {
             /* Nothing is sent back, so the engine falls through to plain DNS.
              * That is the right thing to do — a lookup that fails outright is
              * worse — but it quietly undoes the encryption this exists to
-             * provide, and blocking three fixed addresses is a cheap way for a
-             * network to force it. Say so, rather than let it pass unnoticed. */
+             * provide. Say so, rather than let it pass unnoticed. */
             this.failures = (this.failures || 0) + 1;
             const now = Date.now();
-            if (this.failures >= 3 && now - (this.lastDowngradeWarn || 0) > 300000) {
-              this.lastDowngradeWarn = now;
-              this.log('warning', 'Encrypted DNS is not reachable on this network; lookups are falling back to ordinary DNS, which your provider can read and change.');
+            if (this.failures >= 3) {
+              this.setState('down');
+              if (now - (this.lastDowngradeWarn || 0) > 300000) {
+                this.lastDowngradeWarn = now;
+                this.log('warning', 'Encrypted DNS is not reachable on this network; lookups are falling back to ordinary DNS, which your provider can read and change.');
+              }
             }
           });
       });
@@ -282,6 +442,8 @@ class DohForwarder {
     this.stopped = true;
     if (this.warmTimer) { clearInterval(this.warmTimer); this.warmTimer = null; }
     this.cache.clear();
+    for (const r of this.routes) this.dropSession(r);
+    this.socksPort = 0;
     if (this.sock) { try { this.sock.close(); } catch {} this.sock = null; }
   }
 }
@@ -304,3 +466,5 @@ function buildQuery(name, qtype) {
 }
 
 module.exports = DohForwarder;
+module.exports.UPSTREAMS = UPSTREAMS;
+module.exports.buildQuery = buildQuery;

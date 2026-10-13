@@ -144,10 +144,11 @@ function describeInterface(name) {
 
 /* Answers that can only be a forged one. A resolver that hands back the
  * address of a block page, a loopback or an unroutable address for a public
- * name is being tampered with. */
-const FORGED = new Set(['195.175.254.2', '0.0.0.0', '127.0.0.1', '10.10.34.34', '10.10.34.35', '10.10.34.36']);
+ * name is being tampered with. The block pages of two dozen countries are
+ * known (censor-fingerprints.js), which also says whose filtering it is. */
+const fingerprints = require('./censor-fingerprints');
 function looksForged(ip) {
-  if (FORGED.has(ip)) return true;
+  if (fingerprints.countryOf(ip)) return true;
   if (/^0\./.test(ip) || /^127\./.test(ip)) return true;
   if (/^10\./.test(ip) || /^192\.168\./.test(ip)) return true;
   if (/^172\.(1[6-9]|2\d|3[01])\./.test(ip)) return true;
@@ -157,7 +158,7 @@ function looksForged(ip) {
 /* Ask the system resolver about names that are widely tampered with. We do not
  * need to know which country we are in: a forged answer is recognisable on its
  * own. */
-const CANARIES = ['discord.com', 'www.wikipedia.org', 'x.com'];
+const CANARIES = ['discord.com', 'www.wikipedia.org', 'x.com', 'www.facebook.com', 'telegram.org', 'www.bbc.com'];
 
 function systemResolve(host, ms = 2500) {
   return new Promise((resolve) => {
@@ -179,9 +180,19 @@ async function dnsTampering() {
     const addrs = await systemResolve(host);
     if (!addrs || !addrs.length) continue;
     const bad = addrs.filter(looksForged);
-    if (bad.length) hits.push({ host, addrs: bad });
+    if (bad.length) hits.push({ host, addrs: bad, country: bad.map(fingerprints.countryOf).find(Boolean) || null });
   }
   return hits;
+}
+
+/* Whose filtering this is, going by the forged answers: a country code, or
+ * 'filter' for a DNS filtering service. null when nothing was forged or the
+ * answers match no known block page. */
+function regionOf(forged) {
+  const tally = {};
+  for (const h of forged) if (h.country) tally[h.country] = (tally[h.country] || 0) + 1;
+  const best = Object.entries(tally).sort((a, b) => b[1] - a[1])[0];
+  return best ? best[0] : null;
 }
 
 async function systemDnsServers() {
@@ -205,8 +216,9 @@ async function collect() {
     dnsServers: servers,
     conflicts: tools,
     forgedDns: forged,
+    region: regionOf(forged),
     needRestart: restart,
   };
 }
 
-module.exports = { collect, runningTools, appsNeedingRestart, dnsTampering, defaultRoute, describeInterface };
+module.exports = { collect, runningTools, appsNeedingRestart, dnsTampering, defaultRoute, describeInterface, regionOf, looksForged };
