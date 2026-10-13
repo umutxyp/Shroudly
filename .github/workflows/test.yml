@@ -8,7 +8,7 @@ name: Tests
 
 on:
   push:
-    branches: ['**']
+    branches: ['**', '!site-list']   # site-list holds data only
   pull_request: {}
   workflow_dispatch: {}
 

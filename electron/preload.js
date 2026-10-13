@@ -46,6 +46,9 @@ contextBridge.exposeInMainWorld('electron', {
   ipv6Available: () => ipcRenderer.invoke('net:ipv6Available'),
   // Live count of running Shroudly apps (null until the first answer)
   defaultSiteList: () => ipcRenderer.invoke('settings:defaultSiteList'),
+  siteListInfo: () => ipcRenderer.invoke('sitelist:info'),
+  onSiteListChanged: (cb) => ipcRenderer.on('sitelist:changed', (e, p) => cb(p)),
+  removeSiteListListener: () => ipcRenderer.removeAllListeners('sitelist:changed'),
   getOnlineCount: () => ipcRenderer.invoke('presence:get'),
   refreshOnlineCount: () => ipcRenderer.invoke('presence:refresh'),
   onOnlineCount: (cb) => ipcRenderer.on('presence:count', (e, n) => cb(n)),

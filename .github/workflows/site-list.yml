@@ -1,0 +1,61 @@
+name: Site list
+
+# Rebuilds the list that "only listed sites" routing uses, from OONI's
+# measurements of the last 30 days (scripts/site-list/update.js), and publishes
+# it on the site-list branch, which the app reads. Sites blocked somewhere are
+# added; sites no longer blocked anywhere for 90 days are dropped. Only that
+# branch is written: main's history stays as it is.
+
+on:
+  schedule:
+    - cron: '17 3 * * 1'   # Mondays, 03:17 UTC
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: site-list
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Previous list and state
+        run: |
+          mkdir -p "$RUNNER_TEMP/out"
+          if git fetch --depth=1 origin site-list 2>/dev/null; then
+            git show FETCH_HEAD:sites.json > "$RUNNER_TEMP/out/sites.json"
+            git show FETCH_HEAD:state.json > "$RUNNER_TEMP/out/state.json"
+          fi
+
+      - name: Build
+        run: node scripts/site-list/update.js --out "$RUNNER_TEMP/out" | tee "$RUNNER_TEMP/summary.txt"
+
+      - name: Publish on the site-list branch
+        env:
+          OUT: ${{ runner.temp }}/out
+        run: |
+          cd "$RUNNER_TEMP"
+          rm -rf publish && mkdir publish && cd publish
+          git init -q -b site-list
+          git config user.name "umutxyp"
+          git config user.email "69085038+umutxyp@users.noreply.github.com"
+          git remote add origin "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git"
+          if git fetch -q --depth=1 origin site-list 2>/dev/null; then git reset -q --soft FETCH_HEAD; fi
+          cp "$OUT/sites.json" "$OUT/state.json" .
+          printf '%s\n' "This branch holds data only: the list of sites Shroudly's \"only listed sites\" routing uses." \
+            "It is rebuilt every week by .github/workflows/site-list.yml on main. Do not edit it by hand." > README.md
+          git add sites.json state.json README.md
+          if git diff --cached --quiet; then echo "No change."; exit 0; fi
+          git commit -q -m "site list: $(grep -m1 -o '^[0-9]* domains.*' "$RUNNER_TEMP/summary.txt" || echo update)"
+          git push -q origin HEAD:site-list
+          git log -1 --format='%h %s'

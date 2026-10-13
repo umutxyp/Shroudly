@@ -69,6 +69,9 @@ const PATTERNS = [
   [/^Update failed: (.+)$/, 'logUpdateFailed', ['detail']],
   [/^Installing update (\S+)$/, 'logUpdateInstalling', ['version']],
   [/^Settings applied \(strategy: (.+)\)$/, 'logSettingsApplied', ['strategy']],
+  [/^Site list updated: (\d+) sites \((\d+) added, (-?\d+) removed\)$/, 'logSiteListUpdated', ['count', 'added', 'removed']],
+  [/^Site list: the downloaded list was refused \((.+)\)$/, 'logSiteListRefused', ['detail']],
+  [/^Site list: could not check for a newer list \((.+)\)$/, 'logSiteListUnreachable', ['detail']],
 ];
 
 export function localizeLog(message, t) {
