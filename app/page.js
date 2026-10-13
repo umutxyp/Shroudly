@@ -23,8 +23,10 @@ const CODESHARE_URL = 'https://codeshare.me';
 function Footer({ t }) {
   const [before, after = ''] = t('footerProduct').split('{brand}');
   return (
-    <footer className="no-drag shrink-0 px-4 pb-2 pt-0.5 text-center text-[11px] leading-snug"
-            style={{ background: 'var(--bg-sunk)', color: 'var(--text-faint)' }}>
+    // Its own strip, with the text centred in it: a hairline above keeps it
+    // apart from the tab labels, which it otherwise sat right under.
+    <footer className="no-drag shrink-0 px-4 py-1.5 text-center text-[11px] leading-snug"
+            style={{ background: 'var(--bg-sunk)', color: 'var(--text-faint)', borderTop: '1px solid var(--line)' }}>
       {before}
       <a href={CODESHARE_URL} target="_blank" rel="noreferrer" dir="ltr"
          className="footer-link font-semibold" style={{ color: 'var(--text-dim)' }}>Codeshare</a>

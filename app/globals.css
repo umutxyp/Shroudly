@@ -421,6 +421,10 @@ input::placeholder { color: var(--text-faint); opacity: 1; }
   backdrop-filter: blur(26px) saturate(150%);
   -webkit-backdrop-filter: blur(26px) saturate(150%);
 }
+/* The bottom of the frame is one piece, plain like the title-bar strip at the
+   top: the tab bar and the footer share its colour, and the light stays in
+   the content above them. */
+:root[data-surface="glass"] nav,
 :root[data-surface="glass"] footer {
   background: var(--titlebar) !important;
 }
