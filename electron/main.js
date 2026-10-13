@@ -12,6 +12,9 @@ const SystemProxy = require('./system-proxy');
 const AdvancedMode = require('./advanced-mode');
 const DiscordApp = require('./discord-app');
 const DiscordRelay = require('./discord-relay');
+const AppProxy = require('./app-proxy');
+const AppEnv = require('./app-env');
+const RobloxApp = require('./roblox-app');
 const Updater = require('./updater');
 const Presence = require('./presence');
 const i18n = require('./main-i18n');
@@ -20,8 +23,12 @@ const i18n = require('./main-i18n');
  * restore the system proxy (power loss, forced reboot). Restore and exit. */
 const RESTORE_PROXY_ARG = '--restore-proxy';
 const proxyStateFile = () => path.join(app.getPath('userData'), 'proxy-state.json');
+const appEnvStateFile = () => path.join(app.getPath('userData'), 'app-env.json');
 if (process.argv.includes(RESTORE_PROXY_ARG)) {
   try { SystemProxy.recoverSync({ stateFile: proxyStateFile() }); } catch {}
+  // Shroudly may already be running again (it starts at login too): its own
+  // value is then left alone.
+  try { AppEnv.recoverSync({ stateFile: appEnvStateFile() }, { onlyIfDead: true }); } catch {}
   app.exit(0);
   return;
 }
@@ -39,6 +46,8 @@ let discordRelay = null;
 // Logout, shutdown or an update restart: leave Discord's line in place, so a
 // Discord that starts at the next login finds the relay as soon as we are up.
 let keepDiscordLine = false;
+let appProxy = null;
+let appEnv = null;
 
 const isDev = !app.isPackaged;
 const DEV_PORT = process.env.PORT || 3000;
@@ -67,7 +76,11 @@ if (!app.requestSingleInstanceLock()) {
 }
 
 /* ── crash / hard-exit safety: restore the system proxy synchronously ─────── */
-process.on('exit', () => { try { engine && engine.cleanupSync(); } catch {} try { advanced && advanced.cleanupSync(); } catch {} });
+process.on('exit', () => {
+  try { engine && engine.cleanupSync(); } catch {}
+  try { advanced && advanced.cleanupSync(); } catch {}
+  try { appEnv && appEnv.clearSync(); } catch {}
+});
 process.on('uncaughtException', (err) => {
   console.error('[Shroudly] uncaught:', err);
   if (!exitInProgress) shutdownAndQuit();
@@ -345,16 +358,14 @@ function getAutoStartEnabled() {
 
 /* ── app ready ───────────────────────────────────────────────────────────── */
 app.whenReady().then(async () => {
+  const watchdog = { execPath: process.execPath, script: path.join(__dirname, 'proxy-watchdog.js') };
+  const restoreCommand = {
+    exe: launcherPath(),
+    args: app.isPackaged ? [RESTORE_PROXY_ARG] : [app.getAppPath(), RESTORE_PROXY_ARG],
+  };
   engine = new EngineManager(store, {
     addLog, onStatusChange: broadcastStatus,
-    proxyOptions: {
-      stateFile: proxyStateFile(),
-      watchdog: { execPath: process.execPath, script: path.join(__dirname, 'proxy-watchdog.js') },
-      restoreCommand: {
-        exe: launcherPath(),
-        args: app.isPackaged ? [RESTORE_PROXY_ARG] : [app.getAppPath(), RESTORE_PROXY_ARG],
-      },
-    },
+    proxyOptions: { stateFile: proxyStateFile(), watchdog, restoreCommand },
     onProbe: (p) => { if (mainWindow && !mainWindow.isDestroyed()) mainWindow.webContents.send('dpi:probe-result', p); },
     // A site that defeated every technique. Told once per site, and at most
     // once every few minutes, so a page full of blocked resources cannot turn
@@ -400,6 +411,15 @@ app.whenReady().then(async () => {
   // Discord while it is off, and runs whenever Shroudly does.
   discordRelay = new DiscordRelay(addLog, () => (engine && engine.isActive() ? engine.port : null));
   if (store.get('discordMode') === true) applyDiscordMode(true, { interactive: false }).catch(() => {});
+
+  // Like the relay: through the engine while protection is on, direct while
+  // it is off, and up whenever Shroudly is with the mode on.
+  appProxy = new AppProxy(addLog, () => (engine && engine.isActive() ? engine.port : null));
+  appEnv = new AppEnv({ stateFile: appEnvStateFile(), watchdog, restoreCommand });
+  if (store.get('appMode') === true && AppEnv.supported()) applyAppMode(true).catch(() => {});
+  else {
+    try { if (AppEnv.recoverSync({ stateFile: appEnvStateFile() })) addLog('info', 'Games and apps: a setting left by an earlier run was removed'); } catch {}
+  }
 
   updater = new Updater({
     log: addLog,
@@ -472,6 +492,9 @@ function restoreForSessionEnd() {
   keepDiscordLine = true;
   try { engine && engine.cleanupSync(); } catch {}
   try { advanced && advanced.cleanupSync(); } catch {}
+  // Unlike Discord's line, HTTPS_PROXY would be read by every program at the
+  // next login, before Shroudly is back: it goes, and returns when we do.
+  try { appEnv && appEnv.clearSync(); } catch {}
 }
 app.on('session-end', restoreForSessionEnd); // Windows
 app.whenReady().then(() => { powerMonitor.on('shutdown', restoreForSessionEnd); }); // macOS, Linux
@@ -491,6 +514,9 @@ app.on('before-quit', (e) => {
     try { patchDiscordSync(null); } catch {}
     if (discordRelay) discordRelay.stop();
   }
+  // Programs started after Shroudly has gone must go straight out again.
+  try { appEnv && appEnv.clearSync(); } catch {}
+  if (appProxy) appProxy.stop();
   if (presence && !presence.stopped) presence.leave();
   try { updater && updater.installOnQuit(); } catch {}
   if (exitInProgress) return;
@@ -729,6 +755,98 @@ ipcMain.handle('discord:restart', async () => {
   let ok = false;
   for (const v of DiscordApp.installed()) if (await DiscordApp.isRunning(v)) ok = (await DiscordApp.restart(v)) || ok;
   if (ok) { discordState.needsRestart = false; sendDiscordState(); }
+  return { success: ok };
+});
+
+/* ── Games and apps mode ─────────────────────────────────────────────────── */
+/* Roblox and many other programs ignore the system proxy and only read
+ * HTTPS_PROXY from their environment: see app-proxy.js and app-env.js. What
+ * the window shows: a Roblox that was open before the change and has to be
+ * restarted, or a proxy of the user's own that is in the way. */
+const appState = { needsRestart: false, foreign: false, failed: false };
+let robloxPidsAtChange = [];
+
+function sendAppState() {
+  if (mainWindow && !mainWindow.isDestroyed()) mainWindow.webContents.send('apps:state', appState);
+}
+
+async function applyAppMode(on) {
+  if (!AppEnv.supported()) return { success: false, code: 'unsupported' };
+  appState.failed = false;
+  if (!on) {
+    try { appEnv.clearSync(); } catch {}
+    appProxy.stop();
+    store.set('appMode', false);
+    appState.needsRestart = false;
+    appState.foreign = false;
+    addLog('success', 'Games and apps mode off: settings restored');
+    sendAppState();
+    return { success: true };
+  }
+
+  let port;
+  try {
+    port = await appProxy.start(store.get('appProxyPort'));
+    store.set('appProxyPort', port);
+  } catch (e) {
+    addLog('error', `Games and apps: the local proxy could not start (${e.message})`);
+    appState.failed = true;
+    sendAppState();
+    return { success: false, code: 'proxy' };
+  }
+  let r;
+  try { r = appEnv.applySync(AppProxy.proxyUrl(port)); } catch (e) {
+    addLog('error', `Games and apps: ${e.message}`);
+    appProxy.stop();
+    appState.failed = true;
+    sendAppState();
+    return { success: false, code: 'edit_failed' };
+  }
+  if (r === 'foreign') {
+    // Somebody else's proxy for programs (HTTPS_PROXY): never replaced.
+    appProxy.stop();
+    appState.foreign = true;
+    addLog('warning', 'Games and apps: another proxy is already set for programs (HTTPS_PROXY), so it was left as it is');
+    sendAppState();
+    return { success: false, code: 'foreign' };
+  }
+  appState.foreign = false;
+  store.set('appMode', true);
+  if (r === 'changed') {
+    // Roblox reads the proxy when it starts: one already open needs a restart.
+    robloxPidsAtChange = await RobloxApp.pids();
+    appState.needsRestart = robloxPidsAtChange.length > 0;
+    addLog('success', 'Games and apps mode on: Roblox and similar programs go through Shroudly');
+  }
+  sendAppState();
+  return { success: true, restartNeeded: appState.needsRestart };
+}
+
+ipcMain.handle('apps:status', async () => {
+  const running = await RobloxApp.pids();
+  // The copy that was open when the mode came on has been closed since.
+  if (appState.needsRestart && !running.some((p) => robloxPidsAtChange.includes(p))) appState.needsRestart = false;
+  return {
+    available: AppEnv.supported(),
+    mode: store.get('appMode') ?? null,  // true, false, or null (never asked)
+    robloxInstalled: RobloxApp.installed(),
+    robloxRunning: running.length > 0,
+    platform: process.platform,
+    ...appState,
+  };
+});
+ipcMain.handle('apps:set', async (e, on) => applyAppMode(on === true));
+ipcMain.handle('apps:decline', () => { if (store.get('appMode') === undefined) store.set('appMode', false); return { success: true }; });
+ipcMain.handle('apps:restartRoblox', async () => {
+  // On Windows Shroudly starts the new copy itself, with the proxy in its
+  // environment; macOS starts it with the session's, which already has it.
+  const env = {};
+  if (appProxy && appProxy.url) {
+    if (!process.env.HTTPS_PROXY) env.HTTPS_PROXY = appProxy.url;
+    if (!process.env.NO_PROXY) env.NO_PROXY = AppEnv.NO_PROXY_VALUE;
+  }
+  const ok = await RobloxApp.restart(env);
+  if (ok) { appState.needsRestart = false; sendAppState(); }
   return { success: ok };
 });
 

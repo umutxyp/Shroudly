@@ -62,6 +62,13 @@ contextBridge.exposeInMainWorld('electron', {
   discordRestart: () => ipcRenderer.invoke('discord:restart'),
   onDiscordState: (cb) => ipcRenderer.on('discord:state', (e, p) => cb(p)),
   removeDiscordStateListener: () => ipcRenderer.removeAllListeners('discord:state'),
+  // Games and apps mode (Roblox and other programs that ignore the system proxy)
+  appsStatus: () => ipcRenderer.invoke('apps:status'),
+  appsSet: (on) => ipcRenderer.invoke('apps:set', on),
+  appsDecline: () => ipcRenderer.invoke('apps:decline'),
+  appsRestartRoblox: () => ipcRenderer.invoke('apps:restartRoblox'),
+  onAppsState: (cb) => ipcRenderer.on('apps:state', (e, p) => cb(p)),
+  removeAppsStateListener: () => ipcRenderer.removeAllListeners('apps:state'),
   startAdvanced: () => ipcRenderer.invoke('advanced:start'),
   stopAdvanced: () => ipcRenderer.invoke('advanced:stop'),
   onProbeResult: (cb) => ipcRenderer.on('dpi:probe-result', (e, p) => cb(p)),

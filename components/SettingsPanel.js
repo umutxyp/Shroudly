@@ -161,6 +161,8 @@ export default function SettingsPanel({ active = false }) {
   const [ipv6Ok, setIpv6Ok] = useState(null);
   // Discord app mode: shown only where the Discord app has been used
   const [discord, setDiscord] = useState({ installed: false, on: false });
+  // Games and apps mode: shown on the systems where it works (Windows, macOS)
+  const [apps, setApps] = useState({ available: false, on: false, platform: '' });
   const [defaultList, setDefaultList] = useState([]);
   const [siteText, setSiteText] = useState(null);   // textarea draft (null until loaded)
   const [badEntries, setBadEntries] = useState([]); // lines dropped as unusable
@@ -191,6 +193,20 @@ export default function SettingsPanel({ active = false }) {
       const r = await window.electron.discordSet(on);
       if (!r?.success) setDiscord((d) => ({ ...d, on: !on }));
     } catch { setDiscord((d) => ({ ...d, on: !on })); }
+  }
+
+  useEffect(() => {
+    window.electron?.appsStatus?.()
+      .then((a) => setApps({ available: !!a?.available, on: a?.mode === true, platform: a?.platform || '' }))
+      .catch(() => {});
+  }, []);
+
+  async function setAppMode(on) {
+    setApps((a) => ({ ...a, on }));
+    try {
+      const r = await window.electron.appsSet(on);
+      if (!r?.success) setApps((a) => ({ ...a, on: !on }));
+    } catch { setApps((a) => ({ ...a, on: !on })); }
   }
 
   useEffect(() => {
@@ -382,6 +398,11 @@ export default function SettingsPanel({ active = false }) {
           {discord.installed && (
             <Toggle label={t('discordModeLabel')} desc={t('discordModeDesc')}
                     checked={discord.on} onChange={setDiscordMode} />
+          )}
+          {apps.available && (
+            <Toggle label={t('appModeLabel')}
+                    desc={apps.platform === 'win32' ? `${t('appModeDesc')} ${t('appBrowserNote')}` : t('appModeDesc')}
+                    checked={apps.on} onChange={setAppMode} />
           )}
         </div>
 

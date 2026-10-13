@@ -7,6 +7,7 @@
 
 !include LogicLib.nsh
 !include WinVer.nsh
+!include WinMessages.nsh
 
 !define SHROUDLY_INET "Software\Microsoft\Windows\CurrentVersion\Internet Settings"
 
@@ -39,6 +40,28 @@
 !macro shroudlyDiscordCleanup
   nsExec::Exec `powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command "foreach ($$d in 'discord','discordptb','discordcanary') { $$f = Join-Path $$env:APPDATA ($$d + '\settings.json'); if (Test-Path -LiteralPath $$f) { try { $$j = [IO.File]::ReadAllText($$f) | ConvertFrom-Json; if ([string]$$j.NEW_UPDATE_ENDPOINT -match '^http://127\.0\.0\.1:\d+/$$') { $$j.PSObject.Properties.Remove('NEW_UPDATE_ENDPOINT'); [IO.File]::WriteAllText($$f, ($$j | ConvertTo-Json -Depth 32)) } } catch {} } }"`
   Pop $0
+!macroend
+
+; Games and apps mode puts HTTPS_PROXY in the user's environment, pointing at
+; Shroudly (electron/app-env.js). With Shroudly gone it would point at nothing,
+; so take it out. Ours only: SHROUDLY_APP_PROXY holds the value we wrote, and a
+; proxy the user set themselves is left alone. Then tell Explorer, so programs
+; started from now on no longer get it.
+!macro shroudlyAppEnvCleanup
+  ReadRegStr $0 HKCU "Environment" "SHROUDLY_APP_PROXY"
+  ${If} $0 != ""
+    ReadRegStr $1 HKCU "Environment" "HTTPS_PROXY"
+    ${If} $1 == $0
+      DeleteRegValue HKCU "Environment" "HTTPS_PROXY"
+      ReadRegStr $1 HKCU "Environment" "NO_PROXY"
+      ${If} $1 == "localhost,127.0.0.1,::1,.local,.localhost,.lan,.internal,.home.arpa,10.0.0.0/8,172.16.0.0/12,192.168.0.0/16,169.254.0.0/16,100.64.0.0/10"
+        DeleteRegValue HKCU "Environment" "NO_PROXY"
+      ${EndIf}
+    ${EndIf}
+    DeleteRegValue HKCU "Environment" "SHROUDLY_APP_PROXY"
+    SendMessage ${HWND_BROADCAST} ${WM_SETTINGCHANGE} 0 "STR:Environment" /TIMEOUT=5000
+  ${EndIf}
+  DeleteRegValue HKCU "Software\Microsoft\Windows\CurrentVersion\RunOnce" "ShroudlyAppEnvRestore"
 !macroend
 
 ; The installer crashed on some first installs: an access violation in
@@ -134,10 +157,12 @@ Shroudly, Windows 10 veya daha yenisini gerektirir."
     Abort
   ${EndIf}
   !insertmacro shroudlyResetProxy
+  !insertmacro shroudlyAppEnvCleanup
 !macroend
 
 !macro customUnInstall
   !insertmacro shroudlyResetProxy
+  !insertmacro shroudlyAppEnvCleanup
   ; An update also runs the old uninstaller: keep the user's auto-start then.
   ${ifNot} ${isUpdated}
     !insertmacro shroudlyDiscordCleanup

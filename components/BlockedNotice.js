@@ -63,8 +63,10 @@ export default function BlockedNotice({ onNavigate, active = false }) {
   const [restartApps, setRestartApps] = useState(null);
   const [dnsAuto, setDnsAuto] = useState(null);
   const [discord, setDiscord] = useState(null);
+  const [apps, setApps] = useState(null);
   const [busy, setBusy] = useState(false);
   const [offerHidden, setOfferHidden] = useState(false);
+  const [appOfferHidden, setAppOfferHidden] = useState(false);
   const [advice, setAdvice] = useState(null);
   const [adv, setAdv] = useState({ available: false, active: false });
   const [hidden, setHidden] = useState({});   // banners closed this session
@@ -81,17 +83,24 @@ export default function BlockedNotice({ onNavigate, active = false }) {
   };
 
   const refreshDiscord = () => window.electron?.discordStatus?.().then(setDiscord).catch(() => {});
+  const refreshApps = () => window.electron?.appsStatus?.().then(setApps).catch(() => {});
 
   const run = async (fn) => {
     setBusy(true);
     try { await fn(); } catch {}
-    await refreshDiscord();
+    await Promise.all([refreshDiscord(), refreshApps()]);
     setBusy(false);
   };
   const discordOn = () => run(() => window.electron.discordSet(true));
   const discordRetry = () => run(() => window.electron.discordSet(discord?.pendingOn !== false));
   const discordRestart = () => run(() => window.electron.discordRestart());
   const discordDecline = () => { setOfferHidden(true); window.electron?.discordDecline?.().then(refreshDiscord).catch(() => {}); };
+  const appsOn = () => run(() => window.electron.appsSet(true));
+  const appsRestart = () => run(() => window.electron.appsRestartRoblox());
+  const appsDecline = () => { setAppOfferHidden(true); window.electron?.appsDecline?.().then(refreshApps).catch(() => {}); };
+  // Starting Roblox from a browser that was already open: Windows hands it the
+  // browser's own, older environment.
+  const browserNote = apps?.platform === 'win32' ? ` ${t('appBrowserNote')}` : '';
 
   useEffect(() => {
     if (typeof window === 'undefined' || !window.electron?.onSiteBlocked) return undefined;
@@ -99,18 +108,32 @@ export default function BlockedNotice({ onNavigate, active = false }) {
     window.electron.onNeedRestart?.(({ apps }) => { setRestartApps(apps); refreshDiscord(); });
     window.electron.onDnsAutoEnabled?.(({ host: h }) => setDnsAuto(h));
     window.electron.onDiscordState?.(() => refreshDiscord());
+    window.electron.onAppsState?.(() => refreshApps());
     window.electron.onAdvice?.((a) => { setAdvice(a); refreshAdv(); });
     window.electron.getAdvice?.().then((a) => a && setAdvice(a)).catch(() => {});
     refreshAdv();
     refreshDiscord();
+    refreshApps();
     return () => {
       window.electron.removeSiteBlockedListener?.();
       window.electron.removeNeedRestartListener?.();
       window.electron.removeDnsAutoEnabledListener?.();
       window.electron.removeDiscordStateListener?.();
+      window.electron.removeAppsStateListener?.();
       window.electron.removeAdviceListener?.();
     };
   }, []);
+
+  // Roblox (or its installer) being opened, and an open copy being restarted,
+  // happen on their own: look again while the answer would change a banner.
+  useEffect(() => {
+    if (!apps?.available) return undefined;
+    refreshApps();
+    const waiting = apps.needsRestart || (active && apps.mode == null && !appOfferHidden);
+    if (!waiting) return undefined;
+    const iv = setInterval(refreshApps, 5000);
+    return () => clearInterval(iv);
+  }, [active, apps?.available, apps?.needsRestart, apps?.mode, appOfferHidden]);
 
   // Whether Discord is open, and whether it has reached the relay yet, change
   // on their own: look again while there is something to look for.
@@ -155,6 +178,27 @@ export default function BlockedNotice({ onNavigate, active = false }) {
     );
   }
 
+  /* Games and apps mode: a proxy of the user's own in the way, a change that
+   * could not be made, then a Roblox opened before the change. */
+  if (apps?.foreign && !hidden.appsForeign) {
+    return <Banner Icon={ShieldAlertIcon} body={t('appForeign')} onClose={() => hide('appsForeign')} closeLabel={closeLabel} />;
+  }
+  if (apps?.failed && !hidden.appsFailed) {
+    return <Banner Icon={ShieldAlertIcon} body={t('appFailed')} onClose={() => hide('appsFailed')} closeLabel={closeLabel} />;
+  }
+  if (apps?.needsRestart && apps.robloxRunning) {
+    return (
+      <Banner tone="accent" Icon={RefreshIcon} body={`${t('appRestartNeeded')}${browserNote}`}>
+        {apps.robloxInstalled && (
+          <Actions>
+            <button type="button" onClick={appsRestart} disabled={busy}
+                    className="btn btn-primary rounded-[8px] px-3 py-1.5 text-[12.5px] font-semibold">{t('appRestartBtn')}</button>
+          </Actions>
+        )}
+      </Banner>
+    );
+  }
+
   /* Another VPN or bypass tool steering the same connections: the most
    * common reason nothing works, and the user rarely suspects it. */
   const conflicts = advice?.conflicts || [];
@@ -189,6 +233,8 @@ export default function BlockedNotice({ onNavigate, active = false }) {
    * restart: its updater runs before the app and ignores the proxy. */
   if (restartApps && restartApps.length) {
     const offerDiscord = restartApps.includes('Discord') && discord?.installed && discord.mode !== true;
+    // Restarting alone does not help Roblox either: it never uses the system proxy.
+    const offerApps = restartApps.includes('Roblox') && apps?.available && apps.mode !== true;
     return (
       <Banner Icon={RefreshIcon}
               title={t('restartAppsTitle', { apps: restartApps.join(', ') })}
@@ -200,6 +246,15 @@ export default function BlockedNotice({ onNavigate, active = false }) {
             <Actions>
               <button type="button" onClick={discordOn} disabled={busy}
                       className="btn btn-warn rounded-[8px] px-3 py-1.5 text-[12.5px] font-semibold">{t('discordOfferYes')}</button>
+            </Actions>
+          </>
+        )}
+        {offerApps && (
+          <>
+            <p className="mt-2 text-[12px] leading-snug wrap-anywhere" style={{ color: 'var(--text-dim)' }}>{t('appOfferBody')}</p>
+            <Actions>
+              <button type="button" onClick={appsOn} disabled={busy}
+                      className="btn btn-warn rounded-[8px] px-3 py-1.5 text-[12.5px] font-semibold">{t('appOfferYes')}</button>
             </Actions>
           </>
         )}
@@ -260,6 +315,22 @@ export default function BlockedNotice({ onNavigate, active = false }) {
                   className="btn btn-primary rounded-[8px] px-3 py-1.5 text-[12.5px] font-semibold">{t('discordOfferYes')}</button>
           <button type="button" onClick={discordDecline}
                   className="btn btn-ghost rounded-[8px] px-3 py-1.5 text-[12.5px] font-semibold">{t('discordOfferNo')}</button>
+        </Actions>
+      </Banner>
+    );
+  }
+
+  /* Asked once, while protection is on, where Roblox is installed or being
+   * installed. It changes what every newly started program is told about
+   * proxies, so it is offered, never done unasked. */
+  if (active && apps?.available && (apps.robloxInstalled || apps.robloxRunning) && apps.mode == null && !appOfferHidden) {
+    return (
+      <Banner tone="accent" Icon={ShieldAlertIcon} title={t('appOfferTitle')} body={t('appOfferBody')}>
+        <Actions>
+          <button type="button" onClick={appsOn} disabled={busy}
+                  className="btn btn-primary rounded-[8px] px-3 py-1.5 text-[12.5px] font-semibold">{t('appOfferYes')}</button>
+          <button type="button" onClick={appsDecline}
+                  className="btn btn-ghost rounded-[8px] px-3 py-1.5 text-[12.5px] font-semibold">{t('notNow')}</button>
         </Actions>
       </Banner>
     );
