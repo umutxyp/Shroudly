@@ -38,23 +38,30 @@ const run = (cmd, args, ms = 4000) => new Promise((resolve) => {
 
 /* Other tools that steer the same traffic. Running two of them at once is the
  * most common reason a working setup suddenly stops working, and the user
- * blames whichever one they installed last. */
+ * blames whichever one they installed last.
+ *
+ * Bypass tools act whenever they run. VPN clients do not: most keep a
+ * background service running while disconnected (Cloudflare WARP's warp-svc
+ * runs from boot), so a VPN counts only while its tunnel is actually up —
+ * its adapter has an address, or the default route goes through a tunnel.
+ * `tunnel` names the adapter; `routeOnly` VPNs (Tailscale) only matter when
+ * they carry the default route, since their adapter is up all the time. */
 const CONFLICTS = [
   { re: /goodbyedpi/i,              name: 'GoodbyeDPI' },
   { re: /\bwinws2?\b|\bnfqws\b|zapret/i, name: 'zapret' },
-  { re: /ciadpi|byedpi/i,           name: 'ByeDPI' },
+  { re: /ciadpi|(^|[^a-z])byedpi/im, name: 'ByeDPI' },   // not the end of "goodbyedpi"
   { re: /spoofdpi/i,                name: 'SpoofDPI' },
   { re: /greentunnel/i,             name: 'GreenTunnel' },
   { re: /splitwire/i,               name: 'SplitWire' },
   { re: /proxifyre|proxifier/i,     name: 'Proxifier' },
-  { re: /openvpn/i,                 name: 'OpenVPN' },
-  { re: /wireguard|\bwg-quick\b|wiresock/i, name: 'WireGuard' },
-  { re: /nordvpn/i,                 name: 'NordVPN' },
-  { re: /expressvpn/i,              name: 'ExpressVPN' },
-  { re: /protonvpn/i,               name: 'Proton VPN' },
-  { re: /surfshark/i,               name: 'Surfshark' },
-  { re: /\bcloudflare ?warp\b|warp-svc/i, name: 'Cloudflare WARP' },
-  { re: /tailscale/i,               name: 'Tailscale' },
+  { re: /openvpn/i,                 name: 'OpenVPN',    tunnel: /openvpn|^tap|^tun/i },
+  { re: /wireguard|\bwg-quick\b|wiresock/i, name: 'WireGuard', tunnel: /^wg|wireguard|wiresock/i },
+  { re: /nordvpn/i,                 name: 'NordVPN',    tunnel: /nordlynx|nordvpn|nordtun/i },
+  { re: /expressvpn/i,              name: 'ExpressVPN', tunnel: /expressvpn/i },
+  { re: /protonvpn/i,               name: 'Proton VPN', tunnel: /proton/i },
+  { re: /surfshark/i,               name: 'Surfshark',  tunnel: /surfshark/i },
+  { re: /\bcloudflare ?warp\b|warp-svc/i, name: 'Cloudflare WARP', tunnel: /cloudflarewarp|^warp/i },
+  { re: /tailscale/i,               name: 'Tailscale',  tunnel: /tailscale/i, routeOnly: true },
   { re: /\btor\b.*browser|tor\.exe/i, name: 'Tor' },
   { re: /psiphon/i,                 name: 'Psiphon' },
   { re: /v2ray|xray|clash|sing-box|hiddify/i, name: 'V2Ray / Clash' },
@@ -95,20 +102,38 @@ async function appsNeedingRestart() {
   return [...found];
 }
 
-async function runningTools() {
-  const out = await processList();
-  if (!out) return [];
-  const found = new Set();
-  for (const c of CONFLICTS) if (c.re.test(out)) found.add(c.name);
+/* Is this VPN's tunnel carrying traffic right now? */
+function tunnelUp(c, routeIf, ifs) {
+  if (routeIf && (c.tunnel.test(routeIf) || (!c.routeOnly && TUNNEL_RE.test(routeIf)))) return true;
+  if (c.routeOnly) return false;
+  return Object.entries(ifs).some(([name, addrs]) =>
+    c.tunnel.test(name) && (addrs || []).some((a) => !a.internal));
+}
+
+/* Tools that are steering traffic right now. With `details`, also the VPN
+ * clients that are installed and running but not connected, for the log. */
+async function runningTools({ details = false, probe = {} } = {}) {
+  // `probe` lets the tests stand in for the process list, interfaces and route.
+  const out = probe.processes !== undefined ? probe.processes : await processList();
+  const ifs = probe.interfaces || os.networkInterfaces();
+  if (!out) return details ? { active: [], idle: [] } : [];
+  const active = new Set(); const idle = new Set();
+  let routeIf;
+  for (const c of CONFLICTS) {
+    if (!c.re.test(out)) continue;
+    if (!c.tunnel) { active.add(c.name); continue; }
+    if (routeIf === undefined) routeIf = probe.route !== undefined ? probe.route : await defaultRoute();
+    (tunnelUp(c, routeIf, ifs) ? active : idle).add(c.name);
+  }
   // Our own name can appear in the list on some systems; never report it.
-  found.delete('Shroudly');
-  return [...found];
+  active.delete('Shroudly');
+  return details ? { active: [...active], idle: [...idle] } : [...active];
 }
 
 /* The interface that carries the default route, and whether it looks like a
  * tunnel. A VPN that is up changes which path our traffic takes, so it belongs
  * in the log whether or not it is the cause. */
-const TUNNEL_RE = /^(utun|tun|tap|ppp|wg|nordlynx|proton|ipsec|gpd|zt)/i;
+const TUNNEL_RE = /^(utun|tun|tap|ppp|wg|nordlynx|proton|ipsec|gpd|zt|cloudflarewarp|warp|tailscale|wintun|wireguard|openvpn|surfshark|expressvpn|mullvad)/i;
 
 async function defaultRoute() {
   try {
@@ -185,6 +210,28 @@ async function dnsTampering() {
   return hits;
 }
 
+/* The country the clock is set to, for the stateful-filter countries only.
+ * A hint, never proof: it is only used once the network has already shown it
+ * filters (a site needed a technique), and only to offer Advanced mode. It
+ * never leaves the machine. */
+const TZ_COUNTRY = {
+  IR: ['Asia/Tehran'],
+  CN: ['Asia/Shanghai', 'Asia/Urumqi', 'Asia/Chongqing', 'Asia/Chungking', 'Asia/Harbin', 'PRC'],
+  TM: ['Asia/Ashgabat', 'Asia/Ashkhabad'],
+  BY: ['Europe/Minsk'],
+  RU: ['Europe/Moscow', 'Europe/Kaliningrad', 'Europe/Samara', 'Europe/Volgograd', 'Europe/Kirov', 'Europe/Astrakhan',
+    'Europe/Saratov', 'Europe/Ulyanovsk', 'Asia/Yekaterinburg', 'Asia/Omsk', 'Asia/Novosibirsk', 'Asia/Barnaul',
+    'Asia/Tomsk', 'Asia/Novokuznetsk', 'Asia/Krasnoyarsk', 'Asia/Irkutsk', 'Asia/Chita', 'Asia/Yakutsk',
+    'Asia/Khandyga', 'Asia/Vladivostok', 'Asia/Ust-Nera', 'Asia/Magadan', 'Asia/Sakhalin', 'Asia/Srednekolymsk',
+    'Asia/Kamchatka', 'Asia/Anadyr', 'W-SU'],
+};
+function timezoneCountry(tz) {
+  let zone = tz;
+  if (zone === undefined) { try { zone = Intl.DateTimeFormat().resolvedOptions().timeZone; } catch { zone = ''; } }
+  for (const [cc, zones] of Object.entries(TZ_COUNTRY)) if (zones.includes(zone)) return cc;
+  return null;
+}
+
 /* Whose filtering this is, going by the forged answers: a country code, or
  * 'filter' for a DNS filtering service. null when nothing was forged or the
  * answers match no known block page. */
@@ -208,17 +255,18 @@ async function collect() {
   const ifName = await defaultRoute();
   const iface = ifName ? describeInterface(ifName) : { name: '?', kind: 'unknown' };
   const [tools, servers, forged, restart] = await Promise.all([
-    runningTools(), systemDnsServers(), dnsTampering(), appsNeedingRestart(),
+    runningTools({ details: true }), systemDnsServers(), dnsTampering(), appsNeedingRestart(),
   ]);
   return {
     os: `${process.platform} ${os.release()} ${process.arch}`,
     iface,
     dnsServers: servers,
-    conflicts: tools,
+    conflicts: tools.active,
+    idleVpns: tools.idle,
     forgedDns: forged,
     region: regionOf(forged),
     needRestart: restart,
   };
 }
 
-module.exports = { collect, runningTools, appsNeedingRestart, dnsTampering, defaultRoute, describeInterface, regionOf, looksForged };
+module.exports = { collect, runningTools, appsNeedingRestart, dnsTampering, defaultRoute, describeInterface, regionOf, looksForged, timezoneCountry };

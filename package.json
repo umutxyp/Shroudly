@@ -217,16 +217,16 @@
     },
     "rpm": {
       "depends": [
-        "gtk3",
-        "libnotify",
-        "nss",
-        "libXtst",
-        "at-spi2-core",
-        "libuuid",
-        "libsecret",
+        "libgtk-3.so.0()(64bit)",
+        "libnotify.so.4()(64bit)",
+        "libnss3.so()(64bit)",
+        "libXtst.so.6()(64bit)",
+        "libatspi.so.0()(64bit)",
+        "libuuid.so.1()(64bit)",
+        "libsecret-1.so.0()(64bit)",
         "xdg-utils",
-        "libdrm",
-        "mesa-libgbm"
+        "libdrm.so.2()(64bit)",
+        "libgbm.so.1()(64bit)"
       ]
     }
   },

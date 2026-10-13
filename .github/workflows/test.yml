@@ -67,6 +67,30 @@ jobs:
           cc -std=c11 -g -O1 -D_GNU_SOURCE -D_DARWIN_C_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer -pthread -o "$RUNNER_TEMP/core-asan" core/src/*.c
           SHROUDLY_ENGINE="$RUNNER_TEMP/core-asan" node tests/net/run.js engine-cut engine-hostile discord doh
 
+  # The engine built with each distribution's own compiler and C library,
+  # and the network tests run there.
+  distros:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { image: 'archlinux:latest', setup: 'pacman -Syu --noconfirm gcc make nodejs' }
+          - { image: 'fedora:latest',    setup: 'dnf install -y gcc make nodejs' }
+          - { image: 'debian:stable',    setup: 'apt-get update -qq && apt-get install -y gcc make nodejs ca-certificates' }
+    container: ${{ matrix.image }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Tools (${{ matrix.image }})
+        run: ${{ matrix.setup }}
+      - name: Build and test the engine
+        run: |
+          node --version
+          node scripts/build-core.js
+          cd core && make test
+      - name: Network tests
+        run: node tests/net/run.js
+
   ui:
     runs-on: ubuntu-latest
     steps:

@@ -9,7 +9,7 @@ const dgram = require('dgram');
 const http2 = require('http2');
 const net = require('net');
 const path = require('path');
-const { ROOT, startEngine, sleep, fixture, suite } = require('./helpers');
+const { ROOT, startEngine, freePort, fixture, suite } = require('./helpers');
 
 const F = require(path.join(ROOT, 'electron', 'doh-forwarder.js'));
 const t = suite('doh');
@@ -36,11 +36,12 @@ function ask(port, name) {
   f.stop();
 
   // Every direct route blocked (half refused, half silently dropped).
-  const eng = await startEngine(29873, ['--strategy', 'tlsrec(sni+1)', '--auto']);
+  const P = await freePort();
+  const eng = await startEngine(P, ['--strategy', 'tlsrec(sni+1)', '--auto']);
   f = new F(() => {});
   f.routes.forEach((x, i) => { if (!x.viaEngine) x.ip = i % 2 ? '127.0.0.2' : '10.255.255.1'; });
   port = await f.start();
-  f.setSocksPort(29873);
+  f.setSocksPort(P);
   r = await ask(port, 'discord.com');
   t.ok(r.ok, `all direct routes blocked: answered through the engine in ${r.ms} ms via ${f.preferredId}`);
   r = await ask(port, 'wikipedia.org');

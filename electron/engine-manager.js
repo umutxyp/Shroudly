@@ -21,6 +21,28 @@ const DohForwarder = require('./doh-forwarder');
 const diagnostics = require('./diagnostics');
 const { DISCORD_DOMAINS } = require('./discord-relay');
 const fingerprints = require('./censor-fingerprints');
+const net = require('net');
+
+/* Can we listen on 127.0.0.1:port right now? */
+function portFree(port) {
+  return new Promise((resolve) => {
+    const s = net.createServer();
+    s.once('error', () => resolve(false));
+    s.listen(port, '127.0.0.1', () => s.close(() => resolve(true)));
+  });
+}
+
+/* The configured port if it is free, else the next free one close by, else
+ * any. Other proxies (v2rayN, Clash and more) also default to 10808, and one
+ * of them running must not stop protection from starting at all. */
+async function pickPort(want) {
+  if (await portFree(want)) return want;
+  for (let p = want + 1; p <= want + 20 && p < 65536; p++) if (await portFree(p)) return p;
+  return new Promise((resolve) => {
+    const s = net.createServer();
+    s.listen(0, '127.0.0.1', () => { const { port } = s.address(); s.close(() => resolve(port)); });
+  });
+}
 
 /* Countries whose filters follow whole connections rather than just the first
  * packet. There the normal mode is often not enough, and Advanced mode is the
@@ -181,7 +203,7 @@ class EngineManager {
       // ordinary browsing is relayed as-is, at the same speed as no proxy.
       routeMode: s.routeMode === 'listed' ? 'listed' : 'all',
       siteList: withDiscord(Array.isArray(s.siteList) ? s.siteList : DEFAULT_SITE_LIST),
-      port: Number(s.listenPort || this.port) || DEFAULT_PORT,
+      port: Number(s.listenPort) || DEFAULT_PORT,
     };
   }
 
@@ -212,6 +234,21 @@ class EngineManager {
       }
     }, 30000);
     if (this._conflictTimer.unref) this._conflictTimer.unref();
+  }
+
+  /* Settle on a free port at or after `want`. If it is not the one saved,
+   * save it: the next start goes straight to a port that worked, and only
+   * looks again if that one is taken too. */
+  async _claimPort(want) {
+    const saved = Number(this.store.get('listenPort')) || DEFAULT_PORT;
+    const port = await pickPort(want);
+    if (port !== saved) {
+      this.log('warning', `Port ${saved} is in use by another program; Shroudly is using ${port} instead.`);
+      this.store.set('listenPort', port);
+    }
+    this.port = port;
+    this.configuredPort = port;
+    return port;
   }
 
   _setAdvice(patch) {
@@ -250,7 +287,7 @@ class EngineManager {
     }
 
     const cfg = this._settings();
-    this.port = cfg.port;
+    cfg.port = await this._claimPort(cfg.port);
     this.stats = this._empty();
     this.bypassed.clear();
     this.blockedHosts.clear();
@@ -267,7 +304,13 @@ class EngineManager {
       catch (e) { this.dohPort = 0; this.log('warning', `Encrypted DNS unavailable: ${e.message}`); }
     }
 
-    const ready = await this._spawn(bin, this._args(cfg));
+    let ready = await this._spawn(bin, this._args(cfg));
+    // Something took the port between our check and the engine binding it:
+    // move on to another one rather than fail.
+    for (let tries = 0; !ready && /listen failed/.test(this.lastError || '') && tries < 3; tries++) {
+      cfg.port = await this._claimPort(cfg.port + 1);
+      ready = await this._spawn(bin, this._args(cfg));
+    }
     if (!ready) {
       await this._cleanup();
       throw new Error(this.lastError || 'Engine failed to start');
@@ -360,6 +403,11 @@ class EngineManager {
       this.log('warning', `Also running: ${d.conflicts.join(', ')}. Another bypass tool or VPN changes the same connections as Shroudly; if sites misbehave, turn one of them off.`);
       if (typeof this.onConflicts === 'function') this.onConflicts(d.conflicts);
     }
+    if (d.idleVpns && d.idleVpns.length) {
+      // Installed and running in the background, but not connected: no
+      // conflict, and worth saying so, since people suspect it first.
+      this.log('info', `${d.idleVpns.join(', ')} is installed but not connected; that does not interfere.`);
+    }
     this._setAdvice({ conflicts: d.conflicts });
     this._watchConflicts();
     if (d.region) {
@@ -429,6 +477,13 @@ class EngineManager {
       // two lines are what makes a user's log enough to diagnose a report: the
       // site, the technique that worked, and how many had to be tried.
       case 'bypass':
+        // This network filters. If its DNS gave nothing away, the clock's
+        // country is the next best hint for whether its filters are the kind
+        // that follow whole connections — enough to offer Advanced mode.
+        if (!this.advice.region) {
+          const cc = diagnostics.timezoneCountry();
+          if (cc && STATEFUL_REGIONS.has(cc)) this._setAdvice({ region: { country: cc, stateful: true } });
+        }
         this.blockedHosts.delete(msg.host);
         if (!this.bypassed.has(msg.host)) {
           // One line per site, but the set is only there to stop repeats, so
@@ -544,7 +599,10 @@ class EngineManager {
   async restart() {
     if (!this.active || this.restarting) return { success: true };
     const cfg = this._settings();
-    if (cfg.port !== this.port) { await this.stop(); return this.start(); }
+    // A changed port setting needs a full stop and start; otherwise keep the
+    // port this session is actually on (it may be a free one we moved to).
+    if (cfg.port !== (this.configuredPort || this.port)) { await this.stop(); return this.start(); }
+    cfg.port = this.port;
     this.restarting = true;
     try {
       this.expectingStop = true;

@@ -555,6 +555,38 @@ export default function SettingsPanel({ active = false }) {
           </div>
         )}
 
+        {/* Always here, not only after a site test says "still blocked": on
+            networks that let the handshake through and cut the rest (Iran),
+            the test says the site works, and the one mode that helps would
+            otherwise never be shown. */}
+        {!advInfo.active && (
+          <div className="mt-4 rounded-[var(--radius-sm)] p-3" style={{ background: 'var(--surface-2)', border: '1px solid var(--line)' }}>
+            <p className="flex items-center gap-1.5 text-[13.5px] font-semibold" style={{ color: 'var(--text)' }}>
+              <ZapIcon className="h-4 w-4" style={{ color: advInfo.available ? 'var(--warn)' : 'var(--text-faint)' }} />
+              <span>{t('advancedRowTitle')}</span>
+            </p>
+            <p className="mt-1 text-[12.5px] leading-snug" style={{ color: 'var(--text-dim)' }}>{t('advancedRowDesc')}</p>
+            {advInfo.available ? (
+              <div className="mt-2.5 flex flex-wrap items-center gap-x-3 gap-y-1.5">
+                <button type="button" onClick={enableAdvanced} disabled={advBusy}
+                        className="btn btn-warn rounded-[9px] px-3.5 py-2 text-[13px] font-semibold">
+                  {advBusy ? <SpinnerIcon className="spin h-4 w-4" /> : <ZapIcon className="h-4 w-4" />}
+                  <span>{advBusy ? t('starting') : t('advancedTurnOn')}</span>
+                </button>
+                <span className="flex items-start gap-1.5 text-[12px]" style={{ color: 'var(--text-faint)' }}>
+                  <ShieldAlertIcon className="mt-[1px] h-3.5 w-3.5" />
+                  <span className="min-w-0">{t('advancedAdminHint')}</span>
+                </span>
+              </div>
+            ) : (
+              <p className="mt-2 flex items-start gap-1.5 text-[12px]" style={{ color: 'var(--text-faint)' }}>
+                <InfoIcon className="mt-[1px] h-3.5 w-3.5" />
+                <span className="min-w-0">{advReasonText(advInfo, t)}</span>
+              </p>
+            )}
+          </div>
+        )}
+
         {advError && (
           <div className="mt-3">
             <Notice tone={advError.tone} Icon={advError.tone === 'warn' ? AlertTriangleIcon : XCircleIcon}>
