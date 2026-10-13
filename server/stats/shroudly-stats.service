@@ -1,0 +1,29 @@
+# systemd unit for server.js on the Codeshare server.
+#   install: /opt/shroudly-stats/server.js, then
+#   systemctl enable --now shroudly-stats
+[Unit]
+Description=Shroudly live user counter and download links (shroudly.codeshare.me)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+ExecStart=/usr/bin/node /opt/shroudly-stats/server.js --port 8787 --state /var/lib/shroudly-stats/seen.json
+Restart=always
+RestartSec=2
+# Runs as a throwaway user that can write only its own state directory.
+DynamicUser=yes
+StateDirectory=shroudly-stats
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+PrivateDevices=yes
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectControlGroups=yes
+RestrictAddressFamilies=AF_INET AF_INET6
+MemoryMax=256M
+Environment=NODE_ENV=production
+
+[Install]
+WantedBy=multi-user.target
