@@ -18,6 +18,7 @@
  *   GET  /v1/online                     -> {"online": n, "interval": s}
  *   GET  /dl                            -> 302 to the latest release page
  *   GET  /dl/<key>                      -> 302 to that installer in the latest release
+ *                                          (HEAD too: download managers and link checkers ask first)
  *
  *   node server.js [--port 8787] [--state /var/lib/shroudly-stats/seen.json]
  */
@@ -159,7 +160,7 @@ const server = http.createServer(async (req, res) => {
   const { pathname } = new URL(req.url, 'http://x');
   const route = `${req.method} ${pathname}`;
   try {
-    if (req.method === 'GET' && (pathname === '/dl' || pathname.startsWith('/dl/'))) {
+    if ((req.method === 'GET' || req.method === 'HEAD') && (pathname === '/dl' || pathname.startsWith('/dl/'))) {
       const to = await download(pathname);
       if (!to) { res.writeHead(404, { 'content-type': 'text/plain' }); res.end('unknown download key'); return; }
       res.writeHead(302, { location: to, 'cache-control': 'no-store' });
