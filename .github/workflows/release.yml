@@ -113,7 +113,9 @@ jobs:
           name: unsigned-win
           retention-days: 1
           if-no-files-found: error
-          path: dist/*-Setup.exe
+          # The two published installers; the universal one electron-builder
+          # also makes is never published (scripts/publish-release.js).
+          path: dist/Shroudly-*-Windows-*-Setup.exe
 
       - name: Sign the Windows installers (SignPath)
         if: matrix.platform == 'win' && env.SIGN_POLICY != ''
@@ -134,7 +136,7 @@ jobs:
         shell: pwsh
         run: |
           $signed = @(Get-ChildItem dist/signed -Recurse -File -Filter '*-Setup.exe')
-          $built = @(Get-ChildItem dist -File -Filter '*-Setup.exe')
+          $built = @(Get-ChildItem dist -File -Filter 'Shroudly-*-Windows-*-Setup.exe')
           if ($signed.Count -ne $built.Count -or $built.Count -eq 0) { throw "expected $($built.Count) signed installers, got $($signed.Count)" }
           foreach ($f in $signed) {
             $sig = Get-AuthenticodeSignature $f.FullName
