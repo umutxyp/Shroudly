@@ -56,12 +56,31 @@ export function applyAppearance({ accent, surface }) {
    * rest of the window changed around it. macOS draws its buttons straight
    * over ours, so it needs nothing. */
   try {
-    const cs = getComputedStyle(el);
-    window.electron?.setTitleBarColors?.({
-      color: cs.getPropertyValue('--titlebar').trim(),
-      symbolColor: cs.getPropertyValue('--text-dim').trim(),
-    });
+    const color = cssColorToHex('var(--titlebar)');
+    const symbolColor = cssColorToHex('var(--text-dim)');
+    if (color && symbolColor) window.electron?.setTitleBarColors?.({ color, symbolColor });
   } catch {}
+}
+
+/* The colour a CSS value actually paints, as #rrggbb. Tokens can be written
+ * as color-mix() or oklab(), which Electron's caption strip does not accept;
+ * reading back one painted pixel resolves any of them. */
+export function cssColorToHex(value) {
+  const probe = document.createElement('div');
+  probe.style.cssText = `position:absolute;width:1px;height:1px;left:-9px;top:-9px;background:${value}`;
+  document.body.appendChild(probe);
+  const resolved = getComputedStyle(probe).backgroundColor;
+  probe.remove();
+  const canvas = document.createElement('canvas');
+  canvas.width = 1; canvas.height = 1;
+  const ctx = canvas.getContext('2d', { willReadFrequently: true });
+  if (!ctx || !resolved) return null;
+  ctx.fillStyle = '#000';
+  ctx.fillRect(0, 0, 1, 1);
+  ctx.fillStyle = resolved;
+  ctx.fillRect(0, 0, 1, 1);
+  const [r, g, b] = ctx.getImageData(0, 0, 1, 1).data;
+  return `#${[r, g, b].map((n) => n.toString(16).padStart(2, '0')).join('')}`;
 }
 
 /* Applies the saved choice as early as the app can run script, so the window

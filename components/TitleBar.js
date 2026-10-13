@@ -17,6 +17,10 @@ export default function TitleBar() {
       dir="ltr"
       className={`drag flex h-9 shrink-0 items-center ${mac ? 'justify-center' : 'ps-3'}`}
       style={{
+        // Opaque, and the very colour the OS paints behind its caption buttons
+        // (Appearance sends it), so the strip reads as one piece in every
+        // accent and surface. The glass gradient starts below it.
+        background: 'var(--titlebar)',
         borderBottom: '1px solid var(--line)',
         // Room for the caption buttons drawn by Windows/Linux (3 × 46 px).
         paddingRight: platform && !mac && platform !== 'web' ? 138 : undefined,
