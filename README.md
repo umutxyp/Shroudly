@@ -370,7 +370,8 @@ minutes, downloads in the background and installs on restart. You can postpone
 it, or turn automatic installs off in Settings. Linux packages ask for your
 password to install an update, as any system package does.
 
-> **The builds are not code-signed yet.** On first launch Windows SmartScreen may
+> **The builds are not code-signed yet** (Windows signing is being set up, see the
+> [code signing policy](#code-signing-policy)). On first launch Windows SmartScreen may
 > show *"Windows protected your PC"* → click **More info → Run anyway**. On macOS
 > Gatekeeper may block it → right-click the app → **Open**, or allow it under
 > **System Settings → Privacy & Security**.
@@ -500,6 +501,29 @@ cd core && make test-asan fuzz   # sanitizers and fuzzing
 The [Tests workflow](.github/workflows/test.yml) runs all of it on every push,
 on Windows, Linux and macOS, x64 and ARM, and the engine tests a second time on
 an AddressSanitizer/UBSan build.
+
+---
+
+## Code signing policy
+
+Free code signing provided by [SignPath.io](https://about.signpath.io/),
+certificate by [SignPath Foundation](https://signpath.org/).
+
+- **What is signed:** the Windows installers (`Shroudly-<version>-Windows-x64-Setup.exe`
+  and `-arm64-Setup.exe`). They are built from this repository by the
+  [release workflow](.github/workflows/release.yml) on GitHub's own runners and
+  sent to SignPath from there; nothing built elsewhere is signed. Bundled
+  third-party binaries (Electron, the WinDivert driver) keep their own
+  publishers' signatures.
+- **Committers and reviewers:** [umutxyp](https://github.com/umutxyp). Changes from
+  anyone else are reviewed before they are merged.
+- **Approvers:** [umutxyp](https://github.com/umutxyp). Every release is approved by
+  hand before it is signed.
+- **Privacy:** see [Privacy](#privacy). Shroudly sends nothing about you to any
+  server; the only things it contacts are listed there, and the one optional
+  report, the anonymous live count, can be turned off in Settings.
+
+macOS builds are not covered: Apple requires its own Developer ID for those.
 
 ---
 
