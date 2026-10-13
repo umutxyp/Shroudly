@@ -181,8 +181,9 @@ server's reply and cut the connection, and nothing done on the client side
 helps, Advanced mode included. That is why Discord can sit on
 *Checking for updates* while discord.com works in the browser.
 
-Discord app mode fixes it on Windows and macOS, without admin rights. (Discord's
-Linux builds use an older updater that does not read this setting.)
+Discord app mode fixes it on Windows and macOS, without admin rights, for every
+Discord build: Stable, PTB, Canary and Development. (Discord's Linux builds use
+an older updater that does not read this setting.)
 
 - Shroudly runs a small relay on `127.0.0.1` (port 10809, or the next free
   one). It forwards only `GET`/`HEAD` requests for Discord's own domains, and

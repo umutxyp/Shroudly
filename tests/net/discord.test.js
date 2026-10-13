@@ -40,6 +40,11 @@ function get(url, o = {}) {
   let threw = false; try { DA.patchSync(f, url); } catch { threw = true; }
   t.ok(threw && fs.readFileSync(f, 'utf8') === '{broken', 'broken JSON is refused and left as it was');
   t.ok(fs.readdirSync(dir).every((x) => !x.includes('.shroudly-')), 'no temporary files left behind');
+  // Every Discord build has its own settings folder (issue #6: Development was missing).
+  for (const p of ['win32', 'darwin']) {
+    const ids = DA.variants(p).map((v) => v.dir);
+    t.ok(['discord', 'discordptb', 'discordcanary', 'discorddevelopment'].every((d) => ids.includes(d)), `${p}: Stable, PTB, Canary and Development builds known`);
+  }
   fs.rmSync(dir, { recursive: true, force: true });
 
   // relay

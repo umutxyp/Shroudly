@@ -37,6 +37,7 @@ function variants(platform = process.platform) {
     { id: 'stable', dir: 'discord', app: 'Discord', exe: 'Discord.exe', local: 'Discord', bin: 'discord' },
     { id: 'ptb', dir: 'discordptb', app: 'Discord PTB', exe: 'DiscordPTB.exe', local: 'DiscordPTB', bin: 'discord-ptb' },
     { id: 'canary', dir: 'discordcanary', app: 'Discord Canary', exe: 'DiscordCanary.exe', local: 'DiscordCanary', bin: 'discord-canary' },
+    { id: 'development', dir: 'discorddevelopment', app: 'Discord Development', exe: 'DiscordDevelopment.exe', local: 'DiscordDevelopment', bin: 'discord-development' },
   ];
   if (platform === 'darwin') {
     return builds.map((b) => ({ ...b, proc: b.app, settingsDir: path.join(home, 'Library', 'Application Support', b.dir) }));
