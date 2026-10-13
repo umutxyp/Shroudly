@@ -34,10 +34,16 @@ echo "ok  installed engine starts ($out)"
 
 if [ -x "$CORE/shroudly-core-adv" ]; then
   if ldd "$CORE/shroudly-core-adv" | grep -q 'not found'; then
-    echo "note: Advanced mode needs libnetfilter_queue, which this distribution installs on request (recommended, not required)"
-  else
-    echo "ok  Advanced mode engine has its libraries"
+    # The same package the app tells users to install (electron/advanced-mode.js).
+    echo "note: Advanced mode needs libnetfilter_queue here; installing it the way the app says"
+    if command -v pacman >/dev/null; then pacman -S --noconfirm libnetfilter_queue
+    elif command -v zypper >/dev/null; then zypper --non-interactive install libnetfilter_queue1
+    elif command -v dnf >/dev/null; then dnf install -y libnetfilter_queue
+    else DEBIAN_FRONTEND=noninteractive apt-get install -y libnetfilter-queue1; fi
   fi
+  missing=$(ldd "$CORE/shroudly-core-adv" | grep 'not found' || true)
+  [ -z "$missing" ] || fail "Advanced mode engine still misses libraries: $missing"
+  echo "ok  Advanced mode engine has every library it needs"
 fi
 
 ls /usr/share/applications | grep -qi shroudly || fail "no desktop entry"

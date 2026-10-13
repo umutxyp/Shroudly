@@ -51,13 +51,26 @@ function linuxHasNfqueueLib() {
   return LINUX_LIB_DIRS.some((d) => fs.existsSync(path.join(d, 'libnetfilter_queue.so.1')));
 }
 
+/* The command that installs libnetfilter_queue on this distribution: the
+ * package has a different name, and a different installer, on each family. */
+function linuxInstallCommand(osRelease) {
+  let text = osRelease;
+  if (text === undefined) { try { text = fs.readFileSync('/etc/os-release', 'utf8'); } catch { text = ''; } }
+  const field = (k) => ((text.match(new RegExp(`^${k}=(.*)$`, 'm')) || [])[1] || '').replace(/["']/g, '').toLowerCase();
+  const ids = `${field('ID')} ${field('ID_LIKE')}`;
+  if (/\b(arch|manjaro|endeavouros|garuda|artix)\b/.test(ids)) return 'sudo pacman -S libnetfilter_queue';
+  if (/\b(opensuse|suse|sles)\b/.test(ids) || /opensuse/.test(ids)) return 'sudo zypper install libnetfilter_queue1';
+  if (/\b(fedora|rhel|centos|rocky|almalinux|nobara)\b/.test(ids)) return 'sudo dnf install libnetfilter_queue';
+  return 'sudo apt install libnetfilter-queue1';
+}
+
 const REASONS = {
   mac_unsupported: 'Advanced mode is not available on macOS: the system offers no packet-divert interface without a signed Network Extension. The default engine still works.',
   arch_unsupported: 'Advanced mode is not available on this processor architecture (the WinDivert driver has no ARM64 build).',
   platform_unsupported: `Advanced mode is not available on ${process.platform}.`,
   not_built: 'The advanced engine is not included in this build. Run: npm run build:core:advanced',
   windivert_missing: 'WinDivert.dll / WinDivert64.sys are missing next to the advanced engine. Reinstall Shroudly.',
-  linux_lib_missing: 'Advanced mode needs libnetfilter_queue. Install it with: sudo apt install libnetfilter-queue1',
+  linux_lib_missing: 'Advanced mode needs libnetfilter_queue. Install it with: ' + (process.platform === 'linux' ? linuxInstallCommand() : 'sudo apt install libnetfilter-queue1'),
 };
 
 class AdvError extends Error {
@@ -262,3 +275,4 @@ class AdvancedMode {
 }
 
 module.exports = AdvancedMode;
+module.exports.linuxInstallCommand = linuxInstallCommand;

@@ -47,6 +47,11 @@ works at the packet layer. It asks for administrator rights when you turn it
 on and, on Windows, uses the bundled WinDivert driver. It is never used unless
 you turn it on.
 
+Names are looked up over encrypted DNS, so forged DNS answers — the most common
+kind of blocking — stop working too. For the Discord app, whose own updater
+ignores the system proxy, [Discord app mode](#discord-app-mode) brings that
+traffic through Shroudly as well.
+
 While Shroudly is active it points the system (or your browser) at its local
 proxy, and it always restores the previous setting on stop, crash, or logout —
 so your internet is never left broken.
@@ -76,19 +81,20 @@ strategy**:
 
 | Technique | What it does |
 |-----------|--------------|
-| **Split at SNI** | Sends the ClientHello in separate writes so the SNI is cut across segment boundaries. |
-| **Disorder** | Sends the later segment first; the server's TCP stack reorders it correctly, a stateless DPI cannot. |
-| **Mid-SNI / double split** | Extra split points inside and around the hostname for stubborn DPI. |
+| **TLS record split** | Re-frames the handshake as two TLS records (allowed by RFC 8446 §5.1), with the name split between them. Beats filters that reassemble TCP, which plain splitting cannot. |
+| **Split** | Sends the ClientHello as several TCP segments so the name is cut across segment boundaries. |
+| **Disorder** | The halves really arrive out of order; the server's TCP stack reorders them, a stateless filter cannot. |
+| **Out-of-band byte** | One byte goes as TCP urgent data: the server drops it from the stream, a filter that ignores the urgent pointer does not. |
+| **Decoy (Linux)** | A first segment the server is guaranteed to discard (TCP signature option), so only the filter reads it. No privileges needed. |
 | **HTTP Host scramble** | Rewrites `Host:` casing for plain HTTP. |
-| **Encrypted DNS (DoH)** | Resolves names over real DNS-over-HTTPS (RFC 8484) to Cloudflare / Quad9 / Google, reached by IP with no SNI so the resolver traffic itself can't be blocked or injected. Known ISP block-page answers (e.g. Turk Telekom's) are dropped. Falls back to multi-resolver UDP if DoH is unreachable. On by default. |
-| **Auto-probe** | Tests strategies against a host with a real handshake and remembers the one that works — like `goodbyeDPI`/`zapret` blockcheck, built in. |
+| **Encrypted DNS** | DNS-over-HTTPS over [17 routes from 6 operators](#encrypted-dns-routes); answers pointing at ~180 known block pages are refused. On by default. |
+| **Auto-probe** | Opens each blocked site with a real handshake, trying combinations of the above, and remembers the one that works per site. If a site connects and is then cut, the next connection tries the next technique. |
 
-> **Note on "fake packets".** Low-TTL decoy packets (as used by driver-based
-> tools) require raw-socket injection and cannot be done correctly through a
-> userspace proxy without corrupting the real stream. Shroudly therefore relies
-> on split/disorder in its default driver-free mode, which is sufficient against
-> stateless SNI/Host DPI (e.g. Turkey). Fake packets live in the separate,
-> privileged [Advanced mode](#advanced-mode-stateful-dpi).
+> **Note on fake packets.** Low-TTL decoys like those used by driver-based tools
+> need raw packet injection, which a userspace proxy cannot do without
+> corrupting the real stream. They live in the separate, privileged
+> [Advanced mode](#advanced-mode-stateful-dpi). The default mode's techniques
+> are enough for filters that read the first packet (Turkey, for one).
 
 ---
 
@@ -100,8 +106,9 @@ packet-layer backend, `shroudly-core-adv`. It injects a decoy copy of the first
 packet with a low TTL, a bad TCP checksum and a scrambled SNI. The decoy reaches
 the DPI and poisons its state, then dies before it reaches the real server.
 
-- **Opt-in only.** It is offered in Settings only after a probe finds that a
-  site stays blocked with the default engine.
+- **Opt-in.** Always available under Settings on Windows and Linux. Shroudly
+  also offers it by itself when a network filters the way Iran's, China's or
+  Russia's do, and when sites connect and are then cut.
 - **Asks first.** Turning it on shows a Windows UAC prompt or a Linux password
   prompt (polkit). Shroudly itself keeps running as a normal user.
 - **Always reverted.** The packet hook and any firewall rule go away on stop,
@@ -112,7 +119,7 @@ the DPI and poisons its state, then dies before it reaches the real server.
 | OS | Backend | Needs |
 |----|---------|-------|
 | Windows x64 | WinDivert 2.2 (signed driver, bundled) | Administrator (UAC prompt) |
-| Linux x64 / arm64 | NFQUEUE + raw socket (`iptables`, else `nftables` rule) | Password prompt via `pkexec`, and `libnetfilter-queue1` (the `.deb` pulls it in; AppImage users: `sudo apt install libnetfilter-queue1`) |
+| Linux x64 / arm64 | NFQUEUE + raw socket (`iptables`, else `nftables` rule) | Password prompt via `pkexec`, and libnetfilter_queue. The `.deb` brings it along; otherwise the app shows the command for your distribution: `sudo pacman -S libnetfilter_queue` (Arch), `sudo dnf install libnetfilter_queue` (Fedora/RHEL), `sudo zypper install libnetfilter_queue1` (openSUSE), `sudo apt install libnetfilter-queue1` (Debian/Ubuntu) |
 | Windows on ARM | — | Not available: WinDivert has no ARM64 driver |
 | macOS | — | Not possible: macOS has no packet-divert interface without an Apple-signed Network Extension |
 
@@ -204,18 +211,20 @@ delete that line from Discord's `settings.json` yourself.
 
 ## Features
 
-- **Cross-platform** — one engine, native builds for Windows, macOS and Linux (x64 and arm64).
-- **No elevation, no driver** (default mode) — runs as a normal user; nothing is installed into the kernel.
-- **Optional Advanced mode** — packet-layer fake-packet desync for stateful DPI (Iran/China), opt-in and privileged.
+- **One button** — start and stop protection; it can start with your computer, from the tray.
+- **Cross-platform** — native builds for Windows, macOS and Linux, x64 and ARM.
+- **No admin rights, no driver** in the default mode — it runs as a normal program.
+- **Learns what works** — tests each blocked site and remembers the technique that opens it; switches technique by itself if a network starts cutting a site.
+- **Encrypted DNS** — on by default, over routes that are hard to block, refusing known forged answers.
+- **Discord app mode** — lets the Discord app update and open through Shroudly on Windows and macOS ([details](#discord-app-mode)).
+- **Advanced mode** — packet-level desync for networks that follow whole connections (Iran, China, Russia), on Windows and Linux.
+- **Tells you what is going on** — another VPN or bypass tool fighting it, a site the network cuts, encrypted DNS blocked, a program that must be restarted: said plainly, with the fix one click away.
 - **Never breaks your connection** — your proxy settings are saved before Shroudly changes them and put back on stop, crash, forced kill, shutdown, power loss (at next sign-in) and uninstall.
-- **Real auto-probe** — finds and learns a working strategy per host.
-- **Encrypted DNS (DoH)** — real DNS-over-HTTPS by default; defeats DNS-based blocking (the most common censorship layer in e.g. Turkey) and drops ISP block-page answers.
-- **Split routing** — by default only known-blocked sites go through Shroudly (editable list); everything else, including banking and government sites, connects directly. "All traffic" is also available.
-- **Honest live stats** — connections, bytes, TLS/HTTP seen and desyncs applied are real counters streamed from the engine, not estimates.
-- **Live user count** — Stats shows how many people are using Shroudly right now (see [Privacy](#privacy)).
-- **Automatic updates** — new releases from GitHub install themselves (Windows, macOS, Linux AppImage and .deb).
-- **System tray, auto-start, auto mode** — per-OS login item on Windows/macOS, `.desktop` entry on Linux.
-- **15 languages** with automatic detection.
+- **Routing** — everything through Shroudly (the default), or only the sites on an editable list, with the rest — banking, government — connecting directly.
+- **Port conflicts handled** — if another program holds its port, Shroudly moves to a free one and remembers it.
+- **Honest live stats** — connections, bytes and techniques applied are real counters from the engine.
+- **Automatic updates** — for every package: Windows, macOS, AppImage, `.deb`, `.rpm` and `.pacman`.
+- **15 languages**, detected automatically.
 
 ## What it runs on
 
@@ -223,7 +232,7 @@ delete that line from Discord's `settings.json` yourself.
 |---|---|---|
 | Windows | **Windows 10** (x64 or ARM64) | The installer stops with a clear message on Windows 8.1 and earlier, which Electron no longer supports. |
 | macOS | **macOS 12 Monterey** (Intel or Apple Silicon) | Older versions are told so by macOS itself rather than failing to launch. |
-| Linux | **glibc 2.28+** — Debian 10, Ubuntu 18.04, Fedora 29 or newer | AppImage (x64, ARM64), plus native packages: .deb for Debian/Ubuntu, .pacman for Arch/Manjaro, .rpm for Fedora/openSUSE. The bypass engine itself only needs glibc 2.17, so it is never the limiting part. |
+| Linux | **glibc 2.28+** — Debian 10, Ubuntu 18.04, Fedora 29 or newer | AppImage (x64, ARM64), plus native packages: .deb for Debian/Ubuntu, .pacman for Arch/Manjaro, .rpm for Fedora/openSUSE/RHEL. The bypass engine itself only needs glibc 2.17, so it is never the limiting part. |
 
 Advanced mode needs administrator rights, and is available on Windows and Linux only.
 
@@ -236,37 +245,47 @@ English, 中文, हिन्दी, Español, العربية, Русский, P
 
 ## Install
 
-**Latest version: [v2.0.7](https://github.com/umutxyp/Shroudly/releases/tag/v2.0.7)**: pick the file for your OS and CPU:
+These links always download the newest version (see [Releases](https://github.com/umutxyp/Shroudly/releases/latest) for notes and checksums):
 
 | OS | Intel / AMD (x64) | ARM |
 |----|-------------------|-----|
-| **Windows** | [Installer (.exe)](https://github.com/umutxyp/Shroudly/releases/download/v2.0.7/Shroudly-2.0.7-Windows-x64-Setup.exe) | [Installer (.exe)](https://github.com/umutxyp/Shroudly/releases/download/v2.0.7/Shroudly-2.0.7-Windows-arm64-Setup.exe) |
-| **macOS** | Intel Macs: [.dmg](https://github.com/umutxyp/Shroudly/releases/download/v2.0.7/Shroudly-2.0.7-macOS-x64.dmg) · [.zip](https://github.com/umutxyp/Shroudly/releases/download/v2.0.7/Shroudly-2.0.7-macOS-x64.zip) | Apple Silicon (M1–M4): [.dmg](https://github.com/umutxyp/Shroudly/releases/download/v2.0.7/Shroudly-2.0.7-macOS-arm64.dmg) · [.zip](https://github.com/umutxyp/Shroudly/releases/download/v2.0.7/Shroudly-2.0.7-macOS-arm64.zip) |
-| **Linux** | [AppImage](https://github.com/umutxyp/Shroudly/releases/download/v2.0.7/Shroudly-2.0.7-Linux-x86_64.AppImage) · [.deb (Debian/Ubuntu)](https://github.com/umutxyp/Shroudly/releases/download/v2.0.7/Shroudly-2.0.7-Linux-amd64.deb) | [AppImage](https://github.com/umutxyp/Shroudly/releases/download/v2.0.7/Shroudly-2.0.7-Linux-arm64.AppImage) |
+| **Windows 10+** | [Installer (.exe)](https://shroudly.codeshare.me/dl/windows-x64) | [Installer (.exe)](https://shroudly.codeshare.me/dl/windows-arm64) |
+| **macOS 12+** | [Intel Macs (.dmg)](https://shroudly.codeshare.me/dl/macos-x64) | [Apple Silicon M1–M4 (.dmg)](https://shroudly.codeshare.me/dl/macos-arm64) |
+| **Debian / Ubuntu / Mint** | [.deb](https://shroudly.codeshare.me/dl/linux-deb) | [AppImage](https://shroudly.codeshare.me/dl/linux-arm64) |
+| **Arch / Manjaro / EndeavourOS** | [.pacman](https://shroudly.codeshare.me/dl/linux-pacman) | [AppImage](https://shroudly.codeshare.me/dl/linux-arm64) |
+| **Fedora / openSUSE / RHEL** | [.rpm](https://shroudly.codeshare.me/dl/linux-rpm) | [AppImage](https://shroudly.codeshare.me/dl/linux-arm64) |
+| **Any Linux** | [AppImage](https://shroudly.codeshare.me/dl/linux-x64) | [AppImage](https://shroudly.codeshare.me/dl/linux-arm64) |
 
-Shroudly updates itself after that: it checks for new versions when it starts
-and every 30 minutes, installs them in the background and restarts (you can
-postpone it, or turn automatic installs off in Settings).
+- **Windows** — run the installer.
+- **macOS** — open the `.dmg` and drag `Shroudly.app` into Applications.
+- **Debian / Ubuntu** — `sudo apt install ./Shroudly-*-Linux-amd64.deb`
+- **Arch** — `sudo pacman -U Shroudly-*-Linux-x64.pacman`
+- **Fedora / RHEL** — `sudo dnf install ./Shroudly-*-Linux-x86_64.rpm`
+- **openSUSE** — `sudo zypper install ./Shroudly-*-Linux-x86_64.rpm`
+- **AppImage** — `chmod +x Shroudly-*.AppImage` and run it.
 
-- **Windows** — run the `.exe` installer.
-- **macOS** — open the `.dmg` (or unzip the `.zip`) and drag `Shroudly.app` into Applications.
-- **Linux** — `chmod +x Shroudly-*.AppImage` and run it, or `sudo apt install ./Shroudly-2.0.7-Linux-amd64.deb`.
+Every package is installed and started on its own system before a release is
+published (Arch, Fedora, openSUSE, Debian, Ubuntu 22.04 and 24.04, both
+AppImages, Windows x64 and ARM, both macOS images).
+
+After that Shroudly updates itself: it checks when it starts and every 30
+minutes, downloads in the background and installs on restart. You can postpone
+it, or turn automatic installs off in Settings. Linux packages ask for your
+password to install an update, as any system package does.
 
 > **The builds are not code-signed yet.** On first launch Windows SmartScreen may
 > show *"Windows protected your PC"* → click **More info → Run anyway**. On macOS
 > Gatekeeper may block it → right-click the app → **Open**, or allow it under
 > **System Settings → Privacy & Security**.
 
-Older versions are on the [Releases](https://github.com/umutxyp/Shroudly/releases) page.
-
-No administrator / root rights are required to run it (only the optional
-[Advanced mode](#advanced-mode-stateful-dpi) needs them).
+No administrator or root rights are needed to run it; only the optional
+[Advanced mode](#advanced-mode-stateful-dpi) asks for them.
 
 ---
 
 ## Build from source
 
-**Requirements:** Node.js 20+, plus a C compiler. Any of these works:
+**Requirements:** Node.js 22.12+ (Electron 43's tooling needs it), plus a C compiler. Any of these works:
 - a system compiler (`cc`/`clang`/`gcc`, or MSVC `cl` on Windows), **or**
 - [`zig`](https://ziglang.org/) (`npm i -g zig` or `pip install ziglang`) — this also lets one machine cross-build every OS.
 
@@ -311,12 +330,16 @@ Shroudly/
       raw_windows.[ch]        Advanced mode: WinDivert backend
       supervise.[ch]          Advanced mode: stop / status-file handling
       main.c                  CLI + stdin control protocol
-    test/test_proto.c         unit tests
+    test/                     unit tests, sanitizer tests, fuzzers
   electron/
     main.js                   app shell, tray, IPC, auto-start
     engine-manager.js         spawns shroudly-core, parses JSON, restarts
     system-proxy.js           set/restore OS proxy (Win/mac/Linux), crash-safe
-    doh-forwarder.js          local DNS-over-HTTPS forwarder (encrypted DNS)
+    doh-forwarder.js          local DNS-over-HTTPS forwarder: routes, health, failover
+    censor-fingerprints.js    known block-page / sinkhole addresses by country (OONI)
+    diagnostics.js            what the log needs: OS, network, other VPNs, forged DNS
+    discord-relay.js          Discord app mode: local relay for Discord's updater
+    discord-app.js            Discord app mode: Discord's settings.json, restart
     proxy-watchdog.js         restores the proxy if the app is killed
     updater.js                automatic updates from GitHub releases
     advanced-mode.js          Advanced mode: elevation (UAC / pkexec) + lifecycle
@@ -328,6 +351,9 @@ Shroudly/
   scripts/build-core-advanced.js   Advanced-mode engine build
   scripts/fetch-windivert.js       fetch + verify the WinDivert driver
   scripts/after-pack.js            stamp icon + version info into Shroudly.exe
+  scripts/installer.nsh            Windows installer hooks (proxy reset, Discord clean-up)
+  tests/net/                  network tests (fake censor, hostile servers, DNS, Discord)
+  release-notes/              notes published with each release
 ```
 
 ---
@@ -343,8 +369,14 @@ shroudly-core --port 10808 --strategy "split(sni)" --auto --doh
 ```
 
 Commands on stdin: `STATS`, `PROBE <host>`, `STOP`.
-Strategy syntax: `split(sni)`, `disorder(sni)`, `split(sni_mid)`,
-`split(1),split(sni)`, `split(2)`, and so on.
+Strategy syntax: `tlsrec(sni+1)`, `split(sni)`, `disorder(sni)`, `oob(sni+1)`,
+`split(sni_mid)`, `split(1),tlsrec(sni+1)`, and so on.
+Other options: `--doh-port <port>` (use a local DoH forwarder), `--block-ip <addr>`
+(refuse DNS answers pointing at a block page; repeatable), `--ipv6`.
+
+Events on stdout, one JSON object per line: `ready`, `stats`, `bypass` (a site
+needed a technique), `blocked` (nothing worked), `cut` (a site connected and was
+then cut: `stall`, `reset` or `noreply`), `probe`, `error`, `stopped`.
 
 ---
 
@@ -369,8 +401,10 @@ an AddressSanitizer/UBSan build.
 
 Shroudly does not collect personal data. Two things contact servers:
 
-- **Live user count** (`shroudly.codeshare.me`): while the app runs, it sends a
-  random id that is created fresh at every launch and never stored. The
+- **Live user count** (`shroudly.codeshare.me`): only while protection is on,
+  and only if *Share online count* is left on in Settings, it sends a random
+  id that is created fresh at every launch and never stored. It travels through
+  the protected connection like everything else. The
   server only keeps those ids and when each was last seen, in memory, to count
   how many apps are online. An id disappears when the app quits or stops
   pinging. No IP addresses or other details are logged. The server code is in

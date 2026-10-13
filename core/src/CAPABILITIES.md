@@ -119,3 +119,35 @@ cross-builds need a libnetfilter_queue sysroot, see the script header).
 Windows packaging also needs `npm run fetch:windivert`, which downloads the
 official release, checks its pinned SHA-256 and copies `WinDivert.dll`,
 `WinDivert64.sys` and the license next to the x64 engine.
+
+## Update 3: where things stand (2.4.3)
+
+The sections above are kept as they were written; this is the current state.
+
+**Default engine (no privileges)**
+- `tlsrec` re-frames the ClientHello as two TLS records. Filters that reassemble
+  TCP but read a single record are beaten by it, which plain `split`/`disorder`
+  could not do (the "Stateful" row in the first table predates it). It leads
+  the auto-probe ladder, alone and combined with `split`, `disorder` and `oob`.
+- On Linux the default engine also has a decoy first segment (`fake(md5,…)`):
+  a TCP signature option makes the server discard it while the filter reads it.
+  Needs no privileges; last in the ladder because it is the least portable.
+
+**Connections that are cut after the handshake**
+Some filters let the handshake through and stop the data (Iran's, and
+Russia's 16 KB throttling). The relay now watches TLS connections for a stall
+halfway through a record, a reset, or a request never answered, reports a
+`cut` event, and the next connection to that host uses the next technique.
+Tested against a fake censor in `tests/net/engine-cut.test.js`, and against
+hostile servers under AddressSanitizer in `engine-hostile.test.js`.
+
+**DNS**
+The app's DoH forwarder has 17 routes from 6 operators over HTTP/2, some by
+address with no SNI, some by name through the engine on shared CDN addresses,
+with per-route health and failover. Plain-DNS answers pointing at ~180 known
+block pages (OONI fingerprints, 24 countries) are refused via `--block-ip`, in
+addition to bogons.
+
+**Still not defeated by any technique here**
+Blocking by server address, protocol whitelisting and shutdowns. The app says
+so plainly when it sees the signs, instead of looking like it works.

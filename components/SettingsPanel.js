@@ -39,7 +39,7 @@ const PROBE_TIMEOUT_MS = 25000;
 
 function advReasonText(info, t) {
   const key = info && ADV_REASON_KEYS[info.reasonCode];
-  if (key) return t(key, { command: LINUX_LIB_COMMAND });
+  if (key) return t(key, { command: info.installCommand || LINUX_LIB_COMMAND });
   return info?.reason || t('advancedUnavailable');
 }
 
