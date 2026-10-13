@@ -257,6 +257,44 @@ has no Linux client, so the mode is not offered there.
 
 ---
 
+## The automatic site list
+
+By default everything goes through Shroudly, so no list is needed: any site
+that is blocked opens, including ones nobody has heard of yet. Settings also
+offer **only listed sites**, for people who want everything else to connect
+directly. That list maintains itself:
+
+- **Services, whole.** Each service is listed with every domain it needs: Roblox
+  with its CDN, sign-in captcha and age check; YouTube with its video servers
+  and the attestation host playback needs; Discord, Steam, Epic, Riot,
+  Telegram, Signal, Wattpad and the rest likewise. A service listed without its
+  CDN or captcha loads broken, which is worse than not listing it.
+  ([`scripts/site-list/families.json`](scripts/site-list/families.json))
+- **Measured every week.** A GitHub Actions job reads
+  [OONI](https://ooni.org)'s measurements of the last 30 days in more than 30
+  filtering countries, Turkey first. A site from
+  [Citizen Lab's test lists](https://github.com/citizenlab/test-lists) that is
+  blocked there is added. A site that has not been blocked anywhere for 90 days
+  is dropped. The waiting period stops the list from flapping while a block
+  comes and goes.
+- **Within a policy.** Gambling, adult content, piracy, drugs and extremist
+  material are never added, whatever the measurements say. Shared
+  infrastructure (Google, Cloudflare, Akamai, AWS) is never listed whole, or
+  half the internet would be routed by accident. Some sites are left out by
+  the maintainer's decision because of where they stand legally in Turkey.
+  They still open in the default mode.
+  ([`scripts/site-list/policy.json`](scripts/site-list/policy.json))
+- **Fail-safe.** A country whose data cannot be fetched changes nothing. A run
+  that would shrink the list by more than half is refused. The app keeps
+  the list it shipped with if the published one cannot be fetched or does not
+  look right.
+- **Published as data, not as commits.** The list lives on the `site-list`
+  branch, so main's history stays readable. The app fetches it about once a
+  day, only while protection is on and through the engine (see
+  [Privacy](#privacy)).
+- **Yours if you want it.** Edit the list in Settings and it becomes your own:
+  it stops updating, until you choose *Use the automatic list* again.
+
 ## Features
 
 - **One button** — start and stop protection; it can start with your computer, from the tray.
@@ -269,7 +307,7 @@ has no Linux client, so the mode is not offered there.
 - **Advanced mode** — packet-level desync for networks that follow whole connections (Iran, China, Russia), on Windows and Linux.
 - **Tells you what is going on** — another VPN or bypass tool fighting it, a site the network cuts, encrypted DNS blocked, a program that must be restarted: said plainly, with the fix one click away.
 - **Never breaks your connection** — your proxy settings are saved before Shroudly changes them and put back on stop, crash, forced kill, shutdown, power loss (at next sign-in) and uninstall.
-- **Routing** — everything through Shroudly (the default), or only the sites on an editable list, with the rest — banking, government — connecting directly.
+- **Routing** — everything through Shroudly (the default), or only the sites on a list, with the rest — banking, government — connecting directly. The list keeps itself current ([how](#the-automatic-site-list)); you can also write your own.
 - **Port conflicts handled** — if another program holds its port, Shroudly moves to a free one and remembers it.
 - **Honest live stats** — connections, bytes and techniques applied are real counters from the engine.
 - **Automatic updates** — for every package: Windows, macOS, AppImage, `.deb`, `.rpm` and `.pacman`.
@@ -394,6 +432,8 @@ Shroudly/
     roblox-app.js             Games and apps mode: finding and restarting Roblox
     proxy-watchdog.js         restores the proxy (and HTTPS_PROXY) if the app is killed
     updater.js                automatic updates from GitHub releases
+    site-list.js              the automatic site list: fetch, check, keep
+    data/sites.json           the site list as it was at release
     advanced-mode.js          Advanced mode: elevation (UAC / pkexec) + lifecycle
     main-i18n.js              tray + notification strings (15 languages)
     tools/core/<os>-<arch>/   built engine binaries (per platform)
@@ -404,7 +444,8 @@ Shroudly/
   scripts/fetch-windivert.js       fetch + verify the WinDivert driver
   scripts/after-pack.js            stamp icon + version info into Shroudly.exe
   scripts/installer.nsh            Windows installer hooks (proxy reset, Discord and HTTPS_PROXY clean-up)
-  tests/net/                  network tests (fake censor, hostile servers, DNS, Discord, games and apps)
+  scripts/site-list/               weekly site-list build: families, policy, OONI
+  tests/net/                  network tests (fake censor, hostile servers, DNS, Discord, games and apps, site list)
   release-notes/              notes published with each release
 ```
 
@@ -453,7 +494,7 @@ an AddressSanitizer/UBSan build.
 
 ## Privacy
 
-Shroudly does not collect personal data. Two things contact servers:
+Shroudly does not collect personal data. These are the only things that contact servers:
 
 - **Live user count** (`shroudly.codeshare.me`): only while protection is on,
   and only if *Share online count* is left on in Settings, it sends a random
@@ -465,6 +506,11 @@ Shroudly does not collect personal data. Two things contact servers:
   [`server/stats-worker`](server/stats-worker/worker.js).
 - **Update checks** (GitHub): the app downloads the release feed from
   `github.com/umutxyp/Shroudly`.
+- **The site list** (GitHub): about once a day, only while protection is on
+  and through the protected connection, the app downloads
+  [the published list](#the-automatic-site-list) from
+  `raw.githubusercontent.com/umutxyp/Shroudly/site-list/sites.json`. It sends
+  nothing but the request itself.
 - **DNS lookups**, while DNS protection is on: names you visit are resolved
   over encrypted DNS by the resolvers listed under
   [Encrypted DNS routes](#encrypted-dns-routes), not by your provider.

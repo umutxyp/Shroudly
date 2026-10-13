@@ -67,13 +67,21 @@ function withDiscord(list) {
 
 const DEFAULT_PORT = 10808;
 
-// Domains routed through the proxy in "listed" mode. Services that are widely
-// blocked somewhere, together with the CDN domains they load their images and
-// media from — a site whose CDN is left out loads as a page of broken images,
-// which is worse than not routing it at all. Only lawful services are listed.
+// Domains routed through the proxy in "listed" mode: the list built by
+// scripts/site-list/update.js from OONI measurements and curated service
+// families (each service with every domain it needs, CDN and captcha
+// included), shipped in data/sites.json and kept current by site-list.js.
 // The default routing mode sends everything through Shroudly instead, so this
 // list only matters to people who narrow it down; they can edit it in Settings.
-const DEFAULT_SITE_LIST = [
+// FALLBACK_SITE_LIST is only used if the shipped file cannot be read.
+function bundledSiteList() {
+  try {
+    const d = JSON.parse(fs.readFileSync(path.join(__dirname, 'data', 'sites.json'), 'utf8')).domains;
+    if (Array.isArray(d) && d.length) return d;
+  } catch {}
+  return FALLBACK_SITE_LIST;
+}
+const FALLBACK_SITE_LIST = [
   // Discord: every domain the company serves the app, media and activities from
   ...DISCORD_DOMAINS,
   // Roblox
@@ -104,6 +112,7 @@ const DEFAULT_SITE_LIST = [
   'stackoverflow.com', 'stackexchange.com', 'sstatic.net',
   'duckduckgo.com', 'proton.me', 'protonmail.com', 'tutanota.com', 'torproject.org',
 ];
+const DEFAULT_SITE_LIST = bundledSiteList();
 const MAX_RESTARTS = 5;
 // No output at all for this long, although STATS is asked every second, means
 // the engine hangs: the system proxy then points at a dead endpoint, so treat
@@ -136,6 +145,9 @@ class EngineManager {
     this.onSiteBlocked = hooks.onSiteBlocked || (() => {});
     this.onNeedRestart = hooks.onNeedRestart || (() => {});
     this.onDnsAutoEnabled = hooks.onDnsAutoEnabled || (() => {});
+    // The current automatic list (site-list.js); the one shipped with the app
+    // when there is none.
+    this.siteList = hooks.siteList || (() => DEFAULT_SITE_LIST);
     this.lastProbe = null;
     this.proxyOptions = hooks.proxyOptions || {};
     this.proxy = new SystemProxy(this.log, this.proxyOptions);
@@ -202,7 +214,7 @@ class EngineManager {
       // engine leaves a connection completely untouched unless it is refused:
       // ordinary browsing is relayed as-is, at the same speed as no proxy.
       routeMode: s.routeMode === 'listed' ? 'listed' : 'all',
-      siteList: withDiscord(Array.isArray(s.siteList) ? s.siteList : DEFAULT_SITE_LIST),
+      siteList: withDiscord(Array.isArray(s.siteList) ? s.siteList : this.siteList()),
       port: Number(s.listenPort) || DEFAULT_PORT,
     };
   }

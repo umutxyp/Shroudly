@@ -141,7 +141,7 @@ function Notice({ tone = 'info', Icon, children }) {
 }
 
 export default function SettingsPanel({ active = false }) {
-  const { language, setLanguage, t, availableLanguages } = useLanguage();
+  const { language, setLanguage, t, availableLanguages, locale } = useLanguage();
   const strategyLabelId = useId();
   const languageLabelId = useId();
   const [testHost, setTestHost] = useState('');
@@ -171,9 +171,18 @@ export default function SettingsPanel({ active = false }) {
   useEffect(() => { setLook(readAppearance()); }, []);
   const setAppearance = (next) => { const v = { ...look, ...next }; setLook(v); applyAppearance(v); };
 
+  // The automatic list, and when it was last built; it can change while the
+  // window is open.
+  const [listInfo, setListInfo] = useState(null);
   useEffect(() => {
-    if (typeof window === 'undefined' || !window.electron?.defaultSiteList) return;
-    window.electron.defaultSiteList().then((l) => Array.isArray(l) && setDefaultList(l)).catch(() => {});
+    if (typeof window === 'undefined' || !window.electron?.defaultSiteList) return undefined;
+    const load = () => {
+      window.electron.defaultSiteList().then((l) => Array.isArray(l) && setDefaultList(l)).catch(() => {});
+      window.electron.siteListInfo?.().then(setListInfo).catch(() => {});
+    };
+    load();
+    window.electron.onSiteListChanged?.(load);
+    return () => window.electron.removeSiteListListener?.();
   }, []);
 
   useEffect(() => {
@@ -432,12 +441,22 @@ export default function SettingsPanel({ active = false }) {
           <div className="mt-3">
             <div className="mb-1.5 flex items-center justify-between gap-2">
               <span className="text-[12px] font-medium" style={{ color: 'var(--text-faint)' }}>{t('siteListLabel')}</span>
-              <button type="button"
-                      onClick={() => { const l = defaultList.slice(); setSiteText(l.join('\n')); save('siteList', l); }}
-                      className="text-[12px] underline" style={{ color: 'var(--text-dim)' }}>
-                {t('resetToDefault')}
-              </button>
+              {Array.isArray(settings.siteList) && (
+                <button type="button"
+                        onClick={() => { setSiteText(null); setBadEntries([]); save('siteList', null); setListInfo((i) => i && { ...i, custom: false }); }}
+                        className="text-[12px] underline" style={{ color: 'var(--text-dim)' }}>
+                  {t('siteListUseAuto')}
+                </button>
+              )}
             </div>
+            <p className="mb-1.5 text-[12px] leading-snug" style={{ color: 'var(--text-faint)' }}>
+              {Array.isArray(settings.siteList)
+                ? t('siteListCustom')
+                : t('siteListAuto', {
+                  count: (listInfo?.count || defaultList.length).toLocaleString(locale || undefined),
+                  date: listInfo?.generated ? new Date(listInfo.generated).toLocaleDateString(locale || undefined) : '—',
+                })}
+            </p>
             <textarea
               value={siteText == null ? (settings.siteList || defaultList).join('\n') : siteText}
               onChange={(e) => setSiteText(e.target.value)}
@@ -449,6 +468,10 @@ export default function SettingsPanel({ active = false }) {
                 const list = [...new Set(entries.filter(isHostname))];
                 const dropped = [...new Set(entries.filter((d) => !isHostname(d)))];
                 setBadEntries(dropped);
+                // Only an actual edit makes the list the user's own: merely
+                // clicking into the box must not stop it updating itself.
+                const current = Array.isArray(settings.siteList) ? settings.siteList : defaultList;
+                if (list.length === current.length && list.every((d, i) => d === current[i])) { setSiteText(null); return; }
                 setSiteText(list.join('\n'));   // show the cleaned list back
                 save('siteList', list);
               }}

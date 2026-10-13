@@ -145,15 +145,21 @@ class SystemProxy {
       const domains = [...new Set((this.list || [])
         .map((d) => String(d).trim().toLowerCase().replace(/^\*?\.?/, '').replace(/\/.*$/, ''))
         .filter((d) => SystemProxy.isHostname(d)))];
-      return `var SHROUDLY_LIST = ${JSON.stringify(domains)};
+      // A lookup table, checked once per label of the host (a.b.example.com,
+      // b.example.com, example.com, com): a few lookups per request however
+      // long the list is, where a scan of thousands of names would run on
+      // every single request the browser makes.
+      const table = {};
+      for (const d of domains) table[d] = 1;
+      return `var SHROUDLY_LIST = ${JSON.stringify(table)};
 function FindProxyForURL(url, host) {
 ${local}
-  host = ("" + host).toLowerCase();
-  for (var i = 0; i < SHROUDLY_LIST.length; i++) {
-    var d = SHROUDLY_LIST[i];
-    if (host === d || host.length > d.length && host.slice(-(d.length + 1)) === ("." + d)) {
-      return "${proxy}";
-    }
+  var h = ("" + host).toLowerCase();
+  while (true) {
+    if (SHROUDLY_LIST.hasOwnProperty(h)) return "${proxy}";
+    var i = h.indexOf(".");
+    if (i < 0) break;
+    h = h.substring(i + 1);
   }
   return "DIRECT";
 }

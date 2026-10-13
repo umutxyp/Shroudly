@@ -15,6 +15,7 @@ const DiscordRelay = require('./discord-relay');
 const AppProxy = require('./app-proxy');
 const AppEnv = require('./app-env');
 const RobloxApp = require('./roblox-app');
+const SiteList = require('./site-list');
 const Updater = require('./updater');
 const Presence = require('./presence');
 const i18n = require('./main-i18n');
@@ -48,6 +49,7 @@ let discordRelay = null;
 let keepDiscordLine = false;
 let appProxy = null;
 let appEnv = null;
+let siteList = null;
 
 const isDev = !app.isPackaged;
 const DEV_PORT = process.env.PORT || 3000;
@@ -187,7 +189,28 @@ function createTray() {
   tray.on('click', () => showWindow());
 }
 
+/* The automatic site list: checked once protection has settled, then at most
+ * once a day while it stays on (site-list.js says why only then). A newer
+ * list takes effect at once for "only listed sites", unless the user keeps a
+ * list of their own. */
+const SITE_LIST_EVERY_MS = 24 * 60 * 60 * 1000;
+let siteListTimer = null;
+function scheduleSiteListCheck(delayMs) {
+  clearTimeout(siteListTimer);
+  siteListTimer = setTimeout(async () => {
+    if (!siteList || !engine || !engine.isActive()) return;
+    if (Date.now() - siteList.checkedAt < SITE_LIST_EVERY_MS - 60000) return;
+    if (!(await siteList.refresh())) return;
+    if (store.get('routeMode') === 'listed' && !Array.isArray(store.get('siteList'))) {
+      engine.reapplyProxy().catch((e) => addLog('error', `Proxy update failed: ${e.message}`));
+    }
+    if (mainWindow && !mainWindow.isDestroyed()) mainWindow.webContents.send('sitelist:changed', siteList.info());
+  }, delayMs);
+}
+setInterval(() => { if (engine && engine.isActive()) scheduleSiteListCheck(0); }, 60 * 60 * 1000).unref();
+
 function broadcastStatus(active) {
+  if (active) scheduleSiteListCheck(20000);
   rebuildTrayMenu(active);
   if (mainWindow && !mainWindow.isDestroyed()) {
     mainWindow.webContents.send('dpi:status-changed', active);
@@ -363,8 +386,14 @@ app.whenReady().then(async () => {
     exe: launcherPath(),
     args: app.isPackaged ? [RESTORE_PROXY_ARG] : [app.getAppPath(), RESTORE_PROXY_ARG],
   };
+  siteList = new SiteList({
+    cacheFile: path.join(app.getPath('userData'), 'site-list.json'),
+    log: addLog,
+    getSocksPort: () => (engine && engine.isActive() ? engine.port : null),
+  });
   engine = new EngineManager(store, {
     addLog, onStatusChange: broadcastStatus,
+    siteList: () => siteList.domains,
     proxyOptions: { stateFile: proxyStateFile(), watchdog, restoreCommand },
     onProbe: (p) => { if (mainWindow && !mainWindow.isDestroyed()) mainWindow.webContents.send('dpi:probe-result', p); },
     // A site that defeated every technique. Told once per site, and at most
@@ -627,7 +656,11 @@ function ipv6Available() {
   });
 }
 ipcMain.handle('net:ipv6Available', () => ipv6Available());
-ipcMain.handle('settings:defaultSiteList', () => EngineManager.DEFAULT_SITE_LIST);
+ipcMain.handle('settings:defaultSiteList', () => (siteList ? siteList.domains : EngineManager.DEFAULT_SITE_LIST));
+ipcMain.handle('sitelist:info', () => ({
+  ...(siteList ? siteList.info() : { count: EngineManager.DEFAULT_SITE_LIST.length, generated: null, checkedAt: 0 }),
+  custom: Array.isArray(store.get('siteList')),
+}));
 /* Repaint the system-drawn caption strip to match the theme. Only Windows and
  * Linux have one; macOS draws its buttons over our own strip. A colour the
  * renderer sends is only ever used as a colour, and an unparseable one is
@@ -851,7 +884,9 @@ ipcMain.handle('apps:restartRoblox', async () => {
 });
 
 ipcMain.handle('settings:set', (e, key, value) => {
-  store.set(key, value);
+  // No list of one's own: follow the automatic list again.
+  if (key === 'siteList' && !Array.isArray(value)) store.delete('siteList');
+  else store.set(key, value);
   if (ENGINE_SETTINGS.has(key)) scheduleEngineRestart();
   if (PROXY_SETTINGS.has(key)) scheduleProxyReapply();
   if (key === 'language') rebuildTrayMenu();
