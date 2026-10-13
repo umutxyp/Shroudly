@@ -319,7 +319,7 @@ directly. That list maintains itself:
 - **Port conflicts handled** — if another program holds its port, Shroudly moves to a free one and remembers it.
 - **Honest live stats** — connections, bytes and techniques applied are real counters from the engine.
 - **Automatic updates** — for every package: Windows, macOS, AppImage, `.deb`, `.rpm` and `.pacman`.
-- **15 languages**, detected automatically.
+- **31 languages**, detected automatically, including those of the countries that filter the internet hardest (Azerbaijani, Persian, Russian, Turkmen, Burmese, Vietnamese and more).
 
 ## What it runs on
 
@@ -334,7 +334,9 @@ Advanced mode needs administrator rights, and is available on Windows and Linux 
 
 ### Languages
 
-English, 中文, हिन्दी, Español, العربية, Русский, Português, Français, فارسی, Türkçe, বাংলা, اردو, Bahasa Indonesia, 日本語, Deutsch
+English, 中文, हिन्दी, Español, العربية, Русский, Português, Français, فارسی, Türkçe, বাংলা, اردو, Bahasa Indonesia, 日本語, Deutsch, Azərbaycanca, עברית, Tiếng Việt, Українська, Беларуская, Oʻzbekcha, Қазақша, Кыргызча, Türkmençe, Тоҷикӣ, پښتو, Kurdî (Kurmancî), မြန်မာ, ไทย, አማርኛ, Bahasa Melayu
+
+The app opens in your system's language when it is one of these, and you can change it in Settings. Arabic, Persian, Urdu, Hebrew and Pashto are shown right to left.
 
 ---
 
@@ -444,10 +446,10 @@ Shroudly/
     site-list.js              the automatic site list: fetch, check, keep
     data/sites.json           the site list as it was at release
     advanced-mode.js          Advanced mode: elevation (UAC / pkexec) + lifecycle
-    main-i18n.js              tray + notification strings (15 languages)
+    main-i18n.js              tray + notification strings (every UI language)
     tools/core/<os>-<arch>/   built engine binaries (per platform)
   app/ components/ contexts/  Next.js + React UI
-  translations.js             15-language strings
+  translations.js             UI strings, 31 languages
   scripts/build-core.js       native + cross compile
   scripts/build-core-advanced.js   Advanced-mode engine build
   scripts/fetch-windivert.js       fetch + verify the WinDivert driver

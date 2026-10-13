@@ -78,9 +78,15 @@
 :lang(ja) { --font-sans: 'Yu Gothic UI', 'Meiryo UI', 'Meiryo', 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Noto Sans CJK JP', 'Segoe UI', system-ui, sans-serif; }
 :lang(hi) { --font-sans: 'Nirmala UI', 'Kohinoor Devanagari', 'Devanagari Sangam MN', 'Noto Sans Devanagari', 'Segoe UI', system-ui, sans-serif; }
 :lang(bn) { --font-sans: 'Nirmala UI', 'Vrinda', 'Kohinoor Bangla', 'Bangla Sangam MN', 'Noto Sans Bengali', 'Segoe UI', system-ui, sans-serif; }
-:lang(ar), :lang(fa), :lang(ur) {
+:lang(ar), :lang(fa), :lang(ur), :lang(ps) {
   --font-sans: 'Segoe UI Variable Text', 'Segoe UI', 'Geeza Pro', 'Noto Sans Arabic', Tahoma, system-ui, sans-serif;
 }
+:lang(he) { --font-sans: 'Segoe UI Variable Text', 'Segoe UI', 'Arial Hebrew', 'Noto Sans Hebrew', Arial, system-ui, sans-serif; }
+:lang(th) { --font-sans: 'Leelawadee UI', 'Leelawadee', 'Thonburi', 'Noto Sans Thai', 'Segoe UI', system-ui, sans-serif; }
+:lang(my) { --font-sans: 'Myanmar Text', 'Myanmar Sangam MN', 'Noto Sans Myanmar', 'Padauk', 'Segoe UI', system-ui, sans-serif; }
+/* Latin words (Shroudly, version numbers) in the system face; Ge'ez from
+   the first font that has it. */
+:lang(am) { --font-sans: 'Segoe UI Variable Text', 'Segoe UI', -apple-system, BlinkMacSystemFont, 'Ebrima', 'Nyala', 'Kefa', 'Noto Sans Ethiopic', 'Abyssinica SIL', system-ui, sans-serif; }
 
 /* Tailwind's preflight defaults borders/dividers to a light gray; use the
    dark palette's hairline instead so `border-t` / `divide-y` match. */
