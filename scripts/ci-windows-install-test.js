@@ -61,6 +61,12 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
   if (fs.existsSync(path.join(dir, 'Shroudly.exe'))) fail('app still there after uninstall');
   ok('uninstalled');
 
+  // Our clean-up runs last in the uninstaller, after the program files are
+  // gone, so give the uninstaller time to finish before judging it.
+  for (let i = 0; i < 60; i++) {
+    try { if (!('NEW_UPDATE_ENDPOINT' in JSON.parse(fs.readFileSync(settings, 'utf8').replace(/^\uFEFF/, '')))) break; } catch {}
+    await sleep(1000);
+  }
   const raw = fs.readFileSync(settings);
   if (raw[0] === 0xef && raw[1] === 0xbb) fail("Discord's settings.json now starts with a byte-order mark");
   const obj = JSON.parse(raw.toString('utf8'));
