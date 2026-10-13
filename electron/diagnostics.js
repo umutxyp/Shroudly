@@ -62,9 +62,14 @@ const CONFLICTS = [
   { re: /surfshark/i,               name: 'Surfshark',  tunnel: /surfshark/i },
   { re: /\bcloudflare ?warp\b|warp-svc/i, name: 'Cloudflare WARP', tunnel: /cloudflarewarp|^warp/i },
   { re: /tailscale/i,               name: 'Tailscale',  tunnel: /tailscale/i, routeOnly: true },
-  { re: /\btor\b.*browser|tor\.exe/i, name: 'Tor' },
+  // The whole name, not its end: "Monitor.exe", "Navigator.exe" and the
+  // like are everywhere on Windows. tasklist quotes names, ps gives a path
+  // (macOS) or a bare name (Linux); the browser shows up as "Tor Browser".
+  { re: /(^|["\\/])tor(\.exe)?("|$)|tor ?browser/im, name: 'Tor' },
   { re: /psiphon/i,                 name: 'Psiphon' },
-  { re: /v2ray|xray|clash|sing-box|hiddify/i, name: 'V2Ray / Clash' },
+  // At the start of a name, so a game called "Clash of Clans" or a tool that
+  // merely contains "xray" is not taken for one.
+  { re: /(^|["\\/])(v2ray|xray|clash(?! ?of ?clans| ?royale)|flclash|mihomo|verge-mihomo|sing-box|hiddify|nekoray|nekobox)/im, name: 'V2Ray / Clash' },
 ];
 
 /* Programs that read the system proxy once, when they start.

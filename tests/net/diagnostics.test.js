@@ -31,6 +31,18 @@ const TAIL_UP = { ...ETH, Tailscale: [{ address: '100.64.0.5', family: 'IPv4', i
   t.ok(r.active.join() === 'GoodbyeDPI', 'a bypass tool counts whenever it runs');
   r = await D.runningTools({ details: true, probe: { processes: '"ByeDPI.exe","9"\nciadpi', interfaces: ETH, route: 'Ethernet' } });
   t.ok(r.active.join() === 'ByeDPI', 'ByeDPI is still recognised on its own');
+  r = await D.runningTools({ probe: { processes: '"Monitor.exe","1"\n"IntelGraphicsMonitor.exe","2"\n"Navigator.exe","3"\n"qbittorrent.exe","4"\n/usr/bin/motor', interfaces: ETH, route: 'Ethernet' } });
+  t.ok(r.length === 0, 'names that merely end in "tor" are not Tor (issue #7)');
+  for (const p of ['"tor.exe","5"', '/opt/homebrew/opt/tor/bin/tor', 'tor', '/Applications/Tor Browser.app/Contents/MacOS/firefox']) {
+    r = await D.runningTools({ probe: { processes: `"chrome.exe","1"\n${p}`, interfaces: ETH, route: 'Ethernet' } });
+    t.ok(r.join() === 'Tor', `Tor itself is still recognised (${p})`);
+  }
+  r = await D.runningTools({ probe: { processes: '"Clash of Clans.exe","1"\n"ClashRoyale.exe","2"\n"NVXRayHelper.exe","3"', interfaces: ETH, route: 'Ethernet' } });
+  t.ok(r.length === 0, 'games and tools that only contain "clash" or "xray" are not proxy clients');
+  for (const p of ['"v2rayN.exe","5"', '"Clash Verge.exe","6"', '"verge-mihomo.exe","7"', '/Applications/ClashX Pro.app/Contents/MacOS/ClashX Pro', 'sing-box', '"Hiddify.exe","8"', '"xray.exe","9"']) {
+    r = await D.runningTools({ probe: { processes: `"chrome.exe","1"\n${p}`, interfaces: ETH, route: 'Ethernet' } });
+    t.ok(r.join() === 'V2Ray / Clash', `proxy clients are still recognised (${p})`);
+  }
   r = await D.runningTools({ probe: { processes: '"chrome.exe","1"', interfaces: ETH, route: 'Ethernet' } });
   t.ok(Array.isArray(r) && r.length === 0, 'nothing running: nothing reported (plain list form)');
 
