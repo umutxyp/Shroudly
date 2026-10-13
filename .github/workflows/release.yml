@@ -65,11 +65,12 @@ jobs:
           node scripts/build-core-advanced.js
           npm run fetch:windivert
 
-      - name: Build advanced engine (Linux x64 native, arm64 best-effort)
+      - name: Build advanced engine (Linux x64 and arm64, against glibc 2.28)
         if: matrix.platform == 'linux'
         run: |
-          node scripts/build-core-advanced.js || true
-          bash scripts/ci-linux-arm64-advanced.sh || echo "arm64 advanced skipped"
+          bash scripts/ci-linux-advanced.sh amd64
+          bash scripts/ci-linux-advanced.sh arm64
+          bash scripts/ci-check-glibc.sh
 
       - name: Build web UI
         run: npm run build
