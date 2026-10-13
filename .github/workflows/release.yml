@@ -2,14 +2,20 @@ name: Build & Release
 
 # Push a tag like v2.3.0 to build every platform on its own native runner and
 # publish a GitHub release. Windows installers are code-signed through SignPath
-# when signing is enabled (repository variable ENABLE_SIGNPATH = true and the
-# SIGNPATH_* secrets/vars are set); otherwise they ship unsigned, exactly as the
-# local builds do today.
+# when signing is enabled (repository variables ENABLE_SIGNPATH = true,
+# SIGNPATH_ORGANIZATION_ID and SIGNPATH_POLICY_SLUG, secret SIGNPATH_API_TOKEN);
+# otherwise they ship unsigned, exactly as the local builds do today.
 
 on:
   push:
     tags: ['v*']
-  workflow_dispatch: {}
+  workflow_dispatch:
+    inputs:
+      signing_policy:
+        description: 'SignPath policy for this run (test-signing to try signing; a manual run never publishes)'
+        type: choice
+        options: [none, test-signing, release-signing]
+        default: none
 
 permissions:
   contents: write
@@ -31,6 +37,9 @@ jobs:
           - os: ubuntu-latest
             platform: linux
     runs-on: ${{ matrix.os }}
+    env:
+      # A manual run's choice, else release-signing once ENABLE_SIGNPATH is on.
+      SIGN_POLICY: ${{ (inputs.signing_policy != 'none' && inputs.signing_policy) || (vars.ENABLE_SIGNPATH == 'true' && vars.SIGNPATH_POLICY_SLUG) || '' }}
     steps:
       - uses: actions/checkout@v4
 
@@ -90,23 +99,55 @@ jobs:
         run: npx electron-builder --linux --publish never   # targets/arches from package.json
 
       # --- Windows code signing via SignPath (off unless enabled) -------------
-      - name: Submit signing request (SignPath)
-        if: matrix.platform == 'win' && vars.ENABLE_SIGNPATH == 'true'
-        uses: signpath/github-action-submit-signing-request@v1.2
+      # The installers go up as a GitHub artifact, SignPath signs them (the
+      # project's default artifact configuration: a zip of
+      # Shroudly-*-Windows-*-Setup.exe, Authenticode) and hands them back, and
+      # latest.yml is rewritten for the signed bytes so auto-update still
+      # verifies. A manual run can pick test-signing to try the whole path
+      # without publishing: only a tag publishes.
+      - name: Stage the Windows installers for signing
+        id: unsigned
+        if: matrix.platform == 'win' && env.SIGN_POLICY != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: unsigned-win
+          retention-days: 1
+          if-no-files-found: error
+          path: dist/*-Setup.exe
+
+      - name: Sign the Windows installers (SignPath)
+        if: matrix.platform == 'win' && env.SIGN_POLICY != ''
+        uses: signpath/github-action-submit-signing-request@v2
         with:
           api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
           organization-id: ${{ vars.SIGNPATH_ORGANIZATION_ID }}
-          project-slug: shroudly
-          signing-policy-slug: ${{ vars.SIGNPATH_POLICY_SLUG }}
-          artifact-configuration-slug: ${{ vars.SIGNPATH_ARTIFACT_SLUG }}
-          github-artifact-id: ''                     # signs the files staged below
+          project-slug: Shroudly
+          signing-policy-slug: ${{ env.SIGN_POLICY }}
+          github-artifact-id: ${{ steps.unsigned.outputs.artifact-id }}
           wait-for-completion: true
-          output-artifact-directory: dist
-          parameters: |
-            version: ${{ github.ref_name }}
+          # release-signing can wait for a person to approve the request.
+          wait-for-completion-timeout-in-seconds: 3600
+          output-artifact-directory: dist/signed
+
+      - name: Put the signed installers in place
+        if: matrix.platform == 'win' && env.SIGN_POLICY != ''
+        shell: pwsh
+        run: |
+          $signed = @(Get-ChildItem dist/signed -Recurse -File -Filter '*-Setup.exe')
+          $built = @(Get-ChildItem dist -File -Filter '*-Setup.exe')
+          if ($signed.Count -ne $built.Count -or $built.Count -eq 0) { throw "expected $($built.Count) signed installers, got $($signed.Count)" }
+          foreach ($f in $signed) {
+            $sig = Get-AuthenticodeSignature $f.FullName
+            if (-not $sig.SignerCertificate) { throw "$($f.Name) came back without a signature" }
+            # The test certificate is not trusted by Windows; the release one is.
+            if ($env:SIGN_POLICY -eq 'release-signing' -and $sig.Status -ne 'Valid') { throw "$($f.Name): signature $($sig.Status)" }
+            "$($f.Name): $($sig.SignerCertificate.Subject) [$($sig.Status)]"
+            Move-Item $f.FullName (Join-Path dist $f.Name) -Force
+          }
+          Remove-Item dist/signed -Recurse -Force
 
       - name: Recompute Windows update metadata after signing
-        if: matrix.platform == 'win' && vars.ENABLE_SIGNPATH == 'true'
+        if: matrix.platform == 'win' && env.SIGN_POLICY != ''
         run: node scripts/recompute-win-latest.js
 
       - name: Collect artifacts
