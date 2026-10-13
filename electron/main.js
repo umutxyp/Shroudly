@@ -521,6 +521,7 @@ ipcMain.handle('advanced:available', () => ({
   available: advanced ? advanced.available() : false,
   reason: advanced ? advanced.reason() : 'not initialized',
   reasonCode: advanced ? advanced.reasonCode() : 'not_built',
+  installCommand: process.platform === 'linux' ? AdvancedMode.linuxInstallCommand() : null,
   active: advanced ? advanced.active : false,
 }));
 ipcMain.handle('advanced:start', async () => {
