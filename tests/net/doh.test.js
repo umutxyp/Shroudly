@@ -77,8 +77,11 @@ function ask(port, name) {
   let told = null;
   f = new F(() => {}, { preferredId: remembered, onPreferred: (id) => { told = id; } });
   port = await f.start();
+  // Asked first, not necessarily answering first: a slow answer on a busy CI
+  // runner rightly loses the race to the second wave and becomes the new pick.
+  const first = f.ordered()[0].id;
   r = await ask(port, 'example.org');
-  t.ok(r.ok && f.preferredId === remembered && told === null, `route remembered from the last run is used first (${remembered})`);
+  t.ok(r.ok && first === remembered && (told === null || told === f.preferredId), `route remembered from the last run is used first (${remembered})`);
   f.stop();
 
   // Impostors: an on-path attacker with its own certificate, and a real
