@@ -373,18 +373,26 @@ input::placeholder { color: var(--text-faint); opacity: 1; }
   --line-strong:   rgba(255, 255, 255, 0.20);
   --bg-sunk:       rgba(255, 255, 255, 0.03);
   --glass-blur:    30px;
-  --titlebar:      color-mix(in oklab, var(--accent-deep) 16%, #0b1020);
+  /* The strips at the very top (window buttons) and bottom (the footer) are
+     plain, opaque chrome: the light belongs to the content between them, not
+     to the frame around it. The title bar colour is also what Windows and
+     Linux paint behind their caption buttons (Appearance sends it). */
+  --titlebar:      #0a0e18;
 }
 
 :root[data-surface="glass"] .shell {
   background:
     /* grain, so the wide fields do not band on 8-bit panels */
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E"),
-    /* the same hue, carried from a light tint down to a deep shade */
-    radial-gradient(82% 46% at 14% -10%,
-      color-mix(in oklab, var(--accent) 30%, transparent) 0%, transparent 62%),
-    radial-gradient(70% 40% at 88% -4%,
-      color-mix(in oklab, var(--accent-deep) 34%, transparent) 0%, transparent 58%),
+    /* the same hue, carried from a light tint down to a deep shade: one light
+       falling from the top centre, as the one below rises from the bottom
+       centre. (Two lights in the top corners read as two separate effects
+       with a dark gap between them.) The tint and the shade share a centre,
+       so they blend into a single glow. */
+    radial-gradient(66% 34% at 50% -8%,
+      color-mix(in oklab, var(--accent) 26%, transparent) 0%, transparent 64%),
+    radial-gradient(120% 54% at 50% -12%,
+      color-mix(in oklab, var(--accent-deep) 30%, transparent) 0%, transparent 66%),
     radial-gradient(100% 52% at 50% 106%,
       color-mix(in oklab, var(--accent-deep) 22%, transparent) 0%, transparent 66%),
     linear-gradient(170deg,
@@ -412,6 +420,9 @@ input::placeholder { color: var(--text-faint); opacity: 1; }
   background: rgba(8, 11, 20, 0.62) !important;
   backdrop-filter: blur(26px) saturate(150%);
   -webkit-backdrop-filter: blur(26px) saturate(150%);
+}
+:root[data-surface="glass"] footer {
+  background: var(--titlebar) !important;
 }
 :root[data-surface="glass"] header { box-shadow: inset 0 -1px 0 rgba(255, 255, 255, 0.06); }
 :root[data-surface="glass"] nav    { box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06); }
