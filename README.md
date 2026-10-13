@@ -511,10 +511,12 @@ Shroudly does not collect personal data. These are the only things that contact 
   and only if *Share online count* is left on in Settings, it sends a random
   id that is created fresh at every launch and never stored. It travels through
   the protected connection like everything else. The
-  server only keeps those ids and when each was last seen, in memory, to count
-  how many apps are online. An id disappears when the app quits or stops
-  pinging. No IP addresses or other details are logged. The server code is in
-  [`server/stats-worker`](server/stats-worker/worker.js).
+  server only keeps those ids and when each was last seen, to count how many
+  apps are online. An id disappears when the app quits or stops pinging. No IP
+  addresses or other details are logged: the server keeps no access log, and it
+  is reached through a Cloudflare tunnel, so it never sees your address anyway.
+  The server code, with its service and web-server settings, is in
+  [`server/stats`](server/stats/server.js).
 - **Update checks** (GitHub): the app downloads the release feed from
   `github.com/umutxyp/Shroudly`.
 - **The site list** (GitHub): about once a day, only while protection is on

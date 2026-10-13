@@ -1,7 +1,7 @@
 'use strict';
 
 /*
- * Live user count ("Online now" in Stats), backed by server/stats-worker.
+ * Live user count ("Online now" in Stats), backed by server/stats.
  *
  * Anonymous: a random id made fresh at every launch (never stored), pinged at
  * the interval the server asks for. The server keeps nothing but those ids
