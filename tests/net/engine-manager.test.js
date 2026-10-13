@@ -61,8 +61,9 @@ const t = suite('engine-manager');
   t.ok(em.port !== P && em.active, 'a settings restart keeps the free port instead of retrying the taken one');
   await em.stop();
   const second = em.port;
+  const mark = logs.length;
   await em.start();
-  t.ok(em.port === second && !logs.slice(-12).some((l) => l.includes('is in use')), 'next start goes straight to the saved port');
+  t.ok(em.port === second && !logs.slice(mark).some((l) => l.includes('is in use')), 'next start goes straight to the saved port');
   await em.stop();
   // And when the saved one is taken as well, it moves on again.
   const squatter2 = net.createServer().listen(second, '127.0.0.1');

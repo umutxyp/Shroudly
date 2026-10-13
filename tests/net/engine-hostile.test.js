@@ -8,7 +8,7 @@
 const tls = require('tls');
 const net = require('net');
 const crypto = require('crypto');
-const { startEngine, sleep, freePort, socks, fixture, suite } = require('./helpers');
+const { startEngine, sleep, freePort, socks, requestWatcher, testServerOptions, suite } = require('./helpers');
 
 const t = suite('engine-hostile');
 const EVIL = {
@@ -24,15 +24,23 @@ const EVIL = {
 };
 
 (async () => {
-  const server = tls.createServer({ key: fixture('test-only-key.pem'), cert: fixture('test-only-cert.pem') }, (s) => {
+  const server = tls.createServer(testServerOptions(), (s) => {
     s.on('data', () => s.write('HTTP/1.1 200 OK\r\nContent-Length: 5\r\n\r\nhello')); s.on('error', () => {});
   }).listen(0, '127.0.0.1');
   await new Promise((r) => server.once('listening', r));
   let mode = 'garbage';
+  let triggered = 0;
   const evil = net.createServer((c) => {
-    const m = mode; const u = net.connect(server.address().port, '127.0.0.1'); let from = 0, done = false;
-    c.on('data', (d) => { from += d.length; if (!done) u.write(d); });
-    u.on('data', (d) => { if (done) return; c.write(d); if (from > 600) { done = true; u.destroy(); setTimeout(() => EVIL[m](c), 50); } });
+    // The real server does the handshake; once the request has gone out,
+    // the hostile behaviour takes over the reply.
+    const m = mode; const u = net.connect(server.address().port, '127.0.0.1');
+    const sawRequest = requestWatcher(); let done = false;
+    c.on('data', (d) => {
+      if (done) return;
+      if (sawRequest(d)) { done = true; triggered++; u.destroy(); setTimeout(() => EVIL[m](c), 50); return; }
+      u.write(d);
+    });
+    u.on('data', (d) => { if (!done) c.write(d); });
     c.on('error', () => {}); u.on('error', () => {});
   }).listen(0, '127.0.0.1');
   await new Promise((r) => evil.once('listening', r));
@@ -57,6 +65,7 @@ const EVIL = {
   }
   await sleep(1500);
   const st = await eng.stats();
+  t.ok(triggered === n, `every connection got a hostile reply (${triggered} of ${n})`);
   t.ok(eng.exited === null && st, `engine still up after ${n} hostile connections`);
   t.ok(!/AddressSanitizer|runtime error:|UndefinedBehaviorSanitizer/.test(eng.err), 'no memory or undefined-behaviour errors');
   eng.stop(); server.close(); evil.close();

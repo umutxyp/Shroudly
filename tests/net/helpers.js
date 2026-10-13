@@ -105,6 +105,31 @@ async function getOnce(socksPort, host, timeoutMs) {
 
 function fixture(name) { return fs.readFileSync(path.join(FIX, name)); }
 
+/* For the fake censors: follows the client's side of a TLS 1.3 connection
+ * and returns true once the request itself has gone out — the second
+ * encrypted record, the first being the client's Finished. Counting bytes
+ * instead would depend on the size of the ClientHello, which changes between
+ * Node and OpenSSL versions (373 bytes on Node 20, about 1.5 KB on Node 24). */
+function requestWatcher() {
+  let buf = Buffer.alloc(0); let appRecords = 0;
+  return (chunk) => {
+    buf = Buffer.concat([buf, chunk]);
+    while (buf.length >= 5) {
+      const len = buf.readUInt16BE(3);
+      if (buf.length < 5 + len) break;
+      if (buf[0] === 0x17) appRecords++;
+      buf = buf.subarray(5 + len);
+    }
+    return appRecords >= 2;
+  };
+}
+
+/* The local TLS servers the censor tests stand in front of: TLS 1.3 only,
+ * so requestWatcher's view of the handshake always holds. */
+function testServerOptions() {
+  return { key: fixture('test-only-key.pem'), cert: fixture('test-only-cert.pem'), minVersion: 'TLSv1.3' };
+}
+
 /* Minimal assertions with a running count, so every test prints what it proved. */
 function suite(name) {
   let n = 0;
@@ -114,4 +139,4 @@ function suite(name) {
   };
 }
 
-module.exports = { ROOT, enginePath, startEngine, sleep, freePort, socks, getViaEngine, fixture, suite };
+module.exports = { ROOT, enginePath, startEngine, sleep, freePort, socks, getViaEngine, fixture, requestWatcher, testServerOptions, suite };

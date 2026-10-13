@@ -61,12 +61,24 @@ function ask(port, name) {
   t.ok(r.ok && states.join() === 'down,ok', 'network recovers -> state "ok" again, by itself');
   f.stop();
 
-  // Remembered route goes first.
+  // Remembered route goes first. Which routes answer depends on the network
+  // the test runs on, so remember one that is not first in the table and
+  // that answers here.
+  let remembered = null;
+  for (const id of ['google-1', 'adguard-1', 'opendns-1', 'quad9-1', 'cloudflare-2']) {
+    const probe = new F(() => {});
+    probe.routes = probe.routes.filter((x) => x.id === id);
+    const pp = await probe.start();
+    const ok = (await ask(pp, 'example.net')).ok;
+    probe.stop();
+    if (ok) { remembered = id; break; }
+  }
+  t.ok(!!remembered, `a second resolver answers on this network (${remembered})`);
   let told = null;
-  f = new F(() => {}, { preferredId: 'quad9-1', onPreferred: (id) => { told = id; } });
+  f = new F(() => {}, { preferredId: remembered, onPreferred: (id) => { told = id; } });
   port = await f.start();
-  r = await ask(port, 'example.net');
-  t.ok(r.ok && f.preferredId === 'quad9-1' && told === null, 'route remembered from the last run is used first');
+  r = await ask(port, 'example.org');
+  t.ok(r.ok && f.preferredId === remembered && told === null, `route remembered from the last run is used first (${remembered})`);
   f.stop();
 
   // Impostors: an on-path attacker with its own certificate, and a real

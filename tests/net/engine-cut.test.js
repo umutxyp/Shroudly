@@ -7,13 +7,13 @@
 
 const tls = require('tls');
 const net = require('net');
-const { startEngine, sleep, freePort, socks, getViaEngine, fixture, suite } = require('./helpers');
+const { startEngine, sleep, freePort, socks, getViaEngine, requestWatcher, testServerOptions, suite } = require('./helpers');
 
 const t = suite('engine-cut');
 const BIG = Buffer.alloc(200 * 1024, 'x');
 
 (async () => {
-  const server = tls.createServer({ key: fixture('test-only-key.pem'), cert: fixture('test-only-cert.pem') }, (s) => {
+  const server = tls.createServer(testServerOptions(), (s) => {
     s.on('data', () => { s.write(`HTTP/1.1 200 OK\r\nContent-Length: ${BIG.length}\r\n\r\n`); s.write(BIG); });
     s.on('error', () => {});
   }).listen(0, '127.0.0.1');
@@ -23,11 +23,14 @@ const BIG = Buffer.alloc(200 * 1024, 'x');
   const censor = net.createServer((c) => {
     const m = mode;
     const u = net.connect(server.address().port, '127.0.0.1');
-    let fromClient = 0, toClient = 0, handshakeDone = false;
-    c.on('data', (d) => { fromClient += d.length; u.write(d); });
+    // Everything up to the request passes; the censor acts on the reply.
+    const sawRequest = requestWatcher();
+    let handshakeDone = false, toClient = 0;
+    c.on('data', (d) => { if (sawRequest(d)) handshakeDone = true; u.write(d); });
     u.on('data', (d) => {
-      if (!handshakeDone) { c.write(d); toClient += d.length; if (fromClient > 600) handshakeDone = true; return; }
+      if (!handshakeDone) { c.write(d); return; }
       if (m === 'normal') c.write(d);
+      // 6000 bytes of the reply, then nothing: mid-record, as a filter that drops the rest leaves it.
       else if (m === 'stall') { const room = 6000 - toClient; if (room > 0) { c.write(d.subarray(0, room)); toClient += Math.min(room, d.length); } }
       else if (m === 'reset') { c.resetAndDestroy(); u.destroy(); }
       // 'noreply': drop everything
