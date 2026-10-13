@@ -461,7 +461,10 @@ export default function SettingsPanel({ active = false }) {
               value={siteText == null ? (settings.siteList || defaultList).join('\n') : siteText}
               onChange={(e) => setSiteText(e.target.value)}
               onBlur={() => {
-                const entries = (siteText || '')
+                // Nothing typed: the box shows the list in use, and leaving it
+                // must not save anything (an empty draft is not an empty list).
+                if (siteText == null) return;
+                const entries = siteText
                   .split(/[\s,]+/)
                   .map((d) => d.trim().toLowerCase().replace(/^https?:\/\//, '').replace(/^\*?\./, '').replace(/\/.*$/, ''))
                   .filter(Boolean);

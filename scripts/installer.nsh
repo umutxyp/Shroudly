@@ -54,7 +54,7 @@
     ${If} $1 == $0
       DeleteRegValue HKCU "Environment" "HTTPS_PROXY"
       ReadRegStr $1 HKCU "Environment" "NO_PROXY"
-      ${If} $1 == "localhost,127.0.0.1,::1,.local,.localhost,.lan,.internal,.home.arpa,10.0.0.0/8,172.16.0.0/12,192.168.0.0/16,169.254.0.0/16,100.64.0.0/10"
+      ${If} $1 == "localhost,127.0.0.1,::1,.local,.localhost,.lan,.internal,.home.arpa,.home,.fritz.box,10.0.0.0/8,172.16.0.0/12,192.168.0.0/16,169.254.0.0/16,100.64.0.0/10,fc00::/7,fe80::/10"
         DeleteRegValue HKCU "Environment" "NO_PROXY"
       ${EndIf}
     ${EndIf}

@@ -63,11 +63,17 @@ async function pids() {
   return [];
 }
 
-async function waitGone(ms) {
+/* Which of these processes still run: asked of the system directly, without
+ * starting a program to list them. */
+function alive(list) {
+  return (list || []).filter((pid) => { try { process.kill(pid, 0); return true; } catch (e) { return e.code === 'EPERM'; } });
+}
+
+async function waitGone(list, ms) {
   const end = Date.now() + ms;
   while (Date.now() < end) {
-    if (!(await pids()).length) return true;
-    await new Promise((r) => setTimeout(r, 300));
+    if (!alive(list).length) return true;
+    await new Promise((r) => setTimeout(r, 200));
   }
   return false;
 }
@@ -84,18 +90,19 @@ function detached(cmd, args, env) {
 async function restart(env) {
   const app = installs()[0];
   if (!app) return false;
+  const before = await pids();
   if (process.platform === 'darwin') {
     const re = '^(RobloxPlayer|RobloxPlayerInstaller)$';
     await run('pkill', [re]);
-    if (!(await waitGone(8000))) { await run('pkill', ['-9', re]); await waitGone(3000); }
+    if (!(await waitGone(before, 8000))) { await run('pkill', ['-9', re]); await waitGone(before, 3000); }
     return detached('open', ['-a', app]);
   }
   if (process.platform === 'win32') {
     await run('taskkill', ['/IM', 'RobloxPlayerBeta.exe', '/IM', 'RobloxPlayerInstaller.exe', '/T', '/F']);
-    await waitGone(5000);
+    await waitGone(before, 5000);
     return detached(app, [], { ...process.env, ...env });
   }
   return false;
 }
 
-module.exports = { installs, installed, pids, restart };
+module.exports = { installs, installed, pids, alive, restart };

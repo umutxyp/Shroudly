@@ -60,11 +60,16 @@ async function getWithRetry(proxyPort, host) {
   return a.status ? a : getThrough(proxyPort, host);
 }
 
+/* Send text, resolve what came back once the response head is in (or the
+ * connection closed). */
 function raw(port, text) {
   return new Promise((resolve) => {
     const s = net.connect(port, '127.0.0.1', () => s.write(text));
-    let out = ''; s.on('data', (d) => { out += d; }); s.on('close', () => resolve(out)); s.on('error', () => resolve(out));
-    setTimeout(() => { s.destroy(); resolve(out); }, 5000);
+    let out = '';
+    const done = () => { s.destroy(); resolve(out); };
+    s.on('data', (d) => { out += d; if (out.includes('\r\n\r\n')) setTimeout(done, 50); });
+    s.on('close', done); s.on('error', done);
+    setTimeout(done, 5000);
   });
 }
 
@@ -134,9 +139,37 @@ async function robloxInstaller(proxy) {
   t.ok(!AppProxy.parseTarget('bad host:443') && !AppProxy.parseTarget('h:0') && !AppProxy.parseTarget('h:70000') && !AppProxy.parseTarget('[nope]:443'), 'malformed targets refused');
   t.ok(['127.0.0.1', '10.1.2.3', '172.20.0.1', '192.168.1.1', '169.254.1.1', '100.64.0.9', '::1', 'fd00::1', 'localhost', 'printer.local', 'nas'].every(AppProxy.isLocal), 'local network recognised');
   t.ok(['128.116.97.3', '172.32.0.1', 'www.roblox.com', '2606:4700::1111'].every((h) => !AppProxy.isLocal(h)), 'internet addresses are not local');
+  t.ok(AppProxy.addrClass('::ffff:127.0.0.1') === 'loopback' && AppProxy.addrClass('::ffff:c0a8:101') === 'private' && AppProxy.addrClass('64:ff9b::8.8.8.8') === 'public', 'IPv4 inside IPv6 (mapped, NAT64) judged as the IPv4 it is');
   t.ok(socksAddress('1.2.3.4').equals(Buffer.from([1, 1, 2, 3, 4])), 'SOCKS: IPv4 sent as an address');
   t.ok(socksAddress('2606:4700::1111').equals(Buffer.from([4, 0x26, 0x06, 0x47, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0x11, 0x11])), 'SOCKS: IPv6 sent as an address');
+  t.ok(socksAddress('::ffff:127.0.0.1').equals(Buffer.from([4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0xff, 0xff, 127, 0, 0, 1])), 'SOCKS: IPv4-mapped IPv6 encoded correctly');
+
+  // ── where a tunnel goes ──
+  {
+    let on = true; let listed = null;
+    const p = new AppProxy(() => {}, () => (on ? 1 : null), (h) => !listed || listed.some((d) => h === d || h.endsWith(`.${d}`)));
+    const answers = { 'git.corp.example': ['10.20.30.40'], 'www.roblox.com': ['195.175.254.2'], 'blocked.example': ['10.10.34.34'],
+      'public.example': ['93.184.216.34'], 'mixed.example': ['10.0.0.5', '93.184.216.34'], 'v6corp.example': ['fd12::1'] };
+    p.lookup = async (h) => answers[h] || null;
+    const r = async (h) => { p.decisions.clear(); return p.route(h); };
+    t.ok((await r('127.0.0.1')) === 'refuse' && (await r('::1')) === 'refuse' && (await r('localhost')) === 'refuse' && (await r('169.254.169.254')) === 'refuse' && (await r('::ffff:127.0.0.1')) === 'refuse', 'refused: this machine, link-local (cloud metadata), however written');
+    t.ok((await r('192.168.1.10')) === 'direct' && (await r('nas')) === 'direct' && (await r('printer.local')) === 'direct', 'direct: the local network');
+    t.ok((await r('git.corp.example')) === 'direct' && (await r('v6corp.example')) === 'direct', "direct: a name this machine's DNS puts on a private network (an internal server, never asked of public DNS)");
+    t.ok((await r('blocked.example')) === 'engine', "engine: a private answer that is a known block page (Iran's 10.10.34.34)");
+    t.ok((await r('www.roblox.com')) === 'engine' && (await r('public.example')) === 'engine' && (await r('mixed.example')) === 'engine' && (await r('nowhere.example')) === 'engine', 'engine: public names, forged answers, and names local DNS does not know');
+    listed = ['roblox.com'];
+    t.ok((await r('www.roblox.com')) === 'engine' && (await r('public.example')) === 'direct', 'only listed sites: listed ones through the engine, the rest direct');
+    listed = null; on = false;
+    t.ok((await r('public.example')) === 'direct' && (await r('127.0.0.1')) === 'refuse', 'protection off: direct (and still never to this machine)');
+  }
   t.ok(socksAddress('roblox.com').equals(Buffer.concat([Buffer.from([3, 10]), Buffer.from('roblox.com')])), 'SOCKS: a name sent as a name (resolved by the engine)');
+
+  // What reg.exe prints for HKCU\Environment, as Windows prints it.
+  const reg = AppEnv.parseRegQuery('\r\nHKEY_CURRENT_USER\\Environment\r\n    Path    REG_EXPAND_SZ    %USERPROFILE%\\AppData\\Local\\Microsoft\\WindowsApps;\r\n' +
+    '    TEMP    REG_EXPAND_SZ    %USERPROFILE%\\AppData\\Local\\Temp\r\n    https_proxy    REG_SZ    http://127.0.0.1:10810\r\n' +
+    '    NO_PROXY    REG_SZ    a, b c\r\n    EMPTY    REG_SZ    \r\n    Count    REG_DWORD    0x1\r\n\r\n');
+  t.ok(reg.get('HTTPS_PROXY') === 'http://127.0.0.1:10810' && reg.get('NO_PROXY') === 'a, b c' && reg.get('PATH').startsWith('%USERPROFILE%'), 'Windows: reg query output read, names case-insensitive, data with spaces kept');
+  t.ok(!reg.has('EMPTY') && !reg.has('COUNT'), 'Windows: empty and non-string values ignored');
 
   // ── environment, in memory ──
   const url = 'http://127.0.0.1:10810';
@@ -180,6 +213,12 @@ async function robloxInstaller(proxy) {
   // another one, still running (this test's parent stands in for it).
   fs.writeFileSync(stateFile, JSON.stringify({ v: 1, pid: process.ppid, url }));
   t.ok(AppEnv.recoverSync({ backend: b, stateFile }, { onlyIfDead: true }) === false && b.get('HTTPS_PROXY') === url, 'login hook leaves it while its Shroudly runs');
+  // After a power cut: the old pid may belong to some other process now, but
+  // a state file from an earlier boot is never "still running".
+  new AppEnv({ backend: b, stateFile }).applySync(url);
+  fs.writeFileSync(stateFile, JSON.stringify({ v: 1, pid: process.ppid, boot: 1, url }));
+  t.ok(AppEnv.recoverSync({ backend: b, stateFile }, { onlyIfDead: true }) === true && b.env.size === 0, 'login hook after a power cut: removed, even if the old pid is in use again');
+  new AppEnv({ backend: b, stateFile }).applySync(url);
   fs.writeFileSync(stateFile, JSON.stringify({ v: 1, pid: 2147483646, url }));
   t.ok(AppEnv.recoverSync({ backend: b, stateFile }, { onlyIfDead: true }) === true && b.env.size === 0 && !fs.existsSync(stateFile), 'removed once the Shroudly that set it is gone');
   fs.rmSync(dir, { recursive: true, force: true });
@@ -202,6 +241,45 @@ async function robloxInstaller(proxy) {
     }
   }
 
+  // ── a crash: the watchdog puts the session back (CI machines only) ──
+  if (process.env.CI && AppEnv.supported() && !AppEnv.backend().get('HTTPS_PROXY')) {
+    const dir2 = fs.mkdtempSync(path.join(os.tmpdir(), 'shroudly-wd-'));
+    const sf = path.join(dir2, 'app-env.json');
+    const code = `const AppEnv=require(${JSON.stringify(path.join(ROOT, 'electron', 'app-env.js'))});
+      new AppEnv({stateFile:${JSON.stringify(sf)},watchdog:{execPath:process.execPath,script:${JSON.stringify(path.join(ROOT, 'electron', 'proxy-watchdog.js'))}}}).applySync('http://127.0.0.1:1');
+      console.log('READY'); setInterval(()=>{},1000);`;
+    const app = require('child_process').spawn(process.execPath, ['-e', code], { stdio: ['ignore', 'pipe', 'inherit'] });
+    await new Promise((r) => app.stdout.on('data', (d) => { if (String(d).includes('READY')) r(); }));
+    t.ok(AppEnv.backend().get('HTTPS_PROXY') === 'http://127.0.0.1:1', 'crash test: the mode is on in the real session');
+    const t0 = Date.now();
+    app.kill('SIGKILL');
+    while (Date.now() - t0 < 15000 && (AppEnv.backend().get('HTTPS_PROXY') || fs.existsSync(sf))) await sleep(100);
+    const took = Date.now() - t0;
+    const be = AppEnv.backend();
+    t.ok(!be.get('HTTPS_PROXY') && !be.get(AppEnv.MARK) && !fs.existsSync(sf), `crash test: killed outright, everything put back within ${took} ms`);
+
+    // The same single watchdog also looks after the system proxy's state.
+    // (A state file from another system, so nothing real is changed: it is
+    // just cleared, which is what shows the watchdog acted on it. GitHub's
+    // machines only: clearing also removes the login hook of a Shroudly
+    // installed on the machine running the tests.)
+    if (process.env.GITHUB_ACTIONS) {
+    const pf = path.join(dir2, 'proxy-state.json');
+    fs.writeFileSync(pf, JSON.stringify({ v: 1, platform: 'elsewhere', port: 1, snapshot: {} }));
+    const code2 = `const W=require(${JSON.stringify(path.join(ROOT, 'electron', 'watchdog.js'))});
+      W.watch({execPath:process.execPath,script:${JSON.stringify(path.join(ROOT, 'electron', 'proxy-watchdog.js'))}},'proxy',${JSON.stringify(pf)});
+      console.log('READY'); setInterval(()=>{},1000);`;
+    const app2 = require('child_process').spawn(process.execPath, ['-e', code2], { stdio: ['ignore', 'pipe', 'inherit'] });
+    await new Promise((r) => app2.stdout.on('data', (d) => { if (String(d).includes('READY')) r(); }));
+    await sleep(300);
+    app2.kill('SIGKILL');
+    const t1 = Date.now();
+    while (Date.now() - t1 < 15000 && fs.existsSync(pf)) await sleep(100);
+    t.ok(!fs.existsSync(pf), `crash test: the system proxy's state is handled by the same watchdog (${Date.now() - t1} ms)`);
+    }
+    fs.rmSync(dir2, { recursive: true, force: true });
+  }
+
   // ── the proxy, end to end ──
   const P = await freePort();
   const eng = await startEngine(P, ['--strategy', 'tlsrec(sni+1)', '--auto', '--doh']);
@@ -221,13 +299,10 @@ async function robloxInstaller(proxy) {
     t.ok(s1 && s0 && s1.conns_total > s0.conns_total && s1.tls > s0.tls, `[engine] ${host} went through the engine (its TLS handshake seen and desynced)`);
   }
 
-  // The local network goes direct even with protection on.
+  // This machine is never reachable through it.
   const echo = net.createServer((c) => c.pipe(c)).listen(0, '127.0.0.1');
   await new Promise((r) => echo.once('listening', r));
-  const s0 = await eng.stats();
-  const echoed = await raw(port, `CONNECT 127.0.0.1:${echo.address().port} HTTP/1.1\r\n\r\nping`);
-  const s1 = await eng.stats();
-  t.ok(echoed.startsWith('HTTP/1.1 200') && echoed.endsWith('ping') && s1.conns_total === s0.conns_total, 'local addresses go direct, not through the engine');
+  t.ok((await raw(port, `CONNECT 127.0.0.1:${echo.address().port} HTTP/1.1\r\n\r\nping`)).startsWith('HTTP/1.1 403'), 'a tunnel to a service on this machine is refused');
   echo.close();
 
   // curl, reading HTTPS_PROXY from its environment the way Roblox does

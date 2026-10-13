@@ -31,14 +31,16 @@
 
 const { execFileSync, spawn } = require('child_process');
 const fs = require('fs');
+const os = require('os');
 const path = require('path');
+const Watchdog = require('./watchdog');
 
 const MARK = 'SHROUDLY_APP_PROXY';
 // This machine and the local network never go through the proxy. The CIDR
 // forms are understood by curl, Go and Python; anything that does not know
 // them treats them as names that never match, which is harmless.
-const NO_PROXY_VALUE = 'localhost,127.0.0.1,::1,.local,.localhost,.lan,.internal,.home.arpa,' +
-  '10.0.0.0/8,172.16.0.0/12,192.168.0.0/16,169.254.0.0/16,100.64.0.0/10';
+const NO_PROXY_VALUE = 'localhost,127.0.0.1,::1,.local,.localhost,.lan,.internal,.home.arpa,.home,.fritz.box,' +
+  '10.0.0.0/8,172.16.0.0/12,192.168.0.0/16,169.254.0.0/16,100.64.0.0/10,fc00::/7,fe80::/10';
 const OURS = /^http:\/\/127\.0\.0\.1:\d+$/;
 const WIN_USER_ENV = 'HKCU\\Environment';
 const WIN_MACHINE_ENV = 'HKLM\\SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Environment';
@@ -49,24 +51,32 @@ function runSync(cmd, args, timeout = 4000) {
   return String(execFileSync(cmd, args, { timeout, windowsHide: true, stdio: ['ignore', 'pipe', 'ignore'] }) || '');
 }
 
-function regGet(key, name) {
-  try {
-    const out = runSync('reg.exe', ['query', key, '/v', name]);
-    const m = out.match(new RegExp(`^\\s*${name}\\s+REG_(?:EXPAND_)?SZ\\s*(.*)$`, 'mi'));
-    return m ? m[1].trim() || null : null;
-  } catch { return null; } // not present
+/* Every string value under a key, read with one reg.exe call (names upper-
+ * cased: Windows variable names are not case-sensitive). reg.exe prints
+ * "    NAME    REG_SZ    data" whatever the system language. */
+function parseRegQuery(text) {
+  const out = new Map();
+  for (const line of String(text).split(/\r?\n/)) {
+    const m = line.match(/^\s+(\S+)\s+REG_(?:EXPAND_)?SZ\s+(.*)$/);
+    if (m && m[2].trim()) out.set(m[1].toUpperCase(), m[2].trim());
+  }
+  return out;
 }
 
-/* Windows: tell Explorer and other running programs that the environment
- * changed. Fire and forget: PowerShell is slow to start, and the registry
- * change is what matters. */
-function winBroadcast() {
-  const ps = `
-$sig = '[DllImport("user32.dll", CharSet = CharSet.Unicode)] public static extern IntPtr SendMessageTimeout(IntPtr h, uint m, UIntPtr w, string l, uint f, uint t, out UIntPtr r);'
-$t = Add-Type -MemberDefinition $sig -Name Env -Namespace Shroudly -PassThru
-$r = [UIntPtr]::Zero
-[void]$t::SendMessageTimeout([IntPtr]0xffff, 0x1A, [UIntPtr]::Zero, 'Environment', 2, 5000, [ref]$r)
-`;
+function regAll(key) {
+  try { return parseRegQuery(runSync('reg.exe', ['query', key])); }
+  catch { return new Map(); } // key absent or unreadable: nothing set
+}
+
+/* Windows: tell Explorer and the other running programs that the
+ * environment changed, by writing the mark one last time through .NET's
+ * SetEnvironmentVariable, which sends WM_SETTINGCHANGE itself: no code to
+ * compile, unlike calling SendMessageTimeout from PowerShell. markValue is
+ * our own loopback address or null (the mark removed). Fire and forget:
+ * PowerShell takes a moment to start, and the registry is already right. */
+function winBroadcast(markValue) {
+  const v = markValue && OURS.test(markValue) ? `'${markValue}'` : '$null';
+  const ps = `[Environment]::SetEnvironmentVariable('${MARK}', ${v}, 'User')`;
   try {
     const p = spawn('powershell.exe', ['-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass', '-Command', ps],
       { detached: true, stdio: 'ignore', windowsHide: true });
@@ -89,18 +99,32 @@ function backend(platform = process.platform) {
     };
   }
   if (platform === 'win32') {
+    // Read once per operation (refresh), not once per value: each reg.exe
+    // call blocks the app for tens of milliseconds.
+    let user = null; let machine = null;
     return {
-      // Windows variable names are not case-sensitive.
       names: { proxy: ['HTTPS_PROXY'], noProxy: ['NO_PROXY'] },
-      get: (k) => regGet(WIN_USER_ENV, k),
-      set: (k, v) => { runSync('reg.exe', ['add', WIN_USER_ENV, '/v', k, '/t', 'REG_SZ', '/d', v, '/f']); },
-      del: (k) => { try { runSync('reg.exe', ['delete', WIN_USER_ENV, '/v', k, '/f']); } catch {} },
-      machine: (k) => regGet(WIN_MACHINE_ENV, k),
+      refresh: () => { user = null; machine = null; },
+      get: (k) => { if (!user) user = regAll(WIN_USER_ENV); return user.get(k.toUpperCase()) || null; },
+      set: (k, v) => {
+        runSync('reg.exe', ['add', WIN_USER_ENV, '/v', k, '/t', 'REG_SZ', '/d', v, '/f']);
+        if (user) user.set(k.toUpperCase(), v);
+      },
+      del: (k) => {
+        try { runSync('reg.exe', ['delete', WIN_USER_ENV, '/v', k, '/f']); } catch {}
+        if (user) user.delete(k.toUpperCase());
+      },
+      machine: (k) => { if (!machine) machine = regAll(WIN_MACHINE_ENV); return machine.get(k.toUpperCase()) || null; },
       commit: winBroadcast,
     };
   }
   return null;
 }
+
+/* When this machine last started, to the minute: a state file from another
+ * boot belongs to a Shroudly that cannot still be running, whatever process
+ * has its old pid now. */
+function bootId() { return Math.round((Date.now() - os.uptime() * 1000) / 60000); }
 
 function alive(pid) {
   try { process.kill(pid, 0); return true; } catch (e) { return e.code === 'EPERM'; }
@@ -117,13 +141,18 @@ class AppEnv {
     this.opts = opts;
     this.platform = opts.platform || process.platform;
     this.b = opts.backend !== undefined ? opts.backend : backend(this.platform);
-    this.watchdog = null;
+    this.applied = false;   // our values were set by this run
   }
 
   static supported(platform = process.platform) { return platform === 'darwin' || platform === 'win32'; }
 
   /* Our address if our values are in place, else null. */
   current() {
+    if (this.b && this.b.refresh) this.b.refresh();
+    return this._current();
+  }
+
+  _current() {
     const b = this.b;
     if (!b) return null;
     const mark = b.get(MARK);
@@ -147,11 +176,15 @@ class AppEnv {
     const b = this.b;
     if (!b) throw Object.assign(new Error('not supported on this system'), { code: 'ENOTSUP' });
     if (!OURS.test(url)) throw new Error(`not a local proxy address: ${url}`);
+    if (b.refresh) b.refresh();
     const mark = b.get(MARK);
     if (this._foreign(mark && OURS.test(mark) ? mark : null)) return 'foreign';
-    if (this.current() === url) { this._arm(url); return 'unchanged'; }
+    if (this._current() === url) { this._arm(url); this.applied = true; return 'unchanged'; }
 
     this._arm(url);
+    // From here on something may be written, so quitting must clean up even if
+    // a later step fails.
+    this.applied = true;
     // The mark first: whatever happens after it, the cleanup can tell which
     // values are ours.
     b.set(MARK, url);
@@ -159,7 +192,8 @@ class AppEnv {
     const noProxyFree = b.names.noProxy.every((k) => { const v = b.get(k); return !v || v === NO_PROXY_VALUE; }) &&
                         !b.names.noProxy.some((k) => b.machine(k));
     if (noProxyFree) for (const k of b.names.noProxy) b.set(k, NO_PROXY_VALUE);
-    b.commit();
+    b.commit(url);
+    this.applied = true;
     return 'changed';
   }
 
@@ -169,6 +203,7 @@ class AppEnv {
     const b = this.b;
     let changed = false;
     if (b) {
+      if (b.refresh) b.refresh();
       const mark = b.get(MARK);
       if (mark) {
         for (const k of b.names.proxy) if (b.get(k) === mark) { b.del(k); changed = true; }
@@ -178,9 +213,10 @@ class AppEnv {
         b.del(MARK);
         changed = true;
       }
-      if (changed) b.commit();
+      if (changed) b.commit(null);
     }
     this._disarm();
+    this.applied = false;
     return changed ? 'changed' : 'unchanged';
   }
 
@@ -190,19 +226,10 @@ class AppEnv {
     if (stateFile) {
       try {
         fs.mkdirSync(path.dirname(stateFile), { recursive: true });
-        fs.writeFileSync(stateFile, JSON.stringify({ v: 1, platform: this.platform, pid: process.pid, url }));
+        fs.writeFileSync(stateFile, JSON.stringify({ v: 1, platform: this.platform, pid: process.pid, boot: bootId(), url }));
       } catch {}
     }
-    if (watchdog && stateFile && !this.watchdog) {
-      try {
-        this.watchdog = spawn(watchdog.execPath, [watchdog.script, stateFile, String(process.pid), 'env'], {
-          detached: true, stdio: 'ignore', windowsHide: true,
-          env: { ...process.env, ELECTRON_RUN_AS_NODE: '1' },
-        });
-        this.watchdog.on('error', () => { this.watchdog = null; });
-        this.watchdog.unref();
-      } catch { this.watchdog = null; }
-    }
+    if (watchdog && stateFile) Watchdog.watch(watchdog, 'env', stateFile);
     // Windows keeps the user's environment across restarts: if the machine
     // goes down with our value set, take it out at the next login.
     if (this.platform === 'win32' && restoreCommand && this.b && this.opts.backend === undefined) {
@@ -213,7 +240,6 @@ class AppEnv {
 
   _disarm() {
     const { stateFile } = this.opts;
-    if (this.watchdog) { try { this.watchdog.kill(); } catch {} this.watchdog = null; }
     if (stateFile) { try { fs.rmSync(stateFile, { force: true }); } catch {} }
     if (this.platform === 'win32' && this.opts.backend === undefined) {
       try { runSync('reg.exe', ['delete', WIN_RUNONCE_KEY, '/v', WIN_RUNONCE_VALUE, '/f']); } catch {}
@@ -226,13 +252,21 @@ class AppEnv {
    * the login hook can run after Shroudly has already started again.
    */
   static recoverSync(opts = {}, { onlyIfDead = false } = {}) {
-    if (onlyIfDead && opts.stateFile) {
+    // Is the Shroudly that wrote the state file still running? A file from
+    // another boot never is, whatever process holds its old pid now.
+    const owned = () => {
       try {
         const st = JSON.parse(fs.readFileSync(opts.stateFile, 'utf8'));
-        if (st.pid && st.pid !== process.pid && alive(st.pid)) return false;
-      } catch {}
-    }
-    return new AppEnv(opts).clearSync() === 'changed';
+        const sameBoot = st.boot == null || Math.abs(st.boot - bootId()) <= 2;
+        return sameBoot && st.pid && st.pid !== process.pid && alive(st.pid);
+      } catch { return false; }
+    };
+    if (onlyIfDead && opts.stateFile && owned()) return false;
+    const env = new AppEnv(opts);
+    // Asked again right before acting: a Shroudly starting at login at this
+    // very moment may just have taken the file over.
+    if (onlyIfDead && opts.stateFile && owned()) return false;
+    return env.clearSync() === 'changed';
   }
 }
 
@@ -240,3 +274,4 @@ module.exports = AppEnv;
 module.exports.MARK = MARK;
 module.exports.NO_PROXY_VALUE = NO_PROXY_VALUE;
 module.exports.backend = backend;
+module.exports.parseRegQuery = parseRegQuery;

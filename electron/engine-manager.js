@@ -674,6 +674,12 @@ class EngineManager {
 
   /* Re-apply the system proxy with the current route mode / site list, without
    * restarting the engine. Used when the user changes those settings. */
+  /* The automatic site list changed: serve it from the PAC in place. */
+  updateSiteList() {
+    if (!this.active) return false;
+    return this.proxy.updateList(this._settings().siteList);
+  }
+
   async reapplyProxy() {
     if (!this.active) return { success: true };
     const cfg = this._settings();

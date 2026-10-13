@@ -10,8 +10,9 @@
  *
  *   clean stop / quit       restore() with the snapshot taken before applying
  *   engine crash            EngineManager restores before restarting it
- *   app killed / crashed    a detached watchdog (proxy-watchdog.js) notices the
- *                           app is gone and restores within about a second
+ *   app killed / crashed    a detached watchdog (proxy-watchdog.js) learns the
+ *                           app is gone at once (the pipe to it closes) and
+ *                           restores within a fraction of a second
  *   reboot / power loss     a run-once login hook starts "Shroudly --restore-proxy"
  *                           (Windows RunOnce, Linux autostart, macOS LaunchAgent)
  *   next launch             EngineManager.recover() restores from the state file
@@ -37,6 +38,7 @@ const http = require('http');
 const os = require('os');
 const fs = require('fs');
 const path = require('path');
+const Watchdog = require('./watchdog');
 
 const WIN_KEY = 'HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings';
 const WIN_VALUES = ['ProxyEnable', 'ProxyServer', 'AutoConfigURL', 'ProxyOverride'];
@@ -93,7 +95,6 @@ class SystemProxy {
     this.socksPort = 0;
     this.mode = 'all';   // 'all' | 'listed'
     this.list = [];      // domains routed through the proxy in 'listed' mode
-    this.watchdog = null;
   }
 
   /* A PAC that always sends local/private hosts direct. In 'all' mode every
@@ -175,11 +176,11 @@ ${local}
   /* Serve the PAC over loopback HTTP so WinINET (and others) will load it.
    * Returns the PAC URL. */
   async startPacServer(socksPort) {
-    const body = this.pacBody(socksPort);
+    this.pacText = this.pacBody(socksPort);
     await new Promise((resolve, reject) => {
       this.pacServer = http.createServer((req, res) => {
         res.writeHead(200, { 'Content-Type': 'application/x-ns-proxy-autoconfig' });
-        res.end(body);
+        res.end(this.pacText);
       });
       this.pacServer.on('error', reject);
       // port 0 => OS picks a free port, bound to loopback only
@@ -194,6 +195,17 @@ ${local}
 
   stopPacServer() {
     if (this.pacServer) { try { this.pacServer.close(); } catch {} this.pacServer = null; }
+  }
+
+  /* A new site list while "only listed sites" is applied: the PAC at the same
+   * address now answers with it. Nothing in the system settings changes, so
+   * nothing is switched off and on; browsers read the PAC again on their own
+   * schedule (Chromium within hours, and on any network change). */
+  updateList(list) {
+    if (!this.applied || this.mode !== 'listed' || !this.pacServer) return false;
+    this.list = Array.isArray(list) ? list : [];
+    this.pacText = this.pacBody(this.socksPort);
+    return true;
   }
 
   async apply(port, mode = 'all', list = []) {
@@ -265,26 +277,14 @@ ${local}
     if (this.stateFile) { try { fs.rmSync(this.stateFile, { force: true }); } catch {} }
   }
 
+  /* The shared watchdog (watchdog.js) looks after the state file from now on;
+   * it does nothing once the file is gone, which is what restoring does. */
   _startWatchdog() {
     if (!this.watchdogOpts || !this.stateFile) return;
-    try {
-      this.watchdog = spawn(this.watchdogOpts.execPath, [this.watchdogOpts.script, this.stateFile, String(process.pid)], {
-        detached: true,
-        stdio: 'ignore',
-        windowsHide: true,
-        env: { ...process.env, ELECTRON_RUN_AS_NODE: '1' },
-      });
-      this.watchdog.on('error', () => { this.watchdog = null; });
-      this.watchdog.unref();
-    } catch (e) {
-      this.watchdog = null;
-      this.log('warning', `Proxy watchdog not started: ${e.message}`);
-    }
+    if (!Watchdog.watch(this.watchdogOpts, 'proxy', this.stateFile)) this.log('warning', 'Proxy watchdog not started');
   }
 
-  _stopWatchdog() {
-    if (this.watchdog) { try { this.watchdog.kill(); } catch {} this.watchdog = null; }
-  }
+  _stopWatchdog() {}
 
   /* Run "Shroudly --restore-proxy" once at the next login, in case the machine
    * goes down (power loss, forced reboot) while the proxy is applied. */
