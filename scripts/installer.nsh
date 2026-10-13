@@ -41,6 +41,88 @@
   Pop $0
 !macroend
 
+; The installer crashed on some first installs: an access violation in
+; NSIS's System.dll (offset 0x1581), after which it exits having installed
+; nothing — about one fresh install in five on Windows 11 x64, and in 2.4.2's
+; installer as well. The cause is electron-builder's per-user folder lookup:
+; it asks Windows for the user's Programs folder and then copies a fixed 2 KB
+; out of the much shorter string Windows returned, which faults whenever that
+; string sits at the end of a memory page. The lookup only runs when no install
+; location is recorded yet, so on a first install preInit records the same
+; folder Windows would have returned, and the lookup is skipped. Tested: 3 of
+; 15 plain first installs crashed, 0 of 15 with the location recorded.
+!macro preInit
+  !ifndef BUILD_UNINSTALLER
+    !insertmacro check64BitAndSetRegView
+    ReadRegStr $0 HKLM "${INSTALL_REGISTRY_KEY}" InstallLocation
+    ReadRegStr $1 HKCU "${INSTALL_REGISTRY_KEY}" InstallLocation
+    ; Only on a first install, where the per-user mode is chosen anyway; an
+    ; existing installation, per user or per machine, decides as before.
+    ${If} $0 == ""
+    ${AndIf} $1 == ""
+      WriteRegStr HKCU "${INSTALL_REGISTRY_KEY}" InstallLocation "$LOCALAPPDATA\Programs\${APP_FILENAME}"
+    ${EndIf}
+  !endif
+!macroend
+
+; "Is Shroudly running?" for the installer and the uninstaller. electron-
+; builder's version starts by reading the installer's own process details
+; with GetProcessInfo, raw System::Call code of the same kind (it calls a
+; kernel32 function that does not exist on desktop Windows and passes a
+; pointer where a length belongs). The installer is not named Shroudly.exe,
+; so that step is not needed: this does the same job with tasklist and
+; taskkill only — ask the app to close, force it if it does not, and ask the
+; user if even that fails.
+!macro shroudlyFindApp _OUT
+  !ifdef INSTALL_MODE_PER_ALL_USERS
+    nsExec::Exec `"$SYSDIR\cmd.exe" /c tasklist /FI "IMAGENAME eq ${APP_EXECUTABLE_FILENAME}" /FO csv | "$SYSDIR\find.exe" "${APP_EXECUTABLE_FILENAME}"`
+  !else
+    nsExec::Exec `"$SYSDIR\cmd.exe" /c tasklist /FI "USERNAME eq %USERNAME%" /FI "IMAGENAME eq ${APP_EXECUTABLE_FILENAME}" /FO csv | "$SYSDIR\find.exe" "${APP_EXECUTABLE_FILENAME}"`
+  !endif
+  Pop ${_OUT}
+!macroend
+
+!macro shroudlyKillApp _FORCE
+  !ifdef INSTALL_MODE_PER_ALL_USERS
+    nsExec::Exec `"$SYSDIR\cmd.exe" /c taskkill ${_FORCE} /im "${APP_EXECUTABLE_FILENAME}"`
+  !else
+    nsExec::Exec `"$SYSDIR\cmd.exe" /c taskkill ${_FORCE} /im "${APP_EXECUTABLE_FILENAME}" /fi "USERNAME eq %USERNAME%"`
+  !endif
+  Pop $R0
+!macroend
+
+!macro customCheckAppRunning
+  !insertmacro shroudlyFindApp $R0
+  ${if} $R0 == 0
+    ${ifNot} ${isUpdated}
+      MessageBox MB_OKCANCEL|MB_ICONEXCLAMATION "$(appRunning)" /SD IDOK IDOK shroudlyStop
+      Quit
+    ${endIf}
+    shroudlyStop:
+    DetailPrint `Closing running "${PRODUCT_NAME}"...`
+    !insertmacro shroudlyKillApp ""
+    Sleep 300
+    StrCpy $R1 0
+    shroudlyLoop:
+      IntOp $R1 $R1 + 1
+      !insertmacro shroudlyFindApp $R0
+      ${if} $R0 == 0
+        Sleep 1000
+        !insertmacro shroudlyKillApp "/f"
+        !insertmacro shroudlyFindApp $R0
+        ${if} $R0 == 0
+          DetailPrint `Waiting for "${PRODUCT_NAME}" to close.`
+          Sleep 2000
+          ${if} $R1 > 1
+            MessageBox MB_RETRYCANCEL|MB_ICONEXCLAMATION "$(appCannotBeClosed)" /SD IDCANCEL IDRETRY shroudlyLoop
+            Quit
+          ${endIf}
+          Goto shroudlyLoop
+        ${endIf}
+      ${endIf}
+  ${endIf}
+!macroend
+
 !macro customInit
   ; Electron 43 does not run on Windows 8.1 or earlier. Without this the
   ; installer would succeed and the app would then fail to start with nothing
