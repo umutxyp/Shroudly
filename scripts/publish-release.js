@@ -68,7 +68,9 @@ function addPacmanToLinuxFeed() {
 function cleanWindowsFeed() {
   const file = path.join(dist, 'latest.yml');
   let s = fs.readFileSync(file, 'utf8');
-  s = s.replace(new RegExp(`  - url: Shroudly-${version.replace(/\./g, '\\.')}-Windows-Setup\\.exe\\n    sha512: \\S+\\n    size: \\d+\\n(    blockMapSize: \\d+\\n)?`), '');
+  // size and blockMapSize are only written for some builds; match with or without them.
+  s = s.replace(new RegExp(`  - url: Shroudly-${version.replace(/\./g, '\\.')}-Windows-Setup\\.exe\\n    sha512: \\S+\\n(    size: \\d+\\n)?(    blockMapSize: \\d+\\n)?`), '');
+  if (/-Windows-Setup\.exe/.test(s)) throw new Error('latest.yml still lists the universal installer, which is not published');
   const x64 = s.match(/  - url: (\S+-Windows-x64-Setup\.exe)\n    sha512: (\S+)/);
   if (!x64) throw new Error('latest.yml has no x64 installer');
   s = s.replace(/^path: .*$/m, `path: ${x64[1]}`).replace(/^sha512: .*$/m, `sha512: ${x64[2]}`);
