@@ -1,0 +1,79 @@
+name: Tests
+
+# Every push and pull request: the engine, encrypted DNS, Discord app mode and
+# the uninstaller hook, on real Windows, Linux and macOS machines, x64 and ARM.
+# The network tests talk to real resolvers and Discord's update servers, so
+# they also catch the outside world changing under us.
+
+on:
+  push:
+    branches: ['**']
+  pull_request: {}
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+concurrency:
+  group: tests-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, ubuntu-24.04-arm, windows-latest, windows-11-arm, macos-latest, macos-15-intel]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+
+      - name: Install zig
+        uses: mlugg/setup-zig@v2
+        with:
+          version: 0.14.1
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build engine (this machine)
+        run: node scripts/build-core.js
+
+      - name: Engine unit tests, sanitizers, fuzzing
+        if: runner.os != 'Windows'
+        working-directory: core
+        run: |
+          make test
+          make test-asan
+          make fuzz
+
+      - name: Translations
+        run: npm run check:translations
+
+      - name: Network tests
+        run: npm run test:net
+
+      # The same engine tests again on a build with AddressSanitizer and
+      # UndefinedBehaviorSanitizer, so a memory error fails the run.
+      - name: Network tests on a sanitizer build (Linux, macOS)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          cc -std=c11 -g -O1 -D_GNU_SOURCE -D_DARWIN_C_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer -pthread -o "$RUNNER_TEMP/core-asan" core/src/*.c
+          SHROUDLY_ENGINE="$RUNNER_TEMP/core-asan" node tests/net/run.js engine-cut engine-hostile discord doh
+
+  ui:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+      - run: npm ci
+      - run: npm run build

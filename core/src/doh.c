@@ -121,9 +121,10 @@ static int is_bogon_v4(uint32_t ip /*host order*/) {
 
 /* Known ISP block-page / sinkhole addresses (host order). DNS-based censorship
  * answers blocked names with one of these instead of a bogon, so they must be
- * rejected like bogons. Seeded with Turk Telekom's; the app can add more at
- * runtime with --block-ip, no recompile needed. */
-#define MAX_BLOCK_IPS 32
+ * rejected like bogons. Seeded with Turk Telekom's; the app passes the full
+ * list (electron/censor-fingerprints.js) with --block-ip, so it can grow
+ * without touching the engine. */
+#define MAX_BLOCK_IPS 512
 static uint32_t g_block_ips[MAX_BLOCK_IPS] = {
   0xC3AFFE02u, /* 195.175.254.2  — TTNET block page */
 };

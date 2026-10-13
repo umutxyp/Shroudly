@@ -46,8 +46,18 @@ function Actions({ children }) {
   return <div className="mt-2 flex flex-wrap items-center gap-2">{children}</div>;
 }
 
+/* "Iran", "China" ... in the user's language, from the system's own data. */
+function countryName(code, locale) {
+  try { return new Intl.DisplayNames([locale || 'en'], { type: 'region' }).of(code) || code; } catch { return code; }
+}
+
+/* Dismissals that should survive a restart (a region offer declined once is
+ * not offered again on the same network). Storage can be unavailable. */
+function remembered(key) { try { return localStorage.getItem(key) === '1'; } catch { return false; } }
+function remember(key) { try { localStorage.setItem(key, '1'); } catch {} }
+
 export default function BlockedNotice({ onNavigate, active = false }) {
-  const { t } = useLanguage();
+  const { t, locale, language } = useLanguage();
   const [host, setHost] = useState(null);
   const [advanced, setAdvanced] = useState(false);
   const [restartApps, setRestartApps] = useState(null);
@@ -55,6 +65,20 @@ export default function BlockedNotice({ onNavigate, active = false }) {
   const [discord, setDiscord] = useState(null);
   const [busy, setBusy] = useState(false);
   const [offerHidden, setOfferHidden] = useState(false);
+  const [advice, setAdvice] = useState(null);
+  const [adv, setAdv] = useState({ available: false, active: false });
+  const [hidden, setHidden] = useState({});   // banners closed this session
+  const hide = (k) => setHidden((h) => ({ ...h, [k]: true }));
+
+  const refreshAdv = () => window.electron?.advancedAvailable?.()
+    .then((r) => { setAdv({ available: !!r?.available, active: !!r?.active }); setAdvanced(!!r?.available); })
+    .catch(() => {});
+  const startAdvanced = async () => {
+    setBusy(true);
+    try { await window.electron?.startAdvanced?.(); } catch {}
+    await refreshAdv();
+    setBusy(false);
+  };
 
   const refreshDiscord = () => window.electron?.discordStatus?.().then(setDiscord).catch(() => {});
 
@@ -75,13 +99,16 @@ export default function BlockedNotice({ onNavigate, active = false }) {
     window.electron.onNeedRestart?.(({ apps }) => { setRestartApps(apps); refreshDiscord(); });
     window.electron.onDnsAutoEnabled?.(({ host: h }) => setDnsAuto(h));
     window.electron.onDiscordState?.(() => refreshDiscord());
-    window.electron.advancedAvailable?.().then((r) => setAdvanced(!!r?.available)).catch(() => {});
+    window.electron.onAdvice?.((a) => { setAdvice(a); refreshAdv(); });
+    window.electron.getAdvice?.().then((a) => a && setAdvice(a)).catch(() => {});
+    refreshAdv();
     refreshDiscord();
     return () => {
       window.electron.removeSiteBlockedListener?.();
       window.electron.removeNeedRestartListener?.();
       window.electron.removeDnsAutoEnabledListener?.();
       window.electron.removeDiscordStateListener?.();
+      window.electron.removeAdviceListener?.();
     };
   }, []);
 
@@ -128,6 +155,34 @@ export default function BlockedNotice({ onNavigate, active = false }) {
     );
   }
 
+  /* Another VPN or bypass tool steering the same connections: the most
+   * common reason nothing works, and the user rarely suspects it. */
+  const conflicts = advice?.conflicts || [];
+  if (conflicts.length && !hidden.conflict) {
+    const tools = conflicts.join(', ');
+    return <Banner Icon={ShieldAlertIcon} title={t('conflictTitle', { tools })} body={t('conflictBody', { tools })}
+                   onClose={() => hide('conflict')} closeLabel={closeLabel} />;
+  }
+
+  /* A site that connects and is then cut: what a blank page on Iran's or
+   * Russia's networks looks like. What to say depends on what this machine
+   * can still do about it. */
+  const cut = advice?.cut;
+  if (cut && !hidden[`cut:${cut.host}`]) {
+    const body = adv.active ? t('cutBodyAdvancedOn') : adv.available ? t('cutBodyAdvanced') : t('cutBodyNoAdvanced');
+    return (
+      <Banner Icon={ShieldAlertIcon} title={t('cutTitle', { host: cut.host })} body={body}
+              onClose={() => hide(`cut:${cut.host}`)} closeLabel={closeLabel}>
+        {adv.available && !adv.active && (
+          <Actions>
+            <button type="button" onClick={startAdvanced} disabled={busy}
+                    className="btn btn-warn rounded-[8px] px-3 py-1.5 text-[12.5px] font-semibold">{t('tryAdvanced')}</button>
+          </Actions>
+        )}
+      </Banner>
+    );
+  }
+
   /* Programs that were open before protection started keep using the
    * connection they were given at launch; this is the usual reason a site
    * loads in the browser but not in its own app. Discord needs more than a
@@ -166,6 +221,32 @@ export default function BlockedNotice({ onNavigate, active = false }) {
         </Actions>
       </Banner>
     );
+  }
+
+  /* The network's DNS answers match a country whose filters follow whole
+   * connections. Say so before the user has to find out, and offer the mode
+   * made for it — once per country, where this machine has it. */
+  const region = advice?.region;
+  const regionKey = region ? `shroudly_region_${region.country}` : '';
+  if (active && region?.stateful && adv.available && !adv.active && !hidden.region && !remembered(regionKey)) {
+    const country = countryName(region.country, locale || language);
+    return (
+      <Banner tone="accent" Icon={ShieldAlertIcon} title={t('regionTitle', { country })} body={t('regionBody')}>
+        <Actions>
+          <button type="button" onClick={startAdvanced} disabled={busy}
+                  className="btn btn-primary rounded-[8px] px-3 py-1.5 text-[12.5px] font-semibold">{t('tryAdvanced')}</button>
+          <button type="button" onClick={() => { remember(regionKey); hide('region'); }}
+                  className="btn btn-ghost rounded-[8px] px-3 py-1.5 text-[12.5px] font-semibold">{t('notNow')}</button>
+        </Actions>
+      </Banner>
+    );
+  }
+
+  /* Encrypted DNS blocked on every route. Rare now, and it heals itself, but
+   * while it lasts the user should know why some sites may misbehave. */
+  if (active && advice?.dnsDown && !hidden.dns) {
+    return <Banner Icon={ShieldAlertIcon} title={t('dnsDownTitle')} body={t('dnsDownBody')}
+                   onClose={() => hide('dns')} closeLabel={closeLabel} />;
   }
 
   /* Asked once, while protection is on — the moment the user expects

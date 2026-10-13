@@ -363,6 +363,12 @@ app.whenReady().then(async () => {
     // the connection they were given at launch.
     // Encrypted DNS was switched back on because a site could not be reached
     // without it. The settings screen has to show the new state.
+    // What the window should say about this network: another VPN running,
+    // the kind of filtering detected, sites that connect and are then cut,
+    // encrypted DNS blocked.
+    onAdvice: (advice) => {
+      if (mainWindow && !mainWindow.isDestroyed()) mainWindow.webContents.send('dpi:advice', advice);
+    },
     onDnsAutoEnabled: (host) => {
       if (mainWindow && !mainWindow.isDestroyed()) mainWindow.webContents.send('dpi:dns-auto-enabled', { host });
     },
@@ -506,6 +512,7 @@ ipcMain.on('window:maximize', () => {
 });
 ipcMain.on('window:close', () => mainWindow && mainWindow.hide());
 
+ipcMain.handle('dpi:advice', () => (engine ? engine.advice : null));
 ipcMain.handle('dpi:start', async () => safeStart());
 ipcMain.handle('dpi:stop', async () => safeStop());
 

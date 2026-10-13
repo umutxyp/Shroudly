@@ -7,6 +7,8 @@
 const EXACT = {
   'Proxy routing updated': 'logProxyRoutingUpdated',
   'Application started': 'logAppStarted',
+  "Your DNS service filters sites; Shroudly's encrypted DNS goes around it.": 'logDnsFilterService',
+  'The other VPN or bypass tool is no longer running.': 'logConflictGone',
   'Discord app mode on: Discord updates through Shroudly': 'logDiscordOn',
   'Discord app mode off: Discord settings restored': 'logDiscordOff',
   'Auto-started in tray': 'logAutoStartedTray',
@@ -28,6 +30,9 @@ const EXACT = {
 };
 
 const PATTERNS = [
+  [/^(\S+): connects, then the network cuts it \((\w+) after (\d+) KB\)\./, 'logCut', ['host', 'reason', 'kb']],
+  [/^DNS answers on this network match the filtering used in (\w+)\.$/, 'logRegion', ['country']],
+  [/^Encrypted DNS answering via (.+)$/, 'logDohRoutes', ['routes']],
   [/^(\S+) could not be opened with encrypted DNS switched off\./, 'logDnsReenabledForBlock', ['host']],
   [/^(.+?) was already running when protection started\./, 'logAppsNeedRestart', ['apps']],
   [/^Encrypted DNS is not reachable on this network/, 'logDohDown', []],

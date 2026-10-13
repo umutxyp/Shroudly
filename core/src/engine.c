@@ -59,15 +59,33 @@ static int hs_get(const char *h) {
 static void hs_put(const char *h, int preset) {
   mutex_lock(&g_hs_mx);
   int slot = -1; uint64_t old = (uint64_t)-1;
-  for (int i = 0; i < HS_SIZE; i++) {
-    if (!g_hs[i].used) { slot = i; break; }
-    if (g_hs[i].t < old) { old = g_hs[i].t; slot = i; }
+  /* The host's own entry first: a host that is learned again must replace
+   * what was known, not sit behind it where hs_get would never look. */
+  for (int i = 0; i < HS_SIZE; i++)
+    if (g_hs[i].used && strcmp(g_hs[i].host, h) == 0) { slot = i; break; }
+  if (slot < 0) {   /* else a free slot, else the least recently learned */
+    for (int i = 0; i < HS_SIZE; i++) {
+      if (!g_hs[i].used) { slot = i; break; }
+      if (g_hs[i].t < old) { old = g_hs[i].t; slot = i; }
+    }
   }
   if (slot < 0) slot = 0;
   memset(&g_hs[slot], 0, sizeof(g_hs[slot]));
   strncpy(g_hs[slot].host, h, sizeof(g_hs[slot].host) - 1);
   g_hs[slot].preset = preset; g_hs[slot].t = now_ms(); g_hs[slot].used = 1;
   mutex_unlock(&g_hs_mx);
+}
+
+/* The network let a connection to this host start and then cut it. Whatever
+ * opened it is not enough here, so the next connection starts with the next
+ * technique. Cycling is cheap — every technique still has to produce a real
+ * handshake before it is used — and it settles on the first one that is not
+ * cut. This is what keeps working when a filter changes what it looks at. */
+static void hs_on_cut(const char *h) {
+  int np = strategy_preset_count();
+  if (np <= 0 || !g_cfg.auto_probe) return;
+  int cur = hs_get(h);
+  hs_put(h, cur < 0 ? 0 : (cur + 1) % np);
 }
 
 const engine_stats *engine_get_stats(void) { return &g_stats; }
@@ -191,25 +209,95 @@ static sock_t dial(const char *host, uint16_t port, int prefer6, int *out_family
   return s;
 }
 
-/* Bidirectional relay until either side closes. */
-static void relay(sock_t a, sock_t b) {
+/* ── cut detection ───────────────────────────────────────────────────────
+ * Some filters let a connection start and then stop it: the handshake goes
+ * through, the page never arrives (Iran's stateful filtering, Russia's 16 KB
+ * freeze). From the browser that looks like a blank page, and from the
+ * handshake check like success. Three signs, watched on TLS connections only,
+ * while fewer than CUT_MAX_BYTES have come back:
+ *   stall   — the server goes silent halfway through a TLS record. A real
+ *             server does not pause mid-record for seconds; a filter that
+ *             drops the rest of the flow does exactly that.
+ *   reset   — "the server" resets the connection.
+ *   noreply — the browser sent a request and nothing at all came back.
+ *             Weakest of the three (a long-poll looks the same); the app
+ *             needs more of these before it believes them.
+ * Each connection reports at most once; the app decides from several. */
+#define CUT_MAX_BYTES  (64 * 1024)
+#define CUT_STALL_MS   8000
+#define CUT_NOREPLY_MS 15000
+
+typedef struct { int have; uint8_t hdr[5]; uint32_t left; int lost; } tls_track;
+
+/* Follow the server's TLS record boundaries. */
+static void tls_follow(tls_track *t, const uint8_t *p, int n) {
+  while (n > 0 && !t->lost) {
+    if (t->left == 0) {
+      int take = 5 - t->have; if (take > n) take = n;
+      memcpy(t->hdr + t->have, p, (size_t)take);
+      t->have += take; p += take; n -= take;
+      if (t->have == 5) {
+        t->have = 0;
+        if (t->hdr[0] < 20 || t->hdr[0] > 24 || t->hdr[1] != 3) { t->lost = 1; return; }
+        t->left = ((uint32_t)t->hdr[3] << 8) | t->hdr[4];
+      }
+    } else {
+      uint32_t take = t->left < (uint32_t)n ? t->left : (uint32_t)n;
+      t->left -= take; p += take; n -= (int)take;
+    }
+  }
+}
+static int tls_mid_record(const tls_track *t) { return !t->lost && (t->left > 0 || t->have > 0); }
+
+typedef struct {
+  const char *host;   /* for the report; NULL = not watched */
+  int fam;
+  uint64_t down;      /* bytes from the server so far, handshake included */
+  tls_track tt;
+} cut_watch;
+
+static void report(const char *ev, const char *host, const char *strat, int attempts, int fam);
+
+/* Bidirectional relay until either side closes. a = client, b = server. */
+static void relay(sock_t a, sock_t b, cut_watch *cw) {
   uint8_t *buf = (uint8_t *)malloc(RELAY_BUF);
   if (!buf) return;
+  int reported = 0;
+  uint64_t t = now_ms(), last_down = t;
+  uint64_t waiting_since = 0;   /* client sent something the server has not answered */
   for (;;) {
-    int w = sock_wait_either(a, b, 30000);
+    int w = sock_wait_either(a, b, 1000);
     if (w < 0) break;
+    t = now_ms();
+    if (cw && cw->host && !reported && cw->down < CUT_MAX_BYTES) {
+      if (tls_mid_record(&cw->tt) && t - last_down >= CUT_STALL_MS) {
+        report("cut", cw->host, "stall", (int)(cw->down / 1024), cw->fam); reported = 1;
+        hs_on_cut(cw->host);
+      } else if (waiting_since && t - waiting_since >= CUT_NOREPLY_MS) {
+        report("cut", cw->host, "noreply", (int)(cw->down / 1024), cw->fam); reported = 1;
+      }
+    }
     if (w == 0) continue;
     if (w & 1) {
       int n = recv(a, (char *)buf, RELAY_BUF, 0);
       if (n <= 0) break;
       if (sock_send_all(b, buf, (size_t)n, 0) != 0) break;
       atomic_fetch_add(&g_stats.bytes_up, (uint64_t)n);
+      if (!waiting_since) waiting_since = t;   /* oldest request still unanswered */
     }
     if (w & 2) {
       int n = recv(b, (char *)buf, RELAY_BUF, 0);
-      if (n <= 0) break;
+      if (n <= 0) {
+        if (n < 0 && sock_errno() == SE_CONNRESET && cw && cw->host && !reported &&
+            cw->down < CUT_MAX_BYTES)
+        { report("cut", cw->host, "reset", (int)(cw->down / 1024), cw->fam); hs_on_cut(cw->host); }
+        break;
+      }
       if (sock_send_all(a, buf, (size_t)n, 0) != 0) break;
       atomic_fetch_add(&g_stats.bytes_down, (uint64_t)n);
+      last_down = t;
+      waiting_since = 0;
+      if (cw) { cw->down += (uint64_t)n; tls_follow(&cw->tt, buf, n); }
     }
   }
   free(buf);
@@ -370,6 +458,8 @@ static void handle(sock_t client) {
 
   int flen = read_first(client, up, first, RELAY_BUF);
   int rlen = 0;
+  int watch_tls = 0;
+  char cut_key[256]; cut_key[0] = 0;
 
   if (flen > 0) {
     proto_info pi;
@@ -378,6 +468,8 @@ static void handle(sock_t client) {
     if (pi.kind == PROTO_HTTP) atomic_fetch_add(&g_stats.http_seen, 1);
 
     const char *key = pi.host[0] ? pi.host : host;
+    watch_tls = pi.kind == PROTO_TLS;
+    strncpy(cut_key, key, sizeof(cut_key) - 1); cut_key[sizeof(cut_key) - 1] = 0;
 
     /* Build the ladder. */
     int cand[ATT_MAX]; int ncand = 0;
@@ -457,7 +549,15 @@ static void handle(sock_t client) {
     if (sock_send_all(client, rbuf, (size_t)rlen, 0) != 0) goto done;
     atomic_fetch_add(&g_stats.bytes_down, (uint64_t)rlen);
   }
-  relay(client, up);
+  {
+    cut_watch cw;
+    memset(&cw, 0, sizeof(cw));
+    cw.host = (watch_tls && cut_key[0]) ? cut_key : NULL;
+    cw.fam = fam;
+    cw.down = (uint64_t)rlen;
+    if (rlen > 0) tls_follow(&cw.tt, rbuf, rlen);
+    relay(client, up, &cw);
+  }
 
 done:
   if (up != SOCK_INVALID) sock_close(up);
