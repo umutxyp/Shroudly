@@ -34,7 +34,7 @@ export default function Toast({ message, detail, type = 'info', onClose, duratio
         aria-live={type === 'error' ? 'assertive' : 'polite'}
         onClick={() => closeRef.current?.()}
         className="rise pointer-events-auto flex max-w-[420px] cursor-pointer items-start gap-2.5 rounded-[var(--radius-sm)] px-3.5 py-2.5 text-[13px] font-medium"
-        style={{ background: 'var(--surface-2)', color: 'var(--text)', border: `1px solid ${tone.line}`, boxShadow: 'var(--shadow-pop)' }}
+        style={{ background: 'var(--surface-pop)', color: 'var(--text)', border: `1px solid ${tone.line}`, boxShadow: 'var(--shadow-pop)' }}
       >
         <Icon className="mt-[1px] h-[18px] w-[18px]" style={{ color: tone.fg }} />
         <div className="min-w-0 flex-1 wrap-anywhere">

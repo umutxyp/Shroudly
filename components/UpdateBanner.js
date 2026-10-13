@@ -52,29 +52,29 @@ export default function UpdateBanner() {
 
   const downloading = u.status === 'downloading';
 
-  /* One line, always. The banner sits above the whole app, so anything that
-   * wraps pushes the content down and the window starts to look broken — the
-   * text truncates instead, and the download progress is a hairline along the
-   * bottom edge rather than a row of its own. */
+  /* The message is never cut: "Restarting for the update in 54 s" with its
+   * end missing says nothing. It takes the room it needs, and the buttons
+   * move under it when the window is too narrow for both on one line. The
+   * download progress is a hairline along the bottom edge rather than a row
+   * of its own. */
   return (
     <div
       role="status"
       className="no-drag relative mx-4 mb-3 overflow-hidden rounded-[var(--radius-sm)] border py-2 pl-3 pr-2 sm:mx-5"
       style={{ background: 'var(--accent-soft)', borderColor: 'var(--accent-line)' }}
     >
-      <div className="flex items-center gap-2.5">
+      <div className="flex flex-wrap items-center gap-x-2.5 gap-y-2">
         <RefreshIcon
           className={`h-4 w-4 shrink-0 ${downloading ? 'spin' : ''}`}
           style={{ color: 'var(--accent)' }}
         />
         <span
-          className="min-w-0 flex-1 truncate text-[13px] font-medium leading-snug"
+          className="min-w-[14rem] flex-1 text-[13px] font-medium leading-snug wrap-anywhere"
           style={{ color: 'var(--text)' }}
-          title={text}
         >
           {text}
         </span>
-        {actions && <span className="flex shrink-0 items-center gap-1.5">{actions}</span>}
+        {actions && <span className="ms-auto flex shrink-0 items-center gap-1.5">{actions}</span>}
       </div>
 
       {/* Only the cases that genuinely need a second line get one. */}
