@@ -79,6 +79,19 @@ function buildNative() {
   }
 }
 
+// --target <key>: build just that one with zig (Linux needs its sysroot set).
+// Used by CI so the Linux engines link against an old glibc, not the runner's.
+const ti = process.argv.indexOf('--target');
+if (ti > 0) {
+  const zig = zigPath();
+  const key = process.argv[ti + 1];
+  if (!zig) { console.error('[core-adv] --target needs zig'); process.exit(1); }
+  if (!TARGETS[key]) { console.error(`[core-adv] unknown target ${key}`); process.exit(1); }
+  buildZig(zig, key);
+  if (!fs.existsSync(path.join(outRoot, key, TARGETS[key].bin))) process.exit(1);
+  process.exit(0);
+}
+
 if (process.argv.includes('--cross')) {
   const zig = zigPath();
   if (!zig) { console.error('[core-adv] --cross needs zig'); process.exit(1); }

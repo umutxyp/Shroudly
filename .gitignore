@@ -39,3 +39,4 @@ Thumbs.db
 .vscode/
 *.suo
 *.user
+.ci-sysroot-*/
