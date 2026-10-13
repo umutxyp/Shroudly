@@ -64,16 +64,23 @@ function addPacmanToLinuxFeed() {
 }
 
 /* Drop the universal installer from latest.yml and point the legacy
- * top-level path at the x64 installer. */
+ * top-level path at the x64 installer. Works line by line, so extra fields,
+ * their order and Windows line endings make no difference. */
 function cleanWindowsFeed() {
   const file = path.join(dist, 'latest.yml');
-  let s = fs.readFileSync(file, 'utf8');
-  // size and blockMapSize are only written for some builds; match with or without them.
-  s = s.replace(new RegExp(`  - url: Shroudly-${version.replace(/\./g, '\\.')}-Windows-Setup\\.exe\\n    sha512: \\S+\\n(    size: \\d+\\n)?(    blockMapSize: \\d+\\n)?`), '');
-  if (/-Windows-Setup\.exe/.test(s)) throw new Error('latest.yml still lists the universal installer, which is not published');
-  const x64 = s.match(/  - url: (\S+-Windows-x64-Setup\.exe)\n    sha512: (\S+)/);
+  const lines = fs.readFileSync(file, 'utf8').replace(/\r\n/g, '\n').split('\n');
+  const out = [];
+  let skip = false;
+  for (const line of lines) {
+    if (/^\s*- url: /.test(line)) skip = /-Windows-Setup\.exe\s*$/.test(line);
+    else if (!/^\s{4,}\S/.test(line)) skip = false;
+    if (!skip) out.push(line);
+  }
+  let s = out.join('\n');
+  const x64 = s.match(/- url: (\S+-Windows-x64-Setup\.exe)\n\s+sha512: (\S+)/);
   if (!x64) throw new Error('latest.yml has no x64 installer');
   s = s.replace(/^path: .*$/m, `path: ${x64[1]}`).replace(/^sha512: .*$/m, `sha512: ${x64[2]}`);
+  if (/-Windows-Setup\.exe/.test(s)) throw new Error('latest.yml still lists the universal installer, which is not published');
   fs.writeFileSync(file, s);
 }
 
