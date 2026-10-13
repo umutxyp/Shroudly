@@ -49,8 +49,10 @@ function get(url, o = {}) {
   const relay = new DiscordRelay(() => {}, () => (engineOn ? P : null));
   const port = await relay.start(await freePort());
   const base = `http://127.0.0.1:${port}`;
+  // A manifest Discord actually publishes for this machine (there is no
+  // Linux ARM build of Discord; the relay is the same whatever is fetched).
   const plat = process.platform === 'darwin' ? 'osx' : process.platform === 'win32' ? 'win' : 'linux';
-  const arch = process.arch === 'arm64' ? 'arm64' : 'x64';
+  const arch = plat === 'linux' ? 'x64' : process.arch === 'arm64' ? 'arm64' : 'x64';
   const agent = new http.Agent({ keepAlive: true, maxSockets: 4 });
   for (const mode of ['engine', 'direct']) {
     engineOn = mode === 'engine';
