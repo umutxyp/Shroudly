@@ -81,9 +81,13 @@ function download(url, file) {
 /* Roblox's web connections (80/443) that do not go to this machine, i.e.
  * that bypass the proxy. */
 function robloxDirect() {
-  const ps = "Get-NetTCPConnection -ErrorAction SilentlyContinue | Where-Object { $_.RemoteAddress -notmatch '^(127\\.|::1)' -and ($_.RemotePort -eq 443 -or $_.RemotePort -eq 80) } | " +
-    "ForEach-Object { $p = Get-Process -Id $_.OwningProcess -ErrorAction SilentlyContinue; if ($p -and $p.ProcessName -match '^Roblox') { \"$($p.ProcessName) $($_.RemoteAddress):$($_.RemotePort)\" } }";
-  return new Promise((resolve) => execFile('powershell.exe', ['-NoProfile', '-NonInteractive', '-Command', ps], { windowsHide: true, timeout: 20000 },
+  // Roblox's processes first, then only their connections: walking every
+  // connection on the machine is too slow on emulated (ARM) runners.
+  const ps = "$ids = @(Get-Process -Name 'Roblox*' -ErrorAction SilentlyContinue | ForEach-Object { $_.Id }); " +
+    "if ($ids.Count) { Get-NetTCPConnection -OwningProcess $ids -ErrorAction SilentlyContinue | " +
+    "Where-Object { ($_.RemotePort -eq 443 -or $_.RemotePort -eq 80) -and $_.RemoteAddress -notmatch '^(127\\.|::1)' } | " +
+    "ForEach-Object { \"$($_.OwningProcess) $($_.RemoteAddress):$($_.RemotePort)\" } }";
+  return new Promise((resolve) => execFile('powershell.exe', ['-NoProfile', '-NonInteractive', '-Command', ps], { windowsHide: true, timeout: 10000 },
     (err, out) => resolve(String(out || '').split(/\r?\n/).map((l) => l.trim()).filter(Boolean))));
 }
 
@@ -91,10 +95,13 @@ async function robloxInstaller(proxy) {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'shroudly-roblox-'));
   const exe = path.join(dir, 'RobloxPlayerInstaller.exe');
   try {
-    const v = await new Promise((resolve, reject) => require('https').get('https://clientsettingscdn.roblox.com/v2/client-version/WindowsPlayer', (res) => {
-      let b = ''; res.on('data', (c) => { b += c; }); res.on('end', () => { try { resolve(JSON.parse(b).clientVersionUpload); } catch (e) { reject(e); } });
-    }).on('error', reject));
-    await download(`https://setup.rbxcdn.com/${v}-RobloxPlayerInstaller.exe`, exe);
+    const fetchInstaller = async () => {
+      const v = await new Promise((resolve, reject) => require('https').get('https://clientsettingscdn.roblox.com/v2/client-version/WindowsPlayer', (res) => {
+        let b = ''; res.on('data', (c) => { b += c; }); res.on('end', () => { try { resolve(JSON.parse(b).clientVersionUpload); } catch (e) { reject(e); } });
+      }).on('error', reject));
+      await download(`https://setup.rbxcdn.com/${v}-RobloxPlayerInstaller.exe`, exe);
+    };
+    await Promise.race([fetchInstaller(), sleep(60000).then(() => { throw new Error('download took over a minute'); })]);
   } catch (e) {
     console.log(`  --  Roblox installer not downloadable here (${e.message}); skipped`);
     return;
@@ -105,8 +112,10 @@ async function robloxInstaller(proxy) {
   env.HTTPS_PROXY = proxy.url;
   const child = require('child_process').spawn(exe, [], { env, detached: true, stdio: 'ignore' });
   child.on('error', () => {});
+  // A minute of watching, whatever the machine's speed.
   const direct = new Set();
-  for (let i = 0; i < 20; i++) {
+  const until = Date.now() + 60000;
+  while (Date.now() < until) {
     await sleep(3000);
     for (const c of await robloxDirect()) direct.add(c);
   }
