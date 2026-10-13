@@ -55,6 +55,23 @@ function rewriteUrls(text, base) {
     (isDiscordHost(host) ? `${base}${HOST_PREFIX}${host.toLowerCase()}` : m));
 }
 
+/* The address part of a SOCKS5 request. A name goes as a name, so the engine
+ * resolves it with its own DNS; an address goes as an address. */
+function socksAddress(host) {
+  if (net.isIPv4(host)) return Buffer.from([1, ...host.split('.').map(Number)]);
+  if (net.isIPv6(host)) {
+    const [head, tail = ''] = host.split('::');
+    const parts = (s) => (s ? s.split(':') : []);
+    const h = parts(head); const t = parts(tail);
+    const words = host.includes('::') ? [...h, ...Array(8 - h.length - t.length).fill('0'), ...t] : h;
+    const b = Buffer.alloc(17); b[0] = 4;
+    words.forEach((w, i) => b.writeUInt16BE(parseInt(w, 16) || 0, 1 + i * 2));
+    return b;
+  }
+  const h = Buffer.from(host);
+  return Buffer.concat([Buffer.from([3, h.length]), h]);
+}
+
 function socksConnect(socksPort, host, port) {
   return new Promise((resolve, reject) => {
     const s = net.connect({ host: '127.0.0.1', port: socksPort });
@@ -72,8 +89,7 @@ function socksConnect(socksPort, host, port) {
         if (buf[0] !== 5 || buf[1] !== 0) return fail(new Error('SOCKS auth refused'));
         buf = buf.subarray(2);
         stage = 1;
-        const h = Buffer.from(host);
-        s.write(Buffer.concat([Buffer.from([5, 1, 0, 3, h.length]), h, Buffer.from([port >> 8, port & 255])]));
+        s.write(Buffer.concat([Buffer.from([5, 1, 0]), socksAddress(host), Buffer.from([port >> 8, port & 255])]));
       }
       if (stage === 1) {
         if (buf.length < 5) return;
@@ -241,3 +257,5 @@ module.exports = DiscordRelay;
 module.exports.isDiscordHost = isDiscordHost;
 module.exports.rewriteUrls = rewriteUrls;
 module.exports.DISCORD_DOMAINS = DISCORD_DOMAINS;
+module.exports.socksConnect = socksConnect;
+module.exports.socksAddress = socksAddress;

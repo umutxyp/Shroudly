@@ -1,7 +1,8 @@
 name: Tests
 
-# Every push and pull request: the engine, encrypted DNS, Discord app mode and
-# the uninstaller hook, on real Windows, Linux and macOS machines, x64 and ARM.
+# Every push and pull request: the engine, encrypted DNS, Discord app mode, games
+# and apps mode (the real Roblox installer on Windows) and the uninstaller hook,
+# on real Windows, Linux and macOS machines, x64 and ARM.
 # The network tests talk to real resolvers and Discord's update servers, so
 # they also catch the outside world changing under us.
 

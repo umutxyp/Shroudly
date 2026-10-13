@@ -7,13 +7,15 @@
  * internet keeps working. It exits on its own once the state file is gone,
  * which is what a normal stop does.
  *
- *   proxy-watchdog.js <stateFile> <appPid>
+ * With "env" it watches the session's HTTPS_PROXY instead (app-env.js), which
+ * would otherwise leave programs pointed at a proxy that is gone.
+ *
+ *   proxy-watchdog.js <stateFile> <appPid> [env]
  */
 
 const fs = require('fs');
-const SystemProxy = require('./system-proxy');
 
-const [stateFile, pidArg] = process.argv.slice(2);
+const [stateFile, pidArg, kind] = process.argv.slice(2);
 const appPid = Number(pidArg);
 
 function alive(pid) {
@@ -26,6 +28,9 @@ const timer = setInterval(() => {
   if (!fs.existsSync(stateFile)) { clearInterval(timer); process.exit(0); }
   if (alive(appPid)) return;
   clearInterval(timer);
-  try { SystemProxy.recoverSync({ stateFile }); } catch {}
+  try {
+    if (kind === 'env') require('./app-env').recoverSync({ stateFile });
+    else require('./system-proxy').recoverSync({ stateFile });
+  } catch {}
   process.exit(0);
 }, 1000);

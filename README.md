@@ -50,7 +50,8 @@ you turn it on.
 Names are looked up over encrypted DNS, so forged DNS answers — the most common
 kind of blocking — stop working too. For the Discord app, whose own updater
 ignores the system proxy, [Discord app mode](#discord-app-mode) brings that
-traffic through Shroudly as well.
+traffic through Shroudly as well, and for Roblox and other programs that ignore
+it, so does [Games and apps mode](#games-and-apps-mode-roblox).
 
 While Shroudly is active it points the system (or your browser) at its local
 proxy, and it always restores the previous setting on stop, crash, or logout —
@@ -209,6 +210,52 @@ delete that line from Discord's `settings.json` yourself.
 
 ---
 
+## Games and apps mode (Roblox)
+
+Some programs bring their own HTTP library and never look at the system proxy.
+The Roblox app and its installer are the best-known case: in Turkey, for
+example, roblox.com opens in the browser through Shroudly while the installer
+stops at *Continue installation without flag settings from
+clientsettingscdn.roblox.com* and the app cannot reach a single Roblox server.
+The one proxy setting they do read is the `HTTPS_PROXY` environment variable,
+and so do many other games, launchers and command-line tools.
+
+Games and apps mode sets it, on Windows and macOS, without admin rights:
+
+- Shroudly runs a small HTTPS proxy on `127.0.0.1` (port 10810, or the next
+  free one). It only tunnels (`CONNECT`), and only for this machine. Each
+  tunnel goes to the engine **by name**, so the engine's encrypted DNS and its
+  desync apply exactly as they do for the browser; while protection is off it
+  goes out directly. This machine and the local network are always reached
+  directly.
+- It puts `HTTPS_PROXY=http://127.0.0.1:10810` (and a `NO_PROXY` for the local
+  network) in your session. On **macOS** that is `launchctl setenv`: every app
+  the system starts afterwards gets it, from the Dock, from Finder, or from a
+  browser opening a Roblox link — Roblox closes and starts itself again to join
+  a game, and the new copy gets it too. It is held in memory and gone after
+  logout. On **Windows** it is your user environment, and Explorer is told
+  about the change: programs started from the Start menu, the desktop or File
+  Explorer get it.
+- A program reads it when it starts. If Roblox is already open, Shroudly offers
+  to restart it. On Windows, a browser that was already open keeps its old
+  environment: if you start Roblox or its installer from the browser, close the
+  browser completely and open it again once.
+- It is offered and explained in the app first, never done unasked. A proxy you
+  set yourself (for your session or, on Windows, for the whole machine) is
+  never replaced, and an `HTTPS_PROXY` of your own is never removed:
+  `SHROUDLY_APP_PROXY`, set alongside, marks which value is Shroudly's.
+- It is removed when you turn the mode off, when you quit Shroudly, at logout
+  and shutdown, by a watchdog within a second if Shroudly is killed, at the
+  next sign-in after a power cut (Windows), and by the Windows uninstaller. A
+  program started without Shroudly connects as it always did.
+
+Game traffic itself (Roblox's UDP) does not use a proxy and goes direct; it is
+the HTTPS part — sign-in, the game list, joining, assets — that filters block.
+Linux has no single place every desktop reads the environment from, and Roblox
+has no Linux client, so the mode is not offered there.
+
+---
+
 ## Features
 
 - **One button** — start and stop protection; it can start with your computer, from the tray.
@@ -217,6 +264,7 @@ delete that line from Discord's `settings.json` yourself.
 - **Learns what works** — tests each blocked site and remembers the technique that opens it; switches technique by itself if a network starts cutting a site.
 - **Encrypted DNS** — on by default, over routes that are hard to block, refusing known forged answers.
 - **Discord app mode** — lets the Discord app update and open through Shroudly on Windows and macOS ([details](#discord-app-mode)).
+- **Games and apps mode** — Roblox, its installer and other programs that ignore the system proxy go through Shroudly too, on Windows and macOS ([details](#games-and-apps-mode-roblox)).
 - **Advanced mode** — packet-level desync for networks that follow whole connections (Iran, China, Russia), on Windows and Linux.
 - **Tells you what is going on** — another VPN or bypass tool fighting it, a site the network cuts, encrypted DNS blocked, a program that must be restarted: said plainly, with the fix one click away.
 - **Never breaks your connection** — your proxy settings are saved before Shroudly changes them and put back on stop, crash, forced kill, shutdown, power loss (at next sign-in) and uninstall.
@@ -340,7 +388,10 @@ Shroudly/
     diagnostics.js            what the log needs: OS, network, other VPNs, forged DNS
     discord-relay.js          Discord app mode: local relay for Discord's updater
     discord-app.js            Discord app mode: Discord's settings.json, restart
-    proxy-watchdog.js         restores the proxy if the app is killed
+    app-proxy.js              Games and apps mode: local HTTPS proxy into the engine
+    app-env.js                Games and apps mode: HTTPS_PROXY in the session, crash-safe
+    roblox-app.js             Games and apps mode: finding and restarting Roblox
+    proxy-watchdog.js         restores the proxy (and HTTPS_PROXY) if the app is killed
     updater.js                automatic updates from GitHub releases
     advanced-mode.js          Advanced mode: elevation (UAC / pkexec) + lifecycle
     main-i18n.js              tray + notification strings (15 languages)
@@ -351,8 +402,8 @@ Shroudly/
   scripts/build-core-advanced.js   Advanced-mode engine build
   scripts/fetch-windivert.js       fetch + verify the WinDivert driver
   scripts/after-pack.js            stamp icon + version info into Shroudly.exe
-  scripts/installer.nsh            Windows installer hooks (proxy reset, Discord clean-up)
-  tests/net/                  network tests (fake censor, hostile servers, DNS, Discord)
+  scripts/installer.nsh            Windows installer hooks (proxy reset, Discord and HTTPS_PROXY clean-up)
+  tests/net/                  network tests (fake censor, hostile servers, DNS, Discord, games and apps)
   release-notes/              notes published with each release
 ```
 
@@ -387,7 +438,9 @@ npm run test:core        # engine unit tests (protocol, strategies, desync)
 npm run test:net         # network tests: the engine against a fake censor and
                          # hostile servers, encrypted DNS on blocked networks
                          # and against impostor resolvers, Discord app mode,
-                         # the block-page list, the Windows uninstaller hook
+                         # games and apps mode (with the real Roblox installer
+                         # on Windows CI), the block-page list, the Windows
+                         # uninstaller hook
 cd core && make test-asan fuzz   # sanitizers and fuzzing
 ```
 
@@ -416,6 +469,9 @@ Shroudly does not collect personal data. Two things contact servers:
   [Encrypted DNS routes](#encrypted-dns-routes), not by your provider.
 - **Discord's update servers**, only with Discord app mode on: the relay asks
   them on the Discord app's behalf, exactly what Discord would have asked.
+
+Games and apps mode contacts nothing of its own: it only carries what the
+programs using it were going to send anyway.
 
 ---
 
