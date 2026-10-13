@@ -131,8 +131,8 @@ int probe_host(const char *host_in, const engine_config *cfg) {
   /* 1. Baseline: does a plain handshake already work? Then the host isn't
    *    blocked here and no desync is needed. */
   if (test_strategy(host, NULL, cfg->use_doh)) {
-    printf("{\"type\":\"probe\",\"hbuf\":\"%s\",\"ok\":true,\"strategy\":\"none\","
-           "\"blocked\":false,\"dns_blocked\":%s}\n", host, dnsb);
+    printf("{\"type\":\"probe\",\"host\":\"%s\",\"ok\":true,\"strategy\":\"none\","
+           "\"blocked\":false,\"dns_blocked\":%s}\n", hbuf, dnsb);
     fflush(stdout);
     return -2; /* -2 = not blocked, relay as-is */
   }
@@ -147,16 +147,16 @@ int probe_host(const char *host_in, const engine_config *cfg) {
   uint64_t deadline = now_ms() + PROBE_BUDGET_MS;
   for (int i = 0; i < n; i++) {
     if (now_ms() >= deadline) {
-      printf("{\"type\":\"probe\",\"hbuf\":\"%s\",\"ok\":false,\"blocked\":true,"
+      printf("{\"type\":\"probe\",\"host\":\"%s\",\"ok\":false,\"blocked\":true,"
              "\"suggest\":\"advanced\",\"partial\":true,\"tried\":%d,\"dns_blocked\":%s}\n",
-             host, i, dnsb);
+             hbuf, i, dnsb);
       fflush(stdout);
       return -1;
     }
     const strategy *st = strategy_preset(i);
     if (test_strategy(host, st, cfg->use_doh)) {
-      printf("{\"type\":\"probe\",\"hbuf\":\"%s\",\"strategy\":\"%s\",\"ok\":true,"
-             "\"blocked\":true,\"dns_blocked\":%s}\n", host, st->name, dnsb);
+      printf("{\"type\":\"probe\",\"host\":\"%s\",\"strategy\":\"%s\",\"ok\":true,"
+             "\"blocked\":true,\"dns_blocked\":%s}\n", hbuf, st->name, dnsb);
       fflush(stdout);
       engine_learn(host, i);
       return i;
@@ -166,8 +166,8 @@ int probe_host(const char *host_in, const engine_config *cfg) {
   /* 3. Nothing at this level worked. The host is blocked by DPI that userspace
    *    split/disorder cannot defeat (likely stateful reassembly, e.g. Iran/China).
    *    Signal the UI to offer Advanced (packet-layer) mode. */
-  printf("{\"type\":\"probe\",\"hbuf\":\"%s\",\"ok\":false,\"blocked\":true,"
-         "\"suggest\":\"advanced\",\"dns_blocked\":%s}\n", host, dnsb);
+  printf("{\"type\":\"probe\",\"host\":\"%s\",\"ok\":false,\"blocked\":true,"
+         "\"suggest\":\"advanced\",\"dns_blocked\":%s}\n", hbuf, dnsb);
   fflush(stdout);
   return -1;
 }
