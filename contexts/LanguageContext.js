@@ -22,19 +22,40 @@ export const availableLanguages = [
   { code: 'id', name: 'Bahasa Indonesia', locale: 'id-ID' },
   { code: 'ja', name: '日本語', locale: 'ja-JP' },
   { code: 'de', name: 'Deutsch', locale: 'de-DE' },
+  // Languages of the other countries whose networks block sites and apps.
+  { code: 'az', name: 'Azərbaycanca', locale: 'az-Latn-AZ' },
+  { code: 'he', name: 'עברית', locale: 'he-IL' },
+  { code: 'vi', name: 'Tiếng Việt', locale: 'vi-VN' },
+  { code: 'uk', name: 'Українська', locale: 'uk-UA' },
+  { code: 'be', name: 'Беларуская', locale: 'be-BY' },
+  { code: 'uz', name: 'Oʻzbekcha', locale: 'uz-Latn-UZ' },
+  { code: 'kk', name: 'Қазақша', locale: 'kk-KZ' },
+  { code: 'ky', name: 'Кыргызча', locale: 'ky-KG' },
+  { code: 'tk', name: 'Türkmençe', locale: 'tk-TM' },
+  { code: 'tg', name: 'Тоҷикӣ', locale: 'tg-TJ' },
+  { code: 'ps', name: 'پښتو', locale: 'ps-AF' },
+  { code: 'ku', name: 'Kurdî', locale: 'ku' },
+  { code: 'my', name: 'မြန်မာ', locale: 'my-MM' },
+  { code: 'th', name: 'ไทย', locale: 'th-TH' },
+  { code: 'am', name: 'አማርኛ', locale: 'am-ET' },
+  { code: 'ms', name: 'Bahasa Melayu', locale: 'ms-MY' },
 ];
 
-const RTL_LANGUAGES = new Set(['ar', 'fa', 'ur']);
+const RTL_LANGUAGES = new Set(['ar', 'fa', 'ur', 'he', 'ps']);
+
+/* Older tags some systems still report: "in" (Indonesian), "iw" (Hebrew),
+   "kmr" (Kurmanji), "zsm" (Standard Malay). */
+const ALIASES = { in: 'id', iw: 'he', kmr: 'ku', zsm: 'ms' };
 const STORAGE_KEY = 'shroudly_language';
 
 /* Map an OS / browser language tag (e.g. "tr-TR", "zh-Hans-CN", "zh-TW",
    "pt_BR", "in") to one of our language codes, or null. This is the same rule
    electron/main-i18n.js uses for the tray menu, so tray and UI always agree:
-   base code before "-"/"_", lower-cased, legacy "in" → "id". */
+   base code before "-"/"_", lower-cased, legacy codes mapped (ALIASES). */
 export function matchLanguage(tag) {
   if (!tag || typeof tag !== 'string') return null;
   let base = tag.trim().toLowerCase().split(/[-_]/)[0];
-  if (base === 'in') base = 'id';
+  base = ALIASES[base] || base;
   return availableLanguages.some((l) => l.code === base) ? base : null;
 }
 
