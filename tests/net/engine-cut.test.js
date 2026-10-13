@@ -7,7 +7,7 @@
 
 const tls = require('tls');
 const net = require('net');
-const { startEngine, sleep, socks, getViaEngine, fixture, suite } = require('./helpers');
+const { startEngine, sleep, freePort, socks, getViaEngine, fixture, suite } = require('./helpers');
 
 const t = suite('engine-cut');
 const BIG = Buffer.alloc(200 * 1024, 'x');
@@ -36,12 +36,13 @@ const BIG = Buffer.alloc(200 * 1024, 'x');
   }).listen(0, '127.0.0.1');
   await new Promise((r) => censor.once('listening', r));
 
-  const eng = await startEngine(29871, ['--strategy', 'split(sni)', '--auto']);
+  const P = await freePort();
+  const eng = await startEngine(P, ['--strategy', 'split(sni)', '--auto']);
   async function visit(m, host) {
     mode = m;
     const before = eng.out.length;
     const s0 = await eng.stats();
-    const raw = await socks(29871, '127.0.0.1', censor.address().port);
+    const raw = await socks(P, '127.0.0.1', censor.address().port);
     const s = tls.connect({ socket: raw, servername: host, rejectUnauthorized: false });
     let got = 0;
     await new Promise((resolve) => {
@@ -73,7 +74,7 @@ const BIG = Buffer.alloc(200 * 1024, 'x');
   // Real sites: no false alarms.
   const before = eng.out.length;
   const sites = ['discord.com', 'www.wikipedia.org', 'github.com', 'www.bbc.com', 'www.google.com', 'www.cloudflare.com'];
-  const res = await Promise.all(sites.map((h) => getViaEngine(29871, h)));
+  const res = await Promise.all(sites.map((h) => getViaEngine(P, h)));
   await sleep(1500);
   t.ok(res.every((x) => x.status >= 200 && x.status < 400), `real sites load through the engine: ${res.map((x) => x.status).join(' ')}`);
   t.ok(!eng.out.slice(before).includes('"cut"'), 'no cut reported for any real site');

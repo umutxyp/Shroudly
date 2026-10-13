@@ -124,8 +124,115 @@ jobs:
             dist/*.rpm
             dist/latest*.yml
 
-  release:
+  # ── Install what was built, on the systems it is for, before anything is
+  # published. A package that does not install, misses a library or whose
+  # engine does not start stops the release here.
+  linux-packages:
     needs: build
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { image: 'archlinux:latest', pkg: 'dist/*.pacman' }
+          - { image: 'fedora:latest',    pkg: 'dist/*.rpm' }
+          - { image: 'opensuse/tumbleweed', pkg: 'dist/*.rpm' }
+          - { image: 'debian:stable',    pkg: 'dist/*.deb' }
+          - { image: 'ubuntu:24.04',     pkg: 'dist/*.deb' }
+          - { image: 'ubuntu:22.04',     pkg: 'dist/*.deb' }
+    container: ${{ matrix.image }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist-linux
+          path: dist
+      - name: Install and check (${{ matrix.image }})
+        run: sh scripts/ci-linux-package-test.sh "${{ matrix.pkg }}"
+
+  appimage:
+    needs: build
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { os: ubuntu-latest,    file: x86_64, core: linux-x64 }
+          - { os: ubuntu-24.04-arm, file: arm64,  core: linux-arm64 }
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist-linux
+          path: dist
+      - name: Extract and check the ${{ matrix.file }} AppImage
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd dist
+          f=$(ls *-Linux-${{ matrix.file }}.AppImage)
+          chmod +x "$f"
+          ./"$f" --appimage-extract >/dev/null
+          test -x squashfs-root/shroudly
+          eng=squashfs-root/resources/app.asar.unpacked/electron/tools/core/${{ matrix.core }}/shroudly-core
+          if ldd "$eng" | grep 'not found'; then exit 1; fi
+          out=$( (sleep 2; echo STOP) | "$eng" --listen 127.0.0.1 --port 18765 --strategy 'split(sni)' 2>&1 | head -n 1 )
+          echo "$out" | grep -q '"ready"'
+          echo "ok  $f: app present, engine starts ($out)"
+
+  windows-install:
+    needs: build
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { os: windows-latest, arch: x64 }
+          - { os: windows-11-arm, arch: arm64 }
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist-win
+          path: dist
+      - name: Install, run, uninstall (${{ matrix.arch }})
+        run: node scripts/ci-windows-install-test.js ${{ matrix.arch }}
+
+  macos-dmg:
+    needs: build
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { os: macos-latest,   arch: arm64, lipo: arm64 }
+          - { os: macos-15-intel, arch: x64,   lipo: x86_64 }
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist-mac
+          path: dist
+      - name: Open the ${{ matrix.arch }} disk image and check the app
+        shell: bash
+        run: |
+          set -euo pipefail
+          dmg=$(ls dist/*-macOS-${{ matrix.arch }}.dmg)
+          mnt=$(mktemp -d)
+          hdiutil attach -nobrowse -readonly -mountpoint "$mnt" "$dmg" >/dev/null
+          app="$mnt/Shroudly.app"
+          test -d "$app"
+          lipo -archs "$app/Contents/MacOS/Shroudly" | grep -q ${{ matrix.lipo }}
+          eng="$app/Contents/Resources/app.asar.unpacked/electron/tools/core/darwin-${{ matrix.arch }}/shroudly-core"
+          lipo -archs "$eng" | grep -q ${{ matrix.lipo }}
+          out=$( (sleep 2; echo STOP) | "$eng" --listen 127.0.0.1 --port 18765 --strategy 'split(sni)' 2>&1 | head -n 1 )
+          echo "$out" | grep -q '"ready"'
+          hdiutil detach "$mnt" >/dev/null
+          echo "ok  $dmg: ${{ matrix.lipo }} app and engine, engine starts"
+
+  release:
+    needs: [build, linux-packages, appimage, windows-install, macos-dmg]
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/')
     steps:

@@ -30,6 +30,8 @@ const EXACT = {
 };
 
 const PATTERNS = [
+  [/^Port (\d+) is in use by another program; Shroudly is using (\d+) instead\.$/, 'logPortMoved', ['from', 'to']],
+  [/^(.+?) is installed but not connected; that does not interfere\.$/, 'logIdleVpn', ['tools']],
   [/^(\S+): connects, then the network cuts it \((\w+) after (\d+) KB\)\./, 'logCut', ['host', 'reason', 'kb']],
   [/^DNS answers on this network match the filtering used in (\w+)\.$/, 'logRegion', ['country']],
   [/^Encrypted DNS answering via (.+)$/, 'logDohRoutes', ['routes']],

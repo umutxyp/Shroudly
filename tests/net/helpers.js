@@ -45,6 +45,16 @@ function startEngine(port, extra = []) {
 
 function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
 
+/* A port nothing is listening on right now. Fixed ports make tests flaky on
+ * machines whose ephemeral range is wide (servers often use 15000-65535). */
+function freePort() {
+  return new Promise((resolve, reject) => {
+    const s = net.createServer();
+    s.once('error', reject);
+    s.listen(0, '127.0.0.1', () => { const { port } = s.address(); s.close(() => resolve(port)); });
+  });
+}
+
 /* SOCKS5 CONNECT to host:port (IPv4 literal or name) through the engine. */
 function socks(socksPort, host, port) {
   return new Promise((resolve, reject) => {
@@ -70,9 +80,18 @@ function socks(socksPort, host, port) {
   });
 }
 
-/* GET https://host/ through the engine; resolves { status, bytes }. */
+/* GET https://host/ through the engine; resolves { status, bytes }. A real
+ * site on the real internet can be slow for a moment, which says nothing
+ * about the engine: one retry before calling it a failure. */
 async function getViaEngine(socksPort, host, timeoutMs = 20000) {
-  const raw = await socks(socksPort, host, 443);
+  const first = await getOnce(socksPort, host, timeoutMs);
+  if (first.status >= 200 && first.status < 400) return first;
+  return getOnce(socksPort, host, timeoutMs);
+}
+
+async function getOnce(socksPort, host, timeoutMs) {
+  let raw;
+  try { raw = await socks(socksPort, host, 443); } catch { return { status: 0, bytes: 0 }; }
   return new Promise((resolve) => {
     const s = tls.connect({ socket: raw, servername: host, ALPNProtocols: ['http/1.1'] });
     let head = ''; let bytes = 0; let status = 0;
@@ -95,4 +114,4 @@ function suite(name) {
   };
 }
 
-module.exports = { ROOT, enginePath, startEngine, sleep, socks, getViaEngine, fixture, suite };
+module.exports = { ROOT, enginePath, startEngine, sleep, freePort, socks, getViaEngine, fixture, suite };

@@ -9,7 +9,7 @@ const os = require('os');
 const path = require('path');
 const http = require('http');
 const crypto = require('crypto');
-const { ROOT, startEngine, suite } = require('./helpers');
+const { ROOT, startEngine, freePort, suite } = require('./helpers');
 
 const DA = require(path.join(ROOT, 'electron', 'discord-app.js'));
 const DiscordRelay = require(path.join(ROOT, 'electron', 'discord-relay.js'));
@@ -43,10 +43,11 @@ function get(url, o = {}) {
   fs.rmSync(dir, { recursive: true, force: true });
 
   // relay
-  const eng = await startEngine(29874, ['--strategy', 'tlsrec(sni+1)', '--auto']);
+  const P = await freePort();
+  const eng = await startEngine(P, ['--strategy', 'tlsrec(sni+1)', '--auto']);
   let engineOn = true;
-  const relay = new DiscordRelay(() => {}, () => (engineOn ? 29874 : null));
-  const port = await relay.start(29875);
+  const relay = new DiscordRelay(() => {}, () => (engineOn ? P : null));
+  const port = await relay.start(await freePort());
   const base = `http://127.0.0.1:${port}`;
   const plat = process.platform === 'darwin' ? 'osx' : process.platform === 'win32' ? 'win' : 'linux';
   const arch = process.arch === 'arm64' ? 'arm64' : 'x64';

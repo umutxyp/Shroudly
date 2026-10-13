@@ -8,7 +8,7 @@
 const tls = require('tls');
 const net = require('net');
 const crypto = require('crypto');
-const { startEngine, sleep, socks, fixture, suite } = require('./helpers');
+const { startEngine, sleep, freePort, socks, fixture, suite } = require('./helpers');
 
 const t = suite('engine-hostile');
 const EVIL = {
@@ -37,14 +37,15 @@ const EVIL = {
   }).listen(0, '127.0.0.1');
   await new Promise((r) => evil.once('listening', r));
 
-  const eng = await startEngine(29872, ['--strategy', 'split(sni)', '--auto']);
+  const P = await freePort();
+  const eng = await startEngine(P, ['--strategy', 'split(sni)', '--auto']);
   let n = 0;
   for (let round = 0; round < 3; round++) {
     for (const m of Object.keys(EVIL)) {
       mode = m;
       await Promise.all([0, 1, 2, 3].map(async (k) => {
         n++;
-        const raw = await socks(29872, '127.0.0.1', evil.address().port);
+        const raw = await socks(P, '127.0.0.1', evil.address().port);
         const s = tls.connect({ socket: raw, servername: `${m}${k}.test.local`, rejectUnauthorized: false });
         await new Promise((resolve) => {
           s.on('secureConnect', () => s.write('GET / HTTP/1.1\r\n\r\n'));
