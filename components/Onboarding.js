@@ -159,7 +159,7 @@ export default function Onboarding({ onNavigate }) {
         style={{
           top: centred ? '50%' : cardTop,
           transform: centred ? 'translate(-50%, -50%)' : 'translateX(-50%)',
-          background: 'var(--surface)',
+          background: 'var(--surface-pop)',
           borderColor: 'var(--line-strong)',
           boxShadow: '0 18px 50px rgba(0,0,0,.5)',
         }}
@@ -171,7 +171,7 @@ export default function Onboarding({ onNavigate }) {
             style={{
               left: arrowX - ARROW + 2,
               [arrowUp ? 'top' : 'bottom']: -8,
-              background: 'var(--surface)',
+              background: 'var(--surface-pop)',
               borderTop: arrowUp ? '1px solid var(--line-strong)' : 'none',
               borderLeft: arrowUp ? '1px solid var(--line-strong)' : 'none',
               borderBottom: arrowUp ? 'none' : '1px solid var(--line-strong)',

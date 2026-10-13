@@ -126,9 +126,12 @@ export default function Home() {
 
       <Onboarding onNavigate={setActiveTab} />
 
-      <BlockedNotice onNavigate={setActiveTab} active={active} />
-
-      <UpdateBanner />
+      {/* Notices sit apart from the header above them, as from the content
+          below; with none showing, the space goes too. */}
+      <div className="pt-3 empty:hidden">
+        <BlockedNotice onNavigate={setActiveTab} active={active} />
+        <UpdateBanner />
+      </div>
 
       {/* Content */}
       <main

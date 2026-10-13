@@ -12,6 +12,9 @@
   --bg:            #0b0f17;
   --bg-sunk:       #080b12;
   --surface:       #121826;
+  /* What floats above everything else (menus, toasts, the tour card): never
+     see-through, whatever the surface style. */
+  --surface-pop:   #151c2b;
   --surface-2:     #161d2e;
   --surface-hover: #1d2638;
   --surface-press: #222c40;
@@ -242,7 +245,7 @@ input::placeholder { color: var(--text-faint); opacity: 1; }
 
 /* dropdown listbox */
 .listbox {
-  background: var(--surface);
+  background: var(--surface-pop);
   border: 1px solid var(--line-strong);
   border-radius: var(--radius-sm);
   box-shadow: var(--shadow-pop);
@@ -367,6 +370,10 @@ input::placeholder { color: var(--text-faint); opacity: 1; }
      as glass is the blur and the lit edge below, not the fill. */
   --surface:       rgba(9, 13, 22, 0.42);
   --surface-2:     rgba(9, 13, 22, 0.30);
+  /* Glass panels can be see-through because they sit on the backdrop. A menu
+     or a toast sits on top of other text, and seen through it would read as
+     one jumble with it: those stay solid. */
+  --surface-pop:   color-mix(in oklab, var(--accent-deep) 6%, #0f1422);
   --surface-hover: rgba(30, 40, 60, 0.52);
   --surface-press: rgba(40, 52, 76, 0.58);
   --line:          rgba(255, 255, 255, 0.11);
