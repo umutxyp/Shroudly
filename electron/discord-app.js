@@ -49,7 +49,8 @@ function variants(platform = process.platform) {
   }
   const cfg = process.env.XDG_CONFIG_HOME || path.join(home, '.config');
   return [
-    ...builds.map((b) => ({ ...b, proc: b.exe.replace(/\.exe$/, ''), settingsDir: path.join(cfg, b.dir) })),
+    // Linux reports process names cut to 15 characters (DiscordDevelopm).
+    ...builds.map((b) => ({ ...b, proc: b.exe.replace(/\.exe$/, '').slice(0, 15), settingsDir: path.join(cfg, b.dir) })),
     { id: 'flatpak', dir: 'discord', app: 'Discord', bin: 'flatpak', binArgs: ['run', 'com.discordapp.Discord'],
       settingsDir: path.join(home, '.var', 'app', 'com.discordapp.Discord', 'config', 'discord') },
     { id: 'snap', dir: 'discord', app: 'Discord', proc: 'Discord', bin: 'snap', binArgs: ['run', 'discord'],

@@ -81,7 +81,7 @@ if (!app.requestSingleInstanceLock()) {
 process.on('exit', () => {
   try { engine && engine.cleanupSync(); } catch {}
   try { advanced && advanced.cleanupSync(); } catch {}
-  try { appEnv && appEnv.clearSync(); } catch {}
+  try { if (appEnv && appEnv.applied) appEnv.clearSync(); } catch {}
 });
 process.on('uncaughtException', (err) => {
   console.error('[Shroudly] uncaught:', err);
@@ -189,6 +189,24 @@ function createTray() {
   tray.on('click', () => showWindow());
 }
 
+/* Does a host go through Shroudly? Always, unless the user routes only listed
+ * sites. Asked for every connection Games and apps mode carries, so the
+ * answer comes from memory; it is rebuilt when the routing settings or the
+ * list change. */
+let routing = null;
+function isRouted(host) {
+  if (!routing) {
+    const custom = store.get('siteList');
+    routing = {
+      listed: store.get('routeMode') === 'listed',
+      set: new Set((Array.isArray(custom) ? custom : (siteList ? siteList.domains : [])).map((d) => String(d).toLowerCase())),
+    };
+  }
+  if (!routing.listed) return true;
+  for (let h = host; h; h = h.includes('.') ? h.slice(h.indexOf('.') + 1) : '') if (routing.set.has(h)) return true;
+  return false;
+}
+
 /* The automatic site list: checked once protection has settled, then at most
  * once a day while it stays on (site-list.js says why only then). A newer
  * list takes effect at once for "only listed sites", unless the user keeps a
@@ -199,11 +217,12 @@ function scheduleSiteListCheck(delayMs) {
   clearTimeout(siteListTimer);
   siteListTimer = setTimeout(async () => {
     if (!siteList || !engine || !engine.isActive()) return;
+    // Only someone routing by the automatic list needs it.
+    if (store.get('routeMode') !== 'listed' || Array.isArray(store.get('siteList'))) return;
     if (Date.now() - siteList.checkedAt < SITE_LIST_EVERY_MS - 60000) return;
     if (!(await siteList.refresh())) return;
-    if (store.get('routeMode') === 'listed' && !Array.isArray(store.get('siteList'))) {
-      engine.reapplyProxy().catch((e) => addLog('error', `Proxy update failed: ${e.message}`));
-    }
+    if (engine.updateSiteList()) addLog('info', 'Proxy routing updated');
+    routing = null;
     if (mainWindow && !mainWindow.isDestroyed()) mainWindow.webContents.send('sitelist:changed', siteList.info());
   }, delayMs);
 }
@@ -443,12 +462,8 @@ app.whenReady().then(async () => {
 
   // Like the relay: through the engine while protection is on, direct while
   // it is off, and up whenever Shroudly is with the mode on.
-  appProxy = new AppProxy(addLog, () => (engine && engine.isActive() ? engine.port : null));
+  appProxy = new AppProxy(addLog, () => (engine && engine.isActive() ? engine.port : null), isRouted);
   appEnv = new AppEnv({ stateFile: appEnvStateFile(), watchdog, restoreCommand });
-  if (store.get('appMode') === true && AppEnv.supported()) applyAppMode(true).catch(() => {});
-  else {
-    try { if (AppEnv.recoverSync({ stateFile: appEnvStateFile() })) addLog('info', 'Games and apps: a setting left by an earlier run was removed'); } catch {}
-  }
 
   updater = new Updater({
     log: addLog,
@@ -470,6 +485,15 @@ app.whenReady().then(async () => {
 
   await createWindow();
   updater.start();
+
+  // After the window is up: on Windows this writes the registry, which takes
+  // a moment the window should not wait for.
+  if (store.get('appMode') === true && AppEnv.supported()) applyAppMode(true).catch(() => {});
+  else if (fs.existsSync(appEnvStateFile())) {
+    // Left by a run that never got to clean up (the file is written before
+    // anything else and removed last).
+    try { if (AppEnv.recoverSync({ stateFile: appEnvStateFile() })) addLog('info', 'Games and apps: a setting left by an earlier run was removed'); } catch {}
+  }
 
   /* The live counter is the one thing Shroudly sends on its own, and whoever
    * is filtering this connection can see where it goes. For someone using this
@@ -523,7 +547,7 @@ function restoreForSessionEnd() {
   try { advanced && advanced.cleanupSync(); } catch {}
   // Unlike Discord's line, HTTPS_PROXY would be read by every program at the
   // next login, before Shroudly is back: it goes, and returns when we do.
-  try { appEnv && appEnv.clearSync(); } catch {}
+  try { if (appEnv && appEnv.applied) appEnv.clearSync(); } catch {}
 }
 app.on('session-end', restoreForSessionEnd); // Windows
 app.whenReady().then(() => { powerMonitor.on('shutdown', restoreForSessionEnd); }); // macOS, Linux
@@ -544,7 +568,7 @@ app.on('before-quit', (e) => {
     if (discordRelay) discordRelay.stop();
   }
   // Programs started after Shroudly has gone must go straight out again.
-  try { appEnv && appEnv.clearSync(); } catch {}
+  try { if (appEnv && appEnv.applied) appEnv.clearSync(); } catch {}
   if (appProxy) appProxy.stop();
   if (presence && !presence.stopped) presence.leave();
   try { updater && updater.installOnQuit(); } catch {}
@@ -803,7 +827,17 @@ function sendAppState() {
   if (mainWindow && !mainWindow.isDestroyed()) mainWindow.webContents.send('apps:state', appState);
 }
 
-async function applyAppMode(on) {
+/* One change at a time: on and off in quick succession must not interleave
+ * (an "on" finishing after the "off" would leave the mode on behind a toggle
+ * that shows it off). */
+let appModeQueue = Promise.resolve();
+function applyAppMode(on) {
+  const run = appModeQueue.then(() => applyAppModeNow(on));
+  appModeQueue = run.catch(() => {});
+  return run;
+}
+
+async function applyAppModeNow(on) {
   if (!AppEnv.supported()) return { success: false, code: 'unsupported' };
   appState.failed = false;
   if (!on) {
@@ -855,10 +889,19 @@ async function applyAppMode(on) {
   return { success: true, restartNeeded: appState.needsRestart };
 }
 
-ipcMain.handle('apps:status', async () => {
-  const running = await RobloxApp.pids();
-  // The copy that was open when the mode came on has been closed since.
-  if (appState.needsRestart && !running.some((p) => robloxPidsAtChange.includes(p))) appState.needsRestart = false;
+/* opts.running: also say whether Roblox is running now, which lists the
+ * running programs (tasklist / pgrep). Asked when the window comes into view,
+ * not on every check: whether the copy that needs a restart is still open is
+ * answered from its process ids alone. */
+ipcMain.handle('apps:status', async (e, opts) => {
+  let running = [];
+  if (appState.needsRestart) {
+    running = RobloxApp.alive(robloxPidsAtChange);
+    // The copy that was open when the mode came on has been closed since.
+    if (!running.length) appState.needsRestart = false;
+  } else if (opts && opts.running === true) {
+    running = await RobloxApp.pids();
+  }
   return {
     available: AppEnv.supported(),
     mode: store.get('appMode') ?? null,  // true, false, or null (never asked)
@@ -873,10 +916,14 @@ ipcMain.handle('apps:decline', () => { if (store.get('appMode') === undefined) s
 ipcMain.handle('apps:restartRoblox', async () => {
   // On Windows Shroudly starts the new copy itself, with the proxy in its
   // environment; macOS starts it with the session's, which already has it.
+  // Shroudly itself may have inherited an older value of ours (started from
+  // Explorer before a crash's leftovers were cleaned): only a proxy that is
+  // somebody else's is kept.
   const env = {};
+  const ours = (v) => !v || /^http:\/\/127\.0\.0\.1:\d+$/.test(v);
   if (appProxy && appProxy.url) {
-    if (!process.env.HTTPS_PROXY) env.HTTPS_PROXY = appProxy.url;
-    if (!process.env.NO_PROXY) env.NO_PROXY = AppEnv.NO_PROXY_VALUE;
+    if (ours(process.env.HTTPS_PROXY)) env.HTTPS_PROXY = appProxy.url;
+    if (!process.env.NO_PROXY || process.env.NO_PROXY === AppEnv.NO_PROXY_VALUE) env.NO_PROXY = AppEnv.NO_PROXY_VALUE;
   }
   const ok = await RobloxApp.restart(env);
   if (ok) { appState.needsRestart = false; sendAppState(); }
@@ -888,7 +935,7 @@ ipcMain.handle('settings:set', (e, key, value) => {
   if (key === 'siteList' && !Array.isArray(value)) store.delete('siteList');
   else store.set(key, value);
   if (ENGINE_SETTINGS.has(key)) scheduleEngineRestart();
-  if (PROXY_SETTINGS.has(key)) scheduleProxyReapply();
+  if (PROXY_SETTINGS.has(key)) { routing = null; scheduleProxyReapply(); scheduleSiteListCheck(5000); }
   if (key === 'language') rebuildTrayMenu();
   if (key === 'autoUpdate' && value !== false && updater && updater.state.status === 'available') updater.download();
   if (key === 'autoStart') {

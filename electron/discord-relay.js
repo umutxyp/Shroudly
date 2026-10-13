@@ -60,10 +60,14 @@ function rewriteUrls(text, base) {
 function socksAddress(host) {
   if (net.isIPv4(host)) return Buffer.from([1, ...host.split('.').map(Number)]);
   if (net.isIPv6(host)) {
-    const [head, tail = ''] = host.split('::');
+    // A trailing dotted quad (::ffff:1.2.3.4) is two 16-bit words.
+    let ip = host.replace(/%.*$/, '');
+    const q = /(\d+)\.(\d+)\.(\d+)\.(\d+)$/.exec(ip);
+    if (q) ip = `${ip.slice(0, q.index)}${((+q[1] << 8) | +q[2]).toString(16)}:${((+q[3] << 8) | +q[4]).toString(16)}`;
+    const [head, tail = ''] = ip.split('::');
     const parts = (s) => (s ? s.split(':') : []);
     const h = parts(head); const t = parts(tail);
-    const words = host.includes('::') ? [...h, ...Array(8 - h.length - t.length).fill('0'), ...t] : h;
+    const words = ip.includes('::') ? [...h, ...Array(8 - h.length - t.length).fill('0'), ...t] : h;
     const b = Buffer.alloc(17); b[0] = 4;
     words.forEach((w, i) => b.writeUInt16BE(parseInt(w, 16) || 0, 1 + i * 2));
     return b;

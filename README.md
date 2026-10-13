@@ -227,8 +227,13 @@ Games and apps mode sets it, on Windows and macOS, without admin rights:
   free one). It only tunnels (`CONNECT`), and only for this machine. Each
   tunnel goes to the engine **by name**, so the engine's encrypted DNS and its
   desync apply exactly as they do for the browser; while protection is off it
-  goes out directly. This machine and the local network are always reached
-  directly.
+  goes out directly. The local network is always reached directly, and so
+  are names your own DNS puts on a private network (a company's internal
+  servers), which are never sent to public resolvers. A private answer that
+  is a known block page (Iran's 10.10.34.34) still goes through the engine.
+  With *only listed sites*, only listed sites go through the engine here
+  too. Tunnels to this machine itself, or to link-local addresses, are
+  refused.
 - It puts `HTTPS_PROXY=http://127.0.0.1:10810` (and a `NO_PROXY` for the local
   network) in your session. On **macOS** that is `launchctl setenv`: every app
   the system starts afterwards gets it, from the Dock, from Finder, or from a
@@ -248,7 +253,10 @@ Games and apps mode sets it, on Windows and macOS, without admin rights:
 - It is removed when you turn the mode off, when you quit Shroudly, at logout
   and shutdown, by a watchdog within a second if Shroudly is killed, at the
   next sign-in after a power cut (Windows), and by the Windows uninstaller. A
-  program started without Shroudly connects as it always did.
+  program started without Shroudly connects as it always did. One that was
+  started while the mode was on keeps the setting it started with until it
+  is restarted; if such a program cannot connect after you quit Shroudly,
+  restart it.
 
 Game traffic itself (Roblox's UDP) does not use a proxy and goes direct; it is
 the HTTPS part — sign-in, the game list, joining, assets — that filters block.
@@ -431,6 +439,7 @@ Shroudly/
     app-env.js                Games and apps mode: HTTPS_PROXY in the session, crash-safe
     roblox-app.js             Games and apps mode: finding and restarting Roblox
     proxy-watchdog.js         restores the proxy (and HTTPS_PROXY) if the app is killed
+    watchdog.js               starts that one watchdog and tells it what to look after
     updater.js                automatic updates from GitHub releases
     site-list.js              the automatic site list: fetch, check, keep
     data/sites.json           the site list as it was at release

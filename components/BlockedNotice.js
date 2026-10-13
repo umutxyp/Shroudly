@@ -83,7 +83,9 @@ export default function BlockedNotice({ onNavigate, active = false }) {
   };
 
   const refreshDiscord = () => window.electron?.discordStatus?.().then(setDiscord).catch(() => {});
-  const refreshApps = () => window.electron?.appsStatus?.().then(setApps).catch(() => {});
+  // withRunning: also look whether Roblox is running (lists the programs, so
+  // only when the window comes into view).
+  const refreshApps = (withRunning) => window.electron?.appsStatus?.({ running: withRunning === true }).then(setApps).catch(() => {});
 
   const run = async (fn) => {
     setBusy(true);
@@ -113,7 +115,7 @@ export default function BlockedNotice({ onNavigate, active = false }) {
     window.electron.getAdvice?.().then((a) => a && setAdvice(a)).catch(() => {});
     refreshAdv();
     refreshDiscord();
-    refreshApps();
+    refreshApps(true);
     return () => {
       window.electron.removeSiteBlockedListener?.();
       window.electron.removeNeedRestartListener?.();
@@ -125,14 +127,19 @@ export default function BlockedNotice({ onNavigate, active = false }) {
   }, []);
 
   // Roblox (or its installer) being opened, and an open copy being restarted,
-  // happen on their own: look again while the answer would change a banner.
+  // happen on their own: look again while the answer would change a banner,
+  // and only while the window is on screen, so nothing runs from the tray.
   useEffect(() => {
     if (!apps?.available) return undefined;
-    refreshApps();
-    const waiting = apps.needsRestart || (active && apps.mode == null && !appOfferHidden);
-    if (!waiting) return undefined;
-    const iv = setInterval(refreshApps, 5000);
-    return () => clearInterval(iv);
+    const restart = apps.needsRestart;
+    const offer = active && apps.mode == null && !appOfferHidden;
+    if (!restart && !offer) return undefined;
+    // A restart pending: its process ids are checked, nothing is started.
+    // The offer: looked at again whenever the window comes back into view.
+    const iv = restart ? setInterval(() => { if (!document.hidden) refreshApps(); }, 4000) : null;
+    const onShow = () => { if (!document.hidden) refreshApps(true); };
+    document.addEventListener('visibilitychange', onShow);
+    return () => { if (iv) clearInterval(iv); document.removeEventListener('visibilitychange', onShow); };
   }, [active, apps?.available, apps?.needsRestart, apps?.mode, appOfferHidden]);
 
   // Whether Discord is open, and whether it has reached the relay yet, change

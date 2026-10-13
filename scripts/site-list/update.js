@@ -46,6 +46,14 @@ function isHostname(d) {
   return labels.every((l) => l.length >= 1 && l.length <= 63 && !l.startsWith('-') && !l.endsWith('-'));
 }
 
+/* A whole registry (com.tr, co.uk, gov.tr): never one entry. The app refuses
+ * a list that has one (electron/site-list.js). */
+const REGISTRY_LABELS = new Set(['com', 'net', 'org', 'gov', 'edu', 'mil', 'int', 'co', 'ac', 'or', 'ne', 'go', 'gen', 'web', 'info', 'biz', 'nom', 'k12', 'bel', 'pol', 'tv', 'av', 'dr', 'bbs', 'name', 'tel', 'kep', 'tsk']);
+function isRegistry(d) {
+  const labels = d.split('.');
+  return labels.length === 2 && labels[1].length === 2 && REGISTRY_LABELS.has(labels[0]);
+}
+
 function normHost(h) {
   return String(h || '').trim().toLowerCase().replace(/\.$/, '').replace(/^www\d?\./, '');
 }
@@ -138,8 +146,16 @@ function build({ now, state, previous, categories, ooni, policy = POLICY, famili
   // A site filed under several categories is judged by the worst of them.
   const disallowed = new Set(policy.disallowedCategories || []);
   const fam = familyDomains(families);
-  const next = { v: 1, domains: { ...((state && state.domains) || {}) } };
   const iso = now.toISOString();
+  // Only well-formed entries carry over, and none from the future: a broken
+  // or tampered state must not keep a name listed for ever.
+  const next = { v: 1, domains: {} };
+  for (const [d, e] of Object.entries((state && state.domains) || {})) {
+    const last = Date.parse(e && e.last);
+    if (!isHostname(d) || !Number.isFinite(last) || !Array.isArray(e.cc)) continue;
+    next.domains[d] = { first: e.first || iso, last: new Date(Math.min(last, now.getTime())).toISOString(), cc: e.cc.filter((c) => /^[a-z]{2}$/.test(c)) };
+  }
+  const before = Object.keys(next.domains).length;
   const seen = new Set();
 
   for (const [cc, rows] of Object.entries(ooni)) {
@@ -178,12 +194,16 @@ function build({ now, state, previous, categories, ooni, policy = POLICY, famili
     auto = auto.slice(0, Math.max(0, room));
   }
 
-  const all = new Set([...fam, ...auto].filter((d) => isHostname(d) && !excluded.policy(d) && !excluded.isInfra(d)));
+  const all = new Set([...fam, ...auto].filter((d) => isHostname(d) && !isRegistry(d) && !excluded.policy(d) && !excluded.isInfra(d)));
   // A domain already covered by its parent adds nothing.
   const domains = [...all].filter((d) => { const p = underAny(d.slice(d.indexOf('.') + 1), all); return !p; }).sort();
 
-  if (previous && previous.length && domains.length < previous.length * (1 - policy.maxShrink)) {
-    throw new Error(`refusing to shrink the list from ${previous.length} to ${domains.length} domains`);
+  // Measured names normally come and go a few at a time (90 days' grace). A
+  // run that loses most of them at once is a fault somewhere: refuse it.
+  // (Judged on the state, not on the published list, so a list inflated by
+  // mistake cannot block every later run.)
+  if (before >= 100 && auto.length < before * (1 - policy.maxShrink)) {
+    throw new Error(`refusing to shrink the measured part of the list from ${before} to ${auto.length} names`);
   }
   const prev = new Set(previous || []);
   return {
@@ -224,8 +244,9 @@ async function fetchSources(now, policy = POLICY, log = console.log) {
     const q = `probe_cc=${cc.toUpperCase()}&test_name=web_connectivity&since=${since}&until=${until}&axis_x=domain`;
     try {
       const j = await get(`${OONI_AGG}?${q}`, { json: true });
-      ooni[cc] = j && Array.isArray(j.result) ? j.result : [];
-      log(`ooni ${cc}: ${ooni[cc].length} domains measured`);
+      // Anything but a proper answer is "unknown", never "nothing blocked".
+      ooni[cc] = j && Array.isArray(j.result) ? j.result : null;
+      log(ooni[cc] ? `ooni ${cc}: ${ooni[cc].length} domains measured` : `ooni ${cc}: no usable answer; left as it was`);
     } catch (e) {
       ooni[cc] = null;
       log(`ooni ${cc}: unavailable (${e.message}); left as it was`);
@@ -256,4 +277,4 @@ async function main() {
 
 if (require.main === module) main().catch((e) => { console.error(e.message); process.exit(1); });
 
-module.exports = { build, isBlocked, categoriesFrom, parseCsv, familyDomains, makeExcluder, normHost, isHostname };
+module.exports = { isRegistry, build, isBlocked, categoriesFrom, parseCsv, familyDomains, makeExcluder, normHost, isHostname };
