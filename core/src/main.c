@@ -11,12 +11,16 @@
  *   Commands:  STATS            -> emit one stats line
  *              PROBE <host>     -> auto-detect a working strategy for host
  *              STOP             -> shut down
+ *
+ * "shroudly-core --watchdog ..." is a separate, much smaller job: see
+ * watchdog.h.
  */
 #include "engine.h"
 #include "probe.h"
 #include "platform.h"
 #include "strategy.h"
 #include "doh.h"
+#include "watchdog.h"
 #if defined(SHROUDLY_RAW) && defined(__linux__)
 #include "raw_linux.h"
 #endif
@@ -57,6 +61,7 @@ static void usage(void) {
 }
 
 int main(int argc, char **argv) {
+  if (argc > 1 && !strcmp(argv[1], "--watchdog")) return watchdog_main(argc, argv);
   if (plat_init() != 0) { fprintf(stderr, "plat_init failed\n"); return 2; }
 
   memset(&g_cfg, 0, sizeof(g_cfg));

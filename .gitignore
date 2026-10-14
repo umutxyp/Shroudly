@@ -4,6 +4,8 @@ node_modules/
 # Next.js
 .next/
 out/
+# Per-language strings, generated from translations.js at build time
+locales/
 
 # Electron build output
 dist/
@@ -40,3 +42,6 @@ Thumbs.db
 *.suo
 *.user
 .ci-sysroot-*/
+
+# End-to-end screenshots and memory reports
+test-results/

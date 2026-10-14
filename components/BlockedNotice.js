@@ -112,6 +112,8 @@ export default function BlockedNotice({ onNavigate, active = false }) {
     window.electron.onDiscordState?.(() => refreshDiscord());
     window.electron.onAppsState?.(() => refreshApps());
     window.electron.onAdvice?.((a) => { setAdvice(a); refreshAdv(); });
+    // Listening now: notices that came while there was no window follow.
+    window.electron.uiReady?.();
     window.electron.getAdvice?.().then((a) => a && setAdvice(a)).catch(() => {});
     refreshAdv();
     refreshDiscord();

@@ -1,6 +1,6 @@
 'use strict';
 
-const { app, BrowserWindow, ipcMain, Tray, Menu, nativeImage, shell, Notification, powerMonitor, dialog } = require('electron');
+const { app, BrowserWindow, ipcMain, Tray, Menu, nativeImage, shell, Notification, powerMonitor, dialog, session } = require('electron');
 const path = require('path');
 const url = require('url');
 const fs = require('fs');
@@ -34,6 +34,11 @@ if (process.argv.includes(RESTORE_PROXY_ARG)) {
   return;
 }
 
+/* The window is a few static panels: drawing them on the CPU costs nothing
+ * measurable, while GPU drawing kept the GPU process 20+ MB larger for as
+ * long as Shroudly runs, even after the window was closed, and spiked it to
+ * about 200 MB on a first paint. */
+app.disableHardwareAcceleration();
 const store = new Store();
 let mainWindow = null;
 let tray = null;
@@ -68,13 +73,7 @@ if (process.platform === 'win32') app.setAppUserModelId('me.codeshare.shroudly')
 if (!app.requestSingleInstanceLock()) {
   app.quit();
 } else {
-  app.on('second-instance', () => {
-    if (mainWindow && !mainWindow.isDestroyed()) {
-      if (mainWindow.isMinimized()) mainWindow.restore();
-      mainWindow.show();
-      mainWindow.focus();
-    }
-  });
+  app.on('second-instance', () => showWindow());
 }
 
 /* ── crash / hard-exit safety: restore the system proxy synchronously ─────── */
@@ -102,9 +101,7 @@ function addLog(level, message) {
   const entry = { timestamp: new Date().toISOString(), level, message };
   systemLogs.push(entry);
   if (systemLogs.length > 500) systemLogs = systemLogs.slice(-500);
-  if (mainWindow && !mainWindow.isDestroyed()) {
-    mainWindow.webContents.send('log:new', entry);
-  }
+  toWindow('log:new', entry);
 }
 
 function isAutoStartLaunch() {
@@ -223,22 +220,127 @@ function scheduleSiteListCheck(delayMs) {
     if (!(await siteList.refresh())) return;
     if (engine.updateSiteList()) addLog('info', 'Proxy routing updated');
     routing = null;
-    if (mainWindow && !mainWindow.isDestroyed()) mainWindow.webContents.send('sitelist:changed', siteList.info());
+    toWindow('sitelist:changed', siteList.info());
   }, delayMs);
 }
 setInterval(() => { if (engine && engine.isActive()) scheduleSiteListCheck(0); }, 60 * 60 * 1000).unref();
 
+/* Shroudly's own requests (the live count, update checks) go through the
+ * engine while protection is on, as they always have, but by a fixed SOCKS
+ * rule rather than the system's PAC file: following the PAC keeps a Chromium
+ * proxy-resolver process (about 10 MB) alive just to read our own file.
+ * Protection off: whatever the system says, as before. */
+let ownProxyKey = null;
+function syncOwnProxy() {
+  const port = engine && engine.isActive() ? engine.port : null;
+  const cfg = port ? { proxyRules: `socks5://127.0.0.1:${port}`, proxyBypassRules: '<local>' } : { mode: 'system' };
+  const key = JSON.stringify(cfg);
+  if (key === ownProxyKey) return;
+  ownProxyKey = key;
+  for (const s of [session.defaultSession, session.fromPartition('electron-updater', { cache: false })]) {
+    s.setProxy(cfg).catch(() => {});
+  }
+  Updater.setSystemRoute(cfg);
+}
+
 function broadcastStatus(active) {
+  syncOwnProxy();
   if (active) scheduleSiteListCheck(20000);
   rebuildTrayMenu(active);
-  if (mainWindow && !mainWindow.isDestroyed()) {
-    mainWindow.webContents.send('dpi:status-changed', active);
-  }
+  toWindow('dpi:status-changed', active);
 }
 
 /* ── window ──────────────────────────────────────────────────────────────── */
+/* The window is most of what Shroudly costs: a renderer with the whole
+ * interface in it and the GPU work to draw it. Protection, the tray and
+ * everything else live in this process and never need it. So the window is
+ * closed for real, not just hidden, whenever nobody is using it: when it goes
+ * to the tray, and when it has sat unused for a few minutes (not focused, or
+ * focused with nobody at the computer), which also covers the many people who
+ * never send it to the tray at all. Opening Shroudly again builds a new one
+ * in well under a second; it asks this process for the current state. */
+const IDLE_RELEASE_MS = Math.max(1000, Number(process.env.SHROUDLY_IDLE_RELEASE_MS) || 3 * 60 * 1000);
+let lastActive = Date.now();
+let uiReady = false;          // the current window listens for one-off notices
+let releaseToken = 0;         // a release in progress is called off by bumping it
+let modalOpen = 0;            // a dialog belongs to the window: keep it
+let idleNoticeShown = false;
+let idleTimer = null;
+// One-off notices that must not be lost while there is no window: the latest
+// of each is shown once the next window is up.
+const STICKY = new Set(['dpi:need-restart', 'dpi:dns-auto-enabled', 'dpi:site-blocked']);
+const pending = new Map();
+
+function windowAlive() { return !!(mainWindow && !mainWindow.isDestroyed()); }
+
+function toWindow(channel, payload) {
+  const sticky = STICKY.has(channel);
+  if (windowAlive() && (uiReady || !sticky)) { try { mainWindow.webContents.send(channel, payload); } catch {} return; }
+  if (sticky) pending.set(channel, payload);
+}
+
+function markActive() { lastActive = Date.now(); }
+
 function showWindow() {
-  if (mainWindow && !mainWindow.isDestroyed()) { mainWindow.show(); mainWindow.focus(); }
+  releaseToken++;
+  markActive();
+  if (!windowAlive()) { createWindow({ show: true }); return; }
+  if (mainWindow.isMinimized()) mainWindow.restore();
+  mainWindow.show();
+  mainWindow.focus();
+}
+
+/* Close the window and free everything it held. The interface is first told
+ * to save what is being typed (a field saves when it loses focus). */
+async function releaseWindow(reason) {
+  if (!windowAlive() || modalOpen > 0) return;
+  const win = mainWindow;
+  const token = ++releaseToken;
+  const wasOnScreen = win.isVisible() && !win.isMinimized();
+  try { win.webContents.send('ui:release'); } catch {}
+  await new Promise((r) => setTimeout(r, 400));
+  if (token !== releaseToken || win.isDestroyed() || modalOpen > 0) return;
+  if (reason === 'idle' && (Date.now() - lastActive < IDLE_RELEASE_MS)) return;
+  if (mainWindow === win) { mainWindow = null; uiReady = false; }
+  win.destroy();
+  if (reason === 'idle' && wasOnScreen && !idleNoticeShown) {
+    idleNoticeShown = true;
+    notify('Shroudly', tr().minimized);
+  }
+}
+
+function idleCheck() {
+  if (!windowAlive()) return;
+  const w = mainWindow;
+  if (!w.isVisible()) { releaseWindow('hidden'); return; }
+  if (Date.now() - lastActive < IDLE_RELEASE_MS) return;
+  if (w.isFocused() && !w.isMinimized()) {
+    // In front of the user: only once the computer itself has been idle too.
+    let idleMs = 0;
+    try { idleMs = powerMonitor.getSystemIdleTime() * 1000; } catch {}
+    if (idleMs < IDLE_RELEASE_MS) return;
+  }
+  releaseWindow('idle');
+}
+
+function startIdleWatch() {
+  if (idleTimer) return;
+  idleTimer = setInterval(idleCheck, Math.min(15000, Math.max(250, Math.floor(IDLE_RELEASE_MS / 4))));
+  idleTimer.unref();
+}
+
+/* Windows announces logoff and shutdown to windows, not to the app. With the
+ * main window gone most of the time, a hidden window without any web content
+ * (no renderer, next to no memory) is kept just to hear it. */
+let sessionWatch = null;
+function watchSessionEnd() {
+  if (process.platform !== 'win32' || sessionWatch) return;
+  try {
+    const { BaseWindow } = require('electron');
+    sessionWatch = new BaseWindow({ show: false, width: 1, height: 1, frame: false, skipTaskbar: true, focusable: false });
+    sessionWatch.on('query-session-end', () => { keepDiscordLine = true; });
+    sessionWatch.on('session-end', restoreForSessionEnd);
+  } catch (e) { addLog('warning', `Logoff watch not available: ${e.message}`); }
 }
 
 async function checkDevServer() {
@@ -251,8 +353,9 @@ async function checkDevServer() {
   });
 }
 
-async function createWindow() {
-  mainWindow = new BrowserWindow({
+async function createWindow({ show = true } = {}) {
+  uiReady = false;
+  const win = new BrowserWindow({
     width: 460, height: 760,
     minWidth: 360, minHeight: 560,
     maxWidth: 720, maxHeight: 1100,
@@ -272,6 +375,9 @@ async function createWindow() {
     backgroundColor: '#0b0f17',
     show: false,
   });
+  mainWindow = win;
+  markActive();
+  startIdleWatch();
 
   let startUrl;
   if (isDev && await checkDevServer()) {
@@ -287,36 +393,39 @@ async function createWindow() {
     startUrl = url.format({ pathname: indexPath, protocol: 'file:', slashes: true });
   }
 
-  mainWindow.loadURL(startUrl);
+  win.loadURL(startUrl);
 
-  mainWindow.webContents.setWindowOpenHandler(({ url: target }) => {
+  win.webContents.setWindowOpenHandler(({ url: target }) => {
     if (/^https?:\/\//i.test(target)) shell.openExternal(target);
     return { action: 'deny' };
   });
-  mainWindow.webContents.on('will-navigate', (e, target) => {
-    if (target !== mainWindow.webContents.getURL()) e.preventDefault();
+  win.webContents.on('will-navigate', (e, target) => {
+    if (target !== win.webContents.getURL()) e.preventDefault();
+  });
+  // A crashed or killed renderer leaves an empty window: start it afresh.
+  win.webContents.on('render-process-gone', (_e, d) => {
+    if (d.reason === 'clean-exit' || win.isDestroyed()) return;
+    addLog('warning', `Window process ended (${d.reason}); reopening`);
+    const visible = win.isVisible();
+    if (mainWindow === win) { mainWindow = null; uiReady = false; }
+    win.destroy();
+    if (visible) createWindow({ show: true });
   });
 
-  mainWindow.once('ready-to-show', () => {
-    const toTray = isAutoStartLaunch() && store.get('minimizeToTray', true);
-    if (toTray) { addLog('info', 'Auto-started in tray'); }
-    else mainWindow.show();
-    addLog('success', 'Application started');
-  });
+  win.once('ready-to-show', () => { if (show && !win.isDestroyed()) { win.show(); win.focus(); } });
+  win.on('focus', markActive);
+  win.on('show', markActive);
+  win.on('restore', markActive);
+  win.on('hide', () => { setTimeout(() => { if (!win.isDestroyed() && !win.isVisible()) releaseWindow('hidden'); }, 1000); });
+  win.on('closed', () => { if (mainWindow === win) { mainWindow = null; uiReady = false; } });
 
-  // Windows announces logoff/shutdown on the window, not the app.
-  mainWindow.on('query-session-end', () => { keepDiscordLine = true; });
-  mainWindow.on('session-end', restoreForSessionEnd);
-
-  mainWindow.on('close', (e) => {
+  win.on('close', (e) => {
     if (!app.isQuitting && store.get('minimizeToTray', true)) {
       e.preventDefault();
-      mainWindow.hide();
+      win.hide();
       notify('Shroudly', tr().minimized);
     }
   });
-
-  createTray();
 }
 
 /* ── engine lifecycle wrappers ───────────────────────────────────────────── */
@@ -400,10 +509,18 @@ function getAutoStartEnabled() {
 
 /* ── app ready ───────────────────────────────────────────────────────────── */
 app.whenReady().then(async () => {
-  const watchdog = { execPath: process.execPath, script: path.join(__dirname, 'proxy-watchdog.js') };
   const restoreCommand = {
     exe: launcherPath(),
     args: app.isPackaged ? [RESTORE_PROXY_ARG] : [app.getAppPath(), RESTORE_PROXY_ARG],
+  };
+  // The engine binary in its watchdog mode, which runs restoreCommand should
+  // Shroudly vanish with something applied (watchdog.js).
+  const watchdog = {
+    core: EngineManager.coreBinaryPath(),
+    restore: restoreCommand,
+    copyDir: app.getPath('userData'),
+    execPath: process.execPath,
+    script: path.join(__dirname, 'proxy-watchdog.js'),
   };
   siteList = new SiteList({
     cacheFile: path.join(app.getPath('userData'), 'site-list.json'),
@@ -414,7 +531,7 @@ app.whenReady().then(async () => {
     addLog, onStatusChange: broadcastStatus,
     siteList: () => siteList.domains,
     proxyOptions: { stateFile: proxyStateFile(), watchdog, restoreCommand },
-    onProbe: (p) => { if (mainWindow && !mainWindow.isDestroyed()) mainWindow.webContents.send('dpi:probe-result', p); },
+    onProbe: (p) => toWindow('dpi:probe-result', p),
     // A site that defeated every technique. Told once per site, and at most
     // once every few minutes, so a page full of blocked resources cannot turn
     // into a stream of notifications.
@@ -426,10 +543,10 @@ app.whenReady().then(async () => {
     // the kind of filtering detected, sites that connect and are then cut,
     // encrypted DNS blocked.
     onAdvice: (advice) => {
-      if (mainWindow && !mainWindow.isDestroyed()) mainWindow.webContents.send('dpi:advice', advice);
+      toWindow('dpi:advice', advice);
     },
     onDnsAutoEnabled: (host) => {
-      if (mainWindow && !mainWindow.isDestroyed()) mainWindow.webContents.send('dpi:dns-auto-enabled', { host });
+      toWindow('dpi:dns-auto-enabled', { host });
     },
 
     onNeedRestart: (apps) => {
@@ -437,7 +554,7 @@ app.whenReady().then(async () => {
       // something has gone wrong with the program it names, which is alarming
       // and untrue — nothing happened to it, it simply started before the
       // protection did.
-      if (mainWindow && !mainWindow.isDestroyed()) mainWindow.webContents.send('dpi:need-restart', { apps });
+      toWindow('dpi:need-restart', { apps });
     },
 
     onSiteBlocked: (host) => {
@@ -445,11 +562,8 @@ app.whenReady().then(async () => {
       if (now - lastBlockedNotice < 5 * 60 * 1000) return;
       lastBlockedNotice = now;
       notify(tr().siteBlockedTitle, tr().siteBlockedBody.replace('{host}', host));
-      if (mainWindow && !mainWindow.isDestroyed()) {
-        mainWindow.webContents.send('dpi:site-blocked', { host });
-        if (!mainWindow.isVisible()) mainWindow.show();
-        mainWindow.focus();
-      }
+      toWindow('dpi:site-blocked', { host });
+      showWindow();
     },
   });
   advanced = new AdvancedMode(addLog);
@@ -480,10 +594,15 @@ app.whenReady().then(async () => {
     },
   });
   updater.onState((s) => {
-    if (mainWindow && !mainWindow.isDestroyed()) mainWindow.webContents.send('update:state', s);
+    toWindow('update:state', s);
   });
 
-  await createWindow();
+  createTray();
+  watchSessionEnd();
+  // Started at login into the tray: no window at all until it is opened.
+  if (isAutoStartLaunch() && store.get('minimizeToTray', true)) addLog('info', 'Auto-started in tray');
+  else await createWindow({ show: true });
+  addLog('success', 'Application started');
   updater.start();
 
   // After the window is up: on Windows this writes the registry, which takes
@@ -506,7 +625,7 @@ app.whenReady().then(async () => {
    * clear beforehand, and it can be switched off outright. The number is worth
    * having; it is not worth more than the safety of the people it counts. */
   presence = new Presence({
-    onCount: (n) => { if (mainWindow && !mainWindow.isDestroyed()) mainWindow.webContents.send('presence:count', n); },
+    onCount: (n) => toWindow('presence:count', n),
   });
   syncPresence();
 
@@ -514,25 +633,18 @@ app.whenReady().then(async () => {
   // (moved app, updated AppImage, 2.0.0's broken Linux entry, legacy names).
   setAutoStart(store.get('autoStart', false));
 
-  let started = false;
-  mainWindow.webContents.on('did-finish-load', async () => {
-    if (started) return;
-    started = true;
-    if (store.get('autoMode', true)) {
-      addLog('info', 'Auto Mode: starting protection');
-      setTimeout(() => { safeStart(); }, 1200);
-    }
-  });
+  // Independent of the window, which may never be opened this session.
+  if (store.get('autoMode', true)) {
+    addLog('info', 'Auto Mode: starting protection');
+    setTimeout(() => { safeStart(); }, 1200);
+  }
 
   if (isDev) {
     const { globalShortcut } = require('electron');
     globalShortcut.register('F12', () => mainWindow && mainWindow.webContents.toggleDevTools());
   }
 
-  app.on('activate', () => {
-    if (BrowserWindow.getAllWindows().length === 0) createWindow();
-    else showWindow();
-  });
+  app.on('activate', () => showWindow());
 });
 
 app.on('window-all-closed', () => { /* keep running in tray */ });
@@ -584,12 +696,20 @@ app.on('before-quit', (e) => {
 });
 
 /* ── IPC ─────────────────────────────────────────────────────────────────── */
-ipcMain.on('window:minimize', () => mainWindow && mainWindow.minimize());
+ipcMain.on('window:minimize', () => { if (windowAlive()) mainWindow.minimize(); });
 ipcMain.on('window:maximize', () => {
-  if (!mainWindow) return;
+  if (!windowAlive()) return;
   mainWindow.isMaximized() ? mainWindow.unmaximize() : mainWindow.maximize();
 });
-ipcMain.on('window:close', () => mainWindow && mainWindow.hide());
+ipcMain.on('window:close', () => { if (windowAlive()) mainWindow.hide(); });
+/* The interface reports use (throttled) and when it is listening. */
+ipcMain.on('ui:active', (e) => { if (windowAlive() && e.sender === mainWindow.webContents) markActive(); });
+ipcMain.on('ui:ready', (e) => {
+  if (!windowAlive() || e.sender !== mainWindow.webContents) return;
+  uiReady = true;
+  for (const [channel, payload] of pending) { try { mainWindow.webContents.send(channel, payload); } catch {} }
+  pending.clear();
+});
 
 ipcMain.handle('dpi:advice', () => (engine ? engine.advice : null));
 ipcMain.handle('dpi:start', async () => safeStart());
@@ -707,7 +827,7 @@ ipcMain.handle('presence:refresh', () => (presence ? presence.refresh() : null))
 const discordState = { needsRestart: false, needsPermission: false, pendingOn: null, foreign: false, editFailed: null, changedAt: 0 };
 
 function sendDiscordState() {
-  if (mainWindow && !mainWindow.isDestroyed()) mainWindow.webContents.send('discord:state', discordState);
+  toWindow('discord:state', discordState);
 }
 
 /* Write our line (url) or remove it (null) in every Discord build present.
@@ -733,11 +853,16 @@ function patchDiscordSync(url, files) {
  * folder, so it is one click. */
 async function askDiscordFolder(v) {
   const s = tr();
-  const win = mainWindow && !mainWindow.isDestroyed() && mainWindow.isVisible() ? mainWindow : undefined;
-  const pick = await dialog.showOpenDialog(win, {
-    defaultPath: v.settingsDir, properties: ['openDirectory'],
-    message: s.discordPickMessage, buttonLabel: s.discordPickButton,
-  });
+  const win = windowAlive() && mainWindow.isVisible() ? mainWindow : undefined;
+  // The panel belongs to the window: it must not be closed for being idle.
+  modalOpen++;
+  let pick;
+  try {
+    pick = await dialog.showOpenDialog(win, {
+      defaultPath: v.settingsDir, properties: ['openDirectory'],
+      message: s.discordPickMessage, buttonLabel: s.discordPickButton,
+    });
+  } finally { modalOpen--; }
   if (pick.canceled || !pick.filePaths[0]) return null;
   const chosen = pick.filePaths[0];
   return path.basename(chosen) === path.basename(v.settingsDir) ? path.join(chosen, 'settings.json') : null;
@@ -824,7 +949,7 @@ const appState = { needsRestart: false, foreign: false, failed: false };
 let robloxPidsAtChange = [];
 
 function sendAppState() {
-  if (mainWindow && !mainWindow.isDestroyed()) mainWindow.webContents.send('apps:state', appState);
+  toWindow('apps:state', appState);
 }
 
 /* One change at a time: on and off in quick succession must not interleave

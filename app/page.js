@@ -65,6 +65,20 @@ export default function Home() {
     };
   }, []);
 
+  // The main process closes this window when it goes unused (main.js):
+  // tell it about use, at most every 20 s, and save what is being typed
+  // before it goes (fields save when they lose focus).
+  useEffect(() => {
+    const e = typeof window !== 'undefined' ? window.electron : null;
+    if (!e?.uiActive) return undefined;
+    let last = 0;
+    const seen = () => { const now = Date.now(); if (now - last > 20000) { last = now; e.uiActive(); } };
+    const kinds = ['pointerdown', 'pointermove', 'keydown', 'wheel', 'touchstart'];
+    kinds.forEach((k) => window.addEventListener(k, seen, { passive: true, capture: true }));
+    e.onRelease?.(() => { try { document.activeElement?.blur?.(); } catch {} });
+    return () => kinds.forEach((k) => window.removeEventListener(k, seen, { capture: true }));
+  }, []);
+
   const refresh = async () => {
     if (typeof window !== 'undefined' && window.electron?.getDPIStatus) {
       try { setDpiStatus(await window.electron.getDPIStatus()); } catch {}

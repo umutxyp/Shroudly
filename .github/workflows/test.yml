@@ -10,7 +10,12 @@ on:
   push:
     branches: ['**', '!site-list']   # site-list holds data only
   pull_request: {}
-  workflow_dispatch: {}
+  workflow_dispatch:
+    inputs:
+      baseline_ref:
+        description: 'Also measure this ref (a tag such as v2.5.2) for a before/after memory comparison'
+        type: string
+        default: ''
 
 permissions:
   contents: read
@@ -66,7 +71,7 @@ jobs:
         shell: bash
         run: |
           cc -std=c11 -g -O1 -D_GNU_SOURCE -D_DARWIN_C_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer -pthread -o "$RUNNER_TEMP/core-asan" core/src/*.c
-          SHROUDLY_ENGINE="$RUNNER_TEMP/core-asan" node tests/net/run.js engine-cut engine-hostile discord doh
+          SHROUDLY_ENGINE="$RUNNER_TEMP/core-asan" node tests/net/run.js engine-cut engine-hostile discord doh watchdog
 
   # The engine built with each distribution's own compiler and C library,
   # and the network tests run there.
@@ -91,6 +96,64 @@ jobs:
           cd core && make test
       - name: Network tests
         run: node tests/net/run.js
+
+  # The real app, end to end (tests/e2e): started into the tray, its window
+  # opened, left idle, sent to the tray, protection on, logoff (Windows), quit;
+  # and what each of those states costs in memory on this OS.
+  e2e:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, ubuntu-24.04-arm, windows-latest, windows-11-arm, macos-latest, macos-15-intel]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Install zig
+        uses: mlugg/setup-zig@v2
+        with:
+          version: 0.14.1
+
+      - name: Display and libraries for Electron (Linux)
+        if: runner.os == 'Linux'
+        run: sudo apt-get update -qq && sudo apt-get install -y xvfb dbus-x11 libnss3 libgbm1 libasound2t64 libgtk-3-0t64
+
+      - name: Install, build the engine and the interface
+        run: |
+          npm ci
+          node scripts/build-core.js
+          npm run build
+
+      - name: End-to-end
+        shell: bash
+        run: |
+          if [ "$RUNNER_OS" = Linux ]; then dbus-run-session -- xvfb-run -a node tests/e2e/app.test.js
+          else node tests/e2e/app.test.js; fi
+
+      - name: Baseline for comparison (${{ inputs.baseline_ref }})
+        if: inputs.baseline_ref != ''
+        shell: bash
+        run: |
+          git fetch --depth=1 origin "refs/tags/${{ inputs.baseline_ref }}:refs/tags/${{ inputs.baseline_ref }}" || git fetch --depth=1 origin "${{ inputs.baseline_ref }}"
+          git worktree add "$RUNNER_TEMP/baseline" "${{ inputs.baseline_ref }}"
+          (cd "$RUNNER_TEMP/baseline" && npm ci && node scripts/build-core.js && npm run build)
+          export SHROUDLY_APP_DIR="$RUNNER_TEMP/baseline"
+          if [ "$RUNNER_OS" = Linux ]; then dbus-run-session -- xvfb-run -a node tests/e2e/app.test.js
+          else node tests/e2e/app.test.js; fi
+
+      - name: Screenshots and memory report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-${{ matrix.os }}
+          path: test-results/
+          retention-days: 3
+          if-no-files-found: ignore
 
   ui:
     runs-on: ubuntu-latest
