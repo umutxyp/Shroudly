@@ -7,6 +7,11 @@ contextBridge.exposeInMainWorld('electron', {
   minimizeWindow: () => ipcRenderer.send('window:minimize'),
   maximizeWindow: () => ipcRenderer.send('window:maximize'),
   closeWindow: () => ipcRenderer.send('window:close'),
+  // The window is closed for real when unused (see main.js): it reports use,
+  // when it is listening, and is told to save before it goes.
+  uiActive: () => ipcRenderer.send('ui:active'),
+  uiReady: () => ipcRenderer.send('ui:ready'),
+  onRelease: (cb) => ipcRenderer.on('ui:release', () => cb()),
 
   // Engine controls
   startDPI: () => ipcRenderer.invoke('dpi:start'),

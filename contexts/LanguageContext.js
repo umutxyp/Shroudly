@@ -1,7 +1,18 @@
 'use client';
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import { translations } from '../translations';
+// English is always there (the fallback for any missing string); every
+// other language is its own small file, loaded when it is chosen
+// (scripts/split-translations.js writes them from translations.js).
+import en from '../locales/en.json';
+
+const dictionaries = { en };
+async function loadDictionary(code) {
+  if (!dictionaries[code]) {
+    try { dictionaries[code] = (await import(`../locales/${code}.json`)).default; } catch { return false; }
+  }
+  return true;
+}
 
 const LanguageContext = createContext(null);
 
@@ -113,7 +124,8 @@ export function LanguageProvider({ children }) {
     // Never leave the UI blank if the IPC bridge hangs.
     const fallback = setTimeout(() => { if (!cancelled) setIsLoaded(true); }, 1500);
     (async () => {
-      const code = (await loadSavedLanguage()) || (await detectSystemLanguage()) || 'en';
+      let code = (await loadSavedLanguage()) || (await detectSystemLanguage()) || 'en';
+      if (!(await loadDictionary(code))) code = 'en';
       if (cancelled) return;
       setLanguageState(code);
       setIsLoaded(true);
@@ -132,6 +144,7 @@ export function LanguageProvider({ children }) {
 
   const setLanguage = useCallback(async (lang) => {
     if (!availableLanguages.some((item) => item.code === lang)) return;
+    if (!(await loadDictionary(lang))) return;
     setLanguageState(lang);
     if (typeof window === 'undefined') return;
     if (window.electron?.setSetting) {
@@ -144,7 +157,7 @@ export function LanguageProvider({ children }) {
      In RTL languages values are wrapped in Unicode isolates so Latin host
      names, numbers and strategy specs don't scramble the sentence order. */
   const t = useCallback((key, params) => {
-    let s = translations[language]?.[key] ?? translations.en[key] ?? key;
+    let s = dictionaries[language]?.[key] ?? en[key] ?? key;
     if (params) {
       const rtl = RTL_LANGUAGES.has(language);
       s = s.replace(/\{(\w+)\}/g, (m, name) => {

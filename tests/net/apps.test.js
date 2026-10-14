@@ -12,7 +12,7 @@ const net = require('net');
 const tls = require('tls');
 const path = require('path');
 const { spawnSync, execFile } = require('child_process');
-const { ROOT, startEngine, freePort, sleep, suite } = require('./helpers');
+const { ROOT, enginePath, startEngine, freePort, sleep, suite } = require('./helpers');
 
 const AppProxy = require(path.join(ROOT, 'electron', 'app-proxy.js'));
 const AppEnv = require(path.join(ROOT, 'electron', 'app-env.js'));
@@ -245,8 +245,15 @@ async function robloxInstaller(proxy) {
   if (process.env.CI && AppEnv.supported() && !AppEnv.backend().get('HTTPS_PROXY')) {
     const dir2 = fs.mkdtempSync(path.join(os.tmpdir(), 'shroudly-wd-'));
     const sf = path.join(dir2, 'app-env.json');
+    // The watchdog as Shroudly runs it: the engine binary in its watchdog
+    // mode, which starts the restore Shroudly itself runs with
+    // --restore-proxy (here the same two calls, run by node).
+    const restore = `const p=require('path'),E=${JSON.stringify(path.join(ROOT, 'electron'))};
+      try{require(p.join(E,'system-proxy.js')).recoverSync({stateFile:${JSON.stringify(path.join(dir2, 'none.json'))}})}catch{}
+      try{require(p.join(E,'app-env.js')).recoverSync({stateFile:${JSON.stringify(sf)}},{onlyIfDead:true})}catch{}`;
+    const wd = { core: enginePath(), restore: { exe: process.execPath, args: ['-e', restore] } };
     const code = `const AppEnv=require(${JSON.stringify(path.join(ROOT, 'electron', 'app-env.js'))});
-      new AppEnv({stateFile:${JSON.stringify(sf)},watchdog:{execPath:process.execPath,script:${JSON.stringify(path.join(ROOT, 'electron', 'proxy-watchdog.js'))}}}).applySync('http://127.0.0.1:1');
+      new AppEnv({stateFile:${JSON.stringify(sf)},watchdog:${JSON.stringify(wd)}}).applySync('http://127.0.0.1:1');
       console.log('READY'); setInterval(()=>{},1000);`;
     const app = require('child_process').spawn(process.execPath, ['-e', code], { stdio: ['ignore', 'pipe', 'inherit'] });
     await new Promise((r) => app.stdout.on('data', (d) => { if (String(d).includes('READY')) r(); }));
@@ -256,7 +263,7 @@ async function robloxInstaller(proxy) {
     while (Date.now() - t0 < 15000 && (AppEnv.backend().get('HTTPS_PROXY') || fs.existsSync(sf))) await sleep(100);
     const took = Date.now() - t0;
     const be = AppEnv.backend();
-    t.ok(!be.get('HTTPS_PROXY') && !be.get(AppEnv.MARK) && !fs.existsSync(sf), `crash test: killed outright, everything put back within ${took} ms`);
+    t.ok(!be.get('HTTPS_PROXY') && !be.get(AppEnv.MARK) && !fs.existsSync(sf), `crash test: killed outright, everything put back within ${took} ms (engine watchdog)`);
 
     // The same single watchdog also looks after the system proxy's state.
     // (A state file from another system, so nothing real is changed: it is
@@ -275,7 +282,7 @@ async function robloxInstaller(proxy) {
     app2.kill('SIGKILL');
     const t1 = Date.now();
     while (Date.now() - t1 < 15000 && fs.existsSync(pf)) await sleep(100);
-    t.ok(!fs.existsSync(pf), `crash test: the system proxy's state is handled by the same watchdog (${Date.now() - t1} ms)`);
+    t.ok(!fs.existsSync(pf), `crash test: the system proxy's state is handled by the fallback watchdog too (${Date.now() - t1} ms)`);
     }
     fs.rmSync(dir2, { recursive: true, force: true });
   }

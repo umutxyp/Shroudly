@@ -133,7 +133,8 @@ function alive(pid) {
 class AppEnv {
   /*
    * opts.stateFile      kept while our values are set, for crash recovery
-   * opts.watchdog       { execPath, script } to run proxy-watchdog.js detached
+   * opts.watchdog       watchdog.js options (the engine binary in its watchdog
+   *                     mode and the restore command it runs)
    * opts.restoreCommand { exe, args } run once at the next Windows login
    * opts.backend        stands in for the real OS (tests)
    */

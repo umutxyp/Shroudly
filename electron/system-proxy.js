@@ -10,9 +10,10 @@
  *
  *   clean stop / quit       restore() with the snapshot taken before applying
  *   engine crash            EngineManager restores before restarting it
- *   app killed / crashed    a detached watchdog (proxy-watchdog.js) learns the
- *                           app is gone at once (the pipe to it closes) and
- *                           restores within a fraction of a second
+ *   app killed / crashed    a detached watchdog (the engine binary's watchdog
+ *                           mode, see watchdog.js) learns the app is gone at
+ *                           once (the pipe to it closes) and starts
+ *                           "Shroudly --restore-proxy" within a second
  *   reboot / power loss     a run-once login hook starts "Shroudly --restore-proxy"
  *                           (Windows RunOnce, Linux autostart, macOS LaunchAgent)
  *   next launch             EngineManager.recover() restores from the state file
@@ -78,7 +79,8 @@ function regDel(name) {
 class SystemProxy {
   /*
    * opts.stateFile      where the snapshot is kept while the proxy is applied
-   * opts.watchdog       { execPath, script } to run proxy-watchdog.js detached
+   * opts.watchdog       watchdog.js options (the engine binary in its watchdog
+   *                     mode and the restore command it runs)
    * opts.restoreCommand { exe, args } run once at next login if we never restore
    */
   constructor(log, opts = {}) {

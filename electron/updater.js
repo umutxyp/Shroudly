@@ -53,16 +53,22 @@ function parseMacFeed(text) {
   return { version, files };
 }
 
-/* 'direct' or 'system' (follow the OS proxy, i.e. Shroudly's engine). */
+/* 'direct' or 'system' (through Shroudly's engine while protection is on,
+ * else the OS proxy; main.js keeps it current through setSystemRoute). */
 const ROUTES = ['direct', 'system'];
 const routeSessions = {};
+let systemRoute = { mode: 'system' };
 async function routeSession(route) {
   if (!routeSessions[route]) {
     const s = session.fromPartition(`shroudly-updater-${route}`, { cache: false });
-    await s.setProxy({ mode: route });
+    await s.setProxy(route === 'system' ? systemRoute : { mode: route });
     routeSessions[route] = s;
   }
   return routeSessions[route];
+}
+function setSystemRoute(cfg) {
+  systemRoute = cfg;
+  if (routeSessions.system) routeSessions.system.setProxy(cfg).catch(() => {});
 }
 
 /* Run fn(route) for each route until one succeeds. */
@@ -296,3 +302,4 @@ rm -rf "$3"
 
 module.exports = Updater;
 module.exports.RELEASES_URL = RELEASES_URL;
+module.exports.setSystemRoute = setSystemRoute;

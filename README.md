@@ -306,6 +306,7 @@ directly. That list maintains itself:
 ## Features
 
 - **One button** — start and stop protection; it can start with your computer, from the tray.
+- **Light in the background** — the window is closed for real, not hidden, when it goes to the tray or sits unused for three minutes; protection keeps running in a small process of its own. In the tray Shroudly uses about 50–70 MB on macOS; numbers for every OS come from the [Tests](.github/workflows/test.yml) runs.
 - **Cross-platform** — native builds for Windows, macOS and Linux, x64 and ARM.
 - **No admin rights, no driver** in the default mode — it runs as a normal program.
 - **Learns what works** — tests each blocked site and remembers the technique that opens it; switches technique by itself if a network starts cutting a site.
@@ -427,6 +428,7 @@ Shroudly/
       raw_linux.[ch]          Advanced mode: NFQUEUE backend
       raw_windows.[ch]        Advanced mode: WinDivert backend
       supervise.[ch]          Advanced mode: stop / status-file handling
+      watchdog.[ch]           --watchdog: has settings restored if the app is killed
       main.c                  CLI + stdin control protocol
     test/                     unit tests, sanitizer tests, fuzzers
   electron/
@@ -441,8 +443,8 @@ Shroudly/
     app-proxy.js              Games and apps mode: local HTTPS proxy into the engine
     app-env.js                Games and apps mode: HTTPS_PROXY in the session, crash-safe
     roblox-app.js             Games and apps mode: finding and restarting Roblox
-    proxy-watchdog.js         restores the proxy (and HTTPS_PROXY) if the app is killed
-    watchdog.js               starts that one watchdog and tells it what to look after
+    watchdog.js               starts the engine's --watchdog and tells it what to look after
+    proxy-watchdog.js         the same job in JavaScript, used only if the engine binary is missing
     updater.js                automatic updates from GitHub releases
     site-list.js              the automatic site list: fetch, check, keep
     data/sites.json           the site list as it was at release
@@ -450,14 +452,15 @@ Shroudly/
     main-i18n.js              tray + notification strings (every UI language)
     tools/core/<os>-<arch>/   built engine binaries (per platform)
   app/ components/ contexts/  Next.js + React UI
-  translations.js             UI strings, 31 languages
+  translations.js             UI strings, 31 languages (split per language at build time)
   scripts/build-core.js       native + cross compile
   scripts/build-core-advanced.js   Advanced-mode engine build
   scripts/fetch-windivert.js       fetch + verify the WinDivert driver
   scripts/after-pack.js            stamp icon + version info into Shroudly.exe
   scripts/installer.nsh            Windows installer hooks (proxy reset, Discord and HTTPS_PROXY clean-up)
   scripts/site-list/               weekly site-list build: families, policy, OONI
-  tests/net/                  network tests (fake censor, hostile servers, DNS, Discord, games and apps, site list)
+  tests/net/                  network tests (fake censor, hostile servers, DNS, Discord, games and apps, site list, watchdog)
+  tests/e2e/                  the real app driven end to end: window life cycle, memory per state
   release-notes/              notes published with each release
 ```
 
