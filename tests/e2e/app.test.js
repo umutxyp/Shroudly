@@ -47,8 +47,9 @@ function keepOpen(page) {
 }
 
 const report = [];
-function record(label, pid) {
-  const m = measure(pid);
+let metrics = async () => [];
+async function record(label, pid) {
+  const m = measure(pid, await metrics());
   report.push(describe(label, m));
   console.log(`  ..  ${describe(label, m)}`);
   return m;
@@ -72,10 +73,12 @@ function record(label, pid) {
     timeout: 60000,
   });
   const pid = app.process().pid;
+  metrics = () => app.evaluate(({ app: a }) => a.getAppMetrics().map((m) => ({ pid: m.pid, type: m.type, name: m.serviceName || m.name || '' }))).catch(() => []);
   const windows = () => app.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows().length);
   const open = async () => {
-    // (A baseline that only hides its window shows the same one again.)
-    const live = app.windows().find((w) => !w.isClosed());
+    // A new window, unless one is still there (a baseline that only hides
+    // its window shows the same one again).
+    const live = (await windows()) > 0 ? app.windows().filter((w) => !w.isClosed()).pop() : null;
     const next = live ? null : app.waitForEvent('window', { timeout: 30000 });
     await app.evaluate(({ app: a }) => a.emit('second-instance'));
     const page = live || await next;
@@ -87,7 +90,7 @@ function record(label, pid) {
     // ── 1. started at login: tray only ──
     await sleep(5000);
     ok(await windows() === 0, 'started at login: no window at all, only the tray');
-    const tray = record('1 tray only, protection off', pid);
+    const tray = await record('1 tray only, protection off', pid);
     ok(!tray.kinds.has('renderer'), 'no window process in the tray-only state');
 
     // ── 2. opened: the interface, in the chosen language ──
@@ -98,7 +101,7 @@ function record(label, pid) {
     ok(!!shown, `window opened from the tray, in Turkish ("${tr.navSettings}" shown)`);
     await sleep(2500);
     await page.screenshot({ path: path.join(SHOTS, `window-${process.platform}-${process.arch}.png`) });
-    const opened = record('2 window open, protection off', pid);
+    const opened = await record('2 window open, protection off', pid);
     ok(opened.kinds.has('renderer'), 'the window has its process');
     stop();
 
@@ -107,7 +110,7 @@ function record(label, pid) {
     const released = await until(async () => (await windows()) === 0, IDLE_MS + 20000);
     ok(!!released, `left unused: the window closed by itself after ${((Date.now() - t0) / 1000).toFixed(1)} s`);
     await sleep(3000);
-    const idle = record('3 after the window closed for being idle', pid);
+    const idle = await record('3 after the window closed for being idle', pid);
     ok(!idle.kinds.has('renderer'), 'its process is gone too');
 
     // ── 4. sent to the tray: closed at once ──
@@ -125,7 +128,7 @@ function record(label, pid) {
       const active = await until(() => page.evaluate(() => window.electron.getDPIStatus().then((s) => s.active)), 20000);
       ok(!!active, `protection started (${JSON.stringify(r).slice(0, 80)})`);
       await sleep(12000);   // the live-count ping has gone out by now
-      const on = record('5 window open, protection on', pid);
+      const on = await record('5 window open, protection on', pid);
       ok(on.kinds.has('renderer'), 'the window stayed open while in use');
       ok(on.kinds.has('engine'), 'the engine runs');
       ok(![...on.kinds].some((k) => /ProxyResolver/i.test(k)), 'no proxy-resolver process for our own requests');
@@ -133,9 +136,13 @@ function record(label, pid) {
       await page.evaluate(() => window.electron.closeWindow());
       await until(async () => (await windows()) === 0, 5000);
       await sleep(3000);
-      const bg = record('6 tray only, protection on', pid);
+      const bg = await record('6 tray only, protection on', pid);
+      // The watchdog runs once something is applied that must be undone if
+      // Shroudly is killed (a Linux runner may have no desktop proxy to set).
       const wd = bg.parts.find((p) => p.kind === 'watchdog');
-      ok(!!wd, 'the watchdog is the small native one');
+      const armed = ['proxy-state.json', 'app-env.json'].some((f) => fs.existsSync(path.join(ud, f)));
+      console.log(`  --  system proxy applied: ${armed}`);
+      if (armed) ok(!!wd, 'the watchdog is the small native one');
       if (wd && wd.mb > 0) ok(wd.mb < 8, `watchdog memory ${wd.mb.toFixed(1)} MB`);
       ok(!bg.kinds.has('renderer'), 'no window process while protecting in the background');
 

@@ -368,6 +368,11 @@ async function createWindow({ show = true } = {}) {
       contextIsolation: true,
       preload: path.join(__dirname, 'preload.js'),
       webSecurity: true,
+      // On Windows and Linux Chromium's spellchecker downloads dictionaries
+      // from Google when the window opens: a request to Google from a
+      // circumvention tool, and memory, for two plain text fields (a site
+      // name and a list of domains) that need no spelling help.
+      spellcheck: false,
     },
     icon: trayIconPath(),
     title: 'Shroudly — Unseen. Unstoppable.',
