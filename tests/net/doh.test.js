@@ -55,6 +55,9 @@ function ask(port, name) {
   f.routes.forEach((x) => { x.ip = '127.0.0.2'; });
   port = await f.start();
   for (let i = 0; i < 3; i++) await ask(port, `t${i}.example.com`);
+  // The third failure can land a moment after the client gave up on its
+  // answer (a slow machine): wait for it rather than race it.
+  for (let i = 0; i < 50 && !states.length; i++) await new Promise((res) => setTimeout(res, 100));
   t.ok(states.join() === 'down', 'three failed lookups in a row -> state "down"');
   f.routes.forEach((x, i) => { x.ip = real[i]; x.restUntil = 0; });
   r = await ask(port, 'example.org');
