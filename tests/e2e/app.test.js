@@ -75,6 +75,20 @@ async function record(label, pid) {
   const pid = app.process().pid;
   metrics = () => app.evaluate(({ app: a }) => a.getAppMetrics().map((m) => ({ pid: m.pid, type: m.type, name: m.serviceName || m.name || '' }))).catch(() => []);
   const windows = () => app.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows().length);
+  // macOS: the Dock icon is there only while the window is (issue #9).
+  const mac = process.platform === 'darwin' && !BASELINE;
+  const dock = () => app.evaluate(({ app: a }) => a.dock.isVisible());
+  // Every OS: what shows up in the taskbar / Dock / window list. Electron's
+  // view (any visible window, the hidden logoff listener included), and on
+  // Windows the OS's own: a process with a main window gets a taskbar button.
+  const onScreen = async () => {
+    const own = await app.evaluate(({ BaseWindow }) => BaseWindow.getAllWindows().filter((w) => w.isVisible()).length);
+    if (process.platform !== 'win32') return own;
+    const ids = (await tree(pid)).map((p) => p.pid).join(',');
+    const out = await new Promise((res) => require('child_process').execFile('powershell.exe', ['-NoProfile', '-Command',
+      `@(Get-Process -Id ${ids} -ErrorAction SilentlyContinue | Where-Object { $_.MainWindowHandle -ne 0 }).Count`], (e, o) => res(String(o || '0').trim())));
+    return own + Number(out || 0);
+  };
   const open = async () => {
     // A new window, unless one is still there (a baseline that only hides
     // its window shows the same one again).
@@ -92,6 +106,8 @@ async function record(label, pid) {
     ok(await windows() === 0, 'started at login: no window at all, only the tray');
     const tray = await record('1 tray only, protection off', pid);
     ok(!tray.kinds.has('renderer'), 'no window process in the tray-only state');
+    if (mac) ok(!(await dock()), 'macOS: started into the menu bar, no Dock icon');
+    if (!BASELINE) ok(await onScreen() === 0, 'nothing in the taskbar or on screen, only the tray icon');
 
     // ── 2. opened: the interface, in the chosen language ──
     let page = await open();
@@ -99,6 +115,8 @@ async function record(label, pid) {
     const tr = JSON.parse(fs.readFileSync(path.join(ROOT, 'locales', 'tr.json'), 'utf8'));
     const shown = await until(() => page.getByText(tr.navSettings, { exact: true }).first().isVisible(), 15000);
     ok(!!shown, `window opened from the tray, in Turkish ("${tr.navSettings}" shown)`);
+    if (mac) ok(await dock(), 'macOS: the Dock icon is back with the window');
+    if (!BASELINE) ok(await onScreen() > 0, 'the window is on screen and in the taskbar');
     await sleep(2500);
     await page.screenshot({ path: path.join(SHOTS, `window-${process.platform}-${process.arch}.png`) });
     const opened = await record('2 window open, protection off', pid);
@@ -112,6 +130,8 @@ async function record(label, pid) {
     await sleep(3000);
     const idle = await record('3 after the window closed for being idle', pid);
     ok(!idle.kinds.has('renderer'), 'its process is gone too');
+    if (mac) ok(!!(await until(async () => !(await dock()), 3000)), 'macOS: the Dock icon went with the window');
+    if (!BASELINE) ok(await onScreen() === 0, 'window closed: nothing left in the taskbar, only the tray icon');
 
     // ── 4. sent to the tray: closed at once ──
     page = await open();
