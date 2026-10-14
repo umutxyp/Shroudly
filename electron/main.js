@@ -281,6 +281,19 @@ const pending = new Map();
 
 function windowAlive() { return !!(mainWindow && !mainWindow.isDestroyed()); }
 
+/* macOS: a Dock icon only while the window is open. With the window closed
+ * Shroudly lives in the menu bar, like the taskbar button that goes with the
+ * window on Windows and Linux; opening it from the menu bar, Spotlight or
+ * Launchpad brings the icon back with the window. */
+function setDockIcon(visible) {
+  if (process.platform !== 'darwin' || !app.dock) return Promise.resolve();
+  try {
+    if (visible) return Promise.resolve(app.dock.show()).catch(() => {});
+    app.dock.hide();
+  } catch {}
+  return Promise.resolve();
+}
+
 function toWindow(channel, payload) {
   const sticky = STICKY.has(channel);
   if (windowAlive() && (uiReady || !sticky)) { try { mainWindow.webContents.send(channel, payload); } catch {} return; }
@@ -364,6 +377,7 @@ async function checkDevServer() {
 
 async function createWindow({ show = true } = {}) {
   uiReady = false;
+  if (show) await setDockIcon(true);
   const win = new BrowserWindow({
     width: 460, height: 760,
     minWidth: 360, minHeight: 560,
@@ -437,7 +451,10 @@ async function createWindow({ show = true } = {}) {
   win.on('show', markActive);
   win.on('restore', markActive);
   win.on('hide', () => { setTimeout(() => { if (!win.isDestroyed() && !win.isVisible()) releaseWindow('hidden'); }, 1000); });
-  win.on('closed', () => { if (mainWindow === win) { mainWindow = null; uiReady = false; } });
+  win.on('closed', () => {
+    if (mainWindow === win) { mainWindow = null; uiReady = false; }
+    if (!windowAlive()) setDockIcon(false);
+  });
 
   win.on('close', (e) => {
     if (!app.isQuitting && store.get('minimizeToTray', true)) {
@@ -628,7 +645,7 @@ app.whenReady().then(async () => {
   createTray();
   watchSessionEnd();
   // Started at login into the tray: no window at all until it is opened.
-  if (isAutoStartLaunch() && store.get('minimizeToTray', true)) addLog('info', 'Auto-started in tray');
+  if (isAutoStartLaunch() && store.get('minimizeToTray', true)) { setDockIcon(false); addLog('info', 'Auto-started in tray'); }
   else await createWindow({ show: true });
   addLog('success', 'Application started');
   updater.start();
