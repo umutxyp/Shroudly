@@ -127,6 +127,7 @@ async function record(label, pid) {
       const r = await page.evaluate(() => window.electron.startDPI());
       const active = await until(() => page.evaluate(() => window.electron.getDPIStatus().then((s) => s.active)), 20000);
       ok(!!active, `protection started (${JSON.stringify(r).slice(0, 80)})`);
+      if (!BASELINE) ok(await until(() => JSON.parse(fs.readFileSync(path.join(ud, 'config.json'), 'utf8')).protectionOn === true, 3000), 'pressing Start is remembered');
       await sleep(12000);   // the live-count ping has gone out by now
       const on = await record('5 window open, protection on', pid);
       ok(on.kinds.has('renderer'), 'the window stayed open while in use');
@@ -167,6 +168,7 @@ async function record(label, pid) {
         stop = keepOpen(page);
         await page.evaluate(() => window.electron.stopDPI());
         await until(() => page.evaluate(() => window.electron.getDPIStatus().then((s) => !s.active)), 15000);
+        ok(JSON.parse(fs.readFileSync(path.join(ud, 'config.json'), 'utf8')).protectionOn === false, 'pressing Stop is remembered');
         stop();
         await page.evaluate(() => window.electron.closeWindow());
       }
@@ -181,8 +183,29 @@ async function record(label, pid) {
       return alive.length === 0 ? [] : null;
     }, 15000);
     ok(!!left, 'after quitting, none of its processes are left running');
-    fs.rmSync(ud, { recursive: true, force: true });
   }
+
+  // ── 7. protection comes back the way the user left it (issue #8): a
+  //       restart (an update, a crash, a reboot) does not turn it on again ──
+  if (!BASELINE) {
+    const relaunch = async (protectionOn) => {
+      const cfg = JSON.parse(fs.readFileSync(path.join(ud, 'config.json'), 'utf8'));
+      // Auto mode on, as for most people: it no longer decides on its own.
+      fs.writeFileSync(path.join(ud, 'config.json'), JSON.stringify({ ...cfg, autoMode: true, protectionOn }));
+      const a = await _electron.launch({
+        executablePath: require(path.join(APP, 'node_modules', 'electron')),
+        args: [APP, `--user-data-dir=${ud}`, '--autostart', ...(process.platform === 'linux' ? ['--no-sandbox'] : [])],
+        env, timeout: 60000,
+      });
+      const engineUp = () => measure(a.process().pid).kinds.has('engine');
+      const up = await until(engineUp, 8000, 500);
+      await a.close().catch(() => {});
+      return !!up;
+    };
+    ok(!(await relaunch(false)), 'stopped by the user, then restarted: protection stays off');
+    if (process.env.CI) ok(await relaunch(true), 'left on by the user, then restarted: protection comes back on');
+  }
+  fs.rmSync(ud, { recursive: true, force: true });
 
   console.log(`\n── memory (${process.platform}-${process.arch}${BASELINE ? `, baseline ${APP}` : ''})`);
   for (const l of report) console.log(`  ${l}`);
