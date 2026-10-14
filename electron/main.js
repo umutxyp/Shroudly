@@ -273,6 +273,7 @@ let releaseToken = 0;         // a release in progress is called off by bumping 
 let modalOpen = 0;            // a dialog belongs to the window: keep it
 let idleNoticeShown = false;
 let idleTimer = null;
+const loading = new WeakSet();  // windows still loading on their way to the screen
 // One-off notices that must not be lost while there is no window: the latest
 // of each is shown once the next window is up.
 const STICKY = new Set(['dpi:need-restart', 'dpi:dns-auto-enabled', 'dpi:site-blocked']);
@@ -319,6 +320,7 @@ async function releaseWindow(reason) {
 function idleCheck() {
   if (!windowAlive()) return;
   const w = mainWindow;
+  if (loading.has(w)) return;   // not shown yet because it is still loading
   if (!w.isVisible()) { releaseWindow('hidden'); return; }
   if (Date.now() - lastActive < IDLE_RELEASE_MS) return;
   if (w.isFocused() && !w.isMinimized()) {
@@ -388,6 +390,7 @@ async function createWindow({ show = true } = {}) {
     show: false,
   });
   mainWindow = win;
+  if (show) loading.add(win);
   markActive();
   startIdleWatch();
 
@@ -424,7 +427,12 @@ async function createWindow({ show = true } = {}) {
     if (visible) createWindow({ show: true });
   });
 
-  win.once('ready-to-show', () => { if (show && !win.isDestroyed()) { win.show(); win.focus(); } });
+  win.once('ready-to-show', () => {
+    loading.delete(win);
+    if (show && !win.isDestroyed()) { markActive(); win.show(); win.focus(); }
+  });
+  // A page that never finishes loading must not keep the window forever.
+  if (show) setTimeout(() => loading.delete(win), 30000).unref();
   win.on('focus', markActive);
   win.on('show', markActive);
   win.on('restore', markActive);
