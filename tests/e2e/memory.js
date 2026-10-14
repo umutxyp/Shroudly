@@ -77,11 +77,22 @@ function memoryMB(pids) {
   return out;
 }
 
-/* { total, parts: [{ kind, mb }], kinds: Set } for rootPid and its children. */
-function measure(rootPid) {
+/* What Chromium itself says each of its processes is (app.getAppMetrics()):
+ * a sandboxed process's command line cannot always be read (Windows on ARM). */
+const TYPES = { Browser: 'main', Tab: 'renderer', GPU: 'gpu-process', Zygote: 'zygote', Utility: 'utility' };
+function chromiumKind(m) {
+  const base = TYPES[m.type] || String(m.type || '').toLowerCase();
+  return base === 'utility' && m.name ? `utility:${m.name.split('.').slice(-2).join('.')}` : base;
+}
+
+/* { total, parts: [{ kind, mb }], kinds: Set } for rootPid and its children.
+ * metrics: app.getAppMetrics() as [{ pid, type, name }], when available. */
+function measure(rootPid, metrics = []) {
   const procs = tree(rootPid);
+  const known = new Map(metrics.map((m) => [m.pid, chromiumKind(m)]));
+  for (const m of metrics) if (!procs.some((p) => p.pid === m.pid)) procs.push({ pid: m.pid, cmd: '' });
   const mem = memoryMB(procs.map((p) => p.pid));
-  const parts = procs.map((p) => ({ pid: p.pid, kind: kindOf(p.cmd), mb: mem[p.pid] || 0 }));
+  const parts = procs.map((p) => ({ pid: p.pid, kind: known.get(p.pid) || kindOf(p.cmd), mb: mem[p.pid] || 0 }));
   const total = parts.reduce((s, p) => s + p.mb, 0);
   return { total, parts, kinds: new Set(parts.map((p) => p.kind)) };
 }
