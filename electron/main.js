@@ -118,7 +118,10 @@ function syncPresence() {
   if (!presence) return;
   const wanted = store.get('shareOnlineCount', true) !== false &&
                  !!(engine && engine.active);
-  if (wanted && presence.stopped) presence.restart();
+  // The first ping waits for our own SOCKS rule: sent a moment earlier it
+  // would be routed by the system's PAC file, and Chromium would start (and
+  // keep) a proxy-resolver process just for that.
+  if (wanted && presence.stopped) ownProxyReady.then(() => { if (presence.stopped && engine && engine.active) presence.restart(); });
   else if (!wanted && !presence.stopped) presence.leave();
 }
 
@@ -231,16 +234,17 @@ setInterval(() => { if (engine && engine.isActive()) scheduleSiteListCheck(0); }
  * proxy-resolver process (about 10 MB) alive just to read our own file.
  * Protection off: whatever the system says, as before. */
 let ownProxyKey = null;
+let ownProxyReady = Promise.resolve();   // settles once the rule is in force
 function syncOwnProxy() {
   const port = engine && engine.isActive() ? engine.port : null;
   const cfg = port ? { proxyRules: `socks5://127.0.0.1:${port}`, proxyBypassRules: '<local>' } : { mode: 'system' };
   const key = JSON.stringify(cfg);
-  if (key === ownProxyKey) return;
+  if (key === ownProxyKey) return ownProxyReady;
   ownProxyKey = key;
-  for (const s of [session.defaultSession, session.fromPartition('electron-updater', { cache: false })]) {
-    s.setProxy(cfg).catch(() => {});
-  }
+  ownProxyReady = Promise.all([session.defaultSession, session.fromPartition('electron-updater', { cache: false })]
+    .map((s) => s.setProxy(cfg).catch(() => {})));
   Updater.setSystemRoute(cfg);
+  return ownProxyReady;
 }
 
 function broadcastStatus(active) {

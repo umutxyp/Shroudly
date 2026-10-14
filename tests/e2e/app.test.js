@@ -39,6 +39,13 @@ async function until(fn, ms, step = 200) {
   }
 }
 
+// The app closes an unused window after IDLE_MS; while the test needs it
+// open, it reports use the way the interface does when someone is at it.
+function keepOpen(page) {
+  const t = setInterval(() => { page.evaluate(() => window.electron.uiActive()).catch(() => {}); }, 1000);
+  return () => clearInterval(t);
+}
+
 const report = [];
 function record(label, pid) {
   const m = measure(pid);
@@ -85,6 +92,7 @@ function record(label, pid) {
 
     // ── 2. opened: the interface, in the chosen language ──
     let page = await open();
+    let stop = keepOpen(page);
     const tr = JSON.parse(fs.readFileSync(path.join(ROOT, 'locales', 'tr.json'), 'utf8'));
     const shown = await until(() => page.getByText(tr.navSettings, { exact: true }).first().isVisible(), 15000);
     ok(!!shown, `window opened from the tray, in Turkish ("${tr.navSettings}" shown)`);
@@ -92,6 +100,7 @@ function record(label, pid) {
     await page.screenshot({ path: path.join(SHOTS, `window-${process.platform}-${process.arch}.png`) });
     const opened = record('2 window open, protection off', pid);
     ok(opened.kinds.has('renderer'), 'the window has its process');
+    stop();
 
     // ── 3. left alone: closed by itself ──
     const t0 = Date.now();
@@ -110,14 +119,17 @@ function record(label, pid) {
     // ── 5. protection on (changes the system proxy: CI machines only) ──
     if (process.env.CI) {
       page = await open();
+      stop = keepOpen(page);
       await until(() => page.getByText(tr.navSettings, { exact: true }).first().isVisible(), 15000);
       const r = await page.evaluate(() => window.electron.startDPI());
       const active = await until(() => page.evaluate(() => window.electron.getDPIStatus().then((s) => s.active)), 20000);
       ok(!!active, `protection started (${JSON.stringify(r).slice(0, 80)})`);
       await sleep(12000);   // the live-count ping has gone out by now
       const on = record('5 window open, protection on', pid);
+      ok(on.kinds.has('renderer'), 'the window stayed open while in use');
       ok(on.kinds.has('engine'), 'the engine runs');
       ok(![...on.kinds].some((k) => /ProxyResolver/i.test(k)), 'no proxy-resolver process for our own requests');
+      stop();
       await page.evaluate(() => window.electron.closeWindow());
       await until(async () => (await windows()) === 0, 5000);
       await sleep(3000);
@@ -145,8 +157,10 @@ function record(label, pid) {
         ok(!!restored, 'logoff with no window open: the system proxy was put back');
       } else {
         page = await open();
+        stop = keepOpen(page);
         await page.evaluate(() => window.electron.stopDPI());
         await until(() => page.evaluate(() => window.electron.getDPIStatus().then((s) => !s.active)), 15000);
+        stop();
         await page.evaluate(() => window.electron.closeWindow());
       }
     }

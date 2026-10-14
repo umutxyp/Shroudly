@@ -3,7 +3,9 @@
 /* Memory of a process and everything it started, the way each OS itself
  * reports what a program costs: the physical footprint on macOS (Activity
  * Monitor's "Memory"), the private working set on Windows (Task Manager's
- * "Memory"), PSS on Linux (shared pages split between their users). */
+ * "Memory"). Linux has no single figure; the closest is the process's own
+ * memory, PSS without the file-backed part (the Electron binary and shared
+ * libraries, which the other two leave out as well). */
 
 const fs = require('fs');
 const { execFileSync } = require('child_process');
@@ -57,8 +59,10 @@ function memoryMB(pids) {
   } else if (process.platform === 'linux') {
     for (const pid of pids) {
       try {
-        const m = /^Pss:\s+(\d+) kB/m.exec(fs.readFileSync(`/proc/${pid}/smaps_rollup`, 'utf8'));
-        if (m) out[pid] = Number(m[1]) / 1024;
+        const txt = fs.readFileSync(`/proc/${pid}/smaps_rollup`, 'utf8');
+        const kb = (k) => Number((new RegExp(`^${k}:\\s+(\\d+) kB`, 'm').exec(txt) || [])[1] || 0);
+        const own = txt.includes('Pss_Anon:') ? kb('Pss_Anon') + kb('Pss_Shmem') : kb('Pss') - kb('Pss_File');
+        if (txt.includes('Pss:')) out[pid] = (own + kb('SwapPss')) / 1024;
       } catch {}
     }
   } else {
