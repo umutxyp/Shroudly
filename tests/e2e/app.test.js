@@ -49,7 +49,7 @@ function keepOpen(page) {
 const report = [];
 let metrics = async () => [];
 async function record(label, pid) {
-  const m = measure(pid, await metrics());
+  const m = await measure(pid, await metrics());
   report.push(describe(label, m));
   console.log(`  ..  ${describe(label, m)}`);
   return m;
@@ -115,7 +115,9 @@ async function record(label, pid) {
 
     // ── 4. sent to the tray: closed at once ──
     page = await open();
+    stop = keepOpen(page);
     await until(() => page.getByText(tr.navSettings, { exact: true }).first().isVisible(), 15000);
+    stop();
     await page.evaluate(() => window.electron.closeWindow());
     ok(!!(await until(async () => (await windows()) === 0, 5000)), 'sent to the tray: the window is closed, not just hidden');
 
@@ -174,7 +176,7 @@ async function record(label, pid) {
       }
     }
   } finally {
-    const before = tree(pid).map((p) => p.pid);
+    const before = (await tree(pid)).map((p) => p.pid);
     await app.close().catch(() => {});
     // Everything it started is gone with it (the watchdog exits when there
     // is nothing left to restore).
@@ -197,7 +199,7 @@ async function record(label, pid) {
         args: [APP, `--user-data-dir=${ud}`, '--autostart', ...(process.platform === 'linux' ? ['--no-sandbox'] : [])],
         env, timeout: 60000,
       });
-      const engineUp = () => measure(a.process().pid).kinds.has('engine');
+      const engineUp = async () => (await tree(a.process().pid)).some((p) => /shroudly-core/.test(p.cmd) && !/--watchdog/.test(p.cmd));
       const up = await until(engineUp, 8000, 500);
       await a.close().catch(() => {});
       return !!up;
