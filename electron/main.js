@@ -173,7 +173,7 @@ function rebuildTrayMenu(active = trayActive) {
     { label: `${s.status}: ${state}`, enabled: false },
     {
       label: active ? s.stop : s.start,
-      click: async () => { active ? await safeStop() : await safeStart(); },
+      click: async () => { active ? await safeStop({ user: true }) : await safeStart({ user: true }); },
     },
     { type: 'separator' },
     { label: s.quit, click: () => { app.isQuitting = true; shutdownAndQuit(); } },
@@ -241,8 +241,11 @@ function syncOwnProxy() {
   const key = JSON.stringify(cfg);
   if (key === ownProxyKey) return ownProxyReady;
   ownProxyKey = key;
-  ownProxyReady = Promise.all([session.defaultSession, session.fromPartition('electron-updater', { cache: false })]
-    .map((s) => s.setProxy(cfg).catch(() => {})));
+  ownProxyReady = Promise.all([
+    ...[session.defaultSession, session.fromPartition('electron-updater', { cache: false })].map((s) => s.setProxy(cfg)),
+    // Chromium's own requests that belong to no session (Windows makes some).
+    app.setProxy(cfg),
+  ].map((p) => Promise.resolve(p).catch(() => {})));
   Updater.setSystemRoute(cfg);
   return ownProxyReady;
 }
@@ -438,7 +441,14 @@ async function createWindow({ show = true } = {}) {
 }
 
 /* ── engine lifecycle wrappers ───────────────────────────────────────────── */
-async function safeStart() {
+/* Whether protection should be on is the user's call alone: it changes only
+ * when they press Start or Stop (window or tray), and Shroudly comes back
+ * that way after a restart, an update, a crash or a reboot. Sleep, waking,
+ * locking the screen or closing the lid never change it. */
+const PROTECTION_KEY = 'protectionOn';
+
+async function safeStart({ user = false } = {}) {
+  if (user) store.set(PROTECTION_KEY, true);
   try {
     const r = await engine.start();
     broadcastStatus(true);
@@ -452,7 +462,8 @@ async function safeStart() {
   }
 }
 
-async function safeStop() {
+async function safeStop({ user = false } = {}) {
+  if (user) store.set(PROTECTION_KEY, false);
   try {
     await engine.stop();
     broadcastStatus(false);
@@ -642,8 +653,11 @@ app.whenReady().then(async () => {
   // (moved app, updated AppImage, 2.0.0's broken Linux entry, legacy names).
   setAutoStart(store.get('autoStart', false));
 
-  // Independent of the window, which may never be opened this session.
-  if (store.get('autoMode', true)) {
+  // Protection as the user left it (see safeStart). Before there was a
+  // setting for that, Auto mode alone decided, and it still does for anyone
+  // who has not pressed Start or Stop since. Independent of the window, which
+  // may never be opened this session.
+  if (store.get(PROTECTION_KEY, store.get('autoMode', true) !== false)) {
     addLog('info', 'Auto Mode: starting protection');
     setTimeout(() => { safeStart(); }, 1200);
   }
@@ -721,8 +735,8 @@ ipcMain.on('ui:ready', (e) => {
 });
 
 ipcMain.handle('dpi:advice', () => (engine ? engine.advice : null));
-ipcMain.handle('dpi:start', async () => safeStart());
-ipcMain.handle('dpi:stop', async () => safeStop());
+ipcMain.handle('dpi:start', async () => safeStart({ user: true }));
+ipcMain.handle('dpi:stop', async () => safeStop({ user: true }));
 
 /* Advanced (packet-layer) mode — optional, for stateful DPI (Iran/China). */
 ipcMain.handle('advanced:available', () => ({
