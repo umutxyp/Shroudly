@@ -173,6 +173,12 @@ const readState = (file) => { try { return JSON.parse(fs.readFileSync(file, 'utf
     sp.mode = 'listed'; sp.list = ['discord.com'];
     const listed = pacEval(sp.pacBody(10808));
     t.ok(listed('cdn.discord.com') === want && listed('example.com') === 'DIRECT', `PAC (${where}, listed): listed sites routed with no DIRECT fallback, the rest direct`);
+    // Every platform's PAC must carry the plain "SOCKS" (SOCKS4) entry as well
+    // as "SOCKS5": clients that do not understand "SOCKS5" (Java, WinINET,
+    // .NET, CFNetwork) otherwise fail, and one Java app threw "unknown
+    // protocol: socket" on every boot. Guard against regressing to SOCKS5-only.
+    t.ok(/\bSOCKS 127\.0\.0\.1:10808\b/.test(sp.pacProxy(10808)) && sp.pacProxy(10808).startsWith('SOCKS5 '),
+      `PAC (${where}): offers SOCKS (SOCKS4) after SOCKS5, so non-SOCKS5 clients are routed`);
   }
   // P1: XFCE, LXQt and other desktops, where Chromium keeps the PAC it read
   // and its address from its environment: it fails open, so a stop, a quit
