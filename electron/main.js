@@ -560,6 +560,11 @@ async function safeStop({ user = false } = {}) {
     // The user's own stop: the only one that may ask for a macOS
     // administrator's password, and that takes out what was written for the
     // next login (system-proxy.js).
+    // Advanced mode is part of protection: stopping protection must also stop
+    // its packet interception, or WinDivert / NFQUEUE would keep injecting
+    // decoys into every outbound connection after the user turned protection
+    // off. (A crash or quit already stops both; this is the user's Stop.)
+    if (advanced && advanced.active) { try { await advanced.stop(); } catch {} }
     await engine.stop({ user });
     broadcastStatus(false);
     notify('Shroudly', tr().trayStopped);
