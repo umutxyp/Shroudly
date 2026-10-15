@@ -94,17 +94,44 @@ async function storeEdition() {
   return /yes/.test(out);
 }
 
-/* Process ids of Roblox's player, launcher and installer (all of them deaf
- * to the system proxy). Studio is left alone. */
+/* Process ids of Roblox's player: the program a game runs in, the one that
+ * is restarted through Shroudly and the one an update waits for. Its name is
+ * the same for Roblox's own copy and the bootstrappers' (they start the same
+ * RobloxPlayerBeta.exe). Nothing else whose name starts with "Roblox" counts:
+ * not Studio, not the crash handler that runs beside the player, not the
+ * installer, not other people's tools (account managers, FPS unlockers). */
+const PLAYER = { win32: 'RobloxPlayerBeta.exe', darwin: 'RobloxPlayer' };
+function parsePids(out, platform = process.platform) {
+  if (platform === 'win32') return [...String(out || '').matchAll(/^"RobloxPlayerBeta\.exe","(\d+)"/gmi)].map((m) => Number(m[1]));
+  return String(out || '').split(/\s+/).filter((x) => /^\d+$/.test(x)).map(Number);
+}
+
 async function pids() {
-  if (process.platform === 'win32') {
-    const out = await run('tasklist', ['/FI', 'IMAGENAME eq Roblox*', '/NH', '/FO', 'CSV']);
-    return [...out.matchAll(/^"Roblox(?!Studio)[^"]*\.exe","(\d+)"/gmi)].map((m) => Number(m[1]));
-  }
-  if (process.platform === 'darwin') {
-    return (await run('pgrep', ['^(RobloxPlayer|RobloxPlayerInstaller)$'])).split(/\s+/).filter(Boolean).map(Number);
-  }
+  if (process.platform === 'win32') return parsePids(await run('tasklist', ['/FI', `IMAGENAME eq ${PLAYER.win32}`, '/NH', '/FO', 'CSV']), 'win32');
+  if (process.platform === 'darwin') return parsePids(await run('pgrep', ['-x', PLAYER.darwin]), 'darwin');
   return [];
+}
+
+/* A player going around Shroudly is only possible on Windows, where a
+ * browser that was open before the setting hands what it starts its own
+ * older environment. macOS gives every app the session's setting, browsers
+ * included. */
+function routeWatched(platform = process.platform) { return platform === 'win32'; }
+
+/* Players that have run for BYPASS_GRACE_MS without a single request from
+ * Roblox reaching Shroudly since just before each was first seen. Roblox makes
+ * its requests in its first seconds and then keeps its connections open, so
+ * each player is judged from when it was first seen, never from when the
+ * others came or went. seen (pid -> first seen) is kept up to date here:
+ * players that ended are dropped, new ones added. The slack covers requests
+ * made in the seconds before a player was first seen (it is looked for every
+ * 20 seconds). */
+const BYPASS_GRACE_MS = 30000;
+const BYPASS_SLACK_MS = 25000;
+function silentPlayers(seen, list, lastRequestAt, now = Date.now()) {
+  for (const pid of [...seen.keys()]) if (!list.includes(pid)) seen.delete(pid);
+  for (const pid of list) if (!seen.has(pid)) seen.set(pid, now);
+  return list.filter((pid) => now - seen.get(pid) >= BYPASS_GRACE_MS && (lastRequestAt || 0) < seen.get(pid) - BYPASS_SLACK_MS);
 }
 
 /* Which of these processes still run: asked of the system directly, without
@@ -143,9 +170,8 @@ async function open(env) {
 async function restart(env) {
   const before = await pids();
   if (process.platform === 'darwin') {
-    const re = '^(RobloxPlayer|RobloxPlayerInstaller)$';
-    await run('pkill', [re]);
-    if (!(await waitGone(before, 8000))) { await run('pkill', ['-9', re]); await waitGone(before, 3000); }
+    await run('pkill', ['-x', PLAYER.darwin]);
+    if (!(await waitGone(before, 8000))) { await run('pkill', ['-9', '-x', PLAYER.darwin]); await waitGone(before, 3000); }
   } else if (process.platform === 'win32') {
     if (before.length) await run('taskkill', [...before.flatMap((p) => ['/PID', String(p)]), '/T', '/F']);
     await waitGone(before, 5000);
@@ -164,16 +190,28 @@ const MAX_BYTES = 128 * 1024 * 1024;
 
 /* GET url, through the engine at socksPort when given. Follows a few
  * redirects within Roblox's own hosts. Resolves { status, body } or, with
- * toFile, writes the body there. */
-function get(url, { socksPort, connect, toFile, timeoutMs = 60000, redirects = 3, tlsOptions } = {}) {
+ * toFile, writes the body there; resolved once the file is closed (Windows
+ * will not check or rename a file that is still open). A download that fails
+ * (cut off, too large, too slow) closes its file and removes it before the
+ * error comes back, so nothing is left open or half-written. */
+function get(url, { socksPort, connect, toFile, timeoutMs = 60000, redirects = 3, tlsOptions, maxBytes = MAX_BYTES } = {}) {
   return new Promise((resolve, reject) => {
     let u;
     try { u = new URL(url); } catch (e) { reject(e); return; }
     if (u.protocol !== 'https:' || !ALLOWED_HOSTS.test(u.hostname)) { reject(new Error(`refused ${u.hostname}`)); return; }
     const timer = setTimeout(() => fail(new Error('timed out')), timeoutMs);
     let req = null;
+    let out = null;
     let done = false;
-    const fail = (e) => { if (done) return; done = true; clearTimeout(timer); try { req && req.destroy(); } catch {} reject(e); };
+    const fail = (e) => {
+      if (done) return;
+      done = true;
+      clearTimeout(timer);
+      try { req && req.destroy(); } catch {}
+      if (!out) { reject(e); return; }
+      const gone = () => fs.rm(toFile, { force: true }, () => reject(e));
+      if (out.closed) gone(); else { out.once('close', gone); out.destroy(); }
+    };
     const ok = (v) => { if (done) return; done = true; clearTimeout(timer); resolve(v); };
     const start = (sock) => {
       req = https.request({
@@ -189,17 +227,18 @@ function get(url, { socksPort, connect, toFile, timeoutMs = 60000, redirects = 3
         if ([301, 302, 303, 307, 308].includes(res.statusCode) && res.headers.location && redirects > 0) {
           res.resume();
           clearTimeout(timer); done = true;
-          get(new URL(res.headers.location, u).toString(), { socksPort, connect, toFile, timeoutMs, redirects: redirects - 1, tlsOptions }).then(resolve, reject);
+          get(new URL(res.headers.location, u).toString(), { socksPort, connect, toFile, timeoutMs, redirects: redirects - 1, tlsOptions, maxBytes }).then(resolve, reject);
           return;
         }
         if (res.statusCode !== 200) { res.resume(); fail(new Error(`HTTP ${res.statusCode}`)); return; }
         let got = 0;
         if (toFile) {
-          const out = fs.createWriteStream(toFile, { mode: 0o600 });
-          res.on('data', (d) => { got += d.length; if (got > MAX_BYTES) fail(new Error('too large')); });
+          out = fs.createWriteStream(toFile, { mode: 0o600 });
+          res.on('data', (d) => { got += d.length; if (got > maxBytes) fail(new Error('too large')); });
           res.on('error', fail);
+          res.on('close', () => { if (!res.complete) fail(new Error('cut off')); });
           out.on('error', fail);
-          out.on('finish', () => ok({ status: 200, bytes: got }));
+          out.on('finish', () => out.once('close', () => ok({ status: 200, bytes: got })));
           res.pipe(out);
           return;
         }
@@ -227,6 +266,25 @@ async function signedByRoblox(file) {
   return status === 'Valid' && /(^|,\s*)O="?Roblox Corporation"?(,|$)/i.test(subject || '');
 }
 
+/* Each download gets a folder of its own, so a second one never has to
+ * replace an installer that is still running (Windows refuses). What earlier
+ * ones left (an installer that has done its work, a download cut short) is
+ * removed at the next download and when Shroudly starts; anything still in
+ * use is left for the next time. */
+function cleanDownloads(dir) {
+  let names = [];
+  try { names = fs.readdirSync(dir); } catch { return; }
+  for (const n of names) { try { fs.rmSync(path.join(dir, n), { recursive: true, force: true }); } catch {} }
+}
+
+function newDownload(dir) {
+  fs.mkdirSync(dir, { recursive: true });
+  cleanDownloads(dir);
+  const own = fs.mkdtempSync(path.join(dir, 'dl-'));
+  const file = path.join(own, 'RobloxPlayerInstaller.exe');
+  return { dir: own, file, part: `${file}.part` };
+}
+
 /* Download Roblox's current installer and start it with `env`.
  * opts: { socksPort, connect, env, dir }. Resolves { success, code }. */
 async function install(opts) {
@@ -237,20 +295,19 @@ async function install(opts) {
     version = JSON.parse(r.body).clientVersionUpload;
   } catch (e) { return { success: false, code: 'unreachable', detail: e.message }; }
   if (!/^version-[0-9a-f]{8,32}$/i.test(String(version || ''))) return { success: false, code: 'unreachable', detail: 'unexpected version' };
-  fs.mkdirSync(opts.dir, { recursive: true });
-  const file = path.join(opts.dir, 'RobloxPlayerInstaller.exe');
-  const part = `${file}.part`;
-  try { fs.rmSync(part, { force: true }); } catch {}
+  let dl;
+  try { dl = newDownload(opts.dir); } catch (e) { return { success: false, code: 'failed', detail: e.message }; }
+  const drop = () => { try { fs.rmSync(dl.dir, { recursive: true, force: true }); } catch {} };
   try {
-    await get(`https://setup.rbxcdn.com/${version}-RobloxPlayerInstaller.exe`, { socksPort: opts.socksPort, connect: opts.connect, toFile: part, timeoutMs: 180000 });
-  } catch (e) { try { fs.rmSync(part, { force: true }); } catch {} return { success: false, code: 'unreachable', detail: e.message }; }
-  if (!(await signedByRoblox(part))) { try { fs.rmSync(part, { force: true }); } catch {} return { success: false, code: 'unsigned' }; }
-  try { fs.rmSync(file, { force: true }); fs.renameSync(part, file); } catch (e) { return { success: false, code: 'failed', detail: e.message }; }
-  return detached(file, [], { ...process.env, ...opts.env }) ? { success: true, version } : { success: false, code: 'failed' };
+    await get(`https://setup.rbxcdn.com/${version}-RobloxPlayerInstaller.exe`, { socksPort: opts.socksPort, connect: opts.connect, toFile: dl.part, timeoutMs: 180000 });
+  } catch (e) { drop(); return { success: false, code: 'unreachable', detail: e.message }; }
+  if (!(await signedByRoblox(dl.part))) { drop(); return { success: false, code: 'unsigned' }; }
+  try { fs.renameSync(dl.part, dl.file); } catch (e) { drop(); return { success: false, code: 'failed', detail: e.message }; }
+  return detached(dl.file, [], { ...process.env, ...opts.env }) ? { success: true, version } : { success: false, code: 'failed' };
 }
 
 /* Hosts Roblox's programs talk to: how a tunnel is recognised as Roblox's. */
 const ROBLOX_HOST = /(^|\.)(roblox\.com|rbxcdn\.com|rbxinfra\.net|rbx\.com|robloxlabs\.com)$/i;
 function isRobloxHost(h) { return ROBLOX_HOST.test(String(h || '')); }
 
-module.exports = { installs, installed, handler, launcher, storeEdition, pids, alive, open, restart, install, isRobloxHost, get, signedByRoblox, BOOTSTRAPPERS };
+module.exports = { installs, installed, handler, launcher, storeEdition, pids, parsePids, routeWatched, silentPlayers, alive, open, restart, install, cleanDownloads, newDownload, isRobloxHost, get, signedByRoblox, BOOTSTRAPPERS, BYPASS_GRACE_MS };

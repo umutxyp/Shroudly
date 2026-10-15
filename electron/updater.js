@@ -8,6 +8,8 @@
  * release. With "Install updates automatically" on (default), the update
  * downloads in the background, then Shroudly restarts to install it after a
  * short countdown the user can postpone; a postponed update installs on quit.
+ * While a Roblox game or Discord goes through Shroudly the restart waits for
+ * them, for a few hours at most (see _armRestart).
  *
  * Windows / Linux: electron-updater (NSIS installer, AppImage, .deb), fed by
  *   the latest*.yml files electron-builder writes next to the installers.
@@ -35,6 +37,17 @@ const RELEASES_URL = `https://github.com/${OWNER}/${REPO}/releases/latest`;
 const FIRST_CHECK_MS = 8000;
 const CHECK_EVERY_MS = 30 * 60 * 1000;
 const RESTART_COUNTDOWN_S = 60;
+const WAIT_CHECK_MS = 60000;
+/* How long an update waits for Roblox and Discord before it may also install
+ * while the computer is not in use: nobody has touched it for AWAY_S, or the
+ * screen is locked. Counted from when it first had to wait, across restarts
+ * of Shroudly (WAIT_KEY), so a game or a call that is open every day cannot
+ * hold it back for good. */
+const WAIT_LIMIT_MS = 3 * 60 * 60 * 1000;
+const AWAY_S = 10 * 60;
+const WAIT_KEY = 'updateWaiting';
+/* At launch, the most protection is held back for an update that is due. */
+const LAUNCH_INSTALL_MS = 10000;
 
 function newer(a, b) { // is version a newer than b
   const pa = String(a).split(/[.-]/).map((n) => parseInt(n, 10) || 0);
@@ -115,14 +128,48 @@ async function download(url, dest, onProgress, route) {
   });
 }
 
+/* What a downloaded update does now (automatic installs on, the update
+ * ready): 'install' at once, a 'countdown' the user can still postpone, or
+ * 'wait' and look again. busy: Roblox or Discord goes through Shroudly.
+ * atLaunch: Shroudly has just started and protection has not yet (nothing
+ * goes through it to be interrupted). */
+function restartPlan({ busy, waitedMs, away, atLaunch }) {
+  const due = waitedMs >= WAIT_LIMIT_MS;
+  if (atLaunch && due) return 'install';
+  if (!busy || (due && away)) return 'countdown';
+  return 'wait';
+}
+
+/* Nobody at the computer: idle for AWAY_S, or the screen locked. Unknown
+ * (some Linux sessions cannot tell) counts as somebody being there. */
+function awayFromComputer() {
+  try {
+    const { powerMonitor } = require('electron');
+    const st = powerMonitor.getSystemIdleState(AWAY_S);
+    return st === 'idle' || st === 'locked';
+  } catch { return false; }
+}
+
+/* Does a restart now interrupt something? Only while protection is on, and
+ * only the programs whose mode sends them through Shroudly: the Roblox player
+ * with Games and apps mode, Discord with Discord app mode. Each check lists
+ * the running programs, so it is not even run otherwise. */
+async function inUse({ protection, appMode, discordMode, robloxPlaying, discordOpen }) {
+  if (!protection) return false;
+  if (appMode && robloxPlaying && await robloxPlaying()) return true;
+  if (discordMode && discordOpen && await discordOpen()) return true;
+  return false;
+}
+
 class Updater {
-  constructor({ log, store, notify, beforeInstall, busy }) {
+  constructor({ log, store, notify, beforeInstall, busy, away }) {
     this.log = log || (() => {});
     this.store = store;
     this.notify = notify || (() => {});
     this.beforeInstall = beforeInstall || (async () => {});
     // Is something running that a restart would cut off (a game, a call)?
     this.busy = busy || (async () => false);
+    this.away = away || awayFromComputer;
     this.waitTimer = null;
     this.listeners = new Set();
     this.state = { status: 'idle', current: app.getVersion(), version: null, percent: 0, restartAt: null, error: null };
@@ -131,6 +178,10 @@ class Updater {
     this.mac = process.platform === 'darwin';
     this.macDownload = null; // { zip, version }
     this.eu = null;
+    this.atLaunch = false;
+    this.onInstall = null;
+    // A wait for an update this version already has is over.
+    try { const w = store.get(WAIT_KEY); if (w && !newer(w.version, app.getVersion())) store.delete(WAIT_KEY); } catch {}
   }
 
   get auto() { return this.store.get('autoUpdate', true) !== false; }
@@ -138,7 +189,9 @@ class Updater {
   onState(fn) { this.listeners.add(fn); }
   _set(patch) {
     this.state = { ...this.state, ...patch };
-    for (const fn of this.listeners) { try { fn(this.state); } catch {} }
+    // Nothing newer out there (a release that was withdrawn): nothing to wait for.
+    if (patch.status === 'up-to-date') { try { this.store.delete(WAIT_KEY); } catch {} }
+    for (const fn of [...this.listeners]) { try { fn(this.state); } catch {} }
   }
 
   start() {
@@ -253,22 +306,55 @@ class Updater {
     this.log('success', `Update downloaded: version ${version}`);
     this._set({ status: 'ready', version, percent: 100, restartAt: null });
     clearTimeout(this.restartTimer);
+    this.restartTimer = null;
     if (this.auto) this._armRestart();
   }
 
-  /* Restarting cuts off whatever goes through Shroudly for a few seconds: a
-   * Roblox game or a Discord call would drop. So the countdown starts only
-   * once neither is running, looked at again every minute; until then the
-   * update waits (and installs on the next quit anyway). */
+  /* Restarting interrupts for a few seconds what goes through Shroudly: the
+   * HTTPS of a Roblox game or of Discord (their game and voice traffic is not
+   * proxied and carries on). So while one of them goes through Shroudly (busy)
+   * the countdown does not start; it is looked at again every minute. The
+   * wait has an end: after WAIT_LIMIT_MS the update also installs once nobody
+   * is at the computer, and at the next launch before protection starts
+   * (installBeforeProtection). Everything is looked at again when the
+   * countdown ends, the setting included. */
+  _mayInstall() { return this.auto && this.state.status === 'ready' && !this.installing; }
+
+  _waitedMs() {
+    let w = null;
+    try { w = this.store.get(WAIT_KEY); } catch {}
+    if (!w || !newer(w.version, app.getVersion())) return 0;
+    return Math.max(0, Date.now() - (Number(w.since) || Date.now()));
+  }
+
+  _noteWaiting() {
+    try {
+      const w = this.store.get(WAIT_KEY);
+      const since = w && newer(w.version, app.getVersion()) && Number(w.since) ? Number(w.since) : Date.now();
+      this.store.set(WAIT_KEY, { version: this.state.version, since, route: this.euRoute || null });
+    } catch {}
+  }
+
+  async _plan() {
+    let busy = false;
+    try { busy = !!(await this.busy()); } catch {}
+    const waitedMs = this._waitedMs();
+    let away = false;
+    if (busy && waitedMs >= WAIT_LIMIT_MS) { try { away = !!this.away(); } catch {} }
+    return restartPlan({ busy, waitedMs, away, atLaunch: this.atLaunch });
+  }
+
   async _armRestart() {
     clearTimeout(this.waitTimer);
-    if (this.state.status !== 'ready' || this.restartTimer || this.installing) return;
-    let busy = false;
-    try { busy = await this.busy(); } catch {}
-    if (this.state.status !== 'ready' || this.restartTimer || this.installing) return;
-    if (busy) {
-      if (!this.waiting) { this.waiting = true; this.log('info', 'Update ready: it installs once Roblox and Discord are closed, or when Shroudly quits'); }
-      this.waitTimer = setTimeout(() => this._armRestart(), 60000);
+    this.waitTimer = null;
+    if (!this._mayInstall() || this.restartTimer) return;
+    const plan = await this._plan();
+    if (!this._mayInstall() || this.restartTimer || this.waitTimer) return;
+    if (plan === 'install') { this.install(); return; }
+    if (plan === 'wait') {
+      this._noteWaiting();
+      if (!this.waiting) { this.waiting = true; this.log('info', 'Update ready: it waits while Roblox or Discord goes through Shroudly, and installs once they are closed or the computer has not been used for a while'); }
+      this.waitTimer = setTimeout(() => this._armRestart(), WAIT_CHECK_MS);
       if (this.waitTimer.unref) this.waitTimer.unref();
       return;
     }
@@ -276,7 +362,55 @@ class Updater {
     const restartAt = Date.now() + RESTART_COUNTDOWN_S * 1000;
     this._set({ restartAt });
     this.notify(this.state.version); // "will restart to install it"
-    this.restartTimer = setTimeout(() => this.install(), RESTART_COUNTDOWN_S * 1000);
+    const timer = setTimeout(() => this._restartDue(timer), RESTART_COUNTDOWN_S * 1000);
+    this.restartTimer = timer;
+  }
+
+  /* The countdown is over: install, unless the setting was switched off or a
+   * game or call has started meanwhile (then back to waiting). */
+  async _restartDue(timer) {
+    if (this.restartTimer !== timer) return;
+    const plan = this._mayInstall() ? await this._plan() : null;
+    if (this.restartTimer !== timer) return;   // postponed meanwhile
+    this.restartTimer = null;
+    if (!plan || !this._mayInstall()) { this._set({ restartAt: null }); return; }
+    if (plan === 'wait') { this._set({ restartAt: null }); await this._armRestart(); return; }
+    await this.install();
+  }
+
+  /* "Install updates automatically" was switched: a countdown stops at once
+   * when it goes off; when it comes on, an update found or downloaded
+   * meanwhile goes ahead. */
+  autoChanged() {
+    if (!this.auto) { this.postpone(); return; }
+    if (this.state.status === 'available') this.download();
+    else if (this.state.status === 'ready') this._armRestart();
+  }
+
+  /* At launch, before protection starts. An update that has already waited
+   * WAIT_LIMIT_MS (a game or a call kept it back, and nobody ever left the
+   * computer alone) installs now, while nothing goes through Shroudly to be
+   * interrupted. Only where the download is kept from run to run
+   * (electron-updater; macOS fetches it afresh and installs on quit anyway)
+   * and was fetched directly (through Shroudly it cannot be fetched before
+   * protection is on), and for at most `ms`: after that protection starts
+   * and the update waits as before. Resolves true once it is installing. */
+  installBeforeProtection(ms = LAUNCH_INSTALL_MS) {
+    let w = null;
+    try { w = this.store.get(WAIT_KEY); } catch {}
+    if (this.mac || !this.eu || !this.auto || this.installing || this._waitedMs() < WAIT_LIMIT_MS || (w && w.route && w.route !== 'direct')) return Promise.resolve(false);
+    return new Promise((resolve) => {
+      let timer = null;
+      // The check found nothing, or failed: protection starts at once.
+      const ended = (st) => { if (st.status === 'up-to-date' || st.status === 'error') done(false); };
+      const done = (v) => { clearTimeout(timer); this.listeners.delete(ended); this.atLaunch = false; this.onInstall = null; resolve(v); };
+      this.atLaunch = true;
+      this.onInstall = () => done(true);
+      this.listeners.add(ended);
+      timer = setTimeout(() => done(false), ms);
+      if (this.state.status === 'ready') this._armRestart();
+      else this.check(false);
+    });
   }
 
   /* Keep the downloaded update for the next quit instead of restarting now. */
@@ -284,14 +418,19 @@ class Updater {
     clearTimeout(this.restartTimer);
     clearTimeout(this.waitTimer);
     this.restartTimer = null;
+    this.waitTimer = null;
     this._set({ restartAt: null });
   }
 
   async install() {
-    if (this.state.status !== 'ready') return;
+    if (this.state.status !== 'ready' || this.installing) return;
     clearTimeout(this.restartTimer);
+    clearTimeout(this.waitTimer);
+    this.restartTimer = null;
+    this.waitTimer = null;
     this.log('info', `Installing update ${this.state.version}`);
     this.installing = true;
+    if (this.onInstall) { try { this.onInstall(); } catch {} }
     await this.beforeInstall(); // stop the engine: puts the system proxy back first
     if (!this.mac) { this.eu.quitAndInstall(true, true); return; }
     this._macSwapOnExit();
@@ -329,3 +468,7 @@ rm -rf "$3"
 module.exports = Updater;
 module.exports.RELEASES_URL = RELEASES_URL;
 module.exports.setSystemRoute = setSystemRoute;
+module.exports.restartPlan = restartPlan;
+module.exports.inUse = inUse;
+module.exports.WAIT_LIMIT_MS = WAIT_LIMIT_MS;
+module.exports.WAIT_KEY = WAIT_KEY;

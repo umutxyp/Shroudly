@@ -165,6 +165,82 @@ async function robloxInstaller(proxy, socksPort) {
   }
   t.ok(refused === 3, 'the installer download only ever talks HTTPS to Roblox\'s own hosts');
   t.ok(await RobloxApp.signedByRoblox(path.join(ROOT, 'package.json')) === false, 'an unsigned file is never taken for Roblox\'s installer');
+
+  // The player, and only the player, is Roblox: for the update's wait, the
+  // check below and the restart, which must never close anything else.
+  const tasklist = ['"RobloxPlayerBeta.exe","4120","Console","1","412,000 K"', '"RobloxCrashHandler.exe","4180","Console","1","9,000 K"',
+    '"Roblox Account Manager.exe","2200","Console","1","80,000 K"', '"RobloxStudioBeta.exe","5100","Console","1","600,000 K"',
+    '"RobloxPlayerInstaller.exe","6100","Console","1","20,000 K"', '"Roblox FPS Unlocker.exe","6200","Console","1","5,000 K"',
+    '"robloxplayerbeta.exe","4121","Console","1","400,000 K"'].join('\r\n');
+  t.ok(JSON.stringify(RobloxApp.parsePids(tasklist, 'win32')) === '[4120,4121]', `Windows: only RobloxPlayerBeta.exe, not the crash handler, Studio, the installer or other tools (${RobloxApp.parsePids(tasklist, 'win32')})`);
+  t.ok(RobloxApp.parsePids('INFO: No tasks are running which match the specified criteria.\r\n', 'win32').length === 0 && JSON.stringify(RobloxApp.parsePids('812\n913\n', 'darwin')) === '[812,913]', 'none running; macOS pgrep output read');
+  t.ok(RobloxApp.routeWatched('win32') && !RobloxApp.routeWatched('darwin') && !RobloxApp.routeWatched('linux'), 'a player going around Shroudly is only looked for on Windows (macOS hands every app the setting)');
+  {
+    const seen = new Map();
+    const T = 1e9;
+    const H = 3600 * 1000;
+    // Player 10 made its requests as it started, then kept its connections.
+    t.ok(RobloxApp.silentPlayers(seen, [10], T - 5000, T).length === 0 && RobloxApp.silentPlayers(seen, [10], T - 5000, T + 2 * H).length === 0, 'a player that sent requests at start is never reported, however long it then runs');
+    // Player 20 appears an hour later and sends nothing.
+    RobloxApp.silentPlayers(seen, [10, 20], T - 5000, T + H);
+    t.ok(RobloxApp.silentPlayers(seen, [10, 20], T - 5000, T + H + 10000).length === 0, 'a new player gets its grace period');
+    t.ok(JSON.stringify(RobloxApp.silentPlayers(seen, [10, 20], T - 5000, T + H + RobloxApp.BYPASS_GRACE_MS + 1000)) === '[20]', 'after it, only the new silent player is reported, not the one that uses Shroudly');
+    RobloxApp.silentPlayers(seen, [10], T - 5000, T + H + 60000);
+    t.ok(RobloxApp.silentPlayers(seen, [10], T - 5000, T + H + 120000).length === 0 && seen.size === 1, 'players coming and going never restart the clock of one that stays');
+  }
+  {
+    // Roblox asking is the evidence, even when the server it asks for
+    // cannot be reached at the moment.
+    const asked = []; const carried = [];
+    const p = new AppProxy(() => {}, () => deadPort, () => true);
+    const deadPort = await freePort();
+    p.lookup = async () => ['93.184.216.34'];
+    p.onRequest = (h) => asked.push(h);
+    p.onTunnel = (h) => carried.push(h);
+    const pp = await p.start(await freePort());
+    const r = await raw(pp, 'CONNECT clientsettingscdn.roblox.com:443 HTTP/1.1\r\nHost: clientsettingscdn.roblox.com:443\r\n\r\n');
+    p.stop();
+    t.ok(r.startsWith('HTTP/1.1 502') && asked.join() === 'clientsettingscdn.roblox.com' && carried.length === 0, `a request whose server cannot be reached is still seen as Roblox using Shroudly (${r.split('\r\n')[0]}, asked ${asked.length})`);
+  }
+  {
+    // A download that fails leaves nothing open and nothing behind.
+    const openFiles = () => {
+      if (process.platform === 'linux') return fs.readdirSync('/proc/self/fd').map((f) => { try { return fs.readlinkSync(`/proc/self/fd/${f}`); } catch { return ''; } });
+      if (process.platform === 'darwin') return spawnSync('/usr/sbin/lsof', ['-p', String(process.pid), '-Fn']).stdout.toString().split('\n');
+      return [];
+    };
+    const dl = fs.mkdtempSync(path.join(os.tmpdir(), 'shroudly-dl-'));
+    const srv = require('https').createServer({ key: fixture('test-only-key.pem'), cert: fixture('test-only-cert.pem') }, (req, res) => {
+      res.writeHead(200, { 'content-length': String(8 * 1024 * 1024) });
+      if (req.url === '/big') res.write(Buffer.alloc(256 * 1024));
+      else res.write(Buffer.alloc(4096));
+      if (req.url === '/cut') setTimeout(() => req.socket.destroy(), 300);
+    });
+    await new Promise((r) => srv.listen(0, '127.0.0.1', r));
+    const connect = () => new Promise((resolve, reject) => { const c = net.connect(srv.address().port, '127.0.0.1', () => resolve(c)); c.on('error', reject); });
+    for (const [what, url, opts] of [['too large', '/big', { maxBytes: 64 * 1024 }], ['too slow', '/slow', { timeoutMs: 1500 }], ['cut off', '/cut', {}]]) {
+      const name = `dl-${what.replace(/\W/g, '')}-${process.pid}.part`;
+      const part = path.join(dl, name);
+      let err = null;
+      await RobloxApp.get(`https://setup.rbxcdn.com${url}`, { socksPort: 1, connect, toFile: part, tlsOptions: { ca: fixture('test-only-cert.pem'), servername: 'test.local' }, ...opts }).catch((e) => { err = e; });
+      const stillOpen = openFiles().some((f) => f.includes(name));
+      t.ok(err && !fs.existsSync(part) && !stillOpen, `installer download ${what} (${err && err.message}): file closed and removed (${stillOpen ? 'still open' : 'closed'})`);
+    }
+    srv.close();
+    if (srv.closeAllConnections) srv.closeAllConnections();
+    // Each download in a folder of its own; what earlier ones left goes.
+    fs.writeFileSync(path.join(dl, 'RobloxPlayerInstaller.exe'), 'left by 2.5.4');
+    fs.writeFileSync(path.join(dl, 'RobloxPlayerInstaller.exe.part'), 'cut short');
+    const a = RobloxApp.newDownload(dl);
+    t.ok(fs.readdirSync(dl).length === 1 && path.dirname(a.file) === a.dir && path.basename(a.file) === 'RobloxPlayerInstaller.exe' && a.part === `${a.file}.part`,
+      'a download starts by removing what earlier ones left, in a folder of its own, under the installer\'s own name');
+    fs.writeFileSync(a.file, 'done');
+    const b = RobloxApp.newDownload(dl);
+    t.ok(b.dir !== a.dir && !fs.existsSync(a.dir) && fs.existsSync(b.dir), 'the next download gets a new folder; the last installer goes');
+    RobloxApp.cleanDownloads(dl);
+    t.ok(fs.readdirSync(dl).length === 0, 'at start, what earlier runs left is removed');
+    fs.rmSync(dl, { recursive: true, force: true });
+  }
   {
     // The download really runs on the connection it is handed (the engine's),
     // never on a direct one of its own.

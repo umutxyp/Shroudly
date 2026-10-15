@@ -8,6 +8,7 @@ import {
   SpinnerIcon, XCircleIcon, ZapIcon,
 } from './icons';
 import Select from './Select';
+import { probeView } from './probeView';
 
 const STRATEGIES = [
   { id: 'auto', labelKey: 'stratAuto', spec: 'split(sni)', auto: true },
@@ -351,7 +352,8 @@ export default function SettingsPanel({ active = false }) {
 
   const strategyOptions = STRATEGIES.map((s) => ({ value: s.id, label: t(s.labelKey), hint: s.spec }));
 
-  const probeBlocked = probeResult && !probeResult.ok && !probeResult.service;
+  const probeShown = probeView(probeResult);
+  const probeBlocked = probeShown.blocked;
 
   return (
     <div className="flex flex-col gap-3 py-4">
@@ -582,14 +584,14 @@ export default function SettingsPanel({ active = false }) {
         )}
 
         {probeResult && (
-          <div className="mt-3" aria-live="polite">
-            {probeResult.service && (
+          <div className="mt-3 flex flex-col gap-2" aria-live="polite">
+            {probeShown.refused && (
               <Notice tone="warn" Icon={AlertTriangleIcon}>
-                <p className="mb-1 font-semibold" style={{ color: 'var(--warn)' }}>{t('probeServiceTitle', { host: probeResult.host })}</p>
-                <p className="text-[12.5px]" style={{ color: 'var(--text-dim)' }}>{t('probeServiceBody', { host: probeResult.host })}</p>
+                <p className="mb-1 font-semibold" style={{ color: 'var(--warn)' }}>{t(probeResult.service === 'stall' ? 'probeStallTitle' : 'probeServiceTitle', { host: probeResult.host })}</p>
+                <p className="text-[12.5px]" style={{ color: 'var(--text-dim)' }}>{t(probeResult.service === 'stall' ? 'probeStallBody' : 'probeServiceBody', { host: probeResult.host })}</p>
               </Notice>
             )}
-            {!probeResult.service && probeResult.ok && probeResult.strategy === 'none' && (
+            {probeShown.works && probeResult.strategy === 'none' && (
               <Notice tone={probeResult.dns_blocked ? 'ok' : 'info'} Icon={probeResult.dns_blocked ? CheckCircleIcon : InfoIcon}>
                 <p style={{ color: probeResult.dns_blocked ? 'var(--ok)' : 'var(--text-dim)' }}>
                   {probeResult.dns_blocked
@@ -598,7 +600,7 @@ export default function SettingsPanel({ active = false }) {
                 </p>
               </Notice>
             )}
-            {!probeResult.service && probeResult.ok && probeResult.strategy !== 'none' && (
+            {probeShown.works && probeResult.strategy !== 'none' && (
               <Notice tone="ok" Icon={CheckCircleIcon}>
                 <p style={{ color: 'var(--ok)' }}>
                   {t('probeWorks', { host: probeResult.host, strategy: probeResult.strategy || '—' })}
