@@ -1966,7 +1966,7 @@ $t = Add-Type -MemberDefinition $sig -Name WinINet -Namespace Net -PassThru
       let madeDir = null;
       try {
         if (p.next !== p.cur) {
-          if (p.cur === null) madeDir = fs.mkdirSync(path.dirname(p.file), { recursive: true }) || null;
+          if (p.cur === null) madeDir = SystemProxy._mkdirFor(p.file);
           writeAtomic(p.file, p.next, 0o644);
           if (madeDir) p.rec.madeDir = madeDir;
         }
@@ -1994,11 +1994,33 @@ $t = Add-Type -MemberDefinition $sig -Name WinINet -Namespace Net -PassThru
     return id && boot ? `${boot}/${id}` : null;
   }
 
+  /* Make the folder a file goes in. Returns the topmost folder that had to
+   * be made (null: none), worked out here rather than taken from mkdir, so
+   * it is written exactly as _rmMadeDirs will compare it. */
+  static _mkdirFor(file) {
+    const dir = path.dirname(path.resolve(file));
+    let top = null;
+    for (let d = dir; !fs.existsSync(d); d = path.dirname(d)) { top = d; if (path.dirname(d) === d) break; }
+    fs.mkdirSync(dir, { recursive: true });
+    return top;
+  }
+
   /* Folders made for a file (madeDir, the topmost) go when they are empty. */
   static _rmMadeDirs(file, madeDir) {
     const top = path.resolve(madeDir);
     for (let d = path.dirname(path.resolve(file)); d === top || d.startsWith(`${top}${path.sep}`); d = path.dirname(d)) {
-      try { fs.rmdirSync(d); } catch { break; }
+      if (!SystemProxy._rmdirSoon(d)) break;
+    }
+  }
+
+  /* Remove an empty folder. Windows can refuse for a moment while another
+   * program (a virus scanner) still holds the file just removed from it. */
+  static _rmdirSoon(d) {
+    for (let i = 0; ; i++) {
+      try { fs.rmdirSync(d); return true; } catch (e) {
+        if (process.platform !== 'win32' || i >= 10 || !['EBUSY', 'EPERM', 'ENOTEMPTY'].includes(e.code)) return false;
+        sleepSync(50);
+      }
     }
   }
 
