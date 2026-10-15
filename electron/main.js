@@ -21,6 +21,7 @@ const i18n = require('./main-i18n');
 const Families = require('./families');
 const ServiceCheck = require('./service-check');
 const { restoreProxy } = require('./restore-proxy');
+const Launch = require('./launch');
 
 /* "Shroudly --restore-proxy" runs once at login after a run that never got to
  * restore the system proxy (power loss, forced reboot), and from the watchdog
@@ -194,34 +195,21 @@ function rebuildTrayMenu(active = trayActive) {
   if (process.platform === 'darwin') tray.setImage(makeTrayIcon(active));
 }
 
+/* Resolves once it is known whether the tray icon can be seen at all
+ * (launch.js): how Shroudly comes up at launch depends on it. */
 function createTray() {
   tray = new Tray(makeTrayIcon());
   rebuildTrayMenu(false);
   tray.on('click', () => showWindow());
-  checkTrayHost();
+  return checkTrayHost();
 }
 
-/* Is the tray icon visible at all? Not on a stock GNOME (Fedora, Debian):
- * it shows tray icons only with an extension. There, a window sent to the
- * tray or closed for being idle would leave Shroudly running with nothing on
- * screen to bring it back, so the window is minimised instead and never closed
- * for being idle. Asked once, of the session bus: is a StatusNotifier host
- * (what Electron draws tray icons with) listening? An X11 session that is not
- * GNOME still has the classic tray as a fallback. */
+/* Without a visible tray icon (a stock GNOME), the window is minimised
+ * instead of sent to the tray, and never closed for being idle. */
 let trayVisible = true;
-function checkTrayHost() {
-  if (process.platform !== 'linux') return;
-  // Tests run both ways on one machine (tests/e2e).
-  if (/^(present|absent)$/.test(process.env.SHROUDLY_TRAY || '')) { trayVisible = process.env.SHROUDLY_TRAY === 'present'; return; }
-  const desktop = String(process.env.XDG_CURRENT_DESKTOP || '');
-  const x11Tray = process.env.XDG_SESSION_TYPE === 'x11' && !/GNOME/i.test(desktop);
-  require('child_process').execFile('dbus-send', ['--session', '--print-reply', '--dest=org.freedesktop.DBus',
-    '/org/freedesktop/DBus', 'org.freedesktop.DBus.NameHasOwner', 'string:org.kde.StatusNotifierWatcher'],
-  { timeout: 3000 }, (err, out) => {
-    const sni = !err && /boolean true/.test(String(out));
-    trayVisible = sni || x11Tray || (!!err && !/GNOME/i.test(desktop));
-    if (!trayVisible) addLog('info', 'No tray on this desktop: the window is minimised instead of closed');
-  });
+async function checkTrayHost() {
+  trayVisible = await Launch.trayVisible();
+  if (!trayVisible) addLog('info', 'No tray on this desktop: the window is minimised instead of closed');
 }
 
 /* Does a host go through Shroudly? Always, unless the user routes only listed
@@ -412,7 +400,7 @@ async function checkDevServer() {
   });
 }
 
-async function createWindow({ show = true } = {}) {
+async function createWindow({ show = true, minimised = false } = {}) {
   uiReady = false;
   if (show) await setDockIcon(true);
   const win = new BrowserWindow({
@@ -480,7 +468,11 @@ async function createWindow({ show = true } = {}) {
 
   win.once('ready-to-show', () => {
     loading.delete(win);
-    if (show && !win.isDestroyed()) { markActive(); win.show(); win.focus(); }
+    if (!show || win.isDestroyed()) return;
+    markActive();
+    // In the taskbar without taking the screen (a quiet start with no tray).
+    if (minimised) { win.showInactive(); win.minimize(); return; }
+    win.show(); win.focus();
   });
   // A page that never finishes loading must not keep the window forever.
   if (show) setTimeout(() => loading.delete(win), 30000).unref();
@@ -673,11 +665,14 @@ app.whenReady().then(async () => {
     // administrator's password, after the user dismissed its dialog.
     onProxyRecovery: (r) => toWindow('dpi:proxy-recovery', r),
     // Which services this network filters (Roblox: offer Games and apps
-    // mode), and a connection that is answered and then left unanswered: the
-    // site may be turning the user away itself (checked, then explained).
-    onHostEvent: (kind, host) => {
+    // mode), and a site whose connections keep being answered and then cut:
+    // the site may be turning the user away itself (checked, then
+    // explained). Only once the cuts are as many as the engine needs before
+    // it believes them (one means little), and only for a site's own page:
+    // a CDN, API or storage host answers / with an error page of its own.
+    onHostEvent: (kind, host, detail) => {
       if (RobloxApp.isRobloxHost(host) && kind !== 'unreachable' && !siteSeen.robloxBlocked) { siteSeen.robloxBlocked = true; sendAppState(); }
-      if (kind === 'cut') checkServiceOnce(host).catch(() => {});
+      if (kind === 'cut' && repeatedCut(host, detail) && ServiceCheck.isMainName(host)) checkServiceOnce(host).catch(() => {});
     },
     // A site that defeated every technique. Told once per site, and at most
     // once every few minutes, so a page full of blocked resources cannot turn
@@ -706,22 +701,27 @@ app.whenReady().then(async () => {
   // it is off, and up whenever Shroudly is with the mode on.
   appProxy = new AppProxy(addLog, () => (engine && engine.isActive() ? engine.port : null), isRouted);
   appProxy.onTunnel = onAppTunnel;
+  appProxy.onRequest = onAppRequest;
   appEnv = new AppEnv({ stateFile: appEnvStateFile(), watchdog, restoreCommand });
 
   updater = new Updater({
     log: addLog,
     store,
     notify: (version) => notify('Shroudly', tr().notifyUpdateReady.replace('{version}', version)),
+    // What a restart would interrupt: the Roblox player and Discord, while
+    // their mode sends them through Shroudly and protection is on.
+    busy: () => Updater.inUse({
+      protection: !!(engine && engine.isActive()),
+      appMode: store.get('appMode') === true,
+      discordMode: store.get('discordMode') === true,
+      robloxPlaying: async () => (await RobloxApp.pids()).length > 0,
+      discordOpen: async () => { for (const v of DiscordApp.installed()) { if (await DiscordApp.isRunning(v)) return true; } return false; },
+    }),
     // Installing quits the app: stop the engine first so the system proxy is
     // put back, exactly as on a normal quit.
-    busy: async () => {
-      if ((await RobloxApp.pids()).length) return true;
-      for (const v of DiscordApp.variants()) { if (await DiscordApp.isRunning(v)) return true; }
-      return false;
-    },
     beforeInstall: async () => {
       // Back the way it was: the window only if it was open on screen.
-      try { store.set('afterUpdate', { window: windowAlive() && mainWindow.isVisible() && !mainWindow.isMinimized() }); } catch {}
+      try { store.set('afterUpdate', Launch.afterUpdateRecord(windowAlive() && mainWindow.isVisible() && !mainWindow.isMinimized(), appVersion())); } catch {}
       exitInProgress = true;
       keepDiscordLine = true;
       app.isQuitting = true;
@@ -733,17 +733,25 @@ app.whenReady().then(async () => {
     toWindow('update:state', s);
   });
 
-  createTray();
+  const trayChecked = createTray();
   watchSessionEnd();
   // Started at login into the tray, or back from an update installed while
-  // the window was closed: no window at all until it is opened.
+  // the window was closed: no window at all until it is opened, where the
+  // tray icon can be seen (launch.js). The update's note is read once, and
+  // only by the copy that update started.
+  await trayChecked;
   const afterUpdate = store.get('afterUpdate');
-  if (afterUpdate) store.delete('afterUpdate');
-  const quietStart = (isAutoStartLaunch() && store.get('minimizeToTray', true)) || (afterUpdate && afterUpdate.window === false);
-  if (quietStart) { setDockIcon(false); addLog('info', 'Auto-started in tray'); }
-  else await createWindow({ show: true });
+  if (afterUpdate !== undefined) store.delete('afterUpdate');
+  const how = Launch.startWindow({
+    autoStart: isAutoStartLaunch(), minimizeToTray: store.get('minimizeToTray', true),
+    afterUpdate: Launch.isUpdateRelaunch(afterUpdate, appVersion()) ? afterUpdate : null, trayShown: trayVisible,
+  });
+  if (how === 'tray') { setDockIcon(false); addLog('info', 'Auto-started in tray'); }
+  else await createWindow({ show: true, minimised: how === 'minimised' });
   addLog('success', 'Application started');
   updater.start();
+  // Roblox installers downloaded in an earlier run have done their work.
+  if (process.platform === 'win32') RobloxApp.cleanDownloads(path.join(app.getPath('userData'), 'roblox'));
 
   // After the window is up: on Windows this writes the registry, which takes
   // a moment the window should not wait for.
@@ -779,8 +787,12 @@ app.whenReady().then(async () => {
   // may never be opened this session.
   if (protectionOn) {
     addLog('info', 'Auto Mode: starting protection');
-    // Unless the user pressed Stop in the meantime.
-    setTimeout(() => { if (protectionWanted()) safeStart(); }, 1200);
+    // An update that has waited its limit for a game or a call installs
+    // first, while nothing goes through Shroudly yet (updater.js); should
+    // the install not get as far as quitting, protection starts anyway,
+    // unless the user pressed Stop in the meantime.
+    const installing = await updater.installBeforeProtection().catch(() => false);
+    setTimeout(() => { if (protectionWanted()) safeStart(); }, installing ? 60000 : 1200);
   } else {
     // macOS: a proxy set with an administrator's password that the previous
     // run could not put back (the Mac restarted under it). Asked with the
@@ -917,14 +929,22 @@ ipcMain.handle('dpi:probe', (e, host) => {
 
 /* A site test the user asked for: once the network is no longer in the way,
  * also ask whether the site itself turns this user away (service-check.js).
- * Background probes are passed on as they are. */
+ * Background probes are passed on as they are. The window waits for its
+ * answer only so long (it gives up on a test after 25 s): a slower answer
+ * still comes, as the notice any refusal brings. */
 const userTests = new Map();   // host -> when the test was asked for
+const SITE_TEST_SERVICE_MS = 13000;
 async function onProbeResult(p) {
   const asked = p && p.host ? userTests.get(String(p.host).toLowerCase()) : 0;
   if (asked) userTests.delete(String(p.host).toLowerCase());
   if (asked && Date.now() - asked < 120000 && engine && engine.isActive()) {
     serviceChecked.delete(String(p.host).toLowerCase());
-    const service = await checkServiceOnce(p.host);
+    let timer = null;
+    const service = await Promise.race([
+      checkServiceOnce(p.host).catch(() => null),
+      new Promise((r) => { timer = setTimeout(() => r(null), SITE_TEST_SERVICE_MS); }),
+    ]);
+    clearTimeout(timer);
     if (service) { toWindow('dpi:probe-result', { ...p, service }); return; }
   }
   toWindow('dpi:probe-result', p);
@@ -1150,20 +1170,23 @@ function sendAppState() {
   toWindow('apps:state', appState);
 }
 
-/* Evidence, not the setting: the local proxy reports every tunnel. The first
- * of a session is logged (so a support log shows the mode really works), and
- * Roblox's are remembered for the check below. */
+/* Evidence, not the setting: the local proxy reports every request and
+ * every tunnel. A request from Roblox is what shows it uses the setting,
+ * whether or not the server it asked for could then be reached; it is
+ * remembered for the check below. The first tunnel of a session, and
+ * Roblox's first, are logged (so a support log shows the mode really works). */
 const appSeen = { any: false, roblox: false, robloxAt: 0 };
+function onAppRequest(host) {
+  if (!RobloxApp.isRobloxHost(host)) return;
+  appSeen.robloxAt = Date.now();
+  if (appState.bypassing) { appState.bypassing = false; sendAppState(); }
+}
 function onAppTunnel(host) {
   if (!appSeen.any) { appSeen.any = true; addLog('info', `Games and apps: the first program connected through Shroudly (${host})`); }
-  if (RobloxApp.isRobloxHost(host)) {
-    appSeen.robloxAt = Date.now();
-    if (!appSeen.roblox) {
-      appSeen.roblox = true;
-      addLog('success', 'Games and apps: Roblox is connecting through Shroudly');
-      checkServiceOnce('www.roblox.com');
-    }
-    if (appState.bypassing) { appState.bypassing = false; sendAppState(); }
+  if (RobloxApp.isRobloxHost(host) && !appSeen.roblox) {
+    appSeen.roblox = true;
+    addLog('success', 'Games and apps: Roblox is connecting through Shroudly');
+    checkServiceOnce('www.roblox.com').catch(() => {});
   }
 }
 
@@ -1174,6 +1197,7 @@ function onAppTunnel(host) {
  * through to, and the services the app modes are for (Roblox, Discord), each
  * looked at once per session at most. */
 const siteSeen = { robloxBlocked: false };
+const repeatedCut = ServiceCheck.cutCounter();
 const serviceChecked = new Map();   // host -> when
 const serviceRefusals = new Map();  // host -> 'region' | 'stall'
 async function checkServiceOnce(host) {
@@ -1190,43 +1214,42 @@ async function checkServiceOnce(host) {
 function reportServiceRefusal(host, kind) {
   const first = !serviceRefusals.has(host);
   serviceRefusals.set(host, kind);
-  if (first) addLog('warning', `${host}: the site itself refuses this connection (${kind === 'region' ? 'a block page' : 'no answer after the handshake'}); Shroudly does not change your address, so it cannot change this`);
+  // Only a page that says so is the site's own refusal. Silence after the
+  // handshake may be the site, or a network that lets connections start and
+  // then stops them: both are said, never just one.
+  if (first) {
+    addLog('warning', kind === 'region'
+      ? `${host}: the site itself refuses this connection (it says it does not serve where you are); Shroudly does not change your address, so it cannot change this`
+      : `${host}: accepts the connection, then nothing comes back; either the site turns away visitors from where you are, or the network stops the connection after it is made`);
+  }
   toWindow('dpi:service-refused', { host, service: kind });
 }
 
-/* A Roblox that runs but has made no connection through Shroudly: started by
+/* A Roblox player that runs but has sent no request to Shroudly: started by
  * a browser that was open before the setting (the website's Play button, or
  * the installer opened from the download bar), it goes straight to Roblox and
- * stays blocked. Seen only while the mode and protection are on, checked
- * every 20 seconds (one tasklist / pgrep), never while nothing could be
- * wrong. */
-const BYPASS_GRACE_MS = 30000;
-let robloxSeen = { pids: '', since: 0, told: false };
+ * stays blocked. Windows only (RobloxApp.routeWatched says why). Players are
+ * followed whenever the mode is on, every 20 seconds (one tasklist), so each
+ * is judged from when it really started (RobloxApp.silentPlayers), not from
+ * when protection came on; one is reported only while protection is on. */
+const robloxSeen = new Map();   // player pid -> first seen
+const robloxTold = new Set();
+function clearBypassing() { if (appState.bypassing) { appState.bypassing = false; sendAppState(); } }
 async function checkRobloxRoute() {
-  if (store.get('appMode') !== true || !engine || !engine.isActive() || !appProxy || !appProxy.running) {
-    robloxSeen = { pids: '', since: 0, told: false };
-    if (appState.bypassing) { appState.bypassing = false; sendAppState(); }
+  if (!RobloxApp.routeWatched() || store.get('appMode') !== true || !appProxy || !appProxy.running) {
+    robloxSeen.clear();
+    robloxTold.clear();
+    clearBypassing();
     return;
   }
-  const list = await RobloxApp.pids();
-  const key = list.slice().sort((a, b) => a - b).join(',');
-  if (!list.length) {
-    robloxSeen = { pids: '', since: 0, told: false };
-    if (appState.bypassing) { appState.bypassing = false; sendAppState(); }
-    return;
-  }
-  if (key !== robloxSeen.pids) robloxSeen = { pids: key, since: Date.now(), told: false };
-  // Roblox makes its connections in its first seconds, and this looks every
-  // 20 s: connections from just before it was first seen count as its own.
-  const silent = Date.now() - robloxSeen.since >= BYPASS_GRACE_MS && appSeen.robloxAt < robloxSeen.since - 25000;
-  if (silent && !appState.needsRestart && !appState.bypassing) {
-    appState.bypassing = true;
-    sendAppState();
-    if (!robloxSeen.told) {
-      robloxSeen.told = true;
-      addLog('warning', 'Games and apps: Roblox is running but none of its connections go through Shroudly (it was probably started by a browser that was already open)');
-      notify(tr().notifyAppBypassTitle, tr().notifyAppBypassBody);
-    }
+  const silent = RobloxApp.silentPlayers(robloxSeen, await RobloxApp.pids(), appSeen.robloxAt, Date.now());
+  for (const pid of [...robloxTold]) if (!robloxSeen.has(pid)) robloxTold.delete(pid);
+  if (!silent.length || appState.needsRestart || !engine || !engine.isActive()) { clearBypassing(); return; }
+  if (!appState.bypassing) { appState.bypassing = true; sendAppState(); }
+  if (silent.some((pid) => !robloxTold.has(pid))) {
+    for (const pid of silent) robloxTold.add(pid);
+    addLog('warning', 'Games and apps: Roblox is running but none of its connections go through Shroudly (it was probably started by a browser that was already open)');
+    notify(tr().notifyAppBypassTitle, tr().notifyAppBypassBody);
   }
 }
 setInterval(() => { checkRobloxRoute().catch(() => {}); }, 20000).unref();
@@ -1348,7 +1371,7 @@ ipcMain.handle('apps:restartRoblox', async () => {
   // On Windows Shroudly starts the new copy itself, with the proxy in its
   // environment; macOS starts it with the session's, which already has it.
   const ok = await RobloxApp.restart(robloxEnv());
-  if (ok) { appState.needsRestart = false; appState.bypassing = false; robloxSeen = { pids: '', since: 0, told: false }; sendAppState(); }
+  if (ok) { appState.needsRestart = false; appState.bypassing = false; robloxSeen.clear(); robloxTold.clear(); sendAppState(); }
   return { success: ok };
 });
 // "Open Roblox": started by Shroudly, so it goes through Shroudly whatever
@@ -1388,7 +1411,7 @@ ipcMain.handle('settings:set', (e, key, value) => {
   if (ENGINE_SETTINGS.has(key)) scheduleEngineRestart();
   if (PROXY_SETTINGS.has(key)) { routing = null; scheduleProxyReapply(); scheduleSiteListCheck(5000); }
   if (key === 'language') rebuildTrayMenu();
-  if (key === 'autoUpdate' && value !== false && updater && updater.state.status === 'available') updater.download();
+  if (key === 'autoUpdate' && updater) updater.autoChanged();
   if (key === 'autoStart') {
     const ok = setAutoStart(value);
     if (!ok) { store.set('autoStart', false); return { success: false, error: 'Could not set auto-start' }; }

@@ -139,6 +139,10 @@ class AppProxy {
     // app knows a program really goes through Shroudly, not just that the
     // setting was written.
     this.onTunnel = null;
+    // Told of every request that arrives (host), before it is carried on: a
+    // program that uses the setting is using it even while the site it asks
+    // for cannot be reached.
+    this.onRequest = null;
   }
 
   get running() { return !!this.server; }
@@ -228,6 +232,7 @@ class AppProxy {
     client.on('error', () => {});
     const t = parseTarget(String(req.url || ''));
     if (!t) { client.end('HTTP/1.1 400 Bad Request\r\n\r\n'); return; }
+    if (this.onRequest) { try { this.onRequest(t.host); } catch {} }
     if (this.open >= MAX_TUNNELS) { client.end('HTTP/1.1 503 Service Unavailable\r\n\r\n'); return; }
     this.open++;
     client.once('close', () => { this.open--; });

@@ -253,6 +253,16 @@ async function record(label, pid) {
       ok(!!st && st.min, 'no tray: closing minimises instead of hiding');
       ok(await w.evaluate(() => typeof window.electron.quitApp === 'function'), 'the window offers its own Quit');
     } finally { await a.close().catch(() => {}); }
+    // Started at login (or by an update) with "minimize to tray" on: with no
+    // tray to come back from, a window all the same, minimised.
+    const b = await _electron.launch({
+      executablePath: require(path.join(APP, 'node_modules', 'electron')),
+      args: [APP, `--user-data-dir=${ud}`, '--autostart', '--no-sandbox'], env: envNoTray, timeout: 60000,
+    });
+    try {
+      await b.firstWindow({ timeout: 30000 });
+      ok(await b.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows().length) === 1, 'no tray, started at login: a window all the same, never nothing on screen');
+    } finally { await b.close().catch(() => {}); }
   }
   fs.rmSync(ud, { recursive: true, force: true });
 

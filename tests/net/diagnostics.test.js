@@ -61,6 +61,24 @@ const TAIL_UP = { ...ETH, Tailscale: [{ address: '100.64.0.5', family: 'IPv4', i
   t.ok(await D.dnsDead({ probe: { interfaces: ETH, dns: some, reach: reach(true) } }) === false && reached === 0, 'P18: the DNS answers: not dead');
   t.ok(await D.dnsDead({ probe: { interfaces: ETH, dns: none, reach: reach(false) } }) === false, 'P18: nothing answers and no public address can be reached either (the network is not up): not dead');
   t.ok(await D.dnsDead({ probe: { interfaces: ETH, dns: none, reach: reach(true) } }) === true, 'P18: the network is up and the DNS still answers nothing: dead');
+
+  // The program that answers DNS on this computer: only one listening where
+  // the system asks (or everywhere) is named. macOS and Linux show other
+  // users' programs without their names, so a DNS program run by the system
+  // leaves nothing to name, rather than some other program on port 53.
+  const lsof = 'p501\ncdnscrypt-proxy\nf7\nn127.0.0.1:53\np502\ncdevdns\nf9\nn192.168.64.1:53\np503\ncChrome\nf30\nn192.168.1.20:61000->1.1.1.1:53\n';
+  t.ok(D.lsofDnsPrograms(lsof, ['127.0.0.1']).join() === 'dnscrypt-proxy', 'macOS: the program on 127.0.0.1:53, not one on another address, not a program asking a DNS server');
+  t.ok(D.lsofDnsPrograms('p7\ncdevdns\nf9\nn192.168.64.1:53\n', ['127.0.0.1']).length === 0, 'macOS: the system DNS program cannot be seen, another on port 53 can: nothing named');
+  t.ok(D.lsofDnsPrograms('p7\ncadguard\nf9\nn*:53\np8\ncv6dns\nf3\nn[::1]:53\n', ['::1']).join() === 'adguard,v6dns', 'macOS: listening on every address, or on ::1');
+  const ss = [
+    'UNCONN 0      0      127.0.0.53%lo:53        0.0.0.0:*',
+    'UNCONN 0      0          127.0.0.1:53        0.0.0.0:*',
+    'UNCONN 0      0      192.168.122.1:53        0.0.0.0:*    users:(("devdns",pid=900,fd=5))',
+    'UNCONN 0      0              [::1]:53           [::]:*    users:(("dnscrypt-proxy",pid=9,fd=7))',
+  ].join('\n');
+  t.ok(D.ssDnsPrograms(ss, ['127.0.0.1']).length === 0, 'Linux: a DNS program run by the system (no name shown): nothing named, not the user\'s program elsewhere');
+  t.ok(D.ssDnsPrograms(ss, ['::1']).join() === 'dnscrypt-proxy' && D.ssDnsPrograms('UNCONN 0 0 *:53 *:* users:(("unbound",pid=3,fd=4),("unbound",pid=4,fd=4))', ['127.0.0.1']).join() === 'unbound,unbound',
+    'Linux: the program on the address asked, or on every address');
   console.log(`diagnostics: ${t.count} passed`);
   process.exit(0);
 })().catch((e) => { console.error('FAIL', e.message); process.exit(1); });

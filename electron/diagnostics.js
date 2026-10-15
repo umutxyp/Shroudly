@@ -265,27 +265,68 @@ function reachesInternet(ms = 3000) {
  * which one. Many leftovers of other bypass tools (DNSCrypt, YogaDNS,
  * AdGuard, Acrylic, SecureDNSClient) live there, and some also intercept
  * traffic. Linux's own systemd-resolved (127.0.0.53) is the normal case and
- * not looked into. Asked only when the DNS is local. */
-const isLoopbackDns = (a) => /^127\./.test(a) || a === '::1';
+ * not looked into. Asked only when the DNS is local.
+ *
+ * Only a program listening on the address the system asks (or on every
+ * address) is named. Without administrator rights macOS and Linux show only
+ * the user's own programs: a DNS program run by the system stays unnamed,
+ * and then nothing is named rather than some other program that happens to
+ * listen on port 53 elsewhere. */
+const isLoopbackDns = (a) => /^127\./.test(a) || a === '::1' || /^\[::1\]/.test(a);
+
+/* "127.0.0.1", "127.0.0.1:5353", "[::1]:53" -> the address alone. */
+function dnsAddress(s) {
+  const m = /^\[([^\]]+)\](?::\d+)?$/.exec(s) || /^(\d+\.\d+\.\d+\.\d+)(?::\d+)?$/.exec(s);
+  return (m ? m[1] : String(s)).toLowerCase();
+}
+
+/* Does a socket bound to `local` (as lsof or ss print it, without the port)
+ * answer these DNS addresses? */
+function answers(local, addrs) {
+  const a = String(local).replace(/^\[|\]$/g, '').replace(/%.*$/, '').toLowerCase();
+  if (a === '*' || a === '0.0.0.0' || a === '::') return true;
+  return addrs.includes(a);
+}
+
+/* lsof -nP -iUDP:53 -Fcn: programs bound to port 53 on one of `addrs`, not
+ * the ones merely asking a DNS server (those show as "local->remote:53"). */
+function lsofDnsPrograms(out, addrs) {
+  const names = [];
+  let cmd = null;
+  for (const l of String(out || '').split('\n')) {
+    if (l.startsWith('p')) cmd = null;
+    else if (l.startsWith('c')) cmd = l.slice(1);
+    else if (l.startsWith('n') && cmd && !l.includes('->') && /:53$/.test(l) && answers(l.slice(1, -3), addrs)) names.push(cmd);
+  }
+  return names;
+}
+
+/* ss -lunpH 'sport = :53': the same, from Linux. A line shows its program
+ * only when the user may see it. */
+function ssDnsPrograms(out, addrs) {
+  const names = [];
+  for (const l of String(out || '').split('\n')) {
+    const local = l.trim().split(/\s+/).find((f) => /:53$/.test(f));
+    if (!local || !answers(local.slice(0, -3), addrs)) continue;
+    const users = /users:\((.*)\)/.exec(l);
+    if (users) for (const m of users[1].matchAll(/\("([^"]+)"/g)) names.push(m[1]);
+  }
+  return names;
+}
+
 async function localDnsOwner(servers) {
   const loop = (servers || []).filter(isLoopbackDns);
   if (!loop.length || loop.every((a) => a === '127.0.0.53')) return null;
+  const addrs = loop.map(dnsAddress);
   let names = [];
   if (process.platform === 'win32') {
     const out = await run(winTool('WindowsPowerShell\\v1.0\\powershell.exe'), ['-NoProfile', '-NonInteractive', '-Command',
       'Get-NetUDPEndpoint -LocalPort 53 -ErrorAction SilentlyContinue | ForEach-Object { (Get-Process -Id $_.OwningProcess -ErrorAction SilentlyContinue).ProcessName } | Sort-Object -Unique'], 8000);
     names = out.split(/\r?\n/);
   } else if (process.platform === 'darwin') {
-    // Programs bound to port 53 here, not the ones merely asking a DNS
-    // server (those show as "local->remote:53").
-    let cmd = null;
-    for (const l of (await run('/usr/sbin/lsof', ['-nP', '-iUDP:53', '-Fcn'])).split('\n')) {
-      if (l.startsWith('c')) cmd = l.slice(1);
-      else if (l.startsWith('n') && cmd && !l.includes('->') && /:53$/.test(l)) names.push(cmd);
-    }
+    names = lsofDnsPrograms(await run('/usr/sbin/lsof', ['-nP', '-iUDP:53', '-Fcn']), addrs);
   } else {
-    const out = await run('/usr/bin/ss', ['-lunpH', 'sport = :53']);
-    names = [...out.matchAll(/\(\("([^"]+)"/g)].map((m) => m[1]);
+    names = ssDnsPrograms(await run('/usr/bin/ss', ['-lunpH', 'sport = :53']), addrs);
   }
   names = [...new Set(names.map((n) => n.trim()).filter(Boolean))].slice(0, 4);
   return { servers: loop, programs: names };
@@ -332,4 +373,4 @@ async function collect() {
   };
 }
 
-module.exports = { collect, runningTools, appsNeedingRestart, dnsTampering, dnsProbe, dnsDead, localDnsOwner, defaultRoute, describeInterface, regionOf, looksForged };
+module.exports = { collect, runningTools, appsNeedingRestart, dnsTampering, dnsProbe, dnsDead, localDnsOwner, lsofDnsPrograms, ssDnsPrograms, defaultRoute, describeInterface, regionOf, looksForged };
