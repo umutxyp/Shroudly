@@ -77,10 +77,14 @@ int  sock_get_ttl(sock_t s, int family);
 int  sock_set_ttl(sock_t s, int family, int ttl);
 /* Wait until the kernel has transmitted everything queued on s (best effort, max_ms). */
 void sock_wait_sent(sock_t s, int max_ms);
-/* Connect with timeout. Returns 0 on success. */
+/* Connect with timeout. Returns 0 on success, -2 when timeout_ms ran out with
+ * no answer, -1 on any other failure (refused, unreachable, ...). */
 int  sock_connect_timeout(sock_t s, const struct sockaddr *sa, int salen, int timeout_ms);
 /* Send all bytes; flags passed to send(). Returns 0 on success, -1 on error. */
 int  sock_send_all(sock_t s, const uint8_t *buf, size_t len, int flags);
+/* 1 when a socket error (sock_errno()) means the other end reset or closed
+ * the connection — or something on the path did, posing as it. */
+int  sock_err_peer_gone(int err);
 /* Poll a single socket for readability. 1 readable, 0 timeout, -1 error. */
 int  sock_wait_readable(sock_t s, int timeout_ms);
 /* Poll two sockets for readability. Returns bitmask (1 = a, 2 = b), 0 timeout, -1 error. */

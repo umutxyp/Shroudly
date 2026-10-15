@@ -150,7 +150,9 @@ int sock_connect_timeout(sock_t s, const struct sockaddr *sa, int salen, int tim
     p.fd = s; p.events = POLLOUT; p.revents = 0;
     do { r = poll(&p, 1, timeout_ms); } while (r < 0 && errno == EINTR);
 #endif
-    if (r <= 0) { sock_set_nonblock(s, 0); return -1; }
+    /* -2: nothing came back in time, which is not the same as a refusal —
+     * the caller may have cut the wait short itself. */
+    if (r <= 0) { sock_set_nonblock(s, 0); return r == 0 ? -2 : -1; }
     int err = 0;
 #ifdef _WIN32
     int len = sizeof(err);
@@ -188,6 +190,14 @@ int sock_send_all(sock_t s, const uint8_t *buf, size_t len, int flags) {
     off += (size_t)n;
   }
   return 0;
+}
+
+int sock_err_peer_gone(int err) {
+#ifdef _WIN32
+  return err == WSAECONNRESET || err == WSAECONNABORTED || err == WSAESHUTDOWN || err == WSAENOTCONN;
+#else
+  return err == ECONNRESET || err == EPIPE || err == ECONNABORTED || err == ENOTCONN;
+#endif
 }
 
 int sock_wait_readable(sock_t s, int timeout_ms) {
