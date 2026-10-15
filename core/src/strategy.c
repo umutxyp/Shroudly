@@ -86,7 +86,7 @@ int strategy_parse(const char *spec, strategy *out) {
 
 /* Presets ordered most-universal first. These mirror the techniques that work
  * against real-world DPI (split at SNI, disorder, fakes at low TTL). */
-static strategy PRESETS[24];
+static strategy PRESETS[STRATEGY_MAX_PRESETS];
 static int N_PRESETS = 0;
 
 static void add(const char *name, const char *spec) {

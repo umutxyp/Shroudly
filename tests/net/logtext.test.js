@@ -35,6 +35,13 @@ const LINES = [
   'discord.com could not be opened with encrypted DNS switched off. It has been switched back on.',
   'Discord app mode on: Discord updates through Shroudly',
   'Discord app mode off: Discord settings restored',
+  // Bypass and block lines keep translating when the engine adds that the
+  // network dropped the attempts silently, and the auto-mode label still fits.
+  'discord.com: blocked here, opened with tlsrec-sni (2 tries, ipv4)',
+  'discord.com: blocked here, opened with tlsrec-sni (2 tries, ipv4) — the network drops these connections silently instead of refusing them',
+  'discord.com: still blocked after 5 techniques (ipv4) — the network drops these connections silently; this network may need Advanced mode',
+  'Shroudly engine active (strategy: auto, 16 techniques)',
+  'Settings applied (strategy: auto, 16 techniques)',
 ];
 
 const langs = Object.keys(translations);

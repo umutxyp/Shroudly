@@ -56,6 +56,11 @@ const STATEFUL_REGIONS = new Set(['IR', 'CN', 'RU', 'TM', 'BY']);
 const CUT_WINDOW_MS = 3 * 60 * 1000;
 const CUT_NEED = { stall: 2, reset: 2, noreply: 4 };
 
+/* A host that could not be reached at all is logged again only after this
+ * long: a browser retries a dead host over and over, and the log should say
+ * so once, not once per retry. */
+const UNREACHABLE_REPEAT_MS = 5 * 60 * 1000;
+
 /* A list that names any Discord domain gets all of them: Discord loads its
  * pieces from a dozen domains, and a list edited before one was added would
  * otherwise leave that piece blocked (activities, gift links, dis.gd). */
@@ -171,6 +176,9 @@ class EngineManager {
     // rather than one per connection.
     this.bypassed = new Set();
     this.blockedHosts = new Set();
+    this.unreachable = new Map();  // host -> when it was last logged
+    // How many techniques the engine's ladder has; it says so when it starts.
+    this.techniques = 0;
     this._dnsAutoFixed = false;
     this._dnsReenabledForBlock = false;
     this.port = Number(store.get('listenPort', DEFAULT_PORT)) || DEFAULT_PORT;
@@ -263,6 +271,28 @@ class EngineManager {
     return port;
   }
 
+  /* What is actually deciding how connections are made. With auto mode the
+   * engine's ladder picks a technique per site and the configured strategy is
+   * not used at all, so naming it ("split(sni) + auto") said something untrue. */
+  _strategyLabel(cfg) {
+    if (!cfg.autoProbe) return cfg.strategy;
+    return this.techniques ? `auto, ${this.techniques} techniques` : 'auto';
+  }
+
+  /* A host the engine could not connect to at all: its name did not resolve,
+   * or none of its addresses answered. Not censorship as far as we can tell,
+   * but without this line the log has nothing to say when a site does not
+   * load. Once per host every few minutes. */
+  _onUnreachable(host, stage) {
+    if (!host) return;
+    const now = Date.now();
+    const last = this.unreachable.get(host);
+    if (last && now - last < UNREACHABLE_REPEAT_MS) return;
+    if (this.unreachable.size > 400) this.unreachable.clear();
+    this.unreachable.set(host, now);
+    this.log('warning', `${host}: could not be reached (${stage === 'dns' ? 'DNS' : 'connection'})`);
+  }
+
   _setAdvice(patch) {
     const next = { ...this.advice, ...patch };
     if (JSON.stringify(next) === JSON.stringify(this.advice)) return;
@@ -303,10 +333,10 @@ class EngineManager {
     this.stats = this._empty();
     this.bypassed.clear();
     this.blockedHosts.clear();
+    this.unreachable.clear();
     this.cuts.clear();
     this._setAdvice({ cut: null });
     this._describeEnvironment();
-    this.stats.strategy = cfg.strategy;
     this.expectingStop = false;
 
     // Start the local DoH forwarder so the engine gets real encrypted DNS.
@@ -342,7 +372,8 @@ class EngineManager {
     this.store.set('runtimeActive', true);
     this._startStatsPoll();
     this.onStatusChange(true);
-    this.log('success', `Shroudly engine active (strategy: ${cfg.strategy}${cfg.autoProbe ? ' + auto' : ''})`);
+    this.stats.strategy = this._strategyLabel(cfg);
+    this.log('success', `Shroudly engine active (strategy: ${this.stats.strategy})`);
     return { success: true };
   }
 
@@ -456,6 +487,7 @@ class EngineManager {
     try { msg = JSON.parse(line); } catch { this.log('info', `engine: ${line}`); return; }
     switch (msg.type) {
       case 'ready':
+        this.techniques = Number(msg.techniques) || 0;
         this.log('success', `Engine listening on 127.0.0.1:${msg.port}`);
         // Encrypted DNS routes that go through the engine can start now.
         this.doh.setSocksPort(msg.port);
@@ -502,7 +534,10 @@ class EngineManager {
           // it is capped rather than allowed to track a whole session.
           if (this.bypassed.size > 400) this.bypassed.clear();
           this.bypassed.add(msg.host);
-          this.log('success', `${msg.host}: blocked here, opened with ${msg.strategy} (${msg.attempts} tries, ${msg.family})`);
+          // A silent drop is a different kind of filter from one that refuses,
+          // and worth telling apart when reading a report.
+          const how = msg.note === 'silent' ? ' — the network drops these connections silently instead of refusing them' : '';
+          this.log('success', `${msg.host}: blocked here, opened with ${msg.strategy} (${msg.attempts} tries, ${msg.family})${how}`);
         }
         break;
       case 'blocked':
@@ -521,7 +556,8 @@ class EngineManager {
         if (!this.blockedHosts.has(msg.host)) {
           if (this.blockedHosts.size > 400) this.blockedHosts.clear();
           this.blockedHosts.add(msg.host);
-          this.log('warning', `${msg.host}: still blocked after ${msg.attempts} techniques (${msg.family}) — this network may need Advanced mode`);
+          const how = msg.note === 'silent' ? ' — the network drops these connections silently;' : ' —';
+          this.log('warning', `${msg.host}: still blocked after ${msg.attempts} techniques (${msg.family})${how} this network may need Advanced mode`);
           // Nobody reads a log unprompted. A site that could not be opened at
           // all is the one moment the user needs telling, because otherwise
           // they conclude the app simply does not work.
@@ -530,6 +566,9 @@ class EngineManager {
         break;
       case 'cut':
         this._onCut(msg.host, msg.strategy, msg.attempts);
+        break;
+      case 'unreachable':
+        this._onUnreachable(msg.host, msg.stage);
         break;
       case 'send_failed':
         this.log('warning', `${msg.host}: connection dropped while sending (${msg.family})`);
@@ -627,7 +666,6 @@ class EngineManager {
       }
       this.proc = null;
       this.expectingStop = false;
-      this.stats.strategy = cfg.strategy;
       // DNS protection may have just been turned on: start the forwarder;
       // or turned off: it keeps running harmlessly and is dropped on stop().
       if (cfg.useDoh && !this.dohPort) {
@@ -641,7 +679,8 @@ class EngineManager {
         throw new Error(this.lastError || 'Engine failed to restart');
       }
       this._startStatsPoll();
-      this.log('success', `Settings applied (strategy: ${cfg.strategy}${cfg.autoProbe ? ' + auto' : ''})`);
+      this.stats.strategy = this._strategyLabel(cfg);
+      this.log('success', `Settings applied (strategy: ${this.stats.strategy})`);
       return { success: true };
     } finally {
       this.restarting = false;
