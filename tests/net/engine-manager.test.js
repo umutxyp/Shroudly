@@ -48,9 +48,17 @@ const t = suite('engine-manager');
   t.ok(logs.includes('warning: nxdomain.example: could not be reached (DNS)'), 'a name that does not resolve is logged as a DNS failure');
   // A silent drop is told apart from a refusal in the log.
   em._onLine(JSON.stringify({ type: 'bypass', host: 'quiet.example', strategy: 'tlsrec-sni', attempts: 2, family: 'ipv4', note: 'silent' }));
+  // Nothing answered at all: a silent filter and a site that is down look the
+  // same, so it is a log line, never a notification or a changed setting.
+  const blockedNotices = [];
+  em.onSiteBlocked = (h) => blockedNotices.push(h);
+  mem.dnsProtection = false;
   em._onLine(JSON.stringify({ type: 'blocked', host: 'dead.example', strategy: '', attempts: 5, family: 'ipv4', note: 'silent' }));
   t.ok(logs.some((l) => l.startsWith('success: quiet.example: blocked here, opened with tlsrec-sni (2 tries, ipv4) — the network drops these connections silently')), 'silent-drop bypass says so');
-  t.ok(logs.some((l) => l.startsWith('warning: dead.example: still blocked after 5 techniques (ipv4) — the network drops these connections silently;')), 'silent-drop block says so');
+  t.ok(logs.some((l) => l.startsWith('warning: dead.example: no answer after 5 techniques (ipv4) — the network may be dropping these connections silently, or the site is down')), 'no answer at all is logged as such');
+  t.ok(!blockedNotices.length, 'no answer at all is not announced as a blocked site');
+  t.ok(mem.dnsProtection === false, 'no answer at all does not switch encrypted DNS back on');
+  delete mem.dnsProtection;
 
   em._setAdvice({ dnsDown: true }); em._setAdvice({ dnsDown: true });
   t.ok(advices.filter((a) => a.dnsDown).length === 1, 'the window is only told when something changes');
