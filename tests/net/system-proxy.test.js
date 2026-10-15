@@ -451,7 +451,8 @@ const readState = (file) => { try { return JSON.parse(fs.readFileSync(file, 'utf
 
   // ── the Windows installer's hook (scripts/installer.nsh), interpreted ──
   {
-    const nsh = fs.readFileSync(path.join(ROOT, 'scripts', 'installer.nsh'), 'utf8');
+    // Git on Windows checks the file out with CRLF line ends.
+    const nsh = fs.readFileSync(path.join(ROOT, 'scripts', 'installer.nsh'), 'utf8').replace(/\r\n/g, '\n');
     const body = nsh.match(/!macro shroudlyResetProxy\n([\s\S]*?)!macroend/)[1];
     const runMacro = (reg) => {
       const v = {};

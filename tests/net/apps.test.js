@@ -103,7 +103,7 @@ async function robloxInstaller(proxy, socksPort) {
     console.log(`  --  Roblox installer not downloadable here (${r.detail}); skipped`);
     return;
   }
-  t.ok(r.success, `Install Roblox: current installer (${r.version}) downloaded through the engine, signed by Roblox, started (${r.code || 'ok'})`);
+  t.ok(r.success, `Install Roblox: current installer (${r.version}) downloaded through the engine, signed by Roblox, started (${r.code || 'ok'}${r.detail ? `: ${r.detail}` : ''})`);
   if (!r.success) return;
   // A minute of watching, whatever the machine's speed.
   const direct = new Set();

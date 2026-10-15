@@ -385,13 +385,18 @@ void mutex_unlock(mutex_t *m) {
 #endif
 }
 
+/* Time since boot, plus a day. Shroudly starts at login, a minute after boot:
+ * without the day, a time stamp set back by a time-to-live would wrap round to
+ * the far future and an expired entry would look brand new. */
+#define CLOCK_BASE_MS (24ull * 60 * 60 * 1000)
+
 uint64_t now_ms(void) {
 #ifdef _WIN32
-  return (uint64_t)GetTickCount64();
+  return CLOCK_BASE_MS + (uint64_t)GetTickCount64();
 #else
   struct timespec ts;
   clock_gettime(CLOCK_MONOTONIC, &ts);
-  return (uint64_t)ts.tv_sec * 1000ull + (uint64_t)ts.tv_nsec / 1000000ull;
+  return CLOCK_BASE_MS + (uint64_t)ts.tv_sec * 1000ull + (uint64_t)ts.tv_nsec / 1000000ull;
 #endif
 }
 
