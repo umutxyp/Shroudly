@@ -137,7 +137,7 @@
   "conflictBody": "It reroutes the same connections as Shroudly, and the two get in each other's way. Quit {tools} completely while you use Shroudly.",
   "cutTitle": "{host} connects, then the network cuts it",
   "cutBodyAdvanced": "This network follows whole connections, not just how they start. Shroudly is already trying other techniques for this site; Advanced mode works below that level and usually gets through.",
-  "cutBodyAdvancedOn": "Advanced mode is on and the network still cuts it. It is most likely blocking the server's address, which no technique can change; for this site only a VPN gets through.",
+  "cutBodyAdvancedOn": "Advanced mode is on and the connection is still torn down after it forms. That can be a technique this network needs that is not matched yet, or the server's own address being blocked — which no technique can change, and then only a VPN gets through. If other blocked sites work, this one is the likely exception.",
   "cutBodyNoAdvanced": "Shroudly is already trying other techniques for this site. If it keeps happening, the network is blocking the server's address or needs Advanced mode, which only Windows and Linux have; a VPN is then the remaining option.",
   "notNow": "Not now",
   "dnsDownTitle": "Encrypted DNS is blocked on this network",

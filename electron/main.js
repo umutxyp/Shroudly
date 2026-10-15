@@ -1171,13 +1171,18 @@ ipcMain.handle('discord:status', async () => {
   return {
     installed: builds.length > 0,
     mode: store.get('discordMode') ?? null,  // true, false, or null (never asked)
+    // Declining the offer snoozes it for two weeks (like the Roblox offer),
+    // rather than turning it off for good: a user who said "not now" once on a
+    // network where they did not need Discord still gets asked on one where
+    // they do.
+    offerSnoozed: Date.now() - (store.get('discordOfferDeclinedAt') || 0) < OFFER_AGAIN_MS,
     running,
     reached: discordRelay ? discordRelay.lastOkAt : 0,
     ...discordState,
   };
 });
 ipcMain.handle('discord:set', async (e, on) => applyDiscordMode(on === true));
-ipcMain.handle('discord:decline', () => { if (store.get('discordMode') === undefined) store.set('discordMode', false); return { success: true }; });
+ipcMain.handle('discord:decline', () => { store.set('discordOfferDeclinedAt', Date.now()); return { success: true }; });
 ipcMain.handle('discord:restart', async () => {
   let ok = false;
   for (const v of DiscordApp.installed()) if (await DiscordApp.isRunning(v)) ok = (await DiscordApp.restart(v)) || ok;
