@@ -17,6 +17,7 @@ const { ROOT, enginePath, startEngine, freePort, sleep, suite, fixture } = requi
 const AppProxy = require(path.join(ROOT, 'electron', 'app-proxy.js'));
 const AppEnv = require(path.join(ROOT, 'electron', 'app-env.js'));
 const { socksAddress } = require(path.join(ROOT, 'electron', 'discord-relay.js'));
+const { powershellEnv } = require(path.join(ROOT, 'electron', 'win-powershell.js'));
 const t = suite('apps');
 
 /* An OS environment in memory: the session, and what the machine sets. */
@@ -82,7 +83,7 @@ function robloxDirect() {
     "if ($ids.Count) { Get-NetTCPConnection -OwningProcess $ids -ErrorAction SilentlyContinue | " +
     "Where-Object { ($_.RemotePort -eq 443 -or $_.RemotePort -eq 80) -and $_.RemoteAddress -notmatch '^(127\\.|::1)' } | " +
     "ForEach-Object { \"$($_.OwningProcess) $($_.RemoteAddress):$($_.RemotePort)\" } }";
-  return new Promise((resolve) => execFile('powershell.exe', ['-NoProfile', '-NonInteractive', '-Command', ps], { windowsHide: true, timeout: 10000 },
+  return new Promise((resolve) => execFile('powershell.exe', ['-NoProfile', '-NonInteractive', '-Command', ps], { windowsHide: true, timeout: 10000, env: powershellEnv() },
     (err, out) => resolve(String(out || '').split(/\r?\n/).map((l) => l.trim()).filter(Boolean))));
 }
 

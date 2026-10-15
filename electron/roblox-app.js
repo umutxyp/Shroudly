@@ -18,9 +18,10 @@ const path = require('path');
 const tls = require('tls');
 const https = require('https');
 const { execFile, spawn } = require('child_process');
+const { envFor } = require('./win-powershell');
 
 function run(cmd, args, opts = {}) {
-  return new Promise((resolve) => execFile(cmd, args, { windowsHide: true, timeout: 10000, ...opts }, (err, out) => resolve(err ? '' : String(out))));
+  return new Promise((resolve) => execFile(cmd, args, { windowsHide: true, timeout: 10000, ...opts, env: envFor(cmd, opts.env) }, (err, out) => resolve(err ? '' : String(out))));
 }
 
 const exists = (p) => { try { return fs.statSync(p); } catch { return null; } };

@@ -22,6 +22,7 @@
  */
 
 const { spawn, execFile } = require('child_process');
+const { envFor } = require('./win-powershell');
 const path = require('path');
 const fs = require('fs');
 const os = require('os');
@@ -114,7 +115,7 @@ function buildArgs(o) {
 
 function run(cmd, args, timeout) {
   return new Promise((resolve) => {
-    execFile(cmd, args, { timeout, windowsHide: true }, (err, stdout, stderr) =>
+    execFile(cmd, args, { timeout, windowsHide: true, env: envFor(cmd) }, (err, stdout, stderr) =>
       resolve({ code: err ? (typeof err.code === 'number' ? err.code : -1) : 0, stderr: String(stderr || '') }));
   });
 }

@@ -727,7 +727,7 @@ const readState = (file) => { try { return JSON.parse(fs.readFileSync(file, 'utf
       const s = nsState(); s.denied = true; FakeNS.save(nsFile, s);
       const before = nsState().services;
       const usb = (st) => st.snapshot.services.find((x) => x.name === 'USB 10/100/1000 LAN').prevAuto;
-      const sp = new SystemProxy(() => {}, { platform: 'darwin', stateFile: file, helperWaitMs: 2000 });
+      const sp = new SystemProxy(() => {}, { platform: 'darwin', stateFile: file, helperWaitMs: 15000 });
       await sp.apply(10808, 'all');
       await sp.applyAsAdmin();
       const helper = readState(file).snapshot.helperPid;
@@ -1457,4 +1457,8 @@ const readState = (file) => { try { return JSON.parse(fs.readFileSync(file, 'utf
   process.exit(0);
 })().catch((e) => { console.error('FAIL', e.stack || e.message); process.exit(1); });
 
-function alive(pid) { try { process.kill(pid, 0); return true; } catch (e) { return e.code === 'EPERM'; } }
+/* Gone, or exited and never waited for (in a container nothing reaps it). */
+function alive(pid) {
+  try { process.kill(pid, 0); } catch (e) { if (e.code !== 'EPERM') return false; }
+  try { const s = fs.readFileSync(`/proc/${pid}/stat`, 'utf8'); return s[s.lastIndexOf(')') + 2] !== 'Z'; } catch { return true; }
+}

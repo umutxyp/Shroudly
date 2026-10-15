@@ -49,6 +49,7 @@
  */
 
 const { execFile, execFileSync, spawn } = require('child_process');
+const { envFor } = require('./win-powershell');
 const http = require('http');
 const os = require('os');
 const fs = require('fs');
@@ -124,16 +125,20 @@ function runSync(cmd, args, timeout = 4000) {
 
 function spawnDetached(cmd, args) {
   try {
-    const p = spawn(cmd, args, { detached: true, stdio: 'ignore', windowsHide: true });
+    const p = spawn(cmd, args, { detached: true, stdio: 'ignore', windowsHide: true, env: envFor(cmd) });
     p.on('error', () => {});
     p.unref();
   } catch {}
 }
 
-/* A process of another user (the root helper) answers kill(0) with EPERM. */
+/* A process of another user (the root helper) answers kill(0) with EPERM.
+ * One that has exited but was never waited for (its parent gone, and a first
+ * process that reaps nothing, as in a container) answers too: it is not
+ * running. */
 function alive(pid) {
   if (!pid) return false;
-  try { process.kill(pid, 0); return true; } catch (e) { return e.code === 'EPERM'; }
+  try { process.kill(pid, 0); } catch (e) { if (e.code !== 'EPERM') return false; }
+  try { const s = fs.readFileSync(`/proc/${pid}/stat`, 'utf8'); return s[s.lastIndexOf(')') + 2] !== 'Z'; } catch { return true; }
 }
 
 /* Waiting without an event loop, for the exit and recovery paths. */
