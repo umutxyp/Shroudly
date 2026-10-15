@@ -131,6 +131,14 @@ static void ensure_presets(void) {
   add("split2",               "split(2)");
   add("disorder2",            "disorder(2)");
   add("split-sni-end",        "split(sni_end)");
+  /* Several cuts at once (what zapret calls multisplit / multidisorder, the
+   * basis of the strategies Turkish users run against Türk Telekom and
+   * Turkcell): the start of the record, inside the name, and its end all
+   * become separate segments, so a filter never sees the name whole however
+   * it reassembles. Costs nothing extra over a single split. */
+  add("multisplit",           "split(1),split(sni_mid),split(sni_end)");
+  add("multidisorder",        "disorder(1),disorder(sni_mid),disorder(sni_end)");
+  add("multisplit-tlsrec",    "split(1),split(sni_mid),tlsrec(sni+1)");
   /* A decoy first segment, where the platform can guarantee the server never
    * sees it (Linux, via a TCP signature key). It comes last because it is the
    * least portable, and there is only one of it: variants that differ only in
