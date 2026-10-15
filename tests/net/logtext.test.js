@@ -75,6 +75,28 @@ const LINES = [
   'Browser settings for the next login removed',
   'The address browsers use to reach Shroudly had to change; Chrome and other Chromium browsers follow the new one after you log out and back in',
   'Settings applied (strategy: auto, 16 techniques)',
+  // 2.5.5: the system proxy's remaining lines, each with its reason.
+  'Administrator password not given; the system proxy was not changed',
+  'Could not change the system proxy as administrator: execution error: The administrator user name or password was incorrect. (-60005)',
+  'Administrator password not given; the proxy settings were not put back',
+  'KDE proxy setting failed: the setting did not take',
+  'gsettings failed: the setting did not take',
+  'Restart failed: engine start timeout',
+  'Could not save proxy state: ENOSPC: no space left on device, write',
+  'Proxy watchdog not started',
+  'Could not install proxy restore hook: EACCES: permission denied, open \'/home/user/.config/autostart/shroudly-proxy-restore.desktop\'',
+  'Could not write /home/user/.xprofile for the next login: ENOSPC: no space left on device, write',
+  'Firefox goes through Shroudly; this session does not read the setting Shroudly writes for Chrome and other Chromium browsers, so they have to be set by hand',
+  "This macOS account may not change the network settings without an administrator's password. Apps can still use SOCKS5 127.0.0.1:10808 directly (PAC: http://127.0.0.1:10840/proxy.pac).",
+  'The desktop proxy setting could not be read. Apps can still use SOCKS5 127.0.0.1:10808 directly (PAC: http://127.0.0.1:10840/proxy.pac).',
+  'The desktop refused the proxy setting. Apps can still use SOCKS5 127.0.0.1:10808 directly (PAC: http://127.0.0.1:10840/proxy.pac).',
+  'This desktop has no system proxy setting. Apps can still use SOCKS5 127.0.0.1:10808 directly (PAC: http://127.0.0.1:10840/proxy.pac).',
+  'This session does not read the setting Shroudly writes for Chrome and other Chromium browsers. Apps can still use SOCKS5 127.0.0.1:10808 directly (PAC: http://127.0.0.1:10840/proxy.pac).',
+  'The system proxy was not set. Apps can still use SOCKS5 127.0.0.1:10808 directly (PAC: http://127.0.0.1:10840/proxy.pac).',
+  'Could not update proxy routing: timeout',
+  'Shroudly engine stopped',
+  'Encrypted DNS unavailable: bind EADDRINUSE 127.0.0.1:53',
+  'engine error: spawn /opt/Shroudly/resources/app.asar.unpacked/electron/tools/core/linux-x64/shroudly-core ENOENT',
 ];
 
 const langs = Object.keys(translations);

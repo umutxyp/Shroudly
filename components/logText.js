@@ -49,6 +49,11 @@ const EXACT = {
   'Advanced backend exited': 'logAdvancedBackendExited',
   'Advanced mode: asking for administrator permission': 'logAdvancedAskingAdmin',
   'Advanced backend did not confirm stop; it exits on its own when Shroudly quits': 'logAdvancedNoStopConfirm',
+  'Administrator password not given; the system proxy was not changed': 'logProxyAdminCancelled',
+  'Administrator password not given; the proxy settings were not put back': 'logProxyRestoreDeclined',
+  'Proxy watchdog not started': 'logProxyWatchdogFailed',
+  'Firefox goes through Shroudly; this session does not read the setting Shroudly writes for Chrome and other Chromium browsers, so they have to be set by hand': 'logProxyEnvNotTakenFirefox',
+  'Shroudly engine stopped': 'logEngineStoppedOnly',
 };
 
 const PATTERNS = [
@@ -101,6 +106,23 @@ const PATTERNS = [
   [/^Site list updated: (\d+) sites \((\d+) added, (-?\d+) removed\)$/, 'logSiteListUpdated', ['count', 'added', 'removed']],
   [/^Site list: the downloaded list was refused \((.+)\)$/, 'logSiteListRefused', ['detail']],
   [/^Site list: could not check for a newer list \((.+)\)$/, 'logSiteListUnreachable', ['detail']],
+  [/^Could not change the system proxy as administrator: (.+)$/, 'logProxyAdminFailed', ['detail']],
+  [/^KDE proxy setting failed: (.+)$/, 'logKdeProxyFailed', ['detail']],
+  [/^gsettings failed: (.+)$/, 'logGsettingsFailed', ['detail']],
+  [/^Restart failed: (.+)$/, 'logRestartFailed', ['detail']],
+  [/^Could not save proxy state: (.+)$/, 'logProxyStateSaveFailed', ['detail']],
+  [/^Could not install proxy restore hook: (.+)$/, 'logProxyHookFailed', ['detail']],
+  [/^Could not write (.+?) for the next login: (.+)$/, 'logEnvWriteFailed', ['file', 'detail']],
+  [/^Could not update proxy routing: (.+)$/, 'logProxyRoutingFailed', ['detail']],
+  [/^Encrypted DNS unavailable: (.+)$/, 'logDohUnavailable', ['detail']],
+  [/^engine error: (.+)$/, 'logEngineError', ['detail']],
+  // The system proxy not set, why, and the address apps can still be given.
+  [/^This macOS account may not change the network settings without an administrator's password\. Apps can still use SOCKS5 (\S+) directly \(PAC: (\S+)\)\.$/, 'logProxyManualNeedsAdmin', ['socks', 'pac']],
+  [/^The desktop proxy setting could not be read\. Apps can still use SOCKS5 (\S+) directly \(PAC: (\S+)\)\.$/, 'logProxyManualUnreadable', ['socks', 'pac']],
+  [/^The desktop refused the proxy setting\. Apps can still use SOCKS5 (\S+) directly \(PAC: (\S+)\)\.$/, 'logProxyManualRefused', ['socks', 'pac']],
+  [/^This desktop has no system proxy setting\. Apps can still use SOCKS5 (\S+) directly \(PAC: (\S+)\)\.$/, 'logProxyManualNoSystem', ['socks', 'pac']],
+  [/^This session does not read the setting Shroudly writes for Chrome and other Chromium browsers\. Apps can still use SOCKS5 (\S+) directly \(PAC: (\S+)\)\.$/, 'logProxyManualNotTaken', ['socks', 'pac']],
+  [/^The system proxy was not set\. Apps can still use SOCKS5 (\S+) directly \(PAC: (\S+)\)\.$/, 'logProxyManualNotSet', ['socks', 'pac']],
 ];
 
 export function localizeLog(message, t) {

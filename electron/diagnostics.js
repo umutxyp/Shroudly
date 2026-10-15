@@ -19,6 +19,7 @@
 
 const os = require('os');
 const dns = require('dns');
+const net = require('net');
 const { execFile } = require('child_process');
 
 /* System tools are addressed absolutely. Launching them by bare name lets
@@ -223,6 +224,43 @@ async function dnsProbe() {
 
 async function dnsTampering() { return (await dnsProbe()).hits; }
 
+/* Does the system DNS really answer nothing? Only when the network is up:
+ * an interface with an address that can reach anything (not 169.254, not
+ * fe80::), and a public address that accepts a connection. Without both,
+ * nothing answers anything yet (the Wi-Fi still connecting at login, a
+ * cable out), which is no fault of the DNS. `probe` lets the tests stand in
+ * for the interfaces, the lookups and the connection. */
+async function dnsDead({ probe = {} } = {}) {
+  const ifs = probe.interfaces || os.networkInterfaces();
+  const usable = Object.values(ifs).flat().some((a) => a && !a.internal && ((a.family === 'IPv4' || a.family === 4)
+    ? !/^169\.254\./.test(a.address) : /^[23]/.test(a.address)));
+  if (!usable) return false;
+  const p = probe.dns ? await probe.dns() : await dnsProbe();
+  if (!p || p.answered > 0) return false;
+  return !!(probe.reach ? await probe.reach() : await reachesInternet());
+}
+
+/* A TCP connection to any of a few public resolvers' addresses, by address:
+ * no name lookup involved. */
+const REACH = ['1.1.1.1', '8.8.8.8', '9.9.9.9'];
+function reachesInternet(ms = 3000) {
+  return new Promise((resolve) => {
+    let left = REACH.length;
+    let done = false;
+    const socks = [];
+    const finish = (ok) => { if (done) return; done = true; for (const s of socks) s.destroy(); resolve(ok); };
+    for (const host of REACH) {
+      const s = net.connect({ host, port: 443 });
+      socks.push(s);
+      let failed = false;
+      const fail = () => { if (failed) return; failed = true; s.destroy(); if (--left === 0) finish(false); };
+      s.setTimeout(ms, fail);
+      s.once('error', fail);
+      s.once('connect', () => finish(true));
+    }
+  });
+}
+
 /* When the system's DNS is a program on this computer (127.0.0.1, ::1):
  * which one. Many leftovers of other bypass tools (DNSCrypt, YogaDNS,
  * AdGuard, Acrylic, SecureDNSClient) live there, and some also intercept
@@ -316,4 +354,4 @@ async function collect() {
   };
 }
 
-module.exports = { collect, runningTools, appsNeedingRestart, dnsTampering, dnsProbe, localDnsOwner, defaultRoute, describeInterface, regionOf, looksForged, timezoneCountry };
+module.exports = { collect, runningTools, appsNeedingRestart, dnsTampering, dnsProbe, dnsDead, localDnsOwner, defaultRoute, describeInterface, regionOf, looksForged, timezoneCountry };
