@@ -908,7 +908,7 @@ ipcMain.handle('proxy:applyAsAdmin', async () => (engine ? engine.applyProxyAsAd
 ipcMain.handle('proxy:reapply', async () => {
   if (!engine || !engine.isActive()) return { ok: false, code: 'not_active' };
   try {
-    const st = (await engine.reapplyProxy() || {}).status;
+    const st = (await engine.reapplyProxy({ userAsked: true }) || {}).status;
     return { ok: !!(st && st.ok), code: st ? st.code : 'not_active' };
   } catch (e) { return { ok: false, code: 'failed', detail: e.message }; }
 });

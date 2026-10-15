@@ -914,22 +914,29 @@ class EngineManager {
   /* Also the window's "Set Shroudly again" after another program took the
    * system proxy over. Resolves to { success, status }: the status it ends
    * with, null when protection went off meanwhile. */
-  async reapplyProxy() {
+  async reapplyProxy({ userAsked = false } = {}) {
     // Not while protection is off or on its way off (a Stop pressed within a
     // second of a settings change): a re-apply finishing after the Stop would
     // point the system at an engine that is gone.
     if (!this._live()) return { success: true, status: null };
     const cfg = this._settings();
     const st = this.proxyStatus;
-    const replaced = !!(st && st.code === 'replaced');
+    // Taking the proxy back from another program needs the administrator's
+    // password on a macOS Standard account, so it is done only when the user
+    // asked for it (the "Set Shroudly again" button), never from a background
+    // settings change, which must never pop an unrequested password dialog.
+    const replaced = !!(st && st.code === 'replaced') && userAsked;
     try {
       // Set with an administrator's password (macOS) and still ours: the
       // system already points at our PAC, and re-applying would ask for the
       // password again, so only the PAC's answer changes. Taken over by
       // another program, it has to be set again, password and all.
-      if (st && st.admin && !replaced && this.proxy.updateRouting &&
+      // Still ours (or taken over but the user did not ask to retake it):
+      // the PAC's answer is all that changes, no system change and no
+      // password. A background settings change always takes this path.
+      if (st && (st.admin || st.code === 'replaced') && !replaced && this.proxy.updateRouting &&
           this.proxy.updateRouting(cfg.routeMode, cfg.siteList)) {
-        this.log('success', 'Proxy routing updated');
+        if (st.code !== 'replaced') this.log('success', 'Proxy routing updated');
         return { success: true, status: st };
       }
       await this.proxy.restore();                       // back to the user's own settings
