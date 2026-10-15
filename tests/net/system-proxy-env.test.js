@@ -50,6 +50,8 @@ const LXQT = path.join(HOME, '.config', 'lxqt', 'session.conf');
 const read = (f) => { try { return fs.readFileSync(f, 'utf8'); } catch { return null; } };
 const state = (name) => path.join(TMP, name, 'proxy-state.json');
 const envFile = (name) => path.join(TMP, name, 'proxy-env.json');
+// Windows has no Unix permissions to keep (this code only runs on Linux).
+const modeIs = (f, m) => process.platform === 'win32' || (fs.statSync(f).mode & 0o777) === m;
 
 function fakeExec(handlers) {
   const calls = [];
@@ -248,7 +250,7 @@ const clean = () => { for (const f of [XPROFILE, ENVD, LXQT]) fs.rmSync(f, { for
     `~/.xprofile ${label}: the block appended after it, nothing else touched`);
     await sp.restore();
     sp.clearEnv();
-    t.ok(read(XPROFILE) === text && (fs.statSync(XPROFILE).mode & 0o777) === 0o600, `~/.xprofile ${label}: back byte for byte (and its permissions) after the stop`);
+    t.ok(read(XPROFILE) === text && modeIs(XPROFILE, 0o600), `~/.xprofile ${label}: back byte for byte (and its permissions) after the stop`);
   }
   {
     // Someone added a line after our block meanwhile: only the block goes.
@@ -463,7 +465,7 @@ const clean = () => { for (const f of [XPROFILE, ENVD, LXQT]) fs.rmSync(f, { for
     fs.symlinkSync(realFile, XPROFILE);
     const sp2 = new SystemProxy(() => {}, { platform: 'linux', env: xfce(), stateFile: state('p10b'), portStore: memStore() });
     await sp2.apply(10808, 'all');
-    t.ok(fs.lstatSync(XPROFILE).isSymbolicLink() && read(realFile).includes(`export auto_proxy='${sp2.pacUrl}'`) && (fs.statSync(realFile).mode & 0o777) === 0o640,
+    t.ok(fs.lstatSync(XPROFILE).isSymbolicLink() && read(realFile).includes(`export auto_proxy='${sp2.pacUrl}'`) && modeIs(realFile, 0o640),
       'P10: a symlinked ~/.xprofile stays a link; the file it points at gets the block, permissions kept');
     await sp2.restore(); sp2.clearEnv(); sp2.stopPacServer();
     t.ok(fs.lstatSync(XPROFILE).isSymbolicLink() && read(realFile) === 'export A=1\n', 'P10: …and is given back byte for byte, still a link');
