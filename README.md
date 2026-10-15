@@ -458,7 +458,7 @@ Shroudly/
       desync.[ch]             applies a strategy to the first payload
       doh.[ch]                DNS resolver (local DoH forwarder + UDP fallback)
       probe.[ch]              per-host auto-probe
-      engine.[ch]             SOCKS5 listener + relay
+      engine.[ch]             SOCKS5/4/4a listener + relay
       raw_linux.[ch]          Advanced mode: NFQUEUE backend
       raw_windows.[ch]        Advanced mode: WinDivert backend
       supervise.[ch]          Advanced mode: stop / status-file handling

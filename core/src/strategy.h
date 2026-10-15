@@ -51,7 +51,10 @@ typedef struct {
 int strategy_parse(const char *spec, strategy *out);
 
 /* Built-in presets, indexed 0..strategy_preset_count()-1, ordered by how often
- * they work in practice (most universal first). Used by auto-probe. */
+ * they work in practice (most universal first). Used by auto-probe. There are
+ * never more than STRATEGY_MAX_PRESETS of them, which is what lets the engine
+ * size its attempt ladder to hold every one. */
+#define STRATEGY_MAX_PRESETS 24
 int             strategy_preset_count(void);
 const strategy *strategy_preset(int i);
 
