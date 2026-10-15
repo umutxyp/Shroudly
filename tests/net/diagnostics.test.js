@@ -46,8 +46,6 @@ const TAIL_UP = { ...ETH, Tailscale: [{ address: '100.64.0.5', family: 'IPv4', i
   r = await D.runningTools({ probe: { processes: '"chrome.exe","1"', interfaces: ETH, route: 'Ethernet' } });
   t.ok(Array.isArray(r) && r.length === 0, 'nothing running: nothing reported (plain list form)');
 
-  t.ok(D.timezoneCountry('Asia/Tehran') === 'IR' && D.timezoneCountry('Europe/Moscow') === 'RU' && D.timezoneCountry('Asia/Shanghai') === 'CN', 'clock zone -> country for the stateful-filter countries');
-  t.ok(D.timezoneCountry('Europe/Istanbul') === null && D.timezoneCountry('America/New_York') === null, 'other zones give no hint');
   t.ok(D.regionOf([{ country: 'IR' }, { country: 'IR' }, { country: 'filter' }]) === 'IR' && D.regionOf([]) === null, 'forged answers -> country');
   console.log(`diagnostics: ${t.count} passed`);
   process.exit(0);

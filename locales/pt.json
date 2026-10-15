@@ -139,8 +139,6 @@
   "cutBodyAdvanced": "Esta rede acompanha as conexões inteiras, não só o início. O Shroudly já está tentando outras técnicas para este site; o modo Avançado atua abaixo disso e costuma passar.",
   "cutBodyAdvancedOn": "O modo Avançado está ativado e a rede continua cortando. O mais provável é que bloqueie o endereço do servidor, o que nenhuma técnica muda; para este site só uma VPN passa.",
   "cutBodyNoAdvanced": "O Shroudly já está tentando outras técnicas para este site. Se continuar, a rede bloqueia o endereço do servidor ou exige o modo Avançado, que só Windows e Linux têm; aí resta uma VPN.",
-  "regionTitle": "Esta rede filtra do mesmo jeito que o país {country}",
-  "regionBody": "Filtros assim acompanham as conexões inteiras, e o modo normal nem sempre passa por eles. O modo Avançado atua num nível mais baixo e foi feito para eles. Pede permissão de administrador uma vez.",
   "notNow": "Agora não",
   "dnsDownTitle": "O DNS criptografado está bloqueado nesta rede",
   "dnsDownBody": "O Shroudly continua tentando outras rotas sozinho. Até uma passar, alguns sites podem levar a endereços falsos; os endereços falsos que o Shroudly conhece são recusados.",

@@ -139,8 +139,6 @@
   "cutBodyAdvanced": "Bu şəbəkə bağlantıların yalnız necə başladığını deyil, onları bütövlükdə izləyir. Shroudly bu sayt üçün artıq başqa üsulları sınayır; Təkmil rejim bundan daha aşağı səviyyədə işləyir və adətən keçə bilir.",
   "cutBodyAdvancedOn": "Təkmil rejim aktivdir, amma şəbəkə yenə də bağlantını kəsir. Çox güman ki, serverin ünvanı bloklanır və heç bir üsul bunu dəyişə bilməz; bu sayt üçün yalnız VPN keçə bilər.",
   "cutBodyNoAdvanced": "Shroudly bu sayt üçün artıq başqa üsulları sınayır. Bu davam edərsə, deməli, şəbəkə serverin ünvanını bloklayır və ya yalnız Windows və Linux-da olan Təkmil rejim lazımdır; o zaman qalan yeganə yol VPN-dir.",
-  "regionTitle": "Bu şəbəkə {country} ərazisindəki kimi filtrləyir",
-  "regionBody": "Belə filtrlər bağlantıları bütövlükdə izləyir və adi rejim onlardan həmişə keçə bilmir. Təkmil rejim daha aşağı səviyyədə işləyir və məhz bunlar üçün hazırlanıb. O, bir dəfə administrator icazəsi istəyir.",
   "notNow": "İndi yox",
   "dnsDownTitle": "Bu şəbəkədə şifrələnmiş DNS bloklanıb",
   "dnsDownBody": "Shroudly özü başqa yolları sınamağa davam edir. Onlardan biri keçənə qədər bəzi saytlar saxta ünvanlara yönləndirilə bilər; Shroudly-nin tanıdığı saxta ünvanlar rədd edilir.",

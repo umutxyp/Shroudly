@@ -139,8 +139,6 @@
   "cutBodyAdvanced": "Rangkaian ini memantau keseluruhan sambungan, bukan hanya permulaannya. Shroudly sudah mencuba teknik lain untuk laman ini; Mod Lanjutan berfungsi pada tahap yang lebih rendah dan biasanya berjaya menembusinya.",
   "cutBodyAdvancedOn": "Mod Lanjutan dihidupkan tetapi rangkaian masih memutuskannya. Kemungkinan besar rangkaian menyekat alamat pelayan, yang tidak dapat diubah oleh sebarang teknik; bagi laman ini, hanya VPN yang dapat menembusinya.",
   "cutBodyNoAdvanced": "Shroudly sudah mencuba teknik lain untuk laman ini. Jika ia terus berlaku, rangkaian sedang menyekat alamat pelayan atau memerlukan Mod Lanjutan, yang hanya ada pada Windows dan Linux; jika begitu, VPN ialah satu-satunya pilihan yang tinggal.",
-  "regionTitle": "Rangkaian ini menapis dengan cara yang sama seperti di {country}",
-  "regionBody": "Penapis seperti ini memantau keseluruhan sambungan, dan mod biasa tidak selalu dapat menembusinya. Mod Lanjutan berfungsi pada tahap yang lebih rendah dan direka khusus untuk penapis ini. Ia meminta kebenaran pentadbir sekali sahaja.",
   "notNow": "Lain kali",
   "dnsDownTitle": "DNS tersulit disekat pada rangkaian ini",
   "dnsDownBody": "Shroudly terus mencuba laluan lain dengan sendirinya. Sehingga salah satunya berjaya, sesetengah laman mungkin dihalakan ke alamat palsu; alamat palsu yang diketahui oleh Shroudly akan ditolak.",

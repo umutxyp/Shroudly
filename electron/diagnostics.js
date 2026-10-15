@@ -253,28 +253,6 @@ async function localDnsOwner(servers) {
   return { servers: loop, programs: names };
 }
 
-/* The country the clock is set to, for the stateful-filter countries only.
- * A hint, never proof: it is only used once the network has already shown it
- * filters (a site needed a technique), and only to offer Advanced mode. It
- * never leaves the machine. */
-const TZ_COUNTRY = {
-  IR: ['Asia/Tehran'],
-  CN: ['Asia/Shanghai', 'Asia/Urumqi', 'Asia/Chongqing', 'Asia/Chungking', 'Asia/Harbin', 'PRC'],
-  TM: ['Asia/Ashgabat', 'Asia/Ashkhabad'],
-  BY: ['Europe/Minsk'],
-  RU: ['Europe/Moscow', 'Europe/Kaliningrad', 'Europe/Samara', 'Europe/Volgograd', 'Europe/Kirov', 'Europe/Astrakhan',
-    'Europe/Saratov', 'Europe/Ulyanovsk', 'Asia/Yekaterinburg', 'Asia/Omsk', 'Asia/Novosibirsk', 'Asia/Barnaul',
-    'Asia/Tomsk', 'Asia/Novokuznetsk', 'Asia/Krasnoyarsk', 'Asia/Irkutsk', 'Asia/Chita', 'Asia/Yakutsk',
-    'Asia/Khandyga', 'Asia/Vladivostok', 'Asia/Ust-Nera', 'Asia/Magadan', 'Asia/Sakhalin', 'Asia/Srednekolymsk',
-    'Asia/Kamchatka', 'Asia/Anadyr', 'W-SU'],
-};
-function timezoneCountry(tz) {
-  let zone = tz;
-  if (zone === undefined) { try { zone = Intl.DateTimeFormat().resolvedOptions().timeZone; } catch { zone = ''; } }
-  for (const [cc, zones] of Object.entries(TZ_COUNTRY)) if (zones.includes(zone)) return cc;
-  return null;
-}
-
 /* Whose filtering this is, going by the forged answers: a country code, or
  * 'filter' for a DNS filtering service. null when nothing was forged or the
  * answers match no known block page. */
@@ -316,4 +294,4 @@ async function collect() {
   };
 }
 
-module.exports = { collect, runningTools, appsNeedingRestart, dnsTampering, dnsProbe, localDnsOwner, defaultRoute, describeInterface, regionOf, looksForged, timezoneCountry };
+module.exports = { collect, runningTools, appsNeedingRestart, dnsTampering, dnsProbe, localDnsOwner, defaultRoute, describeInterface, regionOf, looksForged };

@@ -139,8 +139,6 @@
   "cutBodyAdvanced": "This network follows whole connections, not just how they start. Shroudly is already trying other techniques for this site; Advanced mode works below that level and usually gets through.",
   "cutBodyAdvancedOn": "Advanced mode is on and the network still cuts it. It is most likely blocking the server's address, which no technique can change; for this site only a VPN gets through.",
   "cutBodyNoAdvanced": "Shroudly is already trying other techniques for this site. If it keeps happening, the network is blocking the server's address or needs Advanced mode, which only Windows and Linux have; a VPN is then the remaining option.",
-  "regionTitle": "This network filters the way {country} does",
-  "regionBody": "Filters like this follow whole connections, and the normal mode cannot always get past them. Advanced mode works at a lower level and is made for them. It asks for administrator permission once.",
   "notNow": "Not now",
   "dnsDownTitle": "Encrypted DNS is blocked on this network",
   "dnsDownBody": "Shroudly keeps trying other routes on its own. Until one gets through, some sites may be sent to fake addresses; the fake addresses Shroudly knows are refused.",

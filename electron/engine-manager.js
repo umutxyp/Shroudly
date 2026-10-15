@@ -49,8 +49,6 @@ async function pickPort(want) {
  * packet. There the normal mode is often not enough, and Advanced mode is the
  * thing to offer before the user has to discover it. (Research notes in
  * README, "Where it works".) */
-const STATEFUL_REGIONS = new Set(['IR', 'CN', 'RU', 'TM', 'BY']);
-
 /* How many cuts on one host, within CUT_WINDOW_MS, before we believe it. A
  * stall or reset is strong evidence; "no reply" is weak (a long-poll looks
  * the same), so it needs more. */
@@ -185,7 +183,7 @@ class EngineManager {
     this.onAdvice = hooks.onAdvice || (() => {});
     // What the window should tell the user about this network. Kept here, not
     // only sent, because most of it is learned before the window has loaded.
-    this.advice = { conflicts: [], region: null, cut: null, dnsDown: false };
+    this.advice = { conflicts: [], cut: null, dnsDown: false };
     this.cuts = new Map();        // host -> [{ reason, t }]
     this.cutHosts = new Set();    // hosts already reported this session
     this.doh = new DohForwarder(this.log, {
@@ -494,7 +492,6 @@ class EngineManager {
       this.log('info', d.region === 'filter'
         ? 'Your DNS service filters sites; Shroudly\'s encrypted DNS goes around it.'
         : `DNS answers on this network match the filtering used in ${d.region}.`);
-      this._setAdvice({ region: d.region === 'filter' ? null : { country: d.region, stateful: STATEFUL_REGIONS.has(d.region) } });
     }
 
     if (d.forgedDns.length) {
