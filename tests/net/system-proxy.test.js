@@ -1235,14 +1235,22 @@ const readState = (file) => { try { return JSON.parse(fs.readFileSync(file, 'utf
       em.active = true;
       const base = { ok: true, code: 'ok', admin: true, system: 'macos' };
       em._setProxyStatus({ ...base, ok: false, code: 'replaced', lost: ['Wi-Fi'], replacedFrom: base });
-      const r = await em.reapplyProxy();
+      const r = await em.reapplyProxy({ userAsked: true });
       t.ok(calls2.join(',') === 'restore,apply,admin' && r.status.ok && em.proxyStatus.code === 'ok' && em.proxyStatus.admin,
-        `EngineManager (P4): after a takeover the admin path is set again, not just the PAC (${calls2.join(',')})`);
+        `EngineManager (P4): the "Set Shroudly again" button sets the admin path again, not just the PAC (${calls2.join(',')})`);
       calls2.length = 0;
       em.proxy.applyAsAdmin = async () => { calls2.push('admin'); return { ok: false, code: 'cancelled', admin: false }; };
       em._setProxyStatus({ ...base, ok: false, code: 'replaced', lost: ['Wi-Fi'], replacedFrom: base });
-      const r2 = await em.reapplyProxy();
+      const r2 = await em.reapplyProxy({ userAsked: true });
       t.ok(!r2.status.ok && r2.status.code === 'cancelled' && em.proxyStatus.code === 'cancelled', 'EngineManager (P4): …and a dismissed dialog is reported as such, not as set again');
+      // A background settings change while taken over (no button) must never
+      // pop a password dialog: only the PAC's answer changes, status stays replaced.
+      calls2.length = 0;
+      em.proxy.applyAsAdmin = async () => { calls2.push('admin'); return { ok: true, code: 'ok', admin: true }; };
+      em._setProxyStatus({ ...base, ok: false, code: 'replaced', lost: ['Wi-Fi'], replacedFrom: base });
+      const r3 = await em.reapplyProxy();
+      t.ok(calls2.join(',') === 'pac' && em.proxyStatus.code === 'replaced',
+        `EngineManager (P4): a settings change while taken over only updates the PAC, no password dialog (${calls2.join(',') || 'none'})`);
       em.active = false;
     }
 
