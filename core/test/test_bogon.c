@@ -164,13 +164,18 @@ int main(void){
   }
   printf("  TTL clamp, multi-address cache, forget-on-failure: OK\n");
 
-  /* 13. sinkhole addresses for SOCKS4: block pages, 0.0.0.0, loopback — and
-   *     not a LAN address someone asked for on purpose */
-  CHECK(doh_ipv4_is_sinkhole(0)==1);
-  CHECK(doh_ipv4_is_sinkhole(0x7f000001)==1 && doh_ipv4_is_sinkhole(0x7f0000fe)==1);
-  CHECK(doh_ipv4_is_sinkhole(0xC3AFFE02u)==1);
-  CHECK(doh_ipv4_is_sinkhole(0xc0a80101)==0 && doh_ipv4_is_sinkhole(0x08080808)==0);
-  printf("  sinkhole addresses: OK\n");
+  /* 13. block pages a SOCKS4 request is recovered from: the built-in one and
+   *     those the app adds — never 0.0.0.0 or loopback, which a hosts file or
+   *     the user's own filtering DNS answers with on purpose, and never a LAN
+   *     address someone asked for */
+  CHECK(doh_ipv4_is_blockpage(0xC3AFFE02u)==1);
+  CHECK(doh_ipv4_is_blockpage(0xcb00710a)==0);           /* 203.0.113.10 */
+  doh_add_block_ip("203.0.113.10");
+  CHECK(doh_ipv4_is_blockpage(0xcb00710a)==1);
+  CHECK(doh_ipv4_is_blockpage(0)==0);
+  CHECK(doh_ipv4_is_blockpage(0x7f000001)==0 && doh_ipv4_is_blockpage(0x7f0000fe)==0);
+  CHECK(doh_ipv4_is_blockpage(0xc0a80101)==0 && doh_ipv4_is_blockpage(0x08080808)==0);
+  printf("  block-page addresses: OK\n");
 
   if(fails==0){printf("ANTI-POISONING TESTS PASSED\n");return 0;}
   printf("%d FAILED\n",fails);return 1;

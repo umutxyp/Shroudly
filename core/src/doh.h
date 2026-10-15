@@ -36,8 +36,9 @@ void doh_add_block_ip(const char *ip);
 /* True if a resolved address is a censorship answer (block page or bogon). */
 int  doh_addr_is_block(const struct sockaddr_storage *sa);
 
-/* True for an IPv4 (host order) a poisoned resolver answers with instead of
- * the real address: a known block page, 0.0.0.0 or 127.0.0.0/8. */
-int  doh_ipv4_is_sinkhole(uint32_t ip);
+/* True for an IPv4 (host order) that is a known block page: the built-in one
+ * or one added with doh_add_block_ip. Never 0.0.0.0 or 127.0.0.0/8, which a
+ * hosts file or the user's own filtering DNS answers with on purpose. */
+int  doh_ipv4_is_blockpage(uint32_t ip);
 
 #endif

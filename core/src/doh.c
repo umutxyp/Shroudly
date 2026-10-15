@@ -205,12 +205,15 @@ static int is_blockpage_v4(uint32_t ip /*host order*/) {
   return 0;
 }
 
-/* An IPv4 address that a poisoned resolver hands out in place of the real
- * one: a known block page, 0.0.0.0, or loopback. Narrower than the bogon set on
- * purpose — a private address such as 192.168.1.1 is a real destination when a
- * client asks for it directly. */
-int doh_ipv4_is_sinkhole(uint32_t ip /*host order*/) {
-  return ip == 0 || (ip >> 24) == 127 || is_blockpage_v4(ip);
+/* A known block page: the built-in one and every address the app passed with
+ * --block-ip. Only these. 0.0.0.0 and 127.0.0.0/8 are left out on purpose:
+ * they are what a hosts-file ad blocker, Pi-hole, AdGuard Home or NextDNS in
+ * null-IP mode, a malware sinkhole or a developer's own override answer with,
+ * and those are the user's decisions, not a censor's. Narrower than the bogon
+ * set for the same reason — 192.168.1.1 is a real destination when a client
+ * asks for it directly. */
+int doh_ipv4_is_blockpage(uint32_t ip /*host order*/) {
+  return is_blockpage_v4(ip);
 }
 
 /* True if a resolved address is a censorship answer (block page or bogon). */
