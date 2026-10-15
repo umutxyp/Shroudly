@@ -67,6 +67,13 @@ const LINES = [
   'Roblox could not be downloaded (timeout)',
   'www.roblox.com: the site itself refuses this connection (no answer after the handshake); Shroudly does not change your address, so it cannot change this',
   'Discord app mode: Discord Canary added',
+  'A system proxy left by an earlier version could not be switched off',
+  'Firefox goes through Shroudly now; Chrome and other Chromium browsers will after you log out and back in',
+  'Chrome and other Chromium browsers will go through Shroudly after you log out and back in; Firefox has to be set by hand',
+  'Chrome and other Chromium browsers go through Shroudly; Firefox has to be set by hand',
+  'Firefox goes through Shroudly; Chrome and other Chromium browsers could not be set on this desktop',
+  'Browser settings for the next login removed',
+  'The address browsers use to reach Shroudly had to change; Chrome and other Chromium browsers follow the new one after you log out and back in',
   'Settings applied (strategy: auto, 16 techniques)',
 ];
 
