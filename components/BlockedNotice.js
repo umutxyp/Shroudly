@@ -62,6 +62,7 @@ export default function BlockedNotice({ onNavigate, active = false }) {
   const [advanced, setAdvanced] = useState(false);
   const [restartApps, setRestartApps] = useState(null);
   const [dnsAuto, setDnsAuto] = useState(null);
+  const [refused, setRefused] = useState(null);   // { host, service }: the site turns the user away itself
   const [discord, setDiscord] = useState(null);
   const [apps, setApps] = useState(null);
   const [busy, setBusy] = useState(false);
@@ -109,6 +110,7 @@ export default function BlockedNotice({ onNavigate, active = false }) {
     window.electron.onSiteBlocked(({ host: h }) => setHost(h));
     window.electron.onNeedRestart?.(({ apps }) => { setRestartApps(apps); refreshDiscord(); });
     window.electron.onDnsAutoEnabled?.(({ host: h }) => setDnsAuto(h));
+    const offRefused = window.electron.onServiceRefused?.((p) => setRefused(p));
     window.electron.onDiscordState?.(() => refreshDiscord());
     const offApps = window.electron.onAppsState?.(() => refreshApps());
     window.electron.onAdvice?.((a) => { setAdvice(a); refreshAdv(); });
@@ -124,6 +126,7 @@ export default function BlockedNotice({ onNavigate, active = false }) {
       window.electron.removeDnsAutoEnabledListener?.();
       window.electron.removeDiscordStateListener?.();
       if (typeof offApps === 'function') offApps(); else window.electron.removeAppsStateListener?.();
+      if (typeof offRefused === 'function') offRefused();
       window.electron.removeAdviceListener?.();
     };
   }, []);
@@ -195,6 +198,15 @@ export default function BlockedNotice({ onNavigate, active = false }) {
   if (apps?.failed && !hidden.appsFailed) {
     return <Banner Icon={ShieldAlertIcon} body={t('appFailed')} onClose={() => hide('appsFailed')} closeLabel={closeLabel} />;
   }
+  /* The site itself turns this user away (by country or policy): nothing a
+   * technique can change, said the same way for every site and country. */
+  if (refused && !hidden[`refused:${refused.host}`]) {
+    return (
+      <Banner Icon={ShieldAlertIcon} title={t('probeServiceTitle', { host: refused.host })} body={t('probeServiceBody', { host: refused.host })}
+              onClose={() => hide(`refused:${refused.host}`)} closeLabel={closeLabel} />
+    );
+  }
+
   /* Running, but nothing of it goes through Shroudly: started by a browser
    * that was open before the setting. Shroudly can start it properly. */
   if (apps?.bypassing && !apps.needsRestart && !hidden.appsBypass) {
@@ -343,11 +355,11 @@ export default function BlockedNotice({ onNavigate, active = false }) {
   }
 
   /* Offered while protection is on, where Roblox is installed or being
-   * installed, or where the network blocks Roblox (there the installer is the
-   * first thing to fail). It changes what every newly started program is told
+   * installed, or once Roblox's own servers were seen blocked on this network
+   * (then the installer is the first thing to fail). It changes what every newly started program is told
    * about proxies, so it is offered, never done unasked; "Not now" asks again
    * in two weeks. */
-  if (active && apps?.available && (apps.robloxInstalled || apps.robloxRunning || apps.robloxBlockedHere)
+  if (active && apps?.available && (apps.robloxInstalled || apps.robloxRunning || apps.robloxBlocked)
       && apps.mode == null && !apps.offerSnoozed && !appOfferHidden) {
     return (
       <Banner tone="accent" Icon={ShieldAlertIcon} title={t('appOfferTitle')} body={t('appOfferBody')}>

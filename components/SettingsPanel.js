@@ -162,7 +162,7 @@ export default function SettingsPanel({ active = false }) {
   // Discord app mode: shown only where the Discord app has been used
   const [discord, setDiscord] = useState({ installed: false, on: false });
   // Games and apps mode: shown on the systems where it works (Windows, macOS)
-  const [apps, setApps] = useState({ available: false, on: false, platform: '', canInstall: false, installed: false, store: false, installing: false, regional: null });
+  const [apps, setApps] = useState({ available: false, on: false, platform: '', canInstall: false, installed: false, store: false, installing: false });
   const [defaultList, setDefaultList] = useState([]);
   const [siteText, setSiteText] = useState(null);   // textarea draft (null until loaded)
   const [badEntries, setBadEntries] = useState([]); // lines dropped as unusable
@@ -208,7 +208,7 @@ export default function SettingsPanel({ active = false }) {
     .then((a) => setApps({
       available: !!a?.available, on: a?.mode === true, platform: a?.platform || '',
       canInstall: !!a?.canInstall, installed: !!a?.robloxInstalled, store: !!a?.storeEdition,
-      installing: !!a?.installing, regional: a?.robloxRegional || null,
+      installing: !!a?.installing,
     }))
     .catch(() => {});
   useEffect(() => {
@@ -445,14 +445,8 @@ export default function SettingsPanel({ active = false }) {
                   </button>
                 )}
               </div>
-              {apps.platform === 'win32' && (
-                <p className="mt-2 text-[12px] leading-snug" style={{ color: 'var(--text-faint)' }}>{t('appLaunchHint')}</p>
-              )}
               {apps.store && (
                 <p className="mt-2 text-[12px] leading-snug" style={{ color: 'var(--warn)' }}>{t('appStoreEdition')}</p>
-              )}
-              {apps.regional === 'VN' && (
-                <p className="mt-2 text-[12px] leading-snug" style={{ color: 'var(--warn)' }}>{t('appRegionalVN')}</p>
               )}
               {robloxMsg && (
                 <p role="status" className="mt-2 text-[12px] leading-snug"
