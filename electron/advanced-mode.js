@@ -32,6 +32,25 @@ const STOP_TIMEOUT_MS = 4000;
 
 function archKey() { return process.arch === 'arm64' ? 'arm64' : 'x64'; }
 
+/* The machine's own processor, not this build's: the x64 build runs on
+ * Windows on ARM too (emulated), where process.arch says x64 but the WinDivert
+ * driver, a kernel driver, cannot load. Windows records the real one for the
+ * whole system. */
+let hostArmCache = null;
+function windowsHostIsArm() {
+  if (process.platform !== 'win32') return false;
+  if (process.arch === 'arm64') return true;
+  if (hostArmCache !== null) return hostArmCache;
+  hostArmCache = false;
+  try {
+    const out = require('child_process').execFileSync('reg', ['query',
+      'HKLM\\SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Environment', '/v', 'PROCESSOR_ARCHITECTURE'],
+    { encoding: 'utf8', windowsHide: true, timeout: 5000 });
+    hostArmCache = /PROCESSOR_ARCHITECTURE\s+REG_SZ\s+ARM64/i.test(out);
+  } catch {}
+  return hostArmCache;
+}
+
 function advBinaryPath() {
   const plat = process.platform;
   const name = plat === 'win32' ? 'shroudly-core-adv.exe' : 'shroudly-core-adv';
@@ -99,7 +118,7 @@ class AdvancedMode {
   reasonCode() {
     if (this.platform === 'darwin') return 'mac_unsupported';
     if (this.platform !== 'win32' && this.platform !== 'linux') return 'platform_unsupported';
-    if (this.platform === 'win32' && archKey() !== 'x64') return 'arch_unsupported';
+    if (this.platform === 'win32' && (archKey() !== 'x64' || windowsHostIsArm())) return 'arch_unsupported';
     if (!fs.existsSync(advBinaryPath())) return 'not_built';
     if (this.platform === 'win32') {
       const dir = path.dirname(advBinaryPath());

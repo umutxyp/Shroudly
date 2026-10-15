@@ -135,6 +135,10 @@ class AppProxy {
     this.open = 0;
     this.decisions = new Map();         // host -> { via, until }
     this._warnedAt = 0;
+    // Told of every tunnel that opened (host, 'engine' | 'direct'): how the
+    // app knows a program really goes through Shroudly, not just that the
+    // setting was written.
+    this.onTunnel = null;
   }
 
   get running() { return !!this.server; }
@@ -206,11 +210,13 @@ class AppProxy {
     // What this machine's own DNS says. Unknown here, or public: the engine
     // (with its own DNS). A private answer is an internal server, unless it
     // is a known block page.
+    // 0.0.0.0 or :: is not a server anywhere: it is how DNS filters (a
+    // local ad blocker, an ISP) say "blocked", so the engine's own DNS decides.
     const addrs = await this.lookup(host);
     let via = 'engine';
     if (addrs && addrs.length && !addrs.some((a) => countryOf(embeddedV4(a) || a))) {
       const classes = addrs.map(addrClass);
-      if (classes.every((c) => c !== 'public')) via = 'direct';
+      if (!classes.includes('unspecified') && classes.every((c) => c !== 'public')) via = 'direct';
     }
     if (this.decisions.size > 4000) this.decisions.clear();
     this.decisions.set(host, { via, until: Date.now() + DECISION_TTL_MS });
@@ -227,10 +233,12 @@ class AppProxy {
     client.once('close', () => { this.open--; });
 
     let up;
+    let socksPortUsed = null;
     try {
       const via = await this.route(t.host);
       if (via === 'refuse') { if (!client.destroyed) client.end('HTTP/1.1 403 Forbidden\r\n\r\n'); return; }
       const socksPort = via === 'engine' ? this.getSocksPort() : null;
+      socksPortUsed = socksPort;
       up = socksPort ? await socksConnect(socksPort, t.host, t.port) : await direct(t.host, t.port);
     } catch (e) {
       this._warn(`Games and apps: could not reach ${t.host} (${e.message})`);
@@ -241,6 +249,7 @@ class AppProxy {
     this._track(up);
     this.tunnels++;
     this.lastOkAt = Date.now();
+    if (this.onTunnel) { try { this.onTunnel(t.host, socksPortUsed ? 'engine' : 'direct'); } catch {} }
 
     const end = () => { client.destroy(); up.destroy(); };
     up.on('error', end); client.on('error', end);

@@ -1,36 +1,51 @@
 'use strict';
 
 /*
- * Where Roblox is on this machine, whether it is running, and how to start it
- * again so that it picks up the session's HTTPS_PROXY (app-env.js).
+ * Where Roblox is on this machine, whether it is running, and how to start,
+ * restart or install it so that it goes through Shroudly.
  *
- * Roblox reads the proxy once, when it starts. A copy that was already open
- * when the mode came on keeps going straight to Roblox until it is restarted.
+ * Roblox ignores the system proxy and reads HTTPS_PROXY (app-env.js) once,
+ * when it starts, from whoever started it. On Windows that is the catch: the
+ * website's Play button and a download opened from the browser's download bar
+ * are started by the browser, with the environment the browser itself got
+ * when it started, which is usually before Shroudly set anything. So Shroudly
+ * also starts Roblox, and its installer, itself, with the setting in place.
  */
 
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
+const tls = require('tls');
+const https = require('https');
 const { execFile, spawn } = require('child_process');
 
-function run(cmd, args) {
-  return new Promise((resolve) => execFile(cmd, args, { windowsHide: true, timeout: 10000 }, (err, out) => resolve(err ? '' : String(out))));
+function run(cmd, args, opts = {}) {
+  return new Promise((resolve) => execFile(cmd, args, { windowsHide: true, timeout: 10000, ...opts }, (err, out) => resolve(err ? '' : String(out))));
 }
 
-/* Installed copies, newest first. macOS: the app bundle. Windows: the player
- * in each version folder (Roblox keeps the current one, and sometimes an
- * older one it has not cleaned up yet). */
+const exists = (p) => { try { return fs.statSync(p); } catch { return null; } };
+const localAppData = () => process.env.LOCALAPPDATA || path.join(os.homedir(), 'AppData', 'Local');
+
+/* Bootstrappers people use instead of Roblox's own launcher: they keep their
+ * own copy of the player and start it themselves, so it is them that have to
+ * be started with the setting. */
+const BOOTSTRAPPERS = ['Bloxstrap', 'Fishstrap'];
+
+/* Installed copies of the player, newest first. macOS: the app bundle.
+ * Windows: the player in each version folder, Roblox's own and the
+ * bootstrappers' (Roblox keeps the current one, and sometimes an older one it
+ * has not cleaned up yet). */
 function installs(platform = process.platform) {
-  const exists = (p) => { try { return fs.statSync(p); } catch { return null; } };
   if (platform === 'darwin') {
     return ['/Applications', path.join(os.homedir(), 'Applications')]
       .flatMap((d) => ['Roblox.app', 'RobloxPlayer.app'].map((a) => path.join(d, a)))
       .filter((p) => exists(p));
   }
   if (platform === 'win32') {
-    const local = process.env.LOCALAPPDATA || path.join(os.homedir(), 'AppData', 'Local');
+    const local = localAppData();
     const roots = [local, process.env['ProgramFiles(x86)'], process.env.ProgramFiles]
-      .filter(Boolean).map((r) => path.join(r, 'Roblox', 'Versions'));
+      .filter(Boolean).map((r) => path.join(r, 'Roblox', 'Versions'))
+      .concat(BOOTSTRAPPERS.map((b) => path.join(local, b, 'Versions')));
     const found = [];
     for (const root of roots) {
       let dirs = [];
@@ -48,14 +63,43 @@ function installs(platform = process.platform) {
 
 function installed() { return installs().length > 0; }
 
-/* Process ids of the running Roblox player, and of its installer: the
- * installer is the first thing to fail ("Continue installation without flag
- * settings from clientsettingscdn.roblox.com") and is just as deaf to the
- * system proxy. */
+/* The program Windows runs for the website's Play button: Roblox's player, or
+ * a bootstrapper that took the link over. */
+async function handler() {
+  if (process.platform !== 'win32') return null;
+  const out = await run('reg', ['query', 'HKCU\\Software\\Classes\\roblox-player\\shell\\open\\command', '/ve']);
+  const m = /REG_(?:EXPAND_)?SZ\s+(?:"([^"]+\.exe)"|(\S+\.exe))/i.exec(out);
+  const exe = m ? (m[1] || m[2]) : null;
+  return exe && exists(exe) ? exe : null;
+}
+
+/* What to start for "Open Roblox": the bootstrapper if one handles Roblox's
+ * links (it starts the player itself), else the newest player. */
+async function launcher() {
+  if (process.platform === 'darwin') { const app = installs()[0]; return app ? { exe: 'open', args: ['-a', app] } : null; }
+  if (process.platform !== 'win32') return null;
+  const h = await handler();
+  if (h && BOOTSTRAPPERS.some((b) => path.basename(h).toLowerCase() === `${b.toLowerCase()}.exe`)) return { exe: h, args: ['-player'] };
+  const player = installs()[0] || (h && /robloxplayerbeta\.exe$/i.test(h) ? h : null);
+  return player ? { exe: player, args: [] } : null;
+}
+
+/* The Microsoft Store edition runs inside an app container, which cannot
+ * reach Shroudly on this computer at all. Asked only when the window shows
+ * the Games and apps section: it starts PowerShell. */
+async function storeEdition() {
+  if (process.platform !== 'win32') return false;
+  const out = await run('powershell.exe', ['-NoProfile', '-NonInteractive', '-Command',
+    'if (Get-AppxPackage -Name ROBLOXCORPORATION.ROBLOX -ErrorAction SilentlyContinue) { "yes" }'], { timeout: 15000 });
+  return /yes/.test(out);
+}
+
+/* Process ids of Roblox's player, launcher and installer (all of them deaf
+ * to the system proxy). Studio is left alone. */
 async function pids() {
   if (process.platform === 'win32') {
     const out = await run('tasklist', ['/FI', 'IMAGENAME eq Roblox*', '/NH', '/FO', 'CSV']);
-    return [...out.matchAll(/^"RobloxPlayer(?:Beta|Installer)\.exe","(\d+)"/gmi)].map((m) => Number(m[1]));
+    return [...out.matchAll(/^"Roblox(?!Studio)[^"]*\.exe","(\d+)"/gmi)].map((m) => Number(m[1]));
   }
   if (process.platform === 'darwin') {
     return (await run('pgrep', ['^(RobloxPlayer|RobloxPlayerInstaller)$'])).split(/\s+/).filter(Boolean).map(Number);
@@ -80,29 +124,133 @@ async function waitGone(list, ms) {
 
 function detached(cmd, args, env) {
   try {
-    spawn(cmd, args, { detached: true, stdio: 'ignore', windowsHide: false, env: env || process.env }).unref();
+    const c = spawn(cmd, args, { detached: true, stdio: 'ignore', windowsHide: false, env: env || process.env });
+    c.on('error', () => {});
+    c.unref();
     return true;
   } catch { return false; }
 }
 
-/* Quit Roblox and open it again. `env` is what the new copy should get on
- * Windows; on macOS it is started by the system, which already has it. */
+/* Start Roblox. `env` is what it should get on Windows; on macOS it is
+ * started by the system, whose environment already has the setting. */
+async function open(env) {
+  const l = await launcher();
+  if (!l) return false;
+  return detached(l.exe, l.args, process.platform === 'win32' ? { ...process.env, ...env } : process.env);
+}
+
+/* Quit Roblox and open it again, through Shroudly. */
 async function restart(env) {
-  const app = installs()[0];
-  if (!app) return false;
   const before = await pids();
   if (process.platform === 'darwin') {
     const re = '^(RobloxPlayer|RobloxPlayerInstaller)$';
     await run('pkill', [re]);
     if (!(await waitGone(before, 8000))) { await run('pkill', ['-9', re]); await waitGone(before, 3000); }
-    return detached('open', ['-a', app]);
-  }
-  if (process.platform === 'win32') {
-    await run('taskkill', ['/IM', 'RobloxPlayerBeta.exe', '/IM', 'RobloxPlayerInstaller.exe', '/T', '/F']);
+  } else if (process.platform === 'win32') {
+    if (before.length) await run('taskkill', [...before.flatMap((p) => ['/PID', String(p)]), '/T', '/F']);
     await waitGone(before, 5000);
-    return detached(app, [], { ...process.env, ...env });
-  }
-  return false;
+  } else return false;
+  return open(env);
 }
 
-module.exports = { installs, installed, pids, alive, restart };
+/* ── installing (Windows) ────────────────────────────────────────────────── */
+/* The same two requests Roblox's own website makes: which version is current,
+ * then that version's installer. Fetched through the engine (Roblox's servers
+ * are what is filtered), checked to be signed by Roblox, then started with the
+ * setting, so the installer and the player it installs go through Shroudly. */
+const VERSION_URL = 'https://clientsettingscdn.roblox.com/v2/client-version/WindowsPlayer';
+const ALLOWED_HOSTS = /(^|\.)(roblox\.com|rbxcdn\.com)$/i;
+const MAX_BYTES = 128 * 1024 * 1024;
+
+/* GET url, through the engine at socksPort when given. Follows a few
+ * redirects within Roblox's own hosts. Resolves { status, body } or, with
+ * toFile, writes the body there. */
+function get(url, { socksPort, connect, toFile, timeoutMs = 60000, redirects = 3, tlsOptions } = {}) {
+  return new Promise((resolve, reject) => {
+    let u;
+    try { u = new URL(url); } catch (e) { reject(e); return; }
+    if (u.protocol !== 'https:' || !ALLOWED_HOSTS.test(u.hostname)) { reject(new Error(`refused ${u.hostname}`)); return; }
+    const timer = setTimeout(() => fail(new Error('timed out')), timeoutMs);
+    let req = null;
+    let done = false;
+    const fail = (e) => { if (done) return; done = true; clearTimeout(timer); try { req && req.destroy(); } catch {} reject(e); };
+    const ok = (v) => { if (done) return; done = true; clearTimeout(timer); resolve(v); };
+    const start = (sock) => {
+      req = https.request({
+        host: u.hostname, path: `${u.pathname}${u.search}`, method: 'GET',
+        port: 443,
+        // Spelled out: with a connection of our own Node would otherwise
+        // write "host:80" into the request.
+        headers: { host: u.hostname, 'user-agent': 'Shroudly', accept: '*/*' },
+        // createConnection is only used when no agent is: the request then
+        // runs on the engine's connection rather than a direct one.
+        ...(sock ? { createConnection: () => tls.connect({ socket: sock, servername: u.hostname, ...(tlsOptions || {}) }) } : {}),
+      }, (res) => {
+        if ([301, 302, 303, 307, 308].includes(res.statusCode) && res.headers.location && redirects > 0) {
+          res.resume();
+          clearTimeout(timer); done = true;
+          get(new URL(res.headers.location, u).toString(), { socksPort, connect, toFile, timeoutMs, redirects: redirects - 1, tlsOptions }).then(resolve, reject);
+          return;
+        }
+        if (res.statusCode !== 200) { res.resume(); fail(new Error(`HTTP ${res.statusCode}`)); return; }
+        let got = 0;
+        if (toFile) {
+          const out = fs.createWriteStream(toFile, { mode: 0o600 });
+          res.on('data', (d) => { got += d.length; if (got > MAX_BYTES) fail(new Error('too large')); });
+          res.on('error', fail);
+          out.on('error', fail);
+          out.on('finish', () => ok({ status: 200, bytes: got }));
+          res.pipe(out);
+          return;
+        }
+        const parts = [];
+        res.on('data', (d) => { got += d.length; if (got > 1024 * 1024) fail(new Error('too large')); else parts.push(d); });
+        res.on('end', () => ok({ status: 200, body: Buffer.concat(parts).toString('utf8') }));
+        res.on('error', fail);
+      });
+      req.on('error', fail);
+      req.end();
+    };
+    if (socksPort && connect) connect(socksPort, u.hostname, 443).then(start, fail);
+    else start(null);
+  });
+}
+
+/* Is the file signed, validly, by Roblox Corporation? Never start a
+ * downloaded program on anything less. */
+async function signedByRoblox(file) {
+  if (process.platform !== 'win32') return false;
+  const out = await run('powershell.exe', ['-NoProfile', '-NonInteractive', '-Command',
+    '$s = Get-AuthenticodeSignature -LiteralPath $env:SHROUDLY_FILE; "$($s.Status)|$($s.SignerCertificate.Subject)"'],
+  { timeout: 30000, env: { ...process.env, SHROUDLY_FILE: file } });
+  const [status, subject] = out.trim().split('|');
+  return status === 'Valid' && /(^|,\s*)O="?Roblox Corporation"?(,|$)/i.test(subject || '');
+}
+
+/* Download Roblox's current installer and start it with `env`.
+ * opts: { socksPort, connect, env, dir }. Resolves { success, code }. */
+async function install(opts) {
+  if (process.platform !== 'win32') return { success: false, code: 'unsupported' };
+  let version;
+  try {
+    const r = await get(VERSION_URL, { socksPort: opts.socksPort, connect: opts.connect, timeoutMs: 20000 });
+    version = JSON.parse(r.body).clientVersionUpload;
+  } catch (e) { return { success: false, code: 'unreachable', detail: e.message }; }
+  if (!/^version-[0-9a-f]{8,32}$/i.test(String(version || ''))) return { success: false, code: 'unreachable', detail: 'unexpected version' };
+  fs.mkdirSync(opts.dir, { recursive: true });
+  const file = path.join(opts.dir, 'RobloxPlayerInstaller.exe');
+  const part = `${file}.part`;
+  try { fs.rmSync(part, { force: true }); } catch {}
+  try {
+    await get(`https://setup.rbxcdn.com/${version}-RobloxPlayerInstaller.exe`, { socksPort: opts.socksPort, connect: opts.connect, toFile: part, timeoutMs: 180000 });
+  } catch (e) { try { fs.rmSync(part, { force: true }); } catch {} return { success: false, code: 'unreachable', detail: e.message }; }
+  if (!(await signedByRoblox(part))) { try { fs.rmSync(part, { force: true }); } catch {} return { success: false, code: 'unsigned' }; }
+  try { fs.rmSync(file, { force: true }); fs.renameSync(part, file); } catch (e) { return { success: false, code: 'failed', detail: e.message }; }
+  return detached(file, [], { ...process.env, ...opts.env }) ? { success: true, version } : { success: false, code: 'failed' };
+}
+
+/* Hosts Roblox's programs talk to: how a tunnel is recognised as Roblox's. */
+const ROBLOX_HOST = /(^|\.)(roblox\.com|rbxcdn\.com|rbxinfra\.net|rbx\.com|robloxlabs\.com)$/i;
+function isRobloxHost(h) { return ROBLOX_HOST.test(String(h || '')); }
+
+module.exports = { installs, installed, handler, launcher, storeEdition, pids, alive, open, restart, install, isRobloxHost, get, signedByRoblox, BOOTSTRAPPERS };

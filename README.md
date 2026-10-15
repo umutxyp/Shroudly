@@ -230,7 +230,8 @@ Games and apps mode sets it, on Windows and macOS, without admin rights:
   goes out directly. The local network is always reached directly, and so
   are names your own DNS puts on a private network (a company's internal
   servers), which are never sent to public resolvers. A private answer that
-  is a known block page (Iran's 10.10.34.34) still goes through the engine.
+  is a known block page (Iran's 10.10.34.34), and a `0.0.0.0` / `::` answer
+  (how DNS filters say "blocked"), still go through the engine.
   With *only listed sites*, only listed sites go through the engine here
   too. Tunnels to this machine itself, or to link-local addresses, are
   refused.
@@ -244,8 +245,21 @@ Games and apps mode sets it, on Windows and macOS, without admin rights:
   Explorer get it.
 - A program reads it when it starts. If Roblox is already open, Shroudly offers
   to restart it. On Windows, a browser that was already open keeps its old
-  environment: if you start Roblox or its installer from the browser, close the
-  browser completely and open it again once.
+  environment, and so does everything it starts: the website's *Play* button
+  and an installer opened from the download bar. So Shroudly starts Roblox
+  itself: **Open Roblox** (Settings, under the mode) starts it, or the
+  Bloxstrap / Fishstrap that handles Roblox's links, with the setting in
+  place; **Install Roblox** (Windows) asks Roblox which version is current,
+  downloads that installer through the engine, checks that it is signed by
+  Roblox Corporation and starts it the same way. Starting Roblox from the
+  Start menu works too.
+- Shroudly checks what actually happens, not just that the setting was
+  written: the first program, and the first Roblox connection, to go through
+  it are logged, and a Roblox that has been running for half a minute without
+  a single connection through Shroudly (started by an older browser) is
+  reported in the window and as a notification, with a button that restarts
+  it through Shroudly. The Microsoft Store edition of Roblox runs in a
+  sandbox that cannot reach Shroudly on this computer; the window says so.
 - It is offered and explained in the app first, never done unasked. A proxy you
   set yourself (for your session or, on Windows, for the whole machine) is
   never replaced, and an `HTTPS_PROXY` of your own is never removed:
@@ -260,6 +274,25 @@ Games and apps mode sets it, on Windows and macOS, without admin rights:
 
 Game traffic itself (Roblox's UDP) does not use a proxy and goes direct; it is
 the HTTPS part — sign-in, the game list, joining, assets — that filters block.
+
+## What Shroudly cannot fix
+
+Shroudly gets past filters on your network. It never changes your address, so
+it cannot help when the **service itself** turns you away because of where you
+are:
+
+- **Roblox in Vietnam.** Roblox's own terms require users in Vietnam to use
+  Roblox VN (published by VNG), Roblox refuses Vietnamese addresses itself, and
+  it moves accounts to Roblox VN by their location over time. Getting past the
+  ISPs' DNS block (which Shroudly does) only uncovers Roblox's own refusal.
+- **Services that block countries by policy or sanctions** (some AI services,
+  games and stores): they decide from your address, account or payment country.
+
+The site test in Settings tells these apart: when a site answers but refuses
+the connection itself (a block page, HTTP 451, or a handshake followed by
+silence), it says so instead of suggesting another technique. Only a
+connection that leaves from another country gets around such a refusal, and
+the service may treat that as breaking its rules (Roblox does).
 Linux has no single place every desktop reads the environment from, and Roblox
 has no Linux client, so the mode is not offered there.
 
@@ -374,8 +407,9 @@ password to install an update, as any system package does.
 > **The builds are not code-signed yet** (Windows signing is being set up, see the
 > [code signing policy](#code-signing-policy)). On first launch Windows SmartScreen may
 > show *"Windows protected your PC"* → click **More info → Run anyway**. On macOS
-> Gatekeeper may block it → right-click the app → **Open**, or allow it under
-> **System Settings → Privacy & Security**.
+> Gatekeeper may block it: open it once, then **System Settings → Privacy &
+> Security → Open Anyway** (on macOS 15 and later right-click → Open no longer
+> offers that).
 
 No administrator or root rights are needed to run it; only the optional
 [Advanced mode](#advanced-mode-stateful-dpi) asks for them.

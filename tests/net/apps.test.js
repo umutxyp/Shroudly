@@ -12,7 +12,7 @@ const net = require('net');
 const tls = require('tls');
 const path = require('path');
 const { spawnSync, execFile } = require('child_process');
-const { ROOT, enginePath, startEngine, freePort, sleep, suite } = require('./helpers');
+const { ROOT, enginePath, startEngine, freePort, sleep, suite, fixture } = require('./helpers');
 
 const AppProxy = require(path.join(ROOT, 'electron', 'app-proxy.js'));
 const AppEnv = require(path.join(ROOT, 'electron', 'app-env.js'));
@@ -73,16 +73,6 @@ function raw(port, text) {
   });
 }
 
-function download(url, file) {
-  return new Promise((resolve, reject) => {
-    require('https').get(url, (res) => {
-      if (res.statusCode !== 200) { res.resume(); reject(new Error(`HTTP ${res.statusCode}`)); return; }
-      const out = fs.createWriteStream(file);
-      res.pipe(out); out.on('finish', () => out.close(resolve)); out.on('error', reject);
-    }).on('error', reject);
-  });
-}
-
 /* Roblox's web connections (80/443) that do not go to this machine, i.e.
  * that bypass the proxy. */
 function robloxDirect() {
@@ -96,27 +86,25 @@ function robloxDirect() {
     (err, out) => resolve(String(out || '').split(/\r?\n/).map((l) => l.trim()).filter(Boolean))));
 }
 
-async function robloxInstaller(proxy) {
+/* What Shroudly's own "Install Roblox" does (electron/roblox-app.js): the
+ * current version asked of Roblox and its installer downloaded through the
+ * engine, its Roblox Corporation signature checked, then started with the
+ * setting. Then a minute of watching that the installer, and the player it
+ * installs, go through Shroudly and nothing goes around it. */
+async function robloxInstaller(proxy, socksPort) {
+  const RobloxApp = require(path.join(ROOT, 'electron', 'roblox-app.js'));
+  const { socksConnect } = require(path.join(ROOT, 'electron', 'discord-relay.js'));
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'shroudly-roblox-'));
-  const exe = path.join(dir, 'RobloxPlayerInstaller.exe');
-  try {
-    const fetchInstaller = async () => {
-      const v = await new Promise((resolve, reject) => require('https').get('https://clientsettingscdn.roblox.com/v2/client-version/WindowsPlayer', (res) => {
-        let b = ''; res.on('data', (c) => { b += c; }); res.on('end', () => { try { resolve(JSON.parse(b).clientVersionUpload); } catch (e) { reject(e); } });
-      }).on('error', reject));
-      await download(`https://setup.rbxcdn.com/${v}-RobloxPlayerInstaller.exe`, exe);
-    };
-    await Promise.race([fetchInstaller(), sleep(60000).then(() => { throw new Error('download took over a minute'); })]);
-  } catch (e) {
-    console.log(`  --  Roblox installer not downloadable here (${e.message}); skipped`);
+  const before = proxy.tunnels;
+  const roblox = new Set();
+  proxy.onTunnel = (host) => { if (RobloxApp.isRobloxHost(host)) roblox.add(host); };
+  const r = await RobloxApp.install({ socksPort, connect: socksConnect, dir, env: { HTTPS_PROXY: proxy.url, NO_PROXY: AppEnv.NO_PROXY_VALUE } });
+  if (!r.success && r.code === 'unreachable') {
+    console.log(`  --  Roblox installer not downloadable here (${r.detail}); skipped`);
     return;
   }
-  const before = proxy.tunnels;
-  const env = { ...process.env, NO_PROXY: AppEnv.NO_PROXY_VALUE };
-  for (const k of Object.keys(env)) if (/^(https?|all)_proxy$/i.test(k)) delete env[k];
-  env.HTTPS_PROXY = proxy.url;
-  const child = require('child_process').spawn(exe, [], { env, detached: true, stdio: 'ignore' });
-  child.on('error', () => {});
+  t.ok(r.success, `Install Roblox: current installer (${r.version}) downloaded through the engine, signed by Roblox, started (${r.code || 'ok'})`);
+  if (!r.success) return;
   // A minute of watching, whatever the machine's speed.
   const direct = new Set();
   const until = Date.now() + 60000;
@@ -126,9 +114,11 @@ async function robloxInstaller(proxy) {
   }
   spawnSync('taskkill', ['/F', '/T', '/IM', 'RobloxPlayerInstaller.exe']);
   spawnSync('taskkill', ['/F', '/T', '/IM', 'RobloxPlayerBeta.exe']);
+  proxy.onTunnel = null;
   const through = proxy.tunnels - before;
   if (direct.size) console.log(`  !!  direct: ${[...direct].slice(0, 8).join(', ')}`);
   t.ok(through > 0 && direct.size === 0, `real Roblox installer: ${through} connections through Shroudly, ${direct.size} around it`);
+  t.ok(roblox.size > 0, `Shroudly can tell they are Roblox's (${[...roblox].slice(0, 4).join(', ')})`);
   try { fs.rmSync(dir, { recursive: true, force: true }); } catch {}
 }
 
@@ -149,7 +139,8 @@ async function robloxInstaller(proxy) {
     let on = true; let listed = null;
     const p = new AppProxy(() => {}, () => (on ? 1 : null), (h) => !listed || listed.some((d) => h === d || h.endsWith(`.${d}`)));
     const answers = { 'git.corp.example': ['10.20.30.40'], 'www.roblox.com': ['195.175.254.2'], 'blocked.example': ['10.10.34.34'],
-      'public.example': ['93.184.216.34'], 'mixed.example': ['10.0.0.5', '93.184.216.34'], 'v6corp.example': ['fd12::1'] };
+      'public.example': ['93.184.216.34'], 'mixed.example': ['10.0.0.5', '93.184.216.34'], 'v6corp.example': ['fd12::1'],
+      'sinkholed.example': ['0.0.0.0'], 'sinkholed6.example': ['::'], 'devbox.example': ['127.0.0.1'] };
     p.lookup = async (h) => answers[h] || null;
     const r = async (h) => { p.decisions.clear(); return p.route(h); };
     t.ok((await r('127.0.0.1')) === 'refuse' && (await r('::1')) === 'refuse' && (await r('localhost')) === 'refuse' && (await r('169.254.169.254')) === 'refuse' && (await r('::ffff:127.0.0.1')) === 'refuse', 'refused: this machine, link-local (cloud metadata), however written');
@@ -157,11 +148,41 @@ async function robloxInstaller(proxy) {
     t.ok((await r('git.corp.example')) === 'direct' && (await r('v6corp.example')) === 'direct', "direct: a name this machine's DNS puts on a private network (an internal server, never asked of public DNS)");
     t.ok((await r('blocked.example')) === 'engine', "engine: a private answer that is a known block page (Iran's 10.10.34.34)");
     t.ok((await r('www.roblox.com')) === 'engine' && (await r('public.example')) === 'engine' && (await r('mixed.example')) === 'engine' && (await r('nowhere.example')) === 'engine', 'engine: public names, forged answers, and names local DNS does not know');
+    t.ok((await r('sinkholed.example')) === 'engine' && (await r('sinkholed6.example')) === 'engine', 'engine: 0.0.0.0 / :: answers (a local DNS filter or the ISP saying "blocked")');
+    t.ok((await r('devbox.example')) === 'direct', 'direct: a name a developer points at this machine (lvh.me style) is left alone');
     listed = ['roblox.com'];
     t.ok((await r('www.roblox.com')) === 'engine' && (await r('public.example')) === 'direct', 'only listed sites: listed ones through the engine, the rest direct');
     listed = null; on = false;
     t.ok((await r('public.example')) === 'direct' && (await r('127.0.0.1')) === 'refuse', 'protection off: direct (and still never to this machine)');
   }
+  // Roblox: which tunnels are Roblox's, and what Shroudly may download.
+  const RobloxApp = require(path.join(ROOT, 'electron', 'roblox-app.js'));
+  t.ok(['www.roblox.com', 'clientsettingscdn.roblox.com', 'setup.rbxcdn.com', 'tr.rbxcdn.com', 'apis.rbxinfra.net'].every(RobloxApp.isRobloxHost)
+    && !['roblox.com.evil.example', 'notroblox.com', 'discord.com', ''].some(RobloxApp.isRobloxHost), "Roblox's own hosts recognised, look-alikes not");
+  let refused = 0;
+  for (const u of ['http://setup.rbxcdn.com/x', 'https://evil.example/x', 'https://roblox.com.evil.example/x']) {
+    try { await RobloxApp.get(u, { timeoutMs: 2000 }); } catch (e) { if (/refused/.test(e.message)) refused++; }
+  }
+  t.ok(refused === 3, 'the installer download only ever talks HTTPS to Roblox\'s own hosts');
+  t.ok(await RobloxApp.signedByRoblox(path.join(ROOT, 'package.json')) === false, 'an unsigned file is never taken for Roblox\'s installer');
+  {
+    // The download really runs on the connection it is handed (the engine's),
+    // never on a direct one of its own.
+    const seen = [];
+    const srv = require('https').createServer({ key: fixture('test-only-key.pem'), cert: fixture('test-only-cert.pem') }, (req, res) => {
+      seen.push(`${req.headers.host}${req.url}`); res.writeHead(200); res.end('{"clientVersionUpload":"version-0123456789abcdef"}');
+    });
+    await new Promise((r) => srv.listen(0, '127.0.0.1', r));
+    let handed = 0;
+    const connect = () => new Promise((resolve, reject) => { handed++; const c = net.connect(srv.address().port, '127.0.0.1', () => resolve(c)); c.on('error', reject); });
+    const r = await RobloxApp.get('https://clientsettingscdn.roblox.com/v2/client-version/WindowsPlayer', {
+      socksPort: 1, connect, timeoutMs: 5000, tlsOptions: { ca: fixture('test-only-cert.pem'), servername: 'test.local' },
+    }).catch((e) => ({ error: e.message }));
+    srv.close();
+    t.ok(handed === 1 && seen[0] === 'clientsettingscdn.roblox.com/v2/client-version/WindowsPlayer' && /version-0123/.test(r.body || ''),
+      `Roblox's version asked through the engine's connection (${JSON.stringify(r.error || seen)})`);
+  }
+
   t.ok(socksAddress('roblox.com').equals(Buffer.concat([Buffer.from([3, 10]), Buffer.from('roblox.com')])), 'SOCKS: a name sent as a name (resolved by the engine)');
 
   // What reg.exe prints for HKCU\Environment, as Windows prints it.
@@ -332,7 +353,7 @@ async function robloxInstaller(proxy) {
   // clientsettingscdn.roblox.com" when the network filters Roblox. Started
   // with the proxy in its environment, as programs started after the mode is
   // turned on are, every connection it makes must go through Shroudly.
-  if (process.platform === 'win32' && process.env.CI) await robloxInstaller(proxy);
+  if (process.platform === 'win32' && process.env.CI) await robloxInstaller(proxy, P);
 
   engineOn = false;
   const d = await getWithRetry(port, 'www.wikipedia.org');

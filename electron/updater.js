@@ -116,11 +116,14 @@ async function download(url, dest, onProgress, route) {
 }
 
 class Updater {
-  constructor({ log, store, notify, beforeInstall }) {
+  constructor({ log, store, notify, beforeInstall, busy }) {
     this.log = log || (() => {});
     this.store = store;
     this.notify = notify || (() => {});
     this.beforeInstall = beforeInstall || (async () => {});
+    // Is something running that a restart would cut off (a game, a call)?
+    this.busy = busy || (async () => false);
+    this.waitTimer = null;
     this.listeners = new Set();
     this.state = { status: 'idle', current: app.getVersion(), version: null, percent: 0, restartAt: null, error: null };
     this.timer = null;
@@ -212,7 +215,10 @@ class Updater {
     }
     const feed = this.macFeed;
     if (!feed) return;
-    const arm = process.arch === 'arm64';
+    // The Intel build on an Apple Silicon Mac runs under Rosetta: update it to
+    // the native build, which Rosetta will not always be there for.
+    let arm = process.arch === 'arm64';
+    try { arm = arm || app.runningUnderARM64Translation === true; } catch {}
     const zips = feed.files.filter((f) => f.url.endsWith('.zip'));
     const file = zips.find((f) => /arm64/i.test(f.url) === arm) || zips[0];
     if (!file) { this._fail(new Error('no macOS zip in latest-mac.yml')); return; }
@@ -245,18 +251,38 @@ class Updater {
 
   _downloaded(version) {
     this.log('success', `Update downloaded: version ${version}`);
-    const restartAt = this.auto ? Date.now() + RESTART_COUNTDOWN_S * 1000 : null;
-    this._set({ status: 'ready', version, percent: 100, restartAt });
+    this._set({ status: 'ready', version, percent: 100, restartAt: null });
     clearTimeout(this.restartTimer);
-    if (restartAt) {
-      this.notify(version); // "will restart to install it"
-      this.restartTimer = setTimeout(() => this.install(), RESTART_COUNTDOWN_S * 1000);
+    if (this.auto) this._armRestart();
+  }
+
+  /* Restarting cuts off whatever goes through Shroudly for a few seconds: a
+   * Roblox game or a Discord call would drop. So the countdown starts only
+   * once neither is running, looked at again every minute; until then the
+   * update waits (and installs on the next quit anyway). */
+  async _armRestart() {
+    clearTimeout(this.waitTimer);
+    if (this.state.status !== 'ready' || this.restartTimer || this.installing) return;
+    let busy = false;
+    try { busy = await this.busy(); } catch {}
+    if (this.state.status !== 'ready' || this.restartTimer || this.installing) return;
+    if (busy) {
+      if (!this.waiting) { this.waiting = true; this.log('info', 'Update ready: it installs once Roblox and Discord are closed, or when Shroudly quits'); }
+      this.waitTimer = setTimeout(() => this._armRestart(), 60000);
+      if (this.waitTimer.unref) this.waitTimer.unref();
+      return;
     }
+    this.waiting = false;
+    const restartAt = Date.now() + RESTART_COUNTDOWN_S * 1000;
+    this._set({ restartAt });
+    this.notify(this.state.version); // "will restart to install it"
+    this.restartTimer = setTimeout(() => this.install(), RESTART_COUNTDOWN_S * 1000);
   }
 
   /* Keep the downloaded update for the next quit instead of restarting now. */
   postpone() {
     clearTimeout(this.restartTimer);
+    clearTimeout(this.waitTimer);
     this.restartTimer = null;
     this._set({ restartAt: null });
   }
@@ -292,7 +318,7 @@ rm -rf "$4.old"
 mv "$4" "$4.old" || exit 1
 if mv "$NEW" "$4"; then rm -rf "$4.old"; else mv "$4.old" "$4"; fi
 /usr/bin/xattr -dr com.apple.quarantine "$4" 2>/dev/null
-[ "$5" = 1 ] && /usr/bin/open "$4"
+[ "$5" = 1 ] && /usr/bin/open "$4" --args --updated
 rm -rf "$3"
 `);
     const p = spawn('/bin/sh', [script, String(process.pid), zip, dir, bundle, relaunch ? '1' : '0'], { detached: true, stdio: 'ignore' });
