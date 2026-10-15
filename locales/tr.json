@@ -290,7 +290,7 @@
   "quitApp": "Shroudly'den çık",
   "quitAppDesc": "Korumayı durdurur ve tüm ayarları eski haline getirir.",
   "probeServiceTitle": "{host} bu bağlantıyı kendisi reddediyor",
-  "probeServiceBody": "Artık engel ağda değil: {host} cevap veriyor ama bağlantıyı geri çeviriyor (bir engel sayfası ya da bağlandıktan sonra sessizlik). Bu genelde sitenin senin ülkenden gelen erişimi kısıtlamasından kaynaklanır. Shroudly senin internet adresini hiçbir zaman değiştirmez, bu yüzden bunu değiştiremez.",
+  "probeServiceBody": "Ağdaki engel aşıldı: {host} cevap veriyor ama bağlantıyı kendisi geri çeviriyor (bir engel sayfası ya da bağlandıktan sonra sessizlik). Bu genelde sitenin, senin ülkenden gelen erişimi kendisinin kısıtlamasından kaynaklanır. Shroudly internet adresini hiçbir zaman değiştirmez, bu yüzden bunu aşamaz.",
   "logAppsFirst": "Oyunlar ve uygulamalar: ilk program Shroudly üzerinden bağlandı ({host})",
   "logAppsRoblox": "Oyunlar ve uygulamalar: Roblox Shroudly üzerinden bağlanıyor",
   "logAppsBypass": "Oyunlar ve uygulamalar: Roblox çalışıyor ama bağlantılarının hiçbiri Shroudly'den geçmiyor (büyük ihtimalle zaten açık olan bir tarayıcıdan başlatıldı)",
@@ -348,6 +348,6 @@
   "notifyAppBypassBody": "Büyük ihtimalle zaten açık olan bir tarayıcı tarafından başlatıldı, bu yüzden engelli kalıyor. Shroudly üzerinden yeniden başlatmak için Shroudly'yi aç.",
   "discordPickMessage": "Discord'un ayarlarını değiştirmek için macOS senin iznini istiyor. Discord'un klasörü zaten açık: “Erişime izin ver”e tıklaman yeterli.",
   "discordPickButton": "Erişime izin ver",
-  "proxyAdminPrompt": "Shroudly'nin bu Mac'in ağ proxy ayarlarını kendisini gösterecek şekilde değiştirebilmesi için bir yönetici parolası gerekiyor. Korumayı durdururken parola yeniden sorulmayacak.",
+  "proxyAdminPrompt": "Shroudly'nin bu Mac'in ağ proxy ayarlarını kendisine yönlendirebilmesi için bir yönetici parolası gerekiyor. Korumayı durdururken parola yeniden sorulmayacak.",
   "proxyAdminPromptRestore": "Shroudly'nin bu Mac'in ağ proxy ayarlarını eski haline getirebilmesi için bir yönetici parolası gerekiyor."
 }
