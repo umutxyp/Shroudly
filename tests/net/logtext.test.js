@@ -12,7 +12,7 @@ const { ROOT, suite } = require('./helpers');
 
 const t = suite('logtext');
 
-// The two files are ES modules for the web UI; load them as CommonJS here.
+// logText.js is an ES module for the web UI; load it as CommonJS here.
 function load(rel) {
   const src = fs.readFileSync(path.join(ROOT, rel), 'utf8').replace(/export (const|function) /g, '$1 ').replace(/^import .*$/gm, '');
   const names = [...src.matchAll(/^(?:const|function) (\w+)/gm)].map((m) => m[1]);
@@ -21,7 +21,10 @@ function load(rel) {
   fs.writeFileSync(f, `${src}\nmodule.exports = { ${names.join(', ')} };`);
   try { return require(f); } finally { fs.rmSync(dir, { recursive: true, force: true }); }
 }
-const { translations } = load('translations.js');
+const translations = {};
+for (const f of fs.readdirSync(path.join(ROOT, 'locales')).filter((x) => x.endsWith('.json'))) {
+  translations[f.slice(0, -5)] = JSON.parse(fs.readFileSync(path.join(ROOT, 'locales', f), 'utf8'));
+}
 const { localizeLog } = load('components/logText.js');
 
 const LINES = [

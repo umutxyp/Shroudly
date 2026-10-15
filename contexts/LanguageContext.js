@@ -1,9 +1,9 @@
 'use client';
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
-// English is always there (the fallback for any missing string); every
-// other language is its own small file, loaded when it is chosen
-// (scripts/split-translations.js writes them from translations.js).
+// One file per language, locales/<code>.json. English is always there (the
+// fallback for any missing string); any other language is loaded when it is
+// chosen.
 import en from '../locales/en.json';
 
 const dictionaries = { en };

@@ -19,8 +19,8 @@
   "license": "MIT",
   "scripts": {
     "clean": "node scripts/clean.js",
-    "dev": "node scripts/split-translations.js && next dev",
-    "build": "node scripts/split-translations.js && next build && node scripts/fix-paths.js",
+    "dev": "next dev",
+    "build": "next build && node scripts/fix-paths.js",
     "build:core": "node scripts/build-core.js",
     "build:core:all": "node scripts/build-core.js --cross",
     "postinstall": "node scripts/build-core.js || echo \"[core] skipped (no compiler); run npm run build:core later\"",
@@ -29,7 +29,7 @@
     "check:translations": "node scripts/check-translations.js",
     "verify": "npm run build:core && npm run check:translations && npm run build",
     "electron": "npm run build && electron .",
-    "electron:dev": "node scripts/split-translations.js && concurrently \"next dev\" \"wait-on http://localhost:3000 && electron .\"",
+    "electron:dev": "concurrently \"next dev\" \"wait-on http://localhost:3000 && electron .\"",
     "electron:prod": "npm run verify && electron .",
     "dist:win": "npm run verify && electron-builder --win nsis --publish never",
     "dist:mac": "npm run verify && electron-builder --mac --publish never",
@@ -52,6 +52,7 @@
     "files": [
       "out/**/*",
       "electron/**/*",
+      "locales/*.json",
       "!electron/tools/core/**",
       "package.json",
       "!**/*.map",

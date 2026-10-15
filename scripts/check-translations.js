@@ -1,6 +1,5 @@
 const fs = require('fs');
 const path = require('path');
-const vm = require('vm');
 
 const root = path.join(__dirname, '..');
 const sourceDirs = ['app', 'components', 'contexts'];
@@ -37,15 +36,38 @@ for (const dir of sourceDirs) {
   walk(path.join(root, dir));
 }
 
-let translationSource = fs.readFileSync(path.join(root, 'translations.js'), 'utf8');
-translationSource = translationSource.replace(/export\s+const\s+translations\s*=/, 'const translations =');
-translationSource += '\nmodule.exports = translations;';
+// One file per language, locales/<code>.json: the same keys in every one.
+const localeDir = path.join(root, 'locales');
+const translations = {};
+for (const file of fs.readdirSync(localeDir).sort()) {
+  if (!file.endsWith('.json')) continue;
+  const code = file.slice(0, -5);
+  if (!/^[a-z]{2,3}$/.test(code)) { console.error(`locales/${file}: not a language code`); process.exitCode = 1; continue; }
+  try {
+    const strings = JSON.parse(fs.readFileSync(path.join(localeDir, file), 'utf8'));
+    const bad = Object.entries(strings).filter(([, v]) => typeof v !== 'string').map(([k]) => k);
+    if (bad.length) { console.error(`locales/${file}: not text: ${bad.join(', ')}`); process.exitCode = 1; }
+    translations[code] = strings;
+  } catch (e) {
+    console.error(`locales/${file}: ${e.message}`);
+    process.exitCode = 1;
+  }
+}
+if (!translations.en) { console.error('locales/en.json is missing'); process.exit(1); }
 
-const context = { module: { exports: null } };
-vm.createContext(context);
-vm.runInContext(translationSource, context);
+// Every language offered in Settings has a file, and every file is offered.
+const offered = [...fs.readFileSync(path.join(root, 'contexts', 'LanguageContext.js'), 'utf8').matchAll(/\{ code: '([a-z]{2,3})'/g)].map((m) => m[1]);
+for (const code of offered) if (!translations[code]) { console.error(`${code}: offered in Settings but locales/${code}.json is missing`); process.exitCode = 1; }
+for (const code of Object.keys(translations)) if (!offered.includes(code)) { console.error(`locales/${code}.json: not offered in Settings (contexts/LanguageContext.js)`); process.exitCode = 1; }
 
-const translations = context.module.exports;
+// The main process uses the tray*, notify* and discordPick* keys (tr().key).
+for (const file of fs.readdirSync(path.join(root, 'electron'))) {
+  if (!file.endsWith('.js')) continue;
+  const source = fs.readFileSync(path.join(root, 'electron', file), 'utf8');
+  allSource += source + '\n';
+  for (const match of source.matchAll(/\b(?:tr\(\)|s)\.((?:tray|notify|discordPick)[A-Z]\w*)/g)) usedKeys.add(match[1]);
+}
+
 const languages = Object.keys(translations);
 const englishKeys = Object.keys(translations.en || {});
 let failed = false;
@@ -65,10 +87,10 @@ for (const language of languages) {
 
 // Stale keys: defined in English but never referenced as a string anywhere in
 // the UI sources (warning only — keys can be referenced through lookup tables).
-const unused = englishKeys.filter((key) => !allSource.includes(`'${key}'`) && !allSource.includes(`"${key}"`));
+const unused = englishKeys.filter((key) => !usedKeys.has(key) && !allSource.includes(`'${key}'`) && !allSource.includes(`"${key}"`));
 if (unused.length) console.warn(`warning: possibly unused keys: ${unused.join(', ')}`);
 
-if (failed) {
+if (failed || process.exitCode) {
   process.exit(1);
 }
 
