@@ -3,6 +3,9 @@
 - `test_proto.c`   — TLS ClientHello / HTTP parsing (unit)
 - `test_desync.c`  — desync byte-integrity + segmentation over a loopback socket
 - `test_bogon.c`   — anti-poisoning DNS: rejects spoofed/bogon answers (white-box)
+- `test_engine.c`  — the engine's per-host memory (white-box): which names make one
+  site, what a name takes from its site, where a silent ladder resumes, where a cut
+  moves a host on to
 - `fuzz_proto.c`   — random fuzzing of the untrusted-input parser
 - `fuzz_mut.c`     — grammar-aware mutation fuzzing (2M iters, ASan+UBSan clean)
 

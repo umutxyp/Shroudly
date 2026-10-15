@@ -14,6 +14,8 @@ const { startEngine, sleep, freePort, socks, testServerOptions, suite } = requir
 
 const t = suite('engine-silent');
 const BLOCKED = ['silent.test.local'];
+// Every other name here is a site of its own: what one name of a site learns
+// is shared with the site's other names (see engine-site.test.js).
 
 (async () => {
   const server = tls.createServer(testServerOptions(), (s) => {
@@ -78,18 +80,18 @@ const BLOCKED = ['silent.test.local'];
   t.ok(r.ok && r.ms < 2000 && r.desync === 1, `remembered: the next connection uses it straight away (${r.ms} ms)`);
   t.ok(!events(r.mark, 'bypass').length, 'and is not reported again');
 
-  r = await visit(censor.address().port, 'fine.test.local');
+  r = await visit(censor.address().port, 'fine.other-site.local');
   t.ok(r.ok && r.desync === 0 && r.ms < 2000, 'a site that is not blocked is relayed untouched');
 
   // Slow, not censored: answers 6 s after the connection opens, longer than
   // the engine waits before trying a technique. The untouched connection is
   // kept open meanwhile, so its late answer is used, and nothing is learned.
   slowMs = 6000;
-  r = await visit(censor.address().port, 'slow.test.local');
+  r = await visit(censor.address().port, 'slow.slow-site.local');
   slowMs = 0;
   t.ok(r.ok && r.ms < 9000, `slow server (6 s): still served, by the connection it was slow on (${r.ms} ms)`);
   t.ok(!events(r.mark, 'bypass').length && !events(r.mark, 'blocked').length, 'no bypass or block reported for it');
-  r = await visit(censor.address().port, 'slow.test.local');
+  r = await visit(censor.address().port, 'slow.slow-site.local');
   t.ok(r.ok && r.desync === 0, 'and the next connection to it goes untouched: nothing was learned');
 
   // Everything dropped: the engine works through the ladder within its time
@@ -97,7 +99,7 @@ const BLOCKED = ['silent.test.local'];
   const mark = eng.out.length;
   const t0 = Date.now();
   const raw = await socks(P, '127.0.0.1', hole.address().port);
-  const s = tls.connect({ socket: raw, servername: 'dead.test.local', rejectUnauthorized: false });
+  const s = tls.connect({ socket: raw, servername: 'dead.dead-site.local', rejectUnauthorized: false });
   s.on('error', () => {});
   while (!events(mark, 'blocked').length && Date.now() - t0 < 25000) await sleep(100);
   const took = Date.now() - t0;
