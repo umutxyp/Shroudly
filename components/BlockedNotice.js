@@ -274,22 +274,6 @@ export default function BlockedNotice({ onNavigate, active = false }) {
   /* A site that connects and is then cut: what a blank page on Iran's or
    * Russia's networks looks like. What to say depends on what this machine
    * can still do about it. */
-  const cut = advice?.cut;
-  if (cut && !hidden[`cut:${cut.host}`]) {
-    const body = adv.active ? t('cutBodyAdvancedOn') : adv.available ? t('cutBodyAdvanced') : t('cutBodyNoAdvanced');
-    return (
-      <Banner Icon={ShieldAlertIcon} title={t('cutTitle', { host: cut.host })} body={body}
-              onClose={() => hide(`cut:${cut.host}`)} closeLabel={closeLabel}>
-        {adv.available && !adv.active && (
-          <Actions>
-            <button type="button" onClick={startAdvanced} disabled={busy}
-                    className="btn btn-warn rounded-[8px] px-3 py-1.5 text-[12.5px] font-semibold">{t('tryAdvanced')}</button>
-          </Actions>
-        )}
-      </Banner>
-    );
-  }
-
   /* Programs that were open before protection started keep using the
    * connection they were given at launch; this is the usual reason a site
    * loads in the browser but not in its own app. Discord needs more than a
@@ -360,7 +344,7 @@ export default function BlockedNotice({ onNavigate, active = false }) {
   /* Asked once, while protection is on — the moment the user expects
    * Discord to work. It changes another program's file, so it is offered,
    * never done unasked. */
-  if (active && discord?.installed && discord.mode == null && !offerHidden) {
+  if (active && discord?.installed && discord.mode == null && !discord.offerSnoozed && !offerHidden) {
     return (
       <Banner tone="accent" Icon={ShieldAlertIcon} title={t('discordOfferTitle')} body={t('discordOfferBody')}>
         <Actions>
@@ -388,6 +372,25 @@ export default function BlockedNotice({ onNavigate, active = false }) {
           <button type="button" onClick={appsDecline}
                   className="btn btn-ghost rounded-[8px] px-3 py-1.5 text-[12.5px] font-semibold">{t('notNow')}</button>
         </Actions>
+      </Banner>
+    );
+  }
+
+  /* A site that connects and is then cut. Informational and shown last, so it
+   * never hides the actionable banners above (restart Discord, the Discord and
+   * Games offers): those are what actually get the site working. */
+  const cut = advice?.cut;
+  if (cut && !hidden[`cut:${cut.host}`]) {
+    const body = adv.active ? t('cutBodyAdvancedOn') : adv.available ? t('cutBodyAdvanced') : t('cutBodyNoAdvanced');
+    return (
+      <Banner Icon={ShieldAlertIcon} title={t('cutTitle', { host: cut.host })} body={body}
+              onClose={() => hide(`cut:${cut.host}`)} closeLabel={closeLabel}>
+        {adv.available && !adv.active && (
+          <Actions>
+            <button type="button" onClick={startAdvanced} disabled={busy}
+                    className="btn btn-warn rounded-[8px] px-3 py-1.5 text-[12.5px] font-semibold">{t('tryAdvanced')}</button>
+          </Actions>
+        )}
       </Banner>
     );
   }
