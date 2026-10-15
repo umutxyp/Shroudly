@@ -226,8 +226,18 @@ export default function BlockedNotice({ onNavigate, active = false }) {
         </Banner>
       );
     }
+    /* XFCE, LXQt and other desktops without a proxy setting: Firefox follows
+     * GNOME's setting, Chromium browsers the environment they started with. */
+    if (proxy.code === 'partial_env') {
+      const pac = proxy.pacUrl || '';
+      const body = proxy.chromiumNow ? t('proxyEnvChromiumNow', { pac })
+        : !proxy.chromiumAfterRelogin ? t('proxyEnvFirefoxOnly')
+          : proxy.firefox ? t('proxyEnvFirefoxNow')
+            : t('proxyEnvRelogin', { pac });
+      return <Banner Icon={InfoIcon} body={body} onClose={close} closeLabel={closeLabel} />;
+    }
     if (proxy.code === 'no_system_proxy') {
-      return <Banner Icon={InfoIcon} body={proxy.partial ? t('proxyPartialBody') : t('proxyNoneBody', { pac: proxy.pacUrl || '' })} onClose={close} closeLabel={closeLabel} />;
+      return <Banner Icon={InfoIcon} body={t('proxyNoneBody', { pac: proxy.pacUrl || '' })} onClose={close} closeLabel={closeLabel} />;
     }
     return <Banner Icon={ShieldAlertIcon} body={t('proxyFailedBody')} onClose={close} closeLabel={closeLabel} />;
   }

@@ -23,16 +23,34 @@ const Families = require('./families');
 const ServiceCheck = require('./service-check');
 
 /* "Shroudly --restore-proxy" runs once at login after a run that never got to
- * restore the system proxy (power loss, forced reboot). Restore and exit. */
+ * restore the system proxy (power loss, forced reboot), and from the watchdog
+ * after a crash. Restore and exit. The restore itself never asks for a
+ * password and never blocks on a dialog. A macOS setting that still needs the
+ * administrator's password is asked for afterwards, asynchronously, and only
+ * by one process at a time (SystemProxy.recoverAsAdmin's lock file; the app
+ * asks the same way once its window is up) — and not at all here when
+ * Shroudly itself starts at login with protection on: its own password
+ * request then covers it. What was written for the next login on XFCE or LXQt
+ * stays: a crash is not the user switching protection off. */
 const RESTORE_PROXY_ARG = '--restore-proxy';
 const proxyStateFile = () => path.join(app.getPath('userData'), 'proxy-state.json');
 const appEnvStateFile = () => path.join(app.getPath('userData'), 'app-env.json');
 if (process.argv.includes(RESTORE_PROXY_ARG)) {
-  try { SystemProxy.recoverSync({ stateFile: proxyStateFile() }); } catch {}
+  let kept = false;
+  try { kept = SystemProxy.recoverSync({ stateFile: proxyStateFile() }) === 'kept'; } catch {}
   // Shroudly may already be running again (it starts at login too): its own
   // value is then left alone.
   try { AppEnv.recoverSync({ stateFile: appEnvStateFile() }, { onlyIfDead: true }); } catch {}
-  app.exit(0);
+  let ask = false;
+  if (kept && process.platform === 'darwin') {
+    try {
+      const s = new Store();
+      ask = !(s.get('autoStart', false) && s.get('protectionOn', s.get('autoMode', true) !== false));
+    } catch { ask = true; }
+  }
+  if (!ask) { app.exit(0); return; }
+  app.whenReady().then(() => { try { if (app.dock) app.dock.hide(); } catch {} });
+  SystemProxy.recoverAsAdmin({ stateFile: proxyStateFile() }).catch(() => {}).finally(() => app.exit(0));
   return;
 }
 
@@ -519,7 +537,10 @@ async function safeStart({ user = false } = {}) {
 async function safeStop({ user = false } = {}) {
   if (user) store.set(PROTECTION_KEY, false);
   try {
-    await engine.stop();
+    // The user's own stop: the only one that may ask for a macOS
+    // administrator's password, and that takes out what was written for the
+    // next login (system-proxy.js).
+    await engine.stop({ user });
     broadcastStatus(false);
     notify('Shroudly', tr().trayStopped);
     syncPresence();
@@ -604,7 +625,13 @@ app.whenReady().then(async () => {
   engine = new EngineManager(store, {
     addLog, onStatusChange: broadcastStatus,
     siteList: () => siteList.domains,
-    proxyOptions: { stateFile: proxyStateFile(), watchdog, restoreCommand },
+    proxyOptions: {
+      stateFile: proxyStateFile(), watchdog, restoreCommand,
+      // macOS's administrator password dialog says why Shroudly asks, in the
+      // user's language once main-i18n.js has these strings; system-proxy.js
+      // falls back to English.
+      adminPrompt: (kind) => tr()[kind === 'restore' ? 'proxyAdminPromptRestore' : 'proxyAdminPrompt'],
+    },
     onProbe: (p) => { onProbeResult(p).catch(() => toWindow('dpi:probe-result', p)); },
     // What the window should say about this network: another VPN running,
     // the kind of filtering detected, sites that connect and are then cut,
@@ -652,7 +679,10 @@ app.whenReady().then(async () => {
     },
   });
   advanced = new AdvancedMode(addLog);
-  await engine.recover();
+  // Protection as the user left it (see safeStart and below). Recovery needs
+  // it: with protection off, what was written for the next login goes.
+  const protectionOn = store.get(PROTECTION_KEY, store.get('autoMode', true) !== false);
+  await engine.recover({ protectionOn });
 
   // The relay goes through the engine while protection is on, straight to
   // Discord while it is off, and runs whenever Shroudly does.
@@ -734,9 +764,15 @@ app.whenReady().then(async () => {
   // setting for that, Auto mode alone decided, and it still does for anyone
   // who has not pressed Start or Stop since. Independent of the window, which
   // may never be opened this session.
-  if (store.get(PROTECTION_KEY, store.get('autoMode', true) !== false)) {
+  if (protectionOn) {
     addLog('info', 'Auto Mode: starting protection');
     setTimeout(() => { safeStart(); }, 1200);
+  } else {
+    // macOS: a proxy set with an administrator's password that the previous
+    // run could not put back (the Mac restarted under it). Asked now, with
+    // the window up and asynchronously, never at login before it; skipped
+    // when protection starts, whose own password request covers it.
+    setTimeout(() => { engine.recoverProxyAsAdmin().catch(() => {}); }, 1500);
   }
 
   if (isDev) {

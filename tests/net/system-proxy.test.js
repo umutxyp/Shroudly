@@ -13,8 +13,17 @@
  *   - desktops with no system proxy, a Standard macOS account and a refused
  *     change are reported as such, never as routed
  *   - the administrator path on macOS, run by a real /bin/sh: one password,
- *     and the root helper restores on stop, and when the app dies
- *   - another program taking the proxy over is noticed */
+ *     and the root helper restores on stop, when the app dies, and when it
+ *     is itself sent TERM or HUP; one dialog however often it is clicked;
+ *     a late answer after Stop is nobody's; a slow helper is waited for and
+ *     never asked over; exit paths and the login hook never ask, the app
+ *     asks once, in one process; an engine restart keeps the setting
+ *   - a state file left by a restore that was refused is never overwritten
+ *     or deleted by the next Start: the user's own PAC survives
+ *   - which Linux desktop it is, by Chromium's own rules
+ *   - another program taking the proxy over is noticed, but not our own stop
+ *     and not GNOME's setting on KDE
+ * XFCE, LXQt and other desktops: system-proxy-env.test.js. */
 
 const fs = require('fs');
 const os = require('os');
@@ -128,6 +137,7 @@ function pacEval(body) {
 
 function logs() { const l = []; const f = (level, msg) => l.push(`${level}: ${msg}`); f.lines = l; return f; }
 const stateFile = (name) => path.join(TMP, name, 'proxy-state.json');
+const readText = (file) => { try { return fs.readFileSync(file, 'utf8'); } catch { return null; } };
 const readState = (file) => { try { return JSON.parse(fs.readFileSync(file, 'utf8')); } catch { return null; } };
 
 (async () => {
@@ -325,30 +335,44 @@ const readState = (file) => { try { return JSON.parse(fs.readFileSync(file, 'utf
   const sh = process.platform !== 'win32';
   const fakeCli = path.join(TMP, 'fake-networksetup');
   if (sh) fs.writeFileSync(fakeCli, `#!/bin/sh\nexec ${JSON.stringify(process.execPath)} ${JSON.stringify(path.join(__dirname, 'fixtures', 'fake-networksetup.js'))} "$@"\n`, { mode: 0o755 });
-  const osa = { calls: 0, refuse: null };
-  /* osascript: undo the AppleScript string, swap networksetup for the fake,
+  // calls: dialogs shown; refuse: the answer is a refusal; prompts: what each
+  // dialog said; gate: the dialog stays open until this settles; slowOff:
+  // the root helper's restore takes this long per "off" (ms).
+  const osa = { calls: 0, refuse: null, prompts: [], gate: null, slowOff: 0 };
+  const CANCEL = 'execution error: User canceled. (-128)';
+  /* osascript: undo the AppleScript strings, swap networksetup for the fake,
    * and run it with a real /bin/sh, as the elevated script would be run. */
   const fakeOsascript = (args) => {
     osa.calls++;
-    const m = String(args[1]).match(/^do shell script "([\s\S]*)" with administrator privileges$/);
+    const m = String(args[1]).match(/^do shell script "((?:[^"\\]|\\[\s\S])*)"(?: with prompt "((?:[^"\\]|\\[\s\S])*)")? with administrator privileges$/);
     if (!m) throw new Error('not an administrator do shell script');
+    osa.prompts.push((m[2] || '').replace(/\\(["\\])/g, '$1'));
     if (osa.refuse) { const e = new Error('Command failed'); e.stderr = osa.refuse; throw e; }
     const shell = m[1].replace(/\\(["\\])/g, '$1');
     const swapped = shell.split("'/usr/sbin/networksetup'").join(`'${fakeCli}'`);
     if (swapped.includes('/usr/sbin/networksetup')) throw new Error('the real networksetup would run');
-    const r = spawnSync('/bin/sh', ['-c', swapped], { env: { ...process.env, FAKE_NS_STATE: nsFile }, encoding: 'utf8' });
+    const r = spawnSync('/bin/sh', ['-c', swapped], { env: { ...process.env, FAKE_NS_STATE: nsFile, FAKE_NS_SLOW_OFF_MS: String(osa.slowOff) }, encoding: 'utf8' });
     if (r.status !== 0) throw new Error(r.stderr);
     return r.stdout;
   };
-  const macExec = () => fakeExec({
-    networksetup: (args) => {
-      const s = nsState();
-      const out = FakeNS.handle(s, args);
-      if (args[0].startsWith('-set')) FakeNS.save(nsFile, s); // never over a write the helper makes meanwhile
-      return out;
-    },
-    osascript: fakeOsascript,
-  });
+  const macExec = () => {
+    const fx = fakeExec({
+      networksetup: (args) => {
+        const s = nsState();
+        const out = FakeNS.handle(s, args);
+        if (args[0].startsWith('-set')) FakeNS.save(nsFile, s); // never over a write the helper makes meanwhile
+        return out;
+      },
+      osascript: fakeOsascript,
+    });
+    const runSync = fx.runSync;
+    // The dialog is asynchronous: a test can keep it open (osa.gate).
+    fx.run = async (cmd, args) => { if (path.basename(cmd) === 'osascript' && osa.gate) await osa.gate; return runSync(cmd, args); };
+    return fx;
+  };
+  const holdFiles = (dir) => fs.readdirSync(dir).filter((f) => f.endsWith('.hold'));
+  const waitFor = async (cond, ms = 15000) => { const until = Date.now() + ms; while (!cond() && Date.now() < until) await sleep(100); return cond(); };
+  const ourPacOn = (svc) => svc.auto.enabled && /^http:\/\/127\.0\.0\.1:\d+\/proxy\.pac$/.test(svc.auto.url);
 
   {
     nsInit();
@@ -401,6 +425,27 @@ const readState = (file) => { try { return JSON.parse(fs.readFileSync(file, 'utf
       t.ok(SystemProxy.resetLegacySync(() => {}, { platform: 'darwin' }) && !nsState().services['Wi-Fi'].auto.enabled && nsState().services['USB 10/100/1000 LAN'].auto.enabled,
         'macOS reset: our PAC is switched off, the user\'s stays');
       nsInit();
+      // A9: a Standard account is refused the change: not reported as done.
+      const s2 = nsState(); s2.denied = true; s2.services['Wi-Fi'].auto = { enabled: true, url: 'http://127.0.0.1:5555/proxy.pac' }; FakeNS.save(nsFile, s2);
+      const log = logs();
+      t.ok(SystemProxy.resetLegacySync(log, { platform: 'darwin' }) === false && nsState().services['Wi-Fi'].auto.enabled
+        && !log.lines.some((l) => l.startsWith('success')) && log.lines.includes('warning: A system proxy left by an earlier version could not be switched off'),
+      'macOS reset (A9): refused, it says so instead of logging success');
+      nsInit();
+    }
+    {
+      // A13: a PAC address read back from the state file reaches networksetup
+      // (and a root shell) only as plain http(s).
+      const back = (url) => SystemProxy._macRestoreArgs({ name: 'Wi-Fi', prevAuto: { enabled: true, url } });
+      const offOnly = JSON.stringify([['-setautoproxystate', 'Wi-Fi', 'off']]);
+      t.ok(['http://x/a\n-evil', 'http://x/\u0007', 'file:///Users/x/p.pac', 'javascript:alert(1)', 'http://a b/p.pac', '-setautoproxystate', ' ']
+        .every((u) => JSON.stringify(back(u)) === offOnly), 'macOS (A13): a PAC address that is not plain http(s), or has control characters, is switched off, never written');
+      t.ok(back('https://corp.example/p.pac')[0][2] === 'https://corp.example/p.pac' && back('HTTP://wpad.lan/p.pac')[0][2] === 'HTTP://wpad.lan/p.pac', 'macOS (A13): an ordinary one is put back');
+      const own = new SystemProxy(() => {}, { platform: 'darwin', adminPrompt: (k) => (k === 'apply' ? 'In your language' : undefined) });
+      t.ok(own._prompt('apply') === 'In your language' && /^Shroudly needs an administrator's password/.test(own._prompt('restore')),
+        'macOS (A13): the dialog\'s sentence comes from the app (translated) or falls back to English');
+      const src = SystemProxy._appleScriptAdmin('true', true, 'Say "hi"\nnow');
+      t.ok(src === 'do shell script "true" with prompt "Say \\"hi\\" now" with administrator privileges', 'macOS (A13): the sentence is an AppleScript string, quotes escaped, no line breaks');
     }
     // A Standard account: networksetup refused everywhere.
     {
@@ -414,20 +459,32 @@ const readState = (file) => { try { return JSON.parse(fs.readFileSync(file, 'utf
 
       if (sh) {
         // The password is refused or the dialog dismissed: nothing changes.
-        osa.refuse = 'execution error: User canceled. (-128)';
+        osa.refuse = CANCEL;
         const no = await sp.applyAsAdmin();
-        t.ok(no.code === 'cancelled' && !fs.existsSync(file) && !fs.existsSync(`${file}.hold`), 'macOS admin: a dismissed dialog changes nothing and leaves no state');
+        t.ok(no.code === 'cancelled' && !fs.existsSync(file) && !holdFiles(path.dirname(file)).length, 'macOS admin: a dismissed dialog changes nothing and leaves no state');
         osa.refuse = null;
 
         const osa0 = osa.calls;
-        const yes = await sp.applyAsAdmin();
+        // A3: two clicks while the dialog is open: one dialog, one helper.
+        const [yes, again] = await Promise.all([sp.applyAsAdmin(), sp.applyAsAdmin()]);
         const svc = nsState().services;
+        t.ok(yes === again && osa.calls === osa0 + 1, 'macOS admin (A3): a second click while the dialog is open gets the same answer, no second dialog or helper');
         t.ok(yes.ok && yes.code === 'ok' && yes.admin && Object.values(svc).every((x) => x.auto.enabled && x.auto.url === sp.pacUrl),
           'macOS admin: one password sets the PAC on every service (odd service names quoted safely)');
-        const helper = readState(file).snapshot.helperPid;
-        t.ok(helper > 0 && fs.existsSync(`${file}.hold`) && alive(helper), 'macOS admin: the restoring helper waits in the background');
+        t.ok(/^Shroudly needs an administrator's password/.test(osa.prompts[osa.prompts.length - 1]),
+          'macOS admin (A13): the dialog says Shroudly asks and why, not "osascript wants to make changes"');
+        const { helperPid: helper, holdFile: hold } = readState(file).snapshot;
+        t.ok(helper > 0 && fs.existsSync(hold) && alive(helper), 'macOS admin: the restoring helper waits in the background');
         const updated = sp.updateRouting('listed', ['discord.com']);
         t.ok(updated && sp.pacText.includes('discord.com') && osa.calls === osa0 + 1, 'macOS admin: a route-mode change is served from the PAC, no second password');
+        // A6: the engine came back on another port. The PAC, at the same
+        // address, names it; the system setting is not touched.
+        const url0 = sp.pacUrl;
+        const log0 = nsState().log.length;
+        const re = await sp.apply(10909, 'listed', ['discord.com']);
+        t.ok(re.ok && re.admin && sp.pacUrl === url0 && sp.pacText.includes('127.0.0.1:10909') && !sp.pacText.includes('10808')
+          && nsState().log.length === log0 && osa.calls === osa0 + 1 && readState(file).port === 10909 && re.socks === '127.0.0.1:10909',
+        'macOS admin (A6): a new engine port goes into the same PAC; no system change, no password');
         const ok = await sp.restore();
         const after = nsState().services;
         t.ok(ok && after['Wi-Fi'].auto.enabled === false && after['USB 10/100/1000 LAN'].auto.url === 'http://wpad.lan/p.pac' && after['USB 10/100/1000 LAN'].auto.enabled
@@ -435,6 +492,88 @@ const readState = (file) => { try { return JSON.parse(fs.readFileSync(file, 'utf
         'macOS admin: stopping restores every service exactly, through the helper');
         t.ok(osa.calls === osa0 + 1 && !fs.existsSync(file) && !alive(helper), 'macOS admin: …without asking for the password again; helper gone, no state left');
       }
+      nsInit();
+    }
+    if (sh) {
+      // A3: Stop (and Start again) while the password dialog is open.
+      const s = nsState(); s.denied = true; FakeNS.save(nsFile, s);
+      const before = nsState().services;
+      const sp = new SystemProxy(() => {}, { platform: 'darwin', stateFile: file });
+      await sp.apply(10808, 'all');
+      let open;
+      osa.gate = new Promise((r) => { open = r; });
+      const late = sp.applyAsAdmin();
+      await sleep(100);
+      await sp.restore();
+      const st2 = await sp.apply(10808, 'all');
+      const snap2 = sp.snapshot;
+      open(); osa.gate = null;
+      const r = await late;
+      t.ok(r.code === 'not_active' && st2.code === 'needs_admin' && sp.snapshot === snap2 && sp.status.code === 'needs_admin' && !fs.existsSync(file),
+        'macOS admin (A3): a password given after Stop and a new Start is nobody\'s answer: nothing thrown, the new session and its state untouched');
+      t.ok(await waitFor(() => sameAs(before, nsState().services) && !Object.values(nsState().services).some(ourPacOn)),
+        'macOS admin (A3): the helper that answer started finds no hold file and puts everything back at once');
+      await sp.restore();
+      nsInit();
+    }
+    if (sh) {
+      // A2: a restore that needed the password and was refused, then Start
+      // again on a still-Standard account: the user's own PAC, recorded in
+      // the state file, must survive.
+      const s = nsState(); s.denied = true; FakeNS.save(nsFile, s);
+      const before = nsState().services;
+      const usb = (st) => st.snapshot.services.find((x) => x.name === 'USB 10/100/1000 LAN').prevAuto;
+      const sp = new SystemProxy(() => {}, { platform: 'darwin', stateFile: file, helperWaitMs: 2000 });
+      await sp.apply(10808, 'all');
+      await sp.applyAsAdmin();
+      const helper = readState(file).snapshot.helperPid;
+      process.kill(helper, 'SIGKILL'); // the helper gone, our PAC still set
+      await waitFor(() => !alive(helper));
+      osa.refuse = CANCEL;
+      t.ok(await sp.restore({ interactive: true }) === false && fs.existsSync(file) && usb(readState(file)).url === 'http://wpad.lan/p.pac',
+        'macOS admin: helper gone and the password refused at Stop: the state file stays, with the user\'s own PAC');
+      const kept = fs.readFileSync(file, 'utf8');
+      osa.refuse = null;
+      const st = await sp.apply(10808, 'all');
+      t.ok(st.code === 'needs_admin' && readText(file) === kept,
+        'macOS (A2): Start again ending in needs_admin leaves that state file exactly as it was (not overwritten with our stale PAC, not deleted)');
+      osa.refuse = CANCEL;
+      const c = await sp.applyAsAdmin();
+      osa.refuse = null;
+      t.ok(c.code === 'cancelled' && readText(file) === kept, 'macOS (A2): …nor does a dismissed password dialog');
+      const yes = await sp.applyAsAdmin();
+      t.ok(yes.ok && usb(readState(file)).url === 'http://wpad.lan/p.pac' && usb(readState(file)).enabled,
+        'macOS (A2): with the password, the new snapshot carries the user\'s own PAC over instead of our stale one');
+      await sp.restore();
+      t.ok(sameAs(before, nsState().services) && !fs.existsSync(file), 'macOS (A2): …and stopping puts the user\'s own PAC back');
+      nsInit();
+    }
+    if (sh) {
+      // A4: a root helper slower than five seconds to restore.
+      const s = nsState(); s.denied = true; FakeNS.save(nsFile, s);
+      const before = nsState().services;
+      osa.slowOff = 2000; // three "off" steps: about six seconds
+      const sp = new SystemProxy(() => {}, { platform: 'darwin', stateFile: file });
+      await sp.apply(10808, 'all');
+      await sp.applyAsAdmin();
+      const n = osa.calls;
+      const t0 = Date.now();
+      const ok = await sp.restore({ interactive: true });
+      const took = Date.now() - t0;
+      t.ok(ok && took > 5000 && osa.calls === n && sameAs(before, nsState().services) && !fs.existsSync(file),
+        `macOS admin (A4): Stop waits for a helper slower than 5 s (${took} ms) and never asks for the password over it`);
+      await sp.apply(10808, 'all');
+      await sp.applyAsAdmin();
+      const helper = readState(file).snapshot.helperPid;
+      const n2 = osa.calls;
+      const t1 = Date.now();
+      const r = sp.restoreSync();
+      t.ok(r === false && Date.now() - t1 < 2500 && osa.calls === n2 && fs.existsSync(file),
+        'macOS admin (A4): the exit path neither asks nor waits long for it: the state file stays');
+      await waitFor(() => !alive(helper), 20000);
+      t.ok(SystemProxy.recoverSync({ stateFile: file, platform: 'darwin' }) === false && !fs.existsSync(file) && sameAs(before, nsState().services) && osa.calls === n2,
+        'macOS admin (A4): the helper finishes on its own, and the restore that follows finds it done, no password asked');
+      osa.slowOff = 0;
       nsInit();
     }
     if (sh) {
@@ -455,18 +594,63 @@ const readState = (file) => { try { return JSON.parse(fs.readFileSync(file, 'utf
       fs.rmSync(hold, { force: true });
       nsInit();
 
-      // The helper is gone (a restart of the Mac) with our PAC still set:
-      // the recovery asks for the password once more.
+      // A5: the helper itself told to end (logout, shutdown, launchd): it
+      // puts everything back first, while Shroudly still runs.
+      for (const sig of ['SIGTERM', 'SIGHUP']) {
+        const app2 = spawn('sleep', ['30']);
+        const s3 = nsState(); s3.denied = true; FakeNS.save(nsFile, s3);
+        const before = nsState().services;
+        const hold2 = path.join(TMP, `sig-${sig}.hold`);
+        fs.writeFileSync(hold2, '');
+        const svcs = Object.keys(before).map((name) => ({ name, prevAuto: SystemProxy._macParseAuto(FakeNS.handle(nsState(), ['-getautoproxyurl', name])) }));
+        const sc = SystemProxy._macAdminScript({ services: svcs, pacUrl: 'http://127.0.0.1:4322/proxy.pac', holdFile: hold2, appPid: app2.pid, networksetup: fakeCli });
+        const h = parseInt(spawnSync('/bin/sh', ['-c', sc], { env: { ...process.env, FAKE_NS_STATE: nsFile }, encoding: 'utf8' }).stdout, 10);
+        await sleep(300);
+        t.ok(alive(h) && Object.values(nsState().services).every(ourPacOn), `macOS admin (A5): helper waiting, PAC set (${sig})`);
+        process.kill(h, sig);
+        t.ok(await waitFor(() => !alive(h) && sameAs(before, nsState().services) && !Object.values(nsState().services).some(ourPacOn)) && alive(app2.pid) && fs.existsSync(hold2),
+          `macOS admin (A5): the helper sent ${sig} puts every service back before it ends`);
+        app2.kill('SIGKILL');
+        fs.rmSync(hold2, { force: true });
+        nsInit();
+      }
+
+      // The helper is gone (a restart of the Mac) with our PAC still set.
       const s2 = nsState(); s2.services['Wi-Fi'].auto = { enabled: true, url: 'http://127.0.0.1:4321/proxy.pac' }; FakeNS.save(nsFile, s2);
       const admState = { v: 2, platform: 'darwin', port: 10808, pacUrl: 'http://127.0.0.1:4321/proxy.pac', snapshot: { mode: 'admin', form: 'pac', helperPid: 0,
         holdFile: path.join(TMP, 'gone.hold'), services: [{ name: 'Wi-Fi', applied: true, prevAuto: { enabled: false, url: '' } }] } };
       fs.writeFileSync(file, JSON.stringify(admState));
-      osa.refuse = 'execution error: User canceled. (-128)';
-      t.ok(SystemProxy.recoverSync({ stateFile: file, platform: 'darwin' }) === false && fs.existsSync(file), 'macOS admin recovery: password refused, the state file stays for the next try');
+      const n0 = osa.calls;
+      t.ok(SystemProxy.recoverSync({ stateFile: file, platform: 'darwin' }) === 'kept' && fs.existsSync(file) && osa.calls === n0,
+        'macOS admin recovery (A4): the synchronous recovery (login hook, watchdog, app start) never asks; "kept" for later');
+      osa.refuse = CANCEL;
+      t.ok(await SystemProxy.recoverAsAdmin({ stateFile: file, platform: 'darwin' }) === false && fs.existsSync(file) && osa.calls === n0 + 1,
+        'macOS admin recovery: asked once, asynchronously; refused, the state file stays for the next try');
       osa.refuse = null;
-      const n = osa.calls;
-      t.ok(SystemProxy.recoverSync({ stateFile: file, platform: 'darwin' }) === true && osa.calls === n + 1 && !nsState().services['Wi-Fi'].auto.enabled && !fs.existsSync(file),
-        'macOS admin recovery: with the password, restored and cleared');
+      // The app and another process at once: one dialog (lock file).
+      let open;
+      osa.gate = new Promise((r) => { open = r; });
+      const first = SystemProxy.recoverAsAdmin({ stateFile: file, platform: 'darwin' });
+      await sleep(100);
+      const second = await SystemProxy.recoverAsAdmin({ stateFile: file, platform: 'darwin' });
+      open(); osa.gate = null;
+      t.ok(await first === true && second === false && osa.calls === n0 + 2 && !nsState().services['Wi-Fi'].auto.enabled && !fs.existsSync(file) && !fs.existsSync(`${file}.lock`),
+        'macOS admin recovery (A4): only one process asks (lock file); with the password, restored and cleared');
+      // A lock held by another live process: this one does not ask.
+      const other = spawn('sleep', ['30']);
+      fs.writeFileSync(file, JSON.stringify(admState));
+      const s4 = nsState(); s4.services['Wi-Fi'].auto = { enabled: true, url: 'http://127.0.0.1:4321/proxy.pac' }; FakeNS.save(nsFile, s4);
+      fs.writeFileSync(`${file}.lock`, String(other.pid));
+      const n1 = osa.calls;
+      t.ok(await SystemProxy.recoverAsAdmin({ stateFile: file, platform: 'darwin' }) === false && osa.calls === n1 && fs.existsSync(file),
+        'macOS admin recovery (A4): a lock held by another running process means no second dialog');
+      other.kill('SIGKILL');
+      await waitFor(() => !alive(other.pid));
+      osa.refuse = CANCEL;
+      t.ok(await SystemProxy.recoverAsAdmin({ stateFile: file, platform: 'darwin' }) === false && osa.calls === n1 + 1,
+        'macOS admin recovery: a lock left by a process that is gone is taken over');
+      osa.refuse = null;
+      fs.rmSync(file, { force: true });
       nsInit();
     }
     if (process.platform === 'darwin') {
@@ -475,16 +659,34 @@ const readState = (file) => { try { return JSON.parse(fs.readFileSync(file, 'utf
       const shell = `printf '%s' 'a"b\\c'\\''d $HOME \`x\`'`;
       const r = spawnSync('osascript', ['-e', SystemProxy._appleScriptAdmin(shell, false)], { encoding: 'utf8' });
       t.ok(r.stdout.replace(/\n$/, '') === 'a"b\\c\'d $HOME `x`', `osascript gets the shell script exactly (${JSON.stringify(r.stdout)})`);
+      // The dialog form compiles (osacompile only compiles: nothing runs,
+      // nothing is asked).
+      const out = path.join(TMP, 'prompt.scpt');
+      const c = spawnSync('osacompile', ['-o', out, '-e', SystemProxy._appleScriptAdmin('true', true, 'Shroudly needs "this".')], { encoding: 'utf8' });
+      t.ok(c.status === 0, `the administrator dialog with its sentence is valid AppleScript${c.status ? `: ${c.stderr}` : ''}`);
     }
   }
 
   // ── Linux ───────────────────────────────────────────────────────────
   {
     const d = SystemProxy.linuxDesktop;
-    t.ok(d({ XDG_CURRENT_DESKTOP: 'ubuntu:GNOME' }) === 'gnome' && d({ XDG_CURRENT_DESKTOP: 'X-Cinnamon' }) === 'gnome' && d({ XDG_CURRENT_DESKTOP: 'Unity' }) === 'gnome',
-      'Linux: GNOME-family desktops');
+    t.ok(['ubuntu:GNOME', 'X-Cinnamon', 'Unity', 'Budgie:GNOME', 'Pantheon', 'Deepin', 'UKUI', 'COSMIC'].every((x) => d({ XDG_CURRENT_DESKTOP: x }) === 'gnome'),
+      'Linux: GNOME-family desktops (GSettings in Chromium)');
     t.ok(d({ XDG_CURRENT_DESKTOP: 'KDE' }) === 'kde' && d({ KDE_FULL_SESSION: 'true' }) === 'kde', 'Linux: KDE Plasma');
-    t.ok(['XFCE', 'LXQt', 'i3', 'sway', ''].every((x) => d({ XDG_CURRENT_DESKTOP: x }) === 'other'), 'Linux: XFCE, LXQt and window managers have no system proxy');
+    t.ok(d({ XDG_CURRENT_DESKTOP: 'XFCE' }) === 'xfce' && d({ XDG_CURRENT_DESKTOP: 'LXQt' }) === 'lxqt'
+      && ['i3', 'sway', '', 'Hyprland'].every((x) => d({ XDG_CURRENT_DESKTOP: x }) === 'other'), 'Linux: XFCE, LXQt and window managers are told apart, none with a system proxy');
+    // A11: Chromium falls back to DESKTOP_SESSION, then GNOME_DESKTOP_SESSION_ID
+    // and KDE_FULL_SESSION, and compares names exactly.
+    t.ok(d({ DESKTOP_SESSION: 'gnome' }) === 'gnome' && d({ DESKTOP_SESSION: 'mate' }) === 'gnome' && d({ XDG_CURRENT_DESKTOP: 'MATE', DESKTOP_SESSION: 'mate' }) === 'gnome',
+      'Linux (A11): a GNOME or MATE session without XDG_CURRENT_DESKTOP (or with a name Chromium does not know) is GNOME, by DESKTOP_SESSION');
+    t.ok(d({ GNOME_DESKTOP_SESSION_ID: 'this-is-deprecated' }) === 'gnome' && d({ DESKTOP_SESSION: 'default', GNOME_DESKTOP_SESSION_ID: 'x' }) === 'gnome',
+      'Linux (A11): GNOME_DESKTOP_SESSION_ID alone means GNOME');
+    t.ok(d({ DESKTOP_SESSION: 'kde-plasma' }) === 'kde' && d({ DESKTOP_SESSION: 'kde' }) === 'kde' && d({ KDE_FULL_SESSION: '' }) === 'kde', 'Linux (A11): KDE by DESKTOP_SESSION or KDE_FULL_SESSION');
+    t.ok(d({ DESKTOP_SESSION: 'xfce' }) === 'xfce' && d({ DESKTOP_SESSION: 'xubuntu' }) === 'xfce' && d({ DESKTOP_SESSION: 'lxqt' }) === 'lxqt'
+      && d({ XDG_CURRENT_DESKTOP: 'lxqt' }) === 'lxqt', 'Linux (A11): XFCE and LXQt by DESKTOP_SESSION too');
+    t.ok(SystemProxy.chromiumDesktop({ XDG_CURRENT_DESKTOP: 'gnome' }) === 'other' && SystemProxy.chromiumDesktop({ XDG_CURRENT_DESKTOP: 'Foo:KDE:GNOME' }) === 'kde'
+      && SystemProxy.chromiumDesktop({ XDG_CURRENT_DESKTOP: 'sway', DESKTOP_SESSION: 'gnome' }) === 'gnome',
+    'Linux (A11): names compared as Chromium does (case, first known name wins, unknown ones fall through)');
   }
   {
     // GNOME, both modes: 'auto' with our PAC, manual entries left alone.
@@ -543,6 +745,48 @@ const readState = (file) => { try { return JSON.parse(fs.readFileSync(file, 'utf
       await sp.restore();
       t.ok(g.get('org.gnome.system.proxy mode') === "'manual'", 'GNOME: the other program\'s choice survives the stop');
     }
+    // A8: the takeover check during a stop sees our own settings going away.
+    {
+      const seen = [];
+      const log = logs();
+      let getGate = null;
+      let setGate = null;
+      const fx2 = fakeExec({ gsettings: fakeGsettings(g) });
+      const runSync = fx2.runSync;
+      // A check's read can be held (it reads when let go); a stop's write
+      // can be held after it is made.
+      fx2.run = async (cmd, args) => {
+        if (getGate && args[0] === 'get') await getGate;
+        const out = runSync(cmd, args);
+        if (setGate && args[0] === 'set') await setGate;
+        return out;
+      };
+      SystemProxy._setExec(fx2);
+      const sp = new SystemProxy(log, { platform: 'linux', env, stateFile: file, onOwnership: (o, i) => seen.push([o, i.lost]), ownershipIntervalMs: 20 });
+      await sp.apply(10808, 'all');
+      // A check already reading when the stop begins.
+      let letGet;
+      getGate = new Promise((r) => { letGet = r; });
+      const checking = sp.checkOwnership();
+      await sleep(10);
+      getGate = null;
+      let letSet;
+      setGate = new Promise((r) => { letSet = r; });
+      const stopping = sp.restore();
+      await sleep(10); // the stop has written its first value and waits
+      letGet();
+      const lostInFlight = await checking;
+      // A check started during the stop, and the timer.
+      const lostDuring = await sp.checkOwnership();
+      await sleep(120);
+      letSet(); setGate = null;
+      await stopping;
+      t.ok(Array.isArray(lostInFlight) && lostInFlight[0] === 'GNOME' && sp.applied === false,
+        'GNOME (A8): (a check already in flight when the stop began did read our half-restored setting)');
+      t.ok(lostDuring === null && seen.length === 0 && !log.lines.some((l) => l.includes('Another program changed')) && g.get('org.gnome.system.proxy mode') === "'manual'",
+        'GNOME (A8): …yet no takeover is reported, by it, by a check started during the stop, or by the timer (stopped when the stop begins)');
+      SystemProxy._setExec(fx);
+    }
   }
   for (const withTool of [true, false]) {
     // KDE Plasma, with kwriteconfig6 and without (the file is edited).
@@ -591,30 +835,30 @@ const readState = (file) => { try { return JSON.parse(fs.readFileSync(file, 'utf
     t.ok(SystemProxy.resetLegacySync(() => {}, { platform: 'linux', env }) && SystemProxy._kdeRead(fs.readFileSync(file, 'utf8')).type === '0', `KDE (${how}) reset: our PAC switched off`);
   }
   {
+    // A10: Plasma with GNOME's setting also there: only KDE's counts.
+    const cfg = path.join(TMP, 'kde-gsettings');
+    const file = path.join(cfg, 'kioslaverc');
+    fs.mkdirSync(cfg, { recursive: true });
+    fs.writeFileSync(file, '[Proxy Settings]\nProxyType=0\n');
+    const g = gnomeDefaults();
+    SystemProxy._setExec(fakeExec({ gsettings: fakeGsettings(g), 'dbus-send': () => '' }));
+    const seen = [];
+    const sp = new SystemProxy(() => {}, { platform: 'linux', env: { XDG_CURRENT_DESKTOP: 'KDE', XDG_CONFIG_HOME: cfg, HOME: process.env.HOME }, stateFile: stateFile('kde-g'), onOwnership: (o, i) => seen.push(i.lost) });
+    const st = await sp.apply(10808, 'all');
+    t.ok(st.ok && st.system === 'kde' && g.get('org.gnome.system.proxy mode') === "'auto'", 'KDE with gsettings: both set');
+    g.set('org.gnome.system.proxy mode', "'none'");
+    t.ok((await sp.checkOwnership()).length === 0 && seen.length === 0, 'KDE (A10): GNOME\'s setting changing is not a takeover on Plasma');
+    fs.writeFileSync(file, SystemProxy._kdeEdit(fs.readFileSync(file, 'utf8'), { ProxyType: '0' }));
+    t.ok((await sp.checkOwnership()).join() === 'KDE' && seen.length === 1, 'KDE (A10): KDE\'s own setting changing is');
+    await sp.restore();
+  }
+  {
     // KConfig escapes survive a round trip; a value with a backslash and a leading space.
     const text = SystemProxy._kdeEdit('', { 'Proxy Config Script': ' a\\b' });
     t.ok(SystemProxy._kdeRead(text).script === ' a\\b' && text === '[Proxy Settings]\nProxy Config Script=\\sa\\\\b\n', 'KDE: values escaped as KConfig does');
     t.ok(SystemProxy._kdeRead('[Proxy Settings][$i]\nProxyType=1\n').locked, 'KDE: settings locked by the administrator are recognised');
   }
-  {
-    // Desktops with no system proxy: told, not reported as routed.
-    SystemProxy._setExec(fakeExec({}));
-    const log = logs();
-    const file = stateFile('xfce');
-    const sp = new SystemProxy(log, { platform: 'linux', env: { XDG_CURRENT_DESKTOP: 'XFCE', HOME: process.env.HOME }, stateFile: file });
-    const st = await sp.apply(10808, 'all');
-    t.ok(!st.ok && st.code === 'no_system_proxy' && !st.partial && !fs.existsSync(file), 'XFCE without gsettings: no_system_proxy, nothing armed');
-    t.ok(!log.lines.some((l) => l.startsWith('success')) && log.lines.some((l) => l.includes('socks') || l.includes('SOCKS5 127.0.0.1:10808')), 'XFCE: logged as a warning with the address to use by hand');
-    await sp.restore();
-    const g = gnomeDefaults();
-    SystemProxy._setExec(fakeExec({ gsettings: fakeGsettings(g) }));
-    const sp2 = new SystemProxy(() => {}, { platform: 'linux', env: { XDG_CURRENT_DESKTOP: 'XFCE', HOME: process.env.HOME }, stateFile: file });
-    const st2 = await sp2.apply(10808, 'all');
-    t.ok(!st2.ok && st2.code === 'no_system_proxy' && st2.partial && g.get('org.gnome.system.proxy mode') === "'auto'" && fs.existsSync(file),
-      'XFCE with gsettings: GNOME\'s setting set for Firefox, still reported as no_system_proxy (partial)');
-    await sp2.restore();
-    t.ok(g.get('org.gnome.system.proxy mode') === "'manual'" && !fs.existsSync(file), 'XFCE with gsettings: restored');
-  }
+  // XFCE, LXQt and other desktops without a proxy setting: system-proxy-env.test.js.
 
   // ── EngineManager: the status reaches the window, the admin button works ──
   {
@@ -643,7 +887,81 @@ const readState = (file) => { try { return JSON.parse(fs.readFileSync(file, 'utf
     t.ok(r.ok && em.proxyStatus.admin && statuses[statuses.length - 1] === 'ok', 'EngineManager: applyProxyAsAdmin() sets and reports the status');
     await em.reapplyProxy();
     t.ok(calls.join(',') === 'admin,pac', 'EngineManager: a route change after the admin path only changes the PAC');
+    // A3: the dialog answered after Stop: the status of no session.
+    em.proxy.applyAsAdmin = async () => { em.active = false; return { ok: true, code: 'ok', admin: true }; };
+    const before = statuses.length;
+    await em.applyProxyAsAdmin();
+    t.ok(statuses.length === before, 'EngineManager (A3): an answer that arrives after Stop is not shown as the status');
+    em.proxy.applyAsAdmin = async () => ({ ok: false, code: 'not_active' });
+    em.active = true;
+    await em.applyProxyAsAdmin();
+    t.ok(statuses.length === before, 'EngineManager (A3): nor one the proxy says belongs to no session');
     em.active = false;
+
+    // A6: an engine crash with an administrator-set proxy keeps it and
+    // only points the PAC at the restarted engine; any other is restored.
+    const ev = [];
+    em.proxy = { applied: true, updatePort: () => true, restore: async () => { ev.push('restore'); }, clearEnv: () => ev.push('clearEnv') };
+    em.start = async () => { ev.push('start'); };
+    em._setProxyStatus({ ok: true, code: 'ok', admin: true });
+    em.active = true; em.restarts = 0;
+    await em._onClose(1);
+    t.ok(!ev.includes('restore') && em.proxyStatus && em.proxyStatus.admin, 'EngineManager (A6): crash with an administrator-set proxy: it stays');
+    await sleep(700);
+    t.ok(ev.join() === 'start', 'EngineManager (A6): …and the engine is restarted (its new port goes into the PAC)');
+    ev.length = 0;
+    em._setProxyStatus({ ok: true, code: 'ok' });
+    em.active = true;
+    await em._onClose(1);
+    t.ok(ev[0] === 'restore' && em.proxyStatus === null, 'EngineManager: any other system proxy is restored at once on a crash');
+    // Stop while that restart is still waiting: no restart afterwards.
+    ev.length = 0;
+    await em.stop({ user: true });
+    await sleep(1200);
+    t.ok(!ev.includes('start') && ev.includes('clearEnv'), 'EngineManager: a Stop while a crash restart waits cancels it (and is the user\'s stop)');
+    // A port change in settings with an administrator-set proxy: the engine
+    // is stopped and started, the system setting kept.
+    ev.length = 0;
+    const stops = [];
+    em.stop = async (o) => { stops.push(o || {}); em.active = false; return { success: true }; };
+    em._settings = () => ({ port: 20000, routeMode: 'all', siteList: [] });
+    em.configuredPort = 10808;
+    em._setProxyStatus({ ok: true, code: 'ok', admin: true });
+    em.active = true;
+    await em.restart();
+    t.ok(stops.length === 1 && stops[0].keepProxy === true && ev.join() === 'start', 'EngineManager (A6): a port change keeps the administrator-set proxy across the restart');
+    em._setProxyStatus({ ok: true, code: 'ok' });
+    em.active = true;
+    await em.restart();
+    t.ok(stops.length === 2 && !stops[1].keepProxy, 'EngineManager: …any other is restored and set again');
+    em.active = false;
+  }
+  {
+    // A9: a recovery left for the administrator's password is not mistaken
+    // for 2.0.0's leftover and switched off blindly.
+    SystemProxy._setExec(fakeExec({ networksetup: () => { throw new Error('denied'); } }));
+    const EngineManager = require(path.join(ROOT, 'electron', 'engine-manager.js'));
+    const file = stateFile('em-recover');
+    fs.mkdirSync(path.dirname(file), { recursive: true });
+    fs.writeFileSync(file, JSON.stringify({ v: 2, platform: 'darwin', port: 10808, pacUrl: 'http://127.0.0.1:4321/proxy.pac',
+      snapshot: { mode: 'admin', form: 'pac', helperPid: 0, services: [{ name: 'Wi-Fi', applied: true, prevAuto: { enabled: false, url: '' } }] } }));
+    const mem = { runtimeActive: true };
+    const store = { get: (k, dflt) => (k in mem ? mem[k] : dflt), set: (k, v) => { mem[k] = v; } };
+    const em = new EngineManager(store, { proxyOptions: { stateFile: file, platform: 'darwin' } });
+    const orig = SystemProxy.resetLegacySync;
+    const origRecover = SystemProxy.recoverSync;
+    let resets = 0;
+    SystemProxy.resetLegacySync = () => { resets++; return false; };
+    SystemProxy.recoverSync = () => 'kept';
+    try { await em.recover({ protectionOn: true }); } finally { SystemProxy.resetLegacySync = orig; SystemProxy.recoverSync = origRecover; }
+    t.ok(resets === 0 && em.proxyRecoveryPending === true && fs.existsSync(file) && mem.runtimeActive === false,
+      'EngineManager (A9): "kept" skips the legacy reset; the password is asked once the window is up');
+    mem.runtimeActive = true;
+    SystemProxy.resetLegacySync = () => { resets++; return false; };
+    SystemProxy.recoverSync = () => false;
+    try { await em.recover({ protectionOn: true }); } finally { SystemProxy.resetLegacySync = orig; SystemProxy.recoverSync = origRecover; }
+    t.ok(resets === 1 && em.proxyRecoveryPending === false, 'EngineManager: nothing recorded and the flag set: the legacy reset still runs');
+    fs.rmSync(file, { force: true });
   }
 
   SystemProxy._setExec(null);

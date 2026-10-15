@@ -161,12 +161,20 @@ class EngineManager {
     this.lastProbe = null;
     this.proxyOptions = hooks.proxyOptions || {};
     // What the system proxy is doing, for the window: SystemProxy.apply()'s
-    // result ({ ok, code: 'ok' | 'no_system_proxy' | 'needs_admin' |
-    // 'apply_failed' | 'replaced', ... }), or null while protection is off.
+    // result ({ ok, code: 'ok' | 'partial_env' | 'no_system_proxy' |
+    // 'needs_admin' | 'apply_failed' | 'replaced', ... }), or null while
+    // protection is off.
     this.onProxyStatus = hooks.onProxyStatus || (() => {});
     this.proxyStatus = null;
+    // A macOS restore recoverSync() had to leave for the administrator's
+    // password: recoverProxyAsAdmin() finishes it once the window is up.
+    this.proxyRecoveryPending = false;
+    this._restartTimer = null;
     this.proxy = new SystemProxy(this.log, {
       ...this.proxyOptions,
+      // Linux desktops without a proxy setting: the PAC's address is written
+      // for the next login, so its port is kept from run to run.
+      portStore: this.proxyOptions.portStore || { get: () => store.get('pacPort'), set: (p) => store.set('pacPort', p) },
       // Another program took the system proxy over (or gave it back).
       onOwnership: (owned, info) => {
         if (!this.proxyStatus) return;
@@ -377,6 +385,8 @@ class EngineManager {
     }
 
     try {
+      // When an engine restart kept the system setting (see _onClose), this
+      // only points the PAC at the new port.
       this._setProxyStatus(await this.proxy.apply(this.port, cfg.routeMode, cfg.siteList));
     } catch (e) {
       this.log('error', `Could not set system proxy: ${e.message}`);
@@ -667,17 +677,34 @@ class EngineManager {
     if (this.expectingStop || !wasActive) return;
 
     this.log('error', `Engine exited unexpectedly (code ${code}).`);
-    // Restore proxy immediately so the user is never left half-routed.
-    await this.proxy.restore();
-    this._setProxyStatus(null);
+    const retry = this.restarts < MAX_RESTARTS;
+    // Restore proxy immediately so the user is never left half-routed —
+    // except one set with an administrator's password (macOS Standard
+    // account) while the engine is about to come back: taking it down now
+    // and setting it again would ask for the password again. It stays, and
+    // the restarted engine's port goes into the PAC.
+    const kept = retry && this._keepsProxy();
+    if (!kept) {
+      await this.proxy.restore();
+      this._setProxyStatus(null);
+    }
     this.active = false;
     this.onStatusChange(false);
 
-    if (this.restarts < MAX_RESTARTS) {
+    if (retry) {
       this.restarts++;
       const delay = Math.min(500 * this.restarts, 4000);
       this.log('warning', `Restarting engine in ${delay}ms (attempt ${this.restarts}/${MAX_RESTARTS})`);
-      setTimeout(() => { this.start().catch((e) => this.log('error', `Restart failed: ${e.message}`)); }, delay);
+      clearTimeout(this._restartTimer);
+      this._restartTimer = setTimeout(() => {
+        this._restartTimer = null;
+        this.start().catch(async (e) => {
+          this.log('error', `Restart failed: ${e.message}`);
+          // A kept system setting must not outlive an engine that is not
+          // coming back.
+          if (!this.active && this.proxy.applied) { try { await this.proxy.restore(); } catch {} this._setProxyStatus(null); }
+        });
+      }, delay);
     } else {
       this.log('error', 'Engine keeps crashing; giving up. Check logs.');
       this.restarts = 0;
@@ -692,7 +719,12 @@ class EngineManager {
     const cfg = this._settings();
     // A changed port setting needs a full stop and start; otherwise keep the
     // port this session is actually on (it may be a free one we moved to).
-    if (cfg.port !== (this.configuredPort || this.port)) { await this.stop(); return this.start(); }
+    // A system proxy set with an administrator's password stays through it
+    // (see _onClose): only the PAC learns the new port.
+    if (cfg.port !== (this.configuredPort || this.port)) {
+      await this.stop({ keepProxy: this._keepsProxy() });
+      return this.start();
+    }
     cfg.port = this.port;
     this.restarting = true;
     try {
@@ -727,14 +759,29 @@ class EngineManager {
     }
   }
 
-  async stop() {
-    if (!this.active && !this.proc) { await this.proxy.restore(); return { success: true }; }
+  /* user: the user switched protection off (window or tray). Only then may a
+   * macOS restore ask for the administrator's password, and only then goes
+   * what was written for the next login on Linux desktops without a proxy
+   * setting; a quit, an update or a restart keeps it (system-proxy.js).
+   * keepProxy: an engine restart that keeps an administrator-set proxy. */
+  async stop({ user = false, keepProxy = false } = {}) {
+    // A crash restart still waiting must not undo this stop.
+    clearTimeout(this._restartTimer);
+    this._restartTimer = null;
+    if (!this.active && !this.proc) {
+      if (!keepProxy) { await this.proxy.restore({ interactive: user }); this._setProxyStatus(null); }
+      if (user) this._clearProxyEnv();
+      return { success: true };
+    }
     this.expectingStop = true;
     this._stopStatsPoll();
 
     // Restore proxy first so traffic goes direct the instant we stop.
-    await this.proxy.restore();
-    this._setProxyStatus(null);
+    if (!keepProxy) {
+      await this.proxy.restore({ interactive: user });
+      this._setProxyStatus(null);
+    }
+    if (user) this._clearProxyEnv();
 
     if (this.proc) {
       try { this.proc.stdin.write('STOP\n'); } catch {}
@@ -748,8 +795,18 @@ class EngineManager {
     this.doh.stop(); this.dohPort = 0;
     this.store.set('runtimeActive', false);
     this.onStatusChange(false);
-    this.log('success', 'Shroudly engine stopped; system restored');
+    if (!keepProxy) this.log('success', 'Shroudly engine stopped; system restored');
     return { success: true };
+  }
+
+  /* Is the system proxy one set with an administrator's password, which an
+   * engine restart should leave in place? */
+  _keepsProxy() {
+    return !!(this.proxyStatus && this.proxyStatus.admin && this.proxy.applied && typeof this.proxy.updatePort === 'function');
+  }
+
+  _clearProxyEnv() {
+    try { if (typeof this.proxy.clearEnv === 'function') this.proxy.clearEnv(); } catch {}
   }
 
   /* Re-apply the system proxy with the current route mode / site list, without
@@ -793,6 +850,9 @@ class EngineManager {
   async applyProxyAsAdmin() {
     if (!this.active || !this.proxy.applyAsAdmin) return { ok: false, code: 'not_active' };
     const status = await this.proxy.applyAsAdmin();
+    // Protection was stopped (and maybe started again) while the dialog was
+    // open: that answer belongs to no session that is still running.
+    if (!this.active || !status || status.code === 'not_active') return status || { ok: false, code: 'not_active' };
     this._setProxyStatus(status);
     return status;
   }
@@ -821,17 +881,38 @@ class EngineManager {
     try { this.proxy.restoreSync(); } catch {}
   }
 
-  async recover() {
+  /* protectionOn: whether protection is about to start (the user left it
+   * on). When it is off, what was written for the next login on Linux
+   * desktops without a proxy setting goes too. */
+  async recover({ protectionOn } = {}) {
     // A previous run that never restored the proxy (crash, kill, power loss)
     // left a state file with the user's settings: put them back. 2.0.0 left
     // only the runtimeActive flag, so fall back to switching its proxy off.
+    // The app's own start waits only briefly for a macOS root helper, and
+    // never asks for a password here, before there is a window.
     let restored = false;
-    try { restored = SystemProxy.recoverSync(this.proxyOptions, this.log); } catch {}
+    try { restored = SystemProxy.recoverSync({ ...this.proxyOptions, helperWaitMs: 3000 }, this.log); } catch {}
+    // 'kept': ours, still set, waiting for an administrator's password. Not
+    // 2.0.0's leftover: switching it off blindly would lose the user's own
+    // setting recorded with it.
+    this.proxyRecoveryPending = restored === 'kept';
     if (!restored && this.store.get('runtimeActive')) {
       this.log('info', 'Recovering: restoring proxy from previous session');
       try { SystemProxy.resetLegacySync(this.log); } catch {}
     }
+    if (protectionOn === false) { try { SystemProxy.clearEnvSync(this.proxyOptions, this.log); } catch {} }
     this.store.set('runtimeActive', false);
+  }
+
+  /* Once the window is up, with protection staying off: finish a macOS
+   * restore that needs the administrator's password (one dialog, in one
+   * process; see SystemProxy.recoverAsAdmin). When protection starts instead,
+   * apply() carries the recorded settings over and its own password request
+   * covers both. */
+  async recoverProxyAsAdmin() {
+    if (!this.proxyRecoveryPending) return false;
+    this.proxyRecoveryPending = false;
+    try { return await SystemProxy.recoverAsAdmin(this.proxyOptions, this.log); } catch { return false; }
   }
 }
 

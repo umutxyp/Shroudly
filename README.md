@@ -67,10 +67,20 @@ it, never quietly around it.
 | System | Where the setting goes |
 |---|---|
 | Windows | The per-user automatic configuration script (no admin rights). Your own manual proxy setting is left as it is. |
-| macOS | Automatic proxy configuration on every network service. An administrator account needs no password; a Standard account needs an administrator's password once per session, and Shroudly puts the setting back without asking again. |
-| Linux, GNOME / Cinnamon / Unity | GNOME's proxy setting, in automatic mode. |
+| macOS | Automatic proxy configuration on every network service. An administrator account needs no password; a Standard account needs an administrator's password once per session (the setting then also stays through an engine restart), and Shroudly puts the setting back without asking again, also on logout or shutdown. Only after a restart of the Mac under it is the password asked for again, once, never while quitting. |
+| Linux, GNOME / Cinnamon / Unity / MATE | GNOME's proxy setting, in automatic mode. |
 | Linux, KDE Plasma | KDE's proxy setting (`kioslaverc`), as a proxy configuration script. |
-| Linux, XFCE / LXQt / window managers | These desktops have no system proxy. Shroudly says so instead of claiming the system is routed; point the browser at `socks5://127.0.0.1:<port>` or the PAC address in its own settings. Firefox follows GNOME's setting where it is installed, so Shroudly still sets it. |
+| Linux, XFCE / LXQt / window managers | These desktops have no system proxy. Firefox follows GNOME's setting wherever it is installed, so Shroudly sets that, and Firefox goes through Shroudly at once. Chrome, Edge, Brave and other Chromium browsers read the `auto_proxy` variable they were started with, so Shroudly writes it where the next login picks it up: `~/.config/environment.d/90-shroudly.conf`, LXQt's `~/.config/lxqt/session.conf` (`[Environment]`), or a marked block in `~/.xprofile` (XFCE and other X11 sessions), and into the systemd and D-Bus activation environment. After you log out and back in they go through Shroudly too; the window says which browsers are covered. |
+
+On XFCE, LXQt and similar desktops these login entries stay while protection
+is on, through quitting, logging out and crashes (a browser started while
+Shroudly is not running finds nothing at that address and connects
+directly), and are removed exactly as they were found when you switch
+protection off, or when Shroudly starts with protection off. Uninstalling a
+Linux package cannot remove files in your home folder; switch protection off
+before uninstalling, or delete `~/.config/environment.d/90-shroudly.conf`,
+the `auto_proxy` line in `~/.config/lxqt/session.conf` and the Shroudly
+block in `~/.xprofile` yourself.
 
 If another program (a VPN client, another proxy tool) takes the system proxy
 over while Shroudly is on, Shroudly notices within a minute and says so, and
