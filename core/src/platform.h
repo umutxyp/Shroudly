@@ -89,6 +89,19 @@ int  sock_err_peer_gone(int err);
 int  sock_wait_readable(sock_t s, int timeout_ms);
 /* Poll two sockets for readability. Returns bitmask (1 = a, 2 = b), 0 timeout, -1 error. */
 int  sock_wait_either(sock_t a, sock_t b, int timeout_ms);
+/* Poll up to SOCK_POLL_MAX sockets for readability. ready[i] is set to 1 for
+ * each one that is readable, closed or in error (a read then says which), else
+ * 0. Returns how many are ready, 0 on timeout, -1 on error. */
+#define SOCK_POLL_MAX 16
+int  sock_wait_any(const sock_t *s, int n, int timeout_ms, int *ready);
+/* Connecting to several addresses side by side. sock_connect_start begins a
+ * connect without waiting for it: 0 connected at once, 1 under way (the socket
+ * is non-blocking meanwhile), -1 failed. sock_connect_wait waits up to
+ * timeout_ms for any of n connects under way (n at most SOCK_POLL_MAX) and sets
+ * done[i] to 1 (connected, and back in blocking mode), -1 (failed) or 0 (still
+ * going). Returns how many finished, 0 on timeout, -1 on error. */
+int  sock_connect_start(sock_t s, const struct sockaddr *sa, int salen);
+int  sock_connect_wait(const sock_t *s, int n, int timeout_ms, int *done);
 
 /* ── threads & sync ────────────────────────────────────────────────────── */
 typedef void *(*thread_fn)(void *);

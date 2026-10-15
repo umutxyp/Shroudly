@@ -413,8 +413,12 @@ static int query_udp_at(const char *resolver, uint16_t rport, int timeout_ms,
 
   uint64_t deadline = now_ms() + timeout_ms;
   int rc = -1;
-  while (now_ms() < deadline) {
-    int w = sock_wait_readable(s, (int)(deadline - now_ms()));
+  for (;;) {
+    /* One reading of the clock for both: read twice, the second could be past
+     * the deadline the first was not, and the difference would wrap. */
+    uint64_t t = now_ms();
+    if (t >= deadline) break;
+    int w = sock_wait_readable(s, (int)(deadline - t));
     if (w <= 0) break;
     uint8_t r[1500];
     struct sockaddr_in from; socklen_t fl = sizeof(from);
@@ -484,9 +488,16 @@ int doh_resolve_all(const char *name, uint16_t port, int want6,
   uint32_t ttl = 0;
 
   /* 1. Real encrypted DNS via the local forwarder, if the app started one. */
-  if (g_fwd_port &&
-      query_udp_at(g_fwd_ip, g_fwd_port, 4000, name, want6, addrs, &n, &ttl) == 0)
-    return answer(name, port, family, addrs, n, ttl, out, outlen, max);
+  if (g_fwd_port) {
+    int fr = query_udp_at(g_fwd_ip, g_fwd_port, 4000, name, want6, addrs, &n, &ttl);
+    if (fr == 0) return answer(name, port, family, addrs, n, ttl, out, outlen, max);
+    /* It says the name has no address of this family. That is an answer, not
+     * a failure, and one nobody on the path could forge: asking the plaintext
+     * resolvers below as well would only show the name to whoever watches the
+     * network, and wait seconds where they are blocked. The dialler asks for
+     * the other family whenever a connect is slow, so this is common. */
+    if (fr == DNS_NODATA) return -1;
+  }
 
   /* 2. Fallback: several independent public resolvers over UDP/53. An on-path
    * injector must poison all of them identically to win. */
