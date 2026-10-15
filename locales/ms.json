@@ -228,6 +228,7 @@
   "logAdvancedBackendExited": "Proses latar Mod Lanjutan telah keluar",
   "logAdvancedAskingAdmin": "Mod Lanjutan: meminta kebenaran pentadbir",
   "logAdvancedNoStopConfirm": "Proses latar Mod Lanjutan tidak mengesahkan penghentian; ia akan keluar apabila Shroudly ditutup",
+  "logAdvancedProtections": "Mod lanjutan juga membuang tetapan semula yang disuntik dan mengukur TTL paket umpan",
   "systemStatus": "Status sistem",
   "howItWorks": "Cara ia berfungsi",
   "technique_frag": "Pemecahan TCP",

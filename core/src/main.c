@@ -30,6 +30,7 @@
 #endif
 #if defined(SHROUDLY_RAW)
 #include "supervise.h"
+#include "raw_desync.h"
 #endif
 #include <stdio.h>
 #include <string.h>
@@ -50,6 +51,21 @@ static int g_udp_fake = 1;      /* Advanced mode: decoys for Discord voice UDP *
 static int g_fake_repeats = 6;  /* how many decoy datagrams per voice flow */
 static char g_status_file[1024] = "";
 static long g_parent_pid = 0;
+#if defined(SHROUDLY_RAW)
+/* Advanced-mode packet-layer options; defaults in raw_desync.h. */
+static int g_drop_rst = RAW_DEF_DROP_RST;
+static int g_autottl  = RAW_DEF_AUTOTTL;
+static int g_seqovl   = RAW_DEF_SEQOVL;
+static int g_desync_mode = RAW_DEF_DESYNC_MODE;
+static int g_seqovl_pat = RAW_DEF_SEQOVL_PATTERN;
+static int g_fake_pat   = RAW_DEF_FAKE_PATTERN;
+
+static int parse_desync_mode(const char *s) {
+  if (!strcmp(s, "fakedsplit")) return RAW_DESYNC_FAKEDSPLIT;
+  if (!strcmp(s, "fakeddisorder")) return RAW_DESYNC_FAKEDDISORDER;
+  return RAW_DESYNC_FAKE; /* "fake" or anything unrecognised: the safe default */
+}
+#endif
 
 #ifndef _WIN32
 static void on_signal(int sig) { (void)sig; engine_stop(); }
@@ -99,6 +115,14 @@ int main(int argc, char **argv) {
     else if (!strcmp(argv[i], "--fake-repeats") && i+1<argc) g_fake_repeats = atoi(argv[++i]);
     else if (!strcmp(argv[i], "--no-quic-block")) g_quic_block = 0;
     else if (!strcmp(argv[i], "--no-udp-fake")) g_udp_fake = 0;
+#if defined(SHROUDLY_RAW)
+    else if (!strcmp(argv[i], "--drop-rst") && i+1<argc) g_drop_rst = atoi(argv[++i]) ? 1 : 0;
+    else if (!strcmp(argv[i], "--autottl") && i+1<argc) g_autottl = atoi(argv[++i]) ? 1 : 0;
+    else if (!strcmp(argv[i], "--seqovl") && i+1<argc) g_seqovl = atoi(argv[++i]);
+    else if (!strcmp(argv[i], "--desync-mode") && i+1<argc) g_desync_mode = parse_desync_mode(argv[++i]);
+    else if (!strcmp(argv[i], "--seqovl-pattern") && i+1<argc) g_seqovl_pat = (int)strtol(argv[++i], NULL, 16) & 0xff;
+    else if (!strcmp(argv[i], "--fake-pattern") && i+1<argc) g_fake_pat = (int)strtol(argv[++i], NULL, 16) & 0xff;
+#endif
     else if (!strcmp(argv[i], "--status-file") && i+1<argc) strncpy(g_status_file, argv[++i], sizeof(g_status_file)-1);
     else if (!strcmp(argv[i], "--parent-pid") && i+1<argc) g_parent_pid = atol(argv[++i]);
     else if (!strcmp(argv[i], "--help")) { usage(); return 0; }
@@ -111,6 +135,17 @@ int main(int argc, char **argv) {
    * the userspace proxy. It runs elevated; supervise.c handles stopping. */
   if (g_advanced) {
     if (g_status_file[0] && sup_redirect_output(g_status_file) != 0) return 2;
+    raw_config rc;
+    raw_config_defaults(&rc, g_fake_ttl);
+    rc.drop_rst = g_drop_rst;
+    rc.autottl = g_autottl;
+    rc.seqovl = g_seqovl;
+    rc.desync_mode = g_desync_mode;
+    rc.seqovl_pattern = (uint8_t)g_seqovl_pat;
+    rc.fake_pattern = (uint8_t)g_fake_pat;
+    rc.quic_block = g_quic_block;
+    rc.udp_fake = g_udp_fake;
+    rc.fake_repeats = g_fake_repeats;
   #if defined(__linux__)
     sup_start(g_status_file, g_parent_pid, raw_linux_teardown);
   #else
@@ -118,10 +153,10 @@ int main(int argc, char **argv) {
   #endif
     int rr;
   #if defined(__linux__)
-    rr = raw_linux_start(g_queue, g_fake_ttl, g_quic_block, g_udp_fake, g_fake_repeats);
+    rr = raw_linux_start(g_queue, &rc);
     raw_linux_stop();
   #elif defined(_WIN32)
-    rr = raw_windows_start(g_fake_ttl, g_quic_block, g_udp_fake, g_fake_repeats);
+    rr = raw_windows_start(&rc);
     raw_windows_stop();
   #else
     rr = -1;

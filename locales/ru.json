@@ -228,6 +228,7 @@
   "logAdvancedBackendExited": "Расширенный модуль завершил работу",
   "logAdvancedAskingAdmin": "Расширенный режим: запрос прав администратора",
   "logAdvancedNoStopConfirm": "Расширенный модуль не подтвердил остановку; он завершится при выходе из Shroudly",
+  "logAdvancedProtections": "Расширенный режим также отбрасывает подставные сбросы (RST) и измеряет TTL пакета-приманки",
   "systemStatus": "Состояние системы",
   "howItWorks": "Как это работает",
   "technique_frag": "Фрагментация TCP",

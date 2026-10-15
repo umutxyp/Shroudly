@@ -228,6 +228,7 @@
   "logAdvancedBackendExited": "Tiến trình nâng cao đã thoát",
   "logAdvancedAskingAdmin": "Chế độ nâng cao: đang yêu cầu quyền quản trị viên",
   "logAdvancedNoStopConfirm": "Tiến trình nâng cao không xác nhận đã dừng; nó sẽ thoát khi Shroudly thoát",
+  "logAdvancedProtections": "Chế độ nâng cao cũng loại bỏ các gói reset bị chèn vào và đo TTL của gói mồi",
   "systemStatus": "Trạng thái hệ thống",
   "howItWorks": "Cách hoạt động",
   "technique_frag": "Phân mảnh TCP",

@@ -228,6 +228,7 @@
   "logAdvancedBackendExited": "El proceso del modo Avanzado finalizó",
   "logAdvancedAskingAdmin": "Modo Avanzado: solicitando permiso de administrador",
   "logAdvancedNoStopConfirm": "El proceso del modo Avanzado no confirmó la detención; se cerrará al salir de Shroudly",
+  "logAdvancedProtections": "El modo avanzado también descarta los reinicios inyectados y mide el TTL del paquete señuelo",
   "systemStatus": "Estado del sistema",
   "howItWorks": "Cómo funciona",
   "technique_frag": "Fragmentación TCP",

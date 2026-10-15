@@ -228,6 +228,7 @@
   "logAdvancedBackendExited": "Фонавы модуль пашыранага рэжыму завяршыў працу",
   "logAdvancedAskingAdmin": "Пашыраны рэжым: запыт дазволу адміністратара",
   "logAdvancedNoStopConfirm": "Фонавы модуль пашыранага рэжыму не пацвердзіў спыненне; ён завершыць працу пры выхадзе з Shroudly",
+  "logAdvancedProtections": "Пашыраны рэжым таксама адкідае падстаўныя скіданні (RST) і вымярае TTL пакета-прынады",
   "systemStatus": "Стан сістэмы",
   "howItWorks": "Як гэта працуе",
   "technique_frag": "Фрагментацыя TCP",

@@ -228,6 +228,7 @@
   "logAdvancedBackendExited": "Gelişmiş arka uç kapandı",
   "logAdvancedAskingAdmin": "Gelişmiş mod: yönetici izni isteniyor",
   "logAdvancedNoStopConfirm": "Gelişmiş arka uç durduğunu doğrulamadı; Shroudly kapanınca kendiliğinden kapanacak",
+  "logAdvancedProtections": "Gelişmiş mod ayrıca araya sokulan sahte bağlantı kesmeleri (RST) düşürür ve sahte paketin TTL'sini ölçerek ayarlar",
   "systemStatus": "Sistem durumu",
   "howItWorks": "Nasıl çalışır?",
   "technique_frag": "TCP parçalama",

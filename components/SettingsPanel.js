@@ -430,13 +430,15 @@ export default function SettingsPanel({ active = false }) {
             <Toggle label={t('discordModeLabel')} desc={t('discordModeDesc')}
                     checked={discord.on} onChange={setDiscordMode} />
           )}
+          {/* The Roblox buttons belong to the switch above them: one row of the
+              list, no divider in between, with room under the description. */}
           {apps.available && (
+            <div>
             <Toggle label={t('appModeLabel')}
                     desc={apps.platform === 'win32' ? `${t('appModeDesc')} ${t('appBrowserNote')}` : t('appModeDesc')}
                     checked={apps.on} onChange={setAppMode} />
-          )}
-          {apps.available && apps.on && (
-            <div className="px-1 pb-1">
+            {apps.on && (
+            <div className="pb-3 pt-1">
               <div className="flex flex-wrap gap-2">
                 <button type="button" onClick={() => robloxAction('open')} disabled={apps.installing}
                         className="btn btn-primary rounded-[8px] px-3 py-1.5 text-[12.5px] font-semibold">{t('appOpenRoblox')}</button>
@@ -454,6 +456,8 @@ export default function SettingsPanel({ active = false }) {
                 <p role="status" className="mt-2 text-[12px] leading-snug"
                    style={{ color: robloxMsg.tone === 'warn' ? 'var(--warn)' : robloxMsg.tone === 'ok' ? 'var(--ok)' : 'var(--text-dim)' }}>{robloxMsg.text}</p>
               )}
+            </div>
+            )}
             </div>
           )}
         </div>

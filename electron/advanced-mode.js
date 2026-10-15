@@ -97,15 +97,41 @@ class AdvError extends Error {
   constructor(code, message) { super(message); this.code = code; }
 }
 
+/*
+ * The packet-layer options, passed to the engine the same way the fake TTL is.
+ * Sensible defaults: the two strictly-additive, always-safe protections are on
+ * (drop the forged RSTs a censor injects to tear a blocked connection down, and
+ * set the decoy's TTL from the measured hop distance to the server); the decoy
+ * itself stays the proven low-TTL/bad-checksum fake, with sequence overlap off,
+ * so the common path is exactly what earlier releases shipped. Each is a flag,
+ * so a future UI (or a probe result) can switch them per network.
+ */
+const ADV_DEFAULTS = { dropRst: true, autottl: true, seqovl: 0, desyncMode: 'fake' };
+const DESYNC_MODES = ['fake', 'fakedsplit', 'fakeddisorder'];
+
+function resolveAdvOpts(opts) {
+  const o = { ...ADV_DEFAULTS, ...(opts || {}) };
+  o.dropRst = !!o.dropRst;
+  o.autottl = !!o.autottl;
+  o.seqovl = Math.max(0, Math.floor(Number(o.seqovl) || 0));
+  o.desyncMode = DESYNC_MODES.includes(o.desyncMode) ? o.desyncMode : 'fake';
+  return o;
+}
+
 /* The command line for the elevated engine. QUIC forced to TCP and decoys for
- * Discord voice UDP are on by default in Advanced mode; the opt-out flags are
- * passed only when a caller explicitly turns a feature off, so an old engine
- * (which does not know them) still runs with both on. Pure so it can be tested
+ * Discord voice UDP are on by default in Advanced mode; their opt-out flags are
+ * passed only when a caller explicitly turns a feature off. The TCP options
+ * (opts) always go, resolved against ADV_DEFAULTS. Pure so it can be tested
  * without elevating anything (tests/net/advanced.test.js). */
 function buildArgs(o) {
+  const t = resolveAdvOpts(o.opts);
   const ttl = Number(o.ttl) > 0 ? Number(o.ttl) : 4;
   const args = ['--advanced', '--fake-ttl', String(ttl),
-    '--status-file', String(o.statusFile), '--parent-pid', String(o.parentPid)];
+    '--status-file', String(o.statusFile), '--parent-pid', String(o.parentPid),
+    '--drop-rst', t.dropRst ? '1' : '0',
+    '--autottl', t.autottl ? '1' : '0',
+    '--seqovl', String(t.seqovl),
+    '--desync-mode', t.desyncMode];
   if (o.platform === 'linux') args.push('--queue', String(o.queueNum != null ? o.queueNum : QUEUE_NUM));
   if (o.quicBlock === false) args.push('--no-quic-block');
   if (o.udpFake === false) args.push('--no-udp-fake');
@@ -242,7 +268,7 @@ class AdvancedMode {
     this.statusFile = path.join(this.dir, 'status.log');
     const args = buildArgs({
       ttl, statusFile: this.statusFile, parentPid: process.pid, platform: this.platform,
-      queueNum: QUEUE_NUM, quicBlock: o.quicBlock, udpFake: o.udpFake, fakeRepeats: o.fakeRepeats,
+      queueNum: QUEUE_NUM, quicBlock: o.quicBlock, udpFake: o.udpFake, fakeRepeats: o.fakeRepeats, opts: o,
     });
 
     this.log('info', 'Advanced mode: asking for administrator permission');
@@ -252,6 +278,7 @@ class AdvancedMode {
       const ready = await this._waitReady();
       this.active = true;
       this.log('success', `Advanced backend active (fake TTL ${ready.ttl})`);
+      if (o.dropRst && o.autottl) this.log('info', 'Advanced mode also drops injected resets and measures the decoy TTL');
       this._startMonitor();
       return { success: true };
     } catch (e) {
@@ -316,3 +343,6 @@ class AdvancedMode {
 module.exports = AdvancedMode;
 module.exports.linuxInstallCommand = linuxInstallCommand;
 module.exports.buildArgs = buildArgs;
+/* The TCP options' own name for the same argv (fakeTtl, opts). */
+module.exports.buildAdvancedArgs = ({ fakeTtl, opts, ...rest }) => buildArgs({ ...rest, ttl: fakeTtl, opts });
+module.exports.ADV_DEFAULTS = ADV_DEFAULTS;

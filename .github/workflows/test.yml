@@ -50,6 +50,13 @@ jobs:
       - name: Build engine (this machine)
         run: node scripts/build-core.js
 
+      # The Advanced (packet-layer) engine is otherwise only built at release.
+      - name: Build the Advanced engine (Linux x64, Windows x64)
+        if: matrix.os == 'ubuntu-latest' || matrix.os == 'windows-latest'
+        shell: bash
+        run: |
+          if [ "$RUNNER_OS" = Windows ]; then node scripts/build-core-advanced.js --target win32-x64; else bash scripts/ci-linux-advanced.sh amd64; fi
+
       - name: Engine unit tests, sanitizers, fuzzing
         if: runner.os != 'Windows'
         working-directory: core

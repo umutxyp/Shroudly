@@ -228,6 +228,7 @@
   "logAdvancedBackendExited": "فرایند پس‌زمینهٔ پیشرفته بسته شد",
   "logAdvancedAskingAdmin": "حالت پیشرفته: در حال درخواست مجوز سرپرست",
   "logAdvancedNoStopConfirm": "فرایند پس‌زمینهٔ پیشرفته توقف را تأیید نکرد؛ با بسته شدن Shroudly بسته می‌شود",
+  "logAdvancedProtections": "حالت پیشرفته همچنین ریست‌های جعلی تزریق‌شده را دور می‌اندازد و TTL بستهٔ فریب را اندازه می‌گیرد",
   "systemStatus": "وضعیت سیستم",
   "howItWorks": "نحوهٔ کار",
   "technique_frag": "قطعه‌بندی TCP",

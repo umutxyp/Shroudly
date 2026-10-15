@@ -228,6 +228,7 @@
   "logAdvancedBackendExited": "Модуль розширеного режиму завершив роботу",
   "logAdvancedAskingAdmin": "Розширений режим: запит дозволу адміністратора",
   "logAdvancedNoStopConfirm": "Модуль розширеного режиму не підтвердив зупинку; він завершить роботу, коли закриється Shroudly",
+  "logAdvancedProtections": "Розширений режим також відкидає підставні скидання (RST) і вимірює TTL пакета-приманки",
   "systemStatus": "Стан системи",
   "howItWorks": "Як це працює",
   "technique_frag": "Фрагментація TCP",
