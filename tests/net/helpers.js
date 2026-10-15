@@ -80,6 +80,80 @@ function socks(socksPort, host, port) {
   });
 }
 
+/* SOCKS4 CONNECT through the engine: an IPv4 literal is plain SOCKS4, a name
+ * is SOCKS4a (0.0.0.1 plus the name, resolved by the engine). Rejects with
+ * the reply code when the engine does not grant it. cmd 2 asks for BIND. */
+function socks4(socksPort, host, port, { cmd = 1, user = 'shroudly-test' } = {}) {
+  return new Promise((resolve, reject) => {
+    const s = net.connect(socksPort, '127.0.0.1');
+    let b = Buffer.alloc(0);
+    s.once('error', reject);
+    s.on('connect', () => {
+      const v4 = net.isIPv4(host);
+      const ip = v4 ? host.split('.').map(Number) : [0, 0, 0, 1];
+      s.write(Buffer.concat([
+        Buffer.from([4, cmd, port >> 8, port & 255, ...ip]), Buffer.from(user), Buffer.from([0]),
+        v4 ? Buffer.alloc(0) : Buffer.concat([Buffer.from(host), Buffer.from([0])]),
+      ]));
+    });
+    const on = (d) => {
+      b = Buffer.concat([b, d]);
+      if (b.length < 8) return;
+      s.removeListener('data', on);
+      if (b[0] !== 0 || b[1] !== 0x5a) { s.destroy(); reject(new Error(`SOCKS4 reply ${b[1]}`)); return; }
+      if (b.length > 8) s.unshift(b.subarray(8));
+      resolve(s);
+    };
+    s.on('data', on);
+    s.on('close', () => reject(new Error('SOCKS4: closed before a reply')));
+  });
+}
+
+/* A DNS server on 127.0.0.1 that answers from a table, standing in for the
+ * app's encrypted-DNS forwarder (the engine's --doh-port), so tests can give a
+ * name exactly the addresses they need. table: { name: { A: [...], AAAA:
+ * [...], ttl } }; a name not in it gets NXDOMAIN, a type it lacks an empty
+ * answer. Counts the questions it is asked, per "name/type". */
+function ip6Bytes(a) {
+  let v4 = null;
+  const m = a.match(/^(.*:)(\d+\.\d+\.\d+\.\d+)$/);
+  if (m) { v4 = m[2].split('.').map(Number); a = `${m[1]}0:0`; }
+  const [h, t] = a.split('::');
+  const head = h ? h.split(':') : []; const tail = t !== undefined && t ? t.split(':') : [];
+  const groups = t === undefined ? head : [...head, ...Array(8 - head.length - tail.length).fill('0'), ...tail];
+  const out = Buffer.alloc(16);
+  groups.forEach((g, i) => out.writeUInt16BE(parseInt(g || '0', 16), i * 2));
+  if (v4) out.set(v4, 12);
+  return out;
+}
+function dnsStub(table) {
+  const dgram = require('dgram');
+  const sock = dgram.createSocket('udp4');
+  const asked = {};
+  sock.on('message', (q, from) => {
+    if (q.length < 17) return;
+    let p = 12; const labels = [];
+    while (p < q.length && q[p]) { labels.push(q.subarray(p + 1, p + 1 + q[p]).toString()); p += 1 + q[p]; }
+    const qend = p + 5; const name = labels.join('.').toLowerCase(); const type = q.readUInt16BE(p + 1) === 28 ? 'AAAA' : 'A';
+    asked[`${name}/${type}`] = (asked[`${name}/${type}`] || 0) + 1;
+    const e = table[name];
+    const addrs = (e && e[type]) || [];
+    const head = Buffer.from(q.subarray(0, 12));
+    head[2] = 0x81; head[3] = e ? 0x80 : 0x83;            // response; NXDOMAIN when unknown
+    head.writeUInt16BE(1, 4); head.writeUInt16BE(addrs.length, 6); head.writeUInt32BE(0, 8);
+    const ans = addrs.map((a) => {
+      const rd = type === 'A' ? Buffer.from(a.split('.').map(Number)) : ip6Bytes(a);
+      const r = Buffer.alloc(12); r.writeUInt16BE(0xc00c, 0); r.writeUInt16BE(type === 'A' ? 1 : 28, 2);
+      r.writeUInt16BE(1, 4); r.writeUInt32BE((e && e.ttl) || 60, 6); r.writeUInt16BE(rd.length, 10);
+      return Buffer.concat([r, rd]);
+    });
+    sock.send(Buffer.concat([head, q.subarray(12, qend), ...ans]), from.port, from.address);
+  });
+  return new Promise((resolve) => sock.bind(0, '127.0.0.1', () => resolve({
+    port: sock.address().port, asked, close: () => sock.close(),
+  })));
+}
+
 /* GET https://host/ through the engine; resolves { status, bytes }. A real
  * site on the real internet can be slow for a moment, which says nothing
  * about the engine: one retry before calling it a failure. */
@@ -139,4 +213,4 @@ function suite(name) {
   };
 }
 
-module.exports = { ROOT, enginePath, startEngine, sleep, freePort, socks, getViaEngine, fixture, requestWatcher, testServerOptions, suite };
+module.exports = { ROOT, enginePath, startEngine, sleep, freePort, socks, socks4, dnsStub, getViaEngine, fixture, requestWatcher, testServerOptions, suite };

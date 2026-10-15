@@ -1,10 +1,11 @@
 /*
  * shroudly-core — cross-platform DPI-evasion engine.
  *
- * No kernel driver, no third-party library: it runs a local SOCKS5 proxy and
- * applies TLS/HTTP desync (split / disorder / low-TTL fakes) on the first
- * payload of each connection, plus anti-poisoning DNS. Works unprivileged on
- * Windows, Linux and macOS.
+ * No kernel driver, no third-party library: it runs a local SOCKS proxy
+ * (SOCKS5, and SOCKS4/4a for the clients that only speak those) and applies
+ * TLS/HTTP desync (split / disorder / low-TTL fakes) on the first payload of
+ * each connection, plus anti-poisoning DNS. Works unprivileged on Windows,
+ * Linux and macOS.
  *
  * Control: reads line commands on stdin so the UI can drive it without any
  * elevated IPC. Emits JSON status lines on stdout.
@@ -47,13 +48,15 @@ static int g_fake_ttl = 4;
 static char g_status_file[1024] = "";
 static long g_parent_pid = 0;
 
+#ifndef _WIN32
 static void on_signal(int sig) { (void)sig; engine_stop(); }
+#endif
 
 static void usage(void) {
   fprintf(stderr,
     "shroudly-core [options]\n"
     "  --listen <ip>         listen address (default 127.0.0.1)\n"
-    "  --port <n>            SOCKS5 port (default 10800)\n"
+    "  --port <n>            SOCKS port, v5/v4/v4a (default 10800)\n"
     "  --strategy <spec>     e.g. \"fake(ttl=4),split(sni)\"\n"
     "  --auto                auto-probe best strategy per host\n"
     "  --doh                 use anti-poisoning resolver\n"

@@ -118,6 +118,7 @@ void sock_wait_sent(sock_t s, int max_ms) {
   /* macOS has no SIOCOUTQNSD. With TCP_NODELAY set, a short sleep lets the
    * pending small segment leave before the next write, which is enough to keep
    * the SNI split across segments in practice. */
+  (void)s;
   (void)max_ms;
   struct timespec ts = {0, 1500000}; /* 1.5 ms */
   nanosleep(&ts, NULL);

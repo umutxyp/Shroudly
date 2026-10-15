@@ -52,7 +52,7 @@ const PATTERNS = [
   [/^(\S+) could not be opened with encrypted DNS switched off\./, 'logDnsReenabledForBlock', ['host']],
   [/^(.+?) was already running when protection started\./, 'logAppsNeedRestart', ['apps']],
   [/^Encrypted DNS is not reachable on this network/, 'logDohDown', []],
-  [/^([A-Za-z0-9.:_-]+): blocked here, opened with (\S+) \((\d+) tries, (\S+)\)$/, 'logSiteBypassed', ['host', 'strategy', 'tries', 'family']],
+  [/^([A-Za-z0-9.:_-]+): blocked here, opened with (\S+) \((\d+) tries, (\S+)\)(?: — .*)?$/, 'logSiteBypassed', ['host', 'strategy', 'tries', 'family']],
   [/^([A-Za-z0-9.:_-]+): still blocked after (\d+) techniques \((\S+)\)/, 'logSiteStillBlocked', ['host', 'tries', 'family']],
   [/^([A-Za-z0-9.:_-]+): connection dropped while sending \((\S+)\)$/, 'logSiteDropped', ['host', 'family']],
   [/^System: (.+?) — network (.+?), DNS (.+)$/, 'logEnvironment', ['os', 'network', 'dns']],

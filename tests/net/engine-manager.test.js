@@ -24,6 +24,9 @@ const t = suite('engine-manager');
   const startLine = logs.find((l) => l.includes('Starting engine')) || '';
   t.ok(/\(\+\d{3} known block pages\)/.test(startLine), 'engine gets the block-page list; the log line stays short');
   t.ok(em.doh.socksPort === P, 'encrypted DNS routes through the engine enabled once it is ready');
+  const active = logs.find((l) => l.includes('Shroudly engine active')) || '';
+  t.ok(/\(strategy: auto, \d+ techniques\)$/.test(active) && !active.includes('split(sni)'),
+    `auto mode is described as what runs, not the unused configured strategy: "${active.replace(/^\w+: /, '')}"`);
   const res = await Promise.all(['discord.com', 'www.wikipedia.org', 'github.com'].map((h) => getViaEngine(P, h)));
   t.ok(res.every((x) => x.status >= 200 && x.status < 400), `sites load with encrypted DNS: ${res.map((x) => x.status).join(' ')}`);
   await sleep(6500);
@@ -38,6 +41,17 @@ const t = suite('engine-manager');
   t.ok(logs.filter((l) => l.includes('a.example: connects')).length === 1, 'and only once');
   for (let i = 0; i < 3; i++) em._onCut('b.example', 'noreply', 0);
   t.ok(em.advice.cut.host === 'a.example', '"no reply" alone needs more than three');
+  // Hosts that cannot be reached at all: one plain line per host, not one per retry.
+  const unreach = (h, stage) => em._onLine(JSON.stringify({ type: 'unreachable', host: h, stage, ips: stage === 'dns' ? 0 : 2 }));
+  unreach('gone.example', 'connect'); unreach('gone.example', 'connect'); unreach('nxdomain.example', 'dns');
+  t.ok(logs.filter((l) => l === 'warning: gone.example: could not be reached (connection)').length === 1, 'unreachable host logged once, as a connection failure');
+  t.ok(logs.includes('warning: nxdomain.example: could not be reached (DNS)'), 'a name that does not resolve is logged as a DNS failure');
+  // A silent drop is told apart from a refusal in the log.
+  em._onLine(JSON.stringify({ type: 'bypass', host: 'quiet.example', strategy: 'tlsrec-sni', attempts: 2, family: 'ipv4', note: 'silent' }));
+  em._onLine(JSON.stringify({ type: 'blocked', host: 'dead.example', strategy: '', attempts: 5, family: 'ipv4', note: 'silent' }));
+  t.ok(logs.some((l) => l.startsWith('success: quiet.example: blocked here, opened with tlsrec-sni (2 tries, ipv4) — the network drops these connections silently')), 'silent-drop bypass says so');
+  t.ok(logs.some((l) => l.startsWith('warning: dead.example: still blocked after 5 techniques (ipv4) — the network drops these connections silently;')), 'silent-drop block says so');
+
   em._setAdvice({ dnsDown: true }); em._setAdvice({ dnsDown: true });
   t.ok(advices.filter((a) => a.dnsDown).length === 1, 'the window is only told when something changes');
 
