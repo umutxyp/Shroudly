@@ -46,16 +46,6 @@ function Actions({ children }) {
   return <div className="mt-2 flex flex-wrap items-center gap-2">{children}</div>;
 }
 
-/* "Iran", "China" ... in the user's language, from the system's own data. */
-function countryName(code, locale) {
-  try { return new Intl.DisplayNames([locale || 'en'], { type: 'region' }).of(code) || code; } catch { return code; }
-}
-
-/* Dismissals that should survive a restart (a region offer declined once is
- * not offered again on the same network). Storage can be unavailable. */
-function remembered(key) { try { return localStorage.getItem(key) === '1'; } catch { return false; } }
-function remember(key) { try { localStorage.setItem(key, '1'); } catch {} }
-
 export default function BlockedNotice({ onNavigate, active = false }) {
   const { t, locale, language } = useLanguage();
   const [host, setHost] = useState(null);
@@ -351,25 +341,6 @@ export default function BlockedNotice({ onNavigate, active = false }) {
                   className="btn btn-primary rounded-[8px] px-3 py-1.5 text-[12.5px] font-semibold">
             {advanced ? t('blockedNoticeOpenSettings') : t('blockedNoticeOpenLogs')}
           </button>
-        </Actions>
-      </Banner>
-    );
-  }
-
-  /* The network's DNS answers match a country whose filters follow whole
-   * connections. Say so before the user has to find out, and offer the mode
-   * made for it — once per country, where this machine has it. */
-  const region = advice?.region;
-  const regionKey = region ? `shroudly_region_${region.country}` : '';
-  if (active && region?.stateful && adv.available && !adv.active && !hidden.region && !remembered(regionKey)) {
-    const country = countryName(region.country, locale || language);
-    return (
-      <Banner tone="accent" Icon={ShieldAlertIcon} title={t('regionTitle', { country })} body={t('regionBody')}>
-        <Actions>
-          <button type="button" onClick={startAdvanced} disabled={busy}
-                  className="btn btn-primary rounded-[8px] px-3 py-1.5 text-[12.5px] font-semibold">{t('tryAdvanced')}</button>
-          <button type="button" onClick={() => { remember(regionKey); hide('region'); }}
-                  className="btn btn-ghost rounded-[8px] px-3 py-1.5 text-[12.5px] font-semibold">{t('notNow')}</button>
         </Actions>
       </Banner>
     );

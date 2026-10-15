@@ -139,8 +139,6 @@
   "cutBodyAdvanced": "Mạng này theo dõi toàn bộ kết nối chứ không chỉ phần mở đầu. Shroudly đang thử các kỹ thuật khác cho trang này; Chế độ nâng cao hoạt động ở tầng thấp hơn và thường vượt qua được.",
   "cutBodyAdvancedOn": "Chế độ nâng cao đang bật nhưng mạng vẫn cắt kết nối. Nhiều khả năng mạng đang chặn địa chỉ của máy chủ, điều mà không kỹ thuật nào thay đổi được; với trang này, chỉ VPN mới vượt qua được.",
   "cutBodyNoAdvanced": "Shroudly đang thử các kỹ thuật khác cho trang này. Nếu tình trạng này tiếp diễn, mạng đang chặn địa chỉ của máy chủ hoặc cần đến Chế độ nâng cao, vốn chỉ có trên Windows và Linux; khi đó VPN là lựa chọn còn lại.",
-  "regionTitle": "Mạng này lọc theo cách của {country}",
-  "regionBody": "Các bộ lọc kiểu này theo dõi toàn bộ kết nối, và chế độ thường không phải lúc nào cũng vượt qua được. Chế độ nâng cao hoạt động ở tầng thấp hơn và được tạo ra cho chúng. Chế độ này sẽ yêu cầu quyền quản trị viên một lần.",
   "notNow": "Để sau",
   "dnsDownTitle": "DNS mã hóa bị chặn trên mạng này",
   "dnsDownBody": "Shroudly tự động tiếp tục thử các đường khác. Cho đến khi có đường thông, một số trang có thể bị chuyển đến địa chỉ giả; các địa chỉ giả mà Shroudly biết sẽ bị từ chối.",

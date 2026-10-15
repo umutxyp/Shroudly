@@ -139,8 +139,6 @@
   "cutBodyAdvanced": "Ev tor tevahiya girêdanan dişopîne, ne tenê destpêka wan. Shroudly jixwe ji bo vê malperê teknîkên din diceribîne; Moda pêşketî di asteke jêrtir de dixebite û bi gelemperî derbas dibe.",
   "cutBodyAdvancedOn": "Moda pêşketî çalak e û tor hîn jî wê qut dike. Bi îhtimaleke mezin ew navnîşana rajekar asteng dike, ku tu teknîk nikare biguherîne; ji bo vê malperê tenê VPN derbas dibe.",
   "cutBodyNoAdvanced": "Shroudly jixwe ji bo vê malperê teknîkên din diceribîne. Heke ev berdewam bike, an tor navnîşana rajekar asteng dike an jî Moda pêşketî hewce ye, ku tenê li Windows û Linux heye; wê demê VPN vebijarka dawî ye.",
-  "regionTitle": "Ev tor wekî {country} fîltre dike",
-  "regionBody": "Fîltreyên bi vî rengî tevahiya girêdanan dişopînin, û moda asayî her tim nikare ji wan derbas bibe. Moda pêşketî di asteke jêrtir de dixebite û ji bo wan hatiye çêkirin. Ew carekê destûra rêveberê dixwaze.",
   "notNow": "Ne niha",
   "dnsDownTitle": "DNS-a şîfrekirî li ser vê torê astengkirî ye",
   "dnsDownBody": "Shroudly bi serê xwe rêyên din diceribîne. Heta ku yek derbas bibe, dibe ku hin malper ber bi navnîşanên sexte ve bên şandin; navnîşanên sexte yên ku Shroudly nas dike tên redkirin.",

@@ -175,8 +175,10 @@ Shroudly does on its own, without the user having to know any of this:
 | **Blocking by server address, protocol whitelisting, shutdowns** | Russia's throttling of some hosting providers, Iran during shutdowns | Cannot be fixed by any technique that leaves the address unchanged. Shroudly says so plainly and points to a VPN, rather than looking like it works. |
 
 When DNS answers on a network match a country's known block pages, the log
-says which, and on networks whose filters follow whole connections (Iran,
-China, Russia, Turkmenistan, Belarus) Advanced mode is offered up front.
+says which, as a clue for whoever reads it. What Shroudly does about a network
+is decided by what the network does, the same way everywhere: Advanced mode is
+offered once a site connects and is then cut, never because of which country
+the network resembles.
 Another VPN or bypass tool running alongside (Cloudflare WARP, for one) is
 named in the window until it is closed, because two tools rewriting the same
 connections is the most common reason nothing works.

@@ -139,8 +139,6 @@
   "cutBodyAdvanced": "Bu tor birikmeleriň diňe başlanyşyny däl, olary tutuşlygyna yzarlaýar. Shroudly bu saýt üçin eýýäm başga usullary synap görýär; Giňişleýin tertip has pes derejede işleýär we adatça geçip bilýär.",
   "cutBodyAdvancedOn": "Giňişleýin tertip açyk, ýöne tor ony henizem kesýär. Ähtimal, ol serweriň salgysyny petikleýär, muny hiç bir usul üýtgedip bilmeýär; bu saýt üçin diňe VPN geçip bilýär.",
   "cutBodyNoAdvanced": "Shroudly bu saýt üçin eýýäm başga usullary synap görýär. Eger bu gaýtalanyp dursa, tor serweriň salgysyny petikleýändir ýa-da oňa Giňişleýin tertip gerekdir, ol bolsa diňe Windows we Linux-da bar; şeýle ýagdaýda galan ýeke-täk ýol VPN bolar.",
-  "regionTitle": "Bu tor saýtlary {country} ýaly süzýär",
-  "regionBody": "Beýle süzgüçler birikmeleri tutuşlygyna yzarlaýar we adaty tertip olardan hemişe geçip bilmeýär. Giňişleýin tertip has pes derejede işleýär we edil olar üçin döredildi. Ol administratoryň rugsadyny bir gezek soraýar.",
   "notNow": "Häzir däl",
   "dnsDownTitle": "Bu torda şifrlenen DNS petikli",
   "dnsDownBody": "Shroudly başga ýollary özbaşdak synap görmegini dowam etdirýär. Olaryň biri geçýänçä, käbir saýtlar galp salgylara iberilip bilner; Shroudly-niň bilýän galp salgylary ret edilýär.",

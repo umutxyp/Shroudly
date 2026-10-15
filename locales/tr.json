@@ -139,8 +139,6 @@
   "cutBodyAdvanced": "Bu ağ bağlantıların sadece başına değil tamamına bakıyor. Shroudly bu site için zaten başka teknikler deniyor; Gelişmiş mod daha alt katmanda çalışır ve genelde geçer.",
   "cutBodyAdvancedOn": "Gelişmiş mod açık ama ağ yine de kesiyor. Büyük ihtimalle sunucunun adresi engelleniyor ve hiçbir teknik bunu değiştiremez; bu site için yalnızca bir VPN geçer.",
   "cutBodyNoAdvanced": "Shroudly bu site için zaten başka teknikler deniyor. Sürerse ağ ya sunucunun adresini engelliyor ya da yalnızca Windows ve Linux'ta olan Gelişmiş modu gerektiriyor; o durumda geriye bir VPN kalıyor.",
-  "regionTitle": "Bu ağ {country} usulü filtre kullanıyor",
-  "regionBody": "Bu tür filtreler bağlantıların tamamını takip eder; normal mod her zaman geçemez. Gelişmiş mod daha alt katmanda çalışır ve tam bunlar için yapıldı. Bir kez yönetici izni ister.",
   "notNow": "Şimdi değil",
   "dnsDownTitle": "Şifreli DNS bu ağda engelleniyor",
   "dnsDownBody": "Shroudly kendi kendine başka yollar denemeye devam ediyor. Biri geçene kadar bazı siteler sahte adreslere yönlenebilir; Shroudly'nin bildiği sahte adresler reddediliyor.",

@@ -139,8 +139,6 @@
   "cutBodyAdvanced": "这个网络追踪的是整条连接，而不只是开头。Shroudly 已在为该网站尝试其他技术；高级模式在更底层工作，通常能通过。",
   "cutBodyAdvancedOn": "高级模式已开启，网络仍然切断连接。很可能是封锁了服务器的地址，任何技术都无法改变这一点；该网站只有 VPN 能通过。",
   "cutBodyNoAdvanced": "Shroudly 已在为该网站尝试其他技术。如果持续发生，说明网络封锁了服务器的地址，或需要仅 Windows 和 Linux 才有的高级模式；那时剩下的办法就是 VPN。",
-  "regionTitle": "这个网络的过滤方式与{country}相同",
-  "regionBody": "这类过滤器会追踪整条连接，普通模式并不总能通过。高级模式在更底层工作，正是为此设计。它会请求一次管理员权限。",
   "notNow": "暂不",
   "dnsDownTitle": "此网络封锁了加密 DNS",
   "dnsDownBody": "Shroudly 会自动继续尝试其他线路。在找到可用线路之前，部分网站可能被指向假地址；Shroudly 已知的假地址会被拒绝。",

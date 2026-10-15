@@ -139,8 +139,6 @@
   "cutBodyAdvanced": "Bu tarmoq ulanishlarni faqat boshlanishida emas, toʻliq kuzatadi. Shroudly bu sayt uchun allaqachon boshqa usullarni sinamoqda; Kengaytirilgan rejim bundan pastroq darajada ishlaydi va odatda blokdan oʻtadi.",
   "cutBodyAdvancedOn": "Kengaytirilgan rejim yoqilgan, lekin tarmoq baribir ulanishni uzmoqda. Ehtimol, u server manzilini bloklayapti, buni esa hech qanday usul oʻzgartira olmaydi; bu sayt uchun faqat VPN yordam beradi.",
   "cutBodyNoAdvanced": "Shroudly bu sayt uchun allaqachon boshqa usullarni sinamoqda. Agar bu takrorlanaversa, demak tarmoq server manzilini bloklayapti yoki Kengaytirilgan rejim kerak, u esa faqat Windows va Linuxda bor; unda qolgan yagona yoʻl — VPN.",
-  "regionTitle": "Bu tarmoq xuddi {country} kabi filtrlaydi",
-  "regionBody": "Bunday filtrlar ulanishlarni toʻliq kuzatadi va oddiy rejim har doim ham ulardan oʻta olmaydi. Kengaytirilgan rejim pastroq darajada ishlaydi va aynan ular uchun yaratilgan. U bir marta administrator ruxsatini soʻraydi.",
   "notNow": "Hozir emas",
   "dnsDownTitle": "Bu tarmoqda shifrlangan DNS bloklangan",
   "dnsDownBody": "Shroudly oʻzi boshqa yoʻllarni sinab koʻrishda davom etadi. Ulardan biri ishlamaguncha, ayrim saytlar soxta manzillarga yoʻnaltirilishi mumkin; Shroudlyga maʼlum soxta manzillar rad etiladi.",

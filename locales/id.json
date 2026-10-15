@@ -139,8 +139,6 @@
   "cutBodyAdvanced": "Jaringan ini mengikuti seluruh koneksi, bukan hanya awalnya. Shroudly sudah mencoba teknik lain untuk situs ini; mode Lanjutan bekerja di lapisan lebih bawah dan biasanya lolos.",
   "cutBodyAdvancedOn": "Mode Lanjutan aktif dan jaringan tetap memutusnya. Kemungkinan besar alamat servernya yang diblokir, dan itu tidak bisa diubah teknik apa pun; untuk situs ini hanya VPN yang lolos.",
   "cutBodyNoAdvanced": "Shroudly sudah mencoba teknik lain untuk situs ini. Jika terus terjadi, jaringan memblokir alamat server atau butuh mode Lanjutan, yang hanya ada di Windows dan Linux; selebihnya tinggal VPN.",
-  "regionTitle": "Jaringan ini menyaring seperti di {country}",
-  "regionBody": "Penyaring seperti ini mengikuti seluruh koneksi, dan mode biasa tidak selalu bisa melewatinya. Mode Lanjutan bekerja di lapisan lebih rendah dan dibuat untuk itu. Ia meminta izin administrator sekali.",
   "notNow": "Nanti saja",
   "dnsDownTitle": "DNS terenkripsi diblokir di jaringan ini",
   "dnsDownBody": "Shroudly terus mencoba rute lain dengan sendirinya. Sampai ada yang lolos, beberapa situs bisa diarahkan ke alamat palsu; alamat palsu yang dikenal Shroudly ditolak.",

@@ -139,8 +139,6 @@
   "cutBodyAdvanced": "Dieses Netz verfolgt ganze Verbindungen, nicht nur ihren Anfang. Shroudly probiert für diese Seite bereits andere Techniken; der erweiterte Modus arbeitet darunter und kommt meist durch.",
   "cutBodyAdvancedOn": "Der erweiterte Modus ist an, und das Netz trennt trotzdem. Höchstwahrscheinlich ist die Adresse des Servers gesperrt, und die kann keine Technik ändern; für diese Seite kommt nur ein VPN durch.",
   "cutBodyNoAdvanced": "Shroudly probiert für diese Seite bereits andere Techniken. Hält es an, sperrt das Netz die Adresse des Servers oder braucht den erweiterten Modus, den nur Windows und Linux haben; dann bleibt ein VPN.",
-  "regionTitle": "Dieses Netz filtert auf dieselbe Art wie {country}",
-  "regionBody": "Solche Filter verfolgen ganze Verbindungen, und der normale Modus kommt nicht immer an ihnen vorbei. Der erweiterte Modus arbeitet auf einer tieferen Ebene und ist für sie gemacht. Er fragt einmal nach Administratorrechten.",
   "notNow": "Jetzt nicht",
   "dnsDownTitle": "Verschlüsseltes DNS ist in diesem Netz gesperrt",
   "dnsDownBody": "Shroudly probiert von selbst weiter andere Wege. Bis einer durchkommt, können manche Seiten auf gefälschte Adressen führen; die gefälschten Adressen, die Shroudly kennt, werden abgelehnt.",
