@@ -214,9 +214,11 @@ const clean = () => { for (const f of [XPROFILE, ENVD, LXQT]) fs.rmSync(f, { for
     const log5 = logs();
     await sp4.restore();
     sp4.log = log5;
-    t.ok(sp4.clearEnv() === true && !fs.existsSync(XPROFILE) && !fs.existsSync(ENVD) && !fs.existsSync(ENVD_DIR) && !fs.existsSync(envFile(name))
-      && !sysEnv.has('auto_proxy') && log5.lines.includes('info: Browser settings for the next login removed'),
-    'user stop: ~/.xprofile (made by us) and environment.d removed, folder too, systemd\'s variable unset, record gone');
+    const cleared = sp4.clearEnv();
+    const left = [[XPROFILE, '~/.xprofile'], [ENVD, 'environment.d'], [ENVD_DIR, 'its folder'], [envFile(name), 'the record']]
+      .filter(([f]) => fs.existsSync(f)).map(([, n]) => n);
+    t.ok(cleared === true && !left.length && !sysEnv.has('auto_proxy') && log5.lines.includes('info: Browser settings for the next login removed'),
+      `user stop: ~/.xprofile (made by us) and environment.d removed, folder too, systemd's variable unset, record gone${left.length ? ` (left: ${left.join(', ')})` : ''}${sysEnv.has('auto_proxy') ? ' (systemd still has it)' : ''}`);
     t.ok(sp4.clearEnv() === false, 'a second stop finds nothing to remove');
   }
 

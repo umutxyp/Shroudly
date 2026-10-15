@@ -255,16 +255,23 @@ function get(url, { socksPort, connect, toFile, timeoutMs = 60000, redirects = 3
   });
 }
 
+/* The file's signature as Windows judges it: "Status|signer", '' when
+ * nothing answered. */
+async function signatureOf(file) {
+  if (process.platform !== 'win32') return '';
+  const out = await run('powershell.exe', ['-NoProfile', '-NonInteractive', '-Command',
+    '$s = Get-AuthenticodeSignature -LiteralPath $env:SHROUDLY_FILE; "$($s.Status)|$($s.SignerCertificate.Subject)|$($s.StatusMessage)"'],
+  { timeout: 30000, env: { ...process.env, SHROUDLY_FILE: file } });
+  return out.trim();
+}
+const byRoblox = (sig) => {
+  const [status, subject] = String(sig || '').split('|');
+  return status === 'Valid' && /(^|,\s*)O="?Roblox Corporation"?(,|$)/i.test(subject || '');
+};
+
 /* Is the file signed, validly, by Roblox Corporation? Never start a
  * downloaded program on anything less. */
-async function signedByRoblox(file) {
-  if (process.platform !== 'win32') return false;
-  const out = await run('powershell.exe', ['-NoProfile', '-NonInteractive', '-Command',
-    '$s = Get-AuthenticodeSignature -LiteralPath $env:SHROUDLY_FILE; "$($s.Status)|$($s.SignerCertificate.Subject)"'],
-  { timeout: 30000, env: { ...process.env, SHROUDLY_FILE: file } });
-  const [status, subject] = out.trim().split('|');
-  return status === 'Valid' && /(^|,\s*)O="?Roblox Corporation"?(,|$)/i.test(subject || '');
-}
+async function signedByRoblox(file) { return byRoblox(await signatureOf(file)); }
 
 /* Each download gets a folder of its own, so a second one never has to
  * replace an installer that is still running (Windows refuses). What earlier
@@ -301,8 +308,12 @@ async function install(opts) {
   try {
     await get(`https://setup.rbxcdn.com/${version}-RobloxPlayerInstaller.exe`, { socksPort: opts.socksPort, connect: opts.connect, toFile: dl.part, timeoutMs: 180000 });
   } catch (e) { drop(); return { success: false, code: 'unreachable', detail: e.message }; }
-  if (!(await signedByRoblox(dl.part))) { drop(); return { success: false, code: 'unsigned' }; }
+  // Checked under its own name, in its own folder: Windows tells what kind
+  // of file it is judging partly by the extension, and nothing starts it
+  // until the signature has been checked.
   try { fs.renameSync(dl.part, dl.file); } catch (e) { drop(); return { success: false, code: 'failed', detail: e.message }; }
+  const sig = await signatureOf(dl.file);
+  if (!byRoblox(sig)) { drop(); return { success: false, code: 'unsigned', detail: sig || 'no answer' }; }
   return detached(dl.file, [], { ...process.env, ...opts.env }) ? { success: true, version } : { success: false, code: 'failed' };
 }
 

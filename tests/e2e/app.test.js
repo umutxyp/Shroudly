@@ -247,10 +247,22 @@ async function record(label, pid) {
       const count = () => a.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows().length);
       await sleep(IDLE_MS + 8000);
       ok(await count() === 1, 'no tray: an unused window is not closed');
+      // With no window manager (CI's bare X server) nothing carries out a
+      // minimise, so what is checked is that one was asked for and the window
+      // was not hidden: minimised under a window manager, still shown without.
+      await a.evaluate(({ BrowserWindow }) => {
+        const x = BrowserWindow.getAllWindows()[0];
+        const m = x.minimize.bind(x);
+        global.minimiseAsked = 0;
+        x.minimize = () => { global.minimiseAsked++; m(); };
+      });
       await w.evaluate(() => window.electron.closeWindow());
       await sleep(2500);
-      const st = await a.evaluate(({ BrowserWindow }) => { const x = BrowserWindow.getAllWindows()[0]; return x ? { min: x.isMinimized() } : null; });
-      ok(!!st && st.min, 'no tray: closing minimises instead of hiding');
+      const st = await a.evaluate(({ BrowserWindow }) => {
+        const x = BrowserWindow.getAllWindows()[0];
+        return x ? { asked: global.minimiseAsked, shown: x.isMinimized() || x.isVisible() } : null;
+      });
+      ok(!!st && st.asked > 0 && st.shown, `no tray: closing minimises instead of hiding (${JSON.stringify(st)})`);
       ok(await w.evaluate(() => typeof window.electron.quitApp === 'function'), 'the window offers its own Quit');
     } finally { await a.close().catch(() => {}); }
     // Started at login (or by an update) with "minimize to tray" on: with no
