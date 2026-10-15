@@ -16,6 +16,11 @@ const EXACT = {
   'Games and apps: another proxy is already set for programs (HTTPS_PROXY), so it was left as it is': 'logAppsForeign',
   'Games and apps: a setting left by an earlier run was removed': 'logAppsLeftover',
   'Auto-started in tray': 'logAutoStartedTray',
+  'Games and apps: Roblox is connecting through Shroudly': 'logAppsRoblox',
+  'Games and apps: Roblox is running but none of its connections go through Shroudly (it was probably started by a browser that was already open)': 'logAppsBypass',
+  'The downloaded Roblox installer was not signed by Roblox, so it was deleted and not started': 'logRobloxUnsigned',
+  'Update ready: it installs once Roblox and Discord are closed, or when Shroudly quits': 'logUpdateWaiting',
+  'No tray on this desktop: the window is minimised instead of closed': 'logNoTray',
   'Logs cleared': 'logCleared',
   'Auto Mode: starting protection': 'logAutoModeStarting',
   'Restoring system before exit...': 'logRestoringBeforeExit',
@@ -34,6 +39,11 @@ const EXACT = {
 };
 
 const PATTERNS = [
+  [/^Games and apps: the first program connected through Shroudly \((.+)\)$/, 'logAppsFirst', ['host']],
+  [/^Roblox installer downloaded through Shroudly and started \((.+)\)$/, 'logRobloxInstalled', ['version']],
+  [/^Roblox could not be downloaded \((.+)\)$/, 'logRobloxDownloadFailed', ['detail']],
+  [/^([A-Za-z0-9.:_-]+): the site itself refuses this connection/, 'logServiceRefused', ['host']],
+  [/^Discord app mode: (.+) added$/, 'logDiscordAdded', ['builds']],
   [/^Port (\d+) is in use by another program; Shroudly is using (\d+) instead\.$/, 'logPortMoved', ['from', 'to']],
   [/^(.+?) is installed but not connected; that does not interfere\.$/, 'logIdleVpn', ['tools']],
   [/^(\S+): connects, then the network cuts it \((\w+) after (\d+) KB\)\./, 'logCut', ['host', 'reason', 'kb']],

@@ -85,6 +85,7 @@ contextBridge.exposeInMainWorld('electron', {
   stopAdvanced: () => ipcRenderer.invoke('advanced:stop'),
   onProbeResult: (cb) => ipcRenderer.on('dpi:probe-result', (e, p) => cb(p)),
   onSiteBlocked: (cb) => ipcRenderer.on('dpi:site-blocked', (e, p) => cb(p)),
+  onServiceRefused: (cb) => { const h = (e, p) => cb(p); ipcRenderer.on('dpi:service-refused', h); return () => ipcRenderer.removeListener('dpi:service-refused', h); },
   setTitleBarColors: (c) => ipcRenderer.invoke('ui:titlebar', c),
   onNeedRestart: (cb) => ipcRenderer.on('dpi:need-restart', (e, p) => cb(p)),
   onDnsAutoEnabled: (cb) => ipcRenderer.on('dpi:dns-auto-enabled', (e, p) => cb(p)),

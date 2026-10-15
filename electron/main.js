@@ -304,7 +304,7 @@ let idleTimer = null;
 const loading = new WeakSet();  // windows still loading on their way to the screen
 // One-off notices that must not be lost while there is no window: the latest
 // of each is shown once the next window is up.
-const STICKY = new Set(['dpi:need-restart', 'dpi:dns-auto-enabled', 'dpi:site-blocked']);
+const STICKY = new Set(['dpi:need-restart', 'dpi:dns-auto-enabled', 'dpi:site-blocked', 'dpi:service-refused']);
 const pending = new Map();
 
 function windowAlive() { return !!(mainWindow && !mainWindow.isDestroyed()); }
@@ -846,12 +846,9 @@ async function onProbeResult(p) {
   const asked = p && p.host ? userTests.get(String(p.host).toLowerCase()) : 0;
   if (asked) userTests.delete(String(p.host).toLowerCase());
   if (asked && Date.now() - asked < 120000 && engine && engine.isActive()) {
-    const service = await ServiceCheck.serviceCheck(p.host, engine.port, DiscordRelay.socksConnect).catch(() => null);
-    if (service) {
-      addLog('warning', `${p.host}: the site itself refuses this connection (${service === 'region' ? 'a block page' : 'no answer after the handshake'}); Shroudly does not change your address, so it cannot change this`);
-      toWindow('dpi:probe-result', { ...p, service });
-      return;
-    }
+    serviceChecked.delete(String(p.host).toLowerCase());
+    const service = await checkServiceOnce(p.host);
+    if (service) { toWindow('dpi:probe-result', { ...p, service }); return; }
   }
   toWindow('dpi:probe-result', p);
 }
@@ -1084,9 +1081,40 @@ function onAppTunnel(host) {
   if (!appSeen.any) { appSeen.any = true; addLog('info', `Games and apps: the first program connected through Shroudly (${host})`); }
   if (RobloxApp.isRobloxHost(host)) {
     appSeen.robloxAt = Date.now();
-    if (!appSeen.roblox) { appSeen.roblox = true; addLog('success', 'Games and apps: Roblox is connecting through Shroudly'); }
+    if (!appSeen.roblox) {
+      appSeen.roblox = true;
+      addLog('success', 'Games and apps: Roblox is connecting through Shroudly');
+      checkServiceOnce('www.roblox.com');
+    }
     if (appState.bypassing) { appState.bypassing = false; sendAppState(); }
   }
+}
+
+/* The network can be beaten; a service that turns the user away itself (by
+ * country, by policy) cannot, since Shroudly never changes the address. When
+ * that happens it is said plainly, the same way for every site and country:
+ * the user's own site test (onProbeResult), a site the engine could not get
+ * through to, and the services the app modes are for (Roblox, Discord), each
+ * looked at once per session at most. */
+const siteSeen = { robloxBlocked: false };
+const serviceChecked = new Map();   // host -> when
+const serviceRefusals = new Map();  // host -> 'region' | 'stall'
+async function checkServiceOnce(host) {
+  const h = String(host || '').toLowerCase();
+  if (!h || !engine || !engine.isActive()) return null;
+  const last = serviceChecked.get(h) || 0;
+  if (Date.now() - last < 30 * 60 * 1000) return serviceRefusals.get(h) || null;
+  serviceChecked.set(h, Date.now());
+  const kind = await ServiceCheck.serviceCheck(h, engine.port, DiscordRelay.socksConnect).catch(() => null);
+  if (kind) reportServiceRefusal(h, kind);
+  else serviceRefusals.delete(h);
+  return kind;
+}
+function reportServiceRefusal(host, kind) {
+  const first = !serviceRefusals.has(host);
+  serviceRefusals.set(host, kind);
+  if (first) addLog('warning', `${host}: the site itself refuses this connection (${kind === 'region' ? 'a block page' : 'no answer after the handshake'}); Shroudly does not change your address, so it cannot change this`);
+  toWindow('dpi:service-refused', { host, service: kind });
 }
 
 /* A Roblox that runs but has made no connection through Shroudly: started by
@@ -1111,7 +1139,9 @@ async function checkRobloxRoute() {
     return;
   }
   if (key !== robloxSeen.pids) robloxSeen = { pids: key, since: Date.now(), told: false };
-  const silent = Date.now() - robloxSeen.since >= BYPASS_GRACE_MS && appSeen.robloxAt < robloxSeen.since;
+  // Roblox makes its connections in its first seconds, and this looks every
+  // 20 s: connections from just before it was first seen count as its own.
+  const silent = Date.now() - robloxSeen.since >= BYPASS_GRACE_MS && appSeen.robloxAt < robloxSeen.since - 25000;
   if (silent && !appState.needsRestart && !appState.bypassing) {
     appState.bypassing = true;
     sendAppState();
@@ -1187,23 +1217,7 @@ async function applyAppModeNow(on) {
   return { success: true, restartNeeded: appState.needsRestart };
 }
 
-/* Countries where Roblox is blocked by the ISPs (court or regulator orders):
- * the offer is shown there even before Roblox is installed, since the
- * installer is the first thing that fails. Judged from the clock's time
- * zone, which never leaves this computer. */
-const ROBLOX_BLOCKED_ZONES = new Set(['Europe/Istanbul', 'Asia/Istanbul', 'Asia/Qatar', 'Asia/Muscat', 'Asia/Baghdad', 'Africa/Cairo', 'Africa/Algiers', 'Asia/Gaza', 'Asia/Hebron']);
-function robloxBlockedHere() {
-  try { return ROBLOX_BLOCKED_ZONES.has(Intl.DateTimeFormat().resolvedOptions().timeZone); } catch { return false; }
-}
 const OFFER_AGAIN_MS = 14 * 24 * 60 * 60 * 1000;
-
-/* Where Roblox itself, not the network, turns people away: Vietnam's users
- * must use Roblox VN (Roblox's own terms), and Roblox refuses Vietnamese
- * addresses. Shroudly does not change the address, so it says so instead of
- * letting people think it failed. */
-function robloxRegional() {
-  try { return /^Asia\/(Ho_Chi_Minh|Saigon)$/.test(Intl.DateTimeFormat().resolvedOptions().timeZone) ? 'VN' : null; } catch { return null; }
-}
 
 /* The env a Roblox started by Shroudly gets. Shroudly itself may have
  * inherited an older value of ours (started from Explorer before a crash's
@@ -1242,8 +1256,7 @@ ipcMain.handle('apps:status', async (e, opts) => {
     mode: store.get('appMode') ?? null,  // true, false, or null (never asked)
     robloxInstalled: RobloxApp.installed(),
     robloxRunning: running.length > 0,
-    robloxBlockedHere: robloxBlockedHere(),
-    robloxRegional: robloxRegional(),
+    robloxBlocked: siteSeen.robloxBlocked,
     offerSnoozed: Date.now() - declinedAt < OFFER_AGAIN_MS,
     canInstall: process.platform === 'win32',
     storeEdition: storeEditionCache === true,
