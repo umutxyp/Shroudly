@@ -142,6 +142,35 @@ packet-layer backend, `shroudly-core-adv`. It injects a decoy copy of the first
 packet with a low TTL, a bad TCP checksum and a scrambled SNI. The decoy reaches
 the DPI and poisons its state, then dies before it reaches the real server.
 
+Since **2.5.5** it also carries the TCP techniques GoodbyeDPI and zapret use
+and that users on Türk Telekom, Turkcell and Superonline rely on. Each is a flag
+(`core/src/raw_desync.h`), and the common path is unchanged from earlier
+releases:
+
+- **Drops the forged resets** some networks inject to tear a blocked connection
+  down (GoodbyeDPI `-p`). Only inbound 80/443 segments that match the forged
+  signature are dropped — a payload-less RST whose IPv4 IP ID is in the tiny
+  0x0–0xF range the reference tools key on (on Windows, an IPv6 RST with a zero
+  flow label too; the Linux backend queues IPv4 only, as GoodbyeDPI's passive
+  drop also does). A real server's reset normally carries a per-connection IP ID
+  well above that window and is kept; the one genuine reset that lands inside it
+  — Linux's socket-less reset for a closed port, sent with DF set and IP ID 0 —
+  is recognised by that DF-with-zero-ID fingerprint and kept too, so a
+  connection a real server refuses still fails fast. **On by default**, because
+  it only ever removes a packet that matches the forged signature.
+- **Measures the decoy's TTL** from the hop distance to the server, read off the
+  SYN-ACK (GoodbyeDPI/zapret `autottl`), so the decoy dies just before the
+  server instead of at a fixed guess; it falls back to the fixed TTL when the
+  distance can't be measured. **On by default** (the decoy keeps its bad
+  checksum, so a wrong guess still can't reach the server).
+- **Sequence overlap** for the real first segment (zapret `split-seqovl`): the
+  DPI reads overlap junk first while the server keeps the real bytes. Switchable,
+  with a configurable size and pattern; **off by default**.
+- **Faked split / faked disorder** (zapret `fakedsplit` / `fakeddisorder`): the
+  ClientHello is split into two real segments with a low-TTL junk fake at the
+  boundary, in order or with the second real part sent first. Selectable by
+  flag; the decoy stays the proven plain fake **by default**.
+
 - **Opt-in.** Always available under Settings on Windows and Linux. Shroudly
   also offers it by itself when a network filters the way Iran's, China's or
   Russia's do, and when sites connect and are then cut.
