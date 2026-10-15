@@ -47,6 +47,20 @@ const TAIL_UP = { ...ETH, Tailscale: [{ address: '100.64.0.5', family: 'IPv4', i
   t.ok(Array.isArray(r) && r.length === 0, 'nothing running: nothing reported (plain list form)');
 
   t.ok(D.regionOf([{ country: 'IR' }, { country: 'IR' }, { country: 'filter' }]) === 'IR' && D.regionOf([]) === null, 'forged answers -> country');
+
+  // P18: "the system DNS answers nothing" only with the network up. At login
+  // the Wi-Fi often connects after Shroudly has started.
+  const LO = { lo0: [{ address: '127.0.0.1', family: 'IPv4', internal: true }] };
+  const SELF = { ...LO, en0: [{ address: '169.254.10.2', family: 'IPv4', internal: false }, { address: 'fe80::1', family: 'IPv6', internal: false }] };
+  const none = async () => ({ answered: 0, asked: 6, hits: [] });
+  const some = async () => ({ answered: 4, asked: 6, hits: [] });
+  let reached = 0;
+  const reach = (ok) => async () => { reached++; return ok; };
+  t.ok(await D.dnsDead({ probe: { interfaces: LO, dns: none, reach: reach(true) } }) === false && reached === 0, 'P18: no network interface up yet: not dead (nothing is asked)');
+  t.ok(await D.dnsDead({ probe: { interfaces: SELF, dns: none, reach: reach(true) } }) === false && reached === 0, 'P18: only a self-assigned address (no network yet): not dead');
+  t.ok(await D.dnsDead({ probe: { interfaces: ETH, dns: some, reach: reach(true) } }) === false && reached === 0, 'P18: the DNS answers: not dead');
+  t.ok(await D.dnsDead({ probe: { interfaces: ETH, dns: none, reach: reach(false) } }) === false, 'P18: nothing answers and no public address can be reached either (the network is not up): not dead');
+  t.ok(await D.dnsDead({ probe: { interfaces: ETH, dns: none, reach: reach(true) } }) === true, 'P18: the network is up and the DNS still answers nothing: dead');
   console.log(`diagnostics: ${t.count} passed`);
   process.exit(0);
 })().catch((e) => { console.error('FAIL', e.message); process.exit(1); });

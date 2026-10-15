@@ -165,9 +165,21 @@ class EngineManager {
     this.onProxyStatus = hooks.onProxyStatus || (() => {});
     this.proxyStatus = null;
     // A macOS restore recoverSync() had to leave for the administrator's
-    // password: recoverProxyAsAdmin() finishes it once the window is up.
+    // password: { declined } for the window, or null (see recoverProxyAsAdmin).
+    // proxyRecoveryPending: it is still to be asked for by itself, once.
+    this.onProxyRecovery = hooks.onProxyRecovery || (() => {});
+    this.proxyRecovery = null;
     this.proxyRecoveryPending = false;
     this._restartTimer = null;
+    // Starts, stops and settings restarts run one at a time, in the order they
+    // were asked for (_serial); _stops counts the stops asked for and not yet
+    // done, during which nothing may point the system at the engine again.
+    this._ops = Promise.resolve();
+    this._starting = null;
+    this._stops = 0;
+    this._stopGen = 0;
+    // How long after a start a system DNS that answered nothing is looked at again.
+    this.dnsRecheckMs = 20000;
     this.proxy = new SystemProxy(this.log, {
       ...this.proxyOptions,
       // Linux desktops without a proxy setting: the PAC's address is written
@@ -227,6 +239,15 @@ class EngineManager {
   }
 
   isActive() { return this.active; }
+
+  /* A stop has been asked for and is not done yet. */
+  get stopping() { return this._stops > 0; }
+
+  _serial(fn) {
+    const run = this._ops.then(fn);
+    this._ops = run.catch(() => {});
+    return run;
+  }
 
   getStats() {
     return { ...this.stats, uptime: this.startedAt ? Date.now() - this.startedAt : 0 };
@@ -342,7 +363,20 @@ class EngineManager {
     this._setAdvice({ cut: { host, reason } });
   }
 
-  async start() {
+  /* Asked again while a start is under way (the automatic start at launch
+   * and a click on Start at the same moment): the same start, never a second
+   * engine and PAC server. A start asked for after a Stop is a new one, made
+   * once that stop is done. */
+  start() {
+    if (this._starting) return this._starting;
+    const p = this._serial(() => this._start());
+    this._starting = p;
+    const done = () => { if (this._starting === p) this._starting = null; };
+    p.then(done, done);
+    return p;
+  }
+
+  async _start() {
     if (this.active) return { success: true, alreadyActive: true };
 
     const bin = coreBinaryPath();
@@ -382,15 +416,25 @@ class EngineManager {
       throw new Error(this.lastError || 'Engine failed to start');
     }
 
+    let status;
     try {
       // When an engine restart kept the system setting (see _onClose), this
       // only points the PAC at the new port.
-      this._setProxyStatus(await this.proxy.apply(this.port, cfg.routeMode, cfg.siteList));
+      status = await this.proxy.apply(this.port, cfg.routeMode, cfg.siteList);
     } catch (e) {
       this.log('error', `Could not set system proxy: ${e.message}`);
       await this._cleanup();
       throw e;
     }
+    // The engine ended while the system was being pointed at it. _onClose
+    // had no session to restart then: undo it all and fail this start, never
+    // show protection on with no engine behind it.
+    if (!this.proc) {
+      this.log('error', `Engine exited unexpectedly (code ${this._exitCode ?? '?'}).`);
+      await this._cleanup();
+      throw new Error(this.lastError || 'The engine exited while starting');
+    }
+    this._setProxyStatus(status);
 
     this.active = true;
     this.startedAt = Date.now();
@@ -462,9 +506,7 @@ class EngineManager {
     if (d.localDns && d.localDns.programs && d.localDns.programs.length) {
       this.log('info', `System DNS is a program on this computer: ${d.localDns.programs.join(', ')}`);
     }
-    if (d.dnsAsked && d.dnsAnswered === 0) {
-      this.log('warning', 'The system DNS answered none of the test names. Programs that do not go through Shroudly cannot reach anything; check the DNS program or the network settings.');
-    }
+    if (d.dnsAsked && d.dnsAnswered === 0) this._recheckDns();
 
     if (d.needRestart.length) {
       // The most common report by far is "works in my browser, not in the
@@ -514,6 +556,24 @@ class EngineManager {
       }
       if (typeof this.onDnsTampering === 'function') this.onDnsTampering(d.forgedDns);
     }
+  }
+
+  /* The system DNS answered none of the test names at the start. At login
+   * that is mostly the network not being up yet (the Wi-Fi connects after
+   * Shroudly starts), so it is looked at once more a little later, and said
+   * only if the DNS still answers nothing while the network itself is up
+   * (diagnostics.dnsDead). */
+  _recheckDns() {
+    clearTimeout(this._dnsRecheck);
+    this._dnsRecheck = setTimeout(async () => {
+      if (!this.active) return;
+      let dead = false;
+      try { dead = await diagnostics.dnsDead(); } catch {}
+      if (dead && this.active) {
+        this.log('warning', 'The system DNS answered none of the test names. Programs that do not go through Shroudly cannot reach anything; check the DNS program or the network settings.');
+      }
+    }, this.dnsRecheckMs);
+    if (this._dnsRecheck.unref) this._dnsRecheck.unref();
   }
 
   _onLine(line, finishStart) {
@@ -671,6 +731,7 @@ class EngineManager {
   async _onClose(code) {
     const wasActive = this.active;
     this.proc = null;
+    this._exitCode = code;
     if (this.expectingStop || !wasActive) return;
 
     this.log('error', `Engine exited unexpectedly (code ${code}).`);
@@ -681,12 +742,18 @@ class EngineManager {
     // and setting it again would ask for the password again. It stays, and
     // the restarted engine's port goes into the PAC.
     const kept = retry && this._keepsProxy();
+    // Off at once, so nothing points the system at the dead engine while
+    // the restore runs (a re-apply, a settings restart).
+    this.active = false;
+    this._stopStatsPoll();
+    const gen = this._stopGen;
     if (!kept) {
       await this.proxy.restore();
       this._setProxyStatus(null);
     }
-    this.active = false;
     this.onStatusChange(false);
+    // A Stop pressed while that restore ran: nothing comes back after it.
+    if (gen !== this._stopGen) return;
 
     if (retry) {
       this.restarts++;
@@ -710,17 +777,23 @@ class EngineManager {
 
   /* Apply changed settings while active: replace the engine process but keep
    * the system proxy pointed at it, so the switch is a brief blip instead of a
-   * full proxy off/on cycle. */
-  async restart() {
-    if (!this.active || this.restarting) return { success: true };
+   * full proxy off/on cycle. Nothing once a stop is asked for: a settings
+   * change and a Stop within a second must end stopped. */
+  restart() {
+    if (!this.active || this.restarting || this.stopping) return Promise.resolve({ success: true });
+    return this._serial(() => this._restart());
+  }
+
+  async _restart() {
+    if (!this.active || this.restarting || this.stopping) return { success: true };
     const cfg = this._settings();
     // A changed port setting needs a full stop and start; otherwise keep the
     // port this session is actually on (it may be a free one we moved to).
     // A system proxy set with an administrator's password stays through it
     // (see _onClose): only the PAC learns the new port.
     if (cfg.port !== (this.configuredPort || this.port)) {
-      await this.stop({ keepProxy: this._keepsProxy() });
-      return this.start();
+      await this._stop({ keepProxy: this._keepsProxy() });
+      return this._start();
     }
     cfg.port = this.port;
     this.restarting = true;
@@ -760,13 +833,27 @@ class EngineManager {
    * macOS restore ask for the administrator's password, and only then goes
    * what was written for the next login on Linux desktops without a proxy
    * setting; a quit, an update or a restart keeps it (system-proxy.js).
-   * keepProxy: an engine restart that keeps an administrator-set proxy. */
-  async stop({ user = false, keepProxy = false } = {}) {
-    // A crash restart still waiting must not undo this stop.
+   * keepProxy: an engine restart that keeps an administrator-set proxy.
+   * From the moment it is asked for, re-applies, settings restarts and the
+   * administrator button do nothing (stopping), and a start still under way
+   * finishes first and is then stopped, so it always ends stopped. */
+  stop(opts = {}) {
+    this._stops++;
+    this._stopGen++;
+    // A start asked for after this is a new one, and a crash restart still
+    // waiting must not undo it.
+    this._starting = null;
     clearTimeout(this._restartTimer);
     this._restartTimer = null;
+    const p = this._serial(() => this._stop(opts));
+    const done = () => { this._stops--; };
+    p.then(done, done);
+    return p;
+  }
+
+  async _stop({ user = false, keepProxy = false } = {}) {
     if (!this.active && !this.proc) {
-      if (!keepProxy) { await this.proxy.restore({ interactive: user }); this._setProxyStatus(null); }
+      if (!keepProxy) { await this.proxy.restore({ interactive: user }); this._setProxyStatus(null); this._refreshRecovery(); }
       if (user) this._clearProxyEnv();
       return { success: true };
     }
@@ -774,8 +861,9 @@ class EngineManager {
     this._stopStatsPoll();
 
     // Restore proxy first so traffic goes direct the instant we stop.
+    let restored = true;
     if (!keepProxy) {
-      await this.proxy.restore({ interactive: user });
+      restored = (await this.proxy.restore({ interactive: user })) !== false;
       this._setProxyStatus(null);
     }
     if (user) this._clearProxyEnv();
@@ -792,7 +880,12 @@ class EngineManager {
     this.doh.stop(); this.dohPort = 0;
     this.store.set('runtimeActive', false);
     this.onStatusChange(false);
-    if (!keepProxy) this.log('success', 'Shroudly engine stopped; system restored');
+    if (!keepProxy) {
+      // Only said restored when it was (the proxy has said what was not).
+      this.log('success', restored ? 'Shroudly engine stopped; system restored' : 'Shroudly engine stopped');
+      // A restore whose password dialog was dismissed: the window offers it.
+      this._refreshRecovery();
+    }
     return { success: true };
   }
 
@@ -814,26 +907,46 @@ class EngineManager {
     return this.proxy.updateList(this._settings().siteList);
   }
 
+  /* Also the window's "Set Shroudly again" after another program took the
+   * system proxy over. Resolves to { success, status }: the status it ends
+   * with, null when protection went off meanwhile. */
   async reapplyProxy() {
-    if (!this.active) return { success: true };
+    // Not while protection is off or on its way off (a Stop pressed within a
+    // second of a settings change): a re-apply finishing after the Stop would
+    // point the system at an engine that is gone.
+    if (!this._live()) return { success: true, status: null };
     const cfg = this._settings();
+    const st = this.proxyStatus;
+    const replaced = !!(st && st.code === 'replaced');
     try {
-      // Set with an administrator's password (macOS): the system already
-      // points at our PAC, and re-applying would ask for the password again,
-      // so only the PAC's answer changes.
-      if (this.proxyStatus && this.proxyStatus.admin && this.proxy.updateRouting &&
+      // Set with an administrator's password (macOS) and still ours: the
+      // system already points at our PAC, and re-applying would ask for the
+      // password again, so only the PAC's answer changes. Taken over by
+      // another program, it has to be set again, password and all.
+      if (st && st.admin && !replaced && this.proxy.updateRouting &&
           this.proxy.updateRouting(cfg.routeMode, cfg.siteList)) {
         this.log('success', 'Proxy routing updated');
-        return { success: true };
+        return { success: true, status: st };
       }
       await this.proxy.restore();                       // back to the user's own settings
-      this._setProxyStatus(await this.proxy.apply(this.port, cfg.routeMode, cfg.siteList));
-      this.log('success', 'Proxy routing updated');
+      let status = this._live() ? await this.proxy.apply(this.port, cfg.routeMode, cfg.siteList) : null;
+      if (status && replaced && st.admin && status.code === 'needs_admin' && this.proxy.applyAsAdmin && this._live()) {
+        status = await this.proxy.applyAsAdmin();
+      }
+      // Stopped meanwhile: that stop's restore runs after this one's apply
+      // (the proxy makes one change at a time), and its status stands.
+      if (!status || status.code === 'not_active' || !this._live()) return { success: true, status: null };
+      this._setProxyStatus(status);
+      if (status.ok || !replaced) this.log('success', 'Proxy routing updated');
+      return { success: true, status };
     } catch (e) {
       this.log('error', `Could not update proxy routing: ${e.message}`);
+      return { success: false, status: this.proxyStatus };
     }
-    return { success: true };
   }
+
+  /* Protection is on, and no stop is on its way. */
+  _live() { return this.active && !this.stopping; }
 
   _setProxyStatus(status) {
     this.proxyStatus = status || null;
@@ -845,11 +958,11 @@ class EngineManager {
    * button in the window; resolves to the new status (code 'ok', 'cancelled'
    * or 'needs_admin'). */
   async applyProxyAsAdmin() {
-    if (!this.active || !this.proxy.applyAsAdmin) return { ok: false, code: 'not_active' };
+    if (!this._live() || !this.proxy.applyAsAdmin) return { ok: false, code: 'not_active' };
     const status = await this.proxy.applyAsAdmin();
     // Protection was stopped (and maybe started again) while the dialog was
     // open: that answer belongs to no session that is still running.
-    if (!this.active || !status || status.code === 'not_active') return status || { ok: false, code: 'not_active' };
+    if (!this._live() || !status || status.code === 'not_active') return status || { ok: false, code: 'not_active' };
     this._setProxyStatus(status);
     return status;
   }
@@ -892,7 +1005,8 @@ class EngineManager {
     // 'kept': ours, still set, waiting for an administrator's password. Not
     // 2.0.0's leftover: switching it off blindly would lose the user's own
     // setting recorded with it.
-    this.proxyRecoveryPending = restored === 'kept';
+    this.proxyRecovery = restored === 'kept' ? SystemProxy.pendingAdminRecovery(this.proxyOptions) : null;
+    this.proxyRecoveryPending = !!(this.proxyRecovery && !this.proxyRecovery.declined);
     if (!restored && this.store.get('runtimeActive')) {
       this.log('info', 'Recovering: restoring proxy from previous session');
       try { SystemProxy.resetLegacySync(this.log); } catch {}
@@ -901,15 +1015,31 @@ class EngineManager {
     this.store.set('runtimeActive', false);
   }
 
-  /* Once the window is up, with protection staying off: finish a macOS
-   * restore that needs the administrator's password (one dialog, in one
-   * process; see SystemProxy.recoverAsAdmin). When protection starts instead,
-   * apply() carries the recorded settings over and its own password request
-   * covers both. */
-  async recoverProxyAsAdmin() {
-    if (!this.proxyRecoveryPending) return false;
+  /* With protection staying off: finish a macOS restore that needs the
+   * administrator's password (one dialog, in one process; see
+   * SystemProxy.recoverAsAdmin). When protection starts instead, apply()
+   * carries the recorded settings over and its own password request covers
+   * both.
+   * By itself (user false) it asks once per run, and only with the window on
+   * screen (windowShown): never from the tray alone, where a dialog out of
+   * nowhere is all the user would see. Once they have dismissed it, only
+   * the window's button (user true) asks again. */
+  async recoverProxyAsAdmin({ user = false, windowShown = true } = {}) {
+    if (!this.proxyRecovery) return false;
+    if (!user && (!this.proxyRecoveryPending || this.proxyRecovery.declined || !windowShown)) return false;
     this.proxyRecoveryPending = false;
-    try { return await SystemProxy.recoverAsAdmin(this.proxyOptions, this.log); } catch { return false; }
+    let done = false;
+    try { done = await SystemProxy.recoverAsAdmin({ ...this.proxyOptions, userAsked: user }, this.log); } catch {}
+    this._refreshRecovery(done);
+    return done;
+  }
+
+  /* What the window shows about it: still waiting (declined or not), or done. */
+  _refreshRecovery(done = false) {
+    const next = done ? null : SystemProxy.pendingAdminRecovery(this.proxyOptions);
+    if (JSON.stringify(next) === JSON.stringify(this.proxyRecovery)) return;
+    this.proxyRecovery = next;
+    try { this.onProxyRecovery(next); } catch {}
   }
 }
 

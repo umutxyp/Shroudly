@@ -22,7 +22,22 @@
  *     or deleted by the next Start: the user's own PAC survives
  *   - which Linux desktop it is, by Chromium's own rules
  *   - another program taking the proxy over is noticed, but not our own stop
- *     and not GNOME's setting on KDE
+ *     and not GNOME's setting on KDE, nor a check that read during a
+ *     re-apply; an engine restart does not hide it (P4, P13)
+ *   - the PAC fails open ("; DIRECT") on XFCE, LXQt and other desktops only
+ *     (P1), and its port comes from a fixed range (P16)
+ *   - apply() and restore() run in order: a Stop during a re-apply ends
+ *     restored, two applies make one PAC server (P2, P9)
+ *   - a restore that did not take is not reported as done and keeps the
+ *     state file (P7), which is written whole (P10) and names its owner, whose
+ *     live session the login hook leaves alone (P12)
+ *   - macOS: the user's own file:// PAC comes back (P5); a dismissed password
+ *     dialog is remembered and not repeated at every login or start (P6); the
+ *     login hook's dialog is in the user's language (P17)
+ *   - EngineManager: a Stop wins over re-applies and restarts (P2), "Set
+ *     Shroudly again" after a takeover on a Standard account sets it again
+ *     (P4), the recovery dialog only with the window on screen (P6), and the
+ *     dead-DNS warning only with the network up (P18)
  * XFCE, LXQt and other desktops: system-proxy-env.test.js. */
 
 const fs = require('fs');
@@ -142,18 +157,31 @@ const readState = (file) => { try { return JSON.parse(fs.readFileSync(file, 'utf
 
 (async () => {
   // ── the PAC ─────────────────────────────────────────────────────────
-  for (const platform of ['win32', 'linux', 'darwin']) {
-    const sp = new SystemProxy(() => {}, { platform });
+  for (const [platform, env] of [['win32', {}], ['linux', { XDG_CURRENT_DESKTOP: 'GNOME' }], ['linux', { XDG_CURRENT_DESKTOP: 'KDE' }], ['darwin', {}]]) {
+    const sp = new SystemProxy(() => {}, { platform, env });
+    const where = `${platform}${env.XDG_CURRENT_DESKTOP ? `, ${env.XDG_CURRENT_DESKTOP}` : ''}`;
     sp.mode = 'all';
     const find = pacEval(sp.pacBody(10808));
     const want = platform === 'darwin' ? 'SOCKS5 127.0.0.1:10808; SOCKS 127.0.0.1:10808' : 'SOCKS5 127.0.0.1:10808';
-    t.ok(find('discord.com') === want, `PAC (${platform}): a routed host gets "${want}", no DIRECT to slip around Shroudly`);
+    t.ok(find('discord.com') === want, `PAC (${where}): a routed host gets "${want}", no DIRECT to slip around Shroudly`);
     t.ok(['nas', 'printer.local', 'router.lan', '192.168.1.1', '10.2.3.4', '172.20.0.1', '169.254.1.1', '100.100.1.1', '127.0.0.1', '[::1]']
-      .every((h) => find(h) === 'DIRECT'), `PAC (${platform}): this machine and the local network stay direct`);
-    t.ok(find('172.32.0.1') === want && find('8.8.8.8') === want, `PAC (${platform}): public addresses are routed`);
+      .every((h) => find(h) === 'DIRECT'), `PAC (${where}): this machine and the local network stay direct`);
+    t.ok(find('172.32.0.1') === want && find('8.8.8.8') === want, `PAC (${where}): public addresses are routed`);
     sp.mode = 'listed'; sp.list = ['discord.com'];
     const listed = pacEval(sp.pacBody(10808));
-    t.ok(listed('cdn.discord.com') === want && listed('example.com') === 'DIRECT', `PAC (${platform}, listed): listed sites routed with no DIRECT fallback, the rest direct`);
+    t.ok(listed('cdn.discord.com') === want && listed('example.com') === 'DIRECT', `PAC (${where}, listed): listed sites routed with no DIRECT fallback, the rest direct`);
+  }
+  // P1: XFCE, LXQt and other desktops, where Chromium keeps the PAC it read
+  // and its address from its environment: it fails open, so a stop, a quit
+  // or a crash never leaves Chromium browsers and apps without internet.
+  for (const env of [{ XDG_CURRENT_DESKTOP: 'XFCE' }, { XDG_CURRENT_DESKTOP: 'LXQt' }, { XDG_CURRENT_DESKTOP: 'sway' }, {}]) {
+    const sp = new SystemProxy(() => {}, { platform: 'linux', env });
+    sp.mode = 'all';
+    const find = pacEval(sp.pacBody(10808));
+    sp.mode = 'listed'; sp.list = ['discord.com'];
+    const listed = pacEval(sp.pacBody(10808));
+    t.ok(find('discord.com') === 'SOCKS5 127.0.0.1:10808; DIRECT' && find('192.168.1.1') === 'DIRECT' && listed('cdn.discord.com') === 'SOCKS5 127.0.0.1:10808; DIRECT' && listed('example.com') === 'DIRECT',
+      `PAC (P1, linux, ${env.XDG_CURRENT_DESKTOP || 'no desktop name'}): a routed host gets "SOCKS5 127.0.0.1:10808; DIRECT" (fails open)`);
   }
 
   // ── Windows ─────────────────────────────────────────────────────────
@@ -246,6 +274,168 @@ const readState = (file) => { try { return JSON.parse(fs.readFileSync(file, 'utf
       t.ok(ps0 > 0 && ran(fx, 'powershell.exe').length === ps0, 'ownership: no PowerShell on the timer (WinINET is told only on apply and restore)');
       await sp.restore();
       t.ok(!sp._ownTimer, 'ownership: the check stops with the restore');
+    }
+    // P4: taken over, then an engine restart applies again while the setting
+    // is kept: still reported as taken over, not as set.
+    {
+      const sp = new SystemProxy(() => {}, { platform: 'win32', stateFile: file, onOwnership: () => {}, ownershipIntervalMs: 60000 });
+      await sp.apply(10808, 'all');
+      reg.set('AutoConfigURL', { type: 'REG_SZ', data: 'http://127.0.0.1:7890/pac' });
+      await sp.checkOwnership();
+      const again = await sp.apply(10909, 'all');
+      t.ok(again.code === 'replaced' && !again.ok && again.lost[0] === 'AutoConfigURL' && again.replacedFrom && again.replacedFrom.code === 'ok',
+        'P4: apply() while taken over says "replaced" (the takeover is not hidden by an engine restart)');
+      reg.set('AutoConfigURL', { type: 'REG_SZ', data: sp.pacUrl });
+      await sp.checkOwnership();
+      t.ok((await sp.apply(10909, 'all')).code === 'ok', 'P4: …and "ok" again once the setting is ours again');
+      await sp.restore();
+    }
+    // P13: a takeover check that read in the middle of a re-apply (restore,
+    // then apply) is not a takeover.
+    {
+      const seen = [];
+      let readGate = null;
+      let answerGate = null;
+      const fx2 = fakeExec({ 'reg.exe': fakeReg(reg) });
+      fx2.run = async (cmd, args) => { if (readGate) await readGate; const out = fx2.runSync(cmd, args); if (answerGate) await answerGate; return out; };
+      SystemProxy._setExec(fx2);
+      const sp = new SystemProxy(() => {}, { platform: 'win32', stateFile: file, onOwnership: (o, i) => seen.push([o, i.lost]), ownershipIntervalMs: 60000 });
+      await sp.apply(10808, 'all');
+      let letRead; let letAnswer;
+      readGate = new Promise((r) => { letRead = r; });
+      const checking = sp.checkOwnership();
+      await sp.restore();                      // the user's own value back for a moment
+      answerGate = new Promise((r) => { letAnswer = r; });
+      letRead(); readGate = null;              // the check reads it now
+      await sleep(10);
+      await sp.apply(10808, 'all');            // and ours again
+      letAnswer(); answerGate = null;
+      await checking;
+      t.ok(seen.length === 0 && sp.applied && reg.get('AutoConfigURL').data === sp.pacUrl,
+        'P13: a check that read during a re-apply reports no takeover');
+      await sp.restore();
+      SystemProxy._setExec(fx);
+    }
+    // P7: the restore's own commands fail (reg.exe refused): not reported as
+    // restored, and the state file, the only record of the user's own PAC, stays.
+    {
+      const log = logs();
+      const sp = new SystemProxy(log, { platform: 'win32', stateFile: file });
+      await sp.apply(10808, 'all');
+      const real = fakeReg(reg);
+      SystemProxy._setExec(fakeExec({ 'reg.exe': (args) => { if (args[0] !== 'query') { const e = new Error('ERROR: Access is denied.'); e.status = 1; throw e; } return real(args); } }));
+      const ok = await sp.restore();
+      t.ok(ok === false && fs.existsSync(file) && /^http:\/\/127\.0\.0\.1:\d+\/proxy\.pac$/.test(reg.get('AutoConfigURL').data)
+        && readState(file).snapshot.AutoConfigURL.data === 'http://wpad.corp/proxy.pac'
+        && log.lines.includes('warning: System proxy settings could not be restored yet; they will be at the next start') && !log.lines.includes('success: System proxy settings restored'),
+      'P7: a restore reg.exe refused is reported as not done, and the state file with the user\'s own PAC stays');
+      SystemProxy._setExec(fx);
+      t.ok(SystemProxy.recoverSync({ stateFile: file, platform: 'win32' }) === true && JSON.stringify([...reg]) === before && !fs.existsSync(file),
+        'P7: …and the next recovery puts it back exactly');
+    }
+    // P2 and P9: apply() and restore() run one at a time, in order: a restore
+    // asked for during an apply comes after it, and two applies at once make
+    // one PAC server.
+    {
+      const sp = new SystemProxy(() => {}, { platform: 'win32', stateFile: file });
+      const urls = [];
+      const orig = sp.startPacServer.bind(sp);
+      sp.startPacServer = async (...a) => { const u = await orig(...a); urls.push(u); return u; };
+      const [a, b] = await Promise.all([sp.apply(10808, 'all'), sp.apply(10808, 'all')]);
+      t.ok(urls.length === 1 && a.ok && b.ok && a.pacUrl === b.pacUrl, 'P9: two applies at once: one PAC server, one address');
+      const reapply = sp.restore().then(() => sp.apply(10808, 'listed', ['discord.com']));
+      const stop = (async () => { await sleep(0); return sp.restore(); })();
+      await Promise.all([reapply, stop]);
+      const open = await Promise.all(urls.map((u) => new Promise((r) => { const s = require('net').connect(Number(new URL(u).port), '127.0.0.1'); s.once('connect', () => { s.destroy(); r(true); }); s.once('error', () => r(false)); })));
+      t.ok(!sp.applied && JSON.stringify([...reg]) === before && !fs.existsSync(file) && !open.some(Boolean),
+        'P2: a Stop during a re-apply is done after it: nothing left set, no PAC server left listening');
+    }
+    // P10: the state file is written whole or not at all. A write that fails
+    // half-way (a full disk) leaves the previous one exactly as it was.
+    {
+      const sp = new SystemProxy(() => {}, { platform: 'win32', stateFile: file });
+      await sp.apply(10808, 'all');
+      const prev = readText(file);
+      const realWrite = fs.writeFileSync;
+      fs.writeFileSync = function (f, data, ...rest) {
+        if (String(data).includes('"snapshot"')) {
+          realWrite.call(fs, f, String(data).slice(0, 25), ...rest);
+          const e = new Error('ENOSPC: no space left on device, write'); e.code = 'ENOSPC'; throw e;
+        }
+        return realWrite.call(fs, f, data, ...rest);
+      };
+      try { sp.updatePort(10909); } finally { fs.writeFileSync = realWrite; }
+      t.ok(readText(file) === prev && readState(file).port === 10808 && !fs.readdirSync(path.dirname(file)).some((f) => f.includes('.shroudly-')),
+        'P10: a state file write that fails half-way leaves the previous one whole, and no temporary file');
+      sp.stopPacServer();
+      t.ok(SystemProxy.recoverSync({ stateFile: file, platform: 'win32' }) === true && JSON.stringify([...reg]) === before,
+        'P10: …so a recovery after a power cut still puts everything back');
+      // A state file that cannot be read at all: our PAC is at least switched off.
+      reg.set('AutoConfigURL', { type: 'REG_SZ', data: 'http://127.0.0.1:10840/proxy.pac' });
+      fs.writeFileSync(file, '{"v":2,"platform":"win32","port":10808,"pacUrl":"http://127.0.0');
+      t.ok(SystemProxy.recoverSync({ stateFile: file, platform: 'win32' }) === false && !reg.has('AutoConfigURL') && !fs.existsSync(file),
+        'P10: a state file cut short is not just deleted: our PAC still set is switched off');
+      reg.set('AutoConfigURL', { type: 'REG_SZ', data: 'http://wpad.corp/proxy.pac' });
+    }
+    // P12: the login hook's restore (--restore-proxy) leaves alone the state
+    // file of a Shroudly that is running: started at the same login, it is
+    // that session's live setting, not a leftover.
+    {
+      const other = spawn('sleep', ['30']);
+      // ps (macOS, Linux) and tasklist (Windows) name the process behind an id.
+      const psName = { [other.pid]: 'sleep' };
+      SystemProxy._setExec(fakeExec({
+        'reg.exe': fakeReg(reg),
+        ps: (args) => `${psName[Number(args[args.length - 1])] || ''}\n`,
+        'tasklist.exe': (args) => { const pid = Number(String(args[1]).replace('PID eq ', '')); return psName[pid] ? `"${psName[pid]}.exe","${pid}","Console","1","1,000 K"\r\n` : 'INFO: No tasks are running which match the specified criteria.\r\n'; },
+      }));
+      const boot = SystemProxy._owner().boot;
+      const live = { v: 2, platform: 'win32', port: 10808, pacUrl: 'http://127.0.0.1:10840/proxy.pac',
+        snapshot: { form: 'pac', appliedMode: 'all', AutoConfigURL: { type: 'REG_SZ', data: 'http://wpad.corp/proxy.pac' } } };
+      const leftover = (owner) => {
+        fs.mkdirSync(path.dirname(file), { recursive: true });
+        fs.writeFileSync(file, JSON.stringify({ ...live, owner }));
+        reg.set('AutoConfigURL', { type: 'REG_SZ', data: live.pacUrl });
+      };
+      leftover({ pid: other.pid, boot, exe: 'sleep' });
+      t.ok(['linux', 'darwin', 'win32'].every((pl) => SystemProxy._ownerAlive({ pid: other.pid, boot, exe: 'sleep' }, pl))
+        && !SystemProxy._ownerAlive({ pid: other.pid, boot, exe: 'Shroudly' }, 'linux') && !SystemProxy._ownerAlive({ pid: other.pid, boot, exe: 'Shroudly' }, 'win32'),
+      'P12: a running owner is told by its process id, this boot and its program name (ps, tasklist)');
+      t.ok(SystemProxy.recoverSync({ stateFile: file, platform: 'win32', skipIfOwnerAlive: true }) === 'running' && fs.existsSync(file) && reg.get('AutoConfigURL').data === live.pacUrl,
+        'P12: the state file of a running Shroudly: not restored, not deleted');
+      for (const [why, owner] of [['its process is gone', { pid: 2147483646, boot, exe: 'sleep' }], ['it was before a restart', { pid: other.pid, boot: boot - 86400, exe: 'sleep' }],
+        ['the process id now belongs to another program', { pid: other.pid, boot, exe: 'Shroudly' }]]) {
+        leftover(owner);
+        t.ok(SystemProxy.recoverSync({ stateFile: file, platform: 'win32', skipIfOwnerAlive: true }) === true && JSON.stringify([...reg]) === before && !fs.existsSync(file),
+          `P12: a leftover whose owner is not running (${why}) is restored`);
+      }
+      leftover({ pid: other.pid, boot, exe: 'sleep' });
+      t.ok(SystemProxy.recoverSync({ stateFile: file, platform: 'win32' }) === true && JSON.stringify([...reg]) === before,
+        'P12: the app\'s own start (the only Shroudly then) restores regardless');
+      other.kill('SIGKILL');
+      const sp = new SystemProxy(() => {}, { platform: 'win32', stateFile: file });
+      SystemProxy._setExec(fx);
+      await sp.apply(10808, 'all');
+      const owner = readState(file).owner;
+      t.ok(owner && owner.pid === process.pid && Math.abs(owner.boot - boot) <= 1 && owner.exe === path.basename(process.execPath), 'P12: the state file names the Shroudly that wrote it');
+      await sp.restore();
+    }
+    // P16: the PAC's port comes from a fixed range below every system's
+    // random ports, clear of Shroudly's own.
+    {
+      const ports = SystemProxy.pacPorts();
+      t.ok(ports.length === 20 && new Set(ports).size === 20 && ports.every((p) => p >= 10840 && p <= 10859),
+        'P16: the PAC\'s ports are 10840-10859 (below 32768, clear of 10808-10828, 10809, 10810)');
+      const free = (port) => new Promise((r) => { const s = require('net').createServer(); s.once('error', () => r(false)); s.listen(port, '127.0.0.1', () => s.close(() => r(true))); });
+      const squat = require('net').createServer();
+      await new Promise((r) => squat.listen(ports[0], '127.0.0.1', r));
+      let want = 0;
+      for (const p of ports.slice(1)) if (await free(p)) { want = p; break; }
+      const sp = new SystemProxy(() => {}, { platform: 'win32', stateFile: file });
+      await sp.apply(10808, 'all');
+      t.ok(sp.pacPort === want, `P16: the first free one is used (${sp.pacPort}; ${ports[0]} was taken)`);
+      await sp.restore();
+      squat.close();
     }
   }
 
@@ -435,12 +625,15 @@ const readState = (file) => { try { return JSON.parse(fs.readFileSync(file, 'utf
     }
     {
       // A13: a PAC address read back from the state file reaches networksetup
-      // (and a root shell) only as plain http(s).
+      // (and a root shell) only when nothing in it can end the command or
+      // pass for an option; P5: whatever its kind otherwise.
       const back = (url) => SystemProxy._macRestoreArgs({ name: 'Wi-Fi', prevAuto: { enabled: true, url } });
       const offOnly = JSON.stringify([['-setautoproxystate', 'Wi-Fi', 'off']]);
-      t.ok(['http://x/a\n-evil', 'http://x/\u0007', 'file:///Users/x/p.pac', 'javascript:alert(1)', 'http://a b/p.pac', '-setautoproxystate', ' ']
-        .every((u) => JSON.stringify(back(u)) === offOnly), 'macOS (A13): a PAC address that is not plain http(s), or has control characters, is switched off, never written');
-      t.ok(back('https://corp.example/p.pac')[0][2] === 'https://corp.example/p.pac' && back('HTTP://wpad.lan/p.pac')[0][2] === 'HTTP://wpad.lan/p.pac', 'macOS (A13): an ordinary one is put back');
+      t.ok(['http://x/a\n-evil', 'http://x/\ra', 'http://x/\u0000', 'http://x/\u0007', '-setautoproxystate', ' ', '(null)', 'http://127.0.0.1:50226/proxy.pac']
+        .every((u) => JSON.stringify(back(u)) === offOnly), 'macOS (A13): a PAC address with a control character or a leading "-", ours, or none, is switched off, never written');
+      t.ok(['https://corp.example/p.pac', 'HTTP://wpad.lan/p.pac', 'file:///Library/Corp/proxy.pac', 'file:///Users/x/My PAC/p.pac', 'http://wpad.lan/p.pac?a=1&b=$(x)']
+        .every((u) => JSON.stringify(back(u)) === JSON.stringify([['-setautoproxyurl', 'Wi-Fi', u], ['-setautoproxystate', 'Wi-Fi', 'on']])),
+      'macOS (P5): the user\'s own PAC comes back as it was, file:// and all');
       const own = new SystemProxy(() => {}, { platform: 'darwin', adminPrompt: (k) => (k === 'apply' ? 'In your language' : undefined) });
       t.ok(own._prompt('apply') === 'In your language' && /^Shroudly needs an administrator's password/.test(own._prompt('restore')),
         'macOS (A13): the dialog\'s sentence comes from the app (translated) or falls back to English');
@@ -530,8 +723,13 @@ const readState = (file) => { try { return JSON.parse(fs.readFileSync(file, 'utf
       process.kill(helper, 'SIGKILL'); // the helper gone, our PAC still set
       await waitFor(() => !alive(helper));
       osa.refuse = CANCEL;
+      const stopLog = logs();
+      sp.log = stopLog;
       t.ok(await sp.restore({ interactive: true }) === false && fs.existsSync(file) && usb(readState(file)).url === 'http://wpad.lan/p.pac',
         'macOS admin: helper gone and the password refused at Stop: the state file stays, with the user\'s own PAC');
+      t.ok(readState(file).declined > 0 && stopLog.lines.includes('warning: Administrator password not given; the proxy settings were not put back')
+        && !stopLog.lines.some((l) => l.includes('they will be at the next start')),
+      'macOS admin (P6): a dialog dismissed at Stop is remembered (the next start does not ask by itself) and said as such');
       const kept = fs.readFileSync(file, 'utf8');
       osa.refuse = null;
       const st = await sp.apply(10808, 'all');
@@ -546,6 +744,24 @@ const readState = (file) => { try { return JSON.parse(fs.readFileSync(file, 'utf
         'macOS (A2): with the password, the new snapshot carries the user\'s own PAC over instead of our stale one');
       await sp.restore();
       t.ok(sameAs(before, nsState().services) && !fs.existsSync(file), 'macOS (A2): …and stopping puts the user\'s own PAC back');
+      nsInit();
+    }
+    if (sh) {
+      // P5: a PAC of the user's own at a file:// address comes back on, by
+      // networksetup (an administrator account) and by the root helper (a
+      // Standard account, with the password).
+      for (const denied of [false, true]) {
+        nsInit();
+        const s = nsState(); s.denied = denied; s.services['USB 10/100/1000 LAN'].auto = { enabled: true, url: 'file:///Library/Corp/proxy.pac' }; FakeNS.save(nsFile, s);
+        const sp = new SystemProxy(() => {}, { platform: 'darwin', stateFile: file });
+        await sp.apply(10808, 'all');
+        if (denied) await sp.applyAsAdmin();
+        const on = ourPacOn(nsState().services['USB 10/100/1000 LAN']);
+        await sp.restore();
+        const usbNow = nsState().services['USB 10/100/1000 LAN'].auto;
+        t.ok(on && usbNow.enabled && usbNow.url === 'file:///Library/Corp/proxy.pac' && !fs.existsSync(file),
+          `macOS (P5, ${denied ? 'Standard account, root helper' : 'administrator account'}): the user's file:// PAC is back, switched on`);
+      }
       nsInit();
     }
     if (sh) {
@@ -627,6 +843,20 @@ const readState = (file) => { try { return JSON.parse(fs.readFileSync(file, 'utf
       t.ok(await SystemProxy.recoverAsAdmin({ stateFile: file, platform: 'darwin' }) === false && fs.existsSync(file) && osa.calls === n0 + 1,
         'macOS admin recovery: asked once, asynchronously; refused, the state file stays for the next try');
       osa.refuse = null;
+      // P6: that refusal is remembered. A login or an app start never asks by
+      // itself again; only the window's button does.
+      t.ok(readState(file).declined > 0 && JSON.stringify(SystemProxy.pendingAdminRecovery({ stateFile: file, platform: 'darwin' })) === '{"declined":true}',
+        'macOS admin recovery (P6): a dismissed dialog is remembered with the state file');
+      t.ok(await SystemProxy.recoverAsAdmin({ stateFile: file, platform: 'darwin' }) === false && osa.calls === n0 + 1 && fs.existsSync(file),
+        'macOS admin recovery (P6): after that, nothing asks by itself (no dialog at every login and start)');
+      t.ok(!SystemProxy.restoreProcessAsks({ pending: { declined: true } }) && SystemProxy.restoreProcessAsks({ pending: { declined: false } })
+        && !SystemProxy.restoreProcessAsks({ pending: { declined: false }, autoStartWithProtection: true }) && !SystemProxy.restoreProcessAsks({ pending: null }),
+      'macOS (P6): the restore process asks only for a recovery not declined, and not when Shroudly starts at login with protection on');
+      osa.refuse = CANCEL;
+      t.ok(await SystemProxy.recoverAsAdmin({ stateFile: file, platform: 'darwin', userAsked: true }) === false && osa.calls === n0 + 2 && fs.existsSync(file),
+        'macOS admin recovery (P6): the window\'s button still asks');
+      osa.refuse = null;
+      fs.writeFileSync(file, JSON.stringify(admState));
       // The app and another process at once: one dialog (lock file).
       let open;
       osa.gate = new Promise((r) => { open = r; });
@@ -634,7 +864,7 @@ const readState = (file) => { try { return JSON.parse(fs.readFileSync(file, 'utf
       await sleep(100);
       const second = await SystemProxy.recoverAsAdmin({ stateFile: file, platform: 'darwin' });
       open(); osa.gate = null;
-      t.ok(await first === true && second === false && osa.calls === n0 + 2 && !nsState().services['Wi-Fi'].auto.enabled && !fs.existsSync(file) && !fs.existsSync(`${file}.lock`),
+      t.ok(await first === true && second === false && osa.calls === n0 + 3 && !nsState().services['Wi-Fi'].auto.enabled && !fs.existsSync(file) && !fs.existsSync(`${file}.lock`),
         'macOS admin recovery (A4): only one process asks (lock file); with the password, restored and cleared');
       // A lock held by another live process: this one does not ask.
       const other = spawn('sleep', ['30']);
@@ -650,6 +880,36 @@ const readState = (file) => { try { return JSON.parse(fs.readFileSync(file, 'utf
       t.ok(await SystemProxy.recoverAsAdmin({ stateFile: file, platform: 'darwin' }) === false && osa.calls === n1 + 1,
         'macOS admin recovery: a lock left by a process that is gone is taken over');
       osa.refuse = null;
+
+      // --restore-proxy (restore-proxy.js), the login hook after a restart.
+      const { restoreProxy } = require(path.join(ROOT, 'electron', 'restore-proxy.js'));
+      const tr = JSON.parse(fs.readFileSync(path.join(ROOT, 'locales', 'tr.json'), 'utf8'));
+      const leftover = (extra = {}) => {
+        fs.writeFileSync(file, JSON.stringify({ ...admState, ...extra }));
+        const st = nsState(); st.services['Wi-Fi'].auto = { enabled: true, url: 'http://127.0.0.1:4321/proxy.pac' }; FakeNS.save(nsFile, st);
+      };
+      const settings = (o = {}) => () => ({ autoStart: false, protectionOn: true, language: 'tr', ...o });
+      leftover();
+      osa.refuse = CANCEL;
+      const n2 = osa.calls;
+      const r1 = await restoreProxy({ stateFile: file, platform: 'darwin', settings: settings() });
+      t.ok(r1 === 'asked' && osa.calls === n2 + 1 && osa.prompts[osa.prompts.length - 1] === tr.proxyAdminPromptRestore && tr.proxyAdminPromptRestore !== JSON.parse(fs.readFileSync(path.join(ROOT, 'locales', 'en.json'), 'utf8')).proxyAdminPromptRestore,
+        'macOS (P17): the restore process\'s password dialog is in the user\'s language');
+      t.ok(await restoreProxy({ stateFile: file, platform: 'darwin', settings: settings() }) === 'done' && osa.calls === n2 + 1 && fs.existsSync(file),
+        'macOS (P6): once dismissed, the login hook does not ask again');
+      osa.refuse = null;
+      leftover();
+      t.ok(await restoreProxy({ stateFile: file, platform: 'darwin', settings: settings({ autoStart: true }) }) === 'done' && osa.calls === n2 + 1,
+        'macOS: not when Shroudly starts at this login with protection on (its own request covers it)');
+      const other2 = spawn('sleep', ['30']);
+      leftover({ owner: { pid: other2.pid, boot: SystemProxy._owner().boot, exe: 'sleep' } });
+      const before2 = readText(file);
+      t.ok(await restoreProxy({ stateFile: file, platform: 'darwin', settings: settings() }) === 'done' && osa.calls === n2 + 1 && readText(file) === before2 && ourPacOn(nsState().services['Wi-Fi']),
+        'macOS (P12): the login hook leaves a running Shroudly\'s setting alone, and asks nothing');
+      other2.kill('SIGKILL');
+      leftover();
+      t.ok(await restoreProxy({ stateFile: file, platform: 'darwin', settings: settings() }) === 'restored' && !fs.existsSync(file) && !nsState().services['Wi-Fi'].auto.enabled,
+        'macOS: with the password given, the login hook puts the settings back');
       fs.rmSync(file, { force: true });
       nsInit();
     }
@@ -705,6 +965,39 @@ const readState = (file) => { try { return JSON.parse(fs.readFileSync(file, 'utf
         `GNOME (${mode}): manual entries untouched (not consulted in auto mode, so a stale HTTP proxy cannot win)`);
       await sp.restore();
       t.ok(JSON.stringify([...g]) === before && !fs.existsSync(file), `GNOME (${mode}): restored exactly`);
+    }
+    // P2: a Stop that comes while an apply is still writing (a re-apply, or
+    // a start) is done after it, not in the middle: nothing is left set.
+    {
+      let gate = null;
+      const fx3 = fakeExec({ gsettings: fakeGsettings(g) });
+      fx3.run = async (cmd, args) => { const out = fx3.runSync(cmd, args); if (gate && args[0] === 'set') await gate; return out; };
+      SystemProxy._setExec(fx3);
+      const sp = new SystemProxy(() => {}, { platform: 'linux', env, stateFile: file });
+      let open;
+      gate = new Promise((r) => { open = r; });
+      const applying = sp.apply(10808, 'all');
+      await sleep(30);                         // apply() is writing GNOME's setting
+      const stopping = sp.restore();
+      await sleep(30);
+      open(); gate = null;
+      await Promise.all([applying, stopping]);
+      t.ok(!sp.applied && JSON.stringify([...g]) === before && !fs.existsSync(file) && !sp.pacServer,
+        'GNOME (P2): Stop during an apply restores after it: nothing left set, no PAC server, no state file');
+      SystemProxy._setExec(fx);
+    }
+    // P7: gsettings refusing the restore is noticed: not reported as done,
+    // and the state file stays for the next try.
+    {
+      const log = logs();
+      const sp = new SystemProxy(log, { platform: 'linux', env, stateFile: file });
+      await sp.apply(10808, 'all');
+      SystemProxy._setExec(fakeExec({ gsettings: fakeGsettings(g, { failSet: () => true }) }));
+      t.ok(await sp.restore() === false && fs.existsSync(file) && g.get('org.gnome.system.proxy mode') === "'auto'" && !log.lines.includes('success: System proxy settings restored'),
+        'GNOME (P7): a restore gsettings refused is not reported as done; the state file stays');
+      SystemProxy._setExec(fx);
+      t.ok(SystemProxy.recoverSync({ stateFile: file, platform: 'linux', env }) === true && JSON.stringify([...g]) === before && !fs.existsSync(file),
+        'GNOME (P7): …and the next recovery restores exactly');
     }
     // gsettings refuses: reported, nothing left changed, nothing armed.
     {
@@ -898,6 +1191,126 @@ const readState = (file) => { try { return JSON.parse(fs.readFileSync(file, 'utf
     t.ok(statuses.length === before, 'EngineManager (A3): nor one the proxy says belongs to no session');
     em.active = false;
 
+    // P2: a Stop pressed right after a route change (or "Set Shroudly
+    // again"): the re-apply never puts the proxy back after the Stop.
+    {
+      const order = [];
+      let set = true;
+      em.proxy = {
+        restore: async () => { await sleep(40); set = false; order.push('restore'); return true; },
+        apply: async () => { await sleep(40); set = true; order.push('apply'); return { ok: true, code: 'ok' }; },
+        clearEnv: () => {},
+      };
+      let spawned = 0;
+      const realSpawn = em._spawn;
+      em._spawn = async () => { spawned++; return true; };
+      em._setProxyStatus({ ok: true, code: 'ok' });
+      em.active = true;
+      const re = em.reapplyProxy();
+      await sleep(10);
+      const stop = em.stop({ user: true });
+      const late = em.reapplyProxy();
+      const lateRestart = await em.restart();
+      const lateAdmin = await em.applyProxyAsAdmin();
+      await Promise.all([re, stop, late]);
+      await sleep(100);
+      t.ok(!set && !order.includes('apply') && em.proxyStatus === null && !em.active && lateAdmin.code === 'not_active',
+        `EngineManager (P2): a re-apply under way when Stop is pressed does not set the proxy again (${order.join(',')})`);
+      t.ok(lateRestart.success && spawned === 0, 'EngineManager (P2): nor does a settings restart asked for during the Stop start an engine');
+      em._spawn = realSpawn;
+      em.expectingStop = false; // as the next start does
+    }
+
+    // P4: macOS Standard account, taken over by another program: "Set
+    // Shroudly again" sets it again, password and all, instead of only
+    // changing the PAC's answer and saying it worked.
+    {
+      const calls2 = [];
+      em.proxy = {
+        updateRouting: () => { calls2.push('pac'); return true; },
+        restore: async () => { calls2.push('restore'); return true; },
+        apply: async () => { calls2.push('apply'); return { ok: false, code: 'needs_admin', system: 'macos' }; },
+        applyAsAdmin: async () => { calls2.push('admin'); return { ok: true, code: 'ok', admin: true, system: 'macos' }; },
+      };
+      em.active = true;
+      const base = { ok: true, code: 'ok', admin: true, system: 'macos' };
+      em._setProxyStatus({ ...base, ok: false, code: 'replaced', lost: ['Wi-Fi'], replacedFrom: base });
+      const r = await em.reapplyProxy();
+      t.ok(calls2.join(',') === 'restore,apply,admin' && r.status.ok && em.proxyStatus.code === 'ok' && em.proxyStatus.admin,
+        `EngineManager (P4): after a takeover the admin path is set again, not just the PAC (${calls2.join(',')})`);
+      calls2.length = 0;
+      em.proxy.applyAsAdmin = async () => { calls2.push('admin'); return { ok: false, code: 'cancelled', admin: false }; };
+      em._setProxyStatus({ ...base, ok: false, code: 'replaced', lost: ['Wi-Fi'], replacedFrom: base });
+      const r2 = await em.reapplyProxy();
+      t.ok(!r2.status.ok && r2.status.code === 'cancelled' && em.proxyStatus.code === 'cancelled', 'EngineManager (P4): …and a dismissed dialog is reported as such, not as set again');
+      em.active = false;
+    }
+
+    // P6: settings a restart of the Mac left for the administrator's password.
+    {
+      const asked = [];
+      const origRecover = SystemProxy.recoverAsAdmin;
+      const origPending = SystemProxy.pendingAdminRecovery;
+      let pending = { declined: false };
+      SystemProxy.pendingAdminRecovery = () => pending;
+      SystemProxy.recoverAsAdmin = async (opts) => { asked.push(!!opts.userAsked); pending = { declined: true }; return false; };
+      const seenRecovery = [];
+      em.onProxyRecovery = (r) => seenRecovery.push(r);
+      try {
+        em.proxyRecovery = { declined: false };
+        em.proxyRecoveryPending = true;
+        t.ok(await em.recoverProxyAsAdmin({ windowShown: false }) === false && asked.length === 0 && em.proxyRecoveryPending,
+          'EngineManager (P6): no password dialog while there is no window on screen (started into the tray); still due');
+        await em.recoverProxyAsAdmin({ windowShown: true });
+        t.ok(asked.join() === 'false' && em.proxyRecovery.declined && seenRecovery.length === 1 && seenRecovery[0].declined,
+          'EngineManager (P6): asked once the window is up; dismissed, the window is told (its banner offers it)');
+        await em.recoverProxyAsAdmin({ windowShown: true });
+        em.proxyRecoveryPending = true;
+        await em.recoverProxyAsAdmin({ windowShown: true });
+        t.ok(asked.length === 1, 'EngineManager (P6): once declined, never asked again by itself');
+        SystemProxy.recoverAsAdmin = async (opts) => { asked.push(!!opts.userAsked); pending = null; return true; };
+        t.ok(await em.recoverProxyAsAdmin({ user: true }) === true && asked.join() === 'false,true' && em.proxyRecovery === null && seenRecovery[seenRecovery.length - 1] === null,
+          'EngineManager (P6): the banner\'s button asks, and a success clears the banner');
+      } finally {
+        SystemProxy.recoverAsAdmin = origRecover;
+        SystemProxy.pendingAdminRecovery = origPending;
+        em.onProxyRecovery = () => {};
+      }
+    }
+
+    // P18: a system DNS that answered nothing at the start is reported only
+    // when, a little later, it still answers nothing with the network up.
+    {
+      const diagnostics = require(path.join(ROOT, 'electron', 'diagnostics.js'));
+      const origCollect = diagnostics.collect;
+      const origDead = diagnostics.dnsDead;
+      const lines = [];
+      em.log = (level, msg) => lines.push(msg);
+      em.dnsRecheckMs = 50;
+      em.active = true;
+      let dead = false;
+      let rechecks = 0;
+      diagnostics.collect = async () => ({ os: 'test', iface: { name: 'en0', kind: 'Wi-Fi' }, dnsServers: ['192.168.1.1'], localDns: null,
+        dnsAnswered: 0, dnsAsked: 6, conflicts: [], idleVpns: [], forgedDns: [], region: null, needRestart: [] });
+      diagnostics.dnsDead = async () => { rechecks++; return dead; };
+      const DEAD = 'The system DNS answered none of the test names';
+      try {
+        await em._describeEnvironment();
+        t.ok(!lines.some((l) => l.startsWith(DEAD)), 'EngineManager (P18): nothing answering at the start (the network not up yet) is not reported at once');
+        await sleep(150);
+        t.ok(rechecks === 1 && !lines.some((l) => l.startsWith(DEAD)), 'EngineManager (P18): looked at again later; the network came up and the DNS answers: no warning');
+        dead = true;
+        await em._describeEnvironment();
+        await sleep(150);
+        t.ok(rechecks === 2 && lines.filter((l) => l.startsWith(DEAD)).length === 1, 'EngineManager (P18): still nothing with the network up: then it is said');
+      } finally {
+        diagnostics.collect = origCollect;
+        diagnostics.dnsDead = origDead;
+        clearInterval(em._conflictTimer);
+        em.active = false;
+      }
+    }
+
     // A6: an engine crash with an administrator-set proxy keeps it and
     // only points the PAC at the restarted engine; any other is restored.
     const ev = [];
@@ -919,11 +1332,25 @@ const readState = (file) => { try { return JSON.parse(fs.readFileSync(file, 'utf
     await em.stop({ user: true });
     await sleep(1200);
     t.ok(!ev.includes('start') && ev.includes('clearEnv'), 'EngineManager: a Stop while a crash restart waits cancels it (and is the user\'s stop)');
+    // P2: a Stop pressed while the crash's own restore is still running: no
+    // restart is scheduled after it either.
+    ev.length = 0;
+    em.proxy = { applied: true, updatePort: () => true, restore: async () => { await sleep(60); ev.push('restore'); }, clearEnv: () => ev.push('clearEnv') };
+    em._setProxyStatus({ ok: true, code: 'ok' });
+    em.active = true; em.restarts = 0; em.expectingStop = false;
+    const crash = em._onClose(1);
+    await sleep(10);
+    await Promise.all([em.stop({ user: true }), crash]);
+    await sleep(1200);
+    t.ok(!ev.includes('start') && ev.includes('restore') && !em.active, 'EngineManager (P2): a Stop during a crash\'s restore: the engine is not restarted after it');
+    em.expectingStop = false;
     // A port change in settings with an administrator-set proxy: the engine
     // is stopped and started, the system setting kept.
     ev.length = 0;
     const stops = [];
-    em.stop = async (o) => { stops.push(o || {}); em.active = false; return { success: true }; };
+    // A settings restart runs its stop and start itself (one lifecycle step).
+    em._stop = async (o) => { stops.push(o || {}); em.active = false; return { success: true }; };
+    em._start = async () => { ev.push('start'); };
     em._settings = () => ({ port: 20000, routeMode: 'all', siteList: [] });
     em.configuredPort = 10808;
     em._setProxyStatus({ ok: true, code: 'ok', admin: true });
