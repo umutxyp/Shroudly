@@ -606,23 +606,20 @@ app.whenReady().then(async () => {
     siteList: () => siteList.domains,
     proxyOptions: { stateFile: proxyStateFile(), watchdog, restoreCommand },
     onProbe: (p) => { onProbeResult(p).catch(() => toWindow('dpi:probe-result', p)); },
-    // A site that defeated every technique. Told once per site, and at most
-    // once every few minutes, so a page full of blocked resources cannot turn
-    // into a stream of notifications.
-    // Programs that were already open when protection started are still using
-    // the connection they were given at launch.
-    // Encrypted DNS was switched back on because a site could not be reached
-    // without it. The settings screen has to show the new state.
     // What the window should say about this network: another VPN running,
     // the kind of filtering detected, sites that connect and are then cut,
     // encrypted DNS blocked.
     onAdvice: (advice) => {
       toWindow('dpi:advice', advice);
     },
+    // Encrypted DNS was switched back on because a site could not be reached
+    // without it. The settings screen has to show the new state.
     onDnsAutoEnabled: (host) => {
       toWindow('dpi:dns-auto-enabled', { host });
     },
 
+    // Programs that were already open when protection started are still using
+    // the connection they were given at launch.
     onNeedRestart: (apps) => {
       // Shown inside the window only. As a system notification this reads like
       // something has gone wrong with the program it names, which is alarming
@@ -631,17 +628,20 @@ app.whenReady().then(async () => {
       toWindow('dpi:need-restart', { apps });
     },
 
-    // Which services this network filters (Roblox: offer Games and apps
-    // mode), and a connection that is answered and then left unanswered: the
-    // site may be turning the user away itself (checked, then explained).
     // What really happened to the system proxy (system-proxy.js): set, needs
     // an administrator (macOS standard account), not possible on this desktop,
     // refused, or taken over by another program. Shown in the window.
     onProxyStatus: (st) => toWindow('dpi:proxy-status', st),
+    // Which services this network filters (Roblox: offer Games and apps
+    // mode), and a connection that is answered and then left unanswered: the
+    // site may be turning the user away itself (checked, then explained).
     onHostEvent: (kind, host) => {
       if (RobloxApp.isRobloxHost(host) && kind !== 'unreachable' && !siteSeen.robloxBlocked) { siteSeen.robloxBlocked = true; sendAppState(); }
       if (kind === 'cut') checkServiceOnce(host).catch(() => {});
     },
+    // A site that defeated every technique. Told once per site, and at most
+    // once every few minutes, so a page full of blocked resources cannot turn
+    // into a stream of notifications.
     onSiteBlocked: (host) => {
       const now = Date.now();
       if (now - lastBlockedNotice < 5 * 60 * 1000) return;

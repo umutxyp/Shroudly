@@ -39,7 +39,8 @@ const LINES = [
   // network dropped the attempts silently, and the auto-mode label still fits.
   'discord.com: blocked here, opened with tlsrec-sni (2 tries, ipv4)',
   'discord.com: blocked here, opened with tlsrec-sni (2 tries, ipv4) — the network drops these connections silently instead of refusing them',
-  'discord.com: still blocked after 5 techniques (ipv4) — the network drops these connections silently; this network may need Advanced mode',
+  'discord.com: still blocked after 5 techniques (ipv4) — this network may need Advanced mode',
+  'discord.com: no answer after 5 techniques (ipv4) — the network may be dropping these connections silently, or the site is down',
   'Shroudly engine active (strategy: auto, 16 techniques)',
   'Settings applied (strategy: auto, 16 techniques)',
 ];
