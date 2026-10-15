@@ -117,6 +117,14 @@ jobs:
           # also makes is never published (scripts/publish-release.js).
           path: dist/Shroudly-*-Windows-*-Setup.exe
 
+      # The artifact configuration enforces the installers' product name and
+      # version (SignPath Foundation terms): the version comes from here.
+      - name: Version for the signing request
+        id: appver
+        if: matrix.platform == 'win' && env.SIGN_POLICY != ''
+        shell: bash
+        run: echo "version=$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
+
       - name: Sign the Windows installers (SignPath)
         if: matrix.platform == 'win' && env.SIGN_POLICY != ''
         uses: signpath/github-action-submit-signing-request@v2
@@ -130,6 +138,8 @@ jobs:
           # release-signing can wait for a person to approve the request.
           wait-for-completion-timeout-in-seconds: 3600
           output-artifact-directory: dist/signed
+          parameters: |
+            version: "${{ steps.appver.outputs.version }}"
 
       - name: Put the signed installers in place
         if: matrix.platform == 'win' && env.SIGN_POLICY != ''
