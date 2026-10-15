@@ -16,6 +16,12 @@ const EXACT = {
   'Games and apps: another proxy is already set for programs (HTTPS_PROXY), so it was left as it is': 'logAppsForeign',
   'Games and apps: a setting left by an earlier run was removed': 'logAppsLeftover',
   'Auto-started in tray': 'logAutoStartedTray',
+  'System proxy from the previous session could not be restored yet': 'logProxyRecoverPending',
+  'The system proxy points at Shroudly again': 'logProxyOursAgain',
+  'KDE proxy settings are locked by the administrator': 'logKdeLocked',
+  'System proxy settings could not be restored yet; they will be at the next start': 'logProxyRestorePending',
+  'The system proxy did not change, although the administrator password was accepted': 'logProxyAdminNoChange',
+  'The system DNS answered none of the test names. Programs that do not go through Shroudly cannot reach anything; check the DNS program or the network settings.': 'logDnsDead',
   'Games and apps: Roblox is connecting through Shroudly': 'logAppsRoblox',
   'Games and apps: Roblox is running but none of its connections go through Shroudly (it was probably started by a browser that was already open)': 'logAppsBypass',
   'The downloaded Roblox installer was not signed by Roblox, so it was deleted and not started': 'logRobloxUnsigned',
@@ -39,6 +45,11 @@ const EXACT = {
 };
 
 const PATTERNS = [
+  [/^([A-Za-z0-9.:_-]+): could not be reached \(DNS\)$/, 'logUnreachableDns', ['host']],
+  [/^([A-Za-z0-9.:_-]+): could not be reached \(connection\)$/, 'logUnreachableConnect', ['host']],
+  [/^Another program changed the system proxy \((.+?)\)/, 'logProxyReplaced', ['what']],
+  [/^System routed through local proxy on port (\d+) \(administrator\)$/, 'logProxyApplied', ['port']],
+  [/^System DNS is a program on this computer: (.+)$/, 'logLocalDns', ['programs']],
   [/^Games and apps: the first program connected through Shroudly \((.+)\)$/, 'logAppsFirst', ['host']],
   [/^Roblox installer downloaded through Shroudly and started \((.+)\)$/, 'logRobloxInstalled', ['version']],
   [/^Roblox could not be downloaded \((.+)\)$/, 'logRobloxDownloadFailed', ['detail']],
