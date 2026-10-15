@@ -505,6 +505,24 @@ const PROTECTION_KEY = 'protectionOn';
 
 /* Before there was a setting for that, Auto mode alone decided, and it still
  * does for anyone who has not pressed Start or Stop since. */
+/* Discord app mode and Games and apps mode carry other programs'
+ * connections. While protection is on its way up (the start at launch, a
+ * start under way, the engine restarting after a crash or a settings change)
+ * a new connection waits for it, at most ENGINE_WAIT_MS, instead of going out
+ * directly: on a filtering network that fails, and Discord's updater and
+ * Roblox then report errors ("retrying", "failed to load critical settings")
+ * that look as if Shroudly did not work. */
+const ENGINE_WAIT_MS = 15000;
+let launchStartPending = false;
+function engineComing() {
+  if (!engine || engine.isActive() || !protectionWanted()) return false;
+  return launchStartPending || engine.coming;
+}
+async function waitForEngine() {
+  const until = Date.now() + ENGINE_WAIT_MS;
+  while (engineComing() && Date.now() < until) await new Promise((r) => setTimeout(r, 200));
+}
+
 function protectionWanted() { return !!store.get(PROTECTION_KEY, store.get('autoMode', true) !== false); }
 
 /* macOS: settings a restart of the Mac left waiting for an administrator's
@@ -695,11 +713,13 @@ app.whenReady().then(async () => {
   // The relay goes through the engine while protection is on, straight to
   // Discord while it is off, and runs whenever Shroudly does.
   discordRelay = new DiscordRelay(addLog, () => (engine && engine.isActive() ? engine.port : null));
+  discordRelay.waitForEngine = waitForEngine;
   if (store.get('discordMode') === true) applyDiscordMode(true, { interactive: false }).catch(() => {});
 
   // Like the relay: through the engine while protection is on, direct while
   // it is off, and up whenever Shroudly is with the mode on.
   appProxy = new AppProxy(addLog, () => (engine && engine.isActive() ? engine.port : null), isRouted);
+  appProxy.waitForEngine = waitForEngine;
   appProxy.onTunnel = onAppTunnel;
   appProxy.onRequest = onAppRequest;
   appEnv = new AppEnv({ stateFile: appEnvStateFile(), watchdog, restoreCommand });
@@ -791,8 +811,12 @@ app.whenReady().then(async () => {
     // first, while nothing goes through Shroudly yet (updater.js); should
     // the install not get as far as quitting, protection starts anyway,
     // unless the user pressed Stop in the meantime.
+    launchStartPending = true;
     const installing = await updater.installBeforeProtection().catch(() => false);
-    setTimeout(() => { if (protectionWanted()) safeStart(); }, installing ? 60000 : 1200);
+    setTimeout(() => {
+      const started = protectionWanted() ? safeStart() : null;
+      Promise.resolve(started).catch(() => {}).finally(() => { launchStartPending = false; });
+    }, installing ? 60000 : 1200);
   } else {
     // macOS: a proxy set with an administrator's password that the previous
     // run could not put back (the Mac restarted under it). Asked with the
