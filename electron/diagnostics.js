@@ -21,6 +21,7 @@ const os = require('os');
 const dns = require('dns');
 const net = require('net');
 const { execFile } = require('child_process');
+const { envFor } = require('./win-powershell');
 
 /* System tools are addressed absolutely. Launching them by bare name lets
  * anything earlier on PATH answer instead, and this runs at every start. */
@@ -31,7 +32,7 @@ function winTool(rel) {
 
 const run = (cmd, args, ms = 4000) => new Promise((resolve) => {
   try {
-    const p = execFile(cmd, args, { timeout: ms, windowsHide: true },
+    const p = execFile(cmd, args, { timeout: ms, windowsHide: true, env: envFor(cmd) },
       (err, stdout) => resolve(err && !stdout ? '' : String(stdout || '')));
     p.on('error', () => resolve(''));
   } catch { resolve(''); }

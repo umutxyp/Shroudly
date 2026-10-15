@@ -30,6 +30,7 @@
  */
 
 const { execFileSync, spawn } = require('child_process');
+const { envFor } = require('./win-powershell');
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
@@ -79,7 +80,7 @@ function winBroadcast(markValue) {
   const ps = `[Environment]::SetEnvironmentVariable('${MARK}', ${v}, 'User')`;
   try {
     const p = spawn('powershell.exe', ['-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass', '-Command', ps],
-      { detached: true, stdio: 'ignore', windowsHide: true });
+      { detached: true, stdio: 'ignore', windowsHide: true, env: envFor('powershell.exe') });
     p.on('error', () => {});
     p.unref();
   } catch {}
