@@ -13,6 +13,7 @@
 import { useEffect, useState } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { ShieldAlertIcon, RefreshIcon, CloseIcon, InfoIcon } from './icons';
+import { proxyNotice, chromiumNote } from './proxyNotice';
 
 function Banner({ tone = 'warn', Icon, title, body, children, onClose, closeLabel }) {
   const c = tone === 'accent'
@@ -46,6 +47,10 @@ function Actions({ children }) {
   return <div className="mt-2 flex flex-wrap items-center gap-2">{children}</div>;
 }
 
+/* Dismissals that should survive a restart. Storage can be unavailable. */
+function remembered(key) { try { return localStorage.getItem(key) === '1'; } catch { return false; } }
+function remember(key) { try { localStorage.setItem(key, '1'); } catch {} }
+
 export default function BlockedNotice({ onNavigate, active = false }) {
   const { t, locale, language } = useLanguage();
   const [host, setHost] = useState(null);
@@ -54,6 +59,7 @@ export default function BlockedNotice({ onNavigate, active = false }) {
   const [dnsAuto, setDnsAuto] = useState(null);
   const [refused, setRefused] = useState(null);   // { host, service }: the site turns the user away itself
   const [proxy, setProxy] = useState(null);       // what really happened to the system proxy
+  const [recovery, setRecovery] = useState(null); // macOS: settings from before a restart, still to put back
   const [discord, setDiscord] = useState(null);
   const [apps, setApps] = useState(null);
   const [busy, setBusy] = useState(false);
@@ -104,6 +110,8 @@ export default function BlockedNotice({ onNavigate, active = false }) {
     const offRefused = window.electron.onServiceRefused?.((p) => setRefused(p));
     const offProxy = window.electron.onProxyStatus?.((p) => setProxy(p));
     window.electron.proxyStatus?.().then((p) => p && setProxy(p)).catch(() => {});
+    const offRecovery = window.electron.onProxyRecovery?.((r) => setRecovery(r));
+    window.electron.proxyRecovery?.().then((r) => setRecovery(r || null)).catch(() => {});
     window.electron.onDiscordState?.(() => refreshDiscord());
     const offApps = window.electron.onAppsState?.(() => refreshApps());
     window.electron.onAdvice?.((a) => { setAdvice(a); refreshAdv(); });
@@ -121,6 +129,7 @@ export default function BlockedNotice({ onNavigate, active = false }) {
       if (typeof offApps === 'function') offApps(); else window.electron.removeAppsStateListener?.();
       if (typeof offRefused === 'function') offRefused();
       if (typeof offProxy === 'function') offProxy();
+      if (typeof offRecovery === 'function') offRecovery();
       window.electron.removeAdviceListener?.();
     };
   }, []);
@@ -193,43 +202,27 @@ export default function BlockedNotice({ onNavigate, active = false }) {
     return <Banner Icon={ShieldAlertIcon} body={t('appFailed')} onClose={() => hide('appsFailed')} closeLabel={closeLabel} />;
   }
   /* The system proxy is what routes browsers and most programs: when it is
-   * not in place, nothing else here matters, so this comes first. */
-  if (active && proxy && !proxy.ok && !hidden[`proxy:${proxy.code}`]) {
-    const close = () => hide(`proxy:${proxy.code}`);
-    if (proxy.code === 'needs_admin') {
-      return (
-        <Banner Icon={ShieldAlertIcon} title={t('proxyAdminTitle')} body={t('proxyAdminBody')} onClose={close} closeLabel={closeLabel}>
+   * not in place, nothing else here matters, so this comes first. Which
+   * banner, and its button, is decided in proxyNotice.js. */
+  const pn = proxyNotice(proxy, { active, recovery });
+  if (pn && !hidden[pn.id]) {
+    const actions = {
+      admin: { label: 'proxyAdminButton', go: async () => { const r = await window.electron.proxyApplyAsAdmin(); if (r && r.ok) setProxy({ ...proxy, ok: true }); } },
+      reapply: { label: 'proxyReapply', go: () => window.electron.proxyReapply() },
+      recover: { label: 'proxyRecoverButton', go: async () => { const r = await window.electron.proxyRecoverAsAdmin(); if (r && r.ok) setRecovery(null); } },
+    };
+    const a = pn.action ? actions[pn.action] : null;
+    return (
+      <Banner Icon={pn.icon === 'info' ? InfoIcon : ShieldAlertIcon} title={pn.title ? t(pn.title) : null} body={t(pn.body, pn.params)}
+              onClose={() => hide(pn.id)} closeLabel={closeLabel}>
+        {a && (
           <Actions>
-            <button type="button" disabled={busy} onClick={() => run(async () => { const r = await window.electron.proxyApplyAsAdmin(); if (r && r.ok) setProxy({ ...proxy, ok: true }); })}
-                    className="btn btn-primary rounded-[8px] px-3 py-1.5 text-[12.5px] font-semibold">{t('proxyAdminButton')}</button>
+            <button type="button" disabled={busy} onClick={() => run(a.go)}
+                    className="btn btn-primary rounded-[8px] px-3 py-1.5 text-[12.5px] font-semibold">{t(a.label)}</button>
           </Actions>
-        </Banner>
-      );
-    }
-    if (proxy.code === 'replaced') {
-      return (
-        <Banner Icon={ShieldAlertIcon} title={t('proxyReplacedTitle')} body={t('proxyReplacedBody')} onClose={close} closeLabel={closeLabel}>
-          <Actions>
-            <button type="button" disabled={busy} onClick={() => run(() => window.electron.proxyReapply())}
-                    className="btn btn-primary rounded-[8px] px-3 py-1.5 text-[12.5px] font-semibold">{t('proxyReapply')}</button>
-          </Actions>
-        </Banner>
-      );
-    }
-    /* XFCE, LXQt and other desktops without a proxy setting: Firefox follows
-     * GNOME's setting, Chromium browsers the environment they started with. */
-    if (proxy.code === 'partial_env') {
-      const pac = proxy.pacUrl || '';
-      const body = proxy.chromiumNow ? t('proxyEnvChromiumNow', { pac })
-        : !proxy.chromiumAfterRelogin ? t('proxyEnvFirefoxOnly')
-          : proxy.firefox ? t('proxyEnvFirefoxNow')
-            : t('proxyEnvRelogin', { pac });
-      return <Banner Icon={InfoIcon} body={body} onClose={close} closeLabel={closeLabel} />;
-    }
-    if (proxy.code === 'no_system_proxy') {
-      return <Banner Icon={InfoIcon} body={t('proxyNoneBody', { pac: proxy.pacUrl || '' })} onClose={close} closeLabel={closeLabel} />;
-    }
-    return <Banner Icon={ShieldAlertIcon} body={t('proxyFailedBody')} onClose={close} closeLabel={closeLabel} />;
+        )}
+      </Banner>
+    );
   }
 
   /* The site itself turns this user away (by country or policy): nothing a
@@ -344,6 +337,15 @@ export default function BlockedNotice({ onNavigate, active = false }) {
         </Actions>
       </Banner>
     );
+  }
+
+  /* XFCE, LXQt and other desktops: Chromium browsers and apps opened before
+   * Shroudly answered at its address may go around it until reopened. Said
+   * once; closing it is remembered. */
+  const cn = chromiumNote(proxy, { active });
+  if (cn && !hidden[cn.id] && !remembered('shroudly_chromium_restart')) {
+    return <Banner tone="accent" Icon={InfoIcon} body={t(cn.body)}
+                   onClose={() => { remember('shroudly_chromium_restart'); hide(cn.id); }} closeLabel={closeLabel} />;
   }
 
   /* Encrypted DNS blocked on every route. Rare now, and it heals itself, but

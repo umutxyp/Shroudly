@@ -71,6 +71,18 @@ const KDE_GROUP = 'Proxy Settings';
 const KDE_TYPE = 'ProxyType';
 const KDE_SCRIPT = 'Proxy Config Script';
 const OUR_PAC = /^http:\/\/127\.0\.0\.1:\d+\/proxy\.pac$/;
+// The PAC's port: the first free one of these. Below the ports every system
+// hands out at random (Linux 32768 and up, Windows and macOS 49152 and up),
+// so a program that happens to hold one at the next login cannot move an
+// address written for that login, and clear of Shroudly's own (the engine's
+// 10808 and the 20 after it, the Discord relay's 10809, Games and apps'
+// 10810). Each user of the computer starts at another place in it, so two
+// people's Shroudly rarely meet on one port.
+const PAC_PORT_FIRST = 10840;
+const PAC_PORT_COUNT = 20;
+// What the PAC answers while protection is off and Shroudly still runs, on
+// desktops where browsers keep its address (see _parkPacServer).
+const PAC_DIRECT = 'function FindProxyForURL(url, host) {\n  return "DIRECT";\n}\n';
 const OWNERSHIP_INTERVAL_MS = 60000;
 // macOS, administrator path: how long a restore waits for the root helper
 // before doing anything itself (it never asks for the password while the
@@ -91,6 +103,10 @@ const ENV_VAR = 'auto_proxy';
 const ENVD_FILE = '90-shroudly.conf';
 const XPROFILE_BEGIN = '# >>> Shroudly (removed automatically) >>>';
 const XPROFILE_END = '# <<< Shroudly <<<';
+const XPROFILE_EXPORT = /^export auto_proxy='http:\/\/127\.0\.0\.1:\d+\/proxy\.pac'$/;
+// Our block in ~/.xprofile, whole: the three lines in a row (_xprofileRange).
+const reEsc = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+const XPROFILE_BLOCK = new RegExp(`(^|\\n)(${reEsc(XPROFILE_BEGIN)}\\n${XPROFILE_EXPORT.source.slice(1, -1)}\\n${reEsc(XPROFILE_END)}(?:\\n|$))`);
 const LXQT_GROUP = 'Environment';
 
 function run(cmd, args, timeout = 8000) {
@@ -125,9 +141,14 @@ function sleepSync(ms) {
   try { Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms); } catch {}
 }
 
+/* Linux: which boot of the machine this is. */
+function bootId() {
+  try { return fs.readFileSync('/proc/sys/kernel/random/boot_id', 'utf8').trim() || null; } catch { return null; }
+}
+
 /* Everything that reaches outside the process goes through here, so the tests
  * can stand in for reg.exe, networksetup, gsettings and kwriteconfig. */
-const REAL_EXEC = { run, runSync, spawnDetached, alive, sleepSync };
+const REAL_EXEC = { run, runSync, spawnDetached, alive, sleepSync, bootId };
 let exec = REAL_EXEC;
 
 /* Shell-quote one argument for /bin/sh: everything literal. */
@@ -157,6 +178,42 @@ function dropLock(file) {
 
 /* Read a file, null when it is not there. */
 function readOrNull(file) { try { return fs.readFileSync(file, 'utf8'); } catch { return null; } }
+
+/* Write a file whole or not at all: a temporary file next to it, flushed to
+ * the disk, then renamed over it. A full disk, a quota or a power cut can
+ * then never leave half of ~/.xprofile (which the login runs) or of the
+ * state file behind. A symbolic link (a dotfile manager's) is followed, so
+ * the file it points at is the one replaced, and a file that is there keeps
+ * its permissions. Throws when it could not be written; the file is then as
+ * it was. */
+function writeAtomic(file, text, mode = 0o644) {
+  let target = file;
+  try { target = fs.realpathSync(file); } catch {}
+  try { mode = fs.statSync(target).mode & 0o7777; } catch {}
+  const tmp = path.join(path.dirname(target), `.${path.basename(target)}.shroudly-${process.pid}.tmp`);
+  let fd = null;
+  try {
+    fd = fs.openSync(tmp, 'w', mode);
+    fs.writeFileSync(fd, text);
+    fs.fsyncSync(fd);
+    fs.closeSync(fd);
+    fd = null;
+    try { fs.chmodSync(tmp, mode); } catch {} // the mode open() gave was cut by the umask
+    for (let i = 0; ; i++) {
+      try { fs.renameSync(tmp, target); break; } catch (e) {
+        // Windows: a virus scanner or the indexer holding the old file a moment.
+        if (process.platform !== 'win32' || i >= 4 || !['EPERM', 'EACCES', 'EBUSY'].includes(e.code)) throw e;
+        exec.sleepSync(50);
+      }
+    }
+  } catch (e) {
+    if (fd !== null) { try { fs.closeSync(fd); } catch {} }
+    try { fs.rmSync(tmp, { force: true }); } catch {}
+    throw e;
+  }
+  // The rename reaches the disk with the folder's own entry.
+  try { const d = fs.openSync(path.dirname(target), 'r'); try { fs.fsyncSync(d); } finally { fs.closeSync(d); } } catch {}
+}
 
 // ── Windows registry (reg.exe) ───────────────────────────────────────────
 function regParse(name, out) {
@@ -206,7 +263,10 @@ class SystemProxy {
     this.helperWaitMs = opts.helperWaitMs || MAC_HELPER_WAIT_MS;
     this._restoring = false;        // a restore is under way: the takeover check keeps quiet
     this._adminInFlight = null;     // the administrator password dialog is open
+    this._adminDeclined = false;    // the last restore's password dialog was dismissed or refused
     this._inherited = null;         // a state file this run found, not made
+    this._queue = Promise.resolve(); // apply() and restore(), one at a time
+    this._lost = [];                // what another program took over (see checkOwnership)
     this.applied = false;
     this.snapshot = null;
     this.status = null;
@@ -236,9 +296,21 @@ class SystemProxy {
     return labels.every((l) => l.length >= 1 && l.length <= 63 && !l.startsWith('-') && !l.endsWith('-'));
   }
 
-  /* What a routed host gets. Never DIRECT: with DIRECT as a fallback, any
-   * failed proxy connection made Chromium quietly go around Shroudly and
-   * mark it bad for five minutes, so blocked sites failed with no sign of why.
+  /* What a routed host gets. No DIRECT where the system setting decides
+   * (Windows, macOS, GNOME, KDE): with DIRECT as a fallback, any failed proxy
+   * connection made Chromium quietly go around Shroudly and mark it bad for
+   * five minutes, so blocked sites failed with no sign of why. Stopping puts
+   * the system setting back there, and Chromium reads it again at once.
+   *
+   * XFCE, LXQt and other desktops are the exception: "...; DIRECT". There
+   * Chromium browsers and apps (Chrome, Brave, VS Code, Slack, Discord) read
+   * our PAC's address from the environment they started with, which nothing
+   * can change while they run, and keep the PAC they fetched for up to
+   * twelve hours. Without DIRECT, a stop, a quit or a crash would leave every
+   * one of them without internet until restarted. With it, a dead SOCKS port
+   * on 127.0.0.1 is refused at once and they go direct straight away; the
+   * cost is the five minutes Chromium then avoids the proxy after a single
+   * failed connection, which is accepted on these desktops only.
    *
    * "SOCKS" is added on macOS only. Safari and everything else built on
    * CFNetwork skip "SOCKS5" in a PAC but take "SOCKS", which they speak as
@@ -259,7 +331,13 @@ class SystemProxy {
    * now it is left out there. */
   pacProxy(port) {
     const socks5 = `SOCKS5 127.0.0.1:${port}`;
-    return this.platform === 'darwin' ? `${socks5}; SOCKS 127.0.0.1:${port}` : socks5;
+    if (this.platform === 'darwin') return `${socks5}; SOCKS 127.0.0.1:${port}`;
+    return this._envDesktop() ? `${socks5}; DIRECT` : socks5;
+  }
+
+  /* A Linux desktop on which Chromium reads only the environment. */
+  _envDesktop() {
+    return this.platform === 'linux' && ENV_DESKTOPS.has(SystemProxy.linuxDesktop(this.env));
   }
 
   /* A PAC that always sends local/private hosts direct. In 'all' mode every
@@ -325,11 +403,22 @@ ${local}
 `;
   }
 
+  /* The PAC's ports, in the order tried (see PAC_PORT_FIRST). */
+  static pacPorts() {
+    const uid = typeof process.getuid === 'function' ? process.getuid() : 0;
+    return Array.from({ length: PAC_PORT_COUNT }, (_, i) => PAC_PORT_FIRST + ((uid + i) % PAC_PORT_COUNT));
+  }
+
   /* Serve the PAC over loopback HTTP so WinINET (and others) will load it.
    * On `prefer` when it is free (an address written for the next login has
-   * to stay right), otherwise on any free port. Returns the PAC URL. */
+   * to stay right), otherwise on the first free one of pacPorts(), and only
+   * when all of those are taken on any free port. A server still up from
+   * before (kept answering DIRECT while protection was off) is the same
+   * address, and serves the new PAC. Returns the PAC URL. */
   async startPacServer(socksPort, prefer = 0) {
     this.pacText = this.pacBody(socksPort);
+    if (this.pacServer && this.pacServer.listening && (!prefer || prefer === this.pacPort)) return this.pacUrl;
+    this.stopPacServer();
     const listen = (port) => new Promise((resolve, reject) => {
       const server = http.createServer((req, res) => {
         res.writeHead(200, { 'Content-Type': 'application/x-ns-proxy-autoconfig' });
@@ -339,9 +428,11 @@ ${local}
       // bound to loopback only; port 0 => the OS picks a free one
       server.listen(port, '127.0.0.1', () => resolve(server));
     });
+    const tries = [...new Set([prefer, ...SystemProxy.pacPorts()].filter((p) => p > 0 && p < 65536)), 0];
     let server = null;
-    if (prefer > 0 && prefer < 65536) { try { server = await listen(prefer); } catch { server = null; } }
-    if (!server) server = await listen(0);
+    for (const p of tries) {
+      try { server = await listen(p); break; } catch (e) { if (p === 0) throw e; }
+    }
     server.on('error', () => {});
     this.pacServer = server;
     this.pacPort = server.address().port;
@@ -351,6 +442,16 @@ ${local}
 
   stopPacServer() {
     if (this.pacServer) { try { this.pacServer.close(); } catch {} this.pacServer = null; }
+  }
+
+  /* Protection is off and Shroudly runs on. On XFCE, LXQt and other desktops
+   * Chromium browsers and apps keep our PAC's address from the environment
+   * they started with: the PAC stays up there, answering DIRECT for
+   * everything, so one that reads it again goes straight out. Elsewhere the
+   * system setting is back, and it closes. */
+  _parkPacServer() {
+    if (this.pacServer && this._envDesktop()) { this.pacText = PAC_DIRECT; return; }
+    this.stopPacServer();
   }
 
   /* A new site list while "only listed sites" is applied: the PAC at the same
@@ -399,23 +500,44 @@ ${local}
    *                           setting, and Chromium browsers because this
    *                           session already has our auto_proxy)
    *        'partial_env'      XFCE, LXQt and other desktops, some of it:
-   *                           { firefox, chromiumNow, chromiumAfterRelogin }
+   *                           { firefox, chromiumNow, chromiumAfterRelogin,
+   *                           chromiumNotTaken }
    *        'no_system_proxy'  one of those desktops, and nothing could be set
+   *                           (chromiumNotTaken: this session does not read
+   *                           what is written for the next login)
    *        'needs_admin'      macOS Standard account: applyAsAdmin() asks for
    *                           an administrator's password and does it
    *        'apply_failed'     the desktop refused the change; nothing is left
    *                           changed
+   *   chromiumRestart, with 'ok' and 'partial_env' on those desktops: see
+   *   _envStatus
    * The PAC server and SOCKS address stay up in every case, for programs
    * pointed at them by hand. Throws only when nothing could be undone either.
    *
    * Called while already applied (an engine restart that kept the system
    * setting): the PAC at the same address answers with the new port and
-   * routing, and nothing else changes.
+   * routing, and nothing else changes. A setting another program took over
+   * meanwhile is still reported as such ('replaced'), not as set.
+   *
+   * apply() and restore() run one at a time, in the order they were called:
+   * a Stop during a re-apply restores after it, never in the middle of it,
+   * and two calls at once can never start two PAC servers.
    */
-  async apply(port, mode = 'all', list = []) {
+  apply(port, mode = 'all', list = []) { return this._serial(() => this._apply(port, mode, list)); }
+
+  restore(opts = {}) { return this._serial(() => this._restore(opts)); }
+
+  _serial(fn) {
+    const run = this._queue.then(fn);
+    this._queue = run.catch(() => {});
+    return run;
+  }
+
+  async _apply(port, mode, list) {
     if (this.applied) {
       if (port && port !== this.socksPort) this.updatePort(port);
       this.updateRouting(mode, list);
+      if (this._owned === false && this.status) return { ...this.status, ok: false, code: 'replaced', lost: this._lost, replacedFrom: this.status };
       return this.status;
     }
     this.socksPort = port;
@@ -456,7 +578,7 @@ ${local}
     // Some browsers covered now or after the next login: information. Chrome
     // and its kind not at all: a warning.
     else if (status.code === 'partial_env') this.log(status.chromiumNow || status.chromiumAfterRelogin ? 'info' : 'warning', status.detail);
-    else this.log('warning', `${status.detail || 'System proxy not set'} Apps can still use SOCKS5 127.0.0.1:${port} directly (PAC: ${this.pacUrl}).`);
+    else this.log('warning', `${status.detail || 'The system proxy was not set.'} Apps can still use SOCKS5 127.0.0.1:${port} directly (PAC: ${this.pacUrl}).`);
     if (status.ok || status.partial) this._startOwnershipWatch();
     return this.status;
   }
@@ -465,23 +587,30 @@ ${local}
    * stays, so the watchdog or the next start tries again.
    * opts.interactive: the user pressed Stop, so a macOS restore that needs
    * the administrator's password may ask for it. Never while quitting or
-   * after a crash: the state file stays and the next start asks. */
-  async restore(opts = {}) {
-    if (!this.applied) { this.stopPacServer(); return true; }
+   * after a crash: the state file stays and the next start asks. A dialog
+   * the user dismissed is remembered in the state file: from then on only
+   * the window's button asks again (see recoverAsAdmin). */
+  async _restore(opts = {}) {
+    if (!this.applied) { this._parkPacServer(); return true; }
     // From here on what the system shows is ours going away, not someone
     // else taking it over.
     this._restoring = true;
     this._stopOwnershipWatch();
     const interactive = opts.interactive === true && !this._adminInFlight;
+    this._adminDeclined = false;
     let done = true;
     try {
-      if (this.platform === 'win32') this._restoreWindows();
-      else if (this.platform === 'darwin') done = await this._restoreMac(interactive);
-      else await this._restoreLinux();
+      try {
+        if (this.platform === 'win32') this._restoreWindows();
+        else if (this.platform === 'darwin') done = await this._restoreMac(interactive);
+        else await this._restoreLinux();
+      } catch (e) {
+        this.log('warning', `Proxy restore issue: ${e.message}`);
+      }
+      if (done && this._stillOursQuiet()) done = false;
       if (done) this.log('success', 'System proxy settings restored');
+      else if (this._adminDeclined) { this.log('warning', 'Administrator password not given; the proxy settings were not put back'); this._markDeclined(); }
       else this.log('warning', 'System proxy settings could not be restored yet; they will be at the next start');
-    } catch (e) {
-      this.log('warning', `Proxy restore issue: ${e.message}`);
     } finally {
       this._disarm({ keepState: !done });
       this._restoring = false;
@@ -492,7 +621,7 @@ ${local}
   /* Synchronous restore, for process exit and session end. Never asks for a
    * password and never waits long. */
   restoreSync() {
-    if (!this.applied) { this.stopPacServer(); return true; }
+    if (!this.applied) { this._parkPacServer(); return true; }
     this._restoring = true;
     this._stopOwnershipWatch();
     let done = true;
@@ -501,9 +630,26 @@ ${local}
       else if (this.platform === 'darwin') done = this._restoreMacSync();
       else this._restoreLinuxSync();
     } catch {}
+    if (done && this._stillOursQuiet()) done = false;
     this._disarm({ keepState: !done });
     this._restoring = false;
     return done;
+  }
+
+  /* After a restore: is anything of ours still set? What counts is what the
+   * system shows, not what the commands said (reg.exe, gsettings and
+   * kwriteconfig failing were not noticed before): a setting still ours keeps
+   * its record, the only one of the user's own settings. Unknown when it
+   * cannot be read: then the commands' word stands. */
+  _stillOursQuiet() {
+    try { return this._stillOursSync(); } catch { return false; }
+  }
+
+  /* The user dismissed the password dialog of a restore: remembered with the
+   * state file, so neither a login nor a start asks by itself again. */
+  _markDeclined() {
+    const s = this._readState();
+    if (s) this._writeState({ ...s, declined: Date.now() });
   }
 
   // ── state file + safety nets ───────────────────────────────────────────
@@ -516,16 +662,39 @@ ${local}
     this._startWatchdog();
   }
 
+  /* owner: the Shroudly that wrote it, so the login hook's restore can tell a
+   * live session (started at login next to it) from a leftover. */
   _saveState() {
     if (!this.stateFile || !this._armed) return;
-    this._writeState({ v: 2, platform: this.platform, port: this.socksPort, pacUrl: this.pacUrl, snapshot: this.snapshot });
+    this._writeState({ v: 2, platform: this.platform, port: this.socksPort, pacUrl: this.pacUrl, snapshot: this.snapshot, owner: SystemProxy._owner() });
   }
 
   _writeState(state) {
     try {
       fs.mkdirSync(path.dirname(this.stateFile), { recursive: true });
-      fs.writeFileSync(this.stateFile, JSON.stringify(state));
+      writeAtomic(this.stateFile, JSON.stringify(state), 0o600);
     } catch (e) { this.log('warning', `Could not save proxy state: ${e.message}`); }
+  }
+
+  static _owner() { return { pid: process.pid, boot: bootTime(), exe: path.basename(process.execPath) }; }
+
+  /* Is the Shroudly that wrote a state file still running? Its process, on
+   * this boot of the machine, under the same program name: a process id from
+   * before a restart, or one some other program has taken since, is not it.
+   * Assumed running when the name cannot be read. */
+  static _ownerAlive(owner, platform = process.platform) {
+    if (!owner || !(owner.pid > 0) || owner.pid === process.pid) return false;
+    if (!owner.boot || Math.abs(owner.boot - bootTime()) > 120) return false;
+    if (!exec.alive(owner.pid)) return false;
+    const name = String(owner.exe || '').toLowerCase().slice(0, 15); // ps shows 15 characters on Linux
+    if (!name) return true;
+    let out;
+    try {
+      out = platform === 'win32'
+        ? exec.runSync('tasklist.exe', ['/fi', `PID eq ${owner.pid}`, '/fo', 'csv', '/nh'], 3000)
+        : exec.runSync('ps', ['-o', 'comm=', '-p', String(owner.pid)], 3000);
+    } catch { return true; }
+    return String(out).toLowerCase().includes(name);
   }
 
   /* The state file of an earlier run, if it is there and for this system. */
@@ -560,8 +729,10 @@ ${local}
     this.applied = false;
     this.snapshot = null;
     this.status = null;
-    this.stopPacServer();
+    this._parkPacServer();
     this._stopOwnershipWatch();
+    this._owned = true;   // a takeover belongs to the session it happened in
+    this._lost = [];
     if (keepState) { this._armed = false; return; }
     this._unarm();
   }
@@ -589,7 +760,7 @@ ${local}
         const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
         const argsXml = [cmd.exe, ...cmd.args].map((a) => `    <string>${esc(a)}</string>`).join('\n');
         fs.mkdirSync(path.dirname(file), { recursive: true });
-        fs.writeFileSync(file, `<?xml version="1.0" encoding="UTF-8"?>
+        writeAtomic(file, `<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
@@ -606,7 +777,7 @@ ${argsXml}
         const file = path.join(os.homedir(), '.config', 'autostart', 'shroudly-proxy-restore.desktop');
         const q = (a) => `"${String(a).replace(/(["`$\\])/g, '\\$1')}"`;
         fs.mkdirSync(path.dirname(file), { recursive: true });
-        fs.writeFileSync(file, `[Desktop Entry]\nType=Application\nName=Shroudly proxy restore\nExec=${[cmd.exe, ...cmd.args].map(q).join(' ')}\nNoDisplay=true\nX-GNOME-Autostart-enabled=true\n`);
+        writeAtomic(file, `[Desktop Entry]\nType=Application\nName=Shroudly proxy restore\nExec=${[cmd.exe, ...cmd.args].map(q).join(' ')}\nNoDisplay=true\nX-GNOME-Autostart-enabled=true\n`);
       }
     } catch (e) { this.log('warning', `Could not install proxy restore hook: ${e.message}`); }
   }
@@ -642,11 +813,17 @@ ${argsXml}
   async checkOwnership() {
     if (!this.applied || this._checking || this._restoring) return null;
     this._checking = true;
+    // What this check compares against: a re-apply while it reads (a new
+    // snapshot, maybe a new address) makes its answer half old, half new.
+    const snap = this.snapshot;
+    const url = this.pacUrl;
     try {
-      const lost = await this._lostSettings();
-      // A stop that began while this was reading is ours going away.
-      if (lost === null || !this.applied || this._restoring) return lost;
+      const lost = await this._lostSettings(snap || {}, url);
+      // A stop that began while this was reading is ours going away, and a
+      // re-apply meanwhile is not anyone else's doing either.
+      if (lost === null || !this.applied || this._restoring || this.snapshot !== snap || this.pacUrl !== url) return lost;
       const owned = lost.length === 0;
+      if (!owned) this._lost = lost;
       if (owned !== this._owned) {
         this._owned = owned;
         if (owned) this.log('info', 'The system proxy points at Shroudly again');
@@ -657,9 +834,7 @@ ${argsXml}
     } finally { this._checking = false; }
   }
 
-  async _lostSettings() {
-    const snap = this.snapshot || {};
-    const url = this.pacUrl;
+  async _lostSettings(snap = this.snapshot || {}, url = this.pacUrl) {
     try {
       if (this.platform === 'win32') {
         let out = '';
@@ -704,17 +879,28 @@ ${argsXml}
    *           password (macOS), or the root helper is still at it: the state
    *           file stays, and recoverAsAdmin() finishes it once Shroudly's
    *           window is up
+   *   'running'  (opts.skipIfOwnerAlive) the Shroudly that wrote the state
+   *           file is running: what is set is its live session, left alone
    * opts.helperWaitMs: how long to wait for the root helper (the app's own
    * start passes a short one; the restore process may wait).
+   * opts.skipIfOwnerAlive: the restore process (--restore-proxy). The login
+   * hook left by a power cut runs while Shroudly may be starting at the same
+   * login; its state file is not a leftover. The app's own start never
+   * passes it: it is the only Shroudly then.
    * What was written for the next login on XFCE, LXQt and other desktops is
    * not touched here: a crash or a power cut is not the user stopping
    * protection (see clearEnvSync).
    */
   static recoverSync(opts = {}, log = () => {}) {
+    const raw = opts.stateFile ? readOrNull(opts.stateFile) : null;
     let state = null;
-    try { state = JSON.parse(fs.readFileSync(opts.stateFile, 'utf8')); } catch {}
+    try { state = raw === null ? null : JSON.parse(raw); } catch {}
     const p = new SystemProxy(log, opts);
-    if (!state || state.platform !== p.platform) {
+    if (opts.skipIfOwnerAlive && state && SystemProxy._ownerAlive(state.owner, p.platform)) return 'running';
+    if (!state || typeof state !== 'object' || state.platform !== p.platform) {
+      // A state file that cannot be read says nothing about what to put
+      // back: whatever of ours is still set is at least switched off.
+      if (raw !== null && (!state || typeof state !== 'object')) { try { SystemProxy.resetLegacySync(log, opts); } catch {} }
       p._removeLoginHook();
       if (opts.stateFile) { try { fs.rmSync(opts.stateFile, { force: true }); } catch {} }
       return false;
@@ -732,6 +918,9 @@ ${argsXml}
     let ours = false;
     try { ours = p._stillOursSync(); } catch {}
     if (ours) {
+      // Read again right before acting: a Shroudly that started meanwhile
+      // (at the same login) has written its own, and its setting is live.
+      if (opts.skipIfOwnerAlive && readOrNull(opts.stateFile) !== raw) return 'running';
       p.applied = true;
       if (!p.restoreSync()) { // also clears the state file and login hook
         log('warning', 'System proxy from the previous session could not be restored yet');
@@ -751,6 +940,9 @@ ${argsXml}
    * asynchronously, and only in one process at a time (a lock file next to
    * the state file), so the login hook and the app never both ask. True when
    * restored.
+   * A dialog the user dismissed (here or at Stop) is remembered in the state
+   * file: from then on only the window's button (opts.userAsked) asks, never
+   * a login or an app start, which would otherwise ask at every one of them.
    */
   static async recoverAsAdmin(opts = {}, log = () => {}) {
     const p = new SystemProxy(log, opts);
@@ -760,6 +952,7 @@ ${argsXml}
     try {
       const state = p._readState();
       if (!state || state.snapshot.mode !== 'admin') return false;
+      if (state.declined && !opts.userAsked) return false;
       p.socksPort = state.port;
       p.pacUrl = state.pacUrl || null;
       p.snapshot = state.snapshot;
@@ -769,13 +962,35 @@ ${argsXml}
       if (!ours) { p._disarm(); return false; }
       p.applied = true;
       const done = await p._restoreMacAdmin(false, true);
+      if (!done && p._adminDeclined) p._writeState({ ...state, declined: Date.now() });
       p._disarm({ keepState: !done });
       if (done) log('success', 'System proxy from the previous session restored');
+      else if (p._adminDeclined) log('warning', 'Administrator password not given; the proxy settings were not put back');
       else log('warning', 'System proxy from the previous session could not be restored yet');
       return done;
     } finally {
       dropLock(lock);
     }
+  }
+
+  /* macOS, for the window: a setting made with an administrator's password
+   * that is still waiting to be put back (recoverAsAdmin), or null.
+   * { declined }: the user already dismissed its dialog once. */
+  static pendingAdminRecovery(opts = {}) {
+    const p = new SystemProxy(() => {}, opts);
+    if (p.platform !== 'darwin') return null;
+    const state = p._readState();
+    if (!state || !state.snapshot || state.snapshot.mode !== 'admin') return null;
+    return { declined: !!state.declined };
+  }
+
+  /* The restore process (--restore-proxy) on macOS: may it ask for the
+   * administrator's password itself? Only with something waiting for it,
+   * never once the user has declined (the window's button asks then), and
+   * not when Shroudly starts at this login with protection on: its own
+   * password request covers it. */
+  static restoreProcessAsks({ pending, autoStartWithProtection = false } = {}) {
+    return !!pending && !pending.declined && !autoStartWithProtection;
   }
 
   /*
@@ -1055,14 +1270,17 @@ $t = Add-Type -MemberDefinition $sig -Name WinINet -Namespace Net -PassThru
     };
   }
 
-  /* A PAC address read back from the state file, fit to hand to networksetup
-   * (and, with the administrator's password, to a root shell): http or https
-   * only, nothing that is not printable. Anything else, a stale Shroudly PAC
+  /* A PAC address read back from the state file, to hand back to
+   * networksetup: the user's own, whatever its kind (file:///Library/... is
+   * as common as http on managed Macs). It goes into a root shell only
+   * single-quoted (shq), so only what no setting can hold is refused: a
+   * control character (a line break would end the command) and a leading
+   * "-" networksetup could take for an option. That, a stale Shroudly PAC
    * and 2.5.4's "(null)" count as nothing set. */
   static _macSafeUrl(u) {
     const url = String(u || '').trim();
     if (url === '(null)' || OUR_PAC.test(url)) return '';
-    return /^https?:\/\/[^\s\x00-\x1f\x7f]+$/i.test(url) ? url : '';
+    return url && !/[\x00-\x1f\x7f]/.test(url) && !url.startsWith('-') ? url : '';
   }
 
   /* The steps that put one service back exactly as it was. networksetup
@@ -1309,7 +1527,7 @@ $t = Add-Type -MemberDefinition $sig -Name WinINet -Namespace Net -PassThru
       const script = plan.map((args) => [MAC_NETWORKSETUP, ...args].map(shq).join(' ')).join('; ');
       const src = SystemProxy._appleScriptAdmin(script, true, this._prompt('restore'));
       return exec.run('osascript', ['-e', src], 300000)
-        .then(() => this._macRestorePlanSync().length === 0, () => false);
+        .then(() => this._macRestorePlanSync().length === 0, () => { this._adminDeclined = true; return false; });
     };
     if (sync) return finish(this._macReleaseHelperSync(MAC_HELPER_WAIT_SYNC_MS));
     return this._macReleaseHelper(this.helperWaitMs).then(finish);
@@ -1447,20 +1665,35 @@ $t = Add-Type -MemberDefinition $sig -Name WinINet -Namespace Net -PassThru
   /* What a desktop without a proxy setting got. Firefox follows GNOME's
    * setting (set or not: firefox); Chromium browsers started now follow our
    * auto_proxy when this session already has it (Shroudly was started with
-   * it), otherwise after the next login, if it could be written. */
+   * it), otherwise after the next login, if it could be written.
+   *
+   * Written at an earlier login and still missing from this one: this
+   * session reads neither ~/.xprofile nor environment.d (startx, or sway,
+   * Hyprland or labwc started from a text console or by SDDM's Wayland
+   * script), and logging in again will not change that (chromiumNotTaken):
+   * the PAC's address is shown for setting it by hand instead of a promise.
+   *
+   * chromiumRestart: Chromium browsers and apps follow it, but each one read
+   * the address when it started; one started before our PAC answered there
+   * (or while it said DIRECT, protection off) may go around Shroudly until it
+   * is reopened, and the window says so. */
   _envStatus(desktop, firefox) {
     const env = this._envApply(desktop);
     const chromiumNow = this.env[ENV_VAR] === this.pacUrl;
-    const chromiumAfterRelogin = !chromiumNow && env.written;
-    if (firefox && chromiumNow) return { ok: true, code: 'ok', system: desktop };
-    if (!firefox && !chromiumNow && !env.written) {
-      return { ok: false, code: 'no_system_proxy', system: desktop, detail: 'This desktop has no system proxy setting.' };
+    const chromiumNotTaken = !chromiumNow && env.written && env.beforeThisLogin;
+    const chromiumAfterRelogin = !chromiumNow && env.written && !chromiumNotTaken;
+    if (firefox && chromiumNow) return { ok: true, code: 'ok', system: desktop, chromiumRestart: true };
+    if (!firefox && !chromiumNow && !chromiumAfterRelogin) {
+      return chromiumNotTaken
+        ? { ok: false, code: 'no_system_proxy', system: desktop, chromiumNotTaken, detail: 'This session does not read the setting Shroudly writes for Chrome and other Chromium browsers.' }
+        : { ok: false, code: 'no_system_proxy', system: desktop, detail: 'This desktop has no system proxy setting.' };
     }
     const detail = chromiumNow ? 'Chrome and other Chromium browsers go through Shroudly; Firefox has to be set by hand'
-      : !chromiumAfterRelogin ? 'Firefox goes through Shroudly; Chrome and other Chromium browsers could not be set on this desktop'
-        : firefox ? 'Firefox goes through Shroudly now; Chrome and other Chromium browsers will after you log out and back in'
-          : 'Chrome and other Chromium browsers will go through Shroudly after you log out and back in; Firefox has to be set by hand';
-    return { ok: false, code: 'partial_env', system: desktop, partial: true, firefox, chromiumNow, chromiumAfterRelogin, detail };
+      : chromiumNotTaken ? 'Firefox goes through Shroudly; this session does not read the setting Shroudly writes for Chrome and other Chromium browsers, so they have to be set by hand'
+        : !chromiumAfterRelogin ? 'Firefox goes through Shroudly; Chrome and other Chromium browsers could not be set on this desktop'
+          : firefox ? 'Firefox goes through Shroudly now; Chrome and other Chromium browsers will after you log out and back in'
+            : 'Chrome and other Chromium browsers will go through Shroudly after you log out and back in; Firefox has to be set by hand';
+    return { ok: false, code: 'partial_env', system: desktop, partial: true, firefox, chromiumNow, chromiumAfterRelogin, chromiumNotTaken, chromiumRestart: chromiumNow, detail };
   }
 
   _gnomeOwnedSync() {
@@ -1625,12 +1858,9 @@ $t = Add-Type -MemberDefinition $sig -Name WinINet -Namespace Net -PassThru
       } catch { /* an old kwriteconfig without --delete: edit the file */ }
     }
     let text = '';
-    let mode = 0o600;
-    try { text = fs.readFileSync(file, 'utf8'); mode = fs.statSync(file).mode & 0o777; } catch {}
+    try { text = fs.readFileSync(file, 'utf8'); } catch {}
     fs.mkdirSync(path.dirname(file), { recursive: true });
-    const tmp = `${file}.shroudly-${process.pid}.tmp`;
-    fs.writeFileSync(tmp, SystemProxy._kdeEdit(text, values), { mode });
-    fs.renameSync(tmp, file);
+    writeAtomic(file, SystemProxy._kdeEdit(text, values), 0o600);
   }
 
   _kdeNotify() {
@@ -1683,7 +1913,10 @@ $t = Add-Type -MemberDefinition $sig -Name WinINet -Namespace Net -PassThru
    *     KDE, macOS and Windows back exactly as before). A Chromium browser
    *     started while Shroudly is not running cannot fetch the PAC, goes
    *     direct, and fetches it again later (after 8 s, 32 s, 2 min, then on a
-   *     network change), so a leftover costs nothing.
+   *     network change), so a leftover costs nothing. One that fetched it
+   *     before goes direct too: the PAC ends in DIRECT on these desktops
+   *     (pacProxy), and says only DIRECT while protection is off and
+   *     Shroudly still runs (_parkPacServer).
    *   - clearEnv() takes them out, exactly as recorded, when the user stops
    *     protection, and at a start with protection off (EngineManager). A
    *     route mode that did not use the system proxy would too, but both use
@@ -1700,7 +1933,9 @@ $t = Add-Type -MemberDefinition $sig -Name WinINet -Namespace Net -PassThru
   }
 
   /* Write the variable for the next login (and, where it reaches, for
-   * programs started now). { written } when at least one place has it. */
+   * programs started now). { written } when at least one place has it;
+   * beforeThisLogin: and it was already written, at this address, at an
+   * earlier login (see _envStatus). */
   _envApply(desktop) {
     if (!this.envStateFile || !OUR_PAC.test(this.pacUrl || '')) return { written: false };
     const url = this.pacUrl;
@@ -1711,25 +1946,56 @@ $t = Add-Type -MemberDefinition $sig -Name WinINet -Namespace Net -PassThru
     for (const r of old.files) {
       if (r && r.file && ['environment.d', 'xprofile', 'lxqt'].includes(r.kind) && !targets.some((t) => t.file === r.file)) targets.push({ kind: r.kind, file: r.file });
     }
-    const plans = targets.map((t) => SystemProxy._envPlan(t, url, old.files.find((r) => r && r.file === t.file)));
-    const state = { v: 1, url, desktop, files: plans.map((p) => p.rec), activation: old.activation || null };
+    const plans = targets.map((t) => {
+      const oldRec = old.files.find((r) => r && r.file === t.file) || null;
+      return { ...SystemProxy._envPlan(t, url, oldRec), oldRec };
+    });
+    // The login this address was first written at: kept while it stays the same.
+    const session = SystemProxy._sessionKey(this.env);
+    const since = old.url === url && old.session ? old.session : session;
+    const state = { v: 1, url, desktop, session: since, files: plans.map((p) => p.rec), activation: old.activation || null };
     // Recorded before anything is written: whatever happens next, the record
     // is there to undo it.
     if (!SystemProxy._envWrite(this.envStateFile, state)) return { written: false };
     for (const p of plans) {
+      if (p.skip) continue; // nothing of ours there to update, and nothing appended (see _xprofileSet)
+      let madeDir = null;
       try {
         if (p.next !== p.cur) {
-          if (p.cur === null) p.rec.madeDir = fs.mkdirSync(path.dirname(p.file), { recursive: true }) || p.rec.madeDir || null;
-          fs.writeFileSync(p.file, p.next, p.cur === null ? { mode: 0o644 } : undefined);
+          if (p.cur === null) madeDir = fs.mkdirSync(path.dirname(p.file), { recursive: true }) || null;
+          writeAtomic(p.file, p.next, 0o644);
+          if (madeDir) p.rec.madeDir = madeDir;
         }
         p.ok = true;
       } catch (e) {
-        this.log('warning', `Could not set system proxy: could not write ${p.file} (${e.message})`);
+        // The file is as it was; a folder made for it goes again.
+        if (madeDir) SystemProxy._rmMadeDirs(p.file, madeDir);
+        this.log('warning', `Could not write ${p.file} for the next login: ${e.message}`);
       }
     }
+    // A place not written keeps what an earlier run recorded for it (its
+    // entry from then is still there to undo), or nothing.
+    state.files = plans.map((p) => (p.ok ? p.rec : p.oldRec)).filter(Boolean);
     state.activation = this._envActivation(url, old.activation);
     SystemProxy._envWrite(this.envStateFile, state);
-    return { written: plans.some((p) => p.ok) };
+    const written = plans.some((p) => p.ok);
+    return { written, beforeThisLogin: written && old.url === url && !!old.session && !!session && old.session !== session };
+  }
+
+  /* This login, told apart from every other: the boot of the machine and the
+   * session logind gave it. null where that cannot be told. */
+  static _sessionKey(env) {
+    const id = env && env.XDG_SESSION_ID;
+    const boot = id ? exec.bootId() : null;
+    return id && boot ? `${boot}/${id}` : null;
+  }
+
+  /* Folders made for a file (madeDir, the topmost) go when they are empty. */
+  static _rmMadeDirs(file, madeDir) {
+    const top = path.resolve(madeDir);
+    for (let d = path.dirname(path.resolve(file)); d === top || d.startsWith(`${top}${path.sep}`); d = path.dirname(d)) {
+      try { fs.rmdirSync(d); } catch { break; }
+    }
   }
 
   /* Remove what was written for the next login: the user stopped protection. */
@@ -1766,7 +2032,7 @@ $t = Add-Type -MemberDefinition $sig -Name WinINet -Namespace Net -PassThru
   static _envWrite(file, state) {
     try {
       fs.mkdirSync(path.dirname(file), { recursive: true });
-      fs.writeFileSync(file, JSON.stringify(state));
+      writeAtomic(file, JSON.stringify(state), 0o600);
       return true;
     } catch { return false; }
   }
@@ -1780,6 +2046,7 @@ $t = Add-Type -MemberDefinition $sig -Name WinINet -Namespace Net -PassThru
     const base = { kind: t.kind, file: t.file };
     let next;
     let rec;
+    let skip = false;
     if (t.kind === 'environment.d') {
       next = SystemProxy._envdText(url);
       const ours = cur !== null && SystemProxy._envdOurs(cur);
@@ -1787,6 +2054,7 @@ $t = Add-Type -MemberDefinition $sig -Name WinINet -Namespace Net -PassThru
     } else if (t.kind === 'xprofile') {
       const r = SystemProxy._xprofileSet(cur, url);
       next = r.text;
+      skip = !!r.skip;
       rec = r.had ? (keep || { ...base, created: false, nl: false }) : { ...base, created: cur === null, nl: r.nl };
     } else { // 'lxqt'
       const r = SystemProxy._iniSet(cur || '', LXQT_GROUP, ENV_VAR, url);
@@ -1794,7 +2062,7 @@ $t = Add-Type -MemberDefinition $sig -Name WinINet -Namespace Net -PassThru
       rec = r.ours ? (keep || { ...base, created: false, createdSection: false, sep: '', prevLine: null })
         : { ...base, created: cur === null, createdSection: r.createdSection, sep: r.sep, prevLine: r.prevLine };
     }
-    return { file: t.file, cur, next, rec };
+    return { file: t.file, cur, next, rec, skip };
   }
 
   /* Undo one place. Only our own entry goes; a value someone else put there
@@ -1815,15 +2083,10 @@ $t = Add-Type -MemberDefinition $sig -Name WinINet -Namespace Net -PassThru
       if (rec.created && next === '') next = null;
     } else return false;
     if (next === cur) return false;
-    if (next !== null) { fs.writeFileSync(rec.file, next); return true; }
+    if (next !== null) { writeAtomic(rec.file, next); return true; }
     fs.rmSync(rec.file, { force: true });
     // Folders made for it go too, when nothing else is in them.
-    if (rec.madeDir) {
-      const top = path.resolve(rec.madeDir);
-      for (let d = path.dirname(path.resolve(rec.file)); d === top || d.startsWith(`${top}${path.sep}`); d = path.dirname(d)) {
-        try { fs.rmdirSync(d); } catch { break; }
-      }
-    }
+    if (rec.madeDir) SystemProxy._rmMadeDirs(rec.file, rec.madeDir);
     return true;
   }
 
@@ -1837,40 +2100,64 @@ $t = Add-Type -MemberDefinition $sig -Name WinINet -Namespace Net -PassThru
   // ~/.xprofile: a marked block, appended.
   static _xprofileBlock(url) { return `${XPROFILE_BEGIN}\nexport ${ENV_VAR}='${url}'\n${XPROFILE_END}\n`; }
 
+  /* Our block, whole and exactly as written: the begin marker, our one
+   * export line and the end marker, three lines in a row. Nothing else is
+   * taken for it, so a line of the user's own is never counted as ours. */
   static _xprofileRange(text) {
-    let start;
-    if (text.startsWith(`${XPROFILE_BEGIN}\n`)) start = 0;
-    else {
-      const i = text.indexOf(`\n${XPROFILE_BEGIN}\n`);
-      if (i < 0) return null;
-      start = i + 1;
-    }
-    const e = text.indexOf(`\n${XPROFILE_END}`, start);
-    if (e < 0) return null;
-    let end = e + 1 + XPROFILE_END.length;
-    if (text[end] === '\n') end += 1;
-    return { start, end };
+    const m = XPROFILE_BLOCK.exec(text);
+    if (!m) return null;
+    const start = m.index + m[1].length;
+    return { start, end: start + m[2].length };
+  }
+
+  /* Our lines where the block is no longer whole (the user deleted a line of
+   * it, or wrote between its markers): the begin marker, our export line
+   * right after it, and the next end marker, as line indexes (-1: not
+   * there). null when there is no begin marker. */
+  static _xprofileOrphan(lines) {
+    const begin = lines.indexOf(XPROFILE_BEGIN);
+    if (begin < 0) return null;
+    const exp = XPROFILE_EXPORT.test(lines[begin + 1] || '') ? begin + 1 : -1;
+    return { begin, exp, end: lines.indexOf(XPROFILE_END, begin + 1) };
   }
 
   /* The text with our block set to url. nl: a newline had to be added
    * before it (the file did not end with one), which a removal takes out
-   * again. had: the block was there already. */
+   * again. had: the block was there already. With our markers there but
+   * the block not whole, only our own export line changes, and nothing is
+   * appended: a second block would put the user's lines between a begin
+   * marker and an end marker of ours. skip: not even that line is there. */
   static _xprofileSet(text, url) {
     const cur = text == null ? '' : String(text);
     const r = SystemProxy._xprofileRange(cur);
     if (r) return { text: cur.slice(0, r.start) + SystemProxy._xprofileBlock(url) + cur.slice(r.end), had: true, nl: false };
+    const lines = cur.split('\n');
+    const o = SystemProxy._xprofileOrphan(lines);
+    if (o) {
+      if (o.exp < 0) return { text: cur, had: false, nl: false, skip: true };
+      lines[o.exp] = `export ${ENV_VAR}='${url}'`;
+      return { text: lines.join('\n'), had: true, nl: false };
+    }
     const nl = cur.length > 0 && !cur.endsWith('\n');
     return { text: `${cur}${nl ? '\n' : ''}${SystemProxy._xprofileBlock(url)}`, had: false, nl };
   }
 
   /* The text without our block: exactly what it was before, when nothing
-   * else changed since. */
+   * else changed since. Where the block is no longer whole, our own lines
+   * go one by one and every other line stays. */
   static _xprofileStrip(text, nl) {
-    const r = SystemProxy._xprofileRange(text);
-    if (!r) return text;
-    let start = r.start;
-    if (nl && r.end === text.length && start > 0 && text[start - 1] === '\n') start -= 1;
-    return text.slice(0, start) + text.slice(r.end);
+    let out = text;
+    const r = SystemProxy._xprofileRange(out);
+    if (r) {
+      let start = r.start;
+      if (nl && r.end === out.length && start > 0 && out[start - 1] === '\n') start -= 1;
+      out = out.slice(0, start) + out.slice(r.end);
+    }
+    const lines = out.split('\n');
+    const o = SystemProxy._xprofileOrphan(lines);
+    if (!o) return out;
+    const drop = new Set([o.begin, o.exp, o.end].filter((i) => i >= 0));
+    return lines.filter((_, i) => !drop.has(i)).join('\n');
   }
 
   // LXQt's session.conf, an INI file read with QSettings.

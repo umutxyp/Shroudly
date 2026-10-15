@@ -58,29 +58,35 @@ proxy, and it always restores the previous setting on stop, crash, or logout —
 so your internet is never left broken.
 
 How the system is pointed at it, on every OS and in both routing modes: a
-proxy auto-config (PAC) file served on `127.0.0.1`, set as the system's
-automatic proxy configuration. Through it every browser speaks SOCKS5 to
-Shroudly and leaves the name lookup to it. This machine and the local network
-always connect directly; every other site Shroudly routes goes only through
-it, never quietly around it.
+proxy auto-config (PAC) file served on `127.0.0.1` (the first free port from
+10840 to 10859), set as the system's automatic proxy configuration. Through
+it every browser speaks SOCKS5 to Shroudly and leaves the name lookup to it.
+This machine and the local network always connect directly; every other site
+Shroudly routes goes only through it, never quietly around it. The one
+exception is XFCE, LXQt and other desktops without a proxy setting: a browser
+there keeps Shroudly's address from when it started, so whenever Shroudly is
+not answering (stopped, quit, restarting) it connects directly instead of not
+at all.
 
 | System | Where the setting goes |
 |---|---|
 | Windows | The per-user automatic configuration script (no admin rights). Your own manual proxy setting is left as it is. |
-| macOS | Automatic proxy configuration on every network service. An administrator account needs no password; a Standard account needs an administrator's password once per session (the setting then also stays through an engine restart), and Shroudly puts the setting back without asking again, also on logout or shutdown. Only after a restart of the Mac under it is the password asked for again, once, never while quitting. |
+| macOS | Automatic proxy configuration on every network service. An administrator account needs no password; a Standard account needs an administrator's password once per session (the setting then also stays through an engine restart), and Shroudly puts the setting back without asking again, also on logout or shutdown. Only after a restart of the Mac under it is the password asked for again, once (at login, or when Shroudly's window is next opened), never while quitting; if you dismiss it, Shroudly does not ask again by itself, and the window offers a button to put the settings back. |
 | Linux, GNOME / Cinnamon / Unity / MATE | GNOME's proxy setting, in automatic mode. |
 | Linux, KDE Plasma | KDE's proxy setting (`kioslaverc`), as a proxy configuration script. |
-| Linux, XFCE / LXQt / window managers | These desktops have no system proxy. Firefox follows GNOME's setting wherever it is installed, so Shroudly sets that, and Firefox goes through Shroudly at once. Chrome, Edge, Brave and other Chromium browsers read the `auto_proxy` variable they were started with, so Shroudly writes it where the next login picks it up: `~/.config/environment.d/90-shroudly.conf`, LXQt's `~/.config/lxqt/session.conf` (`[Environment]`), or a marked block in `~/.xprofile` (XFCE and other X11 sessions), and into the systemd and D-Bus activation environment. After you log out and back in they go through Shroudly too; the window says which browsers are covered. |
+| Linux, XFCE / LXQt / window managers | These desktops have no system proxy. Firefox follows GNOME's setting wherever it is installed, so Shroudly sets that, and Firefox goes through Shroudly at once. Chrome, Edge, Brave and other Chromium browsers read the `auto_proxy` variable they were started with, so Shroudly writes it where the next login picks it up: `~/.config/environment.d/90-shroudly.conf`, LXQt's `~/.config/lxqt/session.conf` (`[Environment]`), or a marked block in `~/.xprofile` (XFCE and other X11 sessions), and into the systemd and D-Bus activation environment. After you log out and back in they go through Shroudly too; the window says which browsers are covered. A session that does not read these files (`startx`, or a Wayland compositor started from a text console) is noticed at the next login, and the window shows the address to set by hand instead. Chromium browsers and apps (VS Code, Slack, Discord) read the address when they start: one that was already open before Shroudly started may connect directly until it is reopened, and the window says so. |
 
 On XFCE, LXQt and similar desktops these login entries stay while protection
 is on, through quitting, logging out and crashes (a browser started while
 Shroudly is not running finds nothing at that address and connects
-directly), and are removed exactly as they were found when you switch
-protection off, or when Shroudly starts with protection off. Uninstalling a
-Linux package cannot remove files in your home folder; switch protection off
-before uninstalling, or delete `~/.config/environment.d/90-shroudly.conf`,
-the `auto_proxy` line in `~/.config/lxqt/session.conf` and the Shroudly
-block in `~/.xprofile` yourself.
+directly; while Shroudly runs with protection off, the address answers
+"connect directly"), and are removed exactly as they were found when you
+switch protection off, or when Shroudly starts with protection off.
+Uninstalling a Linux package cannot remove files in your home folder; switch
+protection off before uninstalling, or delete
+`~/.config/environment.d/90-shroudly.conf`, the `auto_proxy` line in
+`~/.config/lxqt/session.conf` and the Shroudly block in `~/.xprofile`
+yourself.
 
 If another program (a VPN client, another proxy tool) takes the system proxy
 over while Shroudly is on, Shroudly notices within a minute and says so, and
@@ -503,6 +509,7 @@ Shroudly/
     main.js                   app shell, tray, IPC, auto-start
     engine-manager.js         spawns shroudly-core, parses JSON, restarts
     system-proxy.js           set/restore OS proxy (Win/mac/Linux), crash-safe
+    restore-proxy.js          --restore-proxy: the login hook's and the watchdog's restore
     doh-forwarder.js          local DNS-over-HTTPS forwarder: routes, health, failover
     censor-fingerprints.js    known block-page / sinkhole addresses by country (OONI)
     diagnostics.js            what the log needs: OS, network, other VPNs, forged DNS
