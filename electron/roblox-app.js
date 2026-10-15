@@ -256,14 +256,18 @@ function get(url, { socksPort, connect, toFile, timeoutMs = 60000, redirects = 3
   });
 }
 
-/* The file's signature as Windows judges it: "Status|signer", '' when
- * nothing answered. */
-async function signatureOf(file) {
-  if (process.platform !== 'win32') return '';
-  const out = await run('powershell.exe', ['-NoProfile', '-NonInteractive', '-Command',
+/* The file's signature as Windows judges it: "Status|signer|message", or
+ * what went wrong asking. Checking the certificate's revocation online can
+ * take a while on a slow machine or network: up to two minutes. */
+function signatureOf(file) {
+  if (process.platform !== 'win32') return Promise.resolve('');
+  const env = { ...process.env, SHROUDLY_FILE: file };
+  return new Promise((resolve) => execFile('powershell.exe', ['-NoProfile', '-NonInteractive', '-Command',
     '$s = Get-AuthenticodeSignature -LiteralPath $env:SHROUDLY_FILE; "$($s.Status)|$($s.SignerCertificate.Subject)|$($s.StatusMessage)"'],
-  { timeout: 30000, env: { ...process.env, SHROUDLY_FILE: file } });
-  return out.trim();
+  { windowsHide: true, timeout: 120000, env: envFor('powershell.exe', env) }, (err, out, errOut) => {
+    const text = String(out || '').trim();
+    resolve(text || (err ? `no answer: ${err.killed ? 'timed out' : String(errOut || err.message).trim().split(/\r?\n/)[0]}` : ''));
+  }));
 }
 const byRoblox = (sig) => {
   const [status, subject] = String(sig || '').split('|');
