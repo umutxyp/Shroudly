@@ -63,6 +63,10 @@ contextBridge.exposeInMainWorld('electron', {
   // Advanced (packet-layer) mode — optional, stateful-DPI countries
   advancedAvailable: () => ipcRenderer.invoke('advanced:available'),
   getAdvice: () => ipcRenderer.invoke('dpi:advice'),
+  proxyStatus: () => ipcRenderer.invoke('proxy:status'),
+  proxyApplyAsAdmin: () => ipcRenderer.invoke('proxy:applyAsAdmin'),
+  proxyReapply: () => ipcRenderer.invoke('proxy:reapply'),
+  onProxyStatus: (cb) => { const h = (e, p) => cb(p); ipcRenderer.on('dpi:proxy-status', h); return () => ipcRenderer.removeListener('dpi:proxy-status', h); },
   onAdvice: (cb) => ipcRenderer.on('dpi:advice', (e, p) => cb(p)),
   removeAdviceListener: () => ipcRenderer.removeAllListeners('dpi:advice'),
   discordStatus: () => ipcRenderer.invoke('discord:status'),

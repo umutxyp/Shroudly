@@ -631,6 +631,17 @@ app.whenReady().then(async () => {
       toWindow('dpi:need-restart', { apps });
     },
 
+    // Which services this network filters (Roblox: offer Games and apps
+    // mode), and a connection that is answered and then left unanswered: the
+    // site may be turning the user away itself (checked, then explained).
+    // What really happened to the system proxy (system-proxy.js): set, needs
+    // an administrator (macOS standard account), not possible on this desktop,
+    // refused, or taken over by another program. Shown in the window.
+    onProxyStatus: (st) => toWindow('dpi:proxy-status', st),
+    onHostEvent: (kind, host) => {
+      if (RobloxApp.isRobloxHost(host) && kind !== 'unreachable' && !siteSeen.robloxBlocked) { siteSeen.robloxBlocked = true; sendAppState(); }
+      if (kind === 'cut') checkServiceOnce(host).catch(() => {});
+    },
     onSiteBlocked: (host) => {
       const now = Date.now();
       if (now - lastBlockedNotice < 5 * 60 * 1000) return;
@@ -803,6 +814,14 @@ ipcMain.on('ui:ready', (e) => {
 });
 
 ipcMain.handle('dpi:advice', () => (engine ? engine.advice : null));
+ipcMain.handle('proxy:status', () => (engine ? engine.proxyStatus : null));
+// macOS standard account: an administrator allows it once.
+ipcMain.handle('proxy:applyAsAdmin', async () => (engine ? engine.applyProxyAsAdmin() : { ok: false, code: 'not_active' }));
+// Taken over by another program: point the system at Shroudly again.
+ipcMain.handle('proxy:reapply', async () => {
+  if (!engine || !engine.isActive()) return { ok: false, code: 'not_active' };
+  try { await engine.reapplyProxy(); return { ok: true }; } catch (e) { return { ok: false, code: 'failed', detail: e.message }; }
+});
 ipcMain.handle('dpi:start', async () => safeStart({ user: true }));
 ipcMain.handle('dpi:stop', async () => safeStop({ user: true }));
 

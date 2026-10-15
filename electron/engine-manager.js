@@ -149,6 +149,10 @@ class EngineManager {
     this.onStatusChange = hooks.onStatusChange || (() => {});
     this.onProbe = hooks.onProbe || (() => {});
     this.onSiteBlocked = hooks.onSiteBlocked || (() => {});
+    // Every site-level finding, as (kind, host, detail): 'bypass', 'blocked',
+    // 'cut', 'unreachable'. The app uses it to recognise which services this
+    // network filters, and sites that turn the user away themselves.
+    this.onHostEvent = hooks.onHostEvent || (() => {});
     this.onNeedRestart = hooks.onNeedRestart || (() => {});
     this.onDnsAutoEnabled = hooks.onDnsAutoEnabled || (() => {});
     // The current automatic list (site-list.js); the one shipped with the app
@@ -444,6 +448,15 @@ class EngineManager {
     const net = `${d.iface.name} (${d.iface.kind})`;
     const dnsList = d.dnsServers.length ? d.dnsServers.join(', ') : 'unknown';
     this.log('info', `System: ${d.os} — network ${net}, DNS ${dnsList}`);
+    // A DNS program on this computer (often left behind by another bypass
+    // tool), and a system DNS that answers nothing: both break every program
+    // that does not go through Shroudly, while the browser keeps working.
+    if (d.localDns && d.localDns.programs && d.localDns.programs.length) {
+      this.log('info', `System DNS is a program on this computer: ${d.localDns.programs.join(', ')}`);
+    }
+    if (d.dnsAsked && d.dnsAnswered === 0) {
+      this.log('warning', 'The system DNS answered none of the test names. Programs that do not go through Shroudly cannot reach anything; check the DNS program or the network settings.');
+    }
 
     if (d.needRestart.length) {
       // The most common report by far is "works in my browser, not in the
@@ -535,13 +548,10 @@ class EngineManager {
       // two lines are what makes a user's log enough to diagnose a report: the
       // site, the technique that worked, and how many had to be tried.
       case 'bypass':
-        // This network filters. If its DNS gave nothing away, the clock's
-        // country is the next best hint for whether its filters are the kind
-        // that follow whole connections — enough to offer Advanced mode.
-        if (!this.advice.region) {
-          const cc = diagnostics.timezoneCountry();
-          if (cc && STATEFUL_REGIONS.has(cc)) this._setAdvice({ region: { country: cc, stateful: true } });
-        }
+        // What the filter does is judged from what it did (forged DNS
+        // answers, cut connections, silent drops), never from which country
+        // the clock is set to.
+        try { this.onHostEvent('bypass', msg.host, msg.note || null); } catch {}
         this.blockedHosts.delete(msg.host);
         if (!this.bypassed.has(msg.host)) {
           // One line per site, but the set is only there to stop repeats, so
@@ -555,6 +565,7 @@ class EngineManager {
         }
         break;
       case 'blocked':
+        try { this.onHostEvent('blocked', msg.host, msg.note || null); } catch {}
         // A site that defeated every technique while encrypted DNS was switched
         // off: the most likely cause is the DNS answer itself, which none of
         // the techniques can fix. Turn it back on and retry rather than leave
@@ -579,9 +590,11 @@ class EngineManager {
         }
         break;
       case 'cut':
+        try { this.onHostEvent('cut', msg.host, msg.strategy || null); } catch {}
         this._onCut(msg.host, msg.strategy, msg.attempts);
         break;
       case 'unreachable':
+        try { this.onHostEvent('unreachable', msg.host, msg.stage || null); } catch {}
         this._onUnreachable(msg.host, msg.stage);
         break;
       case 'send_failed':
