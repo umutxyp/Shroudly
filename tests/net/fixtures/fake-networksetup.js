@@ -9,7 +9,9 @@
  *
  * Used two ways: required by the test (as the unprivileged tool, which a
  * Standard account is refused), and run as a program by the shell script
- * that would run as root (FAKE_NS_STATE names the file). */
+ * that would run as root (FAKE_NS_STATE names the file). As a program,
+ * FAKE_NS_SLOW_OFF_MS makes every "-setautoproxystate <service> off" take
+ * that long first: a root helper whose restore is slow. */
 
 const fs = require('fs');
 
@@ -39,10 +41,22 @@ function handle(state, args, { root = false } = {}) {
 }
 
 function load(file) { return JSON.parse(fs.readFileSync(file, 'utf8')); }
-function save(file, state) { fs.writeFileSync(file, JSON.stringify(state)); }
+/* Written whole and renamed into place: the test reads this file while a
+ * helper (another process) may be writing it, and must never see it half
+ * written. */
+function save(file, state) {
+  const tmp = `${file}.${process.pid}.tmp`;
+  fs.writeFileSync(tmp, JSON.stringify(state));
+  fs.renameSync(tmp, file);
+}
 
 if (require.main === module) {
   const file = process.env.FAKE_NS_STATE;
+  const slow = Number(process.env.FAKE_NS_SLOW_OFF_MS) || 0;
+  const args = process.argv.slice(2);
+  if (slow > 0 && args[0] === '-setautoproxystate' && args[2] === 'off') {
+    Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, slow);
+  }
   try {
     const state = load(file);
     process.stdout.write(handle(state, process.argv.slice(2), { root: true }));
