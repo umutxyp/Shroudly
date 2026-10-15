@@ -437,15 +437,17 @@ const readState = (file) => { try { return JSON.parse(fs.readFileSync(file, 'utf
       t.ok(ports.length === 20 && new Set(ports).size === 20 && ports.every((p) => p >= 10840 && p <= 10859),
         'P16: the PAC\'s ports are 10840-10859 (below 32768, clear of 10808-10828, 10809, 10810)');
       const free = (port) => new Promise((r) => { const s = require('net').createServer(); s.once('error', () => r(false)); s.listen(port, '127.0.0.1', () => s.close(() => r(true))); });
+      // Taken by us, or already taken by something else on this machine (a
+      // Shroudly that is running here): either way it is not free.
       const squat = require('net').createServer();
-      await new Promise((r) => squat.listen(ports[0], '127.0.0.1', r));
+      await new Promise((r) => { squat.once('error', () => r()); squat.listen(ports[0], '127.0.0.1', r); });
       let want = 0;
       for (const p of ports.slice(1)) if (await free(p)) { want = p; break; }
       const sp = new SystemProxy(() => {}, { platform: 'win32', stateFile: file });
       await sp.apply(10808, 'all');
       t.ok(sp.pacPort === want, `P16: the first free one is used (${sp.pacPort}; ${ports[0]} was taken)`);
       await sp.restore();
-      squat.close();
+      try { squat.close(); } catch {}
     }
   }
 

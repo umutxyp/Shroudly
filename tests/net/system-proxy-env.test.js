@@ -208,7 +208,8 @@ const clean = () => { for (const f of [XPROFILE, ENVD, LXQT]) fs.rmSync(f, { for
     // The saved port taken by something else: another one, everything moved
     // to it, and a re-login is needed again.
     const squat = net.createServer();
-    await new Promise((r) => squat.listen(port.mem.pacPort, '127.0.0.1', r));
+    // Taken by us, or already by something else here: either way not free.
+    await new Promise((r) => { squat.once('error', () => r()); squat.listen(port.mem.pacPort, '127.0.0.1', r); });
     const log4 = logs();
     const sp4 = new SystemProxy(log4, { platform: 'linux', env: xfce({ auto_proxy: url }), stateFile: state(name), portStore: port });
     const st4 = await sp4.apply(10808, 'all');
@@ -219,7 +220,7 @@ const clean = () => { for (const f of [XPROFILE, ENVD, LXQT]) fs.rmSync(f, { for
     t.ok(log4.lines.some((l) => l.startsWith('warning: The address browsers use to reach Shroudly had to change')), '…and the log says so');
     t.ok(read(XPROFILE) === `# >>> Shroudly (removed automatically) >>>\nexport auto_proxy='${url4}'\n# <<< Shroudly <<<\n` && read(ENVD).includes(`auto_proxy=${url4}\n`) && sysEnv.get('auto_proxy') === url4,
       '…every entry now names the new address (one block, not two)');
-    squat.close();
+    try { squat.close(); } catch {}
 
     // The user stops protection: everything goes, exactly.
     const log5 = logs();
