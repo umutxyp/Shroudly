@@ -125,6 +125,8 @@ class AppProxy {
   constructor(log, getSocksPort, routed) {
     this.log = log || (() => {});
     this.getSocksPort = getSocksPort || (() => null);
+    // async (): resolves once the engine is up, or it is not coming (main.js).
+    this.waitForEngine = null;
     this.routed = routed || (() => true);
     this.lookup = lookupAll;            // tests stand in for this machine's DNS
     this.server = null;
@@ -240,6 +242,9 @@ class AppProxy {
     let up;
     let socksPortUsed = null;
     try {
+      // As in the Discord relay: protection on its way up is waited for, so
+      // a program started at login does not go out directly and fail.
+      if (this.waitForEngine) { try { await this.waitForEngine(); } catch {} }
       const via = await this.route(t.host);
       if (via === 'refuse') { if (!client.destroyed) client.end('HTTP/1.1 403 Forbidden\r\n\r\n'); return; }
       const socksPort = via === 'engine' ? this.getSocksPort() : null;

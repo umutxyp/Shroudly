@@ -20,6 +20,15 @@ const t = suite('engine-manager');
   const em = new EngineManager(store, { addLog: (l, m) => logs.push(`${l}: ${m}`), onAdvice: (a) => advices.push(JSON.parse(JSON.stringify(a))) });
   em.proxy = { apply: async () => {}, restore: async () => {}, cleanupSync() {} };
 
+  // Programs carried by Shroudly wait while the engine is on its way, never
+  // while it is being stopped.
+  t.ok(em.coming === false, 'nothing coming at rest');
+  em._starting = Promise.resolve(); t.ok(em.coming === true, 'a start under way: the engine is coming');
+  em._stops = 1; t.ok(em.coming === false, '…but not while a stop is asked for');
+  em._stops = 0; em._starting = null;
+  em._restartTimer = setTimeout(() => {}, 1); t.ok(em.coming === true, 'a crash restart pending: coming');
+  clearTimeout(em._restartTimer); em._restartTimer = null;
+
   await em.start();
   const startLine = logs.find((l) => l.includes('Starting engine')) || '';
   t.ok(/\(\+\d{3} known block pages\)/.test(startLine), 'engine gets the block-page list; the log line stays short');

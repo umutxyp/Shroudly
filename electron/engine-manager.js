@@ -243,6 +243,10 @@ class EngineManager {
   /* A stop has been asked for and is not done yet. */
   get stopping() { return this._stops > 0; }
 
+  /* The engine is on its way: a start under way, or a restart after a crash
+   * or a settings change. Programs carried by Shroudly wait for it. */
+  get coming() { return !this.stopping && (!!this._starting || !!this._restartTimer || !!this.restarting); }
+
   _serial(fn) {
     const run = this._ops.then(fn);
     this._ops = run.catch(() => {});

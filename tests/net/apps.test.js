@@ -435,6 +435,18 @@ async function robloxInstaller(proxy, socksPort) {
   const d = await getWithRetry(port, 'www.wikipedia.org');
   t.ok(d.tunnel === 200 && d.status >= 200 && d.status < 500, `[direct] protection off: still works (HTTP ${d.status})`);
 
+  // Protection on its way up (at login): a program's first connection waits
+  // for the engine instead of going out directly and failing.
+  engineOn = false;
+  let waited = 0;
+  proxy.waitForEngine = async () => { const t0 = Date.now(); await sleep(800); engineOn = true; waited = Date.now() - t0; };
+  const vias = [];
+  proxy.onTunnel = (h, via) => vias.push(via);
+  const w = await getWithRetry(port, 'www.wikipedia.org');
+  t.ok(w.tunnel === 200 && waited >= 700 && vias[0] === 'engine', `[waits] a connection made while the engine is starting goes through it once it is up (via ${vias[0]})`);
+  proxy.waitForEngine = null;
+  proxy.onTunnel = null;
+
   engineOn = true;
   eng.stop();
   await sleep(300);

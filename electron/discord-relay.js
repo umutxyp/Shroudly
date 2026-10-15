@@ -119,6 +119,8 @@ class DiscordRelay {
   constructor(log, getSocksPort) {
     this.log = log || (() => {});
     this.getSocksPort = getSocksPort || (() => null);
+    // async (): resolves once the engine is up, or it is not coming (main.js).
+    this.waitForEngine = null;
     this.server = null;
     this.port = 0;
     this.requests = 0;
@@ -171,6 +173,10 @@ class DiscordRelay {
   }
 
   async _connect(host) {
+    // Protection on its way up (at login, or the engine being restarted):
+    // wait for it rather than go out directly, which a filtering network
+    // refuses, leaving Discord saying "retrying".
+    if (this.waitForEngine) { try { await this.waitForEngine(); } catch {} }
     const socksPort = this.getSocksPort();
     const raw = socksPort
       ? await socksConnect(socksPort, host, 443)
