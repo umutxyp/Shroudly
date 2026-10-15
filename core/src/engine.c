@@ -975,8 +975,15 @@ static void relay(sock_t a, sock_t b, cut_watch *cw) {
     if (w & 2) {
       int n = recv(b, (char *)buf, RELAY_BUF, 0);
       if (n <= 0) {
+        /* A reset is a censor's cut only when it lands on business in flight:
+         * a request still unanswered, a record arriving in pieces, or a
+         * connection that never got a byte. A reset after a completed
+         * exchange, with nothing outstanding, is an ordinary keep-alive
+         * teardown (Microsoft, Instagram, Discord's gateway all do it), not a
+         * cut, and must not be reported as one or learned from. */
         if (n < 0 && sock_errno() == SE_CONNRESET && cw && cw->host && !reported &&
-            cw->down < CUT_MAX_BYTES && (cw->down > 0 || !cw->gave_up))
+            cw->down < CUT_MAX_BYTES && (cw->down > 0 || !cw->gave_up) &&
+            (waiting_since || tls_mid_record(&cw->tt) || cw->down == 0))
         { report("cut", cw->host, "reset", (int)(cw->down / 1024), cw->fam, NULL); hs_on_cut(cw->host); }
         break;
       }

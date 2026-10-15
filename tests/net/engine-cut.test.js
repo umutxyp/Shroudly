@@ -59,6 +59,10 @@ function shape(buf, name) {
       // 6000 bytes of the reply, then nothing: mid-record, as a filter that drops the rest leaves it.
       else if (m === 'stall') { const room = 6000 - toClient; if (room > 0) { c.write(d.subarray(0, room)); toClient += Math.min(room, d.length); } }
       else if (m === 'reset') { c.resetAndDestroy(); u.destroy(); }
+      // Forward the whole reply, then reset the idle connection a moment
+      // later, the way Microsoft, Instagram and Discord's gateway drop an
+      // idle keep-alive. This is not a censor cut and must not be reported.
+      else if (m === 'lateReset') { c.write(d); toClient += d.length; if (toClient >= BIG.length) setTimeout(() => { try { c.resetAndDestroy(); u.destroy(); } catch {} }, 700); }
       // 'noreply': drop everything
     });
     c.on('error', () => {}); u.on('error', () => {}); c.on('close', () => u.destroy());
@@ -76,7 +80,9 @@ function shape(buf, name) {
     let got = 0;
     await new Promise((resolve) => {
       s.on('secureConnect', () => s.write('GET / HTTP/1.1\r\nHost: x\r\n\r\n'));
-      s.on('data', (d) => { got += d.length; if (got > BIG.length) resolve(); });
+      // lateReset: do not resolve on the full reply; wait for the idle reset
+      // that follows, so the relay sees the reset while watching this host.
+      s.on('data', (d) => { got += d.length; if (got > BIG.length && m !== 'lateReset') resolve(); });
       s.on('error', resolve); s.on('close', resolve);
       setTimeout(resolve, 18000);
     });
@@ -99,6 +105,11 @@ function shape(buf, name) {
   t.ok(r.cut.length === 1 && r.cut[0].strategy === 'reset', 'reset after the handshake -> "reset" reported');
   r = await visit('noreply', 'quiet.test.local');
   t.ok(r.cut.length === 1 && r.cut[0].strategy === 'noreply', 'request never answered -> "noreply" reported');
+  // A reset on an idle keep-alive, after the whole reply was delivered, is a
+  // normal teardown — not a cut. Reporting it turned Microsoft, Instagram and
+  // Discord's gateway into "connects then cut, only a VPN" false alarms.
+  r = await visit('lateReset', 'keepalive.test.local');
+  t.ok(r.got > BIG.length && r.cut.length === 0, 'an idle keep-alive reset after a full exchange is not reported as a cut');
 
   // A filter that resets a handshake the moment its first piece arrives on its
   // own, before the rest: a technique that sends the handshake in several
