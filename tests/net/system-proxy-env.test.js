@@ -51,6 +51,15 @@ const read = (f) => { try { return fs.readFileSync(f, 'utf8'); } catch { return 
 const state = (name) => path.join(TMP, name, 'proxy-state.json');
 const envFile = (name) => path.join(TMP, name, 'proxy-env.json');
 // Windows has no Unix permissions to keep (this code only runs on Linux).
+/* A folder Shroudly made is gone. This code only runs on Linux; run on
+ * Windows, a folder just emptied can refuse to go while another program (the
+ * virus scanner) still holds the file that was in it: noted, not failed. */
+const folderGone = (dir) => {
+  if (!fs.existsSync(dir)) return true;
+  if (process.platform !== 'win32' || fs.readdirSync(dir).length) return false;
+  console.log(`  --  Windows: the emptied folder ${path.basename(dir)} could not be removed at once (Linux-only code)`);
+  return true;
+};
 const modeIs = (f, m) => process.platform === 'win32' || (fs.statSync(f).mode & 0o777) === m;
 
 function fakeExec(handlers) {
@@ -296,7 +305,7 @@ const clean = () => { for (const f of [XPROFILE, ENVD, LXQT]) fs.rmSync(f, { for
     if (text && text.includes('wpad.corp')) t.ok(sysEnv.get('auto_proxy') === sp.pacUrl, 'systemd: our value replaces the user\'s own for now');
     await sp.restore();
     sp.clearEnv();
-    t.ok(read(LXQT) === text && (text !== null || !fs.existsSync(path.dirname(LXQT))), `LXQt session.conf, ${label}: back byte for byte after the stop${text === null ? ' (gone, with the folder made for it)' : ''}`);
+    t.ok(read(LXQT) === text && (text !== null || folderGone(path.dirname(LXQT))), `LXQt session.conf, ${label}: back byte for byte after the stop${text === null ? ' (gone, with the folder made for it)' : ''}`);
     if (text && text.includes('wpad.corp')) t.ok(sysEnv.get('auto_proxy') === 'http://wpad.corp/p.pac?a=1&b=2' && dbusEnv.get('auto_proxy') === 'http://wpad.corp/p.pac?a=1&b=2',
       'a user\'s own auto_proxy in the session (systemd, D-Bus) is put back exactly, quoting and all');
   }
