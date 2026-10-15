@@ -57,6 +57,25 @@ While Shroudly is active it points the system (or your browser) at its local
 proxy, and it always restores the previous setting on stop, crash, or logout —
 so your internet is never left broken.
 
+How the system is pointed at it, on every OS and in both routing modes: a
+proxy auto-config (PAC) file served on `127.0.0.1`, set as the system's
+automatic proxy configuration. Through it every browser speaks SOCKS5 to
+Shroudly and leaves the name lookup to it. This machine and the local network
+always connect directly; every other site Shroudly routes goes only through
+it, never quietly around it.
+
+| System | Where the setting goes |
+|---|---|
+| Windows | The per-user automatic configuration script (no admin rights). Your own manual proxy setting is left as it is. |
+| macOS | Automatic proxy configuration on every network service. An administrator account needs no password; a Standard account needs an administrator's password once per session, and Shroudly puts the setting back without asking again. |
+| Linux, GNOME / Cinnamon / Unity | GNOME's proxy setting, in automatic mode. |
+| Linux, KDE Plasma | KDE's proxy setting (`kioslaverc`), as a proxy configuration script. |
+| Linux, XFCE / LXQt / window managers | These desktops have no system proxy. Shroudly says so instead of claiming the system is routed; point the browser at `socks5://127.0.0.1:<port>` or the PAC address in its own settings. Firefox follows GNOME's setting where it is installed, so Shroudly still sets it. |
+
+If another program (a VPN client, another proxy tool) takes the system proxy
+over while Shroudly is on, Shroudly notices within a minute and says so, and
+it does not undo that program's setting when it stops.
+
 ---
 
 ## How it works
@@ -412,7 +431,8 @@ password to install an update, as any system package does.
 > offers that).
 
 No administrator or root rights are needed to run it; only the optional
-[Advanced mode](#advanced-mode-stateful-dpi) asks for them.
+[Advanced mode](#advanced-mode-stateful-dpi) asks for them, and on a Standard
+macOS account, setting the system proxy (see [What is Shroudly?](#what-is-shroudly)).
 
 ---
 

@@ -156,7 +156,20 @@ class EngineManager {
     this.siteList = hooks.siteList || (() => DEFAULT_SITE_LIST);
     this.lastProbe = null;
     this.proxyOptions = hooks.proxyOptions || {};
-    this.proxy = new SystemProxy(this.log, this.proxyOptions);
+    // What the system proxy is doing, for the window: SystemProxy.apply()'s
+    // result ({ ok, code: 'ok' | 'no_system_proxy' | 'needs_admin' |
+    // 'apply_failed' | 'replaced', ... }), or null while protection is off.
+    this.onProxyStatus = hooks.onProxyStatus || (() => {});
+    this.proxyStatus = null;
+    this.proxy = new SystemProxy(this.log, {
+      ...this.proxyOptions,
+      // Another program took the system proxy over (or gave it back).
+      onOwnership: (owned, info) => {
+        if (!this.proxyStatus) return;
+        const base = this.proxyStatus.replacedFrom || this.proxyStatus;
+        this._setProxyStatus(owned ? base : { ...base, ok: false, code: 'replaced', lost: info.lost, replacedFrom: base });
+      },
+    });
     this.onAdvice = hooks.onAdvice || (() => {});
     // What the window should tell the user about this network. Kept here, not
     // only sent, because most of it is learned before the window has loaded.
@@ -360,7 +373,7 @@ class EngineManager {
     }
 
     try {
-      await this.proxy.apply(this.port, cfg.routeMode, cfg.siteList);
+      this._setProxyStatus(await this.proxy.apply(this.port, cfg.routeMode, cfg.siteList));
     } catch (e) {
       this.log('error', `Could not set system proxy: ${e.message}`);
       await this._cleanup();
@@ -631,6 +644,7 @@ class EngineManager {
     this.log('error', `Engine exited unexpectedly (code ${code}).`);
     // Restore proxy immediately so the user is never left half-routed.
     await this.proxy.restore();
+    this._setProxyStatus(null);
     this.active = false;
     this.onStatusChange(false);
 
@@ -695,6 +709,7 @@ class EngineManager {
 
     // Restore proxy first so traffic goes direct the instant we stop.
     await this.proxy.restore();
+    this._setProxyStatus(null);
 
     if (this.proc) {
       try { this.proc.stdin.write('STOP\n'); } catch {}
@@ -724,13 +739,37 @@ class EngineManager {
     if (!this.active) return { success: true };
     const cfg = this._settings();
     try {
+      // Set with an administrator's password (macOS): the system already
+      // points at our PAC, and re-applying would ask for the password again,
+      // so only the PAC's answer changes.
+      if (this.proxyStatus && this.proxyStatus.admin && this.proxy.updateRouting &&
+          this.proxy.updateRouting(cfg.routeMode, cfg.siteList)) {
+        this.log('success', 'Proxy routing updated');
+        return { success: true };
+      }
       await this.proxy.restore();                       // back to the user's own settings
-      await this.proxy.apply(this.port, cfg.routeMode, cfg.siteList);
+      this._setProxyStatus(await this.proxy.apply(this.port, cfg.routeMode, cfg.siteList));
       this.log('success', 'Proxy routing updated');
     } catch (e) {
       this.log('error', `Could not update proxy routing: ${e.message}`);
     }
     return { success: true };
+  }
+
+  _setProxyStatus(status) {
+    this.proxyStatus = status || null;
+    try { this.onProxyStatus(this.proxyStatus); } catch {}
+  }
+
+  /* macOS Standard account ('needs_admin'): set the system proxy with an
+   * administrator's password, asked for by the system's own dialog. For a
+   * button in the window; resolves to the new status (code 'ok', 'cancelled'
+   * or 'needs_admin'). */
+  async applyProxyAsAdmin() {
+    if (!this.active || !this.proxy.applyAsAdmin) return { ok: false, code: 'not_active' };
+    const status = await this.proxy.applyAsAdmin();
+    this._setProxyStatus(status);
+    return status;
   }
 
   _waitExit(ms) {
@@ -746,6 +785,7 @@ class EngineManager {
     if (this.proc) { try { this.proc.kill(); } catch {} this.proc = null; }
     this.doh.stop(); this.dohPort = 0;
     try { await this.proxy.restore(); } catch {}
+    this._setProxyStatus(null);
     this.active = false;
   }
 

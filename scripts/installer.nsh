@@ -4,6 +4,11 @@
 ; without letting it restore the Windows proxy. If the proxy still points at
 ; a local Shroudly endpoint, switch it off so the user keeps their internet.
 ; Also remove Shroudly's login entries, so nothing keeps calling a removed exe.
+;
+; Shroudly sets only the PAC address (AutoConfigURL) now; 2.5.4 and earlier
+; also set a manual SOCKS proxy (ProxyServer "socks=127.0.0.1:<port>") and
+; switched it on. Both are recognised. ProxyEnable is switched off only along
+; with that manual proxy: with the PAC alone it is the user's own setting.
 
 !include LogicLib.nsh
 !include WinVer.nsh
@@ -16,19 +21,19 @@
   StrCpy $1 $0 16
   ReadRegStr $2 HKCU "${SHROUDLY_INET}" "AutoConfigURL"
   StrCpy $3 $2 17
+  StrCpy $5 $2 "" -10
   ${If} $1 == "socks=127.0.0.1:"
-  ${OrIf} $3 == "http://127.0.0.1:"
     WriteRegDWORD HKCU "${SHROUDLY_INET}" "ProxyEnable" 0
-    ${If} $1 == "socks=127.0.0.1:"
-      DeleteRegValue HKCU "${SHROUDLY_INET}" "ProxyServer"
-    ${EndIf}
-    ${If} $3 == "http://127.0.0.1:"
-      DeleteRegValue HKCU "${SHROUDLY_INET}" "AutoConfigURL"
-    ${EndIf}
+    DeleteRegValue HKCU "${SHROUDLY_INET}" "ProxyServer"
     ReadRegStr $4 HKCU "${SHROUDLY_INET}" "ProxyOverride"
     ${If} $4 == "<local>;127.*;10.*;172.16.*;192.168.*;localhost"
       DeleteRegValue HKCU "${SHROUDLY_INET}" "ProxyOverride"
     ${EndIf}
+  ${EndIf}
+  ; Ours is http://127.0.0.1:<port>/proxy.pac; another local tool's PAC stays.
+  ${If} $3 == "http://127.0.0.1:"
+  ${AndIf} $5 == "/proxy.pac"
+    DeleteRegValue HKCU "${SHROUDLY_INET}" "AutoConfigURL"
   ${EndIf}
   DeleteRegValue HKCU "Software\Microsoft\Windows\CurrentVersion\RunOnce" "ShroudlyProxyRestore"
 !macroend
