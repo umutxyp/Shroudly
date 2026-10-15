@@ -48,12 +48,19 @@ static const char *RESOLVERS[MAX_RESOLVERS] = {
   "1.1.1.1", "8.8.8.8", "9.9.9.9", "208.67.222.222", "8.8.4.4"
 };
 
+/* One cached answer: every usable address the name has (up to DOH_MAX_ADDRS,
+ * in the order DNS gave them), kept for as long as its TTL says. Addresses are
+ * stored bare rather than as sockaddr_storage, which would make the table five
+ * times larger for no gain; the port is filled in when an answer is handed out,
+ * so one entry serves every port of the name. */
+#define TTL_MIN_S 20     /* a lower TTL would mean a lookup on nearly every connection */
+#define TTL_MAX_S 300    /* a higher one would keep an address the site has moved away from */
+
 typedef struct {
   char     name[256];
-  uint16_t port;
   int      family;
-  struct sockaddr_storage sa;
-  socklen_t salen;
+  uint8_t  addr[DOH_MAX_ADDRS][16];
+  int      naddr;
   uint64_t expires;
   int      used;
 } cache_entry;
@@ -74,36 +81,91 @@ void doh_clear_cache(void) {
   mutex_unlock(&g_cache_mx);
 }
 
-static cache_entry *cache_find(const char *name, uint16_t port, int want6) {
+static uint32_t ttl_clamp(uint32_t ttl) {
+  if (ttl < TTL_MIN_S) return TTL_MIN_S;
+  if (ttl > TTL_MAX_S) return TTL_MAX_S;
+  return ttl;
+}
+
+static int addr_len(int family) { return family == AF_INET6 ? 16 : 4; }
+
+/* Build the sockaddr for a stored address. */
+static socklen_t addr_out(int family, const uint8_t *a, uint16_t port, struct sockaddr_storage *out) {
+  memset(out, 0, sizeof(*out));
+  if (family == AF_INET6) {
+    struct sockaddr_in6 *s = (struct sockaddr_in6 *)out;
+    s->sin6_family = AF_INET6; s->sin6_port = htons(port);
+    memcpy(&s->sin6_addr, a, 16);
+    return (socklen_t)sizeof(*s);
+  }
+  struct sockaddr_in *s = (struct sockaddr_in *)out;
+  s->sin_family = AF_INET; s->sin_port = htons(port);
+  memcpy(&s->sin_addr, a, 4);
+  return (socklen_t)sizeof(*s);
+}
+
+/* Caller holds g_cache_mx. */
+static cache_entry *cache_find(const char *name, int family) {
   uint64_t t = now_ms();
   for (int i = 0; i < CACHE_SIZE; i++) {
     cache_entry *e = &g_cache[i];
-    if (e->used && e->port == port && e->expires > t &&
-        ((want6 && e->family == AF_INET6) || (!want6 && e->family == AF_INET)) &&
+    if (e->used && e->naddr > 0 && e->expires > t && e->family == family &&
         strcmp(e->name, name) == 0)
       return e;
   }
   return NULL;
 }
 
-static void cache_put(const char *name, uint16_t port, int family,
-                      const struct sockaddr_storage *sa, socklen_t salen) {
+/* Caller holds g_cache_mx. */
+static void cache_put(const char *name, int family, uint8_t (*addrs)[16], int n, uint32_t ttl) {
+  if (n <= 0) return;
+  if (n > DOH_MAX_ADDRS) n = DOH_MAX_ADDRS;
   uint64_t t = now_ms();
-  int slot = -1;
+  int slot = -1, victim = 0;
   uint64_t oldest = (uint64_t)-1;
-  for (int i = 0; i < CACHE_SIZE; i++) {
+  /* The name's own entry first, so a fresh answer replaces the old one
+   * instead of sitting next to it; else a free or expired slot; else the
+   * entry closest to expiring. */
+  for (int i = 0; i < CACHE_SIZE; i++)
+    if (g_cache[i].used && g_cache[i].family == family && strcmp(g_cache[i].name, name) == 0) { slot = i; break; }
+  for (int i = 0; i < CACHE_SIZE && slot < 0; i++) {
     if (!g_cache[i].used || g_cache[i].expires <= t) { slot = i; break; }
-    if (g_cache[i].expires < oldest) { oldest = g_cache[i].expires; slot = i; }
+    if (g_cache[i].expires < oldest) { oldest = g_cache[i].expires; victim = i; }
   }
-  if (slot < 0) slot = 0;
+  if (slot < 0) slot = victim;
   cache_entry *e = &g_cache[slot];
   memset(e, 0, sizeof(*e));
   strncpy(e->name, name, sizeof(e->name) - 1);
-  e->port = port; e->family = family;
-  memcpy(&e->sa, sa, sizeof(*sa));
-  e->salen = salen;
-  e->expires = t + 300000; /* 5 min */
+  e->family = family;
+  memcpy(e->addr, addrs, (size_t)n * 16);
+  e->naddr = n;
+  e->expires = t + (uint64_t)ttl_clamp(ttl) * 1000;
   e->used = 1;
+}
+
+/* An address of this name could not be connected to. Take it out of the
+ * cached answer, so the next connection starts with one that may work instead
+ * of waiting out the same timeout again; once none are left the name is looked
+ * up afresh. */
+void doh_forget(const char *name, const struct sockaddr_storage *sa) {
+  if (!g_init || !name || !sa) return;
+  int family = sa->ss_family;
+  const uint8_t *a;
+  if (family == AF_INET) a = (const uint8_t *)&((const struct sockaddr_in *)sa)->sin_addr;
+  else if (family == AF_INET6) a = (const uint8_t *)&((const struct sockaddr_in6 *)sa)->sin6_addr;
+  else return;
+  mutex_lock(&g_cache_mx);
+  cache_entry *e = cache_find(name, family);
+  if (e) {
+    for (int i = 0; i < e->naddr; i++) {
+      if (memcmp(e->addr[i], a, (size_t)addr_len(family)) != 0) continue;
+      memmove(e->addr[i], e->addr[i + 1], (size_t)(e->naddr - i - 1) * 16);
+      e->naddr--;
+      break;
+    }
+    if (e->naddr <= 0) e->used = 0;
+  }
+  mutex_unlock(&g_cache_mx);
 }
 
 /* ── bogon / block-page filtering ───────────────────────────────────────── */
@@ -141,6 +203,14 @@ void doh_add_block_ip(const char *ip) {
 static int is_blockpage_v4(uint32_t ip /*host order*/) {
   for (int i = 0; i < g_block_n; i++) if (g_block_ips[i] == ip) return 1;
   return 0;
+}
+
+/* An IPv4 address that a poisoned resolver hands out in place of the real
+ * one: a known block page, 0.0.0.0, or loopback. Narrower than the bogon set on
+ * purpose — a private address such as 192.168.1.1 is a real destination when a
+ * client asks for it directly. */
+int doh_ipv4_is_sinkhole(uint32_t ip /*host order*/) {
+  return ip == 0 || (ip >> 24) == 127 || is_blockpage_v4(ip);
 }
 
 /* True if a resolved address is a censorship answer (block page or bogon). */
@@ -207,10 +277,12 @@ static int dns_build(uint8_t *q, const char *name, uint16_t id, int type) {
   return p;
 }
 
-/* Parse the first matching A/AAAA record; returns 0 on success, DNS_NODATA
- * when the answer is valid but holds no usable record of that type (e.g. a
- * name without AAAA), -1 when the reply is unusable. */
-#define DNS_NODATA (-2)
+/* dns_parse: 0 with at least one usable address, DNS_NODATA when the answer
+ * is valid but holds no usable record of that type (e.g. a name without
+ * AAAA), DNS_NXDOMAIN when the name does not exist, -1 when the reply is
+ * unusable. */
+#define DNS_NODATA   (-2)
+#define DNS_NXDOMAIN (-3)
 /* Does this reply echo the question we sent? A reply carrying someone else's
  * question is not an answer to ours, however well-formed it looks. */
 static int dns_question_matches(const uint8_t *r, int len, const uint8_t *q, int qlen) {
@@ -235,59 +307,83 @@ static int dns_question_matches(const uint8_t *r, int len, const uint8_t *q, int
   return memcmp(r + i, q + j, 4) == 0;               /* qtype and qclass */
 }
 
+/* Skip a (possibly compressed) name; returns the offset after it, or -1. */
+static int dns_skip_name(const uint8_t *r, int len, int p) {
+  while (p < len) {
+    uint8_t l = r[p];
+    if (l == 0) return p + 1;
+    if ((l & 0xc0) == 0xc0) return p + 2 <= len ? p + 2 : -1;   /* a pointer ends the name */
+    if (l & 0xc0) return -1;                                     /* reserved label types */
+    p += 1 + l;
+  }
+  return -1;
+}
+
+/* Every usable A (or AAAA) record of the answer, in the order given, up to
+ * `max`, and the smallest TTL among them. A name usually has several
+ * addresses, and the first one being down or unreachable from here is common
+ * enough (a CDN node, an IPv6 route that is not there) that dialling only the
+ * first would fail sites that work. Records pointing at a bogon or a known
+ * block page are left out, since that is how DNS censorship answers. */
 static int dns_parse(const uint8_t *r, int len, int want6,
-                     struct sockaddr_storage *out, socklen_t *outlen, uint16_t port) {
+                     uint8_t (*addrs)[16], int max, int *naddr, uint32_t *min_ttl) {
+  *naddr = 0;
+  if (min_ttl) *min_ttl = 0;
   if (len < 12) return -1;
   int qd = (r[4] << 8) | r[5];
   int an = (r[6] << 8) | r[7];
-  if ((r[3] & 0x0f) != 0) return -1; /* rcode */
+  /* NXDOMAIN is an answer, not a broken reply: treated as unusable, every
+   * lookup of a name that does not exist sat out each resolver's whole
+   * timeout, so a mistyped or dead host took tens of seconds to fail. Any other
+   * error code is a resolver problem: ask the next. */
+  if ((r[3] & 0x0f) == 3) return DNS_NXDOMAIN;
+  if ((r[3] & 0x0f) != 0) return -1;
   int p = 12;
-  for (int i = 0; i < qd && p < len; i++) {
-    while (p < len && r[p]) { if (r[p] >= 0xc0) { p += 2; goto qdone; } p += r[p] + 1; }
-    p++; qdone: p += 4;
+  for (int i = 0; i < qd; i++) {
+    p = dns_skip_name(r, len, p);
+    if (p < 0 || p + 4 > len) return -1;
+    p += 4;
   }
   int wtype = want6 ? 28 : 1;
-  for (int i = 0; i < an && p + 10 <= len; i++) {
-    if (r[p] >= 0xc0) p += 2;
-    else { while (p < len && r[p]) p += r[p] + 1; p++; }
-    if (p + 10 > len) return -1;
+  uint32_t ttl_lo = 0xffffffffu;
+  int damaged = 0;
+  for (int i = 0; i < an && *naddr < max; i++) {
+    p = dns_skip_name(r, len, p);
+    /* A damaged record ends the walk; what was read before it stands. */
+    if (p < 0 || p + 10 > len) { damaged = 1; break; }
     int type = (r[p] << 8) | r[p + 1];
+    uint32_t ttl = ((uint32_t)r[p + 4] << 24) | ((uint32_t)r[p + 5] << 16) |
+                   ((uint32_t)r[p + 6] << 8) | (uint32_t)r[p + 7];
     int rdlen = (r[p + 8] << 8) | r[p + 9];
     int rdata = p + 10;
-    if (rdata + rdlen > len) return -1;
-    if (type == wtype) {
-      if (!want6 && rdlen == 4) {
-        uint32_t ip = ((uint32_t)r[rdata] << 24) | ((uint32_t)r[rdata+1] << 16) |
-                      ((uint32_t)r[rdata+2] << 8) | (uint32_t)r[rdata+3];
-        if (is_bogon_v4(ip) || is_blockpage_v4(ip)) { p = rdata + rdlen; continue; }
-        struct sockaddr_in *s = (struct sockaddr_in *)out;
-        memset(s, 0, sizeof(*s));
-        s->sin_family = AF_INET;
-        s->sin_port = htons(port);
-        memcpy(&s->sin_addr, r + rdata, 4);
-        *outlen = sizeof(*s);
-        return 0;
-      }
-      if (want6 && rdlen == 16) {
-        struct sockaddr_in6 *s = (struct sockaddr_in6 *)out;
-        memset(s, 0, sizeof(*s));
-        s->sin6_family = AF_INET6;
-        s->sin6_port = htons(port);
-        memcpy(&s->sin6_addr, r + rdata, 16);
-        *outlen = sizeof(*s);
-        return 0;
-      }
-    }
+    if (rdata + rdlen > len) { damaged = 1; break; }
     p = rdata + rdlen;
+    if (type != wtype) continue;
+    if (!want6 && rdlen == 4) {
+      uint32_t ip = ((uint32_t)r[rdata] << 24) | ((uint32_t)r[rdata+1] << 16) |
+                    ((uint32_t)r[rdata+2] << 8) | (uint32_t)r[rdata+3];
+      if (is_bogon_v4(ip) || is_blockpage_v4(ip)) continue;
+    } else if (!(want6 && rdlen == 16)) {
+      continue;
+    }
+    int dup = 0;
+    for (int k = 0; k < *naddr; k++) if (memcmp(addrs[k], r + rdata, (size_t)rdlen) == 0) dup = 1;
+    if (dup) continue;
+    memset(addrs[*naddr], 0, 16);
+    memcpy(addrs[*naddr], r + rdata, (size_t)rdlen);
+    (*naddr)++;
+    if (ttl < ttl_lo) ttl_lo = ttl;
   }
-  return DNS_NODATA;
+  if (*naddr == 0) return damaged ? -1 : DNS_NODATA;
+  if (min_ttl) *min_ttl = ttl_lo;
+  return 0;
 }
 
-/* Query one resolver over UDP; collect up to 3 replies within the window and
- * return the first non-bogon answer. */
+/* Query one resolver over UDP; collect replies within the window and return
+ * the first one that carries a usable (non-bogon) address. */
 static int query_udp_at(const char *resolver, uint16_t rport, int timeout_ms,
-                        const char *name, int want6, uint16_t port,
-                        struct sockaddr_storage *out, socklen_t *outlen) {
+                        const char *name, int want6,
+                        uint8_t (*addrs)[16], int *naddr, uint32_t *ttl) {
   sock_t s = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
   if (s == SOCK_INVALID) return -1;
   sock_set_timeouts(s, timeout_ms);
@@ -325,13 +421,15 @@ static int query_udp_at(const char *resolver, uint16_t rport, int timeout_ms,
     if (from.sin_addr.s_addr != to.sin_addr.s_addr) continue; /* wrong source */
     if (from.sin_port != to.sin_port) continue;        /* right host, wrong port */
     if (!dns_question_matches(r, n, q, qlen)) continue; /* answers something else */
-    int pr = dns_parse(r, n, want6, out, outlen, port);
+    int pr = dns_parse(r, n, want6, addrs, DOH_MAX_ADDRS, naddr, ttl);
     if (pr == 0) { rc = 0; break; }
-    /* "No such record": don't sit out the whole window, but leave a short
-     * grace period in case it was a forged reply racing the real one. */
-    if (pr == DNS_NODATA && rc != DNS_NODATA) {
-      rc = DNS_NODATA;
-      uint64_t grace = now_ms() + 250;
+    /* "No such record" (or name): don't sit out the whole window, but leave a
+     * short grace period in case it was a forged reply racing the real one.
+     * Longer for "no such name", the answer an injector would forge to make a
+     * site vanish. */
+    if ((pr == DNS_NODATA || pr == DNS_NXDOMAIN) && rc == -1) {
+      rc = pr;
+      uint64_t grace = now_ms() + (pr == DNS_NXDOMAIN ? 600 : 250);
       if (grace < deadline) deadline = grace;
     }
   }
@@ -339,77 +437,92 @@ static int query_udp_at(const char *resolver, uint16_t rport, int timeout_ms,
   return rc;
 }
 
-int doh_resolve(const char *name, uint16_t port, int want6,
-                struct sockaddr_storage *out, socklen_t *outlen) {
+/* Hand out up to `max` cached addresses with the port filled in. Caller holds
+ * g_cache_mx. */
+static int cache_copy(const cache_entry *e, uint16_t port, struct sockaddr_storage *out,
+                      socklen_t *outlen, int max) {
+  int n = e->naddr < max ? e->naddr : max;
+  for (int i = 0; i < n; i++) outlen[i] = addr_out(e->family, e->addr[i], port, &out[i]);
+  return n;
+}
+
+static int answer(const char *name, uint16_t port, int family, uint8_t (*addrs)[16], int n,
+                  uint32_t ttl, struct sockaddr_storage *out, socklen_t *outlen, int max) {
+  mutex_lock(&g_cache_mx);
+  cache_put(name, family, addrs, n, ttl);
+  mutex_unlock(&g_cache_mx);
+  if (n > max) n = max;
+  for (int i = 0; i < n; i++) outlen[i] = addr_out(family, addrs[i], port, &out[i]);
+  return n;
+}
+
+int doh_resolve_all(const char *name, uint16_t port, int want6,
+                    struct sockaddr_storage *out, socklen_t *outlen, int max) {
   if (!g_init) doh_init(NULL, NULL);
+  if (!name || max <= 0) return -1;
+  int family = want6 ? AF_INET6 : AF_INET;
 
   /* literal IP? */
   struct in_addr a4; struct in6_addr a6;
   if (inet_pton(AF_INET, name, &a4) == 1) {
-    struct sockaddr_in *s = (struct sockaddr_in *)out;
-    memset(s, 0, sizeof(*s)); s->sin_family = AF_INET; s->sin_port = htons(port);
-    s->sin_addr = a4; *outlen = sizeof(*s); return 0;
+    outlen[0] = addr_out(AF_INET, (const uint8_t *)&a4, port, &out[0]); return 1;
   }
   if (inet_pton(AF_INET6, name, &a6) == 1) {
-    struct sockaddr_in6 *s = (struct sockaddr_in6 *)out;
-    memset(s, 0, sizeof(*s)); s->sin6_family = AF_INET6; s->sin6_port = htons(port);
-    s->sin6_addr = a6; *outlen = sizeof(*s); return 0;
+    outlen[0] = addr_out(AF_INET6, (const uint8_t *)&a6, port, &out[0]); return 1;
   }
 
   mutex_lock(&g_cache_mx);
-  cache_entry *c = cache_find(name, port, want6);
-  if (c) { memcpy(out, &c->sa, sizeof(*out)); *outlen = c->salen; mutex_unlock(&g_cache_mx); return 0; }
+  cache_entry *c = cache_find(name, family);
+  if (c) { int n = cache_copy(c, port, out, outlen, max); mutex_unlock(&g_cache_mx); return n; }
   mutex_unlock(&g_cache_mx);
 
+  uint8_t addrs[DOH_MAX_ADDRS][16];
+  int n = 0;
+  uint32_t ttl = 0;
+
   /* 1. Real encrypted DNS via the local forwarder, if the app started one. */
-  if (g_fwd_port) {
-    struct sockaddr_storage cand; socklen_t cl;
-    if (query_udp_at(g_fwd_ip, g_fwd_port, 4000, name, want6, port, &cand, &cl) == 0) {
-      mutex_lock(&g_cache_mx);
-      cache_put(name, port, want6 ? AF_INET6 : AF_INET, &cand, cl);
-      mutex_unlock(&g_cache_mx);
-      memcpy(out, &cand, sizeof(cand)); *outlen = cl;
-      return 0;
-    }
-  }
+  if (g_fwd_port &&
+      query_udp_at(g_fwd_ip, g_fwd_port, 4000, name, want6, addrs, &n, &ttl) == 0)
+    return answer(name, port, family, addrs, n, ttl, out, outlen, max);
 
   /* 2. Fallback: several independent public resolvers over UDP/53. An on-path
    * injector must poison all of them identically to win. */
-  int nodata = 0;
+  int nodata = 0, nxdomain = 0;
   for (int i = 0; i < MAX_RESOLVERS; i++) {
-    struct sockaddr_storage cand; socklen_t cl;
-    int qr = query_udp_at(RESOLVERS[i], 53, 1500, name, want6, port, &cand, &cl);
-    if (qr == 0) {
-      mutex_lock(&g_cache_mx);
-      cache_put(name, port, want6 ? AF_INET6 : AF_INET, &cand, cl);
-      mutex_unlock(&g_cache_mx);
-      memcpy(out, &cand, sizeof(cand)); *outlen = cl;
-      return 0;
-    }
+    int qr = query_udp_at(RESOLVERS[i], 53, 1500, name, want6, addrs, &n, &ttl);
+    if (qr == 0) return answer(name, port, family, addrs, n, ttl, out, outlen, max);
     /* Two independent resolvers agree the name has no record of this type:
      * believe them (the caller then tries the other address family). */
     if (qr == DNS_NODATA && ++nodata >= 2) return -1;
+    /* Two agree the name does not exist at all: the other public resolvers
+     * will not know better, but the system's may — a hosts-file entry, an
+     * intranet name — so that one still gets asked. */
+    if (qr == DNS_NXDOMAIN && ++nxdomain >= 2) break;
   }
 
-  /* Last resort: OS resolver (may be poisoned, but better than failing). */
+  /* Last resort: OS resolver (may be poisoned, but better than failing). Not
+   * cached: it gives no TTL, and it is the answer we trust least. */
   struct addrinfo hints, *res = NULL;
   memset(&hints, 0, sizeof(hints));
-  hints.ai_family = want6 ? AF_INET6 : AF_INET;
+  hints.ai_family = family;
   hints.ai_socktype = SOCK_STREAM;
   char portstr[8]; snprintf(portstr, sizeof(portstr), "%u", port);
-  if (getaddrinfo(name, portstr, &hints, &res) == 0 && res) {
-    for (struct addrinfo *ai = res; ai; ai = ai->ai_next) {
-      struct sockaddr_storage cand; memset(&cand, 0, sizeof(cand));
-      memcpy(&cand, ai->ai_addr, ai->ai_addrlen);
-      if (doh_addr_is_block(&cand)) continue;  /* OS DNS was poisoned too */
-      memcpy(out, ai->ai_addr, ai->ai_addrlen);
-      *outlen = (socklen_t)ai->ai_addrlen;
-      freeaddrinfo(res);
-      return 0;
-    }
-    freeaddrinfo(res);
-    return -1;
+  if (getaddrinfo(name, portstr, &hints, &res) != 0 || !res) { if (res) freeaddrinfo(res); return -1; }
+  int got = 0;
+  for (struct addrinfo *ai = res; ai && got < max; ai = ai->ai_next) {
+    if (ai->ai_addrlen > sizeof(struct sockaddr_storage)) continue;
+    struct sockaddr_storage cand; memset(&cand, 0, sizeof(cand));
+    memcpy(&cand, ai->ai_addr, ai->ai_addrlen);
+    if (doh_addr_is_block(&cand)) continue;  /* OS DNS was poisoned too */
+    memcpy(&out[got], &cand, sizeof(cand));
+    outlen[got] = (socklen_t)ai->ai_addrlen;
+    got++;
   }
-  if (res) freeaddrinfo(res);
-  return -1;
+  freeaddrinfo(res);
+  return got > 0 ? got : -1;
+}
+
+int doh_resolve(const char *name, uint16_t port, int want6,
+                struct sockaddr_storage *out, socklen_t *outlen) {
+  return doh_resolve_all(name, port, want6, out, outlen, 1) > 0 ? 0 : -1;
 }

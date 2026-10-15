@@ -2,9 +2,12 @@
 """
 Deterministic inline DPI (a real middlebox, not async RST).
 
-It is a TCP proxy: client -> [DPI] -> server. It can run in two modes:
+It is a TCP proxy: client -> [DPI] -> server. It can run in three modes:
   stateless : inspects ONLY the first inbound segment for a whole SNI.
   stateful  : buffers/reassembles until it has the full TLS record, then inspects.
+  silent    : like stateful, but a blocked connection is swallowed instead of
+              closed: nothing is forwarded, nothing comes back, nothing is
+              reset — how some ISPs (Turkcell Superonline among them) block.
 If a blocked SNI is seen, it DROPS the connection (close both sides) = deterministic block.
 Otherwise it relays transparently.
 
@@ -13,7 +16,7 @@ This models exactly how a censor middlebox sits in-path, and the block is
 deterministic (no timing races), so test results are trustworthy.
 """
 import sys, socket, threading
-MODE=sys.argv[1]          # stateless | stateful
+MODE=sys.argv[1]          # stateless | stateful | silent
 LISTEN=int(sys.argv[2])
 TARGET=int(sys.argv[3])
 BLOCK=[b"dpi-test.local", b"blocked.example"]
@@ -71,8 +74,16 @@ def handle(cli):
                 # forward and stop inspecting (only first segment matters)
                 srv.sendall(buf)
                 break
-            else: # stateful
+            else: # stateful / silent
                 sni,full=extract_sni(buf)  # reassembled buffer
+                if blocked(sni) and MODE=="silent":
+                    srv.close()
+                    print(f"[INLINE-DPI/silent] SWALLOWED {sni}",flush=True)
+                    cli.settimeout(None)
+                    try:
+                        while cli.recv(65536): pass   # read and discard until the client gives up
+                    except: pass
+                    cli.close(); return
                 if blocked(sni):
                     cli.close(); srv.close()
                     print(f"[INLINE-DPI/stateful] BLOCKED {sni}",flush=True); return
