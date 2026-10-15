@@ -110,7 +110,7 @@ export default function BlockedNotice({ onNavigate, active = false }) {
     window.electron.onNeedRestart?.(({ apps }) => { setRestartApps(apps); refreshDiscord(); });
     window.electron.onDnsAutoEnabled?.(({ host: h }) => setDnsAuto(h));
     window.electron.onDiscordState?.(() => refreshDiscord());
-    window.electron.onAppsState?.(() => refreshApps());
+    const offApps = window.electron.onAppsState?.(() => refreshApps());
     window.electron.onAdvice?.((a) => { setAdvice(a); refreshAdv(); });
     // Listening now: notices that came while there was no window follow.
     window.electron.uiReady?.();
@@ -123,7 +123,7 @@ export default function BlockedNotice({ onNavigate, active = false }) {
       window.electron.removeNeedRestartListener?.();
       window.electron.removeDnsAutoEnabledListener?.();
       window.electron.removeDiscordStateListener?.();
-      window.electron.removeAppsStateListener?.();
+      if (typeof offApps === 'function') offApps(); else window.electron.removeAppsStateListener?.();
       window.electron.removeAdviceListener?.();
     };
   }, []);
@@ -194,6 +194,19 @@ export default function BlockedNotice({ onNavigate, active = false }) {
   }
   if (apps?.failed && !hidden.appsFailed) {
     return <Banner Icon={ShieldAlertIcon} body={t('appFailed')} onClose={() => hide('appsFailed')} closeLabel={closeLabel} />;
+  }
+  /* Running, but nothing of it goes through Shroudly: started by a browser
+   * that was open before the setting. Shroudly can start it properly. */
+  if (apps?.bypassing && !apps.needsRestart && !hidden.appsBypass) {
+    return (
+      <Banner tone="accent" Icon={ShieldAlertIcon} title={t('appBypassTitle')} body={t('appBypassBody')}
+              onClose={() => hide('appsBypass')} closeLabel={closeLabel}>
+        <Actions>
+          <button type="button" onClick={appsRestart} disabled={busy}
+                  className="btn btn-primary rounded-[8px] px-3 py-1.5 text-[12.5px] font-semibold">{t('appRestartThrough')}</button>
+        </Actions>
+      </Banner>
+    );
   }
   if (apps?.needsRestart && apps.robloxRunning) {
     return (
@@ -329,10 +342,13 @@ export default function BlockedNotice({ onNavigate, active = false }) {
     );
   }
 
-  /* Asked once, while protection is on, where Roblox is installed or being
-   * installed. It changes what every newly started program is told about
-   * proxies, so it is offered, never done unasked. */
-  if (active && apps?.available && (apps.robloxInstalled || apps.robloxRunning) && apps.mode == null && !appOfferHidden) {
+  /* Offered while protection is on, where Roblox is installed or being
+   * installed, or where the network blocks Roblox (there the installer is the
+   * first thing to fail). It changes what every newly started program is told
+   * about proxies, so it is offered, never done unasked; "Not now" asks again
+   * in two weeks. */
+  if (active && apps?.available && (apps.robloxInstalled || apps.robloxRunning || apps.robloxBlockedHere)
+      && apps.mode == null && !apps.offerSnoozed && !appOfferHidden) {
     return (
       <Banner tone="accent" Icon={ShieldAlertIcon} title={t('appOfferTitle')} body={t('appOfferBody')}>
         <Actions>

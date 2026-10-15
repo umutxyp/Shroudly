@@ -7,6 +7,7 @@ contextBridge.exposeInMainWorld('electron', {
   minimizeWindow: () => ipcRenderer.send('window:minimize'),
   maximizeWindow: () => ipcRenderer.send('window:maximize'),
   closeWindow: () => ipcRenderer.send('window:close'),
+  quitApp: () => ipcRenderer.send('app:quit'),
   // The window is closed for real when unused (see main.js): it reports use,
   // when it is listening, and is told to save before it goes.
   uiActive: () => ipcRenderer.send('ui:active'),
@@ -75,7 +76,10 @@ contextBridge.exposeInMainWorld('electron', {
   appsSet: (on) => ipcRenderer.invoke('apps:set', on),
   appsDecline: () => ipcRenderer.invoke('apps:decline'),
   appsRestartRoblox: () => ipcRenderer.invoke('apps:restartRoblox'),
-  onAppsState: (cb) => ipcRenderer.on('apps:state', (e, p) => cb(p)),
+  appsOpenRoblox: () => ipcRenderer.invoke('apps:openRoblox'),
+  appsInstallRoblox: () => ipcRenderer.invoke('apps:installRoblox'),
+  // Returns a function that removes just this listener (several panels listen).
+  onAppsState: (cb) => { const h = (e, p) => cb(p); ipcRenderer.on('apps:state', h); return () => ipcRenderer.removeListener('apps:state', h); },
   removeAppsStateListener: () => ipcRenderer.removeAllListeners('apps:state'),
   startAdvanced: () => ipcRenderer.invoke('advanced:start'),
   stopAdvanced: () => ipcRenderer.invoke('advanced:stop'),

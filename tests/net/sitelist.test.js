@@ -205,6 +205,19 @@ function pacEval(body) {
   eng.stop();
   t.ok(/"name":\s*"shroudly"/i.test(body), 'GitHub raw files arrive through the engine (the path the published list takes)');
 
-  console.log(`sitelist: ${t.count} passed`);
+    // Families: a custom list naming part of a service gets all of it, and the
+  // app's copy matches the one the automatic list is built from.
+  {
+    const Families = require(path.join(ROOT, 'electron', 'families.js'));
+    const src = JSON.parse(fs.readFileSync(path.join(ROOT, 'scripts', 'site-list', 'families.json'), 'utf8'));
+    const byId = Object.fromEntries(src.families.map((f) => [f.id, f.domains]));
+    t.ok(JSON.stringify(Families.FAMILIES.roblox) === JSON.stringify(byId.roblox) && JSON.stringify(Families.FAMILIES.discord) === JSON.stringify(byId.discord)
+      && JSON.stringify(Families.CAPTCHA) === JSON.stringify(src.shared.captcha), 'electron/families.js matches scripts/site-list/families.json');
+    const ex = Families.expand(['www.roblox.com', 'example.org']);
+    t.ok(ex[0] === 'www.roblox.com' && ex[1] === 'example.org' && ['rbxcdn.com', 'rbxinfra.net', 'arkoselabs.com', 'funcaptcha.com'].every((d) => ex.includes(d)) && !ex.includes('discord.com'),
+      'a custom list with roblox gets its CDN, sign-in and captcha too, and nothing else');
+    t.ok(JSON.stringify(Families.expand(['example.org'])) === '["example.org"]' && Families.expand([]).length === 0, 'a list naming no family is left as it is');
+  }
+console.log(`sitelist: ${t.count} passed`);
   process.exit(0);
 })().catch((e) => { console.error('FAIL', e.message); process.exit(1); });

@@ -18,6 +18,7 @@ const path = require('path');
 const fs = require('fs');
 const SystemProxy = require('./system-proxy');
 const DohForwarder = require('./doh-forwarder');
+const Families = require('./families');
 const diagnostics = require('./diagnostics');
 const { DISCORD_DOMAINS } = require('./discord-relay');
 const fingerprints = require('./censor-fingerprints');
@@ -214,7 +215,7 @@ class EngineManager {
       // engine leaves a connection completely untouched unless it is refused:
       // ordinary browsing is relayed as-is, at the same speed as no proxy.
       routeMode: s.routeMode === 'listed' ? 'listed' : 'all',
-      siteList: withDiscord(Array.isArray(s.siteList) ? s.siteList : this.siteList()),
+      siteList: Families.expand(withDiscord(Array.isArray(s.siteList) ? s.siteList : this.siteList())),
       port: Number(s.listenPort) || DEFAULT_PORT,
     };
   }

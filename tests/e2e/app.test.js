@@ -63,7 +63,9 @@ async function record(label, pid) {
     autoMode: false, showNotifications: false, minimizeToTray: true, autoStart: false, language: 'tr', shareOnlineCount: true,
   }));
   fs.mkdirSync(SHOTS, { recursive: true });
-  const env = { ...process.env, SHROUDLY_IDLE_RELEASE_MS: String(IDLE_MS) };
+  // The main run as on a desktop that shows tray icons; a stock GNOME without
+  // one is checked separately at the end (Linux).
+  const env = { ...process.env, SHROUDLY_IDLE_RELEASE_MS: String(IDLE_MS), SHROUDLY_TRAY: 'present' };
   delete env.ELECTRON_RUN_AS_NODE;
 
   const app = await _electron.launch({
@@ -226,6 +228,31 @@ async function record(label, pid) {
     };
     ok(!(await relaunch(false)), 'stopped by the user, then restarted: protection stays off');
     if (process.env.CI) ok(await relaunch(true), 'left on by the user, then restarted: protection comes back on');
+  }
+
+  // ── 8. a desktop with no tray icons (stock GNOME): the window must never
+  //       vanish, since nothing on screen could bring it back ──
+  if (!BASELINE && process.platform === 'linux') {
+    const cfg = JSON.parse(fs.readFileSync(path.join(ud, 'config.json'), 'utf8'));
+    fs.writeFileSync(path.join(ud, 'config.json'), JSON.stringify({ ...cfg, autoMode: false, protectionOn: false }));
+    const envNoTray = { ...env };
+    delete envNoTray.SHROUDLY_TRAY;   // the real check, on a session bus with no StatusNotifier host
+    const a = await _electron.launch({
+      executablePath: require(path.join(APP, 'node_modules', 'electron')),
+      args: [APP, `--user-data-dir=${ud}`, '--no-sandbox'], env: envNoTray, timeout: 60000,
+    });
+    try {
+      const w = await a.firstWindow();
+      await w.waitForLoadState('domcontentloaded');
+      const count = () => a.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows().length);
+      await sleep(IDLE_MS + 8000);
+      ok(await count() === 1, 'no tray: an unused window is not closed');
+      await w.evaluate(() => window.electron.closeWindow());
+      await sleep(2500);
+      const st = await a.evaluate(({ BrowserWindow }) => { const x = BrowserWindow.getAllWindows()[0]; return x ? { min: x.isMinimized() } : null; });
+      ok(!!st && st.min, 'no tray: closing minimises instead of hiding');
+      ok(await w.evaluate(() => typeof window.electron.quitApp === 'function'), 'the window offers its own Quit');
+    } finally { await a.close().catch(() => {}); }
   }
   fs.rmSync(ud, { recursive: true, force: true });
 

@@ -204,15 +204,53 @@ function systemResolve(host, ms = 2500) {
   });
 }
 
-async function dnsTampering() {
+/* The forged answers, and how many names the system's DNS answered at all:
+ * a resolver that answers none (a local DNS program that was removed or
+ * stopped) breaks every program that does not go through Shroudly, while the
+ * browser keeps working, which is very confusing without this line. */
+async function dnsProbe() {
   const hits = [];
+  let answered = 0;
   for (const host of CANARIES) {
     const addrs = await systemResolve(host);
     if (!addrs || !addrs.length) continue;
+    answered++;
     const bad = addrs.filter(looksForged);
     if (bad.length) hits.push({ host, addrs: bad, country: bad.map(fingerprints.countryOf).find(Boolean) || null });
   }
-  return hits;
+  return { hits, answered, asked: CANARIES.length };
+}
+
+async function dnsTampering() { return (await dnsProbe()).hits; }
+
+/* When the system's DNS is a program on this computer (127.0.0.1, ::1):
+ * which one. Many leftovers of other bypass tools (DNSCrypt, YogaDNS,
+ * AdGuard, Acrylic, SecureDNSClient) live there, and some also intercept
+ * traffic. Linux's own systemd-resolved (127.0.0.53) is the normal case and
+ * not looked into. Asked only when the DNS is local. */
+const isLoopbackDns = (a) => /^127\./.test(a) || a === '::1';
+async function localDnsOwner(servers) {
+  const loop = (servers || []).filter(isLoopbackDns);
+  if (!loop.length || loop.every((a) => a === '127.0.0.53')) return null;
+  let names = [];
+  if (process.platform === 'win32') {
+    const out = await run(winTool('WindowsPowerShell\\v1.0\\powershell.exe'), ['-NoProfile', '-NonInteractive', '-Command',
+      'Get-NetUDPEndpoint -LocalPort 53 -ErrorAction SilentlyContinue | ForEach-Object { (Get-Process -Id $_.OwningProcess -ErrorAction SilentlyContinue).ProcessName } | Sort-Object -Unique'], 8000);
+    names = out.split(/\r?\n/);
+  } else if (process.platform === 'darwin') {
+    // Programs bound to port 53 here, not the ones merely asking a DNS
+    // server (those show as "local->remote:53").
+    let cmd = null;
+    for (const l of (await run('/usr/sbin/lsof', ['-nP', '-iUDP:53', '-Fcn'])).split('\n')) {
+      if (l.startsWith('c')) cmd = l.slice(1);
+      else if (l.startsWith('n') && cmd && !l.includes('->') && /:53$/.test(l)) names.push(cmd);
+    }
+  } else {
+    const out = await run('/usr/bin/ss', ['-lunpH', 'sport = :53']);
+    names = [...out.matchAll(/\(\("([^"]+)"/g)].map((m) => m[1]);
+  }
+  names = [...new Set(names.map((n) => n.trim()).filter(Boolean))].slice(0, 4);
+  return { servers: loop, programs: names };
 }
 
 /* The country the clock is set to, for the stateful-filter countries only.
@@ -259,19 +297,23 @@ async function systemDnsServers() {
 async function collect() {
   const ifName = await defaultRoute();
   const iface = ifName ? describeInterface(ifName) : { name: '?', kind: 'unknown' };
-  const [tools, servers, forged, restart] = await Promise.all([
-    runningTools({ details: true }), systemDnsServers(), dnsTampering(), appsNeedingRestart(),
+  const [tools, servers, probe, restart] = await Promise.all([
+    runningTools({ details: true }), systemDnsServers(), dnsProbe(), appsNeedingRestart(),
   ]);
+  const localDns = await localDnsOwner(servers).catch(() => null);
   return {
     os: `${process.platform} ${os.release()} ${process.arch}`,
     iface,
     dnsServers: servers,
+    localDns,
+    dnsAnswered: probe.answered,
+    dnsAsked: probe.asked,
     conflicts: tools.active,
     idleVpns: tools.idle,
-    forgedDns: forged,
-    region: regionOf(forged),
+    forgedDns: probe.hits,
+    region: regionOf(probe.hits),
     needRestart: restart,
   };
 }
 
-module.exports = { collect, runningTools, appsNeedingRestart, dnsTampering, defaultRoute, describeInterface, regionOf, looksForged, timezoneCountry };
+module.exports = { collect, runningTools, appsNeedingRestart, dnsTampering, dnsProbe, localDnsOwner, defaultRoute, describeInterface, regionOf, looksForged, timezoneCountry };

@@ -162,7 +162,7 @@ export default function SettingsPanel({ active = false }) {
   // Discord app mode: shown only where the Discord app has been used
   const [discord, setDiscord] = useState({ installed: false, on: false });
   // Games and apps mode: shown on the systems where it works (Windows, macOS)
-  const [apps, setApps] = useState({ available: false, on: false, platform: '' });
+  const [apps, setApps] = useState({ available: false, on: false, platform: '', canInstall: false, installed: false, store: false, installing: false, regional: null });
   const [defaultList, setDefaultList] = useState([]);
   const [siteText, setSiteText] = useState(null);   // textarea draft (null until loaded)
   const [badEntries, setBadEntries] = useState([]); // lines dropped as unusable
@@ -204,11 +204,31 @@ export default function SettingsPanel({ active = false }) {
     } catch { setDiscord((d) => ({ ...d, on: !on })); }
   }
 
+  const loadApps = (running) => window.electron?.appsStatus?.({ running: running === true })
+    .then((a) => setApps({
+      available: !!a?.available, on: a?.mode === true, platform: a?.platform || '',
+      canInstall: !!a?.canInstall, installed: !!a?.robloxInstalled, store: !!a?.storeEdition,
+      installing: !!a?.installing, regional: a?.robloxRegional || null,
+    }))
+    .catch(() => {});
   useEffect(() => {
-    window.electron?.appsStatus?.()
-      .then((a) => setApps({ available: !!a?.available, on: a?.mode === true, platform: a?.platform || '' }))
-      .catch(() => {});
+    loadApps(true);
+    const off = window.electron?.onAppsState?.(() => loadApps());
+    return () => { if (typeof off === 'function') off(); };
   }, []);
+  const [robloxMsg, setRobloxMsg] = useState(null);
+  async function robloxAction(kind) {
+    setRobloxMsg(kind === 'install' ? { tone: 'dim', text: t('appInstalling') } : null);
+    try {
+      const r = kind === 'install' ? await window.electron.appsInstallRoblox() : await window.electron.appsOpenRoblox();
+      if (r?.success) setRobloxMsg(kind === 'install' ? { tone: 'ok', text: t('appInstallStarted') } : null);
+      else if (r?.code === 'not_installed') setRobloxMsg({ tone: 'warn', text: t('appNotInstalled') });
+      else if (r?.code === 'protection_off') setRobloxMsg({ tone: 'warn', text: t('testNeedsProtection') });
+      else if (r?.code === 'unsigned') setRobloxMsg({ tone: 'warn', text: t('appInstallUnsigned') });
+      else setRobloxMsg({ tone: 'warn', text: t('appInstallFailed') });
+    } catch { setRobloxMsg({ tone: 'warn', text: t('appInstallFailed') }); }
+    loadApps();
+  }
 
   async function setAppMode(on) {
     setApps((a) => ({ ...a, on }));
@@ -331,7 +351,7 @@ export default function SettingsPanel({ active = false }) {
 
   const strategyOptions = STRATEGIES.map((s) => ({ value: s.id, label: t(s.labelKey), hint: s.spec }));
 
-  const probeBlocked = probeResult && !probeResult.ok;
+  const probeBlocked = probeResult && !probeResult.ok && !probeResult.service;
 
   return (
     <div className="flex flex-col gap-3 py-4">
@@ -412,6 +432,33 @@ export default function SettingsPanel({ active = false }) {
             <Toggle label={t('appModeLabel')}
                     desc={apps.platform === 'win32' ? `${t('appModeDesc')} ${t('appBrowserNote')}` : t('appModeDesc')}
                     checked={apps.on} onChange={setAppMode} />
+          )}
+          {apps.available && apps.on && (
+            <div className="px-1 pb-1">
+              <div className="flex flex-wrap gap-2">
+                <button type="button" onClick={() => robloxAction('open')} disabled={apps.installing}
+                        className="btn btn-primary rounded-[8px] px-3 py-1.5 text-[12.5px] font-semibold">{t('appOpenRoblox')}</button>
+                {apps.canInstall && (
+                  <button type="button" onClick={() => robloxAction('install')} disabled={apps.installing || !active}
+                          className="btn btn-ghost rounded-[8px] px-3 py-1.5 text-[12.5px] font-semibold">
+                    {apps.installing ? t('appInstalling') : t('appInstallRoblox')}
+                  </button>
+                )}
+              </div>
+              {apps.platform === 'win32' && (
+                <p className="mt-2 text-[12px] leading-snug" style={{ color: 'var(--text-faint)' }}>{t('appLaunchHint')}</p>
+              )}
+              {apps.store && (
+                <p className="mt-2 text-[12px] leading-snug" style={{ color: 'var(--warn)' }}>{t('appStoreEdition')}</p>
+              )}
+              {apps.regional === 'VN' && (
+                <p className="mt-2 text-[12px] leading-snug" style={{ color: 'var(--warn)' }}>{t('appRegionalVN')}</p>
+              )}
+              {robloxMsg && (
+                <p role="status" className="mt-2 text-[12px] leading-snug"
+                   style={{ color: robloxMsg.tone === 'warn' ? 'var(--warn)' : robloxMsg.tone === 'ok' ? 'var(--ok)' : 'var(--text-dim)' }}>{robloxMsg.text}</p>
+              )}
+            </div>
           )}
         </div>
 
@@ -542,7 +589,13 @@ export default function SettingsPanel({ active = false }) {
 
         {probeResult && (
           <div className="mt-3" aria-live="polite">
-            {probeResult.ok && probeResult.strategy === 'none' && (
+            {probeResult.service && (
+              <Notice tone="warn" Icon={AlertTriangleIcon}>
+                <p className="mb-1 font-semibold" style={{ color: 'var(--warn)' }}>{t('probeServiceTitle', { host: probeResult.host })}</p>
+                <p className="text-[12.5px]" style={{ color: 'var(--text-dim)' }}>{t('probeServiceBody', { host: probeResult.host })}</p>
+              </Notice>
+            )}
+            {!probeResult.service && probeResult.ok && probeResult.strategy === 'none' && (
               <Notice tone={probeResult.dns_blocked ? 'ok' : 'info'} Icon={probeResult.dns_blocked ? CheckCircleIcon : InfoIcon}>
                 <p style={{ color: probeResult.dns_blocked ? 'var(--ok)' : 'var(--text-dim)' }}>
                   {probeResult.dns_blocked
@@ -551,7 +604,7 @@ export default function SettingsPanel({ active = false }) {
                 </p>
               </Notice>
             )}
-            {probeResult.ok && probeResult.strategy !== 'none' && (
+            {!probeResult.service && probeResult.ok && probeResult.strategy !== 'none' && (
               <Notice tone="ok" Icon={CheckCircleIcon}>
                 <p style={{ color: 'var(--ok)' }}>
                   {t('probeWorks', { host: probeResult.host, strategy: probeResult.strategy || '—' })}
@@ -678,6 +731,13 @@ export default function SettingsPanel({ active = false }) {
           />
           <Toggle label={t('showNotifications')} desc={t('showNotificationsDesc')} checked={settings.showNotifications} onChange={(v) => save('showNotifications', v)} />
           <Toggle label={t('autoUpdate')} desc={t('autoUpdateDesc')} checked={settings.autoUpdate !== false} onChange={(v) => save('autoUpdate', v)} />
+        </div>
+        {/* Quitting is otherwise only in the tray menu, which some desktops
+            (stock GNOME) never show. Quitting restores every setting. */}
+        <div className="mt-3 flex items-center justify-between gap-3">
+          <p className="m-0 min-w-0 text-[12px] leading-snug" style={{ color: 'var(--text-faint)' }}>{t('quitAppDesc')}</p>
+          <button type="button" onClick={() => window.electron?.quitApp?.()}
+                  className="btn btn-ghost shrink-0 rounded-[8px] px-3 py-1.5 text-[12.5px] font-semibold">{t('quitApp')}</button>
         </div>
       </Section>
     </div>
