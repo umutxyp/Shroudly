@@ -7,6 +7,7 @@
   #include <signal.h>
   #include <time.h>
   #include <sys/ioctl.h>
+  #include <sys/resource.h>
   #ifdef __linux__
     #include <linux/sockios.h>
   #endif
@@ -18,6 +19,16 @@ int plat_init(void) {
   return WSAStartup(MAKEWORD(2, 2), &wsa) == 0 ? 0 : -1;
 #else
   signal(SIGPIPE, SIG_IGN);
+  /* Every relayed connection holds two sockets, and one that has to work
+   * through its techniques holds a few more for a while. A process often
+   * starts with room for only 256 (macOS) or 1024 (Linux): raise that to what
+   * the system allows, as Node and the browsers do. Nothing here uses
+   * select(), so a high descriptor number is no problem. */
+  struct rlimit rl;
+  if (getrlimit(RLIMIT_NOFILE, &rl) == 0 && rl.rlim_cur != RLIM_INFINITY && rl.rlim_cur < 8192) {
+    rlim_t want = (rl.rlim_max == RLIM_INFINITY || rl.rlim_max > 8192) ? 8192 : rl.rlim_max;
+    if (want > rl.rlim_cur) { rl.rlim_cur = want; setrlimit(RLIMIT_NOFILE, &rl); }
+  }
   return 0;
 #endif
 }
@@ -238,6 +249,85 @@ int sock_wait_either(sock_t a, sock_t b, int timeout_ms) {
   if (p[0].revents) mask |= 1;
   if (p[1].revents) mask |= 2;
   return mask;
+}
+
+int sock_wait_any(const sock_t *s, int n, int timeout_ms, int *ready) {
+  if (n <= 0 || n > SOCK_POLL_MAX) return -1;
+#ifdef _WIN32
+  WSAPOLLFD p[SOCK_POLL_MAX];
+  for (int i = 0; i < n; i++) { p[i].fd = s[i]; p[i].events = POLLRDNORM; p[i].revents = 0; }
+  int r = WSAPoll(p, (ULONG)n, timeout_ms);
+#else
+  struct pollfd p[SOCK_POLL_MAX];
+  for (int i = 0; i < n; i++) { p[i].fd = s[i]; p[i].events = POLLIN; p[i].revents = 0; }
+  int r;
+  do { r = poll(p, (nfds_t)n, timeout_ms); } while (r < 0 && errno == EINTR);
+#endif
+  if (r < 0) return -1;
+  int k = 0;
+  for (int i = 0; i < n; i++) { ready[i] = p[i].revents != 0; k += ready[i]; }
+  return k;
+}
+
+int sock_connect_start(sock_t s, const struct sockaddr *sa, int salen) {
+  if (sock_set_nonblock(s, 1) != 0) return -1;
+  if (connect(s, sa, salen) == 0) { sock_set_nonblock(s, 0); return 0; }
+  int e = sock_errno();
+#ifdef _WIN32
+  if (e == WSAEWOULDBLOCK || e == WSAEINPROGRESS) return 1;
+#else
+  if (e == EINPROGRESS || e == EINTR) return 1;
+#endif
+  return -1;
+}
+
+/* Whether a connect that has come back from waiting worked. */
+static int connect_ok(sock_t s) {
+  int err = 0;
+#ifdef _WIN32
+  int len = sizeof(err);
+#else
+  socklen_t len = sizeof(err);
+#endif
+  if (getsockopt(s, SOL_SOCKET, SO_ERROR, (char *)&err, &len) != 0 || err != 0) return 0;
+  sock_set_nonblock(s, 0);
+  return 1;
+}
+
+int sock_connect_wait(const sock_t *s, int n, int timeout_ms, int *done) {
+  if (n <= 0 || n > SOCK_POLL_MAX) return -1;
+  for (int i = 0; i < n; i++) done[i] = 0;
+#ifdef _WIN32
+  /* select, not WSAPoll: before Windows 10 2004, WSAPoll does not report a
+   * refused connect at all, so it would look like one that never answers. */
+  fd_set wr, ex;
+  FD_ZERO(&wr); FD_ZERO(&ex);
+  for (int i = 0; i < n; i++) { FD_SET(s[i], &wr); FD_SET(s[i], &ex); }
+  struct timeval tv;
+  tv.tv_sec = timeout_ms / 1000; tv.tv_usec = (timeout_ms % 1000) * 1000;
+  int r = select(0, NULL, &wr, &ex, &tv);
+  if (r == SOCKET_ERROR) return -1;
+  if (r == 0) return 0;
+  int k = 0;
+  for (int i = 0; i < n; i++) {
+    if (FD_ISSET(s[i], &ex)) { done[i] = -1; k++; }
+    else if (FD_ISSET(s[i], &wr)) { done[i] = connect_ok(s[i]) ? 1 : -1; k++; }
+  }
+  return k;
+#else
+  struct pollfd p[SOCK_POLL_MAX];
+  for (int i = 0; i < n; i++) { p[i].fd = s[i]; p[i].events = POLLOUT; p[i].revents = 0; }
+  int r;
+  do { r = poll(p, (nfds_t)n, timeout_ms); } while (r < 0 && errno == EINTR);
+  if (r < 0) return -1;
+  int k = 0;
+  for (int i = 0; i < n; i++) {
+    if (!p[i].revents) continue;
+    done[i] = (p[i].revents & POLLOUT) && connect_ok(s[i]) ? 1 : -1;
+    k++;
+  }
+  return k;
+#endif
 }
 
 /* ── threads ───────────────────────────────────────────────────────────── */
