@@ -935,7 +935,13 @@ ipcMain.handle('advanced:available', () => ({
 ipcMain.handle('advanced:start', async () => {
   try {
     const ttl = Number(store.get('fakeTtl', 4)) || 4;
-    const r = await advanced.start(ttl);
+    // QUIC forced to TCP and Discord-voice decoys are on by default; a user can
+    // turn either off in settings without the browser losing TCP coverage.
+    const opts = {
+      quicBlock: store.get('advancedQuicBlock', true) !== false,
+      udpFake: store.get('advancedUdpFake', true) !== false,
+    };
+    const r = await advanced.start(ttl, opts);
     addLog('success', 'Advanced mode enabled');
     return r || { success: true };
   } catch (e) {
