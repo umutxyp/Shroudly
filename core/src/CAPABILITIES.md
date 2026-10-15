@@ -151,3 +151,42 @@ addition to bogons.
 **Still not defeated by any technique here**
 Blocking by server address, protocol whitelisting and shutdowns. The app says
 so plainly when it sees the signs, instead of looking like it works.
+
+## Update 4: Advanced mode UDP — QUIC forced to TCP, Discord voice decoys (2.5.5)
+
+Both advanced backends now also handle outbound IPv4 UDP (IPv6 UDP is
+re-injected unchanged; the backend builds IPv4 fakes only). The kernel-queue
+filter stays narrow (proto + port); payloads are classified in code
+(`core/src/udpdpi.c`, unit-tested in `core/test/test_udpdpi.c`). Every UDP
+datagram that is not an exact match is re-injected unchanged, and every error
+path re-injects the real datagram — the only deliberate drop is the QUIC Initial.
+
+- **QUIC forced to TCP.** Browsers send HTTP/3 over QUIC (UDP/443), which never
+  enters the TCP proxy and so is filtered directly, breaking YouTube/Google even
+  with Shroudly on. The backend drops the QUIC **Initial** packet (long header,
+  real version v1 / v2 / `ff0000xx` draft; Version Negotiation and short-header
+  packets pass), so the browser falls back to TCP — the same move GoodbyeDPI and
+  zapret make. The engine has no routed-by-IP map at the packet layer (routing
+  is by SNI/host in the userspace proxy), so the drop is unconditional while the
+  feature is on; non-blocked sites merely lose QUIC's latency benefit and keep
+  working over TCP. Switchable (`--no-quic-block`), on by default.
+- **Decoy packets for Discord voice.** A censor can fingerprint the first voice
+  datagrams — Discord's 74-byte IP-discovery request and RFC 5389 STUN binding
+  requests — on the media ports (50000-65535) and STUN ports (3478, 19302-19309).
+  Ahead of the first one or two datagrams of each flow (tracked in a bounded
+  256-entry, 10 s table), the backend injects N (default 6) decoy datagrams to
+  the same 5-tuple: random payload of the same length, the configured low fake
+  TTL, valid IPv4+UDP checksums (so a checksum-validating middlebox still
+  ingests them; the low TTL alone stops them before the server). The real
+  datagram is then re-injected unchanged. Switchable (`--no-udp-fake`), on by
+  default; count via `--fake-repeats`.
+
+On Linux the UDP NFQUEUE rule (iptables, else nftables) is installed at start
+and removed on every stop path exactly like the TCP rule, over the same queue;
+injected fakes carry fwmark `0x10000000` and the rule skips them. On Windows the
+UDP clauses join the WinDivert filter; WinDivert tags its own injected packets
+(WFP), so decoys are never re-captured.
+
+**Only a network-level block.** These help only where the *network* filters QUIC
+or the voice packets. A hard IP block of the servers is unaffected — the app
+still says so and points to a VPN.

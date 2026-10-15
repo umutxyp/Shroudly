@@ -45,6 +45,9 @@ static int  g_doh_fwd_port = 0;
 static int g_advanced = 0;
 static int g_queue = 200;
 static int g_fake_ttl = 4;
+static int g_quic_block = 1;    /* Advanced mode: drop QUIC Initial -> TCP */
+static int g_udp_fake = 1;      /* Advanced mode: decoys for Discord voice UDP */
+static int g_fake_repeats = 6;  /* how many decoy datagrams per voice flow */
 static char g_status_file[1024] = "";
 static long g_parent_pid = 0;
 
@@ -60,7 +63,11 @@ static void usage(void) {
     "  --strategy <spec>     e.g. \"fake(ttl=4),split(sni)\"\n"
     "  --auto                auto-probe best strategy per host\n"
     "  --doh                 use anti-poisoning resolver\n"
-    "  --ipv6                prefer IPv6 upstream\n");
+    "  --ipv6                prefer IPv6 upstream\n"
+    "  --advanced            packet-layer backend (needs elevation)\n"
+    "  --fake-repeats <n>    Advanced: decoy datagrams per Discord voice flow\n"
+    "  --no-quic-block       Advanced: keep QUIC (do not force browsers to TCP)\n"
+    "  --no-udp-fake         Advanced: no decoys for Discord voice UDP\n");
 }
 
 int main(int argc, char **argv) {
@@ -89,6 +96,9 @@ int main(int argc, char **argv) {
     else if (!strcmp(argv[i], "--advanced")) g_advanced = 1;
     else if (!strcmp(argv[i], "--queue") && i+1<argc) g_queue = atoi(argv[++i]);
     else if (!strcmp(argv[i], "--fake-ttl") && i+1<argc) g_fake_ttl = atoi(argv[++i]);
+    else if (!strcmp(argv[i], "--fake-repeats") && i+1<argc) g_fake_repeats = atoi(argv[++i]);
+    else if (!strcmp(argv[i], "--no-quic-block")) g_quic_block = 0;
+    else if (!strcmp(argv[i], "--no-udp-fake")) g_udp_fake = 0;
     else if (!strcmp(argv[i], "--status-file") && i+1<argc) strncpy(g_status_file, argv[++i], sizeof(g_status_file)-1);
     else if (!strcmp(argv[i], "--parent-pid") && i+1<argc) g_parent_pid = atol(argv[++i]);
     else if (!strcmp(argv[i], "--help")) { usage(); return 0; }
@@ -108,10 +118,10 @@ int main(int argc, char **argv) {
   #endif
     int rr;
   #if defined(__linux__)
-    rr = raw_linux_start(g_queue, g_fake_ttl);
+    rr = raw_linux_start(g_queue, g_fake_ttl, g_quic_block, g_udp_fake, g_fake_repeats);
     raw_linux_stop();
   #elif defined(_WIN32)
-    rr = raw_windows_start(g_fake_ttl);
+    rr = raw_windows_start(g_fake_ttl, g_quic_block, g_udp_fake, g_fake_repeats);
     raw_windows_stop();
   #else
     rr = -1;

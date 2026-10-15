@@ -96,6 +96,22 @@ class AdvError extends Error {
   constructor(code, message) { super(message); this.code = code; }
 }
 
+/* The command line for the elevated engine. QUIC forced to TCP and decoys for
+ * Discord voice UDP are on by default in Advanced mode; the opt-out flags are
+ * passed only when a caller explicitly turns a feature off, so an old engine
+ * (which does not know them) still runs with both on. Pure so it can be tested
+ * without elevating anything (tests/net/advanced.test.js). */
+function buildArgs(o) {
+  const ttl = Number(o.ttl) > 0 ? Number(o.ttl) : 4;
+  const args = ['--advanced', '--fake-ttl', String(ttl),
+    '--status-file', String(o.statusFile), '--parent-pid', String(o.parentPid)];
+  if (o.platform === 'linux') args.push('--queue', String(o.queueNum != null ? o.queueNum : QUEUE_NUM));
+  if (o.quicBlock === false) args.push('--no-quic-block');
+  if (o.udpFake === false) args.push('--no-udp-fake');
+  if (Number(o.fakeRepeats) > 0) args.push('--fake-repeats', String(Math.floor(Number(o.fakeRepeats))));
+  return args;
+}
+
 function run(cmd, args, timeout) {
   return new Promise((resolve) => {
     execFile(cmd, args, { timeout, windowsHide: true }, (err, stdout, stderr) =>
@@ -213,17 +229,20 @@ class AdvancedMode {
     throw new AdvError('timeout', 'The advanced engine did not respond in time.');
   }
 
-  async start(fakeTtl) {
+  async start(fakeTtl, opts) {
     if (this.active) return { success: true, alreadyActive: true };
     const code = this.reasonCode();
     if (code) throw new AdvError(code, REASONS[code]);
     const ttl = Number(fakeTtl) > 0 ? Number(fakeTtl) : 4;
+    const o = opts || {};
 
     this._removeDir();
     this.dir = fs.mkdtempSync(path.join(os.tmpdir(), 'shroudly-adv-'));
     this.statusFile = path.join(this.dir, 'status.log');
-    const args = ['--advanced', '--fake-ttl', String(ttl), '--status-file', this.statusFile, '--parent-pid', String(process.pid)];
-    if (this.platform === 'linux') args.push('--queue', String(QUEUE_NUM));
+    const args = buildArgs({
+      ttl, statusFile: this.statusFile, parentPid: process.pid, platform: this.platform,
+      queueNum: QUEUE_NUM, quicBlock: o.quicBlock, udpFake: o.udpFake, fakeRepeats: o.fakeRepeats,
+    });
 
     this.log('info', 'Advanced mode: asking for administrator permission');
     try {
@@ -295,3 +314,4 @@ class AdvancedMode {
 
 module.exports = AdvancedMode;
 module.exports.linuxInstallCommand = linuxInstallCommand;
+module.exports.buildArgs = buildArgs;

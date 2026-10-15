@@ -151,6 +151,24 @@ the DPI and poisons its state, then dies before it reaches the real server.
   on crash, and when Shroudly quits.
 - **Graceful fallback.** If the backend can't start, the default engine keeps
   running.
+- **QUIC forced to TCP.** Browsers try blocked sites over HTTP/3 (QUIC, UDP
+  443), which never enters Shroudly's TCP proxy and so is filtered directly —
+  YouTube and Google can break even with Shroudly on. Advanced mode drops the
+  QUIC *Initial* packet, exactly as GoodbyeDPI and zapret do, so the browser
+  falls back to TCP, which Shroudly handles. Non-blocked sites simply lose
+  QUIC's small latency benefit and keep working over TCP. On by default; can be
+  turned off. IPv4 only (IPv6 QUIC is passed through unchanged).
+- **Decoy packets for Discord voice.** A censor can fingerprint the first
+  datagrams of a Discord voice call (its 74-byte IP-discovery request and the
+  STUN binding requests). Advanced mode sends a few low-TTL decoy datagrams of
+  the same size ahead of the first one or two real datagrams of each call, so
+  the filter's pattern-match is poisoned before the real media goes out. On by
+  default; can be turned off.
+
+> These two only help where the **network** is what blocks QUIC or the voice
+> packets. If a censor blocks Discord's voice servers by **IP address**, no
+> packet trick reaches them — that needs a VPN. Shroudly says so rather than
+> looking like it works.
 
 | OS | Backend | Needs |
 |----|---------|-------|
@@ -245,6 +263,14 @@ an older updater that does not read this setting.)
 
 If Shroudly is removed on macOS without being quit first (after a crash, say),
 delete that line from Discord's `settings.json` yourself.
+
+Discord app mode is only about the **updater**. Voice calls are different:
+Discord sends voice media over UDP, and a censor can recognise the first
+datagrams of a call and block it. Where that block is on the network rather than
+on Discord's servers themselves, [Advanced mode](#advanced-mode-stateful-dpi)
+sends decoy datagrams ahead of the real ones to defeat the pattern-match. If the
+voice servers are blocked by IP address, no packet technique reaches them and a
+VPN is the only answer.
 
 ---
 
@@ -512,6 +538,7 @@ Shroudly/
       engine.[ch]             SOCKS5/4/4a listener + relay
       raw_linux.[ch]          Advanced mode: NFQUEUE backend
       raw_windows.[ch]        Advanced mode: WinDivert backend
+      udpdpi.[ch]             Advanced mode: QUIC/Discord-voice UDP classifiers + decoys
       supervise.[ch]          Advanced mode: stop / status-file handling
       watchdog.[ch]           --watchdog: has settings restored if the app is killed
       main.c                  CLI + stdin control protocol

@@ -32,6 +32,7 @@
 #include <stdint.h>
 
 #include "proto.h"
+#include "udpdpi.h"
 #include "raw_windows.h"
 
 /* ── Minimal WinDivert 2.2 declarations (avoid needing the SDK header) ───────
@@ -76,6 +77,10 @@ static PFN_CalcCsum p_CalcCsum;
 static HANDLE g_handle = INVALID_HANDLE_VALUE;
 static volatile int g_run = 0;
 static int g_fake_ttl = 4;
+static int g_quic_block = 1;      /* drop QUIC Initial -> browsers fall to TCP */
+static int g_udp_fake = 1;        /* decoys ahead of Discord voice datagrams */
+static int g_fake_repeats = 6;    /* decoy datagrams per voice flow */
+static udp_flow_table g_flows;    /* first-N-per-flow bookkeeping */
 
 /* IPv4 header: ttl at offset 8; TCP header starts at ihl*4. */
 static int load_windivert(void) {
@@ -125,13 +130,55 @@ static void send_fake(const uint8_t *pkt, UINT len, const WINDIVERT_ADDRESS *add
   p_Send(g_handle, buf, len, &sent, &a);
 }
 
-int raw_windows_start(int fake_ttl) {
+/* Inject g_fake_repeats decoy UDP datagrams to the SAME 5-tuple: random
+ * payload of the same length, low TTL, valid checksums. WinDivert injects via
+ * WFP and tags its own packets, so these are never re-captured (no loop). */
+static void send_udp_decoys(uint32_t saddr, uint32_t daddr, uint16_t sportn,
+                            uint16_t dportn, int plen, const WINDIVERT_ADDRESS *addr) {
+  if (plen <= 0 || plen > 1400) return;
+  uint8_t buf[1600];
+  WINDIVERT_ADDRESS a = *addr;
+  uint32_t tick = (uint32_t)GetTickCount();
+  for (int i = 0; i < g_fake_repeats; i++) {
+    uint16_t ipid = (uint16_t)(tick + (uint32_t)i * 7u + 1u);
+    uint32_t seed = saddr ^ (daddr << 1) ^ ((uint32_t)sportn << 3) ^
+                    ((uint32_t)dportn << 5) ^ (uint32_t)i * 2654435761u ^ tick;
+    int n = udp_build_decoy(buf, (int)sizeof(buf), saddr, daddr, sportn, dportn,
+                            plen, g_fake_ttl, ipid, seed);
+    if (n <= 0) break;
+    UINT s = 0;
+    p_Send(g_handle, buf, (UINT)n, &s, &a);
+  }
+}
+
+int raw_windows_start(int fake_ttl, int quic_block, int udp_fake, int fake_repeats) {
   g_fake_ttl = fake_ttl > 0 ? fake_ttl : 4;
+  g_quic_block = quic_block ? 1 : 0;
+  g_udp_fake = udp_fake ? 1 : 0;
+  g_fake_repeats = (fake_repeats > 0 && fake_repeats <= 64) ? fake_repeats : 6;
+  udp_flow_init(&g_flows);
   if (load_windivert() != 0) return -1;
 
-  /* Outbound TLS(443)/HTTP(80) with payload. WinDivert filter language. */
-  const char *filter =
-    "outbound and ip and tcp and (tcp.DstPort == 443 or tcp.DstPort == 80) and tcp.PayloadLength > 0";
+  /* Keep the kernel filter as narrow as the language allows — port + proto —
+   * and classify payloads in code. Outbound IPv4 only (IPv6 is re-injected
+   * unchanged by the loop below, since this backend builds IPv4 fakes only):
+   *   - TCP 80/443 with payload (the TLS/HTTP decoy path, unchanged);
+   *   - UDP 443 for QUIC Initial (dropped so browsers fall back to TCP);
+   *   - UDP on Discord voice / STUN ports (decoys ahead of the first datagrams).
+   * The UDP clauses are added only for the features that are on. */
+  char filter[512];
+  char udpf[384]; udpf[0] = 0;
+  char ports[256]; ports[0] = 0;
+  if (g_quic_block) snprintf(ports, sizeof(ports), "udp.DstPort == 443");
+  if (g_udp_fake) {
+    const char *dports = "udp.DstPort == 3478 or (udp.DstPort >= 19302 and udp.DstPort <= 19309) or udp.DstPort >= 50000";
+    if (ports[0]) { char tmp[256]; snprintf(tmp, sizeof(tmp), "%s or %s", ports, dports); snprintf(ports, sizeof(ports), "%s", tmp); }
+    else snprintf(ports, sizeof(ports), "%s", dports);
+  }
+  if (ports[0]) snprintf(udpf, sizeof(udpf), " or (udp and (%s))", ports);
+  snprintf(filter, sizeof(filter),
+    "outbound and ip and ((tcp and (tcp.DstPort == 443 or tcp.DstPort == 80) and tcp.PayloadLength > 0)%s)",
+    udpf);
   g_handle = p_Open(filter, WINDIVERT_LAYER_NETWORK, 0, 0);
   if (g_handle == INVALID_HANDLE_VALUE) {
     fprintf(stderr, "WinDivertOpen failed (%lu). Run as Administrator.\n", (unsigned long)GetLastError());
@@ -139,7 +186,8 @@ int raw_windows_start(int fake_ttl) {
   }
 
   g_run = 1;
-  printf("{\"type\":\"raw_ready\",\"backend\":\"windivert\",\"ttl\":%d}\n", g_fake_ttl);
+  printf("{\"type\":\"raw_ready\",\"backend\":\"windivert\",\"ttl\":%d,\"quic_block\":%d,\"udp_fake\":%d}\n",
+         g_fake_ttl, g_quic_block, g_udp_fake);
   fflush(stdout);
 
   uint8_t pkt[65535];
@@ -150,24 +198,59 @@ int raw_windows_start(int fake_ttl) {
       if (GetLastError() == ERROR_NO_DATA) break; /* shutdown */
       continue;
     }
-    if (len < 40 || addr.IPv6) { UINT s; p_Send(g_handle, pkt, len, &s, &addr); continue; }
-
+    /* Anything we cannot safely classify is re-injected unchanged: IPv6, runts,
+     * and any protocol other than the TCP/UDP the filter should have selected. */
+    if (len < 28 || addr.IPv6) { UINT s; p_Send(g_handle, pkt, len, &s, &addr); continue; }
     int ihl = (pkt[0] & 0x0f) * 4;
-    if (ihl < 20 || (int)len < ihl + 20) { UINT s; p_Send(g_handle, pkt, len, &s, &addr); continue; }
-    int tcphl = ((pkt[ihl + 12] >> 4) & 0x0f) * 4;
-    int poff = ihl + tcphl;
-    int plen = (int)len - poff;
+    if (ihl < 20 || (int)len < ihl) { UINT s; p_Send(g_handle, pkt, len, &s, &addr); continue; }
+    int proto = pkt[9];
 
-    if (plen > 0) {
-      proto_info pi;
-      proto_inspect(pkt + poff, (size_t)plen, &pi);
-      if (pi.kind != PROTO_UNKNOWN) {
-        send_fake(pkt, len, &addr, &pi, poff);   /* 1. decoy first */
+    if (proto == 6 /* TCP */) {
+      if ((int)len < ihl + 20) { UINT s; p_Send(g_handle, pkt, len, &s, &addr); continue; }
+      int tcphl = ((pkt[ihl + 12] >> 4) & 0x0f) * 4;
+      int poff = ihl + tcphl;
+      int plen = (int)len - poff;
+      if (plen > 0) {
+        proto_info pi;
+        proto_inspect(pkt + poff, (size_t)plen, &pi);
+        if (pi.kind != PROTO_UNKNOWN) send_fake(pkt, len, &addr, &pi, poff); /* decoy first */
       }
+      UINT s = 0; p_Send(g_handle, pkt, len, &s, &addr);   /* real packet unchanged */
+      continue;
     }
-    /* 2. re-inject the real packet unchanged */
-    UINT s = 0;
-    p_Send(g_handle, pkt, len, &s, &addr);
+
+    if (proto == 17 /* UDP */) {
+      if ((int)len < ihl + 8) { UINT s; p_Send(g_handle, pkt, len, &s, &addr); continue; }
+      int poff = ihl + 8;
+      int plen = (int)len - poff;
+      const uint8_t *up = pkt + poff;
+      uint16_t dport_h = (uint16_t)((pkt[ihl + 2] << 8) | pkt[ihl + 3]);
+
+      /* (1) QUIC: drop the Initial so the browser falls back to TCP. Everything
+       * else on 443 (Version Negotiation, short-header, non-QUIC) re-injects. */
+      if (g_quic_block && dport_h == 443) {
+        if (plen > 0 && quic_is_initial(up, plen)) continue; /* DROP, no re-inject */
+        UINT s = 0; p_Send(g_handle, pkt, len, &s, &addr);
+        continue;
+      }
+
+      /* (2) Discord voice / STUN: decoys ahead of the first datagrams only. */
+      if (g_udp_fake && discord_voice_port(dport_h) && plen > 0 && udp_is_discord_voice(up, plen)) {
+        uint32_t saddr, daddr; uint16_t sportn, dportn;
+        memcpy(&saddr, pkt + 12, 4);
+        memcpy(&daddr, pkt + 16, 4);
+        memcpy(&sportn, pkt + ihl + 0, 2);
+        memcpy(&dportn, pkt + ihl + 2, 2);
+        if (udp_flow_note(&g_flows, saddr, sportn, daddr, dportn, (uint32_t)GetTickCount()))
+          send_udp_decoys(saddr, daddr, sportn, dportn, plen, &addr);
+      }
+      /* real datagram always re-injected unchanged */
+      UINT s = 0; p_Send(g_handle, pkt, len, &s, &addr);
+      continue;
+    }
+
+    /* unexpected protocol: re-inject unchanged */
+    { UINT s = 0; p_Send(g_handle, pkt, len, &s, &addr); }
   }
 
   return 0;
