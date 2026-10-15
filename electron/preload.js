@@ -67,6 +67,10 @@ contextBridge.exposeInMainWorld('electron', {
   proxyApplyAsAdmin: () => ipcRenderer.invoke('proxy:applyAsAdmin'),
   proxyReapply: () => ipcRenderer.invoke('proxy:reapply'),
   onProxyStatus: (cb) => { const h = (e, p) => cb(p); ipcRenderer.on('dpi:proxy-status', h); return () => ipcRenderer.removeListener('dpi:proxy-status', h); },
+  // macOS: settings from before a restart, waiting for an administrator's password
+  proxyRecovery: () => ipcRenderer.invoke('proxy:recovery'),
+  proxyRecoverAsAdmin: () => ipcRenderer.invoke('proxy:recoverAsAdmin'),
+  onProxyRecovery: (cb) => { const h = (e, p) => cb(p); ipcRenderer.on('dpi:proxy-recovery', h); return () => ipcRenderer.removeListener('dpi:proxy-recovery', h); },
   onAdvice: (cb) => ipcRenderer.on('dpi:advice', (e, p) => cb(p)),
   removeAdviceListener: () => ipcRenderer.removeAllListeners('dpi:advice'),
   discordStatus: () => ipcRenderer.invoke('discord:status'),

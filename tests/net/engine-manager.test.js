@@ -95,6 +95,55 @@ const t = suite('engine-manager');
   await em.stop();
   squatter2.close();
   squatter.close();
+
+  // P9: the automatic start at launch and a click on Start at the same
+  // moment: one engine, one system proxy, and after Stop nothing left.
+  {
+    let applies = 0;
+    em.proxy = { apply: async () => { applies++; await sleep(50); return { ok: true, code: 'ok' }; }, restore: async () => true, cleanupSync() {} };
+    const mark2 = logs.length;
+    const [a, b] = await Promise.all([em.start(), em.start()]);
+    const spawned = logs.slice(mark2).filter((l) => l.includes('Starting engine')).length;
+    t.ok(a.success && b.success && spawned === 1 && applies === 1 && em.active, `P9: two starts at once make one engine and one system proxy (${spawned} engine, ${applies} apply)`);
+    const proc = em.proc;
+    await em.stop();
+    await sleep(200);
+    t.ok(!em.active && !em.proc && (proc.exitCode !== null || proc.signalCode !== null), 'P9: …and after Stop no engine is left running');
+    // A Start pressed after Stop is a new start, made once the stop is done.
+    applies = 0;
+    await em.start();
+    const s1 = em.stop();
+    const s2 = em.start();
+    await Promise.all([s1, s2]);
+    t.ok(em.active && applies === 2, 'P9: Stop then Start in quick succession ends started (the start waits for the stop)');
+    await em.stop();
+  }
+
+  // P3: the engine ends while the system is being pointed at it: the start
+  // fails and undoes everything, instead of showing protection on with no
+  // engine behind it.
+  {
+    let restores = 0;
+    const statuses = [];
+    em.onProxyStatus = (s) => statuses.push(s);
+    em.proxy = {
+      apply: async () => {
+        const p = em.proc;
+        p.kill('SIGKILL');
+        await new Promise((r) => p.once('close', r));
+        return { ok: true, code: 'ok' };
+      },
+      restore: async () => { restores++; return true; },
+      cleanupSync() {},
+    };
+    const mark3 = logs.length;
+    let err = null;
+    try { await em.start(); } catch (e) { err = e; }
+    t.ok(err && !em.active && !em.proc && restores >= 1 && em.proxyStatus === null && !statuses.some((s) => s && s.ok) && mem.runtimeActive !== true,
+      'P3: the engine gone during apply(): the start fails, the proxy is restored, protection is not shown on');
+    t.ok(logs.slice(mark3).some((l) => /^error: Engine exited unexpectedly \(code /.test(l)), 'P3: …and the log says the engine exited');
+    em.onProxyStatus = () => {};
+  }
   console.log(`engine-manager: ${t.count} passed`);
   process.exit(0);
 })().catch((e) => { console.error('FAIL', e.message); process.exit(1); });

@@ -8,7 +8,6 @@ const os = require('os');
 const netModule = require('net');
 const Store = require('electron-store');
 const EngineManager = require('./engine-manager');
-const SystemProxy = require('./system-proxy');
 const AdvancedMode = require('./advanced-mode');
 const DiscordApp = require('./discord-app');
 const DiscordRelay = require('./discord-relay');
@@ -21,36 +20,28 @@ const Presence = require('./presence');
 const i18n = require('./main-i18n');
 const Families = require('./families');
 const ServiceCheck = require('./service-check');
+const { restoreProxy } = require('./restore-proxy');
 
 /* "Shroudly --restore-proxy" runs once at login after a run that never got to
  * restore the system proxy (power loss, forced reboot), and from the watchdog
- * after a crash. Restore and exit. The restore itself never asks for a
- * password and never blocks on a dialog. A macOS setting that still needs the
- * administrator's password is asked for afterwards, asynchronously, and only
- * by one process at a time (SystemProxy.recoverAsAdmin's lock file; the app
- * asks the same way once its window is up) — and not at all here when
- * Shroudly itself starts at login with protection on: its own password
- * request then covers it. What was written for the next login on XFCE or LXQt
- * stays: a crash is not the user switching protection off. */
+ * after a crash: restore and exit (restore-proxy.js says how, and when it
+ * may ask for a macOS administrator's password). */
 const RESTORE_PROXY_ARG = '--restore-proxy';
 const proxyStateFile = () => path.join(app.getPath('userData'), 'proxy-state.json');
 const appEnvStateFile = () => path.join(app.getPath('userData'), 'app-env.json');
 if (process.argv.includes(RESTORE_PROXY_ARG)) {
-  let kept = false;
-  try { kept = SystemProxy.recoverSync({ stateFile: proxyStateFile() }) === 'kept'; } catch {}
-  // Shroudly may already be running again (it starts at login too): its own
-  // value is then left alone.
-  try { AppEnv.recoverSync({ stateFile: appEnvStateFile() }, { onlyIfDead: true }); } catch {}
-  let ask = false;
-  if (kept && process.platform === 'darwin') {
-    try {
+  restoreProxy({
+    stateFile: proxyStateFile(),
+    settings: () => {
       const s = new Store();
-      ask = !(s.get('autoStart', false) && s.get('protectionOn', s.get('autoMode', true) !== false));
-    } catch { ask = true; }
-  }
-  if (!ask) { app.exit(0); return; }
-  app.whenReady().then(() => { try { if (app.dock) app.dock.hide(); } catch {} });
-  SystemProxy.recoverAsAdmin({ stateFile: proxyStateFile() }).catch(() => {}).finally(() => app.exit(0));
+      return { autoStart: s.get('autoStart', false), protectionOn: s.get('protectionOn', s.get('autoMode', true) !== false), language: s.get('language') };
+    },
+    languages: () => systemLanguages(),
+    ready: () => app.whenReady().then(() => { try { if (app.dock) app.dock.hide(); } catch {} }),
+    // Shroudly may already be running again (it starts at login too): its own
+    // value is then left alone.
+    recoverOther: () => AppEnv.recoverSync({ stateFile: appEnvStateFile() }, { onlyIfDead: true }),
+  }).catch(() => {}).finally(() => app.exit(0));
   return;
 }
 
@@ -495,6 +486,7 @@ async function createWindow({ show = true } = {}) {
   if (show) setTimeout(() => loading.delete(win), 30000).unref();
   win.on('focus', markActive);
   win.on('show', markActive);
+  win.on('show', askProxyRecovery);
   win.on('restore', markActive);
   win.on('hide', () => { setTimeout(() => { if (!win.isDestroyed() && !win.isVisible()) releaseWindow('hidden'); }, 1000); });
   win.on('closed', () => {
@@ -519,6 +511,20 @@ async function createWindow({ show = true } = {}) {
  * locking the screen or closing the lid never change it. */
 const PROTECTION_KEY = 'protectionOn';
 
+/* Before there was a setting for that, Auto mode alone decided, and it still
+ * does for anyone who has not pressed Start or Stop since. */
+function protectionWanted() { return !!store.get(PROTECTION_KEY, store.get('autoMode', true) !== false); }
+
+/* macOS: settings a restart of the Mac left waiting for an administrator's
+ * password (EngineManager.recoverProxyAsAdmin). Asked by itself only with
+ * the window on screen and protection staying off, never from the tray
+ * alone; once the user dismissed it, only the window's button asks. */
+function askProxyRecovery() {
+  if (!engine || engine.isActive() || protectionWanted()) return;
+  const windowShown = windowAlive() && mainWindow.isVisible() && !mainWindow.isMinimized();
+  engine.recoverProxyAsAdmin({ windowShown }).catch(() => {});
+}
+
 async function safeStart({ user = false } = {}) {
   if (user) store.set(PROTECTION_KEY, true);
   try {
@@ -536,6 +542,10 @@ async function safeStart({ user = false } = {}) {
 
 async function safeStop({ user = false } = {}) {
   if (user) store.set(PROTECTION_KEY, false);
+  // A settings change still waiting to be applied belongs to the session
+  // being stopped (EngineManager ignores one that slips through anyway).
+  clearTimeout(engineRestartTimer); engineRestartTimer = null;
+  clearTimeout(proxyReapplyTimer); proxyReapplyTimer = null;
   try {
     // The user's own stop: the only one that may ask for a macOS
     // administrator's password, and that takes out what was written for the
@@ -659,6 +669,9 @@ app.whenReady().then(async () => {
     // an administrator (macOS standard account), not possible on this desktop,
     // refused, or taken over by another program. Shown in the window.
     onProxyStatus: (st) => toWindow('dpi:proxy-status', st),
+    // macOS: settings from before a restart still waiting for an
+    // administrator's password, after the user dismissed its dialog.
+    onProxyRecovery: (r) => toWindow('dpi:proxy-recovery', r),
     // Which services this network filters (Roblox: offer Games and apps
     // mode), and a connection that is answered and then left unanswered: the
     // site may be turning the user away itself (checked, then explained).
@@ -681,7 +694,7 @@ app.whenReady().then(async () => {
   advanced = new AdvancedMode(addLog);
   // Protection as the user left it (see safeStart and below). Recovery needs
   // it: with protection off, what was written for the next login goes.
-  const protectionOn = store.get(PROTECTION_KEY, store.get('autoMode', true) !== false);
+  const protectionOn = protectionWanted();
   await engine.recover({ protectionOn });
 
   // The relay goes through the engine while protection is on, straight to
@@ -766,13 +779,14 @@ app.whenReady().then(async () => {
   // may never be opened this session.
   if (protectionOn) {
     addLog('info', 'Auto Mode: starting protection');
-    setTimeout(() => { safeStart(); }, 1200);
+    // Unless the user pressed Stop in the meantime.
+    setTimeout(() => { if (protectionWanted()) safeStart(); }, 1200);
   } else {
     // macOS: a proxy set with an administrator's password that the previous
-    // run could not put back (the Mac restarted under it). Asked now, with
-    // the window up and asynchronously, never at login before it; skipped
-    // when protection starts, whose own password request covers it.
-    setTimeout(() => { engine.recoverProxyAsAdmin().catch(() => {}); }, 1500);
+    // run could not put back (the Mac restarted under it). Asked with the
+    // window on screen (now, or when it is first opened), asynchronously;
+    // skipped when protection starts, whose own password request covers it.
+    setTimeout(askProxyRecovery, 1500);
   }
 
   if (isDev) {
@@ -853,11 +867,19 @@ ipcMain.handle('dpi:advice', () => (engine ? engine.advice : null));
 ipcMain.handle('proxy:status', () => (engine ? engine.proxyStatus : null));
 // macOS standard account: an administrator allows it once.
 ipcMain.handle('proxy:applyAsAdmin', async () => (engine ? engine.applyProxyAsAdmin() : { ok: false, code: 'not_active' }));
-// Taken over by another program: point the system at Shroudly again.
+// Taken over by another program: point the system at Shroudly again. Says
+// what came of it (a password dialog dismissed is not "set again").
 ipcMain.handle('proxy:reapply', async () => {
   if (!engine || !engine.isActive()) return { ok: false, code: 'not_active' };
-  try { await engine.reapplyProxy(); return { ok: true }; } catch (e) { return { ok: false, code: 'failed', detail: e.message }; }
+  try {
+    const st = (await engine.reapplyProxy() || {}).status;
+    return { ok: !!(st && st.ok), code: st ? st.code : 'not_active' };
+  } catch (e) { return { ok: false, code: 'failed', detail: e.message }; }
 });
+// macOS: settings from before a restart, still waiting for an
+// administrator's password after the user dismissed the dialog once.
+ipcMain.handle('proxy:recovery', () => (engine ? engine.proxyRecovery : null));
+ipcMain.handle('proxy:recoverAsAdmin', async () => ({ ok: engine ? await engine.recoverProxyAsAdmin({ user: true }) : false }));
 ipcMain.handle('dpi:start', async () => safeStart({ user: true }));
 ipcMain.handle('dpi:stop', async () => safeStop({ user: true }));
 
@@ -941,7 +963,7 @@ function scheduleProxyReapply() {
   clearTimeout(proxyReapplyTimer);
   proxyReapplyTimer = setTimeout(() => {
     if (!engine || !engine.isActive()) return;
-    engine.reapplyProxy().catch((err) => addLog('error', `Proxy update failed: ${err.message}`));
+    engine.reapplyProxy().catch((err) => addLog('error', `Could not update proxy routing: ${err.message}`));
   }, 700);
 }
 
