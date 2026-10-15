@@ -345,6 +345,7 @@ export const translations = {
     logProxyAdminNoChange: 'The system proxy did not change, although the administrator password was accepted',
     logUnreachableDns: '{host}: could not be reached (its name could not be looked up)',
     logUnreachableConnect: '{host}: could not be reached (no connection to its server)',
+    logSiteNoAnswer: '{host}: no answer after {tries} techniques ({family}) — the network may be dropping these connections silently, or the site is down',
     logProxyReplaced: 'Another program changed the system proxy ({what}): that traffic no longer goes through Shroudly',
     logLocalDns: 'System DNS is a program on this computer: {programs}',
     logDnsDead: 'The system DNS answered none of the test names. Programs that do not go through Shroudly cannot reach anything; check the DNS program or the network settings.',

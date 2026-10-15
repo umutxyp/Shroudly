@@ -566,6 +566,19 @@ class EngineManager {
         break;
       case 'blocked':
         try { this.onHostEvent('blocked', msg.host, msg.note || null); } catch {}
+        // Every attempt went unanswered. A filter that drops silently and a
+        // server that is down look exactly the same from here, so this is a
+        // line in the log, not a notification, and no setting is changed
+        // because of it. The engine starts the next connection to this host
+        // further along the ladder, so a technique that works is still found.
+        if (msg.note === 'silent') {
+          if (!this.blockedHosts.has(msg.host)) {
+            if (this.blockedHosts.size > 400) this.blockedHosts.clear();
+            this.blockedHosts.add(msg.host);
+            this.log('warning', `${msg.host}: no answer after ${msg.attempts} techniques (${msg.family}) — the network may be dropping these connections silently, or the site is down`);
+          }
+          break;
+        }
         // A site that defeated every technique while encrypted DNS was switched
         // off: the most likely cause is the DNS answer itself, which none of
         // the techniques can fix. Turn it back on and retry rather than leave
@@ -581,8 +594,7 @@ class EngineManager {
         if (!this.blockedHosts.has(msg.host)) {
           if (this.blockedHosts.size > 400) this.blockedHosts.clear();
           this.blockedHosts.add(msg.host);
-          const how = msg.note === 'silent' ? ' — the network drops these connections silently;' : ' —';
-          this.log('warning', `${msg.host}: still blocked after ${msg.attempts} techniques (${msg.family})${how} this network may need Advanced mode`);
+          this.log('warning', `${msg.host}: still blocked after ${msg.attempts} techniques (${msg.family}) — this network may need Advanced mode`);
           // Nobody reads a log unprompted. A site that could not be opened at
           // all is the one moment the user needs telling, because otherwise
           // they conclude the app simply does not work.
