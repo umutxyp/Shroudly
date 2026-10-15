@@ -183,13 +183,13 @@ const clean = () => { for (const f of [XPROFILE, ENVD, LXQT]) fs.rmSync(f, { for
     t.ok(st3.ok && st3.code === 'ok' && st3.system === 'xfce' && sp3.pacUrl === url, 'XFCE after re-login (this session has auto_proxy=<our PAC>), with GNOME\'s setting: ok');
     t.ok(st3.chromiumRestart === true, 'P1: …and says that Chromium browsers and apps opened before Shroudly answered may need reopening');
     const live = await fetchPac(url);
-    t.ok(live && live('discord.com') === 'SOCKS5 127.0.0.1:10808; DIRECT', 'P1: the live PAC on XFCE fails open ("SOCKS5 …; DIRECT"), so a dead engine never leaves Chromium without internet');
+    t.ok(live && live('discord.com') === 'SOCKS5 127.0.0.1:10808; SOCKS 127.0.0.1:10808; DIRECT', 'P1: the live PAC on XFCE fails open ("SOCKS5 …; DIRECT"), so a dead engine never leaves Chromium without internet');
     // P1: a stop and a start while Shroudly runs: the same server, at the same address.
     await sp3.restore();
     const parked3 = await fetchPac(url);
     const again = await sp3.apply(10808, 'all');
     const live3 = await fetchPac(url);
-    t.ok(parked3 && parked3('discord.com') === 'DIRECT' && again.ok && sp3.pacUrl === url && live3 && live3('discord.com') === 'SOCKS5 127.0.0.1:10808; DIRECT',
+    t.ok(parked3 && parked3('discord.com') === 'DIRECT' && again.ok && sp3.pacUrl === url && live3 && live3('discord.com') === 'SOCKS5 127.0.0.1:10808; SOCKS 127.0.0.1:10808; DIRECT',
       'P1: stop then start while running: DIRECT in between, then the proxy again at the same address');
     await sp3.restore();
     sp3.stopPacServer(); // the app quits
