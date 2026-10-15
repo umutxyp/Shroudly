@@ -162,7 +162,10 @@ const readState = (file) => { try { return JSON.parse(fs.readFileSync(file, 'utf
     const where = `${platform}${env.XDG_CURRENT_DESKTOP ? `, ${env.XDG_CURRENT_DESKTOP}` : ''}`;
     sp.mode = 'all';
     const find = pacEval(sp.pacBody(10808));
-    const want = platform === 'darwin' ? 'SOCKS5 127.0.0.1:10808; SOCKS 127.0.0.1:10808' : 'SOCKS5 127.0.0.1:10808';
+    // Every non-env desktop (Windows, GNOME, KDE) and macOS carries the SOCKS
+    // (SOCKS4) entry after SOCKS5, so Java, WinINET and .NET clients that do
+    // not understand "SOCKS5" are still routed instead of failing. No DIRECT.
+    const want = 'SOCKS5 127.0.0.1:10808; SOCKS 127.0.0.1:10808';
     t.ok(find('discord.com') === want, `PAC (${where}): a routed host gets "${want}", no DIRECT to slip around Shroudly`);
     t.ok(['nas', 'printer.local', 'router.lan', '192.168.1.1', '10.2.3.4', '172.20.0.1', '169.254.1.1', '100.100.1.1', '127.0.0.1', '[::1]']
       .every((h) => find(h) === 'DIRECT'), `PAC (${where}): this machine and the local network stay direct`);
@@ -180,8 +183,9 @@ const readState = (file) => { try { return JSON.parse(fs.readFileSync(file, 'utf
     const find = pacEval(sp.pacBody(10808));
     sp.mode = 'listed'; sp.list = ['discord.com'];
     const listed = pacEval(sp.pacBody(10808));
-    t.ok(find('discord.com') === 'SOCKS5 127.0.0.1:10808; DIRECT' && find('192.168.1.1') === 'DIRECT' && listed('cdn.discord.com') === 'SOCKS5 127.0.0.1:10808; DIRECT' && listed('example.com') === 'DIRECT',
-      `PAC (P1, linux, ${env.XDG_CURRENT_DESKTOP || 'no desktop name'}): a routed host gets "SOCKS5 127.0.0.1:10808; DIRECT" (fails open)`);
+    const w = 'SOCKS5 127.0.0.1:10808; SOCKS 127.0.0.1:10808; DIRECT';
+    t.ok(find('discord.com') === w && find('192.168.1.1') === 'DIRECT' && listed('cdn.discord.com') === w && listed('example.com') === 'DIRECT',
+      `PAC (P1, linux, ${env.XDG_CURRENT_DESKTOP || 'no desktop name'}): a routed host gets "${w}" (fails open)`);
   }
 
   // ── Windows ─────────────────────────────────────────────────────────

@@ -312,27 +312,26 @@ class SystemProxy {
    * cost is the five minutes Chromium then avoids the proxy after a single
    * failed connection, which is accepted on these desktops only.
    *
-   * "SOCKS" is added on macOS only. Safari and everything else built on
-   * CFNetwork skip "SOCKS5" in a PAC but take "SOCKS", which they speak as
-   * SOCKS5 with the name resolved by us; without it they would not be routed
-   * at all.
+   * A plain "SOCKS" entry follows the "SOCKS5" one everywhere, because many
+   * clients do not understand "SOCKS5" in a PAC and need "SOCKS":
+   *   - macOS CFNetwork apps (Safari, …) ignore "SOCKS5" but take "SOCKS",
+   *     which they speak as SOCKS5 with the name resolved by us;
+   *   - Java, WinINET and .NET on Windows only know "PROXY", "SOCKS" and
+   *     "DIRECT" — given "SOCKS5" alone they fail. A Java program that reads
+   *     the system proxy at start-up throws "unknown protocol: socket" on
+   *     every boot, which users saw as Shroudly breaking their computer.
+   * The engine accepts SOCKS4 and 4a (core/src/engine.c), so "SOCKS" works:
+   * Chromium and Firefox read it as SOCKS4 and use it only after the "SOCKS5"
+   * entry (which they prefer) fails. Its one weakness is that the client looks
+   * the name up itself through the system resolver, so a forged answer is only
+   * caught when the engine knows that address as a block page or sinkhole (it
+   * then recovers the real name from the request). That is a fair trade for
+   * routing every client instead of breaking Java/WinINET/.NET apps.
    *
-   * Chromium and Firefox read the same "SOCKS" as SOCKS4. The engine accepts
-   * SOCKS4 and 4a (core/src/engine.c), so that entry does work for them, only
-   * less well than SOCKS5: the browser looks the name up itself, through the
-   * system's resolver, so the lookup is seen by the network, and a forged
-   * answer is only caught when it is an address the engine knows as a block
-   * page or sinkhole (it then takes the real name from the TLS or HTTP
-   * request and looks it up over encrypted DNS); any other forged address is
-   * connected to as given. The browsers use it only after the SOCKS5 entry
-   * failed, but then for a while (five minutes in Chromium, which marks the
-   * failed entry bad). On Windows and Linux nothing that reads the PAC needs
-   * it; whether to add it there anyway is being measured separately, so for
-   * now it is left out there. */
+   * DIRECT is added only on env desktops (XFCE, LXQt, …): see above. */
   pacProxy(port) {
-    const socks5 = `SOCKS5 127.0.0.1:${port}`;
-    if (this.platform === 'darwin') return `${socks5}; SOCKS 127.0.0.1:${port}`;
-    return this._envDesktop() ? `${socks5}; DIRECT` : socks5;
+    const both = `SOCKS5 127.0.0.1:${port}; SOCKS 127.0.0.1:${port}`;
+    return this._envDesktop() ? `${both}; DIRECT` : both;
   }
 
   /* A Linux desktop on which Chromium reads only the environment. */
