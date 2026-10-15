@@ -228,6 +228,7 @@
   "logAdvancedBackendExited": "תהליך הרקע של המצב המתקדם הסתיים",
   "logAdvancedAskingAdmin": "מצב מתקדם: מבקש הרשאת מנהל",
   "logAdvancedNoStopConfirm": "תהליך הרקע של המצב המתקדם לא אישר את העצירה; הוא ייסגר עם היציאה מ-Shroudly",
+  "logAdvancedProtections": "המצב המתקדם גם משליך איפוסים מוזרקים ומודד את ה-TTL של חבילת ההטעיה",
   "systemStatus": "מצב המערכת",
   "howItWorks": "איך זה עובד",
   "technique_frag": "פיצול TCP",

@@ -228,6 +228,7 @@
   "logAdvancedBackendExited": "Kengaytirilgan dvigatel yopildi",
   "logAdvancedAskingAdmin": "Kengaytirilgan rejim: administrator ruxsati soʻralmoqda",
   "logAdvancedNoStopConfirm": "Kengaytirilgan dvigatel toʻxtaganini tasdiqlamadi; u Shroudly yopilganda chiqadi",
+  "logAdvancedProtections": "Kengaytirilgan rejim, shuningdek, soxta uzilishlarni (RST) tashlaydi va aldov paketining TTL qiymatini o'lchaydi",
   "systemStatus": "Tizim holati",
   "howItWorks": "Qanday ishlaydi",
   "technique_frag": "TCP fragmentatsiyasi",

@@ -7,8 +7,41 @@
 const path = require('path');
 const { ROOT, suite } = require('./helpers');
 
-const { linuxInstallCommand, buildArgs } = require(path.join(ROOT, 'electron', 'advanced-mode.js'));
+const { linuxInstallCommand, buildArgs, buildAdvancedArgs } = require(path.join(ROOT, 'electron', 'advanced-mode.js'));
 const t = suite('advanced');
+
+/* The new packet-layer flags must reach the privileged engine as argv, with the
+ * sensible defaults on and overrides honoured. (main.c parses exactly these.) */
+function argval(a, flag) { const i = a.indexOf(flag); return i >= 0 ? a[i + 1] : undefined; }
+
+const base = { fakeTtl: 4, statusFile: '/tmp/s.log', parentPid: 123, queueNum: 200 };
+
+// Defaults (Linux): drop-rst and autottl on, plain fake decoy, seqovl off.
+const dLinux = buildAdvancedArgs({ ...base, platform: 'linux' });
+t.ok(argval(dLinux, '--drop-rst') === '1', `default drop-rst on -> ${argval(dLinux, '--drop-rst')}`);
+t.ok(argval(dLinux, '--autottl') === '1', `default autottl on -> ${argval(dLinux, '--autottl')}`);
+t.ok(argval(dLinux, '--seqovl') === '0', `default seqovl off -> ${argval(dLinux, '--seqovl')}`);
+t.ok(argval(dLinux, '--desync-mode') === 'fake', `default mode fake -> ${argval(dLinux, '--desync-mode')}`);
+t.ok(argval(dLinux, '--fake-ttl') === '4', 'fake-ttl passed');
+t.ok(dLinux.includes('--queue') && argval(dLinux, '--queue') === '200', 'linux passes the queue number');
+
+// Windows: no --queue.
+const dWin = buildAdvancedArgs({ ...base, platform: 'win32' });
+t.ok(!dWin.includes('--queue'), 'windows omits the queue number');
+t.ok(argval(dWin, '--drop-rst') === '1' && argval(dWin, '--autottl') === '1', 'windows carries the protections too');
+
+// Overrides: everything switchable.
+const ov = buildAdvancedArgs({ ...base, platform: 'linux',
+  opts: { dropRst: false, autottl: false, seqovl: 681, desyncMode: 'fakeddisorder' } });
+t.ok(argval(ov, '--drop-rst') === '0', 'drop-rst can be switched off');
+t.ok(argval(ov, '--autottl') === '0', 'autottl can be switched off');
+t.ok(argval(ov, '--seqovl') === '681', `seqovl configurable -> ${argval(ov, '--seqovl')}`);
+t.ok(argval(ov, '--desync-mode') === 'fakeddisorder', `desync mode selectable -> ${argval(ov, '--desync-mode')}`);
+
+// Bad values fall back to safe ones (no crash, no garbage reaching the engine).
+const bad = buildAdvancedArgs({ ...base, platform: 'linux', opts: { seqovl: -5, desyncMode: 'nonsense' } });
+t.ok(argval(bad, '--seqovl') === '0', 'negative seqovl clamps to 0');
+t.ok(argval(bad, '--desync-mode') === 'fake', 'unknown desync mode falls back to fake');
 
 const CASES = [
   ['ID=arch', 'sudo pacman -S libnetfilter_queue'],
@@ -32,10 +65,10 @@ for (const [osr, want] of CASES) {
  * Discord-voice decoys are on by default (no opt-out flag passed); turning one
  * off adds exactly its --no- flag, and an old engine that ignores them still
  * runs with both on. */
-const base = { ttl: 4, statusFile: '/tmp/s.log', parentPid: 123 };
+const ubase = { ttl: 4, statusFile: '/tmp/s.log', parentPid: 123 };
 
 // defaults: no opt-out flags, so both features are on in the engine
-const def = buildArgs({ ...base, platform: 'win32' });
+const def = buildArgs({ ...ubase, platform: 'win32' });
 t.ok(def.includes('--advanced'), 'default: --advanced present');
 t.ok(def.join(' ').includes('--fake-ttl 4'), 'default: fake TTL passed');
 t.ok(!def.includes('--no-quic-block'), 'default: QUIC block stays on (no opt-out flag)');
@@ -43,27 +76,27 @@ t.ok(!def.includes('--no-udp-fake'), 'default: UDP decoys stay on (no opt-out fl
 t.ok(!def.includes('--queue'), 'win32: no NFQUEUE flag');
 
 // Linux adds the queue number
-const lin = buildArgs({ ...base, platform: 'linux' });
+const lin = buildArgs({ ...ubase, platform: 'linux' });
 t.ok(lin.includes('--queue'), 'linux: --queue present');
 
 // turning QUIC off adds only its flag
-const noQuic = buildArgs({ ...base, platform: 'linux', quicBlock: false });
+const noQuic = buildArgs({ ...ubase, platform: 'linux', quicBlock: false });
 t.ok(noQuic.includes('--no-quic-block'), 'quicBlock:false -> --no-quic-block');
 t.ok(!noQuic.includes('--no-udp-fake'), 'quicBlock:false leaves UDP decoys on');
 
 // turning Discord decoys off adds only its flag
-const noUdp = buildArgs({ ...base, platform: 'linux', udpFake: false });
+const noUdp = buildArgs({ ...ubase, platform: 'linux', udpFake: false });
 t.ok(noUdp.includes('--no-udp-fake'), 'udpFake:false -> --no-udp-fake');
 t.ok(!noUdp.includes('--no-quic-block'), 'udpFake:false leaves QUIC block on');
 
 // both off
-const both = buildArgs({ ...base, platform: 'win32', quicBlock: false, udpFake: false });
+const both = buildArgs({ ...ubase, platform: 'win32', quicBlock: false, udpFake: false });
 t.ok(both.includes('--no-quic-block') && both.includes('--no-udp-fake'), 'both off -> both flags');
 
 // fake-repeats passed through when set, floored, ignored when not positive
-const rep = buildArgs({ ...base, platform: 'win32', fakeRepeats: 8 });
+const rep = buildArgs({ ...ubase, platform: 'win32', fakeRepeats: 8 });
 t.ok(rep.join(' ').includes('--fake-repeats 8'), 'fakeRepeats:8 -> --fake-repeats 8');
-t.ok(!buildArgs({ ...base, platform: 'win32' }).includes('--fake-repeats'), 'no fakeRepeats -> no flag');
-t.ok(!buildArgs({ ...base, platform: 'win32', fakeRepeats: 0 }).includes('--fake-repeats'), 'fakeRepeats:0 -> no flag');
+t.ok(!buildArgs({ ...ubase, platform: 'win32' }).includes('--fake-repeats'), 'no fakeRepeats -> no flag');
+t.ok(!buildArgs({ ...ubase, platform: 'win32', fakeRepeats: 0 }).includes('--fake-repeats'), 'fakeRepeats:0 -> no flag');
 
 console.log(`advanced: ${t.count} passed`);

@@ -228,6 +228,7 @@
   "logAdvancedBackendExited": "Pêvajoya pêşketî derket",
   "logAdvancedAskingAdmin": "Moda pêşketî: destûra rêveberê tê xwestin",
   "logAdvancedNoStopConfirm": "Pêvajoya pêşketî rawestandin piştrast nekir; dema Shroudly bê girtin ew ê derkeve",
+  "logAdvancedProtections": "Moda pêşketî herwiha resetên sexte yên ku hatine têxistin davêje û TTL-ya pakêta xapînok dipîve",
   "systemStatus": "Rewşa pergalê",
   "howItWorks": "Çawa dixebite",
   "technique_frag": "Parçekirina TCP",

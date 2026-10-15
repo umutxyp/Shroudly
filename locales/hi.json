@@ -228,6 +228,7 @@
   "logAdvancedBackendExited": "उन्नत बैकएंड बंद हो गया",
   "logAdvancedAskingAdmin": "उन्नत मोड: व्यवस्थापक अनुमति माँगी जा रही है",
   "logAdvancedNoStopConfirm": "उन्नत बैकएंड ने रुकने की पुष्टि नहीं की; Shroudly बंद होने पर यह अपने आप बंद हो जाएगा",
+  "logAdvancedProtections": "उन्नत मोड डाले गए नकली रीसेट को भी हटाता है और छल पैकेट का TTL मापता है",
   "systemStatus": "सिस्टम स्थिति",
   "howItWorks": "यह कैसे काम करता है",
   "technique_frag": "TCP विखंडन",

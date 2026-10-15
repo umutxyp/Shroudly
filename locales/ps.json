@@ -228,6 +228,7 @@
   "logAdvancedBackendExited": "د پرمختللي حالت شاتنۍ برخه بنده شوه",
   "logAdvancedAskingAdmin": "پرمختللی حالت: د مدیر اجازه غوښتل کېږي",
   "logAdvancedNoStopConfirm": "د پرمختللي حالت شاتنۍ برخې د درېدو تایید ونه کړ؛ کله چې Shroudly بند شي، دا به هم بنده شي",
+  "logAdvancedProtections": "پرمختللی حالت همدارنګه ننوتل شوي جعلي ریسېټونه غورځوي او د دوکې د کڅوړې TTL اندازه کوي",
   "systemStatus": "د سیسټم وضعیت",
   "howItWorks": "دا څنګه کار کوي",
   "technique_frag": "د TCP ټوټه کول",

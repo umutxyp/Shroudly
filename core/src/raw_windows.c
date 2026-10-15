@@ -2,12 +2,17 @@
  * raw_windows.c — ADVANCED (packet-layer) desync backend for Windows.
  *
  * Counterpart of raw_linux.c. Uses WinDivert 2.2 (a signed kernel driver) to
- * intercept the first outbound TLS/HTTP data packet, inject a low-TTL / bad-
- * checksum FAKE copy (scrambled SNI) that reaches the DPI but dies before the
- * server, then re-inject the real packet unchanged.
+ * intercept the first outbound TLS/HTTP data packet and, by configuration:
+ *   - inject a low-TTL / bad-checksum FAKE copy (scrambled SNI) that reaches the
+ *     DPI but dies before the server, then re-inject the real packet unchanged;
+ *   - sequence-overlap the real first segment (split-seqovl); or
+ *   - send it as fakedsplit / fakeddisorder.
+ * It also captures INBOUND 80/443 segments to DROP the forged RSTs a censor
+ * injects to tear a blocked connection down, and to measure the hop distance to
+ * the server from the SYN-ACK TTL for the decoy's TTL.
  *
- * This defeats stateful DPI (Iran/China) that reassembles the TCP stream and so
- * is immune to the userspace split/disorder engine.
+ * This defeats stateful DPI (Iran/China) and the inbound-RST teardown Turkish
+ * networks (Türk Telekom, Turkcell) use, which the userspace engine cannot.
  *
  * Compiled only when SHROUDLY_RAW is defined, on Windows. Links against
  * WinDivert.dll (and needs WinDivert.sys + WinDivert64.sys present at runtime).
@@ -33,7 +38,10 @@
 
 #include "proto.h"
 #include "udpdpi.h"
+#include "platform.h"
 #include "raw_windows.h"
+#include "raw_desync.h"
+#include "tcpdpi.h"
 
 /* ── Minimal WinDivert 2.2 declarations (avoid needing the SDK header) ───────
  * Must match include/windivert.h of the bundled release byte for byte. */
@@ -76,13 +84,17 @@ static PFN_CalcCsum p_CalcCsum;
 
 static HANDLE g_handle = INVALID_HANDLE_VALUE;
 static volatile int g_run = 0;
-static int g_fake_ttl = 4;
 static int g_quic_block = 1;      /* drop QUIC Initial -> browsers fall to TCP */
 static int g_udp_fake = 1;        /* decoys ahead of Discord voice datagrams */
 static int g_fake_repeats = 6;    /* decoy datagrams per voice flow */
 static udp_flow_table g_flows;    /* first-N-per-flow bookkeeping */
+static raw_config g_cfg;
+static uint16_t g_ipid = 0x1000; /* rolling IP id for our crafted segments */
 
-/* IPv4 header: ttl at offset 8; TCP header starts at ihl*4. */
+static uint32_t rd32be(const uint8_t *p) {
+  return ((uint32_t)p[0]<<24)|((uint32_t)p[1]<<16)|((uint32_t)p[2]<<8)|p[3];
+}
+
 static int load_windivert(void) {
   HMODULE m = LoadLibraryA("WinDivert.dll");
   if (!m) { fprintf(stderr, "WinDivert.dll not found\n"); return -1; }
@@ -98,36 +110,18 @@ static int load_windivert(void) {
   return 0;
 }
 
-static void send_fake(const uint8_t *pkt, UINT len, const WINDIVERT_ADDRESS *addr,
-                      const proto_info *pi, int poff) {
-  if (len > 2048) return;
-  uint8_t buf[2048];
-  memcpy(buf, pkt, len);
-
-  /* IPv4 only for the fake (v6 handled by caller gating). ihl low nibble. */
-  int ihl = (buf[0] & 0x0f) * 4;
-  buf[8] = (uint8_t)g_fake_ttl;             /* TTL */
-
-  int plen = (int)len - poff;
-  uint8_t *fp = buf + poff;
-  if (pi->host_off >= 0 && pi->host_off + pi->host_len <= plen) {
-    for (int i = pi->host_off; i < pi->host_off + pi->host_len; i++) fp[i] ^= 0x5a;
-  } else if (plen > 0) {
-    for (int i = plen / 3; i < plen; i++) fp[i] ^= 0x5a;
-  }
-
-  /* Recalc IP checksum (good) but corrupt TCP checksum so the server drops it.
-   * WinDivertHelperCalcChecksums fixes both; we then flip the TCP checksum. */
-  WINDIVERT_ADDRESS a = *addr;
-  p_CalcCsum(buf, len, &a, WINDIVERT_HELPER_NO_REPLACE);
-  int tcp_csum_off = ihl + 16;
-  if (tcp_csum_off + 1 < (int)len) {
-    buf[tcp_csum_off] ^= 0xff;
-    buf[tcp_csum_off + 1] ^= 0xff;
-  }
-
+/* Inject one of our crafted IPv4 segments (checksums already computed). Mirror
+ * the captured outbound address but mark the checksums present so the stack
+ * does not recompute (and overwrite a deliberately bad one). */
+static void raw_send(const uint8_t *seg, int len, const WINDIVERT_ADDRESS *base) {
+  if (len <= 0) return;
+  WINDIVERT_ADDRESS a = *base;
+  a.Outbound = 1;
+  a.IPv6 = 0;
+  a.IPChecksum = 1;
+  a.TCPChecksum = 1;
   UINT sent = 0;
-  p_Send(g_handle, buf, len, &sent, &a);
+  p_Send(g_handle, seg, (UINT)len, &sent, &a);
 }
 
 /* Inject g_fake_repeats decoy UDP datagrams to the SAME 5-tuple: random
@@ -144,30 +138,94 @@ static void send_udp_decoys(uint32_t saddr, uint32_t daddr, uint16_t sportn,
     uint32_t seed = saddr ^ (daddr << 1) ^ ((uint32_t)sportn << 3) ^
                     ((uint32_t)dportn << 5) ^ (uint32_t)i * 2654435761u ^ tick;
     int n = udp_build_decoy(buf, (int)sizeof(buf), saddr, daddr, sportn, dportn,
-                            plen, g_fake_ttl, ipid, seed);
+                            plen, g_cfg.fake_ttl, ipid, seed);
     if (n <= 0) break;
     UINT s = 0;
     p_Send(g_handle, buf, (UINT)n, &s, &a);
   }
 }
 
-int raw_windows_start(int fake_ttl, int quic_block, int udp_fake, int fake_repeats) {
-  g_fake_ttl = fake_ttl > 0 ? fake_ttl : 4;
-  g_quic_block = quic_block ? 1 : 0;
-  g_udp_fake = udp_fake ? 1 : 0;
-  g_fake_repeats = (fake_repeats > 0 && fake_repeats <= 64) ? fake_repeats : 6;
+/* Send the scrambled-SNI decoy with the effective (autottl or fixed) TTL. */
+static void send_fake(const uint8_t *pkt, int len, int ihl, int tcphl, int poff,
+                      const proto_info *pi, int ttl, const WINDIVERT_ADDRESS *addr) {
+  int plen = len - poff;
+  if (plen <= 0 || plen > 1500) return;
+  uint8_t pay[1600];
+  memcpy(pay, pkt + poff, (size_t)plen);
+  if (pi->host_off >= 0 && pi->host_off + pi->host_len <= plen) {
+    for (int i = pi->host_off; i < pi->host_off + pi->host_len; i++) pay[i] ^= 0x5a;
+  } else {
+    for (int i = plen / 3; i < plen; i++) pay[i] ^= 0x5a;
+  }
+  uint8_t out[1600];
+  uint32_t seq = rd32be(pkt + ihl + 4);
+  int eff = ttl > 0 ? ttl : g_cfg.fake_ttl;
+  int n = tcpdpi_build_segment4(out, sizeof out, pkt, ihl, pkt + ihl, tcphl,
+                                g_ipid++, seq, eff, pay, plen, 1 /* bad checksum */);
+  if (n > 0) raw_send(out, n, addr);
+}
+
+/* Effective decoy TTL for a destination IPv4 address (network order). */
+static int decoy_ttl_for(uint32_t daddr) {
+  if (g_cfg.autottl) {
+    int hops = tcpdpi_hops_get(daddr, now_ms());
+    if (hops > 0) return tcpdpi_decoy_ttl(hops, g_cfg.autottl_margin, g_cfg.autottl_min);
+  }
+  return g_cfg.fake_ttl;
+}
+
+/* Handle an outbound ClientHello / first request. Returns 1 if the original was
+ * consumed (do not re-inject it), 0 if it must be re-injected unchanged. */
+static int handle_outbound(const uint8_t *pkt, int len, int ihl, int tcphl, int poff,
+                           const proto_info *pi, const WINDIVERT_ADDRESS *addr) {
+  int plen = len - poff;
+  uint32_t daddr = rd32be(pkt + 16);
+  uint32_t seq = rd32be(pkt + ihl + 4);
+  int otl = pkt[8] ? pkt[8] : 64;
+  int ttl = decoy_ttl_for(daddr);
+
+  if (g_cfg.desync_mode == RAW_DESYNC_FAKEDSPLIT || g_cfg.desync_mode == RAW_DESYNC_FAKEDDISORDER) {
+    int split = (pi->host_off > 0 && pi->host_off < plen) ? pi->host_off : (plen > 2 ? 2 : 1);
+    tcpdpi_seg segs[3]; int ns = 0;
+    if (tcpdpi_build_fakedsplit4(segs, &ns, pkt, ihl, pkt + ihl, tcphl, g_ipid, seq, otl,
+                                 pkt + poff, plen, split, ttl, g_cfg.fake_pattern,
+                                 g_cfg.desync_mode == RAW_DESYNC_FAKEDDISORDER)) {
+      g_ipid += 3;
+      for (int i = 0; i < ns; i++) raw_send(segs[i].data, segs[i].len, addr);
+      return 1;
+    }
+    return 0;
+  }
+
+  send_fake(pkt, len, ihl, tcphl, poff, pi, ttl, addr);
+  if (g_cfg.seqovl > 0 && plen > 0) {
+    uint8_t out[1600];
+    int n = tcpdpi_build_seqovl4(out, sizeof out, pkt, ihl, pkt + ihl, tcphl, g_ipid,
+                                 seq, otl, pkt + poff, plen, g_cfg.seqovl, g_cfg.seqovl_pattern);
+    if (n > 0) { g_ipid++; raw_send(out, n, addr); return 1; }
+  }
+  return 0;
+}
+
+int raw_windows_start(const raw_config *cfg) {
+  g_cfg = *cfg;
+  if (g_cfg.fake_ttl <= 0) g_cfg.fake_ttl = 4;
+  g_quic_block = g_cfg.quic_block ? 1 : 0;
+  g_udp_fake = g_cfg.udp_fake ? 1 : 0;
+  g_fake_repeats = (g_cfg.fake_repeats > 0 && g_cfg.fake_repeats <= 64) ? g_cfg.fake_repeats : 6;
   udp_flow_init(&g_flows);
+  tcpdpi_hops_reset();
   if (load_windivert() != 0) return -1;
 
   /* Keep the kernel filter as narrow as the language allows — port + proto —
-   * and classify payloads in code. Outbound IPv4 only (IPv6 is re-injected
-   * unchanged by the loop below, since this backend builds IPv4 fakes only):
-   *   - TCP 80/443 with payload (the TLS/HTTP decoy path, unchanged);
-   *   - UDP 443 for QUIC Initial (dropped so browsers fall back to TCP);
-   *   - UDP on Discord voice / STUN ports (decoys ahead of the first datagrams).
-   * The UDP clauses are added only for the features that are on. */
-  char filter[512];
-  char udpf[384]; udpf[0] = 0;
+   * and classify payloads in code:
+   *   - outbound TCP 80/443 with payload (the decoy / desync path);
+   *   - outbound UDP 443 for QUIC Initial (dropped so browsers fall back to TCP);
+   *   - outbound UDP on Discord voice / STUN ports (decoys ahead of the first datagrams);
+   *   - inbound TCP RST and SYN-ACK from 80/443 (the RST-drop, the hop measurement).
+   * Each clause is added only for the features that are on. IPv6 outbound is
+   * re-injected unchanged by the loop below (this backend builds IPv4 fakes). */
+  char filter[768];
   char ports[256]; ports[0] = 0;
   if (g_quic_block) snprintf(ports, sizeof(ports), "udp.DstPort == 443");
   if (g_udp_fake) {
@@ -175,10 +233,17 @@ int raw_windows_start(int fake_ttl, int quic_block, int udp_fake, int fake_repea
     if (ports[0]) { char tmp[256]; snprintf(tmp, sizeof(tmp), "%s or %s", ports, dports); snprintf(ports, sizeof(ports), "%s", tmp); }
     else snprintf(ports, sizeof(ports), "%s", dports);
   }
-  if (ports[0]) snprintf(udpf, sizeof(udpf), " or (udp and (%s))", ports);
-  snprintf(filter, sizeof(filter),
-    "outbound and ip and ((tcp and (tcp.DstPort == 443 or tcp.DstPort == 80) and tcp.PayloadLength > 0)%s)",
-    udpf);
+  int off = snprintf(filter, sizeof(filter),
+    "(outbound and ip and tcp and (tcp.DstPort == 443 or tcp.DstPort == 80) and tcp.PayloadLength > 0)");
+  if (ports[0])
+    off += snprintf(filter + off, sizeof(filter) - off, " or (outbound and ip and udp and (%s))", ports);
+  if (g_cfg.drop_rst || g_cfg.autottl) {
+    char sub[128]; sub[0] = 0; int so = 0;
+    if (g_cfg.drop_rst) so += snprintf(sub + so, sizeof(sub) - so, "tcp.Rst");
+    if (g_cfg.autottl)  so += snprintf(sub + so, sizeof(sub) - so, "%s(tcp.Syn and tcp.Ack)", g_cfg.drop_rst ? " or " : "");
+    snprintf(filter + off, sizeof(filter) - off,
+      " or (inbound and tcp and (tcp.SrcPort == 443 or tcp.SrcPort == 80) and (%s))", sub);
+  }
   g_handle = p_Open(filter, WINDIVERT_LAYER_NETWORK, 0, 0);
   if (g_handle == INVALID_HANDLE_VALUE) {
     fprintf(stderr, "WinDivertOpen failed (%lu). Run as Administrator.\n", (unsigned long)GetLastError());
@@ -186,8 +251,8 @@ int raw_windows_start(int fake_ttl, int quic_block, int udp_fake, int fake_repea
   }
 
   g_run = 1;
-  printf("{\"type\":\"raw_ready\",\"backend\":\"windivert\",\"ttl\":%d,\"quic_block\":%d,\"udp_fake\":%d}\n",
-         g_fake_ttl, g_quic_block, g_udp_fake);
+  printf("{\"type\":\"raw_ready\",\"backend\":\"windivert\",\"ttl\":%d,\"drop_rst\":%d,\"autottl\":%d,\"seqovl\":%d,\"mode\":%d,\"quic_block\":%d,\"udp_fake\":%d}\n",
+         g_cfg.fake_ttl, g_cfg.drop_rst, g_cfg.autottl, g_cfg.seqovl, g_cfg.desync_mode, g_quic_block, g_udp_fake);
   fflush(stdout);
 
   uint8_t pkt[65535];
@@ -198,26 +263,33 @@ int raw_windows_start(int fake_ttl, int quic_block, int udp_fake, int fake_repea
       if (GetLastError() == ERROR_NO_DATA) break; /* shutdown */
       continue;
     }
-    /* Anything we cannot safely classify is re-injected unchanged: IPv6, runts,
-     * and any protocol other than the TCP/UDP the filter should have selected. */
-    if (len < 28 || addr.IPv6) { UINT s; p_Send(g_handle, pkt, len, &s, &addr); continue; }
+    /* Anything we cannot safely classify is re-injected unchanged. */
+    if (len < 28) { UINT s; p_Send(g_handle, pkt, len, &s, &addr); continue; }
+
+    /* ── Inbound: RST-drop and SYN-ACK hop measurement ───────────────────── */
+    if (!addr.Outbound) {
+      if (addr.IPv6) {
+        if (g_cfg.drop_rst && tcpdpi_is_injected_rst6(pkt, (int)len)) continue; /* drop forged RST */
+        UINT s; p_Send(g_handle, pkt, len, &s, &addr); continue;
+      }
+      int ihl = (pkt[0] & 0x0f) * 4;
+      if (ihl >= 20 && (int)len >= ihl + 20) {
+        const uint8_t *tcp = pkt + ihl;
+        if (g_cfg.drop_rst && (tcp[13] & 0x04) && tcpdpi_is_injected_rst4(pkt, (int)len))
+          continue;                                   /* forged RST: drop it */
+        if (g_cfg.autottl && (tcp[13] & 0x02) && (tcp[13] & 0x10)) { /* SYN+ACK */
+          int hops = tcpdpi_hops_from_ttl(pkt[8]);
+          if (hops > 0) tcpdpi_hops_put(rd32be(pkt + 12), hops, now_ms());
+        }
+      }
+      UINT s; p_Send(g_handle, pkt, len, &s, &addr); continue; /* kept unchanged */
+    }
+
+    /* ── Outbound ───────────────────────────────────────────────────────── */
+    if (addr.IPv6) { UINT s; p_Send(g_handle, pkt, len, &s, &addr); continue; }
     int ihl = (pkt[0] & 0x0f) * 4;
     if (ihl < 20 || (int)len < ihl) { UINT s; p_Send(g_handle, pkt, len, &s, &addr); continue; }
     int proto = pkt[9];
-
-    if (proto == 6 /* TCP */) {
-      if ((int)len < ihl + 20) { UINT s; p_Send(g_handle, pkt, len, &s, &addr); continue; }
-      int tcphl = ((pkt[ihl + 12] >> 4) & 0x0f) * 4;
-      int poff = ihl + tcphl;
-      int plen = (int)len - poff;
-      if (plen > 0) {
-        proto_info pi;
-        proto_inspect(pkt + poff, (size_t)plen, &pi);
-        if (pi.kind != PROTO_UNKNOWN) send_fake(pkt, len, &addr, &pi, poff); /* decoy first */
-      }
-      UINT s = 0; p_Send(g_handle, pkt, len, &s, &addr);   /* real packet unchanged */
-      continue;
-    }
 
     if (proto == 17 /* UDP */) {
       if ((int)len < ihl + 8) { UINT s; p_Send(g_handle, pkt, len, &s, &addr); continue; }
@@ -249,8 +321,21 @@ int raw_windows_start(int fake_ttl, int quic_block, int udp_fake, int fake_repea
       continue;
     }
 
-    /* unexpected protocol: re-inject unchanged */
-    { UINT s = 0; p_Send(g_handle, pkt, len, &s, &addr); }
+    /* TCP: the decoy / desync. Any other protocol is re-injected unchanged. */
+    if (proto != 6 || (int)len < ihl + 20) { UINT s; p_Send(g_handle, pkt, len, &s, &addr); continue; }
+    int tcphl = ((pkt[ihl + 12] >> 4) & 0x0f) * 4;
+    if (tcphl < 20 || ihl + tcphl > (int)len) { UINT s; p_Send(g_handle, pkt, len, &s, &addr); continue; }
+    int poff = ihl + tcphl;
+    int plen = (int)len - poff;
+
+    int handled = 0;
+    if (plen > 0) {
+      proto_info pi;
+      proto_inspect(pkt + poff, (size_t)plen, &pi);
+      if (pi.kind != PROTO_UNKNOWN)
+        handled = handle_outbound(pkt, (int)len, ihl, tcphl, poff, &pi, &addr);
+    }
+    if (!handled) { UINT s = 0; p_Send(g_handle, pkt, len, &s, &addr); } /* real packet */
   }
 
   return 0;

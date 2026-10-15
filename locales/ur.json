@@ -228,6 +228,7 @@
   "logAdvancedBackendExited": "ایڈوانسڈ بیک اینڈ بند ہو گیا",
   "logAdvancedAskingAdmin": "ایڈوانسڈ موڈ: ایڈمنسٹریٹر کی اجازت طلب کی جا رہی ہے",
   "logAdvancedNoStopConfirm": "ایڈوانسڈ بیک اینڈ نے بند ہونے کی تصدیق نہیں کی؛ Shroudly بند ہونے پر یہ خود بند ہو جائے گا",
+  "logAdvancedProtections": "ایڈوانسڈ موڈ داخل کیے گئے جعلی ری سیٹ بھی رد کرتا ہے اور دھوکے والے پیکٹ کا TTL ناپتا ہے",
   "systemStatus": "سسٹم کی حالت",
   "howItWorks": "یہ کیسے کام کرتا ہے",
   "technique_frag": "TCP فریگمنٹیشن",

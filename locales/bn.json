@@ -228,6 +228,7 @@
   "logAdvancedBackendExited": "উন্নত ব্যাকএন্ড বন্ধ হয়েছে",
   "logAdvancedAskingAdmin": "উন্নত মোড: প্রশাসকের অনুমতি চাওয়া হচ্ছে",
   "logAdvancedNoStopConfirm": "উন্নত ব্যাকএন্ড বন্ধ হওয়া নিশ্চিত করেনি; Shroudly বন্ধ হলে এটি নিজে থেকেই বন্ধ হবে",
+  "logAdvancedProtections": "অ্যাডভান্সড মোড ঢোকানো নকল রিসেটও বাদ দেয় এবং ছলনা প্যাকেটের TTL মাপে",
   "systemStatus": "সিস্টেমের অবস্থা",
   "howItWorks": "এটি কীভাবে কাজ করে",
   "technique_frag": "TCP ফ্র্যাগমেন্টেশন",
