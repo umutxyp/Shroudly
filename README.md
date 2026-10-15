@@ -664,7 +664,8 @@ certificate by [SignPath Foundation](https://signpath.org/).
   anyone else are reviewed before they are merged.
 - **Approvers:** [umutxyp](https://github.com/umutxyp). Every release is approved by
   hand before it is signed.
-- **Privacy:** see [Privacy](#privacy). Shroudly sends nothing about you to any
+- **Privacy:** see [Privacy](#privacy), which also links the privacy policies
+  of the services Shroudly talks to. Shroudly sends nothing about you to any
   server; the only things it contacts are listed there, and the one optional
   report, the anonymous live count, can be turned off in Settings.
 
@@ -706,6 +707,20 @@ Shroudly does not collect personal data. These are the only things that contact 
 
 Games and apps mode contacts nothing of its own: it only carries what the
 programs using it were going to send anyway.
+
+The privacy policies of the services involved:
+[GitHub](https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement)
+(updates, the site list),
+[Discord](https://discord.com/privacy) (Discord app mode),
+[Cloudflare](https://www.cloudflare.com/privacypolicy/) (the live count's tunnel),
+and the encrypted DNS resolvers:
+[Cloudflare 1.1.1.1](https://developers.cloudflare.com/1.1.1.1/privacy/public-dns-resolver/),
+[Google Public DNS](https://developers.google.com/speed/public-dns/privacy),
+[Quad9](https://quad9.net/privacy/policy/),
+[AdGuard DNS](https://adguard-dns.io/en/privacy.html),
+[OpenDNS (Cisco)](https://www.cisco.com/c/en/us/about/legal/privacy-full.html),
+[DNS.SB](https://dns.sb/privacy/) and
+[Mullvad](https://mullvad.net/en/help/privacy-policy).
 
 ---
 
