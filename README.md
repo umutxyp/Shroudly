@@ -286,11 +286,12 @@ Games and apps mode sets it, on Windows and macOS, without admin rights:
   Start menu works too.
 - Shroudly checks what actually happens, not just that the setting was
   written: the first program, and the first Roblox connection, to go through
-  it are logged, and a Roblox that has been running for half a minute without
-  a single connection through Shroudly (started by an older browser) is
-  reported in the window and as a notification, with a button that restarts
-  it through Shroudly. The Microsoft Store edition of Roblox runs in a
-  sandbox that cannot reach Shroudly on this computer; the window says so.
+  it are logged, and on Windows a Roblox player that has been running for
+  half a minute without a single request reaching Shroudly (started by an
+  older browser) is reported within a minute, in the window and as a
+  notification, with a button that restarts it through Shroudly. The
+  Microsoft Store edition of Roblox runs in a sandbox that cannot reach
+  Shroudly on this computer; the window says so.
 - It is offered and explained in the app first, never done unasked. A proxy you
   set yourself (for your session or, on Windows, for the whole machine) is
   never replaced, and an `HTTPS_PROXY` of your own is never removed:
@@ -321,13 +322,18 @@ getting past the network's block, which Shroudly does, only uncovers the
 service's own refusal.
 
 Shroudly tells the two apart the same way in every country, from what the
-service does rather than from where you are: when a site answers but refuses
-the connection itself (a block page, HTTP 451, or a completed handshake
-followed by silence), the site test in Settings says so instead of suggesting
-another technique, and a site that keeps cutting connections is checked once
-and explained in the window. Only a connection that leaves from another
-country gets around such a refusal, and the service may treat that as
-breaking its rules (Roblox does).
+service does rather than from where you are: when a site answers but says it
+does not serve you (HTTP 451, or a page saying the service is not available
+in your country or region), the site test in Settings says so instead of
+suggesting another technique, and a site whose own page keeps being cut off
+(as often as Shroudly needs before it believes a cut) is checked once and
+explained in the window. A plain "access denied" is not taken for a refusal:
+storage and CDN servers answer that way to everyone. A site that completes
+the handshake and then says nothing is reported with both possible causes,
+because a network that stops connections once they are made looks exactly
+the same from here. Only a connection that leaves from another country gets
+around a real refusal, and the service may treat that as breaking its rules
+(Roblox does).
 
 ---
 
@@ -434,8 +440,13 @@ AppImages, Windows x64 and ARM, both macOS images).
 
 After that Shroudly updates itself: it checks when it starts and every 30
 minutes, downloads in the background and installs on restart. You can postpone
-it, or turn automatic installs off in Settings. Linux packages ask for your
-password to install an update, as any system package does.
+it, or turn automatic installs off in Settings. While a Roblox game or Discord
+goes through Shroudly (Games and apps mode, Discord app mode), the restart
+waits until they are closed; after a few hours of waiting it also installs
+once the computer has been left alone for ten minutes or is locked, and on
+Windows and Linux at the next start, before protection comes on. Linux
+packages ask for your password to install an update, as any system package
+does.
 
 > **The builds are not code-signed yet** (Windows signing is being set up, see the
 > [code signing policy](#code-signing-policy)). On first launch Windows SmartScreen may
@@ -614,6 +625,11 @@ Shroudly does not collect personal data. These are the only things that contact 
   [`server/stats`](server/stats/server.js).
 - **Update checks** (GitHub): the app downloads the release feed from
   `github.com/umutxyp/Shroudly`.
+- **The site itself**, when you test a site in Settings, when the front page
+  of a site you use keeps being cut off, and Roblox's once Roblox connects
+  through Games and apps mode: one request for its front page, through the
+  protected connection and the way an ordinary browser makes it, to see
+  whether the site turns you away itself.
 - **The site list** (GitHub): about once a day, only while protection is on
   and through the protected connection, the app downloads
   [the published list](#the-automatic-site-list) from

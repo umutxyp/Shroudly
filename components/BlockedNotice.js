@@ -236,7 +236,9 @@ export default function BlockedNotice({ onNavigate, active = false }) {
    * technique can change, said the same way for every site and country. */
   if (refused && !hidden[`refused:${refused.host}`]) {
     return (
-      <Banner Icon={ShieldAlertIcon} title={t('probeServiceTitle', { host: refused.host })} body={t('probeServiceBody', { host: refused.host })}
+      <Banner Icon={ShieldAlertIcon}
+              title={t(refused.service === 'stall' ? 'probeStallTitle' : 'probeServiceTitle', { host: refused.host })}
+              body={t(refused.service === 'stall' ? 'probeStallBody' : 'probeServiceBody', { host: refused.host })}
               onClose={() => hide(`refused:${refused.host}`)} closeLabel={closeLabel} />
     );
   }
