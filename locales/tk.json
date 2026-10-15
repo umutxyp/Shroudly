@@ -137,7 +137,7 @@
   "conflictBody": "Ol Shroudly bilen şol bir birikmeleri başga ugra gönükdirýär we ikisi biri-birine päsgel berýär. Shroudly-ni ulanýan wagtyňyz {tools} programmasyndan doly çykyň.",
   "cutTitle": "{host} birikýär, soňra tor ony kesýär",
   "cutBodyAdvanced": "Bu tor birikmeleriň diňe başlanyşyny däl, olary tutuşlygyna yzarlaýar. Shroudly bu saýt üçin eýýäm başga usullary synap görýär; Giňişleýin tertip has pes derejede işleýär we adatça geçip bilýär.",
-  "cutBodyAdvancedOn": "Giňişleýin tertip açyk, ýöne tor ony henizem kesýär. Ähtimal, ol serweriň salgysyny petikleýär, muny hiç bir usul üýtgedip bilmeýär; bu saýt üçin diňe VPN geçip bilýär.",
+  "cutBodyAdvancedOn": "Giňişleýin tertip açyk, ýöne birikme gurlandan soň henizem kesilýär. Munuň sebäbi bu toruň talap edýän, emma entek tapylmadyk usuly bolup biler ýa-da serweriň öz salgysynyň petiklenmegi — muny hiç bir usul üýtgedip bilmeýär we şonda diňe VPN geçip bilýär. Eger beýleki petikli saýtlar açylýan bolsa, bu saýtyň kadadan çykma bolmagy has ähtimal.",
   "cutBodyNoAdvanced": "Shroudly bu saýt üçin eýýäm başga usullary synap görýär. Eger bu gaýtalanyp dursa, tor serweriň salgysyny petikleýändir ýa-da oňa Giňişleýin tertip gerekdir, ol bolsa diňe Windows we Linux-da bar; şeýle ýagdaýda galan ýeke-täk ýol VPN bolar.",
   "notNow": "Häzir däl",
   "dnsDownTitle": "Bu torda şifrlenen DNS petikli",

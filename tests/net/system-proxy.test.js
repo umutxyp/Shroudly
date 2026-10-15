@@ -1329,6 +1329,45 @@ const readState = (file) => { try { return JSON.parse(fs.readFileSync(file, 'utf
       }
     }
 
+    // Programs already running when protection starts: asked to restart only
+    // where a restart is really the fix for that program on that system, and
+    // only once per session (a later Stop/Start keeps the same address).
+    {
+      const diagnostics = require(path.join(ROOT, 'electron', 'diagnostics.js'));
+      const origCollect = diagnostics.collect;
+      const RUNNING = 'was already running when protection started';
+      const lines = []; const told = [];
+      em.log = (level, msg) => lines.push(msg);
+      em.onNeedRestart = (apps) => told.push(apps.join(','));
+      em.active = true;
+      diagnostics.collect = async () => ({ os: 'test', iface: { name: 'en0', kind: 'Wi-Fi' }, dnsServers: ['1.1.1.1'], localDns: null,
+        dnsAnswered: 6, dnsAsked: 6, conflicts: [], idleVpns: [], forgedDns: [], region: null, needRestart: ['Discord', 'Firefox', 'Roblox', 'Telegram'] });
+      const run = async (status) => { em._restartTold = false; lines.length = 0; told.length = 0; em.proxyStatus = status; await em._describeEnvironment(); };
+      try {
+        await run({ ok: true, code: 'ok', system: 'windows' });
+        t.ok(told.join('|') === 'Firefox' && lines.some((l) => l.startsWith('Firefox ' + RUNNING) || l.includes('Firefox was already running')),
+          `restart (Windows): only Firefox, which loads the proxy file once at start; Discord follows the setting, Roblox and Telegram do not use it (${told.join('|') || 'none'})`);
+        await em._describeEnvironment();
+        t.ok(told.length === 1, 'restart (Windows): not asked again on a later Stop/Start in the same session');
+        for (const system of ['macos', 'gnome', 'kde', 'xfce', 'lxqt', 'other']) {
+          await run({ ok: true, code: 'ok', system });
+          t.ok(!told.length && !lines.some((l) => l.includes(RUNNING)), `restart (${system}): every program follows the setting or a restart would not help: none asked`);
+        }
+        await run({ ok: false, code: 'partial_env', system: 'xfce' });
+        t.ok(!told.length, 'restart (XFCE, needs a re-login): not asked to restart, which would not help');
+        await run({ ok: false, code: 'needs_admin', system: 'macos' });
+        t.ok(!told.length, 'restart (macOS, needs an administrator): nothing set yet, none asked');
+        t.ok(diagnostics.restartHelps(['Discord', 'Firefox'], 'windows').join() === 'Firefox' && diagnostics.restartHelps(['Discord'], 'gnome').length === 0,
+          'diagnostics.restartHelps: per program and per system');
+      } finally {
+        diagnostics.collect = origCollect;
+        clearInterval(em._conflictTimer);
+        em.active = false;
+        em.proxyStatus = null;
+        em._restartTold = false;
+      }
+    }
+
     // A6: an engine crash with an administrator-set proxy keeps it and
     // only points the PAC at the restarted engine; any other is restored.
     const ev = [];

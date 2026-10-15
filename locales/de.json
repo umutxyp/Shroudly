@@ -137,7 +137,7 @@
   "conflictBody": "Es leitet dieselben Verbindungen um wie Shroudly, und die beiden kommen sich in die Quere. Beende {tools} vollständig, solange du Shroudly nutzt.",
   "cutTitle": "{host} verbindet sich, dann trennt das Netz die Verbindung",
   "cutBodyAdvanced": "Dieses Netz verfolgt ganze Verbindungen, nicht nur ihren Anfang. Shroudly probiert für diese Seite bereits andere Techniken; der erweiterte Modus arbeitet darunter und kommt meist durch.",
-  "cutBodyAdvancedOn": "Der erweiterte Modus ist an, und das Netz trennt trotzdem. Höchstwahrscheinlich ist die Adresse des Servers gesperrt, und die kann keine Technik ändern; für diese Seite kommt nur ein VPN durch.",
+  "cutBodyAdvancedOn": "Der erweiterte Modus ist an, und die Verbindung wird trotzdem getrennt, nachdem sie zustande gekommen ist. Das kann an einer Technik liegen, die dieses Netz braucht und die noch nicht gefunden wurde, oder daran, dass die Adresse des Servers selbst gesperrt ist — das kann keine Technik ändern, und dann kommt nur ein VPN durch. Wenn andere gesperrte Seiten funktionieren, ist diese Seite wahrscheinlich die Ausnahme.",
   "cutBodyNoAdvanced": "Shroudly probiert für diese Seite bereits andere Techniken. Hält es an, sperrt das Netz die Adresse des Servers oder braucht den erweiterten Modus, den nur Windows und Linux haben; dann bleibt ein VPN.",
   "notNow": "Jetzt nicht",
   "dnsDownTitle": "Verschlüsseltes DNS ist in diesem Netz gesperrt",

@@ -137,7 +137,7 @@
   "conflictBody": "Ew heman girêdanan wekî Shroudly bi rêyeke din dişîne, û her du dibin astengiya hev. Heta ku tu Shroudly bi kar tînî, ji {tools} bi tevahî derkeve.",
   "cutTitle": "{host} girê dide, paşê tor wê qut dike",
   "cutBodyAdvanced": "Ev tor tevahiya girêdanan dişopîne, ne tenê destpêka wan. Shroudly jixwe ji bo vê malperê teknîkên din diceribîne; Moda pêşketî di asteke jêrtir de dixebite û bi gelemperî derbas dibe.",
-  "cutBodyAdvancedOn": "Moda pêşketî çalak e û tor hîn jî wê qut dike. Bi îhtimaleke mezin ew navnîşana rajekar asteng dike, ku tu teknîk nikare biguherîne; ji bo vê malperê tenê VPN derbas dibe.",
+  "cutBodyAdvancedOn": "Moda pêşketî çalak e, lê girêdan piştî ku çêdibe hîn jî tê qutkirin. Sedem dikare teknîkeke ku ev tor hewce dike lê hîn nehatiye dîtin be, an jî astengkirina navnîşana rajekar bi xwe — ku tu teknîk nikare biguherîne, û wê demê tenê VPN derbas dibe. Heke malperên din ên astengkirî vebin, îhtîmal mezin e ku ev malper awarte be.",
   "cutBodyNoAdvanced": "Shroudly jixwe ji bo vê malperê teknîkên din diceribîne. Heke ev berdewam bike, an tor navnîşana rajekar asteng dike an jî Moda pêşketî hewce ye, ku tenê li Windows û Linux heye; wê demê VPN vebijarka dawî ye.",
   "notNow": "Ne niha",
   "dnsDownTitle": "DNS-a şîfrekirî li ser vê torê astengkirî ye",

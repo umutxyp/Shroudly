@@ -137,7 +137,7 @@
   "conflictBody": "U Shroudly bilan bir xil ulanishlarni boshqa yoʻnalishga buradi va ikkalasi bir-biriga xalaqit beradi. Shroudlydan foydalanayotganingizda {tools} dasturidan butunlay chiqing.",
   "cutTitle": "{host} ulanadi, keyin tarmoq uni uzib qoʻyadi",
   "cutBodyAdvanced": "Bu tarmoq ulanishlarni faqat boshlanishida emas, toʻliq kuzatadi. Shroudly bu sayt uchun allaqachon boshqa usullarni sinamoqda; Kengaytirilgan rejim bundan pastroq darajada ishlaydi va odatda blokdan oʻtadi.",
-  "cutBodyAdvancedOn": "Kengaytirilgan rejim yoqilgan, lekin tarmoq baribir ulanishni uzmoqda. Ehtimol, u server manzilini bloklayapti, buni esa hech qanday usul oʻzgartira olmaydi; bu sayt uchun faqat VPN yordam beradi.",
+  "cutBodyAdvancedOn": "Kengaytirilgan rejim yoqilgan, lekin ulanish oʻrnatilgandan keyin baribir uzib qoʻyilmoqda. Buning sababi bu tarmoq talab qiladigan, ammo hali topilmagan usul boʻlishi mumkin yoki server manzilining oʻzi bloklangan boʻlishi — buni hech qanday usul oʻzgartira olmaydi va unda faqat VPN oʻtadi. Agar boshqa bloklangan saytlar ochilsa, ehtimol, istisno aynan shu sayt.",
   "cutBodyNoAdvanced": "Shroudly bu sayt uchun allaqachon boshqa usullarni sinamoqda. Agar bu takrorlanaversa, demak tarmoq server manzilini bloklayapti yoki Kengaytirilgan rejim kerak, u esa faqat Windows va Linuxda bor; unda qolgan yagona yoʻl — VPN.",
   "notNow": "Hozir emas",
   "dnsDownTitle": "Bu tarmoqda shifrlangan DNS bloklangan",

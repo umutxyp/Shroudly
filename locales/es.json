@@ -137,7 +137,7 @@
   "conflictBody": "Desvía las mismas conexiones que Shroudly y los dos se estorban. Cierra {tools} por completo mientras uses Shroudly.",
   "cutTitle": "{host} conecta y luego la red corta la conexión",
   "cutBodyAdvanced": "Esta red sigue las conexiones enteras, no solo su inicio. Shroudly ya está probando otras técnicas para este sitio; el modo Avanzado trabaja por debajo y suele pasar.",
-  "cutBodyAdvancedOn": "El modo Avanzado está activado y la red sigue cortando. Lo más probable es que bloquee la dirección del servidor, algo que ninguna técnica puede cambiar; para este sitio solo una VPN pasa.",
+  "cutBodyAdvancedOn": "El modo Avanzado está activado y la conexión se sigue cortando después de establecerse. Puede deberse a una técnica que esta red necesita y que aún no se ha encontrado, o a que la propia dirección del servidor está bloqueada — algo que ninguna técnica puede cambiar, y entonces solo pasa una VPN. Si otros sitios bloqueados funcionan, lo más probable es que este sea la excepción.",
   "cutBodyNoAdvanced": "Shroudly ya está probando otras técnicas para este sitio. Si sigue pasando, la red bloquea la dirección del servidor o necesita el modo Avanzado, que solo tienen Windows y Linux; entonces queda una VPN.",
   "notNow": "Ahora no",
   "dnsDownTitle": "El DNS cifrado está bloqueado en esta red",

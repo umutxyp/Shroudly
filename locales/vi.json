@@ -137,7 +137,7 @@
   "conflictBody": "Nó định tuyến lại cùng các kết nối như Shroudly, và hai ứng dụng sẽ cản trở nhau. Hãy thoát hẳn {tools} trong khi bạn dùng Shroudly.",
   "cutTitle": "{host} kết nối được, rồi bị mạng cắt",
   "cutBodyAdvanced": "Mạng này theo dõi toàn bộ kết nối chứ không chỉ phần mở đầu. Shroudly đang thử các kỹ thuật khác cho trang này; Chế độ nâng cao hoạt động ở tầng thấp hơn và thường vượt qua được.",
-  "cutBodyAdvancedOn": "Chế độ nâng cao đang bật nhưng mạng vẫn cắt kết nối. Nhiều khả năng mạng đang chặn địa chỉ của máy chủ, điều mà không kỹ thuật nào thay đổi được; với trang này, chỉ VPN mới vượt qua được.",
+  "cutBodyAdvancedOn": "Chế độ nâng cao đang bật nhưng kết nối vẫn bị cắt sau khi được thiết lập. Nguyên nhân có thể là mạng này cần một kỹ thuật chưa được tìm ra, hoặc chính địa chỉ của máy chủ bị chặn — điều mà không kỹ thuật nào thay đổi được, và khi đó chỉ VPN mới vượt qua được. Nếu các trang bị chặn khác mở được, nhiều khả năng trang này là ngoại lệ.",
   "cutBodyNoAdvanced": "Shroudly đang thử các kỹ thuật khác cho trang này. Nếu tình trạng này tiếp diễn, mạng đang chặn địa chỉ của máy chủ hoặc cần đến Chế độ nâng cao, vốn chỉ có trên Windows và Linux; khi đó VPN là lựa chọn còn lại.",
   "notNow": "Để sau",
   "dnsDownTitle": "DNS mã hóa bị chặn trên mạng này",

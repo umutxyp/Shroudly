@@ -137,7 +137,7 @@
   "conflictBody": "Ia mengalihkan koneksi yang sama dengan Shroudly, dan keduanya saling mengganggu. Tutup {tools} sepenuhnya selama memakai Shroudly.",
   "cutTitle": "{host} tersambung, lalu jaringan memutusnya",
   "cutBodyAdvanced": "Jaringan ini mengikuti seluruh koneksi, bukan hanya awalnya. Shroudly sudah mencoba teknik lain untuk situs ini; mode Lanjutan bekerja di lapisan lebih bawah dan biasanya lolos.",
-  "cutBodyAdvancedOn": "Mode Lanjutan aktif dan jaringan tetap memutusnya. Kemungkinan besar alamat servernya yang diblokir, dan itu tidak bisa diubah teknik apa pun; untuk situs ini hanya VPN yang lolos.",
+  "cutBodyAdvancedOn": "Mode Lanjutan aktif dan koneksi tetap diputus setelah terbentuk. Penyebabnya bisa teknik yang dibutuhkan jaringan ini tetapi belum ditemukan, atau alamat server itu sendiri diblokir — yang tidak bisa diubah teknik apa pun, dan saat itu hanya VPN yang lolos. Jika situs lain yang diblokir bisa dibuka, kemungkinan besar situs inilah pengecualiannya.",
   "cutBodyNoAdvanced": "Shroudly sudah mencoba teknik lain untuk situs ini. Jika terus terjadi, jaringan memblokir alamat server atau butuh mode Lanjutan, yang hanya ada di Windows dan Linux; selebihnya tinggal VPN.",
   "notNow": "Nanti saja",
   "dnsDownTitle": "DNS terenkripsi diblokir di jaringan ini",
