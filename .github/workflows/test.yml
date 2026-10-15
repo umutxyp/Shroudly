@@ -135,6 +135,16 @@ jobs:
           if [ "$RUNNER_OS" = Linux ]; then dbus-run-session -- xvfb-run -a node tests/e2e/app.test.js
           else node tests/e2e/app.test.js; fi
 
+      # Real browsers and the system's own HTTP clients, through the PAC that
+      # Shroudly puts in this machine's proxy setting.
+      - name: Browsers through the system proxy
+        shell: bash
+        run: |
+          if [ "$RUNNER_OS" = Linux ]; then
+            sudo apt-get install -y -qq dconf-cli dconf-gsettings-backend gsettings-desktop-schemas >/dev/null
+            dbus-run-session -- node tests/e2e/browsers.test.js
+          else node tests/e2e/browsers.test.js; fi
+
       - name: Baseline for comparison (${{ inputs.baseline_ref }})
         if: inputs.baseline_ref != ''
         shell: bash

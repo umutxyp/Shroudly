@@ -503,10 +503,10 @@ Shroudly/
     site-list.js              the automatic site list: fetch, check, keep
     data/sites.json           the site list as it was at release
     advanced-mode.js          Advanced mode: elevation (UAC / pkexec) + lifecycle
-    main-i18n.js              tray + notification strings (every UI language)
+    main-i18n.js              tray + notification strings, read from locales/
     tools/core/<os>-<arch>/   built engine binaries (per platform)
   app/ components/ contexts/  Next.js + React UI
-  translations.js             UI strings, 31 languages (split per language at build time)
+  locales/<code>.json         every string, one file per language (31)
   scripts/build-core.js       native + cross compile
   scripts/build-core-advanced.js   Advanced-mode engine build
   scripts/fetch-windivert.js       fetch + verify the WinDivert driver

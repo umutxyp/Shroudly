@@ -168,17 +168,17 @@ function rebuildTrayMenu(active = trayActive) {
   trayActive = active;
   if (!tray) return;
   const s = tr();
-  const state = active ? s.active : s.inactive;
+  const state = active ? s.trayActive : s.trayInactive;
   const menu = Menu.buildFromTemplate([
-    { label: s.open, click: () => showWindow() },
+    { label: s.trayOpen, click: () => showWindow() },
     { type: 'separator' },
-    { label: `${s.status}: ${state}`, enabled: false },
+    { label: `${s.trayStatus}: ${state}`, enabled: false },
     {
-      label: active ? s.stop : s.start,
+      label: active ? s.trayStop : s.trayStart,
       click: async () => { active ? await safeStop({ user: true }) : await safeStart({ user: true }); },
     },
     { type: 'separator' },
-    { label: s.quit, click: () => { app.isQuitting = true; shutdownAndQuit(); } },
+    { label: s.trayQuit, click: () => { app.isQuitting = true; shutdownAndQuit(); } },
   ]);
   tray.setContextMenu(menu);
   tray.setToolTip(`Shroudly — ${state}`);
@@ -354,7 +354,7 @@ async function releaseWindow(reason) {
   win.destroy();
   if (reason === 'idle' && wasOnScreen && !idleNoticeShown) {
     idleNoticeShown = true;
-    notify('Shroudly', tr().minimized);
+    notify('Shroudly', tr().trayMinimized);
   }
 }
 
@@ -489,7 +489,7 @@ async function createWindow({ show = true } = {}) {
       e.preventDefault();
       if (!trayVisible) { win.minimize(); return; }
       win.hide();
-      notify('Shroudly', tr().minimized);
+      notify('Shroudly', tr().trayMinimized);
     }
   });
 }
@@ -506,7 +506,7 @@ async function safeStart({ user = false } = {}) {
   try {
     const r = await engine.start();
     broadcastStatus(true);
-    notify('Shroudly', tr().started);
+    notify('Shroudly', tr().trayStarted);
     syncPresence();
     return r || { success: true };
   } catch (e) {
@@ -521,7 +521,7 @@ async function safeStop({ user = false } = {}) {
   try {
     await engine.stop();
     broadcastStatus(false);
-    notify('Shroudly', tr().stopped);
+    notify('Shroudly', tr().trayStopped);
     syncPresence();
     return { success: true };
   } catch (e) {
@@ -646,7 +646,7 @@ app.whenReady().then(async () => {
       const now = Date.now();
       if (now - lastBlockedNotice < 5 * 60 * 1000) return;
       lastBlockedNotice = now;
-      notify(tr().siteBlockedTitle, tr().siteBlockedBody.replace('{host}', host));
+      notify(tr().notifySiteBlockedTitle, tr().notifySiteBlockedBody.replace('{host}', host));
       toWindow('dpi:site-blocked', { host });
       showWindow();
     },
@@ -668,7 +668,7 @@ app.whenReady().then(async () => {
   updater = new Updater({
     log: addLog,
     store,
-    notify: (version) => notify('Shroudly', tr().updateReady.replace('{version}', version)),
+    notify: (version) => notify('Shroudly', tr().notifyUpdateReady.replace('{version}', version)),
     // Installing quits the app: stop the engine first so the system proxy is
     // put back, exactly as on a normal quit.
     busy: async () => {
@@ -1167,7 +1167,7 @@ async function checkRobloxRoute() {
     if (!robloxSeen.told) {
       robloxSeen.told = true;
       addLog('warning', 'Games and apps: Roblox is running but none of its connections go through Shroudly (it was probably started by a browser that was already open)');
-      notify(tr().appBypassTitle, tr().appBypassBody);
+      notify(tr().notifyAppBypassTitle, tr().notifyAppBypassBody);
     }
   }
 }

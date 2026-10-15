@@ -4,8 +4,6 @@ node_modules/
 # Next.js
 .next/
 out/
-# Per-language strings, generated from translations.js at build time
-locales/
 
 # Electron build output
 dist/
