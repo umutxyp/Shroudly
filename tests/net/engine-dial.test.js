@@ -3,8 +3,8 @@
 /* Dialling through the engine's own resolver: every address a name has is
  * tried, not just the first; the answer is kept for its TTL (never less than
  * 20 s); an address that failed is dropped so the next connection does not
- * wait on it again; a first dial over many dead addresses is held to about
- * 14 s; and a host that cannot be reached at all is reported — once, not on
+ * wait on it again; a first dial over many dead addresses is held to 14 s at
+ * most; and a host that cannot be reached at all is reported — once, not on
  * every retry, only for a name on a web port — with whether DNS or the
  * connection failed. A re-dial the ladder's time budget cut short ends the
  * ladder as "blocked", not "unreachable". A local DNS server stands in for the
@@ -159,8 +159,8 @@ async function deadWebPort() {
   })();
 
   // The first dial of a name whose 8 addresses all stay silent gives up in
-  // about 14 s (8 s, 4 s and what is left), well inside the 30 s a browser
-  // gives a SOCKS connect — it used to take 28 s.
+  // at most 14 s (six of them tried a second apart, 8 s each), well inside
+  // the 30 s a browser gives a SOCKS connect — it used to take 28 s.
   const t2 = Date.now();
   err = await socks(P2, 'dead8.example', 443).then(() => null, (e) => e.message);
   const firstDial = Date.now() - t2;

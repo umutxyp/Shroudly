@@ -65,13 +65,19 @@ jobs:
         run: npm run test:net
 
       # The same engine tests again on a build with AddressSanitizer and
-      # UndefinedBehaviorSanitizer, so a memory error fails the run.
+      # UndefinedBehaviorSanitizer, so a memory error fails the run: every
+      # engine-* test that starts the engine itself (engine-manager runs the
+      # app's own build, so it is not one of them; a new engine-* test belongs
+      # in this list). Linux is the only platform with the decoy technique.
       - name: Network tests on a sanitizer build (Linux, macOS)
         if: runner.os != 'Windows'
         shell: bash
         run: |
           cc -std=c11 -g -O1 -D_GNU_SOURCE -D_DARWIN_C_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer -pthread -o "$RUNNER_TEMP/core-asan" core/src/*.c
-          SHROUDLY_ENGINE="$RUNNER_TEMP/core-asan" node tests/net/run.js engine-cut engine-hostile discord doh watchdog
+          SHROUDLY_ENGINE="$RUNNER_TEMP/core-asan" node tests/net/run.js \
+            engine-cut engine-dial engine-family engine-hostile engine-late-reset engine-outage \
+            engine-resume engine-silent engine-site engine-slowpath engine-socks4 \
+            discord doh watchdog
 
   # The engine built with each distribution's own compiler and C library,
   # and the network tests run there.

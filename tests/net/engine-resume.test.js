@@ -4,10 +4,12 @@
  * connection's 15 s budget covers the untouched attempt and the first four
  * techniques. A site that only a later technique opens used to stay blocked
  * for good: every connection tried the same four. Now a ladder that runs out
- * silently leaves its place behind, and the site's next connection carries on
- * from there — skipping the untouched attempt it has already seen dropped —
- * and wraps around the list, until something gets through; that is then
- * learned, and the connection after it opens at once.
+ * silently leaves its place behind, and the name's next connection carries on
+ * from there and wraps around the list, until something gets through; that is
+ * then learned, and the connection after it opens at once. The untouched
+ * request still goes first on a resumed connection — a server that was down
+ * looks exactly like a silent filter — but only gets a moment to itself
+ * before the next technique goes out beside it, instead of its full 5 s.
  *
  * The fake censor here does not model one real filter: it swallows every
  * handshake (nothing forwarded, nothing back, nothing closed) except the one
@@ -107,11 +109,13 @@ function shape(buf) {
   const firstAttempts = r.blocked.attempts;
 
   // The second connection carries on where the first stopped: the next
-  // technique in the list (the mid-name record split), no untouched attempt
-  // first, and so more techniques in the same 15 s.
+  // technique in the list (the mid-name record split) goes out right after
+  // the untouched request, not 5 s after it, and so more techniques fit in the
+  // same 15 s.
   r = await visit();
   t.ok(!r.ok && r.blocked && r.blocked.note === 'silent', 'second connection: still blocked, silently');
-  t.ok(r.seen[0] === 'mid', `it started where the first left off, not with the untouched attempt (${r.seen.join(', ')})`);
+  t.ok(r.seen[0] === 'one' && r.seen[1] === 'mid',
+    `it started where the first left off, the untouched request raced beside it (${r.seen.join(', ')})`);
   t.ok(r.blocked.attempts > firstAttempts, `and fit more techniques in: ${r.blocked.attempts} against ${firstAttempts}`);
 
   // Now the censor lets the mid-name split through — a technique the engine's
@@ -121,7 +125,8 @@ function shape(buf) {
   let opened = null, tries = 0;
   for (; tries < 4 && !opened; tries++) {
     r = await visit();
-    shapes.push(...r.seen);
+    t.ok(r.seen[0] === 'one', `connection ${tries + 3} raced its untouched request first`);
+    shapes.push(...r.seen.slice(1));      // the techniques
     if (r.ok) opened = r;
     else t.ok(r.blocked && r.blocked.note === 'silent', `connection ${tries + 3}: not yet (${r.seen.join(', ')})`);
   }

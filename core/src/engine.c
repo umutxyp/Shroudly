@@ -25,7 +25,12 @@
  * not blocked answers immediately and is then relayed untouched, so ordinary
  * browsing carries no desync, no risk and no added latency. Only when that
  * attempt is refused do we start trying desync strategies, and the one that
- * works is remembered per host, so the cost is paid once. */
+ * works is remembered per host, so the cost is paid once.
+ *
+ * What is remembered is only ever what the network showed: a technique is
+ * learned when the untouched request was refused, or was still unanswered
+ * while the technique got through on a connection of its own (see
+ * ladder_won). A server that is slow, or down for a while, shows neither. */
 #define ATT_PLAIN      (-2)    /* send the payload unmodified */
 /* Room for every preset plus an untouched attempt at either end. It used to
  * be 12, which silently cut the last few presets off the ladder; the time
@@ -40,18 +45,32 @@
 #define ATT_MIN_LEFT_MS 1000
 #define VERIFY_PLAIN_MS 5000
 #define VERIFY_DESYNC_MS 3500
-/* Once an attempt has gone unanswered and nothing has been refused, each
- * further one waits less: a technique that gets through is answered within a
- * round trip or two, and the shorter wait is what lets several of them fit in
- * the budget. The connection that went quiet first stays open meanwhile (see
- * "parked" in handle), so a server that was only slow is not lost by it. */
+/* Once an attempt has gone unanswered and nothing has been refused, the next
+ * one starts sooner: a technique that gets through is usually answered within
+ * a round trip or two, and the shorter wait is what lets several of them fit
+ * in the budget. Starting the next one does not end the last: every attempt's
+ * connection stays open and is listened to until one of them answers (see
+ * "legs" below), so an answer that takes longer than this — a slow server, a
+ * slow or lossy path — is still used, however many attempts went out since. */
 #define VERIFY_SILENT_MS 2500
+/* An untouched request raced against a technique (a ladder resuming a silent
+ * search, or checking a technique learned long ago) has this long to itself
+ * before the technique goes out beside it: two of the first connect's round
+ * trips and some, which a server that is not filtered needs to answer it
+ * first, held between these bounds. A silent network pays at most this. */
+#define RACE_HEAD_MIN_MS 250
+#define RACE_HEAD_MAX_MS 1000
+/* A ladder keeps at most this many connections open. Past it, the oldest
+ * technique's goes; the untouched request's never does (see legs_add). */
+#define LEG_MAX 6
+/* After the ladder is over with nothing answered, its connections are still
+ * listened to for this long; then the oldest is simply relayed. */
+#define RACE_MAX_MS 30000
 
 /* Outcome of one attempt. */
 #define ATT_OK      1   /* server answered */
 #define ATT_REFUSED 0   /* reset or closed: the connection was refused */
 #define ATT_SILENT  2   /* nothing came back at all: could be a slow server */
-#define ATT_PARKED  3   /* the earlier, parked connection answered instead */
 #define ATT_LOCAL  (-1) /* our own send failed */
 
 static engine_config  g_cfg;
@@ -73,21 +92,76 @@ static int ip_literal(const char *h) {
  * own entry always wins.
  *
  * The site is the registrable domain, by a deliberately small rule: the last
- * two labels, or three under a generic second level of a country domain
- * (example.co.uk, example.com.tr). Where unrelated people own the names under
- * one parent — shared hosting, CDN customer names — there is no site to share,
- * and neither is there for an address. Writes the site to out and returns 1,
- * or returns 0 when the host stands alone. */
+ * two labels, or three under a second level that is itself a public suffix
+ * (example.co.uk, example.com.tr, ankara.bel.tr, example.uk.com). Where
+ * unrelated people own the names under one parent — hosting and blog
+ * platforms, shops, CDN customer names, dynamic DNS — there is no site to
+ * share, and neither is there for an address. A list can never be complete,
+ * so it leans one way: grouping strangers would give one of them another's
+ * technique, while not grouping a real site only costs its names a ladder
+ * each. When unsure, a name is left out of any group. Writes the site to out
+ * and returns 1, or returns 0 when the host stands alone. */
+
+/* Nothing under these is grouped. */
 static const char *const SHARED_SUFFIX[] = {
-  "github.io", "githubusercontent.com", "pages.dev", "vercel.app", "netlify.app",
-  "blogspot.com", "wordpress.com", "herokuapp.com", "appspot.com", "cloudfront.net",
-  "azurewebsites.net", "amazonaws.com", "firebaseapp.com", "web.app", "workers.dev",
-  "akamaized.net", "akamaihd.net", "fastly.net", "edgekey.net", "edgesuite.net",
-  "googleusercontent.com", "storage.googleapis.com", NULL
+  /* code, app and static-site hosting */
+  "github.io", "githubusercontent.com", "gitlab.io", "bitbucket.io", "codeberg.page",
+  "pages.dev", "vercel.app", "netlify.app", "surge.sh", "glitch.me", "neocities.org",
+  "replit.app", "repl.co", "onrender.com", "fly.dev", "railway.app", "deno.dev",
+  "herokuapp.com", "appspot.com", "run.app", "cloudfunctions.net", "firebaseapp.com",
+  "web.app", "workers.dev", "r2.dev", "azurewebsites.net", "azureedge.net", "azurefd.net",
+  "azurestaticapps.net", "cloudapp.net", "cloudapp.azure.com", "trafficmanager.net",
+  "core.windows.net", "amazonaws.com", "elasticbeanstalk.com", "cloudfront.net",
+  "googleusercontent.com", "storage.googleapis.com", "webflow.io",
+  /* blogs, shops and personal pages */
+  "blogspot.com", "wordpress.com", "tumblr.com", "wixsite.com", "weebly.com",
+  "myshopify.com", "substack.com", "itch.io", "livejournal.com", "carrd.co",
+  "ucoz.ru", "narod.ru",
+  /* CDN customer names */
+  "akamaized.net", "akamaihd.net", "akamaiedge.net", "edgekey.net", "edgesuite.net",
+  "fastly.net", "fastlylb.net", "b-cdn.net", "kxcdn.com",
+  /* dynamic DNS and tunnels */
+  "duckdns.org", "ddns.net", "no-ip.org", "hopto.org", "zapto.org", "sytes.net",
+  "dyndns.org", "ngrok.io", "ngrok.app", "ngrok-free.app", "trycloudflare.com",
+  /* a public suffix a level deeper than the rule below sees: every name right
+   * under it is a suffix of its own (a local education authority) */
+  "sch.uk",
+  NULL
 };
+
+/* Second levels under which people register their own names, under any
+ * two-letter country domain (co.uk, com.tr, ac.ir, gob.mx, k12.tr). */
 static const char *const GENERIC_SLD[] = {
-  "co", "com", "net", "org", "gov", "edu", "ac", "gen", "biz", "info", "or", "ne", "go", NULL
+  "co", "com", "net", "org", "gov", "edu", "ac", "gen", "biz", "info", "or", "ne", "go",
+  "mil", "int", "nom", "ltd", "plc", "sch", "k12", "gob", "gouv", "govt", NULL
 };
+
+/* And these particular ones (the generic ones above, under one country only,
+ * would split real sites such as web.de or ad.nl). */
+static const char *const PUBLIC_2LD[] = {
+  /* Turkey */
+  "av.tr", "bbs.tr", "bel.tr", "dr.tr", "kep.tr", "name.tr", "nc.tr", "pol.tr",
+  "tel.tr", "tsk.tr", "tv.tr", "web.tr",
+  /* United Kingdom, Japan, Iran */
+  "me.uk", "nhs.uk", "police.uk", "ad.jp", "ed.jp", "gr.jp", "lg.jp", "id.ir",
+  /* Russia, Ukraine */
+  "msk.ru", "spb.ru", "nov.ru", "msk.su", "spb.su", "kiev.ua", "kyiv.ua", "in.ua", "pp.ua",
+  /* elsewhere */
+  "id.au", "asn.au", "firm.in", "ind.in", "my.id", "web.id", "blog.br", "eti.br",
+  "muni.il", "school.nz", "geek.nz", "kiwi.nz",
+  /* second levels sold under generic domains (CentralNic and others) */
+  "uk.com", "us.com", "eu.com", "gb.com", "de.com", "br.com", "cn.com", "jpn.com",
+  "ru.com", "sa.com", "za.com", "kr.com", "hu.com", "no.com", "se.com", "qc.com",
+  "uy.com", "gr.com", "ae.org", "us.org", "uk.net", "gb.net", "se.net", "hu.net",
+  "in.net", "jp.net",
+  NULL
+};
+
+/* h (n characters) is suf, or ends in "." + suf. */
+static int under(const char *h, size_t n, const char *suf) {
+  size_t m = strlen(suf);
+  return n >= m && strcmp(h + n - m, suf) == 0 && (n == m || h[n - m - 1] == '.');
+}
 
 static int site_of(const char *h, char *out, size_t cap) {
   char low[256];
@@ -99,25 +173,29 @@ static int site_of(const char *h, char *out, size_t cap) {
   if (n && low[n - 1] == '.') n--;             /* "example.com." */
   low[n] = 0;
   if (n == 0 || ip_literal(low)) return 0;
-  for (int i = 0; SHARED_SUFFIX[i]; i++) {
-    size_t m = strlen(SHARED_SUFFIX[i]);
-    if (n >= m && strcmp(low + n - m, SHARED_SUFFIX[i]) == 0 && (n == m || low[n - m - 1] == '.'))
-      return 0;
-  }
+  for (int i = 0; SHARED_SUFFIX[i]; i++)
+    if (under(low, n, SHARED_SUFFIX[i])) return 0;
   /* Where the last three labels start: dot[0] is the last dot, dot[1] the one
    * before it, dot[2] the one before that (-1 when there is none). */
   int dot[3] = { -1, -1, -1 }, nd = 0;
   for (int i = (int)n - 1; i >= 0 && nd < 3; i--) if (low[i] == '.') dot[nd++] = i;
   if (nd == 0) return 0;                       /* one label: "localhost" */
   int keep = 2;
+  const char *sld = low + (dot[1] + 1);        /* the second-level label (dot[1] may be -1) */
+  size_t sld_len = (size_t)(dot[0] - (dot[1] + 1));
   if (n - (size_t)dot[0] - 1 == 2) {           /* a two-letter country domain */
-    int from = dot[1] + 1;                     /* the second-level label */
-    size_t len = (size_t)(dot[0] - from);
     for (int i = 0; GENERIC_SLD[i]; i++)
-      if (strlen(GENERIC_SLD[i]) == len && strncmp(low + from, GENERIC_SLD[i], len) == 0) keep = 3;
+      if (strlen(GENERIC_SLD[i]) == sld_len && strncmp(sld, GENERIC_SLD[i], sld_len) == 0) keep = 3;
+    /* Every two-letter name right under .us is a state, and the names under
+     * a state are towns, schools and libraries: nobody's one site. */
+    if (sld_len == 2 && strcmp(low + dot[0] + 1, "us") == 0) return 0;
   }
+  for (int i = 0; PUBLIC_2LD[i]; i++)
+    if (strcmp(sld, PUBLIC_2LD[i]) == 0) keep = 3;
   if (nd < keep - 1) return 0;                 /* "co.uk" itself is no one's site */
   int start = nd >= keep ? dot[keep - 1] + 1 : 0;
+  /* example.blogspot.de, example.blogspot.com.tr: Blogger's country names */
+  if (strncmp(low + start, "blogspot.", 9) == 0) return 0;
   if (n - (size_t)start + 1 > cap) return 0;
   memcpy(out, low + start, n - (size_t)start);
   out[n - (size_t)start] = 0;
@@ -132,16 +210,26 @@ static int site_key(const char *h, char *out, size_t cap) {
 /* ── per-host learned strategy (auto-probe cache) ───────────────────────── */
 typedef struct { char host[256]; int preset; uint64_t t; int used; } hoststrat;
 #define HS_SIZE 512
+/* A technique learned this long ago is checked again before it is relied on:
+ * the next ladder races the untouched request against it (see handle). A
+ * block that was lifted, or a technique learned from a fluke, is then let go,
+ * and one still needed costs that check next to nothing. */
+#define HS_VERIFY_MS (30 * 60 * 1000)
 static hoststrat g_hs[HS_SIZE];
 static mutex_t   g_hs_mx;
 
-/* Per host, the technique a silent ladder did not get to (see rs_get). Long
+/* Per host, the technique a silent ladder did not get to (see below). Long
  * enough to live through a browser's retries; short enough that a lifted
  * block, or another network, gets its untouched attempt back soon. */
 typedef struct { char host[256]; int next; uint64_t t; int used; } hostresume;
 #define RS_SIZE   128
 #define RS_TTL_MS (10 * 60 * 1000)
 static hostresume g_rs[RS_SIZE];
+
+/* How long ago t was. Another thread may have stored t after the caller read
+ * the clock, which makes t the later of the two: that is no time at all, not
+ * an unsigned wrap to half a billion years. */
+static uint64_t age_ms(uint64_t now, uint64_t t) { return t > now ? 0 : now - t; }
 
 /* Caller holds g_hs_mx. */
 static int hs_find(const char *k) {
@@ -168,7 +256,8 @@ static int hs_get(const char *h, int *inherited) {
   return r;
 }
 
-/* Caller holds g_hs_mx. */
+/* Caller holds g_hs_mx. Only the technique: where a silent search left off is
+ * not this function's business (see hs_put and hs_on_cut). */
 static void hs_store(const char *k, int preset) {
   /* The key's own entry first: a host that is learned again must replace
    * what was known, not sit behind it where hs_get would never look. */
@@ -184,23 +273,22 @@ static void hs_store(const char *k, int preset) {
   memset(&g_hs[slot], 0, sizeof(g_hs[slot]));
   strncpy(g_hs[slot].host, k, sizeof(g_hs[slot].host) - 1);
   g_hs[slot].preset = preset; g_hs[slot].t = now_ms(); g_hs[slot].used = 1;
-  /* Something works here now: where a silent ladder left off no longer
-   * matters (see below). */
-  int r = rs_find(k);
-  if (r >= 0) g_rs[r].used = 0;
 }
 
-/* Learned for the host, and for its site. */
+/* Learned for the host, and for its site: the network showed this host needs
+ * it (see ladder_won), which is what makes it worth sharing. */
 static void hs_put(const char *h, int preset) {
   char site[256], other[256];
   int in_site = site_of(h, site, sizeof(site));       /* its site, perhaps h itself */
   mutex_lock(&g_hs_mx);
   hs_store(h, preset);
   if (in_site && strcmp(site, h) != 0) hs_store(site, preset);
-  /* Something works for the site now, so none of its names needs to go on
-   * searching from where its own silent ladder left off: they take this. */
-  for (int i = 0; in_site && i < RS_SIZE; i++)
-    if (g_rs[i].used && site_of(g_rs[i].host, other, sizeof(other)) && strcmp(other, site) == 0)
+  /* Something works here now, so where a silent search left off no longer
+   * matters: not for this name, and not for any name of its site, which take
+   * this instead. */
+  for (int i = 0; i < RS_SIZE; i++)
+    if (g_rs[i].used && (strcmp(g_rs[i].host, h) == 0 ||
+        (in_site && site_of(g_rs[i].host, other, sizeof(other)) && strcmp(other, site) == 0)))
       g_rs[i].used = 0;
   mutex_unlock(&g_hs_mx);
 }
@@ -225,43 +313,50 @@ static void hs_unlearn(const char *h, int inherited) {
  * one opens would never be reached: every connection would try the same few
  * and fail. So when a ladder runs out with nothing answered and nothing
  * refused, the first technique it did not get to is remembered, and the host's
- * next connection starts there — without the untouched attempt, which it has
- * just seen dropped — and wraps around the list. Browsers retry a page that
- * failed, so a few connections give every technique its turn; once one works
- * the learned strategy above takes over and this entry goes. Kept for the
- * site too, like a learned strategy, and under the same lock. */
+ * next connection carries on from there and wraps around the list. Browsers
+ * retry a page that failed, so a few connections give every technique its
+ * turn; once one works the learned strategy above takes over and this entry
+ * goes.
+ *
+ * A server that is down looks exactly the same, so this is a place to search
+ * from, never evidence: the resumed ladder still sends the untouched request
+ * first, races the technique beside it, and learns only if the untouched one
+ * is still unanswered when the technique gets through. And it is kept for the
+ * one name only: an outage of api. says nothing about www. Under the same lock
+ * as the learned strategies. */
 
 /* Caller holds g_hs_mx. The live resume entry for k, or -1; an expired one
  * is let go. */
 static int rs_live(const char *k, uint64_t now) {
   int i = rs_find(k);
   if (i < 0) return -1;
-  if (now - g_rs[i].t < RS_TTL_MS) return i;
+  if (age_ms(now, g_rs[i].t) < RS_TTL_MS) return i;
   g_rs[i].used = 0;
   return -1;
 }
 
-/* Where a host's ladder starts: *from >= 0 to carry on a silent search from
- * there, else *learned >= 0 to open with a known technique (*inherited when it
- * is the site's), else neither. The host's own entries come first, a resume
- * point before a learned technique — a resume point means the last ladder,
- * that technique included, came to nothing. Then the site's: whichever of the
- * two is newer, the latest word on how this site fares. resume: 0 to ignore
- * resume points (only TLS ladders keep going through silence). */
-static void ladder_start(const char *h, int resume, int *from, int *learned, int *inherited) {
+/* Where a host's ladder starts: *from >= 0 to carry on its own silent search
+ * from there, else *learned >= 0 to open with a known technique (*inherited
+ * when it is the site's; *stale when it was learned so long ago that it is to
+ * be checked again, see HS_VERIFY_MS), else neither. A resume point comes
+ * before a learned technique: it means the last ladder, that technique
+ * included, came to nothing. resume: 0 to ignore resume points (only TLS
+ * ladders keep going through silence). */
+static void ladder_start(const char *h, int resume, int *from, int *learned, int *inherited,
+                         int *stale) {
   char site[256];
   int has_site = site_key(h, site, sizeof(site));
-  uint64_t now = now_ms();
-  *from = -1; *learned = -1; *inherited = 0;
+  *from = -1; *learned = -1; *inherited = 0; *stale = 0;
   mutex_lock(&g_hs_mx);
+  uint64_t now = now_ms();   /* under the lock, so no entry is newer than it */
   int r = resume ? rs_live(h, now) : -1, l = hs_find(h);
   if (r >= 0) *from = g_rs[r].next;
-  else if (l >= 0) *learned = g_hs[l].preset;
-  else if (has_site) {
-    r = resume ? rs_live(site, now) : -1;
-    l = hs_find(site);
-    if (r >= 0 && (l < 0 || g_rs[r].t >= g_hs[l].t)) *from = g_rs[r].next;
-    else if (l >= 0) { *learned = g_hs[l].preset; *inherited = 1; }
+  else {
+    if (l < 0 && has_site && (l = hs_find(site)) >= 0) *inherited = 1;
+    if (l >= 0) {
+      *learned = g_hs[l].preset;
+      *stale = age_ms(now, g_hs[l].t) >= HS_VERIFY_MS;
+    }
   }
   mutex_unlock(&g_hs_mx);
 }
@@ -283,23 +378,16 @@ static void rs_store(const char *k, int next) {
 }
 
 static void rs_put(const char *h, int next) {
-  char site[256];
-  int has_site = site_key(h, site, sizeof(site));
   mutex_lock(&g_hs_mx);
   rs_store(h, next);
-  if (has_site) rs_store(site, next);
   mutex_unlock(&g_hs_mx);
 }
 
-/* Something got through for this host: its own resume entry goes, and the
- * site's, since the site is evidently not dropped wholesale. */
+/* Something got through for this host: its search is over. */
 static void rs_drop(const char *h) {
-  char site[256];
-  int has_site = site_key(h, site, sizeof(site));
   mutex_lock(&g_hs_mx);
   int i = rs_find(h);
   if (i >= 0) g_rs[i].used = 0;
-  if (has_site && (i = rs_find(site)) >= 0) g_rs[i].used = 0;
   mutex_unlock(&g_hs_mx);
 }
 
@@ -333,7 +421,8 @@ static void hs_on_cut(const char *h) {
     int next = (cur + k) % np;             /* cur is -1 when nothing is learned */
     if (!preset_usable(strategy_preset(next))) continue;
     /* For this name only: a cut is one connection's word, a guess to try next
-     * rather than something learned, and not enough to move the whole site. */
+     * rather than something learned, and not enough to move the whole site.
+     * Nor to end a silent search: a resume point stays where it is. */
     mutex_lock(&g_hs_mx);
     hs_store(h, next);
     mutex_unlock(&g_hs_mx);
@@ -487,110 +576,312 @@ static int socks_accept(sock_t c, socks_req *rq) {
   return 0;
 }
 
-/* *timed_out: the connect failed because nothing came back within
- * timeout_ms, as opposed to being refused or having no route. */
-static sock_t connect_addr(const struct sockaddr *sa, socklen_t sl, int timeout_ms, int *timed_out) {
-  *timed_out = 0;
-  sock_t s = socket(sa->sa_family, SOCK_STREAM, IPPROTO_TCP);
-  if (s == SOCK_INVALID) return SOCK_INVALID;
-  int r = sock_connect_timeout(s, sa, (int)sl, timeout_ms);
-  if (r != 0) { *timed_out = r == -2; sock_close(s); return SOCK_INVALID; }
-  sock_set_nodelay(s, 1);
-  sock_set_keepalive(s);
-  return s;
-}
-
-/* Connect to the first address that answers. A name often has both IPv4 and
- * IPv6 addresses while the network only routes one of them (e.g. AAAA records
- * handed out right after Wi-Fi comes up, with no IPv6 route): so try the
- * preferred family first (IPv4 unless --ipv6), then the other, and move on to
- * the next address when one fails instead of failing the whole connection.
- * That holds for our own resolver too: it hands back every address of the
- * name, and one that fails is dropped from its cache, so the next connection
- * does not wait out the same dead address.
+/* ── dialling ────────────────────────────────────────────────────────────
+ * Connect to the first address that answers. A name often has both IPv4 and
+ * IPv6 addresses while the network only routes one of them (AAAA records
+ * handed out right after Wi-Fi comes up with no IPv6 route; a site's IPv4
+ * addresses blocked by address while its IPv6 ones are not), so the families
+ * take turns, the preferred one first (IPv4 unless --ipv6): its first
+ * address, the other family's first, its second, and so on (RFC 8305). An
+ * address that has not connected after DIAL_STAGGER_MS does not hold up the
+ * next one: that starts beside it, and whichever connects first is used. On a
+ * working path the first connect is done long before, so nothing changes
+ * there; a dead address now costs a second rather than eight, and a dead
+ * family can no longer use up the time the other one needed.
+ *
+ * With our own resolver the other family is looked up only once it may be
+ * needed — the first try is slow, or has failed — and then on a thread of its
+ * own: a lookup can take seconds when a resolver does not answer, and a
+ * connect that completes meanwhile must not wait for it. An address that
+ * failed is dropped from the resolver's cache, so the next connection does not
+ * wait on it again; one that was merely overtaken is kept.
  *
  * Every dial has a time limit. budget_ms > 0 is what the attempt ladder has
  * left, counted from now. 0 is a connection's first dial, made before the
- * client has its SOCKS reply: its connects get DIAL_FIRST_MS between them,
- * counted from the first one (a slow lookup is not the addresses' fault), so
- * a name whose every address is dead fails in about as long as the old two
- * tries took, however many addresses it has — not the half minute after which
- * a browser gives up on the proxy, and pays again on every new connection. */
-#define DIAL_MAX_TRIES 6
-#define DIAL_FIRST_MS 14000
-#define DIAL_TRY_MS    8000   /* the first address */
-#define DIAL_NEXT_MS   4000   /* each address after it */
+ * client has its SOCKS reply: it gets DIAL_FIRST_MS, so a name whose every
+ * address is dead fails in about as long as the old two tries took, however
+ * many addresses it has — not the half minute after which a browser gives up
+ * on the proxy, and pays again on every new connection. */
+#define DIAL_MAX_TRIES   6
+#define DIAL_FIRST_MS    14000
+#define DIAL_TRY_MS      8000   /* each address, from when it was started */
+/* Longer than the 250 ms RFC 8305 suggests: a connect over satellite or a
+ * congested mobile link can take most of a second, and racing it there would
+ * only double the connections. */
+#define DIAL_STAGGER_MS  1000
 typedef struct {
   int resolved;   /* addresses the name has */
   int tried;      /* how many of them were tried */
-  /* The time ran out before an address had its full try: a failure then says
-   * nothing about the host, only that the budget was spent. */
+  /* The time ran out before every address had its full try: a failure then
+   * says nothing about the host, only that the budget was spent. */
   int cut;
+  int rtt_ms;     /* how long the connect that won took: about one round trip */
 } dial_info;
 
-/* One address of a dial. Returns the socket, or SOCK_INVALID with di->cut set
- * when the dial's time ran out (before the try, or during one that it had to
- * shorten), else with *dead set: refused, unreachable, or silent for its full
- * time — the address's own doing, so it is worth forgetting. */
-static sock_t dial_addr(const struct sockaddr *sa, socklen_t sl, int *tries, uint64_t *end,
-                        dial_info *di, int *dead) {
-  *dead = 0;
-  uint64_t n = now_ms();
-  if (!*end) *end = n + DIAL_FIRST_MS;
-  if (n >= *end) { di->cut = 1; return SOCK_INVALID; }
-  int wait = *tries == 0 ? DIAL_TRY_MS : DIAL_NEXT_MS, clamped = 0, timed_out = 0;
-  if (*end - n < (uint64_t)wait) { wait = (int)(*end - n); clamped = 1; }
-  (*tries)++;
-  sock_t s = connect_addr(sa, sl, wait, &timed_out);
-  if (s == SOCK_INVALID) {
-    if (clamped && timed_out) di->cut = 1;   /* we cut it short: no verdict */
-    else *dead = 1;
+typedef struct { struct sockaddr_storage sa; socklen_t sl; } dial_addr;
+
+/* The other family's addresses, looked up beside the connects. Shared by the
+ * dial and the lookup thread; whichever is done with it last frees it. */
+typedef struct {
+  char host[256];
+  uint16_t port;
+  int want6;
+  struct sockaddr_storage sa[DOH_MAX_ADDRS];
+  socklen_t sl[DOH_MAX_ADDRS];
+  _Atomic int n;      /* -1 while looking, then how many addresses */
+  _Atomic int refs;
+} other_lookup;
+
+static void lookup_release(other_lookup *j) {
+  if (atomic_fetch_sub(&j->refs, 1) == 1) free(j);
+}
+
+static void *lookup_thread(void *p) {
+  other_lookup *j = (other_lookup *)p;
+  int n = doh_resolve_all(j->host, j->port, j->want6, j->sa, j->sl, DOH_MAX_ADDRS);
+  atomic_store(&j->n, n > 0 ? n : 0);
+  lookup_release(j);
+  return NULL;
+}
+
+/* The address that last won a dial for a name when it was not the first one
+ * tried: the next dial tries it first, so a dead address ahead of it in the
+ * answer costs nothing more — not on the next connection, and not on each
+ * re-dial of a ladder, whose budget a second per dial would eat. Its family
+ * goes first for that name too. Let go once it fails, or after a while. */
+#define WINNER_SLOTS  128
+#define WINNER_TTL_MS (10 * 60 * 1000)
+static struct { char host[256]; struct sockaddr_storage sa; uint64_t t; int used; } g_win[WINNER_SLOTS];
+static mutex_t g_win_mx;
+
+static int same_addr(const struct sockaddr_storage *a, const struct sockaddr_storage *b) {
+  if (a->ss_family != b->ss_family) return 0;
+  if (a->ss_family == AF_INET)
+    return memcmp(&((const struct sockaddr_in *)a)->sin_addr, &((const struct sockaddr_in *)b)->sin_addr, 4) == 0;
+  if (a->ss_family == AF_INET6)
+    return memcmp(&((const struct sockaddr_in6 *)a)->sin6_addr, &((const struct sockaddr_in6 *)b)->sin6_addr, 16) == 0;
+  return 0;
+}
+
+/* Caller holds g_win_mx. */
+static int winner_find(const char *host) {
+  for (int i = 0; i < WINNER_SLOTS; i++)
+    if (g_win[i].used && strcmp(g_win[i].host, host) == 0) return i;
+  return -1;
+}
+
+static int winner_get(const char *host, struct sockaddr_storage *out) {
+  mutex_lock(&g_win_mx);
+  int i = winner_find(host);
+  if (i >= 0 && age_ms(now_ms(), g_win[i].t) >= WINNER_TTL_MS) { g_win[i].used = 0; i = -1; }
+  if (i >= 0) *out = g_win[i].sa;
+  mutex_unlock(&g_win_mx);
+  return i >= 0;
+}
+
+static void winner_put(const char *host, const struct sockaddr_storage *sa) {
+  mutex_lock(&g_win_mx);
+  int slot = winner_find(host);
+  uint64_t old = (uint64_t)-1;
+  for (int i = 0; slot < 0 && i < WINNER_SLOTS; i++) {   /* else free, else the oldest */
+    if (!g_win[i].used) { slot = i; break; }
+    if (g_win[i].t < old) { old = g_win[i].t; slot = i; }
   }
-  return s;
+  if (slot < 0) slot = 0;
+  snprintf(g_win[slot].host, sizeof(g_win[slot].host), "%s", host);
+  g_win[slot].sa = *sa; g_win[slot].t = now_ms(); g_win[slot].used = 1;
+  mutex_unlock(&g_win_mx);
+}
+
+/* sa failed: if it is the address remembered for host, it is no longer. */
+static void winner_drop(const char *host, const struct sockaddr_storage *sa) {
+  mutex_lock(&g_win_mx);
+  int i = winner_find(host);
+  if (i >= 0 && same_addr(&g_win[i].sa, sa)) g_win[i].used = 0;
+  mutex_unlock(&g_win_mx);
+}
+
+/* Move the address equal to hint, if list has it, to the front. */
+static void hint_first(dial_addr *list, int n, const struct sockaddr_storage *hint) {
+  for (int i = 1; i < n; i++) {
+    if (!same_addr(&list[i].sa, hint)) continue;
+    dial_addr d = list[i];
+    memmove(&list[1], &list[0], (size_t)i * sizeof(dial_addr));
+    list[0] = d;
+    return;
+  }
+}
+
+/* Our own resolver's addresses of one family into list; how many. */
+static int resolve_family(const char *host, uint16_t port, int want6, dial_addr *list) {
+  struct sockaddr_storage sa[DOH_MAX_ADDRS]; socklen_t sl[DOH_MAX_ADDRS];
+  int n = doh_resolve_all(host, port, want6, sa, sl, DOH_MAX_ADDRS);
+  for (int i = 0; i < n; i++) { list[i].sa = sa[i]; list[i].sl = sl[i]; }
+  return n > 0 ? n : 0;
 }
 
 static sock_t dial(const char *host, uint16_t port, int prefer6, int use_doh,
                    int budget_ms, int *out_family, dial_info *di) {
-  sock_t s = SOCK_INVALID;
-  int tries = 0, dead = 0;
-  uint64_t end = budget_ms > 0 ? now_ms() + (uint64_t)budget_ms : 0;
   dial_info local;
   if (!di) di = &local;
   memset(di, 0, sizeof(*di));
+  uint64_t t0 = now_ms();
+  uint64_t end = t0 + (uint64_t)(budget_ms > 0 ? budget_ms : DIAL_FIRST_MS);
+  struct sockaddr_storage hint;
+  int has_hint = winner_get(host, &hint);
+  if (has_hint) prefer6 = hint.ss_family == AF_INET6;   /* the family that worked last */
+  dial_addr ad[2][DOH_MAX_ADDRS];   /* [0] the preferred family, [1] the other */
+  int cnt[2] = { 0, 0 }, nxt[2] = { 0, 0 };
+  int other = 2;                    /* the other family: 0 not looked up, 1 being looked up, 2 known */
+  other_lookup *job = NULL;
+
   if (use_doh) {
-    for (int pass = 0; pass < 2 && s == SOCK_INVALID && !di->cut; pass++) {
-      struct sockaddr_storage sa[DOH_MAX_ADDRS]; socklen_t sl[DOH_MAX_ADDRS];
-      int n = doh_resolve_all(host, port, pass == 0 ? prefer6 : !prefer6, sa, sl, DOH_MAX_ADDRS);
-      if (n <= 0) continue;
-      di->resolved += n;
-      for (int i = 0; i < n && s == SOCK_INVALID && !di->cut && tries < DIAL_MAX_TRIES; i++) {
-        s = dial_addr((struct sockaddr *)&sa[i], sl[i], &tries, &end, di, &dead);
-        if (s != SOCK_INVALID) { if (out_family) *out_family = sa[i].ss_family; }
-        else if (dead) doh_forget(host, &sa[i]);
+    cnt[0] = resolve_family(host, port, prefer6, ad[0]);
+    other = ip_literal(host) ? 2 : 0;   /* an address literal is all there is */
+  } else {
+    struct addrinfo hints, *res = NULL;
+    memset(&hints, 0, sizeof(hints));
+    hints.ai_family = AF_UNSPEC; hints.ai_socktype = SOCK_STREAM;
+    hints.ai_flags = AI_ADDRCONFIG; /* no AAAA answers on an IPv4-only machine */
+    char ps[8]; snprintf(ps, sizeof(ps), "%u", port);
+    if (getaddrinfo(host, ps, &hints, &res) != 0 || !res) { if (res) freeaddrinfo(res); return SOCK_INVALID; }
+    for (struct addrinfo *p = res; p; p = p->ai_next) {
+      if (p->ai_family != AF_INET && p->ai_family != AF_INET6) continue;
+      if (p->ai_addrlen > sizeof(struct sockaddr_storage)) continue;
+      int k = (p->ai_family == AF_INET6) == !!prefer6 ? 0 : 1;
+      if (cnt[k] >= DOH_MAX_ADDRS) continue;
+      memset(&ad[k][cnt[k]].sa, 0, sizeof(ad[k][cnt[k]].sa));
+      memcpy(&ad[k][cnt[k]].sa, p->ai_addr, p->ai_addrlen);
+      ad[k][cnt[k]].sl = (socklen_t)p->ai_addrlen;
+      cnt[k]++;
+    }
+    freeaddrinfo(res);
+  }
+  di->resolved = cnt[0] + cnt[1];
+  if (has_hint) hint_first(ad[0], cnt[0], &hint);
+
+  /* The connects under way, oldest first. */
+  sock_t ps[DIAL_MAX_TRIES]; uint64_t pstart[DIAL_MAX_TRIES]; dial_addr *pa[DIAL_MAX_TRIES];
+  int np = 0, tries = 0, turn = 0, failed = 0, won_fam = 0;
+  sock_t won = SOCK_INVALID;
+  dial_addr *first_try = NULL, *won_addr = NULL;
+  uint64_t next_at = t0;
+  for (;;) {
+    uint64_t t = now_ms();
+    if (other == 1 && atomic_load(&job->n) >= 0) {
+      int n = atomic_load(&job->n);
+      for (int i = 0; i < n; i++) { ad[1][i].sa = job->sa[i]; ad[1][i].sl = job->sl[i]; }
+      cnt[1] = n; di->resolved += n;
+      lookup_release(job); job = NULL;
+      other = 2;
+      /* The family that was missing goes next, without waiting its turn. */
+      if (n > 0) { turn = 1; next_at = t; }
+    }
+    int can_more = tries < DIAL_MAX_TRIES;
+    /* The other family may be needed: a try has failed or is slow, or the
+     * preferred family has nothing at all left to try. */
+    if (other == 0 && can_more &&
+        (failed || t >= t0 + DIAL_STAGGER_MS || (np == 0 && nxt[0] >= cnt[0]))) {
+      if (np == 0 && nxt[0] >= cnt[0]) {
+        /* Nothing else to do meanwhile: look it up here. */
+        cnt[1] = resolve_family(host, port, !prefer6, ad[1]);
+        di->resolved += cnt[1];
+        other = 2;
+        continue;
       }
+      job = (other_lookup *)calloc(1, sizeof(*job));
+      if (job) {
+        snprintf(job->host, sizeof(job->host), "%s", host);
+        job->port = port; job->want6 = !prefer6;
+        atomic_store(&job->n, -1); atomic_store(&job->refs, 2);
+        if (thread_spawn(lookup_thread, job, 256 * 1024) == 0) { other = 1; continue; }
+        free(job); job = NULL;
+      }
+      cnt[1] = resolve_family(host, port, !prefer6, ad[1]);   /* no thread: here, then */
+      di->resolved += cnt[1];
+      other = 2;
+      continue;
     }
-    di->tried = tries;
-    return s;
-  }
-  struct addrinfo hints, *res = NULL;
-  memset(&hints, 0, sizeof(hints));
-  hints.ai_family = AF_UNSPEC; hints.ai_socktype = SOCK_STREAM;
-  hints.ai_flags = AI_ADDRCONFIG; /* no AAAA answers on an IPv4-only machine */
-  char ps[8]; snprintf(ps, sizeof(ps), "%u", port);
-  if (getaddrinfo(host, ps, &hints, &res) != 0 || !res) { if (res) freeaddrinfo(res); return SOCK_INVALID; }
-  for (struct addrinfo *p = res; p; p = p->ai_next)
-    if (p->ai_family == AF_INET || p->ai_family == AF_INET6) di->resolved++;
-  for (int pass = 0; pass < 2 && s == SOCK_INVALID && !di->cut; pass++) {
-    int fam = (pass == 0) == !!prefer6 ? AF_INET6 : AF_INET;
-    for (struct addrinfo *p = res; p && s == SOCK_INVALID && !di->cut && tries < DIAL_MAX_TRIES; p = p->ai_next) {
-      if (p->ai_family != fam) continue;
-      s = dial_addr(p->ai_addr, (socklen_t)p->ai_addrlen, &tries, &end, di, &dead);
-      if (s != SOCK_INVALID && out_family) *out_family = fam;
+
+    int left_to_try = can_more && (nxt[0] < cnt[0] || nxt[1] < cnt[1]);
+    int more_coming = can_more && other < 2;   /* the other family's lookup is still out */
+    if (t >= end) {
+      /* Out of time with addresses still connecting or untried: no verdict. */
+      if (np > 0 || left_to_try || more_coming) di->cut = 1;
+      break;
+    }
+    if (left_to_try && t >= next_at) {
+      int k = nxt[turn] < cnt[turn] ? turn : !turn;
+      dial_addr *d = &ad[k][nxt[k]++];
+      turn = !k;
+      tries++;
+      if (!first_try) first_try = d;
+      sock_t s = socket(d->sa.ss_family, SOCK_STREAM, IPPROTO_TCP);
+      int r = s == SOCK_INVALID ? -1 : sock_connect_start(s, (struct sockaddr *)&d->sa, (int)d->sl);
+      if (r == 0) { won = s; won_fam = d->sa.ss_family; won_addr = d; break; }
+      if (r < 0) {
+        /* Refused or unreachable before it started: the next one goes now. */
+        sock_close(s);
+        if (use_doh) doh_forget(host, &d->sa);
+        winner_drop(host, &d->sa);
+        failed = 1;
+        next_at = t;
+        continue;
+      }
+      ps[np] = s; pstart[np] = t; pa[np] = d; np++;
+      next_at = t + DIAL_STAGGER_MS;
+      continue;
+    }
+    if (np == 0 && !left_to_try && !more_coming) break;   /* every address failed */
+
+    /* Wait for a connect, for the next one to be due, for the lookup. */
+    uint64_t until = end;
+    for (int i = 0; i < np; i++) if (pstart[i] + DIAL_TRY_MS < until) until = pstart[i] + DIAL_TRY_MS;
+    if (left_to_try && next_at < until) until = next_at;
+    if (other == 0 && can_more && t < t0 + DIAL_STAGGER_MS && t0 + DIAL_STAGGER_MS < until)
+      until = t0 + DIAL_STAGGER_MS;
+    if (other == 1 && t + 20 < until) until = t + 20;   /* look in on the lookup */
+    int ms = until > t ? (int)(until - t) : 0;
+    if (np == 0) { sleep_ms(ms > 0 ? ms : 1); continue; }
+    int done[DIAL_MAX_TRIES];
+    if (sock_connect_wait(ps, np, ms, done) < 0) break;
+    t = now_ms();
+    int w = -1;
+    for (int i = 0; i < np && w < 0; i++) if (done[i] == 1) w = i;   /* the oldest that made it */
+    if (w >= 0) {
+      won = ps[w]; won_fam = pa[w]->sa.ss_family; won_addr = pa[w];
+      di->rtt_ms = (int)age_ms(t, pstart[w]);
+      ps[w] = SOCK_INVALID;
+      break;
+    }
+    for (int i = np - 1; i >= 0; i--) {
+      /* Refused, unreachable, or silent for its whole try (not merely cut
+       * short by the dial's own time): the address's own doing. */
+      int timed_out = pstart[i] + DIAL_TRY_MS <= t && pstart[i] + DIAL_TRY_MS <= end;
+      if (done[i] != -1 && !timed_out) continue;
+      sock_close(ps[i]);
+      if (use_doh) doh_forget(host, &pa[i]->sa);
+      winner_drop(host, &pa[i]->sa);
+      failed = 1;
+      next_at = t;
+      memmove(&ps[i], &ps[i + 1], (size_t)(np - i - 1) * sizeof(ps[0]));
+      memmove(&pstart[i], &pstart[i + 1], (size_t)(np - i - 1) * sizeof(pstart[0]));
+      memmove(&pa[i], &pa[i + 1], (size_t)(np - i - 1) * sizeof(pa[0]));
+      np--;
     }
   }
-  freeaddrinfo(res);
+  for (int i = 0; i < np; i++) sock_close(ps[i]);   /* overtaken, or out of time */
+  if (job) lookup_release(job);
+  if (won != SOCK_INVALID) {
+    sock_set_nodelay(won, 1);
+    sock_set_keepalive(won);
+    if (out_family) *out_family = won_fam;
+    /* Something ahead of it failed or was overtaken, or it is the one
+     * remembered: remember it (again). */
+    if (won_addr != first_try || has_hint) winner_put(host, &won_addr->sa);
+  }
   di->tried = tries;
-  return s;
+  return won;
 }
 
 /* ── cut detection ───────────────────────────────────────────────────────
@@ -642,6 +933,12 @@ typedef struct {
    * the caller sets it when that one is still waiting for its answer —
    * otherwise a ClientHello nobody ever answers is never reported. */
   uint64_t waiting;
+  /* The ladder gave up on this connection and relays it only in case it is
+   * answered late. Until it is, nothing that happens to it is a cut: no byte
+   * of an answer ever came, so there is nothing to have been cut, and a
+   * filter that resets a connection it has been swallowing for a while would
+   * otherwise be taken for one that cuts working ones. */
+  int gave_up;
   tls_track tt;
 } cut_watch;
 
@@ -659,7 +956,7 @@ static void relay(sock_t a, sock_t b, cut_watch *cw) {
     int w = sock_wait_either(a, b, 1000);
     if (w < 0) break;
     t = now_ms();
-    if (cw && cw->host && !reported && cw->down < CUT_MAX_BYTES) {
+    if (cw && cw->host && !reported && cw->down < CUT_MAX_BYTES && (cw->down > 0 || !cw->gave_up)) {
       if (tls_mid_record(&cw->tt) && t - last_down >= CUT_STALL_MS) {
         report("cut", cw->host, "stall", (int)(cw->down / 1024), cw->fam, NULL); reported = 1;
         hs_on_cut(cw->host);
@@ -679,7 +976,7 @@ static void relay(sock_t a, sock_t b, cut_watch *cw) {
       int n = recv(b, (char *)buf, RELAY_BUF, 0);
       if (n <= 0) {
         if (n < 0 && sock_errno() == SE_CONNRESET && cw && cw->host && !reported &&
-            cw->down < CUT_MAX_BYTES)
+            cw->down < CUT_MAX_BYTES && (cw->down > 0 || !cw->gave_up))
         { report("cut", cw->host, "reset", (int)(cw->down / 1024), cw->fam, NULL); hs_on_cut(cw->host); }
         break;
       }
@@ -701,8 +998,9 @@ static int read_first(sock_t c, sock_t up, uint8_t *buf, int cap) {
   uint64_t deadline = now_ms() + FIRST_WAIT;
   int want = 0;
   while (total < cap) {
-    int left = (int)(deadline - now_ms());
-    if (left <= 0) break;
+    uint64_t t = now_ms();
+    if (t >= deadline) break;
+    int left = (int)(deadline - t);
     int w;
     if (total == 0) {
       /* Nothing from the client yet. In plenty of protocols the server speaks
@@ -795,14 +1093,14 @@ static void report_unreachable(const char *host, uint16_t port, const dial_info 
   if (!host || !host[0] || ip_literal(host) || (port != 80 && port != 443)) return;
   char h[256];
   json_host(h, sizeof(h), host);
-  uint64_t t = now_ms();
   int slot = -1, oldest = 0;
   mutex_lock(&g_unreach_mx);
+  uint64_t t = now_ms();   /* under the lock: see age_ms */
   for (int i = 0; i < UNREACH_SLOTS; i++) {
     if (g_unreach[i].host[0] && strcmp(g_unreach[i].host, h) == 0) { slot = i; break; }
     if (g_unreach[i].t < g_unreach[oldest].t) oldest = i;
   }
-  if (slot >= 0 && t - g_unreach[slot].t < UNREACH_REPEAT_MS) { mutex_unlock(&g_unreach_mx); return; }
+  if (slot >= 0 && age_ms(t, g_unreach[slot].t) < UNREACH_REPEAT_MS) { mutex_unlock(&g_unreach_mx); return; }
   if (slot < 0) { slot = oldest; snprintf(g_unreach[slot].host, sizeof(g_unreach[slot].host), "%s", h); }
   g_unreach[slot].t = t;
   mutex_unlock(&g_unreach_mx);
@@ -829,9 +1127,9 @@ static int tls_reply_ok(const uint8_t *b, int n) {
 }
 
 /* One upstream connection of the ladder: the socket, its address family, how
- * much of the client's payload it carries, when that went out, and with which
- * technique. */
-typedef struct { sock_t s; int fam; int sent; uint64_t at; int cand; } leg;
+ * much of the client's payload it carries, when that went out, with which
+ * technique, and as which attempt (0: the ladder's first). */
+typedef struct { sock_t s; int fam; int sent; uint64_t at; int cand; int idx; } leg;
 
 /* Send the first payload using `preset` (or unmodified for ATT_PLAIN).
  * Returns 0; ATT_REFUSED when the connection was reset or closed under us
@@ -874,37 +1172,185 @@ static int read_reply(sock_t up, const proto_info *pi, uint8_t *rbuf, int rcap, 
   return ATT_OK;
 }
 
-/* Wait up to wait_ms for the server to answer on `cur`. A parked connection —
- * an earlier attempt nobody answered — is listened to as well. Moving on from
- * a silent attempt used to mean closing it, which threw away the answer of a
- * server that was only slow; now, if the parked one answers first, the two
- * swap places, the newer one is closed, and ATT_PARKED says so. A parked
- * connection that is refused is simply closed. */
-static int await_reply(leg *cur, leg *parked, const proto_info *pi, int wait_ms,
-                       uint8_t *rbuf, int rcap, int *rlen) {
+/* ── legs ────────────────────────────────────────────────────────────────
+ * Every connection a ladder opens stays open until one of them answers: an
+ * attempt that went unanswered may only be slow, and moving on to the next
+ * must not throw its answer away. So the ladder listens to all of them at
+ * once and uses whichever answers first (the oldest, when several do at
+ * once) — and which one that was, set against the untouched request, is what
+ * it learns from. */
+typedef struct { leg l[LEG_MAX]; int n; } legset;
+
+static void legs_drop(legset *L, int i) {
+  sock_close(L->l[i].s);
+  memmove(&L->l[i], &L->l[i + 1], (size_t)(L->n - i - 1) * sizeof(leg));
+  L->n--;
+}
+
+/* Take connection i out of the set, still open. */
+static leg legs_take(legset *L, int i) {
+  leg g = L->l[i];
+  memmove(&L->l[i], &L->l[i + 1], (size_t)(L->n - i - 1) * sizeof(leg));
+  L->n--;
+  return g;
+}
+
+static void legs_close(legset *L) { while (L->n > 0) legs_drop(L, L->n - 1); }
+
+/* Add the attempt just made. With no room left, the oldest technique's
+ * connection goes: a later one is as likely to be answered, while the
+ * untouched request is never let go — it is what tells a slow server from a
+ * filter. */
+static void legs_add(legset *L, leg g) {
+  if (L->n == LEG_MAX) {
+    int k = 0;
+    while (k < L->n - 1 && L->l[k].cand == ATT_PLAIN) k++;
+    legs_drop(L, k);
+  }
+  L->l[L->n++] = g;
+}
+
+/* What a ladder started from, and what it has seen so far. */
+typedef struct {
+  const char *key;
+  const proto_info *pi;
+  int tls;
+  int learned, inherited;  /* the technique known for the host (-1: none), and whether it is the site's */
+  int opened_learned;      /* the ladder opened with that technique */
+  int race;                /* the ladder raced the untouched request against a technique */
+  int saw_refusal;         /* some attempt was refused */
+  int plain_refused;       /* the untouched request was */
+  int first_failed;        /* the technique it opened with was refused, or (TLS) went unanswered */
+  int made;                /* attempts that went out */
+  int silent;              /* attempts whose wait ran out unanswered */
+  legset L;
+} ladder_st;
+
+static void note_refused(ladder_st *st, const leg *g) {
+  st->saw_refusal = 1;
+  if (g->cand == ATT_PLAIN) st->plain_refused = 1;
+  if (g->idx == 0 && st->opened_learned) st->first_failed = 1;
+}
+
+/* Read whatever is ready on the ladder's connections (ready[] from
+ * sock_wait_any): ATT_OK with *win set at the first, oldest, that answered;
+ * otherwise each that was refused is noted and closed, and *newest_gone says
+ * whether the attempt made last was among them. */
+static int read_legs(ladder_st *st, const int *ready, uint8_t *rbuf, int rcap, int *rlen,
+                     int *win, int *newest_gone) {
+  legset *L = &st->L;
+  int n = L->n, newest = n > 0 ? L->l[n - 1].idx : -1, gone[LEG_MAX];
+  *newest_gone = 0;
+  for (int i = 0; i < n; i++) {
+    gone[i] = 0;
+    if (!ready[i]) continue;
+    if (read_reply(L->l[i].s, st->pi, rbuf, rcap, rlen) == ATT_OK) { *win = i; return ATT_OK; }
+    note_refused(st, &L->l[i]);
+    gone[i] = 1;
+  }
+  for (int i = n - 1; i >= 0; i--) {
+    if (!gone[i]) continue;
+    if (L->l[i].idx == newest) *newest_gone = 1;
+    legs_drop(L, i);
+  }
+  return ATT_REFUSED;
+}
+
+/* Wait up to wait_ms for an answer on any of the ladder's connections.
+ * ATT_OK with *win set (its first bytes in rbuf); ATT_REFUSED when the newest
+ * — the attempt just made — was refused, and is closed; ATT_SILENT when the
+ * time ran out with it still unanswered. An older one refused meanwhile is
+ * closed and noted, and the wait goes on. */
+static int await_legs(ladder_st *st, int wait_ms, uint8_t *rbuf, int rcap, int *rlen, int *win) {
+  legset *L = &st->L;
   uint64_t end = now_ms() + (uint64_t)(wait_ms > 0 ? wait_ms : 0);
   *rlen = 0;
   for (;;) {
+    if (L->n == 0) return ATT_REFUSED;
     uint64_t t = now_ms();
     if (t >= end) return ATT_SILENT;
-    int left = (int)(end - t);
-    int w = parked->s != SOCK_INVALID ? sock_wait_either(cur->s, parked->s, left)
-                                      : sock_wait_readable(cur->s, left);
-    if (w < 0) return ATT_REFUSED;
-    if (w == 0) return ATT_SILENT;          /* blackholed, or merely slow */
-    if (parked->s != SOCK_INVALID && (w & 2)) {
-      if (read_reply(parked->s, pi, rbuf, rcap, rlen) == ATT_OK) {
-        leg newer = *cur;
-        *cur = *parked;
-        sock_close(newer.s);
-        parked->s = SOCK_INVALID;
-        return ATT_PARKED;
-      }
-      sock_close(parked->s);
-      parked->s = SOCK_INVALID;
-    }
-    if (w & 1) return read_reply(cur->s, pi, rbuf, rcap, rlen);
+    sock_t s[LEG_MAX]; int ready[LEG_MAX], gone = 0;
+    for (int i = 0; i < L->n; i++) s[i] = L->l[i].s;
+    int w = sock_wait_any(s, L->n, (int)(end - t), ready);
+    if (w < 0) { legs_drop(L, L->n - 1); return ATT_REFUSED; }
+    if (w == 0) return ATT_SILENT;           /* blackholed, or merely slow */
+    if (read_legs(st, ready, rbuf, rcap, rlen, win, &gone) == ATT_OK) return ATT_OK;
+    if (gone) return ATT_REFUSED;
   }
+}
+
+/* The ladder is over with nothing answered, but its connections are still
+ * open and one may yet be: a server that is only slow, a path that takes
+ * longer than the ladder waited. Go on listening to all of them, and to the
+ * client, until one answers (1, *win set), all are gone or the client has
+ * left (0), or (2) the oldest should simply be relayed: the client has sent
+ * more than can be held meanwhile, or RACE_MAX_MS went by. */
+static int race_legs(ladder_st *st, sock_t client, uint8_t *rbuf, int rcap, int *rlen, int *win,
+                     uint8_t *first, int *flen) {
+  legset *L = &st->L;
+  uint64_t end = now_ms() + RACE_MAX_MS;
+  *rlen = 0;
+  for (;;) {
+    if (L->n == 0) return 0;
+    uint64_t t = now_ms();
+    if (t >= end) return 2;
+    sock_t s[LEG_MAX + 1]; int ready[LEG_MAX + 1], gone = 0, n = L->n;
+    for (int i = 0; i < n; i++) s[i] = L->l[i].s;
+    s[n] = client;
+    int w = sock_wait_any(s, n + 1, (int)(end - t), ready);
+    if (w < 0) return 2;
+    if (w == 0) continue;
+    if (read_legs(st, ready, rbuf, rcap, rlen, win, &gone) == ATT_OK) return 1;
+    if (ready[n]) {
+      if (*flen >= RELAY_BUF) return 2;
+      int m = recv(client, (char *)first + *flen, RELAY_BUF - *flen, 0);
+      if (m <= 0) return 0;
+      *flen += m;
+    }
+  }
+}
+
+/* Connection w (still in the set) answered. What does that teach? Only what
+ * the network showed. A technique is learned — for this name and its site —
+ * when the untouched request was refused, or (TLS, where only a real
+ * handshake counts as an answer) was still unanswered on its own connection
+ * while the technique got through on another; or when the ladder opened with
+ * a technique learned like that before, and this one replaced it after it
+ * failed here. Anything else teaches nothing: the known technique answering
+ * at once, or the untouched request answering, however late. */
+static void ladder_won(ladder_st *st, const leg *w) {
+  atomic_fetch_add(&g_stats.probe_success, 1);
+  if (w->cand == ATT_PLAIN) {
+    /* The untouched request got through: whatever technique this ladder had
+     * to go on — one that failed first, or one it was checking — is not
+     * needed here, and a silent search is over. */
+    if (st->learned >= 0) hs_unlearn(st->key, st->inherited);
+    if (st->tls) rs_drop(st->key);
+    return;
+  }
+  if (w->cand < 0) return;
+  int plain_open = 0;
+  for (int i = 0; i < st->L.n; i++) if (st->L.l[i].cand == ATT_PLAIN) plain_open = 1;
+  int untouched_blocked = st->plain_refused || (st->tls && plain_open);
+  int replaces = st->opened_learned && st->first_failed && w->idx != 0;
+  if (untouched_blocked || replaces) {
+    hs_put(st->key, w->cand);
+    /* News only when it is new, not when a known technique is confirmed. And
+     * "silent" when nothing was ever refused: a different kind of filter, and
+     * worth telling apart when reading a report. */
+    if (w->cand != st->learned)
+      report("bypass", st->key, strategy_preset(w->cand)->name, st->made, w->fam,
+             st->saw_refusal ? NULL : "silent");
+  } else if (st->tls) {
+    rs_drop(st->key);
+  }
+}
+
+/* How long a raced untouched request has to itself (see RACE_HEAD_MIN_MS),
+ * from how long the first connect took. */
+static int race_head_ms(int rtt_ms) {
+  int h = 2 * rtt_ms + RACE_HEAD_MIN_MS;
+  return h > RACE_HEAD_MAX_MS ? RACE_HEAD_MAX_MS : h;
 }
 
 /* The ladder's last word when nothing got through: "blocked" — unless every
@@ -986,9 +1432,9 @@ static void handle(sock_t client) {
 
   int watch_tls = 0;
   char cut_key[256]; cut_key[0] = 0;
-  /* This ladder gave up and left a place to resume from, and the connection
-   * kept for the relay carries the untouched request: see after relay(). */
-  int resume_set = 0, kept_plain = 0;
+  int told = 0;      /* the connection's fate is already in the log */
+  int gave_up = 0;   /* the ladder ended with nothing answered: blocked, or unreachable */
+  int race_head = race_head_ms(di.rtt_ms);
 
   if (flen > 0) {
     proto_info pi;
@@ -1000,197 +1446,195 @@ static void handle(sock_t client) {
     watch_tls = pi.kind == PROTO_TLS;
     strncpy(cut_key, key, sizeof(cut_key) - 1); cut_key[sizeof(cut_key) - 1] = 0;
 
-    /* Build the ladder. */
-    int cand[ATT_MAX]; int ncand = 0;
     int ladder = g_cfg.auto_probe && pi.kind != PROTO_UNKNOWN &&
                  retry_safe(&pi, first, flen);
-    int np = strategy_preset_count();
-    int from = -1, learned = -1, inherited = 0;
-    if (ladder) ladder_start(key, pi.kind == PROTO_TLS, &from, &learned, &inherited);
-    int resumed = from >= 0 && from < np;
     if (!ladder) {
-      cand[ncand++] = g_cfg.auto_probe ? ATT_PLAIN : -1;   /* -1 = configured */
-    } else if (resumed) {
-      /* The last ladder for this host was dropped without a word from start to
-       * end and ran out of time partway down the list: carry on where it
-       * stopped, round the list, with the untouched attempt it has just seen
-       * dropped left for last. */
-      for (int k = 0; k < np && ncand < ATT_MAX; k++) {
-        int i = (from + k) % np;
-        if (preset_usable(strategy_preset(i))) cand[ncand++] = i;
+      /* One attempt, as asked (the configured strategy, or untouched), and
+       * the relay takes it from there. */
+      int c = g_cfg.auto_probe ? ATT_PLAIN : -1;   /* -1 = configured */
+      uint64_t at = now_ms();
+      memcpy(work, first, (size_t)flen);   /* strategies may rewrite in place */
+      if (attempt_send(up, fam, work, RELAY_BUF, flen, &pi, c) != 0) {
+        report("send_failed", key, "", 1, fam, NULL); told = 1;
+      } else if (sock_wait_readable(up, VERIFY_PLAIN_MS) == 1 &&
+                 read_reply(up, &pi, rbuf, RELAY_BUF, &rlen) == ATT_OK) {
+        atomic_fetch_add(&g_stats.probe_success, 1);
       }
-      if (ncand < ATT_MAX) cand[ncand++] = ATT_PLAIN;
+      if (rlen == 0 && !told) waiting = at;
     } else {
+      /* Build the ladder. */
+      int cand[ATT_MAX]; int ncand = 0;
+      int np = strategy_preset_count();
+      int from = -1, learned = -1, inherited = 0, stale = 0;
+      ladder_start(key, watch_tls, &from, &learned, &inherited, &stale);
       if (learned >= np) learned = -1;
-      if (learned >= 0) cand[ncand++] = learned;           /* known to work */
-      else              cand[ncand++] = ATT_PLAIN;         /* untouched first */
-      for (int i = 0; i < np && ncand < ATT_MAX; i++) {
-        if (i == learned || !preset_usable(strategy_preset(i))) continue;
-        cand[ncand++] = i;
-      }
-      /* If a strategy was learned, still allow an untouched attempt last: the
-       * block may have been lifted, or the host may have changed. */
-      if (learned >= 0 && ncand < ATT_MAX) cand[ncand++] = ATT_PLAIN;
-    }
-
-    uint64_t deadline = now_ms() + ATT_BUDGET_MS;
-    /* A resumed ladder starts as if its untouched attempt had just gone
-     * unanswered again, which is what the last connection saw: its attempts
-     * get the shorter wait, and the first that gets through is learned. */
-    int saw_refusal = 0, silent = resumed, told = 0, last = ATT_OK;
-    int gave_up = 0;          /* ended with nothing answered: blocked, or unreachable */
-    int last_preset = -1;     /* the last technique that actually went out */
-    int local_fails = 0;      /* attempts our own send failed for a reason of ours */
-    leg cur = { up, fam, 0, 0, ATT_PLAIN };
-    leg parked = { SOCK_INVALID, 0, 0, 0, ATT_PLAIN };
-    up = SOCK_INVALID;                     /* owned by cur from here on */
-    for (int a = 0; a < ncand; a++) {
-      int wait_ms = (cand[a] == ATT_PLAIN) ? VERIFY_PLAIN_MS
-                  : (silent && !saw_refusal) ? VERIFY_SILENT_MS : VERIFY_DESYNC_MS;
-      if (a > 0) {
-        /* Anything the client sent meanwhile belongs in the replay. */
-        while (flen < RELAY_BUF && sock_wait_readable(client, 0) == 1) {
-          int n = recv(client, (char *)first + flen, RELAY_BUF - flen, 0);
-          if (n <= 0) break;
-          flen += n;
+      int resumed = from >= 0 && from < np;
+      ladder_st st;
+      memset(&st, 0, sizeof(st));
+      st.key = key; st.pi = &pi; st.tls = watch_tls;
+      st.learned = learned; st.inherited = inherited;
+      if (resumed || (learned >= 0 && stale && watch_tls)) {
+        /* A race: the untouched request goes first and has a moment to itself
+         * (race_head), then the technique goes out beside it on a connection
+         * of its own, and the first to answer is used. Whatever it is the
+         * ladder goes on — where a silent search left off, or a technique
+         * learned long ago — it is only a place to start, not evidence, and
+         * the race is what turns it into evidence or lets it go: if the
+         * untouched request answers, nothing is learned and that is dropped;
+         * if the technique answers while it is still unanswered, it is
+         * learned (again). On a network that drops silently this costs the
+         * head start at most; on one that refuses, a round trip. */
+        st.race = 1;
+        cand[ncand++] = ATT_PLAIN;
+        if (resumed) {
+          for (int k = 0; k < np && ncand < ATT_MAX; k++) {
+            int i = (from + k) % np;
+            if (preset_usable(strategy_preset(i))) cand[ncand++] = i;
+          }
+        } else {
+          cand[ncand++] = learned;
+          for (int i = 0; i < np && ncand < ATT_MAX; i++)
+            if (i != learned && preset_usable(strategy_preset(i))) cand[ncand++] = i;
         }
-        /* The first connection nobody answered stays open while the next one
-         * is tried (see await_reply); any other is done with. */
-        if (last == ATT_SILENT && parked.s == SOCK_INVALID) parked = cur;
-        else sock_close(cur.s);
-        cur.s = SOCK_INVALID;
-        /* The re-dial may spend what is left of the budget except the least an
-         * attempt needs to be answered in. */
-        uint64_t t = now_ms();
-        int left = t < deadline ? (int)(deadline - t) : 0;
-        int spent = left <= ATT_MIN_WAIT_MS;
-        if (!spent) {
-          cur.s = dial(dial_host, rq.port, g_cfg.prefer_ipv6, dial_doh, left - ATT_MIN_WAIT_MS,
-                       &cur.fam, &di);
-          if (cur.s == SOCK_INVALID && !di.cut) {
-            /* Refused at every address, or silent there for a full try. */
-            report_unreachable(dial_host, rq.port, &di);
+        /* The last connection was dropped from start to end: the techniques
+         * get the shorter wait from the start. */
+        st.silent = resumed;
+      } else {
+        st.opened_learned = learned >= 0;
+        if (learned >= 0) cand[ncand++] = learned;           /* known to work */
+        else              cand[ncand++] = ATT_PLAIN;         /* untouched first */
+        for (int i = 0; i < np && ncand < ATT_MAX; i++) {
+          if (i == learned || !preset_usable(strategy_preset(i))) continue;
+          cand[ncand++] = i;
+        }
+        /* If a strategy was learned, still allow an untouched attempt last: the
+         * block may have been lifted, or the host may have changed. */
+        if (learned >= 0 && ncand < ATT_MAX) cand[ncand++] = ATT_PLAIN;
+      }
+
+      uint64_t deadline = now_ms() + ATT_BUDGET_MS;
+      int last_preset = -1;     /* the last technique that actually went out */
+      int local_fails = 0;      /* attempts our own send failed for a reason of ours */
+      int win = -1, rep_fam = fam;
+      for (int a = 0; a < ncand && win < 0; a++) {
+        int c = cand[a];
+        int head = st.race && a == 0;
+        int wait_ms = c == ATT_PLAIN ? (head ? race_head : VERIFY_PLAIN_MS)
+                    : (st.silent && !st.saw_refusal) ? VERIFY_SILENT_MS : VERIFY_DESYNC_MS;
+        leg cur = { SOCK_INVALID, fam, 0, 0, c, a };
+        if (a == 0) {
+          cur.s = up; up = SOCK_INVALID;   /* owned by the ladder from here on */
+        } else {
+          /* Anything the client sent meanwhile belongs in the replay. */
+          while (flen < RELAY_BUF && sock_wait_readable(client, 0) == 1) {
+            int n = recv(client, (char *)first + flen, RELAY_BUF - flen, 0);
+            if (n <= 0) break;
+            flen += n;
+          }
+          /* The re-dial may spend what is left of the budget except the least
+           * an attempt needs to be answered in. */
+          uint64_t t = now_ms();
+          int left = t < deadline ? (int)(deadline - t) : 0;
+          int spent = left <= ATT_MIN_WAIT_MS;
+          if (!spent) {
+            cur.s = dial(dial_host, rq.port, g_cfg.prefer_ipv6, dial_doh, left - ATT_MIN_WAIT_MS,
+                         &cur.fam, &di);
+            if (cur.s == SOCK_INVALID && !di.cut) {
+              /* Refused at every address, or silent there for a full try. */
+              report_unreachable(dial_host, rq.port, &di);
+              told = 1; gave_up = 1;
+              break;
+            }
+            t = now_ms();
+            left = t < deadline ? (int)(deadline - t) : 0;
+            if (cur.s != SOCK_INVALID && left < ATT_MIN_WAIT_MS) { sock_close(cur.s); cur.s = SOCK_INVALID; }
+            spent = cur.s == SOCK_INVALID;
+          }
+          if (spent) {
+            /* The budget ran out before this attempt could be made. The host
+             * took a connection earlier in this same ladder, so it is not
+             * unreachable: the ladder is simply over, the site is blocked, and
+             * the attempt that never went out is not counted. */
+            report_gave_up(key, st.made, local_fails, st.saw_refusal, rep_fam);
             told = 1; gave_up = 1;
             break;
           }
-          t = now_ms();
-          left = t < deadline ? (int)(deadline - t) : 0;
-          if (cur.s != SOCK_INVALID && left < ATT_MIN_WAIT_MS) { sock_close(cur.s); cur.s = SOCK_INVALID; }
-          spent = cur.s == SOCK_INVALID;
+          /* The budget bounds the whole ladder, so the last wait gets what is left. */
+          if (wait_ms > left) wait_ms = left;
         }
-        if (spent) {
-          /* The budget ran out before this attempt could be made. The host took
-           * a connection earlier in this same ladder, so it is not unreachable:
-           * the ladder is simply over, the site is blocked, and the attempt that
-           * never went out is not counted. */
-          report_gave_up(key, a, local_fails, saw_refusal, cur.fam);
+        rep_fam = cur.fam;
+        memcpy(work, first, (size_t)flen);   /* strategies may rewrite in place */
+        cur.sent = flen; cur.at = now_ms();
+        if (c >= 0) last_preset = c;
+        int r = attempt_send(cur.s, cur.fam, work, RELAY_BUF, flen, &pi, c);
+        st.made++;
+        if (r != 0) {
+          /* A send that failed is one more failed attempt, never the end of
+           * the ladder. Reset in the middle of going out is the network
+           * refusing, like a reset in reply; any other failure is ours and
+           * says nothing about the network either way. */
+          if (r == ATT_REFUSED) note_refused(&st, &cur);
+          else local_fails++;
+          sock_close(cur.s);
+        } else {
+          legs_add(&st.L, cur);
+          r = await_legs(&st, wait_ms, rbuf, RELAY_BUF, &rlen, &win);
+          if (r == ATT_OK) break;
+          if (r == ATT_SILENT && !head) {
+            if (a == 0 && st.opened_learned && watch_tls) st.first_failed = 1;
+            if (++st.silent >= 2 && !st.saw_refusal && !watch_tls) {
+              /* Twice now the far end simply said nothing to a plain HTTP
+               * request, and nothing has ever been refused. That is a slow or
+               * unreachable server far more often than a censored one, and
+               * working through ten more techniques would only make an already
+               * slow page slower. Wait on what is open. (A TLS handshake keeps
+               * going: a silent drop is how some filters work, Turkcell
+               * Superonline's for one.) */
+              break;
+            }
+          }
+        }
+        if (!head || r != ATT_SILENT) atomic_fetch_add(&g_stats.probe_fail, 1);
+        if (a + 1 >= ncand || now_ms() + ATT_MIN_LEFT_MS > deadline) {
+          /* Nothing got through. This line is what a support log needs: the
+           * host, how many techniques were tried, which address family was
+           * used, and whether the network refused them or dropped them. */
+          report_gave_up(key, st.made, local_fails, st.saw_refusal, rep_fam);
           told = 1; gave_up = 1;
           break;
         }
-        /* The budget bounds the whole ladder, so the last wait gets what is left. */
-        if (wait_ms > left) wait_ms = left;
       }
-      memcpy(work, first, (size_t)flen);   /* strategies may rewrite in place */
-      cur.sent = flen; cur.at = now_ms(); cur.cand = cand[a];
-      if (cand[a] >= 0) last_preset = cand[a];
-      int r = attempt_send(cur.s, cur.fam, work, RELAY_BUF, flen, &pi, cand[a]);
-      int send_err = r != 0;
-      if (r == 0) r = await_reply(&cur, &parked, &pi, wait_ms, rbuf, RELAY_BUF, &rlen);
-      last = r;
-      if (r == ATT_PARKED) {
-        /* The connection that went quiet earlier answered after all: the
-         * server was slow, not censored. Nothing to learn, nothing to report. */
-        atomic_fetch_add(&g_stats.probe_success, 1);
-        break;
-      }
-      if (r == ATT_OK) {
-        /* Remember the technique only when the network showed it interferes:
-         * it refused an attempt, or — on a TLS handshake, where a silent drop
-         * is how some filters work (Turkcell Superonline's, for one) — let an
-         * untouched one go unanswered while this one got through at once. A
-         * server that was merely slow must not leave this host permanently
-         * desynced; the parked connection is what tells the two apart, since
-         * a slow server answers there first. */
-        int silent_drop = !saw_refusal && silent > 0 && pi.kind == PROTO_TLS;
-        int learn = ladder && cand[a] >= 0 && (saw_refusal || silent_drop);
-        if (learn) hs_put(key, cand[a]);
-        atomic_fetch_add(&g_stats.probe_success, 1);
-        /* Only worth reporting when something had to be done about it: a site
-         * that opened untouched is not news, one that needed a technique is.
-         * And only call it a bypass if the network actually got in the way: a
-         * server that was just slow is not a censored one, and saying so in
-         * the log would send the user chasing a block that never happened. */
-        if ((a > 0 || resumed) && learn)
-          report("bypass", key, strategy_preset(cand[a])->name, a + 1, cur.fam,
-                 saw_refusal ? NULL : "silent");
-        /* The technique this ladder started with failed, and the untouched
-         * request then got through: whatever it was learned for is over, here
-         * at least. Forget it rather than keep paying a failed attempt for it. */
-        if (ladder && cand[a] == ATT_PLAIN && a > 0 && learned >= 0)
-          hs_unlearn(key, inherited);
-        break;
-      }
-      if (!ladder) {
-        /* Nothing to fall back on: a send that failed gets its line, as ever. */
-        if (send_err) { report("send_failed", key, "", a + 1, cur.fam, NULL); told = 1; }
-        break;
-      }
-      /* With a ladder, a send that failed is one more failed attempt, never the
-       * end of it. Reset in the middle of going out is the network refusing,
-       * like a reset in reply; any other failure is ours and says nothing about
-       * the network either way. Both go on to the next technique on a fresh
-       * connection. */
-      if (r == ATT_REFUSED) saw_refusal = 1;
-      else if (r == ATT_LOCAL) local_fails++;
-      else if (++silent >= 2 && !saw_refusal && pi.kind != PROTO_TLS) {
-        /* Twice now the far end simply said nothing to a plain HTTP request,
-         * and nothing has ever been refused. That is a slow or unreachable
-         * server far more often than a censored one, and working through ten
-         * more techniques would only make an already slow page slower. Let the
-         * relay wait it out. (A TLS handshake keeps going: see above.) */
-        break;
-      }
-      atomic_fetch_add(&g_stats.probe_fail, 1);
-      if (a + 1 >= ncand || now_ms() + ATT_MIN_LEFT_MS > deadline) {
-        /* Nothing got through. This line is what a support log needs: the host,
-         * how many techniques were tried, which address family was used, and
-         * whether the network refused them or silently dropped them. */
-        report_gave_up(key, a + 1, local_fails, saw_refusal, cur.fam);
-        told = 1; gave_up = 1;
-        break;
-      }
-    }
 
-    /* Where this host's next ladder starts (see rs_get). TLS only: the other
-     * ladders stop at the second silence instead of walking the list. One that
-     * met a refusal walks it quickly enough, and starts from the top again. */
-    if (ladder && pi.kind == PROTO_TLS) {
-      if (rlen > 0) rs_drop(key);
-      else if (gave_up && !saw_refusal && silent > 0 && last_preset >= 0) {
-        rs_put(key, (last_preset + 1) % np);
-        resume_set = 1;
-      } else if (gave_up) rs_drop(key);
-    }
+      /* Where this host's next ladder starts (see ladder_start). TLS only: the other
+       * ladders stop at the second silence instead of walking the list. One
+       * that met a refusal walks it quickly enough, and starts from the top. */
+      if (win < 0 && watch_tls) {
+        if (gave_up && !st.saw_refusal && st.silent > 0 && last_preset >= 0)
+          rs_put(key, (last_preset + 1) % np);
+        else if (gave_up) rs_drop(key);
+      }
 
-    if (rlen == 0 && parked.s != SOCK_INVALID) {
-      /* Nothing answered. Of the connections still open, keep the one that
-       * has waited longest: on a fresh ladder, the untouched request. */
-      if (cur.s != SOCK_INVALID) sock_close(cur.s);
-      cur = parked;
-      parked.s = SOCK_INVALID;
+      int pick = win;   /* the connection to relay */
+      if (win < 0 && st.L.n > 0) {
+        int rr = race_legs(&st, client, rbuf, RELAY_BUF, &rlen, &win, first, &flen);
+        if (rr == 1) pick = win;
+        else if (rr == 2) pick = 0;   /* the oldest: on a fresh ladder, the untouched request */
+      }
+      if (win >= 0) ladder_won(&st, &st.L.l[win]);
+      leg cur = { SOCK_INVALID, fam, 0, 0, ATT_PLAIN, 0 };
+      if (pick >= 0) cur = legs_take(&st.L, pick);
+      legs_close(&st.L);
+      /* A connection that went out before the client sent more has not been
+       * given those bytes yet. */
+      if (cur.s != SOCK_INVALID && flen > cur.sent) {
+        if (sock_send_all(cur.s, first + cur.sent, (size_t)(flen - cur.sent), 0) == 0)
+          atomic_fetch_add(&g_stats.bytes_up, (uint64_t)(flen - cur.sent));
+      }
+      up = cur.s; fam = cur.fam;
+      /* Still unanswered, and nothing has been said about it yet: let the relay
+       * report it if it stays that way. */
+      if (rlen == 0 && !told) waiting = cur.at;
     }
-    if (parked.s != SOCK_INVALID) sock_close(parked.s);
-    /* A connection that went out before the client sent more has not been
-     * given those bytes yet. */
-    if (cur.s != SOCK_INVALID && flen > cur.sent) {
-      if (sock_send_all(cur.s, first + cur.sent, (size_t)(flen - cur.sent), 0) == 0)
-        atomic_fetch_add(&g_stats.bytes_up, (uint64_t)(flen - cur.sent));
-    }
-    up = cur.s; fam = cur.fam;
-    kept_plain = cur.cand == ATT_PLAIN;
-    /* Still unanswered, and nothing has been said about it yet: let the relay
-     * report it if it stays that way. */
-    if (rlen == 0 && !told) waiting = cur.at;
   }
 
   if (up == SOCK_INVALID) goto done;
@@ -1205,12 +1649,9 @@ static void handle(sock_t client) {
     cw.fam = fam;
     cw.down = (uint64_t)rlen;
     cw.waiting = waiting;
+    cw.gave_up = gave_up;
     if (rlen > 0) tls_follow(&cw.tt, rbuf, rlen);
     relay(client, up, &cw);
-    /* The ladder gave up, yet the untouched request was answered after all —
-     * later than the ladder waited. A slow server, not a filter: its next
-     * connection starts untouched again. */
-    if (resume_set && kept_plain && cw.down > 0 && !cw.tt.lost) rs_drop(cut_key);
   }
 
 done:
@@ -1259,6 +1700,7 @@ int engine_start(const engine_config *cfg) {
   memset(&g_stats, 0, sizeof(g_stats));
   mutex_init(&g_hs_mx);
   mutex_init(&g_unreach_mx);
+  mutex_init(&g_win_mx);
   doh_init(cfg->doh_host, cfg->doh_ip);
 
   struct sockaddr_in addr;
