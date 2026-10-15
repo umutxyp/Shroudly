@@ -184,9 +184,11 @@ async function record(label, pid) {
           $h = [System.IntPtr]::new([long]${hwnd});
           [void][W.U]::SendMessage($h, 0x11, [System.IntPtr]::Zero, [System.IntPtr]::new(0x80000000));
           [void][W.U]::SendMessage($h, 0x16, [System.IntPtr]::new(1), [System.IntPtr]::new(0x80000000))`;
-        require('child_process').spawnSync('powershell.exe', ['-NoProfile', '-Command', ps], { encoding: 'utf8', timeout: 30000 });
-        const restored = await until(() => !/AutoConfigURL\s+REG_SZ\s+http:\/\/127\.0\.0\.1/.test(reg('AutoConfigURL')), 10000);
-        ok(!!restored, 'logoff with no window open: the system proxy was put back');
+        // Windows PowerShell without PowerShell 7's module path (CI steps run in pwsh).
+        const { powershellEnv } = require(path.join(ROOT, 'electron', 'win-powershell.js'));
+        const sent = require('child_process').spawnSync('powershell.exe', ['-NoProfile', '-Command', ps], { encoding: 'utf8', timeout: 60000, env: powershellEnv() });
+        const restored = await until(() => !/AutoConfigURL\s+REG_SZ\s+http:\/\/127\.0\.0\.1/.test(reg('AutoConfigURL')), 20000);
+        ok(!!restored, `logoff with no window open: the system proxy was put back${restored ? '' : ` (PowerShell: ${sent.status} ${String(sent.stderr || (sent.error && sent.error.message) || '').trim().slice(0, 200)})`}`);
       } else {
         page = await open();
         stop = keepOpen(page);
