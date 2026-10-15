@@ -294,26 +294,28 @@ Games and apps mode sets it, on Windows and macOS, without admin rights:
 Game traffic itself (Roblox's UDP) does not use a proxy and goes direct; it is
 the HTTPS part — sign-in, the game list, joining, assets — that filters block.
 
+Linux has no single place every desktop reads the environment from, and Roblox
+has no Linux client, so the mode is not offered there.
+
 ## What Shroudly cannot fix
 
 Shroudly gets past filters on your network. It never changes your address, so
 it cannot help when the **service itself** turns you away because of where you
-are:
+are. Some services refuse whole countries: because a law there requires a
+separate local edition (Roblox in Vietnam, for example, sends people to Roblox
+VN), or because of sanctions or their own policy (some AI services, games and
+stores). They decide from your address, account or payment country, and
+getting past the network's block, which Shroudly does, only uncovers the
+service's own refusal.
 
-- **Roblox in Vietnam.** Roblox's own terms require users in Vietnam to use
-  Roblox VN (published by VNG), Roblox refuses Vietnamese addresses itself, and
-  it moves accounts to Roblox VN by their location over time. Getting past the
-  ISPs' DNS block (which Shroudly does) only uncovers Roblox's own refusal.
-- **Services that block countries by policy or sanctions** (some AI services,
-  games and stores): they decide from your address, account or payment country.
-
-The site test in Settings tells these apart: when a site answers but refuses
-the connection itself (a block page, HTTP 451, or a handshake followed by
-silence), it says so instead of suggesting another technique. Only a
-connection that leaves from another country gets around such a refusal, and
-the service may treat that as breaking its rules (Roblox does).
-Linux has no single place every desktop reads the environment from, and Roblox
-has no Linux client, so the mode is not offered there.
+Shroudly tells the two apart the same way in every country, from what the
+service does rather than from where you are: when a site answers but refuses
+the connection itself (a block page, HTTP 451, or a completed handshake
+followed by silence), the site test in Settings says so instead of suggesting
+another technique, and a site that keeps cutting connections is checked once
+and explained in the window. Only a connection that leaves from another
+country gets around such a refusal, and the service may treat that as
+breaking its rules (Roblox does).
 
 ---
 
