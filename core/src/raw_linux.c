@@ -2,24 +2,31 @@
  * raw_linux.c — ADVANCED (packet-layer) desync backend for Linux.
  *
  * This is the optional mode that can defeat *stateful* DPI (Iran/China) which
- * reassembles the TCP stream and so is immune to userspace split/disorder.
+ * reassembles the TCP stream and so is immune to userspace split/disorder, plus
+ * the inbound protections that Turkish networks need.
  *
  * Mechanism (same family as zapret's nfqws):
  *   - An iptables (or, failing that, nftables) rule queues outbound IPv4
  *     80/443 packets into NFQUEUE. Our own fakes carry SHROUDLY_FWMARK and are
- *     excluded, so an injected decoy is never queued (and faked) again.
- *   - For each queued ClientHello we:
- *       1. send a FAKE decoy segment (same seq, scrambled SNI) via a raw socket
- *          with a LOW TTL and/or BAD checksum so it reaches the DPI but dies
- *          before the server — poisoning the DPI's reassembly state;
- *       2. then let the real packet through (optionally split).
+ *     excluded, so an injected segment is never queued (and faked) again.
+ *   - For each queued ClientHello we, by configuration:
+ *       * send a FAKE decoy segment (scrambled SNI) with a LOW TTL and BAD
+ *         checksum so it reaches the DPI but dies before the server;
+ *       * optionally sequence-overlap the real first segment (split-seqovl);
+ *       * optionally send it as fakedsplit / fakeddisorder;
+ *     and then let the real packet through (default) or replace it.
+ *   - Separate INPUT-side rules queue inbound 80/443 RSTs (to drop the forged
+ *     ones that tear a blocked connection down) and SYN-ACKs (to measure the
+ *     hop distance for the decoy's TTL). Everything not an exact match is
+ *     re-injected / accepted unchanged.
  *
- * Requires root / CAP_NET_ADMIN + CAP_NET_RAW, and is Linux-only. It is compiled
- * only when SHROUDLY_RAW is defined and linked with -lnetfilter_queue -lmnl.
+ * Requires root / CAP_NET_ADMIN + CAP_NET_RAW, and is Linux-only. Compiled only
+ * when SHROUDLY_RAW is defined and linked with -lnetfilter_queue -lmnl.
  *
- * The backend installs the rule itself once the queue is bound, and removes it
- * in raw_linux_teardown(), which runs on every stop path (see supervise.c).
- * The rule uses queue-bypass, so even a crashed backend never blocks traffic.
+ * The backend installs the rules itself once the queue is bound, and removes
+ * them in raw_linux_teardown(), which runs on every stop path (see
+ * supervise.c). Every rule uses queue-bypass, so even a crashed backend never
+ * blocks traffic.
  */
 #ifdef SHROUDLY_RAW
 #ifdef __linux__
@@ -40,7 +47,7 @@
 #include <sys/socket.h>
 #include <sys/wait.h>
 #include <fcntl.h>
-#include <linux/netfilter.h>   /* NF_ACCEPT */
+#include <linux/netfilter.h>   /* NF_ACCEPT / NF_DROP */
 
 #include <libnetfilter_queue/libnetfilter_queue.h>
 #include <libnetfilter_queue/pktbuff.h>
@@ -48,15 +55,19 @@
 #include <libnetfilter_queue/libnetfilter_queue_tcp.h>
 
 #include "proto.h"
+#include "platform.h"
 #include "raw_linux.h"
+#include "raw_desync.h"
+#include "tcpdpi.h"
 
 static int g_raw_fd = -1;
-static int g_fake_ttl = 4;
+static raw_config g_cfg;
 static volatile int g_run = 0;
 static struct nfq_handle *g_h = NULL;
 static struct nfq_q_handle *g_qh = NULL;
 static int g_queue_num = 200;
 static enum { RULE_NONE, RULE_IPTABLES, RULE_NFT } g_rule = RULE_NONE;
+static uint16_t g_ipid = 0x1000; /* rolling IP id for our crafted segments */
 
 /* Run a firewall tool quietly. Returns its exit status, or -1. */
 static int run_quiet(char *const argv[]) {
@@ -73,7 +84,8 @@ static int run_quiet(char *const argv[]) {
   return WIFEXITED(st) ? WEXITSTATUS(st) : -1;
 }
 
-static int iptables_rule(const char *op) {
+/* OUTBOUND rule: queue outbound tcp 80/443, skipping our own marked fakes. */
+static int ipt_out(const char *op) {
   char q[16], mark[32];
   snprintf(q, sizeof(q), "%d", g_queue_num);
   snprintf(mark, sizeof(mark), "0x%x/0x%x", SHROUDLY_FWMARK, SHROUDLY_FWMARK);
@@ -83,95 +95,148 @@ static int iptables_rule(const char *op) {
   return run_quiet(argv);
 }
 
+/* INBOUND rule: queue inbound tcp from 80/443 whose flags match `flags`/`mask`
+ * (RST for the RST-drop, SYN,ACK for the hop measurement). Low volume. */
+static int ipt_in(const char *op, const char *mask, const char *flags) {
+  char q[16];
+  snprintf(q, sizeof(q), "%d", g_queue_num);
+  char *argv[] = { "iptables", "-w", "-t", "mangle", (char *)op, "INPUT", "-p", "tcp",
+    "-m", "multiport", "--sports", "80,443", "--tcp-flags", (char *)mask, (char *)flags,
+    "-j", "NFQUEUE", "--queue-num", q, "--queue-bypass", NULL };
+  return run_quiet(argv);
+}
+
 static int nft(const char *cmd) {
   char *argv[] = { "nft", (char *)cmd, NULL };
   return run_quiet(argv);
 }
 
-static int install_rule(void) {
-  while (iptables_rule("-D") == 0) {}  /* drop leftovers from a crashed run */
-  if (iptables_rule("-I") == 0) { g_rule = RULE_IPTABLES; return 0; }
+/* Remove any rules a previous (possibly crashed) run left behind. */
+static void ipt_clean_all(void) {
+  for (int i = 0; i < 8 && ipt_out("-D") == 0; i++) {}
+  for (int i = 0; i < 8 && ipt_in("-D", "RST", "RST") == 0; i++) {}
+  for (int i = 0; i < 8 && ipt_in("-D", "SYN,ACK", "SYN,ACK") == 0; i++) {}
+}
 
+static int install_rule(void) {
+  ipt_clean_all();
+  if (ipt_out("-I") == 0) {
+    g_rule = RULE_IPTABLES;
+    if (g_cfg.drop_rst) ipt_in("-I", "RST", "RST");
+    if (g_cfg.autottl)  ipt_in("-I", "SYN,ACK", "SYN,ACK");
+    return 0;
+  }
+
+  /* nftables fallback: one table, an output chain and an input chain. */
   char rule[256];
+  nft("delete table ip shroudly");
+  if (nft("add table ip shroudly") != 0) return -1;
+  if (nft("add chain ip shroudly out { type filter hook output priority -150 ; }") != 0) { nft("delete table ip shroudly"); return -1; }
   snprintf(rule, sizeof(rule),
     "add rule ip shroudly out tcp dport { 80, 443 } meta mark and 0x%x == 0 queue num %d bypass",
     SHROUDLY_FWMARK, g_queue_num);
-  nft("delete table ip shroudly");
-  if (nft("add table ip shroudly") == 0 &&
-      nft("add chain ip shroudly out { type filter hook output priority -150 ; }") == 0 &&
-      nft(rule) == 0) { g_rule = RULE_NFT; return 0; }
-  nft("delete table ip shroudly");
-  return -1;
+  if (nft(rule) != 0) { nft("delete table ip shroudly"); return -1; }
+  if (g_cfg.drop_rst || g_cfg.autottl) {
+    if (nft("add chain ip shroudly in { type filter hook input priority -150 ; }") != 0) { nft("delete table ip shroudly"); return -1; }
+    if (g_cfg.drop_rst) {
+      snprintf(rule, sizeof(rule), "add rule ip shroudly in tcp sport { 80, 443 } tcp flags & rst == rst queue num %d bypass", g_queue_num);
+      nft(rule);
+    }
+    if (g_cfg.autottl) {
+      snprintf(rule, sizeof(rule), "add rule ip shroudly in tcp sport { 80, 443 } tcp flags & (syn|ack) == (syn|ack) queue num %d bypass", g_queue_num);
+      nft(rule);
+    }
+  }
+  g_rule = RULE_NFT;
+  return 0;
 }
 
 void raw_linux_teardown(void) {
-  if (g_rule == RULE_IPTABLES) { for (int i = 0; i < 8 && iptables_rule("-D") == 0; i++) {} }
+  if (g_rule == RULE_IPTABLES) ipt_clean_all();
   else if (g_rule == RULE_NFT) nft("delete table ip shroudly");
   g_rule = RULE_NONE;
 }
 
-/* Compute IPv4 + TCP checksums for a self-made packet. */
-static uint16_t csum16(const void *data, int len, uint32_t init) {
-  const uint16_t *p = (const uint16_t *)data;
-  uint32_t sum = init;
-  while (len > 1) { sum += *p++; len -= 2; }
-  if (len) sum += *(const uint8_t *)p;
-  while (sum >> 16) sum = (sum & 0xffff) + (sum >> 16);
-  return (uint16_t)~sum;
-}
-
-static void fill_checksums(struct iphdr *ip, struct tcphdr *tcp, int tcplen, int bad) {
-  ip->check = 0;
-  ip->check = csum16(ip, ip->ihl * 4, 0);
-  /* TCP pseudo-header */
-  uint32_t ph = 0;
-  ph += (ip->saddr & 0xffff) + (ip->saddr >> 16);
-  ph += (ip->daddr & 0xffff) + (ip->daddr >> 16);
-  ph += htons(IPPROTO_TCP);
-  ph += htons((uint16_t)tcplen);
-  tcp->check = 0;
-  uint16_t c = csum16(tcp, tcplen, ph);
-  tcp->check = bad ? (uint16_t)(c ^ 0xffff) : c; /* bad: deliberately corrupt */
-}
-
-/* Send a fake decoy copy of the original packet with scrambled SNI + low TTL. */
-static void send_fake(const struct iphdr *oip, const struct tcphdr *otcp,
-                      const uint8_t *payload, int plen, const proto_info *pi) {
-  if (g_raw_fd < 0 || plen <= 0) return;
-  int iphl = oip->ihl * 4;
-  int tcphl = otcp->doff * 4;
-  int total = iphl + tcphl + plen;
-  if (total > 1600) return;
-
-  uint8_t buf[1600];
-  memcpy(buf, oip, iphl);
-  memcpy(buf + iphl, otcp, tcphl);
-  memcpy(buf + iphl + tcphl, payload, plen);
-
-  struct iphdr *ip = (struct iphdr *)buf;
-  struct tcphdr *tcp = (struct tcphdr *)(buf + iphl);
-
-  ip->ttl = (uint8_t)g_fake_ttl;           /* dies before the server */
-  ip->tot_len = htons((uint16_t)total);
-
-  /* scramble the SNI/host bytes so the DPI reassembles garbage */
-  uint8_t *fp = buf + iphl + tcphl;
-  if (pi->host_off >= 0 && pi->host_off + pi->host_len <= plen) {
-    for (int i = pi->host_off; i < pi->host_off + pi->host_len; i++) fp[i] ^= 0x5a;
-  } else {
-    for (int i = plen / 3; i < plen; i++) fp[i] ^= 0x5a;
-  }
-
-  /* good IP checksum, deliberately BAD tcp checksum so the server drops it but
-   * the (often checksum-ignoring) DPI still ingests it. */
-  fill_checksums(ip, tcp, tcphl + plen, 1);
-
+/* Inject a self-made IPv4 segment (headers included) via the raw socket. It
+ * carries SHROUDLY_FWMARK (SO_MARK), so the OUTPUT rule skips it. */
+static void raw_send(const uint8_t *seg, int len, uint32_t daddr, uint16_t dport) {
+  if (g_raw_fd < 0 || len <= 0) return;
   struct sockaddr_in dst;
   memset(&dst, 0, sizeof(dst));
   dst.sin_family = AF_INET;
-  dst.sin_addr.s_addr = oip->daddr;
-  dst.sin_port = otcp->dest;
-  sendto(g_raw_fd, buf, total, 0, (struct sockaddr *)&dst, sizeof(dst));
+  dst.sin_addr.s_addr = daddr;
+  dst.sin_port = dport;
+  sendto(g_raw_fd, seg, (size_t)len, 0, (struct sockaddr *)&dst, sizeof(dst));
+}
+
+/* Send a fake decoy copy of the original packet: scrambled SNI, low TTL and a
+ * deliberately bad TCP checksum, so it reaches the DPI but the server drops it.
+ * `ttl` is the effective decoy TTL (autottl or the fixed fallback). */
+static void send_fake(const struct iphdr *oip, const struct tcphdr *otcp,
+                      const uint8_t *payload, int plen, const proto_info *pi, int ttl) {
+  if (g_raw_fd < 0 || plen <= 0 || plen > 1500) return;
+  int iphl = oip->ihl * 4, tcphl = otcp->doff * 4;
+
+  uint8_t pay[1600];
+  memcpy(pay, payload, (size_t)plen);
+  /* scramble the SNI/host bytes so the DPI reassembles garbage */
+  if (pi->host_off >= 0 && pi->host_off + pi->host_len <= plen) {
+    for (int i = pi->host_off; i < pi->host_off + pi->host_len; i++) pay[i] ^= 0x5a;
+  } else {
+    for (int i = plen / 3; i < plen; i++) pay[i] ^= 0x5a;
+  }
+
+  uint8_t out[1600];
+  int eff = ttl > 0 ? ttl : g_cfg.fake_ttl;
+  int n = tcpdpi_build_segment4(out, sizeof out, (const uint8_t *)oip, iphl,
+                                (const uint8_t *)otcp, tcphl, g_ipid++, ntohl(otcp->seq),
+                                eff, pay, plen, 1 /* bad checksum: server drops it */);
+  if (n > 0) raw_send(out, n, oip->daddr, otcp->dest);
+}
+
+/* Effective decoy TTL for this destination: the measured one if autottl has a
+ * hop count for it, else the fixed configured TTL. */
+static int decoy_ttl_for(uint32_t daddr) {
+  if (g_cfg.autottl) {
+    int hops = tcpdpi_hops_get(daddr, now_ms());
+    if (hops > 0) return tcpdpi_decoy_ttl(hops, g_cfg.autottl_margin, g_cfg.autottl_min);
+  }
+  return g_cfg.fake_ttl;
+}
+
+/* Handle an outbound ClientHello / first request. Returns 1 if the original was
+ * consumed (caller must DROP it), 0 if it must be ACCEPTED unchanged. */
+static int handle_outbound(const struct iphdr *ip, const struct tcphdr *tcp,
+                           const uint8_t *payload, int plen, const proto_info *pi) {
+  int iphl = ip->ihl * 4, tcphl = tcp->doff * 4;
+  const uint8_t *ip_tmpl = (const uint8_t *)ip;
+  const uint8_t *tcp_tmpl = (const uint8_t *)tcp;
+  uint32_t seq = ntohl(tcp->seq);
+  int otl = ip->ttl ? ip->ttl : 64;
+  int ttl = decoy_ttl_for(ip->daddr);
+
+  if (g_cfg.desync_mode == RAW_DESYNC_FAKEDSPLIT || g_cfg.desync_mode == RAW_DESYNC_FAKEDDISORDER) {
+    int split = (pi->host_off > 0 && pi->host_off < plen) ? pi->host_off : (plen > 2 ? 2 : 1);
+    tcpdpi_seg segs[3]; int ns = 0;
+    if (tcpdpi_build_fakedsplit4(segs, &ns, ip_tmpl, iphl, tcp_tmpl, tcphl, g_ipid, seq, otl,
+                                 payload, plen, split, ttl, g_cfg.fake_pattern,
+                                 g_cfg.desync_mode == RAW_DESYNC_FAKEDDISORDER)) {
+      g_ipid += 3;
+      for (int i = 0; i < ns; i++) raw_send(segs[i].data, segs[i].len, ip->daddr, tcp->dest);
+      return 1; /* original replaced */
+    }
+    return 0;   /* build failed: fall back to accepting the real packet */
+  }
+
+  /* RAW_DESYNC_FAKE: the proven decoy, then the real packet. */
+  send_fake(ip, tcp, payload, plen, pi, ttl);
+  if (g_cfg.seqovl > 0 && plen > 0) {
+    uint8_t out[1600];
+    int n = tcpdpi_build_seqovl4(out, sizeof out, ip_tmpl, iphl, tcp_tmpl, tcphl, g_ipid,
+                                 seq, otl, payload, plen, g_cfg.seqovl, g_cfg.seqovl_pattern);
+    if (n > 0) { g_ipid++; raw_send(out, n, ip->daddr, tcp->dest); return 1; }
+  }
+  return 0; /* accept the real packet unchanged */
 }
 
 static int cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg,
@@ -191,23 +256,40 @@ static int cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg,
   if (len < iphl + (int)sizeof(struct tcphdr)) return nfq_set_verdict(qh, id, NF_ACCEPT, 0, NULL);
   struct tcphdr *tcp = (struct tcphdr *)(pkt + iphl);
   int tcphl = tcp->doff * 4;
+  if (tcphl < 20 || iphl + tcphl > len) return nfq_set_verdict(qh, id, NF_ACCEPT, 0, NULL);
+  int sport = ntohs(tcp->source), dport = ntohs(tcp->dest);
+  int web_src = (sport == 80 || sport == 443);
+  int web_dst = (dport == 80 || dport == 443);
+
+  /* Inbound (from a web port): the RST-drop and SYN-ACK hop measurement. The
+   * INPUT rules only queue RST and SYN-ACK, so these are the only cases here. */
+  if (web_src && !web_dst) {
+    if (g_cfg.drop_rst && (tcp->rst) && tcpdpi_is_injected_rst4(pkt, len))
+      return nfq_set_verdict(qh, id, NF_DROP, 0, NULL);            /* forged: drop it */
+    if (g_cfg.autottl && tcp->syn && tcp->ack) {
+      int hops = tcpdpi_hops_from_ttl(ip->ttl);
+      if (hops > 0) tcpdpi_hops_put(ip->saddr, hops, now_ms());
+    }
+    return nfq_set_verdict(qh, id, NF_ACCEPT, 0, NULL);            /* everything else kept */
+  }
+
+  /* Outbound ClientHello / first request. */
   int poff = iphl + tcphl;
   int plen = len - poff;
   if (plen <= 0) return nfq_set_verdict(qh, id, NF_ACCEPT, 0, NULL);
-
   proto_info pi;
   proto_inspect(pkt + poff, (size_t)plen, &pi);
-  if (pi.kind != PROTO_UNKNOWN) {
-    /* 1. inject the fake decoy first (low TTL, bad checksum) */
-    send_fake(ip, tcp, pkt + poff, plen, &pi);
-    /* 2. accept the real packet unchanged — the server sees only this */
-  }
-  return nfq_set_verdict(qh, id, NF_ACCEPT, 0, NULL);
+  if (pi.kind == PROTO_UNKNOWN) return nfq_set_verdict(qh, id, NF_ACCEPT, 0, NULL);
+  if (handle_outbound(ip, tcp, pkt + poff, plen, &pi))
+    return nfq_set_verdict(qh, id, NF_DROP, 0, NULL);  /* replaced by our segments */
+  return nfq_set_verdict(qh, id, NF_ACCEPT, 0, NULL);   /* real packet unchanged */
 }
 
-int raw_linux_start(int queue_num, int fake_ttl) {
-  g_fake_ttl = fake_ttl > 0 ? fake_ttl : 4;
+int raw_linux_start(int queue_num, const raw_config *cfg) {
+  g_cfg = *cfg;
+  if (g_cfg.fake_ttl <= 0) g_cfg.fake_ttl = 4;
   g_queue_num = queue_num;
+  tcpdpi_hops_reset();
 
   g_raw_fd = socket(AF_INET, SOCK_RAW, IPPROTO_RAW);
   if (g_raw_fd < 0) { perror("raw socket"); return -1; }
@@ -235,7 +317,8 @@ int raw_linux_start(int queue_num, int fake_ttl) {
   g_run = 1;
   int fd = nfq_fd(g_h);
   char buf[4096] __attribute__((aligned));
-  printf("{\"type\":\"raw_ready\",\"queue\":%d,\"ttl\":%d}\n", queue_num, g_fake_ttl);
+  printf("{\"type\":\"raw_ready\",\"queue\":%d,\"ttl\":%d,\"drop_rst\":%d,\"autottl\":%d,\"seqovl\":%d,\"mode\":%d}\n",
+         queue_num, g_cfg.fake_ttl, g_cfg.drop_rst, g_cfg.autottl, g_cfg.seqovl, g_cfg.desync_mode);
   fflush(stdout);
   while (g_run) {
     int rv = recv(fd, buf, sizeof(buf), 0);

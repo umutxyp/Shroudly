@@ -96,6 +96,42 @@ class AdvError extends Error {
   constructor(code, message) { super(message); this.code = code; }
 }
 
+/*
+ * The packet-layer options, passed to the engine the same way the fake TTL is.
+ * Sensible defaults: the two strictly-additive, always-safe protections are on
+ * (drop the forged RSTs a censor injects to tear a blocked connection down, and
+ * set the decoy's TTL from the measured hop distance to the server); the decoy
+ * itself stays the proven low-TTL/bad-checksum fake, with sequence overlap off,
+ * so the common path is exactly what earlier releases shipped. Each is a flag,
+ * so a future UI (or a probe result) can switch them per network.
+ */
+const ADV_DEFAULTS = { dropRst: true, autottl: true, seqovl: 0, desyncMode: 'fake' };
+const DESYNC_MODES = ['fake', 'fakedsplit', 'fakeddisorder'];
+
+function resolveAdvOpts(opts) {
+  const o = { ...ADV_DEFAULTS, ...(opts || {}) };
+  o.dropRst = !!o.dropRst;
+  o.autottl = !!o.autottl;
+  o.seqovl = Math.max(0, Math.floor(Number(o.seqovl) || 0));
+  o.desyncMode = DESYNC_MODES.includes(o.desyncMode) ? o.desyncMode : 'fake';
+  return o;
+}
+
+/* The exact argv handed to the privileged engine. Pure, so tests/net/advanced
+ * can check the new flags reach it. */
+function buildAdvancedArgs({ fakeTtl, statusFile, parentPid, platform, queueNum, opts }) {
+  const o = resolveAdvOpts(opts);
+  const ttl = Number(fakeTtl) > 0 ? Number(fakeTtl) : 4;
+  const args = ['--advanced', '--fake-ttl', String(ttl),
+    '--status-file', String(statusFile), '--parent-pid', String(parentPid),
+    '--drop-rst', o.dropRst ? '1' : '0',
+    '--autottl', o.autottl ? '1' : '0',
+    '--seqovl', String(o.seqovl),
+    '--desync-mode', o.desyncMode];
+  if (platform === 'linux') args.push('--queue', String(queueNum));
+  return args;
+}
+
 function run(cmd, args, timeout) {
   return new Promise((resolve) => {
     execFile(cmd, args, { timeout, windowsHide: true }, (err, stdout, stderr) =>
@@ -213,17 +249,19 @@ class AdvancedMode {
     throw new AdvError('timeout', 'The advanced engine did not respond in time.');
   }
 
-  async start(fakeTtl) {
+  async start(fakeTtl, opts) {
     if (this.active) return { success: true, alreadyActive: true };
     const code = this.reasonCode();
     if (code) throw new AdvError(code, REASONS[code]);
-    const ttl = Number(fakeTtl) > 0 ? Number(fakeTtl) : 4;
+    const o = resolveAdvOpts(opts);
 
     this._removeDir();
     this.dir = fs.mkdtempSync(path.join(os.tmpdir(), 'shroudly-adv-'));
     this.statusFile = path.join(this.dir, 'status.log');
-    const args = ['--advanced', '--fake-ttl', String(ttl), '--status-file', this.statusFile, '--parent-pid', String(process.pid)];
-    if (this.platform === 'linux') args.push('--queue', String(QUEUE_NUM));
+    const args = buildAdvancedArgs({
+      fakeTtl, statusFile: this.statusFile, parentPid: process.pid,
+      platform: this.platform, queueNum: QUEUE_NUM, opts: o,
+    });
 
     this.log('info', 'Advanced mode: asking for administrator permission');
     try {
@@ -232,6 +270,7 @@ class AdvancedMode {
       const ready = await this._waitReady();
       this.active = true;
       this.log('success', `Advanced backend active (fake TTL ${ready.ttl})`);
+      if (o.dropRst && o.autottl) this.log('info', 'Advanced mode also drops injected resets and measures the decoy TTL');
       this._startMonitor();
       return { success: true };
     } catch (e) {
@@ -295,3 +334,5 @@ class AdvancedMode {
 
 module.exports = AdvancedMode;
 module.exports.linuxInstallCommand = linuxInstallCommand;
+module.exports.buildAdvancedArgs = buildAdvancedArgs;
+module.exports.ADV_DEFAULTS = ADV_DEFAULTS;

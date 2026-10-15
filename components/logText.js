@@ -49,6 +49,7 @@ const EXACT = {
   'Advanced backend exited': 'logAdvancedBackendExited',
   'Advanced mode: asking for administrator permission': 'logAdvancedAskingAdmin',
   'Advanced backend did not confirm stop; it exits on its own when Shroudly quits': 'logAdvancedNoStopConfirm',
+  'Advanced mode also drops injected resets and measures the decoy TTL': 'logAdvancedProtections',
   'Administrator password not given; the system proxy was not changed': 'logProxyAdminCancelled',
   'Administrator password not given; the proxy settings were not put back': 'logProxyRestoreDeclined',
   'Proxy watchdog not started': 'logProxyWatchdogFailed',

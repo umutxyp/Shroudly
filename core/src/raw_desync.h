@@ -1,0 +1,58 @@
+#ifndef SHROUDLY_RAW_DESYNC_H
+#define SHROUDLY_RAW_DESYNC_H
+
+#include <stdint.h>
+
+/*
+ * raw_config — the Advanced-mode packet-layer options, parsed from the command
+ * line in main.c (passed by electron/advanced-mode.js the same way the fake TTL
+ * already is) and handed to the per-OS raw backend. See tcpdpi.h for the
+ * techniques themselves.
+ */
+
+/* Decoy desync mode for the outbound ClientHello / first request. */
+enum {
+  RAW_DESYNC_FAKE = 0,          /* the proven decoy: a low-TTL/bad-checksum copy,
+                                 * then the real packet unchanged (the default). */
+  RAW_DESYNC_FAKEDSPLIT = 1,    /* split into two real segments + a fake at the
+                                 * boundary, in order. */
+  RAW_DESYNC_FAKEDDISORDER = 2  /* the same, second real part sent first. */
+};
+
+typedef struct {
+  int     fake_ttl;       /* fixed decoy TTL; the fallback when autottl can't measure */
+  int     drop_rst;       /* 1: drop DPI-injected inbound RSTs on ports 80/443 */
+  int     autottl;        /* 1: set the decoy TTL from the SYN-ACK hop distance */
+  int     autottl_margin; /* decoy TTL = hops - margin */
+  int     autottl_min;    /* ... clamped to at least this */
+  int     seqovl;         /* >0: sequence-overlap the real first segment by N bytes */
+  int     desync_mode;    /* RAW_DESYNC_* */
+  uint8_t seqovl_pattern; /* fill byte for the seqovl prefix */
+  uint8_t fake_pattern;   /* fill byte for fakedsplit/fakeddisorder junk */
+} raw_config;
+
+/* Sensible defaults: the two strictly-additive, always-safe protections (drop
+ * injected RSTs, measure the decoy TTL) are on; the decoy stays the proven
+ * plain fake, with sequence overlap off, so the common path is unchanged. */
+#define RAW_DEF_DROP_RST       1
+#define RAW_DEF_AUTOTTL        1
+#define RAW_DEF_AUTOTTL_MARGIN 1
+#define RAW_DEF_AUTOTTL_MIN    1
+#define RAW_DEF_SEQOVL         0
+#define RAW_DEF_DESYNC_MODE    RAW_DESYNC_FAKE
+#define RAW_DEF_SEQOVL_PATTERN 0x00
+#define RAW_DEF_FAKE_PATTERN   0x00
+
+static inline void raw_config_defaults(raw_config *c, int fake_ttl) {
+  c->fake_ttl = fake_ttl > 0 ? fake_ttl : 4;
+  c->drop_rst = RAW_DEF_DROP_RST;
+  c->autottl = RAW_DEF_AUTOTTL;
+  c->autottl_margin = RAW_DEF_AUTOTTL_MARGIN;
+  c->autottl_min = RAW_DEF_AUTOTTL_MIN;
+  c->seqovl = RAW_DEF_SEQOVL;
+  c->desync_mode = RAW_DEF_DESYNC_MODE;
+  c->seqovl_pattern = RAW_DEF_SEQOVL_PATTERN;
+  c->fake_pattern = RAW_DEF_FAKE_PATTERN;
+}
+
+#endif

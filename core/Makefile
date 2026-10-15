@@ -22,7 +22,7 @@ $(BIN): $(SRC)
 # The sources engine.c needs besides itself, for tests that include it.
 ENGINE_DEPS = src/platform.c src/proto.c src/strategy.c src/desync.c src/fake.c src/doh.c
 
-test: test/test_proto.c test/test_desync.c test/test_engine.c $(SRC)
+test: test/test_proto.c test/test_desync.c test/test_engine.c test/test_tcpdpi.c $(SRC)
 	$(CC) -std=c11 -O2 -Wall -o /tmp/shroudly_test_proto src/proto.c src/strategy.c test/test_proto.c
 	/tmp/shroudly_test_proto
 	$(CC) -std=c11 -O2 -Wall -pthread -o /tmp/shroudly_test_desync \
@@ -31,14 +31,19 @@ test: test/test_proto.c test/test_desync.c test/test_engine.c $(SRC)
 	$(CC) -std=c11 -O2 -Wall -Wextra -pthread -o /tmp/shroudly_test_engine \
 		$(ENGINE_DEPS) test/test_engine.c $(LDLIBS)
 	/tmp/shroudly_test_engine
+	$(CC) -std=c11 -O2 -Wall -Wextra -o /tmp/shroudly_test_tcpdpi src/tcpdpi.c test/test_tcpdpi.c
+	/tmp/shroudly_test_tcpdpi
 
 # Sanitizer build of the full test set (memory + UB checks).
-test-asan: test/test_proto.c test/test_desync.c test/test_bogon.c test/test_engine.c $(SRC)
+test-asan: test/test_proto.c test/test_desync.c test/test_bogon.c test/test_engine.c test/test_tcpdpi.c $(SRC)
 	$(CC) -std=c11 -O1 -g -fsanitize=address,undefined -pthread \
 		-o /tmp/shroudly_test_asan \
 		src/platform.c src/proto.c src/strategy.c src/desync.c src/fake.c src/doh.c \
 		test/test_desync.c $(LDLIBS)
 	ASAN_OPTIONS=halt_on_error=0 /tmp/shroudly_test_asan
+	$(CC) -std=c11 -O1 -g -fsanitize=address,undefined \
+		-o /tmp/shroudly_test_tcpdpi_asan src/tcpdpi.c test/test_tcpdpi.c
+	ASAN_OPTIONS=halt_on_error=0 /tmp/shroudly_test_tcpdpi_asan
 	$(CC) -std=c11 -O1 -g -fsanitize=address,undefined -pthread \
 		-o /tmp/shroudly_test_bogon src/platform.c test/test_bogon.c $(LDLIBS)
 	ASAN_OPTIONS=halt_on_error=0 /tmp/shroudly_test_bogon
