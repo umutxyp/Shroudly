@@ -86,12 +86,35 @@ const CONFLICTS = [
  * launch. Nothing we can do from here changes that — the program has to be
  * restarted — so the least we can do is notice and say so, by name, instead
  * of letting them conclude the app is broken. */
+/* Programs people open next to Shroudly, and on which systems a copy that was
+ * already running needs a restart to use it. That depends on how the program
+ * gets the setting on that system, so it is written down per program:
+ *  - Discord (Chromium/Electron) follows the system setting by itself on
+ *    Windows, macOS, GNOME and KDE; on XFCE/LXQt it reads the address from its
+ *    environment at login, which a restart from the panel does not change
+ *    (the window tells those users to log in again instead). Never.
+ *  - Firefox loads the automatic-proxy file once when it starts on Windows;
+ *    on macOS and on Linux (GNOME's setting, which Shroudly also sets on
+ *    XFCE/LXQt) it follows changes. Windows only.
+ *  - Roblox never uses the system proxy (Games and apps mode handles it, and
+ *    notices a copy that goes around Shroudly); Telegram has its own proxy
+ *    setting. A restart would not help either. Never.
+ * The systems are the names SystemProxy reports: windows, macos, gnome, kde,
+ * xfce, lxqt, other. */
 const NEEDS_RESTART = [
-  { re: /(^|[^a-z])discord/i,                     name: 'Discord' },
-  { re: /(^|[^a-z])firefox|librewolf|waterfox/i,  name: 'Firefox' },
-  { re: /roblox/i,                                name: 'Roblox' },
-  { re: /(^|[^a-z])telegram/i,                    name: 'Telegram' },
+  { re: /(^|[^a-z])discord/i,                     name: 'Discord',  readsOnce: [] },
+  { re: /(^|[^a-z])firefox|librewolf|waterfox/i,  name: 'Firefox',  readsOnce: ['windows'] },
+  { re: /roblox/i,                                name: 'Roblox',   readsOnce: [] },
+  { re: /(^|[^a-z])telegram/i,                    name: 'Telegram', readsOnce: [] },
 ];
+
+/* Of these running programs, the ones a restart would help on this system. */
+function restartHelps(names, system) {
+  return (names || []).filter((n) => {
+    const a = NEEDS_RESTART.find((x) => x.name === n);
+    return a && a.readsOnce.includes(system);
+  });
+}
 
 async function processList() {
   return process.platform === 'win32'
@@ -373,4 +396,4 @@ async function collect() {
   };
 }
 
-module.exports = { collect, runningTools, appsNeedingRestart, dnsTampering, dnsProbe, dnsDead, localDnsOwner, lsofDnsPrograms, ssDnsPrograms, defaultRoute, describeInterface, regionOf, looksForged };
+module.exports = { collect, runningTools, appsNeedingRestart, restartHelps, dnsTampering, dnsProbe, dnsDead, localDnsOwner, lsofDnsPrograms, ssDnsPrograms, defaultRoute, describeInterface, regionOf, looksForged };

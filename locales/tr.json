@@ -137,7 +137,7 @@
   "conflictBody": "Shroudly ile aynı bağlantıları yönlendiriyor ve ikisi birbirini bozuyor. Shroudly'yi kullanırken {tools} uygulamasını tamamen kapat.",
   "cutTitle": "{host} bağlanıyor, sonra ağ bağlantıyı kesiyor",
   "cutBodyAdvanced": "Bu ağ bağlantıların sadece başına değil tamamına bakıyor. Shroudly bu site için zaten başka teknikler deniyor; Gelişmiş mod daha alt katmanda çalışır ve genelde geçer.",
-  "cutBodyAdvancedOn": "Gelişmiş mod açık ama ağ yine de kesiyor. Büyük ihtimalle sunucunun adresi engelleniyor ve hiçbir teknik bunu değiştiremez; bu site için yalnızca bir VPN geçer.",
+  "cutBodyAdvancedOn": "Gelişmiş mod açık ama bağlantı kurulduktan sonra yine de kesiliyor. Bunun sebebi, bu ağın ihtiyaç duyduğu ama henüz bulunamamış bir teknik olabilir ya da sunucunun kendi adresinin engellenmiş olması — bunu hiçbir teknik değiştiremez ve o durumda yalnızca bir VPN geçer. Engelli başka siteler açılıyorsa istisna büyük ihtimalle bu sitedir.",
   "cutBodyNoAdvanced": "Shroudly bu site için zaten başka teknikler deniyor. Sürerse ağ ya sunucunun adresini engelliyor ya da yalnızca Windows ve Linux'ta olan Gelişmiş modu gerektiriyor; o durumda geriye bir VPN kalıyor.",
   "notNow": "Şimdi değil",
   "dnsDownTitle": "Şifreli DNS bu ağda engelleniyor",

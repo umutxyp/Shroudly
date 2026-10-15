@@ -137,7 +137,7 @@
   "conflictBody": "O, Shroudly ilə eyni bağlantıları yönləndirir və ikisi bir-birinə mane olur. Shroudly-dən istifadə edərkən {tools} proqramından tam çıx.",
   "cutTitle": "{host} qoşulur, sonra şəbəkə bağlantını kəsir",
   "cutBodyAdvanced": "Bu şəbəkə bağlantıların yalnız necə başladığını deyil, onları bütövlükdə izləyir. Shroudly bu sayt üçün artıq başqa üsulları sınayır; Təkmil rejim bundan daha aşağı səviyyədə işləyir və adətən keçə bilir.",
-  "cutBodyAdvancedOn": "Təkmil rejim aktivdir, amma şəbəkə yenə də bağlantını kəsir. Çox güman ki, serverin ünvanı bloklanır və heç bir üsul bunu dəyişə bilməz; bu sayt üçün yalnız VPN keçə bilər.",
+  "cutBodyAdvancedOn": "Təkmil rejim aktivdir, amma bağlantı qurulandan sonra yenə də kəsilir. Bunun səbəbi bu şəbəkənin ehtiyac duyduğu, lakin hələ tapılmamış bir üsul ola bilər, ya da serverin öz ünvanının bloklanması — bunu heç bir üsul dəyişə bilməz və o zaman yalnız VPN keçə bilər. Başqa bloklanmış saytlar açılırsa, çox güman ki, istisna məhz bu saytdır.",
   "cutBodyNoAdvanced": "Shroudly bu sayt üçün artıq başqa üsulları sınayır. Bu davam edərsə, deməli, şəbəkə serverin ünvanını bloklayır və ya yalnız Windows və Linux-da olan Təkmil rejim lazımdır; o zaman qalan yeganə yol VPN-dir.",
   "notNow": "İndi yox",
   "dnsDownTitle": "Bu şəbəkədə şifrələnmiş DNS bloklanıb",

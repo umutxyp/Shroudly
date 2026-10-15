@@ -497,6 +497,16 @@ class EngineManager {
    * change the outcome: another tool steering the same traffic, and a resolver
    * handing back forged answers. Runs in the background so it never delays the
    * engine coming up. */
+  /* Running programs that need a restart to use Shroudly on this system
+   * (diagnostics.restartHelps has the per-program, per-system facts). None
+   * while the system proxy is not set at all (a macOS account waiting for an
+   * administrator): a restart would not help there. */
+  _staleProgramsOf(names) {
+    const st = this.proxyStatus;
+    if (!names || !names.length || !st || !(st.ok || st.code === 'partial_env')) return [];
+    return diagnostics.restartHelps(names, st.system);
+  }
+
   async _describeEnvironment() {
     let d;
     try { d = await diagnostics.collect(); } catch { return; }
@@ -512,13 +522,17 @@ class EngineManager {
     }
     if (d.dnsAsked && d.dnsAnswered === 0) this._recheckDns();
 
-    if (d.needRestart.length) {
-      // The most common report by far is "works in my browser, not in the
-      // app". It is almost always this: the program read the connection
-      // settings when it launched and has not looked since.
-      const names = d.needRestart.join(', ');
+    const stale = this._staleProgramsOf(d.needRestart);
+    if (stale.length && !this._restartTold) {
+      // A program that read the connection settings when it launched and has
+      // not looked since: "works in my browser, not in the app". Only the
+      // programs for which a restart is really the fix on this system, and
+      // only once per session — a later Stop/Start keeps the same address,
+      // so a program that saw it once keeps working.
+      this._restartTold = true;
+      const names = stale.join(', ');
       this.log('warning', `${names} was already running when protection started. Close and reopen it, or it will keep using the unprotected connection it started with.`);
-      if (typeof this.onNeedRestart === 'function') this.onNeedRestart(d.needRestart);
+      if (typeof this.onNeedRestart === 'function') this.onNeedRestart(stale);
     }
 
     if (d.conflicts.length) {
