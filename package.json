@@ -243,7 +243,7 @@
     "autoprefixer": "^10.4.0",
     "concurrently": "^8.2.2",
     "electron": "43.7.5",
-    "electron-builder": "24.13.3",
+    "electron-builder": "26.15.3",
     "next": "^15.5.27",
     "playwright-core": "1.63.0",
     "postcss": "^8.4.0",
