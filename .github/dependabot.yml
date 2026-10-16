@@ -10,6 +10,11 @@ updates:
     groups:
       actions:
         patterns: ["*"]
+    ignore:
+      # v3 needs the SignPath GitHub App installed on the repository; v2 signs
+      # without it.
+      - dependency-name: signpath/github-action-submit-signing-request
+        update-types: ["version-update:semver-major"]
   # npm: security updates only (they are not limited by this setting); no
   # routine version bumps.
   - package-ecosystem: npm

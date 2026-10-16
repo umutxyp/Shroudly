@@ -734,7 +734,7 @@ const readState = (file) => { try { return JSON.parse(fs.readFileSync(file, 'utf
       await sp.applyAsAdmin();
       const helper = readState(file).snapshot.helperPid;
       process.kill(helper, 'SIGKILL'); // the helper gone, our PAC still set
-      await waitFor(() => !alive(helper));
+      t.ok(await waitFor(() => !alive(helper), 20000), `macOS admin: the killed helper (${helper}) is gone`);
       osa.refuse = CANCEL;
       const stopLog = logs();
       sp.log = stopLog;
@@ -742,7 +742,7 @@ const readState = (file) => { try { return JSON.parse(fs.readFileSync(file, 'utf
         'macOS admin: helper gone and the password refused at Stop: the state file stays, with the user\'s own PAC');
       t.ok(readState(file).declined > 0 && stopLog.lines.includes('warning: Administrator password not given; the proxy settings were not put back')
         && !stopLog.lines.some((l) => l.includes('they will be at the next start')),
-      'macOS admin (P6): a dialog dismissed at Stop is remembered (the next start does not ask by itself) and said as such');
+      `macOS admin (P6): a dialog dismissed at Stop is remembered (the next start does not ask by itself) and said as such (declined: ${readState(file).declined}; log: ${JSON.stringify(stopLog.lines)})`);
       const kept = fs.readFileSync(file, 'utf8');
       osa.refuse = null;
       const st = await sp.apply(10808, 'all');
