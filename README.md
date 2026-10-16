@@ -144,8 +144,7 @@ the DPI and poisons its state, then dies before it reaches the real server.
 
 Since **2.5.6** it also carries the TCP techniques GoodbyeDPI and zapret use
 and that users on heavily filtered networks rely on. Each is a flag
-(`core/src/raw_desync.h`), and the common path is unchanged from earlier
-releases:
+(`core/src/raw_desync.h`):
 
 - **Drops the forged resets** some networks inject to tear a blocked connection
   down (GoodbyeDPI `-p`). Only inbound 80/443 segments that match the forged
@@ -166,6 +165,17 @@ releases:
 - **Sequence overlap** for the real first segment (zapret `split-seqovl`): the
   DPI reads overlap junk first while the server keeps the real bytes. Switchable,
   with a configurable size and pattern; **off by default**.
+- **Cuts the real first segment** after the decoy (zapret `multisplit` /
+  `multidisorder` at `1,midsld`): one byte into the name and in the middle of
+  its second-level label (`r|emote-auth-gateway.dis|cord.gg`), so no segment
+  carries the name a filter matches on, even one the decoy does not fool.
+  Programs that ignore the proxy (Lampcord, for one) get nothing else, since
+  they only meet Advanced mode at the packet layer. Every TCP receiver puts the
+  parts back together. **On by default** (`--split on`); `--split disorder`
+  sends the last part first, `--split off` sends it whole. A lab in the test
+  run checks it on a real packet path: network namespaces, a router that drops
+  any packet carrying the blocked name, and the engine on NFQUEUE
+  ([`tests/lab/advanced-lab.sh`](tests/lab/advanced-lab.sh)).
 - **Faked split / faked disorder** (zapret `fakedsplit` / `fakeddisorder`): the
   ClientHello is split into two real segments with a low-TTL junk fake at the
   boundary, in order or with the second real part sent first. Selectable by
