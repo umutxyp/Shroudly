@@ -708,6 +708,10 @@ Shroudly does not collect personal data. These are the only things that contact 
 Games and apps mode contacts nothing of its own: it only carries what the
 programs using it were going to send anyway.
 
+Which technique opened which blocked site is remembered on this computer
+only (in Shroudly's settings file, for 30 days at most), so the next start
+does not have to search again. Nothing of it is sent anywhere.
+
 The privacy policies of the services involved:
 [GitHub](https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement)
 (updates, the site list),

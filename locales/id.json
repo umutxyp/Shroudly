@@ -334,6 +334,7 @@
   "logSiteNoAnswer": "{host}: tidak ada jawaban setelah {tries} teknik ({family}) — jaringan mungkin diam-diam membuang koneksi ini, atau situsnya sedang tidak berfungsi",
   "logSiteServerRefused": "{host}: server sendiri menolak koneksi (peringatan TLS untuk permintaan yang tidak diubah); bukan pemblokiran",
   "logSiteOthersWork": "{host}: tidak menjawab, sementara bagian lain situs berjalan lewat Shroudly; bukan pemblokiran",
+  "logTechniquesRestored": "Teknik yang diingat untuk {count} situs dipulihkan",
   "logProxyReplaced": "Program lain mengubah proxy sistem ({what}): lalu lintas itu tidak lagi lewat Shroudly",
   "logLocalDns": "DNS sistem adalah program di komputer ini: {programs}",
   "logDnsDead": "DNS sistem tidak menjawab satu pun nama uji. Program yang tidak lewat Shroudly tidak dapat menjangkau apa pun; periksa program DNS atau pengaturan jaringan.",

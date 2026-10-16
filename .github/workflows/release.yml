@@ -37,9 +37,6 @@ jobs:
           - os: ubuntu-latest
             platform: linux
     runs-on: ${{ matrix.os }}
-    env:
-      # A manual run's choice, else release-signing once ENABLE_SIGNPATH is on.
-      SIGN_POLICY: ${{ (inputs.signing_policy != 'none' && inputs.signing_policy) || (vars.ENABLE_SIGNPATH == 'true' && vars.SIGNPATH_POLICY_SLUG) || '' }}
     steps:
       - uses: actions/checkout@v4
 
@@ -98,16 +95,55 @@ jobs:
         if: matrix.platform == 'linux'
         run: npx electron-builder --linux --publish never   # targets/arches from package.json
 
-      # --- Windows code signing via SignPath (off unless enabled) -------------
-      # The installers go up as a GitHub artifact, SignPath signs them (the
-      # project's default artifact configuration: a zip of
-      # Shroudly-*-Windows-*-Setup.exe, Authenticode) and hands them back, and
-      # latest.yml is rewritten for the signed bytes so auto-update still
-      # verifies. A manual run can pick test-signing to try the whole path
-      # without publishing: only a tag publishes.
+      - name: Collect artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist-${{ matrix.platform }}
+          retention-days: 3
+          if-no-files-found: error
+          path: |
+            dist/*.exe
+            dist/*.dmg
+            dist/*.zip
+            dist/*.AppImage
+            dist/*.deb
+            dist/*.pacman
+            dist/*.rpm
+            dist/latest*.yml
+
+  # ── Windows code signing via SignPath (off unless enabled) ───────────────
+  # A job of its own, after the build: a release-signing request waits for
+  # the maintainer to approve it in SignPath (required for SignPath
+  # Foundation certificates), which can take a while, and must neither hold
+  # the build up nor fail it by running out of time. The unsigned installers
+  # go up as a GitHub artifact, SignPath signs them (the project's default
+  # artifact configuration: a zip of Shroudly-*-Windows-*-Setup.exe,
+  # Authenticode, product name and version enforced) and hands them back;
+  # latest.yml is rewritten for the signed bytes so auto-update still
+  # verifies, and dist-win is replaced by the signed set, which is what the
+  # install test and the release then use. A manual run can pick
+  # test-signing to try the whole path without publishing: only a tag
+  # publishes.
+  sign-windows:
+    needs: build
+    if: ${{ (inputs.signing_policy && inputs.signing_policy != 'none') || vars.ENABLE_SIGNPATH == 'true' }}
+    runs-on: windows-latest
+    timeout-minutes: 360
+    env:
+      # A manual run's choice, else release-signing once ENABLE_SIGNPATH is on.
+      SIGN_POLICY: ${{ (inputs.signing_policy != 'none' && inputs.signing_policy) || (vars.ENABLE_SIGNPATH == 'true' && vars.SIGNPATH_POLICY_SLUG) || '' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist-win
+          path: dist
+
       - name: Stage the Windows installers for signing
         id: unsigned
-        if: matrix.platform == 'win' && env.SIGN_POLICY != ''
         uses: actions/upload-artifact@v4
         with:
           name: unsigned-win
@@ -121,12 +157,10 @@ jobs:
       # version (SignPath Foundation terms): the version comes from here.
       - name: Version for the signing request
         id: appver
-        if: matrix.platform == 'win' && env.SIGN_POLICY != ''
         shell: bash
         run: echo "version=$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
 
       - name: Sign the Windows installers (SignPath)
-        if: matrix.platform == 'win' && env.SIGN_POLICY != ''
         uses: signpath/github-action-submit-signing-request@v2
         with:
           api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
@@ -135,14 +169,14 @@ jobs:
           signing-policy-slug: ${{ env.SIGN_POLICY }}
           github-artifact-id: ${{ steps.unsigned.outputs.artifact-id }}
           wait-for-completion: true
-          # release-signing can wait for a person to approve the request.
-          wait-for-completion-timeout-in-seconds: 3600
+          # A release-signing request waits for a person to approve it in
+          # SignPath: up to almost six hours, the most a job may run.
+          wait-for-completion-timeout-in-seconds: 21000
           output-artifact-directory: dist/signed
           parameters: |
             version: "${{ steps.appver.outputs.version }}"
 
       - name: Put the signed installers in place
-        if: matrix.platform == 'win' && env.SIGN_POLICY != ''
         shell: pwsh
         run: |
           $signed = @(Get-ChildItem dist/signed -Recurse -File -Filter '*-Setup.exe')
@@ -159,23 +193,17 @@ jobs:
           Remove-Item dist/signed -Recurse -Force
 
       - name: Recompute Windows update metadata after signing
-        if: matrix.platform == 'win' && env.SIGN_POLICY != ''
         run: node scripts/recompute-win-latest.js
 
-      - name: Collect artifacts
+      - name: Replace the Windows artifacts with the signed ones
         uses: actions/upload-artifact@v4
         with:
-          name: dist-${{ matrix.platform }}
+          name: dist-win
+          overwrite: true
           retention-days: 3
           if-no-files-found: error
           path: |
             dist/*.exe
-            dist/*.dmg
-            dist/*.zip
-            dist/*.AppImage
-            dist/*.deb
-            dist/*.pacman
-            dist/*.rpm
             dist/latest*.yml
 
   # ── Install what was built, on the systems it is for, before anything is
@@ -234,7 +262,9 @@ jobs:
           echo "ok  $f: app present, engine starts ($out)"
 
   windows-install:
-    needs: build
+    # The signed installers when signing is on; the build's otherwise.
+    needs: [build, sign-windows]
+    if: ${{ !cancelled() && !failure() }}
     strategy:
       fail-fast: false
       matrix:
@@ -286,17 +316,20 @@ jobs:
           echo "ok  $dmg: ${{ matrix.lipo }} app and engine, engine starts"
 
   release:
-    needs: [build, linux-packages, appimage, windows-install, macos-dmg]
+    needs: [build, sign-windows, linux-packages, appimage, windows-install, macos-dmg]
     runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/tags/')
+    # sign-windows is skipped while signing is off; anything failed stops it.
+    if: ${{ startsWith(github.ref, 'refs/tags/') && !cancelled() && !failure() }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      # The dist-* sets only: never the unsigned copies staged for SignPath.
       - name: Download all build artifacts
         uses: actions/download-artifact@v4
         with:
+          pattern: dist-*
           path: dist-all
       - name: Flatten into dist/
         run: |

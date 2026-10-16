@@ -334,6 +334,7 @@
   "logSiteNoAnswer": "{host}: {tries} ta usuldan keyin ham javob yoʻq ({family}) — tarmoq bu ulanishlarni jimgina tashlab yuborayotgan yoki sayt ishlamayotgan boʻlishi mumkin",
   "logSiteServerRefused": "{host}: ulanishni serverning o'zi rad etdi (o'zgartirilmagan so'rovga TLS ogohlantirishi); bu bloklash emas",
   "logSiteOthersWork": "{host}: javob bermayapti, saytning qolgan qismi esa Shroudly orqali ishlayapti; bu bloklash emas",
+  "logTechniquesRestored": "{count} ta sayt uchun eslab qolingan usullar tiklandi",
   "logProxyReplaced": "Boshqa dastur tizim proksisini oʻzgartirdi ({what}): bu trafik endi Shroudly orqali oʻtmaydi",
   "logLocalDns": "Tizim DNS xizmati — shu kompyuterdagi dastur: {programs}",
   "logDnsDead": "Tizim DNS xizmati test nomlarining birortasiga ham javob bermadi. Shroudly orqali oʻtmaydigan dasturlar hech qayerga ulana olmaydi; DNS dasturini yoki tarmoq sozlamalarini tekshiring.",

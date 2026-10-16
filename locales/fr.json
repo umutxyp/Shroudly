@@ -334,6 +334,7 @@
   "logSiteNoAnswer": "{host} : aucune réponse après {tries} techniques ({family}) — le réseau rejette peut-être ces connexions en silence, ou le site est hors service",
   "logSiteServerRefused": "{host} : le serveur a lui-même refusé la connexion (une alerte TLS à la requête non modifiée) ; ce n'est pas un blocage",
   "logSiteOthersWork": "{host} : ne répond pas, alors que le reste du site fonctionne via Shroudly ; ce n'est pas un blocage",
+  "logTechniquesRestored": "Techniques mémorisées pour {count} sites restaurées",
   "logProxyReplaced": "Un autre programme a modifié le proxy système ({what}) : ce trafic ne passe plus par Shroudly",
   "logLocalDns": "Le DNS du système est un programme de cet ordinateur : {programs}",
   "logDnsDead": "Le DNS du système n’a répondu à aucun des noms de test. Les programmes qui ne passent pas par Shroudly ne peuvent rien joindre ; vérifiez le programme DNS ou les réglages réseau.",

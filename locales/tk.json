@@ -334,6 +334,7 @@
   "logSiteNoAnswer": "{host}: {tries} usuldan soň hem jogap ýok ({family}) — tor bu birikmeleri duýdurmazdan taşlaýan bolmagy ýa-da saýtyň işlemeýän bolmagy mümkin",
   "logSiteServerRefused": "{host}: birikmäni serweriň özi ret etdi (üýtgedilmedik haýyşa TLS duýduryşy); bu petikleme däl",
   "logSiteOthersWork": "{host}: jogap bermeýär, saýtyň galan bölegi bolsa Shroudly arkaly işleýär; bu petikleme däl",
+  "logTechniquesRestored": "{count} saýt üçin ýatda saklanan usullar dikeldildi",
   "logProxyReplaced": "Başga bir programma ulgam proksisini üýtgetdi ({what}): ol trafik indi Shroudly arkaly geçmeýär",
   "logLocalDns": "Ulgamyň DNS-i bu kompýuterdäki programma: {programs}",
   "logDnsDead": "Ulgamyň DNS-i synag atlarynyň hiç birine jogap bermedi. Shroudly arkaly geçmeýän programmalar hiç ýere birigip bilmeýär; DNS programmasyny ýa-da tor sazlamalaryny barlaň.",

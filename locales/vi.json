@@ -334,6 +334,7 @@
   "logSiteNoAnswer": "{host}: không có phản hồi sau {tries} kỹ thuật ({family}) — có thể mạng đang âm thầm loại bỏ các kết nối này, hoặc trang web đang ngừng hoạt động",
   "logSiteServerRefused": "{host}: chính máy chủ đã từ chối kết nối (cảnh báo TLS cho yêu cầu không bị sửa đổi); không phải bị chặn",
   "logSiteOthersWork": "{host}: không phản hồi, trong khi phần còn lại của trang vẫn chạy qua Shroudly; không phải bị chặn",
+  "logTechniquesRestored": "Đã khôi phục các kỹ thuật đã ghi nhớ cho {count} trang",
   "logProxyReplaced": "Một chương trình khác đã thay đổi proxy hệ thống ({what}): lưu lượng đó không còn đi qua Shroudly",
   "logLocalDns": "DNS hệ thống là một chương trình trên máy tính này: {programs}",
   "logDnsDead": "DNS hệ thống không trả lời tên thử nghiệm nào. Các chương trình không đi qua Shroudly sẽ không truy cập được gì; hãy kiểm tra chương trình DNS hoặc cài đặt mạng.",

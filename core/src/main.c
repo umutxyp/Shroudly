@@ -197,6 +197,12 @@ int main(int argc, char **argv) {
     if (!strncmp(line, "STOP", 4)) break;
     else if (!strncmp(line, "STATS", 5)) engine_emit_stats();
     else if (!strncmp(line, "PROBE ", 6)) probe_host(line + 6, &g_cfg);
+    else if (!strncmp(line, "LEARN ", 6)) {
+      /* LEARN <host> <technique> <seconds ago>: what an earlier run learned. */
+      char host[256], tech[64]; unsigned long long secs = 0;
+      if (sscanf(line + 6, "%255s %63s %llu", host, tech, &secs) == 3)
+        engine_restore(host, tech, (uint64_t)secs * 1000ull);
+    }
   }
 
   engine_stop();
