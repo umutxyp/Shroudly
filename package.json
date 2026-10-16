@@ -244,7 +244,7 @@
     "concurrently": "^8.2.2",
     "electron": "43.7.5",
     "electron-builder": "24.13.3",
-    "next": "^14.2.35",
+    "next": "^15.5.27",
     "playwright-core": "1.63.0",
     "postcss": "^8.4.0",
     "react": "^18.3.0",
