@@ -38,9 +38,9 @@ jobs:
             platform: linux
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: '22'
           cache: npm
@@ -96,7 +96,7 @@ jobs:
         run: npx electron-builder --linux --publish never   # targets/arches from package.json
 
       - name: Collect artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: dist-${{ matrix.platform }}
           retention-days: 3
@@ -133,18 +133,18 @@ jobs:
       # A manual run's choice, else release-signing once ENABLE_SIGNPATH is on.
       SIGN_POLICY: ${{ (inputs.signing_policy != 'none' && inputs.signing_policy) || (vars.ENABLE_SIGNPATH == 'true' && vars.SIGNPATH_POLICY_SLUG) || '' }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
           node-version: '22'
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: dist-win
           path: dist
 
       - name: Stage the Windows installers for signing
         id: unsigned
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: unsigned-win
           retention-days: 1
@@ -161,7 +161,7 @@ jobs:
         run: echo "version=$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
 
       - name: Sign the Windows installers (SignPath)
-        uses: signpath/github-action-submit-signing-request@v2
+        uses: signpath/github-action-submit-signing-request@v3
         with:
           api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
           organization-id: ${{ vars.SIGNPATH_ORGANIZATION_ID }}
@@ -196,7 +196,7 @@ jobs:
         run: node scripts/recompute-win-latest.js
 
       - name: Replace the Windows artifacts with the signed ones
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: dist-win
           overwrite: true
@@ -224,8 +224,8 @@ jobs:
           - { image: 'ubuntu:22.04',     pkg: 'dist/*.deb' }
     container: ${{ matrix.image }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/download-artifact@v4
+      - uses: actions/checkout@v7
+      - uses: actions/download-artifact@v8
         with:
           name: dist-linux
           path: dist
@@ -242,7 +242,7 @@ jobs:
           - { os: ubuntu-24.04-arm, file: arm64,  core: linux-arm64 }
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: dist-linux
           path: dist
@@ -273,11 +273,11 @@ jobs:
           - { os: windows-11-arm, arch: arm64 }
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
           node-version: '22'
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: dist-win
           path: dist
@@ -294,7 +294,7 @@ jobs:
           - { os: macos-15-intel, arch: x64,   lipo: x86_64 }
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: dist-mac
           path: dist
@@ -321,13 +321,13 @@ jobs:
     # sign-windows is skipped while signing is off; anything failed stops it.
     if: ${{ startsWith(github.ref, 'refs/tags/') && !cancelled() && !failure() }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
           node-version: '22'
       # The dist-* sets only: never the unsigned copies staged for SignPath.
       - name: Download all build artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           pattern: dist-*
           path: dist-all
