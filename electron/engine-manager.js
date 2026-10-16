@@ -22,6 +22,7 @@ const Families = require('./families');
 const diagnostics = require('./diagnostics');
 const { DISCORD_DOMAINS } = require('./discord-relay');
 const fingerprints = require('./censor-fingerprints');
+const { isMainName } = require('./service-check');
 const net = require('net');
 
 /* Can we listen on 127.0.0.1:port right now? */
@@ -352,8 +353,13 @@ class EngineManager {
   /* A site whose connections start and are then cut. One cut means little;
    * several on the same host in a few minutes is the network doing it. Told
    * once per host per session. */
-  _onCut(host, reason, kb) {
+  _onCut(host, reason, kb, siteOk = false) {
     if (!host || this.cutHosts.has(host)) return;
+    // The rest of the site answers through Shroudly: one of its addresses
+    // being cut is that address's own business (and the engine already tries
+    // another technique for it), not something to put in front of the user.
+    // A site's own page is always counted.
+    if (siteOk && !isMainName(host)) return;
     const now = Date.now();
     const list = (this.cuts.get(host) || []).filter((c) => now - c.t < CUT_WINDOW_MS);
     list.push({ reason, t: now });
@@ -651,6 +657,22 @@ class EngineManager {
         break;
       case 'blocked':
         try { this.onHostEvent('blocked', msg.host, msg.note || null); } catch {}
+        // Not the network: the server itself turned the handshake down (an
+        // alert, never a reset), or the rest of this site answers through
+        // Shroudly and only this one of its addresses does not (an API, a
+        // tracker or a socket that refuses this client). A line in the log,
+        // once, and never a notification: the page the user opened works. A
+        // site's own page (example.com, www.example.com) is still told.
+        if (msg.alert || (msg.site_ok && !isMainName(msg.host))) {
+          if (!this.blockedHosts.has(msg.host)) {
+            if (this.blockedHosts.size > 400) this.blockedHosts.clear();
+            this.blockedHosts.add(msg.host);
+            this.log('info', msg.alert
+              ? `${msg.host}: the server refused the connection itself (a TLS alert to the unchanged request); not a block`
+              : `${msg.host}: does not answer, while the rest of the site works through Shroudly; not a block`);
+          }
+          break;
+        }
         // Every attempt went unanswered. A filter that drops silently and a
         // server that is down look exactly the same from here, so this is a
         // line in the log, not a notification, and no setting is changed
@@ -688,7 +710,7 @@ class EngineManager {
         break;
       case 'cut':
         try { this.onHostEvent('cut', msg.host, msg.strategy || null); } catch {}
-        this._onCut(msg.host, msg.strategy, msg.attempts);
+        this._onCut(msg.host, msg.strategy, msg.attempts, msg.note === 'site_ok');
         break;
       case 'unreachable':
         try { this.onHostEvent('unreachable', msg.host, msg.stage || null); } catch {}

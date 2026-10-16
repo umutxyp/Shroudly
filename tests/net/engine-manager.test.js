@@ -68,6 +68,22 @@ const t = suite('engine-manager');
   t.ok(!blockedNotices.length, 'no answer at all is not announced as a blocked site');
   t.ok(mem.dnsProtection === false, 'no answer at all does not switch encrypted DNS back on');
   delete mem.dnsProtection;
+  // Refused, but not by the network: the server answered the unchanged
+  // request with a TLS alert, or the rest of the site works and only one of
+  // its addresses does not answer this client (a tracker, an API, a socket).
+  // A line in the log; no notification, no window.
+  const blocked = (h, extra) => em._onLine(JSON.stringify({ type: 'blocked', host: h, strategy: '', attempts: 9, family: 'ipv4', ...extra }));
+  blocked('af.vendor.example', { site_ok: true });
+  blocked('alerting.example', { alert: true });
+  t.ok(logs.includes('info: af.vendor.example: does not answer, while the rest of the site works through Shroudly; not a block'), 'an address of a working site that does not answer is logged as not a block');
+  t.ok(logs.includes('info: alerting.example: the server refused the connection itself (a TLS alert to the unchanged request); not a block'), 'a server that refuses the handshake itself is logged as not a block');
+  t.ok(!blockedNotices.length, '…and neither is announced as a blocked site');
+  // A site's own page is always told, working rest or not.
+  blocked('www.vendor.example', { site_ok: true });
+  t.ok(blockedNotices.length === 1 && blockedNotices[0] === 'www.vendor.example', 'a site\'s own page that defeats every technique is still announced');
+  // Cuts on one address of a site whose rest works: not put in front of the user.
+  em._onCut('ws.chat.example', 'reset', 0, true); em._onCut('ws.chat.example', 'reset', 0, true);
+  t.ok(!em.advice.cut || em.advice.cut.host !== 'ws.chat.example', 'cuts on an address of a working site raise no warning');
 
   em._setAdvice({ dnsDown: true }); em._setAdvice({ dnsDown: true });
   t.ok(advices.filter((a) => a.dnsDown).length === 1, 'the window is only told when something changes');

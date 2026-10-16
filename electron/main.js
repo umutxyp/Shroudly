@@ -195,12 +195,26 @@ function rebuildTrayMenu(active = trayActive) {
   if (process.platform === 'darwin') tray.setImage(makeTrayIcon(active));
 }
 
+/* The icon in the notification area (the menu bar on macOS), unless the user
+ * hid it in Settings (issue #12). Shroudly keeps running in the background
+ * all the same, and starting it again (Start menu, Applications, the
+ * desktop's launcher) brings the window back: see 'second-instance'. */
+const trayWanted = () => store.get('showTrayIcon', true) !== false;
+function setTrayIcon(on) {
+  if (on && !tray) {
+    tray = new Tray(makeTrayIcon(trayActive));
+    rebuildTrayMenu();
+    tray.on('click', () => showWindow());
+  } else if (!on && tray) {
+    tray.destroy();
+    tray = null;
+  }
+}
+
 /* Resolves once it is known whether the tray icon can be seen at all
  * (launch.js): how Shroudly comes up at launch depends on it. */
 function createTray() {
-  tray = new Tray(makeTrayIcon());
-  rebuildTrayMenu(false);
-  tray.on('click', () => showWindow());
+  setTrayIcon(trayWanted());
   return checkTrayHost();
 }
 
@@ -211,6 +225,13 @@ async function checkTrayHost() {
   trayVisible = await Launch.trayVisible();
   if (!trayVisible) addLog('info', 'No tray on this desktop: the window is minimised instead of closed');
 }
+
+/* May the window go away entirely (closed to the background, or released
+ * when idle)? Yes when there is a tray icon to come back through, and when
+ * the user hid the icon on purpose: they come back by starting Shroudly
+ * again. Only a desktop with no tray at all, where the user did not choose
+ * that, keeps the window minimised instead, so it never vanishes. */
+const canLeave = () => trayVisible || !trayWanted();
 
 /* Does a host go through Shroudly? Always, unless the user routes only listed
  * sites. Asked for every connection Games and apps mode carries, so the
@@ -351,12 +372,12 @@ async function releaseWindow(reason) {
   win.destroy();
   if (reason === 'idle' && wasOnScreen && !idleNoticeShown) {
     idleNoticeShown = true;
-    notify('Shroudly', tr().trayMinimized);
+    notify('Shroudly', trayWanted() ? tr().trayMinimized : tr().trayHiddenRunning);
   }
 }
 
 function idleCheck() {
-  if (!windowAlive() || !trayVisible) return;
+  if (!windowAlive() || !canLeave()) return;
   const w = mainWindow;
   if (loading.has(w)) return;   // not shown yet because it is still loading
   if (!w.isVisible()) { releaseWindow('hidden'); return; }
@@ -489,9 +510,9 @@ async function createWindow({ show = true, minimised = false } = {}) {
   win.on('close', (e) => {
     if (!app.isQuitting && store.get('minimizeToTray', true)) {
       e.preventDefault();
-      if (!trayVisible) { win.minimize(); return; }
+      if (!canLeave()) { win.minimize(); return; }
       win.hide();
-      notify('Shroudly', tr().trayMinimized);
+      notify('Shroudly', trayWanted() ? tr().trayMinimized : tr().trayHiddenRunning);
     }
   });
 }
@@ -769,7 +790,7 @@ app.whenReady().then(async () => {
   if (afterUpdate !== undefined) store.delete('afterUpdate');
   const how = Launch.startWindow({
     autoStart: isAutoStartLaunch(), minimizeToTray: store.get('minimizeToTray', true),
-    afterUpdate: Launch.isUpdateRelaunch(afterUpdate, appVersion()) ? afterUpdate : null, trayShown: trayVisible,
+    afterUpdate: Launch.isUpdateRelaunch(afterUpdate, appVersion()) ? afterUpdate : null, trayShown: canLeave(),
   });
   if (how === 'tray') { setDockIcon(false); addLog('info', 'Auto-started in tray'); }
   else await createWindow({ show: true, minimised: how === 'minimised' });
@@ -892,7 +913,7 @@ ipcMain.on('window:maximize', () => {
   if (!windowAlive()) return;
   mainWindow.isMaximized() ? mainWindow.unmaximize() : mainWindow.maximize();
 });
-ipcMain.on('window:close', () => { if (windowAlive()) { if (trayVisible) mainWindow.hide(); else mainWindow.minimize(); } });
+ipcMain.on('window:close', () => { if (windowAlive()) { if (canLeave()) mainWindow.hide(); else mainWindow.minimize(); } });
 // Quit from the window itself, for desktops that show no tray icon.
 ipcMain.on('app:quit', () => { app.isQuitting = true; shutdownAndQuit(); });
 /* The interface reports use (throttled) and when it is listening. */
@@ -1451,6 +1472,7 @@ ipcMain.handle('settings:set', (e, key, value) => {
   if (ENGINE_SETTINGS.has(key)) scheduleEngineRestart();
   if (PROXY_SETTINGS.has(key)) { routing = null; scheduleProxyReapply(); scheduleSiteListCheck(5000); }
   if (key === 'language') rebuildTrayMenu();
+  if (key === 'showTrayIcon') setTrayIcon(value !== false);
   if (key === 'autoUpdate' && updater) updater.autoChanged();
   if (key === 'autoStart') {
     const ok = setAutoStart(value);

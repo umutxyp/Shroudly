@@ -174,6 +174,79 @@ function shape(buf, name) {
     `the next connection opens on its first try (${r.ms} ms)`);
   strict.close();
 
+  // A long-lived connection (a WebSocket, a long-poll): the server answers
+  // the first request, then the client sends more and the server says
+  // nothing for longer than a request may wait, and finally resets the idle
+  // connection. None of that is a cut: the filter would have acted on the
+  // first request, which was answered.
+  {
+    const socketServer = tls.createServer(testServerOptions(), (s) => {
+      let n = 0;
+      s.on('data', () => { if (n++ === 0) s.write('HTTP/1.1 101 Switching Protocols\r\nUpgrade: websocket\r\nConnection: Upgrade\r\n\r\n'); });
+      s.on('error', () => {});
+      setTimeout(() => { try { s.resetAndDestroy(); } catch {} }, 17500);
+    }).listen(0, '127.0.0.1');
+    await new Promise((r) => socketServer.once('listening', r));
+    const before = eng.out.length;
+    const raw = await socks(P, '127.0.0.1', socketServer.address().port);
+    const s = tls.connect({ socket: raw, servername: 'ws.socket.test', rejectUnauthorized: false });
+    let upgraded = false;
+    await new Promise((resolve) => {
+      s.on('secureConnect', () => s.write('GET /socket HTTP/1.1\r\nHost: ws.socket.test\r\nUpgrade: websocket\r\n\r\n'));
+      s.on('data', () => { if (!upgraded) { upgraded = true; s.write(Buffer.from([0x81, 0x05, 0x68, 0x65, 0x6c, 0x6c, 0x6f])); } });
+      s.on('error', resolve); s.on('close', resolve);
+      setTimeout(resolve, 20000);
+    });
+    s.destroy();
+    await sleep(800);
+    const cuts = eng.out.slice(before).split('\n').filter((l) => l.includes('"cut"'));
+    t.ok(upgraded && cuts.length === 0, `a long-lived connection's later silence and idle reset are not cuts (${cuts.join(' ') || 'none'})`);
+    socketServer.close();
+  }
+
+  // A ladder that gives up: whose doing was it? Told by the engine in the
+  // report, for the app to decide whether to say anything.
+  {
+    const blockedOf = (from, host) => eng.out.slice(from).split('\n').filter((l) => l.includes('"type":"blocked"') && l.includes(`"${host}"`)).map((l) => JSON.parse(l));
+    const tryHost = async (port, host) => {
+      const from = eng.out.length;
+      const raw = await socks(P, '127.0.0.1', port).catch(() => null);
+      if (raw) {
+        const s = tls.connect({ socket: raw, servername: host, rejectUnauthorized: false });
+        await new Promise((resolve) => { s.on('secureConnect', resolve); s.on('error', resolve); s.on('close', resolve); setTimeout(resolve, 20000); });
+        s.destroy();
+      }
+      await sleep(800);
+      return blockedOf(from, host)[0] || null;
+    };
+    // Resets every handshake, whatever it looks like.
+    const refuser = net.createServer((c) => { c.on('error', () => {}); c.once('data', () => c.resetAndDestroy()); }).listen(0, '127.0.0.1');
+    // Answers every handshake, once it is all in, with a TLS alert
+    // (handshake_failure), then closes: the server itself turning it down.
+    const alerter = net.createServer((c) => {
+      let buf = Buffer.alloc(0);
+      c.on('error', () => {});
+      c.on('data', (d) => {
+        buf = Buffer.concat([buf, d]);
+        if (shape(buf, 'alert.other.test') === null) return;
+        c.end(Buffer.from([0x15, 0x03, 0x03, 0x00, 0x02, 0x02, 0x28]));
+      });
+    }).listen(0, '127.0.0.1');
+    await Promise.all([refuser, alerter].map((x) => new Promise((r) => x.once('listening', r))));
+
+    // www.working.test answers through Shroudly...
+    const ok = await visit('normal', 'www.working.test');
+    t.ok(ok.got > BIG.length && ok.cut.length === 0, 'www.working.test loads');
+    // ...so a ladder giving up on another of its names says the site works.
+    const sub = await tryHost(refuser.address().port, 'api.working.test');
+    t.ok(sub && sub.site_ok === true && !sub.alert, `another name of a working site that refuses everything: reported with site_ok (${JSON.stringify(sub)})`);
+    const other = await tryHost(refuser.address().port, 'api.unrelated.test');
+    t.ok(other && !other.site_ok && !other.alert, `a name of a site never seen working: no site_ok (${JSON.stringify(other)})`);
+    const alerted = await tryHost(alerter.address().port, 'alert.other.test');
+    t.ok(alerted && alerted.alert === true && !alerted.site_ok, `a server answering every handshake with a TLS alert: reported with alert (${JSON.stringify(alerted)})`);
+    refuser.close(); alerter.close();
+  }
+
   // Real sites: no false alarms.
   const before = eng.out.length;
   const sites = ['discord.com', 'www.wikipedia.org', 'github.com', 'www.bbc.com', 'www.google.com', 'www.cloudflare.com'];
