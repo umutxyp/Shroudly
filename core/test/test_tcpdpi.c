@@ -9,7 +9,9 @@
  * (the three TTL bands and the unmeasurable case), the seqovl builder (sequence
  * moved back by the overlap, length and checksums correct) and the
  * fakedsplit / fakeddisorder builder (two real segments + one fake, order,
- * sequence numbers, TTLs and checksums).
+ * sequence numbers, TTLs and checksums), and the split of the real first
+ * segment (cut position inside the second-level label, two real segments with
+ * good checksums that reassemble to the original).
  */
 #include "../src/tcpdpi.h"
 #include <stdio.h>
@@ -225,11 +227,51 @@ static void test_fakedsplit(void) {
   CHECK(tcpdpi_build_fakedsplit4(segs, &ns, tmpl, 20, tmpl+20, 20, 1, seq, ttl, real, 40, 40, fake_ttl, 0, 0) == 0);
 }
 
+/* ───────── split of the real first segment ───────── */
+static int pos_in(const char *pre, const char *host) {
+  uint8_t buf[256]; int po = (int)strlen(pre), hl = (int)strlen(host);
+  memcpy(buf, pre, (size_t)po); memcpy(buf + po, host, (size_t)hl); memcpy(buf + po + hl, "tail", 4);
+  int pos = tcpdpi_split_pos(buf, po + hl + 4, po, hl);
+  return pos ? pos - po : -1;
+}
+static void test_split(void) {
+  CHECK(pos_in("hdr:", "remote-auth-gateway.discord.gg") == 23);  /* "...dis|cord.gg" */
+  CHECK(pos_in("hdr:", "discord.com") == 3);                       /* "dis|cord.com" */
+  CHECK(pos_in("hdr:", "discord.com.") == 3);                      /* trailing dot */
+  CHECK(pos_in("hdr:", "localhost") == 4);                         /* one label: its middle */
+  CHECK(pos_in("hdr:", "a.b.c") == 2);                             /* 1-char label: whole name */
+  CHECK(pos_in("hdr:", "x") == -1);                                /* too short to cut */
+  uint8_t b[8] = {0};
+  CHECK(tcpdpi_split_pos(b, 8, 0, 4) == 0);   /* name must not start the payload */
+  CHECK(tcpdpi_split_pos(b, 8, 4, 6) == 0);   /* name past the end */
+  CHECK(tcpdpi_split_pos(NULL, 8, 1, 4) == 0);
+
+  uint8_t tmpl[40]; mk_hdr(tmpl, 50000, 443, 0x18, 0);
+  uint8_t real[40]; for (int i=0;i<40;i++) real[i]=(uint8_t)(0x30+i);
+  uint32_t seq = 4294967290u; int split = 17, ttl = 64;  /* sequence wraps */
+  tcpdpi_seg segs[2]; int ns = 0;
+  CHECK(tcpdpi_build_split4(segs, &ns, tmpl, 20, tmpl+20, 20, 0x300, seq, ttl, real, 40, split) == 1);
+  CHECK(ns == 2 && !segs[0].is_fake && !segs[1].is_fake);
+  CHECK(rd32(segs[0].data + 24) == seq && segs[0].len == 40 + split);
+  CHECK(memcmp(segs[0].data + 40, real, split) == 0);
+  CHECK(rd32(segs[1].data + 24) == seq + (uint32_t)split && segs[1].len == 40 + 40 - split);
+  CHECK(memcmp(segs[1].data + 40, real + split, 40 - split) == 0);
+  for (int i=0;i<2;i++) {
+    CHECK(segs[i].data[8] == ttl);
+    CHECK(tcp_csum_ok(segs[i].data, segs[i].len, 20));
+    check_seg_ip(&segs[i]);
+  }
+  CHECK(rd16(segs[0].data + 4) != rd16(segs[1].data + 4));  /* distinct IP IDs */
+  CHECK(tcpdpi_build_split4(segs, &ns, tmpl, 20, tmpl+20, 20, 1, seq, ttl, real, 40, 0) == 0);
+  CHECK(tcpdpi_build_split4(segs, &ns, tmpl, 20, tmpl+20, 20, 1, seq, ttl, real, 40, 40) == 0);
+}
+
 int main(void) {
   test_rst();
   test_hops();
   test_seqovl();
   test_fakedsplit();
+  test_split();
   if (fails == 0) { printf("ALL TCPDPI TESTS PASSED\n"); return 0; }
   printf("%d FAILED\n", fails); return 1;
 }

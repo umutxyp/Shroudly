@@ -16,11 +16,12 @@ function argval(a, flag) { const i = a.indexOf(flag); return i >= 0 ? a[i + 1] :
 
 const base = { fakeTtl: 4, statusFile: '/tmp/s.log', parentPid: 123, queueNum: 200 };
 
-// Defaults (Linux): drop-rst and autottl on, plain fake decoy, seqovl off.
+// Defaults (Linux): drop-rst, autottl and the split on, plain fake decoy, seqovl off.
 const dLinux = buildAdvancedArgs({ ...base, platform: 'linux' });
 t.ok(argval(dLinux, '--drop-rst') === '1', `default drop-rst on -> ${argval(dLinux, '--drop-rst')}`);
 t.ok(argval(dLinux, '--autottl') === '1', `default autottl on -> ${argval(dLinux, '--autottl')}`);
 t.ok(argval(dLinux, '--seqovl') === '0', `default seqovl off -> ${argval(dLinux, '--seqovl')}`);
+t.ok(argval(dLinux, '--split') === '1', `default split on -> ${argval(dLinux, '--split')}`);
 t.ok(argval(dLinux, '--desync-mode') === 'fake', `default mode fake -> ${argval(dLinux, '--desync-mode')}`);
 t.ok(argval(dLinux, '--fake-ttl') === '4', 'fake-ttl passed');
 t.ok(dLinux.includes('--queue') && argval(dLinux, '--queue') === '200', 'linux passes the queue number');
@@ -28,11 +29,12 @@ t.ok(dLinux.includes('--queue') && argval(dLinux, '--queue') === '200', 'linux p
 // Windows: no --queue.
 const dWin = buildAdvancedArgs({ ...base, platform: 'win32' });
 t.ok(!dWin.includes('--queue'), 'windows omits the queue number');
-t.ok(argval(dWin, '--drop-rst') === '1' && argval(dWin, '--autottl') === '1', 'windows carries the protections too');
+t.ok(argval(dWin, '--drop-rst') === '1' && argval(dWin, '--autottl') === '1' && argval(dWin, '--split') === '1', 'windows carries the protections too');
 
 // Overrides: everything switchable.
 const ov = buildAdvancedArgs({ ...base, platform: 'linux',
-  opts: { dropRst: false, autottl: false, seqovl: 681, desyncMode: 'fakeddisorder' } });
+  opts: { dropRst: false, autottl: false, seqovl: 681, split: false, desyncMode: 'fakeddisorder' } });
+t.ok(argval(ov, '--split') === '0', 'split can be switched off');
 t.ok(argval(ov, '--drop-rst') === '0', 'drop-rst can be switched off');
 t.ok(argval(ov, '--autottl') === '0', 'autottl can be switched off');
 t.ok(argval(ov, '--seqovl') === '681', `seqovl configurable -> ${argval(ov, '--seqovl')}`);

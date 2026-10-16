@@ -238,3 +238,37 @@ int tcpdpi_build_fakedsplit4(tcpdpi_seg segs[3], int *nsegs,
   *nsegs = 3;
   return 1;
 }
+
+int tcpdpi_split_pos(const uint8_t *payload, int plen, int host_off, int host_len) {
+  if (!payload || host_off < 1 || host_len < 2 || host_off + host_len > plen) return 0;
+  const uint8_t *h = payload + host_off;
+  int end = host_len;
+  if (h[end - 1] == '.') end--;             /* a fully qualified "name." */
+  int last = -1, prev = -1;
+  for (int i = 0; i < end; i++) if (h[i] == '.') { prev = last; last = i; }
+  int s = 0, e = end;                       /* the second-level label ... */
+  if (last > 0) { s = prev + 1; e = last; }
+  if (e - s < 2) { s = 0; e = host_len; }   /* ... or the whole name */
+  int pos = host_off + s + (e - s) / 2;
+  return (pos >= 1 && pos < plen) ? pos : 0;
+}
+
+int tcpdpi_build_split4(tcpdpi_seg segs[2], int *nsegs,
+                        const uint8_t *ip_tmpl, int ihl,
+                        const uint8_t *tcp_tmpl, int tcphl,
+                        uint16_t ip_id, uint32_t seq, int ttl,
+                        const uint8_t *real, int real_len, int split_pos) {
+  if (!segs || !nsegs || !real) return 0;
+  if (real_len < 2 || real_len > TCPDPI_SEG_MAX) return 0;
+  if (split_pos < 1 || split_pos >= real_len) return 0;
+  int a = tcpdpi_build_segment4(segs[0].data, sizeof segs[0].data, ip_tmpl, ihl, tcp_tmpl, tcphl,
+                                ip_id, seq, ttl, real, split_pos, 0);
+  int b = tcpdpi_build_segment4(segs[1].data, sizeof segs[1].data, ip_tmpl, ihl, tcp_tmpl, tcphl,
+                                (uint16_t)(ip_id + 1), seq + (uint32_t)split_pos, ttl,
+                                real + split_pos, real_len - split_pos, 0);
+  if (a <= 0 || b <= 0) return 0;
+  segs[0].len = a; segs[0].is_fake = 0;
+  segs[1].len = b; segs[1].is_fake = 0;
+  *nsegs = 2;
+  return 1;
+}

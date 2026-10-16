@@ -204,6 +204,16 @@ static int handle_outbound(const uint8_t *pkt, int len, int ihl, int tcphl, int 
                                  seq, otl, pkt + poff, plen, g_cfg.seqovl, g_cfg.seqovl_pattern);
     if (n > 0) { g_ipid++; raw_send(out, n, addr); return 1; }
   }
+  if (g_cfg.split) {
+    int pos = tcpdpi_split_pos(pkt + poff, plen, pi->host_off, pi->host_len);
+    tcpdpi_seg segs[2]; int ns = 0;
+    if (pos > 0 && tcpdpi_build_split4(segs, &ns, pkt, ihl, pkt + ihl, tcphl, g_ipid, seq, otl,
+                                       pkt + poff, plen, pos)) {
+      g_ipid += 2;
+      for (int i = 0; i < ns; i++) raw_send(segs[i].data, segs[i].len, addr);
+      return 1;
+    }
+  }
   return 0;
 }
 
@@ -251,8 +261,8 @@ int raw_windows_start(const raw_config *cfg) {
   }
 
   g_run = 1;
-  printf("{\"type\":\"raw_ready\",\"backend\":\"windivert\",\"ttl\":%d,\"drop_rst\":%d,\"autottl\":%d,\"seqovl\":%d,\"mode\":%d,\"quic_block\":%d,\"udp_fake\":%d}\n",
-         g_cfg.fake_ttl, g_cfg.drop_rst, g_cfg.autottl, g_cfg.seqovl, g_cfg.desync_mode, g_quic_block, g_udp_fake);
+  printf("{\"type\":\"raw_ready\",\"backend\":\"windivert\",\"ttl\":%d,\"drop_rst\":%d,\"autottl\":%d,\"seqovl\":%d,\"split\":%d,\"mode\":%d,\"quic_block\":%d,\"udp_fake\":%d}\n",
+         g_cfg.fake_ttl, g_cfg.drop_rst, g_cfg.autottl, g_cfg.seqovl, g_cfg.split, g_cfg.desync_mode, g_quic_block, g_udp_fake);
   fflush(stdout);
 
   uint8_t pkt[65535];

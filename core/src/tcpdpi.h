@@ -127,4 +127,28 @@ int tcpdpi_build_fakedsplit4(tcpdpi_seg segs[3], int *nsegs,
                              int split_pos, int fake_ttl, uint8_t pattern,
                              int disorder);
 
+/* ───────── split of the real first segment (zapret fake,multisplit midsld) ─────────
+ * The plain decoy sends the real ClientHello unchanged after the fake, so a DPI
+ * the fake does not fool still reads the whole name in one segment. The proxy's
+ * techniques that open sites on Turkish networks all cut that name (split,
+ * disorder, TLS record split); this is the packet-layer cut, for programs that
+ * ignore the proxy and so get only what Advanced mode does to their packets.
+ *
+ * tcpdpi_split_pos: where to cut a payload whose SNI / Host value is
+ * payload[host_off, host_off+host_len) — in the middle of the second-level
+ * label ("dis|cord" in remote-auth-gateway.discord.gg), so neither segment
+ * holds the name a censor matches on; the middle of the whole name when there
+ * is no such label. Returns an offset in [1, plen), or 0 when there is no
+ * usable name (the caller leaves the packet whole). */
+int tcpdpi_split_pos(const uint8_t *payload, int plen, int host_off, int host_len);
+
+/* The real payload as two real segments, real[0,split) at seq then
+ * real[split,n) at seq+split, both with `ttl` and a good checksum. Fills
+ * segs[0..1] and *nsegs (always 2). Returns 1, or 0 on error. */
+int tcpdpi_build_split4(tcpdpi_seg segs[2], int *nsegs,
+                        const uint8_t *ip_tmpl, int ihl,
+                        const uint8_t *tcp_tmpl, int tcphl,
+                        uint16_t ip_id, uint32_t seq, int ttl,
+                        const uint8_t *real, int real_len, int split_pos);
+
 #endif
