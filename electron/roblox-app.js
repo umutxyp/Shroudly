@@ -2,7 +2,9 @@
 
 /*
  * Where Roblox is on this machine, whether it is running, and how to start,
- * restart or install it so that it goes through Shroudly.
+ * restart or install it so that it goes through Shroudly. Roblox makes two
+ * programs, each with its own installer: the player games run in, and Studio,
+ * the editor games are made in. Both read the setting the same way.
  *
  * Roblox ignores the system proxy and reads HTTPS_PROXY (app-env.js) once,
  * when it starts, from whoever started it. On Windows that is the catch: the
@@ -32,14 +34,24 @@ const localAppData = () => process.env.LOCALAPPDATA || path.join(os.homedir(), '
  * be started with the setting. */
 const BOOTSTRAPPERS = ['Bloxstrap', 'Fishstrap'];
 
-/* Installed copies of the player, newest first. macOS: the app bundle.
- * Windows: the player in each version folder, Roblox's own and the
- * bootstrappers' (Roblox keeps the current one, and sometimes an older one it
- * has not cleaned up yet). */
-function installs(platform = process.platform) {
+/* The two programs: what each is called on disk and in the process list,
+ * the version Roblox's servers name as current for its installer, and the
+ * link the website starts it with. */
+const KINDS = {
+  player: { exe: 'RobloxPlayerBeta.exe', apps: ['Roblox.app', 'RobloxPlayer.app'], mac: 'RobloxPlayer', channel: 'WindowsPlayer', installer: 'RobloxPlayerInstaller.exe', link: 'roblox-player' },
+  studio: { exe: 'RobloxStudioBeta.exe', apps: ['RobloxStudio.app'], mac: 'RobloxStudio', channel: 'WindowsStudio64', installer: 'RobloxStudioInstaller.exe', link: 'roblox-studio' },
+};
+const kindOf = (k) => KINDS[k] || KINDS.player;
+
+/* Installed copies, newest first. macOS: the app bundle. Windows: the
+ * program in each version folder, Roblox's own and the bootstrappers'
+ * (Roblox keeps the current one, and sometimes an older one it has not
+ * cleaned up yet). */
+function installs(platform = process.platform, kind = 'player') {
+  const k = kindOf(kind);
   if (platform === 'darwin') {
     return ['/Applications', path.join(os.homedir(), 'Applications')]
-      .flatMap((d) => ['Roblox.app', 'RobloxPlayer.app'].map((a) => path.join(d, a)))
+      .flatMap((d) => k.apps.map((a) => path.join(d, a)))
       .filter((p) => exists(p));
   }
   if (platform === 'win32') {
@@ -52,7 +64,7 @@ function installs(platform = process.platform) {
       let dirs = [];
       try { dirs = fs.readdirSync(root); } catch { continue; }
       for (const d of dirs) {
-        const exe = path.join(root, d, 'RobloxPlayerBeta.exe');
+        const exe = path.join(root, d, k.exe);
         const st = exists(exe);
         if (st) found.push({ exe, t: st.mtimeMs });
       }
@@ -62,27 +74,29 @@ function installs(platform = process.platform) {
   return [];
 }
 
-function installed() { return installs().length > 0; }
+function installed(kind = 'player') { return installs(process.platform, kind).length > 0; }
 
-/* The program Windows runs for the website's Play button: Roblox's player, or
- * a bootstrapper that took the link over. */
-async function handler() {
+/* The program Windows runs for the website's link (Play, or Edit for
+ * Studio): Roblox's own, or a bootstrapper that took the link over. */
+async function handler(kind = 'player') {
   if (process.platform !== 'win32') return null;
-  const out = await run('reg', ['query', 'HKCU\\Software\\Classes\\roblox-player\\shell\\open\\command', '/ve']);
+  const out = await run('reg', ['query', `HKCU\\Software\\Classes\\${kindOf(kind).link}\\shell\\open\\command`, '/ve']);
   const m = /REG_(?:EXPAND_)?SZ\s+(?:"([^"]+\.exe)"|(\S+\.exe))/i.exec(out);
   const exe = m ? (m[1] || m[2]) : null;
   return exe && exists(exe) ? exe : null;
 }
 
 /* What to start for "Open Roblox": the bootstrapper if one handles Roblox's
- * links (it starts the player itself), else the newest player. */
-async function launcher() {
-  if (process.platform === 'darwin') { const app = installs()[0]; return app ? { exe: 'open', args: ['-a', app] } : null; }
+ * links (it starts the player itself), else the newest player. For Studio,
+ * the newest Studio itself (it updates itself when it starts). */
+async function launcher(kind = 'player') {
+  const k = kindOf(kind);
+  if (process.platform === 'darwin') { const app = installs('darwin', kind)[0]; return app ? { exe: 'open', args: ['-a', app] } : null; }
   if (process.platform !== 'win32') return null;
-  const h = await handler();
-  if (h && BOOTSTRAPPERS.some((b) => path.basename(h).toLowerCase() === `${b.toLowerCase()}.exe`)) return { exe: h, args: ['-player'] };
-  const player = installs()[0] || (h && /robloxplayerbeta\.exe$/i.test(h) ? h : null);
-  return player ? { exe: player, args: [] } : null;
+  const h = await handler(kind);
+  if (kind === 'player' && h && BOOTSTRAPPERS.some((b) => path.basename(h).toLowerCase() === `${b.toLowerCase()}.exe`)) return { exe: h, args: ['-player'] };
+  const own = installs('win32', kind)[0] || (h && path.basename(h).toLowerCase() === k.exe.toLowerCase() ? h : null);
+  return own ? { exe: own, args: [] } : null;
 }
 
 /* The Microsoft Store edition runs inside an app container, which cannot
@@ -95,21 +109,24 @@ async function storeEdition() {
   return /yes/.test(out);
 }
 
-/* Process ids of Roblox's player: the program a game runs in, the one that
- * is restarted through Shroudly and the one an update waits for. Its name is
- * the same for Roblox's own copy and the bootstrappers' (they start the same
- * RobloxPlayerBeta.exe). Nothing else whose name starts with "Roblox" counts:
- * not Studio, not the crash handler that runs beside the player, not the
- * installer, not other people's tools (account managers, FPS unlockers). */
-const PLAYER = { win32: 'RobloxPlayerBeta.exe', darwin: 'RobloxPlayer' };
-function parsePids(out, platform = process.platform) {
-  if (platform === 'win32') return [...String(out || '').matchAll(/^"RobloxPlayerBeta\.exe","(\d+)"/gmi)].map((m) => Number(m[1]));
+/* Process ids of Roblox's player (the program a game runs in) or of Studio:
+ * the programs whose route is watched and the ones an update waits for. The
+ * player's name is the same for Roblox's own copy and the bootstrappers'
+ * (they start the same RobloxPlayerBeta.exe). Nothing else whose name starts
+ * with "Roblox" counts: not the crash handler that runs beside them, not the
+ * installers, not other people's tools (account managers, FPS unlockers). */
+function parsePids(out, platform = process.platform, kind = 'player') {
+  if (platform === 'win32') {
+    const name = kindOf(kind).exe.replace(/\./g, '\\.');
+    return [...String(out || '').matchAll(new RegExp(`^"${name}","(\\d+)"`, 'gmi'))].map((m) => Number(m[1]));
+  }
   return String(out || '').split(/\s+/).filter((x) => /^\d+$/.test(x)).map(Number);
 }
 
-async function pids() {
-  if (process.platform === 'win32') return parsePids(await run('tasklist', ['/FI', `IMAGENAME eq ${PLAYER.win32}`, '/NH', '/FO', 'CSV']), 'win32');
-  if (process.platform === 'darwin') return parsePids(await run('pgrep', ['-x', PLAYER.darwin]), 'darwin');
+async function pids(kind = 'player') {
+  const k = kindOf(kind);
+  if (process.platform === 'win32') return parsePids(await run('tasklist', ['/FI', `IMAGENAME eq ${k.exe}`, '/NH', '/FO', 'CSV']), 'win32', kind);
+  if (process.platform === 'darwin') return parsePids(await run('pgrep', ['-x', k.mac]), 'darwin', kind);
   return [];
 }
 
@@ -159,20 +176,22 @@ function detached(cmd, args, env) {
   } catch { return false; }
 }
 
-/* Start Roblox. `env` is what it should get on Windows; on macOS it is
- * started by the system, whose environment already has the setting. */
-async function open(env) {
-  const l = await launcher();
+/* Start Roblox (or Studio). `env` is what it should get on Windows; on
+ * macOS it is started by the system, whose environment already has the
+ * setting. */
+async function open(env, kind = 'player') {
+  const l = await launcher(kind);
   if (!l) return false;
   return detached(l.exe, l.args, process.platform === 'win32' ? { ...process.env, ...env } : process.env);
 }
 
-/* Quit Roblox and open it again, through Shroudly. */
+/* Quit the player and open it again, through Shroudly. Never Studio: it
+ * may hold work that is not saved, so it is only ever closed by the user. */
 async function restart(env) {
   const before = await pids();
   if (process.platform === 'darwin') {
-    await run('pkill', ['-x', PLAYER.darwin]);
-    if (!(await waitGone(before, 8000))) { await run('pkill', ['-9', '-x', PLAYER.darwin]); await waitGone(before, 3000); }
+    await run('pkill', ['-x', KINDS.player.mac]);
+    if (!(await waitGone(before, 8000))) { await run('pkill', ['-9', '-x', KINDS.player.mac]); await waitGone(before, 3000); }
   } else if (process.platform === 'win32') {
     if (before.length) await run('taskkill', [...before.flatMap((p) => ['/PID', String(p)]), '/T', '/F']);
     await waitGone(before, 5000);
@@ -184,8 +203,8 @@ async function restart(env) {
 /* The same two requests Roblox's own website makes: which version is current,
  * then that version's installer. Fetched through the engine (Roblox's servers
  * are what is filtered), checked to be signed by Roblox, then started with the
- * setting, so the installer and the player it installs go through Shroudly. */
-const VERSION_URL = 'https://clientsettingscdn.roblox.com/v2/client-version/WindowsPlayer';
+ * setting, so the installer and the program it installs go through Shroudly. */
+const versionUrl = (kind) => `https://clientsettingscdn.roblox.com/v2/client-version/${kindOf(kind).channel}`;
 const ALLOWED_HOSTS = /(^|\.)(roblox\.com|rbxcdn\.com)$/i;
 const MAX_BYTES = 128 * 1024 * 1024;
 
@@ -289,29 +308,31 @@ function cleanDownloads(dir) {
   for (const n of names) { try { fs.rmSync(path.join(dir, n), { recursive: true, force: true }); } catch {} }
 }
 
-function newDownload(dir) {
+function newDownload(dir, kind = 'player') {
   fs.mkdirSync(dir, { recursive: true });
   cleanDownloads(dir);
   const own = fs.mkdtempSync(path.join(dir, 'dl-'));
-  const file = path.join(own, 'RobloxPlayerInstaller.exe');
+  const file = path.join(own, kindOf(kind).installer);
   return { dir: own, file, part: `${file}.part` };
 }
 
-/* Download Roblox's current installer and start it with `env`.
- * opts: { socksPort, connect, env, dir }. Resolves { success, code }. */
+/* Download the current installer of the player (opts.kind 'player', the
+ * default) or of Studio ('studio') and start it with `env`.
+ * opts: { kind, socksPort, connect, env, dir }. Resolves { success, code }. */
 async function install(opts) {
   if (process.platform !== 'win32') return { success: false, code: 'unsupported' };
+  const kind = KINDS[opts.kind] ? opts.kind : 'player';
   let version;
   try {
-    const r = await get(VERSION_URL, { socksPort: opts.socksPort, connect: opts.connect, timeoutMs: 20000 });
+    const r = await get(versionUrl(kind), { socksPort: opts.socksPort, connect: opts.connect, timeoutMs: 20000 });
     version = JSON.parse(r.body).clientVersionUpload;
   } catch (e) { return { success: false, code: 'unreachable', detail: e.message }; }
   if (!/^version-[0-9a-f]{8,32}$/i.test(String(version || ''))) return { success: false, code: 'unreachable', detail: 'unexpected version' };
   let dl;
-  try { dl = newDownload(opts.dir); } catch (e) { return { success: false, code: 'failed', detail: e.message }; }
+  try { dl = newDownload(opts.dir, kind); } catch (e) { return { success: false, code: 'failed', detail: e.message }; }
   const drop = () => { try { fs.rmSync(dl.dir, { recursive: true, force: true }); } catch {} };
   try {
-    await get(`https://setup.rbxcdn.com/${version}-RobloxPlayerInstaller.exe`, { socksPort: opts.socksPort, connect: opts.connect, toFile: dl.part, timeoutMs: 180000 });
+    await get(`https://setup.rbxcdn.com/${version}-${kindOf(kind).installer}`, { socksPort: opts.socksPort, connect: opts.connect, toFile: dl.part, timeoutMs: 180000 });
   } catch (e) { drop(); return { success: false, code: 'unreachable', detail: e.message }; }
   // Checked under its own name, in its own folder: Windows tells what kind
   // of file it is judging partly by the extension, and nothing starts it
@@ -326,4 +347,4 @@ async function install(opts) {
 const ROBLOX_HOST = /(^|\.)(roblox\.com|rbxcdn\.com|rbxinfra\.net|rbx\.com|robloxlabs\.com)$/i;
 function isRobloxHost(h) { return ROBLOX_HOST.test(String(h || '')); }
 
-module.exports = { installs, installed, handler, launcher, storeEdition, pids, parsePids, routeWatched, silentPlayers, alive, open, restart, install, cleanDownloads, newDownload, isRobloxHost, get, signedByRoblox, BOOTSTRAPPERS, BYPASS_GRACE_MS };
+module.exports = { installs, installed, handler, launcher, storeEdition, pids, parsePids, routeWatched, silentPlayers, alive, open, restart, install, cleanDownloads, newDownload, isRobloxHost, get, signedByRoblox, BOOTSTRAPPERS, BYPASS_GRACE_MS, KINDS };
