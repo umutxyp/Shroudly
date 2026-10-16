@@ -7,7 +7,7 @@
 const path = require('path');
 const { ROOT, suite } = require('./helpers');
 
-const { linuxInstallCommand, buildArgs, buildAdvancedArgs } = require(path.join(ROOT, 'electron', 'advanced-mode.js'));
+const { linuxInstallCommand, buildArgs, buildAdvancedArgs, winQuoteArg } = require(path.join(ROOT, 'electron', 'advanced-mode.js'));
 const t = suite('advanced');
 
 /* The new packet-layer flags must reach the privileged engine as argv, with the
@@ -105,4 +105,34 @@ t.ok(rep.join(' ').includes('--fake-repeats 8'), 'fakeRepeats:8 -> --fake-repeat
 t.ok(!buildArgs({ ...ubase, platform: 'win32' }).includes('--fake-repeats'), 'no fakeRepeats -> no flag');
 t.ok(!buildArgs({ ...ubase, platform: 'win32', fakeRepeats: 0 }).includes('--fake-repeats'), 'fakeRepeats:0 -> no flag');
 
+// The elevated engine's arguments on Windows, read back the way Windows reads
+// a command line (CommandLineToArgvW's rules): exactly what was given, spaces,
+// quotes and backslashes included.
+function windowsArgv(line) {
+  const out = [];
+  let i = 0;
+  while (i < line.length) {
+    while (line[i] === ' ' || line[i] === '\t') i++;
+    if (i >= line.length) break;
+    let arg = '', quoted = false;
+    while (i < line.length && (quoted || (line[i] !== ' ' && line[i] !== '\t'))) {
+      if (line[i] === '\\') {
+        let n = 0;
+        while (line[i] === '\\') { n++; i++; }
+        if (line[i] === '"') { arg += '\\'.repeat(n >> 1); if (n & 1) { arg += '"'; i++; } }
+        else arg += '\\'.repeat(n);
+      } else if (line[i] === '"') { quoted = !quoted; i++; }
+      else arg += line[i++];
+    }
+    out.push(arg);
+  }
+  return out;
+}
+{
+  const tricky = ['--status-file', 'C:\\Users\\Jane Doe\\AppData\\Local\\Temp\\shroudly-adv-x\\status.log',
+    'C:\\dir with space\\', 'say "hi"', 'a\\"b', 'back\\\\"slash', '', 'plain', 'tab\there', '\\\\server\\share\\'];
+  const back = windowsArgv(tricky.map(winQuoteArg).join(' '));
+  t.ok(JSON.stringify(back) === JSON.stringify(tricky), `elevated engine arguments survive Windows' own parsing (${tricky.length} awkward ones)`);
+  t.ok(winQuoteArg('plain') === 'plain' && winQuoteArg('') === '""', 'plain arguments are left alone, an empty one is kept');
+}
 console.log(`advanced: ${t.count} passed`);
