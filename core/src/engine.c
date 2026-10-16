@@ -72,6 +72,7 @@
 #define ATT_REFUSED 0   /* reset or closed: the connection was refused */
 #define ATT_SILENT  2   /* nothing came back at all: could be a slow server */
 #define ATT_LOCAL  (-1) /* our own send failed */
+#define ATT_ALERT   3   /* (TLS) the far end answered with an alert: refused, but by a TLS speaker */
 
 static engine_config  g_cfg;
 static engine_stats   g_stats;
@@ -205,6 +206,55 @@ static int site_of(const char *h, char *out, size_t cap) {
 /* The site to keep alongside h, if it is not h itself. */
 static int site_key(const char *h, char *out, size_t cap) {
   return site_of(h, out, cap) && strcmp(out, h) != 0;
+}
+
+/* age_ms, used before its definition below. */
+static uint64_t age_ms(uint64_t now, uint64_t t);
+
+/* ── sites seen working ─────────────────────────────────────────────────
+ * A connection to some name of a site that answered a request and was never
+ * cut shows the site works through Shroudly. A ladder that gives up on
+ * another of its names soon after is about that name alone (an API, a
+ * tracker or a WebSocket that turns this client away): not the network
+ * blocking the site, and the report says so, so the app does not raise an
+ * alarm over a page that loads. Keyed by site, or by the name itself where it
+ * has none (an address, a name under a shared suffix). */
+#define OK_SLOTS     128
+#define OK_RECENT_MS (10 * 60 * 1000)
+static struct { char site[256]; uint64_t t; } g_ok[OK_SLOTS];
+static mutex_t g_ok_mx;
+
+static void ok_key(const char *h, char *out, size_t cap) {
+  if (!site_of(h, out, cap)) { strncpy(out, h, cap - 1); out[cap - 1] = 0; }
+}
+
+static void ok_put(const char *h) {
+  char k[256];
+  ok_key(h, k, sizeof(k));
+  if (!k[0]) return;
+  uint64_t now = now_ms();
+  mutex_lock(&g_ok_mx);
+  int slot = 0;
+  for (int i = 0; i < OK_SLOTS; i++) {
+    if (g_ok[i].site[0] && strcmp(g_ok[i].site, k) == 0) { slot = i; break; }
+    if (g_ok[i].t < g_ok[slot].t) slot = i;   /* else the oldest (or an empty one) */
+  }
+  memcpy(g_ok[slot].site, k, strlen(k) + 1);
+  g_ok[slot].t = now;
+  mutex_unlock(&g_ok_mx);
+}
+
+static int ok_recent(const char *h) {
+  char k[256];
+  ok_key(h, k, sizeof(k));
+  if (!k[0]) return 0;
+  int yes = 0;
+  mutex_lock(&g_ok_mx);
+  uint64_t now = now_ms();
+  for (int i = 0; i < OK_SLOTS; i++)
+    if (g_ok[i].site[0] && strcmp(g_ok[i].site, k) == 0) { yes = age_ms(now, g_ok[i].t) < OK_RECENT_MS; break; }
+  mutex_unlock(&g_ok_mx);
+  return yes;
 }
 
 /* ── per-host learned strategy (auto-probe cache) ───────────────────────── */
@@ -897,12 +947,19 @@ static sock_t dial(const char *host, uint16_t port, int prefer6, int use_doh,
  *   noreply — the browser sent a request and nothing at all came back.
  *             Weakest of the three (a long-poll looks the same); the app
  *             needs more of these before it believes them.
+ * A filter acts on a connection's first request: it lets the handshake through
+ * and stops what follows. Once the server has answered a request on the
+ * connection (application data back after the client's own), the connection
+ * is past that point, and what a long-lived one does later is its own
+ * business: a WebSocket or a long-poll sends and waits as long as it likes,
+ * and its server closes it when idle. From then on only a stall mid-record
+ * counts (a filter that freezes a transfer after so many bytes).
  * Each connection reports at most once; the app decides from several. */
 #define CUT_MAX_BYTES  (64 * 1024)
 #define CUT_STALL_MS   8000
 #define CUT_NOREPLY_MS 15000
 
-typedef struct { int have; uint8_t hdr[5]; uint32_t left; int lost; } tls_track;
+typedef struct { int have; uint8_t hdr[5]; uint32_t left; int lost; uint32_t apps; } tls_track;
 
 /* Follow the server's TLS record boundaries. */
 static void tls_follow(tls_track *t, const uint8_t *p, int n) {
@@ -914,6 +971,7 @@ static void tls_follow(tls_track *t, const uint8_t *p, int n) {
       if (t->have == 5) {
         t->have = 0;
         if (t->hdr[0] < 20 || t->hdr[0] > 24 || t->hdr[1] != 3) { t->lost = 1; return; }
+        if (t->hdr[0] == 23) t->apps++;          /* application data */
         t->left = ((uint32_t)t->hdr[3] << 8) | t->hdr[4];
       }
     } else {
@@ -939,7 +997,10 @@ typedef struct {
    * filter that resets a connection it has been swallowing for a while would
    * otherwise be taken for one that cuts working ones. */
   int gave_up;
-  tls_track tt;
+  tls_track tt;       /* the server's records */
+  tls_track ct;       /* the client's records */
+  int answered;       /* the server has answered a request after the handshake */
+  int site_marked;    /* ok_put done for it */
 } cut_watch;
 
 static void report(const char *ev, const char *host, const char *strat, int attempts, int fam,
@@ -958,10 +1019,10 @@ static void relay(sock_t a, sock_t b, cut_watch *cw) {
     t = now_ms();
     if (cw && cw->host && !reported && cw->down < CUT_MAX_BYTES && (cw->down > 0 || !cw->gave_up)) {
       if (tls_mid_record(&cw->tt) && t - last_down >= CUT_STALL_MS) {
-        report("cut", cw->host, "stall", (int)(cw->down / 1024), cw->fam, NULL); reported = 1;
+        report("cut", cw->host, "stall", (int)(cw->down / 1024), cw->fam, ok_recent(cw->host) ? "site_ok" : NULL); reported = 1;
         hs_on_cut(cw->host);
-      } else if (waiting_since && t - waiting_since >= CUT_NOREPLY_MS) {
-        report("cut", cw->host, "noreply", (int)(cw->down / 1024), cw->fam, NULL); reported = 1;
+      } else if (waiting_since && !cw->answered && t - waiting_since >= CUT_NOREPLY_MS) {
+        report("cut", cw->host, "noreply", (int)(cw->down / 1024), cw->fam, ok_recent(cw->host) ? "site_ok" : NULL); reported = 1;
       }
     }
     if (w == 0) continue;
@@ -971,6 +1032,7 @@ static void relay(sock_t a, sock_t b, cut_watch *cw) {
       if (sock_send_all(b, buf, (size_t)n, 0) != 0) break;
       atomic_fetch_add(&g_stats.bytes_up, (uint64_t)n);
       if (!waiting_since) waiting_since = t;   /* oldest request still unanswered */
+      if (cw) tls_follow(&cw->ct, buf, n);
     }
     if (w & 2) {
       int n = recv(b, (char *)buf, RELAY_BUF, 0);
@@ -983,17 +1045,28 @@ static void relay(sock_t a, sock_t b, cut_watch *cw) {
          * cut, and must not be reported as one or learned from. */
         if (n < 0 && sock_errno() == SE_CONNRESET && cw && cw->host && !reported &&
             cw->down < CUT_MAX_BYTES && (cw->down > 0 || !cw->gave_up) &&
-            (waiting_since || tls_mid_record(&cw->tt) || cw->down == 0))
-        { report("cut", cw->host, "reset", (int)(cw->down / 1024), cw->fam, NULL); hs_on_cut(cw->host); }
+            ((waiting_since && !cw->answered) || tls_mid_record(&cw->tt) || cw->down == 0))
+        { report("cut", cw->host, "reset", (int)(cw->down / 1024), cw->fam, ok_recent(cw->host) ? "site_ok" : NULL); hs_on_cut(cw->host); reported = 1; }
         break;
       }
       if (sock_send_all(a, buf, (size_t)n, 0) != 0) break;
       atomic_fetch_add(&g_stats.bytes_down, (uint64_t)n);
       last_down = t;
       waiting_since = 0;
-      if (cw) { cw->down += (uint64_t)n; tls_follow(&cw->tt, buf, n); }
+      if (cw) {
+        uint32_t apps = cw->tt.apps;
+        cw->down += (uint64_t)n;
+        tls_follow(&cw->tt, buf, n);
+        if (cw->ct.apps > 0 && cw->tt.apps > apps) cw->answered = 1;
+        /* Past the size a filter freezes a transfer at: this one got through. */
+        if (cw->host && cw->answered && !reported && cw->down >= CUT_MAX_BYTES && !cw->site_marked) {
+          ok_put(cw->host); cw->site_marked = 1;
+        }
+      }
     }
   }
+  /* A connection that answered a request and was never cut: the site works. */
+  if (cw && cw->host && cw->answered && !reported && !cw->site_marked) ok_put(cw->host);
   free(buf);
 }
 
@@ -1160,7 +1233,9 @@ static int attempt_send(sock_t up, int fam, uint8_t *payload, int pcap, int len,
 }
 
 /* Read the server's first bytes from a socket that has become readable: ATT_OK
- * with them left in `rbuf` and their length in `*rlen`, or ATT_REFUSED. */
+ * with them left in `rbuf` and their length in `*rlen`, or ATT_REFUSED —
+ * ATT_ALERT when (TLS) what came back was a well-formed alert: a refusal all
+ * the same, but one made by something that speaks TLS. */
 static int read_reply(sock_t up, const proto_info *pi, uint8_t *rbuf, int rcap, int *rlen) {
   *rlen = 0;
   int n = recv(up, (char *)rbuf, rcap, 0);
@@ -1173,7 +1248,8 @@ static int read_reply(sock_t up, const proto_info *pi, uint8_t *rbuf, int rcap, 
       if (m <= 0) break;
       n += m;
     }
-    if (!tls_reply_ok(rbuf, n)) return ATT_REFUSED;
+    if (!tls_reply_ok(rbuf, n))
+      return (n >= 7 && rbuf[0] == 0x15 && rbuf[1] == 0x03 && rbuf[3] == 0 && rbuf[4] == 2) ? ATT_ALERT : ATT_REFUSED;
   }
   *rlen = n;
   return ATT_OK;
@@ -1227,15 +1303,18 @@ typedef struct {
   int race;                /* the ladder raced the untouched request against a technique */
   int saw_refusal;         /* some attempt was refused */
   int plain_refused;       /* the untouched request was */
+  int plain_alert;         /* ... with a TLS alert */
+  int hard_refusals;       /* refusals that were not alerts: resets, closes, anything else */
   int first_failed;        /* the technique it opened with was refused, or (TLS) went unanswered */
   int made;                /* attempts that went out */
   int silent;              /* attempts whose wait ran out unanswered */
   legset L;
 } ladder_st;
 
-static void note_refused(ladder_st *st, const leg *g) {
+static void note_refused(ladder_st *st, const leg *g, int alert) {
   st->saw_refusal = 1;
-  if (g->cand == ATT_PLAIN) st->plain_refused = 1;
+  if (g->cand == ATT_PLAIN) { st->plain_refused = 1; if (alert) st->plain_alert = 1; }
+  if (!alert) st->hard_refusals++;
   if (g->idx == 0 && st->opened_learned) st->first_failed = 1;
 }
 
@@ -1251,8 +1330,9 @@ static int read_legs(ladder_st *st, const int *ready, uint8_t *rbuf, int rcap, i
   for (int i = 0; i < n; i++) {
     gone[i] = 0;
     if (!ready[i]) continue;
-    if (read_reply(L->l[i].s, st->pi, rbuf, rcap, rlen) == ATT_OK) { *win = i; return ATT_OK; }
-    note_refused(st, &L->l[i]);
+    int r = read_reply(L->l[i].s, st->pi, rbuf, rcap, rlen);
+    if (r == ATT_OK) { *win = i; return ATT_OK; }
+    note_refused(st, &L->l[i], r == ATT_ALERT);
     gone[i] = 1;
   }
   for (int i = n - 1; i >= 0; i--) {
@@ -1362,10 +1442,25 @@ static int race_head_ms(int rtt_ms) {
 
 /* The ladder's last word when nothing got through: "blocked" — unless every
  * attempt made failed in our own send, which says nothing about the network,
- * and is reported as that instead. made: the attempts that actually went out. */
-static void report_gave_up(const char *key, int made, int local_fails, int saw_refusal, int fam) {
-  if (made > 0 && local_fails == made) report("send_failed", key, "", made, fam, NULL);
-  else report("blocked", key, "", made, fam, saw_refusal ? NULL : "silent");
+ * and is reported as that instead. st->made: the attempts that actually went
+ * out. Two things the app needs to judge it come with it:
+ *   site_ok — another name of the same site answered requests through
+ *             Shroudly in the last OK_RECENT_MS: the site itself is not
+ *             blocked, this one name does not answer this client;
+ *   alert   — the untouched request was answered with a TLS alert and nothing
+ *             was ever reset or closed: the server turned the handshake down
+ *             itself (a client it does not accept, a name it does not serve). */
+static void report_gave_up(const ladder_st *st, int local_fails, int fam) {
+  if (st->made > 0 && local_fails == st->made) { report("send_failed", st->key, "", st->made, fam, NULL); return; }
+  char h[256];
+  json_host(h, sizeof(h), st->key);
+  int alert = st->plain_alert && st->hard_refusals == 0;
+  printf("{\"type\":\"blocked\",\"host\":\"%s\",\"strategy\":\"\",\"attempts\":%d,\"family\":\"%s\"%s%s%s}\n",
+         h, st->made, fam == AF_INET6 ? "ipv6" : "ipv4",
+         st->saw_refusal ? "" : ",\"note\":\"silent\"",
+         ok_recent(st->key) ? ",\"site_ok\":true" : "",
+         alert ? ",\"alert\":true" : "");
+  fflush(stdout);
 }
 
 /* Names that never resolve on the public internet (RFC 6761, 6762, 8375 and
@@ -1562,7 +1657,7 @@ static void handle(sock_t client) {
              * took a connection earlier in this same ladder, so it is not
              * unreachable: the ladder is simply over, the site is blocked, and
              * the attempt that never went out is not counted. */
-            report_gave_up(key, st.made, local_fails, st.saw_refusal, rep_fam);
+            report_gave_up(&st, local_fails, rep_fam);
             told = 1; gave_up = 1;
             break;
           }
@@ -1580,7 +1675,7 @@ static void handle(sock_t client) {
            * the ladder. Reset in the middle of going out is the network
            * refusing, like a reset in reply; any other failure is ours and
            * says nothing about the network either way. */
-          if (r == ATT_REFUSED) note_refused(&st, &cur);
+          if (r == ATT_REFUSED) note_refused(&st, &cur, 0);
           else local_fails++;
           sock_close(cur.s);
         } else {
@@ -1606,7 +1701,7 @@ static void handle(sock_t client) {
           /* Nothing got through. This line is what a support log needs: the
            * host, how many techniques were tried, which address family was
            * used, and whether the network refused them or dropped them. */
-          report_gave_up(key, st.made, local_fails, st.saw_refusal, rep_fam);
+          report_gave_up(&st, local_fails, rep_fam);
           told = 1; gave_up = 1;
           break;
         }
@@ -1707,6 +1802,7 @@ int engine_start(const engine_config *cfg) {
   memset(&g_stats, 0, sizeof(g_stats));
   mutex_init(&g_hs_mx);
   mutex_init(&g_unreach_mx);
+  mutex_init(&g_ok_mx);
   mutex_init(&g_win_mx);
   doh_init(cfg->doh_host, cfg->doh_ip);
 

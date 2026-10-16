@@ -232,6 +232,31 @@ async function record(label, pid) {
     if (process.env.CI) ok(await relaunch(true), 'left on by the user, then restarted: protection comes back on');
   }
 
+  // ── 7b. the notification-area icon hidden in Settings (issue #12):
+  //        closing the window leaves Shroudly running in the background, and
+  //        starting it again brings the window back ──
+  if (!BASELINE) {
+    const cfg = JSON.parse(fs.readFileSync(path.join(ud, 'config.json'), 'utf8'));
+    fs.writeFileSync(path.join(ud, 'config.json'), JSON.stringify({ ...cfg, autoMode: false, protectionOn: false, showTrayIcon: false }));
+    const bin = require(path.join(APP, 'node_modules', 'electron'));
+    const extra = process.platform === 'linux' ? ['--no-sandbox'] : [];
+    const a = await _electron.launch({ executablePath: bin, args: [APP, `--user-data-dir=${ud}`, ...extra], env, timeout: 60000 });
+    try {
+      const w = await a.firstWindow();
+      await w.waitForLoadState('domcontentloaded');
+      await w.evaluate(() => window.electron.closeWindow());
+      await sleep(2500);
+      const shown = () => a.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows().some((x) => x.isVisible()));
+      ok(!(await shown()) && !a.process().killed && a.process().exitCode === null, 'icon hidden: closing the window leaves Shroudly running in the background');
+      const second = require('child_process').spawn(bin, [APP, `--user-data-dir=${ud}`, ...extra], { env, stdio: 'ignore' });
+      await new Promise((r) => { second.once('exit', r); second.once('error', r); setTimeout(r, 30000); });
+      ok(!!(await until(shown, 20000, 300)), 'icon hidden: starting Shroudly again brings the window back');
+    } finally { await a.close().catch(() => {}); }
+    const after = JSON.parse(fs.readFileSync(path.join(ud, 'config.json'), 'utf8'));
+    delete after.showTrayIcon;
+    fs.writeFileSync(path.join(ud, 'config.json'), JSON.stringify(after));
+  }
+
   // ── 8. a desktop with no tray icons (stock GNOME): the window must never
   //       vanish, since nothing on screen could bring it back ──
   if (!BASELINE && process.platform === 'linux') {

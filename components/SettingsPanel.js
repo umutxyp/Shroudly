@@ -723,6 +723,7 @@ export default function SettingsPanel({ active = false }) {
         <div className="divide-y" style={{ borderColor: 'var(--line)' }}>
           <Toggle label={t('startOnBoot')} desc={t('startOnBootDesc')} checked={settings.autoStart} onChange={(v) => save('autoStart', v)} />
           <Toggle label={t('minimizeToTray')} desc={t('minimizeToTrayDesc')} checked={settings.minimizeToTray} onChange={(v) => save('minimizeToTray', v)} />
+          <Toggle label={t('showTrayIcon')} desc={t('showTrayIconDesc')} checked={settings.showTrayIcon !== false} onChange={(v) => save('showTrayIcon', v)} />
           <Toggle
             label={t('shareOnlineCount')}
             desc={t('shareOnlineCountDesc')}
