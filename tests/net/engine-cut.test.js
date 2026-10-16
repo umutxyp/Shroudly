@@ -172,6 +172,36 @@ function shape(buf, name) {
   r = await strictVisit();
   t.ok(r.got > BIG.length && r.desync === 1 && r.ms < 2000 && !r.bypass.length,
     `the next connection opens on its first try (${r.ms} ms)`);
+  // What an earlier run learned, given back at start (LEARN, as the app does
+  // from what it kept): a fresh engine opens the site on its first try, with
+  // no search, and reports nothing new. A name or technique it cannot use is
+  // ignored, never fatal.
+  {
+    const P2 = await freePort();
+    const eng2 = await startEngine(P2, ['--strategy', 'split(sni)', '--auto']);
+    eng2.proc.stdin.write(`LEARN ${PIECES} tlsrec-sni-mid 120\nLEARN bad_host! tlsrec-sni-mid 5\nLEARN fine.test.local no-such-technique 5\nLEARN 10.0.0.1 tlsrec-sni 5\n`);
+    await sleep(300);
+    const from = eng2.out.length;
+    const s0 = await eng2.stats();
+    const t0 = Date.now();
+    const raw = await socks(P2, '127.0.0.1', strict.address().port);
+    const s = tls.connect({ socket: raw, servername: PIECES, rejectUnauthorized: false });
+    let got = 0;
+    await new Promise((resolve) => {
+      s.on('secureConnect', () => s.write('GET / HTTP/1.1\r\nHost: x\r\n\r\n'));
+      s.on('data', (d) => { got += d.length; if (got > BIG.length) resolve(); });
+      s.on('error', resolve); s.on('close', resolve);
+      setTimeout(resolve, 18000);
+    });
+    const ms = Date.now() - t0;
+    s.destroy();
+    await sleep(300);
+    const s1 = await eng2.stats();
+    const news = eng2.out.slice(from).split('\n').filter((l) => l.includes('"type":"bypass"') || l.includes('"type":"blocked"'));
+    t.ok(got > BIG.length && s1.desync - s0.desync === 1 && ms < 2000 && !news.length && eng2.exited === null,
+      `a technique learned by an earlier run opens the site on the first try (${ms} ms, ${s1.desync - s0.desync} technique, no search)`);
+    eng2.stop();
+  }
   strict.close();
 
   // A long-lived connection (a WebSocket, a long-poll): the server answers

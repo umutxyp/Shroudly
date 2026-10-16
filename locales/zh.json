@@ -334,6 +334,7 @@
   "logSiteNoAnswer": "{host}：尝试 {tries} 种技术后仍无应答（{family}）——网络可能在悄悄丢弃这些连接，或者网站已宕机",
   "logSiteServerRefused": "{host}：服务器自己拒绝了连接（对未修改请求返回 TLS 警报）；不是封锁",
   "logSiteOthersWork": "{host}：没有响应，但网站其余部分通过 Shroudly 正常工作；不是封锁",
+  "logTechniquesRestored": "已恢复为 {count} 个网站记住的方法",
   "logProxyReplaced": "另一个程序更改了系统代理（{what}）：这部分流量已不再经由 Shroudly",
   "logLocalDns": "系统 DNS 是这台电脑上的一个程序：{programs}",
   "logDnsDead": "系统 DNS 没有应答任何测试域名。不经过 Shroudly 的程序无法访问任何内容；请检查 DNS 程序或网络设置。",

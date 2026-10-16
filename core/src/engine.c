@@ -1854,3 +1854,31 @@ void engine_stop(void) {
 
 /* Called by the probe subsystem to record a working strategy for a host. */
 void engine_learn(const char *host, int preset) { hs_put(host, preset); }
+
+/* What an earlier run learned (the app keeps it across restarts): a host, the
+ * technique by name, and how long ago it was learned. It is stored as that
+ * old, so one learned more than HS_VERIFY_MS ago is checked against the
+ * untouched request before it is relied on again, and one that no longer
+ * works is replaced by the ladder like any other. 0, or -1 for a name that
+ * is not a host, a technique this build does not have, or one that cannot
+ * do anything here. */
+int engine_restore(const char *host, const char *technique, uint64_t age) {
+  size_t n = strlen(host);
+  if (n == 0 || n > 253 || ip_literal(host)) return -1;
+  for (size_t i = 0; i < n; i++) {
+    char c = host[i];
+    if (!((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '.' || c == '-')) return -1;
+  }
+  int p = -1, np = strategy_preset_count();
+  for (int i = 0; i < np; i++) if (strcmp(strategy_preset(i)->name, technique) == 0) { p = i; break; }
+  if (p < 0 || !preset_usable(strategy_preset(p))) return -1;
+  hs_put(host, p);
+  uint64_t now = now_ms(), t = now > age ? now - age : 0;
+  char site[256];
+  mutex_lock(&g_hs_mx);
+  int i = hs_find(host);
+  if (i >= 0) g_hs[i].t = t;
+  if (site_key(host, site, sizeof(site)) && (i = hs_find(site)) >= 0) g_hs[i].t = t;
+  mutex_unlock(&g_hs_mx);
+  return 0;
+}

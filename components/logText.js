@@ -82,6 +82,7 @@ const PATTERNS = [
   [/^([A-Za-z0-9.:_-]+): no answer after (\d+) techniques \((\S+)\)/, 'logSiteNoAnswer', ['host', 'tries', 'family']],
   [/^([A-Za-z0-9.:_-]+): the server refused the connection itself \(a TLS alert to the unchanged request\); not a block$/, 'logSiteServerRefused', ['host']],
   [/^([A-Za-z0-9.:_-]+): does not answer, while the rest of the site works through Shroudly; not a block$/, 'logSiteOthersWork', ['host']],
+  [/^Techniques remembered for (\d+) sites restored$/, 'logTechniquesRestored', ['count']],
   [/^([A-Za-z0-9.:_-]+): connection dropped while sending \((\S+)\)$/, 'logSiteDropped', ['host', 'family']],
   [/^System: (.+?) — network (.+?), DNS (.+)$/, 'logEnvironment', ['os', 'network', 'dns']],
   [/^Also running: (.+?)\. Another bypass tool/, 'logConflict', ['tools']],

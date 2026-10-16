@@ -334,6 +334,7 @@
   "logSiteNoAnswer": "{host}: {tries} teknik denendi, cevap yok ({family}) — ağ bu bağlantıları sessizce düşürüyor olabilir ya da site çalışmıyor",
   "logSiteServerRefused": "{host}: bağlantıyı sunucunun kendisi reddetti (değiştirilmemiş isteğe TLS uyarısı); bu bir engel değil",
   "logSiteOthersWork": "{host}: cevap vermiyor ama sitenin geri kalanı Shroudly üzerinden çalışıyor; bu bir engel değil",
+  "logTechniquesRestored": "{count} site için hatırlanan teknikler geri yüklendi",
   "logProxyReplaced": "Başka bir program sistem proxy'sini değiştirdi ({what}): o trafik artık Shroudly'den geçmiyor",
   "logLocalDns": "Sistem DNS'i bu bilgisayardaki bir program: {programs}",
   "logDnsDead": "Sistem DNS'i test adlarının hiçbirine cevap vermedi. Shroudly'den geçmeyen programlar hiçbir yere ulaşamaz; DNS programını ya da ağ ayarlarını kontrol et.",

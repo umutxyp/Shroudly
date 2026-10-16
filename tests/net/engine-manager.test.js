@@ -85,6 +85,32 @@ const t = suite('engine-manager');
   em._onCut('ws.chat.example', 'reset', 0, true); em._onCut('ws.chat.example', 'reset', 0, true);
   t.ok(!em.advice.cut || em.advice.cut.host !== 'ws.chat.example', 'cuts on an address of a working site raise no warning');
 
+  // What worked is kept across restarts and handed to each new engine with
+  // its age; expired, malformed and surplus entries are dropped.
+  {
+    const now = Date.now();
+    delete mem.learnedTechniques;
+    em._onLine(JSON.stringify({ type: 'bypass', host: 'discord.com', strategy: 'tlsrec-sni', attempts: 2, family: 'ipv4' }));
+    em._rememberTechnique('old.example', 'split-sni', now - 31 * 24 * 3600 * 1000);
+    em._rememberTechnique('gateway.discord.gg', 'disorder-tlsrec', now - 3600 * 1000);
+    mem.learnedTechniques['bad host'] = { s: 'tlsrec-sni', t: now };
+    mem.learnedTechniques['evil.example'] = { s: 'x\nSTOP', t: now };
+    const kept = em._learned(now).map(([h, v]) => `${h}=${v.s}`);
+    t.ok(JSON.stringify(kept) === JSON.stringify(['gateway.discord.gg=disorder-tlsrec', 'discord.com=tlsrec-sni']),
+      `learned techniques are kept, oldest first, expired and malformed ones left out (${kept.join(' ')})`);
+    const written = [];
+    const realProc = em.proc;
+    em.proc = { stdin: { write: (x) => written.push(x) } };
+    em._restoreTechniques(now);
+    em.proc = realProc;
+    t.ok(written.join('') === 'LEARN gateway.discord.gg disorder-tlsrec 3600\nLEARN discord.com tlsrec-sni 0\n',
+      `…and given to the engine with their age in seconds (${JSON.stringify(written.join(''))})`);
+    for (let i = 0; i < 320; i++) em._rememberTechnique(`h${i}.example`, 'tlsrec-sni', now - 1000 + i);
+    t.ok(Object.keys(mem.learnedTechniques).length === 300 && mem.learnedTechniques['h319.example'] && !mem.learnedTechniques['h0.example'],
+      'at most 300 are kept, the newest');
+    delete mem.learnedTechniques;
+  }
+
   em._setAdvice({ dnsDown: true }); em._setAdvice({ dnsDown: true });
   t.ok(advices.filter((a) => a.dnsDown).length === 1, 'the window is only told when something changes');
 

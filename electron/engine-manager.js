@@ -56,6 +56,16 @@ async function pickPort(want) {
 const CUT_WINDOW_MS = 3 * 60 * 1000;
 const CUT_NEED = { stall: 2, reset: 2, noreply: 4 };
 
+/* What worked where, kept across restarts: the engine forgets everything when
+ * it stops, so without this every Start, reboot and update made it search
+ * again, and the first connections to a blocked site (Discord's, at login)
+ * failed while it did. Host -> { s: technique, t: when learned }. Sent to
+ * the engine at each start with its age (see engine_restore), so one that
+ * no longer works is checked and replaced, never trusted blindly. */
+const LEARNED_KEY = 'learnedTechniques';
+const LEARNED_MAX = 300;
+const LEARNED_TTL_MS = 30 * 24 * 60 * 60 * 1000;
+
 /* A host that could not be reached at all is logged again only after this
  * long: a browser retries a dead host over and over, and the log should say
  * so once, not once per retry. */
@@ -350,6 +360,33 @@ class EngineManager {
     try { this.onAdvice(this.advice); } catch {}
   }
 
+  /* The techniques remembered, newest last, without the expired ones. */
+  _learned(now = Date.now()) {
+    const all = this.store.get(LEARNED_KEY);
+    if (!all || typeof all !== 'object') return [];
+    return Object.entries(all)
+      .filter(([h, v]) => /^[a-z0-9.-]{1,253}$/i.test(h) && v && typeof v.s === 'string' && /^[\w.()+-]{1,63}$/.test(v.s)
+        && Number.isFinite(v.t) && now - v.t < LEARNED_TTL_MS && v.t <= now + 60000)
+      .sort((a, b) => a[1].t - b[1].t);
+  }
+
+  _rememberTechnique(host, technique, t = Date.now()) {
+    if (!host || !technique) return;
+    const keep = this._learned().filter(([h]) => h !== host).slice(-(LEARNED_MAX - 1));
+    keep.push([host, { s: technique, t }]);
+    try { this.store.set(LEARNED_KEY, Object.fromEntries(keep)); } catch {}
+  }
+
+  /* Oldest first, so where two names of one site disagree, the newer wins. */
+  _restoreTechniques(now = Date.now()) {
+    const list = this._learned(now);
+    if (!list.length || !this.proc || !this.proc.stdin) return;
+    try {
+      this.proc.stdin.write(list.map(([h, v]) => `LEARN ${h} ${v.s} ${Math.max(0, Math.round((now - v.t) / 1000))}\n`).join(''));
+    } catch {}
+    this.log('info', `Techniques remembered for ${list.length} sites restored`);
+  }
+
   /* A site whose connections start and are then cut. One cut means little;
    * several on the same host in a few minutes is the network doing it. Told
    * once per host per session. */
@@ -607,6 +644,7 @@ class EngineManager {
       case 'ready':
         this.techniques = Number(msg.techniques) || 0;
         this.log('success', `Engine listening on 127.0.0.1:${msg.port}`);
+        this._restoreTechniques();
         // Encrypted DNS routes that go through the engine can start now.
         this.doh.setSocksPort(msg.port);
         clearTimeout(this._dohReport);
@@ -643,6 +681,7 @@ class EngineManager {
         // answers, cut connections, silent drops), never from which country
         // the clock is set to.
         try { this.onHostEvent('bypass', msg.host, msg.note || null); } catch {}
+        this._rememberTechnique(msg.host, msg.strategy);
         this.blockedHosts.delete(msg.host);
         if (!this.bypassed.has(msg.host)) {
           // One line per site, but the set is only there to stop repeats, so

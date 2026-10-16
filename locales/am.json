@@ -334,6 +334,7 @@
   "logSiteNoAnswer": "{host}: ከ{tries} ዘዴዎች በኋላም ምላሽ የለም ({family})፤ አውታረ መረቡ እነዚህን ግንኙነቶች በዝምታ እየጣለ ሊሆን ይችላል፣ ወይም ድረ-ገጹ አይሰራም",
   "logSiteServerRefused": "{host}: አገልጋዩ ራሱ ግንኙነቱን አልተቀበለም (ላልተለወጠው ጥያቄ የTLS ማስጠንቀቂያ)፤ እገዳ አይደለም",
   "logSiteOthersWork": "{host}: መልስ አይሰጥም፣ የቀረው የጣቢያው ክፍል ግን በShroudly በኩል ይሰራል፤ እገዳ አይደለም",
+  "logTechniquesRestored": "ለ{count} ጣቢያዎች የታወሱ ዘዴዎች ተመልሰዋል",
   "logProxyReplaced": "ሌላ ፕሮግራም የሲስተም proxyን ቀይሯል ({what}): ያ ትራፊክ ከአሁን በኋላ በShroudly በኩል አያልፍም",
   "logLocalDns": "የሲስተም DNS በዚህ ኮምፒውተር ላይ ያለ ፕሮግራም ነው: {programs}",
   "logDnsDead": "የሲስተም DNS ለየትኛውም የሙከራ ስም ምላሽ አልሰጠም። በShroudly በኩል የማያልፉ ፕሮግራሞች የትም መድረስ አይችሉም፤ የDNS ፕሮግራሙን ወይም የአውታረ መረብ ቅንብሮችን ይፈትሹ።",

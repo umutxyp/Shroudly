@@ -334,6 +334,7 @@
   "logSiteNoAnswer": "{host}: {tries} 種類の手法を試しても応答がありません（{family}）。ネットワークがこれらの接続を黙って破棄しているか、サイトが停止している可能性があります",
   "logSiteServerRefused": "{host}: サーバー自身が接続を拒否しました（変更していない要求への TLS アラート）。ブロックではありません",
   "logSiteOthersWork": "{host}: 応答しませんが、サイトのほかの部分は Shroudly 経由で動いています。ブロックではありません",
+  "logTechniquesRestored": "{count} サイト分の記憶していた手法を復元しました",
   "logProxyReplaced": "別のプログラムがシステムプロキシを変更しました（{what}）：その通信はもう Shroudly を経由しません",
   "logLocalDns": "システムの DNS はこのコンピューター上のプログラムです：{programs}",
   "logDnsDead": "システムの DNS はテスト用の名前に 1 つも応答しませんでした。Shroudly を経由しないプログラムはどこにも接続できません。DNS のプログラムかネットワーク設定を確認してください。",
