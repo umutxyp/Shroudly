@@ -755,7 +755,6 @@ MIT — see [LICENSE](LICENSE).
 
 - [Electron](https://www.electronjs.org/), [Next.js](https://nextjs.org/), [Tailwind CSS](https://tailwindcss.com/)
 - Desync techniques inspired by the research behind `goodbyeDPI` and `zapret` — reimplemented independently in `shroudly-core`.
-- Thanks to [Çağlar Sapmaz](https://github.com/caglarsapmaz) for reporting the Discord app's updater problem on macOS, confirming its TLS 1.2 cause and testing a fix on Türk Telekom.
 - Censorship fingerprints from [OONI](https://ooni.org/)'s open [blocking-fingerprints](https://github.com/ooni/blocking-fingerprints) data.
 
 ---
