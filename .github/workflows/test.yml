@@ -8,7 +8,9 @@ name: Tests
 
 on:
   push:
-    branches: ['**', '!site-list']   # site-list holds data only
+    # site-list holds data only; Dependabot's branches are tested once, as
+    # pull requests, not a second time on push.
+    branches: ['**', '!site-list', '!dependabot/**']
   pull_request: {}
   workflow_dispatch:
     inputs:
