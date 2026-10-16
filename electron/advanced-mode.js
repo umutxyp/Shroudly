@@ -99,15 +99,20 @@ class AdvError extends Error {
 
 /*
  * The packet-layer options, passed to the engine the same way the fake TTL is.
- * Sensible defaults: the two strictly-additive, always-safe protections are on
- * (drop the forged RSTs a censor injects to tear a blocked connection down, and
- * set the decoy's TTL from the measured hop distance to the server); the decoy
- * itself stays the proven low-TTL/bad-checksum fake, with sequence overlap off,
- * so the common path is exactly what earlier releases shipped. Each is a flag,
- * so a future UI (or a probe result) can switch them per network.
+ * Sensible defaults: the strictly-additive, always-safe protections are on
+ * (drop the forged RSTs a censor injects to tear a blocked connection down,
+ * set the decoy's TTL from the measured hop distance to the server, and cut
+ * the real first segment after the decoy, which every TCP receiver puts back
+ * together); the decoy itself stays the proven low-TTL/bad-checksum fake,
+ * with sequence overlap off. Each is a flag, so a future UI (or a probe
+ * result) can switch them per network.
  */
-const ADV_DEFAULTS = { dropRst: true, autottl: true, seqovl: 0, desyncMode: 'fake' };
+const ADV_DEFAULTS = { dropRst: true, autottl: true, seqovl: 0, desyncMode: 'fake', split: 'on' };
 const DESYNC_MODES = ['fake', 'fakedsplit', 'fakeddisorder'];
+/* After the decoy the real first segment is cut so no part carries the whole
+ * name ('on'), or cut and sent last part first ('disorder'): what programs
+ * that ignore the proxy get instead of its techniques (core/src/tcpdpi.h). */
+const SPLIT_MODES = ['off', 'on', 'disorder'];
 
 function resolveAdvOpts(opts) {
   const o = { ...ADV_DEFAULTS, ...(opts || {}) };
@@ -115,6 +120,7 @@ function resolveAdvOpts(opts) {
   o.autottl = !!o.autottl;
   o.seqovl = Math.max(0, Math.floor(Number(o.seqovl) || 0));
   o.desyncMode = DESYNC_MODES.includes(o.desyncMode) ? o.desyncMode : 'fake';
+  o.split = o.split === false ? 'off' : SPLIT_MODES.includes(o.split) ? o.split : 'on';
   return o;
 }
 
@@ -131,6 +137,7 @@ function buildArgs(o) {
     '--drop-rst', t.dropRst ? '1' : '0',
     '--autottl', t.autottl ? '1' : '0',
     '--seqovl', String(t.seqovl),
+    '--split', t.split,
     '--desync-mode', t.desyncMode];
   if (o.platform === 'linux') args.push('--queue', String(o.queueNum != null ? o.queueNum : QUEUE_NUM));
   if (o.quicBlock === false) args.push('--no-quic-block');

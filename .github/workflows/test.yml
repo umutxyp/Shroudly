@@ -57,6 +57,14 @@ jobs:
         run: |
           if [ "$RUNNER_OS" = Windows ]; then node scripts/build-core-advanced.js --target win32-x64; else bash scripts/ci-linux-advanced.sh amd64; fi
 
+      # The Linux Advanced engine on a real packet path: network namespaces, a
+      # router with a per-packet filter, NFQUEUE (tests/lab/advanced-lab.sh).
+      - name: Advanced mode lab (Linux, real packets)
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          sudo apt-get install -y -qq libnetfilter-queue1 >/dev/null
+          sudo env "PATH=$PATH" bash tests/lab/advanced-lab.sh electron/tools/core/linux-x64/shroudly-core-adv
+
       - name: Engine unit tests, sanitizers, fuzzing
         if: runner.os != 'Windows'
         working-directory: core

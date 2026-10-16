@@ -225,11 +225,71 @@ static void test_fakedsplit(void) {
   CHECK(tcpdpi_build_fakedsplit4(segs, &ns, tmpl, 20, tmpl+20, 20, 1, seq, ttl, real, 40, 40, fake_ttl, 0, 0) == 0);
 }
 
+/* ───────── cutting the real first segment ───────── */
+/* Where the cuts land, relative to the start of the name; -1 for none. */
+static int cuts_in(const char *host, int *a, int *b) {
+  const char *pre = "hdr:";
+  uint8_t buf[300]; int po = (int)strlen(pre), hl = (int)strlen(host);
+  memcpy(buf, pre, (size_t)po); memcpy(buf + po, host, (size_t)hl); memcpy(buf + po + hl, "tail", 4);
+  int c[2] = { -1, -1 };
+  int n = tcpdpi_split_points(buf, po + hl + 4, po, hl, c);
+  *a = n > 0 ? c[0] - po : -1; *b = n > 1 ? c[1] - po : -1;
+  return n;
+}
+static void test_split(void) {
+  int a, b;
+  CHECK(cuts_in("remote-auth-gateway.discord.gg", &a, &b) == 2 && a == 1 && b == 23);  /* r|...dis|cord.gg */
+  CHECK(cuts_in("discord.com", &a, &b) == 2 && a == 1 && b == 3);                      /* d|is|cord.com */
+  CHECK(cuts_in("discord.com.", &a, &b) == 2 && a == 1 && b == 3);                     /* trailing dot */
+  CHECK(cuts_in("x.com", &a, &b) == 2 && a == 1 && b == 2);                            /* 1-char label: the whole name */
+  CHECK(cuts_in("localhost", &a, &b) == 2 && a == 1 && b == 4);                        /* one label: its middle */
+  CHECK(cuts_in("ab", &a, &b) == 1 && a == 1);                                         /* both cuts at the same place: one */
+  CHECK(cuts_in("x", &a, &b) == 0);                                                    /* too short to cut */
+  uint8_t z[8] = {0}; int c[2];
+  CHECK(tcpdpi_split_points(z, 8, 0, 4, c) == 0);    /* a name at the very start: nothing before it to keep */
+  CHECK(tcpdpi_split_points(z, 8, 4, 6, c) == 0);    /* a name past the end */
+  CHECK(tcpdpi_split_points(NULL, 8, 1, 4, c) == 0);
+
+  uint8_t tmpl[40]; mk_hdr(tmpl, 50000, 443, 0x18, 0);
+  uint8_t real[60]; for (int i = 0; i < 60; i++) real[i] = (uint8_t)(0x30 + i);
+  uint32_t seq = 4294967280u; int ttl = 64;           /* the sequence number wraps */
+  int cuts[2] = { 7, 31 };
+  for (int rev = 0; rev <= 1; rev++) {
+    tcpdpi_seg segs[3]; int ns = 0;
+    CHECK(tcpdpi_build_multisplit4(segs, &ns, tmpl, 20, tmpl + 20, 20, 0x300, seq, ttl, real, 60, cuts, 2, rev) == 1);
+    CHECK(ns == 3);
+    /* Put back by sequence number, whatever the order sent: the original. */
+    uint8_t back[60]; int got = 0, ids[3];
+    for (int i = 0; i < 3; i++) {
+      CHECK(!segs[i].is_fake && segs[i].data[8] == ttl && tcp_csum_ok(segs[i].data, segs[i].len, 20));
+      uint32_t off = rd32(segs[i].data + 24) - seq;
+      int len = segs[i].len - 40;
+      CHECK(off + (uint32_t)len <= 60);
+      memcpy(back + off, segs[i].data + 40, (size_t)len); got += len;
+      ids[i] = rd16(segs[i].data + 4);
+    }
+    CHECK(got == 60 && memcmp(back, real, 60) == 0);
+    CHECK(ids[0] != ids[1] && ids[1] != ids[2] && ids[0] != ids[2]);
+    /* In order: first bytes first; reversed: last bytes first. */
+    CHECK(rd32(segs[0].data + 24) == (rev ? seq + 31u : seq));
+    CHECK(rd32(segs[2].data + 24) == (rev ? seq : seq + 31u));
+  }
+  tcpdpi_seg segs[3]; int ns = 0;
+  int one[1] = { 13 };
+  CHECK(tcpdpi_build_multisplit4(segs, &ns, tmpl, 20, tmpl + 20, 20, 1, seq, ttl, real, 60, one, 1, 0) == 1 && ns == 2);
+  int bad1[2] = { 31, 7 }, bad2[2] = { 7, 60 }, bad3[1] = { 0 };
+  CHECK(tcpdpi_build_multisplit4(segs, &ns, tmpl, 20, tmpl + 20, 20, 1, seq, ttl, real, 60, bad1, 2, 0) == 0);  /* not ascending */
+  CHECK(tcpdpi_build_multisplit4(segs, &ns, tmpl, 20, tmpl + 20, 20, 1, seq, ttl, real, 60, bad2, 2, 0) == 0);  /* at the end */
+  CHECK(tcpdpi_build_multisplit4(segs, &ns, tmpl, 20, tmpl + 20, 20, 1, seq, ttl, real, 60, bad3, 1, 0) == 0);  /* at the start */
+  CHECK(tcpdpi_build_multisplit4(segs, &ns, tmpl, 20, tmpl + 20, 20, 1, seq, ttl, real, 60, one, 0, 0) == 0);   /* no cut */
+}
+
 int main(void) {
   test_rst();
   test_hops();
   test_seqovl();
   test_fakedsplit();
+  test_split();
   if (fails == 0) { printf("ALL TCPDPI TESTS PASSED\n"); return 0; }
   printf("%d FAILED\n", fails); return 1;
 }
