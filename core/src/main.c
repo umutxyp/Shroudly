@@ -56,6 +56,7 @@ static long g_parent_pid = 0;
 static int g_drop_rst = RAW_DEF_DROP_RST;
 static int g_autottl  = RAW_DEF_AUTOTTL;
 static int g_seqovl   = RAW_DEF_SEQOVL;
+static int g_split    = RAW_DEF_SPLIT;
 static int g_desync_mode = RAW_DEF_DESYNC_MODE;
 static int g_seqovl_pat = RAW_DEF_SEQOVL_PATTERN;
 static int g_fake_pat   = RAW_DEF_FAKE_PATTERN;
@@ -64,6 +65,13 @@ static int parse_desync_mode(const char *s) {
   if (!strcmp(s, "fakedsplit")) return RAW_DESYNC_FAKEDSPLIT;
   if (!strcmp(s, "fakeddisorder")) return RAW_DESYNC_FAKEDDISORDER;
   return RAW_DESYNC_FAKE; /* "fake" or anything unrecognised: the safe default */
+}
+
+/* "off" / "0", "disorder", else on: the cut is the default. */
+static int parse_split_mode(const char *s) {
+  if (!strcmp(s, "off") || !strcmp(s, "0")) return RAW_SPLIT_OFF;
+  if (!strcmp(s, "disorder")) return RAW_SPLIT_DISORDER;
+  return RAW_SPLIT_ON;
 }
 #endif
 
@@ -119,6 +127,7 @@ int main(int argc, char **argv) {
     else if (!strcmp(argv[i], "--drop-rst") && i+1<argc) g_drop_rst = atoi(argv[++i]) ? 1 : 0;
     else if (!strcmp(argv[i], "--autottl") && i+1<argc) g_autottl = atoi(argv[++i]) ? 1 : 0;
     else if (!strcmp(argv[i], "--seqovl") && i+1<argc) g_seqovl = atoi(argv[++i]);
+    else if (!strcmp(argv[i], "--split") && i+1<argc) g_split = parse_split_mode(argv[++i]);
     else if (!strcmp(argv[i], "--desync-mode") && i+1<argc) g_desync_mode = parse_desync_mode(argv[++i]);
     else if (!strcmp(argv[i], "--seqovl-pattern") && i+1<argc) g_seqovl_pat = (int)strtol(argv[++i], NULL, 16) & 0xff;
     else if (!strcmp(argv[i], "--fake-pattern") && i+1<argc) g_fake_pat = (int)strtol(argv[++i], NULL, 16) & 0xff;
@@ -140,6 +149,7 @@ int main(int argc, char **argv) {
     rc.drop_rst = g_drop_rst;
     rc.autottl = g_autottl;
     rc.seqovl = g_seqovl;
+    rc.split = g_split;
     rc.desync_mode = g_desync_mode;
     rc.seqovl_pattern = (uint8_t)g_seqovl_pat;
     rc.fake_pattern = (uint8_t)g_fake_pat;

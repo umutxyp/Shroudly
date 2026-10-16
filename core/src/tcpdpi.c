@@ -238,3 +238,48 @@ int tcpdpi_build_fakedsplit4(tcpdpi_seg segs[3], int *nsegs,
   *nsegs = 3;
   return 1;
 }
+
+int tcpdpi_split_points(const uint8_t *payload, int plen, int host_off, int host_len, int cuts[2]) {
+  if (!payload || !cuts || host_off < 1 || host_len < 2 || host_off + host_len > plen) return 0;
+  const uint8_t *h = payload + host_off;
+  int end = host_len;
+  if (h[end - 1] == '.') end--;              /* a fully qualified "name." */
+  if (end < 2) return 0;
+  int last = -1, prev = -1;
+  for (int i = 0; i < end; i++) if (h[i] == '.') { prev = last; last = i; }
+  int s = 0, e = end;                        /* the second-level label ... */
+  if (last > 0) { s = prev + 1; e = last; }
+  if (e - s < 2) { s = 0; e = end; }         /* ... or the whole name */
+  int a = host_off + 1, b = host_off + s + (e - s) / 2;
+  int n = 0;
+  if (a > 0 && a < plen) cuts[n++] = a;
+  if (b > 0 && b < plen && (n == 0 || b > cuts[0])) cuts[n++] = b;
+  return n;
+}
+
+int tcpdpi_build_multisplit4(tcpdpi_seg segs[3], int *nsegs,
+                             const uint8_t *ip_tmpl, int ihl,
+                             const uint8_t *tcp_tmpl, int tcphl,
+                             uint16_t ip_id, uint32_t seq, int ttl,
+                             const uint8_t *real, int real_len,
+                             const int *cuts, int ncuts, int reverse) {
+  if (!segs || !nsegs || !real || !cuts || ncuts < 1 || ncuts > 2 || real_len < 2) return 0;
+  int at[4], k = 0;
+  at[k++] = 0;
+  for (int i = 0; i < ncuts; i++) {
+    if (cuts[i] <= at[k - 1] || cuts[i] >= real_len) return 0;   /* ascending, inside */
+    at[k++] = cuts[i];
+  }
+  at[k] = real_len;
+  for (int i = 0; i < k; i++) {
+    int slot = reverse ? k - 1 - i : i;
+    int len = tcpdpi_build_segment4(segs[slot].data, sizeof segs[slot].data, ip_tmpl, ihl,
+                                    tcp_tmpl, tcphl, (uint16_t)(ip_id + i), seq + (uint32_t)at[i],
+                                    ttl, real + at[i], at[i + 1] - at[i], 0);
+    if (len <= 0) return 0;
+    segs[slot].len = len;
+    segs[slot].is_fake = 0;
+  }
+  *nsegs = k;
+  return 1;
+}

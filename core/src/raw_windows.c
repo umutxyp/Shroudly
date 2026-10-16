@@ -197,12 +197,26 @@ static int handle_outbound(const uint8_t *pkt, int len, int ihl, int tcphl, int 
     return 0;
   }
 
+  /* The proven decoy, then the real packet ... */
   send_fake(pkt, len, ihl, tcphl, poff, pi, ttl, addr);
   if (g_cfg.seqovl > 0 && plen > 0) {
     uint8_t out[1600];
     int n = tcpdpi_build_seqovl4(out, sizeof out, pkt, ihl, pkt + ihl, tcphl, g_ipid,
                                  seq, otl, pkt + poff, plen, g_cfg.seqovl, g_cfg.seqovl_pattern);
     if (n > 0) { g_ipid++; raw_send(out, n, addr); return 1; }
+  }
+  /* ... and the real one cut, so no segment carries the whole name: a filter
+   * the decoy does not fool still never reads it. Left whole when there is no
+   * name to cut or the parts cannot be built. */
+  if (g_cfg.split != RAW_SPLIT_OFF) {
+    int cuts[2], nc = tcpdpi_split_points(pkt + poff, plen, pi->host_off, pi->host_len, cuts);
+    tcpdpi_seg segs[3]; int ns = 0;
+    if (nc > 0 && tcpdpi_build_multisplit4(segs, &ns, pkt, ihl, pkt + ihl, tcphl, g_ipid, seq, otl,
+                                           pkt + poff, plen, cuts, nc, g_cfg.split == RAW_SPLIT_DISORDER)) {
+      g_ipid = (uint16_t)(g_ipid + ns);
+      for (int i = 0; i < ns; i++) raw_send(segs[i].data, segs[i].len, addr);
+      return 1;
+    }
   }
   return 0;
 }
@@ -251,8 +265,8 @@ int raw_windows_start(const raw_config *cfg) {
   }
 
   g_run = 1;
-  printf("{\"type\":\"raw_ready\",\"backend\":\"windivert\",\"ttl\":%d,\"drop_rst\":%d,\"autottl\":%d,\"seqovl\":%d,\"mode\":%d,\"quic_block\":%d,\"udp_fake\":%d}\n",
-         g_cfg.fake_ttl, g_cfg.drop_rst, g_cfg.autottl, g_cfg.seqovl, g_cfg.desync_mode, g_quic_block, g_udp_fake);
+  printf("{\"type\":\"raw_ready\",\"backend\":\"windivert\",\"ttl\":%d,\"drop_rst\":%d,\"autottl\":%d,\"seqovl\":%d,\"split\":%d,\"mode\":%d,\"quic_block\":%d,\"udp_fake\":%d}\n",
+         g_cfg.fake_ttl, g_cfg.drop_rst, g_cfg.autottl, g_cfg.seqovl, g_cfg.split, g_cfg.desync_mode, g_quic_block, g_udp_fake);
   fflush(stdout);
 
   uint8_t pkt[65535];

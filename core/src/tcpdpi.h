@@ -127,4 +127,32 @@ int tcpdpi_build_fakedsplit4(tcpdpi_seg segs[3], int *nsegs,
                              int split_pos, int fake_ttl, uint8_t pattern,
                              int disorder);
 
+/* ───────── cutting the real first segment (zapret multisplit / multidisorder) ─────────
+ * The plain decoy goes first and the real ClientHello after it. Sent whole, a
+ * filter the decoy does not fool reads the whole name in one segment; programs
+ * that ignore the proxy (and so get none of its techniques) stay blocked that
+ * way. Cut, no segment carries the name a filter matches on.
+ *
+ * tcpdpi_split_points: where to cut a payload whose SNI / Host value is
+ * payload[host_off, host_off+host_len): one byte into the name, and in the
+ * middle of its second-level label ("dis|cord" in
+ * remote-auth-gateway.discord.gg; the middle of the whole name when there is
+ * no such label). Fills cuts[] ascending and distinct, each in (0, plen), and
+ * returns how many (0 when there is no usable name: the caller sends the
+ * payload whole). */
+int tcpdpi_split_points(const uint8_t *payload, int plen, int host_off, int host_len, int cuts[2]);
+
+/* The real payload as ncuts+1 real segments cut at cuts[0..ncuts) (ascending,
+ * in (0, real_len)), each with `ttl` and a good checksum and the sequence
+ * number of its first byte. reverse == 0: in order; reverse != 0: last first
+ * (the receiver puts them back in order; a filter that does not, never sees the
+ * name). Fills segs[] and *nsegs in the order to send. Returns 1, or 0 on any
+ * error (the caller sends the payload whole). */
+int tcpdpi_build_multisplit4(tcpdpi_seg segs[3], int *nsegs,
+                             const uint8_t *ip_tmpl, int ihl,
+                             const uint8_t *tcp_tmpl, int tcphl,
+                             uint16_t ip_id, uint32_t seq, int ttl,
+                             const uint8_t *real, int real_len,
+                             const int *cuts, int ncuts, int reverse);
+
 #endif
