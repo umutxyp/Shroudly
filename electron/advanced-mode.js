@@ -146,6 +146,25 @@ function buildArgs(o) {
   return args;
 }
 
+/* One argument as Windows reads it back (CommandLineToArgvW, the C runtime):
+ * left alone when it has no space, tab or quote; otherwise quoted, with the
+ * backslashes before a quote doubled and the quote escaped, and backslashes
+ * at the end doubled so they do not escape the closing quote. The engine is
+ * started elevated from these, so they must arrive exactly as given. */
+function winQuoteArg(a) {
+  const s = String(a);
+  if (s && !/[\s"]/.test(s)) return s;
+  let out = '"';
+  let bs = 0;
+  for (const ch of s) {
+    if (ch === '\\') { bs++; continue; }
+    if (ch === '"') { out += `${'\\'.repeat(bs * 2 + 1)}"`; bs = 0; continue; }
+    out += '\\'.repeat(bs) + ch;
+    bs = 0;
+  }
+  return `${out}${'\\'.repeat(bs * 2)}"`;
+}
+
 function run(cmd, args, timeout) {
   return new Promise((resolve) => {
     execFile(cmd, args, { timeout, windowsHide: true, env: envFor(cmd) }, (err, stdout, stderr) =>
@@ -209,7 +228,7 @@ class AdvancedMode {
   async _launchWindows(bin, args) {
     // Start-Process passes a single ArgumentList string through verbatim, so
     // quote each argument ourselves. 1223 = ERROR_CANCELLED (UAC declined).
-    const argLine = args.map((a) => (/[\s"]/.test(a) ? `"${String(a).replace(/"/g, '\\"')}"` : String(a))).join(' ');
+    const argLine = args.map(winQuoteArg).join(' ');
     const q = (s) => `'${String(s).replace(/'/g, "''")}'`;
     const script =
       `try { Start-Process -FilePath ${q(bin)} -ArgumentList ${q(argLine)} -Verb RunAs -WindowStyle Hidden -ErrorAction Stop } ` +
@@ -350,6 +369,7 @@ class AdvancedMode {
 module.exports = AdvancedMode;
 module.exports.linuxInstallCommand = linuxInstallCommand;
 module.exports.buildArgs = buildArgs;
+module.exports.winQuoteArg = winQuoteArg;
 /* The TCP options' own name for the same argv (fakeTtl, opts). */
 module.exports.buildAdvancedArgs = ({ fakeTtl, opts, ...rest }) => buildArgs({ ...rest, ttl: fakeTtl, opts });
 module.exports.ADV_DEFAULTS = ADV_DEFAULTS;
