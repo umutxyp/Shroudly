@@ -1,0 +1,19 @@
+# Dependabot opens pull requests; nothing it proposes reaches main or a
+# release without the maintainer's review (CODEOWNERS, the main ruleset).
+version: 2
+updates:
+  # The actions the workflows use, in one weekly pull request.
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      actions:
+        patterns: ["*"]
+  # npm: security updates only (they are not limited by this setting); no
+  # routine version bumps.
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 0

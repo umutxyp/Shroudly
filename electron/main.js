@@ -320,6 +320,9 @@ let modalOpen = 0;            // a dialog belongs to the window: keep it
 let idleNoticeShown = false;
 let idleTimer = null;
 const loading = new WeakSet();  // windows still loading on their way to the screen
+/* Windows the user sent to the background (closed to the tray, or hidden
+ * with the icon off) before they had appeared: ready-to-show leaves them be. */
+const sentAway = new WeakSet();
 // One-off notices that must not be lost while there is no window: the latest
 // of each is shown once the next window is up.
 const STICKY = new Set(['dpi:need-restart', 'dpi:dns-auto-enabled', 'dpi:site-blocked', 'dpi:service-refused']);
@@ -352,6 +355,7 @@ function showWindow() {
   releaseToken++;
   markActive();
   if (!windowAlive()) { createWindow({ show: true }); return; }
+  sentAway.delete(mainWindow);
   if (mainWindow.isMinimized()) mainWindow.restore();
   mainWindow.show();
   mainWindow.focus();
@@ -489,7 +493,9 @@ async function createWindow({ show = true, minimised = false } = {}) {
 
   win.once('ready-to-show', () => {
     loading.delete(win);
-    if (!show || win.isDestroyed()) return;
+    // Closed (sent to the background) before it had even appeared: it must
+    // not then pop up by itself.
+    if (!show || win.isDestroyed() || sentAway.has(win)) return;
     markActive();
     // In the taskbar without taking the screen (a quiet start with no tray).
     if (minimised) { win.showInactive(); win.minimize(); return; }
@@ -511,6 +517,7 @@ async function createWindow({ show = true, minimised = false } = {}) {
     if (!app.isQuitting && store.get('minimizeToTray', true)) {
       e.preventDefault();
       if (!canLeave()) { win.minimize(); return; }
+      sentAway.add(win);
       win.hide();
       notify('Shroudly', trayWanted() ? tr().trayMinimized : tr().trayHiddenRunning);
     }
@@ -913,7 +920,10 @@ ipcMain.on('window:maximize', () => {
   if (!windowAlive()) return;
   mainWindow.isMaximized() ? mainWindow.unmaximize() : mainWindow.maximize();
 });
-ipcMain.on('window:close', () => { if (windowAlive()) { if (canLeave()) mainWindow.hide(); else mainWindow.minimize(); } });
+ipcMain.on('window:close', () => {
+  if (!windowAlive()) return;
+  if (canLeave()) { sentAway.add(mainWindow); mainWindow.hide(); } else mainWindow.minimize();
+});
 // Quit from the window itself, for desktops that show no tray icon.
 ipcMain.on('app:quit', () => { app.isQuitting = true; shutdownAndQuit(); });
 /* The interface reports use (throttled) and when it is listening. */
