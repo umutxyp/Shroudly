@@ -11,11 +11,13 @@ const path = require('path');
 const only = process.argv.slice(2);
 const files = fs.readdirSync(__dirname).filter((f) => f.endsWith('.test.js'))
   .filter((f) => !only.length || only.some((o) => f.includes(o))).sort();
+// Roblox Studio is installed for real on Windows CI: several hundred MB.
+const LIMIT_MS = { 'studio.test.js': 15 * 60 * 1000 };
 const results = [];
 for (const f of files) {
   console.log(`\n── ${f}`);
   const t0 = Date.now();
-  const r = spawnSync(process.execPath, [path.join(__dirname, f)], { stdio: 'inherit', timeout: 300000 });
+  const r = spawnSync(process.execPath, [path.join(__dirname, f)], { stdio: 'inherit', timeout: LIMIT_MS[f] || 300000 });
   results.push({ f, ok: r.status === 0, s: ((Date.now() - t0) / 1000).toFixed(1) });
 }
 console.log('\n── summary');

@@ -41,17 +41,21 @@ portable C. Its default mode uses nothing but the operating system's own socket
 API, so the exact same technique works unprivileged on every platform — no
 kernel driver, no WinDivert, no external library.
 
-For countries with **stateful** DPI (Iran, China) there is an optional,
-opt-in [Advanced mode](#advanced-mode-stateful-dpi) for Windows and Linux that
-works at the packet layer. It asks for administrator rights when you turn it
-on and, on Windows, uses the bundled WinDivert driver. It is never used unless
-you turn it on.
+For networks with **stateful** DPI, which follows whole connections, there is
+[Advanced mode](#advanced-mode-stateful-dpi) for Windows and Linux, which works
+at the packet layer. It needs administrator rights and, on Windows, uses the
+bundled WinDivert driver. It is only used when a site needs it or when you turn
+it on, and the system asks for your permission first.
 
 Names are looked up over encrypted DNS, so forged DNS answers — the most common
 kind of blocking — stop working too. For the Discord app, whose own updater
 ignores the system proxy, [Discord app mode](#discord-app-mode) brings that
-traffic through Shroudly as well, and for Roblox and other programs that ignore
-it, so does [Games and apps mode](#games-and-apps-mode-roblox).
+traffic through Shroudly as well, and for Roblox, Roblox Studio and other
+programs that ignore it, so does [Games and apps mode](#games-and-apps-mode-roblox).
+
+Nobody has to know any of this. The [autopilot](#autopilot) notices what is in
+the way and turns on what is needed by itself, then says what it did in one
+line.
 
 While Shroudly is active it points the system (or your browser) at its local
 proxy, and it always restores the previous setting on stop, crash, or logout —
@@ -181,9 +185,10 @@ and that users on heavily filtered networks rely on. Each is a flag
   boundary, in order or with the second real part sent first. Selectable by
   flag; the decoy stays the proven plain fake **by default**.
 
-- **Opt-in.** Always available under Settings on Windows and Linux. Shroudly
-  also offers it by itself when a network filters the way Iran's, China's or
-  Russia's do, and when sites connect and are then cut.
+- **On when needed.** Always available under Settings on Windows and Linux.
+  The [autopilot](#autopilot) turns it on by itself when a site that no
+  technique opens, or one that connects and is then cut, shows that this
+  network needs it.
 - **Asks first.** Turning it on shows a Windows UAC prompt or a Linux password
   prompt (polkit). Shroudly itself keeps running as a normal user.
 - **Always reverted.** The packet hook and any firewall rule go away on stop,
@@ -289,14 +294,17 @@ an older updater that does not read this setting.)
   SHA-256 in its manifest.
 - To point Discord at the relay, Shroudly adds **one line to another app's
   file**: `"NEW_UPDATE_ENDPOINT": "http://127.0.0.1:10809/"` in Discord's
-  `settings.json`. It is offered and explained in the app first, never done
-  unasked. An endpoint you set yourself is never touched.
+  `settings.json`. The [autopilot](#autopilot) does this by itself when
+  Discord is blocked on the network, and says so. An endpoint you set yourself
+  is never touched.
 - The line is removed when you turn the mode off, when you quit Shroudly, and
   by the Windows uninstaller, so a Discord started without Shroudly connects
   as it always did. It stays across logout and shutdown, so a Discord that
   starts at login finds the relay as soon as Shroudly is up.
-- Discord reads the line when it starts. If it is already open, Shroudly
-  offers to restart it.
+- Discord reads the line when it starts. A Discord that is already open and
+  stuck before its window (it holds no connection to Shroudly at all) is
+  restarted by itself; one that already works through the system proxy is
+  left alone, so a call is never cut.
 - On macOS, the system may ask once before Shroudly can change another app's
   files.
 
@@ -316,12 +324,12 @@ VPN is the only answer.
 ## Games and apps mode (Roblox)
 
 Some programs bring their own HTTP library and never look at the system proxy.
-The Roblox app and its installer are the best-known case: in Turkey, for
-example, roblox.com opens in the browser through Shroudly while the installer
-stops at *Continue installation without flag settings from
-clientsettingscdn.roblox.com* and the app cannot reach a single Roblox server.
-The one proxy setting they do read is the `HTTPS_PROXY` environment variable,
-and so do many other games, launchers and command-line tools.
+Roblox's programs are the best-known case: on a network that filters Roblox,
+roblox.com opens in the browser through Shroudly while the installer stops at
+*Continue installation without flag settings from clientsettingscdn.roblox.com*
+and neither the player nor Roblox Studio can reach a single Roblox server. The
+one proxy setting they do read is the `HTTPS_PROXY` environment variable, and so
+do many other games, launchers and command-line tools.
 
 Games and apps mode sets it, on Windows and macOS, without admin rights:
 
@@ -332,7 +340,7 @@ Games and apps mode sets it, on Windows and macOS, without admin rights:
   goes out directly. The local network is always reached directly, and so
   are names your own DNS puts on a private network (a company's internal
   servers), which are never sent to public resolvers. A private answer that
-  is a known block page (Iran's 10.10.34.34), and a `0.0.0.0` / `::` answer
+  is a known block page (such as 10.10.34.34), and a `0.0.0.0` / `::` answer
   (how DNS filters say "blocked"), still go through the engine.
   With *only listed sites*, only listed sites go through the engine here
   too. Tunnels to this machine itself, or to link-local addresses, are
@@ -345,28 +353,28 @@ Games and apps mode sets it, on Windows and macOS, without admin rights:
   logout. On **Windows** it is your user environment, and Explorer is told
   about the change: programs started from the Start menu, the desktop or File
   Explorer get it.
-- A program reads it when it starts. If Roblox is already open, Shroudly offers
-  to restart it. On Windows, a browser that was already open keeps its old
-  environment, and so does everything it starts: the website's *Play* button
-  and an installer opened from the download bar. So Shroudly starts Roblox
-  itself: **Open Roblox** (Settings, under the mode) starts it, or the
-  Bloxstrap / Fishstrap that handles Roblox's links, with the setting in
-  place; **Install Roblox** (Windows) asks Roblox which version is current,
-  downloads that installer through the engine, checks that it is signed by
-  Roblox Corporation and starts it the same way. Starting Roblox from the
-  Start menu works too.
-- Shroudly checks what actually happens, not just that the setting was
-  written: the first program, and the first Roblox connection, to go through
-  it are logged, and on Windows a Roblox player that has been running for
-  half a minute without a single request reaching Shroudly (started by an
-  older browser) is reported within a minute, in the window and as a
-  notification, with a button that restarts it through Shroudly. The
-  Microsoft Store edition of Roblox runs in a sandbox that cannot reach
-  Shroudly on this computer; the window says so.
-- It is offered and explained in the app first, never done unasked. A proxy you
-  set yourself (for your session or, on Windows, for the whole machine) is
-  never replaced, and an `HTTPS_PROXY` of your own is never removed:
-  `SHROUDLY_APP_PROXY`, set alongside, marks which value is Shroudly's.
+- A program reads it when it starts, so what was already open, and on Windows
+  what a browser that was already open starts (it keeps its old environment:
+  the website's *Play* and *Edit* buttons, an installer opened from the
+  download bar), goes around Shroudly. Shroudly checks what actually happens,
+  not just that the setting was written: a Roblox program that has run for
+  half a minute without a single request reaching Shroudly is going around it.
+  Where Roblox is blocked, such a **player** is restarted through Shroudly (or
+  through the Bloxstrap-style launcher that handles Roblox's links, whatever
+  its name), and such an **installer** (the player's or Studio's) is stopped
+  and Roblox's current one is fetched through the engine, checked to be signed
+  by Roblox Corporation, and started through Shroudly instead. **Roblox
+  Studio** is never closed by Shroudly, since it may hold work that is not
+  saved: the user is asked to save, close and reopen it. A player that still
+  does not get through after two restarts is left to Advanced mode. The first
+  program, and the first Roblox connection, to go through the mode are logged.
+  The Microsoft Store edition of Roblox runs in a sandbox that cannot reach
+  Shroudly on this computer; Settings says so.
+- The [autopilot](#autopilot) turns the mode on by itself where Roblox is
+  blocked, and says so. A proxy you set yourself (for your session or, on
+  Windows, for the whole machine) is never replaced, and an `HTTPS_PROXY` of
+  your own is never removed: `SHROUDLY_APP_PROXY`, set alongside, marks which
+  value is Shroudly's.
 - It is removed when you turn the mode off, when you quit Shroudly, at logout
   and shutdown, by a watchdog within a second if Shroudly is killed, at the
   next sign-in after a power cut (Windows), and by the Windows uninstaller. A
@@ -380,6 +388,43 @@ the HTTPS part — sign-in, the game list, joining, assets — that filters bloc
 
 Linux has no single place every desktop reads the environment from, and Roblox
 has no Linux client, so the mode is not offered there.
+
+That Roblox Studio honours the setting is tested for real on every change: on a
+Windows CI machine, Studio's current installer is fetched through the engine and
+run with the setting, and Studio itself then runs for a minute; every
+connection Roblox's programs make must go through Shroudly
+([`tests/net/studio.test.js`](tests/net/studio.test.js)).
+
+## Autopilot
+
+The people Shroudly is for do not read settings or banners: when something
+does not open, the app "does not work". So whenever Shroudly can tell what is
+in the way, it does what they would otherwise have had to do, and then says
+what it did in one line, as a notification and in the window
+([`electron/autopilot.js`](electron/autopilot.js)).
+
+| It notices | It does |
+|---|---|
+| Discord is blocked on this network and a Discord app (any build) is installed | Turns on [Discord app mode](#discord-app-mode); restarts a Discord stuck before its window |
+| Roblox is blocked on this network | Turns on [Games and apps mode](#games-and-apps-mode-roblox); restarts a player or installer that goes around Shroudly; asks the user to reopen a Roblox Studio that does |
+| A site no technique opens, or one that connects and is then cut | Turns on [Advanced mode](#advanced-mode-stateful-dpi) (Windows, Linux) after saying why; the system asks for permission |
+| Encrypted DNS is off and the network forges answers | Turns it back on |
+| Auto mode is off and a site is blocked | Turns it back on |
+
+How it knows a service is blocked: from what the engine sees (a name of that
+service that needed a technique, was cut after it connected, or that no
+technique opened), and, when protection starts with the service's app
+installed, from a check of its own before the app is opened: the system's DNS
+answering with a block page, a sinkhole or nothing, or the TLS handshake failing
+when made directly. Either counts only if the same name then works through
+Shroudly, so a service that is down is never taken for a blocked one. Nothing
+is decided from which country the computer is in.
+
+It stays out of the user's way: a switch the user turned off by hand stays off
+for two weeks; Advanced mode's permission prompt comes at most once a session,
+and not again by itself for two weeks once declined; a program that may hold
+unsaved work (Roblox Studio) is never closed, and a Discord that works is
+never restarted.
 
 ## What Shroudly cannot fix
 
@@ -454,10 +499,11 @@ directly. That list maintains itself:
 - **No admin rights, no driver** in the default mode — it runs as a normal program.
 - **Learns what works** — tests each blocked site and remembers the technique that opens it; switches technique by itself if a network starts cutting a site.
 - **Encrypted DNS** — on by default, over routes that are hard to block, refusing known forged answers.
-- **Discord app mode** — lets the Discord app update and open through Shroudly on Windows and macOS ([details](#discord-app-mode)).
-- **Games and apps mode** — Roblox, its installer and other programs that ignore the system proxy go through Shroudly too, on Windows and macOS ([details](#games-and-apps-mode-roblox)).
-- **Advanced mode** — packet-level desync for networks that follow whole connections (Iran, China, Russia), on Windows and Linux.
-- **Tells you what is going on** — another VPN or bypass tool fighting it, a site the network cuts, encrypted DNS blocked, a program that must be restarted: said plainly, with the fix one click away.
+- **Autopilot** — notices what is in the way and fixes it by itself: turns on the mode an app needs where its service is blocked, restarts a program stuck around Shroudly, turns on Advanced mode when a site needs it; then says what it did, in one line ([details](#autopilot)).
+- **Discord app mode** — lets the Discord app (every build) update and open through Shroudly on Windows and macOS ([details](#discord-app-mode)).
+- **Games and apps mode** — Roblox, Roblox Studio, their installers and other programs that ignore the system proxy go through Shroudly too, on Windows and macOS ([details](#games-and-apps-mode-roblox)).
+- **Advanced mode** — packet-level desync for networks that follow whole connections, on Windows and Linux.
+- **Tells you what is going on** — another VPN or bypass tool fighting it, a site the network cuts, encrypted DNS blocked, what the autopilot did: said plainly, in one line.
 - **Never breaks your connection** — your proxy settings are saved before Shroudly changes them and put back on stop, crash, forced kill, shutdown, power loss (at next sign-in) and uninstall.
 - **Routing** — everything through Shroudly (the default), or only the sites on a list, with the rest — banking, government — connecting directly. The list keeps itself current ([how](#the-automatic-site-list)); you can also write your own.
 - **Port conflicts handled** — if another program holds its port, Shroudly moves to a free one and remembers it.
@@ -714,6 +760,13 @@ Shroudly does not collect personal data. These are the only things that contact 
   [Encrypted DNS routes](#encrypted-dns-routes), not by your provider.
 - **Discord's update servers**, only with Discord app mode on: the relay asks
   them on the Discord app's behalf, exactly what Discord would have asked.
+- **Whether an app's service is blocked here** (the [autopilot](#autopilot)),
+  only while protection is on and only for a service whose app is installed
+  (Discord, Roblox), at most every six hours: the system's own DNS is asked for
+  `discord.com` or `clientsettingscdn.roblox.com` and a TLS handshake is made
+  with it directly, as the app itself does when it starts, and, if that fails,
+  once more through the protected connection. No request is sent over it, and
+  nothing about you.
 
 Games and apps mode contacts nothing of its own: it only carries what the
 programs using it were going to send anyway.
@@ -725,7 +778,8 @@ does not have to search again. Nothing of it is sent anywhere.
 The privacy policies of the services involved:
 [GitHub](https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement)
 (updates, the site list),
-[Discord](https://discord.com/privacy) (Discord app mode),
+[Discord](https://discord.com/privacy) (Discord app mode, the autopilot's check),
+[Roblox](https://www.roblox.com/info/privacy) (the autopilot's check),
 [Cloudflare](https://www.cloudflare.com/privacypolicy/) (the live count's tunnel),
 and the encrypted DNS resolvers:
 [Cloudflare 1.1.1.1](https://developers.cloudflare.com/1.1.1.1/privacy/public-dns-resolver/),

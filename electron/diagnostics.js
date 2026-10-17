@@ -397,4 +397,4 @@ async function collect() {
   };
 }
 
-module.exports = { collect, runningTools, appsNeedingRestart, restartHelps, dnsTampering, dnsProbe, dnsDead, localDnsOwner, lsofDnsPrograms, ssDnsPrograms, defaultRoute, describeInterface, regionOf, looksForged };
+module.exports = { collect, runningTools, appsNeedingRestart, restartHelps, dnsTampering, dnsProbe, dnsDead, localDnsOwner, lsofDnsPrograms, ssDnsPrograms, defaultRoute, describeInterface, regionOf, looksForged, systemResolve };

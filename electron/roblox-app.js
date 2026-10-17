@@ -29,9 +29,11 @@ function run(cmd, args, opts = {}) {
 const exists = (p) => { try { return fs.statSync(p); } catch { return null; } };
 const localAppData = () => process.env.LOCALAPPDATA || path.join(os.homedir(), 'AppData', 'Local');
 
-/* Bootstrappers people use instead of Roblox's own launcher: they keep their
- * own copy of the player and start it themselves, so it is them that have to
- * be started with the setting. */
+/* Bootstrappers people use instead of Roblox's own launcher (Bloxstrap and
+ * its many forks): each keeps its own copy of the player in a Versions folder
+ * of its own and starts it itself, so it is them that have to be started with
+ * the setting. They are recognised by that layout, not by name, so a new fork
+ * needs nothing here. These two are only the names known so far. */
 const BOOTSTRAPPERS = ['Bloxstrap', 'Fishstrap'];
 
 /* The two programs: what each is called on disk and in the process list,
@@ -56,9 +58,13 @@ function installs(platform = process.platform, kind = 'player') {
   }
   if (platform === 'win32') {
     const local = localAppData();
+    // Roblox's own folder, and every other folder of LOCALAPPDATA with a
+    // Versions folder inside: a bootstrapper's (whatever its name).
+    let others = [];
+    try { others = fs.readdirSync(local).filter((d) => d.toLowerCase() !== 'roblox'); } catch {}
     const roots = [local, process.env['ProgramFiles(x86)'], process.env.ProgramFiles]
       .filter(Boolean).map((r) => path.join(r, 'Roblox', 'Versions'))
-      .concat(BOOTSTRAPPERS.map((b) => path.join(local, b, 'Versions')));
+      .concat(others.map((b) => path.join(local, b, 'Versions')));
     const found = [];
     for (const root of roots) {
       let dirs = [];
@@ -77,16 +83,28 @@ function installs(platform = process.platform, kind = 'player') {
 function installed(kind = 'player') { return installs(process.platform, kind).length > 0; }
 
 /* The program Windows runs for the website's link (Play, or Edit for
- * Studio): Roblox's own, or a bootstrapper that took the link over. */
+ * Studio): Roblox's own, or a bootstrapper that took the link over. Asked of
+ * the merged view (HKCR): the user's own entry first, else the machine's
+ * (Roblox installed for every user of the computer). */
 async function handler(kind = 'player') {
   if (process.platform !== 'win32') return null;
-  const out = await run('reg', ['query', `HKCU\\Software\\Classes\\${kindOf(kind).link}\\shell\\open\\command`, '/ve']);
+  const out = await run('reg', ['query', `HKCR\\${kindOf(kind).link}\\shell\\open\\command`, '/ve']);
   const m = /REG_(?:EXPAND_)?SZ\s+(?:"([^"]+\.exe)"|(\S+\.exe))/i.exec(out);
   const exe = m ? (m[1] || m[2]) : null;
   return exe && exists(exe) ? exe : null;
 }
 
-/* What to start for "Open Roblox": the bootstrapper if one handles Roblox's
+/* A program that handles Roblox's links in place of Roblox's own: a
+ * bootstrapper, known by name or by the Versions folder beside it. */
+function isBootstrapper(exe) {
+  if (!exe) return false;
+  // A Windows path, whichever system reads it (the tests).
+  const base = path.win32.basename(exe).toLowerCase();
+  if (Object.values(KINDS).some((k) => k.exe.toLowerCase() === base)) return false;
+  return BOOTSTRAPPERS.some((b) => base === `${b.toLowerCase()}.exe`) || !!exists(path.join(path.win32.dirname(exe), 'Versions'));
+}
+
+/* What to start to open Roblox: the bootstrapper if one handles Roblox's
  * links (it starts the player itself), else the newest player. For Studio,
  * the newest Studio itself (it updates itself when it starts). */
 async function launcher(kind = 'player') {
@@ -94,7 +112,7 @@ async function launcher(kind = 'player') {
   if (process.platform === 'darwin') { const app = installs('darwin', kind)[0]; return app ? { exe: 'open', args: ['-a', app] } : null; }
   if (process.platform !== 'win32') return null;
   const h = await handler(kind);
-  if (kind === 'player' && h && BOOTSTRAPPERS.some((b) => path.basename(h).toLowerCase() === `${b.toLowerCase()}.exe`)) return { exe: h, args: ['-player'] };
+  if (kind === 'player' && isBootstrapper(h)) return { exe: h, args: ['-player'] };
   const own = installs('win32', kind)[0] || (h && path.basename(h).toLowerCase() === k.exe.toLowerCase() ? h : null);
   return own ? { exe: own, args: [] } : null;
 }
@@ -128,6 +146,33 @@ async function pids(kind = 'player') {
   if (process.platform === 'win32') return parsePids(await run('tasklist', ['/FI', `IMAGENAME eq ${k.exe}`, '/NH', '/FO', 'CSV']), 'win32', kind);
   if (process.platform === 'darwin') return parsePids(await run('pgrep', ['-x', k.mac]), 'darwin', kind);
   return [];
+}
+
+/* Windows: process ids of Roblox's installers (the player's and Studio's),
+ * by kind. An installer started from the browser's download bar gets the
+ * browser's older environment and goes around Shroudly; it is safe to start
+ * again, since it keeps nothing of its own. */
+function parseInstallerPids(out) {
+  const found = { player: [], studio: [] };
+  for (const [kind, k] of Object.entries(KINDS)) {
+    const name = k.installer.replace(/\./g, '\\.');
+    found[kind] = [...String(out || '').matchAll(new RegExp(`^"${name}","(\\d+)"`, 'gmi'))].map((m) => Number(m[1]));
+  }
+  return found;
+}
+async function installerPids() {
+  if (process.platform !== 'win32') return { player: [], studio: [] };
+  return parseInstallerPids(await run('tasklist', ['/FI', 'IMAGENAME eq Roblox*', '/NH', '/FO', 'CSV']));
+}
+
+/* Stop these processes outright (an installer, a player that never got
+ * through): nothing in them is the user's. */
+async function kill(list) {
+  const live = alive(list);
+  if (!live.length) return true;
+  if (process.platform === 'win32') await run('taskkill', [...live.flatMap((p) => ['/PID', String(p)]), '/T', '/F']);
+  else for (const p of live) { try { process.kill(p, 'SIGKILL'); } catch {} }
+  return waitGone(live, 5000);
 }
 
 /* A player going around Shroudly is only possible on Windows, where a
@@ -347,4 +392,4 @@ async function install(opts) {
 const ROBLOX_HOST = /(^|\.)(roblox\.com|rbxcdn\.com|rbxinfra\.net|rbx\.com|robloxlabs\.com)$/i;
 function isRobloxHost(h) { return ROBLOX_HOST.test(String(h || '')); }
 
-module.exports = { installs, installed, handler, launcher, storeEdition, pids, parsePids, routeWatched, silentPlayers, alive, open, restart, install, cleanDownloads, newDownload, isRobloxHost, get, signedByRoblox, BOOTSTRAPPERS, BYPASS_GRACE_MS, KINDS };
+module.exports = { installs, installed, handler, launcher, isBootstrapper, storeEdition, pids, parsePids, installerPids, parseInstallerPids, kill, routeWatched, silentPlayers, alive, open, restart, install, cleanDownloads, newDownload, isRobloxHost, get, signedByRoblox, BOOTSTRAPPERS, BYPASS_GRACE_MS, KINDS };

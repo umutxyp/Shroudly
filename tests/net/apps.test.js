@@ -123,68 +123,6 @@ async function robloxInstaller(proxy, socksPort) {
   try { fs.rmSync(dir, { recursive: true, force: true }); } catch {}
 }
 
-/* The same for Roblox Studio, the editor: its own installer ("Install
- * Roblox Studio") downloaded through the engine and started with the
- * setting, then Studio itself, started by its installer or else as "Open
- * Roblox Studio" starts it. Watched from the download until Studio has run
- * for a minute: everything Roblox's programs connect to must go through
- * Shroudly, Studio's own connections included. */
-async function robloxStudio(proxy, socksPort) {
-  const RobloxApp = require(path.join(ROOT, 'electron', 'roblox-app.js'));
-  const { socksConnect } = require(path.join(ROOT, 'electron', 'discord-relay.js'));
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'shroudly-studio-'));
-  const env = { HTTPS_PROXY: proxy.url, NO_PROXY: AppEnv.NO_PROXY_VALUE };
-  let studioSince = 0;
-  const all = new Set();
-  const studioHosts = new Set();
-  let studioTunnels = 0;
-  proxy.onTunnel = (host) => {
-    all.add(host);
-    if (studioSince) { studioTunnels++; studioHosts.add(host); }
-  };
-  const r = await RobloxApp.install({ kind: 'studio', socksPort, connect: socksConnect, dir, env });
-  if (!r.success && r.code === 'unreachable') {
-    console.log(`  --  Roblox Studio installer not downloadable here (${r.detail}); skipped`);
-    proxy.onTunnel = null;
-    return;
-  }
-  t.ok(r.success, `Install Roblox Studio: current installer (${r.version}) downloaded through the engine, signed by Roblox, started (${r.code || 'ok'}${r.detail ? `: ${r.detail}` : ''})`);
-  if (!r.success) { proxy.onTunnel = null; return; }
-  const direct = new Set();
-  const watch = async () => { for (const c of await robloxDirect()) direct.add(c); };
-  // The installer fetches Studio (several hundred MB) and normally starts it.
-  let until = Date.now() + 8 * 60000;
-  let startedBy = 'its installer';
-  let installedAt = 0;
-  while (Date.now() < until) {
-    await sleep(3000);
-    await watch();
-    if ((await RobloxApp.pids('studio')).length) { studioSince = Date.now(); break; }
-    if (RobloxApp.installed('studio') && !installedAt) installedAt = Date.now();
-    // Installed, and the installer has ended without starting it.
-    const installerRunning = /RobloxStudioInstaller/i.test(String(spawnSync('tasklist', ['/FI', 'IMAGENAME eq RobloxStudioInstaller.exe', '/NH']).stdout || ''));
-    if (installedAt && !installerRunning && Date.now() - installedAt > 10000) {
-      startedBy = 'Open Roblox Studio';
-      t.ok(await RobloxApp.open(env, 'studio'), `Open Roblox Studio starts it (${(await RobloxApp.launcher('studio') || {}).exe})`);
-      studioSince = Date.now();
-      break;
-    }
-  }
-  console.log(`  ..  Studio installed at ${RobloxApp.installs('win32', 'studio').join(', ') || '(not found)'}; link handled by ${await RobloxApp.handler('studio')}`);
-  t.ok(studioSince > 0, `Roblox Studio installed and started (by ${startedBy})`);
-  if (studioSince) {
-    until = Date.now() + 60000;
-    while (Date.now() < until) { await sleep(3000); await watch(); }
-  }
-  for (const im of ['RobloxStudioBeta.exe', 'RobloxStudioInstaller.exe', 'RobloxCrashHandler.exe']) spawnSync('taskkill', ['/F', '/T', '/IM', im]);
-  proxy.onTunnel = null;
-  if (direct.size) console.log(`  !!  direct: ${[...direct].slice(0, 12).join(', ')}`);
-  console.log(`  ..  through Shroudly: ${[...all].slice(0, 30).join(', ')}`);
-  t.ok(direct.size === 0, `Roblox Studio and its installer: nothing around Shroudly (${direct.size})`);
-  if (studioSince) t.ok(studioTunnels > 0 && [...studioHosts].some(RobloxApp.isRobloxHost), `Roblox Studio itself connects through Shroudly (${studioTunnels}: ${[...studioHosts].slice(0, 8).join(', ')})`);
-  try { fs.rmSync(dir, { recursive: true, force: true }); } catch {}
-}
-
 (async () => {
   // ── addresses ──
   t.ok(JSON.stringify(AppProxy.parseTarget('www.roblox.com:443')) === '{"host":"www.roblox.com","port":443}', 'CONNECT target parsed');
@@ -237,6 +175,37 @@ async function robloxStudio(proxy, socksPort) {
     '"robloxplayerbeta.exe","4121","Console","1","400,000 K"'].join('\r\n');
   t.ok(JSON.stringify(RobloxApp.parsePids(tasklist, 'win32')) === '[4120,4121]', `Windows: only RobloxPlayerBeta.exe, not the crash handler, Studio, the installer or other tools (${RobloxApp.parsePids(tasklist, 'win32')})`);
   t.ok(JSON.stringify(RobloxApp.parsePids(tasklist, 'win32', 'studio')) === '[5100]', `Windows: Studio is RobloxStudioBeta.exe alone (${RobloxApp.parsePids(tasklist, 'win32', 'studio')})`);
+  {
+    const inst = RobloxApp.parseInstallerPids(`${tasklist}\r\n"RobloxStudioInstaller.exe","6300","Console","1","20,000 K"`);
+    t.ok(JSON.stringify(inst) === '{"player":[6100],"studio":[6300]}', "Windows: the player's and Studio's installers, each by its own name");
+  }
+  {
+    // Copies of the player and Studio wherever Roblox and any bootstrapper
+    // keep them, whatever the bootstrapper is called.
+    const la = fs.mkdtempSync(path.join(os.tmpdir(), 'shroudly-la-'));
+    const put = (rel) => { fs.mkdirSync(path.dirname(path.join(la, rel)), { recursive: true }); fs.writeFileSync(path.join(la, rel), ''); };
+    put('Roblox/Versions/version-a/RobloxPlayerBeta.exe');
+    put('Roblox/Versions/version-s/RobloxStudioBeta.exe');
+    put('Voidstrap/Versions/version-b/RobloxPlayerBeta.exe');
+    put('Voidstrap/Voidstrap.exe');
+    put('SomeApp/Versions/notes.txt');
+    put('Other/RobloxPlayerBeta.exe');
+    const saved = process.env.LOCALAPPDATA;
+    process.env.LOCALAPPDATA = la;
+    try {
+      const players = RobloxApp.installs('win32').map((p) => path.relative(la, p).split(path.sep).join('/')).sort();
+      const studios = RobloxApp.installs('win32', 'studio').map((p) => path.relative(la, p).split(path.sep).join('/'));
+      t.ok(JSON.stringify(players) === '["Roblox/Versions/version-a/RobloxPlayerBeta.exe","Voidstrap/Versions/version-b/RobloxPlayerBeta.exe"]',
+        `Windows: Roblox's own player and a bootstrapper's, whatever its name (${players.join(', ')})`);
+      t.ok(JSON.stringify(studios) === '["Roblox/Versions/version-s/RobloxStudioBeta.exe"]', 'Windows: Studio found apart from the player');
+      t.ok(RobloxApp.isBootstrapper(path.join(la, 'Voidstrap', 'Voidstrap.exe')) && RobloxApp.isBootstrapper('C:\\x\\Bloxstrap.exe')
+        && !RobloxApp.isBootstrapper(path.join(la, 'Roblox', 'Versions', 'version-a', 'RobloxPlayerBeta.exe')) && !RobloxApp.isBootstrapper(null),
+      "a bootstrapper is told by the Versions folder beside it (or a known name), never Roblox's own programs");
+    } finally {
+      if (saved === undefined) delete process.env.LOCALAPPDATA; else process.env.LOCALAPPDATA = saved;
+      fs.rmSync(la, { recursive: true, force: true });
+    }
+  }
   t.ok(RobloxApp.parsePids('INFO: No tasks are running which match the specified criteria.\r\n', 'win32').length === 0 && JSON.stringify(RobloxApp.parsePids('812\n913\n', 'darwin')) === '[812,913]', 'none running; macOS pgrep output read');
   t.ok(RobloxApp.routeWatched('win32') && !RobloxApp.routeWatched('darwin') && !RobloxApp.routeWatched('linux'), 'a player going around Shroudly is only looked for on Windows (macOS hands every app the setting)');
   {
@@ -494,8 +463,6 @@ async function robloxStudio(proxy, socksPort) {
   // with the proxy in its environment, as programs started after the mode is
   // turned on are, every connection it makes must go through Shroudly.
   if (process.platform === 'win32' && process.env.CI) await robloxInstaller(proxy, P);
-  // Studio is several hundred MB: on the x64 runner only.
-  if (process.platform === 'win32' && process.env.CI && process.arch === 'x64') await robloxStudio(proxy, P);
 
   engineOn = false;
   const d = await getWithRetry(port, 'www.wikipedia.org');

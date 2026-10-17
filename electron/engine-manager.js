@@ -164,6 +164,7 @@ class EngineManager {
     this.onHostEvent = hooks.onHostEvent || (() => {});
     this.onNeedRestart = hooks.onNeedRestart || (() => {});
     this.onDnsAutoEnabled = hooks.onDnsAutoEnabled || (() => {});
+    this.onAutoModeEnabled = hooks.onAutoModeEnabled || (() => {});
     // The current automatic list (site-list.js); the one shipped with the app
     // when there is none.
     this.siteList = hooks.siteList || (() => DEFAULT_SITE_LIST);
@@ -695,7 +696,7 @@ class EngineManager {
         }
         break;
       case 'blocked':
-        try { this.onHostEvent('blocked', msg.host, msg.note || null); } catch {}
+        try { this.onHostEvent('blocked', msg.host, msg.note || null, { alert: !!msg.alert, siteOk: !!msg.site_ok, note: msg.note || null }); } catch {}
         // Not the network: the server itself turned the handshake down (an
         // alert, never a reset), or the rest of this site answers through
         // Shroudly and only this one of its addresses does not (an API, a
@@ -734,6 +735,16 @@ class EngineManager {
           this.store.set('dnsProtection', true);
           this.log('warning', `${msg.host} could not be opened with encrypted DNS switched off. It has been switched back on.`);
           if (typeof this.onDnsAutoEnabled === 'function') this.onDnsAutoEnabled(msg.host);
+          setTimeout(() => { if (this.active) this.restart().catch(() => {}); }, 300);
+          break;
+        }
+        // Auto mode switched off: only the one technique was tried. Turn it
+        // back on and try again, once per session, as with encrypted DNS.
+        if (this.store.get('autoMode') === false && !this._autoReenabledForBlock) {
+          this._autoReenabledForBlock = true;
+          this.store.set('autoMode', true);
+          this.log('warning', `Auto mode was off and ${msg.host} was blocked; it has been turned back on`);
+          if (typeof this.onAutoModeEnabled === 'function') this.onAutoModeEnabled(msg.host);
           setTimeout(() => { if (this.active) this.restart().catch(() => {}); }, 300);
           break;
         }

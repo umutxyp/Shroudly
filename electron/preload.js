@@ -60,7 +60,7 @@ contextBridge.exposeInMainWorld('electron', {
   onOnlineCount: (cb) => ipcRenderer.on('presence:count', (e, n) => cb(n)),
   removeOnlineCountListener: () => ipcRenderer.removeAllListeners('presence:count'),
 
-  // Advanced (packet-layer) mode — optional, stateful-DPI countries
+  // Advanced (packet-layer) mode, for filters that follow whole connections
   advancedAvailable: () => ipcRenderer.invoke('advanced:available'),
   getAdvice: () => ipcRenderer.invoke('dpi:advice'),
   proxyStatus: () => ipcRenderer.invoke('proxy:status'),
@@ -75,20 +75,19 @@ contextBridge.exposeInMainWorld('electron', {
   removeAdviceListener: () => ipcRenderer.removeAllListeners('dpi:advice'),
   discordStatus: () => ipcRenderer.invoke('discord:status'),
   discordSet: (on) => ipcRenderer.invoke('discord:set', on),
-  discordDecline: () => ipcRenderer.invoke('discord:decline'),
-  discordRestart: () => ipcRenderer.invoke('discord:restart'),
-  onDiscordState: (cb) => ipcRenderer.on('discord:state', (e, p) => cb(p)),
+  // Returns a function that removes just this listener (several panels listen).
+  onDiscordState: (cb) => { const h = (e, p) => cb(p); ipcRenderer.on('discord:state', h); return () => ipcRenderer.removeListener('discord:state', h); },
   removeDiscordStateListener: () => ipcRenderer.removeAllListeners('discord:state'),
   // Games and apps mode (Roblox and other programs that ignore the system proxy)
   appsStatus: (opts) => ipcRenderer.invoke('apps:status', opts),
   appsSet: (on) => ipcRenderer.invoke('apps:set', on),
-  appsDecline: () => ipcRenderer.invoke('apps:decline'),
-  appsRestartRoblox: () => ipcRenderer.invoke('apps:restartRoblox'),
-  appsOpenRoblox: () => ipcRenderer.invoke('apps:openRoblox'),
-  appsInstallRoblox: () => ipcRenderer.invoke('apps:installRoblox'),
   // Returns a function that removes just this listener (several panels listen).
   onAppsState: (cb) => { const h = (e, p) => cb(p); ipcRenderer.on('apps:state', h); return () => ipcRenderer.removeListener('apps:state', h); },
   removeAppsStateListener: () => ipcRenderer.removeAllListeners('apps:state'),
+  // What the autopilot did by itself (autopilot.js): the last few, then each
+  // as it happens.
+  autoNotices: () => ipcRenderer.invoke('auto:notices'),
+  onAutoNotice: (cb) => { const h = (e, p) => cb(p); ipcRenderer.on('auto:notice', h); return () => ipcRenderer.removeListener('auto:notice', h); },
   startAdvanced: () => ipcRenderer.invoke('advanced:start'),
   stopAdvanced: () => ipcRenderer.invoke('advanced:stop'),
   onProbeResult: (cb) => ipcRenderer.on('dpi:probe-result', (e, p) => cb(p)),
