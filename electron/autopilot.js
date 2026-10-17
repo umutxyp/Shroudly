@@ -90,7 +90,9 @@ class Autopilot {
     this.now = opts.now || Date.now;
     this.blocked = new Map();      // service id -> { how, host, at }
     this.clear = new Map();        // service id -> when it was last found not blocked
+    this.unknownAt = new Map();    // service id -> when a check last learnt nothing (offline)
     this.checking = new Map();     // service id -> the check under way
+    this.gen = 0;                  // network generation: a check from an older one is dropped
     this.failed = new Set();       // services whose mode could not be turned on this session
     this.busy = new Set();
     this.toldOff = new Set();
@@ -111,13 +113,28 @@ class Autopilot {
     return this.now() - at < RESPECT_OFF_MS;
   }
 
-  /* A different network: what was learnt about the last one does not hold. */
+  /* A different network: what was learnt about the last one does not hold,
+   * and a check still under way belongs to the old one. */
   networkChanged() {
-    if (!this.blocked.size && !this.clear.size) return;
+    this.gen++;
+    if (!this.blocked.size && !this.clear.size && !this.unknownAt.size) return;
     this.blocked.clear();
     this.clear.clear();
+    this.unknownAt.clear();
     this.failed.clear();
     this.log('info', 'Autopilot: the network changed; services will be checked again');
+  }
+
+  /* Before acting on a program (restarting it): is the service still blocked
+   * right now? A verdict older than `freshMs` is checked again first, so a
+   * program is never restarted on a network the verdict no longer fits
+   * (two networks can look alike from this computer). */
+  async stillBlocked(id, freshMs = 10 * 60 * 1000) {
+    const b = this.blocked.get(id);
+    if (!b) return false;
+    if (this.now() - b.at < freshMs) return true;
+    await this._confirm(id, b.host, null);
+    return this.blocked.has(id);
   }
 
   /* An engine event about a host (engine-manager's onHostEvent, and the cut
@@ -130,19 +147,29 @@ class Autopilot {
       || (kind === 'blocked' && !info.alert && !info.siteOk && info.note !== 'silent');
     if (!real) return;
     const id = familyOf(host);
-    if (id && !this.blocked.has(id) && this.now() - (this.clear.get(id) || -Infinity) >= CHECK_AGAIN_MS) {
-      this._confirm(id, String(host).toLowerCase(), kind).catch(() => {});
-    }
+    if (!id || this.blocked.has(id)) return;
+    if (this.now() - (this.clear.get(id) || -Infinity) < CHECK_AGAIN_MS) return;
+    // Nothing could be learnt a moment ago (offline): soon again, not at once.
+    if (this.now() - (this.unknownAt.get(id) || -Infinity) < 2 * 60 * 1000) return;
+    this._confirm(id, String(host).toLowerCase(), kind).catch(() => {});
   }
 
   /* Whether `host` of service `id` is blocked, by blockcheck. One check per
    * service at a time. */
   async _confirm(id, host, why) {
     if (this.checking.has(id)) return this.checking.get(id);
+    const gen = this.gen;
     const run = (async () => {
       let r = null;
       try { r = await this.check(host); } catch {}
-      if (!r) return false;
+      // No answer, or the network changed while it ran: nothing learnt.
+      if (!r || gen !== this.gen) return false;
+      if (r.unknown) {
+        this.unknownAt.set(id, this.now());
+        this.log('info', `Autopilot: ${host} could not be checked (${r.detail}); tried again later`);
+        return false;
+      }
+      this.unknownAt.delete(id);
       if (r.blocked) {
         this.blocked.set(id, { how: r.how, host, at: this.now() });
         this.clear.delete(id);
@@ -206,6 +233,7 @@ class Autopilot {
       }
       if (!s.present()) continue;
       if (this.now() - (this.clear.get(s.id) || -Infinity) < CHECK_AGAIN_MS) continue;
+      if (this.now() - (this.unknownAt.get(s.id) || -Infinity) < 2 * 60 * 1000) continue;
       await this._confirm(s.id, s.probe, null);
     }
   }
@@ -214,13 +242,20 @@ class Autopilot {
    * started themselves): not asked again by itself for two weeks. */
   recordDecline() { this.store.set('advancedDeclinedAt', this.now()); }
 
-  /* A site no technique opened, or one cut after it connected: Advanced mode
-   * is what is left. Resolves whether it is on now. */
-  async needAdvanced(host) {
+  /* Whether needAdvanced would ask now (the window shows its own offer
+   * otherwise). */
+  willAskAdvanced() {
     const a = this.advanced;
     if (!a || !a.available() || a.active() || !this.protectionOn() || this.advancedAsked) return false;
     if (this._offByHand('advancedMode')) return false;
-    if (this.now() - (Number(this.store.get('advancedDeclinedAt', 0)) || 0) < RESPECT_OFF_MS) return false;
+    return this.now() - (Number(this.store.get('advancedDeclinedAt', 0)) || 0) >= RESPECT_OFF_MS;
+  }
+
+  /* A site no technique opened, or one cut after it connected: Advanced mode
+   * is what is left. Resolves whether it is on now. */
+  async needAdvanced(host) {
+    if (!this.willAskAdvanced()) return false;
+    const a = this.advanced;
     this.advancedAsked = true;
     this.log('info', `Autopilot: ${host} needs Advanced mode; asking for permission`);
     this.tell('autoAdvancedAsk', { host });
