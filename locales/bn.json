@@ -366,7 +366,6 @@
   "autoAdvancedAsk": "এই নেটওয়ার্কে {host}-এর জন্য উন্নত মোড দরকার। আপনার কম্পিউটার অনুমতি চাইলে তা দিন।",
   "autoAdvancedOn": "উন্নত মোড চালু আছে, তাই এই নেটওয়ার্কে {host} ও এর মতো সাইটগুলো খুলতে পারে।",
   "autoAdvancedDeclined": "উন্নত মোডের অনুমতি দেওয়া হয়নি, তাই {host} হয়তো খুলবে না।",
-  "autoModeOn": "স্বয়ংক্রিয় মোড বন্ধ থাকার সময় {host} ব্লক হয়েছিল, তাই Shroudly স্বয়ংক্রিয় মোড আবার চালু করেছে।",
   "logAutoDiscordOn": "অটোপাইলট: এই নেটওয়ার্কে Discord ব্লক করা; Discord অ্যাপ মোড চালু করা হয়েছে",
   "logAutoRobloxOn": "অটোপাইলট: এই নেটওয়ার্কে Roblox ব্লক করা; গেম ও অ্যাপ মোড চালু করা হয়েছে",
   "logAutoRestarted": "অটোপাইলট: {app} Shroudly-এর মাধ্যমে সংযুক্ত হয়নি; আবার চালু করা হয়েছে",
@@ -375,7 +374,7 @@
   "logAutoRobloxStuck": "অটোপাইলট: Shroudly-এর মাধ্যমে আবার চালু করার পরও Roblox সংযুক্ত হচ্ছে না",
   "logAutoAdvancedAsk": "অটোপাইলট: {host}-এর জন্য উন্নত মোড দরকার; অনুমতি চাওয়া হচ্ছে",
   "logAutoAdvancedDeclined": "উন্নত মোডের অনুমতি দেওয়া হয়নি; Shroudly দুই সপ্তাহ নিজে থেকে আর জিজ্ঞাসা করবে না",
-  "logAutoModeOn": "স্বয়ংক্রিয় মোড বন্ধ ছিল এবং {host} ব্লক হয়েছিল; এটি আবার চালু করা হয়েছে",
   "logStudioInstalled": "Roblox Studio ইনস্টলার Shroudly-এর মাধ্যমে ডাউনলোড হয়ে চালু হয়েছে ({version})",
-  "logStudioDownloadFailed": "Roblox Studio ডাউনলোড করা যায়নি ({detail})"
+  "logStudioDownloadFailed": "Roblox Studio ডাউনলোড করা যায়নি ({detail})",
+  "autoAdvancedFailed": "উন্নত মোড চালু করা যায়নি, তাই {host} হয়তো খুলবে না।"
 }

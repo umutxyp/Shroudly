@@ -366,7 +366,6 @@
   "autoAdvancedAsk": "{host} በዚህ አውታረ መረብ ላይ የላቀ ሁነታ ያስፈልገዋል። ኮምፒውተርዎ ሲጠይቅ ይፍቀዱ።",
   "autoAdvancedOn": "የላቀ ሁነታ በርቷል፤ ስለዚህ {host} እና መሰል ድረ-ገጾች በዚህ አውታረ መረብ ላይ ሊከፈቱ ይችላሉ።",
   "autoAdvancedDeclined": "የላቀ ሁነታ ስላልተፈቀደ {host} ላይከፈት ይችላል።",
-  "autoModeOn": "ራስ-ሰር ሁነታ ጠፍቶ እያለ {host} ስለታገደ Shroudly ራስ-ሰር ሁነታን እንደገና አብርቶታል።",
   "logAutoDiscordOn": "ራስ-ሰር አብራሪ: Discord በዚህ አውታረ መረብ ላይ ታግዷል፤ የDiscord መተግበሪያ ሁነታ በርቷል",
   "logAutoRobloxOn": "ራስ-ሰር አብራሪ: Roblox በዚህ አውታረ መረብ ላይ ታግዷል፤ የጨዋታዎችና የመተግበሪያዎች ሁነታ በርቷል",
   "logAutoRestarted": "ራስ-ሰር አብራሪ: {app} በShroudly በኩል ማለፍ አልቻለም፤ እንደገና ተጀምሯል",
@@ -375,7 +374,7 @@
   "logAutoRobloxStuck": "ራስ-ሰር አብራሪ: Roblox በShroudly በኩል እንደገና ከተጀመረ በኋላም ማለፍ አልቻለም",
   "logAutoAdvancedAsk": "ራስ-ሰር አብራሪ: {host} የላቀ ሁነታ ያስፈልገዋል፤ ፈቃድ እየተጠየቀ ነው",
   "logAutoAdvancedDeclined": "የላቀ ሁነታ አልተፈቀደም፤ Shroudly ለሁለት ሳምንት በራሱ እንደገና አይጠይቅም",
-  "logAutoModeOn": "ራስ-ሰር ሁነታ ጠፍቶ እያለ {host} ታግዷል፤ ሁነታው እንደገና እንዲበራ ተደርጓል",
   "logStudioInstalled": "የRoblox Studio ጫኚ በShroudly በኩል ወርዶ ተጀምሯል ({version})",
-  "logStudioDownloadFailed": "Roblox Studioን ማውረድ አልተቻለም ({detail})"
+  "logStudioDownloadFailed": "Roblox Studioን ማውረድ አልተቻለም ({detail})",
+  "autoAdvancedFailed": "የላቀ ሁነታን ማብራት ስላልተቻለ {host} ላይከፈት ይችላል።"
 }

@@ -366,7 +366,6 @@
   "autoAdvancedAsk": "{host} braucht in diesem Netz den erweiterten Modus. Erlaube ihn, wenn dein Computer fragt.",
   "autoAdvancedOn": "Der erweiterte Modus ist an, deshalb lassen sich {host} und ähnliche Seiten in diesem Netz öffnen.",
   "autoAdvancedDeclined": "Der erweiterte Modus wurde nicht erlaubt, deshalb öffnet sich {host} vielleicht nicht.",
-  "autoModeOn": "{host} war gesperrt, während der Automatikmodus aus war, deshalb hat Shroudly den Automatikmodus wieder eingeschaltet.",
   "logAutoDiscordOn": "Autopilot: Discord ist in diesem Netz gesperrt; Discord-App-Modus eingeschaltet",
   "logAutoRobloxOn": "Autopilot: Roblox ist in diesem Netz gesperrt; Modus „Spiele und Apps“ eingeschaltet",
   "logAutoRestarted": "Autopilot: {app} kam nicht über Shroudly durch; neu gestartet",
@@ -375,7 +374,7 @@
   "logAutoRobloxStuck": "Autopilot: Roblox kommt auch nach einem Neustart über Shroudly nicht durch",
   "logAutoAdvancedAsk": "Autopilot: {host} braucht den erweiterten Modus; Erlaubnis wird angefordert",
   "logAutoAdvancedDeclined": "Der erweiterte Modus wurde nicht erlaubt; Shroudly fragt zwei Wochen lang nicht mehr von selbst danach",
-  "logAutoModeOn": "Der Automatikmodus war aus und {host} war gesperrt; er wurde wieder eingeschaltet",
   "logStudioInstalled": "Installationsprogramm von Roblox Studio über Shroudly heruntergeladen und gestartet ({version})",
-  "logStudioDownloadFailed": "Roblox Studio konnte nicht heruntergeladen werden ({detail})"
+  "logStudioDownloadFailed": "Roblox Studio konnte nicht heruntergeladen werden ({detail})",
+  "autoAdvancedFailed": "Der erweiterte Modus konnte nicht eingeschaltet werden, deshalb öffnet sich {host} vielleicht nicht."
 }

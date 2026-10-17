@@ -366,7 +366,6 @@
   "autoAdvancedAsk": "У гэтай сетцы для {host} патрэбны пашыраны рэжым. Дазвольце яго, калі камп’ютар запытае.",
   "autoAdvancedOn": "Пашыраны рэжым уключаны, таму {host} і падобныя сайты могуць адкрывацца ў гэтай сетцы.",
   "autoAdvancedDeclined": "Пашыраны рэжым не дазволены, таму {host} можа не адкрыцца.",
-  "autoModeOn": "{host} быў заблакаваны, пакуль аўтаматычны рэжым быў выключаны, таму Shroudly зноў яго ўключыў.",
   "logAutoDiscordOn": "Аўтапілот: Discord заблакаваны ў гэтай сетцы; рэжым праграмы Discord уключаны",
   "logAutoRobloxOn": "Аўтапілот: Roblox заблакаваны ў гэтай сетцы; рэжым «Гульні і праграмы» ўключаны",
   "logAutoRestarted": "Аўтапілот: праграма {app} не падключылася праз Shroudly; яе перазапусцілі",
@@ -375,7 +374,7 @@
   "logAutoRobloxStuck": "Аўтапілот: Roblox усё яшчэ не падключаецца пасля перазапуску праз Shroudly",
   "logAutoAdvancedAsk": "Аўтапілот: для {host} патрэбны пашыраны рэжым; запыт дазволу",
   "logAutoAdvancedDeclined": "Пашыраны рэжым не дазволены; два тыдні Shroudly не будзе сам пытацца пра гэта",
-  "logAutoModeOn": "Аўтаматычны рэжым быў выключаны, а {host} быў заблакаваны; рэжым зноў уключаны",
   "logStudioInstalled": "Усталёўшчык Roblox Studio спампаваны праз Shroudly і запушчаны ({version})",
-  "logStudioDownloadFailed": "Не ўдалося спампаваць Roblox Studio ({detail})"
+  "logStudioDownloadFailed": "Не ўдалося спампаваць Roblox Studio ({detail})",
+  "autoAdvancedFailed": "Пашыраны рэжым не ўдалося ўключыць, таму {host} можа не адкрыцца."
 }

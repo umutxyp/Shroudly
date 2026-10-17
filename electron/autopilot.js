@@ -11,13 +11,18 @@
  * user turns off by hand stays off for two weeks, after which the autopilot
  * may turn it on again if the same problem comes back.
  *
- * Services an app needs (Discord, Roblox): the autopilot learns that this
- * network blocks one from the engine's own events for its names (a site that
- * needed a technique, one cut after it connected, one no technique opened),
- * or from a check of its own (blockcheck.js) when protection is on and the
- * app is installed, so the mode is on before the app is opened. Then it turns
- * that service's mode on. What follows from it (restarting a program that is
- * stuck around Shroudly) is the caller's, which knows each program (main.js).
+ * Services an app needs (Discord, Roblox): whether this network blocks one is
+ * decided by a check of its own (blockcheck.js: the system's DNS and a direct
+ * handshake fail where the same name works through Shroudly), made when
+ * protection is on and the app is installed, so the mode is on before the app
+ * is opened, and made again whenever the engine reports something about one
+ * of the service's own names (a name that needed a technique, that no
+ * technique opened, or that the engine believes is cut after it connects).
+ * An engine event alone never decides it: one stalled connection on bad
+ * Wi-Fi looks the same as a filter. What is learnt is looked at again after a
+ * few hours and forgotten when the network changes. Then the service's mode
+ * is turned on; what follows from it (restarting a program stuck around
+ * Shroudly) is the caller's, which knows each program (main.js).
  *
  * Advanced mode: a site that no technique opens, or that connects and is then
  * cut, is the network Advanced mode is for. It needs the system's permission,
@@ -25,17 +30,42 @@
  * weeks once the user declines.
  */
 
-const { FAMILIES } = require('./families');
-
 const RESPECT_OFF_MS = 14 * 24 * 60 * 60 * 1000;
 const CHECK_AGAIN_MS = 6 * 60 * 60 * 1000;
+
+/* The services' own names: what the engine reports about them is worth a
+ * check. Not the third parties they embed (GIFs, captchas, identity checks),
+ * which say nothing about whether the service itself is blocked. */
+const OWN = {
+  discord: ['discord.com', 'discord.gg', 'discordapp.com', 'discordapp.net', 'discord.media', 'discordcdn.com',
+    'discord.co', 'discord.app', 'discordstatus.com'],
+  roblox: ['roblox.com', 'rbxcdn.com', 'rbxinfra.net', 'rbx.com', 'rblx.org', 'blox.com', 'rbxcdn.net', 'robloxcdn.com',
+    'robloxlabs.com', 'rbxtrk.com'],
+};
 
 const under = (h, d) => h === d || h.endsWith(`.${d}`);
 function familyOf(host) {
   const h = String(host || '').toLowerCase().replace(/\.$/, '');
   if (!h) return null;
-  for (const [id, domains] of Object.entries(FAMILIES)) if (domains.some((d) => under(h, d))) return id;
+  for (const [id, domains] of Object.entries(OWN)) if (domains.some((d) => under(h, d))) return id;
   return null;
+}
+
+/* Hand-made choices from before the autopilot (2.5.9 and older): a mode the
+ * user turned off, or an offer they put off with "Not now", are respected as
+ * if the switch had just been turned off by hand. Done once. */
+const LEGACY = [['discordMode', 'discordOfferDeclinedAt'], ['appMode', 'appOfferDeclinedAt']];
+function migrate(store, now) {
+  if (store.get('autopilotSince')) return;
+  for (const [mode, declinedKey] of LEGACY) {
+    const declined = Number(store.get(declinedKey, 0)) || 0;
+    if (store.get(`${mode}OffAt`) == null) {
+      if (store.get(mode) === false) store.set(`${mode}OffAt`, now);
+      else if (declined && now - declined < RESPECT_OFF_MS) store.set(`${mode}OffAt`, declined);
+    }
+    store.delete(declinedKey);
+  }
+  store.set('autopilotSince', now);
 }
 
 class Autopilot {
@@ -59,10 +89,13 @@ class Autopilot {
     this.advanced = opts.advanced || null;
     this.now = opts.now || Date.now;
     this.blocked = new Map();      // service id -> { how, host, at }
-    this.checkedAt = new Map();    // service id -> when blockcheck last ran
+    this.clear = new Map();        // service id -> when it was last found not blocked
+    this.checking = new Map();     // service id -> the check under way
+    this.failed = new Set();       // services whose mode could not be turned on this session
     this.busy = new Set();
     this.toldOff = new Set();
     this.advancedAsked = false;
+    migrate(this.store, this.now());
   }
 
   isBlocked(id) { return this.blocked.has(id); }
@@ -78,26 +111,59 @@ class Autopilot {
     return this.now() - at < RESPECT_OFF_MS;
   }
 
-  /* An engine event about a host (engine-manager's onHostEvent). A host that
-   * only refuses this client, or one no technique got an answer from, says
+  /* A different network: what was learnt about the last one does not hold. */
+  networkChanged() {
+    if (!this.blocked.size && !this.clear.size) return;
+    this.blocked.clear();
+    this.clear.clear();
+    this.failed.clear();
+    this.log('info', 'Autopilot: the network changed; services will be checked again');
+  }
+
+  /* An engine event about a host (engine-manager's onHostEvent, and the cut
+   * the engine believes, from its advice). A host that only refuses this
+   * client, one no technique got an answer from, or a single cut, says
    * nothing about the network. */
   noteHost(kind, host, info = {}) {
-    const real = kind === 'bypass' || kind === 'cut'
+    const real = kind === 'bypass'
+      || (kind === 'cut' && info.believed === true)
       || (kind === 'blocked' && !info.alert && !info.siteOk && info.note !== 'silent');
     if (!real) return;
     const id = familyOf(host);
-    if (id) this._evidence(id, kind === 'bypass' ? 'technique' : kind, host);
+    if (id && !this.blocked.has(id) && this.now() - (this.clear.get(id) || -Infinity) >= CHECK_AGAIN_MS) {
+      this._confirm(id, String(host).toLowerCase(), kind).catch(() => {});
+    }
   }
 
-  _evidence(id, how, host) {
-    if (this.blocked.has(id)) return;
-    this.blocked.set(id, { how, host, at: this.now() });
-    this.log('info', `Autopilot: ${id} is blocked on this network (${how}, ${host})`);
-    this.consider(id).catch(() => {});
+  /* Whether `host` of service `id` is blocked, by blockcheck. One check per
+   * service at a time. */
+  async _confirm(id, host, why) {
+    if (this.checking.has(id)) return this.checking.get(id);
+    const run = (async () => {
+      let r = null;
+      try { r = await this.check(host); } catch {}
+      if (!r) return false;
+      if (r.blocked) {
+        this.blocked.set(id, { how: r.how, host, at: this.now() });
+        this.clear.delete(id);
+        this.log('info', `Autopilot: ${id} is blocked on this network (${host}: ${r.how}, ${r.detail}${why ? `; after ${why}` : ''})`);
+        await this.consider(id);
+        return true;
+      }
+      this.blocked.delete(id);
+      this.clear.set(id, this.now());
+      this.log('info', `Autopilot: ${host} works without Shroudly on this network (${r.detail})`);
+      return false;
+    })();
+    this.checking.set(id, run);
+    try { return await run; } finally { this.checking.delete(id); }
   }
 
   /* Turn a blocked service's mode on, unless it is on already, its app is not
-   * here, or the user turned it off by hand not long ago. */
+   * here, the user turned it off by hand not long ago, or it could not be
+   * turned on earlier this session (a permission the user did not give, a
+   * proxy of their own in the way): the window shows that, and the user
+   * decides. */
   async consider(id) {
     const s = this.services.find((x) => x.id === id);
     if (!s || !this.blocked.has(id) || !this.protectionOn()) return false;
@@ -110,7 +176,7 @@ class Autopilot {
       }
       return false;
     }
-    if (this.busy.has(id)) return false;
+    if (this.failed.has(id) || this.busy.has(id)) return false;
     this.busy.add(id);
     try {
       let r = null;
@@ -120,28 +186,33 @@ class Autopilot {
         this.tell(s.told, {});
         return true;
       }
+      this.failed.add(id);
+      this.log('info', `Autopilot: ${s.name} mode could not be turned on (${(r && r.code) || 'failed'}); not tried again by itself this session`);
       return false;
     } finally { this.busy.delete(id); }
   }
 
   /* When protection comes on, and every so often after: for each service
-   * whose app is here, find out whether this network blocks it. Asked with
-   * the mode already on too (left on by an earlier session): what follows the
-   * mode (main.js restarting a program stuck around Shroudly) is only done
-   * where the service is known to be blocked. */
+   * whose app is here, find out whether this network blocks it; a service
+   * found blocked hours ago is looked at again. */
   async survey() {
     for (const s of this.services) {
       if (!this.protectionOn()) return;
-      if (this.blocked.has(s.id)) { await this.consider(s.id); continue; }
+      const b = this.blocked.get(s.id);
+      if (b) {
+        if (this.now() - b.at >= CHECK_AGAIN_MS) await this._confirm(s.id, b.host, null);
+        else await this.consider(s.id);
+        continue;
+      }
       if (!s.present()) continue;
-      if (this.now() - (this.checkedAt.get(s.id) || 0) < CHECK_AGAIN_MS) continue;
-      this.checkedAt.set(s.id, this.now());
-      let r = null;
-      try { r = await this.check(s.probe); } catch {}
-      if (r && r.blocked) this._evidence(s.id, r.how, s.probe);
-      else if (r) this.log('info', `Autopilot: ${s.probe} works without Shroudly on this network (${r.detail})`);
+      if (this.now() - (this.clear.get(s.id) || -Infinity) < CHECK_AGAIN_MS) continue;
+      await this._confirm(s.id, s.probe, null);
     }
   }
+
+  /* The user declined Advanced mode's permission prompt (also one they
+   * started themselves): not asked again by itself for two weeks. */
+  recordDecline() { this.store.set('advancedDeclinedAt', this.now()); }
 
   /* A site no technique opened, or one cut after it connected: Advanced mode
    * is what is left. Resolves whether it is on now. */
@@ -160,9 +231,11 @@ class Autopilot {
       return true;
     }
     if (r && r.code === 'declined') {
-      this.store.set('advancedDeclinedAt', this.now());
+      this.recordDecline();
       this.log('info', 'Advanced mode was not allowed; Shroudly will not ask by itself again for two weeks');
       this.tell('autoAdvancedDeclined', { host });
+    } else {
+      this.tell('autoAdvancedFailed', { host });
     }
     return false;
   }
@@ -170,5 +243,6 @@ class Autopilot {
 
 module.exports = Autopilot;
 module.exports.familyOf = familyOf;
+module.exports.OWN = OWN;
 module.exports.RESPECT_OFF_MS = RESPECT_OFF_MS;
 module.exports.CHECK_AGAIN_MS = CHECK_AGAIN_MS;

@@ -27,14 +27,19 @@ function hostPort(s) {
   return m ? { host: m[1].replace(/^\[|\]$/g, ''), port: Number(m[2]) } : null;
 }
 
-/* Lines of each tool, read into { pid, remote: { host, port } }. */
+/* Lines of each tool, read into { pid, remote: { host, port } }.
+ * Windows translates netstat's State column (HERGESTELLT, KURULDU,
+ * УСТАНОВЛЕНО...), so it is never compared: a listening socket has no peer
+ * (port 0), and a connection already closed belongs to no process (pid 0),
+ * so neither can match. */
 function parseNetstat(out) {
   const rows = [];
   for (const line of String(out || '').split(/\r?\n/)) {
     const f = line.trim().split(/\s+/);
-    if (f[0] !== 'TCP' || f.length < 5 || f[3] !== 'ESTABLISHED') continue;
+    if (f[0] !== 'TCP' || f.length < 5) continue;
     const remote = hostPort(f[2]);
-    if (remote) rows.push({ pid: Number(f[4]), remote });
+    const pid = Number(f[f.length - 1]);
+    if (remote && remote.port > 0 && pid > 0) rows.push({ pid, remote });
   }
   return rows;
 }

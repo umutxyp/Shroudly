@@ -50,7 +50,10 @@ async function check(host, opts = {}) {
   if (!addrs || !addrs.length) { how = 'dns'; detail = 'no answer'; }
   else if (addrs.some(diagnostics.looksForged)) { how = 'dns'; detail = addrs.filter(diagnostics.looksForged).join(', '); }
   else {
-    const r = await hs({ ip: addrs[0], servername: host });
+    // Tried twice, a second apart: one connection lost on a weak network
+    // is not a filter.
+    let r = await hs({ ip: addrs[0], servername: host });
+    if (r !== 'ok') { await new Promise((ok) => setTimeout(ok, opts.retryMs == null ? 1000 : opts.retryMs)); r = await hs({ ip: addrs[0], servername: host }); }
     if (r !== 'ok') { how = 'tls'; detail = r; }
   }
   if (!how) return { blocked: false, how: null, detail: 'direct ok' };

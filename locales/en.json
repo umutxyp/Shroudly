@@ -366,7 +366,6 @@
   "autoAdvancedAsk": "{host} needs Advanced mode on this network. Allow it when your computer asks.",
   "autoAdvancedOn": "Advanced mode is on, so {host} and sites like it can open on this network.",
   "autoAdvancedDeclined": "Advanced mode was not allowed, so {host} may not open.",
-  "autoModeOn": "{host} was blocked while Auto mode was off, so Shroudly turned Auto mode back on.",
   "logAutoDiscordOn": "Autopilot: Discord is blocked on this network; Discord app mode turned on",
   "logAutoRobloxOn": "Autopilot: Roblox is blocked on this network; Games and apps mode turned on",
   "logAutoRestarted": "Autopilot: {app} did not get through Shroudly; restarted it",
@@ -375,7 +374,7 @@
   "logAutoRobloxStuck": "Autopilot: Roblox still does not get through after being restarted through Shroudly",
   "logAutoAdvancedAsk": "Autopilot: {host} needs Advanced mode; asking for permission",
   "logAutoAdvancedDeclined": "Advanced mode was not allowed; Shroudly will not ask by itself again for two weeks",
-  "logAutoModeOn": "Auto mode was off and {host} was blocked; it has been turned back on",
   "logStudioInstalled": "Roblox Studio installer downloaded through Shroudly and started ({version})",
-  "logStudioDownloadFailed": "Roblox Studio could not be downloaded ({detail})"
+  "logStudioDownloadFailed": "Roblox Studio could not be downloaded ({detail})",
+  "autoAdvancedFailed": "Advanced mode could not be turned on, so {host} may not open."
 }

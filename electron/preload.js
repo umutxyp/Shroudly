@@ -87,6 +87,7 @@ contextBridge.exposeInMainWorld('electron', {
   // What the autopilot did by itself (autopilot.js): the last few, then each
   // as it happens.
   autoNotices: () => ipcRenderer.invoke('auto:notices'),
+  autoDismiss: (at) => ipcRenderer.send('auto:dismiss', at),
   onAutoNotice: (cb) => { const h = (e, p) => cb(p); ipcRenderer.on('auto:notice', h); return () => ipcRenderer.removeListener('auto:notice', h); },
   startAdvanced: () => ipcRenderer.invoke('advanced:start'),
   stopAdvanced: () => ipcRenderer.invoke('advanced:stop'),

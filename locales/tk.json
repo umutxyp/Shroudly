@@ -366,7 +366,6 @@
   "autoAdvancedAsk": "{host} üçin bu torda Giňişleýin tertip gerek. Kompýuteriňiz soranda rugsat beriň.",
   "autoAdvancedOn": "Giňişleýin tertip açyk, şonuň üçin {host} we oňa meňzeş saýtlar bu torda açylyp biler.",
   "autoAdvancedDeclined": "Giňişleýin tertibe rugsat berilmedi, şonuň üçin {host} açylmazlygy mümkin.",
-  "autoModeOn": "Awtomatik tertip öçükkä {host} petiklendi, şonuň üçin Shroudly Awtomatik tertibi täzeden açdy.",
   "logAutoDiscordOn": "Awtopilot: Discord bu torda petikli; Discord programmasynyň tertibi açyldy",
   "logAutoRobloxOn": "Awtopilot: Roblox bu torda petikli; Oýunlar we programmalar tertibi açyldy",
   "logAutoRestarted": "Awtopilot: {app} Shroudly arkaly birigip bilmedi; ol täzeden işledildi",
@@ -375,7 +374,7 @@
   "logAutoRobloxStuck": "Awtopilot: Roblox Shroudly arkaly täzeden işledilenden soň hem birigip bilmeýär",
   "logAutoAdvancedAsk": "Awtopilot: {host} üçin Giňişleýin tertip gerek; rugsat soralýar",
   "logAutoAdvancedDeclined": "Giňişleýin tertibe rugsat berilmedi; Shroudly iki hepdäniň dowamynda muny özi gaýtadan soramaz",
-  "logAutoModeOn": "Awtomatik tertip öçükdi we {host} petiklendi; Awtomatik tertip täzeden açyldy",
   "logStudioInstalled": "Roblox Studio gurnaýjysy Shroudly arkaly ýüklenip alyndy we işledildi ({version})",
-  "logStudioDownloadFailed": "Roblox Studio-ny ýükläp alyp bolmady ({detail})"
+  "logStudioDownloadFailed": "Roblox Studio-ny ýükläp alyp bolmady ({detail})",
+  "autoAdvancedFailed": "Giňişleýin tertibi açyp bolmady, şonuň üçin {host} açylmazlygy mümkin."
 }

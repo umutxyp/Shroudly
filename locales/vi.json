@@ -366,7 +366,6 @@
   "autoAdvancedAsk": "{host} cần Chế độ nâng cao trên mạng này. Hãy cho phép khi máy tính hỏi.",
   "autoAdvancedOn": "Chế độ nâng cao đang bật, nên {host} và các trang tương tự có thể mở được trên mạng này.",
   "autoAdvancedDeclined": "Chế độ nâng cao không được cho phép, nên {host} có thể không mở được.",
-  "autoModeOn": "{host} bị chặn khi Chế độ tự động đang tắt, nên Shroudly đã bật lại Chế độ tự động.",
   "logAutoDiscordOn": "Tự động xử lý: Discord bị chặn trên mạng này; đã bật Chế độ ứng dụng Discord",
   "logAutoRobloxOn": "Tự động xử lý: Roblox bị chặn trên mạng này; đã bật Chế độ trò chơi và ứng dụng",
   "logAutoRestarted": "Tự động xử lý: {app} không kết nối được qua Shroudly; đã khởi động lại",
@@ -375,7 +374,7 @@
   "logAutoRobloxStuck": "Tự động xử lý: Roblox vẫn không kết nối được sau khi được khởi động lại qua Shroudly",
   "logAutoAdvancedAsk": "Tự động xử lý: {host} cần Chế độ nâng cao; đang yêu cầu quyền",
   "logAutoAdvancedDeclined": "Chế độ nâng cao không được cho phép; Shroudly sẽ không tự hỏi lại trong hai tuần",
-  "logAutoModeOn": "Chế độ tự động đang tắt và {host} bị chặn; đã bật lại chế độ này",
   "logStudioInstalled": "Đã tải trình cài đặt Roblox Studio qua Shroudly và khởi chạy ({version})",
-  "logStudioDownloadFailed": "Không thể tải xuống Roblox Studio ({detail})"
+  "logStudioDownloadFailed": "Không thể tải xuống Roblox Studio ({detail})",
+  "autoAdvancedFailed": "Không thể bật Chế độ nâng cao, nên {host} có thể không mở được."
 }

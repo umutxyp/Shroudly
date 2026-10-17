@@ -366,7 +366,6 @@
   "autoAdvancedAsk": "{host} bu ağda Gelişmiş mod gerektiriyor. Bilgisayarın izin isteyince onayla.",
   "autoAdvancedOn": "Gelişmiş mod açık; {host} ve benzeri siteler bu ağda açılabilir.",
   "autoAdvancedDeclined": "Gelişmiş moda izin verilmedi; {host} açılmayabilir.",
-  "autoModeOn": "Otomatik mod kapalıyken {host} engellendi; Shroudly otomatik modu yeniden açtı.",
   "logAutoDiscordOn": "Otomatik pilot: Discord bu ağda engelli; Discord uygulama modu açıldı",
   "logAutoRobloxOn": "Otomatik pilot: Roblox bu ağda engelli; Oyunlar ve uygulamalar modu açıldı",
   "logAutoRestarted": "Otomatik pilot: {app} Shroudly üzerinden bağlanamadı; yeniden başlatıldı",
@@ -375,7 +374,7 @@
   "logAutoRobloxStuck": "Otomatik pilot: Roblox, Shroudly üzerinden yeniden başlatıldıktan sonra da bağlanamıyor",
   "logAutoAdvancedAsk": "Otomatik pilot: {host} Gelişmiş mod gerektiriyor; izin isteniyor",
   "logAutoAdvancedDeclined": "Gelişmiş moda izin verilmedi; Shroudly iki hafta boyunca bunu kendiliğinden yeniden sormayacak",
-  "logAutoModeOn": "Otomatik mod kapalıydı ve {host} engellendi; mod yeniden açıldı",
   "logStudioInstalled": "Roblox Studio kurulum programı Shroudly üzerinden indirildi ve başlatıldı ({version})",
-  "logStudioDownloadFailed": "Roblox Studio indirilemedi ({detail})"
+  "logStudioDownloadFailed": "Roblox Studio indirilemedi ({detail})",
+  "autoAdvancedFailed": "Gelişmiş mod açılamadı; {host} açılmayabilir."
 }

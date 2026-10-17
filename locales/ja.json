@@ -366,7 +366,6 @@
   "autoAdvancedAsk": "このネットワークでは {host} に高度なモードが必要です。コンピューターに確認されたら許可してください。",
   "autoAdvancedOn": "高度なモードがオンなので、このネットワークで {host} や同様のサイトを開けます。",
   "autoAdvancedDeclined": "高度なモードが許可されなかったため、{host} は開けない可能性があります。",
-  "autoModeOn": "自動モードがオフの間に {host} がブロックされたため、Shroudly が自動モードを再びオンにしました。",
   "logAutoDiscordOn": "自動対処：このネットワークでは Discord がブロックされています。Discord アプリモードをオンにしました",
   "logAutoRobloxOn": "自動対処：このネットワークでは Roblox がブロックされています。ゲームとアプリモードをオンにしました",
   "logAutoRestarted": "自動対処：{app} が Shroudly 経由で接続できませんでした。再起動しました",
@@ -375,7 +374,7 @@
   "logAutoRobloxStuck": "自動対処：Shroudly 経由で再起動した後も、Roblox が接続できません",
   "logAutoAdvancedAsk": "自動対処：{host} には高度なモードが必要です。許可を求めています",
   "logAutoAdvancedDeclined": "高度なモードが許可されませんでした。Shroudly は 2 週間、自分からは再び確認しません",
-  "logAutoModeOn": "自動モードがオフで、{host} がブロックされました。再びオンにしました",
   "logStudioInstalled": "Roblox Studio のインストーラーを Shroudly 経由でダウンロードし、起動しました（{version}）",
-  "logStudioDownloadFailed": "Roblox Studio をダウンロードできませんでした（{detail}）"
+  "logStudioDownloadFailed": "Roblox Studio をダウンロードできませんでした（{detail}）",
+  "autoAdvancedFailed": "高度なモードをオンにできなかったため、{host} は開けない可能性があります。"
 }

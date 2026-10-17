@@ -366,7 +366,6 @@
   "autoAdvancedAsk": "{host} li ser vê torê Moda pêşketî hewce dike. Dema komputera te bipirse, destûr bide.",
   "autoAdvancedOn": "Moda pêşketî çalak e, ji ber vê yekê {host} û malperên wekî wê dikarin li ser vê torê vebin.",
   "autoAdvancedDeclined": "Ji bo Moda pêşketî destûr nehat dayîn, ji ber vê yekê dibe ku {host} venebe.",
-  "autoModeOn": "{host} dema Moda xweber neçalak bû hat astengkirin, ji ber vê yekê Shroudly Moda xweber dîsa çalak kir.",
   "logAutoDiscordOn": "Pîlota xweber: Discord li ser vê torê astengkirî ye; Moda sepana Discord hat çalakkirin",
   "logAutoRobloxOn": "Pîlota xweber: Roblox li ser vê torê astengkirî ye; Moda lîstik û sepanan hat çalakkirin",
   "logAutoRestarted": "Pîlota xweber: {app} di ser Shroudly re girê neda; ji nû ve hat destpêkirin",
@@ -375,7 +374,7 @@
   "logAutoRobloxStuck": "Pîlota xweber: Roblox piştî ku di ser Shroudly re ji nû ve hat destpêkirin hîn jî girê nade",
   "logAutoAdvancedAsk": "Pîlota xweber: {host} Moda pêşketî hewce dike; destûr tê xwestin",
   "logAutoAdvancedDeclined": "Ji bo Moda pêşketî destûr nehat dayîn; Shroudly heta du hefteyan bi serê xwe careke din napirse",
-  "logAutoModeOn": "Moda xweber neçalak bû û {host} hat astengkirin; mod dîsa hat çalakkirin",
   "logStudioInstalled": "Sazkera Roblox Studioyê di ser Shroudly re hat daxistin û hat xebitandin ({version})",
-  "logStudioDownloadFailed": "Roblox Studio nehat daxistin ({detail})"
+  "logStudioDownloadFailed": "Roblox Studio nehat daxistin ({detail})",
+  "autoAdvancedFailed": "Moda pêşketî nehat çalakkirin, ji ber vê yekê dibe ku {host} venebe."
 }

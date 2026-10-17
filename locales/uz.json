@@ -366,7 +366,6 @@
   "autoAdvancedAsk": "Bu tarmoqda {host} uchun Kengaytirilgan rejim kerak. Kompyuteringiz soʻraganda ruxsat bering.",
   "autoAdvancedOn": "Kengaytirilgan rejim yoqilgan, shuning uchun bu tarmoqda {host} va shunga oʻxshash saytlar ochilishi mumkin.",
   "autoAdvancedDeclined": "Kengaytirilgan rejimga ruxsat berilmadi, shuning uchun {host} ochilmasligi mumkin.",
-  "autoModeOn": "Avto rejim oʻchiq boʻlganda {host} bloklandi, shuning uchun Shroudly Avto rejimni qayta yoqdi.",
   "logAutoDiscordOn": "Avtopilot: bu tarmoqda Discord bloklangan; Discord ilovasi rejimi yoqildi",
   "logAutoRobloxOn": "Avtopilot: bu tarmoqda Roblox bloklangan; Oʻyinlar va ilovalar rejimi yoqildi",
   "logAutoRestarted": "Avtopilot: {app} Shroudly orqali ulana olmadi; qayta ishga tushirildi",
@@ -375,7 +374,7 @@
   "logAutoRobloxStuck": "Avtopilot: Roblox Shroudly orqali qayta ishga tushirilgandan keyin ham ulana olmayapti",
   "logAutoAdvancedAsk": "Avtopilot: {host} uchun Kengaytirilgan rejim kerak; ruxsat soʻralmoqda",
   "logAutoAdvancedDeclined": "Kengaytirilgan rejimga ruxsat berilmadi; Shroudly ikki hafta davomida buni oʻzi qayta soʻramaydi",
-  "logAutoModeOn": "Avto rejim oʻchiq edi va {host} bloklandi; u qayta yoqildi",
   "logStudioInstalled": "Roblox Studio oʻrnatuvchisi Shroudly orqali yuklab olindi va ishga tushirildi ({version})",
-  "logStudioDownloadFailed": "Roblox Studioni yuklab olib boʻlmadi ({detail})"
+  "logStudioDownloadFailed": "Roblox Studioni yuklab olib boʻlmadi ({detail})",
+  "autoAdvancedFailed": "Kengaytirilgan rejimni yoqib boʻlmadi, shuning uchun {host} ochilmasligi mumkin."
 }

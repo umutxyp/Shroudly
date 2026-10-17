@@ -366,7 +366,6 @@
   "autoAdvancedAsk": "{host} perlu mode Lanjutan di jaringan ini. Izinkan saat komputer Anda meminta.",
   "autoAdvancedOn": "Mode Lanjutan aktif, jadi {host} dan situs serupa bisa terbuka di jaringan ini.",
   "autoAdvancedDeclined": "Mode Lanjutan tidak diizinkan, jadi {host} mungkin tidak terbuka.",
-  "autoModeOn": "{host} diblokir saat mode otomatis mati, jadi Shroudly mengaktifkan kembali mode otomatis.",
   "logAutoDiscordOn": "Pilot otomatis: Discord diblokir di jaringan ini; mode aplikasi Discord diaktifkan",
   "logAutoRobloxOn": "Pilot otomatis: Roblox diblokir di jaringan ini; mode Game dan aplikasi diaktifkan",
   "logAutoRestarted": "Pilot otomatis: {app} tidak bisa tersambung lewat Shroudly; dimulai ulang",
@@ -375,7 +374,7 @@
   "logAutoRobloxStuck": "Pilot otomatis: Roblox masih tidak bisa tersambung setelah dimulai ulang lewat Shroudly",
   "logAutoAdvancedAsk": "Pilot otomatis: {host} perlu mode Lanjutan; meminta izin",
   "logAutoAdvancedDeclined": "Mode Lanjutan tidak diizinkan; Shroudly tidak akan memintanya sendiri lagi selama dua minggu",
-  "logAutoModeOn": "Mode otomatis mati dan {host} diblokir; mode otomatis diaktifkan kembali",
   "logStudioInstalled": "Penginstal Roblox Studio diunduh lewat Shroudly dan dijalankan ({version})",
-  "logStudioDownloadFailed": "Roblox Studio tidak dapat diunduh ({detail})"
+  "logStudioDownloadFailed": "Roblox Studio tidak dapat diunduh ({detail})",
+  "autoAdvancedFailed": "Mode Lanjutan tidak dapat diaktifkan, jadi {host} mungkin tidak terbuka."
 }

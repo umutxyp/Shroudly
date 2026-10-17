@@ -116,16 +116,22 @@ async function isRunning(v) {
   return (await run('pgrep', ['-x', v.proc])).trim().length > 0;
 }
 
-/* Process ids of this build: what the autopilot asks about, to tell a
- * Discord that works through Shroudly from one stuck before its window. */
+/* Process ids of this build, helpers included: what the autopilot asks
+ * about, to tell a Discord that works through Shroudly from one stuck before
+ * its window. Chromium makes every connection from a helper process (its
+ * network service): on Windows the helpers share Discord.exe's name; on macOS
+ * they are "Discord Helper" processes inside the app bundle, so every process
+ * running from the bundle counts. */
 async function pids(v) {
+  const list = (out) => String(out || '').split(/\s+/).filter((x) => /^\d+$/.test(x)).map(Number);
   if (process.platform === 'win32') {
     const out = await run('tasklist', ['/FI', `IMAGENAME eq ${v.exe}`, '/NH', '/FO', 'CSV']);
     const name = v.exe.replace(/\./g, '\\.');
     return [...out.matchAll(new RegExp(`^"${name}","(\\d+)"`, 'gmi'))].map((m) => Number(m[1]));
   }
+  if (process.platform === 'darwin') return list(await run('pgrep', ['-f', `/${v.app.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\.app/Contents/`]));
   if (v.id === 'flatpak' || !v.proc) return [];
-  return (await run('pgrep', ['-x', v.proc])).split(/\s+/).filter((x) => /^\d+$/.test(x)).map(Number);
+  return list(await run('pgrep', ['-x', v.proc]));
 }
 
 async function waitGone(v, ms) {

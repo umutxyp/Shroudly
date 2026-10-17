@@ -66,7 +66,7 @@ async function robloxStudio(proxy, socksPort) {
   while (Date.now() < until) {
     await sleep(3000);
     await watch();
-    if ((await RobloxApp.pids('studio')).length) { studioSince = Date.now(); break; }
+    if (((await RobloxApp.pids('studio')) || []).length) { studioSince = Date.now(); break; }
     if (RobloxApp.installed('studio') && !installedAt) installedAt = Date.now();
     // Installed, and the installer has ended without starting it.
     const installerRunning = /RobloxStudioInstaller/i.test(String(spawnSync('tasklist', ['/FI', 'IMAGENAME eq RobloxStudioInstaller.exe', '/NH']).stdout || ''));
