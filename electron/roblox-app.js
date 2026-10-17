@@ -262,7 +262,12 @@ async function open(env, kind = 'player') {
  * the user. */
 async function restart(env, list) {
   if (process.platform !== 'darwin' && process.platform !== 'win32') return false;
-  const these = alive(list || []);
+  // Asked again right before: a pid seen a while ago may have ended and been
+  // given to another program since.
+  const now = await pids();
+  if (!now) return false;
+  const these = alive((list || []).filter((p) => now.includes(p)));
+  if (!these.length) return false;
   if (process.platform === 'darwin') {
     for (const p of these) { try { process.kill(p, 'SIGTERM'); } catch {} }
     if (!(await waitGone(these, 8000))) { for (const p of alive(these)) { try { process.kill(p, 'SIGKILL'); } catch {} } await waitGone(these, 3000); }

@@ -748,9 +748,12 @@ app.whenReady().then(async () => {
       lastBlockedNotice = now;
       notify(tr().notifySiteBlockedTitle, tr().notifySiteBlockedBody.replace('{host}', host));
       // The autopilot first: its line about Advanced mode reaches the window
-      // before the site does, so the window does not show both.
-      if (autopilot) autopilot.needAdvanced(host).catch(() => {});
-      toWindow('dpi:site-blocked', { host });
+      // before the site does. The window shows its own offer only when the
+      // autopilot does not ask (declined earlier, turned off by hand, asked
+      // already this session).
+      const asked = !!(autopilot && autopilot.willAskAdvanced());
+      if (asked) autopilot.needAdvanced(host).catch(() => {});
+      toWindow('dpi:site-blocked', { host, asked });
       showWindow();
     },
   });
@@ -1311,6 +1314,7 @@ function reportServiceRefusal(host, kind) {
  * after two restarts in ten minutes is left to Advanced mode. */
 const robloxSeen = new Map();     // pid -> first seen
 const robloxHandled = new Set();  // pids already restarted or told about
+const studioTold = new Map();     // Studio pid -> when the user was asked to reopen it
 const robloxRestarts = [];        // when the player was last restarted
 let robloxBusy = false;
 
@@ -1351,6 +1355,7 @@ async function watchRoblox() {
   if (store.get('appMode') !== true || !appProxy || !appProxy.running) {
     robloxSeen.clear();
     robloxHandled.clear();
+    studioTold.clear();
     setStudioReopen(0);
     return;
   }
@@ -1370,17 +1375,29 @@ async function watchRoblox() {
     // Followed whenever the mode is on, so each is judged from when it really
     // started, whatever protection did in between.
     const quiet = RobloxApp.routeWatched() ? RobloxApp.silentPlayers(robloxSeen, all, appSeen.robloxAt, Date.now()) : [];
+    // The line about Studio stays while a Studio the user was asked about
+    // still runs (the window shows it while protection is on).
+    for (const pid of [...studioTold.keys()]) if (!studios.includes(pid)) studioTold.delete(pid);
+    setStudioReopen(studioTold.size ? Math.max(...studioTold.values()) : 0);
     // Acted on only with protection on, where Roblox is known to be blocked.
-    if (!engine || !engine.isActive() || !autopilot || !autopilot.isBlocked('roblox')) { setStudioReopen(0); return; }
+    if (!engine || !engine.isActive() || !autopilot || !autopilot.isBlocked('roblox')) return;
     const d = RobloxApp.decide({
       players, studios, installers, quiet, before: [...robloxPidsAtChange, ...studioPidsAtChange],
       handled: [...robloxHandled], restarts: robloxRestarts, now: Date.now(),
     });
+    const something = d.installers.player.length || d.installers.studio.length || d.restartPlayers.length || d.stuckPlayers.length || d.tellStudios.length;
+    // Before touching a program: still blocked right now (checked again if
+    // the verdict is not fresh)?
+    if (!something || !(await autopilot.stillBlocked('roblox'))) return;
 
     for (const kind of ['player', 'studio']) {
-      const list = d.installers[kind];
+      if (!d.installers[kind].length) continue;
+      // Asked again right before: the other installer's download may have
+      // taken a while.
+      const fresh = await RobloxApp.installerPids();
+      const list = fresh ? d.installers[kind].filter((pid) => fresh[kind].includes(pid)) : [];
+      d.installers[kind].forEach((pid) => robloxHandled.add(pid));
       if (!list.length) continue;
-      list.forEach((pid) => robloxHandled.add(pid));
       await RobloxApp.kill(list);
       if ((await installRoblox(kind)).success) {
         addLog('success', 'Autopilot: a Roblox installer went around Shroudly; started it again through Shroudly');
@@ -1403,13 +1420,11 @@ async function watchRoblox() {
     }
 
     if (d.tellStudios.length) {
-      d.tellStudios.forEach((pid) => robloxHandled.add(pid));
+      const at = Date.now();
+      d.tellStudios.forEach((pid) => { robloxHandled.add(pid); studioTold.set(pid, at); });
       addLog('warning', 'Autopilot: Roblox Studio was opened before Shroudly could take it through; the user was asked to reopen it');
       autoTell('autoStudioReopen');
-      setStudioReopen(Date.now());
-    } else if (!studios.some((pid) => robloxHandled.has(pid))) {
-      // The line about Studio stays while such a Studio runs.
-      setStudioReopen(0);
+      setStudioReopen(at);
     }
   } finally { robloxBusy = false; }
 }
@@ -1504,32 +1519,42 @@ ipcMain.handle('apps:set', async (e, on) => {
 /* What Shroudly turns on and restarts by itself (autopilot.js), and how it
  * says so: a notification, and a line in the window, which also gets the
  * last few when it opens later. */
-const autoNotices = [];
+// The latest line for a window opened later. Studio's line is not kept here:
+// it comes with the apps state, for as long as that Studio runs.
+let autoLatest = null;
 function autoTell(id, params = {}) {
   const text = String(tr()[id] || '').replace(/\{(\w+)\}/g, (m, k) => (params[k] != null ? String(params[k]) : m));
   if (text) notify('Shroudly', text);
   const n = { id, params, at: Date.now() };
-  autoNotices.unshift(n);
-  autoNotices.length = Math.min(autoNotices.length, 5);
+  if (id !== 'autoStudioReopen') autoLatest = n;
   toWindow('auto:notice', n);
 }
 // The window is closed for real when it goes to the tray: a line the user
-// closed is remembered here, so the next window does not bring it back.
-ipcMain.handle('auto:notices', () => autoNotices.filter((n) => !n.dismissed));
-ipcMain.on('auto:dismiss', (e, at) => { for (const n of autoNotices) if (n.at === at) n.dismissed = true; });
+// closed stays closed in the next window, and an older one never comes back.
+ipcMain.handle('auto:notices', () => (autoLatest && !autoLatest.dismissed ? [autoLatest] : []));
+ipcMain.on('auto:dismiss', (e, at) => { if (autoLatest && autoLatest.at <= at) autoLatest.dismissed = true; });
 
 /* A different network (another Wi-Fi, a cable, a hotspot): what the
- * autopilot learnt about the last one no longer holds. Told by the set of
- * this computer's own addresses, looked at every half minute. */
-let networkPrint = null;
+ * autopilot learnt about the last one no longer holds. Told by the networks
+ * this computer is on (each IPv4 address with its mask, each IPv6 /64), not
+ * its addresses: IPv6 privacy addresses change daily on the same network.
+ * Two networks that look the same from here are covered by
+ * autopilot.stillBlocked, which checks again before anything is restarted. */
 function networkFingerprint() {
-  return Object.values(os.networkInterfaces()).flat()
-    .filter((a) => a && !a.internal && !/^fe80:/i.test(a.address) && !/^169\.254\./.test(a.address))
-    .map((a) => a.address).sort().join(',');
+  const nets = new Set();
+  for (const [name, list] of Object.entries(os.networkInterfaces())) {
+    for (const a of list || []) {
+      if (!a || a.internal || /^fe80:/i.test(a.address) || /^169\.254\./.test(a.address)) continue;
+      if (a.family === 'IPv4' || a.family === 4) nets.add(`${name} ${a.address}/${a.netmask}`);
+      else nets.add(`${name} ${a.address.split(':').slice(0, 4).join(':')}::/64`);
+    }
+  }
+  return [...nets].sort().join(',');
 }
+let networkPrint = networkFingerprint();
 setInterval(() => {
   const now = networkFingerprint();
-  if (networkPrint !== null && now !== networkPrint && autopilot) {
+  if (now !== networkPrint && autopilot) {
     autopilot.networkChanged();
     if (engine && engine.isActive()) setTimeout(() => { autopilot.survey().catch(() => {}); }, 5000);
   }
@@ -1556,6 +1581,7 @@ async function watchDiscord() {
       const pids = await DiscordApp.pids(v);
       if (!pids.length || discordRestarted.has(v.id)) continue;
       if (await ProcNet.connectsTo(pids, ports)) continue;
+      if (!(await autopilot.stillBlocked('discord'))) break;
       discordRestarted.add(v.id);
       if (await DiscordApp.restart(v)) {
         addLog('success', `Autopilot: ${v.app} did not get through Shroudly; restarted it`);

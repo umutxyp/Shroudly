@@ -39,7 +39,9 @@ function handshake({ socket, ip, servername, ms = HANDSHAKE_MS }) {
  * opts.socksPort, opts.connect(socksPort, host, port): the engine.
  * opts.resolve(host): the system's DNS answer (IPv4 list, or null).
  * opts.handshake: stands in for the TLS handshake (tests).
- * Resolves { blocked, how: 'dns' | 'tls' | null, detail }.
+ * Resolves { blocked, how: 'dns' | 'tls' | null, detail, unknown }: unknown
+ * when nothing could be learnt (offline, the engine not running, the service
+ * down): neither blocked nor working.
  */
 async function check(host, opts = {}) {
   const resolve = opts.resolve || diagnostics.systemResolve;
@@ -57,12 +59,12 @@ async function check(host, opts = {}) {
     if (r !== 'ok') { how = 'tls'; detail = r; }
   }
   if (!how) return { blocked: false, how: null, detail: 'direct ok' };
-  if (!opts.socksPort || !opts.connect) return { blocked: false, how: null, detail: `${how}: ${detail}; engine not running` };
+  if (!opts.socksPort || !opts.connect) return { blocked: false, unknown: true, how: null, detail: `${how}: ${detail}; engine not running` };
   let through = 'error';
   try { through = await hs({ socket: await opts.connect(opts.socksPort, host, 443), servername: host }); } catch (e) { through = e.message; }
   return through === 'ok'
     ? { blocked: true, how, detail }
-    : { blocked: false, how: null, detail: `${how}: ${detail}; through Shroudly too (${through})` };
+    : { blocked: false, unknown: true, how: null, detail: `${how}: ${detail}; through Shroudly too (${through})` };
 }
 
 module.exports = { check, handshake };

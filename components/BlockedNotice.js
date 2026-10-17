@@ -54,6 +54,7 @@ function remember(key) { try { localStorage.setItem(key, '1'); } catch {} }
 export default function BlockedNotice({ onNavigate, active = false }) {
   const { t, locale, language } = useLanguage();
   const [host, setHost] = useState(null);
+  const [hostAsked, setHostAsked] = useState(false); // the autopilot asked for Advanced mode for it
   const [advanced, setAdvanced] = useState(false);
   const [restartApps, setRestartApps] = useState(null);
   const [dnsAuto, setDnsAuto] = useState(null);
@@ -111,7 +112,7 @@ export default function BlockedNotice({ onNavigate, active = false }) {
 
   useEffect(() => {
     if (typeof window === 'undefined' || !window.electron?.onSiteBlocked) return undefined;
-    window.electron.onSiteBlocked(({ host: h }) => setHost(h));
+    window.electron.onSiteBlocked(({ host: h, asked }) => { setHost(h); setHostAsked(!!asked); });
     window.electron.onNeedRestart?.(({ apps }) => { setRestartApps(apps); refreshDiscord(); });
     window.electron.onDnsAutoEnabled?.(({ host: h }) => setDnsAuto(h));
     const offRefused = window.electron.onServiceRefused?.((p) => setRefused(p));
@@ -215,7 +216,7 @@ export default function BlockedNotice({ onNavigate, active = false }) {
    * it may hold work that is not saved. Said while that Studio runs; a later
    * Studio is a new line, even if this one was closed. */
   const studioAt = apps?.studioReopenAt || 0;
-  if (studioAt && !hidden[`studio:${studioAt}`]) {
+  if (active && studioAt && !hidden[`studio:${studioAt}`]) {
     return <Banner tone="accent" Icon={RefreshIcon} body={t('autoStudioReopen')}
                    onClose={() => hide(`studio:${studioAt}`)} closeLabel={closeLabel} />;
   }
@@ -225,7 +226,8 @@ export default function BlockedNotice({ onNavigate, active = false }) {
    * on then is the user's call. Once it is on, that line has nothing to say. */
   const advNotice = notice && (notice.id === 'autoAdvancedDeclined' || notice.id === 'autoAdvancedFailed');
   const noticeShown = notice && Date.now() - notice.at < NOTICE_MS && !hidden[`auto:${notice.at}`]
-    && !(advNotice && adv.active) && !(notice.id === 'autoAdvancedAsk' && adv.active);
+    && !(advNotice && adv.active) && !(notice.id === 'autoAdvancedAsk' && adv.active)
+    && !(notice.id === 'autoAdvancedOn' && !adv.active);
   if (noticeShown) {
     const offer = advNotice && adv.available && !adv.active;
     return (
@@ -266,11 +268,10 @@ export default function BlockedNotice({ onNavigate, active = false }) {
     );
   }
 
-  /* A site no technique opened. While the autopilot's line about Advanced
-   * mode for it is news, that line says it (above). Otherwise: Advanced mode
+  /* A site no technique opened. Where the autopilot asked for Advanced mode
+   * for it, its own lines say what happened (above). Otherwise: Advanced mode
    * one click away where it can still be turned on, else what is left. */
-  const advLine = notice && /^autoAdvanced/.test(notice.id) && Date.now() - notice.at < NOTICE_MS;
-  if (host && !advLine) {
+  if (host && !hostAsked) {
     const offer = advanced && !adv.active;
     return (
       <Banner Icon={ShieldAlertIcon} title={t('blockedNoticeTitle', { host })}

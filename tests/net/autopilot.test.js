@@ -186,6 +186,52 @@ const settle = async () => { for (let i = 0; i < 5; i++) await new Promise((r) =
     t.ok(!r.asked.length && !r.enabled.length, 'no app, no check');
   }
   {
+    // Started at login before the Wi-Fi is up: nothing can be learnt.
+    let online = false;
+    const store = memStore({ autopilotSince: 1 });
+    let clock = 1e12;
+    const asked = [];
+    const ap = new Autopilot({
+      store, log: () => {}, tell: () => {}, protectionOn: () => true, now: () => clock,
+      check: async (h) => { asked.push(h); return online ? { blocked: true, how: 'tls', detail: 'reset' } : { blocked: false, unknown: true, detail: 'dns: no answer; through Shroudly too (timeout)' }; },
+      services: [{ id: 'discord', name: 'discord', probe: 'discord.com', mode: 'discordMode', needsApp: true, present: () => true, enable: async () => { store.set('discordMode', true); return { success: true }; }, logOn: '', told: 'x' }],
+    });
+    await ap.survey();
+    t.ok(!ap.isBlocked('discord') && !ap.clear.has('discord'), 'offline at the first look: neither blocked nor "works without Shroudly"');
+    online = true;
+    clock += 3 * 60 * 1000;
+    ap.noteHost('bypass', 'discord.com');
+    await settle();
+    t.ok(ap.isBlocked('discord') && store.get('discordMode') === true, 'once online, the engine\'s next event is checked and counts (not ignored for hours)');
+  }
+  {
+    // A check that finishes after the network changed belongs to the old one.
+    let release;
+    const store = memStore({ autopilotSince: 1 });
+    const ap = new Autopilot({
+      store, log: () => {}, tell: () => {}, protectionOn: () => true,
+      check: () => new Promise((ok) => { release = () => ok({ blocked: true, how: 'tls', detail: 'reset' }); }),
+      services: [{ id: 'roblox', name: 'roblox', probe: 'x.roblox.com', mode: 'appMode', needsApp: false, present: () => true, enable: async () => ({ success: true }), logOn: '', told: 'x' }],
+    });
+    const pending = ap.survey();
+    await settle();
+    ap.networkChanged();
+    release();
+    await pending;
+    t.ok(!ap.isBlocked('roblox'), 'a check from before a network change is dropped');
+  }
+  {
+    // Before a program is restarted, an old verdict is checked again.
+    let blockedNow = true;
+    const r = rig({ blocked: (h) => blockedNow && h === 'discord.com' });
+    await r.ap.survey();
+    t.ok(await r.ap.stillBlocked('discord') === true && r.asked.length === 2, 'a fresh verdict is used as it is');
+    blockedNow = false;
+    r.tick(11 * 60 * 1000);
+    t.ok(await r.ap.stillBlocked('discord') === false && r.asked.length === 3 && !r.ap.isBlocked('discord'),
+      'an older one is checked again first: on a network that does not block it (it looked the same from here), nothing is restarted');
+  }
+  {
     const r = rig({ store: memStore({ autopilotSince: 1, appMode: true, discordMode: true }), blocked: ['clientsettingscdn.roblox.com'] });
     await r.ap.survey();
     await settle();
@@ -223,6 +269,7 @@ const settle = async () => { for (let i = 0; i < 5; i++) await new Promise((r) =
     const r = rig({ adv });
     r.ap.recordDecline();
     t.ok(await r.ap.needAdvanced('a.example') === false && tries === 0, 'declined at a prompt the user started: not asked by itself either');
+    t.ok(r.ap.willAskAdvanced() === false, 'and the window is told it will not ask, so it offers its own button');
     const r1 = rig({ adv: { available: () => false, active: () => false, start: async () => { tries++; return { success: true }; } } });
     t.ok(await r1.ap.needAdvanced('a.example') === false && tries === 0, 'not available on this system: nothing is asked');
     const r2 = rig({ adv });
