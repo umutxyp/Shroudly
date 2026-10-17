@@ -366,7 +366,6 @@
   "autoAdvancedAsk": "{host} په دې شبکه کې پرمختللي حالت ته اړتیا لري. کله چې ستاسو کمپیوټر وپوښتي، اجازه ورکړئ.",
   "autoAdvancedOn": "پرمختللی حالت فعال دی، نو {host} او ورته سایټونه په دې شبکه کې پرانیستل کېدای شي.",
   "autoAdvancedDeclined": "پرمختللي حالت ته اجازه ورنه کړل شوه، نو ښايي {host} پرانیستل نه شي.",
-  "autoModeOn": "کله چې اتومات حالت غیرفعال و، {host} بند شو، نو Shroudly اتومات حالت بېرته فعال کړ.",
   "logAutoDiscordOn": "اتومات پیلوټ: Discord په دې شبکه کې بند دی؛ د Discord اپ حالت فعال شو",
   "logAutoRobloxOn": "اتومات پیلوټ: Roblox په دې شبکه کې بند دی؛ د لوبو او اپونو حالت فعال شو",
   "logAutoRestarted": "اتومات پیلوټ: {app} د Shroudly له لارې وصل نه شو؛ بیا پیل شو",
@@ -375,7 +374,7 @@
   "logAutoRobloxStuck": "اتومات پیلوټ: Roblox د Shroudly له لارې له بیا پیلېدو وروسته لا هم نه وصلېږي",
   "logAutoAdvancedAsk": "اتومات پیلوټ: {host} پرمختللي حالت ته اړتیا لري؛ اجازه غوښتل کېږي",
   "logAutoAdvancedDeclined": "پرمختللي حالت ته اجازه ورنه کړل شوه؛ Shroudly به تر دوو اونیو پخپله بیا ونه پوښتي",
-  "logAutoModeOn": "اتومات حالت غیرفعال و او {host} بند شو؛ اتومات حالت بېرته فعال شو",
   "logStudioInstalled": "د Roblox Studio نصبوونکی د Shroudly له لارې ډاونلوډ او پیل شو ({version})",
-  "logStudioDownloadFailed": "Roblox Studio ډاونلوډ نه شو ({detail})"
+  "logStudioDownloadFailed": "Roblox Studio ډاونلوډ نه شو ({detail})",
+  "autoAdvancedFailed": "پرمختللی حالت فعال نه شو، نو ښايي {host} پرانیستل نه شي."
 }

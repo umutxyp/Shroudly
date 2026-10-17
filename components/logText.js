@@ -75,7 +75,6 @@ const PATTERNS = [
   [/^Roblox Studio could not be downloaded \((.+)\)$/, 'logStudioDownloadFailed', ['detail']],
   [/^Autopilot: (.+) did not get through Shroudly; restarted it$/, 'logAutoRestarted', ['app']],
   [/^Autopilot: (.+) needs Advanced mode; asking for permission$/, 'logAutoAdvancedAsk', ['host']],
-  [/^Auto mode was off and (.+) was blocked; it has been turned back on$/, 'logAutoModeOn', ['host']],
   [/^([A-Za-z0-9.:_-]+): the site itself refuses this connection/, 'logServiceRefused', ['host']],
   [/^([A-Za-z0-9.:_-]+): accepts the connection, then nothing comes back;/, 'logServiceStall', ['host']],
   [/^Discord app mode: (.+) added$/, 'logDiscordAdded', ['builds']],

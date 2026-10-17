@@ -366,7 +366,6 @@
   "autoAdvancedAsk": "{host} necesita el modo Avanzado en esta red. Permítelo cuando tu equipo te lo pida.",
   "autoAdvancedOn": "El modo Avanzado está activado, así que {host} y sitios similares pueden abrirse en esta red.",
   "autoAdvancedDeclined": "No se permitió el modo Avanzado, así que puede que {host} no se abra.",
-  "autoModeOn": "{host} estaba bloqueado mientras el modo automático estaba desactivado, así que Shroudly volvió a activar el modo automático.",
   "logAutoDiscordOn": "Piloto automático: Discord está bloqueado en esta red; modo app de Discord activado",
   "logAutoRobloxOn": "Piloto automático: Roblox está bloqueado en esta red; modo Juegos y apps activado",
   "logAutoRestarted": "Piloto automático: {app} no lograba pasar por Shroudly; se reinició",
@@ -375,7 +374,7 @@
   "logAutoRobloxStuck": "Piloto automático: Roblox sigue sin pasar después de reiniciarse a través de Shroudly",
   "logAutoAdvancedAsk": "Piloto automático: {host} necesita el modo Avanzado; solicitando permiso",
   "logAutoAdvancedDeclined": "No se permitió el modo Avanzado; Shroudly no volverá a pedirlo por su cuenta durante dos semanas",
-  "logAutoModeOn": "El modo automático estaba desactivado y {host} estaba bloqueado; se volvió a activar",
   "logStudioInstalled": "Instalador de Roblox Studio descargado a través de Shroudly e iniciado ({version})",
-  "logStudioDownloadFailed": "No se pudo descargar Roblox Studio ({detail})"
+  "logStudioDownloadFailed": "No se pudo descargar Roblox Studio ({detail})",
+  "autoAdvancedFailed": "No se pudo activar el modo Avanzado, así que puede que {host} no se abra."
 }

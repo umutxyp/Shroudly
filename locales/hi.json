@@ -366,7 +366,6 @@
   "autoAdvancedAsk": "इस नेटवर्क पर {host} के लिए उन्नत मोड चाहिए। जब आपका कंप्यूटर पूछे, तो अनुमति दें।",
   "autoAdvancedOn": "उन्नत मोड चालू है, इसलिए इस नेटवर्क पर {host} और उसके जैसी साइटें खुल सकती हैं।",
   "autoAdvancedDeclined": "उन्नत मोड की अनुमति नहीं दी गई, इसलिए {host} शायद न खुले।",
-  "autoModeOn": "स्वचालित मोड बंद रहते {host} ब्लॉक हुआ, इसलिए Shroudly ने स्वचालित मोड फिर से चालू कर दिया।",
   "logAutoDiscordOn": "ऑटोपायलट: इस नेटवर्क पर Discord ब्लॉक है; Discord ऐप मोड चालू किया गया",
   "logAutoRobloxOn": "ऑटोपायलट: इस नेटवर्क पर Roblox ब्लॉक है; गेम और ऐप मोड चालू किया गया",
   "logAutoRestarted": "ऑटोपायलट: {app} Shroudly से होकर नहीं जुड़ा; उसे फिर से शुरू किया गया",
@@ -375,7 +374,7 @@
   "logAutoRobloxStuck": "ऑटोपायलट: Shroudly से होकर फिर से शुरू करने के बाद भी Roblox नहीं जुड़ रहा",
   "logAutoAdvancedAsk": "ऑटोपायलट: {host} के लिए उन्नत मोड चाहिए; अनुमति माँगी जा रही है",
   "logAutoAdvancedDeclined": "उन्नत मोड की अनुमति नहीं दी गई; Shroudly दो हफ़्ते तक इसके लिए अपने आप दोबारा नहीं पूछेगा",
-  "logAutoModeOn": "स्वचालित मोड बंद था और {host} ब्लॉक हुआ; इसे फिर से चालू कर दिया गया",
   "logStudioInstalled": "Roblox Studio इंस्टॉलर Shroudly से होकर डाउनलोड हुआ और शुरू किया गया ({version})",
-  "logStudioDownloadFailed": "Roblox Studio डाउनलोड नहीं हो सका ({detail})"
+  "logStudioDownloadFailed": "Roblox Studio डाउनलोड नहीं हो सका ({detail})",
+  "autoAdvancedFailed": "उन्नत मोड चालू नहीं किया जा सका, इसलिए {host} शायद न खुले।"
 }

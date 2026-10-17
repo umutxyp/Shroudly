@@ -366,7 +366,6 @@
   "autoAdvancedAsk": "Для {host} в этой сети нужен Расширенный режим. Разрешите его, когда компьютер спросит.",
   "autoAdvancedOn": "Расширенный режим включён, поэтому {host} и похожие сайты могут открываться в этой сети.",
   "autoAdvancedDeclined": "Расширенный режим не разрешён, поэтому {host} может не открыться.",
-  "autoModeOn": "{host} был заблокирован при выключенном Авторежиме, поэтому Shroudly снова его включил.",
   "logAutoDiscordOn": "Автопилот: Discord заблокирован в этой сети; режим приложения Discord включён",
   "logAutoRobloxOn": "Автопилот: Roblox заблокирован в этой сети; режим «Игры и приложения» включён",
   "logAutoRestarted": "Автопилот: {app} не подключился через Shroudly; перезапущен",
@@ -375,7 +374,7 @@
   "logAutoRobloxStuck": "Автопилот: Roblox по-прежнему не подключается после перезапуска через Shroudly",
   "logAutoAdvancedAsk": "Автопилот: для {host} нужен Расширенный режим; запрос разрешения",
   "logAutoAdvancedDeclined": "Расширенный режим не разрешён; Shroudly не будет сам спрашивать об этом две недели",
-  "logAutoModeOn": "Авторежим был выключен, а {host} заблокирован; Авторежим снова включён",
   "logStudioInstalled": "Установщик Roblox Studio скачан через Shroudly и запущен ({version})",
-  "logStudioDownloadFailed": "Не удалось скачать Roblox Studio ({detail})"
+  "logStudioDownloadFailed": "Не удалось скачать Roblox Studio ({detail})",
+  "autoAdvancedFailed": "Расширенный режим не удалось включить, поэтому {host} может не открыться."
 }

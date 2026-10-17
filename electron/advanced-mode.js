@@ -282,7 +282,16 @@ class AdvancedMode {
     throw new AdvError('timeout', 'The advanced engine did not respond in time.');
   }
 
-  async start(fakeTtl, opts) {
+  /* One start at a time: a second one while the first is still waiting for
+   * the permission prompt (the autopilot's, then a click in Settings) gets
+   * the first one's answer instead of a second prompt that would undo it. */
+  start(fakeTtl, opts) {
+    if (this.active) return Promise.resolve({ success: true, alreadyActive: true });
+    if (!this._starting) this._starting = this._start(fakeTtl, opts).finally(() => { this._starting = null; });
+    return this._starting;
+  }
+
+  async _start(fakeTtl, opts) {
     if (this.active) return { success: true, alreadyActive: true };
     const code = this.reasonCode();
     if (code) throw new AdvError(code, REASONS[code]);

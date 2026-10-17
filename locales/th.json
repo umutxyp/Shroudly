@@ -366,7 +366,6 @@
   "autoAdvancedAsk": "{host} ต้องใช้โหมดขั้นสูงบนเครือข่ายนี้ ให้อนุญาตเมื่อคอมพิวเตอร์ของคุณถาม",
   "autoAdvancedOn": "โหมดขั้นสูงเปิดอยู่ {host} และเว็บไซต์อื่นที่คล้ายกันจึงเปิดได้บนเครือข่ายนี้",
   "autoAdvancedDeclined": "ไม่ได้อนุญาตโหมดขั้นสูง {host} จึงอาจเปิดไม่ได้",
-  "autoModeOn": "{host} ถูกบล็อกขณะที่โหมดอัตโนมัติปิดอยู่ Shroudly จึงเปิดโหมดอัตโนมัติกลับคืนแล้ว",
   "logAutoDiscordOn": "ออโต้ไพลอต: Discord ถูกบล็อกบนเครือข่ายนี้ เปิดโหมดแอป Discord แล้ว",
   "logAutoRobloxOn": "ออโต้ไพลอต: Roblox ถูกบล็อกบนเครือข่ายนี้ เปิดโหมดเกมและแอปแล้ว",
   "logAutoRestarted": "ออโต้ไพลอต: {app} เชื่อมต่อผ่าน Shroudly ไม่ได้ จึงเริ่มใหม่แล้ว",
@@ -375,7 +374,7 @@
   "logAutoRobloxStuck": "ออโต้ไพลอต: Roblox ยังเชื่อมต่อไม่ได้ แม้จะเริ่มใหม่ผ่าน Shroudly แล้ว",
   "logAutoAdvancedAsk": "ออโต้ไพลอต: {host} ต้องใช้โหมดขั้นสูง กำลังขอสิทธิ์",
   "logAutoAdvancedDeclined": "ไม่ได้อนุญาตโหมดขั้นสูง Shroudly จะไม่ถามเองอีกเป็นเวลาสองสัปดาห์",
-  "logAutoModeOn": "โหมดอัตโนมัติปิดอยู่และ {host} ถูกบล็อก จึงเปิดโหมดอัตโนมัติกลับคืนแล้ว",
   "logStudioInstalled": "ดาวน์โหลดตัวติดตั้ง Roblox Studio ผ่าน Shroudly และเริ่มทำงานแล้ว ({version})",
-  "logStudioDownloadFailed": "ไม่สามารถดาวน์โหลด Roblox Studio ได้ ({detail})"
+  "logStudioDownloadFailed": "ไม่สามารถดาวน์โหลด Roblox Studio ได้ ({detail})",
+  "autoAdvancedFailed": "ไม่สามารถเปิดโหมดขั้นสูงได้ {host} จึงอาจเปิดไม่ได้"
 }

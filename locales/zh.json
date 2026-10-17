@@ -366,7 +366,6 @@
   "autoAdvancedAsk": "{host} 在此网络上需要高级模式。电脑询问时请允许。",
   "autoAdvancedOn": "高级模式已开启，因此 {host} 及类似网站可以在此网络上打开。",
   "autoAdvancedDeclined": "未允许开启高级模式，因此 {host} 可能打不开。",
-  "autoModeOn": "在自动模式关闭时 {host} 被封锁，因此 Shroudly 已重新开启自动模式。",
   "logAutoDiscordOn": "自动处理：Discord 在此网络上被封锁；已开启 Discord 应用模式",
   "logAutoRobloxOn": "自动处理：Roblox 在此网络上被封锁；已开启游戏和应用模式",
   "logAutoRestarted": "自动处理：{app} 未能经由 Shroudly 连接；已将其重新启动",
@@ -375,7 +374,7 @@
   "logAutoRobloxStuck": "自动处理：经由 Shroudly 重新启动后，Roblox 仍然连不上",
   "logAutoAdvancedAsk": "自动处理：{host} 需要高级模式；正在请求权限",
   "logAutoAdvancedDeclined": "未允许开启高级模式；两周内 Shroudly 不会再自行询问",
-  "logAutoModeOn": "自动模式处于关闭状态，而 {host} 被封锁；已将其重新开启",
   "logStudioInstalled": "Roblox Studio 安装程序已通过 Shroudly 下载并启动（{version}）",
-  "logStudioDownloadFailed": "无法下载 Roblox Studio（{detail}）"
+  "logStudioDownloadFailed": "无法下载 Roblox Studio（{detail}）",
+  "autoAdvancedFailed": "无法开启高级模式，因此 {host} 可能打不开。"
 }

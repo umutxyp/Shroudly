@@ -1,9 +1,10 @@
 'use strict';
 
 /* The autopilot (electron/autopilot.js): what Shroudly turns on by itself,
- * and when it must not. Also the two things it relies on: telling a blocked
- * service from one that is down (blockcheck.js), and reading which programs
- * hold a connection to Shroudly (procnet.js). */
+ * and when it must not. Also what it relies on: telling a blocked service
+ * from one that is down (blockcheck.js), reading which programs hold a
+ * connection to Shroudly (procnet.js), and deciding which of Roblox's
+ * programs go around Shroudly (roblox-app.js decide). */
 
 const path = require('path');
 const { ROOT, suite } = require('./helpers');
@@ -11,6 +12,7 @@ const { ROOT, suite } = require('./helpers');
 const Autopilot = require(path.join(ROOT, 'electron', 'autopilot.js'));
 const BlockCheck = require(path.join(ROOT, 'electron', 'blockcheck.js'));
 const ProcNet = require(path.join(ROOT, 'electron', 'procnet.js'));
+const RobloxApp = require(path.join(ROOT, 'electron', 'roblox-app.js'));
 const t = suite('autopilot');
 
 function memStore(init = {}) {
@@ -18,27 +20,31 @@ function memStore(init = {}) {
   return { get: (k, d) => (m.has(k) ? m.get(k) : d), set: (k, v) => m.set(k, v), delete: (k) => m.delete(k), m };
 }
 
-function rig({ store = memStore(), present = { discord: true, roblox: true }, check = async () => ({ blocked: false, detail: 'direct ok' }), adv = null } = {}) {
+/* blocked: the hosts the check finds blocked (a function or a list). */
+function rig({ store = memStore({ autopilotSince: 1 }), present = { discord: true, roblox: true }, blocked = [], adv = null, enableResult = null } = {}) {
   let clock = 1e12;
   const told = [];
   const logs = [];
   const enabled = [];
+  const asked = [];
   let on = true;
+  const isBlocked = typeof blocked === 'function' ? blocked : (h) => blocked.includes(h);
   const svc = (id, mode, needsApp, probe) => ({
     id, name: id, probe, mode, needsApp,
     present: () => present[id],
-    enable: async () => { enabled.push(id); store.set(mode, true); return { success: true }; },
+    enable: async () => { enabled.push(id); if (enableResult) return enableResult; store.set(mode, true); return { success: true }; },
     logOn: `${id} on`, told: `auto-${id}`,
   });
   const ap = new Autopilot({
     store, log: (l, m) => logs.push(m), tell: (id, p) => told.push({ id, p }),
-    protectionOn: () => on, check,
+    protectionOn: () => on,
+    check: async (h) => { asked.push(h); return isBlocked(h) ? { blocked: true, how: 'tls', detail: 'reset' } : { blocked: false, detail: 'direct ok' }; },
     services: [svc('discord', 'discordMode', true, 'discord.com'), svc('roblox', 'appMode', false, 'clientsettingscdn.roblox.com')],
     advanced: adv, now: () => clock,
   });
-  return { ap, store, told, logs, enabled, tick: (ms) => { clock += ms; }, off: () => { on = false; }, setPresent: (id, v) => { present[id] = v; } };
+  return { ap, store, told, logs, enabled, asked, tick: (ms) => { clock += ms; }, off: () => { on = false; }, setPresent: (id, v) => { present[id] = v; } };
 }
-const settle = () => new Promise((r) => setImmediate(r));
+const settle = async () => { for (let i = 0; i < 5; i++) await new Promise((r) => setImmediate(r)); };
 
 (async () => {
   // ── which service a host belongs to ──
@@ -47,31 +53,45 @@ const settle = () => new Promise((r) => setImmediate(r));
   "a service's own names are recognised (Discord's gateway and CDN, Roblox's settings and setup hosts)");
   t.ok(Autopilot.familyOf('notdiscord.com') === null && Autopilot.familyOf('roblox.com.evil.example') === null && Autopilot.familyOf('') === null,
     'look-alikes are not');
+  t.ok(['media.giphy.com', 'tenor.com', 'withpersona.com', 'www.guilded.gg', 'hcaptcha.com'].every((h) => Autopilot.familyOf(h) === null),
+    'third parties the services embed (GIFs, identity checks, captchas) say nothing about the service itself');
 
-  // ── evidence from the engine turns the mode on, and says so ──
+  // ── the engine's word, checked before it counts ──
   {
-    const r = rig();
+    const r = rig({ blocked: ['discord.com'] });
     r.ap.noteHost('bypass', 'discord.com');
     await settle();
-    t.ok(r.enabled.join() === 'discord' && r.told.map((x) => x.id).join() === 'auto-discord', 'a Discord name that needed a technique: Discord app mode turned on, and the user told');
-    r.ap.noteHost('cut', 'gateway.discord.gg');
+    t.ok(r.asked.join() === 'discord.com' && r.enabled.join() === 'discord' && r.told.map((x) => x.id).join() === 'auto-discord',
+      'a Discord name that needed a technique is checked; found blocked: Discord app mode on, and the user told');
+    r.ap.noteHost('bypass', 'gateway.discord.gg');
     await settle();
-    t.ok(r.enabled.length === 1 && r.told.length === 1, 'more evidence for the same service changes nothing (told once)');
+    t.ok(r.enabled.length === 1 && r.told.length === 1 && r.asked.length === 1, 'more events for the same service change nothing (no second check, told once)');
   }
   {
-    const r = rig();
+    const r = rig({ blocked: [] });
+    r.ap.noteHost('bypass', 'www.roblox.com');
+    await settle();
+    t.ok(r.asked.join() === 'www.roblox.com' && !r.enabled.length && !r.ap.isBlocked('roblox'), 'an engine event the check does not confirm (it works directly) turns nothing on');
+    r.ap.noteHost('bypass', 'apis.roblox.com');
+    await settle();
+    t.ok(r.asked.length === 1, 'and for hours after, events about that service are not checked again');
+  }
+  {
+    const r = rig({ blocked: ['www.roblox.com'] });
+    r.ap.noteHost('cut', 'www.roblox.com', { note: 'stall' });
     r.ap.noteHost('blocked', 'www.roblox.com', { alert: true });
     r.ap.noteHost('blocked', 'apis.roblox.com', { siteOk: true });
     r.ap.noteHost('blocked', 'www.roblox.com', { note: 'silent' });
     r.ap.noteHost('unreachable', 'www.roblox.com');
+    r.ap.noteHost('bypass', 'tenor.com');
     await settle();
-    t.ok(!r.enabled.length && !r.ap.isBlocked('roblox'), "the server's own refusal, one address of a working site, silence and an unreachable host are not taken for a block");
-    r.ap.noteHost('blocked', 'www.roblox.com', {});
+    t.ok(!r.asked.length && !r.enabled.length, "a single cut, the server's own refusal, one address of a working site, silence, an unreachable host and a third party: nothing is even checked");
+    r.ap.noteHost('cut', 'www.roblox.com', { believed: true });
     await settle();
-    t.ok(r.enabled.join() === 'roblox', 'a Roblox name no technique opened: Games and apps mode turned on');
+    t.ok(r.enabled.join() === 'roblox', 'a cut the engine believes (enough of them) is checked, and counts once confirmed');
   }
   {
-    const r = rig({ present: { discord: false, roblox: false } });
+    const r = rig({ present: { discord: false, roblox: false }, blocked: ['discord.com', 'www.roblox.com'] });
     r.ap.noteHost('bypass', 'discord.com');
     r.ap.noteHost('bypass', 'www.roblox.com');
     await settle();
@@ -81,22 +101,22 @@ const settle = () => new Promise((r) => setImmediate(r));
     t.ok(r.enabled.join() === 'roblox,discord', 'a Discord app installed later gets the mode at the next look');
   }
   {
-    const r = rig();
+    const r = rig({ blocked: ['discord.com'] });
     r.off();
     r.ap.noteHost('bypass', 'discord.com');
     await settle();
     t.ok(!r.enabled.length, 'nothing is turned on while protection is off');
   }
   {
-    const r = rig({ store: memStore({ discordMode: true }) });
+    const r = rig({ store: memStore({ autopilotSince: 1, discordMode: true }), blocked: ['discord.com'] });
     r.ap.noteHost('bypass', 'discord.com');
     await settle();
-    t.ok(!r.enabled.length && !r.told.length, 'a mode that is already on is left alone, and nothing is said');
+    t.ok(!r.enabled.length && !r.told.length && r.ap.isBlocked('discord'), 'a mode that is already on is left alone, and nothing is said (the service is still known blocked)');
   }
 
   // ── the user's own choice ──
   {
-    const r = rig();
+    const r = rig({ blocked: ['discord.com', 'www.roblox.com'] });
     r.ap.userSet('discordMode', false);
     r.ap.noteHost('bypass', 'discord.com');
     await settle();
@@ -110,34 +130,66 @@ const settle = () => new Promise((r) => setImmediate(r));
     await settle();
     t.ok(r.enabled.join() === 'discord,roblox', 'turned back on by hand: the hold is gone');
   }
-
-  // ── its own check, before the app is opened ──
   {
-    const asked = [];
-    const r = rig({ check: async (h) => { asked.push(h); return h === 'discord.com' ? { blocked: true, how: 'dns', detail: '195.175.254.2' } : { blocked: false, detail: 'direct ok' }; } });
+    // 2.5.9 and older: a mode turned off by hand, an offer put off.
+    const now = 1e12;
+    const store = memStore({ discordMode: false, discordOfferDeclinedAt: now - 86400000, appOfferDeclinedAt: now - 3600000 });
+    const r = rig({ store, blocked: ['discord.com', 'www.roblox.com'] });
+    r.ap.noteHost('bypass', 'discord.com');
+    r.ap.noteHost('bypass', 'www.roblox.com');
+    await settle();
+    t.ok(!r.enabled.length && store.get('discordModeOffAt') === now && store.get('appModeOffAt') === now - 3600000 && !store.m.has('discordOfferDeclinedAt'),
+      'after the update, a mode turned off by hand and an offer put off with "Not now" are still respected');
+    const again = memStore({ autopilotSince: 5, discordMode: false });
+    rig({ store: again });
+    t.ok(!again.m.has('discordModeOffAt'), 'that is done once, not at every start');
+  }
+  {
+    const r = rig({ blocked: ['discord.com'], enableResult: { success: false, code: 'permission' } });
+    r.ap.noteHost('bypass', 'discord.com');
+    await settle();
+    for (let i = 0; i < 4; i++) { r.tick(10 * 60 * 1000); await r.ap.survey(); }
+    t.ok(r.enabled.length === 1 && !r.told.length, 'a mode that could not be turned on (a permission panel cancelled, a proxy of the user\'s own) is not tried again by itself every few minutes');
+  }
+
+  // ── its own check, before the app is opened, and again later ──
+  {
+    const r = rig({ blocked: ['discord.com'] });
     await r.ap.survey();
     await settle();
-    t.ok(asked.join() === 'discord.com,clientsettingscdn.roblox.com' && r.enabled.join() === 'discord', "each installed app's service is checked; only the blocked one gets its mode");
+    t.ok(r.asked.join() === 'discord.com,clientsettingscdn.roblox.com' && r.enabled.join() === 'discord', "each installed app's service is checked; only the blocked one gets its mode");
     await r.ap.survey();
-    t.ok(asked.length === 2, 'not checked again within hours');
+    t.ok(r.asked.length === 2, 'not checked again within hours');
     r.tick(Autopilot.CHECK_AGAIN_MS + 1);
     await r.ap.survey();
-    t.ok(asked.length === 3 && asked[2] === 'clientsettingscdn.roblox.com', 'checked again later, only what is still off');
+    t.ok(r.asked.length === 4, 'checked again later, blocked or not');
   }
   {
-    const asked = [];
-    const r = rig({ present: { discord: false, roblox: false }, check: async (h) => { asked.push(h); return { blocked: true, how: 'tls' }; } });
+    let blockedNow = true;
+    const r = rig({ blocked: (h) => blockedNow && h === 'discord.com' });
     await r.ap.survey();
-    t.ok(!asked.length && !r.enabled.length, 'no app, no check');
+    t.ok(r.ap.isBlocked('discord'), 'found blocked');
+    blockedNow = false;
+    r.tick(Autopilot.CHECK_AGAIN_MS + 1);
+    await r.ap.survey();
+    t.ok(!r.ap.isBlocked('discord'), 'no longer blocked hours later (another network): forgotten, so nothing is restarted for it');
+    blockedNow = true;
+    await r.ap.survey();
+    r.ap.networkChanged();
+    t.ok(!r.ap.isBlocked('discord') && r.logs.some((l) => /network changed/.test(l)), 'a network change forgets what was learnt');
+    await r.ap.survey();
+    t.ok(r.ap.isBlocked('discord'), 'and the next look finds out afresh');
   }
   {
-    // Left on by an earlier session: still checked, so that a program going
-    // around Shroudly is dealt with where the service is blocked.
-    const asked = [];
-    const r = rig({ store: memStore({ appMode: true, discordMode: true }), check: async (h) => { asked.push(h); return { blocked: h !== 'discord.com', how: 'tls' }; } });
+    const r = rig({ present: { discord: false, roblox: false }, blocked: ['discord.com'] });
+    await r.ap.survey();
+    t.ok(!r.asked.length && !r.enabled.length, 'no app, no check');
+  }
+  {
+    const r = rig({ store: memStore({ autopilotSince: 1, appMode: true, discordMode: true }), blocked: ['clientsettingscdn.roblox.com'] });
     await r.ap.survey();
     await settle();
-    t.ok(asked.length === 2 && r.ap.isBlocked('roblox') && !r.ap.isBlocked('discord') && !r.enabled.length && !r.told.length,
+    t.ok(r.asked.length === 2 && r.ap.isBlocked('roblox') && !r.ap.isBlocked('discord') && !r.enabled.length && !r.told.length,
       'modes already on: the services are still checked (Roblox known blocked), nothing is turned on twice and nothing said');
   }
 
@@ -153,24 +205,48 @@ const settle = () => new Promise((r) => setImmediate(r));
   {
     let tries = 0;
     const adv = { available: () => true, active: () => false, start: async () => { tries++; return { success: false, code: 'declined' }; } };
-    const store = memStore();
+    const store = memStore({ autopilotSince: 1 });
     const r = rig({ store, adv });
     t.ok(await r.ap.needAdvanced('a.example') === false && store.get('advancedDeclinedAt') > 0 && r.told.some((x) => x.id === 'autoAdvancedDeclined'), 'declined: remembered, and the window keeps a button for it');
     const r2 = rig({ store, adv });
     t.ok(await r2.ap.needAdvanced('a.example') === false && tries === 1, 'a declined prompt is not shown again by itself (next session included)');
   }
   {
+    const adv = { available: () => true, active: () => false, start: async () => ({ success: false, code: 'start_failed' }) };
+    const r = rig({ adv });
+    await r.ap.needAdvanced('a.example');
+    t.ok(r.told.map((x) => x.id).join() === 'autoAdvancedAsk,autoAdvancedFailed', 'failed for another reason: the "allow it" line is followed by one that says it did not start (with its button)');
+  }
+  {
     let tries = 0;
-    const r = rig({ adv: { available: () => false, active: () => false, start: async () => { tries++; return { success: true }; } } });
-    t.ok(await r.ap.needAdvanced('a.example') === false && tries === 0, 'not available on this system: nothing is asked');
-    const r2 = rig({ adv: { available: () => true, active: () => false, start: async () => { tries++; return { success: true }; } } });
+    const adv = { available: () => true, active: () => false, start: async () => { tries++; return { success: true }; } };
+    const r = rig({ adv });
+    r.ap.recordDecline();
+    t.ok(await r.ap.needAdvanced('a.example') === false && tries === 0, 'declined at a prompt the user started: not asked by itself either');
+    const r1 = rig({ adv: { available: () => false, active: () => false, start: async () => { tries++; return { success: true }; } } });
+    t.ok(await r1.ap.needAdvanced('a.example') === false && tries === 0, 'not available on this system: nothing is asked');
+    const r2 = rig({ adv });
     r2.ap.userSet('advancedMode', false);
     t.ok(await r2.ap.needAdvanced('a.example') === false && tries === 0, 'turned off by hand: not started by itself');
   }
 
+  // ── Roblox's programs: who is restarted, who is told ──
+  {
+    const base = { studios: [], installers: { player: [], studio: [] }, quiet: [], before: [], handled: [], restarts: [], now: 1e9 };
+    const d1 = RobloxApp.decide({ ...base, players: [1, 2], quiet: [2] });
+    t.ok(JSON.stringify(d1.restartPlayers) === '[2]', 'only the player that goes around Shroudly is restarted, never another one in a game through it');
+    const d2 = RobloxApp.decide({ ...base, players: [1], studios: [3], installers: { player: [4], studio: [5] }, quiet: [4, 5], before: [3] });
+    t.ok(JSON.stringify(d2.installers) === '{"player":[4],"studio":[5]}' && JSON.stringify(d2.tellStudios) === '[3]' && !d2.restartPlayers.length,
+      "installers around Shroudly are started again; Studio is only ever told about; a player that uses Shroudly is left alone");
+    const d3 = RobloxApp.decide({ ...base, players: [2], quiet: [2], handled: [2] });
+    t.ok(!d3.restartPlayers.length, 'a process already dealt with is not dealt with again');
+    const d4 = RobloxApp.decide({ ...base, players: [7], quiet: [7], restarts: [1e9 - 60000, 1e9 - 120000] });
+    t.ok(!d4.restartPlayers.length && JSON.stringify(d4.stuckPlayers) === '[7]', 'after two restarts in ten minutes, a player is left to Advanced mode, not restarted in a loop');
+  }
+
   // ── blocked, or down? ──
   {
-    const engineOk = { socksPort: 1, connect: async () => ({}) };
+    const engineOk = { socksPort: 1, connect: async () => ({}), retryMs: 0 };
     const hsBoth = (direct, through) => async (o) => (o.socket ? through : direct);
     const c1 = await BlockCheck.check('discord.com', { ...engineOk, resolve: async () => ['195.175.254.2'], handshake: hsBoth('ok', 'ok') });
     t.ok(c1.blocked && c1.how === 'dns', `DNS answering with a block page: blocked (${c1.detail})`);
@@ -182,6 +258,9 @@ const settle = () => new Promise((r) => setImmediate(r));
     t.ok(c4.blocked && c4.how === 'tls' && c4.detail === 'reset', 'handshake reset directly, fine through Shroudly: blocked');
     const c5 = await BlockCheck.check('discord.com', { ...engineOk, resolve: async () => ['162.159.128.233'], handshake: hsBoth('timeout', 'timeout') });
     t.ok(!c5.blocked, `failing the same way through Shroudly: down, not blocked (${c5.detail})`);
+    let n = 0;
+    const flaky = await BlockCheck.check('discord.com', { ...engineOk, resolve: async () => ['162.159.128.233'], handshake: async (o) => (o.socket ? 'ok' : (n++ === 0 ? 'timeout' : 'ok')) });
+    t.ok(!flaky.blocked && n === 2, 'one direct handshake lost on a weak network, the next one fine: not blocked');
     const c6 = await BlockCheck.check('discord.com', { ...engineOk, resolve: async () => ['162.159.128.233'], handshake: hsBoth('ok', 'reset') });
     t.ok(!c6.blocked && c6.detail === 'direct ok', 'working directly: not blocked');
     const c7 = await BlockCheck.check('discord.com', { resolve: async () => ['195.175.254.2'], handshake: hsBoth('ok', 'ok') });
@@ -198,6 +277,13 @@ const settle = () => new Promise((r) => setImmediate(r));
       + '  TCP    127.0.0.1:52343        127.0.0.1:10810        TIME_WAIT       0\r\n';
     const rows = ProcNet.parseNetstat(net);
     t.ok(rows.length === 3 && rows[0].pid === 4120 && rows[0].remote.port === 10810 && rows[2].remote.host === '::1', 'Windows (netstat): established connections with their process and peer, IPv6 included; listening and closing ones left out');
+    // Windows translates the State column.
+    const local = ProcNet.parseNetstat('  TCP    127.0.0.1:52341        127.0.0.1:10810        HERGESTELLT     4120\r\n'
+      + '  TCP    127.0.0.1:52342        127.0.0.1:10810        KURULDU         4121\r\n'
+      + '  TCP    127.0.0.1:52343        127.0.0.1:10810        УСТАНОВЛЕНО     4122\r\n'
+      + '  TCP    0.0.0.0:10810          0.0.0.0:0              ABHÖREN         900\r\n'
+      + '  TCP    127.0.0.1:52344        127.0.0.1:10810        WARTEND         0\r\n');
+    t.ok(JSON.stringify(local.map((r) => r.pid)) === '[4120,4121,4122]', 'German, Turkish and Russian Windows: connections still found whatever the state is called; listening and closed ones still left out');
     const lsof = ProcNet.parseLsof('p812\nf33\nn127.0.0.1:61000->127.0.0.1:10810\nf34\nn192.168.1.5:61001->162.159.1.1:443\np813\nf5\nn[::1]:6000->[::1]:10811\n');
     t.ok(lsof.length === 3 && lsof[0].pid === 812 && lsof[2].pid === 813 && lsof[2].remote.host === '::1', 'macOS (lsof): the same');
     const ss = ProcNet.parseSs('0      0      127.0.0.1:41000   127.0.0.1:10810 users:(("Discord",pid=700,fd=40),("Discord",pid=701,fd=41))\n');

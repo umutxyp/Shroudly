@@ -141,9 +141,15 @@ function parsePids(out, platform = process.platform, kind = 'player') {
   return String(out || '').split(/\s+/).filter((x) => /^\d+$/.test(x)).map(Number);
 }
 
+/* null when the process list could not be read (tasklist always prints
+ * something, even "no tasks"): the caller then changes nothing, rather than
+ * taking every process for gone. */
 async function pids(kind = 'player') {
   const k = kindOf(kind);
-  if (process.platform === 'win32') return parsePids(await run('tasklist', ['/FI', `IMAGENAME eq ${k.exe}`, '/NH', '/FO', 'CSV']), 'win32', kind);
+  if (process.platform === 'win32') {
+    const out = await run('tasklist', ['/FI', `IMAGENAME eq ${k.exe}`, '/NH', '/FO', 'CSV']);
+    return out ? parsePids(out, 'win32', kind) : null;
+  }
   if (process.platform === 'darwin') return parsePids(await run('pgrep', ['-x', k.mac]), 'darwin', kind);
   return [];
 }
@@ -162,7 +168,27 @@ function parseInstallerPids(out) {
 }
 async function installerPids() {
   if (process.platform !== 'win32') return { player: [], studio: [] };
-  return parseInstallerPids(await run('tasklist', ['/FI', 'IMAGENAME eq Roblox*', '/NH', '/FO', 'CSV']));
+  const out = await run('tasklist', ['/FI', 'IMAGENAME eq Roblox*', '/NH', '/FO', 'CSV']);
+  return out ? parseInstallerPids(out) : null;
+}
+
+/* What to do about Roblox's programs on one look (main.js watchRoblox), as a
+ * pure decision. A process counts as going around Shroudly when it is quiet
+ * (silentPlayers) or was open before the mode came on, and has not been dealt
+ * with yet. Installers and players are started again through Shroudly (only
+ * those, never the others: another player may be in a game through
+ * Shroudly); Studio is only ever told about. A player is restarted at most
+ * twice in ten minutes, then left to Advanced mode. */
+function decide({ players, studios, installers, quiet, before, handled, restarts, now }) {
+  const around = (list) => list.filter((pid) => (quiet.includes(pid) || before.includes(pid)) && !handled.includes(pid));
+  const recent = (restarts || []).filter((t) => now - t <= 10 * 60 * 1000);
+  const p = around(players);
+  return {
+    installers: { player: around(installers.player), studio: around(installers.studio) },
+    restartPlayers: recent.length < 2 ? p : [],
+    stuckPlayers: recent.length < 2 ? [] : p,
+    tellStudios: around(studios),
+  };
 }
 
 /* Stop these processes outright (an installer, a player that never got
@@ -230,17 +256,20 @@ async function open(env, kind = 'player') {
   return detached(l.exe, l.args, process.platform === 'win32' ? { ...process.env, ...env } : process.env);
 }
 
-/* Quit the player and open it again, through Shroudly. Never Studio: it
- * may hold work that is not saved, so it is only ever closed by the user. */
-async function restart(env) {
-  const before = await pids();
+/* Quit these players and open Roblox again, through Shroudly. Only the
+ * ones given: another player may be in a game through Shroudly. Never
+ * Studio: it may hold work that is not saved, so it is only ever closed by
+ * the user. */
+async function restart(env, list) {
+  if (process.platform !== 'darwin' && process.platform !== 'win32') return false;
+  const these = alive(list || []);
   if (process.platform === 'darwin') {
-    await run('pkill', ['-x', KINDS.player.mac]);
-    if (!(await waitGone(before, 8000))) { await run('pkill', ['-9', '-x', KINDS.player.mac]); await waitGone(before, 3000); }
-  } else if (process.platform === 'win32') {
-    if (before.length) await run('taskkill', [...before.flatMap((p) => ['/PID', String(p)]), '/T', '/F']);
-    await waitGone(before, 5000);
-  } else return false;
+    for (const p of these) { try { process.kill(p, 'SIGTERM'); } catch {} }
+    if (!(await waitGone(these, 8000))) { for (const p of alive(these)) { try { process.kill(p, 'SIGKILL'); } catch {} } await waitGone(these, 3000); }
+  } else {
+    if (these.length) await run('taskkill', [...these.flatMap((p) => ['/PID', String(p)]), '/T', '/F']);
+    await waitGone(these, 5000);
+  }
   return open(env);
 }
 
@@ -392,4 +421,4 @@ async function install(opts) {
 const ROBLOX_HOST = /(^|\.)(roblox\.com|rbxcdn\.com|rbxinfra\.net|rbx\.com|robloxlabs\.com)$/i;
 function isRobloxHost(h) { return ROBLOX_HOST.test(String(h || '')); }
 
-module.exports = { installs, installed, handler, launcher, isBootstrapper, storeEdition, pids, parsePids, installerPids, parseInstallerPids, kill, routeWatched, silentPlayers, alive, open, restart, install, cleanDownloads, newDownload, isRobloxHost, get, signedByRoblox, BOOTSTRAPPERS, BYPASS_GRACE_MS, KINDS };
+module.exports = { installs, installed, handler, launcher, isBootstrapper, storeEdition, pids, parsePids, installerPids, parseInstallerPids, decide, kill, routeWatched, silentPlayers, alive, open, restart, install, cleanDownloads, newDownload, isRobloxHost, get, signedByRoblox, BOOTSTRAPPERS, BYPASS_GRACE_MS, KINDS };

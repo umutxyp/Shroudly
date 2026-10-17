@@ -366,7 +366,6 @@
   "autoAdvancedAsk": "{host} דורש מצב מתקדם ברשת הזו. יש לאשר כשהמחשב יבקש.",
   "autoAdvancedOn": "המצב המתקדם פועל, כך ש-{host} ואתרים דומים יכולים להיפתח ברשת הזו.",
   "autoAdvancedDeclined": "המצב המתקדם לא אושר, ולכן ייתכן ש-{host} לא ייפתח.",
-  "autoModeOn": "{host} נחסם כשהמצב האוטומטי היה כבוי, ולכן Shroudly הפעיל מחדש את המצב האוטומטי.",
   "logAutoDiscordOn": "טייס אוטומטי: Discord חסום ברשת הזו; מצב אפליקציית Discord הופעל",
   "logAutoRobloxOn": "טייס אוטומטי: Roblox חסום ברשת הזו; מצב משחקים ואפליקציות הופעל",
   "logAutoRestarted": "טייס אוטומטי: {app} לא הצליח להתחבר דרך Shroudly; הוא הופעל מחדש",
@@ -375,7 +374,7 @@
   "logAutoRobloxStuck": "טייס אוטומטי: Roblox עדיין לא מצליח להתחבר גם אחרי שהופעל מחדש דרך Shroudly",
   "logAutoAdvancedAsk": "טייס אוטומטי: {host} דורש מצב מתקדם; מבקש הרשאה",
   "logAutoAdvancedDeclined": "המצב המתקדם לא אושר; Shroudly לא יבקש זאת שוב בעצמו במשך שבועיים",
-  "logAutoModeOn": "המצב האוטומטי היה כבוי ו-{host} נחסם; המצב הופעל מחדש",
   "logStudioInstalled": "תוכנת ההתקנה של Roblox Studio הורדה דרך Shroudly והופעלה ({version})",
-  "logStudioDownloadFailed": "לא ניתן היה להוריד את Roblox Studio ({detail})"
+  "logStudioDownloadFailed": "לא ניתן היה להוריד את Roblox Studio ({detail})",
+  "autoAdvancedFailed": "לא ניתן היה להפעיל את המצב המתקדם, ולכן ייתכן ש-{host} לא ייפתח."
 }

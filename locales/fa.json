@@ -366,7 +366,6 @@
   "autoAdvancedAsk": "{host} در این شبکه به حالت پیشرفته نیاز دارد. وقتی رایانه‌تان درخواست کرد، اجازه دهید.",
   "autoAdvancedOn": "حالت پیشرفته روشن است، پس {host} و سایت‌های مشابه می‌توانند در این شبکه باز شوند.",
   "autoAdvancedDeclined": "اجازهٔ حالت پیشرفته داده نشد، پس ممکن است {host} باز نشود.",
-  "autoModeOn": "وقتی حالت خودکار خاموش بود، {host} مسدود شد، پس Shroudly حالت خودکار را دوباره روشن کرد.",
   "logAutoDiscordOn": "خلبان خودکار: Discord در این شبکه مسدود است؛ حالت برنامهٔ Discord روشن شد",
   "logAutoRobloxOn": "خلبان خودکار: Roblox در این شبکه مسدود است؛ حالت بازی‌ها و برنامه‌ها روشن شد",
   "logAutoRestarted": "خلبان خودکار: {app} از طریق Shroudly وصل نشد؛ دوباره اجرا شد",
@@ -375,7 +374,7 @@
   "logAutoRobloxStuck": "خلبان خودکار: Roblox پس از اجرای دوباره از طریق Shroudly هنوز وصل نمی‌شود",
   "logAutoAdvancedAsk": "خلبان خودکار: {host} به حالت پیشرفته نیاز دارد؛ در حال درخواست مجوز",
   "logAutoAdvancedDeclined": "اجازهٔ حالت پیشرفته داده نشد؛ Shroudly تا دو هفته خودش دوباره درخواست نمی‌کند",
-  "logAutoModeOn": "حالت خودکار خاموش بود و {host} مسدود شد؛ دوباره روشن شد",
   "logStudioInstalled": "نصب‌کنندهٔ Roblox Studio از طریق Shroudly دانلود و اجرا شد ({version})",
-  "logStudioDownloadFailed": "دانلود Roblox Studio ممکن نشد ({detail})"
+  "logStudioDownloadFailed": "دانلود Roblox Studio ممکن نشد ({detail})",
+  "autoAdvancedFailed": "حالت پیشرفته روشن نشد، پس ممکن است {host} باز نشود."
 }

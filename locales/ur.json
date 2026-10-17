@@ -366,7 +366,6 @@
   "autoAdvancedAsk": "اس نیٹ ورک پر {host} کو ایڈوانسڈ موڈ چاہیے۔ جب آپ کا کمپیوٹر پوچھے تو اجازت دیں۔",
   "autoAdvancedOn": "ایڈوانسڈ موڈ آن ہے، اس لیے {host} اور اس جیسی سائٹس اس نیٹ ورک پر کھل سکتی ہیں۔",
   "autoAdvancedDeclined": "ایڈوانسڈ موڈ کی اجازت نہیں دی گئی، اس لیے {host} شاید نہ کھلے۔",
-  "autoModeOn": "جب خودکار موڈ بند تھا تو {host} بلاک ہو گئی، اس لیے Shroudly نے خودکار موڈ دوبارہ آن کر دیا۔",
   "logAutoDiscordOn": "آٹو پائلٹ: اس نیٹ ورک پر Discord بلاک ہے؛ Discord ایپ موڈ آن کر دیا گیا",
   "logAutoRobloxOn": "آٹو پائلٹ: اس نیٹ ورک پر Roblox بلاک ہے؛ گیمز اور ایپس موڈ آن کر دیا گیا",
   "logAutoRestarted": "آٹو پائلٹ: {app}، Shroudly کے ذریعے نہیں جڑ سکا؛ اسے دوبارہ شروع کر دیا گیا",
@@ -375,7 +374,7 @@
   "logAutoRobloxStuck": "آٹو پائلٹ: Shroudly کے ذریعے دوبارہ شروع ہونے کے بعد بھی Roblox نہیں جڑ پا رہا",
   "logAutoAdvancedAsk": "آٹو پائلٹ: {host} کو ایڈوانسڈ موڈ چاہیے؛ اجازت مانگی جا رہی ہے",
   "logAutoAdvancedDeclined": "ایڈوانسڈ موڈ کی اجازت نہیں دی گئی؛ Shroudly دو ہفتے تک خود بخود دوبارہ نہیں پوچھے گا",
-  "logAutoModeOn": "خودکار موڈ بند تھا اور {host} بلاک ہو گئی؛ موڈ دوبارہ آن کر دیا گیا",
   "logStudioInstalled": "Roblox Studio انسٹالر Shroudly کے ذریعے ڈاؤن لوڈ ہو کر شروع ہو گیا ({version})",
-  "logStudioDownloadFailed": "Roblox Studio ڈاؤن لوڈ نہیں ہو سکا ({detail})"
+  "logStudioDownloadFailed": "Roblox Studio ڈاؤن لوڈ نہیں ہو سکا ({detail})",
+  "autoAdvancedFailed": "ایڈوانسڈ موڈ آن نہیں ہو سکا، اس لیے {host} شاید نہ کھلے۔"
 }

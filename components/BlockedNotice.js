@@ -68,15 +68,23 @@ export default function BlockedNotice({ onNavigate, active = false }) {
   const [adv, setAdv] = useState({ available: false, active: false });
   const [hidden, setHidden] = useState({});   // banners closed this session
   const hide = (k) => setHidden((h) => ({ ...h, [k]: true }));
+  // A line of the autopilot's the user closed stays closed in the next
+  // window too (the window is closed for real when it goes to the tray).
+  const hideNotice = (n) => { hide(`auto:${n.at}`); window.electron?.autoDismiss?.(n.at); };
 
   const refreshAdv = () => window.electron?.advancedAvailable?.()
     .then((r) => { setAdv({ available: !!r?.available, active: !!r?.active }); setAdvanced(!!r?.available); })
     .catch(() => {});
+  // Resolves whether Advanced mode is on now; a site that was waiting for it
+  // is then no longer a failure to show.
   const startAdvanced = async () => {
     setBusy(true);
-    try { await window.electron?.startAdvanced?.(); } catch {}
+    let on = false;
+    try { const r = await window.electron?.startAdvanced?.(); on = !!(r && r.success); } catch {}
     await refreshAdv();
+    if (on) setHost(null);
     setBusy(false);
+    return on;
   };
 
   const refreshDiscord = () => window.electron?.discordStatus?.().then(setDiscord).catch(() => {});
@@ -91,7 +99,15 @@ export default function BlockedNotice({ onNavigate, active = false }) {
   const discordRetry = () => run(() => window.electron.discordSet(discord?.pendingOn !== false));
   // A notice is shown while it is news: a quarter of an hour at most.
   const NOTICE_MS = 15 * 60 * 1000;
-  const onNotice = (n) => { if (n && n.id) { setNotice(n); refreshAdv(); refreshApps(); refreshDiscord(); } };
+  // The line about Roblox Studio comes from the apps state (it stays while
+  // that Studio runs), so it never replaces another line here.
+  const onNotice = (n) => {
+    if (!n || !n.id) return;
+    if (n.id !== 'autoStudioReopen') setNotice(n);
+    // Advanced mode on: the site it was turned on for is no longer a failure.
+    if (n.id === 'autoAdvancedOn') setHost(null);
+    refreshAdv(); refreshApps(); refreshDiscord();
+  };
 
   useEffect(() => {
     if (typeof window === 'undefined' || !window.electron?.onSiteBlocked) return undefined;
@@ -196,20 +212,26 @@ export default function BlockedNotice({ onNavigate, active = false }) {
   }
 
   /* Roblox Studio open around Shroudly. Shroudly never closes Studio itself:
-   * it may hold work that is not saved. Said while that Studio runs. */
-  if (apps?.studioReopen && !hidden.studioReopen) {
+   * it may hold work that is not saved. Said while that Studio runs; a later
+   * Studio is a new line, even if this one was closed. */
+  const studioAt = apps?.studioReopenAt || 0;
+  if (studioAt && !hidden[`studio:${studioAt}`]) {
     return <Banner tone="accent" Icon={RefreshIcon} body={t('autoStudioReopen')}
-                   onClose={() => hide('studioReopen')} closeLabel={closeLabel} />;
+                   onClose={() => hide(`studio:${studioAt}`)} closeLabel={closeLabel} />;
   }
 
-  /* What the autopilot just did by itself. Advanced mode the user declined
-   * keeps its button: turning it on then is the user's call. */
-  if (notice && notice.id !== 'autoStudioReopen' && Date.now() - notice.at < NOTICE_MS && !hidden[`auto:${notice.at}`]) {
-    const declined = notice.id === 'autoAdvancedDeclined' && adv.available && !adv.active;
+  /* What the autopilot just did by itself. Advanced mode that was declined
+   * or could not start keeps its button, while it is still off: turning it
+   * on then is the user's call. Once it is on, that line has nothing to say. */
+  const advNotice = notice && (notice.id === 'autoAdvancedDeclined' || notice.id === 'autoAdvancedFailed');
+  const noticeShown = notice && Date.now() - notice.at < NOTICE_MS && !hidden[`auto:${notice.at}`]
+    && !(advNotice && adv.active) && !(notice.id === 'autoAdvancedAsk' && adv.active);
+  if (noticeShown) {
+    const offer = advNotice && adv.available && !adv.active;
     return (
-      <Banner tone="accent" Icon={declined ? ShieldAlertIcon : InfoIcon} body={t(notice.id, notice.params || {})}
-              onClose={() => hide(`auto:${notice.at}`)} closeLabel={closeLabel}>
-        {declined && (
+      <Banner tone="accent" Icon={offer ? ShieldAlertIcon : InfoIcon} body={t(notice.id, notice.params || {})}
+              onClose={() => hideNotice(notice)} closeLabel={closeLabel}>
+        {offer && (
           <Actions>
             <button type="button" onClick={startAdvanced} disabled={busy}
                     className="btn btn-primary rounded-[8px] px-3 py-1.5 text-[12.5px] font-semibold">{t('tryAdvanced')}</button>
@@ -244,20 +266,27 @@ export default function BlockedNotice({ onNavigate, active = false }) {
     );
   }
 
-  /* A site no technique opened. Where Advanced mode can still be turned on,
-   * the autopilot asks for it by itself and says so above; otherwise this
-   * says what is left. */
-  if (host && !(advanced && !adv.active)) {
+  /* A site no technique opened. While the autopilot's line about Advanced
+   * mode for it is news, that line says it (above). Otherwise: Advanced mode
+   * one click away where it can still be turned on, else what is left. */
+  const advLine = notice && /^autoAdvanced/.test(notice.id) && Date.now() - notice.at < NOTICE_MS;
+  if (host && !advLine) {
+    const offer = advanced && !adv.active;
     return (
       <Banner Icon={ShieldAlertIcon} title={t('blockedNoticeTitle', { host })}
               body={advanced ? null : t('blockedNoticeNoAdvanced')}
               onClose={() => setHost(null)} closeLabel={closeLabel}>
         <Actions>
-          <button type="button"
-                  onClick={() => { if (typeof onNavigate === 'function') onNavigate('logs'); setHost(null); }}
-                  className="btn btn-primary rounded-[8px] px-3 py-1.5 text-[12.5px] font-semibold">
-            {t('blockedNoticeOpenLogs')}
-          </button>
+          {offer ? (
+            <button type="button" onClick={startAdvanced} disabled={busy}
+                    className="btn btn-primary rounded-[8px] px-3 py-1.5 text-[12.5px] font-semibold">{t('tryAdvanced')}</button>
+          ) : (
+            <button type="button"
+                    onClick={() => { if (typeof onNavigate === 'function') onNavigate('logs'); setHost(null); }}
+                    className="btn btn-primary rounded-[8px] px-3 py-1.5 text-[12.5px] font-semibold">
+              {t('blockedNoticeOpenLogs')}
+            </button>
+          )}
         </Actions>
       </Banner>
     );

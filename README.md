@@ -409,22 +409,30 @@ what it did in one line, as a notification and in the window
 | Roblox is blocked on this network | Turns on [Games and apps mode](#games-and-apps-mode-roblox); restarts a player or installer that goes around Shroudly; asks the user to reopen a Roblox Studio that does |
 | A site no technique opens, or one that connects and is then cut | Turns on [Advanced mode](#advanced-mode-stateful-dpi) (Windows, Linux) after saying why; the system asks for permission |
 | Encrypted DNS is off and the network forges answers | Turns it back on |
-| Auto mode is off and a site is blocked | Turns it back on |
 
-How it knows a service is blocked: from what the engine sees (a name of that
-service that needed a technique, was cut after it connected, or that no
-technique opened), and, when protection starts with the service's app
-installed, from a check of its own before the app is opened: the system's DNS
-answering with a block page, a sinkhole or nothing, or the TLS handshake failing
-when made directly. Either counts only if the same name then works through
-Shroudly, so a service that is down is never taken for a blocked one. Nothing
-is decided from which country the computer is in.
+How it knows a service is blocked: by a check of its own
+([`electron/blockcheck.js`](electron/blockcheck.js)): the system's DNS answers
+with a block page, a sinkhole or nothing, or a TLS handshake made directly fails
+twice in a row, while the same name works through Shroudly; a service that is
+down is never taken for a blocked one. The check runs when protection starts
+with the service's app installed, so the mode is on before the app is opened,
+and whenever the engine reports something about one of the service's own names
+(one that needed a technique, that no technique opened, or that the engine
+believes is cut after it connects; one stalled connection alone is not
+enough). Third parties the services embed (GIFs, captchas) do not count. What
+was learnt is checked again after six hours and forgotten when the network
+changes. Nothing is decided from which country the computer is in.
 
-It stays out of the user's way: a switch the user turned off by hand stays off
-for two weeks; Advanced mode's permission prompt comes at most once a session,
-and not again by itself for two weeks once declined; a program that may hold
-unsaved work (Roblox Studio) is never closed, and a Discord that works is
-never restarted.
+It stays out of the user's way: a switch the user turned off by hand (also
+before the autopilot existed) stays off for two weeks; a mode that could not be
+turned on (a permission the user did not give, a proxy of their own in the way)
+is not tried again by itself that session; Advanced mode's permission prompt
+comes at most once a session, and not again by itself for two weeks once
+declined, also at a prompt the user started; a program that may hold unsaved
+work (Roblox Studio) is never closed; a Discord that works through Shroudly
+(any of its processes holds a connection to it) is never restarted; and only
+the Roblox player that goes around Shroudly is restarted, never another one in
+a game through it, at most twice in ten minutes.
 
 ## What Shroudly cannot fix
 

@@ -366,7 +366,6 @@
   "autoAdvancedAsk": "{host} memerlukan Mod Lanjutan pada rangkaian ini. Benarkan apabila komputer anda meminta.",
   "autoAdvancedOn": "Mod Lanjutan dihidupkan, jadi {host} dan laman seumpamanya boleh dibuka pada rangkaian ini.",
   "autoAdvancedDeclined": "Mod Lanjutan tidak dibenarkan, jadi {host} mungkin tidak dapat dibuka.",
-  "autoModeOn": "{host} disekat semasa mod auto dimatikan, jadi Shroudly menghidupkan semula mod auto.",
   "logAutoDiscordOn": "Autopandu: Discord disekat pada rangkaian ini; mod aplikasi Discord dihidupkan",
   "logAutoRobloxOn": "Autopandu: Roblox disekat pada rangkaian ini; mod permainan dan aplikasi dihidupkan",
   "logAutoRestarted": "Autopandu: {app} tidak dapat bersambung melalui Shroudly; ia dimulakan semula",
@@ -375,7 +374,7 @@
   "logAutoRobloxStuck": "Autopandu: Roblox masih tidak dapat bersambung selepas dimulakan semula melalui Shroudly",
   "logAutoAdvancedAsk": "Autopandu: {host} memerlukan Mod Lanjutan; meminta kebenaran",
   "logAutoAdvancedDeclined": "Mod Lanjutan tidak dibenarkan; Shroudly tidak akan memintanya sendiri lagi selama dua minggu",
-  "logAutoModeOn": "Mod auto dimatikan dan {host} disekat; mod auto telah dihidupkan semula",
   "logStudioInstalled": "Pemasang Roblox Studio dimuat turun melalui Shroudly dan dimulakan ({version})",
-  "logStudioDownloadFailed": "Roblox Studio tidak dapat dimuat turun ({detail})"
+  "logStudioDownloadFailed": "Roblox Studio tidak dapat dimuat turun ({detail})",
+  "autoAdvancedFailed": "Mod Lanjutan tidak dapat dihidupkan, jadi {host} mungkin tidak dapat dibuka."
 }
