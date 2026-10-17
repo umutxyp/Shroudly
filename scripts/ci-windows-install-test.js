@@ -27,12 +27,26 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
   const settings = path.join(discordDir, 'settings.json');
   fs.writeFileSync(settings, JSON.stringify({ NEW_UPDATE_ENDPOINT: 'http://127.0.0.1:10809/', IS_MAXIMIZED: true, WINDOW_BOUNDS: { x: 5, y: 6, width: 1200, height: 800 } }, null, 2));
 
+  const t0 = Date.now();
   const r = spawnSync(path.join(dist, setup), ['/S'], { stdio: 'inherit' });
   if (r.status !== 0) fail(`installer exited ${r.status}`);
+  ok(`installer returned after ${((Date.now() - t0) / 1000).toFixed(1)} s`);
   const roots = [path.join(process.env.LOCALAPPDATA, 'Programs', 'Shroudly'), path.join(process.env.LOCALAPPDATA, 'Programs', 'shroudly')];
   let dir = null;
-  for (let i = 0; i < 60 && !dir; i++) { dir = roots.find((d) => fs.existsSync(path.join(d, 'Shroudly.exe'))); if (!dir) await sleep(1000); }
-  if (!dir) fail('Shroudly.exe not found after install');
+  for (let i = 0; i < 120 && !dir; i++) { dir = roots.find((d) => fs.existsSync(path.join(d, 'Shroudly.exe'))); if (!dir) await sleep(1000); }
+  if (!dir) {
+    // Where did it go, if anywhere: what the uninstall entries say, and what
+    // is in the folders an installer may use.
+    const reg = (k) => String(spawnSync('reg', ['query', k, '/s', '/f', 'Shroudly'], { encoding: 'utf8' }).stdout || '').trim();
+    const ls = (d) => { try { return fs.readdirSync(d).join(', '); } catch (e) { return e.code; } };
+    console.log(`HKCU uninstall:\n${reg('HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall')}`);
+    console.log(`HKLM uninstall:\n${reg('HKLM\\Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall')}`);
+    console.log(`LOCALAPPDATA\\Programs: ${ls(path.join(process.env.LOCALAPPDATA, 'Programs'))}`);
+    console.log(`ProgramFiles: ${ls(process.env.ProgramFiles)}`);
+    console.log(`Shroudly folders: ${['Shroudly', 'shroudly'].map((n) => [path.join(process.env.LOCALAPPDATA, 'Programs', n), path.join(process.env.ProgramFiles, n)]).flat().map((d) => `${d}=[${ls(d)}]`).join(' ')}`);
+    console.log(`processes: ${String(spawnSync('tasklist', ['/FI', 'IMAGENAME eq Shroudly*'], { encoding: 'utf8' }).stdout || '').trim()}`);
+    fail('Shroudly.exe not found after install');
+  }
   ok(`installed to ${dir}`);
 
   const engine = path.join(dir, 'resources', 'app.asar.unpacked', 'electron', 'tools', 'core', `win32-${arch}`, 'shroudly-core.exe');

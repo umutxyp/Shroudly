@@ -116,6 +116,18 @@ async function isRunning(v) {
   return (await run('pgrep', ['-x', v.proc])).trim().length > 0;
 }
 
+/* Process ids of this build: what the autopilot asks about, to tell a
+ * Discord that works through Shroudly from one stuck before its window. */
+async function pids(v) {
+  if (process.platform === 'win32') {
+    const out = await run('tasklist', ['/FI', `IMAGENAME eq ${v.exe}`, '/NH', '/FO', 'CSV']);
+    const name = v.exe.replace(/\./g, '\\.');
+    return [...out.matchAll(new RegExp(`^"${name}","(\\d+)"`, 'gmi'))].map((m) => Number(m[1]));
+  }
+  if (v.id === 'flatpak' || !v.proc) return [];
+  return (await run('pgrep', ['-x', v.proc])).split(/\s+/).filter((x) => /^\d+$/.test(x)).map(Number);
+}
+
 async function waitGone(v, ms) {
   const end = Date.now() + ms;
   while (Date.now() < end) {
@@ -149,4 +161,4 @@ async function restart(v) {
   return detached(v.bin, v.binArgs || []);
 }
 
-module.exports = { KEY, endpointUrl, variants, installed, settingsFile, patchSync, hasOurs, isRunning, restart };
+module.exports = { KEY, endpointUrl, variants, installed, settingsFile, patchSync, hasOurs, isRunning, pids, restart };

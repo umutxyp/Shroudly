@@ -4,10 +4,10 @@
  * The one banner under the header that says what still needs the user.
  *
  * Without it the app looks broken: protection is on, the badge says active,
- * and a site or the Discord app still will not load. Saying so plainly — and
- * offering the one thing that will fix it — is the difference between "this
- * app is useless" and "I know what to do next". One banner at a time, most
- * urgent first.
+ * and a site or the Discord app still will not load. Whatever Shroudly can fix
+ * by itself it fixes (autopilot.js), and this says, in one line, what it did;
+ * what only the user can do (allow a permission, save their work in Studio)
+ * is asked plainly. One banner at a time, most urgent first.
  */
 
 import { useEffect, useState } from 'react';
@@ -63,8 +63,7 @@ export default function BlockedNotice({ onNavigate, active = false }) {
   const [discord, setDiscord] = useState(null);
   const [apps, setApps] = useState(null);
   const [busy, setBusy] = useState(false);
-  const [offerHidden, setOfferHidden] = useState(false);
-  const [appOfferHidden, setAppOfferHidden] = useState(false);
+  const [notice, setNotice] = useState(null);     // the autopilot's latest: { id, params, at }
   const [advice, setAdvice] = useState(null);
   const [adv, setAdv] = useState({ available: false, active: false });
   const [hidden, setHidden] = useState({});   // banners closed this session
@@ -81,9 +80,7 @@ export default function BlockedNotice({ onNavigate, active = false }) {
   };
 
   const refreshDiscord = () => window.electron?.discordStatus?.().then(setDiscord).catch(() => {});
-  // withRunning: also look whether Roblox is running (lists the programs, so
-  // only when the window comes into view).
-  const refreshApps = (withRunning) => window.electron?.appsStatus?.({ running: withRunning === true }).then(setApps).catch(() => {});
+  const refreshApps = () => window.electron?.appsStatus?.().then(setApps).catch(() => {});
 
   const run = async (fn) => {
     setBusy(true);
@@ -91,16 +88,10 @@ export default function BlockedNotice({ onNavigate, active = false }) {
     await Promise.all([refreshDiscord(), refreshApps()]);
     setBusy(false);
   };
-  const discordOn = () => run(() => window.electron.discordSet(true));
   const discordRetry = () => run(() => window.electron.discordSet(discord?.pendingOn !== false));
-  const discordRestart = () => run(() => window.electron.discordRestart());
-  const discordDecline = () => { setOfferHidden(true); window.electron?.discordDecline?.().then(refreshDiscord).catch(() => {}); };
-  const appsOn = () => run(() => window.electron.appsSet(true));
-  const appsRestart = () => run(() => window.electron.appsRestartRoblox());
-  const appsDecline = () => { setAppOfferHidden(true); window.electron?.appsDecline?.().then(refreshApps).catch(() => {}); };
-  // Starting Roblox from a browser that was already open: Windows hands it the
-  // browser's own, older environment.
-  const browserNote = apps?.platform === 'win32' ? ` ${t('appBrowserNote')}` : '';
+  // A notice is shown while it is news: a quarter of an hour at most.
+  const NOTICE_MS = 15 * 60 * 1000;
+  const onNotice = (n) => { if (n && n.id) { setNotice(n); refreshAdv(); refreshApps(); refreshDiscord(); } };
 
   useEffect(() => {
     if (typeof window === 'undefined' || !window.electron?.onSiteBlocked) return undefined;
@@ -112,20 +103,23 @@ export default function BlockedNotice({ onNavigate, active = false }) {
     window.electron.proxyStatus?.().then((p) => p && setProxy(p)).catch(() => {});
     const offRecovery = window.electron.onProxyRecovery?.((r) => setRecovery(r));
     window.electron.proxyRecovery?.().then((r) => setRecovery(r || null)).catch(() => {});
-    window.electron.onDiscordState?.(() => refreshDiscord());
+    const offDiscord = window.electron.onDiscordState?.(() => refreshDiscord());
     const offApps = window.electron.onAppsState?.(() => refreshApps());
     window.electron.onAdvice?.((a) => { setAdvice(a); refreshAdv(); });
+    const offNotice = window.electron.onAutoNotice?.(onNotice);
+    window.electron.autoNotices?.().then((list) => { if (Array.isArray(list) && list[0]) onNotice(list[0]); }).catch(() => {});
     // Listening now: notices that came while there was no window follow.
     window.electron.uiReady?.();
     window.electron.getAdvice?.().then((a) => a && setAdvice(a)).catch(() => {});
     refreshAdv();
     refreshDiscord();
-    refreshApps(true);
+    refreshApps();
     return () => {
+      if (typeof offNotice === 'function') offNotice();
       window.electron.removeSiteBlockedListener?.();
       window.electron.removeNeedRestartListener?.();
       window.electron.removeDnsAutoEnabledListener?.();
-      window.electron.removeDiscordStateListener?.();
+      if (typeof offDiscord === 'function') offDiscord(); else window.electron.removeDiscordStateListener?.();
       if (typeof offApps === 'function') offApps(); else window.electron.removeAppsStateListener?.();
       if (typeof offRefused === 'function') offRefused();
       if (typeof offProxy === 'function') offProxy();
@@ -134,31 +128,6 @@ export default function BlockedNotice({ onNavigate, active = false }) {
     };
   }, []);
 
-  // Roblox (or its installer) being opened, and an open copy being restarted,
-  // happen on their own: look again while the answer would change a banner,
-  // and only while the window is on screen, so nothing runs from the tray.
-  useEffect(() => {
-    if (!apps?.available) return undefined;
-    const restart = apps.needsRestart;
-    const offer = active && apps.mode == null && !appOfferHidden;
-    if (!restart && !offer) return undefined;
-    // A restart pending: its process ids are checked, nothing is started.
-    // The offer: looked at again whenever the window comes back into view.
-    const iv = restart ? setInterval(() => { if (!document.hidden) refreshApps(); }, 4000) : null;
-    const onShow = () => { if (!document.hidden) refreshApps(true); };
-    document.addEventListener('visibilitychange', onShow);
-    return () => { if (iv) clearInterval(iv); document.removeEventListener('visibilitychange', onShow); };
-  }, [active, apps?.available, apps?.needsRestart, apps?.mode, appOfferHidden]);
-
-  // Whether Discord is open, and whether it has reached the relay yet, change
-  // on their own: look again while there is something to look for.
-  useEffect(() => {
-    if (!discord?.installed) return undefined;
-    refreshDiscord();
-    if (!discord.needsRestart) return undefined;
-    const iv = setInterval(refreshDiscord, 4000);
-    return () => clearInterval(iv);
-  }, [active, discord?.installed, discord?.needsRestart]);
 
   const closeLabel = t('obSkip');
 
@@ -181,16 +150,6 @@ export default function BlockedNotice({ onNavigate, active = false }) {
   }
   if (discord?.editFailed) {
     return <Banner Icon={ShieldAlertIcon} body={t('discordEditFailed', { line: discord.editFailed })} />;
-  }
-  if (discord?.needsRestart && discord.running) {
-    return (
-      <Banner tone="accent" Icon={RefreshIcon} body={t('discordRestartNeeded')}>
-        <Actions>
-          <button type="button" onClick={discordRestart} disabled={busy}
-                  className="btn btn-primary rounded-[8px] px-3 py-1.5 text-[12.5px] font-semibold">{t('discordRestartBtn')}</button>
-        </Actions>
-      </Banner>
-    );
   }
 
   /* Games and apps mode: a proxy of the user's own in the way, a change that
@@ -236,26 +195,24 @@ export default function BlockedNotice({ onNavigate, active = false }) {
     );
   }
 
-  /* Running, but nothing of it goes through Shroudly: started by a browser
-   * that was open before the setting. Shroudly can start it properly. */
-  if (apps?.bypassing && !apps.needsRestart && !hidden.appsBypass) {
-    return (
-      <Banner tone="accent" Icon={ShieldAlertIcon} title={t('appBypassTitle')} body={t('appBypassBody')}
-              onClose={() => hide('appsBypass')} closeLabel={closeLabel}>
-        <Actions>
-          <button type="button" onClick={appsRestart} disabled={busy}
-                  className="btn btn-primary rounded-[8px] px-3 py-1.5 text-[12.5px] font-semibold">{t('appRestartThrough')}</button>
-        </Actions>
-      </Banner>
-    );
+  /* Roblox Studio open around Shroudly. Shroudly never closes Studio itself:
+   * it may hold work that is not saved. Said while that Studio runs. */
+  if (apps?.studioReopen && !hidden.studioReopen) {
+    return <Banner tone="accent" Icon={RefreshIcon} body={t('autoStudioReopen')}
+                   onClose={() => hide('studioReopen')} closeLabel={closeLabel} />;
   }
-  if (apps?.needsRestart && apps.robloxRunning) {
+
+  /* What the autopilot just did by itself. Advanced mode the user declined
+   * keeps its button: turning it on then is the user's call. */
+  if (notice && notice.id !== 'autoStudioReopen' && Date.now() - notice.at < NOTICE_MS && !hidden[`auto:${notice.at}`]) {
+    const declined = notice.id === 'autoAdvancedDeclined' && adv.available && !adv.active;
     return (
-      <Banner tone="accent" Icon={RefreshIcon} body={`${t('appRestartNeeded')}${browserNote}`}>
-        {apps.robloxInstalled && (
+      <Banner tone="accent" Icon={declined ? ShieldAlertIcon : InfoIcon} body={t(notice.id, notice.params || {})}
+              onClose={() => hide(`auto:${notice.at}`)} closeLabel={closeLabel}>
+        {declined && (
           <Actions>
-            <button type="button" onClick={appsRestart} disabled={busy}
-                    className="btn btn-primary rounded-[8px] px-3 py-1.5 text-[12.5px] font-semibold">{t('appRestartBtn')}</button>
+            <button type="button" onClick={startAdvanced} disabled={busy}
+                    className="btn btn-primary rounded-[8px] px-3 py-1.5 text-[12.5px] font-semibold">{t('tryAdvanced')}</button>
           </Actions>
         )}
       </Banner>
@@ -271,54 +228,35 @@ export default function BlockedNotice({ onNavigate, active = false }) {
                    onClose={() => hide('conflict')} closeLabel={closeLabel} />;
   }
 
-  /* A site that connects and is then cut: what a blank page on Iran's or
-   * Russia's networks looks like. What to say depends on what this machine
-   * can still do about it. */
+  /* A site that connects and is then cut: what a blank page looks like on a
+   * network that follows whole connections. What to say depends on what this
+   * machine can still do about it. */
   /* Programs that were open before protection started keep using the
    * connection they were given at launch; this is the usual reason a site
    * loads in the browser but not in its own app. Discord needs more than a
    * restart: its updater runs before the app and ignores the proxy. */
   if (restartApps && restartApps.length) {
-    const offerDiscord = restartApps.includes('Discord') && discord?.installed && discord.mode !== true;
-    // Restarting alone does not help Roblox either: it never uses the system proxy.
-    const offerApps = restartApps.includes('Roblox') && apps?.available && apps.mode !== true;
     return (
       <Banner Icon={RefreshIcon}
               title={t('restartAppsTitle', { apps: restartApps.join(', ') })}
               body={t('restartAppsBody', { apps: restartApps.join(', ') })}
-              onClose={() => setRestartApps(null)} closeLabel={closeLabel}>
-        {offerDiscord && (
-          <>
-            <p className="mt-2 text-[12px] leading-snug wrap-anywhere" style={{ color: 'var(--text-dim)' }}>{t('discordOfferBody')}</p>
-            <Actions>
-              <button type="button" onClick={discordOn} disabled={busy}
-                      className="btn btn-warn rounded-[8px] px-3 py-1.5 text-[12.5px] font-semibold">{t('discordOfferYes')}</button>
-            </Actions>
-          </>
-        )}
-        {offerApps && (
-          <>
-            <p className="mt-2 text-[12px] leading-snug wrap-anywhere" style={{ color: 'var(--text-dim)' }}>{t('appOfferBody')}</p>
-            <Actions>
-              <button type="button" onClick={appsOn} disabled={busy}
-                      className="btn btn-warn rounded-[8px] px-3 py-1.5 text-[12.5px] font-semibold">{t('appOfferYes')}</button>
-            </Actions>
-          </>
-        )}
-      </Banner>
+              onClose={() => setRestartApps(null)} closeLabel={closeLabel} />
     );
   }
 
-  if (host) {
+  /* A site no technique opened. Where Advanced mode can still be turned on,
+   * the autopilot asks for it by itself and says so above; otherwise this
+   * says what is left. */
+  if (host && !(advanced && !adv.active)) {
     return (
       <Banner Icon={ShieldAlertIcon} title={t('blockedNoticeTitle', { host })}
-              body={advanced ? t('blockedNoticeAdvanced') : t('blockedNoticeNoAdvanced')}
+              body={advanced ? null : t('blockedNoticeNoAdvanced')}
               onClose={() => setHost(null)} closeLabel={closeLabel}>
         <Actions>
           <button type="button"
-                  onClick={() => { if (typeof onNavigate === 'function') onNavigate(advanced ? 'settings' : 'logs'); setHost(null); }}
+                  onClick={() => { if (typeof onNavigate === 'function') onNavigate('logs'); setHost(null); }}
                   className="btn btn-primary rounded-[8px] px-3 py-1.5 text-[12.5px] font-semibold">
-            {advanced ? t('blockedNoticeOpenSettings') : t('blockedNoticeOpenLogs')}
+            {t('blockedNoticeOpenLogs')}
           </button>
         </Actions>
       </Banner>
@@ -341,44 +279,8 @@ export default function BlockedNotice({ onNavigate, active = false }) {
                    onClose={() => hide('dns')} closeLabel={closeLabel} />;
   }
 
-  /* Asked once, while protection is on — the moment the user expects
-   * Discord to work. It changes another program's file, so it is offered,
-   * never done unasked. */
-  if (active && discord?.installed && discord.mode == null && !discord.offerSnoozed && !offerHidden) {
-    return (
-      <Banner tone="accent" Icon={ShieldAlertIcon} title={t('discordOfferTitle')} body={t('discordOfferBody')}>
-        <Actions>
-          <button type="button" onClick={discordOn} disabled={busy}
-                  className="btn btn-primary rounded-[8px] px-3 py-1.5 text-[12.5px] font-semibold">{t('discordOfferYes')}</button>
-          <button type="button" onClick={discordDecline}
-                  className="btn btn-ghost rounded-[8px] px-3 py-1.5 text-[12.5px] font-semibold">{t('discordOfferNo')}</button>
-        </Actions>
-      </Banner>
-    );
-  }
-
-  /* Offered while protection is on, where Roblox is installed or being
-   * installed, or once Roblox's own servers were seen blocked on this network
-   * (then the installer is the first thing to fail). It changes what every newly started program is told
-   * about proxies, so it is offered, never done unasked; "Not now" asks again
-   * in two weeks. */
-  if (active && apps?.available && (apps.robloxInstalled || apps.robloxRunning || apps.robloxBlocked)
-      && apps.mode == null && !apps.offerSnoozed && !appOfferHidden) {
-    return (
-      <Banner tone="accent" Icon={ShieldAlertIcon} title={t('appOfferTitle')} body={t('appOfferBody')}>
-        <Actions>
-          <button type="button" onClick={appsOn} disabled={busy}
-                  className="btn btn-primary rounded-[8px] px-3 py-1.5 text-[12.5px] font-semibold">{t('appOfferYes')}</button>
-          <button type="button" onClick={appsDecline}
-                  className="btn btn-ghost rounded-[8px] px-3 py-1.5 text-[12.5px] font-semibold">{t('notNow')}</button>
-        </Actions>
-      </Banner>
-    );
-  }
-
   /* A site that connects and is then cut. Informational and shown last, so it
-   * never hides the actionable banners above (restart Discord, the Discord and
-   * Games offers): those are what actually get the site working. */
+   * never hides the banners above. */
   const cut = advice?.cut;
   if (cut && !hidden[`cut:${cut.host}`]) {
     const body = adv.active ? t('cutBodyAdvancedOn') : adv.available ? t('cutBodyAdvanced') : t('cutBodyNoAdvanced');

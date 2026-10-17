@@ -163,7 +163,7 @@ export default function SettingsPanel({ active = false }) {
   // Discord app mode: shown only where the Discord app has been used
   const [discord, setDiscord] = useState({ installed: false, on: false });
   // Games and apps mode: shown on the systems where it works (Windows, macOS)
-  const [apps, setApps] = useState({ available: false, on: false, platform: '', canInstall: false, installed: false, store: false, installing: false });
+  const [apps, setApps] = useState({ available: false, on: false, store: false });
   const [defaultList, setDefaultList] = useState([]);
   const [siteText, setSiteText] = useState(null);   // textarea draft (null until loaded)
   const [badEntries, setBadEntries] = useState([]); // lines dropped as unusable
@@ -192,9 +192,13 @@ export default function SettingsPanel({ active = false }) {
   }, []);
 
   useEffect(() => {
-    window.electron?.discordStatus?.()
+    const load = () => window.electron?.discordStatus?.()
       .then((d) => setDiscord({ installed: !!d?.installed, on: d?.mode === true }))
       .catch(() => {});
+    load();
+    // The autopilot may turn the mode on by itself: the switch follows.
+    const off = window.electron?.onDiscordState?.(load);
+    return () => { if (typeof off === 'function') off(); };
   }, []);
 
   async function setDiscordMode(on) {
@@ -206,31 +210,13 @@ export default function SettingsPanel({ active = false }) {
   }
 
   const loadApps = (running) => window.electron?.appsStatus?.({ running: running === true })
-    .then((a) => setApps({
-      available: !!a?.available, on: a?.mode === true, platform: a?.platform || '',
-      canInstall: !!a?.canInstall, installed: !!a?.robloxInstalled, store: !!a?.storeEdition,
-      installing: !!a?.installing,
-    }))
+    .then((a) => setApps({ available: !!a?.available, on: a?.mode === true, store: !!a?.storeEdition }))
     .catch(() => {});
   useEffect(() => {
     loadApps(true);
     const off = window.electron?.onAppsState?.(() => loadApps());
     return () => { if (typeof off === 'function') off(); };
   }, []);
-  const [robloxMsg, setRobloxMsg] = useState(null);
-  async function robloxAction(kind) {
-    setRobloxMsg(kind === 'install' ? { tone: 'dim', text: t('appInstalling') } : null);
-    try {
-      const r = kind === 'install' ? await window.electron.appsInstallRoblox() : await window.electron.appsOpenRoblox();
-      if (r?.success) setRobloxMsg(kind === 'install' ? { tone: 'ok', text: t('appInstallStarted') } : null);
-      else if (r?.code === 'not_installed') setRobloxMsg({ tone: 'warn', text: t('appNotInstalled') });
-      else if (r?.code === 'protection_off') setRobloxMsg({ tone: 'warn', text: t('testNeedsProtection') });
-      else if (r?.code === 'unsigned') setRobloxMsg({ tone: 'warn', text: t('appInstallUnsigned') });
-      else setRobloxMsg({ tone: 'warn', text: t('appInstallFailed') });
-    } catch { setRobloxMsg({ tone: 'warn', text: t('appInstallFailed') }); }
-    loadApps();
-  }
-
   async function setAppMode(on) {
     setApps((a) => ({ ...a, on }));
     try {
@@ -248,6 +234,15 @@ export default function SettingsPanel({ active = false }) {
         if (Array.isArray(all.siteList)) setSiteText(all.siteList.join('\n'));
       } catch {}
     })();
+  }, []);
+
+  // Whatever the autopilot turns on by itself shows here as it happens.
+  useEffect(() => {
+    const off = window.electron?.onAutoNotice?.(() => {
+      window.electron.advancedAvailable?.().then((i) => i && setAdvInfo(i)).catch(() => {});
+      window.electron.getAllSettings?.().then((all) => all && setSettings((p) => ({ ...p, ...all }))).catch(() => {});
+    });
+    return () => { if (typeof off === 'function') off(); };
   }, []);
 
   useEffect(() => {
@@ -430,33 +425,14 @@ export default function SettingsPanel({ active = false }) {
             <Toggle label={t('discordModeLabel')} desc={t('discordModeDesc')}
                     checked={discord.on} onChange={setDiscordMode} />
           )}
-          {/* The Roblox buttons belong to the switch above them: one row of the
-              list, no divider in between, with room under the description. */}
+          {/* Shroudly turns this on by itself when Roblox is blocked
+              (autopilot.js); the switch is for whoever wants it either way. */}
           {apps.available && (
             <div>
-            <Toggle label={t('appModeLabel')}
-                    desc={apps.platform === 'win32' ? `${t('appModeDesc')} ${t('appBrowserNote')}` : t('appModeDesc')}
+            <Toggle label={t('appModeLabel')} desc={t('appModeDesc')}
                     checked={apps.on} onChange={setAppMode} />
-            {apps.on && (
-            <div className="pb-3 pt-1">
-              <div className="flex flex-wrap gap-2">
-                <button type="button" onClick={() => robloxAction('open')} disabled={apps.installing}
-                        className="btn btn-primary rounded-[8px] px-3 py-1.5 text-[12.5px] font-semibold">{t('appOpenRoblox')}</button>
-                {apps.canInstall && (
-                  <button type="button" onClick={() => robloxAction('install')} disabled={apps.installing || !active}
-                          className="btn btn-ghost rounded-[8px] px-3 py-1.5 text-[12.5px] font-semibold">
-                    {apps.installing ? t('appInstalling') : t('appInstallRoblox')}
-                  </button>
-                )}
-              </div>
-              {apps.store && (
-                <p className="mt-2 text-[12px] leading-snug" style={{ color: 'var(--warn)' }}>{t('appStoreEdition')}</p>
-              )}
-              {robloxMsg && (
-                <p role="status" className="mt-2 text-[12px] leading-snug"
-                   style={{ color: robloxMsg.tone === 'warn' ? 'var(--warn)' : robloxMsg.tone === 'ok' ? 'var(--ok)' : 'var(--text-dim)' }}>{robloxMsg.text}</p>
-              )}
-            </div>
+            {apps.on && apps.store && (
+              <p className="pb-3 text-[12px] leading-snug" style={{ color: 'var(--warn)' }}>{t('appStoreEdition')}</p>
             )}
             </div>
           )}
@@ -656,7 +632,7 @@ export default function SettingsPanel({ active = false }) {
         )}
 
         {/* Always here, not only after a site test says "still blocked": on
-            networks that let the handshake through and cut the rest (Iran),
+            networks that let the handshake through and cut the rest,
             the test says the site works, and the one mode that helps would
             otherwise never be shown. */}
         {!advInfo.active && (
