@@ -68,6 +68,30 @@ function migrate(store, now) {
   store.set('autopilotSince', now);
 }
 
+/* Which networks this computer is on, as a string that changes only when
+ * they do (main.js compares it every half minute): each IPv4 address with
+ * its mask, each IPv6 /64. Not the addresses themselves: IPv6 privacy
+ * addresses change daily on the same network. */
+/* An IPv6 address written out in its eight groups ("fd00::1" has two). */
+function ipv6Groups(addr) {
+  const [head, tail] = String(addr).split('%')[0].split('::');
+  const a = head ? head.split(':') : [];
+  const b = tail !== undefined ? (tail ? tail.split(':') : []) : [];
+  const fill = tail !== undefined ? Array(Math.max(0, 8 - a.length - b.length)).fill('0') : [];
+  return [...a, ...fill, ...b].map((g) => (parseInt(g, 16) || 0).toString(16));
+}
+function networkFingerprint(ifaces) {
+  const nets = new Set();
+  for (const [name, list] of Object.entries(ifaces || {})) {
+    for (const a of list || []) {
+      if (!a || a.internal || /^fe80:/i.test(a.address) || /^169\.254\./.test(a.address)) continue;
+      if (a.family === 'IPv4' || a.family === 4) nets.add(`${name} ${a.address}/${a.netmask}`);
+      else nets.add(`${name} ${ipv6Groups(a.address).slice(0, 4).join(':')}::/64`);
+    }
+  }
+  return [...nets].sort().join(',');
+}
+
 class Autopilot {
   /*
    * opts.store             settings (electron-store: get, set, delete)
@@ -157,7 +181,10 @@ class Autopilot {
   /* Whether `host` of service `id` is blocked, by blockcheck. One check per
    * service at a time. */
   async _confirm(id, host, why) {
-    if (this.checking.has(id)) return this.checking.get(id);
+    // One check per service at a time, on the current network: one still
+    // running for the last network is not waited for.
+    const cur = this.checking.get(id);
+    if (cur && cur.gen === this.gen) return cur.run;
     const gen = this.gen;
     const run = (async () => {
       let r = null;
@@ -182,8 +209,9 @@ class Autopilot {
       this.log('info', `Autopilot: ${host} works without Shroudly on this network (${r.detail})`);
       return false;
     })();
-    this.checking.set(id, run);
-    try { return await run; } finally { this.checking.delete(id); }
+    const entry = { gen, run };
+    this.checking.set(id, entry);
+    try { return await run; } finally { if (this.checking.get(id) === entry) this.checking.delete(id); }
   }
 
   /* Turn a blocked service's mode on, unless it is on already, its app is not
@@ -278,6 +306,8 @@ class Autopilot {
 
 module.exports = Autopilot;
 module.exports.familyOf = familyOf;
+module.exports.networkFingerprint = networkFingerprint;
+module.exports.ipv6Groups = ipv6Groups;
 module.exports.OWN = OWN;
 module.exports.RESPECT_OFF_MS = RESPECT_OFF_MS;
 module.exports.CHECK_AGAIN_MS = CHECK_AGAIN_MS;

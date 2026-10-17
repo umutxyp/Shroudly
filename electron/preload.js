@@ -90,6 +90,8 @@ contextBridge.exposeInMainWorld('electron', {
   autoDismiss: (at) => ipcRenderer.send('auto:dismiss', at),
   onAutoNotice: (cb) => { const h = (e, p) => cb(p); ipcRenderer.on('auto:notice', h); return () => ipcRenderer.removeListener('auto:notice', h); },
   startAdvanced: () => ipcRenderer.invoke('advanced:start'),
+  // Advanced mode turned on or off (Settings, the autopilot): every panel follows.
+  onAdvancedState: (cb) => { const h = (e, p) => cb(p); ipcRenderer.on('advanced:state', h); return () => ipcRenderer.removeListener('advanced:state', h); },
   stopAdvanced: () => ipcRenderer.invoke('advanced:stop'),
   onProbeResult: (cb) => ipcRenderer.on('dpi:probe-result', (e, p) => cb(p)),
   onSiteBlocked: (cb) => ipcRenderer.on('dpi:site-blocked', (e, p) => cb(p)),

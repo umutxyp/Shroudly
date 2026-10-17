@@ -55,6 +55,7 @@ export default function BlockedNotice({ onNavigate, active = false }) {
   const { t, locale, language } = useLanguage();
   const [host, setHost] = useState(null);
   const [hostAsked, setHostAsked] = useState(false); // the autopilot asked for Advanced mode for it
+  const [hostAt, setHostAt] = useState(0);
   const [advanced, setAdvanced] = useState(false);
   const [restartApps, setRestartApps] = useState(null);
   const [dnsAuto, setDnsAuto] = useState(null);
@@ -112,7 +113,8 @@ export default function BlockedNotice({ onNavigate, active = false }) {
 
   useEffect(() => {
     if (typeof window === 'undefined' || !window.electron?.onSiteBlocked) return undefined;
-    window.electron.onSiteBlocked(({ host: h, asked }) => { setHost(h); setHostAsked(!!asked); });
+    window.electron.onSiteBlocked(({ host: h, asked }) => { setHost(h); setHostAsked(!!asked); setHostAt(Date.now()); refreshAdv(); });
+    const offAdv = window.electron.onAdvancedState?.(() => refreshAdv());
     window.electron.onNeedRestart?.(({ apps }) => { setRestartApps(apps); refreshDiscord(); });
     window.electron.onDnsAutoEnabled?.(({ host: h }) => setDnsAuto(h));
     const offRefused = window.electron.onServiceRefused?.((p) => setRefused(p));
@@ -133,6 +135,7 @@ export default function BlockedNotice({ onNavigate, active = false }) {
     refreshApps();
     return () => {
       if (typeof offNotice === 'function') offNotice();
+      if (typeof offAdv === 'function') offAdv();
       window.electron.removeSiteBlockedListener?.();
       window.electron.removeNeedRestartListener?.();
       window.electron.removeDnsAutoEnabledListener?.();
@@ -225,9 +228,12 @@ export default function BlockedNotice({ onNavigate, active = false }) {
    * or could not start keeps its button, while it is still off: turning it
    * on then is the user's call. Once it is on, that line has nothing to say. */
   const advNotice = notice && (notice.id === 'autoAdvancedDeclined' || notice.id === 'autoAdvancedFailed');
+  // A site that failed after this line, and that the autopilot did not ask
+  // about, is newer news than the line.
+  const hostNewer = host && !hostAsked && hostAt > (notice ? notice.at : 0);
   const noticeShown = notice && Date.now() - notice.at < NOTICE_MS && !hidden[`auto:${notice.at}`]
     && !(advNotice && adv.active) && !(notice.id === 'autoAdvancedAsk' && adv.active)
-    && !(notice.id === 'autoAdvancedOn' && !adv.active);
+    && !(notice.id === 'autoAdvancedOn' && !adv.active) && !hostNewer;
   if (noticeShown) {
     const offer = advNotice && adv.available && !adv.active;
     return (
