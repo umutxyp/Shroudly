@@ -995,7 +995,7 @@ ipcMain.handle('advanced:start', async () => {
 });
 ipcMain.handle('advanced:stop', async () => {
   if (autopilot) autopilot.userSet('advancedMode', false);
-  try { await advanced.stop(); return { success: true }; }
+  try { await advanced.stop(); toWindow('advanced:state', { active: false }); return { success: true }; }
   catch (e) { return { success: false, error: e.message }; }
 });
 ipcMain.handle('dpi:status', () => ({
@@ -1540,17 +1540,7 @@ ipcMain.on('auto:dismiss', (e, at) => { if (autoLatest && autoLatest.at <= at) a
  * its addresses: IPv6 privacy addresses change daily on the same network.
  * Two networks that look the same from here are covered by
  * autopilot.stillBlocked, which checks again before anything is restarted. */
-function networkFingerprint() {
-  const nets = new Set();
-  for (const [name, list] of Object.entries(os.networkInterfaces())) {
-    for (const a of list || []) {
-      if (!a || a.internal || /^fe80:/i.test(a.address) || /^169\.254\./.test(a.address)) continue;
-      if (a.family === 'IPv4' || a.family === 4) nets.add(`${name} ${a.address}/${a.netmask}`);
-      else nets.add(`${name} ${a.address.split(':').slice(0, 4).join(':')}::/64`);
-    }
-  }
-  return [...nets].sort().join(',');
-}
+const networkFingerprint = () => Autopilot.networkFingerprint(os.networkInterfaces());
 let networkPrint = networkFingerprint();
 setInterval(() => {
   const now = networkFingerprint();
@@ -1605,6 +1595,7 @@ async function startAdvanced() {
     };
     const r = await advanced.start(ttl, opts);
     addLog('success', 'Advanced mode enabled');
+    toWindow('advanced:state', { active: true });
     return r || { success: true };
   } catch (e) {
     addLog('error', `Advanced mode failed: ${e.message}`);

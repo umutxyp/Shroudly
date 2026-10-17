@@ -221,6 +221,36 @@ const settle = async () => { for (let i = 0; i < 5; i++) await new Promise((r) =
     t.ok(!ap.isBlocked('roblox'), 'a check from before a network change is dropped');
   }
   {
+    // After a network change, a check for the new network runs at once, not
+    // folded into the dropped one from the old network.
+    const releases = [];
+    const store = memStore({ autopilotSince: 1 });
+    const ap = new Autopilot({
+      store, log: () => {}, tell: () => {}, protectionOn: () => true,
+      check: () => new Promise((ok) => releases.push(ok)),
+      services: [{ id: 'roblox', name: 'roblox', probe: 'x.roblox.com', mode: 'appMode', needsApp: false, present: () => true, enable: async () => ({ success: true }), logOn: '', told: 'x' }],
+    });
+    const first = ap.survey();
+    await settle();
+    ap.networkChanged();
+    const second = ap.survey();
+    await settle();
+    t.ok(releases.length === 2, 'a network change starts a new check instead of waiting for the old one');
+    releases[0]({ blocked: false, detail: 'direct ok' });
+    releases[1]({ blocked: true, how: 'tls', detail: 'reset' });
+    await Promise.all([first, second]);
+    t.ok(ap.isBlocked('roblox'), 'and the new network\'s answer is the one kept');
+  }
+  {
+    const NF = Autopilot.networkFingerprint;
+    t.ok(Autopilot.ipv6Groups('fd00::1c2d:3e4f:5a6b:7c8d').join(':') === 'fd00:0:0:0:1c2d:3e4f:5a6b:7c8d' && Autopilot.ipv6Groups('::1').join(':') === '0:0:0:0:0:0:0:1',
+      'IPv6 addresses are read in their eight groups, however they are written');
+    const day1 = { 'Wi-Fi': [{ family: 'IPv4', address: '192.168.178.23', netmask: '255.255.255.0' }, { family: 'IPv6', address: 'fd00::1c2d:3e4f:5a6b:7c8d' }, { family: 'IPv6', address: '2a02:810d:4b40:7a00:a1b2:c3d4:e5f6:1' }, { family: 'IPv6', address: 'fe80::1' }] };
+    const day2 = { 'Wi-Fi': [...day1['Wi-Fi'], { family: 'IPv6', address: 'fd00::9f8e:7d6c:1:2' }, { family: 'IPv6', address: '2a02:810d:4b40:7a00:9:8:7:6' }] };
+    const other = { 'Wi-Fi': [{ family: 'IPv4', address: '10.20.30.40', netmask: '255.255.0.0' }] };
+    t.ok(NF(day1) === NF(day2) && NF(day1) !== NF(other), 'the same network after a daily privacy-address change is the same network (fd00:: prefixes too); another network is not');
+  }
+  {
     // Before a program is restarted, an old verdict is checked again.
     let blockedNow = true;
     const r = rig({ blocked: (h) => blockedNow && h === 'discord.com' });

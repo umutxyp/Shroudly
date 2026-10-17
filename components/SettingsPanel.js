@@ -238,11 +238,14 @@ export default function SettingsPanel({ active = false }) {
 
   // Whatever the autopilot turns on by itself shows here as it happens.
   useEffect(() => {
+    const offAdv = window.electron?.onAdvancedState?.(() => {
+      window.electron.advancedAvailable?.().then((i) => i && setAdvInfo(i)).catch(() => {});
+    });
     const off = window.electron?.onAutoNotice?.(() => {
       window.electron.advancedAvailable?.().then((i) => i && setAdvInfo(i)).catch(() => {});
       window.electron.getAllSettings?.().then((all) => all && setSettings((p) => ({ ...p, ...all }))).catch(() => {});
     });
-    return () => { if (typeof off === 'function') off(); };
+    return () => { if (typeof off === 'function') off(); if (typeof offAdv === 'function') offAdv(); };
   }, []);
 
   useEffect(() => {
