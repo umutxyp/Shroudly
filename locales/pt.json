@@ -371,11 +371,11 @@
   "logAutoRobloxOn": "Piloto automático: o Roblox está bloqueado nesta rede; modo Jogos e apps ativado",
   "logAutoRestarted": "Piloto automático: {app} não conseguiu se conectar pelo Shroudly; foi reiniciado",
   "logAutoInstaller": "Piloto automático: um instalador do Roblox passou por fora do Shroudly; foi iniciado de novo pelo Shroudly",
-  "logAutoStudio": "Piloto automático: o Roblox Studio foi aberto cedo demais para passar pelo Shroudly; foi pedido ao usuário que o abra de novo",
+  "logAutoStudio": "Piloto automático: o Roblox Studio foi aberto cedo demais para passar pelo Shroudly; foi pedido ao usuário que o abrisse de novo",
   "logAutoRobloxStuck": "Piloto automático: o Roblox continua sem conseguir se conectar, mesmo depois de ser reiniciado pelo Shroudly",
   "logAutoAdvancedAsk": "Piloto automático: {host} precisa do modo Avançado; pedindo permissão",
   "logAutoAdvancedDeclined": "O modo Avançado não foi permitido; o Shroudly não vai pedir de novo sozinho por duas semanas",
-  "logAutoModeOn": "O modo automático estava desligado e {host} foi bloqueado; ele foi religado",
+  "logAutoModeOn": "O modo automático estava desligado e {host} foi bloqueado; o modo foi religado",
   "logStudioInstalled": "Instalador do Roblox Studio baixado pelo Shroudly e iniciado ({version})",
   "logStudioDownloadFailed": "Não foi possível baixar o Roblox Studio ({detail})"
 }

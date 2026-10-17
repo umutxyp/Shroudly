@@ -227,12 +227,12 @@
   "technique_http": "Brouillage de l’en-tête HTTP Host",
   "technique_http_desc": "Pour les connexions HTTP non chiffrées, l’en-tête \"Host:\" est réécrit en \"hoSt:\". Les systèmes DPI simples qui recherchent le texte exact \"Host:\" ne le trouvent plus.",
   "safetyTitle": "Pourquoi c’est sûr",
-  "safetyDesc": "Par défaut, Shroudly ne nécessite ni pilote ni droits d’administrateur : lorsqu’il est actif, il se contente de diriger votre système vers un proxy local, puis rétablit le réglage précédent à l’arrêt, en cas de plantage ou à la fermeture de session. Votre connexion n’est donc jamais laissée hors service. Le mode avancé ne s’exécute que quand un site en a besoin ou que vous l’activez, et seulement après une demande d’autorisation de votre système.",
+  "safetyDesc": "Par défaut, Shroudly ne nécessite ni pilote ni droits d’administrateur : lorsqu’il est actif, il se contente de diriger votre système vers un proxy local, puis rétablit le réglage précédent à l’arrêt, en cas de plantage ou à la fermeture de session. Votre connexion n’est donc jamais laissée hors service. Le mode Avancé ne s’exécute que quand un site en a besoin ou que vous l’activez, et seulement après une demande d’autorisation de votre système.",
   "footerProduct": "Un produit {brand}",
   "technique_probe": "Recherche automatique de stratégie",
   "technique_probe_desc": "Si un site reste bloqué, Shroudly teste chaque stratégie de contournement avec une vraie connexion et retient celle qui fonctionne, pour l’utiliser directement à la prochaine visite.",
   "technique_advanced": "Mode avancé (paquets leurres)",
-  "technique_advanced_desc": "Face à un DPI qui réassemble les connexions, Shroudly peut envoyer une copie leurre du premier paquet que le filtre lit, mais qui expire avant d’atteindre le site. Disponible sous Windows et Linux, il nécessite une autorisation d’administrateur ; Shroudly l’active de lui-même quand un site en a besoin.",
+  "technique_advanced_desc": "Face à un DPI qui réassemble les connexions, Shroudly peut envoyer une copie leurre du premier paquet : le filtre la lit, mais elle expire avant d’atteindre le site. Disponible sous Windows et Linux, ce mode nécessite une autorisation d’administrateur ; Shroudly l’active de lui-même quand un site en a besoin.",
   "updatesTitle": "Mises à jour",
   "updatesDesc": "Shroudly recherche de nouvelles versions sur GitHub au démarrage, puis toutes les 30 minutes.",
   "checkForUpdates": "Rechercher des mises à jour",
@@ -375,7 +375,7 @@
   "logAutoRobloxStuck": "Pilote auto : Roblox ne passe toujours pas après avoir été redémarré via Shroudly",
   "logAutoAdvancedAsk": "Pilote auto : {host} a besoin du mode Avancé ; demande d’autorisation",
   "logAutoAdvancedDeclined": "Le mode Avancé n’a pas été autorisé ; Shroudly ne le redemandera pas de lui-même pendant deux semaines",
-  "logAutoModeOn": "Le mode auto était désactivé et {host} était bloqué ; il a été réactivé",
+  "logAutoModeOn": "Le mode auto était désactivé et {host} était bloqué ; le mode auto a été réactivé",
   "logStudioInstalled": "Installateur de Roblox Studio téléchargé via Shroudly et lancé ({version})",
   "logStudioDownloadFailed": "Impossible de télécharger Roblox Studio ({detail})"
 }

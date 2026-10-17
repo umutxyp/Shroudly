@@ -375,7 +375,7 @@
   "logAutoRobloxStuck": "Awtopilot: Roblox Shroudly arkaly täzeden işledilenden soň hem birigip bilmeýär",
   "logAutoAdvancedAsk": "Awtopilot: {host} üçin Giňişleýin tertip gerek; rugsat soralýar",
   "logAutoAdvancedDeclined": "Giňişleýin tertibe rugsat berilmedi; Shroudly iki hepdäniň dowamynda muny özi gaýtadan soramaz",
-  "logAutoModeOn": "Awtomatik tertip öçükdi we {host} petiklendi; ol täzeden açyldy",
+  "logAutoModeOn": "Awtomatik tertip öçükdi we {host} petiklendi; Awtomatik tertip täzeden açyldy",
   "logStudioInstalled": "Roblox Studio gurnaýjysy Shroudly arkaly ýüklenip alyndy we işledildi ({version})",
   "logStudioDownloadFailed": "Roblox Studio-ny ýükläp alyp bolmady ({detail})"
 }

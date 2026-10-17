@@ -107,7 +107,7 @@
   "dnsAutoEnabledNotice": "לא ניתן היה לפתוח את {host} כשה-DNS המוצפן כבוי, ולכן הוא הופעל מחדש. אפשר לנסות שוב להיכנס לאתר.",
   "logDnsReenabledForBlock": "לא ניתן היה לפתוח את {host} כשה-DNS המוצפן כבוי. הוא הופעל מחדש.",
   "discordModeLabel": "אפליקציית Discord",
-  "discordModeDesc": "מאפשר לאפליקציית Discord להתעדכן ולהיפתח דרך Shroudly על ידי הוספת שורה אחת לקובץ ההגדרות של Discord; כיבוי האפשרות מסיר אותה. Shroudly מפעיל את זה בעצמו כש-Discord חסום.",
+  "discordModeDesc": "מאפשר לאפליקציית Discord להתעדכן ולהיפתח דרך Shroudly על ידי הוספת שורה אחת לקובץ ההגדרות של Discord; כיבוי האפשרות מסיר את השורה. Shroudly מפעיל את זה בעצמו כש-Discord חסום.",
   "discordPermission": "כדי שאפליקציית Discord תוכל להשתמש ב-Shroudly, צריך לאשר ב-macOS ש-Shroudly ישנה את ההגדרות של Discord.",
   "discordPermissionBtn": "לאשר גישה",
   "discordEditFailed": "לא ניתן היה לשנות את קובץ ההגדרות של Discord. כדי לעשות זאת ידנית, יש להוסיף אליו את השורה הזו: {line}",

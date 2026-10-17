@@ -232,7 +232,7 @@
   "technique_probe": "自動戦略検出",
   "technique_probe_desc": "サイトがブロックされたままの場合、Shroudly は実際の接続で各回避戦略を試し、効果のあったものを記憶します。次回のアクセスではすぐにその戦略を使います。",
   "technique_advanced": "高度なモード（おとりパケット）",
-  "technique_advanced_desc": "接続を再構成して検査する DPI に対して、Shroudly は最初のパケットのおとりコピーを送信できます。フィルターはそれを読み取りますが、サイトに届く前に失効します。Windows と Linux で利用でき、管理者権限が必要です。サイトに必要なときは Shroudly が自動でオンにします。",
+  "technique_advanced_desc": "接続を再構成して検査する DPI に対して、Shroudly は最初のパケットのおとりコピーを送信できます。フィルターはそれを読み取りますが、このコピーはサイトに届く前に失効します。Windows と Linux で利用でき、管理者権限が必要です。サイトに必要なときは Shroudly が自動でオンにします。",
   "updatesTitle": "アップデート",
   "updatesDesc": "Shroudly は起動時と 30 分ごとに GitHub で新しいバージョンを確認します。",
   "checkForUpdates": "アップデートを確認",

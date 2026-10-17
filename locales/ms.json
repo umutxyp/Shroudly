@@ -60,7 +60,7 @@
   "showTrayIconDesc": "Jika dimatikan, Shroudly terus berjalan di latar belakang tanpa ikon (di macOS juga tiada di bar menu). Jalankan Shroudly sekali lagi untuk membuka tetingkapnya.",
   "showNotifications": "Tunjukkan pemberitahuan",
   "showNotificationsDesc": "Tunjukkan pemberitahuan sistem apabila perlindungan dimulakan atau dihentikan",
-  "shareOnlineCount": "Kira saya dalam jumlah langsung",
+  "shareOnlineCount": "Kira saya dalam jumlah pengguna dalam talian",
   "shareOnlineCountDesc": "Menghantar nombor rawak yang berubah setiap kali aplikasi dilancarkan, supaya aplikasi dapat menunjukkan berapa banyak salinan yang sedang berjalan. Nombor ini hanya dihantar semasa perlindungan dihidupkan, jadi ia melalui laluan dilindungi yang sama seperti trafik anda yang lain. Matikan pilihan ini jika anda lebih suka rangkaian anda tidak melihat apa-apa langsung daripada Shroudly.",
   "restartToApply": "Perubahan berkuat kuasa serta-merta; perlindungan dimulakan semula seketika.",
   "routing": "Penghalaan",
