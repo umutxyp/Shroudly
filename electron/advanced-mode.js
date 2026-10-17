@@ -333,6 +333,7 @@ class AdvancedMode {
         this.active = false;
         clearInterval(this.monitor);
         this.log('warning', 'Advanced backend exited');
+        if (typeof this.onExit === 'function') { try { this.onExit(); } catch {} }
         if (s.errors.length) this.log('warning', s.errors[s.errors.length - 1]);
         this._removeDir();
       }

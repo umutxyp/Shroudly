@@ -599,7 +599,7 @@ async function safeStop({ user = false } = {}) {
     // its packet interception, or WinDivert / NFQUEUE would keep injecting
     // decoys into every outbound connection after the user turned protection
     // off. (A crash or quit already stops both; this is the user's Stop.)
-    if (advanced && advanced.active) { try { await advanced.stop(); } catch {} }
+    if (advanced && advanced.active) { try { await advanced.stop(); } catch {} toWindow('advanced:state', { active: false }); }
     await engine.stop({ user });
     broadcastStatus(false);
     notify('Shroudly', tr().trayStopped);
@@ -758,6 +758,8 @@ app.whenReady().then(async () => {
     },
   });
   advanced = new AdvancedMode(addLog);
+  // The backend ended by itself: the window must not keep saying it is on.
+  advanced.onExit = () => toWindow('advanced:state', { active: false });
   // Protection as the user left it (see safeStart and below). Recovery needs
   // it: with protection off, what was written for the next login goes.
   const protectionOn = protectionWanted();

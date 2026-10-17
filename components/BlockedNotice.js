@@ -149,6 +149,10 @@ export default function BlockedNotice({ onNavigate, active = false }) {
   }, []);
 
 
+  // Protection started or stopped (window, tray): Advanced mode may have
+  // stopped with it.
+  useEffect(() => { refreshAdv(); }, [active]);
+
   const closeLabel = t('obSkip');
 
   if (dnsAuto && !restartApps) {
