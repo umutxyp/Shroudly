@@ -30,6 +30,9 @@ const OURS = /^http:\/\/127\.0\.0\.1:\d+\/$/;
 
 function endpointUrl(port) { return `http://127.0.0.1:${port}/`; }
 
+// A name safe to put in a pattern (every character with a meaning escaped).
+const reEscape = (s) => String(s).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
 /* Every place a Discord build keeps its settings on this OS. */
 function variants(platform = process.platform) {
   const home = os.homedir();
@@ -126,10 +129,9 @@ async function pids(v) {
   const list = (out) => String(out || '').split(/\s+/).filter((x) => /^\d+$/.test(x)).map(Number);
   if (process.platform === 'win32') {
     const out = await run('tasklist', ['/FI', `IMAGENAME eq ${v.exe}`, '/NH', '/FO', 'CSV']);
-    const name = v.exe.replace(/\./g, '\\.');
-    return [...out.matchAll(new RegExp(`^"${name}","(\\d+)"`, 'gmi'))].map((m) => Number(m[1]));
+    return [...out.matchAll(new RegExp(`^"${reEscape(v.exe)}","(\\d+)"`, 'gmi'))].map((m) => Number(m[1]));
   }
-  if (process.platform === 'darwin') return list(await run('pgrep', ['-f', `/${v.app.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\.app/Contents/`]));
+  if (process.platform === 'darwin') return list(await run('pgrep', ['-f', `/${reEscape(v.app)}\\.app/Contents/`]));
   if (v.id === 'flatpak' || !v.proc) return [];
   return list(await run('pgrep', ['-x', v.proc]));
 }

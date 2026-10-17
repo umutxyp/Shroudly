@@ -27,6 +27,9 @@ function run(cmd, args, opts = {}) {
 }
 
 const exists = (p) => { try { return fs.statSync(p); } catch { return null; } };
+// A program's name as it appears in tasklist's CSV, safe to put in a pattern.
+const reEscape = (s) => String(s).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+const csvPids = (out, exe) => [...String(out || '').matchAll(new RegExp(`^"${reEscape(exe)}","(\\d+)"`, 'gmi'))].map((m) => Number(m[1]));
 const localAppData = () => process.env.LOCALAPPDATA || path.join(os.homedir(), 'AppData', 'Local');
 
 /* Bootstrappers people use instead of Roblox's own launcher (Bloxstrap and
@@ -134,10 +137,7 @@ async function storeEdition() {
  * with "Roblox" counts: not the crash handler that runs beside them, not the
  * installers, not other people's tools (account managers, FPS unlockers). */
 function parsePids(out, platform = process.platform, kind = 'player') {
-  if (platform === 'win32') {
-    const name = kindOf(kind).exe.replace(/\./g, '\\.');
-    return [...String(out || '').matchAll(new RegExp(`^"${name}","(\\d+)"`, 'gmi'))].map((m) => Number(m[1]));
-  }
+  if (platform === 'win32') return csvPids(out, kindOf(kind).exe);
   return String(out || '').split(/\s+/).filter((x) => /^\d+$/.test(x)).map(Number);
 }
 
@@ -160,10 +160,7 @@ async function pids(kind = 'player') {
  * again, since it keeps nothing of its own. */
 function parseInstallerPids(out) {
   const found = { player: [], studio: [] };
-  for (const [kind, k] of Object.entries(KINDS)) {
-    const name = k.installer.replace(/\./g, '\\.');
-    found[kind] = [...String(out || '').matchAll(new RegExp(`^"${name}","(\\d+)"`, 'gmi'))].map((m) => Number(m[1]));
-  }
+  for (const [kind, k] of Object.entries(KINDS)) found[kind] = csvPids(out, k.installer);
   return found;
 }
 async function installerPids() {
