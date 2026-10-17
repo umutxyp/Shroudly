@@ -12,6 +12,16 @@
  * signAndEditExecutable is off and we patch the resources here in pure JS.
  * Without it the exe, taskbar button and shortcuts show Electron's icon and
  * Windows calls the app "Electron".
+ *
+ * Windows ARM64: since 7-Zip 23, the 7-Zip electron-builder packs the
+ * installer's payload with gives ARM64 executables (every .exe and .dll of the
+ * arm64 build) an ARM64 branch filter, which the extractor inside the NSIS
+ * installer does not know: it skips those files and still reports success, so
+ * the app is installed without Shroudly.exe or a single DLL. The BCJ filter is
+ * forced instead (electron-builder's ELECTRON_BUILDER_7Z_FILTER, read when the
+ * payload is archived, after this hook): every extractor knows it, and it is
+ * what x64 executables get anyway. scripts/ci-windows-install-test.js installs
+ * both installers on their own machines and fails if anything is missing.
  */
 const fs = require('fs');
 const path = require('path');
@@ -30,6 +40,7 @@ function adHocSignMac(context) {
 exports.default = async function afterPack(context) {
   if (context.electronPlatformName === 'darwin') return adHocSignMac(context);
   if (context.electronPlatformName !== 'win32') return;
+  if (!process.env.ELECTRON_BUILDER_7Z_FILTER) process.env.ELECTRON_BUILDER_7Z_FILTER = 'BCJ';
 
   const { NtExecutable, NtExecutableResource, Data, Resource } = await import('resedit');
   const info = context.packager.appInfo;
