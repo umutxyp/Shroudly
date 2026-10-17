@@ -203,6 +203,29 @@ const settle = () => new Promise((r) => setImmediate(r));
     const ss = ProcNet.parseSs('0      0      127.0.0.1:41000   127.0.0.1:10810 users:(("Discord",pid=700,fd=40),("Discord",pid=701,fd=41))\n');
     t.ok(ss.length === 2 && ss[1].pid === 701 && ss[0].remote.port === 10810, 'Linux (ss): every process sharing the connection');
     t.ok(await ProcNet.connectsTo([], [1]) === false && await ProcNet.connectsTo([process.pid], []) === false, 'nothing asked, nothing found');
+    // Linux reads the kernel's tables: a fake /proc with one established
+    // IPv4 loopback connection, one IPv6 one, and one that is listening.
+    {
+      const os = require('os'); const fs = require('fs');
+      const root = fs.mkdtempSync(path.join(os.tmpdir(), 'shroudly-proc-'));
+      fs.mkdirSync(path.join(root, 'net')); fs.mkdirSync(path.join(root, '700', 'fd'), { recursive: true });
+      const head = '  sl  local_address rem_address   st tx_queue rx_queue tr tm->when retrnsmt   uid  timeout inode\n';
+      fs.writeFileSync(path.join(root, 'net', 'tcp'), head
+        + '   0: 0100007F:A028 0100007F:2A3A 01 00000000:00000000 00:00000000 00000000  1000        0 11111 1 0 20 4 30 10 -1\n'
+        + '   1: 00000000:2A3A 00000000:0000 0A 00000000:00000000 00:00000000 00000000  1000        0 22222 1 0 100 0 0 10 0\n');
+      fs.writeFileSync(path.join(root, 'net', 'tcp6'), head
+        + '   0: 00000000000000000000000001000000:B000 00000000000000000000000001000000:2A3B 01 00000000:00000000 00:00000000 00000000  1000        0 33333 1 0 20 4 30 10 -1\n');
+      if (process.platform !== 'win32') {
+        fs.symlinkSync('socket:[11111]', path.join(root, '700', 'fd', '5'));
+        fs.symlinkSync('socket:[22222]', path.join(root, '700', 'fd', '6'));
+        fs.symlinkSync('socket:[33333]', path.join(root, '700', 'fd', '7'));
+        fs.symlinkSync('/dev/null', path.join(root, '700', 'fd', '0'));
+        const rows = ProcNet.procConnections([700], root).sort((a, b) => a.remote.port - b.remote.port);
+        t.ok(rows.length === 2 && rows[0].remote.host === '127.0.0.1' && rows[0].remote.port === 10810 && rows[1].remote.host === '::1' && rows[1].remote.port === 10811,
+          `Linux (/proc): established connections of the process, IPv4 and IPv6, in the kernel's byte order (${JSON.stringify(rows.map((r) => r.remote))})`);
+      }
+      fs.rmSync(root, { recursive: true, force: true });
+    }
     // For real: this process connected to a port on this computer, and not
     // to another one.
     const netm = require('net');
