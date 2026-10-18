@@ -17,6 +17,7 @@ const RobloxApp = require('./roblox-app');
 const Autopilot = require('./autopilot');
 const BlockCheck = require('./blockcheck');
 const ProcNet = require('./procnet');
+const BrowserCheck = require('./browser-check');
 const SiteList = require('./site-list');
 const Updater = require('./updater');
 const Presence = require('./presence');
@@ -1571,6 +1572,49 @@ function autoTell(id, params = {}) {
 // closed stays closed in the next window, and an older one never comes back.
 ipcMain.handle('auto:notices', () => (autoLatest && !autoLatest.dismissed ? [autoLatest] : []));
 ipcMain.on('auto:dismiss', (e, at) => { if (autoLatest && autoLatest.at <= at) autoLatest.dismissed = true; });
+
+/* A browser that goes around Shroudly (browser-check.js): its own proxy or
+ * VPN setting, an extension, a policy. Looked at every minute while every
+ * site goes through Shroudly; a browser seen going around twice in a row is
+ * named once a session. Firefox's own "no proxy" choice is put back while
+ * Firefox is closed, once per profile. */
+const browserAroundSeen = new Map();
+const browserTold = new Set();
+let browserBusy = false;
+async function watchBrowsers() {
+  if (browserBusy || !engine || !engine.isActive() || store.get('routeMode') === 'listed') return;
+  browserBusy = true;
+  try {
+    const list = await BrowserCheck.runningBrowsers();
+    const ffOff = () => BrowserCheck.firefoxProfiles().some((p) => p.type === 0 || p.type === 4);
+    if (!list.some((b) => b.id === 'firefox') && ffOff()) {
+      const done = BrowserCheck.fixFirefox(undefined, store.get('firefoxProxyFixed', []));
+      if (done.length) {
+        store.set('firefoxProxyFixed', [...store.get('firefoxProxyFixed', []), ...done]);
+        addLog('success', 'Firefox was set not to use the system proxy. Shroudly put it back to "Use system proxy settings".');
+        autoTell('autoFirefoxFixed');
+      }
+    }
+    if (!list.length) { browserAroundSeen.clear(); return; }
+    const ports = [engine.port, engine.proxy && engine.proxy.pacPort].filter(Boolean);
+    const rows = await ProcNet.connections(list.flatMap((b) => b.pids));
+    for (const b of [...browserAroundSeen.keys()]) if (!list.some((x) => x.id === b)) browserAroundSeen.delete(b);
+    for (const b of list) {
+      const seen = BrowserCheck.goesAround(rows.filter((r) => b.pids.includes(r.pid)), ports) ? (browserAroundSeen.get(b.id) || 0) + 1 : 0;
+      browserAroundSeen.set(b.id, seen);
+      if (seen < 2 || browserTold.has(b.id)) continue;
+      browserTold.add(b.id);
+      if (b.id === 'firefox' && ffOff()) {
+        addLog('warning', 'Firefox is set not to use the system proxy, so it does not go through Shroudly. Close Firefox and Shroudly will set it back.');
+        autoTell('autoFirefoxClose');
+      } else {
+        addLog('warning', `${b.name} is not going through Shroudly: a proxy or VPN setting of its own, or an extension, is in the way. Turn it off in ${b.name}, or use another browser.`);
+        autoTell('autoBrowserAround', { browser: b.name });
+      }
+    }
+  } finally { browserBusy = false; }
+}
+setInterval(() => { watchBrowsers().catch(() => {}); }, 60000).unref();
 
 /* A different network (another Wi-Fi, a cable, a hotspot): what the
  * autopilot learnt about the last one no longer holds. Told by the networks
