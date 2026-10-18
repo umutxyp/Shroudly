@@ -67,6 +67,16 @@ jobs:
           sudo apt-get install -y -qq libnetfilter-queue1 >/dev/null
           sudo env "PATH=$PATH" bash tests/lab/advanced-lab.sh electron/tools/core/linux-x64/shroudly-core-adv
 
+      # The Windows Advanced engine on the real packet path (WinDivert; the
+      # runner is Administrator): pages still load in full while it changes
+      # every first request, and it stops cleanly (tests/lab/advanced-windows.js).
+      - name: Advanced mode lab (Windows, real packets)
+        if: matrix.os == 'windows-latest'
+        shell: bash
+        run: |
+          node scripts/fetch-windivert.js
+          node tests/lab/advanced-windows.js electron/tools/core/win32-x64/shroudly-core-adv.exe
+
       - name: Engine unit tests, sanitizers, fuzzing
         if: runner.os != 'Windows'
         working-directory: core
