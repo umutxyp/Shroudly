@@ -43,6 +43,9 @@ function download(url, dest) {
 function unzip(zip, dest) {
   // bsdtar reads zip on Windows 10+ and macOS; GNU tar on Linux does not.
   if (process.platform === 'linux') execFileSync('unzip', ['-q', '-o', zip, '-d', dest], { stdio: 'inherit' });
+  // On Windows, Windows' own bsdtar by its full path: from a Git Bash shell a
+  // bare "tar" is GNU tar, which reads "C:" as a remote host.
+  else if (process.platform === 'win32') execFileSync(path.join(process.env.SystemRoot || 'C:\\Windows', 'System32', 'tar.exe'), ['-xf', zip, '-C', dest], { stdio: 'inherit' });
   else execFileSync('tar', ['-xf', zip, '-C', dest], { stdio: 'inherit' });
 }
 
