@@ -7,6 +7,9 @@
   site, what a name takes from its site, where a silent ladder resumes (its own name
   only), when a learned technique is due to be checked again, where a cut moves a
   host on to
+- `test_rawscope.c` — what Advanced mode may touch: the local / private / special
+  address ranges (IPv4 and IPv6, every edge), the table of recently desynced servers
+  a reset must come from to be dropped, and the raw_stats line
 - `fuzz_proto.c`   — random fuzzing of the untrusted-input parser
 - `fuzz_mut.c`     — grammar-aware mutation fuzzing (2M iters, ASan+UBSan clean)
 

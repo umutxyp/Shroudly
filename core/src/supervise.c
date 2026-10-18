@@ -19,6 +19,8 @@
 static char g_stop_path[1100];
 static long g_parent_pid = 0;
 static sup_teardown_fn g_teardown = NULL;
+static sup_teardown_fn g_report = NULL;
+static int g_report_every = 0;
 static volatile sig_atomic_t g_signalled = 0;
 
 int sup_redirect_output(const char *status_file) {
@@ -63,13 +65,19 @@ static void on_signal(int sig) { (void)sig; g_signalled = 1; }
 
 static void *watchdog(void *arg) {
   (void)arg;
+  uint64_t last = now_ms();
   for (;;) {
     sleep_ms(250);
     if (g_signalled) break;
     if (g_parent_pid > 0 && !parent_alive(g_parent_pid)) break;
     if (g_stop_path[0] && file_exists(g_stop_path)) break;
+    if (g_report && g_report_every > 0 && now_ms() - last >= (uint64_t)g_report_every) {
+      last = now_ms();
+      g_report();
+    }
   }
   if (g_teardown) g_teardown();
+  if (g_report) g_report();
   if (g_stop_path[0]) remove(g_stop_path);
   printf("{\"type\":\"stopped\"}\n");
   fflush(stdout);
@@ -79,6 +87,11 @@ static void *watchdog(void *arg) {
   _exit(0);       /* the kernel drops the NFQUEUE binding with our socket */
 #endif
   return NULL;
+}
+
+void sup_set_report(sup_teardown_fn report, int every_ms) {
+  g_report = report;
+  g_report_every = every_ms > 0 ? every_ms : 0;
 }
 
 int sup_start(const char *status_file, long parent_pid, sup_teardown_fn teardown) {

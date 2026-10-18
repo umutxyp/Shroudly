@@ -19,6 +19,9 @@
  *     ones that tear a blocked connection down) and SYN-ACKs (to measure the
  *     hop distance for the decoy's TTL). Everything not an exact match is
  *     re-injected / accepted unchanged.
+ *   - Traffic to a local, private or special address is never changed, and a
+ *     reset is only dropped from a server this engine recently desynced
+ *     (rawscope.h).
  *
  * Requires root / CAP_NET_ADMIN + CAP_NET_RAW, and is Linux-only. Compiled only
  * when SHROUDLY_RAW is defined and linked with -lnetfilter_queue -lmnl.
@@ -62,6 +65,7 @@
 #include "raw_linux.h"
 #include "raw_desync.h"
 #include "tcpdpi.h"
+#include "rawscope.h"
 
 static int g_raw_fd = -1;
 static raw_config g_cfg;
@@ -354,8 +358,14 @@ static int cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg,
     /* Inbound (from a web port): the RST-drop and SYN-ACK hop measurement. The
      * INPUT rules only queue RST and SYN-ACK, so these are the only cases here. */
     if (web_src && !web_dst) {
-      if (g_cfg.drop_rst && (tcp->rst) && tcpdpi_is_injected_rst4(pkt, len))
-        return nfq_set_verdict(qh, id, NF_DROP, 0, NULL);            /* forged: drop it */
+      if (g_cfg.drop_rst && (tcp->rst) && tcpdpi_is_injected_rst4(pkt, len)) {
+        /* Only from a server we desynced: any other host's reset passes. */
+        if (rawscope_touched((const uint8_t *)&ip->saddr, 4, now_ms())) {
+          rawscope_count(RAWSCOPE_RST_DROPPED);
+          return nfq_set_verdict(qh, id, NF_DROP, 0, NULL);          /* forged: drop it */
+        }
+        rawscope_count(RAWSCOPE_RST_PASSED);
+      }
       if (g_cfg.autottl && tcp->syn && tcp->ack) {
         int hops = tcpdpi_hops_from_ttl(ip->ttl);
         if (hops > 0) tcpdpi_hops_put(ip->saddr, hops, now_ms());
@@ -370,6 +380,13 @@ static int cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg,
     proto_info pi;
     proto_inspect(pkt + poff, (size_t)plen, &pi);
     if (pi.kind == PROTO_UNKNOWN) return nfq_set_verdict(qh, id, NF_ACCEPT, 0, NULL);
+    /* The router, the LAN and other local hosts are left alone. */
+    if (rawscope_local4((const uint8_t *)&ip->daddr)) {
+      rawscope_count(RAWSCOPE_SKIPPED);
+      return nfq_set_verdict(qh, id, NF_ACCEPT, 0, NULL);
+    }
+    rawscope_touch((const uint8_t *)&ip->daddr, 4, now_ms());
+    rawscope_count(RAWSCOPE_DESYNCED);
     if (handle_outbound(ip, tcp, pkt + poff, plen, &pi))
       return nfq_set_verdict(qh, id, NF_DROP, 0, NULL);  /* replaced by our segments */
     return nfq_set_verdict(qh, id, NF_ACCEPT, 0, NULL);   /* real packet unchanged */
@@ -382,19 +399,25 @@ static int cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg,
     int poff = iphl + (int)sizeof(struct udphdr);
     int plen = len - poff;
     const uint8_t *up = pkt + poff;
+    int local = rawscope_local4((const uint8_t *)&ip->daddr);
 
     /* (1) QUIC: drop the Initial so the browser falls back to TCP (which the
-     * proxy handles). Everything else on 443 re-injects unchanged. */
+     * proxy handles). Everything else on 443, and any QUIC to a local
+     * address, is accepted unchanged. */
     if (g_quic_block && dport_h == 443) {
-      if (plen > 0 && quic_is_initial(up, plen))
-        return nfq_set_verdict(qh, id, NF_DROP, 0, NULL);
+      if (plen > 0 && quic_is_initial(up, plen)) {
+        if (!local) return nfq_set_verdict(qh, id, NF_DROP, 0, NULL);
+        rawscope_count(RAWSCOPE_SKIPPED);
+      }
       return nfq_set_verdict(qh, id, NF_ACCEPT, 0, NULL);
     }
 
-    /* (2) Discord voice / STUN: decoys ahead of the first datagrams of a flow;
-     * the real datagram is always accepted unchanged. */
+    /* (2) Discord voice / STUN: decoys ahead of the first datagrams of a flow,
+     * never toward a local address; the real datagram is always accepted
+     * unchanged. */
     if (g_udp_fake && discord_voice_port(dport_h) && plen > 0 && udp_is_discord_voice(up, plen)) {
-      if (udp_flow_note(&g_flows, ip->saddr, udp->source, ip->daddr, udp->dest, (uint32_t)now_ms()))
+      if (local) rawscope_count(RAWSCOPE_SKIPPED);
+      else if (udp_flow_note(&g_flows, ip->saddr, udp->source, ip->daddr, udp->dest, (uint32_t)now_ms()))
         send_udp_decoys(ip, udp, plen);
     }
     return nfq_set_verdict(qh, id, NF_ACCEPT, 0, NULL);
@@ -412,6 +435,7 @@ int raw_linux_start(int queue_num, const raw_config *cfg) {
   g_fake_repeats = (g_cfg.fake_repeats > 0 && g_cfg.fake_repeats <= 64) ? g_cfg.fake_repeats : 6;
   udp_flow_init(&g_flows);
   tcpdpi_hops_reset();
+  rawscope_touch_reset();
 
   g_raw_fd = socket(AF_INET, SOCK_RAW, IPPROTO_RAW);
   if (g_raw_fd < 0) { perror("raw socket"); return -1; }

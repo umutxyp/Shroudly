@@ -9,7 +9,8 @@
  *   --parent-pid P    the engine exits as soon as process P is gone;
  *   F.stop            the app creates this file to ask the engine to exit.
  * Any stop request (also SIGINT/SIGTERM/SIGHUP) runs the teardown callback,
- * reports {"type":"stopped"} and exits; the OS then releases the packet hook. */
+ * then the report callback, reports {"type":"stopped"} and exits; the OS then
+ * releases the packet hook. */
 
 typedef void (*sup_teardown_fn)(void);
 
@@ -19,5 +20,10 @@ int  sup_redirect_output(const char *status_file);
 /* Install signal handlers and start the watchdog thread. status_file may be
  * empty and parent_pid 0 when the engine is run by hand. Returns 0 on success. */
 int  sup_start(const char *status_file, long parent_pid, sup_teardown_fn teardown);
+
+/* Optional, before sup_start: call `report` every `every_ms` (0: never) while
+ * the engine runs, and once more at stop, after the teardown. It runs on the
+ * watchdog thread. */
+void sup_set_report(sup_teardown_fn report, int every_ms);
 
 #endif

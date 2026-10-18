@@ -43,7 +43,9 @@
  *           WinDivert queues both families; the Linux NFQUEUE backend queues
  *           IPv4 only, as GoodbyeDPI's passive RST drop also does.)
  * The caller only ever consults this for inbound segments whose source port is
- * 80 or 443. The constant is the exact rule, documented in one place. */
+ * 80 or 443, and drops a match only when its source is a server the engine
+ * recently desynced (rawscope_touched in rawscope.h): a reset from any other
+ * host passes. The constant is the exact rule, documented in one place. */
 #define TCPDPI_INJ_RST_IPID_MAX 0x0F
 
 /* pkt/len is one complete inbound IPv4 (…_rst4) or IPv6 (…_rst6) packet.

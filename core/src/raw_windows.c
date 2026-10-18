@@ -11,6 +11,10 @@
  * injects to tear a blocked connection down, and to measure the hop distance to
  * the server from the SYN-ACK TTL for the decoy's TTL.
  *
+ * Traffic to a local, private or special address is never changed, and a
+ * reset is only dropped from a server this engine recently desynced
+ * (rawscope.h).
+ *
  * This defeats stateful DPI (Iran/China) and the inbound-RST teardown Turkish
  * networks (Türk Telekom, Turkcell) use, which the userspace engine cannot.
  *
@@ -42,6 +46,7 @@
 #include "raw_windows.h"
 #include "raw_desync.h"
 #include "tcpdpi.h"
+#include "rawscope.h"
 
 /* ── Minimal WinDivert 2.2 declarations (avoid needing the SDK header) ───────
  * Must match include/windivert.h of the bundled release byte for byte. */
@@ -229,6 +234,7 @@ int raw_windows_start(const raw_config *cfg) {
   g_fake_repeats = (g_cfg.fake_repeats > 0 && g_cfg.fake_repeats <= 64) ? g_cfg.fake_repeats : 6;
   udp_flow_init(&g_flows);
   tcpdpi_hops_reset();
+  rawscope_touch_reset();
   if (load_windivert() != 0) return -1;
 
   /* Keep the kernel filter as narrow as the language allows — port + proto —
@@ -281,16 +287,26 @@ int raw_windows_start(const raw_config *cfg) {
     if (len < 28) { UINT s; p_Send(g_handle, pkt, len, &s, &addr); continue; }
 
     /* ── Inbound: RST-drop and SYN-ACK hop measurement ───────────────────── */
+    /* A reset is only dropped from a server we desynced (rawscope_touched);
+     * any other host's reset passes, whatever it looks like. */
     if (!addr.Outbound) {
       if (addr.IPv6) {
-        if (g_cfg.drop_rst && tcpdpi_is_injected_rst6(pkt, (int)len)) continue; /* drop forged RST */
+        if (g_cfg.drop_rst && tcpdpi_is_injected_rst6(pkt, (int)len)) {
+          if (rawscope_touched(pkt + 8, 16, now_ms())) { rawscope_count(RAWSCOPE_RST_DROPPED); continue; }
+          rawscope_count(RAWSCOPE_RST_PASSED);
+        }
         UINT s; p_Send(g_handle, pkt, len, &s, &addr); continue;
       }
       int ihl = (pkt[0] & 0x0f) * 4;
       if (ihl >= 20 && (int)len >= ihl + 20) {
         const uint8_t *tcp = pkt + ihl;
-        if (g_cfg.drop_rst && (tcp[13] & 0x04) && tcpdpi_is_injected_rst4(pkt, (int)len))
-          continue;                                   /* forged RST: drop it */
+        if (g_cfg.drop_rst && (tcp[13] & 0x04) && tcpdpi_is_injected_rst4(pkt, (int)len)) {
+          if (rawscope_touched(pkt + 12, 4, now_ms())) {
+            rawscope_count(RAWSCOPE_RST_DROPPED);
+            continue;                                 /* forged RST: drop it */
+          }
+          rawscope_count(RAWSCOPE_RST_PASSED);
+        }
         if (g_cfg.autottl && (tcp[13] & 0x02) && (tcp[13] & 0x10)) { /* SYN+ACK */
           int hops = tcpdpi_hops_from_ttl(pkt[8]);
           if (hops > 0) tcpdpi_hops_put(rd32be(pkt + 12), hops, now_ms());
@@ -311,17 +327,24 @@ int raw_windows_start(const raw_config *cfg) {
       int plen = (int)len - poff;
       const uint8_t *up = pkt + poff;
       uint16_t dport_h = (uint16_t)((pkt[ihl + 2] << 8) | pkt[ihl + 3]);
+      int local = rawscope_local4(pkt + 16);
 
       /* (1) QUIC: drop the Initial so the browser falls back to TCP. Everything
-       * else on 443 (Version Negotiation, short-header, non-QUIC) re-injects. */
+       * else on 443 (Version Negotiation, short-header, non-QUIC), and any QUIC
+       * to a local address, re-injects. */
       if (g_quic_block && dport_h == 443) {
-        if (plen > 0 && quic_is_initial(up, plen)) continue; /* DROP, no re-inject */
+        if (plen > 0 && quic_is_initial(up, plen)) {
+          if (!local) continue;                       /* DROP, no re-inject */
+          rawscope_count(RAWSCOPE_SKIPPED);
+        }
         UINT s = 0; p_Send(g_handle, pkt, len, &s, &addr);
         continue;
       }
 
-      /* (2) Discord voice / STUN: decoys ahead of the first datagrams only. */
+      /* (2) Discord voice / STUN: decoys ahead of the first datagrams only,
+       * never toward a local address. */
       if (g_udp_fake && discord_voice_port(dport_h) && plen > 0 && udp_is_discord_voice(up, plen)) {
+        if (local) { rawscope_count(RAWSCOPE_SKIPPED); UINT s = 0; p_Send(g_handle, pkt, len, &s, &addr); continue; }
         uint32_t saddr, daddr; uint16_t sportn, dportn;
         memcpy(&saddr, pkt + 12, 4);
         memcpy(&daddr, pkt + 16, 4);
@@ -346,8 +369,15 @@ int raw_windows_start(const raw_config *cfg) {
     if (plen > 0) {
       proto_info pi;
       proto_inspect(pkt + poff, (size_t)plen, &pi);
-      if (pi.kind != PROTO_UNKNOWN)
+      if (pi.kind != PROTO_UNKNOWN) {
+        if (rawscope_local4(pkt + 16)) {
+          rawscope_count(RAWSCOPE_SKIPPED);  /* the router, the LAN, local hosts: left alone */
+          UINT s = 0; p_Send(g_handle, pkt, len, &s, &addr); continue;
+        }
+        rawscope_touch(pkt + 16, 4, now_ms());
+        rawscope_count(RAWSCOPE_DESYNCED);
         handled = handle_outbound(pkt, (int)len, ihl, tcphl, poff, &pi, &addr);
+      }
     }
     if (!handled) { UINT s = 0; p_Send(g_handle, pkt, len, &s, &addr); } /* real packet */
   }

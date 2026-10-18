@@ -31,6 +31,7 @@
 #if defined(SHROUDLY_RAW)
 #include "supervise.h"
 #include "raw_desync.h"
+#include "rawscope.h"
 #endif
 #include <stdio.h>
 #include <string.h>
@@ -156,6 +157,9 @@ int main(int argc, char **argv) {
     rc.quic_block = g_quic_block;
     rc.udp_fake = g_udp_fake;
     rc.fake_repeats = g_fake_repeats;
+    /* What the engine did, as a raw_stats line: every minute and at stop. */
+    rawscope_counters_reset();
+    sup_set_report(rawscope_stats_print, 60000);
   #if defined(__linux__)
     sup_start(g_status_file, g_parent_pid, raw_linux_teardown);
   #else
@@ -173,6 +177,7 @@ int main(int argc, char **argv) {
     printf("{\"type\":\"error\",\"msg\":\"advanced mode not built on this platform\"}\n");
     fflush(stdout);
   #endif
+    if (rr == 0) rawscope_stats_print(); /* the loop ended without a stop request */
     plat_cleanup();
     printf("{\"type\":\"stopped\"}\n"); fflush(stdout);
     return rr;
