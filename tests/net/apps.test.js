@@ -180,6 +180,19 @@ async function robloxInstaller(proxy, socksPort) {
     t.ok(JSON.stringify(inst) === '{"player":[6100],"studio":[6300]}', "Windows: the player's and Studio's installers, each by its own name");
   }
   {
+    // An installer caught going around Shroudly is started again from its
+    // own file only when that is Roblox's installer, validly signed by Roblox
+    // (a game disk on shared machines); anything else means a fresh download.
+    const signed = 'CN="Roblox Corporation", O="Roblox Corporation", L=San Mateo, S=California, C=US';
+    const own = 'D:\\Games\\Roblox\\RobloxPlayerInstaller.exe';
+    t.ok(RobloxApp.parseInstallerProbe(`${own}|Valid|${signed}`) === own, 'a signed Roblox installer is started again from the same file, no download');
+    t.ok(RobloxApp.parseInstallerProbe(`${own}|HashMismatch|${signed}`) === null, 'a changed file is not');
+    t.ok(RobloxApp.parseInstallerProbe(`${own}|Valid|CN=Someone Else, O=Someone Else`) === null, 'nor one signed by anyone else');
+    t.ok(RobloxApp.parseInstallerProbe(`D:\\x\\Setup.exe|Valid|${signed}`) === null, 'nor a file under another name');
+    t.ok(RobloxApp.parseInstallerProbe(`${own}|Valid|${signed}`, 'studio') === null, "nor the player's installer for Studio");
+    t.ok(RobloxApp.parseInstallerProbe('') === null, 'the process gone already: a fresh download');
+  }
+  {
     // Copies of the player and Studio wherever Roblox and any bootstrapper
     // keep them, whatever the bootstrapper is called.
     const la = fs.mkdtempSync(path.join(os.tmpdir(), 'shroudly-la-'));

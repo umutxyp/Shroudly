@@ -307,6 +307,16 @@ const settle = async () => { for (let i = 0; i < 5; i++) await new Promise((r) =
     t.ok(await r2.ap.needAdvanced('a.example') === false && tries === 0, 'turned off by hand: not started by itself');
   }
 
+  // ── a game's anti-cheat: no packet driver loaded beside it by itself ──
+  {
+    const list = '"svchost.exe","900","Services","0","9,000 K"\r\n"vgc.exe","4100","Services","0","30,000 K"';
+    t.ok(Autopilot.antiCheatIn(list) === 'vgc.exe', 'an anti-cheat service in the process list is found');
+    t.ok(Autopilot.antiCheatIn('"svchost.exe","900","Services","0","9,000 K"') === null, 'and nothing else is taken for one');
+    let tries = 0;
+    const r = rig({ adv: { available: () => true, active: () => false, start: async () => { tries++; return { success: true }; }, antiCheat: async () => 'vgc.exe' } });
+    t.ok(await r.ap.needAdvanced('a.example') === false && tries === 0, 'with an anti-cheat running, Advanced mode is not started by itself');
+  }
+
   // ── Roblox's programs: who is restarted, who is told ──
   {
     const base = { studios: [], installers: { player: [], studio: [] }, quiet: [], before: [], handled: [], restarts: [], now: 1e9 };

@@ -373,6 +373,34 @@ const byRoblox = (sig) => {
  * downloaded program on anything less. */
 async function signedByRoblox(file) { return byRoblox(await signatureOf(file)); }
 
+/* The installer a running process was started from, if it is Roblox's own,
+ * validly signed by Roblox: started again from the same file, it needs no
+ * download. That is the common case on shared machines, where a script or a
+ * launcher starts the installer from a game disk before Shroudly has set
+ * anything. One PowerShell call reads the process's path and the file's
+ * signature; asked before the process is stopped (its path goes with it).
+ * Resolves the path, or null (not found, renamed, not Roblox's, not signed). */
+function parseInstallerProbe(out, kind = 'player') {
+  const line = String(out || '').trim().split(/\r?\n/).pop() || '';
+  const [file, status, subject] = line.split('|');
+  if (!file || path.win32.basename(file).toLowerCase() !== kindOf(kind).installer.toLowerCase()) return null;
+  return byRoblox(`${status}|${subject || ''}`) ? file : null;
+}
+function installerFile(pid, kind = 'player') {
+  if (process.platform !== 'win32' || !Number.isInteger(pid) || pid <= 0) return Promise.resolve(null);
+  const env = { ...process.env, SHROUDLY_PID: String(pid) };
+  return new Promise((resolve) => execFile('powershell.exe', ['-NoProfile', '-NonInteractive', '-Command',
+    '$p = (Get-Process -Id ([int]$env:SHROUDLY_PID) -ErrorAction SilentlyContinue).Path; ' +
+    'if ($p) { $s = Get-AuthenticodeSignature -LiteralPath $p; "$p|$($s.Status)|$($s.SignerCertificate.Subject)" }'],
+  { windowsHide: true, timeout: 120000, env: envFor('powershell.exe', env) }, (err, out) => resolve(parseInstallerProbe(out, kind))));
+}
+
+/* Start an installer file again, with `env`. */
+function startInstaller(file, env) {
+  if (process.platform !== 'win32' || !file) return false;
+  return detached(file, [], { ...process.env, ...env });
+}
+
 /* Each download gets a folder of its own, so a second one never has to
  * replace an installer that is still running (Windows refuses). What earlier
  * ones left (an installer that has done its work, a download cut short) is
@@ -423,4 +451,4 @@ async function install(opts) {
 const ROBLOX_HOST = /(^|\.)(roblox\.com|rbxcdn\.com|rbxinfra\.net|rbx\.com|robloxlabs\.com)$/i;
 function isRobloxHost(h) { return ROBLOX_HOST.test(String(h || '')); }
 
-module.exports = { installs, installed, handler, launcher, isBootstrapper, storeEdition, pids, parsePids, installerPids, parseInstallerPids, decide, kill, routeWatched, silentPlayers, alive, open, restart, install, cleanDownloads, newDownload, isRobloxHost, get, signedByRoblox, BOOTSTRAPPERS, BYPASS_GRACE_MS, KINDS };
+module.exports = { installs, installed, handler, launcher, isBootstrapper, storeEdition, pids, parsePids, installerPids, parseInstallerPids, decide, kill, routeWatched, silentPlayers, alive, open, restart, install, installerFile, parseInstallerProbe, startInstaller, cleanDownloads, newDownload, isRobloxHost, get, signedByRoblox, BOOTSTRAPPERS, BYPASS_GRACE_MS, KINDS };

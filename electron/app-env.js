@@ -131,6 +131,22 @@ function alive(pid) {
   try { process.kill(pid, 0); return true; } catch (e) { return e.code === 'EPERM'; }
 }
 
+/* Is that process still the program named `exe` (Shroudly)? A process id
+ * from an earlier run may belong to something else by now: Windows' fast
+ * startup keeps the boot time across a shutdown, and ids are reused. Taken
+ * to be when the name cannot be read or was not recorded. */
+function sameProgram(pid, exe, platform = process.platform) {
+  const name = String(exe || '').toLowerCase().slice(0, 15); // ps shows 15 characters on Linux
+  if (!name) return true;
+  let out;
+  try {
+    out = platform === 'win32'
+      ? runSync('tasklist.exe', ['/fi', `PID eq ${pid}`, '/fo', 'csv', '/nh'], 3000)
+      : runSync('ps', ['-o', 'comm=', '-p', String(pid)], 3000);
+  } catch { return true; }
+  return String(out).toLowerCase().includes(name);
+}
+
 class AppEnv {
   /*
    * opts.stateFile      kept while our values are set, for crash recovery
@@ -228,7 +244,7 @@ class AppEnv {
     if (stateFile) {
       try {
         fs.mkdirSync(path.dirname(stateFile), { recursive: true });
-        fs.writeFileSync(stateFile, JSON.stringify({ v: 1, platform: this.platform, pid: process.pid, boot: bootId(), url }));
+        fs.writeFileSync(stateFile, JSON.stringify({ v: 1, platform: this.platform, pid: process.pid, boot: bootId(), exe: path.basename(process.execPath), url }));
       } catch {}
     }
     if (watchdog && stateFile) Watchdog.watch(watchdog, 'env', stateFile);
@@ -260,7 +276,7 @@ class AppEnv {
       try {
         const st = JSON.parse(fs.readFileSync(opts.stateFile, 'utf8'));
         const sameBoot = st.boot == null || Math.abs(st.boot - bootId()) <= 2;
-        return sameBoot && st.pid && st.pid !== process.pid && alive(st.pid);
+        return sameBoot && st.pid && st.pid !== process.pid && alive(st.pid) && sameProgram(st.pid, st.exe);
       } catch { return false; }
     };
     if (onlyIfDead && opts.stateFile && owned()) return false;

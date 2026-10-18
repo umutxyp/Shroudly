@@ -35,6 +35,7 @@ const OWNER = 'umutxyp';
 const REPO = 'Shroudly';
 const RELEASES_URL = `https://github.com/${OWNER}/${REPO}/releases/latest`;
 const FIRST_CHECK_MS = 8000;
+const FIRST_CHECK_SPREAD_MS = 10 * 60 * 1000;
 const CHECK_EVERY_MS = 30 * 60 * 1000;
 const RESTART_COUNTDOWN_S = 60;
 const WAIT_CHECK_MS = 60000;
@@ -197,7 +198,10 @@ class Updater {
   start() {
     if (!app.isPackaged) { this._set({ status: 'unsupported' }); return; }
     if (!this.mac) this._initElectronUpdater();
-    setTimeout(() => this.check(false), FIRST_CHECK_MS);
+    // Spread over the first minutes: computers started together (a classroom,
+    // an internet cafe, an office after a power cut) do not all ask and
+    // download at the same moment.
+    setTimeout(() => this.check(false), FIRST_CHECK_MS + Math.floor(Math.random() * FIRST_CHECK_SPREAD_MS));
     this.timer = setInterval(() => this.check(false), CHECK_EVERY_MS);
   }
 

@@ -94,9 +94,10 @@ if (!app.requestSingleInstanceLock()) {
 
 /* ── crash / hard-exit safety: restore the system proxy synchronously ─────── */
 process.on('exit', () => {
+  // The environment first: it is what fails outright when left behind.
+  try { if (appEnv && appEnv.applied) appEnv.clearSync(); } catch {}
   try { engine && engine.cleanupSync(); } catch {}
   try { advanced && advanced.cleanupSync(); } catch {}
-  try { if (appEnv && appEnv.applied) appEnv.clearSync(); } catch {}
 });
 process.on('uncaughtException', (err) => {
   console.error('[Shroudly] uncaught:', err);
@@ -834,9 +835,10 @@ app.whenReady().then(async () => {
   // After the window is up: on Windows this writes the registry, which takes
   // a moment the window should not wait for.
   if (store.get('appMode') === true && AppEnv.supported()) applyAppMode(true).catch(() => {});
-  else if (fs.existsSync(appEnvStateFile())) {
-    // Left by a run that never got to clean up (the file is written before
-    // anything else and removed last).
+  else if (AppEnv.supported()) {
+    // Left by a run that never got to clean up. Ours are known by their mark,
+    // so they go even when the state file did not survive (a profile reset,
+    // a disk image taken while Shroudly ran).
     try { if (AppEnv.recoverSync({ stateFile: appEnvStateFile() })) addLog('info', 'Games and apps: a setting left by an earlier run was removed'); } catch {}
   }
 
@@ -899,11 +901,12 @@ app.on('window-all-closed', () => { /* keep running in tray */ });
  * doesn't get to run. */
 function restoreForSessionEnd() {
   keepDiscordLine = true;
+  // Unlike Discord's line, HTTPS_PROXY would be read by every program at the
+  // next login, before Shroudly is back: it goes, and returns when we do. It
+  // goes first: the system may end us at any moment now.
+  try { if (appEnv && appEnv.applied) appEnv.clearSync(); } catch {}
   try { engine && engine.cleanupSync(); } catch {}
   try { advanced && advanced.cleanupSync(); } catch {}
-  // Unlike Discord's line, HTTPS_PROXY would be read by every program at the
-  // next login, before Shroudly is back: it goes, and returns when we do.
-  try { if (appEnv && appEnv.applied) appEnv.clearSync(); } catch {}
 }
 app.on('session-end', restoreForSessionEnd); // Windows
 app.whenReady().then(() => { powerMonitor.on('shutdown', restoreForSessionEnd); }); // macOS, Linux
@@ -1246,6 +1249,7 @@ ipcMain.handle('discord:set', async (e, on) => {
 const appState = { foreign: false, failed: false, studioReopenAt: 0 };
 let robloxPidsAtChange = [];
 let studioPidsAtChange = [];
+let installerPidsAtChange = [];
 
 function sendAppState() {
   toWindow('apps:state', appState);
@@ -1374,6 +1378,7 @@ async function watchRoblox() {
     // Open before the mode came on: only while that very process still runs.
     robloxPidsAtChange = robloxPidsAtChange.filter((pid) => players.includes(pid));
     studioPidsAtChange = studioPidsAtChange.filter((pid) => studios.includes(pid));
+    installerPidsAtChange = installerPidsAtChange.filter((pid) => installers.player.includes(pid) || installers.studio.includes(pid));
     // Followed whenever the mode is on, so each is judged from when it really
     // started, whatever protection did in between.
     const quiet = RobloxApp.routeWatched() ? RobloxApp.silentPlayers(robloxSeen, all, appSeen.robloxAt, Date.now()) : [];
@@ -1384,7 +1389,7 @@ async function watchRoblox() {
     // Acted on only with protection on, where Roblox is known to be blocked.
     if (!engine || !engine.isActive() || !autopilot || !autopilot.isBlocked('roblox')) return;
     const d = RobloxApp.decide({
-      players, studios, installers, quiet, before: [...robloxPidsAtChange, ...studioPidsAtChange],
+      players, studios, installers, quiet, before: [...robloxPidsAtChange, ...studioPidsAtChange, ...installerPidsAtChange],
       handled: [...robloxHandled], restarts: robloxRestarts, now: Date.now(),
     });
     const something = d.installers.player.length || d.installers.studio.length || d.restartPlayers.length || d.stuckPlayers.length || d.tellStudios.length;
@@ -1400,9 +1405,13 @@ async function watchRoblox() {
       const list = fresh ? d.installers[kind].filter((pid) => fresh[kind].includes(pid)) : [];
       d.installers[kind].forEach((pid) => robloxHandled.add(pid));
       if (!list.length) continue;
+      // The same file again when it is Roblox's own (no download), else the
+      // current one fetched through the engine.
+      const own = await RobloxApp.installerFile(list[0], kind);
       await RobloxApp.kill(list);
-      if ((await installRoblox(kind)).success) {
-        addLog('success', 'Autopilot: a Roblox installer went around Shroudly; started it again through Shroudly');
+      const again = own ? RobloxApp.startInstaller(own, robloxEnv()) : (await installRoblox(kind)).success;
+      if (again) {
+        addLog('success', `Autopilot: a Roblox installer went around Shroudly; started it again through Shroudly${own ? ' (same installer, no download)' : ''}`);
         autoTell('autoInstallerRestarted');
       }
     }
@@ -1453,6 +1462,7 @@ async function applyAppModeNow(on) {
     appState.studioReopenAt = 0;
     robloxPidsAtChange = [];
     studioPidsAtChange = [];
+    installerPidsAtChange = [];
     addLog('success', 'Games and apps mode off: settings restored');
     sendAppState();
     return { success: true };
@@ -1491,6 +1501,10 @@ async function applyAppModeNow(on) {
     // have it (watchRoblox sees to it).
     robloxPidsAtChange = (await RobloxApp.pids()) || [];
     studioPidsAtChange = (await RobloxApp.pids('studio')) || [];
+    // An installer open now started without it too: started again at once,
+    // not after the quiet wait.
+    const inst = await RobloxApp.installerPids();
+    installerPidsAtChange = inst ? [...inst.player, ...inst.studio] : [];
     addLog('success', 'Games and apps mode on: Roblox and similar programs go through Shroudly');
   }
   sendAppState();
@@ -1633,6 +1647,7 @@ function createAutopilot() {
       available: () => !!(advanced && advanced.available()),
       active: () => !!(advanced && advanced.active),
       start: () => startAdvanced(),
+      antiCheat: () => Autopilot.antiCheatRunning(),
     },
   });
   // Apps installed later, and the check that is due again after a while.

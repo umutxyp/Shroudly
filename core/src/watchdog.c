@@ -104,8 +104,15 @@ static void launch_restore(void) {
   memset(&si, 0, sizeof(si));
   si.cb = sizeof(si);
   memset(&pi, 0, sizeof(pi));
-  if (CreateProcessW(g_wargv[g_wfirst], cmd, NULL, NULL, FALSE,
-                     DETACHED_PROCESS | CREATE_NEW_PROCESS_GROUP, NULL, NULL, &si, &pi)) {
+  /* Out of any job Shroudly ran in, where the job allows it: software that
+   * ends a session by closing its job (internet cafe clients do) would end
+   * the restore with it. Started inside the job when breaking away is not
+   * allowed. */
+  DWORD flags = DETACHED_PROCESS | CREATE_NEW_PROCESS_GROUP;
+  BOOL ok = CreateProcessW(g_wargv[g_wfirst], cmd, NULL, NULL, FALSE,
+                           flags | CREATE_BREAKAWAY_FROM_JOB, NULL, NULL, &si, &pi);
+  if (!ok) ok = CreateProcessW(g_wargv[g_wfirst], cmd, NULL, NULL, FALSE, flags, NULL, NULL, &si, &pi);
+  if (ok) {
     CloseHandle(pi.hThread);
     CloseHandle(pi.hProcess);
   }

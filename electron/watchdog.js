@@ -18,6 +18,12 @@ const path = require('path');
 const { spawn } = require('child_process');
 
 let child = null;
+// What it was told to look after, so that a watchdog that was stopped while
+// Shroudly runs (a task manager, a sweep of processes) is started again with
+// the same list: else a later kill would leave everything behind.
+let lastOpts = null;
+const watched = new Set();
+let restarts = [];
 
 /* An AppImage runs from a mount that disappears with Shroudly, and the
  * watchdog must outlive exactly that: run a copy kept next to the settings. */
@@ -53,7 +59,7 @@ function start(opts) {
   } else return null;
   const c = spawn(cmd, args, { detached: true, stdio: ['pipe', 'ignore', 'ignore'], windowsHide: true, env });
   c.on('error', () => { if (child === c) child = null; });
-  c.on('exit', () => { if (child === c) child = null; });
+  c.on('exit', () => { if (child === c) { child = null; respawn(); } });
   c.stdin.on('error', () => {});
   c.unref();
   // The pipe must not keep Shroudly from exiting: its closing at exit is the
@@ -62,10 +68,28 @@ function start(opts) {
   return c;
 }
 
+/* Start it again after it was stopped, at most five times in ten minutes. */
+function respawn() {
+  if (!lastOpts || !watched.size) return;
+  const now = Date.now();
+  restarts = restarts.filter((t) => now - t < 10 * 60 * 1000);
+  if (restarts.length >= 5) return;
+  restarts.push(now);
+  const t = setTimeout(() => {
+    if (child || !lastOpts) return;
+    try { child = start(lastOpts); } catch { child = null; }
+    if (!child) return;
+    for (const line of watched) { try { child.stdin.write(line); } catch {} }
+  }, 1000);
+  if (t.unref) t.unref();
+}
+
 /* opts: { core, restore: { exe, args }, copyDir, execPath, script };
  * kind: 'proxy' | 'env'. */
 function watch(opts, kind, file) {
   if (!opts || !file) return false;
+  lastOpts = opts;
+  watched.add(`${kind}\t${file}\n`);
   if (!child) {
     try { child = start(opts); } catch { child = null; }
     if (!child) return false;
@@ -74,5 +98,6 @@ function watch(opts, kind, file) {
 }
 
 function running() { return !!child; }
+function pid() { return child ? child.pid : 0; }
 
-module.exports = { watch, running };
+module.exports = { watch, running, pid };

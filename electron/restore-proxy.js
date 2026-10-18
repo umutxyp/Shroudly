@@ -32,8 +32,11 @@ const i18n = require('./main-i18n');
 
 async function restoreProxy({ stateFile, platform = process.platform, settings = () => ({}), languages = () => [], ready = async () => {}, recoverOther = () => {} } = {}) {
   let kept = false;
-  try { kept = SystemProxy.recoverSync({ stateFile, platform, skipIfOwnerAlive: true }) === 'kept'; } catch {}
+  // HTTPS_PROXY first: a program pointed at a proxy that is gone fails
+  // outright, while one whose PAC is gone mostly goes direct. And programs
+  // started at login read it the moment it is fixed.
   try { recoverOther(); } catch {}
+  try { kept = SystemProxy.recoverSync({ stateFile, platform, skipIfOwnerAlive: true }) === 'kept'; } catch {}
   if (!kept || platform !== 'darwin') return 'done';
   let s = {};
   try { s = settings() || {}; } catch {}

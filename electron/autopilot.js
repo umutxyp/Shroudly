@@ -284,6 +284,15 @@ class Autopilot {
   async needAdvanced(host) {
     if (!this.willAskAdvanced()) return false;
     const a = this.advanced;
+    // A game's anti-cheat running: a packet driver is never loaded beside it
+    // by itself (it may refuse the game, or flag it). The user still can.
+    let ac = null;
+    try { ac = a.antiCheat ? await a.antiCheat() : null; } catch {}
+    if (ac) {
+      if (!this.antiCheatLogged) this.log('info', `Autopilot: ${host} needs Advanced mode, but a game's anti-cheat is running (${ac}); not started by itself`);
+      this.antiCheatLogged = true;
+      return false;
+    }
     this.advancedAsked = true;
     this.log('info', `Autopilot: ${host} needs Advanced mode; asking for permission`);
     this.tell('autoAdvancedAsk', { host });
@@ -304,7 +313,24 @@ class Autopilot {
   }
 }
 
+/* Anti-cheat programs in a Windows process list (tasklist /FO CSV): the
+ * first one found, or null. */
+const ANTI_CHEAT = ['vgc.exe', 'vgtray.exe', 'EasyAntiCheat.exe', 'EasyAntiCheat_EOS.exe', 'BEService.exe', 'BEService_x64.exe',
+  'FACEIT.exe', 'faceitservice.exe', 'EAAntiCheat.GameService.exe', 'GameGuard.des', 'nProtect.exe', 'xigncode.exe', 'PnkBstrA.exe'];
+function antiCheatIn(out) {
+  const names = new Set([...String(out || '').matchAll(/^"([^"]+)"/gm)].map((m) => m[1].toLowerCase()));
+  return ANTI_CHEAT.find((n) => names.has(n.toLowerCase())) || null;
+}
+
+function antiCheatRunning(platform = process.platform) {
+  if (platform !== 'win32') return Promise.resolve(null);
+  return new Promise((resolve) => require('child_process').execFile('tasklist', ['/NH', '/FO', 'CSV'],
+    { windowsHide: true, timeout: 10000 }, (err, out) => resolve(err ? null : antiCheatIn(out))));
+}
+
 module.exports = Autopilot;
+module.exports.antiCheatIn = antiCheatIn;
+module.exports.antiCheatRunning = antiCheatRunning;
 module.exports.familyOf = familyOf;
 module.exports.networkFingerprint = networkFingerprint;
 module.exports.ipv6Groups = ipv6Groups;

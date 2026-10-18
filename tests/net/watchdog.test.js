@@ -118,6 +118,23 @@ function rssKb(pid) {
     t.ok(!fs.existsSync(out), 'and does not treat it as something to restore');
   }
 
+  // 5. The watchdog stopped while Shroudly runs (a task manager, a sweep of
+  //    processes): started again, with what it was looking after.
+  {
+    const Watchdog = require(path.join(__dirname, '..', '..', 'electron', 'watchdog.js'));
+    const state = path.join(dir, 'state 5.json');
+    const out = path.join(dir, 'restored 5.json');
+    fs.writeFileSync(state, '{}');
+    const opts = { core: enginePath(), restore: { exe: process.execPath, args: ['-e', RECORD, out] } };
+    t.ok(Watchdog.watch(opts, 'proxy', state) && Watchdog.running(), 'a watchdog is started for a state file');
+    const first = Watchdog.pid();
+    t.ok(first > 0, `its process is there (${first})`);
+    try { process.kill(first, 'SIGKILL'); } catch {}
+    t.ok(await waitFor(() => Watchdog.pid() > 0 && Watchdog.pid() !== first, 5000), 'killed while Shroudly runs: started again');
+    // Nothing left to restore when this test ends.
+    fs.rmSync(state, { force: true });
+  }
+
   fs.rmSync(dir, { recursive: true, force: true });
   console.log(`watchdog: ${t.count} passed`);
   process.exit(0);
