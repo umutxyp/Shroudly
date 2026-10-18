@@ -10,11 +10,18 @@
  *           roblox-player:// link (Roblox closes and starts itself again to
  *           join a game, and the new copy gets it too). It is held in memory
  *           and gone after logout or a restart.
- *  Windows  the user's environment (HKCU\Environment), plus the broadcast that
- *           makes Explorer pick it up: programs started from the Start menu,
- *           the desktop or File Explorer get it. One that was already running
- *           — a browser included — keeps the environment it started with until
- *           it is restarted.
+ *  Windows  the session's part of the user's environment (HKCU\Volatile
+ *           Environment), plus the broadcast that makes Explorer pick it up:
+ *           programs started from the Start menu, the desktop or File
+ *           Explorer get it. One that was already running — a browser
+ *           included — keeps the environment it started with until it is
+ *           restarted. Windows empties that key at logoff and it is never
+ *           saved to disk, so the value cannot outlive the session: not a
+ *           kill, not a power cut, not a disk image taken while it was set
+ *           (shared computers that are reset at every restart). Up to 2.5.12
+ *           it went to HKCU\Environment, which is kept: values of ours left
+ *           there are still removed (marked, as below), and nothing is
+ *           written there any more.
  *  Linux    not offered: there is no one place every desktop reads it from.
  *
  * Only our own values are ever removed. A proxy the user set themselves, for
@@ -24,9 +31,8 @@
  *
  * The value must not outlive Shroudly, or programs would be pointed at a
  * proxy that is gone. It is removed when Shroudly quits or the mode is turned
- * off, by the watchdog when Shroudly is killed, at the next login after a
- * power cut (Windows, where it would otherwise persist), when Shroudly next
- * starts, and by the uninstaller.
+ * off, by the watchdog when Shroudly is killed, by the end of the session
+ * (Windows) or a restart, when Shroudly next starts, and by the uninstaller.
  */
 
 const { execFileSync, spawn } = require('child_process');
@@ -43,6 +49,10 @@ const MARK = 'SHROUDLY_APP_PROXY';
 const NO_PROXY_VALUE = 'localhost,127.0.0.1,::1,.local,.localhost,.lan,.internal,.home.arpa,.home,.fritz.box,' +
   '10.0.0.0/8,172.16.0.0/12,192.168.0.0/16,169.254.0.0/16,100.64.0.0/10,fc00::/7,fe80::/10';
 const OURS = /^http:\/\/127\.0\.0\.1:\d+$/;
+// Where Shroudly writes: emptied by Windows at logoff, never saved.
+const WIN_SESSION_ENV = 'HKCU\\Volatile Environment';
+// Kept across restarts; where versions up to 2.5.12 wrote. Only read now (a
+// proxy of the user's own, our leftovers), and only our leftovers deleted.
 const WIN_USER_ENV = 'HKCU\\Environment';
 const WIN_MACHINE_ENV = 'HKLM\\SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Environment';
 const WIN_RUNONCE_KEY = 'HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\RunOnce';
@@ -64,30 +74,41 @@ function parseRegQuery(text) {
   return out;
 }
 
-function regAll(key) {
+function regAll(key) { return regKey(key) || new Map(); }
+
+/* The same, or null when the key is not there (or cannot be read). */
+function regKey(key) {
   try { return parseRegQuery(runSync('reg.exe', ['query', key])); }
-  catch { return new Map(); } // key absent or unreadable: nothing set
+  catch { return null; }
 }
 
 /* Windows: tell Explorer and the other running programs that the
- * environment changed, by writing the mark one last time through .NET's
- * SetEnvironmentVariable, which sends WM_SETTINGCHANGE itself: no code to
- * compile, unlike calling SendMessageTimeout from PowerShell. markValue is
- * our own loopback address or null (the mark removed). Fire and forget:
- * PowerShell takes a moment to start, and the registry is already right. */
-function winBroadcast(markValue) {
-  const v = markValue && OURS.test(markValue) ? `'${markValue}'` : '$null';
-  const ps = `[Environment]::SetEnvironmentVariable('${MARK}', ${v}, 'User')`;
+ * environment changed (WM_SETTINGCHANGE "Environment"), on which Explorer
+ * builds its environment again from the registry, Volatile Environment
+ * included. .NET's SetEnvironmentVariable sends that message itself after
+ * writing HKCU\Environment: no code to compile, unlike calling
+ * SendMessageTimeout from PowerShell. Asked to remove a name that is never
+ * set there, it writes nothing and still sends the message (.NET Framework
+ * and .NET alike), so nothing is kept. Fire and forget: PowerShell takes a
+ * moment to start, and the registry is already right. Returns the process
+ * (tests wait for it). */
+const BROADCAST_NAME = 'SHROUDLY_ENV_BROADCAST';
+function winBroadcast() {
+  const ps = `[Environment]::SetEnvironmentVariable('${BROADCAST_NAME}', $null, 'User')`;
   try {
     const p = spawn('powershell.exe', ['-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass', '-Command', ps],
       { detached: true, stdio: 'ignore', windowsHide: true, env: envFor('powershell.exe') });
     p.on('error', () => {});
     p.unref();
-  } catch {}
+    return p;
+  } catch { return null; }
 }
 
-/* Where the variables live on this OS: get/set/del for the user's session,
- * and what a machine-wide setting already says (Windows only). */
+/* Where the variables live on this OS: get/set/del for the user's session;
+ * what a machine-wide setting already says (Windows only); and `persistent`,
+ * the user's kept environment (Windows), read for a proxy of the user's own
+ * and for values an older Shroudly left there, from which only those of ours
+ * are ever deleted. */
 function backend(platform = process.platform) {
   if (platform === 'darwin') {
     return {
@@ -96,26 +117,40 @@ function backend(platform = process.platform) {
       set: (k, v) => { runSync('launchctl', ['setenv', k, v]); },
       del: (k) => { try { runSync('launchctl', ['unsetenv', k]); } catch {} },
       machine: () => null,
+      persistent: null,
       commit: () => {},
     };
   }
   if (platform === 'win32') {
     // Read once per operation (refresh), not once per value: each reg.exe
-    // call blocks the app for tens of milliseconds.
-    let user = null; let machine = null;
+    // call blocks the app for tens of milliseconds. undefined: not read yet;
+    // session null: the key is not there.
+    let session; let user; let machine;
+    const sessionKey = () => { if (session === undefined) session = regKey(WIN_SESSION_ENV); return session; };
+    const userKey = () => { if (user === undefined) user = regAll(WIN_USER_ENV); return user; };
     return {
       names: { proxy: ['HTTPS_PROXY'], noProxy: ['NO_PROXY'] },
-      refresh: () => { user = null; machine = null; },
-      get: (k) => { if (!user) user = regAll(WIN_USER_ENV); return user.get(k.toUpperCase()) || null; },
+      refresh: () => { session = undefined; user = undefined; machine = undefined; },
+      get: (k) => (sessionKey() || new Map()).get(k.toUpperCase()) || null,
       set: (k, v) => {
-        runSync('reg.exe', ['add', WIN_USER_ENV, '/v', k, '/t', 'REG_SZ', '/d', v, '/f']);
-        if (user) user.set(k.toUpperCase(), v);
+        // Windows creates the key at logon, volatile. reg.exe would create a
+        // missing one as an ordinary, kept key: never written then.
+        if (!sessionKey()) throw Object.assign(new Error('this session has no volatile environment'), { code: 'ENOTSUP' });
+        runSync('reg.exe', ['add', WIN_SESSION_ENV, '/v', k, '/t', 'REG_SZ', '/d', v, '/f']);
+        session.set(k.toUpperCase(), v);
       },
       del: (k) => {
-        try { runSync('reg.exe', ['delete', WIN_USER_ENV, '/v', k, '/f']); } catch {}
-        if (user) user.delete(k.toUpperCase());
+        try { runSync('reg.exe', ['delete', WIN_SESSION_ENV, '/v', k, '/f']); } catch {}
+        if (session) session.delete(k.toUpperCase());
       },
-      machine: (k) => { if (!machine) machine = regAll(WIN_MACHINE_ENV); return machine.get(k.toUpperCase()) || null; },
+      machine: (k) => { if (machine === undefined) machine = regAll(WIN_MACHINE_ENV); return machine.get(k.toUpperCase()) || null; },
+      persistent: {
+        get: (k) => userKey().get(k.toUpperCase()) || null,
+        del: (k) => {
+          try { runSync('reg.exe', ['delete', WIN_USER_ENV, '/v', k, '/f']); } catch {}
+          if (user) user.delete(k.toUpperCase());
+        },
+      },
       commit: winBroadcast,
     };
   }
@@ -147,12 +182,25 @@ function sameProgram(pid, exe, platform = process.platform) {
   return String(out).toLowerCase().includes(name);
 }
 
+/* Take the values marked as ours out of one store ({ get, del }): the proxy
+ * names that still hold our address, NO_PROXY if it is ours and no proxy is
+ * left, and the mark. True if there was a mark. */
+function removeOurs(store, names) {
+  const mark = store.get(MARK);
+  if (!mark) return false;
+  for (const k of names.proxy) if (store.get(k) === mark) store.del(k);
+  if (names.proxy.every((k) => !store.get(k))) {
+    for (const k of names.noProxy) if (store.get(k) === NO_PROXY_VALUE) store.del(k);
+  }
+  store.del(MARK);
+  return true;
+}
+
 class AppEnv {
   /*
    * opts.stateFile      kept while our values are set, for crash recovery
    * opts.watchdog       watchdog.js options (the engine binary in its watchdog
    *                     mode and the restore command it runs)
-   * opts.restoreCommand { exe, args } run once at the next Windows login
    * opts.backend        stands in for the real OS (tests)
    */
   constructor(opts = {}) {
@@ -160,6 +208,7 @@ class AppEnv {
     this.platform = opts.platform || process.platform;
     this.b = opts.backend !== undefined ? opts.backend : backend(this.platform);
     this.applied = false;   // our values were set by this run
+    this.broadcast = null;  // what the last change announcement returned (Windows: its process)
   }
 
   static supported(platform = process.platform) { return platform === 'darwin' || platform === 'win32'; }
@@ -177,15 +226,29 @@ class AppEnv {
     return mark && OURS.test(mark) && b.names.proxy.every((k) => b.get(k) === mark) ? mark : null;
   }
 
-  /* A proxy someone else set, for this session or the whole machine. */
+  /* A proxy someone else set: for this session, kept in the user's
+   * environment, or for the whole machine. */
   _foreign(mark) {
     const b = this.b;
     for (const k of b.names.proxy) {
       const v = b.get(k);
       if (v && v !== mark) return true;
-      if (b.machine(k)) return true;
+      if (this._elsewhere(k)) return true;
     }
     return false;
+  }
+
+  /* What the places we never write to say about k. */
+  _elsewhere(k) {
+    const b = this.b;
+    return b.machine(k) || (b.persistent && b.persistent.get(k)) || null;
+  }
+
+  /* Values of ours that versions up to 2.5.12 kept in the user's environment
+   * (Windows): removed, the user's own left alone. True if any were. */
+  _migrate() {
+    const p = this.b && this.b.persistent;
+    return p ? removeOurs(p, this.b.names) : false;
   }
 
   /* Point new programs at url. Returns 'changed', 'unchanged' or 'foreign'
@@ -195,9 +258,18 @@ class AppEnv {
     if (!b) throw Object.assign(new Error('not supported on this system'), { code: 'ENOTSUP' });
     if (!OURS.test(url)) throw new Error(`not a local proxy address: ${url}`);
     if (b.refresh) b.refresh();
+    // An older Shroudly's leftovers first, so they are neither taken for the
+    // user's own proxy nor kept next to the new values.
+    const migrated = this._migrate();
     const mark = b.get(MARK);
-    if (this._foreign(mark && OURS.test(mark) ? mark : null)) return 'foreign';
-    if (this._current() === url) { this._arm(url); this.applied = true; return 'unchanged'; }
+    if (this._foreign(mark && OURS.test(mark) ? mark : null)) {
+      if (migrated) this._commit(null);
+      return 'foreign';
+    }
+    if (this._current() === url) {
+      if (migrated) this._commit(url);
+      this._arm(url); this.applied = true; return 'unchanged';
+    }
 
     this._arm(url);
     // From here on something may be written, so quitting must clean up even if
@@ -208,39 +280,35 @@ class AppEnv {
     b.set(MARK, url);
     for (const k of b.names.proxy) b.set(k, url);
     const noProxyFree = b.names.noProxy.every((k) => { const v = b.get(k); return !v || v === NO_PROXY_VALUE; }) &&
-                        !b.names.noProxy.some((k) => b.machine(k));
+                        !b.names.noProxy.some((k) => this._elsewhere(k));
     if (noProxyFree) for (const k of b.names.noProxy) b.set(k, NO_PROXY_VALUE);
-    b.commit(url);
+    this._commit(url);
     this.applied = true;
     return 'changed';
   }
 
-  /* Remove our values; anything else is left as it is. Returns 'changed' or
+  /* Remove our values, and an older Shroudly's from the user's kept
+   * environment; anything else is left as it is. Returns 'changed' or
    * 'unchanged'. Synchronous and quick: also used while exiting. */
   clearSync() {
     const b = this.b;
     let changed = false;
     if (b) {
       if (b.refresh) b.refresh();
-      const mark = b.get(MARK);
-      if (mark) {
-        for (const k of b.names.proxy) if (b.get(k) === mark) { b.del(k); changed = true; }
-        if (b.names.proxy.every((k) => !b.get(k))) {
-          for (const k of b.names.noProxy) if (b.get(k) === NO_PROXY_VALUE) b.del(k);
-        }
-        b.del(MARK);
-        changed = true;
-      }
-      if (changed) b.commit(null);
+      changed = removeOurs(b, b.names);
+      if (this._migrate()) changed = true;
+      if (changed) this._commit(null);
     }
     this._disarm();
     this.applied = false;
     return changed ? 'changed' : 'unchanged';
   }
 
+  _commit(url) { this.broadcast = this.b.commit(url) || null; }
+
   // ── crash safety ──────────────────────────────────────────────────────────
   _arm(url) {
-    const { stateFile, watchdog, restoreCommand } = this.opts;
+    const { stateFile, watchdog } = this.opts;
     if (stateFile) {
       try {
         fs.mkdirSync(path.dirname(stateFile), { recursive: true });
@@ -248,12 +316,8 @@ class AppEnv {
       } catch {}
     }
     if (watchdog && stateFile) Watchdog.watch(watchdog, 'env', stateFile);
-    // Windows keeps the user's environment across restarts: if the machine
-    // goes down with our value set, take it out at the next login.
-    if (this.platform === 'win32' && restoreCommand && this.b && this.opts.backend === undefined) {
-      const line = [restoreCommand.exe, ...restoreCommand.args].map((a) => (/\s/.test(a) ? `"${a}"` : a)).join(' ');
-      try { runSync('reg.exe', ['add', WIN_RUNONCE_KEY, '/v', WIN_RUNONCE_VALUE, '/t', 'REG_SZ', '/d', line, '/f']); } catch {}
-    }
+    // Nothing for the next login (Windows): the session's environment is
+    // gone by then. Versions up to 2.5.12 left a login entry, taken out below.
   }
 
   _disarm() {
@@ -293,3 +357,4 @@ module.exports.MARK = MARK;
 module.exports.NO_PROXY_VALUE = NO_PROXY_VALUE;
 module.exports.backend = backend;
 module.exports.parseRegQuery = parseRegQuery;
+module.exports.BROADCAST_NAME = BROADCAST_NAME;

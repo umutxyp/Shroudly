@@ -48,22 +48,33 @@
 !macroend
 
 ; Games and apps mode puts HTTPS_PROXY in the user's environment, pointing at
-; Shroudly (electron/app-env.js). With Shroudly gone it would point at nothing,
-; so take it out. Ours only: SHROUDLY_APP_PROXY holds the value we wrote, and a
+; Shroudly (electron/app-env.js): the session's part of it (Volatile
+; Environment, emptied by Windows at logoff), and up to 2.5.12 the part that is
+; kept (Environment). With Shroudly gone it would point at nothing, so take it
+; out of both. Ours only: SHROUDLY_APP_PROXY holds the value we wrote, and a
 ; proxy the user set themselves is left alone. Then tell Explorer, so programs
-; started from now on no longer get it.
-!macro shroudlyAppEnvCleanup
-  ReadRegStr $0 HKCU "Environment" "SHROUDLY_APP_PROXY"
+; started from now on no longer get it. $2 says whether anything was removed.
+!macro shroudlyAppEnvCleanupIn _KEY
+  ReadRegStr $0 HKCU "${_KEY}" "SHROUDLY_APP_PROXY"
   ${If} $0 != ""
-    ReadRegStr $1 HKCU "Environment" "HTTPS_PROXY"
+    ReadRegStr $1 HKCU "${_KEY}" "HTTPS_PROXY"
     ${If} $1 == $0
-      DeleteRegValue HKCU "Environment" "HTTPS_PROXY"
-      ReadRegStr $1 HKCU "Environment" "NO_PROXY"
+      DeleteRegValue HKCU "${_KEY}" "HTTPS_PROXY"
+      ReadRegStr $1 HKCU "${_KEY}" "NO_PROXY"
       ${If} $1 == "localhost,127.0.0.1,::1,.local,.localhost,.lan,.internal,.home.arpa,.home,.fritz.box,10.0.0.0/8,172.16.0.0/12,192.168.0.0/16,169.254.0.0/16,100.64.0.0/10,fc00::/7,fe80::/10"
-        DeleteRegValue HKCU "Environment" "NO_PROXY"
+        DeleteRegValue HKCU "${_KEY}" "NO_PROXY"
       ${EndIf}
     ${EndIf}
-    DeleteRegValue HKCU "Environment" "SHROUDLY_APP_PROXY"
+    DeleteRegValue HKCU "${_KEY}" "SHROUDLY_APP_PROXY"
+    StrCpy $2 "1"
+  ${EndIf}
+!macroend
+
+!macro shroudlyAppEnvCleanup
+  StrCpy $2 ""
+  !insertmacro shroudlyAppEnvCleanupIn "Environment"
+  !insertmacro shroudlyAppEnvCleanupIn "Volatile Environment"
+  ${If} $2 != ""
     SendMessage ${HWND_BROADCAST} ${WM_SETTINGCHANGE} 0 "STR:Environment" /TIMEOUT=5000
   ${EndIf}
   DeleteRegValue HKCU "Software\Microsoft\Windows\CurrentVersion\RunOnce" "ShroudlyAppEnvRestore"

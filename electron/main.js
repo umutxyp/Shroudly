@@ -778,7 +778,7 @@ app.whenReady().then(async () => {
   appProxy.waitForEngine = waitForEngine;
   appProxy.onTunnel = onAppTunnel;
   appProxy.onRequest = onAppRequest;
-  appEnv = new AppEnv({ stateFile: appEnvStateFile(), watchdog, restoreCommand });
+  appEnv = new AppEnv({ stateFile: appEnvStateFile(), watchdog });
   createAutopilot();
 
   updater = new Updater({
