@@ -208,6 +208,52 @@ int main(void) {
   }
   printf("  unreachable told once: OK\n");
 
+  /* 7. a host that came to nothing keeps fewer connections open for a while,
+   *    for that name alone, until something answers for it */
+  {
+    mutex_init(&g_cool_mx);
+    CHECK(!cool_is("dead.cool.example"));
+    cool_put("dead.cool.example");
+    CHECK(cool_is("dead.cool.example") && !cool_is("www.cool.example"));
+    for (int i = 0; i < COOL_SLOTS; i++)
+      if (strcmp(g_cool[i].host, "dead.cool.example") == 0) g_cool[i].t -= COOL_MS + 1;
+    CHECK(!cool_is("dead.cool.example"));                    /* over after COOL_MS */
+    cool_put("dead.cool.example");
+    cool_drop("dead.cool.example");
+    CHECK(!cool_is("dead.cool.example"));                    /* something answered */
+    /* a full table makes room by forgetting the oldest */
+    char h[64];
+    for (int i = 0; i < COOL_SLOTS + 1; i++) { snprintf(h, sizeof(h), "h%d.cool.example", i); cool_put(h); }
+    CHECK(cool_is(h));
+  }
+  printf("  cooling after nothing answered: OK\n");
+
+  /* 8. the ladders' extra connections, all together, stop at EXTRA_LEGS_MAX */
+  {
+    int got = 0;
+    for (int i = 0; i < EXTRA_LEGS_MAX + 10; i++) got += room_take();
+    CHECK(got == EXTRA_LEGS_MAX && !room_take());
+    room_give();
+    CHECK(room_take() && !room_take());
+    for (int i = 0; i < EXTRA_LEGS_MAX; i++) room_give();
+    CHECK(atomic_load(&g_extra_legs) == 0);
+    /* a set limited to LEG_COOL_MAX keeps the untouched request and the newest */
+    legset L; memset(&L, 0, sizeof(L)); L.max = LEG_COOL_MAX;
+    for (int i = 0; i < 4; i++) {
+      leg g; memset(&g, 0, sizeof(g));
+      g.s = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP); g.cand = i == 0 ? ATT_PLAIN : i; g.idx = i;
+      g.room = i > 0 && room_take();
+      legs_add(&L, g);
+    }
+    CHECK(L.n == 2 && L.l[0].cand == ATT_PLAIN && L.l[1].idx == 3);
+    CHECK(atomic_load(&g_extra_legs) == 1);                  /* the dropped ones gave theirs back */
+    leg t = legs_take(&L, 1);
+    CHECK(t.room == 0 && atomic_load(&g_extra_legs) == 0);   /* relayed: no longer an extra one */
+    sock_close(t.s);
+    legs_close(&L);
+  }
+  printf("  extra connections capped: OK\n");
+
   if (fails == 0) { printf("ENGINE MEMORY TESTS PASSED\n"); return 0; }
   printf("%d FAILED\n", fails);
   return 1;

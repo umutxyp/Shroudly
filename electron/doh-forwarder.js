@@ -24,7 +24,9 @@
  * multiplexed connection, and has a health record: routes that fail are
  * rested with a growing back-off and tried again later, fast ones go first,
  * and the last one that worked is remembered across restarts. Lookups race
- * the best route alone, then the next two, then everything still standing.
+ * the best route alone, then the next two, then three more at a time until
+ * one answers: never every route at once, which on a congested link (many
+ * computers behind one small router) only makes the congestion worse.
  *
  * Speed matters as much as privacy: a lookup that takes too long is
  * indistinguishable from a broken one, and the engine would fall back to plain
@@ -63,7 +65,9 @@ const UPSTREAMS = [
 
 const QUERY_TIMEOUT_MS = 2500;  // per route; they are raced, not chained
 const SECOND_WAVE_MS   = 250;   // the best route goes alone this long
-const THIRD_WAVE_MS    = 900;   // then the next two; then all the rest
+const THIRD_WAVE_MS    = 900;   // then the next two; then three more at a time
+const WAVE_SIZE        = 3;
+const NEXT_WAVE_MS     = 650;   // between those later waves
 const REST_BASE_MS     = 2000;  // a failing route rests 2 s, 4 s, 8 s ... 5 min
 const REST_MAX_MS      = 300000;
 const WARM_INTERVAL_MS = 120000;
@@ -328,7 +332,12 @@ class DohForwarder {
       const upTo = (n) => { while (!settled && started < Math.min(n, plan.length)) fire(plan[started]); };
       upTo(1);
       timers.push(setTimeout(() => upTo(3), SECOND_WAVE_MS));
-      timers.push(setTimeout(() => upTo(plan.length), THIRD_WAVE_MS));
+      // Then a few more at a time, best first, for as long as nothing answers.
+      const wave = () => {
+        upTo(started + WAVE_SIZE);
+        if (!settled && started < plan.length) timers.push(setTimeout(wave, NEXT_WAVE_MS));
+      };
+      timers.push(setTimeout(wave, THIRD_WAVE_MS));
       // A route that fails fast should not leave the rest waiting for their wave.
       const early = setInterval(() => {
         if (settled) { clearInterval(early); return; }

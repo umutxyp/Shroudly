@@ -6,7 +6,8 @@
 - `test_engine.c`  — the engine's per-host memory (white-box): which names make one
   site, what a name takes from its site, where a silent ladder resumes (its own name
   only), when a learned technique is due to be checked again, where a cut moves a
-  host on to
+  host on to, how long a host that came to nothing keeps fewer connections open, and
+  the cap on re-dialled connections across all ladders
 - `test_rawscope.c` — what Advanced mode may touch: the local / private / special
   address ranges (IPv4 and IPv6, every edge), the table of recently desynced servers
   a reset must come from to be dropped, and the raw_stats line

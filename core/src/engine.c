@@ -66,6 +66,23 @@
 /* After the ladder is over with nothing answered, its connections are still
  * listened to for this long; then the oldest is simply relayed. */
 #define RACE_MAX_MS 30000
+/* How many re-dialled connections all ladders together may hold open at once.
+ * A ladder's first connection is the client's own and is not counted. Many
+ * computers behind one small router (an internet cafe, a school) share its
+ * table of connections, and an endpoint that takes connections and never
+ * answers — a dead server, a black-holed tracker its app retries all day —
+ * would otherwise cost up to five more per connection made to it. A ladder
+ * that finds no room listens to what it has open until there is (see
+ * wait_room). Enough for a dozen silent ladders in full at once. */
+#define EXTRA_LEGS_MAX 48
+/* A host whose last ladder came to nothing (nothing answered) in this long
+ * keeps at most LEG_COOL_MAX connections open on its next ladders: the
+ * untouched request and the newest technique. The search goes on at the same
+ * pace, so a site behind a silent filter still gets every technique its turn;
+ * it just stops piling connections up on what is most likely a dead endpoint.
+ * Anything answering for the host ends it. */
+#define COOL_MS      60000
+#define LEG_COOL_MAX 2
 
 /* Outcome of one attempt. */
 #define ATT_OK      1   /* server answered */
@@ -256,6 +273,57 @@ static int ok_recent(const char *h) {
   mutex_unlock(&g_ok_mx);
   return yes;
 }
+
+/* ── hosts that came to nothing ──────────────────────────────────────────
+ * The names whose last ladder ended with nothing answered, and when (see
+ * COOL_MS). Keyed by the name itself: one dead endpoint says nothing about
+ * the other names of its site. */
+#define COOL_SLOTS 64
+static struct { char host[256]; uint64_t t; } g_cool[COOL_SLOTS];
+static mutex_t g_cool_mx;
+
+static void cool_put(const char *h) {
+  if (!h[0]) return;
+  mutex_lock(&g_cool_mx);
+  int slot = 0;
+  for (int i = 0; i < COOL_SLOTS; i++) {
+    if (g_cool[i].host[0] && strcmp(g_cool[i].host, h) == 0) { slot = i; break; }
+    if (g_cool[i].t < g_cool[slot].t) slot = i;   /* else the oldest (or an empty one) */
+  }
+  snprintf(g_cool[slot].host, sizeof(g_cool[slot].host), "%s", h);
+  g_cool[slot].t = now_ms();
+  mutex_unlock(&g_cool_mx);
+}
+
+static int cool_is(const char *h) {
+  int yes = 0;
+  mutex_lock(&g_cool_mx);
+  uint64_t now = now_ms();   /* under the lock: see age_ms */
+  for (int i = 0; i < COOL_SLOTS; i++)
+    if (g_cool[i].host[0] && strcmp(g_cool[i].host, h) == 0) { yes = age_ms(now, g_cool[i].t) < COOL_MS; break; }
+  mutex_unlock(&g_cool_mx);
+  return yes;
+}
+
+/* Something answered for the host. */
+static void cool_drop(const char *h) {
+  mutex_lock(&g_cool_mx);
+  for (int i = 0; i < COOL_SLOTS; i++)
+    if (g_cool[i].host[0] && strcmp(g_cool[i].host, h) == 0) { g_cool[i].host[0] = 0; g_cool[i].t = 0; break; }
+  mutex_unlock(&g_cool_mx);
+}
+
+/* Room for one more re-dialled connection (see EXTRA_LEGS_MAX): 1 with it
+ * taken, to be given back with room_give once that connection is closed or
+ * becomes the one relayed. */
+static _Atomic int g_extra_legs = 0;
+
+static int room_take(void) {
+  if (atomic_fetch_add(&g_extra_legs, 1) < EXTRA_LEGS_MAX) return 1;
+  atomic_fetch_sub(&g_extra_legs, 1);
+  return 0;
+}
+static void room_give(void) { atomic_fetch_sub(&g_extra_legs, 1); }
 
 /* ── per-host learned strategy (auto-probe cache) ───────────────────────── */
 typedef struct { char host[256]; int preset; uint64_t t; int used; } hoststrat;
@@ -1208,8 +1276,9 @@ static int tls_reply_ok(const uint8_t *b, int n) {
 
 /* One upstream connection of the ladder: the socket, its address family, how
  * much of the client's payload it carries, when that went out, with which
- * technique, and as which attempt (0: the ladder's first). */
-typedef struct { sock_t s; int fam; int sent; uint64_t at; int cand; int idx; } leg;
+ * technique, as which attempt (0: the ladder's first), and whether it holds
+ * room among the re-dialled connections (see room_take). */
+typedef struct { sock_t s; int fam; int sent; uint64_t at; int cand; int idx; int room; } leg;
 
 /* Send the first payload using `preset` (or unmodified for ATT_PLAIN).
  * Returns 0; ATT_REFUSED when the connection was reset or closed under us
@@ -1262,17 +1331,20 @@ static int read_reply(sock_t up, const proto_info *pi, uint8_t *rbuf, int rcap, 
  * once and uses whichever answers first (the oldest, when several do at
  * once) — and which one that was, set against the untouched request, is what
  * it learns from. */
-typedef struct { leg l[LEG_MAX]; int n; } legset;
+typedef struct { leg l[LEG_MAX]; int n; int max; /* at most this many open, <= LEG_MAX */ } legset;
 
 static void legs_drop(legset *L, int i) {
   sock_close(L->l[i].s);
+  if (L->l[i].room) room_give();
   memmove(&L->l[i], &L->l[i + 1], (size_t)(L->n - i - 1) * sizeof(leg));
   L->n--;
 }
 
-/* Take connection i out of the set, still open. */
+/* Take connection i out of the set, still open: the one to relay, no longer
+ * one of the ladder's extra connections. */
 static leg legs_take(legset *L, int i) {
   leg g = L->l[i];
+  if (g.room) { room_give(); g.room = 0; }
   memmove(&L->l[i], &L->l[i + 1], (size_t)(L->n - i - 1) * sizeof(leg));
   L->n--;
   return g;
@@ -1280,16 +1352,22 @@ static leg legs_take(legset *L, int i) {
 
 static void legs_close(legset *L) { while (L->n > 0) legs_drop(L, L->n - 1); }
 
-/* Add the attempt just made. With no room left, the oldest technique's
- * connection goes: a later one is as likely to be answered, while the
- * untouched request is never let go — it is what tells a slow server from a
- * filter. */
-static void legs_add(legset *L, leg g) {
-  if (L->n == LEG_MAX) {
+/* Make room for one more connection, before it is dialled, so the set never
+ * has more than L->max open even for a moment. With none left, the oldest
+ * technique's connection goes: a later one is as likely to be answered, while
+ * the untouched request is never let go — it is what tells a slow server from
+ * a filter. */
+static void legs_make_room(legset *L) {
+  while (L->n > 0 && L->n >= L->max) {
     int k = 0;
     while (k < L->n - 1 && L->l[k].cand == ATT_PLAIN) k++;
     legs_drop(L, k);
   }
+}
+
+/* Add the attempt just made. */
+static void legs_add(legset *L, leg g) {
+  legs_make_room(L);
   L->l[L->n++] = g;
 }
 
@@ -1366,6 +1444,26 @@ static int await_legs(ladder_st *st, int wait_ms, uint8_t *rbuf, int rcap, int *
   }
 }
 
+/* Room for the next attempt's connection (see EXTRA_LEGS_MAX). While there is
+ * none, the ladder's open connections are listened to, a little at a time,
+ * so an answer on one of them is not kept waiting. 1 with room taken; 2 when
+ * one of them answered meanwhile (*win set, as in await_legs); 0 when there
+ * is no longer budget enough for another attempt. */
+#define ROOM_POLL_MS 200
+static int wait_room(ladder_st *st, uint64_t deadline, uint8_t *rbuf, int rcap, int *rlen, int *win) {
+  legset *L = &st->L;
+  for (;;) {
+    if (room_take()) return 1;
+    if (now_ms() + ATT_MIN_LEFT_MS > deadline) return 0;
+    if (L->n == 0) { sleep_ms(ROOM_POLL_MS); continue; }
+    sock_t s[LEG_MAX]; int ready[LEG_MAX], gone = 0;
+    for (int i = 0; i < L->n; i++) s[i] = L->l[i].s;
+    int w = sock_wait_any(s, L->n, ROOM_POLL_MS, ready);
+    if (w < 0) sleep_ms(ROOM_POLL_MS);
+    else if (w > 0 && read_legs(st, ready, rbuf, rcap, rlen, win, &gone) == ATT_OK) return 2;
+  }
+}
+
 /* The ladder is over with nothing answered, but its connections are still
  * open and one may yet be: a server that is only slow, a path that takes
  * longer than the ladder waited. Go on listening to all of them, and to the
@@ -1407,6 +1505,7 @@ static int race_legs(ladder_st *st, sock_t client, uint8_t *rbuf, int rcap, int 
  * at once, or the untouched request answering, however late. */
 static void ladder_won(ladder_st *st, const leg *w) {
   atomic_fetch_add(&g_stats.probe_success, 1);
+  cool_drop(st->key);   /* it answers: whatever came to nothing before is over */
   if (w->cand == ATT_PLAIN) {
     /* The untouched request got through: whatever technique this ladder had
      * to go on — one that failed first, or one it was checking — is not
@@ -1575,6 +1674,7 @@ static void handle(sock_t client) {
       memset(&st, 0, sizeof(st));
       st.key = key; st.pi = &pi; st.tls = watch_tls;
       st.learned = learned; st.inherited = inherited;
+      st.L.max = cool_is(key) ? LEG_COOL_MAX : LEG_MAX;
       if (resumed || (learned >= 0 && stale && watch_tls)) {
         /* A race: the untouched request goes first and has a moment to itself
          * (race_head), then the technique goes out beside it on a connection
@@ -1623,7 +1723,7 @@ static void handle(sock_t client) {
         int head = st.race && a == 0;
         int wait_ms = c == ATT_PLAIN ? (head ? race_head : VERIFY_PLAIN_MS)
                     : (st.silent && !st.saw_refusal) ? VERIFY_SILENT_MS : VERIFY_DESYNC_MS;
-        leg cur = { SOCK_INVALID, fam, 0, 0, c, a };
+        leg cur = { SOCK_INVALID, fam, 0, 0, c, a, 0 };
         if (a == 0) {
           cur.s = up; up = SOCK_INVALID;   /* owned by the ladder from here on */
         } else {
@@ -1639,8 +1739,21 @@ static void handle(sock_t client) {
           int left = t < deadline ? (int)(deadline - t) : 0;
           int spent = left <= ATT_MIN_WAIT_MS;
           if (!spent) {
+            /* Room for one more connection, in this ladder's set and among
+             * all ladders' (waited for if need be). */
+            legs_make_room(&st.L);
+            int room = wait_room(&st, deadline, rbuf, RELAY_BUF, &rlen, &win);
+            if (room == 2) break;                     /* one already open answered */
+            t = now_ms();
+            left = t < deadline ? (int)(deadline - t) : 0;
+            spent = !room || left <= ATT_MIN_WAIT_MS;
+            if (room && spent) room_give();
+          }
+          if (!spent) {
+            cur.room = 1;
             cur.s = dial(dial_host, rq.port, g_cfg.prefer_ipv6, dial_doh, left - ATT_MIN_WAIT_MS,
                          &cur.fam, &di);
+            if (cur.s == SOCK_INVALID) { room_give(); cur.room = 0; }
             if (cur.s == SOCK_INVALID && !di.cut) {
               /* Refused at every address, or silent there for a full try. */
               report_unreachable(dial_host, rq.port, &di);
@@ -1649,7 +1762,10 @@ static void handle(sock_t client) {
             }
             t = now_ms();
             left = t < deadline ? (int)(deadline - t) : 0;
-            if (cur.s != SOCK_INVALID && left < ATT_MIN_WAIT_MS) { sock_close(cur.s); cur.s = SOCK_INVALID; }
+            if (cur.s != SOCK_INVALID && left < ATT_MIN_WAIT_MS) {
+              sock_close(cur.s); cur.s = SOCK_INVALID;
+              room_give(); cur.room = 0;
+            }
             spent = cur.s == SOCK_INVALID;
           }
           if (spent) {
@@ -1678,6 +1794,7 @@ static void handle(sock_t client) {
           if (r == ATT_REFUSED) note_refused(&st, &cur, 0);
           else local_fails++;
           sock_close(cur.s);
+          if (cur.room) room_give();
         } else {
           legs_add(&st.L, cur);
           r = await_legs(&st, wait_ms, rbuf, RELAY_BUF, &rlen, &win);
@@ -1715,6 +1832,10 @@ static void handle(sock_t client) {
           rs_put(key, (last_preset + 1) % np);
         else if (gave_up) rs_drop(key);
       }
+      /* Nothing answered: for a while, its next ladders keep fewer connections
+       * open (see COOL_MS). One that answers late, in the race below, ends
+       * that again. */
+      if (win < 0 && gave_up) cool_put(key);
 
       int pick = win;   /* the connection to relay */
       if (win < 0 && st.L.n > 0) {
@@ -1723,7 +1844,7 @@ static void handle(sock_t client) {
         else if (rr == 2) pick = 0;   /* the oldest: on a fresh ladder, the untouched request */
       }
       if (win >= 0) ladder_won(&st, &st.L.l[win]);
-      leg cur = { SOCK_INVALID, fam, 0, 0, ATT_PLAIN, 0 };
+      leg cur = { SOCK_INVALID, fam, 0, 0, ATT_PLAIN, 0, 0 };
       if (pick >= 0) cur = legs_take(&st.L, pick);
       legs_close(&st.L);
       /* A connection that went out before the client sent more has not been
@@ -1804,6 +1925,7 @@ int engine_start(const engine_config *cfg) {
   mutex_init(&g_unreach_mx);
   mutex_init(&g_ok_mx);
   mutex_init(&g_win_mx);
+  mutex_init(&g_cool_mx);
   doh_init(cfg->doh_host, cfg->doh_ip);
 
   struct sockaddr_in addr;

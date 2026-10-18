@@ -23,7 +23,51 @@ function ask(port, name) {
   });
 }
 
+/* Which routes a lookup asks, and when, with every route's answer staged:
+ * answers[id] = ms after it is asked to answer (anything else: never, until it
+ * times out). The routes' own network is not touched. */
+async function waves(answers, timeoutMs = 2500) {
+  const f = new F(() => {});
+  f.setSocksPort(1);                     // the routes through the engine count too
+  const asked = [];
+  const t0 = Date.now();
+  f.query = (r) => {
+    asked.push({ id: r.id, at: Date.now() - t0 });
+    const ms = answers[r.id];
+    return new Promise((res, rej) => setTimeout(() => (ms === undefined ? rej(new Error('timeout')) : res(Buffer.alloc(12))),
+      ms === undefined ? timeoutMs : ms));
+  };
+  const plan = f.ordered().map((r) => r.id);
+  const counts = {};
+  const probe = (ms) => setTimeout(() => { counts[ms] = asked.length; }, ms);
+  [150, 600, 1200, 1850, 2500].forEach(probe);   // between the waves
+  const ok = await f.resolve(F.buildQuery('example.com', 1)).then(() => true, () => false);
+  const ms = Date.now() - t0;
+  await new Promise((res) => setTimeout(res, 2500));   // anything still to come
+  f.stop();
+  return { ok, ms, asked, counts, plan };
+}
+
 (async () => {
+  // Waves, with no network at all. A healthy route: answered alone.
+  let w = await waves({ 'cloudflare-1': 30 });
+  t.ok(w.ok && w.asked.length === 1 && w.ms < 250, `a route that answers at once is the only one asked (${w.ms} ms)`);
+  // Nothing answers: the best route, then two, then three at a time.
+  w = await waves({});
+  t.ok(w.counts[150] === 1 && w.counts[600] === 3 && w.counts[1200] === 6 && w.counts[1850] === 9 && w.counts[2500] === 12,
+    `nothing answers: 1, then 3, then 3 more at a time, never all ${w.plan.length} at once (${JSON.stringify(w.counts)})`);
+  t.ok(!w.ok && w.asked.length === w.plan.length, 'every route still gets its turn before the lookup fails');
+  // The best route first, the second wave's two picked for being of another
+  // kind and operator, and after that the ranking as it stands.
+  const lead = w.asked.slice(0, 3).map((a) => a.id);
+  t.ok(lead[0] === w.plan[0] && w.asked.slice(3).map((a) => a.id).join() === w.plan.filter((id) => !lead.includes(id)).join(),
+    `in the order of the ranking, best first (${w.asked.slice(0, 6).map((a) => a.id).join(', ')}, ...)`);
+  // The eighth route asked is the one that answers: found in the third
+  // extra wave, and the routes after that wave are never asked.
+  const id8 = w.asked[7].id;
+  w = await waves({ [id8]: 50 });
+  t.ok(w.ok && w.asked.length === 9 && w.ms < 1800, `an answer from the eighth route: ${w.asked.length} asked of ${w.plan.length}, ${w.ms} ms`);
+
   // Open network.
   let f = new F(() => {});
   let port = await f.start();
