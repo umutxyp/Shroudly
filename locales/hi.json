@@ -373,6 +373,7 @@
   "logAutoStudio": "ऑटोपायलट: Roblox Studio, Shroudly से होकर जा पाने से पहले ही खुल गया था; उपयोगकर्ता से उसे दोबारा खोलने को कहा गया",
   "logAutoRobloxStuck": "ऑटोपायलट: Shroudly से होकर फिर से शुरू करने के बाद भी Roblox नहीं जुड़ रहा",
   "logAutoAdvancedAsk": "ऑटोपायलट: {host} के लिए उन्नत मोड चाहिए; अनुमति माँगी जा रही है",
+  "logAutoAdvancedAntiCheat": "ऑटोपायलट: {host} के लिए उन्नत मोड चाहिए, लेकिन किसी गेम का एंटी-चीट चल रहा है ({program}); अपने-आप शुरू नहीं किया गया",
   "logAutoAdvancedDeclined": "उन्नत मोड की अनुमति नहीं दी गई; Shroudly दो हफ़्ते तक इसके लिए अपने आप दोबारा नहीं पूछेगा",
   "logStudioInstalled": "Roblox Studio इंस्टॉलर Shroudly से होकर डाउनलोड हुआ और शुरू किया गया ({version})",
   "logStudioDownloadFailed": "Roblox Studio डाउनलोड नहीं हो सका ({detail})",

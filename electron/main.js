@@ -1226,7 +1226,7 @@ async function healDiscordLine() {
   if (store.get('discordMode') !== true || !discordRelay || !discordRelay.running || discordState.needsPermission) return;
   const r = patchDiscordSync(DiscordApp.endpointUrl(discordRelay.port));
   if (!r.changed.length) return;
-  addLog('info', `Discord app mode: the line was missing in ${r.changed.map((v) => v.app).join(', ')}; put back`);
+  addLog('info', `Discord app mode: ${r.changed.map((v) => v.app).join(', ')} added`);
   let running = false;
   for (const v of r.changed) if (await DiscordApp.isRunning(v)) running = true;
   if (running) { discordState.needsRestart = true; discordState.changedAt = Date.now(); }
@@ -1433,7 +1433,7 @@ async function watchRoblox() {
       await RobloxApp.kill(list);
       const again = own ? RobloxApp.startInstaller(own, robloxEnv()) : (await installRoblox(kind)).success;
       if (again) {
-        addLog('success', `Autopilot: a Roblox installer went around Shroudly; started it again through Shroudly${own ? ' (same installer, no download)' : ''}`);
+        addLog('success', 'Autopilot: a Roblox installer went around Shroudly; started it again through Shroudly');
         autoTell('autoInstallerRestarted');
       }
     }

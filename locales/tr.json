@@ -373,6 +373,7 @@
   "logAutoStudio": "Otomatik pilot: Roblox Studio, Shroudly onu kendi üzerinden geçiremeden açılmış; kullanıcıdan Studio'yu yeniden açması istendi",
   "logAutoRobloxStuck": "Otomatik pilot: Roblox, Shroudly üzerinden yeniden başlatıldıktan sonra da bağlanamıyor",
   "logAutoAdvancedAsk": "Otomatik pilot: {host} Gelişmiş mod gerektiriyor; izin isteniyor",
+  "logAutoAdvancedAntiCheat": "Otomatik pilot: {host} Gelişmiş mod gerektiriyor, ancak bir oyunun hile koruması çalışıyor ({program}); kendiliğinden başlatılmadı",
   "logAutoAdvancedDeclined": "Gelişmiş moda izin verilmedi; Shroudly iki hafta boyunca bunu kendiliğinden yeniden sormayacak",
   "logStudioInstalled": "Roblox Studio kurulum programı Shroudly üzerinden indirildi ve başlatıldı ({version})",
   "logStudioDownloadFailed": "Roblox Studio indirilemedi ({detail})",

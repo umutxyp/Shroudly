@@ -373,6 +373,7 @@
   "logAutoStudio": "Tự động xử lý: Roblox Studio đã mở trước khi Shroudly kịp tiếp quản kết nối của nó; đã yêu cầu người dùng mở lại",
   "logAutoRobloxStuck": "Tự động xử lý: Roblox vẫn không kết nối được sau khi được khởi động lại qua Shroudly",
   "logAutoAdvancedAsk": "Tự động xử lý: {host} cần Chế độ nâng cao; đang yêu cầu quyền",
+  "logAutoAdvancedAntiCheat": "Tự động xử lý: {host} cần Chế độ nâng cao, nhưng phần mềm chống gian lận của một trò chơi đang chạy ({program}); không tự bật",
   "logAutoAdvancedDeclined": "Chế độ nâng cao không được cho phép; Shroudly sẽ không tự hỏi lại trong hai tuần",
   "logStudioInstalled": "Đã tải trình cài đặt Roblox Studio qua Shroudly và khởi chạy ({version})",
   "logStudioDownloadFailed": "Không thể tải xuống Roblox Studio ({detail})",

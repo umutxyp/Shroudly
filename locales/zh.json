@@ -373,6 +373,7 @@
   "logAutoStudio": "自动处理：Roblox Studio 在 Shroudly 接管它的连接之前就已打开；已请用户重新打开它",
   "logAutoRobloxStuck": "自动处理：经由 Shroudly 重新启动后，Roblox 仍然连不上",
   "logAutoAdvancedAsk": "自动处理：{host} 需要高级模式；正在请求权限",
+  "logAutoAdvancedAntiCheat": "自动处理：{host} 需要高级模式，但某个游戏的反作弊程序正在运行（{program}）；不会自动启动",
   "logAutoAdvancedDeclined": "未允许开启高级模式；两周内 Shroudly 不会再自行询问",
   "logStudioInstalled": "Roblox Studio 安装程序已通过 Shroudly 下载并启动（{version}）",
   "logStudioDownloadFailed": "无法下载 Roblox Studio（{detail}）",

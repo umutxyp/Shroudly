@@ -373,6 +373,7 @@
   "logAutoStudio": "Autopilot: Roblox Studio wurde geöffnet, bevor Shroudly es über sich leiten konnte; der Nutzer wurde gebeten, es neu zu öffnen",
   "logAutoRobloxStuck": "Autopilot: Roblox kommt auch nach einem Neustart über Shroudly nicht durch",
   "logAutoAdvancedAsk": "Autopilot: {host} braucht den erweiterten Modus; Erlaubnis wird angefordert",
+  "logAutoAdvancedAntiCheat": "Autopilot: {host} braucht den erweiterten Modus, aber der Anti-Cheat eines Spiels läuft ({program}); nicht von selbst gestartet",
   "logAutoAdvancedDeclined": "Der erweiterte Modus wurde nicht erlaubt; Shroudly fragt zwei Wochen lang nicht mehr von selbst danach",
   "logStudioInstalled": "Installationsprogramm von Roblox Studio über Shroudly heruntergeladen und gestartet ({version})",
   "logStudioDownloadFailed": "Roblox Studio konnte nicht heruntergeladen werden ({detail})",

@@ -373,6 +373,7 @@
   "logAutoStudio": "Автопилот: Roblox Studio пеш аз он ки Shroudly онро тавассути худ гузаронад, кушода шуда буд; аз корбар хоҳиш карда шуд, ки онро аз нав кушояд",
   "logAutoRobloxStuck": "Автопилот: Roblox пас аз он ки тавассути Shroudly аз нав оғоз шуд, ҳоло ҳам пайваст шуда наметавонад",
   "logAutoAdvancedAsk": "Автопилот: барои {host} реҷаи пешрафта лозим аст; иҷозат пурсида мешавад",
+  "logAutoAdvancedAntiCheat": "Автопилот: барои {host} реҷаи пешрафта лозим аст, аммо зиддиқаллобии бозӣ кор мекунад ({program}); худ ба худ оғоз нашуд",
   "logAutoAdvancedDeclined": "Ба реҷаи пешрафта иҷозат дода нашуд; Shroudly дар давоми ду ҳафта инро худаш дубора намепурсад",
   "logStudioInstalled": "Насбкунандаи Roblox Studio тавассути Shroudly боргирӣ ва оғоз шуд ({version})",
   "logStudioDownloadFailed": "Roblox Studio боргирӣ нашуд ({detail})",

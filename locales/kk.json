@@ -373,6 +373,7 @@
   "logAutoStudio": "Автопилот: Roblox Studio ашылғанда Shroudly оны әлі өзі арқылы өткізіп үлгермеген еді; пайдаланушыдан оны қайта ашу сұралды",
   "logAutoRobloxStuck": "Автопилот: Shroudly арқылы қайта іске қосылғаннан кейін де Roblox әлі қосыла алмай тұр",
   "logAutoAdvancedAsk": "Автопилот: {host} сайтына кеңейтілген режим қажет; рұқсат сұралуда",
+  "logAutoAdvancedAntiCheat": "Автопилот: {host} сайтына кеңейтілген режим қажет, бірақ ойынның античиті жұмыс істеп тұр ({program}); өздігінен іске қосылмады",
   "logAutoAdvancedDeclined": "Кеңейтілген режимге рұқсат берілмеді; Shroudly екі апта бойы оны өздігінен қайта сұрамайды",
   "logStudioInstalled": "Roblox Studio орнатқышы Shroudly арқылы жүктеліп, іске қосылды ({version})",
   "logStudioDownloadFailed": "Roblox Studio-ны жүктеп алу мүмкін болмады ({detail})",

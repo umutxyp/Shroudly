@@ -373,6 +373,7 @@
   "logAutoStudio": "ออโต้ไพลอต: Roblox Studio ถูกเปิดก่อนที่ Shroudly จะส่งผ่านตัวเองได้ ขอให้ผู้ใช้เปิดใหม่แล้ว",
   "logAutoRobloxStuck": "ออโต้ไพลอต: Roblox ยังเชื่อมต่อไม่ได้ แม้จะเริ่มใหม่ผ่าน Shroudly แล้ว",
   "logAutoAdvancedAsk": "ออโต้ไพลอต: {host} ต้องใช้โหมดขั้นสูง กำลังขอสิทธิ์",
+  "logAutoAdvancedAntiCheat": "ออโต้ไพลอต: {host} ต้องใช้โหมดขั้นสูง แต่ระบบป้องกันการโกงของเกมกำลังทำงานอยู่ ({program}) จึงไม่เริ่มเอง",
   "logAutoAdvancedDeclined": "ไม่ได้อนุญาตโหมดขั้นสูง Shroudly จะไม่ถามเองอีกเป็นเวลาสองสัปดาห์",
   "logStudioInstalled": "ดาวน์โหลดตัวติดตั้ง Roblox Studio ผ่าน Shroudly และเริ่มทำงานแล้ว ({version})",
   "logStudioDownloadFailed": "ไม่สามารถดาวน์โหลด Roblox Studio ได้ ({detail})",

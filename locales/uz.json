@@ -373,6 +373,7 @@
   "logAutoStudio": "Avtopilot: Roblox Studio Shroudly uni oʻzi orqali oʻtkazishga ulgurmasdan oldin ochilgan; foydalanuvchidan uni qayta ochish soʻraldi",
   "logAutoRobloxStuck": "Avtopilot: Roblox Shroudly orqali qayta ishga tushirilgandan keyin ham ulana olmayapti",
   "logAutoAdvancedAsk": "Avtopilot: {host} uchun Kengaytirilgan rejim kerak; ruxsat soʻralmoqda",
+  "logAutoAdvancedAntiCheat": "Avtopilot: {host} uchun Kengaytirilgan rejim kerak, lekin oʻyinning antichit dasturi ishlayapti ({program}); oʻzi ishga tushirilmadi",
   "logAutoAdvancedDeclined": "Kengaytirilgan rejimga ruxsat berilmadi; Shroudly ikki hafta davomida buni oʻzi qayta soʻramaydi",
   "logStudioInstalled": "Roblox Studio oʻrnatuvchisi Shroudly orqali yuklab olindi va ishga tushirildi ({version})",
   "logStudioDownloadFailed": "Roblox Studioni yuklab olib boʻlmadi ({detail})",

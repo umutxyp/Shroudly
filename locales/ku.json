@@ -373,6 +373,7 @@
   "logAutoStudio": "Pîlota xweber: Roblox Studio berî ku Shroudly bikaribe wê di ser xwe re bişîne hat vekirin; ji bikarhêner hat xwestin ku wê dîsa veke",
   "logAutoRobloxStuck": "Pîlota xweber: Roblox piştî ku di ser Shroudly re ji nû ve hat destpêkirin hîn jî girê nade",
   "logAutoAdvancedAsk": "Pîlota xweber: {host} Moda pêşketî hewce dike; destûr tê xwestin",
+  "logAutoAdvancedAntiCheat": "Pîlota xweber: {host} Moda pêşketî hewce dike, lê dij-xapînoka lîstikekê dixebite ({program}); bi xwe nehat destpêkirin",
   "logAutoAdvancedDeclined": "Ji bo Moda pêşketî destûr nehat dayîn; Shroudly heta du hefteyan bi serê xwe careke din napirse",
   "logStudioInstalled": "Sazkera Roblox Studioyê di ser Shroudly re hat daxistin û hat xebitandin ({version})",
   "logStudioDownloadFailed": "Roblox Studio nehat daxistin ({detail})",

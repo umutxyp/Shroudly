@@ -373,6 +373,7 @@
   "logAutoStudio": "آٹو پائلٹ: Roblox Studio اس سے پہلے کھل گیا تھا کہ Shroudly اسے اپنے ذریعے گزار پاتا؛ صارف سے اسے دوبارہ کھولنے کو کہا گیا",
   "logAutoRobloxStuck": "آٹو پائلٹ: Shroudly کے ذریعے دوبارہ شروع ہونے کے بعد بھی Roblox نہیں جڑ پا رہا",
   "logAutoAdvancedAsk": "آٹو پائلٹ: {host} کو ایڈوانسڈ موڈ چاہیے؛ اجازت مانگی جا رہی ہے",
+  "logAutoAdvancedAntiCheat": "آٹو پائلٹ: {host} کو ایڈوانسڈ موڈ چاہیے، لیکن کسی گیم کا اینٹی چیٹ چل رہا ہے ({program})؛ خود سے شروع نہیں کیا گیا",
   "logAutoAdvancedDeclined": "ایڈوانسڈ موڈ کی اجازت نہیں دی گئی؛ Shroudly دو ہفتے تک خود بخود دوبارہ نہیں پوچھے گا",
   "logStudioInstalled": "Roblox Studio انسٹالر Shroudly کے ذریعے ڈاؤن لوڈ ہو کر شروع ہو گیا ({version})",
   "logStudioDownloadFailed": "Roblox Studio ڈاؤن لوڈ نہیں ہو سکا ({detail})",

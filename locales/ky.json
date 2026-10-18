@@ -373,6 +373,7 @@
   "logAutoStudio": "Автопилот: Roblox Studio ачылганда Shroudly аны али өзү аркылуу өткөрүп үлгүрө элек болчу; колдонуучудан аны кайра ачуу суралды",
   "logAutoRobloxStuck": "Автопилот: Shroudly аркылуу кайра иштетилгенден кийин да Roblox дагы эле туташа албай жатат",
   "logAutoAdvancedAsk": "Автопилот: {host} үчүн Кеңейтилген режим керек; уруксат суралууда",
+  "logAutoAdvancedAntiCheat": "Автопилот: {host} үчүн Кеңейтилген режим керек, бирок оюндун античити иштеп жатат ({program}); өзүнөн өзү иштетилген жок",
   "logAutoAdvancedDeclined": "Кеңейтилген режимге уруксат берилген жок; Shroudly эки жума бою аны өзү кайра сурабайт",
   "logStudioInstalled": "Roblox Studio орноткучу Shroudly аркылуу жүктөлүп алынып, иштетилди ({version})",
   "logStudioDownloadFailed": "Roblox Studio'ну жүктөп алуу мүмкүн болгон жок ({detail})",

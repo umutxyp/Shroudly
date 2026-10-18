@@ -373,6 +373,7 @@
   "logAutoStudio": "ራስ-ሰር አብራሪ: Roblox Studio የተከፈተው Shroudly በራሱ በኩል ከማሳለፉ በፊት ነው፤ ተጠቃሚው እንደገና እንዲከፍተው ተጠይቋል",
   "logAutoRobloxStuck": "ራስ-ሰር አብራሪ: Roblox በShroudly በኩል እንደገና ከተጀመረ በኋላም ማለፍ አልቻለም",
   "logAutoAdvancedAsk": "ራስ-ሰር አብራሪ: {host} የላቀ ሁነታ ያስፈልገዋል፤ ፈቃድ እየተጠየቀ ነው",
+  "logAutoAdvancedAntiCheat": "ራስ-ሰር አብራሪ: {host} የላቀ ሁነታ ያስፈልገዋል፣ ግን የአንድ ጨዋታ ፀረ-ማጭበርበሪያ እየሠራ ነው ({program})፤ በራሱ አልተጀመረም",
   "logAutoAdvancedDeclined": "የላቀ ሁነታ አልተፈቀደም፤ Shroudly ለሁለት ሳምንት በራሱ እንደገና አይጠይቅም",
   "logStudioInstalled": "የRoblox Studio ጫኚ በShroudly በኩል ወርዶ ተጀምሯል ({version})",
   "logStudioDownloadFailed": "Roblox Studioን ማውረድ አልተቻለም ({detail})",

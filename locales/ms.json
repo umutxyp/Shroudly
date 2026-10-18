@@ -373,6 +373,7 @@
   "logAutoStudio": "Autopandu: Roblox Studio telah dibuka sebelum Shroudly sempat menghalakannya; pengguna diminta membukanya semula",
   "logAutoRobloxStuck": "Autopandu: Roblox masih tidak dapat bersambung selepas dimulakan semula melalui Shroudly",
   "logAutoAdvancedAsk": "Autopandu: {host} memerlukan Mod Lanjutan; meminta kebenaran",
+  "logAutoAdvancedAntiCheat": "Autopandu: {host} memerlukan Mod Lanjutan, tetapi anti-tipu sebuah permainan sedang berjalan ({program}); tidak dimulakan secara automatik",
   "logAutoAdvancedDeclined": "Mod Lanjutan tidak dibenarkan; Shroudly tidak akan memintanya sendiri lagi selama dua minggu",
   "logStudioInstalled": "Pemasang Roblox Studio dimuat turun melalui Shroudly dan dimulakan ({version})",
   "logStudioDownloadFailed": "Roblox Studio tidak dapat dimuat turun ({detail})",

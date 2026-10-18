@@ -373,6 +373,7 @@
   "logAutoStudio": "Pilot otomatis: Roblox Studio sudah dibuka sebelum Shroudly sempat mengalihkannya; pengguna diminta membukanya lagi",
   "logAutoRobloxStuck": "Pilot otomatis: Roblox masih tidak bisa tersambung setelah dimulai ulang lewat Shroudly",
   "logAutoAdvancedAsk": "Pilot otomatis: {host} perlu mode Lanjutan; meminta izin",
+  "logAutoAdvancedAntiCheat": "Pilot otomatis: {host} perlu mode Lanjutan, tetapi anti-cheat sebuah game sedang berjalan ({program}); tidak dijalankan otomatis",
   "logAutoAdvancedDeclined": "Mode Lanjutan tidak diizinkan; Shroudly tidak akan memintanya sendiri lagi selama dua minggu",
   "logStudioInstalled": "Penginstal Roblox Studio diunduh lewat Shroudly dan dijalankan ({version})",
   "logStudioDownloadFailed": "Roblox Studio tidak dapat diunduh ({detail})",

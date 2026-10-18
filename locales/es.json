@@ -373,6 +373,7 @@
   "logAutoStudio": "Piloto automático: Roblox Studio se abrió antes de poder pasar por Shroudly; se pidió al usuario que lo volviera a abrir",
   "logAutoRobloxStuck": "Piloto automático: Roblox sigue sin pasar después de reiniciarse a través de Shroudly",
   "logAutoAdvancedAsk": "Piloto automático: {host} necesita el modo Avanzado; solicitando permiso",
+  "logAutoAdvancedAntiCheat": "Piloto automático: {host} necesita el modo Avanzado, pero el antitrampas de un juego está en marcha ({program}); no se inicia por sí solo",
   "logAutoAdvancedDeclined": "No se permitió el modo Avanzado; Shroudly no volverá a pedirlo por su cuenta durante dos semanas",
   "logStudioInstalled": "Instalador de Roblox Studio descargado a través de Shroudly e iniciado ({version})",
   "logStudioDownloadFailed": "No se pudo descargar Roblox Studio ({detail})",

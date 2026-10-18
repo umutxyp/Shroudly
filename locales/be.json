@@ -373,6 +373,7 @@
   "logAutoStudio": "Аўтапілот: Roblox Studio адкрылі раней, чым Shroudly паспеў прапусціць яго праз сябе; карыстальніка папрасілі адкрыць яго зноў",
   "logAutoRobloxStuck": "Аўтапілот: Roblox усё яшчэ не падключаецца пасля перазапуску праз Shroudly",
   "logAutoAdvancedAsk": "Аўтапілот: для {host} патрэбны пашыраны рэжым; запыт дазволу",
+  "logAutoAdvancedAntiCheat": "Аўтапілот: для {host} патрэбны пашыраны рэжым, але працуе антычыт гульні ({program}); сам ён не запушчаны",
   "logAutoAdvancedDeclined": "Пашыраны рэжым не дазволены; два тыдні Shroudly не будзе сам пытацца пра гэта",
   "logStudioInstalled": "Усталёўшчык Roblox Studio спампаваны праз Shroudly і запушчаны ({version})",
   "logStudioDownloadFailed": "Не ўдалося спампаваць Roblox Studio ({detail})",

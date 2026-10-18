@@ -373,6 +373,7 @@
   "logAutoStudio": "Awtopilot: Roblox Studio Shroudly ony özi arkaly geçirip ýetişmänkä açylypdyr; ulanyjydan ony täzeden açmagy haýyş edildi",
   "logAutoRobloxStuck": "Awtopilot: Roblox Shroudly arkaly täzeden işledilenden soň hem birigip bilmeýär",
   "logAutoAdvancedAsk": "Awtopilot: {host} üçin Giňişleýin tertip gerek; rugsat soralýar",
+  "logAutoAdvancedAntiCheat": "Awtopilot: {host} üçin Giňişleýin tertip gerek, ýöne bir oýnuň anti-çit programmasy işleýär ({program}); özbaşdak işledilmedi",
   "logAutoAdvancedDeclined": "Giňişleýin tertibe rugsat berilmedi; Shroudly iki hepdäniň dowamynda muny özi gaýtadan soramaz",
   "logStudioInstalled": "Roblox Studio gurnaýjysy Shroudly arkaly ýüklenip alyndy we işledildi ({version})",
   "logStudioDownloadFailed": "Roblox Studio-ny ýükläp alyp bolmady ({detail})",

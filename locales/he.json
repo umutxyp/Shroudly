@@ -373,6 +373,7 @@
   "logAutoStudio": "טייס אוטומטי: Roblox Studio נפתח לפני ש-Shroudly הספיק להעביר אותו דרכו; המשתמש התבקש לפתוח אותו מחדש",
   "logAutoRobloxStuck": "טייס אוטומטי: Roblox עדיין לא מצליח להתחבר גם אחרי שהופעל מחדש דרך Shroudly",
   "logAutoAdvancedAsk": "טייס אוטומטי: {host} דורש מצב מתקדם; מבקש הרשאה",
+  "logAutoAdvancedAntiCheat": "טייס אוטומטי: {host} דורש מצב מתקדם, אבל מערכת נגד רמאות של משחק פועלת ({program}); לא הופעל מעצמו",
   "logAutoAdvancedDeclined": "המצב המתקדם לא אושר; Shroudly לא יבקש זאת שוב בעצמו במשך שבועיים",
   "logStudioInstalled": "תוכנת ההתקנה של Roblox Studio הורדה דרך Shroudly והופעלה ({version})",
   "logStudioDownloadFailed": "לא ניתן היה להוריד את Roblox Studio ({detail})",

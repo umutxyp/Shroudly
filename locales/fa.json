@@ -373,6 +373,7 @@
   "logAutoStudio": "خلبان خودکار: Roblox Studio پیش از آنکه Shroudly بتواند آن را از خودش عبور دهد باز شده بود؛ از کاربر خواسته شد دوباره بازش کند",
   "logAutoRobloxStuck": "خلبان خودکار: Roblox پس از اجرای دوباره از طریق Shroudly هنوز وصل نمی‌شود",
   "logAutoAdvancedAsk": "خلبان خودکار: {host} به حالت پیشرفته نیاز دارد؛ در حال درخواست مجوز",
+  "logAutoAdvancedAntiCheat": "خلبان خودکار: {host} به حالت پیشرفته نیاز دارد، اما ضدتقلب یک بازی در حال اجراست ({program})؛ خودکار روشن نشد",
   "logAutoAdvancedDeclined": "اجازهٔ حالت پیشرفته داده نشد؛ Shroudly تا دو هفته خودش دوباره درخواست نمی‌کند",
   "logStudioInstalled": "نصب‌کنندهٔ Roblox Studio از طریق Shroudly دانلود و اجرا شد ({version})",
   "logStudioDownloadFailed": "دانلود Roblox Studio ممکن نشد ({detail})",

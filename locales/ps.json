@@ -373,6 +373,7 @@
   "logAutoStudio": "اتومات پیلوټ: Roblox Studio مخکې له دې پرانیستل شوی و چې Shroudly یې د خپل ځان له لارې ولېږي؛ له کاروونکي وغوښتل شول چې بیا یې پرانیزي",
   "logAutoRobloxStuck": "اتومات پیلوټ: Roblox د Shroudly له لارې له بیا پیلېدو وروسته لا هم نه وصلېږي",
   "logAutoAdvancedAsk": "اتومات پیلوټ: {host} پرمختللي حالت ته اړتیا لري؛ اجازه غوښتل کېږي",
+  "logAutoAdvancedAntiCheat": "اتومات پیلوټ: {host} پرمختللي حالت ته اړتیا لري، خو د یوې لوبې ضد-درغلۍ پروګرام چلېږي ({program})؛ پخپله پیل نه شو",
   "logAutoAdvancedDeclined": "پرمختللي حالت ته اجازه ورنه کړل شوه؛ Shroudly به تر دوو اونیو پخپله بیا ونه پوښتي",
   "logStudioInstalled": "د Roblox Studio نصبوونکی د Shroudly له لارې ډاونلوډ او پیل شو ({version})",
   "logStudioDownloadFailed": "Roblox Studio ډاونلوډ نه شو ({detail})",
