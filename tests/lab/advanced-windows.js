@@ -86,7 +86,7 @@ async function loadAll(label) {
     if (acted > 0) ok(`the engine acted on the requests: ${stats}`);
     else bad(`the engine reports it acted on nothing: ${stats}`);
   } else {
-    console.log('  --  no raw_stats line from this engine build');
+    bad('no raw_stats line when the engine stopped');
   }
 
   await loadAll('after stop');
