@@ -55,6 +55,7 @@ static const char *RESOLVERS[MAX_RESOLVERS] = {
  * so one entry serves every port of the name. */
 #define TTL_MIN_S 20     /* a lower TTL would mean a lookup on nearly every connection */
 #define TTL_MAX_S 300    /* a higher one would keep an address the site has moved away from */
+#define PLAIN_DEAD_MS 60000  /* public resolvers that never answered: skipped this long */
 
 typedef struct {
   char     name[256];
@@ -68,6 +69,7 @@ typedef struct {
 static cache_entry g_cache[CACHE_SIZE];
 static mutex_t     g_cache_mx;
 static int         g_init = 0;
+static uint64_t    g_plain_dead_until = 0;   /* under g_cache_mx */
 
 void doh_init(const char *doh_host, const char *doh_ip) {
   (void)doh_host; (void)doh_ip;
@@ -78,6 +80,7 @@ void doh_clear_cache(void) {
   if (!g_init) return;
   mutex_lock(&g_cache_mx);
   memset(g_cache, 0, sizeof(g_cache));
+  g_plain_dead_until = 0;   /* a new network: its resolvers are asked again */
   mutex_unlock(&g_cache_mx);
 }
 
@@ -500,10 +503,18 @@ int doh_resolve_all(const char *name, uint16_t port, int want6,
   }
 
   /* 2. Fallback: several independent public resolvers over UDP/53. An on-path
-   * injector must poison all of them identically to win. */
-  int nodata = 0, nxdomain = 0;
-  for (int i = 0; i < MAX_RESOLVERS; i++) {
+   * injector must poison all of them identically to win. Where none of them
+   * answers at all (a network that only lets its own DNS through), they are
+   * skipped for a minute: otherwise every new name waits for all five to
+   * time out before the system's resolver is asked. */
+  int nodata = 0, nxdomain = 0, silent = 0;
+  mutex_lock(&g_cache_mx);
+  int plain_dead = now_ms() < g_plain_dead_until;
+  mutex_unlock(&g_cache_mx);
+  for (int i = 0; i < MAX_RESOLVERS && !plain_dead; i++) {
+    uint64_t t0 = now_ms();
     int qr = query_udp_at(RESOLVERS[i], 53, 1500, name, want6, addrs, &n, &ttl);
+    if (qr == -1 && now_ms() - t0 >= 1400) silent++;
     if (qr == 0) return answer(name, port, family, addrs, n, ttl, out, outlen, max);
     /* Two independent resolvers agree the name has no record of this type:
      * believe them (the caller then tries the other address family). */
@@ -513,16 +524,24 @@ int doh_resolve_all(const char *name, uint16_t port, int want6,
      * intranet name — so that one still gets asked. */
     if (qr == DNS_NXDOMAIN && ++nxdomain >= 2) break;
   }
+  if (!plain_dead && silent == MAX_RESOLVERS) {
+    mutex_lock(&g_cache_mx);
+    g_plain_dead_until = now_ms() + PLAIN_DEAD_MS;
+    mutex_unlock(&g_cache_mx);
+  }
 
-  /* Last resort: OS resolver (may be poisoned, but better than failing). Not
-   * cached: it gives no TTL, and it is the answer we trust least. */
+  /* Last resort: OS resolver (may be poisoned, but better than failing). It
+   * gives no TTL and it is the answer we trust least, so it is kept only for
+   * the shortest time (TTL_MIN_S): enough that a page's many connections do
+   * not each ask again. */
   struct addrinfo hints, *res = NULL;
   memset(&hints, 0, sizeof(hints));
   hints.ai_family = family;
   hints.ai_socktype = SOCK_STREAM;
   char portstr[8]; snprintf(portstr, sizeof(portstr), "%u", port);
   if (getaddrinfo(name, portstr, &hints, &res) != 0 || !res) { if (res) freeaddrinfo(res); return -1; }
-  int got = 0;
+  int got = 0, keep = 0;
+  uint8_t kept[DOH_MAX_ADDRS][16];
   for (struct addrinfo *ai = res; ai && got < max; ai = ai->ai_next) {
     if (ai->ai_addrlen > sizeof(struct sockaddr_storage)) continue;
     struct sockaddr_storage cand; memset(&cand, 0, sizeof(cand));
@@ -531,8 +550,19 @@ int doh_resolve_all(const char *name, uint16_t port, int want6,
     memcpy(&out[got], &cand, sizeof(cand));
     outlen[got] = (socklen_t)ai->ai_addrlen;
     got++;
+    if (keep < DOH_MAX_ADDRS && cand.ss_family == family) {
+      memset(kept[keep], 0, 16);
+      if (family == AF_INET) memcpy(kept[keep], &((struct sockaddr_in *)&cand)->sin_addr, 4);
+      else memcpy(kept[keep], &((struct sockaddr_in6 *)&cand)->sin6_addr, 16);
+      keep++;
+    }
   }
   freeaddrinfo(res);
+  if (keep > 0) {
+    mutex_lock(&g_cache_mx);
+    cache_put(name, family, kept, keep, TTL_MIN_S);
+    mutex_unlock(&g_cache_mx);
+  }
   return got > 0 ? got : -1;
 }
 

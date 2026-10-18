@@ -209,57 +209,68 @@ class DiscordRelay {
     if (!isDiscordHost(host) || (req.method !== 'GET' && req.method !== 'HEAD')) { res.writeHead(403).end(); return; }
 
     this.requests++;
-    let sock;
-    try {
-      sock = await this._connect(host);
-    } catch (e) {
-      this._warn(`Discord app: could not reach ${host} (${e.message})`);
-      if (!res.headersSent) res.writeHead(502);
-      res.end();
-      return;
-    }
 
     const headers = { ...req.headers, host };
     for (const h of HOP) delete headers[h];
     // Responses may need their links rewritten, so ask for them uncompressed.
     // Update packages are compressed archives already; nothing is lost.
     headers['accept-encoding'] = 'identity';
-
     const base = `http://${self}`;
-    const up = http.request({ createConnection: () => sock, method: req.method, path, headers }, (ur) => {
-      const h = { ...ur.headers };
-      for (const k of HOP) delete h[k];
-      if (h.location && /^https:\/\//i.test(h.location)) h.location = rewriteUrls(h.location, base);
-      ur.on('error', () => res.destroy());
-      if (ur.statusCode < 400) this.lastOkAt = Date.now();
-      const json = /json/i.test(String(h['content-type'] || ''));
-      if (json && req.method === 'GET') {
-        const chunks = [];
-        let size = 0;
-        ur.on('data', (c) => {
-          size += c.length;
-          if (size > 8 * 1024 * 1024) { ur.destroy(); res.destroy(); return; }
-          chunks.push(c);
-        });
-        ur.on('end', () => {
-          const body = Buffer.from(rewriteUrls(Buffer.concat(chunks).toString('utf8'), base));
-          delete h['content-encoding'];
-          h['content-length'] = String(body.length);
-          res.writeHead(ur.statusCode, h);
-          res.end(body);
-        });
+
+    // One more try on a new connection when the first fails before any answer
+    // (cut during the handshake, a way through that stopped working): the
+    // engine picks another way, and Discord's updater, which shows "Update
+    // failed" at the first error, need not see it.
+    const attempt = async (n) => {
+      let sock;
+      try {
+        sock = await this._connect(host);
+      } catch (e) {
+        if (n < 2 && !res.writableEnded && !res.destroyed) { attempt(n + 1); return; }
+        this._warn(`Discord app: could not reach ${host} (${e.message})`);
+        if (!res.headersSent) res.writeHead(502);
+        res.end();
         return;
       }
-      res.writeHead(ur.statusCode, h);
-      ur.pipe(res);
-    });
-    up.on('error', (e) => {
-      this._warn(`Discord app: ${host}${path.split('?')[0]} failed (${e.message})`);
-      if (!res.headersSent) { res.writeHead(502); res.end(); } else res.destroy();
-    });
-    // The updater hung up: drop the upstream request with it.
-    res.on('close', () => { if (!res.writableFinished) up.destroy(); });
-    up.end();
+      let answered = false;
+      const up = http.request({ createConnection: () => sock, method: req.method, path, headers }, (ur) => {
+        answered = true;
+        const h = { ...ur.headers };
+        for (const k of HOP) delete h[k];
+        if (h.location && /^https:\/\//i.test(h.location)) h.location = rewriteUrls(h.location, base);
+        ur.on('error', () => res.destroy());
+        if (ur.statusCode < 400) this.lastOkAt = Date.now();
+        const json = /json/i.test(String(h['content-type'] || ''));
+        if (json && req.method === 'GET') {
+          const chunks = [];
+          let size = 0;
+          ur.on('data', (c) => {
+            size += c.length;
+            if (size > 8 * 1024 * 1024) { ur.destroy(); res.destroy(); return; }
+            chunks.push(c);
+          });
+          ur.on('end', () => {
+            const body = Buffer.from(rewriteUrls(Buffer.concat(chunks).toString('utf8'), base));
+            delete h['content-encoding'];
+            h['content-length'] = String(body.length);
+            res.writeHead(ur.statusCode, h);
+            res.end(body);
+          });
+          return;
+        }
+        res.writeHead(ur.statusCode, h);
+        ur.pipe(res);
+      });
+      up.on('error', (e) => {
+        if (!answered && n < 2 && !res.headersSent && !res.destroyed) { attempt(n + 1); return; }
+        this._warn(`Discord app: ${host}${path.split('?')[0]} failed (${e.message})`);
+        if (!res.headersSent) { res.writeHead(502); res.end(); } else res.destroy();
+      });
+      // The updater hung up: drop the upstream request with it.
+      res.on('close', () => { if (!res.writableFinished) up.destroy(); });
+      up.end();
+    };
+    attempt(1);
   }
 }
 

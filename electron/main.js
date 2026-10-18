@@ -415,7 +415,7 @@ function watchSessionEnd() {
   try {
     const { BaseWindow } = require('electron');
     sessionWatch = new BaseWindow({ show: false, width: 1, height: 1, frame: false, skipTaskbar: true, focusable: false });
-    sessionWatch.on('query-session-end', () => { keepDiscordLine = true; });
+    sessionWatch.on('query-session-end', () => { keepDiscordLine = discordLineOutlivesSession(); });
     sessionWatch.on('session-end', restoreForSessionEnd);
   } catch (e) { addLog('warning', `Logoff watch not available: ${e.message}`); }
 }
@@ -899,8 +899,19 @@ app.on('window-all-closed', () => { /* keep running in tray */ });
  * so put the proxy back synchronously right away (reg.exe, networksetup,
  * gsettings: all fast). The login hook covers the case where even this
  * doesn't get to run. */
+/* Discord's line stays across logout and shutdown only when Shroudly starts
+ * by itself at the next login, so a Discord that starts then does not race it.
+ * Without that, a Discord opened next time would wait on "Checking for
+ * updates" for a Shroudly that is not coming: the line goes, as on a quit. */
+function discordLineOutlivesSession() { return store.get('autoStart', false) === true; }
+
 function restoreForSessionEnd() {
-  keepDiscordLine = true;
+  keepDiscordLine = discordLineOutlivesSession();
+  if (!keepDiscordLine && store.get('discordMode') === true) {
+    try { patchDiscordSync(null); } catch {}
+    // Not put back by healDiscordLine in the moments left.
+    if (discordRelay) discordRelay.stop();
+  }
   // Unlike Discord's line, HTTPS_PROXY would be read by every program at the
   // next login, before Shroudly is back: it goes, and returns when we do. It
   // goes first: the system may end us at any moment now.
@@ -1205,21 +1216,32 @@ async function applyDiscordMode(on, { interactive = true } = {}) {
   return { success: true, restartNeeded: discordState.needsRestart };
 }
 
+/* While the mode is on, the line stays in every build's settings, pointing
+ * at the relay's port: a build installed after the mode came on (PTB, Canary,
+ * a fresh install), a settings file Discord wrote back without it when it
+ * closed, or one reset by a reinstall or a cleaner, gets it again within
+ * seconds, before Discord is opened again. Reading the files changes nothing
+ * when the line is there. */
+async function healDiscordLine() {
+  if (store.get('discordMode') !== true || !discordRelay || !discordRelay.running || discordState.needsPermission) return;
+  const r = patchDiscordSync(DiscordApp.endpointUrl(discordRelay.port));
+  if (!r.changed.length) return;
+  addLog('info', `Discord app mode: the line was missing in ${r.changed.map((v) => v.app).join(', ')}; put back`);
+  let running = false;
+  for (const v of r.changed) if (await DiscordApp.isRunning(v)) running = true;
+  if (running) { discordState.needsRestart = true; discordState.changedAt = Date.now(); }
+  sendDiscordState();
+}
+let discordHealBusy = false;
+setInterval(() => {
+  if (discordHealBusy) return;
+  discordHealBusy = true;
+  healDiscordLine().catch(() => {}).finally(() => { discordHealBusy = false; });
+}, 3000).unref();
+
 ipcMain.handle('discord:status', async () => {
   const builds = DiscordApp.installed();
-  // A Discord build installed after the mode was turned on (PTB, Canary, a
-  // fresh install) gets the line too, the moment it appears.
-  if (store.get('discordMode') === true && discordRelay && discordRelay.running) {
-    const url = DiscordApp.endpointUrl(store.get('discordRelayPort'));
-    if (builds.some((v) => { try { return !DiscordApp.hasOurs(v); } catch { return false; } })) {
-      const r = patchDiscordSync(url);
-      if (r.changed.length) {
-        addLog('info', `Discord app mode: ${r.changed.map((v) => v.app).join(', ')} added`);
-        discordState.needsRestart = true;
-        discordState.changedAt = Date.now();
-      }
-    }
-  }
+  try { await healDiscordLine(); } catch {}
   let running = false;
   for (const v of builds) if (await DiscordApp.isRunning(v)) { running = true; break; }
   // The relay answering Discord since the change means Discord already uses it.
@@ -1572,7 +1594,9 @@ setInterval(() => {
  * alone (a call must not be cut); one that holds no connection to Shroudly at
  * all is stuck before its window, and is restarted, once per build, while
  * this network blocks Discord. */
-const discordRestarted = new Set();
+// Build -> when it was last restarted: at most once in ten minutes each.
+const discordRestarted = new Map();
+const DISCORD_RESTART_EVERY_MS = 10 * 60 * 1000;
 let discordBusy = false;
 async function watchDiscord() {
   if (discordBusy || !discordState.needsRestart || store.get('discordMode') !== true) return;
@@ -1585,10 +1609,10 @@ async function watchDiscord() {
     let still = false;
     for (const v of DiscordApp.installed()) {
       const pids = await DiscordApp.pids(v);
-      if (!pids.length || discordRestarted.has(v.id)) continue;
+      if (!pids.length || Date.now() - (discordRestarted.get(v.id) || 0) < DISCORD_RESTART_EVERY_MS) continue;
       if (await ProcNet.connectsTo(pids, ports)) continue;
       if (!(await autopilot.stillBlocked('discord'))) break;
-      discordRestarted.add(v.id);
+      discordRestarted.set(v.id, Date.now());
       if (await DiscordApp.restart(v)) {
         addLog('success', `Autopilot: ${v.app} did not get through Shroudly; restarted it`);
         autoTell('autoDiscordRestarted');

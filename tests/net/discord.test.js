@@ -77,6 +77,36 @@ function get(url, o = {}) {
   t.ok((await get(`${base}/__h/evildiscord.com/`)).status === 403, 'look-alike domains refused');
   t.ok((await get(`${base}/x`, { method: 'POST' })).status === 403, 'anything but GET/HEAD refused');
   t.ok((await get(`${base}/x`, { headers: { host: `attacker.example:${port}` } })).status === 403, 'foreign Host header refused (DNS rebinding)');
+  {
+    // The first way through is cut during the handshake (it opens, then
+    // dies): the relay tries once more on a new connection, and Discord's
+    // updater never sees an error.
+    const net = require('net');
+    let n = 0;
+    const flaky = net.createServer((c) => {
+      n++;
+      if (n === 1) {
+        let step = 0;
+        c.on('data', () => {
+          step++;
+          if (step === 1) c.write(Buffer.from([5, 0]));
+          else { c.write(Buffer.from([5, 0, 0, 1, 0, 0, 0, 0, 0, 0])); setTimeout(() => c.destroy(), 50); }
+        });
+        c.on('error', () => {});
+        return;
+      }
+      const u = net.connect(P, '127.0.0.1');
+      c.pipe(u); u.pipe(c);
+      c.on('error', () => u.destroy()); u.on('error', () => c.destroy());
+    });
+    await new Promise((r) => flaky.listen(0, '127.0.0.1', r));
+    const r2 = new DiscordRelay(() => {}, () => flaky.address().port);
+    const p2 = await r2.start(await freePort());
+    const m2 = await get(`http://127.0.0.1:${p2}/distributions/app/manifests/latest?channel=stable&platform=${plat}&arch=${arch}`, { headers: { 'user-agent': 'Discord-Updater/1' } });
+    t.ok(m2.status === 200 && n >= 2, `first connection cut in the handshake: answered on the second (${m2.status}, ${n} connections)`);
+    r2.stop();
+    flaky.close();
+  }
   eng.stop();
   await new Promise((r) => setTimeout(r, 300));
   t.ok((await get(`${base}/distributions/app/manifests/latest?channel=stable&platform=${plat}`)).status === 502, 'engine gone: clean 502, relay keeps running');
