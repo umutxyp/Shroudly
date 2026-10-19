@@ -380,5 +380,8 @@
   "logAutoAdvancedDeclined": "Кеңейтілген режимге рұқсат берілмеді; Shroudly екі апта бойы оны өздігінен қайта сұрамайды",
   "logStudioInstalled": "Roblox Studio орнатқышы Shroudly арқылы жүктеліп, іске қосылды ({version})",
   "logStudioDownloadFailed": "Roblox Studio-ны жүктеп алу мүмкін болмады ({detail})",
-  "autoAdvancedFailed": "Кеңейтілген режимді қосу мүмкін болмады, сондықтан {host} сайты ашылмауы мүмкін."
+  "autoAdvancedFailed": "Кеңейтілген режимді қосу мүмкін болмады, сондықтан {host} сайты ашылмауы мүмкін.",
+  "androidAllApps": "Осы құрылғыдағы әр қолданба Shroudly арқылы өтеді.",
+  "androidVpnDenied": "Қолданбаларыңыздың қосылымдарын өткізу үшін Shroudly-ге VPN рұқсаты керек.",
+  "androidVpnRevoked": "Android қорғанысты өшірді, әдетте басқа VPN қолданбасы қосылғандықтан."
 }

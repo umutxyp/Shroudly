@@ -380,5 +380,8 @@
   "logAutoAdvancedDeclined": "Ji bo Moda pêşketî destûr nehat dayîn; Shroudly heta du hefteyan bi serê xwe careke din napirse",
   "logStudioInstalled": "Sazkera Roblox Studioyê di ser Shroudly re hat daxistin û hat xebitandin ({version})",
   "logStudioDownloadFailed": "Roblox Studio nehat daxistin ({detail})",
-  "autoAdvancedFailed": "Moda pêşketî nehat çalakkirin, ji ber vê yekê dibe ku {host} venebe."
+  "autoAdvancedFailed": "Moda pêşketî nehat çalakkirin, ji ber vê yekê dibe ku {host} venebe.",
+  "androidAllApps": "Her sepana li ser vê amûrê di Shroudly re derbas dibe.",
+  "androidVpnDenied": "Shroudly ji bo hilgirtina girêdanên sepanên te destûra VPN hewce dike.",
+  "androidVpnRevoked": "Parastin ji aliyê Android ve hate girtin, bi gelemperî ji ber ku sepaneke VPN ya din hate vekirin."
 }

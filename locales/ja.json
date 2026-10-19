@@ -380,5 +380,8 @@
   "logAutoAdvancedDeclined": "高度なモードが許可されませんでした。Shroudly は 2 週間、自分からは再び確認しません",
   "logStudioInstalled": "Roblox Studio のインストーラーを Shroudly 経由でダウンロードし、起動しました（{version}）",
   "logStudioDownloadFailed": "Roblox Studio をダウンロードできませんでした（{detail}）",
-  "autoAdvancedFailed": "高度なモードをオンにできなかったため、{host} は開けない可能性があります。"
+  "autoAdvancedFailed": "高度なモードをオンにできなかったため、{host} は開けない可能性があります。",
+  "androidAllApps": "このデバイスのすべてのアプリが Shroudly を経由します。",
+  "androidVpnDenied": "アプリの通信を中継するには、Shroudly に VPN の許可が必要です。",
+  "androidVpnRevoked": "Android が保護をオフにしました。通常は別の VPN アプリがオンになったためです。"
 }

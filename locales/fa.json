@@ -380,5 +380,8 @@
   "logAutoAdvancedDeclined": "اجازهٔ حالت پیشرفته داده نشد؛ Shroudly تا دو هفته خودش دوباره درخواست نمی‌کند",
   "logStudioInstalled": "نصب‌کنندهٔ Roblox Studio از طریق Shroudly دانلود و اجرا شد ({version})",
   "logStudioDownloadFailed": "دانلود Roblox Studio ممکن نشد ({detail})",
-  "autoAdvancedFailed": "حالت پیشرفته روشن نشد، پس ممکن است {host} باز نشود."
+  "autoAdvancedFailed": "حالت پیشرفته روشن نشد، پس ممکن است {host} باز نشود.",
+  "androidAllApps": "همهٔ برنامه‌های این دستگاه از Shroudly عبور می‌کنند.",
+  "androidVpnDenied": "Shroudly برای عبور دادن اتصال‌های برنامه‌هایتان به مجوز VPN نیاز دارد.",
+  "androidVpnRevoked": "اندروید محافظت را خاموش کرد؛ معمولاً چون یک برنامهٔ VPN دیگر روشن شده است."
 }

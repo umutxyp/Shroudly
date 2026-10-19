@@ -1,0 +1,75 @@
+package me.codeshare.shroudly
+
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
+import org.junit.Test
+
+class EngineEventTest {
+    @Test
+    fun ready() {
+        assertEquals(EngineEvent.Ready(41234, 27), EngineEvent.parse("""{"type":"ready","port":41234,"techniques":27}"""))
+    }
+
+    @Test
+    fun stats() {
+        val ev = EngineEvent.parse(
+            """{"type":"stats","conns_total":12,"conns_active":3,"bytes_up":4096,"bytes_down":1048576,""" +
+                """"desync":2,"tls":9,"http":1,"probe_ok":0,"probe_fail":0}""",
+        )
+        assertEquals(EngineEvent.Stats(12, 3, 4096, 1048576, 2, 9, 1, 0, 0), ev)
+    }
+
+    @Test
+    fun hostEvents() {
+        val b = EngineEvent.parse("""{"type":"bypass","host":"example.com","strategy":"split(sni)","attempts":2,"family":"ipv4"}""")
+        assertEquals(EngineEvent.Host("bypass", "example.com", "split(sni)", 2, "ipv4", null, null, false, false), b)
+        val c = EngineEvent.parse("""{"type":"cut","host":"a.example","strategy":"stall","attempts":64,"family":"ipv6","note":"site_ok"}""")
+        assertEquals("site_ok", (c as EngineEvent.Host).note)
+        assertEquals("ipv6", c.family)
+        val u = EngineEvent.parse("""{"type":"unreachable","host":"gone.example","stage":"dns"}""") as EngineEvent.Host
+        assertEquals("dns", u.stage)
+        val bl = EngineEvent.parse("""{"type":"blocked","host":"x.example","attempts":9,"family":"ipv4","alert":true,"site_ok":true}""") as EngineEvent.Host
+        assertTrue(bl.alert && bl.siteOk)
+    }
+
+    @Test
+    fun errorsAndStop() {
+        assertEquals(EngineEvent.Error("listen failed", -3), EngineEvent.parse("""{"type":"error","code":-3,"msg":"listen failed"}"""))
+        assertEquals(EngineEvent.Error("code 7", 7), EngineEvent.parse("""{"type":"error","code":7}"""))
+        assertEquals(EngineEvent.Stopped, EngineEvent.parse("""{"type":"stopped"}"""))
+        assertEquals(EngineEvent.Other("raw_stats"), EngineEvent.parse("""{"type":"raw_stats","n":1}"""))
+    }
+
+    @Test
+    fun notJson() {
+        assertEquals(EngineEvent.Text("hello"), EngineEvent.parse("hello"))
+        assertEquals(EngineEvent.Text("""{"type":"ready""""), EngineEvent.parse("""{"type":"ready""""))
+        assertEquals(EngineEvent.Text("""{"port":1}"""), EngineEvent.parse("""{"port":1}"""))
+        assertEquals(EngineEvent.Text("""{"type":"x"} trailing"""), EngineEvent.parse("""{"type":"x"} trailing"""))
+    }
+
+    @Test
+    fun flatJsonValues() {
+        val m = FlatJson.parse("""{ "s": "a\"b\\cé\n", "n": -12, "d": 1.5, "t": true, "f": false, "z": null, "e": {} }""")
+        assertNull(m) // nested objects are not engine lines
+        val ok = FlatJson.parse("""{ "s": "a\"b\\cé\n", "n": -12, "d": 1.5, "t": true, "f": false, "z": null }""")!!
+        assertEquals("a\"b\\cé\n", ok["s"])
+        assertEquals(-12L, ok["n"])
+        assertEquals(1.5, ok["d"])
+        assertEquals(true, ok["t"])
+        assertEquals(false, ok["f"])
+        assertTrue(ok.containsKey("z") && ok["z"] == null)
+        assertEquals(emptyMap<String, Any?>(), FlatJson.parse("{}"))
+    }
+
+    @Test
+    fun engineArgs() {
+        assertEquals(
+            listOf("--listen", "127.0.0.1", "--port", "4000", "--strategy", "split(sni)", "--auto", "--doh",
+                "--doh-port", "5353", "--block-ip", "10.10.34.34", "--block-ip", "1.2.3.4"),
+            Engine.args(4000, 5353, listOf("10.10.34.34", "1.2.3.4")),
+        )
+        assertEquals(listOf("--listen", "127.0.0.1", "--port", "4000", "--strategy", "split(sni)", "--auto", "--doh"), Engine.args(4000, 0, emptyList()))
+    }
+}

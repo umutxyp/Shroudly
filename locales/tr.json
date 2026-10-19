@@ -380,5 +380,8 @@
   "logAutoAdvancedDeclined": "Gelişmiş moda izin verilmedi; Shroudly iki hafta boyunca bunu kendiliğinden yeniden sormayacak",
   "logStudioInstalled": "Roblox Studio kurulum programı Shroudly üzerinden indirildi ve başlatıldı ({version})",
   "logStudioDownloadFailed": "Roblox Studio indirilemedi ({detail})",
-  "autoAdvancedFailed": "Gelişmiş mod açılamadı; {host} açılmayabilir."
+  "autoAdvancedFailed": "Gelişmiş mod açılamadı; {host} açılmayabilir.",
+  "androidAllApps": "Bu cihazdaki her uygulama Shroudly üzerinden geçiyor.",
+  "androidVpnDenied": "Shroudly, uygulamalarınızın bağlantılarını taşımak için VPN iznine ihtiyaç duyar.",
+  "androidVpnRevoked": "Koruma Android tarafından kapatıldı; genellikle başka bir VPN uygulaması açıldığı için."
 }

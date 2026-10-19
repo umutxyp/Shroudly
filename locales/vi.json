@@ -380,5 +380,8 @@
   "logAutoAdvancedDeclined": "Chế độ nâng cao không được cho phép; Shroudly sẽ không tự hỏi lại trong hai tuần",
   "logStudioInstalled": "Đã tải trình cài đặt Roblox Studio qua Shroudly và khởi chạy ({version})",
   "logStudioDownloadFailed": "Không thể tải xuống Roblox Studio ({detail})",
-  "autoAdvancedFailed": "Không thể bật Chế độ nâng cao, nên {host} có thể không mở được."
+  "autoAdvancedFailed": "Không thể bật Chế độ nâng cao, nên {host} có thể không mở được.",
+  "androidAllApps": "Mọi ứng dụng trên thiết bị này đều đi qua Shroudly.",
+  "androidVpnDenied": "Shroudly cần quyền VPN để chuyển tải kết nối của các ứng dụng.",
+  "androidVpnRevoked": "Android đã tắt bảo vệ, thường là vì một ứng dụng VPN khác vừa được bật."
 }

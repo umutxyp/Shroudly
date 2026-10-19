@@ -380,5 +380,8 @@
   "logAutoAdvancedDeclined": "Ба реҷаи пешрафта иҷозат дода нашуд; Shroudly дар давоми ду ҳафта инро худаш дубора намепурсад",
   "logStudioInstalled": "Насбкунандаи Roblox Studio тавассути Shroudly боргирӣ ва оғоз шуд ({version})",
   "logStudioDownloadFailed": "Roblox Studio боргирӣ нашуд ({detail})",
-  "autoAdvancedFailed": "Реҷаи пешрафта фаъол карда нашуд, бинобар ин {host} шояд кушода нашавад."
+  "autoAdvancedFailed": "Реҷаи пешрафта фаъол карда нашуд, бинобар ин {host} шояд кушода нашавад.",
+  "androidAllApps": "Ҳар як барномаи ин дастгоҳ тавассути Shroudly мегузарад.",
+  "androidVpnDenied": "Shroudly барои гузаронидани пайвастҳои барномаҳоятон иҷозати VPN лозим дорад.",
+  "androidVpnRevoked": "Android муҳофизатро хомӯш кард, одатан чунки барномаи дигари VPN фаъол шуд."
 }

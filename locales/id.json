@@ -380,5 +380,8 @@
   "logAutoAdvancedDeclined": "Mode Lanjutan tidak diizinkan; Shroudly tidak akan memintanya sendiri lagi selama dua minggu",
   "logStudioInstalled": "Penginstal Roblox Studio diunduh lewat Shroudly dan dijalankan ({version})",
   "logStudioDownloadFailed": "Roblox Studio tidak dapat diunduh ({detail})",
-  "autoAdvancedFailed": "Mode Lanjutan tidak dapat diaktifkan, jadi {host} mungkin tidak terbuka."
+  "autoAdvancedFailed": "Mode Lanjutan tidak dapat diaktifkan, jadi {host} mungkin tidak terbuka.",
+  "androidAllApps": "Semua aplikasi di perangkat ini melewati Shroudly.",
+  "androidVpnDenied": "Shroudly memerlukan izin VPN untuk membawa koneksi aplikasi Anda.",
+  "androidVpnRevoked": "Perlindungan dimatikan oleh Android, biasanya karena aplikasi VPN lain dinyalakan."
 }

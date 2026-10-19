@@ -380,5 +380,8 @@
   "logAutoAdvancedDeclined": "Kengaytirilgan rejimga ruxsat berilmadi; Shroudly ikki hafta davomida buni oʻzi qayta soʻramaydi",
   "logStudioInstalled": "Roblox Studio oʻrnatuvchisi Shroudly orqali yuklab olindi va ishga tushirildi ({version})",
   "logStudioDownloadFailed": "Roblox Studioni yuklab olib boʻlmadi ({detail})",
-  "autoAdvancedFailed": "Kengaytirilgan rejimni yoqib boʻlmadi, shuning uchun {host} ochilmasligi mumkin."
+  "autoAdvancedFailed": "Kengaytirilgan rejimni yoqib boʻlmadi, shuning uchun {host} ochilmasligi mumkin.",
+  "androidAllApps": "Bu qurilmadagi har bir ilova Shroudly orqali o‘tadi.",
+  "androidVpnDenied": "Ilovalaringiz ulanishlarini o‘tkazish uchun Shroudly’ga VPN ruxsati kerak.",
+  "androidVpnRevoked": "Himoya Android tomonidan o‘chirildi, odatda boshqa VPN ilovasi yoqilgani uchun."
 }

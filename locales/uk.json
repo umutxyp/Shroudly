@@ -380,5 +380,8 @@
   "logAutoAdvancedDeclined": "Розширений режим не дозволено; два тижні Shroudly не питатиме про це сам",
   "logStudioInstalled": "Інсталятор Roblox Studio завантажено через Shroudly й запущено ({version})",
   "logStudioDownloadFailed": "Не вдалося завантажити Roblox Studio ({detail})",
-  "autoAdvancedFailed": "Розширений режим не вдалося увімкнути, тому {host} може не відкритися."
+  "autoAdvancedFailed": "Розширений режим не вдалося увімкнути, тому {host} може не відкритися.",
+  "androidAllApps": "Усі застосунки на цьому пристрої йдуть через Shroudly.",
+  "androidVpnDenied": "Shroudly потрібен дозвіл VPN, щоб пропускати з’єднання ваших застосунків.",
+  "androidVpnRevoked": "Android вимкнув захист — зазвичай тому, що увімкнено інший VPN-застосунок."
 }

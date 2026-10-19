@@ -380,5 +380,8 @@
   "logAutoAdvancedDeclined": "የላቀ ሁነታ አልተፈቀደም፤ Shroudly ለሁለት ሳምንት በራሱ እንደገና አይጠይቅም",
   "logStudioInstalled": "የRoblox Studio ጫኚ በShroudly በኩል ወርዶ ተጀምሯል ({version})",
   "logStudioDownloadFailed": "Roblox Studioን ማውረድ አልተቻለም ({detail})",
-  "autoAdvancedFailed": "የላቀ ሁነታን ማብራት ስላልተቻለ {host} ላይከፈት ይችላል።"
+  "autoAdvancedFailed": "የላቀ ሁነታን ማብራት ስላልተቻለ {host} ላይከፈት ይችላል።",
+  "androidAllApps": "በዚህ መሣሪያ ላይ ያለ እያንዳንዱ መተግበሪያ በShroudly በኩል ያልፋል።",
+  "androidVpnDenied": "Shroudly የመተግበሪያዎችዎን ግንኙነቶች ለማሳለፍ የVPN ፈቃድ ያስፈልገዋል።",
+  "androidVpnRevoked": "Android ጥበቃውን አጥፍቶታል፤ ብዙ ጊዜ ሌላ የVPN መተግበሪያ ስለበራ ነው።"
 }

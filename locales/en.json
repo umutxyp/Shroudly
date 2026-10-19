@@ -380,5 +380,8 @@
   "logAutoAdvancedDeclined": "Advanced mode was not allowed; Shroudly will not ask by itself again for two weeks",
   "logStudioInstalled": "Roblox Studio installer downloaded through Shroudly and started ({version})",
   "logStudioDownloadFailed": "Roblox Studio could not be downloaded ({detail})",
-  "autoAdvancedFailed": "Advanced mode could not be turned on, so {host} may not open."
+  "autoAdvancedFailed": "Advanced mode could not be turned on, so {host} may not open.",
+  "androidAllApps": "Every app on this device goes through Shroudly.",
+  "androidVpnDenied": "Shroudly needs the VPN permission to carry your apps' connections.",
+  "androidVpnRevoked": "Protection was switched off by Android, usually because another VPN app was turned on."
 }

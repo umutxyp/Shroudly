@@ -380,5 +380,8 @@
   "logAutoAdvancedDeclined": "پرمختللي حالت ته اجازه ورنه کړل شوه؛ Shroudly به تر دوو اونیو پخپله بیا ونه پوښتي",
   "logStudioInstalled": "د Roblox Studio نصبوونکی د Shroudly له لارې ډاونلوډ او پیل شو ({version})",
   "logStudioDownloadFailed": "Roblox Studio ډاونلوډ نه شو ({detail})",
-  "autoAdvancedFailed": "پرمختللی حالت فعال نه شو، نو ښايي {host} پرانیستل نه شي."
+  "autoAdvancedFailed": "پرمختللی حالت فعال نه شو، نو ښايي {host} پرانیستل نه شي.",
+  "androidAllApps": "د دې وسیلې هر اپ د Shroudly له لارې تېرېږي.",
+  "androidVpnDenied": "Shroudly ته د VPN اجازه پکار ده څو ستاسو د اپونو اړیکې ولېږدوي.",
+  "androidVpnRevoked": "Android ساتنه بنده کړه، معمولاً ځکه چې بل VPN اپ چالان شوی و."
 }

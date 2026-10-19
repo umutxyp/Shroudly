@@ -380,5 +380,8 @@
   "logAutoAdvancedDeclined": "Giňişleýin tertibe rugsat berilmedi; Shroudly iki hepdäniň dowamynda muny özi gaýtadan soramaz",
   "logStudioInstalled": "Roblox Studio gurnaýjysy Shroudly arkaly ýüklenip alyndy we işledildi ({version})",
   "logStudioDownloadFailed": "Roblox Studio-ny ýükläp alyp bolmady ({detail})",
-  "autoAdvancedFailed": "Giňişleýin tertibi açyp bolmady, şonuň üçin {host} açylmazlygy mümkin."
+  "autoAdvancedFailed": "Giňişleýin tertibi açyp bolmady, şonuň üçin {host} açylmazlygy mümkin.",
+  "androidAllApps": "Bu enjamdaky her programma Shroudly arkaly geçýär.",
+  "androidVpnDenied": "Programmalaryňyzyň baglanyşyklaryny geçirmek üçin Shroudly-a VPN rugsady gerek.",
+  "androidVpnRevoked": "Gorag Android tarapyndan öçürildi, adatça başga VPN programmasy açylandygy sebäpli."
 }

@@ -380,5 +380,8 @@
   "logAutoAdvancedDeclined": "لم يُسمح بالوضع المتقدم؛ لن يطلبه Shroudly من تلقاء نفسه مجددًا قبل أسبوعين",
   "logStudioInstalled": "نُزّل مثبّت Roblox Studio عبر Shroudly وشُغّل ({version})",
   "logStudioDownloadFailed": "تعذّر تنزيل Roblox Studio ({detail})",
-  "autoAdvancedFailed": "تعذّر تشغيل الوضع المتقدم، لذا قد لا يُفتح {host}."
+  "autoAdvancedFailed": "تعذّر تشغيل الوضع المتقدم، لذا قد لا يُفتح {host}.",
+  "androidAllApps": "كل التطبيقات على هذا الجهاز تمر عبر Shroudly.",
+  "androidVpnDenied": "يحتاج Shroudly إلى إذن VPN لنقل اتصالات تطبيقاتك.",
+  "androidVpnRevoked": "أوقف Android الحماية، غالبًا لأن تطبيق VPN آخر تم تشغيله."
 }

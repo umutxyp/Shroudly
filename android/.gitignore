@@ -1,0 +1,14 @@
+.gradle/
+.kotlin/
+build/
+app/build/
+app/.cxx/
+local.properties
+*.keystore
+*.jks
+# The engine, built from core/ by scripts/build-core-android.js
+app/src/main/jniLibs/
+# Fetched by scripts/fetch-hev.js
+third_party/
+# Emulator smoke test output
+smoke-out/

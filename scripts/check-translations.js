@@ -68,6 +68,22 @@ for (const file of fs.readdirSync(path.join(root, 'electron'))) {
   for (const match of source.matchAll(/\b(?:tr\(\)|s)\.((?:tray|notify|discordPick)[A-Z]\w*)/g)) usedKeys.add(match[1]);
 }
 
+// The Android app uses keys as string resources (android/scripts/gen-strings.js):
+// R.string.key and @string/key, with a trailing _ where the key is a Java keyword.
+(function walkAndroid(dir) {
+  if (!fs.existsSync(dir)) return;
+  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+    const fullPath = path.join(dir, entry.name);
+    if (entry.isDirectory()) { if (!/^(values.*|build)$/.test(entry.name)) walkAndroid(fullPath); continue; }
+    if (!/\.(kt|xml)$/.test(entry.name)) continue;
+    const source = fs.readFileSync(fullPath, 'utf8');
+    for (const match of source.matchAll(/(?<!android\.)\bR\.string\.(\w+)|(?<!android:)@string\/(\w+)/g)) {
+      const key = (match[1] || match[2]).replace(/_$/, '');
+      if (key !== 'app_name') { usedKeys.add(key); allSource += `'${key}'\n`; }
+    }
+  }
+})(path.join(root, 'android', 'app', 'src'));
+
 const languages = Object.keys(translations);
 const englishKeys = Object.keys(translations.en || {});
 let failed = false;

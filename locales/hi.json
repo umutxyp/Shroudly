@@ -380,5 +380,8 @@
   "logAutoAdvancedDeclined": "उन्नत मोड की अनुमति नहीं दी गई; Shroudly दो हफ़्ते तक इसके लिए अपने आप दोबारा नहीं पूछेगा",
   "logStudioInstalled": "Roblox Studio इंस्टॉलर Shroudly से होकर डाउनलोड हुआ और शुरू किया गया ({version})",
   "logStudioDownloadFailed": "Roblox Studio डाउनलोड नहीं हो सका ({detail})",
-  "autoAdvancedFailed": "उन्नत मोड चालू नहीं किया जा सका, इसलिए {host} शायद न खुले।"
+  "autoAdvancedFailed": "उन्नत मोड चालू नहीं किया जा सका, इसलिए {host} शायद न खुले।",
+  "androidAllApps": "इस डिवाइस का हर ऐप Shroudly से होकर जाता है।",
+  "androidVpnDenied": "आपके ऐप्स के कनेक्शन संभालने के लिए Shroudly को VPN अनुमति चाहिए।",
+  "androidVpnRevoked": "Android ने सुरक्षा बंद कर दी, आमतौर पर इसलिए कि कोई दूसरा VPN ऐप चालू किया गया।"
 }

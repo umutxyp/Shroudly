@@ -380,5 +380,8 @@
   "logAutoAdvancedDeclined": "No se permitió el modo Avanzado; Shroudly no volverá a pedirlo por su cuenta durante dos semanas",
   "logStudioInstalled": "Instalador de Roblox Studio descargado a través de Shroudly e iniciado ({version})",
   "logStudioDownloadFailed": "No se pudo descargar Roblox Studio ({detail})",
-  "autoAdvancedFailed": "No se pudo activar el modo Avanzado, así que puede que {host} no se abra."
+  "autoAdvancedFailed": "No se pudo activar el modo Avanzado, así que puede que {host} no se abra.",
+  "androidAllApps": "Todas las apps de este dispositivo pasan por Shroudly.",
+  "androidVpnDenied": "Shroudly necesita el permiso de VPN para llevar las conexiones de tus apps.",
+  "androidVpnRevoked": "Android desactivó la protección, normalmente porque se activó otra app de VPN."
 }

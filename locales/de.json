@@ -380,5 +380,8 @@
   "logAutoAdvancedDeclined": "Der erweiterte Modus wurde nicht erlaubt; Shroudly fragt zwei Wochen lang nicht mehr von selbst danach",
   "logStudioInstalled": "Installationsprogramm von Roblox Studio über Shroudly heruntergeladen und gestartet ({version})",
   "logStudioDownloadFailed": "Roblox Studio konnte nicht heruntergeladen werden ({detail})",
-  "autoAdvancedFailed": "Der erweiterte Modus konnte nicht eingeschaltet werden, deshalb öffnet sich {host} vielleicht nicht."
+  "autoAdvancedFailed": "Der erweiterte Modus konnte nicht eingeschaltet werden, deshalb öffnet sich {host} vielleicht nicht.",
+  "androidAllApps": "Jede App auf diesem Gerät läuft über Shroudly.",
+  "androidVpnDenied": "Shroudly braucht die VPN-Berechtigung, um die Verbindungen deiner Apps zu übernehmen.",
+  "androidVpnRevoked": "Android hat den Schutz beendet, meist weil eine andere VPN-App eingeschaltet wurde."
 }

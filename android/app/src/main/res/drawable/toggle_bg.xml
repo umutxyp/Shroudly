@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The big switch: quiet when off, the accent when protected (activated). -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_activated="true">
+        <layer-list>
+            <item>
+                <shape android:shape="oval">
+                    <solid android:color="@color/accent_soft" />
+                </shape>
+            </item>
+            <item android:bottom="14dp" android:left="14dp" android:right="14dp" android:top="14dp">
+                <shape android:shape="oval">
+                    <gradient
+                        android:angle="315"
+                        android:endColor="@color/accent_deep"
+                        android:startColor="@color/accent" />
+                </shape>
+            </item>
+        </layer-list>
+    </item>
+    <item android:state_pressed="true">
+        <layer-list>
+            <item android:bottom="14dp" android:left="14dp" android:right="14dp" android:top="14dp">
+                <shape android:shape="oval">
+                    <solid android:color="@color/surface_press" />
+                    <stroke android:width="2dp" android:color="@color/accent_line" />
+                </shape>
+            </item>
+        </layer-list>
+    </item>
+    <item>
+        <layer-list>
+            <item android:bottom="14dp" android:left="14dp" android:right="14dp" android:top="14dp">
+                <shape android:shape="oval">
+                    <solid android:color="@color/surface_2" />
+                    <stroke android:width="2dp" android:color="@color/line_strong" />
+                </shape>
+            </item>
+        </layer-list>
+    </item>
+</selector>
