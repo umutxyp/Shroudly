@@ -15,6 +15,9 @@ electron/tools/core/
 # Legacy engine artifacts (removed)
 electron/tools/shroudly-engine/
 
+# Android engine binaries (built from core/ via scripts/build-core-android.js)
+android/app/src/main/jniLibs/
+
 # Core native build artifacts
 core/shroudly-core
 core/shroudly-core.exe

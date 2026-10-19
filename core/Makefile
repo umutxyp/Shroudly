@@ -20,9 +20,9 @@ $(BIN): $(SRC)
 	$(CC) $(CFLAGS) -o $@ $(SRC) $(LDLIBS)
 
 # The sources engine.c needs besides itself, for tests that include it.
-ENGINE_DEPS = src/platform.c src/proto.c src/strategy.c src/desync.c src/fake.c src/doh.c
+ENGINE_DEPS = src/platform.c src/proto.c src/strategy.c src/desync.c src/fake.c src/doh.c src/socksudp.c
 
-test: test/test_proto.c test/test_udpdpi.c test/test_desync.c test/test_engine.c test/test_tcpdpi.c test/test_rawscope.c $(SRC)
+test: test/test_proto.c test/test_udpdpi.c test/test_desync.c test/test_engine.c test/test_tcpdpi.c test/test_rawscope.c test/test_socksudp.c $(SRC)
 	$(CC) -std=c11 -O2 -Wall -o /tmp/shroudly_test_proto src/proto.c src/strategy.c test/test_proto.c
 	/tmp/shroudly_test_proto
 	$(CC) -std=c11 -O2 -Wall -Wextra -o /tmp/shroudly_test_udpdpi src/udpdpi.c test/test_udpdpi.c
@@ -37,9 +37,11 @@ test: test/test_proto.c test/test_udpdpi.c test/test_desync.c test/test_engine.c
 	/tmp/shroudly_test_tcpdpi
 	$(CC) -std=c11 -O2 -Wall -Wextra -o /tmp/shroudly_test_rawscope src/rawscope.c test/test_rawscope.c
 	/tmp/shroudly_test_rawscope
+	$(CC) -std=c11 -O2 -Wall -Wextra -o /tmp/shroudly_test_socksudp src/socksudp.c test/test_socksudp.c $(LDLIBS)
+	/tmp/shroudly_test_socksudp
 
 # Sanitizer build of the full test set (memory + UB checks).
-test-asan: test/test_proto.c test/test_udpdpi.c test/test_desync.c test/test_bogon.c test/test_engine.c test/test_tcpdpi.c test/test_rawscope.c $(SRC)
+test-asan: test/test_proto.c test/test_udpdpi.c test/test_desync.c test/test_bogon.c test/test_engine.c test/test_tcpdpi.c test/test_rawscope.c test/test_socksudp.c $(SRC)
 	$(CC) -std=c11 -O1 -g -fsanitize=address,undefined -pthread \
 		-o /tmp/shroudly_test_asan \
 		src/platform.c src/proto.c src/strategy.c src/desync.c src/fake.c src/doh.c \
@@ -60,6 +62,9 @@ test-asan: test/test_proto.c test/test_udpdpi.c test/test_desync.c test/test_bog
 	$(CC) -std=c11 -O1 -g -fsanitize=address,undefined -pthread \
 		-o /tmp/shroudly_test_engine_asan $(ENGINE_DEPS) test/test_engine.c $(LDLIBS)
 	ASAN_OPTIONS=halt_on_error=0 /tmp/shroudly_test_engine_asan
+	$(CC) -std=c11 -O1 -g -fsanitize=address,undefined -Wall -Wextra \
+		-o /tmp/shroudly_test_socksudp_asan src/socksudp.c test/test_socksudp.c $(LDLIBS)
+	ASAN_OPTIONS=halt_on_error=1 /tmp/shroudly_test_socksudp_asan
 
 # Fuzz the untrusted-input parser (random + grammar-aware) under sanitizers.
 fuzz: test/fuzz_proto.c test/fuzz_mut.c src/proto.c

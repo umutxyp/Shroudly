@@ -37,6 +37,7 @@
     "dist:all": "npm run build:core:all && npm run build:core:advanced:all && npm run fetch:windivert && npm run check:translations && npm run build && electron-builder -mwl --publish never",
     "build:core:advanced": "node scripts/build-core-advanced.js",
     "build:core:advanced:all": "node scripts/build-core-advanced.js --cross",
+    "build:core:android": "node scripts/build-core-android.js",
     "fetch:windivert": "node scripts/fetch-windivert.js",
     "publish:release": "node scripts/publish-release.js",
     "test:net": "node tests/net/run.js"

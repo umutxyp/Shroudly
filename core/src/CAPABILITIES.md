@@ -190,3 +190,25 @@ UDP clauses join the WinDivert filter; WinDivert tags its own injected packets
 **Only a network-level block.** These help only where the *network* filters QUIC
 or the voice packets. A hard IP block of the servers is unaffected — the app
 still says so and points to a VPN.
+
+## Update 5: SOCKS5 UDP ASSOCIATE — plain datagram relay (for Android)
+
+The Android app sends the whole phone's traffic through a tun2socks into the
+engine, and phones need UDP (games, voice calls, apps' own DNS). The engine now
+answers SOCKS5 `UDP ASSOCIATE` (RFC 1928 section 7, `udp_associate` in
+`engine.c`; the header parse/build is the pure `socksudp.c`, unit-tested in
+`core/test/test_socksudp.c`, end to end in `tests/net/engine-udp.test.js`).
+
+- Only a loopback client may ask; it gets a relay port on `127.0.0.1` of its
+  own. The association lives as long as its TCP control connection, or until
+  120 s pass with no datagram either way. At most 256 at once; one more is
+  refused (reply 0x01).
+- Only datagrams from the control connection's own address are taken.
+  Fragments (FRAG != 0) and malformed headers are dropped. A destination may be
+  IPv4, IPv6 or a name (resolved by the engine's own resolver, as CONNECT does).
+- Each association sends from outbound sockets of its own (one per address
+  family) and returns replies, headed with their source, only to the client
+  address that sent last: nothing goes anywhere that did not send first.
+- Up to 65507 bytes of payload. No desync: a plain relay. Nothing on the
+  desktop uses it (the engine listens on loopback only), so it changes nothing
+  there.

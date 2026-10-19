@@ -5,6 +5,7 @@
 #include "desync.h"
 #include "doh.h"
 #include "fake.h"
+#include "socksudp.h"
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -568,7 +569,8 @@ void engine_emit_stats(void) {
 }
 
 /* ── SOCKS handshake (client side) ──────────────────────────────────────── */
-/* Reads the greeting and CONNECT request, fills in what the client asked for.
+/* Reads the greeting and the CONNECT (or SOCKS5 UDP ASSOCIATE) request, fills
+ * in what the client asked for.
  * Does NOT send the final reply — the caller dials upstream first and then
  * calls socks_reply(), per RFC 1928, so the client learns the true connect
  * result.
@@ -580,6 +582,10 @@ typedef struct {
   char     host[256];
   uint16_t port;
   int      ver;        /* 4 or 5: decides the reply format */
+  /* 0x01 CONNECT, or (SOCKS5 only) 0x03 UDP ASSOCIATE: host and port are
+   * then where the client says it will send its datagrams from, which is
+   * not relied on: they are taken from the control connection's address. */
+  int      cmd;
   /* A SOCKS4 client resolved the name itself, through the system's DNS, and
    * asks for a known block page: that DNS was poisoned. The real name is in
    * the first payload; see handle(). 0.0.0.0 and loopback do not count — a
@@ -637,6 +643,7 @@ static int socks4_accept(sock_t c, int cmd, socks_req *rq) {
   uint8_t h[6];
   if (recv_exact(c, h, 6) != 0) return -1;
   rq->ver = 4;
+  rq->cmd = cmd;
   rq->port = (uint16_t)((h[0] << 8) | h[1]);
   if (recv_cstr(c, NULL, 0) != 0) return -1;            /* user id: unused */
   if (cmd != 0x01) { socks4_reply(c, 0x5B); return -1; } /* only CONNECT */
@@ -668,10 +675,11 @@ static int socks_accept(sock_t c, socks_req *rq) {
   if (sock_send_all(c, rep, 2, 0) != 0) return -1;
 
   if (recv_exact(c, b, 4) != 0) return -1;
-  if (b[0] != 0x05 || b[1] != 0x01) {           /* only CONNECT */
+  if (b[0] != 0x05 || (b[1] != 0x01 && b[1] != 0x03)) {   /* CONNECT, UDP ASSOCIATE */
     uint8_t f[10] = { 0x05, 0x07, 0, 0x01, 0,0,0,0, 0,0 };
     sock_send_all(c, f, 10, 0); return -1;
   }
+  rq->cmd = b[1];
   int atyp = b[3];
   if (atyp == 0x01) {
     uint8_t a[4]; if (recv_exact(c, a, 4) != 0) return -1;
@@ -865,7 +873,7 @@ static sock_t dial(const char *host, uint16_t port, int prefer6, int use_doh,
     if (getaddrinfo(host, ps, &hints, &res) != 0 || !res) { if (res) freeaddrinfo(res); return SOCK_INVALID; }
     for (struct addrinfo *p = res; p; p = p->ai_next) {
       if (p->ai_family != AF_INET && p->ai_family != AF_INET6) continue;
-      if (p->ai_addrlen > sizeof(struct sockaddr_storage)) continue;
+      if ((size_t)p->ai_addrlen > sizeof(struct sockaddr_storage)) continue;
       int k = (p->ai_family == AF_INET6) == !!prefer6 ? 0 : 1;
       if (cnt[k] >= DOH_MAX_ADDRS) continue;
       memset(&ad[k][cnt[k]].sa, 0, sizeof(ad[k][cnt[k]].sa));
@@ -1579,6 +1587,238 @@ static int local_name(const char *h) {
   return 0;
 }
 
+/* ── UDP ASSOCIATE (RFC 1928 section 7) ──────────────────────────────────
+ * Games, voice calls and an app's own DNS go over UDP, which a CONNECT can
+ * not carry: on Android every packet of the phone reaches us through a
+ * tun2socks, and its UDP arrives here as associations. Each one is a plain
+ * relay, no desync — a datagram has no handshake to hide and nothing to
+ * replay — run on the connection's own thread like a CONNECT:
+ *
+ *   - the client's TCP control connection asks for it and gets a relay port,
+ *     a UDP socket on 127.0.0.1 of its own; the association lives exactly as
+ *     long as that connection, or until UDP_IDLE_MS pass with no datagram
+ *     either way, and everything it holds is closed with it;
+ *   - only a loopback client may ask, and only datagrams from its address
+ *     (the control connection's) are taken; a fragment (FRAG != 0) or a
+ *     malformed header is dropped;
+ *   - each datagram goes out, without its header, from an outbound socket of
+ *     the association's own (one per address family, opened when first
+ *     needed) to the address or name in its header — a name through our own
+ *     resolver, as CONNECT does;
+ *   - whatever comes back to an outbound socket goes to the client, headed
+ *     with where it came from, and only ever to the client address the last
+ *     accepted datagram came from: nothing is sent anywhere that did not
+ *     send first, so the relay cannot be used to amplify.
+ * At most UDP_ASSOC_MAX associations at once; one more is refused. */
+#define UDP_ASSOC_MAX    256
+#define UDP_IDLE_MS      120000
+#define UDP_MAX_PAYLOAD  65507   /* the most an IPv4 datagram can carry */
+#define UDP_DRAIN        64      /* datagrams read from one socket per wake-up */
+#define UDP_SOCK_BUF     (256 * 1024)
+#define UDP_NAME_OK_MS   30000   /* how long a name's address is reused */
+#define UDP_NAME_BAD_MS  5000    /* and how long a name that did not resolve is not asked again */
+
+static _Atomic int g_udp_assocs = 0;
+
+static void sa_set_port(struct sockaddr_storage *ss, uint16_t port) {
+  if (ss->ss_family == AF_INET) ((struct sockaddr_in *)ss)->sin_port = htons(port);
+  else if (ss->ss_family == AF_INET6) ((struct sockaddr_in6 *)ss)->sin6_port = htons(port);
+}
+
+static int is_loopback4(const struct sockaddr_storage *ss) {
+  return ss->ss_family == AF_INET &&
+         (ntohl(((const struct sockaddr_in *)ss)->sin_addr.s_addr) >> 24) == 127;
+}
+
+/* A non-blocking UDP socket of family fam, with room for a burst. */
+static sock_t udp_socket(int fam) {
+  sock_t s = socket(fam, SOCK_DGRAM, IPPROTO_UDP);
+  if (s == SOCK_INVALID) return SOCK_INVALID;
+  int v = UDP_SOCK_BUF;
+  /* Besides the room: macOS will not send a datagram larger than the send
+   * buffer, 9216 bytes by default. */
+  setsockopt(s, SOL_SOCKET, SO_SNDBUF, (const char *)&v, sizeof(v));
+  setsockopt(s, SOL_SOCKET, SO_RCVBUF, (const char *)&v, sizeof(v));
+  if (fam == AF_INET6) {
+    int one = 1;
+    setsockopt(s, IPPROTO_IPV6, IPV6_V6ONLY, (const char *)&one, sizeof(one));
+  }
+  if (sock_set_nonblock(s, 1) != 0) { sock_close(s); return SOCK_INVALID; }
+  return s;
+}
+
+/* A name's address for a datagram, the preferred family first: our own
+ * resolver when the engine uses it (as a CONNECT would), else the system's.
+ * 0 on success. */
+static int udp_resolve(const char *host, uint16_t port, struct sockaddr_storage *out, socklen_t *ol) {
+  int pref6 = g_cfg.prefer_ipv6;
+  if (g_cfg.use_doh) {
+    if (doh_resolve(host, port, pref6, out, ol) == 0) return 0;
+    return doh_resolve(host, port, !pref6, out, ol);
+  }
+  struct addrinfo hints, *res = NULL;
+  memset(&hints, 0, sizeof(hints));
+  hints.ai_family = AF_UNSPEC; hints.ai_socktype = SOCK_DGRAM;
+  hints.ai_flags = AI_ADDRCONFIG;
+  char ps[8]; snprintf(ps, sizeof(ps), "%u", port);
+  if (getaddrinfo(host, ps, &hints, &res) != 0 || !res) { if (res) freeaddrinfo(res); return -1; }
+  const struct addrinfo *pick = NULL;
+  for (const struct addrinfo *p = res; p; p = p->ai_next) {
+    if ((p->ai_family != AF_INET && p->ai_family != AF_INET6) ||
+        (size_t)p->ai_addrlen > sizeof(struct sockaddr_storage)) continue;
+    if (!pick) pick = p;
+    if ((p->ai_family == AF_INET6) == !!pref6) { pick = p; break; }
+  }
+  if (pick) {
+    memset(out, 0, sizeof(*out));
+    memcpy(out, pick->ai_addr, pick->ai_addrlen);
+    *ol = (socklen_t)pick->ai_addrlen;
+  }
+  freeaddrinfo(res);
+  return pick ? 0 : -1;
+}
+
+/* SOCKS5 reply carrying an IPv4 BND.ADDR / BND.PORT (network order). */
+static int socks5_reply_bnd(sock_t c, uint8_t rep, uint32_t addr_n, uint16_t port_n) {
+  uint8_t r[10] = { 0x05, rep, 0, 0x01 };
+  memcpy(r + 4, &addr_n, 4);
+  memcpy(r + 8, &port_n, 2);
+  return sock_send_all(c, r, 10, 0);
+}
+
+/* The association's state: its sockets, the client's address, and the last
+ * name it sent to. Lives on the connection thread's stack; buf on the heap. */
+typedef struct {
+  sock_t relay, out4, out6;
+  struct sockaddr_in self;               /* the relay port's own address */
+  struct sockaddr_storage peer;          /* the control connection's client */
+  struct sockaddr_storage client;        /* where the last accepted datagram came from */
+  socklen_t client_len;
+  int have_client;
+  struct { char host[256]; struct sockaddr_storage sa; socklen_t sl; int ok; uint64_t t; } name;
+  uint8_t *buf;
+  uint64_t last;                         /* last datagram either way */
+} udp_assoc;
+
+/* Datagrams from the client: each one, unwrapped, goes to its destination. */
+static void udp_from_client(udp_assoc *u) {
+  for (int i = 0; i < UDP_DRAIN; i++) {
+    struct sockaddr_storage from; socklen_t fl = sizeof(from);
+    int n = (int)recvfrom(u->relay, (char *)u->buf, 65536, 0, (struct sockaddr *)&from, &fl);
+    if (n < 0) break;   /* nothing more (or an error report): back to waiting */
+    /* Only the client: its address, over IPv4 loopback. */
+    if (from.ss_family != AF_INET ||
+        ((struct sockaddr_in *)&from)->sin_addr.s_addr != ((struct sockaddr_in *)&u->peer)->sin_addr.s_addr)
+      continue;
+    sudp_dst d;
+    if (sudp_parse(u->buf, (size_t)n, &d) != SUDP_OK) continue;
+    size_t plen = (size_t)n - d.hdr_len;
+    if (plen > UDP_MAX_PAYLOAD) continue;
+    struct sockaddr_storage to; socklen_t tl;
+    if (sudp_dst_addr(&d, &to, &tl) != 0) {
+      uint64_t t = now_ms();
+      if (!(u->name.host[0] && strcmp(u->name.host, d.host) == 0 &&
+            age_ms(t, u->name.t) < (u->name.ok ? UDP_NAME_OK_MS : UDP_NAME_BAD_MS))) {
+        snprintf(u->name.host, sizeof(u->name.host), "%s", d.host);
+        u->name.ok = udp_resolve(d.host, d.port, &u->name.sa, &u->name.sl) == 0;
+        u->name.t = now_ms();
+      }
+      if (!u->name.ok) continue;
+      to = u->name.sa; tl = u->name.sl;
+      sa_set_port(&to, d.port);
+    }
+    /* Never back into the relay port itself. */
+    if (to.ss_family == AF_INET &&
+        ((struct sockaddr_in *)&to)->sin_port == u->self.sin_port &&
+        ((struct sockaddr_in *)&to)->sin_addr.s_addr == u->self.sin_addr.s_addr) continue;
+    sock_t *os = to.ss_family == AF_INET6 ? &u->out6 : &u->out4;
+    if (*os == SOCK_INVALID) *os = udp_socket(to.ss_family);
+    if (*os == SOCK_INVALID) continue;
+    /* A datagram the network cannot take now is dropped, as UDP would. */
+    if (sendto(*os, (const char *)u->buf + d.hdr_len, (int)plen, 0, (struct sockaddr *)&to, tl) < 0) continue;
+    memcpy(&u->client, &from, sizeof(from));
+    u->client_len = fl;
+    u->have_client = 1;
+    u->last = now_ms();
+    atomic_fetch_add(&g_stats.bytes_up, (uint64_t)plen);
+  }
+}
+
+/* Datagrams back from the far side: headed with their source, to the client. */
+static void udp_to_client(udp_assoc *u, sock_t s) {
+  uint8_t *data = u->buf + SUDP_REPLY_HDR_MAX;
+  for (int i = 0; i < UDP_DRAIN; i++) {
+    struct sockaddr_storage from; socklen_t fl = sizeof(from);
+    int n = (int)recvfrom(s, (char *)data, 65536, 0, (struct sockaddr *)&from, &fl);
+    if (n < 0) break;
+    if (!u->have_client || n > UDP_MAX_PAYLOAD) continue;
+    uint8_t h[SUDP_REPLY_HDR_MAX];
+    int hl = sudp_build((struct sockaddr *)&from, h, sizeof(h));
+    if (hl < 0) continue;
+    memcpy(data - hl, h, (size_t)hl);
+    if (sendto(u->relay, (const char *)data - hl, hl + n, 0,
+               (struct sockaddr *)&u->client, u->client_len) < 0) continue;
+    u->last = now_ms();
+    atomic_fetch_add(&g_stats.bytes_down, (uint64_t)n);
+  }
+}
+
+static void udp_associate(sock_t client) {
+  udp_assoc u;
+  memset(&u, 0, sizeof(u));
+  u.relay = u.out4 = u.out6 = SOCK_INVALID;
+  socklen_t pl = sizeof(u.peer);
+  if (getpeername(client, (struct sockaddr *)&u.peer, &pl) != 0 || !is_loopback4(&u.peer)) {
+    socks5_reply(client, 0x02);   /* not allowed: datagrams are for this machine only */
+    return;
+  }
+  if (atomic_fetch_add(&g_udp_assocs, 1) >= UDP_ASSOC_MAX) {
+    atomic_fetch_sub(&g_udp_assocs, 1);
+    socks5_reply(client, 0x01);
+    return;
+  }
+  u.buf = (uint8_t *)malloc(65536 + SUDP_HDR_MAX);
+  u.relay = udp_socket(AF_INET);
+  socklen_t sl = sizeof(u.self);
+  u.self.sin_family = AF_INET;
+  u.self.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+  u.self.sin_port = 0;
+  if (!u.buf || u.relay == SOCK_INVALID ||
+      bind(u.relay, (struct sockaddr *)&u.self, sizeof(u.self)) != 0 ||
+      getsockname(u.relay, (struct sockaddr *)&u.self, &sl) != 0) {
+    socks5_reply(client, 0x01);
+    goto out;
+  }
+  if (socks5_reply_bnd(client, 0x00, u.self.sin_addr.s_addr, u.self.sin_port) != 0) goto out;
+
+  u.last = now_ms();
+  while (atomic_load(&g_running)) {
+    sock_t s[4]; int ready[4], n = 0, i4 = -1, i6 = -1;
+    s[n++] = client; s[n++] = u.relay;
+    if (u.out4 != SOCK_INVALID) { i4 = n; s[n++] = u.out4; }
+    if (u.out6 != SOCK_INVALID) { i6 = n; s[n++] = u.out6; }
+    int r = sock_wait_any(s, n, 1000, ready);
+    if (r < 0) break;
+    if (r > 0 && ready[0]) {
+      /* The control connection says nothing more after the request: anything
+       * it sends is let go, and its end is the association's. */
+      char tmp[512];
+      int k = (int)recv(client, tmp, sizeof(tmp), 0);
+      if (k == 0) break;
+      if (k < 0 && sock_errno() != SE_INTR && sock_errno() != SE_WOULDBLOCK) break;
+    }
+    if (r > 0 && ready[1]) udp_from_client(&u);
+    if (r > 0 && i4 >= 0 && ready[i4]) udp_to_client(&u, u.out4);
+    if (r > 0 && i6 >= 0 && ready[i6]) udp_to_client(&u, u.out6);
+    if (age_ms(now_ms(), u.last) >= UDP_IDLE_MS) break;
+  }
+
+out:
+  sock_close(u.relay); sock_close(u.out4); sock_close(u.out6);
+  free(u.buf);
+  atomic_fetch_sub(&g_udp_assocs, 1);
+}
+
 static void handle(sock_t client) {
   atomic_fetch_add(&g_stats.conns_total, 1);
   atomic_fetch_add(&g_stats.conns_active, 1);
@@ -1597,6 +1837,7 @@ static void handle(sock_t client) {
   sock_set_nodelay(client, 1);
 
   if (socks_accept(client, &rq) != 0) goto done;
+  if (rq.cmd == 0x03) { udp_associate(client); goto done; }
   snprintf(dial_host, sizeof(dial_host), "%s", rq.host);
 
   first = (uint8_t *)malloc(RELAY_BUF);

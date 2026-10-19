@@ -2,7 +2,8 @@
  * shroudly-core — cross-platform DPI-evasion engine.
  *
  * No kernel driver, no third-party library: it runs a local SOCKS proxy
- * (SOCKS5, and SOCKS4/4a for the clients that only speak those) and applies
+ * (SOCKS5, and SOCKS4/4a for the clients that only speak those; SOCKS5 UDP
+ * ASSOCIATE relays datagrams, plainly) and applies
  * TLS/HTTP desync (split / disorder / low-TTL fakes) on the first payload of
  * each connection, plus anti-poisoning DNS. Works unprivileged on Windows,
  * Linux and macOS.

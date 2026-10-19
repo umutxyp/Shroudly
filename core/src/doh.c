@@ -543,7 +543,7 @@ int doh_resolve_all(const char *name, uint16_t port, int want6,
   int got = 0, keep = 0;
   uint8_t kept[DOH_MAX_ADDRS][16];
   for (struct addrinfo *ai = res; ai && got < max; ai = ai->ai_next) {
-    if (ai->ai_addrlen > sizeof(struct sockaddr_storage)) continue;
+    if ((size_t)ai->ai_addrlen > sizeof(struct sockaddr_storage)) continue;
     struct sockaddr_storage cand; memset(&cand, 0, sizeof(cand));
     memcpy(&cand, ai->ai_addr, ai->ai_addrlen);
     if (doh_addr_is_block(&cand)) continue;  /* OS DNS was poisoned too */

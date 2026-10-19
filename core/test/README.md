@@ -11,6 +11,9 @@
 - `test_rawscope.c` — what Advanced mode may touch: the local / private / special
   address ranges (IPv4 and IPv6, every edge), the table of recently desynced servers
   a reset must come from to be dropped, and the raw_stats line
+- `test_socksudp.c` — the SOCKS5 UDP header (RFC 1928 §7): parsing IPv4 / IPv6 / name
+  destinations, refusing fragments and malformed headers, building reply headers, plus a
+  random / mutation pass run under ASan by `make test-asan`
 - `fuzz_proto.c`   — random fuzzing of the untrusted-input parser
 - `fuzz_mut.c`     — grammar-aware mutation fuzzing (2M iters, ASan+UBSan clean)
 
