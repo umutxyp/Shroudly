@@ -36,6 +36,7 @@ const ASSETS = [
   [`Shroudly-${version}-Linux-arm64.AppImage`, 'Linux · ARM 64-bit (e.g. Raspberry Pi 4/5) · AppImage'],
   [`Shroudly-${version}-Linux-x64.pacman`, 'Linux · Intel/AMD 64-bit · Arch / Manjaro package (.pacman)'],
   [`Shroudly-${version}-Linux-x86_64.rpm`, 'Linux · Intel/AMD 64-bit · Fedora / openSUSE package (.rpm)'],
+  [`Shroudly-${version}-Android.apk`, 'Android 8+ · Phones and tablets · APK', { optional: true }],
   ['latest.yml', `Update data · Windows ${FEED}`],
   ['latest-mac.yml', `Update data · macOS ${FEED}`],
   ['latest-linux.yml', `Update data · Linux x64 ${FEED}`],
@@ -92,7 +93,7 @@ async function api(url, opts = {}) {
 }
 
 (async () => {
-  const absent = ASSETS.map(([n]) => n).filter((n) => !fs.existsSync(path.join(dist, n)));
+  const absent = ASSETS.filter(([, , o]) => !(o && o.optional)).map(([n]) => n).filter((n) => !fs.existsSync(path.join(dist, n)));
   if (absent.length) {
     // Print what is actually there: every time this has fired it was a name
     // that did not match, and guessing from the missing one alone is slow.
@@ -125,8 +126,9 @@ async function api(url, opts = {}) {
     console.log(`release ${release.html_url}`);
   }
   const have = new Set((release.assets || []).map((a) => a.name));
-  for (const [name, label] of ASSETS) {
+  for (const [name, label, o] of ASSETS) {
     if (have.has(name)) { console.log(`  exists    ${name}`); continue; }
+    if (o && o.optional && !fs.existsSync(path.join(dist, name))) { console.log(`  skipped   ${name} (not built)`); continue; }
     const data = fs.readFileSync(path.join(dist, name));
     const url = `https://uploads.github.com/repos/${OWNER}/${REPO}/releases/${release.id}/assets?name=${encodeURIComponent(name)}&label=${encodeURIComponent(label)}`;
     const a = await api(url, { method: 'POST', headers: { 'Content-Type': 'application/octet-stream' }, body: data });

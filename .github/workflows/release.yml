@@ -315,8 +315,72 @@ jobs:
           hdiutil detach "$mnt" >/dev/null
           echo "ok  $dmg: ${{ matrix.lipo }} app and engine, engine starts"
 
+  # The Android app, signed with the project's key (secrets ANDROID_*). The
+  # signature is checked against the key's certificate before it is handed
+  # on; without the secrets nothing is published for Android and the desktop
+  # release goes ahead.
+  android:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      NDK_VERSION: 28.2.13676358
+      # SHA-256 of the signing certificate (android/README.md).
+      CERT_SHA256: 23ac014b7226343b74c7c9c0a4fd6f1ded97518a3bfd35bcde65b6c1eca8bd76
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Gradle wrapper is the one published by Gradle
+        run: echo "7a9ce74cff467ca1bf60a4fcd9f05185acceda4d0f382434d393e17864262c5d  android/gradle/wrapper/gradle-wrapper.jar" | sha256sum -c -
+      - name: Android SDK packages
+        run: |
+          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses >/dev/null || true
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "platforms;android-36" "build-tools;36.0.0" "ndk;$NDK_VERSION" >/dev/null
+      - name: Engine for Android and hev source
+        env:
+          ANDROID_NDK_HOME: ${{ env.ANDROID_HOME }}/ndk/${{ env.NDK_VERSION }}
+        run: |
+          node scripts/build-core-android.js
+          node android/scripts/fetch-hev.js
+          node android/scripts/gen-strings.js --check
+          node android/scripts/gen-block-ips.js --check
+      - name: Signed release build
+        id: apk
+        env:
+          KEYSTORE_B64: ${{ secrets.ANDROID_KEYSTORE_B64 }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          set -euo pipefail
+          if [ -z "$KEYSTORE_B64" ]; then echo "::warning::No Android signing key configured: no APK in this release"; exit 0; fi
+          ks="$RUNNER_TEMP/release.jks"
+          echo "$KEYSTORE_B64" | base64 -d > "$ks"
+          export ANDROID_KEYSTORE="$ks"
+          (cd android && ./gradlew --no-daemon testReleaseUnitTest assembleRelease)
+          rm -f "$ks"
+          ver=$(node -p "require('./package.json').version")
+          mkdir -p dist
+          cp android/app/build/outputs/apk/release/app-release.apk "dist/Shroudly-$ver-Android.apk"
+          bt="$ANDROID_HOME/build-tools/36.0.0"
+          "$bt/apksigner" verify --print-certs "dist/Shroudly-$ver-Android.apk" | tee "$RUNNER_TEMP/certs.txt"
+          grep -qi "Signer #1 certificate SHA-256 digest: $CERT_SHA256" "$RUNNER_TEMP/certs.txt"
+          echo "built=1" >> "$GITHUB_OUTPUT"
+      - uses: actions/upload-artifact@v7
+        if: steps.apk.outputs.built == '1'
+        with:
+          name: dist-android
+          path: dist/*-Android.apk
+          retention-days: 1
+          if-no-files-found: error
+
   release:
-    needs: [build, sign-windows, linux-packages, appimage, windows-install, macos-dmg]
+    needs: [build, sign-windows, linux-packages, appimage, windows-install, macos-dmg, android]
     runs-on: ubuntu-latest
     # sign-windows is skipped while signing is off; anything failed stops it.
     if: ${{ startsWith(github.ref, 'refs/tags/') && !cancelled() && !failure() }}
