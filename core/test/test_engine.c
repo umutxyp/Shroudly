@@ -254,6 +254,76 @@ int main(void) {
   }
   printf("  extra connections capped: OK\n");
 
+  /* 9. UDP relay: destinations it refuses, and the client endpoint a request
+   *    names */
+  {
+    struct sockaddr_storage ss; memset(&ss, 0, sizeof(ss));
+    struct sockaddr_in *s4 = (struct sockaddr_in *)&ss;
+    s4->sin_family = AF_INET;
+    uint32_t bad4[] = { 0x7f000001, 0x7f0000fe, 0x7fffffff, 0x00000000, 0x00010203 };
+    for (size_t i = 0; i < sizeof(bad4) / 4; i++) { s4->sin_addr.s_addr = htonl(bad4[i]); CHECK(udp_dst_forbidden(&ss)); }
+    uint32_t ok4[] = { 0x08080808, 0xc0a80101, 0x0a000001, 0x80000001, 0x01000000 };
+    for (size_t i = 0; i < sizeof(ok4) / 4; i++) { s4->sin_addr.s_addr = htonl(ok4[i]); CHECK(!udp_dst_forbidden(&ss)); }
+    struct sockaddr_in6 *s6 = (struct sockaddr_in6 *)&ss;
+    memset(&ss, 0, sizeof(ss)); s6->sin6_family = AF_INET6;
+    const char *bad6[] = { "::1", "::", "::ffff:127.0.0.1", "::ffff:0.0.0.0", "::ffff:127.9.9.9" };
+    for (size_t i = 0; i < sizeof(bad6) / sizeof(*bad6); i++) { inet_pton(AF_INET6, bad6[i], &s6->sin6_addr); CHECK(udp_dst_forbidden(&ss)); }
+    const char *ok6[] = { "2001:db8::1", "fe80::1", "::ffff:8.8.8.8", "::2", "fd00::1" };
+    for (size_t i = 0; i < sizeof(ok6) / sizeof(*ok6); i++) { inet_pton(AF_INET6, ok6[i], &s6->sin6_addr); CHECK(!udp_dst_forbidden(&ss)); }
+    ss.ss_family = 0; CHECK(udp_dst_forbidden(&ss));
+
+    struct sockaddr_storage peer; memset(&peer, 0, sizeof(peer));
+    ((struct sockaddr_in *)&peer)->sin_family = AF_INET;
+    ((struct sockaddr_in *)&peer)->sin_addr.s_addr = htonl(0x7f000001);
+    socks_req rq; struct sockaddr_in got;
+    memset(&rq, 0, sizeof(rq)); rq.atyp = 1; rq.port = 4000;                   /* 0.0.0.0:4000 */
+    CHECK(udp_request_endpoint(&rq, &peer, &got) && got.sin_addr.s_addr == htonl(0x7f000001) && ntohs(got.sin_port) == 4000);
+    rq.addr[0] = 127; rq.addr[3] = 1;                                           /* 127.0.0.1:4000 */
+    CHECK(udp_request_endpoint(&rq, &peer, &got) && ntohs(got.sin_port) == 4000);
+    rq.addr[3] = 2;                                                             /* another address */
+    CHECK(!udp_request_endpoint(&rq, &peer, &got));
+    memset(rq.addr, 0, 16); rq.port = 0;                                        /* 0.0.0.0:0 */
+    CHECK(!udp_request_endpoint(&rq, &peer, &got));
+    rq.atyp = 4; rq.port = 5000;                                                /* [::]:5000 */
+    CHECK(udp_request_endpoint(&rq, &peer, &got) && ntohs(got.sin_port) == 5000);
+    inet_pton(AF_INET6, "::ffff:127.0.0.1", rq.addr);
+    CHECK(udp_request_endpoint(&rq, &peer, &got) && ntohs(got.sin_port) == 5000);
+    inet_pton(AF_INET6, "::1", rq.addr);
+    CHECK(!udp_request_endpoint(&rq, &peer, &got));
+    rq.atyp = 3; CHECK(!udp_request_endpoint(&rq, &peer, &got));               /* a name */
+  }
+  printf("  UDP relay destinations and client endpoint: OK\n");
+
+  /* 10. the --auth-file and the comparison of what a client gives */
+  {
+    engine_config c; memset(&c, 0, sizeof(c));
+    const char *path = "/tmp/shroudly_test_auth";
+    struct { const char *body; int ok; const char *u, *p; } cases[] = {
+      { "user:pa:ss\n", 1, "user", "pa:ss" },
+      { "u:p", 1, "u", "p" },
+      { "u:p\r\n", 1, "u", "p" },
+      { ":p\n", 0, 0, 0 }, { "u:\n", 0, 0, 0 }, { "nocolon\n", 0, 0, 0 },
+      { "u:p\nmore\n", 0, 0, 0 }, { "", 0, 0, 0 },
+    };
+    for (size_t i = 0; i < sizeof(cases) / sizeof(*cases); i++) {
+      FILE *f = fopen(path, "wb"); fputs(cases[i].body, f); fclose(f);
+      memset(&c, 0, sizeof(c));
+      int r = engine_load_auth(&c, path);
+      CHECK((r == 0) == cases[i].ok);
+      if (cases[i].ok) CHECK(!strcmp(c.auth_user, cases[i].u) && !strcmp(c.auth_pass, cases[i].p));
+    }
+    char longu[300]; memset(longu, 'a', 256); strcpy(longu + 256, ":p");
+    FILE *f = fopen(path, "wb"); fputs(longu, f); fclose(f);
+    CHECK(engine_load_auth(&c, path) != 0);                      /* a 256-byte user */
+    remove(path);
+    CHECK(engine_load_auth(&c, path) != 0);                      /* no file */
+    CHECK(same_secret((const uint8_t *)"secret", 6, "secret"));
+    CHECK(!same_secret((const uint8_t *)"secreT", 6, "secret"));
+    CHECK(!same_secret((const uint8_t *)"secret", 5, "secret"));
+    CHECK(!same_secret((const uint8_t *)"secretx", 7, "secret"));
+  }
+  printf("  SOCKS5 authentication file and comparison: OK\n");
+
   if (fails == 0) { printf("ENGINE MEMORY TESTS PASSED\n"); return 0; }
   printf("%d FAILED\n", fails);
   return 1;

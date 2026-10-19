@@ -22,7 +22,7 @@ $(BIN): $(SRC)
 # The sources engine.c needs besides itself, for tests that include it.
 ENGINE_DEPS = src/platform.c src/proto.c src/strategy.c src/desync.c src/fake.c src/doh.c src/socksudp.c
 
-test: test/test_proto.c test/test_udpdpi.c test/test_desync.c test/test_engine.c test/test_tcpdpi.c test/test_rawscope.c test/test_socksudp.c $(SRC)
+test: test/test_proto.c test/test_udpdpi.c test/test_desync.c test/test_bogon.c test/test_engine.c test/test_tcpdpi.c test/test_rawscope.c test/test_socksudp.c $(SRC)
 	$(CC) -std=c11 -O2 -Wall -o /tmp/shroudly_test_proto src/proto.c src/strategy.c test/test_proto.c
 	/tmp/shroudly_test_proto
 	$(CC) -std=c11 -O2 -Wall -Wextra -o /tmp/shroudly_test_udpdpi src/udpdpi.c test/test_udpdpi.c
@@ -30,6 +30,8 @@ test: test/test_proto.c test/test_udpdpi.c test/test_desync.c test/test_engine.c
 	$(CC) -std=c11 -O2 -Wall -pthread -o /tmp/shroudly_test_desync \
 		src/platform.c src/proto.c src/strategy.c src/desync.c src/fake.c src/doh.c test/test_desync.c $(LDLIBS)
 	/tmp/shroudly_test_desync
+	$(CC) -std=c11 -O2 -Wall -pthread -o /tmp/shroudly_test_bogon_plain src/platform.c test/test_bogon.c $(LDLIBS)
+	/tmp/shroudly_test_bogon_plain
 	$(CC) -std=c11 -O2 -Wall -Wextra -pthread -o /tmp/shroudly_test_engine \
 		$(ENGINE_DEPS) test/test_engine.c $(LDLIBS)
 	/tmp/shroudly_test_engine

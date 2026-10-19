@@ -575,17 +575,20 @@ void engine_emit_stats(void) {
  * calls socks_reply(), per RFC 1928, so the client learns the true connect
  * result.
  *
- * SOCKS4 and SOCKS4a are accepted as well as SOCKS5. Plenty of clients fall
- * back to them: Firefox's system "SOCKS" setting, WinINet's "socks=" (what a
- * Windows program reading the system proxy gets), a PAC file's "SOCKS". */
+ * SOCKS4 and SOCKS4a are accepted as well as SOCKS5 (unless --auth-file asks
+ * for a password, which they cannot give). Plenty of clients fall back to
+ * them: Firefox's system "SOCKS" setting, WinINet's "socks=" (what a Windows
+ * program reading the system proxy gets), a PAC file's "SOCKS". */
 typedef struct {
   char     host[256];
   uint16_t port;
   int      ver;        /* 4 or 5: decides the reply format */
   /* 0x01 CONNECT, or (SOCKS5 only) 0x03 UDP ASSOCIATE: host and port are
-   * then where the client says it will send its datagrams from, which is
-   * not relied on: they are taken from the control connection's address. */
+   * then where the client says it will send its datagrams from; see
+   * udp_associate() for when that is used. */
   int      cmd;
+  uint8_t  atyp;       /* SOCKS5: 1 IPv4, 3 name, 4 IPv6 */
+  uint8_t  addr[16];   /* SOCKS5 ATYP 1 (first 4 bytes) or 4: the address as sent */
   /* A SOCKS4 client resolved the name itself, through the system's DNS, and
    * asks for a known block page: that DNS was poisoned. The real name is in
    * the first payload; see handle(). 0.0.0.0 and loopback do not count — a
@@ -661,18 +664,77 @@ static int socks4_accept(sock_t c, int cmd, socks_req *rq) {
   return 0;
 }
 
+/* ── authentication (optional) ───────────────────────────────────────────
+ * With --auth-file the port is not open to everything on this machine: a
+ * SOCKS5 client must offer username/password (method 0x02, RFC 1929) and
+ * give the ones in the file; SOCKS4, which has no password, is refused.
+ * Without it nothing changes. */
+int engine_load_auth(engine_config *cfg, const char *path) {
+  FILE *f = fopen(path, "rb");
+  if (!f) return -1;
+  char line[600];
+  size_t n = fread(line, 1, sizeof(line) - 1, f);
+  fclose(f);
+  line[n] = 0;
+  if (strlen(line) != n) return -1;                   /* a NUL byte inside */
+  while (n > 0 && (line[n - 1] == '\n' || line[n - 1] == '\r')) line[--n] = 0;
+  if (strpbrk(line, "\r\n")) return -1;               /* more than one line */
+  char *colon = strchr(line, ':');
+  if (!colon) return -1;
+  size_t ul = (size_t)(colon - line), pl = n - ul - 1;
+  if (ul < 1 || ul > 255 || pl < 1 || pl > 255) return -1;
+  memcpy(cfg->auth_user, line, ul); cfg->auth_user[ul] = 0;
+  memcpy(cfg->auth_pass, colon + 1, pl); cfg->auth_pass[pl] = 0;
+  memset(line, 0, sizeof(line));
+  return 0;
+}
+
+/* Equal, in a time that does not depend on where they differ. Both are at
+ * most 255 bytes; the whole field is always compared. */
+static int same_secret(const uint8_t *a, size_t al, const char *b) {
+  size_t bl = strlen(b);
+  unsigned diff = (unsigned)(al ^ bl);
+  for (size_t i = 0; i < 255; i++) {
+    uint8_t x = i < al ? a[i] : 0, y = i < bl ? (uint8_t)b[i] : 0;
+    diff |= (unsigned)(x ^ y);
+  }
+  return diff == 0;
+}
+
+/* RFC 1929: VER(1) ULEN(1) UNAME PLEN(1) PASSWD, answered 01 00 or 01 01. */
+static int socks5_auth(sock_t c) {
+  uint8_t h[2], u[255], p[255], pl;
+  if (recv_exact(c, h, 2) != 0 || h[0] != 0x01 || h[1] == 0) return -1;
+  if (recv_exact(c, u, h[1]) != 0) return -1;
+  if (recv_exact(c, &pl, 1) != 0 || pl == 0) return -1;
+  if (recv_exact(c, p, pl) != 0) return -1;
+  /* Both are checked whatever the first gives. */
+  int ok = same_secret(u, h[1], g_cfg.auth_user) & same_secret(p, pl, g_cfg.auth_pass);
+  uint8_t rep[2] = { 0x01, ok ? 0x00 : 0x01 };
+  sock_send_all(c, rep, 2, 0);
+  return ok ? 0 : -1;
+}
+
 static int socks_accept(sock_t c, socks_req *rq) {
   uint8_t b[300];
   memset(rq, 0, sizeof(*rq));
+  int auth = g_cfg.auth_user[0] != 0;
   if (sock_wait_readable(c, 5000) != 1) return -1;
   if (recv_exact(c, b, 2) != 0) return -1;
-  if (b[0] == 0x04) return socks4_accept(c, b[1], rq);
+  if (b[0] == 0x04) {
+    if (auth) { socks4_reply(c, 0x5B); return -1; }
+    return socks4_accept(c, b[1], rq);
+  }
   if (b[0] != 0x05) return -1;
   rq->ver = 5;
   int nm = b[1];
   if (nm > 0) { if (recv_exact(c, b, nm) != 0) return -1; }
-  uint8_t rep[2] = { 0x05, 0x00 };
-  if (sock_send_all(c, rep, 2, 0) != 0) return -1;
+  uint8_t want = auth ? 0x02 : 0x00;
+  int offered = !auth;   /* without authentication every client is taken, as always */
+  for (int i = 0; i < nm; i++) if (b[i] == want) offered = 1;
+  uint8_t rep[2] = { 0x05, offered ? want : 0xFF };
+  if (sock_send_all(c, rep, 2, 0) != 0 || !offered) return -1;
+  if (auth && socks5_auth(c) != 0) return -1;
 
   if (recv_exact(c, b, 4) != 0) return -1;
   if (b[0] != 0x05 || (b[1] != 0x01 && b[1] != 0x03)) {   /* CONNECT, UDP ASSOCIATE */
@@ -681,8 +743,10 @@ static int socks_accept(sock_t c, socks_req *rq) {
   }
   rq->cmd = b[1];
   int atyp = b[3];
+  rq->atyp = (uint8_t)atyp;
   if (atyp == 0x01) {
     uint8_t a[4]; if (recv_exact(c, a, 4) != 0) return -1;
+    memcpy(rq->addr, a, 4);
     snprintf(rq->host, sizeof(rq->host), "%u.%u.%u.%u", a[0], a[1], a[2], a[3]);
   } else if (atyp == 0x03) {
     uint8_t l; if (recv_exact(c, &l, 1) != 0) return -1;
@@ -691,6 +755,7 @@ static int socks_accept(sock_t c, socks_req *rq) {
     rq->host[l] = 0;
   } else if (atyp == 0x04) {
     uint8_t a[16]; if (recv_exact(c, a, 16) != 0) return -1;
+    memcpy(rq->addr, a, 16);
     char tmp[64]; inet_ntop(AF_INET6, a, tmp, sizeof(tmp));
     snprintf(rq->host, sizeof(rq->host), "%s", tmp);
   } else {
@@ -1570,23 +1635,6 @@ static void report_gave_up(const ladder_st *st, int local_fails, int fam) {
   fflush(stdout);
 }
 
-/* Names that never resolve on the public internet (RFC 6761, 6762, 8375 and
- * their usual relatives). A SOCKS4 request for a block page that names one of
- * these is a local connection, not a poisoned lookup, and asking the public
- * resolvers about it would only leak the name and add a delay. */
-static int local_name(const char *h) {
-  static const char *const SUFFIX[] = {
-    ".localhost", ".local", ".test", ".invalid", ".internal", ".lan", ".home.arpa", NULL
-  };
-  if (!strchr(h, '.')) return 1;           /* "localhost", "router", ... */
-  size_t n = strlen(h);
-  for (int i = 0; SUFFIX[i]; i++) {
-    size_t m = strlen(SUFFIX[i]);
-    if (n >= m && strcmp(h + n - m, SUFFIX[i]) == 0) return 1;
-  }
-  return 0;
-}
-
 /* ── UDP ASSOCIATE (RFC 1928 section 7) ──────────────────────────────────
  * Games, voice calls and an app's own DNS go over UDP, which a CONNECT can
  * not carry: on Android every packet of the phone reaches us through a
@@ -1598,17 +1646,28 @@ static int local_name(const char *h) {
  *     a UDP socket on 127.0.0.1 of its own; the association lives exactly as
  *     long as that connection, or until UDP_IDLE_MS pass with no datagram
  *     either way, and everything it holds is closed with it;
- *   - only a loopback client may ask, and only datagrams from its address
- *     (the control connection's) are taken; a fragment (FRAG != 0) or a
- *     malformed header is dropped;
+ *   - only a loopback client may ask, and the association belongs to one
+ *     client endpoint, address and port: the one the request names (when it
+ *     gives a port, and as address 0.0.0.0 or the control connection's own),
+ *     else the one the first well-formed datagram comes from. It is fixed
+ *     from then on; a datagram from any other port is dropped, so another
+ *     program on this machine can neither send through the association nor
+ *     take its replies. A fragment (FRAG != 0) or a malformed header is
+ *     dropped too;
  *   - each datagram goes out, without its header, from an outbound socket of
  *     the association's own (one per address family, opened when first
  *     needed) to the address or name in its header — a name through our own
- *     resolver, as CONNECT does;
+ *     resolver, as CONNECT does. Never to a loopback or unspecified address:
+ *     nothing a tunnelled app sends needs one, and it would let one relay
+ *     feed another, or itself;
+ *   - plain DNS (a query to port 53) goes to our encrypted-DNS forwarder
+ *     instead, when the engine has one (--doh with --doh-port), so an app
+ *     with a resolver of its own still gets answers nobody on the path can
+ *     read or forge; the answer comes back headed with the address the app
+ *     asked, as if that one had answered;
  *   - whatever comes back to an outbound socket goes to the client, headed
- *     with where it came from, and only ever to the client address the last
- *     accepted datagram came from: nothing is sent anywhere that did not
- *     send first, so the relay cannot be used to amplify.
+ *     with where it came from: nothing is sent anywhere that did not send
+ *     first, so the relay cannot be used to amplify.
  * At most UDP_ASSOC_MAX associations at once; one more is refused. */
 #define UDP_ASSOC_MAX    256
 #define UDP_IDLE_MS      120000
@@ -1617,6 +1676,8 @@ static int local_name(const char *h) {
 #define UDP_SOCK_BUF     (256 * 1024)
 #define UDP_NAME_OK_MS   30000   /* how long a name's address is reused */
 #define UDP_NAME_BAD_MS  5000    /* and how long a name that did not resolve is not asked again */
+#define UDP_DNS_SLOTS    32      /* DNS queries waiting for the forwarder, per association */
+#define UDP_DNS_WAIT_MS  10000   /* and how long one waits before its slot is let go */
 
 static _Atomic int g_udp_assocs = 0;
 
@@ -1628,6 +1689,27 @@ static void sa_set_port(struct sockaddr_storage *ss, uint16_t port) {
 static int is_loopback4(const struct sockaddr_storage *ss) {
   return ss->ss_family == AF_INET &&
          (ntohl(((const struct sockaddr_in *)ss)->sin_addr.s_addr) >> 24) == 127;
+}
+
+/* An IPv4 address (host order) a datagram must not go to: 0.0.0.0/8 and
+ * loopback. */
+static int udp_v4_forbidden(uint32_t a) {
+  return (a >> 24) == 0 || (a >> 24) == 127;
+}
+
+/* A destination the relay refuses: loopback or unspecified, in either family,
+ * IPv4-mapped IPv6 included, and anything that is neither family. */
+static int udp_dst_forbidden(const struct sockaddr_storage *ss) {
+  if (ss->ss_family == AF_INET)
+    return udp_v4_forbidden(ntohl(((const struct sockaddr_in *)ss)->sin_addr.s_addr));
+  if (ss->ss_family != AF_INET6) return 1;
+  const uint8_t *a = (const uint8_t *)&((const struct sockaddr_in6 *)ss)->sin6_addr;
+  static const uint8_t zero[16] = { 0 };
+  if (memcmp(a, zero, 15) == 0 && (a[15] == 0 || a[15] == 1)) return 1;   /* ::, ::1 */
+  if (memcmp(a, zero, 10) == 0 && a[10] == 0xff && a[11] == 0xff)           /* ::ffff:a.b.c.d */
+    return udp_v4_forbidden(((uint32_t)a[12] << 24) | ((uint32_t)a[13] << 16) |
+                            ((uint32_t)a[14] << 8) | a[15]);
+  return 0;
 }
 
 /* A non-blocking UDP socket of family fam, with room for a burst. */
@@ -1686,19 +1768,94 @@ static int socks5_reply_bnd(sock_t c, uint8_t rep, uint32_t addr_n, uint16_t por
   return sock_send_all(c, r, 10, 0);
 }
 
-/* The association's state: its sockets, the client's address, and the last
+/* A DNS query sent on to the forwarder, by its id: the header the client
+ * gave it, which heads the answer on the way back. */
+typedef struct {
+  uint16_t id;
+  uint16_t hl;
+  uint8_t  hdr[SUDP_HDR_MAX];
+  uint64_t t;
+  int      used;
+} udp_dns_q;
+
+/* The association's state: its sockets, the client's endpoint, and the last
  * name it sent to. Lives on the connection thread's stack; buf on the heap. */
 typedef struct {
   sock_t relay, out4, out6;
+  sock_t dns;                            /* to the encrypted-DNS forwarder, once used */
   struct sockaddr_in self;               /* the relay port's own address */
   struct sockaddr_storage peer;          /* the control connection's client */
-  struct sockaddr_storage client;        /* where the last accepted datagram came from */
-  socklen_t client_len;
-  int have_client;
+  struct sockaddr_in client;             /* the one endpoint datagrams are taken from */
+  int have_client;                       /* client is set, for good */
   struct { char host[256]; struct sockaddr_storage sa; socklen_t sl; int ok; uint64_t t; } name;
+  udp_dns_q *dq;                         /* UDP_DNS_SLOTS of them, once used */
   uint8_t *buf;
   uint64_t last;                         /* last datagram either way */
 } udp_assoc;
+
+/* Plain DNS from the client, sent to the forwarder instead of where it was
+ * headed. 1 when it went (or was dropped on the way: either way it is done
+ * with), 0 when the engine has no forwarder and the datagram should go out
+ * as any other. */
+static int udp_dns_redirect(udp_assoc *u, const uint8_t *hdr, size_t hl, const uint8_t *q, size_t ql) {
+  if (!g_cfg.use_doh) return 0;
+  struct sockaddr_in fwd;
+  if (doh_local_addr(&fwd) != 0) return 0;
+  if (!u->dq) {
+    u->dq = (udp_dns_q *)calloc(UDP_DNS_SLOTS, sizeof(udp_dns_q));
+    if (!u->dq) return 1;
+  }
+  if (u->dns == SOCK_INVALID) {
+    u->dns = udp_socket(AF_INET);
+    if (u->dns == SOCK_INVALID) return 1;
+    /* Bound to the forwarder: nothing else can answer on this socket. */
+    if (connect(u->dns, (struct sockaddr *)&fwd, sizeof(fwd)) != 0) {
+      sock_close(u->dns); u->dns = SOCK_INVALID; return 1;
+    }
+  }
+  uint16_t id = (uint16_t)((q[0] << 8) | q[1]);
+  uint64_t t = now_ms();
+  /* The same id again (the newer query wins), else a free or expired slot,
+   * else the one that has waited longest. */
+  int slot = -1, oldest = 0;
+  for (int i = 0; i < UDP_DNS_SLOTS && slot < 0; i++)
+    if (u->dq[i].used && u->dq[i].id == id) slot = i;
+  for (int i = 0; i < UDP_DNS_SLOTS && slot < 0; i++) {
+    if (!u->dq[i].used || age_ms(t, u->dq[i].t) >= UDP_DNS_WAIT_MS) slot = i;
+    else if (u->dq[i].t < u->dq[oldest].t) oldest = i;
+  }
+  if (slot < 0) slot = oldest;
+  udp_dns_q *e = &u->dq[slot];
+  e->id = id; e->hl = (uint16_t)hl; e->t = t; e->used = 1;
+  memcpy(e->hdr, hdr, hl);
+  e->hdr[0] = e->hdr[1] = e->hdr[2] = 0;                 /* RSV, FRAG */
+  if (send(u->dns, (const char *)q, (int)ql, 0) < 0) e->used = 0;
+  return 1;
+}
+
+/* Answers from the forwarder: to the client, headed with the address its
+ * query was sent to. */
+static void udp_dns_answers(udp_assoc *u) {
+  for (int i = 0; i < UDP_DRAIN; i++) {
+    int n = (int)recv(u->dns, (char *)u->buf + SUDP_HDR_MAX, 65536 - SUDP_HDR_MAX, 0);
+    if (n < 0) break;
+    if (n < 12 || !u->have_client || !u->dq) continue;
+    const uint8_t *a = u->buf + SUDP_HDR_MAX;
+    uint16_t id = (uint16_t)((a[0] << 8) | a[1]);
+    uint64_t t = now_ms();
+    udp_dns_q *e = NULL;
+    for (int k = 0; k < UDP_DNS_SLOTS && !e; k++)
+      if (u->dq[k].used && u->dq[k].id == id && age_ms(t, u->dq[k].t) < UDP_DNS_WAIT_MS) e = &u->dq[k];
+    if (!e) continue;
+    e->used = 0;
+    uint8_t *start = u->buf + SUDP_HDR_MAX - e->hl;
+    memcpy(start, e->hdr, e->hl);
+    if (sendto(u->relay, (const char *)start, (int)e->hl + n, 0,
+               (struct sockaddr *)&u->client, sizeof(u->client)) < 0) continue;
+    u->last = t;
+    atomic_fetch_add(&g_stats.bytes_down, (uint64_t)n);
+  }
+}
 
 /* Datagrams from the client: each one, unwrapped, goes to its destination. */
 static void udp_from_client(udp_assoc *u) {
@@ -1706,14 +1863,31 @@ static void udp_from_client(udp_assoc *u) {
     struct sockaddr_storage from; socklen_t fl = sizeof(from);
     int n = (int)recvfrom(u->relay, (char *)u->buf, 65536, 0, (struct sockaddr *)&from, &fl);
     if (n < 0) break;   /* nothing more (or an error report): back to waiting */
-    /* Only the client: its address, over IPv4 loopback. */
+    /* Only the client: its address, over IPv4 loopback, and once known its
+     * port. */
+    const struct sockaddr_in *f4 = (const struct sockaddr_in *)&from;
     if (from.ss_family != AF_INET ||
-        ((struct sockaddr_in *)&from)->sin_addr.s_addr != ((struct sockaddr_in *)&u->peer)->sin_addr.s_addr)
+        f4->sin_addr.s_addr != ((struct sockaddr_in *)&u->peer)->sin_addr.s_addr)
       continue;
+    if (u->have_client && f4->sin_port != u->client.sin_port) continue;
     sudp_dst d;
     if (sudp_parse(u->buf, (size_t)n, &d) != SUDP_OK) continue;
+    if (!u->have_client) {
+      /* The first well-formed datagram names the client, for good: junk
+       * cannot claim the association. */
+      memcpy(&u->client, f4, sizeof(u->client));
+      u->have_client = 1;
+    }
     size_t plen = (size_t)n - d.hdr_len;
     if (plen > UDP_MAX_PAYLOAD) continue;
+    const uint8_t *payload = u->buf + d.hdr_len;
+    /* A DNS query (QR clear) to port 53. */
+    if (d.port == 53 && plen >= 12 && !(payload[2] & 0x80) &&
+        udp_dns_redirect(u, u->buf, d.hdr_len, payload, plen)) {
+      u->last = now_ms();
+      atomic_fetch_add(&g_stats.bytes_up, (uint64_t)plen);
+      continue;
+    }
     struct sockaddr_storage to; socklen_t tl;
     if (sudp_dst_addr(&d, &to, &tl) != 0) {
       uint64_t t = now_ms();
@@ -1727,18 +1901,14 @@ static void udp_from_client(udp_assoc *u) {
       to = u->name.sa; tl = u->name.sl;
       sa_set_port(&to, d.port);
     }
-    /* Never back into the relay port itself. */
-    if (to.ss_family == AF_INET &&
-        ((struct sockaddr_in *)&to)->sin_port == u->self.sin_port &&
-        ((struct sockaddr_in *)&to)->sin_addr.s_addr == u->self.sin_addr.s_addr) continue;
+    /* Not into this machine: not into the relay port itself, nor into
+     * another association's. */
+    if (udp_dst_forbidden(&to)) continue;
     sock_t *os = to.ss_family == AF_INET6 ? &u->out6 : &u->out4;
     if (*os == SOCK_INVALID) *os = udp_socket(to.ss_family);
     if (*os == SOCK_INVALID) continue;
     /* A datagram the network cannot take now is dropped, as UDP would. */
-    if (sendto(*os, (const char *)u->buf + d.hdr_len, (int)plen, 0, (struct sockaddr *)&to, tl) < 0) continue;
-    memcpy(&u->client, &from, sizeof(from));
-    u->client_len = fl;
-    u->have_client = 1;
+    if (sendto(*os, (const char *)payload, (int)plen, 0, (struct sockaddr *)&to, tl) < 0) continue;
     u->last = now_ms();
     atomic_fetch_add(&g_stats.bytes_up, (uint64_t)plen);
   }
@@ -1757,16 +1927,37 @@ static void udp_to_client(udp_assoc *u, sock_t s) {
     if (hl < 0) continue;
     memcpy(data - hl, h, (size_t)hl);
     if (sendto(u->relay, (const char *)data - hl, hl + n, 0,
-               (struct sockaddr *)&u->client, u->client_len) < 0) continue;
+               (struct sockaddr *)&u->client, sizeof(u->client)) < 0) continue;
     u->last = now_ms();
     atomic_fetch_add(&g_stats.bytes_down, (uint64_t)n);
   }
 }
 
-static void udp_associate(sock_t client) {
+/* The request names the client's endpoint when it gives a port and, as the
+ * address, 0.0.0.0 (or ::) or the control connection's own address (plain
+ * or IPv4-mapped). 1 and the endpoint in out when it does. */
+static int udp_request_endpoint(const socks_req *rq, const struct sockaddr_storage *peer,
+                                struct sockaddr_in *out) {
+  if (rq->port == 0) return 0;
+  uint32_t peer_n = ((const struct sockaddr_in *)peer)->sin_addr.s_addr, a_n;
+  static const uint8_t mapped[12] = { 0,0,0,0, 0,0,0,0, 0,0,0xff,0xff };
+  static const uint8_t zero[16] = { 0 };
+  if (rq->atyp == 0x01) memcpy(&a_n, rq->addr, 4);
+  else if (rq->atyp == 0x04 && memcmp(rq->addr, zero, 16) == 0) a_n = 0;
+  else if (rq->atyp == 0x04 && memcmp(rq->addr, mapped, 12) == 0) memcpy(&a_n, rq->addr + 12, 4);
+  else return 0;
+  if (a_n != 0 && a_n != peer_n) return 0;
+  memset(out, 0, sizeof(*out));
+  out->sin_family = AF_INET;
+  out->sin_addr.s_addr = peer_n;
+  out->sin_port = htons(rq->port);
+  return 1;
+}
+
+static void udp_associate(sock_t client, const socks_req *rq) {
   udp_assoc u;
   memset(&u, 0, sizeof(u));
-  u.relay = u.out4 = u.out6 = SOCK_INVALID;
+  u.relay = u.out4 = u.out6 = u.dns = SOCK_INVALID;
   socklen_t pl = sizeof(u.peer);
   if (getpeername(client, (struct sockaddr *)&u.peer, &pl) != 0 || !is_loopback4(&u.peer)) {
     socks5_reply(client, 0x02);   /* not allowed: datagrams are for this machine only */
@@ -1777,6 +1968,7 @@ static void udp_associate(sock_t client) {
     socks5_reply(client, 0x01);
     return;
   }
+  u.have_client = udp_request_endpoint(rq, &u.peer, &u.client);
   u.buf = (uint8_t *)malloc(65536 + SUDP_HDR_MAX);
   u.relay = udp_socket(AF_INET);
   socklen_t sl = sizeof(u.self);
@@ -1793,10 +1985,11 @@ static void udp_associate(sock_t client) {
 
   u.last = now_ms();
   while (atomic_load(&g_running)) {
-    sock_t s[4]; int ready[4], n = 0, i4 = -1, i6 = -1;
+    sock_t s[5]; int ready[5], n = 0, i4 = -1, i6 = -1, id = -1;
     s[n++] = client; s[n++] = u.relay;
     if (u.out4 != SOCK_INVALID) { i4 = n; s[n++] = u.out4; }
     if (u.out6 != SOCK_INVALID) { i6 = n; s[n++] = u.out6; }
+    if (u.dns != SOCK_INVALID) { id = n; s[n++] = u.dns; }
     int r = sock_wait_any(s, n, 1000, ready);
     if (r < 0) break;
     if (r > 0 && ready[0]) {
@@ -1810,11 +2003,13 @@ static void udp_associate(sock_t client) {
     if (r > 0 && ready[1]) udp_from_client(&u);
     if (r > 0 && i4 >= 0 && ready[i4]) udp_to_client(&u, u.out4);
     if (r > 0 && i6 >= 0 && ready[i6]) udp_to_client(&u, u.out6);
+    if (r > 0 && id >= 0 && ready[id]) udp_dns_answers(&u);
     if (age_ms(now_ms(), u.last) >= UDP_IDLE_MS) break;
   }
 
 out:
-  sock_close(u.relay); sock_close(u.out4); sock_close(u.out6);
+  sock_close(u.relay); sock_close(u.out4); sock_close(u.out6); sock_close(u.dns);
+  free(u.dq);
   free(u.buf);
   atomic_fetch_sub(&g_udp_assocs, 1);
 }
@@ -1837,7 +2032,7 @@ static void handle(sock_t client) {
   sock_set_nodelay(client, 1);
 
   if (socks_accept(client, &rq) != 0) goto done;
-  if (rq.cmd == 0x03) { udp_associate(client); goto done; }
+  if (rq.cmd == 0x03) { udp_associate(client, &rq); goto done; }
   snprintf(dial_host, sizeof(dial_host), "%s", rq.host);
 
   first = (uint8_t *)malloc(RELAY_BUF);
@@ -1856,7 +2051,7 @@ static void handle(sock_t client) {
     proto_info pi0;
     memset(&pi0, 0, sizeof(pi0));
     if (flen > 0) proto_inspect(first, (size_t)flen, &pi0);
-    if (pi0.host[0] && !local_name(pi0.host)) {
+    if (pi0.host[0] && !doh_local_name(pi0.host)) {
       up = dial(pi0.host, rq.port, g_cfg.prefer_ipv6, 1, 0, &fam, &di);
       if (up != SOCK_INVALID) { snprintf(dial_host, sizeof(dial_host), "%s", pi0.host); dial_doh = 1; }
       else report_unreachable(pi0.host, rq.port, &di);   /* the site meant, not the block page */

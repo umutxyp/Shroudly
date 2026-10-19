@@ -28,6 +28,15 @@ void doh_clear_cache(void);
 /* Point the resolver at a local DoH forwarder (127.0.0.1:port) that speaks real
  * encrypted DNS; tried before the public UDP resolvers. port<=0 disables it. */
 void doh_set_local(const char *ip, int port);
+/* That forwarder's address: 0, or -1 when there is none. */
+int  doh_local_addr(struct sockaddr_in *out);
+
+/* Names that never resolve on the public internet (RFC 6761, 6762, 8375 and
+ * their usual relatives): one label ("router"), or ending in .local, .lan,
+ * .home.arpa, .internal, .localhost, .test or .invalid. Only the system's
+ * resolver knows them, so it alone is asked, and the private address it
+ * gives is taken (a known block page still is not). */
+int  doh_local_name(const char *name);
 
 /* Add an ISP block-page / sinkhole IPv4 (dotted). Such answers are rejected
  * like bogons. Turk Telekom's 195.175.254.2 is built in. */

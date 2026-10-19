@@ -52,6 +52,7 @@ static int g_quic_block = 1;    /* Advanced mode: drop QUIC Initial -> TCP */
 static int g_udp_fake = 1;      /* Advanced mode: decoys for Discord voice UDP */
 static int g_fake_repeats = 6;  /* how many decoy datagrams per voice flow */
 static char g_status_file[1024] = "";
+static char g_auth_file[1024] = "";
 static long g_parent_pid = 0;
 #if defined(SHROUDLY_RAW)
 /* Advanced-mode packet-layer options; defaults in raw_desync.h. */
@@ -89,6 +90,8 @@ static void usage(void) {
     "  --strategy <spec>     e.g. \"fake(ttl=4),split(sni)\"\n"
     "  --auto                auto-probe best strategy per host\n"
     "  --doh                 use anti-poisoning resolver\n"
+    "  --auth-file <path>    SOCKS5 username/password: the file holds \"user:pass\";\n"
+    "                        every client must give them, SOCKS4 is refused\n"
     "  --ipv6                prefer IPv6 upstream\n"
     "  --advanced            packet-layer backend (needs elevation)\n"
     "  --fake-repeats <n>    Advanced: decoy datagrams per Discord voice flow\n"
@@ -134,12 +137,22 @@ int main(int argc, char **argv) {
     else if (!strcmp(argv[i], "--seqovl-pattern") && i+1<argc) g_seqovl_pat = (int)strtol(argv[++i], NULL, 16) & 0xff;
     else if (!strcmp(argv[i], "--fake-pattern") && i+1<argc) g_fake_pat = (int)strtol(argv[++i], NULL, 16) & 0xff;
 #endif
+    else if (!strcmp(argv[i], "--auth-file") && i+1<argc) strncpy(g_auth_file, argv[++i], sizeof(g_auth_file)-1);
     else if (!strcmp(argv[i], "--status-file") && i+1<argc) strncpy(g_status_file, argv[++i], sizeof(g_status_file)-1);
     else if (!strcmp(argv[i], "--parent-pid") && i+1<argc) g_parent_pid = atol(argv[++i]);
     else if (!strcmp(argv[i], "--help")) { usage(); return 0; }
   }
 
   if (g_cfg.use_doh && g_doh_fwd_port > 0) doh_set_local(g_doh_fwd_ip, g_doh_fwd_port);
+  /* Read once, here: the secret is in a file, not on the command line, where
+   * any process could read it. A file that cannot be used stops the engine
+   * rather than leave the port open. */
+  if (g_auth_file[0] && engine_load_auth(&g_cfg, g_auth_file) != 0) {
+    printf("{\"type\":\"error\",\"msg\":\"auth file unusable\"}\n");
+    fflush(stdout);
+    plat_cleanup();
+    return 2;
+  }
 
 #if defined(SHROUDLY_RAW)
   /* Advanced (packet-layer) mode: run the per-OS fake-packet backend instead of

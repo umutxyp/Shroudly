@@ -184,6 +184,16 @@ static int is_bogon_v4(uint32_t ip /*host order*/) {
   return 0;
 }
 
+/* The private and shared ranges a LAN, an intranet or a carrier hands out:
+ * 10/8, 172.16/12, 192.168/16, 169.254/16, 100.64/10. Bogons too (a censor
+ * answers with them), but a real answer for a name only the local network
+ * knows. */
+static int is_private_v4(uint32_t ip /*host order*/) {
+  uint8_t a = (ip >> 24) & 0xff, b = (ip >> 16) & 0xff;
+  return a == 10 || (a == 172 && b >= 16 && b <= 31) || (a == 192 && b == 168) ||
+         (a == 169 && b == 254) || (a == 100 && b >= 64 && b <= 127);
+}
+
 /* Known ISP block-page / sinkhole addresses (host order). DNS-based censorship
  * answers blocked names with one of these instead of a bogon, so they must be
  * rejected like bogons. Seeded with Turk Telekom's; the app passes the full
@@ -226,6 +236,17 @@ int doh_addr_is_block(const struct sockaddr_storage *sa) {
   return is_bogon_v4(ip) || is_blockpage_v4(ip);
 }
 
+/* Is an address the system resolver gave refused? Every bogon and block
+ * page, as doh_addr_is_block(); with trusted (a local name, or one encrypted
+ * DNS says has no public address) only a block page and what no connection
+ * can use: 0.0.0.0/8, loopback, multicast and reserved. */
+static int sys_answer_refused(const struct sockaddr_storage *sa, int trusted) {
+  if (!trusted) return doh_addr_is_block(sa);
+  if (sa->ss_family != AF_INET) return 0;
+  uint32_t ip = ntohl(((const struct sockaddr_in *)sa)->sin_addr.s_addr);
+  return is_blockpage_v4(ip) || (is_bogon_v4(ip) && !is_private_v4(ip));
+}
+
 /* Optional local DoH forwarder (127.0.0.1:port), tried before public UDP. */
 static char     g_fwd_ip[64] = "";
 static uint16_t g_fwd_port = 0;
@@ -233,6 +254,34 @@ void doh_set_local(const char *ip, int port) {
   if (!ip || port <= 0 || port > 65535) { g_fwd_ip[0] = 0; g_fwd_port = 0; return; }
   strncpy(g_fwd_ip, ip, sizeof(g_fwd_ip) - 1); g_fwd_ip[sizeof(g_fwd_ip) - 1] = 0;
   g_fwd_port = (uint16_t)port;
+}
+
+int doh_local_addr(struct sockaddr_in *out) {
+  if (!g_fwd_port) return -1;
+  memset(out, 0, sizeof(*out));
+  out->sin_family = AF_INET;
+  out->sin_port = htons(g_fwd_port);
+  return inet_pton(AF_INET, g_fwd_ip, &out->sin_addr) == 1 ? 0 : -1;
+}
+
+int doh_local_name(const char *h) {
+  static const char *const SUFFIX[] = {
+    ".localhost", ".local", ".test", ".invalid", ".internal", ".lan", ".home.arpa", NULL
+  };
+  if (!h || !h[0]) return 0;
+  if (!strchr(h, '.')) return 1;           /* "localhost", "router", ... */
+  size_t n = strlen(h);
+  for (int i = 0; SUFFIX[i]; i++) {
+    size_t m = strlen(SUFFIX[i]), k = 0;
+    if (n < m) continue;
+    for (; k < m; k++) {
+      char c = h[n - m + k];
+      if (c >= 'A' && c <= 'Z') c = (char)(c + 32);
+      if (c != SUFFIX[i][k]) break;
+    }
+    if (k == m) return 1;
+  }
+  return 0;
 }
 
 /* ── DNS wire format ────────────────────────────────────────────────────── */
@@ -289,6 +338,9 @@ static int dns_build(uint8_t *q, const char *name, uint16_t id, int type) {
  * unusable. */
 #define DNS_NODATA   (-2)
 #define DNS_NXDOMAIN (-3)
+/* As DNS_NODATA, but what was left out was a private address (is_private_v4):
+ * the name is published with one. */
+#define DNS_PRIVATE  (-4)
 /* Does this reply echo the question we sent? A reply carrying someone else's
  * question is not an answer to ours, however well-formed it looks. */
 static int dns_question_matches(const uint8_t *r, int len, const uint8_t *q, int qlen) {
@@ -352,7 +404,7 @@ static int dns_parse(const uint8_t *r, int len, int want6,
   }
   int wtype = want6 ? 28 : 1;
   uint32_t ttl_lo = 0xffffffffu;
-  int damaged = 0;
+  int damaged = 0, private = 0;
   for (int i = 0; i < an && *naddr < max; i++) {
     p = dns_skip_name(r, len, p);
     /* A damaged record ends the walk; what was read before it stands. */
@@ -368,7 +420,10 @@ static int dns_parse(const uint8_t *r, int len, int want6,
     if (!want6 && rdlen == 4) {
       uint32_t ip = ((uint32_t)r[rdata] << 24) | ((uint32_t)r[rdata+1] << 16) |
                     ((uint32_t)r[rdata+2] << 8) | (uint32_t)r[rdata+3];
-      if (is_bogon_v4(ip) || is_blockpage_v4(ip)) continue;
+      if (is_bogon_v4(ip) || is_blockpage_v4(ip)) {
+        if (is_private_v4(ip) && !is_blockpage_v4(ip)) private = 1;
+        continue;
+      }
     } else if (!(want6 && rdlen == 16)) {
       continue;
     }
@@ -380,7 +435,7 @@ static int dns_parse(const uint8_t *r, int len, int want6,
     (*naddr)++;
     if (ttl < ttl_lo) ttl_lo = ttl;
   }
-  if (*naddr == 0) return damaged ? -1 : DNS_NODATA;
+  if (*naddr == 0) return damaged ? -1 : private ? DNS_PRIVATE : DNS_NODATA;
   if (min_ttl) *min_ttl = ttl_lo;
   return 0;
 }
@@ -437,7 +492,7 @@ static int query_udp_at(const char *resolver, uint16_t rport, int timeout_ms,
      * short grace period in case it was a forged reply racing the real one.
      * Longer for "no such name", the answer an injector would forge to make a
      * site vanish. */
-    if ((pr == DNS_NODATA || pr == DNS_NXDOMAIN) && rc == -1) {
+    if ((pr == DNS_NODATA || pr == DNS_NXDOMAIN || pr == DNS_PRIVATE) && rc == -1) {
       rc = pr;
       uint64_t grace = now_ms() + (pr == DNS_NXDOMAIN ? 600 : 250);
       if (grace < deadline) deadline = grace;
@@ -489,9 +544,15 @@ int doh_resolve_all(const char *name, uint16_t port, int want6,
   uint8_t addrs[DOH_MAX_ADDRS][16];
   int n = 0;
   uint32_t ttl = 0;
+  /* The system resolver's private answer is believed (see below). */
+  int trusted = 0;
+
+  /* 0. A name only the local network knows ("nas.lan", "router"): the public
+   * resolvers would only see it and say it does not exist. */
+  if (doh_local_name(name)) trusted = 1;
 
   /* 1. Real encrypted DNS via the local forwarder, if the app started one. */
-  if (g_fwd_port) {
+  if (g_fwd_port && !trusted) {
     int fr = query_udp_at(g_fwd_ip, g_fwd_port, 4000, name, want6, addrs, &n, &ttl);
     if (fr == 0) return answer(name, port, family, addrs, n, ttl, out, outlen, max);
     /* It says the name has no address of this family. That is an answer, not
@@ -500,16 +561,25 @@ int doh_resolve_all(const char *name, uint16_t port, int want6,
      * network, and wait seconds where they are blocked. The dialler asks for
      * the other family whenever a connect is slow, so this is common. */
     if (fr == DNS_NODATA) return -1;
+    /* It says the name does not exist publicly, or exists with a private
+     * address: an intranet name, a printer, the router's own name. Nobody on
+     * the path could have forged that, so the public resolvers have nothing
+     * to add, and the private address the system's resolver (the local
+     * network's) gives is the real one. A public name the local DNS answers
+     * with a private address never gets here: the forwarder has its real
+     * address. */
+    if (fr == DNS_NXDOMAIN || fr == DNS_PRIVATE) trusted = 1;
   }
 
   /* 2. Fallback: several independent public resolvers over UDP/53. An on-path
    * injector must poison all of them identically to win. Where none of them
    * answers at all (a network that only lets its own DNS through), they are
    * skipped for a minute: otherwise every new name waits for all five to
-   * time out before the system's resolver is asked. */
+   * time out before the system's resolver is asked. Not for a trusted name:
+   * they have nothing to add. */
   int nodata = 0, nxdomain = 0, silent = 0;
   mutex_lock(&g_cache_mx);
-  int plain_dead = now_ms() < g_plain_dead_until;
+  int plain_dead = trusted || now_ms() < g_plain_dead_until;
   mutex_unlock(&g_cache_mx);
   for (int i = 0; i < MAX_RESOLVERS && !plain_dead; i++) {
     uint64_t t0 = now_ms();
@@ -518,7 +588,7 @@ int doh_resolve_all(const char *name, uint16_t port, int want6,
     if (qr == 0) return answer(name, port, family, addrs, n, ttl, out, outlen, max);
     /* Two independent resolvers agree the name has no record of this type:
      * believe them (the caller then tries the other address family). */
-    if (qr == DNS_NODATA && ++nodata >= 2) return -1;
+    if ((qr == DNS_NODATA || qr == DNS_PRIVATE) && ++nodata >= 2) return -1;
     /* Two agree the name does not exist at all: the other public resolvers
      * will not know better, but the system's may — a hosts-file entry, an
      * intranet name — so that one still gets asked. */
@@ -533,7 +603,8 @@ int doh_resolve_all(const char *name, uint16_t port, int want6,
   /* Last resort: OS resolver (may be poisoned, but better than failing). It
    * gives no TTL and it is the answer we trust least, so it is kept only for
    * the shortest time (TTL_MIN_S): enough that a page's many connections do
-   * not each ask again. */
+   * not each ask again. Its bogons are refused, unless trusted says the name
+   * is a local one; a known block page always is. */
   struct addrinfo hints, *res = NULL;
   memset(&hints, 0, sizeof(hints));
   hints.ai_family = family;
@@ -546,7 +617,7 @@ int doh_resolve_all(const char *name, uint16_t port, int want6,
     if ((size_t)ai->ai_addrlen > sizeof(struct sockaddr_storage)) continue;
     struct sockaddr_storage cand; memset(&cand, 0, sizeof(cand));
     memcpy(&cand, ai->ai_addr, ai->ai_addrlen);
-    if (doh_addr_is_block(&cand)) continue;  /* OS DNS was poisoned too */
+    if (sys_answer_refused(&cand, trusted)) continue;  /* OS DNS was poisoned too */
     memcpy(&out[got], &cand, sizeof(cand));
     outlen[got] = (socklen_t)ai->ai_addrlen;
     got++;

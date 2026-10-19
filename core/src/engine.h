@@ -16,7 +16,17 @@ typedef struct {
   int      prefer_ipv6;
   strategy strat;             /* active strategy (used when auto_probe is off,
                                  and as the first candidate when it is on) */
+  /* SOCKS5 username/password (RFC 1929), from --auth-file. Empty: no
+   * authentication, and SOCKS4 is taken as well. Set: every connection must
+   * be SOCKS5 and give exactly these. */
+  char     auth_user[256];
+  char     auth_pass[256];
 } engine_config;
+
+/* Read "user:pass" (one line; a trailing newline is ignored) from path into
+ * cfg. Each part 1..255 bytes. 0 on success, -1 when the file cannot be read
+ * or does not hold that. */
+int  engine_load_auth(engine_config *cfg, const char *path);
 
 typedef struct {
   _Atomic uint64_t conns_total;

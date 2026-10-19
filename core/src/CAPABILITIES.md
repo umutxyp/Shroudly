@@ -203,12 +203,40 @@ answers SOCKS5 `UDP ASSOCIATE` (RFC 1928 section 7, `udp_associate` in
   own. The association lives as long as its TCP control connection, or until
   120 s pass with no datagram either way. At most 256 at once; one more is
   refused (reply 0x01).
-- Only datagrams from the control connection's own address are taken.
+- An association belongs to one client endpoint, address and port: the one
+  the request names (a non-zero port, with 0.0.0.0 or the control connection's
+  own address), else the one the first well-formed datagram comes from. It is
+  fixed from then on; datagrams from any other port are dropped, so another
+  program on the machine can neither send through it nor take its replies.
   Fragments (FRAG != 0) and malformed headers are dropped. A destination may be
-  IPv4, IPv6 or a name (resolved by the engine's own resolver, as CONNECT does).
+  IPv4, IPv6 or a name (resolved by the engine's own resolver, as CONNECT does),
+  but never loopback or unspecified (127/8, 0.0.0.0/8, ::1, ::, and their
+  IPv4-mapped forms): no relay can feed another, or itself.
+- Plain DNS (a query to port 53) goes to the encrypted-DNS forwarder instead,
+  when the engine runs with `--doh` and `--doh-port`; the answer comes back
+  headed with the address the app asked, so an app with its own resolver gets
+  encrypted DNS too.
 - Each association sends from outbound sockets of its own (one per address
-  family) and returns replies, headed with their source, only to the client
-  address that sent last: nothing goes anywhere that did not send first.
+  family) and returns replies, headed with their source, only to its client:
+  nothing goes anywhere that did not send first.
 - Up to 65507 bytes of payload. No desync: a plain relay. Nothing on the
   desktop uses it (the engine listens on loopback only), so it changes nothing
   there.
+
+## Update 6: optional SOCKS5 username/password; intranet names
+
+- `--auth-file <path>`: the file holds `user:pass` (one line, read once at
+  start, so the secret is not on the command line). Every SOCKS5 client must
+  then offer username/password (RFC 1929) and give exactly those, compared in
+  constant time; a wrong one gets status 1, a client offering no 0x02 gets
+  0xFF, and SOCKS4 (no password) is refused. A file that cannot be used stops
+  the engine. Without the option nothing changes; the desktop app does not use
+  it. `tests/net/engine-auth.test.js`.
+- Names only the local network knows (one label, `.local`, `.lan`,
+  `.home.arpa`, `.internal`, ...) are asked of the system resolver alone, and
+  its private answer is taken. So is the system's private answer for a name
+  that encrypted DNS says does not exist publicly, or has only a private
+  address: an intranet name, a printer, a router's own name. A known block page
+  is still refused, and a public name the local DNS answers with a private or
+  block-page address is not affected: encrypted DNS has its real address.
+  `core/test/test_bogon.c`.
