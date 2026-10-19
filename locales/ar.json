@@ -383,5 +383,9 @@
   "autoAdvancedFailed": "تعذّر تشغيل الوضع المتقدم، لذا قد لا يُفتح {host}.",
   "androidAllApps": "كل التطبيقات على هذا الجهاز تمر عبر Shroudly.",
   "androidVpnDenied": "يحتاج Shroudly إلى إذن VPN لنقل اتصالات تطبيقاتك.",
-  "androidVpnRevoked": "أوقف Android الحماية، غالبًا لأن تطبيق VPN آخر تم تشغيله."
+  "androidVpnRevoked": "أوقف Android الحماية، غالبًا لأن تطبيق VPN آخر تم تشغيله.",
+  "androidAlertsChannel": "تنبيهات الحماية",
+  "androidProtectionLost": "توقفت الحماية بسبب خطأ، لذا تتصل تطبيقاتك الآن مباشرةً. افتح Shroudly لتشغيلها من جديد.",
+  "androidDetails": "التفاصيل",
+  "androidDownloadApk": "تنزيل التحديث"
 }

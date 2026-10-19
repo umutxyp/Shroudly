@@ -25,8 +25,10 @@ class ShroudlyTileService : TileService() {
         when (Protection.state) {
             Protection.State.ON -> ShroudlyVpnService.stop(this)
             Protection.State.OFF -> {
-                // The VPN consent dialog needs the window; so does a start the
-                // system does not allow from here.
+                // With the VPN allowed already, protection starts from here.
+                // Otherwise the window opens and asks at once (the consent
+                // dialog needs it); so it does when the system does not allow
+                // a start from here.
                 val allowed = VpnService.prepare(this) == null && try {
                     ShroudlyVpnService.start(this)
                     true
@@ -41,9 +43,14 @@ class ShroudlyTileService : TileService() {
 
     @SuppressLint("StartActivityAndCollapseDeprecated")
     private fun openApp() {
-        val intent = Intent(this, MainActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        val intent = Intent(this, MainActivity::class.java)
+            .putExtra(MainActivity.EXTRA_START, true)
+            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-            startActivityAndCollapse(PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_IMMUTABLE))
+            // Its own request code, so the notification's intent (no extra) is not reused.
+            startActivityAndCollapse(
+                PendingIntent.getActivity(this, 3, intent, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT),
+            )
         } else {
             @Suppress("DEPRECATION")
             startActivityAndCollapse(intent)

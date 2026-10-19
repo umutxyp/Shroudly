@@ -92,6 +92,40 @@ class DohRaceTest {
     }
 
     @Test
+    fun endsWhenTheAskerStopsWaiting() {
+        val t0 = System.nanoTime() / 1_000_000
+        val plan = listOf(route("hangs"))
+        val got = race(plan, pool, fast, answerBy = t0 + 150) { Thread.sleep(2000); byteArrayOf(1) }
+        assertNull(got)
+        assertTrue(System.nanoTime() / 1_000_000 - t0 < 1000)
+    }
+
+    @Test
+    fun attemptsStillQueuedWhenTheRaceEndsAreNotMade() {
+        // The first attempt runs; the others wait in the queue until after the race.
+        val held = Collections.synchronizedList(ArrayList<Runnable>())
+        var first = true
+        val exec = java.util.concurrent.Executor { r -> if (first) { first = false; Thread(r).start() } else held += r }
+        val made = Collections.synchronizedList(ArrayList<String>())
+        val plan = listOf(route("a"), route("b"), route("c"))
+        val got = race(plan, exec, longArrayOf(0, 0, 0)) { r ->
+            made += r.id
+            Thread.sleep(50)
+            byteArrayOf(1)
+        }
+        assertEquals("a", got!!.first.id)
+        assertEquals(2, held.size)
+        for (r in held.toList()) r.run()
+        assertEquals(listOf("a"), made.toList())
+    }
+
+    @Test
+    fun eachRouteKeepsOneVerifier() {
+        val r = DohForwarder.routes()[0]
+        assertTrue(r.verifier === r.verifier)
+    }
+
+    @Test
     fun allFailingGivesNothing() {
         val plan = (1..7).map { route("r$it") }
         assertNull(race(plan, pool, fast) { throw IOException("down") })

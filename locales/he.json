@@ -383,5 +383,9 @@
   "autoAdvancedFailed": "לא ניתן היה להפעיל את המצב המתקדם, ולכן ייתכן ש-{host} לא ייפתח.",
   "androidAllApps": "כל האפליקציות במכשיר הזה עוברות דרך Shroudly.",
   "androidVpnDenied": "Shroudly צריך הרשאת VPN כדי להעביר את החיבורים של האפליקציות שלך.",
-  "androidVpnRevoked": "Android כיבה את ההגנה, בדרך כלל כי הופעלה אפליקציית VPN אחרת."
+  "androidVpnRevoked": "Android כיבה את ההגנה, בדרך כלל כי הופעלה אפליקציית VPN אחרת.",
+  "androidAlertsChannel": "התראות הגנה",
+  "androidProtectionLost": "ההגנה נעצרה בגלל שגיאה, ולכן האפליקציות שלך מתחברות עכשיו ישירות. אפשר לפתוח את Shroudly כדי להפעיל אותה מחדש.",
+  "androidDetails": "פרטים",
+  "androidDownloadApk": "להוריד את העדכון"
 }

@@ -8,11 +8,14 @@ import java.net.InetSocketAddress
 import java.net.Proxy
 import java.net.Socket
 import java.net.URL
+import java.util.concurrent.ArrayBlockingQueue
 import java.util.concurrent.Executors
 import java.util.concurrent.LinkedBlockingQueue
+import java.util.concurrent.RejectedExecutionHandler
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.ThreadPoolExecutor
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
 import javax.net.ssl.HostnameVerifier
 import javax.net.ssl.HttpsURLConnection
@@ -40,7 +43,12 @@ import javax.net.ssl.SSLSocketFactory
  * accept nothing but HTTP/2 (Quad9, Mullvad) are not in this list.
  *
  * This app is left out of its own VPN, so these connections go straight to
- * the network. Nothing is logged or stored.
+ * the network. No lookup is logged or stored.
+ *
+ * The engine waits ENGINE_WAIT_MS for an answer and then asks plain DNS
+ * instead, so a lookup is answered within that time or not at all: one that
+ * waited too long in the queue is dropped, the queue itself is bounded, and
+ * a race ends before the engine stops waiting.
  */
 
 class DohRoute(
@@ -53,6 +61,14 @@ class DohRoute(
     val sni: String? = null,
 ) {
     val viaEngine get() = sni != null
+
+    /* One verifier for the route's whole life: HttpsURLConnection pools
+     * connections per verifier, so a new one per request would mean a new
+     * TCP and TLS handshake for every lookup. */
+    val verifier: HostnameVerifier by lazy {
+        val d = HttpsURLConnection.getDefaultHostnameVerifier()
+        HostnameVerifier { _, session -> d.verify(ip, session) || names.any { d.verify(it, session) } }
+    }
     @Volatile var fails = 0
     @Volatile var restUntil = 0L
     @Volatile var ewma = 0L
@@ -85,6 +101,11 @@ class DohForwarder(
         const val REST_BASE_MS = 2000L
         const val REST_MAX_MS = 300000L
         const val WARM_INTERVAL_MS = 120000L
+        // The engine's own wait (core/src/doh.c), and what is left of it for us:
+        // a lookup still queued after STALE_MS is dropped, and a race ends by ANSWER_BY_MS.
+        const val ENGINE_WAIT_MS = 4000L
+        const val STALE_MS = ENGINE_WAIT_MS - 500
+        const val ANSWER_BY_MS = ENGINE_WAIT_MS - 200
 
         private val CF = listOf("cloudflare-dns.com", "one.one.one.one")
 
@@ -140,21 +161,25 @@ class DohForwarder(
     private val all = routes()
     @Volatile private var preferredId: String? = preferred
     @Volatile var socksPort = 0
+    /* The engine's SOCKS5 password for this session, if it takes one. */
+    @Volatile var socksAuth: SocksAuth? = null
     @Volatile private var running = false
     private var sock: DatagramSocket? = null
     private val failuresInARow = AtomicInteger(0)
     @Volatile private var lastDownWarn = 0L
 
-    // Lookups being answered, and the requests they race.
-    private val lookups = pool("doh-lookup", 16)
-    private val queries = pool("doh-query", 32)
+    // Lookups being answered, and the requests they race. Both queues are
+    // bounded: when lookups come faster than they can be answered, the oldest
+    // waiting one (the one the engine is most likely to have given up on) goes.
+    private val lookups = pool("doh-lookup", 16, 64, ThreadPoolExecutor.DiscardOldestPolicy())
+    private val queries = pool("doh-query", 32, 128, ThreadPoolExecutor.DiscardPolicy())
     private var timer: ScheduledExecutorService? = null
 
-    private fun pool(name: String, n: Int): ThreadPoolExecutor {
+    private fun pool(name: String, n: Int, queue: Int, full: RejectedExecutionHandler): ThreadPoolExecutor {
         val count = AtomicInteger()
-        return ThreadPoolExecutor(n, n, 30, TimeUnit.SECONDS, LinkedBlockingQueue()) { r ->
+        return ThreadPoolExecutor(n, n, 30, TimeUnit.SECONDS, ArrayBlockingQueue(queue), { r ->
             Thread(r, "$name-${count.incrementAndGet()}").apply { isDaemon = true }
-        }.apply { allowCoreThreadTimeOut(true) }
+        }, full).apply { allowCoreThreadTimeOut(true) }
     }
 
     /* Binds 127.0.0.1 on a free port and returns it. */
@@ -191,8 +216,11 @@ class DohForwarder(
             if (!Dns.isQuery(pkt.data, pkt.length)) continue
             val msg = pkt.data.copyOf(pkt.length)
             val to = pkt.socketAddress
+            val rx = System.nanoTime() / 1_000_000
             lookups.execute {
-                val answer = resolve(msg)
+                // The engine has stopped waiting for this one.
+                if (System.nanoTime() / 1_000_000 - rx > STALE_MS) return@execute
+                val answer = resolve(msg, rx + ANSWER_BY_MS)
                 if (answer != null) {
                     failuresInARow.set(0)
                     try { s.send(DatagramPacket(answer, answer.size, to)) } catch (_: IOException) {}
@@ -209,9 +237,10 @@ class DohForwarder(
         }
     }
 
-    fun resolve(msg: ByteArray): ByteArray? {
+    /* answerBy: on the System.nanoTime() clock, in milliseconds. */
+    fun resolve(msg: ByteArray, answerBy: Long = Long.MAX_VALUE): ByteArray? {
         val plan = plan(all, preferredId, System.currentTimeMillis(), socksPort > 0)
-        val won = race(plan, queries) { r -> query(r, msg) } ?: return null
+        val won = race(plan, queries, answerBy = answerBy) { r -> query(r, msg) } ?: return null
         if (preferredId != won.first.id) {
             preferredId = won.first.id
             onPreferred(won.first.id)
@@ -255,13 +284,13 @@ class DohForwarder(
     private val defaultVerifier = HttpsURLConnection.getDefaultHostnameVerifier()
 
     /* To the resolver's address with no name in the handshake. The
-     * certificate has to be the resolver's: its address, or one of its names. */
+     * certificate has to be the resolver's: its address, or one of its names.
+     * The connection goes back to the pool for the next lookup (the body is
+     * read to the end and the stream closed, without disconnect()). */
     private fun direct(r: DohRoute, msg: ByteArray): ByteArray {
         val c = URL("https://${r.ip}/dns-query").openConnection(Proxy.NO_PROXY) as HttpsURLConnection
         try {
-            c.hostnameVerifier = HostnameVerifier { _, session ->
-                defaultVerifier.verify(r.ip, session) || r.names.any { defaultVerifier.verify(it, session) }
-            }
+            c.hostnameVerifier = r.verifier
             c.connectTimeout = QUERY_TIMEOUT_MS
             c.readTimeout = QUERY_TIMEOUT_MS
             c.requestMethod = "POST"
@@ -292,7 +321,7 @@ class DohForwarder(
         try {
             raw.connect(InetSocketAddress(InetAddress.getByName("127.0.0.1"), port), QUERY_TIMEOUT_MS)
             raw.soTimeout = QUERY_TIMEOUT_MS
-            Socks5.connect(raw, r.ip, 443)
+            Socks5.connect(raw, r.ip, 443, socksAuth)
             val ssl = (SSLSocketFactory.getDefault() as SSLSocketFactory).createSocket(raw, r.sni, 443, true) as SSLSocket
             ssl.sslParameters = ssl.sslParameters.apply { serverNames = listOf(SNIHostName(r.sni)) }
             ssl.startHandshake()
@@ -317,14 +346,32 @@ class DohForwarder(
 /* Races `attempt` over the routes in waves: the first alone, two more after
  * SECOND_WAVE_MS, then WAVE_SIZE more every NEXT_WAVE_MS from THIRD_WAVE_MS;
  * and the next one at once whenever nothing is in flight. The first answer
- * wins; null when every route failed. */
+ * wins; null when every route failed or answerBy (System.nanoTime() in
+ * milliseconds) came. Attempts still queued when the race ends are not made. */
 fun race(
     plan: List<DohRoute>,
     executor: java.util.concurrent.Executor,
     timing: LongArray = longArrayOf(DohForwarder.SECOND_WAVE_MS, DohForwarder.THIRD_WAVE_MS, DohForwarder.NEXT_WAVE_MS),
+    answerBy: Long = Long.MAX_VALUE,
     attempt: (DohRoute) -> ByteArray,
 ): Pair<DohRoute, ByteArray>? {
     if (plan.isEmpty()) return null
+    val done = AtomicBoolean(false)
+    try {
+        return raceUntil(plan, executor, timing, answerBy, done, attempt)
+    } finally {
+        done.set(true)
+    }
+}
+
+private fun raceUntil(
+    plan: List<DohRoute>,
+    executor: java.util.concurrent.Executor,
+    timing: LongArray,
+    answerBy: Long,
+    done: AtomicBoolean,
+    attempt: (DohRoute) -> ByteArray,
+): Pair<DohRoute, ByteArray>? {
     val results = LinkedBlockingQueue<Pair<DohRoute, ByteArray?>>()
     var started = 0
     var pending = 0
@@ -333,14 +380,19 @@ fun race(
             val r = plan[started++]
             pending++
             executor.execute {
+                if (done.get()) {
+                    results.put(r to null)
+                    return@execute
+                }
                 val got = try { attempt(r) } catch (_: Exception) { null }
                 results.put(r to got)
             }
         }
     }
     val t0 = System.nanoTime() / 1_000_000
-    // Long enough for every route to have its own timeout run out.
-    val deadline = t0 + DohForwarder.QUERY_TIMEOUT_MS * 2L + timing[1] + timing[2] * (plan.size / DohForwarder.WAVE_SIZE + 1)
+    // Long enough for every route to have its own timeout run out, unless
+    // whoever asked stops waiting before that.
+    val deadline = minOf(answerBy, t0 + DohForwarder.QUERY_TIMEOUT_MS * 2L + timing[1] + timing[2] * (plan.size / DohForwarder.WAVE_SIZE + 1))
     var stage = 0
     var nextAt = t0 + timing[0]
     upTo(1)
@@ -367,19 +419,48 @@ fun race(
     }
 }
 
-/* A SOCKS5 CONNECT to an IPv4 address, no authentication. */
+/* A SOCKS5 CONNECT to an IPv4 address or a name, with the engine's
+ * password (RFC 1929) when it has one. */
 object Socks5 {
-    fun connect(s: Socket, ip: String, port: Int) {
+    private val IPV4 = Regex("^\\d{1,3}(\\.\\d{1,3}){3}$")
+
+    fun hello(auth: SocksAuth?): ByteArray = if (auth != null) byteArrayOf(5, 1, 2) else byteArrayOf(5, 1, 0)
+
+    fun login(auth: SocksAuth): ByteArray {
+        val u = auth.user.toByteArray(Charsets.US_ASCII)
+        val p = auth.pass.toByteArray(Charsets.US_ASCII)
+        return byteArrayOf(1, u.size.toByte()) + u + byteArrayOf(p.size.toByte()) + p
+    }
+
+    fun request(host: String, port: Int): ByteArray {
+        val p = byteArrayOf((port shr 8).toByte(), port.toByte())
+        if (IPV4.matches(host)) {
+            val a = host.split('.').map { it.toInt() }
+            require(a.all { it in 0..255 }) { "bad address $host" }
+            return byteArrayOf(5, 1, 0, 1) + a.map { it.toByte() }.toByteArray() + p
+        }
+        val n = host.toByteArray(Charsets.US_ASCII)
+        require(n.size in 1..255) { "bad name" }
+        return byteArrayOf(5, 1, 0, 3, n.size.toByte()) + n + p
+    }
+
+    fun connect(s: Socket, host: String, port: Int, auth: SocksAuth? = null) {
         val out = s.getOutputStream()
         val input = s.getInputStream()
-        out.write(byteArrayOf(5, 1, 0))
+        out.write(hello(auth))
         out.flush()
-        val hello = ByteArray(2)
-        readFully(input, hello)
-        if (hello[0].toInt() != 5 || hello[1].toInt() != 0) throw IOException("SOCKS refused")
-        val a = ip.split('.').map { it.toInt().toByte() }
-        require(a.size == 4) { "IPv4 only" }
-        out.write(byteArrayOf(5, 1, 0, 1) + a.toByteArray() + byteArrayOf((port shr 8).toByte(), port.toByte()))
+        val reply = ByteArray(2)
+        readFully(input, reply)
+        val method = if (auth != null) 2 else 0
+        if (reply[0].toInt() != 5 || reply[1].toInt() != method) throw IOException("SOCKS refused")
+        if (auth != null) {
+            out.write(login(auth))
+            out.flush()
+            val ok = ByteArray(2)
+            readFully(input, ok)
+            if (ok[1].toInt() != 0) throw IOException("SOCKS password refused")
+        }
+        out.write(request(host, port))
         out.flush()
         val head = ByteArray(5)
         readFully(input, head)

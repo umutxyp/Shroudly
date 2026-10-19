@@ -18,8 +18,12 @@ object Protection {
         private set
     @Volatile var stats: EngineEvent.Stats? = null
     @Volatile var startedAt = 0L
-    /* The engine's SOCKS5 port while protection is on, 0 otherwise. */
+    /* The engine's SOCKS5 port while protection is on, 0 otherwise, and the
+     * session's password for it (null when the engine takes none). */
     @Volatile var socksPort = 0
+    @Volatile var socksAuth: SocksAuth? = null
+    /* The window is on screen (between its onStart and onStop). */
+    @Volatile var windowVisible = false
 
     private val listeners = CopyOnWriteArraySet<() -> Unit>()
     private val main = Handler(Looper.getMainLooper())
@@ -27,7 +31,7 @@ object Protection {
     fun set(s: State) {
         state = s
         if (s == State.STARTING) { errorRes = 0; errorDetail = null }
-        if (s != State.ON) { socksPort = 0 }
+        if (s != State.ON) { socksPort = 0; socksAuth = null }
         if (s == State.OFF) { stats = null; startedAt = 0 }
         changed()
     }
@@ -44,9 +48,13 @@ object Protection {
         changed()
     }
 
+    /* Nobody looking (no window, no tile): nothing to post. */
     fun changed() {
+        if (listeners.isEmpty()) return
         main.post { for (l in listeners) l() }
     }
+
+    fun hasListeners() = listeners.isNotEmpty()
 
     fun listen(l: () -> Unit) { listeners += l }
     fun unlisten(l: () -> Unit) { listeners -= l }

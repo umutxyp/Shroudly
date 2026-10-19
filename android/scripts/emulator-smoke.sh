@@ -3,7 +3,9 @@
 # End-to-end check of the debug APK on an emulator: protection goes on, apps'
 # names resolve through the VPN's mapped DNS, TCP and UDP go through the
 # engine, the app counts the connections, and after Stop everything works
-# directly again.
+# directly again. With an engine that takes --auth-file, its SOCKS5 port must
+# also refuse a client without the session's password; with an older engine
+# that check is skipped and said so.
 #
 #   android/scripts/emulator-smoke.sh [--abi arm64-v8a|x86_64] [--api 35] [--tag google_apis]
 #                                     [--apk path] [--keep]
@@ -139,7 +141,7 @@ say "VPN interface tun0 is up"
 # ── through the VPN ──────────────────────────────────────────────────────
 ip="$(resolved)"
 case "$ip" in
-  100.6[4-9].*|100.[7-9][0-9].*|100.1[01][0-9].*|100.12[0-7].*) say "example.com -> $ip (mapped by the VPN's DNS)" ;;
+  198.19.*) say "example.com -> $ip (mapped by the VPN's DNS)" ;;
   *) fail "example.com resolved to '$ip', not a mapped address" ;;
 esac
 
@@ -150,6 +152,19 @@ say "HTTP through the engine: $first"
 udp="$(udp_dns)"
 grep -q '^ *12 34 81' <<<"$udp" || fail "UDP DNS through the engine failed: '$udp'"
 say "UDP through the engine: DNS reply $udp"
+
+# Loopback does not go through the VPN: the shell reaches the engine's port
+# directly, as any other app could.
+on_line="$(applog | grep -m1 'Protection on')"
+eport="$(sed -n 's/.*engine on 127\.0\.0\.1:\([0-9]*\).*/\1/p' <<<"$on_line")"
+[ -n "$eport" ] || fail "no engine port in '$on_line'"
+noauth="$(sh_ "(printf '\\005\\001\\000'; sleep 2) | timeout 6 nc -q 1 127.0.0.1 $eport | od -An -tx1 | head -1")"
+if grep -q '(password)' <<<"$on_line"; then
+  grep -q '^ *05 00' <<<"$noauth" && fail "the engine let in a client without the password"
+  say "engine port 127.0.0.1:$eport refuses a client without the password (reply: ${noauth:-none})"
+else
+  say "engine without --auth-file: its port takes no password (reply: ${noauth:-none}); password check skipped"
+fi
 
 ctl stats
 wait_for 15 has_log "stats: on" || fail "no stats line"
@@ -166,7 +181,7 @@ wait_for 30 has_log "Protection off" || fail "protection did not go off"
 say "$(applog | grep 'Protection off' | tail -1 | sed 's/.*Protection off/Protection off/')"
 tun_gone() { ! grep -q "198.18.0.1" <<<"$(sh_ "ip addr show tun0")"; }
 wait_for 20 tun_gone || fail "VPN interface still there after Stop"
-direct_dns() { ip="$(resolved)"; [ -n "$ip" ] && case "$ip" in 100.*) false ;; *) true ;; esac; }
+direct_dns() { ip="$(resolved)"; [ -n "$ip" ] && case "$ip" in 198.1[89].*) false ;; *) true ;; esac; }
 wait_for 30 direct_dns || fail "names still resolve to mapped addresses after Stop"
 say "example.com -> $(resolved) after Stop"
 wait_for 30 net_up || fail "no direct network after Stop"

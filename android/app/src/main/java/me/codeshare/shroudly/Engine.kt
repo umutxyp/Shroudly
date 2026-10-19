@@ -1,5 +1,6 @@
 package me.codeshare.shroudly
 
+import android.os.SystemClock
 import java.io.File
 import java.io.IOException
 import java.io.OutputStreamWriter
@@ -28,10 +29,12 @@ class Engine(
         const val START_TIMEOUT_MS = 6000L
 
         /* The desktop's arguments (electron/engine-manager.js _args): auto mode,
-         * encrypted DNS through the local forwarder, and every known block page. */
-        fun args(port: Int, dohPort: Int, blockIps: List<String>): List<String> {
+         * encrypted DNS through the local forwarder, and every known block page;
+         * and the file with this session's SOCKS5 password, when there is one. */
+        fun args(port: Int, dohPort: Int, blockIps: List<String>, authFile: File? = null): List<String> {
             val a = mutableListOf("--listen", "127.0.0.1", "--port", port.toString(), "--strategy", "split(sni)", "--auto", "--doh")
             if (dohPort > 0) a += listOf("--doh-port", dohPort.toString())
+            if (authFile != null) a += listOf(SocksAuth.OPTION, authFile.path)
             for (ip in blockIps) a += listOf("--block-ip", ip)
             return a
         }
@@ -50,6 +53,8 @@ class Engine(
     @Volatile private var stopping = false
     @Volatile var lastError: String? = null
         private set
+    /* When it last wrote anything, in uptime (SystemClock.uptimeMillis), which
+     * stands still while the device sleeps: a sleep is not a hang. */
     @Volatile var lastOutputAt = 0L
         private set
 
@@ -70,20 +75,21 @@ class Engine(
         }
         process = p
         stdin = OutputStreamWriter(p.outputStream, Charsets.UTF_8)
-        lastOutputAt = System.currentTimeMillis()
+        lastOutputAt = SystemClock.uptimeMillis()
         val ready = CountDownLatch(1)
 
         Thread({
             try {
                 p.inputStream.bufferedReader(Charsets.UTF_8).forEachLine { raw ->
-                    lastOutputAt = System.currentTimeMillis()
+                    lastOutputAt = SystemClock.uptimeMillis()
                     val line = raw.trim()
                     if (line.isEmpty()) return@forEachLine
                     val ev = EngineEvent.parse(line)
                     when (ev) {
                         is EngineEvent.Ready -> ready.countDown()
                         is EngineEvent.Error -> lastError = ev.message
-                        is EngineEvent.Text -> log("engine: $line")
+                        // Free text can name sites: kept out of release builds' log.
+                        is EngineEvent.Text -> if (BuildConfig.DEBUG) log("engine: $line")
                         else -> {}
                     }
                     onEvent(ev)
@@ -104,7 +110,7 @@ class Engine(
                 p.errorStream.bufferedReader(Charsets.UTF_8).forEachLine { line ->
                     if (line.isNotBlank()) {
                         lastError = line.trim()
-                        log("engine: ${line.trim()}")
+                        if (BuildConfig.DEBUG) log("engine: ${line.trim()}")
                     }
                 }
             } catch (_: IOException) {

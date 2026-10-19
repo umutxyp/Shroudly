@@ -82,6 +82,7 @@
             android:id="@+id/status"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:accessibilityLiveRegion="polite"
             android:layout_marginTop="20dp"
             android:textColor="@color/text"
             android:textSize="22sp"
@@ -92,10 +93,19 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="6dp"
+            android:accessibilityLiveRegion="polite"
+            android:ellipsize="end"
             android:gravity="center"
+            android:maxLines="3"
             android:minLines="2"
             android:textColor="@color/text_dim"
             android:textSize="14sp" />
+
+        <TextView
+            android:id="@+id/detailMore"
+            style="@style/Link"
+            android:text="@string/androidDetails"
+            android:visibility="gone" />
 
         <Button
             android:id="@+id/action"
@@ -137,11 +147,11 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="12dp"
                 android:background="@drawable/button_accent"
-                android:minHeight="40dp"
+                android:minHeight="48dp"
                 android:paddingStart="14dp"
                 android:paddingEnd="14dp"
                 android:stateListAnimator="@null"
-                android:text="@string/updOpenDownload"
+                android:text="@string/androidDownloadApk"
                 android:textAllCaps="false"
                 android:textColor="@color/on_accent"
                 android:textSize="14sp" />

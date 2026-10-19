@@ -383,5 +383,9 @@
   "autoAdvancedFailed": "উন্নত মোড চালু করা যায়নি, তাই {host} হয়তো খুলবে না।",
   "androidAllApps": "এই ডিভাইসের প্রতিটি অ্যাপ Shroudly-এর মধ্য দিয়ে যায়।",
   "androidVpnDenied": "আপনার অ্যাপগুলোর সংযোগ বহন করতে Shroudly-এর VPN অনুমতি দরকার।",
-  "androidVpnRevoked": "Android সুরক্ষা বন্ধ করে দিয়েছে, সাধারণত অন্য কোনো VPN অ্যাপ চালু হওয়ার কারণে।"
+  "androidVpnRevoked": "Android সুরক্ষা বন্ধ করে দিয়েছে, সাধারণত অন্য কোনো VPN অ্যাপ চালু হওয়ার কারণে।",
+  "androidAlertsChannel": "সুরক্ষা সতর্কতা",
+  "androidProtectionLost": "একটি ত্রুটির কারণে সুরক্ষা বন্ধ হয়ে গেছে, তাই আপনার অ্যাপগুলো এখন সরাসরি সংযোগ করছে। আবার চালু করতে Shroudly খুলুন।",
+  "androidDetails": "বিস্তারিত",
+  "androidDownloadApk": "আপডেট ডাউনলোড করুন"
 }

@@ -27,6 +27,16 @@ object Versions {
     fun offers(tag: String, assetNames: List<String>, current: String): Boolean =
         isNewer(tag, current) && assetNames.any { it.endsWith(".apk", ignoreCase = true) }
 
+    private const val DOWNLOADS = "https://github.com/umutxyp/Shroudly/releases/download/"
+
+    /* The release's Android APK (name, browser_download_url pairs): the one
+     * named -Android.apk, else any .apk; only from this project's releases. */
+    fun apkUrl(assets: List<Pair<String, String>>): String? {
+        val ours = assets.filter { (_, url) -> url.startsWith(DOWNLOADS) && !url.contains("..") }
+        return (ours.firstOrNull { it.first.endsWith("-Android.apk", ignoreCase = true) }
+            ?: ours.firstOrNull { it.first.endsWith(".apk", ignoreCase = true) })?.second
+    }
+
     /* "v2.6.0" -> "2.6.0", for display. */
     fun display(tag: String) = tag.trim().removePrefix("v").removePrefix("V")
 }

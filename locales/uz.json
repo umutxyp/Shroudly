@@ -383,5 +383,9 @@
   "autoAdvancedFailed": "Kengaytirilgan rejimni yoqib boʻlmadi, shuning uchun {host} ochilmasligi mumkin.",
   "androidAllApps": "Bu qurilmadagi har bir ilova Shroudly orqali o‘tadi.",
   "androidVpnDenied": "Ilovalaringiz ulanishlarini o‘tkazish uchun Shroudly’ga VPN ruxsati kerak.",
-  "androidVpnRevoked": "Himoya Android tomonidan o‘chirildi, odatda boshqa VPN ilovasi yoqilgani uchun."
+  "androidVpnRevoked": "Himoya Android tomonidan o‘chirildi, odatda boshqa VPN ilovasi yoqilgani uchun.",
+  "androidAlertsChannel": "Himoya ogohlantirishlari",
+  "androidProtectionLost": "Himoya xato tufayli to‘xtadi, shuning uchun ilovalaringiz hozir to‘g‘ridan-to‘g‘ri ulanmoqda. Uni qayta yoqish uchun Shroudly’ni oching.",
+  "androidDetails": "Batafsil",
+  "androidDownloadApk": "Yangilanishni yuklab olish"
 }

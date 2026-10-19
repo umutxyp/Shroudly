@@ -28,6 +28,8 @@ class MainActivity : Activity() {
     companion object {
         private const val REQUEST_VPN = 1
         private const val REQUEST_NOTIFICATIONS = 2
+        /* Start protection as soon as the window is up (from the tile). */
+        const val EXTRA_START = "start"
     }
 
     private lateinit var toggle: View
@@ -35,6 +37,7 @@ class MainActivity : Activity() {
     private lateinit var progress: ProgressBar
     private lateinit var status: TextView
     private lateinit var detail: TextView
+    private lateinit var detailMore: TextView
     private lateinit var action: Button
     private lateinit var connections: TextView
     private lateinit var upload: TextView
@@ -65,6 +68,7 @@ class MainActivity : Activity() {
         progress = findViewById(R.id.progress)
         status = findViewById(R.id.status)
         detail = findViewById(R.id.detail)
+        detailMore = findViewById(R.id.detailMore)
         action = findViewById(R.id.action)
         connections = findViewById(R.id.connections)
         upload = findViewById(R.id.upload)
@@ -80,10 +84,29 @@ class MainActivity : Activity() {
         findViewById<View>(R.id.releases).setOnClickListener { open(UpdateCheck.RELEASES_URL) }
         findViewById<View>(R.id.notices).setOnClickListener { showNotices() }
         findViewById<View>(R.id.updateOpen).setOnClickListener { updateUrl?.let { open(it) } }
+        detailMore.setOnClickListener { showDetail() }
+        // The channels' names follow the language, also after a per-app
+        // language change (which recreates this window).
+        ShroudlyVpnService.channels(this)
+        if (savedInstanceState == null) handleStart(intent)
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        handleStart(intent)
+    }
+
+    private fun handleStart(intent: Intent?) {
+        if (intent?.getBooleanExtra(EXTRA_START, false) != true) return
+        intent.removeExtra(EXTRA_START)
+        if (Protection.state == Protection.State.OFF) onToggle()
     }
 
     override fun onStart() {
         super.onStart()
+        Protection.windowVisible = true
+        ShroudlyVpnService.clearAlert(this)
         Protection.listen(onChange)
         main.post(ticker)
         showUpdate(UpdateCheck.remembered(this))
@@ -91,6 +114,7 @@ class MainActivity : Activity() {
     }
 
     override fun onStop() {
+        Protection.windowVisible = false
         Protection.unlisten(onChange)
         main.removeCallbacks(ticker)
         super.onStop()
@@ -120,6 +144,7 @@ class MainActivity : Activity() {
             Protection.State.OFF -> {
                 vpnDenied = false
                 Protection.clearError()
+                ShroudlyVpnService.clearAlert(this)
                 askNotificationsThenStart()
             }
             else -> {}
@@ -185,13 +210,7 @@ class MainActivity : Activity() {
         val on = st == Protection.State.ON
         val busy = st == Protection.State.STARTING || st == Protection.State.STOPPING
 
-        toggle.isActivated = on
-        toggle.isEnabled = !busy
-        toggle.contentDescription = getString(if (on) R.string.stop else R.string.start)
-        toggleIcon.setColorFilter(getColor(if (on) R.color.on_accent else R.color.text_dim))
-        progress.visibility = if (busy) View.VISIBLE else View.GONE
-
-        status.text = getString(
+        val statusText = getString(
             when (st) {
                 Protection.State.ON -> R.string.protected_
                 Protection.State.STARTING -> R.string.starting
@@ -199,25 +218,44 @@ class MainActivity : Activity() {
                 Protection.State.OFF -> R.string.notProtected
             },
         )
+        toggle.isActivated = on
+        toggle.isEnabled = !busy
+        toggle.contentDescription = getString(
+            when (st) {
+                Protection.State.ON -> R.string.stop
+                Protection.State.STARTING -> R.string.starting
+                Protection.State.STOPPING -> R.string.stopping
+                Protection.State.OFF -> R.string.start
+            },
+        )
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) toggle.stateDescription = statusText
+        toggleIcon.setColorFilter(getColor(if (on) R.color.on_accent else R.color.text_dim))
+        progress.visibility = if (busy) View.VISIBLE else View.GONE
+
+        // Set only when it changes: status and detail are live regions, and
+        // TalkBack reads every change out.
+        status.show(statusText)
         status.setTextColor(getColor(if (on) R.color.accent else R.color.text))
 
         val error = Protection.errorRes
+        var more = false
         when {
             vpnDenied && st == Protection.State.OFF -> {
-                detail.text = getString(R.string.androidVpnDenied)
+                detail.show(getString(R.string.androidVpnDenied))
                 detail.setTextColor(getColor(R.color.warn))
             }
             error != 0 && st == Protection.State.OFF -> {
-                val more = Protection.errorDetail
-                // The detail is the engine's own words, in English, as in the desktop's log.
-                detail.text = if (error == R.string.startFailed && more != null) "${getString(error)}: $more" else getString(error)
+                // In the user's language; the technical words behind "Details".
+                detail.show(getString(error))
                 detail.setTextColor(getColor(R.color.danger))
+                more = Protection.errorDetail != null
             }
             else -> {
-                detail.text = if (on) getString(R.string.androidAllApps) else getString(R.string.dpiBypassStopped)
+                detail.show(if (on) getString(R.string.androidAllApps) else getString(R.string.dpiBypassStopped))
                 detail.setTextColor(getColor(R.color.text_dim))
             }
         }
+        detailMore.visibility = if (more) View.VISIBLE else View.GONE
 
         action.text = getString(if (on) R.string.stop else R.string.start)
         action.isEnabled = !busy
@@ -242,9 +280,10 @@ class MainActivity : Activity() {
 
     private fun checkForUpdate() {
         val port = Protection.socksPort
+        val auth = Protection.socksAuth
         Thread({
             val offer = try {
-                UpdateCheck.check(applicationContext, port)
+                UpdateCheck.check(applicationContext, port, auth)
             } catch (e: Exception) {
                 ShroudlyVpnService.log("Update check failed: ${e.message}")
                 return@Thread
@@ -261,6 +300,30 @@ class MainActivity : Activity() {
         updateUrl = offer.url
         updateText.text = text(R.string.updAvailable, "version" to offer.version)
         update.visibility = View.VISIBLE
+    }
+
+    private fun TextView.show(s: CharSequence) {
+        if (text.toString() != s.toString()) text = s
+    }
+
+    /* What went wrong, in the engine's and Android's own words (English). */
+    private fun showDetail() {
+        val more = Protection.errorDetail ?: return
+        val body = TextView(this).apply {
+            text = more
+            setTextColor(getColor(R.color.text_dim))
+            textSize = 13f
+            typeface = Typeface.MONOSPACE
+            textDirection = View.TEXT_DIRECTION_LTR
+            setTextIsSelectable(true)
+            val pad = (20 * resources.displayMetrics.density).toInt()
+            setPadding(pad, pad / 2, pad, pad)
+        }
+        AlertDialog.Builder(this)
+            .setTitle(R.string.androidDetails)
+            .setView(ScrollView(this).apply { addView(body) })
+            .setPositiveButton(android.R.string.ok, null)
+            .show()
     }
 
     @SuppressLint("SetTextI18n")

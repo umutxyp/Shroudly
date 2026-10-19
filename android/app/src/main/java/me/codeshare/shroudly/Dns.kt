@@ -95,7 +95,7 @@ object Http1 {
 
     private const val MAX_BODY = 65536
 
-    fun read(input: InputStream): Response {
+    fun read(input: InputStream, max: Int = MAX_BODY): Response {
         val statusLine = line(input) ?: throw IOException("no response")
         val parts = statusLine.split(' ')
         if (parts.size < 2 || !parts[0].startsWith("HTTP/1.")) throw IOException("not HTTP/1: $statusLine")
@@ -108,13 +108,13 @@ object Http1 {
             if (c > 0) headers[h.substring(0, c).trim().lowercase()] = h.substring(c + 1).trim()
         }
         val body = when {
-            headers["transfer-encoding"]?.lowercase()?.contains("chunked") == true -> chunked(input)
+            headers["transfer-encoding"]?.lowercase()?.contains("chunked") == true -> chunked(input, max)
             headers["content-length"] != null -> {
                 val n = headers["content-length"]!!.toIntOrNull() ?: throw IOException("bad length")
-                if (n < 0 || n > MAX_BODY) throw IOException("body too large")
+                if (n < 0 || n > max) throw IOException("body too large")
                 exactly(input, n)
             }
-            else -> toEnd(input)
+            else -> toEnd(input, max)
         }
         return Response(status, headers, body)
     }
@@ -141,26 +141,26 @@ object Http1 {
         return out
     }
 
-    private fun chunked(input: InputStream): ByteArray {
+    private fun chunked(input: InputStream, max: Int): ByteArray {
         val out = ByteArrayOutputStream()
         while (true) {
             val size = line(input)?.substringBefore(';')?.trim()?.toIntOrNull(16) ?: throw IOException("bad chunk")
             if (size == 0) break
-            if (out.size() + size > MAX_BODY) throw IOException("body too large")
+            if (size < 0 || out.size() + size > max) throw IOException("body too large")
             out.write(exactly(input, size))
             line(input)
         }
         return out.toByteArray()
     }
 
-    private fun toEnd(input: InputStream): ByteArray {
+    private fun toEnd(input: InputStream, max: Int): ByteArray {
         val out = ByteArrayOutputStream()
         val buf = ByteArray(4096)
         while (true) {
             val r = input.read(buf)
             if (r < 0) break
             out.write(buf, 0, r)
-            if (out.size() > MAX_BODY) throw IOException("body too large")
+            if (out.size() > max) throw IOException("body too large")
         }
         return out.toByteArray()
     }

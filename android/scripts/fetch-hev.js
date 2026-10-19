@@ -9,12 +9,15 @@
  * The release is pinned twice: by its commit (git checks every submodule
  * against the commits that commit records), and by a SHA-256 over every file
  * of the checked-out tree, computed here and compared with TREE_SHA256. A
- * moved tag, a rewritten submodule or a changed file stops the build.
+ * moved tag or a rewritten submodule stops the fetch; the Gradle build runs
+ * --verify before every build, so a changed file there stops the build too.
  *
  * Output: android/third_party/hev-socks5-tunnel (not committed). Run again
- * any time; it does nothing when the pinned tree is already there.
+ * any time; it does nothing when the pinned tree is already there, and
+ * fetches it again when what is there differs.
  *
  *   node android/scripts/fetch-hev.js           fetch (or confirm) the pinned tree
+ *   node android/scripts/fetch-hev.js --verify  exit 1 unless what is there is the pinned tree
  *   node android/scripts/fetch-hev.js --print   print the tree hash of what is there
  *
  * To move to a newer release: change TAG and COMMIT, run with --print after a
@@ -92,7 +95,19 @@ function main() {
     console.log(treeHash(dest));
     return;
   }
-  if (fs.existsSync(stamp) && fs.readFileSync(stamp, 'utf8').trim() === `${COMMIT} ${TREE_SHA256}`) {
+  const pinned = () => fs.existsSync(stamp) && fs.readFileSync(stamp, 'utf8').trim() === `${COMMIT} ${TREE_SHA256}`
+    && treeHash(dest) === TREE_SHA256;
+  if (process.argv.includes('--verify')) {
+    if (!fs.existsSync(dest)) throw new Error('hev-socks5-tunnel is missing: run `node android/scripts/fetch-hev.js`');
+    const got = treeHash(dest);
+    if (got !== TREE_SHA256) {
+      throw new Error(`third_party/hev-socks5-tunnel is not the pinned ${TAG} (tree ${got}, pinned ${TREE_SHA256}); `
+        + 'delete it and run `node android/scripts/fetch-hev.js`');
+    }
+    console.log(`[hev] ${TAG} verified`);
+    return;
+  }
+  if (pinned()) {
     console.log(`[hev] ${TAG} already in place`);
     return;
   }
@@ -104,7 +119,8 @@ function main() {
   }
   fs.rmSync(dest, { recursive: true, force: true });
   fs.renameSync(tmp, dest);
-  fs.writeFileSync(stamp, `${COMMIT} ${got}\n`);
+  // A tree taken on trust is marked so; the build refuses it until its hash is recorded.
+  fs.writeFileSync(stamp, `${COMMIT} ${got}${got === TREE_SHA256 ? '' : ' untrusted'}\n`);
   console.log(`[hev] ${TAG} ready (tree ${got})`);
 }
 

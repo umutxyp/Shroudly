@@ -383,5 +383,9 @@
   "autoAdvancedFailed": "Təkmil rejimi aktiv etmək mümkün olmadı, ona görə {host} açılmaya bilər.",
   "androidAllApps": "Bu cihazdakı hər tətbiq Shroudly üzərindən keçir.",
   "androidVpnDenied": "Tətbiqlərinizin bağlantılarını daşımaq üçün Shroudly-yə VPN icazəsi lazımdır.",
-  "androidVpnRevoked": "Qoruma Android tərəfindən söndürüldü; adətən başqa VPN tətbiqi açıldığı üçün."
+  "androidVpnRevoked": "Qoruma Android tərəfindən söndürüldü; adətən başqa VPN tətbiqi açıldığı üçün.",
+  "androidAlertsChannel": "Qoruma xəbərdarlıqları",
+  "androidProtectionLost": "Qoruma xəta səbəbindən dayandı, ona görə tətbiqləriniz indi birbaşa qoşulur. Yenidən başlatmaq üçün Shroudly-ni açın.",
+  "androidDetails": "Təfərrüatlar",
+  "androidDownloadApk": "Yeniləməni endir"
 }

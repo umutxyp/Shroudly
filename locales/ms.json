@@ -383,5 +383,9 @@
   "autoAdvancedFailed": "Mod Lanjutan tidak dapat dihidupkan, jadi {host} mungkin tidak dapat dibuka.",
   "androidAllApps": "Setiap aplikasi pada peranti ini melalui Shroudly.",
   "androidVpnDenied": "Shroudly memerlukan kebenaran VPN untuk membawa sambungan aplikasi anda.",
-  "androidVpnRevoked": "Perlindungan dimatikan oleh Android, biasanya kerana aplikasi VPN lain dihidupkan."
+  "androidVpnRevoked": "Perlindungan dimatikan oleh Android, biasanya kerana aplikasi VPN lain dihidupkan.",
+  "androidAlertsChannel": "Amaran perlindungan",
+  "androidProtectionLost": "Perlindungan berhenti kerana ralat, jadi aplikasi anda kini bersambung secara terus. Buka Shroudly untuk memulakannya semula.",
+  "androidDetails": "Butiran",
+  "androidDownloadApk": "Muat turun kemas kini"
 }

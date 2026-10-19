@@ -383,5 +383,9 @@
   "autoAdvancedFailed": "O modo Avançado não pôde ser ativado, então {host} pode não abrir.",
   "androidAllApps": "Todos os apps deste dispositivo passam pelo Shroudly.",
   "androidVpnDenied": "O Shroudly precisa da permissão de VPN para levar as conexões dos seus apps.",
-  "androidVpnRevoked": "O Android desligou a proteção, geralmente porque outro app de VPN foi ativado."
+  "androidVpnRevoked": "O Android desligou a proteção, geralmente porque outro app de VPN foi ativado.",
+  "androidAlertsChannel": "Alertas de proteção",
+  "androidProtectionLost": "A proteção parou por causa de um erro, então seus apps estão se conectando diretamente. Abra o Shroudly para ativá-la de novo.",
+  "androidDetails": "Detalhes",
+  "androidDownloadApk": "Baixar a atualização"
 }

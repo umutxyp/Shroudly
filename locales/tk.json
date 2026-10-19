@@ -383,5 +383,9 @@
   "autoAdvancedFailed": "Giňişleýin tertibi açyp bolmady, şonuň üçin {host} açylmazlygy mümkin.",
   "androidAllApps": "Bu enjamdaky her programma Shroudly arkaly geçýär.",
   "androidVpnDenied": "Programmalaryňyzyň baglanyşyklaryny geçirmek üçin Shroudly-a VPN rugsady gerek.",
-  "androidVpnRevoked": "Gorag Android tarapyndan öçürildi, adatça başga VPN programmasy açylandygy sebäpli."
+  "androidVpnRevoked": "Gorag Android tarapyndan öçürildi, adatça başga VPN programmasy açylandygy sebäpli.",
+  "androidAlertsChannel": "Gorag duýduryşlary",
+  "androidProtectionLost": "Gorag ýalňyşlyk sebäpli togtady, şonuň üçin programmalaryňyz häzir göni birikýär. Ony täzeden işletmek üçin Shroudly-ny açyň.",
+  "androidDetails": "Jikme-jiklikler",
+  "androidDownloadApk": "Täzelenmäni ýükläň"
 }

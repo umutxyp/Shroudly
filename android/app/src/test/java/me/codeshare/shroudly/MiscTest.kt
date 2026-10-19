@@ -2,6 +2,7 @@ package me.codeshare.shroudly
 
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import java.util.Locale
@@ -27,6 +28,20 @@ class VersionsTest {
         assertFalse(Versions.offers("v2.6.0", listOf("Shroudly-2.6.0.dmg", "Shroudly-Setup.exe"), "2.5.14"))
         assertFalse(Versions.offers("v2.5.14", listOf("Shroudly-2.5.14.apk"), "2.5.14"))
         assertEquals("2.6.0", Versions.display("v2.6.0"))
+    }
+
+    @Test
+    fun picksTheApkItselfFromThisProjectOnly() {
+        val dl = "https://github.com/umutxyp/Shroudly/releases/download/v2.6.0/"
+        assertEquals(
+            "${dl}Shroudly-2.6.0-Android.apk",
+            Versions.apkUrl(listOf("Shroudly-2.6.0.dmg" to "${dl}Shroudly-2.6.0.dmg", "other.apk" to "${dl}other.apk",
+                "Shroudly-2.6.0-Android.apk" to "${dl}Shroudly-2.6.0-Android.apk")),
+        )
+        assertEquals("${dl}x.apk", Versions.apkUrl(listOf("x.apk" to "${dl}x.apk")))
+        assertNull(Versions.apkUrl(listOf("x-Android.apk" to "https://example.com/x-Android.apk")))
+        assertNull(Versions.apkUrl(listOf("x.dmg" to "${dl}x.dmg")))
+        assertNull(Versions.apkUrl(emptyList()))
     }
 }
 
@@ -70,11 +85,25 @@ class TunnelConfigTest {
     fun configPointsHevAtTheEngine() {
         val y = TunnelConfig.yaml(41234)
         assertTrue(y.contains("socks5:\n  port: 41234\n  address: 127.0.0.1\n  udp: 'udp'\n"))
-        assertTrue(y.contains("mapdns:\n  address: ${TunnelConfig.DNS_V4}\n  port: 53\n  network: 100.64.0.0\n  netmask: 255.192.0.0\n"))
+        assertTrue(y.contains("mapdns:\n  address: ${TunnelConfig.DNS_V4}\n  port: 53\n  network: 198.19.0.0\n  netmask: 255.255.0.0\n"))
         assertTrue(y.contains("tunnel:\n  mtu: 8500\n"))
+        assertTrue(y.contains("  max-session-count: 1800\n"))
+        assertFalse(y.contains("username"))
         assertTrue(TunnelConfig.yaml(1, udp = false).contains("udp: 'tcp'"))
         // Every line is "key: value" or a section, two spaces deep at most.
         for (line in y.lines().filter { it.isNotEmpty() }) assertTrue(line, Regex("^( {2})?[a-z0-9-]+:( .+)?$").matches(line))
+    }
+
+    @Test
+    fun configCarriesTheSessionPassword() {
+        val y = TunnelConfig.yaml(41234, user = "0123456789abcdef", pass = "fedcba9876543210")
+        assertTrue(y.contains("  udp: 'udp'\n  username: '0123456789abcdef'\n  password: 'fedcba9876543210'\nmapdns:\n"))
+        for (line in y.lines().filter { it.isNotEmpty() }) assertTrue(line, Regex("^( {2})?[a-z0-9-]+:( .+)?$").matches(line))
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun refusesACredentialThatCouldBreakTheFile() {
+        TunnelConfig.yaml(41234, user = "abcdefgh'\n", pass = "0123456789")
     }
 
     @Test(expected = IllegalArgumentException::class)
@@ -83,10 +112,13 @@ class TunnelConfigTest {
     }
 
     @Test
-    fun fakeDnsIsOutsideTheMappedRange() {
-        // 198.18.0.0/15 for the interface and the DNS, 100.64.0.0/10 for mapped names.
+    fun everyAddressIsInBenchmarkSpace() {
+        // 198.18.0.0/16 for the interface and the DNS, 198.19.0.0/16 for mapped names:
+        // apart, and none of it a real host's (as carrier NAT space would be).
         assertTrue(TunnelConfig.DNS_V4.startsWith("198.18."))
         assertTrue(TunnelConfig.ADDRESS_V4.startsWith("198.18."))
+        assertEquals("198.19.0.0", TunnelConfig.MAPPED_NETWORK)
+        assertEquals("255.255.0.0", TunnelConfig.MAPPED_NETMASK)
     }
 }
 

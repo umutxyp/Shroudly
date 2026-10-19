@@ -383,5 +383,9 @@
   "autoAdvancedFailed": "उन्नत मोड चालू नहीं किया जा सका, इसलिए {host} शायद न खुले।",
   "androidAllApps": "इस डिवाइस का हर ऐप Shroudly से होकर जाता है।",
   "androidVpnDenied": "आपके ऐप्स के कनेक्शन संभालने के लिए Shroudly को VPN अनुमति चाहिए।",
-  "androidVpnRevoked": "Android ने सुरक्षा बंद कर दी, आमतौर पर इसलिए कि कोई दूसरा VPN ऐप चालू किया गया।"
+  "androidVpnRevoked": "Android ने सुरक्षा बंद कर दी, आमतौर पर इसलिए कि कोई दूसरा VPN ऐप चालू किया गया।",
+  "androidAlertsChannel": "सुरक्षा अलर्ट",
+  "androidProtectionLost": "एक त्रुटि के कारण सुरक्षा बंद हो गई, इसलिए आपके ऐप्स अब सीधे कनेक्ट हो रहे हैं। इसे फिर से शुरू करने के लिए Shroudly खोलें।",
+  "androidDetails": "विवरण",
+  "androidDownloadApk": "अपडेट डाउनलोड करें"
 }

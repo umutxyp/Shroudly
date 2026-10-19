@@ -383,5 +383,9 @@
   "autoAdvancedFailed": "የላቀ ሁነታን ማብራት ስላልተቻለ {host} ላይከፈት ይችላል።",
   "androidAllApps": "በዚህ መሣሪያ ላይ ያለ እያንዳንዱ መተግበሪያ በShroudly በኩል ያልፋል።",
   "androidVpnDenied": "Shroudly የመተግበሪያዎችዎን ግንኙነቶች ለማሳለፍ የVPN ፈቃድ ያስፈልገዋል።",
-  "androidVpnRevoked": "Android ጥበቃውን አጥፍቶታል፤ ብዙ ጊዜ ሌላ የVPN መተግበሪያ ስለበራ ነው።"
+  "androidVpnRevoked": "Android ጥበቃውን አጥፍቶታል፤ ብዙ ጊዜ ሌላ የVPN መተግበሪያ ስለበራ ነው።",
+  "androidAlertsChannel": "የጥበቃ ማንቂያዎች",
+  "androidProtectionLost": "በስህተት ምክንያት ጥበቃው ቆሟል፤ ስለዚህ መተግበሪያዎችዎ አሁን በቀጥታ ይገናኛሉ። እንደገና ለማስጀመር Shroudlyን ይክፈቱ።",
+  "androidDetails": "ዝርዝሮች",
+  "androidDownloadApk": "ዝማኔውን አውርድ"
 }

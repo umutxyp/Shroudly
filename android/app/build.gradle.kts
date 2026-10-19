@@ -5,13 +5,16 @@ plugins {
 }
 
 // One version for every platform: the one in the repository's package.json.
-val repoRoot: File = rootProject.projectDir.parentFile
+// Read through providers.fileContents, so the configuration cache sees a
+// changed version.
+val packageJson = providers.fileContents(rootProject.layout.projectDirectory.file("../package.json")).asText.get()
 @Suppress("UNCHECKED_CAST")
-val appVersion = (JsonSlurper().parse(File(repoRoot, "package.json")) as Map<String, Any>)["version"] as String
+val appVersion = (JsonSlurper().parseText(packageJson) as Map<String, Any>)["version"] as String
 val versionParts = appVersion.split(".").map { part -> part.takeWhile { it.isDigit() }.toInt() }
 require(versionParts.size == 3 && versionParts[1] < 100 && versionParts[2] < 100) { "unexpected version $appVersion" }
 
-// hev-socks5-tunnel, fetched and checked by scripts/fetch-hev.js.
+// hev-socks5-tunnel, fetched and checked by scripts/fetch-hev.js; checked
+// again before every build (verifyHev below).
 val hevDir = File(rootProject.projectDir, "third_party/hev-socks5-tunnel")
 if (!File(hevDir, "Android.mk").isFile) {
     throw GradleException("hev-socks5-tunnel is missing: run `node android/scripts/fetch-hev.js` first")
@@ -105,6 +108,16 @@ val checkEngine = tasks.register("checkEngine") {
         }
     }
 }
+
+// The hev tree that is built must be the pinned one, file for file: a tree
+// accepted with SHROUDLY_HEV_TRUST=1, edited, or restored from a cache stops
+// the build. Hashing it takes well under a second.
+val verifyHev = tasks.register<Exec>("verifyHev") {
+    workingDir = rootProject.projectDir
+    commandLine("node", "scripts/fetch-hev.js", "--verify")
+}
+
 tasks.configureEach {
     if (name == "preReleaseBuild") dependsOn(checkEngine)
+    if (name == "preBuild" || name.startsWith("configureNdkBuild") || name.startsWith("buildNdkBuild")) dependsOn(verifyHev)
 }
