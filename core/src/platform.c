@@ -48,6 +48,24 @@ void sock_close(sock_t s) {
 #endif
 }
 
+/* Close a client's connection so that what was last sent to it arrives: a
+ * socket closed with unread bytes waiting is reset at once (always on
+ * Windows), and a reset can throw away a reply still on its way, such as a
+ * refusal. So: no more sending, read what is left for a moment, then close. */
+void sock_close_graceful(sock_t s) {
+  if (s == SOCK_INVALID) return;
+#ifdef _WIN32
+  shutdown(s, SD_SEND);
+#else
+  shutdown(s, SHUT_WR);
+#endif
+  sock_set_timeouts(s, 100);
+  char b[512];
+  uint64_t end = now_ms() + 200;
+  while (now_ms() < end && recv(s, b, sizeof b, 0) > 0) {}
+  sock_close(s);
+}
+
 int sock_set_nodelay(sock_t s, int on) {
   int v = on ? 1 : 0;
   return setsockopt(s, IPPROTO_TCP, TCP_NODELAY, (const char *)&v, sizeof(v));

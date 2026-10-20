@@ -69,6 +69,7 @@ void plat_cleanup(void);
 
 /* ── sockets ───────────────────────────────────────────────────────────── */
 void sock_close(sock_t s);
+void sock_close_graceful(sock_t s);
 int  sock_set_nodelay(sock_t s, int on);
 int  sock_set_keepalive(sock_t s);
 int  sock_set_nonblock(sock_t s, int on);

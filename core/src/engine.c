@@ -2585,7 +2585,7 @@ done:
   if (up != SOCK_INVALID) sock_close(up);
   free(first); free(work); free(rbuf);
   atomic_fetch_sub(&g_stats.conns_active, 1);
-  sock_close(client);
+  sock_close_graceful(client);
 }
 
 static void *conn_thread(void *p) {
