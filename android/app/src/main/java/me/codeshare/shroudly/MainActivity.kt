@@ -16,9 +16,7 @@ import android.os.Handler
 import android.os.Looper
 import android.view.View
 import android.view.WindowInsets
-import android.widget.Button
 import android.widget.ImageView
-import android.widget.ProgressBar
 import android.widget.ScrollView
 import android.widget.TextView
 import java.text.NumberFormat
@@ -33,20 +31,23 @@ class MainActivity : Activity() {
     }
 
     private lateinit var toggle: View
-    private lateinit var toggleIcon: ImageView
-    private lateinit var progress: ProgressBar
+    private lateinit var orb: Orb
     private lateinit var status: TextView
     private lateinit var detail: TextView
     private lateinit var detailMore: TextView
-    private lateinit var action: Button
+    private lateinit var hint: View
+    private lateinit var hintLabel: TextView
     private lateinit var connections: TextView
+    private lateinit var connectionsTotal: TextView
     private lateinit var upload: TextView
     private lateinit var download: TextView
     private lateinit var uptime: TextView
-    private lateinit var statsHint: TextView
+    private lateinit var statsHint: View
     private lateinit var update: View
     private lateinit var updateText: TextView
-    private lateinit var releases: TextView
+    private lateinit var releases: View
+    private lateinit var releasesLabel: TextView
+    private lateinit var releasesIcon: ImageView
 
     private val main = Handler(Looper.getMainLooper())
     private val onChange: () -> Unit = { render() }
@@ -65,13 +66,14 @@ class MainActivity : Activity() {
         edgeToEdge()
 
         toggle = findViewById(R.id.toggle)
-        toggleIcon = findViewById(R.id.toggleIcon)
-        progress = findViewById(R.id.progress)
+        orb = Orb(findViewById(R.id.halo), findViewById(R.id.ring), findViewById(R.id.toggleIcon))
         status = findViewById(R.id.status)
         detail = findViewById(R.id.detail)
         detailMore = findViewById(R.id.detailMore)
-        action = findViewById(R.id.action)
+        hint = findViewById(R.id.hint)
+        hintLabel = findViewById(R.id.hintLabel)
         connections = findViewById(R.id.connections)
+        connectionsTotal = findViewById(R.id.connectionsTotal)
         upload = findViewById(R.id.upload)
         download = findViewById(R.id.download)
         uptime = findViewById(R.id.uptime)
@@ -79,9 +81,13 @@ class MainActivity : Activity() {
         update = findViewById(R.id.update)
         updateText = findViewById(R.id.updateText)
         releases = findViewById(R.id.releases)
+        releasesLabel = findViewById(R.id.releasesLabel)
+        releasesIcon = findViewById(R.id.releasesIcon)
+        // The rows' ripples stay inside the card's rounded corners.
+        findViewById<View>(R.id.about).clipToOutline = true
 
+        // The logo's circle is the switch, the one control for on and off.
         toggle.setOnClickListener { onToggle() }
-        action.setOnClickListener { onToggle() }
         findViewById<TextView>(R.id.version).text = text(R.string.versionLabel, "version" to BuildConfig.VERSION_NAME)
         findViewById<View>(R.id.notices).setOnClickListener { showNotices() }
         findViewById<View>(R.id.privacy).setOnClickListener { open(UpdateCheck.PRIVACY_URL) }
@@ -113,13 +119,15 @@ class MainActivity : Activity() {
         Protection.windowVisible = true
         ShroudlyVpnService.clearAlert(this)
         Protection.listen(onChange)
+        orb.resume()
         main.post(ticker)
         // The APK from GitHub links its releases and looks for a newer one
         // there; a copy Google Play updates links the source code instead and
         // asks GitHub nothing (InstallSource).
         val github = InstallSource.githubUpdates(this)
         if (BuildConfig.DEBUG) ShroudlyVpnService.log("Updates: ${if (github) "GitHub" else "Google Play"}")
-        releases.setText(if (github) R.string.linkReleases else R.string.linkSourceCode)
+        releasesLabel.setText(if (github) R.string.linkReleases else R.string.linkSourceCode)
+        releasesIcon.setImageResource(if (github) R.drawable.ic_file_text else R.drawable.ic_code)
         releases.setOnClickListener { open(if (github) UpdateCheck.RELEASES_URL else UpdateCheck.REPO_URL) }
         if (github) {
             showUpdate(UpdateCheck.remembered(this))
@@ -133,6 +141,7 @@ class MainActivity : Activity() {
         Protection.windowVisible = false
         Protection.unlisten(onChange)
         main.removeCallbacks(ticker)
+        orb.pause()
         super.onStop()
     }
 
@@ -253,8 +262,7 @@ class MainActivity : Activity() {
             },
         )
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) toggle.stateDescription = statusText
-        toggleIcon.setColorFilter(getColor(if (on) R.color.on_accent else R.color.text_dim))
-        progress.visibility = if (busy) View.VISIBLE else View.GONE
+        orb.set(if (busy) Orb.Mode.BUSY else if (on) Orb.Mode.ON else Orb.Mode.OFF)
 
         // Set only when it changes: status and detail are live regions, and
         // TalkBack reads every change out.
@@ -271,7 +279,7 @@ class MainActivity : Activity() {
             error != 0 && st == Protection.State.OFF -> {
                 // In the user's language; the technical words behind "Details".
                 detail.show(getString(error))
-                detail.setTextColor(getColor(R.color.danger))
+                detail.setTextColor(getColor(R.color.warn))
                 more = Protection.errorDetail != null
             }
             else -> {
@@ -281,21 +289,23 @@ class MainActivity : Activity() {
         }
         detailMore.visibility = if (more) View.VISIBLE else View.GONE
 
-        action.text = getString(if (on) R.string.stop else R.string.start)
-        action.isEnabled = !busy
-        action.alpha = if (busy) 0.5f else 1f
+        // Under the status, what a tap on the switch does; nothing while it works.
+        if (!busy) hintLabel.show(getString(if (on) R.string.stop else R.string.start))
+        hint.visibility = if (busy) View.INVISIBLE else View.VISIBLE
 
         val s = Protection.stats
         if (on && s != null) {
             val n = NumberFormat.getIntegerInstance()
-            // Active now, then the session's total.
-            connections.text = "${n.format(s.connsActive)}  ·  ${text(R.string.totalCount, "count" to n.format(s.connsTotal))}"
+            // Active now, and the session's total under it.
+            connections.text = n.format(s.connsActive)
+            connectionsTotal.text = text(R.string.totalCount, "count" to n.format(s.connsTotal))
             upload.text = Format.bytes(s.bytesUp)
             download.text = Format.bytes(s.bytesDown)
             uptime.text = Format.duration(System.currentTimeMillis() - Protection.startedAt)
             statsHint.visibility = View.GONE
         } else {
             for (v in listOf(connections, upload, download, uptime)) v.text = "–"
+            connectionsTotal.text = text(R.string.totalCount, "count" to "–")
             statsHint.visibility = if (on) View.GONE else View.VISIBLE
         }
     }

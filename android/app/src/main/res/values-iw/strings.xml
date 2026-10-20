@@ -15,7 +15,9 @@
     <string name="linkReleases">הערות גרסה</string>
     <string name="linkSourceCode">קוד המקור ב-GitHub</string>
     <string name="madeBy">מוצר של Codeshare Technology Ltd</string>
+    <string name="navInfo">אודות</string>
     <string name="navProtection">הגנה</string>
+    <string name="navStats">נתונים</string>
     <string name="notProtected">לא מוגן</string>
     <string name="openSourceDesc">Shroudly הוא תוכנה חינמית בקוד פתוח ברישיון MIT: כל אחד יכול לקרוא, לבדוק ולבנות את הקוד שלו.</string>
     <string name="openSourceTitle">קוד פתוח</string>

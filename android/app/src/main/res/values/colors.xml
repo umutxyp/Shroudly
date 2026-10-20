@@ -1,21 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- The desktop's design tokens (app/globals.css). -->
+<!-- The desktop's surfaces and text (app/globals.css); the blues are the
+     logo's own (public/logo.png): its navy shield, royal rim and the eye. -->
 <resources>
     <color name="bg">#FF0B0F17</color>
     <color name="surface">#FF121826</color>
     <color name="surface_pop">#FF151C2B</color>
     <color name="surface_2">#FF161D2E</color>
-    <color name="surface_press">#FF222C40</color>
     <color name="line">#1F94A3B8</color>
-    <color name="line_strong">#3894A3B8</color>
     <color name="text">#FFE8EDF6</color>
     <color name="text_dim">#FFA3AFC4</color>
     <color name="text_faint">#FF7D89A1</color>
-    <color name="accent">#FF38BDF8</color>
-    <color name="accent_deep">#FF2563EB</color>
-    <color name="accent_soft">#1F38BDF8</color>
-    <color name="accent_line">#6138BDF8</color>
-    <color name="on_accent">#FF06111D</color>
+
+    <!-- The logo's blues. -->
+    <color name="brand_navy">#FF001840</color>
+    <color name="brand_shield">#FF082868</color>
+    <color name="brand_royal">#FF0840A0</color>
+    <color name="brand_bright">#FF0858C8</color>
+    <!-- The eye: the protected title, the ring and the halo (4:1 on bg,
+         for large text and graphics). -->
+    <color name="accent">#FF0A6CF5</color>
+    <!-- The eye's blue, lighter: small text and icons (≥ 6:1 on bg and surface). -->
+    <color name="accent_light">#FF5B9BFF</color>
+    <color name="accent_soft">#240A6CF5</color>
+    <color name="accent_line">#800A6CF5</color>
+    <!-- Text on a solid accent / royal fill. -->
+    <color name="on_accent">#FFFFFFFF</color>
+
     <color name="warn">#FFFBBF24</color>
     <color name="danger">#FFF87171</color>
     <color name="launcher_bg">#FF0B0F17</color>

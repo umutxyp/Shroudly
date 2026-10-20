@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- A list row: only the ripple (the card's outline clips it at the corners). -->
+<ripple xmlns:android="http://schemas.android.com/apk/res/android" android:color="@color/accent_soft">
+    <item android:id="@android:id/mask">
+        <color android:color="#FFFFFFFF" />
+    </item>
+</ripple>

@@ -15,7 +15,9 @@
     <string name="linkReleases">یادداشت‌های انتشار</string>
     <string name="linkSourceCode">کد منبع در GitHub</string>
     <string name="madeBy">محصولی از Codeshare Technology Ltd</string>
+    <string name="navInfo">درباره</string>
     <string name="navProtection">محافظت</string>
+    <string name="navStats">آمار</string>
     <string name="notProtected">محافظت‌نشده</string>
     <string name="openSourceDesc">Shroudly رایگان و متن‌باز با مجوز MIT است: هر کسی می‌تواند کد آن را بخواند، بررسی کند و بسازد.</string>
     <string name="openSourceTitle">متن‌باز</string>

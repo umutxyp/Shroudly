@@ -1,20 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- The desktop's Protection screen (components/ControlPanel.js), its
+     counters (StatsPanel.js) and About (InfoPanel.js), in one column. -->
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fillViewport="true">
 
-    <LinearLayout
+    <me.codeshare.shroudly.Column
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
         android:gravity="center_horizontal"
         android:orientation="vertical"
         android:paddingStart="20dp"
-        android:paddingTop="16dp"
+        android:paddingTop="14dp"
         android:paddingEnd="20dp"
         android:paddingBottom="20dp">
 
+        <!-- ── header ─────────────────────────────────────────────────── -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -22,8 +26,8 @@
             android:orientation="horizontal">
 
             <ImageView
-                android:layout_width="44dp"
-                android:layout_height="44dp"
+                android:layout_width="38dp"
+                android:layout_height="38dp"
                 android:importantForAccessibility="no"
                 android:src="@drawable/logo" />
 
@@ -37,65 +41,114 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:accessibilityHeading="true"
+                    android:fontFamily="sans-serif-medium"
                     android:text="@string/app_name"
                     android:textColor="@color/text"
-                    android:textSize="22sp"
-                    android:textStyle="bold" />
+                    android:textSize="20sp" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/tagline"
                     android:textColor="@color/text_faint"
-                    android:textSize="13sp" />
+                    android:textSize="12.5sp" />
             </LinearLayout>
         </LinearLayout>
 
+        <!-- ── the switch: halo, running arc, the circle with the logo ── -->
         <FrameLayout
-            android:id="@+id/toggle"
-            android:layout_width="208dp"
-            android:layout_height="208dp"
-            android:layout_marginTop="36dp"
-            android:background="@drawable/toggle_bg"
-            android:clickable="true"
-            android:focusable="true">
+            android:layout_width="224dp"
+            android:layout_height="224dp"
+            android:layout_marginTop="14dp"
+            >
 
-            <ImageView
-                android:id="@+id/toggleIcon"
-                android:layout_width="84dp"
-                android:layout_height="84dp"
+            <!-- 212dp in a 224dp frame: room to breathe (scale 1.04). -->
+            <View
+                android:id="@+id/halo"
+                android:layout_width="212dp"
+                android:layout_height="212dp"
                 android:layout_gravity="center"
-                android:importantForAccessibility="no"
-                android:src="@drawable/ic_shield" />
+                android:alpha="0"
+                android:importantForAccessibility="no" />
 
-            <ProgressBar
-                android:id="@+id/progress"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_margin="6dp"
-                android:indeterminate="true"
-                android:indeterminateTint="@color/accent"
-                android:visibility="gone" />
+            <View
+                android:id="@+id/ring"
+                android:layout_width="196dp"
+                android:layout_height="196dp"
+                android:layout_gravity="center"
+                android:background="@drawable/orb_ring"
+                android:importantForAccessibility="no"
+                android:visibility="invisible" />
+
+            <FrameLayout
+                android:id="@+id/toggle"
+                android:layout_width="172dp"
+                android:layout_height="172dp"
+                android:layout_gravity="center"
+                android:background="@drawable/orb"
+                android:clickable="true"
+                android:focusable="true"
+                android:stateListAnimator="@animator/press">
+
+                <ImageView
+                    android:id="@+id/toggleIcon"
+                    android:layout_width="104dp"
+                    android:layout_height="104dp"
+                    android:layout_gravity="center"
+                    android:importantForAccessibility="no"
+                    android:src="@drawable/logo" />
+            </FrameLayout>
         </FrameLayout>
 
         <TextView
             android:id="@+id/status"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:accessibilityLiveRegion="polite"
+            android:fontFamily="sans-serif-medium"
+            android:gravity="center"
+            android:letterSpacing="-0.01"
+            android:textColor="@color/text"
+            android:textSize="24sp" />
+
+        <!-- What a tap on the switch does; the switch says it to TalkBack. -->
+        <LinearLayout
+            android:id="@+id/hint"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:accessibilityLiveRegion="polite"
-            android:layout_marginTop="20dp"
-            android:textColor="@color/text"
-            android:textSize="22sp"
-            android:textStyle="bold" />
+            android:layout_marginTop="6dp"
+            android:gravity="center"
+            android:importantForAccessibility="noHideDescendants"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:importantForAccessibility="no"
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:src="@drawable/ic_power"
+                android:tint="@color/accent_light" />
+
+            <TextView
+                android:id="@+id/hintLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="7dp"
+                android:fontFamily="sans-serif-medium"
+                android:textColor="@color/accent_light"
+                android:textSize="15sp" />
+        </LinearLayout>
 
         <TextView
             android:id="@+id/detail"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="6dp"
+            android:layout_marginTop="10dp"
             android:accessibilityLiveRegion="polite"
             android:ellipsize="end"
             android:gravity="center"
+            android:lineSpacingMultiplier="1.1"
             android:maxLines="3"
             android:minLines="2"
             android:textColor="@color/text_dim"
@@ -107,36 +160,33 @@
             android:text="@string/androidDetails"
             android:visibility="gone" />
 
-        <Button
-            android:id="@+id/action"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:background="@drawable/pressable"
-            android:minHeight="48dp"
-            android:paddingStart="20dp"
-            android:paddingEnd="20dp"
-            android:stateListAnimator="@null"
-            android:textAllCaps="false"
-            android:textColor="@color/accent"
-            android:textSize="15sp" />
-
+        <!-- A newer version on GitHub (the APK from GitHub only). -->
         <LinearLayout
             android:id="@+id/update"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:background="@drawable/card_accent"
+            android:layout_marginTop="20dp"
+            android:background="@drawable/banner"
             android:gravity="center_vertical"
             android:orientation="horizontal"
-            android:padding="14dp"
+            android:paddingStart="14dp"
+            android:paddingTop="8dp"
+            android:paddingEnd="8dp"
+            android:paddingBottom="8dp"
             android:visibility="gone">
+
+            <ImageView
+                android:importantForAccessibility="no"
+                style="@style/RowIcon"
+                android:src="@drawable/ic_download" />
 
             <TextView
                 android:id="@+id/updateText"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
                 android:layout_weight="1"
+                android:fontFamily="sans-serif-medium"
                 android:textAlignment="viewStart"
                 android:textColor="@color/text"
                 android:textSize="14sp" />
@@ -145,8 +195,9 @@
                 android:id="@+id/updateOpen"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="12dp"
+                android:layout_marginStart="10dp"
                 android:background="@drawable/button_accent"
+                android:minWidth="0dp"
                 android:minHeight="48dp"
                 android:paddingStart="14dp"
                 android:paddingEnd="14dp"
@@ -157,112 +208,244 @@
                 android:textSize="14sp" />
         </LinearLayout>
 
+        <!-- ── the counters ───────────────────────────────────────────── -->
+        <TextView
+            style="@style/SectionTitle"
+            android:layout_marginTop="28dp"
+            android:accessibilityHeading="true"
+            android:text="@string/navStats" />
+
+        <LinearLayout
+            android:id="@+id/statsHint"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            android:background="@drawable/banner"
+            android:orientation="horizontal"
+            android:paddingStart="14dp"
+            android:paddingTop="12dp"
+            android:paddingEnd="14dp"
+            android:paddingBottom="12dp">
+
+            <ImageView
+                android:layout_width="17dp"
+                android:layout_height="17dp"
+                android:layout_marginTop="1dp"
+                android:importantForAccessibility="no"
+                android:src="@drawable/ic_info"
+                android:tint="@color/accent_light" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:layout_weight="1"
+                android:text="@string/statsInactiveHint"
+                android:textAlignment="viewStart"
+                android:textColor="@color/text_dim"
+                android:textSize="13.5sp" />
+        </LinearLayout>
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:background="@drawable/card"
-            android:orientation="vertical"
-            android:paddingStart="16dp"
-            android:paddingTop="8dp"
-            android:paddingEnd="16dp"
-            android:paddingBottom="8dp">
+            android:baselineAligned="false"
+            android:orientation="horizontal">
 
-            <LinearLayout style="@style/Row">
+            <LinearLayout style="@style/StatTile">
 
-                <TextView
-                    style="@style/Label"
-                    android:text="@string/connections" />
+                <LinearLayout style="@style/StatHead">
+
+                    <ImageView
+                        android:importantForAccessibility="no"
+                        style="@style/StatIcon"
+                        android:src="@drawable/ic_link" />
+
+                    <TextView
+                        style="@style/StatLabel"
+                        android:text="@string/connections" />
+                </LinearLayout>
 
                 <TextView
                     android:id="@+id/connections"
-                    style="@style/Value" />
+                    style="@style/StatValue" />
+
+                <TextView
+                    android:id="@+id/connectionsTotal"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:fontFeatureSettings="tnum"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:textAlignment="viewStart"
+                    android:textColor="@color/text_faint"
+                    android:textSize="12sp" />
             </LinearLayout>
 
-            <LinearLayout style="@style/Row">
+            <LinearLayout
+                style="@style/StatTile"
+                android:layout_marginStart="12dp">
 
-                <TextView
-                    style="@style/Label"
-                    android:text="@string/upload" />
+                <LinearLayout style="@style/StatHead">
 
-                <TextView
-                    android:id="@+id/upload"
-                    style="@style/Value" />
-            </LinearLayout>
+                    <ImageView
+                        android:importantForAccessibility="no"
+                        style="@style/StatIcon"
+                        android:src="@drawable/ic_clock" />
 
-            <LinearLayout style="@style/Row">
-
-                <TextView
-                    style="@style/Label"
-                    android:text="@string/download" />
-
-                <TextView
-                    android:id="@+id/download"
-                    style="@style/Value" />
-            </LinearLayout>
-
-            <LinearLayout style="@style/Row">
-
-                <TextView
-                    style="@style/Label"
-                    android:text="@string/uptime" />
+                    <TextView
+                        style="@style/StatLabel"
+                        android:text="@string/uptime" />
+                </LinearLayout>
 
                 <TextView
                     android:id="@+id/uptime"
-                    style="@style/Value" />
+                    style="@style/StatValue" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:baselineAligned="false"
+            android:orientation="horizontal">
+
+            <LinearLayout style="@style/StatTile">
+
+                <LinearLayout style="@style/StatHead">
+
+                    <ImageView
+                        android:importantForAccessibility="no"
+                        style="@style/StatIcon"
+                        android:src="@drawable/ic_arrow_down" />
+
+                    <TextView
+                        style="@style/StatLabel"
+                        android:text="@string/download" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/download"
+                    style="@style/StatValue" />
             </LinearLayout>
 
-            <TextView
-                android:id="@+id/statsHint"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:paddingTop="4dp"
-                android:paddingBottom="8dp"
-                android:text="@string/statsInactiveHint"
-                android:textAlignment="viewStart"
-                android:textColor="@color/text_faint"
-                android:textSize="13sp" />
+            <LinearLayout
+                style="@style/StatTile"
+                android:layout_marginStart="12dp">
+
+                <LinearLayout style="@style/StatHead">
+
+                    <ImageView
+                        android:importantForAccessibility="no"
+                        style="@style/StatIcon"
+                        android:src="@drawable/ic_arrow_up" />
+
+                    <TextView
+                        style="@style/StatLabel"
+                        android:text="@string/upload" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/upload"
+                    style="@style/StatValue" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- ── about ──────────────────────────────────────────────────── -->
+        <TextView
+            style="@style/SectionTitle"
+            android:accessibilityHeading="true"
+            android:text="@string/navInfo" />
+
+        <LinearLayout
+            android:id="@+id/about"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/card"
+            android:orientation="vertical"
+            android:padding="1dp">
+
+            <LinearLayout
+                android:id="@+id/releases"
+                style="@style/AboutRow">
+
+                <ImageView
+                    android:importantForAccessibility="no"
+                    android:id="@+id/releasesIcon"
+                    style="@style/RowIcon"
+                    android:src="@drawable/ic_file_text" />
+
+                <TextView
+                    android:id="@+id/releasesLabel"
+                    style="@style/RowLabel"
+                    android:text="@string/linkReleases" />
+
+                <ImageView
+                    android:importantForAccessibility="no" style="@style/Chevron" />
+            </LinearLayout>
+
+            <View style="@style/Divider" />
+
+            <LinearLayout
+                android:id="@+id/notices"
+                style="@style/AboutRow">
+
+                <ImageView
+                    android:importantForAccessibility="no"
+                    style="@style/RowIcon"
+                    android:src="@drawable/ic_scale" />
+
+                <TextView
+                    style="@style/RowLabel"
+                    android:text="@string/openSourceTitle" />
+
+                <ImageView
+                    android:importantForAccessibility="no" style="@style/Chevron" />
+            </LinearLayout>
+
+            <View style="@style/Divider" />
+
+            <LinearLayout
+                android:id="@+id/privacy"
+                style="@style/AboutRow">
+
+                <ImageView
+                    android:importantForAccessibility="no"
+                    style="@style/RowIcon"
+                    android:src="@drawable/ic_lock" />
+
+                <TextView
+                    style="@style/RowLabel"
+                    android:text="@string/androidPrivacyPolicy" />
+
+                <ImageView
+                    android:importantForAccessibility="no" style="@style/Chevron" />
+            </LinearLayout>
         </LinearLayout>
 
         <View
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
-            android:minHeight="24dp" />
+            android:minHeight="20dp" />
 
         <TextView
             android:id="@+id/version"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:fontFeatureSettings="tnum"
             android:textColor="@color/text_faint"
-            android:textSize="13sp" />
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-            <TextView
-                android:id="@+id/releases"
-                style="@style/Link"
-                android:text="@string/linkReleases" />
-
-            <TextView
-                android:id="@+id/notices"
-                style="@style/Link"
-                android:text="@string/openSourceTitle" />
-        </LinearLayout>
-
-        <TextView
-            android:id="@+id/privacy"
-            style="@style/Link"
-            android:text="@string/androidPrivacyPolicy" />
+            android:textSize="12.5sp" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:gravity="center"
             android:text="@string/madeBy"
             android:textColor="@color/text_faint"
             android:textSize="12sp" />
-    </LinearLayout>
+    </me.codeshare.shroudly.Column>
 </ScrollView>

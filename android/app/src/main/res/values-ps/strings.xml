@@ -15,7 +15,9 @@
     <string name="linkReleases">د خپرونو یادښتونه</string>
     <string name="linkSourceCode">په GitHub کې سرچینه کوډ</string>
     <string name="madeBy">د Codeshare Technology Ltd محصول</string>
+    <string name="navInfo">په اړه</string>
     <string name="navProtection">ساتنه</string>
+    <string name="navStats">احصایې</string>
     <string name="notProtected">خوندي نه دی</string>
     <string name="openSourceDesc">Shroudly وړیا او د MIT جواز لاندې پرانیستې سرچینه ده: هر څوک کولی شي د هغه کوډ ولولي، وڅېړي او جوړ یې کړي.</string>
     <string name="openSourceTitle">پرانیستې سرچینه</string>

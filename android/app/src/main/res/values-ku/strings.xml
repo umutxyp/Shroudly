@@ -15,7 +15,9 @@
     <string name="linkReleases">Notên weşanê</string>
     <string name="linkSourceCode">Koda çavkaniyê li GitHubê</string>
     <string name="madeBy">Berhemeke Codeshare Technology Ltd</string>
+    <string name="navInfo">Derbarê</string>
     <string name="navProtection">Parastin</string>
+    <string name="navStats">Amar</string>
     <string name="notProtected">Ne parastî</string>
     <string name="openSourceDesc">Shroudly belaş e û bi lîsansa MIT çavkaniya vekirî ye: her kes dikare koda wê bixwîne, kontrol bike û ava bike.</string>
     <string name="openSourceTitle">Çavkaniya vekirî</string>

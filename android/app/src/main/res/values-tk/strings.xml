@@ -15,7 +15,9 @@
     <string name="linkReleases">Wersiýa bellikleri</string>
     <string name="linkSourceCode">GitHub-daky çeşme kody</string>
     <string name="madeBy">Codeshare Technology Ltd önümi</string>
+    <string name="navInfo">Maglumat</string>
     <string name="navProtection">Gorag</string>
+    <string name="navStats">Statistika</string>
     <string name="notProtected">Goragsyz</string>
     <string name="openSourceDesc">Shroudly mugt we MIT ygtyýarnamasy boýunça açyk çeşmeli: islendik adam onuň koduny okap, barlap we ýygnap bilýär.</string>
     <string name="openSourceTitle">Açyk çeşme</string>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Starting / stopping: a thin arc that runs round the switch (the view is
+     turned by MainActivity). Sized for the 196dp view around the 172dp switch. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:innerRadius="92dp"
+    android:shape="ring"
+    android:thickness="2.5dp"
+    android:useLevel="false">
+    <gradient
+        android:centerColor="#000A6CF5"
+        android:endColor="@color/accent"
+        android:startColor="#000A6CF5"
+        android:type="sweep" />
+</shape>

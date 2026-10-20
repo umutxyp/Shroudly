@@ -15,7 +15,9 @@
     <string name="linkReleases">Тавсифи версияҳо</string>
     <string name="linkSourceCode">Коди манбаъ дар GitHub</string>
     <string name="madeBy">Маҳсули Codeshare Technology Ltd</string>
+    <string name="navInfo">Маълумот</string>
     <string name="navProtection">Ҳимоя</string>
+    <string name="navStats">Омор</string>
     <string name="notProtected">Ҳимоя нашудааст</string>
     <string name="openSourceDesc">Shroudly ройгон ва бо коди кушода таҳти иҷозатномаи MIT аст: ҳар кас метавонад коди онро хонад, санҷад ва худаш созад.</string>
     <string name="openSourceTitle">Коди кушода</string>

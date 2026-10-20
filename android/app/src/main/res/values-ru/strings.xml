@@ -15,7 +15,9 @@
     <string name="linkReleases">Примечания к выпуску</string>
     <string name="linkSourceCode">Исходный код на GitHub</string>
     <string name="madeBy">Продукт Codeshare Technology Ltd</string>
+    <string name="navInfo">Сведения</string>
     <string name="navProtection">Защита</string>
+    <string name="navStats">Статистика</string>
     <string name="notProtected">Не защищено</string>
     <string name="openSourceDesc">Shroudly бесплатен и распространяется с открытым исходным кодом по лицензии MIT: любой может прочитать, проверить и собрать его код.</string>
     <string name="openSourceTitle">Открытый исходный код</string>

@@ -15,7 +15,9 @@
     <string name="linkReleases">Notas da versão</string>
     <string name="linkSourceCode">Código-fonte no GitHub</string>
     <string name="madeBy">Um produto da Codeshare Technology Ltd</string>
+    <string name="navInfo">Sobre</string>
     <string name="navProtection">Proteção</string>
+    <string name="navStats">Métricas</string>
     <string name="notProtected">Sem proteção</string>
     <string name="openSourceDesc">O Shroudly é gratuito e de código aberto sob a licença MIT: qualquer pessoa pode ler, auditar e compilar o código.</string>
     <string name="openSourceTitle">Código aberto</string>

@@ -3,49 +3,139 @@
     <style name="Theme.Shroudly" parent="android:Theme.Material.NoActionBar">
         <item name="android:colorPrimary">@color/bg</item>
         <item name="android:colorPrimaryDark">@color/bg</item>
-        <item name="android:colorAccent">@color/accent</item>
+        <item name="android:colorAccent">@color/accent_light</item>
         <item name="android:colorBackground">@color/bg</item>
         <item name="android:windowBackground">@color/bg</item>
         <item name="android:statusBarColor">@color/bg</item>
         <item name="android:navigationBarColor">@color/bg</item>
         <item name="android:textColorPrimary">@color/text</item>
         <item name="android:textColorSecondary">@color/text_dim</item>
-        <item name="android:textColorLink">@color/accent</item>
+        <item name="android:textColorLink">@color/accent_light</item>
         <item name="android:colorControlHighlight">@color/accent_soft</item>
         <item name="android:alertDialogTheme">@style/Theme.Shroudly.Dialog</item>
     </style>
 
     <style name="Theme.Shroudly.Dialog" parent="android:Theme.Material.Dialog.Alert">
-        <item name="android:colorAccent">@color/accent</item>
+        <item name="android:colorAccent">@color/accent_light</item>
         <item name="android:colorBackground">@color/surface_pop</item>
         <item name="android:textColorPrimary">@color/text</item>
         <item name="android:textColorSecondary">@color/text_dim</item>
     </style>
 
-    <style name="Label">
-        <item name="android:layout_width">0dp</item>
+    <!-- A small heading over a group, like the desktop's section titles. -->
+    <style name="SectionTitle">
+        <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:layout_weight">1</item>
-        <item name="android:textColor">@color/text_dim</item>
-        <item name="android:textSize">14sp</item>
+        <item name="android:layout_marginTop">24dp</item>
+        <item name="android:layout_marginBottom">10dp</item>
+        <item name="android:paddingStart">4dp</item>
+        <item name="android:paddingEnd">4dp</item>
         <item name="android:textAlignment">viewStart</item>
+        <item name="android:textColor">@color/text_dim</item>
+        <item name="android:textSize">13sp</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
     </style>
 
-    <style name="Value">
-        <item name="android:layout_width">wrap_content</item>
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:textColor">@color/text</item>
-        <item name="android:textSize">15sp</item>
-        <item name="android:fontFeatureSettings">tnum</item>
+    <!-- The counters (StatsPanel.js Stat): label over a large tabular value. -->
+    <style name="StatTile">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:background">@drawable/tile</item>
+        <item name="android:orientation">vertical</item>
+        <item name="android:padding">14dp</item>
     </style>
 
-    <style name="Row">
+    <style name="StatHead">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:orientation">horizontal</item>
+        <item name="android:gravity">center_vertical</item>
+    </style>
+
+    <style name="StatIcon">
+        <item name="android:layout_width">15dp</item>
+        <item name="android:layout_height">15dp</item>
+        <item name="android:importantForAccessibility">no</item>
+        <item name="android:tint">@color/text_faint</item>
+    </style>
+
+    <style name="StatLabel">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:layout_marginStart">7dp</item>
+        <item name="android:textAlignment">viewStart</item>
+        <item name="android:textColor">@color/text_dim</item>
+        <item name="android:textSize">12.5sp</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+    </style>
+
+    <style name="StatValue">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginTop">10dp</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:ellipsize">end</item>
+        <item name="android:textAlignment">viewStart</item>
+        <item name="android:textDirection">ltr</item>
+        <item name="android:textColor">@color/text</item>
+        <item name="android:textSize">22sp</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:fontFeatureSettings">tnum</item>
+        <item name="android:letterSpacing">-0.01</item>
+    </style>
+
+    <!-- The About list (InfoPanel.js LinkRow): icon, label, chevron. -->
+    <style name="AboutRow">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:minHeight">52dp</item>
+        <item name="android:orientation">horizontal</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:paddingStart">14dp</item>
+        <item name="android:paddingEnd">12dp</item>
         <item name="android:paddingTop">8dp</item>
         <item name="android:paddingBottom">8dp</item>
-        <item name="android:gravity">center_vertical</item>
+        <item name="android:background">@drawable/row</item>
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
+    </style>
+
+    <style name="RowIcon">
+        <item name="android:layout_width">30dp</item>
+        <item name="android:layout_height">30dp</item>
+        <item name="android:padding">7dp</item>
+        <item name="android:background">@drawable/icon_tile</item>
+        <item name="android:importantForAccessibility">no</item>
+        <item name="android:tint">@color/accent_light</item>
+    </style>
+
+    <style name="RowLabel">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:layout_marginStart">14dp</item>
+        <item name="android:layout_marginEnd">8dp</item>
+        <item name="android:textAlignment">viewStart</item>
+        <item name="android:textColor">@color/text</item>
+        <item name="android:textSize">15sp</item>
+    </style>
+
+    <style name="Chevron">
+        <item name="android:layout_width">18dp</item>
+        <item name="android:layout_height">18dp</item>
+        <item name="android:src">@drawable/ic_chevron</item>
+        <item name="android:importantForAccessibility">no</item>
+        <item name="android:tint">@color/text_faint</item>
+    </style>
+
+    <!-- Between rows, from under the label to the card's edge. -->
+    <style name="Divider">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">1dp</item>
+        <item name="android:layout_marginStart">58dp</item>
+        <item name="android:background">@color/line</item>
     </style>
 
     <style name="Link">
@@ -55,7 +145,7 @@
         <item name="android:gravity">center</item>
         <item name="android:paddingStart">12dp</item>
         <item name="android:paddingEnd">12dp</item>
-        <item name="android:textColor">@color/accent</item>
+        <item name="android:textColor">@color/accent_light</item>
         <item name="android:textSize">14sp</item>
         <item name="android:background">@drawable/pressable</item>
         <item name="android:clickable">true</item>

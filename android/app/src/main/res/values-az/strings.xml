@@ -15,7 +15,9 @@
     <string name="linkReleases">Buraxılış qeydləri</string>
     <string name="linkSourceCode">GitHub-da mənbə kodu</string>
     <string name="madeBy">Codeshare Technology Ltd məhsulu</string>
+    <string name="navInfo">Haqqında</string>
     <string name="navProtection">Qoruma</string>
+    <string name="navStats">Statistika</string>
     <string name="notProtected">Qorunmur</string>
     <string name="openSourceDesc">Shroudly pulsuzdur və MIT lisenziyası ilə açıq mənbəlidir: hər kəs onun kodunu oxuya, yoxlaya və yığa bilər.</string>
     <string name="openSourceTitle">Açıq mənbə</string>

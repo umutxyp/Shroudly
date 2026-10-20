@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The small square behind a row's icon (InfoPanel.js LinkRow). -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <solid android:color="@color/accent_soft" />
+    <corners android:radius="8dp" />
+</shape>

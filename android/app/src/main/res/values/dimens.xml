@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- On tablets and in landscape the column stays phone-wide, centred. -->
+    <dimen name="content_max_width">520dp</dimen>
+</resources>

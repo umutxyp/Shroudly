@@ -15,7 +15,9 @@
     <string name="linkReleases">リリースノート</string>
     <string name="linkSourceCode">GitHub のソースコード</string>
     <string name="madeBy">Codeshare Technology Ltd の製品</string>
+    <string name="navInfo">情報</string>
     <string name="navProtection">保護</string>
+    <string name="navStats">統計</string>
     <string name="notProtected">保護されていません</string>
     <string name="openSourceDesc">Shroudly は MIT ライセンスの無料オープンソースソフトウェアです。誰でもコードを読み、検証し、ビルドできます。</string>
     <string name="openSourceTitle">オープンソース</string>

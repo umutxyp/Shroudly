@@ -15,7 +15,9 @@
     <string name="linkReleases">Nota keluaran</string>
     <string name="linkSourceCode">Kod sumber di GitHub</string>
     <string name="madeBy">Produk Codeshare Technology Ltd</string>
+    <string name="navInfo">Perihal</string>
     <string name="navProtection">Perlindungan</string>
+    <string name="navStats">Statistik</string>
     <string name="notProtected">Tidak dilindungi</string>
     <string name="openSourceDesc">Shroudly percuma dan bersumber terbuka di bawah lesen MIT: sesiapa sahaja boleh membaca, mengaudit dan membina kodnya.</string>
     <string name="openSourceTitle">Sumber terbuka</string>

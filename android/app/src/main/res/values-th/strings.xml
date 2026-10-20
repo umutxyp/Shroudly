@@ -15,7 +15,9 @@
     <string name="linkReleases">บันทึกประจำรุ่น</string>
     <string name="linkSourceCode">ซอร์สโค้ดบน GitHub</string>
     <string name="madeBy">ผลิตภัณฑ์ของ Codeshare Technology Ltd</string>
+    <string name="navInfo">เกี่ยวกับ</string>
     <string name="navProtection">การป้องกัน</string>
+    <string name="navStats">สถิติ</string>
     <string name="notProtected">ไม่ได้รับการป้องกัน</string>
     <string name="openSourceDesc">Shroudly เป็นซอฟต์แวร์ฟรีและโอเพนซอร์สภายใต้สัญญาอนุญาต MIT ทุกคนสามารถอ่าน ตรวจสอบ และสร้างจากโค้ดได้</string>
     <string name="openSourceTitle">โอเพนซอร์ส</string>

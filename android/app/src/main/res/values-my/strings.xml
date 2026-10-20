@@ -15,7 +15,9 @@
     <string name="linkReleases">ထုတ်ဝေမှု မှတ်စုများ</string>
     <string name="linkSourceCode">GitHub ပေါ်ရှိ ရင်းမြစ်ကုဒ်</string>
     <string name="madeBy">Codeshare Technology Ltd ၏ ထုတ်ကုန်</string>
+    <string name="navInfo">အကြောင်း</string>
     <string name="navProtection">ကာကွယ်မှု</string>
+    <string name="navStats">စာရင်းအင်း</string>
     <string name="notProtected">ကာကွယ်မထားပါ</string>
     <string name="openSourceDesc">Shroudly သည် MIT လိုင်စင်ဖြင့် အခမဲ့ ပွင့်လင်းရင်းမြစ် ဆော့ဖ်ဝဲ ဖြစ်သည်: မည်သူမဆို ၎င်း၏ ကုဒ်ကို ဖတ်ရှု၊ စစ်ဆေး၊ တည်ဆောက်နိုင်သည်။</string>
     <string name="openSourceTitle">ပွင့်လင်းရင်းမြစ်</string>

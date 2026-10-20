@@ -15,7 +15,9 @@
     <string name="linkReleases">Версиялардагы өзгөрүүлөр</string>
     <string name="linkSourceCode">Баштапкы код (GitHub)</string>
     <string name="madeBy">Codeshare Technology Ltd продуктусу</string>
+    <string name="navInfo">Маалымат</string>
     <string name="navProtection">Коргоо</string>
+    <string name="navStats">Статистика</string>
     <string name="notProtected">Корголгон эмес</string>
     <string name="openSourceDesc">Shroudly акысыз жана MIT лицензиясы боюнча ачык булактуу: анын кодун ар ким окуй, текшере жана кура алат.</string>
     <string name="openSourceTitle">Ачык булак</string>

@@ -15,7 +15,9 @@
     <string name="linkReleases">版本说明</string>
     <string name="linkSourceCode">GitHub 上的源代码</string>
     <string name="madeBy">Codeshare Technology Ltd 出品</string>
+    <string name="navInfo">关于</string>
     <string name="navProtection">保护</string>
+    <string name="navStats">统计</string>
     <string name="notProtected">未受保护</string>
     <string name="openSourceDesc">Shroudly 免费且基于 MIT 许可证开源：任何人都可以阅读、审查和编译其代码。</string>
     <string name="openSourceTitle">开源</string>

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The round switch around the logo: the dark surface with a navy line when
+     off; when protected, the logo's royal blue glowing out of its navy, with
+     the eye's blue round it. -->
+<ripple xmlns:android="http://schemas.android.com/apk/res/android" android:color="@color/accent_soft">
+    <item>
+        <selector
+            android:enterFadeDuration="350"
+            android:exitFadeDuration="350">
+            <item android:state_activated="true">
+                <shape android:shape="oval">
+                    <gradient
+                        android:centerColor="@color/brand_royal"
+                        android:endColor="@color/brand_navy"
+                        android:gradientRadius="86dp"
+                        android:startColor="@color/brand_bright"
+                        android:type="radial" />
+                    <stroke android:width="2dp" android:color="@color/accent" />
+                </shape>
+            </item>
+            <item>
+                <shape android:shape="oval">
+                    <gradient
+                        android:angle="270"
+                        android:endColor="@color/surface"
+                        android:startColor="@color/surface_2" />
+                    <stroke android:width="1.5dp" android:color="@color/brand_shield" />
+                </shape>
+            </item>
+        </selector>
+    </item>
+    <item android:id="@android:id/mask">
+        <shape android:shape="oval">
+            <solid android:color="#FFFFFFFF" />
+        </shape>
+    </item>
+</ripple>

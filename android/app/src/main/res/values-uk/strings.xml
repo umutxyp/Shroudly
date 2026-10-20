@@ -15,7 +15,9 @@
     <string name="linkReleases">Примітки до випусків</string>
     <string name="linkSourceCode">Вихідний код на GitHub</string>
     <string name="madeBy">Продукт Codeshare Technology Ltd</string>
+    <string name="navInfo">Про програму</string>
     <string name="navProtection">Захист</string>
+    <string name="navStats">Статистика</string>
     <string name="notProtected">Не захищено</string>
     <string name="openSourceDesc">Shroudly — безплатна програма з відкритим кодом за ліцензією MIT: будь-хто може читати, перевіряти й збирати її код.</string>
     <string name="openSourceTitle">Відкритий код</string>

@@ -15,7 +15,9 @@
     <string name="linkReleases">রিলিজ নোট</string>
     <string name="linkSourceCode">GitHub-এ সোর্স কোড</string>
     <string name="madeBy">Codeshare Technology Ltd-এর একটি পণ্য</string>
+    <string name="navInfo">সম্পর্কে</string>
     <string name="navProtection">সুরক্ষা</string>
+    <string name="navStats">পরিসংখ্যান</string>
     <string name="notProtected">অরক্ষিত</string>
     <string name="openSourceDesc">Shroudly বিনামূল্যে এবং MIT লাইসেন্সের অধীনে ওপেন সোর্স: যে কেউ এর কোড পড়তে, যাচাই করতে ও বিল্ড করতে পারে।</string>
     <string name="openSourceTitle">ওপেন সোর্স</string>

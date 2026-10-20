@@ -1,12 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- The pill is drawn 4dp in from the top and bottom: the button stays a
-     48dp touch target and looks 40dp tall. -->
-<ripple xmlns:android="http://schemas.android.com/apk/res/android" android:color="@color/accent_soft">
+     48dp touch target and looks 40dp tall. The logo's royal blue into the
+     eye's, white text on it (≥ 4.5:1). -->
+<ripple xmlns:android="http://schemas.android.com/apk/res/android" android:color="#33FFFFFF">
     <item
         android:bottom="4dp"
         android:top="4dp">
         <shape android:shape="rectangle">
-            <solid android:color="@color/accent" />
+            <gradient
+                android:angle="0"
+                android:endColor="@color/accent"
+                android:startColor="@color/brand_royal" />
             <corners android:radius="11dp" />
         </shape>
     </item>

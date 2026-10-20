@@ -15,7 +15,9 @@
     <string name="linkReleases">ملاحظات الإصدار</string>
     <string name="linkSourceCode">الشيفرة المصدرية على GitHub</string>
     <string name="madeBy">منتج من Codeshare Technology Ltd</string>
+    <string name="navInfo">حول</string>
     <string name="navProtection">الحماية</string>
+    <string name="navStats">إحصاءات</string>
     <string name="notProtected">غير محمي</string>
     <string name="openSourceDesc">Shroudly مجاني ومفتوح المصدر بموجب ترخيص MIT: يمكن لأي شخص قراءة شيفرته وتدقيقها وبناؤها.</string>
     <string name="openSourceTitle">مفتوح المصدر</string>

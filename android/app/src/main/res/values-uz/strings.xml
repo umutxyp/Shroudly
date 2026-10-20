@@ -15,7 +15,9 @@
     <string name="linkReleases">Reliz qaydlari</string>
     <string name="linkSourceCode">GitHubdagi manba kodi</string>
     <string name="madeBy">Codeshare Technology Ltd mahsuloti</string>
+    <string name="navInfo">Haqida</string>
     <string name="navProtection">Himoya</string>
+    <string name="navStats">Statistika</string>
     <string name="notProtected">Himoyalanmagan</string>
     <string name="openSourceDesc">Shroudly bepul va MIT litsenziyasi ostidagi ochiq manbali dastur: istalgan kishi uning kodini oʻqishi, tekshirishi va yigʻishi mumkin.</string>
     <string name="openSourceTitle">Ochiq manba</string>

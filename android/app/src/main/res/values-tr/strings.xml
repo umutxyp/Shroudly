@@ -15,7 +15,9 @@
     <string name="linkReleases">Sürüm notları</string>
     <string name="linkSourceCode">GitHub’daki kaynak kodu</string>
     <string name="madeBy">Bir Codeshare Technology Ltd ürünü</string>
+    <string name="navInfo">Hakkında</string>
     <string name="navProtection">Koruma</string>
+    <string name="navStats">İstatistik</string>
     <string name="notProtected">Korunmuyor</string>
     <string name="openSourceDesc">Shroudly, MIT lisansıyla ücretsiz ve açık kaynaklıdır: kodunu herkes okuyabilir, denetleyebilir ve derleyebilir.</string>
     <string name="openSourceTitle">Açık kaynak</string>

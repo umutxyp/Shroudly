@@ -15,7 +15,9 @@
     <string name="linkReleases">Нұсқа өзгерістері</string>
     <string name="linkSourceCode">GitHub-тағы бастапқы код</string>
     <string name="madeBy">Codeshare Technology Ltd өнімі</string>
+    <string name="navInfo">Ақпарат</string>
     <string name="navProtection">Қорғаныс</string>
+    <string name="navStats">Статистика</string>
     <string name="notProtected">Қорғалмаған</string>
     <string name="openSourceDesc">Shroudly — MIT лицензиясы бойынша тегін әрі ашық бастапқы кодты бағдарлама: кез келген адам оның кодын оқып, тексеріп, құрастыра алады.</string>
     <string name="openSourceTitle">Ашық бастапқы код</string>

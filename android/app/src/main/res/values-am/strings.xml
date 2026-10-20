@@ -15,7 +15,9 @@
     <string name="linkReleases">የልቀት ማስታወሻዎች</string>
     <string name="linkSourceCode">የምንጭ ኮድ በGitHub ላይ</string>
     <string name="madeBy">የCodeshare Technology Ltd ምርት</string>
+    <string name="navInfo">መረጃ</string>
     <string name="navProtection">ጥበቃ</string>
+    <string name="navStats">ስታቲስቲክስ</string>
     <string name="notProtected">አልተጠበቀም</string>
     <string name="openSourceDesc">Shroudly በMIT ፈቃድ ስር ነፃ እና ክፍት ምንጭ ነው፤ ማንኛውም ሰው ኮዱን ማንበብ፣ መመርመር እና መገንባት ይችላል።</string>
     <string name="openSourceTitle">ክፍት ምንጭ</string>

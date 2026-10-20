@@ -15,7 +15,9 @@
     <string name="linkReleases">ریلیز نوٹس</string>
     <string name="linkSourceCode">GitHub پر سورس کوڈ</string>
     <string name="madeBy">Codeshare Technology Ltd کی ایک پروڈکٹ</string>
+    <string name="navInfo">تعارف</string>
     <string name="navProtection">تحفظ</string>
+    <string name="navStats">شماریات</string>
     <string name="notProtected">غیر محفوظ</string>
     <string name="openSourceDesc">Shroudly مفت اور MIT لائسنس کے تحت اوپن سورس ہے: کوئی بھی اس کا کوڈ پڑھ، جانچ اور بلڈ کر سکتا ہے۔</string>
     <string name="openSourceTitle">اوپن سورس</string>
