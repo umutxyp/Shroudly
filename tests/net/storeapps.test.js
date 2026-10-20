@@ -376,6 +376,19 @@ const decode = (b64) => Buffer.from(b64, 'base64').toString('utf16le');
   }
 
   {
+    // The uninstaller's record is written (reg.exe, a moment later) before a
+    // survey or a removal is over: checked right after, it is there.
+    const w = fakeWindows({ containers: MACHINE(), exempt: [WEBVIEW] });
+    let written = null;
+    const slowRecord = { get: async () => [], set: (v) => new Promise((r) => setTimeout(() => { written = v; r(); }, 50)) };
+    const sa = new StoreApps({ store: memStore(), platform: 'win32', protectionOn: () => true, run: w.run, record: slowRecord });
+    await sa.survey();
+    t.ok(written && written.join() === sa.ours().join() && written.length === 3, 'after a survey the record holds exactly what was added');
+    await sa.setMode(false);
+    t.ok(written && written.length === 0, '…and after switching off, nothing');
+  }
+
+  {
     // Not Windows: nothing runs.
     let ran = 0;
     const sa = new StoreApps({ store: memStore(), platform: 'darwin', protectionOn: () => true, run: async () => { ran++; return { code: 0, stdout: '' }; } });
@@ -387,8 +400,8 @@ const decode = (b64) => Buffer.from(b64, 'base64').toString('utf16le');
     // The uninstaller's record in the registry, as reg.exe is told.
     const calls = [];
     const sa = new StoreApps({ store: memStore(), platform: 'win32', run: async (c, a) => { calls.push([path.basename(c), ...a]); return { code: 0, stdout: '' }; } });
-    sa._setOurs([STORE, XBOX, 'S-1-15-2-1;calc']);
-    sa._setOurs([]);
+    await sa._setOurs([STORE, XBOX, 'S-1-15-2-1;calc']);
+    await sa._setOurs([]);
     t.ok(calls[0].join(' ') === `reg.exe add HKCU\\Software\\Shroudly /v LoopbackExempt /t REG_SZ /d ${STORE};${XBOX} /f`
       && calls[1].join(' ') === 'reg.exe delete HKCU\\Software\\Shroudly /v LoopbackExempt /f', 'HKCU\\Software\\Shroudly LoopbackExempt: SIDs only, removed when empty');
   }

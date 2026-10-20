@@ -423,10 +423,13 @@ class StoreApps {
     }
   }
 
-  _setOurs(list) {
+  /* What Shroudly added, in the settings and in the uninstaller's record.
+   * Waited for: the record is written by reg.exe, and a survey or a removal
+   * is only done once it is there (and two writes never cross). */
+  async _setOurs(list) {
     const v = [...new Set(list.filter((s) => SID_RE.test(s)))];
     if (v.length) this.store.set('storeAppsOurs', v); else this.store.delete('storeAppsOurs');
-    try { this.record.set(v); } catch {}
+    try { await this.record.set(v); } catch {}
   }
 
   /* When protection comes on, and every so often after: app containers that
@@ -499,7 +502,7 @@ class StoreApps {
       this.tell('autoStoreAppsFailed', { apps });
       return { asked: true, result: 'failed', apps };
     }
-    this._setOurs([...this.ours(), ...added]);
+    await this._setOurs([...this.ours(), ...added]);
     // One Windows would not exempt (a container left from an app since
     // removed) is not asked about again.
     this.store.set('storeAppsHandled', [...new Set([...handled, ...need.map((c) => c.sid)])]);
@@ -553,12 +556,12 @@ class StoreApps {
   async removeOurs() {
     await this._adopt();
     const ours = this.ours();
-    if (!ours.length) { this._setOurs([]); return { success: true, removed: 0 }; }
+    if (!ours.length) { await this._setOurs([]); return { success: true, removed: 0 }; }
     const s = await this.scan();
     if (!s) return { success: false, code: 'unreadable' };
     const exempt = new Set(s.exempt);
     const still = ours.filter((sid) => exempt.has(sid));
-    if (!still.length) { this._setOurs([]); this.store.delete('storeAppsHandled'); return { success: true, removed: 0 }; }
+    if (!still.length) { await this._setOurs([]); this.store.delete('storeAppsHandled'); return { success: true, removed: 0 }; }
     const r = await this._elevate('remove', still);
     const after = r.code === 'ok' ? await this.scan() : null;
     const left = after ? still.filter((sid) => new Set(after.exempt).has(sid)) : still;
@@ -566,7 +569,7 @@ class StoreApps {
       this.log('warning', 'Store apps: the exemptions Shroudly added could not be taken out');
       return { success: false, code: r.code === 'ok' ? 'failed' : r.code };
     }
-    this._setOurs(left);
+    await this._setOurs(left);
     // Taken out by the user's choice: asked about afresh if it is turned on again.
     this.store.delete('storeAppsHandled');
     this.log('success', `Store apps: the exemptions Shroudly added were taken out (${still.length - left.length})`);

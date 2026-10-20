@@ -25,8 +25,7 @@
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
-const http = require('http');
-const { spawnSync } = require('child_process');
+const { spawn, spawnSync } = require('child_process');
 const ROOT = path.join(__dirname, '..', '..');
 const StoreApps = require(path.join(ROOT, 'electron', 'store-apps.js'));
 const { powershellEnv } = require(path.join(ROOT, 'electron', 'win-powershell.js'));
@@ -124,6 +123,26 @@ public static class AcLab {
   }
 }`;
 
+/* The server curl fetches from, in a process of its own: this one runs
+ * curl and PowerShell synchronously, which stops its own event loop, so a
+ * server in it would never answer while curl waits for it. */
+function startServer() {
+  const code = "const s = require('http').createServer((q, r) => r.end('shroudly-lab'));"
+    + "s.listen(0, '127.0.0.1', () => console.log('PORT ' + s.address().port));"
+    + "process.stdin.on('end', () => process.exit(0)); process.stdin.resume();";
+  return new Promise((resolve, reject) => {
+    const p = spawn(process.execPath, ['-e', code], { stdio: ['pipe', 'pipe', 'inherit'] });
+    let out = '';
+    p.stdout.on('data', (d) => {
+      out += d;
+      const m = out.match(/PORT (\d+)/);
+      if (m) resolve({ port: Number(m[1]), stop: () => { try { p.stdin.end(); } catch {} try { p.kill(); } catch {} } });
+    });
+    p.on('exit', (c) => reject(new Error(`the server exited (${c})`)));
+    setTimeout(() => reject(new Error('the server did not start')), 15000);
+  });
+}
+
 function ps(script, env = {}, timeout = 120000) {
   const full = `$ErrorActionPreference = 'Stop'\n${script}`;
   const r = spawnSync('powershell.exe', ['-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass', '-EncodedCommand', Buffer.from(full, 'utf16le').toString('base64')],
@@ -192,9 +211,8 @@ function uninstallerScript() {
   const fw = ps("Get-NetFirewallProfile | ForEach-Object { $_.Name + '=' + $_.Enabled }");
   console.log(`  ..  Windows ${os.release()}, firewall: ${fw.out.trim().split(/\r?\n/).join(' ') || fw.err.trim().slice(0, 120)}`);
 
-  const server = http.createServer((req, res) => { res.end('shroudly-lab'); });
-  await new Promise((r) => server.listen(0, '127.0.0.1', r));
-  const port = server.address().port;
+  const server = await startServer();
+  const port = server.port;
   let engine = null;
   const socksPort = await freePort();
   try { engine = await startEngine(socksPort); } catch (e) { console.log(`  ..  engine not started (${e.message}); the SOCKS checks are left out`); }
@@ -311,7 +329,7 @@ function uninstallerScript() {
     lab('[void][AcLab]::Delete($env:LAB_NAME)', { LAB_NAME: USERS });
     spawnSync('reg.exe', ['delete', StoreApps.RECORD_KEY, '/v', StoreApps.RECORD_VALUE, '/f'], { stdio: 'ignore' });
     if (engine) engine.stop();
-    server.close();
+    server.stop();
   }
   console.log(fails ? `\nuwp-loopback: ${fails} failed` : '\nuwp-loopback: all passed');
   process.exitCode = fails ? 1 : 0;
