@@ -387,5 +387,6 @@
   "androidAlertsChannel": "Amaran perlindungan",
   "androidProtectionLost": "Perlindungan berhenti kerana ralat, jadi aplikasi anda kini bersambung secara terus. Buka Shroudly untuk memulakannya semula.",
   "androidDetails": "Butiran",
-  "androidDownloadApk": "Muat turun kemas kini"
+  "androidDownloadApk": "Muat turun kemas kini",
+  "androidPrivacyPolicy": "Dasar privasi"
 }

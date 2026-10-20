@@ -5,6 +5,7 @@
     <string name="androidAllApps">اس ڈیوائس کی ہر ایپ Shroudly سے ہو کر جاتی ہے۔</string>
     <string name="androidDetails">تفصیلات</string>
     <string name="androidDownloadApk">اپ ڈیٹ ڈاؤن لوڈ کریں</string>
+    <string name="androidPrivacyPolicy">رازداری کی پالیسی</string>
     <string name="androidProtectionLost">ایک خرابی کی وجہ سے تحفظ رک گیا، اس لیے آپ کی ایپس اب براہِ راست جڑ رہی ہیں۔ اسے دوبارہ شروع کرنے کے لیے Shroudly کھولیں۔</string>
     <string name="androidVpnDenied">آپ کی ایپس کے کنکشن لے جانے کے لیے Shroudly کو VPN کی اجازت درکار ہے۔</string>
     <string name="androidVpnRevoked">Android نے تحفظ بند کر دیا، عموماً اس لیے کہ کوئی دوسری VPN ایپ آن کی گئی۔</string>
@@ -12,6 +13,7 @@
     <string name="download">ڈاؤن لوڈ</string>
     <string name="dpiBypassStopped">DPI بائی پاس رکا ہوا ہے</string>
     <string name="linkReleases">ریلیز نوٹس</string>
+    <string name="linkSourceCode">GitHub پر سورس کوڈ</string>
     <string name="madeBy">Codeshare Technology Ltd کی ایک پروڈکٹ</string>
     <string name="navProtection">تحفظ</string>
     <string name="notProtected">غیر محفوظ</string>

@@ -387,5 +387,6 @@
   "androidAlertsChannel": "تنبيهات الحماية",
   "androidProtectionLost": "توقفت الحماية بسبب خطأ، لذا تتصل تطبيقاتك الآن مباشرةً. افتح Shroudly لتشغيلها من جديد.",
   "androidDetails": "التفاصيل",
-  "androidDownloadApk": "تنزيل التحديث"
+  "androidDownloadApk": "تنزيل التحديث",
+  "androidPrivacyPolicy": "سياسة الخصوصية"
 }

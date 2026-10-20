@@ -387,5 +387,6 @@
   "androidAlertsChannel": "የጥበቃ ማንቂያዎች",
   "androidProtectionLost": "በስህተት ምክንያት ጥበቃው ቆሟል፤ ስለዚህ መተግበሪያዎችዎ አሁን በቀጥታ ይገናኛሉ። እንደገና ለማስጀመር Shroudlyን ይክፈቱ።",
   "androidDetails": "ዝርዝሮች",
-  "androidDownloadApk": "ዝማኔውን አውርድ"
+  "androidDownloadApk": "ዝማኔውን አውርድ",
+  "androidPrivacyPolicy": "የግላዊነት መመሪያ"
 }

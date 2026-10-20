@@ -22,8 +22,19 @@ if (!File(hevDir, "Android.mk").isFile) {
 
 val abis = listOf("arm64-v8a", "armeabi-v7a", "x86_64")
 
-// Release signing comes from the environment (CI); nothing secret is in the repository.
-val keystorePath = providers.environmentVariable("ANDROID_KEYSTORE").orNull
+// Two channels from one source, one package and one version code:
+//  - the APK on GitHub (the default): signed with the app signing key, and
+//    looks for updates on GitHub;
+//  - the bundle for Google Play (-Pshroudly.store=play, with bundleRelease):
+//    STORE_BUILD, so it never asks GitHub for updates, and signed with the
+//    upload key; Play re-signs it with the same app signing key as the APK
+//    (android/PLAY_STORE.md), so either install updates the other.
+val playBuild = providers.gradleProperty("shroudly.store").orNull == "play"
+
+// Release signing comes from the environment (CI); nothing secret is in the
+// repository. ANDROID_* is the app signing key, ANDROID_UPLOAD_* the upload key.
+val keyEnv = if (playBuild) "ANDROID_UPLOAD_" else "ANDROID_"
+val keystorePath = providers.environmentVariable("${keyEnv}KEYSTORE").orNull
 val releaseSigned = !keystorePath.isNullOrBlank()
 
 android {
@@ -37,6 +48,7 @@ android {
         targetSdk = 36
         versionCode = versionParts[0] * 10000 + versionParts[1] * 100 + versionParts[2]
         versionName = appVersion
+        buildConfigField("boolean", "STORE_BUILD", playBuild.toString())
 
         ndk { abiFilters += abis }
         externalNativeBuild {
@@ -57,9 +69,9 @@ android {
         if (releaseSigned) {
             create("release") {
                 storeFile = file(keystorePath!!)
-                storePassword = providers.environmentVariable("ANDROID_KEYSTORE_PASSWORD").orNull
-                keyAlias = providers.environmentVariable("ANDROID_KEY_ALIAS").orNull
-                keyPassword = providers.environmentVariable("ANDROID_KEY_PASSWORD").orNull
+                storePassword = providers.environmentVariable("${keyEnv}KEYSTORE_PASSWORD").orNull
+                keyAlias = providers.environmentVariable("${keyEnv}KEY_ALIAS").orNull
+                keyPassword = providers.environmentVariable("${keyEnv}KEY_PASSWORD").orNull
             }
         }
     }
@@ -69,7 +81,7 @@ android {
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
-            // Without the variables the release APK is left unsigned.
+            // Without the variables the release APK (or bundle) is left unsigned.
             if (releaseSigned) signingConfig = signingConfigs.getByName("release")
         }
     }
@@ -82,7 +94,9 @@ android {
     buildFeatures { buildConfig = true }
 
     // The engine is an executable shipped as lib*.so: it has to be extracted
-    // to nativeLibraryDir to be run.
+    // to nativeLibraryDir to be run. In the bundle this keeps the libraries
+    // compressed and extracted on Play's installs too. Every lib*.so is linked
+    // for 16 KB pages (scripts/check-16k.sh checks the APK and the bundle).
     packaging { jniLibs { useLegacyPackaging = true } }
 
     lint {

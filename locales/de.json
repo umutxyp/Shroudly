@@ -387,5 +387,6 @@
   "androidAlertsChannel": "Schutz-Hinweise",
   "androidProtectionLost": "Der Schutz wurde wegen eines Fehlers beendet, deine Apps verbinden sich jetzt direkt. Öffne Shroudly, um ihn wieder zu starten.",
   "androidDetails": "Details",
-  "androidDownloadApk": "Update herunterladen"
+  "androidDownloadApk": "Update herunterladen",
+  "androidPrivacyPolicy": "Datenschutzerklärung"
 }

@@ -5,6 +5,7 @@
     <string name="androidAllApps">Todas las apps de este dispositivo pasan por Shroudly.</string>
     <string name="androidDetails">Detalles</string>
     <string name="androidDownloadApk">Descargar la actualización</string>
+    <string name="androidPrivacyPolicy">Política de privacidad</string>
     <string name="androidProtectionLost">La protección se detuvo por un error, así que tus apps se conectan ahora directamente. Abre Shroudly para volver a activarla.</string>
     <string name="androidVpnDenied">Shroudly necesita el permiso de VPN para llevar las conexiones de tus apps.</string>
     <string name="androidVpnRevoked">Android desactivó la protección, normalmente porque se activó otra app de VPN.</string>
@@ -12,6 +13,7 @@
     <string name="download">Descarga</string>
     <string name="dpiBypassStopped">Evasión de DPI detenida</string>
     <string name="linkReleases">Notas de la versión</string>
+    <string name="linkSourceCode">Código fuente en GitHub</string>
     <string name="madeBy">Un producto de Codeshare Technology Ltd</string>
     <string name="navProtection">Protección</string>
     <string name="notProtected">Sin protección</string>

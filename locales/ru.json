@@ -387,5 +387,6 @@
   "androidAlertsChannel": "Оповещения о защите",
   "androidProtectionLost": "Защита остановилась из-за ошибки, поэтому ваши приложения сейчас подключаются напрямую. Откройте Shroudly, чтобы снова её включить.",
   "androidDetails": "Подробнее",
-  "androidDownloadApk": "Скачать обновление"
+  "androidDownloadApk": "Скачать обновление",
+  "androidPrivacyPolicy": "Политика конфиденциальности"
 }

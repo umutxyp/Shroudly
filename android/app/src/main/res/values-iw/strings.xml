@@ -5,6 +5,7 @@
     <string name="androidAllApps">כל האפליקציות במכשיר הזה עוברות דרך Shroudly.</string>
     <string name="androidDetails">פרטים</string>
     <string name="androidDownloadApk">להוריד את העדכון</string>
+    <string name="androidPrivacyPolicy">מדיניות פרטיות</string>
     <string name="androidProtectionLost">ההגנה נעצרה בגלל שגיאה, ולכן האפליקציות שלך מתחברות עכשיו ישירות. אפשר לפתוח את Shroudly כדי להפעיל אותה מחדש.</string>
     <string name="androidVpnDenied">Shroudly צריך הרשאת VPN כדי להעביר את החיבורים של האפליקציות שלך.</string>
     <string name="androidVpnRevoked">Android כיבה את ההגנה, בדרך כלל כי הופעלה אפליקציית VPN אחרת.</string>
@@ -12,6 +13,7 @@
     <string name="download">הורדה</string>
     <string name="dpiBypassStopped">עקיפת DPI הופסקה</string>
     <string name="linkReleases">הערות גרסה</string>
+    <string name="linkSourceCode">קוד המקור ב-GitHub</string>
     <string name="madeBy">מוצר של Codeshare Technology Ltd</string>
     <string name="navProtection">הגנה</string>
     <string name="notProtected">לא מוגן</string>

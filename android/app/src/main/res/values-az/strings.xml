@@ -5,6 +5,7 @@
     <string name="androidAllApps">Bu cihazdakı hər tətbiq Shroudly üzərindən keçir.</string>
     <string name="androidDetails">Təfərrüatlar</string>
     <string name="androidDownloadApk">Yeniləməni endir</string>
+    <string name="androidPrivacyPolicy">Məxfilik siyasəti</string>
     <string name="androidProtectionLost">Qoruma xəta səbəbindən dayandı, ona görə tətbiqləriniz indi birbaşa qoşulur. Yenidən başlatmaq üçün Shroudly-ni açın.</string>
     <string name="androidVpnDenied">Tətbiqlərinizin bağlantılarını daşımaq üçün Shroudly-yə VPN icazəsi lazımdır.</string>
     <string name="androidVpnRevoked">Qoruma Android tərəfindən söndürüldü; adətən başqa VPN tətbiqi açıldığı üçün.</string>
@@ -12,6 +13,7 @@
     <string name="download">Endirmə</string>
     <string name="dpiBypassStopped">DPI yan keçmə dayandırılıb</string>
     <string name="linkReleases">Buraxılış qeydləri</string>
+    <string name="linkSourceCode">GitHub-da mənbə kodu</string>
     <string name="madeBy">Codeshare Technology Ltd məhsulu</string>
     <string name="navProtection">Qoruma</string>
     <string name="notProtected">Qorunmur</string>

@@ -387,5 +387,6 @@
   "androidAlertsChannel": "সুরক্ষা সতর্কতা",
   "androidProtectionLost": "একটি ত্রুটির কারণে সুরক্ষা বন্ধ হয়ে গেছে, তাই আপনার অ্যাপগুলো এখন সরাসরি সংযোগ করছে। আবার চালু করতে Shroudly খুলুন।",
   "androidDetails": "বিস্তারিত",
-  "androidDownloadApk": "আপডেট ডাউনলোড করুন"
+  "androidDownloadApk": "আপডেট ডাউনলোড করুন",
+  "androidPrivacyPolicy": "গোপনীয়তা নীতি"
 }

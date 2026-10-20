@@ -387,5 +387,6 @@
   "androidAlertsChannel": "Alertes de protection",
   "androidProtectionLost": "La protection s’est arrêtée à cause d’une erreur : vos applis se connectent maintenant directement. Ouvrez Shroudly pour la relancer.",
   "androidDetails": "Détails",
-  "androidDownloadApk": "Télécharger la mise à jour"
+  "androidDownloadApk": "Télécharger la mise à jour",
+  "androidPrivacyPolicy": "Politique de confidentialité"
 }

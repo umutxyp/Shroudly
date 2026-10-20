@@ -5,6 +5,7 @@
     <string name="androidAllApps">Ҳар як барномаи ин дастгоҳ тавассути Shroudly мегузарад.</string>
     <string name="androidDetails">Тафсилот</string>
     <string name="androidDownloadApk">Боргирии навсозӣ</string>
+    <string name="androidPrivacyPolicy">Сиёсати махфият</string>
     <string name="androidProtectionLost">Ҳимоя аз сабаби хатогӣ қатъ шуд, бинобар ин барномаҳоятон ҳоло мустақиман пайваст мешаванд. Барои дубора оғоз кардан Shroudly-ро кушоед.</string>
     <string name="androidVpnDenied">Shroudly барои гузаронидани пайвастҳои барномаҳоятон иҷозати VPN лозим дорад.</string>
     <string name="androidVpnRevoked">Android муҳофизатро хомӯш кард, одатан чунки барномаи дигари VPN фаъол шуд.</string>
@@ -12,6 +13,7 @@
     <string name="download">Қабул</string>
     <string name="dpiBypassStopped">Давр задани DPI қатъ шудааст</string>
     <string name="linkReleases">Тавсифи версияҳо</string>
+    <string name="linkSourceCode">Коди манбаъ дар GitHub</string>
     <string name="madeBy">Маҳсули Codeshare Technology Ltd</string>
     <string name="navProtection">Ҳимоя</string>
     <string name="notProtected">Ҳимоя нашудааст</string>

@@ -3,7 +3,6 @@ package me.codeshare.shroudly
 import android.annotation.SuppressLint
 import android.app.PendingIntent
 import android.content.Intent
-import android.net.VpnService
 import android.os.Build
 import android.service.quicksettings.Tile
 import android.service.quicksettings.TileService
@@ -29,9 +28,8 @@ class ShroudlyTileService : TileService() {
                 // Otherwise the window opens and asks at once (the consent
                 // dialog needs it); so it does when the system does not allow
                 // a start from here.
-                val allowed = VpnService.prepare(this) == null && try {
+                val allowed = try {
                     ShroudlyVpnService.start(this)
-                    true
                 } catch (_: Exception) {
                     false
                 }

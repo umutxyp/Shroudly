@@ -5,6 +5,7 @@
     <string name="androidAllApps">د دې وسیلې هر اپ د Shroudly له لارې تېرېږي.</string>
     <string name="androidDetails">جزئيات</string>
     <string name="androidDownloadApk">تازه نسخه ښکته کړئ</string>
+    <string name="androidPrivacyPolicy">د محرمیت تګلاره</string>
     <string name="androidProtectionLost">ساتنه د یوې تېروتنې له امله ودرېده، نو ستاسو اپونه اوس مستقیم نښلي. د بیا پیلولو لپاره Shroudly پرانیزئ.</string>
     <string name="androidVpnDenied">Shroudly ته د VPN اجازه پکار ده څو ستاسو د اپونو اړیکې ولېږدوي.</string>
     <string name="androidVpnRevoked">Android ساتنه بنده کړه، معمولاً ځکه چې بل VPN اپ چالان شوی و.</string>
@@ -12,6 +13,7 @@
     <string name="download">ډاونلوډ</string>
     <string name="dpiBypassStopped">له DPI تېرېدل ودرول شوي</string>
     <string name="linkReleases">د خپرونو یادښتونه</string>
+    <string name="linkSourceCode">په GitHub کې سرچینه کوډ</string>
     <string name="madeBy">د Codeshare Technology Ltd محصول</string>
     <string name="navProtection">ساتنه</string>
     <string name="notProtected">خوندي نه دی</string>

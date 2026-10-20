@@ -387,5 +387,6 @@
   "androidAlertsChannel": "Огоҳиҳои ҳимоя",
   "androidProtectionLost": "Ҳимоя аз сабаби хатогӣ қатъ шуд, бинобар ин барномаҳоятон ҳоло мустақиман пайваст мешаванд. Барои дубора оғоз кардан Shroudly-ро кушоед.",
   "androidDetails": "Тафсилот",
-  "androidDownloadApk": "Боргирии навсозӣ"
+  "androidDownloadApk": "Боргирии навсозӣ",
+  "androidPrivacyPolicy": "Сиёсати махфият"
 }

@@ -5,6 +5,7 @@
     <string name="androidAllApps">Усе праграмы на гэтай прыладзе ідуць праз Shroudly.</string>
     <string name="androidDetails">Падрабязнасці</string>
     <string name="androidDownloadApk">Спампаваць абнаўленне</string>
+    <string name="androidPrivacyPolicy">Палітыка прыватнасці</string>
     <string name="androidProtectionLost">Абарона спынілася з-за памылкі, таму вашы праграмы цяпер падключаюцца напрамую. Адкрыйце Shroudly, каб запусціць яе зноў.</string>
     <string name="androidVpnDenied">Shroudly патрэбны дазвол VPN, каб прапускаць злучэнні вашых праграм.</string>
     <string name="androidVpnRevoked">Android выключыў абарону — звычайна таму, што ўключана іншая VPN-праграма.</string>
@@ -12,6 +13,7 @@
     <string name="download">Спампоўка</string>
     <string name="dpiBypassStopped">Абыход DPI спынены</string>
     <string name="linkReleases">Спіс змен</string>
+    <string name="linkSourceCode">Зыходны код на GitHub</string>
     <string name="madeBy">Прадукт Codeshare Technology Ltd</string>
     <string name="navProtection">Абарона</string>
     <string name="notProtected">Не абаронена</string>

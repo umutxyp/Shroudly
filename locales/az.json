@@ -387,5 +387,6 @@
   "androidAlertsChannel": "Qoruma xəbərdarlıqları",
   "androidProtectionLost": "Qoruma xəta səbəbindən dayandı, ona görə tətbiqləriniz indi birbaşa qoşulur. Yenidən başlatmaq üçün Shroudly-ni açın.",
   "androidDetails": "Təfərrüatlar",
-  "androidDownloadApk": "Yeniləməni endir"
+  "androidDownloadApk": "Yeniləməni endir",
+  "androidPrivacyPolicy": "Məxfilik siyasəti"
 }

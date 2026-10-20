@@ -387,5 +387,6 @@
   "androidAlertsChannel": "Апавяшчэнні абароны",
   "androidProtectionLost": "Абарона спынілася з-за памылкі, таму вашы праграмы цяпер падключаюцца напрамую. Адкрыйце Shroudly, каб запусціць яе зноў.",
   "androidDetails": "Падрабязнасці",
-  "androidDownloadApk": "Спампаваць абнаўленне"
+  "androidDownloadApk": "Спампаваць абнаўленне",
+  "androidPrivacyPolicy": "Палітыка прыватнасці"
 }

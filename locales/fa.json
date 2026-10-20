@@ -387,5 +387,6 @@
   "androidAlertsChannel": "هشدارهای محافظت",
   "androidProtectionLost": "محافظت به‌دلیل یک خطا متوقف شد، پس برنامه‌هایتان اکنون مستقیم وصل می‌شوند. برای روشن کردن دوباره، Shroudly را باز کنید.",
   "androidDetails": "جزئیات",
-  "androidDownloadApk": "دانلود به‌روزرسانی"
+  "androidDownloadApk": "دانلود به‌روزرسانی",
+  "androidPrivacyPolicy": "سیاست حریم خصوصی"
 }

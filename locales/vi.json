@@ -387,5 +387,6 @@
   "androidAlertsChannel": "Cảnh báo bảo vệ",
   "androidProtectionLost": "Bảo vệ đã dừng do lỗi, vì vậy các ứng dụng của bạn hiện đang kết nối trực tiếp. Mở Shroudly để bật lại.",
   "androidDetails": "Chi tiết",
-  "androidDownloadApk": "Tải bản cập nhật"
+  "androidDownloadApk": "Tải bản cập nhật",
+  "androidPrivacyPolicy": "Chính sách quyền riêng tư"
 }

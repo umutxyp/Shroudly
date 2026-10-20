@@ -66,8 +66,19 @@ class ShroudlyVpnService : VpnService() {
         // app process can be ended before a new one starts.
         private const val PID_KEY = "enginePid"
 
-        fun start(ctx: Context) {
+        /* Only once the user has allowed the VPN (VpnService.prepare() gives
+         * nothing to ask): that consent is what lets the service run in the
+         * foreground as systemExempted on Android 14 and later, and a service
+         * started with startForegroundService() that cannot go foreground
+         * crashes the app. False: not allowed, nothing started. */
+        fun start(ctx: Context): Boolean {
+            val allowed = try { prepare(ctx) == null } catch (e: Exception) { false }
+            if (!allowed) {
+                log("Not started: the VPN is not allowed yet")
+                return false
+            }
             ctx.startForegroundService(Intent(ctx, ShroudlyVpnService::class.java).setAction(ACTION_START))
+            return true
         }
 
         fun stop(ctx: Context) {
@@ -185,7 +196,18 @@ class ShroudlyVpnService : VpnService() {
 
     private fun requestStart() {
         // Owed to startForegroundService() whatever happens next.
-        goForeground(starting = Protection.state != Protection.State.ON)
+        val refused = goForeground(starting = Protection.state != Protection.State.ON)
+        if (refused != null) {
+            // Android 14+ runs a VPN in the foreground only once the user has
+            // allowed it (the system's always-on VPN has been). Without that
+            // there is nothing to run: no other foreground type is used.
+            if (Protection.state == Protection.State.OFF) {
+                Protection.fail(R.string.androidVpnDenied, refused)
+                refreshTile()
+                stopSelf()
+            }
+            return
+        }
         // Starting or on already; or still stopping, and the window and tile
         // offer Start again once that is done.
         if (Protection.state != Protection.State.OFF) return
@@ -648,7 +670,8 @@ class ShroudlyVpnService : VpnService() {
 
     /* ── notification and tile ─────────────────────────────────────────── */
 
-    private fun goForeground(starting: Boolean) {
+    /* Null once the service is in the foreground; else why Android refused. */
+    private fun goForeground(starting: Boolean): String? {
         channels(this)
         val stopIntent = PendingIntent.getService(
             this, 1, Intent(this, ShroudlyVpnService::class.java).setAction(ACTION_STOP),
@@ -666,16 +689,18 @@ class ShroudlyVpnService : VpnService() {
             .addAction(Notification.Action.Builder(null, getString(R.string.stop), stopIntent).build())
             .apply { if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) setForegroundServiceBehavior(Notification.FOREGROUND_SERVICE_IMMEDIATE) }
             .build()
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-            try {
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                // The type for VPN apps the user has allowed (ACTIVATE_VPN).
                 startForeground(NOTIFICATION_ID, n, ServiceInfo.FOREGROUND_SERVICE_TYPE_SYSTEM_EXEMPTED)
-            } catch (e: Exception) {
-                // Not eligible on this device: the declared special use (a VPN).
-                startForeground(NOTIFICATION_ID, n, ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE)
+            } else {
+                startForeground(NOTIFICATION_ID, n)
             }
-        } else {
-            startForeground(NOTIFICATION_ID, n)
+        } catch (e: Exception) {
+            log("Could not run in the foreground: $e")
+            return "Android refused the foreground service: $e"
         }
+        return null
     }
 
     /* Protection ended without the user asking: the ongoing notification goes

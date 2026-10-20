@@ -387,5 +387,6 @@
   "androidAlertsChannel": "Қорғаныс ескертулері",
   "androidProtectionLost": "Қорғаныс қатеге байланысты тоқтады, сондықтан қолданбаларыңыз қазір тікелей қосылып тұр. Қайта қосу үшін Shroudly-ді ашыңыз.",
   "androidDetails": "Толығырақ",
-  "androidDownloadApk": "Жаңартуды жүктеу"
+  "androidDownloadApk": "Жаңартуды жүктеу",
+  "androidPrivacyPolicy": "Құпиялық саясаты"
 }

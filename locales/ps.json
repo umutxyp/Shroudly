@@ -387,5 +387,6 @@
   "androidAlertsChannel": "د ساتنې خبرتیاوې",
   "androidProtectionLost": "ساتنه د یوې تېروتنې له امله ودرېده، نو ستاسو اپونه اوس مستقیم نښلي. د بیا پیلولو لپاره Shroudly پرانیزئ.",
   "androidDetails": "جزئيات",
-  "androidDownloadApk": "تازه نسخه ښکته کړئ"
+  "androidDownloadApk": "تازه نسخه ښکته کړئ",
+  "androidPrivacyPolicy": "د محرمیت تګلاره"
 }

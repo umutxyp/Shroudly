@@ -5,6 +5,7 @@
     <string name="androidAllApps">Усі застосунки на цьому пристрої йдуть через Shroudly.</string>
     <string name="androidDetails">Докладніше</string>
     <string name="androidDownloadApk">Завантажити оновлення</string>
+    <string name="androidPrivacyPolicy">Політика конфіденційності</string>
     <string name="androidProtectionLost">Захист зупинився через помилку, тому ваші застосунки зараз підключаються напряму. Відкрийте Shroudly, щоб увімкнути його знову.</string>
     <string name="androidVpnDenied">Shroudly потрібен дозвіл VPN, щоб пропускати з’єднання ваших застосунків.</string>
     <string name="androidVpnRevoked">Android вимкнув захист — зазвичай тому, що увімкнено інший VPN-застосунок.</string>
@@ -12,6 +13,7 @@
     <string name="download">Завантаження</string>
     <string name="dpiBypassStopped">Обхід DPI зупинено</string>
     <string name="linkReleases">Примітки до випусків</string>
+    <string name="linkSourceCode">Вихідний код на GitHub</string>
     <string name="madeBy">Продукт Codeshare Technology Ltd</string>
     <string name="navProtection">Захист</string>
     <string name="notProtected">Не захищено</string>

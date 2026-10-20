@@ -387,5 +387,6 @@
   "androidAlertsChannel": "保护提醒",
   "androidProtectionLost": "保护因出错而停止，你的应用现在直接联网。打开 Shroudly 即可重新开启。",
   "androidDetails": "详细信息",
-  "androidDownloadApk": "下载更新"
+  "androidDownloadApk": "下载更新",
+  "androidPrivacyPolicy": "隐私政策"
 }

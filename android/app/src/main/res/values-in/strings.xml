@@ -5,6 +5,7 @@
     <string name="androidAllApps">Semua aplikasi di perangkat ini melewati Shroudly.</string>
     <string name="androidDetails">Detail</string>
     <string name="androidDownloadApk">Unduh pembaruan</string>
+    <string name="androidPrivacyPolicy">Kebijakan privasi</string>
     <string name="androidProtectionLost">Perlindungan berhenti karena terjadi kesalahan, jadi aplikasi Anda kini terhubung langsung. Buka Shroudly untuk memulainya lagi.</string>
     <string name="androidVpnDenied">Shroudly memerlukan izin VPN untuk membawa koneksi aplikasi Anda.</string>
     <string name="androidVpnRevoked">Perlindungan dimatikan oleh Android, biasanya karena aplikasi VPN lain dinyalakan.</string>
@@ -12,6 +13,7 @@
     <string name="download">Unduh</string>
     <string name="dpiBypassStopped">Penembusan DPI dihentikan</string>
     <string name="linkReleases">Catatan rilis</string>
+    <string name="linkSourceCode">Kode sumber di GitHub</string>
     <string name="madeBy">Produk dari Codeshare Technology Ltd</string>
     <string name="navProtection">Proteksi</string>
     <string name="notProtected">Tidak terlindungi</string>

@@ -5,6 +5,7 @@
     <string name="androidAllApps">همهٔ برنامه‌های این دستگاه از Shroudly عبور می‌کنند.</string>
     <string name="androidDetails">جزئیات</string>
     <string name="androidDownloadApk">دانلود به‌روزرسانی</string>
+    <string name="androidPrivacyPolicy">سیاست حریم خصوصی</string>
     <string name="androidProtectionLost">محافظت به‌دلیل یک خطا متوقف شد، پس برنامه‌هایتان اکنون مستقیم وصل می‌شوند. برای روشن کردن دوباره، Shroudly را باز کنید.</string>
     <string name="androidVpnDenied">Shroudly برای عبور دادن اتصال‌های برنامه‌هایتان به مجوز VPN نیاز دارد.</string>
     <string name="androidVpnRevoked">اندروید محافظت را خاموش کرد؛ معمولاً چون یک برنامهٔ VPN دیگر روشن شده است.</string>
@@ -12,6 +13,7 @@
     <string name="download">دانلود</string>
     <string name="dpiBypassStopped">دور زدن DPI متوقف است</string>
     <string name="linkReleases">یادداشت‌های انتشار</string>
+    <string name="linkSourceCode">کد منبع در GitHub</string>
     <string name="madeBy">محصولی از Codeshare Technology Ltd</string>
     <string name="navProtection">محافظت</string>
     <string name="notProtected">محافظت‌نشده</string>

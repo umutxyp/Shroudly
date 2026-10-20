@@ -387,5 +387,6 @@
   "androidAlertsChannel": "保護に関するお知らせ",
   "androidProtectionLost": "エラーにより保護が停止したため、アプリは現在直接接続しています。もう一度開始するには Shroudly を開いてください。",
   "androidDetails": "詳細",
-  "androidDownloadApk": "アップデートをダウンロード"
+  "androidDownloadApk": "アップデートをダウンロード",
+  "androidPrivacyPolicy": "プライバシーポリシー"
 }

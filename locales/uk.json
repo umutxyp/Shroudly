@@ -387,5 +387,6 @@
   "androidAlertsChannel": "Сповіщення про захист",
   "androidProtectionLost": "Захист зупинився через помилку, тому ваші застосунки зараз підключаються напряму. Відкрийте Shroudly, щоб увімкнути його знову.",
   "androidDetails": "Докладніше",
-  "androidDownloadApk": "Завантажити оновлення"
+  "androidDownloadApk": "Завантажити оновлення",
+  "androidPrivacyPolicy": "Політика конфіденційності"
 }

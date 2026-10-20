@@ -5,6 +5,7 @@
     <string name="androidAllApps">Осы құрылғыдағы әр қолданба Shroudly арқылы өтеді.</string>
     <string name="androidDetails">Толығырақ</string>
     <string name="androidDownloadApk">Жаңартуды жүктеу</string>
+    <string name="androidPrivacyPolicy">Құпиялық саясаты</string>
     <string name="androidProtectionLost">Қорғаныс қатеге байланысты тоқтады, сондықтан қолданбаларыңыз қазір тікелей қосылып тұр. Қайта қосу үшін Shroudly-ді ашыңыз.</string>
     <string name="androidVpnDenied">Қолданбаларыңыздың қосылымдарын өткізу үшін Shroudly-ге VPN рұқсаты керек.</string>
     <string name="androidVpnRevoked">Android қорғанысты өшірді, әдетте басқа VPN қолданбасы қосылғандықтан.</string>
@@ -12,6 +13,7 @@
     <string name="download">Жүктеп алу</string>
     <string name="dpiBypassStopped">DPI айналып өту тоқтатылған</string>
     <string name="linkReleases">Нұсқа өзгерістері</string>
+    <string name="linkSourceCode">GitHub-тағы бастапқы код</string>
     <string name="madeBy">Codeshare Technology Ltd өнімі</string>
     <string name="navProtection">Қорғаныс</string>
     <string name="notProtected">Қорғалмаған</string>

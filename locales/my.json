@@ -387,5 +387,6 @@
   "androidAlertsChannel": "ကာကွယ်မှု သတိပေးချက်များ",
   "androidProtectionLost": "အမှားတစ်ခုကြောင့် ကာကွယ်မှု ရပ်သွားသဖြင့် သင့်အက်ပ်များသည် ယခု တိုက်ရိုက် ချိတ်ဆက်နေပါသည်။ ပြန်စတင်ရန် Shroudly ကို ဖွင့်ပါ။",
   "androidDetails": "အသေးစိတ်",
-  "androidDownloadApk": "အပ်ဒိတ်ကို ဒေါင်းလုဒ်လုပ်ရန်"
+  "androidDownloadApk": "အပ်ဒိတ်ကို ဒေါင်းလုဒ်လုပ်ရန်",
+  "androidPrivacyPolicy": "ကိုယ်ရေးအချက်အလက် မူဝါဒ"
 }

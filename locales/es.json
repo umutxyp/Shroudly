@@ -387,5 +387,6 @@
   "androidAlertsChannel": "Avisos de protección",
   "androidProtectionLost": "La protección se detuvo por un error, así que tus apps se conectan ahora directamente. Abre Shroudly para volver a activarla.",
   "androidDetails": "Detalles",
-  "androidDownloadApk": "Descargar la actualización"
+  "androidDownloadApk": "Descargar la actualización",
+  "androidPrivacyPolicy": "Política de privacidad"
 }

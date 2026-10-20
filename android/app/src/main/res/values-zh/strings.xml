@@ -5,6 +5,7 @@
     <string name="androidAllApps">此设备上的所有应用都经由 Shroudly 连接。</string>
     <string name="androidDetails">详细信息</string>
     <string name="androidDownloadApk">下载更新</string>
+    <string name="androidPrivacyPolicy">隐私政策</string>
     <string name="androidProtectionLost">保护因出错而停止，你的应用现在直接联网。打开 Shroudly 即可重新开启。</string>
     <string name="androidVpnDenied">Shroudly 需要 VPN 权限才能承载你的应用的连接。</string>
     <string name="androidVpnRevoked">保护已被 Android 关闭，通常是因为开启了另一个 VPN 应用。</string>
@@ -12,6 +13,7 @@
     <string name="download">下载</string>
     <string name="dpiBypassStopped">DPI 绕过已停止</string>
     <string name="linkReleases">版本说明</string>
+    <string name="linkSourceCode">GitHub 上的源代码</string>
     <string name="madeBy">Codeshare Technology Ltd 出品</string>
     <string name="navProtection">保护</string>
     <string name="notProtected">未受保护</string>

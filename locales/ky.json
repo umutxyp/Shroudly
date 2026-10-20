@@ -387,5 +387,6 @@
   "androidAlertsChannel": "Коргоо эскертүүлөрү",
   "androidProtectionLost": "Коргоо катадан улам токтоду, ошондуктан колдонмолоруңуз азыр түз туташып жатат. Кайра иштетүү үчүн Shroudly'ди ачыңыз.",
   "androidDetails": "Кененирээк",
-  "androidDownloadApk": "Жаңыртууну жүктөө"
+  "androidDownloadApk": "Жаңыртууну жүктөө",
+  "androidPrivacyPolicy": "Купуялык саясаты"
 }

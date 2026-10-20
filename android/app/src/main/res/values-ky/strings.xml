@@ -5,6 +5,7 @@
     <string name="androidAllApps">Бул түзмөктөгү ар бир колдонмо Shroudly аркылуу өтөт.</string>
     <string name="androidDetails">Кененирээк</string>
     <string name="androidDownloadApk">Жаңыртууну жүктөө</string>
+    <string name="androidPrivacyPolicy">Купуялык саясаты</string>
     <string name="androidProtectionLost">Коргоо катадан улам токтоду, ошондуктан колдонмолоруңуз азыр түз туташып жатат. Кайра иштетүү үчүн Shroudly\'ди ачыңыз.</string>
     <string name="androidVpnDenied">Колдонмолоруңуздун туташууларын өткөрүү үчүн Shroudly\'ге VPN уруксаты керек.</string>
     <string name="androidVpnRevoked">Android коргоону өчүрдү, адатта башка VPN колдонмосу күйгүзүлгөндүктөн.</string>
@@ -12,6 +13,7 @@
     <string name="download">Жүктөп алуу</string>
     <string name="dpiBypassStopped">DPI айланып өтүү токтотулган</string>
     <string name="linkReleases">Версиялардагы өзгөрүүлөр</string>
+    <string name="linkSourceCode">Баштапкы код (GitHub)</string>
     <string name="madeBy">Codeshare Technology Ltd продуктусу</string>
     <string name="navProtection">Коргоо</string>
     <string name="notProtected">Корголгон эмес</string>

@@ -387,5 +387,6 @@
   "androidAlertsChannel": "Alertas de proteção",
   "androidProtectionLost": "A proteção parou por causa de um erro, então seus apps estão se conectando diretamente. Abra o Shroudly para ativá-la de novo.",
   "androidDetails": "Detalhes",
-  "androidDownloadApk": "Baixar a atualização"
+  "androidDownloadApk": "Baixar a atualização",
+  "androidPrivacyPolicy": "Política de privacidade"
 }

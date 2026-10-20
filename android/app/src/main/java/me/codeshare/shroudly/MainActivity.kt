@@ -46,6 +46,7 @@ class MainActivity : Activity() {
     private lateinit var statsHint: TextView
     private lateinit var update: View
     private lateinit var updateText: TextView
+    private lateinit var releases: TextView
 
     private val main = Handler(Looper.getMainLooper())
     private val onChange: () -> Unit = { render() }
@@ -77,12 +78,13 @@ class MainActivity : Activity() {
         statsHint = findViewById(R.id.statsHint)
         update = findViewById(R.id.update)
         updateText = findViewById(R.id.updateText)
+        releases = findViewById(R.id.releases)
 
         toggle.setOnClickListener { onToggle() }
         action.setOnClickListener { onToggle() }
         findViewById<TextView>(R.id.version).text = text(R.string.versionLabel, "version" to BuildConfig.VERSION_NAME)
-        findViewById<View>(R.id.releases).setOnClickListener { open(UpdateCheck.RELEASES_URL) }
         findViewById<View>(R.id.notices).setOnClickListener { showNotices() }
+        findViewById<View>(R.id.privacy).setOnClickListener { open(UpdateCheck.PRIVACY_URL) }
         findViewById<View>(R.id.updateOpen).setOnClickListener { updateUrl?.let { open(it) } }
         detailMore.setOnClickListener { showDetail() }
         // The channels' names follow the language, also after a per-app
@@ -112,8 +114,19 @@ class MainActivity : Activity() {
         ShroudlyVpnService.clearAlert(this)
         Protection.listen(onChange)
         main.post(ticker)
-        showUpdate(UpdateCheck.remembered(this))
-        if (UpdateCheck.due(this)) checkForUpdate()
+        // The APK from GitHub links its releases and looks for a newer one
+        // there; a copy Google Play updates links the source code instead and
+        // asks GitHub nothing (InstallSource).
+        val github = InstallSource.githubUpdates(this)
+        if (BuildConfig.DEBUG) ShroudlyVpnService.log("Updates: ${if (github) "GitHub" else "Google Play"}")
+        releases.setText(if (github) R.string.linkReleases else R.string.linkSourceCode)
+        releases.setOnClickListener { open(if (github) UpdateCheck.RELEASES_URL else UpdateCheck.REPO_URL) }
+        if (github) {
+            showUpdate(UpdateCheck.remembered(this))
+            if (UpdateCheck.due(this)) checkForUpdate()
+        } else {
+            showUpdate(null)
+        }
     }
 
     override fun onStop() {
@@ -180,7 +193,7 @@ class MainActivity : Activity() {
             null
         }
         if (consent == null) {
-            ShroudlyVpnService.start(this)
+            startService()
         } else {
             try {
                 @Suppress("DEPRECATION")
@@ -198,8 +211,16 @@ class MainActivity : Activity() {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode != REQUEST_VPN) return
         if (resultCode == RESULT_OK) {
-            ShroudlyVpnService.start(this)
+            startService()
         } else {
+            vpnDenied = true
+            render()
+        }
+    }
+
+    /* The service starts only once the VPN is allowed (see ShroudlyVpnService.start). */
+    private fun startService() {
+        if (!ShroudlyVpnService.start(this)) {
             vpnDenied = true
             render()
         }

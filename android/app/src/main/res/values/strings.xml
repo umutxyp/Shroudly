@@ -5,6 +5,7 @@
     <string name="androidAllApps">Every app on this device goes through Shroudly.</string>
     <string name="androidDetails">Details</string>
     <string name="androidDownloadApk">Download update</string>
+    <string name="androidPrivacyPolicy">Privacy policy</string>
     <string name="androidProtectionLost">Protection stopped because of an error, so your apps are connecting directly. Open Shroudly to start it again.</string>
     <string name="androidVpnDenied">Shroudly needs the VPN permission to carry your apps\' connections.</string>
     <string name="androidVpnRevoked">Protection was switched off by Android, usually because another VPN app was turned on.</string>
@@ -12,6 +13,7 @@
     <string name="download">Download</string>
     <string name="dpiBypassStopped">DPI bypass is stopped</string>
     <string name="linkReleases">Release notes</string>
+    <string name="linkSourceCode">Source code on GitHub</string>
     <string name="madeBy">A Codeshare Technology Ltd product</string>
     <string name="navProtection">Protection</string>
     <string name="notProtected">Not protected</string>

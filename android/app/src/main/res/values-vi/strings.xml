@@ -5,6 +5,7 @@
     <string name="androidAllApps">Mọi ứng dụng trên thiết bị này đều đi qua Shroudly.</string>
     <string name="androidDetails">Chi tiết</string>
     <string name="androidDownloadApk">Tải bản cập nhật</string>
+    <string name="androidPrivacyPolicy">Chính sách quyền riêng tư</string>
     <string name="androidProtectionLost">Bảo vệ đã dừng do lỗi, vì vậy các ứng dụng của bạn hiện đang kết nối trực tiếp. Mở Shroudly để bật lại.</string>
     <string name="androidVpnDenied">Shroudly cần quyền VPN để chuyển tải kết nối của các ứng dụng.</string>
     <string name="androidVpnRevoked">Android đã tắt bảo vệ, thường là vì một ứng dụng VPN khác vừa được bật.</string>
@@ -12,6 +13,7 @@
     <string name="download">Tải xuống</string>
     <string name="dpiBypassStopped">Đã dừng vượt chặn DPI</string>
     <string name="linkReleases">Ghi chú phát hành</string>
+    <string name="linkSourceCode">Mã nguồn trên GitHub</string>
     <string name="madeBy">Một sản phẩm của Codeshare Technology Ltd</string>
     <string name="navProtection">Bảo vệ</string>
     <string name="notProtected">Chưa được bảo vệ</string>

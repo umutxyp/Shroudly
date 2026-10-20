@@ -387,5 +387,6 @@
   "androidAlertsChannel": "تحفظ کے انتباہات",
   "androidProtectionLost": "ایک خرابی کی وجہ سے تحفظ رک گیا، اس لیے آپ کی ایپس اب براہِ راست جڑ رہی ہیں۔ اسے دوبارہ شروع کرنے کے لیے Shroudly کھولیں۔",
   "androidDetails": "تفصیلات",
-  "androidDownloadApk": "اپ ڈیٹ ڈاؤن لوڈ کریں"
+  "androidDownloadApk": "اپ ڈیٹ ڈاؤن لوڈ کریں",
+  "androidPrivacyPolicy": "رازداری کی پالیسی"
 }

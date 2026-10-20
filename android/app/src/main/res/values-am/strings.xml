@@ -5,6 +5,7 @@
     <string name="androidAllApps">በዚህ መሣሪያ ላይ ያለ እያንዳንዱ መተግበሪያ በShroudly በኩል ያልፋል።</string>
     <string name="androidDetails">ዝርዝሮች</string>
     <string name="androidDownloadApk">ዝማኔውን አውርድ</string>
+    <string name="androidPrivacyPolicy">የግላዊነት መመሪያ</string>
     <string name="androidProtectionLost">በስህተት ምክንያት ጥበቃው ቆሟል፤ ስለዚህ መተግበሪያዎችዎ አሁን በቀጥታ ይገናኛሉ። እንደገና ለማስጀመር Shroudlyን ይክፈቱ።</string>
     <string name="androidVpnDenied">Shroudly የመተግበሪያዎችዎን ግንኙነቶች ለማሳለፍ የVPN ፈቃድ ያስፈልገዋል።</string>
     <string name="androidVpnRevoked">Android ጥበቃውን አጥፍቶታል፤ ብዙ ጊዜ ሌላ የVPN መተግበሪያ ስለበራ ነው።</string>
@@ -12,6 +13,7 @@
     <string name="download">ማውረድ</string>
     <string name="dpiBypassStopped">DPI ማለፊያ ቆሟል</string>
     <string name="linkReleases">የልቀት ማስታወሻዎች</string>
+    <string name="linkSourceCode">የምንጭ ኮድ በGitHub ላይ</string>
     <string name="madeBy">የCodeshare Technology Ltd ምርት</string>
     <string name="navProtection">ጥበቃ</string>
     <string name="notProtected">አልተጠበቀም</string>

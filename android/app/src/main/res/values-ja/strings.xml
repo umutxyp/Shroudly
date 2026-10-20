@@ -5,6 +5,7 @@
     <string name="androidAllApps">このデバイスのすべてのアプリが Shroudly を経由します。</string>
     <string name="androidDetails">詳細</string>
     <string name="androidDownloadApk">アップデートをダウンロード</string>
+    <string name="androidPrivacyPolicy">プライバシーポリシー</string>
     <string name="androidProtectionLost">エラーにより保護が停止したため、アプリは現在直接接続しています。もう一度開始するには Shroudly を開いてください。</string>
     <string name="androidVpnDenied">アプリの通信を中継するには、Shroudly に VPN の許可が必要です。</string>
     <string name="androidVpnRevoked">Android が保護をオフにしました。通常は別の VPN アプリがオンになったためです。</string>
@@ -12,6 +13,7 @@
     <string name="download">ダウンロード</string>
     <string name="dpiBypassStopped">DPI バイパスは停止中</string>
     <string name="linkReleases">リリースノート</string>
+    <string name="linkSourceCode">GitHub のソースコード</string>
     <string name="madeBy">Codeshare Technology Ltd の製品</string>
     <string name="navProtection">保護</string>
     <string name="notProtected">保護されていません</string>

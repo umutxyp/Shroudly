@@ -387,5 +387,6 @@
   "androidAlertsChannel": "התראות הגנה",
   "androidProtectionLost": "ההגנה נעצרה בגלל שגיאה, ולכן האפליקציות שלך מתחברות עכשיו ישירות. אפשר לפתוח את Shroudly כדי להפעיל אותה מחדש.",
   "androidDetails": "פרטים",
-  "androidDownloadApk": "להוריד את העדכון"
+  "androidDownloadApk": "להוריד את העדכון",
+  "androidPrivacyPolicy": "מדיניות פרטיות"
 }

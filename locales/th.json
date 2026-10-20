@@ -387,5 +387,6 @@
   "androidAlertsChannel": "การแจ้งเตือนการป้องกัน",
   "androidProtectionLost": "การป้องกันหยุดทำงานเนื่องจากเกิดข้อผิดพลาด แอปของคุณจึงเชื่อมต่อโดยตรงอยู่ในขณะนี้ เปิด Shroudly เพื่อเริ่มการป้องกันอีกครั้ง",
   "androidDetails": "รายละเอียด",
-  "androidDownloadApk": "ดาวน์โหลดอัปเดต"
+  "androidDownloadApk": "ดาวน์โหลดอัปเดต",
+  "androidPrivacyPolicy": "นโยบายความเป็นส่วนตัว"
 }

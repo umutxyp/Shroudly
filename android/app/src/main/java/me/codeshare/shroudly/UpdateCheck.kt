@@ -21,10 +21,14 @@ import javax.net.ssl.SSLSocketFactory
  * updates; otherwise it goes direct. Nothing is downloaded or installed here:
  * the window's button opens the release's APK in the browser, which downloads
  * it, and Android asks before installing it.
+ *
+ * Only for the APK from GitHub: a copy that Google Play installed or updates,
+ * and the build made for Play, never ask GitHub (InstallSource).
  */
 object UpdateCheck {
     const val REPO_URL = "https://github.com/umutxyp/Shroudly"
     const val RELEASES_URL = "$REPO_URL/releases"
+    const val PRIVACY_URL = "$REPO_URL#privacy"
     private const val API_HOST = "api.github.com"
     private const val API_PATH = "/repos/umutxyp/Shroudly/releases/latest"
     private const val EVERY_MS = 6L * 60 * 60 * 1000
@@ -37,6 +41,7 @@ object UpdateCheck {
 
     /* The offer remembered from the last check, if it is still newer than this app. */
     fun remembered(ctx: Context): Offer? {
+        if (!InstallSource.githubUpdates(ctx)) return null
         val p = ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
         val tag = p.getString("tag", null) ?: return null
         val url = p.getString("url", null) ?: return null
@@ -44,6 +49,7 @@ object UpdateCheck {
     }
 
     fun due(ctx: Context): Boolean {
+        if (!InstallSource.githubUpdates(ctx)) return false
         val at = ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getLong("checkedAt", 0)
         val now = System.currentTimeMillis()
         return now - at > EVERY_MS || at > now
@@ -51,6 +57,7 @@ object UpdateCheck {
 
     /* Blocking: call off the main thread. Returns the offer, or null if up to date. Throws on failure. */
     fun check(ctx: Context, socksPort: Int, auth: SocksAuth?): Offer? {
+        if (!InstallSource.githubUpdates(ctx)) return null
         val body = if (socksPort > 0) viaEngine(socksPort, auth) else direct()
         val json = JSONObject(body)
         val tag = json.optString("tag_name")

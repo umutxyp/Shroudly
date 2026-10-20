@@ -7,15 +7,18 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <!-- A VPN app may use the systemExempted type once the user has allowed
-         the VPN (the ACTIVATE_VPN app op, which lint does not know about);
-         specialUse is the fallback where that is refused. -->
+         the VPN (the ACTIVATE_VPN app op, which lint does not know about).
+         It is the only type: the service is started only after that consent
+         (ShroudlyVpnService.start), and Google Play needs no specialUse
+         review for it. -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SYSTEM_EXEMPTED" />
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <!-- No backup and no device-to-device copy of anything: see
          res/xml/data_extraction_rules.xml (Android 12+); allowBackup covers
-         the earlier versions. -->
+         the earlier versions. extractNativeLibs: the engine is run from
+         nativeLibraryDir, so it must be unpacked there; bundletool keeps this
+         in every APK Google Play makes from the bundle. -->
     <application
         android:allowBackup="false"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -40,7 +43,7 @@
         <service
             android:name=".ShroudlyVpnService"
             android:exported="false"
-            android:foregroundServiceType="systemExempted|specialUse"
+            android:foregroundServiceType="systemExempted"
             android:permission="android.permission.BIND_VPN_SERVICE"
             tools:ignore="ForegroundServicePermission">
             <intent-filter>
@@ -49,9 +52,6 @@
             <meta-data
                 android:name="android.net.VpnService.SUPPORTS_ALWAYS_ON"
                 android:value="true" />
-            <property
-                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
-                android:value="vpn" />
         </service>
 
         <!-- Renames the notification channels when the system language changes. -->

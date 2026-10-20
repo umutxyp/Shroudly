@@ -5,6 +5,7 @@
     <string name="androidAllApps">ဤစက်ပေါ်ရှိ အက်ပ်တိုင်းသည် Shroudly မှတစ်ဆင့် သွားသည်။</string>
     <string name="androidDetails">အသေးစိတ်</string>
     <string name="androidDownloadApk">အပ်ဒိတ်ကို ဒေါင်းလုဒ်လုပ်ရန်</string>
+    <string name="androidPrivacyPolicy">ကိုယ်ရေးအချက်အလက် မူဝါဒ</string>
     <string name="androidProtectionLost">အမှားတစ်ခုကြောင့် ကာကွယ်မှု ရပ်သွားသဖြင့် သင့်အက်ပ်များသည် ယခု တိုက်ရိုက် ချိတ်ဆက်နေပါသည်။ ပြန်စတင်ရန် Shroudly ကို ဖွင့်ပါ။</string>
     <string name="androidVpnDenied">သင့်အက်ပ်များ၏ ချိတ်ဆက်မှုများကို သယ်ဆောင်ရန် Shroudly သည် VPN ခွင့်ပြုချက် လိုအပ်သည်။</string>
     <string name="androidVpnRevoked">Android က ကာကွယ်မှုကို ပိတ်လိုက်သည်။ များသောအားဖြင့် အခြား VPN အက်ပ်တစ်ခု ဖွင့်လိုက်သောကြောင့် ဖြစ်သည်။</string>
@@ -12,6 +13,7 @@
     <string name="download">ဒေါင်းလုဒ်</string>
     <string name="dpiBypassStopped">DPI ကျော်ဖြတ်မှု ရပ်ထားသည်</string>
     <string name="linkReleases">ထုတ်ဝေမှု မှတ်စုများ</string>
+    <string name="linkSourceCode">GitHub ပေါ်ရှိ ရင်းမြစ်ကုဒ်</string>
     <string name="madeBy">Codeshare Technology Ltd ၏ ထုတ်ကုန်</string>
     <string name="navProtection">ကာကွယ်မှု</string>
     <string name="notProtected">ကာကွယ်မထားပါ</string>

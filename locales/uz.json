@@ -387,5 +387,6 @@
   "androidAlertsChannel": "Himoya ogohlantirishlari",
   "androidProtectionLost": "Himoya xato tufayli to‘xtadi, shuning uchun ilovalaringiz hozir to‘g‘ridan-to‘g‘ri ulanmoqda. Uni qayta yoqish uchun Shroudly’ni oching.",
   "androidDetails": "Batafsil",
-  "androidDownloadApk": "Yangilanishni yuklab olish"
+  "androidDownloadApk": "Yangilanishni yuklab olish",
+  "androidPrivacyPolicy": "Maxfiylik siyosati"
 }

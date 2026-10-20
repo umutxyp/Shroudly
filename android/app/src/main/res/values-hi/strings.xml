@@ -5,6 +5,7 @@
     <string name="androidAllApps">इस डिवाइस का हर ऐप Shroudly से होकर जाता है।</string>
     <string name="androidDetails">विवरण</string>
     <string name="androidDownloadApk">अपडेट डाउनलोड करें</string>
+    <string name="androidPrivacyPolicy">गोपनीयता नीति</string>
     <string name="androidProtectionLost">एक त्रुटि के कारण सुरक्षा बंद हो गई, इसलिए आपके ऐप्स अब सीधे कनेक्ट हो रहे हैं। इसे फिर से शुरू करने के लिए Shroudly खोलें।</string>
     <string name="androidVpnDenied">आपके ऐप्स के कनेक्शन संभालने के लिए Shroudly को VPN अनुमति चाहिए।</string>
     <string name="androidVpnRevoked">Android ने सुरक्षा बंद कर दी, आमतौर पर इसलिए कि कोई दूसरा VPN ऐप चालू किया गया।</string>
@@ -12,6 +13,7 @@
     <string name="download">डाउनलोड</string>
     <string name="dpiBypassStopped">DPI बायपास बंद है</string>
     <string name="linkReleases">रिलीज़ नोट्स</string>
+    <string name="linkSourceCode">GitHub पर सोर्स कोड</string>
     <string name="madeBy">Codeshare Technology Ltd का एक उत्पाद</string>
     <string name="navProtection">सुरक्षा</string>
     <string name="notProtected">सुरक्षित नहीं</string>

@@ -387,5 +387,6 @@
   "androidAlertsChannel": "Protection alerts",
   "androidProtectionLost": "Protection stopped because of an error, so your apps are connecting directly. Open Shroudly to start it again.",
   "androidDetails": "Details",
-  "androidDownloadApk": "Download update"
+  "androidDownloadApk": "Download update",
+  "androidPrivacyPolicy": "Privacy policy"
 }

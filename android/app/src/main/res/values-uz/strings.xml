@@ -5,6 +5,7 @@
     <string name="androidAllApps">Bu qurilmadagi har bir ilova Shroudly orqali o‘tadi.</string>
     <string name="androidDetails">Batafsil</string>
     <string name="androidDownloadApk">Yangilanishni yuklab olish</string>
+    <string name="androidPrivacyPolicy">Maxfiylik siyosati</string>
     <string name="androidProtectionLost">Himoya xato tufayli to‘xtadi, shuning uchun ilovalaringiz hozir to‘g‘ridan-to‘g‘ri ulanmoqda. Uni qayta yoqish uchun Shroudly’ni oching.</string>
     <string name="androidVpnDenied">Ilovalaringiz ulanishlarini o‘tkazish uchun Shroudly’ga VPN ruxsati kerak.</string>
     <string name="androidVpnRevoked">Himoya Android tomonidan o‘chirildi, odatda boshqa VPN ilovasi yoqilgani uchun.</string>
@@ -12,6 +13,7 @@
     <string name="download">Yuklab olish</string>
     <string name="dpiBypassStopped">DPI filtrini chetlab oʻtish toʻxtatilgan</string>
     <string name="linkReleases">Reliz qaydlari</string>
+    <string name="linkSourceCode">GitHubdagi manba kodi</string>
     <string name="madeBy">Codeshare Technology Ltd mahsuloti</string>
     <string name="navProtection">Himoya</string>
     <string name="notProtected">Himoyalanmagan</string>
