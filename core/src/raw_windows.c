@@ -13,7 +13,9 @@
  *
  * Traffic to a local, private or special address is never changed, and a
  * reset is only dropped from a server this engine recently desynced
- * (rawscope.h).
+ * (rawscope.h). A server the decoy itself reaches and upsets (a TLS alert
+ * right after a decoyed ClientHello, either way) gets no more decoys for a
+ * while, only the cut (rawscope.h, "no decoy").
  *
  * This defeats stateful DPI (Iran/China) and the inbound-RST teardown Turkish
  * networks (Türk Telekom, Turkcell) use, which the userspace engine cannot.
@@ -94,6 +96,7 @@ static int g_udp_fake = 1;        /* decoys ahead of Discord voice datagrams */
 static int g_fake_repeats = 6;    /* decoy datagrams per voice flow */
 static udp_flow_table g_flows;    /* first-N-per-flow bookkeeping */
 static raw_config g_cfg;
+static int g_alert_watch = 0;     /* 1: inbound plaintext TLS alerts are captured */
 static uint16_t g_ipid = 0x1000; /* rolling IP id for our crafted segments */
 
 static uint32_t rd32be(const uint8_t *p) {
@@ -179,17 +182,45 @@ static int decoy_ttl_for(uint32_t daddr) {
   return g_cfg.fake_ttl;
 }
 
-/* Handle an outbound ClientHello / first request. Returns 1 if the original was
- * consumed (do not re-inject it), 0 if it must be re-injected unchanged. */
+/* Send the real first segment cut so that no segment carries the whole name.
+ * Returns 1 when the parts went out (the original is consumed), 0 when there
+ * is no name to cut or they cannot be built. */
+static int send_cut(const uint8_t *pkt, int ihl, int tcphl, int poff, int plen,
+                    const proto_info *pi, int disorder, const WINDIVERT_ADDRESS *addr) {
+  uint32_t seq = rd32be(pkt + ihl + 4);
+  int otl = pkt[8] ? pkt[8] : 64;
+  int cuts[2], nc = tcpdpi_split_points(pkt + poff, plen, pi->host_off, pi->host_len, cuts);
+  tcpdpi_seg segs[3]; int ns = 0;
+  if (nc > 0 && tcpdpi_build_multisplit4(segs, &ns, pkt, ihl, pkt + ihl, tcphl, g_ipid, seq, otl,
+                                         pkt + poff, plen, cuts, nc, disorder)) {
+    g_ipid = (uint16_t)(g_ipid + ns);
+    for (int i = 0; i < ns; i++) raw_send(segs[i].data, segs[i].len, addr);
+    return 1;
+  }
+  return 0;
+}
+
+/* Handle an outbound ClientHello / first request. decoy is 0 for a server in
+ * the no-decoy table: then only the cut is sent. Returns 1 if the original
+ * was consumed (do not re-inject it), 0 if it must be re-injected unchanged. */
 static int handle_outbound(const uint8_t *pkt, int len, int ihl, int tcphl, int poff,
-                           const proto_info *pi, const WINDIVERT_ADDRESS *addr) {
+                           const proto_info *pi, int decoy, const WINDIVERT_ADDRESS *addr) {
   int plen = len - poff;
   uint32_t daddr = rd32be(pkt + 16);
   uint32_t seq = rd32be(pkt + ihl + 4);
   int otl = pkt[8] ? pkt[8] : 64;
-  int ttl = decoy_ttl_for(daddr);
+  int faked = g_cfg.desync_mode == RAW_DESYNC_FAKEDSPLIT || g_cfg.desync_mode == RAW_DESYNC_FAKEDDISORDER;
 
-  if (g_cfg.desync_mode == RAW_DESYNC_FAKEDSPLIT || g_cfg.desync_mode == RAW_DESYNC_FAKEDDISORDER) {
+  if (!decoy) {
+    /* Nothing the server could take for data: just the cut, in the order the
+     * chosen technique would have used. */
+    if (g_cfg.split == RAW_SPLIT_OFF && !faked) return 0;
+    int disorder = g_cfg.split == RAW_SPLIT_DISORDER || g_cfg.desync_mode == RAW_DESYNC_FAKEDDISORDER;
+    return send_cut(pkt, ihl, tcphl, poff, plen, pi, disorder, addr);
+  }
+
+  int ttl = decoy_ttl_for(daddr);
+  if (faked) {
     int split = (pi->host_off > 0 && pi->host_off < plen) ? pi->host_off : (plen > 2 ? 2 : 1);
     tcpdpi_seg segs[3]; int ns = 0;
     if (tcpdpi_build_fakedsplit4(segs, &ns, pkt, ihl, pkt + ihl, tcphl, g_ipid, seq, otl,
@@ -213,16 +244,8 @@ static int handle_outbound(const uint8_t *pkt, int len, int ihl, int tcphl, int 
   /* ... and the real one cut, so no segment carries the whole name: a filter
    * the decoy does not fool still never reads it. Left whole when there is no
    * name to cut or the parts cannot be built. */
-  if (g_cfg.split != RAW_SPLIT_OFF) {
-    int cuts[2], nc = tcpdpi_split_points(pkt + poff, plen, pi->host_off, pi->host_len, cuts);
-    tcpdpi_seg segs[3]; int ns = 0;
-    if (nc > 0 && tcpdpi_build_multisplit4(segs, &ns, pkt, ihl, pkt + ihl, tcphl, g_ipid, seq, otl,
-                                           pkt + poff, plen, cuts, nc, g_cfg.split == RAW_SPLIT_DISORDER)) {
-      g_ipid = (uint16_t)(g_ipid + ns);
-      for (int i = 0; i < ns; i++) raw_send(segs[i].data, segs[i].len, addr);
-      return 1;
-    }
-  }
+  if (g_cfg.split != RAW_SPLIT_OFF)
+    return send_cut(pkt, ihl, tcphl, poff, plen, pi, g_cfg.split == RAW_SPLIT_DISORDER, addr);
   return 0;
 }
 
@@ -235,6 +258,7 @@ int raw_windows_start(const raw_config *cfg) {
   udp_flow_init(&g_flows);
   tcpdpi_hops_reset();
   rawscope_touch_reset();
+  rawscope_nodecoy_reset();
   if (load_windivert() != 0) return -1;
 
   /* Keep the kernel filter as narrow as the language allows — port + proto —
@@ -242,10 +266,12 @@ int raw_windows_start(const raw_config *cfg) {
    *   - outbound TCP 80/443 with payload (the decoy / desync path);
    *   - outbound UDP 443 for QUIC Initial (dropped so browsers fall back to TCP);
    *   - outbound UDP on Discord voice / STUN ports (decoys ahead of the first datagrams);
-   *   - inbound TCP RST and SYN-ACK from 80/443 (the RST-drop, the hop measurement).
+   *   - inbound TCP RST and SYN-ACK from 80/443 (the RST-drop, the hop measurement);
+   *   - inbound TCP from 443 whose payload starts 15 03: a plaintext TLS alert,
+   *     the sign that a decoy reached the server and broke the handshake.
    * Each clause is added only for the features that are on. IPv6 outbound is
    * re-injected unchanged by the loop below (this backend builds IPv4 fakes). */
-  char filter[768];
+  char filter[1024];
   char ports[256]; ports[0] = 0;
   if (g_quic_block) snprintf(ports, sizeof(ports), "udp.DstPort == 443");
   if (g_udp_fake) {
@@ -257,22 +283,32 @@ int raw_windows_start(const raw_config *cfg) {
     "(outbound and ip and tcp and (tcp.DstPort == 443 or tcp.DstPort == 80) and tcp.PayloadLength > 0)");
   if (ports[0])
     off += snprintf(filter + off, sizeof(filter) - off, " or (outbound and ip and udp and (%s))", ports);
-  if (g_cfg.drop_rst || g_cfg.autottl) {
-    char sub[128]; sub[0] = 0; int so = 0;
+  int base = off;
+  for (int watch = 1; watch >= 0; watch--) {
+    char sub[256]; sub[0] = 0; int so = 0;
     if (g_cfg.drop_rst) so += snprintf(sub + so, sizeof(sub) - so, "tcp.Rst");
-    if (g_cfg.autottl)  so += snprintf(sub + so, sizeof(sub) - so, "%s(tcp.Syn and tcp.Ack)", g_cfg.drop_rst ? " or " : "");
-    snprintf(filter + off, sizeof(filter) - off,
-      " or (inbound and tcp and (tcp.SrcPort == 443 or tcp.SrcPort == 80) and (%s))", sub);
+    if (g_cfg.autottl)  so += snprintf(sub + so, sizeof(sub) - so, "%s(tcp.Syn and tcp.Ack)", so ? " or " : "");
+    if (watch)
+      so += snprintf(sub + so, sizeof(sub) - so,
+        "%s(tcp.SrcPort == 443 and tcp.PayloadLength >= 7 and tcp.Payload[0] == 21 and tcp.Payload[1] == 3)",
+        so ? " or " : "");
+    off = base; filter[off] = 0;
+    if (sub[0])
+      snprintf(filter + off, sizeof(filter) - off,
+        " or (inbound and tcp and (tcp.SrcPort == 443 or tcp.SrcPort == 80) and (%s))", sub);
+    g_handle = p_Open(filter, WINDIVERT_LAYER_NETWORK, 0, 0);
+    if (g_handle != INVALID_HANDLE_VALUE) { g_alert_watch = watch; break; }
+    /* Should the payload test ever be refused, open without it: the
+     * outbound signs of harm still work. */
   }
-  g_handle = p_Open(filter, WINDIVERT_LAYER_NETWORK, 0, 0);
   if (g_handle == INVALID_HANDLE_VALUE) {
     fprintf(stderr, "WinDivertOpen failed (%lu). Run as Administrator.\n", (unsigned long)GetLastError());
     return -1;
   }
 
   g_run = 1;
-  printf("{\"type\":\"raw_ready\",\"backend\":\"windivert\",\"ttl\":%d,\"drop_rst\":%d,\"autottl\":%d,\"seqovl\":%d,\"split\":%d,\"mode\":%d,\"quic_block\":%d,\"udp_fake\":%d}\n",
-         g_cfg.fake_ttl, g_cfg.drop_rst, g_cfg.autottl, g_cfg.seqovl, g_cfg.split, g_cfg.desync_mode, g_quic_block, g_udp_fake);
+  printf("{\"type\":\"raw_ready\",\"backend\":\"windivert\",\"ttl\":%d,\"drop_rst\":%d,\"autottl\":%d,\"seqovl\":%d,\"split\":%d,\"mode\":%d,\"quic_block\":%d,\"udp_fake\":%d,\"alert_watch\":%d}\n",
+         g_cfg.fake_ttl, g_cfg.drop_rst, g_cfg.autottl, g_cfg.seqovl, g_cfg.split, g_cfg.desync_mode, g_quic_block, g_udp_fake, g_alert_watch);
   fflush(stdout);
 
   uint8_t pkt[65535];
@@ -311,6 +347,13 @@ int raw_windows_start(const raw_config *cfg) {
           int hops = tcpdpi_hops_from_ttl(pkt[8]);
           if (hops > 0) tcpdpi_hops_put(rd32be(pkt + 12), hops, now_ms());
         }
+        /* A plaintext TLS alert from a server whose ClientHello carried a
+         * decoy: noted (no decoy next time), passed on unchanged. */
+        int tcphl = ((tcp[12] >> 4) & 0x0f) * 4;
+        uint16_t sport = (uint16_t)((tcp[0] << 8) | tcp[1]);
+        if (sport == 443 && tcphl >= 20 && ihl + tcphl < (int)len)
+          rawscope_decoy_hurt_in(pkt + 12, 4, sport, (uint16_t)((tcp[2] << 8) | tcp[3]),
+                                 pkt + ihl + tcphl, (int)len - ihl - tcphl, now_ms());
       }
       UINT s; p_Send(g_handle, pkt, len, &s, &addr); continue; /* kept unchanged */
     }
@@ -367,6 +410,13 @@ int raw_windows_start(const raw_config *cfg) {
 
     int handled = 0;
     if (plen > 0) {
+      uint64_t now = now_ms();
+      uint16_t sport = (uint16_t)((pkt[ihl] << 8) | pkt[ihl + 1]);
+      uint16_t dport = (uint16_t)((pkt[ihl + 2] << 8) | pkt[ihl + 3]);
+      uint32_t seq = rd32be(pkt + ihl + 4);
+      /* The client giving up on a handshake whose ClientHello carried a
+       * decoy: noted, and the packet goes on unchanged below. */
+      if (dport == 443) rawscope_decoy_hurt_out(pkt + 16, 4, dport, sport, seq, pkt + poff, plen, now);
       proto_info pi;
       proto_inspect(pkt + poff, (size_t)plen, &pi);
       if (pi.kind != PROTO_UNKNOWN) {
@@ -374,9 +424,13 @@ int raw_windows_start(const raw_config *cfg) {
           rawscope_count(RAWSCOPE_SKIPPED);  /* the router, the LAN, local hosts: left alone */
           UINT s = 0; p_Send(g_handle, pkt, len, &s, &addr); continue;
         }
-        rawscope_touch(pkt + 16, 4, now_ms());
+        rawscope_touch(pkt + 16, 4, now);
         rawscope_count(RAWSCOPE_DESYNCED);
-        handled = handle_outbound(pkt, (int)len, ihl, tcphl, poff, &pi, &addr);
+        int decoy = !rawscope_nodecoy(pkt + 16, 4, now);
+        if (!decoy) rawscope_count(RAWSCOPE_NODECOY);
+        else if (pi.kind == PROTO_TLS)
+          rawscope_decoy_sent(pkt + 16, 4, dport, sport, rawscope_tls_next_seq(seq, pkt + poff, plen), now);
+        handled = handle_outbound(pkt, (int)len, ihl, tcphl, poff, &pi, decoy, &addr);
       }
     }
     if (!handled) { UINT s = 0; p_Send(g_handle, pkt, len, &s, &addr); } /* real packet */

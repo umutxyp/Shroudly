@@ -45,6 +45,70 @@ void rawscope_touch_reset(void);
 /* alen is 4 (IPv4) or 16 (IPv6); anything else is ignored / never touched. */
 void rawscope_touch(const uint8_t *addr, int alen, uint64_t now_ms);
 int  rawscope_touched(const uint8_t *addr, int alen, uint64_t now_ms);
+/* 1 when the address was desynced no more than `ms` ago (and is still in the
+ * table), 0 otherwise. */
+int  rawscope_touched_within(const uint8_t *addr, int alen, uint64_t now_ms, uint64_t ms);
+
+/* ── servers the decoy hurts ─────────────────────────────────────────────
+ * The decoy is a copy of the first segment with the name scrambled, a bad
+ * TCP checksum and a TTL that should run out before the server. A server only
+ * a few hops away, on a path that does not drop bad checksums, can still get
+ * it, take it into the stream and fail the handshake. When that is seen, the
+ * server goes into a second table, "no decoy", for RAWSCOPE_NODECOY_TTL_MS:
+ * its first segments are still cut (a cut never reaches the server as
+ * garbage), but get no decoy, no fakedsplit junk and no seqovl prefix.
+ *
+ * What counts as "the decoy hurt", on a flow whose first segment carried a
+ * decoy less than RAWSCOPE_HURT_WINDOW_MS ago, to a server desynced within
+ * that time:
+ *   - the server sends a plaintext TLS alert (only possible before the
+ *     handshake keys exist);
+ *   - the client sends a plaintext TLS alert;
+ *   - the client sends a TLS 1.3 encrypted alert (an application_data record
+ *     of exactly 19 bytes) as the very next thing after its ClientHello (an
+ *     optional 6-byte ChangeCipherSpec in between). The position matters: a
+ *     close_notify at the end of a short, healthy connection is the same 19
+ *     bytes, but comes after the client's Finished and its requests.
+ * Same threading as the touched table: one packet thread, no lock. */
+#define RAWSCOPE_NODECOY_CAP     256
+#define RAWSCOPE_NODECOY_TTL_MS  600000 /* 10 minutes */
+#define RAWSCOPE_FLOW_CAP        256
+#define RAWSCOPE_HURT_WINDOW_MS  5000
+
+void rawscope_nodecoy_reset(void);   /* also forgets the decoy flows */
+void rawscope_nodecoy_add(const uint8_t *addr, int alen, uint64_t now_ms);
+int  rawscope_nodecoy(const uint8_t *addr, int alen, uint64_t now_ms);
+
+/* What the start of a TCP payload is, as far as this goes. A leading complete
+ * ChangeCipherSpec record (14 03 0X 00 01 01) is skipped first. The record
+ * must be whole in the buffer:
+ *   RAWSCOPE_TLS_ALERT      15 03 0X (X <= 4), length 2: a plaintext alert;
+ *   RAWSCOPE_TLS_ENC_ALERT  17 03 03, length 19: a TLS 1.3 encrypted alert
+ *                           (2-byte alert + content type + 16-byte tag);
+ *   RAWSCOPE_TLS_OTHER      anything else (a Finished is 53 bytes or more). */
+enum { RAWSCOPE_TLS_OTHER = 0, RAWSCOPE_TLS_ALERT = 1, RAWSCOPE_TLS_ENC_ALERT = 2 };
+int rawscope_tls_kind(const uint8_t *p, int len);
+/* Bytes of the classified record's start past the payload start: 6 when a
+ * ChangeCipherSpec was skipped, else 0. */
+int rawscope_tls_skip(const uint8_t *p, int len);
+
+/* The sequence number right after a first segment's TLS record: seq + 5 +
+ * the record length when the payload starts with a handshake record header
+ * (the ClientHello may go on in later segments), else seq + plen. */
+uint32_t rawscope_tls_next_seq(uint32_t seq, const uint8_t *p, int plen);
+
+/* A first segment on this flow carried a decoy. raddr/rport are the server,
+ * lport the client's port, next_seq from rawscope_tls_next_seq. */
+void rawscope_decoy_sent(const uint8_t *raddr, int alen, uint16_t rport, uint16_t lport,
+                         uint32_t next_seq, uint64_t now_ms);
+/* Look at a client -> server payload (seq: its TCP sequence number) or a
+ * server -> client payload on a flow. Returns 1 when it shows the decoy hurt:
+ * the server is then in the no-decoy table, RAWSCOPE_DECOY_HURT is counted
+ * and the flow is forgotten (one count per flow). 0 otherwise. */
+int rawscope_decoy_hurt_out(const uint8_t *raddr, int alen, uint16_t rport, uint16_t lport,
+                            uint32_t seq, const uint8_t *p, int plen, uint64_t now_ms);
+int rawscope_decoy_hurt_in(const uint8_t *raddr, int alen, uint16_t rport, uint16_t lport,
+                           const uint8_t *p, int plen, uint64_t now_ms);
 
 /* ── counters ────────────────────────────────────────────────────────────
  * Bumped by the packet thread, read by whoever reports them (the supervise
@@ -54,6 +118,8 @@ enum {
   RAWSCOPE_SKIPPED,      /* packets the engine would have changed, left alone: local destination */
   RAWSCOPE_RST_DROPPED,  /* injected-looking resets dropped (from a desynced server) */
   RAWSCOPE_RST_PASSED,   /* injected-looking resets let through (from anywhere else) */
+  RAWSCOPE_NODECOY,      /* first segments cut but sent without a decoy (no-decoy table) */
+  RAWSCOPE_DECOY_HURT,   /* times a decoy was seen to break a handshake */
   RAWSCOPE_NCOUNTERS
 };
 void          rawscope_count(int which);
@@ -61,7 +127,10 @@ unsigned long rawscope_counter(int which);
 void          rawscope_counters_reset(void);
 
 /* The counters as one status line, without a newline:
- *   {"type":"raw_stats","desynced":N,"skipped":N,"rst_dropped":N,"rst_passed":N}
+ *   {"type":"raw_stats","desynced":N,"skipped":N,"rst_dropped":N,"rst_passed":N,
+ *    "nodecoy":N,"decoy_hurt":N}
+ * ("desynced" counts every first segment the engine cut or decoyed, the
+ * no-decoy ones included.)
  * Returns its length, or 0 when it does not fit cap. */
 int  rawscope_stats_json(char *buf, size_t cap);
 /* Print that line to stdout (the status file when the engine is elevated). */

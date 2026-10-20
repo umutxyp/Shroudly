@@ -268,3 +268,33 @@ answers SOCKS5 `UDP ASSOCIATE` (RFC 1928 section 7, `udp_associate` in
   (`{"type":"ready","port":...,"techniques":...,"pid":...}`), so a
   supervisor without a process handle can kill a hung engine. Readers take
   the fields they know and ignore the rest.
+
+## Update 8: Advanced mode — no decoy for a server the decoy reaches
+
+The decoy (a copy of the first segment with the name scrambled, a bad TCP
+checksum and a TTL meant to run out on the way) can still reach a server only
+a few hops away, such as a CDN edge, on a path that does not drop bad
+checksums. The server takes it into the stream and the handshake fails (a
+handshake_failure alert from the server, or a bad record MAC on the client).
+Seen on CI's Windows runners; a user close to a CDN can hit the same.
+
+- Both backends watch for that on flows whose ClientHello carried a decoy in
+  the last 5 s, to a server desynced in that time: a plaintext TLS alert from
+  the server, a plaintext alert from the client, or a TLS 1.3 encrypted alert
+  (a 19-byte application_data record) from the client as the very next thing
+  after its ClientHello. A close_notify at the end of a short, healthy
+  connection is the same 19 bytes but sits after the Finished, so it does not
+  count.
+- Such a server goes into a "no decoy" table (256 addresses, 10 minutes). Its
+  first segments are still cut (split or disorder; the fakedsplit modes cut
+  too) but get no decoy, no fakedsplit junk and no seqovl prefix: nothing the
+  server could take for data. The first attempt fails; the next one loads.
+- Windows: one more narrow WinDivert clause captures inbound TCP from 443
+  whose payload starts 15 03, re-injected unchanged. Linux: one more INPUT
+  rule queues the same (iptables u32 match, or nft's payload match), best
+  effort; without it only the client's side is watched. `raw_ready` says
+  which with `"alert_watch"`.
+- `raw_stats` adds `"nodecoy"` (first segments sent without a decoy because of
+  the table) and `"decoy_hurt"` (times the harm was seen).
+  `core/test/test_rawscope.c`, `tests/lab/advanced-lab.sh` (section 5),
+  `tests/lab/advanced-windows.js`.

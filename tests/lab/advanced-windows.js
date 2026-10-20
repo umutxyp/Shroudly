@@ -8,6 +8,12 @@
  * that it really did act on them, and it stops cleanly, leaving the network as
  * it was.
  *
+ * Each site gets up to three tries, a second apart. A server only a few hops
+ * away (a CDN edge) can be reached by the decoy itself and fail that one
+ * handshake; the engine then learns to send it no decoy (raw_stats counts
+ * that as decoy_hurt, and the flows after it as nodecoy), so the next try
+ * loads.
+ *
  *   node tests/lab/advanced-windows.js electron/tools/core/win32-x64/shroudly-core-adv.exe
  */
 
@@ -41,13 +47,23 @@ function get(url, ms = 15000) {
 
 const SITES = ['https://example.com/', 'https://www.cloudflare.com/cdn-cgi/trace', 'https://github.com/', 'https://www.wikipedia.org/', 'http://example.com/'];
 
+const TRIES = 3;
+const loaded = (r) => !r.error && r.status < 500 && r.complete && r.bytes > 0;
+const describe = (r) => r.error || `${r.status}, complete=${r.complete}, ${r.bytes} bytes`;
+
 async function loadAll(label) {
   for (const u of SITES) {
-    let r = await get(u);
-    // A public site can have a bad moment of its own: one more try.
-    if (r.error || r.status >= 500) { await sleep(1000); r = await get(u); }
-    if (!r.error && r.status < 500 && r.complete && r.bytes > 0) ok(`${label}: ${u} -> ${r.status}, ${r.bytes} bytes`);
-    else bad(`${label}: ${u} -> ${r.error || `${r.status}, complete=${r.complete}, ${r.bytes} bytes`}`);
+    let r;
+    const missed = [];
+    for (let i = 0; i < TRIES; i++) {
+      if (i) await sleep(1000);
+      r = await get(u);
+      if (loaded(r)) break;
+      missed.push(describe(r));
+    }
+    const note = missed.length ? ` (after ${missed.length} failed: ${missed.join('; ')})` : '';
+    if (loaded(r)) ok(`${label}: ${u} -> ${r.status}, ${r.bytes} bytes${note}`);
+    else bad(`${label}: ${u} -> ${describe(r)}${note}`);
   }
 }
 
@@ -80,6 +96,7 @@ async function loadAll(label) {
   else { bad('engine did not stop within 10 s'); child.kill(); }
 
   const stats = (read().match(/\{"type":"raw_stats"[^\n]*\}/g) || []).pop();
+  console.log(`raw_stats: ${stats || '(none)'}`);
   if (stats) {
     const s = JSON.parse(stats);
     const acted = Number(s.desynced ?? s.desync ?? 0);

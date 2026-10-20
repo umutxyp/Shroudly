@@ -22,6 +22,13 @@
  *   - Traffic to a local, private or special address is never changed, and a
  *     reset is only dropped from a server this engine recently desynced
  *     (rawscope.h).
+ *   - A server the decoy itself reaches and upsets gets no more decoys for a
+ *     while, only the cut (rawscope.h, "no decoy"). The signs: a TLS alert
+ *     from the client right after a decoyed ClientHello (seen on the outbound
+ *     rule), or a plaintext TLS alert from the server, queued by one more
+ *     narrow INPUT rule (from port 443, payload starting 15 03). That rule is
+ *     best effort: iptables needs the u32 match, nft a payload expression;
+ *     without it only the client's side is watched.
  *
  * Requires root / CAP_NET_ADMIN + CAP_NET_RAW, and is Linux-only. Compiled only
  * when SHROUDLY_RAW is defined and linked with -lnetfilter_queue -lmnl.
@@ -81,6 +88,7 @@ static char g_udp_ports[128] = "";/* iptables multiport dports, "" if no UDP rul
 static char g_udp_nft[160] = "";  /* nft set contents for the same ports */
 static enum { RULE_NONE, RULE_IPTABLES, RULE_NFT } g_rule = RULE_NONE;
 static uint16_t g_ipid = 0x1000; /* rolling IP id for our crafted segments */
+static int g_alert_watch = 0;     /* 1: the inbound TLS alert rule is in place */
 
 
 /* Run a firewall tool quietly. Returns its exit status, or -1. */
@@ -151,6 +159,18 @@ static int ipt_in(const char *op, const char *mask, const char *flags) {
   return run_quiet(argv);
 }
 
+/* INBOUND rule: queue inbound tcp from 443 whose payload starts 15 03 (a
+ * plaintext TLS alert). u32 walks the IP and TCP header lengths to the first
+ * payload bytes; a packet without payload never matches. */
+static int ipt_alert(const char *op) {
+  char q[16];
+  snprintf(q, sizeof(q), "%d", g_queue_num);
+  char *argv[] = { "iptables", "-w", "-t", "mangle", (char *)op, "INPUT", "-p", "tcp",
+    "--sport", "443", "-m", "u32", "--u32", "0>>22&0x3C@12>>26&0x3C@0>>16=0x1503",
+    "-j", "NFQUEUE", "--queue-num", q, "--queue-bypass", NULL };
+  return run_quiet(argv);
+}
+
 static int nft(const char *cmd) {
   char *argv[] = { "nft", (char *)cmd, NULL };
   return run_quiet(argv);
@@ -163,6 +183,7 @@ static void ipt_clean_all(void) {
   for (int i = 0; i < 8 && iptables_udp_rule("-D") == 0; i++) {}
   for (int i = 0; i < 8 && ipt_in("-D", "RST", "RST") == 0; i++) {}
   for (int i = 0; i < 8 && ipt_in("-D", "SYN,ACK", "SYN,ACK") == 0; i++) {}
+  for (int i = 0; i < 8 && ipt_alert("-D") == 0; i++) {}
 }
 
 static int install_rule(void) {
@@ -173,6 +194,7 @@ static int install_rule(void) {
     if (g_cfg.drop_rst) ipt_in("-I", "RST", "RST");
     if (g_cfg.autottl)  ipt_in("-I", "SYN,ACK", "SYN,ACK");
     if (g_udp_ports[0]) iptables_udp_rule("-I"); /* best effort: TCP still works without it */
+    g_alert_watch = ipt_alert("-I") == 0;         /* best effort: needs the u32 match */
     return 0;
   }
 
@@ -191,8 +213,21 @@ static int install_rule(void) {
       g_udp_nft, SHROUDLY_FWMARK, g_queue_num);
     nft(rule);                                 /* best effort */
   }
-  if (g_cfg.drop_rst || g_cfg.autottl) {
-    if (nft("add chain ip shroudly in { type filter hook input priority -150 ; }") != 0) { nft("delete table ip shroudly"); return -1; }
+  if (nft("add chain ip shroudly in { type filter hook input priority -150 ; }") != 0) {
+    if (g_cfg.drop_rst || g_cfg.autottl) { nft("delete table ip shroudly"); return -1; }
+  } else {
+    /* The TLS alert rule, best effort: the payload base (@ih) where nft and
+     * the kernel know it, else the two usual TCP header lengths (20 bytes,
+     * and 32 with timestamps) read from the TCP header base. */
+    snprintf(rule, sizeof(rule), "add rule ip shroudly in tcp sport 443 @ih,0,16 0x1503 queue num %d bypass", g_queue_num);
+    if (nft(rule) == 0) g_alert_watch = 1;
+    else {
+      snprintf(rule, sizeof(rule), "add rule ip shroudly in tcp sport 443 tcp doff 8 @th,256,16 0x1503 queue num %d bypass", g_queue_num);
+      int a = nft(rule);
+      snprintf(rule, sizeof(rule), "add rule ip shroudly in tcp sport 443 tcp doff 5 @th,160,16 0x1503 queue num %d bypass", g_queue_num);
+      int b = nft(rule);
+      g_alert_watch = a == 0 || b == 0;
+    }
     if (g_cfg.drop_rst) {
       snprintf(rule, sizeof(rule), "add rule ip shroudly in tcp sport { 80, 443 } tcp flags & rst == rst queue num %d bypass", g_queue_num);
       nft(rule);
@@ -210,6 +245,7 @@ void raw_linux_teardown(void) {
   if (g_rule == RULE_IPTABLES) ipt_clean_all();
   else if (g_rule == RULE_NFT) nft("delete table ip shroudly");
   g_rule = RULE_NONE;
+  g_alert_watch = 0;
 }
 
 /* Inject a self-made IPv4 segment (headers included) via the raw socket. It
@@ -259,18 +295,46 @@ static int decoy_ttl_for(uint32_t daddr) {
   return g_cfg.fake_ttl;
 }
 
-/* Handle an outbound ClientHello / first request. Returns 1 if the original was
- * consumed (caller must DROP it), 0 if it must be ACCEPTED unchanged. */
+/* Send the real first segment cut so that no segment carries the whole name.
+ * Returns 1 when the parts went out (the original is replaced), 0 when there
+ * is no name to cut or they cannot be built. */
+static int send_cut(const struct iphdr *ip, const struct tcphdr *tcp,
+                    const uint8_t *payload, int plen, const proto_info *pi, int disorder) {
+  int otl = ip->ttl ? ip->ttl : 64;
+  int cuts[2], nc = tcpdpi_split_points(payload, plen, pi->host_off, pi->host_len, cuts);
+  tcpdpi_seg segs[3]; int ns = 0;
+  if (nc > 0 && tcpdpi_build_multisplit4(segs, &ns, (const uint8_t *)ip, ip->ihl * 4,
+                                         (const uint8_t *)tcp, tcp->doff * 4, g_ipid, ntohl(tcp->seq), otl,
+                                         payload, plen, cuts, nc, disorder)) {
+    g_ipid = (uint16_t)(g_ipid + ns);
+    for (int i = 0; i < ns; i++) raw_send(segs[i].data, segs[i].len, ip->daddr, tcp->dest);
+    return 1;
+  }
+  return 0;
+}
+
+/* Handle an outbound ClientHello / first request. decoy is 0 for a server in
+ * the no-decoy table: then only the cut is sent. Returns 1 if the original
+ * was consumed (caller must DROP it), 0 if it must be ACCEPTED unchanged. */
 static int handle_outbound(const struct iphdr *ip, const struct tcphdr *tcp,
-                           const uint8_t *payload, int plen, const proto_info *pi) {
+                           const uint8_t *payload, int plen, const proto_info *pi, int decoy) {
   int iphl = ip->ihl * 4, tcphl = tcp->doff * 4;
   const uint8_t *ip_tmpl = (const uint8_t *)ip;
   const uint8_t *tcp_tmpl = (const uint8_t *)tcp;
   uint32_t seq = ntohl(tcp->seq);
   int otl = ip->ttl ? ip->ttl : 64;
-  int ttl = decoy_ttl_for(ip->daddr);
+  int faked = g_cfg.desync_mode == RAW_DESYNC_FAKEDSPLIT || g_cfg.desync_mode == RAW_DESYNC_FAKEDDISORDER;
 
-  if (g_cfg.desync_mode == RAW_DESYNC_FAKEDSPLIT || g_cfg.desync_mode == RAW_DESYNC_FAKEDDISORDER) {
+  if (!decoy) {
+    /* Nothing the server could take for data: just the cut, in the order the
+     * chosen technique would have used. */
+    if (g_cfg.split == RAW_SPLIT_OFF && !faked) return 0;
+    int disorder = g_cfg.split == RAW_SPLIT_DISORDER || g_cfg.desync_mode == RAW_DESYNC_FAKEDDISORDER;
+    return send_cut(ip, tcp, payload, plen, pi, disorder);
+  }
+
+  int ttl = decoy_ttl_for(ip->daddr);
+  if (faked) {
     int split = (pi->host_off > 0 && pi->host_off < plen) ? pi->host_off : (plen > 2 ? 2 : 1);
     tcpdpi_seg segs[3]; int ns = 0;
     if (tcpdpi_build_fakedsplit4(segs, &ns, ip_tmpl, iphl, tcp_tmpl, tcphl, g_ipid, seq, otl,
@@ -294,16 +358,8 @@ static int handle_outbound(const struct iphdr *ip, const struct tcphdr *tcp,
   /* ... and the real one cut, so no segment carries the whole name: a filter
    * the decoy does not fool still never reads it. Left whole when there is no
    * name to cut or the parts cannot be built. */
-  if (g_cfg.split != RAW_SPLIT_OFF) {
-    int cuts[2], nc = tcpdpi_split_points(payload, plen, pi->host_off, pi->host_len, cuts);
-    tcpdpi_seg segs[3]; int ns = 0;
-    if (nc > 0 && tcpdpi_build_multisplit4(segs, &ns, ip_tmpl, iphl, tcp_tmpl, tcphl, g_ipid, seq, otl,
-                                           payload, plen, cuts, nc, g_cfg.split == RAW_SPLIT_DISORDER)) {
-      g_ipid = (uint16_t)(g_ipid + ns);
-      for (int i = 0; i < ns; i++) raw_send(segs[i].data, segs[i].len, ip->daddr, tcp->dest);
-      return 1; /* original replaced */
-    }
-  }
+  if (g_cfg.split != RAW_SPLIT_OFF)
+    return send_cut(ip, tcp, payload, plen, pi, g_cfg.split == RAW_SPLIT_DISORDER); /* 1: original replaced */
   return 0; /* accept the real packet unchanged */
 }
 
@@ -355,8 +411,8 @@ static int cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg,
     int web_src = (sport == 80 || sport == 443);
     int web_dst = (dport == 80 || dport == 443);
 
-    /* Inbound (from a web port): the RST-drop and SYN-ACK hop measurement. The
-     * INPUT rules only queue RST and SYN-ACK, so these are the only cases here. */
+    /* Inbound (from a web port): the RST-drop, the SYN-ACK hop measurement and
+     * the plaintext TLS alerts the INPUT rules queue. */
     if (web_src && !web_dst) {
       if (g_cfg.drop_rst && (tcp->rst) && tcpdpi_is_injected_rst4(pkt, len)) {
         /* Only from a server we desynced: any other host's reset passes. */
@@ -370,6 +426,11 @@ static int cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg,
         int hops = tcpdpi_hops_from_ttl(ip->ttl);
         if (hops > 0) tcpdpi_hops_put(ip->saddr, hops, now_ms());
       }
+      /* A plaintext TLS alert from a server whose ClientHello carried a
+       * decoy: noted (no decoy next time), accepted unchanged. */
+      if (sport == 443 && iphl + tcphl < len)
+        rawscope_decoy_hurt_in((const uint8_t *)&ip->saddr, 4, (uint16_t)sport, (uint16_t)dport,
+                               pkt + iphl + tcphl, len - iphl - tcphl, now_ms());
       return nfq_set_verdict(qh, id, NF_ACCEPT, 0, NULL);            /* everything else kept */
     }
 
@@ -377,6 +438,13 @@ static int cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg,
     int poff = iphl + tcphl;
     int plen = len - poff;
     if (plen <= 0) return nfq_set_verdict(qh, id, NF_ACCEPT, 0, NULL);
+    uint64_t now = now_ms();
+    uint32_t seq = ntohl(tcp->seq);
+    /* The client giving up on a handshake whose ClientHello carried a decoy:
+     * noted, and the packet goes on unchanged below. */
+    if (dport == 443)
+      rawscope_decoy_hurt_out((const uint8_t *)&ip->daddr, 4, (uint16_t)dport, (uint16_t)sport,
+                              seq, pkt + poff, plen, now);
     proto_info pi;
     proto_inspect(pkt + poff, (size_t)plen, &pi);
     if (pi.kind == PROTO_UNKNOWN) return nfq_set_verdict(qh, id, NF_ACCEPT, 0, NULL);
@@ -385,9 +453,14 @@ static int cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg,
       rawscope_count(RAWSCOPE_SKIPPED);
       return nfq_set_verdict(qh, id, NF_ACCEPT, 0, NULL);
     }
-    rawscope_touch((const uint8_t *)&ip->daddr, 4, now_ms());
+    rawscope_touch((const uint8_t *)&ip->daddr, 4, now);
     rawscope_count(RAWSCOPE_DESYNCED);
-    if (handle_outbound(ip, tcp, pkt + poff, plen, &pi))
+    int decoy = !rawscope_nodecoy((const uint8_t *)&ip->daddr, 4, now);
+    if (!decoy) rawscope_count(RAWSCOPE_NODECOY);
+    else if (pi.kind == PROTO_TLS)
+      rawscope_decoy_sent((const uint8_t *)&ip->daddr, 4, (uint16_t)dport, (uint16_t)sport,
+                          rawscope_tls_next_seq(seq, pkt + poff, plen), now);
+    if (handle_outbound(ip, tcp, pkt + poff, plen, &pi, decoy))
       return nfq_set_verdict(qh, id, NF_DROP, 0, NULL);  /* replaced by our segments */
     return nfq_set_verdict(qh, id, NF_ACCEPT, 0, NULL);   /* real packet unchanged */
   }
@@ -436,6 +509,7 @@ int raw_linux_start(int queue_num, const raw_config *cfg) {
   udp_flow_init(&g_flows);
   tcpdpi_hops_reset();
   rawscope_touch_reset();
+  rawscope_nodecoy_reset();
 
   g_raw_fd = socket(AF_INET, SOCK_RAW, IPPROTO_RAW);
   if (g_raw_fd < 0) { perror("raw socket"); return -1; }
@@ -463,8 +537,8 @@ int raw_linux_start(int queue_num, const raw_config *cfg) {
   g_run = 1;
   int fd = nfq_fd(g_h);
   char buf[4096] __attribute__((aligned));
-  printf("{\"type\":\"raw_ready\",\"queue\":%d,\"ttl\":%d,\"drop_rst\":%d,\"autottl\":%d,\"seqovl\":%d,\"split\":%d,\"mode\":%d,\"quic_block\":%d,\"udp_fake\":%d}\n",
-         queue_num, g_cfg.fake_ttl, g_cfg.drop_rst, g_cfg.autottl, g_cfg.seqovl, g_cfg.split, g_cfg.desync_mode, g_quic_block, g_udp_fake);
+  printf("{\"type\":\"raw_ready\",\"queue\":%d,\"ttl\":%d,\"drop_rst\":%d,\"autottl\":%d,\"seqovl\":%d,\"split\":%d,\"mode\":%d,\"quic_block\":%d,\"udp_fake\":%d,\"alert_watch\":%d}\n",
+         queue_num, g_cfg.fake_ttl, g_cfg.drop_rst, g_cfg.autottl, g_cfg.seqovl, g_cfg.split, g_cfg.desync_mode, g_quic_block, g_udp_fake, g_alert_watch);
   fflush(stdout);
   while (g_run) {
     int rv = recv(fd, buf, sizeof(buf), 0);

@@ -6,7 +6,10 @@
  * public addresses right beside them (the documentation ranges included, which
  * are not local), the IPv6 ranges and IPv4-mapped addresses, the
  * recently-desynced table (a reset from a server never desynced passes, expiry,
- * refresh, a full table reusing its oldest entry, IPv4 and IPv6 kept apart)
+ * refresh, a full table reusing its oldest entry, IPv4 and IPv6 kept apart),
+ * "desynced within", the no-decoy table and its expiry, the TLS record
+ * classifier, the signs that a decoy hurt a handshake (and the ones that must
+ * not count: a close_notify late in a healthy flow, another flow, too late),
  * and the raw_stats line.
  */
 #include "../src/rawscope.h"
@@ -164,20 +167,273 @@ static void test_touched(void) {
   CHECK(rawscope_touched(b, 4, 30000) == 0);
 }
 
+static void test_touched_within(void) {
+  uint8_t a[4] = { 198, 51, 100, 2 }, b[4] = { 203, 0, 113, 7 };
+  uint8_t v6[16]; p6("2001:db8::7", v6);
+  rawscope_touch_reset();
+  CHECK(rawscope_touched_within(a, 4, 1000, 5000) == 0);       /* never desynced */
+  rawscope_touch(a, 4, 1000);
+  CHECK(rawscope_touched_within(a, 4, 1000, 5000) == 1);
+  CHECK(rawscope_touched_within(a, 4, 6000, 5000) == 1);       /* the edge counts */
+  CHECK(rawscope_touched_within(a, 4, 6001, 5000) == 0);
+  CHECK(rawscope_touched(a, 4, 6001) == 1);                    /* still in the table */
+  CHECK(rawscope_touched_within(a, 4, 6001, 0) == 0);
+  CHECK(rawscope_touched_within(a, 4, 1000, 0) == 1);
+  CHECK(rawscope_touched_within(b, 4, 1000, 5000) == 0);
+  rawscope_touch(a, 4, 9000);                                  /* refreshed */
+  CHECK(rawscope_touched_within(a, 4, 9500, 5000) == 1);
+  /* Past the table's own lifetime it is gone, whatever window is asked. */
+  CHECK(rawscope_touched_within(a, 4, 9000 + RAWSCOPE_TOUCH_TTL_MS + 1, (uint64_t)-1) == 0);
+  rawscope_touch(v6, 16, 100);
+  CHECK(rawscope_touched_within(v6, 16, 200, 5000) == 1);
+  CHECK(rawscope_touched_within(v6, 4, 200, 5000) == 0);
+  CHECK(rawscope_touched_within(NULL, 4, 200, 5000) == 0);
+  CHECK(rawscope_touched_within(v6, 7, 200, 5000) == 0);
+  rawscope_touch_reset();
+}
+
+static void test_nodecoy_table(void) {
+  uint8_t a[4] = { 198, 51, 100, 2 }, b[4] = { 203, 0, 113, 7 };
+  uint8_t m6[16]; p6("::ffff:198.51.100.2", m6);
+  uint8_t v6[16]; p6("2001:db8::7", v6);
+  rawscope_nodecoy_reset();
+  CHECK(rawscope_nodecoy(a, 4, 1000) == 0);
+  rawscope_nodecoy_add(a, 4, 1000);
+  CHECK(rawscope_nodecoy(a, 4, 1000) == 1);
+  CHECK(rawscope_nodecoy(m6, 16, 1000) == 1);                 /* same server */
+  CHECK(rawscope_nodecoy(b, 4, 1000) == 0);
+  CHECK(rawscope_nodecoy(v6, 16, 1000) == 0);
+  /* Ten minutes, then the decoy is tried again. */
+  CHECK(RAWSCOPE_NODECOY_TTL_MS == 600000);
+  CHECK(rawscope_nodecoy(a, 4, 1000 + RAWSCOPE_NODECOY_TTL_MS) == 1);
+  CHECK(rawscope_nodecoy(a, 4, 1000 + RAWSCOPE_NODECOY_TTL_MS + 1) == 0);
+  CHECK(rawscope_nodecoy(a, 4, 1000) == 0);                   /* expired entries are removed */
+  rawscope_nodecoy_add(v6, 16, 50);
+  CHECK(rawscope_nodecoy(v6, 16, 60) == 1);
+  rawscope_nodecoy_add(NULL, 4, 60);                           /* ignored */
+  rawscope_nodecoy_add(a, 3, 60);                              /* ignored */
+  CHECK(rawscope_nodecoy(a, 4, 60) == 0);
+  CHECK(rawscope_nodecoy(a, 3, 60) == 0);
+
+  /* A full table reuses its oldest entry only. */
+  rawscope_nodecoy_reset();
+  CHECK(RAWSCOPE_NODECOY_CAP == 256);
+  for (int i = 0; i < RAWSCOPE_NODECOY_CAP; i++) {
+    uint8_t x[4] = { 198, 18, (uint8_t)(i >> 8), (uint8_t)i };
+    rawscope_nodecoy_add(x, 4, 10000 + (uint64_t)i);
+  }
+  int all = 1;
+  for (int i = 0; i < RAWSCOPE_NODECOY_CAP; i++) {
+    uint8_t x[4] = { 198, 18, (uint8_t)(i >> 8), (uint8_t)i };
+    if (!rawscope_nodecoy(x, 4, 20000)) all = 0;
+  }
+  CHECK(all == 1);
+  rawscope_nodecoy_add(b, 4, 30000);
+  uint8_t first[4] = { 198, 18, 0, 0 }, second[4] = { 198, 18, 0, 1 };
+  CHECK(rawscope_nodecoy(b, 4, 30000) == 1);
+  CHECK(rawscope_nodecoy(first, 4, 30000) == 0);
+  CHECK(rawscope_nodecoy(second, 4, 30000) == 1);
+  rawscope_nodecoy_reset();
+  CHECK(rawscope_nodecoy(b, 4, 30000) == 0);
+}
+
+static void test_tls_kind(void) {
+  /* Plaintext alerts: 15 03 0X 00 02 <level> <desc>. */
+  const uint8_t al12[] = { 0x15, 0x03, 0x03, 0x00, 0x02, 0x02, 0x28 };   /* handshake_failure */
+  const uint8_t al10[] = { 0x15, 0x03, 0x01, 0x00, 0x02, 0x02, 0x46 };
+  const uint8_t al13v[] = { 0x15, 0x03, 0x04, 0x00, 0x02, 0x02, 0x28 };
+  const uint8_t al30[] = { 0x15, 0x03, 0x00, 0x00, 0x02, 0x02, 0x28 };
+  const uint8_t alv5[] = { 0x15, 0x03, 0x05, 0x00, 0x02, 0x02, 0x28 };   /* no such version */
+  const uint8_t alv2[] = { 0x15, 0x02, 0x03, 0x00, 0x02, 0x02, 0x28 };
+  const uint8_t al_l3[] = { 0x15, 0x03, 0x03, 0x00, 0x03, 0x02, 0x28, 0x00 };
+  const uint8_t al_l26[31] = { 0x15, 0x03, 0x03, 0x00, 26 };            /* a TLS 1.2 encrypted alert */
+  CHECK(rawscope_tls_kind(al12, sizeof al12) == RAWSCOPE_TLS_ALERT);
+  CHECK(rawscope_tls_kind(al10, sizeof al10) == RAWSCOPE_TLS_ALERT);
+  CHECK(rawscope_tls_kind(al13v, sizeof al13v) == RAWSCOPE_TLS_ALERT);
+  CHECK(rawscope_tls_kind(al30, sizeof al30) == RAWSCOPE_TLS_ALERT);
+  CHECK(rawscope_tls_kind(alv5, sizeof alv5) == RAWSCOPE_TLS_OTHER);
+  CHECK(rawscope_tls_kind(alv2, sizeof alv2) == RAWSCOPE_TLS_OTHER);
+  CHECK(rawscope_tls_kind(al_l3, sizeof al_l3) == RAWSCOPE_TLS_OTHER);
+  CHECK(rawscope_tls_kind(al_l26, sizeof al_l26) == RAWSCOPE_TLS_OTHER);
+  /* Short buffers: the record must be whole. */
+  for (int n = 0; n < 7; n++) CHECK(rawscope_tls_kind(al12, n) == RAWSCOPE_TLS_OTHER);
+  CHECK(rawscope_tls_kind(NULL, 7) == RAWSCOPE_TLS_OTHER);
+  CHECK(rawscope_tls_kind(al12, -1) == RAWSCOPE_TLS_OTHER);
+
+  /* Application data: 19 bytes is an encrypted TLS 1.3 alert, a Finished is
+   * 53 (SHA-256) or 69 (SHA-384), and 2 is nothing of the sort. */
+  uint8_t ad[5 + 69] = { 0x17, 0x03, 0x03, 0x00, 19 };
+  CHECK(rawscope_tls_kind(ad, 5 + 19) == RAWSCOPE_TLS_ENC_ALERT);
+  CHECK(rawscope_tls_kind(ad, sizeof ad) == RAWSCOPE_TLS_ENC_ALERT);      /* more after it */
+  CHECK(rawscope_tls_kind(ad, 5 + 18) == RAWSCOPE_TLS_OTHER);            /* cut short */
+  ad[4] = 53; CHECK(rawscope_tls_kind(ad, sizeof ad) == RAWSCOPE_TLS_OTHER);
+  ad[4] = 69; CHECK(rawscope_tls_kind(ad, sizeof ad) == RAWSCOPE_TLS_OTHER);
+  ad[4] = 2;  CHECK(rawscope_tls_kind(ad, sizeof ad) == RAWSCOPE_TLS_OTHER);
+  ad[4] = 18; CHECK(rawscope_tls_kind(ad, sizeof ad) == RAWSCOPE_TLS_OTHER);
+  ad[4] = 20; CHECK(rawscope_tls_kind(ad, sizeof ad) == RAWSCOPE_TLS_OTHER);
+  ad[3] = 0x01; ad[4] = 19; CHECK(rawscope_tls_kind(ad, sizeof ad) == RAWSCOPE_TLS_OTHER); /* 275 */
+  ad[3] = 0x00; ad[2] = 0x01; CHECK(rawscope_tls_kind(ad, sizeof ad) == RAWSCOPE_TLS_OTHER); /* not 1.3's 03 03 */
+  ad[2] = 0x03;
+
+  /* A ChangeCipherSpec in front is skipped; alone it is nothing. */
+  uint8_t ccs_ad[6 + 24] = { 0x14, 0x03, 0x03, 0x00, 0x01, 0x01, 0x17, 0x03, 0x03, 0x00, 19 };
+  CHECK(rawscope_tls_kind(ccs_ad, sizeof ccs_ad) == RAWSCOPE_TLS_ENC_ALERT);
+  CHECK(rawscope_tls_skip(ccs_ad, sizeof ccs_ad) == 6);
+  CHECK(rawscope_tls_skip(ad, sizeof ad) == 0);
+  CHECK(rawscope_tls_kind(ccs_ad, 6) == RAWSCOPE_TLS_OTHER);
+  CHECK(rawscope_tls_skip(ccs_ad, 6) == 0);
+  uint8_t ccs_al[13] = { 0x14, 0x03, 0x03, 0x00, 0x01, 0x01, 0x15, 0x03, 0x03, 0x00, 0x02, 0x02, 0x14 };
+  CHECK(rawscope_tls_kind(ccs_al, sizeof ccs_al) == RAWSCOPE_TLS_ALERT);
+  CHECK(rawscope_tls_kind(ccs_al, 12) == RAWSCOPE_TLS_OTHER);
+  /* Two CCS records are not skipped twice. */
+  uint8_t ccs2[12 + 7] = { 0x14,3,3,0,1,1, 0x14,3,3,0,1,1, 0x15,3,3,0,2,2,0x28 };
+  CHECK(rawscope_tls_kind(ccs2, sizeof ccs2) == RAWSCOPE_TLS_OTHER);
+
+  /* Not TLS at all. */
+  const char *get = "GET / HTTP/1.1\r\nHost: x\r\n\r\n";
+  CHECK(rawscope_tls_kind((const uint8_t *)get, (int)strlen(get)) == RAWSCOPE_TLS_OTHER);
+  const uint8_t hello[] = { 0x16, 0x03, 0x01, 0x00, 0x02, 0x01, 0x00 };
+  CHECK(rawscope_tls_kind(hello, sizeof hello) == RAWSCOPE_TLS_OTHER);
+  uint8_t zeros[64] = { 0 };
+  CHECK(rawscope_tls_kind(zeros, sizeof zeros) == RAWSCOPE_TLS_OTHER);
+
+  /* Where the client's next record starts after a first segment. */
+  const uint8_t ch[] = { 0x16, 0x03, 0x01, 0x06, 0x00, 0x01 };   /* a 1536-byte record */
+  CHECK(rawscope_tls_next_seq(1000, ch, sizeof ch) == 1000u + 5u + 1536u);
+  CHECK(rawscope_tls_next_seq(0xfffffff0u, ch, sizeof ch) == (uint32_t)(0xfffffff0u + 5u + 1536u));
+  CHECK(rawscope_tls_next_seq(1000, ch, 4) == 1004);             /* no whole header */
+  CHECK(rawscope_tls_next_seq(1000, (const uint8_t *)get, (int)strlen(get)) == 1000u + (uint32_t)strlen(get));
+  CHECK(rawscope_tls_next_seq(1000, ch, 0) == 1000);
+  CHECK(rawscope_tls_next_seq(1000, NULL, 10) == 1000);
+}
+
+static void test_decoy_hurt(void) {
+  uint8_t srv[4] = { 198, 51, 100, 2 }, other[4] = { 203, 0, 113, 7 };
+  const uint8_t al[] = { 0x15, 0x03, 0x03, 0x00, 0x02, 0x02, 0x28 };
+  uint8_t enc[24] = { 0x17, 0x03, 0x03, 0x00, 19 };
+  uint8_t ccs_enc[30] = { 0x14, 0x03, 0x03, 0x00, 0x01, 0x01, 0x17, 0x03, 0x03, 0x00, 19 };
+  const uint32_t next = 5000 + 5 + 600;   /* after a 600-byte ClientHello record at seq 5000 */
+
+  rawscope_touch_reset(); rawscope_nodecoy_reset(); rawscope_counters_reset();
+
+  /* A server alert on a flow that never carried a decoy: nothing. */
+  rawscope_touch(srv, 4, 1000);
+  CHECK(rawscope_decoy_hurt_in(srv, 4, 443, 50000, al, sizeof al, 1100) == 0);
+  CHECK(rawscope_nodecoy(srv, 4, 1100) == 0);
+
+  /* The server answers a decoyed ClientHello with an alert: no decoy next time. */
+  rawscope_decoy_sent(srv, 4, 443, 50000, next, 1000);
+  CHECK(rawscope_decoy_hurt_in(srv, 4, 443, 50001, al, sizeof al, 1100) == 0);   /* another flow */
+  CHECK(rawscope_decoy_hurt_in(other, 4, 443, 50000, al, sizeof al, 1100) == 0);
+  CHECK(rawscope_decoy_hurt_in(srv, 4, 443, 50000, enc, sizeof enc, 1100) == 0); /* not a plaintext alert */
+  CHECK(rawscope_decoy_hurt_in(srv, 4, 443, 50000, al, 6, 1100) == 0);           /* cut short */
+  CHECK(rawscope_decoy_hurt_in(srv, 4, 443, 50000, al, sizeof al, 1100) == 1);
+  CHECK(rawscope_nodecoy(srv, 4, 1100) == 1);
+  CHECK(rawscope_nodecoy(other, 4, 1100) == 0);
+  CHECK(rawscope_counter(RAWSCOPE_DECOY_HURT) == 1);
+  CHECK(rawscope_decoy_hurt_in(srv, 4, 443, 50000, al, sizeof al, 1200) == 0);   /* once per flow */
+  CHECK(rawscope_counter(RAWSCOPE_DECOY_HURT) == 1);
+
+  /* Too late: more than five seconds after the decoy. */
+  rawscope_nodecoy_reset();
+  rawscope_touch(srv, 4, 10000);
+  rawscope_decoy_sent(srv, 4, 443, 50002, next, 10000);
+  CHECK(rawscope_decoy_hurt_in(srv, 4, 443, 50002, al, sizeof al, 10000 + RAWSCOPE_HURT_WINDOW_MS + 1) == 0);
+  CHECK(rawscope_nodecoy(srv, 4, 15002) == 0);
+  /* The flow is still young, but the server was last desynced too long ago
+   * (a flow table entry alone is not enough). */
+  rawscope_touch_reset();
+  rawscope_decoy_sent(srv, 4, 443, 50003, next, 20000);
+  CHECK(rawscope_decoy_hurt_in(srv, 4, 443, 50003, al, sizeof al, 20100) == 0);
+  rawscope_touch(srv, 4, 20000);
+  CHECK(rawscope_decoy_hurt_in(srv, 4, 443, 50003, al, sizeof al, 20100) == 1);
+
+  /* The client's plaintext alert, anywhere in the young flow. */
+  rawscope_nodecoy_reset(); rawscope_counters_reset();
+  rawscope_touch(srv, 4, 30000);
+  rawscope_decoy_sent(srv, 4, 443, 50010, next, 30000);
+  CHECK(rawscope_decoy_hurt_out(srv, 4, 443, 50010, next + 400, al, sizeof al, 30050) == 1);
+  CHECK(rawscope_nodecoy(srv, 4, 30050) == 1);
+
+  /* The client's encrypted alert straight after the ClientHello: it counts;
+   * at next_seq + 6 (a ChangeCipherSpec sent on its own before it) too; the
+   * ChangeCipherSpec and the alert in one segment too. */
+  rawscope_nodecoy_reset();
+  rawscope_decoy_sent(srv, 4, 443, 50011, next, 30000);
+  CHECK(rawscope_decoy_hurt_out(srv, 4, 443, 50011, next, enc, sizeof enc, 30100) == 1);
+  rawscope_nodecoy_reset();
+  rawscope_decoy_sent(srv, 4, 443, 50012, next, 30000);
+  CHECK(rawscope_decoy_hurt_out(srv, 4, 443, 50012, next + 6, enc, sizeof enc, 30100) == 1);
+  rawscope_nodecoy_reset();
+  rawscope_decoy_sent(srv, 4, 443, 50013, next, 30000);
+  CHECK(rawscope_decoy_hurt_out(srv, 4, 443, 50013, next, ccs_enc, sizeof ccs_enc, 30100) == 1);
+
+  /* A close_notify at the end of a short, healthy connection is the same 19
+   * bytes, but after the Finished and the request: it does not count. */
+  rawscope_nodecoy_reset(); rawscope_counters_reset();
+  rawscope_decoy_sent(srv, 4, 443, 50014, next, 30000);
+  CHECK(rawscope_decoy_hurt_out(srv, 4, 443, 50014, next + 6 + 58 + 120, enc, sizeof enc, 30200) == 0);
+  CHECK(rawscope_decoy_hurt_out(srv, 4, 443, 50014, next + 3, enc, sizeof enc, 30200) == 0);
+  CHECK(rawscope_decoy_hurt_out(srv, 4, 443, 50014, next - 1, enc, sizeof enc, 30200) == 0);
+  CHECK(rawscope_decoy_hurt_out(srv, 4, 443, 50014, next + 6, ccs_enc, sizeof ccs_enc, 30200) == 0);
+  CHECK(rawscope_nodecoy(srv, 4, 30200) == 0);
+  CHECK(rawscope_counter(RAWSCOPE_DECOY_HURT) == 0);
+  /* Ordinary data and a Finished on the flow: nothing. */
+  uint8_t fin[58] = { 0x17, 0x03, 0x03, 0x00, 53 };
+  CHECK(rawscope_decoy_hurt_out(srv, 4, 443, 50014, next, fin, sizeof fin, 30200) == 0);
+  CHECK(rawscope_decoy_hurt_out(srv, 4, 443, 50014, next, NULL, 0, 30200) == 0);
+  /* Sequence numbers that wrap around 2^32. */
+  rawscope_decoy_sent(srv, 4, 443, 50015, 0xfffffffeu, 30000);
+  CHECK(rawscope_decoy_hurt_out(srv, 4, 443, 50015, 0xfffffff0u, enc, sizeof enc, 30300) == 0);
+  CHECK(rawscope_decoy_hurt_out(srv, 4, 443, 50015, 0xfffffffeu + 6u + 6u, enc, sizeof enc, 30300) == 0);
+  CHECK(rawscope_decoy_hurt_out(srv, 4, 443, 50015, 0xfffffffeu + 6u, enc, sizeof enc, 30300) == 1); /* seq 4 */
+
+  /* IPv6 flows are kept apart from IPv4 ones. */
+  uint8_t v6[16]; p6("2001:db8::7", v6);
+  rawscope_nodecoy_reset();
+  rawscope_touch(v6, 16, 40000);
+  rawscope_decoy_sent(v6, 16, 443, 50020, next, 40000);
+  CHECK(rawscope_decoy_hurt_in(srv, 4, 443, 50020, al, sizeof al, 40010) == 0);
+  CHECK(rawscope_decoy_hurt_in(v6, 16, 443, 50020, al, sizeof al, 40010) == 1);
+  CHECK(rawscope_nodecoy(v6, 16, 40010) == 1);
+  CHECK(rawscope_nodecoy(srv, 4, 40010) == 0);
+  rawscope_decoy_sent(NULL, 4, 443, 1, next, 40000);              /* ignored, no crash */
+  rawscope_decoy_sent(srv, 2, 443, 1, next, 40000);
+
+  /* The flow table is bounded: more flows than it holds push out the oldest,
+   * and a newer one still counts. */
+  rawscope_nodecoy_reset();
+  rawscope_touch(srv, 4, 50000);
+  for (int i = 0; i < RAWSCOPE_FLOW_CAP + 10; i++)
+    rawscope_decoy_sent(srv, 4, 443, (uint16_t)(1000 + i), next, 50000 + (uint64_t)i / 100);
+  CHECK(rawscope_decoy_hurt_in(srv, 4, 443, 1000, al, sizeof al, 50010) == 0);   /* pushed out */
+  CHECK(rawscope_decoy_hurt_in(srv, 4, 443, (uint16_t)(1000 + RAWSCOPE_FLOW_CAP + 9), al, sizeof al, 50010) == 1);
+  /* The same flow sent again replaces its entry instead of taking another. */
+  rawscope_nodecoy_reset();
+  rawscope_decoy_sent(srv, 4, 443, 60000, 100, 50000);
+  rawscope_decoy_sent(srv, 4, 443, 60000, 900, 50001);
+  CHECK(rawscope_decoy_hurt_out(srv, 4, 443, 60000, 100, enc, sizeof enc, 50002) == 0);
+  CHECK(rawscope_decoy_hurt_out(srv, 4, 443, 60000, 900, enc, sizeof enc, 50002) == 1);
+
+  rawscope_touch_reset(); rawscope_nodecoy_reset(); rawscope_counters_reset();
+}
+
 static void test_stats(void) {
   char line[256];
   rawscope_counters_reset();
   CHECK(rawscope_stats_json(line, sizeof line) > 0);
-  CHECK(strcmp(line, "{\"type\":\"raw_stats\",\"desynced\":0,\"skipped\":0,\"rst_dropped\":0,\"rst_passed\":0}") == 0);
+  CHECK(strcmp(line, "{\"type\":\"raw_stats\",\"desynced\":0,\"skipped\":0,\"rst_dropped\":0,\"rst_passed\":0,\"nodecoy\":0,\"decoy_hurt\":0}") == 0);
   rawscope_count(RAWSCOPE_DESYNCED); rawscope_count(RAWSCOPE_DESYNCED);
   rawscope_count(RAWSCOPE_SKIPPED);
   for (int i = 0; i < 3; i++) rawscope_count(RAWSCOPE_RST_DROPPED);
   for (int i = 0; i < 4; i++) rawscope_count(RAWSCOPE_RST_PASSED);
+  for (int i = 0; i < 5; i++) rawscope_count(RAWSCOPE_NODECOY);
+  for (int i = 0; i < 6; i++) rawscope_count(RAWSCOPE_DECOY_HURT);
   rawscope_count(-1); rawscope_count(RAWSCOPE_NCOUNTERS);   /* ignored */
   CHECK(rawscope_counter(RAWSCOPE_DESYNCED) == 2);
   CHECK(rawscope_counter(RAWSCOPE_NCOUNTERS) == 0);
   CHECK(rawscope_stats_json(line, sizeof line) > 0);
-  CHECK(strcmp(line, "{\"type\":\"raw_stats\",\"desynced\":2,\"skipped\":1,\"rst_dropped\":3,\"rst_passed\":4}") == 0);
+  CHECK(strcmp(line, "{\"type\":\"raw_stats\",\"desynced\":2,\"skipped\":1,\"rst_dropped\":3,\"rst_passed\":4,\"nodecoy\":5,\"decoy_hurt\":6}") == 0);
   CHECK(rawscope_stats_json(line, 10) == 0 && line[0] == 0);  /* too small: nothing */
   rawscope_counters_reset();
   CHECK(rawscope_counter(RAWSCOPE_SKIPPED) == 0);
@@ -187,6 +443,10 @@ int main(void) {
   test_scope4();
   test_scope6();
   test_touched();
+  test_touched_within();
+  test_nodecoy_table();
+  test_tls_kind();
+  test_decoy_hurt();
   test_stats();
   if (fails) { printf("test_rawscope: %d of %d checks FAILED\n", fails, checks); return 1; }
   printf("test_rawscope: all %d checks passed\n", checks);

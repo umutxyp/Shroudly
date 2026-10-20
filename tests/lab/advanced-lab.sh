@@ -24,6 +24,12 @@
 #   - on the private address the engine changes nothing: the filtered name
 #     stays stopped there while the engine runs, and the raw_stats line it
 #     writes at stop counts those packets as skipped;
+#   - a server that answers a ClientHello carrying a decoy with a TLS alert
+#     (198.51.100.3, the way a nearby server does when the decoy reaches it)
+#     gets no decoy on the next ClientHello, while another server still does:
+#     the router counts the low-TTL decoys per address. Needs the engine's
+#     inbound alert rule (the u32 match, or nft's payload match); skipped,
+#     and said so, without it;
 #   - when the engine stops, none of its firewall rules are left.
 #
 #   sudo env "PATH=$PATH" bash tests/lab/advanced-lab.sh <shroudly-core-adv>
@@ -32,10 +38,11 @@ set -uo pipefail
 ENGINE="$(cd "$(dirname "$1")" && pwd)/$(basename "$1")"
 HERE="$(cd "$(dirname "$0")" && pwd)"
 WORK="$(mktemp -d)"
-SRV_PID=""; SRV2_PID=""; ENG_PID=""
+SRV_PID=""; SRV2_PID=""; SRV3_PID=""; ENG_PID=""
 FAILS=0
 PUB=198.51.100.2   # the server as seen on the internet
 PRIV=10.77.3.2     # the same server on a private (local network) address
+ALERT=198.51.100.3 # a server that answers every ClientHello with a TLS alert
 AT=$PUB            # where loads() connects
 
 ok()   { echo "  ok  $*"; }
@@ -45,6 +52,7 @@ cleanup() {
   [ -n "$ENG_PID" ] && { touch "$WORK/status.log.stop"; sleep 1; kill "$ENG_PID" 2>/dev/null; }
   [ -n "$SRV_PID" ] && kill "$SRV_PID" 2>/dev/null
   [ -n "$SRV2_PID" ] && kill "$SRV2_PID" 2>/dev/null
+  [ -n "$SRV3_PID" ] && kill "$SRV3_PID" 2>/dev/null
   ip netns del shlab-r 2>/dev/null; ip netns del shlab-s 2>/dev/null; ip link del shlab-c 2>/dev/null
   rm -rf "$WORK"
 }
@@ -64,6 +72,7 @@ ip -n shlab-r addr add 10.77.3.1/24 dev shlab-r1 && ip -n shlab-r link set shlab
 ip -n shlab-r link set lo up
 ip -n shlab-s addr add $PUB/24 dev shlab-s0
 ip -n shlab-s addr add $PRIV/24 dev shlab-s0 && ip -n shlab-s link set shlab-s0 up
+ip -n shlab-s addr add $ALERT/24 dev shlab-s0
 ip -n shlab-s link set lo up
 ip -n shlab-s route add default via 198.51.100.1
 ip route add 198.51.100.0/24 via 10.77.1.2
@@ -78,7 +87,22 @@ ip netns exec shlab-s node "$HERE/lab-server.js" $PUB > "$WORK/server.log" 2>&1 
 SRV_PID=$!
 ip netns exec shlab-s node "$HERE/lab-server.js" $PRIV > "$WORK/server2.log" 2>&1 &
 SRV2_PID=$!
-for _ in $(seq 50); do grep -q "lab server" "$WORK/server.log" 2>/dev/null && grep -q "lab server" "$WORK/server2.log" 2>/dev/null && break; sleep 0.1; done
+ip netns exec shlab-s node "$HERE/lab-server.js" $ALERT alert > "$WORK/server3.log" 2>&1 &
+SRV3_PID=$!
+for _ in $(seq 50); do grep -q "lab server" "$WORK/server.log" 2>/dev/null && grep -q "lab server" "$WORK/server2.log" 2>/dev/null && grep -q "lab server" "$WORK/server3.log" 2>/dev/null && break; sleep 0.1; done
+# The router counts the decoys going to each public address: a decoy's TTL is
+# set to run out about here, a real segment's is not. They die at the router
+# (TTL), but PREROUTING sees them first.
+DECOY_COUNT=1
+for a in $ALERT $PUB; do
+  ip netns exec shlab-r iptables -t mangle -A PREROUTING -d $a -p tcp --dport 443 -m ttl --ttl-lt 16 || DECOY_COUNT=0
+done
+# Decoys seen so far going to address $1, or "" when the router cannot count.
+decoys_to() {
+  [ "$DECOY_COUNT" = 1 ] || return 0
+  ip netns exec shlab-r iptables-save -c -t mangle 2>/dev/null | grep -F -- "-d $1/32 " | grep -F -- "--ttl-lt" \
+    | sed -n 's/^\[\([0-9][0-9]*\):.*/\1/p' | head -1
+}
 
 loads()  { node "$HERE/lab-client.js" "$AT" "$1" "${2:-tls}" "${3:-8000}"; }
 expect_load() { local out; out=$(loads "$@"); if [ $? -eq 0 ]; then ok "$LABEL: $out"; else bad "$LABEL: $out"; fi; }
@@ -152,7 +176,37 @@ LABEL="no cut: the filtered name is still stopped"; expect_fail www.blocked.lab 
 LABEL="no cut: an unfiltered name loads";            expect_load www.allowed.lab tls
 stop_engine
 
-# ── 5. nothing left behind ──────────────────────────────────────────────────
+# ── 5. a server the decoy upsets gets no decoy next time ───────────────────
+start_engine on
+watch=$(grep -m1 '"raw_ready"' "$WORK/status.log" 2>/dev/null | sed -n 's/.*"alert_watch":\([01]\).*/\1/p')
+if [ "$watch" != 1 ]; then
+  ok "alert fallback: skipped, the inbound alert rule is not available here (alert_watch=${watch:-none})"
+  stop_engine
+elif [ -z "$(decoys_to $ALERT)" ]; then
+  ok "alert fallback: skipped, the router cannot count decoys (no ttl match)"
+  stop_engine
+else
+  AT=$ALERT
+  a0=$(decoys_to $ALERT)
+  LABEL="alert server: the first ClientHello is refused"; expect_fail www.allowed.lab tls 3000
+  a1=$(decoys_to $ALERT)
+  if [ "$a1" -gt "$a0" ]; then ok "the first ClientHello carried a decoy ($a0 -> $a1)"; else bad "no decoy on the first ClientHello ($a0 -> $a1)"; fi
+  LABEL="alert server: the next ClientHello is refused too"; expect_fail www.allowed.lab tls 3000
+  a2=$(decoys_to $ALERT)
+  if [ "$a2" -eq "$a1" ]; then ok "the next ClientHello to that server carried no decoy ($a1 -> $a2)"; else bad "the next ClientHello still carried a decoy ($a1 -> $a2)"; fi
+  AT=$PUB
+  p0=$(decoys_to $PUB)
+  LABEL="alert fallback: the filtered name still loads elsewhere"; expect_load www.blocked.lab tls
+  p1=$(decoys_to $PUB)
+  if [ "$p1" -gt "$p0" ]; then ok "another server still gets its decoy ($p0 -> $p1)"; else bad "another server got no decoy ($p0 -> $p1)"; fi
+  stop_engine
+  hurt=$(stat_of decoy_hurt); nodecoy=$(stat_of nodecoy)
+  ok "at stop: $(grep '"type":"raw_stats"' "$WORK/status.log" | tail -1)"
+  if [ "${hurt:-0}" -ge 1 ]; then ok "decoy_hurt is $hurt"; else bad "decoy_hurt is ${hurt:-none}"; fi
+  if [ "${nodecoy:-0}" -ge 1 ]; then ok "nodecoy is $nodecoy"; else bad "nodecoy is ${nodecoy:-none}"; fi
+fi
+
+# ── 6. nothing left behind ──────────────────────────────────────────────────
 left=$( (iptables -t mangle -S 2>/dev/null; nft list ruleset 2>/dev/null) | grep -c -E 'NFQUEUE|queue num|shroudly' )
 if [ "$left" -eq 0 ]; then ok "after stopping, no firewall rule of the engine is left"; else bad "$left firewall rules left after stopping"; fi
 
