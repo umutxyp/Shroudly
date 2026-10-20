@@ -439,6 +439,27 @@ static void test_stats(void) {
   CHECK(rawscope_counter(RAWSCOPE_SKIPPED) == 0);
 }
 
+/* A warning alert is not harm; a ClientHello in two records moves the spot
+ * where the client's encrypted alert is looked for. */
+static void test_decoy_hurt_more(void) {
+  uint8_t srv[4] = { 198, 51, 100, 9 };
+  const uint8_t warn[] = { 0x15, 0x03, 0x03, 0x00, 0x02, 0x01, 0x70 };   /* warning unrecognized_name */
+  uint8_t rec2[5 + 100] = { 0x16, 0x03, 0x01, 0x00, 100 };              /* the rest of the ClientHello */
+  uint8_t enc[24] = { 0x17, 0x03, 0x03, 0x00, 19 };
+  const uint32_t next = 7000 + 5 + 400;
+  rawscope_touch_reset(); rawscope_nodecoy_reset(); rawscope_counters_reset();
+  rawscope_touch(srv, 4, 1000);
+  CHECK(rawscope_tls_kind(warn, sizeof warn) == RAWSCOPE_TLS_OTHER);
+  rawscope_decoy_sent(srv, 4, 443, 51000, next, 1000);
+  CHECK(rawscope_decoy_hurt_in(srv, 4, 443, 51000, warn, sizeof warn, 1100) == 0);
+  CHECK(rawscope_nodecoy(srv, 4, 1100) == 0);
+  rawscope_decoy_sent(srv, 4, 443, 51001, next, 1000);
+  CHECK(rawscope_decoy_hurt_out(srv, 4, 443, 51001, next, rec2, sizeof rec2, 1050) == 0);  /* followed */
+  CHECK(rawscope_decoy_hurt_out(srv, 4, 443, 51001, next, enc, sizeof enc, 1060) == 0);    /* old spot: no */
+  CHECK(rawscope_decoy_hurt_out(srv, 4, 443, 51001, next + sizeof rec2, enc, sizeof enc, 1070) == 1);
+  CHECK(rawscope_nodecoy(srv, 4, 1100) == 1);
+}
+
 int main(void) {
   test_scope4();
   test_scope6();
@@ -447,6 +468,7 @@ int main(void) {
   test_nodecoy_table();
   test_tls_kind();
   test_decoy_hurt();
+  test_decoy_hurt_more();
   test_stats();
   if (fails) { printf("test_rawscope: %d of %d checks FAILED\n", fails, checks); return 1; }
   printf("test_rawscope: all %d checks passed\n", checks);

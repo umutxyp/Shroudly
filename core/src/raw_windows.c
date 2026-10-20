@@ -173,6 +173,16 @@ static void send_fake(const uint8_t *pkt, int len, int ihl, int tcphl, int poff,
   if (n > 0) raw_send(out, n, addr);
 }
 
+/* Does an alert come from as far away as the server's own SYN-ACK did? One
+ * injected by a filter on the way arrives with a different hop count, and
+ * must not switch the decoy off. Unknown distance: taken as the server's. */
+static int alert_from_server(uint32_t key, int ttl) {
+  int known = tcpdpi_hops_get(key, now_ms());
+  int h = tcpdpi_hops_from_ttl(ttl);
+  if (known <= 0 || h <= 0) return 1;
+  return h - known <= 1 && known - h <= 1;
+}
+
 /* Effective decoy TTL for a destination IPv4 address (network order). */
 static int decoy_ttl_for(uint32_t daddr) {
   if (g_cfg.autottl) {
@@ -351,7 +361,8 @@ int raw_windows_start(const raw_config *cfg) {
          * decoy: noted (no decoy next time), passed on unchanged. */
         int tcphl = ((tcp[12] >> 4) & 0x0f) * 4;
         uint16_t sport = (uint16_t)((tcp[0] << 8) | tcp[1]);
-        if (sport == 443 && tcphl >= 20 && ihl + tcphl < (int)len)
+        if (sport == 443 && tcphl >= 20 && ihl + tcphl < (int)len &&
+            alert_from_server(rd32be(pkt + 12), pkt[8]))
           rawscope_decoy_hurt_in(pkt + 12, 4, sport, (uint16_t)((tcp[2] << 8) | tcp[3]),
                                  pkt + ihl + tcphl, (int)len - ihl - tcphl, now_ms());
       }

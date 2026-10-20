@@ -386,6 +386,16 @@ static void send_udp_decoys(const struct iphdr *ip, const struct udphdr *udp, in
   }
 }
 
+/* Does an alert come from as far away as the server's own SYN-ACK did? One
+ * injected by a filter on the way arrives with a different hop count, and
+ * must not switch the decoy off. Unknown distance: taken as the server's. */
+static int alert_from_server(uint32_t key, int ttl) {
+  int known = tcpdpi_hops_get(key, now_ms());
+  int h = tcpdpi_hops_from_ttl(ttl);
+  if (known <= 0 || h <= 0) return 1;
+  return h - known <= 1 && known - h <= 1;
+}
+
 static int cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg,
               struct nfq_data *nfa, void *data) {
   (void)nfmsg; (void)data;
@@ -428,7 +438,7 @@ static int cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg,
       }
       /* A plaintext TLS alert from a server whose ClientHello carried a
        * decoy: noted (no decoy next time), accepted unchanged. */
-      if (sport == 443 && iphl + tcphl < len)
+      if (sport == 443 && iphl + tcphl < len && alert_from_server(ip->saddr, ip->ttl))
         rawscope_decoy_hurt_in((const uint8_t *)&ip->saddr, 4, (uint16_t)sport, (uint16_t)dport,
                                pkt + iphl + tcphl, len - iphl - tcphl, now_ms());
       return nfq_set_verdict(qh, id, NF_ACCEPT, 0, NULL);            /* everything else kept */

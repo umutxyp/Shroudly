@@ -137,7 +137,9 @@ int rawscope_tls_kind(const uint8_t *p, int len) {
   p += k; len -= k;
   if (len < 5 || p[1] != 0x03) return RAWSCOPE_TLS_OTHER;
   int rl = rec_len(p);
-  if (p[0] == 0x15 && p[2] <= 0x04 && rl == 2 && len >= 5 + 2) return RAWSCOPE_TLS_ALERT;
+  /* Fatal only (level 2): a warning, such as unrecognized_name before a
+   * ServerHello, is followed by a handshake that goes on normally. */
+  if (p[0] == 0x15 && p[2] <= 0x04 && rl == 2 && len >= 5 + 2 && p[5] == 0x02) return RAWSCOPE_TLS_ALERT;
   if (p[0] == 0x17 && p[2] == 0x03 && rl == 19 && len >= 5 + 19) return RAWSCOPE_TLS_ENC_ALERT;
   return RAWSCOPE_TLS_OTHER;
 }
@@ -187,12 +189,19 @@ static int hurt(const uint8_t *raddr, int alen, flow_ent *f, uint64_t now_ms) {
 
 int rawscope_decoy_hurt_out(const uint8_t *raddr, int alen, uint16_t rport, uint16_t lport,
                             uint32_t seq, const uint8_t *p, int plen, uint64_t now_ms) {
-  int kind = rawscope_tls_kind(p, plen);
-  if (kind == RAWSCOPE_TLS_OTHER) return 0;
   uint8_t key[16];
-  if (!addr_key(raddr, alen, key)) return 0;
+  if (!p || plen <= 0 || !addr_key(raddr, alen, key)) return 0;
   flow_ent *f = flow_find(key, rport, lport, now_ms);
   if (!f) return 0;
+  /* The ClientHello went on in another handshake record (a proxy cutting
+   * it into records, or a large one): what counts as "right after it"
+   * moves past that record too. */
+  if (seq == f->next_seq && plen >= 5 && p[0] == 0x16 && p[1] == 0x03) {
+    f->next_seq = rawscope_tls_next_seq(seq, p, plen);
+    return 0;
+  }
+  int kind = rawscope_tls_kind(p, plen);
+  if (kind == RAWSCOPE_TLS_OTHER) return 0;
   if (kind == RAWSCOPE_TLS_ENC_ALERT) {
     /* Right after the ClientHello: at next_seq, or 6 bytes on when a
      * ChangeCipherSpec went out in a segment of its own. */
