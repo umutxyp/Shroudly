@@ -313,6 +313,12 @@ class AdvancedMode {
       const ready = await this._waitReady();
       this.active = true;
       this.log('success', `Advanced backend active (fake TTL ${ready.ttl})`);
+      // The engine takes only the first datagrams of a call where the
+      // system's packet filter can look inside them (udpdpi.h); where it
+      // cannot, every datagram on the voice ports passes through the engine.
+      if (ready.udp_match === 0 && (ready.udp_fake || ready.quic_block)) {
+        this.log('info', 'Advanced mode: the packet filter here cannot look inside UDP datagrams, so calls on the voice ports pass through the engine');
+      }
       if (o.dropRst && o.autottl) this.log('info', 'Advanced mode also drops injected resets and measures the decoy TTL');
       this._startMonitor();
       return { success: true };

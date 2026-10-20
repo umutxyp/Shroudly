@@ -419,21 +419,30 @@ static void test_decoy_hurt(void) {
 }
 
 static void test_stats(void) {
-  char line[256];
+  char line[512];
   rawscope_counters_reset();
   CHECK(rawscope_stats_json(line, sizeof line) > 0);
-  CHECK(strcmp(line, "{\"type\":\"raw_stats\",\"desynced\":0,\"skipped\":0,\"rst_dropped\":0,\"rst_passed\":0,\"nodecoy\":0,\"decoy_hurt\":0}") == 0);
+  CHECK(strcmp(line, "{\"type\":\"raw_stats\",\"desynced\":0,\"skipped\":0,\"rst_dropped\":0,\"rst_passed\":0,\"nodecoy\":0,\"decoy_hurt\":0,"
+                     "\"udp_seen\":0,\"udp_decoys\":0,\"quic_dropped\":0}") == 0);
   rawscope_count(RAWSCOPE_DESYNCED); rawscope_count(RAWSCOPE_DESYNCED);
   rawscope_count(RAWSCOPE_SKIPPED);
   for (int i = 0; i < 3; i++) rawscope_count(RAWSCOPE_RST_DROPPED);
   for (int i = 0; i < 4; i++) rawscope_count(RAWSCOPE_RST_PASSED);
   for (int i = 0; i < 5; i++) rawscope_count(RAWSCOPE_NODECOY);
   for (int i = 0; i < 6; i++) rawscope_count(RAWSCOPE_DECOY_HURT);
+  for (int i = 0; i < 7; i++) rawscope_count(RAWSCOPE_UDP_SEEN);
+  for (int i = 0; i < 8; i++) rawscope_count(RAWSCOPE_UDP_DECOYS);
+  for (int i = 0; i < 9; i++) rawscope_count(RAWSCOPE_QUIC_DROPPED);
   rawscope_count(-1); rawscope_count(RAWSCOPE_NCOUNTERS);   /* ignored */
   CHECK(rawscope_counter(RAWSCOPE_DESYNCED) == 2);
   CHECK(rawscope_counter(RAWSCOPE_NCOUNTERS) == 0);
   CHECK(rawscope_stats_json(line, sizeof line) > 0);
-  CHECK(strcmp(line, "{\"type\":\"raw_stats\",\"desynced\":2,\"skipped\":1,\"rst_dropped\":3,\"rst_passed\":4,\"nodecoy\":5,\"decoy_hurt\":6}") == 0);
+  CHECK(strcmp(line, "{\"type\":\"raw_stats\",\"desynced\":2,\"skipped\":1,\"rst_dropped\":3,\"rst_passed\":4,\"nodecoy\":5,\"decoy_hurt\":6,"
+                     "\"udp_seen\":7,\"udp_decoys\":8,\"quic_dropped\":9}") == 0);
+  /* The largest counters still fit the line rawscope_stats_print writes. */
+  char big[512];
+  for (int c = 0; c < RAWSCOPE_NCOUNTERS; c++) for (int i = 0; i < 3; i++) rawscope_count(c);
+  CHECK(rawscope_stats_json(big, sizeof big) > 0 && strlen(big) + RAWSCOPE_NCOUNTERS * 19 < sizeof big);
   CHECK(rawscope_stats_json(line, 10) == 0 && line[0] == 0);  /* too small: nothing */
   rawscope_counters_reset();
   CHECK(rawscope_counter(RAWSCOPE_SKIPPED) == 0);

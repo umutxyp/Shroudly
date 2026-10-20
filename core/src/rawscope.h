@@ -120,6 +120,10 @@ enum {
   RAWSCOPE_RST_PASSED,   /* injected-looking resets let through (from anywhere else) */
   RAWSCOPE_NODECOY,      /* first segments cut but sent without a decoy (no-decoy table) */
   RAWSCOPE_DECOY_HURT,   /* times a decoy was seen to break a handshake */
+  RAWSCOPE_UDP_SEEN,     /* UDP datagrams the packet loop was handed (the kernel
+                          * pre-filter keeps a call's own datagrams out) */
+  RAWSCOPE_UDP_DECOYS,   /* decoy datagrams sent ahead of voice / STUN requests */
+  RAWSCOPE_QUIC_DROPPED, /* QUIC Initials dropped so the browser takes TCP */
   RAWSCOPE_NCOUNTERS
 };
 void          rawscope_count(int which);
@@ -128,7 +132,7 @@ void          rawscope_counters_reset(void);
 
 /* The counters as one status line, without a newline:
  *   {"type":"raw_stats","desynced":N,"skipped":N,"rst_dropped":N,"rst_passed":N,
- *    "nodecoy":N,"decoy_hurt":N}
+ *    "nodecoy":N,"decoy_hurt":N,"udp_seen":N,"udp_decoys":N,"quic_dropped":N}
  * ("desynced" counts every first segment the engine cut or decoyed, the
  * no-decoy ones included.)
  * Returns its length, or 0 when it does not fit cap. */

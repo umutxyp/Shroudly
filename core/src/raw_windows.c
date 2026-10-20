@@ -11,6 +11,12 @@
  * injects to tear a blocked connection down, and to measure the hop distance to
  * the server from the SYN-ACK TTL for the decoy's TTL.
  *
+ * Of outbound UDP it takes only what it acts on, tested in the kernel (see
+ * udpdpi.h, "Kernel pre-filters"): a QUIC long header to port 443, and
+ * Discord's IP discovery request or a STUN Binding request on the voice ports.
+ * A call's own datagrams never come up to this loop, so nothing here can add
+ * delay or loss to a call.
+ *
  * Traffic to a local, private or special address is never changed, and a
  * reset is only dropped from a server this engine recently desynced
  * (rawscope.h). A server the decoy itself reaches and upsets (a TLS alert
@@ -97,6 +103,7 @@ static int g_fake_repeats = 6;    /* decoy datagrams per voice flow */
 static udp_flow_table g_flows;    /* first-N-per-flow bookkeeping */
 static raw_config g_cfg;
 static int g_alert_watch = 0;     /* 1: inbound plaintext TLS alerts are captured */
+static int g_udp_match = 0;       /* 1: the kernel tests UDP payloads (udpdpi.h) */
 static uint16_t g_ipid = 0x1000; /* rolling IP id for our crafted segments */
 
 static uint32_t rd32be(const uint8_t *p) {
@@ -132,24 +139,29 @@ static void raw_send(const uint8_t *seg, int len, const WINDIVERT_ADDRESS *base)
   p_Send(g_handle, seg, (UINT)len, &sent, &a);
 }
 
+static int decoy_ttl_for(uint32_t daddr);
+
 /* Inject g_fake_repeats decoy UDP datagrams to the SAME 5-tuple: random
- * payload of the same length, low TTL, valid checksums. WinDivert injects via
- * WFP and tags its own packets, so these are never re-captured (no loop). */
+ * payload of the same length, valid checksums, and a TTL that should run out
+ * before the server (the measured one when this address answered a TCP
+ * handshake lately, else the fixed one). WinDivert injects via WFP and tags
+ * its own packets, so these are never re-captured (no loop). */
 static void send_udp_decoys(uint32_t saddr, uint32_t daddr, uint16_t sportn,
                             uint16_t dportn, int plen, const WINDIVERT_ADDRESS *addr) {
   if (plen <= 0 || plen > 1400) return;
   uint8_t buf[1600];
   WINDIVERT_ADDRESS a = *addr;
   uint32_t tick = (uint32_t)GetTickCount();
+  int ttl = decoy_ttl_for(ntohl(daddr));
   for (int i = 0; i < g_fake_repeats; i++) {
     uint16_t ipid = (uint16_t)(tick + (uint32_t)i * 7u + 1u);
     uint32_t seed = saddr ^ (daddr << 1) ^ ((uint32_t)sportn << 3) ^
                     ((uint32_t)dportn << 5) ^ (uint32_t)i * 2654435761u ^ tick;
     int n = udp_build_decoy(buf, (int)sizeof(buf), saddr, daddr, sportn, dportn,
-                            plen, g_cfg.fake_ttl, ipid, seed);
+                            plen, ttl, ipid, seed);
     if (n <= 0) break;
     UINT s = 0;
-    p_Send(g_handle, buf, (UINT)n, &s, &a);
+    if (p_Send(g_handle, buf, (UINT)n, &s, &a)) rawscope_count(RAWSCOPE_UDP_DECOYS);
   }
 }
 
@@ -265,51 +277,54 @@ int raw_windows_start(const raw_config *cfg) {
   g_quic_block = g_cfg.quic_block ? 1 : 0;
   g_udp_fake = g_cfg.udp_fake ? 1 : 0;
   g_fake_repeats = (g_cfg.fake_repeats > 0 && g_cfg.fake_repeats <= 64) ? g_cfg.fake_repeats : 6;
+  g_udp_match = 0;
   udp_flow_init(&g_flows);
   tcpdpi_hops_reset();
   rawscope_touch_reset();
   rawscope_nodecoy_reset();
   if (load_windivert() != 0) return -1;
 
-  /* Keep the kernel filter as narrow as the language allows — port + proto —
-   * and classify payloads in code:
+  /* The kernel filter takes only what the loop below acts on:
    *   - outbound TCP 80/443 with payload (the decoy / desync path);
-   *   - outbound UDP 443 for QUIC Initial (dropped so browsers fall back to TCP);
-   *   - outbound UDP on Discord voice / STUN ports (decoys ahead of the first datagrams);
+   *   - outbound UDP 443 whose payload is a QUIC long header (an Initial is
+   *     dropped so browsers fall back to TCP);
+   *   - outbound UDP on the Discord voice / STUN ports whose payload is
+   *     Discord's IP discovery request or a STUN Binding request (decoys
+   *     ahead of the first datagrams of a call); the call itself stays out;
    *   - inbound TCP RST and SYN-ACK from 80/443 (the RST-drop, the hop measurement);
    *   - inbound TCP from 443 whose payload starts 15 03: a plaintext TLS alert,
    *     the sign that a decoy reached the server and broke the handshake.
-   * Each clause is added only for the features that are on. IPv6 outbound is
+   * Each clause is added only for the features that are on. Should a payload
+   * test ever be refused, the filter is opened without it: the TLS alert one
+   * first, then the UDP ones (the ports alone, as before). IPv6 outbound is
    * re-injected unchanged by the loop below (this backend builds IPv4 fakes). */
-  char filter[1024];
-  char ports[256]; ports[0] = 0;
-  if (g_quic_block) snprintf(ports, sizeof(ports), "udp.DstPort == 443");
-  if (g_udp_fake) {
-    const char *dports = "udp.DstPort == 3478 or (udp.DstPort >= 19302 and udp.DstPort <= 19309) or udp.DstPort >= 50000";
-    if (ports[0]) { char tmp[256]; snprintf(tmp, sizeof(tmp), "%s or %s", ports, dports); snprintf(ports, sizeof(ports), "%s", tmp); }
-    else snprintf(ports, sizeof(ports), "%s", dports);
-  }
-  int off = snprintf(filter, sizeof(filter),
-    "(outbound and ip and tcp and (tcp.DstPort == 443 or tcp.DstPort == 80) and tcp.PayloadLength > 0)");
-  if (ports[0])
-    off += snprintf(filter + off, sizeof(filter) - off, " or (outbound and ip and udp and (%s))", ports);
-  int base = off;
-  for (int watch = 1; watch >= 0; watch--) {
-    char sub[256]; sub[0] = 0; int so = 0;
-    if (g_cfg.drop_rst) so += snprintf(sub + so, sizeof(sub) - so, "tcp.Rst");
-    if (g_cfg.autottl)  so += snprintf(sub + so, sizeof(sub) - so, "%s(tcp.Syn and tcp.Ack)", so ? " or " : "");
-    if (watch)
-      so += snprintf(sub + so, sizeof(sub) - so,
-        "%s(tcp.SrcPort == 443 and tcp.PayloadLength >= 7 and tcp.Payload[0] == 21 and tcp.Payload[1] == 3)",
-        so ? " or " : "");
-    off = base; filter[off] = 0;
-    if (sub[0])
-      snprintf(filter + off, sizeof(filter) - off,
-        " or (inbound and tcp and (tcp.SrcPort == 443 or tcp.SrcPort == 80) and (%s))", sub);
-    g_handle = p_Open(filter, WINDIVERT_LAYER_NETWORK, 0, 0);
-    if (g_handle != INVALID_HANDLE_VALUE) { g_alert_watch = watch; break; }
-    /* Should the payload test ever be refused, open without it: the
-     * outbound signs of harm still work. */
+  char filter[2048];
+  for (int udp_how = UDP_PREFILTER_PAYLOAD; udp_how >= UDP_PREFILTER_PORTS && g_handle == INVALID_HANDLE_VALUE; udp_how--) {
+    char udp[1024];
+    if (udp_windivert_clause(udp, sizeof(udp), g_quic_block, g_udp_fake, udp_how) < 0) continue;
+    int base = snprintf(filter, sizeof(filter),
+      "(outbound and ip and tcp and (tcp.DstPort == 443 or tcp.DstPort == 80) and tcp.PayloadLength > 0)");
+    if (udp[0])
+      base += snprintf(filter + base, sizeof(filter) - base, " or (outbound and ip and udp and %s)", udp);
+    for (int watch = 1; watch >= 0; watch--) {
+      char sub[256]; sub[0] = 0; int so = 0;
+      if (g_cfg.drop_rst) so += snprintf(sub + so, sizeof(sub) - so, "tcp.Rst");
+      if (g_cfg.autottl)  so += snprintf(sub + so, sizeof(sub) - so, "%s(tcp.Syn and tcp.Ack)", so ? " or " : "");
+      if (watch)
+        so += snprintf(sub + so, sizeof(sub) - so,
+          "%s(tcp.SrcPort == 443 and tcp.PayloadLength >= 7 and tcp.Payload[0] == 21 and tcp.Payload[1] == 3)",
+          so ? " or " : "");
+      filter[base] = 0;
+      if (sub[0])
+        snprintf(filter + base, sizeof(filter) - base,
+          " or (inbound and tcp and (tcp.SrcPort == 443 or tcp.SrcPort == 80) and (%s))", sub);
+      g_handle = p_Open(filter, WINDIVERT_LAYER_NETWORK, 0, 0);
+      if (g_handle != INVALID_HANDLE_VALUE) {
+        g_alert_watch = watch;
+        g_udp_match = udp[0] && udp_how == UDP_PREFILTER_PAYLOAD;
+        break;
+      }
+    }
   }
   if (g_handle == INVALID_HANDLE_VALUE) {
     fprintf(stderr, "WinDivertOpen failed (%lu). Run as Administrator.\n", (unsigned long)GetLastError());
@@ -317,8 +332,8 @@ int raw_windows_start(const raw_config *cfg) {
   }
 
   g_run = 1;
-  printf("{\"type\":\"raw_ready\",\"backend\":\"windivert\",\"ttl\":%d,\"drop_rst\":%d,\"autottl\":%d,\"seqovl\":%d,\"split\":%d,\"mode\":%d,\"quic_block\":%d,\"udp_fake\":%d,\"alert_watch\":%d}\n",
-         g_cfg.fake_ttl, g_cfg.drop_rst, g_cfg.autottl, g_cfg.seqovl, g_cfg.split, g_cfg.desync_mode, g_quic_block, g_udp_fake, g_alert_watch);
+  printf("{\"type\":\"raw_ready\",\"backend\":\"windivert\",\"ttl\":%d,\"drop_rst\":%d,\"autottl\":%d,\"seqovl\":%d,\"split\":%d,\"mode\":%d,\"quic_block\":%d,\"udp_fake\":%d,\"alert_watch\":%d,\"udp_match\":%d}\n",
+         g_cfg.fake_ttl, g_cfg.drop_rst, g_cfg.autottl, g_cfg.seqovl, g_cfg.split, g_cfg.desync_mode, g_quic_block, g_udp_fake, g_alert_watch, g_udp_match);
   fflush(stdout);
 
   uint8_t pkt[65535];
@@ -376,6 +391,7 @@ int raw_windows_start(const raw_config *cfg) {
     int proto = pkt[9];
 
     if (proto == 17 /* UDP */) {
+      rawscope_count(RAWSCOPE_UDP_SEEN);
       if ((int)len < ihl + 8) { UINT s; p_Send(g_handle, pkt, len, &s, &addr); continue; }
       int poff = ihl + 8;
       int plen = (int)len - poff;
@@ -388,7 +404,7 @@ int raw_windows_start(const raw_config *cfg) {
        * to a local address, re-injects. */
       if (g_quic_block && dport_h == 443) {
         if (plen > 0 && quic_is_initial(up, plen)) {
-          if (!local) continue;                       /* DROP, no re-inject */
+          if (!local) { rawscope_count(RAWSCOPE_QUIC_DROPPED); continue; } /* DROP, no re-inject */
           rawscope_count(RAWSCOPE_SKIPPED);
         }
         UINT s = 0; p_Send(g_handle, pkt, len, &s, &addr);
