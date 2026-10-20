@@ -318,7 +318,11 @@ jobs:
   # The Android app, signed with the project's key (secrets ANDROID_*). The
   # signature is checked against the key's certificate before it is handed
   # on; without the secrets nothing is published for Android and the desktop
-  # release goes ahead.
+  # release goes ahead. Beside it, the same version as an app bundle for
+  # Google Play (STORE_BUILD: no GitHub update check), signed with the upload
+  # key (secrets ANDROID_UPLOAD_*; the app signing key when those are not
+  # set). The bundle is kept as a workflow artifact for 90 days, never put on
+  # the release (android/PLAY_STORE.md). Both pass the 16 KB page size check.
   android:
     runs-on: ubuntu-latest
     timeout-minutes: 45
@@ -349,34 +353,74 @@ jobs:
           node android/scripts/fetch-hev.js
           node android/scripts/gen-strings.js --check
           node android/scripts/gen-block-ips.js --check
-      - name: Signed release build
+      - name: Signed release build (APK) and Play bundle (AAB)
         id: apk
         env:
           KEYSTORE_B64: ${{ secrets.ANDROID_KEYSTORE_B64 }}
           ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
           ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
           ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+          UPLOAD_KEYSTORE_B64: ${{ secrets.ANDROID_UPLOAD_KEYSTORE_B64 }}
+          ANDROID_UPLOAD_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_UPLOAD_KEYSTORE_PASSWORD }}
+          ANDROID_UPLOAD_KEY_ALIAS: ${{ secrets.ANDROID_UPLOAD_KEY_ALIAS }}
+          ANDROID_UPLOAD_KEY_PASSWORD: ${{ secrets.ANDROID_UPLOAD_KEY_PASSWORD }}
         run: |
           set -euo pipefail
           if [ -z "$KEYSTORE_B64" ]; then echo "::warning::No Android signing key configured: no APK in this release"; exit 0; fi
           ks="$RUNNER_TEMP/release.jks"
+          uks="$RUNNER_TEMP/upload.jks"
+          trap 'rm -f "$ks" "$uks"' EXIT
           echo "$KEYSTORE_B64" | base64 -d > "$ks"
-          export ANDROID_KEYSTORE="$ks"
-          (cd android && ./gradlew --no-daemon testReleaseUnitTest assembleRelease)
-          rm -f "$ks"
           ver=$(node -p "require('./package.json').version")
+
+          # The APK on GitHub: the app signing key, GitHub update check.
+          (cd android && ANDROID_KEYSTORE="$ks" ./gradlew --no-daemon testDebugUnitTest assembleRelease)
           mkdir -p dist
           cp android/app/build/outputs/apk/release/app-release.apk "dist/Shroudly-$ver-Android.apk"
           bt="$ANDROID_HOME/build-tools/36.0.0"
           "$bt/apksigner" verify --print-certs "dist/Shroudly-$ver-Android.apk" | tee "$RUNNER_TEMP/certs.txt"
           grep -qi "Signer #1 certificate SHA-256 digest: $CERT_SHA256" "$RUNNER_TEMP/certs.txt"
+
+          # The bundle for Google Play: same version and version code, no
+          # GitHub update check, the upload key. Play re-signs what it
+          # delivers with the app signing key above.
+          if [ -n "$UPLOAD_KEYSTORE_B64" ]; then
+            echo "$UPLOAD_KEYSTORE_B64" | base64 -d > "$uks"
+          else
+            echo "::warning::No upload key (ANDROID_UPLOAD_*): the Play bundle is signed with the app signing key"
+            cp "$ks" "$uks"
+            ANDROID_UPLOAD_KEYSTORE_PASSWORD="$ANDROID_KEYSTORE_PASSWORD"
+            ANDROID_UPLOAD_KEY_ALIAS="$ANDROID_KEY_ALIAS"
+            ANDROID_UPLOAD_KEY_PASSWORD="$ANDROID_KEY_PASSWORD"
+          fi
+          (cd android && ANDROID_UPLOAD_KEYSTORE="$uks" ./gradlew --no-daemon -Pshroudly.store=play bundleRelease)
+          mkdir -p play
+          cp android/app/build/outputs/bundle/release/app-release.aab "play/Shroudly-$ver.aab"
+          # Signed, and by which key (jarsigner's many warnings about the
+          # bundle's layout are kept out of the log).
+          jarsigner -verify "play/Shroudly-$ver.aab" > "$RUNNER_TEMP/aab.txt" 2>&1 || true
+          grep -q "jar verified" "$RUNNER_TEMP/aab.txt" || { tail -5 "$RUNNER_TEMP/aab.txt"; exit 1; }
+          keytool -printcert -jarfile "play/Shroudly-$ver.aab" | grep -i "SHA256:" | sed 's/^/Bundle signed by upload key /'
           echo "built=1" >> "$GITHUB_OUTPUT"
+      - name: 16 KB page size (APK, and the APKs Play makes from the bundle)
+        if: steps.apk.outputs.built == '1'
+        env:
+          ANDROID_NDK_HOME: ${{ env.ANDROID_HOME }}/ndk/${{ env.NDK_VERSION }}
+        run: bash android/scripts/check-16k.sh dist/*-Android.apk play/*.aab
       - uses: actions/upload-artifact@v7
         if: steps.apk.outputs.built == '1'
         with:
           name: dist-android
           path: dist/*-Android.apk
           retention-days: 1
+          if-no-files-found: error
+      # For a Google Play upload by hand: not a dist-* set, so never on the release.
+      - uses: actions/upload-artifact@v7
+        if: steps.apk.outputs.built == '1'
+        with:
+          name: play-bundle
+          path: play/*.aab
+          retention-days: 90
           if-no-files-found: error
 
   release:

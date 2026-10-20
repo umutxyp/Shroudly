@@ -150,6 +150,9 @@ phone's own connections.
   no separate Discord or Games and apps mode needed.
 - A Quick Settings tile turns it on and off; Android's "Always-on VPN" brings
   it back after a restart.
+- The APK from Releases looks for updates on GitHub; a copy that Google Play
+  installs or updates (same package and signing key, so either one updates
+  the other) is updated by Play and does not ask GitHub.
 - Advanced mode is not available (Android would need root for it).
 - Android allows one VPN at a time, so another VPN app and Shroudly cannot be
   on together.
@@ -769,6 +772,11 @@ macOS builds are not covered: Apple requires its own Developer ID for those.
 
 ## Privacy
 
+This is Shroudly's privacy policy, for the desktop app and the Android app
+(the Android app links it under About). Shroudly is made by Codeshare
+Technology Ltd; questions about privacy go to
+[contact@codeshare.me](mailto:contact@codeshare.me).
+
 Shroudly does not collect personal data. These are the only things that contact servers:
 
 - **Live user count** (`shroudly.codeshare.me`): only while protection is on,
@@ -783,7 +791,9 @@ Shroudly does not collect personal data. These are the only things that contact 
   [`server/stats`](server/stats/server.js).
 - **Update checks** (GitHub): the app downloads the release feed from
   `github.com/umutxyp/Shroudly` (the Android app asks GitHub's API for the
-  latest release; it never downloads or installs anything by itself).
+  latest release; it never downloads or installs anything by itself). The
+  Android app installed or updated by Google Play makes no update check at
+  all: Play updates it.
 - **The site itself**, when you test a site in Settings, when the front page
   of a site you use keeps being cut off, and Roblox's once Roblox connects
   through Games and apps mode: one request for its front page, through the
@@ -813,6 +823,19 @@ programs using it were going to send anyway.
 Which technique opened which blocked site is remembered on this computer
 only (in Shroudly's settings file, for 30 days at most), so the next start
 does not have to search again. Nothing of it is sent anywhere.
+
+**On Android** the app is a local VPN (Android's VpnService): the tunnel ends
+in the app's own engine on the phone, and no traffic goes through a server of
+ours; apps' connections leave the phone as they would without Shroudly, only
+reshaped (their contents are not read or changed), and stay encrypted by the
+apps themselves. The Android app has no live count and downloads no site
+list. It contacts only: the encrypted DNS resolvers above, while protection
+is on; GitHub for update checks, only in the APK from GitHub (not when Google
+Play installed or updates it); and, to find what opens a blocked site, that
+same site (a few TLS handshakes, nothing about you). What worked for which
+site is kept in the app's private storage on the phone for 30 days at most,
+is never backed up or copied to another device, and is deleted with the app.
+There are no accounts, no analytics, no ads and no crash reports.
 
 The privacy policies of the services involved:
 [GitHub](https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement)

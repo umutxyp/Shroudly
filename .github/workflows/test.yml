@@ -211,7 +211,8 @@ jobs:
 
   # The Android app: the engine built for every Android ABI, hev-socks5-tunnel
   # from its pinned, verified source, unit tests, lint, the debug and release
-  # builds, and the app on a real Android system (an x86_64 emulator with KVM):
+  # builds, the Google Play bundle, Play's 16 KB page size check on all of
+  # them, and the app on a real Android system (an x86_64 emulator with KVM):
   # protection on, names, HTTP and UDP through the VPN and the engine, then off
   # (android/scripts/emulator-smoke.sh).
   android:
@@ -251,5 +252,15 @@ jobs:
       - name: Unit tests, lint, debug and release builds
         working-directory: android
         run: ./gradlew --no-daemon testDebugUnitTest lintDebug assembleDebug assembleRelease
+      - name: The Google Play bundle (STORE_BUILD)
+        working-directory: android
+        run: ./gradlew --no-daemon -Pshroudly.store=play bundleRelease
+      - name: 16 KB page size (APKs, and the APKs Play makes from the bundle)
+        env:
+          ANDROID_NDK_HOME: ${{ env.ANDROID_HOME }}/ndk/${{ env.NDK_VERSION }}
+        run: |
+          bash android/scripts/check-16k.sh android/app/build/outputs/apk/debug/app-debug.apk \
+            android/app/build/outputs/apk/release/app-release-unsigned.apk \
+            android/app/build/outputs/bundle/release/app-release.aab
       - name: The app on an Android emulator (x86_64, API 35)
         run: bash android/scripts/emulator-smoke.sh --abi x86_64 --api 35

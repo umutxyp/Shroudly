@@ -47,16 +47,48 @@ or its hash is recorded.
 ## Tests
 
     cd android && ./gradlew testDebugUnitTest lintDebug assembleDebug assembleRelease
+    cd android && ./gradlew -Pshroudly.store=play bundleRelease
+    android/scripts/check-16k.sh android/app/build/outputs/apk/release/*.apk \
+        android/app/build/outputs/bundle/release/app-release.aab
     android/scripts/emulator-smoke.sh [--abi arm64-v8a|x86_64] [--api 35]
 
-The unit tests run on the JVM. The smoke test installs the debug APK on an
-emulator, switches protection on, checks that names resolve to mapped
+The unit tests run on the JVM. `check-16k.sh` is Google Play's 16 KB page
+size check: `zipalign -c -P 16 -v 4` passes and every LOAD segment of every
+64-bit `lib*.so` (the engine and hev) is aligned to 0x4000, in the APK and in
+every APK bundletool makes from the bundle (it downloads bundletool at a
+pinned version and SHA-256 unless `BUNDLETOOL` names the jar); it also checks
+that those keep `extractNativeLibs="true"`. The smoke test installs the debug
+APK on an emulator, checks that without the VPN consent nothing starts and
+nothing crashes, switches protection on, checks that names resolve to mapped
 addresses (198.19.0.0/16), that TCP and UDP go through the engine, that the
 engine's port refuses a client without the session's password (skipped, and
 said so, with an engine built before `--auth-file`), and that everything works
-directly again after Stop. It needs the emulator, platform-tools,
-cmdline-tools and `system-images;android-35;google_apis;<abi>`; its log is
-saved to `android/smoke-out/`.
+directly again after Stop. Then it opens the window: installed from a file it
+looks for updates on GitHub; installed as Google Play would
+(`pm install -i com.android.vending`) it does not; both link the privacy
+policy. It needs the emulator, platform-tools, cmdline-tools and
+`system-images;android-35;google_apis;<abi>`; its log is saved to
+`android/smoke-out/`.
+
+## Two channels: the APK and Google Play
+
+One source tree, one package (`me.codeshare.shroudly`), one `versionCode`:
+
+- **The APK** on GitHub Releases (`assembleRelease`): signed with the app
+  signing key, looks for updates on GitHub (`UpdateCheck`).
+- **The bundle** for Google Play (`-Pshroudly.store=play bundleRelease`):
+  `BuildConfig.STORE_BUILD` is true, so it never asks GitHub, and it is signed
+  with the upload key. Play re-signs what it delivers with the same app
+  signing key as the APK, so a Play update installs over a GitHub APK and the
+  other way round.
+
+At run time `InstallSource` also asks Android who installed the app, every
+time the window opens: a copy installed or updated by Google Play
+(`com.android.vending`) makes no update check and links the source code
+instead of the releases, even when it began as the GitHub APK. The release
+workflow keeps the signed bundle as a workflow artifact (`play-bundle`, 90
+days), never on the release. The steps in Play Console:
+[PLAY_STORE.md](PLAY_STORE.md) (in Turkish).
 
 ## Release signing
 
@@ -70,10 +102,19 @@ A release build is signed only when these are set; without them
 | `ANDROID_KEY_ALIAS` | the key's alias |
 | `ANDROID_KEY_PASSWORD` | the key's password |
 
+The Play bundle (`-Pshroudly.store=play`) is signed with the upload key
+instead: `ANDROID_UPLOAD_KEYSTORE`, `ANDROID_UPLOAD_KEYSTORE_PASSWORD`,
+`ANDROID_UPLOAD_KEY_ALIAS` and `ANDROID_UPLOAD_KEY_PASSWORD`.
+
 In CI they come from the secrets `ANDROID_KEYSTORE_B64` (the keystore,
 base64), `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS` and
-`ANDROID_KEY_PASSWORD`. The release workflow checks the signed APK against
-the release certificate before publishing it. Its SHA-256 is
+`ANDROID_KEY_PASSWORD`, and for the bundle `ANDROID_UPLOAD_KEYSTORE_B64`,
+`ANDROID_UPLOAD_KEYSTORE_PASSWORD`, `ANDROID_UPLOAD_KEY_ALIAS` and
+`ANDROID_UPLOAD_KEY_PASSWORD` (without them the bundle is signed with the app
+signing key, and the workflow says so). The app signing key never changes:
+Play and every installed copy know the app by it. The release workflow
+checks the signed APK against the release certificate before publishing it.
+Its SHA-256 is
 
     23ac014b7226343b74c7c9c0a4fd6f1ded97518a3bfd35bcde65b6c1eca8bd76
 
@@ -120,3 +161,10 @@ and compare "Signer #1 certificate SHA-256 digest" with the value above.
   (`allowBackup="false"` and `res/xml/data_extraction_rules.xml`): its
   settings include which blocked sites were opened.
 - **Logs.** Release builds write no site names to the system log.
+- **Foreground service.** The VPN service runs in the foreground as
+  `systemExempted`, the type Android 14+ gives a VPN the user has allowed;
+  there is no `specialUse` fallback (Google Play reviews that type by hand).
+  So the service is started only once `VpnService.prepare()` has nothing to
+  ask (`ShroudlyVpnService.start` returns false otherwise, and the window
+  says the VPN permission is missing); if Android still refuses, the start
+  ends with the same message instead of a crash.

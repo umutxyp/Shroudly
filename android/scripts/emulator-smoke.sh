@@ -1,11 +1,14 @@
 #!/usr/bin/env bash
 #
-# End-to-end check of the debug APK on an emulator: protection goes on, apps'
+# End-to-end check of the debug APK on an emulator: without the VPN consent
+# nothing starts (and nothing crashes); with it protection goes on, apps'
 # names resolve through the VPN's mapped DNS, TCP and UDP go through the
 # engine, the app counts the connections, and after Stop everything works
 # directly again. With an engine that takes --auth-file, its SOCKS5 port must
 # also refuse a client without the session's password; with an older engine
-# that check is skipped and said so.
+# that check is skipped and said so. Last, the window: installed from a file
+# it looks for updates on GitHub; installed as Google Play would
+# (pm install -i com.android.vending) it does not; it links the privacy policy.
 #
 #   android/scripts/emulator-smoke.sh [--abi arm64-v8a|x86_64] [--api 35] [--tag google_apis]
 #                                     [--apk path] [--keep]
@@ -135,6 +138,20 @@ adb_ install -r -g "$APK" >/dev/null || fail "install failed"
 # reports it allowed (what VpnService.prepare() reads), and show it.
 installed() { sh_ "pm path $PKG" | grep -q package:; }
 wait_for 60 installed || fail "package not installed"
+
+# Without the VPN consent the service is not started at all: it could not
+# run in the foreground (systemExempted needs that consent on Android 14+).
+vpn_refused() { sh_ "appops set $PKG ACTIVATE_VPN ignore" >/dev/null 2>&1; ! sh_ "appops get $PKG ACTIVATE_VPN" | grep -qi "allow"; }
+wait_for 60 vpn_refused || fail "could not take back the VPN consent: $(sh_ "appops get $PKG ACTIVATE_VPN" 2>&1)"
+adb_ logcat -c
+ctl start
+wait_for 20 has_log "Not started: the VPN is not allowed yet" || fail "started without the VPN consent"
+sleep 3
+crash="$(adb_ logcat -d -b crash 2>/dev/null | tr -d '\r' | grep -A3 "Process: $PKG" || true)"
+[ -z "$crash" ] || fail "the app crashed without the VPN consent: $crash"
+has_log "Protection on" && fail "protection came on without the VPN consent"
+say "without the VPN consent: not started, no crash"
+
 vpn_allowed() { sh_ "appops set $PKG ACTIVATE_VPN allow" >/dev/null 2>&1; sh_ "appops get $PKG ACTIVATE_VPN" | grep -qi "allow"; }
 wait_for 60 vpn_allowed || fail "could not allow the VPN for the app: $(sh_ "appops get $PKG ACTIVATE_VPN" 2>&1)"
 say "VPN consent: $(sh_ "appops get $PKG ACTIVATE_VPN" | tr -d '\r' | head -1)"
@@ -193,5 +210,29 @@ wait_for 30 direct_dns || fail "names still resolve to mapped addresses after St
 say "example.com -> $(resolved) after Stop"
 wait_for 30 net_up || fail "no direct network after Stop"
 say "direct HTTP after: $(http_get)"
+
+# ── the window: update source and privacy policy ─────────────────────────
+# Debug builds log which updates the window offers each time it starts.
+window() {
+  adb_ logcat -c
+  sh_ "am force-stop $PKG" >/dev/null
+  sh_ "am start -W -n $PKG/.MainActivity" >/dev/null
+  # The links are at the bottom: scroll there (small screens).
+  for _ in 1 2 3; do sh_ "input swipe 160 550 160 80 300" >/dev/null; done
+}
+ui_has() { sh_ "uiautomator dump /sdcard/ui.xml" >/dev/null; grep -q -- "$1" <<<"$(sh_ "cat /sdcard/ui.xml")"; }
+window
+wait_for 20 has_log "Updates: GitHub" || fail "installed from a file, the window does not look for updates on GitHub"
+wait_for 20 ui_has 'text="Release notes"' || fail "no GitHub releases link"
+wait_for 20 ui_has 'text="Privacy policy"' || fail "no privacy policy link"
+say "installed from a file: updates from GitHub, links Release notes and Privacy policy"
+adb_ install -r -i com.android.vending "$APK" >/dev/null || fail "install as Google Play failed"
+say "installer now: $(sh_ "dumpsys package $PKG" | grep -m1 'installerPackageName=' | sed 's/^ *//')"
+window
+wait_for 20 has_log "Updates: Google Play" || fail "installed by Google Play, the window still looks for updates on GitHub"
+wait_for 20 ui_has 'text="Source code on GitHub"' || fail "installed by Google Play, the window still links the GitHub releases"
+ui_has 'text="Release notes"' && fail "installed by Google Play, the window still links the GitHub releases"
+say "installed by Google Play: no GitHub update check, links the source code instead"
+sh_ "am force-stop $PKG" >/dev/null
 
 say "PASSED ($ABI, API $API)"
