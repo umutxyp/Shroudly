@@ -8,12 +8,13 @@
   [![Release](https://img.shields.io/github/v/release/umutxyp/Shroudly)](https://github.com/umutxyp/Shroudly/releases/latest)
   [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
   [![Electron](https://img.shields.io/badge/Electron-43-47848F?logo=electron)](https://www.electronjs.org/)
-  [![Next.js](https://img.shields.io/badge/Next.js-14-000000?logo=next.js)](https://nextjs.org/)
+  [![Next.js](https://img.shields.io/badge/Next.js-16-000000?logo=next.js)](https://nextjs.org/)
   [![Windows](https://img.shields.io/badge/Windows-0078D6?logo=windows)](#)
   [![macOS](https://img.shields.io/badge/macOS-000000?logo=apple)](#)
   [![Linux](https://img.shields.io/badge/Linux-FCC624?logo=linux&logoColor=black)](#)
+  [![Android](https://img.shields.io/badge/Android-3DDC84?logo=android&logoColor=white)](#android)
 
-  > Break through internet censorship on **Windows, macOS and Linux**. No VPN, no drivers by default, no third-party tools, and nothing that permanently changes your network settings.
+  > Break through internet censorship on **Windows, macOS, Linux and Android**. No VPN, no drivers by default, no third-party tools, and nothing that permanently changes your network settings.
 
   **A [Codeshare](https://codeshare.me) product**
 
@@ -56,6 +57,10 @@ programs that ignore it, so does [Games and apps mode](#games-and-apps-mode-robl
 Nobody has to know any of this. The [autopilot](#autopilot) notices what is in
 the way and turns on what is needed by itself, then says what it did in one
 line.
+
+On **Android** the same engine runs inside the app, which works as a local
+VPN: every app on the phone goes through Shroudly, games and voice calls
+included, with nothing to turn on ([details](#android)).
 
 While Shroudly is active it points the system (or your browser) at its local
 proxy, and it always restores the previous setting on stop, crash, or logout —
@@ -524,7 +529,8 @@ directly. That list maintains itself:
 
 - **One button** — start and stop protection; it can start with your computer, from the tray.
 - **Light in the background** — the window is closed for real, not hidden, when it goes to the tray or sits unused for three minutes; protection keeps running without it, with nothing in the taskbar or the Dock, only the tray / menu bar icon (or not even that: Settings can hide it, and starting Shroudly again opens the window). Protecting in the background, Shroudly 2.5.3 uses about 30–75 MB depending on the OS, about half of what 2.5.2 did ([measured](tests/e2e/app.test.js) by every [Tests](.github/workflows/test.yml) run).
-- **Cross-platform** — native builds for Windows, macOS and Linux, x64 and ARM.
+- **Cross-platform** — native builds for Windows, macOS and Linux, x64 and ARM, and an Android app.
+- **Android** — one small APK for every phone: a local VPN that sends every app through the same engine, UDP (games, voice) and apps' own DNS included, with a Quick Settings tile and Always-on VPN ([details](#android)).
 - **No admin rights, no driver** in the default mode — it runs as a normal program.
 - **Learns what works** — tests each blocked site and remembers the technique that opens it; switches technique by itself if a network starts cutting a site.
 - **Encrypted DNS** — on by default, over routes that are hard to block, refusing known forged answers.
@@ -537,7 +543,7 @@ directly. That list maintains itself:
 - **Routing** — everything through Shroudly (the default), or only the sites on a list, with the rest — banking, government — connecting directly. The list keeps itself current ([how](#the-automatic-site-list)); you can also write your own.
 - **Port conflicts handled** — if another program holds its port, Shroudly moves to a free one and remembers it.
 - **Honest live stats** — connections, bytes and techniques applied are real counters from the engine.
-- **Automatic updates** — for every package: Windows, macOS, AppImage, `.deb`, `.rpm` and `.pacman`.
+- **Automatic updates** — for every package: Windows, macOS, AppImage, `.deb`, `.rpm` and `.pacman`; the Android app tells you when a newer version is out.
 - **31 languages**, detected automatically, including those of the countries that filter the internet hardest (Azerbaijani, Persian, Russian, Turkmen, Burmese, Vietnamese and more).
 
 ## What it runs on
@@ -556,7 +562,7 @@ Advanced mode needs administrator rights, and is available on Windows and Linux 
 
 English, 中文, हिन्दी, Español, العربية, Русский, Português, Français, فارسی, Türkçe, বাংলা, اردو, Bahasa Indonesia, 日本語, Deutsch, Azərbaycanca, עברית, Tiếng Việt, Українська, Беларуская, Oʻzbekcha, Қазақша, Кыргызча, Türkmençe, Тоҷикӣ, پښتو, Kurdî (Kurmancî), မြန်မာ, ไทย, አማርኛ, Bahasa Melayu
 
-The app opens in your system's language when it is one of these, and you can change it in Settings. Arabic, Persian, Urdu, Hebrew and Pashto are shown right to left.
+The app opens in your system's language when it is one of these, and you can change it in Settings. Arabic, Persian, Urdu, Hebrew and Pashto are shown right to left. The Android app follows the phone's language, and from Android 13 on its own language can be chosen in the phone's settings.
 
 ---
 
@@ -643,6 +649,15 @@ packages also need `npm run fetch:windivert`, which downloads the official
 WinDivert release, verifies it and puts the driver next to
 `shroudly-core-adv.exe`.
 
+The Android app needs a JDK (17+) and the Android SDK with the NDK; the steps
+are in [android/README.md](android/README.md):
+
+```bash
+node scripts/build-core-android.js     # the engine for every Android ABI
+node android/scripts/fetch-hev.js      # hev-socks5-tunnel at its pinned, verified release
+cd android && ./gradlew assembleRelease
+```
+
 ### Project layout
 
 ```
@@ -655,7 +670,9 @@ Shroudly/
       desync.[ch]             applies a strategy to the first payload
       doh.[ch]                DNS resolver (local DoH forwarder + UDP fallback)
       probe.[ch]              per-host auto-probe
-      engine.[ch]             SOCKS5/4/4a listener + relay
+      engine.[ch]             SOCKS5/4/4a listener + relay (CONNECT and UDP ASSOCIATE)
+      socksudp.[ch]           SOCKS5 UDP header parsing (Android: games, voice, DNS)
+      rawscope.[ch]           Advanced mode: what it may touch (never the local network)
       raw_linux.[ch]          Advanced mode: NFQUEUE backend
       raw_windows.[ch]        Advanced mode: WinDivert backend
       udpdpi.[ch]             Advanced mode: QUIC/Discord-voice UDP classifiers + decoys
@@ -685,15 +702,19 @@ Shroudly/
     main-i18n.js              tray + notification strings, read from locales/
     tools/core/<os>-<arch>/   built engine binaries (per platform)
   app/ components/ contexts/  Next.js + React UI
+  android/                    the Android app: VpnService + hev-socks5-tunnel + the engine (see android/README.md)
   locales/<code>.json         every string, one file per language (31)
   scripts/build-core.js       native + cross compile
   scripts/build-core-advanced.js   Advanced-mode engine build
+  scripts/build-core-android.js    the engine for Android (NDK)
   scripts/fetch-windivert.js       fetch + verify the WinDivert driver
   scripts/after-pack.js            stamp icon + version info into Shroudly.exe
   scripts/installer.nsh            Windows installer hooks (proxy reset, Discord and HTTPS_PROXY clean-up)
   scripts/site-list/               weekly site-list build: families, policy, OONI
   tests/net/                  network tests (fake censor, hostile servers, DNS, Discord, games and apps, site list, watchdog)
   tests/e2e/                  the real app driven end to end: window life cycle, memory per state
+  tests/lab/                  Advanced mode on real packets: a filtering router (Linux), WinDivert (Windows)
+  server/stats/               shroudly.codeshare.me: the live count and the /dl download links
   release-notes/              notes published with each release
 ```
 
@@ -713,7 +734,9 @@ Commands on stdin: `STATS`, `PROBE <host>`, `STOP`.
 Strategy syntax: `tlsrec(sni+1)`, `split(sni)`, `disorder(sni)`, `oob(sni+1)`,
 `split(sni_mid)`, `split(1),tlsrec(sni+1)`, and so on.
 Other options: `--doh-port <port>` (use a local DoH forwarder), `--block-ip <addr>`
-(refuse DNS answers pointing at a block page; repeatable), `--ipv6`.
+(refuse DNS answers pointing at a block page; repeatable), `--ipv6`,
+`--auth-file <path>` (require a SOCKS5 username/password, read from a file),
+`--fake-net <cidr>` (refuse addresses in a range at once).
 
 Events on stdout, one JSON object per line: `ready`, `stats`, `bypass` (a site
 needed a technique), `blocked` (nothing worked), `cut` (a site connected and was
@@ -732,11 +755,16 @@ npm run test:net         # network tests: the engine against a fake censor and
                          # on Windows CI), the block-page list, the Windows
                          # uninstaller hook
 cd core && make test-asan fuzz   # sanitizers and fuzzing
+cd android && ./gradlew testDebugUnitTest lintDebug   # the Android app
+android/scripts/emulator-smoke.sh   # the app on an Android emulator: VPN, DNS, TCP, UDP
 ```
 
 The [Tests workflow](.github/workflows/test.yml) runs all of it on every push,
 on Windows, Linux and macOS, x64 and ARM, and the engine tests a second time on
-an AddressSanitizer/UBSan build.
+an AddressSanitizer/UBSan build. Advanced mode runs on real packets there too
+(a filtering router in Linux network namespaces, and the WinDivert driver on
+Windows), and the Android app is built, checked for 16 KB pages and run on an
+Android emulator.
 
 ---
 
@@ -872,6 +900,7 @@ MIT — see [LICENSE](LICENSE).
 - [Electron](https://www.electronjs.org/), [Next.js](https://nextjs.org/), [Tailwind CSS](https://tailwindcss.com/)
 - Desync techniques inspired by the research behind `goodbyeDPI` and `zapret` — reimplemented independently in `shroudly-core`.
 - Censorship fingerprints from [OONI](https://ooni.org/)'s open [blocking-fingerprints](https://github.com/ooni/blocking-fingerprints) data.
+- [hev-socks5-tunnel](https://github.com/heiher/hev-socks5-tunnel) (MIT) carries the Android app's VPN traffic to the engine; [WinDivert](https://reqrypt.org/windivert.html) (LGPL) is Advanced mode's packet driver on Windows.
 
 ---
 
