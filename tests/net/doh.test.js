@@ -3,7 +3,11 @@
 /* Encrypted DNS: answers on an open network, survives a network that blocks
  * every direct route (through the engine), says when it is blocked outright
  * and recovers by itself, remembers the route that worked — and never accepts
- * an answer from anyone but the real resolver. */
+ * an answer from anyone but the real resolver. A blip is not a block: one
+ * lost connection rests a route once, not once per lookup that was waiting
+ * on it; routes resting after an outage are still asked; a new start begins
+ * with a clean record; and "down" takes lookups failing for 10 s, not three
+ * that failed together. (engine-doh.test.js: the same through the engine.) */
 
 const dgram = require('dgram');
 const http2 = require('http2');
@@ -48,7 +52,83 @@ async function waves(answers, timeoutMs = 2500) {
   return { ok, ms, asked, counts, plan };
 }
 
+/* A forwarder whose routes answer as `answers(r)` says: a number is ms until
+ * it answers, anything else ms until it fails. Bookkeeping and waves are the
+ * real ones. */
+function staged(answers, opts = {}) {
+  const f = new F(() => {}, opts);
+  f.setSocksPort(1);
+  f.query = (r) => {
+    const v = answers(r);
+    return new Promise((res, rej) => setTimeout(() => (v.ok ? res(Buffer.alloc(12)) : rej(new Error('timeout'))), v.ms));
+  };
+  return f;
+}
+const sleep = (ms) => new Promise((res) => setTimeout(res, ms));
+const restS = (r) => Math.max(0, Math.round((r.restUntil - Date.now()) / 1000));
+
 (async () => {
+  // One connection lost with ten lookups in flight on it (a blip of 300 ms
+  // during a busy page): one failure for each route it touched, rested 2 s.
+  // It used to count ten, and rest the best routes for five minutes.
+  {
+    let silent = true;
+    const f = staged(() => (silent ? { ok: false, ms: 2500 } : { ok: true, ms: 20 }));
+    const all = Array.from({ length: 10 }, (_, i) => f.resolve(F.buildQuery(`a${i}.example`, 1)).then(() => true, () => false));
+    await sleep(300); silent = false;
+    const ok = await Promise.all(all);
+    await sleep(2400);   // the requests on the lost connection time out now
+    const hit = f.routes.filter((r) => r.fails > 0);
+    t.ok(ok.every(Boolean) && hit.length > 0 && hit.every((r) => r.fails === 1 && restS(r) <= 2),
+      `a lost connection under 10 lookups: every lookup answered, ${hit.map((r) => r.id).join(', ')} counted once, rested ${Math.max(...hit.map(restS))} s`);
+    f.stop();
+  }
+
+  // After an outage every route rests, and the ones that wake first are
+  // routes this network blocks. A lookup still reaches the good ones (asked
+  // after the awake ones); it used to ask only the three that woke first,
+  // and fail for as long as the others rested.
+  {
+    const good = new Set(['cloudflare-2', 'cloudflare-3']);
+    const f = staged((r) => (good.has(r.id) ? { ok: true, ms: 30 } : { ok: false, ms: 30 }));
+    const now = Date.now();
+    f.routes.forEach((r, i) => { r.fails = 9; r.failAt = now; r.restUntil = now + (good.has(r.id) ? 280000 : 60000 + i * 1000); });
+    const t0 = Date.now();
+    const ok = await f.resolve(F.buildQuery('after-outage.example', 1)).then(() => true, () => false);
+    t.ok(ok && good.has(f.preferredId), `every route resting, blocked ones waking first: answered by ${f.preferredId} in ${Date.now() - t0} ms`);
+    f.stop();
+  }
+
+  // A route that answered lately rests at most 20 s, however often it fails;
+  // one that never answered here backs off to minutes.
+  {
+    const f = staged(() => ({ ok: false, ms: 5 }));
+    const [proven, never] = f.routes;
+    proven.okAt = Date.now() - 1000;
+    for (let i = 0; i < 12; i++) { f.failed(proven, Date.now()); f.failed(never, Date.now()); await sleep(2); }
+    t.ok(restS(proven) <= 20 && restS(never) >= 200, `after 12 failures: a route that answered a moment ago rests ${restS(proven)} s, one that never did ${restS(never)} s`);
+    f.stop();
+  }
+
+  // A new start (Stop and Start, an engine restart) begins with a clean record,
+  // and so does another network.
+  {
+    const f = staged(() => ({ ok: true, ms: 10 }));
+    await f.start();
+    f.routes.forEach((r) => { r.fails = 9; r.restUntil = Date.now() + 300000; });
+    f.stop();
+    await f.start();
+    t.ok(f.routes.every((r) => r.fails === 0 && r.restUntil === 0), 'stop() and start(): no route still resting from the last session');
+    // Another network: the old connections go (dead without knowing it), and
+    // so do the rests earned on the old network.
+    let destroyed = 0;
+    f.routes.forEach((r) => { r.fails = 5; r.restUntil = Date.now() + 300000; r.session = { closed: false, destroyed: false, destroy: () => { destroyed++; } }; });
+    f.networkChanged();
+    t.ok(destroyed === f.routes.length && f.routes.every((r) => !r.session && r.fails === 0 && r.restUntil === 0),
+      'networkChanged(): every old connection dropped, no route resting');
+    f.stop();
+  }
+
   // Waves, with no network at all. A healthy route: answered alone.
   let w = await waves({ 'cloudflare-1': 30 });
   t.ok(w.ok && w.asked.length === 1 && w.ms < 250, `a route that answers at once is the only one asked (${w.ms} ms)`);
@@ -92,17 +172,30 @@ async function waves(answers, timeoutMs = 2500) {
   t.ok(r.ok && r.ms < 1500, `next lookup goes straight to the working route (${r.ms} ms)`);
   f.stop();
 
-  // Everything blocked -> "down", then the network recovers -> "ok".
+  // A blip that fails several lookups at once is not "down".
+  {
+    const blip = [];
+    const fb = new F(() => {}, { onState: (s) => blip.push(s) });
+    fb.routes.forEach((x) => { x.ip = '127.0.0.2'; });
+    const pb = await fb.start();
+    await Promise.all([0, 1, 2, 3, 4].map((i) => ask(pb, `blip${i}.example`)));
+    t.ok(!blip.length, 'five lookups failing together (one blip): not "down"');
+    fb.stop();
+  }
+
+  // Everything blocked for more than 10 s -> "down", then the network
+  // recovers -> "ok".
   const states = [];
   f = new F(() => {}, { onState: (s) => states.push(s) });
   const real = f.routes.map((x) => x.ip);
   f.routes.forEach((x) => { x.ip = '127.0.0.2'; });
   port = await f.start();
+  const tDown = Date.now();
   for (let i = 0; i < 3; i++) await ask(port, `t${i}.example.com`);
   // The third failure can land a moment after the client gave up on its
   // answer (a slow machine): wait for it rather than race it.
   for (let i = 0; i < 50 && !states.length; i++) await new Promise((res) => setTimeout(res, 100));
-  t.ok(states.join() === 'down', 'three failed lookups in a row -> state "down"');
+  t.ok(states.join() === 'down' && Date.now() - tDown >= 10000, `lookups failing for over 10 s -> state "down" (after ${((Date.now() - tDown) / 1000).toFixed(1)} s)`);
   f.routes.forEach((x, i) => { x.ip = real[i]; x.restUntil = 0; });
   r = await ask(port, 'example.org');
   t.ok(r.ok && states.join() === 'down,ok', 'network recovers -> state "ok" again, by itself');

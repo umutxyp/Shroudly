@@ -28,6 +28,15 @@
  * one answers: never every route at once, which on a congested link (many
  * computers behind one small router) only makes the congestion worse.
  *
+ * A rest is for a route that does not work here, not for a moment when
+ * nothing does. So one outage counts once against a route however many
+ * lookups were waiting on it, a route that answered lately rests only
+ * briefly, resting routes are still asked after the awake ones (not instead
+ * of an answer), and a new start begins with a clean record. Without that a
+ * blip of a second during a busy page rested the best routes for minutes,
+ * and the routes left awake were the ones this network blocks: lookups
+ * failed long after the network was back.
+ *
  * Speed matters as much as privacy: a lookup that takes too long is
  * indistinguishable from a broken one, and the engine would fall back to plain
  * DNS, which is exactly what censors forge. Answers are cached for their TTL.
@@ -70,6 +79,9 @@ const WAVE_SIZE        = 3;
 const NEXT_WAVE_MS     = 650;   // between those later waves
 const REST_BASE_MS     = 2000;  // a failing route rests 2 s, 4 s, 8 s ... 5 min
 const REST_MAX_MS      = 300000;
+const PROVEN_MS        = 600000; // a route that answered within this long ...
+const REST_PROVEN_MS   = 20000;  // ... rests at most this long: its failure is more likely the network's
+const DOWN_AFTER_MS    = 10000;  // lookups failing for this long, with no answer between: blocked
 const WARM_INTERVAL_MS = 120000;
 const SESSION_IDLE_MS  = 300000;
 const CACHE_MAX        = 1500;
@@ -183,7 +195,9 @@ function answerTtlSeconds(msg) {
 class DohForwarder {
   /* opts.preferredId: the route that worked last time (remembered by the
    *   caller across restarts); opts.onPreferred(id) is told when it changes.
-   * opts.onState('ok' | 'down'): encrypted DNS works / is blocked outright. */
+   * opts.onState('ok' | 'down'): encrypted DNS works / is blocked outright:
+   *   'down' once lookups have failed for DOWN_AFTER_MS with none answered
+   *   between, never for a single blip, and 'ok' at the next answer. */
   constructor(log, opts = {}) {
     this.log = log || (() => {});
     this.opts = opts;
@@ -194,10 +208,13 @@ class DohForwarder {
     this.warmTimer = null;
     this.stopped = false;
     this.failures = 0;          // lookups in a row that no route could answer
+    this.failingSince = 0;      // when the first of them failed
     this.state = 'ok';
     this.lastDowngradeWarn = 0;
     this.preferredId = opts.preferredId || null;
-    this.routes = UPSTREAMS.map((u) => ({ ...u, fails: 0, restUntil: 0, ewma: 0, session: null, opening: null }));
+    // fails: failures since it last answered; failAt: when the last one was
+    // counted; okAt: when it last answered.
+    this.routes = UPSTREAMS.map((u) => ({ ...u, fails: 0, failAt: 0, okAt: 0, restUntil: 0, ewma: 0, session: null, opening: null }));
   }
 
   /* The engine's port, once it is up: routes that go through it wait for it. */
@@ -254,38 +271,68 @@ class DohForwarder {
     return r.opening;
   }
 
+  /* One DoH exchange on the route's connection. An error carries the
+   * connection it happened on (e.session), so only that one is dropped. */
   async query(r, dnsMsg) {
-    const t0 = Date.now();
     const sess = await this.session(r);
-    const answer = await new Promise((resolve, reject) => {
-      const req = sess.request({
-        ':method': 'POST', ':path': '/dns-query',
-        'content-type': 'application/dns-message', accept: 'application/dns-message',
-        'content-length': dnsMsg.length,
-      });
-      const timer = setTimeout(() => { req.close(http2.constants.NGHTTP2_CANCEL); reject(new Error('timeout')); }, QUERY_TIMEOUT_MS);
+    return new Promise((resolve, reject) => {
+      const fail = (e) => { e.session = sess; reject(e); };
+      let req;
+      try {
+        req = sess.request({
+          ':method': 'POST', ':path': '/dns-query',
+          'content-type': 'application/dns-message', accept: 'application/dns-message',
+          'content-length': dnsMsg.length,
+        });
+      } catch (e) { fail(e); return; }
+      const timer = setTimeout(() => { req.close(http2.constants.NGHTTP2_CANCEL); fail(new Error('timeout')); }, QUERY_TIMEOUT_MS);
       let status = 0; const chunks = [];
       req.on('response', (h) => { status = h[':status']; });
       req.on('data', (d) => chunks.push(d));
       req.on('end', () => {
         clearTimeout(timer);
         const body = Buffer.concat(chunks);
-        if (status !== 200 || body.length < 12) reject(new Error(`HTTP ${status}`));
+        if (status !== 200 || body.length < 12) fail(new Error(`HTTP ${status}`));
         else resolve(body);
       });
-      req.on('error', (e) => { clearTimeout(timer); reject(e); });
+      req.on('error', (e) => { clearTimeout(timer); fail(e); });
       req.end(dnsMsg);
     });
-    const ms = Date.now() - t0;
-    r.ewma = r.ewma ? Math.round(r.ewma * 0.7 + ms * 0.3) : ms;
-    r.fails = 0; r.restUntil = 0;
-    return answer;
   }
 
-  failed(r) {
+  /* Ask one route, and keep its record. */
+  async ask(r, dnsMsg) {
+    const t0 = Date.now();
+    try {
+      const answer = await this.query(r, dnsMsg);
+      this.succeeded(r, Date.now() - t0);
+      return answer;
+    } catch (e) {
+      this.failed(r, t0, e && e.session);
+      throw e;
+    }
+  }
+
+  succeeded(r, ms) {
+    r.ewma = r.ewma ? Math.round(r.ewma * 0.7 + ms * 0.3) : ms;
+    r.fails = 0; r.restUntil = 0; r.okAt = Date.now();
+  }
+
+  /* A route failed a request made at `since`. A dead connection fails every
+   * request it carries at once, and a connection that could not be opened
+   * fails every lookup that waited for it: that is one failure, counted once,
+   * not once per lookup (ten lookups in flight used to rest the best route
+   * for five minutes after one lost connection). A route that answered
+   * lately rests at most REST_PROVEN_MS. Only the connection the request
+   * used is dropped, never a newer one another lookup has opened since. */
+  failed(r, since = Date.now(), sess = null) {
+    if (sess && r.session === sess) this.dropSession(r);
+    const now = Date.now();
+    if (r.failAt && r.failAt >= since) return;
+    r.failAt = now;
     r.fails++;
-    r.restUntil = Date.now() + Math.min(REST_MAX_MS, REST_BASE_MS * 2 ** (r.fails - 1));
-    this.dropSession(r);
+    const cap = r.okAt && now - r.okAt < PROVEN_MS ? REST_PROVEN_MS : REST_MAX_MS;
+    r.restUntil = now + Math.min(cap, REST_BASE_MS * 2 ** (r.fails - 1));
   }
 
   /* Race the routes in waves. The first valid answer wins. */
@@ -293,27 +340,32 @@ class DohForwarder {
     return new Promise((resolve, reject) => {
       const now = Date.now();
       const order = this.ordered();
-      const awake = order.filter((r) => r.restUntil <= now);
-      // Everything resting: still try the three that wake soonest, rather than
-      // give up on encrypted DNS altogether.
-      let plan = awake.length ? awake : order.slice(0, 3);
+      let awake = order.filter((r) => r.restUntil <= now);
+      // The resting routes come after the awake ones, soonest to wake first:
+      // a lookup the awake routes cannot answer still asks them, in the same
+      // waves. Before, a lookup asked only the awake routes (or, with all of
+      // them resting, the three that woke soonest), so once a blip had rested
+      // the good routes it failed on the routes this network blocks for as
+      // long as their rests lasted.
+      const resting = order.filter((r) => r.restUntil > now);
       // The second wave is the best route of the other kind and the best of
       // another operator: when a network blocks one kind of route, it usually
       // blocks all of that kind, and the answer should not wait for wave three.
-      if (plan.length > 2) {
-        const [first, ...rest] = plan;
+      if (awake.length > 2) {
+        const [first, ...rest] = awake;
         const otherKind = rest.find((r) => !!r.viaEngine !== !!first.viaEngine);
         const otherOp = rest.find((r) => r !== otherKind && r.op !== first.op);
         const lead = [first, otherKind, otherOp].filter(Boolean);
-        plan = [...lead, ...rest.filter((r) => !lead.includes(r))];
+        awake = [...lead, ...rest.filter((r) => !lead.includes(r))];
       }
+      const plan = [...awake, ...resting];
       if (!plan.length) { reject(new Error('no route')); return; }
       let settled = false, pending = 0, started = 0, lastErr = null;
       const timers = [];
       const finish = () => timers.forEach((t) => { clearTimeout(t); clearInterval(t); });
       const fire = (r) => {
         started++; pending++;
-        this.query(r, dnsMsg).then((ans) => {
+        this.ask(r, dnsMsg).then((ans) => {
           pending--;
           if (settled) return;
           settled = true; finish();
@@ -324,7 +376,6 @@ class DohForwarder {
           resolve(ans);
         }).catch((e) => {
           pending--;
-          this.failed(r);
           lastErr = e;
           if (!settled && pending === 0 && started === plan.length) { settled = true; finish(); reject(lastErr); }
         });
@@ -392,7 +443,7 @@ class DohForwarder {
     const order = this.ordered();
     const best = order.filter((r) => r.restUntil <= now).slice(0, 3);
     const due = order.filter((r) => r.restUntil > now && r.restUntil - now < WARM_INTERVAL_MS).slice(0, 2);
-    for (const r of [...best, ...due]) this.query(r, probe).catch(() => this.failed(r));
+    for (const r of [...best, ...due]) this.ask(r, probe).catch(() => {});
   }
 
   start() {
@@ -415,6 +466,7 @@ class DohForwarder {
           .then((answer) => {
             if (key) this.cachePut(key, answer);
             this.failures = 0;
+            this.failingSince = 0;
             this.setState('ok');
             try { sock.send(answer, rinfo.port, rinfo.address); } catch {}
           })
@@ -423,9 +475,13 @@ class DohForwarder {
              * That is the right thing to do — a lookup that fails outright is
              * worse — but it quietly undoes the encryption this exists to
              * provide. Say so, rather than let it pass unnoticed. */
-            this.failures = (this.failures || 0) + 1;
             const now = Date.now();
-            if (this.failures >= 3) {
+            if (!this.failures) this.failingSince = now;
+            this.failures++;
+            // Not for one blip: a busy page has many lookups in flight, and a
+            // second without a network failed three of them at once, which
+            // said "not reachable" for a network that was back a moment later.
+            if (this.failures >= 3 && now - this.failingSince >= DOWN_AFTER_MS) {
               this.setState('down');
               if (now - (this.lastDowngradeWarn || 0) > 300000) {
                 this.lastDowngradeWarn = now;
@@ -438,6 +494,11 @@ class DohForwarder {
         this.sock = sock;
         this.port = sock.address().port;
         this.stopped = false;
+        // A new start, often after something went wrong (a Stop and Start, an
+        // engine restart, another network): the rests of the last session do
+        // not carry over, or one blip in it kept the best routes out of this
+        // one too. What is known about their speed does.
+        this.clearRests();
         this.warm();
         this.warmTimer = setInterval(() => this.warm(), WARM_INTERVAL_MS);
         if (this.warmTimer.unref) this.warmTimer.unref();
@@ -445,6 +506,21 @@ class DohForwarder {
       });
       sock.once('error', reject);
     });
+  }
+
+  clearRests() {
+    for (const r of this.routes) { r.fails = 0; r.failAt = 0; r.restUntil = 0; }
+    this.failures = 0;
+    this.failingSince = 0;
+  }
+
+  /* Another network, or the same one back after a gap: the connections made
+   * before are dead without knowing it (a request on one waits out its whole
+   * timeout), and the rests earned there say nothing about here. Lookups
+   * start afresh, the remembered route first. */
+  networkChanged() {
+    for (const r of this.routes) this.dropSession(r);
+    this.clearRests();
   }
 
   stop() {
