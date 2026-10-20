@@ -598,12 +598,11 @@ Windows and Linux at the next start, before protection comes on. Linux
 packages ask for your password to install an update, as any system package
 does.
 
-> **The builds are not code-signed yet** (Windows signing is being set up, see the
-> [code signing policy](#code-signing-policy)). On first launch Windows SmartScreen may
-> show *"Windows protected your PC"* → click **More info → Run anyway**. On macOS
-> Gatekeeper may block it: open it once, then **System Settings → Privacy &
-> Security → Open Anyway** (on macOS 15 and later right-click → Open no longer
-> offers that).
+> **First install on Windows or macOS:** if Windows shows *"Windows protected
+> your PC"*, click **More info → Run anyway**. If macOS will not open it, open
+> it once, then **System Settings → Privacy & Security → Open Anyway** (on
+> macOS 15 and later right-click → Open no longer offers that). This is needed
+> only once. See the [code signing policy](#code-signing-policy).
 
 No administrator or root rights are needed to run it; only the optional
 [Advanced mode](#advanced-mode-stateful-dpi) asks for them, and on a Standard
@@ -757,6 +756,12 @@ certificate by [SignPath Foundation](https://signpath.org/).
   of the services Shroudly talks to. Shroudly sends nothing about you to any
   server; the only things it contacts are listed there, and the one optional
   report, the anonymous live count, can be turned off in Settings.
+
+The Android app (`Shroudly-<version>-Android.apk`) is signed with the project's
+own key, the same for every version, so an update installs over the previous
+one. Its certificate's SHA-256 is
+`23:AC:01:4B:72:26:34:3B:74:C7:C9:C0:A4:FD:6F:1D:ED:97:51:8A:3B:FD:35:BC:DE:65:B6:C1:EC:A8:BD:76`;
+the release workflow checks every APK against it before publishing.
 
 macOS builds are not covered: Apple requires its own Developer ID for those.
 
