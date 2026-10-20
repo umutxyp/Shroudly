@@ -21,7 +21,7 @@ function memStore(init = {}) {
 }
 
 /* blocked: the hosts the check finds blocked (a function or a list). */
-function rig({ store = memStore({ autopilotSince: 1 }), present = { discord: true, roblox: true }, blocked = [], adv = null, enableResult = null } = {}) {
+function rig({ store = memStore({ autopilotSince: 1 }), present = { discord: true, roblox: true }, running = { discord: false, roblox: false }, blocked = [], adv = null, enableResult = null } = {}) {
   let clock = 1e12;
   const told = [];
   const logs = [];
@@ -32,6 +32,7 @@ function rig({ store = memStore({ autopilotSince: 1 }), present = { discord: tru
   const svc = (id, mode, needsApp, probe) => ({
     id, name: id, probe, mode, needsApp,
     present: () => present[id],
+    running: async () => running[id],
     enable: async () => { enabled.push(id); if (enableResult) return enableResult; store.set(mode, true); return { success: true }; },
     logOn: `${id} on`, told: `auto-${id}`,
   });
@@ -42,7 +43,7 @@ function rig({ store = memStore({ autopilotSince: 1 }), present = { discord: tru
     services: [svc('discord', 'discordMode', true, 'discord.com'), svc('roblox', 'appMode', false, 'clientsettingscdn.roblox.com')],
     advanced: adv, now: () => clock,
   });
-  return { ap, store, told, logs, enabled, asked, tick: (ms) => { clock += ms; }, off: () => { on = false; }, setPresent: (id, v) => { present[id] = v; } };
+  return { ap, store, told, logs, enabled, asked, tick: (ms) => { clock += ms; }, off: () => { on = false; }, setPresent: (id, v) => { present[id] = v; }, setRunning: (id, v) => { running[id] = v; } };
 }
 const settle = async () => { for (let i = 0; i < 5; i++) await new Promise((r) => setImmediate(r)); };
 
@@ -305,6 +306,135 @@ const settle = async () => { for (let i = 0; i < 5; i++) await new Promise((r) =
     const r2 = rig({ adv });
     r2.ap.userSet('advancedMode', false);
     t.ok(await r2.ap.needAdvanced('a.example') === false && tries === 0, 'turned off by hand: not started by itself');
+  }
+
+
+  // ── Discord: its app stuck, or a call starting, on a network that blocks it ──
+  {
+    const advRig = (opts = {}) => {
+      const st = { started: 0, prompts: 0 };
+      const adv = {
+        available: () => true, active: () => st.started > 0,
+        start: async () => { st.prompts++; await new Promise((r) => setImmediate(r)); if (opts.decline) return { success: false, code: 'declined' }; st.started++; return { success: true }; },
+        antiCheat: async () => opts.antiCheat || null,
+      };
+      return { st, r: rig({ blocked: ['discord.com'], adv, running: { discord: !!opts.running, roblox: false }, store: opts.store }) };
+    };
+    t.ok(Autopilot.voiceOf('c-ist01-1a2b.discord.media') === 'discord' && Autopilot.voiceOf('discord.media') === 'discord'
+      && Autopilot.voiceOf('discord.com') === null && Autopilot.voiceOf('notdiscord.media') === null && Autopilot.WATCH.join() === 'discord.media',
+      "Discord's voice servers are recognised, and they are what the engine is asked to tell");
+    {
+      const { st, r } = advRig({ running: true });
+      await r.ap.survey();
+      await settle();
+      r.ap.noteHost('blocked', 'gateway.discord.gg', { note: 'silent' });
+      await settle();
+      t.ok(st.prompts === 1 && st.started === 1, "Discord blocked here, its app open, its gateway opened by no technique (silently): Advanced mode is asked for");
+      const ask = r.told.find((x) => x.id === 'autoAdvancedAsk');
+      // (The rig names its services by their id.)
+      t.ok(ask && ask.p.host === 'discord' && r.logs.some((l) => /gateway\.discord\.gg needs Advanced mode \(discord is open and cannot reach it\)/.test(l)),
+        'the user is told the service needs it, by its name; the log names the gateway and why');
+      r.ap.noteHost('seen', 'c-fra06-1.discord.media');
+      await settle();
+      t.ok(st.prompts === 1, 'never twice in a session');
+    }
+    {
+      const { st, r } = advRig({ running: false });
+      await r.ap.survey();
+      r.ap.noteHost('blocked', 'gateway.discord.gg', { note: 'silent' });
+      r.ap.noteHost('blocked', 'discord.com', { siteOk: true });
+      await settle();
+      t.ok(st.prompts === 0, 'the same failure with no Discord app open: not asked (a browser has the window\'s own offer)');
+      r.setRunning('discord', true);
+      r.ap.noteHost('blocked', 'discord.com', { siteOk: true });
+      await settle();
+      t.ok(st.prompts === 1, 'once the app is open, its own page that does not answer counts too');
+    }
+    {
+      const { st, r } = advRig({ running: false });
+      await r.ap.survey();
+      r.ap.noteHost('seen', 'c-ist01-77.discord.media');
+      await settle();
+      t.ok(st.prompts === 1 && r.told.find((x) => x.id === 'autoAdvancedOn').p.host === 'discord',
+        'a call starting (a voice server, from a browser too) on a network that blocks Discord: Advanced mode, for the sound that goes over UDP');
+    }
+    {
+      // The call before the check: the check is of discord.com, not of the
+      // voice server's own name, and its verdict brings the ask.
+      const { st, r } = advRig({ running: false });
+      r.ap.noteHost('seen', 'c-ist01-77.discord.media');
+      await settle();
+      t.ok(r.asked.join() === 'discord.com' && r.ap.isBlocked('discord') && st.prompts === 1, 'a call starting before Discord was looked at: discord.com is checked, and found blocked, Advanced mode is asked for');
+    }
+    {
+      const { st, r } = advRig({ running: true });
+      r.ap.noteHost('seen', 'c-ist01-77.discord.media');
+      r.ap.noteHost('blocked', 'gateway.discord.gg', { note: 'silent' });
+      await settle();
+      await settle();
+      t.ok(st.prompts === 1, 'two signs at once: one prompt');
+    }
+    {
+      const { st, r } = advRig({ running: true });
+      await r.ap.survey();
+      r.ap.noteHost('blocked', 'gateway.discord.gg', { alert: true });
+      r.ap.noteHost('blocked', 'cdn.discordapp.com', { siteOk: true });
+      r.ap.noteHost('blocked', 'status.discord.com', { note: 'silent' });
+      r.ap.noteHost('seen', 'gateway.discord.gg');
+      r.ap.noteHost('cut', 'discord.com', { note: 'stall' });
+      r.ap.noteHost('seen', 'media.tenor.com');
+      r.ap.noteHost('bypass', 'cdn.discordapp.com');
+      await settle();
+      t.ok(st.prompts === 0, "the server's own refusal, another name that does not answer while the site works, silence from a minor name, a single cut, a third party and a name that opened: none of them asks");
+      r.ap.noteHost('cut', 'cdn.discordapp.com', { believed: true });
+      await settle();
+      t.ok(st.prompts === 1, 'a cut the engine believes, on any of its names, with the app open, does');
+    }
+    {
+      const { st, r } = advRig({ running: true, store: memStore({ autopilotSince: 1, advancedDeclinedAt: 1e12 - 1000 }) });
+      await r.ap.survey();
+      r.ap.noteHost('seen', 'c-ist01-77.discord.media');
+      r.ap.noteHost('blocked', 'gateway.discord.gg', { note: 'silent' });
+      await settle();
+      t.ok(st.prompts === 0, 'declined in the last two weeks: not asked by itself');
+      const a2 = advRig({ running: true, antiCheat: 'vgc.exe' });
+      await a2.r.ap.survey();
+      a2.r.ap.noteHost('seen', 'c-ist01-77.discord.media');
+      await settle();
+      t.ok(a2.st.prompts === 0 && a2.r.logs.some((l) => /anti-cheat/.test(l)), "a game's anti-cheat running: not by itself");
+    }
+    {
+      // Discord not blocked here: a call is nobody's business.
+      let started = 0;
+      const r = rig({ blocked: [], adv: { available: () => true, active: () => false, start: async () => { started++; return { success: true }; } }, running: { discord: true, roblox: false } });
+      r.ap.noteHost('seen', 'c-ist01-77.discord.media');
+      r.ap.noteHost('blocked', 'gateway.discord.gg', { note: 'silent' });
+      await settle();
+      t.ok(started === 0 && r.asked.join() === 'discord.com', 'on a network that does not block Discord, nothing is asked (it is checked once, and found working)');
+    }
+    {
+      // A silent failure is no reason to check by itself: the sign waits for
+      // the check that comes anyway (the survey).
+      const a = advRig({ running: true });
+      a.r.ap.noteHost('blocked', 'gateway.discord.gg', { note: 'silent' });
+      await settle();
+      t.ok(!a.r.asked.length && a.st.prompts === 0, 'a sign alone, before Discord is known blocked, asks nothing and checks nothing');
+      await a.r.ap.survey();
+      await settle();
+      t.ok(a.st.prompts === 1, 'the next look finds Discord blocked: the waiting sign is acted on');
+      const b = advRig({ running: true });
+      b.r.ap.noteHost('blocked', 'gateway.discord.gg', { note: 'silent' });
+      b.r.ap.networkChanged();
+      await b.r.ap.survey();
+      await settle();
+      t.ok(b.st.prompts === 0, 'a network change forgets the signs too');
+      const c = advRig({ running: true });
+      c.r.ap.noteHost('blocked', 'gateway.discord.gg', { note: 'silent' });
+      c.r.tick(Autopilot.SIGN_MS + 1000);
+      await c.r.ap.survey();
+      await settle();
+      t.ok(c.st.prompts === 0, 'a sign older than its time is not acted on');
+    }
   }
 
   // ── a game's anti-cheat: no packet driver loaded beside it by itself ──

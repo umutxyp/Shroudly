@@ -25,13 +25,22 @@
  * Shroudly) is the caller's, which knows each program (main.js).
  *
  * Advanced mode: a site that no technique opens, or that connects and is then
- * cut, is the network Advanced mode is for. It needs the system's permission,
- * so it is asked for at most once a session, and not again by itself for two
- * weeks once the user declines.
+ * cut, is the network Advanced mode is for. So is Discord, once this network
+ * is known to block it, when its app is open and the engine cannot get its
+ * page or its gateway through (the app then sits on its "Starting" screen),
+ * or when a call is starting (the engine tells each connection to one of
+ * Discord's voice servers, from the app or a browser): the sound of a call
+ * goes over UDP, which the default engine never touches, and only Advanced
+ * mode can put its decoys ahead of it. It needs the system's permission, so
+ * it is asked for at most once a session, not again by itself for two weeks
+ * once the user declines, and never by itself beside a game's anti-cheat.
  */
 
 const RESPECT_OFF_MS = 14 * 24 * 60 * 60 * 1000;
 const CHECK_AGAIN_MS = 6 * 60 * 60 * 1000;
+// How long a sign that a service needs Advanced mode waits for the check
+// that says the service is blocked here.
+const SIGN_MS = 10 * 60 * 1000;
 
 /* The services' own names: what the engine reports about them is worth a
  * check. Not the third parties they embed (GIFs, captchas, identity checks),
@@ -44,10 +53,26 @@ const OWN = {
 };
 
 const under = (h, d) => h === d || h.endsWith(`.${d}`);
+const norm = (host) => String(host || '').toLowerCase().replace(/\.$/, '');
 function familyOf(host) {
-  const h = String(host || '').toLowerCase().replace(/\.$/, '');
+  const h = norm(host);
   if (!h) return null;
   for (const [id, domains] of Object.entries(OWN)) if (domains.some((d) => under(h, d))) return id;
+  return null;
+}
+
+/* What Advanced mode does for a service beyond any site: its voice servers
+ * (main.js asks the engine to tell each connection to one), and the names
+ * its app cannot start without (its own page and its gateway). */
+const ADVANCED = {
+  discord: {
+    voice: ['discord.media'],
+    core: (h) => h === 'discord.com' || h === 'www.discord.com' || /^gateway(-[a-z0-9-]+)?\.discord\.gg$/.test(h),
+  },
+};
+function voiceOf(host) {
+  const h = norm(host);
+  for (const [id, a] of Object.entries(ADVANCED)) if (a.voice.some((d) => under(h, d))) return id;
   return null;
 }
 
@@ -120,7 +145,9 @@ class Autopilot {
     this.failed = new Set();       // services whose mode could not be turned on this session
     this.busy = new Set();
     this.toldOff = new Set();
+    this.signs = new Map();        // service id -> { host, voice, at }: it may need Advanced mode
     this.advancedAsked = false;
+    this._asking = null;
     migrate(this.store, this.now());
   }
 
@@ -141,6 +168,7 @@ class Autopilot {
    * and a check still under way belongs to the old one. */
   networkChanged() {
     this.gen++;
+    this.signs.clear();
     if (!this.blocked.size && !this.clear.size && !this.unknownAt.size) return;
     this.blocked.clear();
     this.clear.clear();
@@ -164,18 +192,25 @@ class Autopilot {
   /* An engine event about a host (engine-manager's onHostEvent, and the cut
    * the engine believes, from its advice). A host that only refuses this
    * client, one no technique got an answer from, or a single cut, says
-   * nothing about the network. */
-  noteHost(kind, host, info = {}) {
+   * nothing about the network. A call starting on a service's voice server
+   * ('seen') is worth finding out whether the service is blocked here. */
+  noteHost(kind, host, info) {
+    info = info || {};
+    this._sign(kind, host, info);
     const real = kind === 'bypass'
       || (kind === 'cut' && info.believed === true)
-      || (kind === 'blocked' && !info.alert && !info.siteOk && info.note !== 'silent');
+      || (kind === 'blocked' && !info.alert && !info.siteOk && info.note !== 'silent')
+      || (kind === 'seen' && voiceOf(host) !== null);
     if (!real) return;
     const id = familyOf(host);
     if (!id || this.blocked.has(id)) return;
     if (this.now() - (this.clear.get(id) || -Infinity) < CHECK_AGAIN_MS) return;
     // Nothing could be learnt a moment ago (offline): soon again, not at once.
     if (this.now() - (this.unknownAt.get(id) || -Infinity) < 2 * 60 * 1000) return;
-    this._confirm(id, String(host).toLowerCase(), kind).catch(() => {});
+    // A voice server says nothing by its own name: the service's own is
+    // what is checked.
+    const svc = kind === 'seen' ? this.services.find((x) => x.id === id) : null;
+    this._confirm(id, svc ? svc.probe : String(host).toLowerCase(), kind).catch(() => {});
   }
 
   /* Whether `host` of service `id` is blocked, by blockcheck. One check per
@@ -202,6 +237,9 @@ class Autopilot {
         this.clear.delete(id);
         this.log('info', `Autopilot: ${id} is blocked on this network (${host}: ${r.how}, ${r.detail}${why ? `; after ${why}` : ''})`);
         await this.consider(id);
+        // Not waited for: it may be a permission prompt the user takes a
+        // while over, and stillBlocked() waits for this.
+        this._advancedFor(id).catch(() => {});
         return true;
       }
       this.blocked.delete(id);
@@ -266,6 +304,50 @@ class Autopilot {
     }
   }
 
+  /* A sign, in what the engine said, that a service needs Advanced mode
+   * here (see the top of this file):
+   *  - any word about one of its voice servers: a call starting;
+   *  - no technique getting its own page or gateway open (a silent failure,
+   *    or one while its other names answer, included; never the server's own
+   *    refusal), another of its names that no technique opens, or a cut the
+   *    engine believes.
+   * Kept a while, and acted on once the service is known blocked here. */
+  _sign(kind, host, info) {
+    const h = norm(host);
+    const id = familyOf(h);
+    const a = id && ADVANCED[id];
+    if (!a || !this.services.some((x) => x.id === id)) return;
+    const voice = voiceOf(h) === id;
+    const failed = (kind === 'cut' && info.believed === true)
+      || (kind === 'blocked' && !info.alert && (a.core(h) || (!info.siteOk && info.note !== 'silent')));
+    if (!voice && !failed) return;
+    this.signs.set(id, { host: h, voice, at: this.now() });
+    if (this.blocked.has(id)) this._advancedFor(id).catch(() => {});
+  }
+
+  /* Ask for Advanced mode for a service with a fresh sign, known blocked on
+   * this network: for a call starting, at once; for a name its app cannot
+   * reach, while its app is open (a browser has the window's own offer for
+   * a site no technique opens). Resolves whether it is on now. */
+  async _advancedFor(id) {
+    const sign = this.signs.get(id);
+    if (!sign || this.now() - sign.at > SIGN_MS || !this.blocked.has(id) || !this.protectionOn()) return false;
+    if (!this.willAskAdvanced()) return false;
+    const s = this.services.find((x) => x.id === id);
+    if (!s) return false;
+    if (!sign.voice) {
+      let open = false;
+      try { open = !!(s.running && await s.running()); } catch {}
+      if (!open) return false;
+    }
+    if (this.signs.get(id) !== sign) return false;   // a newer sign took over
+    this.signs.delete(id);
+    return this.needAdvanced(sign.host, {
+      why: sign.voice ? `a ${s.name} call is starting; its sound goes over UDP` : `${s.name} is open and cannot reach it`,
+      label: s.name,
+    });
+  }
+
   /* The user declined Advanced mode's permission prompt (also one they
    * started themselves): not asked again by itself for two weeks. */
   recordDecline() { this.store.set('advancedDeclinedAt', this.now()); }
@@ -280,8 +362,19 @@ class Autopilot {
   }
 
   /* A site no technique opened, or one cut after it connected: Advanced mode
-   * is what is left. Resolves whether it is on now. */
-  async needAdvanced(host) {
+   * is what is left. Resolves whether it is on now. opts.why goes in the log
+   * line, opts.label is what the user is told needs it (the host by
+   * default). One ask at a time: another reason arriving meanwhile gets the
+   * same answer, not a second prompt. */
+  needAdvanced(host, opts = {}) {
+    if (this._asking) return this._asking;
+    const run = this._needAdvanced(host, opts);
+    this._asking = run;
+    run.then(() => { if (this._asking === run) this._asking = null; }, () => { if (this._asking === run) this._asking = null; });
+    return run;
+  }
+
+  async _needAdvanced(host, { why = null, label = null } = {}) {
     if (!this.willAskAdvanced()) return false;
     const a = this.advanced;
     // A game's anti-cheat running: a packet driver is never loaded beside it
@@ -294,20 +387,21 @@ class Autopilot {
       return false;
     }
     this.advancedAsked = true;
-    this.log('info', `Autopilot: ${host} needs Advanced mode; asking for permission`);
-    this.tell('autoAdvancedAsk', { host });
+    this.log('info', `Autopilot: ${host} needs Advanced mode${why ? ` (${why})` : ''}; asking for permission`);
+    const told = { host: label || host };
+    this.tell('autoAdvancedAsk', told);
     let r = null;
     try { r = await a.start(); } catch (e) { r = { success: false, code: e.code }; }
     if (r && r.success) {
-      this.tell('autoAdvancedOn', { host });
+      this.tell('autoAdvancedOn', told);
       return true;
     }
     if (r && r.code === 'declined') {
       this.recordDecline();
       this.log('info', 'Advanced mode was not allowed; Shroudly will not ask by itself again for two weeks');
-      this.tell('autoAdvancedDeclined', { host });
+      this.tell('autoAdvancedDeclined', told);
     } else {
-      this.tell('autoAdvancedFailed', { host });
+      this.tell('autoAdvancedFailed', told);
     }
     return false;
   }
@@ -332,6 +426,10 @@ module.exports = Autopilot;
 module.exports.antiCheatIn = antiCheatIn;
 module.exports.antiCheatRunning = antiCheatRunning;
 module.exports.familyOf = familyOf;
+module.exports.voiceOf = voiceOf;
+// The domains the engine is asked to tell each connection to (--watch).
+module.exports.WATCH = Object.values(ADVANCED).flatMap((a) => a.voice);
+module.exports.SIGN_MS = SIGN_MS;
 module.exports.networkFingerprint = networkFingerprint;
 module.exports.ipv6Groups = ipv6Groups;
 module.exports.OWN = OWN;

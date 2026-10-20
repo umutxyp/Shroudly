@@ -569,6 +569,26 @@ function askProxyRecovery() {
   engine.recoverProxyAsAdmin({ windowShown }).catch(() => {});
 }
 
+/* Advanced mode was running when the user stopped protection: it is part of
+ * protection, so it comes back when they start it again in this run (one
+ * permission prompt, as when it was first turned on). Without this, a Stop
+ * and Start left it off for the rest of the session, since the autopilot
+ * asks only once a session, and whatever only it opened (Discord's gateway
+ * on some networks) stayed shut. Turned off by hand meanwhile: not. */
+let advancedResume = false;
+
+async function resumeAdvanced() {
+  if (!advancedResume || !advanced || advanced.active || !engine || !engine.isActive()) return;
+  advancedResume = false;
+  // As for the autopilot: never loaded by itself beside a game's anti-cheat.
+  let ac = null;
+  try { ac = await Autopilot.antiCheatRunning(); } catch {}
+  if (ac) { addLog('info', `Advanced mode was on when protection was stopped, but a game's anti-cheat is running (${ac}); not started by itself`); return; }
+  addLog('info', 'Advanced mode was on when protection was stopped; turning it back on');
+  const r = await startAdvanced();
+  if (autopilot && r && r.code === 'declined') autopilot.recordDecline();
+}
+
 async function safeStart({ user = false } = {}) {
   if (user) store.set(PROTECTION_KEY, true);
   try {
@@ -576,6 +596,7 @@ async function safeStart({ user = false } = {}) {
     broadcastStatus(true);
     notify('Shroudly', tr().trayStarted);
     syncPresence();
+    if (user) resumeAdvanced().catch(() => {});
     // Whether this network blocks what the installed apps need, before they
     // are opened (autopilot.js).
     setTimeout(() => { if (autopilot) autopilot.survey().catch(() => {}); }, 3000);
@@ -601,7 +622,11 @@ async function safeStop({ user = false } = {}) {
     // its packet interception, or WinDivert / NFQUEUE would keep injecting
     // decoys into every outbound connection after the user turned protection
     // off. (A crash or quit already stops both; this is the user's Stop.)
-    if (advanced && advanced.active) { try { await advanced.stop(); } catch {} toWindow('advanced:state', { active: false }); }
+    if (advanced && advanced.active) {
+      advancedResume = user;
+      try { await advanced.stop(); } catch {}
+      toWindow('advanced:state', { active: false });
+    }
     await engine.stop({ user });
     broadcastStatus(false);
     notify('Shroudly', tr().trayStopped);
@@ -687,6 +712,9 @@ app.whenReady().then(async () => {
   engine = new EngineManager(store, {
     addLog, onStatusChange: broadcastStatus,
     siteList: () => siteList.domains,
+    // Connections to Discord's voice servers, told to the autopilot: a call
+    // starting, in the app or a browser (autopilot.js).
+    watch: Autopilot.WATCH,
     proxyOptions: {
       stateFile: proxyStateFile(), watchdog, restoreCommand,
       // macOS's administrator password dialog says why Shroudly asks, in the
@@ -745,16 +773,19 @@ app.whenReady().then(async () => {
     // once every few minutes, so a page full of blocked resources cannot turn
     // into a stream of notifications.
     onSiteBlocked: (host) => {
+      // The autopilot first: its line about Advanced mode reaches the window
+      // before the site does. The window shows its own offer only when the
+      // autopilot does not ask (declined earlier, turned off by hand, asked
+      // already this session). Not held back by the pause between
+      // notifications below: the autopilot asks once a session anyway, and
+      // the site that needs it (Discord's gateway, say) may come minutes
+      // after another site was told.
+      const asked = !!(autopilot && autopilot.willAskAdvanced());
+      if (asked) autopilot.needAdvanced(host).catch(() => {});
       const now = Date.now();
       if (now - lastBlockedNotice < 5 * 60 * 1000) return;
       lastBlockedNotice = now;
       notify(tr().notifySiteBlockedTitle, tr().notifySiteBlockedBody.replace('{host}', host));
-      // The autopilot first: its line about Advanced mode reaches the window
-      // before the site does. The window shows its own offer only when the
-      // autopilot does not ask (declined earlier, turned off by hand, asked
-      // already this session).
-      const asked = !!(autopilot && autopilot.willAskAdvanced());
-      if (asked) autopilot.needAdvanced(host).catch(() => {});
       toWindow('dpi:site-blocked', { host, asked });
       showWindow();
     },
@@ -1011,6 +1042,7 @@ ipcMain.handle('advanced:start', async () => {
   return r;
 });
 ipcMain.handle('advanced:stop', async () => {
+  advancedResume = false;
   if (autopilot) autopilot.userSet('advancedMode', false);
   try { await advanced.stop(); toWindow('advanced:state', { active: false }); return { success: true }; }
   catch (e) { return { success: false, error: e.message }; }
@@ -1222,16 +1254,28 @@ async function applyDiscordMode(on, { interactive = true } = {}) {
  * a fresh install), a settings file Discord wrote back without it when it
  * closed, or one reset by a reinstall or a cleaner, gets it again within
  * seconds, before Discord is opened again. Reading the files changes nothing
- * when the line is there. */
+ * when the line is there.
+ *
+ * Some Discords (or programs that change Discord) write the file back every
+ * few minutes while they run: putting the line back is then routine. It is
+ * logged the first time and once more (DiscordApp.healNote), and changes
+ * nothing else: no system setting, no notice, and a restart of Discord only
+ * through watchDiscord, which leaves alone a Discord that already goes
+ * through Shroudly. */
+const discordHealed = new Map();   // build -> times its line was put back this session
 async function healDiscordLine() {
   if (store.get('discordMode') !== true || !discordRelay || !discordRelay.running || discordState.needsPermission) return;
   const r = patchDiscordSync(DiscordApp.endpointUrl(discordRelay.port));
   if (!r.changed.length) return;
-  addLog('info', `Discord app mode: ${r.changed.map((v) => v.app).join(', ')} added`);
+  for (const line of DiscordApp.healNote(discordHealed, r.changed.map((v) => v.app))) addLog('info', line);
   let running = false;
   for (const v of r.changed) if (await DiscordApp.isRunning(v)) running = true;
-  if (running) { discordState.needsRestart = true; discordState.changedAt = Date.now(); }
-  sendDiscordState();
+  // Told to the window only when that changes what it shows.
+  if (running && !discordState.needsRestart) {
+    discordState.needsRestart = true;
+    discordState.changedAt = Date.now();
+    sendDiscordState();
+  }
 }
 let discordHealBusy = false;
 setInterval(() => {
@@ -1645,6 +1689,12 @@ let discordBusy = false;
 async function watchDiscord() {
   if (discordBusy || !discordState.needsRestart || store.get('discordMode') !== true) return;
   if (!engine || !engine.isActive() || !autopilot || !autopilot.isBlocked('discord')) return;
+  // The system proxy not pointing at Shroudly (another program took it over,
+  // or it still needs an administrator): no program's connections reach
+  // Shroudly then, a Discord that works included, so "no connection to
+  // Shroudly" says nothing about Discord, and a restart would only cut its
+  // call. Looked at again once the proxy is back.
+  if (engine.proxyStatus && engine.proxyStatus.ok === false) return;
   if (Date.now() - discordState.changedAt < 20000) return;
   if (discordRelay && discordRelay.lastOkAt > discordState.changedAt) { discordState.needsRestart = false; sendDiscordState(); return; }
   discordBusy = true;
@@ -1698,6 +1748,9 @@ function createAutopilot() {
       {
         id: 'discord', name: 'Discord', probe: 'discord.com', mode: 'discordMode', needsApp: true,
         present: () => DiscordApp.installed().length > 0,
+        // Its app open (any system, any build): what a failing gateway is
+        // judged by for Advanced mode.
+        running: () => DiscordApp.anyRunning(),
         // The macOS permission panel only with the window there to show it.
         enable: () => applyDiscordMode(true, { interactive: windowAlive() && mainWindow.isVisible() }),
         logOn: 'Autopilot: Discord is blocked on this network; Discord app mode turned on',
