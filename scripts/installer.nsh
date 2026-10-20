@@ -47,6 +47,22 @@
   Pop $0
 !macroend
 
+; Microsoft Store apps reach Shroudly through loopback exemptions it added
+; (electron/store-apps.js), listed in HKCU\Software\Shroudly LoopbackExempt.
+; Take out those, and only those: an exemption the user had is not in the
+; list. Each entry must be an app container SID before it reaches
+; CheckNetIsolation, which runs elevated (one administrator prompt) from a
+; script that reads them from a file. The PowerShell started from here is the
+; 32-bit one, so that script reaches the 64-bit tool through Sysnative. The
+; list goes once it ran.
+!macro shroudlyLoopbackCleanup
+  ReadRegStr $0 HKCU "Software\Shroudly" "LoopbackExempt"
+  ${If} $0 != ""
+    nsExec::Exec `powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command "$$k = 'HKCU:\Software\Shroudly'; $$v = [string](Get-ItemProperty -LiteralPath $$k -Name LoopbackExempt -ErrorAction SilentlyContinue).LoopbackExempt; $$ids = @($$v -split ';' | Where-Object { $$_ -match '^S-1-15-2(-\d{1,10}){7}$$' }); if ($$ids.Count) { $$f = Join-Path ([IO.Path]::GetTempPath()) ('shroudly-lb-' + [guid]::NewGuid().ToString('N') + '.txt'); [IO.File]::WriteAllLines($$f, [string[]]$$ids); $$c = '$$n = if ([Environment]::Is64BitOperatingSystem -and -not [Environment]::Is64BitProcess) { ''Sysnative'' } else { ''System32'' }; $$t = Join-Path $$env:SystemRoot ($$n + ''\CheckNetIsolation.exe''); foreach ($$s in [IO.File]::ReadAllLines(''' + ($$f -replace '''', '''''') + ''')) { if ($$s -match ''^S-1-15-2(-\d{1,10}){7}$$'') { & $$t LoopbackExempt -d (''-p='' + $$s) | Out-Null } }'; $$e = [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($$c)); try { Start-Process -FilePath (Join-Path $$env:SystemRoot 'System32\WindowsPowerShell\v1.0\powershell.exe') -ArgumentList ('-NoProfile -NonInteractive -ExecutionPolicy Bypass -WindowStyle Hidden -EncodedCommand ' + $$e) -Verb RunAs -WindowStyle Hidden -Wait -ErrorAction Stop; Remove-ItemProperty -LiteralPath $$k -Name LoopbackExempt -ErrorAction SilentlyContinue } catch {}; Remove-Item -LiteralPath $$f -Force -ErrorAction SilentlyContinue }"`
+    Pop $0
+  ${EndIf}
+!macroend
+
 ; Games and apps mode puts HTTPS_PROXY in the user's environment, pointing at
 ; Shroudly (electron/app-env.js): the session's part of it (Volatile
 ; Environment, emptied by Windows at logoff), and up to 2.5.12 the part that is
@@ -182,6 +198,7 @@ Shroudly, Windows 10 veya daha yenisini gerektirir."
   ; An update also runs the old uninstaller: keep the user's auto-start then.
   ${ifNot} ${isUpdated}
     !insertmacro shroudlyDiscordCleanup
+    !insertmacro shroudlyLoopbackCleanup
     DeleteRegValue HKCU "Software\Microsoft\Windows\CurrentVersion\Run" "Shroudly"
     DeleteRegValue HKCU "Software\Microsoft\Windows\CurrentVersion\Run" "electron.app.Shroudly"
     DeleteRegValue HKCU "Software\Microsoft\Windows\CurrentVersion\Run" "me.codeshare.shroudly"

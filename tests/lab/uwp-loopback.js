@@ -1,0 +1,318 @@
+'use strict';
+
+/* Microsoft Store apps and Shroudly's loopback proxy, on a real Windows
+ * (issue #26). Needs an administrator without a UAC prompt, as CI's Windows
+ * runners are; it changes loopback exemptions, so run it on CI only.
+ *
+ * An app container of our own (the sandbox UWP apps run in, with the
+ * internetClient capability, as a Store app has) runs Windows' curl.exe:
+ *   1. without a loopback exemption it reaches the internet but not a server
+ *      on 127.0.0.1, nor the engine's SOCKS port there: what a Store app gets
+ *      from Shroudly's PAC (the cause of issue #26);
+ *   2. electron/store-apps.js finds that container among the firewall's,
+ *      with its capability, and its SID is the one it derives from the name;
+ *      a standard user's token (runas /trustlevel) reads the same lists, as
+ *      Shroudly does without administrator rights;
+ *   3. its elevated step exempts it, CheckNetIsolation lists it, and the same
+ *      curl now reaches both: the fix;
+ *   4. the autopilot's whole round on this machine: everything it exempts is
+ *      remembered (settings and HKCU\Software\Shroudly), an exemption that was
+ *      there before is not; the switch turned off takes out its own only, and
+ *      so does the uninstaller's script (scripts/installer.nsh).
+ *
+ *   node tests/lab/uwp-loopback.js */
+
+const fs = require('fs');
+const os = require('os');
+const path = require('path');
+const http = require('http');
+const { spawnSync } = require('child_process');
+const ROOT = path.join(__dirname, '..', '..');
+const StoreApps = require(path.join(ROOT, 'electron', 'store-apps.js'));
+const { powershellEnv } = require(path.join(ROOT, 'electron', 'win-powershell.js'));
+const { startEngine, freePort } = require(path.join(ROOT, 'tests', 'net', 'helpers.js'));
+
+let fails = 0;
+const ok = (m) => console.log(`  ok  ${m}`);
+const bad = (m) => { console.log(`FAIL  ${m}`); fails++; };
+const check = (cond, m) => (cond ? ok(m) : bad(m));
+
+const SYS = process.env.SystemRoot || 'C:\\Windows';
+const CURL = path.join(SYS, 'System32', 'curl.exe');
+const CNI = path.join(SYS, 'System32', 'CheckNetIsolation.exe');
+// Package-family-shaped names, so the app's own rules treat them as apps.
+const OURS = 'Shroudly.LoopbackLab_0123456789abc';
+const USERS = 'Shroudly.UsersOwnLab_0123456789abc';
+
+/* A process in an app container: CreateAppContainerProfile (internetClient),
+ * then CreateProcess with SECURITY_CAPABILITIES, as Windows starts a UWP
+ * app. curl's output comes through our own handles. */
+const LAB_CS = `
+using System;
+using System.Runtime.InteropServices;
+using System.Text;
+public static class AcLab {
+  [StructLayout(LayoutKind.Sequential)] public struct SidAttr { public IntPtr Sid; public uint Attributes; }
+  [StructLayout(LayoutKind.Sequential)] public struct SecCaps { public IntPtr AppContainerSid; public IntPtr Capabilities; public uint CapabilityCount; public uint Reserved; }
+  [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)] public struct StartupInfo {
+    public int cb; public string lpReserved; public string lpDesktop; public string lpTitle;
+    public int dwX; public int dwY; public int dwXSize; public int dwYSize; public int dwXCountChars; public int dwYCountChars;
+    public int dwFillAttribute; public int dwFlags; public short wShowWindow; public short cbReserved2;
+    public IntPtr lpReserved2; public IntPtr hStdInput; public IntPtr hStdOutput; public IntPtr hStdError; }
+  [StructLayout(LayoutKind.Sequential)] public struct StartupInfoEx { public StartupInfo StartupInfo; public IntPtr lpAttributeList; }
+  [StructLayout(LayoutKind.Sequential)] public struct ProcInfo { public IntPtr hProcess; public IntPtr hThread; public int dwProcessId; public int dwThreadId; }
+  [DllImport("userenv.dll", CharSet = CharSet.Unicode)] static extern int CreateAppContainerProfile(string name, string display, string desc, SidAttr[] caps, int count, out IntPtr sid);
+  [DllImport("userenv.dll", CharSet = CharSet.Unicode)] static extern int DeriveAppContainerSidFromAppContainerName(string name, out IntPtr sid);
+  [DllImport("userenv.dll", CharSet = CharSet.Unicode)] static extern int DeleteAppContainerProfile(string name);
+  [DllImport("advapi32.dll", CharSet = CharSet.Unicode, SetLastError = true)] static extern bool ConvertStringSidToSid(string s, out IntPtr sid);
+  [DllImport("advapi32.dll", CharSet = CharSet.Unicode, SetLastError = true)] static extern bool ConvertSidToStringSid(IntPtr sid, out IntPtr str);
+  [DllImport("kernel32.dll", SetLastError = true)] static extern bool InitializeProcThreadAttributeList(IntPtr list, int count, int flags, ref IntPtr size);
+  [DllImport("kernel32.dll", SetLastError = true)] static extern bool UpdateProcThreadAttribute(IntPtr list, uint flags, IntPtr attr, IntPtr value, IntPtr size, IntPtr prev, IntPtr ret);
+  [DllImport("kernel32.dll")] static extern void DeleteProcThreadAttributeList(IntPtr list);
+  [DllImport("kernel32.dll", SetLastError = true, CharSet = CharSet.Unicode)] static extern bool CreateProcessW(string app, StringBuilder cmd, IntPtr pa, IntPtr ta, bool inherit, uint flags, IntPtr env, string dir, ref StartupInfoEx si, out ProcInfo pi);
+  [DllImport("kernel32.dll")] static extern uint WaitForSingleObject(IntPtr h, uint ms);
+  [DllImport("kernel32.dll")] static extern bool GetExitCodeProcess(IntPtr h, out uint code);
+  [DllImport("kernel32.dll")] static extern bool TerminateProcess(IntPtr h, uint code);
+  [DllImport("kernel32.dll")] static extern bool CloseHandle(IntPtr h);
+  [DllImport("kernel32.dll")] static extern IntPtr GetStdHandle(int n);
+  [DllImport("kernel32.dll")] static extern IntPtr LocalFree(IntPtr p);
+  static IntPtr Cap() { IntPtr c; if (!ConvertStringSidToSid("S-1-15-3-1", out c)) throw new Exception("capability sid"); return c; }
+  static IntPtr Profile(string name) {
+    SidAttr[] caps = new SidAttr[] { new SidAttr { Sid = Cap(), Attributes = 4 } };
+    IntPtr sid;
+    int hr = CreateAppContainerProfile(name, name, "Shroudly loopback lab", caps, 1, out sid);
+    if (hr != 0) { int hr2 = DeriveAppContainerSidFromAppContainerName(name, out sid); if (hr2 != 0) throw new Exception("profile 0x" + hr.ToString("x8") + " / 0x" + hr2.ToString("x8")); }
+    return sid;
+  }
+  public static string Create(string name) {
+    IntPtr s; if (!ConvertSidToStringSid(Profile(name), out s)) return "";
+    try { return Marshal.PtrToStringUni(s); } finally { LocalFree(s); }
+  }
+  public static int Delete(string name) { return DeleteAppContainerProfile(name); }
+  public static int Run(string name, string exe, string args, int ms) {
+    IntPtr sid = Profile(name);
+    int saSize = Marshal.SizeOf(typeof(SidAttr));
+    IntPtr capPtr = Marshal.AllocHGlobal(saSize);
+    Marshal.StructureToPtr(new SidAttr { Sid = Cap(), Attributes = 4 }, capPtr, false);
+    SecCaps sc = new SecCaps { AppContainerSid = sid, Capabilities = capPtr, CapabilityCount = 1, Reserved = 0 };
+    int scSize = Marshal.SizeOf(typeof(SecCaps));
+    IntPtr scPtr = Marshal.AllocHGlobal(scSize);
+    Marshal.StructureToPtr(sc, scPtr, false);
+    IntPtr size = IntPtr.Zero;
+    InitializeProcThreadAttributeList(IntPtr.Zero, 1, 0, ref size);
+    IntPtr list = Marshal.AllocHGlobal(size);
+    if (!InitializeProcThreadAttributeList(list, 1, 0, ref size)) throw new Exception("attribute list " + Marshal.GetLastWin32Error());
+    if (!UpdateProcThreadAttribute(list, 0, (IntPtr)0x00020009, scPtr, (IntPtr)scSize, IntPtr.Zero, IntPtr.Zero)) throw new Exception("security capabilities " + Marshal.GetLastWin32Error());
+    StartupInfoEx si = new StartupInfoEx();
+    si.StartupInfo.cb = Marshal.SizeOf(typeof(StartupInfoEx));
+    si.StartupInfo.dwFlags = 0x100;
+    si.StartupInfo.hStdInput = IntPtr.Zero;
+    si.StartupInfo.hStdOutput = GetStdHandle(-11);
+    si.StartupInfo.hStdError = GetStdHandle(-12);
+    si.lpAttributeList = list;
+    ProcInfo pi;
+    StringBuilder cmd = new StringBuilder("\\"" + exe + "\\" " + args);
+    if (!CreateProcessW(exe, cmd, IntPtr.Zero, IntPtr.Zero, true, 0x00080000 | 0x08000000, IntPtr.Zero, Environment.SystemDirectory, ref si, out pi))
+      throw new Exception("CreateProcess " + Marshal.GetLastWin32Error());
+    try {
+      if (WaitForSingleObject(pi.hProcess, (uint)ms) != 0) { TerminateProcess(pi.hProcess, 999); return 999; }
+      uint code; GetExitCodeProcess(pi.hProcess, out code); return (int)code;
+    } finally {
+      CloseHandle(pi.hProcess); CloseHandle(pi.hThread);
+      DeleteProcThreadAttributeList(list); Marshal.FreeHGlobal(list); Marshal.FreeHGlobal(scPtr); Marshal.FreeHGlobal(capPtr);
+    }
+  }
+}`;
+
+function ps(script, env = {}, timeout = 120000) {
+  const full = `$ErrorActionPreference = 'Stop'\n${script}`;
+  const r = spawnSync('powershell.exe', ['-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass', '-EncodedCommand', Buffer.from(full, 'utf16le').toString('base64')],
+    { encoding: 'utf8', timeout, env: { ...powershellEnv(), ...env } });
+  return { code: r.status, out: String(r.stdout || ''), err: String(r.stderr || '') };
+}
+
+/* A script run with a standard user's rights (a Basic User token: the
+ * Administrators group deny-only), as Shroudly runs; its output, or null. */
+async function asStandardUser(body) {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'shroudly-basic-'));
+  const out = path.join(dir, 'out.txt');
+  const ps1 = path.join(dir, 'run.ps1');
+  fs.writeFileSync(ps1, `try { & {\n${body}\n} *>&1 | Out-File -Encoding utf8 -LiteralPath '${out}' } finally { 'done' | Out-File -LiteralPath '${out}.done' }\n`);
+  spawnSync('runas', ['/trustlevel:0x20000', `powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -File ${ps1}`], { stdio: 'ignore', timeout: 30000 });
+  for (let i = 0; i < 120 && !fs.existsSync(`${out}.done`); i++) await new Promise((r) => setTimeout(r, 1000));
+  try { return fs.readFileSync(out, 'utf8').replace(/^\uFEFF/, ''); } catch { return null; } finally { setTimeout(() => fs.rmSync(dir, { recursive: true, force: true }), 2000).unref(); }
+}
+
+const lab = (call, env) => ps(`Add-Type -TypeDefinition @'\n${LAB_CS}\n'@\n${call}`, env);
+
+/* curl in the app container: its exit code (0 fine, 7 could not connect,
+ * 28 timed out, 97 the proxy refused, 999 killed). What it fetches goes to
+ * our own output (an app container may not open NUL). */
+function inContainer(name, args) {
+  const r = lab("$c = [AcLab]::Run($env:LAB_NAME, $env:LAB_EXE, $env:LAB_ARGS, 30000); [Console]::Out.WriteLine('EXIT ' + $c)",
+    { LAB_NAME: name, LAB_EXE: CURL, LAB_ARGS: args });
+  const m = r.out.match(/EXIT (-?\d+)\s*$/);
+  if (!m) console.log(`      (lab: ${r.code} ${r.err.trim().slice(0, 300)})`);
+  return m ? Number(m[1]) : null;
+}
+
+function outside(args) {
+  return spawnSync(CURL, args.split(' '), { encoding: 'utf8', timeout: 30000 }).status;
+}
+
+function cni(...args) {
+  const r = spawnSync(CNI, ['LoopbackExempt', ...args], { encoding: 'utf8', timeout: 30000 });
+  return { code: r.status, out: String(r.stdout || '') };
+}
+
+const exemptNow = () => new Set(StoreApps.parseExemptList(cni('-s').out));
+
+function memStore() {
+  const m = new Map();
+  return { get: (k, d) => (m.has(k) ? m.get(k) : d), set: (k, v) => m.set(k, v), delete: (k) => m.delete(k), m };
+}
+
+function regRecord() {
+  const r = spawnSync('reg.exe', ['query', StoreApps.RECORD_KEY, '/v', StoreApps.RECORD_VALUE], { encoding: 'utf8' });
+  return r.status === 0 ? StoreApps.parseExemptList(r.stdout) : [];
+}
+
+/* The uninstaller's command, out of scripts/installer.nsh as NSIS runs it. */
+function uninstallerScript() {
+  const nsh = fs.readFileSync(path.join(ROOT, 'scripts', 'installer.nsh'), 'utf8');
+  const m = [...nsh.matchAll(/nsExec::Exec `powershell (.*?) -Command "(.*?)"`/gs)].find((x) => /LoopbackExempt/.test(x[2]));
+  return m ? m[2].replace(/\$\$/g, '$') : null;
+}
+
+(async () => {
+  if (process.platform !== 'win32') { console.log('uwp-loopback: skipped (Windows only)'); return; }
+  if (spawnSync('net', ['session'], { stdio: 'ignore' }).status !== 0) { console.log('uwp-loopback: skipped (needs an administrator)'); return; }
+  if (!fs.existsSync(CURL)) { console.log('uwp-loopback: skipped (no curl.exe in System32)'); return; }
+
+  const fw = ps("Get-NetFirewallProfile | ForEach-Object { $_.Name + '=' + $_.Enabled }");
+  console.log(`  ..  Windows ${os.release()}, firewall: ${fw.out.trim().split(/\r?\n/).join(' ') || fw.err.trim().slice(0, 120)}`);
+
+  const server = http.createServer((req, res) => { res.end('shroudly-lab'); });
+  await new Promise((r) => server.listen(0, '127.0.0.1', r));
+  const port = server.address().port;
+  let engine = null;
+  const socksPort = await freePort();
+  try { engine = await startEngine(socksPort); } catch (e) { console.log(`  ..  engine not started (${e.message}); the SOCKS checks are left out`); }
+
+  const sidOurs = lab('[Console]::Out.WriteLine([AcLab]::Create($env:LAB_NAME))', { LAB_NAME: OURS }).out.trim();
+  const sidUsers = lab('[Console]::Out.WriteLine([AcLab]::Create($env:LAB_NAME))', { LAB_NAME: USERS }).out.trim();
+  try {
+    check(StoreApps.SID_RE.test(sidOurs) && sidOurs === StoreApps.containerSid(OURS),
+      `the app container SID Windows gives is the one store-apps.js derives from the name (${sidOurs})`);
+    cni('-d', `-p=${sidOurs}`);
+    cni('-d', `-p=${sidUsers}`);
+
+    // ── 1. the cause ──
+    const url = `http://127.0.0.1:${port}/`;
+    check(outside(`-s -o NUL -m 10 ${url}`) === 0, 'outside a container, curl reaches the server on 127.0.0.1');
+    const inet = inContainer(OURS, '-s -S -m 20 http://www.msftconnecttest.com/connecttest.txt');
+    check(inet === 0, `in the app container, curl reaches the internet (exit ${inet})`);
+    const loop = inContainer(OURS, `-s -S -m 10 --connect-timeout 8 ${url}`);
+    if (loop === 0) {
+      // Network isolation off on this machine: nothing here can show it.
+      console.log('  ..  loopback is not blocked for app containers on this machine; the rest cannot be shown here');
+      return;
+    }
+    check(loop !== null && loop !== 0, `without an exemption it cannot reach 127.0.0.1 (curl exit ${loop}): the cause of #26`);
+    if (engine) {
+      const viaSocks = inContainer(OURS, `-s -S -m 15 --connect-timeout 8 --socks5-hostname 127.0.0.1:${socksPort} http://example.com/`);
+      check(viaSocks !== 0, `…nor Shroudly's SOCKS port, which the PAC hands it (curl exit ${viaSocks})`);
+    }
+
+    // ── 2. what store-apps.js reads ──
+    const sa = new StoreApps({ store: memStore(), platform: 'win32', protectionOn: () => true });
+    const scan = await sa.scan();
+    check(!!scan && scan.source === 'firewall', `the firewall's list is read (${scan && scan.source}, ${scan && scan.containers.length} app containers, ${scan && scan.exempt.length} exempt)`);
+    const mine = scan && scan.containers.find((c) => c.sid === sidOurs);
+    check(!!mine && /^shroudly\.loopbacklab_/i.test(mine.name) && mine.caps.includes('S-1-15-3-1'), `the lab's container is in it, with internetClient (${mine && mine.caps.join(',')})`);
+    check(!!mine && StoreApps.candidates(scan).some((c) => c.sid === sidOurs), '…and it is one that needs an exemption');
+    const reg = spawnSync('reg.exe', ['query', StoreApps.MAPPINGS_KEY, '/s'], { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
+    const mapped = StoreApps.parseMappings(reg.stdout);
+    check(mapped.some((c) => c.sid === sidOurs), `the registry fallback finds it too (${mapped.length} mappings)`);
+    const wrong = mapped.filter((c) => StoreApps.isPackage(c.name) && StoreApps.containerSid(c.name) !== c.sid);
+    check(!wrong.length, `every package's SID in the registry is the derived one (${mapped.length - wrong.length} checked${wrong.length ? `; not: ${wrong.slice(0, 2).map((c) => c.name).join(', ')}` : ''})`);
+
+    // ── 3. the fix ──
+    const r = await sa._elevate('add', [sidOurs]);
+    check(r.code === 'ok', `the elevated step ran (${JSON.stringify(r)})`);
+    check(exemptNow().has(sidOurs), 'CheckNetIsolation lists the lab container as exempt');
+    const after = await sa.scan();
+    check(!!after && after.exempt.includes(sidOurs), 'the firewall list says so too');
+    // The same lists, read the way Shroudly reads them: without administrator rights.
+    const plain = await asStandardUser([
+      "'ADMIN=' + ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole('Administrators')",
+      StoreApps.SCAN_PS.replace(/foreach \(\$l in \[ShroudlyNetIso\]::Run\(\)\) \{[^\n]*\}/, '[ShroudlyNetIso]::Run()'),
+      "'---'",
+      "& (Join-Path $env:SystemRoot 'System32\\CheckNetIsolation.exe') LoopbackExempt -s",
+    ].join('\n'));
+    if (plain === null || !/ADMIN=False/.test(plain)) {
+      console.log(`  ..  a standard user's token could not be had here (${plain === null ? 'no output' : plain.split(/\r?\n/)[0]}); left out`);
+    } else {
+      const [apiPart, cniPart] = plain.split(/^---\s*$/m);
+      const std = StoreApps.parseScan(apiPart);
+      check(!std.errors.length && std.containers.some((c) => c.sid === sidOurs) && std.exempt.includes(sidOurs),
+        `without administrator rights the firewall's lists read the same (${std.containers.length} app containers, ${std.exempt.length} exempt${std.errors.length ? `; errors: ${std.errors.join(', ')}` : ''})`);
+      check(StoreApps.parseExemptList(cniPart).includes(sidOurs), '…and so does CheckNetIsolation\'s');
+      if (std.errors.length || !std.containers.length) console.log(`      ${apiPart.trim().split(/\r?\n/).slice(0, 6).join('\n      ')}`);
+    }
+    const loop2 = inContainer(OURS, `-s -S -m 10 --connect-timeout 8 ${url}`);
+    check(loop2 === 0, `with the exemption it reaches 127.0.0.1 (curl exit ${loop2})`);
+    if (engine) {
+      const viaSocks2 = inContainer(OURS, `-s -S -m 20 --connect-timeout 8 --socks5-hostname 127.0.0.1:${socksPort} http://example.com/`);
+      check(viaSocks2 === 0, `…and goes through Shroudly's SOCKS port (curl exit ${viaSocks2})`);
+    }
+    cni('-d', `-p=${sidOurs}`);
+
+    // ── 4. the autopilot's round ──
+    cni('-a', `-p=${sidUsers}`);     // the user's own, from before
+    const store = memStore();
+    const told = [];
+    const ap = new StoreApps({ store, platform: 'win32', protectionOn: () => true, tell: (id) => told.push(id), log: (l, m) => console.log(`      [${l}] ${m}`) });
+    const before = exemptNow();
+    const s1 = await ap.survey();
+    const ours = ap.ours();
+    check(s1.result === 'on' && told.join() === 'autoStoreAppsAsk,autoStoreAppsOn', `asked once and told (${s1.result}; ${told.join(', ')})`);
+    check(ours.includes(sidOurs) && !ours.includes(sidUsers), `the lab's container is Shroudly's now; the user's own is not (${ours.length} added)`);
+    check(ours.every((s) => !before.has(s)), 'nothing that was exempt before is counted as Shroudly\'s');
+    const rec = regRecord();
+    check(rec.length === ours.length && ours.every((s) => rec.includes(s)), 'the uninstaller\'s record has exactly those');
+    const s2 = await ap.survey({});
+    check(!s2.asked, `asked at most once a session (${s2.why})`);
+
+    const off = await ap.setMode(false);
+    const now1 = exemptNow();
+    check(off.success && !now1.has(sidOurs) && now1.has(sidUsers), `switched off: Shroudly's taken out, the user's own kept (${JSON.stringify(off)})`);
+    check(!regRecord().length && !ap.ours().length, '…and nothing is left in the record');
+    check(ours.every((s) => !now1.has(s)), 'every exemption Shroudly added is gone');
+
+    // The uninstaller, after a round that exempted everything again.
+    const ap2 = new StoreApps({ store: memStore(), platform: 'win32', protectionOn: () => true });
+    const s3 = await ap2.survey();
+    check(s3.result === 'on' && exemptNow().has(sidOurs), 'a new round exempts them again');
+    const script = uninstallerScript();
+    check(!!script, 'the uninstaller\'s command is in scripts/installer.nsh');
+    if (script) {
+      const u = spawnSync('powershell.exe', ['-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass', '-Command', script], { encoding: 'utf8', timeout: 120000, env: powershellEnv() });
+      const now2 = exemptNow();
+      check(u.status === 0, `it ran (${u.status} ${String(u.stderr || '').trim().slice(0, 200)})`);
+      check(!now2.has(sidOurs) && now2.has(sidUsers), 'uninstalled: Shroudly\'s exemptions gone, the user\'s own kept');
+      check(ap2.ours().every((s) => !now2.has(s)), '…all of Shroudly\'s');
+      check(!regRecord().length, '…and its record removed');
+    }
+  } finally {
+    cni('-d', `-p=${sidOurs}`);
+    cni('-d', `-p=${sidUsers}`);
+    lab('[void][AcLab]::Delete($env:LAB_NAME)', { LAB_NAME: OURS });
+    lab('[void][AcLab]::Delete($env:LAB_NAME)', { LAB_NAME: USERS });
+    spawnSync('reg.exe', ['delete', StoreApps.RECORD_KEY, '/v', StoreApps.RECORD_VALUE, '/f'], { stdio: 'ignore' });
+    if (engine) engine.stop();
+    server.close();
+  }
+  console.log(fails ? `\nuwp-loopback: ${fails} failed` : '\nuwp-loopback: all passed');
+  process.exitCode = fails ? 1 : 0;
+})().catch((e) => { console.error(e); process.exit(1); });

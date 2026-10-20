@@ -77,6 +77,16 @@ jobs:
           node scripts/fetch-windivert.js
           node tests/lab/advanced-windows.js electron/tools/core/win32-x64/shroudly-core-adv.exe
 
+      # Microsoft Store apps and the loopback proxy (issue #26): a process in
+      # an app container of our own reaches the internet but not 127.0.0.1
+      # nor the engine's SOCKS port until it has a loopback exemption, and
+      # does with one; Shroudly's autopilot adds the exemptions, remembers
+      # only its own, and the switch and the uninstaller take out only those
+      # (tests/lab/uwp-loopback.js). It changes the runner's exemptions.
+      - name: Store apps lab (Windows, app containers and loopback)
+        if: runner.os == 'Windows'
+        run: node tests/lab/uwp-loopback.js
+
       - name: Engine unit tests, sanitizers, fuzzing
         if: runner.os != 'Windows'
         working-directory: core

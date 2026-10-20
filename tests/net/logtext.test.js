@@ -108,6 +108,14 @@ const LINES = [
   'Shroudly engine stopped',
   'Encrypted DNS unavailable: bind EADDRINUSE 127.0.0.1:53',
   'engine error: spawn /opt/Shroudly/resources/app.asar.unpacked/electron/tools/core/linux-x64/shroudly-core ENOENT',
+  // Microsoft Store apps and their loopback exemptions (store-apps.js).
+  'Store apps: 4 cannot reach Shroudly (Xbox, Microsoft Store, WhatsApp); asking for permission',
+  'Store apps: 4 can now reach Shroudly',
+  'Store apps: permission was not given; Shroudly will not ask by itself again for two weeks',
+  'Store apps: they could not be let through (no exemption was added)',
+  'Store apps: Xbox, Microsoft Store cannot go through Shroudly; permission was not given',
+  'Store apps: the exemptions Shroudly added were taken out (4)',
+  'Store apps: the exemptions Shroudly added could not be taken out',
 ];
 
 const langs = Object.keys(translations);

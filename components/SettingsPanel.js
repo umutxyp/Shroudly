@@ -164,6 +164,8 @@ export default function SettingsPanel({ active = false }) {
   const [discord, setDiscord] = useState({ installed: false, on: false });
   // Games and apps mode: shown on the systems where it works (Windows, macOS)
   const [apps, setApps] = useState({ available: false, on: false, store: false });
+  // Microsoft Store apps: shown on Windows only
+  const [storeApps, setStoreApps] = useState({ available: false, on: false });
   const [defaultList, setDefaultList] = useState([]);
   const [siteText, setSiteText] = useState(null);   // textarea draft (null until loaded)
   const [badEntries, setBadEntries] = useState([]); // lines dropped as unusable
@@ -223,6 +225,24 @@ export default function SettingsPanel({ active = false }) {
       const r = await window.electron.appsSet(on);
       if (!r?.success) setApps((a) => ({ ...a, on: !on }));
     } catch { setApps((a) => ({ ...a, on: !on })); }
+  }
+
+  useEffect(() => {
+    const load = () => window.electron?.storeAppsStatus?.()
+      .then((s) => setStoreApps({ available: !!s?.available, on: s?.on === true }))
+      .catch(() => {});
+    load();
+    // The autopilot turns it on by itself: the switch follows.
+    const off = window.electron?.onStoreAppsState?.(load);
+    return () => { if (typeof off === 'function') off(); };
+  }, []);
+  async function setStoreAppsMode(on) {
+    setStoreApps((a) => ({ ...a, on }));
+    try {
+      const r = await window.electron.storeAppsSet(on);
+      // Turning it on needs the system's permission; declined, it stays off.
+      if (on && !r?.success) setStoreApps((a) => ({ ...a, on: false }));
+    } catch { setStoreApps((a) => ({ ...a, on: !on })); }
   }
 
   useEffect(() => {
@@ -438,6 +458,12 @@ export default function SettingsPanel({ active = false }) {
               <p className="pb-3 text-[12px] leading-snug" style={{ color: 'var(--warn)' }}>{t('appStoreEdition')}</p>
             )}
             </div>
+          )}
+          {/* Windows: Shroudly lets Store apps reach it by itself
+              (store-apps.js); off takes its exemptions out again. */}
+          {storeApps.available && (
+            <Toggle label={t('storeAppsLabel')} desc={t('storeAppsDesc')}
+                    checked={storeApps.on} onChange={setStoreAppsMode} />
           )}
         </div>
 
