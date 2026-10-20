@@ -242,6 +242,68 @@ const settle = async () => { for (let i = 0; i < 5; i++) await new Promise((r) =
     t.ok(ap.isBlocked('roblox'), 'and the new network\'s answer is the one kept');
   }
   {
+    // At startup the Roblox installer a script started waits for Roblox's
+    // verdict: it must not wait for Discord's check (a silent network takes a
+    // whole timeout) or for Discord's mode to come on.
+    const store = memStore({ autopilotSince: 1 });
+    const at = {}; const t0 = Date.now(); const blockedSaid = [];
+    const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+    let ap = null;
+    ap = new Autopilot({
+      store, log: () => {}, tell: () => {}, protectionOn: () => true,
+      check: async (h) => { await wait(h === 'discord.com' ? 400 : 60); return { blocked: true, how: 'tls', detail: 'timeout' }; },
+      onBlocked: (id) => { at[id] = Date.now() - t0; blockedSaid.push([id, store.get(id === 'roblox' ? 'appMode' : 'discordMode')]); },
+      services: [
+        { id: 'discord', name: 'discord', probe: 'discord.com', mode: 'discordMode', needsApp: true, present: () => true, enable: async () => { await wait(300); store.set('discordMode', true); return { success: true }; }, logOn: '', told: 'x' },
+        { id: 'roblox', name: 'roblox', probe: 'clientsettingscdn.roblox.com', mode: 'appMode', needsApp: false, present: () => true, enable: async () => { store.set('appMode', true); return { success: true }; }, logOn: '', told: 'y' },
+      ],
+    });
+    await ap.survey();
+    t.ok(at.roblox < 250 && at.discord >= 650, `services are checked side by side: Roblox's verdict after ${at.roblox} ms, not after Discord's check and mode (${at.discord} ms)`);
+    t.ok(JSON.stringify(blockedSaid) === '[["roblox",true],["discord",true]]', 'the verdict is told once its mode is on (what then looks at its programs finds the mode on)');
+  }
+  {
+    // A program waiting on the verdict asks for it.
+    let online = false; let clock = 1e12;
+    const asked = [];
+    const store = memStore({ autopilotSince: 1 });
+    const ap = new Autopilot({
+      store, log: () => {}, tell: () => {}, protectionOn: () => true, now: () => clock,
+      check: async (h) => { asked.push(h); return online ? { blocked: true, how: 'tls', detail: 'reset' } : { blocked: false, unknown: true, detail: 'offline' }; },
+      services: [{ id: 'roblox', name: 'roblox', probe: 'clientsettingscdn.roblox.com', mode: 'appMode', needsApp: false, present: () => true, enable: async () => { store.set('appMode', true); return { success: true }; }, logOn: '', told: 'x' }],
+    });
+    t.ok(await ap.checkSoon('roblox') === false && asked.length === 1, 'no verdict yet: checked at once, without waiting for the survey');
+    clock += 5000;
+    t.ok(await ap.checkSoon('roblox') === false && asked.length === 1, `nothing learnt (offline): not again within ${Autopilot.SOON_MS / 1000} s`);
+    online = true; clock += Autopilot.SOON_MS;
+    t.ok(await ap.checkSoon('roblox') === true && asked.length === 2 && ap.isBlocked('roblox'), 'then again (not after the ten-minute survey): blocked');
+    t.ok(await ap.checkSoon('roblox') === true && asked.length === 2, 'a known verdict is not checked again');
+    const ap2 = new Autopilot({
+      store: memStore({ autopilotSince: 1 }), log: () => {}, tell: () => {}, protectionOn: () => true, now: () => clock,
+      check: async (h) => { asked.push(h); return { blocked: false, detail: 'direct ok' }; },
+      services: [{ id: 'roblox', name: 'roblox', probe: 'clientsettingscdn.roblox.com', mode: 'appMode', needsApp: false, present: () => true, enable: async () => ({ success: true }), logOn: '', told: 'x' }],
+    });
+    await ap2.checkSoon('roblox'); clock += 60000;
+    t.ok(await ap2.checkSoon('roblox') === false && asked.length === 3, 'Roblox works without Shroudly here: not asked again for hours, however many programs wait');
+  }
+  {
+    // A filter that drops silently is known within one handshake timeout
+    // (the second try is not made to wait for the first to give up), and
+    // the handshake through Shroudly is made alongside.
+    const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+    let through = 0;
+    const silent = async (o) => { if (o.socket) { through++; await wait(40); return 'ok'; } await wait(300); return 'timeout'; };
+    const t0 = Date.now();
+    const c = await BlockCheck.check('clientsettingscdn.roblox.com', { socksPort: 1, connect: async () => ({}), resolve: async () => ['128.116.1.1'], handshake: silent, retryMs: 100 });
+    const took = Date.now() - t0;
+    t.ok(c.blocked && c.how === 'tls' && took < 470 && through === 1, `silent filter: blocked after ${took} ms (one timeout and the retry gap; was two timeouts, the gap and the engine's handshake: ${300 + 100 + 300 + 40} ms)`);
+    let direct = 0;
+    const fine = async (o) => { if (o.socket) { through++; return 'ok'; } direct++; await wait(20); return 'ok'; };
+    const c2 = await BlockCheck.check('clientsettingscdn.roblox.com', { socksPort: 1, connect: async () => ({}), resolve: async () => ['128.116.1.1'], handshake: fine, retryMs: 100 });
+    await wait(150);
+    t.ok(!c2.blocked && c2.detail === 'direct ok' && direct === 1, 'working directly: one handshake, the second try never made');
+  }
+  {
     const NF = Autopilot.networkFingerprint;
     t.ok(Autopilot.ipv6Groups('fd00::1c2d:3e4f:5a6b:7c8d').join(':') === 'fd00:0:0:0:1c2d:3e4f:5a6b:7c8d' && Autopilot.ipv6Groups('::1').join(':') === '0:0:0:0:0:0:0:1',
       'IPv6 addresses are read in their eight groups, however they are written');

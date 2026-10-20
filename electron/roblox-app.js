@@ -19,6 +19,7 @@ const os = require('os');
 const path = require('path');
 const tls = require('tls');
 const https = require('https');
+const crypto = require('crypto');
 const { execFile, spawn } = require('child_process');
 const { envFor } = require('./win-powershell');
 
@@ -169,13 +170,62 @@ async function installerPids() {
   return out ? parseInstallerPids(out) : null;
 }
 
-/* What to do about Roblox's programs on one look (main.js watchRoblox), as a
+/* All of Roblox's programs on one look: players, Studios and both
+ * installers. Windows asks the process list once for every name that starts
+ * with "Roblox" (one tasklist, however often it is looked at); macOS has no
+ * installers to look for. null when the list could not be read. */
+function parseProcesses(out, platform = process.platform) {
+  if (platform !== 'win32') return { players: [], studios: [], installers: { player: [], studio: [] } };
+  return { players: parsePids(out, 'win32', 'player'), studios: parsePids(out, 'win32', 'studio'), installers: parseInstallerPids(out) };
+}
+async function processes() {
+  if (process.platform === 'win32') {
+    const out = await run('tasklist', ['/FI', 'IMAGENAME eq Roblox*', '/NH', '/FO', 'CSV']);
+    return out ? parseProcesses(out, 'win32') : null;
+  }
+  if (process.platform === 'darwin') {
+    const [players, studios] = await Promise.all([pids('player'), pids('studio')]);
+    return { players: players || [], studios: studios || [], installers: { player: [], studio: [] } };
+  }
+  return { players: [], studios: [], installers: { player: [], studio: [] } };
+}
+
+/* Windows: when each of these processes started (ms since 1970, by the
+ * system's clock) and the program file it runs, both asked in one
+ * PowerShell call for every new process at once. Its start time tells
+ * whether it can have the setting at all; its file is what an installer is
+ * started again from (it goes with the process, so it is read as soon as
+ * the process is seen). Resolves pid -> { startedAt, path }, each null when
+ * it could not be read (a process of another user, one already gone). */
+const FILETIME_EPOCH_MS = 11644473600000;
+function parseProcessInfo(out) {
+  const found = new Map();
+  for (const line of String(out || '').split(/\r?\n/)) {
+    const [id, t, ...rest] = line.trim().split('|');
+    if (!/^\d+$/.test(id || '')) continue;
+    const startedAt = /^\d{15,19}$/.test(t || '') ? Math.round(Number(t) / 1e4 - FILETIME_EPOCH_MS) : null;
+    const file = rest.join('|').trim();
+    found.set(Number(id), { startedAt, path: /^[a-z]:\\|^\\\\/i.test(file) ? file : null });
+  }
+  return found;
+}
+function processInfo(list) {
+  const ids = (list || []).filter((p) => Number.isInteger(p) && p > 0);
+  if (process.platform !== 'win32' || !ids.length) return Promise.resolve(new Map());
+  const env = { ...process.env, SHROUDLY_PIDS: ids.join(',') };
+  return new Promise((resolve) => execFile('powershell.exe', ['-NoProfile', '-NonInteractive', '-Command',
+    "foreach ($id in ($env:SHROUDLY_PIDS -split ',')) { $p = Get-Process -Id ([int]$id) -ErrorAction SilentlyContinue; if (-not $p) { continue }; " +
+    "$t = ''; try { $t = $p.StartTime.ToFileTime() } catch {}; $f = ''; try { $f = $p.Path } catch {}; \"$id|$t|$f\" }"],
+  { windowsHide: true, timeout: 20000, env: envFor('powershell.exe', env) }, (err, out) => resolve(parseProcessInfo(out))));
+}
+
+/* What to do about Roblox's programs on one look (roblox-watch.js), as a
  * pure decision. A process counts as going around Shroudly when it is quiet
- * (silentPlayers) or was open before the mode came on, and has not been dealt
- * with yet. Installers and players are started again through Shroudly (only
- * those, never the others: another player may be in a game through
- * Shroudly); Studio is only ever told about. A player is restarted at most
- * twice in ten minutes, then left to Advanced mode. */
+ * (roblox-watch.js judge) or was open before the mode came on, and has not
+ * been dealt with yet. Installers and players are started again through
+ * Shroudly (only those, never the others: another player may be in a game
+ * through Shroudly); Studio is only ever told about. A player is restarted at
+ * most twice in ten minutes, then left to Advanced mode. */
 function decide({ players, studios, installers, quiet, before, handled, restarts, now }) {
   const around = (list) => list.filter((pid) => (quiet.includes(pid) || before.includes(pid)) && !handled.includes(pid));
   const recent = (restarts || []).filter((t) => now - t <= 10 * 60 * 1000);
@@ -204,22 +254,6 @@ async function kill(list) {
  * included. */
 function routeWatched(platform = process.platform) { return platform === 'win32'; }
 
-/* Players that have run for BYPASS_GRACE_MS without a single request from
- * Roblox reaching Shroudly since just before each was first seen. Roblox makes
- * its requests in its first seconds and then keeps its connections open, so
- * each player is judged from when it was first seen, never from when the
- * others came or went. seen (pid -> first seen) is kept up to date here:
- * players that ended are dropped, new ones added. The slack covers requests
- * made in the seconds before a player was first seen (it is looked for every
- * 20 seconds). */
-const BYPASS_GRACE_MS = 30000;
-const BYPASS_SLACK_MS = 25000;
-function silentPlayers(seen, list, lastRequestAt, now = Date.now()) {
-  for (const pid of [...seen.keys()]) if (!list.includes(pid)) seen.delete(pid);
-  for (const pid of list) if (!seen.has(pid)) seen.set(pid, now);
-  return list.filter((pid) => now - seen.get(pid) >= BYPASS_GRACE_MS && (lastRequestAt || 0) < seen.get(pid) - BYPASS_SLACK_MS);
-}
-
 /* Which of these processes still run: asked of the system directly, without
  * starting a program to list them. */
 function alive(list) {
@@ -235,12 +269,15 @@ async function waitGone(list, ms) {
   return false;
 }
 
+/* Start a program on its own. Its process id (what Shroudly started itself
+ * is never taken for something going around it), true if the system gave
+ * none, false if it could not be started. */
 function detached(cmd, args, env) {
   try {
     const c = spawn(cmd, args, { detached: true, stdio: 'ignore', windowsHide: false, env: env || process.env });
     c.on('error', () => {});
     c.unref();
-    return true;
+    return c.pid || true;
   } catch { return false; }
 }
 
@@ -353,7 +390,10 @@ function get(url, { socksPort, connect, toFile, timeoutMs = 60000, redirects = 3
 
 /* The file's signature as Windows judges it: "Status|signer|message", or
  * what went wrong asking. Checking the certificate's revocation online can
- * take a while on a slow machine or network: up to two minutes. */
+ * take a while on a slow machine or network: up to two minutes. That is why
+ * a file found signed is remembered by its content (signedInstaller), and
+ * why the check starts as soon as an installer is seen, long before it is
+ * known whether it has to be started again. */
 function signatureOf(file) {
   if (process.platform !== 'win32') return Promise.resolve('');
   const env = { ...process.env, SHROUDLY_FILE: file };
@@ -373,29 +413,61 @@ const byRoblox = (sig) => {
  * downloaded program on anything less. */
 async function signedByRoblox(file) { return byRoblox(await signatureOf(file)); }
 
-/* The installer a running process was started from, if it is Roblox's own,
- * validly signed by Roblox: started again from the same file, it needs no
- * download. That is the common case on shared machines, where a script or a
- * launcher starts the installer from a game disk before Shroudly has set
- * anything. One PowerShell call reads the process's path and the file's
- * signature; asked before the process is stopped (its path goes with it).
- * Resolves the path, or null (not found, renamed, not Roblox's, not signed). */
-function parseInstallerProbe(out, kind = 'player') {
-  const line = String(out || '').trim().split(/\r?\n/).pop() || '';
-  const [file, status, subject] = line.split('|');
-  if (!file || path.win32.basename(file).toLowerCase() !== kindOf(kind).installer.toLowerCase()) return null;
-  return byRoblox(`${status}|${subject || ''}`) ? file : null;
-}
-function installerFile(pid, kind = 'player') {
-  if (process.platform !== 'win32' || !Number.isInteger(pid) || pid <= 0) return Promise.resolve(null);
-  const env = { ...process.env, SHROUDLY_PID: String(pid) };
-  return new Promise((resolve) => execFile('powershell.exe', ['-NoProfile', '-NonInteractive', '-Command',
-    '$p = (Get-Process -Id ([int]$env:SHROUDLY_PID) -ErrorAction SilentlyContinue).Path; ' +
-    'if ($p) { $s = Get-AuthenticodeSignature -LiteralPath $p; "$p|$($s.Status)|$($s.SignerCertificate.Subject)" }'],
-  { windowsHide: true, timeout: 120000, env: envFor('powershell.exe', env) }, (err, out) => resolve(parseInstallerProbe(out, kind))));
+/* The SHA-256 of a file's whole content, or null when it cannot be read. */
+function fileHash(file) {
+  return new Promise((resolve) => {
+    let s;
+    try { s = fs.createReadStream(file); } catch { resolve(null); return; }
+    const h = crypto.createHash('sha256');
+    s.on('error', () => resolve(null));
+    s.on('data', (d) => h.update(d));
+    s.on('end', () => resolve(h.digest('hex')));
+  });
 }
 
-/* Start an installer file again, with `env`. */
+/* Installers already found signed by Roblox, by the SHA-256 of their whole
+ * content: the same file again (a shared machine's script starts the same
+ * copy from its game disk every time) needs no second check, which may have
+ * to ask about revocation online. `keep` saves the list (Shroudly's
+ * settings), so it outlives a restart. A file with any other content is
+ * checked again, whatever its name, size or date. */
+const HASH = /^[0-9a-f]{64}$/;
+function signedCache(saved = [], keep = () => {}) {
+  let list = (Array.isArray(saved) ? saved : []).filter((h) => HASH.test(h)).slice(0, 16);
+  return {
+    has: (h) => list.includes(h),
+    add: (h) => {
+      if (!HASH.test(h)) return;
+      list = [h, ...list.filter((x) => x !== h)].slice(0, 16);
+      try { keep(list); } catch {}
+    },
+  };
+}
+
+/* Is `file` Roblox's installer of this kind, validly signed by Roblox? Its
+ * content's SHA-256 when it is (sameFile checks that again right before it is
+ * started), else null: not found, renamed, not Roblox's, not signed, or
+ * changed while it was being checked. Started again from that file, an
+ * installer caught going around Shroudly needs no download: the common case
+ * on shared machines, where a script or a launcher starts it from a game disk
+ * before Shroudly has set anything. Nothing is ever started on less. */
+async function signedInstaller(file, kind = 'player', { cache = null, signature = signatureOf } = {}) {
+  if (!file || path.win32.basename(file).toLowerCase() !== kindOf(kind).installer.toLowerCase()) return null;
+  const before = await fileHash(file);
+  if (!before) return null;
+  if (cache && cache.has(before)) return before;
+  if (!byRoblox(await signature(file))) return null;
+  // What was checked is what is remembered.
+  const after = await fileHash(file);
+  if (after !== before) return null;
+  if (cache) cache.add(after);
+  return after;
+}
+
+/* Still the very content that was found signed? */
+async function sameFile(file, hash) { return !!hash && (await fileHash(file)) === hash; }
+
+/* Start an installer file again, with `env`: its process id (detached). */
 function startInstaller(file, env) {
   if (process.platform !== 'win32' || !file) return false;
   return detached(file, [], { ...process.env, ...env });
@@ -422,7 +494,8 @@ function newDownload(dir, kind = 'player') {
 
 /* Download the current installer of the player (opts.kind 'player', the
  * default) or of Studio ('studio') and start it with `env`.
- * opts: { kind, socksPort, connect, env, dir }. Resolves { success, code }. */
+ * opts: { kind, socksPort, connect, env, dir, cache (signedCache) }.
+ * Resolves { success, version, pid, file } or { success: false, code }. */
 async function install(opts) {
   if (process.platform !== 'win32') return { success: false, code: 'unsupported' };
   const kind = KINDS[opts.kind] ? opts.kind : 'player';
@@ -442,13 +515,23 @@ async function install(opts) {
   // of file it is judging partly by the extension, and nothing starts it
   // until the signature has been checked.
   try { fs.renameSync(dl.part, dl.file); } catch (e) { drop(); return { success: false, code: 'failed', detail: e.message }; }
-  const sig = await signatureOf(dl.file);
-  if (!byRoblox(sig)) { drop(); return { success: false, code: 'unsigned', detail: sig || 'no answer' }; }
-  return detached(dl.file, [], { ...process.env, ...opts.env }) ? { success: true, version } : { success: false, code: 'failed' };
+  let sig = '';
+  const hash = await signedInstaller(dl.file, kind, { cache: opts.cache, signature: async (f) => { sig = await signatureOf(f); return sig; } });
+  if (!hash) { drop(); return { success: false, code: 'unsigned', detail: sig || 'no answer' }; }
+  const pid = detached(dl.file, [], { ...process.env, ...opts.env });
+  return pid ? { success: true, version, pid, file: dl.file } : { success: false, code: 'failed' };
 }
 
-/* Hosts Roblox's programs talk to: how a tunnel is recognised as Roblox's. */
-const ROBLOX_HOST = /(^|\.)(roblox\.com|rbxcdn\.com|rbxinfra\.net|rbx\.com|robloxlabs\.com)$/i;
+/* Hosts Roblox's programs talk to: how a request is recognised as Roblox's,
+ * which is what shows a program of Roblox's uses Shroudly. Every name of
+ * Roblox's own counts: one left out would make a program that goes through
+ * Shroudly look silent. */
+const ROBLOX_HOST = /(^|\.)(roblox\.com|rbxcdn\.com|rbxcdn\.net|robloxcdn\.com|rbxinfra\.net|rbx\.com|robloxlabs\.com|rbxtrk\.com|rblx\.org)$/i;
 function isRobloxHost(h) { return ROBLOX_HOST.test(String(h || '')); }
 
-module.exports = { installs, installed, handler, launcher, isBootstrapper, storeEdition, pids, parsePids, installerPids, parseInstallerPids, decide, kill, routeWatched, silentPlayers, alive, open, restart, install, installerFile, parseInstallerProbe, startInstaller, cleanDownloads, newDownload, isRobloxHost, get, signedByRoblox, BOOTSTRAPPERS, BYPASS_GRACE_MS, KINDS };
+module.exports = {
+  installs, installed, handler, launcher, isBootstrapper, storeEdition, pids, parsePids, installerPids, parseInstallerPids,
+  processes, parseProcesses, processInfo, parseProcessInfo, decide, kill, routeWatched, alive, open, restart, install,
+  startInstaller, signedInstaller, signedCache, sameFile, fileHash, cleanDownloads, newDownload, isRobloxHost, get, signedByRoblox,
+  BOOTSTRAPPERS, KINDS,
+};
