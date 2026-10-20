@@ -2245,12 +2245,15 @@ static void udp_associate(sock_t client, const socks_req *rq) {
 
   u.last = now_ms();
   while (atomic_load(&g_running)) {
+    /* First: a plaintext fallback it sends may open an outbound socket,
+     * which must be in the set waited on below. */
+    int wait_ms = udp_dns_tick(&u, 1000);
     sock_t s[5]; int ready[5], n = 0, i4 = -1, i6 = -1, id = -1;
     s[n++] = client; s[n++] = u.relay;
     if (u.out4 != SOCK_INVALID) { i4 = n; s[n++] = u.out4; }
     if (u.out6 != SOCK_INVALID) { i6 = n; s[n++] = u.out6; }
     if (u.dns != SOCK_INVALID) { id = n; s[n++] = u.dns; }
-    int r = sock_wait_any(s, n, udp_dns_tick(&u, 1000), ready);
+    int r = sock_wait_any(s, n, wait_ms, ready);
     if (r < 0) break;
     if (r > 0 && ready[0]) {
       /* The control connection says nothing more after the request: anything

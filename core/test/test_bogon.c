@@ -263,6 +263,8 @@ int main(void){
         doh_local_name("printer.local") && doh_local_name("fritz.home.arpa") && doh_local_name("git.corp.internal"));
   CHECK(!doh_local_name("example.com") && !doh_local_name("lan.example.com") && !doh_local_name("") &&
         !doh_local_name("evil-local.com"));
+  /* A fully qualified name with its final dot is the same name. */
+  CHECK(doh_local_name("router.") && doh_local_name("nas.lan.") && !doh_local_name("example.com.") && !doh_local_name("."));
   { struct sockaddr_storage ss; memset(&ss,0,sizeof(ss)); struct sockaddr_in *s4=(struct sockaddr_in*)&ss; s4->sin_family=AF_INET;
     uint32_t ok_trusted[] = { 0x0a141e28, 0xc0a80101, 0xac100001, 0xa9fe0001, 0x64400001, 0x5db8d822 };
     for (size_t i=0;i<sizeof(ok_trusted)/4;i++){ s4->sin_addr.s_addr=htonl(ok_trusted[i]);

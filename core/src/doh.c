@@ -271,8 +271,10 @@ int doh_local_name(const char *h) {
     ".localhost", ".local", ".test", ".invalid", ".internal", ".lan", ".home.arpa", NULL
   };
   if (!h || !h[0]) return 0;
-  if (!strchr(h, '.')) return 1;           /* "localhost", "router", ... */
   size_t n = strlen(h);
+  if (h[n - 1] == '.') n--;                /* "router.", "nas.lan.": the same names */
+  if (n == 0) return 0;
+  if (!memchr(h, '.', n)) return 1;        /* "localhost", "router", ... */
   for (int i = 0; SUFFIX[i]; i++) {
     size_t m = strlen(SUFFIX[i]), k = 0;
     if (n < m) continue;
