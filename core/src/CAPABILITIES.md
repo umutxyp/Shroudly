@@ -200,7 +200,7 @@ answers SOCKS5 `UDP ASSOCIATE` (RFC 1928 section 7, `udp_associate` in
 `core/test/test_socksudp.c`, end to end in `tests/net/engine-udp.test.js`).
 
 - Only a loopback client may ask; it gets a relay port on `127.0.0.1` of its
-  own. The association lives as long as its TCP control connection, or until
+  own, an ephemeral one the system picks. The association lives as long as its TCP control connection, or until
   120 s pass with no datagram either way. At most 256 at once; one more is
   refused (reply 0x01).
 - An association belongs to one client endpoint, address and port: the one
@@ -208,6 +208,12 @@ answers SOCKS5 `UDP ASSOCIATE` (RFC 1928 section 7, `udp_associate` in
   own address), else the one the first well-formed datagram comes from. It is
   fixed from then on; datagrams from any other port are dropped, so another
   program on the machine can neither send through it nor take its replies.
+  hev-socks5-tunnel (Android) asks with 0.0.0.0:0, so there the first
+  well-formed datagram pins it. Between the reply and that datagram another
+  local program that found the new port could send first; the port is
+  ephemeral, on loopback, told only to the client that asked, and with
+  `--auth-file` only an authenticated client can create an association at
+  all. That residual window is accepted.
   Fragments (FRAG != 0) and malformed headers are dropped. A destination may be
   IPv4, IPv6 or a name (resolved by the engine's own resolver, as CONNECT does),
   but never loopback or unspecified (127/8, 0.0.0.0/8, ::1, ::, and their
@@ -215,7 +221,15 @@ answers SOCKS5 `UDP ASSOCIATE` (RFC 1928 section 7, `udp_associate` in
 - Plain DNS (a query to port 53) goes to the encrypted-DNS forwarder instead,
   when the engine runs with `--doh` and `--doh-port`; the answer comes back
   headed with the address the app asked, so an app with its own resolver gets
-  encrypted DNS too.
+  encrypted DNS too. Only a well-formed standard query (QR clear, opcode 0,
+  one question) is taken; one for a resolver at a private or link-local
+  address, or about a name only the LAN knows, and anything else on port 53
+  go where they were sent. Each query carries an id of its own to the
+  forwarder (the app's comes back on the answer), so two queries with the
+  same id cannot get each other's answers. One the forwarder has not
+  answered within 2.5 s is also sent where it was headed, in plaintext, and
+  that answer relayed. An answer over 512 bytes to a query without EDNS comes
+  back as the question with TC set; the app asks again over TCP.
 - Each association sends from outbound sockets of its own (one per address
   family) and returns replies, headed with their source, only to its client:
   nothing goes anywhere that did not send first.
@@ -234,9 +248,23 @@ answers SOCKS5 `UDP ASSOCIATE` (RFC 1928 section 7, `udp_associate` in
   it. `tests/net/engine-auth.test.js`.
 - Names only the local network knows (one label, `.local`, `.lan`,
   `.home.arpa`, `.internal`, ...) are asked of the system resolver alone, and
-  its private answer is taken. So is the system's private answer for a name
-  that encrypted DNS says does not exist publicly, or has only a private
-  address: an intranet name, a printer, a router's own name. A known block page
-  is still refused, and a public name the local DNS answers with a private or
-  block-page address is not affected: encrypted DNS has its real address.
+  its private answer is taken. Only those names: a public-looking name
+  answered only with a private address is refused, whether encrypted DNS says
+  it does not exist or publishes just that address (a censor's answer, or a
+  page pointing a public name at the LAN to rebind). A known block page is
+  always refused.
   `core/test/test_bogon.c`.
+
+## Update 7: stand-in addresses; the engine's pid
+
+- `--fake-net <CIDR>` (repeatable, or several joined by commas; IPv4 or
+  IPv6): a CONNECT to an address inside is refused at once (SOCKS5 0x02,
+  SOCKS4 0x5B) and a datagram to one is dropped. The Android app passes its
+  tunnel's name-to-address pool (198.18.0.0/15), so a stand-in address that
+  outlived its mapping fails fast instead of waiting out a connect timeout.
+  A range that does not parse stops the engine. The desktop does not use it.
+  `tests/net/engine-fakenet.test.js`.
+- The ready line names the engine's own process id
+  (`{"type":"ready","port":...,"techniques":...,"pid":...}`), so a
+  supervisor without a process handle can kill a hung engine. Readers take
+  the fields they know and ignore the rest.

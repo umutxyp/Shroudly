@@ -92,6 +92,8 @@ static void usage(void) {
     "  --doh                 use anti-poisoning resolver\n"
     "  --auth-file <path>    SOCKS5 username/password: the file holds \"user:pass\";\n"
     "                        every client must give them, SOCKS4 is refused\n"
+    "  --fake-net <cidr>     stand-in address range (repeatable, or comma-joined):\n"
+    "                        CONNECT to it is refused at once, datagrams dropped\n"
     "  --ipv6                prefer IPv6 upstream\n"
     "  --advanced            packet-layer backend (needs elevation)\n"
     "  --fake-repeats <n>    Advanced: decoy datagrams per Discord voice flow\n"
@@ -112,6 +114,7 @@ int main(int argc, char **argv) {
   strcpy(g_cfg.doh_ip, "1.1.1.1");
   strategy_parse("split(sni)", &g_cfg.strat);
 
+  int bad_fake_net = 0;
   for (int i = 1; i < argc; i++) {
     if (!strcmp(argv[i], "--listen") && i+1<argc) strncpy(g_cfg.listen_addr, argv[++i], sizeof(g_cfg.listen_addr)-1);
     else if (!strcmp(argv[i], "--port") && i+1<argc) g_cfg.listen_port = atoi(argv[++i]);
@@ -137,6 +140,7 @@ int main(int argc, char **argv) {
     else if (!strcmp(argv[i], "--seqovl-pattern") && i+1<argc) g_seqovl_pat = (int)strtol(argv[++i], NULL, 16) & 0xff;
     else if (!strcmp(argv[i], "--fake-pattern") && i+1<argc) g_fake_pat = (int)strtol(argv[++i], NULL, 16) & 0xff;
 #endif
+    else if (!strcmp(argv[i], "--fake-net") && i+1<argc) { if (engine_add_fake_net(&g_cfg, argv[++i]) != 0) bad_fake_net = 1; }
     else if (!strcmp(argv[i], "--auth-file") && i+1<argc) strncpy(g_auth_file, argv[++i], sizeof(g_auth_file)-1);
     else if (!strcmp(argv[i], "--status-file") && i+1<argc) strncpy(g_status_file, argv[++i], sizeof(g_status_file)-1);
     else if (!strcmp(argv[i], "--parent-pid") && i+1<argc) g_parent_pid = atol(argv[++i]);
@@ -144,6 +148,12 @@ int main(int argc, char **argv) {
   }
 
   if (g_cfg.use_doh && g_doh_fwd_port > 0) doh_set_local(g_doh_fwd_ip, g_doh_fwd_port);
+  if (bad_fake_net) {
+    printf("{\"type\":\"error\",\"msg\":\"fake-net unusable\"}\n");
+    fflush(stdout);
+    plat_cleanup();
+    return 2;
+  }
   /* Read once, here: the secret is in a file, not on the command line, where
    * any process could read it. A file that cannot be used stops the engine
    * rather than leave the port open. */

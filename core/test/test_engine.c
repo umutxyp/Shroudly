@@ -324,6 +324,83 @@ int main(void) {
   }
   printf("  SOCKS5 authentication file and comparison: OK\n");
 
+  /* 11. plain DNS the relay may send to the forwarder: which queries, and
+   *     which resolvers are the LAN's */
+  {
+    uint8_t q[600]; size_t qe; int edns; char nm[256];
+    /* "nas.lan" A, id 0x1234, RD */
+    static const uint8_t base[] = { 0x12,0x34, 0x01,0x00, 0,1, 0,0, 0,0, 0,0,
+      3,'n','a','s', 3,'l','a','n', 0, 0,1, 0,1 };
+    memcpy(q, base, sizeof(base));
+    CHECK(dns_query_parse(q, sizeof(base), nm, sizeof(nm), &qe, &edns) == 0 &&
+          !strcmp(nm, "nas.lan") && qe == sizeof(base) && !edns);
+    /* with an OPT record: EDNS */
+    static const uint8_t opt[] = { 0, 0,41, 0x04,0xd0, 0,0,0,0, 0,0 };
+    memcpy(q + sizeof(base), opt, sizeof(opt)); q[11] = 1;
+    CHECK(dns_query_parse(q, sizeof(base) + sizeof(opt), nm, sizeof(nm), &qe, &edns) == 0 &&
+          edns && qe == sizeof(base));
+    CHECK(dns_query_parse(q, sizeof(base) + sizeof(opt) - 1, nm, sizeof(nm), &qe, &edns) != 0); /* cut short */
+    q[11] = 0;
+    /* QR set, another opcode, two questions, none: not a standard query */
+    q[2] = 0x81; CHECK(dns_query_parse(q, sizeof(base), nm, sizeof(nm), &qe, &edns) != 0);
+    q[2] = 0x01 | (5 << 3); CHECK(dns_query_parse(q, sizeof(base), nm, sizeof(nm), &qe, &edns) != 0);
+    q[2] = 0x01; q[5] = 2; CHECK(dns_query_parse(q, sizeof(base), nm, sizeof(nm), &qe, &edns) != 0);
+    q[5] = 0; CHECK(dns_query_parse(q, sizeof(base), nm, sizeof(nm), &qe, &edns) != 0);
+    q[5] = 1;
+    /* a label running past the end, a compression pointer in the question,
+     * a dot inside a label */
+    q[16] = 60; CHECK(dns_query_parse(q, sizeof(base), nm, sizeof(nm), &qe, &edns) != 0);
+    q[16] = 3; q[12] = 0xc0; CHECK(dns_query_parse(q, sizeof(base), nm, sizeof(nm), &qe, &edns) != 0);
+    q[12] = 3; q[14] = '.'; CHECK(dns_query_parse(q, sizeof(base), nm, sizeof(nm), &qe, &edns) != 0);
+    q[14] = 'a';
+    CHECK(dns_query_parse(q, 14, nm, sizeof(nm), &qe, &edns) != 0);
+    /* the root */
+    static const uint8_t root[] = { 0,1, 0,0, 0,1, 0,0, 0,0, 0,0, 0, 0,2, 0,1 };
+    CHECK(dns_query_parse(root, sizeof(root), nm, sizeof(nm), &qe, &edns) == 0 && nm[0] == 0);
+
+    struct sockaddr_storage ss; memset(&ss, 0, sizeof(ss));
+    struct sockaddr_in *s4 = (struct sockaddr_in *)&ss; s4->sin_family = AF_INET;
+    uint32_t lan[] = { 0x0a000001, 0xac100001, 0xac1fffff, 0xc0a80101, 0xa9fe0101, 0x64400001, 0x647fffff };
+    for (size_t i = 0; i < sizeof(lan) / 4; i++) { s4->sin_addr.s_addr = htonl(lan[i]); CHECK(udp_dst_private(&ss)); }
+    uint32_t wan[] = { 0x08080808, 0x01010101, 0xac200001, 0xac0fffff, 0x64800001, 0xc0a90101 };
+    for (size_t i = 0; i < sizeof(wan) / 4; i++) { s4->sin_addr.s_addr = htonl(wan[i]); CHECK(!udp_dst_private(&ss)); }
+    struct sockaddr_in6 *s6 = (struct sockaddr_in6 *)&ss;
+    memset(&ss, 0, sizeof(ss)); s6->sin6_family = AF_INET6;
+    const char *lan6[] = { "fd00::1", "fc12::1", "fe80::1", "febf::1", "::ffff:192.168.1.1" };
+    for (size_t i = 0; i < sizeof(lan6) / sizeof(*lan6); i++) { inet_pton(AF_INET6, lan6[i], &s6->sin6_addr); CHECK(udp_dst_private(&ss)); }
+    const char *wan6[] = { "2001:4860:4860::8888", "fec0::1", "::ffff:8.8.8.8" };
+    for (size_t i = 0; i < sizeof(wan6) / sizeof(*wan6); i++) { inet_pton(AF_INET6, wan6[i], &s6->sin6_addr); CHECK(!udp_dst_private(&ss)); }
+  }
+  printf("  plain DNS for the forwarder: standard queries, EDNS, LAN resolvers: OK\n");
+
+  /* 12. --fake-net ranges */
+  {
+    engine_config c; memset(&c, 0, sizeof(c));
+    CHECK(engine_add_fake_net(&c, "198.18.0.0/15") == 0 && c.fake_net_n == 1);
+    CHECK(engine_add_fake_net(&c, " fd00:1::/64 , 203.0.113.7") == 0 && c.fake_net_n == 3);
+    CHECK(engine_add_fake_net(&c, "198.18.0.0/33") != 0);
+    CHECK(engine_add_fake_net(&c, "198.18.0.0/") != 0);
+    CHECK(engine_add_fake_net(&c, "nonsense/8") != 0);
+    CHECK(engine_add_fake_net(&c, "") != 0);
+    g_cfg = c;
+    CHECK(host_in_fake_net("198.18.0.1") && host_in_fake_net("198.19.255.255"));
+    CHECK(!host_in_fake_net("198.20.0.1") && !host_in_fake_net("198.17.255.255"));
+    CHECK(host_in_fake_net("203.0.113.7") && !host_in_fake_net("203.0.113.8"));
+    CHECK(host_in_fake_net("fd00:1::5") && !host_in_fake_net("fd00:2::5"));
+    CHECK(host_in_fake_net("::ffff:198.18.3.4"));
+    CHECK(!host_in_fake_net("example.com"));
+    struct sockaddr_storage ss; memset(&ss, 0, sizeof(ss));
+    struct sockaddr_in *s4 = (struct sockaddr_in *)&ss; s4->sin_family = AF_INET;
+    s4->sin_addr.s_addr = htonl(0xc6120002); CHECK(sa_in_fake_net(&ss));
+    s4->sin_addr.s_addr = htonl(0x08080808); CHECK(!sa_in_fake_net(&ss));
+    memset(&c, 0, sizeof(c));
+    for (int i = 0; i < ENGINE_FAKE_NET_MAX; i++) CHECK(engine_add_fake_net(&c, "10.0.0.0/8") == 0);
+    CHECK(engine_add_fake_net(&c, "10.0.0.0/8") != 0);
+    memset(&g_cfg, 0, sizeof(g_cfg));
+    CHECK(!host_in_fake_net("198.18.0.1"));
+  }
+  printf("  stand-in address ranges: OK\n");
+
   if (fails == 0) { printf("ENGINE MEMORY TESTS PASSED\n"); return 0; }
   printf("%d FAILED\n", fails);
   return 1;

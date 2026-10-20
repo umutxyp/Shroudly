@@ -285,10 +285,16 @@ int main(void){
     struct sockaddr_storage out[DOH_MAX_ADDRS]; socklen_t ol[DOH_MAX_ADDRS];
     #define V4(i) ntohl(((struct sockaddr_in*)&out[i])->sin_addr.s_addr)
 
-    /* No such name publicly: the local network's private answer is taken. */
-    CHECK(doh_resolve_all("intranet.corp.example",80,0,out,ol,DOH_MAX_ADDRS)==1 && V4(0)==0x0a141e28);
-    /* Published with a private address: the same. */
-    CHECK(doh_resolve_all("published.example",80,0,out,ol,DOH_MAX_ADDRS)==1 && V4(0)==0x0a010203);
+    /* The public resolvers stay out of it: silent for the whole test. */
+    mutex_lock(&g_cache_mx); g_plain_dead_until = now_ms() + 600000; mutex_unlock(&g_cache_mx);
+    /* No such name publicly, and the local DNS has a private address for it:
+     * a public-looking name, so that answer is refused (only a local name's
+     * is taken). */
+    CHECK(doh_resolve_all("intranet.corp.example",80,0,out,ol,DOH_MAX_ADDRS)==-1);
+    /* Published with only a private address (a page pointing a public name
+     * at the LAN): refused, and the system resolver is not even asked. */
+    int asked0=g_sys_asked;
+    CHECK(doh_resolve_all("published.example",80,0,out,ol,DOH_MAX_ADDRS)==-1 && g_sys_asked==asked0);
     /* A public name: encrypted DNS's answer, the system resolver not asked. */
     int asked=g_sys_asked;
     CHECK(doh_resolve_all("public.example",80,0,out,ol,DOH_MAX_ADDRS)==1 && V4(0)==0x5db8d822 && g_sys_asked==asked);
@@ -303,12 +309,11 @@ int main(void){
     /* Encrypted DNS out of reach (no forwarder, public resolvers silent): the
      * system resolver's private answer is what a censor says, and refused. */
     doh_set_local(NULL, 0);
-    mutex_lock(&g_cache_mx); g_plain_dead_until = now_ms() + 60000; mutex_unlock(&g_cache_mx);
     CHECK(doh_resolve_all("poisoned.example",80,0,out,ol,DOH_MAX_ADDRS)==-1);
     CHECK(doh_local_addr(&fa)==-1);
     #undef V4
     fwd_stop(); }
-  printf("  private answers only where encrypted DNS says the name is not public: OK\n");
+  printf("  private answers only for local names: OK\n");
 
   if(fails==0){printf("ANTI-POISONING TESTS PASSED\n");return 0;}
   printf("%d FAILED\n",fails);return 1;

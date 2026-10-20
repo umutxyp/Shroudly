@@ -12,12 +12,17 @@
  * this machine gets nothing through it and nothing back from it. Fragments,
  * malformed headers and datagrams to loopback or unspecified addresses are
  * dropped; closing the control connection ends the association. Plain DNS
- * (port 53) goes to the engine's encrypted-DNS forwarder when it has one.
+ * (port 53) goes to the engine's encrypted-DNS forwarder when it has one:
+ * only a standard query, not one for a LAN resolver or a LAN name; under an
+ * id of its own; the question with TC set when the answer is too big for a
+ * query without EDNS; and where the app sent it, in plaintext, when the
+ * forwarder has not answered within about 2.5 s.
  *
  * The far side is played by echo servers on this machine's LAN address (the
  * relay refuses loopback), and a local DNS server stands in for the app's
- * encrypted-DNS forwarder; only the last check (a real DNS query) needs the
- * internet, and it is skipped cleanly without it. */
+ * encrypted-DNS forwarder; only the checks with a real DNS query (the
+ * plaintext fallback, and no forwarder at all) need the internet, and they
+ * are skipped cleanly without it. */
 
 const net = require('net');
 const os = require('os');
@@ -161,6 +166,11 @@ const LAN6 = (ifaces.find((i) => (i.family === 'IPv6' || i.family === 6) && !/^f
     // publicly), so a name reaches the LAN echo server only over IPv6.
     'udp-echo.example': { A: [LAN4], AAAA: LAN6 ? [LAN6] : [] },
     'udp-loop.example': { A: ['127.0.0.1'] },
+    'other.example': { A: ['203.0.113.9'] },
+    // 40 addresses: an answer of 652 bytes, more than plain DNS carries.
+    'big.example': { A: Array.from({ length: 40 }, (_, i) => `203.0.113.${i + 1}`) },
+    // The forwarder never answers this one: the query goes out as sent.
+    'example.com': { silent: true },
   });
   const P = await freePort();
   const eng = await startEngine(P, ['--auto', '--doh', '--doh-port', String(dns.port)]);
@@ -306,7 +316,95 @@ const LAN6 = (ifaces.find((i) => (i.family === 'IPv6' || i.family === 6) && !/^f
     r = await roundTrip(cd, d.port, 'resolver.example', 53, q2.buf, 3000);
     t.ok(r && dnsAnswers(r.data, q2.id) === 1 && r.atyp === 3 && r.host === 'resolver.example' && r.port === 53,
       'a query to a resolver by name: the same, headed with that name');
+
+    // Two queries with the same id, to two resolvers, for two names: each
+    // gets its own answer, headed with its own resolver.
+    const qa = dnsQuery('udp-echo.example'); const qb = dnsQuery('other.example');
+    qb.buf.writeUInt16BE(qa.id, 0);
+    const seen = dns.queries.length; const had = cd.msgs.length;
+    cd.s.send(Buffer.concat([header('192.0.2.53', 53), qa.buf]), d.port, '127.0.0.1');
+    cd.s.send(Buffer.concat([header('192.0.2.54', 53), qb.buf]), d.port, '127.0.0.1');
+    for (let w = 0; w < 3000 && cd.msgs.length < had + 2; w += 20) await sleep(20);
+    const both = cd.msgs.slice(had).map(parseReply);
+    const ra = both.find((m) => m && m.host === '192.0.2.53'); const rb = both.find((m) => m && m.host === '192.0.2.54');
+    const ipOf = (m) => m && [...m.data.subarray(-4)].join('.');
+    t.ok(ra && rb && dnsAnswers(ra.data, qa.id) === 1 && dnsAnswers(rb.data, qa.id) === 1 &&
+      ipOf(ra) === LAN4 && ipOf(rb) === '203.0.113.9',
+      'two queries with the same id to two resolvers: each answer has the app\'s id, its own name\'s address and its own resolver');
+    const fids = dns.queries.slice(seen).map((x) => x.id);
+    t.ok(fids.length === 2 && fids[0] !== fids[1], `they reached the forwarder under ids of their own (${fids.join(', ')})`);
+
+    // An answer bigger than 512 bytes to a query without EDNS: the question
+    // with TC set, so the app asks again over TCP; with EDNS, all of it.
+    const qbig = dnsQuery('big.example');
+    r = await roundTrip(cd, d.port, '192.0.2.53', 53, qbig.buf, 3000);
+    t.ok(r && r.data.readUInt16BE(0) === qbig.id && (r.data[2] & 0x02) && r.data.readUInt16BE(6) === 0 &&
+      r.data.length === qbig.buf.length && r.data.subarray(12).equals(qbig.buf.subarray(12)),
+      `over 512 bytes without EDNS: the question alone with TC set (${r && r.data.length} bytes)`);
+    const qedns = dnsQuery('big.example');
+    qedns.buf.writeUInt16BE(1, 10);
+    const opt = Buffer.from([0, 0, 41, 0x04, 0xd0, 0, 0, 0, 0, 0, 0]);
+    r = await roundTrip(cd, d.port, '192.0.2.53', 53, Buffer.concat([qedns.buf, opt]), 3000);
+    t.ok(r && dnsAnswers(r.data, qedns.id) === 40 && !(r.data[2] & 0x02) && r.data.length > 512,
+      `with an EDNS OPT record: the whole answer (${r && r.data.length} bytes, ${r && dnsAnswers(r.data, qedns.id)} addresses)`);
+
+    // What stays plain: a LAN resolver, a name only the LAN knows, and
+    // anything on port 53 that is not a standard query.
+    const n0 = dns.queries.length;
+    const lanQ = dnsQuery('udp-echo.example');
+    cd.s.send(Buffer.concat([header('10.255.255.53', 53), lanQ.buf]), d.port, '127.0.0.1');
+    cd.s.send(Buffer.concat([header('fd00::53', 53), lanQ.buf]), d.port, '127.0.0.1');
+    cd.s.send(Buffer.concat([header('192.0.2.53', 53), dnsQuery('printer.lan').buf]), d.port, '127.0.0.1');
+    cd.s.send(Buffer.concat([header('192.0.2.53', 53), dnsQuery('router').buf]), d.port, '127.0.0.1');
+    const status = dnsQuery('udp-echo.example'); status.buf[2] = 0x10;      // opcode 2 (STATUS)
+    const twoQ = dnsQuery('udp-echo.example'); twoQ.buf.writeUInt16BE(2, 4); // QDCOUNT 2
+    const reply = dnsQuery('udp-echo.example'); reply.buf[2] |= 0x80;        // QR set
+    for (const x of [status, twoQ, reply]) cd.s.send(Buffer.concat([header('192.0.2.53', 53), x.buf]), d.port, '127.0.0.1');
+    cd.s.send(Buffer.concat([header('192.0.2.53', 53), Buffer.from('not dns at all')]), d.port, '127.0.0.1');
+    await sleep(800);
+    t.ok(dns.queries.length === n0,
+      'not to the forwarder: a resolver at a private address (10.255.255.53, fd00::53), a LAN name (printer.lan, router), another opcode, two questions, a reply, junk');
+    // Pass-through, seen from a resolver on this machine's LAN address
+    // where the OS lets an unprivileged program take port 53.
+    const lan53 = await new Promise((resolve) => {
+      const s53 = dgram.createSocket('udp4');
+      const o = { got: [], close: () => { try { s53.close(); } catch {} } };
+      s53.on('message', (m) => o.got.push(m));
+      s53.on('error', () => resolve(null));
+      s53.bind(53, LAN4, () => resolve(o));
+    }).catch(() => null);
+    if (lan53 && /^(10\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.)/.test(LAN4)) {
+      const lq = dnsQuery('udp-echo.example');
+      const n1 = dns.queries.length;
+      cd.s.send(Buffer.concat([header(LAN4, 53), lq.buf]), d.port, '127.0.0.1');
+      for (let w = 0; w < 2000 && !lan53.got.length; w += 20) await sleep(20);
+      t.ok(lan53.got.length === 1 && lan53.got[0].equals(lq.buf) && dns.queries.length === n1,
+        `a query to the LAN's resolver (${LAN4}:53) reaches it as sent, id and all, and not the forwarder`);
+    } else {
+      console.log('  --  cannot listen on a private LAN address port 53 here: the LAN resolver pass-through is checked only by the forwarder staying unasked');
+    }
+    if (lan53) lan53.close();
     d.ctl.destroy(); cd.close();
+  }
+
+  // The forwarder does not answer: after about 2.5 s the query goes where
+  // the app sent it, in plaintext, and that answer comes back.
+  const servers = ['1.1.1.1', '8.8.8.8', '9.9.9.9'];
+  let server = null;
+  for (const s of servers) if ((await directDns(s)) > 0) { server = s; break; }
+  if (server) {
+    const d = await associate(P);
+    const cd = await client();
+    const q = dnsQuery('example.com');
+    const t0 = Date.now();
+    r = await roundTrip(cd, d.port, server, 53, q.buf, 8000);
+    const took = Date.now() - t0;
+    t.ok((dns.asked['example.com/A'] || 0) >= 1, 'the forwarder was asked first');
+    t.ok(r && dnsAnswers(r.data, q.id) > 0 && r.host === server && r.port === 53 && took >= 2000,
+      `it did not answer: after ${took} ms the query went to ${server}:53 as sent and that answer came back`);
+    d.ctl.destroy(); cd.close();
+  } else {
+    console.log('  --  no public DNS reachable from here (offline?): the plaintext fallback check is skipped');
   }
 
   // A BIND is still refused, and a second association has a port of its own.
@@ -357,9 +455,6 @@ const LAN6 = (ifaces.find((i) => (i.family === 'IPv6' || i.family === 6) && !/^f
 
   // ── a real DNS query, if this network lets one out: with no forwarder it
   // goes where the app sent it
-  const servers = ['1.1.1.1', '8.8.8.8', '9.9.9.9'];
-  let server = null;
-  for (const s of servers) if ((await directDns(s)) > 0) { server = s; break; }
   if (server) {
     const d = await associate(P2);
     const cd = await client();

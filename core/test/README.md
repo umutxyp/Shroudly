@@ -3,15 +3,16 @@
 - `test_proto.c`   — TLS ClientHello / HTTP parsing (unit)
 - `test_desync.c`  — desync byte-integrity + segmentation over a loopback socket
 - `test_bogon.c`   — anti-poisoning DNS: rejects spoofed/bogon answers, and takes the
-  system resolver's private answer only for a local name or one encrypted DNS says is not
-  public (white-box, against a stand-in forwarder and system resolver)
+  system resolver's private answer only for a local name, never for a public one
+  (white-box, against a stand-in forwarder and system resolver)
 - `test_engine.c`  — the engine's per-host memory (white-box): which names make one
   site, what a name takes from its site, where a silent ladder resumes (its own name
   only), when a learned technique is due to be checked again, where a cut moves a
   host on to, how long a host that came to nothing keeps fewer connections open, and
   the cap on re-dialled connections across all ladders; the UDP relay's refused
   destinations and the client endpoint a request names; the --auth-file and the
-  constant-time comparison
+  constant-time comparison; which plain DNS may go to the forwarder (standard
+  queries, EDNS, LAN resolvers); the --fake-net ranges
 - `test_rawscope.c` — what Advanced mode may touch: the local / private / special
   address ranges (IPv4 and IPv6, every edge), the table of recently desynced servers
   a reset must come from to be dropped, and the raw_stats line

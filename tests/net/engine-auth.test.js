@@ -17,8 +17,8 @@ const t = suite('engine-auth');
 /* A SOCKS5 greeting offering methods, then (when the engine picks 0x02) the
  * credentials, then a CONNECT to 127.0.0.1:port. Resolves what happened:
  * { method, auth (the 0x01 reply's status, or null), rep (CONNECT reply, or
- * null), sock }. */
-function attempt(P, { methods = [2], user, pass, port, cmd = 1 }) {
+ * null), sock }. addr: the IPv4 address asked for (127.0.0.1). */
+function attempt(P, { methods = [2], user, pass, port, cmd = 1, addr = [127, 0, 0, 1] }) {
   return new Promise((resolve) => {
     const s = net.connect(P, '127.0.0.1');
     const res = { method: null, auth: null, rep: null, sock: s };
@@ -28,7 +28,7 @@ function attempt(P, { methods = [2], user, pass, port, cmd = 1 }) {
     setTimeout(done, 3000);
     const connect = () => {
       st = 2;
-      s.write(Buffer.from([5, cmd, 0, 1, 127, 0, 0, 1, port >> 8, port & 255]));
+      s.write(Buffer.from([5, cmd, 0, 1, ...addr, port >> 8, port & 255]));
     };
     s.on('connect', () => s.write(Buffer.from([5, methods.length, ...methods])));
     s.on('data', (d) => {
@@ -106,6 +106,20 @@ async function echoes(sock, text) {
   r.sock.destroy();
   r = await attempt(P, { methods: [0], port: 0, cmd: 3 });
   t.ok(r.method === 0xff && r.rep === null, 'and one without them is not');
+  r = await attempt(P, { user: USER, pass: 'wrong', port: 0, cmd: 3 });
+  t.ok(r.auth === 1 && r.rep === null, 'nor one with a wrong password: no relay port is ever handed out without the password');
+
+  // With --fake-net as well (the Android app passes both): a stand-in
+  // address is refused at once, after the password, like any CONNECT.
+  const Pf = await freePort();
+  fs.writeFileSync(file, `${USER}:${PASS}\n`);
+  const engf = await startEngine(Pf, ['--auto', '--auth-file', file, '--fake-net', '198.18.0.0/15']);
+  const t0 = Date.now();
+  r = await attempt(Pf, { user: USER, pass: PASS, port: 443, addr: [198, 18, 3, 4] });
+  t.ok(r.auth === 0 && r.rep === 2 && Date.now() - t0 < 1000, `with --fake-net: 198.18.3.4 is refused with 0x02 at once (${Date.now() - t0} ms)`);
+  r = await attempt(Pf, { user: USER, pass: 'wrong', port: 443, addr: [198, 18, 3, 4] });
+  t.ok(r.auth === 1 && r.rep === null, 'and without the password nothing is said about it at all');
+  engf.stop();
 
   // A file that cannot be used stops the engine rather than leaving it open.
   for (const [body, what] of [['nocolon\n', 'no ":"'], [':pass\n', 'an empty username'], ['user:\n', 'an empty password']]) {

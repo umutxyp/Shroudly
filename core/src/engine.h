@@ -21,7 +21,20 @@ typedef struct {
    * be SOCKS5 and give exactly these. */
   char     auth_user[256];
   char     auth_pass[256];
+  /* --fake-net: address ranges that stand in for names and are no real
+   * destination (a tunnel's own map of names to made-up addresses). A
+   * CONNECT to one is refused at once and a datagram to one is dropped, so a
+   * stand-in address that outlived its mapping fails fast instead of waiting
+   * out a connect timeout. */
+#define ENGINE_FAKE_NET_MAX 8
+  struct { int fam; uint8_t addr[16]; int bits; } fake_net[ENGINE_FAKE_NET_MAX];
+  int      fake_net_n;
 } engine_config;
+
+/* Add the ranges in spec ("198.18.0.0/15", or several joined by commas;
+ * IPv4 or IPv6, a bare address is one host) to cfg's fake_net. 0, or -1 when
+ * one does not parse or there are more than ENGINE_FAKE_NET_MAX in all. */
+int  engine_add_fake_net(engine_config *cfg, const char *spec);
 
 /* Read "user:pass" (one line; a trailing newline is ignored) from path into
  * cfg. Each part 1..255 bytes. 0 on success, -1 when the file cannot be read

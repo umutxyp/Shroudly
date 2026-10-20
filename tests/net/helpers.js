@@ -113,7 +113,8 @@ function socks4(socksPort, host, port, { cmd = 1, user = 'shroudly-test' } = {})
  * app's encrypted-DNS forwarder (the engine's --doh-port), so tests can give a
  * name exactly the addresses they need. table: { name: { A: [...], AAAA:
  * [...], ttl } }; a name not in it gets NXDOMAIN, a type it lacks an empty
- * answer. Counts the questions it is asked, per "name/type". */
+ * answer; { silent: true } is never answered. Counts the questions it is
+ * asked, per "name/type", and logs each one's name, type and id (queries). */
 function ip6Bytes(a) {
   let v4 = null;
   const m = a.match(/^(.*:)(\d+\.\d+\.\d+\.\d+)$/);
@@ -129,14 +130,16 @@ function ip6Bytes(a) {
 function dnsStub(table) {
   const dgram = require('dgram');
   const sock = dgram.createSocket('udp4');
-  const asked = {};
+  const asked = {}; const queries = [];
   sock.on('message', (q, from) => {
     if (q.length < 17) return;
     let p = 12; const labels = [];
     while (p < q.length && q[p]) { labels.push(q.subarray(p + 1, p + 1 + q[p]).toString()); p += 1 + q[p]; }
     const qend = p + 5; const name = labels.join('.').toLowerCase(); const type = q.readUInt16BE(p + 1) === 28 ? 'AAAA' : 'A';
     asked[`${name}/${type}`] = (asked[`${name}/${type}`] || 0) + 1;
+    queries.push({ name, type, id: q.readUInt16BE(0) });
     const e = table[name];
+    if (e && e.silent) return;                               // never answers
     const addrs = (e && e[type]) || [];
     const head = Buffer.from(q.subarray(0, 12));
     head[2] = 0x81; head[3] = e ? 0x80 : 0x83;            // response; NXDOMAIN when unknown
@@ -150,7 +153,7 @@ function dnsStub(table) {
     sock.send(Buffer.concat([head, q.subarray(12, qend), ...ans]), from.port, from.address);
   });
   return new Promise((resolve) => sock.bind(0, '127.0.0.1', () => resolve({
-    port: sock.address().port, asked, close: () => sock.close(),
+    port: sock.address().port, asked, queries, close: () => sock.close(),
   })));
 }
 

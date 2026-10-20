@@ -237,9 +237,11 @@ int doh_addr_is_block(const struct sockaddr_storage *sa) {
 }
 
 /* Is an address the system resolver gave refused? Every bogon and block
- * page, as doh_addr_is_block(); with trusted (a local name, or one encrypted
- * DNS says has no public address) only a block page and what no connection
- * can use: 0.0.0.0/8, loopback, multicast and reserved. */
+ * page, as doh_addr_is_block(); with trusted (a name doh_local_name() calls
+ * local, and only such a name) only a block page and what no connection can
+ * use: 0.0.0.0/8, loopback, multicast and reserved. A public name answered
+ * only with a private address is refused: that is a censor's answer, or a
+ * page pointing a public name at the LAN (DNS rebinding). */
 static int sys_answer_refused(const struct sockaddr_storage *sa, int trusted) {
   if (!trusted) return doh_addr_is_block(sa);
   if (sa->ss_family != AF_INET) return 0;
@@ -544,7 +546,7 @@ int doh_resolve_all(const char *name, uint16_t port, int want6,
   uint8_t addrs[DOH_MAX_ADDRS][16];
   int n = 0;
   uint32_t ttl = 0;
-  /* The system resolver's private answer is believed (see below). */
+  /* The system resolver's private answer is believed: only for a local name. */
   int trusted = 0;
 
   /* 0. A name only the local network knows ("nas.lan", "router"): the public
@@ -561,14 +563,15 @@ int doh_resolve_all(const char *name, uint16_t port, int want6,
      * network, and wait seconds where they are blocked. The dialler asks for
      * the other family whenever a connect is slow, so this is common. */
     if (fr == DNS_NODATA) return -1;
-    /* It says the name does not exist publicly, or exists with a private
-     * address: an intranet name, a printer, the router's own name. Nobody on
-     * the path could have forged that, so the public resolvers have nothing
-     * to add, and the private address the system's resolver (the local
-     * network's) gives is the real one. A public name the local DNS answers
-     * with a private address never gets here: the forwarder has its real
-     * address. */
-    if (fr == DNS_NXDOMAIN || fr == DNS_PRIVATE) trusted = 1;
+    /* It says the name is published with only a private address. Its owner
+     * may mean that, but so may an attacker who points a public name at the
+     * LAN (DNS rebinding), and a private address is also what a censor
+     * answers with: refused, as the plaintext resolvers' would be. */
+    if (fr == DNS_PRIVATE) return -1;
+    /* "No such name" (DNS_NXDOMAIN) falls through: a hosts-file entry may
+     * still know it, but the system resolver's private answer is taken only
+     * for a name doh_local_name() calls local, never for a public-looking
+     * one, whatever encrypted DNS said about it. */
   }
 
   /* 2. Fallback: several independent public resolvers over UDP/53. An on-path
@@ -603,8 +606,8 @@ int doh_resolve_all(const char *name, uint16_t port, int want6,
   /* Last resort: OS resolver (may be poisoned, but better than failing). It
    * gives no TTL and it is the answer we trust least, so it is kept only for
    * the shortest time (TTL_MIN_S): enough that a page's many connections do
-   * not each ask again. Its bogons are refused, unless trusted says the name
-   * is a local one; a known block page always is. */
+   * not each ask again. Its bogons are refused, unless the name is a local
+   * one (doh_local_name); a known block page always is. */
   struct addrinfo hints, *res = NULL;
   memset(&hints, 0, sizeof(hints));
   hints.ai_family = family;
