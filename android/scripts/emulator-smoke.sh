@@ -130,7 +130,14 @@ say "direct HTTP before: $(http_get)"
 
 # ── install and switch on ────────────────────────────────────────────────
 adb_ install -r -g "$APK" >/dev/null || fail "install failed"
-sh_ "appops set $PKG ACTIVATE_VPN allow" >/dev/null
+# The package manager may still be settling right after the install, and
+# "appops set" says nothing when it does not take: set it until the system
+# reports it allowed (what VpnService.prepare() reads), and show it.
+installed() { sh_ "pm path $PKG" | grep -q package:; }
+wait_for 60 installed || fail "package not installed"
+vpn_allowed() { sh_ "appops set $PKG ACTIVATE_VPN allow" >/dev/null 2>&1; sh_ "appops get $PKG ACTIVATE_VPN" | grep -qi "allow"; }
+wait_for 60 vpn_allowed || fail "could not allow the VPN for the app: $(sh_ "appops get $PKG ACTIVATE_VPN" 2>&1)"
+say "VPN consent: $(sh_ "appops get $PKG ACTIVATE_VPN" | tr -d '\r' | head -1)"
 adb_ logcat -c
 ctl start
 wait_for 60 has_log "Protection on" || fail "protection did not come on"
