@@ -180,7 +180,16 @@ async function record(label, pid) {
         ok(!!hwnd, 'a logoff listener exists while there is no window');
         const reg = (name) => require('child_process').spawnSync('reg', ['query', 'HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings', '/v', name], { encoding: 'utf8' }).stdout || '';
         ok(/AutoConfigURL|ProxyEnable\s+REG_DWORD\s+0x1/.test(reg('AutoConfigURL') + reg('ProxyEnable')), 'the system proxy points at Shroudly');
-        const ps = `Add-Type -Namespace W -Name U -MemberDefinition '[DllImport("user32.dll")] public static extern System.IntPtr SendMessage(System.IntPtr h, uint m, System.IntPtr w, System.IntPtr l);';
+        // Another program takes the system proxy away (issue #27): it is set
+        // back by itself, with no window and no button.
+        const ours = (reg('AutoConfigURL').match(/AutoConfigURL\s+REG_SZ\s+(\S+)/) || [])[1];
+        if (ours) {
+          require('child_process').spawnSync('reg', ['delete', 'HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings', '/v', 'AutoConfigURL', '/f'], { encoding: 'utf8' });
+          const t0 = Date.now();
+          const back = await until(() => reg('AutoConfigURL').includes(ours), 40000, 500);
+          ok(!!back, `another program removed the system proxy: set back by itself (${back ? `${Date.now() - t0} ms` : 'not set back'})`);
+        }
+        const ps =`Add-Type -Namespace W -Name U -MemberDefinition '[DllImport("user32.dll")] public static extern System.IntPtr SendMessage(System.IntPtr h, uint m, System.IntPtr w, System.IntPtr l);';
           $h = [System.IntPtr]::new([long]${hwnd});
           [void][W.U]::SendMessage($h, 0x11, [System.IntPtr]::Zero, [System.IntPtr]::new(0x80000000));
           [void][W.U]::SendMessage($h, 0x16, [System.IntPtr]::new(1), [System.IntPtr]::new(0x80000000))`;
