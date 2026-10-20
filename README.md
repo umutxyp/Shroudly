@@ -569,7 +569,7 @@ These links always download the newest version (see [Releases](https://github.co
 | **Arch / Manjaro / EndeavourOS** | [.pacman](https://shroudly.codeshare.me/dl/linux-pacman) | [AppImage](https://shroudly.codeshare.me/dl/linux-arm64) |
 | **Fedora / openSUSE / RHEL** | [.rpm](https://shroudly.codeshare.me/dl/linux-rpm) | [AppImage](https://shroudly.codeshare.me/dl/linux-arm64) |
 | **Any Linux** | [AppImage](https://shroudly.codeshare.me/dl/linux-x64) | [AppImage](https://shroudly.codeshare.me/dl/linux-arm64) |
-| **Android 8+** | [APK](https://github.com/umutxyp/Shroudly/releases/latest) (`Shroudly-…-Android.apk`) | same APK |
+| **Android 8+** | [APK](https://shroudly.codeshare.me/dl/android) | [APK](https://shroudly.codeshare.me/dl/android) (one APK for every phone) |
 
 - **Windows** — run the installer.
 - **macOS** — open the `.dmg` and drag `Shroudly.app` into Applications.

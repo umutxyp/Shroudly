@@ -89,6 +89,8 @@ const DL_FILES = {
   // Arch package, x86_64 for the RPM. Copied from what it actually produces.
   'linux-pacman':    (v) => `Shroudly-${v}-Linux-x64.pacman`,
   'linux-rpm':       (v) => `Shroudly-${v}-Linux-x86_64.rpm`,
+  // One APK for every Android phone (ARM 64/32-bit, x86_64).
+  'android':         (v) => `Shroudly-${v}-Android.apk`,
 };
 const REPO = 'https://github.com/umutxyp/Shroudly';
 const RELEASES_LATEST = `${REPO}/releases/latest`;
