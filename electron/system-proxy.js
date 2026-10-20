@@ -23,6 +23,13 @@
  * exact previous settings. A restore puts back only what still points at our
  * proxy, so it never undoes a change the user (or another program) made since.
  *
+ * While protection is on, the setting is read back every so often. Another
+ * program removing it, or putting a PAC of its own on this computer in its
+ * place, has it set back, and one line says so; a manual proxy or a PAC
+ * elsewhere chosen meanwhile is left alone and reported; a program that keeps
+ * taking it is left to it after the third time in ten minutes, and named
+ * when it can be (checkOwnership).
+ *
  * Every system is pointed at the same thing: a PAC file served over loopback
  * HTTP, set as the system's automatic proxy configuration. It is the one
  * setting through which every browser speaks SOCKS5 to us with the name, not
@@ -71,7 +78,9 @@ const MAC_ELEVATED_VERBS = new Set(['-setautoproxyurl', '-setautoproxystate', '-
 const KDE_GROUP = 'Proxy Settings';
 const KDE_TYPE = 'ProxyType';
 const KDE_SCRIPT = 'Proxy Config Script';
-const OUR_PAC = /^http:\/\/127\.0\.0\.1:\d+\/proxy\.pac$/;
+// Any case: a settings window that writes the address back in capitals is
+// still pointing at us.
+const OUR_PAC = /^http:\/\/127\.0\.0\.1:\d+\/proxy\.pac$/i;
 // The PAC's port: the first free one of these. Below the ports every system
 // hands out at random (Linux 32768 and up, Windows and macOS 49152 and up),
 // so a program that happens to hold one at the next login cannot move an
@@ -84,7 +93,23 @@ const PAC_PORT_COUNT = 20;
 // What the PAC answers while protection is off and Shroudly still runs, on
 // desktops where browsers keep its address (see _parkPacServer).
 const PAC_DIRECT = 'function FindProxyForURL(url, host) {\n  return "DIRECT";\n}\n';
+// How often the setting is read back while applied. Windows: one reg.exe
+// query, so often, which keeps the time traffic goes around Shroudly after a
+// takeover short; elsewhere one or more networksetup or gsettings calls.
 const OWNERSHIP_INTERVAL_MS = 60000;
+const OWNERSHIP_INTERVAL_WIN_MS = 20000;
+// Another program taking the setting over is answered by setting it back,
+// unless it does so this many times within the window: then it is fighting
+// for it, and Shroudly stops and says so instead of trading places with it
+// for as long as both run.
+const RETAKE_WINDOW_MS = 10 * 60 * 1000;
+const RETAKE_LIMIT = 3;
+// A takeover is read again this long after it was first seen, before
+// anything is set back: a program in the middle of changing several values
+// has finished by then, and a value that was only gone for a moment is back.
+const TAKEOVER_CONFIRM_MS = 1500;
+// What is set back by itself (see checkOwnership).
+const RETAKE_KINDS = new Set(['cleared', 'local', 'ours']);
 // macOS, administrator path: how long a restore waits for the root helper
 // before doing anything itself (it never asks for the password while the
 // helper is still at work), and how long the exit path waits at most: it
@@ -242,8 +267,14 @@ class SystemProxy {
    * opts.watchdog       watchdog.js options (the engine binary in its watchdog
    *                     mode and the restore command it runs)
    * opts.restoreCommand { exe, args } run once at next login if we never restore
-   * opts.onOwnership    (owned, { lost }) when another program takes the system
-   *                     proxy over while we are applied, and if it comes back
+   * opts.onOwnership    (owned, { lost, takeover, gaveUp, by }) when another
+   *                     program takes the system proxy over while we are
+   *                     applied and it is left to it, and when it comes back
+   *                     (see checkOwnership)
+   * opts.whoTookIt      async (takeover) => names of the programs that most
+   *                     likely did it, for the line said when Shroudly stops
+   *                     setting it back
+   * opts.autoRetake     false: a takeover is only reported, never set back
    * opts.portStore      { get(), set(port) }: the PAC's port, kept from run to
    *                     run on Linux desktops where its address is written for
    *                     the next login
@@ -261,7 +292,12 @@ class SystemProxy {
     this.watchdogOpts = opts.watchdog || null;
     this.restoreCommand = opts.restoreCommand || null;
     this.onOwnership = opts.onOwnership || null;
-    this.ownershipIntervalMs = opts.ownershipIntervalMs || OWNERSHIP_INTERVAL_MS;
+    this.whoTookIt = opts.whoTookIt || null;
+    this.autoRetake = opts.autoRetake !== false;
+    this.ownershipIntervalMs = opts.ownershipIntervalMs || (this.platform === 'win32' ? OWNERSHIP_INTERVAL_WIN_MS : OWNERSHIP_INTERVAL_MS);
+    this.takeoverConfirmMs = opts.takeoverConfirmMs ?? TAKEOVER_CONFIRM_MS;
+    this.retakeWindowMs = opts.retakeWindowMs || RETAKE_WINDOW_MS;
+    this.retakeLimit = opts.retakeLimit || RETAKE_LIMIT;
     this.portStore = opts.portStore || null;
     this.envStateFile = opts.envStateFile || SystemProxy._envStateFileFor(opts.stateFile);
     this.adminPrompt = opts.adminPrompt || null;
@@ -283,6 +319,9 @@ class SystemProxy {
     this.list = [];      // domains routed through the proxy in 'listed' mode
     this._ownTimer = null;
     this._owned = true;
+    this._takeovers = [];   // when another program took it over this session (see checkOwnership)
+    this._gaveUp = false;   // it kept doing so, and is no longer answered
+    this._soon = [];        // checks asked for ahead of the timer (checkSoon)
   }
 
   /* Tests only: stand-ins for the commands above. null puts the real ones back. */
@@ -737,6 +776,8 @@ ${local}
     this._stopOwnershipWatch();
     this._owned = true;   // a takeover belongs to the session it happened in
     this._lost = [];
+    this._takeovers = [];
+    this._gaveUp = false;
     if (keepState) { this._armed = false; return; }
     this._unarm();
   }
@@ -796,11 +837,12 @@ ${argsXml}
   }
 
   // ── is it still ours? ──────────────────────────────────────────────────
-  /* Every minute while applied: the same settings a recovery reads, so a VPN
-   * client, another bypass tool or the user taking the system proxy over is
-   * noticed and can be told, instead of Shroudly showing itself as protecting
-   * traffic that no longer reaches it. Asynchronous and one small read per
-   * setting (reg.exe, networksetup, gsettings, or a file on KDE). */
+  /* While applied, every 20 s on Windows and every minute elsewhere: the
+   * same settings a recovery reads, so a VPN client, another bypass tool or
+   * the user taking the system proxy over is noticed, instead of Shroudly
+   * showing itself as protecting traffic that no longer reaches it.
+   * Asynchronous and one small read per setting (reg.exe, networksetup,
+   * gsettings, or a file on KDE). What is done about it: checkOwnership. */
   _startOwnershipWatch() {
     if (!this.onOwnership || this._ownTimer) return;
     this._owned = true;
@@ -810,10 +852,54 @@ ${argsXml}
 
   _stopOwnershipWatch() {
     if (this._ownTimer) { clearInterval(this._ownTimer); this._ownTimer = null; }
+    for (const t of this._soon) clearTimeout(t);
+    this._soon = [];
   }
 
-  /* Returns the settings no longer ours ([] when all are), or null when they
-   * could not be read. Tells onOwnership only when that changes. */
+  /* A look ahead of the timer, at the moments another program most often
+   * takes the setting (a Discord starting, a program restarted): traffic
+   * then goes around Shroudly for seconds, not for up to a whole interval. */
+  checkSoon(delays = [3000, 12000]) {
+    if (!this._ownTimer) return;
+    for (const ms of delays) {
+      const t = setTimeout(() => {
+        this._soon = this._soon.filter((x) => x !== t);
+        this.checkOwnership().catch(() => {});
+      }, ms);
+      if (t.unref) t.unref();
+      this._soon.push(t);
+    }
+  }
+
+  /*
+   * Returns the settings no longer ours ([] when all are, or once they were
+   * set back), or null when they could not be read.
+   *
+   * Taken over while protection is on, the setting is set back (retake), and
+   * one line says so, when what is there now is no choice of the user's
+   * (_takeoverInfo):
+   *   'cleared'  our PAC removed, nothing in its place
+   *   'local'    another PAC served on this computer: another proxy tool's
+   *   'ours'     a PAC of Shroudly's at another address
+   * It is left alone, and reported as before (the window offers "Set
+   * Shroudly again"), when it is:
+   *   'manual'   a manual proxy server switched on or changed since Shroudly
+   *              applied: the user's, or a VPN's they started
+   *   'pac'      a PAC file somewhere else: a company's, or the user's own
+   * or when it cannot be read. What is left alone is read again at every
+   * check, and set back once it is gone: a VPN that switches its manual proxy
+   * off when it disconnects leaves nothing behind it.
+   *
+   * A program that takes it RETAKE_LIMIT times within RETAKE_WINDOW_MS is
+   * fighting for it (it sets its own whenever the setting changes, or every
+   * so often): Shroudly stops setting it back, names the program when it can
+   * (whoTookIt), and leaves it to the user, until the setting is ours again
+   * or the user sets it again (a new session).
+   *
+   * Setting it back changes only the setting: the snapshot, the state file
+   * and the PAC server stay, so Stop still puts back what the user had
+   * before Shroudly. Tells onOwnership when what the window shows changes.
+   */
   async checkOwnership() {
     if (!this.applied || this._checking || this._restoring) return null;
     this._checking = true;
@@ -821,21 +907,241 @@ ${argsXml}
     // snapshot, maybe a new address) makes its answer half old, half new.
     const snap = this.snapshot;
     const url = this.pacUrl;
+    // A stop that began while this was reading is ours going away, and a
+    // re-apply meanwhile is not anyone else's doing either.
+    const stale = () => !this.applied || this._restoring || this.snapshot !== snap || this.pacUrl !== url;
+    const tell = (owned, info) => { if (this.onOwnership) { try { this.onOwnership(owned, info); } catch {} } };
     try {
-      const lost = await this._lostSettings(snap || {}, url);
-      // A stop that began while this was reading is ours going away, and a
-      // re-apply meanwhile is not anyone else's doing either.
-      if (lost === null || !this.applied || this._restoring || this.snapshot !== snap || this.pacUrl !== url) return lost;
-      const owned = lost.length === 0;
-      if (!owned) this._lost = lost;
-      if (owned !== this._owned) {
-        this._owned = owned;
-        if (owned) this.log('info', 'The system proxy points at Shroudly again');
-        else this.log('warning', `Another program changed the system proxy (${lost.join(', ')}): that traffic no longer goes through Shroudly`);
-        if (this.onOwnership) { try { this.onOwnership(owned, { lost }); } catch {} }
+      let lost = await this._lostSettings(snap || {}, url);
+      if (lost === null || stale()) return lost;
+      if (lost.length && this._owned && this.takeoverConfirmMs > 0) {
+        await new Promise((r) => setTimeout(r, this.takeoverConfirmMs));
+        if (stale()) return null;
+        lost = await this._lostSettings(snap || {}, url);
+        if (lost === null || stale()) return lost;
+      }
+      if (!lost.length) {
+        if (!this._owned) {
+          this._owned = true;
+          this._gaveUp = false;
+          this._lost = [];
+          this.log('info', 'The system proxy points at Shroudly again');
+          tell(true, { lost: [] });
+        }
+        return lost;
+      }
+      this._lost = lost;
+      // Left to the program that kept taking it, until it is ours again.
+      if (this._gaveUp) return lost;
+      const what = lost.join(', ');
+      const takeover = await this._takeoverInfo(snap || {}, url);
+      if (stale()) return null;
+      if (this.autoRetake && this._canRetake(snap) && takeover && RETAKE_KINDS.has(takeover.kind)) {
+        const now = Date.now();
+        this._takeovers = this._takeovers.filter((at) => now - at < this.retakeWindowMs);
+        this._takeovers.push(now);
+        if (this._takeovers.length < this.retakeLimit) {
+          const r = await this._serial(() => this._retake(snap, url, lost));
+          if (stale()) return null;
+          if (r === 'ok') {
+            const was = this._owned;
+            this._owned = true;
+            this._lost = [];
+            this.log('info', `Autopilot: another program changed the system proxy (${what}); set it back to Shroudly`);
+            if (!was) tell(true, { lost: [], retaken: true });
+            return [];
+          }
+          // Not written at all (refused): no fight, and tried again next time.
+          if (r === 'failed') this._takeovers.pop();
+        } else {
+          this._gaveUp = true;
+          let by = [];
+          try { by = this.whoTookIt ? (await this.whoTookIt(takeover)) || [] : []; } catch {}
+          if (stale()) return null;
+          by = [...new Set(by.filter((n) => typeof n === 'string' && n.trim()).map((n) => n.trim()))].slice(0, 3);
+          this._owned = false;
+          this.log('warning', by.length
+            ? `Another program keeps changing the system proxy (${what}), probably ${by.join(', ')}; Shroudly stopped setting it back. Close it or turn off its proxy setting, then set Shroudly again.`
+            : `Another program keeps changing the system proxy (${what}); Shroudly stopped setting it back. Close the other proxy or VPN program, then set Shroudly again.`);
+          tell(false, { lost, takeover, gaveUp: true, by });
+          return lost;
+        }
+      }
+      if (this._owned) {
+        this._owned = false;
+        this.log('warning', `Another program changed the system proxy (${what}): that traffic no longer goes through Shroudly`);
+        tell(false, { lost, takeover });
       }
       return lost;
     } finally { this._checking = false; }
+  }
+
+  /* "Set Shroudly again", pressed by the user over a takeover Shroudly sets
+   * back by itself ('cleared', 'local', 'ours'): set back at once, the same
+   * way, and any fight forgotten. The snapshot stays, so Stop still puts
+   * back what the user had before Shroudly. Resolves to the status (code
+   * 'replaced' when it was taken again at once), or null when it is none of
+   * those (a manual proxy, a PAC elsewhere, a macOS setting that needs the
+   * administrator's password): EngineManager then sets it again with a new
+   * snapshot, so that Stop brings that newer choice back. */
+  async retakeNow() {
+    const snap = this.snapshot;
+    const url = this.pacUrl;
+    if (!this.applied || this._restoring || !this._canRetake(snap)) return null;
+    const lost = await this._lostSettings(snap, url);
+    if (lost === null) return null;
+    if (lost.length) {
+      const takeover = await this._takeoverInfo(snap, url);
+      if (!takeover || !RETAKE_KINDS.has(takeover.kind)) return null;
+      const r = await this._serial(() => this._retake(snap, url, lost));
+      if (r === 'stale' || r === 'failed' || this.snapshot !== snap) return null;
+      if (r === 'reverted') {
+        this._gaveUp = false;
+        this._takeovers = [Date.now()];
+        this._owned = false;
+        this._lost = lost;
+        return { ...this.status, ok: false, code: 'replaced', lost, takeover, replacedFrom: this.status };
+      }
+    }
+    this._owned = true;
+    this._gaveUp = false;
+    this._takeovers = [];
+    this._lost = [];
+    return this.status;
+  }
+
+  /* Setting it back can be done without asking anyone: everywhere except a
+   * macOS setting made with an administrator's password. */
+  _canRetake(snap) {
+    if (!snap) return false;
+    if (this.platform === 'win32') return snap.form === 'pac';
+    if (this.platform === 'darwin') return snap.mode === 'system';
+    return snap.mode === 'desktop';
+  }
+
+  /* Our PAC set again where it was lost, and read back: 'ok', 'reverted'
+   * (taken again at once), 'failed' (could not be written or read) or
+   * 'stale' (a stop or a re-apply came first: nothing done). */
+  async _retake(snap, url, lost) {
+    if (!this.applied || this._restoring || this.snapshot !== snap || this.pacUrl !== url) return 'stale';
+    try {
+      if (this.platform === 'win32') {
+        regSet('AutoConfigURL', 'REG_SZ', url);
+        this._refreshWinInet();
+      } else if (this.platform === 'darwin') {
+        const sudoOk = await this._macSudoNonInteractive();
+        for (const s of (snap.services || []).filter((x) => x.applied && lost.includes(x.name))) {
+          for (const args of SystemProxy._macApplyArgs(s.name, url)) {
+            await (sudoOk ? exec.run('sudo', ['-n', 'networksetup', ...args], 6000) : exec.run('networksetup', args, 6000));
+          }
+        }
+      } else {
+        if (snap.gnome && lost.includes('GNOME')) {
+          await exec.run('gsettings', ['set', 'org.gnome.system.proxy', 'autoconfig-url', url]);
+          await exec.run('gsettings', ['set', 'org.gnome.system.proxy', 'mode', 'auto']);
+        }
+        if (snap.kde && lost.includes('KDE')) {
+          this._kdeWriteSync(snap.kde.file, { [KDE_TYPE]: '2', [KDE_SCRIPT]: url });
+          this._kdeNotify();
+        }
+      }
+    } catch { return 'failed'; }
+    // The record to put things back by goes with every setting of ours: one
+    // that was taken away meanwhile is written again.
+    if (this.stateFile && !fs.existsSync(this.stateFile)) { this._saveState(); this._installLoginHook(); }
+    const after = await this._lostSettings(snap, url);
+    if (after === null) return 'failed';
+    return after.length ? 'reverted' : 'ok';
+  }
+
+  /* reg.exe ended with 1: the value is not there. Anything else (it did not
+   * start, it was stopped after its time, a virus scanner held it) says
+   * nothing about the value. */
+  static _regMissing(e) {
+    return !!e && !e.killed && (e.code === 1 || e.status === 1);
+  }
+
+  /* The same PAC address, whatever case or trailing slash a settings window
+   * wrote it back with. */
+  static _samePac(a, b) {
+    const n = (s) => String(s || '').trim().toLowerCase().replace(/\/+$/, '');
+    return !!n(b) && n(a) === n(b);
+  }
+
+  /* A PAC address that is not ours, by where it is served (see
+   * checkOwnership). */
+  static _pacKind(u) {
+    const pac = String(u || '').trim();
+    if (!pac) return { kind: 'cleared' };
+    if (OUR_PAC.test(pac)) return { kind: 'ours', pac };
+    let host = '';
+    let port = 0;
+    try {
+      const p = new URL(pac);
+      host = p.hostname.replace(/^\[|\]$/g, '').toLowerCase();
+      port = Number(p.port) || (p.protocol === 'https:' ? 443 : p.protocol === 'http:' ? 80 : 0);
+    } catch { return { kind: 'pac', pac }; }
+    if (/^127\./.test(host) || host === 'localhost' || host === '::1') return { kind: 'local', pac, port };
+    return { kind: 'pac', pac };
+  }
+
+  /* Of what several services or desktops show, the most deliberate. */
+  static _mostDeliberate(found) {
+    const rank = ['manual', 'pac', 'local', 'ours', 'cleared'];
+    return [...found].sort((a, b) => rank.indexOf(a.kind) - rank.indexOf(b.kind))[0] || { kind: 'cleared' };
+  }
+
+  /* What is set now where our PAC was: { kind, pac?, port?, server? } (see
+   * checkOwnership), or null when it could not be read. */
+  async _takeoverInfo(snap = this.snapshot || {}, url = this.pacUrl) {
+    try {
+      if (this.platform === 'win32') {
+        const read = async (name) => {
+          try { return regParse(name, await exec.run('reg.exe', ['query', WIN_KEY, '/v', name], 4000)); }
+          catch (e) { if (SystemProxy._regMissing(e)) return null; throw e; }
+        };
+        const pac = await read('AutoConfigURL');
+        const on = await read('ProxyEnable');
+        const server = await read('ProxyServer');
+        const enabled = (v) => !!v && /^(0x)?0*1$/i.test(String(v.data).trim());
+        const now = enabled(on) && server ? String(server.data).trim() : '';
+        // The user's own manual proxy, kept under our PAC all along, is not
+        // a new choice: only one switched on or changed since.
+        const before = enabled(snap.ProxyEnable) && snap.ProxyServer ? String(snap.ProxyServer.data).trim() : '';
+        if (now && now !== before) return { kind: 'manual', server: now };
+        return SystemProxy._pacKind(pac && pac.data);
+      }
+      const found = [];
+      if (this.platform === 'darwin') {
+        for (const s of (snap.services || []).filter((x) => x.applied)) {
+          const auto = SystemProxy._macParseAuto(await exec.run('networksetup', ['-getautoproxyurl', s.name], 4000));
+          if (auto.enabled && SystemProxy._samePac(auto.url, url)) continue;
+          let manual = '';
+          for (const verb of ['-getsecurewebproxy', '-getwebproxy', '-getsocksfirewallproxy']) {
+            let p = null;
+            try { p = SystemProxy._macParseSocks(await exec.run('networksetup', [verb, s.name], 4000)); } catch {}
+            if (p && p.enabled && p.server) { manual = `${p.server}:${p.port}`; break; }
+          }
+          found.push(manual ? { kind: 'manual', server: manual } : SystemProxy._pacKind(auto.enabled ? auto.url : ''));
+        }
+        return SystemProxy._mostDeliberate(found);
+      }
+      const unq = (v) => String(v || '').trim().replace(/^'(.*)'$/, '$1');
+      if (snap.gnome && snap.desktop !== 'kde') {
+        const mode = unq(await exec.run('gsettings', ['get', 'org.gnome.system.proxy', 'mode'], 4000));
+        const auto = unq(await exec.run('gsettings', ['get', 'org.gnome.system.proxy', 'autoconfig-url'], 4000));
+        found.push(mode === 'manual' ? { kind: 'manual' } : SystemProxy._pacKind(mode === 'auto' ? auto : ''));
+      }
+      if (snap.kde) {
+        const cur = SystemProxy._kdeRead(await fs.promises.readFile(snap.kde.file, 'utf8').catch(() => ''));
+        // 1: manual; 2: a PAC; 3: found on the network; 4: from the
+        // environment. 3 and 4 are choices of the user's too.
+        found.push(cur.type === '1' ? { kind: 'manual' }
+          : cur.type === '2' ? SystemProxy._pacKind(cur.script)
+            : cur.type === '3' || cur.type === '4' ? { kind: 'pac' } : { kind: 'cleared' });
+      }
+      return SystemProxy._mostDeliberate(found);
+    } catch { return null; }
   }
 
   async _lostSettings(snap = this.snapshot || {}, url = this.pacUrl) {
@@ -843,16 +1149,16 @@ ${argsXml}
       if (this.platform === 'win32') {
         let out = '';
         try { out = await exec.run('reg.exe', ['query', WIN_KEY, '/v', 'AutoConfigURL'], 4000); }
-        catch (e) { if (e.killed || e.code === 'ENOENT') return null; } // else: the value is gone
+        catch (e) { if (!SystemProxy._regMissing(e)) return null; } // exit code 1: the value is gone
         const cur = regParse('AutoConfigURL', out);
-        return cur && cur.data === url ? [] : ['AutoConfigURL'];
+        return cur && SystemProxy._samePac(cur.data, url) ? [] : ['AutoConfigURL'];
       }
       if (this.platform === 'darwin') {
         if (snap.mode !== 'system' && snap.mode !== 'admin') return [];
         const lost = [];
         for (const s of (snap.services || []).filter((x) => x.applied)) {
           const cur = SystemProxy._macParseAuto(await exec.run('networksetup', ['-getautoproxyurl', s.name], 4000));
-          if (!(cur.enabled && cur.url === url)) lost.push(s.name);
+          if (!(cur.enabled && SystemProxy._samePac(cur.url, url))) lost.push(s.name);
         }
         return lost;
       }
@@ -861,15 +1167,16 @@ ${argsXml}
       // for the odd GTK program, changing is nobody's takeover.
       if (snap.gnome && snap.desktop !== 'kde') {
         const mode = (await exec.run('gsettings', ['get', 'org.gnome.system.proxy', 'mode'], 4000)).trim();
-        const auto = (await exec.run('gsettings', ['get', 'org.gnome.system.proxy', 'autoconfig-url'], 4000)).trim();
-        if (mode !== "'auto'" || auto !== `'${url}'`) lost.push('GNOME');
+        const auto = (await exec.run('gsettings', ['get', 'org.gnome.system.proxy', 'autoconfig-url'], 4000)).trim().replace(/^'(.*)'$/, '$1');
+        if (mode !== "'auto'" || !SystemProxy._samePac(auto, url)) lost.push('GNOME');
       }
       if (snap.kde) {
         const cur = SystemProxy._kdeRead(await fs.promises.readFile(snap.kde.file, 'utf8').catch(() => ''));
-        if (cur.type !== '2' || cur.script !== url) lost.push('KDE');
+        if (cur.type !== '2' || !SystemProxy._samePac(cur.script, url)) lost.push('KDE');
       }
       return lost;
     } catch { return null; }
+
   }
 
   /*

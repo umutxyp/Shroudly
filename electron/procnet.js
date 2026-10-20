@@ -120,6 +120,80 @@ async function connections(pids, platform = process.platform) {
   return rows.filter((r) => list.includes(r.pid));
 }
 
+/* The process listening on a TCP port on this computer: { pid, name }, or
+ * null. Names the program whose PAC took the place of Shroudly's in the
+ * system proxy settings (engine-manager.js, whoTookProxy). netstat and
+ * tasklist on Windows, lsof on macOS, the kernel's tables on Linux (only the
+ * user's own processes show there, which is where such a program runs). */
+function parseNetstatListeners(out, port) {
+  const pids = [];
+  for (const line of String(out || '').split(/\r?\n/)) {
+    const f = line.trim().split(/\s+/);
+    if (f[0] !== 'TCP' || f.length < 5) continue;
+    const local = hostPort(f[1]);
+    const remote = hostPort(f[2]);
+    const pid = Number(f[f.length - 1]);
+    // A listening socket has no peer: port 0 (the State column is translated).
+    if (local && remote && local.port === port && remote.port === 0 && pid > 0) pids.push(pid);
+  }
+  return pids;
+}
+
+function parseTasklistName(out, pid) {
+  for (const line of String(out || '').split(/\r?\n/)) {
+    const m = /^"([^"]+)","(\d+)"/.exec(line.trim());
+    if (m && Number(m[2]) === pid) return m[1];
+  }
+  return null;
+}
+
+function parseLsofListener(out) {
+  let pid = 0;
+  for (const line of String(out || '').split(/\r?\n/)) {
+    if (line.startsWith('p')) pid = Number(line.slice(1));
+    else if (line.startsWith('c') && pid > 0) return { pid, name: line.slice(1) };
+  }
+  return null;
+}
+
+function procListener(port, root = '/proc') {
+  const read = (f) => { try { return fs.readFileSync(f, 'utf8'); } catch { return ''; } };
+  const inodes = new Set();
+  for (const table of ['tcp', 'tcp6']) {
+    for (const line of read(`${root}/net/${table}`).split('\n').slice(1)) {
+      const f = line.trim().split(/\s+/);
+      if (f.length < 10 || f[3] !== '0A') continue; // listening
+      if (parseInt((f[1].split(':')[1] || ''), 16) === port) inodes.add(f[9]);
+    }
+  }
+  if (!inodes.size) return null;
+  let pids = [];
+  try { pids = fs.readdirSync(root).filter((d) => /^\d+$/.test(d)); } catch { return null; }
+  for (const pid of pids) {
+    let fds = [];
+    try { fds = fs.readdirSync(`${root}/${pid}/fd`); } catch { continue; }
+    for (const fd of fds) {
+      let link = '';
+      try { link = fs.readlinkSync(`${root}/${pid}/fd/${fd}`); } catch { continue; }
+      const m = /^socket:\[(\d+)\]$/.exec(link);
+      if (m && inodes.has(m[1])) return { pid: Number(pid), name: read(`${root}/${pid}/comm`).trim() || null };
+    }
+  }
+  return null;
+}
+
+async function listener(port, platform = process.platform) {
+  port = Number(port);
+  if (!(port > 0 && port < 65536)) return null;
+  if (platform === 'win32') {
+    const pid = parseNetstatListeners(await run('netstat', ['-ano', '-p', 'TCP']), port)[0];
+    if (!pid) return null;
+    return { pid, name: parseTasklistName(await run('tasklist', ['/fi', `PID eq ${pid}`, '/fo', 'csv', '/nh']), pid) };
+  }
+  if (platform === 'darwin') return parseLsofListener(await run('lsof', ['-nP', `-iTCP:${port}`, '-sTCP:LISTEN', '-Fpc']));
+  return procListener(port);
+}
+
 /* Does any of these processes hold a connection to one of these ports on
  * this computer? */
 async function connectsTo(pids, ports, platform = process.platform) {
@@ -128,4 +202,4 @@ async function connectsTo(pids, ports, platform = process.platform) {
   return (await connections(pids, platform)).some((r) => LOOPBACK.test(r.remote.host) && want.has(r.remote.port));
 }
 
-module.exports = { connectsTo, connections, parseNetstat, parseLsof, parseSs, parseProcNet, procConnections };
+module.exports = { connectsTo, connections, listener, parseNetstat, parseNetstatListeners, parseTasklistName, parseLsofListener, procListener, parseLsof, parseSs, parseProcNet, procConnections };

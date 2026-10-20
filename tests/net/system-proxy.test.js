@@ -24,6 +24,14 @@
  *   - another program taking the proxy over is noticed, but not our own stop
  *     and not GNOME's setting on KDE, nor a check that read during a
  *     re-apply; an engine restart does not hide it (P4, P13)
+ *   - issue #27: a PAC removed, or replaced by another tool's on this
+ *     computer, is set back by itself with one line, on Windows, macOS,
+ *     GNOME and KDE, keeping the record of the user's own settings; a manual
+ *     proxy or a PAC elsewhere chosen meanwhile is left alone; a program that
+ *     takes it back at once (ping-pong) is fought twice, then named and left
+ *     to the user; reg.exe failing, a value gone for a moment, or our address
+ *     rewritten in capitals is no takeover; "Set Shroudly again" sets it back
+ *     in place
  *   - the PAC fails open ("; DIRECT") on XFCE, LXQt and other desktops only
  *     (P1), and its port comes from a fixed range (P16)
  *   - apply() and restore() run in order: a Stop during a re-apply ends
@@ -264,33 +272,257 @@ const readState = (file) => { try { return JSON.parse(fs.readFileSync(file, 'utf
       t.ok(!SystemProxy.resetLegacySync(() => {}, { platform: 'win32' }) && reg.get('AutoConfigURL').data === 'http://127.0.0.1:7890/pac', 'Windows reset: another local tool\'s PAC is not ours');
       reg.set('AutoConfigURL', { type: 'REG_SZ', data: 'http://wpad.corp/proxy.pac' });
     }
-    // Ownership: another program replaces the PAC while applied.
+    // Ownership: another program puts a PAC of its own, served somewhere
+    // else (a company's, the user's own), while applied: reported, once, and
+    // left as it is.
     {
       const seen = [];
-      const sp = new SystemProxy(() => {}, { platform: 'win32', stateFile: file, onOwnership: (o, i) => seen.push([o, i.lost]), ownershipIntervalMs: 40 });
+      const sp = new SystemProxy(() => {}, { platform: 'win32', stateFile: file, onOwnership: (o, i) => seen.push([o, i.lost, i.takeover]), ownershipIntervalMs: 40, takeoverConfirmMs: 0 });
       await sp.apply(10808, 'all');
       t.ok(!!sp._ownTimer, 'Windows: the ownership check runs while applied');
+      t.ok(new SystemProxy(() => {}, { platform: 'win32' }).ownershipIntervalMs === 20000 && new SystemProxy(() => {}, { platform: 'darwin' }).ownershipIntervalMs === 60000,
+        'Windows: read back every 20 s (one reg.exe query), elsewhere every minute');
       const queries = () => ran(fx, 'reg.exe').filter((c) => c[1] === 'query').length;
       const q0 = queries();
       const ps0 = ran(fx, 'powershell.exe').length;
       await sleep(150);
       t.ok(seen.length === 0 && queries() > q0, 'ownership: our PAC in place, nothing reported (one reg query per check)');
-      reg.set('AutoConfigURL', { type: 'REG_SZ', data: 'http://127.0.0.1:7890/pac' });
+      reg.set('AutoConfigURL', { type: 'REG_SZ', data: 'http://wpad.example/proxy.pac' });
       await sleep(150);
-      t.ok(seen.length === 1 && seen[0][0] === false && seen[0][1][0] === 'AutoConfigURL', 'ownership: another program\'s PAC is reported, once');
+      t.ok(seen.length === 1 && seen[0][0] === false && seen[0][1][0] === 'AutoConfigURL' && seen[0][2].kind === 'pac'
+        && reg.get('AutoConfigURL').data === 'http://wpad.example/proxy.pac', 'ownership: a PAC served elsewhere (the user\'s own) is reported, once, and left as it is');
       reg.set('AutoConfigURL', { type: 'REG_SZ', data: sp.pacUrl });
       await sleep(150);
       t.ok(seen.length === 2 && seen[1][0] === true, 'ownership: and its coming back');
-      t.ok(ps0 > 0 && ran(fx, 'powershell.exe').length === ps0, 'ownership: no PowerShell on the timer (WinINET is told only on apply and restore)');
+      t.ok(ps0 > 0 && ran(fx, 'powershell.exe').length === ps0, 'ownership: no PowerShell on the timer (WinINET is told only on apply, restore and setting it back)');
       await sp.restore();
       t.ok(!sp._ownTimer, 'ownership: the check stops with the restore');
+    }
+    // Issue #27: another program removes our PAC, or puts its own local one
+    // there, while protection is on: Shroudly sets it back by itself, says so
+    // in one line, and the window keeps showing it as set. The record of the
+    // user's own settings, the PAC server and its address stay as they were.
+    {
+      for (const [why, take] of [
+        ['removed', () => reg.delete('AutoConfigURL')],
+        ['replaced by another tool\'s PAC on this computer', () => reg.set('AutoConfigURL', { type: 'REG_SZ', data: 'http://127.0.0.1:7890/pac' })],
+        ['replaced by a PAC of Shroudly\'s at another address', () => reg.set('AutoConfigURL', { type: 'REG_SZ', data: 'http://127.0.0.1:10999/proxy.pac' })],
+      ]) {
+        const seen = [];
+        const log = logs();
+        const sp = new SystemProxy(log, { platform: 'win32', stateFile: file, onOwnership: (o, i) => seen.push([o, i]), ownershipIntervalMs: 60000, takeoverConfirmMs: 0 });
+        await sp.apply(10808, 'all');
+        const url = sp.pacUrl;
+        const ps0 = ran(fx, 'powershell.exe').length;
+        const state0 = readText(file);
+        take();
+        const lost = await sp.checkOwnership();
+        t.ok(lost.length === 0 && reg.get('AutoConfigURL').data === url && seen.length === 0 && sp._owned,
+          `issue #27 (${why}): set back by itself, nothing for the window to show`);
+        t.ok(log.lines.filter((l) => l.includes('system proxy')).join('|') === 'info: Autopilot: another program changed the system proxy (AutoConfigURL); set it back to Shroudly',
+          `issue #27 (${why}): one line says so`);
+        t.ok(readText(file) === state0 && readState(file).snapshot.AutoConfigURL.data === 'http://wpad.corp/proxy.pac' && sp.pacUrl === url
+          && reg.get('ProxyServer').data === 'corp-proxy:8080' && reg.get('ProxyEnable').data === '0x1' && ran(fx, 'powershell.exe').length === ps0 + 1,
+        `issue #27 (${why}): the user's own settings are still what Stop puts back, the manual proxy under ours untouched, WinINET told once`);
+        await sp.restore();
+        t.ok(JSON.stringify([...reg]) === before && !fs.existsSync(file), `issue #27 (${why}): …and Stop puts exactly those back`);
+      }
+    }
+    // A manual proxy server switched on since Shroudly applied is a choice
+    // (the user's, or a VPN they started): reported and left alone, never
+    // fought. Once it is gone again, our PAC is set back.
+    {
+      const seen = [];
+      const log = logs();
+      const sp = new SystemProxy(log, { platform: 'win32', stateFile: file, onOwnership: (o, i) => seen.push([o, i]), ownershipIntervalMs: 60000, takeoverConfirmMs: 0 });
+      await sp.apply(10808, 'all');
+      const url = sp.pacUrl;
+      reg.delete('AutoConfigURL');
+      reg.set('ProxyServer', { type: 'REG_SZ', data: '127.0.0.1:8118' });
+      await sp.checkOwnership();
+      await sp.checkOwnership();
+      t.ok(!reg.has('AutoConfigURL') && reg.get('ProxyServer').data === '127.0.0.1:8118' && seen.length === 1 && seen[0][0] === false
+        && seen[0][1].takeover.kind === 'manual' && seen[0][1].takeover.server === '127.0.0.1:8118' && !seen[0][1].gaveUp
+        && log.lines.includes('warning: Another program changed the system proxy (AutoConfigURL): that traffic no longer goes through Shroudly'),
+      'a manual proxy server switched on meanwhile: reported once, left as it is (not fought)');
+      reg.set('ProxyServer', { type: 'REG_SZ', data: 'corp-proxy:8080' });
+      await sp.checkOwnership();
+      t.ok(reg.get('AutoConfigURL').data === url && seen.length === 2 && seen[1][0] === true && seen[1][1].retaken
+        && log.lines.includes('info: Autopilot: another program changed the system proxy (AutoConfigURL); set it back to Shroudly'),
+      '…and once it is gone (the user\'s own manual proxy, kept under ours, is no new choice), ours is set back and the window told');
+      await sp.restore();
+      t.ok(JSON.stringify([...reg]) === before, 'manual proxy case: Stop puts back exactly what was there');
+    }
+    // Anti-flap: a program that puts its own setting back whenever ours is
+    // set (it reacts to every proxy change, as something started with
+    // Discord did in issue #27's log) is not fought for ever. Two times set
+    // back; the third time within ten minutes Shroudly stops, names the
+    // program it can, tells the window, and touches nothing more.
+    {
+      const seen = [];
+      const log = logs();
+      const real = fakeReg(reg);
+      let fighting = true;
+      const fxFight = fakeExec({ 'reg.exe': (args) => {
+        const out = real(args);
+        // The other program answers every write of ours at once.
+        if (fighting && args[0] === 'add' && args[3] === 'AutoConfigURL' && /:\d+\/proxy\.pac$/.test(args[7] || '')) reg.delete('AutoConfigURL');
+        return out;
+      } });
+      SystemProxy._setExec(fxFight);
+      const asked = [];
+      const sp = new SystemProxy(log, { platform: 'win32', stateFile: file, onOwnership: (o, i) => seen.push([o, i]), ownershipIntervalMs: 60000, takeoverConfirmMs: 0,
+        whoTookIt: async (tk) => { asked.push(tk && tk.kind); return ['V2Ray / Clash'];} });
+      fighting = false;
+      await sp.apply(10808, 'all');
+      fighting = true;
+      const writes = () => fxFight.calls.filter((c) => c[0] === 'reg.exe' && c[1] === 'add' && c[4] === 'AutoConfigURL').length;
+      const w0 = writes();
+      reg.delete('AutoConfigURL');
+      for (let i = 0; i < 6; i++) await sp.checkOwnership();
+      t.ok(writes() - w0 === 2, `anti-flap: set back twice, then no more (${writes() - w0} writes over 6 checks)`);
+      const last = seen[seen.length - 1];
+      t.ok(seen.length === 2 && seen.every((e) => e[0] === false) && !seen[0][1].gaveUp && last[1].gaveUp && last[1].by.join() === 'V2Ray / Clash' && asked.join() === 'cleared',
+        'anti-flap: taken again at once is shown as taken over; the third takeover within the window: the window is told it is a fight, with the program named');
+      t.ok(log.lines.filter((l) => l.startsWith('warning: Another program keeps changing')).length === 1
+        && log.lines.includes('warning: Another program keeps changing the system proxy (AutoConfigURL), probably V2Ray / Clash; Shroudly stopped setting it back. Close it or turn off its proxy setting, then set Shroudly again.')
+        && log.lines.filter((l) => l.startsWith('info: Autopilot: another program changed')).length === 0,
+      'anti-flap: one line names it; "set back" is never claimed while it was taken again at once');
+      // The user presses "Set Shroudly again" while it still fights: set,
+      // taken again at once, and said so (not "set").
+      const again = await sp.retakeNow();
+      t.ok(again && again.code === 'replaced' && !reg.has('AutoConfigURL') && !sp._gaveUp, '"Set Shroudly again" while the other program still fights: reported as taken again, not as set');
+      // …and once it has stopped: set back, the fight forgotten, and the
+      // user's own settings from before Shroudly still what Stop puts back.
+      fighting = false;
+      const back = await sp.retakeNow();
+      t.ok(back && back.ok && reg.get('AutoConfigURL').data === sp.pacUrl && sp._takeovers.length === 0 && !sp._gaveUp && sp._owned
+        && readState(file).snapshot.AutoConfigURL.data === 'http://wpad.corp/proxy.pac', 'anti-flap: "Set Shroudly again" sets it and starts afresh, the record of the user\'s own settings kept');
+      await sp.restore();
+      SystemProxy._setExec(fx);
+      t.ok(JSON.stringify([...reg]) === before, 'anti-flap: Stop puts back exactly what was there');
+    }
+    // Anti-flap over time: takeovers spread out more than the window apart
+    // are each set back; three within it are a fight.
+    {
+      const log = logs();
+      const sp = new SystemProxy(log, { platform: 'win32', stateFile: file, onOwnership: () => {}, ownershipIntervalMs: 60000, takeoverConfirmMs: 0, retakeWindowMs: 200, whoTookIt: async () => [] });
+      await sp.apply(10808, 'all');
+      for (let i = 0; i < 4; i++) { reg.delete('AutoConfigURL'); await sp.checkOwnership(); await sleep(120); }
+      t.ok(reg.get('AutoConfigURL').data === sp.pacUrl && !sp._gaveUp && log.lines.filter((l) => l.includes('set it back to Shroudly')).length === 4,
+        'anti-flap: takeovers further apart than the window are each set back');
+      reg.delete('AutoConfigURL'); await sp.checkOwnership();
+      reg.delete('AutoConfigURL'); await sp.checkOwnership();
+      t.ok(sp._gaveUp && !reg.has('AutoConfigURL') && log.lines.includes('warning: Another program keeps changing the system proxy (AutoConfigURL); Shroudly stopped setting it back. Close the other proxy or VPN program, then set Shroudly again.'),
+        'anti-flap: three within it are a fight (unnamed when no program can be told)');
+      reg.set('AutoConfigURL', { type: 'REG_SZ', data: sp.pacUrl });
+      await sp.checkOwnership();
+      t.ok(!sp._gaveUp && sp._owned && log.lines.includes('info: The system proxy points at Shroudly again'), 'anti-flap: ours again by itself: back to normal');
+      await sp.restore();
+    }
+    // Not a takeover: reg.exe that could not run or was refused (a virus
+    // scanner, too many processes) says nothing about the value, and a
+    // settings window that wrote our address back in capitals or with a
+    // trailing slash still points at us. Neither may set anything.
+    {
+      const seen = [];
+      const sp = new SystemProxy(() => {}, { platform: 'win32', stateFile: file, onOwnership: (o, i) => seen.push([o, i]), ownershipIntervalMs: 60000, takeoverConfirmMs: 0 });
+      await sp.apply(10808, 'all');
+      const url = sp.pacUrl;
+      for (const [why, err] of [['not started', Object.assign(new Error('spawn reg.exe EAGAIN'), { code: 'EAGAIN' })],
+        ['refused to start', Object.assign(new Error('spawn reg.exe EPERM'), { code: 'EPERM' })],
+        ['timed out', Object.assign(new Error('timed out'), { killed: true, code: null })],
+        ['ended with another error', Object.assign(new Error('Command failed'), { code: 5 })]]) {
+        SystemProxy._setExec({ ...fx, run: async () => { throw err; } });
+        const r = await sp.checkOwnership();
+        t.ok(r === null && seen.length === 0 && reg.get('AutoConfigURL').data === url, `reg.exe ${why}: unknown, not a takeover`);
+      }
+      SystemProxy._setExec(fx);
+      const writes0 = ran(fx, 'reg.exe').filter((c) => c[1] === 'add').length;
+      for (const v of [url.toUpperCase(), `${url}/`, ` ${url} `]) {
+        reg.set('AutoConfigURL', { type: 'REG_SZ', data: v });
+        t.ok((await sp.checkOwnership()).length === 0 && seen.length === 0, `"${v.trim()}" is still our address`);
+      }
+      t.ok(ran(fx, 'reg.exe').filter((c) => c[1] === 'add').length === writes0, '…and nothing was written for any of them');
+      reg.set('AutoConfigURL', { type: 'REG_SZ', data: url.toUpperCase() });
+      await sp.restore();
+      t.ok(JSON.stringify([...reg]) === before, 'our address in capitals is still taken out at Stop');
+    }
+    // A value gone only for a moment (a program rewriting its settings in
+    // two steps, Shroudly's own re-apply) is read again before anything is
+    // set back: not a takeover.
+    {
+      const seen = [];
+      const log = logs();
+      const sp = new SystemProxy(log, { platform: 'win32', stateFile: file, onOwnership: (o, i) => seen.push([o, i]), ownershipIntervalMs: 60000, takeoverConfirmMs: 60 });
+      await sp.apply(10808, 'all');
+      const url = sp.pacUrl;
+      const writes0 = ran(fx, 'reg.exe').filter((c) => c[1] === 'add').length;
+      reg.delete('AutoConfigURL');
+      setTimeout(() => reg.set('AutoConfigURL', { type: 'REG_SZ', data: url }), 20);
+      t.ok((await sp.checkOwnership()).length === 0 && seen.length === 0 && !log.lines.some((l) => l.includes('system proxy (')) && ran(fx, 'reg.exe').filter((c) => c[1] === 'add').length === writes0,
+        'a value gone for a moment: read again first, no takeover and nothing written');
+      // A Stop while a takeover is being read again: nothing is set back after it.
+      reg.delete('AutoConfigURL');
+      const checking = sp.checkOwnership();
+      await sleep(10);
+      await sp.restore();
+      t.ok((await checking) === null && !reg.has('AutoConfigURL') && seen.length === 0 && !fs.existsSync(file), 'a Stop during the second look: nothing set back after it');
+      reg.set('AutoConfigURL', { type: 'REG_SZ', data: 'http://wpad.corp/proxy.pac' });
+    }
+    // The record to put things back by goes with every setting of ours: one
+    // taken away meanwhile (by a restore elsewhere) is written again when the
+    // setting is set back.
+    {
+      const sp = new SystemProxy(() => {}, { platform: 'win32', stateFile: file, onOwnership: () => {}, ownershipIntervalMs: 60000, takeoverConfirmMs: 0, restoreCommand: { exe: 'Shroudly.exe', args: ['--restore-proxy'] } });
+      await sp.apply(10808, 'all');
+      fs.rmSync(file);
+      reg.delete('AutoConfigURL');
+      await sp.checkOwnership();
+      t.ok(reg.get('AutoConfigURL').data === sp.pacUrl && readState(file) && readState(file).snapshot.AutoConfigURL.data === 'http://wpad.corp/proxy.pac',
+        'set back: a state file taken away meanwhile is written again');
+      await sp.restore();
+      t.ok(JSON.stringify([...reg]) === before && !fs.existsSync(file), '…and Stop still puts everything back');
+    }
+    // On the timer, and ahead of it (checkSoon: a Discord just started, a
+    // program the autopilot restarted).
+    {
+      const log = logs();
+      const sp = new SystemProxy(log, { platform: 'win32', stateFile: file, onOwnership: () => {}, ownershipIntervalMs: 40, takeoverConfirmMs: 10 });
+      await sp.apply(10808, 'all');
+      reg.delete('AutoConfigURL');
+      await sleep(250);
+      t.ok(reg.get('AutoConfigURL').data === sp.pacUrl && log.lines.filter((l) => l.includes('set it back to Shroudly')).length === 1, 'set back by the timer, without anyone asking');
+      await sp.restore();
+      const sp2 = new SystemProxy(log, { platform: 'win32', stateFile: file, onOwnership: () => {}, ownershipIntervalMs: 60000, takeoverConfirmMs: 10 });
+      await sp2.apply(10808, 'all');
+      reg.delete('AutoConfigURL');
+      sp2.checkSoon([20]);
+      await sleep(200);
+      t.ok(reg.get('AutoConfigURL').data === sp2.pacUrl, 'checkSoon: set back seconds after, not a whole interval later');
+      sp2.checkSoon([20]);
+      await sp2.restore();
+      await sleep(80);
+      t.ok(JSON.stringify([...reg]) === before && sp2._soon.length === 0, 'checkSoon: a look still waiting when protection stops does nothing');
+    }
+    // autoRetake false: only reported, as before.
+    {
+      const seen = [];
+      const sp = new SystemProxy(() => {}, { platform: 'win32', stateFile: file, onOwnership: (o, i) => seen.push(o), ownershipIntervalMs: 60000, takeoverConfirmMs: 0, autoRetake: false });
+      await sp.apply(10808, 'all');
+      reg.delete('AutoConfigURL');
+      await sp.checkOwnership();
+      t.ok(!reg.has('AutoConfigURL') && seen.join() === 'false', 'autoRetake off: a takeover is only reported');
+      await sp.restore();
+      reg.set('AutoConfigURL', { type: 'REG_SZ', data: 'http://wpad.corp/proxy.pac' });
     }
     // P4: taken over, then an engine restart applies again while the setting
     // is kept: still reported as taken over, not as set.
     {
-      const sp = new SystemProxy(() => {}, { platform: 'win32', stateFile: file, onOwnership: () => {}, ownershipIntervalMs: 60000 });
+      const sp = new SystemProxy(() => {}, { platform: 'win32', stateFile: file, onOwnership: () => {}, ownershipIntervalMs: 60000, takeoverConfirmMs: 0 });
       await sp.apply(10808, 'all');
-      reg.set('AutoConfigURL', { type: 'REG_SZ', data: 'http://127.0.0.1:7890/pac' });
+      // A PAC served elsewhere: left to it (a removed one is set back).
+      reg.set('AutoConfigURL', { type: 'REG_SZ', data: 'http://wpad.example/proxy.pac' });
       await sp.checkOwnership();
       const again = await sp.apply(10909, 'all');
       t.ok(again.code === 'replaced' && !again.ok && again.lost[0] === 'AutoConfigURL' && again.replacedFrom && again.replacedFrom.code === 'ok',
@@ -604,6 +836,28 @@ const readState = (file) => { try { return JSON.parse(fs.readFileSync(file, 'utf
       await sp.restore();
       t.ok(nsState().services['Wi-Fi'].auto.url === 'http://vpn.example/pac' && nsState().services['USB 10/100/1000 LAN'].auto.url === 'http://wpad.lan/p.pac',
         'macOS: only services still on our PAC are restored');
+      nsInit();
+    }
+    // Issue #27 on macOS (an administrator's account: no password needed): a
+    // service switched off by another program is set back by itself; one
+    // given a manual proxy meanwhile is left as it is. A setting made with
+    // an administrator's password is never set back by itself (it would ask
+    // for the password out of nowhere).
+    {
+      const log = logs();
+      const seen = [];
+      const sp = new SystemProxy(log, { platform: 'darwin', stateFile: file, onOwnership: (o, i) => seen.push([o, i]), ownershipIntervalMs: 60000, takeoverConfirmMs: 0 });
+      await sp.apply(10808, 'all');
+      let s = nsState(); s.services['Wi-Fi'].auto.enabled = false; FakeNS.save(nsFile, s);
+      t.ok((await sp.checkOwnership()).length === 0 && ourPacOn(nsState().services['Wi-Fi']) && seen.length === 0
+        && log.lines.includes('info: Autopilot: another program changed the system proxy (Wi-Fi); set it back to Shroudly'), 'macOS: a service switched off by another program is set back');
+      s = nsState(); s.services['Wi-Fi'].auto.enabled = false; s.services['Wi-Fi'].web = { enabled: true, server: '10.1.1.1', port: '3128' }; FakeNS.save(nsFile, s);
+      t.ok((await sp.checkOwnership()).join() === 'Wi-Fi' && !nsState().services['Wi-Fi'].auto.enabled && seen.length === 1 && seen[0][1].takeover.kind === 'manual',
+        'macOS: one given a manual proxy meanwhile is reported and left as it is');
+      await sp.restore();
+      t.ok(!nsState().services['Wi-Fi'].auto.enabled && nsState().services['USB 10/100/1000 LAN'].auto.url === 'http://wpad.lan/p.pac' && !fs.existsSync(file),
+        'macOS: Stop leaves that service as it is and puts the others back');
+      t.ok(!sp._canRetake({ mode: 'admin', form: 'pac' }) && sp._canRetake({ mode: 'system', form: 'pac' }), 'macOS: a setting made with an administrator\'s password is never set back by itself');
       nsInit();
     }
     // 2.5.4's state file after a crash: its SOCKS form, with its misread "nothing set".
@@ -1043,9 +1297,15 @@ const readState = (file) => { try { return JSON.parse(fs.readFileSync(file, 'utf
     // Ownership.
     {
       const seen = [];
-      const sp = new SystemProxy(() => {}, { platform: 'linux', env, stateFile: file, onOwnership: (o, i) => seen.push([o, i.lost]) });
+      const log = logs();
+      const sp = new SystemProxy(log, { platform: 'linux', env, stateFile: file, onOwnership: (o, i) => seen.push([o, i.lost]), takeoverConfirmMs: 0 });
       await sp.apply(10808, 'all');
       t.ok((await sp.checkOwnership()).length === 0, 'GNOME ownership: ours');
+      // Switched off by another program: set back by itself (issue #27).
+      g.set('org.gnome.system.proxy mode', "'none'");
+      t.ok((await sp.checkOwnership()).length === 0 && seen.length === 0 && g.get('org.gnome.system.proxy mode') === "'auto'"
+        && g.get('org.gnome.system.proxy autoconfig-url') === `'${sp.pacUrl}'` && log.lines.includes('info: Autopilot: another program changed the system proxy (GNOME); set it back to Shroudly'),
+      'GNOME ownership: switched off by another program: set back, one line');
       g.set('org.gnome.system.proxy mode', "'manual'");
       t.ok((await sp.checkOwnership())[0] === 'GNOME' && seen.length === 1 && seen[0][0] === false, 'GNOME ownership: a switch to manual is reported');
       await sp.restore();
@@ -1128,14 +1388,17 @@ const readState = (file) => { try { return JSON.parse(fs.readFileSync(file, 'utf
     t.ok(SystemProxy.recoverSync({ stateFile: sf, platform: 'linux', env }) === true && SystemProxy._kdeRead(fs.readFileSync(file, 'utf8')).type === '1',
       `KDE (${how}): recovery after a crash restores`);
     // Ownership, read from the file (no process started).
-    const sp3 = new SystemProxy(() => {}, { platform: 'linux', env, stateFile: sf, onOwnership: () => {} });
+    const sp3 = new SystemProxy(() => {}, { platform: 'linux', env, stateFile: sf, onOwnership: () => {}, takeoverConfirmMs: 0 });
     await sp3.apply(10808, 'all');
     const n = fx.calls.length;
     t.ok((await sp3.checkOwnership()).length === 0 && fx.calls.length === n, `KDE (${how}): ownership read from the file, no process started`);
     fs.writeFileSync(file, SystemProxy._kdeEdit(fs.readFileSync(file, 'utf8'), { ProxyType: '0' }));
-    t.ok((await sp3.checkOwnership())[0] === 'KDE', `KDE (${how}): another setting is noticed`);
+    const kd = () => SystemProxy._kdeRead(fs.readFileSync(file, 'utf8'));
+    t.ok((await sp3.checkOwnership()).length === 0 && kd().type === '2' && kd().script === sp3.pacUrl, `KDE (${how}): switched off by another program: set back (issue #27)`);
+    fs.writeFileSync(file, SystemProxy._kdeEdit(fs.readFileSync(file, 'utf8'), { ProxyType: '1' }));
+    t.ok((await sp3.checkOwnership())[0] === 'KDE' && kd().type === '1', `KDE (${how}): a manual proxy chosen meanwhile is noticed and left as it is`);
     await sp3.restore();
-    t.ok(SystemProxy._kdeRead(fs.readFileSync(file, 'utf8')).type === '0', `KDE (${how}): and not undone on stop`);
+    t.ok(SystemProxy._kdeRead(fs.readFileSync(file, 'utf8')).type === '1', `KDE (${how}): and not undone on stop`);
     // Reset with no state file.
     fs.writeFileSync(file, SystemProxy._kdeEdit(fs.readFileSync(file, 'utf8'), { ProxyType: '2', 'Proxy Config Script': 'http://127.0.0.1:5555/proxy.pac' }));
     t.ok(SystemProxy.resetLegacySync(() => {}, { platform: 'linux', env }) && SystemProxy._kdeRead(fs.readFileSync(file, 'utf8')).type === '0', `KDE (${how}) reset: our PAC switched off`);
@@ -1149,12 +1412,12 @@ const readState = (file) => { try { return JSON.parse(fs.readFileSync(file, 'utf
     const g = gnomeDefaults();
     SystemProxy._setExec(fakeExec({ gsettings: fakeGsettings(g), 'dbus-send': () => '' }));
     const seen = [];
-    const sp = new SystemProxy(() => {}, { platform: 'linux', env: { XDG_CURRENT_DESKTOP: 'KDE', XDG_CONFIG_HOME: cfg, HOME: process.env.HOME }, stateFile: stateFile('kde-g'), onOwnership: (o, i) => seen.push(i.lost) });
+    const sp = new SystemProxy(() => {}, { platform: 'linux', env: { XDG_CURRENT_DESKTOP: 'KDE', XDG_CONFIG_HOME: cfg, HOME: process.env.HOME }, stateFile: stateFile('kde-g'), onOwnership: (o, i) => seen.push(i.lost), takeoverConfirmMs: 0 });
     const st = await sp.apply(10808, 'all');
     t.ok(st.ok && st.system === 'kde' && g.get('org.gnome.system.proxy mode') === "'auto'", 'KDE with gsettings: both set');
     g.set('org.gnome.system.proxy mode', "'none'");
     t.ok((await sp.checkOwnership()).length === 0 && seen.length === 0, 'KDE (A10): GNOME\'s setting changing is not a takeover on Plasma');
-    fs.writeFileSync(file, SystemProxy._kdeEdit(fs.readFileSync(file, 'utf8'), { ProxyType: '0' }));
+    fs.writeFileSync(file, SystemProxy._kdeEdit(fs.readFileSync(file, 'utf8'), { ProxyType: '1' }));
     t.ok((await sp.checkOwnership()).join() === 'KDE' && seen.length === 1, 'KDE (A10): KDE\'s own setting changing is');
     await sp.restore();
   }
@@ -1180,6 +1443,24 @@ const readState = (file) => { try { return JSON.parse(fs.readFileSync(file, 'utf
     t.ok(em.proxyStatus.code === 'replaced' && em.proxyStatus.lost[0] === 'AutoConfigURL', 'EngineManager: a takeover becomes status "replaced"');
     em.proxy.onOwnership(true, { lost: [] });
     t.ok(em.proxyStatus.code === 'ok', 'EngineManager: and back to "ok" when ours again');
+    // Issue #27: a program that keeps taking it: the window says Shroudly
+    // stopped setting it back, and names the program.
+    em.proxy.onOwnership(false, { lost: ['AutoConfigURL'], takeover: { kind: 'cleared' }, gaveUp: true, by: ['Psiphon'] });
+    t.ok(em.proxyStatus.code === 'replaced' && em.proxyStatus.fight && em.proxyStatus.fight.by.join() === 'Psiphon' && em.proxyStatus.replacedFrom.code === 'ok',
+      'EngineManager (issue #27): a fight becomes "replaced" with the program named');
+    em.proxy.onOwnership(true, { lost: [] });
+    t.ok(em.proxyStatus.code === 'ok' && !em.proxyStatus.fight, 'EngineManager (issue #27): …and "ok" again, without it, once ours again');
+    {
+      const W = EngineManager.whoTookProxy;
+      const listener = async (port) => (port === 7890 ? { pid: 42, name: 'clash-verge.exe' } : port === 8000 ? { pid: 43, name: 'MyProxy.exe' } : null);
+      const tools = async () => ['Psiphon'];
+      t.ok((await W({ kind: 'local', port: 7890 }, { listener, tools })).join() === 'V2Ray / Clash'
+        && (await W({ kind: 'local', port: 8000 }, { listener, tools })).join() === 'MyProxy'
+        && (await W({ kind: 'local', port: 9999 }, { listener, tools })).join() === 'Psiphon'
+        && (await W({ kind: 'cleared' }, { listener: async () => { throw new Error('not asked'); }, tools })).join() === 'Psiphon'
+        && (await W(null, { listener, tools: async () => { throw new Error('no list'); } })).length === 0,
+      'EngineManager (issue #27): the program named is the one serving the PAC that replaced ours, else a running tool known to set the proxy, else none');
+    }
     const calls = [];
     em.proxy = {
       applyAsAdmin: async () => { calls.push('admin'); return { ok: true, code: 'ok', admin: true }; },
@@ -1265,6 +1546,42 @@ const readState = (file) => { try { return JSON.parse(fs.readFileSync(file, 'utf
       t.ok(calls2.join(',') === 'pac' && em.proxyStatus.code === 'replaced',
         `EngineManager (P4): a settings change while taken over only updates the PAC, no password dialog (${calls2.join(',') || 'none'})`);
       em.active = false;
+    }
+
+    // Issue #27: "Set Shroudly again" over a takeover Shroudly would set back
+    // by itself sets it back the same way (the record of the user's own
+    // settings kept, no restore and apply, no PAC server moved); over a newer
+    // choice of the user's (retakeNow says null) it is set again as before.
+    {
+      const calls3 = [];
+      const base = { ok: true, code: 'ok', system: 'windows' };
+      let answer = base;
+      em.proxy = {
+        retakeNow: async () => { calls3.push('retake'); return answer; },
+        updateRouting: () => { calls3.push('pac'); return true; },
+        restore: async () => { calls3.push('restore'); return true; },
+        apply: async () => { calls3.push('apply'); return base; },
+        checkSoon: () => { calls3.push('soon'); },
+      };
+      em.active = true;
+      em._setProxyStatus({ ...base, ok: false, code: 'replaced', lost: ['AutoConfigURL'], replacedFrom: base });
+      let r = await em.reapplyProxy({ userAsked: true });
+      t.ok(calls3.join(',') === 'retake,pac' && r.status.ok && em.proxyStatus.code === 'ok', `EngineManager (issue #27): "Set Shroudly again" sets it back in place (${calls3.join(',')})`);
+      calls3.length = 0;
+      answer = { ...base, ok: false, code: 'replaced', lost: ['AutoConfigURL'], replacedFrom: base };
+      em._setProxyStatus({ ...base, ok: false, code: 'replaced', lost: ['AutoConfigURL'], replacedFrom: base });
+      r = await em.reapplyProxy({ userAsked: true });
+      t.ok(calls3.join(',') === 'retake,pac' && !r.status.ok && em.proxyStatus.code === 'replaced', 'EngineManager (issue #27): …taken again at once: still shown as taken over');
+      calls3.length = 0;
+      answer = null;
+      em._setProxyStatus({ ...base, ok: false, code: 'replaced', lost: ['AutoConfigURL'], replacedFrom: base });
+      r = await em.reapplyProxy({ userAsked: true });
+      t.ok(calls3.join(',') === 'retake,restore,apply' && r.status.ok, `EngineManager (issue #27): a newer choice of the user's is set over with a new record (${calls3.join(',')})`);
+      calls3.length = 0;
+      em.checkProxySoon();
+      em.active = false;
+      em.checkProxySoon();
+      t.ok(calls3.join(',') === 'soon', 'EngineManager (issue #27): a look ahead of the timer only while protection is on');
     }
 
     // P6: settings a restart of the Mac left for the administrator's password.

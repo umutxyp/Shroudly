@@ -417,5 +417,38 @@ const settle = async () => { for (let i = 0; i < 5; i++) await new Promise((r) =
     t.ok(yes && !no, `${process.platform}: a process holding a connection to the port is seen, and only to that port`);
   }
 
+  // Issue #27: the program listening where the PAC that replaced Shroudly's
+  // is served, to name it (procnet.listener).
+  {
+    const os = require('os'); const fs = require('fs');
+    const net = '  TCP    0.0.0.0:135            0.0.0.0:0              LISTENING       1040\r\n'
+      + '  TCP    127.0.0.1:7890         0.0.0.0:0              ABHÖREN         5150\r\n'
+      + '  TCP    127.0.0.1:7890         127.0.0.1:61000        HERGESTELLT     5150\r\n'
+      + '  TCP    127.0.0.1:61000        127.0.0.1:7890         HERGESTELLT     812\r\n';
+    t.ok(ProcNet.parseNetstatListeners(net, 7890).join() === '5150' && ProcNet.parseNetstatListeners(net, 61000).length === 0,
+      'Windows: the listening process of a port, whatever language netstat speaks, not a process merely connected to it');
+    t.ok(ProcNet.parseTasklistName('"clash-verge.exe","5150","Console","1","48,120 K"\r\n', 5150) === 'clash-verge.exe'
+      && ProcNet.parseTasklistName('INFO: No tasks are running which match the specified criteria.\r\n', 5150) === null, 'Windows: its name from tasklist');
+    t.ok(JSON.stringify(ProcNet.parseLsofListener('p901\ncClashX Pro\nf9\n')) === '{"pid":901,"name":"ClashX Pro"}' && ProcNet.parseLsofListener('') === null, 'macOS: the listener from lsof');
+    if (process.platform !== 'win32') {
+      const root = fs.mkdtempSync(path.join(os.tmpdir(), 'shroudly-proc-l-'));
+      fs.mkdirSync(path.join(root, 'net'), { recursive: true });
+      fs.mkdirSync(path.join(root, '900', 'fd'), { recursive: true });
+      fs.writeFileSync(path.join(root, '900', 'comm'), 'mihomo\n');
+      const head = '  sl  local_address rem_address   st tx_queue rx_queue tr tm->when retrnsmt   uid  timeout inode\n';
+      fs.writeFileSync(path.join(root, 'net', 'tcp'), `${head}   0: 0100007F:1ED2 00000000:0000 0A 00000000:00000000 00:00000000 00000000  1000        0 44444 1 0 100 0 0 10 0\n`);
+      fs.writeFileSync(path.join(root, 'net', 'tcp6'), head);
+      fs.symlinkSync('socket:[44444]', path.join(root, '900', 'fd', '3'));
+      t.ok(JSON.stringify(ProcNet.procListener(7890, root)) === '{"pid":900,"name":"mihomo"}' && ProcNet.procListener(7891, root) === null, 'Linux (/proc): the listener of a port and its name');
+      fs.rmSync(root, { recursive: true, force: true });
+    }
+    const srv = require('net').createServer().listen(0, '127.0.0.1');
+    await new Promise((r) => srv.once('listening', r));
+    const who = await ProcNet.listener(srv.address().port);
+    srv.close();
+    t.ok(process.platform === 'linux' ? (!who || who.pid === process.pid) : (who && who.pid === process.pid && !!who.name),
+      `${process.platform}: this process is found listening on its port (${JSON.stringify(who)})`);
+  }
+
   console.log(`autopilot: ${t.count} passed`);
 })().catch((e) => { console.error('FAIL', e.message); process.exit(1); });

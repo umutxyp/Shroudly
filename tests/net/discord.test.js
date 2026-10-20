@@ -36,6 +36,51 @@ function get(url, o = {}) {
   t.ok(DA.patchSync(f, null) === 'changed' && fs.readFileSync(f, 'utf8') === JSON.stringify(orig, null, 2), 'removing restores the file byte for byte');
   fs.writeFileSync(f, JSON.stringify({ NEW_UPDATE_ENDPOINT: 'https://my.mirror/' }));
   t.ok(DA.patchSync(f, url) === 'foreign' && DA.patchSync(f, null) === 'foreign', "a user's own endpoint is never touched");
+  // Issue #27: the system proxy was taken over within a minute of Discord's
+  // settings being written anew, again and again. Shroudly's own part in a
+  // Discord start (the line put back, Discord restarted on Windows) runs
+  // only taskkill, tasklist and Discord's Update.exe: nothing that touches
+  // the proxy settings (reg.exe, netsh, PowerShell, Internet Settings).
+  {
+    const cp = require('child_process');
+    const ran = [];
+    const real = { execFile: cp.execFile, spawn: cp.spawn };
+    const realPlatform = Object.getOwnPropertyDescriptor(process, 'platform');
+    const local = fs.mkdtempSync(path.join(os.tmpdir(), 'shroudly-discord-win-'));
+    const prev = { APPDATA: process.env.APPDATA, LOCALAPPDATA: process.env.LOCALAPPDATA };
+    let running = true;
+    cp.execFile = (cmd, args, opts, cb) => {
+      ran.push([cmd, ...args].join(' '));
+      if (cmd === 'taskkill') running = false;
+      const out = cmd === 'tasklist' && running ? '"Discord.exe","4242","Console","1","90,000 K"\r\n' : '';
+      setImmediate(() => cb(null, out, ''));
+      return { on() {} };
+    };
+    cp.spawn = (cmd, args) => { ran.push([cmd, ...args].join(' ')); return { unref() {}, on() {} }; };
+    delete require.cache[require.resolve(path.join(ROOT, 'electron', 'discord-app.js'))];
+    try {
+      Object.defineProperty(process, 'platform', { value: 'win32' });
+      process.env.APPDATA = path.join(local, 'Roaming');
+      process.env.LOCALAPPDATA = local;
+      const DW = require(path.join(ROOT, 'electron', 'discord-app.js'));
+      const v = DW.variants('win32')[0];
+      fs.mkdirSync(v.settingsDir, { recursive: true });
+      fs.mkdirSync(path.dirname(v.updateExe), { recursive: true });
+      fs.writeFileSync(v.updateExe, '');
+      DW.patchSync(DW.settingsFile(v), DW.endpointUrl(10809));
+      await DW.isRunning(v);
+      const restarted = await DW.restart(v);
+      t.ok(restarted && ran.some((c) => c.startsWith('taskkill')) && ran.some((c) => c.includes('--processStart Discord.exe'))
+        && !ran.some((c) => /\breg(\.exe)?\b|netsh|powershell|Internet Settings|AutoConfigURL|ProxyServer/i.test(c)),
+      `issue #27: Discord's line and a Discord restart touch no proxy setting (${ran.map((c) => c.split(' ')[0].split(/[\\/]/).pop()).join(', ')})`);
+    } finally {
+      Object.defineProperty(process, 'platform', realPlatform);
+      cp.execFile = real.execFile; cp.spawn = real.spawn;
+      for (const [k, val] of Object.entries(prev)) { if (val === undefined) delete process.env[k]; else process.env[k] = val; }
+      delete require.cache[require.resolve(path.join(ROOT, 'electron', 'discord-app.js'))];
+      fs.rmSync(local, { recursive: true, force: true });
+    }
+  }
   fs.writeFileSync(f, '{broken');
   let threw = false; try { DA.patchSync(f, url); } catch { threw = true; }
   t.ok(threw && fs.readFileSync(f, 'utf8') === '{broken', 'broken JSON is refused and left as it was');

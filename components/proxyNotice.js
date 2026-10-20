@@ -27,6 +27,14 @@ export function proxyNotice(proxy, { active = false, recovery = null } = {}) {
     return { id, icon: 'alert', title: 'proxyAdminTitle', body: 'proxyAdminBody', action: 'admin' };
   }
   if (proxy.code === 'replaced') {
+    // Another program kept taking it back, so Shroudly stopped setting it
+    // back by itself: named when it could be told which one.
+    const by = proxy.fight && Array.isArray(proxy.fight.by) ? proxy.fight.by.filter(Boolean) : [];
+    if (proxy.fight) {
+      return by.length
+        ? { id: `${id}:fight`, icon: 'alert', title: 'proxyReplacedTitle', body: 'proxyFightBodyNamed', params: { program: by.join(', ') }, action: 'reapply' }
+        : { id: `${id}:fight`, icon: 'alert', title: 'proxyReplacedTitle', body: 'proxyFightBody', action: 'reapply' };
+    }
     return { id, icon: 'alert', title: 'proxyReplacedTitle', body: 'proxyReplacedBody', action: 'reapply' };
   }
   /* XFCE, LXQt and other desktops without a proxy setting: Firefox follows

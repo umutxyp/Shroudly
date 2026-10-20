@@ -41,6 +41,14 @@ const cancelled = show({ ok: false, code: 'cancelled', pacUrl: PAC }, { active: 
 t.ok(cancelled && cancelled.action === 'admin' && cancelled.title === 'proxyAdminTitle' && cancelled.id === 'proxy:cancelled',
   'P14: the password dialog dismissed: the same banner, with its button to try again');
 t.ok(show({ ok: false, code: 'replaced' }, { active: true }).action === 'reapply', 'replaced: "Set Shroudly again"');
+// Issue #27: another program kept taking it, so Shroudly stopped setting it
+// back by itself: said so, with the program when it could be told, and its
+// own id (a "replaced" banner closed earlier does not hide it).
+const fightNamed = show({ ok: false, code: 'replaced', fight: { by: ['V2Ray / Clash', 'Psiphon'] } }, { active: true });
+const fight = show({ ok: false, code: 'replaced', fight: { by: [] } }, { active: true });
+t.ok(fightNamed.body === 'proxyFightBodyNamed' && fightNamed.params.program === 'V2Ray / Clash, Psiphon' && fightNamed.action === 'reapply' && fightNamed.id === 'proxy:replaced:fight'
+  && fight.body === 'proxyFightBody' && fight.action === 'reapply' && /\{program\}/.test(en.proxyFightBodyNamed) && !/\{program\}/.test(en.proxyFightBody),
+'issue #27: a fight is told as one, naming the program when known, with "Set Shroudly again"');
 t.ok(show({ ok: true, code: 'ok' }, { active: true }) === null && show({ ok: false, code: 'needs_admin' }, { active: false }) === null,
   'nothing while the proxy is set, or while protection is off');
 
