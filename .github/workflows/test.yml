@@ -242,9 +242,8 @@ jobs:
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
       - name: Engine for Android, hev source, generated files
-        env:
-          ANDROID_NDK_HOME: ${{ env.ANDROID_HOME }}/ndk/${{ env.NDK_VERSION }}
         run: |
+          export ANDROID_NDK_HOME="$ANDROID_HOME/ndk/$NDK_VERSION"
           node scripts/build-core-android.js
           node android/scripts/fetch-hev.js
           node android/scripts/gen-strings.js --check
@@ -256,9 +255,8 @@ jobs:
         working-directory: android
         run: ./gradlew --no-daemon -Pshroudly.store=play bundleRelease
       - name: 16 KB page size (APKs, and the APKs Play makes from the bundle)
-        env:
-          ANDROID_NDK_HOME: ${{ env.ANDROID_HOME }}/ndk/${{ env.NDK_VERSION }}
         run: |
+          export ANDROID_NDK_HOME="$ANDROID_HOME/ndk/$NDK_VERSION"
           bash android/scripts/check-16k.sh android/app/build/outputs/apk/debug/app-debug.apk \
             android/app/build/outputs/apk/release/app-release-unsigned.apk \
             android/app/build/outputs/bundle/release/app-release.aab

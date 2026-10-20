@@ -30,7 +30,8 @@ BT="${BUILD_TOOLS:-$ANDROID_HOME/build-tools/36.0.0}"
 ZIPALIGN="$BT/zipalign"
 AAPT2="$BT/aapt2"
 NDK="${ANDROID_NDK_HOME:-}"
-if [ -z "$NDK" ]; then NDK="$(ls -d "$ANDROID_HOME"/ndk/*/ 2>/dev/null | sort -V | tail -1)"; fi
+# Not set, or set to something that is not an NDK: the newest one in the SDK.
+if [ -z "$NDK" ] || [ ! -d "$NDK/toolchains" ]; then NDK="$(ls -d "$ANDROID_HOME"/ndk/*/ 2>/dev/null | sort -V | tail -1)"; fi
 READELF="$(ls "${NDK%/}"/toolchains/llvm/prebuilt/*/bin/llvm-readelf 2>/dev/null | head -1 || true)"
 [ -x "$ZIPALIGN" ] || { echo "no zipalign at $ZIPALIGN" >&2; exit 2; }
 [ -n "$READELF" ] && [ -x "$READELF" ] || { echo "no llvm-readelf in the NDK (${NDK:-none})" >&2; exit 2; }

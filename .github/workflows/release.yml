@@ -346,9 +346,8 @@ jobs:
           yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses >/dev/null || true
           "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "platforms;android-36" "build-tools;36.0.0" "ndk;$NDK_VERSION" >/dev/null
       - name: Engine for Android and hev source
-        env:
-          ANDROID_NDK_HOME: ${{ env.ANDROID_HOME }}/ndk/${{ env.NDK_VERSION }}
         run: |
+          export ANDROID_NDK_HOME="$ANDROID_HOME/ndk/$NDK_VERSION"
           node scripts/build-core-android.js
           node android/scripts/fetch-hev.js
           node android/scripts/gen-strings.js --check
@@ -404,9 +403,9 @@ jobs:
           echo "built=1" >> "$GITHUB_OUTPUT"
       - name: 16 KB page size (APK, and the APKs Play makes from the bundle)
         if: steps.apk.outputs.built == '1'
-        env:
-          ANDROID_NDK_HOME: ${{ env.ANDROID_HOME }}/ndk/${{ env.NDK_VERSION }}
-        run: bash android/scripts/check-16k.sh dist/*-Android.apk play/*.aab
+        run: |
+          export ANDROID_NDK_HOME="$ANDROID_HOME/ndk/$NDK_VERSION"
+          bash android/scripts/check-16k.sh dist/*-Android.apk play/*.aab
       - uses: actions/upload-artifact@v7
         if: steps.apk.outputs.built == '1'
         with:
