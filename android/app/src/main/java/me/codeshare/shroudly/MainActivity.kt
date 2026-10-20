@@ -100,6 +100,9 @@ class MainActivity : Activity() {
     private fun handleStart(intent: Intent?) {
         if (intent?.getBooleanExtra(EXTRA_START, false) != true) return
         intent.removeExtra(EXTRA_START)
+        // Reopened from Recents (Android 8 to 11 hand back the tile's original
+        // intent, extra included): the user did not ask to start again.
+        if (intent.flags and Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY != 0) return
         if (Protection.state == Protection.State.OFF) onToggle()
     }
 

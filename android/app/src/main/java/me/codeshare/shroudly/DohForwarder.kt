@@ -11,6 +11,7 @@ import java.net.URL
 import java.util.concurrent.ArrayBlockingQueue
 import java.util.concurrent.Executors
 import java.util.concurrent.LinkedBlockingQueue
+import java.util.concurrent.RejectedExecutionException
 import java.util.concurrent.RejectedExecutionHandler
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.ThreadPoolExecutor
@@ -172,7 +173,8 @@ class DohForwarder(
     // bounded: when lookups come faster than they can be answered, the oldest
     // waiting one (the one the engine is most likely to have given up on) goes.
     private val lookups = pool("doh-lookup", 16, 64, ThreadPoolExecutor.DiscardOldestPolicy())
-    private val queries = pool("doh-query", 32, 128, ThreadPoolExecutor.DiscardPolicy())
+    // A full queue refuses the attempt (race() counts it as failed, not in flight).
+    private val queries = pool("doh-query", 32, 128, ThreadPoolExecutor.AbortPolicy())
     private var timer: ScheduledExecutorService? = null
 
     private fun pool(name: String, n: Int, queue: Int, full: RejectedExecutionHandler): ThreadPoolExecutor {
@@ -263,7 +265,11 @@ class DohForwarder(
         val order = plan(all, preferredId, now, socksPort > 0)
         val due = all.filter { it.restUntil > now && it.restUntil - now < WARM_INTERVAL_MS }.take(2)
         for (r in order.filter { it.restUntil <= now }.take(3) + due) {
-            queries.execute { try { query(r, Dns.buildQuery("cloudflare.com", Dns.TYPE_A, 0)) } catch (_: Exception) {} }
+            try {
+                queries.execute { try { query(r, Dns.buildQuery("cloudflare.com", Dns.TYPE_A, 0)) } catch (_: Exception) {} }
+            } catch (_: RejectedExecutionException) {
+                return
+            }
         }
     }
 
@@ -347,7 +353,9 @@ class DohForwarder(
  * SECOND_WAVE_MS, then WAVE_SIZE more every NEXT_WAVE_MS from THIRD_WAVE_MS;
  * and the next one at once whenever nothing is in flight. The first answer
  * wins; null when every route failed or answerBy (System.nanoTime() in
- * milliseconds) came. Attempts still queued when the race ends are not made. */
+ * milliseconds) came. Attempts still queued when the race ends are not made.
+ * One the executor refuses (its queue is full) counts as failed at once: it
+ * is never in flight, so nothing waits for it. */
 fun race(
     plan: List<DohRoute>,
     executor: java.util.concurrent.Executor,
@@ -378,16 +386,24 @@ private fun raceUntil(
     fun upTo(n: Int) {
         while (started < minOf(n, plan.size)) {
             val r = plan[started++]
-            pending++
-            executor.execute {
-                if (done.get()) {
-                    results.put(r to null)
-                    return@execute
+            try {
+                executor.execute {
+                    if (done.get()) {
+                        results.put(r to null)
+                        return@execute
+                    }
+                    val got = try { attempt(r) } catch (_: Exception) { null }
+                    results.put(r to got)
                 }
-                val got = try { attempt(r) } catch (_: Exception) { null }
-                results.put(r to got)
+                pending++
+            } catch (_: RejectedExecutionException) {
             }
         }
+    }
+    /* Starts up to n, then one more for as long as nothing is in flight. */
+    fun launch(n: Int) {
+        upTo(n)
+        while (pending == 0 && started < plan.size) upTo(started + 1)
     }
     val t0 = System.nanoTime() / 1_000_000
     // Long enough for every route to have its own timeout run out, unless
@@ -395,15 +411,16 @@ private fun raceUntil(
     val deadline = minOf(answerBy, t0 + DohForwarder.QUERY_TIMEOUT_MS * 2L + timing[1] + timing[2] * (plan.size / DohForwarder.WAVE_SIZE + 1))
     var stage = 0
     var nextAt = t0 + timing[0]
-    upTo(1)
+    launch(1)
     while (true) {
+        if (pending == 0) return null    // every route refused or failed
         val now = System.nanoTime() / 1_000_000
         if (now >= deadline) return null
         if (started < plan.size && now >= nextAt) {
             if (stage == 0) {
-                upTo(3); stage = 1; nextAt = t0 + timing[1]
+                launch(3); stage = 1; nextAt = t0 + timing[1]
             } else {
-                upTo(started + DohForwarder.WAVE_SIZE); nextAt = now + timing[2]
+                launch(started + DohForwarder.WAVE_SIZE); nextAt = now + timing[2]
             }
             continue
         }
@@ -412,10 +429,8 @@ private fun raceUntil(
         pending--
         val answer = res.second
         if (answer != null) return res.first to answer
-        if (pending == 0) {
-            if (started >= plan.size) return null
-            upTo(started + 1)    // a route that fails fast does not hold up the rest
-        }
+        // A route that fails fast does not hold up the rest.
+        if (pending == 0) launch(started + 1)
     }
 }
 

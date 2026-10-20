@@ -9,6 +9,8 @@ class EngineEventTest {
     @Test
     fun ready() {
         assertEquals(EngineEvent.Ready(41234, 27), EngineEvent.parse("""{"type":"ready","port":41234,"techniques":27}"""))
+        // Newer engines also give their pid.
+        assertEquals(EngineEvent.Ready(41234, 27, 9911), EngineEvent.parse("""{"type":"ready","port":41234,"techniques":27,"pid":9911}"""))
     }
 
     @Test
@@ -71,5 +73,34 @@ class EngineEventTest {
             Engine.args(4000, 5353, listOf("10.10.34.34", "1.2.3.4")),
         )
         assertEquals(listOf("--listen", "127.0.0.1", "--port", "4000", "--strategy", "split(sni)", "--auto", "--doh"), Engine.args(4000, 0, emptyList()))
+    }
+
+    @Test
+    fun engineArgsWithTheStandInRange() {
+        val a = Engine.args(4000, 0, listOf("1.2.3.4"), fakeNet = Engine.FAKE_NET)
+        assertEquals("198.18.0.0/15", a[a.indexOf("--fake-net") + 1])
+        assertTrue("--fake-net" !in Engine.args(4000, 0, emptyList()))
+    }
+
+    @Test
+    fun theStandInRangeCoversTheTunnelsAddresses() {
+        // 198.18.0.0/15 is 198.18.0.0 to 198.19.255.255.
+        for (a in listOf(TunnelConfig.ADDRESS_V4, TunnelConfig.DNS_V4, TunnelConfig.MAPPED_NETWORK)) {
+            val first = a.split('.').map { it.toInt() }
+            assertTrue(a, first[0] == 198 && first[1] in 18..19)
+        }
+    }
+
+    @Test
+    fun knowsAnOptionOnlyAsAWholeString() {
+        val dir = java.nio.file.Files.createTempDirectory("engine").toFile()
+        try {
+            val f = java.io.File(dir, "bin").apply { writeBytes("--port\u0000--fake-net\u0000".toByteArray()) }
+            assertTrue(Engine.knows(f, "--fake-net"))
+            assertTrue(!Engine.knows(f, "--fake"))
+            assertTrue(!Engine.knows(java.io.File(dir, "missing"), "--fake-net"))
+        } finally {
+            dir.deleteRecursively()
+        }
     }
 }

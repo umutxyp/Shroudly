@@ -32,11 +32,7 @@ class SocksAuth(val user: String, val pass: String) {
 
         /* Whether an engine binary takes OPTION: its name is in the binary as
          * the string the argument parser compares with. */
-        fun supports(binary: File): Boolean = try {
-            contains(binary.readBytes(), OPTION.toByteArray(Charsets.US_ASCII) + 0)
-        } catch (_: Exception) {
-            false
-        }
+        fun supports(binary: File): Boolean = Engine.knows(binary, OPTION)
 
         fun contains(hay: ByteArray, needle: ByteArray): Boolean {
             if (needle.isEmpty()) return true

@@ -7,7 +7,8 @@ package me.codeshare.shroudly
  */
 
 sealed class EngineEvent {
-    data class Ready(val port: Int, val techniques: Int) : EngineEvent()
+    /* pid: the engine's own process id; 0 from engines that do not say. */
+    data class Ready(val port: Int, val techniques: Int, val pid: Int = 0) : EngineEvent()
     data class Stats(
         val connsTotal: Long,
         val connsActive: Long,
@@ -48,7 +49,7 @@ sealed class EngineEvent {
             fun bool(k: String) = m[k] == true
             val type = str("type") ?: return Text(line)
             return when (type) {
-                "ready" -> Ready(num("port").toInt(), num("techniques").toInt())
+                "ready" -> Ready(num("port").toInt(), num("techniques").toInt(), num("pid").toInt())
                 "stats" -> Stats(
                     num("conns_total"), num("conns_active"), num("bytes_up"), num("bytes_down"),
                     num("desync"), num("tls"), num("http"), num("probe_ok"), num("probe_fail"),

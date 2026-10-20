@@ -131,4 +131,50 @@ class DohRaceTest {
         assertNull(race(plan, pool, fast) { throw IOException("down") })
         assertNull(race(emptyList(), pool, fast) { byteArrayOf(1) })
     }
+
+    /* Takes `room` attempts and refuses the rest, as a pool with a full queue does. */
+    private fun refusing(room: Int): java.util.concurrent.Executor {
+        val left = java.util.concurrent.atomic.AtomicInteger(room)
+        return java.util.concurrent.Executor { r ->
+            if (left.getAndDecrement() <= 0) throw java.util.concurrent.RejectedExecutionException("full")
+            pool.execute(r)
+        }
+    }
+
+    @Test
+    fun aRefusedAttemptIsNotWaitedFor() {
+        // Nothing is taken: the race ends at once instead of at its deadline.
+        val t0 = System.nanoTime()
+        assertNull(race(listOf(route("a"), route("b")), refusing(0), longArrayOf(5000, 5000, 5000)) { byteArrayOf(1) })
+        assertTrue((System.nanoTime() - t0) / 1_000_000 < 500)
+    }
+
+    @Test
+    fun aRefusedAttemptLetsTheNextOneGo() {
+        // The first attempt fails fast; the next is refused; the one after that still runs.
+        val made = Collections.synchronizedList(ArrayList<String>())
+        val exec = object : java.util.concurrent.Executor {
+            var n = 0
+            override fun execute(r: Runnable) {
+                if (n++ == 1) throw java.util.concurrent.RejectedExecutionException("full")
+                pool.execute(r)
+            }
+        }
+        val t0 = System.nanoTime()
+        val got = race(listOf(route("a"), route("b"), route("c")), exec, longArrayOf(5000, 5000, 5000)) { r ->
+            made += r.id
+            if (r.id == "a") throw IOException("refused") else byteArrayOf(3)
+        }
+        assertEquals("c", got!!.first.id)
+        assertEquals(listOf("a", "c"), made.toList())
+        assertTrue((System.nanoTime() - t0) / 1_000_000 < 2000)
+    }
+
+    @Test
+    fun allRefusedAfterOneFailsEndsAtOnce() {
+        val t0 = System.nanoTime()
+        val got = race(listOf(route("a"), route("b"), route("c")), refusing(1), longArrayOf(5000, 5000, 5000)) { throw IOException("down") }
+        assertNull(got)
+        assertTrue((System.nanoTime() - t0) / 1_000_000 < 1000)
+    }
 }

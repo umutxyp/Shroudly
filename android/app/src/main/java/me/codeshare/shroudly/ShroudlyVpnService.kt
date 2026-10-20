@@ -53,11 +53,18 @@ class ShroudlyVpnService : VpnService() {
         private const val HANG_TIMEOUT_MS = 60000L
         // How often the engine is asked for its counters when nobody is looking:
         // only to know it still answers.
-        private const val IDLE_PROBE_MS = 30000L
+        // With HANG_TIMEOUT_MS, a hung engine is replaced within 70 s.
+        private const val IDLE_PROBE_MS = 10000L
         // The tunnel is restarted once; stopping again within this time ends protection.
         private const val TUNNEL_RETRY_WINDOW_MS = 10L * 60 * 1000
+        // A network change is acted on once it has been quiet this long: IPv6
+        // often arrives a moment after the network itself.
+        private const val NET_SETTLE_MS = 3000L
         private const val PREFS = "engine"
         private const val AUTH_FILE = "socks-auth"
+        // The pid of the engine last started, so one left over by an earlier
+        // app process can be ended before a new one starts.
+        private const val PID_KEY = "enginePid"
 
         fun start(ctx: Context) {
             ctx.startForegroundService(Intent(ctx, ShroudlyVpnService::class.java).setAction(ACTION_START))
@@ -111,6 +118,8 @@ class ShroudlyVpnService : VpnService() {
 
     private var poll: ScheduledFuture<*>? = null
     private var restartCredit: ScheduledFuture<*>? = null
+    private var netCheck: ScheduledFuture<*>? = null
+    private var pendingLink: LinkProperties? = null
 
     private var engine: Engine? = null
     private var doh: DohForwarder? = null
@@ -121,6 +130,8 @@ class ShroudlyVpnService : VpnService() {
     private var restarts = 0
     private var auth: SocksAuth? = null
     private var authFile: File? = null
+    private var takesAuth = false
+    private var takesFakeNet = false
     private var v6Routed = false
     private var network: ConnectivityManager.NetworkCallback? = null
     // Uptime of the oldest STATS not answered yet (0: none), and of the last one sent.
@@ -215,13 +226,13 @@ class ShroudlyVpnService : VpnService() {
             restarts = 0
             tunnelRestartedAt = 0
 
-            val bin = File(applicationInfo.nativeLibraryDir, "libshroudlycore.so")
+            val bin = File(applicationInfo.nativeLibraryDir, Engine.NAME)
             if (!bin.canExecute()) throw StartError("engine not found at ${bin.path}")
+            endLeftover()
 
-            // This session's SOCKS5 password, if the engine takes one.
-            auth = if (SocksAuth.supports(bin)) SocksAuth.random() else null
-            authFile = auth?.let { a -> File(filesDir, AUTH_FILE).also { a.writeTo(it) } }
-            if (auth == null) log("This engine takes no SOCKS5 password; its port is open to other apps")
+            takesAuth = SocksAuth.supports(bin)
+            takesFakeNet = Engine.knows(bin, Engine.FAKE_NET_OPTION)
+            if (!takesAuth) log("This engine takes no SOCKS5 password; its port is open to other apps")
 
             // Encrypted DNS first, so the engine's first lookups have it. If it
             // cannot start, the engine falls back to plain DNS.
@@ -232,7 +243,7 @@ class ShroudlyVpnService : VpnService() {
             dohPort = try { d.start() } catch (e: Exception) { log("Encrypted DNS unavailable: ${e.message}"); 0 }
             doh = if (dohPort > 0) d else null
 
-            port = spawnEngine(Engine.freePort(), samePort = false)
+            port = spawnEngine()
 
             // Makes this app the prepared VPN when the user has already said
             // yes (the window asked); anything else means they have not.
@@ -245,10 +256,10 @@ class ShroudlyVpnService : VpnService() {
             watchNetwork(cm)
 
             active = true
-            Protection.socksPort = port
-            Protection.socksAuth = auth
             Protection.startedAt = System.currentTimeMillis()
             Protection.set(Protection.State.ON)
+            Protection.socksPort = port
+            Protection.socksAuth = auth
             clearAlert(this)
             goForeground(starting = false)
             refreshTile()
@@ -271,32 +282,51 @@ class ShroudlyVpnService : VpnService() {
 
     private class StartError(msg: String, val res: Int = R.string.startFailed) : Exception(msg)
 
-    /* Starts the engine on `want` and returns the port it listens on. At the
-     * first start another free port is taken if `want` is gone by the time it
-     * binds. On a restart (samePort) it must be `want` again: the tunnel points
-     * there, and keeps running so the apps' names stay mapped. */
-    private fun spawnEngine(want: Int, samePort: Boolean): Int {
-        val bin = File(applicationInfo.nativeLibraryDir, "libshroudlycore.so")
+    /* Starts an engine with a new password on a new free port, and returns
+     * the port. Every start, restarts included, gets both new: whoever takes
+     * an old port meanwhile learns nothing that still works. Another free
+     * port is taken if the chosen one is gone by the time the engine binds. */
+    private fun spawnEngine(): Int {
+        val bin = File(applicationInfo.nativeLibraryDir, Engine.NAME)
         val blockIps = blockIps()
-        var p = want
+        val prefs = getSharedPreferences(PREFS, MODE_PRIVATE)
+        auth = if (takesAuth) SocksAuth.random() else null
+        authFile = auth?.let { a -> File(filesDir, AUTH_FILE).also { a.writeTo(it) } }
+        val fakeNet = if (takesFakeNet) Engine.FAKE_NET else null
         for (attempt in 0..3) {
+            val p = Engine.freePort()
             val e = Engine(bin, ::log, ::onEngineEvent, ::onEngineExit)
             engine = e
-            if (e.start(Engine.args(p, dohPort, blockIps, authFile))) {
+            val ok = e.start(Engine.args(p, dohPort, blockIps, authFile, fakeNet)) { pid ->
+                prefs.edit().putInt(PID_KEY, pid).apply()
+            }
+            if (ok) {
+                doh?.socksAuth = auth
                 doh?.socksPort = p
                 probeSentAt = 0
                 return p
             }
             engine = null
             val err = e.lastError ?: "engine failed to start"
-            val lost = err.contains("listen failed")
-            if (!lost || attempt == 3) throw if (lost && samePort) PortLost(err) else StartError(err)
-            if (samePort) Thread.sleep(300L * (attempt + 1)) else p = Engine.freePort()
+            // start() ends a failed engine itself; one that would not end must
+            // not be joined by another.
+            if (e.running) throw StartError("the engine (pid ${e.pid}) could not be ended: $err", R.string.androidProtectionLost)
+            if (!err.contains("listen failed") || attempt == 3) throw StartError(err)
         }
         throw StartError("engine failed to start")
     }
 
-    private class PortLost(msg: String) : Exception(msg)
+    /* An engine left by an earlier process of this app (it ends by itself when
+     * its stdin closes, but not if it hangs). */
+    private fun endLeftover() {
+        val prefs = getSharedPreferences(PREFS, MODE_PRIVATE)
+        val pid = prefs.getInt(PID_KEY, 0)
+        if (pid > 0 && Engine.isEngine(pid)) {
+            log("Ending an engine left running (pid $pid)")
+            try { Engine.sigkill(pid) } catch (e: Exception) { log("Could not end it: ${e.message}") }
+        }
+        prefs.edit().remove(PID_KEY).apply()
+    }
 
     private fun blockIps(): List<String> = try {
         assets.open("block-ips.txt").bufferedReader().readLines().map { it.trim() }.filter { it.isNotEmpty() && !it.startsWith("#") }
@@ -351,11 +381,16 @@ class ShroudlyVpnService : VpnService() {
             return
         }
         val e = engine ?: return
+        // Ended without its exit being reported, for instance between its
+        // start and protection being on.
+        if (!e.running) {
+            engineGone(e, "is no longer running")
+            return
+        }
         val now = SystemClock.uptimeMillis()
         if (probeSentAt > 0 && e.lastOutputAt < probeSentAt && now - probeSentAt > HANG_TIMEOUT_MS) {
-            log("Engine stopped responding; restarting it")
             probeSentAt = 0
-            e.kill()
+            engineGone(e, "stopped responding")
             return
         }
         // Every second while the window or the tile is looking; otherwise only
@@ -395,7 +430,11 @@ class ShroudlyVpnService : VpnService() {
             }
 
             override fun onLost(net: Network) {
-                later { if (active) setUnderlyingNetworks(null) }
+                later {
+                    if (!active) return@later
+                    setUnderlyingNetworks(null)
+                    netCheck?.cancel(false); netCheck = null
+                }
             }
         }
         try {
@@ -409,6 +448,18 @@ class ShroudlyVpnService : VpnService() {
     private fun onNetwork(net: Network, lp: LinkProperties) {
         if (!active) return
         setUnderlyingNetworks(arrayOf(net))
+        // Rebuilt only once the network has settled, and only if whether IPv6
+        // goes into the tunnel has changed by then.
+        pendingLink = lp
+        netCheck?.cancel(false)
+        netCheck = work.schedule({ onNetworkSettled() }, NET_SETTLE_MS, TimeUnit.MILLISECONDS)
+    }
+
+    private fun onNetworkSettled() {
+        netCheck = null
+        val lp = pendingLink ?: return
+        pendingLink = null
+        if (!active) return
         val v6 = Net.hasIpv6(lp)
         if (v6 == v6Routed) return
         log("IPv6 ${if (v6) "available" else "gone"} on this network; renewing the VPN interface")
@@ -421,11 +472,14 @@ class ShroudlyVpnService : VpnService() {
         stopTunnel()
         tun = fresh
         v6Routed = v6
-        try {
-            startTunnel()
-        } catch (e: Exception) {
-            log("Tunnel restart failed: ${e.message}")
-            requestStop(R.string.androidProtectionLost, "the tunnel could not be restarted: ${e.message}")
+        // While the engine is being restarted, the restart starts the tunnel.
+        if (engine != null) {
+            try {
+                startTunnel()
+            } catch (e: Exception) {
+                log("Tunnel restart failed: ${e.message}")
+                requestStop(R.string.androidProtectionLost, "the tunnel could not be restarted: ${e.message}")
+            }
         }
         try { old?.close() } catch (_: Exception) {}
     }
@@ -440,8 +494,10 @@ class ShroudlyVpnService : VpnService() {
                     log("Techniques remembered for ${cmds.size} sites restored")
                 }
                 // A session that has been up a while has earned a fresh restart budget.
-                restartCredit?.cancel(false)
-                restartCredit = work.schedule({ restarts = 0 }, 120, TimeUnit.SECONDS)
+                later {
+                    restartCredit?.cancel(false)
+                    restartCredit = work.schedule({ restarts = 0 }, 120, TimeUnit.SECONDS)
+                }
             }
             is EngineEvent.Stats -> {
                 Protection.stats = ev
@@ -481,38 +537,70 @@ class ShroudlyVpnService : VpnService() {
     }
 
     /* Called on the engine's reader thread. */
-    private fun onEngineExit(code: Int) {
-        if (!active) return
-        log("Engine exited unexpectedly (code $code)")
-        later {
-            if (!active) return@later
-            if (restarts >= MAX_RESTARTS) {
-                log("Engine keeps crashing; giving up")
-                requestStop(R.string.androidProtectionLost, "the engine keeps crashing")
-                return@later
-            }
-            restarts++
-            val delay = minOf(500L * restarts, 4000L)
-            log("Restarting engine in ${delay}ms (attempt $restarts/$MAX_RESTARTS)")
-            work.schedule({ restartEngine() }, delay, TimeUnit.MILLISECONDS)
-        }
+    private fun onEngineExit(e: Engine, code: Int) {
+        later { engineGone(e, "exited unexpectedly (code $code)") }
     }
 
-    /* The tunnel keeps running meanwhile, so the apps' names stay mapped; the
-     * engine comes back on the same port or protection ends. */
-    private fun restartEngine() {
-        if (!active) return
-        try {
-            port = spawnEngine(port, samePort = true)
-            Protection.socksPort = port
-        } catch (e: PortLost) {
-            // Someone else has the port the tunnel sends every connection to.
-            log("The engine's port was taken while it restarted; stopping")
-            requestStop(R.string.androidProtectionLost, "the engine's port was taken: ${e.message}")
-        } catch (e: Exception) {
-            log("Restart failed: ${e.message}")
-            onEngineExit(-1)
+    /* The engine `e` crashed, hung or vanished. Runs on `work`, so one at a
+     * time; `engine` is cleared at once, so a second report about the same
+     * engine is ignored, and a restart is the only one in progress until it
+     * has set a new engine. */
+    private fun engineGone(e: Engine, why: String) {
+        if (!active || e !== engine) return
+        engine = null
+        log("Engine $why")
+        // Nothing goes to the old port while it may belong to someone else:
+        // the tunnel pauses (apps' connections wait) until the new engine is up.
+        stopTunnel()
+        doh?.socksPort = 0
+        Protection.socksPort = 0
+        Protection.socksAuth = null
+        if (!e.kill()) {
+            requestStop(R.string.androidProtectionLost, "the engine (pid ${e.pid}) could not be ended")
+            return
         }
+        scheduleRestart()
+    }
+
+    private fun scheduleRestart() {
+        if (restarts >= MAX_RESTARTS) {
+            log("Engine keeps crashing; giving up")
+            requestStop(R.string.androidProtectionLost, "the engine keeps crashing")
+            return
+        }
+        restarts++
+        val delay = minOf(500L * restarts, 4000L)
+        log("Restarting engine in ${delay}ms (attempt $restarts/$MAX_RESTARTS)")
+        work.schedule({ restartEngine() }, delay, TimeUnit.MILLISECONDS)
+    }
+
+    /* A new engine on a new port with a new password, then the tunnel again
+     * with those. hev's name table starts over, so apps' stand-in addresses
+     * from before go stale: the engine refuses them at once (--fake-net),
+     * and apps look the names up again. */
+    private fun restartEngine() {
+        if (!active || engine != null) return
+        try {
+            port = spawnEngine()
+        } catch (e: StartError) {
+            log("Restart failed: ${e.message}")
+            if (e.res == R.string.androidProtectionLost) requestStop(e.res, e.message) else scheduleRestart()
+            return
+        } catch (e: Exception) {
+            log("Restart failed: $e")
+            scheduleRestart()
+            return
+        }
+        try {
+            startTunnel()
+        } catch (e: Exception) {
+            log("Tunnel restart failed: ${e.message}")
+            requestStop(R.string.androidProtectionLost, "the tunnel could not be restarted: ${e.message}")
+            return
+        }
+        Protection.socksPort = port
+        Protection.socksAuth = auth
+        log("Engine back on 127.0.0.1:$port${if (auth != null) " with a new password" else ""}; tunnel renewed")
     }
 
     private fun logStats() {
@@ -535,6 +623,8 @@ class ShroudlyVpnService : VpnService() {
         active = false
         poll?.cancel(false); poll = null
         restartCredit?.cancel(false); restartCredit = null
+        netCheck?.cancel(false); netCheck = null
+        pendingLink = null
         network?.let { cb ->
             try { getSystemService(ConnectivityManager::class.java).unregisterNetworkCallback(cb) } catch (_: Exception) {}
         }
@@ -543,7 +633,11 @@ class ShroudlyVpnService : VpnService() {
         try { tun?.close() } catch (_: Exception) {}
         tun = null
         val total = Protection.stats?.connsTotal
-        engine?.stop(); engine = null
+        engine?.let { e ->
+            if (e.stop()) getSharedPreferences(PREFS, MODE_PRIVATE).edit().remove(PID_KEY).apply()
+            else log("The engine (pid ${e.pid}) could not be ended")
+        }
+        engine = null
         doh?.stop(); doh = null
         dohPort = 0
         authFile?.delete()

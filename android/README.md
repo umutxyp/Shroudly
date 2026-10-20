@@ -90,10 +90,24 @@ and compare "Signer #1 certificate SHA-256 digest" with the value above.
   starts the engine with `--auth-file <path>`. hev, the encrypted DNS and the
   update check use them. An engine built before `--auth-file` existed is
   detected and started without it, and everything works as before.
+- **Engine restarts.** An engine that exits, or does not answer for a minute
+  (it is then ended with SIGKILL), is restarted, up to five times in a row.
+  The tunnel pauses as soon as the engine is gone, so nothing is sent to the
+  old port while someone else could take it. The new engine gets a new port
+  and a new password, and the tunnel is started again with them. If an
+  engine cannot be ended, protection stops and a notification says so;
+  no second engine is started beside it. An engine left by an earlier run
+  of the app is ended before a new one starts.
 - **Mapped addresses.** Apps get stand-in addresses from 198.19.0.0/16 (the
   benchmarking range, which no real host uses); the VPN interface and its DNS
-  server are 198.18.0.1 and 198.18.0.2. The tunnel keeps running when the
-  engine restarts, so these stay valid.
+  server are 198.18.0.1 and 198.18.0.2. A stand-in address is valid only
+  while the tunnel that handed it out runs: an engine restart or a network
+  change (IPv6 coming or going, acted on once the network has been quiet for
+  3 seconds) restarts the tunnel, and its name table starts over. The engine
+  is started with `--fake-net 198.18.0.0/15` (when it takes that option), so
+  a connection to an address from before fails at once, and the app looks
+  the name up again; with an older engine it fails after the connect timeout.
+  Connections open at the time of a restart are cut.
 - **No Gradle dependency verification.** The plugins and tools (AGP, Kotlin,
   R8, aapt2, lint) are not checked against `gradle/verification-metadata.xml`.
   aapt2 is published per OS, so the file has to be generated on Linux (CI),
