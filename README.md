@@ -138,6 +138,24 @@ strategy**:
 
 ---
 
+## Android
+
+The Android app runs the same engine as the desktop, with the same automatic
+techniques, remembered techniques and encrypted DNS. Android lets an app see
+other apps' connections only as a VPN, so Shroudly is one there: nothing leaves
+the phone through a server of ours, the "VPN" is local and only reshapes the
+phone's own connections.
+
+- Every app goes through it: browsers, Discord, Roblox and other games, with
+  no separate Discord or Games and apps mode needed.
+- A Quick Settings tile turns it on and off; Android's "Always-on VPN" brings
+  it back after a restart.
+- Advanced mode is not available (Android would need root for it).
+- Android allows one VPN at a time, so another VPN app and Shroudly cannot be
+  on together.
+
+Building and testing it: [android/README.md](android/README.md).
+
 ## Advanced mode (stateful DPI)
 
 Iran's and China's DPI reassemble the whole TCP stream before inspecting it, so
@@ -526,6 +544,7 @@ directly. That list maintains itself:
 | Windows | **Windows 10** (x64 or ARM64) | The installer stops with a clear message on Windows 8.1 and earlier, which Electron no longer supports. |
 | macOS | **macOS 12 Monterey** (Intel or Apple Silicon) | Older versions are told so by macOS itself rather than failing to launch. |
 | Linux | **glibc 2.28+** — Debian 10, Ubuntu 18.04, Fedora 29 or newer | AppImage (x64, ARM64), plus native packages: .deb for Debian/Ubuntu, .pacman for Arch/Manjaro, .rpm for Fedora/openSUSE/RHEL. The bypass engine itself only needs glibc 2.17, so it is never the limiting part. |
+| Android | **Android 8** or newer (phones and tablets; ARM 64/32-bit, x86_64) | An APK from the releases page. It works as a VPN on the phone, so every app goes through Shroudly; no root needed. |
 
 Advanced mode needs administrator rights, and is available on Windows and Linux only.
 
@@ -550,6 +569,7 @@ These links always download the newest version (see [Releases](https://github.co
 | **Arch / Manjaro / EndeavourOS** | [.pacman](https://shroudly.codeshare.me/dl/linux-pacman) | [AppImage](https://shroudly.codeshare.me/dl/linux-arm64) |
 | **Fedora / openSUSE / RHEL** | [.rpm](https://shroudly.codeshare.me/dl/linux-rpm) | [AppImage](https://shroudly.codeshare.me/dl/linux-arm64) |
 | **Any Linux** | [AppImage](https://shroudly.codeshare.me/dl/linux-x64) | [AppImage](https://shroudly.codeshare.me/dl/linux-arm64) |
+| **Android 8+** | [APK](https://github.com/umutxyp/Shroudly/releases/latest) (`Shroudly-…-Android.apk`) | same APK |
 
 - **Windows** — run the installer.
 - **macOS** — open the `.dmg` and drag `Shroudly.app` into Applications.
@@ -558,6 +578,11 @@ These links always download the newest version (see [Releases](https://github.co
 - **Fedora / RHEL** — `sudo dnf install ./Shroudly-*-Linux-x86_64.rpm`
 - **openSUSE** — `sudo zypper install ./Shroudly-*-Linux-x86_64.rpm`
 - **AppImage** — `chmod +x Shroudly-*.AppImage` and run it.
+- **Android** — download `Shroudly-…-Android.apk` on the phone and open it.
+  Android asks once to allow installs from your browser; then tap the big
+  button and allow the VPN request. Every app on the phone, Discord and games
+  included, then goes through Shroudly. The app tells you when a newer version
+  is out.
 
 Every package is installed and started on its own system before a release is
 published (Arch, Fedora, openSUSE, Debian, Ubuntu 22.04 and 24.04, both
@@ -752,7 +777,8 @@ Shroudly does not collect personal data. These are the only things that contact 
   The server code, with its service and web-server settings, is in
   [`server/stats`](server/stats/server.js).
 - **Update checks** (GitHub): the app downloads the release feed from
-  `github.com/umutxyp/Shroudly`.
+  `github.com/umutxyp/Shroudly` (the Android app asks GitHub's API for the
+  latest release; it never downloads or installs anything by itself).
 - **The site itself**, when you test a site in Settings, when the front page
   of a site you use keeps being cut off, and Roblox's once Roblox connects
   through Games and apps mode: one request for its front page, through the
