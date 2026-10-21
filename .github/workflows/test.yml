@@ -87,6 +87,15 @@ jobs:
         if: runner.os == 'Windows'
         run: node tests/lab/uwp-loopback.js
 
+      # The system proxy against WinINET's own saves (another program setting
+      # a proxy option, Windows on a network change): Shroudly's PAC is kept,
+      # nothing looks taken over, and after Stop a save brings nothing of
+      # ours back (tests/lab/wininet-save.js). It changes this user's proxy
+      # setting and puts it back.
+      - name: WinINET lab (Windows, the system proxy against WinINET's saves)
+        if: runner.os == 'Windows'
+        run: node tests/lab/wininet-save.js
+
       - name: Engine unit tests, sanitizers, fuzzing
         if: runner.os != 'Windows'
         working-directory: core

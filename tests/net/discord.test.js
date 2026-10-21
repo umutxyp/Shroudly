@@ -133,6 +133,18 @@ function get(url, o = {}) {
       t.ok(crypto.createHash('sha256').update(p.body).digest('hex') === mod.full.package_sha256, `[${mode}] package arrives intact (SHA-256 matches)`);
     }
   }
+  {
+    // The engine restarting after a crash and not back within the wait: the
+    // updater gets an error it retries, never a direct connection (which a
+    // network that blocks Discord fails, or answers falsely).
+    engineOn = false;
+    relay.engineDue = () => true;
+    relay.waitForEngine = async () => {};
+    const held = await get(`${base}/distributions/app/manifests/latest?channel=stable&platform=${plat}&arch=${arch}`, { headers: { 'user-agent': 'Discord-Updater/1' } });
+    t.ok(held.status === 502, `the engine still restarting after the wait: an error the updater retries, not a direct connection (${held.status})`);
+    relay.engineDue = () => false;
+    relay.waitForEngine = null;
+  }
   engineOn = true;
   t.ok((await get(`${base}/__h/example.com/`)).status === 403, 'other domains refused');
   t.ok((await get(`${base}/__h/evildiscord.com/`)).status === 403, 'look-alike domains refused');

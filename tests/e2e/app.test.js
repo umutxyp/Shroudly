@@ -68,7 +68,8 @@ async function record(label, pid) {
   fs.mkdirSync(SHOTS, { recursive: true });
   // The main run as on a desktop that shows tray icons; a stock GNOME without
   // one is checked separately at the end (Linux).
-  const env = { ...process.env, SHROUDLY_IDLE_RELEASE_MS: String(IDLE_MS), SHROUDLY_TRAY: 'present' };
+  // SHROUDLY_E2E: the test may look inside the app (main.js); never otherwise.
+  const env = { ...process.env, SHROUDLY_IDLE_RELEASE_MS: String(IDLE_MS), SHROUDLY_TRAY: 'present', SHROUDLY_E2E: '1' };
   delete env.ELECTRON_RUN_AS_NODE;
 
   const app = await _electron.launch({
@@ -160,6 +161,101 @@ async function record(label, pid) {
       ok(on.kinds.has('renderer'), 'the window stayed open while in use');
       ok(on.kinds.has('engine'), 'the engine runs');
       ok(![...on.kinds].some((k) => /ProxyResolver/i.test(k)), 'no proxy-resolver process for our own requests');
+
+      if (!BASELINE) {
+        const logsNow = () => page.evaluate(() => window.electron.getLogs());
+        // By time, not by position: the log keeps its last 500 lines only.
+        const stamp = () => new Date(Date.now() - 1000).toISOString();
+        const has = async (re, from = '') => (await logsNow()).some((l) => (l.timestamp || '') >= from && re.test(l.message));
+        const enginePid = () => app.evaluate(() => { const e = global.shroudlyE2E.engine; return e.proc ? e.proc.pid : 0; });
+
+        // ── 5b. "Copy logs", through the window: the log in English with
+        //        its times and levels and a short header, to the clipboard,
+        //        while the window shows it in Turkish ──
+        // Clicked as the page's own buttons (the first-run tour may lie over them).
+        await page.locator('[data-tour="nav-logs"]').evaluate((el) => el.click());
+        const copyBtn = page.locator('[data-testid="copy-logs"]');
+        await copyBtn.waitFor({ timeout: 10000 });
+        ok((await copyBtn.innerText()).includes(tr.copyLogs), `the Logs panel has "${tr.copyLogs}"`);
+        await copyBtn.evaluate((el) => el.click());
+        ok(!!(await until(async () => (await copyBtn.innerText()).includes(tr.logsCopied), 3000)), `pressed: it says "${tr.logsCopied}"`);
+        const clip = await app.evaluate(({ clipboard }) => clipboard.readText());
+        const version = require(path.join(APP, 'package.json')).version;
+        ok(clip.startsWith(`Shroudly ${version} log, copied `) && /\nSystem: .+ \((x64|arm64)\)\n/.test(clip) && clip.includes('\nProtection: on; route: ')
+          && /\nAdvanced mode: (on|off)/.test(clip) && clip.includes('\nModes: Discord app mode off, Games and apps mode off') && /\nNetwork: /.test(clip),
+        `the clipboard holds the header: version, system and architecture, protection and route, Advanced mode, the modes, the network (${clip.split('\n').slice(0, 6).join(' | ').slice(0, 300)})`);
+        ok(/\n\S+Z OK Shroudly engine active \(strategy: /.test(clip) && /\n\S+Z INFO Starting engine: shroudly-core/.test(clip),
+          'and every log line as written: English, with its time and level');
+        await page.locator('[data-tour="nav-control"]').evaluate((el) => el.click()).catch(() => {});
+
+        // ── 5c. the computer asleep, or the main process frozen, longer than
+        //        the engine's hang window: the healthy engine is left alone ──
+        await app.evaluate(() => { global.shroudlyE2E.engine.hangTimeoutMs = 3000; });
+        const pid1 = await enginePid();
+        const mark1 = stamp();
+        const epoch1 = await app.evaluate(() => global.shroudlyE2E.wake.epoch);
+        await app.evaluate(() => { const end = Date.now() + 8000; while (Date.now() < end) { /* nothing runs: as asleep */ } });
+        await sleep(3000);
+        const w1 = await app.evaluate(() => ({ epoch: global.shroudlyE2E.wake.epoch, why: global.shroudlyE2E.wake.why }));
+        ok(pid1 && await enginePid() === pid1 && !(await has(/Engine stopped responding/, mark1)) && w1.epoch > epoch1 && w1.why === 'late',
+          `frozen for 8 s with a 3 s hang window (a sleep, App Nap): the engine is not killed, and the wake is seen (${w1.why})`);
+        ok(await has(/^The computer woke up or its clock changed \((late|clock|system)\); waiting times start afresh$/), 'the wake is in the log');
+        await app.evaluate(({ powerMonitor }) => powerMonitor.emit('resume'));
+        await sleep(1500);
+        ok(await app.evaluate(() => global.shroudlyE2E.wake.why) === 'system' && await enginePid() === pid1, "the system's own resume: seen, the engine left alone");
+
+        // ── 5d. a real hang: caught; while the engine restarts, the system
+        //        proxy stays and a program's connection waits for it ──
+        const apPort = await app.evaluate(async () => {
+          const g = global.shroudlyE2E;
+          g.vias = []; g.held = null;
+          const port = await g.appProxy.start(0);
+          const prev = g.appProxy.onTunnel;
+          g.appProxy.onTunnel = (h, v) => { g.vias.push(v); if (prev) prev(h, v); };
+          const e = g.engine;
+          const orig = e._onClose.bind(e);
+          // At the moment the engine is gone, a program asks the app proxy
+          // for a site (Discord's updater, Roblox mid download).
+          e._onClose = (code) => {
+            e._onClose = orig;
+            const r = orig(code);
+            const s = g.require('net').connect(port, '127.0.0.1', () => s.write('CONNECT www.wikipedia.org:443 HTTP/1.1\r\nHost: www.wikipedia.org:443\r\n\r\n'));
+            let out = '';
+            s.on('data', (d) => { out += d; if (out.includes('\r\n\r\n')) { g.held = out.split('\r\n')[0]; s.destroy(); } });
+            s.on('error', (er) => { g.held = `error ${er.message}`; });
+            return r;
+          };
+          return port;
+        });
+        const status0 = await app.evaluate(() => JSON.stringify(global.shroudlyE2E.engine.proxyStatus));
+        const regNow = () => (process.platform === 'win32' ? (require('child_process').spawnSync('reg', ['query', 'HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings', '/v', 'AutoConfigURL'], { encoding: 'utf8' }).stdout || '') : '');
+        const reg0 = regNow();
+        const mark2 = stamp();
+        const pid2 = await enginePid();
+        if (process.platform === 'win32') {
+          // Every thread of the engine suspended (NtSuspendProcess), and
+          // looked at to be sure it took.
+          const { powershellEnv } = require(path.join(ROOT, 'electron', 'win-powershell.js'));
+          const ps = `$t = Add-Type -MemberDefinition '[DllImport("ntdll.dll")] public static extern int NtSuspendProcess(System.IntPtr h);' -Name N -Namespace S -PassThru; $p = Get-Process -Id ${pid2}; $r = $t::NtSuspendProcess($p.Handle); Start-Sleep -Milliseconds 300; $p.Refresh(); "status=$r threads=" + (@($p.Threads | ForEach-Object { "$($_.ThreadState)/$($_.WaitReason)" }) -join ',')`;
+          // Not spawnSync: PowerShell may take half a minute to start (ARM),
+          // and the test must keep telling the window it is in use meanwhile.
+          const r = await new Promise((res) => require('child_process').execFile('powershell.exe', ['-NoProfile', '-Command', ps],
+            { encoding: 'utf8', timeout: 120000, env: powershellEnv() }, (e, out, err) => res({ stdout: out, stderr: err })));
+          console.log(`  --  engine ${pid2} suspended: ${`${r.stdout || ''}${r.stderr || ''}`.trim().slice(0, 300)}`);
+        } else process.kill(pid2, 'SIGSTOP');
+        const caught = await until(() => has(/Engine stopped responding/, mark2), 20000, 200);
+        const back = await until(async () => { const p = await enginePid(); return p && p !== pid2 && await app.evaluate(() => global.shroudlyE2E.engine.isActive()); }, 20000, 200);
+        const since = (await logsNow()).filter((l) => (l.timestamp || '') >= mark2).map((l) => `${l.level}: ${l.message}`.slice(0, 120));
+        ok(!!caught && !!back, `an engine that really stops answering is caught and restarted (${caught ? 'caught' : 'not caught'}, ${back ? 'back' : 'not back'})${caught && back ? '' : `; the log since: ${since.join(' | ')}`}`);
+        const held = await until(() => app.evaluate(() => global.shroudlyE2E.held), 20000, 200);
+        const vias = await app.evaluate(() => global.shroudlyE2E.vias);
+        ok(/^HTTP\/1\.1 200/.test(held || '') && vias.includes('engine') && !vias.includes('direct'),
+          `a program's connection made the moment the engine died waited for it and went through it, not straight out (${held}; ${vias.join(',')})`);
+        ok(!(await has(/System proxy settings restored/, mark2)) && JSON.parse(await app.evaluate(() => JSON.stringify(global.shroudlyE2E.engine.proxyStatus)) || 'null')?.ok === JSON.parse(status0 || 'null')?.ok
+          && regNow() === reg0, 'the system proxy stayed pointed at Shroudly through the restart (nothing put back and set again)');
+        if (process.platform !== 'win32') { try { process.kill(pid2, 'SIGCONT'); } catch {} }
+        await app.evaluate(() => { const g = global.shroudlyE2E; g.engine.hangTimeoutMs = 60000; if (g.store.get('appMode') !== true) g.appProxy.stop(); });
+      }
       stop();
       await page.evaluate(() => window.electron.closeWindow());
       await until(async () => (await windows()) === 0, 5000);

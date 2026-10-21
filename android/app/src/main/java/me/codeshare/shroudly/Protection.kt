@@ -21,7 +21,13 @@ object Protection {
     @Volatile var troubleRes = 0
         private set
     @Volatile var stats: EngineEvent.Stats? = null
+    // SystemClock.elapsedRealtime() when protection came on (0: off): how long
+    // it has been on, which no change of the date moves.
     @Volatile var startedAt = 0L
+    // How Android runs this VPN, and whether it carries IPv6 (for "Share logs").
+    @Volatile var alwaysOn = false
+    @Volatile var lockdown = false
+    @Volatile var ipv6 = false
     /* The engine's SOCKS5 port while protection is on, 0 otherwise, and the
      * session's password for it (null when the engine takes none). */
     @Volatile var socksPort = 0

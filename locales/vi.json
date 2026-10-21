@@ -422,5 +422,22 @@
   "androidNoInternet": "Bảo vệ đã dừng vì Shroudly không thể kết nối Internet trên mạng này, vì vậy các ứng dụng của bạn hiện đang kết nối trực tiếp. Mở Shroudly để thử lại.",
   "androidBatteryHint": "Cài đặt pin có thể dừng Shroudly khi chạy nền và làm mất kết nối của bạn. Hãy cho phép Shroudly chạy mà không bị giới hạn pin.",
   "androidBatterySettings": "Cài đặt pin",
-  "androidLockdownOffline": "Không có Internet: Shroudly hiện chưa thể kết nối trên mạng này, và Android đang được đặt để chặn kết nối không qua VPN. Shroudly vẫn đang thử lại."
+  "androidLockdownOffline": "Không có Internet: Shroudly hiện chưa thể kết nối trên mạng này, và Android đang được đặt để chặn kết nối không qua VPN. Shroudly vẫn đang thử lại.",
+  "copyLogs": "Sao chép nhật ký",
+  "logsCopied": "Đã sao chép",
+  "trayCopyLogs": "Sao chép nhật ký",
+  "notifyLogsCopied": "Nhật ký đã được sao chép vào bảng nhớ tạm. Hãy dán vào tin nhắn hoặc báo cáo của bạn.",
+  "autoAdvancedOffBefore": "{host} cần Chế độ nâng cao trên mạng này. Chế độ này đã bị tắt vào {date}, nên Shroudly không tự bật: hãy bật trong Cài đặt.",
+  "autoAdvancedDeclinedBefore": "{host} cần Chế độ nâng cao trên mạng này. Chế độ này không được cho phép vào {date}, nên Shroudly không tự hỏi: hãy bật trong Cài đặt.",
+  "autoAdvancedFailedBefore": "{host} cần Chế độ nâng cao trên mạng này, nhưng trước đó không thể bật được. Hãy thử bật trong Cài đặt.",
+  "autoAdvancedAntiCheat": "{host} cần Chế độ nâng cao trên mạng này, nhưng phần mềm chống gian lận của một trò chơi ({program}) đang chạy, nên Shroudly không tự bật. Hãy bật trong Cài đặt khi bạn muốn.",
+  "autoDiscordOffByHand": "Discord bị chặn trên mạng này, nhưng Chế độ ứng dụng Discord đã bị tắt vào {date}. Để dùng ứng dụng Discord, hãy bật trong Cài đặt.",
+  "autoRobloxOffByHand": "Roblox bị chặn trên mạng này, nhưng Chế độ trò chơi và ứng dụng đã bị tắt vào {date}. Để dùng Roblox, hãy bật trong Cài đặt.",
+  "autoStoreAppsOffBefore": "{apps} không thể kết nối tới Shroudly: công tắc Ứng dụng Microsoft Store đã bị tắt vào {date}. Để cho chúng đi qua, hãy bật công tắc này trong Cài đặt.",
+  "autoStoreAppsDeclinedBefore": "{apps} không thể kết nối tới Shroudly: quyền không được cấp vào {date}. Để cho chúng đi qua, hãy bật Ứng dụng Microsoft Store trong Cài đặt.",
+  "logWake": "Máy tính vừa thức dậy từ chế độ ngủ hoặc đồng hồ đã thay đổi; thời gian chờ được tính lại từ đầu",
+  "logHeldRestart": "{host}: tạm giữ lại trong khi Shroudly khởi động lại; chương trình sẽ thử lại",
+  "autoDiscordFailed": "Discord bị chặn trên mạng này, nhưng không thể bật Chế độ ứng dụng Discord. Hãy bật trong Cài đặt để thử lại.",
+  "autoRobloxFailed": "Roblox bị chặn trên mạng này, nhưng không thể bật Chế độ trò chơi và ứng dụng. Hãy bật trong Cài đặt để thử lại.",
+  "autoStoreAppsNoAdmin": "{apps} không thể kết nối tới Shroudly cho tới khi quản trị viên cho phép: quản trị viên có thể bật Ứng dụng Microsoft Store trong Cài đặt."
 }

@@ -21,8 +21,9 @@ function memStore(init = {}) {
 }
 
 /* blocked: the hosts the check finds blocked (a function or a list). */
-function rig({ store = memStore({ autopilotSince: 1 }), present = { discord: true, roblox: true }, running = { discord: false, roblox: false }, blocked = [], adv = null, enableResult = null } = {}) {
+function rig({ store = memStore({ autopilotSince: 1 }), present = { discord: true, roblox: true }, running = { discord: false, roblox: false }, blocked = [], adv = null, enableResult = null, check = null } = {}) {
   let clock = 1e12;
+  const timers = [];
   const told = [];
   const logs = [];
   const enabled = [];
@@ -39,11 +40,18 @@ function rig({ store = memStore({ autopilotSince: 1 }), present = { discord: tru
   const ap = new Autopilot({
     store, log: (l, m) => logs.push(m), tell: (id, p) => told.push({ id, p }),
     protectionOn: () => on,
-    check: async (h) => { asked.push(h); return isBlocked(h) ? { blocked: true, how: 'tls', detail: 'reset' } : { blocked: false, detail: 'direct ok' }; },
-    services: [svc('discord', 'discordMode', true, 'discord.com'), svc('roblox', 'appMode', false, 'clientsettingscdn.roblox.com')],
+    check: async (h) => { asked.push(h); if (check) return check(h); return isBlocked(h) ? { blocked: true, how: 'tls', detail: 'reset' } : { blocked: false, detail: 'direct ok' }; },
+    services: [{ ...svc('discord', 'discordMode', true, 'discord.com'), toldOff: 'autoDiscordOffByHand', toldFailed: 'autoDiscordFailed' },
+      { ...svc('roblox', 'appMode', false, 'clientsettingscdn.roblox.com'), toldOff: 'autoRobloxOffByHand', toldFailed: 'autoRobloxFailed' }],
     advanced: adv, now: () => clock,
+    later: (fn, ms) => { const x = { fn, at: clock + ms }; timers.push(x); return x; },
   });
-  return { ap, store, told, logs, enabled, asked, tick: (ms) => { clock += ms; }, off: () => { on = false; }, setPresent: (id, v) => { present[id] = v; }, setRunning: (id, v) => { running[id] = v; } };
+  // The clock moves on, and the timers due by then run.
+  const tick = (ms) => {
+    clock += ms;
+    for (const x of timers.filter((y) => y.at <= clock)) { timers.splice(timers.indexOf(x), 1); x.fn(); }
+  };
+  return { ap, store, told, logs, enabled, asked, timers, tick, off: () => { on = false; }, on: () => { on = true; }, setPresent: (id, v) => { present[id] = v; }, setRunning: (id, v) => { running[id] = v; } };
 }
 const settle = async () => { for (let i = 0; i < 5; i++) await new Promise((r) => setImmediate(r)); };
 
@@ -150,7 +158,10 @@ const settle = async () => { for (let i = 0; i < 5; i++) await new Promise((r) =
     r.ap.noteHost('bypass', 'discord.com');
     await settle();
     for (let i = 0; i < 4; i++) { r.tick(10 * 60 * 1000); await r.ap.survey(); }
-    t.ok(r.enabled.length === 1 && !r.told.length, 'a mode that could not be turned on (a permission panel cancelled, a proxy of the user\'s own) is not tried again by itself every few minutes');
+    t.ok(r.enabled.length === 1, 'a mode that could not be turned on (a permission panel cancelled, a proxy of the user\'s own) is not tried again by itself every few minutes');
+    t.ok(r.told.length === 1 && r.told[0].id === 'autoDiscordFailed'
+      && r.logs.filter((l) => l === 'Autopilot: discord is blocked on this network, but its mode could not be turned on (permission); turn it on in Settings to try again').length === 1,
+    'and the user is told once, with what to do');
   }
 
   // ── its own check, before the app is opened, and again later ──
@@ -522,6 +533,184 @@ const settle = async () => { for (let i = 0; i < 5; i++) await new Promise((r) =
     }
   }
 
+  // ── a call's sign is never swallowed between it and the verdict, and when
+  //    Advanced mode is not asked for, the user is told why and what to do ──
+  {
+    const day = (t) => { const d = new Date(t); const p = (n) => String(n).padStart(2, '0'); return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`; };
+    const V = 'c-fra06-61574a2c.discord.media';
+    const dc = (r) => r.asked.filter((h) => h === 'discord.com').length;   // a voice server's name as Discord hands it out
+    const advRig2 = (opts = {}) => {
+      const st = { started: 0, prompts: 0, result: opts.result || null };
+      const adv = {
+        available: () => true, active: () => st.started > 0,
+        start: async () => { st.prompts++; await new Promise((r) => setImmediate(r)); if (st.result) return st.result; st.started++; return { success: true }; },
+        antiCheat: async () => opts.antiCheat || null,
+      };
+      return { st, r: rig({ adv, blocked: opts.blocked || ['discord.com'], store: opts.store, check: opts.check, running: { discord: !!opts.running, roblox: false } }) };
+    };
+    {
+      // The call starts while the check is under way; the network changes
+      // (a resume's Wi-Fi coming back) before the verdict: the new network's
+      // verdict still finds the call.
+      let release;
+      const { st, r } = advRig2({ check: (h) => (h === 'discord.com' ? new Promise((res) => { release = res; }) : { blocked: false, detail: 'direct ok' }) });
+      r.ap.noteHost('seen', V);
+      await settle();
+      r.ap.networkChanged();
+      release({ blocked: true, how: 'dns', detail: 'no answer' });
+      await settle();
+      t.ok(!r.ap.isBlocked('discord') && st.prompts === 0, 'a verdict from the network before the change is dropped');
+      t.ok(r.ap.signs.has('discord') && r.ap.signs.get('discord').voice, "but the call's sign is kept across the network change");
+      const p = r.ap.survey();
+      await settle();
+      release({ blocked: true, how: 'dns', detail: 'no answer' });
+      await p; await settle();
+      t.ok(st.prompts === 1 && r.logs.some((l) => l.includes(`${V} needs Advanced mode (a discord call is starting`)),
+        "the new network's verdict asks for Advanced mode for the call that started before it");
+    }
+    {
+      // Offline a moment ago (just woken up): the call is checked once that
+      // has passed, not left to a survey ten minutes later (after the sign
+      // would have run out).
+      let offline = true;
+      const { st, r } = advRig2({ check: (h) => (offline ? { unknown: true, detail: 'offline' } : { blocked: h === 'discord.com', how: 'dns', detail: 'no answer' }) });
+      await r.ap.survey();
+      t.ok(dc(r) === 1 && !r.ap.isBlocked('discord'), 'offline: nothing learnt');
+      offline = false;
+      r.ap.noteHost('seen', V);
+      await settle();
+      t.ok(dc(r) === 1 && r.timers.length === 1, 'a call right after: not checked at once (offline a moment ago), but a check is due');
+      r.tick(Autopilot.SOON_MS); await settle();
+      t.ok(dc(r) === 1, 'not before its time');
+      r.tick(2 * 60 * 1000); await settle(); await settle();
+      t.ok(dc(r) === 2 && r.ap.isBlocked('discord') && st.prompts === 1, 'then checked, found blocked, and Advanced mode asked for the call');
+    }
+    {
+      // Woken up: no service is judged while the network comes back; the
+      // check comes after.
+      const { st, r } = advRig2();
+      r.ap.resumed();
+      r.ap.noteHost('seen', V);
+      await r.ap.survey();
+      await settle();
+      t.ok(dc(r) === 0 && st.prompts === 0, 'just woken up: no check at all');
+      r.tick(31000); await settle(); await settle();
+      t.ok(dc(r) === 1 && st.prompts === 1, 'once the quiet time is over: checked, blocked, asked');
+    }
+    {
+      // Advanced mode declined three days ago: the call is not asked about
+      // by itself, and the user is told so, once, with what to do.
+      const at = 1e12 - 3 * 24 * 3600 * 1000;
+      const { st, r } = advRig2({ store: memStore({ autopilotSince: 1, advancedDeclinedAt: at }) });
+      await r.ap.survey();
+      r.ap.noteHost('seen', V);
+      await settle();
+      const n = r.told.filter((x) => x.id === 'autoAdvancedDeclinedBefore');
+      t.ok(st.prompts === 0 && n.length === 1 && n[0].p.host === 'discord' && n[0].p.date === day(at), `declined three days ago: not asked, but told (${JSON.stringify(n[0] && n[0].p)})`);
+      t.ok(r.logs.some((l) => l === `Autopilot: discord needs Advanced mode on this network (a discord call is starting; its sound goes over UDP); it was not allowed on ${day(at)}, so it is not asked for by itself; turn it on in Settings`),
+        'one line in the log says what is needed, why it was not asked, and what to do');
+      r.tick(60000);
+      r.ap.noteHost('seen', 'c-fra06-0a0b0c0d.discord.media');
+      r.ap.noteHost('blocked', 'gateway.discord.gg', { note: 'silent' });
+      await settle();
+      t.ok(r.told.filter((x) => x.id === 'autoAdvancedDeclinedBefore').length === 1, 'once a session, not once per call');
+    }
+    {
+      // Turned off by hand yesterday: the same, with that reason.
+      const { st, r } = advRig2({ store: memStore({ autopilotSince: 1, advancedModeOffAt: 1e12 - 24 * 3600 * 1000 }) });
+      await r.ap.survey();
+      r.ap.noteHost('seen', V);
+      await settle();
+      t.ok(st.prompts === 0 && r.told.some((x) => x.id === 'autoAdvancedOffBefore' && x.p.host === 'discord')
+        && r.logs.some((l) => /it was turned off by hand on \d{4}-\d\d-\d\d, so it is not turned on by itself; turn it on in Settings$/.test(l)),
+      'turned off by hand: not turned on by itself, and the user is told so');
+    }
+    {
+      // Asked earlier this session for another site, and it could not
+      // start: the call is told about, not silently dropped.
+      const { st, r } = advRig2({ result: { success: false, code: 'start_failed' } });
+      await r.ap.needAdvanced('cut.example');
+      t.ok(st.prompts === 1 && r.told.some((x) => x.id === 'autoAdvancedFailed'), 'an earlier ask for another site failed');
+      await r.ap.survey();
+      r.ap.noteHost('seen', V);
+      await settle();
+      t.ok(st.prompts === 1 && r.told.some((x) => x.id === 'autoAdvancedFailedBefore' && x.p.host === 'discord'), 'the call after it: not asked again this session, but told');
+    }
+    {
+      // An ask for another site still on screen when the call starts, then
+      // declined: the call's need is said too.
+      let answer;
+      const st = { prompts: 0 };
+      const adv = { available: () => true, active: () => false, antiCheat: async () => null,
+        start: () => { st.prompts++; return new Promise((res) => { answer = res; }); } };
+      const r = rig({ adv, blocked: ['discord.com'] });
+      await r.ap.survey();
+      const first = r.ap.needAdvanced('cut.example');
+      await settle();
+      r.ap.noteHost('seen', V);
+      await settle();
+      answer({ success: false, code: 'declined' });
+      await first; await settle(); await settle();
+      t.ok(st.prompts === 1 && r.told.some((x) => x.id === 'autoAdvancedDeclined' && x.p.host === 'cut.example')
+        && r.told.some((x) => x.id === 'autoAdvancedDeclinedBefore' && x.p.host === 'discord'),
+      'a call that joined an ask for another site, declined: the call is told about too, one prompt in all');
+    }
+    {
+      // A Stop answered an ask: nothing was decided, and the next session asks.
+      const { st, r } = advRig2({ result: { success: false, code: 'protection_off' } });
+      await r.ap.needAdvanced('a.example');
+      t.ok(r.ap.advancedAsked === false && r.ap.willAskAdvanced() === true && !r.told.some((x) => /Before$/.test(x.id)),
+        'an ask a Stop cut short does not count as asked: a later call is asked about');
+      st.result = null;
+    }
+    {
+      // An anti-cheat running: said once, with the program and what to do.
+      const { st, r } = advRig2({ antiCheat: 'vgc.exe' });
+      await r.ap.survey();
+      r.ap.noteHost('seen', V);
+      await settle();
+      t.ok(st.prompts === 0 && r.told.some((x) => x.id === 'autoAdvancedAntiCheat' && x.p.program === 'vgc.exe' && x.p.host === 'discord'),
+        "a game's anti-cheat running: not started by itself, and the user is told");
+    }
+    {
+      // Any site that needs Advanced mode (a cut the engine believes, Roblox):
+      // the same line, about that site.
+      const { st, r } = advRig2({ store: memStore({ autopilotSince: 1, advancedDeclinedAt: 1e12 - 1000 }) });
+      t.ok(await r.ap.needAdvanced('cut.example') === false && st.prompts === 0
+        && r.told.some((x) => x.id === 'autoAdvancedDeclinedBefore' && x.p.host === 'cut.example'),
+      'a cut site needing Advanced mode, declined earlier: told once, about that site');
+    }
+    {
+      // A mode turned off by hand, its service blocked: said once, with the date.
+      const r = rig({ store: memStore({ autopilotSince: 1, discordModeOffAt: 1e12 - 1000, appModeOffAt: 1e12 - 2000 }), blocked: ['discord.com', 'clientsettingscdn.roblox.com'] });
+      await r.ap.survey();
+      await r.ap.survey();
+      t.ok(!r.enabled.length && r.told.filter((x) => x.id === 'autoDiscordOffByHand').length === 1 && r.told.filter((x) => x.id === 'autoRobloxOffByHand').length === 1
+        && r.logs.some((l) => /^Autopilot: discord is blocked on this network, but its mode was turned off by hand on \d{4}-\d\d-\d\d; turn it on in Settings to use its app$/.test(l)),
+      'a blocked service whose mode was turned off by hand: left off, and the user is told once, with the date and what to do');
+    }
+    {
+      // The clock set back: a choice "made in the future" counts as made
+      // now, not as two weeks from some later day.
+      const store = memStore({ autopilotSince: 1, advancedDeclinedAt: 1e12 + 30 * 24 * 3600 * 1000 });
+      const r = rig({ store, adv: { available: () => true, active: () => false, start: async () => ({ success: true }) } });
+      t.ok(r.ap.willAskAdvanced() === false && store.get('advancedDeclinedAt') === 1e12, 'a decline dated in the future (clock set back) counts from now');
+      r.tick(Autopilot.RESPECT_OFF_MS + 1000);
+      t.ok(r.ap.willAskAdvanced() === true, 'and ends two weeks later, not a month later');
+    }
+    {
+      // Before restarting a program on an old verdict: a re-check that
+      // learns nothing (offline) is no reason to restart it.
+      let offline = false;
+      const r = rig({ check: (h) => (offline ? { unknown: true, detail: 'offline' } : { blocked: h === 'discord.com', how: 'dns', detail: 'no answer' }) });
+      await r.ap.survey();
+      t.ok(await r.ap.stillBlocked('discord') === true, 'fresh verdict: still blocked');
+      offline = true;
+      r.tick(11 * 60 * 1000);
+      t.ok(await r.ap.stillBlocked('discord') === false, 'an old verdict and a re-check that learns nothing: not known blocked now, nothing restarted');
+    }
+  }
+
   // ── a Stop of protection while the autopilot asks: the Stop wins ──
   {
     // advanced.session() changes with each Stop; the anti-cheat look and the
@@ -631,6 +820,17 @@ const settle = async () => { for (let i = 0; i < 5; i++) await new Promise((r) =
     t.ok(!c6.blocked && c6.detail === 'direct ok', 'working directly: not blocked');
     const c7 = await BlockCheck.check('discord.com', { resolve: async () => ['195.175.254.2'], handshake: hsBoth('ok', 'ok') });
     t.ok(!c7.blocked, 'without the engine nothing is called blocked (it cannot be told from down)');
+    // Just woken up: the computer's own network is not back yet. Its own
+    // errors say nothing about the service; and a network that comes back
+    // while the engine's handshake runs answers the second direct look.
+    const c8 = await BlockCheck.check('discord.com', { ...engineOk, resolve: async () => ['162.159.128.233'], handshake: hsBoth('ENETUNREACH', 'ok') });
+    t.ok(!c8.blocked && c8.unknown, `this computer not on a network yet (ENETUNREACH): unknown, not blocked (${c8.detail})`);
+    let looks = 0;
+    const c9 = await BlockCheck.check('discord.com', { ...engineOk, resolve: async () => (looks++ === 0 ? null : ['162.159.128.233']), handshake: hsBoth('ok', 'ok') });
+    t.ok(!c9.blocked && looks === 2, `no DNS answer at first, an answer and a handshake a moment later: not blocked (${c9.detail})`);
+    let resets = 0;
+    const c10 = await BlockCheck.check('discord.com', { ...engineOk, resolve: async () => ['162.159.128.233'], handshake: async (o) => (o.socket ? 'ok' : (resets++ < 2 ? 'reset' : 'ok')) });
+    t.ok(!c10.blocked, 'reset twice while the network came back, then fine: not blocked');
   }
 
   // ── who is connected to Shroudly ──

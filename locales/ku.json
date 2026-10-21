@@ -422,5 +422,22 @@
   "androidNoInternet": "Parastin rawestiya ji ber ku Shroudly li ser vê torê negihişt înternetê, ji ber vê yekê sepanên te niha rasterast girêdidin. Ji bo ku tu dîsa biceribînî, Shroudly veke.",
   "androidBatteryHint": "Mîhengên bataryayê dikarin Shroudly di paşxanê de rawestînin û girêdana te qut bikin. Destûrê bide ku ew bê sînorkirinên bataryayê bixebite.",
   "androidBatterySettings": "Mîhengên bataryayê",
-  "androidLockdownOffline": "Înternet tune: Shroudly niha li ser vê torê nikare derbas bibe, û Android hatiye mîhengkirin ku girêdanên bê VPN asteng bike. Shroudly hewl didomîne."
+  "androidLockdownOffline": "Înternet tune: Shroudly niha li ser vê torê nikare derbas bibe, û Android hatiye mîhengkirin ku girêdanên bê VPN asteng bike. Shroudly hewl didomîne.",
+  "copyLogs": "Tomaran kopî bike",
+  "logsCopied": "Hat kopîkirin",
+  "trayCopyLogs": "Tomaran kopî bike",
+  "notifyLogsCopied": "Tomar li ser panoyê ye. Wê di peyam an rapora xwe de bizeliqîne.",
+  "autoAdvancedOffBefore": "{host} li ser vê torê Moda pêşketî hewce dike. Ew di {date} de hat neçalakkirin, ji ber vê yekê Shroudly wê bi serê xwe çalak nake: wê di Mîhengan de çalak bike.",
+  "autoAdvancedDeclinedBefore": "{host} li ser vê torê Moda pêşketî hewce dike. Di {date} de destûr jê re nehat dayîn, ji ber vê yekê Shroudly bi serê xwe napirse: wê di Mîhengan de çalak bike.",
+  "autoAdvancedFailedBefore": "{host} li ser vê torê Moda pêşketî hewce dike, lê berê nehat çalakkirin. Biceribîne ku wê di Mîhengan de çalak bikî.",
+  "autoAdvancedAntiCheat": "{host} li ser vê torê Moda pêşketî hewce dike, lê dij-xapînoka lîstikekê ({program}) dixebite, ji ber vê yekê Shroudly wê bi serê xwe dest pê nake. Kengî bixwazî, wê di Mîhengan de çalak bike.",
+  "autoDiscordOffByHand": "Discord li ser vê torê astengkirî ye, lê Moda sepana Discord di {date} de hat neçalakkirin. Ji bo bikaranîna sepana Discord, wê di Mîhengan de çalak bike.",
+  "autoRobloxOffByHand": "Roblox li ser vê torê astengkirî ye, lê Moda lîstik û sepanan di {date} de hat neçalakkirin. Ji bo bikaranîna Roblox, wê di Mîhengan de çalak bike.",
+  "autoStoreAppsOffBefore": "{apps} nikarin bigihîjin Shroudly: guhêra Sepanên Microsoft Store di {date} de hat neçalakkirin. Ji bo ku ew derbas bibin, wê di Mîhengan de çalak bike.",
+  "autoStoreAppsDeclinedBefore": "{apps} nikarin bigihîjin Shroudly: di {date} de destûr nehat dayîn. Ji bo ku ew derbas bibin, Sepanên Microsoft Store di Mîhengan de çalak bike.",
+  "logWake": "Komputer ji xewê şiyar bû an demjimêra wê hat guhertin; demên li bendêmayînê ji nû ve dest pê dikin",
+  "logHeldRestart": "{host}: dema ku Shroudly ji nû ve dest pê dike hat rawestandin; bername dê dîsa biceribîne",
+  "autoDiscordFailed": "Discord li ser vê torê astengkirî ye, lê Moda sepana Discord nehat çalakkirin. Ji bo ku dîsa biceribînî, wê di Mîhengan de çalak bike.",
+  "autoRobloxFailed": "Roblox li ser vê torê astengkirî ye, lê Moda lîstik û sepanan nehat çalakkirin. Ji bo ku dîsa biceribînî, wê di Mîhengan de çalak bike.",
+  "autoStoreAppsNoAdmin": "Heta ku rêveberek destûrê nede, {apps} nikarin bigihîjin Shroudly: rêveberek dikare Sepanên Microsoft Store di Mîhengan de çalak bike."
 }

@@ -422,5 +422,22 @@
   "androidNoInternet": "Perlindungan berhenti karena Shroudly tidak dapat menjangkau internet di jaringan ini, jadi aplikasi Anda kini terhubung langsung. Buka Shroudly untuk mencoba lagi.",
   "androidBatteryHint": "Pengaturan baterai dapat menghentikan Shroudly di latar belakang dan memutus koneksi Anda. Izinkan Shroudly berjalan tanpa batasan baterai.",
   "androidBatterySettings": "Pengaturan baterai",
-  "androidLockdownOffline": "Tidak ada internet: Shroudly belum bisa tersambung di jaringan ini, dan Android diatur untuk memblokir koneksi tanpa VPN. Shroudly terus mencoba."
+  "androidLockdownOffline": "Tidak ada internet: Shroudly belum bisa tersambung di jaringan ini, dan Android diatur untuk memblokir koneksi tanpa VPN. Shroudly terus mencoba.",
+  "copyLogs": "Salin log",
+  "logsCopied": "Disalin",
+  "trayCopyLogs": "Salin log",
+  "notifyLogsCopied": "Log sudah ada di papan klip. Tempelkan ke pesan atau laporan Anda.",
+  "autoAdvancedOffBefore": "{host} perlu mode Lanjutan di jaringan ini. Mode ini dinonaktifkan pada {date}, jadi Shroudly tidak mengaktifkannya sendiri: aktifkan di Pengaturan.",
+  "autoAdvancedDeclinedBefore": "{host} perlu mode Lanjutan di jaringan ini. Mode ini tidak diizinkan pada {date}, jadi Shroudly tidak memintanya sendiri: aktifkan di Pengaturan.",
+  "autoAdvancedFailedBefore": "{host} perlu mode Lanjutan di jaringan ini, tetapi sebelumnya mode ini tidak dapat diaktifkan. Coba aktifkan di Pengaturan.",
+  "autoAdvancedAntiCheat": "{host} perlu mode Lanjutan di jaringan ini, tetapi anti-cheat sebuah game ({program}) sedang berjalan, jadi Shroudly tidak menjalankannya sendiri. Aktifkan di Pengaturan bila Anda menginginkannya.",
+  "autoDiscordOffByHand": "Discord diblokir di jaringan ini, tetapi mode aplikasi Discord dinonaktifkan pada {date}. Untuk memakai aplikasi Discord, aktifkan di Pengaturan.",
+  "autoRobloxOffByHand": "Roblox diblokir di jaringan ini, tetapi mode Game dan aplikasi dinonaktifkan pada {date}. Untuk memakai Roblox, aktifkan di Pengaturan.",
+  "autoStoreAppsOffBefore": "{apps} tidak bisa terhubung ke Shroudly: sakelar Aplikasi Microsoft Store dinonaktifkan pada {date}. Agar aplikasi itu bisa lewat, aktifkan di Pengaturan.",
+  "autoStoreAppsDeclinedBefore": "{apps} tidak bisa terhubung ke Shroudly: izin tidak diberikan pada {date}. Agar aplikasi itu bisa lewat, aktifkan Aplikasi Microsoft Store di Pengaturan.",
+  "logWake": "Komputer bangun dari mode tidur atau jamnya berubah; waktu tunggu dimulai dari awal",
+  "logHeldRestart": "{host}: ditahan selama Shroudly dimulai ulang; program akan mencoba lagi",
+  "autoDiscordFailed": "Discord diblokir di jaringan ini, tetapi mode aplikasi Discord tidak dapat diaktifkan. Aktifkan di Pengaturan untuk mencoba lagi.",
+  "autoRobloxFailed": "Roblox diblokir di jaringan ini, tetapi mode Game dan aplikasi tidak dapat diaktifkan. Aktifkan di Pengaturan untuk mencoba lagi.",
+  "autoStoreAppsNoAdmin": "{apps} tidak bisa terhubung ke Shroudly sampai administrator mengizinkannya: administrator dapat mengaktifkan Aplikasi Microsoft Store di Pengaturan."
 }

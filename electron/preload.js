@@ -44,6 +44,8 @@ contextBridge.exposeInMainWorld('electron', {
   // Logs
   getLogs: () => ipcRenderer.invoke('logs:get'),
   clearLogs: () => ipcRenderer.invoke('logs:clear'),
+  // The whole log with a short header, to the clipboard (nothing is sent).
+  copyLogs: () => ipcRenderer.invoke('logs:copy'),
   onNewLog: (cb) => ipcRenderer.on('log:new', (e, log) => cb(log)),
   removeLogListener: () => ipcRenderer.removeAllListeners('log:new'),
 

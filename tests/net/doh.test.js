@@ -168,6 +168,26 @@ const restS = (r) => Math.max(0, Math.round((r.restUntil - Date.now()) / 1000));
     const h = new F(() => {}, {});
     h.lookupFailed(T); h.lookupFailed(T + 180000); h.lookupFailed(T + 360000);
     t.ok(h.state === 'ok' && h.failures === 1, '…with nothing failing for minutes between: no streak');
+    // Just woken up: the network comes back in its own time. Lookups failing
+    // in the first half minute are no sign of a block; a streak after it is.
+    const w = new F(() => {}, { onState: (st) => states.push(`w:${st}`) });
+    w.routes[0].restUntil = T + 60000;
+    w.resumed(T);
+    t.ok(w.routes.every((r) => !r.restUntil && !r.session), 'woken up: every old connection dropped, no route resting');
+    for (let i = 0; i <= 25; i += 5) w.lookupFailed(T + i * 1000);
+    t.ok(!states.includes('w:down') && w.failures === 0, 'lookups failing for 25 s right after waking: not "down"');
+    for (let i = 31; i <= 45; i += 4) w.lookupFailed(T + i * 1000);
+    t.ok(states.includes('w:down'), 'failing on after that half minute: "down" as ever');
+    // The clock set back an hour: a route resting "until an hour from now"
+    // rests at most the longest rest, and failures still count.
+    const c = new F(() => {}, {});
+    const r0 = c.routes[0];
+    r0.restUntil = Date.now() + 3600 * 1000; r0.failAt = Date.now() + 3600 * 1000; r0.fails = 1;
+    c.ordered();
+    t.ok(r0.restUntil <= Date.now() + 300000 && r0.failAt <= Date.now(), 'clock set back: a rest "until an hour from now" is cut to the longest rest');
+    { const until = Date.now() + 5; while (Date.now() < until) { /* a new request, a moment later */ } }
+    c.failed(r0, Date.now());
+    t.ok(r0.fails === 2, 'and a new failure of that route is counted, not taken for one already counted');
     f.stop(); g.stop(); h.stop();
   }
   // warm(): a round no route answers keeps a streak on; any answer ends it.

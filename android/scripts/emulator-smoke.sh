@@ -330,6 +330,31 @@ fi
 vpn_up || fail "protection ended during the network changes"
 has_log "Protection off" && fail "protection ended during the network changes"
 
+# ── Doze, and what "Share logs" says ─────────────────────────────────────
+# Deep idle (Doze) for a minute and back: time passing with nothing
+# answering is no failure. Protection stays on, nothing is restarted, and the
+# internet works after.
+no_false_alarm() {
+  local bad
+  for bad in "Ending protection" "giving up" "stopped answering" "does not accept connections" "starting everything anew" "Tunnel .*; restarting it"; do
+    has_log "$bad" && fail "$1: \"$bad\""
+  done
+  return 0
+}
+clear_log
+sh_ "dumpsys battery unplug" >/dev/null
+sh_ "dumpsys deviceidle force-idle" >/dev/null
+sleep 60
+sh_ "dumpsys deviceidle unforce" >/dev/null
+sh_ "dumpsys battery reset" >/dev/null
+wait_for 90 net_up || fail "no internet through the VPN after Doze"
+vpn_up || fail "protection ended in Doze"
+no_false_alarm "after Doze"
+say "Doze for 60 s and back: protection stayed on, nothing restarted, works after: $(http_get)"
+ctl report
+wait_for 20 has_log "report: Protection: on for [0-9]* min; always-on VPN no, lockdown no; IPv6 " || fail "Share logs' report does not say how protection runs"
+say "Share logs: $(applog | grep -m1 'report: Protection:' | sed 's/.*report: //')"
+
 # ── switch off ───────────────────────────────────────────────────────────
 ctl stop
 wait_for 30 has_log "Protection off" || fail "protection did not go off"
@@ -382,6 +407,25 @@ if [ "$("$ADB" -s "$SERIAL" root 2>&1 | grep -c 'cannot run as root')" = 0 ]; th
   has_log "Ending protection" && fail "protection ended during an outage of the network itself"
   wait_for 90 net_up || fail "no internet through the VPN after the outage"
   say "network outage of $(( $(date +%s) - t0 )) s: protection stayed on ($(applog | grep -c 'the network is down') checks found the network down), works after: $(http_get)"
+
+  # The clock moved an hour ahead, then back, as a phone setting its time
+  # from the network does: nothing restarts, encrypted DNS goes on.
+  clear_log
+  sh_ "settings put global auto_time 0" >/dev/null
+  dev_now="$(sh_ "date +%s" | tr -dc 0-9)"
+  host_then=$(date +%s)
+  set_clock() { sh_ "date -u $(sh_ "date -u -d @$1 +%m%d%H%M%Y.%S")" >/dev/null; }
+  # The device's own time again: what it was, plus what went by since.
+  clock_back() { set_clock $(( dev_now + $(date +%s) - host_then )); }
+  set_clock $(( dev_now + 3600 )); sleep 30
+  wait_for 60 net_up || { clock_back; fail "no internet after the clock moved ahead an hour"; }
+  clock_back; sleep 30
+  sh_ "settings put global auto_time 1" >/dev/null
+  wait_for 60 net_up || fail "no internet after the clock was set back"
+  vpn_up || fail "protection ended when the clock changed"
+  no_false_alarm "after the clock changed"
+  [ -n "$(resolved example.org)" ] || fail "names do not resolve after the clock changed"
+  say "clock an hour ahead and back: protection stayed on, nothing restarted, names resolve, works after: $(http_get)"
 
   # Always-on VPN with "Block connections without VPN" (lockdown, Android
   # 10+): ending protection would leave apps nothing, so with the app's
@@ -440,6 +484,14 @@ window() {
   clear_log
   sh_ "am force-stop $PKG" >/dev/null
   sh_ "am start -W -n $PKG/.MainActivity" >/dev/null
+  # After the always-on check, Android may still bring the VPN back by itself
+  # once the app runs again: off once more, and the window to the front.
+  sleep 6
+  if vpn_up; then
+    ctl stop
+    wait_for 30 tun_gone || fail "protection did not go off before the window checks"
+    sh_ "am start -W -n $PKG/.MainActivity" >/dev/null
+  fi
 }
 ui_has() { sh_ "uiautomator dump /sdcard/ui.xml" >/dev/null; grep -q -- "$1" <<<"$(sh_ "cat /sdcard/ui.xml")"; }
 # The rows are at the bottom, more than a small screen shows at once: from

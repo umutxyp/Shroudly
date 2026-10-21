@@ -422,5 +422,22 @@
   "androidNoInternet": "A proteção parou porque o Shroudly não conseguiu acessar a internet nesta rede, então seus apps estão se conectando diretamente. Abra o Shroudly para tentar de novo.",
   "androidBatteryHint": "As configurações de bateria podem parar o Shroudly em segundo plano e cortar sua conexão. Deixe-o funcionar sem restrições de bateria.",
   "androidBatterySettings": "Configurações de bateria",
-  "androidLockdownOffline": "Sem internet: o Shroudly não consegue se conectar nesta rede agora, e o Android está configurado para bloquear conexões sem VPN. O Shroudly continua tentando."
+  "androidLockdownOffline": "Sem internet: o Shroudly não consegue se conectar nesta rede agora, e o Android está configurado para bloquear conexões sem VPN. O Shroudly continua tentando.",
+  "copyLogs": "Copiar registros",
+  "logsCopied": "Copiado",
+  "trayCopyLogs": "Copiar registros",
+  "notifyLogsCopied": "O registro está na área de transferência. Cole-o na sua mensagem ou no seu relatório.",
+  "autoAdvancedOffBefore": "{host} precisa do modo Avançado nesta rede. Ele foi desativado em {date}, então o Shroudly não o ativa sozinho: ative-o em Ajustes.",
+  "autoAdvancedDeclinedBefore": "{host} precisa do modo Avançado nesta rede. Ele não foi permitido em {date}, então o Shroudly não pede sozinho: ative-o em Ajustes.",
+  "autoAdvancedFailedBefore": "{host} precisa do modo Avançado nesta rede, mas ele não pôde ser ativado antes. Tente ativá-lo em Ajustes.",
+  "autoAdvancedAntiCheat": "{host} precisa do modo Avançado nesta rede, mas o antitrapaça de um jogo ({program}) está em execução, então o Shroudly não o inicia sozinho. Ative-o em Ajustes quando quiser.",
+  "autoDiscordOffByHand": "O Discord está bloqueado nesta rede, mas o modo app do Discord foi desativado em {date}. Para usar o app do Discord, ative-o em Ajustes.",
+  "autoRobloxOffByHand": "O Roblox está bloqueado nesta rede, mas o modo Jogos e apps foi desativado em {date}. Para usar o Roblox, ative-o em Ajustes.",
+  "autoStoreAppsOffBefore": "{apps} não conseguem chegar ao Shroudly: o interruptor Apps da Microsoft Store foi desativado em {date}. Para deixá-los passar, ative-o em Ajustes.",
+  "autoStoreAppsDeclinedBefore": "{apps} não conseguem chegar ao Shroudly: a permissão não foi dada em {date}. Para deixá-los passar, ative Apps da Microsoft Store em Ajustes.",
+  "logWake": "O computador saiu da suspensão ou o relógio dele mudou; os tempos de espera recomeçam do zero",
+  "logHeldRestart": "{host}: retido enquanto o Shroudly reinicia; o programa vai tentar de novo",
+  "autoDiscordFailed": "O Discord está bloqueado nesta rede, mas o modo app do Discord não pôde ser ativado. Ative-o em Ajustes para tentar de novo.",
+  "autoRobloxFailed": "O Roblox está bloqueado nesta rede, mas o modo Jogos e apps não pôde ser ativado. Ative-o em Ajustes para tentar de novo.",
+  "autoStoreAppsNoAdmin": "{apps} não conseguem chegar ao Shroudly até um administrador permitir: um administrador pode ativar Apps da Microsoft Store em Ajustes."
 }

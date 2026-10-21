@@ -422,5 +422,22 @@
   "androidNoInternet": "ההגנה נעצרה כי Shroudly לא הצליחה להגיע לאינטרנט ברשת הזו, ולכן האפליקציות שלך מתחברות עכשיו ישירות. אפשר לפתוח את Shroudly כדי לנסות שוב.",
   "androidBatteryHint": "הגדרות הסוללה עלולות לעצור את Shroudly ברקע ולנתק את החיבור שלך. כדאי לאפשר לה לפעול בלי הגבלות סוללה.",
   "androidBatterySettings": "הגדרות סוללה",
-  "androidLockdownOffline": "אין אינטרנט: Shroudly לא מצליחה לעבור ברשת הזו כרגע, ו־Android מוגדרת לחסום חיבורים בלי VPN. Shroudly ממשיכה לנסות."
+  "androidLockdownOffline": "אין אינטרנט: Shroudly לא מצליחה לעבור ברשת הזו כרגע, ו־Android מוגדרת לחסום חיבורים בלי VPN. Shroudly ממשיכה לנסות.",
+  "copyLogs": "להעתיק יומנים",
+  "logsCopied": "הועתק",
+  "trayCopyLogs": "להעתיק יומנים",
+  "notifyLogsCopied": "היומן הועתק ללוח. אפשר להדביק אותו בהודעה או בדיווח.",
+  "autoAdvancedOffBefore": "{host} דורש מצב מתקדם ברשת הזו. המצב כובה ב-{date}, ולכן Shroudly לא מפעיל אותו בעצמו: יש להפעיל אותו בהגדרות.",
+  "autoAdvancedDeclinedBefore": "{host} דורש מצב מתקדם ברשת הזו. הוא לא אושר ב-{date}, ולכן Shroudly לא מבקש זאת בעצמו: יש להפעיל אותו בהגדרות.",
+  "autoAdvancedFailedBefore": "{host} דורש מצב מתקדם ברשת הזו, אבל קודם לא ניתן היה להפעיל אותו. כדאי לנסות להפעיל אותו בהגדרות.",
+  "autoAdvancedAntiCheat": "{host} דורש מצב מתקדם ברשת הזו, אבל מערכת נגד רמאות של משחק ({program}) פועלת, ולכן Shroudly לא מפעיל אותו בעצמו. אפשר להפעיל אותו בהגדרות כשרוצים.",
+  "autoDiscordOffByHand": "Discord חסום ברשת הזו, אבל מצב אפליקציית Discord כובה ב-{date}. כדי להשתמש באפליקציית Discord, יש להפעיל אותו בהגדרות.",
+  "autoRobloxOffByHand": "Roblox חסום ברשת הזו, אבל מצב משחקים ואפליקציות כובה ב-{date}. כדי להשתמש ב-Roblox, יש להפעיל אותו בהגדרות.",
+  "autoStoreAppsOffBefore": "{apps} לא יכולות להגיע ל-Shroudly: המתג אפליקציות Microsoft Store כובה ב-{date}. כדי לאפשר להן לעבור, יש להפעיל אותו בהגדרות.",
+  "autoStoreAppsDeclinedBefore": "{apps} לא יכולות להגיע ל-Shroudly: האישור לא ניתן ב-{date}. כדי לאפשר להן לעבור, יש להפעיל את המתג אפליקציות Microsoft Store בהגדרות.",
+  "logWake": "המחשב התעורר משינה או שהשעון שלו השתנה; זמני ההמתנה מתחילים מחדש",
+  "logHeldRestart": "{host}: עוכב בזמן ש-Shroudly מופעל מחדש; התוכנה תנסה שוב",
+  "autoDiscordFailed": "Discord חסום ברשת הזו, אבל לא ניתן היה להפעיל את מצב אפליקציית Discord. כדי לנסות שוב, יש להפעיל אותו בהגדרות.",
+  "autoRobloxFailed": "Roblox חסום ברשת הזו, אבל לא ניתן היה להפעיל את מצב משחקים ואפליקציות. כדי לנסות שוב, יש להפעיל אותו בהגדרות.",
+  "autoStoreAppsNoAdmin": "{apps} לא יכולות להגיע ל-Shroudly עד שמנהל מערכת יאשר זאת: מנהל מערכת יכול להפעיל את המתג אפליקציות Microsoft Store בהגדרות."
 }

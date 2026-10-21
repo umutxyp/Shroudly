@@ -422,5 +422,22 @@
   "androidNoInternet": "Der Schutz wurde beendet, weil Shroudly in diesem Netz das Internet nicht erreicht hat. Deine Apps verbinden sich jetzt direkt. Öffne Shroudly, um es erneut zu versuchen.",
   "androidBatteryHint": "Akku-Einstellungen können Shroudly im Hintergrund beenden und damit deine Verbindung unterbrechen. Erlaube Shroudly, ohne Akku-Einschränkungen zu laufen.",
   "androidBatterySettings": "Akku-Einstellungen",
-  "androidLockdownOffline": "Kein Internet: Shroudly kommt in diesem Netz gerade nicht durch, und Android ist so eingestellt, dass Verbindungen ohne VPN blockiert werden. Shroudly versucht es weiter."
+  "androidLockdownOffline": "Kein Internet: Shroudly kommt in diesem Netz gerade nicht durch, und Android ist so eingestellt, dass Verbindungen ohne VPN blockiert werden. Shroudly versucht es weiter.",
+  "copyLogs": "Protokoll kopieren",
+  "logsCopied": "Kopiert",
+  "trayCopyLogs": "Protokoll kopieren",
+  "notifyLogsCopied": "Das Protokoll ist in der Zwischenablage. Füge es in deine Nachricht oder deinen Bericht ein.",
+  "autoAdvancedOffBefore": "{host} braucht in diesem Netz den erweiterten Modus. Er wurde am {date} ausgeschaltet, deshalb schaltet Shroudly ihn nicht von selbst ein: Schalte ihn in den Optionen ein.",
+  "autoAdvancedDeclinedBefore": "{host} braucht in diesem Netz den erweiterten Modus. Er wurde am {date} nicht erlaubt, deshalb fragt Shroudly nicht von selbst danach: Schalte ihn in den Optionen ein.",
+  "autoAdvancedFailedBefore": "{host} braucht in diesem Netz den erweiterten Modus, aber er ließ sich zuvor nicht einschalten. Versuche, ihn in den Optionen einzuschalten.",
+  "autoAdvancedAntiCheat": "{host} braucht in diesem Netz den erweiterten Modus, aber der Anti-Cheat eines Spiels ({program}) läuft, deshalb startet Shroudly ihn nicht von selbst. Schalte ihn in den Optionen ein, wenn du ihn möchtest.",
+  "autoDiscordOffByHand": "Discord ist in diesem Netz gesperrt, aber der Discord-App-Modus wurde am {date} ausgeschaltet. Um die Discord-App zu nutzen, schalte ihn in den Optionen ein.",
+  "autoRobloxOffByHand": "Roblox ist in diesem Netz gesperrt, aber der Modus „Spiele und Apps“ wurde am {date} ausgeschaltet. Um Roblox zu nutzen, schalte ihn in den Optionen ein.",
+  "autoStoreAppsOffBefore": "{apps} können Shroudly nicht erreichen: Der Schalter „Microsoft-Store-Apps“ wurde am {date} ausgeschaltet. Um sie durchzulassen, schalte ihn in den Optionen ein.",
+  "autoStoreAppsDeclinedBefore": "{apps} können Shroudly nicht erreichen: Die Erlaubnis wurde am {date} nicht erteilt. Um sie durchzulassen, schalte „Microsoft-Store-Apps“ in den Optionen ein.",
+  "logWake": "Der Computer ist aus dem Ruhezustand aufgewacht oder seine Uhr hat sich geändert; Wartezeiten beginnen von vorn",
+  "logHeldRestart": "{host}: zurückgehalten, während Shroudly neu startet; das Programm versucht es erneut",
+  "autoDiscordFailed": "Discord ist in diesem Netz gesperrt, aber der Discord-App-Modus ließ sich nicht einschalten. Schalte ihn in den Optionen ein, um es noch einmal zu versuchen.",
+  "autoRobloxFailed": "Roblox ist in diesem Netz gesperrt, aber der Modus „Spiele und Apps“ ließ sich nicht einschalten. Schalte ihn in den Optionen ein, um es noch einmal zu versuchen.",
+  "autoStoreAppsNoAdmin": "{apps} können Shroudly erst erreichen, wenn ein Administrator es erlaubt: Ein Administrator kann „Microsoft-Store-Apps“ in den Optionen einschalten."
 }

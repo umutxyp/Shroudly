@@ -422,5 +422,22 @@
   "androidNoInternet": "Shroudly bu ağda internete ulaşamadığı için koruma durdu, bu yüzden uygulamalarınız şu anda doğrudan bağlanıyor. Yeniden denemek için Shroudly'yi açın.",
   "androidBatteryHint": "Pil ayarları Shroudly'yi arka planda durdurup bağlantınızı kesebilir. Pil kısıtlaması olmadan çalışmasına izin verin.",
   "androidBatterySettings": "Pil ayarları",
-  "androidLockdownOffline": "İnternet yok: Shroudly şu anda bu ağda bağlantı kuramıyor ve Android, VPN olmadan bağlantıları engelleyecek şekilde ayarlı. Shroudly denemeye devam ediyor."
+  "androidLockdownOffline": "İnternet yok: Shroudly şu anda bu ağda bağlantı kuramıyor ve Android, VPN olmadan bağlantıları engelleyecek şekilde ayarlı. Shroudly denemeye devam ediyor.",
+  "copyLogs": "Kayıtları kopyala",
+  "logsCopied": "Kopyalandı",
+  "trayCopyLogs": "Kayıtları kopyala",
+  "notifyLogsCopied": "Kayıtlar panoya kopyalandı. Mesajına ya da raporuna yapıştır.",
+  "autoAdvancedOffBefore": "{host} bu ağda Gelişmiş mod gerektiriyor. Mod {date} tarihinde kapatıldığı için Shroudly onu kendiliğinden açmıyor: Ayarlar'dan aç.",
+  "autoAdvancedDeclinedBefore": "{host} bu ağda Gelişmiş mod gerektiriyor. {date} tarihinde izin verilmediği için Shroudly kendiliğinden sormuyor: Ayarlar'dan aç.",
+  "autoAdvancedFailedBefore": "{host} bu ağda Gelişmiş mod gerektiriyor, ancak mod daha önce açılamadı. Ayarlar'dan açmayı dene.",
+  "autoAdvancedAntiCheat": "{host} bu ağda Gelişmiş mod gerektiriyor, ancak bir oyunun hile koruması ({program}) çalışıyor; bu yüzden Shroudly modu kendiliğinden başlatmıyor. İstediğinde Ayarlar'dan aç.",
+  "autoDiscordOffByHand": "Discord bu ağda engelli, ancak Discord uygulama modu {date} tarihinde kapatıldı. Discord uygulamasını kullanmak için Ayarlar'dan aç.",
+  "autoRobloxOffByHand": "Roblox bu ağda engelli, ancak Oyunlar ve uygulamalar modu {date} tarihinde kapatıldı. Roblox'u kullanmak için Ayarlar'dan aç.",
+  "autoStoreAppsOffBefore": "{apps} Shroudly'ye ulaşamıyor: Microsoft Store uygulamaları anahtarı {date} tarihinde kapatıldı. Geçebilmeleri için anahtarı Ayarlar'dan aç.",
+  "autoStoreAppsDeclinedBefore": "{apps} Shroudly'ye ulaşamıyor: {date} tarihinde izin verilmedi. Geçebilmeleri için Ayarlar'dan Microsoft Store uygulamalarını aç.",
+  "logWake": "Bilgisayar uykudan uyandı ya da saati değişti; bekleme süreleri baştan başlıyor",
+  "logHeldRestart": "{host}: Shroudly yeniden başlarken bekletildi; program yeniden deneyecek",
+  "autoDiscordFailed": "Discord bu ağda engelli, ancak Discord uygulama modu açılamadı. Yeniden denemek için Ayarlar'dan aç.",
+  "autoRobloxFailed": "Roblox bu ağda engelli, ancak Oyunlar ve uygulamalar modu açılamadı. Yeniden denemek için Ayarlar'dan aç.",
+  "autoStoreAppsNoAdmin": "Bir yönetici izin verene kadar {apps} Shroudly'ye ulaşamaz: bir yönetici Ayarlar'dan Microsoft Store uygulamaları anahtarını açabilir."
 }

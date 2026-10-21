@@ -305,6 +305,14 @@ class RobloxWatch {
     if (this.running && !this.timer) this._schedule(this.delay());
   }
 
+  /* The computer woke up (or its clock jumped): Roblox's programs could not
+   * ask anything while it slept, so their silence counts from now, as for a
+   * Shroudly that has just started looking. */
+  resumed(at = this.d.now()) {
+    if (this.from != null) this.from = Math.max(this.from, at);
+    for (const p of this.procs.values()) if (p.firstSeen > at) p.firstSeen = at;
+  }
+
   _reset() {
     this.procs.clear();
     this.listedAt = null;

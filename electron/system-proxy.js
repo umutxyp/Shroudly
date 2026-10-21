@@ -68,6 +68,7 @@ const fs = require('fs');
 const path = require('path');
 const Watchdog = require('./watchdog');
 const procnet = require('./procnet');
+const Boot = require('./boot');
 
 const WIN_KEY = 'HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings';
 const WIN_VALUES = ['ProxyEnable', 'ProxyServer', 'AutoConfigURL', 'ProxyOverride'];
@@ -210,8 +211,9 @@ let exec = REAL_EXEC;
 function shq(s) { return `'${String(s).replace(/'/g, `'\\''`)}'`; }
 
 /* When this machine started, in seconds: a process id recorded before a
- * restart of the Mac names some other process now. */
-function bootTime() { return Math.round(Date.now() / 1000 - os.uptime()); }
+ * restart of the Mac names some other process now. Records also carry the
+ * boot's own name (boot.js), which a clock change does not move. */
+function bootTime() { return Boot.bootTime(); }
 
 /* A file only one process at a time may hold (the restore's password
  * dialog). Taken over when the process that made it is gone. */
@@ -762,7 +764,7 @@ ${local}
     } catch (e) { this.log('warning', `Could not save proxy state: ${e.message}`); }
   }
 
-  static _owner() { return { pid: process.pid, boot: bootTime(), exe: path.basename(process.execPath) }; }
+  static _owner() { return { pid: process.pid, boot: bootTime(), bootKey: Boot.bootKey(), exe: path.basename(process.execPath) }; }
 
   /* Is the Shroudly that wrote a state file still running? Its process, on
    * this boot of the machine, under the same program name: a process id from
@@ -770,7 +772,7 @@ ${local}
    * Assumed running when the name cannot be read. */
   static _ownerAlive(owner, platform = process.platform) {
     if (!owner || !(owner.pid > 0) || owner.pid === process.pid) return false;
-    if (!owner.boot || Math.abs(owner.boot - bootTime()) > 120) return false;
+    if ((!owner.boot && !owner.bootKey) || !Boot.sameBoot(owner)) return false;
     if (!exec.alive(owner.pid)) return false;
     const name = String(owner.exe || '').toLowerCase().slice(0, 15); // ps shows 15 characters on Linux
     if (!name) return true;
@@ -989,7 +991,7 @@ ${argsXml}
       if (!lost.length) {
         // Ours for longer than the window since it was set back: nothing
         // answered that, whatever came before.
-        if (this._retakenAt && seenAt - this._retakenAt > this.fightWindowMs) { this._fight = 0; this._retakenAt = 0; }
+        if (this._retakenAt && (seenAt - this._retakenAt > this.fightWindowMs || seenAt < this._retakenAt)) { this._fight = 0; this._retakenAt = 0; }
         if (!this._owned) {
           this._owned = true;
           this._gaveUp = false;
@@ -1010,7 +1012,9 @@ ${argsXml}
       if (this.autoRetake && this._canRetake(snap) && takeover && RETAKE_KINDS.has(takeover.kind)) {
         // Taken again soon after Shroudly set it back: one more answer in a
         // row. Anything else is a takeover of its own, and counts from one.
-        const answer = this._retakenAt > 0 && seenAt - this._retakenAt <= this.fightWindowMs;
+        // A clock set back since (seenAt before the set-back) is no answer.
+        const since = seenAt - this._retakenAt;
+        const answer = this._retakenAt > 0 && since >= 0 && since <= this.fightWindowMs;
         this._fight = answer ? this._fight + 1 : 1;
         if (this._fight < this.retakeLimit) {
           const r = await this._serial(() => this._retake(snap, url, lost));
@@ -1899,6 +1903,7 @@ $t = Add-Type -MemberDefinition $sig -Name WinINet -Namespace Net -PassThru
       holdFile,
       helperPid: 0,
       boot: bootTime(),
+      bootKey: Boot.bootKey(),
     };
     this.snapshot = snap;
     try { fs.mkdirSync(path.dirname(holdFile), { recursive: true }); fs.writeFileSync(holdFile, String(process.pid)); } catch {}
@@ -2009,7 +2014,7 @@ $t = Add-Type -MemberDefinition $sig -Name WinINet -Namespace Net -PassThru
    * before a restart of the Mac belongs to some other process now. */
   static _helperAlive(snap) {
     if (!snap || !snap.helperPid) return false;
-    if (snap.boot && Math.abs(snap.boot - bootTime()) > 120) return false;
+    if ((snap.boot || snap.bootKey) && !Boot.sameBoot(snap)) return false;
     return exec.alive(snap.helperPid);
   }
 

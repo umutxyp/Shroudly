@@ -516,6 +516,21 @@ async function robloxInstaller(proxy, socksPort) {
   new AppEnv({ backend: b, stateFile }).applySync(url);
   fs.writeFileSync(stateFile, JSON.stringify({ v: 1, pid: process.ppid, boot: 1, url }));
   t.ok(AppEnv.recoverSync({ backend: b, stateFile }, { onlyIfDead: true }) === true && b.env.size === 0, 'login hook after a power cut: removed, even if the old pid is in use again');
+  {
+    // The clock moved since (NTP at login, set by hand): the boot's own name
+    // says it is still this boot, and the running Shroudly keeps its value;
+    // another boot's name is a restart, whatever the clock says.
+    const Boot = require(path.join(ROOT, 'electron', 'boot.js'));
+    Boot._setReader(() => 'boot-A');
+    try {
+      new AppEnv({ backend: b, stateFile }).applySync(url);
+      t.ok(JSON.parse(fs.readFileSync(stateFile, 'utf8')).bootKey === 'boot-A', "the state file names this boot");
+      fs.writeFileSync(stateFile, JSON.stringify({ v: 1, pid: process.ppid, boot: 1, bootKey: 'boot-A', url }));
+      t.ok(AppEnv.recoverSync({ backend: b, stateFile }, { onlyIfDead: true }) === false && b.get('HTTPS_PROXY') === url, 'login hook after the clock moved: this boot by its name, its Shroudly still runs, the value stays');
+      fs.writeFileSync(stateFile, JSON.stringify({ v: 1, pid: process.ppid, boot: Math.round((Date.now() - os.uptime() * 1000) / 60000), bootKey: 'boot-B', url }));
+      t.ok(AppEnv.recoverSync({ backend: b, stateFile }, { onlyIfDead: true }) === true && b.env.size === 0, 'another boot by its name: removed, however close the times');
+    } finally { Boot._setReader(null); }
+  }
   new AppEnv({ backend: b, stateFile }).applySync(url);
   fs.writeFileSync(stateFile, JSON.stringify({ v: 1, pid: 2147483646, url }));
   t.ok(AppEnv.recoverSync({ backend: b, stateFile }, { onlyIfDead: true }) === true && b.env.size === 0 && !fs.existsSync(stateFile), 'removed once the Shroudly that set it is gone');
@@ -647,6 +662,29 @@ async function robloxInstaller(proxy, socksPort) {
   t.ok(w.tunnel === 200 && waited >= 700 && vias[0] === 'engine', `[waits] a connection made while the engine is starting goes through it once it is up (via ${vias[0]})`);
   proxy.waitForEngine = null;
   proxy.onTunnel = null;
+
+  // The engine restarting after a crash and not back within the wait: what
+  // would go into it is held back (an error the program retries), never sent
+  // straight out, where a filtering network fails it (a name its DNS does
+  // not answer, a download cut). With protection off, straight out as ever.
+  {
+    engineOn = false;
+    let due = true;
+    proxy.engineDue = () => due;
+    proxy.waitForEngine = async () => {};
+    const held = [];
+    proxy.onTunnel = (h, via) => held.push(via);
+    const r1 = await raw(port, 'CONNECT www.wikipedia.org:443 HTTP/1.1\r\n\r\n');
+    const r2 = await raw(port, 'CONNECT 185.15.59.224:443 HTTP/1.1\r\n\r\n');
+    t.ok(r1.startsWith('HTTP/1.1 502') && r2.startsWith('HTTP/1.1 502') && !held.length,
+      `[restart] a name and a public address while the engine is still restarting: held back, not sent directly (${r1.split('\r\n')[0]}; ${r2.split('\r\n')[0]})`);
+    due = false;
+    const r3 = await getWithRetry(port, 'www.wikipedia.org');
+    t.ok(r3.tunnel === 200 && held[0] === 'direct', `[off] protection off: straight out, as before (via ${held[0]})`);
+    proxy.engineDue = () => false;
+    proxy.onTunnel = null;
+    proxy.waitForEngine = null;
+  }
 
   engineOn = true;
   eng.stop();
