@@ -302,6 +302,10 @@ class MainActivity : Activity() {
                 detail.show(getString(R.string.androidVpnDenied))
                 detail.setTextColor(getColor(R.color.warn))
             }
+            on && Protection.troubleRes != 0 -> {
+                detail.show(getString(Protection.troubleRes))
+                detail.setTextColor(getColor(R.color.warn))
+            }
             error != 0 && st == Protection.State.OFF -> {
                 // In the user's language; the technical words behind "Details".
                 detail.show(getString(error))

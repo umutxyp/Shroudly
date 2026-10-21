@@ -7,6 +7,7 @@
     <string name="androidBatterySettings">Tetapan bateri</string>
     <string name="androidDetails">Butiran</string>
     <string name="androidDownloadApk">Muat turun kemas kini</string>
+    <string name="androidLockdownOffline">Tiada internet: Shroudly belum dapat bersambung pada rangkaian ini, dan Android ditetapkan untuk menyekat sambungan tanpa VPN. Shroudly terus mencuba.</string>
     <string name="androidNoInternet">Perlindungan berhenti kerana Shroudly tidak dapat mencapai internet pada rangkaian ini, jadi aplikasi anda kini bersambung secara terus. Buka Shroudly untuk mencuba lagi.</string>
     <string name="androidPrivacyPolicy">Dasar privasi</string>
     <string name="androidProtectionLost">Perlindungan berhenti kerana ralat, jadi aplikasi anda kini bersambung secara terus. Buka Shroudly untuk memulakannya semula.</string>

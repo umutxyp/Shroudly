@@ -392,5 +392,6 @@
   "androidShareLogs": "ログを共有",
   "androidNoInternet": "Shroudly がこのネットワークでインターネットに接続できなかったため、保護を停止しました。アプリは現在直接接続しています。もう一度試すには Shroudly を開いてください。",
   "androidBatteryHint": "バッテリー設定によって Shroudly がバックグラウンドで停止され、接続が切れることがあります。バッテリーの制限なしで動作できるようにしてください。",
-  "androidBatterySettings": "バッテリー設定"
+  "androidBatterySettings": "バッテリー設定",
+  "androidLockdownOffline": "インターネットに接続できません：Shroudly は現在このネットワークで通信できず、Android は VPN なしの接続をブロックするよう設定されています。Shroudly は再試行を続けています。"
 }

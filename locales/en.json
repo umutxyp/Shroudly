@@ -392,5 +392,6 @@
   "androidShareLogs": "Share logs",
   "androidNoInternet": "Protection stopped because Shroudly could not reach the internet on this network, so your apps are connecting directly. Open Shroudly to try again.",
   "androidBatteryHint": "Battery settings can stop Shroudly in the background and cut your connection. Let it run without battery restrictions.",
-  "androidBatterySettings": "Battery settings"
+  "androidBatterySettings": "Battery settings",
+  "androidLockdownOffline": "No internet: Shroudly cannot get through on this network right now, and Android is set to block connections without a VPN. Shroudly keeps trying."
 }

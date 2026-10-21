@@ -7,6 +7,7 @@
     <string name="androidBatterySettings">بیٹری کی ترتیبات</string>
     <string name="androidDetails">تفصیلات</string>
     <string name="androidDownloadApk">اپ ڈیٹ ڈاؤن لوڈ کریں</string>
+    <string name="androidLockdownOffline">انٹرنیٹ نہیں: Shroudly اس وقت اس نیٹ ورک پر جڑ نہیں پا رہا، اور Android کو VPN کے بغیر کنکشن روکنے کے لیے سیٹ کیا گیا ہے۔ Shroudly کوشش جاری رکھے ہوئے ہے۔</string>
     <string name="androidNoInternet">تحفظ رک گیا کیونکہ Shroudly اس نیٹ ورک پر انٹرنیٹ تک نہیں پہنچ سکا، اس لیے آپ کی ایپس اب براہِ راست جڑ رہی ہیں۔ دوبارہ کوشش کرنے کے لیے Shroudly کھولیں۔</string>
     <string name="androidPrivacyPolicy">رازداری کی پالیسی</string>
     <string name="androidProtectionLost">ایک خرابی کی وجہ سے تحفظ رک گیا، اس لیے آپ کی ایپس اب براہِ راست جڑ رہی ہیں۔ اسے دوبارہ شروع کرنے کے لیے Shroudly کھولیں۔</string>

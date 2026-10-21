@@ -392,5 +392,6 @@
   "androidShareLogs": "መዝገብ አጋራ",
   "androidNoInternet": "Shroudly በዚህ አውታረ መረብ ላይ ኢንተርኔት ማግኘት ስላልቻለ ጥበቃው ቆሟል፤ ስለዚህ መተግበሪያዎችዎ አሁን በቀጥታ ይገናኛሉ። እንደገና ለመሞከር Shroudlyን ይክፈቱ።",
   "androidBatteryHint": "የባትሪ ቅንብሮች Shroudlyን ከበስተጀርባ ሊያቆሙት እና ግንኙነትዎን ሊያቋርጡ ይችላሉ። ያለ ባትሪ ገደቦች እንዲሠራ ይፍቀዱለት።",
-  "androidBatterySettings": "የባትሪ ቅንብሮች"
+  "androidBatterySettings": "የባትሪ ቅንብሮች",
+  "androidLockdownOffline": "ኢንተርኔት የለም፦ Shroudly አሁን በዚህ አውታረ መረብ ላይ መገናኘት አልቻለም፣ እና Android ያለ VPN ግንኙነቶችን እንዲያግድ ተቀናብሯል። Shroudly መሞከሩን ቀጥሏል።"
 }

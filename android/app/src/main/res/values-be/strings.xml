@@ -7,6 +7,7 @@
     <string name="androidBatterySettings">Налады батарэі</string>
     <string name="androidDetails">Падрабязнасці</string>
     <string name="androidDownloadApk">Спампаваць абнаўленне</string>
+    <string name="androidLockdownOffline">Няма інтэрнэту: Shroudly зараз не можа прабіцца ў гэтай сетцы, а Android наладжаны блакаваць злучэнні без VPN. Shroudly працягвае спробы.</string>
     <string name="androidNoInternet">Абарона спынілася, бо Shroudly не змог выйсці ў інтэрнэт у гэтай сетцы, таму вашы праграмы цяпер падключаюцца напрамую. Адкрыйце Shroudly, каб паспрабаваць зноў.</string>
     <string name="androidPrivacyPolicy">Палітыка прыватнасці</string>
     <string name="androidProtectionLost">Абарона спынілася з-за памылкі, таму вашы праграмы цяпер падключаюцца напрамую. Адкрыйце Shroudly, каб запусціць яе зноў.</string>

@@ -27,31 +27,15 @@ import java.util.concurrent.TimeUnit
 /* Probes of the engine's SOCKS5 port, from this app, which is outside its
  * own VPN: they go straight to the engine and from there to the network. */
 object EngineProbe {
-    /* Where the path check connects, through the engine, by name: the
-     * engine has to look the name up and connect before it answers. The
-     * hosts Android itself checks the network with (so a network Android
-     * calls working reaches them), and those Apple's, Microsoft's and
-     * Chinese phones check with, for networks where Google is blocked; any
-     * one answering is enough. */
+    /* Where the path check connects, by name: through the engine, the
+     * engine has to look the name up and connect before it answers. Hosts
+     * that check networks for phones and computers everywhere (Android's,
+     * Cloudflare's, Apple's and Microsoft's), so a working network reaches
+     * at least one; any one answering is enough. */
     val TARGETS = listOf(
         "www.google.com" to 443, "connectivitycheck.gstatic.com" to 80, "one.one.one.one" to 443,
-        "captive.apple.com" to 80, "www.msftconnecttest.com" to 80, "connect.rom.miui.com" to 80,
+        "captive.apple.com" to 80, "www.msftconnecttest.com" to 80,
     )
-
-    /* TARGETS, and the hosts of the check addresses this Android was given
-     * (Settings.Global captive_portal_*_url), when it was given any. */
-    fun targets(captivePortalUrls: List<String?>): List<Pair<String, Int>> {
-        val own = captivePortalUrls.mapNotNull { u ->
-            try {
-                val url = java.net.URL(u ?: return@mapNotNull null)
-                val host = url.host?.takeIf { it.isNotEmpty() } ?: return@mapNotNull null
-                host to (if (url.port > 0) url.port else url.defaultPort)
-            } catch (_: Exception) {
-                null
-            }
-        }
-        return (own + TARGETS).distinct()
-    }
 
     /* Android's own checks of a network wait 10 seconds. */
     const val DEADLINE_MS = 10_000L
@@ -84,14 +68,56 @@ object EngineProbe {
         false
     }
 
-    /* The first target that answers, or null when none does within
-     * deadlineMs. All are tried at once: on a network that drops what it
-     * blocks, one after the other would take a minute to say no. */
-    fun reachesAny(port: Int, auth: SocksAuth?, targets: List<Pair<String, Int>> = TARGETS, deadlineMs: Long = DEADLINE_MS): String? {
+    /* The first target that answers through the engine, or null when none
+     * does within deadlineMs. */
+    fun reachesAny(port: Int, auth: SocksAuth?, targets: List<Pair<String, Int>> = TARGETS, deadlineMs: Long = DEADLINE_MS): String? =
+        firstOf(targets, deadlineMs) { h, p -> reaches(port, auth, h, p, deadlineMs.toInt()) }
+
+    /* What a connection from this app's own socket found: it is outside the
+     * VPN, so it goes straight over the network underneath. */
+    class Direct(val reached: String?, val refusedBySystem: Boolean)
+
+    /* The same hosts without the engine. When nothing answers here either,
+     * the network may be down (not Shroudly's doing), or this app may be the
+     * one cut off (a phone maker's per-app network switch, a firewall app):
+     * refusedBySystem says the system itself refused the connection
+     * (EPERM/EACCES), which is the second. */
+    fun direct(targets: List<Pair<String, Int>> = TARGETS, deadlineMs: Long = DEADLINE_MS): Direct {
+        val refused = java.util.concurrent.atomic.AtomicBoolean(false)
+        val reached = firstOf(targets, deadlineMs) { h, p ->
+            try {
+                Socket(Proxy.NO_PROXY).use { s ->
+                    s.connect(InetSocketAddress(h, p), deadlineMs.toInt())
+                    true
+                }
+            } catch (e: Exception) {
+                if (refusedBySystem(e)) refused.set(true)
+                false
+            }
+        }
+        return Direct(reached, reached == null && refused.get())
+    }
+
+    fun directAny(targets: List<Pair<String, Int>> = TARGETS, deadlineMs: Long = DEADLINE_MS): String? = direct(targets, deadlineMs).reached
+
+    /* The system, not the network, turned the connection down. */
+    fun refusedBySystem(e: Throwable): Boolean {
+        var c: Throwable? = e
+        while (c != null) {
+            val m = c.message ?: ""
+            if (m.contains("EPERM") || m.contains("EACCES") || m.contains("Operation not permitted") || m.contains("Permission denied")) return true
+            c = c.cause
+        }
+        return false
+    }
+
+    /* All are tried at once: on a network that drops what it blocks, one
+     * after the other would take a minute to say no. */
+    fun firstOf(targets: List<Pair<String, Int>>, deadlineMs: Long, attempt: (String, Int) -> Boolean): String? {
         val results = LinkedBlockingQueue<String>()
         for ((h, p) in targets) {
             Thread({
-                val ok = reaches(port, auth, h, p, deadlineMs.toInt())
+                val ok = attempt(h, p)
                 results.put(if (ok) "$h:$p" else "")
             }, "path-check").apply { isDaemon = true }.start()
         }
@@ -121,13 +147,16 @@ object EngineProbe {
  *   - while apps are busy, at most every INTERVAL_MS.
  * An idle phone is never checked.
  *
- * A failure counts only while Android says the network underneath works
- * (NET_CAPABILITY_VALIDATED): with no network, nothing would work with or
- * without Shroudly. FAILURES failures in a row, RETRY_MS apart, mean the way
- * through the engine is broken while the network is not; one is enough when
- * the check was made because apps get nothing back (a stall), which is
- * evidence already, or right after the service restarted everything for a
- * broken way through (oneStrike).
+ * A failure counts only when the network underneath works: Android says
+ * so (NET_CAPABILITY_VALIDATED), and the same hosts answer this app's own
+ * connection, made outside the VPN (EngineProbe.directAny). When they do
+ * not, the network is down (an outage, a slow handover), not the way
+ * through Shroudly, and nothing would work without it either. FAILURES
+ * failures in a row, RETRY_MS apart, mean the way through the engine is
+ * broken while the network is not; one is enough when the check was made
+ * because apps get nothing back (a stall), which is evidence already, or
+ * right after the service restarted everything for a broken way through
+ * (oneStrike).
  */
 class PathWatch(
     private val intervalMs: Long = INTERVAL_MS,
@@ -288,5 +317,61 @@ class Liveness(private val everyMs: Long = LIVENESS_MS, private val failuresToGi
         misses = 0
         lastAt = now
         checking = false
+    }
+}
+
+/*
+ * hev itself. The path check goes from this app to the engine, past the VPN
+ * interface and hev, so it cannot see hev stuck while its thread runs.
+ * hev answers every packet apps send it at once by itself: a TCP handshake,
+ * a reset, a DNS answer. So packets going in (hev's tx count) with nothing
+ * at all coming out (its rx count) for WINDOW_MS means hev is stuck. And
+ * with the engine holding nearly as many connections as hev may open, for
+ * CAP_MS, new connections are refused: the tunnel is full.
+ */
+class HevWatch(
+    private val windowMs: Long = WINDOW_MS,
+    private val minPackets: Long = MIN_PACKETS,
+    private val capMs: Long = CAP_MS,
+) {
+    companion object {
+        const val WINDOW_MS = 10_000L
+        const val MIN_PACKETS = 20L
+        const val CAP_MS = 60_000L
+        // "Full" is this share of hev's session cap.
+        const val CAP_SHARE = 0.95
+    }
+
+    private var lastRx = -1L
+    private var rxMovedAt = 0L
+    private var txAtRxMove = 0L
+    private var fullSince = -1L
+
+    /* hev's counters now; true when hev takes packets and gives none back. */
+    fun stuck(now: Long, tx: Long, rx: Long): Boolean {
+        if (tx < 0 || rx < 0) return false
+        if (rx != lastRx || lastRx < 0) {
+            lastRx = rx
+            rxMovedAt = now
+            txAtRxMove = tx
+            return false
+        }
+        return tx - txAtRxMove >= minPackets && now - rxMovedAt >= windowMs
+    }
+
+    /* The engine's open connections against hev's cap; true when it has
+     * been full for CAP_MS. */
+    fun full(now: Long, active: Long, cap: Int): Boolean {
+        if (active < 0 || active < cap * CAP_SHARE) {
+            fullSince = -1
+            return false
+        }
+        if (fullSince < 0) fullSince = now
+        return now - fullSince >= capMs
+    }
+
+    fun reset() {
+        lastRx = -1
+        fullSince = -1
     }
 }

@@ -7,6 +7,7 @@
     <string name="androidBatterySettings">Akku-Einstellungen</string>
     <string name="androidDetails">Details</string>
     <string name="androidDownloadApk">Update herunterladen</string>
+    <string name="androidLockdownOffline">Kein Internet: Shroudly kommt in diesem Netz gerade nicht durch, und Android ist so eingestellt, dass Verbindungen ohne VPN blockiert werden. Shroudly versucht es weiter.</string>
     <string name="androidNoInternet">Der Schutz wurde beendet, weil Shroudly in diesem Netz das Internet nicht erreicht hat. Deine Apps verbinden sich jetzt direkt. Öffne Shroudly, um es erneut zu versuchen.</string>
     <string name="androidPrivacyPolicy">Datenschutzerklärung</string>
     <string name="androidProtectionLost">Der Schutz wurde wegen eines Fehlers beendet, deine Apps verbinden sich jetzt direkt. Öffne Shroudly, um ihn wieder zu starten.</string>

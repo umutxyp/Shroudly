@@ -7,6 +7,7 @@
     <string name="androidBatterySettings">د بیټرۍ امستنې</string>
     <string name="androidDetails">جزئيات</string>
     <string name="androidDownloadApk">تازه نسخه ښکته کړئ</string>
+    <string name="androidLockdownOffline">انټرنېټ نشته: Shroudly اوس مهال په دې شبکه کې نشي نښلېدای، او Android داسې تنظیم شوی چې له VPN پرته اړیکې بندې کړي. Shroudly هڅې ته دوام ورکوي.</string>
     <string name="androidNoInternet">ساتنه ودرېده ځکه چې Shroudly په دې شبکه کې انټرنېټ ته ونه رسېد، نو ستاسو اپونه اوس مستقیم نښلي. د بیا هڅې لپاره Shroudly پرانیزئ.</string>
     <string name="androidPrivacyPolicy">د محرمیت تګلاره</string>
     <string name="androidProtectionLost">ساتنه د یوې تېروتنې له امله ودرېده، نو ستاسو اپونه اوس مستقیم نښلي. د بیا پیلولو لپاره Shroudly پرانیزئ.</string>

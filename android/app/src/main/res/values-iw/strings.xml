@@ -7,6 +7,7 @@
     <string name="androidBatterySettings">הגדרות סוללה</string>
     <string name="androidDetails">פרטים</string>
     <string name="androidDownloadApk">להוריד את העדכון</string>
+    <string name="androidLockdownOffline">אין אינטרנט: Shroudly לא מצליחה לעבור ברשת הזו כרגע, ו־Android מוגדרת לחסום חיבורים בלי VPN. Shroudly ממשיכה לנסות.</string>
     <string name="androidNoInternet">ההגנה נעצרה כי Shroudly לא הצליחה להגיע לאינטרנט ברשת הזו, ולכן האפליקציות שלך מתחברות עכשיו ישירות. אפשר לפתוח את Shroudly כדי לנסות שוב.</string>
     <string name="androidPrivacyPolicy">מדיניות פרטיות</string>
     <string name="androidProtectionLost">ההגנה נעצרה בגלל שגיאה, ולכן האפליקציות שלך מתחברות עכשיו ישירות. אפשר לפתוח את Shroudly כדי להפעיל אותה מחדש.</string>

@@ -7,6 +7,7 @@
     <string name="androidBatterySettings">Réglages de batterie</string>
     <string name="androidDetails">Détails</string>
     <string name="androidDownloadApk">Télécharger la mise à jour</string>
+    <string name="androidLockdownOffline">Pas d’Internet : Shroudly ne parvient pas à passer sur ce réseau pour le moment, et Android est réglé pour bloquer les connexions sans VPN. Shroudly continue d’essayer.</string>
     <string name="androidNoInternet">La protection s’est arrêtée car Shroudly n’a pas pu joindre Internet sur ce réseau : vos applis se connectent maintenant directement. Ouvrez Shroudly pour réessayer.</string>
     <string name="androidPrivacyPolicy">Politique de confidentialité</string>
     <string name="androidProtectionLost">La protection s’est arrêtée à cause d’une erreur : vos applis se connectent maintenant directement. Ouvrez Shroudly pour la relancer.</string>

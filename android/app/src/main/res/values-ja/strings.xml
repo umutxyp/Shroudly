@@ -7,6 +7,7 @@
     <string name="androidBatterySettings">バッテリー設定</string>
     <string name="androidDetails">詳細</string>
     <string name="androidDownloadApk">アップデートをダウンロード</string>
+    <string name="androidLockdownOffline">インターネットに接続できません：Shroudly は現在このネットワークで通信できず、Android は VPN なしの接続をブロックするよう設定されています。Shroudly は再試行を続けています。</string>
     <string name="androidNoInternet">Shroudly がこのネットワークでインターネットに接続できなかったため、保護を停止しました。アプリは現在直接接続しています。もう一度試すには Shroudly を開いてください。</string>
     <string name="androidPrivacyPolicy">プライバシーポリシー</string>
     <string name="androidProtectionLost">エラーにより保護が停止したため、アプリは現在直接接続しています。もう一度開始するには Shroudly を開いてください。</string>

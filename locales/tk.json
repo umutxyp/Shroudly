@@ -392,5 +392,6 @@
   "androidShareLogs": "Ýazgylary paýlaş",
   "androidNoInternet": "Shroudly bu torda internete çykyp bilmänligi sebäpli gorag togtady, şonuň üçin programmalaryňyz häzir göni birikýär. Täzeden synanyşmak üçin Shroudly-ny açyň.",
   "androidBatteryHint": "Batareýa sazlamalary Shroudly-ny fonda togtadyp, birikmäňizi kesip biler. Oňa batareýa çäklendirmeleri bolmazdan işlemäge rugsat beriň.",
-  "androidBatterySettings": "Batareýa sazlamalary"
+  "androidBatterySettings": "Batareýa sazlamalary",
+  "androidLockdownOffline": "Internet ýok: Shroudly häzir bu torda birigip bilmeýär, Android bolsa VPN-siz birikmeleri petiklemäge sazlanan. Shroudly synanyşmagyny dowam edýär."
 }

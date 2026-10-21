@@ -392,5 +392,6 @@
   "androidShareLogs": "שיתוף יומנים",
   "androidNoInternet": "ההגנה נעצרה כי Shroudly לא הצליחה להגיע לאינטרנט ברשת הזו, ולכן האפליקציות שלך מתחברות עכשיו ישירות. אפשר לפתוח את Shroudly כדי לנסות שוב.",
   "androidBatteryHint": "הגדרות הסוללה עלולות לעצור את Shroudly ברקע ולנתק את החיבור שלך. כדאי לאפשר לה לפעול בלי הגבלות סוללה.",
-  "androidBatterySettings": "הגדרות סוללה"
+  "androidBatterySettings": "הגדרות סוללה",
+  "androidLockdownOffline": "אין אינטרנט: Shroudly לא מצליחה לעבור ברשת הזו כרגע, ו־Android מוגדרת לחסום חיבורים בלי VPN. Shroudly ממשיכה לנסות."
 }

@@ -392,5 +392,6 @@
   "androidShareLogs": "Bagikan log",
   "androidNoInternet": "Perlindungan berhenti karena Shroudly tidak dapat menjangkau internet di jaringan ini, jadi aplikasi Anda kini terhubung langsung. Buka Shroudly untuk mencoba lagi.",
   "androidBatteryHint": "Pengaturan baterai dapat menghentikan Shroudly di latar belakang dan memutus koneksi Anda. Izinkan Shroudly berjalan tanpa batasan baterai.",
-  "androidBatterySettings": "Pengaturan baterai"
+  "androidBatterySettings": "Pengaturan baterai",
+  "androidLockdownOffline": "Tidak ada internet: Shroudly belum bisa tersambung di jaringan ini, dan Android diatur untuk memblokir koneksi tanpa VPN. Shroudly terus mencoba."
 }

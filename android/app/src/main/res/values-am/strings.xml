@@ -7,6 +7,7 @@
     <string name="androidBatterySettings">የባትሪ ቅንብሮች</string>
     <string name="androidDetails">ዝርዝሮች</string>
     <string name="androidDownloadApk">ዝማኔውን አውርድ</string>
+    <string name="androidLockdownOffline">ኢንተርኔት የለም፦ Shroudly አሁን በዚህ አውታረ መረብ ላይ መገናኘት አልቻለም፣ እና Android ያለ VPN ግንኙነቶችን እንዲያግድ ተቀናብሯል። Shroudly መሞከሩን ቀጥሏል።</string>
     <string name="androidNoInternet">Shroudly በዚህ አውታረ መረብ ላይ ኢንተርኔት ማግኘት ስላልቻለ ጥበቃው ቆሟል፤ ስለዚህ መተግበሪያዎችዎ አሁን በቀጥታ ይገናኛሉ። እንደገና ለመሞከር Shroudlyን ይክፈቱ።</string>
     <string name="androidPrivacyPolicy">የግላዊነት መመሪያ</string>
     <string name="androidProtectionLost">በስህተት ምክንያት ጥበቃው ቆሟል፤ ስለዚህ መተግበሪያዎችዎ አሁን በቀጥታ ይገናኛሉ። እንደገና ለማስጀመር Shroudlyን ይክፈቱ።</string>

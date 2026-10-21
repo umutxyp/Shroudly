@@ -392,5 +392,6 @@
   "androidShareLogs": "لاگز شیئر کریں",
   "androidNoInternet": "تحفظ رک گیا کیونکہ Shroudly اس نیٹ ورک پر انٹرنیٹ تک نہیں پہنچ سکا، اس لیے آپ کی ایپس اب براہِ راست جڑ رہی ہیں۔ دوبارہ کوشش کرنے کے لیے Shroudly کھولیں۔",
   "androidBatteryHint": "بیٹری کی ترتیبات Shroudly کو پس منظر میں روک کر آپ کا کنکشن منقطع کر سکتی ہیں۔ اسے بیٹری کی پابندیوں کے بغیر چلنے دیں۔",
-  "androidBatterySettings": "بیٹری کی ترتیبات"
+  "androidBatterySettings": "بیٹری کی ترتیبات",
+  "androidLockdownOffline": "انٹرنیٹ نہیں: Shroudly اس وقت اس نیٹ ورک پر جڑ نہیں پا رہا، اور Android کو VPN کے بغیر کنکشن روکنے کے لیے سیٹ کیا گیا ہے۔ Shroudly کوشش جاری رکھے ہوئے ہے۔"
 }

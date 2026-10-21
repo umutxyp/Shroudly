@@ -7,6 +7,7 @@
     <string name="androidBatterySettings">Батарея жөндөөлөрү</string>
     <string name="androidDetails">Кененирээк</string>
     <string name="androidDownloadApk">Жаңыртууну жүктөө</string>
+    <string name="androidLockdownOffline">Интернет жок: Shroudly азыр бул тармакта туташа албай жатат, ал Android VPN\'сиз туташууларды бөгөттөөгө жөндөлгөн. Shroudly аракетин улантууда.</string>
     <string name="androidNoInternet">Shroudly бул тармакта интернетке чыга албагандыктан коргоо токтоду, ошондуктан колдонмолоруңуз азыр түз туташып жатат. Кайра аракет кылуу үчүн Shroudly\'ди ачыңыз.</string>
     <string name="androidPrivacyPolicy">Купуялык саясаты</string>
     <string name="androidProtectionLost">Коргоо катадан улам токтоду, ошондуктан колдонмолоруңуз азыр түз туташып жатат. Кайра иштетүү үчүн Shroudly\'ди ачыңыз.</string>

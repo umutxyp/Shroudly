@@ -392,5 +392,6 @@
   "androidShareLogs": "分享日志",
   "androidNoInternet": "由于 Shroudly 在此网络上无法连接互联网，保护已停止，你的应用现在直接联网。打开 Shroudly 即可重试。",
   "androidBatteryHint": "电池设置可能会在后台停止 Shroudly 并中断你的连接。请允许它不受电池限制地运行。",
-  "androidBatterySettings": "电池设置"
+  "androidBatterySettings": "电池设置",
+  "androidLockdownOffline": "无法上网：Shroudly 目前无法在此网络上连通，而 Android 已设置为阻止不经 VPN 的连接。Shroudly 正在继续尝试。"
 }

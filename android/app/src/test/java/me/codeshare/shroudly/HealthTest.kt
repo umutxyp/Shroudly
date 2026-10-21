@@ -145,14 +145,71 @@ class PathWatchTest {
 
 class PathTargetsTest {
     @Test
-    fun usesTheChecksThisAndroidWasGivenAndTheUsualOnes() {
-        val t = EngineProbe.targets(listOf("https://check.example.net/gen_204", "http://probe.example.org:8080/x", null, "not a url"))
-        assertEquals("check.example.net" to 443, t[0])
-        assertEquals("probe.example.org" to 8080, t[1])
-        assertTrue(t.containsAll(EngineProbe.TARGETS))
-        assertEquals(EngineProbe.TARGETS, EngineProbe.targets(listOf(null, null)))
-        // No host twice.
-        assertEquals(EngineProbe.TARGETS, EngineProbe.targets(listOf("https://www.google.com/generate_204")))
+    fun genericHostsOnly() {
+        val hosts = EngineProbe.TARGETS.map { it.first }
+        assertTrue("www.google.com" in hosts && "captive.apple.com" in hosts && "www.msftconnecttest.com" in hosts)
+        assertFalse(hosts.any { it.contains("miui") })
+        assertEquals(hosts.size, hosts.toSet().size)
+    }
+
+    @Test
+    fun directProbeTellsAnOutageFromABrokenWayThrough() {
+        ServerSocket(0, 50, InetAddress.getByName("127.0.0.1")).use { ss ->
+            assertEquals("127.0.0.1:${ss.localPort}", EngineProbe.directAny(listOf("127.0.0.1" to ss.localPort), 2_000))
+        }
+        val closed = ServerSocket(0).let { val p = it.localPort; it.close(); p }
+        assertNull(EngineProbe.directAny(listOf("127.0.0.1" to closed), 2_000))
+        assertFalse(EngineProbe.direct(listOf("127.0.0.1" to closed), 2_000).refusedBySystem)
+    }
+
+    @Test
+    fun aRefusalBySystemIsToldFromANetworkFailure() {
+        assertTrue(EngineProbe.refusedBySystem(java.net.SocketException("connect failed: EPERM (Operation not permitted)")))
+        assertTrue(EngineProbe.refusedBySystem(java.io.IOException("x", java.net.SocketException("Permission denied"))))
+        assertFalse(EngineProbe.refusedBySystem(java.net.ConnectException("failed to connect: ECONNREFUSED (Connection refused)")))
+        assertFalse(EngineProbe.refusedBySystem(java.net.SocketTimeoutException("timeout")))
+        assertFalse(EngineProbe.refusedBySystem(java.net.NoRouteToHostException("ENETUNREACH (Network is unreachable)")))
+    }
+}
+
+class HevWatchTest {
+    @Test
+    fun packetsInWithNothingOutIsStuck() {
+        val h = HevWatch(windowMs = 10_000, minPackets = 20, capMs = 60_000)
+        assertFalse(h.stuck(0, 100, 50))
+        // Packets in and out: working.
+        for (t in 1..30) assertFalse(h.stuck(t * 1_000L, 100L + t * 5, 50L + t))
+        // Packets in, none out.
+        var t = 31_000L
+        var tx = 300L
+        var stuck = false
+        while (t < 50_000 && !stuck) { t += 1_000; tx += 5; stuck = h.stuck(t, tx, 80) }
+        assertTrue(stuck)
+        // Not before the window has passed since packets last came out (30 s).
+        assertEquals(40_000, t)
+    }
+
+    @Test
+    fun anIdlePhoneIsNotStuck() {
+        val h = HevWatch(windowMs = 10_000, minPackets = 20, capMs = 60_000)
+        h.stuck(0, 100, 50)
+        // A few packets (keep-alives) with no answer for a long time: not enough.
+        assertFalse(h.stuck(600_000, 119, 50))
+        assertTrue(h.stuck(600_001, 120, 50))
+        h.reset()
+        assertFalse(h.stuck(600_002, 500, 50))
+    }
+
+    @Test
+    fun fullForAMinute() {
+        val h = HevWatch(windowMs = 10_000, minPackets = 20, capMs = 60_000)
+        assertFalse(h.full(0, 1_790, 1_800))
+        assertFalse(h.full(59_999, 1_790, 1_800))
+        assertTrue(h.full(60_000, 1_790, 1_800))
+        // A dip below starts over.
+        assertFalse(h.full(61_000, 100, 1_800))
+        assertFalse(h.full(62_000, 1_800, 1_800))
+        assertFalse(h.full(0, -1, 1_800))
     }
 }
 
@@ -315,6 +372,20 @@ class DiagnosticsTest {
             Diagnostics.Battery(unrestricted = false, backgroundRestricted = true, saver = false).toString())
         assertEquals("optimization off for Shroudly, background allowed, battery saver on",
             Diagnostics.Battery(unrestricted = true, backgroundRestricted = false, saver = true).toString())
+    }
+}
+
+class DnsNameMaskTest {
+    @Test
+    fun hidesWhatCanNameTheUser() {
+        assertEquals("*.dns.nextdns.io", Net.maskDnsName("abc123.dns.nextdns.io"))
+        assertEquals("*.d.adguard-dns.com", Net.maskDnsName("xyz.d.adguard-dns.com"))
+        assertEquals("*.dns.controld.com", Net.maskDnsName("p2abc.dns.controld.com."))
+        assertEquals("dns.google", Net.maskDnsName("dns.google"))
+        assertEquals("one.one.one.one", Net.maskDnsName("One.One.One.One"))
+        assertEquals("1dot1dot1dot1.cloudflare-dns.com", Net.maskDnsName("1dot1dot1dot1.cloudflare-dns.com"))
+        assertEquals("my-resolver.net", Net.maskDnsName("my-resolver.net"))
+        assertEquals("*.example.net", Net.maskDnsName("home.example.net"))
     }
 }
 

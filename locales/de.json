@@ -392,5 +392,6 @@
   "androidShareLogs": "Protokoll teilen",
   "androidNoInternet": "Der Schutz wurde beendet, weil Shroudly in diesem Netz das Internet nicht erreicht hat. Deine Apps verbinden sich jetzt direkt. Öffne Shroudly, um es erneut zu versuchen.",
   "androidBatteryHint": "Akku-Einstellungen können Shroudly im Hintergrund beenden und damit deine Verbindung unterbrechen. Erlaube Shroudly, ohne Akku-Einschränkungen zu laufen.",
-  "androidBatterySettings": "Akku-Einstellungen"
+  "androidBatterySettings": "Akku-Einstellungen",
+  "androidLockdownOffline": "Kein Internet: Shroudly kommt in diesem Netz gerade nicht durch, und Android ist so eingestellt, dass Verbindungen ohne VPN blockiert werden. Shroudly versucht es weiter."
 }

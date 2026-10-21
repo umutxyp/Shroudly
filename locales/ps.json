@@ -392,5 +392,6 @@
   "androidShareLogs": "لاګونه شریک کړئ",
   "androidNoInternet": "ساتنه ودرېده ځکه چې Shroudly په دې شبکه کې انټرنېټ ته ونه رسېد، نو ستاسو اپونه اوس مستقیم نښلي. د بیا هڅې لپاره Shroudly پرانیزئ.",
   "androidBatteryHint": "د بیټرۍ امستنې کولی شي Shroudly په شالید کې ودروي او ستاسو اړیکه پرې کړي. اجازه ورکړئ چې د بیټرۍ له محدودیتونو پرته کار وکړي.",
-  "androidBatterySettings": "د بیټرۍ امستنې"
+  "androidBatterySettings": "د بیټرۍ امستنې",
+  "androidLockdownOffline": "انټرنېټ نشته: Shroudly اوس مهال په دې شبکه کې نشي نښلېدای، او Android داسې تنظیم شوی چې له VPN پرته اړیکې بندې کړي. Shroudly هڅې ته دوام ورکوي."
 }

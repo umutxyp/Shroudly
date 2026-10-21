@@ -7,6 +7,7 @@
     <string name="androidBatterySettings">ဘက်ထရီဆက်တင်များ</string>
     <string name="androidDetails">အသေးစိတ်</string>
     <string name="androidDownloadApk">အပ်ဒိတ်ကို ဒေါင်းလုဒ်လုပ်ရန်</string>
+    <string name="androidLockdownOffline">အင်တာနက် မရှိပါ- Shroudly သည် ယခု ဤကွန်ရက်တွင် ချိတ်ဆက်၍ မရသေးဘဲ Android ကို VPN မပါသော ချိတ်ဆက်မှုများ ပိတ်ဆို့ရန် သတ်မှတ်ထားပါသည်။ Shroudly ဆက်လက် ကြိုးစားနေပါသည်။</string>
     <string name="androidNoInternet">ဤကွန်ရက်တွင် Shroudly သည် အင်တာနက်သို့ မရောက်နိုင်သဖြင့် ကာကွယ်မှု ရပ်သွားပြီး သင့်အက်ပ်များသည် ယခု တိုက်ရိုက် ချိတ်ဆက်နေပါသည်။ ထပ်မံကြိုးစားရန် Shroudly ကို ဖွင့်ပါ။</string>
     <string name="androidPrivacyPolicy">ကိုယ်ရေးအချက်အလက် မူဝါဒ</string>
     <string name="androidProtectionLost">အမှားတစ်ခုကြောင့် ကာကွယ်မှု ရပ်သွားသဖြင့် သင့်အက်ပ်များသည် ယခု တိုက်ရိုက် ချိတ်ဆက်နေပါသည်။ ပြန်စတင်ရန် Shroudly ကို ဖွင့်ပါ။</string>

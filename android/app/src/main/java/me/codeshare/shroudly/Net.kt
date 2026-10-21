@@ -80,7 +80,7 @@ object Net {
         val pdns = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             when {
                 !lp.isPrivateDnsActive -> "not in use"
-                lp.privateDnsServerName != null -> "strict (${lp.privateDnsServerName})"
+                lp.privateDnsServerName != null -> "strict (${maskDnsName(lp.privateDnsServerName!!)})"
                 else -> "automatic"
             }
         } else {
@@ -96,6 +96,27 @@ object Net {
             metered = !caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_METERED),
             mtu = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) lp.mtu else 0,
         )
+    }
+
+    /* Public Private DNS servers, shown as they are. */
+    private val PUBLIC_DNS = setOf(
+        "dns.google", "one.one.one.one", "1dot1dot1dot1.cloudflare-dns.com", "cloudflare-dns.com",
+        "security.cloudflare-dns.com", "family.cloudflare-dns.com", "dns.quad9.net", "dns9.quad9.net",
+        "dns.adguard.com", "dns.adguard-dns.com", "unfiltered.adguard-dns.com", "family.adguard-dns.com",
+        "dns-unfiltered.adguard.com", "dns-family.adguard.com", "dns.mullvad.net", "base.dns.mullvad.net",
+        "adblock.dns.mullvad.net", "doh.opendns.com", "dns.opendns.com", "dns.sb", "doh.sb",
+    )
+
+    /* A Private DNS server's name for the log: a public resolver's as it is;
+     * any other with its first label hidden, as services such as NextDNS
+     * put the user's own id there (abc123.dns.nextdns.io becomes
+     * *.dns.nextdns.io). */
+    fun maskDnsName(name: String): String {
+        val n = name.trim().trimEnd('.').lowercase(java.util.Locale.ROOT)
+        if (n in PUBLIC_DNS) return n
+        val labels = n.split('.')
+        if (labels.size <= 2) return n
+        return "*." + labels.drop(1).joinToString(".")
     }
 
     fun describe(cm: ConnectivityManager, net: Network? = null, lp: LinkProperties? = null): String = try {

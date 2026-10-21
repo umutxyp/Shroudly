@@ -392,5 +392,6 @@
   "androidShareLogs": "Kayıtları paylaş",
   "androidNoInternet": "Shroudly bu ağda internete ulaşamadığı için koruma durdu, bu yüzden uygulamalarınız şu anda doğrudan bağlanıyor. Yeniden denemek için Shroudly'yi açın.",
   "androidBatteryHint": "Pil ayarları Shroudly'yi arka planda durdurup bağlantınızı kesebilir. Pil kısıtlaması olmadan çalışmasına izin verin.",
-  "androidBatterySettings": "Pil ayarları"
+  "androidBatterySettings": "Pil ayarları",
+  "androidLockdownOffline": "İnternet yok: Shroudly şu anda bu ağda bağlantı kuramıyor ve Android, VPN olmadan bağlantıları engelleyecek şekilde ayarlı. Shroudly denemeye devam ediyor."
 }

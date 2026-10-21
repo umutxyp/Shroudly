@@ -392,5 +392,6 @@
   "androidShareLogs": "مشاركة السجلات",
   "androidNoInternet": "توقفت الحماية لأن Shroudly لم يتمكن من الوصول إلى الإنترنت على هذه الشبكة، لذا تتصل تطبيقاتك الآن مباشرةً. افتح Shroudly للمحاولة مجددًا.",
   "androidBatteryHint": "قد توقف إعدادات البطارية Shroudly في الخلفية وتقطع اتصالك. اسمح له بالعمل دون قيود على البطارية.",
-  "androidBatterySettings": "إعدادات البطارية"
+  "androidBatterySettings": "إعدادات البطارية",
+  "androidLockdownOffline": "لا يوجد إنترنت: لا يستطيع Shroudly الاتصال على هذه الشبكة حاليًا، وAndroid مضبوط على حظر الاتصالات دون VPN. يواصل Shroudly المحاولة."
 }

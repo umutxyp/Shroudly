@@ -7,6 +7,7 @@
     <string name="androidBatterySettings">Ajustes de batería</string>
     <string name="androidDetails">Detalles</string>
     <string name="androidDownloadApk">Descargar la actualización</string>
+    <string name="androidLockdownOffline">Sin internet: Shroudly no consigue conectar en esta red ahora mismo, y Android está configurado para bloquear las conexiones sin VPN. Shroudly sigue intentándolo.</string>
     <string name="androidNoInternet">La protección se detuvo porque Shroudly no pudo llegar a internet en esta red, así que tus apps se conectan ahora directamente. Abre Shroudly para intentarlo de nuevo.</string>
     <string name="androidPrivacyPolicy">Política de privacidad</string>
     <string name="androidProtectionLost">La protección se detuvo por un error, así que tus apps se conectan ahora directamente. Abre Shroudly para volver a activarla.</string>

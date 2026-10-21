@@ -7,6 +7,7 @@
     <string name="androidBatterySettings">Batareya ayarları</string>
     <string name="androidDetails">Təfərrüatlar</string>
     <string name="androidDownloadApk">Yeniləməni endir</string>
+    <string name="androidLockdownOffline">İnternet yoxdur: Shroudly hazırda bu şəbəkədə qoşula bilmir və Android VPN olmadan bağlantıları bloklamaq üçün ayarlanıb. Shroudly cəhd etməyə davam edir.</string>
     <string name="androidNoInternet">Shroudly bu şəbəkədə internetə çıxa bilmədiyi üçün qoruma dayandı, ona görə tətbiqləriniz indi birbaşa qoşulur. Yenidən cəhd etmək üçün Shroudly-ni açın.</string>
     <string name="androidPrivacyPolicy">Məxfilik siyasəti</string>
     <string name="androidProtectionLost">Qoruma xəta səbəbindən dayandı, ona görə tətbiqləriniz indi birbaşa qoşulur. Yenidən başlatmaq üçün Shroudly-ni açın.</string>

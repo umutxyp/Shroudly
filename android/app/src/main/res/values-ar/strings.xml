@@ -7,6 +7,7 @@
     <string name="androidBatterySettings">إعدادات البطارية</string>
     <string name="androidDetails">التفاصيل</string>
     <string name="androidDownloadApk">تنزيل التحديث</string>
+    <string name="androidLockdownOffline">لا يوجد إنترنت: لا يستطيع Shroudly الاتصال على هذه الشبكة حاليًا، وAndroid مضبوط على حظر الاتصالات دون VPN. يواصل Shroudly المحاولة.</string>
     <string name="androidNoInternet">توقفت الحماية لأن Shroudly لم يتمكن من الوصول إلى الإنترنت على هذه الشبكة، لذا تتصل تطبيقاتك الآن مباشرةً. افتح Shroudly للمحاولة مجددًا.</string>
     <string name="androidPrivacyPolicy">سياسة الخصوصية</string>
     <string name="androidProtectionLost">توقفت الحماية بسبب خطأ، لذا تتصل تطبيقاتك الآن مباشرةً. افتح Shroudly لتشغيلها من جديد.</string>

@@ -7,6 +7,7 @@
     <string name="androidBatterySettings">Battery settings</string>
     <string name="androidDetails">Details</string>
     <string name="androidDownloadApk">Download update</string>
+    <string name="androidLockdownOffline">No internet: Shroudly cannot get through on this network right now, and Android is set to block connections without a VPN. Shroudly keeps trying.</string>
     <string name="androidNoInternet">Protection stopped because Shroudly could not reach the internet on this network, so your apps are connecting directly. Open Shroudly to try again.</string>
     <string name="androidPrivacyPolicy">Privacy policy</string>
     <string name="androidProtectionLost">Protection stopped because of an error, so your apps are connecting directly. Open Shroudly to start it again.</string>
