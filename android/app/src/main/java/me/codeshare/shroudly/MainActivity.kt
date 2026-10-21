@@ -268,7 +268,9 @@ class MainActivity : Activity() {
                 Protection.State.OFF -> R.string.start
             },
         )
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) toggle.stateDescription = statusText
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && toggle.stateDescription?.toString() != statusText) {
+            toggle.stateDescription = statusText
+        }
         orb.set(if (busy) Orb.Mode.BUSY else if (on) Orb.Mode.ON else Orb.Mode.OFF)
 
         // Set only when it changes: status and detail are live regions, and
@@ -304,15 +306,17 @@ class MainActivity : Activity() {
         if (on && s != null) {
             val n = NumberFormat.getIntegerInstance()
             // Active now, and the session's total under it.
-            connections.text = n.format(s.connsActive)
-            connectionsTotal.text = text(R.string.totalCount, "count" to n.format(s.connsTotal))
-            upload.text = Format.bytes(s.bytesUp)
-            download.text = Format.bytes(s.bytesDown)
-            uptime.text = Format.duration(System.currentTimeMillis() - Protection.startedAt)
+            connections.show(n.format(s.connsActive))
+            connectionsTotal.show(text(R.string.totalCount, "count" to n.format(s.connsTotal)))
+            upload.show(Format.bytes(s.bytesUp))
+            download.show(Format.bytes(s.bytesDown))
+            uptime.show(Format.duration(System.currentTimeMillis() - Protection.startedAt))
             statsHint.visibility = View.GONE
         } else {
-            for (v in listOf(connections, upload, download, uptime)) v.text = "–"
-            connectionsTotal.text = text(R.string.totalCount, "count" to "–")
+            // Set only when it changes: the window redraws every second, and a
+            // text set again is announced to accessibility services again.
+            for (v in listOf(connections, upload, download, uptime)) v.show("–")
+            connectionsTotal.show(text(R.string.totalCount, "count" to "–"))
             statsHint.visibility = if (on) View.GONE else View.VISIBLE
         }
     }
