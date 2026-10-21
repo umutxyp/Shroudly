@@ -388,7 +388,9 @@ function uninstallerScript() {
       const idle = await ap.survey();
       const same = exemptNow();
       check(idle.why === 'idle' && !idle.asked && !told.length && same.size === before.size && [...before].every((s) => same.has(s)), `no Store app in use: nothing asked, nothing changed (${idle.why})`);
-      ap.asked = false; ap.lastScanAt = -Infinity; ap._readFor = null;
+      // Looked at afresh below: the lab's program has no package, so
+      // tasklist /apps, which a real Store app shows up in, does not show it.
+      ap.asked = false; ap.lastScanAt = -Infinity; ap._readFor = null; ap._procsFor = null;
     } else {
       console.log(`  ..  a Store app is in use on this runner (${hit.map((c) => c.name).join(', ')}); the no-app case is left out`);
     }
