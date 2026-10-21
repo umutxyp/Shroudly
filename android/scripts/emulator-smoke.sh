@@ -1,24 +1,35 @@
 #!/usr/bin/env bash
 #
 # End-to-end check of the debug APK on an emulator: without the VPN consent
-# nothing starts (and nothing crashes); with it protection goes on, apps'
-# names resolve through the VPN's mapped DNS, TCP and UDP go through the
-# engine, the app counts the connections, and after Stop everything works
-# directly again. With an engine that takes --auth-file, its SOCKS5 port must
-# also refuse a client without the session's password; with an older engine
-# that check is skipped and said so. Last, the window: installed from a file
-# it looks for updates on GitHub; installed as Google Play would
-# (pm install -i com.android.vending) it does not; it links the privacy policy.
+# nothing starts (and nothing crashes); with it protection goes on, the engine
+# runs inside the app's process (no process of its own), the VPN is not its
+# own underlying network, apps' names resolve through the VPN's mapped DNS,
+# TCP and UDP go through the engine, its SOCKS5 port refuses a client without
+# the session's password, and the app counts the connections. Then what goes
+# wrong on phones, one at a time, and the phone must keep its internet:
+#   - the engine stops under the service: it is back on the same port, the
+#     tunnel goes on, and an address an app was given still works;
+#   - Private DNS set to a name (strict, dns.google; Android 9+): names
+#     resolve, and still do after the tunnel has been restarted;
+#   - the network changes (Wi-Fi off and on, airplane mode on and off);
+#   - (with root, google_apis images) the app's own network is cut, as a
+#     phone maker's per-app network switch does: protection ends by itself,
+#     with a notice, and other apps connect directly again.
+# After Stop everything works directly again. Last, the window: installed
+# from a file it looks for updates on GitHub; installed as Google Play would
+# (pm install -i com.android.vending) it does not; it links the privacy policy
+# and offers "Share logs".
 #
 #   android/scripts/emulator-smoke.sh [--abi arm64-v8a|x86_64] [--api 35] [--tag google_apis]
-#                                     [--apk path] [--keep]
+#                                     [--apk path] [--port 5580] [--keep]
 #
 # Needs ANDROID_HOME with platform-tools, emulator, cmdline-tools and the system
 # image "system-images;android-<api>;<tag>;<abi>" installed. The ABI defaults
 # to the host's (arm64-v8a on Apple silicon, x86_64 elsewhere; CI uses x86_64
 # with KVM). The AVD lives in android/smoke-out/avd unless ANDROID_AVD_HOME is
-# set; the emulator is shut down at the end unless --keep is given. The full
-# log is saved to android/smoke-out/logcat.txt.
+# set; the emulator listens on --port (and the next one; default 5580) and is
+# shut down at the end unless --keep is given. The full log is saved to
+# android/smoke-out/logcat.txt, the app's own log to android/smoke-out/app-log.txt.
 
 set -euo pipefail
 
@@ -28,12 +39,14 @@ API=35
 TAG=google_apis
 APK="$here/app/build/outputs/apk/debug/app-debug.apk"
 KEEP=0
+PORT=5580
 while [ $# -gt 0 ]; do
   case "$1" in
     --abi) ABI="$2"; shift 2 ;;
     --api) API="$2"; shift 2 ;;
     --tag) TAG="$2"; shift 2 ;;
     --apk) APK="$2"; shift 2 ;;
+    --port) PORT="$2"; shift 2 ;;
     --keep) KEEP=1; shift ;;
     *) echo "unknown option $1" >&2; exit 2 ;;
   esac
@@ -41,7 +54,6 @@ done
 
 : "${ANDROID_HOME:?ANDROID_HOME must point at the Android SDK}"
 PKG=me.codeshare.shroudly
-PORT=5580
 SERIAL="emulator-$PORT"
 OUT="$here/smoke-out"
 AVD="shroudly-smoke-$API-$ABI"
@@ -61,6 +73,10 @@ EMU_PID=""
 
 cleanup() {
   adb_ logcat -d > "$OUT/logcat.txt" 2>/dev/null || true
+  adb_ shell run-as "$PKG" cat files/log.txt > "$OUT/app-log.txt" 2>/dev/null || true
+  # What the test changed on the device, back to Android's defaults.
+  adb_ shell "settings delete global private_dns_mode; settings delete global private_dns_specifier" >/dev/null 2>&1 || true
+  adb_ shell "svc wifi enable" >/dev/null 2>&1 || true
   if [ "$KEEP" = 0 ]; then
     adb_ emu kill >/dev/null 2>&1 || true
     [ -n "$EMU_PID" ] && { sleep 3; kill "$EMU_PID" 2>/dev/null || true; }
@@ -85,6 +101,12 @@ wait_for() {
   done
 }
 
+# Android 8's logcat sometimes fails to clear on the first try.
+clear_log() {
+  local i
+  for i in 1 2 3 4 5; do adb_ logcat -c >/dev/null 2>&1 && return 0; sleep 1; done
+  fail "could not clear the log"
+}
 applog() { adb_ logcat -d -s Shroudly:I 2>/dev/null | tr -d '\r' || true; }
 # (grep -q on a pipe can end the writer early, which pipefail counts as a failure.)
 has_log() { grep -q -- "$1" <<<"$(applog)"; }
@@ -94,19 +116,28 @@ has_log() { grep -q -- "$1" <<<"$(applog)"; }
 # input ends, so the input stays open while the answer comes; timeout is the
 # device's own, so a stuck nc cannot hang the test.
 http_get() {
-  sh_ "(printf 'GET / HTTP/1.1\r\nHost: example.com\r\nUser-Agent: shroudly-smoke\r\nConnection: close\r\n\r\n'; sleep 6) | timeout 20 nc -q 1 -w 15 example.com 80 | head -1"
+  sh_ "(printf 'GET / HTTP/1.1\r\nHost: example.com\r\nUser-Agent: shroudly-smoke\r\nConnection: close\r\n\r\n'; sleep 6) | timeout 20 $NC -q 1 -w 15 example.com 80 | head -1"
 }
 
 # A DNS query for example.com straight to 8.8.8.8 over UDP: not the VPN's own
 # DNS, so it has to go through the engine's UDP relay. Prints the reply's hex.
 udp_dns() {
-  sh_ "(printf '\\022\\064\\001\\000\\000\\001\\000\\000\\000\\000\\000\\000\\007example\\003com\\000\\000\\001\\000\\001'; sleep 3) | timeout 10 nc -u -q 1 8.8.8.8 53 | od -An -tx1 | head -1"
+  sh_ "(printf '\\022\\064\\001\\000\\000\\001\\000\\000\\000\\000\\000\\000\\007example\\003com\\000\\000\\001\\000\\001'; sleep 3) | timeout 10 $NC -u -q 1 8.8.8.8 53 | od -An -tx1 | head -1"
 }
 
-# The address ping resolved example.com to.
-resolved() { sh_ "ping -c1 -W2 example.com" | sed -n 's/^PING example.com (\([0-9.]*\)).*/\1/p' | head -1; }
+# The address ping resolved a name (default example.com) to; ping may show
+# the name it is an alias of instead.
+resolved() { sh_ "ping -c1 -W2 ${1:-example.com}" | sed -n 's/^PING [^ ]* (\([0-9.]*\)).*/\1/p' | head -1; }
+
+# The same request to an address (an app that kept the address it was given).
+http_get_at() {
+  sh_ "(printf 'GET / HTTP/1.1\r\nHost: example.com\r\nUser-Agent: shroudly-smoke\r\nConnection: close\r\n\r\n'; sleep 6) | timeout 20 $NC -q 1 -w 15 $1 80 | head -1"
+}
 
 ctl() { sh_ "am start -n $PKG/.DebugControlActivity --es cmd $1" >/dev/null; }
+# Makes one part fail while protection is on (debug builds: ShroudlyVpnService.ACTION_TEST).
+fault() { sh_ "am start -n $PKG/.DebugControlActivity --es cmd test --es what $1" >/dev/null; }
+vpn_up() { grep -q "198.18.0.1" <<<"$(sh_ "ip addr")"; }
 
 # ── emulator ─────────────────────────────────────────────────────────────
 IMAGE="system-images;android-$API;$TAG;$ABI"
@@ -125,6 +156,9 @@ fi
 boot_done() { [ "$(sh_ getprop sys.boot_completed)" = 1 ]; }
 wait_for 600 boot_done || fail "emulator did not finish booting"
 say "booted: $(sh_ getprop ro.build.fingerprint)"
+SDK="$(sh_ getprop ro.build.version.sdk | tr -dc 0-9)"
+# Android 8 has netcat in toybox but no "nc" of its own.
+NC="$(sh_ 'command -v nc >/dev/null 2>&1 && echo nc || echo toybox nc')"
 
 # The network may come up a little after boot.
 net_up() { grep -q '^HTTP/1' <<<"$(http_get)"; }
@@ -143,7 +177,7 @@ wait_for 60 installed || fail "package not installed"
 # run in the foreground (systemExempted needs that consent on Android 14+).
 vpn_refused() { sh_ "appops set $PKG ACTIVATE_VPN ignore" >/dev/null 2>&1; ! sh_ "appops get $PKG ACTIVATE_VPN" | grep -qi "allow"; }
 wait_for 60 vpn_refused || fail "could not take back the VPN consent: $(sh_ "appops get $PKG ACTIVATE_VPN" 2>&1)"
-adb_ logcat -c
+clear_log
 ctl start
 wait_for 20 has_log "Not started: the VPN is not allowed yet" || fail "started without the VPN consent"
 sleep 3
@@ -155,7 +189,7 @@ say "without the VPN consent: not started, no crash"
 vpn_allowed() { sh_ "appops set $PKG ACTIVATE_VPN allow" >/dev/null 2>&1; sh_ "appops get $PKG ACTIVATE_VPN" | grep -qi "allow"; }
 wait_for 60 vpn_allowed || fail "could not allow the VPN for the app: $(sh_ "appops get $PKG ACTIVATE_VPN" 2>&1)"
 say "VPN consent: $(sh_ "appops get $PKG ACTIVATE_VPN" | tr -d '\r' | head -1)"
-adb_ logcat -c
+clear_log
 ctl start
 wait_for 60 has_log "Protection on" || fail "protection did not come on"
 say "$(applog | grep -m1 'Protection on' | sed 's/.*: Protection/Protection/')"
@@ -174,15 +208,19 @@ grep -q '^HTTP/1' <<<"$first" || fail "HTTP through the engine failed: '$first'"
 say "HTTP through the engine: $first"
 
 udp="$(udp_dns)"
-grep -q '^ *12 34 81' <<<"$udp" || fail "UDP DNS through the engine failed: '$udp'"
-say "UDP through the engine: DNS reply $udp"
+if grep -q 'Unknown option u' <<<"$udp"; then
+  say "this Android's netcat has no UDP (-u): UDP check skipped"
+else
+  grep -q '^ *12 34 81' <<<"$udp" || fail "UDP DNS through the engine failed: '$udp'"
+  say "UDP through the engine: DNS reply $udp"
+fi
 
 # Loopback does not go through the VPN: the shell reaches the engine's port
 # directly, as any other app could.
 on_line="$(applog | grep -m1 'Protection on')"
 eport="$(sed -n 's/.*engine on 127\.0\.0\.1:\([0-9]*\).*/\1/p' <<<"$on_line")"
 [ -n "$eport" ] || fail "no engine port in '$on_line'"
-noauth="$(sh_ "(printf '\\005\\001\\000'; sleep 2) | timeout 6 nc -q 1 127.0.0.1 $eport | od -An -tx1 | head -1")"
+noauth="$(sh_ "(printf '\\005\\001\\000'; sleep 2) | timeout 6 $NC -q 1 127.0.0.1 $eport | od -An -tx1 | head -1")"
 if grep -q '(password)' <<<"$on_line"; then
   grep -q '^ *05 00' <<<"$noauth" && fail "the engine let in a client without the password"
   say "engine port 127.0.0.1:$eport refuses a client without the password (reply: ${noauth:-none})"
@@ -199,6 +237,92 @@ total="$(echo "$stats" | sed -n 's/.*connections \([0-9]*\) total.*/\1/p')"
 dns="$(applog | grep 'Encrypted DNS answering via' | tail -1 | sed 's/.*Encrypted/Encrypted/' || true)"
 [ -n "$dns" ] && say "$dns"
 
+# ── inside the app's process ─────────────────────────────────────────────
+# Up to 2.6.1 the engine was a process of its own, which Android 12+ and
+# phone makers end or freeze ("phantom processes"), leaving the VPN pointing
+# at nothing. Now it is a library in the app's process.
+procs="$(sh_ "ps -A -o NAME" | grep -c libshroudlycore || true)"
+[ "${procs:-0}" = 0 ] || fail "an engine process of its own is running"
+say "the engine runs inside the app's process (no libshroudlycore process)"
+# 2.6.1 passed the VPN itself to setUnderlyingNetworks.
+conn="$(sh_ "dumpsys connectivity")"
+vpnid="$(grep -o 'network{[0-9]*}  handle{[0-9]*}  ni{VPN' <<<"$conn" | sed 's/network{\([0-9]*\)}.*/\1/' | head -1 || true)"
+if [ -n "$vpnid" ]; then
+  grep -q "underlying{\[$vpnid\]}" <<<"$conn" && fail "the VPN (network $vpnid) is its own underlying network"
+  say "the VPN (network $vpnid) is not its own underlying network"
+else
+  say "this Android's dumpsys does not show the VPN's underlying networks; check skipped"
+fi
+wait_for 30 has_log "Path check (.*): through the engine to" || fail "no successful path check through the engine"
+say "$(applog | grep 'Path check' | tail -1 | sed 's/.*Path check/Path check/')"
+
+# ── the engine stops under the service ───────────────────────────────────
+# It comes back on the same port with the same password, the tunnel goes on,
+# and an address an app was given before still works.
+before="$(resolved)"
+fault engine-stop
+wait_for 30 has_log "Engine back on 127.0.0.1:$eport; the tunnel went on" || fail "the engine did not come back on its port with the tunnel going on"
+kept_works() { grep -q '^HTTP/1' <<<"$(http_get_at "$before")"; }
+wait_for 30 kept_works || fail "an address given before the engine restart ($before) no longer reaches example.com"
+say "engine stopped under the service: back on port $eport, the tunnel went on, $before still reaches example.com"
+
+# ── Private DNS by name (strict) ─────────────────────────────────────────
+# Android then looks names up over DNS-over-TLS to dns.google, through the
+# tunnel, by the stand-in address the VPN's DNS gave for dns.google. After a
+# tunnel restart that address is the old tunnel's: the app has Android look
+# the server up again (reportNetworkConnectivity), or every name would fail.
+real_name() { local ip; ip="$(resolved "$1")"; [ -n "$ip" ] && case "$ip" in 198.1[89].*) false ;; *) true ;; esac; }
+if [ "${SDK:-0}" -ge 28 ]; then
+  sh_ "settings put global private_dns_mode hostname; settings put global private_dns_specifier dns.google" >/dev/null
+  wait_for 60 real_name example.org || fail "with Private DNS strict (dns.google), names do not resolve through the VPN"
+  say "Private DNS strict: example.org -> $(resolved example.org) (DNS-over-TLS through the tunnel)"
+  wait_for 30 net_up || fail "HTTP with Private DNS strict failed"
+  fault tunnel-stop
+  wait_for 30 has_log "Tunnel started again" || fail "the tunnel did not start again"
+  wait_for 30 real_name www.iana.org || fail "with Private DNS strict, names no longer resolve after a tunnel restart"
+  wait_for 30 net_up || fail "HTTP with Private DNS strict failed after a tunnel restart"
+  say "Private DNS strict after a tunnel restart: www.iana.org -> $(resolved www.iana.org); $(applog | grep -m1 'Asking Android' | sed 's/.*Asking/asked/')"
+  sh_ "settings delete global private_dns_mode; settings delete global private_dns_specifier" >/dev/null
+  mapped_again() { case "$(resolved)" in 198.19.*) true ;; *) false ;; esac; }
+  wait_for 60 mapped_again || fail "names not mapped again after Private DNS went back to automatic"
+else
+  fault tunnel-stop
+  wait_for 30 has_log "Tunnel started again" || fail "the tunnel did not start again"
+  wait_for 30 net_up || fail "HTTP failed after a tunnel restart"
+  say "Android $SDK has no Private DNS: tunnel restart checked alone"
+fi
+fresh="$(resolved)"
+[ "$fresh" != "$before" ] || fail "the restarted tunnel gave out the old stand-in address $before again"
+stale="$(http_get_at "$before")"
+grep -q '^HTTP/1' <<<"$stale" && fail "a stand-in address from the old tunnel ($before) still reached something"
+say "tunnel restarted: example.com -> $fresh; the old $before is refused, never another site"
+
+# ── the network changes ──────────────────────────────────────────────────
+# Wi-Fi off only where mobile data is up to take over (an emulator's radio
+# is not always up).
+mobile_up() { grep -qE 'MOBILE[^}]*CONNECTED' <<<"$(sh_ "dumpsys connectivity")"; }
+if grep -q 'inet ' <<<"$(sh_ "ip addr show wlan0")" && mobile_up; then
+  sh_ "svc wifi disable" >/dev/null; sleep 5
+  wait_for 90 net_up || fail "no internet through the VPN on mobile data after Wi-Fi went off"
+  say "Wi-Fi off: through the VPN on mobile data: $(http_get)"
+  sh_ "svc wifi enable" >/dev/null
+  wlan_up() { grep -q 'inet ' <<<"$(sh_ "ip addr show wlan0")"; }
+  wait_for 90 wlan_up || fail "Wi-Fi did not come back"
+  sleep 5
+  wait_for 90 net_up || fail "no internet through the VPN after Wi-Fi came back"
+  say "Wi-Fi back: through the VPN: $(http_get)"
+else
+  say "no Wi-Fi, or no mobile data, on this emulator: Wi-Fi switch skipped"
+fi
+if [ "${SDK:-0}" -ge 30 ]; then
+  sh_ "cmd connectivity airplane-mode enable" >/dev/null; sleep 6
+  sh_ "cmd connectivity airplane-mode disable" >/dev/null
+  wait_for 120 net_up || fail "no internet through the VPN after airplane mode"
+  say "airplane mode on and off: through the VPN: $(http_get)"
+fi
+vpn_up || fail "protection ended during the network changes"
+has_log "Protection off" && fail "protection ended during the network changes"
+
 # ── switch off ───────────────────────────────────────────────────────────
 ctl stop
 wait_for 30 has_log "Protection off" || fail "protection did not go off"
@@ -211,28 +335,75 @@ say "example.com -> $(resolved) after Stop"
 wait_for 30 net_up || fail "no direct network after Stop"
 say "direct HTTP after: $(http_get)"
 
+# ── the app's own network cut ────────────────────────────────────────────
+# What a phone maker's per-app network switch (or a firewall app) does: the
+# engine reaches nothing while Android's own check of the network passes.
+# Up to 2.6.1 every app then got nothing until the user found the switch.
+# Needs root for iptables (google_apis images; not google_apis_playstore).
+if [ "$("$ADB" -s "$SERIAL" root 2>&1 | grep -c 'cannot run as root')" = 0 ]; then
+  sleep 3; adb_ wait-for-device
+  wait_for 60 boot_done || fail "adbd did not come back as root"
+  uid="$(sh_ "pm list packages -U $PKG" | sed -n 's/.*uid:\([0-9]*\).*/\1/p' | head -1)"
+  [ -n "$uid" ] || fail "no uid for $PKG"
+  clear_log
+  ctl start
+  wait_for 60 has_log "Protection on" || fail "protection did not come on again"
+  wait_for 30 has_log "Path check (.*): through the engine to" || fail "no path check after start"
+  cut() { sh_ "iptables -$1 OUTPUT -m owner --uid-owner $uid ! -o lo -j DROP; ip6tables -$1 OUTPUT -m owner --uid-owner $uid ! -o lo -j DROP" >/dev/null; }
+  cut I
+  t0=$(date +%s)
+  # Apps keep trying meanwhile, as they do.
+  direct_again() { http_get >/dev/null; ! vpn_up && grep -q '^HTTP/1' <<<"$(http_get)"; }
+  if ! wait_for 150 direct_again; then cut D; fail "with the app's network cut, protection did not end: other apps got nothing"; fi
+  cut D
+  has_log "ending protection so apps connect directly" || fail "protection ended, but not for the cut network"
+  notice="$(sh_ "dumpsys notification --noredact" | grep -c "pkg=$PKG" || true)"
+  say "app's network cut: protection ended by itself after $(( $(date +%s) - t0 )) s, other apps connect directly ($notice notices of the app)"
+else
+  say "no root on this image: the cut-network check is skipped"
+fi
+
 # ── the window: update source and privacy policy ─────────────────────────
 # Debug builds log which updates the window offers each time it starts.
 window() {
-  adb_ logcat -c
+  clear_log
   sh_ "am force-stop $PKG" >/dev/null
   sh_ "am start -W -n $PKG/.MainActivity" >/dev/null
-  # The links are at the bottom: scroll there (small screens).
-  for _ in 1 2 3; do sh_ "input swipe 160 550 160 80 300" >/dev/null; done
 }
 ui_has() { sh_ "uiautomator dump /sdcard/ui.xml" >/dev/null; grep -q -- "$1" <<<"$(sh_ "cat /sdcard/ui.xml")"; }
+# The rows are at the bottom, more than a small screen shows at once: from
+# the top, a little further down each time until the text is on screen.
+ui_seek() {
+  local i
+  for _ in 1 2 3; do sh_ "input swipe 160 150 160 600 200" >/dev/null; done
+  for i in 1 2 3 4 5 6 7 8 9 10; do
+    ui_has "$1" && return 0
+    sh_ "input swipe 160 450 160 250 400" >/dev/null
+    sleep 1
+  done
+  return 1
+}
 window
 wait_for 20 has_log "Updates: GitHub" || fail "installed from a file, the window does not look for updates on GitHub"
-wait_for 20 ui_has 'text="Release notes"' || fail "no GitHub releases link"
-wait_for 20 ui_has 'text="Privacy policy"' || fail "no privacy policy link"
+wait_for 40 ui_seek 'text="Release notes"' || fail "no GitHub releases link"
+wait_for 40 ui_seek 'text="Privacy policy"' || fail "no privacy policy link"
 say "installed from a file: updates from GitHub, links Release notes and Privacy policy"
 adb_ install -r -i com.android.vending "$APK" >/dev/null || fail "install as Google Play failed"
 say "installer now: $(sh_ "dumpsys package $PKG" | grep -m1 'installerPackageName=' | sed 's/^ *//')"
 window
 wait_for 20 has_log "Updates: Google Play" || fail "installed by Google Play, the window still looks for updates on GitHub"
-wait_for 20 ui_has 'text="Source code on GitHub"' || fail "installed by Google Play, the window still links the GitHub releases"
+wait_for 40 ui_seek 'text="Source code on GitHub"' || fail "installed by Google Play, the window still links the GitHub releases"
 ui_has 'text="Release notes"' && fail "installed by Google Play, the window still links the GitHub releases"
 say "installed by Google Play: no GitHub update check, links the source code instead"
+# "Share logs": the row is there and opens Android's share sheet.
+wait_for 40 ui_seek 'text="Share logs"' || fail "no Share logs row"
+bounds="$(grep -o 'text="Share logs"[^>]*bounds="\[[0-9]*,[0-9]*\]\[[0-9]*,[0-9]*\]"' <<<"$(sh_ "cat /sdcard/ui.xml")" | grep -o '\[[0-9]*,[0-9]*\]\[[0-9]*,[0-9]*\]' | head -1)"
+xy="$(sed 's/\[\([0-9]*\),\([0-9]*\)\]\[\([0-9]*\),\([0-9]*\)\]/\1 \2 \3 \4/' <<<"$bounds" | awk '{ print int(($1+$3)/2), int(($2+$4)/2) }')"
+sh_ "input tap $xy" >/dev/null
+chooser() { grep -qi 'chooser\|intentresolver\|ResolverActivity' <<<"$(sh_ "dumpsys window" | grep -i 'mCurrentFocus\|mFocusedApp')"; }
+wait_for 20 chooser || fail "Share logs did not open the share sheet"
+say "Share logs opens the share sheet"
+sh_ "input keyevent KEYCODE_BACK" >/dev/null
 sh_ "am force-stop $PKG" >/dev/null
 
 say "PASSED ($ABI, API $API)"

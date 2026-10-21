@@ -653,9 +653,8 @@ The Android app needs a JDK (17+) and the Android SDK with the NDK; the steps
 are in [android/README.md](android/README.md):
 
 ```bash
-node scripts/build-core-android.js     # the engine for every Android ABI
 node android/scripts/fetch-hev.js      # hev-socks5-tunnel at its pinned, verified release
-cd android && ./gradlew assembleRelease
+cd android && ./gradlew assembleRelease   # builds the engine from core/ with the NDK as well
 ```
 
 ### Project layout
@@ -678,7 +677,7 @@ Shroudly/
       udpdpi.[ch]             Advanced mode: QUIC/Discord-voice UDP classifiers + decoys
       supervise.[ch]          Advanced mode: stop / status-file handling
       watchdog.[ch]           --watchdog: has settings restored if the app is killed
-      main.c                  CLI + stdin control protocol
+      main.c                  CLI + control protocol (engine_main: also the Android app's in-process run)
     test/                     unit tests, sanitizer tests, fuzzers
   electron/
     main.js                   app shell, tray, IPC, auto-start
@@ -706,7 +705,6 @@ Shroudly/
   locales/<code>.json         every string, one file per language (31)
   scripts/build-core.js       native + cross compile
   scripts/build-core-advanced.js   Advanced-mode engine build
-  scripts/build-core-android.js    the engine for Android (NDK)
   scripts/fetch-windivert.js       fetch + verify the WinDivert driver
   scripts/after-pack.js            stamp icon + version info into Shroudly.exe
   scripts/installer.nsh            Windows installer hooks (proxy reset, Discord and HTTPS_PROXY clean-up)

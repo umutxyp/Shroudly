@@ -180,7 +180,6 @@ dene, sonra kapalı teste ve üretime al.
 
 Elle üretmek gerekirse (repo kökünden, yükleme anahtarının değişkenleriyle):
 
-    node scripts/build-core-android.js
     node android/scripts/fetch-hev.js
     cd android && ANDROID_UPLOAD_KEYSTORE=<yükleme-anahtarı.jks> ANDROID_UPLOAD_KEYSTORE_PASSWORD=<şifre> \
       ANDROID_UPLOAD_KEY_ALIAS=<takma ad> ANDROID_UPLOAD_KEY_PASSWORD=<şifre> ./gradlew -Pshroudly.store=play bundleRelease

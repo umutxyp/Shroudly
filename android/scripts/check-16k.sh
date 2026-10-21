@@ -9,16 +9,17 @@
 #     native library stored uncompressed must start on a 16 KB boundary; ours
 #     are compressed, see useLegacyPackaging, so this is the 4-byte check for
 #     everything else plus the 16 KB one for anything stored);
-#   - every LOAD segment of every lib/<64-bit ABI>/*.so (the engine, an
-#     executable, as well as hev) must be aligned to 0x4000 or more. 32-bit
-#     ABIs are shown, not required (Play asks for 64-bit only).
+#   - every LOAD segment of every lib/<64-bit ABI>/*.so (the engine,
+#     libshroudlycore_jni.so, and hev) must be aligned to 0x4000 or more.
+#     32-bit ABIs are shown, not required (Play asks for 64-bit only).
 # For a bundle (needs java, and bundletool: BUNDLETOOL is the path of
 # bundletool-all-<v>.jar; without it the pinned release below is downloaded
 # and checked against its SHA-256):
 #   - its BundleConfig is shown (uncompressNativeLibraries, alignment);
 #   - the APKs Play would make from it (bundletool build-apks: every ABI and
 #     density split) are each checked as above, and the base one must keep
-#     extractNativeLibs="true", which the engine needs to be run.
+#     extractNativeLibs="true": the libraries are stored compressed
+#     (useLegacyPackaging) and have to be unpacked at install.
 #
 # Tools: zipalign from $ANDROID_HOME/build-tools/36.0.0 (BUILD_TOOLS to change),
 # llvm-readelf from the NDK ($ANDROID_NDK_HOME, else $ANDROID_HOME/ndk/<newest>).
@@ -112,14 +113,14 @@ check_aab() {
         # Captured first: grep -q on a pipe can end the writer early.
         manifest="$("$AAPT2" dump xmltree --file AndroidManifest.xml "$a")"
         grep -q 'extractNativeLibs([^)]*)=true' <<<"$manifest" ||
-          bad "$(basename "$a") does not set extractNativeLibs=true: the engine could not be run" ;;
+          bad "$(basename "$a") does not set extractNativeLibs=true: its compressed libraries could not be loaded" ;;
     esac
   done < <(find "$TMP/apks" -name '*.apk' | sort)
   echo "== $QUIET_OK more splits without native libraries (languages, densities): zipalign -c -P 16 -v 4 ok"
   if [ "$masters" = 0 ]; then
     bad "no base-master APK in what bundletool made"
   else
-    echo "== base-master APKs ($masters, one per SDK range): extractNativeLibs=true (the engine is unpacked to nativeLibraryDir)"
+    echo "== base-master APKs ($masters, one per SDK range): extractNativeLibs=true (the libraries are unpacked to nativeLibraryDir)"
   fi
 }
 
