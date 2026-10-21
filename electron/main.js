@@ -1732,9 +1732,10 @@ function createAutopilot() {
 
 /* Microsoft Store apps (Windows): Windows keeps the ones that run in an app
  * container away from programs on this computer, Shroudly's proxy too, unless
- * they have a loopback exemption. The autopilot adds them with one
- * administrator prompt and says so; the switch in Settings takes Shroudly's
- * own out again (store-apps.js). */
+ * they have a loopback exemption. Once one of them is open, the autopilot
+ * adds them with one administrator prompt and says so (never by itself to an
+ * account that cannot say Yes); the switch in Settings asks at once, or takes
+ * Shroudly's own out again (store-apps.js). */
 function createStoreApps() {
   storeApps = new StoreApps({
     store,
@@ -1746,7 +1747,9 @@ function createStoreApps() {
     onChange: () => toWindow('storeapps:state', storeApps.status()),
   });
   if (!storeApps.available()) return;
-  // Apps installed later. The list is read again at most every half hour.
+  // A Store app opened later is seen at the next look (the open programs
+  // only; the app containers are read again for an app not seen open before,
+  // or every half hour).
   setInterval(() => { storeApps.survey().catch(() => {}); }, 10 * 60 * 1000).unref();
 }
 ipcMain.handle('storeapps:status', () => (storeApps ? storeApps.status() : { available: false, on: false }));

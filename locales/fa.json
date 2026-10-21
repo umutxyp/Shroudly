@@ -394,6 +394,8 @@
   "logStoreAppsBlocked": "برنامه‌های Store: {apps} نمی‌توانند از Shroudly عبور کنند؛ اجازه داده نشد",
   "logStoreAppsRemoved": "برنامه‌های Store: استثناهایی که Shroudly افزوده بود حذف شدند ({count})",
   "logStoreAppsRemoveFailed": "برنامه‌های Store: استثناهایی که Shroudly افزوده بود حذف نشدند",
+  "logStoreAppsNoAnswer": "برنامه‌های Store: به درخواست اجازه پاسخی داده نشد؛ Shroudly دفعهٔ بعد دوباره درخواست می‌کند",
+  "logStoreAppsNoAdmin": "برنامه‌های Store: تا یک مدیر اجازه ندهد، {apps} نمی‌توانند از Shroudly عبور کنند (کلید برنامه‌های Microsoft Store در تنظیمات)",
   "androidAllApps": "همهٔ برنامه‌های این دستگاه از Shroudly عبور می‌کنند.",
   "androidVpnDenied": "Shroudly برای عبور دادن اتصال‌های برنامه‌هایتان به مجوز VPN نیاز دارد.",
   "androidVpnRevoked": "اندروید محافظت را خاموش کرد؛ معمولاً چون یک برنامهٔ VPN دیگر روشن شده است.",

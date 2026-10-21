@@ -394,6 +394,8 @@
   "logStoreAppsBlocked": "Барномаҳои Store: {apps} тавассути Shroudly гузашта наметавонанд; иҷозат дода нашуд",
   "logStoreAppsRemoved": "Барномаҳои Store: истисноҳое, ки Shroudly илова карда буд, хориҷ карда шуданд ({count})",
   "logStoreAppsRemoveFailed": "Барномаҳои Store: истисноҳоеро, ки Shroudly илова карда буд, хориҷ кардан имконнопазир шуд",
+  "logStoreAppsNoAnswer": "Барномаҳои Store: ба дархости иҷозат ҷавоб дода нашуд; Shroudly дафъаи оянда боз мепурсад",
+  "logStoreAppsNoAdmin": "Барномаҳои Store: то маъмур иҷозат надиҳад, {apps} тавассути Shroudly гузашта наметавонанд (калиди «Барномаҳои Microsoft Store» дар Танзимот)",
   "androidAllApps": "Ҳар як барномаи ин дастгоҳ тавассути Shroudly мегузарад.",
   "androidVpnDenied": "Shroudly барои гузаронидани пайвастҳои барномаҳоятон иҷозати VPN лозим дорад.",
   "androidVpnRevoked": "Android муҳофизатро хомӯш кард, одатан чунки барномаи дигари VPN фаъол шуд.",

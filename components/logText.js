@@ -64,6 +64,7 @@ const EXACT = {
   'Shroudly engine stopped': 'logEngineStoppedOnly',
   'Store apps: permission was not given; Shroudly will not ask by itself again for two weeks': 'logStoreAppsDeclined',
   'Store apps: the exemptions Shroudly added could not be taken out': 'logStoreAppsRemoveFailed',
+  'Store apps: the permission prompt was not answered; Shroudly will ask again next time': 'logStoreAppsNoAnswer',
 };
 
 const PATTERNS = [
@@ -83,6 +84,7 @@ const PATTERNS = [
   [/^Store apps: (\d+) cannot reach Shroudly \((.+)\); asking for permission$/, 'logStoreAppsAsk', ['count', 'apps']],
   [/^Store apps: (\d+) can now reach Shroudly$/, 'logStoreAppsOn', ['count']],
   [/^Store apps: (.+) cannot go through Shroudly; permission was not given$/, 'logStoreAppsBlocked', ['apps']],
+  [/^Store apps: (.+) cannot go through Shroudly until an administrator allows it \(the Microsoft Store apps switch in Settings\)$/, 'logStoreAppsNoAdmin', ['apps']],
   [/^Store apps: they could not be let through \((.+)\)$/, 'logStoreAppsFailed', ['detail']],
   [/^Store apps: the exemptions Shroudly added were taken out \((\d+)\)$/, 'logStoreAppsRemoved', ['count']],
   [/^([A-Za-z0-9.:_-]+): the site itself refuses this connection/, 'logServiceRefused', ['host']],

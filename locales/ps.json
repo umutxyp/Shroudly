@@ -394,6 +394,8 @@
   "logStoreAppsBlocked": "د Store اپونه: {apps} د Shroudly له لارې نه شي تېرېدلی؛ اجازه ورنه کړل شوه",
   "logStoreAppsRemoved": "د Store اپونه: هغه استثناوې چې Shroudly زیاتې کړې وې لرې شوې ({count})",
   "logStoreAppsRemoveFailed": "د Store اپونه: هغه استثناوې چې Shroudly زیاتې کړې وې لرې نه شوې",
+  "logStoreAppsNoAnswer": "د Store اپونه: د اجازې غوښتنې ته ځواب ور نه کړل شو؛ Shroudly به بل ځل بیا وپوښتي",
+  "logStoreAppsNoAdmin": "د Store اپونه: {apps} تر هغه د Shroudly له لارې نه شي تېرېدلی چې یو مدیر اجازه ورکړي (په امستنو کې د Microsoft Store اپونو تڼۍ)",
   "androidAllApps": "د دې وسیلې هر اپ د Shroudly له لارې تېرېږي.",
   "androidVpnDenied": "Shroudly ته د VPN اجازه پکار ده څو ستاسو د اپونو اړیکې ولېږدوي.",
   "androidVpnRevoked": "Android ساتنه بنده کړه، معمولاً ځکه چې بل VPN اپ چالان شوی و.",

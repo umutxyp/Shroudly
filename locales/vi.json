@@ -394,6 +394,8 @@
   "logStoreAppsBlocked": "Ứng dụng Store: {apps} không thể đi qua Shroudly; quyền không được cấp",
   "logStoreAppsRemoved": "Ứng dụng Store: đã gỡ các ngoại lệ do Shroudly thêm vào ({count})",
   "logStoreAppsRemoveFailed": "Ứng dụng Store: không gỡ được các ngoại lệ do Shroudly thêm vào",
+  "logStoreAppsNoAnswer": "Ứng dụng Store: yêu cầu cấp quyền không được trả lời; Shroudly sẽ hỏi lại vào lần sau",
+  "logStoreAppsNoAdmin": "Ứng dụng Store: {apps} không thể đi qua Shroudly cho tới khi quản trị viên cho phép (công tắc Ứng dụng Microsoft Store trong Cài đặt)",
   "androidAllApps": "Mọi ứng dụng trên thiết bị này đều đi qua Shroudly.",
   "androidVpnDenied": "Shroudly cần quyền VPN để chuyển tải kết nối của các ứng dụng.",
   "androidVpnRevoked": "Android đã tắt bảo vệ, thường là vì một ứng dụng VPN khác vừa được bật.",

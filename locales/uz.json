@@ -394,6 +394,8 @@
   "logStoreAppsBlocked": "Store ilovalari: {apps} Shroudly orqali oʻta olmaydi; ruxsat berilmadi",
   "logStoreAppsRemoved": "Store ilovalari: Shroudly qoʻshgan istisnolar olib tashlandi ({count})",
   "logStoreAppsRemoveFailed": "Store ilovalari: Shroudly qoʻshgan istisnolarni olib tashlab boʻlmadi",
+  "logStoreAppsNoAnswer": "Store ilovalari: ruxsat soʻroviga javob berilmadi; Shroudly keyingi safar yana soʻraydi",
+  "logStoreAppsNoAdmin": "Store ilovalari: administrator ruxsat bermaguncha {apps} Shroudly orqali oʻta olmaydi (Sozlamalardagi «Microsoft Store ilovalari» tugmasi)",
   "androidAllApps": "Bu qurilmadagi har bir ilova Shroudly orqali o‘tadi.",
   "androidVpnDenied": "Ilovalaringiz ulanishlarini o‘tkazish uchun Shroudly’ga VPN ruxsati kerak.",
   "androidVpnRevoked": "Himoya Android tomonidan o‘chirildi, odatda boshqa VPN ilovasi yoqilgani uchun.",

@@ -435,7 +435,7 @@ what it did in one line, as a notification and in the window
 | Roblox is blocked on this network | Turns on [Games and apps mode](#games-and-apps-mode-roblox); restarts a player or installer that goes around Shroudly; asks the user to reopen a Roblox Studio that does |
 | A site no technique opens, or one that connects and is then cut | Turns on [Advanced mode](#advanced-mode-stateful-dpi) (Windows, Linux) after saying why; the system asks for permission |
 | Encrypted DNS is off and the network forges answers | Turns it back on |
-| Microsoft Store apps (Xbox and its sign-in, the Store, WhatsApp, …) cannot reach Shroudly: Windows keeps app containers off loopback addresses unless they have a loopback exemption | Adds the exemption for each one that uses the network, with one administrator prompt (Windows; [`electron/store-apps.js`](electron/store-apps.js)) |
+| A Microsoft Store app (Xbox and its sign-in, the Store, WhatsApp, a game, …) is open and cannot reach Shroudly: Windows keeps app containers off loopback addresses unless they have a loopback exemption | Adds the exemption for each one that uses the network, sign-in brokers included, with one administrator prompt; with no Store app open nobody is asked, and an account that cannot give administrator permission is never asked by itself (Windows; [`electron/store-apps.js`](electron/store-apps.js)) |
 
 How it knows a service is blocked: by a check of its own
 ([`electron/blockcheck.js`](electron/blockcheck.js)): the system's DNS answers
@@ -455,9 +455,10 @@ before the autopilot existed) stays off for two weeks; a mode that could not be
 turned on (a permission the user did not give, a proxy of their own in the way)
 is not tried again by itself that session; Advanced mode's permission prompt
 comes at most once a session, and not again by itself for two weeks once
-declined, also at a prompt the user started; so does the Store apps' one, and
-only the exemptions Shroudly added are ever taken out again (the switch in
-Settings, the uninstaller), never one the user had; a program that may hold unsaved
+declined, also at a prompt the user started; so does the Store apps' one (one
+left unanswered is asked again the next session), and only the exemptions
+Shroudly added are ever taken out again (the switch in Settings, the
+uninstaller), never one the user had; a program that may hold unsaved
 work (Roblox Studio) is never closed; a Discord that works through Shroudly
 (any of its processes holds a connection to it) is never restarted; and only
 the Roblox player that goes around Shroudly is restarted, never another one in

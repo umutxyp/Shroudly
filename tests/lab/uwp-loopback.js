@@ -13,12 +13,17 @@
  *      with its capability, and its SID is the one it derives from the name;
  *      a standard user's token (runas /trustlevel) reads the same lists, as
  *      Shroudly does without administrator rights;
- *   3. its elevated step exempts it, CheckNetIsolation lists it, and the same
- *      curl now reaches both: the fix;
- *   4. the autopilot's whole round on this machine: everything it exempts is
- *      remembered (settings and HKCU\Software\Shroudly), an exemption that was
- *      there before is not; the switch turned off takes out its own only, and
- *      so does the uninstaller's script (scripts/installer.nsh).
+ *   3. its elevated step exempts it, from a TEMP whose path has quotes of
+ *      every kind in it, deleting its list as it reads it; CheckNetIsolation
+ *      lists it, and the same curl now reaches both: the fix;
+ *   4. the autopilot's whole round on this machine: with no Store app open it
+ *      asks nothing; with one open (the lab's container stands in for it)
+ *      everything it exempts is remembered (settings and HKCU\Software\
+ *      Shroudly, one value per SID), an exemption that was there before is
+ *      not; the switch turned off takes out its own only, and so does the
+ *      uninstaller's script (scripts/installer.nsh), from 32-bit PowerShell
+ *      as NSIS starts it, with the record in both forms and longer than NSIS
+ *      could read.
  *
  *   node tests/lab/uwp-loopback.js */
 
@@ -186,15 +191,18 @@ function cni(...args) {
 
 const exemptNow = () => new Set(StoreApps.parseExemptList(cni('-s').out));
 
-function memStore() {
-  const m = new Map();
+function memStore(init = {}) {
+  const m = new Map(Object.entries(init));
   return { get: (k, d) => (m.has(k) ? m.get(k) : d), set: (k, v) => m.set(k, v), delete: (k) => m.delete(k), m };
 }
 
+/* The uninstaller's record, both forms (one value per SID; the single value of before). */
 function regRecord() {
-  const r = spawnSync('reg.exe', ['query', StoreApps.RECORD_KEY, '/v', StoreApps.RECORD_VALUE], { encoding: 'utf8' });
-  return r.status === 0 ? StoreApps.parseExemptList(r.stdout) : [];
+  const r = spawnSync('reg.exe', ['query', StoreApps.RECORD_KEY, '/s'], { encoding: 'utf8', maxBuffer: 16 * 1024 * 1024 });
+  return r.status === 0 ? StoreApps.parseRecord(r.stdout) : [];
 }
+
+const regHas = (...args) => spawnSync('reg.exe', ['query', ...args], { stdio: 'ignore' }).status === 0;
 
 /* The uninstaller's command, out of scripts/installer.nsh as NSIS runs it. */
 function uninstallerScript() {
@@ -256,9 +264,23 @@ function uninstallerScript() {
     check(!wrong.length, `every package's SID in the registry is the derived one (${mapped.length - wrong.length} checked${wrong.length ? `; not: ${wrong.slice(0, 2).map((c) => c.name).join(', ')}` : ''})`);
 
     // ── 3. the fix ──
-    const r = await sa._elevate('add', [sidOurs]);
-    check(r.code === 'ok', `the elevated step ran (${JSON.stringify(r)})`);
+    // From a TEMP with every kind of quote in its path (a user named
+    // D’Angelo O'Brien): the path reaches the elevated script as base64.
+    const oddTmp = fs.mkdtempSync(path.join(os.tmpdir(), "shroudly lab D\u2019Angelo O'Brien $x \u2018y\u201B "));
+    let listLeft = null;
+    const realRun = sa.run;
+    const fix = new StoreApps({ store: memStore(), platform: 'win32', protectionOn: () => true, tmpdir: oddTmp,
+      run: async (c, a, ms) => {
+        const x = await realRun(c, a, ms);
+        // Right after the prompt, before Shroudly's own clean-up: the elevated script deleted it.
+        if (ms === StoreApps.ELEVATE_TIMEOUT_MS) listLeft = fs.readdirSync(oddTmp).filter((n) => n.endsWith('.txt'));
+        return x;
+      } });
+    const r = await fix._elevate('add', [sidOurs]);
+    check(r.code === 'ok', `the elevated step ran, its list in ${oddTmp} (${JSON.stringify(r)})`);
     check(exemptNow().has(sidOurs), 'CheckNetIsolation lists the lab container as exempt');
+    check(Array.isArray(listLeft) && !listLeft.length, `the elevated script deleted its list as it read it (${listLeft && listLeft.join(', ')})`);
+    fs.rmSync(oddTmp, { recursive: true, force: true });
     const after = await sa.scan();
     check(!!after && after.exempt.includes(sidOurs), 'the firewall list says so too');
     // The same lists, read the way Shroudly reads them: without administrator rights.
@@ -267,15 +289,20 @@ function uninstallerScript() {
       StoreApps.SCAN_PS.replace(/foreach \(\$l in \[ShroudlyNetIso\]::Run\(\)\) \{[^\n]*\}/, '[ShroudlyNetIso]::Run()'),
       "'---'",
       "& (Join-Path $env:SystemRoot 'System32\\CheckNetIsolation.exe') LoopbackExempt -s",
+      "'---'",
+      "& (Join-Path $env:SystemRoot 'System32\\whoami.exe') /groups /fo csv /nh",
     ].join('\n'));
     if (plain === null || !/ADMIN=False/.test(plain)) {
       console.log(`  ..  a standard user's token could not be had here (${plain === null ? 'no output' : plain.split(/\r?\n/)[0]}); left out`);
     } else {
-      const [apiPart, cniPart] = plain.split(/^---\s*$/m);
+      const [apiPart, cniPart, whoPart] = plain.split(/^---\s*$/m);
       const std = StoreApps.parseScan(apiPart);
       check(!std.errors.length && std.containers.some((c) => c.sid === sidOurs) && std.exempt.includes(sidOurs),
         `without administrator rights the firewall's lists read the same (${std.containers.length} app containers, ${std.exempt.length} exempt${std.errors.length ? `; errors: ${std.errors.join(', ')}` : ''})`);
       check(StoreApps.parseExemptList(cniPart).includes(sidOurs), '…and so does CheckNetIsolation\'s');
+      // An administrator under UAC (the group for deny only, as here) can
+      // say Yes to a prompt: asked by itself like any administrator.
+      check(StoreApps.hasAdministrators(whoPart || ''), 'whoami with that token still shows the Administrators group (deny only): such an account is asked');
       if (std.errors.length || !std.containers.length) console.log(`      ${apiPart.trim().split(/\r?\n/).slice(0, 6).join('\n      ')}`);
     }
     const loop2 = inContainer(OURS, `-s -S -m 10 --connect-timeout 8 ${url}`);
@@ -288,39 +315,99 @@ function uninstallerScript() {
 
     // ── 4. the autopilot's round ──
     cni('-a', `-p=${sidUsers}`);     // the user's own, from before
+    // What it reads to know a Store app is open, and that this account can say Yes.
+    const tl = spawnSync(path.join(SYS, 'System32', 'tasklist.exe'), ['/apps', '/fi', `USERNAME eq ${process.env.USERNAME}`, '/fo', 'csv', '/nh'], { encoding: 'utf8', timeout: 30000 });
+    // Not a failure here: store-apps.js then reads the programs' paths.
+    console.log(`  ..  tasklist /apps for this account: exit ${tl.status}, ${StoreApps.runningFamilies(tl.stdout).length} Store apps open besides Windows' own${tl.status ? ` (${String(tl.stderr || tl.stdout).trim().slice(0, 120)})` : ''}`);
+    const probe = new StoreApps({ store: memStore(), platform: 'win32' });
+    const openNow = await probe.runningApps();
+    check(openNow instanceof Set, `…and so do the open apps store-apps.js reads (${openNow ? openNow.size : 'none'})`);
+    check((await probe.canConsent()) === true, 'this administrator can say Yes');
     const store = memStore();
     const told = [];
     const ap = new StoreApps({ store, platform: 'win32', protectionOn: () => true, tell: (id) => told.push(id), log: (l, m) => console.log(`      [${l}] ${m}`) });
     const before = exemptNow();
+    if (openNow && !openNow.size) {
+      const idle = await ap.survey();
+      const same = exemptNow();
+      check(idle.why === 'idle' && !told.length && same.size === before.size, `no Store app open: nothing asked, nothing changed (${idle.why})`);
+    } else {
+      console.log('  ..  a Store app is open on this runner; the no-app case is left out');
+    }
+    // The lab's container stands in for an open Store app.
+    ap.runningApps = async () => new Set([sidOurs]);
     const s1 = await ap.survey();
     const ours = ap.ours();
-    check(s1.result === 'on' && told.join() === 'autoStoreAppsAsk,autoStoreAppsOn', `asked once and told (${s1.result}; ${told.join(', ')})`);
+    check(s1.result === 'on' && told.join() === 'autoStoreAppsAsk,autoStoreAppsOn', `a Store app open: asked once and told (${s1.result}; ${told.join(', ')})`);
     check(ours.includes(sidOurs) && !ours.includes(sidUsers), `the lab's container is Shroudly's now; the user's own is not (${ours.length} added)`);
     check(ours.every((s) => !before.has(s)), 'nothing that was exempt before is counted as Shroudly\'s');
+    check(!store.get('storeAppsPending'), 'nothing is left pending');
     const rec = regRecord();
-    check(rec.length === ours.length && ours.every((s) => rec.includes(s)), 'the uninstaller\'s record has exactly those');
+    check(rec.length === ours.length && ours.every((s) => rec.includes(s)), `the uninstaller's record has exactly those, one value each (${rec.length})`);
+    check(regHas(StoreApps.RECORD_LIST) && !regHas(StoreApps.RECORD_KEY, '/v', StoreApps.RECORD_VALUE), '…under its own key, no single long value');
     const s2 = await ap.survey({});
     check(!s2.asked, `asked at most once a session (${s2.why})`);
 
     const off = await ap.setMode(false);
     const now1 = exemptNow();
     check(off.success && !now1.has(sidOurs) && now1.has(sidUsers), `switched off: Shroudly's taken out, the user's own kept (${JSON.stringify(off)})`);
-    check(!regRecord().length && !ap.ours().length, '…and nothing is left in the record');
+    check(!regRecord().length && !ap.ours().length && !regHas(StoreApps.RECORD_LIST), '…and nothing is left in the record');
     check(ours.every((s) => !now1.has(s)), 'every exemption Shroudly added is gone');
 
-    // The uninstaller, after a round that exempted everything again.
-    const ap2 = new StoreApps({ store: memStore(), platform: 'win32', protectionOn: () => true });
+    // Taken out behind Shroudly's back (here by the switch above, as an
+    // uninstall would) while the settings still count them as its own, and
+    // as handled (as before this version): the next session asks again.
+    const store2 = memStore({ storeAppsOurs: ours, storeAppsHandled: ours, storeAppsMode: true });
+    const ap2 = new StoreApps({ store: store2, platform: 'win32', protectionOn: () => true });
+    ap2.runningApps = async () => new Set([sidOurs]);
     const s3 = await ap2.survey();
-    check(s3.result === 'on' && exemptNow().has(sidOurs), 'a new round exempts them again');
+    check(s3.result === 'on' && exemptNow().has(sidOurs), `settings that still count them as Shroudly's: asked again, exempt again (${s3.result || s3.why})`);
+    check(ap2.ours().includes(sidOurs) && regRecord().includes(sidOurs), '…and recorded again');
+    const off2 = await ap2.setMode(false);
+    check(off2.success && !exemptNow().has(sidOurs) && !regRecord().length, `…and taken out again by the switch (${JSON.stringify(off2)})`);
+
+    // A Yes Shroudly did not see the end of (it stopped waiting, quit or
+    // crashed): what was pending and is exempt now is its own at the next start.
+    cni('-a', `-p=${sidOurs}`);
+    const late = new StoreApps({ store: memStore({ storeAppsPending: [sidOurs] }), platform: 'win32', protectionOn: () => true });
+    await late._adopt();
+    check(late.ours().includes(sidOurs) && !late._pending().length && regRecord().includes(sidOurs), `a late Yes is taken in as Shroudly's, recorded, nothing left pending (${late.ours().length})`);
+    await late._setOurs([]);
+    cni('-d', `-p=${sidOurs}`);
+
+    // The switch in Settings asks at once, with no Store app open, whatever
+    // stale settings say (counted as Shroudly's and as handled, but gone).
+    const ap3 = new StoreApps({ store: memStore({ storeAppsOurs: ours, storeAppsHandled: ours, storeAppsModeOffAt: Date.now() }), platform: 'win32', protectionOn: () => true });
+    const on3 = await ap3.setMode(true);
+    check(on3.success && exemptNow().has(sidOurs) && exemptNow().has(sidUsers) && ap3.ours().includes(sidOurs) && !ap3.ours().includes(sidUsers),
+      `switched on: asked at once, exempt again, only Shroudly's own recorded (${JSON.stringify(on3)}, ${ap3.ours().length})`);
+
+    // The record, any length, written and read back for real.
+    const many = Array.from({ length: 300 }, (_, i) => StoreApps.containerSid(`shroudly.labrecord${i}_0123456789abc`));
+    const keep = ap3.ours();
+    await ap3._regRecordSet(many);
+    const back = await ap3._regRecordGet();
+    check(back.length === many.length && many.every((s) => back.includes(s)), `a record of ${many.length} SIDs (${many.join(';').length} characters) is written in one go and read back whole`);
+    // The uninstaller: the record in both forms, the old single value longer
+    // than NSIS could read, and the lab's container only in that one.
+    await ap3._regRecordSet(keep.filter((s) => s !== sidOurs));
+    const legacy = [...many.slice(0, 120), sidOurs].join(';');
+    spawnSync('reg.exe', ['add', StoreApps.RECORD_KEY, '/v', StoreApps.RECORD_VALUE, '/t', 'REG_SZ', '/d', legacy, '/f'], { stdio: 'ignore' });
+    check(legacy.length > 8192 && regRecord().includes(sidOurs), `the old single value, ${legacy.length} characters, holds the lab's container`);
     const script = uninstallerScript();
     check(!!script, 'the uninstaller\'s command is in scripts/installer.nsh');
     if (script) {
-      const u = spawnSync('powershell.exe', ['-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass', '-Command', script], { encoding: 'utf8', timeout: 120000, env: powershellEnv() });
+      // As NSIS starts it: the 32-bit PowerShell where there is one.
+      const ps32 = path.join(SYS, 'SysWOW64', 'WindowsPowerShell', 'v1.0', 'powershell.exe');
+      const exe = fs.existsSync(ps32) ? ps32 : 'powershell.exe';
+      const u = spawnSync(exe, ['-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass', '-Command', script], { encoding: 'utf8', timeout: 300000, env: powershellEnv() });
       const now2 = exemptNow();
-      check(u.status === 0, `it ran (${u.status} ${String(u.stderr || '').trim().slice(0, 200)})`);
-      check(!now2.has(sidOurs) && now2.has(sidUsers), 'uninstalled: Shroudly\'s exemptions gone, the user\'s own kept');
-      check(ap2.ours().every((s) => !now2.has(s)), '…all of Shroudly\'s');
-      check(!regRecord().length, '…and its record removed');
+      check(u.status === 0, `it ran (${exe === ps32 ? '32-bit' : 'this'} PowerShell: ${u.status} ${String(u.stderr || '').trim().slice(0, 200)})`);
+      check(!now2.has(sidOurs) && now2.has(sidUsers), 'uninstalled: Shroudly\'s exemptions gone (the one only in the long old value too), the user\'s own kept');
+      check(keep.every((s) => !now2.has(s)), '…all of Shroudly\'s');
+      check(!regRecord().length && !regHas(StoreApps.RECORD_LIST) && !regHas(StoreApps.RECORD_KEY, '/v', StoreApps.RECORD_VALUE), '…and its record removed, both forms');
+      const leftLists = fs.readdirSync(os.tmpdir()).filter((n) => /^shroudly-lb-[0-9a-f]{32}\.txt$/.test(n));
+      check(!leftLists.length, `…and no list left in TEMP (${leftLists.join(', ')})`);
     }
   } finally {
     cni('-d', `-p=${sidOurs}`);
@@ -328,6 +415,7 @@ function uninstallerScript() {
     lab('[void][AcLab]::Delete($env:LAB_NAME)', { LAB_NAME: OURS });
     lab('[void][AcLab]::Delete($env:LAB_NAME)', { LAB_NAME: USERS });
     spawnSync('reg.exe', ['delete', StoreApps.RECORD_KEY, '/v', StoreApps.RECORD_VALUE, '/f'], { stdio: 'ignore' });
+    spawnSync('reg.exe', ['delete', StoreApps.RECORD_LIST, '/f'], { stdio: 'ignore' });
     if (engine) engine.stop();
     server.stop();
   }

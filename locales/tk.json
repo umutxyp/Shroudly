@@ -394,6 +394,8 @@
   "logStoreAppsBlocked": "Store programmalary: {apps} Shroudly arkaly geçip bilmeýär; rugsat berilmedi",
   "logStoreAppsRemoved": "Store programmalary: Shroudly-iň goşan kadadan çykmalary aýryldy ({count})",
   "logStoreAppsRemoveFailed": "Store programmalary: Shroudly-iň goşan kadadan çykmalaryny aýryp bolmady",
+  "logStoreAppsNoAnswer": "Store programmalary: rugsat soragyna jogap berilmedi; Shroudly indiki gezek ýene sorar",
+  "logStoreAppsNoAdmin": "Store programmalary: administrator rugsat berýänçä {apps} Shroudly arkaly geçip bilmeýär (Sazlamalardaky «Microsoft Store programmalary» düwmesi)",
   "androidAllApps": "Bu enjamdaky her programma Shroudly arkaly geçýär.",
   "androidVpnDenied": "Programmalaryňyzyň baglanyşyklaryny geçirmek üçin Shroudly-a VPN rugsady gerek.",
   "androidVpnRevoked": "Gorag Android tarapyndan öçürildi, adatça başga VPN programmasy açylandygy sebäpli.",

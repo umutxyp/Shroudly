@@ -394,6 +394,8 @@
   "logStoreAppsBlocked": "Store колдонмолору: {apps} Shroudly аркылуу өтө албайт; уруксат берилген жок",
   "logStoreAppsRemoved": "Store колдонмолору: Shroudly кошкон өзгөчөлүктөр алынып салынды ({count})",
   "logStoreAppsRemoveFailed": "Store колдонмолору: Shroudly кошкон өзгөчөлүктөрдү алып салуу мүмкүн болгон жок",
+  "logStoreAppsNoAnswer": "Store колдонмолору: уруксат суроосуна жооп берилген жок; Shroudly кийинки жолу кайра сурайт",
+  "logStoreAppsNoAdmin": "Store колдонмолору: администратор уруксат бермейинче {apps} Shroudly аркылуу өтө албайт (Жөндөөлөрдөгү «Microsoft Store колдонмолору» которгучу)",
   "androidAllApps": "Бул түзмөктөгү ар бир колдонмо Shroudly аркылуу өтөт.",
   "androidVpnDenied": "Колдонмолоруңуздун туташууларын өткөрүү үчүн Shroudly'ге VPN уруксаты керек.",
   "androidVpnRevoked": "Android коргоону өчүрдү, адатта башка VPN колдонмосу күйгүзүлгөндүктөн.",

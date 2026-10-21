@@ -394,6 +394,8 @@
   "logStoreAppsBlocked": "የStore መተግበሪያዎች: {apps} በShroudly በኩል ማለፍ አይችሉም፤ ፈቃድ አልተሰጠም",
   "logStoreAppsRemoved": "የStore መተግበሪያዎች: Shroudly ያከላቸው ልዩ ፈቃዶች ተወግደዋል ({count})",
   "logStoreAppsRemoveFailed": "የStore መተግበሪያዎች: Shroudly ያከላቸውን ልዩ ፈቃዶች ማስወገድ አልተቻለም",
+  "logStoreAppsNoAnswer": "የStore መተግበሪያዎች: የፈቃድ ጥያቄው መልስ አላገኘም፤ Shroudly በሚቀጥለው ጊዜ እንደገና ይጠይቃል",
+  "logStoreAppsNoAdmin": "የStore መተግበሪያዎች: አስተዳዳሪ እስኪፈቅድ ድረስ {apps} በShroudly በኩል ማለፍ አይችሉም (በቅንብሮች ውስጥ ያለው የMicrosoft Store መተግበሪያዎች ማብሪያ)",
   "androidAllApps": "በዚህ መሣሪያ ላይ ያለ እያንዳንዱ መተግበሪያ በShroudly በኩል ያልፋል።",
   "androidVpnDenied": "Shroudly የመተግበሪያዎችዎን ግንኙነቶች ለማሳለፍ የVPN ፈቃድ ያስፈልገዋል።",
   "androidVpnRevoked": "Android ጥበቃውን አጥፍቶታል፤ ብዙ ጊዜ ሌላ የVPN መተግበሪያ ስለበራ ነው።",

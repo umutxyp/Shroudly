@@ -394,6 +394,8 @@
   "logStoreAppsBlocked": "Store uygulamaları: {apps} Shroudly'den geçemiyor; izin verilmedi",
   "logStoreAppsRemoved": "Store uygulamaları: Shroudly'nin eklediği muafiyetler kaldırıldı ({count})",
   "logStoreAppsRemoveFailed": "Store uygulamaları: Shroudly'nin eklediği muafiyetler kaldırılamadı",
+  "logStoreAppsNoAnswer": "Store uygulamaları: izin isteği yanıtlanmadı; Shroudly bir dahaki sefere yeniden soracak",
+  "logStoreAppsNoAdmin": "Store uygulamaları: bir yönetici izin verene kadar {apps} Shroudly'den geçemez (Ayarlar'daki Microsoft Store uygulamaları anahtarı)",
   "androidAllApps": "Bu cihazdaki her uygulama Shroudly üzerinden geçiyor.",
   "androidVpnDenied": "Shroudly, uygulamalarınızın bağlantılarını taşımak için VPN iznine ihtiyaç duyar.",
   "androidVpnRevoked": "Koruma Android tarafından kapatıldı; genellikle başka bir VPN uygulaması açıldığı için.",

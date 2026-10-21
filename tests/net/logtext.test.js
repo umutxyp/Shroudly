@@ -116,6 +116,8 @@ const LINES = [
   'Store apps: Xbox, Microsoft Store cannot go through Shroudly; permission was not given',
   'Store apps: the exemptions Shroudly added were taken out (4)',
   'Store apps: the exemptions Shroudly added could not be taken out',
+  'Store apps: the permission prompt was not answered; Shroudly will ask again next time',
+  'Store apps: Xbox, Microsoft Store cannot go through Shroudly until an administrator allows it (the Microsoft Store apps switch in Settings)',
 ];
 
 const langs = Object.keys(translations);

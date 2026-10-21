@@ -394,6 +394,8 @@
   "logStoreAppsBlocked": "Apps de la Store: {apps} no pueden pasar por Shroudly; no se dio el permiso",
   "logStoreAppsRemoved": "Apps de la Store: se quitaron las excepciones que añadió Shroudly ({count})",
   "logStoreAppsRemoveFailed": "Apps de la Store: no se pudieron quitar las excepciones que añadió Shroudly",
+  "logStoreAppsNoAnswer": "Apps de la Store: nadie respondió a la petición de permiso; Shroudly volverá a pedirlo la próxima vez",
+  "logStoreAppsNoAdmin": "Apps de la Store: {apps} no pueden pasar por Shroudly hasta que un administrador lo permita (el interruptor Apps de Microsoft Store en Ajustes)",
   "androidAllApps": "Todas las apps de este dispositivo pasan por Shroudly.",
   "androidVpnDenied": "Shroudly necesita el permiso de VPN para llevar las conexiones de tus apps.",
   "androidVpnRevoked": "Android desactivó la protección, normalmente porque se activó otra app de VPN.",

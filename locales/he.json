@@ -394,6 +394,8 @@
   "logStoreAppsBlocked": "אפליקציות Store: {apps} לא יכולות לעבור דרך Shroudly; האישור לא ניתן",
   "logStoreAppsRemoved": "אפליקציות Store: החריגות ש-Shroudly הוסיף הוסרו ({count})",
   "logStoreAppsRemoveFailed": "אפליקציות Store: לא ניתן היה להסיר את החריגות ש-Shroudly הוסיף",
+  "logStoreAppsNoAnswer": "אפליקציות Store: לא ניתנה תשובה לבקשת האישור; Shroudly יבקש שוב בפעם הבאה",
+  "logStoreAppsNoAdmin": "אפליקציות Store: {apps} לא יכולות לעבור דרך Shroudly עד שמנהל מערכת יאשר זאת (המתג אפליקציות Microsoft Store בהגדרות)",
   "androidAllApps": "כל האפליקציות במכשיר הזה עוברות דרך Shroudly.",
   "androidVpnDenied": "Shroudly צריך הרשאת VPN כדי להעביר את החיבורים של האפליקציות שלך.",
   "androidVpnRevoked": "Android כיבה את ההגנה, בדרך כלל כי הופעלה אפליקציית VPN אחרת.",

@@ -394,6 +394,8 @@
   "logStoreAppsBlocked": "Застосунки Store: {apps} не можуть іти через Shroudly; дозвіл не надано",
   "logStoreAppsRemoved": "Застосунки Store: винятки, додані Shroudly, вилучено ({count})",
   "logStoreAppsRemoveFailed": "Застосунки Store: не вдалося вилучити винятки, додані Shroudly",
+  "logStoreAppsNoAnswer": "Застосунки Store: на запит дозволу не відповіли; Shroudly запитає знову наступного разу",
+  "logStoreAppsNoAdmin": "Застосунки Store: {apps} не можуть іти через Shroudly, доки адміністратор не дозволить (перемикач «Застосунки Microsoft Store» у Налаштуваннях)",
   "androidAllApps": "Усі застосунки на цьому пристрої йдуть через Shroudly.",
   "androidVpnDenied": "Shroudly потрібен дозвіл VPN, щоб пропускати з’єднання ваших застосунків.",
   "androidVpnRevoked": "Android вимкнув захист — зазвичай тому, що увімкнено інший VPN-застосунок.",

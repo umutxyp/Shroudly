@@ -394,6 +394,8 @@
   "logStoreAppsBlocked": "Store အက်ပ်များ: {apps} သည် Shroudly မှတစ်ဆင့် မသွားနိုင်ပါ။ ခွင့်မပြုခဲ့ပါ",
   "logStoreAppsRemoved": "Store အက်ပ်များ: Shroudly ထည့်ခဲ့သော ခြွင်းချက်များကို ဖယ်ရှားပြီး ({count})",
   "logStoreAppsRemoveFailed": "Store အက်ပ်များ: Shroudly ထည့်ခဲ့သော ခြွင်းချက်များကို ဖယ်ရှား၍ မရပါ",
+  "logStoreAppsNoAnswer": "Store အက်ပ်များ: ခွင့်ပြုချက်တောင်းခံမှုကို မဖြေခဲ့ပါ။ Shroudly သည် နောက်တစ်ကြိမ် ထပ်မေးပါမည်",
+  "logStoreAppsNoAdmin": "Store အက်ပ်များ: စီမံခန့်ခွဲသူက ခွင့်မပြုမချင်း {apps} သည် Shroudly မှတစ်ဆင့် မသွားနိုင်ပါ (ဆက်တင်များရှိ Microsoft Store အက်ပ်များ ခလုတ်)",
   "androidAllApps": "ဤစက်ပေါ်ရှိ အက်ပ်တိုင်းသည် Shroudly မှတစ်ဆင့် သွားသည်။",
   "androidVpnDenied": "သင့်အက်ပ်များ၏ ချိတ်ဆက်မှုများကို သယ်ဆောင်ရန် Shroudly သည် VPN ခွင့်ပြုချက် လိုအပ်သည်။",
   "androidVpnRevoked": "Android က ကာကွယ်မှုကို ပိတ်လိုက်သည်။ များသောအားဖြင့် အခြား VPN အက်ပ်တစ်ခု ဖွင့်လိုက်သောကြောင့် ဖြစ်သည်။",

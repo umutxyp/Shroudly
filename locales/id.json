@@ -394,6 +394,8 @@
   "logStoreAppsBlocked": "Aplikasi Store: {apps} tidak bisa lewat Shroudly; izin tidak diberikan",
   "logStoreAppsRemoved": "Aplikasi Store: pengecualian yang ditambahkan Shroudly sudah dihapus ({count})",
   "logStoreAppsRemoveFailed": "Aplikasi Store: pengecualian yang ditambahkan Shroudly tidak bisa dihapus",
+  "logStoreAppsNoAnswer": "Aplikasi Store: permintaan izin tidak dijawab; Shroudly akan memintanya lagi lain kali",
+  "logStoreAppsNoAdmin": "Aplikasi Store: {apps} tidak bisa lewat Shroudly sampai administrator mengizinkannya (sakelar Aplikasi Microsoft Store di Pengaturan)",
   "androidAllApps": "Semua aplikasi di perangkat ini melewati Shroudly.",
   "androidVpnDenied": "Shroudly memerlukan izin VPN untuk membawa koneksi aplikasi Anda.",
   "androidVpnRevoked": "Perlindungan dimatikan oleh Android, biasanya karena aplikasi VPN lain dinyalakan.",

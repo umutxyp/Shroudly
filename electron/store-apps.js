@@ -25,16 +25,23 @@
  * fix is the exemption, which only an administrator can add (CheckNetIsolation
  * LoopbackExempt -a -p=<package SID>).
  *
- * Autopilot (autopilot.js): while protection is on, the app containers of
- * packaged apps that may use the network (internetClient, internetClient-
- * Server or privateNetworkClientServer) and have no exemption are given one,
- * all of them in one elevated step (one UAC prompt: a PowerShell that runs
- * CheckNetIsolation for each), and the user is told in one line. What
- * Shroudly added is remembered (the settings, and HKCU\Software\Shroudly for
- * the uninstaller); an exemption that was there before is never Shroudly's,
- * and is never taken out. Turning the switch off, or uninstalling, takes out
- * Shroudly's own only. A declined prompt is not repeated by itself for two
- * weeks, and the user is told which apps cannot go through Shroudly.
+ * Autopilot (autopilot.js): while protection is on and a Store app is open
+ * whose app container may use the network (internetClient, internetClient-
+ * Server or privateNetworkClientServer) and has no exemption, the app
+ * containers that need one are given one, all of them in one elevated step
+ * (one UAC prompt: a PowerShell that runs CheckNetIsolation for each; the
+ * sign-in brokers go with the app), and the user is told in one line. With
+ * no Store app open nobody is asked (Windows' own parts, always running, are
+ * no sign), and an account that cannot give administrator permission is
+ * never asked by itself: the log says so once a session. What Shroudly adds
+ * is written down before the prompt (the settings, and HKCU\Software\
+ * Shroudly for the uninstaller) and kept once Windows lists it; an exemption
+ * that was there before is never Shroudly's, and is never taken out, and one
+ * of Shroudly's that is gone (an uninstall, another tool) is asked about
+ * again. Turning the switch off, or uninstalling, takes out Shroudly's own
+ * only. A declined prompt is not repeated by itself for two weeks, and the
+ * user is told which apps cannot go through Shroudly; one left unanswered is
+ * asked again next session.
  */
 
 const crypto = require('crypto');
@@ -47,10 +54,17 @@ const { envFor } = require('./win-powershell');
 const RESPECT_MS = 14 * 24 * 60 * 60 * 1000;
 const RESCAN_MS = 30 * 60 * 1000;
 const ELEVATE_TIMEOUT_MS = 180000;   // includes the time the user spends on the prompt
+const STALE_MS = 24 * 60 * 60 * 1000;
 
 const MAPPINGS_KEY = 'HKCU\\Software\\Classes\\Local Settings\\Software\\Microsoft\\Windows\\CurrentVersion\\AppContainer\\Mappings';
+/* The uninstaller's record: one value per SID under RECORD_LIST (any number
+ * of them; the uninstaller's NSIS reads no string longer than 8192
+ * characters). Up to this version it was one value, RECORD_VALUE, the SIDs
+ * joined by ';': still read, and taken out with the rest. */
 const RECORD_KEY = 'HKCU\\Software\\Shroudly';
 const RECORD_VALUE = 'LoopbackExempt';
+const RECORD_LIST = `${RECORD_KEY}\\LoopbackExemptions`;
+const ADMINISTRATORS = 'S-1-5-32-544';
 
 /* A package's app container SID: S-1-15-2 and seven sub-authorities. The only
  * form ever handed to the elevated step (child containers have eleven). */
@@ -141,10 +155,59 @@ function parseScan(out) {
   return { containers, exempt: [...new Set(exempt)], errors };
 }
 
+/* The packages of the programs running now, as family names: `tasklist
+ * /apps` (each with its package's full name) or, where that cannot be had,
+ * the programs' paths (…\WindowsApps\<full name>\…). Windows' own parts
+ * (Start, search, the lock screen) always run, so they are left out: only an
+ * app someone opened is a sign that Store apps are in use. */
+const FULL_NAME_ANY = /(?:^|[^A-Za-z0-9.-])([A-Za-z0-9][A-Za-z0-9.-]{0,63})_\d+(?:\.\d+){0,3}_[A-Za-z0-9]+_[A-Za-z0-9.~-]*_([a-z0-9]{13})(?![A-Za-z0-9])/gi;
+function runningFamilies(out) {
+  const fams = new Set();
+  for (const m of String(out || '').matchAll(FULL_NAME_ANY)) {
+    if (m[2].toLowerCase() !== WINDOWS_PUBLISHER) fams.add(`${m[1]}_${m[2]}`.toLowerCase());
+  }
+  return [...fams];
+}
+
+/* `whoami /groups`: whether the token holds the Administrators group, as a
+ * group used for deny only too (an administrator under UAC, who can say Yes
+ * to a prompt). A standard user's has none: a prompt would ask them for a
+ * password they do not have. */
+function hasAdministrators(out) {
+  return new RegExp(`(^|[^0-9-])${ADMINISTRATORS}(?![0-9-])`, 'm').test(String(out || ''));
+}
+
+/* `reg query HKCU\Software\Shroudly /s`: the SIDs in the uninstaller's record,
+ * in either form. */
+function parseRecord(out) {
+  const list = RECORD_LIST.toLowerCase();
+  const key = RECORD_KEY.toLowerCase();
+  const legacy = new RegExp(`^\\s+${RECORD_VALUE}\\s+REG_`, 'i');
+  const sids = [];
+  let sec = '';
+  for (const raw of String(out || '').split(/\r?\n/)) {
+    const line = raw.replace(/\s+$/, '');
+    if (/^HKEY_/i.test(line)) { sec = line.replace(/^HKEY_CURRENT_USER/i, 'HKCU').toLowerCase(); continue; }
+    if (sec === list || (sec === key && legacy.test(line))) sids.push(...parseExemptList(line));
+  }
+  return [...new Set(sids)];
+}
+
+/* The record as a .reg file for `reg import` (one call, whatever the number
+ * of SIDs): the list replaced, the old single value gone. */
+function recordReg(list) {
+  const root = RECORD_KEY.replace(/^HKCU/, 'HKEY_CURRENT_USER');
+  const sub = RECORD_LIST.replace(/^HKCU/, 'HKEY_CURRENT_USER');
+  return ['Windows Registry Editor Version 5.00', '',
+    `[${root}]`, `"${RECORD_VALUE}"=-`, '',
+    `[-${sub}]`, '',
+    `[${sub}]`, ...list.filter((s) => SID_RE.test(s)).map((s) => `"${s}"=""`), '', ''].join('\r\n');
+}
+
 /* The app containers that need an exemption: packages that may use the
- * network, with none, and not tried before (handled: what an earlier
- * elevated step asked for; one Windows would not exempt is not asked about
- * again). */
+ * network, with none, and not one Windows would not exempt (handled: asked
+ * for, Yes given, and still not exempt; a container left from an app since
+ * removed). */
 function candidates({ containers, exempt, handled }) {
   const ex = new Set([...(exempt || [])].map((s) => String(s).toUpperCase()));
   const done = new Set([...(handled || [])].map((s) => String(s).toUpperCase()));
@@ -292,21 +355,34 @@ const SCAN_PS = [
   'foreach ($l in [ShroudlyNetIso]::Run()) { [Console]::Out.WriteLine($l) }',
 ].join('\n');
 
+/* The running programs' paths, where tasklist /apps cannot be had: only this
+ * account's own show theirs to it. Only cmdlets: it works under a locked-down
+ * PowerShell too, and the part read (a package's full name) is plain ASCII
+ * whatever the console's code page. */
+const PATHS_PS = 'Get-Process | ForEach-Object { $_.Path } | Where-Object { $_ }';
+
 const encode = (script) => Buffer.from(script, 'utf16le').toString('base64');
-const psQuote = (s) => `'${String(s).replace(/'/g, "''")}'`;
+// PowerShell takes ‘ ’ ‚ ‛ for a single quote too; each is doubled like '.
+const psQuote = (s) => `'${String(s).replace(/['\u2018\u2019\u201A\u201B]/g, '$&$&')}'`;
 const POWERSHELL = () => path.join(process.env.SystemRoot || 'C:\\Windows', 'System32', 'WindowsPowerShell', 'v1.0', 'powershell.exe');
 const SYSTEM_TOOL = (exe) => path.join(process.env.SystemRoot || 'C:\\Windows', 'System32', exe);
 
 /* What runs elevated: CheckNetIsolation for each SID in `file`, one per line,
- * each checked again here, so nothing but a package SID ever reaches it. A
- * 32-bit PowerShell (the uninstaller's) reaches the 64-bit tool through
- * Sysnative. It writes nothing. */
+ * each checked again here, so nothing but a package SID ever reaches it. The
+ * file's path comes as base64, never inside quotes, so any character in the
+ * user's TEMP works; the file is deleted as soon as it is read, so a prompt
+ * answered after Shroudly stopped waiting (or after it quit) still works and
+ * leaves nothing behind. A 32-bit PowerShell (the uninstaller's) reaches the
+ * 64-bit tool through Sysnative. It writes nothing else. */
 function elevatedScript(verb, file) {
   const flag = verb === 'remove' ? '-d' : '-a';
   return [
+    `$f = [Text.Encoding]::Unicode.GetString([Convert]::FromBase64String('${Buffer.from(String(file), 'utf16le').toString('base64')}'))`,
+    '$l = [IO.File]::ReadAllLines($f)',
+    'Remove-Item -LiteralPath $f -Force -ErrorAction SilentlyContinue',
     "$n = if ([Environment]::Is64BitOperatingSystem -and -not [Environment]::Is64BitProcess) { 'Sysnative' } else { 'System32' }",
     "$t = Join-Path $env:SystemRoot ($n + '\\CheckNetIsolation.exe')",
-    `foreach ($s in [IO.File]::ReadAllLines(${psQuote(file)})) {`,
+    'foreach ($s in $l) {',
     `  if ($s -match '^S-1-15-2(-\\d{1,10}){7}$') { & $t LoopbackExempt ${flag} ('-p=' + $s) | Out-Null }`,
     '}',
   ].join('\n');
@@ -326,8 +402,9 @@ function launcherScript(inner) {
 function realRun(cmd, args, timeout) {
   return new Promise((resolve) => {
     try {
+      // timedOut: stopped after `timeout` (for the prompt: nobody answered it).
       execFile(cmd, args, { timeout, windowsHide: true, maxBuffer: 16 * 1024 * 1024, env: envFor(cmd) }, (err, stdout, stderr) =>
-        resolve({ code: err ? (typeof err.code === 'number' ? err.code : -1) : 0, stdout: String(stdout || ''), stderr: String(stderr || '') }));
+        resolve({ code: err ? (typeof err.code === 'number' ? err.code : -1) : 0, timedOut: !!(err && err.killed), stdout: String(stdout || ''), stderr: String(stderr || '') }));
     } catch (e) { resolve({ code: -1, stdout: '', stderr: e.message }); }
   });
 }
@@ -341,7 +418,7 @@ class StoreApps {
    * opts.tell(id, params)  a notification and a line in the window
    * opts.protectionOn()
    * opts.busy()         another permission prompt is on screen (Advanced mode)
-   * opts.platform, opts.run(cmd, args, timeout), opts.now()   tests
+   * opts.platform, opts.run(cmd, args, timeout), opts.now(), opts.tmpdir   tests
    * opts.record         { get() -> [sid], set([sid]) }: what the uninstaller
    *                     reads (default HKCU\Software\Shroudly)
    */
@@ -354,6 +431,7 @@ class StoreApps {
     this.platform = opts.platform || process.platform;
     this.run = opts.run || realRun;
     this.now = opts.now || Date.now;
+    this.tmpdir = opts.tmpdir || os.tmpdir();
     this.record = opts.record || {
       get: () => this._regRecordGet(),
       set: (list) => this._regRecordSet(list),
@@ -361,13 +439,29 @@ class StoreApps {
     this.onChange = opts.onChange || (() => {});
     this.asked = false;          // the prompt was shown this session
     this.toldBlocked = false;    // the declined line was logged this session
+    this.toldNoAdmin = false;    // the no-administrator line was logged this session
+    this.admin = null;           // this account can say Yes to a prompt (null: not known yet)
     this.lastScanAt = -Infinity;
-    this._running = null;
+    this._readFor = null;        // the open apps the last read (no prompt after it) was made for
+    this._running = null;        // a survey under way
+    this._removing = null;       // the switch's removal under way
+    this._gen = 0;               // the switch turned: a survey under way stands down
   }
 
   available() { return this.platform === 'win32'; }
 
   ours() { return (this.store.get('storeAppsOurs', []) || []).filter((s) => SID_RE.test(s)); }
+
+  /* Asked for at a prompt whose end Shroudly has not seen (nobody answered
+   * in time, a quit or a crash): Shroudly's once Windows lists them. */
+  _pending() { return (this.store.get('storeAppsPending', []) || []).filter((s) => SID_RE.test(s)); }
+
+  /* Those Windows would not exempt. Never one of Shroudly's own: up to this
+   * version every SID asked for was kept here. */
+  _handled() {
+    const own = new Set(this.ours());
+    return (this.store.get('storeAppsHandled', []) || []).map((s) => String(s).toUpperCase()).filter((s) => SID_RE.test(s) && !own.has(s));
+  }
 
   status() {
     return { available: this.available(), on: this.store.get('storeAppsMode') === true, ours: this.ours().length };
@@ -401,25 +495,65 @@ class StoreApps {
     return r.code === 0 ? parseExemptList(r.stdout) : null;
   }
 
-  /* One UAC prompt; CheckNetIsolation for each SID. 'ok', 'declined' or
+  /* The app containers of the Store apps this account has open now
+   * (Windows' own parts left out; a packaged service running as SYSTEM all
+   * the time, such as Gaming Services, is no sign either), or null when the
+   * programs cannot be listed. Cheap: no list of app containers is read. */
+  async runningApps() {
+    if (!this.available()) return null;
+    let user = process.env.USERNAME || '';
+    try { user = user || os.userInfo().username; } catch {}
+    let r = user
+      ? await this.run(SYSTEM_TOOL('tasklist.exe'), ['/apps', '/fi', `USERNAME eq ${user}`, '/fo', 'csv', '/nh'], 15000)
+      : { code: -1 };
+    if (r.code !== 0) r = await this.run(POWERSHELL(), ['-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass', '-EncodedCommand', encode(PATHS_PS)], 30000);
+    if (r.code !== 0) return null;
+    return new Set(runningFamilies(r.stdout).map(containerSid));
+  }
+
+  /* Whether this account can say Yes to a permission prompt: true, false,
+   * or null (whoami could not tell). */
+  async canConsent() {
+    const r = await this.run(SYSTEM_TOOL('whoami.exe'), ['/groups', '/fo', 'csv', '/nh'], 15000);
+    return r.code === 0 ? hasAdministrators(r.stdout) : null;
+  }
+
+  _tempFile(ext) { return path.join(this.tmpdir, `shroudly-lb-${crypto.randomBytes(8).toString('hex')}${ext}`); }
+
+  /* Lists of prompts nobody ever answered (the elevated script deletes its
+   * own as it starts), and the uninstaller's. */
+  _sweep() {
+    let names = [];
+    try { names = fs.readdirSync(this.tmpdir); } catch { return; }
+    for (const name of names) {
+      if (!/^shroudly-lb-[0-9a-f]{16,32}\.(txt|reg)$/.test(name)) continue;
+      const f = path.join(this.tmpdir, name);
+      try { if (Date.now() - fs.statSync(f).mtimeMs > STALE_MS) fs.rmSync(f, { force: true }); } catch {}
+    }
+  }
+
+  /* One UAC prompt; CheckNetIsolation for each SID. 'ok', 'declined',
+   * 'noanswer' (nobody answered before ELEVATE_TIMEOUT_MS: the list stays
+   * for a Yes that comes later, and the elevated script deletes it) or
    * 'failed'. */
   async _elevate(verb, sids) {
     const list = sids.filter((s) => SID_RE.test(s));
     if (!list.length) return { code: 'ok' };
-    let dir = null;
+    let file = null;
+    let keep = false;
     try {
-      dir = fs.mkdtempSync(path.join(os.tmpdir(), 'shroudly-lb-'));
-      const file = path.join(dir, 'sids.txt');
-      fs.writeFileSync(file, `${list.join('\r\n')}\r\n`);
+      file = this._tempFile('.txt');
+      fs.writeFileSync(file, `${list.join('\r\n')}\r\n`, { flag: 'wx' });
       const r = await this.run(POWERSHELL(), ['-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass', '-EncodedCommand',
         encode(launcherScript(elevatedScript(verb, file)))], ELEVATE_TIMEOUT_MS);
+      if (r.timedOut) { keep = true; return { code: 'noanswer' }; }
       if (r.code === 2) return { code: 'declined' };
       if (r.code !== 0) return { code: 'failed', detail: (r.stderr || '').trim().split(/\r?\n/)[0] || `exit ${r.code}` };
       return { code: 'ok' };
     } catch (e) {
       return { code: 'failed', detail: e.message };
     } finally {
-      if (dir) { try { fs.rmSync(dir, { recursive: true, force: true }); } catch {} }
+      if (file && !keep) { try { fs.rmSync(file, { force: true }); } catch {} }
     }
   }
 
@@ -429,7 +563,47 @@ class StoreApps {
   async _setOurs(list) {
     const v = [...new Set(list.filter((s) => SID_RE.test(s)))];
     if (v.length) this.store.set('storeAppsOurs', v); else this.store.delete('storeAppsOurs');
-    try { await this.record.set(v); } catch {}
+    await this._writeRecord(v);
+  }
+
+  async _writeRecord(list) {
+    try { await this.record.set([...new Set(list.filter((s) => SID_RE.test(s)))]); } catch {}
+  }
+
+  /* The pending SIDs Windows now lists as exempt are Shroudly's (a Yes it
+   * did not see). final: the others are forgotten, in the record too. */
+  async _takePending(exempt, final) {
+    const pending = this._pending();
+    if (!pending.length) return [];
+    const took = pending.filter((s) => exempt.has(s));
+    const rest = pending.filter((s) => !exempt.has(s));
+    if (final || !rest.length) this.store.delete('storeAppsPending'); else this.store.set('storeAppsPending', rest);
+    if (took.length || final) await this._setOurs([...this.ours(), ...took]);
+    return took;
+  }
+
+  /* Said once taken in; the switch shows on, unless it was turned off by
+   * hand meanwhile (the removal that follows takes them out). */
+  _tookLate(took) {
+    if (!took.length) return;
+    this.log('success', `Store apps: ${took.length} can now reach Shroudly`);
+    if (this.now() - (Number(this.store.get('storeAppsModeOffAt')) || 0) < RESPECT_MS) return;
+    this.store.set('storeAppsMode', true);
+    this.onChange();
+  }
+
+  /* After a read: one of Shroudly's that is no longer exempt (an uninstall,
+   * another tool, these settings on another PC) is not its own any more, and
+   * is a candidate again. */
+  async _tidy(exempt) {
+    const kept = this.store.get('storeAppsHandled', []) || [];
+    const refused = this._handled();
+    if (refused.length !== kept.length) {
+      if (refused.length) this.store.set('storeAppsHandled', refused); else this.store.delete('storeAppsHandled');
+    }
+    const ours = this.ours();
+    const live = ours.filter((s) => exempt.has(s));
+    if (live.length !== ours.length) await this._setOurs(live);
   }
 
   /* When protection comes on, and every so often after: app containers that
@@ -440,21 +614,33 @@ class StoreApps {
     return this._running;
   }
 
-  /* Resolves once no survey (and so no permission prompt) is under way. */
-  settled() { return this._running ? this._running.then(() => {}, () => {}) : Promise.resolve(); }
+  /* Resolves once no survey and no removal (and so no permission prompt)
+   * is under way. */
+  settled() {
+    return Promise.all([this._running, this._removing].filter(Boolean).map((p) => p.then(() => {}, () => {}))).then(() => {});
+  }
 
-  /* The settings may have lost what Shroudly added (a reset profile) while
-   * the uninstaller's record still has it: adopted once. */
+  /* Once a session, before anything else: the settings may have lost what
+   * Shroudly added (a reset profile) while the uninstaller's record still has
+   * it; a prompt of an earlier session may have been answered after Shroudly
+   * stopped waiting for it, or Shroudly quit or crashed after a Yes. */
   async _adopt() {
     if (this._adopted || !this.available()) return;
     this._adopted = true;
-    if (this.ours().length) return;
-    let rec = [];
-    try { rec = await this.record.get(); } catch {}
-    if (Array.isArray(rec) && rec.length) this.store.set('storeAppsOurs', rec.filter((s) => SID_RE.test(s)));
+    this._sweep();
+    if (!this.ours().length) {
+      let rec = [];
+      try { rec = await this.record.get(); } catch {}
+      if (Array.isArray(rec) && rec.length) this.store.set('storeAppsOurs', rec.filter((s) => SID_RE.test(s)));
+    }
+    if (this._pending().length) {
+      const s = await this.scan();
+      if (s) this._tookLate(await this._takePending(new Set(s.exempt), true));
+    }
   }
 
   async _survey({ force = false } = {}) {
+    const gen = this._gen;
     await this._adopt();
     const why = decide({
       platform: this.platform, protectionOn: this.protectionOn(), offAt: this.store.get('storeAppsModeOffAt'),
@@ -462,22 +648,62 @@ class StoreApps {
     });
     if (why === 'declined' && !this.toldBlocked) return this._noteBlocked();
     if (why !== 'ask') return { asked: false, why };
-    if (!force && this.now() - this.lastScanAt < RESCAN_MS) return { asked: false, why: 'recent' };
+    if (!force && this.admin === false && this.toldNoAdmin) return { asked: false, why: 'not_admin' };
+    // By itself only on a sign of need: a Store app open now. The list is
+    // read again for one not seen open before, or every half hour.
+    let open = null;
+    if (!force) {
+      open = await this.runningApps();
+      if (!open || !open.size) return { asked: false, why: 'idle' };
+      if (this._readFor && this.now() - this.lastScanAt < RESCAN_MS && [...open].every((s) => this._readFor.has(s))) return { asked: false, why: 'idle' };
+    }
     this.lastScanAt = this.now();
     const before = await this.scan();
-    if (!before) return { asked: false, why: 'unreadable' };
-    const handled = this.store.get('storeAppsHandled', []) || [];
-    const need = candidates({ containers: before.containers, exempt: before.exempt, handled });
+    if (!before) { this._readFor = open; return { asked: false, why: 'unreadable' }; }
+    // The switch turned while it read: that decides now.
+    if (gen !== this._gen) return { asked: false, why: 'changed' };
+    const exempt = new Set(before.exempt);
+    this._tookLate(await this._takePending(exempt, false));
+    await this._tidy(exempt);
+    const need = candidates({ containers: before.containers, exempt: before.exempt, handled: this._handled() });
+    if (!force && !need.some((c) => open.has(c.sid))) {
+      this._readFor = open;
+      return { asked: false, why: need.length ? 'idle' : 'none' };
+    }
     if (!need.length) return { asked: false, why: 'none' };
     // Protection may have stopped, or another prompt come up, while it read.
     if (!force && (!this.protectionOn() || this.busy())) return { asked: false, why: 'changed' };
 
     const apps = appNames(need).join(', ');
+    // A standard user would be asked for a password they do not have: the
+    // log says once a session what an administrator can do.
+    if (!force) {
+      if (this.admin !== true) this.admin = await this.canConsent();
+      if (this.admin !== true) {
+        if (!this.toldNoAdmin) {
+          this.toldNoAdmin = true;
+          this.log('warning', `Store apps: ${apps} cannot go through Shroudly until an administrator allows it (the Microsoft Store apps switch in Settings)`);
+        }
+        return { asked: false, why: 'not_admin' };
+      }
+    }
+
+    // Every app that needs it in the one prompt: the sign-in brokers
+    // (XboxIdentityProvider, AAD.BrokerPlugin) with the app that is open.
+    const sids = need.map((c) => c.sid);
     this.asked = true;
     this.log('info', `Store apps: ${need.length} cannot reach Shroudly (${apps}); asking for permission`);
     this.tell('autoStoreAppsAsk', { apps });
-    const r = await this._elevate('add', need.map((c) => c.sid));
+    // Written down before the prompt: should Shroudly stop waiting, quit or
+    // crash after a Yes, what Windows adds is still known to be Shroudly's
+    // (taken in later; the uninstaller takes it out meanwhile).
+    this.store.set('storeAppsPending', sids);
+    await this._writeRecord([...this.ours(), ...sids]);
+    const r = await this._elevate('add', sids);
     if (r.code === 'declined') {
+      this.store.delete('storeAppsPending');
+      await this._writeRecord(this.ours());
+      if (gen !== this._gen) return { asked: true, result: 'changed', apps };
       this.store.set('storeAppsDeclinedAt', this.now());
       this.toldBlocked = true;
       this.log('info', 'Store apps: permission was not given; Shroudly will not ask by itself again for two weeks');
@@ -485,15 +711,26 @@ class StoreApps {
       return { asked: true, result: 'declined', apps };
     }
     // What took: none of these were exempt before, so each one exempt now is
-    // Shroudly's. Should the list not be readable now, all of them are
-    // remembered; only those still exempt are ever taken out again.
-    let added = [];
-    if (r.code === 'ok') {
-      const after = await this.scan();
-      const now = after ? new Set(after.exempt) : null;
-      added = need.map((c) => c.sid).filter((s) => !now || now.has(s));
+    // Shroudly's. Should the list not be readable after a Yes, all of them
+    // are remembered; only those still exempt are ever taken out again.
+    const after = await this.scan();
+    const nowExempt = after ? new Set(after.exempt) : null;
+    const added = sids.filter((s) => (nowExempt ? nowExempt.has(s) : r.code === 'ok'));
+    const rest = sids.filter((s) => !added.includes(s));
+    // Not answered yet: a Yes may still come, and is taken in later.
+    if (r.code === 'noanswer' && rest.length) this.store.set('storeAppsPending', rest); else this.store.delete('storeAppsPending');
+    await this._setOurs([...this.ours(), ...added]);
+    // One Windows would not exempt (a container left from an app since
+    // removed) is not asked about again.
+    if (r.code === 'ok' && added.length && rest.length) this.store.set('storeAppsHandled', [...new Set([...this._handled(), ...rest])]);
+    // The switch turned off meanwhile: what was added is recorded, for the
+    // removal that follows, and nothing else is changed or said.
+    if (gen !== this._gen) return { asked: true, result: 'changed', apps, added };
+    if (!added.length && r.code === 'noanswer') {
+      this.log('info', 'Store apps: the permission prompt was not answered; Shroudly will ask again next time');
+      return { asked: true, result: 'noanswer', apps };
     }
-    if (r.code !== 'ok' || !added.length) {
+    if (!added.length) {
       // Nothing changed (no administrator after all, a locked-down system):
       // the same two weeks as a decline, but said as a failure.
       this.store.set('storeAppsDeclinedAt', this.now());
@@ -502,10 +739,6 @@ class StoreApps {
       this.tell('autoStoreAppsFailed', { apps });
       return { asked: true, result: 'failed', apps };
     }
-    await this._setOurs([...this.ours(), ...added]);
-    // One Windows would not exempt (a container left from an app since
-    // removed) is not asked about again.
-    this.store.set('storeAppsHandled', [...new Set([...handled, ...need.map((c) => c.sid)])]);
     this.store.set('storeAppsMode', true);
     this.store.delete('storeAppsDeclinedAt');
     this.log('success', `Store apps: ${added.length} can now reach Shroudly`);
@@ -521,22 +754,28 @@ class StoreApps {
     if (this.now() - this.lastScanAt < RESCAN_MS) return { asked: false, why: 'declined' };
     this.lastScanAt = this.now();
     const s = await this.scan();
-    const need = s ? candidates({ containers: s.containers, exempt: s.exempt, handled: this.store.get('storeAppsHandled', []) }) : [];
+    const need = s ? candidates({ containers: s.containers, exempt: s.exempt, handled: this._handled() }) : [];
     if (need.length) this.log('warning', `Store apps: ${appNames(need).join(', ')} cannot go through Shroudly; permission was not given`);
     return { asked: false, why: 'declined' };
   }
 
-  /* The switch in Settings. On: ask now (the user's own request). Off: take
-   * out Shroudly's own exemptions (one prompt), and leave the switch off for
-   * two weeks at least. */
+  /* The switch in Settings. On: ask now (the user's own request), whatever
+   * a survey already under way decides. Off: take out Shroudly's own
+   * exemptions (one prompt), after a survey under way, so nothing it adds
+   * stays, and leave the switch off for two weeks at least. The last turn
+   * wins: an earlier one still waiting stands down ('changed'). */
   async setMode(on) {
     if (!this.available()) return { success: false, code: 'unsupported' };
+    const gen = ++this._gen;
     if (on) {
       this.store.delete('storeAppsModeOffAt');
       this.store.delete('storeAppsDeclinedAt');
       this.store.set('storeAppsMode', true);
+      while (this._running || this._removing) await this.settled();
+      if (gen !== this._gen) return { success: false, code: 'changed' };
       const r = await this.survey({ force: true });
-      const bad = r && (r.result === 'declined' || r.result === 'failed' ? r.result : r.why === 'unreadable' ? 'unreadable' : null);
+      if (gen !== this._gen) return { success: false, code: 'changed' };
+      const bad = r && (['declined', 'failed', 'noanswer'].includes(r.result) ? r.result : r.why === 'unreadable' ? 'unreadable' : null);
       if (bad) {
         this.store.set('storeAppsMode', false);
         this.onChange();
@@ -548,18 +787,23 @@ class StoreApps {
     this.store.set('storeAppsModeOffAt', this.now());
     this.store.set('storeAppsMode', false);
     this.onChange();
-    return this.removeOurs();
+    while (this._running || this._removing) await this.settled();
+    if (gen !== this._gen) return { success: false, code: 'changed' };
+    this._removing = this.removeOurs().finally(() => { this._removing = null; });
+    return this._removing;
   }
 
   /* Take out the exemptions Shroudly added that are still there; the user's
    * own are not in its record. */
   async removeOurs() {
     await this._adopt();
-    const ours = this.ours();
-    if (!ours.length) { await this._setOurs([]); return { success: true, removed: 0 }; }
+    if (!this.ours().length && !this._pending().length) { await this._setOurs([]); return { success: true, removed: 0 }; }
     const s = await this.scan();
     if (!s) return { success: false, code: 'unreadable' };
     const exempt = new Set(s.exempt);
+    // A Yes Shroudly did not see the end of: those are its own too.
+    await this._takePending(exempt, true);
+    const ours = this.ours();
     const still = ours.filter((sid) => exempt.has(sid));
     if (!still.length) { await this._setOurs([]); this.store.delete('storeAppsHandled'); return { success: true, removed: 0 }; }
     const r = await this._elevate('remove', still);
@@ -577,21 +821,35 @@ class StoreApps {
   }
 
   _regRecordGet() {
-    return this.run(SYSTEM_TOOL('reg.exe'), ['query', RECORD_KEY, '/v', RECORD_VALUE], 10000)
-      .then((r) => (r.code === 0 ? parseExemptList(r.stdout) : []));
+    return this.run(SYSTEM_TOOL('reg.exe'), ['query', RECORD_KEY, '/s'], 10000)
+      .then((r) => (r.code === 0 ? parseRecord(r.stdout) : []));
   }
 
-  _regRecordSet(list) {
-    if (this.platform !== 'win32') return Promise.resolve();
-    const args = list.length
-      ? ['add', RECORD_KEY, '/v', RECORD_VALUE, '/t', 'REG_SZ', '/d', list.join(';'), '/f']
-      : ['delete', RECORD_KEY, '/v', RECORD_VALUE, '/f'];
-    return this.run(SYSTEM_TOOL('reg.exe'), args, 10000);
+  /* One `reg import` for the whole list, however long; an empty one: the
+   * list and the old single value deleted. */
+  async _regRecordSet(list) {
+    if (this.platform !== 'win32') return;
+    const reg = SYSTEM_TOOL('reg.exe');
+    if (!list.length) {
+      await this.run(reg, ['delete', RECORD_LIST, '/f'], 10000);
+      await this.run(reg, ['delete', RECORD_KEY, '/v', RECORD_VALUE, '/f'], 10000);
+      return;
+    }
+    const file = this._tempFile('.reg');
+    try {
+      fs.writeFileSync(file, Buffer.concat([Buffer.from([0xff, 0xfe]), Buffer.from(recordReg(list), 'utf16le')]), { flag: 'wx' });
+      await this.run(reg, ['import', file], 10000);
+    } catch {
+      // Not written: the settings still have the list, and the next write tries again.
+    } finally {
+      try { fs.rmSync(file, { force: true }); } catch {}
+    }
   }
 }
 
 module.exports = StoreApps;
 Object.assign(module.exports, {
   containerSid, familyOf, isPackage, usesNetwork, parseMappings, parseExemptList, parseScan, candidates, decide, appNames,
-  elevatedScript, launcherScript, SCAN_PS, SID_RE, RESPECT_MS, RECORD_KEY, RECORD_VALUE, MAPPINGS_KEY,
+  runningFamilies, hasAdministrators, parseRecord, recordReg, elevatedScript, launcherScript, psQuote, SCAN_PS, PATHS_PS, SID_RE, RESPECT_MS,
+  RESCAN_MS, ELEVATE_TIMEOUT_MS, RECORD_KEY, RECORD_VALUE, RECORD_LIST, MAPPINGS_KEY,
 });
