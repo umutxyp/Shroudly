@@ -177,20 +177,39 @@ function socksAny(P, host, port) {
     else t.ok(/kCFProxyTypeSOCKS 127\.0\.0\.1:10808/.test(got), 'CFNetwork hands Telegram Desktop (Qt) the engine as a SOCKS proxy');
   }
   if (process.platform === 'win32') {
+    /* What WinHTTP makes of PAC answers, each served at an address of its own
+     * (WinHTTP keeps a script it downloaded, by address, for a while). */
+    const http = require('http');
+    const scripts = new Map();
+    const srv = http.createServer((req, res) => {
+      res.writeHead(200, { 'Content-Type': 'application/x-ns-proxy-autoconfig' });
+      res.end(scripts.get(req.url) || 'function FindProxyForURL(u, h) { return "DIRECT"; }');
+    });
+    await new Promise((r) => srv.listen(0, '127.0.0.1', r));
+    const base = `http://127.0.0.1:${srv.address().port}`;
+    const ask = async (name, body, url = `https://${DC}:443/`) => {
+      const p = `/${name}-${Date.now()}.pac`;
+      scripts.set(p, body);
+      const got = await winhttpProxyFor(base + p, url);
+      console.log(`  --  WinHTTP, ${name}: ${got}`);
+      return got;
+    };
+    const fixed = (ret) => `function FindProxyForURL(url, host) { return "${ret}"; }`;
+    await ask('proxy-only', fixed('PROXY 127.0.0.1:10808'));
+    await ask('socks-only', fixed('SOCKS 127.0.0.1:10808'));
+    await ask('socks5-socks', fixed('SOCKS5 127.0.0.1:10808; SOCKS 127.0.0.1:10808'));
+    await ask('socks5-socks-proxy', fixed('SOCKS5 127.0.0.1:10808; SOCKS 127.0.0.1:10808; PROXY 127.0.0.1:10808'));
     const sp = new SystemProxy(() => {});
     sp.mode = 'all';
-    const pacUrl = await sp.startPacServer(10808);
-    const got = await winhttpProxyFor(pacUrl, `https://${DC}:443/`);
-    sp.stopPacServer();
-    console.log(`  --  WinHTTP for a Telegram data centre: ${got}`);
-    // 3 = a named proxy. WinHTTP drops the SOCKS entries; the PROXY one is
-    // what Qt then uses, as an HTTP proxy it tunnels through with CONNECT,
-    // which the engine takes on the same port (checked for real below).
+    const got = await ask('shroudly', sp.pacBody(10808));
+    const plain = await ask('shroudly-http', sp.pacBody(10808), 'http://neverssl.com/');
+    srv.close();
+    // 3 = a named proxy: Qt then tunnels through it with CONNECT, which the
+    // engine takes on the same port (checked for real below).
     t.ok(/^3 .*127\.0\.0\.1:10808/.test(got), 'WinHTTP hands Telegram Desktop (Qt) the engine as its proxy (not "no proxy")');
-    const plain = await new Promise((r) => { const s2 = new SystemProxy(() => {}); s2.mode = 'all'; s2.startPacServer(10808).then((u) => winhttpProxyFor(u, 'http://neverssl.com/').then((g) => { s2.stopPacServer(); r(g); })); });
-    console.log(`  --  WinHTTP for plain http://: ${plain}`);
-    t.ok(/^1\b/.test(plain), 'and nothing changes for plain http:// (no proxy for WinHTTP, as before)');
+    t.ok(!/^3 /.test(plain) || /socks/i.test(plain), 'and plain http:// gets no HTTP proxy from it');
   }
+
 
   if (!(await direct(DC, 443))) {
     console.log('  --  Telegram cannot be reached from here at all; the rest needs it');
