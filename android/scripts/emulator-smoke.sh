@@ -422,6 +422,9 @@ if [ "$("$ADB" -s "$SERIAL" root 2>&1 | grep -c 'cannot run as root')" = 0 ]; th
     framework
     "$ADB" -s "$SERIAL" root >/dev/null 2>&1 || true; sleep 3; adb_ wait-for-device
     wait_for 60 boot_done || fail "adbd did not come back as root"
+    # Android may start the service again by itself after the restart (it was
+    # always-on, and is sticky): protection is switched off once it is up.
+    sleep 20
     if vpn_up; then ctl stop; wait_for 30 tun_gone || fail "VPN still up after always-on was switched off"; fi
   fi
 else
@@ -431,6 +434,9 @@ fi
 # ── the window: update source and privacy policy ─────────────────────────
 # Debug builds log which updates the window offers each time it starts.
 window() {
+  # Off: while on, the counters change every second and uiautomator never
+  # sees the window idle.
+  if vpn_up; then ctl stop; wait_for 30 tun_gone || fail "protection did not go off before the window checks"; fi
   clear_log
   sh_ "am force-stop $PKG" >/dev/null
   sh_ "am start -W -n $PKG/.MainActivity" >/dev/null
