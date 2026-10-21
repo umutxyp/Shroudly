@@ -348,9 +348,13 @@ class DohForwarder {
   }
 
   /* A warm round no route answered: a streak under way is still on, however
-   * few lookups there are. */
+   * few lookups there are. One that ended long ago (the computer asleep,
+   * warm rounds not running) is not revived: it is over, and the next
+   * failed lookup starts a new one. */
   stillFailing(now = Date.now()) {
-    if (this.failures) this.lastFailAt = now;
+    if (!this.failures) return;
+    if (now - this.lastFailAt > STREAK_GAP_MS) { this.failures = 0; this.failingSince = 0; this.lastFailAt = 0; return; }
+    this.lastFailAt = now;
   }
 
   /* A route failed a request made at `since`. A dead connection fails every

@@ -30,9 +30,10 @@
  * answers every set-back by taking it again at once is left to it after the
  * third time in a row, and named when it can be (checkOwnership).
  *
- * A user's own PAC from before Shroudly that is served on this computer is
- * put back only while something still listens there: one whose program has
- * gone is switched off instead, never left pointing at nothing (_pacGone).
+ * A user's own PAC or manual proxy from before Shroudly that is served on
+ * this computer is put back only while something still listens there: one
+ * whose program has gone is switched off instead, its address kept, never
+ * left pointing at nothing (macOS, GNOME, KDE; _pacGone).
  *
  * Every system is pointed at the same thing: a PAC file served over loopback
  * HTTP, set as the system's automatic proxy configuration. It is the one
@@ -1211,28 +1212,42 @@ ${argsXml}
     return { kind: 'pac', pac };
   }
 
-  /* The user's own PAC from before Shroudly, about to be put back, is served
-   * on this computer and nothing listens there any more: the program that
-   * served it has gone (it often removed it as it went, which had Shroudly
-   * set its own back meanwhile). Put back, it would leave the system
-   * pointing at nothing, and the programs that do not go direct when a PAC
-   * cannot be read would lose their connection; the setting is switched off
-   * instead, and one line says so. A PAC served elsewhere, one something
-   * still listens for, and one that cannot be told about come back as
-   * before. The same at Stop, a quit, a session end and after a crash (the
-   * watchdog, the login hook, the next start): at a session end its program
-   * may be ending too, and switched off is then the safe side (such programs
-   * mostly set their PAC again when they start; a dead one in place would
-   * break the next login's connections until the user found it). */
+  /* The user's own proxy from before Shroudly, about to be put back, is
+   * served on this computer and nothing listens there any more: the program
+   * that served it has gone (it often removed it as it went, which had
+   * Shroudly set its own back meanwhile). Put back, a manual proxy would cut
+   * every program off (there is no going around one that does not answer),
+   * and a PAC would point at nothing. It is switched off instead, its
+   * address kept where it was, so turning it on again is all it takes; one
+   * line says so. A proxy elsewhere, one something still listens for, and
+   * one that cannot be told about come back as before. The same at Stop, a
+   * quit, a session end and after a crash (the watchdog, the login hook, the
+   * next start): at a session end its program may be ending too, and off,
+   * the address kept, is then the safe side.
+   * macOS, GNOME and KDE. Not Windows: its PAC setting is only the address,
+   * which switching off would lose for good, and WinINET and Chromium go on
+   * without a PAC they cannot fetch (direct, or the manual proxy put back
+   * with it). */
   _pacGone(u) {
     const k = SystemProxy._pacKind(u);
     if (k.kind !== 'local' || !k.port) return false;
-    if (this._gone.has(k.pac)) return this._gone.get(k.pac);
-    let on = null;
-    try { on = exec.listening(k.port); } catch {}
-    const gone = on === false;
-    this._gone.set(k.pac, gone);
-    if (gone) this.log('info', `The proxy setting from before Shroudly (${k.pac}) points at a program on this computer that is no longer running; it was switched off instead of put back`);
+    return this._localGone(k.pac, [{ host: k.host, port: k.port }]);
+  }
+
+  /* Every one of these servers is on this computer and none is listening:
+   * true only when that is known (see _pacGone). `shown` names them in the
+   * log line. */
+  _localGone(shown, servers) {
+    if (this._gone.has(shown)) return this._gone.get(shown);
+    const loop = (h) => /^127\./.test(h) || h === 'localhost' || h === '::1';
+    let gone = servers.length > 0 && servers.every((x) => loop(String(x.host || '').replace(/^\[|\]$/g, '').toLowerCase()) && x.port > 0);
+    for (const x of gone ? servers : []) {
+      let on = null;
+      try { on = exec.listening(x.port); } catch {}
+      if (on !== false) { gone = false; break; }
+    }
+    this._gone.set(shown, gone);
+    if (gone) this.log('info', `The proxy setting from before Shroudly (${shown}) points at a program on this computer that is no longer running; it was switched off instead of put back`);
     return gone;
   }
 
@@ -1590,7 +1605,11 @@ ${argsXml}
       const cur = regGet('AutoConfigURL');
       if (cur && OUR_PAC.test(cur.data)) {
         const v = snap.AutoConfigURL;
-        if (v && !OUR_PAC.test(v.data) && !this._pacGone(v.data)) regSet('AutoConfigURL', v.type, v.data);
+        // The user's own PAC is put back even when nothing serves it now (a
+        // program that has gone, or not started yet): Windows keeps only
+        // the address, which would be lost for good, and WinINET and
+        // Chromium go on without a PAC they cannot fetch (see _pacGone).
+        if (v && !OUR_PAC.test(v.data)) regSet('AutoConfigURL', v.type, v.data);
         else regDel('AutoConfigURL');
         this._refreshWinInet();
       }
@@ -1601,8 +1620,7 @@ ${argsXml}
     const order = ['ProxyEnable', 'AutoConfigURL', 'ProxyServer', 'ProxyOverride'];
     for (const name of order) {
       const v = snap[name];
-      if (v && name === 'AutoConfigURL' && this._pacGone(v.data)) regDel(name);
-      else if (v) regSet(name, v.type, v.data);
+      if (v) regSet(name, v.type, v.data);
       else if (name === 'ProxyEnable') regSet('ProxyEnable', 'REG_DWORD', '0');
       else regDel(name);
     }
@@ -1961,12 +1979,15 @@ $t = Add-Type -MemberDefinition $sig -Name WinINet -Namespace Net -PassThru
       let steps = SystemProxy._macRestoreArgs({ name: s.name, prevAuto: s.prevAuto }).map(cmd).join('; ');
       // The user's own PAC served on this Mac comes back only while
       // something still listens there, and switched off once its program has
-      // gone (see _pacGone). Only nc failing to connect says gone.
+      // gone (see _pacGone). Only nc failing to connect says gone: to the
+      // address written, or for "localhost" to both of loopback's (a program
+      // may serve on ::1 alone).
       const k = s.prevAuto && s.prevAuto.enabled ? SystemProxy._pacKind(SystemProxy._macSafeUrl(s.prevAuto.url)) : null;
       if (k && k.kind === 'local' && k.port) {
-        const host = /^127\.\d+\.\d+\.\d+$/.test(k.host) || k.host === '::1' ? k.host : '127.0.0.1';
+        const hosts = /^127\.\d+\.\d+\.\d+$/.test(k.host) || k.host === '::1' ? [k.host] : ['127.0.0.1', '::1'];
         const off = SystemProxy._macRestoreArgs({ name: s.name, prevAuto: { ...s.prevAuto, enabled: false } }).map(cmd).join('; ');
-        steps = `if [ -x ${shq(nc)} ] && ! ${shq(nc)} -z -G 2 ${shq(host)} ${Number(k.port) | 0} >/dev/null 2>&1; then ${off}; else ${steps}; fi`;
+        const none = hosts.map((h) => `! ${shq(nc)} -z -G 2 ${shq(h)} ${Number(k.port) | 0} >/dev/null 2>&1`).join(' && ');
+        steps = `if [ -x ${shq(nc)} ] && ${none}; then ${off}; else ${steps}; fi`;
       }
       return `case "$(${shq(networksetup)} -getautoproxyurl ${shq(s.name)})" in *${shq(`URL: ${pacUrl}`)}*${shq('Enabled: Yes')}*) ${steps};; esac`;
     });
@@ -2226,12 +2247,29 @@ $t = Add-Type -MemberDefinition $sig -Name WinINet -Namespace Net -PassThru
     return steps;
   }
 
-  /* The GNOME record to put back: the user's own PAC served on this
-   * computer by a program that has gone comes back with the mode 'none'
-   * (its address kept), not pointing at nothing (_pacGone). */
-  _gnomeRestorable(g) {
+  /* The GNOME record to put back: the user's own PAC, or manual proxy,
+   * served on this computer by a program that has gone comes back with the
+   * mode 'none' (its addresses kept), not pointing at nothing (_pacGone).
+   * Shroudly never writes the manual servers: what is there now is what
+   * the mode would switch back on (2.5.4 and earlier wrote its SOCKS one:
+   * put back as recorded). */
+  _gnomeRestorable(g, legacy = false) {
     const unq = (v) => String(v || '').replace(/^'(.*)'$/, '$1');
-    return unq(g.mode) === 'auto' && this._pacGone(unq(g.autourl)) ? { ...g, mode: "'none'" } : g;
+    const mode = unq(g.mode);
+    if (mode === 'auto') return this._pacGone(unq(g.autourl)) ? { ...g, mode: "'none'" } : g;
+    if (mode !== 'manual' || legacy) return g;
+    const servers = [];
+    for (const kind of ['http', 'https', 'ftp', 'socks']) {
+      let host = '';
+      let port = 0;
+      try {
+        host = unq(exec.runSync('gsettings', ['get', `org.gnome.system.proxy.${kind}`, 'host'], 3000).trim());
+        port = parseInt(exec.runSync('gsettings', ['get', `org.gnome.system.proxy.${kind}`, 'port'], 3000).trim(), 10) || 0;
+      } catch { return g; } // cannot be told: as before
+      if (host && port) servers.push({ host, port });
+    }
+    const shown = [...new Set(servers.map((x) => `${x.host}:${x.port}`))].join(', ');
+    return this._localGone(shown, servers) ? { ...g, mode: "'none'" } : g;
   }
 
   /* force: straight after a failed apply, when what is there is ours even if
@@ -2241,7 +2279,7 @@ $t = Add-Type -MemberDefinition $sig -Name WinINet -Namespace Net -PassThru
     if (!g) return;
     const legacy = this.snapshot.form !== 'pac';
     if (!force && !legacy && !this._gnomeOwnedSync()) return; // someone else's setting by now
-    for (const args of SystemProxy._gnomeRestoreArgs(this._gnomeRestorable(g), legacy)) { try { exec.runSync('gsettings', args, 3000); } catch {} }
+    for (const args of SystemProxy._gnomeRestoreArgs(this._gnomeRestorable(g, legacy), legacy)) { try { exec.runSync('gsettings', args, 3000); } catch {} }
   }
 
   async _restoreLinux() {
@@ -2249,7 +2287,7 @@ $t = Add-Type -MemberDefinition $sig -Name WinINet -Namespace Net -PassThru
     if (g) {
       const legacy = this.snapshot.form !== 'pac';
       if (legacy || this._gnomeOwnedSync()) {
-        for (const args of SystemProxy._gnomeRestoreArgs(this._gnomeRestorable(g), legacy)) { try { await exec.run('gsettings', args, 4000); } catch {} }
+        for (const args of SystemProxy._gnomeRestoreArgs(this._gnomeRestorable(g, legacy), legacy)) { try { await exec.run('gsettings', args, 4000); } catch {} }
       }
     }
     this._restoreKdeSync();
@@ -2280,8 +2318,9 @@ $t = Add-Type -MemberDefinition $sig -Name WinINet -Namespace Net -PassThru
 
   /* The two keys, null when absent; locked when the administrator made them
    * immutable ([$i]). */
-  static _kdeRead(text) {
+  static _kdeRead(text, extra = null) {
     const out = { type: null, script: null, locked: false };
+    if (extra) out.value = null; // and the value of this key of the group
     let inGroup = false;
     for (const raw of String(text).split('\n')) {
       const line = raw.replace(/\r$/, '');
@@ -2299,8 +2338,32 @@ $t = Add-Type -MemberDefinition $sig -Name WinINet -Namespace Net -PassThru
       if (m[2] && !/^(\[\$[a-z]+\])+$/.test(m[2])) continue; // a translation, not the value
       if (m[1] === KDE_TYPE) out.type = SystemProxy._kdeUnescape(m[3]);
       else if (m[1] === KDE_SCRIPT) out.script = SystemProxy._kdeUnescape(m[3]);
+      else if (extra && m[1] === extra) out.value = SystemProxy._kdeUnescape(m[3]);
     }
     return out;
+  }
+
+  /* KDE's manual proxy servers in the file, each { host, port }: written
+   * "http://127.0.0.1 7890" (a space before the port), or with a colon. */
+  static _kdeManualServers(text) {
+    const out = [];
+    for (const key of ['httpProxy', 'httpsProxy', 'ftpProxy', 'socksProxy']) {
+      const v = String(SystemProxy._kdeRead(text, key).value || '').trim();
+      if (!v) continue;
+      const m = v.replace(/^[a-z0-9+.-]+:\/\//i, '').replace(/\/.*$/, '').match(/^(\[[^\]]+\]|[^\s:]+)(?:[\s:]+(\d+))?$/);
+      if (m && m[2]) out.push({ host: m[1], port: Number(m[2]) });
+    }
+    return out;
+  }
+
+  /* The manual proxy the user had (type 1) is served on this computer by a
+   * program that has gone (see _pacGone). */
+  _kdeManualGone(file) {
+    let text = '';
+    try { text = fs.readFileSync(file, 'utf8'); } catch { return false; }
+    const servers = SystemProxy._kdeManualServers(text);
+    const shown = [...new Set(servers.map((x) => `${x.host}:${x.port}`))].join(', ');
+    return this._localGone(shown, servers);
   }
 
   /* The file with the given keys set (null: removed), everything else as it
@@ -2387,9 +2450,9 @@ $t = Add-Type -MemberDefinition $sig -Name WinINet -Namespace Net -PassThru
     const k = this.snapshot && this.snapshot.kde;
     if (!k || (!force && !this._kdeOwnedSync())) return;
     const script = k.script && !OUR_PAC.test(k.script) ? k.script : null;
-    // The user's own PAC served on this computer by a program that has gone:
-    // no proxy, its address kept (_pacGone).
-    const type = k.type === '2' && (!script || this._pacGone(script)) ? null : k.type;
+    // The user's own PAC, or manual proxy, served on this computer by a
+    // program that has gone: no proxy, its addresses kept (_pacGone).
+    const type = (k.type === '2' && (!script || this._pacGone(script))) || (k.type === '1' && this._kdeManualGone(k.file)) ? null : k.type;
     try { this._kdeWriteSync(k.file, { [KDE_TYPE]: type, [KDE_SCRIPT]: script }); } catch {}
     this._kdeNotify();
   }

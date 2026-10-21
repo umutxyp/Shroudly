@@ -36,9 +36,11 @@
  *     takeover; "Set Shroudly again" sets it back in place
  *   - a session end or a quit while a set-back is writing (macOS, GNOME): the
  *     restore wins, nothing of ours is left set after it
- *   - the user's own PAC served on this computer by a program that has gone
- *     is switched off at Stop and after a crash, not put back pointing at
- *     nothing (Windows, macOS and its root helper, GNOME, KDE)
+ *   - the user's own PAC or manual proxy served on this computer by a
+ *     program that has gone is switched off at Stop and after a crash, its
+ *     address kept, not put back pointing at nothing (macOS and its root
+ *     helper, on 127.0.0.1 or ::1, GNOME, KDE); on Windows the PAC is put
+ *     back as it was, never deleted
  *   - the PAC fails open ("; DIRECT") on XFCE, LXQt and other desktops only
  *     (P1), and its port comes from a fixed range (P16)
  *   - apply() and restore() run in order: a Stop during a re-apply ends
@@ -580,15 +582,16 @@ const readState = (file) => { try { return JSON.parse(fs.readFileSync(file, 'utf
     }
     // The user's own PAC from before Shroudly is another tool's, served on
     // this computer. The tool quits and removes the setting (ours with it),
-    // which Shroudly sets back; at Stop nothing listens there any more: the
-    // setting goes direct instead of pointing at nothing, and one line says
-    // so. A tool still running, or one that cannot be told about, gets its
-    // PAC back as before. The same after a crash (the watchdog's recovery).
+    // which Shroudly sets back. At Stop it is put back as it was, whether
+    // anything serves it now or not: Windows keeps only the address, which
+    // switching it off would lose for good (a tool restarting, a logoff
+    // where it ended first), and WinINET and Chromium go on without a PAC
+    // they cannot fetch. The same after a crash (the watchdog's recovery).
     {
       const tool = 'http://127.0.0.1:16823/proxy_on.pac';
       let served = false;
       SystemProxy._setExec({ ...fx, listening: (port) => (port === 16823 ? served : true) });
-      const gone = `info: The proxy setting from before Shroudly (${tool}) points at a program on this computer that is no longer running; it was switched off instead of put back`;
+      const gone = 'no longer running';
       for (const [why, value] of [['its program gone', false], ['still served', true], ['unknown', null]]) {
         reg.set('AutoConfigURL', { type: 'REG_SZ', data: tool });
         served = true;
@@ -600,8 +603,8 @@ const readState = (file) => { try { return JSON.parse(fs.readFileSync(file, 'utf
         await sp.checkOwnership();
         const setBack = reg.get('AutoConfigURL').data === sp.pacUrl;
         await sp.restore();
-        t.ok(setBack && (value === false ? !reg.has('AutoConfigURL') && log.lines.includes(gone) : reg.get('AutoConfigURL').data === tool && !log.lines.includes(gone)) && !fs.existsSync(file),
-          `Windows: Stop after the user's own local PAC was set back (${why}): ${value === false ? 'direct, and said' : 'put back as before'}`);
+        t.ok(setBack && reg.get('AutoConfigURL').data === tool && !log.lines.some((l) => l.includes(gone)) && !fs.existsSync(file),
+          `Windows: Stop after the user's own local PAC was set back (${why}): put back as it was, never deleted`);
       }
       reg.set('AutoConfigURL', { type: 'REG_SZ', data: tool });
       served = true;
@@ -609,9 +612,8 @@ const readState = (file) => { try { return JSON.parse(fs.readFileSync(file, 'utf
       await sp.apply(10808, 'all');
       sp.stopPacServer();
       served = false;
-      const log = logs();
-      t.ok(SystemProxy.recoverSync({ stateFile: file, platform: 'win32' }, log) === true && !reg.has('AutoConfigURL') && log.lines.includes(gone) && !fs.existsSync(file),
-        'Windows: …and after a crash, the watchdog\'s recovery does the same');
+      t.ok(SystemProxy.recoverSync({ stateFile: file, platform: 'win32' }, () => {}) === true && reg.get('AutoConfigURL').data === tool && !fs.existsSync(file),
+        'Windows: …and after a crash, the watchdog\'s recovery puts it back too');
       SystemProxy._setExec(fx);
       reg.set('AutoConfigURL', { type: 'REG_SZ', data: 'http://wpad.corp/proxy.pac' });
       t.ok(JSON.stringify([...reg]) === before, 'Windows: (the registry as it was for the next tests)');
@@ -713,14 +715,18 @@ const readState = (file) => { try { return JSON.parse(fs.readFileSync(file, 'utf
     {
       const sp = new SystemProxy(() => {}, { platform: 'win32', stateFile: file });
       const urls = [];
+      const servers = [];
       const orig = sp.startPacServer.bind(sp);
-      sp.startPacServer = async (...a) => { const u = await orig(...a); urls.push(u); return u; };
+      sp.startPacServer = async (...a) => { const u = await orig(...a); urls.push(u); servers.push(sp.pacServer); return u; };
       const [a, b] = await Promise.all([sp.apply(10808, 'all'), sp.apply(10808, 'all')]);
       t.ok(urls.length === 1 && a.ok && b.ok && a.pacUrl === b.pacUrl, 'P9: two applies at once: one PAC server, one address');
       const reapply = sp.restore().then(() => sp.apply(10808, 'listed', ['discord.com']));
       const stop = (async () => { await sleep(0); return sp.restore(); })();
       await Promise.all([reapply, stop]);
-      const open = await Promise.all(urls.map((u) => new Promise((r) => { const s = require('net').connect(Number(new URL(u).port), '127.0.0.1'); s.once('connect', () => { s.destroy(); r(true); }); s.once('error', () => r(false)); })));
+      // This process's own servers, not whatever listens on their ports: the
+      // fixed range is shared with any other run on this computer.
+      await sleep(20);
+      const open = servers.map((srv) => !!(srv && srv.listening));
       t.ok(!sp.applied && JSON.stringify([...reg]) === before && !fs.existsSync(file) && !open.some(Boolean),
         'P2: a Stop during a re-apply is done after it: nothing left set, no PAC server left listening');
     }
@@ -809,7 +815,10 @@ const readState = (file) => { try { return JSON.parse(fs.readFileSync(file, 'utf
       for (const p of ports.slice(1)) if (await free(p)) { want = p; break; }
       const sp = new SystemProxy(() => {}, { platform: 'win32', stateFile: file });
       await sp.apply(10808, 'all');
-      t.ok(sp.pacPort === want, `P16: the first free one is used (${sp.pacPort}; ${ports[0]} was taken)`);
+      // Another run on this computer (tests in parallel, a Shroudly) may take
+      // that one meanwhile: then a later one of the range, and it is taken.
+      const fine = sp.pacPort === want || (ports.indexOf(sp.pacPort) > ports.indexOf(want) && !(await free(want)));
+      t.ok(fine, `P16: the first free one is used (${sp.pacPort}; ${ports[0]} was taken)`);
       await sp.restore();
       try { squat.close(); } catch {}
     }
@@ -1241,24 +1250,32 @@ const readState = (file) => { try { return JSON.parse(fs.readFileSync(file, 'utf
       const ncOpen = path.join(TMP, 'nc-open');
       fs.mkdirSync(ncOpen, { recursive: true });
       const fakeNc = path.join(TMP, 'fake-nc');
-      fs.writeFileSync(fakeNc, `#!/bin/sh\n# -z -G 2 <host> <port>: connects when ${ncOpen}/<port> exists\n[ -e ${JSON.stringify(ncOpen)}/"$5" ]\n`, { mode: 0o755 });
-      for (const served of [false, true]) {
+      fs.writeFileSync(fakeNc, `#!/bin/sh\n# -z -G 2 <host> <port>: connects when ${ncOpen}/<host>_<port> exists\n[ -e ${JSON.stringify(ncOpen)}/"$4_$5" ]\n`, { mode: 0o755 });
+      // [the PAC, where something listens, put back on?]
+      const cases = [
+        ['http://127.0.0.1:7890/pac', null, false],
+        ['http://127.0.0.1:7890/pac', '127.0.0.1_7890', true],
+        ['http://localhost:7890/pac', '::1_7890', true],       // served on ::1 alone
+        ['http://localhost:7890/pac', null, false],
+      ];
+      for (const [pac, open, on] of cases) {
         nsInit();
-        const s = nsState(); s.denied = true; s.services['USB 10/100/1000 LAN'].auto = { enabled: true, url: 'http://127.0.0.1:7890/pac' }; FakeNS.save(nsFile, s);
-        if (served) fs.writeFileSync(path.join(ncOpen, '7890'), ''); else fs.rmSync(path.join(ncOpen, '7890'), { force: true });
+        for (const f of fs.readdirSync(ncOpen)) fs.rmSync(path.join(ncOpen, f), { force: true });
+        if (open) fs.writeFileSync(path.join(ncOpen, open), '');
+        const s = nsState(); s.denied = true; s.services['USB 10/100/1000 LAN'].auto = { enabled: true, url: pac }; FakeNS.save(nsFile, s);
         const app = spawn('sleep', ['30']);
-        const hold = path.join(TMP, `nc-${served}.hold`);
+        const hold = path.join(TMP, `nc-${String(open)}-${on}.hold`);
         fs.writeFileSync(hold, '');
         const services = Object.keys(nsState().services).map((name) => ({ name, prevAuto: SystemProxy._macParseAuto(FakeNS.handle(nsState(), ['-getautoproxyurl', name])) }));
         const script = SystemProxy._macAdminScript({ services, pacUrl: 'http://127.0.0.1:4323/proxy.pac', holdFile: hold, appPid: app.pid, networksetup: fakeCli, nc: fakeNc });
         const helper = parseInt(spawnSync('/bin/sh', ['-c', script], { env: { ...process.env, FAKE_NS_STATE: nsFile }, encoding: 'utf8' }).stdout, 10);
-        t.ok(ourPacOn(nsState().services['USB 10/100/1000 LAN']), `macOS admin (${served ? 'served' : 'gone'}): applied`);
+        t.ok(ourPacOn(nsState().services['USB 10/100/1000 LAN']), `macOS admin (${pac}, ${open || 'nothing'} listening): applied`);
         fs.rmSync(hold, { force: true });             // Stop: the helper restores
         const done = await waitFor(() => !alive(helper));
         const usb = nsState().services['USB 10/100/1000 LAN'].auto;
         const bob = nsState().services["Bob's \"VPN\" $(x)"].auto;
-        t.ok(done && usb.url === 'http://127.0.0.1:7890/pac' && usb.enabled === served && !nsState().services['Wi-Fi'].auto.enabled && bob.url === 'http://old.lan/x.pac' && !bob.enabled,
-          `macOS admin: the root helper ${served ? 'puts the user\'s own PAC on this Mac back while it is served' : 'switches the user\'s own PAC on this Mac off (address kept) once its program has gone'}`);
+        t.ok(done && usb.url === pac && usb.enabled === on && !nsState().services['Wi-Fi'].auto.enabled && bob.url === 'http://old.lan/x.pac' && !bob.enabled,
+          `macOS admin: the root helper ${on ? `puts the user's own PAC on this Mac back while it is served (${open})` : `switches the user's own PAC on this Mac off (address kept) once its program has gone (${pac})`}`);
         app.kill('SIGKILL');
       }
       nsInit();
@@ -1685,6 +1702,33 @@ const readState = (file) => { try { return JSON.parse(fs.readFileSync(file, 'utf
       SystemProxy._setExec(fx);
       for (const [k, v] of JSON.parse(start)) g.set(k, v);
     }
+    // A manual proxy on this computer (a Clash or v2rayA of the user's): the
+    // tool quits and switches the proxy off, which Shroudly sets back. At
+    // Stop nothing listens there: the mode goes to none, its servers kept,
+    // instead of a manual proxy that answers nothing (no program gets
+    // around one). One still listening, or unknown: manual, as before.
+    for (const [why, on, back] of [['all gone', { 7890: false, 7891: false }, false], ['one still listening', { 7890: false, 7891: true }, true], ['unknown', { 7890: null, 7891: false }, true]]) {
+      const start = [...g];
+      g.set('org.gnome.system.proxy mode', "'manual'");
+      g.set('org.gnome.system.proxy.http host', "'127.0.0.1'"); g.set('org.gnome.system.proxy.http port', '7890');
+      g.set('org.gnome.system.proxy.https host', "'127.0.0.1'"); g.set('org.gnome.system.proxy.https port', '7890');
+      g.set('org.gnome.system.proxy.ftp host', "''"); g.set('org.gnome.system.proxy.ftp port', '0');
+      g.set('org.gnome.system.proxy.socks host', "'localhost'"); g.set('org.gnome.system.proxy.socks port', '7891');
+      SystemProxy._setExec({ ...fx, listening: (port) => (port in on ? on[port] : true) });
+      const log = logs();
+      const sp = new SystemProxy(log, { platform: 'linux', env, stateFile: file, onOwnership: () => {}, ownershipIntervalMs: 60000, takeoverConfirmMs: 0, retakeLooksMs: [] });
+      await sp.apply(10808, 'all');
+      g.set('org.gnome.system.proxy mode', "'none'");          // the tool quits
+      await sp.checkOwnership();
+      const setBack = g.get('org.gnome.system.proxy mode') === "'auto'";
+      await sp.restore();
+      const said = log.lines.includes('info: The proxy setting from before Shroudly (127.0.0.1:7890, localhost:7891) points at a program on this computer that is no longer running; it was switched off instead of put back');
+      t.ok(setBack && g.get('org.gnome.system.proxy mode') === (back ? "'manual'" : "'none'") && g.get('org.gnome.system.proxy.http host') === "'127.0.0.1'"
+        && g.get('org.gnome.system.proxy.socks port') === '7891' && said === !back && !fs.existsSync(file),
+      `GNOME: the user's own manual proxy on this computer (${why}): ${back ? 'manual at Stop, as before' : 'mode none at Stop, its servers kept, and said'}`);
+      SystemProxy._setExec(fx);
+      g.clear(); for (const [k, v] of start) g.set(k, v);
+    }
   }
   for (const withTool of [true, false]) {
     // KDE Plasma, with kwriteconfig6 and without (the file is edited).
@@ -1747,6 +1791,24 @@ const readState = (file) => { try { return JSON.parse(fs.readFileSync(file, 'utf
           `KDE (${how}): the user's own PAC on this computer, ${served ? 'still served: back' : 'its program gone: no proxy at Stop, address kept, and said'}`);
         SystemProxy._setExec(fx);
         fs.writeFileSync(file, SystemProxy._kdeEdit(fs.readFileSync(file, 'utf8'), { ProxyType: '2', 'Proxy Config Script': 'http://127.0.0.1:7890/pac' }));
+      }
+      fs.writeFileSync(file, was);
+    }
+    // A manual proxy on this computer, its program gone since: no proxy at
+    // Stop, its servers kept; still listening: back as before.
+    {
+      const was = fs.readFileSync(file, 'utf8');
+      for (const served of [false, true]) {
+        fs.writeFileSync(file, SystemProxy._kdeEdit(was, { ProxyType: '1', httpProxy: 'http://127.0.0.1 7890', httpsProxy: 'http://127.0.0.1:7890', socksProxy: 'socks://[::1] 7891' }));
+        SystemProxy._setExec({ ...fx, listening: (port) => (port === 7890 || port === 7891 ? served : true) });
+        const log5 = logs();
+        const sp5 = new SystemProxy(log5, { platform: 'linux', env, stateFile: sf });
+        await sp5.apply(10808, 'all');
+        await sp5.restore();
+        const text = fs.readFileSync(file, 'utf8');
+        t.ok(kd().type === (served ? '1' : null) && /httpProxy=http:\/\/127\.0\.0\.1 7890/.test(text) && log5.lines.some((l) => l.includes('(127.0.0.1:7890, [::1]:7891)') && l.includes('no longer running')) === !served,
+          `KDE (${how}): the user's own manual proxy on this computer, ${served ? 'still served: back' : 'its program gone: no proxy at Stop, its servers kept, and said'}`);
+        SystemProxy._setExec(fx);
       }
       fs.writeFileSync(file, was);
     }

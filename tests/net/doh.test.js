@@ -158,6 +158,13 @@ const restS = (r) => Math.max(0, Math.round((r.restUntil - Date.now()) / 1000));
     const g = new F(() => {}, { onState: (st) => states.push(`g:${st}`) });
     g.lookupFailed(T); g.stillFailing(T + 120000); g.lookupFailed(T + 180000); g.stillFailing(T + 300000); g.lookupFailed(T + 360000);
     t.ok(states.includes('g:down'), 'blocked with lookups minutes apart, warm rounds failing between: still one streak, "down"');
+    // Two failures, then an hour asleep: the first warm round on waking
+    // fails, and so does a lookup. The old streak is over, not revived.
+    const z = new F(() => {}, { onState: (st) => states.push(`z:${st}`) });
+    z.lookupFailed(T); z.lookupFailed(T + 4000);
+    z.stillFailing(T + 3604000); z.lookupFailed(T + 3605000);
+    t.ok(!states.includes('z:down') && z.state === 'ok' && z.failures === 1, 'two failures, an hour asleep, a failing warm round and a failed lookup on waking: not "down"');
+    z.stop();
     const h = new F(() => {}, {});
     h.lookupFailed(T); h.lookupFailed(T + 180000); h.lookupFailed(T + 360000);
     t.ok(h.state === 'ok' && h.failures === 1, '…with nothing failing for minutes between: no streak');
