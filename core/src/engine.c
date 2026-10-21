@@ -100,6 +100,8 @@
  * g_cfg_first. */
 static engine_config  g_cfg_first;
 static _Atomic(engine_config *) g_cfg_ptr = &g_cfg_first;
+typedef struct cfg_copy { engine_config cfg; struct cfg_copy *prev; } cfg_copy;
+static cfg_copy *g_cfg_kept = NULL;
 #define g_cfg (*atomic_load(&g_cfg_ptr))
 static engine_stats   g_stats;
 static sock_t         g_listener = SOCK_INVALID;
@@ -2724,10 +2726,14 @@ static void engine_forget(void) {
 
 int engine_start(const engine_config *cfg) {
   engine_init_once();
-  engine_config *own = (engine_config *)malloc(sizeof(*own));
+  /* Each copy stays linked from the last (g_cfg_kept), so none is ever
+   * unreachable, for a leak checker as much as for the connections. */
+  cfg_copy *own = (cfg_copy *)malloc(sizeof(*own));
   if (!own) return -1;
-  *own = *cfg;
-  atomic_store(&g_cfg_ptr, own);
+  own->cfg = *cfg;
+  own->prev = g_cfg_kept;
+  g_cfg_kept = own;
+  atomic_store(&g_cfg_ptr, &own->cfg);
   /* The counters start over. conns_active is what is open right now: in a
    * process that has run an engine before (embedded), connections of that
    * one may still be finishing, and they count themselves out when they do. */
