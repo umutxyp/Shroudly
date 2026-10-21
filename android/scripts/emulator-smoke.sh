@@ -394,9 +394,12 @@ if [ "$("$ADB" -s "$SERIAL" root 2>&1 | grep -c 'cannot run as root')" = 0 ]; th
       # Settings and app ops reach storage a moment after they are set; the
       # framework is ended without a chance to write them.
       sh_ "appops write-settings" >/dev/null; sleep 5
+      # sys.boot_completed stays 1 through a framework restart: cleared by
+      # hand, it says when the framework is back.
+      sh_ "setprop sys.boot_completed 0" >/dev/null
       sh_ stop >/dev/null; sleep 2; sh_ start >/dev/null; sleep 8
       wait_for 300 boot_done || fail "the framework did not come back"
-      sleep 10
+      sleep 15
     }
     sh_ "settings put secure always_on_vpn_app $PKG; settings put secure always_on_vpn_lockdown 1" >/dev/null
     clear_log
