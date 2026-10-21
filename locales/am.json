@@ -439,5 +439,11 @@
   "logHeldRestart": "{host}: Shroudly እንደገና እየጀመረ ስለሆነ ተይዞ ቆይቷል፤ ፕሮግራሙ እንደገና ይሞክራል",
   "autoDiscordFailed": "Discord በዚህ አውታረ መረብ ላይ ታግዷል፣ ግን የDiscord መተግበሪያ ሁነታን ማብራት አልተቻለም። እንደገና ለመሞከር በቅንብሮች ውስጥ ያብሩት።",
   "autoRobloxFailed": "Roblox በዚህ አውታረ መረብ ላይ ታግዷል፣ ግን የጨዋታዎችና የመተግበሪያዎች ሁነታን ማብራት አልተቻለም። እንደገና ለመሞከር በቅንብሮች ውስጥ ያብሩት።",
-  "autoStoreAppsNoAdmin": "አስተዳዳሪ እስኪፈቅድ ድረስ {apps} ከShroudly ጋር መገናኘት አይችሉም፤ አስተዳዳሪ በቅንብሮች ውስጥ የMicrosoft Store መተግበሪያዎች ማብሪያን ማብራት ይችላል።"
+  "autoStoreAppsNoAdmin": "አስተዳዳሪ እስኪፈቅድ ድረስ {apps} ከShroudly ጋር መገናኘት አይችሉም፤ አስተዳዳሪ በቅንብሮች ውስጥ የMicrosoft Store መተግበሪያዎች ማብሪያን ማብራት ይችላል።",
+  "autoRawUnreachable": "የ{app} መተግበሪያ ወደ አገልጋዮቹ መድረስ አይችልም፤ ይህ አውታረ መረብ አድራሻዎቻቸውን ያግዳል፣ Shroudly ደግሞ ሌላ ቦታ ያለ አገልጋይ ከሌለው ይህን ማለፍ አይችልም። በ{app} መተግበሪያ ውስጥ ያለውን የproxy ቅንብር ወይም VPN ይጠቀሙ።",
+  "autoRawBlocked": "ይህ አውታረ መረብ የ{app} መተግበሪያን ግንኙነቶች ያስቆማል፣ ከShroudly ዘዴዎችም አንዱም አላለፈም። በ{app} መተግበሪያ ውስጥ ያለውን የproxy ቅንብር ወይም VPN ይጠቀሙ።",
+  "logRawUnreachable": "የ{app} መተግበሪያ ወደ አገልጋዮቹ መድረስ አይችልም ({addrs})፤ አውታረ መረቡ እነዚህን አድራሻዎች ራሳቸውን ያግዳል፤ ይህን ማለፍ የሚችሉት የመተግበሪያው የራሱ proxy ቅንብር ወይም VPN ብቻ ናቸው",
+  "logRawBlocked": "{app}: አውታረ መረቡ የመተግበሪያውን ግንኙነቶች ያስቆማል ({addrs})፣ አንድም ዘዴ አላለፈም፤ ይህን ማለፍ የሚችሉት የመተግበሪያው የራሱ proxy ቅንብር ወይም VPN ብቻ ናቸው",
+  "logRawUnreachableAddr": "{addr}: ሊደረስበት አልተቻለም (የድር ግንኙነት አይደለም)",
+  "logRawStillBlockedAddr": "{addr}: ከ{tries} ዘዴዎች በኋላም ታግዷል (የድር ግንኙነት አይደለም)"
 }

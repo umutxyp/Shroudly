@@ -172,6 +172,11 @@ class EngineManager {
     // domains. The app uses it to recognise which services this network
     // filters, sites that turn the user away themselves, and a call starting.
     this.onHostEvent = hooks.onHostEvent || (() => {});
+    // A connection that is not TLS or HTTP (an app's own protocol) that no
+    // technique got through, or whose address does not answer at all, as
+    // (kind, line): 'blocked' or 'unreachable', with the address, the port
+    // and the app's own port (raw-apps.js names the app and tells).
+    this.onRaw = hooks.onRaw || (() => {});
     // Domains the engine tells about each time a program connects to one
     // (once per name in a while; nothing about the connection changes).
     this.watch = Array.isArray(hooks.watch) ? hooks.watch : [];
@@ -732,6 +737,7 @@ class EngineManager {
         }
         break;
       case 'blocked':
+        if (msg.raw) { try { this.onRaw('blocked', msg); } catch {} break; }
         try { this.onHostEvent('blocked', msg.host, msg.note || null, { alert: !!msg.alert, siteOk: !!msg.site_ok, note: msg.note || null }); } catch {}
         // Not the network: the server itself turned the handshake down (an
         // alert, never a reset), or the rest of this site answers through
@@ -798,6 +804,7 @@ class EngineManager {
         try { this.onHostEvent('seen', msg.host, null); } catch {}
         break;
       case 'unreachable':
+        if (msg.raw) { try { this.onRaw('unreachable', msg); } catch {} break; }
         try { this.onHostEvent('unreachable', msg.host, msg.stage || null); } catch {}
         this._onUnreachable(msg.host, msg.stage);
         break;

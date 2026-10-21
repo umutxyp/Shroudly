@@ -174,7 +174,10 @@ function pacEval(body) {
   sp.mode = 'listed';
   sp.list = shipped.domains;
   const find = pacEval(sp.pacBody(10808));
-  t.ok(/^SOCKS5 127\.0\.0\.1:10808/.test(find('www.roblox.com')) && /^SOCKS5/.test(find('roblox.com')), 'PAC: a listed site and its subdomains go through Shroudly');
+  // (On Windows an https:// lookup gets the engine as an HTTP CONNECT proxy:
+  // system-proxy.js, pacRoute.)
+  const routed = /^(SOCKS5|PROXY) 127\.0\.0\.1:10808/;
+  t.ok(routed.test(find('www.roblox.com')) && routed.test(find('roblox.com')), 'PAC: a listed site and its subdomains go through Shroudly');
   t.ok(find('roblox.com.attacker.example') === 'DIRECT' && find('notroblox.com') === 'DIRECT', 'PAC: look-alike names do not');
   t.ok(find('example.com') === 'DIRECT' && find('nas') === 'DIRECT' && find('constructor') === 'DIRECT', 'PAC: everything else, local names included, goes direct');
   const t0 = process.hrtime.bigint();

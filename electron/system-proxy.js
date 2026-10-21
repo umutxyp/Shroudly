@@ -61,6 +61,7 @@
  */
 
 const { execFile, execFileSync, spawn } = require('child_process');
+const { pacRanges } = require('./raw-apps');
 const { envFor } = require('./win-powershell');
 const http = require('http');
 const os = require('os');
@@ -418,8 +419,27 @@ class SystemProxy {
   /* A PAC that always sends local/private hosts direct. In 'all' mode every
    * other host goes through the proxy; in 'listed' mode only the domains in
    * this.list (and their subdomains) do, everything else goes direct. */
+  /* Windows: WinHTTP answers "no proxy" for any PAC answer that holds a
+   * SOCKS entry at all, wherever it stands (tests/net/telegram-real.test.js
+   * measures it on Windows CI: "PROXY x" alone is the only form it takes).
+   * So every program that asks WinHTTP for the system proxy went around
+   * Shroudly: Qt programs such as Telegram Desktop on "use system proxy",
+   * .NET ones. For https:// (and a plain TCP connection, which Qt asks as
+   * https://) the engine is therefore offered as an HTTP proxy only: it takes
+   * CONNECT on its port, which every client on Windows understands (browsers,
+   * WinINET, Java, .NET, Qt) and which carries the name, so it is resolved by
+   * Shroudly's DNS. Plain http:// keeps the SOCKS entries, as before: an HTTP
+   * proxy there would be handed whole requests, which the engine does not
+   * serve. */
+  pacRoute(port) {
+    const proxy = this.pacProxy(port);
+    if (this.platform !== 'win32') return `"${proxy}"`;
+    return `(url.substring(0, 6).toLowerCase() === "https:" ? "PROXY 127.0.0.1:${port}" : "${proxy}")`;
+  }
+
   pacBody(port) {
     const proxy = this.pacProxy(port);
+    const route = this.pacRoute(port);
     /* Anything on this machine or this network never goes through the engine.
      * The previous list only covered 172.16, leaving the other fifteen private
      * /16s inside 172.16/12 — plus link-local and carrier-grade NAT, which is
@@ -457,23 +477,37 @@ class SystemProxy {
       // every single request the browser makes.
       const table = {};
       for (const d of domains) table[d] = 1;
+      // Apps that connect to their servers by address, with a protocol of
+      // their own (a messenger's): no name to put on a list, so the ranges
+      // of the services known to work that way (raw-apps.js) go through the
+      // engine as a listed name would.
+      const ranges = pacRanges().map(([n, m]) => `isInNet(host, "${n}", "${m}")`).join(' ||\n      ');
       return `var SHROUDLY_LIST = ${JSON.stringify(table)};
 function FindProxyForURL(url, host) {
 ${local}
   var h = ("" + host).toLowerCase();
   while (true) {
-    if (SHROUDLY_LIST.hasOwnProperty(h)) return "${proxy}";
+    if (SHROUDLY_LIST.hasOwnProperty(h)) return ${route};
     var i = h.indexOf(".");
     if (i < 0) break;
     h = h.substring(i + 1);
+  }
+  if (/^\\d+\\.\\d+\\.\\d+\\.\\d+$/.test(host) && (${ranges ? `\n      ${ranges}` : 'false'})) {
+    return ${route};
   }
   return "DIRECT";
 }
 `;
     }
+    // A global IPv6 address (2000::/3) goes through the engine like an IPv4
+    // one: apps that connect by address (a messenger's servers) use it on
+    // IPv6 networks. Checked first, because some isPlainHostName read a
+    // literal with no dot in it as a plain name. Every other IPv6 literal
+    // (this computer, link-local, unique-local) stays direct below.
     return `function FindProxyForURL(url, host) {
+  if (/^\\[?[23][0-9a-fA-F]{0,3}:[0-9a-fA-F:.]*\\]?$/.test(host)) { return ${route}; }
 ${local}
-  return "${proxy}";
+  return ${route};
 }
 `;
   }

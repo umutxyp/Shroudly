@@ -164,7 +164,9 @@ function pacEval(body) {
   };
   vm.createContext(ctx);
   vm.runInContext(body, ctx);
-  return (host) => ctx.FindProxyForURL(`https://${host}/`, host);
+  const find = (host) => ctx.FindProxyForURL(`https://${host}/`, host);
+  find.http = (host) => ctx.FindProxyForURL(`http://${host}/`, host);
+  return find;
 }
 
 function logs() { const l = []; const f = (level, msg) => l.push(`${level}: ${msg}`); f.lines = l; return f; }
@@ -182,8 +184,13 @@ const readState = (file) => { try { return JSON.parse(fs.readFileSync(file, 'utf
     // Every non-env desktop (Windows, GNOME, KDE) and macOS carries the SOCKS
     // (SOCKS4) entry after SOCKS5, so Java, WinINET and .NET clients that do
     // not understand "SOCKS5" are still routed instead of failing. No DIRECT.
-    const want = 'SOCKS5 127.0.0.1:10808; SOCKS 127.0.0.1:10808';
+    // Windows: WinHTTP answers "no proxy" to any answer holding a SOCKS entry,
+    // so for https:// the engine is offered as an HTTP (CONNECT) proxy only;
+    // plain http:// keeps the SOCKS entries.
+    const socksOnly = 'SOCKS5 127.0.0.1:10808; SOCKS 127.0.0.1:10808';
+    const want = platform === 'win32' ? 'PROXY 127.0.0.1:10808' : socksOnly;
     t.ok(find('discord.com') === want, `PAC (${where}): a routed host gets "${want}", no DIRECT to slip around Shroudly`);
+    t.ok(find.http('discord.com') === socksOnly, `PAC (${where}): plain http:// gets "${socksOnly}"`);
     t.ok(['nas', 'printer.local', 'router.lan', '192.168.1.1', '10.2.3.4', '172.20.0.1', '169.254.1.1', '100.100.1.1', '127.0.0.1', '[::1]']
       .every((h) => find(h) === 'DIRECT'), `PAC (${where}): this machine and the local network stay direct`);
     t.ok(find('172.32.0.1') === want && find('8.8.8.8') === want, `PAC (${where}): public addresses are routed`);

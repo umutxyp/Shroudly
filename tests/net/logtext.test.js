@@ -28,6 +28,11 @@ for (const f of fs.readdirSync(path.join(ROOT, 'locales')).filter((x) => x.endsW
 const { localizeLog } = load('components/logText.js');
 
 const LINES = [
+  "Telegram cannot reach its servers (149.154.167.50:443, 149.154.175.50:443): the network blocks those addresses themselves; only the app's own proxy setting or a VPN gets around that",
+  "Telegram: the network stops its connections (149.154.167.50:443) and no technique got through; only the app's own proxy setting or a VPN gets around that",
+  '203.0.113.9:5222: could not be reached (not a web connection)',
+  '[2001:db8::9]:443: still blocked after 6 techniques (not a web connection)',
+  '149.154.167.50: blocked here, opened with raw-split1 (2 tries, ipv4)',
   'discord.com: connects, then the network cuts it (stall after 5 KB). This network filters whole connections; Shroudly is trying other techniques for it.',
   'DNS answers on this network match the filtering used in IR.',
   "Your DNS service filters sites; Shroudly's encrypted DNS goes around it.",

@@ -439,5 +439,11 @@
   "logHeldRestart": "{host}: Shroudly yenidən başlayarkən saxlanıldı; proqram yenidən cəhd edəcək",
   "autoDiscordFailed": "Discord bu şəbəkədə bloklanıb, amma Discord tətbiqi rejimini aktiv etmək mümkün olmadı. Yenidən cəhd etmək üçün onu Ayarlarda aktiv et.",
   "autoRobloxFailed": "Roblox bu şəbəkədə bloklanıb, amma Oyunlar və tətbiqlər rejimini aktiv etmək mümkün olmadı. Yenidən cəhd etmək üçün onu Ayarlarda aktiv et.",
-  "autoStoreAppsNoAdmin": "Administrator icazə verənə qədər {apps} Shroudly-yə qoşula bilmir: administrator Ayarlarda Microsoft Store tətbiqləri açarını aktiv edə bilər."
+  "autoStoreAppsNoAdmin": "Administrator icazə verənə qədər {apps} Shroudly-yə qoşula bilmir: administrator Ayarlarda Microsoft Store tətbiqləri açarını aktiv edə bilər.",
+  "autoRawUnreachable": "{app} tətbiqi öz serverlərinə çata bilmir: bu şəbəkə onların ünvanlarını bloklayır və Shroudly başqa yerdə yerləşən server olmadan bunu keçə bilməz. {app} tətbiqinin öz proksi ayarından və ya VPN-dən istifadə et.",
+  "autoRawBlocked": "Bu şəbəkə {app} tətbiqinin bağlantılarını dayandırır və Shroudly-nin heç bir üsulu keçə bilmədi. {app} tətbiqinin öz proksi ayarından və ya VPN-dən istifadə et.",
+  "logRawUnreachable": "{app} tətbiqi öz serverlərinə çata bilmir ({addrs}): şəbəkə bu ünvanların özünü bloklayır; bunu yalnız tətbiqin öz proksi ayarı və ya VPN keçə bilər",
+  "logRawBlocked": "{app}: şəbəkə tətbiqin bağlantılarını dayandırır ({addrs}) və heç bir üsul keçə bilmədi; bunu yalnız tətbiqin öz proksi ayarı və ya VPN keçə bilər",
+  "logRawUnreachableAddr": "{addr}: ona çatmaq mümkün olmadı (veb bağlantısı deyil)",
+  "logRawStillBlockedAddr": "{addr}: {tries} üsuldan sonra hələ də bloklanıb (veb bağlantısı deyil)"
 }

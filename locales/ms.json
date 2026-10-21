@@ -439,5 +439,11 @@
   "logHeldRestart": "{host}: ditahan semasa Shroudly dimulakan semula; program akan mencuba lagi",
   "autoDiscordFailed": "Discord disekat pada rangkaian ini, tetapi mod aplikasi Discord tidak dapat dihidupkan. Hidupkannya dalam Tetapan untuk mencuba lagi.",
   "autoRobloxFailed": "Roblox disekat pada rangkaian ini, tetapi mod permainan dan aplikasi tidak dapat dihidupkan. Hidupkannya dalam Tetapan untuk mencuba lagi.",
-  "autoStoreAppsNoAdmin": "{apps} tidak dapat mencapai Shroudly sehingga pentadbir membenarkannya: pentadbir boleh menghidupkan Aplikasi Microsoft Store dalam Tetapan."
+  "autoStoreAppsNoAdmin": "{apps} tidak dapat mencapai Shroudly sehingga pentadbir membenarkannya: pentadbir boleh menghidupkan Aplikasi Microsoft Store dalam Tetapan.",
+  "autoRawUnreachable": "{app} tidak dapat mencapai pelayannya: rangkaian ini menyekat alamat pelayan tersebut, dan Shroudly tidak dapat memintasnya tanpa pelayan di tempat lain. Gunakan tetapan proksi {app} sendiri atau VPN.",
+  "autoRawBlocked": "Rangkaian ini menghentikan sambungan {app}, dan tiada satu pun teknik Shroudly yang berjaya menembusinya. Gunakan tetapan proksi {app} sendiri atau VPN.",
+  "logRawUnreachable": "{app} tidak dapat mencapai pelayannya ({addrs}): rangkaian menyekat alamat itu sendiri; hanya tetapan proksi aplikasi itu sendiri atau VPN yang dapat memintasnya",
+  "logRawBlocked": "{app}: rangkaian menghentikan sambungannya ({addrs}) dan tiada teknik yang berjaya menembusinya; hanya tetapan proksi aplikasi itu sendiri atau VPN yang dapat memintasnya",
+  "logRawUnreachableAddr": "{addr}: tidak dapat dicapai (bukan sambungan web)",
+  "logRawStillBlockedAddr": "{addr}: masih disekat selepas {tries} teknik (bukan sambungan web)"
 }

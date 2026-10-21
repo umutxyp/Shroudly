@@ -20,6 +20,7 @@ const Autopilot = require('./autopilot');
 const StoreApps = require('./store-apps');
 const BlockCheck = require('./blockcheck');
 const ProcNet = require('./procnet');
+const { RawWatch } = require('./raw-apps');
 const BrowserCheck = require('./browser-check');
 const SiteList = require('./site-list');
 const Updater = require('./updater');
@@ -75,6 +76,15 @@ let discordRelay = null;
 let keepDiscordLine = false;
 let appProxy = null;
 let autopilot = null;
+// Apps whose own connections cannot get through, named and told (raw-apps.js).
+const rawWatch = new RawWatch({
+  log: (level, msg) => addLog(level, msg),
+  tell: (id, params) => autoTell(id, params),
+  owner: async (cport) => {
+    const o = engine && engine.port ? await ProcNet.owner(cport, engine.port) : null;
+    return o && o.name;
+  },
+});
 let storeApps = null;
 let appEnv = null;
 let siteList = null;
@@ -792,6 +802,9 @@ app.whenReady().then(async () => {
     // macOS: settings from before a restart still waiting for an
     // administrator's password, after the user dismissed its dialog.
     onProxyRecovery: (r) => toWindow('dpi:proxy-recovery', r),
+    // An app's own connections (not TLS or HTTP) that cannot get through:
+    // named and told in one line (raw-apps.js).
+    onRaw: (kind, msg) => { if (rawWatch) rawWatch.onEvent(kind, msg).catch(() => {}); },
     // Which services this network filters (the autopilot turns on the mode
     // their app needs), and a site whose connections keep being answered and
     // then cut: the site may be turning the user away itself (checked, then
@@ -1690,6 +1703,7 @@ setInterval(() => {
   // Encrypted DNS: connections and rests from the old network say nothing
   // about the new one (doh-forwarder.js).
   if (now !== networkPrint && engine && engine.doh) engine.doh.networkChanged();
+  if (now !== networkPrint) rawWatch.networkChanged();
   if (now !== networkPrint && autopilot) {
     autopilot.networkChanged();
     if (engine && engine.isActive()) setTimeout(() => { autopilot.survey().catch(() => {}); }, 5000);

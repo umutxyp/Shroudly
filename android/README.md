@@ -34,12 +34,13 @@ repository's root:
     node android/scripts/fetch-hev.js           # hev-socks5-tunnel at its pin
     node android/scripts/gen-strings.js         # strings from locales/*.json
     node android/scripts/gen-block-ips.js       # known block-page addresses
+    node android/scripts/gen-raw-apps.js        # services' addresses, to name apps
     cd android && ./gradlew assembleDebug       # app/build/outputs/apk/debug/
 
 Gradle builds the engine from `core/src` (every `.c` there, as the desktop
 build does) and hev for every ABI; a change in `core/` is in the next build.
 
-`gen-strings.js` and `gen-block-ips.js` take `--check` to fail when their
+`gen-strings.js`, `gen-block-ips.js` and `gen-raw-apps.js` take `--check` to fail when their
 output is out of date instead of writing it (CI runs them so). After changing
 a string in `locales/en.json`, change it in every `locales/*.json` and run
 `gen-strings.js` again; never edit `res/values*/strings.xml` by hand.

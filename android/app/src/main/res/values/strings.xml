@@ -14,6 +14,8 @@
     <string name="androidShareLogs">Share logs</string>
     <string name="androidVpnDenied">Shroudly needs the VPN permission to carry your apps\' connections.</string>
     <string name="androidVpnRevoked">Protection was switched off by Android, usually because another VPN app was turned on.</string>
+    <string name="autoRawBlocked">This network stops {app}\'s connections, and none of Shroudly\'s techniques got through. Use {app}\'s own proxy setting or a VPN.</string>
+    <string name="autoRawUnreachable">{app} cannot reach its servers: this network blocks their addresses, and Shroudly cannot get around that without a server elsewhere. Use {app}\'s own proxy setting or a VPN.</string>
     <string name="connections">Connections</string>
     <string name="download">Download</string>
     <string name="dpiBypassStopped">DPI bypass is stopped</string>

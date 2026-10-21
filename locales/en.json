@@ -439,5 +439,11 @@
   "logHeldRestart": "{host}: held back while Shroudly restarts; the program will try again",
   "autoDiscordFailed": "Discord is blocked on this network, but Discord app mode could not be turned on. Turn it on in Settings to try again.",
   "autoRobloxFailed": "Roblox is blocked on this network, but Games and apps mode could not be turned on. Turn it on in Settings to try again.",
-  "autoStoreAppsNoAdmin": "{apps} cannot reach Shroudly until an administrator allows it: an administrator can turn on Microsoft Store apps in Settings."
+  "autoStoreAppsNoAdmin": "{apps} cannot reach Shroudly until an administrator allows it: an administrator can turn on Microsoft Store apps in Settings.",
+  "autoRawUnreachable": "{app} cannot reach its servers: this network blocks their addresses, and Shroudly cannot get around that without a server elsewhere. Use {app}'s own proxy setting or a VPN.",
+  "autoRawBlocked": "This network stops {app}'s connections, and none of Shroudly's techniques got through. Use {app}'s own proxy setting or a VPN.",
+  "logRawUnreachable": "{app} cannot reach its servers ({addrs}): the network blocks those addresses themselves; only the app's own proxy setting or a VPN gets around that",
+  "logRawBlocked": "{app}: the network stops its connections ({addrs}) and no technique got through; only the app's own proxy setting or a VPN gets around that",
+  "logRawUnreachableAddr": "{addr}: could not be reached (not a web connection)",
+  "logRawStillBlockedAddr": "{addr}: still blocked after {tries} techniques (not a web connection)"
 }

@@ -250,4 +250,72 @@ async function connectsTo(pids, ports, platform = process.platform) {
   return (await connections(pids, platform)).some((r) => LOOPBACK.test(r.remote.host) && want.has(r.remote.port));
 }
 
-module.exports = { connectsTo, connections, listener, listeningSync, parseNetstat, parseNetstatListeners, parseTasklistName, parseLsofListener, parseBsdListening, procListener, procListening, parseLsof, parseSs, parseProcNet, procConnections };
+/* The program at the other end of one of Shroudly's own connections: the
+ * process whose connection runs from local port `localPort` to `remotePort`
+ * on this computer (an app's connection to the engine, the engine reporting
+ * the app's port). { pid, name }, or null. Names the app behind a line about
+ * a connection that could not get through (raw-apps.js). */
+function parseNetstatOwner(out, localPort, remotePort) {
+  for (const line of String(out || '').split(/\r?\n/)) {
+    const f = line.trim().split(/\s+/);
+    if (f[0] !== 'TCP' || f.length < 5) continue;
+    const local = hostPort(f[1]);
+    const remote = hostPort(f[2]);
+    const pid = Number(f[f.length - 1]);
+    if (local && remote && local.port === localPort && remote.port === remotePort && LOOPBACK.test(remote.host) && pid > 0) return pid;
+  }
+  return 0;
+}
+
+function parseLsofOwner(out, localPort, remotePort) {
+  let pid = 0, name = null;
+  for (const line of String(out || '').split(/\r?\n/)) {
+    if (line.startsWith('p')) { pid = Number(line.slice(1)); name = null; }
+    else if (line.startsWith('c')) name = line.slice(1);
+    else if (line.startsWith('n') && line.includes('->')) {
+      const [l, r] = line.slice(1).split('->').map(hostPort);
+      if (l && r && l.port === localPort && r.port === remotePort && LOOPBACK.test(r.host) && pid > 0) return { pid, name };
+    }
+  }
+  return null;
+}
+
+function procOwner(localPort, remotePort, root = '/proc') {
+  const read = (f) => { try { return fs.readFileSync(f, 'utf8'); } catch { return ''; } };
+  let inode = null;
+  for (const table of ['tcp', 'tcp6']) {
+    for (const line of read(`${root}/net/${table}`).split('\n').slice(1)) {
+      const f = line.trim().split(/\s+/);
+      if (f.length < 10) continue;
+      if (parseInt((f[1].split(':')[1] || ''), 16) === localPort && parseInt((f[2].split(':')[1] || ''), 16) === remotePort) { inode = f[9]; break; }
+    }
+    if (inode) break;
+  }
+  if (!inode || inode === '0') return null;
+  let pids = [];
+  try { pids = fs.readdirSync(root).filter((d) => /^\d+$/.test(d)); } catch { return null; }
+  for (const pid of pids) {
+    let fds = [];
+    try { fds = fs.readdirSync(`${root}/${pid}/fd`); } catch { continue; }
+    for (const fd of fds) {
+      let link = '';
+      try { link = fs.readlinkSync(`${root}/${pid}/fd/${fd}`); } catch { continue; }
+      if (link === `socket:[${inode}]`) return { pid: Number(pid), name: read(`${root}/${pid}/comm`).trim() || null };
+    }
+  }
+  return null;
+}
+
+async function owner(localPort, remotePort, platform = process.platform) {
+  localPort = Number(localPort); remotePort = Number(remotePort);
+  if (!(localPort > 0 && localPort < 65536 && remotePort > 0 && remotePort < 65536)) return null;
+  if (platform === 'win32') {
+    const pid = parseNetstatOwner(await run('netstat', ['-ano', '-p', 'TCP'], 4000), localPort, remotePort);
+    if (!pid) return null;
+    return { pid, name: parseTasklistName(await run('tasklist', ['/fi', `PID eq ${pid}`, '/fo', 'csv', '/nh'], 4000), pid) };
+  }
+  if (platform === 'darwin') return parseLsofOwner(await run('lsof', ['-nP', `-iTCP:${localPort}`, '-sTCP:ESTABLISHED', '-Fpcn'], 4000), localPort, remotePort);
+  return procOwner(localPort, remotePort);
+}
+
+module.exports = { owner, parseNetstatOwner, parseLsofOwner, procOwner, connectsTo, connections, listener, listeningSync, parseNetstat, parseNetstatListeners, parseTasklistName, parseLsofListener, parseBsdListening, procListener, procListening, parseLsof, parseSs, parseProcNet, procConnections };

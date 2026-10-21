@@ -32,6 +32,10 @@ sealed class EngineEvent {
         val stage: String?,
         val alert: Boolean,
         val siteOk: Boolean,
+        /* A stream that is neither TLS nor HTTP (an app's own protocol), and
+         * the port it went to (core/src/engine.c, raw). */
+        val raw: Boolean = false,
+        val port: Int = 0,
     ) : EngineEvent()
 
     data class Error(val message: String, val code: Int?) : EngineEvent()
@@ -64,6 +68,8 @@ sealed class EngineEvent {
                     stage = str("stage"),
                     alert = bool("alert"),
                     siteOk = bool("site_ok"),
+                    raw = bool("raw"),
+                    port = num("port").toInt(),
                 )
                 "error" -> Error(str("msg") ?: "code ${num("code")}", (m["code"] as? Number)?.toInt())
                 "stopped" -> Stopped

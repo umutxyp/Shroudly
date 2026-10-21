@@ -14,6 +14,8 @@
     <string name="androidShareLogs">लॉग साझा करें</string>
     <string name="androidVpnDenied">आपके ऐप्स के कनेक्शन संभालने के लिए Shroudly को VPN अनुमति चाहिए।</string>
     <string name="androidVpnRevoked">Android ने सुरक्षा बंद कर दी, आमतौर पर इसलिए कि कोई दूसरा VPN ऐप चालू किया गया।</string>
+    <string name="autoRawBlocked">यह नेटवर्क {app} के कनेक्शन रोक देता है, और Shroudly की कोई भी तकनीक पार नहीं हो पाई। {app} की अपनी प्रॉक्सी सेटिंग या कोई VPN इस्तेमाल करें।</string>
+    <string name="autoRawUnreachable">{app} अपने सर्वर तक नहीं पहुँच पा रहा: यह नेटवर्क उनके पते ब्लॉक करता है, और कहीं और मौजूद सर्वर के बिना Shroudly इसे पार नहीं कर सकता। {app} की अपनी प्रॉक्सी सेटिंग या कोई VPN इस्तेमाल करें।</string>
     <string name="connections">कनेक्शन</string>
     <string name="download">डाउनलोड</string>
     <string name="dpiBypassStopped">DPI बायपास बंद है</string>

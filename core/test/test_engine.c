@@ -456,6 +456,121 @@ int main(void) {
   }
   printf("  a new start forgets what the last one learned: OK\n");
 
+  /* 15. streams that are not TLS or HTTP: a search across the app's own
+   * connections, one technique per failed connection, learned when one is
+   * answered, said once and rested when none is, never moved twice by
+   * connections that went out together, and a neighbour's technique first. */
+  {
+    engine_init_once();
+    engine_forget();
+    FILE *out = tmpfile();
+    engine_set_output(out);
+    int inh = 0, n = raw_usable_count();
+    CHECK(n >= 4 && strategy_raw_count() <= STRATEGY_MAX_RAW);
+    for (int i = 0; i < strategy_raw_count(); i++)
+      for (int k = 0; k < strategy_raw(i)->n_ops; k++) CHECK(strategy_raw(i)->ops[k].kind != OP_OOB);   /* never into an unknown stream */
+    for (int i = 0; i < strategy_raw_count(); i++)
+      CHECK(strncmp(strategy_raw(i)->name, "raw-", 4) == 0);
+    /* untouched until something fails */
+    CHECK(raw_pick("203.0.113.10", &inh) == ATT_PLAIN && !inh);
+    /* answered untouched: nothing kept */
+    raw_result("203.0.113.10", 443, ATT_PLAIN, 0, 1, 0, AF_INET, 0);
+    mutex_lock(&g_raw_mx); CHECK(raw_find("203.0.113.10") < 0); mutex_unlock(&g_raw_mx);
+    /* refused untouched: the next connection takes the first technique */
+    raw_result("203.0.113.10", 443, ATT_PLAIN, 0, 0, RAW_FAIL_REFUSED, AF_INET, 0);
+    int c1 = raw_pick("203.0.113.10", &inh);
+    CHECK(c1 == ATT_RAW_BASE + raw_after(-1));
+    /* a second untouched connection that went out together fails late: no move */
+    raw_result("203.0.113.10", 443, ATT_PLAIN, 0, 0, RAW_FAIL_SILENT, AF_INET, 0);
+    CHECK(raw_pick("203.0.113.10", &inh) == c1);
+    /* the first technique fails: the next one */
+    raw_result("203.0.113.10", 443, c1, 0, 0, RAW_FAIL_REFUSED, AF_INET, 0);
+    int c2 = raw_pick("203.0.113.10", &inh);
+    CHECK(c2 == ATT_RAW_BASE + raw_after(c1 - ATT_RAW_BASE));
+    /* c1 failing again late moves nothing */
+    raw_result("203.0.113.10", 443, c1, 0, 0, RAW_FAIL_REFUSED, AF_INET, 0);
+    CHECK(raw_pick("203.0.113.10", &inh) == c2);
+    /* c2 is answered: learned, and told */
+    long before = ftell(out);
+    raw_result("203.0.113.10", 443, c2, 0, 1, 0, AF_INET, 4321);
+    CHECK(raw_pick("203.0.113.10", &inh) == c2 && !inh);
+    char line[512] = {0};
+    fflush(out); fseek(out, before, SEEK_SET);
+    CHECK(fgets(line, sizeof(line), out) != NULL);
+    CHECK(strstr(line, "\"type\":\"bypass\"") && strstr(line, "\"raw\":true") &&
+          strstr(line, strategy_raw(c2 - ATT_RAW_BASE)->name) && strstr(line, "\"attempts\":3") &&
+          strstr(line, "\"cport\":4321") && strstr(line, "\"port\":443"));
+    fseek(out, 0, SEEK_END);
+    /* a neighbour (same /24) starts with it; another /24 does not */
+    CHECK(raw_pick("203.0.113.77", &inh) == c2 && inh);
+    CHECK(raw_pick("203.0.114.77", &inh) == ATT_PLAIN && !inh);
+    CHECK(raw_pick("2001:db8:1:2::5", &inh) == ATT_PLAIN);
+    /* the neighbour's technique works there too: its own now */
+    raw_result("203.0.113.77", 443, c2, 1, 1, 0, AF_INET, 0);
+    mutex_lock(&g_raw_mx); { int i = raw_find("203.0.113.77"); CHECK(i >= 0 && g_raw[i].learned == c2 - ATT_RAW_BASE); } mutex_unlock(&g_raw_mx);
+    /* a neighbour where it fails searches on its own from the next one */
+    raw_result("203.0.113.78", 443, c2, 1, 0, RAW_FAIL_REFUSED, AF_INET, 0);
+    CHECK(raw_pick("203.0.113.78", &inh) == ATT_RAW_BASE + raw_after(c2 - ATT_RAW_BASE) && !inh);
+    /* nothing works anywhere: every technique once, then one line, then rest */
+    const char *d = "198.51.100.9";
+    raw_result(d, 5222, ATT_PLAIN, 0, 0, RAW_FAIL_SILENT, AF_INET, 0);
+    int seen[STRATEGY_MAX_RAW] = {0}, rounds = 0;
+    for (;;) {
+      int c = raw_pick(d, &inh);
+      if (c == ATT_PLAIN) break;
+      CHECK(c >= ATT_RAW_BASE && raw_usable(c - ATT_RAW_BASE));
+      CHECK(!seen[c - ATT_RAW_BASE]);                       /* never the same one twice */
+      seen[c - ATT_RAW_BASE] = 1;
+      before = ftell(out);
+      raw_result(d, 5222, c, 0, 0, RAW_FAIL_SILENT, AF_INET, 0);
+      if (++rounds > STRATEGY_MAX_RAW + 1) break;
+    }
+    CHECK(rounds == n);                                     /* each usable one had its turn */
+    fflush(out); fseek(out, before, SEEK_SET);
+    memset(line, 0, sizeof(line));
+    CHECK(fgets(line, sizeof(line), out) != NULL);
+    CHECK(strstr(line, "\"type\":\"blocked\"") && strstr(line, "\"raw\":true") &&
+          strstr(line, "\"note\":\"silent\"") && strstr(line, "198.51.100.9"));
+    fseek(out, 0, SEEK_END);
+    /* resting: untouched, and further failures move nothing and say nothing */
+    before = ftell(out);
+    raw_result(d, 5222, ATT_PLAIN, 0, 0, RAW_FAIL_SILENT, AF_INET, 0);
+    CHECK(raw_pick(d, &inh) == ATT_PLAIN);
+    fflush(out); CHECK(ftell(out) == before);
+    /* after the rest, a failure starts a new round */
+    mutex_lock(&g_raw_mx); { int i = raw_find(d); if (i >= 0) g_raw[i].rest_until = 0; } mutex_unlock(&g_raw_mx);
+    raw_result(d, 5222, ATT_PLAIN, 0, 0, RAW_FAIL_REFUSED, AF_INET, 0);
+    CHECK(raw_pick(d, &inh) >= ATT_RAW_BASE);
+    /* what was learned stops working: unlearned, searched on from the next */
+    raw_result("203.0.113.10", 443, c2, 0, 0, RAW_FAIL_REFUSED, AF_INET, 0);
+    CHECK(raw_pick("203.0.113.10", &inh) == ATT_RAW_BASE + raw_after(c2 - ATT_RAW_BASE));
+    /* restored from an earlier run, by name; unknown names refused */
+    CHECK(engine_restore("149.154.167.50", strategy_raw(0)->name, 1000) == 0);
+    CHECK(raw_pick("149.154.167.50", &inh) == ATT_RAW_BASE + 0 && !inh);
+    CHECK(engine_restore("149.154.167.51", "raw-nonesuch", 0) == -1);
+    CHECK(engine_restore("bad host", strategy_raw(0)->name, 0) == -1);
+    CHECK(engine_restore("149.154.167.52", strategy_preset(0)->name, 0) == -1);   /* TLS ones: names only */
+    /* addresses on this computer or its network are never told unreachable */
+    dial_info di; memset(&di, 0, sizeof(di)); di.resolved = 1; di.tried = 1;
+    CHECK(report_raw_unreachable("127.0.0.1", 9000, &di, 0) == 0);
+    CHECK(report_raw_unreachable("192.168.1.20", 9000, &di, 0) == 0);
+    CHECK(report_raw_unreachable("fe80::1", 9000, &di, 0) == 0);
+    CHECK(report_raw_unreachable("239.1.2.3", 9000, &di, 0) == 0);
+    CHECK(report_raw_unreachable("www.example.com", 443, &di, 0) == 0);    /* report_unreachable's */
+    CHECK(report_raw_unreachable("149.154.175.50", 443, &di, 0) == 1);
+    CHECK(report_raw_unreachable("149.154.175.50", 443, &di, 0) == 0);     /* once in a while */
+    CHECK(report_raw_unreachable("mqtt.example.com", 8883, &di, 0) == 1);
+    int told = 0;
+    char hb[64];
+    for (int i = 0; i < 100; i++) { snprintf(hb, sizeof(hb), "198.51.100.%d", i); told += report_raw_unreachable(hb, 6881, &di, 0); }
+    CHECK(told == RAW_UNREACH_BURST - 2);                   /* a burst is capped */
+    engine_forget();
+    CHECK(raw_pick("149.154.167.50", &inh) == ATT_PLAIN);
+    engine_set_output(stdout);
+    fclose(out);
+  }
+  printf("  streams that are not TLS or HTTP: searched, learned, told, rested: OK\n");
+
   if (fails == 0) { printf("ENGINE MEMORY TESTS PASSED\n"); return 0; }
   printf("%d FAILED\n", fails);
   return 1;

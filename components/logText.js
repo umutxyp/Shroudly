@@ -70,6 +70,11 @@ const EXACT = {
 };
 
 const PATTERNS = [
+  // An app's own connections (not TLS or HTTP) that cannot get through (raw-apps.js).
+  [/^(.+?) cannot reach its servers \((.+?)\): the network blocks those addresses themselves;/, 'logRawUnreachable', ['app', 'addrs']],
+  [/^(.+?): the network stops its connections \((.+?)\) and no technique got through;/, 'logRawBlocked', ['app', 'addrs']],
+  [/^(\S+): could not be reached \(not a web connection\)$/, 'logRawUnreachableAddr', ['addr']],
+  [/^(\S+): still blocked after (\d+) techniques \(not a web connection\)$/, 'logRawStillBlockedAddr', ['addr', 'tries']],
   [/^([A-Za-z0-9.:_-]+): could not be reached \(DNS\)$/, 'logUnreachableDns', ['host']],
   [/^([A-Za-z0-9.:_-]+): could not be reached \(connection\)$/, 'logUnreachableConnect', ['host']],
   [/^Another program changed the system proxy \((.+?)\)/, 'logProxyReplaced', ['what']],

@@ -439,5 +439,11 @@
   "logHeldRestart": "{host}: Shroudly の再起動中のため保留しました。プログラムが再試行します",
   "autoDiscordFailed": "このネットワークでは Discord がブロックされていますが、Discord アプリモードをオンにできませんでした。もう一度試すには、設定でオンにしてください。",
   "autoRobloxFailed": "このネットワークでは Roblox がブロックされていますが、ゲームとアプリモードをオンにできませんでした。もう一度試すには、設定でオンにしてください。",
-  "autoStoreAppsNoAdmin": "管理者が許可するまで {apps} は Shroudly に接続できません。管理者は設定で「Microsoft Store アプリ」をオンにできます。"
+  "autoStoreAppsNoAdmin": "管理者が許可するまで {apps} は Shroudly に接続できません。管理者は設定で「Microsoft Store アプリ」をオンにできます。",
+  "autoRawUnreachable": "{app} がサーバーに接続できません。このネットワークがサーバーのアドレスをブロックしており、別の場所にあるサーバーなしでは Shroudly でも回避できません。{app} 自体のプロキシ設定か VPN を使ってください。",
+  "autoRawBlocked": "このネットワークが {app} の接続を止めており、Shroudly のどの手法でも通れませんでした。{app} 自体のプロキシ設定か VPN を使ってください。",
+  "logRawUnreachable": "{app} がサーバー（{addrs}）に接続できません。ネットワークがこれらのアドレス自体をブロックしています。回避できるのはアプリ自体のプロキシ設定か VPN だけです",
+  "logRawBlocked": "{app}: ネットワークが接続（{addrs}）を止めており、どの手法でも通れませんでした。回避できるのはアプリ自体のプロキシ設定か VPN だけです",
+  "logRawUnreachableAddr": "{addr}: 到達できませんでした（ウェブ接続ではありません）",
+  "logRawStillBlockedAddr": "{addr}: {tries} 種類の手法を試してもブロックされたままです（ウェブ接続ではありません）"
 }

@@ -14,6 +14,8 @@
     <string name="androidShareLogs">Ýazgylary paýlaş</string>
     <string name="androidVpnDenied">Programmalaryňyzyň baglanyşyklaryny geçirmek üçin Shroudly-a VPN rugsady gerek.</string>
     <string name="androidVpnRevoked">Gorag Android tarapyndan öçürildi, adatça başga VPN programmasy açylandygy sebäpli.</string>
+    <string name="autoRawBlocked">Bu tor {app} programmasynyň birikmelerini togtadýar we Shroudly-niň usullarynyň hiç biri geçip bilmedi. {app} programmasynyň öz proksi sazlamasyny ýa-da VPN ulanyň.</string>
+    <string name="autoRawUnreachable">{app} programmasy öz serwerlerine ýetip bilmeýär: bu tor olaryň salgylaryny petikleýär, Shroudly bolsa başga ýerdäki serwersiz muny aýlanyp geçip bilmeýär. {app} programmasynyň öz proksi sazlamasyny ýa-da VPN ulanyň.</string>
     <string name="connections">Birikmeler</string>
     <string name="download">Ýükläp alyş</string>
     <string name="dpiBypassStopped">DPI-ni aýlanyp geçiş togtadyldy</string>
