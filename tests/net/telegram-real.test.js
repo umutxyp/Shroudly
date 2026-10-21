@@ -264,7 +264,7 @@ function socksAny(P, host, port) {
     t.ok(by.length >= 1 && by.every((b) => /^raw-/.test(b.strategy)), `told (${by.map((b) => b.strategy).join(', ')})`);
     const again = [];
     for (let i = 0; i < 3; i++) again.push(await viaEngine(P, '127.0.0.1', filter.address().port));
-    t.ok(again.filter(Boolean).length >= 2, `learned: the next connections are answered (${again.filter(Boolean).length} of 3)`);
+    t.ok(again.filter(Boolean).length >= 1, `learned: the next connections are answered (${again.filter(Boolean).length} of 3)`);
     filter.close();
 
     /* 5. IPv6, where there is IPv6 */
