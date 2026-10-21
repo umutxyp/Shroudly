@@ -490,7 +490,7 @@ class SystemProxy {
       // entry that broke its syntax would not merely be ignored — it would stop
       // the browser resolving a proxy at all, and all browsing with it.
       const domains = [...new Set((this.list || [])
-        .map((d) => String(d).trim().toLowerCase().replace(/^\*?\.?/, '').replace(/\/.*$/, ''))
+        .map((d) => { const h = String(d).trim().toLowerCase().replace(/^\*?\.?/, ''); const cut = h.indexOf('/'); return cut === -1 ? h : h.slice(0, cut); })
         .filter((d) => SystemProxy.isHostname(d)))];
       // A lookup table, checked once per label of the host (a.b.example.com,
       // b.example.com, example.com, com): a few lookups per request however

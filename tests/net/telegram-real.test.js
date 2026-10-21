@@ -35,7 +35,7 @@ function pacFor(mode, port, hasIPv6 = true) {
   const ip4 = (h) => h.split('.').map(Number);
   const ctx = {
     isPlainHostName: (h) => h.search(/(\.)|:/) === -1,
-    shExpMatch: (s, p) => new RegExp(`^${p.replace(/\./g, '\\.').replace(/\*/g, '.*')}$`).test(s),
+    shExpMatch: (s, p) => new RegExp(`^${p.replace(/[.+^${}()|[\]\\]/g, '\\$&').replace(/\*/g, '.*').replace(/\?/g, '.')}$`).test(s),
     isInNet: (h, n, m) => { const a = ip4(h), b = ip4(n), c = ip4(m); return a.every((x, i) => (x & c[i]) === (b[i] & c[i])); },
   };
   vm.createContext(ctx);
