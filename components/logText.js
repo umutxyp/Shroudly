@@ -67,7 +67,33 @@ const EXACT = {
   'Store apps: permission was not given; Shroudly will not ask by itself again for two weeks': 'logStoreAppsDeclined',
   'Store apps: the exemptions Shroudly added could not be taken out': 'logStoreAppsRemoveFailed',
   'Store apps: the permission prompt was not answered; Shroudly will ask again next time': 'logStoreAppsNoAnswer',
+  // Since 2.6.3 the explanation names no country (the older line below
+  // still maps to it).
+  'DNS on this network answers blocked sites with a known block page.': 'logRegion',
 };
+
+/* What another program put in place of Shroudly's system proxy setting
+ * (system-proxy.js, describeTakeover), translated inside the line that
+ * carries it; ", probably <program>" when the program could be told. */
+const PROXY_TO = [
+  [/^no proxy \(removed\)$/, 'logProxyToNone', []],
+  [/^a PAC on this computer at port (\d+)$/, 'logProxyToLocalPac', ['port']],
+  [/^a PAC on another computer$/, 'logProxyToPacOther', []],
+  [/^a PAC file on this computer$/, 'logProxyToPacFile', []],
+  [/^a PAC found on the network$/, 'logProxyToWpad', []],
+  [/^a manual proxy on this computer at port (\d+)$/, 'logProxyToLocalManual', ['port']],
+  [/^a manual proxy on this computer$/, 'logProxyToLocalManualAny', []],
+  [/^a manual proxy on another computer$/, 'logProxyToRemoteManual', []],
+  [/^a manual proxy$/, 'logProxyToManual', []],
+  [/^the proxy from the environment variables$/, 'logProxyToEnv', []],
+];
+
+function proxyTo(value, t) {
+  const m = /^(.+?)(?:, probably (.+))?$/.exec(String(value));
+  if (!m) return value;
+  const to = translateWith(PROXY_TO, m[1], t) ?? m[1];
+  return m[2] ? t('logProxyProbably', { to, program: m[2] }) : to;
+}
 
 const PATTERNS = [
   // An app's own connections (not TLS or HTTP) that cannot get through (raw-apps.js).
@@ -77,6 +103,10 @@ const PATTERNS = [
   [/^(\S+): still blocked after (\d+) techniques \(not a web connection\)$/, 'logRawStillBlockedAddr', ['addr', 'tries']],
   [/^([A-Za-z0-9.:_-]+): could not be reached \(DNS\)$/, 'logUnreachableDns', ['host']],
   [/^([A-Za-z0-9.:_-]+): could not be reached \(connection\)$/, 'logUnreachableConnect', ['host']],
+  // Issue #29: what it was changed to, and by which program when that can
+  // be told. Before the older, shorter lines, which they would also match.
+  [/^Another program changed the system proxy \((.+?)\) to (.+): that traffic no longer goes through Shroudly$/, 'logProxyReplacedTo', ['what', 'to'], { to: proxyTo }],
+  [/^Autopilot: another program changed the system proxy \((.+?)\) to (.+); set it back to Shroudly$/, 'logProxyRetakenTo', ['what', 'to'], { to: proxyTo }],
   [/^Another program changed the system proxy \((.+?)\)/, 'logProxyReplaced', ['what']],
   [/^Autopilot: another program changed the system proxy \((.+?)\); set it back to Shroudly$/, 'logProxyRetaken', ['what']],
   [/^Another program keeps changing the system proxy \((.+?)\), probably (.+?); Shroudly stopped setting it back/, 'logProxyFightNamed', ['what', 'program']],
@@ -125,6 +155,8 @@ const PATTERNS = [
   [/^(.+?) was already running when protection started\./, 'logAppsNeedRestart', ['apps']],
   [/^Encrypted DNS is not reachable on this network/, 'logDohDown', []],
   [/^([A-Za-z0-9.:_-]+): blocked here, opened with (\S+) \((\d+) tries, (\S+)\)(?: — .*)?$/, 'logSiteBypassed', ['host', 'strategy', 'tries', 'family']],
+  // Advanced mode already on: nothing to suggest (issue #29).
+  [/^([A-Za-z0-9.:_-]+): still blocked after (\d+) techniques \((\S+)\) — Advanced mode is on, and Shroudly keeps trying other ways$/, 'logSiteStillBlockedAdvancedOn', ['host', 'tries', 'family']],
   [/^([A-Za-z0-9.:_-]+): still blocked after (\d+) techniques \((\S+)\)/, 'logSiteStillBlocked', ['host', 'tries', 'family']],
   [/^([A-Za-z0-9.:_-]+): no answer after (\d+) techniques \((\S+)\)/, 'logSiteNoAnswer', ['host', 'tries', 'family']],
   [/^([A-Za-z0-9.:_-]+): the server refused the connection itself \(a TLS alert to the unchanged request\); not a block$/, 'logSiteServerRefused', ['host']],
@@ -177,17 +209,25 @@ const PATTERNS = [
   [/^The system proxy was not set\. Apps can still use SOCKS5 (\S+) directly \(PAC: (\S+)\)\.$/, 'logProxyManualNotSet', ['socks', 'pac']],
 ];
 
-export function localizeLog(message, t) {
-  if (typeof message !== 'string') return String(message ?? '');
-  const msg = message.trim();
-  if (EXACT[msg]) return t(EXACT[msg]);
-  for (const [re, key, names] of PATTERNS) {
+/* The first of `table` that matches `msg`, translated; undefined when none
+ * does. An entry may name params that are themselves translated (sub). */
+function translateWith(table, msg, t) {
+  for (const [re, key, names, sub] of table) {
     const m = msg.match(re);
     if (m) {
       const params = {};
       names.forEach((n, i) => { params[n] = m[i + 1]; });
+      for (const [n, fn] of Object.entries(sub || {})) params[n] = fn(params[n], t);
       return t(key, params);
     }
   }
-  return message;
+  return undefined;
+}
+
+export function localizeLog(message, t) {
+  if (typeof message !== 'string') return String(message ?? '');
+  const msg = message.trim();
+  if (EXACT[msg]) return t(EXACT[msg]);
+  const out = translateWith(PATTERNS, msg, t);
+  return out === undefined ? message : out;
 }

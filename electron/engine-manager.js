@@ -25,6 +25,7 @@ const { DISCORD_DOMAINS } = require('./discord-relay');
 const fingerprints = require('./censor-fingerprints');
 const { isMainName } = require('./service-check');
 const sharedWake = require('./wake');
+const LogGate = require('./log-gate');
 const net = require('net');
 
 /* Can we listen on 127.0.0.1:port right now? */
@@ -73,10 +74,9 @@ const LEARNED_RAW_KEY = 'learnedRawTechniques';
 const LEARNED_RAW_MAX = 100;
 const LEARNED_TTL_MS = 30 * 24 * 60 * 60 * 1000;
 
-/* A host that could not be reached at all is logged again only after this
- * long: a browser retries a dead host over and over, and the log should say
- * so once, not once per retry. */
-const UNREACHABLE_REPEAT_MS = 5 * 60 * 1000;
+/* A host that could not be reached at all is logged at once, then again at
+ * most every half hour (log-gate.js): a browser or a game retries a dead
+ * host over and over, and the log should say so once, not once per retry. */
 
 /* A list that names any Discord domain gets all of them: Discord loads its
  * pieces from a dozen domains, and a list edited before one was added would
@@ -172,6 +172,12 @@ class EngineManager {
     this.onStatusChange = hooks.onStatusChange || (() => {});
     this.onProbe = hooks.onProbe || (() => {});
     this.onSiteBlocked = hooks.onSiteBlocked || (() => {});
+    // Is Advanced mode on? A site still blocked is then not one for which to
+    // suggest it (main.js; false without it).
+    this.advancedOn = hooks.advancedOn || (() => false);
+    // The same line about the same host, at most every half hour; shared
+    // with Games and apps and the Discord relay (main.js).
+    this.logGate = hooks.logGate || new LogGate();
     // Every site-level finding, as (kind, host, detail): 'bypass', 'blocked',
     // 'cut', 'unreachable', and 'seen' for a connection to one of the watched
     // domains. The app uses it to recognise which services this network
@@ -260,7 +266,6 @@ class EngineManager {
     // rather than one per connection.
     this.bypassed = new Set();
     this.blockedHosts = new Set();
-    this.unreachable = new Map();  // host -> when it was last logged
     // How many techniques the engine's ladder has; it says so when it starts.
     this.techniques = 0;
     this._dnsAutoFixed = false;
@@ -383,12 +388,9 @@ class EngineManager {
    * load. Once per host every few minutes. */
   _onUnreachable(host, stage) {
     if (!host) return;
-    const now = Date.now();
-    const last = this.unreachable.get(host);
-    if (last && now - last < UNREACHABLE_REPEAT_MS) return;
-    if (this.unreachable.size > 400) this.unreachable.clear();
-    this.unreachable.set(host, now);
-    this.log('warning', `${host}: could not be reached (${stage === 'dns' ? 'DNS' : 'connection'})`);
+    const what = stage === 'dns' ? 'DNS' : 'connection';
+    if (!this.logGate.allow(`unreachable-${what}`, host)) return;
+    this.log('warning', `${host}: could not be reached (${what})`);
   }
 
   _setAdvice(patch) {
@@ -493,7 +495,9 @@ class EngineManager {
     this.stats = this._empty();
     this.bypassed.clear();
     this.blockedHosts.clear();
-    this.unreachable.clear();
+    // A host that could not be reached, and "Shroudly is restarting": news
+    // again with this start (log-gate.js).
+    this.logGate.forgetKinds((k) => k.startsWith('unreachable-') || k.endsWith('-unreachable') || k.endsWith('-restarting'));
     this.cuts.clear();
     this._setAdvice({ cut: null });
     this._describeEnvironment();
@@ -652,10 +656,12 @@ class EngineManager {
     }
     this._setAdvice({ conflicts: d.conflicts });
     this._watchConflicts();
+    // Which filter it is (d.region, from the known block pages) stays in the
+    // data; the explanation never names a country.
     if (d.region) {
       this.log('info', d.region === 'filter'
         ? 'Your DNS service filters sites; Shroudly\'s encrypted DNS goes around it.'
-        : `DNS answers on this network match the filtering used in ${d.region}.`);
+        : 'DNS on this network answers blocked sites with a known block page.');
     }
 
     if (d.forgedDns.length) {
@@ -745,6 +751,9 @@ class EngineManager {
         try { this.onHostEvent('bypass', msg.host, msg.note || null); } catch {}
         this._rememberTechnique(msg.host, msg.strategy);
         this.blockedHosts.delete(msg.host);
+        // It got through: a later failure to reach it is news again.
+        this.logGate.forget('unreachable-DNS', msg.host);
+        this.logGate.forget('unreachable-connection', msg.host);
         if (!this.bypassed.has(msg.host)) {
           // One line per site, but the set is only there to stop repeats, so
           // it is capped rather than allowed to track a whole session.
@@ -803,7 +812,14 @@ class EngineManager {
         if (!this.blockedHosts.has(msg.host)) {
           if (this.blockedHosts.size > 400) this.blockedHosts.clear();
           this.blockedHosts.add(msg.host);
-          this.log('warning', `${msg.host}: still blocked after ${msg.attempts} techniques (${msg.family}) — this network may need Advanced mode`);
+          // Advanced mode already on (issue #29: turned on 15 s before):
+          // nothing to suggest, and the engine goes on to further techniques
+          // with the next connections to this host.
+          let advanced = false;
+          try { advanced = !!this.advancedOn(); } catch {}
+          this.log('warning', advanced
+            ? `${msg.host}: still blocked after ${msg.attempts} techniques (${msg.family}) — Advanced mode is on, and Shroudly keeps trying other ways`
+            : `${msg.host}: still blocked after ${msg.attempts} techniques (${msg.family}) — this network may need Advanced mode`);
           // Nobody reads a log unprompted. A site that could not be opened at
           // all is the one moment the user needs telling, because otherwise
           // they conclude the app simply does not work.
@@ -1184,9 +1200,11 @@ class EngineManager {
   static async whoTookProxy(takeover, probe = {}) {
     const listener = probe.listener || ((port) => procnet.listener(port));
     const tools = probe.tools || (() => diagnostics.proxyTools());
-    if (takeover && takeover.kind === 'local' && takeover.port) {
+    // A PAC or a manual proxy on this computer: whoever listens on its port.
+    const { port } = SystemProxy.describeTakeover(takeover);
+    if (port) {
       let who = null;
-      try { who = await listener(takeover.port); } catch {}
+      try { who = await listener(port); } catch {}
       if (who && who.name) return [diagnostics.toolName(who.name)];
     }
     try { return (await tools()) || []; } catch { return []; }
@@ -1255,6 +1273,13 @@ class EngineManager {
       this.log('info', 'Recovering: restoring proxy from previous session');
       try { SystemProxy.resetLegacySync(this.log); } catch {}
     }
+    // Windows: a manual proxy for https:// at the engine, left by a test
+    // build with no Shroudly owning it, is switched off (never written).
+    try {
+      const saved = Number(this.store.get('listenPort')) || DEFAULT_PORT;
+      const ports = [saved, ...Array.from({ length: 21 }, (_, i) => DEFAULT_PORT + i)];
+      SystemProxy.clearStrayHttpsSync(this.log, { ...this.proxyOptions, ports });
+    } catch {}
     if (protectionOn === false) { try { SystemProxy.clearEnvSync(this.proxyOptions, this.log); } catch {} }
     this.store.set('runtimeActive', false);
   }

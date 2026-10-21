@@ -27,6 +27,7 @@
 const http = require('http');
 const net = require('net');
 const tls = require('tls');
+const LogGate = require('./log-gate');
 
 const PREFERRED_PORTS = [10809, 18809, 28809];
 const UPSTREAM_DEFAULT = 'updates.discord.com';
@@ -127,7 +128,9 @@ class DiscordRelay {
     this.port = 0;
     this.requests = 0;
     this.lastOkAt = 0;
-    this._warnedAt = 0;
+    // A line about a host it could not reach: at once, then at most every
+    // half hour per host (log-gate.js; main.js shares one with the engine).
+    this.logGate = new LogGate();
   }
 
   get running() { return !!this.server; }
@@ -166,11 +169,10 @@ class DiscordRelay {
     this.server = null;
   }
 
-  _warn(msg) {
-    // One line every half minute is enough: the updater retries constantly.
-    const now = Date.now();
-    if (now - this._warnedAt < 30000) return;
-    this._warnedAt = now;
+  /* The updater retries constantly: the line about a host is said the
+   * first time, then at most every half hour for that host and kind. */
+  _warn(kind, host, msg) {
+    if (!this.logGate.allow(kind, host)) return;
     this.log('warning', msg);
   }
 
@@ -184,7 +186,7 @@ class DiscordRelay {
     // a direct connection a filtering network refuses or answers falsely.
     let due = false;
     try { due = !socksPort && !!this.engineDue(); } catch {}
-    if (due) throw new Error('Shroudly is restarting; try again in a moment');
+    if (due) throw Object.assign(new Error('Shroudly is restarting; try again in a moment'), { later: true });
     const raw = socksPort
       ? await socksConnect(socksPort, host, 443)
       : await new Promise((resolve, reject) => {
@@ -234,7 +236,8 @@ class DiscordRelay {
         sock = await this._connect(host);
       } catch (e) {
         if (n < 2 && !res.writableEnded && !res.destroyed) { attempt(n + 1); return; }
-        this._warn(`Discord app: could not reach ${host} (${e.message})`);
+        // "Shroudly is restarting": one line per restart, not one per host.
+        this._warn(e && e.later ? 'discord-restarting' : 'discord-unreachable', e && e.later ? '*' : host, `Discord app: could not reach ${host} (${e.message})`);
         if (!res.headersSent) res.writeHead(502);
         res.end();
         return;
@@ -247,6 +250,9 @@ class DiscordRelay {
         if (h.location && /^https:\/\//i.test(h.location)) h.location = rewriteUrls(h.location, base);
         ur.on('error', () => res.destroy());
         if (ur.statusCode < 400) this.lastOkAt = Date.now();
+        // It answered: a later failure is news again.
+        this.logGate.forget('discord-unreachable', host);
+        this.logGate.forget('discord-failed', host);
         const json = /json/i.test(String(h['content-type'] || ''));
         if (json && req.method === 'GET') {
           const chunks = [];
@@ -270,7 +276,7 @@ class DiscordRelay {
       });
       up.on('error', (e) => {
         if (!answered && n < 2 && !res.headersSent && !res.destroyed) { attempt(n + 1); return; }
-        this._warn(`Discord app: ${host}${path.split('?')[0]} failed (${e.message})`);
+        this._warn('discord-failed', host, `Discord app: ${host}${path.split('?')[0]} failed (${e.message})`);
         if (!res.headersSent) { res.writeHead(502); res.end(); } else res.destroy();
       });
       // The updater hung up: drop the upstream request with it.

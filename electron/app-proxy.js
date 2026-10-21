@@ -42,6 +42,7 @@ const net = require('net');
 const dns = require('dns');
 const { socksConnect } = require('./discord-relay');
 const { countryOf } = require('./censor-fingerprints');
+const LogGate = require('./log-gate');
 
 const PREFERRED_PORTS = [10810, 18810, 28810];
 const CONNECT_TIMEOUT_MS = 15000;
@@ -143,7 +144,9 @@ class AppProxy {
     this.sockets = new Set();
     this.open = 0;
     this.decisions = new Map();         // host -> { via, until }
-    this._warnedAt = 0;
+    // A line about a host it could not reach: at once, then at most every
+    // half hour per host (log-gate.js; main.js shares one with the engine).
+    this.logGate = new LogGate();
     // Told of every tunnel that opened (host, 'engine' | 'direct'): how the
     // app knows a program really goes through Shroudly, not just that the
     // setting was written.
@@ -196,11 +199,10 @@ class AppProxy {
     this.server = null;
   }
 
-  _warn(msg) {
-    // One line every half minute is enough: programs retry constantly.
-    const now = Date.now();
-    if (now - this._warnedAt < 30000) return;
-    this._warnedAt = now;
+  /* Programs retry constantly: the line about a host is said the first
+   * time, then at most every half hour for that host and kind. */
+  _warn(kind, host, msg) {
+    if (!this.logGate.allow(kind, host)) return;
     this.log('warning', msg);
   }
 
@@ -264,12 +266,13 @@ class AppProxy {
       if (this.waitForEngine) { try { await this.waitForEngine(); } catch {} }
       const via = await this.route(t.host);
       if (via === 'refuse') { if (!client.destroyed) client.end('HTTP/1.1 403 Forbidden\r\n\r\n'); return; }
-      if (via === 'later') throw new Error('Shroudly is restarting; try again in a moment');
+      if (via === 'later') throw Object.assign(new Error('Shroudly is restarting; try again in a moment'), { later: true });
       const socksPort = via === 'engine' ? this.getSocksPort() : null;
       socksPortUsed = socksPort;
       up = socksPort ? await socksConnect(socksPort, t.host, t.port) : await direct(t.host, t.port);
     } catch (e) {
-      this._warn(`Games and apps: could not reach ${t.host} (${e.message})`);
+      // "Shroudly is restarting": one line per restart, not one per host.
+      this._warn(e && e.later ? 'apps-restarting' : 'apps-unreachable', e && e.later ? '*' : t.host, `Games and apps: could not reach ${t.host} (${e.message})`);
       if (!client.destroyed) client.end('HTTP/1.1 502 Bad Gateway\r\n\r\n');
       return;
     }
@@ -277,6 +280,7 @@ class AppProxy {
     this._track(up);
     this.tunnels++;
     this.lastOkAt = Date.now();
+    this.logGate.forget('apps-unreachable', t.host);
     if (this.onTunnel) { try { this.onTunnel(t.host, socksPortUsed ? 'engine' : 'direct'); } catch {} }
 
     const end = () => { client.destroy(); up.destroy(); };
