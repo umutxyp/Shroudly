@@ -58,9 +58,12 @@ async function record(label, pid) {
 (async () => {
   const ud = fs.mkdtempSync(path.join(os.tmpdir(), 'shroudly-e2e-'));
   // Language Turkish (a language other than English, loaded on demand),
-  // nothing starting by itself, no notifications on the test machine.
+  // nothing starting by itself, no notifications on the test machine, and
+  // no loopback exemptions for the runner's Store apps while memory is
+  // measured (store-apps.js; tests/lab/uwp-loopback.js does that).
   fs.writeFileSync(path.join(ud, 'config.json'), JSON.stringify({
     autoMode: false, showNotifications: false, minimizeToTray: true, autoStart: false, language: 'tr', shareOnlineCount: true,
+    storeAppsModeOffAt: Date.now(),
   }));
   fs.mkdirSync(SHOTS, { recursive: true });
   // The main run as on a desktop that shows tray icons; a stock GNOME without

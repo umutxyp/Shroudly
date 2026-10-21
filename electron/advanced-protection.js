@@ -28,6 +28,7 @@ class AdvancedProtection {
   /*
    * opts.active()          whether the Advanced backend is running
    * opts.start()           start it -> { success, code, alreadyActive }
+   * opts.ready()           optional: waited for before asking (another permission prompt on screen)
    * opts.stop()            stop it, and tell the window
    * opts.protectionOn()    whether protection is on (or on its way back)
    * opts.antiCheat()       a game's anti-cheat running (its name), or null
@@ -37,6 +38,7 @@ class AdvancedProtection {
   constructor(opts) {
     this.active = opts.active;
     this.startBackend = opts.start;
+    this.ready = opts.ready || (async () => {});
     this.stopBackend = opts.stop;
     this.protectionOn = opts.protectionOn;
     this.antiCheat = opts.antiCheat || (async () => null);
@@ -90,6 +92,9 @@ class AdvancedProtection {
   start(since) { return this.queue(() => this.run(since)); }
 
   async run(since) {
+    if (!this.current(since)) return { success: false, code: 'protection_off' };
+    // Never two permission prompts at once; a Stop while waiting still wins.
+    await this.ready();
     if (!this.current(since)) return { success: false, code: 'protection_off' };
     const r = await this.startBackend();
     // Already running: the user's own start from Settings, left alone.

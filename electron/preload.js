@@ -84,6 +84,10 @@ contextBridge.exposeInMainWorld('electron', {
   // Returns a function that removes just this listener (several panels listen).
   onAppsState: (cb) => { const h = (e, p) => cb(p); ipcRenderer.on('apps:state', h); return () => ipcRenderer.removeListener('apps:state', h); },
   removeAppsStateListener: () => ipcRenderer.removeAllListeners('apps:state'),
+  // Microsoft Store apps reaching Shroudly (Windows, loopback exemptions)
+  storeAppsStatus: () => ipcRenderer.invoke('storeapps:status'),
+  storeAppsSet: (on) => ipcRenderer.invoke('storeapps:set', on),
+  onStoreAppsState: (cb) => { const h = (e, p) => cb(p); ipcRenderer.on('storeapps:state', h); return () => ipcRenderer.removeListener('storeapps:state', h); },
   // What the autopilot did by itself (autopilot.js): the last few, then each
   // as it happens.
   autoNotices: () => ipcRenderer.invoke('auto:notices'),

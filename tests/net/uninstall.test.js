@@ -17,7 +17,9 @@ const shell = process.platform === 'win32' ? 'powershell'
 if (!shell) { console.log('uninstall: skipped (no PowerShell here; runs on Windows CI)'); process.exit(0); }
 
 const nsh = fs.readFileSync(path.join(ROOT, 'scripts', 'installer.nsh'), 'utf8');
-const m = nsh.match(/nsExec::Exec `powershell (.*?) -Command "(.*?)"`/s);
+// The one about Discord (the Store apps' one is tested by storeapps.test.js
+// and, on Windows CI, tests/lab/uwp-loopback.js).
+const m = [...nsh.matchAll(/nsExec::Exec `powershell (.*?) -Command "(.*?)"`/gs)].find((x) => /discord/i.test(x[2]));
 if (!m) { console.error('FAIL command not found in installer.nsh'); process.exit(1); }
 const script = m[2].replace(/\$\$/g, '$');   // NSIS writes a literal $ as $$
 

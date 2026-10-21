@@ -16,6 +16,7 @@ const AppProxy = require('./app-proxy');
 const AppEnv = require('./app-env');
 const RobloxApp = require('./roblox-app');
 const Autopilot = require('./autopilot');
+const StoreApps = require('./store-apps');
 const BlockCheck = require('./blockcheck');
 const ProcNet = require('./procnet');
 const BrowserCheck = require('./browser-check');
@@ -71,6 +72,7 @@ let discordRelay = null;
 let keepDiscordLine = false;
 let appProxy = null;
 let autopilot = null;
+let storeApps = null;
 let appEnv = null;
 let siteList = null;
 
@@ -578,6 +580,8 @@ function askProxyRecovery() {
 const advancedProtection = new AdvancedProtection({
   active: () => !!(advanced && advanced.active),
   start: () => startAdvanced(),
+  // After the Store apps' permission prompt, if one is on screen.
+  ready: async () => { if (storeApps) await storeApps.settled(); },
   stop: async () => {
     try { await advanced.stop(); } catch {}
     toWindow('advanced:state', { active: false });
@@ -598,8 +602,12 @@ async function safeStart({ user = false } = {}) {
     syncPresence();
     if (user) advancedProtection.started().catch(() => {});
     // Whether this network blocks what the installed apps need, before they
-    // are opened (autopilot.js).
-    setTimeout(() => { if (autopilot) autopilot.survey().catch(() => {}); }, 3000);
+    // are opened (autopilot.js), and whether Microsoft Store apps can reach
+    // Shroudly (store-apps.js).
+    setTimeout(() => {
+      if (autopilot) autopilot.survey().catch(() => {});
+      if (storeApps) storeApps.survey().catch(() => {});
+    }, 3000);
     return r || { success: true };
   } catch (e) {
     addLog('error', `Start failed: ${e.message}`);
@@ -811,6 +819,7 @@ app.whenReady().then(async () => {
   appProxy.onRequest = onAppRequest;
   appEnv = new AppEnv({ stateFile: appEnvStateFile(), watchdog });
   createAutopilot();
+  createStoreApps();
 
   updater = new Updater({
     log: addLog,
@@ -1776,7 +1785,8 @@ function createAutopilot() {
     advanced: {
       available: () => !!(advanced && advanced.available()),
       active: () => !!(advanced && advanced.active),
-      // On protection's behalf: a Stop while it waits wins.
+      // On protection's behalf: a Stop while it waits wins, and it waits
+      // for the Store apps' permission prompt if one is on screen.
       session: () => advancedProtection.session(),
       start: (since) => advancedProtection.start(since),
       antiCheat: () => Autopilot.antiCheatRunning(),
@@ -1785,6 +1795,33 @@ function createAutopilot() {
   // Apps installed later, and the check that is due again after a while.
   setInterval(() => { autopilot.survey().catch(() => {}); }, 10 * 60 * 1000).unref();
 }
+
+/* Microsoft Store apps (Windows): Windows keeps the ones that run in an app
+ * container away from programs on this computer, Shroudly's proxy too, unless
+ * they have a loopback exemption. Once one of them is open, the autopilot
+ * adds them with one administrator prompt and says so (never by itself to an
+ * account that cannot say Yes); the switch in Settings asks at once, or takes
+ * Shroudly's own out again (store-apps.js). */
+function createStoreApps() {
+  storeApps = new StoreApps({
+    store,
+    log: addLog,
+    tell: autoTell,
+    protectionOn: () => !!(engine && engine.isActive()),
+    // Advanced mode's permission prompt on screen: never a second one beside it.
+    busy: () => !!(advanced && advanced._starting),
+    onChange: () => toWindow('storeapps:state', storeApps.status()),
+  });
+  if (!storeApps.available()) return;
+  // A Store app opened later is seen at the next look, once a minute: a
+  // sign-in broker an app calls on may not run for long. Cheap: tasklist
+  // /apps; the programs' app containers are looked at only once that list
+  // changed, the app containers' list read only for a sign not seen before
+  // (or every half hour).
+  setInterval(() => { storeApps.survey().catch(() => {}); }, 60 * 1000).unref();
+}
+ipcMain.handle('storeapps:status', () => (storeApps ? storeApps.status() : { available: false, on: false }));
+ipcMain.handle('storeapps:set', async (e, on) => (storeApps ? storeApps.setMode(on === true) : { success: false }));
 
 ipcMain.handle('settings:set', (e, key, value) => {
   // No list of one's own: follow the automatic list again.

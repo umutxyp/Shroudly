@@ -62,6 +62,9 @@ const EXACT = {
   'Proxy watchdog not started': 'logProxyWatchdogFailed',
   'Firefox goes through Shroudly; this session does not read the setting Shroudly writes for Chrome and other Chromium browsers, so they have to be set by hand': 'logProxyEnvNotTakenFirefox',
   'Shroudly engine stopped': 'logEngineStoppedOnly',
+  'Store apps: permission was not given; Shroudly will not ask by itself again for two weeks': 'logStoreAppsDeclined',
+  'Store apps: the exemptions Shroudly added could not be taken out': 'logStoreAppsRemoveFailed',
+  'Store apps: the permission prompt was not answered; Shroudly will ask again next time': 'logStoreAppsNoAnswer',
 };
 
 const PATTERNS = [
@@ -82,6 +85,12 @@ const PATTERNS = [
   [/^Autopilot: (.+) did not get through Shroudly; restarted it$/, 'logAutoRestarted', ['app']],
   [/^Autopilot: (.+) needs Advanced mode; asking for permission$/, 'logAutoAdvancedAsk', ['host']],
   [/^Autopilot: (.+) needs Advanced mode, but a game's anti-cheat is running \((.+)\); not started by itself$/, 'logAutoAdvancedAntiCheat', ['host', 'program']],
+  [/^Store apps: (\d+) cannot reach Shroudly \((.+)\); asking for permission$/, 'logStoreAppsAsk', ['count', 'apps']],
+  [/^Store apps: (\d+) can now reach Shroudly$/, 'logStoreAppsOn', ['count']],
+  [/^Store apps: (.+) cannot go through Shroudly; permission was not given$/, 'logStoreAppsBlocked', ['apps']],
+  [/^Store apps: (.+) cannot go through Shroudly until an administrator allows it \(the Microsoft Store apps switch in Settings\)$/, 'logStoreAppsNoAdmin', ['apps']],
+  [/^Store apps: they could not be let through \((.+)\)$/, 'logStoreAppsFailed', ['detail']],
+  [/^Store apps: the exemptions Shroudly added were taken out \((\d+)\)$/, 'logStoreAppsRemoved', ['count']],
   [/^([A-Za-z0-9.:_-]+): the site itself refuses this connection/, 'logServiceRefused', ['host']],
   [/^([A-Za-z0-9.:_-]+): accepts the connection, then nothing comes back;/, 'logServiceStall', ['host']],
   [/^Discord app mode: (.+) added$/, 'logDiscordAdded', ['builds']],
