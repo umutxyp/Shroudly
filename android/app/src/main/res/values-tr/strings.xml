@@ -14,6 +14,8 @@
     <string name="androidShareLogs">Kayıtları paylaş</string>
     <string name="androidVpnDenied">Shroudly, uygulamalarınızın bağlantılarını taşımak için VPN iznine ihtiyaç duyar.</string>
     <string name="androidVpnRevoked">Koruma Android tarafından kapatıldı; genellikle başka bir VPN uygulaması açıldığı için.</string>
+    <string name="autoRawBlocked">Bu ağ {app} bağlantılarını durduruyor ve Shroudly\'nin tekniklerinden hiçbiri geçemedi. {app} uygulamasının kendi proxy ayarını ya da bir VPN kullan.</string>
+    <string name="autoRawUnreachable">{app} sunucularına ulaşamıyor: bu ağ o adresleri engelliyor ve Shroudly başka bir yerde sunucu olmadan bunu aşamaz. {app} uygulamasının kendi proxy ayarını ya da bir VPN kullan.</string>
     <string name="connections">Bağlantılar</string>
     <string name="download">İndirme</string>
     <string name="dpiBypassStopped">DPI atlatma durduruldu</string>

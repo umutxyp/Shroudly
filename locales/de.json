@@ -422,5 +422,11 @@
   "androidNoInternet": "Der Schutz wurde beendet, weil Shroudly in diesem Netz das Internet nicht erreicht hat. Deine Apps verbinden sich jetzt direkt. Öffne Shroudly, um es erneut zu versuchen.",
   "androidBatteryHint": "Akku-Einstellungen können Shroudly im Hintergrund beenden und damit deine Verbindung unterbrechen. Erlaube Shroudly, ohne Akku-Einschränkungen zu laufen.",
   "androidBatterySettings": "Akku-Einstellungen",
-  "androidLockdownOffline": "Kein Internet: Shroudly kommt in diesem Netz gerade nicht durch, und Android ist so eingestellt, dass Verbindungen ohne VPN blockiert werden. Shroudly versucht es weiter."
+  "androidLockdownOffline": "Kein Internet: Shroudly kommt in diesem Netz gerade nicht durch, und Android ist so eingestellt, dass Verbindungen ohne VPN blockiert werden. Shroudly versucht es weiter.",
+  "autoRawUnreachable": "Die App {app} erreicht ihre Server nicht: Dieses Netz sperrt ihre Adressen, und ohne einen Server woanders kommt Shroudly daran nicht vorbei. Nutze die eigene Proxy-Einstellung von {app} oder ein VPN.",
+  "autoRawBlocked": "Dieses Netz unterbricht die Verbindungen der App {app}, und keine der Techniken von Shroudly ist durchgekommen. Nutze die eigene Proxy-Einstellung von {app} oder ein VPN.",
+  "logRawUnreachable": "Die App {app} erreicht ihre Server nicht ({addrs}): Das Netz sperrt genau diese Adressen; daran kommt nur die eigene Proxy-Einstellung der App oder ein VPN vorbei",
+  "logRawBlocked": "{app}: Das Netz unterbricht die Verbindungen der App ({addrs}) und keine Technik ist durchgekommen; daran kommt nur die eigene Proxy-Einstellung der App oder ein VPN vorbei",
+  "logRawUnreachableAddr": "{addr}: nicht erreichbar (keine Web-Verbindung)",
+  "logRawStillBlockedAddr": "{addr}: nach {tries} Techniken weiter gesperrt (keine Web-Verbindung)"
 }

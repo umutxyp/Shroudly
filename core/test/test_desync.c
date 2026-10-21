@@ -26,7 +26,7 @@ static int make_ch(uint8_t *b, const char *host) {
 }
 
 /* loopback server: accept one conn, count recv() calls and total bytes */
-typedef struct { int port; int seg_count; int total; uint8_t buf[4096]; sock_t lsn; int ready; } srv_t;
+typedef struct { int port; int seg_count; int total; uint8_t buf[4096]; sock_t lsn; int ready; volatile int done; } srv_t;
 
 static void *srv_thread(void *a){
   srv_t *s=(srv_t*)a;
@@ -39,7 +39,42 @@ static void *srv_thread(void *a){
     /* brief wait so distinct segments are not coalesced by the time we read */
   }
   sock_close(c);
+  s->done=1;
   return NULL;
+}
+
+/* A raw technique on a payload that is neither TLS nor HTTP (an MTProto-like
+ * 64-byte random opening and more): the server must get exactly the bytes
+ * sent, whatever the cuts, the urgent byte or the decoy. */
+static void run_raw(int idx){
+  const strategy *st=strategy_raw(idx);
+  srv_t s; memset(&s,0,sizeof(s));
+  s.lsn=socket(AF_INET,SOCK_STREAM,IPPROTO_TCP);
+  int yes=1; setsockopt(s.lsn,SOL_SOCKET,SO_REUSEADDR,(char*)&yes,sizeof(yes));
+  struct sockaddr_in a; memset(&a,0,sizeof(a)); a.sin_family=AF_INET; a.sin_addr.s_addr=htonl(INADDR_LOOPBACK); a.sin_port=0;
+  bind(s.lsn,(struct sockaddr*)&a,sizeof(a));
+  socklen_t al=sizeof(a); getsockname(s.lsn,(struct sockaddr*)&a,&al);
+  listen(s.lsn,1);
+  thread_spawn(srv_thread,&s,256*1024);
+  sleep_ms(50);
+  sock_t up=socket(AF_INET,SOCK_STREAM,IPPROTO_TCP);
+  if(sock_connect_timeout(up,(struct sockaddr*)&a,sizeof(a),2000)!=0){CHECK(0);return;}
+  sock_set_nodelay(up,1);
+  uint8_t p[1024], orig[200]; int n=200;
+  srand(7+idx);
+  for(int i=0;i<n;i++) orig[i]=(uint8_t)(rand()&0xff);
+  orig[0]=0x5a;                     /* not 0x16 (TLS), not a letter (HTTP) */
+  memcpy(p,orig,(size_t)n);
+  proto_info pi; proto_inspect(p,(size_t)n,&pi);
+  CHECK(pi.kind==PROTO_UNKNOWN);
+  int r=desync_send_first(up,AF_INET,p,n,(int)sizeof(p),&pi,st,NULL);
+  CHECK(r==0);
+  sock_close(up);
+  for(int w=0;w<300 && !s.done;w++) sleep_ms(10);   /* a decoy waits for a retransmit */
+  sock_close(s.lsn);
+  CHECK(s.done && s.total==n && memcmp(s.buf,orig,(size_t)n)==0);
+  printf("  %-20s bytes=%d/%d segs>=%d integrity=%s\n", st->name, s.total, n, s.seg_count,
+         (s.total==n && memcmp(s.buf,orig,(size_t)n)==0)?"OK":"FAIL");
 }
 
 static void run_case(const char *spec, const char *host){
@@ -87,6 +122,7 @@ int main(void){
   run_case("split(sni_mid)","a.verylonghostname.example.net");
   run_case("split(1),split(sni)","x.io");
   run_case("split(2)","host.example");
+  for(int i=0;i<strategy_raw_count();i++) run_raw(i);
   plat_cleanup();
   if(fails==0){printf("ALL DESYNC TESTS PASSED\n");return 0;}
   printf("%d FAILED\n",fails);return 1;

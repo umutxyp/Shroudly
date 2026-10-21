@@ -422,5 +422,11 @@
   "androidNoInternet": "Shroudly bu ağda internete ulaşamadığı için koruma durdu, bu yüzden uygulamalarınız şu anda doğrudan bağlanıyor. Yeniden denemek için Shroudly'yi açın.",
   "androidBatteryHint": "Pil ayarları Shroudly'yi arka planda durdurup bağlantınızı kesebilir. Pil kısıtlaması olmadan çalışmasına izin verin.",
   "androidBatterySettings": "Pil ayarları",
-  "androidLockdownOffline": "İnternet yok: Shroudly şu anda bu ağda bağlantı kuramıyor ve Android, VPN olmadan bağlantıları engelleyecek şekilde ayarlı. Shroudly denemeye devam ediyor."
+  "androidLockdownOffline": "İnternet yok: Shroudly şu anda bu ağda bağlantı kuramıyor ve Android, VPN olmadan bağlantıları engelleyecek şekilde ayarlı. Shroudly denemeye devam ediyor.",
+  "autoRawUnreachable": "{app} sunucularına ulaşamıyor: bu ağ o adresleri engelliyor ve Shroudly başka bir yerde sunucu olmadan bunu aşamaz. {app} uygulamasının kendi proxy ayarını ya da bir VPN kullan.",
+  "autoRawBlocked": "Bu ağ {app} bağlantılarını durduruyor ve Shroudly'nin tekniklerinden hiçbiri geçemedi. {app} uygulamasının kendi proxy ayarını ya da bir VPN kullan.",
+  "logRawUnreachable": "{app} sunucularına ulaşamıyor ({addrs}): ağ bu adreslerin kendisini engelliyor; bunu yalnızca uygulamanın kendi proxy ayarı ya da bir VPN aşar",
+  "logRawBlocked": "{app}: ağ bağlantılarını durduruyor ({addrs}) ve hiçbir teknik geçemedi; bunu yalnızca uygulamanın kendi proxy ayarı ya da bir VPN aşar",
+  "logRawUnreachableAddr": "{addr}: ulaşılamadı (web bağlantısı değil)",
+  "logRawStillBlockedAddr": "{addr}: {tries} teknik denendi, hâlâ engelli (web bağlantısı değil)"
 }

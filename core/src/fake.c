@@ -22,6 +22,11 @@ int fake_available(void) {
  * is not worth an attempt. */
 static int build_decoy(uint8_t *dst, const uint8_t *real, int n,
                        const proto_info *pi) {
+  /* A stream that is neither TLS nor HTTP has no name to swap. What a filter
+   * recognises such a protocol by is its first bytes, so the decoy is zeros
+   * of the same length: nothing any protocol filter matches, and low enough
+   * in entropy that an "everything that looks random" rule passes it. */
+  if (pi->kind == PROTO_UNKNOWN) { memset(dst, 0, (size_t)n); return n > 0; }
   memcpy(dst, real, (size_t)n);
   int off = pi->host_off, len = pi->host_len;
   if (off <= 0 || len < 6 || off + len > n) return 0;

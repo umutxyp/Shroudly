@@ -14,6 +14,8 @@
     <string name="androidShareLogs">Protokoll teilen</string>
     <string name="androidVpnDenied">Shroudly braucht die VPN-Berechtigung, um die Verbindungen deiner Apps zu übernehmen.</string>
     <string name="androidVpnRevoked">Android hat den Schutz beendet, meist weil eine andere VPN-App eingeschaltet wurde.</string>
+    <string name="autoRawBlocked">Dieses Netz unterbricht die Verbindungen der App {app}, und keine der Techniken von Shroudly ist durchgekommen. Nutze die eigene Proxy-Einstellung von {app} oder ein VPN.</string>
+    <string name="autoRawUnreachable">Die App {app} erreicht ihre Server nicht: Dieses Netz sperrt ihre Adressen, und ohne einen Server woanders kommt Shroudly daran nicht vorbei. Nutze die eigene Proxy-Einstellung von {app} oder ein VPN.</string>
     <string name="connections">Verbindungen</string>
     <string name="download">Empfangen</string>
     <string name="dpiBypassStopped">DPI-Umgehung gestoppt</string>

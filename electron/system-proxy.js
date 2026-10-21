@@ -61,6 +61,7 @@
  */
 
 const { execFile, execFileSync, spawn } = require('child_process');
+const { pacRanges } = require('./raw-apps');
 const { envFor } = require('./win-powershell');
 const http = require('http');
 const os = require('os');
@@ -455,6 +456,11 @@ class SystemProxy {
       // every single request the browser makes.
       const table = {};
       for (const d of domains) table[d] = 1;
+      // Apps that connect to their servers by address, with a protocol of
+      // their own (a messenger's): no name to put on a list, so the ranges
+      // of the services known to work that way (raw-apps.js) go through the
+      // engine as a listed name would.
+      const ranges = pacRanges().map(([n, m]) => `isInNet(host, "${n}", "${m}")`).join(' ||\n      ');
       return `var SHROUDLY_LIST = ${JSON.stringify(table)};
 function FindProxyForURL(url, host) {
 ${local}
@@ -465,11 +471,20 @@ ${local}
     if (i < 0) break;
     h = h.substring(i + 1);
   }
+  if (/^\\d+\\.\\d+\\.\\d+\\.\\d+$/.test(host) && (${ranges ? `\n      ${ranges}` : 'false'})) {
+    return "${proxy}";
+  }
   return "DIRECT";
 }
 `;
     }
+    // A global IPv6 address (2000::/3) goes through the engine like an IPv4
+    // one: apps that connect by address (a messenger's servers) use it on
+    // IPv6 networks. Checked first, because some isPlainHostName read a
+    // literal with no dot in it as a plain name. Every other IPv6 literal
+    // (this computer, link-local, unique-local) stays direct below.
     return `function FindProxyForURL(url, host) {
+  if (/^\\[?[23][0-9a-fA-F]{0,3}:[0-9a-fA-F:.]*\\]?$/.test(host)) { return "${proxy}"; }
 ${local}
   return "${proxy}";
 }

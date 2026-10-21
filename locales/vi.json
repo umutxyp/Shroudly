@@ -422,5 +422,11 @@
   "androidNoInternet": "Bảo vệ đã dừng vì Shroudly không thể kết nối Internet trên mạng này, vì vậy các ứng dụng của bạn hiện đang kết nối trực tiếp. Mở Shroudly để thử lại.",
   "androidBatteryHint": "Cài đặt pin có thể dừng Shroudly khi chạy nền và làm mất kết nối của bạn. Hãy cho phép Shroudly chạy mà không bị giới hạn pin.",
   "androidBatterySettings": "Cài đặt pin",
-  "androidLockdownOffline": "Không có Internet: Shroudly hiện chưa thể kết nối trên mạng này, và Android đang được đặt để chặn kết nối không qua VPN. Shroudly vẫn đang thử lại."
+  "androidLockdownOffline": "Không có Internet: Shroudly hiện chưa thể kết nối trên mạng này, và Android đang được đặt để chặn kết nối không qua VPN. Shroudly vẫn đang thử lại.",
+  "autoRawUnreachable": "{app} không thể kết nối tới máy chủ của nó: mạng này chặn địa chỉ của các máy chủ đó, và Shroudly không thể vượt qua nếu không có một máy chủ ở nơi khác. Hãy dùng cài đặt proxy riêng của {app} hoặc VPN.",
+  "autoRawBlocked": "Mạng này chặn các kết nối của {app}, và không kỹ thuật nào của Shroudly vượt qua được. Hãy dùng cài đặt proxy riêng của {app} hoặc VPN.",
+  "logRawUnreachable": "{app} không thể kết nối tới máy chủ của nó ({addrs}): mạng chặn chính các địa chỉ đó; chỉ cài đặt proxy riêng của ứng dụng hoặc VPN mới vượt qua được",
+  "logRawBlocked": "{app}: mạng chặn các kết nối của nó ({addrs}) và không kỹ thuật nào vượt qua được; chỉ cài đặt proxy riêng của ứng dụng hoặc VPN mới vượt qua được",
+  "logRawUnreachableAddr": "{addr}: không thể truy cập (không phải kết nối web)",
+  "logRawStillBlockedAddr": "{addr}: vẫn bị chặn sau {tries} kỹ thuật (không phải kết nối web)"
 }

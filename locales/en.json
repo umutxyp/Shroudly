@@ -422,5 +422,11 @@
   "androidNoInternet": "Protection stopped because Shroudly could not reach the internet on this network, so your apps are connecting directly. Open Shroudly to try again.",
   "androidBatteryHint": "Battery settings can stop Shroudly in the background and cut your connection. Let it run without battery restrictions.",
   "androidBatterySettings": "Battery settings",
-  "androidLockdownOffline": "No internet: Shroudly cannot get through on this network right now, and Android is set to block connections without a VPN. Shroudly keeps trying."
+  "androidLockdownOffline": "No internet: Shroudly cannot get through on this network right now, and Android is set to block connections without a VPN. Shroudly keeps trying.",
+  "autoRawUnreachable": "{app} cannot reach its servers: this network blocks their addresses, and Shroudly cannot get around that without a server elsewhere. Use {app}'s own proxy setting or a VPN.",
+  "autoRawBlocked": "This network stops {app}'s connections, and none of Shroudly's techniques got through. Use {app}'s own proxy setting or a VPN.",
+  "logRawUnreachable": "{app} cannot reach its servers ({addrs}): the network blocks those addresses themselves; only the app's own proxy setting or a VPN gets around that",
+  "logRawBlocked": "{app}: the network stops its connections ({addrs}) and no technique got through; only the app's own proxy setting or a VPN gets around that",
+  "logRawUnreachableAddr": "{addr}: could not be reached (not a web connection)",
+  "logRawStillBlockedAddr": "{addr}: still blocked after {tries} techniques (not a web connection)"
 }

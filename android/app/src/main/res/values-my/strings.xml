@@ -14,6 +14,8 @@
     <string name="androidShareLogs">မှတ်တမ်းများ မျှဝေရန်</string>
     <string name="androidVpnDenied">သင့်အက်ပ်များ၏ ချိတ်ဆက်မှုများကို သယ်ဆောင်ရန် Shroudly သည် VPN ခွင့်ပြုချက် လိုအပ်သည်။</string>
     <string name="androidVpnRevoked">Android က ကာကွယ်မှုကို ပိတ်လိုက်သည်။ များသောအားဖြင့် အခြား VPN အက်ပ်တစ်ခု ဖွင့်လိုက်သောကြောင့် ဖြစ်သည်။</string>
+    <string name="autoRawBlocked">ဤကွန်ရက်က {app} ၏ ချိတ်ဆက်မှုများကို တားဆီးထားပြီး Shroudly ၏ နည်းလမ်းများထဲမှ တစ်ခုမျှ မဖြတ်ကျော်နိုင်ခဲ့ပါ။ {app} ၏ ကိုယ်ပိုင် proxy ဆက်တင် သို့မဟုတ် VPN ကို သုံးပါ။</string>
+    <string name="autoRawUnreachable">{app} သည် ၎င်း၏ ဆာဗာများထံ မရောက်နိုင်ပါ။ ဤကွန်ရက်က ၎င်းတို့၏ လိပ်စာများကို ပိတ်ဆို့ထားပြီး အခြားနေရာရှိ ဆာဗာတစ်ခု မရှိဘဲ Shroudly က ထိုပိတ်ဆို့မှုကို မကျော်ဖြတ်နိုင်ပါ။ {app} ၏ ကိုယ်ပိုင် proxy ဆက်တင် သို့မဟုတ် VPN ကို သုံးပါ။</string>
     <string name="connections">ချိတ်ဆက်မှုများ</string>
     <string name="download">ဒေါင်းလုဒ်</string>
     <string name="dpiBypassStopped">DPI ကျော်ဖြတ်မှု ရပ်ထားသည်</string>

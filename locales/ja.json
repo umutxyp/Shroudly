@@ -422,5 +422,11 @@
   "androidNoInternet": "Shroudly がこのネットワークでインターネットに接続できなかったため、保護を停止しました。アプリは現在直接接続しています。もう一度試すには Shroudly を開いてください。",
   "androidBatteryHint": "バッテリー設定によって Shroudly がバックグラウンドで停止され、接続が切れることがあります。バッテリーの制限なしで動作できるようにしてください。",
   "androidBatterySettings": "バッテリー設定",
-  "androidLockdownOffline": "インターネットに接続できません：Shroudly は現在このネットワークで通信できず、Android は VPN なしの接続をブロックするよう設定されています。Shroudly は再試行を続けています。"
+  "androidLockdownOffline": "インターネットに接続できません：Shroudly は現在このネットワークで通信できず、Android は VPN なしの接続をブロックするよう設定されています。Shroudly は再試行を続けています。",
+  "autoRawUnreachable": "{app} がサーバーに接続できません。このネットワークがサーバーのアドレスをブロックしており、別の場所にあるサーバーなしでは Shroudly でも回避できません。{app} 自体のプロキシ設定か VPN を使ってください。",
+  "autoRawBlocked": "このネットワークが {app} の接続を止めており、Shroudly のどの手法でも通れませんでした。{app} 自体のプロキシ設定か VPN を使ってください。",
+  "logRawUnreachable": "{app} がサーバー（{addrs}）に接続できません。ネットワークがこれらのアドレス自体をブロックしています。回避できるのはアプリ自体のプロキシ設定か VPN だけです",
+  "logRawBlocked": "{app}: ネットワークが接続（{addrs}）を止めており、どの手法でも通れませんでした。回避できるのはアプリ自体のプロキシ設定か VPN だけです",
+  "logRawUnreachableAddr": "{addr}: 到達できませんでした（ウェブ接続ではありません）",
+  "logRawStillBlockedAddr": "{addr}: {tries} 種類の手法を試してもブロックされたままです（ウェブ接続ではありません）"
 }

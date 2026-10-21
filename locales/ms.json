@@ -422,5 +422,11 @@
   "androidNoInternet": "Perlindungan berhenti kerana Shroudly tidak dapat mencapai internet pada rangkaian ini, jadi aplikasi anda kini bersambung secara terus. Buka Shroudly untuk mencuba lagi.",
   "androidBatteryHint": "Tetapan bateri boleh menghentikan Shroudly di latar belakang dan memutuskan sambungan anda. Benarkan Shroudly berjalan tanpa sekatan bateri.",
   "androidBatterySettings": "Tetapan bateri",
-  "androidLockdownOffline": "Tiada internet: Shroudly belum dapat bersambung pada rangkaian ini, dan Android ditetapkan untuk menyekat sambungan tanpa VPN. Shroudly terus mencuba."
+  "androidLockdownOffline": "Tiada internet: Shroudly belum dapat bersambung pada rangkaian ini, dan Android ditetapkan untuk menyekat sambungan tanpa VPN. Shroudly terus mencuba.",
+  "autoRawUnreachable": "{app} tidak dapat mencapai pelayannya: rangkaian ini menyekat alamat pelayan tersebut, dan Shroudly tidak dapat memintasnya tanpa pelayan di tempat lain. Gunakan tetapan proksi {app} sendiri atau VPN.",
+  "autoRawBlocked": "Rangkaian ini menghentikan sambungan {app}, dan tiada satu pun teknik Shroudly yang berjaya menembusinya. Gunakan tetapan proksi {app} sendiri atau VPN.",
+  "logRawUnreachable": "{app} tidak dapat mencapai pelayannya ({addrs}): rangkaian menyekat alamat itu sendiri; hanya tetapan proksi aplikasi itu sendiri atau VPN yang dapat memintasnya",
+  "logRawBlocked": "{app}: rangkaian menghentikan sambungannya ({addrs}) dan tiada teknik yang berjaya menembusinya; hanya tetapan proksi aplikasi itu sendiri atau VPN yang dapat memintasnya",
+  "logRawUnreachableAddr": "{addr}: tidak dapat dicapai (bukan sambungan web)",
+  "logRawStillBlockedAddr": "{addr}: masih disekat selepas {tries} teknik (bukan sambungan web)"
 }

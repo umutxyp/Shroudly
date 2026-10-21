@@ -14,6 +14,8 @@
     <string name="androidShareLogs">Qeydləri paylaş</string>
     <string name="androidVpnDenied">Tətbiqlərinizin bağlantılarını daşımaq üçün Shroudly-yə VPN icazəsi lazımdır.</string>
     <string name="androidVpnRevoked">Qoruma Android tərəfindən söndürüldü; adətən başqa VPN tətbiqi açıldığı üçün.</string>
+    <string name="autoRawBlocked">Bu şəbəkə {app} tətbiqinin bağlantılarını dayandırır və Shroudly-nin heç bir üsulu keçə bilmədi. {app} tətbiqinin öz proksi ayarından və ya VPN-dən istifadə et.</string>
+    <string name="autoRawUnreachable">{app} tətbiqi öz serverlərinə çata bilmir: bu şəbəkə onların ünvanlarını bloklayır və Shroudly başqa yerdə yerləşən server olmadan bunu keçə bilməz. {app} tətbiqinin öz proksi ayarından və ya VPN-dən istifadə et.</string>
     <string name="connections">Bağlantılar</string>
     <string name="download">Endirmə</string>
     <string name="dpiBypassStopped">DPI yan keçmə dayandırılıb</string>

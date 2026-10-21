@@ -422,5 +422,11 @@
   "androidNoInternet": "Shroudly bu şəbəkədə internetə çıxa bilmədiyi üçün qoruma dayandı, ona görə tətbiqləriniz indi birbaşa qoşulur. Yenidən cəhd etmək üçün Shroudly-ni açın.",
   "androidBatteryHint": "Batareya ayarları Shroudly-ni arxa planda dayandırıb bağlantınızı kəsə bilər. Ona batareya məhdudiyyətləri olmadan işləməyə icazə verin.",
   "androidBatterySettings": "Batareya ayarları",
-  "androidLockdownOffline": "İnternet yoxdur: Shroudly hazırda bu şəbəkədə qoşula bilmir və Android VPN olmadan bağlantıları bloklamaq üçün ayarlanıb. Shroudly cəhd etməyə davam edir."
+  "androidLockdownOffline": "İnternet yoxdur: Shroudly hazırda bu şəbəkədə qoşula bilmir və Android VPN olmadan bağlantıları bloklamaq üçün ayarlanıb. Shroudly cəhd etməyə davam edir.",
+  "autoRawUnreachable": "{app} tətbiqi öz serverlərinə çata bilmir: bu şəbəkə onların ünvanlarını bloklayır və Shroudly başqa yerdə yerləşən server olmadan bunu keçə bilməz. {app} tətbiqinin öz proksi ayarından və ya VPN-dən istifadə et.",
+  "autoRawBlocked": "Bu şəbəkə {app} tətbiqinin bağlantılarını dayandırır və Shroudly-nin heç bir üsulu keçə bilmədi. {app} tətbiqinin öz proksi ayarından və ya VPN-dən istifadə et.",
+  "logRawUnreachable": "{app} tətbiqi öz serverlərinə çata bilmir ({addrs}): şəbəkə bu ünvanların özünü bloklayır; bunu yalnız tətbiqin öz proksi ayarı və ya VPN keçə bilər",
+  "logRawBlocked": "{app}: şəbəkə tətbiqin bağlantılarını dayandırır ({addrs}) və heç bir üsul keçə bilmədi; bunu yalnız tətbiqin öz proksi ayarı və ya VPN keçə bilər",
+  "logRawUnreachableAddr": "{addr}: ona çatmaq mümkün olmadı (veb bağlantısı deyil)",
+  "logRawStillBlockedAddr": "{addr}: {tries} üsuldan sonra hələ də bloklanıb (veb bağlantısı deyil)"
 }

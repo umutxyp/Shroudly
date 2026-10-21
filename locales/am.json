@@ -422,5 +422,11 @@
   "androidNoInternet": "Shroudly በዚህ አውታረ መረብ ላይ ኢንተርኔት ማግኘት ስላልቻለ ጥበቃው ቆሟል፤ ስለዚህ መተግበሪያዎችዎ አሁን በቀጥታ ይገናኛሉ። እንደገና ለመሞከር Shroudlyን ይክፈቱ።",
   "androidBatteryHint": "የባትሪ ቅንብሮች Shroudlyን ከበስተጀርባ ሊያቆሙት እና ግንኙነትዎን ሊያቋርጡ ይችላሉ። ያለ ባትሪ ገደቦች እንዲሠራ ይፍቀዱለት።",
   "androidBatterySettings": "የባትሪ ቅንብሮች",
-  "androidLockdownOffline": "ኢንተርኔት የለም፦ Shroudly አሁን በዚህ አውታረ መረብ ላይ መገናኘት አልቻለም፣ እና Android ያለ VPN ግንኙነቶችን እንዲያግድ ተቀናብሯል። Shroudly መሞከሩን ቀጥሏል።"
+  "androidLockdownOffline": "ኢንተርኔት የለም፦ Shroudly አሁን በዚህ አውታረ መረብ ላይ መገናኘት አልቻለም፣ እና Android ያለ VPN ግንኙነቶችን እንዲያግድ ተቀናብሯል። Shroudly መሞከሩን ቀጥሏል።",
+  "autoRawUnreachable": "የ{app} መተግበሪያ ወደ አገልጋዮቹ መድረስ አይችልም፤ ይህ አውታረ መረብ አድራሻዎቻቸውን ያግዳል፣ Shroudly ደግሞ ሌላ ቦታ ያለ አገልጋይ ከሌለው ይህን ማለፍ አይችልም። በ{app} መተግበሪያ ውስጥ ያለውን የproxy ቅንብር ወይም VPN ይጠቀሙ።",
+  "autoRawBlocked": "ይህ አውታረ መረብ የ{app} መተግበሪያን ግንኙነቶች ያስቆማል፣ ከShroudly ዘዴዎችም አንዱም አላለፈም። በ{app} መተግበሪያ ውስጥ ያለውን የproxy ቅንብር ወይም VPN ይጠቀሙ።",
+  "logRawUnreachable": "የ{app} መተግበሪያ ወደ አገልጋዮቹ መድረስ አይችልም ({addrs})፤ አውታረ መረቡ እነዚህን አድራሻዎች ራሳቸውን ያግዳል፤ ይህን ማለፍ የሚችሉት የመተግበሪያው የራሱ proxy ቅንብር ወይም VPN ብቻ ናቸው",
+  "logRawBlocked": "{app}: አውታረ መረቡ የመተግበሪያውን ግንኙነቶች ያስቆማል ({addrs})፣ አንድም ዘዴ አላለፈም፤ ይህን ማለፍ የሚችሉት የመተግበሪያው የራሱ proxy ቅንብር ወይም VPN ብቻ ናቸው",
+  "logRawUnreachableAddr": "{addr}: ሊደረስበት አልተቻለም (የድር ግንኙነት አይደለም)",
+  "logRawStillBlockedAddr": "{addr}: ከ{tries} ዘዴዎች በኋላም ታግዷል (የድር ግንኙነት አይደለም)"
 }

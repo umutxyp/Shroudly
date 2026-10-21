@@ -14,6 +14,8 @@
     <string name="androidShareLogs">Мубодилаи сабтҳо</string>
     <string name="androidVpnDenied">Shroudly барои гузаронидани пайвастҳои барномаҳоятон иҷозати VPN лозим дорад.</string>
     <string name="androidVpnRevoked">Android муҳофизатро хомӯш кард, одатан чунки барномаи дигари VPN фаъол шуд.</string>
+    <string name="autoRawBlocked">Пайвастҳои барномаи {app} дар ин шабака қатъ мешаванд ва ҳеҷ яке аз усулҳои Shroudly гузашта натавонист. Аз танзими проксии худи барномаи {app} ё VPN истифода баред.</string>
+    <string name="autoRawUnreachable">Барномаи {app} ба серверҳои худ пайваст шуда наметавонад: ин шабака суроғаҳои онҳоро мебандад ва Shroudly бе сервере дар ҷои дигар инро давр зада наметавонад. Аз танзими проксии худи барномаи {app} ё VPN истифода баред.</string>
     <string name="connections">Пайвастҳо</string>
     <string name="download">Қабул</string>
     <string name="dpiBypassStopped">Давр задани DPI қатъ шудааст</string>

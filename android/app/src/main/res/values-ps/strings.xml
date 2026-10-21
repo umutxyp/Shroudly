@@ -14,6 +14,8 @@
     <string name="androidShareLogs">لاګونه شریک کړئ</string>
     <string name="androidVpnDenied">Shroudly ته د VPN اجازه پکار ده څو ستاسو د اپونو اړیکې ولېږدوي.</string>
     <string name="androidVpnRevoked">Android ساتنه بنده کړه، معمولاً ځکه چې بل VPN اپ چالان شوی و.</string>
+    <string name="autoRawBlocked">دا شبکه د {app} اپ اړیکې دروي، او د Shroudly هېڅ تخنیک بریالی نه شو. د {app} اپ خپل پراکسي تنظیم یا VPN وکاروئ.</string>
+    <string name="autoRawUnreachable">{app} اپ خپلو سرورونو ته نه شي رسېدلی: دا شبکه د هغوی پتې بندوي، او Shroudly له بل ځای څخه د سرور پرته له دې خنډه نه شي تېرېدلی. د {app} اپ خپل پراکسي تنظیم یا VPN وکاروئ.</string>
     <string name="connections">اړیکې</string>
     <string name="download">ډاونلوډ</string>
     <string name="dpiBypassStopped">له DPI تېرېدل ودرول شوي</string>

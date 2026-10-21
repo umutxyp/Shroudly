@@ -148,6 +148,46 @@ static void ensure_presets(void) {
 }
 
 int strategy_preset_count(void) { ensure_presets(); return N_PRESETS; }
+
+/* The techniques for streams that are not TLS or HTTP (see strategy.h).
+ * Filters that recognise such a protocol do it from its first bytes: an
+ * MTProto connection, for one, is recognisable from the 64 bytes it opens
+ * with, and an "everything that looks random" rule from the first segment's
+ * contents. So the cuts go there: one byte in (the first segment then holds
+ * nothing to recognise), several cuts across the first 64 bytes, the head
+ * arriving after the rest, and a decoy where the platform can guarantee the
+ * server never sees it. Cheapest first.
+ *
+ * No urgent byte (oob): a real server, Telegram's, takes it into the stream
+ * (tests/net/telegram-real.test.js saw the connection closed), so it would
+ * corrupt the very protocol it is meant to carry. A TLS server at least
+ * answers a corrupted handshake with an alert, which the TLS ladder catches;
+ * an unknown protocol gives no such word. */
+static strategy RAW[STRATEGY_MAX_RAW];
+static int N_RAW = 0;
+
+static void add_raw(const char *name, const char *spec) {
+  if (N_RAW >= STRATEGY_MAX_RAW) return;
+  strategy_parse(spec, &RAW[N_RAW]);
+  strncpy(RAW[N_RAW].name, name, sizeof(RAW[N_RAW].name) - 1);
+  N_RAW++;
+}
+
+static void ensure_raw(void) {
+  if (N_RAW) return;
+  add_raw("raw-split1",      "split(1)");
+  add_raw("raw-disorder1",   "disorder(1)");
+  add_raw("raw-multisplit",  "split(1),split(8),split(32),split(56)");
+  add_raw("raw-disorder32",  "disorder(32)");
+  add_raw("raw-fake",        "fake(md5,ttl=6)");
+}
+
+int strategy_raw_count(void) { ensure_raw(); return N_RAW; }
+const strategy *strategy_raw(int i) {
+  ensure_raw();
+  if (i < 0 || i >= N_RAW) return &RAW[0];
+  return &RAW[i];
+}
 const strategy *strategy_preset(int i) {
   ensure_presets();
   if (i < 0 || i >= N_PRESETS) return &PRESETS[0];

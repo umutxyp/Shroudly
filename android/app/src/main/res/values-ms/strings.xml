@@ -14,6 +14,8 @@
     <string name="androidShareLogs">Kongsi log</string>
     <string name="androidVpnDenied">Shroudly memerlukan kebenaran VPN untuk membawa sambungan aplikasi anda.</string>
     <string name="androidVpnRevoked">Perlindungan dimatikan oleh Android, biasanya kerana aplikasi VPN lain dihidupkan.</string>
+    <string name="autoRawBlocked">Rangkaian ini menghentikan sambungan {app}, dan tiada satu pun teknik Shroudly yang berjaya menembusinya. Gunakan tetapan proksi {app} sendiri atau VPN.</string>
+    <string name="autoRawUnreachable">{app} tidak dapat mencapai pelayannya: rangkaian ini menyekat alamat pelayan tersebut, dan Shroudly tidak dapat memintasnya tanpa pelayan di tempat lain. Gunakan tetapan proksi {app} sendiri atau VPN.</string>
     <string name="connections">Sambungan</string>
     <string name="download">Muat turun</string>
     <string name="dpiBypassStopped">Pintasan DPI dihentikan</string>

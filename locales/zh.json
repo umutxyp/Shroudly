@@ -422,5 +422,11 @@
   "androidNoInternet": "由于 Shroudly 在此网络上无法连接互联网，保护已停止，你的应用现在直接联网。打开 Shroudly 即可重试。",
   "androidBatteryHint": "电池设置可能会在后台停止 Shroudly 并中断你的连接。请允许它不受电池限制地运行。",
   "androidBatterySettings": "电池设置",
-  "androidLockdownOffline": "无法上网：Shroudly 目前无法在此网络上连通，而 Android 已设置为阻止不经 VPN 的连接。Shroudly 正在继续尝试。"
+  "androidLockdownOffline": "无法上网：Shroudly 目前无法在此网络上连通，而 Android 已设置为阻止不经 VPN 的连接。Shroudly 正在继续尝试。",
+  "autoRawUnreachable": "{app} 无法连接到其服务器：此网络封锁了这些服务器的地址，而没有位于别处的服务器，Shroudly 无法绕过这一点。请使用 {app} 自带的代理设置或 VPN。",
+  "autoRawBlocked": "此网络阻断了 {app} 的连接，Shroudly 的所有技术都未能突破。请使用 {app} 自带的代理设置或 VPN。",
+  "logRawUnreachable": "{app} 无法连接到其服务器（{addrs}）：网络封锁的是这些地址本身；只有应用自带的代理设置或 VPN 才能绕过",
+  "logRawBlocked": "{app}：网络阻断了其连接（{addrs}），且没有任何技术能突破；只有应用自带的代理设置或 VPN 才能绕过",
+  "logRawUnreachableAddr": "{addr}：无法访问（非网页连接）",
+  "logRawStillBlockedAddr": "{addr}：尝试 {tries} 种技术后仍被封锁（非网页连接）"
 }
