@@ -315,6 +315,7 @@
   "logProxyRetaken": "自动处理：另一个程序更改了系统代理（{what}）；已将其改回 Shroudly",
   "logProxyFight": "另一个程序反复更改系统代理（{what}）；Shroudly 已不再将其改回。请关闭另一个代理或 VPN 程序，然后重新设置 Shroudly。",
   "logProxyFightNamed": "另一个程序反复更改系统代理（{what}），可能是 {program}；Shroudly 已不再将其改回。请关闭它或关掉它的代理设置，然后重新设置 Shroudly。",
+  "logProxyOriginalGone": "使用 Shroudly 之前的代理设置（{pac}）指向本电脑上一个已不再运行的程序；已将其关闭，而不是恢复",
   "logLocalDns": "系统 DNS 是这台电脑上的一个程序：{programs}",
   "logDnsDead": "系统 DNS 没有应答任何测试域名。不经过 Shroudly 的程序无法访问任何内容；请检查 DNS 程序或网络设置。",
   "trayOpen": "打开 Shroudly",

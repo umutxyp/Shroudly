@@ -450,5 +450,37 @@ const settle = async () => { for (let i = 0; i < 5; i++) await new Promise((r) =
       `${process.platform}: this process is found listening on its port (${JSON.stringify(who)})`);
   }
 
+  // Whether anything still listens where the user's own PAC was served, at
+  // a restore (system-proxy.js, _pacGone): every user's sockets, read at
+  // once; "cannot be told" when the tool says nothing.
+  {
+    const os = require('os'); const fs = require('fs');
+    const bsd = 'Active Internet connections (including servers)\nProto Recv-Q Send-Q  Local Address          Foreign Address        (state)\n'
+      + 'tcp4       0      0  127.0.0.1.7890         *.*                    LISTEN\n'
+      + 'tcp4       0      0  127.0.0.1.61000        127.0.0.1.8118         ESTABLISHED\n'
+      + 'tcp46      0      0  *.631                  *.*                    LISTEN\n';
+    t.ok(ProcNet.parseBsdListening(bsd, 7890) === true && ProcNet.parseBsdListening(bsd, 631) === true && ProcNet.parseBsdListening(bsd, 8118) === false
+      && ProcNet.parseBsdListening(bsd, 61000) === false && ProcNet.parseBsdListening('', 7890) === null,
+    'macOS (netstat): a listening port, on loopback or any address; not one only connected to; nothing said: unknown');
+    if (process.platform !== 'win32') {
+      const root = fs.mkdtempSync(path.join(os.tmpdir(), 'shroudly-proc-ls-'));
+      fs.mkdirSync(path.join(root, 'net'), { recursive: true });
+      const head = '  sl  local_address rem_address   st tx_queue rx_queue tr tm->when retrnsmt   uid  timeout inode\n';
+      fs.writeFileSync(path.join(root, 'net', 'tcp'), `${head}   0: 0100007F:1ED2 00000000:0000 0A 00000000:00000000 00:00000000 00000000     0        0 44444 1 0 100 0 0 10 0\n`
+        + '   1: 0100007F:EE48 0100007F:1F96 01 00000000:00000000 00:00000000 00000000  1000        0 55555 1 0 100 0 0 10 0\n');
+      fs.writeFileSync(path.join(root, 'net', 'tcp6'), head);
+      t.ok(ProcNet.procListening(7890, root) === true && ProcNet.procListening(8086, root) === false && ProcNet.procListening(7890, path.join(root, 'none')) === null,
+        'Linux (/proc): a listening port of any user, not one only connected to; no tables: unknown');
+      fs.rmSync(root, { recursive: true, force: true });
+    }
+    const srv = require('net').createServer().listen(0, '127.0.0.1');
+    await new Promise((r) => srv.once('listening', r));
+    const port = srv.address().port;
+    const on = ProcNet.listeningSync(port);
+    await new Promise((r) => srv.close(r));
+    const off = ProcNet.listeningSync(port);
+    t.ok(on === true && off === false, `${process.platform}: a port this process listens on is seen at once, and no longer once it is closed (${on}, ${off})`);
+  }
+
   console.log(`autopilot: ${t.count} passed`);
 })().catch((e) => { console.error('FAIL', e.message); process.exit(1); });

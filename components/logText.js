@@ -71,6 +71,7 @@ const PATTERNS = [
   [/^Autopilot: another program changed the system proxy \((.+?)\); set it back to Shroudly$/, 'logProxyRetaken', ['what']],
   [/^Another program keeps changing the system proxy \((.+?)\), probably (.+?); Shroudly stopped setting it back/, 'logProxyFightNamed', ['what', 'program']],
   [/^Another program keeps changing the system proxy \((.+?)\); Shroudly stopped setting it back/, 'logProxyFight', ['what']],
+  [/^The proxy setting from before Shroudly \((.+?)\) points at a program on this computer that is no longer running; it was switched off instead of put back$/, 'logProxyOriginalGone', ['pac']],
   [/^System routed through local proxy on port (\d+) \(administrator\)$/, 'logProxyApplied', ['port']],
   [/^System DNS is a program on this computer: (.+)$/, 'logLocalDns', ['programs']],
   [/^Games and apps: the first program connected through Shroudly \((.+)\)$/, 'logAppsFirst', ['host']],

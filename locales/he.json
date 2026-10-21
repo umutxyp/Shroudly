@@ -315,6 +315,7 @@
   "logProxyRetaken": "טייס אוטומטי: תוכנה אחרת שינתה את שרת ה-Proxy של המערכת ({what}); הוא הוחזר ל-Shroudly",
   "logProxyFight": "תוכנה אחרת משנה שוב ושוב את שרת ה-Proxy של המערכת ({what}); Shroudly הפסיק להחזיר אותו. יש לסגור את תוכנת ה-Proxy או ה-VPN האחרת, ואז להגדיר שוב את Shroudly.",
   "logProxyFightNamed": "תוכנה אחרת משנה שוב ושוב את שרת ה-Proxy של המערכת ({what}), כנראה {program}; Shroudly הפסיק להחזיר אותו. יש לסגור אותה או לכבות בה את הגדרת ה-Proxy, ואז להגדיר שוב את Shroudly.",
+  "logProxyOriginalGone": "הגדרת ה-Proxy מלפני Shroudly ({pac}) מפנה לתוכנה במחשב זה שכבר אינה פועלת; היא כובתה במקום להיות מוחזרת",
   "logLocalDns": "ה-DNS של המערכת הוא תוכנה במחשב הזה: {programs}",
   "logDnsDead": "ה-DNS של המערכת לא ענה לאף אחד משמות הבדיקה. תוכנות שלא עוברות דרך Shroudly לא יכולות להגיע לשום מקום; כדאי לבדוק את תוכנת ה-DNS או את הגדרות הרשת.",
   "trayOpen": "לפתוח את Shroudly",

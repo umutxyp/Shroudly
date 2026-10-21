@@ -315,6 +315,7 @@
   "logProxyRetaken": "Pîlota xweber: bernameyeke din proksiya pergalê guhert ({what}); ew dîsa li ser Shroudly hat danîn",
   "logProxyFight": "Bernameyeke din dîsa û dîsa proksiya pergalê diguherîne ({what}); Shroudly dev ji vegerandina wê berda. Bernameya din a proksiyê an VPN-ê bigire, paşê Shroudly dîsa bisepîne.",
   "logProxyFightNamed": "Bernameyeke din dîsa û dîsa proksiya pergalê diguherîne ({what}), dibe ku {program} be; Shroudly dev ji vegerandina wê berda. Wê bigire an mîhenga wê ya proksiyê vemirîne, paşê Shroudly dîsa bisepîne.",
+  "logProxyOriginalGone": "Mîhenga proksiyê ya berî Shroudly ({pac}) nîşanî bernameyeke li ser vê komputerê dide ku êdî naxebite; li şûna ku were vegerandin, hat girtin",
   "logLocalDns": "DNS-a pergalê bernameyek li ser vê komputerê ye: {programs}",
   "logDnsDead": "DNS-a pergalê bersiva tu yek ji navên ceribandinê neda. Bernameyên ku di ser Shroudly re naçin nikarin bigihîjin tu derê; bernameya DNS-ê an mîhengên torê kontrol bike.",
   "trayOpen": "Shroudly veke",

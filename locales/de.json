@@ -315,6 +315,7 @@
   "logProxyRetaken": "Autopilot: Ein anderes Programm hat den System-Proxy geändert ({what}); wieder auf Shroudly gesetzt",
   "logProxyFight": "Ein anderes Programm ändert den System-Proxy immer wieder ({what}); Shroudly setzt ihn nicht mehr zurück. Schließe das andere Proxy- oder VPN-Programm und richte Shroudly dann erneut ein.",
   "logProxyFightNamed": "Ein anderes Programm ändert den System-Proxy immer wieder ({what}), wahrscheinlich {program}; Shroudly setzt ihn nicht mehr zurück. Schließe es oder schalte seine Proxy-Einstellung aus und richte Shroudly dann erneut ein.",
+  "logProxyOriginalGone": "Die Proxy-Einstellung von vor Shroudly ({pac}) verweist auf ein Programm auf diesem Computer, das nicht mehr läuft; sie wurde ausgeschaltet statt wiederhergestellt",
   "logLocalDns": "Das System-DNS ist ein Programm auf diesem Computer: {programs}",
   "logDnsDead": "Das System-DNS hat keinen der Testnamen beantwortet. Programme, die nicht über Shroudly laufen, erreichen nichts; prüfe das DNS-Programm oder die Netzwerkeinstellungen.",
   "trayOpen": "Shroudly öffnen",

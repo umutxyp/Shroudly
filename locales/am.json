@@ -315,6 +315,7 @@
   "logProxyRetaken": "ራስ-ሰር አብራሪ: ሌላ ፕሮግራም የሲስተም proxyን ቀይሯል ({what})፤ ወደ Shroudly ተመልሷል",
   "logProxyFight": "ሌላ ፕሮግራም የሲስተም proxyን ደጋግሞ እየቀየረ ነው ({what})፤ Shroudly መልሶ ማዘጋጀቱን አቁሟል። ሌላውን የproxy ወይም የVPN ፕሮግራም ይዝጉ፣ ከዚያም Shroudlyን እንደገና ያዘጋጁ።",
   "logProxyFightNamed": "ሌላ ፕሮግራም የሲስተም proxyን ደጋግሞ እየቀየረ ነው ({what})፣ ምናልባት {program}፤ Shroudly መልሶ ማዘጋጀቱን አቁሟል። ያንን ፕሮግራም ይዝጉ ወይም የproxy ቅንብሩን ያጥፉ፣ ከዚያም Shroudlyን እንደገና ያዘጋጁ።",
+  "logProxyOriginalGone": "ከShroudly በፊት የነበረው የproxy ቅንብር ({pac}) በዚህ ኮምፒውተር ላይ ከአሁን በኋላ የማይሰራ ፕሮግራምን ያመለክታል፤ ከመመለስ ይልቅ ጠፍቷል",
   "logLocalDns": "የሲስተም DNS በዚህ ኮምፒውተር ላይ ያለ ፕሮግራም ነው: {programs}",
   "logDnsDead": "የሲስተም DNS ለየትኛውም የሙከራ ስም ምላሽ አልሰጠም። በShroudly በኩል የማያልፉ ፕሮግራሞች የትም መድረስ አይችሉም፤ የDNS ፕሮግራሙን ወይም የአውታረ መረብ ቅንብሮችን ይፈትሹ።",
   "trayOpen": "Shroudlyን ይክፈቱ",

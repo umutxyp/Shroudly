@@ -315,6 +315,7 @@
   "logProxyRetaken": "Awtopilot: başga bir programma ulgam proksisini üýtgetdi ({what}); ol ýene Shroudly-e gaýtaryldy",
   "logProxyFight": "Başga bir programma ulgam proksisini gaýta-gaýta üýtgedýär ({what}); Shroudly ony yzyna gaýtarmagy bes etdi. Beýleki proksi ýa-da VPN programmasyny ýapyň, soňra Shroudly-ni täzeden sazlaň.",
   "logProxyFightNamed": "Başga bir programma ulgam proksisini gaýta-gaýta üýtgedýär ({what}), belki-de {program}; Shroudly ony yzyna gaýtarmagy bes etdi. Ony ýapyň ýa-da onuň proksi sazlamasyny öçüriň, soňra Shroudly-ni täzeden sazlaň.",
+  "logProxyOriginalGone": "Shroudly-den öňki proksi sazlamasy ({pac}) bu kompýuterde indi işlemeýän programmany görkezýär; ol yzyna gaýtarylman, öçürildi",
   "logLocalDns": "Ulgamyň DNS-i bu kompýuterdäki programma: {programs}",
   "logDnsDead": "Ulgamyň DNS-i synag atlarynyň hiç birine jogap bermedi. Shroudly arkaly geçmeýän programmalar hiç ýere birigip bilmeýär; DNS programmasyny ýa-da tor sazlamalaryny barlaň.",
   "trayOpen": "Shroudly-ni açyň",

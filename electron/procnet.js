@@ -14,7 +14,7 @@
  */
 
 const fs = require('fs');
-const { execFile } = require('child_process');
+const { execFile, execFileSync } = require('child_process');
 
 function run(cmd, args, timeout = 8000) {
   return new Promise((resolve) => execFile(cmd, args, { windowsHide: true, timeout, maxBuffer: 8 * 1024 * 1024 },
@@ -194,6 +194,54 @@ async function listener(port, platform = process.platform) {
   return procListener(port);
 }
 
+/* Is any program listening on a TCP port on this computer: true, false, or
+ * null when it cannot be told. Whether the user's own PAC from before
+ * Shroudly is still served when it is put back (system-proxy.js, _pacGone).
+ * Synchronous, for the restores that run while the app exits. Every user's
+ * sockets, with no administrator's rights: netstat on Windows and macOS (lsof
+ * shows only the user's own there), the kernel's tables on Linux. Any
+ * address counts: in doubt, listening. A tool that printed no TCP line at
+ * all said nothing. */
+function parseBsdListening(out, port) {
+  let any = false;
+  for (const line of String(out || '').split(/\r?\n/)) {
+    const f = line.trim().split(/\s+/);
+    if (!/^tcp/.test(f[0]) || f.length < 6) continue;
+    any = true;
+    // tcp4  0  0  127.0.0.1.7890  *.*  LISTEN
+    if (f[5] === 'LISTEN' && f[3].endsWith(`.${port}`)) return true;
+  }
+  return any ? false : null;
+}
+
+function procListening(port, root = '/proc') {
+  let read = false;
+  for (const table of ['tcp', 'tcp6']) {
+    let text = '';
+    try { text = fs.readFileSync(`${root}/net/${table}`, 'utf8'); read = true; } catch { continue; }
+    for (const line of text.split('\n').slice(1)) {
+      const f = line.trim().split(/\s+/);
+      if (f.length >= 4 && f[3] === '0A' && parseInt((f[1].split(':')[1] || ''), 16) === port) return true;
+    }
+  }
+  return read ? false : null;
+}
+
+function listeningSync(port, platform = process.platform) {
+  port = Number(port);
+  if (!(port > 0 && port < 65536)) return null;
+  const runSync = (cmd, args) => String(execFileSync(cmd, args, { windowsHide: true, timeout: 4000, maxBuffer: 8 * 1024 * 1024, stdio: ['ignore', 'pipe', 'ignore'] }) || '');
+  try {
+    if (platform === 'win32') {
+      const out = runSync('netstat', ['-ano']);
+      if (!/^\s*TCP\s/m.test(out)) return null;
+      return parseNetstatListeners(out, port).length > 0;
+    }
+    if (platform === 'darwin') return parseBsdListening(runSync('netstat', ['-an', '-p', 'tcp']), port);
+    return procListening(port);
+  } catch { return null; }
+}
+
 /* Does any of these processes hold a connection to one of these ports on
  * this computer? */
 async function connectsTo(pids, ports, platform = process.platform) {
@@ -202,4 +250,4 @@ async function connectsTo(pids, ports, platform = process.platform) {
   return (await connections(pids, platform)).some((r) => LOOPBACK.test(r.remote.host) && want.has(r.remote.port));
 }
 
-module.exports = { connectsTo, connections, listener, parseNetstat, parseNetstatListeners, parseTasklistName, parseLsofListener, procListener, parseLsof, parseSs, parseProcNet, procConnections };
+module.exports = { connectsTo, connections, listener, listeningSync, parseNetstat, parseNetstatListeners, parseTasklistName, parseLsofListener, parseBsdListening, procListener, procListening, parseLsof, parseSs, parseProcNet, procConnections };

@@ -315,6 +315,7 @@
   "logProxyRetaken": "自動対処：別のプログラムがシステムプロキシを変更しました（{what}）。Shroudly に戻しました",
   "logProxyFight": "別のプログラムがシステムプロキシを繰り返し変更しています（{what}）。Shroudly は元に戻すのをやめました。もう一方のプロキシまたは VPN のプログラムを終了してから、Shroudly を設定し直してください。",
   "logProxyFightNamed": "別のプログラムがシステムプロキシを繰り返し変更しています（{what}）。おそらく {program} です。Shroudly は元に戻すのをやめました。そのプログラムを終了するか、そのプロキシ設定をオフにしてから、Shroudly を設定し直してください。",
+  "logProxyOriginalGone": "Shroudly 以前のプロキシ設定（{pac}）は、このコンピューターで既に動いていないプログラムを指しています。元に戻す代わりにオフにしました",
   "logLocalDns": "システムの DNS はこのコンピューター上のプログラムです：{programs}",
   "logDnsDead": "システムの DNS はテスト用の名前に 1 つも応答しませんでした。Shroudly を経由しないプログラムはどこにも接続できません。DNS のプログラムかネットワーク設定を確認してください。",
   "trayOpen": "Shroudly を開く",

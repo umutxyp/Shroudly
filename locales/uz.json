@@ -315,6 +315,7 @@
   "logProxyRetaken": "Avtopilot: boshqa dastur tizim proksisini oʻzgartirdi ({what}); u yana Shroudlyga qaytarildi",
   "logProxyFight": "Boshqa dastur tizim proksisini qayta-qayta oʻzgartiryapti ({what}); Shroudly uni qaytarishni toʻxtatdi. Boshqa proksi yoki VPN dasturini yoping, soʻng Shroudlyni qayta ulang.",
   "logProxyFightNamed": "Boshqa dastur tizim proksisini qayta-qayta oʻzgartiryapti ({what}), ehtimol {program}; Shroudly uni qaytarishni toʻxtatdi. Uni yoping yoki undagi proksi sozlamasini oʻchiring, soʻng Shroudlyni qayta ulang.",
+  "logProxyOriginalGone": "Shroudlydan oldingi proksi sozlamasi ({pac}) ushbu kompyuterda endi ishlamayotgan dasturni koʻrsatadi; u qaytarilmasdan oʻchirildi",
   "logLocalDns": "Tizim DNS xizmati — shu kompyuterdagi dastur: {programs}",
   "logDnsDead": "Tizim DNS xizmati test nomlarining birortasiga ham javob bermadi. Shroudly orqali oʻtmaydigan dasturlar hech qayerga ulana olmaydi; DNS dasturini yoki tarmoq sozlamalarini tekshiring.",
   "trayOpen": "Shroudlyni ochish",

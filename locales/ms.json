@@ -315,6 +315,7 @@
   "logProxyRetaken": "Autopandu: program lain telah mengubah proksi sistem ({what}); ia ditetapkan semula kepada Shroudly",
   "logProxyFight": "Program lain terus mengubah proksi sistem ({what}); Shroudly berhenti menetapkannya semula. Tutup program proksi atau VPN lain itu, kemudian tetapkan Shroudly semula.",
   "logProxyFightNamed": "Program lain terus mengubah proksi sistem ({what}), mungkin {program}; Shroudly berhenti menetapkannya semula. Tutup program itu atau matikan tetapan proksinya, kemudian tetapkan Shroudly semula.",
+  "logProxyOriginalGone": "Tetapan proksi dari sebelum Shroudly ({pac}) menghala ke program pada komputer ini yang tidak lagi berjalan; ia dimatikan dan bukannya dipulihkan",
   "logLocalDns": "DNS sistem ialah program pada komputer ini: {programs}",
   "logDnsDead": "DNS sistem tidak menjawab satu pun nama ujian. Program yang tidak melalui Shroudly tidak dapat mencapai apa-apa; semak program DNS atau tetapan rangkaian.",
   "trayOpen": "Buka Shroudly",

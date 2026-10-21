@@ -315,6 +315,7 @@
   "logProxyRetaken": "Pilot otomatis: program lain mengubah proxy sistem ({what}); dikembalikan ke Shroudly",
   "logProxyFight": "Program lain terus mengubah proxy sistem ({what}); Shroudly berhenti mengembalikannya. Tutup program proxy atau VPN lain itu, lalu atur Shroudly lagi.",
   "logProxyFightNamed": "Program lain terus mengubah proxy sistem ({what}), kemungkinan {program}; Shroudly berhenti mengembalikannya. Tutup program itu atau matikan pengaturan proxy-nya, lalu atur Shroudly lagi.",
+  "logProxyOriginalGone": "Pengaturan proxy dari sebelum Shroudly ({pac}) mengarah ke program di komputer ini yang sudah tidak berjalan; pengaturan itu dimatikan alih-alih dikembalikan",
   "logLocalDns": "DNS sistem adalah program di komputer ini: {programs}",
   "logDnsDead": "DNS sistem tidak menjawab satu pun nama uji. Program yang tidak lewat Shroudly tidak dapat menjangkau apa pun; periksa program DNS atau pengaturan jaringan.",
   "trayOpen": "Buka Shroudly",

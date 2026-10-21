@@ -315,6 +315,7 @@
   "logProxyRetaken": "Avtopilot: başqa proqram sistem proksisini dəyişdi ({what}); yenidən Shroudly-yə qaytarıldı",
   "logProxyFight": "Başqa proqram sistem proksisini dəfələrlə dəyişir ({what}); Shroudly onu geri qaytarmağı dayandırdı. Digər proksi və ya VPN proqramını bağla, sonra Shroudly-ni yenidən təyin et.",
   "logProxyFightNamed": "Başqa proqram sistem proksisini dəfələrlə dəyişir ({what}), yəqin ki, {program}; Shroudly onu geri qaytarmağı dayandırdı. Onu bağla və ya onun proksi ayarını söndür, sonra Shroudly-ni yenidən təyin et.",
+  "logProxyOriginalGone": "Shroudly-dən əvvəlki proksi ayarı ({pac}) bu kompüterdə artıq işləməyən bir proqrama yönəlir; geri qaytarılmaq əvəzinə söndürüldü",
   "logLocalDns": "Sistem DNS-i bu kompüterdəki proqramdır: {programs}",
   "logDnsDead": "Sistem DNS-i test adlarının heç birinə cavab vermədi. Shroudly üzərindən keçməyən proqramlar heç yerə çata bilmir; DNS proqramını və ya şəbəkə ayarlarını yoxla.",
   "trayOpen": "Shroudly-ni aç",

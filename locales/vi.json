@@ -315,6 +315,7 @@
   "logProxyRetaken": "Tự động xử lý: một chương trình khác đã thay đổi proxy hệ thống ({what}); đã đặt lại về Shroudly",
   "logProxyFight": "Một chương trình khác cứ liên tục thay đổi proxy hệ thống ({what}); Shroudly đã ngừng đặt lại. Hãy đóng chương trình proxy hoặc VPN kia, rồi áp dụng lại Shroudly.",
   "logProxyFightNamed": "Một chương trình khác cứ liên tục thay đổi proxy hệ thống ({what}), có lẽ là {program}; Shroudly đã ngừng đặt lại. Hãy đóng nó hoặc tắt cài đặt proxy của nó, rồi áp dụng lại Shroudly.",
+  "logProxyOriginalGone": "Thiết lập proxy trước khi dùng Shroudly ({pac}) trỏ tới một chương trình trên máy tính này không còn chạy nữa; nó đã được tắt thay vì khôi phục",
   "logLocalDns": "DNS hệ thống là một chương trình trên máy tính này: {programs}",
   "logDnsDead": "DNS hệ thống không trả lời tên thử nghiệm nào. Các chương trình không đi qua Shroudly sẽ không truy cập được gì; hãy kiểm tra chương trình DNS hoặc cài đặt mạng.",
   "trayOpen": "Mở Shroudly",
