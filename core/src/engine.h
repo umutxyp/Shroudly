@@ -29,12 +29,28 @@ typedef struct {
 #define ENGINE_FAKE_NET_MAX 8
   struct { int fam; uint8_t addr[16]; int bits; } fake_net[ENGINE_FAKE_NET_MAX];
   int      fake_net_n;
+  /* --watch: domains the app wants to hear about. A connection to one of them
+   * or to a name under it is told as {"type":"seen","host":...}, once per
+   * name every ENGINE_WATCH_EVERY_MS; nothing about the connection changes.
+   * The desktop app watches the domain of Discord's voice servers, and takes
+   * a connection to a voice server's own name (not the other names there)
+   * for a call starting, in a browser or in the app, whose sound then goes
+   * over UDP, which only the Advanced mode can do anything for. */
+#define ENGINE_WATCH_MAX      8
+#define ENGINE_WATCH_EVERY_MS (10 * 60 * 1000)
+  char     watch[ENGINE_WATCH_MAX][128];
+  int      watch_n;
 } engine_config;
 
 /* Add the ranges in spec ("198.18.0.0/15", or several joined by commas;
  * IPv4 or IPv6, a bare address is one host) to cfg's fake_net. 0, or -1 when
  * one does not parse or there are more than ENGINE_FAKE_NET_MAX in all. */
 int  engine_add_fake_net(engine_config *cfg, const char *spec);
+
+/* Add a domain to watch (see watch above): lower-cased, a trailing dot
+ * dropped. 0, or -1 when it is not a plain domain name or there are more
+ * than ENGINE_WATCH_MAX. */
+int  engine_add_watch(engine_config *cfg, const char *domain);
 
 /* Read "user:pass" (one line; a trailing newline is ignored) from path into
  * cfg. Each part 1..255 bytes. 0 on success, -1 when the file cannot be read

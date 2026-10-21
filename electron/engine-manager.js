@@ -159,9 +159,13 @@ class EngineManager {
     this.onProbe = hooks.onProbe || (() => {});
     this.onSiteBlocked = hooks.onSiteBlocked || (() => {});
     // Every site-level finding, as (kind, host, detail): 'bypass', 'blocked',
-    // 'cut', 'unreachable'. The app uses it to recognise which services this
-    // network filters, and sites that turn the user away themselves.
+    // 'cut', 'unreachable', and 'seen' for a connection to one of the watched
+    // domains. The app uses it to recognise which services this network
+    // filters, sites that turn the user away themselves, and a call starting.
     this.onHostEvent = hooks.onHostEvent || (() => {});
+    // Domains the engine tells about each time a program connects to one
+    // (once per name in a while; nothing about the connection changes).
+    this.watch = Array.isArray(hooks.watch) ? hooks.watch : [];
     this.onNeedRestart = hooks.onNeedRestart || (() => {});
     this.onDnsAutoEnabled = hooks.onDnsAutoEnabled || (() => {});
     // The current automatic list (site-list.js); the one shipped with the app
@@ -292,6 +296,7 @@ class EngineManager {
     if (cfg.autoProbe) a.push('--auto');
     if (cfg.useDoh) { a.push('--doh'); if (this.dohPort) a.push('--doh-port', String(this.dohPort)); }
     if (cfg.preferIpv6) a.push('--ipv6');
+    for (const d of this.watch) a.push('--watch', d);
     // Block pages and sinkholes of every country we know: an answer pointing
     // at one is forged, so the engine refuses it and keeps looking.
     for (const ip of fingerprints.ALL) a.push('--block-ip', ip);
@@ -750,6 +755,11 @@ class EngineManager {
       case 'cut':
         try { this.onHostEvent('cut', msg.host, msg.strategy || null); } catch {}
         this._onCut(msg.host, msg.strategy, msg.attempts, msg.note === 'site_ok');
+        break;
+      // A connection to a watched domain: nothing in the log, it is no news
+      // to the user.
+      case 'seen':
+        try { this.onHostEvent('seen', msg.host, null); } catch {}
         break;
       case 'unreachable':
         try { this.onHostEvent('unreachable', msg.host, msg.stage || null); } catch {}

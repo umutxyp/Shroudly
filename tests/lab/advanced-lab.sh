@@ -30,6 +30,14 @@
 #     the router counts the low-TTL decoys per address. Needs the engine's
 #     inbound alert rule (the u32 match, or nft's payload match); skipped,
 #     and said so, without it;
+#   - UDP, against a voice server (198.51.100.4, UDP only): Discord's IP
+#     discovery request and a STUN Binding request each get their decoys, and
+#     the server sees the decoys arrive before the real request; a call's own
+#     datagrams (RTP) and QUIC short headers all arrive, with no decoy; a QUIC
+#     Initial is dropped; nothing is sent ahead of a request to the private
+#     address; and, where the kernel has the u32 match, the engine is never
+#     even handed the call's datagrams (its raw_stats udp_seen counts only the
+#     requests). Without u32 that last check is skipped, and said so;
 #   - when the engine stops, none of its firewall rules are left.
 #
 #   sudo env "PATH=$PATH" bash tests/lab/advanced-lab.sh <shroudly-core-adv>
@@ -38,11 +46,13 @@ set -uo pipefail
 ENGINE="$(cd "$(dirname "$1")" && pwd)/$(basename "$1")"
 HERE="$(cd "$(dirname "$0")" && pwd)"
 WORK="$(mktemp -d)"
-SRV_PID=""; SRV2_PID=""; SRV3_PID=""; ENG_PID=""
+SRV_PID=""; SRV2_PID=""; SRV3_PID=""; UDP_PID=""; UDP2_PID=""; ENG_PID=""
 FAILS=0
 PUB=198.51.100.2   # the server as seen on the internet
 PRIV=10.77.3.2     # the same server on a private (local network) address
 ALERT=198.51.100.3 # a server that answers every ClientHello with a TLS alert
+VOICE=198.51.100.4 # a voice / STUN server, UDP only: no TCP goes there, so the
+                   # decoys keep the fixed TTL and reach it, in the order sent
 AT=$PUB            # where loads() connects
 
 ok()   { echo "  ok  $*"; }
@@ -53,6 +63,8 @@ cleanup() {
   [ -n "$SRV_PID" ] && kill "$SRV_PID" 2>/dev/null
   [ -n "$SRV2_PID" ] && kill "$SRV2_PID" 2>/dev/null
   [ -n "$SRV3_PID" ] && kill "$SRV3_PID" 2>/dev/null
+  [ -n "$UDP_PID" ] && kill "$UDP_PID" 2>/dev/null
+  [ -n "$UDP2_PID" ] && kill "$UDP2_PID" 2>/dev/null
   ip netns del shlab-r 2>/dev/null; ip netns del shlab-s 2>/dev/null; ip link del shlab-c 2>/dev/null
   rm -rf "$WORK"
 }
@@ -73,6 +85,7 @@ ip -n shlab-r link set lo up
 ip -n shlab-s addr add $PUB/24 dev shlab-s0
 ip -n shlab-s addr add $PRIV/24 dev shlab-s0 && ip -n shlab-s link set shlab-s0 up
 ip -n shlab-s addr add $ALERT/24 dev shlab-s0
+ip -n shlab-s addr add $VOICE/24 dev shlab-s0
 ip -n shlab-s link set lo up
 ip -n shlab-s route add default via 198.51.100.1
 ip route add 198.51.100.0/24 via 10.77.1.2
@@ -89,13 +102,22 @@ ip netns exec shlab-s node "$HERE/lab-server.js" $PRIV > "$WORK/server2.log" 2>&
 SRV2_PID=$!
 ip netns exec shlab-s node "$HERE/lab-server.js" $ALERT alert > "$WORK/server3.log" 2>&1 &
 SRV3_PID=$!
-for _ in $(seq 50); do grep -q "lab server" "$WORK/server.log" 2>/dev/null && grep -q "lab server" "$WORK/server2.log" 2>/dev/null && grep -q "lab server" "$WORK/server3.log" 2>/dev/null && break; sleep 0.1; done
+ip netns exec shlab-s node "$HERE/lab-udp.js" serve $VOICE 443 3478 50003 > "$WORK/udp.log" 2>&1 &
+UDP_PID=$!
+ip netns exec shlab-s node "$HERE/lab-udp.js" serve $PRIV 50003 > "$WORK/udp2.log" 2>&1 &
+UDP2_PID=$!
+for _ in $(seq 50); do grep -q "lab server" "$WORK/server.log" 2>/dev/null && grep -q "lab server" "$WORK/server2.log" 2>/dev/null && grep -q "lab server" "$WORK/server3.log" 2>/dev/null \
+  && grep -q "lab udp" "$WORK/udp.log" 2>/dev/null && grep -q "lab udp" "$WORK/udp2.log" 2>/dev/null && break; sleep 0.1; done
 # The router counts the decoys going to each public address: a decoy's TTL is
 # set to run out about here, a real segment's is not. They die at the router
 # (TTL), but PREROUTING sees them first.
 DECOY_COUNT=1
 for a in $ALERT $PUB; do
   ip netns exec shlab-r iptables -t mangle -A PREROUTING -d $a -p tcp --dport 443 -m ttl --ttl-lt 16 || DECOY_COUNT=0
+done
+# The same for UDP decoys (a real datagram leaves with TTL 64, a decoy with 4).
+for a in $VOICE $PRIV; do
+  ip netns exec shlab-r iptables -t mangle -A PREROUTING -d $a -p udp -m ttl --ttl-lt 16 || DECOY_COUNT=0
 done
 # Decoys seen so far going to address $1, or "" when the router cannot count.
 decoys_to() {
@@ -206,7 +228,60 @@ else
   if [ "${nodecoy:-0}" -ge 1 ]; then ok "nodecoy is $nodecoy"; else bad "nodecoy is ${nodecoy:-none}"; fi
 fi
 
-# ── 6. nothing left behind ──────────────────────────────────────────────────
+# ── 6. UDP: decoys ahead of a call's first datagrams, the call left alone ───
+udp_send() { node "$HERE/lab-udp.js" send "$@" > /dev/null; sleep 0.5; }
+# What the voice server saw on port $1, in order: R for the real request
+# (its first four bytes are $2), d for anything else (a decoy).
+order_on() { awk -v p="$1" -v r="$2" '$1 == p { printf "%s", ($3 == r ? "R" : "d") }' "$WORK/udp.log"; }
+# Datagrams the voice server saw on port $1, $2 bytes long, whose first byte
+# is $3 (the length keeps a decoy that happens to start the same apart).
+count_on() { awk -v p="$1" -v l="$2" -v b="$3" '$1 == p && $2 == l && substr($3, 1, 2) == b { n++ } END { print n + 0 }' "$WORK/udp.log"; }
+start_engine on
+match=$(grep -m1 '"raw_ready"' "$WORK/status.log" 2>/dev/null | sed -n 's/.*"udp_match":\([01]\).*/\1/p')
+ok "UDP payload tests in the kernel: udp_match=${match:-none}"
+
+v0=$(decoys_to $VOICE)
+udp_send $VOICE 50003 discovery
+v1=$(decoys_to $VOICE)
+o=$(order_on 50003 00010046)
+if [[ "$o" =~ ^d+R$ ]]; then ok "IP discovery: $(( ${#o} - 1 )) decoys reached the server before the real request ($o)"; else bad "IP discovery: the server saw '$o' (d: decoy, R: the request)"; fi
+if [ -z "$v0" ] || [ $((v1 - v0)) -ge 6 ]; then ok "IP discovery: the router counted ${v0:+$((v1 - v0)) }low-TTL datagrams"; else bad "IP discovery: the router counted $((v1 - v0)) low-TTL datagrams"; fi
+
+udp_send $VOICE 3478 stun
+o=$(order_on 3478 00010000)
+if [[ "$o" =~ ^d+R$ ]]; then ok "STUN Binding request: $(( ${#o} - 1 )) decoys before the real request ($o)"; else bad "STUN Binding request: the server saw '$o'"; fi
+
+v2=$(decoys_to $VOICE)
+udp_send $VOICE 50003 rtp 40
+v3=$(decoys_to $VOICE)
+n=$(count_on 50003 172 80)
+if [ "$n" -eq 40 ]; then ok "a call's own datagrams: all 40 arrived"; else bad "a call's own datagrams: $n of 40 arrived"; fi
+if [ "$v3" = "$v2" ]; then ok "and none of them got a decoy"; else bad "they got decoys ($v2 -> $v3)"; fi
+
+udp_send $VOICE 443 quic-initial
+udp_send $VOICE 443 quic-short 10
+if [ "$(count_on 443 1200 c3)" -eq 0 ]; then ok "a QUIC Initial is dropped (the browser takes TCP)"; else bad "a QUIC Initial reached the server"; fi
+n=$(count_on 443 60 41)
+if [ "$n" -eq 10 ]; then ok "QUIC short headers all arrive"; else bad "QUIC short headers: $n of 10 arrived"; fi
+
+p0=$(decoys_to $PRIV)
+udp_send $PRIV 50003 discovery
+p1=$(decoys_to $PRIV)
+if grep -q '^50003 74 00010046' "$WORK/udp2.log" && [ "$p1" = "$p0" ]; then ok "private address: the request arrives, nothing sent ahead of it"; else bad "private address: decoys $p0 -> $p1, $(cat "$WORK/udp2.log" | tail -3)"; fi
+stop_engine
+ok "at stop: $(grep '"type":"raw_stats"' "$WORK/status.log" | tail -1)"
+ud=$(stat_of udp_decoys); us=$(stat_of udp_seen); qd=$(stat_of quic_dropped)
+if [ "${ud:-0}" -ge 12 ]; then ok "udp_decoys is $ud"; else bad "udp_decoys is ${ud:-none}"; fi
+if [ "${qd:-0}" -ge 1 ]; then ok "quic_dropped is $qd"; else bad "quic_dropped is ${qd:-none}"; fi
+if [ "$match" = 1 ]; then
+  # Handed over: the discovery requests, the STUN request and the QUIC
+  # Initial; not the 40 RTP datagrams nor the 10 short headers.
+  if [ "${us:-99}" -lt 10 ]; then ok "the engine was handed only the requests ($us datagrams), never the call"; else bad "the engine was handed ${us:-none} datagrams: the call went through the queue"; fi
+else
+  ok "udp_seen is ${us:-none}: skipped, the kernel has no u32 match here, so the ports alone are queued"
+fi
+
+# ── 7. nothing left behind ──────────────────────────────────────────────────
 left=$( (iptables -t mangle -S 2>/dev/null; nft list ruleset 2>/dev/null) | grep -c -E 'NFQUEUE|queue num|shroudly' )
 if [ "$left" -eq 0 ]; then ok "after stopping, no firewall rule of the engine is left"; else bad "$left firewall rules left after stopping"; fi
 

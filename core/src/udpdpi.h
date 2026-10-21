@@ -42,6 +42,46 @@ int udp_is_discord_voice(const uint8_t *p, int len);
  * the media range 50000-65535, or STUN on 3478 or 19302-19309. */
 int discord_voice_port(uint16_t dport_host);
 
+/* ── Kernel pre-filters ────────────────────────────────────────────────────
+ * The packet loop acts on three kinds of datagram only: a QUIC long header on
+ * port 443 (an Initial is one), and Discord's IP discovery request or a STUN
+ * Binding request on the voice / STUN ports. Everything else on those ports
+ * (the call itself: RTP, DTLS, SRTP, and QUIC short headers) is better left in
+ * the kernel: carried through user space, every live datagram waits its turn
+ * in the loop behind whatever else it is handling, and a busy moment there is
+ * a gap in the user's voice. These are the same three tests in each kernel
+ * filter language, so the kernel hands over only datagrams the classifiers
+ * above can say yes to. The classifiers still look at each one: the kernel
+ * test is a pre-filter, never the decision. A backend whose kernel refuses a
+ * payload test falls back to the ports alone (UDP_PREFILTER_PORTS).
+ *
+ * Discord's request is 74 bytes, so its UDP length is 82 (0x52) and its
+ * payload starts 00 01 00 46; a STUN Binding request starts 00 01 and carries
+ * the magic cookie 21 12 a4 42 at payload offset 4. */
+#define UDP_DISCOVERY_LEN 74
+#define UDP_PORTS_IPT     "3478,19302:19309,50000:65535"   /* iptables multiport */
+#define UDP_PORTS_NFT     "3478, 19302-19309, 50000-65535" /* nft set */
+
+/* iptables u32 (payload at IP header length + 8). */
+#define UDP_U32_QUIC_LONG "0>>22&0x3C@8>>24&0x80=0x80"
+#define UDP_U32_DISCOVERY "0>>22&0x3C@4>>16=0x52&&0>>22&0x3C@8=0x00010046"
+#define UDP_U32_STUN      "0>>22&0x3C@8>>16=0x1&&0>>22&0x3C@12=0x2112A442"
+
+/* nft raw payload (@th: the UDP header; the payload starts at bit 64). */
+#define UDP_NFT_QUIC_LONG "@th,64,8 & 0x80 == 0x80"
+#define UDP_NFT_DISCOVERY "udp length 82 @th,64,32 0x00010046"
+#define UDP_NFT_STUN      "@th,64,16 0x0001 @th,96,32 0x2112a442"
+
+enum { UDP_PREFILTER_PORTS = 0, UDP_PREFILTER_PAYLOAD = 1 };
+
+/* The UDP part of a WinDivert filter for the features that are on (quic:
+ * QUIC to TCP, voice: Discord voice / STUN decoys), parenthesised, without
+ * "outbound and ip and udp": with `how` UDP_PREFILTER_PAYLOAD the payload
+ * tests above, with UDP_PREFILTER_PORTS the destination ports alone. Writes
+ * "" and returns 0 when neither feature is on; returns -1 when it does not
+ * fit `cap` (buf then holds ""), else its length. */
+int udp_windivert_clause(char *buf, size_t cap, int quic, int voice, int how);
+
 /* ── Per-flow table (bounded, expiring) ────────────────────────────────────
  * Lets the backend fire decoys for only the FIRST few datagrams of each voice
  * flow and then stay out of the way. Keyed by the 5-tuple (proto is always

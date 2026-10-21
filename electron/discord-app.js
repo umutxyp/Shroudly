@@ -63,14 +63,19 @@ function variants(platform = process.platform) {
 
 function settingsFile(v) { return path.join(v.settingsDir, 'settings.json'); }
 
-/* Discord builds that have run on this machine (each creates its folder on
- * first launch), on the systems where the mode works. On macOS the folder may be unreadable until the user allows
- * it, but its existence is still visible. */
+/* Discord builds that have run on this machine, on any system: each creates
+ * its folder on first launch. On macOS the folder may be unreadable until the
+ * user allows it, but its existence is still visible. */
+function present() {
+  return variants().filter((v) => { try { return fs.statSync(v.settingsDir).isDirectory(); } catch { return false; } });
+}
+
+/* The same, on the systems where the mode works. */
 function installed() {
   // Discord's Linux builds still use the older updater, which never reads
   // NEW_UPDATE_ENDPOINT: the mode would change a file to no effect there.
   if (process.platform !== 'darwin' && process.platform !== 'win32') return [];
-  return variants().filter((v) => { try { return fs.statSync(v.settingsDir).isDirectory(); } catch { return false; } });
+  return present();
 }
 
 function readJson(text, file) {
@@ -136,6 +141,36 @@ async function pids(v) {
   return list(await run('pgrep', ['-x', v.proc]));
 }
 
+/* Whether any Discord build here is running (Linux included). */
+async function anyRunning() {
+  for (const v of present()) if (await isRunning(v)) return true;
+  return false;
+}
+
+/* The log lines for putting our line back into builds' settings (names: the
+ * builds whose file had lost it), with counts, a Map the caller keeps for the
+ * session. The first time for a build, that it was put back; the second, once,
+ * that this build keeps writing its file without it; after that nothing.
+ * Discord, or a program that changes Discord, can write the file back every
+ * few minutes; the line goes back within seconds each time, and saying so
+ * each time only buries what matters in the log. */
+function healNote(counts, names) {
+  const fresh = [];
+  const again = [];
+  for (const n of names) {
+    const c = (counts.get(n) || 0) + 1;
+    counts.set(n, c);
+    if (c === 1) fresh.push(n);
+    else if (c === 2) again.push(n);
+  }
+  const lines = [];
+  if (fresh.length) lines.push(`Discord app mode: ${fresh.join(', ')} added`);
+  if (again.length) {
+    lines.push(`Discord app mode: ${again.join(', ')} wrote its settings without the line again; it is put back each time, and not logged again this session`);
+  }
+  return lines;
+}
+
 async function waitGone(v, ms) {
   const end = Date.now() + ms;
   while (Date.now() < end) {
@@ -169,4 +204,4 @@ async function restart(v) {
   return detached(v.bin, v.binArgs || []);
 }
 
-module.exports = { KEY, endpointUrl, variants, installed, settingsFile, patchSync, hasOurs, isRunning, pids, restart };
+module.exports = { KEY, endpointUrl, variants, present, installed, settingsFile, patchSync, hasOurs, isRunning, anyRunning, pids, restart, healNote };

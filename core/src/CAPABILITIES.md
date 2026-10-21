@@ -298,3 +298,49 @@ Seen on CI's Windows runners; a user close to a CDN can hit the same.
   the table) and `"decoy_hurt"` (times the harm was seen).
   `core/test/test_rawscope.c`, `tests/lab/advanced-lab.sh` (section 5),
   `tests/lab/advanced-windows.js`.
+
+## Update 9: Advanced mode — a call's own datagrams stay in the kernel
+
+Update 4 queued every outbound datagram to the voice and STUN ports (and to
+UDP 443) and classified it in the packet loop. A call sends 50 datagrams a
+second, each waiting its turn in a loop that also takes every outgoing web
+data segment, and on Linux behind a queue that drops when it is full: a busy
+moment there is a gap in the user's voice, while the loop only ever acts on
+the first one or two datagrams of a flow.
+
+- The kernel now takes only what the loop acts on: on UDP 443 a QUIC long
+  header (first byte 0x80 or more); on the voice / STUN ports Discord's IP
+  discovery request (UDP length 82, payload 00 01 00 46) or a STUN Binding
+  request (00 01, cookie 21 12 a4 42 at offset 4). RTP, DTLS, SRTP and QUIC
+  short headers never leave the kernel. The classifiers in `udpdpi.c` still
+  decide; the kernel test is only a pre-filter, never stricter than them.
+- Windows: single-byte `udp.Payload[i]` tests in the WinDivert filter
+  (`udp_windivert_clause`). Linux: one iptables rule per kind with the u32
+  match, or nft raw payload expressions; the expressions live in `udpdpi.h`
+  and `core/test/test_udpdpi.c` runs the u32 ones against real datagrams (an
+  evaluator of the u32 language, as the kernel runs it). A kernel that refuses
+  a payload test gets the ports alone, as before. `raw_ready` says which with
+  `"udp_match"`, and the app logs a line when it is 0.
+- The decoys' TTL is the measured one when the address answered a TCP
+  handshake lately (autottl), else the fixed one.
+- `raw_stats` adds `"udp_seen"` (datagrams the loop was handed),
+  `"udp_decoys"` (decoy datagrams sent) and `"quic_dropped"`.
+  `tests/lab/advanced-lab.sh` (section 6: the decoys reach a server before the
+  real request, 40 RTP datagrams arrive with none, and with u32 the loop is
+  handed only the requests) and `tests/lab/advanced-windows.js` (a real STUN
+  server still answers; RTP and short headers never reach the loop).
+
+## Update 10: `--watch` — the app hears about a call starting
+
+The default engine never sees a call's sound (UDP), only the voice server's
+WebSocket, and a technique learnt for the site is reused without a word, so
+the app had no way to know a call was starting. `--watch <domain>`
+(repeatable) makes the engine print `{"type":"seen","host":...}` for a
+connection to that domain or a name under it, once per name every 10 minutes,
+changing nothing about the connection. The desktop app watches
+`discord.media` and takes a call only from a voice server's own name (one
+server in one region, `c-fra06-1a2b3c4d`), never from the names every open
+client fetches there (`latency.discord.media`, which ranks the regions): on a
+network known to block Discord, the autopilot then asks for Advanced mode
+(`electron/autopilot.js`). `core/test/test_engine.c` (section 13),
+`tests/net/engine-watch.test.js`, `tests/net/autopilot.test.js`.

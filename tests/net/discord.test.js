@@ -47,6 +47,22 @@ function get(url, o = {}) {
   }
   fs.rmSync(dir, { recursive: true, force: true });
 
+  // The line put back again and again (Discord, or a program that changes
+  // it, writing the file without it every few minutes): said twice, then
+  // nothing.
+  {
+    const counts = new Map();
+    const a = DA.healNote(counts, ['Discord']);
+    const b = DA.healNote(counts, ['Discord', 'Discord PTB']);
+    const c = DA.healNote(counts, ['Discord', 'Discord PTB']);
+    const d = DA.healNote(counts, ['Discord']);
+    t.ok(a.join() === 'Discord app mode: Discord added', 'the first time a build gets its line back, it is logged');
+    t.ok(b.length === 2 && /Discord PTB added/.test(b[0]) && /^Discord app mode: Discord wrote its settings without the line again; .*not logged again this session$/.test(b[1]),
+      'the second time, once, that it keeps doing so (another build is its own first time)');
+    t.ok(/Discord PTB wrote its settings/.test(c.join()) && c.length === 1 && d.length === 0, 'after that, nothing');
+  }
+  t.ok(typeof DA.anyRunning === 'function' && Array.isArray(DA.present()), 'builds present on any system, and whether one runs, for the autopilot');
+
   // relay
   const P = await freePort();
   const eng = await startEngine(P, ['--strategy', 'tlsrec(sni+1)', '--auto']);

@@ -401,6 +401,37 @@ int main(void) {
   }
   printf("  stand-in address ranges: OK\n");
 
+  /* 13. --watch: names the app hears about */
+  {
+    engine_config c; memset(&c, 0, sizeof(c));
+    CHECK(engine_add_watch(&c, "Discord.Media.") == 0 && strcmp(c.watch[0], "discord.media") == 0);
+    CHECK(engine_add_watch(&c, "media") != 0 && engine_add_watch(&c, ".x.com") != 0);
+    CHECK(engine_add_watch(&c, "a b.com") != 0 && engine_add_watch(&c, "") != 0 && engine_add_watch(&c, NULL) != 0);
+    g_cfg = c;
+    memset(g_seen, 0, sizeof(g_seen));
+    mutex_init(&g_seen_mx);
+    CHECK(watched("discord.media") && watched("c-fra06-1a2b.discord.media") && watched("C-FRA06.Discord.Media"));
+    CHECK(!watched("notdiscord.media") && !watched("discord.media.example") && !watched("media"));
+    uint64_t t0 = 1000000;
+    CHECK(watch_due("c-ist01-1.discord.media", t0) == 1);
+    CHECK(watch_due("c-ist01-1.discord.media", t0 + 1000) == 0);          /* told once */
+    CHECK(watch_due("C-IST01-1.discord.media", t0 + 2000) == 0);          /* whatever the case */
+    CHECK(watch_due("c-ist01-2.discord.media", t0 + 2000) == 1);          /* another name: its own */
+    CHECK(watch_due("discord.com", t0 + 2000) == 0);                      /* not watched */
+    CHECK(watch_due("c-ist01-1.discord.media", t0 + ENGINE_WATCH_EVERY_MS) == 1);  /* again, later */
+    for (int i = 0; i < WATCH_SLOTS + 5; i++) {                            /* bounded */
+      char h[64]; snprintf(h, sizeof(h), "n%d.discord.media", i);
+      CHECK(watch_due(h, t0 + 5000 + (uint64_t)i) == 1);
+    }
+    CHECK(watch_due("n0.discord.media", t0 + 6000) == 1);                 /* pushed out: told again */
+    memset(&c, 0, sizeof(c));
+    for (int i = 0; i < ENGINE_WATCH_MAX; i++) CHECK(engine_add_watch(&c, "x.example") == 0);
+    CHECK(engine_add_watch(&c, "y.example") != 0);
+    memset(&g_cfg, 0, sizeof(g_cfg));
+    CHECK(watch_due("c-ist01-9.discord.media", t0) == 0);                 /* nothing watched */
+  }
+  printf("  watched names: OK\n");
+
   if (fails == 0) { printf("ENGINE MEMORY TESTS PASSED\n"); return 0; }
   printf("%d FAILED\n", fails);
   return 1;

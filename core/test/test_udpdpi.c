@@ -1,5 +1,6 @@
 #include "../src/udpdpi.h"
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 static int fails = 0;
@@ -222,6 +223,158 @@ static void test_builder(void) {
   CHECK(verify_csum(buf, 20, 0) == 0);
 }
 
+
+/* ── Kernel pre-filters ────────────────────────────────────────────────── */
+
+/* The iptables u32 match, as the kernel runs it (net/netfilter/xt_u32.c):
+ * tests joined by "&&"; each reads 4 bytes big-endian at its first number,
+ * then applies "&", "<<", ">>" and "@" in order ("@n": the value so far is
+ * added to the base and 4 bytes are read at base + n), and passes when the
+ * result is one of the values after "=" ("a" or "a:b", comma-separated). A
+ * read past the end fails the test. Returns -1 on a syntax error. */
+static int u32_eval(const char *expr, const uint8_t *pkt, int len) {
+  const char *p = expr;
+  while (*p) {
+    char *e;
+    uint32_t at = 0;
+    uint32_t pos = (uint32_t)strtoul(p, &e, 0);
+    if (e == p) return -1;
+    p = e;
+    if (len < 4 || pos > (uint32_t)len - 4) return 0;
+    uint32_t val = ((uint32_t)pkt[pos] << 24) | ((uint32_t)pkt[pos + 1] << 16) | ((uint32_t)pkt[pos + 2] << 8) | pkt[pos + 3];
+    while (*p && *p != '=') {
+      int op;
+      if (*p == '&') { op = '&'; p++; }
+      else if (p[0] == '<' && p[1] == '<') { op = '<'; p += 2; }
+      else if (p[0] == '>' && p[1] == '>') { op = '>'; p += 2; }
+      else if (*p == '@') { op = '@'; p++; }
+      else return -1;
+      uint32_t n = (uint32_t)strtoul(p, &e, 0);
+      if (e == p) return -1;
+      p = e;
+      if (op == '&') val &= n;
+      else if (op == '<') val <<= n;
+      else if (op == '>') val >>= n;
+      else {
+        at += val;
+        if ((uint64_t)at + 4 > (uint64_t)len || n > (uint32_t)len - at - 4) return 0;
+        const uint8_t *q = pkt + at + n;
+        val = ((uint32_t)q[0] << 24) | ((uint32_t)q[1] << 16) | ((uint32_t)q[2] << 8) | q[3];
+      }
+    }
+    if (*p != '=') return -1;
+    p++;
+    int hit = 0;
+    for (;;) {
+      uint32_t lo = (uint32_t)strtoul(p, &e, 0), hi;
+      if (e == p) return -1;
+      p = e;
+      hi = lo;
+      if (*p == ':') { p++; hi = (uint32_t)strtoul(p, &e, 0); if (e == p) return -1; p = e; }
+      if (lo <= val && val <= hi) hit = 1;
+      if (*p != ',') break;
+      p++;
+    }
+    if (!hit) return 0;
+    if (*p == 0) break;
+    if (p[0] != '&' || p[1] != '&') return -1;
+    p += 2;
+  }
+  return 1;
+}
+
+/* An IPv4 + UDP datagram carrying `pay`, with `opt` bytes of IP options. */
+static int datagram(uint8_t *buf, int cap, const uint8_t *pay, int plen, int opt) {
+  uint8_t tmp[1600];
+  int n = udp_build_decoy(tmp, sizeof tmp, 0x0101000a, 0x04066433, 0x3930, 0x53c3, plen, 64, 1, 7);
+  if (n <= 0 || n + opt > cap) return 0;
+  memcpy(buf, tmp, 20);
+  buf[0] = (uint8_t)(0x40 | ((20 + opt) / 4));
+  memset(buf + 20, 1, (size_t)opt);                 /* NOP options */
+  memcpy(buf + 20 + opt, tmp + 20, 8);
+  memcpy(buf + 28 + opt, pay, (size_t)plen);
+  return n + opt;
+}
+
+static void test_prefilters(void) {
+  /* The three u32 expressions parse, and say yes exactly where the
+   * classifiers do, with and without IP options. */
+  uint8_t disc[74] = { 0x00, 0x01, 0x00, 0x46, 0x00, 0x00, 0x30, 0x39 };
+  uint8_t stun[28] = { 0x00, 0x01, 0x00, 0x08, 0x21, 0x12, 0xa4, 0x42, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12,
+                       0x00, 0x24, 0x00, 0x04, 0x6e, 0x00, 0x01, 0xff };
+  uint8_t rtp[160] = { 0x80, 0x78, 0x00, 0x01, 0x00, 0x00, 0x03, 0xc0, 0x00, 0x00, 0x30, 0x39 };
+  uint8_t dtls[90] = { 0x16, 0xfe, 0xfd, 0x00, 0x00 };
+  uint8_t qlong[1200] = { 0xc3, 0x00, 0x00, 0x00, 0x01, 0x08 };
+  uint8_t qshort[60] = { 0x41, 0x99, 0x10 };
+  uint8_t tiny[3] = { 0x00, 0x01, 0x00 };
+  /* d, s, q: what the kernel tests answer. A STUN header cut short (its
+   * declared length does not fit) still passes the kernel's test, which only
+   * reads the type and the cookie; the classifier refuses it. */
+  struct { const uint8_t *p; int n, d, s, q; } cases[] = {
+    { disc, sizeof disc, 1, 0, 0 }, { stun, sizeof stun, 0, 1, 0 }, { rtp, sizeof rtp, 0, 0, 1 },
+    { dtls, sizeof dtls, 0, 0, 0 }, { qlong, sizeof qlong, 0, 0, 1 }, { qshort, sizeof qshort, 0, 0, 0 },
+    { tiny, sizeof tiny, 0, 0, 0 }, { disc, 73, 0, 0, 0 }, { stun, 20, 0, 1, 0 },
+  };
+  uint8_t pkt[1700];
+  for (int opt = 0; opt <= 8; opt += 4) {
+    for (size_t i = 0; i < sizeof cases / sizeof cases[0]; i++) {
+      int n = datagram(pkt, sizeof pkt, cases[i].p, cases[i].n, opt);
+      CHECK(n > 0);
+      int d = u32_eval(UDP_U32_DISCOVERY, pkt, n), st = u32_eval(UDP_U32_STUN, pkt, n), q = u32_eval(UDP_U32_QUIC_LONG, pkt, n);
+      CHECK(d == cases[i].d && st == cases[i].s && q == cases[i].q);
+      /* never stricter than the classifiers */
+      if (discord_is_ip_discovery(cases[i].p, cases[i].n)) CHECK(d == 1);
+      if (stun_is_binding_request(cases[i].p, cases[i].n)) CHECK(st == 1);
+      if (quic_is_initial(cases[i].p, cases[i].n)) CHECK(q == 1);
+    }
+  }
+  /* Whatever the classifiers take, the kernel test takes too: random STUN
+   * requests (attributes of every length) and random datagrams. */
+  uint32_t x = 0x2545f491u;
+  for (int k = 0; k < 4000; k++) {
+    uint8_t pay[300];
+    x ^= x << 13; x ^= x >> 17; x ^= x << 5;
+    int plen = (int)(x % 300);
+    for (int i = 0; i < plen; i++) { x ^= x << 13; x ^= x >> 17; x ^= x << 5; pay[i] = (uint8_t)x; }
+    if (k % 3 == 0 && plen >= 20) {
+      int mlen = (plen - 20) & ~3;
+      memcpy(pay, "\x00\x01", 2); pay[2] = (uint8_t)(mlen >> 8); pay[3] = (uint8_t)mlen;
+      memcpy(pay + 4, "\x21\x12\xa4\x42", 4);
+    } else if (k % 3 == 1) {
+      plen = 74; memcpy(pay, "\x00\x01\x00\x46", 4);
+    }
+    int n = datagram(pkt, sizeof pkt, pay, plen, (k % 2) * 4);
+    CHECK(n > 0);
+    if (discord_is_ip_discovery(pay, plen)) CHECK(u32_eval(UDP_U32_DISCOVERY, pkt, n) == 1);
+    if (stun_is_binding_request(pay, plen)) CHECK(u32_eval(UDP_U32_STUN, pkt, n) == 1);
+    if (quic_is_initial(pay, plen)) CHECK(u32_eval(UDP_U32_QUIC_LONG, pkt, n) == 1);
+    if (u32_eval(UDP_U32_DISCOVERY, pkt, n) == 1 || u32_eval(UDP_U32_STUN, pkt, n) == 1)
+      CHECK(plen >= 20 && pay[0] == 0 && pay[1] == 1);
+  }
+  CHECK(u32_eval("0>>22&0x3C@8=", pkt, 40) == -1);   /* the evaluator itself refuses nonsense */
+  CHECK(UDP_DISCOVERY_LEN + 8 == 0x52);
+
+  /* The WinDivert clause: payload tests, or the ports alone, for what is on. */
+  char b[1024];
+  CHECK(udp_windivert_clause(b, sizeof b, 1, 1, UDP_PREFILTER_PAYLOAD) > 0);
+  CHECK(strcmp(b,
+    "((udp.DstPort == 443 and udp.PayloadLength >= 5 and udp.Payload[0] >= 128) or "
+    "((udp.DstPort == 3478 or (udp.DstPort >= 19302 and udp.DstPort <= 19309) or udp.DstPort >= 50000)"
+    " and udp.PayloadLength >= 20 and udp.Payload[0] == 0 and udp.Payload[1] == 1"
+    " and ((udp.PayloadLength == 74 and udp.Payload[2] == 0 and udp.Payload[3] == 70)"
+    " or (udp.Payload[4] == 33 and udp.Payload[5] == 18 and udp.Payload[6] == 164 and udp.Payload[7] == 66))))") == 0);
+  CHECK(udp_windivert_clause(b, sizeof b, 1, 0, UDP_PREFILTER_PAYLOAD) > 0);
+  CHECK(strcmp(b, "((udp.DstPort == 443 and udp.PayloadLength >= 5 and udp.Payload[0] >= 128))") == 0);
+  CHECK(udp_windivert_clause(b, sizeof b, 0, 1, UDP_PREFILTER_PAYLOAD) > 0 && strncmp(b, "(((udp.DstPort == 3478", 22) == 0);
+  CHECK(udp_windivert_clause(b, sizeof b, 1, 1, UDP_PREFILTER_PORTS) > 0);
+  CHECK(strcmp(b, "(udp.DstPort == 443 or (udp.DstPort == 3478 or (udp.DstPort >= 19302 and udp.DstPort <= 19309) or udp.DstPort >= 50000))") == 0);
+  CHECK(udp_windivert_clause(b, sizeof b, 0, 0, UDP_PREFILTER_PAYLOAD) == 0 && b[0] == 0);
+  CHECK(udp_windivert_clause(b, 40, 1, 1, UDP_PREFILTER_PAYLOAD) == -1 && b[0] == 0);
+  CHECK(udp_windivert_clause(NULL, 40, 1, 1, UDP_PREFILTER_PAYLOAD) == -1);
+  /* Its numbers are the classifiers' own. */
+  CHECK(0x21 == 33 && 0x12 == 18 && 0xa4 == 164 && 0x42 == 66 && 0x46 == 70 && UDP_DISCOVERY_LEN == 74);
+}
+
 int main(void) {
   test_quic();
   test_discord();
@@ -229,6 +382,7 @@ int main(void) {
   test_ports();
   test_flow();
   test_builder();
+  test_prefilters();
   if (fails == 0) { printf("ALL TESTS PASSED\n"); return 0; }
   printf("%d TEST(S) FAILED\n", fails);
   return 1;

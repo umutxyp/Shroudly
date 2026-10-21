@@ -3,6 +3,7 @@
  * Advanced-mode UDP handling. No network, no platform headers.
  */
 #include "udpdpi.h"
+#include <stdio.h>
 #include <string.h>
 
 /* ── QUIC ────────────────────────────────────────────────────────────────── */
@@ -45,6 +46,33 @@ int discord_voice_port(uint16_t dport_host) {
   if (dport_host == 3478) return 1;             /* STUN */
   if (dport_host >= 19302 && dport_host <= 19309) return 1; /* Google STUN */
   return 0;
+}
+
+/* ── Kernel pre-filters ──────────────────────────────────────────────────── */
+#define WD_VOICE_PORTS \
+  "(udp.DstPort == 3478 or (udp.DstPort >= 19302 and udp.DstPort <= 19309) or udp.DstPort >= 50000)"
+
+int udp_windivert_clause(char *buf, size_t cap, int quic, int voice, int how) {
+  if (!buf || cap == 0) return -1;
+  buf[0] = 0;
+  if (!quic && !voice) return 0;
+  const char *q, *v;
+  if (how == UDP_PREFILTER_PAYLOAD) {
+    /* A long header: the most significant bit of the first byte. */
+    q = "(udp.DstPort == 443 and udp.PayloadLength >= 5 and udp.Payload[0] >= 128)";
+    /* 00 01, then either 00 46 in a 74-byte payload (Discord's request) or
+     * the STUN magic cookie 21 12 a4 42 (33 18 164 66) at offset 4. Single
+     * bytes only: their indexing is the same in every WinDivert 2.x. */
+    v = "(" WD_VOICE_PORTS " and udp.PayloadLength >= 20 and udp.Payload[0] == 0 and udp.Payload[1] == 1"
+        " and ((udp.PayloadLength == 74 and udp.Payload[2] == 0 and udp.Payload[3] == 70)"
+        " or (udp.Payload[4] == 33 and udp.Payload[5] == 18 and udp.Payload[6] == 164 and udp.Payload[7] == 66)))";
+  } else {
+    q = "udp.DstPort == 443";
+    v = WD_VOICE_PORTS;
+  }
+  int n = snprintf(buf, cap, "(%s%s%s)", quic ? q : "", quic && voice ? " or " : "", voice ? v : "");
+  if (n < 0 || (size_t)n >= cap) { buf[0] = 0; return -1; }
+  return n;
 }
 
 /* ── Per-flow table ──────────────────────────────────────────────────────── */

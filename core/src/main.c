@@ -94,6 +94,8 @@ static void usage(void) {
     "                        every client must give them, SOCKS4 is refused\n"
     "  --fake-net <cidr>     stand-in address range (repeatable, or comma-joined):\n"
     "                        CONNECT to it is refused at once, datagrams dropped\n"
+    "  --watch <domain>      tell connections to it or a name under it as\n"
+    "                        {\"type\":\"seen\",\"host\":...} (repeatable)\n"
     "  --ipv6                prefer IPv6 upstream\n"
     "  --advanced            packet-layer backend (needs elevation)\n"
     "  --fake-repeats <n>    Advanced: decoy datagrams per Discord voice flow\n"
@@ -141,6 +143,7 @@ int main(int argc, char **argv) {
     else if (!strcmp(argv[i], "--fake-pattern") && i+1<argc) g_fake_pat = (int)strtol(argv[++i], NULL, 16) & 0xff;
 #endif
     else if (!strcmp(argv[i], "--fake-net") && i+1<argc) { if (engine_add_fake_net(&g_cfg, argv[++i]) != 0) bad_fake_net = 1; }
+    else if (!strcmp(argv[i], "--watch") && i+1<argc) engine_add_watch(&g_cfg, argv[++i]);  /* a bad one is left out */
     else if (!strcmp(argv[i], "--auth-file") && i+1<argc) strncpy(g_auth_file, argv[++i], sizeof(g_auth_file)-1);
     else if (!strcmp(argv[i], "--status-file") && i+1<argc) strncpy(g_status_file, argv[++i], sizeof(g_status_file)-1);
     else if (!strcmp(argv[i], "--parent-pid") && i+1<argc) g_parent_pid = atol(argv[++i]);

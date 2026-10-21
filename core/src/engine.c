@@ -6,6 +6,7 @@
 #include "doh.h"
 #include "fake.h"
 #include "socksudp.h"
+#include <ctype.h>
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -730,6 +731,78 @@ int engine_add_fake_net(engine_config *cfg, const char *spec) {
     any = 1;
   }
   return any ? 0 : -1;
+}
+
+/* ── names the app watches (--watch) ─────────────────────────────────────
+ * See engine.h. A small table of the names told lately, so a page or a call
+ * that opens many connections to one name is one event every
+ * ENGINE_WATCH_EVERY_MS, not one per connection. A full table reuses its
+ * oldest slot. */
+#define WATCH_SLOTS 64
+static struct { char host[256]; uint64_t t; } g_seen[WATCH_SLOTS];
+static mutex_t g_seen_mx;
+
+int engine_add_watch(engine_config *cfg, const char *domain) {
+  if (!cfg || !domain || cfg->watch_n >= ENGINE_WATCH_MAX) return -1;
+  size_t n = strlen(domain);
+  if (n && domain[n - 1] == '.') n--;
+  if (n < 3 || n >= sizeof(cfg->watch[0]) || domain[0] == '.' || !memchr(domain, '.', n)) return -1;
+  char *d = cfg->watch[cfg->watch_n];
+  for (size_t i = 0; i < n; i++) {
+    char c = (char)tolower((unsigned char)domain[i]);
+    if (!((c >= 'a' && c <= 'z') || (c >= '0' && c <= '9') || c == '-' || c == '.')) return -1;
+    d[i] = c;
+  }
+  d[n] = 0;
+  cfg->watch_n++;
+  return 0;
+}
+
+/* a and b are the same name, whatever the case of their letters. */
+static int name_eq(const char *a, const char *b) {
+  for (; *a && *b; a++, b++)
+    if (tolower((unsigned char)*a) != tolower((unsigned char)*b)) return 0;
+  return *a == *b;
+}
+
+/* host is one of the watched domains or a name under one. */
+static int watched(const char *host) {
+  size_t hl = strlen(host);
+  for (int i = 0; i < g_cfg.watch_n; i++) {
+    const char *d = g_cfg.watch[i];
+    size_t dl = strlen(d);
+    if (hl == dl && name_eq(host, d)) return 1;
+    if (hl > dl && host[hl - dl - 1] == '.' && name_eq(host + hl - dl, d)) return 1;
+  }
+  return 0;
+}
+
+/* Whether a connection to host is news to tell now; noted as told. */
+static int watch_due(const char *host, uint64_t now) {
+  if (!g_cfg.watch_n || !host || !host[0] || strlen(host) >= sizeof(g_seen[0].host) || !watched(host)) return 0;
+  int due = 1, slot = 0;
+  mutex_lock(&g_seen_mx);
+  for (int i = 0; i < WATCH_SLOTS; i++) {
+    if (g_seen[i].host[0] && name_eq(g_seen[i].host, host)) {
+      slot = i;
+      due = age_ms(now, g_seen[i].t) >= ENGINE_WATCH_EVERY_MS;
+      break;
+    }
+    if (!g_seen[i].host[0] || g_seen[i].t < g_seen[slot].t) slot = i;
+  }
+  if (due) { snprintf(g_seen[slot].host, sizeof(g_seen[slot].host), "%s", host); g_seen[slot].t = now; }
+  mutex_unlock(&g_seen_mx);
+  return due;
+}
+
+static void json_host(char *out, size_t cap, const char *in);
+
+static void watch_note(const char *host) {
+  if (!watch_due(host, now_ms())) return;
+  char h[256];
+  json_host(h, sizeof(h), host);
+  printf("{\"type\":\"seen\",\"host\":\"%s\"}\n", h);
+  fflush(stdout);
 }
 
 /* The first bits of a and b (byte strings) are the same. */
@@ -2348,6 +2421,7 @@ static void handle(sock_t client) {
     if (pi.kind == PROTO_HTTP) atomic_fetch_add(&g_stats.http_seen, 1);
 
     const char *key = pi.host[0] ? pi.host : rq.host;
+    watch_note(key);
     watch_tls = pi.kind == PROTO_TLS;
     strncpy(cut_key, key, sizeof(cut_key) - 1); cut_key[sizeof(cut_key) - 1] = 0;
 
@@ -2630,6 +2704,7 @@ int engine_start(const engine_config *cfg) {
   mutex_init(&g_ok_mx);
   mutex_init(&g_win_mx);
   mutex_init(&g_cool_mx);
+  mutex_init(&g_seen_mx);
   doh_init(cfg->doh_host, cfg->doh_ip);
 
   struct sockaddr_in addr;
