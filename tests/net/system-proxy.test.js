@@ -184,11 +184,11 @@ const readState = (file) => { try { return JSON.parse(fs.readFileSync(file, 'utf
     // Every non-env desktop (Windows, GNOME, KDE) and macOS carries the SOCKS
     // (SOCKS4) entry after SOCKS5, so Java, WinINET and .NET clients that do
     // not understand "SOCKS5" are still routed instead of failing. No DIRECT.
-    // Windows: WinHTTP drops SOCKS entries and would answer "no proxy", so for
-    // https:// the engine is offered as an HTTP (CONNECT) proxy last; plain
-    // http:// is left alone.
+    // Windows: WinHTTP answers "no proxy" to any answer holding a SOCKS entry,
+    // so for https:// the engine is offered as an HTTP (CONNECT) proxy only;
+    // plain http:// keeps the SOCKS entries.
     const socksOnly = 'SOCKS5 127.0.0.1:10808; SOCKS 127.0.0.1:10808';
-    const want = platform === 'win32' ? `${socksOnly}; PROXY 127.0.0.1:10808` : socksOnly;
+    const want = platform === 'win32' ? 'PROXY 127.0.0.1:10808' : socksOnly;
     t.ok(find('discord.com') === want, `PAC (${where}): a routed host gets "${want}", no DIRECT to slip around Shroudly`);
     t.ok(find.http('discord.com') === socksOnly, `PAC (${where}): plain http:// gets "${socksOnly}"`);
     t.ok(['nas', 'printer.local', 'router.lan', '192.168.1.1', '10.2.3.4', '172.20.0.1', '169.254.1.1', '100.100.1.1', '127.0.0.1', '[::1]']

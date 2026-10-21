@@ -7,7 +7,8 @@
  * and with which SOCKS version and which name or address.
  *
  * Hard checks are the ones every user depends on: Chromium browsers (Edge,
- * Chrome) reach a routed site through SOCKS5 with the name, the setting is
+ * Chrome) reach a routed site through SOCKS5 with the name (on Windows an
+ * HTTP CONNECT with the name, which is what the PAC offers there for https://), the setting is
  * gone after a restore, and a PAC nobody answers (Shroudly not running) lets
  * the browser go direct instead of cutting it off. The rest is reported for
  * reading in the log: programs that cannot speak SOCKS5 at all.
@@ -61,6 +62,21 @@ function socksServer() {
           stage = 'done';
           c.removeListener('data', onData);
           go(host, port, ver, (good) => Buffer.from([0, good ? 0x5a : 0x5b, 0, 0, 0, 0, 0, 0]));
+          return;
+        }
+        // HTTP CONNECT: what the PAC offers for https:// on Windows (WinHTTP
+        // takes no SOCKS entry; system-proxy.js, pacRoute).
+        if (buf.subarray(0, 8).toString('latin1') === 'CONNECT ') {
+          const end = buf.indexOf('\r\n\r\n');
+          if (end < 0) return;
+          const m = /^CONNECT (\[[^\]]+\]|[^\s:]+):(\d+) HTTP\/1\.\d\r\n/.exec(buf.subarray(0, end + 4).toString('latin1'));
+          if (!m) { c.destroy(); return; }
+          const host = m[1].replace(/^\[|\]$/g, '');
+          buf = buf.slice(end + 4);
+          stage = 'done';
+          c.removeListener('data', onData);
+          go(host, Number(m[2]), net.isIP(host) ? 'connect-ip' : 'connect-name',
+            (good) => Buffer.from(good ? 'HTTP/1.1 200 Connection established\r\n\r\n' : 'HTTP/1.1 502 Bad Gateway\r\n\r\n'));
           return;
         }
         if (buf[0] !== 5) { seen.push({ ver: `not-socks:${buf[0]}`, host: '', port: 0, at: Date.now() }); c.destroy(); return; }
@@ -135,7 +151,8 @@ async function measure(label, client, env) {
   try { result = await client.run(env); } catch (e) { result = `EXC ${e.message}`; }
   const via = [...new Set(seen.filter((s) => s.at >= from).map((s) => `${s.ver}:${s.host}:${s.port}`))];
   console.log(`  [${label}] ${client.name}: ${result} | ${via.join(' ') || 'direct'}`);
-  return { result, via, loaded: /^OK/.test(result), named: via.includes(`socks5-name:${TARGET}:443`) };
+  // With the name: SOCKS5, or (Windows, https://) an HTTP CONNECT.
+  return { result, via, loaded: /^OK/.test(result), named: via.includes(`socks5-name:${TARGET}:443`) || via.includes(`connect-name:${TARGET}:443`) };
 }
 
 function clients() {
@@ -203,7 +220,7 @@ async function main() {
   } else {
     for (const c of list) {
       const m = await measure('applied', c);
-      if (c.chromium) ok(m.loaded && m.named, `${c.name} loads ${TARGET} through SOCKS5 with the name`);
+      if (c.chromium) ok(m.loaded && m.named, `${c.name} loads ${TARGET} through ${process.platform === 'win32' ? 'CONNECT' : 'SOCKS5'} with the name`);
     }
   }
 

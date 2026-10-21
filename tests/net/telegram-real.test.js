@@ -199,6 +199,7 @@ function socksAny(P, host, port) {
     await ask('socks-only', fixed('SOCKS 127.0.0.1:10808'));
     await ask('socks5-socks', fixed('SOCKS5 127.0.0.1:10808; SOCKS 127.0.0.1:10808'));
     await ask('socks5-socks-proxy', fixed('SOCKS5 127.0.0.1:10808; SOCKS 127.0.0.1:10808; PROXY 127.0.0.1:10808'));
+    await ask('proxy-socks5-socks', fixed('PROXY 127.0.0.1:10808; SOCKS5 127.0.0.1:10808; SOCKS 127.0.0.1:10808'));
     const sp = new SystemProxy(() => {});
     sp.mode = 'all';
     const got = await ask('shroudly', sp.pacBody(10808));
@@ -207,7 +208,7 @@ function socksAny(P, host, port) {
     // 3 = a named proxy: Qt then tunnels through it with CONNECT, which the
     // engine takes on the same port (checked for real below).
     t.ok(/^3 .*127\.0\.0\.1:10808/.test(got), 'WinHTTP hands Telegram Desktop (Qt) the engine as its proxy (not "no proxy")');
-    t.ok(!/^3 /.test(plain) || /socks/i.test(plain), 'and plain http:// gets no HTTP proxy from it');
+    t.ok(/^1\b/.test(plain), 'plain http:// is as before (WinHTTP: no proxy; it is never handed whole requests to a tunnel-only port)');
   }
 
 

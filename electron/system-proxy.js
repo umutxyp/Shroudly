@@ -417,20 +417,22 @@ class SystemProxy {
   /* A PAC that always sends local/private hosts direct. In 'all' mode every
    * other host goes through the proxy; in 'listed' mode only the domains in
    * this.list (and their subdomains) do, everything else goes direct. */
-  /* Windows: WinHTTP reads a PAC's SOCKS entries as nothing at all and
-   * answers "no proxy" (tests/net/telegram-real.test.js saw it), so every
-   * program that asks WinHTTP for the system proxy went around Shroudly: Qt
-   * programs such as Telegram Desktop on "use system proxy", .NET ones. For
-   * https:// (and what such programs ask for a plain TCP connection, which Qt
-   * asks as https://) the engine is offered as an HTTP proxy too, after the
-   * SOCKS entries: the engine takes CONNECT on its port. Everything that
-   * understands SOCKS (browsers, WinINET, Java) still takes the first entry
-   * it knows, as before. Plain http:// is left as it was: a proxy there gets
-   * whole requests, not a tunnel. */
+  /* Windows: WinHTTP answers "no proxy" for any PAC answer that holds a
+   * SOCKS entry at all, wherever it stands (tests/net/telegram-real.test.js
+   * measures it on Windows CI: "PROXY x" alone is the only form it takes).
+   * So every program that asks WinHTTP for the system proxy went around
+   * Shroudly: Qt programs such as Telegram Desktop on "use system proxy",
+   * .NET ones. For https:// (and a plain TCP connection, which Qt asks as
+   * https://) the engine is therefore offered as an HTTP proxy only: it takes
+   * CONNECT on its port, which every client on Windows understands (browsers,
+   * WinINET, Java, .NET, Qt) and which carries the name, so it is resolved by
+   * Shroudly's DNS. Plain http:// keeps the SOCKS entries, as before: an HTTP
+   * proxy there would be handed whole requests, which the engine does not
+   * serve. */
   pacRoute(port) {
     const proxy = this.pacProxy(port);
     if (this.platform !== 'win32') return `"${proxy}"`;
-    return `(url.substring(0, 6).toLowerCase() === "https:" ? "${proxy}; PROXY 127.0.0.1:${port}" : "${proxy}")`;
+    return `(url.substring(0, 6).toLowerCase() === "https:" ? "PROXY 127.0.0.1:${port}" : "${proxy}")`;
   }
 
   pacBody(port) {
