@@ -335,15 +335,17 @@ function decide({ players, studios, installers, quiet, before, handled, restarts
 }
 
 /* Stop these processes outright (an installer, a player that never got
- * through): nothing in them is the user's. Whether they are gone: one that
- * cannot be stopped (another user's, or an administrator's) is not. */
+ * through): nothing in them is the user's. Resolves the ones still running
+ * after it ([]: all stopped): one that cannot be stopped (another user's, or
+ * an administrator's) is. */
 const GONE_WAIT_MS = 10000;
 async function kill(list) {
   const live = alive(list);
-  if (!live.length) return true;
+  if (!live.length) return [];
   if (process.platform === 'win32') await run('taskkill', [...live.flatMap((p) => ['/PID', String(p)]), '/T', '/F']);
   else for (const p of live) { try { process.kill(p, 'SIGKILL'); } catch {} }
-  return waitGone(live, GONE_WAIT_MS);
+  await waitGone(live, GONE_WAIT_MS);
+  return alive(live);
 }
 
 /* A player going around Shroudly is only possible on Windows, where a
@@ -394,7 +396,9 @@ async function open(env, kind = 'player') {
  * the user. Nothing is quit unless Roblox can be opened again, and Roblox is
  * not opened a second time beside one that could not be quit.
  * Resolves { success, pid } or { success: false, code }: 'gone' (none of
- * them runs any more), 'nolauncher', 'notstopped', 'failed'. */
+ * them runs any more), 'nolauncher', 'notstopped' (with `left`, the ones
+ * still running, and `stopped`, how many were quit), 'failed' (quit, but
+ * Roblox could not be opened again). */
 async function restart(env, list) {
   if (process.platform !== 'darwin' && process.platform !== 'win32') return { success: false, code: 'unsupported' };
   if (!(await launcher())) return { success: false, code: 'nolauncher' };
@@ -413,7 +417,7 @@ async function restart(env, list) {
     await run('taskkill', [...these.flatMap((p) => ['/PID', String(p)]), '/T', '/F']);
     gone = await waitGone(these, GONE_WAIT_MS);
   }
-  if (!gone) return { success: false, code: 'notstopped' };
+  if (!gone) { const left = alive(these); return { success: false, code: 'notstopped', left, stopped: these.length - left.length }; }
   const pid = await open(env);
   return pid ? { success: true, pid } : { success: false, code: 'failed' };
 }

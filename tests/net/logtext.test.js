@@ -63,6 +63,7 @@ const LINES = [
   'Autopilot: a Roblox installer went around Shroudly; it was left running (it could not be stopped) and the user was asked to start it again',
   'Autopilot: Roblox went around Shroudly; it was left running (it runs as another user or as administrator) and the user was asked to open it again',
   'Autopilot: a Roblox installer went around Shroudly and was stopped, but the one to start in its place could not be started',
+  'Autopilot: Roblox did not get through Shroudly and was closed, but could not be opened again',
   'Autopilot: Roblox Studio was opened before Shroudly could take it through; the user was asked to reopen it',
   'Autopilot: Roblox still does not get through after being restarted through Shroudly',
   'Autopilot: www.example.org needs Advanced mode; asking for permission',

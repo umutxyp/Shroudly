@@ -9,9 +9,13 @@
  *
  * Roblox reads HTTPS_PROXY once, when it starts, from whoever started it. A
  * program of Roblox's goes around Shroudly when it started without it:
- *  - it was open before the mode came on (any system);
- *  - Windows: it started before the setting was in place (its own start
- *    time says so), or since then from something with an older environment
+ *  - an installer open before the mode came on (any system), or started
+ *    before the setting was in place (Windows: its own start time says so);
+ *  - a player or Studio open before the mode came on (any system) that sends
+ *    no request through Shroudly within QUIET_MS: one may well have it from
+ *    an earlier run of Shroudly (it quit, or updated itself, and the same
+ *    port came back), and a player in a game is never closed on a guess;
+ *  - Windows: it started since then from something with an older environment
  *    (a browser that was open before, a script or a cafe's launcher started
  *    at login before Shroudly): no request from Roblox has reached Shroudly
  *    since it started, and it has run for QUIET_MS. Installers ask for
@@ -32,7 +36,10 @@
  * Roblox to open again. Otherwise (PowerShell missing, blocked or restricted,
  * a program of another user's or an administrator's, no replacement, a stop
  * that did not work) it is left running and the user is asked to start it
- * again. Each process is dealt with once; a player that still does not get
+ * again; of several, only the ones that could not be stopped. One stopped
+ * whose replacement then fails to start: the user is told to start it
+ * again, never left without it unsaid. A player is judged once more right
+ * before it is quit. Each process is dealt with once; a player that still does not get
  * through after two restarts in ten minutes is left to Advanced mode. Acted on
  * only with protection on and where the autopilot found Roblox blocked;
  * stopping protection, or quitting, stops what is under way.
@@ -92,8 +99,10 @@ function originOf(p, from) {
 function judge(p, ctx) {
   const { lastRequestAt = 0, now, setAt = 0, from = null } = ctx;
   const start = startOf(p);
-  // Started before the setting was there: it cannot have it.
-  if (start != null && setAt && start < setAt) return 'around';
+  // An installer started before the setting was there: it cannot have it.
+  // (A player or Studio may have it from an earlier run of Shroudly: judged
+  // by its requests, below.)
+  if (p.role === 'installer' && start != null && setAt && start < setAt) return 'around';
   let since = start != null ? start : p.after;
   if (since == null) {
     // Seen on the first look: its start time is on its way. Not for long:
@@ -118,7 +127,7 @@ function dueAt(p, from = null) {
  * (Infinity: none). */
 function pollDelay({ on, watched, active, blocked, warm, pending, due = Infinity }) {
   if (!on) return SLOW_MS;
-  if (watched && pending) return Math.max(50, Math.min(FAST_MS, due));
+  if (pending) return Math.max(50, Math.min(FAST_MS, due));
   if (watched && warm) return FAST_MS;
   if (watched && active && blocked) return IDLE_MS;
   return SLOW_MS;
@@ -145,9 +154,10 @@ class RobloxWatch {
    * d.same(path, hash)         still that content
    * d.fetch(kind)              the current installer, downloaded through the engine and
    *                            found signed by Roblox, not started: { success, file, hash, code }
-   * d.kill(pids) -> stopped    d.startInstaller(path) -> pid, d.startFetched(r) -> pid
+   * d.kill(pids) -> the ones still running ([]: all stopped)
+   * d.startInstaller(path) -> pid, d.startFetched(r) -> pid
    * d.restart(pids)            quit these players and open Roblox again:
-   *                            { success, pid } or { success: false, code }
+   *                            { success, pid } or { success: false, code, left, stopped }
    * d.log(level, msg), d.tell(id), d.needAdvanced(), d.studioReopen(at)
    */
   constructor(d) {
@@ -243,13 +253,15 @@ class RobloxWatch {
     });
   }
 
-  /* When the first program still being judged falls due (null: none is). */
+  /* When the first program still being judged falls due (null: none is).
+   * Where programs cannot go around Shroudly once the mode is on (macOS),
+   * only the players open before it are. */
   due(now = this.d.now()) {
-    if (!this.d.watched) return null;
     const ctx = this._ctx(now);
     let first = null;
     for (const p of this.procs.values()) {
-      if (this.handled.has(p.pid) || this.ours.has(p.pid) || this.before.has(p.pid) || this.claimed.has(p.pid)) continue;
+      if (this.handled.has(p.pid) || this.ours.has(p.pid) || this._atOnce(p.pid) || this.claimed.has(p.pid)) continue;
+      if (!this.d.watched && !this.before.has(p.pid)) continue;
       if (judge(p, ctx) !== 'waiting') continue;
       const at = p.probing && p.after == null && now - p.firstSeen < INFO_WAIT_MS
         ? Math.min(now + FAST_MS, p.firstSeen + INFO_WAIT_MS) : dueAt(p, this.from);
@@ -271,6 +283,16 @@ class RobloxWatch {
   }
 
   _ctx(now) { return { lastRequestAt: this.d.lastRequestAt() || 0, now, setAt: this.setAt, from: this.from }; }
+
+  /* Open before the mode came on and dealt with at once: an installer. */
+  _atOnce(pid) { const p = this.procs.get(pid); return this.before.has(pid) && !!p && p.role === 'installer'; }
+
+  /* The ones open before the mode came on that go around Shroudly: every
+   * installer; a player or Studio only once its silence says so (judge). */
+  _beforeAround(now) {
+    const ctx = this._ctx(now);
+    return [...this.before].filter((pid) => { const p = this.procs.get(pid); return !!p && (p.role === 'installer' || judge(p, ctx) === 'around'); });
+  }
 
   _schedule(ms) {
     if (this.timer) this.d.clearTimeout(this.timer);
@@ -402,7 +424,7 @@ class RobloxWatch {
     if (d.watched) this._probe();
     const dec = decide({
       players: list.players, studios: list.studios, installers: list.installers,
-      quiet: this.quiet(now), before: [...this.before],
+      quiet: this.quiet(now), before: this._beforeAround(now),
       handled: [...this.handled, ...this.ours, ...this.claimed], restarts: this.restarts, now,
     });
     const something = dec.installers.player.length || dec.installers.studio.length || dec.restartPlayers.length || dec.stuckPlayers.length || dec.tellStudios.length;
@@ -486,12 +508,19 @@ class RobloxWatch {
     ps.forEach((p) => this.handled.add(p.pid));
     if (role === 'installer') d.log('warning', `Autopilot: a Roblox installer went around Shroudly; it was left running (${why}) and the user was asked to start it again`);
     else d.log('warning', `Autopilot: Roblox went around Shroudly; it was left running (${why}) and the user was asked to open it again`);
-    const id = role === 'installer' ? 'autoInstallerAround' : 'autoRobloxAround';
-    const now = d.now();
+    this._tell(role === 'installer' ? 'autoInstallerAround' : 'autoRobloxAround');
+  }
+
+  /* The same line to the user at most every TELL_EVERY_MS. */
+  _tell(id) {
+    const now = this.d.now();
     if (now - (this.toldAt.has(id) ? this.toldAt.get(id) : -Infinity) < TELL_EVERY_MS) return;
     this.toldAt.set(id, now);
-    d.tell(id);
+    this.d.tell(id);
   }
+
+  /* What d.kill(pids) says: the ones still running (true: none, false: all). */
+  static left(r, pids) { return Array.isArray(r) ? pids.filter((pid) => r.includes(pid)) : (r ? [] : pids); }
 
   /* Installers around Shroudly, stopped and started again through it:
    * from their own file when that is Roblox's, signed by Roblox (known as
@@ -532,7 +561,12 @@ class RobloxWatch {
     known.forEach((p) => this.handled.add(p.pid));
     // Ended by itself meanwhile: there is nothing to start again.
     if (!live.length) return;
-    if (!(await d.kill(live.map((p) => p.pid)))) { this._leave(live, 'installer', 'it could not be stopped'); return; }
+    const pids = live.map((p) => p.pid);
+    const left = RobloxWatch.left(await d.kill(pids), pids);
+    // One that could not be stopped is left, and the user told; the ones
+    // that were are started again (once: one installer does for them all).
+    this._leave(live.filter((p) => left.includes(p.pid)), 'installer', 'it could not be stopped');
+    if (left.length === pids.length) return;
     let pid = false;
     if (own && await d.same(own.file, own.hash)) pid = await d.startInstaller(own.file);
     else if (own && this._may(gen)) {
@@ -540,7 +574,12 @@ class RobloxWatch {
       fetched = await Promise.resolve().then(() => d.fetch(kind)).catch(() => null);
     }
     if (!pid && fetched && fetched.success) pid = await d.startFetched(fetched);
-    if (!pid) { d.log('error', 'Autopilot: a Roblox installer went around Shroudly and was stopped, but the one to start in its place could not be started'); return; }
+    if (!pid) {
+      // Never a silent loss of the installer: the user starts it again.
+      d.log('error', 'Autopilot: a Roblox installer went around Shroudly and was stopped, but the one to start in its place could not be started');
+      this._tell('autoInstallerStopped');
+      return;
+    }
     if (Number.isInteger(pid)) this.ours.add(pid);
     d.log('success', 'Autopilot: a Roblox installer went around Shroudly; started it again through Shroudly');
     d.tell('autoInstallerRestarted');
@@ -556,25 +595,40 @@ class RobloxWatch {
     if (!this._may(gen)) return;
     const ctx = this._ctx(d.now());
     ps.filter((p) => p.gone).forEach((p) => this.handled.add(p.pid));
-    const still = ps.filter((p) => !p.gone && (this.before.has(p.pid) || judge(p, ctx) === 'around'));
+    const still = ps.filter((p) => !p.gone && judge(p, ctx) === 'around');
     const known = d.info ? still.filter((p) => p.startedAt != null) : still;
     this._leave(still.filter((p) => !known.includes(p)), 'player', still.map((p) => p.why).find(Boolean) || 'its start time is not known');
     if (!known.length) return;
-    const live = await this._verify(known);
+    const verified = await this._verify(known);
     if (!this._may(gen)) return;
-    if (!live) { this._leave(known, 'player', 'it could not be checked again right before'); return; }
-    known.forEach((p) => this.handled.add(p.pid));
+    if (!verified) { this._leave(known, 'player', 'it could not be checked again right before'); return; }
+    // Judged again right before it is quit: a first request that came while
+    // it was being made sure of spares it.
+    const ctx2 = this._ctx(d.now());
+    const live = verified.filter((p) => judge(p, ctx2) === 'around');
+    known.filter((p) => !verified.includes(p) || live.includes(p)).forEach((p) => this.handled.add(p.pid));
     if (!live.length) return;
     const r = await d.restart(live.map((p) => p.pid));
     if (!r || !r.success) {
-      if (r && r.code === 'notstopped') this._leave(live, 'player', 'it could not be stopped');
-      else if (r && r.code === 'nolauncher') this._leave(live, 'player', 'Roblox was not found to open again');
+      if (r && r.code === 'notstopped') {
+        const left = Array.isArray(r.left) ? live.filter((p) => r.left.includes(p.pid)) : live;
+        this._leave(left, 'player', 'it could not be stopped');
+        // Some were quit, and Roblox is not opened beside the one left.
+        if (r.stopped) this._robloxLost();
+      } else if (r && r.code === 'nolauncher') this._leave(live, 'player', 'Roblox was not found to open again');
+      else if (r && r.code === 'failed') this._robloxLost();
       return;
     }
     if (Number.isInteger(r.pid)) this.ours.add(r.pid);
     this.restarts.push(d.now());
     d.log('success', 'Autopilot: Roblox did not get through Shroudly; restarted it');
     d.tell('autoRobloxRestarted');
+  }
+
+  /* Roblox was quit and could not be opened again: the user opens it. */
+  _robloxLost() {
+    this.d.log('error', 'Autopilot: Roblox did not get through Shroudly and was closed, but could not be opened again');
+    this._tell('autoRobloxStopped');
   }
 }
 

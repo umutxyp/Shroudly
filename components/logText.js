@@ -34,6 +34,7 @@ const EXACT = {
   'Autopilot: Roblox is blocked on this network; Games and apps mode turned on': 'logAutoRobloxOn',
   'Autopilot: a Roblox installer went around Shroudly; started it again through Shroudly': 'logAutoInstaller',
   'Autopilot: a Roblox installer went around Shroudly and was stopped, but the one to start in its place could not be started': 'logAutoInstallerNotStarted',
+  'Autopilot: Roblox did not get through Shroudly and was closed, but could not be opened again': 'logAutoRobloxNotOpened',
   'Firefox is set not to use the system proxy, so it does not go through Shroudly. Close Firefox and Shroudly will set it back.': 'autoFirefoxClose',
   'Firefox was set not to use the system proxy. Shroudly put it back to "Use system proxy settings".': 'autoFirefoxFixed',
   'Autopilot: Roblox Studio was opened before Shroudly could take it through; the user was asked to reopen it': 'logAutoStudio',
