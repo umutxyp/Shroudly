@@ -712,7 +712,8 @@ app.whenReady().then(async () => {
   engine = new EngineManager(store, {
     addLog, onStatusChange: broadcastStatus,
     siteList: () => siteList.domains,
-    // Connections to Discord's voice servers, told to the autopilot: a call
+    // Connections under the domain of Discord's voice servers, told to the
+    // autopilot, which takes one to a voice server's own name for a call
     // starting, in the app or a browser (autopilot.js).
     watch: Autopilot.WATCH,
     proxyOptions: {

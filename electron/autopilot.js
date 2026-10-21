@@ -28,8 +28,9 @@
  * cut, is the network Advanced mode is for. So is Discord, once this network
  * is known to block it, when its app is open and the engine cannot get its
  * page or its gateway through (the app then sits on its "Starting" screen),
- * or when a call is starting (the engine tells each connection to one of
- * Discord's voice servers, from the app or a browser): the sound of a call
+ * or when a call is starting (the engine tells each connection under the
+ * domain of Discord's voice servers, from the app or a browser, and a call
+ * is one to a voice server's own name): the sound of a call
  * goes over UDP, which the default engine never touches, and only Advanced
  * mode can put its decoys ahead of it. It needs the system's permission, so
  * it is asked for at most once a session, not again by itself for two weeks
@@ -61,18 +62,24 @@ function familyOf(host) {
   return null;
 }
 
-/* What Advanced mode does for a service beyond any site: its voice servers
- * (main.js asks the engine to tell each connection to one), and the names
- * its app cannot start without (its own page and its gateway). */
+/* What Advanced mode does for a service beyond any site: its voice servers,
+ * and the names its app cannot start without (its own page and its
+ * gateway). main.js asks the engine to tell each connection under `watch`;
+ * of those, a call is one to a voice server (`call`): one server in one
+ * region, handed to the client for that call, named after both
+ * ("c-fra06-1a2b3c4d"; older ones "rotterdam1234", "us-east123"). Never the
+ * names every open client fetches whether or not anyone calls:
+ * latency.discord.media, which ranks the regions, or the domain itself. */
 const ADVANCED = {
   discord: {
-    voice: ['discord.media'],
+    watch: ['discord.media'],
+    call: (h) => /^(c-[a-z]+\d+-[0-9a-f]+|[a-z]+(-[a-z]+)*-?\d+)\.discord\.media$/.test(h),
     core: (h) => h === 'discord.com' || h === 'www.discord.com' || /^gateway(-[a-z0-9-]+)?\.discord\.gg$/.test(h),
   },
 };
 function voiceOf(host) {
   const h = norm(host);
-  for (const [id, a] of Object.entries(ADVANCED)) if (a.voice.some((d) => under(h, d))) return id;
+  for (const [id, a] of Object.entries(ADVANCED)) if (a.call(h)) return id;
   return null;
 }
 
@@ -306,7 +313,7 @@ class Autopilot {
 
   /* A sign, in what the engine said, that a service needs Advanced mode
    * here (see the top of this file):
-   *  - any word about one of its voice servers: a call starting;
+   *  - a connection to one of its voice servers: a call starting;
    *  - no technique getting its own page or gateway open (a silent failure,
    *    or one while its other names answer, included; never the server's own
    *    refusal), another of its names that no technique opens, or a cut the
@@ -428,7 +435,7 @@ module.exports.antiCheatRunning = antiCheatRunning;
 module.exports.familyOf = familyOf;
 module.exports.voiceOf = voiceOf;
 // The domains the engine is asked to tell each connection to (--watch).
-module.exports.WATCH = Object.values(ADVANCED).flatMap((a) => a.voice);
+module.exports.WATCH = Object.values(ADVANCED).flatMap((a) => a.watch);
 module.exports.SIGN_MS = SIGN_MS;
 module.exports.networkFingerprint = networkFingerprint;
 module.exports.ipv6Groups = ipv6Groups;

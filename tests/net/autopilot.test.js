@@ -320,9 +320,12 @@ const settle = async () => { for (let i = 0; i < 5; i++) await new Promise((r) =
       };
       return { st, r: rig({ blocked: ['discord.com'], adv, running: { discord: !!opts.running, roblox: false }, store: opts.store }) };
     };
-    t.ok(Autopilot.voiceOf('c-ist01-1a2b.discord.media') === 'discord' && Autopilot.voiceOf('discord.media') === 'discord'
-      && Autopilot.voiceOf('discord.com') === null && Autopilot.voiceOf('notdiscord.media') === null && Autopilot.WATCH.join() === 'discord.media',
-      "Discord's voice servers are recognised, and they are what the engine is asked to tell");
+    t.ok(['c-ist01-1a2b.discord.media', 'C-FRA06-61574A2C.Discord.Media.', 'rotterdam1234.discord.media', 'us-east123.discord.media',
+      'sweetwater-12345.discord.media'].every((h) => Autopilot.voiceOf(h) === 'discord') && Autopilot.WATCH.join() === 'discord.media',
+    "Discord's voice servers are recognised, in today's names and older ones, and their domain is what the engine is asked to tell");
+    t.ok(['latency.discord.media', 'discord.media', 'x.c-fra06-1.discord.media', 'discord.com', 'notdiscord.media', 'c-fra06-1.discord.media.example']
+      .every((h) => Autopilot.voiceOf(h) === null),
+    "but no other name there: the region test every open client fetches (latency.discord.media) and the domain itself are no call");
     {
       const { st, r } = advRig({ running: true });
       await r.ap.survey();
@@ -357,6 +360,26 @@ const settle = async () => { for (let i = 0; i < 5; i++) await new Promise((r) =
       await settle();
       t.ok(st.prompts === 1 && r.told.find((x) => x.id === 'autoAdvancedOn').p.host === 'discord',
         'a call starting (a voice server, from a browser too) on a network that blocks Discord: Advanced mode, for the sound that goes over UDP');
+    }
+    {
+      // Discord's app fetches latency.discord.media to rank the regions each
+      // time it connects, call or not: on a network known to block Discord,
+      // with the app open, that is no call and asks nothing.
+      const { st, r } = advRig({ running: true });
+      await r.ap.survey();
+      r.ap.noteHost('seen', 'latency.discord.media');
+      r.ap.noteHost('seen', 'discord.media');
+      await settle();
+      t.ok(st.prompts === 0 && !r.told.some((x) => x.id === 'autoAdvancedAsk') && !r.ap.signs.size,
+        'the region test seen on a network that blocks Discord, its app open: no call, no prompt');
+      r.ap.noteHost('seen', 'c-ist01-77.discord.media');
+      await settle();
+      t.ok(st.prompts === 1 && r.logs.some((l) => /c-ist01-77\.discord\.media needs Advanced mode \(a discord call is starting/.test(l)),
+        'a voice server right after: Advanced mode is asked for, as before');
+      const b = advRig({ running: true });
+      b.r.ap.noteHost('seen', 'latency.discord.media');
+      await settle();
+      t.ok(!b.r.asked.length && b.st.prompts === 0, 'before Discord was looked at, the region test is no reason to check it either');
     }
     {
       // The call before the check: the check is of discord.com, not of the

@@ -32,9 +32,10 @@ typedef struct {
   /* --watch: domains the app wants to hear about. A connection to one of them
    * or to a name under it is told as {"type":"seen","host":...}, once per
    * name every ENGINE_WATCH_EVERY_MS; nothing about the connection changes.
-   * The desktop app watches Discord's voice servers: a call starting, in a
-   * browser or in the app, whose sound then goes over UDP, which only the
-   * Advanced mode can do anything for. */
+   * The desktop app watches the domain of Discord's voice servers, and takes
+   * a connection to a voice server's own name (not the other names there)
+   * for a call starting, in a browser or in the app, whose sound then goes
+   * over UDP, which only the Advanced mode can do anything for. */
 #define ENGINE_WATCH_MAX      8
 #define ENGINE_WATCH_EVERY_MS (10 * 60 * 1000)
   char     watch[ENGINE_WATCH_MAX][128];

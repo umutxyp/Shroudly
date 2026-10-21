@@ -338,6 +338,9 @@ the app had no way to know a call was starting. `--watch <domain>`
 (repeatable) makes the engine print `{"type":"seen","host":...}` for a
 connection to that domain or a name under it, once per name every 10 minutes,
 changing nothing about the connection. The desktop app watches
-`discord.media`: on a network known to block Discord, the autopilot then asks
-for Advanced mode (`electron/autopilot.js`). `core/test/test_engine.c`
-(section 13), `tests/net/engine-watch.test.js`.
+`discord.media` and takes a call only from a voice server's own name (one
+server in one region, `c-fra06-1a2b3c4d`), never from the names every open
+client fetches there (`latency.discord.media`, which ranks the regions): on a
+network known to block Discord, the autopilot then asks for Advanced mode
+(`electron/autopilot.js`). `core/test/test_engine.c` (section 13),
+`tests/net/engine-watch.test.js`, `tests/net/autopilot.test.js`.
