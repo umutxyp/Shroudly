@@ -23,6 +23,18 @@
  * exact previous settings. A restore puts back only what still points at our
  * proxy, so it never undoes a change the user (or another program) made since.
  *
+ * While protection is on, the setting is read back every so often. Another
+ * program removing it, or putting a PAC of its own on this computer in its
+ * place, has it set back, every time, and one line says so; a manual proxy or
+ * a PAC elsewhere chosen meanwhile is left alone and reported; a program that
+ * answers every set-back by taking it again at once is left to it after the
+ * third time in a row, and named when it can be (checkOwnership).
+ *
+ * A user's own PAC or manual proxy from before Shroudly that is served on
+ * this computer is put back only while something still listens there: one
+ * whose program has gone is switched off instead, its address kept, never
+ * left pointing at nothing (macOS, GNOME, KDE; _pacGone).
+ *
  * Every system is pointed at the same thing: a PAC file served over loopback
  * HTTP, set as the system's automatic proxy configuration. It is the one
  * setting through which every browser speaks SOCKS5 to us with the name, not
@@ -55,6 +67,7 @@ const os = require('os');
 const fs = require('fs');
 const path = require('path');
 const Watchdog = require('./watchdog');
+const procnet = require('./procnet');
 
 const WIN_KEY = 'HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings';
 const WIN_VALUES = ['ProxyEnable', 'ProxyServer', 'AutoConfigURL', 'ProxyOverride'];
@@ -68,10 +81,17 @@ const MAC_AGENT_LABEL = 'me.codeshare.shroudly.proxy-restore';
 const MAC_NETWORKSETUP = '/usr/sbin/networksetup';
 // The only networksetup verbs ever run with the administrator's password.
 const MAC_ELEVATED_VERBS = new Set(['-setautoproxyurl', '-setautoproxystate', '-setsocksfirewallproxy', '-setsocksfirewallproxystate']);
+// The manual proxies of a service, as read for the record (prevManual).
+const MAC_MANUAL = [['secure', '-getsecurewebproxy'], ['web', '-getwebproxy'], ['socks', '-getsocksfirewallproxy']];
+// Whether something still listens where the user's own PAC was served, in the
+// root helper's restore (see _pacGone).
+const MAC_NC = '/usr/bin/nc';
 const KDE_GROUP = 'Proxy Settings';
 const KDE_TYPE = 'ProxyType';
 const KDE_SCRIPT = 'Proxy Config Script';
-const OUR_PAC = /^http:\/\/127\.0\.0\.1:\d+\/proxy\.pac$/;
+// Any case: a settings window that writes the address back in capitals is
+// still pointing at us.
+const OUR_PAC = /^http:\/\/127\.0\.0\.1:\d+\/proxy\.pac$/i;
 // The PAC's port: the first free one of these. Below the ports every system
 // hands out at random (Linux 32768 and up, Windows and macOS 49152 and up),
 // so a program that happens to hold one at the next login cannot move an
@@ -84,7 +104,31 @@ const PAC_PORT_COUNT = 20;
 // What the PAC answers while protection is off and Shroudly still runs, on
 // desktops where browsers keep its address (see _parkPacServer).
 const PAC_DIRECT = 'function FindProxyForURL(url, host) {\n  return "DIRECT";\n}\n';
+// How often the setting is read back while applied. Windows: one reg.exe
+// query, so often, which keeps the time traffic goes around Shroudly after a
+// takeover short; elsewhere one or more networksetup or gsettings calls.
 const OWNERSHIP_INTERVAL_MS = 60000;
+const OWNERSHIP_INTERVAL_WIN_MS = 20000;
+// Another program taking the setting over is answered by setting it back,
+// every time, unless it is answering Shroudly: it took it again within
+// FIGHT_WINDOW_MS of each set-back, RETAKE_LIMIT times in a row. Then it is
+// fighting for it, and Shroudly stops and says so instead of trading places
+// with it for as long as both run. A program that answers a change does so
+// as soon as it sees it: one that watches the setting at once, one that reads
+// it every few seconds within those seconds, and after a set-back the setting
+// is read again within the window (RETAKE_LOOKS_MS) to see it. The takeovers
+// in issue #27, each by something starting with Discord, came a minute and
+// more apart, 66 s at the closest: 30 s stays well clear of them, and a
+// takeover that follows a program start Shroudly saw (checkSoon) never counts.
+const FIGHT_WINDOW_MS = 30000;
+const RETAKE_LIMIT = 3;
+const RETAKE_LOOKS_MS = [3000, 12000, 25000];
+// A takeover is read again this long after it was first seen, before
+// anything is set back: a program in the middle of changing several values
+// has finished by then, and a value that was only gone for a moment is back.
+const TAKEOVER_CONFIRM_MS = 1500;
+// What is set back by itself (see checkOwnership).
+const RETAKE_KINDS = new Set(['cleared', 'local', 'ours']);
 // macOS, administrator path: how long a restore waits for the root helper
 // before doing anything itself (it never asks for the password while the
 // helper is still at work), and how long the exit path waits at most: it
@@ -110,12 +154,16 @@ const reEsc = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 const XPROFILE_BLOCK = new RegExp(`(^|\\n)(${reEsc(XPROFILE_BEGIN)}\\n${XPROFILE_EXPORT.source.slice(1, -1)}\\n${reEsc(XPROFILE_END)}(?:\\n|$))`);
 const LXQT_GROUP = 'Environment';
 
-function run(cmd, args, timeout = 8000) {
+/* onChild(child) is handed the process: a restore that comes while a
+ * set-back's command runs stops it, so it cannot write after the restore
+ * (_retake). */
+function run(cmd, args, timeout = 8000, onChild = null) {
   return new Promise((resolve, reject) => {
-    execFile(cmd, args, { timeout, windowsHide: true }, (err, stdout, stderr) => {
+    const child = execFile(cmd, args, { timeout, windowsHide: true }, (err, stdout, stderr) => {
       if (err) { err.stdout = stdout; err.stderr = stderr; return reject(err); }
       resolve(String(stdout || ''));
     });
+    if (onChild) onChild(child);
   });
 }
 
@@ -152,8 +200,10 @@ function bootId() {
 }
 
 /* Everything that reaches outside the process goes through here, so the tests
- * can stand in for reg.exe, networksetup, gsettings and kwriteconfig. */
-const REAL_EXEC = { run, runSync, spawnDetached, alive, sleepSync, bootId };
+ * can stand in for reg.exe, networksetup, gsettings and kwriteconfig, and for
+ * what listens on this computer (listening: true, false, or null when it
+ * cannot be told). */
+const REAL_EXEC = { run, runSync, spawnDetached, alive, sleepSync, bootId, listening: (port) => procnet.listeningSync(port) };
 let exec = REAL_EXEC;
 
 /* Shell-quote one argument for /bin/sh: everything literal. */
@@ -242,8 +292,14 @@ class SystemProxy {
    * opts.watchdog       watchdog.js options (the engine binary in its watchdog
    *                     mode and the restore command it runs)
    * opts.restoreCommand { exe, args } run once at next login if we never restore
-   * opts.onOwnership    (owned, { lost }) when another program takes the system
-   *                     proxy over while we are applied, and if it comes back
+   * opts.onOwnership    (owned, { lost, takeover, gaveUp, by }) when another
+   *                     program takes the system proxy over while we are
+   *                     applied and it is left to it, and when it comes back
+   *                     (see checkOwnership)
+   * opts.whoTookIt      async (takeover) => names of the programs that most
+   *                     likely did it, for the line said when Shroudly stops
+   *                     setting it back
+   * opts.autoRetake     false: a takeover is only reported, never set back
    * opts.portStore      { get(), set(port) }: the PAC's port, kept from run to
    *                     run on Linux desktops where its address is written for
    *                     the next login
@@ -261,7 +317,14 @@ class SystemProxy {
     this.watchdogOpts = opts.watchdog || null;
     this.restoreCommand = opts.restoreCommand || null;
     this.onOwnership = opts.onOwnership || null;
-    this.ownershipIntervalMs = opts.ownershipIntervalMs || OWNERSHIP_INTERVAL_MS;
+    this.whoTookIt = opts.whoTookIt || null;
+    this.autoRetake = opts.autoRetake !== false;
+    this.ownershipIntervalMs = opts.ownershipIntervalMs || (this.platform === 'win32' ? OWNERSHIP_INTERVAL_WIN_MS : OWNERSHIP_INTERVAL_MS);
+    this.takeoverConfirmMs = opts.takeoverConfirmMs ?? TAKEOVER_CONFIRM_MS;
+    this.fightWindowMs = opts.fightWindowMs || FIGHT_WINDOW_MS;
+    this.retakeLimit = opts.retakeLimit || RETAKE_LIMIT;
+    this.retakeLooksMs = opts.retakeLooksMs || RETAKE_LOOKS_MS;
+    this._now = opts.now || Date.now; // tests: the clock a fight is timed by
     this.portStore = opts.portStore || null;
     this.envStateFile = opts.envStateFile || SystemProxy._envStateFileFor(opts.stateFile);
     this.adminPrompt = opts.adminPrompt || null;
@@ -283,6 +346,12 @@ class SystemProxy {
     this.list = [];      // domains routed through the proxy in 'listed' mode
     this._ownTimer = null;
     this._owned = true;
+    this._fight = 0;        // takeovers in a row, each an answer to a set-back (see checkOwnership)
+    this._retakenAt = 0;    // when Shroudly last set it back
+    this._gaveUp = false;   // it kept answering, and is no longer answered
+    this._soon = [];        // checks asked for ahead of the timer (checkSoon)
+    this._retaking = null;  // a set-back under way (see _retake)
+    this._gone = new Map(); // the user's PACs found no longer served (see _pacGone)
   }
 
   /* Tests only: stand-ins for the commands above. null puts the real ones back. */
@@ -623,16 +692,29 @@ ${local}
   }
 
   /* Synchronous restore, for process exit and session end. Never asks for a
-   * password and never waits long. */
+   * password and never waits long.
+   * A set-back of a takeover still writing (macOS, Linux, where its commands
+   * are awaited; restore() waits for it, this cannot) is cut short: it
+   * writes nothing more, the command it is in is stopped, and every setting
+   * it began to write is put back with the rest, whatever it shows now (it
+   * was about to show our PAC). The restore wins: nothing of ours is left
+   * set after it, and nothing without its record. */
   restoreSync() {
     if (!this.applied) { this._parkPacServer(); return true; }
     this._restoring = true;
     this._stopOwnershipWatch();
+    const job = this._retaking;
+    if (job) {
+      job.cancelled = true;
+      // TERM, which sudo passes on to the networksetup it runs.
+      try { if (job.child) job.child.kill('SIGTERM'); } catch {}
+    }
+    const force = job ? job.touched : new Set();
     let done = true;
     try {
       if (this.platform === 'win32') this._restoreWindows();
-      else if (this.platform === 'darwin') done = this._restoreMacSync();
-      else this._restoreLinuxSync();
+      else if (this.platform === 'darwin') done = this._restoreMacSync(force);
+      else this._restoreLinuxSync(force);
     } catch {}
     if (done && this._stillOursQuiet()) done = false;
     this._disarm({ keepState: !done });
@@ -737,6 +819,10 @@ ${local}
     this._stopOwnershipWatch();
     this._owned = true;   // a takeover belongs to the session it happened in
     this._lost = [];
+    this._fight = 0;
+    this._retakenAt = 0;
+    this._gaveUp = false;
+    this._gone = new Map();
     if (keepState) { this._armed = false; return; }
     this._unarm();
   }
@@ -796,11 +882,12 @@ ${argsXml}
   }
 
   // ── is it still ours? ──────────────────────────────────────────────────
-  /* Every minute while applied: the same settings a recovery reads, so a VPN
-   * client, another bypass tool or the user taking the system proxy over is
-   * noticed and can be told, instead of Shroudly showing itself as protecting
-   * traffic that no longer reaches it. Asynchronous and one small read per
-   * setting (reg.exe, networksetup, gsettings, or a file on KDE). */
+  /* While applied, every 20 s on Windows and every minute elsewhere: the
+   * same settings a recovery reads, so a VPN client, another bypass tool or
+   * the user taking the system proxy over is noticed, instead of Shroudly
+   * showing itself as protecting traffic that no longer reaches it.
+   * Asynchronous and one small read per setting (reg.exe, networksetup,
+   * gsettings, or a file on KDE). What is done about it: checkOwnership. */
   _startOwnershipWatch() {
     if (!this.onOwnership || this._ownTimer) return;
     this._owned = true;
@@ -810,10 +897,73 @@ ${argsXml}
 
   _stopOwnershipWatch() {
     if (this._ownTimer) { clearInterval(this._ownTimer); this._ownTimer = null; }
+    for (const t of this._soon) clearTimeout(t);
+    this._soon = [];
   }
 
-  /* Returns the settings no longer ours ([] when all are), or null when they
-   * could not be read. Tells onOwnership only when that changes. */
+  /* A look ahead of the timer, at the moments another program most often
+   * takes the setting (a Discord starting, a program restarted): traffic
+   * then goes around Shroudly for seconds, not for up to a whole interval.
+   * A program has just started: a takeover that follows is that start's
+   * doing, not an answer to Shroudly setting it back, and starts no fight
+   * (in issue #27 Discord started again and again, some starts seconds
+   * apart, and something started with it took the setting each time). */
+  checkSoon(delays = [3000, 12000]) {
+    if (!this._ownTimer) return;
+    this._fight = 0;
+    this._retakenAt = 0;
+    this._lookAgain(delays);
+  }
+
+  _lookAgain(delays) {
+    if (!this._ownTimer) return;
+    for (const ms of delays) {
+      const t = setTimeout(() => {
+        this._soon = this._soon.filter((x) => x !== t);
+        this.checkOwnership().catch(() => {});
+      }, ms);
+      if (t.unref) t.unref();
+      this._soon.push(t);
+    }
+  }
+
+  /*
+   * Returns the settings no longer ours ([] when all are, or once they were
+   * set back), or null when they could not be read.
+   *
+   * Taken over while protection is on, the setting is set back (retake), and
+   * one line says so, when what is there now is no choice of the user's
+   * (_takeoverInfo):
+   *   'cleared'  our PAC removed, nothing in its place
+   *   'local'    another PAC served on this computer: another proxy tool's
+   *   'ours'     a PAC of Shroudly's at another address
+   * It is left alone, and reported as before (the window offers "Set
+   * Shroudly again"), when it is:
+   *   'manual'   a manual proxy server switched on or changed since Shroudly
+   *              applied: the user's, or a VPN's they started
+   *   'pac'      a PAC file somewhere else: a company's, or the user's own,
+   *              or (GNOME) one found on the network
+   * or when it cannot be read. What is left alone is read again at every
+   * check, and set back once it is gone: a VPN that switches its manual proxy
+   * off when it disconnects leaves nothing behind it.
+   *
+   * It is set back every time, however often other programs take it, as
+   * long as each takeover is one of its own (a program starting, a tool
+   * cleaning up). Only a program that answers Shroudly is fought no more:
+   * one that takes it again within FIGHT_WINDOW_MS of each set-back,
+   * RETAKE_LIMIT times in a row (it sets its own whenever the setting
+   * changes). The setting is read again within the window after every
+   * set-back (RETAKE_LOOKS_MS), so such an answer is seen in time. Then
+   * Shroudly stops setting it back, names the program when it can
+   * (whoTookIt), and leaves it to the user, until the setting is ours again
+   * or the user sets it again (a new session). A takeover that comes later
+   * than the window, or after a program start (checkSoon), begins a new
+   * count, and so does the setting staying ours.
+   *
+   * Setting it back changes only the setting: the snapshot, the state file
+   * and the PAC server stay, so Stop still puts back what the user had
+   * before Shroudly. Tells onOwnership when what the window shows changes.
+   */
   async checkOwnership() {
     if (!this.applied || this._checking || this._restoring) return null;
     this._checking = true;
@@ -821,21 +971,351 @@ ${argsXml}
     // snapshot, maybe a new address) makes its answer half old, half new.
     const snap = this.snapshot;
     const url = this.pacUrl;
+    // A stop that began while this was reading is ours going away, and a
+    // re-apply meanwhile is not anyone else's doing either.
+    const stale = () => !this.applied || this._restoring || this.snapshot !== snap || this.pacUrl !== url;
+    const tell = (owned, info) => { if (this.onOwnership) { try { this.onOwnership(owned, info); } catch {} } };
     try {
-      const lost = await this._lostSettings(snap || {}, url);
-      // A stop that began while this was reading is ours going away, and a
-      // re-apply meanwhile is not anyone else's doing either.
-      if (lost === null || !this.applied || this._restoring || this.snapshot !== snap || this.pacUrl !== url) return lost;
-      const owned = lost.length === 0;
-      if (!owned) this._lost = lost;
-      if (owned !== this._owned) {
-        this._owned = owned;
-        if (owned) this.log('info', 'The system proxy points at Shroudly again');
-        else this.log('warning', `Another program changed the system proxy (${lost.join(', ')}): that traffic no longer goes through Shroudly`);
-        if (this.onOwnership) { try { this.onOwnership(owned, { lost }); } catch {} }
+      let lost = await this._lostSettings(snap || {}, url);
+      if (lost === null || stale()) return lost;
+      // When it was seen taken: what a fight is timed by.
+      const seenAt = this._now();
+      if (lost.length && this._owned && this.takeoverConfirmMs > 0) {
+        await new Promise((r) => setTimeout(r, this.takeoverConfirmMs));
+        if (stale()) return null;
+        lost = await this._lostSettings(snap || {}, url);
+        if (lost === null || stale()) return lost;
+      }
+      if (!lost.length) {
+        // Ours for longer than the window since it was set back: nothing
+        // answered that, whatever came before.
+        if (this._retakenAt && seenAt - this._retakenAt > this.fightWindowMs) { this._fight = 0; this._retakenAt = 0; }
+        if (!this._owned) {
+          this._owned = true;
+          this._gaveUp = false;
+          this._fight = 0;
+          this._retakenAt = 0;
+          this._lost = [];
+          this.log('info', 'The system proxy points at Shroudly again');
+          tell(true, { lost: [] });
+        }
+        return lost;
+      }
+      this._lost = lost;
+      // Left to the program that kept taking it, until it is ours again.
+      if (this._gaveUp) return lost;
+      const what = lost.join(', ');
+      const takeover = await this._takeoverInfo(snap || {}, url);
+      if (stale()) return null;
+      if (this.autoRetake && this._canRetake(snap) && takeover && RETAKE_KINDS.has(takeover.kind)) {
+        // Taken again soon after Shroudly set it back: one more answer in a
+        // row. Anything else is a takeover of its own, and counts from one.
+        const answer = this._retakenAt > 0 && seenAt - this._retakenAt <= this.fightWindowMs;
+        this._fight = answer ? this._fight + 1 : 1;
+        if (this._fight < this.retakeLimit) {
+          const r = await this._serial(() => this._retake(snap, url, lost));
+          if (stale()) return null;
+          // Not written at all (refused): nothing to answer, and tried again
+          // next time.
+          if (r === 'failed') this._fight -= 1;
+          // Written: read again soon, to see whether something answers it.
+          if (r === 'ok' || r === 'reverted') { this._retakenAt = this._now(); this._lookAgain(this.retakeLooksMs); }
+          if (r === 'ok') {
+            const was = this._owned;
+            this._owned = true;
+            this._lost = [];
+            this.log('info', `Autopilot: another program changed the system proxy (${what}); set it back to Shroudly`);
+            if (!was) tell(true, { lost: [], retaken: true });
+            return [];
+          }
+        } else {
+          this._gaveUp = true;
+          let by = [];
+          try { by = this.whoTookIt ? (await this.whoTookIt(takeover)) || [] : []; } catch {}
+          if (stale()) return null;
+          by = [...new Set(by.filter((n) => typeof n === 'string' && n.trim()).map((n) => n.trim()))].slice(0, 3);
+          this._owned = false;
+          this.log('warning', by.length
+            ? `Another program keeps changing the system proxy (${what}), probably ${by.join(', ')}; Shroudly stopped setting it back. Close it or turn off its proxy setting, then set Shroudly again.`
+            : `Another program keeps changing the system proxy (${what}); Shroudly stopped setting it back. Close the other proxy or VPN program, then set Shroudly again.`);
+          tell(false, { lost, takeover, gaveUp: true, by });
+          return lost;
+        }
+      }
+      if (this._owned) {
+        this._owned = false;
+        this.log('warning', `Another program changed the system proxy (${what}): that traffic no longer goes through Shroudly`);
+        tell(false, { lost, takeover });
       }
       return lost;
     } finally { this._checking = false; }
+  }
+
+  /* "Set Shroudly again", pressed by the user over a takeover Shroudly sets
+   * back by itself ('cleared', 'local', 'ours'): set back at once, the same
+   * way, and any fight forgotten. The snapshot stays, so Stop still puts
+   * back what the user had before Shroudly. Resolves to the status (code
+   * 'replaced' when it was taken again at once), or null when it is none of
+   * those (a manual proxy, a PAC elsewhere, a macOS setting that needs the
+   * administrator's password): EngineManager then sets it again with a new
+   * snapshot, so that Stop brings that newer choice back. */
+  async retakeNow() {
+    const snap = this.snapshot;
+    const url = this.pacUrl;
+    if (!this.applied || this._restoring || !this._canRetake(snap)) return null;
+    const lost = await this._lostSettings(snap, url);
+    if (lost === null) return null;
+    if (lost.length) {
+      const takeover = await this._takeoverInfo(snap, url);
+      if (!takeover || !RETAKE_KINDS.has(takeover.kind)) return null;
+      const r = await this._serial(() => this._retake(snap, url, lost));
+      if (r === 'stale' || r === 'failed' || this.snapshot !== snap) return null;
+      // Something may answer this too: it counts from here.
+      this._retakenAt = this._now();
+      this._lookAgain(this.retakeLooksMs);
+      if (r === 'reverted') {
+        this._gaveUp = false;
+        this._fight = 1;
+        this._owned = false;
+        this._lost = lost;
+        return { ...this.status, ok: false, code: 'replaced', lost, takeover, replacedFrom: this.status };
+      }
+    }
+    this._owned = true;
+    this._gaveUp = false;
+    this._fight = 0;
+    this._lost = [];
+    return this.status;
+  }
+
+  /* Setting it back can be done without asking anyone: everywhere except a
+   * macOS setting made with an administrator's password. */
+  _canRetake(snap) {
+    if (!snap) return false;
+    if (this.platform === 'win32') return snap.form === 'pac';
+    if (this.platform === 'darwin') return snap.mode === 'system';
+    return snap.mode === 'desktop';
+  }
+
+  /* Our PAC set again where it was lost, and read back: 'ok', 'reverted'
+   * (taken again at once), 'failed' (could not be written or read) or
+   * 'stale' (a stop or a re-apply came first: nothing left done).
+   *
+   * One command at a time, each only while protection is still on with this
+   * record: a restore (restore() waits for this; restoreSync(), at a session
+   * end or a quit, cannot) wins over it. restoreSync() marks it cancelled,
+   * stops the command it is in, and puts back every setting it began to
+   * write; this then writes nothing more, and what landed after the restore
+   * all the same is put back from the same record (_undoRetake). So our PAC
+   * is never left set once the record of the user's own settings is gone,
+   * and a restore is never undone. */
+  async _retake(snap, url, lost) {
+    const job = { cancelled: false, child: null, touched: new Set() };
+    const live = () => !job.cancelled && this.applied && !this._restoring && this.snapshot === snap && this.pacUrl === url;
+    if (!live()) return 'stale';
+    const STALE = new Error('stale');
+    const write = async (what, cmd, args, timeout) => {
+      if (!live()) throw STALE;
+      job.touched.add(what);
+      try { await exec.run(cmd, args, timeout, (child) => { job.child = child; }); } finally { job.child = null; }
+      if (!live()) throw STALE;
+    };
+    this._retaking = job;
+    try {
+      try {
+        if (this.platform === 'win32') {
+          job.touched.add('AutoConfigURL');
+          regSet('AutoConfigURL', 'REG_SZ', url);
+          this._refreshWinInet();
+        } else if (this.platform === 'darwin') {
+          const sudoOk = await this._macSudoNonInteractive();
+          for (const s of (snap.services || []).filter((x) => x.applied && lost.includes(x.name))) {
+            for (const args of SystemProxy._macApplyArgs(s.name, url)) {
+              await (sudoOk ? write(s.name, 'sudo', ['-n', 'networksetup', ...args], 6000) : write(s.name, 'networksetup', args, 6000));
+            }
+          }
+        } else {
+          if (snap.gnome && lost.includes('GNOME')) {
+            await write('GNOME', 'gsettings', ['set', 'org.gnome.system.proxy', 'autoconfig-url', url], 8000);
+            await write('GNOME', 'gsettings', ['set', 'org.gnome.system.proxy', 'mode', 'auto'], 8000);
+          }
+          if (snap.kde && lost.includes('KDE')) {
+            if (!live()) throw STALE;
+            job.touched.add('KDE');
+            this._kdeWriteSync(snap.kde.file, { [KDE_TYPE]: '2', [KDE_SCRIPT]: url });
+            this._kdeNotify();
+          }
+        }
+      } catch (e) {
+        if (e === STALE || !live()) { this._undoRetake(snap, job); return 'stale'; }
+        return 'failed';
+      }
+      // The record to put things back by goes with every setting of ours: one
+      // that was taken away meanwhile is written again. Never after a
+      // restore, which took it away on purpose.
+      if (this._armed && this.stateFile && !fs.existsSync(this.stateFile)) { this._saveState(); this._installLoginHook(); }
+      const after = await this._lostSettings(snap, url);
+      if (!live()) { this._undoRetake(snap, job); return 'stale'; }
+      if (after === null) return 'failed';
+      return after.length ? 'reverted' : 'ok';
+    } finally {
+      if (this._retaking === job) this._retaking = null;
+    }
+  }
+
+  /* A set-back cut short by a restore (see _retake): a command of it that
+   * landed after the restore all the same (our address, or a PAC switched
+   * on again) is undone by writing the record back once more over every
+   * setting it touched, as the restore did, whatever it shows now. A
+   * separate SystemProxy does it, holding only that record: this one's
+   * state file and login hook are the restore's business. */
+  _undoRetake(snap, job) {
+    if (!job.touched.size || (this.applied && !job.cancelled)) return;
+    const p = new SystemProxy(this.log, { platform: this.platform, env: this.env });
+    p.snapshot = snap;
+    p.socksPort = this.socksPort;
+    p._kdeToolName = this._kdeToolName;
+    p._gone = this._gone;
+    p.applied = true;
+    p._retaking = { cancelled: false, child: null, touched: job.touched };
+    try { p.restoreSync(); } catch {}
+  }
+
+  /* reg.exe ended with 1: the value is not there. Anything else (it did not
+   * start, it was stopped after its time, a virus scanner held it) says
+   * nothing about the value. */
+  static _regMissing(e) {
+    return !!e && !e.killed && (e.code === 1 || e.status === 1);
+  }
+
+  /* The same PAC address, whatever case or trailing slash a settings window
+   * wrote it back with. */
+  static _samePac(a, b) {
+    const n = (s) => String(s || '').trim().toLowerCase().replace(/\/+$/, '');
+    return !!n(b) && n(a) === n(b);
+  }
+
+  /* A PAC address that is not ours, by where it is served (see
+   * checkOwnership). */
+  static _pacKind(u) {
+    const pac = String(u || '').trim();
+    if (!pac) return { kind: 'cleared' };
+    if (OUR_PAC.test(pac)) return { kind: 'ours', pac };
+    let host = '';
+    let port = 0;
+    try {
+      const p = new URL(pac);
+      host = p.hostname.replace(/^\[|\]$/g, '').toLowerCase();
+      port = Number(p.port) || (p.protocol === 'https:' ? 443 : p.protocol === 'http:' ? 80 : 0);
+    } catch { return { kind: 'pac', pac }; }
+    if (/^127\./.test(host) || host === 'localhost' || host === '::1') return { kind: 'local', pac, port, host };
+    return { kind: 'pac', pac };
+  }
+
+  /* The user's own proxy from before Shroudly, about to be put back, is
+   * served on this computer and nothing listens there any more: the program
+   * that served it has gone (it often removed it as it went, which had
+   * Shroudly set its own back meanwhile). Put back, a manual proxy would cut
+   * every program off (there is no going around one that does not answer),
+   * and a PAC would point at nothing. It is switched off instead, its
+   * address kept where it was, so turning it on again is all it takes; one
+   * line says so. A proxy elsewhere, one something still listens for, and
+   * one that cannot be told about come back as before. The same at Stop, a
+   * quit, a session end and after a crash (the watchdog, the login hook, the
+   * next start): at a session end its program may be ending too, and off,
+   * the address kept, is then the safe side.
+   * macOS, GNOME and KDE. Not Windows: its PAC setting is only the address,
+   * which switching off would lose for good, and WinINET and Chromium go on
+   * without a PAC they cannot fetch (direct, or the manual proxy put back
+   * with it). */
+  _pacGone(u) {
+    const k = SystemProxy._pacKind(u);
+    if (k.kind !== 'local' || !k.port) return false;
+    return this._localGone(k.pac, [{ host: k.host, port: k.port }]);
+  }
+
+  /* Every one of these servers is on this computer and none is listening:
+   * true only when that is known (see _pacGone). `shown` names them in the
+   * log line. */
+  _localGone(shown, servers) {
+    if (this._gone.has(shown)) return this._gone.get(shown);
+    const loop = (h) => /^127\./.test(h) || h === 'localhost' || h === '::1';
+    let gone = servers.length > 0 && servers.every((x) => loop(String(x.host || '').replace(/^\[|\]$/g, '').toLowerCase()) && x.port > 0);
+    for (const x of gone ? servers : []) {
+      let on = null;
+      try { on = exec.listening(x.port); } catch {}
+      if (on !== false) { gone = false; break; }
+    }
+    this._gone.set(shown, gone);
+    if (gone) this.log('info', `The proxy setting from before Shroudly (${shown}) points at a program on this computer that is no longer running; it was switched off instead of put back`);
+    return gone;
+  }
+
+  /* Of what several services or desktops show, the most deliberate. */
+  static _mostDeliberate(found) {
+    const rank = ['manual', 'pac', 'local', 'ours', 'cleared'];
+    return [...found].sort((a, b) => rank.indexOf(a.kind) - rank.indexOf(b.kind))[0] || { kind: 'cleared' };
+  }
+
+  /* What is set now where our PAC was: { kind, pac?, port?, server? } (see
+   * checkOwnership), or null when it could not be read. */
+  async _takeoverInfo(snap = this.snapshot || {}, url = this.pacUrl) {
+    try {
+      if (this.platform === 'win32') {
+        const read = async (name) => {
+          try { return regParse(name, await exec.run('reg.exe', ['query', WIN_KEY, '/v', name], 4000)); }
+          catch (e) { if (SystemProxy._regMissing(e)) return null; throw e; }
+        };
+        const pac = await read('AutoConfigURL');
+        const on = await read('ProxyEnable');
+        const server = await read('ProxyServer');
+        const enabled = (v) => !!v && /^(0x)?0*1$/i.test(String(v.data).trim());
+        const now = enabled(on) && server ? String(server.data).trim() : '';
+        // The user's own manual proxy, kept under our PAC all along, is not
+        // a new choice: only one switched on or changed since.
+        const before = enabled(snap.ProxyEnable) && snap.ProxyServer ? String(snap.ProxyServer.data).trim() : '';
+        if (now && now !== before) return { kind: 'manual', server: now };
+        return SystemProxy._pacKind(pac && pac.data);
+      }
+      const found = [];
+      if (this.platform === 'darwin') {
+        for (const s of (snap.services || []).filter((x) => x.applied)) {
+          const auto = SystemProxy._macParseAuto(await exec.run('networksetup', ['-getautoproxyurl', s.name], 4000));
+          if (auto.enabled && SystemProxy._samePac(auto.url, url)) continue;
+          // The user's own manual proxy, kept under our PAC all along, is not
+          // a new choice: only one switched on or changed since (prevManual,
+          // read at apply; a record without it counts every one, as before).
+          let manual = '';
+          for (const [key, verb] of MAC_MANUAL) {
+            let p = null;
+            try { p = SystemProxy._macParseSocks(await exec.run('networksetup', [verb, s.name], 4000)); } catch {}
+            const cur = p && p.enabled && p.server ? `${p.server}:${p.port}` : '';
+            const was = s.prevManual && typeof s.prevManual[key] === 'string' ? s.prevManual[key] : null;
+            if (cur && cur !== was) { manual = cur; break; }
+          }
+          found.push(manual ? { kind: 'manual', server: manual } : SystemProxy._pacKind(auto.enabled ? auto.url : ''));
+        }
+        return SystemProxy._mostDeliberate(found);
+      }
+      const unq = (v) => String(v || '').trim().replace(/^'(.*)'$/, '$1');
+      if (snap.gnome && snap.desktop !== 'kde') {
+        const mode = unq(await exec.run('gsettings', ['get', 'org.gnome.system.proxy', 'mode'], 4000));
+        const auto = unq(await exec.run('gsettings', ['get', 'org.gnome.system.proxy', 'autoconfig-url'], 4000));
+        // Automatic with no address: the PAC is found on the network (WPAD),
+        // a choice as deliberate as KDE's 3 below, never "cleared".
+        found.push(mode === 'manual' ? { kind: 'manual' }
+          : mode === 'auto' && !auto ? { kind: 'pac' } : SystemProxy._pacKind(mode === 'auto' ? auto : ''));
+      }
+      if (snap.kde) {
+        const cur = SystemProxy._kdeRead(await fs.promises.readFile(snap.kde.file, 'utf8').catch(() => ''));
+        // 1: manual; 2: a PAC; 3: found on the network; 4: from the
+        // environment. 3 and 4 are choices of the user's too.
+        found.push(cur.type === '1' ? { kind: 'manual' }
+          : cur.type === '2' ? SystemProxy._pacKind(cur.script)
+            : cur.type === '3' || cur.type === '4' ? { kind: 'pac' } : { kind: 'cleared' });
+      }
+      return SystemProxy._mostDeliberate(found);
+    } catch { return null; }
   }
 
   async _lostSettings(snap = this.snapshot || {}, url = this.pacUrl) {
@@ -843,16 +1323,16 @@ ${argsXml}
       if (this.platform === 'win32') {
         let out = '';
         try { out = await exec.run('reg.exe', ['query', WIN_KEY, '/v', 'AutoConfigURL'], 4000); }
-        catch (e) { if (e.killed || e.code === 'ENOENT') return null; } // else: the value is gone
+        catch (e) { if (!SystemProxy._regMissing(e)) return null; } // exit code 1: the value is gone
         const cur = regParse('AutoConfigURL', out);
-        return cur && cur.data === url ? [] : ['AutoConfigURL'];
+        return cur && SystemProxy._samePac(cur.data, url) ? [] : ['AutoConfigURL'];
       }
       if (this.platform === 'darwin') {
         if (snap.mode !== 'system' && snap.mode !== 'admin') return [];
         const lost = [];
         for (const s of (snap.services || []).filter((x) => x.applied)) {
           const cur = SystemProxy._macParseAuto(await exec.run('networksetup', ['-getautoproxyurl', s.name], 4000));
-          if (!(cur.enabled && cur.url === url)) lost.push(s.name);
+          if (!(cur.enabled && SystemProxy._samePac(cur.url, url))) lost.push(s.name);
         }
         return lost;
       }
@@ -861,15 +1341,16 @@ ${argsXml}
       // for the odd GTK program, changing is nobody's takeover.
       if (snap.gnome && snap.desktop !== 'kde') {
         const mode = (await exec.run('gsettings', ['get', 'org.gnome.system.proxy', 'mode'], 4000)).trim();
-        const auto = (await exec.run('gsettings', ['get', 'org.gnome.system.proxy', 'autoconfig-url'], 4000)).trim();
-        if (mode !== "'auto'" || auto !== `'${url}'`) lost.push('GNOME');
+        const auto = (await exec.run('gsettings', ['get', 'org.gnome.system.proxy', 'autoconfig-url'], 4000)).trim().replace(/^'(.*)'$/, '$1');
+        if (mode !== "'auto'" || !SystemProxy._samePac(auto, url)) lost.push('GNOME');
       }
       if (snap.kde) {
         const cur = SystemProxy._kdeRead(await fs.promises.readFile(snap.kde.file, 'utf8').catch(() => ''));
-        if (cur.type !== '2' || cur.script !== url) lost.push('KDE');
+        if (cur.type !== '2' || !SystemProxy._samePac(cur.script, url)) lost.push('KDE');
       }
       return lost;
     } catch { return null; }
+
   }
 
   /*
@@ -1124,6 +1605,10 @@ ${argsXml}
       const cur = regGet('AutoConfigURL');
       if (cur && OUR_PAC.test(cur.data)) {
         const v = snap.AutoConfigURL;
+        // The user's own PAC is put back even when nothing serves it now (a
+        // program that has gone, or not started yet): Windows keeps only
+        // the address, which would be lost for good, and WinINET and
+        // Chromium go on without a PAC they cannot fetch (see _pacGone).
         if (v && !OUR_PAC.test(v.data)) regSet('AutoConfigURL', v.type, v.data);
         else regDel('AutoConfigURL');
         this._refreshWinInet();
@@ -1226,6 +1711,19 @@ $t = Add-Type -MemberDefinition $sig -Name WinINet -Namespace Net -PassThru
     });
   }
 
+  /* A service's manual proxies, each 'server:port' or '' when off; one that
+   * could not be read is left out (counted as unknown). */
+  async _macManual(name) {
+    const out = {};
+    for (const [key, verb] of MAC_MANUAL) {
+      try {
+        const p = SystemProxy._macParseSocks(await exec.run('networksetup', [verb, name], 4000));
+        out[key] = p.enabled && p.server ? `${p.server}:${p.port}` : '';
+      } catch {}
+    }
+    return out;
+  }
+
   /* An earlier run's root helper may still be putting things back: let it
    * finish before this run reads what is set. */
   async _settleInheritedHelper() {
@@ -1247,6 +1745,9 @@ $t = Add-Type -MemberDefinition $sig -Name WinINet -Namespace Net -PassThru
       form: 'pac',
       appliedMode: this.mode,
     };
+    // The manual proxies each service has now, left as they are under our
+    // PAC: one there already is no takeover later (see _takeoverInfo).
+    for (const s of this.snapshot.services) s.prevManual = await this._macManual(s.name);
     this._arm();
     const sudoOk = await this._macSudoNonInteractive();
     let anyOk = false;
@@ -1313,13 +1814,16 @@ $t = Add-Type -MemberDefinition $sig -Name WinINet -Namespace Net -PassThru
 
   /* What to run to restore, per service: everything for a 2.5.4 state file
    * (recoverSync has checked it is ours), otherwise only the services whose
-   * PAC is still ours. */
-  _macRestorePlanSync() {
+   * PAC is still ours, and those in `force` (a set-back was writing them,
+   * see restoreSync). The user's own PAC served on this Mac by a program
+   * that has gone comes back switched off (_pacGone). */
+  _macRestorePlanSync(force = null) {
     const snap = this.snapshot || {};
     const plan = [];
     for (const s of (snap.services || [])) {
-      if (snap.form === 'pac' && !SystemProxy._macOwnedAutoSync(s.name)) continue;
-      plan.push(...SystemProxy._macRestoreArgs(s));
+      if (snap.form === 'pac' && !(force && force.has(s.name)) && !SystemProxy._macOwnedAutoSync(s.name)) continue;
+      const gone = s.prevAuto && s.prevAuto.enabled && this._pacGone(SystemProxy._macSafeUrl(s.prevAuto.url));
+      plan.push(...SystemProxy._macRestoreArgs(gone ? { ...s, prevAuto: { ...s.prevAuto, enabled: false } } : s));
     }
     return plan;
   }
@@ -1336,11 +1840,11 @@ $t = Add-Type -MemberDefinition $sig -Name WinINet -Namespace Net -PassThru
     return true;
   }
 
-  _restoreMacSync() {
+  _restoreMacSync(force = null) {
     const snap = this.snapshot || {};
     if (snap.mode === 'admin') return this._restoreMacAdmin(true);
     if (snap.mode !== 'system') return true;
-    for (const args of this._macRestorePlanSync()) {
+    for (const args of this._macRestorePlanSync(force)) {
       try { exec.runSync('networksetup', args, 3000); }
       catch { try { exec.runSync('sudo', ['-n', 'networksetup', ...args], 3000); } catch {} }
     }
@@ -1360,7 +1864,8 @@ $t = Add-Type -MemberDefinition $sig -Name WinINet -Namespace Net -PassThru
    * window is up (recoverAsAdmin), never while quitting. Nothing is
    * installed: no sudoers entry, no launch daemon. The helper runs only
    * networksetup, with arguments fixed here and quoted, never read from a
-   * file.
+   * file, and nc, to see whether the user's own PAC is still served on this
+   * Mac before putting it back (see _pacGone).
    *
    * One dialog at a time: a second call while it is open gets the first
    * one's answer. A stop (or a stop and a new start) while it is open leaves
@@ -1460,7 +1965,7 @@ $t = Add-Type -MemberDefinition $sig -Name WinINet -Namespace Net -PassThru
    * shutdown, launchd tearing the session down) puts back first and then
    * exits; without that it died with our PAC still set. The restore runs
    * once, whichever way it comes (r ignores both signals while it works). */
-  static _macAdminScript({ services, pacUrl, holdFile, appPid, networksetup = MAC_NETWORKSETUP }) {
+  static _macAdminScript({ services, pacUrl, holdFile, appPid, networksetup = MAC_NETWORKSETUP, nc = MAC_NC }) {
     const cmd = (args) => {
       if (!MAC_ELEVATED_VERBS.has(args[0])) throw new Error(`not an allowed networksetup call: ${args[0]}`);
       if (args.some((a) => /[\0\n\r]/.test(String(a)))) throw new Error('bad argument');
@@ -1471,8 +1976,20 @@ $t = Add-Type -MemberDefinition $sig -Name WinINet -Namespace Net -PassThru
     const apply = services.flatMap((s) => SystemProxy._macApplyArgs(s.name, pacUrl).map(cmd));
     // Per service: put it back only while it still has our PAC switched on.
     const back = services.map((s) => {
-      const steps = SystemProxy._macRestoreArgs({ name: s.name, prevAuto: s.prevAuto }).map(cmd);
-      return `case "$(${shq(networksetup)} -getautoproxyurl ${shq(s.name)})" in *${shq(`URL: ${pacUrl}`)}*${shq('Enabled: Yes')}*) ${steps.join('; ')};; esac`;
+      let steps = SystemProxy._macRestoreArgs({ name: s.name, prevAuto: s.prevAuto }).map(cmd).join('; ');
+      // The user's own PAC served on this Mac comes back only while
+      // something still listens there, and switched off once its program has
+      // gone (see _pacGone). Only nc failing to connect says gone: to the
+      // address written, or for "localhost" to both of loopback's (a program
+      // may serve on ::1 alone).
+      const k = s.prevAuto && s.prevAuto.enabled ? SystemProxy._pacKind(SystemProxy._macSafeUrl(s.prevAuto.url)) : null;
+      if (k && k.kind === 'local' && k.port) {
+        const hosts = /^127\.\d+\.\d+\.\d+$/.test(k.host) || k.host === '::1' ? [k.host] : ['127.0.0.1', '::1'];
+        const off = SystemProxy._macRestoreArgs({ name: s.name, prevAuto: { ...s.prevAuto, enabled: false } }).map(cmd).join('; ');
+        const none = hosts.map((h) => `! ${shq(nc)} -z -G 2 ${shq(h)} ${Number(k.port) | 0} >/dev/null 2>&1`).join(' && ');
+        steps = `if [ -x ${shq(nc)} ] && ${none}; then ${off}; else ${steps}; fi`;
+      }
+      return `case "$(${shq(networksetup)} -getautoproxyurl ${shq(s.name)})" in *${shq(`URL: ${pacUrl}`)}*${shq('Enabled: Yes')}*) ${steps};; esac`;
     });
     const restore = `r() { trap '' TERM HUP; ${back.length ? back.join('; ') : ':'}; }`;
     const wait = `while [ -e ${shq(holdFile)} ] && kill -0 ${pid} 2>/dev/null; do sleep 1; done`;
@@ -1730,14 +2247,39 @@ $t = Add-Type -MemberDefinition $sig -Name WinINet -Namespace Net -PassThru
     return steps;
   }
 
+  /* The GNOME record to put back: the user's own PAC, or manual proxy,
+   * served on this computer by a program that has gone comes back with the
+   * mode 'none' (its addresses kept), not pointing at nothing (_pacGone).
+   * Shroudly never writes the manual servers: what is there now is what
+   * the mode would switch back on (2.5.4 and earlier wrote its SOCKS one:
+   * put back as recorded). */
+  _gnomeRestorable(g, legacy = false) {
+    const unq = (v) => String(v || '').replace(/^'(.*)'$/, '$1');
+    const mode = unq(g.mode);
+    if (mode === 'auto') return this._pacGone(unq(g.autourl)) ? { ...g, mode: "'none'" } : g;
+    if (mode !== 'manual' || legacy) return g;
+    const servers = [];
+    for (const kind of ['http', 'https', 'ftp', 'socks']) {
+      let host = '';
+      let port = 0;
+      try {
+        host = unq(exec.runSync('gsettings', ['get', `org.gnome.system.proxy.${kind}`, 'host'], 3000).trim());
+        port = parseInt(exec.runSync('gsettings', ['get', `org.gnome.system.proxy.${kind}`, 'port'], 3000).trim(), 10) || 0;
+      } catch { return g; } // cannot be told: as before
+      if (host && port) servers.push({ host, port });
+    }
+    const shown = [...new Set(servers.map((x) => `${x.host}:${x.port}`))].join(', ');
+    return this._localGone(shown, servers) ? { ...g, mode: "'none'" } : g;
+  }
+
   /* force: straight after a failed apply, when what is there is ours even if
-   * only half written. */
+   * only half written, or a set-back was writing it (see restoreSync). */
   _restoreGnomeSync(force = false) {
     const g = this.snapshot && this.snapshot.gnome;
     if (!g) return;
     const legacy = this.snapshot.form !== 'pac';
     if (!force && !legacy && !this._gnomeOwnedSync()) return; // someone else's setting by now
-    for (const args of SystemProxy._gnomeRestoreArgs(g, legacy)) { try { exec.runSync('gsettings', args, 3000); } catch {} }
+    for (const args of SystemProxy._gnomeRestoreArgs(this._gnomeRestorable(g, legacy), legacy)) { try { exec.runSync('gsettings', args, 3000); } catch {} }
   }
 
   async _restoreLinux() {
@@ -1745,15 +2287,15 @@ $t = Add-Type -MemberDefinition $sig -Name WinINet -Namespace Net -PassThru
     if (g) {
       const legacy = this.snapshot.form !== 'pac';
       if (legacy || this._gnomeOwnedSync()) {
-        for (const args of SystemProxy._gnomeRestoreArgs(g, legacy)) { try { await exec.run('gsettings', args, 4000); } catch {} }
+        for (const args of SystemProxy._gnomeRestoreArgs(this._gnomeRestorable(g, legacy), legacy)) { try { await exec.run('gsettings', args, 4000); } catch {} }
       }
     }
     this._restoreKdeSync();
   }
 
-  _restoreLinuxSync() {
-    this._restoreGnomeSync();
-    this._restoreKdeSync();
+  _restoreLinuxSync(force = null) {
+    this._restoreGnomeSync(!!(force && force.has('GNOME')));
+    this._restoreKdeSync(!!(force && force.has('KDE')));
   }
 
   // ── KDE Plasma (kioslaverc) ────────────────────────────────────────────
@@ -1776,8 +2318,9 @@ $t = Add-Type -MemberDefinition $sig -Name WinINet -Namespace Net -PassThru
 
   /* The two keys, null when absent; locked when the administrator made them
    * immutable ([$i]). */
-  static _kdeRead(text) {
+  static _kdeRead(text, extra = null) {
     const out = { type: null, script: null, locked: false };
+    if (extra) out.value = null; // and the value of this key of the group
     let inGroup = false;
     for (const raw of String(text).split('\n')) {
       const line = raw.replace(/\r$/, '');
@@ -1795,8 +2338,32 @@ $t = Add-Type -MemberDefinition $sig -Name WinINet -Namespace Net -PassThru
       if (m[2] && !/^(\[\$[a-z]+\])+$/.test(m[2])) continue; // a translation, not the value
       if (m[1] === KDE_TYPE) out.type = SystemProxy._kdeUnescape(m[3]);
       else if (m[1] === KDE_SCRIPT) out.script = SystemProxy._kdeUnescape(m[3]);
+      else if (extra && m[1] === extra) out.value = SystemProxy._kdeUnescape(m[3]);
     }
     return out;
+  }
+
+  /* KDE's manual proxy servers in the file, each { host, port }: written
+   * "http://127.0.0.1 7890" (a space before the port), or with a colon. */
+  static _kdeManualServers(text) {
+    const out = [];
+    for (const key of ['httpProxy', 'httpsProxy', 'ftpProxy', 'socksProxy']) {
+      const v = String(SystemProxy._kdeRead(text, key).value || '').trim();
+      if (!v) continue;
+      const m = v.replace(/^[a-z0-9+.-]+:\/\//i, '').replace(/\/.*$/, '').match(/^(\[[^\]]+\]|[^\s:]+)(?:[\s:]+(\d+))?$/);
+      if (m && m[2]) out.push({ host: m[1], port: Number(m[2]) });
+    }
+    return out;
+  }
+
+  /* The manual proxy the user had (type 1) is served on this computer by a
+   * program that has gone (see _pacGone). */
+  _kdeManualGone(file) {
+    let text = '';
+    try { text = fs.readFileSync(file, 'utf8'); } catch { return false; }
+    const servers = SystemProxy._kdeManualServers(text);
+    const shown = [...new Set(servers.map((x) => `${x.host}:${x.port}`))].join(', ');
+    return this._localGone(shown, servers);
   }
 
   /* The file with the given keys set (null: removed), everything else as it
@@ -1883,7 +2450,9 @@ $t = Add-Type -MemberDefinition $sig -Name WinINet -Namespace Net -PassThru
     const k = this.snapshot && this.snapshot.kde;
     if (!k || (!force && !this._kdeOwnedSync())) return;
     const script = k.script && !OUR_PAC.test(k.script) ? k.script : null;
-    const type = k.type === '2' && !script ? null : k.type;
+    // The user's own PAC, or manual proxy, served on this computer by a
+    // program that has gone: no proxy, its addresses kept (_pacGone).
+    const type = (k.type === '2' && (!script || this._pacGone(script))) || (k.type === '1' && this._kdeManualGone(k.file)) ? null : k.type;
     try { this._kdeWriteSync(k.file, { [KDE_TYPE]: type, [KDE_SCRIPT]: script }); } catch {}
     this._kdeNotify();
   }

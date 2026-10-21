@@ -1267,6 +1267,10 @@ async function healDiscordLine() {
   const r = patchDiscordSync(DiscordApp.endpointUrl(discordRelay.port));
   if (!r.changed.length) return;
   for (const line of DiscordApp.healNote(discordHealed, r.changed.map((v) => v.app))) addLog('info', line);
+  // Discord's settings were written anew: Discord, or something started with
+  // it, has just started. In issue #27's log the system proxy was taken over
+  // within a minute of that, every time: it is looked at again shortly.
+  if (engine) engine.checkProxySoon();
   let running = false;
   for (const v of r.changed) if (await DiscordApp.isRunning(v)) running = true;
   // Told to the window only when that changes what it shows.
@@ -1479,6 +1483,7 @@ async function watchRoblox() {
       if (again) {
         addLog('success', 'Autopilot: a Roblox installer went around Shroudly; started it again through Shroudly');
         autoTell('autoInstallerRestarted');
+        engine.checkProxySoon();
       }
     }
 
@@ -1488,6 +1493,7 @@ async function watchRoblox() {
         robloxRestarts.push(Date.now());
         addLog('success', 'Autopilot: Roblox did not get through Shroudly; restarted it');
         autoTell('autoRobloxRestarted');
+        engine.checkProxySoon();
       }
     }
     if (d.stuckPlayers.length) {
@@ -1669,6 +1675,9 @@ const networkFingerprint = () => Autopilot.networkFingerprint(os.networkInterfac
 let networkPrint = networkFingerprint();
 setInterval(() => {
   const now = networkFingerprint();
+  // Encrypted DNS: connections and rests from the old network say nothing
+  // about the new one (doh-forwarder.js).
+  if (now !== networkPrint && engine && engine.doh) engine.doh.networkChanged();
   if (now !== networkPrint && autopilot) {
     autopilot.networkChanged();
     if (engine && engine.isActive()) setTimeout(() => { autopilot.survey().catch(() => {}); }, 5000);
@@ -1709,6 +1718,7 @@ async function watchDiscord() {
       if (await DiscordApp.restart(v)) {
         addLog('success', `Autopilot: ${v.app} did not get through Shroudly; restarted it`);
         autoTell('autoDiscordRestarted');
+        engine.checkProxySoon();
       } else still = true;
     }
     if (!still) { discordState.needsRestart = false; sendDiscordState(); }

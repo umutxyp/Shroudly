@@ -29,6 +29,10 @@ function handle(state, args, { root = false } = {}) {
     const p = s.socks;
     return `Enabled: ${p.enabled ? 'Yes' : 'No'}\n${p.server ? `Server: ${p.server}\nPort: ${p.port}` : 'Server: Port: 0\nPort: 0'}\nAuthenticated Proxy Enabled: 0\n`;
   }
+  if (verb === '-getwebproxy' || verb === '-getsecurewebproxy') {
+    const p = (verb === '-getwebproxy' ? s.web : s.secure) || {};
+    return `Enabled: ${p.enabled ? 'Yes' : 'No'}\nServer: ${p.server || ''}\nPort: ${p.port || 0}\nAuthenticated Proxy Enabled: 0\n`;
+  }
   if (verb === '-getautoproxyurl') return `URL: ${s.auto.url || '(null)'}\nEnabled: ${s.auto.enabled ? 'Yes' : 'No'}\n`;
   if (state.denied && !root) fail('** Error: Command requires admin privileges.', 14);
   state.log.push([verb, svc, ...rest]);

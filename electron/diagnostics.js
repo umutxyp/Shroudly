@@ -52,8 +52,8 @@ const CONFLICTS = [
   { re: /goodbyedpi/i,              name: 'GoodbyeDPI' },
   { re: /\bwinws2?\b|\bnfqws\b|zapret/i, name: 'zapret' },
   { re: /ciadpi|(^|[^a-z])byedpi/im, name: 'ByeDPI' },   // not the end of "goodbyedpi"
-  { re: /spoofdpi/i,                name: 'SpoofDPI' },
-  { re: /greentunnel/i,             name: 'GreenTunnel' },
+  { re: /spoofdpi/i,                name: 'SpoofDPI', setsProxy: true },
+  { re: /greentunnel/i,             name: 'GreenTunnel', setsProxy: true },
   { re: /splitwire/i,               name: 'SplitWire' },
   { re: /proxifyre|proxifier/i,     name: 'Proxifier' },
   { re: /openvpn/i,                 name: 'OpenVPN',    tunnel: /openvpn|^tap|^tun/i },
@@ -68,11 +68,15 @@ const CONFLICTS = [
   // like are everywhere on Windows. tasklist quotes names, ps gives a path
   // (macOS) or a bare name (Linux); the browser shows up as "Tor Browser".
   { re: /(^|["\\/])tor(\.exe)?("|$)|tor ?browser/im, name: 'Tor' },
-  { re: /psiphon/i,                 name: 'Psiphon' },
+  { re: /psiphon/i,                 name: 'Psiphon', setsProxy: true },
+  { re: /(^|["\\/])lantern(\.exe)?("|$)/im, name: 'Lantern', setsProxy: true },
   // At the start of a name, so a game called "Clash of Clans" or a tool that
   // merely contains "xray" is not taken for one.
-  { re: /(^|["\\/])(v2ray|xray|clash(?! ?of ?clans| ?royale)|flclash|mihomo|verge-mihomo|sing-box|hiddify|nekoray|nekobox)/im, name: 'V2Ray / Clash' },
+  { re: /(^|["\\/])(v2ray|xray|clash(?! ?of ?clans| ?royale)|flclash|mihomo|verge-mihomo|sing-box|hiddify|nekoray|nekobox)/im, name: 'V2Ray / Clash', setsProxy: true },
 ];
+// setsProxy: the tool points the system proxy at itself while it runs (most
+// do it by default), so it is the first suspect when Shroudly's setting is
+// taken over (see proxyTools).
 
 /* Programs that read the system proxy once, when they start.
  *
@@ -158,6 +162,24 @@ async function runningTools({ details = false, probe = {} } = {}) {
   // Our own name can appear in the list on some systems; never report it.
   active.delete('Shroudly');
   return details ? { active: [...active], idle: [...idle] } : [...active];
+}
+
+/* Running tools that set the system proxy to themselves (setsProxy), for
+ * naming the program that keeps taking Shroudly's setting over. Whether a
+ * tunnel is up does not matter here: the setting is changed by the program.
+ * `probe.processes` stands in for the process list in the tests. */
+async function proxyTools({ probe = {} } = {}) {
+  const out = probe.processes !== undefined ? probe.processes : await processList();
+  if (!out) return [];
+  return CONFLICTS.filter((c) => c.setsProxy && c.re.test(out)).map((c) => c.name);
+}
+
+/* A process name as people know the program: the tool's name when it is a
+ * known one, else the name without ".exe". */
+function toolName(proc) {
+  const name = String(proc || '').trim();
+  const known = CONFLICTS.find((c) => c.re.test(name));
+  return known ? known.name : name.replace(/\.exe$/i, '');
 }
 
 /* The interface that carries the default route, and whether it looks like a
@@ -397,4 +419,4 @@ async function collect() {
   };
 }
 
-module.exports = { collect, runningTools, appsNeedingRestart, restartHelps, dnsTampering, dnsProbe, dnsDead, localDnsOwner, lsofDnsPrograms, ssDnsPrograms, defaultRoute, describeInterface, regionOf, looksForged, systemResolve };
+module.exports = { collect, runningTools, proxyTools, toolName, appsNeedingRestart, restartHelps, dnsTampering, dnsProbe, dnsDead, localDnsOwner, lsofDnsPrograms, ssDnsPrograms, defaultRoute, describeInterface, regionOf, looksForged, systemResolve };

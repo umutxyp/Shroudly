@@ -24,6 +24,11 @@
  * This is not as strong as encrypted DNS, but it is driver-free, library-free,
  * cross-platform, and removes the most common censorship layer (UDP/53 reply
  * injection) without touching any system network settings.
+ *
+ * A forwarder that has not answered within FWD_WAIT_MS is asked once more and
+ * still listened to while the fallback runs, and its answer is taken first:
+ * on a network that forges plaintext answers the fallback has nothing to give
+ * for a filtered name.
  */
 /* rand_s is only declared when _CRT_RAND_S is set before the C runtime header
    is pulled in — but only Windows needs that. Including <stdlib.h> here on
@@ -56,6 +61,8 @@ static const char *RESOLVERS[MAX_RESOLVERS] = {
 #define TTL_MIN_S 20     /* a lower TTL would mean a lookup on nearly every connection */
 #define TTL_MAX_S 300    /* a higher one would keep an address the site has moved away from */
 #define PLAIN_DEAD_MS 60000  /* public resolvers that never answered: skipped this long */
+#define FWD_WAIT_MS   4000   /* the forwarder's answer, before anything else is asked */
+#define FWD_LATE_MS   8000   /* still taken this long after the question, when nothing else answers */
 
 typedef struct {
   char     name[256];
@@ -444,53 +451,78 @@ static int dns_parse(const uint8_t *r, int len, int want6,
   return 0;
 }
 
-/* Query one resolver over UDP; collect replies within the window and return
- * the first one that carries a usable (non-bogon) address. */
-static int query_udp_at(const char *resolver, uint16_t rport, int timeout_ms,
-                        const char *name, int want6,
-                        uint8_t (*addrs)[16], int *naddr, uint32_t *ttl) {
-  sock_t s = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
-  if (s == SOCK_INVALID) return -1;
-  sock_set_timeouts(s, timeout_ms);
-
+/* One question to one resolver over UDP: asked once (udp_ask_open), its
+ * replies read for as long as the caller chooses (udp_ask_wait, which may be
+ * called again later on the same question), then let go (udp_ask_close). */
+typedef struct {
+  sock_t             s;
   struct sockaddr_in to;
-  memset(&to, 0, sizeof(to));
-  to.sin_family = AF_INET;
-  to.sin_port = htons(rport);
-  if (inet_pton(AF_INET, resolver, &to.sin_addr) != 1) { sock_close(s); return -1; }
+  uint8_t            q[512];
+  int                qlen;
+  uint16_t           id;
+  int                want6;
+} udp_ask;
+
+static void udp_ask_close(udp_ask *a) {
+  if (a->s != SOCK_INVALID) { sock_close(a->s); a->s = SOCK_INVALID; }
+}
+
+static int udp_ask_open(udp_ask *a, const char *resolver, uint16_t rport, const char *name, int want6) {
+  memset(a, 0, sizeof(*a));
+  a->s = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+  if (a->s == SOCK_INVALID) return -1;
+  a->want6 = want6;
+  a->to.sin_family = AF_INET;
+  a->to.sin_port = htons(rport);
+  if (inet_pton(AF_INET, resolver, &a->to.sin_addr) != 1) { udp_ask_close(a); return -1; }
 
   /* Bind the socket to this one peer. The kernel then drops datagrams from
    * anywhere else before they ever reach us, which is a stronger filter than
    * checking the sender afterwards — and it means a process on this machine
    * cannot answer our lookups. */
-  if (connect(s, (struct sockaddr *)&to, sizeof(to)) != 0) { sock_close(s); return -1; }
+  if (connect(a->s, (struct sockaddr *)&a->to, sizeof(a->to)) != 0) { udp_ask_close(a); return -1; }
 
-  uint8_t q[512];
-  uint16_t id = dns_query_id();
-  int qlen = dns_build(q, name, id, want6 ? 28 : 1);
-  if (qlen < 0) { sock_close(s); return -1; }
-  if (send(s, (const char *)q, qlen, 0) < 0) {
-    sock_close(s); return -1;
-  }
+  a->id = dns_query_id();
+  a->qlen = dns_build(a->q, name, a->id, want6 ? 28 : 1);
+  if (a->qlen < 0) { udp_ask_close(a); return -1; }
+  if (send(a->s, (const char *)a->q, a->qlen, 0) < 0) { udp_ask_close(a); return -1; }
+  /* Replies are read only once the socket says one is there, and a read
+   * must never block past that (a datagram dropped for a bad checksum after
+   * the socket said so). */
+  sock_set_nonblock(a->s, 1);
+  return 0;
+}
 
-  uint64_t deadline = now_ms() + timeout_ms;
+/* The same question once more, on the same socket and with the same id: an
+ * answer to either is taken. */
+static void udp_ask_again(udp_ask *a) {
+  if (a->s != SOCK_INVALID) send(a->s, (const char *)a->q, a->qlen, 0);
+}
+
+/* Read the replies for up to timeout_ms; the first one with a usable
+ * (non-bogon) address wins. Returns as dns_parse does, and -1 when nothing
+ * usable came (yet): the question stays open for another wait. */
+static int udp_ask_wait(udp_ask *a, int timeout_ms, uint8_t (*addrs)[16], int *naddr, uint32_t *ttl) {
+  if (a->s == SOCK_INVALID) return -1;
+  uint64_t deadline = now_ms() + (uint64_t)(timeout_ms > 0 ? timeout_ms : 0);
   int rc = -1;
   for (;;) {
     /* One reading of the clock for both: read twice, the second could be past
-     * the deadline the first was not, and the difference would wrap. */
+     * the deadline the first was not, and the difference would wrap. A wait
+     * of 0 still takes what has already arrived. */
     uint64_t t = now_ms();
-    if (t >= deadline) break;
-    int w = sock_wait_readable(s, (int)(deadline - t));
+    int left = t >= deadline ? 0 : (int)(deadline - t);
+    int w = sock_wait_readable(a->s, left);
     if (w <= 0) break;
     uint8_t r[1500];
     struct sockaddr_in from; socklen_t fl = sizeof(from);
-    int n = recvfrom(s, (char *)r, sizeof(r), 0, (struct sockaddr *)&from, &fl);
-    if (n < 12) continue;
-    if (((r[0] << 8) | r[1]) != id) continue;          /* id mismatch = spoof */
-    if (from.sin_addr.s_addr != to.sin_addr.s_addr) continue; /* wrong source */
-    if (from.sin_port != to.sin_port) continue;        /* right host, wrong port */
-    if (!dns_question_matches(r, n, q, qlen)) continue; /* answers something else */
-    int pr = dns_parse(r, n, want6, addrs, DOH_MAX_ADDRS, naddr, ttl);
+    int n = recvfrom(a->s, (char *)r, sizeof(r), 0, (struct sockaddr *)&from, &fl);
+    if (n < 12) { if (left == 0) break; continue; }
+    if (((r[0] << 8) | r[1]) != a->id) { if (left == 0) break; continue; }          /* id mismatch = spoof */
+    if (from.sin_addr.s_addr != a->to.sin_addr.s_addr) { if (left == 0) break; continue; } /* wrong source */
+    if (from.sin_port != a->to.sin_port) { if (left == 0) break; continue; }        /* right host, wrong port */
+    if (!dns_question_matches(r, n, a->q, a->qlen)) { if (left == 0) break; continue; } /* answers something else */
+    int pr = dns_parse(r, n, a->want6, addrs, DOH_MAX_ADDRS, naddr, ttl);
     if (pr == 0) { rc = 0; break; }
     /* "No such record" (or name): don't sit out the whole window, but leave a
      * short grace period in case it was a forged reply racing the real one.
@@ -501,8 +533,20 @@ static int query_udp_at(const char *resolver, uint16_t rport, int timeout_ms,
       uint64_t grace = now_ms() + (pr == DNS_NXDOMAIN ? 600 : 250);
       if (grace < deadline) deadline = grace;
     }
+    if (left == 0) break;
   }
-  sock_close(s);
+  return rc;
+}
+
+/* Query one resolver over UDP; collect replies within the window and return
+ * the first one that carries a usable (non-bogon) address. */
+static int query_udp_at(const char *resolver, uint16_t rport, int timeout_ms,
+                        const char *name, int want6,
+                        uint8_t (*addrs)[16], int *naddr, uint32_t *ttl) {
+  udp_ask a;
+  if (udp_ask_open(&a, resolver, rport, name, want6) != 0) return -1;
+  int rc = udp_ask_wait(&a, timeout_ms, addrs, naddr, ttl);
+  udp_ask_close(&a);
   return rc;
 }
 
@@ -525,56 +569,31 @@ static int answer(const char *name, uint16_t port, int family, uint8_t (*addrs)[
   return n;
 }
 
-int doh_resolve_all(const char *name, uint16_t port, int want6,
-                    struct sockaddr_storage *out, socklen_t *outlen, int max) {
-  if (!g_init) doh_init(NULL, NULL);
-  if (!name || max <= 0) return -1;
+/* The forwarder's answer to a question it did not answer in time, if it has
+ * come within wait_ms: 1 with addresses (the encrypted answer, taken over
+ * any other), 2 when it says the name has no usable address of this family
+ * (believed, as at first), 0 for nothing yet. The question is let go once
+ * the forwarder has answered at all. */
+static int fwd_late(udp_ask *fwd, int wait_ms, uint8_t (*addrs)[16], int *n, uint32_t *ttl) {
+  if (fwd->s == SOCK_INVALID) return 0;
+  int r = udp_ask_wait(fwd, wait_ms, addrs, n, ttl);
+  if (r == -1) return 0;
+  udp_ask_close(fwd);
+  if (r == 0) return 1;
+  if (r == DNS_NODATA || r == DNS_PRIVATE) return 2;
+  return 0;   /* no such name: what follows may still know it */
+}
+
+/* Everything after the forwarder: the public resolvers over UDP/53, then the
+ * system's. fwd: the forwarder's question while it is still open; its late
+ * answer is looked for before each of them, and taken first. */
+static int resolve_fallback(const char *name, uint16_t port, int want6, int trusted, udp_ask *fwd,
+                            struct sockaddr_storage *out, socklen_t *outlen, int max) {
   int family = want6 ? AF_INET6 : AF_INET;
-
-  /* literal IP? */
-  struct in_addr a4; struct in6_addr a6;
-  if (inet_pton(AF_INET, name, &a4) == 1) {
-    outlen[0] = addr_out(AF_INET, (const uint8_t *)&a4, port, &out[0]); return 1;
-  }
-  if (inet_pton(AF_INET6, name, &a6) == 1) {
-    outlen[0] = addr_out(AF_INET6, (const uint8_t *)&a6, port, &out[0]); return 1;
-  }
-
-  mutex_lock(&g_cache_mx);
-  cache_entry *c = cache_find(name, family);
-  if (c) { int n = cache_copy(c, port, out, outlen, max); mutex_unlock(&g_cache_mx); return n; }
-  mutex_unlock(&g_cache_mx);
-
   uint8_t addrs[DOH_MAX_ADDRS][16];
   int n = 0;
   uint32_t ttl = 0;
-  /* The system resolver's private answer is believed: only for a local name. */
-  int trusted = 0;
-
-  /* 0. A name only the local network knows ("nas.lan", "router"): the public
-   * resolvers would only see it and say it does not exist. */
-  if (doh_local_name(name)) trusted = 1;
-
-  /* 1. Real encrypted DNS via the local forwarder, if the app started one. */
-  if (g_fwd_port && !trusted) {
-    int fr = query_udp_at(g_fwd_ip, g_fwd_port, 4000, name, want6, addrs, &n, &ttl);
-    if (fr == 0) return answer(name, port, family, addrs, n, ttl, out, outlen, max);
-    /* It says the name has no address of this family. That is an answer, not
-     * a failure, and one nobody on the path could forge: asking the plaintext
-     * resolvers below as well would only show the name to whoever watches the
-     * network, and wait seconds where they are blocked. The dialler asks for
-     * the other family whenever a connect is slow, so this is common. */
-    if (fr == DNS_NODATA) return -1;
-    /* It says the name is published with only a private address. Its owner
-     * may mean that, but so may an attacker who points a public name at the
-     * LAN (DNS rebinding), and a private address is also what a censor
-     * answers with: refused, as the plaintext resolvers' would be. */
-    if (fr == DNS_PRIVATE) return -1;
-    /* "No such name" (DNS_NXDOMAIN) falls through: a hosts-file entry may
-     * still know it, but the system resolver's private answer is taken only
-     * for a name doh_local_name() calls local, never for a public-looking
-     * one, whatever encrypted DNS said about it. */
-  }
+  int lr;
 
   /* 2. Fallback: several independent public resolvers over UDP/53. An on-path
    * injector must poison all of them identically to win. Where none of them
@@ -587,6 +606,8 @@ int doh_resolve_all(const char *name, uint16_t port, int want6,
   int plain_dead = trusted || now_ms() < g_plain_dead_until;
   mutex_unlock(&g_cache_mx);
   for (int i = 0; i < MAX_RESOLVERS && !plain_dead; i++) {
+    if ((lr = fwd_late(fwd, 0, addrs, &n, &ttl)) == 1) return answer(name, port, family, addrs, n, ttl, out, outlen, max);
+    if (lr == 2) return -1;
     uint64_t t0 = now_ms();
     int qr = query_udp_at(RESOLVERS[i], 53, 1500, name, want6, addrs, &n, &ttl);
     if (qr == -1 && now_ms() - t0 >= 1400) silent++;
@@ -604,6 +625,8 @@ int doh_resolve_all(const char *name, uint16_t port, int want6,
     g_plain_dead_until = now_ms() + PLAIN_DEAD_MS;
     mutex_unlock(&g_cache_mx);
   }
+  if ((lr = fwd_late(fwd, 0, addrs, &n, &ttl)) == 1) return answer(name, port, family, addrs, n, ttl, out, outlen, max);
+  if (lr == 2) return -1;
 
   /* Last resort: OS resolver (may be poisoned, but better than failing). It
    * gives no TTL and it is the answer we trust least, so it is kept only for
@@ -640,6 +663,84 @@ int doh_resolve_all(const char *name, uint16_t port, int want6,
     mutex_unlock(&g_cache_mx);
   }
   return got > 0 ? got : -1;
+}
+
+int doh_resolve_all(const char *name, uint16_t port, int want6,
+                    struct sockaddr_storage *out, socklen_t *outlen, int max) {
+  if (!g_init) doh_init(NULL, NULL);
+  if (!name || max <= 0) return -1;
+  int family = want6 ? AF_INET6 : AF_INET;
+
+  /* literal IP? */
+  struct in_addr a4; struct in6_addr a6;
+  if (inet_pton(AF_INET, name, &a4) == 1) {
+    outlen[0] = addr_out(AF_INET, (const uint8_t *)&a4, port, &out[0]); return 1;
+  }
+  if (inet_pton(AF_INET6, name, &a6) == 1) {
+    outlen[0] = addr_out(AF_INET6, (const uint8_t *)&a6, port, &out[0]); return 1;
+  }
+
+  mutex_lock(&g_cache_mx);
+  cache_entry *c = cache_find(name, family);
+  if (c) { int n = cache_copy(c, port, out, outlen, max); mutex_unlock(&g_cache_mx); return n; }
+  mutex_unlock(&g_cache_mx);
+
+  uint8_t addrs[DOH_MAX_ADDRS][16];
+  int n = 0;
+  uint32_t ttl = 0;
+  /* The system resolver's private answer is believed: only for a local name. */
+  int trusted = 0;
+
+  /* 0. A name only the local network knows ("nas.lan", "router"): the public
+   * resolvers would only see it and say it does not exist. */
+  if (doh_local_name(name)) trusted = 1;
+
+  /* 1. Real encrypted DNS via the local forwarder, if the app started one. */
+  udp_ask fwd;
+  fwd.s = SOCK_INVALID;
+  uint64_t asked = 0;
+  if (g_fwd_port && !trusted && udp_ask_open(&fwd, g_fwd_ip, g_fwd_port, name, want6) == 0) {
+    asked = now_ms();
+    int fr = udp_ask_wait(&fwd, FWD_WAIT_MS, addrs, &n, &ttl);
+    if (fr == 0) { udp_ask_close(&fwd); return answer(name, port, family, addrs, n, ttl, out, outlen, max); }
+    /* It says the name has no address of this family. That is an answer, not
+     * a failure, and one nobody on the path could forge: asking the plaintext
+     * resolvers below as well would only show the name to whoever watches the
+     * network, and wait seconds where they are blocked. The dialler asks for
+     * the other family whenever a connect is slow, so this is common.
+     * Or it says the name is published with only a private address. Its
+     * owner may mean that, but so may an attacker who points a public name
+     * at the LAN (DNS rebinding), and a private address is also what a censor
+     * answers with: refused, as the plaintext resolvers' would be. */
+    if (fr == DNS_NODATA || fr == DNS_PRIVATE) { udp_ask_close(&fwd); return -1; }
+    if (fr == -1) {
+      /* No answer in time. The forwarder goes on looking, and may only now
+       * be getting its routes back (a network that has just returned, its
+       * connections gone with the old one): ask once more, so a fresh try
+       * runs while the fallback below is asked, and keep listening for an
+       * answer to either (see fwd_late). On a network that forges plaintext
+       * answers the fallback has nothing to give for a filtered name, and
+       * that name failed although encrypted DNS answered a moment later. */
+      udp_ask_again(&fwd);
+    } else {
+      /* "No such name" (DNS_NXDOMAIN) falls through: a hosts-file entry may
+       * still know it, but the system resolver's private answer is taken only
+       * for a name doh_local_name() calls local, never for a public-looking
+       * one, whatever encrypted DNS said about it. */
+      udp_ask_close(&fwd);
+    }
+  }
+
+  int got = resolve_fallback(name, port, want6, trusted, &fwd, out, outlen, max);
+  /* Nothing usable from the fallback either: the forwarder's answer, if it
+   * comes before FWD_LATE_MS from the first question. */
+  if (got <= 0 && fwd.s != SOCK_INVALID) {
+    uint64_t t = now_ms();
+    int left = t - asked < FWD_LATE_MS ? (int)(FWD_LATE_MS - (t - asked)) : 0;
+    if (fwd_late(&fwd, left, addrs, &n, &ttl) == 1) got = answer(name, port, family, addrs, n, ttl, out, outlen, max);
+  }
+  udp_ask_close(&fwd);
+  return got;
 }
 
 int doh_resolve(const char *name, uint16_t port, int want6,

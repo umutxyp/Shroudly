@@ -46,6 +46,17 @@ const TAIL_UP = { ...ETH, Tailscale: [{ address: '100.64.0.5', family: 'IPv4', i
   r = await D.runningTools({ probe: { processes: '"chrome.exe","1"', interfaces: ETH, route: 'Ethernet' } });
   t.ok(Array.isArray(r) && r.length === 0, 'nothing running: nothing reported (plain list form)');
 
+  // Issue #27: naming the program that keeps taking the system proxy over.
+  // Only tools that set the system proxy count (a DPI tool or a VPN tunnel
+  // does not touch it), and a process name reads as the tool people know.
+  t.ok((await D.proxyTools({ probe: { processes: '"goodbyedpi.exe","1"\n"warp-svc.exe","2"\n"Psiphon3.exe","3"\n"v2rayN.exe","4"\n"lantern.exe","5"' } })).join() === 'Psiphon,Lantern,V2Ray / Clash'
+    && (await D.proxyTools({ probe: { processes: '"goodbyedpi.exe","1"\n"Tailscale.exe","2"\n"chrome.exe","3"' } })).length === 0
+    && (await D.proxyTools({ probe: { processes: '' } })).length === 0,
+  'issue #27: running tools that set the system proxy are named; DPI tools and VPN tunnels are not');
+  t.ok(D.toolName('clash-verge.exe') === 'V2Ray / Clash' && D.toolName('Psiphon3.exe') === 'Psiphon' && D.toolName('SomeProxy.exe') === 'SomeProxy' && D.toolName('mihomo') === 'V2Ray / Clash',
+    'issue #27: a process name reads as the tool people know, else without ".exe"');
+  t.ok(D.toolName('Lantern Helper.exe') === 'Lantern Helper' && (await D.runningTools({ probe: { processes: '"Lantern.exe","9"', interfaces: ETH, route: 'Ethernet' } })).join() === 'Lantern',
+    'Lantern (it sets the system proxy while it runs) is recognised, by its whole name');
   t.ok(D.regionOf([{ country: 'IR' }, { country: 'IR' }, { country: 'filter' }]) === 'IR' && D.regionOf([]) === null, 'forged answers -> country');
 
   // P18: "the system DNS answers nothing" only with the network up. At login

@@ -20,6 +20,7 @@ const SystemProxy = require('./system-proxy');
 const DohForwarder = require('./doh-forwarder');
 const Families = require('./families');
 const diagnostics = require('./diagnostics');
+const procnet = require('./procnet');
 const { DISCORD_DOMAINS } = require('./discord-relay');
 const fingerprints = require('./censor-fingerprints');
 const { isMainName } = require('./service-check');
@@ -200,12 +201,18 @@ class EngineManager {
       // Linux desktops without a proxy setting: the PAC's address is written
       // for the next login, so its port is kept from run to run.
       portStore: this.proxyOptions.portStore || { get: () => store.get('pacPort'), set: (p) => store.set('pacPort', p) },
-      // Another program took the system proxy over (or gave it back).
-      onOwnership: (owned, info) => {
+      // Another program took the system proxy over and it was left to it
+      // (or it came back). One that kept taking it is named when it can be
+      // (fight), and the window says that Shroudly stopped setting it back.
+      onOwnership: (owned, info = {}) => {
         if (!this.proxyStatus) return;
         const base = this.proxyStatus.replacedFrom || this.proxyStatus;
-        this._setProxyStatus(owned ? base : { ...base, ok: false, code: 'replaced', lost: info.lost, replacedFrom: base });
+        const fight = info.gaveUp ? { by: info.by || [] } : null;
+        this._setProxyStatus(owned ? base : { ...base, ok: false, code: 'replaced', lost: info.lost, fight, replacedFrom: base });
       },
+      // Who most likely did it: the program serving the PAC that replaced
+      // ours, else a running tool known to set the system proxy.
+      whoTookIt: (takeover) => EngineManager.whoTookProxy(takeover),
     });
     this.onAdvice = hooks.onAdvice || (() => {});
     // What the window should tell the user about this network. Kept here, not
@@ -1024,6 +1031,21 @@ class EngineManager {
         if (st.code !== 'replaced') this.log('success', 'Proxy routing updated');
         return { success: true, status: st };
       }
+      // Taken over and the user asked: where Shroudly would set it back by
+      // itself (removed, or another tool's PAC on this computer), it is set
+      // back the same way, the user's own settings still what Stop puts back.
+      // A newer choice (a manual proxy, a PAC elsewhere) is set over with a
+      // new snapshot below, so Stop brings that back.
+      if (replaced && typeof this.proxy.retakeNow === 'function') {
+        const back = await this.proxy.retakeNow();
+        if (back && this._live()) {
+          if (this.proxy.updateRouting) this.proxy.updateRouting(cfg.routeMode, cfg.siteList);
+          this._setProxyStatus(back);
+          if (back.ok) this.log('success', 'Proxy routing updated');
+          return { success: true, status: back };
+        }
+        if (!this._live()) return { success: true, status: null };
+      }
       await this.proxy.restore();                       // back to the user's own settings
       let status = this._live() ? await this.proxy.apply(this.port, cfg.routeMode, cfg.siteList) : null;
       if (status && replaced && st.admin && status.code === 'needs_admin' && this.proxy.applyAsAdmin && this._live()) {
@@ -1043,6 +1065,30 @@ class EngineManager {
 
   /* Protection is on, and no stop is on its way. */
   _live() { return this.active && !this.stopping; }
+
+  /* The system proxy is read again in a few seconds, ahead of its timer: at
+   * the moments another program most often takes it over (a Discord that
+   * just started, a program the autopilot restarted). */
+  checkProxySoon() {
+    if (this._live() && this.proxy && typeof this.proxy.checkSoon === 'function') this.proxy.checkSoon();
+  }
+
+  /* The programs that most likely took the system proxy over (see
+   * SystemProxy.checkOwnership): the one listening where the PAC that
+   * replaced ours is served, if it is on this computer; otherwise the
+   * running tools known to set the system proxy. Names as people know them
+   * where the tool is a known one. `probe` stands in for both lookups in the
+   * tests. */
+  static async whoTookProxy(takeover, probe = {}) {
+    const listener = probe.listener || ((port) => procnet.listener(port));
+    const tools = probe.tools || (() => diagnostics.proxyTools());
+    if (takeover && takeover.kind === 'local' && takeover.port) {
+      let who = null;
+      try { who = await listener(takeover.port); } catch {}
+      if (who && who.name) return [diagnostics.toolName(who.name)];
+    }
+    try { return (await tools()) || []; } catch { return []; }
+  }
 
   _setProxyStatus(status) {
     this.proxyStatus = status || null;

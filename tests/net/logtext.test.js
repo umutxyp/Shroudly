@@ -68,6 +68,12 @@ const LINES = [
   'gone.example: could not be reached (DNS)',
   'gone.example: could not be reached (connection)',
   'Another program changed the system proxy (Wi-Fi): that traffic no longer goes through Shroudly',
+  // Issue #27: a takeover set back by itself, and a program that keeps taking it.
+  'Autopilot: another program changed the system proxy (AutoConfigURL); set it back to Shroudly',
+  'Another program keeps changing the system proxy (AutoConfigURL); Shroudly stopped setting it back. Close the other proxy or VPN program, then set Shroudly again.',
+  'Another program keeps changing the system proxy (Wi-Fi, Ethernet), probably V2Ray / Clash, Psiphon; Shroudly stopped setting it back. Close it or turn off its proxy setting, then set Shroudly again.',
+  // The user's own PAC served by a program that has gone: switched off, not put back.
+  'The proxy setting from before Shroudly (http://127.0.0.1:7890/pac) points at a program on this computer that is no longer running; it was switched off instead of put back',
   'System routed through local proxy on port 10808 (administrator)',
   'System DNS is a program on this computer: dnscrypt-proxy',
   'Games and apps: the first program connected through Shroudly (clientsettings.roblox.com)',
