@@ -22,6 +22,7 @@ const https = require('https');
 const crypto = require('crypto');
 const { execFile, spawn } = require('child_process');
 const { envFor } = require('./win-powershell');
+const PsHost = require('./ps-host');
 
 function run(cmd, args, opts = {}) {
   return new Promise((resolve) => execFile(cmd, args, { windowsHide: true, timeout: 10000, ...opts, env: envFor(cmd, opts.env) }, (err, out) => resolve(err ? '' : String(out))));
@@ -190,33 +191,69 @@ async function processes() {
   return { players: [], studios: [], installers: { player: [], studio: [] } };
 }
 
+/* Windows: what is asked of PowerShell (ps-host.js), kept running while it
+ * may be needed: one request per line, one answer per line, ASCII only.
+ *   "<id> info <pid,pid,...>"  ->  "<id> info pid|start|path;..." for each
+ *       process still there: its start time (FILETIME, UTC) and its file
+ *       (base64 of UTF-8), each empty when it cannot be read (another user's
+ *       or an elevated process, one already gone).
+ *   "<id> sig <file, base64>"  ->  "<id> sig Status|signer|message" (signer
+ *       and message base64): the file's signature as Windows judges it.
+ * With SHROUDLY_REQ set it answers that one request and ends. */
+const PS_HANDLE = [
+  '$f = $l.Split(\' \')',
+  "$a = ''",
+  'if ($f.Length -gt 2) { $a = $f[2] }',
+  "$o = ''",
+  "try { if ($f[1] -eq 'info') { $r = @(); foreach ($x in $a.Split(',')) { $p = Get-Process -Id ([int]$x); if (-not $p) { continue }; " +
+    "$t = ''; try { $t = $p.StartTime.ToFileTime() } catch {}; $q = ''; try { $q = $p.Path } catch {}; $r += ($x + '|' + $t + '|' + (B $q)) }; $o = $r -join ';' } " +
+    "elseif ($f[1] -eq 'sig') { $s = Get-AuthenticodeSignature -LiteralPath ($u.GetString([Convert]::FromBase64String($a))); " +
+    "$o = [string]$s.Status + '|' + (B $s.SignerCertificate.Subject) + '|' + (B $s.StatusMessage) } } catch { $o = 'error|' + (B $_.Exception.Message) }",
+  "[Console]::Out.WriteLine($f[0] + ' ' + $f[1] + ' ' + $o)",
+  '[Console]::Out.Flush()',
+].join('; ');
+const PS_SCRIPT = [
+  "$ErrorActionPreference = 'SilentlyContinue'",
+  '$u = [Text.Encoding]::UTF8',
+  "function B([string]$v) { if ($v) { [Convert]::ToBase64String($u.GetBytes($v)) } else { '' } }",
+  `function H([string]$l) { ${PS_HANDLE} }`,
+  "if ($env:SHROUDLY_REQ) { H $env:SHROUDLY_REQ } else { while ($true) { $l = [Console]::In.ReadLine(); if ($null -eq $l) { break }; H $l } }",
+].join('; ');
+const psHost = new PsHost({ script: PS_SCRIPT });
+
+/* PowerShell started ahead of time, while Roblox's programs may need to be
+ * seen to (Windows): the first question then does not wait for it. */
+function prepare() { if (process.platform === 'win32') psHost.prepare(); }
+/* ... and let go of now (it also leaves by itself after a few idle minutes). */
+function release() { psHost.stop(); }
+
+const b64 = (v) => Buffer.from(String(v || ''), 'utf8').toString('base64');
+const unb64 = (v) => { try { return Buffer.from(String(v || ''), 'base64').toString('utf8'); } catch { return ''; } };
+
 /* Windows: when each of these processes started (ms since 1970, by the
- * system's clock) and the program file it runs, both asked in one
- * PowerShell call for every new process at once. Its start time tells
+ * system's clock) and the program file it runs. Its start time tells
  * whether it can have the setting at all; its file is what an installer is
  * started again from (it goes with the process, so it is read as soon as
  * the process is seen). Resolves pid -> { startedAt, path }, each null when
- * it could not be read (a process of another user, one already gone). */
+ * it could not be read; an empty map when PowerShell gave no answer in time
+ * (the caller then judges without it). */
 const FILETIME_EPOCH_MS = 11644473600000;
-function parseProcessInfo(out) {
+const INFO_TIMEOUT_MS = 45000;
+function parseProcessInfo(payload) {
   const found = new Map();
-  for (const line of String(out || '').split(/\r?\n/)) {
-    const [id, t, ...rest] = line.trim().split('|');
+  for (const item of String(payload || '').split(';')) {
+    const [id, t, file] = item.trim().split('|');
     if (!/^\d+$/.test(id || '')) continue;
     const startedAt = /^\d{15,19}$/.test(t || '') ? Math.round(Number(t) / 1e4 - FILETIME_EPOCH_MS) : null;
-    const file = rest.join('|').trim();
-    found.set(Number(id), { startedAt, path: /^[a-z]:\\|^\\\\/i.test(file) ? file : null });
+    const p = unb64(file).trim();
+    found.set(Number(id), { startedAt, path: /^[a-z]:\\|^\\\\/i.test(p) ? p : null });
   }
   return found;
 }
-function processInfo(list) {
+async function processInfo(list) {
   const ids = (list || []).filter((p) => Number.isInteger(p) && p > 0);
-  if (process.platform !== 'win32' || !ids.length) return Promise.resolve(new Map());
-  const env = { ...process.env, SHROUDLY_PIDS: ids.join(',') };
-  return new Promise((resolve) => execFile('powershell.exe', ['-NoProfile', '-NonInteractive', '-Command',
-    "foreach ($id in ($env:SHROUDLY_PIDS -split ',')) { $p = Get-Process -Id ([int]$id) -ErrorAction SilentlyContinue; if (-not $p) { continue }; " +
-    "$t = ''; try { $t = $p.StartTime.ToFileTime() } catch {}; $f = ''; try { $f = $p.Path } catch {}; \"$id|$t|$f\" }"],
-  { windowsHide: true, timeout: 20000, env: envFor('powershell.exe', env) }, (err, out) => resolve(parseProcessInfo(out))));
+  if (process.platform !== 'win32' || !ids.length) return new Map();
+  return parseProcessInfo(await psHost.request('info', ids.join(','), INFO_TIMEOUT_MS));
 }
 
 /* What to do about Roblox's programs on one look (roblox-watch.js), as a
@@ -394,15 +431,16 @@ function get(url, { socksPort, connect, toFile, timeoutMs = 60000, redirects = 3
  * a file found signed is remembered by its content (signedInstaller), and
  * why the check starts as soon as an installer is seen, long before it is
  * known whether it has to be started again. */
-function signatureOf(file) {
-  if (process.platform !== 'win32') return Promise.resolve('');
-  const env = { ...process.env, SHROUDLY_FILE: file };
-  return new Promise((resolve) => execFile('powershell.exe', ['-NoProfile', '-NonInteractive', '-Command',
-    '$s = Get-AuthenticodeSignature -LiteralPath $env:SHROUDLY_FILE; "$($s.Status)|$($s.SignerCertificate.Subject)|$($s.StatusMessage)"'],
-  { windowsHide: true, timeout: 120000, env: envFor('powershell.exe', env) }, (err, out, errOut) => {
-    const text = String(out || '').trim();
-    resolve(text || (err ? `no answer: ${err.killed ? 'timed out' : String(errOut || err.message).trim().split(/\r?\n/)[0]}` : ''));
-  }));
+const SIG_TIMEOUT_MS = 120000;
+function parseSignature(payload) {
+  if (payload == null) return 'no answer: timed out';
+  const [status, subject, message] = String(payload).split('|');
+  if (status === 'error') return `no answer: ${unb64(subject).split(/\r?\n/)[0]}`;
+  return status ? `${status}|${unb64(subject)}|${unb64(message)}` : '';
+}
+async function signatureOf(file) {
+  if (process.platform !== 'win32') return '';
+  return parseSignature(await psHost.request('sig', b64(file), SIG_TIMEOUT_MS));
 }
 const byRoblox = (sig) => {
   const [status, subject] = String(sig || '').split('|');
@@ -531,7 +569,7 @@ function isRobloxHost(h) { return ROBLOX_HOST.test(String(h || '')); }
 
 module.exports = {
   installs, installed, handler, launcher, isBootstrapper, storeEdition, pids, parsePids, installerPids, parseInstallerPids,
-  processes, parseProcesses, processInfo, parseProcessInfo, decide, kill, routeWatched, alive, open, restart, install,
+  processes, parseProcesses, processInfo, parseProcessInfo, parseSignature, prepare, release, PS_SCRIPT, decide, kill, routeWatched, alive, open, restart, install,
   startInstaller, signedInstaller, signedCache, sameFile, fileHash, cleanDownloads, newDownload, isRobloxHost, get, signedByRoblox,
   BOOTSTRAPPERS, KINDS,
 };

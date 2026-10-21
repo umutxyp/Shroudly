@@ -114,7 +114,7 @@ async function robloxInstaller(proxy, socksPort) {
   const watch = new RobloxWatch({
     now: () => Date.now(), setTimeout: (fn, ms) => setTimeout(fn, ms), clearTimeout: (h) => clearTimeout(h), watched: true,
     on: () => true, active: () => true, blocked: () => true, stillBlocked: async () => true, checkSoon: () => {},
-    lastRequestAt: () => lastReq, list: () => RobloxApp.processes(), info: (pids) => RobloxApp.processInfo(pids),
+    lastRequestAt: () => lastReq, list: () => RobloxApp.processes(), info: (pids) => RobloxApp.processInfo(pids), prepare: () => RobloxApp.prepare(),
     signed: (file, kind) => RobloxApp.signedInstaller(file, kind), same: (file, hash) => RobloxApp.sameFile(file, hash),
     kill: (pids) => { acted.push({ kill: pids, at: Date.now() }); return RobloxApp.kill(pids); },
     startInstaller: (file) => { const pid = RobloxApp.startInstaller(file, env); restarted = { pid, file, at: Date.now() }; return pid; },
@@ -154,17 +154,23 @@ async function robloxInstaller(proxy, socksPort) {
     t.ok(through > 0 && direct.size === 0, `real Roblox installer: ${through} connections through Shroudly, ${direct.size} around it`);
     t.ok(roblox.size > 0, `Shroudly can tell they are Roblox's (${[...roblox].slice(0, 4).join(', ')})`);
 
-    // What the watcher asks of Windows, timed.
+    // What the watcher asks of Windows, timed: the PowerShell it keeps
+    // running (started by the watcher above, so normally ready by now),
+    // asked twice; a slow machine (ARM) shows in the first answer only.
     let t0 = Date.now();
     const info = await RobloxApp.processInfo([process.pid]);
     const infoMs = Date.now() - t0;
-    const me = info.get(process.pid);
+    t0 = Date.now();
+    const info2 = await RobloxApp.processInfo([process.pid]);
+    const infoMs2 = Date.now() - t0;
+    const me = info.get(process.pid) || info2.get(process.pid);
     t0 = Date.now();
     const hash = await RobloxApp.signedInstaller(r.file, 'player');
     const sigMs = Date.now() - t0;
-    console.log(`  ..  PowerShell reading a process: ${infoMs} ms; signature check of the installer: ${sigMs} ms`);
+    console.log(`  ..  PowerShell reading a process: ${infoMs} ms, then ${infoMs2} ms; signature check of the installer: ${sigMs} ms`);
     t.ok(me && Math.abs(me.startedAt - (Date.now() - process.uptime() * 1000)) < 5000 && /node/i.test(me.path || ''),
       `a process's start time and file read on Windows (${me && new Date(me.startedAt).toISOString()}, ${me && me.path})`);
+    t.ok(infoMs2 < 5000, `asked again, PowerShell is not started again (${infoMs2} ms)`);
     t.ok(!!hash, 'the downloaded installer is taken for Roblox\'s, signed by Roblox');
 
     // Around Shroudly: a proxy that takes the connection and never answers.
@@ -179,16 +185,23 @@ async function robloxInstaller(proxy, socksPort) {
     const child = require('child_process').spawn(r.file, [], { detached: true, stdio: 'ignore', env: aroundEnv });
     child.on('error', () => {});
     child.unref();
-    while (Date.now() - started < 60000 && !(restarted && firstThrough)) await sleep(250);
+    // How long is realistic depends on the machine: an ARM runner emulates
+    // the installer and takes seconds to start PowerShell or check a
+    // signature. Handled it must be, on every machine.
+    const bound = process.arch === 'arm64' ? 90000 : 20000;
+    while (Date.now() - started < 150000 && !(restarted && firstThrough)) await sleep(250);
     silent.close();
     const tookRestart = restarted ? restarted.at - started : null;
     const tookThrough = firstThrough ? firstThrough - started : null;
     console.log(`  ..  installer around Shroudly (pid ${child.pid}): stopped ${acted.filter((a) => a.kill).map((a) => `${a.at - started} ms`).join(', ') || 'never'}, started again ${tookRestart} ms, its first request through Shroudly ${tookThrough} ms after it started`);
     t.ok(restarted && restarted.file === r.file && acted.some((a) => a.kill && a.kill.includes(child.pid)) && !acted.some((a) => a.download),
       `an installer started around Shroudly is stopped and started again from its own file, through Shroudly, ${tookRestart} ms after it started`);
-    t.ok(tookRestart != null && tookRestart <= 20000 && tookThrough != null, `…and reaches Roblox through Shroudly ${tookThrough} ms after it first started`);
+    t.ok(tookRestart != null && tookThrough != null, `…and reaches Roblox through Shroudly ${tookThrough} ms after it first started`);
+    t.ok(tookRestart <= bound, `within ${bound / 1000} s on this machine (${process.arch}): ${tookRestart} ms`);
   } finally {
     watch.stop();
+    await Promise.race([watch.idle(), sleep(20000)]);
+    RobloxApp.release();
     proxy.onTunnel = null;
     proxy.onRequest = null;
     await killAll();
@@ -259,10 +272,17 @@ async function robloxInstaller(proxy, socksPort) {
       `Windows: players, Studio and both installers from one process listing (${JSON.stringify(all)})`);
     t.ok(JSON.stringify(RobloxApp.parseProcesses('INFO: No tasks are running which match the specified criteria.\r\n', 'win32')) === '{"players":[],"studios":[],"installers":{"player":[],"studio":[]}}', 'none running');
     // When each started and the file it runs (PowerShell, one call).
-    const info = RobloxApp.parseProcessInfo('6100|133759296000000000|D:\\Games\\Roblox\\RobloxPlayerInstaller.exe\r\n5100||\r\n4120|133759296123456789|C:\\Users\\a\\AppData\\Local\\Roblox\\Versions\\v\\RobloxPlayerBeta.exe\r\nnoise\r\n');
+    const b = (v) => Buffer.from(v, 'utf8').toString('base64');
+    const info = RobloxApp.parseProcessInfo(`6100|133759296000000000|${b('D:\\Games\\Roblox\\RobloxPlayerInstaller.exe')};5100||;`
+      + `4120|133759296123456789|${b('C:\\Users\\Ümit Şahin\\AppData\\Local\\Roblox\\Versions\\v\\RobloxPlayerBeta.exe')};noise|x|y`);
     t.ok(info.get(6100).startedAt === Date.UTC(2024, 10, 13) && info.get(6100).path === 'D:\\Games\\Roblox\\RobloxPlayerInstaller.exe' && info.get(4120).startedAt === Date.UTC(2024, 10, 13) + 12346,
       `Windows: a process's start time (FILETIME, UTC) and its file (${new Date(info.get(6100).startedAt).toISOString()})`);
+    t.ok(info.get(4120).path === 'C:\\Users\\Ümit Şahin\\AppData\\Local\\Roblox\\Versions\\v\\RobloxPlayerBeta.exe', 'a file under a user name in Turkish arrives whole (base64, whatever the console code page)');
     t.ok(info.get(5100).startedAt === null && info.get(5100).path === null && info.size === 3, "one whose start time and file cannot be read (another user's, elevated): known to be there, nothing more");
+    t.ok(RobloxApp.parseProcessInfo(null).size === 0, 'no answer from PowerShell in time: nothing known (the watcher judges without it)');
+    t.ok(RobloxApp.parseSignature(`Valid|${b('CN="Roblox Corporation", O="Roblox Corporation"')}|${b('İmza doğrulandı.')}`) === 'Valid|CN="Roblox Corporation", O="Roblox Corporation"|İmza doğrulandı.'
+      && RobloxApp.parseSignature(null) === 'no answer: timed out' && RobloxApp.parseSignature(`error|${b('Access denied\r\nmore')}`) === 'no answer: Access denied',
+    "a signature's answer read back (signer and a Turkish Windows' message intact); no answer, or PowerShell's error, said as such");
   }
   {
     // An installer caught going around Shroudly is started again from its

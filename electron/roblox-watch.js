@@ -43,6 +43,13 @@ const FAST_MS = 2000;
 const IDLE_MS = 5000;
 const SLOW_MS = 20000;
 const WARM_MS = 60000;
+// Its start time, asked of PowerShell, is waited for at most this long
+// (a cold PowerShell takes 20 s on a slow machine); it is judged without
+// it after that.
+const INFO_WAIT_MS = 10000;
+// Its file (an installer is started again from it) is waited for this long
+// before it is stopped anyway and the current installer downloaded instead.
+const PATH_WAIT_MS = 60000;
 
 /* One process: 'around', 'through' or 'waiting' (not known yet).
  *   p    { role: 'installer' | 'player' | 'studio', firstSeen, after (the
@@ -65,8 +72,9 @@ function judge(p, ctx) {
   if (start != null && setAt && start < setAt) return 'around';
   let since = start != null ? start : p.after;
   if (since == null) {
-    // Seen on the first look: its start time is on its way.
-    if (p.probing) return 'waiting';
+    // Seen on the first look: its start time is on its way. Not for long:
+    // without it, any request from Roblox at all spares it.
+    if (p.probing && now - p.firstSeen < INFO_WAIT_MS) return 'waiting';
     since = 0;
   }
   // A request from Roblox since it can have started: it, or another program
@@ -106,6 +114,7 @@ class RobloxWatch {
    * d.lastRequestAt()          Roblox's last request through Shroudly
    * d.list()                   { players, studios, installers: { player, studio } } or null
    * d.info(pids)               Map pid -> { startedAt, path } (Windows), optional
+   * d.prepare()                get what d.info and d.signed need ready (Windows), optional
    * d.signed(path, kind)       its content's hash if Roblox's signed installer, else null
    * d.same(path, hash)         still that content
    * d.kill(pids), d.startInstaller(path) -> pid, d.install(kind) -> { success, pid },
@@ -119,6 +128,8 @@ class RobloxWatch {
     this.before = new Set();    // open when the mode came on
     this.setAt = 0;             // when the setting was put in place
     this.handled = new Set();   // restarted or told about
+    this.claimed = new Set();   // being seen to right now
+    this.jobs = new Set();      // what is being done (never waited for by a look)
     this.ours = new Set();      // started by Shroudly, with the setting
     this.studioTold = new Map();// Studio pid -> when the user was asked to reopen it
     this.restarts = [];         // when the player was restarted
@@ -154,8 +165,12 @@ class RobloxWatch {
    * often for a while, starting now. */
   warm() {
     this.warmUntil = Math.max(this.warmUntil, this.d.now() + WARM_MS);
+    if (this.d.watched && this.d.prepare && this.d.on()) { try { this.d.prepare(); } catch {} }
     this.poke();
   }
+
+  /* Everything under way done (tests). */
+  async idle() { while (this.jobs.size) await Promise.all([...this.jobs]); }
 
   /* Look now (or right after the look under way). */
   poke() {
@@ -193,9 +208,10 @@ class RobloxWatch {
     const ctx = this._ctx(now);
     let first = null;
     for (const p of this.procs.values()) {
-      if (this.handled.has(p.pid) || this.ours.has(p.pid) || this.before.has(p.pid)) continue;
+      if (this.handled.has(p.pid) || this.ours.has(p.pid) || this.before.has(p.pid) || this.claimed.has(p.pid)) continue;
       if (judge(p, ctx) !== 'waiting') continue;
-      const at = p.probing && p.after == null ? now + FAST_MS : dueAt(p);
+      const at = p.probing && p.after == null && now - p.firstSeen < INFO_WAIT_MS
+        ? Math.min(now + FAST_MS, p.firstSeen + INFO_WAIT_MS) : dueAt(p);
       if (first === null || at < first) first = at;
     }
     return first;
@@ -273,7 +289,23 @@ class RobloxWatch {
       // Its start time may decide it: no need to wait for the next look.
       this.poke();
     };
-    Promise.resolve().then(() => d.info(want.map((p) => p.pid))).then(done, () => done(null));
+    const asked = Promise.resolve().then(() => d.info(want.map((p) => p.pid))).then(done, () => done(null));
+    for (const p of want) p.info = asked;
+  }
+
+  /* `promise`, or undefined once `ms` have passed. */
+  _within(promise, ms) {
+    return new Promise((resolve) => {
+      const h = this.d.setTimeout(() => resolve(undefined), ms);
+      Promise.resolve(promise).then((v) => { this.d.clearTimeout(h); resolve(v); }, () => { this.d.clearTimeout(h); resolve(undefined); });
+    });
+  }
+
+  _job(promise) {
+    const p = Promise.resolve(promise).catch(() => {});
+    this.jobs.add(p);
+    p.then(() => this.jobs.delete(p));
+    return p;
   }
 
   _check(p) {
@@ -299,62 +331,37 @@ class RobloxWatch {
     const dec = decide({
       players: list.players, studios: list.studios, installers: list.installers,
       quiet: this.quiet(now), before: [...this.before],
-      handled: [...this.handled, ...this.ours], restarts: this.restarts, now,
+      handled: [...this.handled, ...this.ours, ...this.claimed], restarts: this.restarts, now,
     });
     const something = dec.installers.player.length || dec.installers.studio.length || dec.restartPlayers.length || dec.stuckPlayers.length || dec.tellStudios.length;
     if (!something) return;
     // Only where Roblox is blocked: not known yet, it is found out now (the
     // verdict, when it comes, looks again at once).
     if (!d.blocked()) { d.checkSoon(); return; }
+    // Seen to apart from the looks, which go on meanwhile: a signature check
+    // that takes 20 s, or a file still being asked for, holds up nothing else.
+    const mine = [...dec.installers.player, ...dec.installers.studio, ...dec.restartPlayers, ...dec.stuckPlayers, ...dec.tellStudios];
+    mine.forEach((pid) => this.claimed.add(pid));
+    this._job(this._act(dec, gen)).then(() => mine.forEach((pid) => this.claimed.delete(pid)));
+  }
+
+  async _act(dec, gen) {
+    const d = this.d;
     // Before touching a program: still blocked right now (checked again if
     // the verdict is not fresh)?
     if (!(await d.stillBlocked()) || gen !== this.gen) return;
-
-    for (const kind of ['player', 'studio']) {
-      const ids = dec.installers[kind];
-      if (!ids.length) continue;
-      // Asked again right before: a pid seen a while ago may have ended and
-      // been given to another program since.
-      const fresh = await d.list();
-      const still = fresh ? ids.filter((pid) => fresh.installers[kind].includes(pid)) : [];
-      ids.forEach((pid) => this.handled.add(pid));
-      if (!still.length) continue;
-      const p = this.procs.get(still[0]);
-      // Its file, read before it is stopped (it goes with the process).
-      if (p && !p.probed && d.info) {
-        const m = await Promise.resolve().then(() => d.info([p.pid])).catch(() => null);
-        const i = m && m.get(p.pid);
-        p.probed = true;
-        if (i) p.path = i.path || null;
-      }
-      if (p) this._check(p);
-      // Stopped while its file is still being checked: the user waits for
-      // the slower of the two, not for both.
-      const [, hash] = await Promise.all([d.kill(still), p && p.file ? p.file : null]);
-      let pid = false;
-      if (hash && await d.same(p.path, hash)) pid = d.startInstaller(p.path);
-      else {
-        // Not Roblox's own signed installer (or its file could not be read):
-        // the current one, fetched through the engine.
-        const r = await d.install(kind);
-        pid = r && r.success ? (r.pid || true) : false;
-      }
-      if (pid) {
-        if (Number.isInteger(pid)) this.ours.add(pid);
-        d.log('success', 'Autopilot: a Roblox installer went around Shroudly; started it again through Shroudly');
-        d.tell('autoInstallerRestarted');
-      }
-    }
+    const jobs = ['player', 'studio'].filter((kind) => dec.installers[kind].length).map((kind) => this._replace(kind, dec.installers[kind], gen));
 
     if (dec.restartPlayers.length) {
       dec.restartPlayers.forEach((pid) => this.handled.add(pid));
-      const pid = await d.restart(dec.restartPlayers);
-      if (pid) {
+      jobs.push((async () => {
+        const pid = await d.restart(dec.restartPlayers);
+        if (!pid) return;
         if (Number.isInteger(pid)) this.ours.add(pid);
         this.restarts.push(d.now());
         d.log('success', 'Autopilot: Roblox did not get through Shroudly; restarted it');
         d.tell('autoRobloxRestarted');
-      }
+      })());
     }
     if (dec.stuckPlayers.length) {
       dec.stuckPlayers.forEach((pid) => this.handled.add(pid));
@@ -369,7 +376,51 @@ class RobloxWatch {
       d.tell('autoStudioReopen');
       d.studioReopen(at);
     }
+    await Promise.all(jobs);
+  }
+
+  /* An installer around Shroudly, stopped and started again through it:
+   * from its own file when that is Roblox's, signed by Roblox (known as soon
+   * as the check that began when it was first seen ends), else the current
+   * one fetched through the engine. Never an unsigned file. */
+  async _replace(kind, ids, gen) {
+    const d = this.d;
+    // Asked again right before: a pid seen a while ago may have ended and
+    // been given to another program since.
+    const fresh = await d.list();
+    const still = fresh ? ids.filter((pid) => fresh.installers[kind].includes(pid)) : [];
+    ids.forEach((pid) => this.handled.add(pid));
+    if (!still.length || gen !== this.gen) return;
+    const p = this.procs.get(still[0]) || { pid: still[0], kind, role: 'installer', path: null, file: null };
+    // Its file goes with the process: waited for while it runs (PowerShell
+    // may still be starting), asked once more if the first answer had none.
+    if (!p.path && d.info) {
+      if (p.probing && p.info) await this._within(p.info, PATH_WAIT_MS);
+      if (!p.path) {
+        const m = await this._within(Promise.resolve().then(() => d.info([p.pid])), PATH_WAIT_MS);
+        const i = m && m.get && m.get(p.pid);
+        if (i && i.path) p.path = i.path;
+      }
+    }
+    if (gen !== this.gen) return;
+    this._check(p);
+    // Stopped while its file is still being checked; started again the
+    // moment the check ends.
+    const [, hash] = await Promise.all([d.kill(still), p.file || null]);
+    if (gen !== this.gen) return;
+    let pid = false;
+    if (hash && await d.same(p.path, hash)) pid = d.startInstaller(p.path);
+    else {
+      // Not Roblox's own signed installer (or its file could not be read):
+      // the current one, fetched through the engine.
+      const r = await d.install(kind);
+      pid = r && r.success ? (r.pid || true) : false;
+    }
+    if (!pid) return;
+    if (Number.isInteger(pid)) this.ours.add(pid);
+    d.log('success', 'Autopilot: a Roblox installer went around Shroudly; started it again through Shroudly');
+    d.tell('autoInstallerRestarted');
   }
 }
 
-module.exports = { RobloxWatch, judge, dueAt, pollDelay, QUIET_MS, FAST_MS, IDLE_MS, SLOW_MS, WARM_MS };
+module.exports = { RobloxWatch, judge, dueAt, pollDelay, QUIET_MS, FAST_MS, IDLE_MS, SLOW_MS, WARM_MS, INFO_WAIT_MS, PATH_WAIT_MS };

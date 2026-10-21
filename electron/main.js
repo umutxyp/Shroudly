@@ -1382,6 +1382,9 @@ const robloxWatch = new RobloxWatch({
   lastRequestAt: () => appSeen.robloxAt,
   list: () => RobloxApp.processes(),
   info: process.platform === 'win32' ? (pids) => RobloxApp.processInfo(pids) : null,
+  // PowerShell started ahead (it can take 20 s to start on a slow machine),
+  // while Roblox's programs may need to be seen to.
+  prepare: process.platform === 'win32' ? () => RobloxApp.prepare() : null,
   signed: (file, kind) => RobloxApp.signedInstaller(file, kind, { cache: robloxSigned }),
   same: (file, hash) => RobloxApp.sameFile(file, hash),
   kill: (pids) => RobloxApp.kill(pids),

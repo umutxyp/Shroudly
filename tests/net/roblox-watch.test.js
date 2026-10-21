@@ -23,7 +23,7 @@ const settle = async () => { for (let i = 0; i < 20; i++) await new Promise((r) 
  *   sigMs     the signature check (revocation asked online)
  *   listMs    one process listing
  *   firstAskMs  how soon a program started through Shroudly asks Roblox */
-function world({ probeMs = 1200, sigMs = 1500, listMs = 120, firstAskMs = 800, watched = true } = {}) {
+function world({ probeMs = 1200, sigMs = 1500, listMs = 120, firstAskMs = 800, watched = true, coldMs = 0, infoFails = false } = {}) {
   let now = 0;
   let seq = 1;
   const timers = [];
@@ -33,6 +33,9 @@ function world({ probeMs = 1200, sigMs = 1500, listMs = 120, firstAskMs = 800, w
   const procs = new Map();   // pid -> { role, kind, start, path, through, alive, end }
   let nextPid = 4000;
   let lastRequestAt = 0;
+  // PowerShell, kept running once started: its first answer waits for it to start.
+  let hostUpAt = null;
+  const host = () => { if (hostUpAt == null) hostUpAt = now + coldMs; return Math.max(0, hostUpAt - now); };
   const w = {
     get now() { return now; },
     procs, lists: 0, probes: 0, sigs: 0, killed: [], started: [], checks: 0, logs: [], told: [], installs: 0,
@@ -81,14 +84,16 @@ function world({ probeMs = 1200, sigMs = 1500, listMs = 120, firstAskMs = 800, w
       const of = (role, kind) => a.filter((p) => p.role === role && (!kind || p.kind === kind)).map((p) => p.pid);
       return { players: of('player'), studios: of('studio'), installers: { player: of('installer', 'player'), studio: of('installer', 'studio') } };
     },
+    prepare: () => { host(); },
     info: async (pids) => {
       w.probes++;
-      await sleep(probeMs);
+      await sleep(host() + probeMs);
+      if (infoFails) return new Map();
       const m = new Map();
       for (const pid of pids) { const p = procs.get(pid); if (p && p.alive) m.set(pid, { startedAt: p.start, path: p.role === 'installer' ? p.path : null }); }
       return m;
     },
-    signed: async (file) => { w.sigs++; await sleep(sigMs); return /Installer\.exe$/.test(file) ? 'a'.repeat(64) : null; },
+    signed: async (file) => { w.sigs++; await sleep(host() + sigMs); w.signedAt = now; return /Installer\.exe$/.test(file) && !w.unsigned ? 'a'.repeat(64) : null; },
     same: async () => true,
     kill: async (pids) => { await sleep(150); for (const pid of pids) { const p = procs.get(pid); if (p) { p.alive = false; p.end = now; w.killed.push({ pid, at: now }); } } return true; },
     startInstaller: (file) => {
@@ -120,7 +125,12 @@ function world({ probeMs = 1200, sigMs = 1500, listMs = 120, firstAskMs = 800, w
   };
   w.engineOn = () => { w.active = true; w.watch.warm(); };
   w.verdict = () => { w.blocked = true; w.watch.warm(); };
-  w.restartedAfter = (pid) => { const k = w.killed.find((x) => x.pid === pid); const s = k && w.started.find((x) => x.at >= k.at); return s ? s.at - procs.get(pid).start : null; };
+  w.restartedAfter = (pid) => {
+    const k = w.killed.find((x) => x.pid === pid);
+    const player = procs.get(pid).role === 'player';
+    const s = k && w.started.find((x) => x.at >= k.at && !!x.player === player);
+    return s ? s.at - procs.get(pid).start : null;
+  };
   return w;
 }
 
@@ -149,7 +159,9 @@ async function steady(opts) {
     t.ok(J({ ...base, startedAt: 2000 }, { now: 10500, setAt: 5000, lastRequestAt: 9000 }) === 'through',
       "a start time from before the look before is held to that look (the clock may have been set): it cannot mean it started before the setting");
     t.ok(J({ ...base, after: null, startedAt: 4000 }, { now: 10100, setAt: 5000 }) === 'around', 'started before the setting was in place: around it at once');
-    t.ok(J({ ...base, after: null, probing: true }, { now: 30000 }) === 'waiting', 'seen on the first look: its start time is waited for');
+    t.ok(J({ ...base, after: null, probing: true }, { now: 15000 }) === 'waiting', 'seen on the first look: its start time is waited for');
+    t.ok(J({ ...base, after: null, probing: true }, { now: 10000 + W.INFO_WAIT_MS }) === 'around' && J({ ...base, after: null, probing: true }, { now: 10000 + W.INFO_WAIT_MS, lastRequestAt: 1 }) === 'through',
+      `not for longer than ${W.INFO_WAIT_MS / 1000} s (a PowerShell that takes 20 s to start): judged without it, any request from Roblox sparing it`);
     t.ok(J({ ...base, after: null }, { now: 30000, lastRequestAt: 1 }) === 'through', 'and if it cannot be read, any request from Roblox at all spares it');
     t.ok(J({ ...base, role: 'player' }, { now: 16000 }) === 'waiting' && J({ ...base, role: 'player' }, { now: 18000 }) === 'around',
       `a player gets ${W.QUIET_MS.player / 1000} s (it starts slower than an installer)`);
@@ -212,6 +224,75 @@ async function steady(opts) {
     const b = w.start('installer', 'player');
     await w.run(w.now + 60000);
     t.ok(w.sigs === 1 && w.restartedAfter(b) <= 8000, `the same installer again: no second signature check, started again within ${(w.restartedAfter(b) / 1000).toFixed(1)} s (first time ${(w.restartedAfter(a) / 1000).toFixed(1)} s)`);
+  }
+
+  // ── slow machines: PowerShell that takes 20 s to start, signatures that take 20 s ──
+  {
+    // An ARM PC (windows-11-arm on CI: 20 s to start PowerShell, 23 s for
+    // the signature with it). PowerShell is started when the mode comes on,
+    // so an installer started later finds it ready; the signature is what
+    // the user waits for, and the installer is started again the moment it
+    // is known.
+    const w = world({ coldMs: 20000, probeMs: 300, sigMs: 3500 });
+    w.watch.start(); await w.modeOn(); w.engineOn(); w.verdict();
+    await w.run(60000);
+    const pid = w.start('installer', 'player');
+    await w.run(w.now + 120000);
+    const took = w.restartedAfter(pid);
+    const s = w.started.find((x) => x.at - w.procs.get(pid).start === took);
+    t.ok(took != null && took <= W.IDLE_MS + 120 + 300 + 3500 + 800 && s && s.file && !w.installs,
+      `a slow PC whose PowerShell was started ahead: an installer around Shroudly started again from its own file after ${(took / 1000).toFixed(1)} s`);
+  }
+  {
+    // The same machine at boot, with the installer already running: the
+    // cold start and a 23 s check both fall on the user, nothing more.
+    const w = world({ coldMs: 20000, probeMs: 300, sigMs: 3500 });
+    w.watch.start();
+    const pid = w.start('installer', 'player');
+    await w.run(1500); await w.modeOn();
+    await w.run(3000); w.engineOn();
+    await w.run(12000); w.verdict();
+    await w.run(180000);
+    const took = w.restartedAfter(pid);
+    t.ok(took != null && w.signedAt != null && took - (w.signedAt - w.procs.get(pid).start) <= 1000,
+      `at a slow PC's boot: started again ${(took / 1000).toFixed(1)} s after it started, ${((took - (w.signedAt - w.procs.get(pid).start)) / 1000).toFixed(1)} s after its signature was known (PowerShell started with the mode, 20 s to start)`);
+  }
+  {
+    // A 23 s signature check holds up nothing else: a player around Shroudly
+    // started meanwhile is restarted on time.
+    const w = world({ sigMs: 23000 });
+    w.watch.start(); await w.modeOn(); w.engineOn(); w.verdict();
+    await w.run(60000);
+    const inst = w.start('installer', 'player');
+    await w.run(w.now + 9000);
+    const player = w.start('player', 'player');
+    await w.run(w.now + 60000);
+    const tp = w.restartedAfter(player); const ti = w.restartedAfter(inst);
+    t.ok(tp != null && tp <= 11000 && ti != null && ti >= 23000,
+      `while an installer's signature takes 23 s (started again after ${(ti / 1000).toFixed(1)} s), a player around Shroudly is restarted after ${(tp / 1000).toFixed(1)} s: the looks go on`);
+  }
+  {
+    // PowerShell gives nothing at all (it never starts, or cannot read the
+    // process): the installer is still judged, from the process list alone,
+    // stopped, and the current installer downloaded through the engine.
+    const w = world({ infoFails: true });
+    w.watch.start(); await w.modeOn(); w.engineOn(); w.verdict();
+    await w.run(60000);
+    const pid = w.start('installer', 'player');
+    await w.run(w.now + 60000);
+    const k = w.killed.find((x) => x.pid === pid);
+    t.ok(k && k.at - w.procs.get(pid).start <= W.QUIET_MS.installer + W.IDLE_MS + 1000 && w.installs === 1 && w.sigs === 0,
+      `no start time and no file from PowerShell: still judged and stopped after ${((k ? k.at : 0) - w.procs.get(pid).start) / 1000} s, and the current installer downloaded instead`);
+  }
+  {
+    // Its file is not Roblox's signed installer: never started.
+    const w = world();
+    w.unsigned = true;
+    w.watch.start(); await w.modeOn(); w.engineOn(); w.verdict();
+    await w.run(60000);
+    const pid = w.start('installer', 'player');
+    await w.run(w.now + 60000);
+    t.ok(w.killed.some((x) => x.pid === pid) && w.installs === 1 && !w.started.some((x) => x.file), 'a file not signed by Roblox is never started: the current installer is downloaded through the engine instead');
   }
 
   // ── what must never be touched ──
