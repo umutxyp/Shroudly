@@ -3,10 +3,14 @@
 <resources>
     <string name="androidAlertsChannel">ကာကွယ်မှု သတိပေးချက်များ</string>
     <string name="androidAllApps">ဤစက်ပေါ်ရှိ အက်ပ်တိုင်းသည် Shroudly မှတစ်ဆင့် သွားသည်။</string>
+    <string name="androidBatteryHint">ဘက်ထရီဆက်တင်များက Shroudly ကို နောက်ခံတွင် ရပ်စေပြီး သင့်ချိတ်ဆက်မှုကို ဖြတ်တောက်နိုင်ပါသည်။ ဘက်ထရီကန့်သတ်ချက်မရှိဘဲ အလုပ်လုပ်ခွင့်ပြုပါ။</string>
+    <string name="androidBatterySettings">ဘက်ထရီဆက်တင်များ</string>
     <string name="androidDetails">အသေးစိတ်</string>
     <string name="androidDownloadApk">အပ်ဒိတ်ကို ဒေါင်းလုဒ်လုပ်ရန်</string>
+    <string name="androidNoInternet">ဤကွန်ရက်တွင် Shroudly သည် အင်တာနက်သို့ မရောက်နိုင်သဖြင့် ကာကွယ်မှု ရပ်သွားပြီး သင့်အက်ပ်များသည် ယခု တိုက်ရိုက် ချိတ်ဆက်နေပါသည်။ ထပ်မံကြိုးစားရန် Shroudly ကို ဖွင့်ပါ။</string>
     <string name="androidPrivacyPolicy">ကိုယ်ရေးအချက်အလက် မူဝါဒ</string>
     <string name="androidProtectionLost">အမှားတစ်ခုကြောင့် ကာကွယ်မှု ရပ်သွားသဖြင့် သင့်အက်ပ်များသည် ယခု တိုက်ရိုက် ချိတ်ဆက်နေပါသည်။ ပြန်စတင်ရန် Shroudly ကို ဖွင့်ပါ။</string>
+    <string name="androidShareLogs">မှတ်တမ်းများ မျှဝေရန်</string>
     <string name="androidVpnDenied">သင့်အက်ပ်များ၏ ချိတ်ဆက်မှုများကို သယ်ဆောင်ရန် Shroudly သည် VPN ခွင့်ပြုချက် လိုအပ်သည်။</string>
     <string name="androidVpnRevoked">Android က ကာကွယ်မှုကို ပိတ်လိုက်သည်။ များသောအားဖြင့် အခြား VPN အက်ပ်တစ်ခု ဖွင့်လိုက်သောကြောင့် ဖြစ်သည်။</string>
     <string name="connections">ချိတ်ဆက်မှုများ</string>

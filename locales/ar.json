@@ -388,5 +388,9 @@
   "androidProtectionLost": "توقفت الحماية بسبب خطأ، لذا تتصل تطبيقاتك الآن مباشرةً. افتح Shroudly لتشغيلها من جديد.",
   "androidDetails": "التفاصيل",
   "androidDownloadApk": "تنزيل التحديث",
-  "androidPrivacyPolicy": "سياسة الخصوصية"
+  "androidPrivacyPolicy": "سياسة الخصوصية",
+  "androidShareLogs": "مشاركة السجلات",
+  "androidNoInternet": "توقفت الحماية لأن Shroudly لم يتمكن من الوصول إلى الإنترنت على هذه الشبكة، لذا تتصل تطبيقاتك الآن مباشرةً. افتح Shroudly للمحاولة مجددًا.",
+  "androidBatteryHint": "قد توقف إعدادات البطارية Shroudly في الخلفية وتقطع اتصالك. اسمح له بالعمل دون قيود على البطارية.",
+  "androidBatterySettings": "إعدادات البطارية"
 }

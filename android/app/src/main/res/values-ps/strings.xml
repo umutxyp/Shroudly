@@ -3,10 +3,14 @@
 <resources>
     <string name="androidAlertsChannel">د ساتنې خبرتیاوې</string>
     <string name="androidAllApps">د دې وسیلې هر اپ د Shroudly له لارې تېرېږي.</string>
+    <string name="androidBatteryHint">د بیټرۍ امستنې کولی شي Shroudly په شالید کې ودروي او ستاسو اړیکه پرې کړي. اجازه ورکړئ چې د بیټرۍ له محدودیتونو پرته کار وکړي.</string>
+    <string name="androidBatterySettings">د بیټرۍ امستنې</string>
     <string name="androidDetails">جزئيات</string>
     <string name="androidDownloadApk">تازه نسخه ښکته کړئ</string>
+    <string name="androidNoInternet">ساتنه ودرېده ځکه چې Shroudly په دې شبکه کې انټرنېټ ته ونه رسېد، نو ستاسو اپونه اوس مستقیم نښلي. د بیا هڅې لپاره Shroudly پرانیزئ.</string>
     <string name="androidPrivacyPolicy">د محرمیت تګلاره</string>
     <string name="androidProtectionLost">ساتنه د یوې تېروتنې له امله ودرېده، نو ستاسو اپونه اوس مستقیم نښلي. د بیا پیلولو لپاره Shroudly پرانیزئ.</string>
+    <string name="androidShareLogs">لاګونه شریک کړئ</string>
     <string name="androidVpnDenied">Shroudly ته د VPN اجازه پکار ده څو ستاسو د اپونو اړیکې ولېږدوي.</string>
     <string name="androidVpnRevoked">Android ساتنه بنده کړه، معمولاً ځکه چې بل VPN اپ چالان شوی و.</string>
     <string name="connections">اړیکې</string>

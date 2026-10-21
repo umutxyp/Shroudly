@@ -3,10 +3,14 @@
 <resources>
     <string name="androidAlertsChannel">Апавяшчэнні абароны</string>
     <string name="androidAllApps">Усе праграмы на гэтай прыладзе ідуць праз Shroudly.</string>
+    <string name="androidBatteryHint">Налады батарэі могуць спыняць Shroudly у фоне і абрываць ваша злучэнне. Дазвольце яму працаваць без абмежаванняў батарэі.</string>
+    <string name="androidBatterySettings">Налады батарэі</string>
     <string name="androidDetails">Падрабязнасці</string>
     <string name="androidDownloadApk">Спампаваць абнаўленне</string>
+    <string name="androidNoInternet">Абарона спынілася, бо Shroudly не змог выйсці ў інтэрнэт у гэтай сетцы, таму вашы праграмы цяпер падключаюцца напрамую. Адкрыйце Shroudly, каб паспрабаваць зноў.</string>
     <string name="androidPrivacyPolicy">Палітыка прыватнасці</string>
     <string name="androidProtectionLost">Абарона спынілася з-за памылкі, таму вашы праграмы цяпер падключаюцца напрамую. Адкрыйце Shroudly, каб запусціць яе зноў.</string>
+    <string name="androidShareLogs">Падзяліцца журналам</string>
     <string name="androidVpnDenied">Shroudly патрэбны дазвол VPN, каб прапускаць злучэнні вашых праграм.</string>
     <string name="androidVpnRevoked">Android выключыў абарону — звычайна таму, што ўключана іншая VPN-праграма.</string>
     <string name="connections">Злучэнні</string>

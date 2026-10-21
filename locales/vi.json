@@ -388,5 +388,9 @@
   "androidProtectionLost": "Bảo vệ đã dừng do lỗi, vì vậy các ứng dụng của bạn hiện đang kết nối trực tiếp. Mở Shroudly để bật lại.",
   "androidDetails": "Chi tiết",
   "androidDownloadApk": "Tải bản cập nhật",
-  "androidPrivacyPolicy": "Chính sách quyền riêng tư"
+  "androidPrivacyPolicy": "Chính sách quyền riêng tư",
+  "androidShareLogs": "Chia sẻ nhật ký",
+  "androidNoInternet": "Bảo vệ đã dừng vì Shroudly không thể kết nối Internet trên mạng này, vì vậy các ứng dụng của bạn hiện đang kết nối trực tiếp. Mở Shroudly để thử lại.",
+  "androidBatteryHint": "Cài đặt pin có thể dừng Shroudly khi chạy nền và làm mất kết nối của bạn. Hãy cho phép Shroudly chạy mà không bị giới hạn pin.",
+  "androidBatterySettings": "Cài đặt pin"
 }

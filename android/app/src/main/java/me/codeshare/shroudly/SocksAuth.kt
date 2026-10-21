@@ -10,13 +10,10 @@ import java.security.SecureRandom
 /*
  * The engine's SOCKS5 port is on 127.0.0.1, where any app on the device can
  * reach it. A user name and password made fresh for each protection session
- * keep other apps from using it as a relay. The engine reads them from a file
- * ("--auth-file", one line "user:pass") in this app's private files, never
- * from its command line; hev, the encrypted DNS and the update check send them.
- *
- * Engines built before --auth-file existed ignore unknown options, so the
- * option is given only to an engine that knows it (supports()); with an older
- * one everything works as before, without a password.
+ * (and each engine restart) keep other apps from using it as a relay. The
+ * engine reads them from a file ("--auth-file", one line "user:pass") in this
+ * app's private files, never from its arguments; hev, the encrypted DNS, the
+ * health checks and the update check send them.
  */
 class SocksAuth(val user: String, val pass: String) {
     companion object {
@@ -30,18 +27,6 @@ class SocksAuth(val user: String, val pass: String) {
             return SocksAuth(hex(8), hex(16))
         }
 
-        /* Whether an engine binary takes OPTION: its name is in the binary as
-         * the string the argument parser compares with. */
-        fun supports(binary: File): Boolean = Engine.knows(binary, OPTION)
-
-        fun contains(hay: ByteArray, needle: ByteArray): Boolean {
-            if (needle.isEmpty()) return true
-            outer@ for (i in 0..hay.size - needle.size) {
-                for (j in needle.indices) if (hay[i + j] != needle[j]) continue@outer
-                return true
-            }
-            return false
-        }
     }
 
     init {

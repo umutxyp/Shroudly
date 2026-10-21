@@ -388,5 +388,9 @@
   "androidProtectionLost": "ההגנה נעצרה בגלל שגיאה, ולכן האפליקציות שלך מתחברות עכשיו ישירות. אפשר לפתוח את Shroudly כדי להפעיל אותה מחדש.",
   "androidDetails": "פרטים",
   "androidDownloadApk": "להוריד את העדכון",
-  "androidPrivacyPolicy": "מדיניות פרטיות"
+  "androidPrivacyPolicy": "מדיניות פרטיות",
+  "androidShareLogs": "שיתוף יומנים",
+  "androidNoInternet": "ההגנה נעצרה כי Shroudly לא הצליחה להגיע לאינטרנט ברשת הזו, ולכן האפליקציות שלך מתחברות עכשיו ישירות. אפשר לפתוח את Shroudly כדי לנסות שוב.",
+  "androidBatteryHint": "הגדרות הסוללה עלולות לעצור את Shroudly ברקע ולנתק את החיבור שלך. כדאי לאפשר לה לפעול בלי הגבלות סוללה.",
+  "androidBatterySettings": "הגדרות סוללה"
 }

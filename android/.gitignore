@@ -6,7 +6,7 @@ app/.cxx/
 local.properties
 *.keystore
 *.jks
-# The engine, built from core/ by scripts/build-core-android.js
+# Where the engine executable was built up to 2.6.1 (now src/main/cpp)
 app/src/main/jniLibs/
 # Fetched by scripts/fetch-hev.js
 third_party/

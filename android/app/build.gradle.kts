@@ -53,8 +53,10 @@ android {
         ndk { abiFilters += abis }
         externalNativeBuild {
             ndkBuild {
-                targets += "hev-socks5-tunnel"
-                // The JNI class the library registers its natives on (see Tun2Socks.kt).
+                // The engine (core/src, run inside the app's process) and hev:
+                // src/main/cpp/Android.mk.
+                targets += listOf("shroudlycore_jni", "hev-socks5-tunnel")
+                // The JNI class hev registers its natives on (see Tun2Socks.kt).
                 cFlags += listOf("-DPKGNAME=me/codeshare/shroudly", "-DCLSNAME=Tun2Socks")
                 arguments += listOf("APP_SUPPORT_FLEXIBLE_PAGE_SIZES=true")
             }
@@ -62,7 +64,7 @@ android {
     }
 
     externalNativeBuild {
-        ndkBuild { path = File(hevDir, "Android.mk") }
+        ndkBuild { path = file("src/main/cpp/Android.mk") }
     }
 
     signingConfigs {
@@ -93,11 +95,18 @@ android {
 
     buildFeatures { buildConfig = true }
 
-    // The engine is an executable shipped as lib*.so: it has to be extracted
-    // to nativeLibraryDir to be run. In the bundle this keeps the libraries
-    // compressed and extracted on Play's installs too. Every lib*.so is linked
+    // The libraries stay compressed in the APK (a smaller download) and are
+    // extracted at install, in the bundle's APKs too. Every lib*.so is linked
     // for 16 KB pages (scripts/check-16k.sh checks the APK and the bundle).
-    packaging { jniLibs { useLegacyPackaging = true } }
+    // libshroudlycore.so was the engine as a program of its own (up to
+    // 2.6.1, built into src/main/jniLibs by a script); one left there by an
+    // old build is not packaged.
+    packaging {
+        jniLibs {
+            useLegacyPackaging = true
+            excludes += "lib/*/libshroudlycore.so"
+        }
+    }
 
     lint {
         // Translations come from locales/*.json and are checked there.
@@ -110,19 +119,6 @@ dependencies {
     testImplementation("junit:junit:4.13.2")
 }
 
-// The engine (libshroudlycore.so) is built from core/ by scripts/build-core-android.js.
-// A release without it for every ABI would install and then do nothing.
-val checkEngine = tasks.register("checkEngine") {
-    val dir = layout.projectDirectory.dir("src/main/jniLibs")
-    val wanted = abis
-    doLast {
-        val missing = wanted.filter { !dir.file("$it/libshroudlycore.so").asFile.isFile }
-        if (missing.isNotEmpty()) {
-            throw GradleException("engine missing for ${missing.joinToString()}: run `node scripts/build-core-android.js`")
-        }
-    }
-}
-
 // The hev tree that is built must be the pinned one, file for file: a tree
 // accepted with SHROUDLY_HEV_TRUST=1, edited, or restored from a cache stops
 // the build. Hashing it takes well under a second.
@@ -132,6 +128,5 @@ val verifyHev = tasks.register<Exec>("verifyHev") {
 }
 
 tasks.configureEach {
-    if (name == "preReleaseBuild") dependsOn(checkEngine)
     if (name == "preBuild" || name.startsWith("configureNdkBuild") || name.startsWith("buildNdkBuild")) dependsOn(verifyHev)
 }

@@ -3,10 +3,14 @@
 <resources>
     <string name="androidAlertsChannel">התראות הגנה</string>
     <string name="androidAllApps">כל האפליקציות במכשיר הזה עוברות דרך Shroudly.</string>
+    <string name="androidBatteryHint">הגדרות הסוללה עלולות לעצור את Shroudly ברקע ולנתק את החיבור שלך. כדאי לאפשר לה לפעול בלי הגבלות סוללה.</string>
+    <string name="androidBatterySettings">הגדרות סוללה</string>
     <string name="androidDetails">פרטים</string>
     <string name="androidDownloadApk">להוריד את העדכון</string>
+    <string name="androidNoInternet">ההגנה נעצרה כי Shroudly לא הצליחה להגיע לאינטרנט ברשת הזו, ולכן האפליקציות שלך מתחברות עכשיו ישירות. אפשר לפתוח את Shroudly כדי לנסות שוב.</string>
     <string name="androidPrivacyPolicy">מדיניות פרטיות</string>
     <string name="androidProtectionLost">ההגנה נעצרה בגלל שגיאה, ולכן האפליקציות שלך מתחברות עכשיו ישירות. אפשר לפתוח את Shroudly כדי להפעיל אותה מחדש.</string>
+    <string name="androidShareLogs">שיתוף יומנים</string>
     <string name="androidVpnDenied">Shroudly צריך הרשאת VPN כדי להעביר את החיבורים של האפליקציות שלך.</string>
     <string name="androidVpnRevoked">Android כיבה את ההגנה, בדרך כלל כי הופעלה אפליקציית VPN אחרת.</string>
     <string name="connections">חיבורים</string>

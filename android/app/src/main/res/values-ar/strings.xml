@@ -3,10 +3,14 @@
 <resources>
     <string name="androidAlertsChannel">تنبيهات الحماية</string>
     <string name="androidAllApps">كل التطبيقات على هذا الجهاز تمر عبر Shroudly.</string>
+    <string name="androidBatteryHint">قد توقف إعدادات البطارية Shroudly في الخلفية وتقطع اتصالك. اسمح له بالعمل دون قيود على البطارية.</string>
+    <string name="androidBatterySettings">إعدادات البطارية</string>
     <string name="androidDetails">التفاصيل</string>
     <string name="androidDownloadApk">تنزيل التحديث</string>
+    <string name="androidNoInternet">توقفت الحماية لأن Shroudly لم يتمكن من الوصول إلى الإنترنت على هذه الشبكة، لذا تتصل تطبيقاتك الآن مباشرةً. افتح Shroudly للمحاولة مجددًا.</string>
     <string name="androidPrivacyPolicy">سياسة الخصوصية</string>
     <string name="androidProtectionLost">توقفت الحماية بسبب خطأ، لذا تتصل تطبيقاتك الآن مباشرةً. افتح Shroudly لتشغيلها من جديد.</string>
+    <string name="androidShareLogs">مشاركة السجلات</string>
     <string name="androidVpnDenied">يحتاج Shroudly إلى إذن VPN لنقل اتصالات تطبيقاتك.</string>
     <string name="androidVpnRevoked">أوقف Android الحماية، غالبًا لأن تطبيق VPN آخر تم تشغيله.</string>
     <string name="connections">الاتصالات</string>

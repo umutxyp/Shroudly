@@ -85,7 +85,7 @@ class TunnelConfigTest {
     fun configPointsHevAtTheEngine() {
         val y = TunnelConfig.yaml(41234)
         assertTrue(y.contains("socks5:\n  port: 41234\n  address: 127.0.0.1\n  udp: 'udp'\n"))
-        assertTrue(y.contains("mapdns:\n  address: ${TunnelConfig.DNS_V4}\n  port: 53\n  network: 198.19.0.0\n  netmask: 255.255.0.0\n"))
+        assertTrue(y.contains("mapdns:\n  address: ${TunnelConfig.DNS_V4}\n  port: 53\n  network: 198.19.0.0\n  netmask: 255.255.192.0\n"))
         assertTrue(y.contains("tunnel:\n  mtu: 8500\n"))
         assertTrue(y.contains("  max-session-count: 1800\n"))
         assertFalse(y.contains("username"))
@@ -118,7 +118,26 @@ class TunnelConfigTest {
         assertTrue(TunnelConfig.DNS_V4.startsWith("198.18."))
         assertTrue(TunnelConfig.ADDRESS_V4.startsWith("198.18."))
         assertEquals("198.19.0.0", TunnelConfig.MAPPED_NETWORK)
-        assertEquals("255.255.0.0", TunnelConfig.MAPPED_NETMASK)
+        assertEquals("255.255.192.0", TunnelConfig.MAPPED_NETMASK)
+    }
+
+    @Test
+    fun eachTunnelGetsTheNextStandInRange() {
+        // Four /18s that tile 198.19.0.0/16, each with room for the whole cache.
+        val ranges = (0 until 4).map { TunnelConfig.mappedNetwork(it) }
+        assertEquals(listOf("198.19.0.0", "198.19.64.0", "198.19.128.0", "198.19.192.0"), ranges)
+        assertEquals(TunnelConfig.mappedNetwork(0), TunnelConfig.mappedNetwork(4))
+        assertEquals(TunnelConfig.mappedNetwork(3), TunnelConfig.mappedNetwork(-1))
+        assertTrue(TunnelConfig.CACHE_SIZE < 16384)
+        for (i in 0 until 4) {
+            val y = TunnelConfig.yaml(41234, mapped = TunnelConfig.mappedNetwork(i))
+            assertTrue(y, y.contains("  network: ${ranges[i]}\n  netmask: 255.255.192.0\n  cache-size: ${TunnelConfig.CACHE_SIZE}\n"))
+        }
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun refusesARangeOutsideTheStandInSpace() {
+        TunnelConfig.yaml(41234, mapped = "10.0.0.0")
     }
 }
 

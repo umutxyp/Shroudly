@@ -3,10 +3,14 @@
 <resources>
     <string name="androidAlertsChannel">Qoruma xəbərdarlıqları</string>
     <string name="androidAllApps">Bu cihazdakı hər tətbiq Shroudly üzərindən keçir.</string>
+    <string name="androidBatteryHint">Batareya ayarları Shroudly-ni arxa planda dayandırıb bağlantınızı kəsə bilər. Ona batareya məhdudiyyətləri olmadan işləməyə icazə verin.</string>
+    <string name="androidBatterySettings">Batareya ayarları</string>
     <string name="androidDetails">Təfərrüatlar</string>
     <string name="androidDownloadApk">Yeniləməni endir</string>
+    <string name="androidNoInternet">Shroudly bu şəbəkədə internetə çıxa bilmədiyi üçün qoruma dayandı, ona görə tətbiqləriniz indi birbaşa qoşulur. Yenidən cəhd etmək üçün Shroudly-ni açın.</string>
     <string name="androidPrivacyPolicy">Məxfilik siyasəti</string>
     <string name="androidProtectionLost">Qoruma xəta səbəbindən dayandı, ona görə tətbiqləriniz indi birbaşa qoşulur. Yenidən başlatmaq üçün Shroudly-ni açın.</string>
+    <string name="androidShareLogs">Qeydləri paylaş</string>
     <string name="androidVpnDenied">Tətbiqlərinizin bağlantılarını daşımaq üçün Shroudly-yə VPN icazəsi lazımdır.</string>
     <string name="androidVpnRevoked">Qoruma Android tərəfindən söndürüldü; adətən başqa VPN tətbiqi açıldığı üçün.</string>
     <string name="connections">Bağlantılar</string>

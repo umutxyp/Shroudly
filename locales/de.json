@@ -388,5 +388,9 @@
   "androidProtectionLost": "Der Schutz wurde wegen eines Fehlers beendet, deine Apps verbinden sich jetzt direkt. Öffne Shroudly, um ihn wieder zu starten.",
   "androidDetails": "Details",
   "androidDownloadApk": "Update herunterladen",
-  "androidPrivacyPolicy": "Datenschutzerklärung"
+  "androidPrivacyPolicy": "Datenschutzerklärung",
+  "androidShareLogs": "Protokoll teilen",
+  "androidNoInternet": "Der Schutz wurde beendet, weil Shroudly in diesem Netz das Internet nicht erreicht hat. Deine Apps verbinden sich jetzt direkt. Öffne Shroudly, um es erneut zu versuchen.",
+  "androidBatteryHint": "Akku-Einstellungen können Shroudly im Hintergrund beenden und damit deine Verbindung unterbrechen. Erlaube Shroudly, ohne Akku-Einschränkungen zu laufen.",
+  "androidBatterySettings": "Akku-Einstellungen"
 }

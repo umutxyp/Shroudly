@@ -388,5 +388,9 @@
   "androidProtectionLost": "একটি ত্রুটির কারণে সুরক্ষা বন্ধ হয়ে গেছে, তাই আপনার অ্যাপগুলো এখন সরাসরি সংযোগ করছে। আবার চালু করতে Shroudly খুলুন।",
   "androidDetails": "বিস্তারিত",
   "androidDownloadApk": "আপডেট ডাউনলোড করুন",
-  "androidPrivacyPolicy": "গোপনীয়তা নীতি"
+  "androidPrivacyPolicy": "গোপনীয়তা নীতি",
+  "androidShareLogs": "লগ শেয়ার করুন",
+  "androidNoInternet": "Shroudly এই নেটওয়ার্কে ইন্টারনেটে পৌঁছাতে পারেনি বলে সুরক্ষা বন্ধ হয়ে গেছে, তাই আপনার অ্যাপগুলো এখন সরাসরি সংযোগ করছে। আবার চেষ্টা করতে Shroudly খুলুন।",
+  "androidBatteryHint": "ব্যাটারি সেটিংস Shroudly-কে ব্যাকগ্রাউন্ডে বন্ধ করে আপনার সংযোগ কেটে দিতে পারে। এটিকে ব্যাটারির বিধিনিষেধ ছাড়া চলতে দিন।",
+  "androidBatterySettings": "ব্যাটারি সেটিংস"
 }

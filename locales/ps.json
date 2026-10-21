@@ -388,5 +388,9 @@
   "androidProtectionLost": "ساتنه د یوې تېروتنې له امله ودرېده، نو ستاسو اپونه اوس مستقیم نښلي. د بیا پیلولو لپاره Shroudly پرانیزئ.",
   "androidDetails": "جزئيات",
   "androidDownloadApk": "تازه نسخه ښکته کړئ",
-  "androidPrivacyPolicy": "د محرمیت تګلاره"
+  "androidPrivacyPolicy": "د محرمیت تګلاره",
+  "androidShareLogs": "لاګونه شریک کړئ",
+  "androidNoInternet": "ساتنه ودرېده ځکه چې Shroudly په دې شبکه کې انټرنېټ ته ونه رسېد، نو ستاسو اپونه اوس مستقیم نښلي. د بیا هڅې لپاره Shroudly پرانیزئ.",
+  "androidBatteryHint": "د بیټرۍ امستنې کولی شي Shroudly په شالید کې ودروي او ستاسو اړیکه پرې کړي. اجازه ورکړئ چې د بیټرۍ له محدودیتونو پرته کار وکړي.",
+  "androidBatterySettings": "د بیټرۍ امستنې"
 }

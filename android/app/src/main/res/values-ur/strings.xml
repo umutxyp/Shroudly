@@ -3,10 +3,14 @@
 <resources>
     <string name="androidAlertsChannel">تحفظ کے انتباہات</string>
     <string name="androidAllApps">اس ڈیوائس کی ہر ایپ Shroudly سے ہو کر جاتی ہے۔</string>
+    <string name="androidBatteryHint">بیٹری کی ترتیبات Shroudly کو پس منظر میں روک کر آپ کا کنکشن منقطع کر سکتی ہیں۔ اسے بیٹری کی پابندیوں کے بغیر چلنے دیں۔</string>
+    <string name="androidBatterySettings">بیٹری کی ترتیبات</string>
     <string name="androidDetails">تفصیلات</string>
     <string name="androidDownloadApk">اپ ڈیٹ ڈاؤن لوڈ کریں</string>
+    <string name="androidNoInternet">تحفظ رک گیا کیونکہ Shroudly اس نیٹ ورک پر انٹرنیٹ تک نہیں پہنچ سکا، اس لیے آپ کی ایپس اب براہِ راست جڑ رہی ہیں۔ دوبارہ کوشش کرنے کے لیے Shroudly کھولیں۔</string>
     <string name="androidPrivacyPolicy">رازداری کی پالیسی</string>
     <string name="androidProtectionLost">ایک خرابی کی وجہ سے تحفظ رک گیا، اس لیے آپ کی ایپس اب براہِ راست جڑ رہی ہیں۔ اسے دوبارہ شروع کرنے کے لیے Shroudly کھولیں۔</string>
+    <string name="androidShareLogs">لاگز شیئر کریں</string>
     <string name="androidVpnDenied">آپ کی ایپس کے کنکشن لے جانے کے لیے Shroudly کو VPN کی اجازت درکار ہے۔</string>
     <string name="androidVpnRevoked">Android نے تحفظ بند کر دیا، عموماً اس لیے کہ کوئی دوسری VPN ایپ آن کی گئی۔</string>
     <string name="connections">کنکشنز</string>

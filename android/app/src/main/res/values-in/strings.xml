@@ -3,10 +3,14 @@
 <resources>
     <string name="androidAlertsChannel">Peringatan perlindungan</string>
     <string name="androidAllApps">Semua aplikasi di perangkat ini melewati Shroudly.</string>
+    <string name="androidBatteryHint">Pengaturan baterai dapat menghentikan Shroudly di latar belakang dan memutus koneksi Anda. Izinkan Shroudly berjalan tanpa batasan baterai.</string>
+    <string name="androidBatterySettings">Pengaturan baterai</string>
     <string name="androidDetails">Detail</string>
     <string name="androidDownloadApk">Unduh pembaruan</string>
+    <string name="androidNoInternet">Perlindungan berhenti karena Shroudly tidak dapat menjangkau internet di jaringan ini, jadi aplikasi Anda kini terhubung langsung. Buka Shroudly untuk mencoba lagi.</string>
     <string name="androidPrivacyPolicy">Kebijakan privasi</string>
     <string name="androidProtectionLost">Perlindungan berhenti karena terjadi kesalahan, jadi aplikasi Anda kini terhubung langsung. Buka Shroudly untuk memulainya lagi.</string>
+    <string name="androidShareLogs">Bagikan log</string>
     <string name="androidVpnDenied">Shroudly memerlukan izin VPN untuk membawa koneksi aplikasi Anda.</string>
     <string name="androidVpnRevoked">Perlindungan dimatikan oleh Android, biasanya karena aplikasi VPN lain dinyalakan.</string>
     <string name="connections">Koneksi</string>

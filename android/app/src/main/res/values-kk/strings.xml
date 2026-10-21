@@ -3,10 +3,14 @@
 <resources>
     <string name="androidAlertsChannel">Қорғаныс ескертулері</string>
     <string name="androidAllApps">Осы құрылғыдағы әр қолданба Shroudly арқылы өтеді.</string>
+    <string name="androidBatteryHint">Батарея параметрлері Shroudly-ді фондық режимде тоқтатып, байланысыңызды үзуі мүмкін. Оған батарея шектеулерінсіз жұмыс істеуге рұқсат беріңіз.</string>
+    <string name="androidBatterySettings">Батарея параметрлері</string>
     <string name="androidDetails">Толығырақ</string>
     <string name="androidDownloadApk">Жаңартуды жүктеу</string>
+    <string name="androidNoInternet">Shroudly бұл желіде интернетке шыға алмағандықтан қорғаныс тоқтады, сондықтан қолданбаларыңыз қазір тікелей қосылып тұр. Қайта көру үшін Shroudly-ді ашыңыз.</string>
     <string name="androidPrivacyPolicy">Құпиялық саясаты</string>
     <string name="androidProtectionLost">Қорғаныс қатеге байланысты тоқтады, сондықтан қолданбаларыңыз қазір тікелей қосылып тұр. Қайта қосу үшін Shroudly-ді ашыңыз.</string>
+    <string name="androidShareLogs">Журналды бөлісу</string>
     <string name="androidVpnDenied">Қолданбаларыңыздың қосылымдарын өткізу үшін Shroudly-ге VPN рұқсаты керек.</string>
     <string name="androidVpnRevoked">Android қорғанысты өшірді, әдетте басқа VPN қолданбасы қосылғандықтан.</string>
     <string name="connections">Қосылымдар</string>

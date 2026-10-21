@@ -388,5 +388,9 @@
   "androidProtectionLost": "በስህተት ምክንያት ጥበቃው ቆሟል፤ ስለዚህ መተግበሪያዎችዎ አሁን በቀጥታ ይገናኛሉ። እንደገና ለማስጀመር Shroudlyን ይክፈቱ።",
   "androidDetails": "ዝርዝሮች",
   "androidDownloadApk": "ዝማኔውን አውርድ",
-  "androidPrivacyPolicy": "የግላዊነት መመሪያ"
+  "androidPrivacyPolicy": "የግላዊነት መመሪያ",
+  "androidShareLogs": "መዝገብ አጋራ",
+  "androidNoInternet": "Shroudly በዚህ አውታረ መረብ ላይ ኢንተርኔት ማግኘት ስላልቻለ ጥበቃው ቆሟል፤ ስለዚህ መተግበሪያዎችዎ አሁን በቀጥታ ይገናኛሉ። እንደገና ለመሞከር Shroudlyን ይክፈቱ።",
+  "androidBatteryHint": "የባትሪ ቅንብሮች Shroudlyን ከበስተጀርባ ሊያቆሙት እና ግንኙነትዎን ሊያቋርጡ ይችላሉ። ያለ ባትሪ ገደቦች እንዲሠራ ይፍቀዱለት።",
+  "androidBatterySettings": "የባትሪ ቅንብሮች"
 }

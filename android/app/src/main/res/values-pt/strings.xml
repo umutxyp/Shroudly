@@ -3,10 +3,14 @@
 <resources>
     <string name="androidAlertsChannel">Alertas de proteção</string>
     <string name="androidAllApps">Todos os apps deste dispositivo passam pelo Shroudly.</string>
+    <string name="androidBatteryHint">As configurações de bateria podem parar o Shroudly em segundo plano e cortar sua conexão. Deixe-o funcionar sem restrições de bateria.</string>
+    <string name="androidBatterySettings">Configurações de bateria</string>
     <string name="androidDetails">Detalhes</string>
     <string name="androidDownloadApk">Baixar a atualização</string>
+    <string name="androidNoInternet">A proteção parou porque o Shroudly não conseguiu acessar a internet nesta rede, então seus apps estão se conectando diretamente. Abra o Shroudly para tentar de novo.</string>
     <string name="androidPrivacyPolicy">Política de privacidade</string>
     <string name="androidProtectionLost">A proteção parou por causa de um erro, então seus apps estão se conectando diretamente. Abra o Shroudly para ativá-la de novo.</string>
+    <string name="androidShareLogs">Compartilhar registros</string>
     <string name="androidVpnDenied">O Shroudly precisa da permissão de VPN para levar as conexões dos seus apps.</string>
     <string name="androidVpnRevoked">O Android desligou a proteção, geralmente porque outro app de VPN foi ativado.</string>
     <string name="connections">Conexões</string>

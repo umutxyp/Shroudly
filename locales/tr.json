@@ -388,5 +388,9 @@
   "androidProtectionLost": "Koruma bir hata nedeniyle durdu, bu yüzden uygulamalarınız şu anda doğrudan bağlanıyor. Yeniden başlatmak için Shroudly'yi açın.",
   "androidDetails": "Ayrıntılar",
   "androidDownloadApk": "Güncellemeyi indir",
-  "androidPrivacyPolicy": "Gizlilik politikası"
+  "androidPrivacyPolicy": "Gizlilik politikası",
+  "androidShareLogs": "Kayıtları paylaş",
+  "androidNoInternet": "Shroudly bu ağda internete ulaşamadığı için koruma durdu, bu yüzden uygulamalarınız şu anda doğrudan bağlanıyor. Yeniden denemek için Shroudly'yi açın.",
+  "androidBatteryHint": "Pil ayarları Shroudly'yi arka planda durdurup bağlantınızı kesebilir. Pil kısıtlaması olmadan çalışmasına izin verin.",
+  "androidBatterySettings": "Pil ayarları"
 }

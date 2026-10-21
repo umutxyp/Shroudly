@@ -3,10 +3,14 @@
 <resources>
     <string name="androidAlertsChannel">সুরক্ষা সতর্কতা</string>
     <string name="androidAllApps">এই ডিভাইসের প্রতিটি অ্যাপ Shroudly-এর মধ্য দিয়ে যায়।</string>
+    <string name="androidBatteryHint">ব্যাটারি সেটিংস Shroudly-কে ব্যাকগ্রাউন্ডে বন্ধ করে আপনার সংযোগ কেটে দিতে পারে। এটিকে ব্যাটারির বিধিনিষেধ ছাড়া চলতে দিন।</string>
+    <string name="androidBatterySettings">ব্যাটারি সেটিংস</string>
     <string name="androidDetails">বিস্তারিত</string>
     <string name="androidDownloadApk">আপডেট ডাউনলোড করুন</string>
+    <string name="androidNoInternet">Shroudly এই নেটওয়ার্কে ইন্টারনেটে পৌঁছাতে পারেনি বলে সুরক্ষা বন্ধ হয়ে গেছে, তাই আপনার অ্যাপগুলো এখন সরাসরি সংযোগ করছে। আবার চেষ্টা করতে Shroudly খুলুন।</string>
     <string name="androidPrivacyPolicy">গোপনীয়তা নীতি</string>
     <string name="androidProtectionLost">একটি ত্রুটির কারণে সুরক্ষা বন্ধ হয়ে গেছে, তাই আপনার অ্যাপগুলো এখন সরাসরি সংযোগ করছে। আবার চালু করতে Shroudly খুলুন।</string>
+    <string name="androidShareLogs">লগ শেয়ার করুন</string>
     <string name="androidVpnDenied">আপনার অ্যাপগুলোর সংযোগ বহন করতে Shroudly-এর VPN অনুমতি দরকার।</string>
     <string name="androidVpnRevoked">Android সুরক্ষা বন্ধ করে দিয়েছে, সাধারণত অন্য কোনো VPN অ্যাপ চালু হওয়ার কারণে।</string>
     <string name="connections">সংযোগ</string>

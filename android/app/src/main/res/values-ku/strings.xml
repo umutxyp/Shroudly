@@ -3,10 +3,14 @@
 <resources>
     <string name="androidAlertsChannel">Hişyariyên parastinê</string>
     <string name="androidAllApps">Her sepana li ser vê amûrê di Shroudly re derbas dibe.</string>
+    <string name="androidBatteryHint">Mîhengên bataryayê dikarin Shroudly di paşxanê de rawestînin û girêdana te qut bikin. Destûrê bide ku ew bê sînorkirinên bataryayê bixebite.</string>
+    <string name="androidBatterySettings">Mîhengên bataryayê</string>
     <string name="androidDetails">Hûragahî</string>
     <string name="androidDownloadApk">Nûvekirinê daxe</string>
+    <string name="androidNoInternet">Parastin rawestiya ji ber ku Shroudly li ser vê torê negihişt înternetê, ji ber vê yekê sepanên te niha rasterast girêdidin. Ji bo ku tu dîsa biceribînî, Shroudly veke.</string>
     <string name="androidPrivacyPolicy">Polîtîkaya nepeniyê</string>
     <string name="androidProtectionLost">Parastin ji ber çewtiyekê rawestiya, ji ber vê yekê sepanên te niha rasterast girêdidin. Ji bo ku tu wê dîsa bidî destpêkirin, Shroudly veke.</string>
+    <string name="androidShareLogs">Tomaran parve bike</string>
     <string name="androidVpnDenied">Shroudly ji bo hilgirtina girêdanên sepanên te destûra VPN hewce dike.</string>
     <string name="androidVpnRevoked">Parastin ji aliyê Android ve hate girtin, bi gelemperî ji ber ku sepaneke VPN ya din hate vekirin.</string>
     <string name="connections">Girêdan</string>

@@ -3,10 +3,14 @@
 <resources>
     <string name="androidAlertsChannel">Оповещения о защите</string>
     <string name="androidAllApps">Все приложения на этом устройстве идут через Shroudly.</string>
+    <string name="androidBatteryHint">Настройки батареи могут останавливать Shroudly в фоне и обрывать ваше соединение. Разрешите ему работать без ограничений батареи.</string>
+    <string name="androidBatterySettings">Настройки батареи</string>
     <string name="androidDetails">Подробнее</string>
     <string name="androidDownloadApk">Скачать обновление</string>
+    <string name="androidNoInternet">Защита остановилась, потому что Shroudly не смог выйти в интернет в этой сети, поэтому ваши приложения сейчас подключаются напрямую. Откройте Shroudly, чтобы попробовать снова.</string>
     <string name="androidPrivacyPolicy">Политика конфиденциальности</string>
     <string name="androidProtectionLost">Защита остановилась из-за ошибки, поэтому ваши приложения сейчас подключаются напрямую. Откройте Shroudly, чтобы снова её включить.</string>
+    <string name="androidShareLogs">Поделиться журналом</string>
     <string name="androidVpnDenied">Shroudly нужно разрешение VPN, чтобы пропускать соединения ваших приложений.</string>
     <string name="androidVpnRevoked">Android отключил защиту — обычно потому, что включено другое VPN-приложение.</string>
     <string name="connections">Подключения</string>

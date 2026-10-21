@@ -3,10 +3,14 @@
 <resources>
     <string name="androidAlertsChannel">การแจ้งเตือนการป้องกัน</string>
     <string name="androidAllApps">ทุกแอปในอุปกรณ์นี้ผ่าน Shroudly</string>
+    <string name="androidBatteryHint">การตั้งค่าแบตเตอรี่อาจหยุด Shroudly ที่ทำงานเบื้องหลังและทำให้การเชื่อมต่อของคุณขาด อนุญาตให้ Shroudly ทำงานโดยไม่มีข้อจำกัดด้านแบตเตอรี่</string>
+    <string name="androidBatterySettings">การตั้งค่าแบตเตอรี่</string>
     <string name="androidDetails">รายละเอียด</string>
     <string name="androidDownloadApk">ดาวน์โหลดอัปเดต</string>
+    <string name="androidNoInternet">การป้องกันหยุดทำงานเพราะ Shroudly เชื่อมต่ออินเทอร์เน็ตบนเครือข่ายนี้ไม่ได้ แอปของคุณจึงเชื่อมต่อโดยตรงอยู่ในขณะนี้ เปิด Shroudly เพื่อลองอีกครั้ง</string>
     <string name="androidPrivacyPolicy">นโยบายความเป็นส่วนตัว</string>
     <string name="androidProtectionLost">การป้องกันหยุดทำงานเนื่องจากเกิดข้อผิดพลาด แอปของคุณจึงเชื่อมต่อโดยตรงอยู่ในขณะนี้ เปิด Shroudly เพื่อเริ่มการป้องกันอีกครั้ง</string>
+    <string name="androidShareLogs">แชร์บันทึก</string>
     <string name="androidVpnDenied">Shroudly ต้องได้รับสิทธิ์ VPN เพื่อส่งผ่านการเชื่อมต่อของแอปต่างๆ ของคุณ</string>
     <string name="androidVpnRevoked">Android ปิดการป้องกันแล้ว ซึ่งมักเป็นเพราะมีการเปิดแอป VPN อื่น</string>
     <string name="connections">การเชื่อมต่อ</string>

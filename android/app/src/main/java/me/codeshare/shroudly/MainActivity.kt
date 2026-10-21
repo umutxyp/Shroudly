@@ -14,6 +14,7 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.provider.Settings
 import android.view.View
 import android.view.WindowInsets
 import android.widget.ImageView
@@ -48,6 +49,7 @@ class MainActivity : Activity() {
     private lateinit var releases: View
     private lateinit var releasesLabel: TextView
     private lateinit var releasesIcon: ImageView
+    private lateinit var battery: View
 
     private val main = Handler(Looper.getMainLooper())
     private val onChange: () -> Unit = { render() }
@@ -62,6 +64,7 @@ class MainActivity : Activity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        ShroudlyVpnService.attachLog(this)
         setContentView(R.layout.activity_main)
         edgeToEdge()
 
@@ -83,6 +86,7 @@ class MainActivity : Activity() {
         releases = findViewById(R.id.releases)
         releasesLabel = findViewById(R.id.releasesLabel)
         releasesIcon = findViewById(R.id.releasesIcon)
+        battery = findViewById(R.id.battery)
         // The rows' ripples stay inside the card's rounded corners.
         findViewById<View>(R.id.about).clipToOutline = true
 
@@ -91,6 +95,8 @@ class MainActivity : Activity() {
         findViewById<TextView>(R.id.version).text = text(R.string.versionLabel, "version" to BuildConfig.VERSION_NAME)
         findViewById<View>(R.id.notices).setOnClickListener { showNotices() }
         findViewById<View>(R.id.privacy).setOnClickListener { open(UpdateCheck.PRIVACY_URL) }
+        findViewById<View>(R.id.shareLogs).setOnClickListener { shareLogs() }
+        findViewById<View>(R.id.batteryOpen).setOnClickListener { openBatterySettings() }
         findViewById<View>(R.id.updateOpen).setOnClickListener { updateUrl?.let { open(it) } }
         detailMore.setOnClickListener { showDetail() }
         // The channels' names follow the language, also after a per-app
@@ -121,6 +127,7 @@ class MainActivity : Activity() {
         Protection.listen(onChange)
         orb.resume()
         main.post(ticker)
+        showBatteryHint()
         // The APK from GitHub links its releases and looks for a newer one
         // there; a copy Google Play updates links the source code instead and
         // asks GitHub nothing (InstallSource).
@@ -334,6 +341,43 @@ class MainActivity : Activity() {
         updateUrl = offer.url
         updateText.text = text(R.string.updAvailable, "version" to offer.version)
         update.visibility = View.VISIBLE
+    }
+
+    /* ── battery and logs ──────────────────────────────────────────────── */
+
+    /* Asked each time the window comes back: the user may just have changed
+     * the setting. */
+    private fun showBatteryHint() {
+        val b = Diagnostics.battery(this)
+        battery.visibility = if (Diagnostics.batteryHint(b, Build.MANUFACTURER, Build.BRAND)) View.VISIBLE else View.GONE
+    }
+
+    /* The app's own page in Settings: every Android version and every phone
+     * maker has its battery setting there ("Battery", "App battery usage",
+     * "Battery saver"), where the user can choose no restrictions. No
+     * permission is needed for it, unlike asking Android to exempt the app
+     * directly. */
+    private fun openBatterySettings() {
+        val details = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.fromParts("package", packageName, null))
+        try {
+            startActivity(details)
+        } catch (_: ActivityNotFoundException) {
+            try { startActivity(Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS)) } catch (_: ActivityNotFoundException) {}
+        }
+    }
+
+    /* The recent log and the phone's details, as text the user sends where
+     * they choose (Diagnostics). */
+    private fun shareLogs() {
+        val text = try { Diagnostics.report(this) } catch (e: Exception) { "Shroudly ${BuildConfig.VERSION_NAME}: no report ($e)" }
+        val send = Intent(Intent.ACTION_SEND)
+            .setType("text/plain")
+            .putExtra(Intent.EXTRA_SUBJECT, "Shroudly ${BuildConfig.VERSION_NAME} log")
+            .putExtra(Intent.EXTRA_TEXT, text)
+        try {
+            startActivity(Intent.createChooser(send, getString(R.string.androidShareLogs)))
+        } catch (_: ActivityNotFoundException) {
+        }
     }
 
     private fun TextView.show(s: CharSequence) {

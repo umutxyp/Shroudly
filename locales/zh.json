@@ -388,5 +388,9 @@
   "androidProtectionLost": "保护因出错而停止，你的应用现在直接联网。打开 Shroudly 即可重新开启。",
   "androidDetails": "详细信息",
   "androidDownloadApk": "下载更新",
-  "androidPrivacyPolicy": "隐私政策"
+  "androidPrivacyPolicy": "隐私政策",
+  "androidShareLogs": "分享日志",
+  "androidNoInternet": "由于 Shroudly 在此网络上无法连接互联网，保护已停止，你的应用现在直接联网。打开 Shroudly 即可重试。",
+  "androidBatteryHint": "电池设置可能会在后台停止 Shroudly 并中断你的连接。请允许它不受电池限制地运行。",
+  "androidBatterySettings": "电池设置"
 }

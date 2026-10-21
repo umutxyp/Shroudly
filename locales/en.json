@@ -388,5 +388,9 @@
   "androidProtectionLost": "Protection stopped because of an error, so your apps are connecting directly. Open Shroudly to start it again.",
   "androidDetails": "Details",
   "androidDownloadApk": "Download update",
-  "androidPrivacyPolicy": "Privacy policy"
+  "androidPrivacyPolicy": "Privacy policy",
+  "androidShareLogs": "Share logs",
+  "androidNoInternet": "Protection stopped because Shroudly could not reach the internet on this network, so your apps are connecting directly. Open Shroudly to try again.",
+  "androidBatteryHint": "Battery settings can stop Shroudly in the background and cut your connection. Let it run without battery restrictions.",
+  "androidBatterySettings": "Battery settings"
 }

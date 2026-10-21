@@ -3,10 +3,14 @@
 <resources>
     <string name="androidAlertsChannel">Himoya ogohlantirishlari</string>
     <string name="androidAllApps">Bu qurilmadagi har bir ilova Shroudly orqali o‘tadi.</string>
+    <string name="androidBatteryHint">Batareya sozlamalari Shroudly’ni fonda to‘xtatib, ulanishingizni uzib qo‘yishi mumkin. Unga batareya cheklovlarisiz ishlashga ruxsat bering.</string>
+    <string name="androidBatterySettings">Batareya sozlamalari</string>
     <string name="androidDetails">Batafsil</string>
     <string name="androidDownloadApk">Yangilanishni yuklab olish</string>
+    <string name="androidNoInternet">Shroudly bu tarmoqda internetga chiqa olmagani uchun himoya to‘xtadi, shuning uchun ilovalaringiz hozir to‘g‘ridan-to‘g‘ri ulanmoqda. Qayta urinib ko‘rish uchun Shroudly’ni oching.</string>
     <string name="androidPrivacyPolicy">Maxfiylik siyosati</string>
     <string name="androidProtectionLost">Himoya xato tufayli to‘xtadi, shuning uchun ilovalaringiz hozir to‘g‘ridan-to‘g‘ri ulanmoqda. Uni qayta yoqish uchun Shroudly’ni oching.</string>
+    <string name="androidShareLogs">Jurnalni ulashish</string>
     <string name="androidVpnDenied">Ilovalaringiz ulanishlarini o‘tkazish uchun Shroudly’ga VPN ruxsati kerak.</string>
     <string name="androidVpnRevoked">Himoya Android tomonidan o‘chirildi, odatda boshqa VPN ilovasi yoqilgani uchun.</string>
     <string name="connections">Ulanishlar</string>
