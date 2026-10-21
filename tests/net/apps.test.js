@@ -91,36 +91,123 @@ function robloxDirect() {
  * current version asked of Roblox and its installer downloaded through the
  * engine, its Roblox Corporation signature checked, then started with the
  * setting. Then a minute of watching that the installer, and the player it
- * installs, go through Shroudly and nothing goes around it. */
+ * installs, go through Shroudly and nothing goes around it.
+ * Shroudly's watcher runs all along, as it does where Roblox is blocked
+ * (roblox-watch.js, told so here): it must never touch what goes through
+ * Shroudly. Then the same installer is started around Shroudly, as a cafe's
+ * script starts it from a game disk before Shroudly has set anything, with a
+ * proxy that answers nothing (a network that drops Roblox silently): the
+ * watcher must stop it and start it again from its own file through
+ * Shroudly. Timed from its start. */
 async function robloxInstaller(proxy, socksPort) {
   const RobloxApp = require(path.join(ROOT, 'electron', 'roblox-app.js'));
+  const { RobloxWatch } = require(path.join(ROOT, 'electron', 'roblox-watch.js'));
   const { socksConnect } = require(path.join(ROOT, 'electron', 'discord-relay.js'));
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'shroudly-roblox-'));
   const before = proxy.tunnels;
   const roblox = new Set();
+  const env = { HTTPS_PROXY: proxy.url, NO_PROXY: AppEnv.NO_PROXY_VALUE };
   proxy.onTunnel = (host) => { if (RobloxApp.isRobloxHost(host)) roblox.add(host); };
-  const r = await RobloxApp.install({ socksPort, connect: socksConnect, dir, env: { HTTPS_PROXY: proxy.url, NO_PROXY: AppEnv.NO_PROXY_VALUE } });
-  if (!r.success && r.code === 'unreachable') {
-    console.log(`  --  Roblox installer not downloadable here (${r.detail}); skipped`);
-    return;
+  let lastReq = 0; let restarted = null; let firstThrough = 0;
+  proxy.onRequest = (h) => { if (!RobloxApp.isRobloxHost(h)) return; lastReq = Date.now(); if (restarted && !firstThrough) firstThrough = lastReq; };
+  const acted = [];
+  const watch = new RobloxWatch({
+    now: () => Date.now(), setTimeout: (fn, ms) => setTimeout(fn, ms), clearTimeout: (h) => clearTimeout(h), watched: true,
+    on: () => true, active: () => true, blocked: () => true, stillBlocked: async () => true, checkSoon: () => {},
+    lastRequestAt: () => lastReq, list: () => RobloxApp.processes(), info: (pids) => RobloxApp.processInfo(pids), prepare: () => RobloxApp.prepare(),
+    signed: (file, kind) => RobloxApp.signedInstaller(file, kind), same: (file, hash) => RobloxApp.sameFile(file, hash),
+    kill: (pids) => { acted.push({ kill: pids, at: Date.now() }); return RobloxApp.kill(pids); },
+    startInstaller: (file) => { const pid = RobloxApp.startInstaller(file, env); restarted = { pid, file, at: Date.now() }; return pid; },
+    fetch: async () => { acted.push({ download: true }); return { success: false, code: 'not in this test' }; },
+    startFetched: async () => false,
+    restart: async (pids) => { acted.push({ player: pids }); return { success: false, code: 'not in this test' }; },
+    log: () => {}, tell: () => {}, needAdvanced: () => {}, studioReopen: () => {},
+  });
+  watch.start();
+  watch.modeOn(await RobloxApp.processes(), Date.now());
+  const killAll = async () => {
+    for (const im of ['RobloxPlayerInstaller.exe', 'RobloxPlayerBeta.exe', 'RobloxCrashHandler.exe']) spawnSync('taskkill', ['/F', '/T', '/IM', im]);
+    await sleep(1500);
+  };
+  try {
+    const r = await RobloxApp.install({ socksPort, connect: socksConnect, dir, env });
+    if (!r.success && r.code === 'unreachable') {
+      console.log(`  --  Roblox installer not downloadable here (${r.detail}); skipped`);
+      return;
+    }
+    t.ok(r.success, `Install Roblox: current installer (${r.version}) downloaded through the engine, signed by Roblox, started (${r.code || 'ok'}${r.detail ? `: ${r.detail}` : ''})`);
+    if (!r.success) return;
+    // A minute of watching, whatever the machine's speed.
+    const direct = new Set();
+    const until = Date.now() + 60000;
+    while (Date.now() < until) {
+      await sleep(3000);
+      for (const c of await robloxDirect()) direct.add(c);
+    }
+    const touched = acted.filter((a) => a.kill || a.download);
+    const players = acted.filter((a) => a.player);
+    if (players.length) console.log(`  !!  the watcher took a player for one around Shroudly: ${JSON.stringify(players)}`);
+    t.ok(!touched.length, `the installer started through Shroudly (pid ${r.pid}) was never touched by Shroudly's watcher in a minute (${JSON.stringify(touched)})`);
+    await killAll();
+    proxy.onTunnel = null;
+    const through = proxy.tunnels - before;
+    if (direct.size) console.log(`  !!  direct: ${[...direct].slice(0, 8).join(', ')}`);
+    t.ok(through > 0 && direct.size === 0, `real Roblox installer: ${through} connections through Shroudly, ${direct.size} around it`);
+    t.ok(roblox.size > 0, `Shroudly can tell they are Roblox's (${[...roblox].slice(0, 4).join(', ')})`);
+
+    // What the watcher asks of Windows, timed: the PowerShell it keeps
+    // running (started by the watcher above, so normally ready by now),
+    // asked twice; a slow machine (ARM) shows in the first answer only.
+    let t0 = Date.now();
+    const info = await RobloxApp.processInfo([process.pid]);
+    const infoMs = Date.now() - t0;
+    t0 = Date.now();
+    const info2 = await RobloxApp.processInfo([process.pid]);
+    const infoMs2 = Date.now() - t0;
+    const me = info.get(process.pid) || info2.get(process.pid);
+    t0 = Date.now();
+    const hash = await RobloxApp.signedInstaller(r.file, 'player');
+    const sigMs = Date.now() - t0;
+    console.log(`  ..  PowerShell reading a process: ${infoMs} ms, then ${infoMs2} ms; signature check of the installer: ${sigMs} ms`);
+    t.ok(me && Math.abs(me.startedAt - (Date.now() - process.uptime() * 1000)) < 5000 && /node/i.test(me.path || ''),
+      `a process's start time and file read on Windows (${me && new Date(me.startedAt).toISOString()}, ${me && me.path})`);
+    t.ok(infoMs2 < 5000, `asked again, PowerShell is not started again (${infoMs2} ms)`);
+    t.ok(!!hash, 'the downloaded installer is taken for Roblox\'s, signed by Roblox');
+
+    // Around Shroudly: a proxy that takes the connection and never answers.
+    const silent = net.createServer((c) => { c.on('error', () => {}); }).listen(0, '127.0.0.1');
+    await new Promise((ok) => silent.once('listening', ok));
+    const aroundEnv = { ...process.env };
+    for (const k of Object.keys(aroundEnv)) if (/^(https?|all|no)_proxy$/i.test(k)) delete aroundEnv[k];
+    aroundEnv.HTTPS_PROXY = `http://127.0.0.1:${silent.address().port}`;
+    acted.length = 0;
+    restarted = null; firstThrough = 0;
+    const started = Date.now();
+    const child = require('child_process').spawn(r.file, [], { detached: true, stdio: 'ignore', env: aroundEnv });
+    child.on('error', () => {});
+    child.unref();
+    // How long is realistic depends on the machine: an ARM runner emulates
+    // the installer and takes seconds to start PowerShell or check a
+    // signature. Handled it must be, on every machine.
+    const bound = process.arch === 'arm64' ? 90000 : 20000;
+    while (Date.now() - started < 150000 && !(restarted && firstThrough)) await sleep(250);
+    silent.close();
+    const tookRestart = restarted ? restarted.at - started : null;
+    const tookThrough = firstThrough ? firstThrough - started : null;
+    console.log(`  ..  installer around Shroudly (pid ${child.pid}): stopped ${acted.filter((a) => a.kill).map((a) => `${a.at - started} ms`).join(', ') || 'never'}, started again ${tookRestart} ms, its first request through Shroudly ${tookThrough} ms after it started`);
+    t.ok(restarted && restarted.file === r.file && acted.some((a) => a.kill && a.kill.includes(child.pid)) && !acted.some((a) => a.download),
+      `an installer started around Shroudly is stopped and started again from its own file, through Shroudly, ${tookRestart} ms after it started`);
+    t.ok(tookRestart != null && tookThrough != null, `…and reaches Roblox through Shroudly ${tookThrough} ms after it first started`);
+    t.ok(tookRestart <= bound, `within ${bound / 1000} s on this machine (${process.arch}): ${tookRestart} ms`);
+  } finally {
+    watch.stop();
+    await Promise.race([watch.idle(), sleep(20000)]);
+    RobloxApp.release();
+    proxy.onTunnel = null;
+    proxy.onRequest = null;
+    await killAll();
+    try { fs.rmSync(dir, { recursive: true, force: true }); } catch {}
   }
-  t.ok(r.success, `Install Roblox: current installer (${r.version}) downloaded through the engine, signed by Roblox, started (${r.code || 'ok'}${r.detail ? `: ${r.detail}` : ''})`);
-  if (!r.success) return;
-  // A minute of watching, whatever the machine's speed.
-  const direct = new Set();
-  const until = Date.now() + 60000;
-  while (Date.now() < until) {
-    await sleep(3000);
-    for (const c of await robloxDirect()) direct.add(c);
-  }
-  spawnSync('taskkill', ['/F', '/T', '/IM', 'RobloxPlayerInstaller.exe']);
-  spawnSync('taskkill', ['/F', '/T', '/IM', 'RobloxPlayerBeta.exe']);
-  proxy.onTunnel = null;
-  const through = proxy.tunnels - before;
-  if (direct.size) console.log(`  !!  direct: ${[...direct].slice(0, 8).join(', ')}`);
-  t.ok(through > 0 && direct.size === 0, `real Roblox installer: ${through} connections through Shroudly, ${direct.size} around it`);
-  t.ok(roblox.size > 0, `Shroudly can tell they are Roblox's (${[...roblox].slice(0, 4).join(', ')})`);
-  try { fs.rmSync(dir, { recursive: true, force: true }); } catch {}
 }
 
 (async () => {
@@ -180,17 +267,76 @@ async function robloxInstaller(proxy, socksPort) {
     t.ok(JSON.stringify(inst) === '{"player":[6100],"studio":[6300]}', "Windows: the player's and Studio's installers, each by its own name");
   }
   {
+    // Only this user's session: another user's Roblox on the same PC (fast
+    // user switching, a terminal server) is not this Shroudly's to judge.
+    const two = `${tasklist}\r\n"RobloxPlayerBeta.exe","7120","RDP-Tcp#3","2","400,000 K"\r\n"RobloxPlayerInstaller.exe","7100","RDP-Tcp#3","2","20,000 K"`;
+    t.ok(JSON.stringify(RobloxApp.parseProcesses(two, 'win32', 1)) === '{"players":[4120,4121],"studios":[5100],"installers":{"player":[6100],"studio":[]}}'
+      && JSON.stringify(RobloxApp.parseProcesses(two, 'win32', 2)) === '{"players":[7120],"studios":[],"installers":{"player":[7100],"studio":[]}}'
+      && RobloxApp.parseProcesses(two, 'win32').players.length === 3,
+    "Windows: only the programs in Shroudly's own session (every session's when it is not known)");
+    t.ok(RobloxApp.parseSession('"electron.exe","8812","Console","1","90,000 K"\r\n', 8812) === 1 && RobloxApp.parseSession('"electron.exe","8812","RDP-Tcp#3","2","90,000 K"', 8812) === 2
+      && RobloxApp.parseSession('INFO: No tasks are running which match the specified criteria.', 8812) === null, "Shroudly's own session read from the process list");
+  }
+  {
+    // One look at the process list, for every program of Roblox's at once.
+    const all = RobloxApp.parseProcesses(`${tasklist}\r\n"RobloxStudioInstaller.exe","6300","Console","1","20,000 K"`, 'win32');
+    t.ok(JSON.stringify(all) === '{"players":[4120,4121],"studios":[5100],"installers":{"player":[6100],"studio":[6300]}}',
+      `Windows: players, Studio and both installers from one process listing (${JSON.stringify(all)})`);
+    t.ok(JSON.stringify(RobloxApp.parseProcesses('INFO: No tasks are running which match the specified criteria.\r\n', 'win32')) === '{"players":[],"studios":[],"installers":{"player":[],"studio":[]}}', 'none running');
+    // When each started and the file it runs (PowerShell, one call).
+    // Text comes as its UTF-16 code units (what a ConstrainedLanguage
+    // PowerShell can still produce): ASCII whatever the console code page.
+    const b = (v) => RobloxApp.toCodes(v);
+    t.ok(/^[\d,]+$/.test(b('C:\\Users\\Ümit 測試 😀')) && RobloxApp.fromCodes(b('C:\\Users\\Ümit 測試 😀')) === 'C:\\Users\\Ümit 測試 😀'
+      && RobloxApp.fromCodes('') === '' && RobloxApp.fromCodes('QzpcVXNlcnM=') === '' && RobloxApp.fromCodes('65,70000') === '',
+    'text to and from code units: any name whole (Turkish, Chinese, an emoji), anything else read as nothing');
+    const info = RobloxApp.parseProcessInfo(`mode=FullLanguage;6100|133759296000000000|${b('D:\\Games\\Roblox\\RobloxPlayerInstaller.exe')};5100||;`
+      + `4120|133759296123456789|${b('C:\\Users\\Ümit Şahin\\AppData\\Local\\Roblox\\Versions\\v\\RobloxPlayerBeta.exe')};noise|x|y`);
+    t.ok(info.get(6100).startedAt === Date.UTC(2024, 10, 13) && info.get(6100).path === 'D:\\Games\\Roblox\\RobloxPlayerInstaller.exe' && info.get(4120).startedAt === Date.UTC(2024, 10, 13) + 12346,
+      `Windows: a process's start time (FILETIME, UTC) and its file (${new Date(info.get(6100).startedAt).toISOString()})`);
+    t.ok(info.get(4120).path === 'C:\\Users\\Ümit Şahin\\AppData\\Local\\Roblox\\Versions\\v\\RobloxPlayerBeta.exe', 'a file under a user name in Turkish arrives whole (code units, whatever the console code page)');
+    t.ok(info.get(5100).startedAt === null && info.get(5100).path === null && info.size === 3, "one whose start time and file cannot be read (another user's, elevated): known to be there, nothing more");
+    t.ok(info.answered === true && info.restricted === null, 'answered by a PowerShell in full language mode');
+    const none = RobloxApp.parseProcessInfo(null);
+    t.ok(none.size === 0 && none.answered === false, 'no answer from PowerShell in time: nothing known, and said so (the watcher judges without it, and stops nothing)');
+    const clm = RobloxApp.parseProcessInfo(`mode=ConstrainedLanguage;6100|133759296000000000|${b('D:\\x\\RobloxPlayerInstaller.exe')}`);
+    t.ok(clm.restricted === 'ConstrainedLanguage' && clm.get(6100).startedAt === Date.UTC(2024, 10, 13), 'a PowerShell an administrator restricted (AppLocker, Device Guard) says so in its answer');
+    t.ok(RobloxApp.parseSignature(`Valid|${b('CN="Roblox Corporation", O="Roblox Corporation"')}|${b('İmza doğrulandı.')}`) === 'Valid|CN="Roblox Corporation", O="Roblox Corporation"|İmza doğrulandı.'
+      && RobloxApp.parseSignature(null) === 'no answer: timed out' && RobloxApp.parseSignature(`error|${b('Access denied\r\nmore')}`) === 'no answer: Access denied',
+    "a signature's answer read back (signer and a Turkish Windows' message intact); no answer, or PowerShell's error, said as such");
+  }
+  {
     // An installer caught going around Shroudly is started again from its
     // own file only when that is Roblox's installer, validly signed by Roblox
     // (a game disk on shared machines); anything else means a fresh download.
-    const signed = 'CN="Roblox Corporation", O="Roblox Corporation", L=San Mateo, S=California, C=US';
-    const own = 'D:\\Games\\Roblox\\RobloxPlayerInstaller.exe';
-    t.ok(RobloxApp.parseInstallerProbe(`${own}|Valid|${signed}`) === own, 'a signed Roblox installer is started again from the same file, no download');
-    t.ok(RobloxApp.parseInstallerProbe(`${own}|HashMismatch|${signed}`) === null, 'a changed file is not');
-    t.ok(RobloxApp.parseInstallerProbe(`${own}|Valid|CN=Someone Else, O=Someone Else`) === null, 'nor one signed by anyone else');
-    t.ok(RobloxApp.parseInstallerProbe(`D:\\x\\Setup.exe|Valid|${signed}`) === null, 'nor a file under another name');
-    t.ok(RobloxApp.parseInstallerProbe(`${own}|Valid|${signed}`, 'studio') === null, "nor the player's installer for Studio");
-    t.ok(RobloxApp.parseInstallerProbe('') === null, 'the process gone already: a fresh download');
+    // A file found signed is remembered by its content, never by its name.
+    const signed = 'Valid|CN="Roblox Corporation", O="Roblox Corporation", L=San Mateo, S=California, C=US|Signature verified.';
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'shroudly-sig-'));
+    const own = path.join(dir, 'RobloxPlayerInstaller.exe');
+    fs.writeFileSync(own, 'MZ installer bytes');
+    let asked = 0;
+    const sig = (answer) => async () => { asked++; return answer; };
+    const saved = [];
+    const cache = RobloxApp.signedCache([], (list) => saved.push(list));
+    const h = await RobloxApp.signedInstaller(own, 'player', { cache, signature: sig(signed) });
+    t.ok(/^[0-9a-f]{64}$/.test(h || '') && asked === 1 && saved.length === 1 && saved[0][0] === h, 'a signed Roblox installer is started again from the same file, no download; its content is remembered (and saved)');
+    t.ok(await RobloxApp.signedInstaller(own, 'player', { cache, signature: sig('NotSigned||') }) === h && asked === 1, 'the same content again: no second signature check (none can take minutes asking about revocation)');
+    t.ok(await RobloxApp.sameFile(own, h), 'and right before it is started, it is still that content');
+    fs.writeFileSync(own, 'MZ something else');
+    t.ok(!(await RobloxApp.sameFile(own, h)), '…a file changed since is not started');
+    t.ok(await RobloxApp.signedInstaller(own, 'player', { cache, signature: sig(signed.replace('Valid', 'HashMismatch')) }) === null && asked === 2, 'a changed file is checked again, whatever its name, and refused if its signature does not hold');
+    t.ok(await RobloxApp.signedInstaller(own, 'player', { signature: sig('Valid|CN=Someone Else, O=Someone Else|') }) === null, 'nor one signed by anyone else');
+    const other = path.join(dir, 'Setup.exe');
+    fs.writeFileSync(other, 'MZ');
+    t.ok(await RobloxApp.signedInstaller(other, 'player', { signature: sig(signed) }) === null && await RobloxApp.signedInstaller(own, 'studio', { signature: sig(signed) }) === null,
+      "nor a file under another name, nor the player's installer for Studio");
+    t.ok(await RobloxApp.signedInstaller(path.join(dir, 'gone', 'RobloxPlayerInstaller.exe'), 'player', { signature: sig(signed) }) === null && await RobloxApp.signedInstaller(null) === null, 'the file gone or not read: a fresh download');
+    let swap = 0;
+    const racing = async () => { swap++; fs.writeFileSync(own, `MZ swapped ${swap}`); return signed; };
+    t.ok(await RobloxApp.signedInstaller(own, 'player', { signature: racing }) === null, 'a file changed while its signature was being checked is not taken');
+    const c2 = RobloxApp.signedCache(['nothex', 'a'.repeat(64)]);
+    t.ok(c2.has('a'.repeat(64)) && !c2.has('nothex'), 'only hashes are read back from the settings');
+    fs.rmSync(dir, { recursive: true, force: true });
   }
   {
     // Copies of the player and Studio wherever Roblox and any bootstrapper
@@ -222,17 +368,26 @@ async function robloxInstaller(proxy, socksPort) {
   t.ok(RobloxApp.parsePids('INFO: No tasks are running which match the specified criteria.\r\n', 'win32').length === 0 && JSON.stringify(RobloxApp.parsePids('812\n913\n', 'darwin')) === '[812,913]', 'none running; macOS pgrep output read');
   t.ok(RobloxApp.routeWatched('win32') && !RobloxApp.routeWatched('darwin') && !RobloxApp.routeWatched('linux'), 'a player going around Shroudly is only looked for on Windows (macOS hands every app the setting)');
   {
-    const seen = new Map();
-    const T = 1e9;
+    // Followed from one look to the next: each judged from when it started,
+    // whatever the others do (the rules: roblox-watch.test.js).
+    const { RobloxWatch } = require(path.join(ROOT, 'electron', 'roblox-watch.js'));
+    const T = 1e12;
     const H = 3600 * 1000;
-    // Player 10 made its requests as it started, then kept its connections.
-    t.ok(RobloxApp.silentPlayers(seen, [10], T - 5000, T).length === 0 && RobloxApp.silentPlayers(seen, [10], T - 5000, T + 2 * H).length === 0, 'a player that sent requests at start is never reported, however long it then runs');
-    // Player 20 appears an hour later and sends nothing.
-    RobloxApp.silentPlayers(seen, [10, 20], T - 5000, T + H);
-    t.ok(RobloxApp.silentPlayers(seen, [10, 20], T - 5000, T + H + 10000).length === 0, 'a new player gets its grace period');
-    t.ok(JSON.stringify(RobloxApp.silentPlayers(seen, [10, 20], T - 5000, T + H + RobloxApp.BYPASS_GRACE_MS + 1000)) === '[20]', 'after it, only the new silent player is reported, not the one that uses Shroudly');
-    RobloxApp.silentPlayers(seen, [10], T - 5000, T + H + 60000);
-    t.ok(RobloxApp.silentPlayers(seen, [10], T - 5000, T + H + 120000).length === 0 && seen.size === 1, 'players coming and going never restart the clock of one that stays');
+    let clock = T; let lastReq = 0;
+    const w = new RobloxWatch({ now: () => clock, watched: true, lastRequestAt: () => lastReq, studioReopen: () => {} });
+    const look = (players) => w.observe({ players, studios: [], installers: { player: [], studio: [] } }, clock);
+    look([]);
+    clock += 2000; look([10]);
+    lastReq = clock + 800;
+    clock += 2 * H; look([10]);
+    t.ok(w.quiet().length === 0, 'a player that sent requests at start is never reported, however long it then runs');
+    clock += 2000; look([10, 20]);
+    clock += 20000; look([10, 20]);
+    t.ok(w.quiet().length === 0, 'a new player gets its quiet wait (long: a player can take a while to load on a slow PC)');
+    clock += 6000; look([10, 20]);
+    t.ok(JSON.stringify(w.quiet()) === '[20]', 'after it, only the new silent player is reported, not the one that uses Shroudly');
+    clock += 60000; look([10]); clock += 60000; look([10]);
+    t.ok(w.quiet().length === 0 && w.procs.size === 1, 'players coming and going never restart the clock of one that stays');
   }
   {
     // Roblox asking is the evidence, even when the server it asks for

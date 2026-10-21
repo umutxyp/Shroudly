@@ -34,6 +34,26 @@ function handshake({ socket, ip, servername, ms = HANDSHAKE_MS }) {
   });
 }
 
+/* Two direct handshakes, the second started retryMs after the first unless
+ * the first already got through: 'ok' if either does, else what stopped the
+ * last one. One connection lost on a weak network is not a filter; and a
+ * filter that drops silently is known within one timeout, not two. */
+function twoTries(hs, ip, servername, retryMs) {
+  return new Promise((resolve) => {
+    let left = 2;
+    let done = false;
+    let timer = null;
+    const end = (r) => {
+      if (done) return;
+      if (r === 'ok') { done = true; clearTimeout(timer); resolve('ok'); return; }
+      if (--left === 0) { done = true; resolve(r); }
+    };
+    const one = () => Promise.resolve().then(() => hs({ ip, servername })).then(end, (e) => end((e && e.message) || 'error'));
+    one();
+    timer = setTimeout(() => { if (!done) one(); }, retryMs);
+  });
+}
+
 /*
  * host: the name the service's app connects to first.
  * opts.socksPort, opts.connect(socksPort, host, port): the engine.
@@ -41,30 +61,40 @@ function handshake({ socket, ip, servername, ms = HANDSHAKE_MS }) {
  * opts.handshake: stands in for the TLS handshake (tests).
  * Resolves { blocked, how: 'dns' | 'tls' | null, detail, unknown }: unknown
  * when nothing could be learnt (offline, the engine not running, the service
- * down): neither blocked nor working.
+ * down): neither blocked nor working. The handshake through Shroudly is made
+ * alongside the direct ones (it is only looked at when they fail), so a
+ * blocked service is known as soon as the direct tries give up.
  */
 async function check(host, opts = {}) {
   const resolve = opts.resolve || diagnostics.systemResolve;
   const hs = opts.handshake || handshake;
+  const engine = !!(opts.socksPort && opts.connect);
+  let through = null;
+  const viaEngine = () => {
+    if (!through) {
+      through = Promise.resolve()
+        .then(() => opts.connect(opts.socksPort, host, 443))
+        .then((socket) => hs({ socket, servername: host }), (e) => (e && e.message) || 'error')
+        .catch((e) => (e && e.message) || 'error');
+    }
+    return through;
+  };
   let how = null;
   let detail = '';
   const addrs = await resolve(host).catch(() => null);
   if (!addrs || !addrs.length) { how = 'dns'; detail = 'no answer'; }
   else if (addrs.some(diagnostics.looksForged)) { how = 'dns'; detail = addrs.filter(diagnostics.looksForged).join(', '); }
   else {
-    // Tried twice, a second apart: one connection lost on a weak network
-    // is not a filter.
-    let r = await hs({ ip: addrs[0], servername: host });
-    if (r !== 'ok') { await new Promise((ok) => setTimeout(ok, opts.retryMs == null ? 1000 : opts.retryMs)); r = await hs({ ip: addrs[0], servername: host }); }
+    if (engine) viaEngine();
+    const r = await twoTries(hs, addrs[0], host, opts.retryMs == null ? 1000 : opts.retryMs);
     if (r !== 'ok') { how = 'tls'; detail = r; }
   }
   if (!how) return { blocked: false, how: null, detail: 'direct ok' };
-  if (!opts.socksPort || !opts.connect) return { blocked: false, unknown: true, how: null, detail: `${how}: ${detail}; engine not running` };
-  let through = 'error';
-  try { through = await hs({ socket: await opts.connect(opts.socksPort, host, 443), servername: host }); } catch (e) { through = e.message; }
-  return through === 'ok'
+  if (!engine) return { blocked: false, unknown: true, how: null, detail: `${how}: ${detail}; engine not running` };
+  const t = await viaEngine();
+  return t === 'ok'
     ? { blocked: true, how, detail }
-    : { blocked: false, unknown: true, how: null, detail: `${how}: ${detail}; through Shroudly too (${through})` };
+    : { blocked: false, unknown: true, how: null, detail: `${how}: ${detail}; through Shroudly too (${t})` };
 }
 
 module.exports = { check, handshake };

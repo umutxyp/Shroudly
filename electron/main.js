@@ -15,6 +15,7 @@ const DiscordRelay = require('./discord-relay');
 const AppProxy = require('./app-proxy');
 const AppEnv = require('./app-env');
 const RobloxApp = require('./roblox-app');
+const { RobloxWatch } = require('./roblox-watch');
 const Autopilot = require('./autopilot');
 const StoreApps = require('./store-apps');
 const BlockCheck = require('./blockcheck');
@@ -602,12 +603,12 @@ async function safeStart({ user = false } = {}) {
     syncPresence();
     if (user) advancedProtection.started().catch(() => {});
     // Whether this network blocks what the installed apps need, before they
-    // are opened (autopilot.js), and whether Microsoft Store apps can reach
-    // Shroudly (store-apps.js).
-    setTimeout(() => {
-      if (autopilot) autopilot.survey().catch(() => {});
-      if (storeApps) storeApps.survey().catch(() => {});
-    }, 3000);
+    // are opened (autopilot.js); soon: a Roblox installer a script started at
+    // login waits for this verdict. And whether Microsoft Store apps can
+    // reach Shroudly (store-apps.js).
+    setTimeout(() => { if (autopilot) autopilot.survey().catch(() => {}); }, 1000);
+    setTimeout(() => { if (storeApps) storeApps.survey().catch(() => {}); }, 3000);
+    robloxWatch.warm();
     return r || { success: true };
   } catch (e) {
     addLog('error', `Start failed: ${e.message}`);
@@ -618,6 +619,8 @@ async function safeStart({ user = false } = {}) {
 
 async function safeStop({ user = false } = {}) {
   if (user) store.set(PROTECTION_KEY, false);
+  // Nothing of Roblox's is stopped or started once protection is going off.
+  robloxWatch.halt();
   // A settings change still waiting to be applied belongs to the session
   // being stopped (EngineManager ignores one that slips through anyway).
   clearTimeout(engineRestartTimer); engineRestartTimer = null;
@@ -971,6 +974,9 @@ app.whenReady().then(() => { powerMonitor.on('shutdown', restoreForSessionEnd); 
 const QUIT_RESTORE_LIMIT_MS = 5000;
 app.on('before-quit', (e) => {
   app.isQuitting = true;
+  // Nothing of Roblox's is stopped or started while Shroudly quits.
+  robloxWatch.halt();
+  robloxWatch.stop();
   // Quitting on purpose: take the line out of Discord's settings, so Discord
   // started without Shroudly goes to Discord directly, exactly as before.
   if (!keepDiscordLine && store.get('discordMode') === true) {
@@ -1319,16 +1325,13 @@ ipcMain.handle('discord:set', async (e, on) => {
 /* ── Games and apps mode ─────────────────────────────────────────────────── */
 /* Roblox and many other programs ignore the system proxy and only read
  * HTTPS_PROXY from their environment: see app-proxy.js and app-env.js. The
- * autopilot turns the mode on when this network blocks Roblox; watchRoblox
+ * autopilot turns the mode on when this network blocks Roblox; robloxWatch
  * then sees to Roblox's programs that started before the mode or around it.
  * What the window shows: a proxy of the user's own in the way, a change that
  * could not be made, and a Roblox Studio to reopen. */
 // studioReopenAt: when the user was last asked to reopen a Roblox Studio
 // that goes around Shroudly (0 while there is none).
 const appState = { foreign: false, failed: false, studioReopenAt: 0 };
-let robloxPidsAtChange = [];
-let studioPidsAtChange = [];
-let installerPidsAtChange = [];
 
 function sendAppState() {
   toWindow('apps:state', appState);
@@ -1337,7 +1340,7 @@ function sendAppState() {
 /* Evidence, not the setting: the local proxy reports every request and
  * every tunnel. A request from Roblox is what shows it uses the setting,
  * whether or not the server it asked for could then be reached; it is
- * remembered for watchRoblox. The first tunnel of a session, and Roblox's
+ * remembered for robloxWatch. The first tunnel of a session, and Roblox's
  * first, are logged (so a support log shows the mode really works). */
 const appSeen = { any: false, roblox: false, robloxAt: 0 };
 function onAppRequest(host) {
@@ -1386,22 +1389,11 @@ function reportServiceRefusal(host, kind) {
   toWindow('dpi:service-refused', { host, service: kind });
 }
 
-/* Roblox's programs that go around Shroudly while this network blocks Roblox,
- * looked at every 20 seconds with the mode and protection on:
- *  - one that was open before the mode came on (any system);
- *  - on Windows, one started since by a browser that was open before the
- *    setting (its older environment has none): it runs, and no request from
- *    Roblox has reached Shroudly since it started (RobloxApp.silentPlayers).
- * Installers and the player are started again through Shroudly (nothing in
- * them is the user's, and they were not reaching Roblox anyway); Studio,
- * which may hold work that is not saved, is never closed: the user is told.
- * Each process is dealt with once; a player that still does not get through
- * after two restarts in ten minutes is left to Advanced mode. */
-const robloxSeen = new Map();     // pid -> first seen
-const robloxHandled = new Set();  // pids already restarted or told about
-const studioTold = new Map();     // Studio pid -> when the user was asked to reopen it
-const robloxRestarts = [];        // when the player was last restarted
-let robloxBusy = false;
+/* Roblox's programs that go around Shroudly while this network blocks Roblox
+ * (roblox-watch.js: the rules, how soon, and what is done): looked at every
+ * few seconds while one is being judged or may be about to start, at once
+ * when the mode, protection or the verdict comes. */
+const robloxSigned = RobloxApp.signedCache(store.get('robloxSigned', []), (list) => store.set('robloxSigned', list));
 
 /* The env a Roblox started by Shroudly gets. Shroudly itself may have
  * inherited an older value of ours (started from Explorer before a crash's
@@ -1417,17 +1409,23 @@ function robloxEnv() {
 }
 
 /* Roblox's current installer for the player or Studio, fetched through the
- * engine, checked to be signed by Roblox, and started through Shroudly. */
-async function installRoblox(kind) {
-  const r = await RobloxApp.install({
+ * engine and checked to be signed by Roblox (fetchRoblox), then started
+ * through Shroudly (startFetchedRoblox), if it is still that very file. */
+const robloxName = (kind) => (kind === 'studio' ? 'Roblox Studio' : 'Roblox');
+async function fetchRoblox(kind) {
+  if (!engine || !engine.isActive()) return { success: false, code: 'unreachable', detail: 'protection is off' };
+  const r = await RobloxApp.fetchInstaller({
     kind, socksPort: engine.port, connect: DiscordRelay.socksConnect,
-    env: robloxEnv(), dir: path.join(app.getPath('userData'), 'roblox'),
+    dir: path.join(app.getPath('userData'), 'roblox'), cache: robloxSigned,
   });
-  const name = kind === 'studio' ? 'Roblox Studio' : 'Roblox';
-  if (r.success) addLog('success', `${name} installer downloaded through Shroudly and started (${r.version})`);
-  else if (r.code === 'unsigned') addLog('error', 'The downloaded Roblox installer was not signed by Roblox, so it was deleted and not started');
-  else addLog('error', `${name} could not be downloaded (${r.detail || r.code})`);
+  if (r.code === 'unsigned') addLog('error', 'The downloaded Roblox installer was not signed by Roblox, so it was deleted and not started');
+  else if (!r.success) addLog('error', `${robloxName(kind)} could not be downloaded (${r.detail || r.code})`);
   return r;
+}
+async function startFetchedRoblox(r) {
+  const pid = await RobloxApp.startFetched(r, robloxEnv());
+  if (pid) addLog('success', `${robloxName(r.kind)} installer downloaded through Shroudly and started (${r.version})`);
+  return pid;
 }
 
 function setStudioReopen(at) {
@@ -1436,91 +1434,38 @@ function setStudioReopen(at) {
   sendAppState();
 }
 
-async function watchRoblox() {
-  if (store.get('appMode') !== true || !appProxy || !appProxy.running) {
-    robloxSeen.clear();
-    robloxHandled.clear();
-    studioTold.clear();
-    setStudioReopen(0);
-    return;
-  }
-  if (robloxBusy) return;
-  robloxBusy = true;
-  try {
-    const players = await RobloxApp.pids();
-    const studios = await RobloxApp.pids('studio');
-    const installers = await RobloxApp.installerPids();
-    // The process list could not be read: nothing is taken for gone.
-    if (!players || !studios || !installers) return;
-    const all = [...players, ...studios, ...installers.player, ...installers.studio];
-    for (const pid of [...robloxHandled]) if (!all.includes(pid)) robloxHandled.delete(pid);
-    // Open before the mode came on: only while that very process still runs.
-    robloxPidsAtChange = robloxPidsAtChange.filter((pid) => players.includes(pid));
-    studioPidsAtChange = studioPidsAtChange.filter((pid) => studios.includes(pid));
-    installerPidsAtChange = installerPidsAtChange.filter((pid) => installers.player.includes(pid) || installers.studio.includes(pid));
-    // Followed whenever the mode is on, so each is judged from when it really
-    // started, whatever protection did in between.
-    const quiet = RobloxApp.routeWatched() ? RobloxApp.silentPlayers(robloxSeen, all, appSeen.robloxAt, Date.now()) : [];
-    // The line about Studio stays while a Studio the user was asked about
-    // still runs (the window shows it while protection is on).
-    for (const pid of [...studioTold.keys()]) if (!studios.includes(pid)) studioTold.delete(pid);
-    setStudioReopen(studioTold.size ? Math.max(...studioTold.values()) : 0);
-    // Acted on only with protection on, where Roblox is known to be blocked.
-    if (!engine || !engine.isActive() || !autopilot || !autopilot.isBlocked('roblox')) return;
-    const d = RobloxApp.decide({
-      players, studios, installers, quiet, before: [...robloxPidsAtChange, ...studioPidsAtChange, ...installerPidsAtChange],
-      handled: [...robloxHandled], restarts: robloxRestarts, now: Date.now(),
-    });
-    const something = d.installers.player.length || d.installers.studio.length || d.restartPlayers.length || d.stuckPlayers.length || d.tellStudios.length;
-    // Before touching a program: still blocked right now (checked again if
-    // the verdict is not fresh)?
-    if (!something || !(await autopilot.stillBlocked('roblox'))) return;
-
-    for (const kind of ['player', 'studio']) {
-      if (!d.installers[kind].length) continue;
-      // Asked again right before: the other installer's download may have
-      // taken a while.
-      const fresh = await RobloxApp.installerPids();
-      const list = fresh ? d.installers[kind].filter((pid) => fresh[kind].includes(pid)) : [];
-      d.installers[kind].forEach((pid) => robloxHandled.add(pid));
-      if (!list.length) continue;
-      // The same file again when it is Roblox's own (no download), else the
-      // current one fetched through the engine.
-      const own = await RobloxApp.installerFile(list[0], kind);
-      await RobloxApp.kill(list);
-      const again = own ? RobloxApp.startInstaller(own, robloxEnv()) : (await installRoblox(kind)).success;
-      if (again) {
-        addLog('success', 'Autopilot: a Roblox installer went around Shroudly; started it again through Shroudly');
-        autoTell('autoInstallerRestarted');
-        engine.checkProxySoon();
-      }
-    }
-
-    if (d.restartPlayers.length) {
-      d.restartPlayers.forEach((pid) => robloxHandled.add(pid));
-      if (await RobloxApp.restart(robloxEnv(), d.restartPlayers)) {
-        robloxRestarts.push(Date.now());
-        addLog('success', 'Autopilot: Roblox did not get through Shroudly; restarted it');
-        autoTell('autoRobloxRestarted');
-        engine.checkProxySoon();
-      }
-    }
-    if (d.stuckPlayers.length) {
-      d.stuckPlayers.forEach((pid) => robloxHandled.add(pid));
-      addLog('warning', 'Autopilot: Roblox still does not get through after being restarted through Shroudly');
-      autopilot.needAdvanced('www.roblox.com').catch(() => {});
-    }
-
-    if (d.tellStudios.length) {
-      const at = Date.now();
-      d.tellStudios.forEach((pid) => { robloxHandled.add(pid); studioTold.set(pid, at); });
-      addLog('warning', 'Autopilot: Roblox Studio was opened before Shroudly could take it through; the user was asked to reopen it');
-      autoTell('autoStudioReopen');
-      setStudioReopen(at);
-    }
-  } finally { robloxBusy = false; }
-}
-setInterval(() => { watchRoblox().catch(() => {}); }, 20000).unref();
+function soonProxy(r) { if (r && engine) engine.checkProxySoon(); return r; }
+const robloxWatch = new RobloxWatch({
+  now: () => Date.now(),
+  setTimeout: (fn, ms) => { const h = setTimeout(fn, ms); if (h.unref) h.unref(); return h; },
+  clearTimeout: (h) => clearTimeout(h),
+  watched: RobloxApp.routeWatched(),
+  on: () => store.get('appMode') === true && !!appProxy && appProxy.running,
+  active: () => !!(engine && engine.isActive()),
+  blocked: () => !!(autopilot && autopilot.isBlocked('roblox')),
+  stillBlocked: () => (autopilot ? autopilot.stillBlocked('roblox') : Promise.resolve(false)),
+  checkSoon: () => { if (autopilot) autopilot.checkSoon('roblox').catch(() => {}); },
+  lastRequestAt: () => appSeen.robloxAt,
+  list: () => RobloxApp.processes(),
+  info: process.platform === 'win32' ? (pids) => RobloxApp.processInfo(pids) : null,
+  // PowerShell started ahead (it can take 20 s to start on a slow machine),
+  // while Roblox's programs may need to be seen to.
+  prepare: process.platform === 'win32' ? () => RobloxApp.prepare() : null,
+  signed: (file, kind) => RobloxApp.signedInstaller(file, kind, { cache: robloxSigned }),
+  same: (file, hash) => RobloxApp.sameFile(file, hash),
+  kill: (pids) => RobloxApp.kill(pids),
+  // A program started again through Shroudly: the system proxy is looked at
+  // again shortly (issue #27).
+  startInstaller: (file) => soonProxy(RobloxApp.startInstaller(file, robloxEnv())),
+  fetch: (kind) => fetchRoblox(kind),
+  startFetched: async (r) => soonProxy(await startFetchedRoblox(r)),
+  restart: async (pids) => soonProxy(await RobloxApp.restart(robloxEnv(), pids)),
+  log: (level, msg) => addLog(level, msg),
+  tell: (id) => autoTell(id),
+  needAdvanced: () => { if (autopilot) autopilot.needAdvanced('www.roblox.com').catch(() => {}); },
+  studioReopen: setStudioReopen,
+});
+robloxWatch.start();
 
 /* One change at a time: on and off in quick succession must not interleave
  * (an "on" finishing after the "off" would leave the mode on behind a toggle
@@ -1541,9 +1486,7 @@ async function applyAppModeNow(on) {
     store.set('appMode', false);
     appState.foreign = false;
     appState.studioReopenAt = 0;
-    robloxPidsAtChange = [];
-    studioPidsAtChange = [];
-    installerPidsAtChange = [];
+    robloxWatch.modeOff();
     addLog('success', 'Games and apps mode off: settings restored');
     sendAppState();
     return { success: true };
@@ -1560,7 +1503,8 @@ async function applyAppModeNow(on) {
     return { success: false, code: 'proxy' };
   }
   let r;
-  try { r = appEnv.applySync(AppProxy.proxyUrl(port)); } catch (e) {
+  let setAt = 0;
+  try { r = appEnv.applySync(AppProxy.proxyUrl(port)); setAt = Date.now(); } catch (e) {
     addLog('error', `Games and apps: ${e.message}`);
     appProxy.stop();
     appState.failed = true;
@@ -1579,15 +1523,11 @@ async function applyAppModeNow(on) {
   store.set('appMode', true);
   if (r === 'changed') {
     // Roblox reads the proxy when it starts: what is already open does not
-    // have it (watchRoblox sees to it).
-    robloxPidsAtChange = (await RobloxApp.pids()) || [];
-    studioPidsAtChange = (await RobloxApp.pids('studio')) || [];
-    // An installer open now started without it too: started again at once,
-    // not after the quiet wait.
-    const inst = await RobloxApp.installerPids();
-    installerPidsAtChange = inst ? [...inst.player, ...inst.studio] : [];
+    // have it, installers included (robloxWatch sees to them at once, not
+    // after the quiet wait).
+    robloxWatch.modeOn(await RobloxApp.processes(), setAt);
     addLog('success', 'Games and apps mode on: Roblox and similar programs go through Shroudly');
-  }
+  } else robloxWatch.warm();
   sendAppState();
   return { success: true };
 }
@@ -1782,6 +1722,9 @@ function createAutopilot() {
         told: 'autoRobloxOn',
       },
     ],
+    // Roblox found blocked: its programs that go around Shroudly are seen
+    // to at once, not at the next look.
+    onBlocked: (id) => { if (id === 'roblox') robloxWatch.warm(); },
     advanced: {
       available: () => !!(advanced && advanced.available()),
       active: () => !!(advanced && advanced.active),

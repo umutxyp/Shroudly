@@ -42,6 +42,7 @@ const CHECK_AGAIN_MS = 6 * 60 * 60 * 1000;
 // How long a sign that a service needs Advanced mode waits for the check
 // that says the service is blocked here.
 const SIGN_MS = 10 * 60 * 1000;
+const SOON_MS = 15 * 1000;
 
 /* The services' own names: what the engine reports about them is worth a
  * check. Not the third parties they embed (GIFs, captchas, identity checks),
@@ -136,6 +137,7 @@ class Autopilot {
    *                          antiCheat(), session() }: session() changes with each
    *                          Stop of protection, and start(since) answers
    *                          code 'protection_off' when one came first
+   * opts.onBlocked(id)     a service was just found blocked (after its mode was considered)
    * opts.now()             the clock (tests)
    */
   constructor(opts) {
@@ -146,6 +148,7 @@ class Autopilot {
     this.check = opts.check || (async () => null);
     this.services = opts.services || [];
     this.advanced = opts.advanced || null;
+    this.onBlocked = opts.onBlocked || (() => {});
     this.now = opts.now || Date.now;
     this.blocked = new Map();      // service id -> { how, host, at }
     this.clear = new Map();        // service id -> when it was last found not blocked
@@ -250,6 +253,7 @@ class Autopilot {
         // Not waited for: it may be a permission prompt the user takes a
         // while over, and stillBlocked() waits for this.
         this._advancedFor(id).catch(() => {});
+        try { this.onBlocked(id); } catch {}
         return true;
       }
       this.blocked.delete(id);
@@ -297,21 +301,41 @@ class Autopilot {
 
   /* When protection comes on, and every so often after: for each service
    * whose app is here, find out whether this network blocks it; a service
-   * found blocked hours ago is looked at again. */
+   * found blocked hours ago is looked at again. The services are checked side
+   * by side: one whose check waits out a silent network (or whose mode takes
+   * a while to come on) never holds up another's verdict. */
   async survey() {
-    for (const s of this.services) {
-      if (!this.protectionOn()) return;
-      const b = this.blocked.get(s.id);
-      if (b) {
-        if (this.now() - b.at >= CHECK_AGAIN_MS) await this._confirm(s.id, b.host, null);
-        else await this.consider(s.id);
-        continue;
-      }
-      if (!s.present()) continue;
-      if (this.now() - (this.clear.get(s.id) || -Infinity) < CHECK_AGAIN_MS) continue;
-      if (this.now() - (this.unknownAt.get(s.id) || -Infinity) < 2 * 60 * 1000) continue;
-      await this._confirm(s.id, s.probe, null);
+    await Promise.all(this.services.map((s) => this._surveyOne(s)));
+  }
+
+  async _surveyOne(s) {
+    if (!this.protectionOn()) return;
+    const b = this.blocked.get(s.id);
+    if (b) {
+      if (this.now() - b.at >= CHECK_AGAIN_MS) await this._confirm(s.id, b.host, null);
+      else await this.consider(s.id);
+      return;
     }
+    if (!s.present()) return;
+    if (this.now() - (this.clear.get(s.id) || -Infinity) < CHECK_AGAIN_MS) return;
+    if (this.now() - (this.unknownAt.get(s.id) || -Infinity) < 2 * 60 * 1000) return;
+    await this._confirm(s.id, s.probe, null);
+  }
+
+  /* A program of the service is waiting on the verdict (a Roblox installer
+   * that goes around Shroudly): the check now, unless the verdict is known,
+   * one is under way, or nothing could be learnt less than SOON_MS ago
+   * (offline at login): soon again then, not in ten minutes. Resolves
+   * whether it is blocked. */
+  async checkSoon(id) {
+    const s = this.services.find((x) => x.id === id);
+    if (!s || !this.protectionOn()) return false;
+    if (this.blocked.has(id)) return true;
+    const cur = this.checking.get(id);
+    if (cur && cur.gen === this.gen) return cur.run;
+    if (this.now() - (this.clear.get(id) || -Infinity) < CHECK_AGAIN_MS) return false;
+    if (this.now() - (this.unknownAt.get(id) || -Infinity) < SOON_MS) return false;
+    return this._confirm(id, s.probe, null);
   }
 
   /* A sign, in what the engine said, that a service needs Advanced mode
@@ -458,3 +482,4 @@ module.exports.ipv6Groups = ipv6Groups;
 module.exports.OWN = OWN;
 module.exports.RESPECT_OFF_MS = RESPECT_OFF_MS;
 module.exports.CHECK_AGAIN_MS = CHECK_AGAIN_MS;
+module.exports.SOON_MS = SOON_MS;
