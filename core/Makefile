@@ -22,7 +22,11 @@ $(BIN): $(SRC)
 # The sources engine.c needs besides itself, for tests that include it.
 ENGINE_DEPS = src/platform.c src/proto.c src/strategy.c src/desync.c src/fake.c src/doh.c src/socksudp.c
 
-test: test/test_proto.c test/test_udpdpi.c test/test_desync.c test/test_bogon.c test/test_engine.c test/test_tcpdpi.c test/test_rawscope.c test/test_socksudp.c $(SRC)
+# The engine run inside another program's process (the Android app): main.c
+# without its main(), and what it needs.
+EMBED_SRC = $(ENGINE_DEPS) src/engine.c src/probe.c src/main.c src/watchdog.c
+
+test: test/test_proto.c test/test_udpdpi.c test/test_desync.c test/test_bogon.c test/test_engine.c test/test_tcpdpi.c test/test_rawscope.c test/test_socksudp.c test/test_embedded.c $(SRC)
 	$(CC) -std=c11 -O2 -Wall -o /tmp/shroudly_test_proto src/proto.c src/strategy.c test/test_proto.c
 	/tmp/shroudly_test_proto
 	$(CC) -std=c11 -O2 -Wall -Wextra -o /tmp/shroudly_test_udpdpi src/udpdpi.c test/test_udpdpi.c
@@ -41,9 +45,12 @@ test: test/test_proto.c test/test_udpdpi.c test/test_desync.c test/test_bogon.c 
 	/tmp/shroudly_test_rawscope
 	$(CC) -std=c11 -O2 -Wall -Wextra -o /tmp/shroudly_test_socksudp src/socksudp.c test/test_socksudp.c $(LDLIBS)
 	/tmp/shroudly_test_socksudp
+	$(CC) -std=c11 -O2 -Wall -Wextra -pthread -DSHROUDLY_NO_MAIN -o /tmp/shroudly_test_embedded \
+		$(EMBED_SRC) test/test_embedded.c $(LDLIBS)
+	/tmp/shroudly_test_embedded
 
 # Sanitizer build of the full test set (memory + UB checks).
-test-asan: test/test_proto.c test/test_udpdpi.c test/test_desync.c test/test_bogon.c test/test_engine.c test/test_tcpdpi.c test/test_rawscope.c test/test_socksudp.c $(SRC)
+test-asan: test/test_proto.c test/test_udpdpi.c test/test_desync.c test/test_bogon.c test/test_engine.c test/test_tcpdpi.c test/test_rawscope.c test/test_socksudp.c test/test_embedded.c $(SRC)
 	$(CC) -std=c11 -O1 -g -fsanitize=address,undefined -pthread \
 		-o /tmp/shroudly_test_asan \
 		src/platform.c src/proto.c src/strategy.c src/desync.c src/fake.c src/doh.c \
@@ -67,6 +74,9 @@ test-asan: test/test_proto.c test/test_udpdpi.c test/test_desync.c test/test_bog
 	$(CC) -std=c11 -O1 -g -fsanitize=address,undefined -Wall -Wextra \
 		-o /tmp/shroudly_test_socksudp_asan src/socksudp.c test/test_socksudp.c $(LDLIBS)
 	ASAN_OPTIONS=halt_on_error=1 /tmp/shroudly_test_socksudp_asan
+	$(CC) -std=c11 -O1 -g -fsanitize=address,undefined -pthread -DSHROUDLY_NO_MAIN \
+		-o /tmp/shroudly_test_embedded_asan $(EMBED_SRC) test/test_embedded.c $(LDLIBS)
+	ASAN_OPTIONS=halt_on_error=1 /tmp/shroudly_test_embedded_asan
 
 # Fuzz the untrusted-input parser (random + grammar-aware) under sanitizers.
 fuzz: test/fuzz_proto.c test/fuzz_mut.c src/proto.c

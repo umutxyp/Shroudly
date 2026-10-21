@@ -21,6 +21,12 @@
 - `test_socksudp.c` — the SOCKS5 UDP header (RFC 1928 §7): parsing IPv4 / IPv6 / name
   destinations, refusing fragments and malformed headers, building reply headers, plus a
   random / mutation pass run under ASan by `make test-asan`
+- `test_embedded.c` — the engine run inside another program's process, as the Android
+  app runs it (`engine_main` with `embedded`, main.c built with `SHROUDLY_NO_MAIN`):
+  commands and JSON lines over pipes, no signal handlers, the run returns on STOP or
+  at the end of its commands and frees its port, a second run in the same process on
+  the same port with none of the first one's options left, refused options
+  (POSIX only)
 - `fuzz_proto.c`   — random fuzzing of the untrusted-input parser
 - `fuzz_mut.c`     — grammar-aware mutation fuzzing (2M iters, ASan+UBSan clean)
 

@@ -14,6 +14,10 @@
  *              PROBE <host>     -> auto-detect a working strategy for host
  *              STOP             -> shut down
  *
+ * The same run is engine_main() (engine.h), which the Android app calls on a
+ * thread of its own process with a pipe each way instead of stdin and stdout;
+ * this file is built there with SHROUDLY_NO_MAIN.
+ *
  * "shroudly-core --watchdog ..." is a separate, much smaller job: see
  * watchdog.h.
  */
@@ -82,6 +86,32 @@ static int parse_split_mode(const char *s) {
 static void on_signal(int sig) { (void)sig; engine_stop(); }
 #endif
 
+/* Every option at its default, as in a process that has just started: a run
+ * inside another program (embedded) may follow an earlier one there. */
+static void defaults(void) {
+  memset(&g_cfg, 0, sizeof(g_cfg));
+  strcpy(g_doh_fwd_ip, "127.0.0.1");
+  g_doh_fwd_port = 0;
+  g_advanced = 0;
+  g_queue = 200;
+  g_fake_ttl = 4;
+  g_quic_block = 1;
+  g_udp_fake = 1;
+  g_fake_repeats = 6;
+  g_status_file[0] = 0;
+  g_auth_file[0] = 0;
+  g_parent_pid = 0;
+#if defined(SHROUDLY_RAW)
+  g_drop_rst = RAW_DEF_DROP_RST;
+  g_autottl  = RAW_DEF_AUTOTTL;
+  g_seqovl   = RAW_DEF_SEQOVL;
+  g_split    = RAW_DEF_SPLIT;
+  g_desync_mode = RAW_DEF_DESYNC_MODE;
+  g_seqovl_pat = RAW_DEF_SEQOVL_PATTERN;
+  g_fake_pat   = RAW_DEF_FAKE_PATTERN;
+#endif
+}
+
 static void usage(void) {
   fprintf(stderr,
     "shroudly-core [options]\n"
@@ -101,11 +131,11 @@ static void usage(void) {
     "  --no-udp-fake         Advanced: no decoys for Discord voice UDP\n");
 }
 
-int main(int argc, char **argv) {
-  if (argc > 1 && !strcmp(argv[1], "--watchdog")) return watchdog_main(argc, argv);
+int engine_main(int argc, char **argv, FILE *in, FILE *out, int embedded) {
+  engine_set_output(out);
   if (plat_init() != 0) { fprintf(stderr, "plat_init failed\n"); return 2; }
 
-  memset(&g_cfg, 0, sizeof(g_cfg));
+  defaults();
   strcpy(g_cfg.listen_addr, "127.0.0.1");
   g_cfg.listen_port = 10800;
   g_cfg.use_doh = 0;
@@ -148,9 +178,9 @@ int main(int argc, char **argv) {
   }
 
   if (g_cfg.use_doh && g_doh_fwd_port > 0) doh_set_local(g_doh_fwd_ip, g_doh_fwd_port);
+  else doh_set_local(NULL, 0);   /* none: not even one an earlier run named */
   if (bad_fake_net) {
-    printf("{\"type\":\"error\",\"msg\":\"fake-net unusable\"}\n");
-    fflush(stdout);
+    engine_printf("{\"type\":\"error\",\"msg\":\"fake-net unusable\"}\n");
     plat_cleanup();
     return 2;
   }
@@ -158,16 +188,16 @@ int main(int argc, char **argv) {
    * any process could read it. A file that cannot be used stops the engine
    * rather than leave the port open. */
   if (g_auth_file[0] && engine_load_auth(&g_cfg, g_auth_file) != 0) {
-    printf("{\"type\":\"error\",\"msg\":\"auth file unusable\"}\n");
-    fflush(stdout);
+    engine_printf("{\"type\":\"error\",\"msg\":\"auth file unusable\"}\n");
     plat_cleanup();
     return 2;
   }
 
 #if defined(SHROUDLY_RAW)
   /* Advanced (packet-layer) mode: run the per-OS fake-packet backend instead of
-   * the userspace proxy. It runs elevated; supervise.c handles stopping. */
-  if (g_advanced) {
+   * the userspace proxy. It runs elevated; supervise.c handles stopping. Only
+   * as a program of its own: it ends the process when it stops. */
+  if (g_advanced && !embedded) {
     if (g_status_file[0] && sup_redirect_output(g_status_file) != 0) return 2;
     raw_config rc;
     raw_config_defaults(&rc, g_fake_ttl);
@@ -208,21 +238,22 @@ int main(int argc, char **argv) {
   }
 #else
   if (g_advanced) {
-    printf("{\"type\":\"error\",\"msg\":\"advanced mode not built on this platform\"}\n");
-    fflush(stdout);
+    engine_printf("{\"type\":\"error\",\"msg\":\"advanced mode not built on this platform\"}\n");
   }
 #endif
 
 #ifndef _WIN32
-  signal(SIGINT, on_signal);
-  signal(SIGTERM, on_signal);
-  signal(SIGHUP, on_signal);
+  /* Inside another program the signals are that program's own. */
+  if (!embedded) {
+    signal(SIGINT, on_signal);
+    signal(SIGTERM, on_signal);
+    signal(SIGHUP, on_signal);
+  }
 #endif
 
   int r = engine_start(&g_cfg);
   if (r != 0) {
-    printf("{\"type\":\"error\",\"code\":%d,\"msg\":\"listen failed\"}\n", r);
-    fflush(stdout);
+    engine_printf("{\"type\":\"error\",\"code\":%d,\"msg\":\"listen failed\"}\n", r);
     plat_cleanup();
     return 3;
   }
@@ -231,7 +262,7 @@ int main(int argc, char **argv) {
    * no orphaned engine, no leftover state (we never touched the OS network). */
   char line[512];
   while (engine_is_running()) {
-    if (!fgets(line, sizeof(line), stdin)) break; /* EOF -> shut down */
+    if (!fgets(line, sizeof(line), in)) break; /* EOF -> shut down */
     char *nl = strpbrk(line, "\r\n"); if (nl) *nl = 0;
     if (!strncmp(line, "STOP", 4)) break;
     else if (!strncmp(line, "STATS", 5)) engine_emit_stats();
@@ -247,7 +278,13 @@ int main(int argc, char **argv) {
   engine_stop();
   sleep_ms(50);
   plat_cleanup();
-  printf("{\"type\":\"stopped\"}\n");
-  fflush(stdout);
+  engine_printf("{\"type\":\"stopped\"}\n");
   return 0;
 }
+
+#ifndef SHROUDLY_NO_MAIN
+int main(int argc, char **argv) {
+  if (argc > 1 && !strcmp(argv[1], "--watchdog")) return watchdog_main(argc, argv);
+  return engine_main(argc, argv, stdin, stdout, 0);
+}
+#endif
