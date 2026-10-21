@@ -1,6 +1,6 @@
 'use strict';
 
-const { app, BrowserWindow, ipcMain, Tray, Menu, nativeImage, shell, Notification, powerMonitor, dialog, session } = require('electron');
+const { app, BrowserWindow, ipcMain, Tray, Menu, nativeImage, shell, Notification, powerMonitor, dialog, session, clipboard } = require('electron');
 const path = require('path');
 const url = require('url');
 const fs = require('fs');
@@ -29,6 +29,8 @@ const Families = require('./families');
 const ServiceCheck = require('./service-check');
 const { restoreProxy } = require('./restore-proxy');
 const Launch = require('./launch');
+const wake = require('./wake');
+const { buildReport, toClipboard } = require('./log-report');
 
 /* "Shroudly --restore-proxy" runs once at login after a run that never got to
  * restore the system proxy (power loss, forced reboot), and from the watchdog
@@ -153,6 +155,34 @@ function notify(title, body) {
   }
 }
 
+/* "Copy logs": the whole log with a short header (log-report.js), to the
+ * clipboard. Nothing is sent anywhere. */
+function copyLogs() {
+  const report = buildReport({
+    version: appVersion(),
+    os: `${{ win32: 'Windows', darwin: 'macOS', linux: 'Linux' }[process.platform] || process.platform} ${(() => { try { return process.getSystemVersion(); } catch { return os.release(); } })()}`,
+    arch: process.arch,
+    protection: engine && engine.isActive() ? 'on' : engine && engine.coming ? 'starting' : 'off',
+    routeMode: store.get('routeMode') === 'listed' ? 'listed' : 'all',
+    advanced: { on: !!(advanced && advanced.active), available: !!(advanced && advanced.available()) },
+    discordMode: store.get('discordMode') === true,
+    appsMode: store.get('appMode') === true,
+    storeApps: process.platform === 'win32' ? store.get('storeAppsMode') === true : null,
+  }, systemLogs);
+  if (!toClipboard(report, clipboard)) return { ok: false };
+  return { ok: true, lines: systemLogs.length, chars: report.length };
+}
+
+/* From the tray: on the clipboard, said; where the desktop would not take it
+ * from a program without a window (Wayland), the window opens on the Logs
+ * panel, whose button can, and the notification says so. */
+function trayCopyLogs(s) {
+  if (copyLogs().ok) { notify('Shroudly', s.notifyLogsCopied); return; }
+  showWindow();
+  toWindow('ui:navigate', 'logs');
+  notify('Shroudly', s.notifyLogsCopyFailed);
+}
+
 /* ── tray + status ───────────────────────────────────────────────────────── */
 function trayIconPath() {
   return process.platform === 'win32' ? iconAssetPath('icon.ico')
@@ -198,6 +228,7 @@ function rebuildTrayMenu(active = trayActive) {
       click: async () => { active ? await safeStop({ user: true }) : await safeStart({ user: true }); },
     },
     { type: 'separator' },
+    { label: s.trayCopyLogs, click: () => trayCopyLogs(s) },
     { label: s.trayQuit, click: () => { app.isQuitting = true; shutdownAndQuit(); } },
   ]);
   tray.setContextMenu(menu);
@@ -335,7 +366,7 @@ const loading = new WeakSet();  // windows still loading on their way to the scr
 const sentAway = new WeakSet();
 // One-off notices that must not be lost while there is no window: the latest
 // of each is shown once the next window is up.
-const STICKY = new Set(['dpi:need-restart', 'dpi:dns-auto-enabled', 'dpi:site-blocked', 'dpi:service-refused']);
+const STICKY = new Set(['dpi:need-restart', 'dpi:dns-auto-enabled', 'dpi:site-blocked', 'dpi:service-refused', 'ui:navigate']);
 const pending = new Map();
 
 function windowAlive() { return !!(mainWindow && !mainWindow.isDestroyed()); }
@@ -391,6 +422,8 @@ async function releaseWindow(reason) {
 }
 
 function idleCheck() {
+  // Just woken up (or the clock jumped): the time asleep is no time unused.
+  if (wake.check()) return;
   if (!windowAlive() || !canLeave()) return;
   const w = mainWindow;
   if (loading.has(w)) return;   // not shown yet because it is still loading
@@ -812,17 +845,21 @@ app.whenReady().then(async () => {
   // Discord while it is off, and runs whenever Shroudly does.
   discordRelay = new DiscordRelay(addLog, () => (engine && engine.isActive() ? engine.port : null));
   discordRelay.waitForEngine = waitForEngine;
+  discordRelay.engineDue = engineComing;
   if (store.get('discordMode') === true) applyDiscordMode(true, { interactive: false }).catch(() => {});
 
   // Like the relay: through the engine while protection is on, direct while
   // it is off, and up whenever Shroudly is with the mode on.
   appProxy = new AppProxy(addLog, () => (engine && engine.isActive() ? engine.port : null), isRouted);
   appProxy.waitForEngine = waitForEngine;
+  appProxy.engineDue = engineComing;
   appProxy.onTunnel = onAppTunnel;
   appProxy.onRequest = onAppRequest;
   appEnv = new AppEnv({ stateFile: appEnvStateFile(), watchdog });
   createAutopilot();
   createStoreApps();
+  // The end-to-end tests look inside (tests/e2e): never in a normal run.
+  if (process.env.SHROUDLY_E2E === '1') global.shroudlyE2E = { engine, appProxy, discordRelay, autopilot, wake, store, addLog, require, trayCopyLogs: () => trayCopyLogs(tr()) };
 
   updater = new Updater({
     log: addLog,
@@ -964,6 +1001,39 @@ function restoreForSessionEnd() {
 }
 app.on('session-end', restoreForSessionEnd); // Windows
 app.whenReady().then(() => { powerMonitor.on('shutdown', restoreForSessionEnd); }); // macOS, Linux
+
+/* ── sleep, wake and clock changes (wake.js) ─────────────────────────────── */
+/* The system says it woke up; a timer that ran late or a clock that jumped
+ * says the same where it does not (macOS DarkWake, a frozen main process, a
+ * clock set by hand or by NTP). Every "nothing for N seconds" starts afresh:
+ * the engine is not taken for hung, encrypted DNS not for blocked, a Roblox
+ * program not for one going around Shroudly, an update countdown that ran
+ * out asleep starts again, and no service is judged until the network is
+ * back. Said once in the log. */
+let lastWakeLog = 0;
+function onWake(why) {
+  try { if (engine) engine.doh.resumed(); } catch {}
+  try { if (autopilot) autopilot.resumed(); } catch {}
+  try { robloxWatch.resumed(); } catch {}
+  try { if (updater) updater.resumed(); } catch {}
+  markActive();
+  // Programs (VPN clients among them) set their proxy again at a wake: the
+  // setting is read again soon, a takeover then counting from one.
+  if (engine) engine.checkProxySoon();
+  const now = Date.now();
+  if (now - lastWakeLog > 60000) {
+    lastWakeLog = now;
+    addLog('info', `The computer woke up or its clock changed (${why}); waiting times start afresh`);
+  }
+}
+wake.on('resume', onWake);
+wake.start();
+app.whenReady().then(() => {
+  powerMonitor.on('resume', () => { if (engine) engine.resumed(); else wake.resumed('system'); });
+  // Back at the computer: the window is in use, not idle for the time the
+  // screen was locked.
+  powerMonitor.on('unlock-screen', () => markActive());
+});
 
 /* Every way of quitting (Cmd+Q, Dock, tray, menu, updater) lands here. Mark
  * the app as quitting first: otherwise the window's close handler turns the
@@ -1462,7 +1532,7 @@ const robloxWatch = new RobloxWatch({
   restart: async (pids) => soonProxy(await RobloxApp.restart(robloxEnv(), pids)),
   log: (level, msg) => addLog(level, msg),
   tell: (id) => autoTell(id),
-  needAdvanced: () => { if (autopilot) autopilot.needAdvanced('www.roblox.com').catch(() => {}); },
+  needAdvanced: () => { if (autopilot) autopilot.needAdvanced('www.roblox.com', { label: 'Roblox', why: 'Roblox does not get through' }).catch(() => {}); },
   studioReopen: setStudioReopen,
 });
 robloxWatch.start();
@@ -1581,6 +1651,9 @@ const browserTold = new Set();
 let browserBusy = false;
 async function watchBrowsers() {
   if (browserBusy || !engine || !engine.isActive() || store.get('routeMode') === 'listed') return;
+  // Just after a wake, connections opened before the sleep (or while the
+  // network came back) are no sign of a browser going around Shroudly.
+  if (wake.recent(2 * 60 * 1000)) { browserAroundSeen.clear(); return; }
   browserBusy = true;
   try {
     const list = await BrowserCheck.runningBrowsers();
@@ -1713,6 +1786,8 @@ function createAutopilot() {
         enable: () => applyDiscordMode(true, { interactive: windowAlive() && mainWindow.isVisible() }),
         logOn: 'Autopilot: Discord is blocked on this network; Discord app mode turned on',
         told: 'autoDiscordOn',
+        toldOff: 'autoDiscordOffByHand',
+        toldFailed: 'autoDiscordFailed',
       },
       {
         id: 'roblox', name: 'Roblox', probe: 'clientsettingscdn.roblox.com', mode: 'appMode', needsApp: false,
@@ -1720,6 +1795,8 @@ function createAutopilot() {
         enable: () => (AppEnv.supported() ? applyAppMode(true) : Promise.resolve({ success: false, code: 'unsupported' })),
         logOn: 'Autopilot: Roblox is blocked on this network; Games and apps mode turned on',
         told: 'autoRobloxOn',
+        toldOff: 'autoRobloxOffByHand',
+        toldFailed: 'autoRobloxFailed',
       },
     ],
     // Roblox found blocked: its programs that go around Shroudly are seen
@@ -1789,6 +1866,8 @@ ipcMain.handle('update:install', () => updater && updater.install());
 ipcMain.handle('update:postpone', () => updater && updater.postpone());
 
 ipcMain.handle('logs:get', () => systemLogs);
+// The whole log, with what a report needs to know, to the clipboard only.
+ipcMain.handle('logs:copy', () => copyLogs());
 ipcMain.handle('logs:clear', () => { systemLogs = []; addLog('info', 'Logs cleared'); return true; });
 
 ipcMain.handle('net:stats', async () => {

@@ -41,6 +41,7 @@ const fs = require('fs');
 const os = require('os');
 const path = require('path');
 const Watchdog = require('./watchdog');
+const Boot = require('./boot');
 
 const MARK = 'SHROUDLY_APP_PROXY';
 // This machine and the local network never go through the proxy. The CIDR
@@ -312,7 +313,7 @@ class AppEnv {
     if (stateFile) {
       try {
         fs.mkdirSync(path.dirname(stateFile), { recursive: true });
-        fs.writeFileSync(stateFile, JSON.stringify({ v: 1, platform: this.platform, pid: process.pid, boot: bootId(), exe: path.basename(process.execPath), url }));
+        fs.writeFileSync(stateFile, JSON.stringify({ v: 1, platform: this.platform, pid: process.pid, boot: bootId(), bootKey: Boot.bootKey(), uptime: Boot.uptime(), exe: path.basename(process.execPath), url }));
       } catch {}
     }
     if (watchdog && stateFile) Watchdog.watch(watchdog, 'env', stateFile);
@@ -339,7 +340,10 @@ class AppEnv {
     const owned = () => {
       try {
         const st = JSON.parse(fs.readFileSync(opts.stateFile, 'utf8'));
-        const sameBoot = st.boot == null || Math.abs(st.boot - bootId()) <= 2;
+        // By the boot's own name where both have one (a clock change does
+        // not move it), else by the time it started.
+        const byKey = Boot.sameBootKey(st);
+        const sameBoot = byKey !== null ? byKey : (st.boot == null || Math.abs(st.boot - bootId()) <= 2);
         return sameBoot && st.pid && st.pid !== process.pid && alive(st.pid) && sameProgram(st.pid, st.exe);
       } catch { return false; }
     };

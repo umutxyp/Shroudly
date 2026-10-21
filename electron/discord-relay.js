@@ -121,6 +121,8 @@ class DiscordRelay {
     this.getSocksPort = getSocksPort || (() => null);
     // async (): resolves once the engine is up, or it is not coming (main.js).
     this.waitForEngine = null;
+    // (): the engine is still on its way after that wait (main.js).
+    this.engineDue = () => false;
     this.server = null;
     this.port = 0;
     this.requests = 0;
@@ -178,6 +180,11 @@ class DiscordRelay {
     // refuses, leaving Discord saying "retrying".
     if (this.waitForEngine) { try { await this.waitForEngine(); } catch {} }
     const socksPort = this.getSocksPort();
+    // Still on its way after the wait: an error the updater retries, never
+    // a direct connection a filtering network refuses or answers falsely.
+    let due = false;
+    try { due = !socksPort && !!this.engineDue(); } catch {}
+    if (due) throw new Error('Shroudly is restarting; try again in a moment');
     const raw = socksPort
       ? await socksConnect(socksPort, host, 443)
       : await new Promise((resolve, reject) => {

@@ -789,6 +789,33 @@ const readState = (file) => { try { return JSON.parse(fs.readFileSync(file, 'utf
         t.ok(SystemProxy.recoverSync({ stateFile: file, platform: 'win32', skipIfOwnerAlive: true }) === true && JSON.stringify([...reg]) === before && !fs.existsSync(file),
           `P12: a leftover whose owner is not running (${why}) is restored`);
       }
+      {
+        // The clock moved since the record was made (NTP at login on a
+        // dual-boot machine, a clock set by hand): the boot's own name says
+        // it is this boot, and the running Shroudly keeps its setting. The
+        // boot's name differing is a restart, whatever the clock says.
+        const Boot = require(path.join(ROOT, 'electron', 'boot.js'));
+        Boot._setReader(() => 'boot-A');
+        try {
+          leftover({ pid: other.pid, boot: boot - 5 * 3600, bootKey: 'boot-A', exe: 'sleep' });
+          t.ok(SystemProxy._ownerAlive({ pid: other.pid, boot: boot - 5 * 3600, bootKey: 'boot-A', exe: 'sleep' }, 'win32')
+            && SystemProxy.recoverSync({ stateFile: file, platform: 'win32', skipIfOwnerAlive: true }) === 'running' && reg.get('AutoConfigURL').data === live.pacUrl,
+          'P12: a running owner whose boot time moved five hours with the clock: still this boot by its name, its setting left alone');
+          t.ok(!SystemProxy._ownerAlive({ pid: other.pid, boot, bootKey: 'boot-B', exe: 'sleep' }, 'win32'), 'P12: another boot by name: not running, however close the times');
+          t.ok(Boot.sameBoot({ boot }) && !Boot.sameBoot({ boot: boot - 86400 }), 'a record without a boot name: told by the time, as before');
+        } finally { Boot._setReader(null); }
+        // Windows names a boot by its last shutdown, which a power cut or a
+        // crash never writes: a record made further into a boot than this
+        // one has gone is from an earlier boot, whatever the name says.
+        Boot._setReader(() => 'shutdown-01D9AB', () => 600);
+        try {
+          t.ok(!SystemProxy._ownerAlive({ pid: other.pid, boot, bootKey: 'shutdown-01D9AB', uptime: 7200, exe: 'sleep' }, 'win32'),
+            'P12 (Windows): the same shutdown time, but the record made two hours into a boot ten minutes old: a power cut since, not running');
+          t.ok(SystemProxy._ownerAlive({ pid: other.pid, boot, bootKey: 'shutdown-01D9AB', uptime: 300, exe: 'sleep' }, 'win32'),
+            'P12 (Windows): made five minutes into this boot: this boot');
+          t.ok(SystemProxy._owner().uptime === 600, 'the record keeps how long the computer had been up');
+        } finally { Boot._setReader(null); }
+      }
       leftover({ pid: other.pid, boot, exe: 'sleep' });
       t.ok(SystemProxy.recoverSync({ stateFile: file, platform: 'win32' }) === true && JSON.stringify([...reg]) === before,
         'P12: the app\'s own start (the only Shroudly then) restores regardless');
@@ -2112,11 +2139,21 @@ const readState = (file) => { try { return JSON.parse(fs.readFileSync(file, 'utf
     t.ok(!ev.includes('restore') && em.proxyStatus && em.proxyStatus.admin, 'EngineManager (A6): crash with an administrator-set proxy: it stays');
     await sleep(700);
     t.ok(ev.join() === 'start', 'EngineManager (A6): …and the engine is restarted (its new port goes into the PAC)');
+    // Any system proxy Shroudly set stays too while the engine comes back
+    // (browsers wait a moment instead of going out directly and failing on
+    // a filtering network); one it could not set is put back at once.
     ev.length = 0;
     em._setProxyStatus({ ok: true, code: 'ok' });
     em.active = true;
     await em._onClose(1);
-    t.ok(ev[0] === 'restore' && em.proxyStatus === null, 'EngineManager: any other system proxy is restored at once on a crash');
+    t.ok(!ev.includes('restore') && em.proxyStatus && em.proxyStatus.ok && em.coming, 'EngineManager: a crash with the system proxy set keeps it, and the engine is coming at once');
+    await sleep(1300);
+    t.ok(ev.join() === 'start', 'EngineManager: …and the engine is restarted');
+    ev.length = 0;
+    em._setProxyStatus({ ok: false, code: 'needs_admin' });
+    em.active = true;
+    await em._onClose(1);
+    t.ok(ev[0] === 'restore' && em.proxyStatus === null, 'EngineManager: a system proxy Shroudly could not set is put back at once on a crash');
     // Stop while that restart is still waiting: no restart afterwards.
     ev.length = 0;
     await em.stop({ user: true });
@@ -2179,6 +2216,113 @@ const readState = (file) => { try { return JSON.parse(fs.readFileSync(file, 'utf
     try { await em.recover({ protectionOn: true }); } finally { SystemProxy.resetLegacySync = orig; SystemProxy.recoverSync = origRecover; }
     t.ok(resets === 1 && em.proxyRecoveryPending === false, 'EngineManager: nothing recorded and the flag set: the legacy reset still runs');
     fs.rmSync(file, { force: true });
+  }
+
+  // ── a clock set back is no "answer" in a fight over the setting ──
+  {
+    const reg = new Map();
+    let now = 1e12;
+    SystemProxy._setExec(fakeExec({ 'reg.exe': fakeReg(reg) }));
+    const log = logs();
+    const seen = [];
+    const sp = new SystemProxy(log, { platform: 'win32', stateFile: stateFile('clockback'), onOwnership: (o, i) => seen.push(i), takeoverConfirmMs: 0, retakeLooksMs: [], now: () => now });
+    await sp.apply(10808, 'all');
+    for (let i = 0; i < 4; i++) {
+      reg.delete('AutoConfigURL');
+      await sp.checkOwnership();
+      now -= 10 * 60 * 1000;            // the clock set back ten minutes each time
+    }
+    t.ok(!seen.some((x) => x.gaveUp) && reg.get('AutoConfigURL').data === sp.pacUrl && !log.lines.some((l) => l.includes('keeps changing')),
+      'takeovers each after the clock was set back: set back every time, never taken for a program fighting Shroudly');
+    await sp.restore();
+  }
+
+  // ── an engine crash on every system's backend: the setting stays, the PAC
+  //    gets the new port, nothing looks taken over afterwards ──
+  {
+    const EngineManager = require(path.join(ROOT, 'electron', 'engine-manager.js'));
+    const { Wake } = require(path.join(ROOT, 'electron', 'wake.js'));
+    const FAKE = path.join(__dirname, 'fixtures', 'fake-engine.js');
+    const exists = fs.existsSync;
+    fs.existsSync = (p) => (p === EngineManager.coreBinaryPath() ? true : exists(p));
+    const backends = [];
+    {
+      const reg = new Map();
+      backends.push({ name: 'Windows', exec: fakeExec({ 'reg.exe': fakeReg(reg) }), opts: { platform: 'win32' },
+        read: () => `${(reg.get('AutoConfigURL') || {}).data}` });
+    }
+    {
+      const ns = { denied: false, log: [], services: { 'Wi-Fi': { socks: { enabled: false, server: '', port: '' }, auto: { enabled: false, url: '' } } } };
+      backends.push({ name: 'macOS', exec: fakeExec({ networksetup: (args) => FakeNS.handle(ns, args), sudo: () => { throw new Error('a password is required'); } }), opts: { platform: 'darwin' },
+        read: () => `${ns.services['Wi-Fi'].auto.enabled}|${ns.services['Wi-Fi'].auto.url}` });
+    }
+    {
+      const g = gnomeDefaults();
+      backends.push({ name: 'GNOME', exec: fakeExec({ gsettings: fakeGsettings(g) }), opts: { platform: 'linux', env: { XDG_CURRENT_DESKTOP: 'GNOME', HOME: process.env.HOME } },
+        read: () => `${g.get('org.gnome.system.proxy mode')}|${g.get('org.gnome.system.proxy autoconfig-url')}` });
+    }
+    {
+      const cfg = path.join(TMP, 'kde-crash');
+      const file = path.join(cfg, 'kioslaverc');
+      fs.mkdirSync(cfg, { recursive: true });
+      fs.writeFileSync(file, '[Proxy Settings]\nProxyType=0\n');
+      backends.push({ name: 'KDE', exec: fakeExec({ kwriteconfig6: fakeKwrite([]), 'dbus-send': () => '' }), opts: { platform: 'linux', env: { XDG_CURRENT_DESKTOP: 'KDE', XDG_CONFIG_HOME: cfg, HOME: process.env.HOME } },
+        read: () => { const k = SystemProxy._kdeRead(fs.readFileSync(file, 'utf8')); return `${k.type}|${k.script}`; } });
+    }
+    for (const b of backends) {
+      SystemProxy._setExec(b.exec);
+      const lines = [];
+      const store = { m: { listenPort: await require('./helpers').freePort(), dnsProtection: false }, get(k, d) { return k in this.m ? this.m[k] : d; }, set(k, v) { this.m[k] = v; }, delete(k) { delete this.m[k]; }, get store() { return this.m; } };
+      const em = new EngineManager(store, { addLog: (l, m) => lines.push(`${l}: ${m}`), wake: new Wake(), hangTimeoutMs: 60000, pollMs: 200,
+        proxyOptions: { ...b.opts, stateFile: stateFile(`crash-${b.name}`), takeoverConfirmMs: 0, retakeLooksMs: [] } });
+      em._describeEnvironment = async () => {};
+      const spawnIt = em._spawn.bind(em);
+      em._spawn = (bin, args) => spawnIt(process.execPath, [FAKE, ...args]);
+      await em.start();
+      const set = b.read();
+      const ourPac = /127\.0\.0\.1:\d+\/proxy\.pac/;
+      const fetchPac = (url) => new Promise((res) => require('http').get(url, (r) => { let d = ''; r.on('data', (c) => { d += c; }); r.on('end', () => res(d)); }).on('error', () => res('')));
+      const crash = async ({ takePort }) => {
+        const first = em.proc.pid;
+        const readings = [];
+        const watch = setInterval(() => { const v = b.read(); if (readings[readings.length - 1] !== v) readings.push(v); }, 2);
+        // takePort: the next start finds the engine's port held (Windows
+        // keeps one a while): it comes back on another.
+        const taken = takePort ? require('net').createServer().listen(em.port, '127.0.0.1') : null;
+        em.proc.kill('SIGKILL');
+        const back = await (async () => { const end = Date.now() + 12000; while (Date.now() < end) { if (em.active && em.proc && em.proc.pid !== first) return true; await sleep(20); } return false; })();
+        clearInterval(watch);
+        if (taken) taken.close();
+        return { back, readings };
+      };
+      {
+        // Back on its own port: nothing about the system setting changes.
+        const port0 = em.port;
+        const { back, readings } = await crash({ takePort: false });
+        t.ok(back && em.port === port0 && readings.length === 1 && readings[0] === set,
+          `${b.name}: an engine crash, back on its own port: the system setting as it was all along (${readings.join(' / ')})`);
+      }
+      {
+        // Back on another port: a new PAC address written in place, never
+        // the user's own setting in between, so browsers fetch it again.
+        const port0 = em.port;
+        const url0 = em.proxy.pacUrl;
+        const { back, readings } = await crash({ takePort: true });
+        const url1 = em.proxy.pacUrl;
+        t.ok(back && em.port !== port0 && url1 !== url0 && readings.every((v) => ourPac.test(v)) && b.read().includes(url1),
+          `${b.name}: back on another port (${port0} -> ${em.port}): the system setting moves straight to a new PAC address (${readings.join(' / ')})`);
+        const now = await fetchPac(url1);
+        const old = await fetchPac(url0);
+        t.ok(now.includes(`127.0.0.1:${em.port}`) && !now.includes(`127.0.0.1:${port0}`) && old === now,
+          `${b.name}: the new address names the new port, and the old one, still answering for a while, says the same`);
+        const lost = await em.proxy.checkOwnership();
+        t.ok(Array.isArray(lost) && !lost.length && !lines.some((l) => /changed the system proxy|System proxy settings restored/i.test(l)),
+          `${b.name}: afterwards nothing is taken for a takeover, and nothing was restored (${JSON.stringify(lost)}; ${lines.filter((l) => /changed the system proxy|restored/i.test(l)).join(" | ")})`);
+      }
+      await em.stop();
+      t.ok(b.read() !== set, `${b.name}: Stop then puts the user's own setting back`);
+    }
+    fs.existsSync = exists;
   }
 
   SystemProxy._setExec(null);

@@ -426,3 +426,148 @@ class DohRoutesV6Test {
         assertEquals(DohForwarder.routes().size - 1, plan.size)
     }
 }
+
+/* A phone asleep, a clock set back, a network coming back after a wake: the
+ * health checks do not take any of them for a broken way through. */
+class SleepAndWakeTest {
+    @Test
+    fun aCheckThatSpannedASleepIsToldApart() {
+        // 30 s of real time, 2 s of it awake: the phone slept in the middle.
+        assertTrue(Sleep.slept(realStart = 1_000, upStart = 500, realEnd = 31_000, upEnd = 2_500))
+        // Awake all along (a slow check, nothing more).
+        assertFalse(Sleep.slept(realStart = 1_000, upStart = 500, realEnd = 11_000, upEnd = 10_400))
+    }
+
+    @Test
+    fun againSoonAfterIsRealTime() {
+        val window = 10L * 60 * 1000
+        // A restart in the evening; the next trouble eight hours later (the
+        // phone asleep nearly all of it, so little uptime went by): not "again".
+        assertFalse(Sleep.again(lastAt = 1_000, now = 1_000 + 8 * 3600 * 1000L, windowMs = window))
+        assertTrue(Sleep.again(lastAt = 1_000, now = 1_000 + 9 * 60 * 1000L, windowMs = window))
+        assertFalse("none before", Sleep.again(lastAt = 0, now = 5_000, windowMs = window))
+    }
+
+    @Test
+    fun aPathCheckThatSleptCountsNeitherWay() {
+        val w = PathWatch(intervalMs = 120_000, stallMs = 12_000, retryMs = 3_000, failuresToStop = 2)
+        w.reset(0)
+        w.ask(0, 0)
+        w.started(0)
+        w.abandoned(10_000)
+        assertFalse("looked at again in a moment, not at once", w.due(10_000))
+        assertTrue(w.due(13_000))
+        w.started(13_000)
+        // One real failure after it is the first, not the second.
+        assertEquals(PathWatch.Verdict.RETRY, w.result(13_500, ok = false, networkWorks = true))
+    }
+
+    @Test
+    fun aLivenessCheckThatSleptIsNoMiss() {
+        val l = Liveness(everyMs = 20_000, failuresToGiveUp = 2)
+        l.reset(0)
+        l.started(20_000)
+        assertFalse(l.result(false))
+        l.started(40_000)
+        l.abandoned()
+        assertTrue("due again at once", l.due(40_001))
+        l.started(40_001)
+        assertFalse("still one miss", l.result(true))
+    }
+
+    @Test
+    fun aNetworkComingBackIsAskedAgainBeforeItCounts() {
+        // Just woken up: the engine reaches nothing, this app reaches nothing
+        // directly, Android's check then passes (the Wi-Fi is back): the
+        // engine is asked once more, and gets through.
+        var tries = 0
+        val o = PathCheck.run({ if (tries++ == 0) null else "connectivitycheck.gstatic.com:80" },
+            { EngineProbe.Direct(null, false) }, { true }, { true })
+        assertEquals("connectivitycheck.gstatic.com:80", o.reached)
+        assertEquals(2, tries)
+        // A broken way through: still nothing the second time; it counts.
+        var n = 0
+        val b = PathCheck.run({ n++; null }, { EngineProbe.Direct("1.1.1.1:443", false) }, { true }, { true })
+        assertNull(b.reached)
+        assertEquals("1.1.1.1:443", b.direct)
+        assertTrue(b.networkWorks)
+        assertEquals(2, n)
+        // The network really down: the engine is not asked again.
+        var m = 0
+        val d = PathCheck.run({ m++; null }, { EngineProbe.Direct(null, false) }, { false }, { false })
+        assertNull(d.reached)
+        assertFalse(d.networkWorks)
+        assertEquals(1, m)
+        // Through at once: nothing else is asked.
+        var directAsked = false
+        val ok = PathCheck.run({ "x:443" }, { directAsked = true; EngineProbe.Direct(null, false) }, { true }, { true })
+        assertEquals("x:443", ok.reached)
+        assertFalse(directAsked)
+    }
+
+    @Test
+    fun aRestStartedBeforeTheClockWentBackEndsOnTime() {
+        val all = DohForwarder.routes()
+        val r = all.first()
+        // Failed "an hour from now": the clock was set back an hour since.
+        r.failed(3_600_000 + 1_000)
+        val plan = DohForwarder.plan(all, null, 1_000, true)
+        assertTrue("rests at most the longest rest from now: ${r.restUntil}", r.restUntil <= 1_000 + DohForwarder.REST_MAX_MS)
+        assertFalse(plan.first() === r)
+    }
+}
+
+class ShareLogsTest {
+    @Test
+    fun saysHowProtectionRuns() {
+        assertEquals("Protection: on for 62 min; always-on VPN yes, lockdown no; IPv6 routed",
+            Diagnostics.protectionLine("on", null, 62 * 60_000L + 5_000, alwaysOn = true, lockdown = false, ipv6 = true, offline = false))
+        assertEquals("Protection: on for 0 min; always-on VPN yes, lockdown yes; IPv6 off; holding on offline",
+            Diagnostics.protectionLine("on", null, 10_000, alwaysOn = true, lockdown = true, ipv6 = false, offline = true))
+        assertEquals("Protection: off; last error: VPN permission is missing",
+            Diagnostics.protectionLine("off", "VPN permission is missing", -1, alwaysOn = false, lockdown = false, ipv6 = false, offline = false))
+    }
+}
+
+class LockdownHoldTest {
+    private fun <T> withExecutor(block: (java.util.concurrent.ScheduledExecutorService) -> T): T {
+        val ex = java.util.concurrent.Executors.newSingleThreadScheduledExecutor()
+        try { return block(ex) } finally { ex.shutdownNow() }
+    }
+
+    @Test
+    fun aRetryPlannedForThePathIsCalledOffOnceTheWayThroughWorks() = withExecutor { ex ->
+        val ran = AtomicInteger()
+        val h = LockdownHold(200, 1_000) { ms, r -> ex.schedule(r, ms, java.util.concurrent.TimeUnit.MILLISECONDS) }
+        assertEquals(200L, h.plan(LockdownHold.Cause.PATH) { ran.incrementAndGet() })
+        assertEquals("longer each time", 400L, h.plan(LockdownHold.Cause.PATH) { ran.incrementAndGet() })
+        // The phone woke up, the network is back, a path check passes, hev runs.
+        assertTrue("a retry was planned for the path, and is called off", h.pathHealthy(tunnelUp = true))
+        Thread.sleep(700)
+        assertEquals("no retry tears down what works", 0, ran.get())
+        assertFalse("nothing planned any more", h.planned)
+        assertEquals("the next trouble starts from the first wait", 200L, h.plan(LockdownHold.Cause.PATH) { ran.incrementAndGet() })
+        Thread.sleep(500)
+        assertEquals("a retry still due runs", 1, ran.get())
+    }
+
+    @Test
+    fun aRetryForTheTunnelIsNeverCalledOffByAPathCheck() = withExecutor { ex ->
+        val ran = AtomicInteger()
+        val h = LockdownHold(200, 1_000) { ms, r -> ex.schedule(r, ms, java.util.concurrent.TimeUnit.MILLISECONDS) }
+        // hev stopped and could not be started again: the path check (app to
+        // engine, never through the tunnel) passes all the same.
+        h.plan(LockdownHold.Cause.OTHER) { ran.incrementAndGet() }
+        assertFalse(h.pathHealthy(tunnelUp = true))
+        // Planned again for the path meanwhile: still kept for the tunnel.
+        h.plan(LockdownHold.Cause.PATH) { ran.incrementAndGet() }
+        assertFalse(h.pathHealthy(tunnelUp = true))
+        Thread.sleep(700)
+        assertEquals("the retry runs, and the tunnel with everything else is started again", 1, ran.get())
+        // Planned for the path, but hev is not running: not called off either.
+        h.plan(LockdownHold.Cause.PATH) { ran.incrementAndGet() }
+        assertFalse(h.pathHealthy(tunnelUp = false))
+        Thread.sleep(1_200)
+        assertEquals(2, ran.get())
+    }
+}

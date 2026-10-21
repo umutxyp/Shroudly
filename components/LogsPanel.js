@@ -2,7 +2,7 @@
 
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
-import { LogsIcon, TrashIcon } from './icons';
+import { CheckIcon, CopyIcon, LogsIcon, TrashIcon } from './icons';
 import { localizeLog } from './logText';
 
 const LEVEL = {
@@ -24,6 +24,9 @@ export default function LogsPanel() {
   const { t, locale } = useLanguage();
   const [logs, setLogs] = useState([]);
   const [filter, setFilter] = useState('all');
+  // "Copy logs": shown as done for a moment after the log went to the clipboard.
+  const [copied, setCopied] = useState(false);
+  const copiedTimer = useRef(null);
   const listRef = useRef(null);
   const stickToBottom = useRef(true);
 
@@ -52,6 +55,21 @@ export default function LogsPanel() {
       setLogs(await window.electron.getLogs());
     } catch { setLogs([]); }
   };
+
+  // The whole log as the background process wrote it (English, with times
+  // and levels) and a short header: what a report needs, whatever language
+  // the window is in. To the clipboard only.
+  const copy = async () => {
+    if (typeof window === 'undefined' || !window.electron?.copyLogs) return;
+    try {
+      const r = await window.electron.copyLogs();
+      if (!r || !r.ok) return;
+      setCopied(true);
+      clearTimeout(copiedTimer.current);
+      copiedTimer.current = setTimeout(() => setCopied(false), 2500);
+    } catch {}
+  };
+  useEffect(() => () => clearTimeout(copiedTimer.current), []);
 
   const timeFmt = useMemo(() => {
     try { return new Intl.DateTimeFormat(locale, { hour: '2-digit', minute: '2-digit', second: '2-digit', hourCycle: 'h23' }); }
@@ -116,15 +134,27 @@ export default function LogsPanel() {
         <span className="num text-[12px]" style={{ color: 'var(--text-faint)' }}>
           {t('logEntries', { count: shown.length })}
         </span>
-        <button
-          type="button"
-          onClick={clear}
-          disabled={logs.length === 0}
-          className="btn btn-ghost rounded-full px-3 py-1.5 text-[12px] font-medium"
-        >
-          <TrashIcon className="h-3.5 w-3.5" />
-          <span>{t('clearLogs')}</span>
-        </button>
+        <div className="flex flex-wrap items-center gap-1.5">
+          <button
+            type="button"
+            onClick={copy}
+            disabled={logs.length === 0}
+            data-testid="copy-logs"
+            className="btn btn-ghost rounded-full px-3 py-1.5 text-[12px] font-medium"
+          >
+            {copied ? <CheckIcon className="h-3.5 w-3.5" /> : <CopyIcon className="h-3.5 w-3.5" />}
+            <span aria-live="polite">{copied ? t('logsCopied') : t('copyLogs')}</span>
+          </button>
+          <button
+            type="button"
+            onClick={clear}
+            disabled={logs.length === 0}
+            className="btn btn-ghost rounded-full px-3 py-1.5 text-[12px] font-medium"
+          >
+            <TrashIcon className="h-3.5 w-3.5" />
+            <span>{t('clearLogs')}</span>
+          </button>
+        </div>
       </div>
     </div>
   );

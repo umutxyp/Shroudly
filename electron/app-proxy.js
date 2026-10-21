@@ -18,6 +18,11 @@
  *    does not know and must not be asked about), everything while protection
  *    is off, and everything not on the list when the user routes only listed
  *    sites;
+ *  - nowhere yet: anything that would go into the engine while the engine is
+ *    on its way (starting, or restarting after a crash) and did not come
+ *    within the wait. Never straight out instead: on a network that filters,
+ *    that fails anyway (a name its DNS does not answer), and a download
+ *    under way is better retried through Shroudly than broken;
  *  - nowhere: this machine itself and link-local addresses (the cloud
  *    metadata address among them). No program needs a proxy to reach those,
  *    and refusing them keeps this from being a way in to local services.
@@ -127,6 +132,8 @@ class AppProxy {
     this.getSocksPort = getSocksPort || (() => null);
     // async (): resolves once the engine is up, or it is not coming (main.js).
     this.waitForEngine = null;
+    // (): the engine is still on its way after that wait (main.js).
+    this.engineDue = () => false;
     this.routed = routed || (() => true);
     this.lookup = lookupAll;            // tests stand in for this machine's DNS
     this.server = null;
@@ -199,17 +206,19 @@ class AppProxy {
 
   _track(s) { this.sockets.add(s); s.once('close', () => this.sockets.delete(s)); }
 
-  /* 'engine' | 'direct' | 'refuse' for host, with protection on or off. */
+  /* 'engine' | 'direct' | 'refuse' for host, with protection on or off;
+   * 'later' for what would go into an engine still on its way. */
   async route(host) {
     if (net.isIP(host)) {
       const c = addrClass(host);
       if (c === 'loopback' || c === 'unspecified' || c === 'linklocal') return 'refuse';
-      if (c === 'private' || !this.getSocksPort()) return 'direct';
-      return this.routed(host) ? 'engine' : 'direct';
+      if (c === 'private' || !this.routed(host)) return 'direct';
+      return this.getSocksPort() ? 'engine' : this._offRoute();
     }
     if (host === 'localhost' || host.endsWith('.localhost')) return 'refuse';
     if (isLocalName(host)) return 'direct';
-    if (!this.getSocksPort() || !this.routed(host)) return 'direct';
+    if (!this.routed(host)) return 'direct';
+    if (!this.getSocksPort()) return this._offRoute();
 
     const hit = this.decisions.get(host);
     if (hit && hit.until > Date.now()) return hit.via;
@@ -227,6 +236,14 @@ class AppProxy {
     if (this.decisions.size > 4000) this.decisions.clear();
     this.decisions.set(host, { via, until: Date.now() + DECISION_TTL_MS });
     return via;
+  }
+
+  /* No engine: straight out while protection is off; while it is on its
+   * way, nothing yet. */
+  _offRoute() {
+    let due = false;
+    try { due = !!this.engineDue(); } catch {}
+    return due ? 'later' : 'direct';
   }
 
   async _tunnel(req, client, head) {
@@ -247,6 +264,7 @@ class AppProxy {
       if (this.waitForEngine) { try { await this.waitForEngine(); } catch {} }
       const via = await this.route(t.host);
       if (via === 'refuse') { if (!client.destroyed) client.end('HTTP/1.1 403 Forbidden\r\n\r\n'); return; }
+      if (via === 'later') throw new Error('Shroudly is restarting; try again in a moment');
       const socksPort = via === 'engine' ? this.getSocksPort() : null;
       socksPortUsed = socksPort;
       up = socksPort ? await socksConnect(socksPort, t.host, t.port) : await direct(t.host, t.port);

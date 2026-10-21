@@ -19,6 +19,9 @@ const tls = require('tls');
 const diagnostics = require('./diagnostics');
 
 const HANDSHAKE_MS = 7000;
+// What this computer says when it has no network itself (the Wi-Fi coming
+// back after a wake, a cable out): nothing about the service.
+const LOCAL_ERRORS = new Set(['ENETUNREACH', 'EHOSTUNREACH', 'ENETDOWN', 'EADDRNOTAVAIL', 'EAI_AGAIN', 'ENOTCONN', 'EACCES', 'EPERM']);
 
 /* A TLS handshake with `servername`, over `socket` (through the engine) or
  * straight to `ip`. Resolves 'ok', or what stopped it. */
@@ -79,22 +82,31 @@ async function check(host, opts = {}) {
     }
     return through;
   };
-  let how = null;
-  let detail = '';
-  const addrs = await resolve(host).catch(() => null);
-  if (!addrs || !addrs.length) { how = 'dns'; detail = 'no answer'; }
-  else if (addrs.some(diagnostics.looksForged)) { how = 'dns'; detail = addrs.filter(diagnostics.looksForged).join(', '); }
-  else {
+  const direct = async () => {
+    const addrs = await resolve(host).catch(() => null);
+    if (!addrs || !addrs.length) return { how: 'dns', detail: 'no answer' };
+    if (addrs.some(diagnostics.looksForged)) return { how: 'dns', detail: addrs.filter(diagnostics.looksForged).join(', ') };
     if (engine) viaEngine();
     const r = await twoTries(hs, addrs[0], host, opts.retryMs == null ? 1000 : opts.retryMs);
-    if (r !== 'ok') { how = 'tls'; detail = r; }
-  }
-  if (!how) return { blocked: false, how: null, detail: 'direct ok' };
+    return r === 'ok' ? { how: null } : { how: 'tls', detail: r };
+  };
+  const first = await direct();
+  if (!first.how) return { blocked: false, how: null, detail: 'direct ok' };
+  const { how, detail } = first;
+  if (LOCAL_ERRORS.has(detail)) return { blocked: false, unknown: true, how: null, detail: `${how}: ${detail}; this computer is not on a network yet` };
   if (!engine) return { blocked: false, unknown: true, how: null, detail: `${how}: ${detail}; engine not running` };
   const t = await viaEngine();
-  return t === 'ok'
-    ? { blocked: true, how, detail }
-    : { blocked: false, unknown: true, how: null, detail: `${how}: ${detail}; through Shroudly too (${t})` };
+  if (t !== 'ok') return { blocked: false, unknown: true, how: null, detail: `${how}: ${detail}; through Shroudly too (${t})` };
+  // Through Shroudly it worked. Once more directly, now: a network that was
+  // only coming back (the computer just woke up, the Wi-Fi just joined)
+  // answers this time, and a filter does not. Not after a silent drop: that
+  // look would take a whole timeout again, and a network coming back is
+  // what the autopilot's quiet time after a wake is for.
+  if (how === 'tls' && detail === 'timeout') return { blocked: true, how, detail };
+  const again = await direct();
+  if (!again.how) return { blocked: false, how: null, detail: 'direct ok on a second look' };
+  if (LOCAL_ERRORS.has(again.detail)) return { blocked: false, unknown: true, how: null, detail: `${again.how}: ${again.detail}; this computer is not on a network yet` };
+  return { blocked: true, how, detail };
 }
 
-module.exports = { check, handshake };
+module.exports = { check, handshake, LOCAL_ERRORS };

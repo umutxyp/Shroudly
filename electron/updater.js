@@ -46,6 +46,11 @@ const WAIT_CHECK_MS = 60000;
  * hold it back for good. */
 const WAIT_LIMIT_MS = 3 * 60 * 60 * 1000;
 const AWAY_S = 10 * 60;
+// After a wake, how long nobody counts as away (the idle time includes the
+// sleep), and how late a countdown may end before it is taken for one that
+// ran out while the computer slept.
+const AWAKE_GRACE_MS = 2 * 60 * 1000;
+const LATE_MS = 5000;
 const WAIT_KEY = 'updateWaiting';
 /* At launch, the most protection is held back for an update that is due. */
 const LAUNCH_INSTALL_MS = 10000;
@@ -344,7 +349,10 @@ class Updater {
     try { busy = !!(await this.busy()); } catch {}
     const waitedMs = this._waitedMs();
     let away = false;
-    if (busy && waitedMs >= WAIT_LIMIT_MS) { try { away = !!this.away(); } catch {} }
+    // Just woken up: the idle time counts the sleep, but someone has just
+    // opened the lid.
+    const woke = this.wokeAt && Date.now() - this.wokeAt >= 0 && Date.now() - this.wokeAt < AWAKE_GRACE_MS;
+    if (busy && waitedMs >= WAIT_LIMIT_MS && !woke) { try { away = !!this.away(); } catch {} }
     return restartPlan({ busy, waitedMs, away, atLaunch: this.atLaunch });
   }
 
@@ -370,10 +378,25 @@ class Updater {
     this.restartTimer = timer;
   }
 
+  /* The computer woke up. A countdown that ran out while it slept (or whose
+   * end the window shows as past) starts again from now, said again; and for
+   * a moment nobody counts as away. */
+  resumed() {
+    this.wokeAt = Date.now();
+    if (!this.restartTimer) return;
+    clearTimeout(this.restartTimer);
+    this.restartTimer = null;
+    this._set({ restartAt: null });
+    this._armRestart().catch(() => {});
+  }
+
   /* The countdown is over: install, unless the setting was switched off or a
    * game or call has started meanwhile (then back to waiting). */
   async _restartDue(timer) {
     if (this.restartTimer !== timer) return;
+    // Ended long after it should have: the computer slept through it (the
+    // window showed it as over). Nobody saw it run out: it starts again.
+    if (this.state.restartAt && Date.now() - this.state.restartAt > LATE_MS) { this.resumed(); return; }
     const plan = this._mayInstall() ? await this._plan() : null;
     if (this.restartTimer !== timer) return;   // postponed meanwhile
     this.restartTimer = null;

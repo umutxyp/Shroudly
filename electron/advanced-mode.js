@@ -266,9 +266,15 @@ class AdvancedMode {
     });
   }
 
+  /* The time limit counts only time the computer was awake: the prompt may
+   * be on screen when the lid closes, and its answer after the wake is no
+   * timeout. A step much longer than the poll (asleep, frozen, a clock
+   * change) counts as one second. */
   async _waitReady() {
-    const deadline = Date.now() + READY_TIMEOUT_MS;
-    while (Date.now() < deadline) {
+    const limit = this.readyTimeoutMs || READY_TIMEOUT_MS;
+    let waited = 0;
+    let last = Date.now();
+    while (waited < limit) {
       const s = this._readStatus();
       if (s.ready) return s.ready;
       if (s.stopped) throw new AdvError('start_failed', s.errors.slice(-3).join(' | ') || 'The advanced engine exited.');
@@ -278,6 +284,9 @@ class AdvancedMode {
         throw new AdvError('start_failed', s.errors.slice(-3).join(' | ') || `The advanced engine exited with code ${this.childExit}.`);
       }
       await new Promise((r) => setTimeout(r, 250));
+      const now = Date.now();
+      waited += Math.min(Math.max(now - last, 0), 1000);
+      last = now;
     }
     throw new AdvError('timeout', 'The advanced engine did not respond in time.');
   }

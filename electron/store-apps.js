@@ -54,6 +54,7 @@ const os = require('os');
 const path = require('path');
 const { execFile } = require('child_process');
 const { envFor } = require('./win-powershell');
+const { day } = require('./autopilot');
 
 const RESPECT_MS = 14 * 24 * 60 * 60 * 1000;
 const RESCAN_MS = 30 * 60 * 1000;
@@ -822,10 +823,11 @@ class StoreApps {
     const gen = this._gen;
     await this._adopt(force);
     const why = decide({
-      platform: this.platform, protectionOn: this.protectionOn(), offAt: this.store.get('storeAppsModeOffAt'),
-      declinedAt: this.store.get('storeAppsDeclinedAt'), asked: this.asked, busy: this.busy(), now: this.now(), force,
+      platform: this.platform, protectionOn: this.protectionOn(), offAt: this._when('storeAppsModeOffAt'),
+      declinedAt: this._when('storeAppsDeclinedAt'), asked: this.asked, busy: this.busy(), now: this.now(), force,
     });
     if (why === 'declined' && !this.toldBlocked) return this._noteBlocked();
+    if (why === 'off_by_hand' && !this.toldOff) return this._noteOff();
     if (why !== 'ask') return { asked: false, why };
     if (!force && this.admin === false && this.toldNoAdmin) return { asked: false, why: 'not_admin' };
     // By itself only on a sign of need: a Store app open now. The list is
@@ -862,6 +864,7 @@ class StoreApps {
         if (!this.toldNoAdmin) {
           this.toldNoAdmin = true;
           this.log('warning', `Store apps: ${apps} cannot go through Shroudly until an administrator allows it (the Microsoft Store apps switch in Settings)`);
+          this.tell('autoStoreAppsNoAdmin', { apps });
         }
         return { asked: false, why: 'not_admin' };
       }
@@ -927,16 +930,61 @@ class StoreApps {
     return { asked: true, result: 'on', apps, added };
   }
 
-  /* After a declined prompt, once a session: which apps cannot go through
-   * Shroudly, in the log (the notification was the decline itself). */
+  /* After a declined prompt: which apps cannot go through Shroudly, in the
+   * log once a session; and in the window, with what to do, once one of
+   * them is open (looked at again at each survey until then). Not in the
+   * session the prompt was declined in: the user has just been told. */
   async _noteBlocked() {
-    this.toldBlocked = true;
-    if (this.now() - this.lastScanAt < RESCAN_MS) return { asked: false, why: 'declined' };
+    if (this.asked) { this.toldBlocked = true; return { asked: false, why: 'declined' }; }
+    let open = null;
+    try { open = await this.runningApps(); } catch {}
+    const openNow = !!(open && open.size);
+    if (this.loggedBlocked && !openNow) return { asked: false, why: 'declined' };
+    if (this.now() - this.lastScanAt < RESCAN_MS && (!openNow || (this._blockedFor && [...open].every((x) => this._blockedFor.has(x))))) {
+      return { asked: false, why: 'declined' };
+    }
+    this._blockedFor = open || new Set();
     this.lastScanAt = this.now();
     const s = await this.scan();
     const need = s ? candidates({ containers: s.containers, exempt: s.exempt, handled: this._handled() }) : [];
-    if (need.length) this.log('warning', `Store apps: ${appNames(need).join(', ')} cannot go through Shroudly; permission was not given`);
+    if (need.length && !this.loggedBlocked) {
+      this.loggedBlocked = true;
+      this.log('warning', `Store apps: ${appNames(need).join(', ')} cannot go through Shroudly; permission was not given`);
+    }
+    if (openNow && need.some((c) => open.has(c.sid))) {
+      this.toldBlocked = true;
+      this.tell('autoStoreAppsDeclinedBefore', { apps: appNames(need).join(', '), date: day(this._when('storeAppsDeclinedAt')) });
+    }
     return { asked: false, why: 'declined' };
+  }
+
+  /* The switch turned off by hand (in the last two weeks), and a Store app
+   * that cannot reach Shroudly is open: said once a session, with what to
+   * do. Nothing is said while none is open. */
+  async _noteOff() {
+    let open = null;
+    try { open = await this.runningApps(); } catch {}
+    if (!open || !open.size) return { asked: false, why: 'off_by_hand' };
+    if (this._offFor && this.now() - this.lastScanAt < RESCAN_MS && [...open].every((x) => this._offFor.has(x))) return { asked: false, why: 'off_by_hand' };
+    this._offFor = open;
+    this.lastScanAt = this.now();
+    const s = await this.scan();
+    const need = s ? candidates({ containers: s.containers, exempt: s.exempt, handled: this._handled() }) : [];
+    if (!need.some((c) => open.has(c.sid))) return { asked: false, why: 'off_by_hand' };
+    this.toldOff = true;
+    const apps = appNames(need).join(', ');
+    const date = day(this._when('storeAppsModeOffAt'));
+    this.log('info', `Store apps: ${apps} cannot go through Shroudly; the switch was turned off by hand on ${date}; turn it on in Settings to let them through`);
+    this.tell('autoStoreAppsOffBefore', { apps, date });
+    return { asked: false, why: 'off_by_hand' };
+  }
+
+  /* A time kept in the settings; one "in the future" (the clock was set
+   * back since) counts as now, so the two weeks are never stretched. */
+  _when(key) {
+    const at = Number(this.store.get(key)) || 0;
+    if (at > this.now() + 60000) { this.store.set(key, this.now()); return this.now(); }
+    return at;
   }
 
   /* The switch in Settings. On: ask now (the user's own request), whatever

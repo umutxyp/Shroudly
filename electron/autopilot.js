@@ -43,6 +43,11 @@ const CHECK_AGAIN_MS = 6 * 60 * 60 * 1000;
 // that says the service is blocked here.
 const SIGN_MS = 10 * 60 * 1000;
 const SOON_MS = 15 * 1000;
+// Nothing learnt by a check (offline): how long before the next one.
+const UNKNOWN_MS = 2 * 60 * 1000;
+// Just after a wake the network is still coming back: a check then would
+// see a direct connection fail for that alone, and call a service blocked.
+const WAKE_QUIET_MS = 30 * 1000;
 
 /* The services' own names: what the engine reports about them is worth a
  * check. Not the third parties they embed (GIFs, captchas, identity checks),
@@ -139,6 +144,7 @@ class Autopilot {
    *                          code 'protection_off' when one came first
    * opts.onBlocked(id)     a service was just found blocked (after its mode was considered)
    * opts.now()             the clock (tests)
+   * opts.later(fn, ms)     a timer (tests)
    */
   constructor(opts) {
     this.store = opts.store;
@@ -150,6 +156,7 @@ class Autopilot {
     this.advanced = opts.advanced || null;
     this.onBlocked = opts.onBlocked || (() => {});
     this.now = opts.now || Date.now;
+    this.later = opts.later || ((fn, ms) => { const t = setTimeout(fn, ms); if (t.unref) t.unref(); return t; });
     this.blocked = new Map();      // service id -> { how, host, at }
     this.clear = new Map();        // service id -> when it was last found not blocked
     this.unknownAt = new Map();    // service id -> when a check last learnt nothing (offline)
@@ -161,6 +168,9 @@ class Autopilot {
     this.signs = new Map();        // service id -> { host, voice, at }: it may need Advanced mode
     this.advancedAsked = false;
     this._asking = null;
+    this.retries = new Map();      // service id -> a check waiting for its time (_retry)
+    this.toldNotAsked = new Set(); // reasons Advanced mode is not asked for, told this session
+    this.quietUntil = 0;           // no checks before this (a wake: resumed())
     migrate(this.store, this.now());
   }
 
@@ -172,16 +182,33 @@ class Autopilot {
     else this.store.set(`${mode}OffAt`, this.now());
   }
 
-  _offByHand(mode) {
-    const at = Number(this.store.get(`${mode}OffAt`, 0)) || 0;
-    return this.now() - at < RESPECT_OFF_MS;
+  _offByHand(mode) { return this.now() - this._when(`${mode}OffAt`) < RESPECT_OFF_MS; }
+
+  /* A time kept in the settings; one "in the future" (the clock was set
+   * back since) counts as now, so the two weeks are never stretched. */
+  _when(key) {
+    const at = Number(this.store.get(key, 0)) || 0;
+    const now = this.now();
+    if (at > now + 60000) { this.store.set(key, now); return now; }
+    return at;
+  }
+
+  /* The computer woke up: the network may still be on its way back, so no
+   * service is judged for a moment; what was waiting for a check gets it
+   * once that has passed. */
+  resumed() {
+    this.quietUntil = this.now() + WAKE_QUIET_MS;
   }
 
   /* A different network: what was learnt about the last one does not hold,
    * and a check still under way belongs to the old one. */
   networkChanged() {
     this.gen++;
-    this.signs.clear();
+    // A call starting is the user's doing, not the network's: its sign stays
+    // for the new network's verdict (the engine tells a voice server once in
+    // ten minutes, so it would not come again). What failed on the old
+    // network says nothing about this one.
+    for (const [id, sign] of this.signs) if (!sign.voice) this.signs.delete(id);
     if (!this.blocked.size && !this.clear.size && !this.unknownAt.size) return;
     this.blocked.clear();
     this.clear.clear();
@@ -198,8 +225,10 @@ class Autopilot {
     const b = this.blocked.get(id);
     if (!b) return false;
     if (this.now() - b.at < freshMs) return true;
-    await this._confirm(id, b.host, null);
-    return this.blocked.has(id);
+    // Nothing learnt (offline, just woken up): not known to be blocked
+    // now, so nothing is restarted on the strength of the old verdict.
+    const fresh = await this._confirm(id, b.host, null);
+    return fresh === true && this.blocked.has(id);
   }
 
   /* An engine event about a host (engine-manager's onHostEvent, and the cut
@@ -218,12 +247,26 @@ class Autopilot {
     const id = familyOf(host);
     if (!id || this.blocked.has(id)) return;
     if (this.now() - (this.clear.get(id) || -Infinity) < CHECK_AGAIN_MS) return;
-    // Nothing could be learnt a moment ago (offline): soon again, not at once.
-    if (this.now() - (this.unknownAt.get(id) || -Infinity) < 2 * 60 * 1000) return;
     // A voice server says nothing by its own name: the service's own is
     // what is checked.
     const svc = kind === 'seen' ? this.services.find((x) => x.id === id) : null;
-    this._confirm(id, svc ? svc.probe : String(host).toLowerCase(), kind).catch(() => {});
+    const probe = svc ? svc.probe : String(host).toLowerCase();
+    // Nothing could be learnt a moment ago (offline): soon again, not at
+    // once; and then for sure, since the engine may not tell this again.
+    const unknown = this.unknownAt.get(id);
+    if (unknown != null && this.now() - unknown < UNKNOWN_MS) { this._retry(id, probe, kind, unknown + UNKNOWN_MS - this.now()); return; }
+    this._confirm(id, probe, kind).catch(() => {});
+  }
+
+  /* A check due later (offline a moment ago, just woken up): one per
+   * service, made then unless the verdict came meanwhile. */
+  _retry(id, host, why, ms) {
+    if (this.retries.has(id)) return;
+    this.retries.set(id, this.later(() => {
+      this.retries.delete(id);
+      if (this.blocked.has(id) || !this.protectionOn()) return;
+      this._confirm(id, host, why).catch(() => {});
+    }, Math.max(1000, ms + 1000)));
   }
 
   /* Whether `host` of service `id` is blocked, by blockcheck. One check per
@@ -233,6 +276,8 @@ class Autopilot {
     // running for the last network is not waited for.
     const cur = this.checking.get(id);
     if (cur && cur.gen === this.gen) return cur.run;
+    // Just woken up: the network may not be back yet. Checked once it is.
+    if (this.now() < this.quietUntil) { this._retry(id, host, why, this.quietUntil - this.now()); return false; }
     const gen = this.gen;
     const run = (async () => {
       let r = null;
@@ -279,7 +324,9 @@ class Autopilot {
     if (this._offByHand(s.mode)) {
       if (!this.toldOff.has(id)) {
         this.toldOff.add(id);
-        this.log('info', `Autopilot: ${s.name} is blocked here, but its switch was turned off by hand; left off`);
+        const date = day(this._when(`${s.mode}OffAt`));
+        this.log('info', `Autopilot: ${s.name} is blocked on this network, but its mode was turned off by hand on ${date}; turn it on in Settings to use its app`);
+        if (s.toldOff) this.tell(s.toldOff, { date });
       }
       return false;
     }
@@ -294,7 +341,10 @@ class Autopilot {
         return true;
       }
       this.failed.add(id);
-      this.log('info', `Autopilot: ${s.name} mode could not be turned on (${(r && r.code) || 'failed'}); not tried again by itself this session`);
+      // Said once, with what to do: the switch in Settings tries again (and
+      // the window shows what stood in the way, where it knows).
+      this.log('info', `Autopilot: ${s.name} is blocked on this network, but its mode could not be turned on (${(r && r.code) || 'failed'}); turn it on in Settings to try again`);
+      if (s.toldFailed) this.tell(s.toldFailed, {});
       return false;
     } finally { this.busy.delete(id); }
   }
@@ -318,7 +368,7 @@ class Autopilot {
     }
     if (!s.present()) return;
     if (this.now() - (this.clear.get(s.id) || -Infinity) < CHECK_AGAIN_MS) return;
-    if (this.now() - (this.unknownAt.get(s.id) || -Infinity) < 2 * 60 * 1000) return;
+    if (this.now() - (this.unknownAt.get(s.id) || -Infinity) < UNKNOWN_MS) return;
     await this._confirm(s.id, s.probe, null);
   }
 
@@ -366,9 +416,9 @@ class Autopilot {
   async _advancedFor(id) {
     const sign = this.signs.get(id);
     if (!sign || this.now() - sign.at > SIGN_MS || !this.blocked.has(id) || !this.protectionOn()) return false;
-    if (!this.willAskAdvanced()) return false;
     const s = this.services.find((x) => x.id === id);
-    if (!s) return false;
+    const a = this.advanced;
+    if (!s || !a || !a.available() || a.active()) return false;
     const since = this._session();
     if (!sign.voice) {
       let open = false;
@@ -377,10 +427,45 @@ class Autopilot {
     }
     if (this.signs.get(id) !== sign) return false;   // a newer sign took over
     this.signs.delete(id);
-    return this.needAdvanced(sign.host, {
-      why: sign.voice ? `a ${s.name} call is starting; its sound goes over UDP` : `${s.name} is open and cannot reach it`,
-      label: s.name, since,
-    });
+    const why = sign.voice ? `a ${s.name} call is starting; its sound goes over UDP` : `${s.name} is open and cannot reach it`;
+    // Not asked (declined, turned off by hand, failed earlier): said once,
+    // with what to do. Asked: an ask under way for something else answers
+    // this too, and if that one ends without Advanced mode, that is said
+    // as well (an ask of its own has said so already).
+    if (!this.willAskAdvanced() && !this._asking) { this._notAsked(s.name, why); return false; }
+    const on = await this.needAdvanced(sign.host, { why, label: s.name, since });
+    const own = this._lastAsk && this._lastAsk.host === sign.host;
+    if (!on && !own && this._stillOn(since) && !a.active() && !this.willAskAdvanced()) this._notAsked(s.name, why);
+    return on;
+  }
+
+  /* Why Advanced mode would not be asked for now, when it is the user's to
+   * change: { reason: 'off' | 'declined' | 'failed', at } or null. */
+  _notAskedReason() {
+    const a = this.advanced;
+    if (!a || !a.available() || a.active() || !this.protectionOn() || this._asking) return null;
+    if (this._offByHand('advancedMode')) return { reason: 'off', at: this._when('advancedModeOffAt') };
+    const declined = this._when('advancedDeclinedAt');
+    if (this.now() - declined < RESPECT_OFF_MS) return { reason: 'declined', at: declined };
+    if (this.advancedAsked) return { reason: 'failed', at: this.now() };
+    return null;
+  }
+
+  /* `what` needs Advanced mode and it is not asked for: one line, and a
+   * line in the window, once a session per reason, saying what to do. */
+  _notAsked(what, why = null) {
+    const r = this._notAskedReason();
+    if (!r || this.toldNotAsked.has(r.reason)) return false;
+    this.toldNotAsked.add(r.reason);
+    const date = day(r.at);
+    const because = {
+      off: `it was turned off by hand on ${date}, so it is not turned on by itself`,
+      declined: `it was not allowed on ${date}, so it is not asked for by itself`,
+      failed: 'it could not be started earlier in this session',
+    }[r.reason];
+    this.log('info', `Autopilot: ${what} needs Advanced mode on this network${why ? ` (${why})` : ''}; ${because}; turn it on in Settings`);
+    this.tell({ off: 'autoAdvancedOffBefore', declined: 'autoAdvancedDeclinedBefore', failed: 'autoAdvancedFailedBefore' }[r.reason], { host: what, date });
+    return true;
   }
 
   /* Protection's session (advanced.session(): one per Stop), and whether an
@@ -398,7 +483,7 @@ class Autopilot {
     const a = this.advanced;
     if (!a || !a.available() || a.active() || !this.protectionOn() || this.advancedAsked) return false;
     if (this._offByHand('advancedMode')) return false;
-    return this.now() - (Number(this.store.get('advancedDeclinedAt', 0)) || 0) >= RESPECT_OFF_MS;
+    return this.now() - this._when('advancedDeclinedAt') >= RESPECT_OFF_MS;
   }
 
   /* A site no technique opened, or one cut after it connected: Advanced mode
@@ -416,7 +501,7 @@ class Autopilot {
   }
 
   async _needAdvanced(host, { why = null, label = null, since = this._session() } = {}) {
-    if (!this.willAskAdvanced()) return false;
+    if (!this.willAskAdvanced()) { this._notAsked(label || host, why); return false; }
     const a = this.advanced;
     // A game's anti-cheat running: a packet driver is never loaded beside it
     // by itself (it may refuse the game, or flag it). The user still can.
@@ -426,11 +511,15 @@ class Autopilot {
     // and nothing is asked.
     if (!this._stillOn(since)) return false;
     if (ac) {
-      if (!this.antiCheatLogged) this.log('info', `Autopilot: ${host} needs Advanced mode, but a game's anti-cheat is running (${ac}); not started by itself`);
+      if (!this.antiCheatLogged) {
+        this.log('info', `Autopilot: ${host} needs Advanced mode, but a game's anti-cheat is running (${ac}); not started by itself`);
+        this.tell('autoAdvancedAntiCheat', { host: label || host, program: ac });
+      }
       this.antiCheatLogged = true;
       return false;
     }
     this.advancedAsked = true;
+    this._lastAsk = { host };
     this.log('info', `Autopilot: ${host} needs Advanced mode${why ? ` (${why})` : ''}; asking for permission`);
     const told = { host: label || host };
     this.tell('autoAdvancedAsk', told);
@@ -441,8 +530,9 @@ class Autopilot {
       return true;
     }
     // Protection was stopped before it came up: it went with it (main.js
-    // brings it back with the next Start), nothing failed.
-    if (r && r.code === 'protection_off') return false;
+    // brings it back with the next Start), nothing failed, and nothing was
+    // decided: a later session may ask.
+    if (r && r.code === 'protection_off') { this.advancedAsked = false; return false; }
     if (r && r.code === 'declined') {
       this.recordDecline();
       this.log('info', 'Advanced mode was not allowed; Shroudly will not ask by itself again for two weeks');
@@ -452,6 +542,13 @@ class Autopilot {
     }
     return false;
   }
+}
+
+/* A day as the log and the window give it: 2026-10-21. */
+function day(t) {
+  const d = new Date(t);
+  const p = (n) => String(n).padStart(2, '0');
+  return Number.isNaN(d.getTime()) ? '?' : `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
 }
 
 /* Anti-cheat programs in a Windows process list (tasklist /FO CSV): the
@@ -471,6 +568,7 @@ function antiCheatRunning(platform = process.platform) {
 
 module.exports = Autopilot;
 module.exports.antiCheatIn = antiCheatIn;
+module.exports.day = day;
 module.exports.antiCheatRunning = antiCheatRunning;
 module.exports.familyOf = familyOf;
 module.exports.voiceOf = voiceOf;

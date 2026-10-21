@@ -95,6 +95,31 @@ const HOURS = (h) => h * 60 * 60 * 1000;
     stop(u);
   }
 
+  // ── the computer asleep during the countdown, or just woken up ──
+  {
+    const store = memStore({ [Updater.WAIT_KEY]: { version: '2.5.6', since: Date.now() - HOURS(26) } });
+    const { u, seen } = ready({ store, busy: true, away: true });
+    await u._armRestart();
+    const first = u.state.restartAt;
+    // The countdown's end comes an hour late: the computer slept through it.
+    u._set({ restartAt: Date.now() - HOURS(1) });
+    await u._restartDue(u.restartTimer);
+    await new Promise((r) => setImmediate(r));
+    t.ok(seen.installed === 0, 'a countdown that ran out while the computer slept: no restart at the wake');
+    t.ok(u.restartTimer === null && u.waitTimer && u.state.restartAt === null, 'and just after the wake nobody counts as away: waiting again (a Discord or Roblox in use)');
+    stop(u);
+    t.ok(first > Date.now(), 'the first countdown was on (its end in the future)');
+    const r2 = ready({ store: memStore(), busy: false });
+    await r2.u._armRestart();
+    const end1 = r2.u.state.restartAt;
+    r2.u._set({ restartAt: Date.now() - HOURS(1) });
+    r2.u.resumed();
+    await new Promise((r) => setTimeout(r, 20));
+    t.ok(r2.u.restartTimer && r2.u.state.restartAt > Date.now() && r2.seen.notified === 2 && r2.seen.installed === 0 && end1,
+      'nothing in use, woken up during the countdown: it starts again from the wake, said again');
+    stop(r2.u);
+  }
+
   // ── the setting, looked at again every time ──
   {
     let busy = true;

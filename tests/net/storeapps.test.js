@@ -484,13 +484,15 @@ const decode = (b64) => Buffer.from(b64, 'base64').toString('utf16le');
 
   {
     // A standard user: never asked by itself (Windows would ask for an
-    // administrator's password); the log says so once a session.
+    // administrator's password); one line says so once a session, with what
+    // an administrator can do.
     const w = fakeWindows({ containers: MACHINE(), exempt: [WEBVIEW], admin: 'no' });
     const r = rig(w);
     const a = await r.sa.survey();
     r.clock.t += 10 * 60 * 1000;
     const b = await r.sa.survey();
-    t.ok(a.why === 'not_admin' && b.why === 'not_admin' && !w.prompts.length && !r.told.length, "a standard user's account: no prompt by itself, no notification");
+    t.ok(a.why === 'not_admin' && b.why === 'not_admin' && !w.prompts.length && r.told.length === 1 && r.told[0].id === 'autoStoreAppsNoAdmin' && r.told[0].p.apps === 'Xbox, Microsoft Store',
+      "a standard user's account: no prompt by itself; told once which apps cannot get through, and what an administrator can do");
     t.ok(r.logs.filter((l) => l === 'warning: Store apps: Xbox, Microsoft Store cannot go through Shroudly until an administrator allows it (the Microsoft Store apps switch in Settings)').length === 1
       && r.logs.length === 1, '…the log says once what an administrator can do');
     const on = await r.sa.setMode(true);
@@ -661,6 +663,45 @@ const decode = (b64) => Buffer.from(b64, 'base64').toString('utf16le');
     w.accept = true;
     const later = await rig(w, { store: r.store, clock }).sa.survey();
     t.ok(later.result === 'on', 'two weeks after a decline it asks again');
+  }
+
+  {
+    // Not asked by itself (declined, or the switch turned off by hand) while
+    // a Store app that cannot reach Shroudly is open: the user is told once,
+    // in the window, with the date and what to do; nothing with none open.
+    const day = (t) => { const d = new Date(t); const p = (n) => String(n).padStart(2, '0'); return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`; };
+    const at = 1e12 - 3 * 24 * 3600 * 1000;
+    const idle = fakeWindows({ containers: MACHINE(), open: [] });
+    const r0 = rig(idle, { store: memStore({ storeAppsModeOffAt: at }) });
+    const q = await r0.sa.survey();
+    t.ok(q.why === 'off_by_hand' && !r0.told.length && !r0.logs.some((l) => /turned off by hand/.test(l)), 'switched off by hand, no Store app open: nothing said');
+    const w = fakeWindows({ containers: MACHINE() });
+    const r = rig(w, { store: memStore({ storeAppsModeOffAt: at }) });
+    await r.sa.survey();
+    await r.sa.survey();
+    t.ok(!w.prompts.length && r.told.length === 1 && r.told[0].id === 'autoStoreAppsOffBefore' && r.told[0].p.apps === 'Xbox, Microsoft Store' && r.told[0].p.date === day(at)
+      && r.logs.filter((l) => l === `info: Store apps: Xbox, Microsoft Store cannot go through Shroudly; the switch was turned off by hand on ${day(at)}; turn it on in Settings to let them through`).length === 1,
+    'switched off by hand, Xbox open: not asked, but told once, with the date and what to do');
+    const d = fakeWindows({ containers: MACHINE() });
+    const rd = rig(d, { store: memStore({ storeAppsDeclinedAt: at }) });
+    await rd.sa.survey();
+    t.ok(!d.prompts.length && rd.told.length === 1 && rd.told[0].id === 'autoStoreAppsDeclinedBefore' && rd.told[0].p.date === day(at),
+      'declined three days ago, Xbox open: not asked, but told in the window too');
+    // Declined earlier, and no Store app open at first: the log names the
+    // apps, and the window says so once one of them is opened, later in the
+    // same session (not silent for the rest of it).
+    const late = fakeWindows({ containers: MACHINE(), open: [] });
+    const rl = rig(late, { store: memStore({ storeAppsDeclinedAt: at }) });
+    await rl.sa.survey();
+    t.ok(!rl.told.length && rl.logs.filter((l) => /cannot go through Shroudly; permission was not given$/.test(l)).length === 1,
+      'declined earlier, no Store app open: the log names the apps, nothing in the window yet');
+    late.open = ['microsoft.gamingapp_8wekyb3d8bbwe'];
+    rl.clock.t += 60 * 1000;
+    await rl.sa.survey();
+    await rl.sa.survey();
+    t.ok(!late.prompts.length && rl.told.length === 1 && rl.told[0].id === 'autoStoreAppsDeclinedBefore'
+      && rl.logs.filter((l) => /permission was not given$/.test(l)).length === 1,
+    'Xbox opened a minute later: told once in the window, with what to do; the log line not repeated');
   }
 
   {

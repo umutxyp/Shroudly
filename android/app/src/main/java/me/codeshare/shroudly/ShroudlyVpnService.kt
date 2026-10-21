@@ -69,10 +69,11 @@ class ShroudlyVpnService : VpnService() {
         // How often the engine is asked for its counters when nobody is looking:
         // to know it still answers, and how much came back (PathWatch).
         private const val IDLE_PROBE_MS = 10000L
-        // The tunnel is restarted once; stopping again within this time ends protection.
+        // The tunnel is restarted once; stopping again within this time (real
+        // time, asleep included) ends protection.
         private const val TUNNEL_RETRY_WINDOW_MS = 10L * 60 * 1000
         // The engine is restarted once when the way through it is broken; broken
-        // again within this time ends protection.
+        // again within this time (real time, asleep included) ends protection.
         private const val PATH_RETRY_WINDOW_MS = 10L * 60 * 1000
         // A network change is acted on once it has been quiet this long: IPv6
         // often arrives a moment after the network itself.
@@ -207,13 +208,14 @@ class ShroudlyVpnService : VpnService() {
     // Uptime of the oldest STATS not answered yet (0: none), and of the last one sent.
     private var probeSentAt = 0L
     private var lastProbeAt = 0L
+    // elapsedRealtime of the last tunnel restart, and of the last restart
+    // for a broken way through (0: none).
     private var tunnelRestartedAt = 0L
     // Tunnels started in this session (the first one, and any restart).
     private var tunnelStarts = 0
     private var pathRestartedAt = 0L
     // Under lockdown, how long until everything is tried again (0: not held).
-    private var holdBackoff = 0L
-    private var hold: ScheduledFuture<*>? = null
+    private val hold = LockdownHold(HOLD_FIRST_MS, HOLD_MAX_MS) { ms, run -> work.schedule(run, ms, TimeUnit.MILLISECONDS) }
     private val hevWatch = HevWatch()
     private var hevRestartedAt = 0L
     // Started by Android (always-on VPN at boot, after a network change)
@@ -356,7 +358,7 @@ class ShroudlyVpnService : VpnService() {
             tunnelRestartedAt = 0
             pathRestartedAt = 0
             pathWatch.oneStrike = false
-            holdBackoff = 0
+            hold.cancel()
             hevRestartedAt = 0
             Protection.trouble(0)
             tunnelStarts = 0
@@ -393,7 +395,10 @@ class ShroudlyVpnService : VpnService() {
             watchNetwork(cm)
 
             active = true
-            Protection.startedAt = System.currentTimeMillis()
+            Protection.startedAt = SystemClock.elapsedRealtime()
+            Protection.alwaysOn = alwaysOn()
+            Protection.lockdown = lockdown()
+            Protection.ipv6 = v6Routed
             Protection.set(Protection.State.ON)
             Protection.socksPort = port
             Protection.socksAuth = auth
@@ -411,7 +416,7 @@ class ShroudlyVpnService : VpnService() {
                 // itself: one failed check is enough this time.
                 log("Started again by Android ${selfStop / 1000}s after protection ended itself; one failed check ends it again")
                 pathWatch.oneStrike = true
-                pathRestartedAt = SystemClock.uptimeMillis()
+                pathRestartedAt = SystemClock.elapsedRealtime()
             }
             poll = work.scheduleWithFixedDelay({ tick() }, 1, 1, TimeUnit.SECONDS)
             log("Protection on: engine on 127.0.0.1:$port${if (auth != null) " (password)" else ""}, " +
@@ -597,9 +602,14 @@ class ShroudlyVpnService : VpnService() {
         if (liveness.due(now)) {
             liveness.started(now)
             check {
+                val real0 = SystemClock.elapsedRealtime()
+                val up0 = SystemClock.uptimeMillis()
                 val ok = EngineProbe.answers(p, a)
+                val slept = Sleep.slept(real0, up0, SystemClock.elapsedRealtime(), SystemClock.uptimeMillis())
                 later {
                     if (epoch != healthEpoch || !active) return@later
+                    // The phone slept while it waited: no answer means nothing.
+                    if (slept && !ok) { liveness.abandoned(); return@later }
                     if (liveness.result(ok)) engineGone(e, "does not accept connections on its port", freshPort = true)
                     else if (!ok) log("Engine did not answer on its port; looking again")
                 }
@@ -622,28 +632,22 @@ class ShroudlyVpnService : VpnService() {
             pathWatch.started(now)
             check {
                 val t0 = SystemClock.uptimeMillis()
-                val reached = EngineProbe.reachesAny(p, a)
-                // Only when nothing got through: is the network itself down?
-                var direct: String? = null
-                var works = true
-                if (reached == null) {
-                    val d = EngineProbe.direct()
-                    direct = when {
-                        d.reached != null -> d.reached
-                        d.refusedBySystem -> "nothing, as Android refuses this app's connections"
-                        else -> null
-                    }
-                    works = when {
-                        d.reached != null || d.refusedBySystem -> underlyingWorks()
-                        // Nothing answered this app either: down for everyone,
-                        // or only for this app (a per-app switch that drops
-                        // silently)? Android's own check of the network says.
-                        else -> recheckUnderlying().also { if (it) direct = "nothing for this app, while Android's own check passes" }
-                    }
-                }
+                val real0 = SystemClock.elapsedRealtime()
+                // Through the engine; only when nothing got through, is the
+                // network itself down? Once it works, the engine once more
+                // (PathCheck).
+                val o = PathCheck.run({ EngineProbe.reachesAny(p, a) }, { EngineProbe.direct() }, { underlyingWorks() }, { recheckUnderlying() })
+                val slept = Sleep.slept(real0, t0, SystemClock.elapsedRealtime(), SystemClock.uptimeMillis())
                 later {
                     if (epoch != healthEpoch || !active) return@later
-                    onPath(reached, direct, works, why, SystemClock.uptimeMillis() - t0)
+                    // The phone slept in the middle of it: its sockets were
+                    // frozen, and what it found says nothing either way.
+                    if (slept && o.reached == null) {
+                        log("Path check ($why): the phone slept during it; looking again")
+                        pathWatch.abandoned(SystemClock.uptimeMillis())
+                        return@later
+                    }
+                    onPath(o.reached, o.direct, o.networkWorks, why, SystemClock.uptimeMillis() - t0)
                 }
             }
         }
@@ -654,9 +658,15 @@ class ShroudlyVpnService : VpnService() {
         when (pathWatch.result(now, reached != null, networkWorks)) {
             PathWatch.Verdict.HEALTHY -> {
                 log("Path check ($why): through the engine to $reached in ${ms}ms")
-                if (Protection.troubleRes != 0) {
+                // Under lockdown, a retry of everything planned because the
+                // way through was broken: not wanted now that it works, with
+                // the tunnel running (it would reset every connection apps
+                // hold). One planned for anything else stays: this check
+                // never goes through the tunnel.
+                val tunnelUp = tunnelRunning && (try { Tun2Socks.TProxyIsRunning() } catch (_: Throwable) { false })
+                if (hold.pathHealthy(tunnelUp)) log("The retry planned under lockdown is not needed any more")
+                if (Protection.troubleRes != 0 && tunnelUp && !hold.planned) {
                     log("The way through works again")
-                    holdBackoff = 0
                     Protection.trouble(0)
                     clearAlert(this)
                 }
@@ -666,9 +676,11 @@ class ShroudlyVpnService : VpnService() {
             PathWatch.Verdict.RETRY -> log("Path check ($why): nothing reached through the engine (${ms}ms); directly: $direct; looking again")
             PathWatch.Verdict.BROKEN -> {
                 // Always once: a fresh engine and tunnel may do. Again soon
-                // after: give up.
-                if (pathRestartedAt == 0L || now - pathRestartedAt > PATH_RETRY_WINDOW_MS) {
-                    pathRestartedAt = now
+                // after, in real time, give up (a phone asleep most of the
+                // night is not "soon after" in the morning).
+                val real = SystemClock.elapsedRealtime()
+                if (!Sleep.again(pathRestartedAt, real, PATH_RETRY_WINDOW_MS)) {
+                    pathRestartedAt = real
                     log("Nothing reached through the engine; directly: $direct; starting everything anew")
                     val e = engine ?: return
                     engineGone(e, "reaches nothing on a network that works", countsAsCrash = false, freshPort = true)
@@ -678,7 +690,8 @@ class ShroudlyVpnService : VpnService() {
                     giveUp(R.string.androidNoInternet,
                         "no connection through the engine reached the internet " +
                             "(${EngineProbe.TARGETS.joinToString { "${it.first}:${it.second}" }}) " +
-                            "while Android's own check of the network passed (directly: $direct)")
+                            "while Android's own check of the network passed (directly: $direct)",
+                        LockdownHold.Cause.PATH)
                 }
             }
         }
@@ -764,8 +777,10 @@ class ShroudlyVpnService : VpnService() {
     /* hev stopped, is stuck, or is full: it is started again once; again
      * within TUNNEL_RETRY_WINDOW_MS, protection is given up (giveUp). */
     private fun tunnelTrouble(why: String) {
-        val now = SystemClock.uptimeMillis()
-        if (tunnelRestartedAt != 0L && now - tunnelRestartedAt < TUNNEL_RETRY_WINDOW_MS) {
+        // In real time: a hiccup in the evening and one in the morning are
+        // not one after the other, however little the phone was awake.
+        val now = SystemClock.elapsedRealtime()
+        if (Sleep.again(tunnelRestartedAt, now, TUNNEL_RETRY_WINDOW_MS)) {
             log("Tunnel $why, again; giving up")
             stopTunnel()
             giveUp(R.string.androidProtectionLost, "the tunnel keeps failing: it $why")
@@ -1005,9 +1020,9 @@ class ShroudlyVpnService : VpnService() {
      * with nothing at all, since Android lets nothing out without the VPN:
      * protection holds on instead, tries everything again with a growing
      * pause, and says honestly that apps are offline until it works. */
-    private fun giveUp(res: Int, detail: String) {
+    private fun giveUp(res: Int, detail: String, cause: LockdownHold.Cause = LockdownHold.Cause.OTHER) {
         if (lockdown()) {
-            holdOn(detail)
+            holdOn(detail, cause)
             return
         }
         // An always-on VPN that ended itself may be started again by Android
@@ -1023,20 +1038,17 @@ class ShroudlyVpnService : VpnService() {
         requestStop(res, detail)
     }
 
-    private fun holdOn(detail: String) {
-        holdBackoff = if (holdBackoff == 0L) HOLD_FIRST_MS else minOf(holdBackoff * 2, HOLD_MAX_MS)
-        log("Lockdown (Android blocks connections without the VPN): staying on, trying everything again in ${holdBackoff / 1000}s: $detail")
+    private fun holdOn(detail: String, cause: LockdownHold.Cause) {
+        val ms = hold.plan(cause) { recoverAll() }
+        log("Lockdown (Android blocks connections without the VPN): staying on, trying everything again in ${ms / 1000}s: $detail")
         if (Protection.troubleRes == 0) {
             Protection.trouble(R.string.androidLockdownOffline)
             notifyStopped(R.string.androidLockdownOffline, title = R.string.app_name)
         }
-        hold?.cancel(false)
-        hold = work.schedule({ recoverAll() }, holdBackoff, TimeUnit.MILLISECONDS)
     }
 
     /* Under lockdown: a new engine on a new port, and a new tunnel. */
     private fun recoverAll() {
-        hold = null
         if (!active) return
         log("Trying everything again")
         restarts = 0
@@ -1155,7 +1167,7 @@ class ShroudlyVpnService : VpnService() {
         healthEpoch++
         poll?.cancel(false); poll = null
         restartCredit?.cancel(false); restartCredit = null
-        hold?.cancel(false); hold = null
+        hold.cancel()
         Protection.trouble(0)
         netCheck?.cancel(false); netCheck = null
         underlyingId = null

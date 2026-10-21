@@ -4,6 +4,7 @@ import java.net.InetAddress
 import java.net.InetSocketAddress
 import java.net.Proxy
 import java.net.Socket
+import java.util.concurrent.Future
 import java.util.concurrent.LinkedBlockingQueue
 import java.util.concurrent.TimeUnit
 
@@ -249,6 +250,15 @@ class PathWatch(
         appsSinceCheck = false
     }
 
+    /* The check under way says nothing (the phone slept in the middle of it,
+     * its sockets were frozen): it counts neither way, and another is made
+     * in a moment. */
+    fun abandoned(now: Long) {
+        checking = false
+        stallCheck = false
+        ask(now, retryMs)
+    }
+
     fun result(now: Long, ok: Boolean, networkWorks: Boolean): Verdict {
         checking = false
         if (ok) {
@@ -313,6 +323,13 @@ class Liveness(private val everyMs: Long = LIVENESS_MS, private val failuresToGi
         return misses >= failuresToGiveUp
     }
 
+    /* The check under way says nothing (the phone slept in the middle of
+     * it): no miss, and the next one is due at once. */
+    fun abandoned() {
+        checking = false
+        lastAt = 0
+    }
+
     fun reset(now: Long) {
         misses = 0
         lastAt = now
@@ -373,5 +390,116 @@ class HevWatch(
     fun reset() {
         lastRx = -1
         fullSince = -1
+    }
+}
+
+/*
+ * One path check, from this app (the service runs it on its `checks`
+ * thread): through the engine; when nothing got through, the same hosts
+ * directly, and Android's own check of the network. When the network turns
+ * out to work after all, the engine is asked once more before the check
+ * counts as failed: a network that was only coming back (the phone just
+ * woke up, a handover) answers by then, and a broken way through does not.
+ */
+object PathCheck {
+    class Outcome(val reached: String?, val direct: String?, val networkWorks: Boolean)
+
+    fun run(
+        reach: () -> String?,
+        direct: () -> EngineProbe.Direct,
+        underlyingWorks: () -> Boolean,
+        recheckUnderlying: () -> Boolean,
+    ): Outcome {
+        var reached = reach()
+        if (reached != null) return Outcome(reached, null, true)
+        val d = direct()
+        var directSaw = when {
+            d.reached != null -> d.reached
+            d.refusedBySystem -> "nothing, as Android refuses this app's connections"
+            else -> null
+        }
+        val works = when {
+            d.reached != null || d.refusedBySystem -> underlyingWorks()
+            // Nothing answered this app either: down for everyone, or only
+            // for this app (a per-app switch that drops silently)? Android's
+            // own check of the network says.
+            else -> recheckUnderlying().also { if (it) directSaw = "nothing for this app, while Android's own check passes" }
+        }
+        if (works) reached = reach()
+        return Outcome(reached, directSaw, works)
+    }
+}
+
+/*
+ * The phone asleep. SystemClock.uptimeMillis (and System.nanoTime, and the
+ * executor's timers) stop while it sleeps; elapsedRealtime runs on. What the
+ * health checks measure in uptime is awake time, as it should be (an engine
+ * cannot answer while the phone sleeps); what is "again soon after" for a
+ * restart is real time (else ten minutes of uptime may span a night).
+ */
+object Sleep {
+    /* Between two readings of both clocks, the phone slept for more than
+     * toleranceMs: a check that spanned it saw frozen sockets. */
+    fun slept(realStart: Long, upStart: Long, realEnd: Long, upEnd: Long, toleranceMs: Long = 1000L) =
+        (realEnd - realStart) - (upEnd - upStart) > toleranceMs
+
+    /* A second failure within windowMs of real time after the first one
+     * (lastAt 0: none yet). */
+    fun again(lastAt: Long, now: Long, windowMs: Long) = lastAt != 0L && now - lastAt in 0 until windowMs
+}
+
+/*
+ * Under lockdown (Android blocks connections without the VPN), protection
+ * does not end when the way through is broken: everything is tried again
+ * after a while, a little longer each time. A retry planned because the
+ * path check found nothing through the engine is called off once a path
+ * check finds the way through working again, with the tunnel running: it
+ * would tear down an engine and a tunnel that work, and every connection
+ * apps hold. The path check goes from this app to the engine, never through
+ * the tunnel, so it says nothing about a retry planned for anything else
+ * (the tunnel stopped, the engine kept stopping): that one always runs.
+ */
+class LockdownHold(
+    private val firstMs: Long,
+    private val maxMs: Long,
+    private val schedule: (Long, Runnable) -> Future<*>,
+) {
+    /* Why the retry is planned. */
+    enum class Cause { PATH, OTHER }
+
+    var backoff = 0L
+        private set
+    @Volatile private var pending: Future<*>? = null
+    // Anything but the path, once, keeps the retry until it has run.
+    @Volatile private var cause = Cause.PATH
+
+    val planned get() = pending != null
+
+    /* Plans the next retry; returns how long until it. */
+    fun plan(cause: Cause, run: () -> Unit): Long {
+        backoff = if (backoff == 0L) firstMs else minOf(backoff * 2, maxMs)
+        this.cause = if (pending != null && this.cause == Cause.OTHER) Cause.OTHER else cause
+        pending?.cancel(false)
+        pending = schedule(backoff, Runnable { pending = null; run() })
+        return backoff
+    }
+
+    /* A path check found the way through working; tunnelUp: hev runs. A
+     * retry planned for the path is called off (true when it was), and the
+     * next trouble starts from the first wait. Any other retry stays. */
+    fun pathHealthy(tunnelUp: Boolean): Boolean {
+        if (pending == null) {
+            if (tunnelUp) backoff = 0
+            return false
+        }
+        if (!tunnelUp || cause != Cause.PATH) return false
+        cancel()
+        return true
+    }
+
+    fun cancel() {
+        pending?.cancel(false)
+        pending = null
+        backoff = 0
     }
 }

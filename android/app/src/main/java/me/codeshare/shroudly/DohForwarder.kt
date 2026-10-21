@@ -153,6 +153,9 @@ class DohForwarder(
          * second wave: a network that blocks one kind of route usually blocks
          * all of that kind. */
         fun plan(all: List<DohRoute>, preferredId: String?, now: Long, engineReady: Boolean): List<DohRoute> {
+            // The clock set back since a route failed: it rests at most the
+            // longest rest from now, not until the clock catches up.
+            for (r in all) if (r.restUntil > now + REST_MAX_MS) r.restUntil = now + REST_MAX_MS
             fun score(r: DohRoute) = if (r.restUntil > now) 1_000_000_000L + r.restUntil - now else if (r.ewma > 0) r.ewma else 400L
             val ordered = all.filter { !it.viaEngine || engineReady }.sortedWith { a, b ->
                 val pa = a.id == preferredId && a.restUntil <= now
@@ -318,11 +321,12 @@ class DohForwarder(
 
     /* One request on one route. Throws on any failure; keeps the route's record. */
     private fun query(r: DohRoute, msg: ByteArray): ByteArray {
-        val t0 = System.currentTimeMillis()
+        // How long it took, on a clock no change of the date moves.
+        val t0 = System.nanoTime()
         try {
             val body = if (r.viaEngine) viaEngine(r, msg) else direct(r, msg)
             val answer = Dns.matchAnswer(msg, body) ?: throw IOException("not an answer to the query")
-            r.succeeded(System.currentTimeMillis() - t0)
+            r.succeeded((System.nanoTime() - t0) / 1_000_000)
             return answer
         } catch (e: Exception) {
             r.failed(System.currentTimeMillis())
