@@ -658,11 +658,14 @@ class ShroudlyVpnService : VpnService() {
         when (pathWatch.result(now, reached != null, networkWorks)) {
             PathWatch.Verdict.HEALTHY -> {
                 log("Path check ($why): through the engine to $reached in ${ms}ms")
-                // Under lockdown, a retry of everything planned while the way
-                // through was broken: not wanted now that it works (it would
-                // reset every connection apps hold).
-                if (hold.healthy()) log("The retry planned under lockdown is not needed any more")
-                if (Protection.troubleRes != 0) {
+                // Under lockdown, a retry of everything planned because the
+                // way through was broken: not wanted now that it works, with
+                // the tunnel running (it would reset every connection apps
+                // hold). One planned for anything else stays: this check
+                // never goes through the tunnel.
+                val tunnelUp = tunnelRunning && (try { Tun2Socks.TProxyIsRunning() } catch (_: Throwable) { false })
+                if (hold.pathHealthy(tunnelUp)) log("The retry planned under lockdown is not needed any more")
+                if (Protection.troubleRes != 0 && tunnelUp && !hold.planned) {
                     log("The way through works again")
                     Protection.trouble(0)
                     clearAlert(this)
@@ -687,7 +690,8 @@ class ShroudlyVpnService : VpnService() {
                     giveUp(R.string.androidNoInternet,
                         "no connection through the engine reached the internet " +
                             "(${EngineProbe.TARGETS.joinToString { "${it.first}:${it.second}" }}) " +
-                            "while Android's own check of the network passed (directly: $direct)")
+                            "while Android's own check of the network passed (directly: $direct)",
+                        LockdownHold.Cause.PATH)
                 }
             }
         }
@@ -1016,9 +1020,9 @@ class ShroudlyVpnService : VpnService() {
      * with nothing at all, since Android lets nothing out without the VPN:
      * protection holds on instead, tries everything again with a growing
      * pause, and says honestly that apps are offline until it works. */
-    private fun giveUp(res: Int, detail: String) {
+    private fun giveUp(res: Int, detail: String, cause: LockdownHold.Cause = LockdownHold.Cause.OTHER) {
         if (lockdown()) {
-            holdOn(detail)
+            holdOn(detail, cause)
             return
         }
         // An always-on VPN that ended itself may be started again by Android
@@ -1034,8 +1038,8 @@ class ShroudlyVpnService : VpnService() {
         requestStop(res, detail)
     }
 
-    private fun holdOn(detail: String) {
-        val ms = hold.plan { recoverAll() }
+    private fun holdOn(detail: String, cause: LockdownHold.Cause) {
+        val ms = hold.plan(cause) { recoverAll() }
         log("Lockdown (Android blocks connections without the VPN): staying on, trying everything again in ${ms / 1000}s: $detail")
         if (Protection.troubleRes == 0) {
             Protection.trouble(R.string.androidLockdownOffline)

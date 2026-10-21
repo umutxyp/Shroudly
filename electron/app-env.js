@@ -313,7 +313,7 @@ class AppEnv {
     if (stateFile) {
       try {
         fs.mkdirSync(path.dirname(stateFile), { recursive: true });
-        fs.writeFileSync(stateFile, JSON.stringify({ v: 1, platform: this.platform, pid: process.pid, boot: bootId(), bootKey: Boot.bootKey(), exe: path.basename(process.execPath), url }));
+        fs.writeFileSync(stateFile, JSON.stringify({ v: 1, platform: this.platform, pid: process.pid, boot: bootId(), bootKey: Boot.bootKey(), uptime: Boot.uptime(), exe: path.basename(process.execPath), url }));
       } catch {}
     }
     if (watchdog && stateFile) Watchdog.watch(watchdog, 'env', stateFile);
@@ -342,8 +342,8 @@ class AppEnv {
         const st = JSON.parse(fs.readFileSync(opts.stateFile, 'utf8'));
         // By the boot's own name where both have one (a clock change does
         // not move it), else by the time it started.
-        const key = Boot.bootKey();
-        const sameBoot = st.bootKey && key ? st.bootKey === key : (st.boot == null || Math.abs(st.boot - bootId()) <= 2);
+        const byKey = Boot.sameBootKey(st);
+        const sameBoot = byKey !== null ? byKey : (st.boot == null || Math.abs(st.boot - bootId()) <= 2);
         return sameBoot && st.pid && st.pid !== process.pid && alive(st.pid) && sameProgram(st.pid, st.exe);
       } catch { return false; }
     };

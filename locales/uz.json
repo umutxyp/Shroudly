@@ -439,5 +439,6 @@
   "logHeldRestart": "{host}: Shroudly qayta ishga tushayotgan paytda ushlab turildi; dastur qayta urinib koʻradi",
   "autoDiscordFailed": "Bu tarmoqda Discord bloklangan, lekin Discord ilovasi rejimini yoqib boʻlmadi. Qayta urinib koʻrish uchun uni Sozlamalarda yoqing.",
   "autoRobloxFailed": "Bu tarmoqda Roblox bloklangan, lekin Oʻyinlar va ilovalar rejimini yoqib boʻlmadi. Qayta urinib koʻrish uchun uni Sozlamalarda yoqing.",
-  "autoStoreAppsNoAdmin": "Administrator ruxsat bermaguncha {apps} Shroudlyga ulana olmaydi: administrator Sozlamalarda «Microsoft Store ilovalari» tugmasini yoqishi mumkin."
+  "autoStoreAppsNoAdmin": "Administrator ruxsat bermaguncha {apps} Shroudlyga ulana olmaydi: administrator Sozlamalarda «Microsoft Store ilovalari» tugmasini yoqishi mumkin.",
+  "notifyLogsCopyFailed": "Jurnalni bu yerdan vaqtinchalik xotiraga nusxalab boʻlmadi. «Jurnal» boʻlimi ochiq: u yerdagi «Jurnalni nusxalash» tugmasini bosing."
 }

@@ -8,7 +8,7 @@
 
 const path = require('path');
 const { ROOT, suite } = require('./helpers');
-const { buildReport } = require(path.join(ROOT, 'electron', 'log-report.js'));
+const { buildReport, toClipboard } = require(path.join(ROOT, 'electron', 'log-report.js'));
 const t = suite('logreport');
 
 const logs = [
@@ -37,4 +37,15 @@ const mac = buildReport({ ...s, os: 'macOS 15.1', arch: 'arm64', storeApps: null
 t.ok(mac.includes('Modes: Discord app mode on, Games and apps mode off\n') && mac.includes('route: listed sites only') && mac.includes('Advanced mode: on')
   && mac.includes('Network: not logged yet') && mac.includes('Lines: 0'), 'macOS and Linux: no Store apps line; listed sites; an empty log');
 t.ok(!/https?:\/\//.test(r.replace(/--watch discord\.media/, '')) && !r.includes('siteList'), 'nothing beyond what the log already says (no site list, no history)');
+// The clipboard read back: a desktop that takes nothing from a program
+// without a focused window (Wayland, from the tray) is not reported as done.
+{
+  let held = '';
+  const works = { writeText: (x) => { held = x; }, readText: () => held };
+  const wayland = { writeText: () => {}, readText: () => 'what was there before' };
+  const broken = { writeText: () => { throw new Error('no clipboard'); }, readText: () => '' };
+  t.ok(toClipboard(r, works) === true && held === r, 'on the clipboard, read back the same: done');
+  t.ok(toClipboard(r, wayland) === false, 'a clipboard that kept what it had (Wayland, no focused window): not done, so the window opens on the Logs panel instead');
+  t.ok(toClipboard(r, broken) === false, 'no clipboard at all: not done');
+}
 console.log(`logreport: ${t.count} passed`);

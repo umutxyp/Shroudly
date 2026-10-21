@@ -439,5 +439,6 @@
   "logHeldRestart": "{host}：Shroudly 正在重启，连接已暂缓；程序会再试一次",
   "autoDiscordFailed": "Discord 在此网络上被封锁，但无法开启 Discord 应用模式。请在设置中开启以重试。",
   "autoRobloxFailed": "Roblox 在此网络上被封锁，但无法开启游戏和应用模式。请在设置中开启以重试。",
-  "autoStoreAppsNoAdmin": "在管理员允许之前，{apps} 无法连接到 Shroudly：管理员可以在设置中开启“Microsoft Store 应用”。"
+  "autoStoreAppsNoAdmin": "在管理员允许之前，{apps} 无法连接到 Shroudly：管理员可以在设置中开启“Microsoft Store 应用”。",
+  "notifyLogsCopyFailed": "无法从此处将日志放到剪贴板。“日志”面板已打开，请在那里使用“复制日志”。"
 }

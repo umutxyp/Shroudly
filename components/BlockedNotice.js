@@ -126,6 +126,11 @@ export default function BlockedNotice({ onNavigate, active = false }) {
     const offApps = window.electron.onAppsState?.(() => refreshApps());
     window.electron.onAdvice?.((a) => { setAdvice(a); refreshAdv(); });
     const offNotice = window.electron.onAutoNotice?.(onNotice);
+    // A panel the background process asks for (the tray's Copy logs, where
+    // the desktop would not take the log from it).
+    const offNav = window.electron.onNavigate?.((tab) => {
+      if (typeof onNavigate === 'function' && ['control', 'stats', 'settings', 'logs', 'info'].includes(tab)) onNavigate(tab);
+    });
     window.electron.autoNotices?.().then((list) => { if (Array.isArray(list) && list[0]) onNotice(list[0]); }).catch(() => {});
     // Listening now: notices that came while there was no window follow.
     window.electron.uiReady?.();
@@ -135,6 +140,7 @@ export default function BlockedNotice({ onNavigate, active = false }) {
     refreshApps();
     return () => {
       if (typeof offNotice === 'function') offNotice();
+      if (typeof offNav === 'function') offNav();
       if (typeof offAdv === 'function') offAdv();
       window.electron.removeSiteBlockedListener?.();
       window.electron.removeNeedRestartListener?.();

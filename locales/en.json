@@ -439,5 +439,6 @@
   "logHeldRestart": "{host}: held back while Shroudly restarts; the program will try again",
   "autoDiscordFailed": "Discord is blocked on this network, but Discord app mode could not be turned on. Turn it on in Settings to try again.",
   "autoRobloxFailed": "Roblox is blocked on this network, but Games and apps mode could not be turned on. Turn it on in Settings to try again.",
-  "autoStoreAppsNoAdmin": "{apps} cannot reach Shroudly until an administrator allows it: an administrator can turn on Microsoft Store apps in Settings."
+  "autoStoreAppsNoAdmin": "{apps} cannot reach Shroudly until an administrator allows it: an administrator can turn on Microsoft Store apps in Settings.",
+  "notifyLogsCopyFailed": "The log could not be put on the clipboard from here. The Logs panel is open: use Copy logs there."
 }

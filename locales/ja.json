@@ -439,5 +439,6 @@
   "logHeldRestart": "{host}: Shroudly の再起動中のため保留しました。プログラムが再試行します",
   "autoDiscordFailed": "このネットワークでは Discord がブロックされていますが、Discord アプリモードをオンにできませんでした。もう一度試すには、設定でオンにしてください。",
   "autoRobloxFailed": "このネットワークでは Roblox がブロックされていますが、ゲームとアプリモードをオンにできませんでした。もう一度試すには、設定でオンにしてください。",
-  "autoStoreAppsNoAdmin": "管理者が許可するまで {apps} は Shroudly に接続できません。管理者は設定で「Microsoft Store アプリ」をオンにできます。"
+  "autoStoreAppsNoAdmin": "管理者が許可するまで {apps} は Shroudly に接続できません。管理者は設定で「Microsoft Store アプリ」をオンにできます。",
+  "notifyLogsCopyFailed": "ここからはログをクリップボードにコピーできませんでした。「ログ」画面を開いたので、そこにある「ログをコピー」を使ってください。"
 }

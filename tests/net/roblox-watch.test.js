@@ -321,6 +321,17 @@ async function steady(opts) {
     t.ok(!v.killed.length, 'a silent one is not restarted at the wake either');
     await v.run(v.now + 40000);
     t.ok(v.killed.some((k) => k.pid === around), 'but once it has stayed silent for its time after the wake, it is');
+    // The clock set back an hour (by hand, by NTP): silence counts from the
+    // change, not from an hour ahead.
+    const c = world();
+    c.watch.start(); await c.modeOn(); c.engineOn(); c.verdict();
+    await c.run(60000);
+    const silent = c.start('player', 'player');
+    await c.run(c.now + 10000);
+    c.offset -= 3600 * 1000;
+    c.watch.resumed();
+    await c.run(c.now + 40000);
+    t.ok(c.killed.some((k) => k.pid === silent), 'the clock set back an hour: a silent player is still restarted after its time, not an hour later');
   }
   {
     // A slow signature check holds up nothing else: a player around Shroudly

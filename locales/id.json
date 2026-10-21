@@ -439,5 +439,6 @@
   "logHeldRestart": "{host}: ditahan selama Shroudly dimulai ulang; program akan mencoba lagi",
   "autoDiscordFailed": "Discord diblokir di jaringan ini, tetapi mode aplikasi Discord tidak dapat diaktifkan. Aktifkan di Pengaturan untuk mencoba lagi.",
   "autoRobloxFailed": "Roblox diblokir di jaringan ini, tetapi mode Game dan aplikasi tidak dapat diaktifkan. Aktifkan di Pengaturan untuk mencoba lagi.",
-  "autoStoreAppsNoAdmin": "{apps} tidak bisa terhubung ke Shroudly sampai administrator mengizinkannya: administrator dapat mengaktifkan Aplikasi Microsoft Store di Pengaturan."
+  "autoStoreAppsNoAdmin": "{apps} tidak bisa terhubung ke Shroudly sampai administrator mengizinkannya: administrator dapat mengaktifkan Aplikasi Microsoft Store di Pengaturan.",
+  "notifyLogsCopyFailed": "Log tidak dapat dimasukkan ke papan klip dari sini. Panel Log sudah terbuka: gunakan “Salin log” di sana."
 }

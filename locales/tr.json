@@ -439,5 +439,6 @@
   "logHeldRestart": "{host}: Shroudly yeniden başlarken bekletildi; program yeniden deneyecek",
   "autoDiscordFailed": "Discord bu ağda engelli, ancak Discord uygulama modu açılamadı. Yeniden denemek için Ayarlar'dan aç.",
   "autoRobloxFailed": "Roblox bu ağda engelli, ancak Oyunlar ve uygulamalar modu açılamadı. Yeniden denemek için Ayarlar'dan aç.",
-  "autoStoreAppsNoAdmin": "Bir yönetici izin verene kadar {apps} Shroudly'ye ulaşamaz: bir yönetici Ayarlar'dan Microsoft Store uygulamaları anahtarını açabilir."
+  "autoStoreAppsNoAdmin": "Bir yönetici izin verene kadar {apps} Shroudly'ye ulaşamaz: bir yönetici Ayarlar'dan Microsoft Store uygulamaları anahtarını açabilir.",
+  "notifyLogsCopyFailed": "Kayıt buradan panoya kopyalanamadı. Kayıtlar paneli açık: oradaki “Kayıtları kopyala” düğmesini kullan."
 }

@@ -439,5 +439,6 @@
   "logHeldRestart": "{host}: Shroudly täzeden açylýarka saklanyp galdy; programma täzeden synanyşar",
   "autoDiscordFailed": "Discord bu torda petikli, ýöne Discord programmasynyň tertibini açyp bolmady. Gaýtadan synanyşmak üçin ony Sazlamalarda açyň.",
   "autoRobloxFailed": "Roblox bu torda petikli, ýöne Oýunlar we programmalar tertibini açyp bolmady. Gaýtadan synanyşmak üçin ony Sazlamalarda açyň.",
-  "autoStoreAppsNoAdmin": "Administrator rugsat berýänçä {apps} Shroudly bilen birigip bilmeýär: administrator Sazlamalarda «Microsoft Store programmalary» düwmesini açyp biler."
+  "autoStoreAppsNoAdmin": "Administrator rugsat berýänçä {apps} Shroudly bilen birigip bilmeýär: administrator Sazlamalarda «Microsoft Store programmalary» düwmesini açyp biler.",
+  "notifyLogsCopyFailed": "Ýazgylary şu ýerden alyş-çalyş buferine göçürip bolmady. Ýazgylar bölümi açyk: şol ýerdäki “Ýazgylary göçüriň” düwmesine basyň."
 }

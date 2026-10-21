@@ -930,22 +930,30 @@ class StoreApps {
     return { asked: true, result: 'on', apps, added };
   }
 
-  /* After a declined prompt, once a session: which apps cannot go through
-   * Shroudly, in the log (the notification was the decline itself). */
+  /* After a declined prompt: which apps cannot go through Shroudly, in the
+   * log once a session; and in the window, with what to do, once one of
+   * them is open (looked at again at each survey until then). Not in the
+   * session the prompt was declined in: the user has just been told. */
   async _noteBlocked() {
-    this.toldBlocked = true;
-    if (this.now() - this.lastScanAt < RESCAN_MS) return { asked: false, why: 'declined' };
+    if (this.asked) { this.toldBlocked = true; return { asked: false, why: 'declined' }; }
+    let open = null;
+    try { open = await this.runningApps(); } catch {}
+    const openNow = !!(open && open.size);
+    if (this.loggedBlocked && !openNow) return { asked: false, why: 'declined' };
+    if (this.now() - this.lastScanAt < RESCAN_MS && (!openNow || (this._blockedFor && [...open].every((x) => this._blockedFor.has(x))))) {
+      return { asked: false, why: 'declined' };
+    }
+    this._blockedFor = open || new Set();
     this.lastScanAt = this.now();
     const s = await this.scan();
     const need = s ? candidates({ containers: s.containers, exempt: s.exempt, handled: this._handled() }) : [];
-    if (need.length) {
+    if (need.length && !this.loggedBlocked) {
+      this.loggedBlocked = true;
       this.log('warning', `Store apps: ${appNames(need).join(', ')} cannot go through Shroudly; permission was not given`);
-      // In the window too, with what to do, when one of them is open now.
-      let open = null;
-      try { open = await this.runningApps(); } catch {}
-      if (open && need.some((c) => open.has(c.sid))) {
-        this.tell('autoStoreAppsDeclinedBefore', { apps: appNames(need).join(', '), date: day(this._when('storeAppsDeclinedAt')) });
-      }
+    }
+    if (openNow && need.some((c) => open.has(c.sid))) {
+      this.toldBlocked = true;
+      this.tell('autoStoreAppsDeclinedBefore', { apps: appNames(need).join(', '), date: day(this._when('storeAppsDeclinedAt')) });
     }
     return { asked: false, why: 'declined' };
   }

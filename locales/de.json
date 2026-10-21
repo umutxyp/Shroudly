@@ -439,5 +439,6 @@
   "logHeldRestart": "{host}: zurückgehalten, während Shroudly neu startet; das Programm versucht es erneut",
   "autoDiscordFailed": "Discord ist in diesem Netz gesperrt, aber der Discord-App-Modus ließ sich nicht einschalten. Schalte ihn in den Optionen ein, um es noch einmal zu versuchen.",
   "autoRobloxFailed": "Roblox ist in diesem Netz gesperrt, aber der Modus „Spiele und Apps“ ließ sich nicht einschalten. Schalte ihn in den Optionen ein, um es noch einmal zu versuchen.",
-  "autoStoreAppsNoAdmin": "{apps} können Shroudly erst erreichen, wenn ein Administrator es erlaubt: Ein Administrator kann „Microsoft-Store-Apps“ in den Optionen einschalten."
+  "autoStoreAppsNoAdmin": "{apps} können Shroudly erst erreichen, wenn ein Administrator es erlaubt: Ein Administrator kann „Microsoft-Store-Apps“ in den Optionen einschalten.",
+  "notifyLogsCopyFailed": "Das Protokoll konnte von hier aus nicht in die Zwischenablage gelegt werden. Der Bereich „Protokoll“ ist geöffnet: Nutze dort „Protokoll kopieren“."
 }

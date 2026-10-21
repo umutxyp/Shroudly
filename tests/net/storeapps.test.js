@@ -687,6 +687,21 @@ const decode = (b64) => Buffer.from(b64, 'base64').toString('utf16le');
     await rd.sa.survey();
     t.ok(!d.prompts.length && rd.told.length === 1 && rd.told[0].id === 'autoStoreAppsDeclinedBefore' && rd.told[0].p.date === day(at),
       'declined three days ago, Xbox open: not asked, but told in the window too');
+    // Declined earlier, and no Store app open at first: the log names the
+    // apps, and the window says so once one of them is opened, later in the
+    // same session (not silent for the rest of it).
+    const late = fakeWindows({ containers: MACHINE(), open: [] });
+    const rl = rig(late, { store: memStore({ storeAppsDeclinedAt: at }) });
+    await rl.sa.survey();
+    t.ok(!rl.told.length && rl.logs.filter((l) => /cannot go through Shroudly; permission was not given$/.test(l)).length === 1,
+      'declined earlier, no Store app open: the log names the apps, nothing in the window yet');
+    late.open = ['microsoft.gamingapp_8wekyb3d8bbwe'];
+    rl.clock.t += 60 * 1000;
+    await rl.sa.survey();
+    await rl.sa.survey();
+    t.ok(!late.prompts.length && rl.told.length === 1 && rl.told[0].id === 'autoStoreAppsDeclinedBefore'
+      && rl.logs.filter((l) => /permission was not given$/.test(l)).length === 1,
+    'Xbox opened a minute later: told once in the window, with what to do; the log line not repeated');
   }
 
   {

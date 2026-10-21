@@ -804,6 +804,17 @@ const readState = (file) => { try { return JSON.parse(fs.readFileSync(file, 'utf
           t.ok(!SystemProxy._ownerAlive({ pid: other.pid, boot, bootKey: 'boot-B', exe: 'sleep' }, 'win32'), 'P12: another boot by name: not running, however close the times');
           t.ok(Boot.sameBoot({ boot }) && !Boot.sameBoot({ boot: boot - 86400 }), 'a record without a boot name: told by the time, as before');
         } finally { Boot._setReader(null); }
+        // Windows names a boot by its last shutdown, which a power cut or a
+        // crash never writes: a record made further into a boot than this
+        // one has gone is from an earlier boot, whatever the name says.
+        Boot._setReader(() => 'shutdown-01D9AB', () => 600);
+        try {
+          t.ok(!SystemProxy._ownerAlive({ pid: other.pid, boot, bootKey: 'shutdown-01D9AB', uptime: 7200, exe: 'sleep' }, 'win32'),
+            'P12 (Windows): the same shutdown time, but the record made two hours into a boot ten minutes old: a power cut since, not running');
+          t.ok(SystemProxy._ownerAlive({ pid: other.pid, boot, bootKey: 'shutdown-01D9AB', uptime: 300, exe: 'sleep' }, 'win32'),
+            'P12 (Windows): made five minutes into this boot: this boot');
+          t.ok(SystemProxy._owner().uptime === 600, 'the record keeps how long the computer had been up');
+        } finally { Boot._setReader(null); }
       }
       leftover({ pid: other.pid, boot, exe: 'sleep' });
       t.ok(SystemProxy.recoverSync({ stateFile: file, platform: 'win32' }) === true && JSON.stringify([...reg]) === before,
@@ -2269,22 +2280,45 @@ const readState = (file) => { try { return JSON.parse(fs.readFileSync(file, 'utf
       em._spawn = (bin, args) => spawnIt(process.execPath, [FAKE, ...args]);
       await em.start();
       const set = b.read();
-      const first = em.proc.pid;
-      const readings = new Set();
-      const watch = setInterval(() => readings.add(b.read()), 2);
-      // The next start finds the engine's port taken: it comes back on another.
-      const taken = require('net').createServer().listen(em.port, '127.0.0.1');
-      em.proc.kill('SIGKILL');
-      const back = await (async () => { const end = Date.now() + 8000; while (Date.now() < end) { if (em.active && em.proc && em.proc.pid !== first) return true; await sleep(20); } return false; })();
-      clearInterval(watch);
-      taken.close();
-      const pac = em.proxy.pacBody(em.proxy.socksPort);
-      t.ok(back && readings.size === 1 && [...readings][0] === set && b.read() === set,
-        `${b.name}: an engine crash leaves the system setting as it was all along (${[...readings].join(' / ')})`);
-      t.ok(em.proxy.socksPort === em.port && pac.includes(`127.0.0.1:${em.port}`), `${b.name}: the PAC names the restarted engine's new port (${em.port})`);
-      const lost = await em.proxy.checkOwnership();
-      t.ok(Array.isArray(lost) && !lost.length && !lines.some((l) => /changed the system proxy|System proxy settings restored/i.test(l)),
-        `${b.name}: afterwards nothing is taken for a takeover, and nothing was restored (${JSON.stringify(lost)}; ${lines.filter((l) => /changed the system proxy|restored/i.test(l)).join(" | ")})`);
+      const ourPac = /127\.0\.0\.1:\d+\/proxy\.pac/;
+      const fetchPac = (url) => new Promise((res) => require('http').get(url, (r) => { let d = ''; r.on('data', (c) => { d += c; }); r.on('end', () => res(d)); }).on('error', () => res('')));
+      const crash = async ({ takePort }) => {
+        const first = em.proc.pid;
+        const readings = [];
+        const watch = setInterval(() => { const v = b.read(); if (readings[readings.length - 1] !== v) readings.push(v); }, 2);
+        // takePort: the next start finds the engine's port held (Windows
+        // keeps one a while): it comes back on another.
+        const taken = takePort ? require('net').createServer().listen(em.port, '127.0.0.1') : null;
+        em.proc.kill('SIGKILL');
+        const back = await (async () => { const end = Date.now() + 12000; while (Date.now() < end) { if (em.active && em.proc && em.proc.pid !== first) return true; await sleep(20); } return false; })();
+        clearInterval(watch);
+        if (taken) taken.close();
+        return { back, readings };
+      };
+      {
+        // Back on its own port: nothing about the system setting changes.
+        const port0 = em.port;
+        const { back, readings } = await crash({ takePort: false });
+        t.ok(back && em.port === port0 && readings.length === 1 && readings[0] === set,
+          `${b.name}: an engine crash, back on its own port: the system setting as it was all along (${readings.join(' / ')})`);
+      }
+      {
+        // Back on another port: a new PAC address written in place, never
+        // the user's own setting in between, so browsers fetch it again.
+        const port0 = em.port;
+        const url0 = em.proxy.pacUrl;
+        const { back, readings } = await crash({ takePort: true });
+        const url1 = em.proxy.pacUrl;
+        t.ok(back && em.port !== port0 && url1 !== url0 && readings.every((v) => ourPac.test(v)) && b.read().includes(url1),
+          `${b.name}: back on another port (${port0} -> ${em.port}): the system setting moves straight to a new PAC address (${readings.join(' / ')})`);
+        const now = await fetchPac(url1);
+        const old = await fetchPac(url0);
+        t.ok(now.includes(`127.0.0.1:${em.port}`) && !now.includes(`127.0.0.1:${port0}`) && old === now,
+          `${b.name}: the new address names the new port, and the old one, still answering for a while, says the same`);
+        const lost = await em.proxy.checkOwnership();
+        t.ok(Array.isArray(lost) && !lost.length && !lines.some((l) => /changed the system proxy|System proxy settings restored/i.test(l)),
+          `${b.name}: afterwards nothing is taken for a takeover, and nothing was restored (${JSON.stringify(lost)}; ${lines.filter((l) => /changed the system proxy|restored/i.test(l)).join(" | ")})`);
+      }
       await em.stop();
       t.ok(b.read() !== set, `${b.name}: Stop then puts the user's own setting back`);
     }

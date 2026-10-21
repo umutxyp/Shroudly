@@ -30,7 +30,7 @@ const ServiceCheck = require('./service-check');
 const { restoreProxy } = require('./restore-proxy');
 const Launch = require('./launch');
 const wake = require('./wake');
-const { buildReport } = require('./log-report');
+const { buildReport, toClipboard } = require('./log-report');
 
 /* "Shroudly --restore-proxy" runs once at login after a run that never got to
  * restore the system proxy (power loss, forced reboot), and from the watchdog
@@ -169,8 +169,18 @@ function copyLogs() {
     appsMode: store.get('appMode') === true,
     storeApps: process.platform === 'win32' ? store.get('storeAppsMode') === true : null,
   }, systemLogs);
-  try { clipboard.writeText(report); } catch { return { ok: false }; }
+  if (!toClipboard(report, clipboard)) return { ok: false };
   return { ok: true, lines: systemLogs.length, chars: report.length };
+}
+
+/* From the tray: on the clipboard, said; where the desktop would not take it
+ * from a program without a window (Wayland), the window opens on the Logs
+ * panel, whose button can, and the notification says so. */
+function trayCopyLogs(s) {
+  if (copyLogs().ok) { notify('Shroudly', s.notifyLogsCopied); return; }
+  showWindow();
+  toWindow('ui:navigate', 'logs');
+  notify('Shroudly', s.notifyLogsCopyFailed);
 }
 
 /* ── tray + status ───────────────────────────────────────────────────────── */
@@ -218,7 +228,7 @@ function rebuildTrayMenu(active = trayActive) {
       click: async () => { active ? await safeStop({ user: true }) : await safeStart({ user: true }); },
     },
     { type: 'separator' },
-    { label: s.trayCopyLogs, click: () => { copyLogs(); notify('Shroudly', s.notifyLogsCopied); } },
+    { label: s.trayCopyLogs, click: () => trayCopyLogs(s) },
     { label: s.trayQuit, click: () => { app.isQuitting = true; shutdownAndQuit(); } },
   ]);
   tray.setContextMenu(menu);
@@ -356,7 +366,7 @@ const loading = new WeakSet();  // windows still loading on their way to the scr
 const sentAway = new WeakSet();
 // One-off notices that must not be lost while there is no window: the latest
 // of each is shown once the next window is up.
-const STICKY = new Set(['dpi:need-restart', 'dpi:dns-auto-enabled', 'dpi:site-blocked', 'dpi:service-refused']);
+const STICKY = new Set(['dpi:need-restart', 'dpi:dns-auto-enabled', 'dpi:site-blocked', 'dpi:service-refused', 'ui:navigate']);
 const pending = new Map();
 
 function windowAlive() { return !!(mainWindow && !mainWindow.isDestroyed()); }
@@ -849,7 +859,7 @@ app.whenReady().then(async () => {
   createAutopilot();
   createStoreApps();
   // The end-to-end tests look inside (tests/e2e): never in a normal run.
-  if (process.env.SHROUDLY_E2E === '1') global.shroudlyE2E = { engine, appProxy, discordRelay, autopilot, wake, store, addLog, require };
+  if (process.env.SHROUDLY_E2E === '1') global.shroudlyE2E = { engine, appProxy, discordRelay, autopilot, wake, store, addLog, require, trayCopyLogs: () => trayCopyLogs(tr()) };
 
   updater = new Updater({
     log: addLog,

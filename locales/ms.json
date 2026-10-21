@@ -439,5 +439,6 @@
   "logHeldRestart": "{host}: ditahan semasa Shroudly dimulakan semula; program akan mencuba lagi",
   "autoDiscordFailed": "Discord disekat pada rangkaian ini, tetapi mod aplikasi Discord tidak dapat dihidupkan. Hidupkannya dalam Tetapan untuk mencuba lagi.",
   "autoRobloxFailed": "Roblox disekat pada rangkaian ini, tetapi mod permainan dan aplikasi tidak dapat dihidupkan. Hidupkannya dalam Tetapan untuk mencuba lagi.",
-  "autoStoreAppsNoAdmin": "{apps} tidak dapat mencapai Shroudly sehingga pentadbir membenarkannya: pentadbir boleh menghidupkan Aplikasi Microsoft Store dalam Tetapan."
+  "autoStoreAppsNoAdmin": "{apps} tidak dapat mencapai Shroudly sehingga pentadbir membenarkannya: pentadbir boleh menghidupkan Aplikasi Microsoft Store dalam Tetapan.",
+  "notifyLogsCopyFailed": "Log tidak dapat diletakkan dalam papan keratan dari sini. Panel Log sudah dibuka: gunakan “Salin log” di sana."
 }

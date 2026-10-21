@@ -462,6 +462,21 @@ if [ "$("$ADB" -s "$SERIAL" root 2>&1 | grep -c 'cannot run as root')" = 0 ]; th
     wait_for 400 has_log "The way through works again" || fail "under lockdown, protection did not come back after the cut"
     wait_for 60 net_up || fail "no internet under lockdown after the cut"
     say "lockdown, cut gone: back by itself: $(http_get)"
+    # The tunnel stops twice in a row under lockdown: everything is tried
+    # again on its plan. A path check meanwhile (this app to the engine,
+    # never through the tunnel) passes, and must not call that off.
+    clear_log
+    fault tunnel-stop
+    wait_for 30 has_log "Tunnel started again" || fail "under lockdown, the tunnel did not start again"
+    wait_for 60 net_up || fail "under lockdown, no internet after the tunnel restarted"
+    fault tunnel-stop
+    wait_for 30 has_log "Tunnel stopped unexpectedly, again; giving up" || fail "under lockdown, the second tunnel stop was not seen"
+    wait_for 30 lockdown_holds || fail "under lockdown, protection did not hold on after the tunnel stopped twice"
+    fault path-check
+    wait_for 30 has_log "Path check (.*): through the engine to" || fail "no path check while the tunnel was down"
+    wait_for 120 has_log "Trying everything again" || fail "under lockdown, a passing path check called off the retry: the tunnel was never started again"
+    wait_for 90 net_up || fail "under lockdown, no internet after everything was started again"
+    say "lockdown, tunnel stopped twice: a passing path check did not call off the retry; everything started again: $(http_get)"
     sh_ "settings delete secure always_on_vpn_app; settings delete secure always_on_vpn_lockdown" >/dev/null
     framework
     "$ADB" -s "$SERIAL" root >/dev/null 2>&1 || true; sleep 3; adb_ wait-for-device

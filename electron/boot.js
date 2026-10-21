@@ -15,7 +15,10 @@
  *   macOS    kern.bootsessionuuid
  *   Windows  the time of the last shutdown (HKLM\...\Control\Windows
  *            ShutdownTime), written once per shutdown or restart, never by
- *            a sleep
+ *            a sleep. A power cut or a crash writes nothing, so the record
+ *            also keeps how long the computer had been up when it was made
+ *            (os.uptime(), which no clock change moves): less now means
+ *            another boot since.
  * and only when that cannot be read, by the time it started, with the
  * tolerance it always had.
  */
@@ -53,18 +56,39 @@ function bootKey() {
 /* When this boot started, in seconds, by the wall clock (the fallback). */
 function bootTime() { return Math.round(Date.now() / 1000 - os.uptime()); }
 
-/* Was a record with { boot, bootKey } made in this boot? By the name when
- * both have one; else by the time, within `toleranceS`. A record with
- * neither is taken to be of this boot. */
+/* How long this computer has been up, in seconds. */
+let uptimeNow = () => os.uptime();
+function uptime() { return Math.round(uptimeNow()); }
+
+/* What a record keeps to tell its boot by. */
+function record() { return { boot: bootTime(), bootKey: bootKey(), uptime: uptime() }; }
+
+// A name that a power cut does not change (Windows' last shutdown).
+const weak = (key) => String(key).startsWith('shutdown-');
+
+/* By the boot's name: true or false, or null when either side has none.
+ * Windows' name stays the same over a power cut or a crash: there the
+ * record's uptime beyond this boot's says it is from an earlier boot. */
+function sameBootKey(rec) {
+  const key = bootKey();
+  if (!rec || !rec.bootKey || !key) return null;
+  if (rec.bootKey !== key) return false;
+  if (weak(key) && Number.isFinite(rec.uptime) && uptime() + 60 < rec.uptime) return false;
+  return true;
+}
+
+/* Was a record with { boot, bootKey, uptime } made in this boot? By the
+ * name when both have one; else by the time, within `toleranceS`. A record
+ * with neither is taken to be of this boot. */
 function sameBoot(rec, toleranceS = 120) {
   if (!rec) return false;
-  const key = bootKey();
-  if (rec.bootKey && key) return rec.bootKey === key;
+  const byKey = sameBootKey(rec);
+  if (byKey !== null) return byKey;
   if (!rec.boot) return true;
   return Math.abs(rec.boot - bootTime()) <= toleranceS;
 }
 
-/* Tests: stand in for the system (fn() -> key or null). */
-function _setReader(fn) { reader = fn || defaultReader; cached = undefined; }
+/* Tests: stand in for the system (fn() -> key or null; up() -> seconds). */
+function _setReader(fn, up = null) { reader = fn || defaultReader; cached = undefined; uptimeNow = up || (() => os.uptime()); }
 
-module.exports = { bootKey, bootTime, sameBoot, _setReader };
+module.exports = { bootKey, bootTime, uptime, record, sameBoot, sameBootKey, _setReader };

@@ -105,6 +105,9 @@ const PAC_PORT_COUNT = 20;
 // What the PAC answers while protection is off and Shroudly still runs, on
 // desktops where browsers keep its address (see _parkPacServer).
 const PAC_DIRECT = 'function FindProxyForURL(url, host) {\n  return "DIRECT";\n}\n';
+// After the PAC moved to a new address (an engine restart on another port,
+// see _repoint), how long the old one goes on answering.
+const PAC_OLD_KEEP_MS = 60000;
 // How often the setting is read back while applied. Windows: one reg.exe
 // query, so often, which keeps the time traffic goes around Shroudly after a
 // takeover short; elsewhere one or more networksetup or gsettings calls.
@@ -209,11 +212,6 @@ let exec = REAL_EXEC;
 
 /* Shell-quote one argument for /bin/sh: everything literal. */
 function shq(s) { return `'${String(s).replace(/'/g, `'\\''`)}'`; }
-
-/* When this machine started, in seconds: a process id recorded before a
- * restart of the Mac names some other process now. Records also carry the
- * boot's own name (boot.js), which a clock change does not move. */
-function bootTime() { return Boot.bootTime(); }
 
 /* A file only one process at a time may hold (the restore's password
  * dialog). Taken over when the process that made it is gone. */
@@ -494,6 +492,13 @@ ${local}
     this.pacText = this.pacBody(socksPort);
     if (this.pacServer && this.pacServer.listening && (!prefer || prefer === this.pacPort)) return this.pacUrl;
     this.stopPacServer();
+    this._usePacServer(await this._pacListen([prefer, ...SystemProxy.pacPorts()]));
+    return this.pacUrl;
+  }
+
+  /* A PAC server on the first of `ports` that is free (any port when none
+   * is), answering with the current PAC, whatever it is when asked. */
+  async _pacListen(ports) {
     const listen = (port) => new Promise((resolve, reject) => {
       const server = http.createServer((req, res) => {
         res.writeHead(200, { 'Content-Type': 'application/x-ns-proxy-autoconfig' });
@@ -503,20 +508,64 @@ ${local}
       // bound to loopback only; port 0 => the OS picks a free one
       server.listen(port, '127.0.0.1', () => resolve(server));
     });
-    const tries = [...new Set([prefer, ...SystemProxy.pacPorts()].filter((p) => p > 0 && p < 65536)), 0];
+    const tries = [...new Set(ports.filter((p) => p > 0 && p < 65536)), 0];
     let server = null;
     for (const p of tries) {
       try { server = await listen(p); break; } catch (e) { if (p === 0) throw e; }
     }
     server.on('error', () => {});
+    return server;
+  }
+
+  _usePacServer(server) {
     this.pacServer = server;
     this.pacPort = server.address().port;
     this.pacUrl = `http://127.0.0.1:${this.pacPort}/proxy.pac`;
-    return this.pacUrl;
   }
 
   stopPacServer() {
     if (this.pacServer) { try { this.pacServer.close(); } catch {} this.pacServer = null; }
+    for (const s of this._oldPacServers || []) { try { s.close(); } catch {} }
+    this._oldPacServers = [];
+  }
+
+  /* The engine came back on another port while the system setting stayed
+   * (an engine restart, see EngineManager): the PAC names the new port, and
+   * the system setting gets a new PAC address, written in place (nothing is
+   * put back in between). A browser keeps the PAC it fetched for hours and
+   * would go on asking the engine's old port; a new address is fetched at
+   * once. The old address goes on answering, with the new PAC, for a
+   * minute. Where the address cannot be written by itself (a macOS setting
+   * made with an administrator's password) or is the one written for the
+   * next login (XFCE, LXQt and other desktops, whose PAC falls back to
+   * DIRECT), only the PAC changes, as before. */
+  async _repoint(port) {
+    if (!this.applied || !this.pacServer || !(port > 0) || port === this.socksPort) return false;
+    this.updatePort(port);
+    const snap = this.snapshot;
+    if (!this._canRetake(snap) || this._envDesktop()) return false;
+    const old = this.pacServer;
+    const server = await this._pacListen(SystemProxy.pacPorts().filter((p) => p !== this.pacPort));
+    if (!this.applied || this.snapshot !== snap) { try { server.close(); } catch {} return false; }
+    this._oldPacServers = [...(this._oldPacServers || []), old];
+    const t = setTimeout(() => {
+      this._oldPacServers = (this._oldPacServers || []).filter((x) => x !== old);
+      try { old.close(); } catch {}
+    }, PAC_OLD_KEEP_MS);
+    if (t.unref) t.unref();
+    this._usePacServer(server);
+    if (this.status) this.status = { ...this.status, pacUrl: this.pacUrl };
+    this._saveState();
+    const r = await this._retake(snap, this.pacUrl, this._appliedNames(snap));
+    if (r === 'ok') this.log('success', `System routed through local proxy on port ${port}`);
+    return r === 'ok';
+  }
+
+  /* Every setting this session wrote, by the names _lostSettings uses. */
+  _appliedNames(snap) {
+    if (this.platform === 'win32') return ['AutoConfigURL'];
+    if (this.platform === 'darwin') return (snap.services || []).filter((x) => x.applied).map((x) => x.name);
+    return [snap.gnome && 'GNOME', snap.kde && 'KDE'].filter(Boolean);
   }
 
   /* Protection is off and Shroudly runs on. On XFCE, LXQt and other desktops
@@ -610,7 +659,7 @@ ${local}
 
   async _apply(port, mode, list) {
     if (this.applied) {
-      if (port && port !== this.socksPort) this.updatePort(port);
+      if (port && port !== this.socksPort) await this._repoint(port);
       this.updateRouting(mode, list);
       if (this._owned === false && this.status) return { ...this.status, ok: false, code: 'replaced', lost: this._lost, replacedFrom: this.status };
       return this.status;
@@ -764,7 +813,7 @@ ${local}
     } catch (e) { this.log('warning', `Could not save proxy state: ${e.message}`); }
   }
 
-  static _owner() { return { pid: process.pid, boot: bootTime(), bootKey: Boot.bootKey(), exe: path.basename(process.execPath) }; }
+  static _owner() { return { pid: process.pid, ...Boot.record(), exe: path.basename(process.execPath) }; }
 
   /* Is the Shroudly that wrote a state file still running? Its process, on
    * this boot of the machine, under the same program name: a process id from
@@ -1902,8 +1951,7 @@ $t = Add-Type -MemberDefinition $sig -Name WinINet -Namespace Net -PassThru
       appliedMode: this.mode,
       holdFile,
       helperPid: 0,
-      boot: bootTime(),
-      bootKey: Boot.bootKey(),
+      ...Boot.record(),
     };
     this.snapshot = snap;
     try { fs.mkdirSync(path.dirname(holdFile), { recursive: true }); fs.writeFileSync(holdFile, String(process.pid)); } catch {}

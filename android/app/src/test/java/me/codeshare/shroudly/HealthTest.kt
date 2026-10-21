@@ -530,24 +530,44 @@ class ShareLogsTest {
 }
 
 class LockdownHoldTest {
-    @Test
-    fun aRetryPlannedIsCalledOffOnceTheWayThroughWorks() {
+    private fun <T> withExecutor(block: (java.util.concurrent.ScheduledExecutorService) -> T): T {
         val ex = java.util.concurrent.Executors.newSingleThreadScheduledExecutor()
-        try {
-            val ran = AtomicInteger()
-            val h = LockdownHold(200, 1_000) { ms, r -> ex.schedule(r, ms, java.util.concurrent.TimeUnit.MILLISECONDS) }
-            assertEquals(200L, h.plan { ran.incrementAndGet() })
-            assertEquals("longer each time", 400L, h.plan { ran.incrementAndGet() })
-            // The phone woke up, the network is back, a check passes.
-            assertTrue("a retry was planned, and is called off", h.healthy())
-            Thread.sleep(700)
-            assertEquals("no retry tears down what works", 0, ran.get())
-            assertFalse("nothing planned any more", h.healthy())
-            assertEquals("the next trouble starts from the first wait", 200L, h.plan { ran.incrementAndGet() })
-            Thread.sleep(500)
-            assertEquals("a retry still due runs", 1, ran.get())
-        } finally {
-            ex.shutdownNow()
-        }
+        try { return block(ex) } finally { ex.shutdownNow() }
+    }
+
+    @Test
+    fun aRetryPlannedForThePathIsCalledOffOnceTheWayThroughWorks() = withExecutor { ex ->
+        val ran = AtomicInteger()
+        val h = LockdownHold(200, 1_000) { ms, r -> ex.schedule(r, ms, java.util.concurrent.TimeUnit.MILLISECONDS) }
+        assertEquals(200L, h.plan(LockdownHold.Cause.PATH) { ran.incrementAndGet() })
+        assertEquals("longer each time", 400L, h.plan(LockdownHold.Cause.PATH) { ran.incrementAndGet() })
+        // The phone woke up, the network is back, a path check passes, hev runs.
+        assertTrue("a retry was planned for the path, and is called off", h.pathHealthy(tunnelUp = true))
+        Thread.sleep(700)
+        assertEquals("no retry tears down what works", 0, ran.get())
+        assertFalse("nothing planned any more", h.planned)
+        assertEquals("the next trouble starts from the first wait", 200L, h.plan(LockdownHold.Cause.PATH) { ran.incrementAndGet() })
+        Thread.sleep(500)
+        assertEquals("a retry still due runs", 1, ran.get())
+    }
+
+    @Test
+    fun aRetryForTheTunnelIsNeverCalledOffByAPathCheck() = withExecutor { ex ->
+        val ran = AtomicInteger()
+        val h = LockdownHold(200, 1_000) { ms, r -> ex.schedule(r, ms, java.util.concurrent.TimeUnit.MILLISECONDS) }
+        // hev stopped and could not be started again: the path check (app to
+        // engine, never through the tunnel) passes all the same.
+        h.plan(LockdownHold.Cause.OTHER) { ran.incrementAndGet() }
+        assertFalse(h.pathHealthy(tunnelUp = true))
+        // Planned again for the path meanwhile: still kept for the tunnel.
+        h.plan(LockdownHold.Cause.PATH) { ran.incrementAndGet() }
+        assertFalse(h.pathHealthy(tunnelUp = true))
+        Thread.sleep(700)
+        assertEquals("the retry runs, and the tunnel with everything else is started again", 1, ran.get())
+        // Planned for the path, but hev is not running: not called off either.
+        h.plan(LockdownHold.Cause.PATH) { ran.incrementAndGet() }
+        assertFalse(h.pathHealthy(tunnelUp = false))
+        Thread.sleep(1_200)
+        assertEquals(2, ran.get())
     }
 }

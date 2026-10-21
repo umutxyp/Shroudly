@@ -41,4 +41,14 @@ function buildReport(s, logs = []) {
   return `${head.join('\n')}\n${'-'.repeat(40)}\n${body.join('\n')}\n`;
 }
 
-module.exports = { buildReport };
+/* Put text on the clipboard and read it back: true only when it is there.
+ * Some desktops (Wayland) take nothing from a program without a focused
+ * window, and say nothing about it. */
+function toClipboard(text, clipboard) {
+  try {
+    clipboard.writeText(text);
+    return clipboard.readText() === text;
+  } catch { return false; }
+}
+
+module.exports = { buildReport, toClipboard };

@@ -307,9 +307,11 @@ class RobloxWatch {
 
   /* The computer woke up (or its clock jumped): Roblox's programs could not
    * ask anything while it slept, so their silence counts from now, as for a
-   * Shroudly that has just started looking. */
+   * Shroudly that has just started looking. From now also when the clock
+   * was set back: a time "in the future" would hold every judgement until
+   * the clock caught up. */
   resumed(at = this.d.now()) {
-    if (this.from != null) this.from = Math.max(this.from, at);
+    if (this.from != null) this.from = at;
     for (const p of this.procs.values()) if (p.firstSeen > at) p.firstSeen = at;
   }
 

@@ -439,5 +439,6 @@
   "logHeldRestart": "{host}: dema ku Shroudly ji nû ve dest pê dike hat rawestandin; bername dê dîsa biceribîne",
   "autoDiscordFailed": "Discord li ser vê torê astengkirî ye, lê Moda sepana Discord nehat çalakkirin. Ji bo ku dîsa biceribînî, wê di Mîhengan de çalak bike.",
   "autoRobloxFailed": "Roblox li ser vê torê astengkirî ye, lê Moda lîstik û sepanan nehat çalakkirin. Ji bo ku dîsa biceribînî, wê di Mîhengan de çalak bike.",
-  "autoStoreAppsNoAdmin": "Heta ku rêveberek destûrê nede, {apps} nikarin bigihîjin Shroudly: rêveberek dikare Sepanên Microsoft Store di Mîhengan de çalak bike."
+  "autoStoreAppsNoAdmin": "Heta ku rêveberek destûrê nede, {apps} nikarin bigihîjin Shroudly: rêveberek dikare Sepanên Microsoft Store di Mîhengan de çalak bike.",
+  "notifyLogsCopyFailed": "Tomar ji vir nehat danîn ser panoyê. Panela Tomar vekirî ye: li wir “Tomaran kopî bike” bi kar bîne."
 }

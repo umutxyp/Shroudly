@@ -439,5 +439,6 @@
   "logHeldRestart": "{host} : mis en attente pendant le redémarrage de Shroudly ; le programme réessaiera",
   "autoDiscordFailed": "Discord est bloqué sur ce réseau, mais le mode app Discord n’a pas pu être activé. Activez-le dans les Réglages pour réessayer.",
   "autoRobloxFailed": "Roblox est bloqué sur ce réseau, mais le mode Jeux et applis n’a pas pu être activé. Activez-le dans les Réglages pour réessayer.",
-  "autoStoreAppsNoAdmin": "{apps} ne peuvent pas joindre Shroudly tant qu’un administrateur ne l’autorise pas : un administrateur peut activer Applis du Microsoft Store dans les Réglages."
+  "autoStoreAppsNoAdmin": "{apps} ne peuvent pas joindre Shroudly tant qu’un administrateur ne l’autorise pas : un administrateur peut activer Applis du Microsoft Store dans les Réglages.",
+  "notifyLogsCopyFailed": "Le journal n’a pas pu être placé dans le presse-papiers d’ici. Le panneau Journal est ouvert : cliquez-y sur « Copier le journal »."
 }

@@ -439,5 +439,6 @@
   "logHeldRestart": "{host}: Shroudly እንደገና እየጀመረ ስለሆነ ተይዞ ቆይቷል፤ ፕሮግራሙ እንደገና ይሞክራል",
   "autoDiscordFailed": "Discord በዚህ አውታረ መረብ ላይ ታግዷል፣ ግን የDiscord መተግበሪያ ሁነታን ማብራት አልተቻለም። እንደገና ለመሞከር በቅንብሮች ውስጥ ያብሩት።",
   "autoRobloxFailed": "Roblox በዚህ አውታረ መረብ ላይ ታግዷል፣ ግን የጨዋታዎችና የመተግበሪያዎች ሁነታን ማብራት አልተቻለም። እንደገና ለመሞከር በቅንብሮች ውስጥ ያብሩት።",
-  "autoStoreAppsNoAdmin": "አስተዳዳሪ እስኪፈቅድ ድረስ {apps} ከShroudly ጋር መገናኘት አይችሉም፤ አስተዳዳሪ በቅንብሮች ውስጥ የMicrosoft Store መተግበሪያዎች ማብሪያን ማብራት ይችላል።"
+  "autoStoreAppsNoAdmin": "አስተዳዳሪ እስኪፈቅድ ድረስ {apps} ከShroudly ጋር መገናኘት አይችሉም፤ አስተዳዳሪ በቅንብሮች ውስጥ የMicrosoft Store መተግበሪያዎች ማብሪያን ማብራት ይችላል።",
+  "notifyLogsCopyFailed": "መዝገቡን ከዚህ ወደ ቅንጥብ ሰሌዳ ማስቀመጥ አልተቻለም። የመዝገብ ፓነሉ ተከፍቷል፤ እዚያ ያለውን «መዝገቡን ይቅዱ» ይጠቀሙ።"
 }

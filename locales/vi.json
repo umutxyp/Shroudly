@@ -439,5 +439,6 @@
   "logHeldRestart": "{host}: tạm giữ lại trong khi Shroudly khởi động lại; chương trình sẽ thử lại",
   "autoDiscordFailed": "Discord bị chặn trên mạng này, nhưng không thể bật Chế độ ứng dụng Discord. Hãy bật trong Cài đặt để thử lại.",
   "autoRobloxFailed": "Roblox bị chặn trên mạng này, nhưng không thể bật Chế độ trò chơi và ứng dụng. Hãy bật trong Cài đặt để thử lại.",
-  "autoStoreAppsNoAdmin": "{apps} không thể kết nối tới Shroudly cho tới khi quản trị viên cho phép: quản trị viên có thể bật Ứng dụng Microsoft Store trong Cài đặt."
+  "autoStoreAppsNoAdmin": "{apps} không thể kết nối tới Shroudly cho tới khi quản trị viên cho phép: quản trị viên có thể bật Ứng dụng Microsoft Store trong Cài đặt.",
+  "notifyLogsCopyFailed": "Không thể đưa nhật ký vào bảng nhớ tạm từ đây. Bảng Nhật ký đang mở: hãy dùng nút “Sao chép nhật ký” ở đó."
 }

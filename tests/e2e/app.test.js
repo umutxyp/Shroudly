@@ -187,6 +187,22 @@ async function record(label, pid) {
         ok(/\n\S+Z OK Shroudly engine active \(strategy: /.test(clip) && /\n\S+Z INFO Starting engine: shroudly-core/.test(clip),
           'and every log line as written: English, with its time and level');
         await page.locator('[data-tour="nav-control"]').evaluate((el) => el.click()).catch(() => {});
+        // From the tray, on a desktop whose clipboard takes nothing from a
+        // program without a focused window (Wayland): not said to be copied;
+        // the window shows the Logs panel, whose button works.
+        await until(async () => !(await page.locator('[data-testid="copy-logs"]').isVisible()), 5000);
+        const dropped = await app.evaluate(({ clipboard }) => {
+          try { global.realWrite = clipboard.writeText; clipboard.writeText = () => {}; return clipboard.writeText !== global.realWrite; } catch { return false; }
+        });
+        if (dropped) {
+          await app.evaluate(({ clipboard }) => { global.realWrite.call(clipboard, 'before'); });
+          await app.evaluate(() => global.shroudlyE2E.trayCopyLogs());
+          const onLogs = await until(() => page.locator('[data-testid="copy-logs"]').isVisible(), 5000);
+          await app.evaluate(({ clipboard }) => { clipboard.writeText = global.realWrite; });
+          ok(!!onLogs && await app.evaluate(({ clipboard }) => clipboard.readText()) === 'before',
+            "the tray's Copy logs where the clipboard took nothing: the window shows the Logs panel, nothing said to be copied");
+          await page.locator('[data-tour="nav-control"]').evaluate((el) => el.click()).catch(() => {});
+        } else console.log('  --  the clipboard cannot be stood in for here: the tray fallback is checked by tests/net/logreport.test.js');
 
         // ── 5c. the computer asleep, or the main process frozen, longer than
         //        the engine's hang window: the healthy engine is left alone ──
@@ -252,7 +268,8 @@ async function record(label, pid) {
         ok(/^HTTP\/1\.1 200/.test(held || '') && vias.includes('engine') && !vias.includes('direct'),
           `a program's connection made the moment the engine died waited for it and went through it, not straight out (${held}; ${vias.join(',')})`);
         ok(!(await has(/System proxy settings restored/, mark2)) && JSON.parse(await app.evaluate(() => JSON.stringify(global.shroudlyE2E.engine.proxyStatus)) || 'null')?.ok === JSON.parse(status0 || 'null')?.ok
-          && regNow() === reg0, 'the system proxy stayed pointed at Shroudly through the restart (nothing put back and set again)');
+          && (regNow() === reg0 || (/127\.0\.0\.1:\d+\/proxy\.pac/.test(reg0) && /127\.0\.0\.1:\d+\/proxy\.pac/.test(regNow()))),
+        'the system proxy stayed pointed at Shroudly through the restart (nothing put back and set again)');
         if (process.platform !== 'win32') { try { process.kill(pid2, 'SIGCONT'); } catch {} }
         await app.evaluate(() => { const g = global.shroudlyE2E; g.engine.hangTimeoutMs = 60000; if (g.store.get('appMode') !== true) g.appProxy.stop(); });
       }

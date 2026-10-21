@@ -439,5 +439,6 @@
   "logHeldRestart": "{host}: Shroudly yenidən başlayarkən saxlanıldı; proqram yenidən cəhd edəcək",
   "autoDiscordFailed": "Discord bu şəbəkədə bloklanıb, amma Discord tətbiqi rejimini aktiv etmək mümkün olmadı. Yenidən cəhd etmək üçün onu Ayarlarda aktiv et.",
   "autoRobloxFailed": "Roblox bu şəbəkədə bloklanıb, amma Oyunlar və tətbiqlər rejimini aktiv etmək mümkün olmadı. Yenidən cəhd etmək üçün onu Ayarlarda aktiv et.",
-  "autoStoreAppsNoAdmin": "Administrator icazə verənə qədər {apps} Shroudly-yə qoşula bilmir: administrator Ayarlarda Microsoft Store tətbiqləri açarını aktiv edə bilər."
+  "autoStoreAppsNoAdmin": "Administrator icazə verənə qədər {apps} Shroudly-yə qoşula bilmir: administrator Ayarlarda Microsoft Store tətbiqləri açarını aktiv edə bilər.",
+  "notifyLogsCopyFailed": "Qeydləri buradan mübadilə buferinə köçürmək mümkün olmadı. Qeydlər bölməsi açıqdır: oradakı «Qeydləri köçür» düyməsini bas."
 }

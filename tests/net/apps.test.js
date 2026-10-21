@@ -530,6 +530,15 @@ async function robloxInstaller(proxy, socksPort) {
       fs.writeFileSync(stateFile, JSON.stringify({ v: 1, pid: process.ppid, boot: Math.round((Date.now() - os.uptime() * 1000) / 60000), bootKey: 'boot-B', url }));
       t.ok(AppEnv.recoverSync({ backend: b, stateFile }, { onlyIfDead: true }) === true && b.env.size === 0, 'another boot by its name: removed, however close the times');
     } finally { Boot._setReader(null); }
+    // Windows: the same last-shutdown name over a power cut; the record made
+    // further into a boot than this one has gone is from an earlier boot.
+    Boot._setReader(() => 'shutdown-01D9AB', () => 600);
+    try {
+      new AppEnv({ backend: b, stateFile }).applySync(url);
+      t.ok(JSON.parse(fs.readFileSync(stateFile, 'utf8')).uptime === 600, 'the state file keeps how long the computer had been up');
+      fs.writeFileSync(stateFile, JSON.stringify({ v: 1, pid: process.ppid, bootKey: 'shutdown-01D9AB', uptime: 7200, url }));
+      t.ok(AppEnv.recoverSync({ backend: b, stateFile }, { onlyIfDead: true }) === true && b.env.size === 0, 'Windows, a power cut since (same shutdown time, less uptime now): removed');
+    } finally { Boot._setReader(null); }
   }
   new AppEnv({ backend: b, stateFile }).applySync(url);
   fs.writeFileSync(stateFile, JSON.stringify({ v: 1, pid: 2147483646, url }));

@@ -465,6 +465,13 @@ class EngineManager {
     }
 
     const cfg = this._settings();
+    // Back after a crash: its own port again if it frees within a moment
+    // (Windows may hold a port a little after its process is gone), so the
+    // system setting kept for it needs nothing new (see SystemProxy._repoint).
+    if (this._crashRestart) {
+      this._crashRestart = false;
+      for (let i = 0; i < 12 && !(await portFree(cfg.port)); i++) await new Promise((r) => setTimeout(r, 250));
+    }
     cfg.port = await this._claimPort(cfg.port);
     this.stats = this._empty();
     this.bypassed.clear();
@@ -924,6 +931,7 @@ class EngineManager {
       this._restartTimer = setTimeout(() => {
         this._restartTimer = null;
         this._restartPending = false;
+        this._crashRestart = true;
         this.start().catch(async (e) => {
           this.log('error', `Restart failed: ${e.message}`);
           // A kept system setting must not outlive an engine that is not
@@ -1008,6 +1016,7 @@ class EngineManager {
     clearTimeout(this._restartTimer);
     this._restartTimer = null;
     this._restartPending = false;
+    this._crashRestart = false;
     const p = this._serial(() => this._stop(opts));
     const done = () => { this._stops--; };
     p.then(done, done);

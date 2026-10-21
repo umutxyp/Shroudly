@@ -439,5 +439,6 @@
   "logHeldRestart": "{host}: retido enquanto o Shroudly reinicia; o programa vai tentar de novo",
   "autoDiscordFailed": "O Discord está bloqueado nesta rede, mas o modo app do Discord não pôde ser ativado. Ative-o em Ajustes para tentar de novo.",
   "autoRobloxFailed": "O Roblox está bloqueado nesta rede, mas o modo Jogos e apps não pôde ser ativado. Ative-o em Ajustes para tentar de novo.",
-  "autoStoreAppsNoAdmin": "{apps} não conseguem chegar ao Shroudly até um administrador permitir: um administrador pode ativar Apps da Microsoft Store em Ajustes."
+  "autoStoreAppsNoAdmin": "{apps} não conseguem chegar ao Shroudly até um administrador permitir: um administrador pode ativar Apps da Microsoft Store em Ajustes.",
+  "notifyLogsCopyFailed": "Não foi possível colocar o registro na área de transferência a partir daqui. O painel Registros está aberto: use “Copiar registros” lá."
 }

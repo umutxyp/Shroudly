@@ -451,33 +451,50 @@ object Sleep {
 /*
  * Under lockdown (Android blocks connections without the VPN), protection
  * does not end when the way through is broken: everything is tried again
- * after a while, a little longer each time. Once a check finds the way
- * through working, a retry still planned is called off: it would tear down
- * an engine and a tunnel that work, and every connection apps hold.
+ * after a while, a little longer each time. A retry planned because the
+ * path check found nothing through the engine is called off once a path
+ * check finds the way through working again, with the tunnel running: it
+ * would tear down an engine and a tunnel that work, and every connection
+ * apps hold. The path check goes from this app to the engine, never through
+ * the tunnel, so it says nothing about a retry planned for anything else
+ * (the tunnel stopped, the engine kept stopping): that one always runs.
  */
 class LockdownHold(
     private val firstMs: Long,
     private val maxMs: Long,
     private val schedule: (Long, Runnable) -> Future<*>,
 ) {
+    /* Why the retry is planned. */
+    enum class Cause { PATH, OTHER }
+
     var backoff = 0L
         private set
     @Volatile private var pending: Future<*>? = null
+    // Anything but the path, once, keeps the retry until it has run.
+    @Volatile private var cause = Cause.PATH
+
+    val planned get() = pending != null
 
     /* Plans the next retry; returns how long until it. */
-    fun plan(run: () -> Unit): Long {
+    fun plan(cause: Cause, run: () -> Unit): Long {
         backoff = if (backoff == 0L) firstMs else minOf(backoff * 2, maxMs)
+        this.cause = if (pending != null && this.cause == Cause.OTHER) Cause.OTHER else cause
         pending?.cancel(false)
         pending = schedule(backoff, Runnable { pending = null; run() })
         return backoff
     }
 
-    /* The way through works: a retry still planned is called off (true when
-     * there was one), and the next trouble starts from the first wait. */
-    fun healthy(): Boolean {
-        val had = pending != null
+    /* A path check found the way through working; tunnelUp: hev runs. A
+     * retry planned for the path is called off (true when it was), and the
+     * next trouble starts from the first wait. Any other retry stays. */
+    fun pathHealthy(tunnelUp: Boolean): Boolean {
+        if (pending == null) {
+            if (tunnelUp) backoff = 0
+            return false
+        }
+        if (!tunnelUp || cause != Cause.PATH) return false
         cancel()
-        return had
+        return true
     }
 
     fun cancel() {
