@@ -212,14 +212,17 @@ const decode = (b64) => Buffer.from(b64, 'base64').toString('utf16le');
   const readList = (file) => fs.readFileSync(file, 'utf8').split(/\r?\n/).filter(Boolean);
   const scriptOf = (cmd, args) => (/powershell\.exe$/i.test(String(cmd)) ? decode(args[args.indexOf('-EncodedCommand') + 1] || '') : '');
   const tick = async (n = 50, until = () => false) => { for (let i = 0; i < n && !until(); i++) await new Promise((r) => setImmediate(r)); };
-  // open: the Store apps this account runs (family names; Start's host
-  // always runs too); system: packaged services running as SYSTEM, which
-  // only an unfiltered process list shows. admin: 'yes', 'no' or 'fails'.
+  // open: the Store apps this account has open, a window of each on screen
+  // (family names; Start's host always runs too, and its window is on
+  // screen); background: packaged programs of this account running with no
+  // window (widgets, Phone Link); system: packaged services running as
+  // SYSTEM, which only an unfiltered process list shows. winFails: the
+  // windows cannot be looked at (Add-Type refused). admin: 'yes', 'no' or 'fails'.
   // answer: 'now', or 'late' (nobody answers in time; w.late[i]() is the Yes
   // that comes afterwards).
   function fakeWindows({ containers, exempt = [], accept = true, works = () => true, psFails = false, cniList = true,
-    open = ['microsoft.gamingapp_8wekyb3d8bbwe'], system = [], admin = 'yes', tasklist = true, answer = 'now' } = {}) {
-    const w = { containers, exempt: new Set(exempt), prompts: [], calls: [], accept, open, system, admin, tasklist, answer, late: [] };
+    open = ['microsoft.gamingapp_8wekyb3d8bbwe'], background = [], system = [], winFails = false, admin = 'yes', tasklist = true, answer = 'now' } = {}) {
+    const w = { containers, exempt: new Set(exempt), prompts: [], calls: [], scripts: [], accept, open, background, system, winFails, admin, tasklist, answer, late: [] };
     const full = (fam) => { const [n, p] = fam.split('_'); return `${n}_1.0.0.0_x64__${p}`; };
     const apply = (verb, sids) => { for (const s of sids) if (StoreApps.SID_RE.test(s) && works(s)) { if (verb === 'add') w.exempt.add(s); else w.exempt.delete(s); } };
     w.run = async (cmd, args) => {
@@ -228,7 +231,7 @@ const decode = (b64) => Buffer.from(b64, 'base64').toString('utf16le');
       if (exe === 'tasklist.exe') {
         if (!w.tasklist) return { code: 1, stdout: '', stderr: 'ERROR: Invalid argument/option - \'/apps\'.' };
         const own = args.some((a) => /^USERNAME eq \S/.test(a));
-        const fams = [...w.open, 'microsoft.windows.startmenuexperiencehost_cw5n1h2txyewy', ...(own ? [] : w.system)];
+        const fams = [...w.open, ...w.background, 'microsoft.windows.startmenuexperiencehost_cw5n1h2txyewy', ...(own ? [] : w.system)];
         return { code: 0, stdout: fams.map((f, i) => `"app${i}.exe","${100 + i}","1,000 K","${full(f)}"`).join('\r\n'), stderr: '' };
       }
       if (exe === 'whoami.exe') {
@@ -237,12 +240,19 @@ const decode = (b64) => Buffer.from(b64, 'base64').toString('utf16le');
       }
       if (exe === 'powershell.exe') {
         const script = scriptOf(cmd, args);
+        if (script.includes('ShroudlyWin')) {
+          w.scripts.push('windows');
+          if (psFails || w.winFails) return { code: 1, stdout: '', stderr: 'Add-Type: Cannot add type. Constrained language' };
+          return { code: 0, stdout: [...w.open, 'microsoft.windows.startmenuexperiencehost_cw5n1h2txyewy'].map(full).join('\r\n'), stderr: '' };
+        }
         if (script.includes('ShroudlyNetIso')) {
+          w.scripts.push('scan');
           if (psFails) return { code: 1, stdout: '', stderr: 'Add-Type: Cannot add type. Constrained language' };
           const lines = w.containers.map((c) => `C\t${c.sid}\t${c.name}\t${c.display || ''}\t\t${(c.caps || []).join(',')}`);
           return { code: 0, stdout: [...lines, ...[...w.exempt].map((s) => `X\t${s}`)].join('\r\n'), stderr: '' };
         }
         if (script.includes('Get-Process')) {
+          w.scripts.push('paths');
           return { code: 0, stdout: w.open.map((f) => `C:\\Program Files\\WindowsApps\\${full(f)}\\app.exe`).join('\r\n'), stderr: '' };
         }
         const body = decode(script.match(/-EncodedCommand ([A-Za-z0-9+/=]+)/)[1]);
@@ -349,7 +359,7 @@ const decode = (b64) => Buffer.from(b64, 'base64').toString('utf16le');
     const r = rig(w);
     const idle = await r.sa.survey();
     t.ok(!idle.asked && idle.why === 'idle' && !w.prompts.length && !w.calls.includes('powershell.exe') && !r.told.length && !r.logs.length,
-      `no Store app open (Gaming Services running as SYSTEM is none): no prompt, no line, the list not even read (${idle.why})`);
+      `no Store app open (Gaming Services running as SYSTEM is none): no prompt, no line, the list not even read, the windows not looked at (${idle.why})`);
     // Xbox opened later: noticed at the next look (every ten minutes), and
     // every app that needs it goes in the one prompt, the sign-in brokers too.
     w.open.push('microsoft.gamingapp_8wekyb3d8bbwe');
@@ -364,7 +374,7 @@ const decode = (b64) => Buffer.from(b64, 'base64').toString('utf16le');
     // again only for an app not seen open before (or every half hour).
     const w = fakeWindows({ containers: MACHINE(), exempt: [WEBVIEW], open: ['microsoft.windowscalculator_8wekyb3d8bbwe'] });
     const r = rig(w);
-    const scans = () => w.calls.filter((c) => c === 'powershell.exe').length;
+    const scans = () => w.scripts.filter((c) => c === 'scan').length;
     const a = await r.sa.survey();
     const n1 = scans();
     r.clock.t += 10 * 60 * 1000;
@@ -374,9 +384,36 @@ const decode = (b64) => Buffer.from(b64, 'base64').toString('utf16le');
     r.clock.t += 10 * 60 * 1000;
     const c = await r.sa.survey();
     t.ok(c.result === 'on' && w.prompts[0].sids.join() === [STORE, XBOX, XBOXID].join(), '…the Store opened then: noticed at the next look');
-    // tasklist /apps refused: the programs' paths instead.
+    // tasklist /apps refused: the windows are looked at all the same.
     const w2 = fakeWindows({ containers: MACHINE(), exempt: [WEBVIEW], tasklist: false });
-    t.ok((await rig(w2).sa.survey()).result === 'on', 'no tasklist /apps: the open apps are read from the programs\' paths');
+    t.ok((await rig(w2).sa.survey()).result === 'on' && w2.scripts.includes('windows'), 'no tasklist /apps: the windows on screen are looked at all the same');
+    // The windows cannot be looked at (a locked-down PowerShell): the paths
+    // of the programs with a main window.
+    const w3 = fakeWindows({ containers: MACHINE(), exempt: [WEBVIEW], winFails: true });
+    t.ok((await rig(w3).sa.survey()).result === 'on' && w3.scripts.join() === 'windows,paths,scan,scan', "the windows not readable: the paths of the programs with a window");
+  }
+
+  {
+    // Packaged programs that run by themselves with no window (widgets, Phone
+    // Link, a sync client, Teams at sign-in): no Store app is open, nobody is
+    // asked, and the windows are looked at again only once that changes, or
+    // after half an hour.
+    const BG = ['microsoft.widgetsplatformruntime_8wekyb3d8bbwe', 'microsoft.yourphone_8wekyb3d8bbwe', 'msteams_8wekyb3d8bbwe'];
+    const w = fakeWindows({ containers: [...MACHINE(), ...BG.map((n) => ({ sid: containerSid(n), name: n, caps: net }))], exempt: [WEBVIEW], open: [], background: BG });
+    const r = rig(w);
+    const a = await r.sa.survey();
+    r.clock.t += 10 * 60 * 1000;
+    const b = await r.sa.survey();
+    t.ok(a.why === 'idle' && b.why === 'idle' && !w.prompts.length && !w.scripts.includes('scan') && w.scripts.join() === 'windows' && !r.logs.length,
+      `programs of Store packages running in the background, no window: nobody asked, the list not read, the windows looked at once (${w.scripts.join()})`);
+    r.clock.t += 30 * 60 * 1000;
+    await r.sa.survey();
+    t.ok(w.scripts.join() === 'windows,windows' && !w.prompts.length, '…and again after half an hour');
+    w.open.push('microsoft.windowsstore_8wekyb3d8bbwe');
+    r.clock.t += 10 * 60 * 1000;
+    const c = await r.sa.survey();
+    t.ok(c.result === 'on' && w.prompts.length === 1 && w.prompts[0].sids.includes(STORE) && BG.every((n) => w.prompts[0].sids.includes(containerSid(n))),
+      'the Store opened: noticed at the next look, and every app that needs it goes in the one prompt');
   }
 
   {
@@ -455,6 +492,47 @@ const decode = (b64) => Buffer.from(b64, 'base64').toString('utf16le');
     const r3 = rig(w2, { store: store2, record: record2 });
     await r3.sa.survey();
     t.ok(record2.list.length === 0 && !r3.sa.ours().length && !store2.get('storeAppsPending'), '…gone before a No: the next start forgets them, in the record too');
+    // The record held them (pending) while the settings had nothing of
+    // Shroudly's: not taken for its own. The user then exempts Xbox with
+    // another tool; the switch turned off leaves it.
+    const w3 = fakeWindows({ containers: MACHINE(), exempt: [WEBVIEW], accept: false });
+    const record3 = { list: [] };
+    const store3 = memStore();
+    let asked3 = false;
+    rig(w3, { store: store3, record: record3, run: async (c, a) => { if (/RunAs/.test(scriptOf(c, a))) { asked3 = true; await w3.run(c, a); return new Promise(() => {}); } return w3.run(c, a); } }).sa.survey();
+    await tick(200, () => asked3);
+    t.ok(record3.list.join() === [STORE, XBOX, XBOXID].join() && !store3.get('storeAppsOurs'), '(the record holds what is pending, the settings nothing of Shroudly\'s)');
+    const r4 = rig(w3, { store: store3, record: record3 });
+    await r4.sa._adopt();
+    w3.exempt.add(XBOX);   // the user's own, later
+    const off4 = await r4.sa.setMode(false);
+    t.ok(!r4.sa.ours().length && off4.removed === 0 && w3.prompts.length === 1 && w3.exempt.has(XBOX),
+      "…what was only pending is not adopted from the record as Shroudly's: an exemption the user adds later stays");
+  }
+
+  {
+    // Shroudly's own all gone (an uninstall) while the switch still showed
+    // on: it shows off until they are added again.
+    const w = fakeWindows({ containers: MACHINE(), exempt: [WEBVIEW], accept: false });
+    const store = memStore({ storeAppsOurs: [STORE, XBOX, XBOXID], storeAppsMode: true });
+    const r = rig(w, { store });
+    const res = await r.sa.survey();
+    t.ok(res.result === 'declined' && store.get('storeAppsMode') === false && !r.sa.ours().length, 'reinstalled and the prompt declined: the switch shows off, as it is');
+    const w2 = fakeWindows({ containers: MACHINE(), exempt: [WEBVIEW], admin: 'no' });
+    const store2 = memStore({ storeAppsOurs: [STORE, XBOX, XBOXID], storeAppsMode: true });
+    let changed = 0;
+    const r2 = rig(w2, { store: store2 });
+    r2.sa.onChange = () => { changed++; };
+    t.ok((await r2.sa.survey()).why === 'not_admin' && store2.get('storeAppsMode') === false && changed === 1, '…and so for an account that cannot say Yes; the window is told');
+    const w3 = fakeWindows({ containers: MACHINE(), exempt: [WEBVIEW] });
+    const store3 = memStore({ storeAppsOurs: [STORE, XBOX, XBOXID], storeAppsMode: true });
+    const r3 = rig(w3, { store: store3 });
+    t.ok((await r3.sa.survey()).result === 'on' && store3.get('storeAppsMode') === true, '…a Yes: on again');
+    // Turned on by the user with nothing needing it: stays on.
+    const w4 = fakeWindows({ containers: MACHINE(), exempt: [WEBVIEW, STORE, XBOX, XBOXID] });
+    const store4 = memStore({ storeAppsOurs: [CALC] });
+    const on4 = await rig(w4, { store: store4 }).sa.setMode(true);
+    t.ok(on4.success && store4.get('storeAppsMode') === true && !w4.prompts.length, 'switched on with nothing to add: it stays on');
   }
 
   {
@@ -465,8 +543,8 @@ const decode = (b64) => Buffer.from(b64, 'base64').toString('utf16le');
     const res = await r.sa.survey();
     t.ok(res.result === 'noanswer' && !r.store.get('storeAppsDeclinedAt') && r.told.map((x) => x.id).join() === 'autoStoreAppsAsk'
       && r.logs.includes('info: Store apps: the permission prompt was not answered; Shroudly will ask again next time'), 'no answer: said in the log only, and nothing blocked');
-    t.ok(fs.existsSync(w.prompts[0].file) && r.store.get('storeAppsPending').length === 3 && !r.record.list.length,
-      '…the list stays for a later Yes; the record keeps only what is exempt');
+    t.ok(fs.existsSync(w.prompts[0].file) && r.store.get('storeAppsPending').length === 3 && !r.sa.ours().length && r.record.list.join() === [STORE, XBOX, XBOXID].join(),
+      '…the list stays for a later Yes, and the record keeps it for the uninstaller meanwhile (nothing counted as added)');
     r.clock.t += 10 * 60 * 1000;
     t.ok((await r.sa.survey()).why === 'asked' && w.prompts.length === 1, '…not asked again this session');
     w.late[0]();   // back at the PC: Yes
@@ -744,7 +822,7 @@ const decode = (b64) => Buffer.from(b64, 'base64').toString('utf16le');
   if (process.platform === 'win32') {
     const { powershellEnv } = require(path.join(ROOT, 'electron', 'win-powershell.js'));
     // Each PowerShell script parses.
-    const scripts = { scan: StoreApps.SCAN_PS, paths: StoreApps.PATHS_PS, elevated: elevatedScript('add', odd), launcher: outer, uninstaller: unin };
+    const scripts = { scan: StoreApps.SCAN_PS, windows: StoreApps.WINDOWS_PS, paths: StoreApps.PATHS_PS, elevated: elevatedScript('add', odd), launcher: outer, uninstaller: unin };
     for (const [name, s] of Object.entries(scripts)) {
       const check = `$e = $null; [void][System.Management.Automation.Language.Parser]::ParseInput([Text.Encoding]::Unicode.GetString([Convert]::FromBase64String('${Buffer.from(s, 'utf16le').toString('base64')}')), [ref]$null, [ref]$e); if ($e.Count) { $e | ForEach-Object { $_.Message }; exit 1 }`;
       const p = spawnSync('powershell.exe', ['-NoProfile', '-NonInteractive', '-Command', check], { encoding: 'utf8', env: powershellEnv() });
@@ -761,6 +839,10 @@ const decode = (b64) => Buffer.from(b64, 'base64').toString('utf16le');
       const pk = s.containers.filter((c) => isPackage(c.name));
       t.ok(pk.every((c) => containerSid(c.name) === c.sid), `…and the firewall's SIDs are the derived ones too (${pk.length})`);
     }
+    // The windows on screen, for real (compiled and run, whatever runs here).
+    const win = spawnSync('powershell.exe', ['-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass', '-EncodedCommand', Buffer.from(StoreApps.WINDOWS_PS, 'utf16le').toString('base64')],
+      { encoding: 'utf8', env: powershellEnv(), timeout: 120000 });
+    t.ok(win.status === 0, `the windows on screen are looked at (${win.status ? String(win.stderr).trim().slice(0, 200) : `${StoreApps.runningFamilies(win.stdout).join(', ') || 'no Store app'} open`})`);
     const open = await sa.runningApps();
     t.ok(open instanceof Set, `the open Store apps are read (${open ? open.size : 'none'})`);
     t.ok([true, false].includes(await sa.canConsent()), 'whether this account can say Yes is read');

@@ -16,8 +16,9 @@
  *   3. its elevated step exempts it, from a TEMP whose path has quotes of
  *      every kind in it, deleting its list as it reads it; CheckNetIsolation
  *      lists it, and the same curl now reaches both: the fix;
- *   4. the autopilot's whole round on this machine: with no Store app open it
- *      asks nothing; with one open (the lab's container stands in for it)
+ *   4. the autopilot's whole round on this machine: with no Store app open
+ *      (a window of one on screen; packaged programs running in the
+ *      background are no sign) it asks nothing; with one open (the lab's container stands in for it)
  *      everything it exempts is remembered (settings and HKCU\Software\
  *      Shroudly, one value per SID), an exemption that was there before is
  *      not; the switch turned off takes out its own only, and so does the
@@ -315,24 +316,26 @@ function uninstallerScript() {
 
     // ── 4. the autopilot's round ──
     cni('-a', `-p=${sidUsers}`);     // the user's own, from before
-    // What it reads to know a Store app is open, and that this account can say Yes.
+    // What it reads to know a Store app is open (a window of it on screen),
+    // and that this account can say Yes.
     const tl = spawnSync(path.join(SYS, 'System32', 'tasklist.exe'), ['/apps', '/fi', `USERNAME eq ${process.env.USERNAME}`, '/fo', 'csv', '/nh'], { encoding: 'utf8', timeout: 30000 });
-    // Not a failure here: store-apps.js then reads the programs' paths.
-    console.log(`  ..  tasklist /apps for this account: exit ${tl.status}, ${StoreApps.runningFamilies(tl.stdout).length} Store apps open besides Windows' own${tl.status ? ` (${String(tl.stderr || tl.stdout).trim().slice(0, 120)})` : ''}`);
+    const running = StoreApps.runningFamilies(tl.stdout);
+    // Not a failure here: store-apps.js then looks at the windows directly.
+    console.log(`  ..  tasklist /apps for this account: exit ${tl.status}, packaged programs running besides Windows' own: ${running.join(', ') || 'none'}${tl.status ? ` (${String(tl.stderr || tl.stdout).trim().slice(0, 120)})` : ''}`);
     const probe = new StoreApps({ store: memStore(), platform: 'win32' });
-    const openNow = await probe.runningApps();
-    check(openNow instanceof Set, `…and so do the open apps store-apps.js reads (${openNow ? openNow.size : 'none'})`);
+    const openFams = await probe.openFamilies();
+    check(Array.isArray(openFams), `the Store apps with a window on screen are read: ${openFams ? openFams.join(', ') || 'none' : 'could not be told'}; running with no window (no sign): ${running.filter((f) => !(openFams || []).includes(f)).join(', ') || 'none'}`);
     check((await probe.canConsent()) === true, 'this administrator can say Yes');
     const store = memStore();
     const told = [];
     const ap = new StoreApps({ store, platform: 'win32', protectionOn: () => true, tell: (id) => told.push(id), log: (l, m) => console.log(`      [${l}] ${m}`) });
     const before = exemptNow();
-    if (openNow && !openNow.size) {
+    if (openFams && !openFams.length) {
       const idle = await ap.survey();
       const same = exemptNow();
-      check(idle.why === 'idle' && !told.length && same.size === before.size, `no Store app open: nothing asked, nothing changed (${idle.why})`);
+      check(idle.why === 'idle' && !told.length && same.size === before.size && [...before].every((s) => same.has(s)), `no Store app open: nothing asked, nothing changed (${idle.why})`);
     } else {
-      console.log('  ..  a Store app is open on this runner; the no-app case is left out');
+      console.log(`  ..  a Store app has a window open on this runner (${(openFams || []).join(', ')}); the no-app case is left out`);
     }
     // The lab's container stands in for an open Store app.
     ap.runningApps = async () => new Set([sidOurs]);

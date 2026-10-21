@@ -26,13 +26,13 @@
  * LoopbackExempt -a -p=<package SID>).
  *
  * Autopilot (autopilot.js): while protection is on and a Store app is open
- * whose app container may use the network (internetClient, internetClient-
+ * (a window of it on screen) whose app container may use the network (internetClient, internetClient-
  * Server or privateNetworkClientServer) and has no exemption, the app
  * containers that need one are given one, all of them in one elevated step
  * (one UAC prompt: a PowerShell that runs CheckNetIsolation for each; the
  * sign-in brokers go with the app), and the user is told in one line. With
- * no Store app open nobody is asked (Windows' own parts, always running, are
- * no sign), and an account that cannot give administrator permission is
+ * no Store app open nobody is asked (Windows' own parts, and packaged
+ * programs that run in the background by themselves, are no sign), and an account that cannot give administrator permission is
  * never asked by itself: the log says so once a session. What Shroudly adds
  * is written down before the prompt (the settings, and HKCU\Software\
  * Shroudly for the uninstaller) and kept once Windows lists it; an exemption
@@ -155,11 +155,10 @@ function parseScan(out) {
   return { containers, exempt: [...new Set(exempt)], errors };
 }
 
-/* The packages of the programs running now, as family names: `tasklist
- * /apps` (each with its package's full name) or, where that cannot be had,
- * the programs' paths (…\WindowsApps\<full name>\…). Windows' own parts
- * (Start, search, the lock screen) always run, so they are left out: only an
- * app someone opened is a sign that Store apps are in use. */
+/* Package family names in a list of package full names, or of programs'
+ * paths (…\WindowsApps\<full name>\…): `tasklist /apps`, the windows on
+ * screen (WINDOWS_PS), Get-Process. Windows' own parts (Start, search, the
+ * lock screen) always run, so they are left out. */
 const FULL_NAME_ANY = /(?:^|[^A-Za-z0-9.-])([A-Za-z0-9][A-Za-z0-9.-]{0,63})_\d+(?:\.\d+){0,3}_[A-Za-z0-9]+_[A-Za-z0-9.~-]*_([a-z0-9]{13})(?![A-Za-z0-9])/gi;
 function runningFamilies(out) {
   const fams = new Set();
@@ -173,6 +172,18 @@ function runningFamilies(out) {
  * group used for deny only too (an administrator under UAC, who can say Yes
  * to a prompt). A standard user's has none: a prompt would ask them for a
  * password they do not have. */
+/* `tasklist /apps /fo csv`: each packaged program running (not Windows'
+ * own) as "pid:family", to tell whether anything changed since the last look. */
+function packagedProcesses(out) {
+  const list = [];
+  for (const line of String(out || '').split(/\r?\n/)) {
+    const pid = line.match(/^"[^"]*","(\d+)"/);
+    const fam = pid && runningFamilies(line)[0];
+    if (fam) list.push(`${pid[1]}:${fam}`);
+  }
+  return list.sort();
+}
+
 function hasAdministrators(out) {
   return new RegExp(`(^|[^0-9-])${ADMINISTRATORS}(?![0-9-])`, 'm').test(String(out || ''));
 }
@@ -355,11 +366,79 @@ const SCAN_PS = [
   'foreach ($l in [ShroudlyNetIso]::Run()) { [Console]::Out.WriteLine($l) }',
 ].join('\n');
 
-/* The running programs' paths, where tasklist /apps cannot be had: only this
- * account's own show theirs to it. Only cmdlets: it works under a locked-down
- * PowerShell too, and the part read (a package's full name) is plain ASCII
- * whatever the console's code page. */
-const PATHS_PS = 'Get-Process | ForEach-Object { $_.Path } | Where-Object { $_ }';
+/* The Store apps someone has open: the packages of the programs with a
+ * window on screen (visible, and not cloaked: a suspended app's frame, a
+ * window on another desktop). A UWP app's window (Windows.UI.Core.CoreWindow)
+ * sits inside a frame of ApplicationFrameHost's, so that one's program is
+ * looked up too. Packaged programs that run in the background by themselves
+ * (widgets, Phone Link, a sync client) have none. Needs no administrator;
+ * only this session's windows are seen. Prints package full names. */
+const WINDOWS_CS = [
+  'using System;',
+  'using System.Collections.Generic;',
+  'using System.Runtime.InteropServices;',
+  'using System.Text;',
+  'public static class ShroudlyWin {',
+  '  delegate bool EnumProc(IntPtr h, IntPtr l);',
+  '  [DllImport("user32.dll")] static extern bool EnumWindows(EnumProc f, IntPtr l);',
+  '  [DllImport("user32.dll", CharSet = CharSet.Unicode)] static extern IntPtr FindWindowEx(IntPtr parent, IntPtr after, string cls, string title);',
+  '  [DllImport("user32.dll")] static extern bool IsWindowVisible(IntPtr h);',
+  '  [DllImport("user32.dll")] static extern uint GetWindowThreadProcessId(IntPtr h, out uint pid);',
+  '  [DllImport("user32.dll", CharSet = CharSet.Unicode)] static extern int GetClassName(IntPtr h, StringBuilder s, int n);',
+  '  [DllImport("dwmapi.dll")] static extern int DwmGetWindowAttribute(IntPtr h, int attr, out int v, int size);',
+  '  [DllImport("kernel32.dll")] static extern IntPtr OpenProcess(uint access, bool inherit, uint pid);',
+  '  [DllImport("kernel32.dll", CharSet = CharSet.Unicode)] static extern int GetPackageFullName(IntPtr p, ref uint len, StringBuilder name);',
+  '  [DllImport("kernel32.dll")] static extern bool CloseHandle(IntPtr h);',
+  '  static bool Shown(IntPtr h) {',
+  '    if (!IsWindowVisible(h)) return false;',
+  '    int cloaked;',
+  '    return DwmGetWindowAttribute(h, 14, out cloaked, 4) != 0 || cloaked == 0;',
+  '  }',
+  '  public static string[] Run() {',
+  '    HashSet<uint> pids = new HashSet<uint>();',
+  '    EnumWindows(delegate (IntPtr h, IntPtr l) {',
+  '      if (!Shown(h)) return true;',
+  '      uint wp;',
+  '      GetWindowThreadProcessId(h, out wp);',
+  '      pids.Add(wp);',
+  '      StringBuilder cls = new StringBuilder(64);',
+  '      GetClassName(h, cls, 64);',
+  '      if (cls.ToString() == "ApplicationFrameWindow") {',
+  '        IntPtr c = IntPtr.Zero;',
+  '        while ((c = FindWindowEx(h, c, "Windows.UI.Core.CoreWindow", null)) != IntPtr.Zero) { uint cp; GetWindowThreadProcessId(c, out cp); pids.Add(cp); }',
+  '      }',
+  '      return true;',
+  '    }, IntPtr.Zero);',
+  '    List<string> names = new List<string>();',
+  '    foreach (uint pid in pids) {',
+  '      IntPtr p = OpenProcess(0x1000, false, pid);',
+  '      if (p == IntPtr.Zero) continue;',
+  '      try {',
+  '        uint len = 0;',
+  '        if (GetPackageFullName(p, ref len, null) != 122 || len == 0) continue;',
+  '        StringBuilder sb = new StringBuilder((int)len);',
+  '        if (GetPackageFullName(p, ref len, sb) == 0) names.Add(sb.ToString());',
+  '      } finally { CloseHandle(p); }',
+  '    }',
+  '    return names.ToArray();',
+  '  }',
+  '}',
+].join('\n');
+
+const WINDOWS_PS = [
+  "$ErrorActionPreference = 'Stop'",
+  "Add-Type -TypeDefinition @'",
+  WINDOWS_CS,
+  "'@",
+  'foreach ($l in [ShroudlyWin]::Run()) { [Console]::Out.WriteLine($l) }',
+].join('\n');
+
+/* Where that cannot be had (PowerShell locked down): the paths of the
+ * programs with a main window. Only cmdlets; a UWP app's own program is
+ * missed here (its window is inside ApplicationFrameHost's), a game's or a
+ * desktop Store app's is not. The part read (a package's full name) is plain
+ * ASCII whatever the console's code page. */
+const PATHS_PS = 'Get-Process | Where-Object { $_.MainWindowHandle -ne 0 -and $_.Path } | ForEach-Object { $_.Path }';
 
 const encode = (script) => Buffer.from(script, 'utf16le').toString('base64');
 // PowerShell takes ‘ ’ ‚ ‛ for a single quote too; each is doubled like '.
@@ -443,6 +522,7 @@ class StoreApps {
     this.admin = null;           // this account can say Yes to a prompt (null: not known yet)
     this.lastScanAt = -Infinity;
     this._readFor = null;        // the open apps the last read (no prompt after it) was made for
+    this._winFor = null;         // the packaged programs the windows were last looked at for, and what was open
     this._running = null;        // a survey under way
     this._removing = null;       // the switch's removal under way
     this._gen = 0;               // the switch turned: a survey under way stands down
@@ -495,20 +575,41 @@ class StoreApps {
     return r.code === 0 ? parseExemptList(r.stdout) : null;
   }
 
-  /* The app containers of the Store apps this account has open now
-   * (Windows' own parts left out; a packaged service running as SYSTEM all
-   * the time, such as Gaming Services, is no sign either), or null when the
-   * programs cannot be listed. Cheap: no list of app containers is read. */
-  async runningApps() {
+  /* The Store apps this account has open now, as family names: a window of
+   * theirs on screen (Windows' own parts left out; a packaged program running
+   * in the background by itself, or a packaged service running as SYSTEM,
+   * such as Gaming Services, is no sign), or null when that cannot be told.
+   * Cheap first: with no packaged program of this account's running (tasklist
+   * /apps), or the same ones as at the last look a while ago, the windows are
+   * not looked at again. */
+  async openFamilies() {
     if (!this.available()) return null;
     let user = process.env.USERNAME || '';
     try { user = user || os.userInfo().username; } catch {}
-    let r = user
+    const t = user
       ? await this.run(SYSTEM_TOOL('tasklist.exe'), ['/apps', '/fi', `USERNAME eq ${user}`, '/fo', 'csv', '/nh'], 15000)
       : { code: -1 };
-    if (r.code !== 0) r = await this.run(POWERSHELL(), ['-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass', '-EncodedCommand', encode(PATHS_PS)], 30000);
+    let sig = null;
+    if (t.code === 0) {
+      const procs = packagedProcesses(t.stdout);
+      if (!procs.length) { this._winFor = null; return []; }
+      sig = procs.join(' ');
+      const last = this._winFor;
+      if (last && last.sig === sig && this.now() - last.at < RESCAN_MS) return last.families;
+    }
+    const ps = (script) => this.run(POWERSHELL(), ['-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass', '-EncodedCommand', encode(script)], 60000);
+    let r = await ps(WINDOWS_PS);
+    if (r.code !== 0) r = await ps(PATHS_PS);
     if (r.code !== 0) return null;
-    return new Set(runningFamilies(r.stdout).map(containerSid));
+    const families = runningFamilies(r.stdout);
+    this._winFor = sig ? { sig, at: this.now(), families } : null;
+    return families;
+  }
+
+  /* Their app containers (a Set of SIDs), or null. */
+  async runningApps() {
+    const f = await this.openFamilies();
+    return f ? new Set(f.map(containerSid)) : null;
   }
 
   /* Whether this account can say Yes to a permission prompt: true, false,
@@ -557,17 +658,15 @@ class StoreApps {
     }
   }
 
-  /* What Shroudly added, in the settings and in the uninstaller's record.
-   * Waited for: the record is written by reg.exe, and a survey or a removal
-   * is only done once it is there (and two writes never cross). */
+  /* What Shroudly added, in the settings and in the uninstaller's record;
+   * the record also holds what is pending (a Yes may still come, and an
+   * uninstall before Shroudly sees it must take that out too). Waited for:
+   * the record is written by reg.exe, and a survey or a removal is only done
+   * once it is there (and two writes never cross). */
   async _setOurs(list) {
     const v = [...new Set(list.filter((s) => SID_RE.test(s)))];
     if (v.length) this.store.set('storeAppsOurs', v); else this.store.delete('storeAppsOurs');
-    await this._writeRecord(v);
-  }
-
-  async _writeRecord(list) {
-    try { await this.record.set([...new Set(list.filter((s) => SID_RE.test(s)))]); } catch {}
+    try { await this.record.set([...new Set([...v, ...this._pending()])]); } catch {}
   }
 
   /* The pending SIDs Windows now lists as exempt are Shroudly's (a Yes it
@@ -594,8 +693,9 @@ class StoreApps {
 
   /* After a read: one of Shroudly's that is no longer exempt (an uninstall,
    * another tool, these settings on another PC) is not its own any more, and
-   * is a candidate again. */
-  async _tidy(exempt) {
+   * is a candidate again. None left: the switch shows off, as it is, until
+   * they are added again (not while the user is turning it on: keep). */
+  async _tidy(exempt, keep = false) {
     const kept = this.store.get('storeAppsHandled', []) || [];
     const refused = this._handled();
     if (refused.length !== kept.length) {
@@ -603,7 +703,12 @@ class StoreApps {
     }
     const ours = this.ours();
     const live = ours.filter((s) => exempt.has(s));
-    if (live.length !== ours.length) await this._setOurs(live);
+    if (live.length === ours.length) return;
+    await this._setOurs(live);
+    if (!live.length && !keep && this.store.get('storeAppsMode') === true) {
+      this.store.set('storeAppsMode', false);
+      this.onChange();
+    }
   }
 
   /* When protection comes on, and every so often after: app containers that
@@ -624,24 +729,32 @@ class StoreApps {
    * Shroudly added (a reset profile) while the uninstaller's record still has
    * it; a prompt of an earlier session may have been answered after Shroudly
    * stopped waiting for it, or Shroudly quit or crashed after a Yes. */
-  async _adopt() {
+  async _adopt(keep = false) {
     if (this._adopted || !this.available()) return;
     this._adopted = true;
     this._sweep();
+    const pending = new Set(this._pending());
     if (!this.ours().length) {
+      // The record holds what is pending too: that is not Shroudly's yet.
       let rec = [];
       try { rec = await this.record.get(); } catch {}
-      if (Array.isArray(rec) && rec.length) this.store.set('storeAppsOurs', rec.filter((s) => SID_RE.test(s)));
+      const own = Array.isArray(rec) ? rec.filter((s) => SID_RE.test(s) && !pending.has(s)) : [];
+      if (own.length) this.store.set('storeAppsOurs', own);
     }
-    if (this._pending().length) {
+    if (pending.size) {
       const s = await this.scan();
-      if (s) this._tookLate(await this._takePending(new Set(s.exempt), true));
+      if (s) {
+        const exempt = new Set(s.exempt);
+        const took = await this._takePending(exempt, true);
+        await this._tidy(exempt, keep);
+        this._tookLate(took);
+      }
     }
   }
 
   async _survey({ force = false } = {}) {
     const gen = this._gen;
-    await this._adopt();
+    await this._adopt(force);
     const why = decide({
       platform: this.platform, protectionOn: this.protectionOn(), offAt: this.store.get('storeAppsModeOffAt'),
       declinedAt: this.store.get('storeAppsDeclinedAt'), asked: this.asked, busy: this.busy(), now: this.now(), force,
@@ -664,7 +777,7 @@ class StoreApps {
     if (gen !== this._gen) return { asked: false, why: 'changed' };
     const exempt = new Set(before.exempt);
     this._tookLate(await this._takePending(exempt, false));
-    await this._tidy(exempt);
+    await this._tidy(exempt, force);
     const need = candidates({ containers: before.containers, exempt: before.exempt, handled: this._handled() });
     if (!force && !need.some((c) => open.has(c.sid))) {
       this._readFor = open;
@@ -698,11 +811,11 @@ class StoreApps {
     // crash after a Yes, what Windows adds is still known to be Shroudly's
     // (taken in later; the uninstaller takes it out meanwhile).
     this.store.set('storeAppsPending', sids);
-    await this._writeRecord([...this.ours(), ...sids]);
+    await this._setOurs(this.ours());
     const r = await this._elevate('add', sids);
     if (r.code === 'declined') {
       this.store.delete('storeAppsPending');
-      await this._writeRecord(this.ours());
+      await this._setOurs(this.ours());
       if (gen !== this._gen) return { asked: true, result: 'changed', apps };
       this.store.set('storeAppsDeclinedAt', this.now());
       this.toldBlocked = true;
@@ -717,7 +830,8 @@ class StoreApps {
     const nowExempt = after ? new Set(after.exempt) : null;
     const added = sids.filter((s) => (nowExempt ? nowExempt.has(s) : r.code === 'ok'));
     const rest = sids.filter((s) => !added.includes(s));
-    // Not answered yet: a Yes may still come, and is taken in later.
+    // Not answered yet: a Yes may still come, and is taken in later (the
+    // record keeps those meanwhile).
     if (r.code === 'noanswer' && rest.length) this.store.set('storeAppsPending', rest); else this.store.delete('storeAppsPending');
     await this._setOurs([...this.ours(), ...added]);
     // One Windows would not exempt (a container left from an app since
@@ -796,7 +910,7 @@ class StoreApps {
   /* Take out the exemptions Shroudly added that are still there; the user's
    * own are not in its record. */
   async removeOurs() {
-    await this._adopt();
+    await this._adopt(true);
     if (!this.ours().length && !this._pending().length) { await this._setOurs([]); return { success: true, removed: 0 }; }
     const s = await this.scan();
     if (!s) return { success: false, code: 'unreadable' };
@@ -850,6 +964,6 @@ class StoreApps {
 module.exports = StoreApps;
 Object.assign(module.exports, {
   containerSid, familyOf, isPackage, usesNetwork, parseMappings, parseExemptList, parseScan, candidates, decide, appNames,
-  runningFamilies, hasAdministrators, parseRecord, recordReg, elevatedScript, launcherScript, psQuote, SCAN_PS, PATHS_PS, SID_RE, RESPECT_MS,
+  runningFamilies, packagedProcesses, hasAdministrators, parseRecord, recordReg, elevatedScript, launcherScript, psQuote, SCAN_PS, WINDOWS_PS, PATHS_PS, SID_RE, RESPECT_MS,
   RESCAN_MS, ELEVATE_TIMEOUT_MS, RECORD_KEY, RECORD_VALUE, RECORD_LIST, MAPPINGS_KEY,
 });
