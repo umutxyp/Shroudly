@@ -3,10 +3,15 @@
 <resources>
     <string name="androidAlertsChannel">Оповещения о защите</string>
     <string name="androidAllApps">Все приложения на этом устройстве идут через Shroudly.</string>
+    <string name="androidBatteryHint">Настройки батареи могут останавливать Shroudly в фоне и обрывать ваше соединение. Разрешите ему работать без ограничений батареи.</string>
+    <string name="androidBatterySettings">Настройки батареи</string>
     <string name="androidDetails">Подробнее</string>
     <string name="androidDownloadApk">Скачать обновление</string>
+    <string name="androidLockdownOffline">Нет интернета: Shroudly сейчас не может пробиться в этой сети, а Android настроен блокировать подключения без VPN. Shroudly продолжает попытки.</string>
+    <string name="androidNoInternet">Защита остановилась, потому что Shroudly не смог выйти в интернет в этой сети, поэтому ваши приложения сейчас подключаются напрямую. Откройте Shroudly, чтобы попробовать снова.</string>
     <string name="androidPrivacyPolicy">Политика конфиденциальности</string>
     <string name="androidProtectionLost">Защита остановилась из-за ошибки, поэтому ваши приложения сейчас подключаются напрямую. Откройте Shroudly, чтобы снова её включить.</string>
+    <string name="androidShareLogs">Поделиться журналом</string>
     <string name="androidVpnDenied">Shroudly нужно разрешение VPN, чтобы пропускать соединения ваших приложений.</string>
     <string name="androidVpnRevoked">Android отключил защиту — обычно потому, что включено другое VPN-приложение.</string>
     <string name="connections">Подключения</string>
@@ -23,6 +28,8 @@
     <string name="openSourceTitle">Открытый исходный код</string>
     <string name="protected_">Защищено</string>
     <string name="protectionStopped">Защита выключена</string>
+    <string name="shareOnlineCount">Учитывать меня в счётчике реального времени</string>
+    <string name="shareOnlineCountDesc">Отправляет случайный номер, который меняется при каждом запуске, чтобы приложение могло показать, сколько копий работает. Отправляется только при включённой защите, поэтому идёт тем же защищённым путём, что и остальной трафик. Выключите, если не хотите, чтобы сеть вообще видела что-либо от Shroudly.</string>
     <string name="start">Включить защиту</string>
     <string name="startFailed">Не удалось включить защиту</string>
     <string name="starting">Запуск…</string>

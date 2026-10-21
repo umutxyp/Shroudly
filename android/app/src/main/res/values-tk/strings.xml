@@ -3,10 +3,15 @@
 <resources>
     <string name="androidAlertsChannel">Gorag duýduryşlary</string>
     <string name="androidAllApps">Bu enjamdaky her programma Shroudly arkaly geçýär.</string>
+    <string name="androidBatteryHint">Batareýa sazlamalary Shroudly-ny fonda togtadyp, birikmäňizi kesip biler. Oňa batareýa çäklendirmeleri bolmazdan işlemäge rugsat beriň.</string>
+    <string name="androidBatterySettings">Batareýa sazlamalary</string>
     <string name="androidDetails">Jikme-jiklikler</string>
     <string name="androidDownloadApk">Täzelenmäni ýükläň</string>
+    <string name="androidLockdownOffline">Internet ýok: Shroudly häzir bu torda birigip bilmeýär, Android bolsa VPN-siz birikmeleri petiklemäge sazlanan. Shroudly synanyşmagyny dowam edýär.</string>
+    <string name="androidNoInternet">Shroudly bu torda internete çykyp bilmänligi sebäpli gorag togtady, şonuň üçin programmalaryňyz häzir göni birikýär. Täzeden synanyşmak üçin Shroudly-ny açyň.</string>
     <string name="androidPrivacyPolicy">Gizlinlik syýasaty</string>
     <string name="androidProtectionLost">Gorag ýalňyşlyk sebäpli togtady, şonuň üçin programmalaryňyz häzir göni birikýär. Ony täzeden işletmek üçin Shroudly-ny açyň.</string>
+    <string name="androidShareLogs">Ýazgylary paýlaş</string>
     <string name="androidVpnDenied">Programmalaryňyzyň baglanyşyklaryny geçirmek üçin Shroudly-a VPN rugsady gerek.</string>
     <string name="androidVpnRevoked">Gorag Android tarapyndan öçürildi, adatça başga VPN programmasy açylandygy sebäpli.</string>
     <string name="connections">Birikmeler</string>
@@ -23,6 +28,8 @@
     <string name="openSourceTitle">Açyk çeşme</string>
     <string name="protected_">Goragly</string>
     <string name="protectionStopped">Gorag togtadyldy</string>
+    <string name="shareOnlineCount">Meni onlaýn sana goşmak</string>
+    <string name="shareOnlineCountDesc">Her işledilende üýtgeýän tötänleýin san iberilýär, şonuň üçin programma özüniň näçe nusgasynyň işleýändigini görkezip bilýär. Ol diňe gorag açyk wagty iberilýär, şonuň üçin beýleki trafigiňiz ýaly şol goralýan ýol bilen geçýär. Toruňyzyň Shroudly-den asla hiç zat görmezligini isleseňiz, muny öçüriň.</string>
     <string name="start">Goragy işlediň</string>
     <string name="startFailed">Goragy işledip bolmady</string>
     <string name="starting">Işledilýär…</string>

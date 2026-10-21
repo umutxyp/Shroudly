@@ -31,23 +31,6 @@ class SocksAuthTest {
     }
 
     @Test
-    fun findsTheOptionInTheEngineBinary() {
-        val dir = java.nio.file.Files.createTempDirectory("engine").toFile()
-        try {
-            val old = File(dir, "old").apply { writeBytes(byteArrayOf(0x7f, 'E'.code.toByte()) + "--port\u0000--doh\u0000".toByteArray()) }
-            val new = File(dir, "new").apply { writeBytes(byteArrayOf(0x7f) + "--port\u0000--auth-file\u0000--doh\u0000".toByteArray()) }
-            // A longer option that merely starts with the name does not count.
-            val other = File(dir, "other").apply { writeBytes("--auth-filex\u0000".toByteArray()) }
-            assertFalse(SocksAuth.supports(old))
-            assertTrue(SocksAuth.supports(new))
-            assertFalse(SocksAuth.supports(other))
-            assertFalse(SocksAuth.supports(File(dir, "missing")))
-        } finally {
-            dir.deleteRecursively()
-        }
-    }
-
-    @Test
     fun engineArgsNameTheFileNotThePassword() {
         val f = File("/data/user/0/me.codeshare.shroudly/files/socks-auth")
         val a = Engine.args(4000, 5000, listOf("1.2.3.4"), f)

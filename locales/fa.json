@@ -417,5 +417,10 @@
   "androidProtectionLost": "محافظت به‌دلیل یک خطا متوقف شد، پس برنامه‌هایتان اکنون مستقیم وصل می‌شوند. برای روشن کردن دوباره، Shroudly را باز کنید.",
   "androidDetails": "جزئیات",
   "androidDownloadApk": "دانلود به‌روزرسانی",
-  "androidPrivacyPolicy": "سیاست حریم خصوصی"
+  "androidPrivacyPolicy": "سیاست حریم خصوصی",
+  "androidShareLogs": "اشتراک‌گذاری گزارش‌ها",
+  "androidNoInternet": "محافظت متوقف شد چون Shroudly نتوانست در این شبکه به اینترنت برسد، پس برنامه‌هایتان اکنون مستقیم وصل می‌شوند. برای امتحان دوباره، Shroudly را باز کنید.",
+  "androidBatteryHint": "تنظیمات باتری ممکن است Shroudly را در پس‌زمینه متوقف کند و اتصال شما را قطع کند. اجازه دهید بدون محدودیت باتری کار کند.",
+  "androidBatterySettings": "تنظیمات باتری",
+  "androidLockdownOffline": "اینترنت در دسترس نیست: Shroudly فعلاً در این شبکه نمی‌تواند وصل شود و Android طوری تنظیم شده که اتصال‌های بدون VPN را مسدود کند. Shroudly به تلاش ادامه می‌دهد."
 }

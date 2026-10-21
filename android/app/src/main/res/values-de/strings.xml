@@ -3,10 +3,15 @@
 <resources>
     <string name="androidAlertsChannel">Schutz-Hinweise</string>
     <string name="androidAllApps">Jede App auf diesem Gerät läuft über Shroudly.</string>
+    <string name="androidBatteryHint">Akku-Einstellungen können Shroudly im Hintergrund beenden und damit deine Verbindung unterbrechen. Erlaube Shroudly, ohne Akku-Einschränkungen zu laufen.</string>
+    <string name="androidBatterySettings">Akku-Einstellungen</string>
     <string name="androidDetails">Details</string>
     <string name="androidDownloadApk">Update herunterladen</string>
+    <string name="androidLockdownOffline">Kein Internet: Shroudly kommt in diesem Netz gerade nicht durch, und Android ist so eingestellt, dass Verbindungen ohne VPN blockiert werden. Shroudly versucht es weiter.</string>
+    <string name="androidNoInternet">Der Schutz wurde beendet, weil Shroudly in diesem Netz das Internet nicht erreicht hat. Deine Apps verbinden sich jetzt direkt. Öffne Shroudly, um es erneut zu versuchen.</string>
     <string name="androidPrivacyPolicy">Datenschutzerklärung</string>
     <string name="androidProtectionLost">Der Schutz wurde wegen eines Fehlers beendet, deine Apps verbinden sich jetzt direkt. Öffne Shroudly, um ihn wieder zu starten.</string>
+    <string name="androidShareLogs">Protokoll teilen</string>
     <string name="androidVpnDenied">Shroudly braucht die VPN-Berechtigung, um die Verbindungen deiner Apps zu übernehmen.</string>
     <string name="androidVpnRevoked">Android hat den Schutz beendet, meist weil eine andere VPN-App eingeschaltet wurde.</string>
     <string name="connections">Verbindungen</string>
@@ -23,6 +28,8 @@
     <string name="openSourceTitle">Open Source</string>
     <string name="protected_">Geschützt</string>
     <string name="protectionStopped">Schutz beendet</string>
+    <string name="shareOnlineCount">Mich bei der Live-Zahl mitzählen</string>
+    <string name="shareOnlineCountDesc">Sendet eine Zufallszahl, die sich bei jedem Start ändert, damit die App zeigen kann, wie viele Kopien laufen. Sie wird nur bei aktivem Schutz gesendet und nimmt damit denselben geschützten Weg wie dein übriger Verkehr. Schalte sie ab, wenn dein Netz lieber gar nichts von Shroudly sehen soll.</string>
     <string name="start">Schutz starten</string>
     <string name="startFailed">Schutz konnte nicht gestartet werden</string>
     <string name="starting">Wird gestartet…</string>

@@ -417,5 +417,10 @@
   "androidProtectionLost": "Qoruma xəta səbəbindən dayandı, ona görə tətbiqləriniz indi birbaşa qoşulur. Yenidən başlatmaq üçün Shroudly-ni açın.",
   "androidDetails": "Təfərrüatlar",
   "androidDownloadApk": "Yeniləməni endir",
-  "androidPrivacyPolicy": "Məxfilik siyasəti"
+  "androidPrivacyPolicy": "Məxfilik siyasəti",
+  "androidShareLogs": "Qeydləri paylaş",
+  "androidNoInternet": "Shroudly bu şəbəkədə internetə çıxa bilmədiyi üçün qoruma dayandı, ona görə tətbiqləriniz indi birbaşa qoşulur. Yenidən cəhd etmək üçün Shroudly-ni açın.",
+  "androidBatteryHint": "Batareya ayarları Shroudly-ni arxa planda dayandırıb bağlantınızı kəsə bilər. Ona batareya məhdudiyyətləri olmadan işləməyə icazə verin.",
+  "androidBatterySettings": "Batareya ayarları",
+  "androidLockdownOffline": "İnternet yoxdur: Shroudly hazırda bu şəbəkədə qoşula bilmir və Android VPN olmadan bağlantıları bloklamaq üçün ayarlanıb. Shroudly cəhd etməyə davam edir."
 }

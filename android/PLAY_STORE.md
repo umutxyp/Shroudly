@@ -180,7 +180,6 @@ dene, sonra kapalı teste ve üretime al.
 
 Elle üretmek gerekirse (repo kökünden, yükleme anahtarının değişkenleriyle):
 
-    node scripts/build-core-android.js
     node android/scripts/fetch-hev.js
     cd android && ANDROID_UPLOAD_KEYSTORE=<yükleme-anahtarı.jks> ANDROID_UPLOAD_KEYSTORE_PASSWORD=<şifre> \
       ANDROID_UPLOAD_KEY_ALIAS=<takma ad> ANDROID_UPLOAD_KEY_PASSWORD=<şifre> ./gradlew -Pshroudly.store=play bundleRelease
@@ -230,20 +229,49 @@ functionality is available without special access). Hesap ya da giriş yok.
 
 ### 5f. Veri güvenliği (Data safety)
 
+Uygulamanın bize gönderdiği tek şey **canlı kullanıcı sayımıdır** ve
+masaüstüyle birebir aynıdır:
+
+- **Ne gönderiliyor:** yalnızca `{"id":"<rastgele kimlik>"}`. Kimlik, koruma
+  her başladığında yeniden üretilen rastgele bir UUID'dir; telefonda hiçbir
+  yere yazılmaz, cihazdan, hesaptan ya da kullanıcıdan türetilmez. Telefonun
+  modeli, Android sürümü ya da konumu gönderilmez: istek, başlıklarıyla
+  birlikte (masaüstünün de gönderdiği sistem dili başlığı dahil) Windows'taki
+  Shroudly'nin isteğinin aynısıdır, yani sunucu telefonu bilgisayardan
+  ayıramaz.
+- **Ne zaman:** yalnızca koruma açıkken, sunucunun istediği aralıkla (şu an
+  dakikada bir); motorun üzerinden, HTTPS ile. Telefon uyurken (Doze)
+  gönderilmez. Hakkında → "Count me in the live total" kapatılırsa hiç
+  gönderilmez (varsayılan: açık, masaüstündeki gibi).
+- **Kimlikle ilişkilendirilmez:** hesap yok; sunucu erişim günlüğü tutmaz ve
+  Cloudflare tüneli arkasında olduğu için IP adresini zaten görmez.
+- **Saklanmaz:** sunucu yalnızca kimliği ve en son ne zaman görüldüğünü,
+  sayım sürdükçe tutar (yeniden başlarken sayım kaybolmasın diye aynı listeyi
+  diskine de yazar). Kimlik, Durdur'a basılınca hemen, uygulama sessizce
+  kapanırsa birkaç dakika içinde silinir.
+
+Formdaki cevaplar (temkinli beyan; kimlik kişisel olmasa da gönderildiği için
+beyan ediyoruz):
+
 | Soru | Cevap |
 | --- | --- |
-| Uygulama, gerekli kullanıcı verisi türlerinden herhangi birini topluyor ya da paylaşıyor mu? | **Hayır** |
-| Toplanan tüm veriler aktarım sırasında şifreleniyor mu? | **Evet** (DNS over HTTPS ve HTTPS) |
-| Kullanıcılar verilerinin silinmesini isteyebilir mi? | Hesap ve sunucuda veri yok; uygulama silinince telefondaki her şey silinir |
+| Uygulama, gerekli kullanıcı verisi türlerinden herhangi birini topluyor ya da paylaşıyor mu? | **Evet** |
+| Veri türü | **Cihaz veya diğer kimlikler** (Device or other IDs): yalnızca bu |
+| Toplanıyor mu / paylaşılıyor mu? | Toplanıyor: **Evet**. Paylaşılıyor: **Hayır** (üçüncü tarafa gitmez) |
+| Geçici olarak mı işleniyor (ephemeral)? | **Hayır** (sunucu sayım süresince tutuyor) |
+| Zorunlu mu? | **İsteğe bağlı**: kullanıcı Hakkında bölümünden kapatabilir |
+| Amaç | **Analiz** (Analytics): kaç kopyanın çalıştığını saymak |
+| Toplanan tüm veriler aktarım sırasında şifreleniyor mu? | **Evet** (HTTPS; DNS over HTTPS) |
+| Kullanıcılar verilerinin silinmesini isteyebilir mi? | Hesap yok; kimlik Durdur'a basılınca ya da birkaç dakika içinde kendiliğinden silinir, ayarı kapatınca hiç gönderilmez; uygulama silinince telefondaki her şey silinir |
 | Hesap oluşturma | Yok |
 
-Neden "Hayır": Android uygulamasının bize ait bir sunucusu yok. DNS
-sorguları ve site bağlantıları, kullanıcının kendi istediği trafiktir ve
-telefondan doğrudan sitelere/çözücülere gider. Hangi tekniğin hangi sitede
-işe yaradığı yalnızca telefonda, en fazla 30 gün tutulur ve yedeğe alınmaz.
-Play sürümü GitHub'a güncelleme sorgusu bile yapmaz. Çökme raporu, analiz ve
-reklam kitaplığı yok. (İleride bir çökme raporu gönderilirse "Uygulama
-bilgileri ve performans → Çökme günlükleri" olarak beyan edilmeli.)
+Bunun dışında Android uygulaması bize hiçbir şey göndermez: DNS sorguları ve
+site bağlantıları kullanıcının kendi istediği trafiktir ve telefondan
+doğrudan sitelere/çözücülere gider. Hangi tekniğin hangi sitede işe yaradığı
+yalnızca telefonda, en fazla 30 gün tutulur ve yedeğe alınmaz. Play sürümü
+GitHub'a güncelleme sorgusu bile yapmaz. Çökme raporu, analiz ve reklam
+kitaplığı yok. (İleride bir çökme raporu gönderilirse "Uygulama bilgileri ve
+performans → Çökme günlükleri" olarak beyan edilmeli.)
 
 ### 5g. VPN beyanı (VpnService declaration)
 
@@ -258,7 +286,10 @@ local, on-device tunnel: the VPN interface hands the device's connections to
 Shroudly's own engine, which runs inside the app on 127.0.0.1. There is no
 remote VPN server. No traffic is sent to any server operated by us; every
 connection goes from the device directly to the site or service the user's
-app contacts.
+app contacts. The only request the app itself sends to us is an optional,
+anonymous online count while the tunnel is on: a random id made fresh for
+each session (never stored on the device), which the user can turn off under
+About.
 
 The tunnel endpoint is on the device itself, so data from the device to the
 endpoint never leaves the device. Traffic that leaves the device stays
@@ -330,7 +361,7 @@ Kurallar:
 ```
 Shroudly helps you reach websites and apps that your network blocks with
 deep packet inspection (DPI). It runs entirely on your phone: there is no
-Shroudly server, no account and no sign-up.
+Shroudly VPN server, no account and no sign-up.
 
 How it works
 Android lets an app handle other apps' connections only as a VPN, so Shroudly
@@ -359,6 +390,9 @@ Good to know
   on together.
 - Some blocks (for example a site that is down, or an IP address that is
   blocked outright) cannot be fixed by reshaping connections.
+- While protection is on, the app joins an anonymous live count of running
+  copies (a random id that changes every session, nothing else). You can
+  turn it off under About.
 
 Privacy: https://github.com/umutxyp/Shroudly#privacy
 ```
@@ -375,7 +409,7 @@ Privacy: https://github.com/umutxyp/Shroudly#privacy
 
 ```
 Shroudly, ağınızın derin paket incelemesi (DPI) ile engellediği sitelere ve
-uygulamalara ulaşmanızı sağlar. Tamamen telefonunuzda çalışır: Shroudly
+uygulamalara ulaşmanızı sağlar. Tamamen telefonunuzda çalışır: Shroudly VPN
 sunucusu, hesap ya da üyelik yoktur.
 
 Nasıl çalışır?
@@ -407,6 +441,9 @@ Bilmenizde yarar var
   Shroudly birlikte açık olamaz.
 - Bazı engeller (örneğin kapalı bir site ya da doğrudan engellenmiş bir IP
   adresi) bağlantıların biçimini değiştirerek aşılamaz.
+- Koruma açıkken uygulama, çalışan kopyaların anonim canlı sayımına katılır
+  (her oturumda değişen rastgele bir kimlik, başka hiçbir şey). Hakkında
+  bölümünden kapatabilirsiniz.
 
 Gizlilik: https://github.com/umutxyp/Shroudly#privacy
 ```

@@ -3,10 +3,15 @@
 <resources>
     <string name="androidAlertsChannel">Amaran perlindungan</string>
     <string name="androidAllApps">Setiap aplikasi pada peranti ini melalui Shroudly.</string>
+    <string name="androidBatteryHint">Tetapan bateri boleh menghentikan Shroudly di latar belakang dan memutuskan sambungan anda. Benarkan Shroudly berjalan tanpa sekatan bateri.</string>
+    <string name="androidBatterySettings">Tetapan bateri</string>
     <string name="androidDetails">Butiran</string>
     <string name="androidDownloadApk">Muat turun kemas kini</string>
+    <string name="androidLockdownOffline">Tiada internet: Shroudly belum dapat bersambung pada rangkaian ini, dan Android ditetapkan untuk menyekat sambungan tanpa VPN. Shroudly terus mencuba.</string>
+    <string name="androidNoInternet">Perlindungan berhenti kerana Shroudly tidak dapat mencapai internet pada rangkaian ini, jadi aplikasi anda kini bersambung secara terus. Buka Shroudly untuk mencuba lagi.</string>
     <string name="androidPrivacyPolicy">Dasar privasi</string>
     <string name="androidProtectionLost">Perlindungan berhenti kerana ralat, jadi aplikasi anda kini bersambung secara terus. Buka Shroudly untuk memulakannya semula.</string>
+    <string name="androidShareLogs">Kongsi log</string>
     <string name="androidVpnDenied">Shroudly memerlukan kebenaran VPN untuk membawa sambungan aplikasi anda.</string>
     <string name="androidVpnRevoked">Perlindungan dimatikan oleh Android, biasanya kerana aplikasi VPN lain dihidupkan.</string>
     <string name="connections">Sambungan</string>
@@ -23,6 +28,8 @@
     <string name="openSourceTitle">Sumber terbuka</string>
     <string name="protected_">Dilindungi</string>
     <string name="protectionStopped">Perlindungan dihentikan</string>
+    <string name="shareOnlineCount">Kira saya dalam jumlah pengguna dalam talian</string>
+    <string name="shareOnlineCountDesc">Menghantar nombor rawak yang berubah setiap kali aplikasi dilancarkan, supaya aplikasi dapat menunjukkan berapa banyak salinan yang sedang berjalan. Nombor ini hanya dihantar semasa perlindungan dihidupkan, jadi ia melalui laluan dilindungi yang sama seperti trafik anda yang lain. Matikan pilihan ini jika anda lebih suka rangkaian anda tidak melihat apa-apa langsung daripada Shroudly.</string>
     <string name="start">Mulakan perlindungan</string>
     <string name="startFailed">Tidak dapat memulakan perlindungan</string>
     <string name="starting">Memulakan…</string>

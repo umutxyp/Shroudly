@@ -345,10 +345,8 @@ jobs:
         run: |
           yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses >/dev/null || true
           "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "platforms;android-36" "build-tools;36.0.0" "ndk;$NDK_VERSION" >/dev/null
-      - name: Engine for Android and hev source
+      - name: hev source, generated files
         run: |
-          export ANDROID_NDK_HOME="$ANDROID_HOME/ndk/$NDK_VERSION"
-          node scripts/build-core-android.js
           node android/scripts/fetch-hev.js
           node android/scripts/gen-strings.js --check
           node android/scripts/gen-block-ips.js --check

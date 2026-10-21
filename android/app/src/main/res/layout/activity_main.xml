@@ -160,6 +160,54 @@
             android:text="@string/androidDetails"
             android:visibility="gone" />
 
+        <!-- Battery settings may stop protection in the background: shown
+             while they do (Diagnostics.batteryHint). -->
+        <LinearLayout
+            android:id="@+id/battery"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:background="@drawable/banner"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingStart="14dp"
+            android:paddingTop="10dp"
+            android:paddingEnd="8dp"
+            android:paddingBottom="10dp"
+            android:visibility="gone">
+
+            <ImageView
+                android:importantForAccessibility="no"
+                style="@style/RowIcon"
+                android:src="@drawable/ic_battery" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
+                android:layout_weight="1"
+                android:text="@string/androidBatteryHint"
+                android:textAlignment="viewStart"
+                android:textColor="@color/text_dim"
+                android:textSize="13.5sp" />
+
+            <Button
+                android:id="@+id/batteryOpen"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:background="@drawable/button_accent"
+                android:minWidth="0dp"
+                android:minHeight="48dp"
+                android:paddingStart="14dp"
+                android:paddingEnd="14dp"
+                android:stateListAnimator="@null"
+                android:text="@string/androidBatterySettings"
+                android:textAllCaps="false"
+                android:textColor="@color/on_accent"
+                android:textSize="14sp" />
+        </LinearLayout>
+
         <!-- A newer version on GitHub (the APK from GitHub only). -->
         <LinearLayout
             android:id="@+id/update"
@@ -419,6 +467,49 @@
                 <TextView
                     style="@style/RowLabel"
                     android:text="@string/androidPrivacyPolicy" />
+
+                <ImageView
+                    android:importantForAccessibility="no" style="@style/Chevron" />
+            </LinearLayout>
+
+            <View style="@style/Divider" />
+
+            <!-- The live count (OnlineCount), as the desktop's setting: its
+                 label, and under it the description (MainActivity), are the
+                 switch's own text, so TalkBack reads them as one control. -->
+            <Switch
+                android:id="@+id/shareOnlineCount"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="52dp"
+                android:drawableStart="@drawable/row_users"
+                android:drawablePadding="14dp"
+                android:lineSpacingMultiplier="1.1"
+                android:paddingStart="14dp"
+                android:paddingTop="10dp"
+                android:paddingEnd="12dp"
+                android:paddingBottom="10dp"
+                android:switchPadding="12dp"
+                android:text="@string/shareOnlineCount"
+                android:textAlignment="viewStart"
+                android:textColor="@color/text"
+                android:textSize="15sp" />
+
+            <View style="@style/Divider" />
+
+            <!-- The recent log and the phone's details, to send to us. -->
+            <LinearLayout
+                android:id="@+id/shareLogs"
+                style="@style/AboutRow">
+
+                <ImageView
+                    android:importantForAccessibility="no"
+                    style="@style/RowIcon"
+                    android:src="@drawable/ic_share" />
+
+                <TextView
+                    style="@style/RowLabel"
+                    android:text="@string/androidShareLogs" />
 
                 <ImageView
                     android:importantForAccessibility="no" style="@style/Chevron" />

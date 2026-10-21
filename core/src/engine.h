@@ -4,6 +4,7 @@
 #include "platform.h"
 
 #include <stdint.h>
+#include <stdio.h>
 #include "strategy.h"
 
 typedef struct {
@@ -71,7 +72,9 @@ typedef struct {
 
 /* Lifecycle. start() returns 0 on success and runs the accept loop on its own
  * thread; stop() is safe to call from any thread and from a signal handler path
- * (it just flips a flag and closes the listener). */
+ * (it just flips a flag and closes the listener). A start after a stop in the
+ * same process (embedded, see engine_main) is a fresh engine: connections of
+ * the earlier one that are still finishing do not get in its way. */
 int  engine_start(const engine_config *cfg);
 void engine_stop(void);
 /* A technique an earlier run learned for host, age milliseconds ago (see engine.c). */
@@ -79,7 +82,39 @@ int  engine_restore(const char *host, const char *technique, uint64_t age);
 int  engine_is_running(void);
 const engine_stats *engine_get_stats(void);
 
-/* Emit a one-line JSON stats record to stdout (consumed by the UI). */
+/* Emit a one-line JSON stats record (consumed by the UI), see engine_printf. */
 void engine_emit_stats(void);
+
+/* ── where the JSON lines go ─────────────────────────────────────────────
+ * The program writes them to its stdout. The Android app runs the engine
+ * inside its own process instead (engine_main with a pipe), where stdout
+ * goes nowhere. */
+
+/* The stream for every line from now on; NULL is stdout. */
+void engine_set_output(FILE *out);
+/* From now on every line is dropped: the run that owned the stream has
+ * ended and its stream is about to be closed. Lines from connections of that
+ * run still finishing must not reach a closed stream. engine_set_output()
+ * turns output back on. */
+void engine_output_off(void);
+/* One whole JSON line (fmt ends in "\n"), written in one go and flushed, so
+ * lines from different threads never mix. */
+#if defined(__GNUC__) || defined(__clang__)
+__attribute__((format(printf, 1, 2)))
+#endif
+void engine_printf(const char *fmt, ...);
+
+/* ── the whole run ───────────────────────────────────────────────────────
+ * What the shroudly-core program does (main.c): read the options, start the
+ * SOCKS port, print the ready line, then obey the commands read from `in`
+ * (STATS, PROBE, LEARN, STOP) until STOP or the end of `in`, and print the
+ * stopped line. Events go to `out`. Returns the program's exit code.
+ *
+ * embedded: inside another program's process (the Android app, on a thread
+ * of its own) rather than as a program of its own. Then no signal handlers
+ * are installed, nothing ends the process, every option starts from its
+ * default (an earlier run in the same process leaves nothing behind), and
+ * the function returns once the engine has stopped. Only one run at a time. */
+int engine_main(int argc, char **argv, FILE *in, FILE *out, int embedded);
 
 #endif

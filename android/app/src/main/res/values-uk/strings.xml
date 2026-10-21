@@ -3,10 +3,15 @@
 <resources>
     <string name="androidAlertsChannel">Сповіщення про захист</string>
     <string name="androidAllApps">Усі застосунки на цьому пристрої йдуть через Shroudly.</string>
+    <string name="androidBatteryHint">Налаштування батареї можуть зупиняти Shroudly у фоні й обривати ваше з’єднання. Дозвольте йому працювати без обмежень батареї.</string>
+    <string name="androidBatterySettings">Налаштування батареї</string>
     <string name="androidDetails">Докладніше</string>
     <string name="androidDownloadApk">Завантажити оновлення</string>
+    <string name="androidLockdownOffline">Немає інтернету: Shroudly зараз не може пробитися в цій мережі, а Android налаштовано блокувати з’єднання без VPN. Shroudly продовжує спроби.</string>
+    <string name="androidNoInternet">Захист зупинився, бо Shroudly не зміг вийти в інтернет у цій мережі, тому ваші застосунки зараз підключаються напряму. Відкрийте Shroudly, щоб спробувати знову.</string>
     <string name="androidPrivacyPolicy">Політика конфіденційності</string>
     <string name="androidProtectionLost">Захист зупинився через помилку, тому ваші застосунки зараз підключаються напряму. Відкрийте Shroudly, щоб увімкнути його знову.</string>
+    <string name="androidShareLogs">Поділитися журналом</string>
     <string name="androidVpnDenied">Shroudly потрібен дозвіл VPN, щоб пропускати з’єднання ваших застосунків.</string>
     <string name="androidVpnRevoked">Android вимкнув захист — зазвичай тому, що увімкнено інший VPN-застосунок.</string>
     <string name="connections">З’єднання</string>
@@ -23,6 +28,8 @@
     <string name="openSourceTitle">Відкритий код</string>
     <string name="protected_">Захищено</string>
     <string name="protectionStopped">Захист вимкнено</string>
+    <string name="shareOnlineCount">Враховувати мене в загальному лічильнику реального часу</string>
+    <string name="shareOnlineCountDesc">Надсилає випадкове число, яке змінюється під час кожного запуску, щоб програма могла показувати, скільки її копій працює. Число надсилається лише тоді, коли захист увімкнено, тож воно йде тим самим захищеним шляхом, що й решта вашого трафіку. Вимкніть цей параметр, якщо хочете, щоб ваша мережа взагалі нічого не бачила від Shroudly.</string>
     <string name="start">Увімкнути захист</string>
     <string name="startFailed">Не вдалося увімкнути захист</string>
     <string name="starting">Увімкнення…</string>

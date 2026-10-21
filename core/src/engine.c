@@ -10,6 +10,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <stdarg.h>
 
 #define RELAY_BUF   32768
 #define FIRST_WAIT  4000   /* ms to gather the client's first payload */
@@ -93,10 +94,60 @@
 #define ATT_LOCAL  (-1) /* our own send failed */
 #define ATT_ALERT   3   /* (TLS) the far end answered with an alert: refused, but by a TLS speaker */
 
-static engine_config  g_cfg;
+/* The running engine's settings. Each start gets a copy of its own and the
+ * pointer moves to it; a copy is never freed, as connections of an earlier
+ * start in the same process (embedded, see engine_main) may still be
+ * reading theirs. Until the first start (and in the white-box tests) it is
+ * g_cfg_first. */
+static engine_config  g_cfg_first;
+static _Atomic(engine_config *) g_cfg_ptr = &g_cfg_first;
+typedef struct cfg_copy { engine_config cfg; struct cfg_copy *prev; } cfg_copy;
+static cfg_copy *g_cfg_kept = NULL;
+#define g_cfg (*atomic_load(&g_cfg_ptr))
 static engine_stats   g_stats;
 static sock_t         g_listener = SOCK_INVALID;
 static _Atomic int    g_running  = 0;
+/* Which start the accept loop running now belongs to: a loop left from an
+ * earlier start in the same process (embedded) sees it changed and ends. */
+static _Atomic unsigned g_generation = 0;
+
+/* ── output ─────────────────────────────────────────────────────────────
+ * Every JSON line goes through engine_printf. NULL is stdout. g_out_mx is
+ * made once, before the first engine starts (engine_init_once); until then
+ * (the tests, an error before the start) lines are written without it, as
+ * nothing else can be writing yet. */
+static FILE   *g_out = NULL;
+static int     g_out_off = 0;
+static mutex_t g_out_mx;
+static int     g_out_mx_ready = 0;
+
+void engine_set_output(FILE *out) {
+  if (g_out_mx_ready) mutex_lock(&g_out_mx);
+  g_out = out;
+  g_out_off = 0;
+  if (g_out_mx_ready) mutex_unlock(&g_out_mx);
+}
+
+void engine_output_off(void) {
+  if (g_out_mx_ready) mutex_lock(&g_out_mx);
+  g_out_off = 1;
+  g_out = NULL;
+  if (g_out_mx_ready) mutex_unlock(&g_out_mx);
+}
+
+void engine_printf(const char *fmt, ...) {
+  int locked = g_out_mx_ready;
+  if (locked) mutex_lock(&g_out_mx);
+  FILE *f = g_out_off ? NULL : (g_out ? g_out : stdout);
+  if (f) {
+    va_list ap;
+    va_start(ap, fmt);
+    vfprintf(f, fmt, ap);
+    va_end(ap);
+    fflush(f);
+  }
+  if (locked) mutex_unlock(&g_out_mx);
+}
 
 static int ip_literal(const char *h) {
   struct in_addr a4; struct in6_addr a6;
@@ -554,7 +605,7 @@ const engine_stats *engine_get_stats(void) { return &g_stats; }
 int engine_is_running(void) { return atomic_load(&g_running); }
 
 void engine_emit_stats(void) {
-  printf("{\"type\":\"stats\",\"conns_total\":%llu,\"conns_active\":%llu,"
+  engine_printf("{\"type\":\"stats\",\"conns_total\":%llu,\"conns_active\":%llu,"
          "\"bytes_up\":%llu,\"bytes_down\":%llu,\"desync\":%llu,"
          "\"tls\":%llu,\"http\":%llu,\"probe_ok\":%llu,\"probe_fail\":%llu}\n",
          (unsigned long long)atomic_load(&g_stats.conns_total),
@@ -566,7 +617,6 @@ void engine_emit_stats(void) {
          (unsigned long long)atomic_load(&g_stats.http_seen),
          (unsigned long long)atomic_load(&g_stats.probe_success),
          (unsigned long long)atomic_load(&g_stats.probe_fail));
-  fflush(stdout);
 }
 
 /* ── SOCKS handshake (client side) ──────────────────────────────────────── */
@@ -1442,11 +1492,10 @@ static void report(const char *ev, const char *host, const char *strat,
                    int attempts, int fam, const char *note) {
   char h[256];
   json_host(h, sizeof(h), host);
-  printf("{\"type\":\"%s\",\"host\":\"%s\",\"strategy\":\"%s\","
-         "\"attempts\":%d,\"family\":\"%s\"%s%s%s}\n",
-         ev, h, strat ? strat : "", attempts, fam == AF_INET6 ? "ipv6" : "ipv4",
-         note ? ",\"note\":\"" : "", note ? note : "", note ? "\"" : "");
-  fflush(stdout);
+  engine_printf("{\"type\":\"%s\",\"host\":\"%s\",\"strategy\":\"%s\","
+                "\"attempts\":%d,\"family\":\"%s\"%s%s%s}\n",
+                ev, h, strat ? strat : "", attempts, fam == AF_INET6 ? "ipv6" : "ipv4",
+                note ? ",\"note\":\"" : "", note ? note : "", note ? "\"" : "");
 }
 
 /* A host we could not connect to at all: its name did not resolve, or none of
@@ -1478,9 +1527,8 @@ static void report_unreachable(const char *host, uint16_t port, const dial_info 
   if (slot < 0) { slot = oldest; snprintf(g_unreach[slot].host, sizeof(g_unreach[slot].host), "%s", h); }
   g_unreach[slot].t = t;
   mutex_unlock(&g_unreach_mx);
-  printf("{\"type\":\"unreachable\",\"host\":\"%s\",\"stage\":\"%s\",\"ips\":%d}\n",
-         h, di && di->resolved > 0 ? "connect" : "dns", di ? di->tried : 0);
-  fflush(stdout);
+  engine_printf("{\"type\":\"unreachable\",\"host\":\"%s\",\"stage\":\"%s\",\"ips\":%d}\n",
+                h, di && di->resolved > 0 ? "connect" : "dns", di ? di->tried : 0);
 }
 
 /* The filter can answer *instead* of the server: an injected block page, a
@@ -1780,12 +1828,11 @@ static void report_gave_up(const ladder_st *st, int local_fails, int fam) {
   char h[256];
   json_host(h, sizeof(h), st->key);
   int alert = st->plain_alert && st->hard_refusals == 0;
-  printf("{\"type\":\"blocked\",\"host\":\"%s\",\"strategy\":\"\",\"attempts\":%d,\"family\":\"%s\"%s%s%s}\n",
-         h, st->made, fam == AF_INET6 ? "ipv6" : "ipv4",
-         st->saw_refusal ? "" : ",\"note\":\"silent\"",
-         ok_recent(st->key) ? ",\"site_ok\":true" : "",
-         alert ? ",\"alert\":true" : "");
-  fflush(stdout);
+  engine_printf("{\"type\":\"blocked\",\"host\":\"%s\",\"strategy\":\"\",\"attempts\":%d,\"family\":\"%s\"%s%s%s}\n",
+                h, st->made, fam == AF_INET6 ? "ipv6" : "ipv4",
+                st->saw_refusal ? "" : ",\"note\":\"silent\"",
+                ok_recent(st->key) ? ",\"site_ok\":true" : "",
+                alert ? ",\"alert\":true" : "");
 }
 
 /* ── UDP ASSOCIATE (RFC 1928 section 7) ──────────────────────────────────
@@ -2670,16 +2717,27 @@ static void *conn_thread(void *p) {
   return NULL;
 }
 
-static void *accept_loop(void *unused) {
-  (void)unused;
-  while (atomic_load(&g_running)) {
+/* What one accept loop serves: its listening socket, and the start it
+ * belongs to (g_generation). */
+typedef struct { sock_t l; unsigned gen; } accept_arg;
+
+static int accept_current(unsigned gen) {
+  return atomic_load(&g_running) && atomic_load(&g_generation) == gen;
+}
+
+static void *accept_loop(void *p) {
+  accept_arg a = *(accept_arg *)p;
+  free(p);
+  while (accept_current(a.gen)) {
     struct sockaddr_storage ca; socklen_t cl = sizeof(ca);
-    sock_t c = accept(g_listener, (struct sockaddr *)&ca, &cl);
+    sock_t c = accept(a.l, (struct sockaddr *)&ca, &cl);
     if (c == SOCK_INVALID) {
-      if (!atomic_load(&g_running)) break;
+      if (!accept_current(a.gen)) break;
       sleep_ms(5);
       continue;
     }
+    /* Stopped while it waited: the connection is for no engine. */
+    if (!accept_current(a.gen)) { sock_close(c); break; }
     /* Cap concurrency so a flood of localhost connections cannot exhaust
      * threads/memory. conns_active is decremented when each handler returns. */
     if (atomic_load(&g_stats.conns_active) >= MAX_CONNS) {
@@ -2693,19 +2751,80 @@ static void *accept_loop(void *unused) {
       sock_close(c); free(arg);
     }
   }
+#if defined(__linux__)
+  /* engine_stop only shut it down (see there): the loop closes it. */
+  sock_close(a.l);
+#endif
   return NULL;
 }
 
-int engine_start(const engine_config *cfg) {
-  g_cfg = *cfg;
-  memset(&g_stats, 0, sizeof(g_stats));
+/* The tables' locks and the output's, made once per process: a start after a
+ * stop in the same process (embedded) must not make a lock anew while a
+ * connection of the earlier engine may hold it. */
+static void engine_init_once(void) {
+  static int done = 0;
+  if (done) return;
+  done = 1;
   mutex_init(&g_hs_mx);
   mutex_init(&g_unreach_mx);
   mutex_init(&g_ok_mx);
   mutex_init(&g_win_mx);
   mutex_init(&g_cool_mx);
   mutex_init(&g_seen_mx);
+  mutex_init(&g_out_mx);
+  g_out_mx_ready = 1;
+}
+
+/* Everything an engine has learned about hosts and resolvers: a start is a
+ * fresh engine, as a new process was (the app sends back what it keeps
+ * itself, see LEARN). In a process that has just started it is all empty
+ * already. */
+static void engine_forget(void) {
+  mutex_lock(&g_hs_mx);
+  memset(g_hs, 0, sizeof(g_hs));
+  memset(g_rs, 0, sizeof(g_rs));
+  mutex_unlock(&g_hs_mx);
+  mutex_lock(&g_ok_mx);
+  memset(g_ok, 0, sizeof(g_ok));
+  mutex_unlock(&g_ok_mx);
+  mutex_lock(&g_cool_mx);
+  memset(g_cool, 0, sizeof(g_cool));
+  mutex_unlock(&g_cool_mx);
+  mutex_lock(&g_win_mx);
+  memset(g_win, 0, sizeof(g_win));
+  mutex_unlock(&g_win_mx);
+  mutex_lock(&g_unreach_mx);
+  memset(g_unreach, 0, sizeof(g_unreach));
+  mutex_unlock(&g_unreach_mx);
+  mutex_lock(&g_seen_mx);
+  memset(g_seen, 0, sizeof(g_seen));
+  mutex_unlock(&g_seen_mx);
+  doh_clear_cache();   /* the answers, and which resolvers were found dead */
+}
+
+int engine_start(const engine_config *cfg) {
+  engine_init_once();
+  /* Each copy stays linked from the last (g_cfg_kept), so none is ever
+   * unreachable, for a leak checker as much as for the connections. */
+  cfg_copy *own = (cfg_copy *)malloc(sizeof(*own));
+  if (!own) return -1;
+  own->cfg = *cfg;
+  own->prev = g_cfg_kept;
+  g_cfg_kept = own;
+  atomic_store(&g_cfg_ptr, &own->cfg);
+  /* The counters start over. conns_active is what is open right now: in a
+   * process that has run an engine before (embedded), connections of that
+   * one may still be finishing, and they count themselves out when they do. */
+  atomic_store(&g_stats.conns_total, 0);
+  atomic_store(&g_stats.bytes_up, 0);
+  atomic_store(&g_stats.bytes_down, 0);
+  atomic_store(&g_stats.desync_applied, 0);
+  atomic_store(&g_stats.tls_seen, 0);
+  atomic_store(&g_stats.http_seen, 0);
+  atomic_store(&g_stats.probe_success, 0);
+  atomic_store(&g_stats.probe_fail, 0);
   doh_init(cfg->doh_host, cfg->doh_ip);
+  engine_forget();
 
   struct sockaddr_in addr;
   memset(&addr, 0, sizeof(addr));
@@ -2716,8 +2835,8 @@ int engine_start(const engine_config *cfg) {
     addr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
   }
 
-  g_listener = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-  if (g_listener == SOCK_INVALID) return -1;
+  sock_t l = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+  if (l == SOCK_INVALID) return -1;
   int yes = 1;
 #ifdef _WIN32
   /* SO_REUSEADDR does not mean on Windows what it means elsewhere: it lets a
@@ -2725,38 +2844,58 @@ int engine_start(const engine_config *cfg) {
    * connections, which for a proxy the whole system is pointed at would hand
    * every request to whoever asked second. SO_EXCLUSIVEADDRUSE is the option
    * that reserves the port. */
-  setsockopt(g_listener, SOL_SOCKET, SO_EXCLUSIVEADDRUSE, (const char *)&yes, sizeof(yes));
+  setsockopt(l, SOL_SOCKET, SO_EXCLUSIVEADDRUSE, (const char *)&yes, sizeof(yes));
 #else
-  setsockopt(g_listener, SOL_SOCKET, SO_REUSEADDR, (const char *)&yes, sizeof(yes));
+  setsockopt(l, SOL_SOCKET, SO_REUSEADDR, (const char *)&yes, sizeof(yes));
 #endif
-  if (bind(g_listener, (struct sockaddr *)&addr, sizeof(addr)) != 0) {
-    sock_close(g_listener); g_listener = SOCK_INVALID; return -2;
+  if (bind(l, (struct sockaddr *)&addr, sizeof(addr)) != 0) {
+    sock_close(l); return -2;
   }
-  if (listen(g_listener, 128) != 0) {
-    sock_close(g_listener); g_listener = SOCK_INVALID; return -3;
+  if (listen(l, 128) != 0) {
+    sock_close(l); return -3;
   }
+  accept_arg *aa = (accept_arg *)malloc(sizeof(*aa));
+  if (!aa) { sock_close(l); return -1; }
+  aa->l = l;
+  aa->gen = atomic_fetch_add(&g_generation, 1) + 1;
 
+  g_listener = l;
   atomic_store(&g_running, 1);
   /* With --auto the ladder decides, not --strategy; say how many techniques it
    * has here so the app can describe what is actually running. */
-  /* pid: a supervisor that did not start us through a handle it keeps (the
-   * Android app) can kill a hung engine by it. */
+  /* pid: which process the engine is (a supervisor that did not start it
+   * through a handle it keeps can tell it by that). */
 #ifdef _WIN32
   long pid = (long)GetCurrentProcessId();
 #else
   long pid = (long)getpid();
 #endif
-  printf("{\"type\":\"ready\",\"port\":%d,\"techniques\":%d,\"pid\":%ld}\n", cfg->listen_port,
-         usable_presets(), pid);
-  fflush(stdout);
-  return thread_spawn(accept_loop, NULL, 256 * 1024);
+  engine_printf("{\"type\":\"ready\",\"port\":%d,\"techniques\":%d,\"pid\":%ld}\n", cfg->listen_port,
+                usable_presets(), pid);
+  if (thread_spawn(accept_loop, aa, 256 * 1024) != 0) {
+    free(aa);
+    atomic_store(&g_running, 0);
+    g_listener = SOCK_INVALID;
+    sock_close(l);
+    return -1;
+  }
+  return 0;
 }
 
 void engine_stop(void) {
   atomic_store(&g_running, 0);
   if (g_listener != SOCK_INVALID) {
     sock_t l = g_listener; g_listener = SOCK_INVALID;
+#if defined(__linux__)
+    /* On Linux close() does not wake an accept() blocked on the socket in
+     * another thread; shutdown() does, and stops new connections the same.
+     * The accept loop then closes it, so the descriptor is never closed under
+     * the loop and handed to something else in the process meanwhile (an
+     * engine run inside another program, see engine_main). */
+    shutdown(l, SHUT_RDWR);
+#else
     sock_close(l);
+#endif
   }
 }
 

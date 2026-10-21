@@ -3,10 +3,15 @@
 <resources>
     <string name="androidAlertsChannel">保护提醒</string>
     <string name="androidAllApps">此设备上的所有应用都经由 Shroudly 连接。</string>
+    <string name="androidBatteryHint">电池设置可能会在后台停止 Shroudly 并中断你的连接。请允许它不受电池限制地运行。</string>
+    <string name="androidBatterySettings">电池设置</string>
     <string name="androidDetails">详细信息</string>
     <string name="androidDownloadApk">下载更新</string>
+    <string name="androidLockdownOffline">无法上网：Shroudly 目前无法在此网络上连通，而 Android 已设置为阻止不经 VPN 的连接。Shroudly 正在继续尝试。</string>
+    <string name="androidNoInternet">由于 Shroudly 在此网络上无法连接互联网，保护已停止，你的应用现在直接联网。打开 Shroudly 即可重试。</string>
     <string name="androidPrivacyPolicy">隐私政策</string>
     <string name="androidProtectionLost">保护因出错而停止，你的应用现在直接联网。打开 Shroudly 即可重新开启。</string>
+    <string name="androidShareLogs">分享日志</string>
     <string name="androidVpnDenied">Shroudly 需要 VPN 权限才能承载你的应用的连接。</string>
     <string name="androidVpnRevoked">保护已被 Android 关闭，通常是因为开启了另一个 VPN 应用。</string>
     <string name="connections">连接</string>
@@ -23,6 +28,8 @@
     <string name="openSourceTitle">开源</string>
     <string name="protected_">已受保护</string>
     <string name="protectionStopped">保护已停止</string>
+    <string name="shareOnlineCount">将我计入在线人数</string>
+    <string name="shareOnlineCountDesc">发送一个每次启动都会变化的随机编号，以便应用显示有多少副本正在运行。它只在保护开启时发送，因此与你的其他流量走同一条受保护的路径。如果你不希望网络看到来自 Shroudly 的任何内容，请关闭。</string>
     <string name="start">启动保护</string>
     <string name="startFailed">无法启动保护</string>
     <string name="starting">正在启动…</string>

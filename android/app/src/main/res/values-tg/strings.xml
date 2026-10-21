@@ -3,10 +3,15 @@
 <resources>
     <string name="androidAlertsChannel">Огоҳиҳои ҳимоя</string>
     <string name="androidAllApps">Ҳар як барномаи ин дастгоҳ тавассути Shroudly мегузарад.</string>
+    <string name="androidBatteryHint">Танзимоти батарея метавонад Shroudly-ро дар пасзамина қатъ карда, пайвасти шуморо бурад. Иҷозат диҳед, ки он бе маҳдудиятҳои батарея кор кунад.</string>
+    <string name="androidBatterySettings">Танзимоти батарея</string>
     <string name="androidDetails">Тафсилот</string>
     <string name="androidDownloadApk">Боргирии навсозӣ</string>
+    <string name="androidLockdownOffline">Интернет нест: Shroudly ҳоло дар ин шабака пайваст шуда наметавонад, ва Android барои манъ кардани пайвастҳои бе VPN танзим шудааст. Shroudly кӯшишро идома медиҳад.</string>
+    <string name="androidNoInternet">Ҳимоя қатъ шуд, зеро Shroudly дар ин шабака ба интернет пайваст шуда натавонист, бинобар ин барномаҳоятон ҳоло мустақиман пайваст мешаванд. Барои боз кӯшиш кардан Shroudly-ро кушоед.</string>
     <string name="androidPrivacyPolicy">Сиёсати махфият</string>
     <string name="androidProtectionLost">Ҳимоя аз сабаби хатогӣ қатъ шуд, бинобар ин барномаҳоятон ҳоло мустақиман пайваст мешаванд. Барои дубора оғоз кардан Shroudly-ро кушоед.</string>
+    <string name="androidShareLogs">Мубодилаи сабтҳо</string>
     <string name="androidVpnDenied">Shroudly барои гузаронидани пайвастҳои барномаҳоятон иҷозати VPN лозим дорад.</string>
     <string name="androidVpnRevoked">Android муҳофизатро хомӯш кард, одатан чунки барномаи дигари VPN фаъол шуд.</string>
     <string name="connections">Пайвастҳо</string>
@@ -23,6 +28,8 @@
     <string name="openSourceTitle">Коди кушода</string>
     <string name="protected_">Ҳимоя шудааст</string>
     <string name="protectionStopped">Ҳимоя қатъ шуд</string>
+    <string name="shareOnlineCount">Маро ба шумораи умумии зинда дохил кунед</string>
+    <string name="shareOnlineCountDesc">Рақами тасодуфӣ мефиристад, ки бо ҳар оғоз иваз мешавад, то барнома нишон диҳад, ки чанд нусхаи он кор мекунад. Он танҳо ҳангоми фаъол будани ҳимоя фиристода мешавад, бинобар ин аз ҳамон роҳи ҳимояшуда мегузарад, ки боқимондаи трафики Шумо. Агар хоҳед, ки шабакаи Шумо аз Shroudly умуман ҳеҷ чиз набинад, онро хомӯш кунед.</string>
     <string name="start">Оғози ҳимоя</string>
     <string name="startFailed">Оғоз кардани ҳимоя муяссар нашуд</string>
     <string name="starting">Оғоз мешавад…</string>

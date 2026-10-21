@@ -16,6 +16,10 @@ object Protection {
         private set
     @Volatile var errorDetail: String? = null
         private set
+    /* While on: what is wrong and being worked on (a string resource; 0:
+     * nothing), e.g. offline under lockdown (ShroudlyVpnService.holdOn). */
+    @Volatile var troubleRes = 0
+        private set
     @Volatile var stats: EngineEvent.Stats? = null
     @Volatile var startedAt = 0L
     /* The engine's SOCKS5 port while protection is on, 0 otherwise, and the
@@ -39,6 +43,12 @@ object Protection {
     fun fail(res: Int, detail: String?) {
         errorRes = res
         errorDetail = detail
+        changed()
+    }
+
+    fun trouble(res: Int) {
+        if (troubleRes == res) return
+        troubleRes = res
         changed()
     }
 

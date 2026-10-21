@@ -417,5 +417,10 @@
   "androidProtectionLost": "Parastin ji ber çewtiyekê rawestiya, ji ber vê yekê sepanên te niha rasterast girêdidin. Ji bo ku tu wê dîsa bidî destpêkirin, Shroudly veke.",
   "androidDetails": "Hûragahî",
   "androidDownloadApk": "Nûvekirinê daxe",
-  "androidPrivacyPolicy": "Polîtîkaya nepeniyê"
+  "androidPrivacyPolicy": "Polîtîkaya nepeniyê",
+  "androidShareLogs": "Tomaran parve bike",
+  "androidNoInternet": "Parastin rawestiya ji ber ku Shroudly li ser vê torê negihişt înternetê, ji ber vê yekê sepanên te niha rasterast girêdidin. Ji bo ku tu dîsa biceribînî, Shroudly veke.",
+  "androidBatteryHint": "Mîhengên bataryayê dikarin Shroudly di paşxanê de rawestînin û girêdana te qut bikin. Destûrê bide ku ew bê sînorkirinên bataryayê bixebite.",
+  "androidBatterySettings": "Mîhengên bataryayê",
+  "androidLockdownOffline": "Înternet tune: Shroudly niha li ser vê torê nikare derbas bibe, û Android hatiye mîhengkirin ku girêdanên bê VPN asteng bike. Shroudly hewl didomîne."
 }

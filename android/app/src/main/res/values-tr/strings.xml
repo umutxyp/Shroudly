@@ -3,10 +3,15 @@
 <resources>
     <string name="androidAlertsChannel">Koruma uyarıları</string>
     <string name="androidAllApps">Bu cihazdaki her uygulama Shroudly üzerinden geçiyor.</string>
+    <string name="androidBatteryHint">Pil ayarları Shroudly\'yi arka planda durdurup bağlantınızı kesebilir. Pil kısıtlaması olmadan çalışmasına izin verin.</string>
+    <string name="androidBatterySettings">Pil ayarları</string>
     <string name="androidDetails">Ayrıntılar</string>
     <string name="androidDownloadApk">Güncellemeyi indir</string>
+    <string name="androidLockdownOffline">İnternet yok: Shroudly şu anda bu ağda bağlantı kuramıyor ve Android, VPN olmadan bağlantıları engelleyecek şekilde ayarlı. Shroudly denemeye devam ediyor.</string>
+    <string name="androidNoInternet">Shroudly bu ağda internete ulaşamadığı için koruma durdu, bu yüzden uygulamalarınız şu anda doğrudan bağlanıyor. Yeniden denemek için Shroudly\'yi açın.</string>
     <string name="androidPrivacyPolicy">Gizlilik politikası</string>
     <string name="androidProtectionLost">Koruma bir hata nedeniyle durdu, bu yüzden uygulamalarınız şu anda doğrudan bağlanıyor. Yeniden başlatmak için Shroudly\'yi açın.</string>
+    <string name="androidShareLogs">Kayıtları paylaş</string>
     <string name="androidVpnDenied">Shroudly, uygulamalarınızın bağlantılarını taşımak için VPN iznine ihtiyaç duyar.</string>
     <string name="androidVpnRevoked">Koruma Android tarafından kapatıldı; genellikle başka bir VPN uygulaması açıldığı için.</string>
     <string name="connections">Bağlantılar</string>
@@ -23,6 +28,8 @@
     <string name="openSourceTitle">Açık kaynak</string>
     <string name="protected_">Korunuyor</string>
     <string name="protectionStopped">Koruma durduruldu</string>
+    <string name="shareOnlineCount">Canlı sayıma beni de kat</string>
+    <string name="shareOnlineCountDesc">Her açılışta değişen rastgele bir numara gönderir; uygulama böylece kaç kopyanın çalıştığını gösterebilir. Yalnızca koruma açıkken gönderilir, yani diğer trafiğinle aynı korumalı yoldan gider. Ağının Shroudly’den hiçbir şey görmesini istemiyorsan kapat.</string>
     <string name="start">Korumayı başlat</string>
     <string name="startFailed">Koruma başlatılamadı</string>
     <string name="starting">Başlatılıyor…</string>

@@ -3,10 +3,15 @@
 <resources>
     <string name="androidAlertsChannel">Qoruma xəbərdarlıqları</string>
     <string name="androidAllApps">Bu cihazdakı hər tətbiq Shroudly üzərindən keçir.</string>
+    <string name="androidBatteryHint">Batareya ayarları Shroudly-ni arxa planda dayandırıb bağlantınızı kəsə bilər. Ona batareya məhdudiyyətləri olmadan işləməyə icazə verin.</string>
+    <string name="androidBatterySettings">Batareya ayarları</string>
     <string name="androidDetails">Təfərrüatlar</string>
     <string name="androidDownloadApk">Yeniləməni endir</string>
+    <string name="androidLockdownOffline">İnternet yoxdur: Shroudly hazırda bu şəbəkədə qoşula bilmir və Android VPN olmadan bağlantıları bloklamaq üçün ayarlanıb. Shroudly cəhd etməyə davam edir.</string>
+    <string name="androidNoInternet">Shroudly bu şəbəkədə internetə çıxa bilmədiyi üçün qoruma dayandı, ona görə tətbiqləriniz indi birbaşa qoşulur. Yenidən cəhd etmək üçün Shroudly-ni açın.</string>
     <string name="androidPrivacyPolicy">Məxfilik siyasəti</string>
     <string name="androidProtectionLost">Qoruma xəta səbəbindən dayandı, ona görə tətbiqləriniz indi birbaşa qoşulur. Yenidən başlatmaq üçün Shroudly-ni açın.</string>
+    <string name="androidShareLogs">Qeydləri paylaş</string>
     <string name="androidVpnDenied">Tətbiqlərinizin bağlantılarını daşımaq üçün Shroudly-yə VPN icazəsi lazımdır.</string>
     <string name="androidVpnRevoked">Qoruma Android tərəfindən söndürüldü; adətən başqa VPN tətbiqi açıldığı üçün.</string>
     <string name="connections">Bağlantılar</string>
@@ -23,6 +28,8 @@
     <string name="openSourceTitle">Açıq mənbə</string>
     <string name="protected_">Qorunur</string>
     <string name="protectionStopped">Qoruma dayandırıldı</string>
+    <string name="shareOnlineCount">Məni də canlı saya əlavə et</string>
+    <string name="shareOnlineCountDesc">Hər açılışda dəyişən təsadüfi bir nömrə göndərir ki, tətbiq neçə nüsxənin işlədiyini göstərə bilsin. O, yalnız qoruma aktiv olanda göndərilir, yəni trafikinin qalan hissəsi ilə eyni qorunan yolla gedir. Şəbəkənin Shroudly-dən ümumiyyətlə heç nə görməməsini istəyirsənsə, bunu söndür.</string>
     <string name="start">Qorumanı başlat</string>
     <string name="startFailed">Qorumanı başlatmaq mümkün olmadı</string>
     <string name="starting">Başladılır…</string>

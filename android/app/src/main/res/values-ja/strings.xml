@@ -3,10 +3,15 @@
 <resources>
     <string name="androidAlertsChannel">保護に関するお知らせ</string>
     <string name="androidAllApps">このデバイスのすべてのアプリが Shroudly を経由します。</string>
+    <string name="androidBatteryHint">バッテリー設定によって Shroudly がバックグラウンドで停止され、接続が切れることがあります。バッテリーの制限なしで動作できるようにしてください。</string>
+    <string name="androidBatterySettings">バッテリー設定</string>
     <string name="androidDetails">詳細</string>
     <string name="androidDownloadApk">アップデートをダウンロード</string>
+    <string name="androidLockdownOffline">インターネットに接続できません：Shroudly は現在このネットワークで通信できず、Android は VPN なしの接続をブロックするよう設定されています。Shroudly は再試行を続けています。</string>
+    <string name="androidNoInternet">Shroudly がこのネットワークでインターネットに接続できなかったため、保護を停止しました。アプリは現在直接接続しています。もう一度試すには Shroudly を開いてください。</string>
     <string name="androidPrivacyPolicy">プライバシーポリシー</string>
     <string name="androidProtectionLost">エラーにより保護が停止したため、アプリは現在直接接続しています。もう一度開始するには Shroudly を開いてください。</string>
+    <string name="androidShareLogs">ログを共有</string>
     <string name="androidVpnDenied">アプリの通信を中継するには、Shroudly に VPN の許可が必要です。</string>
     <string name="androidVpnRevoked">Android が保護をオフにしました。通常は別の VPN アプリがオンになったためです。</string>
     <string name="connections">接続</string>
@@ -23,6 +28,8 @@
     <string name="openSourceTitle">オープンソース</string>
     <string name="protected_">保護されています</string>
     <string name="protectionStopped">保護を停止しました</string>
+    <string name="shareOnlineCount">オンライン人数に自分を含める</string>
+    <string name="shareOnlineCountDesc">起動ごとに変わるランダムな番号を送り、何台が動いているかを表示できるようにします。保護がオンのときだけ送られるので、ほかの通信と同じ保護された経路を通ります。ネットワークに Shroudly の通信を一切見せたくない場合はオフにしてください。</string>
     <string name="start">保護を開始</string>
     <string name="startFailed">保護を開始できませんでした</string>
     <string name="starting">開始しています…</string>

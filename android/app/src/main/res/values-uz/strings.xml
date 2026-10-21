@@ -3,10 +3,15 @@
 <resources>
     <string name="androidAlertsChannel">Himoya ogohlantirishlari</string>
     <string name="androidAllApps">Bu qurilmadagi har bir ilova Shroudly orqali o‘tadi.</string>
+    <string name="androidBatteryHint">Batareya sozlamalari Shroudly’ni fonda to‘xtatib, ulanishingizni uzib qo‘yishi mumkin. Unga batareya cheklovlarisiz ishlashga ruxsat bering.</string>
+    <string name="androidBatterySettings">Batareya sozlamalari</string>
     <string name="androidDetails">Batafsil</string>
     <string name="androidDownloadApk">Yangilanishni yuklab olish</string>
+    <string name="androidLockdownOffline">Internet yo‘q: Shroudly hozir bu tarmoqda ulana olmayapti, Android esa VPN’siz ulanishlarni bloklashga sozlangan. Shroudly urinishda davom etmoqda.</string>
+    <string name="androidNoInternet">Shroudly bu tarmoqda internetga chiqa olmagani uchun himoya to‘xtadi, shuning uchun ilovalaringiz hozir to‘g‘ridan-to‘g‘ri ulanmoqda. Qayta urinib ko‘rish uchun Shroudly’ni oching.</string>
     <string name="androidPrivacyPolicy">Maxfiylik siyosati</string>
     <string name="androidProtectionLost">Himoya xato tufayli to‘xtadi, shuning uchun ilovalaringiz hozir to‘g‘ridan-to‘g‘ri ulanmoqda. Uni qayta yoqish uchun Shroudly’ni oching.</string>
+    <string name="androidShareLogs">Jurnalni ulashish</string>
     <string name="androidVpnDenied">Ilovalaringiz ulanishlarini o‘tkazish uchun Shroudly’ga VPN ruxsati kerak.</string>
     <string name="androidVpnRevoked">Himoya Android tomonidan o‘chirildi, odatda boshqa VPN ilovasi yoqilgani uchun.</string>
     <string name="connections">Ulanishlar</string>
@@ -23,6 +28,8 @@
     <string name="openSourceTitle">Ochiq manba</string>
     <string name="protected_">Himoyalangan</string>
     <string name="protectionStopped">Himoya oʻchirildi</string>
+    <string name="shareOnlineCount">Meni jonli hisobga qoʻshish</string>
+    <string name="shareOnlineCountDesc">Har safar ishga tushganda oʻzgaradigan tasodifiy raqam yuboriladi, shunda ilova nechta nusxa ishlayotganini koʻrsata oladi. U faqat himoya yoqilganida yuboriladi, shuning uchun trafikingizning qolgan qismi bilan bir xil himoyalangan yoʻldan oʻtadi. Agar tarmogʻingiz Shroudlydan umuman hech narsa koʻrmasligini istasangiz, buni oʻchiring.</string>
     <string name="start">Himoyani yoqish</string>
     <string name="startFailed">Himoyani yoqib boʻlmadi</string>
     <string name="starting">Yoqilmoqda…</string>

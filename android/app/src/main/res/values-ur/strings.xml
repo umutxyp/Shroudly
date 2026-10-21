@@ -3,10 +3,15 @@
 <resources>
     <string name="androidAlertsChannel">تحفظ کے انتباہات</string>
     <string name="androidAllApps">اس ڈیوائس کی ہر ایپ Shroudly سے ہو کر جاتی ہے۔</string>
+    <string name="androidBatteryHint">بیٹری کی ترتیبات Shroudly کو پس منظر میں روک کر آپ کا کنکشن منقطع کر سکتی ہیں۔ اسے بیٹری کی پابندیوں کے بغیر چلنے دیں۔</string>
+    <string name="androidBatterySettings">بیٹری کی ترتیبات</string>
     <string name="androidDetails">تفصیلات</string>
     <string name="androidDownloadApk">اپ ڈیٹ ڈاؤن لوڈ کریں</string>
+    <string name="androidLockdownOffline">انٹرنیٹ نہیں: Shroudly اس وقت اس نیٹ ورک پر جڑ نہیں پا رہا، اور Android کو VPN کے بغیر کنکشن روکنے کے لیے سیٹ کیا گیا ہے۔ Shroudly کوشش جاری رکھے ہوئے ہے۔</string>
+    <string name="androidNoInternet">تحفظ رک گیا کیونکہ Shroudly اس نیٹ ورک پر انٹرنیٹ تک نہیں پہنچ سکا، اس لیے آپ کی ایپس اب براہِ راست جڑ رہی ہیں۔ دوبارہ کوشش کرنے کے لیے Shroudly کھولیں۔</string>
     <string name="androidPrivacyPolicy">رازداری کی پالیسی</string>
     <string name="androidProtectionLost">ایک خرابی کی وجہ سے تحفظ رک گیا، اس لیے آپ کی ایپس اب براہِ راست جڑ رہی ہیں۔ اسے دوبارہ شروع کرنے کے لیے Shroudly کھولیں۔</string>
+    <string name="androidShareLogs">لاگز شیئر کریں</string>
     <string name="androidVpnDenied">آپ کی ایپس کے کنکشن لے جانے کے لیے Shroudly کو VPN کی اجازت درکار ہے۔</string>
     <string name="androidVpnRevoked">Android نے تحفظ بند کر دیا، عموماً اس لیے کہ کوئی دوسری VPN ایپ آن کی گئی۔</string>
     <string name="connections">کنکشنز</string>
@@ -23,6 +28,8 @@
     <string name="openSourceTitle">اوپن سورس</string>
     <string name="protected_">محفوظ</string>
     <string name="protectionStopped">تحفظ بند ہو گیا</string>
+    <string name="shareOnlineCount">مجھے لائیو شمار میں شامل کریں</string>
+    <string name="shareOnlineCountDesc">ہر بار کھلنے پر بدلنے والا ایک بے ترتیب نمبر بھیجتا ہے تاکہ ایپ دکھا سکے کہ کتنی کاپیاں چل رہی ہیں۔ یہ صرف تحفظ آن ہونے پر بھیجا جاتا ہے، چنانچہ یہ آپ کے باقی ٹریفک والے محفوظ راستے سے ہی جاتا ہے۔ اگر آپ چاہتے ہیں کہ آپ کا نیٹ ورک Shroudly سے کچھ بھی نہ دیکھے تو اسے بند کر دیں۔</string>
     <string name="start">تحفظ شروع کریں</string>
     <string name="startFailed">تحفظ شروع نہیں ہو سکا</string>
     <string name="starting">شروع ہو رہا ہے…</string>

@@ -14,10 +14,16 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.provider.Settings
+import android.text.SpannableStringBuilder
+import android.text.Spanned
+import android.text.style.ForegroundColorSpan
+import android.text.style.RelativeSizeSpan
 import android.view.View
 import android.view.WindowInsets
 import android.widget.ImageView
 import android.widget.ScrollView
+import android.widget.Switch
 import android.widget.TextView
 import java.text.NumberFormat
 
@@ -48,6 +54,7 @@ class MainActivity : Activity() {
     private lateinit var releases: View
     private lateinit var releasesLabel: TextView
     private lateinit var releasesIcon: ImageView
+    private lateinit var battery: View
 
     private val main = Handler(Looper.getMainLooper())
     private val onChange: () -> Unit = { render() }
@@ -62,6 +69,7 @@ class MainActivity : Activity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        ShroudlyVpnService.attachLog(this)
         setContentView(R.layout.activity_main)
         edgeToEdge()
 
@@ -83,6 +91,7 @@ class MainActivity : Activity() {
         releases = findViewById(R.id.releases)
         releasesLabel = findViewById(R.id.releasesLabel)
         releasesIcon = findViewById(R.id.releasesIcon)
+        battery = findViewById(R.id.battery)
         // The rows' ripples stay inside the card's rounded corners.
         findViewById<View>(R.id.about).clipToOutline = true
 
@@ -91,6 +100,20 @@ class MainActivity : Activity() {
         findViewById<TextView>(R.id.version).text = text(R.string.versionLabel, "version" to BuildConfig.VERSION_NAME)
         findViewById<View>(R.id.notices).setOnClickListener { showNotices() }
         findViewById<View>(R.id.privacy).setOnClickListener { open(UpdateCheck.PRIVACY_URL) }
+        findViewById<View>(R.id.shareLogs).setOnClickListener { shareLogs() }
+        findViewById<Switch>(R.id.shareOnlineCount).apply {
+            // The label, and the description under it, smaller and dimmer.
+            val desc = getString(R.string.shareOnlineCountDesc)
+            text = SpannableStringBuilder(getString(R.string.shareOnlineCount)).append('\n').apply {
+                val from = length
+                append(desc)
+                setSpan(ForegroundColorSpan(getColor(R.color.text_dim)), from, length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                setSpan(RelativeSizeSpan(12.5f / 15f), from, length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            }
+            isChecked = OnlineCount.enabled(this@MainActivity)
+            setOnCheckedChangeListener { _, on -> OnlineCount.setEnabled(this@MainActivity, on) }
+        }
+        findViewById<View>(R.id.batteryOpen).setOnClickListener { openBatterySettings() }
         findViewById<View>(R.id.updateOpen).setOnClickListener { updateUrl?.let { open(it) } }
         detailMore.setOnClickListener { showDetail() }
         // The channels' names follow the language, also after a per-app
@@ -121,6 +144,7 @@ class MainActivity : Activity() {
         Protection.listen(onChange)
         orb.resume()
         main.post(ticker)
+        showBatteryHint()
         // The APK from GitHub links its releases and looks for a newer one
         // there; a copy Google Play updates links the source code instead and
         // asks GitHub nothing (InstallSource).
@@ -261,7 +285,9 @@ class MainActivity : Activity() {
                 Protection.State.OFF -> R.string.start
             },
         )
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) toggle.stateDescription = statusText
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && toggle.stateDescription?.toString() != statusText) {
+            toggle.stateDescription = statusText
+        }
         orb.set(if (busy) Orb.Mode.BUSY else if (on) Orb.Mode.ON else Orb.Mode.OFF)
 
         // Set only when it changes: status and detail are live regions, and
@@ -274,6 +300,10 @@ class MainActivity : Activity() {
         when {
             vpnDenied && st == Protection.State.OFF -> {
                 detail.show(getString(R.string.androidVpnDenied))
+                detail.setTextColor(getColor(R.color.warn))
+            }
+            on && Protection.troubleRes != 0 -> {
+                detail.show(getString(Protection.troubleRes))
                 detail.setTextColor(getColor(R.color.warn))
             }
             error != 0 && st == Protection.State.OFF -> {
@@ -297,15 +327,17 @@ class MainActivity : Activity() {
         if (on && s != null) {
             val n = NumberFormat.getIntegerInstance()
             // Active now, and the session's total under it.
-            connections.text = n.format(s.connsActive)
-            connectionsTotal.text = text(R.string.totalCount, "count" to n.format(s.connsTotal))
-            upload.text = Format.bytes(s.bytesUp)
-            download.text = Format.bytes(s.bytesDown)
-            uptime.text = Format.duration(System.currentTimeMillis() - Protection.startedAt)
+            connections.show(n.format(s.connsActive))
+            connectionsTotal.show(text(R.string.totalCount, "count" to n.format(s.connsTotal)))
+            upload.show(Format.bytes(s.bytesUp))
+            download.show(Format.bytes(s.bytesDown))
+            uptime.show(Format.duration(System.currentTimeMillis() - Protection.startedAt))
             statsHint.visibility = View.GONE
         } else {
-            for (v in listOf(connections, upload, download, uptime)) v.text = "–"
-            connectionsTotal.text = text(R.string.totalCount, "count" to "–")
+            // Set only when it changes: the window redraws every second, and a
+            // text set again is announced to accessibility services again.
+            for (v in listOf(connections, upload, download, uptime)) v.show("–")
+            connectionsTotal.show(text(R.string.totalCount, "count" to "–"))
             statsHint.visibility = if (on) View.GONE else View.VISIBLE
         }
     }
@@ -334,6 +366,43 @@ class MainActivity : Activity() {
         updateUrl = offer.url
         updateText.text = text(R.string.updAvailable, "version" to offer.version)
         update.visibility = View.VISIBLE
+    }
+
+    /* ── battery and logs ──────────────────────────────────────────────── */
+
+    /* Asked each time the window comes back: the user may just have changed
+     * the setting. */
+    private fun showBatteryHint() {
+        val b = Diagnostics.battery(this)
+        battery.visibility = if (Diagnostics.batteryHint(b, Build.MANUFACTURER, Build.BRAND)) View.VISIBLE else View.GONE
+    }
+
+    /* The app's own page in Settings: every Android version and every phone
+     * maker has its battery setting there ("Battery", "App battery usage",
+     * "Battery saver"), where the user can choose no restrictions. No
+     * permission is needed for it, unlike asking Android to exempt the app
+     * directly. */
+    private fun openBatterySettings() {
+        val details = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.fromParts("package", packageName, null))
+        try {
+            startActivity(details)
+        } catch (_: ActivityNotFoundException) {
+            try { startActivity(Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS)) } catch (_: ActivityNotFoundException) {}
+        }
+    }
+
+    /* The recent log and the phone's details, as text the user sends where
+     * they choose (Diagnostics). */
+    private fun shareLogs() {
+        val text = try { Diagnostics.report(this) } catch (e: Exception) { "Shroudly ${BuildConfig.VERSION_NAME}: no report ($e)" }
+        val send = Intent(Intent.ACTION_SEND)
+            .setType("text/plain")
+            .putExtra(Intent.EXTRA_SUBJECT, "Shroudly ${BuildConfig.VERSION_NAME} log")
+            .putExtra(Intent.EXTRA_TEXT, text)
+        try {
+            startActivity(Intent.createChooser(send, getString(R.string.androidShareLogs)))
+        } catch (_: ActivityNotFoundException) {
+        }
     }
 
     private fun TextView.show(s: CharSequence) {

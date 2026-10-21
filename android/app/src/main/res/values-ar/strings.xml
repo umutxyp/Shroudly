@@ -3,10 +3,15 @@
 <resources>
     <string name="androidAlertsChannel">تنبيهات الحماية</string>
     <string name="androidAllApps">كل التطبيقات على هذا الجهاز تمر عبر Shroudly.</string>
+    <string name="androidBatteryHint">قد توقف إعدادات البطارية Shroudly في الخلفية وتقطع اتصالك. اسمح له بالعمل دون قيود على البطارية.</string>
+    <string name="androidBatterySettings">إعدادات البطارية</string>
     <string name="androidDetails">التفاصيل</string>
     <string name="androidDownloadApk">تنزيل التحديث</string>
+    <string name="androidLockdownOffline">لا يوجد إنترنت: لا يستطيع Shroudly الاتصال على هذه الشبكة حاليًا، وAndroid مضبوط على حظر الاتصالات دون VPN. يواصل Shroudly المحاولة.</string>
+    <string name="androidNoInternet">توقفت الحماية لأن Shroudly لم يتمكن من الوصول إلى الإنترنت على هذه الشبكة، لذا تتصل تطبيقاتك الآن مباشرةً. افتح Shroudly للمحاولة مجددًا.</string>
     <string name="androidPrivacyPolicy">سياسة الخصوصية</string>
     <string name="androidProtectionLost">توقفت الحماية بسبب خطأ، لذا تتصل تطبيقاتك الآن مباشرةً. افتح Shroudly لتشغيلها من جديد.</string>
+    <string name="androidShareLogs">مشاركة السجلات</string>
     <string name="androidVpnDenied">يحتاج Shroudly إلى إذن VPN لنقل اتصالات تطبيقاتك.</string>
     <string name="androidVpnRevoked">أوقف Android الحماية، غالبًا لأن تطبيق VPN آخر تم تشغيله.</string>
     <string name="connections">الاتصالات</string>
@@ -23,6 +28,8 @@
     <string name="openSourceTitle">مفتوح المصدر</string>
     <string name="protected_">محمي</string>
     <string name="protectionStopped">توقفت الحماية</string>
+    <string name="shareOnlineCount">احسبني ضمن العدد المباشر</string>
+    <string name="shareOnlineCountDesc">يرسل رقمًا عشوائيًا يتغير مع كل تشغيل، ليتمكن التطبيق من عرض عدد النسخ العاملة. ولا يُرسل إلا والحماية مفعّلة، فيسلك المسار المحمي نفسه الذي تسلكه بقية بياناتك. أوقفه إن كنت تفضّل ألا ترى شبكتك شيئًا من Shroudly إطلاقًا.</string>
     <string name="start">بدء الحماية</string>
     <string name="startFailed">تعذّر بدء الحماية</string>
     <string name="starting">جارٍ البدء…</string>

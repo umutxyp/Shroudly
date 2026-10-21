@@ -3,10 +3,15 @@
 <resources>
     <string name="androidAlertsChannel">የጥበቃ ማንቂያዎች</string>
     <string name="androidAllApps">በዚህ መሣሪያ ላይ ያለ እያንዳንዱ መተግበሪያ በShroudly በኩል ያልፋል።</string>
+    <string name="androidBatteryHint">የባትሪ ቅንብሮች Shroudlyን ከበስተጀርባ ሊያቆሙት እና ግንኙነትዎን ሊያቋርጡ ይችላሉ። ያለ ባትሪ ገደቦች እንዲሠራ ይፍቀዱለት።</string>
+    <string name="androidBatterySettings">የባትሪ ቅንብሮች</string>
     <string name="androidDetails">ዝርዝሮች</string>
     <string name="androidDownloadApk">ዝማኔውን አውርድ</string>
+    <string name="androidLockdownOffline">ኢንተርኔት የለም፦ Shroudly አሁን በዚህ አውታረ መረብ ላይ መገናኘት አልቻለም፣ እና Android ያለ VPN ግንኙነቶችን እንዲያግድ ተቀናብሯል። Shroudly መሞከሩን ቀጥሏል።</string>
+    <string name="androidNoInternet">Shroudly በዚህ አውታረ መረብ ላይ ኢንተርኔት ማግኘት ስላልቻለ ጥበቃው ቆሟል፤ ስለዚህ መተግበሪያዎችዎ አሁን በቀጥታ ይገናኛሉ። እንደገና ለመሞከር Shroudlyን ይክፈቱ።</string>
     <string name="androidPrivacyPolicy">የግላዊነት መመሪያ</string>
     <string name="androidProtectionLost">በስህተት ምክንያት ጥበቃው ቆሟል፤ ስለዚህ መተግበሪያዎችዎ አሁን በቀጥታ ይገናኛሉ። እንደገና ለማስጀመር Shroudlyን ይክፈቱ።</string>
+    <string name="androidShareLogs">መዝገብ አጋራ</string>
     <string name="androidVpnDenied">Shroudly የመተግበሪያዎችዎን ግንኙነቶች ለማሳለፍ የVPN ፈቃድ ያስፈልገዋል።</string>
     <string name="androidVpnRevoked">Android ጥበቃውን አጥፍቶታል፤ ብዙ ጊዜ ሌላ የVPN መተግበሪያ ስለበራ ነው።</string>
     <string name="connections">ግንኙነቶች</string>
@@ -23,6 +28,8 @@
     <string name="openSourceTitle">ክፍት ምንጭ</string>
     <string name="protected_">ተጠብቋል</string>
     <string name="protectionStopped">ጥበቃ ቆሟል</string>
+    <string name="shareOnlineCount">እኔንም በቀጥታ ድምሩ ውስጥ መቁጠር</string>
+    <string name="shareOnlineCountDesc">መተግበሪያው ምን ያህል ቅጂዎች እየሰሩ እንደሆነ ማሳየት እንዲችል በእያንዳንዱ ጅምር የሚቀየር የዘፈቀደ ቁጥር ይልካል። የሚላከው ጥበቃ በርቶ እያለ ብቻ ነው፤ ስለዚህ እንደ ሌላው ትራፊክዎ በዚያው በተጠበቀ መንገድ ይጓዛል። አውታረ መረብዎ ከShroudly ምንም ነገር እንዳያይ ከመረጡ ይህን ያጥፉት።</string>
     <string name="start">ጥበቃ ይጀምሩ</string>
     <string name="startFailed">ጥበቃን መጀመር አልተቻለም</string>
     <string name="starting">በመጀመር ላይ…</string>

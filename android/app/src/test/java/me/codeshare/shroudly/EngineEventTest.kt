@@ -90,17 +90,4 @@ class EngineEventTest {
             assertTrue(a, first[0] == 198 && first[1] in 18..19)
         }
     }
-
-    @Test
-    fun knowsAnOptionOnlyAsAWholeString() {
-        val dir = java.nio.file.Files.createTempDirectory("engine").toFile()
-        try {
-            val f = java.io.File(dir, "bin").apply { writeBytes("--port\u0000--fake-net\u0000".toByteArray()) }
-            assertTrue(Engine.knows(f, "--fake-net"))
-            assertTrue(!Engine.knows(f, "--fake"))
-            assertTrue(!Engine.knows(java.io.File(dir, "missing"), "--fake-net"))
-        } finally {
-            dir.deleteRecursively()
-        }
-    }
 }

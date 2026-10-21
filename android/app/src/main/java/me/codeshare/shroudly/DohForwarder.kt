@@ -43,6 +43,12 @@ import javax.net.ssl.SSLSocketFactory
  * Android's HttpsURLConnection speaks HTTP/1.1 only, so the resolvers that
  * accept nothing but HTTP/2 (Quad9, Mullvad) are not in this list.
  *
+ * Every operator is reached by its IPv6 addresses too: on a network with
+ * IPv6 only, IPv4 addresses work only through the carrier's translation
+ * (464XLAT), which not every network offers. Where a family is missing, its
+ * routes fail at once (the network is unreachable) and rest, like any other
+ * failure.
+ *
  * This app is left out of its own VPN, so these connections go straight to
  * the network. No lookup is logged or stored.
  *
@@ -55,6 +61,7 @@ import javax.net.ssl.SSLSocketFactory
 class DohRoute(
     val id: String,
     val op: String,
+    /* An IPv4 or IPv6 address, without brackets. */
     val ip: String,
     /* Names the certificate may carry instead of the address. */
     val names: List<String>,
@@ -62,6 +69,9 @@ class DohRoute(
     val sni: String? = null,
 ) {
     val viaEngine get() = sni != null
+    val v6 get() = ip.contains(':')
+    /* The address as a URL's host. */
+    val urlHost get() = if (v6) "[$ip]" else ip
 
     /* One verifier for the route's whole life: HttpsURLConnection pools
      * connections per verifier, so a new one per request would mean a new
@@ -123,6 +133,15 @@ class DohForwarder(
             DohRoute("dnssb-2", "dnssb", "45.11.45.11", listOf("doh.sb", "dns.sb")),
             DohRoute("cloudflare-3", "cloudflare", "162.159.36.1", CF),
             DohRoute("cloudflare-4", "cloudflare", "162.159.46.1", CF),
+            // The same operators over IPv6, last among equals: on most
+            // networks IPv4 works, and these rest after failing once where
+            // IPv6 does not.
+            DohRoute("cloudflare-6a", "cloudflare", "2606:4700:4700::1111", CF),
+            DohRoute("google-6a", "google", "2001:4860:4860::8888", listOf("dns.google")),
+            DohRoute("adguard-6a", "adguard", "2a10:50c0::1:ff", listOf("unfiltered.adguard-dns.com", "dns.adguard-dns.com")),
+            DohRoute("opendns-6a", "opendns", "2620:119:35::35", listOf("doh.opendns.com", "dns.opendns.com")),
+            DohRoute("cloudflare-6b", "cloudflare", "2606:4700:4700::1001", CF),
+            DohRoute("google-6b", "google", "2001:4860:4860::8844", listOf("dns.google")),
             // By name, through the engine.
             DohRoute("cloudflare-front-1", "cloudflare-front", "104.16.248.249", CF, sni = "cloudflare-dns.com"),
             DohRoute("cloudflare-front-2", "cloudflare-front", "104.16.249.249", CF, sni = "cloudflare-dns.com"),
@@ -184,15 +203,36 @@ class DohForwarder(
         }, full).apply { allowCoreThreadTimeOut(true) }
     }
 
-    /* Binds 127.0.0.1 on a free port and returns it. */
-    fun start(): Int {
-        val s = DatagramSocket(InetSocketAddress(InetAddress.getByName("127.0.0.1"), 0))
+    @Volatile private var serveThread: Thread? = null
+
+    /* Binds 127.0.0.1 on `port` (0: a free one) and returns the port. */
+    fun start(port: Int = 0): Int {
+        val s = DatagramSocket(InetSocketAddress(InetAddress.getByName("127.0.0.1"), port))
         sock = s
         running = true
-        Thread({ serve(s) }, "doh-forwarder").apply { isDaemon = true }.start()
-        timer = Executors.newSingleThreadScheduledExecutor { r -> Thread(r, "doh-warm").apply { isDaemon = true } }
-            .also { it.scheduleWithFixedDelay({ warm() }, 0, WARM_INTERVAL_MS, TimeUnit.MILLISECONDS) }
+        serveThread = Thread({ serve(s) }, "doh-forwarder").apply { isDaemon = true; start() }
+        if (timer == null) {
+            timer = Executors.newSingleThreadScheduledExecutor { r -> Thread(r, "doh-warm").apply { isDaemon = true } }
+                .also { it.scheduleWithFixedDelay({ warm() }, 0, WARM_INTERVAL_MS, TimeUnit.MILLISECONDS) }
+        }
         return s.localPort
+    }
+
+    /* It still answers on its port: started, not stopped, and its thread has
+     * not ended on an error of its socket. */
+    val serving get() = running && serveThread?.isAlive == true
+
+    /* After its thread ended on its own: the same port again, which the
+     * engine was given. false if the port cannot be had back. */
+    fun restart(port: Int): Boolean {
+        if (!running) return false
+        try { sock?.close() } catch (_: Exception) {}
+        return try {
+            start(port) == port
+        } catch (e: Exception) {
+            log("DoH forwarder could not take port $port back: ${e.message}")
+            false
+        }
     }
 
     fun stop() {
@@ -214,6 +254,9 @@ class DohForwarder(
                 if (running) log("DoH forwarder: ${e.message}")
                 if (s.isClosed) return
                 continue
+            } catch (e: RuntimeException) {
+                log("DoH forwarder stopped: $e")
+                return
             }
             if (!Dns.isQuery(pkt.data, pkt.length)) continue
             val msg = pkt.data.copyOf(pkt.length)
@@ -294,7 +337,7 @@ class DohForwarder(
      * The connection goes back to the pool for the next lookup (the body is
      * read to the end and the stream closed, without disconnect()). */
     private fun direct(r: DohRoute, msg: ByteArray): ByteArray {
-        val c = URL("https://${r.ip}/dns-query").openConnection(Proxy.NO_PROXY) as HttpsURLConnection
+        val c = URL("https://${r.urlHost}/dns-query").openConnection(Proxy.NO_PROXY) as HttpsURLConnection
         try {
             c.hostnameVerifier = r.verifier
             c.connectTimeout = QUERY_TIMEOUT_MS
@@ -459,7 +502,9 @@ object Socks5 {
         return byteArrayOf(5, 1, 0, 3, n.size.toByte()) + n + p
     }
 
-    fun connect(s: Socket, host: String, port: Int, auth: SocksAuth? = null) {
+    /* The greeting, and the password when there is one: what a SOCKS5
+     * server answers before any request. Throws unless it accepted. */
+    fun greet(s: Socket, auth: SocksAuth? = null) {
         val out = s.getOutputStream()
         val input = s.getInputStream()
         out.write(hello(auth))
@@ -475,6 +520,12 @@ object Socks5 {
             readFully(input, ok)
             if (ok[1].toInt() != 0) throw IOException("SOCKS password refused")
         }
+    }
+
+    fun connect(s: Socket, host: String, port: Int, auth: SocksAuth? = null) {
+        greet(s, auth)
+        val out = s.getOutputStream()
+        val input = s.getInputStream()
         out.write(request(host, port))
         out.flush()
         val head = ByteArray(5)

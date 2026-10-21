@@ -219,11 +219,14 @@ jobs:
       - run: npm ci
       - run: npm run build
 
-  # The Android app: the engine built for every Android ABI, hev-socks5-tunnel
-  # from its pinned, verified source, unit tests, lint, the debug and release
-  # builds, the Google Play bundle, Play's 16 KB page size check on all of
-  # them, and the app on a real Android system (an x86_64 emulator with KVM):
-  # protection on, names, HTTP and UDP through the VPN and the engine, then off
+  # The Android app: hev-socks5-tunnel from its pinned, verified source, unit
+  # tests, lint, the debug and release builds (Gradle builds the engine from
+  # core/ for every Android ABI, run inside the app's process), the Google
+  # Play bundle, Play's 16 KB page size check on all of them, and the app on a
+  # real Android system (an x86_64 emulator with KVM): protection on, names,
+  # HTTP and UDP through the VPN and the engine, the engine and the tunnel
+  # stopping under it, Private DNS by name, network changes, the app's own
+  # network cut (protection must end, not leave the phone offline), then off
   # (android/scripts/emulator-smoke.sh).
   android:
     runs-on: ubuntu-latest
@@ -251,10 +254,8 @@ jobs:
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
-      - name: Engine for Android, hev source, generated files
+      - name: hev source, generated files
         run: |
-          export ANDROID_NDK_HOME="$ANDROID_HOME/ndk/$NDK_VERSION"
-          node scripts/build-core-android.js
           node android/scripts/fetch-hev.js
           node android/scripts/gen-strings.js --check
           node android/scripts/gen-block-ips.js --check

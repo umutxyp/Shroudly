@@ -417,5 +417,10 @@
   "androidProtectionLost": "A proteção parou por causa de um erro, então seus apps estão se conectando diretamente. Abra o Shroudly para ativá-la de novo.",
   "androidDetails": "Detalhes",
   "androidDownloadApk": "Baixar a atualização",
-  "androidPrivacyPolicy": "Política de privacidade"
+  "androidPrivacyPolicy": "Política de privacidade",
+  "androidShareLogs": "Compartilhar registros",
+  "androidNoInternet": "A proteção parou porque o Shroudly não conseguiu acessar a internet nesta rede, então seus apps estão se conectando diretamente. Abra o Shroudly para tentar de novo.",
+  "androidBatteryHint": "As configurações de bateria podem parar o Shroudly em segundo plano e cortar sua conexão. Deixe-o funcionar sem restrições de bateria.",
+  "androidBatterySettings": "Configurações de bateria",
+  "androidLockdownOffline": "Sem internet: o Shroudly não consegue se conectar nesta rede agora, e o Android está configurado para bloquear conexões sem VPN. O Shroudly continua tentando."
 }

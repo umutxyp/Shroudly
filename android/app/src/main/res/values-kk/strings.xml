@@ -3,10 +3,15 @@
 <resources>
     <string name="androidAlertsChannel">Қорғаныс ескертулері</string>
     <string name="androidAllApps">Осы құрылғыдағы әр қолданба Shroudly арқылы өтеді.</string>
+    <string name="androidBatteryHint">Батарея параметрлері Shroudly-ді фондық режимде тоқтатып, байланысыңызды үзуі мүмкін. Оған батарея шектеулерінсіз жұмыс істеуге рұқсат беріңіз.</string>
+    <string name="androidBatterySettings">Батарея параметрлері</string>
     <string name="androidDetails">Толығырақ</string>
     <string name="androidDownloadApk">Жаңартуды жүктеу</string>
+    <string name="androidLockdownOffline">Интернет жоқ: Shroudly қазір бұл желіде қосыла алмай тұр, ал Android VPN-сіз қосылымдарды бұғаттайтындай бапталған. Shroudly әрекетін жалғастыруда.</string>
+    <string name="androidNoInternet">Shroudly бұл желіде интернетке шыға алмағандықтан қорғаныс тоқтады, сондықтан қолданбаларыңыз қазір тікелей қосылып тұр. Қайта көру үшін Shroudly-ді ашыңыз.</string>
     <string name="androidPrivacyPolicy">Құпиялық саясаты</string>
     <string name="androidProtectionLost">Қорғаныс қатеге байланысты тоқтады, сондықтан қолданбаларыңыз қазір тікелей қосылып тұр. Қайта қосу үшін Shroudly-ді ашыңыз.</string>
+    <string name="androidShareLogs">Журналды бөлісу</string>
     <string name="androidVpnDenied">Қолданбаларыңыздың қосылымдарын өткізу үшін Shroudly-ге VPN рұқсаты керек.</string>
     <string name="androidVpnRevoked">Android қорғанысты өшірді, әдетте басқа VPN қолданбасы қосылғандықтан.</string>
     <string name="connections">Қосылымдар</string>
@@ -23,6 +28,8 @@
     <string name="openSourceTitle">Ашық бастапқы код</string>
     <string name="protected_">Қорғалған</string>
     <string name="protectionStopped">Қорғаныс тоқтатылды</string>
+    <string name="shareOnlineCount">Мені нақты уақыттағы жалпы санға қосу</string>
+    <string name="shareOnlineCountDesc">Әр іске қосылған сайын өзгеретін кездейсоқ сан жіберіледі, сол арқылы қолданба қанша көшірмесі жұмыс істеп тұрғанын көрсете алады. Ол тек қорғаныс қосулы кезде жіберіледі, сондықтан қалған трафигіңізбен бірдей қорғалған жолмен өтеді. Желіңіз Shroudly тарапынан мүлде ештеңе көрмегенін қаласаңыз, мұны өшіріңіз.</string>
     <string name="start">Қорғанысты қосу</string>
     <string name="startFailed">Қорғанысты қосу мүмкін болмады</string>
     <string name="starting">Іске қосылуда…</string>

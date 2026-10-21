@@ -417,5 +417,10 @@
   "androidProtectionLost": "Himoya xato tufayli to‘xtadi, shuning uchun ilovalaringiz hozir to‘g‘ridan-to‘g‘ri ulanmoqda. Uni qayta yoqish uchun Shroudly’ni oching.",
   "androidDetails": "Batafsil",
   "androidDownloadApk": "Yangilanishni yuklab olish",
-  "androidPrivacyPolicy": "Maxfiylik siyosati"
+  "androidPrivacyPolicy": "Maxfiylik siyosati",
+  "androidShareLogs": "Jurnalni ulashish",
+  "androidNoInternet": "Shroudly bu tarmoqda internetga chiqa olmagani uchun himoya to‘xtadi, shuning uchun ilovalaringiz hozir to‘g‘ridan-to‘g‘ri ulanmoqda. Qayta urinib ko‘rish uchun Shroudly’ni oching.",
+  "androidBatteryHint": "Batareya sozlamalari Shroudly’ni fonda to‘xtatib, ulanishingizni uzib qo‘yishi mumkin. Unga batareya cheklovlarisiz ishlashga ruxsat bering.",
+  "androidBatterySettings": "Batareya sozlamalari",
+  "androidLockdownOffline": "Internet yo‘q: Shroudly hozir bu tarmoqda ulana olmayapti, Android esa VPN’siz ulanishlarni bloklashga sozlangan. Shroudly urinishda davom etmoqda."
 }

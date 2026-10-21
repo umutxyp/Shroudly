@@ -16,9 +16,10 @@
 
     <!-- No backup and no device-to-device copy of anything: see
          res/xml/data_extraction_rules.xml (Android 12+); allowBackup covers
-         the earlier versions. extractNativeLibs: the engine is run from
-         nativeLibraryDir, so it must be unpacked there; bundletool keeps this
-         in every APK Google Play makes from the bundle. -->
+         the earlier versions. extractNativeLibs: the native libraries (the
+         engine and hev) stay compressed in the APK, a smaller download, and
+         are unpacked at install; bundletool keeps this in every APK Google
+         Play makes from the bundle. -->
     <application
         android:allowBackup="false"
         android:dataExtractionRules="@xml/data_extraction_rules"
