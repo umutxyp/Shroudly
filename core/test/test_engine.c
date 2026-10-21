@@ -401,6 +401,30 @@ int main(void) {
   }
   printf("  stand-in address ranges: OK\n");
 
+  /* 14. A start is a fresh engine: what an earlier start in the same process
+   * learned (the Android app restarts the engine in its own process) is
+   * gone, as it was with a new process. */
+  {
+    engine_init_once();
+    hs_put("forget.example", 1);
+    rs_put("forget2.example", 2);
+    cool_put("forget3.example");
+    ok_put("forget4.example");
+    struct sockaddr_storage w; memset(&w, 0, sizeof(w)); w.ss_family = AF_INET;
+    winner_put("forget5.example", &w);
+    CHECK(hs_get("forget.example", NULL) == 1 && cool_is("forget3.example") && ok_recent("forget4.example"));
+    engine_forget();
+    int from, learned, inh, stale;
+    ladder_start("forget2.example", 1, &from, &learned, &inh, &stale);
+    CHECK(hs_get("forget.example", NULL) == -1);
+    CHECK(from == -1 && learned == -1);
+    CHECK(!cool_is("forget3.example"));
+    CHECK(!ok_recent("forget4.example"));
+    struct sockaddr_storage out;
+    CHECK(!winner_get("forget5.example", &out));
+  }
+  printf("  a new start forgets what the last one learned: OK\n");
+
   if (fails == 0) { printf("ENGINE MEMORY TESTS PASSED\n"); return 0; }
   printf("%d FAILED\n", fails);
   return 1;

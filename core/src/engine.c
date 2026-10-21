@@ -93,7 +93,14 @@
 #define ATT_LOCAL  (-1) /* our own send failed */
 #define ATT_ALERT   3   /* (TLS) the far end answered with an alert: refused, but by a TLS speaker */
 
-static engine_config  g_cfg;
+/* The running engine's settings. Each start gets a copy of its own and the
+ * pointer moves to it; a copy is never freed, as connections of an earlier
+ * start in the same process (embedded, see engine_main) may still be
+ * reading theirs. Until the first start (and in the white-box tests) it is
+ * g_cfg_first. */
+static engine_config  g_cfg_first;
+static _Atomic(engine_config *) g_cfg_ptr = &g_cfg_first;
+#define g_cfg (*atomic_load(&g_cfg_ptr))
 static engine_stats   g_stats;
 static sock_t         g_listener = SOCK_INVALID;
 static _Atomic int    g_running  = 0;
@@ -2691,9 +2698,36 @@ static void engine_init_once(void) {
   g_out_mx_ready = 1;
 }
 
+/* Everything an engine has learned about hosts and resolvers: a start is a
+ * fresh engine, as a new process was (the app sends back what it keeps
+ * itself, see LEARN). In a process that has just started it is all empty
+ * already. */
+static void engine_forget(void) {
+  mutex_lock(&g_hs_mx);
+  memset(g_hs, 0, sizeof(g_hs));
+  memset(g_rs, 0, sizeof(g_rs));
+  mutex_unlock(&g_hs_mx);
+  mutex_lock(&g_ok_mx);
+  memset(g_ok, 0, sizeof(g_ok));
+  mutex_unlock(&g_ok_mx);
+  mutex_lock(&g_cool_mx);
+  memset(g_cool, 0, sizeof(g_cool));
+  mutex_unlock(&g_cool_mx);
+  mutex_lock(&g_win_mx);
+  memset(g_win, 0, sizeof(g_win));
+  mutex_unlock(&g_win_mx);
+  mutex_lock(&g_unreach_mx);
+  memset(g_unreach, 0, sizeof(g_unreach));
+  mutex_unlock(&g_unreach_mx);
+  doh_clear_cache();   /* the answers, and which resolvers were found dead */
+}
+
 int engine_start(const engine_config *cfg) {
   engine_init_once();
-  g_cfg = *cfg;
+  engine_config *own = (engine_config *)malloc(sizeof(*own));
+  if (!own) return -1;
+  *own = *cfg;
+  atomic_store(&g_cfg_ptr, own);
   /* The counters start over. conns_active is what is open right now: in a
    * process that has run an engine before (embedded), connections of that
    * one may still be finishing, and they count themselves out when they do. */
@@ -2706,6 +2740,7 @@ int engine_start(const engine_config *cfg) {
   atomic_store(&g_stats.probe_success, 0);
   atomic_store(&g_stats.probe_fail, 0);
   doh_init(cfg->doh_host, cfg->doh_ip);
+  engine_forget();
 
   struct sockaddr_in addr;
   memset(&addr, 0, sizeof(addr));
