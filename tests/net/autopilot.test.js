@@ -460,6 +460,70 @@ const settle = async () => { for (let i = 0; i < 5; i++) await new Promise((r) =
     }
   }
 
+  // ── a Stop of protection while the autopilot asks: the Stop wins ──
+  {
+    // advanced.session() changes with each Stop; the anti-cheat look and the
+    // app check hold until the test lets them go.
+    const stopRig = ({ startResult = { success: true }, running = false } = {}) => {
+      const st = { session: 0, starts: [], hold: null, release: null };
+      const gate = () => { st.hold = new Promise((res) => { st.release = res; }); return st.hold; };
+      const adv = {
+        available: () => true, active: () => false, session: () => st.session,
+        start: async (since) => { st.starts.push(since); return startResult; },
+        antiCheat: async () => { await gate(); return null; },
+      };
+      const r = rig({ blocked: ['discord.com'], adv, running: { discord: running, roblox: false } });
+      return { st, r };
+    };
+    {
+      const { st, r } = stopRig();
+      const p = r.ap.needAdvanced('a.example');
+      await settle();
+      st.session++; r.off();                 // Stop while the anti-cheat look runs
+      st.release();
+      t.ok(await p === false && !st.starts.length && !r.told.length && r.ap.advancedAsked === false,
+        'protection stopped while the anti-cheat look ran: no prompt, nothing told, and a later session may still ask');
+    }
+    {
+      const { st, r } = stopRig();
+      const p = r.ap.needAdvanced('a.example');
+      await settle();
+      st.session++;                          // Stop and a quick Start
+      st.release();
+      t.ok(await p === false && !st.starts.length, 'a Stop and a quick Start meanwhile: the ask belonged to the stopped session, nothing is asked');
+    }
+    {
+      const { st, r } = stopRig();
+      const p = r.ap.needAdvanced('a.example');
+      await settle();
+      st.release();
+      t.ok(await p === true && st.starts.join() === '0', 'no Stop: asked as ever, the start carrying the session it began in');
+    }
+    {
+      const { st, r } = stopRig({ startResult: { success: false, code: 'protection_off' } });
+      const p = r.ap.needAdvanced('a.example');
+      await settle();
+      st.release();
+      t.ok(await p === false && r.told.map((x) => x.id).join() === 'autoAdvancedAsk' && !r.store.get('advancedDeclinedAt'),
+        'stopped before it came up (main.js stops it again): no "did not start" line, no decline recorded');
+    }
+    {
+      // The app check of a stuck Discord is an await too.
+      const { st, r } = stopRig({ running: true });
+      let let_go = null;
+      r.ap.services[0].running = () => new Promise((res) => { let_go = res; });
+      await r.ap.survey();
+      r.ap.noteHost('blocked', 'gateway.discord.gg', { note: 'silent' });
+      await settle();
+      st.session++;                          // Stop and Start while the app is looked for
+      let_go(true);
+      await settle();
+      if (st.release) st.release();
+      await settle();
+      t.ok(!st.starts.length && !r.told.some((x) => x.id === 'autoAdvancedAsk'), 'a Stop while the app was looked for: nothing is asked either');
+    }
+  }
+
   // ── a game's anti-cheat: no packet driver loaded beside it by itself ──
   {
     const list = '"svchost.exe","900","Services","0","9,000 K"\r\n"vgc.exe","4100","Services","0","30,000 K"';

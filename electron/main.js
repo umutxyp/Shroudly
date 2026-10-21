@@ -9,6 +9,7 @@ const netModule = require('net');
 const Store = require('electron-store');
 const EngineManager = require('./engine-manager');
 const AdvancedMode = require('./advanced-mode');
+const AdvancedProtection = require('./advanced-protection');
 const DiscordApp = require('./discord-app');
 const DiscordRelay = require('./discord-relay');
 const AppProxy = require('./app-proxy');
@@ -569,25 +570,24 @@ function askProxyRecovery() {
   engine.recoverProxyAsAdmin({ windowShown }).catch(() => {});
 }
 
-/* Advanced mode was running when the user stopped protection: it is part of
- * protection, so it comes back when they start it again in this run (one
- * permission prompt, as when it was first turned on). Without this, a Stop
- * and Start left it off for the rest of the session, since the autopilot
- * asks only once a session, and whatever only it opened (Discord's gateway
- * on some networks) stayed shut. Turned off by hand meanwhile: not. */
-let advancedResume = false;
-
-async function resumeAdvanced() {
-  if (!advancedResume || !advanced || advanced.active || !engine || !engine.isActive()) return;
-  advancedResume = false;
-  // As for the autopilot: never loaded by itself beside a game's anti-cheat.
-  let ac = null;
-  try { ac = await Autopilot.antiCheatRunning(); } catch {}
-  if (ac) { addLog('info', `Advanced mode was on when protection was stopped, but a game's anti-cheat is running (${ac}); not started by itself`); return; }
-  addLog('info', 'Advanced mode was on when protection was stopped; turning it back on');
-  const r = await startAdvanced();
-  if (autopilot && r && r.code === 'declined') autopilot.recordDecline();
-}
+/* Advanced mode as part of protection: it stops with it, comes back at the
+ * user's next Start when their Stop took it down, and a Stop wins over a
+ * start on protection's behalf still waiting for its permission prompt (the
+ * return, the autopilot's ask). The Settings panel's own start does not go
+ * through it (advanced-protection.js). */
+const advancedProtection = new AdvancedProtection({
+  active: () => !!(advanced && advanced.active),
+  start: () => startAdvanced(),
+  stop: async () => {
+    try { await advanced.stop(); } catch {}
+    toWindow('advanced:state', { active: false });
+  },
+  // A crash restart or a settings restart under way is still protection on.
+  protectionOn: () => !!(engine && (engine.isActive() || engine.coming)),
+  antiCheat: () => Autopilot.antiCheatRunning(),
+  declined: () => { if (autopilot) autopilot.recordDecline(); },
+  log: (level, msg) => addLog(level, msg),
+});
 
 async function safeStart({ user = false } = {}) {
   if (user) store.set(PROTECTION_KEY, true);
@@ -596,7 +596,7 @@ async function safeStart({ user = false } = {}) {
     broadcastStatus(true);
     notify('Shroudly', tr().trayStarted);
     syncPresence();
-    if (user) resumeAdvanced().catch(() => {});
+    if (user) advancedProtection.started().catch(() => {});
     // Whether this network blocks what the installed apps need, before they
     // are opened (autopilot.js).
     setTimeout(() => { if (autopilot) autopilot.survey().catch(() => {}); }, 3000);
@@ -622,11 +622,9 @@ async function safeStop({ user = false } = {}) {
     // its packet interception, or WinDivert / NFQUEUE would keep injecting
     // decoys into every outbound connection after the user turned protection
     // off. (A crash or quit already stops both; this is the user's Stop.)
-    if (advanced && advanced.active) {
-      advancedResume = user;
-      try { await advanced.stop(); } catch {}
-      toWindow('advanced:state', { active: false });
-    }
+    // A start on protection's behalf still waiting for its prompt is
+    // stopped when it comes up (advanced-protection.js).
+    await advancedProtection.stopped({ user });
     await engine.stop({ user });
     broadcastStatus(false);
     notify('Shroudly', tr().trayStopped);
@@ -1043,7 +1041,7 @@ ipcMain.handle('advanced:start', async () => {
   return r;
 });
 ipcMain.handle('advanced:stop', async () => {
-  advancedResume = false;
+  advancedProtection.offByHand();
   if (autopilot) autopilot.userSet('advancedMode', false);
   try { await advanced.stop(); toWindow('advanced:state', { active: false }); return { success: true }; }
   catch (e) { return { success: false, error: e.message }; }
@@ -1768,7 +1766,9 @@ function createAutopilot() {
     advanced: {
       available: () => !!(advanced && advanced.available()),
       active: () => !!(advanced && advanced.active),
-      start: () => startAdvanced(),
+      // On protection's behalf: a Stop while it waits wins.
+      session: () => advancedProtection.session(),
+      start: (since) => advancedProtection.start(since),
       antiCheat: () => Autopilot.antiCheatRunning(),
     },
   });

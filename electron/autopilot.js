@@ -132,7 +132,10 @@ class Autopilot {
    * opts.protectionOn()    whether protection is on
    * opts.check(host)       blockcheck.check, through the engine
    * opts.services          [{ id, name, probe, mode, needsApp, present(), enable() -> { success } }]
-   * opts.advanced          { available(), active(), start() -> { success, code } }
+   * opts.advanced          { available(), active(), start(since) -> { success, code },
+   *                          antiCheat(), session() }: session() changes with each
+   *                          Stop of protection, and start(since) answers
+   *                          code 'protection_off' when one came first
    * opts.now()             the clock (tests)
    */
   constructor(opts) {
@@ -342,6 +345,7 @@ class Autopilot {
     if (!this.willAskAdvanced()) return false;
     const s = this.services.find((x) => x.id === id);
     if (!s) return false;
+    const since = this._session();
     if (!sign.voice) {
       let open = false;
       try { open = !!(s.running && await s.running()); } catch {}
@@ -351,9 +355,14 @@ class Autopilot {
     this.signs.delete(id);
     return this.needAdvanced(sign.host, {
       why: sign.voice ? `a ${s.name} call is starting; its sound goes over UDP` : `${s.name} is open and cannot reach it`,
-      label: s.name,
+      label: s.name, since,
     });
   }
+
+  /* Protection's session (advanced.session(): one per Stop), and whether an
+   * ask begun in `since` still belongs to protection as it is now. */
+  _session() { return this.advanced && this.advanced.session ? this.advanced.session() : null; }
+  _stillOn(since) { return this.protectionOn() && this._session() === since; }
 
   /* The user declined Advanced mode's permission prompt (also one they
    * started themselves): not asked again by itself for two weeks. */
@@ -372,7 +381,8 @@ class Autopilot {
    * is what is left. Resolves whether it is on now. opts.why goes in the log
    * line, opts.label is what the user is told needs it (the host by
    * default). One ask at a time: another reason arriving meanwhile gets the
-   * same answer, not a second prompt. */
+   * same answer, not a second prompt. opts.since: protection's session the
+   * ask began in (advanced.session(); now by default), which a Stop ends. */
   needAdvanced(host, opts = {}) {
     if (this._asking) return this._asking;
     const run = this._needAdvanced(host, opts);
@@ -381,13 +391,16 @@ class Autopilot {
     return run;
   }
 
-  async _needAdvanced(host, { why = null, label = null } = {}) {
+  async _needAdvanced(host, { why = null, label = null, since = this._session() } = {}) {
     if (!this.willAskAdvanced()) return false;
     const a = this.advanced;
     // A game's anti-cheat running: a packet driver is never loaded beside it
     // by itself (it may refuse the game, or flag it). The user still can.
     let ac = null;
     try { ac = a.antiCheat ? await a.antiCheat() : null; } catch {}
+    // Protection stopped meanwhile (and maybe started again): the Stop wins,
+    // and nothing is asked.
+    if (!this._stillOn(since)) return false;
     if (ac) {
       if (!this.antiCheatLogged) this.log('info', `Autopilot: ${host} needs Advanced mode, but a game's anti-cheat is running (${ac}); not started by itself`);
       this.antiCheatLogged = true;
@@ -398,11 +411,14 @@ class Autopilot {
     const told = { host: label || host };
     this.tell('autoAdvancedAsk', told);
     let r = null;
-    try { r = await a.start(); } catch (e) { r = { success: false, code: e.code }; }
+    try { r = await a.start(since); } catch (e) { r = { success: false, code: e.code }; }
     if (r && r.success) {
       this.tell('autoAdvancedOn', told);
       return true;
     }
+    // Protection was stopped before it came up: it went with it (main.js
+    // brings it back with the next Start), nothing failed.
+    if (r && r.code === 'protection_off') return false;
     if (r && r.code === 'declined') {
       this.recordDecline();
       this.log('info', 'Advanced mode was not allowed; Shroudly will not ask by itself again for two weeks');
