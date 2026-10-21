@@ -83,6 +83,11 @@ const PROVEN_MS        = 600000; // a route that answered within this long ...
 const REST_PROVEN_MS   = 20000;  // ... rests at most this long: its failure is more likely the network's
 const DOWN_AFTER_MS    = 10000;  // lookups failing for this long, with no answer between: blocked
 const WARM_INTERVAL_MS = 120000;
+// Two failures further apart than this, with nothing failing between (a warm
+// round that no route answered counts), are not one streak: the computer
+// slept, or nothing was looked up. Longer than the warm interval, so a real
+// block with few lookups still adds up.
+const STREAK_GAP_MS    = WARM_INTERVAL_MS + 30000;
 const SESSION_IDLE_MS  = 300000;
 const CACHE_MAX        = 1500;
 const TTL_MIN_S        = 20;
@@ -196,8 +201,9 @@ class DohForwarder {
   /* opts.preferredId: the route that worked last time (remembered by the
    *   caller across restarts); opts.onPreferred(id) is told when it changes.
    * opts.onState('ok' | 'down'): encrypted DNS works / is blocked outright:
-   *   'down' once lookups have failed for DOWN_AFTER_MS with none answered
-   *   between, never for a single blip, and 'ok' at the next answer. */
+   *   'down' once lookups have failed for DOWN_AFTER_MS in one streak, with
+   *   nothing answered between (see lookupFailed), never for a single blip,
+   *   and 'ok' at the next answer. */
   constructor(log, opts = {}) {
     this.log = log || (() => {});
     this.opts = opts;
@@ -209,6 +215,7 @@ class DohForwarder {
     this.stopped = false;
     this.failures = 0;          // lookups in a row that no route could answer
     this.failingSince = 0;      // when the first of them failed
+    this.lastFailAt = 0;        // when the streak was last seen still failing
     this.state = 'ok';
     this.lastDowngradeWarn = 0;
     this.preferredId = opts.preferredId || null;
@@ -313,9 +320,37 @@ class DohForwarder {
     }
   }
 
+  /* Any answer, a warm probe's too, shows encrypted DNS works here: a
+   * streak of failed lookups before it is over (see lookupFailed). */
   succeeded(r, ms) {
     r.ewma = r.ewma ? Math.round(r.ewma * 0.7 + ms * 0.3) : ms;
     r.fails = 0; r.restUntil = 0; r.okAt = Date.now();
+    this.failures = 0;
+    this.failingSince = 0;
+  }
+
+  /* A lookup no route could answer. "down" takes a streak of them lasting
+   * DOWN_AFTER_MS: never one blip (a busy page has many lookups in flight,
+   * and a second without a network failed three of them at once), and never
+   * two blips with an answer between them, or with the computer asleep or
+   * nothing looked up between (STREAK_GAP_MS): either starts a new streak. */
+  lookupFailed(now = Date.now()) {
+    if (!this.failures || now - this.lastFailAt > STREAK_GAP_MS) { this.failures = 0; this.failingSince = now; }
+    this.failures++;
+    this.lastFailAt = now;
+    if (this.failures >= 3 && now - this.failingSince >= DOWN_AFTER_MS) {
+      this.setState('down');
+      if (now - (this.lastDowngradeWarn || 0) > 300000) {
+        this.lastDowngradeWarn = now;
+        this.log('warning', 'Encrypted DNS is not reachable on this network; lookups are falling back to ordinary DNS, which your provider can read and change.');
+      }
+    }
+  }
+
+  /* A warm round no route answered: a streak under way is still on, however
+   * few lookups there are. */
+  stillFailing(now = Date.now()) {
+    if (this.failures) this.lastFailAt = now;
   }
 
   /* A route failed a request made at `since`. A dead connection fails every
@@ -443,7 +478,8 @@ class DohForwarder {
     const order = this.ordered();
     const best = order.filter((r) => r.restUntil <= now).slice(0, 3);
     const due = order.filter((r) => r.restUntil > now && r.restUntil - now < WARM_INTERVAL_MS).slice(0, 2);
-    for (const r of [...best, ...due]) this.ask(r, probe).catch(() => {});
+    const asks = [...best, ...due].map((r) => this.ask(r, probe).then(() => true, () => false));
+    if (asks.length) Promise.all(asks).then((ok) => { if (!ok.some(Boolean)) this.stillFailing(); });
   }
 
   start() {
@@ -475,19 +511,7 @@ class DohForwarder {
              * That is the right thing to do — a lookup that fails outright is
              * worse — but it quietly undoes the encryption this exists to
              * provide. Say so, rather than let it pass unnoticed. */
-            const now = Date.now();
-            if (!this.failures) this.failingSince = now;
-            this.failures++;
-            // Not for one blip: a busy page has many lookups in flight, and a
-            // second without a network failed three of them at once, which
-            // said "not reachable" for a network that was back a moment later.
-            if (this.failures >= 3 && now - this.failingSince >= DOWN_AFTER_MS) {
-              this.setState('down');
-              if (now - (this.lastDowngradeWarn || 0) > 300000) {
-                this.lastDowngradeWarn = now;
-                this.log('warning', 'Encrypted DNS is not reachable on this network; lookups are falling back to ordinary DNS, which your provider can read and change.');
-              }
-            }
+            this.lookupFailed();
           });
       });
       sock.bind(0, '127.0.0.1', () => {
@@ -512,6 +536,7 @@ class DohForwarder {
     for (const r of this.routes) { r.fails = 0; r.failAt = 0; r.restUntil = 0; }
     this.failures = 0;
     this.failingSince = 0;
+    this.lastFailAt = 0;
   }
 
   /* Another network, or the same one back after a gap: the connections made

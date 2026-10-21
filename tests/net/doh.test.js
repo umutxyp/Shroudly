@@ -6,8 +6,10 @@
  * an answer from anyone but the real resolver. A blip is not a block: one
  * lost connection rests a route once, not once per lookup that was waiting
  * on it; routes resting after an outage are still asked; a new start begins
- * with a clean record; and "down" takes lookups failing for 10 s, not three
- * that failed together. (engine-doh.test.js: the same through the engine.) */
+ * with a clean record; and "down" takes lookups failing for 10 s in one
+ * streak, not three that failed together, nor two blips with an answer, a
+ * sleep or a quiet hour between them. (engine-doh.test.js: the same through
+ * the engine.) */
 
 const dgram = require('dgram');
 const http2 = require('http2');
@@ -127,6 +129,51 @@ const restS = (r) => Math.max(0, Math.round((r.restUntil - Date.now()) / 1000));
     t.ok(destroyed === f.routes.length && f.routes.every((r) => !r.session && r.fails === 0 && r.restUntil === 0),
       'networkChanged(): every old connection dropped, no route resting');
     f.stop();
+  }
+
+  // "down" is one streak of failed lookups lasting 10 s. An answer between
+  // (a warm probe's too) ends a streak, and so does a long gap with nothing
+  // failing (the computer asleep, nothing looked up): a blip after either
+  // starts afresh. Both used to count a failure from long before.
+  {
+    const states = [];
+    const warned = [];
+    const f = new F((level, msg) => warned.push(msg), { onState: (st) => states.push(st) });
+    const T = Date.now();
+    f.lookupFailed(T);                                   // one blip
+    f.succeeded(f.routes[0], 20);                        // a warm probe answers a minute later
+    f.lookupFailed(T + 300000); f.lookupFailed(T + 300500); // another blip, minutes later
+    t.ok(!states.length && !warned.length && f.failures === 2, 'a failure, an answer, then a blip minutes later: not "down" (the answer ended the streak)');
+    f.clearRests();
+    f.lookupFailed(T);                                   // the Wi-Fi drops as the lid closes
+    f.lookupFailed(T + 3600000); f.lookupFailed(T + 3601000); // an hour asleep, two failures on waking
+    t.ok(!states.length && f.failures === 2, 'a failure, an hour asleep, then a blip on waking: not "down" (too long ago to be one streak)');
+    f.clearRests();
+    f.lookupFailed(T); f.lookupFailed(T + 4000); f.lookupFailed(T + 8000);
+    t.ok(!states.length, 'three failures within 8 s: not yet "down"');
+    f.lookupFailed(T + 12000);
+    t.ok(states.join() === 'down' && warned.length === 1, 'failing on for 12 s: "down", said once');
+    // A real block with few lookups (only listed sites through the engine):
+    // minutes apart, the warm rounds failing between keep it one streak.
+    const g = new F(() => {}, { onState: (st) => states.push(`g:${st}`) });
+    g.lookupFailed(T); g.stillFailing(T + 120000); g.lookupFailed(T + 180000); g.stillFailing(T + 300000); g.lookupFailed(T + 360000);
+    t.ok(states.includes('g:down'), 'blocked with lookups minutes apart, warm rounds failing between: still one streak, "down"');
+    const h = new F(() => {}, {});
+    h.lookupFailed(T); h.lookupFailed(T + 180000); h.lookupFailed(T + 360000);
+    t.ok(h.state === 'ok' && h.failures === 1, '…with nothing failing for minutes between: no streak');
+    f.stop(); g.stop(); h.stop();
+  }
+  // warm(): a round no route answers keeps a streak on; any answer ends it.
+  {
+    const fail = staged(() => ({ ok: false, ms: 5 }));
+    fail.failures = 1; fail.failingSince = fail.lastFailAt = Date.now() - 100000;
+    fail.warm(); await sleep(60);
+    t.ok(fail.failures === 1 && Date.now() - fail.lastFailAt < 1000, 'warm round with no answer: the streak is still on');
+    const ok = staged(() => ({ ok: true, ms: 5 }));
+    ok.failures = 2; ok.failingSince = ok.lastFailAt = Date.now() - 5000;
+    ok.warm(); await sleep(60);
+    t.ok(ok.failures === 0 && ok.failingSince === 0, 'warm round answered: the streak is over');
+    fail.stop(); ok.stop();
   }
 
   // Waves, with no network at all. A healthy route: answered alone.
