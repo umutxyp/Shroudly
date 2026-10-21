@@ -440,5 +440,11 @@
   "autoDiscordFailed": "Discord está bloqueado en esta red, pero no se pudo activar el modo app de Discord. Actívalo en Ajustes para volver a intentarlo.",
   "autoRobloxFailed": "Roblox está bloqueado en esta red, pero no se pudo activar el modo Juegos y apps. Actívalo en Ajustes para volver a intentarlo.",
   "autoStoreAppsNoAdmin": "{apps} no pueden llegar a Shroudly hasta que un administrador lo permita: un administrador puede activar Apps de Microsoft Store en Ajustes.",
-  "notifyLogsCopyFailed": "No se pudo poner el registro en el portapapeles desde aquí. El panel Registros está abierto: usa «Copiar registros» allí."
+  "notifyLogsCopyFailed": "No se pudo poner el registro en el portapapeles desde aquí. El panel Registros está abierto: usa «Copiar registros» allí.",
+  "autoRawUnreachable": "La app {app} no puede llegar a sus servidores: esta red bloquea sus direcciones y Shroudly no puede sortear eso sin un servidor en otro lugar. Usa el ajuste de proxy de la propia app {app} o una VPN.",
+  "autoRawBlocked": "Esta red corta las conexiones de la app {app} y ninguna de las técnicas de Shroudly ha logrado pasar. Usa el ajuste de proxy de la propia app {app} o una VPN.",
+  "logRawUnreachable": "La app {app} no puede llegar a sus servidores ({addrs}): la red bloquea esas mismas direcciones; solo el ajuste de proxy de la propia app o una VPN pueden sortearlo",
+  "logRawBlocked": "{app}: la red corta las conexiones de la app ({addrs}) y ninguna técnica ha logrado pasar; solo el ajuste de proxy de la propia app o una VPN pueden sortearlo",
+  "logRawUnreachableAddr": "{addr}: inaccesible (no es una conexión web)",
+  "logRawStillBlockedAddr": "{addr}: sigue bloqueado tras {tries} técnicas (no es una conexión web)"
 }

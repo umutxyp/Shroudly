@@ -350,6 +350,7 @@ jobs:
           node android/scripts/fetch-hev.js
           node android/scripts/gen-strings.js --check
           node android/scripts/gen-block-ips.js --check
+          node android/scripts/gen-raw-apps.js --check
       - name: Signed release build (APK) and Play bundle (AAB)
         id: apk
         env:

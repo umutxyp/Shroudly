@@ -14,6 +14,8 @@
     <string name="androidShareLogs">Журналды бөлісу</string>
     <string name="androidVpnDenied">Қолданбаларыңыздың қосылымдарын өткізу үшін Shroudly-ге VPN рұқсаты керек.</string>
     <string name="androidVpnRevoked">Android қорғанысты өшірді, әдетте басқа VPN қолданбасы қосылғандықтан.</string>
+    <string name="autoRawBlocked">Бұл желі {app} қолданбасының қосылымдарын үзеді, ал Shroudly қолданған тәсілдердің ешқайсысы өте алмады. {app} қолданбасының өз прокси баптауын немесе VPN пайдаланыңыз.</string>
+    <string name="autoRawUnreachable">{app} қолданбасы өз серверлеріне қосыла алмайды: бұл желі олардың мекенжайларын бұғаттайды, ал басқа жердегі серверсіз Shroudly мұны айналып өте алмайды. {app} қолданбасының өз прокси баптауын немесе VPN пайдаланыңыз.</string>
     <string name="connections">Қосылымдар</string>
     <string name="download">Жүктеп алу</string>
     <string name="dpiBypassStopped">DPI айналып өту тоқтатылған</string>

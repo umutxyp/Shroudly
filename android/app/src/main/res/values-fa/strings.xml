@@ -14,6 +14,8 @@
     <string name="androidShareLogs">اشتراک‌گذاری گزارش‌ها</string>
     <string name="androidVpnDenied">Shroudly برای عبور دادن اتصال‌های برنامه‌هایتان به مجوز VPN نیاز دارد.</string>
     <string name="androidVpnRevoked">اندروید محافظت را خاموش کرد؛ معمولاً چون یک برنامهٔ VPN دیگر روشن شده است.</string>
+    <string name="autoRawBlocked">این شبکه اتصال‌های برنامهٔ {app} را متوقف می‌کند و هیچ‌یک از روش‌های Shroudly از آن عبور نکرد. از تنظیم پراکسی خودِ برنامهٔ {app} یا یک VPN استفاده کنید.</string>
+    <string name="autoRawUnreachable">برنامهٔ {app} نمی‌تواند به سرورهایش برسد: این شبکه نشانی‌های آن‌ها را مسدود کرده و Shroudly بدون سروری در جای دیگر نمی‌تواند از این مانع بگذرد. از تنظیم پراکسی خودِ برنامهٔ {app} یا یک VPN استفاده کنید.</string>
     <string name="connections">اتصال‌ها</string>
     <string name="download">دانلود</string>
     <string name="dpiBypassStopped">دور زدن DPI متوقف است</string>

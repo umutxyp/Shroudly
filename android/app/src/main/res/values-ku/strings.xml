@@ -14,6 +14,8 @@
     <string name="androidShareLogs">Tomaran parve bike</string>
     <string name="androidVpnDenied">Shroudly ji bo hilgirtina girêdanên sepanên te destûra VPN hewce dike.</string>
     <string name="androidVpnRevoked">Parastin ji aliyê Android ve hate girtin, bi gelemperî ji ber ku sepaneke VPN ya din hate vekirin.</string>
+    <string name="autoRawBlocked">Ev tor girêdanên sepana {app} radiwestîne, û ti teknîkeke Shroudly nikarîbû derbas bibe. Mîhenga proksiyê ya sepana {app} bi xwe an VPN-ekê bi kar bîne.</string>
+    <string name="autoRawUnreachable">Sepana {app} nikare bigihîje rajekarên xwe: ev tor navnîşanên wan asteng dike, û Shroudly bêyî rajekarekî li cihekî din nikare vê derbas bike. Mîhenga proksiyê ya sepana {app} bi xwe an VPN-ekê bi kar bîne.</string>
     <string name="connections">Girêdan</string>
     <string name="download">Daxistin</string>
     <string name="dpiBypassStopped">Derbaskirina DPI rawestiyaye</string>

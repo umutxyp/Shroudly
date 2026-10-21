@@ -440,5 +440,11 @@
   "autoDiscordFailed": "Discord bu torda petikli, ýöne Discord programmasynyň tertibini açyp bolmady. Gaýtadan synanyşmak üçin ony Sazlamalarda açyň.",
   "autoRobloxFailed": "Roblox bu torda petikli, ýöne Oýunlar we programmalar tertibini açyp bolmady. Gaýtadan synanyşmak üçin ony Sazlamalarda açyň.",
   "autoStoreAppsNoAdmin": "Administrator rugsat berýänçä {apps} Shroudly bilen birigip bilmeýär: administrator Sazlamalarda «Microsoft Store programmalary» düwmesini açyp biler.",
-  "notifyLogsCopyFailed": "Ýazgylary şu ýerden alyş-çalyş buferine göçürip bolmady. Ýazgylar bölümi açyk: şol ýerdäki “Ýazgylary göçüriň” düwmesine basyň."
+  "notifyLogsCopyFailed": "Ýazgylary şu ýerden alyş-çalyş buferine göçürip bolmady. Ýazgylar bölümi açyk: şol ýerdäki “Ýazgylary göçüriň” düwmesine basyň.",
+  "autoRawUnreachable": "{app} programmasy öz serwerlerine ýetip bilmeýär: bu tor olaryň salgylaryny petikleýär, Shroudly bolsa başga ýerdäki serwersiz muny aýlanyp geçip bilmeýär. {app} programmasynyň öz proksi sazlamasyny ýa-da VPN ulanyň.",
+  "autoRawBlocked": "Bu tor {app} programmasynyň birikmelerini togtadýar we Shroudly-niň usullarynyň hiç biri geçip bilmedi. {app} programmasynyň öz proksi sazlamasyny ýa-da VPN ulanyň.",
+  "logRawUnreachable": "{app} programmasy öz serwerlerine ýetip bilmeýär ({addrs}): tor bu salgylaryň özüni petikleýär; muny diňe programmanyň öz proksi sazlamasy ýa-da VPN aýlanyp geçip bilýär",
+  "logRawBlocked": "{app}: tor programmanyň birikmelerini togtadýar ({addrs}) we hiç bir usul geçip bilmedi; muny diňe programmanyň öz proksi sazlamasy ýa-da VPN aýlanyp geçip bilýär",
+  "logRawUnreachableAddr": "{addr}: oňa ýetip bolmady (web birikmesi däl)",
+  "logRawStillBlockedAddr": "{addr}: {tries} usuldan soň hem petikli (web birikmesi däl)"
 }

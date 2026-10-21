@@ -440,5 +440,11 @@
   "autoDiscordFailed": "Discord bị chặn trên mạng này, nhưng không thể bật Chế độ ứng dụng Discord. Hãy bật trong Cài đặt để thử lại.",
   "autoRobloxFailed": "Roblox bị chặn trên mạng này, nhưng không thể bật Chế độ trò chơi và ứng dụng. Hãy bật trong Cài đặt để thử lại.",
   "autoStoreAppsNoAdmin": "{apps} không thể kết nối tới Shroudly cho tới khi quản trị viên cho phép: quản trị viên có thể bật Ứng dụng Microsoft Store trong Cài đặt.",
-  "notifyLogsCopyFailed": "Không thể đưa nhật ký vào bảng nhớ tạm từ đây. Bảng Nhật ký đang mở: hãy dùng nút “Sao chép nhật ký” ở đó."
+  "notifyLogsCopyFailed": "Không thể đưa nhật ký vào bảng nhớ tạm từ đây. Bảng Nhật ký đang mở: hãy dùng nút “Sao chép nhật ký” ở đó.",
+  "autoRawUnreachable": "{app} không thể kết nối tới máy chủ của nó: mạng này chặn địa chỉ của các máy chủ đó, và Shroudly không thể vượt qua nếu không có một máy chủ ở nơi khác. Hãy dùng cài đặt proxy riêng của {app} hoặc VPN.",
+  "autoRawBlocked": "Mạng này chặn các kết nối của {app}, và không kỹ thuật nào của Shroudly vượt qua được. Hãy dùng cài đặt proxy riêng của {app} hoặc VPN.",
+  "logRawUnreachable": "{app} không thể kết nối tới máy chủ của nó ({addrs}): mạng chặn chính các địa chỉ đó; chỉ cài đặt proxy riêng của ứng dụng hoặc VPN mới vượt qua được",
+  "logRawBlocked": "{app}: mạng chặn các kết nối của nó ({addrs}) và không kỹ thuật nào vượt qua được; chỉ cài đặt proxy riêng của ứng dụng hoặc VPN mới vượt qua được",
+  "logRawUnreachableAddr": "{addr}: không thể truy cập (không phải kết nối web)",
+  "logRawStillBlockedAddr": "{addr}: vẫn bị chặn sau {tries} kỹ thuật (không phải kết nối web)"
 }

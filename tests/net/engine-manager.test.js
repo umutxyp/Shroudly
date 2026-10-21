@@ -108,7 +108,20 @@ const t = suite('engine-manager');
     for (let i = 0; i < 320; i++) em._rememberTechnique(`h${i}.example`, 'tlsrec-sni', now - 1000 + i);
     t.ok(Object.keys(mem.learnedTechniques).length === 300 && mem.learnedTechniques['h319.example'] && !mem.learnedTechniques['h0.example'],
       'at most 300 are kept, the newest');
+    // Raw techniques (an app's own protocol, per address) have a store of
+    // their own: an app's many addresses never push out what sites learned.
+    for (let i = 0; i < 150; i++) em._onLine(JSON.stringify({ type: 'bypass', host: `149.154.167.${i}`, strategy: 'raw-split1', attempts: 3, family: 'ipv4', raw: true, port: 443 }));
+    t.ok(Object.keys(mem.learnedTechniques).length === 300 && mem.learnedTechniques['h319.example'],
+      'raw techniques leave the sites\' techniques alone');
+    t.ok(Object.keys(mem.learnedRawTechniques || {}).length === 100 && mem.learnedRawTechniques['149.154.167.149'],
+      'and keep at most 100 of their own, the newest');
+    const w2 = [];
+    em.proc = { stdin: { write: (x) => w2.push(x) } };
+    em._restoreTechniques(Date.now());
+    em.proc = realProc;
+    t.ok(/LEARN 149\.154\.167\.149 raw-split1 \d+\n/.test(w2.join('')) && /LEARN h319\.example tlsrec-sni/.test(w2.join('')), 'both are given to the engine');
     delete mem.learnedTechniques;
+    delete mem.learnedRawTechniques;
   }
 
   em._setAdvice({ dnsDown: true }); em._setAdvice({ dnsDown: true });

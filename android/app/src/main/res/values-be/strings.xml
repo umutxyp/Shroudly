@@ -14,6 +14,8 @@
     <string name="androidShareLogs">Падзяліцца журналам</string>
     <string name="androidVpnDenied">Shroudly патрэбны дазвол VPN, каб прапускаць злучэнні вашых праграм.</string>
     <string name="androidVpnRevoked">Android выключыў абарону — звычайна таму, што ўключана іншая VPN-праграма.</string>
+    <string name="autoRawBlocked">Гэтая сетка абрывае злучэнні праграмы {app}, і ніводны з метадаў Shroudly не прайшоў. Скарыстайцеся наладай проксі ў самой праграме {app} або VPN.</string>
+    <string name="autoRawUnreachable">Праграма {app} не можа звязацца са сваімі серверамі: гэтая сетка блакуе іх адрасы, і без сервера ў іншым месцы Shroudly не можа гэта абысці. Скарыстайцеся наладай проксі ў самой праграме {app} або VPN.</string>
     <string name="connections">Злучэнні</string>
     <string name="download">Спампоўка</string>
     <string name="dpiBypassStopped">Абыход DPI спынены</string>

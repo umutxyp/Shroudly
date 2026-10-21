@@ -344,3 +344,78 @@ client fetches there (`latency.discord.media`, which ranks the regions): on a
 network known to block Discord, the autopilot then asks for Advanced mode
 (`electron/autopilot.js`). `core/test/test_engine.c` (section 13),
 `tests/net/engine-watch.test.js`, `tests/net/autopilot.test.js`.
+
+## Update 4: streams that are not TLS or HTTP
+
+Apps with a protocol of their own (Telegram's MTProto, other messengers,
+games) reach the engine as SOCKS connections to an address, with a first
+payload that has no name in it. Until now they were relayed untouched.
+
+**What the engine does now.** Their first payload cannot be replayed on a
+second connection (nothing says doing it twice is harmless for an unknown
+protocol), so the search for a technique runs across the app's own
+connections: a destination whose untouched connection is refused, or left
+unanswered until the app gives up, has its next connection cut with the first
+raw technique, the next with the next, and the first one answered is learned
+(per address, tried first for its /24 or /48 neighbours, kept by the app
+across restarts). Every raw technique only changes the segmentation, never
+the bytes the server receives: `split(1)`, `disorder(1)`, cuts across the
+first 64 bytes, `disorder(32)`, and on Linux a zero-filled decoy dropped by
+the server itself (TCP-MD5). No urgent byte: a real Telegram server takes it
+into the stream. Once every technique has failed, that is said once and the
+destination rests for ten minutes: never a search forever.
+
+| Filter (tests/net/engine-raw.test.js, telegram-real.test.js) | Result |
+|---|---|
+| resets MTProto by its opening in the first segment | **PASS** after one failed connection (`raw-split1`) |
+| drops it silently | **PASS** once the app gives up on the first |
+| reassembles the stream before matching | BLOCKED, told once, then left alone |
+| blocks the address itself (no SYN-ACK) | BLOCKED, told as unreachable |
+
+**What it cannot do.** A destination whose address is blocked outright (the
+connection never opens, or is throttled to nothing by address) is beyond any
+technique on this computer: there is no other path to it without a server
+elsewhere. The engine says so (`unreachable`, raw, with the port the app used)
+and the app names the app — by the program holding the connection on the
+desktop, by the service the address belongs to on Android — in one line that
+points at the app's own proxy setting or a VPN.
+
+Reaching apps at all: on Android every app goes through the VPN. On Windows
+and macOS an app that follows the system proxy reads Shroudly's PAC, which now
+sends global IPv6 addresses to the engine too (IPv4 ones already went), and in
+"listed" mode the address ranges of known services. On Windows, WinHTTP turned
+out to answer "no proxy" to any PAC answer holding a SOCKS entry (measured on
+Windows CI: only "PROXY x" alone is taken), so every program asking it (Qt
+ones such as Telegram Desktop on "use system proxy", .NET) went around
+Shroudly. For https:// the PAC now offers the engine's port as an HTTP proxy
+only, and the engine takes HTTP CONNECT on that port (never with
+--auth-file); plain http:// keeps the SOCKS entries. An app that ignores the
+system proxy (Telegram Desktop on Linux without libproxy, for one) never
+reaches the engine; its own proxy setting can point at Shroudly's SOCKS5 port.
+
+**What is not taken for a block** (after an independent review):
+- one failed connection (a server restarting): the search starts at the
+  second failure, a second or more after the first;
+- an app that sends and leaves before 4 s with nothing back (syslog, metrics,
+  printing): the engine watches the client while it waits for the answer;
+  "blocked" lines about connections that only went unanswered are never a
+  notification;
+- this computer and its network (loopback, LAN, link-local, unique-local) are
+  never searched (no filter sits there, and a TCP-MD5 decoy could reach a
+  device that ignores RFC 2385); `--raw-local` allows it for tests;
+- an unreachable address with no route from here (no IPv6, offline), a name
+  that did not resolve, or an address whose /24 (/48) took a connection in
+  the last 10 minutes: not told; the PAC sends IPv6 to the engine only where
+  the computer has a global IPv6 address;
+- "no technique got through" is told only on two of the app's addresses, on
+  the same one again after the engine's rest, or when a check of the
+  service's own name finds it filtered — and nothing is told while nothing
+  else comes back either.
+A learned raw technique is set aside for one untouched connection every 30
+minutes and dropped when that one gets through; raw learnings have their own
+store (100 entries), apart from the sites' techniques.
+
+**Names only the system's DNS knows** (intranet, VPN split DNS, hosts file):
+a CONNECT or a SOCKS request by name whose system answer is private only (not
+a known block page) goes there, and public DNS is not asked; a loopback or
+0.0.0.0 answer is followed when public DNS has no public address for the name.

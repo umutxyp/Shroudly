@@ -440,5 +440,11 @@
   "autoDiscordFailed": "Bu tarmoqda Discord bloklangan, lekin Discord ilovasi rejimini yoqib boʻlmadi. Qayta urinib koʻrish uchun uni Sozlamalarda yoqing.",
   "autoRobloxFailed": "Bu tarmoqda Roblox bloklangan, lekin Oʻyinlar va ilovalar rejimini yoqib boʻlmadi. Qayta urinib koʻrish uchun uni Sozlamalarda yoqing.",
   "autoStoreAppsNoAdmin": "Administrator ruxsat bermaguncha {apps} Shroudlyga ulana olmaydi: administrator Sozlamalarda «Microsoft Store ilovalari» tugmasini yoqishi mumkin.",
-  "notifyLogsCopyFailed": "Jurnalni bu yerdan vaqtinchalik xotiraga nusxalab boʻlmadi. «Jurnal» boʻlimi ochiq: u yerdagi «Jurnalni nusxalash» tugmasini bosing."
+  "notifyLogsCopyFailed": "Jurnalni bu yerdan vaqtinchalik xotiraga nusxalab boʻlmadi. «Jurnal» boʻlimi ochiq: u yerdagi «Jurnalni nusxalash» tugmasini bosing.",
+  "autoRawUnreachable": "{app} ilovasi oʻz serverlariga ulana olmayapti: bu tarmoq ularning manzillarini bloklaydi, Shroudly esa boshqa joydagi serversiz buni chetlab oʻta olmaydi. {app} ilovasining oʻz proksi sozlamasidan yoki VPNdan foydalaning.",
+  "autoRawBlocked": "Bu tarmoq {app} ilovasining ulanishlarini toʻxtatadi va Shroudly usullaridan hech biri oʻta olmadi. {app} ilovasining oʻz proksi sozlamasidan yoki VPNdan foydalaning.",
+  "logRawUnreachable": "{app} ilovasi oʻz serverlariga ulana olmayapti ({addrs}): tarmoq aynan shu manzillarni bloklaydi; buni faqat ilovaning oʻz proksi sozlamasi yoki VPN chetlab oʻta oladi",
+  "logRawBlocked": "{app}: tarmoq ilova ulanishlarini toʻxtatadi ({addrs}) va hech bir usul oʻta olmadi; buni faqat ilovaning oʻz proksi sozlamasi yoki VPN chetlab oʻta oladi",
+  "logRawUnreachableAddr": "{addr}: bogʻlanib boʻlmadi (veb-ulanish emas)",
+  "logRawStillBlockedAddr": "{addr}: {tries} ta usuldan keyin ham bloklangan (veb-ulanish emas)"
 }

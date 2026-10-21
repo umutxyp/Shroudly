@@ -440,5 +440,11 @@
   "autoDiscordFailed": "Discord diblokir di jaringan ini, tetapi mode aplikasi Discord tidak dapat diaktifkan. Aktifkan di Pengaturan untuk mencoba lagi.",
   "autoRobloxFailed": "Roblox diblokir di jaringan ini, tetapi mode Game dan aplikasi tidak dapat diaktifkan. Aktifkan di Pengaturan untuk mencoba lagi.",
   "autoStoreAppsNoAdmin": "{apps} tidak bisa terhubung ke Shroudly sampai administrator mengizinkannya: administrator dapat mengaktifkan Aplikasi Microsoft Store di Pengaturan.",
-  "notifyLogsCopyFailed": "Log tidak dapat dimasukkan ke papan klip dari sini. Panel Log sudah terbuka: gunakan “Salin log” di sana."
+  "notifyLogsCopyFailed": "Log tidak dapat dimasukkan ke papan klip dari sini. Panel Log sudah terbuka: gunakan “Salin log” di sana.",
+  "autoRawUnreachable": "{app} tidak dapat menjangkau servernya: jaringan ini memblokir alamat server tersebut, dan Shroudly tidak dapat menembusnya tanpa server di tempat lain. Gunakan pengaturan proxy milik {app} sendiri atau VPN.",
+  "autoRawBlocked": "Jaringan ini menghentikan koneksi {app}, dan tidak satu pun teknik Shroudly berhasil lolos. Gunakan pengaturan proxy milik {app} sendiri atau VPN.",
+  "logRawUnreachable": "{app} tidak dapat menjangkau servernya ({addrs}): jaringan memblokir alamat-alamat itu sendiri; hanya pengaturan proxy milik aplikasi itu atau VPN yang dapat menembusnya",
+  "logRawBlocked": "{app}: jaringan menghentikan koneksinya ({addrs}) dan tidak ada teknik yang berhasil lolos; hanya pengaturan proxy milik aplikasi itu atau VPN yang dapat menembusnya",
+  "logRawUnreachableAddr": "{addr}: tidak dapat dijangkau (bukan koneksi web)",
+  "logRawStillBlockedAddr": "{addr}: masih diblokir setelah {tries} teknik (bukan koneksi web)"
 }

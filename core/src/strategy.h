@@ -58,4 +58,16 @@ int strategy_parse(const char *spec, strategy *out);
 int             strategy_preset_count(void);
 const strategy *strategy_preset(int i);
 
+/* Techniques for a stream whose first payload is neither a TLS ClientHello
+ * nor an HTTP request (MTProto, other obfuscated or custom protocols, games):
+ * there is no name to cut around, so they cut at fixed places early in the
+ * payload, where a filter that recognises a protocol by its first bytes
+ * looks. Every one of them leaves the bytes the server receives exactly as
+ * they were — only how they are cut into segments changes — so using one on
+ * a connection that did not need it costs nothing. Their names start with
+ * "raw-", which no technique of the list above does. */
+#define STRATEGY_MAX_RAW 8
+int             strategy_raw_count(void);
+const strategy *strategy_raw(int i);
+
 #endif

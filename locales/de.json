@@ -440,5 +440,11 @@
   "autoDiscordFailed": "Discord ist in diesem Netz gesperrt, aber der Discord-App-Modus ließ sich nicht einschalten. Schalte ihn in den Optionen ein, um es noch einmal zu versuchen.",
   "autoRobloxFailed": "Roblox ist in diesem Netz gesperrt, aber der Modus „Spiele und Apps“ ließ sich nicht einschalten. Schalte ihn in den Optionen ein, um es noch einmal zu versuchen.",
   "autoStoreAppsNoAdmin": "{apps} können Shroudly erst erreichen, wenn ein Administrator es erlaubt: Ein Administrator kann „Microsoft-Store-Apps“ in den Optionen einschalten.",
-  "notifyLogsCopyFailed": "Das Protokoll konnte von hier aus nicht in die Zwischenablage gelegt werden. Der Bereich „Protokoll“ ist geöffnet: Nutze dort „Protokoll kopieren“."
+  "notifyLogsCopyFailed": "Das Protokoll konnte von hier aus nicht in die Zwischenablage gelegt werden. Der Bereich „Protokoll“ ist geöffnet: Nutze dort „Protokoll kopieren“.",
+  "autoRawUnreachable": "Die App {app} erreicht ihre Server nicht: Dieses Netz sperrt ihre Adressen, und ohne einen Server woanders kommt Shroudly daran nicht vorbei. Nutze die eigene Proxy-Einstellung von {app} oder ein VPN.",
+  "autoRawBlocked": "Dieses Netz unterbricht die Verbindungen der App {app}, und keine der Techniken von Shroudly ist durchgekommen. Nutze die eigene Proxy-Einstellung von {app} oder ein VPN.",
+  "logRawUnreachable": "Die App {app} erreicht ihre Server nicht ({addrs}): Das Netz sperrt genau diese Adressen; daran kommt nur die eigene Proxy-Einstellung der App oder ein VPN vorbei",
+  "logRawBlocked": "{app}: Das Netz unterbricht die Verbindungen der App ({addrs}) und keine Technik ist durchgekommen; daran kommt nur die eigene Proxy-Einstellung der App oder ein VPN vorbei",
+  "logRawUnreachableAddr": "{addr}: nicht erreichbar (keine Web-Verbindung)",
+  "logRawStillBlockedAddr": "{addr}: nach {tries} Techniken weiter gesperrt (keine Web-Verbindung)"
 }

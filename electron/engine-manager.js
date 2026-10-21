@@ -66,6 +66,11 @@ const CUT_NEED = { stall: 2, reset: 2, noreply: 4 };
  * no longer works is checked and replaced, never trusted blindly. */
 const LEARNED_KEY = 'learnedTechniques';
 const LEARNED_MAX = 300;
+// Techniques for streams that are not TLS or HTTP (raw-*), per address: a
+// store of their own, so an app's many addresses never push out what was
+// learned for sites.
+const LEARNED_RAW_KEY = 'learnedRawTechniques';
+const LEARNED_RAW_MAX = 100;
 const LEARNED_TTL_MS = 30 * 24 * 60 * 60 * 1000;
 
 /* A host that could not be reached at all is logged again only after this
@@ -172,6 +177,11 @@ class EngineManager {
     // domains. The app uses it to recognise which services this network
     // filters, sites that turn the user away themselves, and a call starting.
     this.onHostEvent = hooks.onHostEvent || (() => {});
+    // A connection that is not TLS or HTTP (an app's own protocol) that no
+    // technique got through, or whose address does not answer at all, as
+    // (kind, line): 'blocked' or 'unreachable', with the address, the port
+    // and the app's own port (raw-apps.js names the app and tells).
+    this.onRaw = hooks.onRaw || (() => {});
     // Domains the engine tells about each time a program connects to one
     // (once per name in a while; nothing about the connection changes).
     this.watch = Array.isArray(hooks.watch) ? hooks.watch : [];
@@ -388,9 +398,13 @@ class EngineManager {
     try { this.onAdvice(this.advice); } catch {}
   }
 
+  /* Something came back through the engine in the last `ms`: this network
+   * works for other traffic (raw-apps.js tells nothing otherwise). */
+  receivedWithin(ms, now = Date.now()) { return !!this.lastDownAt && now - this.lastDownAt <= ms; }
+
   /* The techniques remembered, newest last, without the expired ones. */
-  _learned(now = Date.now()) {
-    const all = this.store.get(LEARNED_KEY);
+  _learned(now = Date.now(), key = LEARNED_KEY) {
+    const all = this.store.get(key);
     if (!all || typeof all !== 'object') return [];
     return Object.entries(all)
       .filter(([h, v]) => /^[a-z0-9.-]{1,253}$/i.test(h) && v && typeof v.s === 'string' && /^[\w.()+-]{1,63}$/.test(v.s)
@@ -403,14 +417,17 @@ class EngineManager {
 
   _rememberTechnique(host, technique, t = Date.now()) {
     if (!host || !technique) return;
-    const keep = this._learned().filter(([h]) => h !== host).slice(-(LEARNED_MAX - 1));
+    const raw = /^raw-/.test(technique);
+    const key = raw ? LEARNED_RAW_KEY : LEARNED_KEY;
+    const max = raw ? LEARNED_RAW_MAX : LEARNED_MAX;
+    const keep = this._learned(Date.now(), key).filter(([h]) => h !== host).slice(-(max - 1));
     keep.push([host, { s: technique, t }]);
-    try { this.store.set(LEARNED_KEY, Object.fromEntries(keep)); } catch {}
+    try { this.store.set(key, Object.fromEntries(keep)); } catch {}
   }
 
   /* Oldest first, so where two names of one site disagree, the newer wins. */
   _restoreTechniques(now = Date.now()) {
-    const list = this._learned(now);
+    const list = [...this._learned(now, LEARNED_RAW_KEY), ...this._learned(now)];
     if (!list.length || !this.proc || !this.proc.stdin) return;
     try {
       this.proc.stdin.write(list.map(([h, v]) => `LEARN ${h} ${v.s} ${Math.max(0, Math.round((now - v.t) / 1000))}\n`).join(''));
@@ -709,6 +726,7 @@ class EngineManager {
         this.stats.connsTotal = msg.conns_total;
         this.stats.connsActive = msg.conns_active;
         this.stats.bytesUp = msg.bytes_up;
+        if (Number(msg.bytes_down) > Number(this.stats.bytesDown || 0)) this.lastDownAt = Date.now();
         this.stats.bytesDown = msg.bytes_down;
         this.stats.desync = msg.desync;
         this.stats.tlsSeen = msg.tls;
@@ -739,6 +757,7 @@ class EngineManager {
         }
         break;
       case 'blocked':
+        if (msg.raw) { try { this.onRaw('blocked', msg); } catch {} break; }
         try { this.onHostEvent('blocked', msg.host, msg.note || null, { alert: !!msg.alert, siteOk: !!msg.site_ok, note: msg.note || null }); } catch {}
         // Not the network: the server itself turned the handshake down (an
         // alert, never a reset), or the rest of this site answers through
@@ -805,6 +824,7 @@ class EngineManager {
         try { this.onHostEvent('seen', msg.host, null); } catch {}
         break;
       case 'unreachable':
+        if (msg.raw) { try { this.onRaw('unreachable', msg); } catch {} break; }
         try { this.onHostEvent('unreachable', msg.host, msg.stage || null); } catch {}
         this._onUnreachable(msg.host, msg.stage);
         break;

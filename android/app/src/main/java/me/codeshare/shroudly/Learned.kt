@@ -9,7 +9,7 @@ package me.codeshare.shroudly
  *
  * Stored as text, one "host technique epoch-ms" per line.
  */
-class Learned(text: String?) {
+class Learned(text: String?, private val max: Int = MAX) {
     companion object {
         const val MAX = 300
         const val TTL_MS = 30L * 24 * 60 * 60 * 1000
@@ -39,7 +39,7 @@ class Learned(text: String?) {
         if (!HOST.matches(host) || !TECHNIQUE.matches(technique)) return
         entries.remove(host)
         entries[host] = technique to now
-        val keep = current(now).takeLast(MAX)
+        val keep = current(now).takeLast(max)
         entries.clear()
         for ((h, s, t) in keep) entries[h] = s to t
     }

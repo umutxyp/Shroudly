@@ -33,6 +33,10 @@ class EngineEventTest {
         assertEquals("dns", u.stage)
         val bl = EngineEvent.parse("""{"type":"blocked","host":"x.example","attempts":9,"family":"ipv4","alert":true,"site_ok":true}""") as EngineEvent.Host
         assertTrue(bl.alert && bl.siteOk)
+        // a stream that is not TLS or HTTP: marked, with its port
+        val r = EngineEvent.parse("""{"type":"unreachable","host":"149.154.167.50","stage":"connect","ips":1,"raw":true,"port":443,"cport":50123}""") as EngineEvent.Host
+        assertTrue(r.raw && r.port == 443 && r.host == "149.154.167.50")
+        assertTrue(!bl.raw && bl.port == 0)
     }
 
     @Test

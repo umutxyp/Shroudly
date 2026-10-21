@@ -440,5 +440,11 @@
   "autoDiscordFailed": "Discord est bloqué sur ce réseau, mais le mode app Discord n’a pas pu être activé. Activez-le dans les Réglages pour réessayer.",
   "autoRobloxFailed": "Roblox est bloqué sur ce réseau, mais le mode Jeux et applis n’a pas pu être activé. Activez-le dans les Réglages pour réessayer.",
   "autoStoreAppsNoAdmin": "{apps} ne peuvent pas joindre Shroudly tant qu’un administrateur ne l’autorise pas : un administrateur peut activer Applis du Microsoft Store dans les Réglages.",
-  "notifyLogsCopyFailed": "Le journal n’a pas pu être placé dans le presse-papiers d’ici. Le panneau Journal est ouvert : cliquez-y sur « Copier le journal »."
+  "notifyLogsCopyFailed": "Le journal n’a pas pu être placé dans le presse-papiers d’ici. Le panneau Journal est ouvert : cliquez-y sur « Copier le journal ».",
+  "autoRawUnreachable": "L’application {app} ne parvient pas à joindre ses serveurs : ce réseau bloque leurs adresses, et Shroudly ne peut pas contourner cela sans un serveur situé ailleurs. Utilisez le réglage proxy intégré à {app} ou un VPN.",
+  "autoRawBlocked": "Ce réseau interrompt les connexions de l’application {app}, et aucune des techniques de Shroudly n’est passée. Utilisez le réglage proxy intégré à {app} ou un VPN.",
+  "logRawUnreachable": "L’application {app} ne parvient pas à joindre ses serveurs ({addrs}) : le réseau bloque ces adresses elles-mêmes ; seul le réglage proxy de l’application ou un VPN permet de contourner cela",
+  "logRawBlocked": "{app} : le réseau interrompt les connexions de l’application ({addrs}) et aucune technique n’est passée ; seul le réglage proxy de l’application ou un VPN permet de contourner cela",
+  "logRawUnreachableAddr": "{addr} : injoignable (ce n’est pas une connexion web)",
+  "logRawStillBlockedAddr": "{addr} : toujours bloqué après {tries} techniques (ce n’est pas une connexion web)"
 }

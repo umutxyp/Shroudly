@@ -35,6 +35,7 @@
  * while the technique got through on a connection of its own (see
  * ladder_won). A server that is slow, or down for a while, shows neither. */
 #define ATT_PLAIN      (-2)    /* send the payload unmodified */
+#define ATT_RAW_BASE   1000    /* raw technique i (see "streams that are not TLS or HTTP") */
 /* Room for every preset plus an untouched attempt at either end. It used to
  * be 12, which silently cut the last few presets off the ladder; the time
  * budget, not this count, is what bounds a connection. */
@@ -633,7 +634,7 @@ void engine_emit_stats(void) {
 typedef struct {
   char     host[256];
   uint16_t port;
-  int      ver;        /* 4 or 5: decides the reply format */
+  int      ver;        /* 4 or 5, or 1 for HTTP CONNECT: decides the reply format */
   /* 0x01 CONNECT, or (SOCKS5 only) 0x03 UDP ASSOCIATE: host and port are
    * then where the client says it will send its datagrams from; see
    * udp_associate() for when that is used. */
@@ -685,8 +686,15 @@ static int socks5_reply(sock_t c, uint8_t rep) {
   return sock_send_all(c, r, 10, 0);
 }
 
+static int send_str(sock_t c, const char *s) { return sock_send_all(c, (const uint8_t *)s, strlen(s), 0); }
+
 /* Tell the client whether its connection is up, in its own protocol. */
 static int socks_reply(sock_t c, const socks_req *rq, int ok) {
+  if (rq->ver == 1) {
+    static const char yes[] = "HTTP/1.1 200 Connection established\r\n\r\n";
+    static const char no[]  = "HTTP/1.1 502 Bad Gateway\r\nContent-Length: 0\r\nConnection: close\r\n\r\n";
+    return ok ? send_str(c, yes) : send_str(c, no);
+  }
   if (rq->ver == 4) return socks4_reply(c, ok ? 0x5A : 0x5B);
   return socks5_reply(c, ok ? 0x00 : 0x04);
 }
@@ -918,12 +926,76 @@ static int socks5_auth(sock_t c) {
   return ok ? 0 : -1;
 }
 
+/* HTTP CONNECT, for the programs that can be given only an HTTP proxy.
+ * Windows' WinHTTP drops a PAC's SOCKS entries (it answers "no proxy"), so a
+ * program that asks it for the system proxy (Qt programs such as Telegram
+ * Desktop, .NET) would otherwise go around Shroudly; the PAC offers it this
+ * port as a "PROXY" for https:// as well (system-proxy.js). Only a tunnel:
+ * "CONNECT host:port HTTP/1.x", headers to the blank line (read to the byte,
+ * so nothing of the tunnel is taken with them), then the same connection as
+ * a SOCKS one. Never with --auth-file (Android), which no HTTP client here
+ * would answer; and a web page cannot send CONNECT. The two bytes "CO" are
+ * already read. */
+static int http_connect_accept(sock_t c, socks_req *rq) {
+  char h[2048];
+  int n = 2;
+  h[0] = 'C'; h[1] = 'O';
+  while (n < (int)sizeof(h) - 1) {
+    if (recv_exact(c, (uint8_t *)h + n, 1) != 0) return -1;
+    n++;
+    if (n >= 4 && memcmp(h + n - 4, "\r\n\r\n", 4) == 0) break;
+  }
+  h[n] = 0;
+  static const char bad[] = "HTTP/1.1 400 Bad Request\r\nContent-Length: 0\r\nConnection: close\r\n\r\n";
+  if (n < 4 || memcmp(h + n - 4, "\r\n\r\n", 4) != 0 || strncmp(h, "CONNECT ", 8) != 0) {
+    send_str(c, bad); return -1;
+  }
+  const char *t = h + 8, *sp = strchr(t, ' ');
+  if (!sp || strncmp(sp, " HTTP/1.", 8) != 0 || sp - t <= 0 || sp - t > 262) {
+    send_str(c, bad); return -1;
+  }
+  char target[264];
+  memcpy(target, t, (size_t)(sp - t)); target[sp - t] = 0;
+  char *colon = strrchr(target, ':');
+  long port = colon ? strtol(colon + 1, NULL, 10) : 0;
+  if (!colon || port <= 0 || port > 65535) { send_str(c, bad); return -1; }
+  *colon = 0;
+  char *host = target;
+  if (host[0] == '[') {
+    size_t l = strlen(host);
+    if (l < 3 || host[l - 1] != ']') { send_str(c, bad); return -1; }
+    host[l - 1] = 0; host++;
+    struct in6_addr a6;
+    if (inet_pton(AF_INET6, host, &a6) != 1) { send_str(c, bad); return -1; }
+  }
+  if (!host[0] || strlen(host) > 253) { send_str(c, bad); return -1; }
+  for (const char *q = host; *q; q++) {
+    char ch = *q;
+    if (!((ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z') || (ch >= '0' && ch <= '9') || ch == '.' || ch == '-' || ch == ':' || ch == '_')) {
+      send_str(c, bad); return -1;
+    }
+  }
+  rq->ver = 1;
+  rq->cmd = 0x01;
+  snprintf(rq->host, sizeof(rq->host), "%s", host);
+  rq->port = (uint16_t)port;
+  return 0;
+}
+
 static int socks_accept(sock_t c, socks_req *rq) {
   uint8_t b[300];
   memset(rq, 0, sizeof(*rq));
   int auth = g_cfg.auth_user[0] != 0;
   if (sock_wait_readable(c, 5000) != 1) return -1;
   if (recv_exact(c, b, 2) != 0) return -1;
+  if (b[0] == 'C' && b[1] == 'O') {
+    if (auth) {
+      static const char no[] = "HTTP/1.1 403 Forbidden\r\nContent-Length: 0\r\nConnection: close\r\n\r\n";
+      send_str(c, no);
+      return -1;
+    }
+    return http_connect_accept(c, rq);
+  }
   if (b[0] == 0x04) {
     if (auth) { socks4_reply(c, 0x5B); return -1; }
     return socks4_accept(c, b[1], rq);
@@ -1010,7 +1082,12 @@ typedef struct {
    * says nothing about the host, only that the budget was spent. */
   int cut;
   int rtt_ms;     /* how long the connect that won took: about one round trip */
+  int local;      /* how many of those tried are on this computer or its network */
+  int noroute;    /* how many of those failed for want of a route from here */
 } dial_info;
+static int udp_dst_forbidden(const struct sockaddr_storage *ss);
+static int udp_dst_private(const struct sockaddr_storage *ss);
+static int has_route(const struct sockaddr_storage *sa);
 
 typedef struct { struct sockaddr_storage sa; socklen_t sl; } dial_addr;
 
@@ -1209,6 +1286,7 @@ static sock_t dial(const char *host, uint16_t port, int prefer6, int use_doh,
       dial_addr *d = &ad[k][nxt[k]++];
       turn = !k;
       tries++;
+      if (udp_dst_forbidden(&d->sa) || udp_dst_private(&d->sa)) di->local++;
       if (!first_try) first_try = d;
       sock_t s = socket(d->sa.ss_family, SOCK_STREAM, IPPROTO_TCP);
       int r = s == SOCK_INVALID ? -1 : sock_connect_start(s, (struct sockaddr *)&d->sa, (int)d->sl);
@@ -1216,6 +1294,7 @@ static sock_t dial(const char *host, uint16_t port, int prefer6, int use_doh,
       if (r < 0) {
         /* Refused or unreachable before it started: the next one goes now. */
         sock_close(s);
+        if (!has_route(&d->sa)) di->noroute++;
         if (use_doh) doh_forget(host, &d->sa);
         winner_drop(host, &d->sa);
         failed = 1;
@@ -1254,6 +1333,7 @@ static sock_t dial(const char *host, uint16_t port, int prefer6, int use_doh,
       int timed_out = pstart[i] + DIAL_TRY_MS <= t && pstart[i] + DIAL_TRY_MS <= end;
       if (done[i] != -1 && !timed_out) continue;
       sock_close(ps[i]);
+      if (!has_route(&pa[i]->sa)) di->noroute++;
       if (use_doh) doh_forget(host, &pa[i]->sa);
       winner_drop(host, &pa[i]->sa);
       failed = 1;
@@ -1345,6 +1425,7 @@ typedef struct {
   tls_track ct;       /* the client's records */
   int answered;       /* the server has answered a request after the handshake */
   int site_marked;    /* ok_put done for it */
+  int ended;          /* who ended the relay: 1 the server (closed or reset), 2 the client */
 } cut_watch;
 
 static void report(const char *ev, const char *host, const char *strat, int attempts, int fam,
@@ -1372,7 +1453,7 @@ static void relay(sock_t a, sock_t b, cut_watch *cw) {
     if (w == 0) continue;
     if (w & 1) {
       int n = recv(a, (char *)buf, RELAY_BUF, 0);
-      if (n <= 0) break;
+      if (n <= 0) { if (cw) cw->ended = 2; break; }
       if (sock_send_all(b, buf, (size_t)n, 0) != 0) break;
       atomic_fetch_add(&g_stats.bytes_up, (uint64_t)n);
       if (!waiting_since) waiting_since = t;   /* oldest request still unanswered */
@@ -1391,6 +1472,7 @@ static void relay(sock_t a, sock_t b, cut_watch *cw) {
             cw->down < CUT_MAX_BYTES && (cw->down > 0 || !cw->gave_up) &&
             ((waiting_since && !cw->answered) || tls_mid_record(&cw->tt) || cw->down == 0))
         { report("cut", cw->host, "reset", (int)(cw->down / 1024), cw->fam, ok_recent(cw->host) ? "site_ok" : NULL); hs_on_cut(cw->host); reported = 1; }
+        if (cw) cw->ended = 1;
         break;
       }
       if (sock_send_all(a, buf, (size_t)n, 0) != 0) break;
@@ -1562,7 +1644,11 @@ typedef struct { sock_t s; int fam; int sent; uint64_t at; int cand; int idx; in
 static int attempt_send(sock_t up, int fam, uint8_t *payload, int pcap, int len,
                         const proto_info *pi, int preset) {
   int rc;
-  if (preset == ATT_PLAIN || pi->kind == PROTO_UNKNOWN) {
+  if (preset >= ATT_RAW_BASE) {
+    /* A raw technique: cuts at fixed places, for a payload of any kind. */
+    rc = desync_send_first(up, fam, payload, len, pcap, pi, strategy_raw(preset - ATT_RAW_BASE),
+                           &g_stats.desync_applied);
+  } else if (preset == ATT_PLAIN || pi->kind == PROTO_UNKNOWN) {
     rc = sock_send_all(up, payload, (size_t)len, 0);
   } else {
     const strategy *st = (preset >= 0) ? strategy_preset(preset) : &g_cfg.strat;
@@ -2396,6 +2482,513 @@ out:
   atomic_fetch_sub(&g_udp_assocs, 1);
 }
 
+/* ── streams that are not TLS or HTTP ────────────────────────────────────
+ * Messengers (Telegram's MTProto), games, and anything else that opens with
+ * bytes of its own rather than a ClientHello or a request line: there is no
+ * name to cut around, and the first payload cannot be replayed on a second
+ * connection, because nothing says doing it twice is harmless for a protocol
+ * we do not know. So the search for a technique runs across the app's own
+ * connections instead of inside one: a destination whose untouched
+ * connection gets no answer (refused, or silent until the app gives up) has
+ * its next connection cut with the first technique of the raw list, the one
+ * after that with the next, and so on. Apps whose servers stop answering
+ * reconnect by themselves within seconds, so the first technique that gets
+ * an answer is found after a few of their retries, and it is learned for
+ * that destination (and tried first for its neighbours: the rest of its /24,
+ * or /48 in IPv6, where a service's servers sit together).
+ *
+ * Safe for any protocol: every raw technique only changes how the bytes are
+ * cut into segments, never the bytes the server receives (see strategy.h).
+ *
+ * Bounded: once every technique has failed for a destination, that is said
+ * once (a "blocked" line marked raw) and its connections go out untouched
+ * for RAW_REST_MS before another round may start. Never a search forever.
+ *
+ * What it cannot change: a destination whose address itself is blocked (its
+ * connection never opens). That is told too (an "unreachable" line marked
+ * raw), since an app the user is waiting on cannot say it — but only when it
+ * is the network's doing: never when this computer has no route there (no
+ * IPv6, offline), never for a name that did not resolve, and never while
+ * the same address or its neighbours (/24, /48) took a connection lately.
+ *
+ * Careful with what is not evidence:
+ *  - one failed connection is not a block (a server restarting): the search
+ *    starts at the second failure, RAW_SECOND_FAIL_MS or more after the
+ *    first;
+ *  - an app that leaves before RAW_SILENT_MS with nothing back (a protocol
+ *    that only sends: syslog, metrics, printing) told nothing;
+ *  - this computer, its network (LAN, loopback, link-local, unique-local)
+ *    are never searched: no filter sits there, and a decoy could reach a
+ *    device that does not honour RFC 2385;
+ *  - a learned technique is set aside for one connection every
+ *    RAW_RECHECK_MS, so one learned from a fluke, or no longer needed, goes. */
+#define RAW_SLOTS      256
+#define RAW_REST_MS    (10 * 60 * 1000)
+/* With nothing back after this long, an attempt the app then closed was
+ * not answered: a slow server answers well within it. */
+#define RAW_SILENT_MS  4000
+/* Each raw destination's unreachable line at most once a minute (an app
+ * retrying one address all along says so again, which is what tells a
+ * blocked address from one that failed once), and no more than
+ * RAW_UNREACH_BURST of them a minute in all: peer-to-peer and game clients
+ * try dead addresses all day. */
+#define RAW_UNREACH_REPEAT_MS 60000
+#define RAW_UNREACH_BURST     20
+/* After a raw line about a connection whose app is still connected to us,
+ * that connection stays open this long before it is answered, so the app
+ * reading the line can still see which program holds it (desktop). */
+#define RAW_HOLD_MS    1200
+#define RAW_SECOND_FAIL_MS 1000
+#define RAW_RECHECK_MS (30 * 60 * 1000)
+/* An address (or its /24, /48) that took a connection this recently is not
+ * told unreachable: the network reaches it. */
+#define RAW_SEEN_MS    (10 * 60 * 1000)
+#define RAW_SEEN_SLOTS 256
+
+typedef struct {
+  char key[256];
+  int used;
+  int learned;      /* raw technique that works here, or -1 */
+  int next;         /* raw technique the next connection uses, or -1 */
+  int start;        /* where this round of the search began */
+  int round;        /* techniques failed in this round */
+  int tries;        /* connections that failed before one got through */
+  int refused;      /* any of them refused (else they all went unanswered) */
+  int plain_fails;  /* untouched connections that failed, before a search */
+  uint64_t first_fail;
+  uint64_t checked; /* when the learned technique was last set aside for a check */
+  int rechecking;   /* one untouched connection is out to check it */
+  uint64_t rest_until;
+  uint64_t t;
+} raw_ent;
+
+static raw_ent g_raw[RAW_SLOTS];
+static mutex_t g_raw_mx;
+static int g_raw_good = -1;      /* the raw technique that last opened something */
+static struct { char host[256]; uint64_t t; } g_raw_unreach[UNREACH_SLOTS];
+static uint64_t g_raw_unreach_win;   /* the minute the burst count is for */
+static int g_raw_unreach_n;
+/* Addresses that took a connection lately (any connection, any protocol). */
+static struct { int fam; uint8_t a[16]; uint64_t t; } g_raw_seen[RAW_SEEN_SLOTS];
+static int g_raw_seen_at;
+
+/* A connection to `sa` opened: the network reaches it and its neighbours. */
+static void raw_seen_put(const struct sockaddr_storage *sa) {
+  mutex_lock(&g_raw_mx);
+  int i = g_raw_seen_at++ % RAW_SEEN_SLOTS;
+  g_raw_seen[i].fam = sa->ss_family;
+  memset(g_raw_seen[i].a, 0, 16);
+  if (sa->ss_family == AF_INET) memcpy(g_raw_seen[i].a, &((const struct sockaddr_in *)sa)->sin_addr, 4);
+  else memcpy(g_raw_seen[i].a, &((const struct sockaddr_in6 *)sa)->sin6_addr, 16);
+  g_raw_seen[i].t = now_ms();
+  mutex_unlock(&g_raw_mx);
+}
+
+/* Caller holds g_raw_mx. Did the address literal h, or a neighbour, take a
+ * connection lately? */
+static int raw_seen_near(const char *h, uint64_t now) {
+  uint8_t x[16]; int fam = 0, bits = 0;
+  memset(x, 0, sizeof(x));
+  if (inet_pton(AF_INET, h, x) == 1) { fam = AF_INET; bits = 24; }
+  else if (inet_pton(AF_INET6, h, x) == 1) { fam = AF_INET6; bits = 48; }
+  else return 0;
+  for (int i = 0; i < RAW_SEEN_SLOTS; i++)
+    if (g_raw_seen[i].t && g_raw_seen[i].fam == fam && age_ms(now, g_raw_seen[i].t) < RAW_SEEN_MS &&
+        prefix_eq(x, g_raw_seen[i].a, bits)) return 1;
+  return 0;
+}
+
+/* This computer has a route to sa (asked of the routing table with a UDP
+ * connect, which sends nothing). No route — no IPv6 on this network, or no
+ * network at all — is not a block. */
+static int has_route(const struct sockaddr_storage *sa) {
+  sock_t u = socket(sa->ss_family, SOCK_DGRAM, IPPROTO_UDP);
+  if (u == SOCK_INVALID) return 1;   /* cannot tell: assume yes */
+  socklen_t l = sa->ss_family == AF_INET6 ? (socklen_t)sizeof(struct sockaddr_in6) : (socklen_t)sizeof(struct sockaddr_in);
+  int r = connect(u, (const struct sockaddr *)sa, l);
+  sock_close(u);
+  return r == 0;
+}
+
+/* The far end of a connection is this computer or its network. */
+static int sock_peer_local(sock_t s) {
+  struct sockaddr_storage ss;
+  socklen_t l = sizeof(ss);
+  if (getpeername(s, (struct sockaddr *)&ss, &l) != 0) return 0;
+  return udp_dst_forbidden(&ss) || udp_dst_private(&ss);
+}
+
+static int raw_usable(int i) { return preset_usable(strategy_raw(i)); }
+
+/* Caller holds g_raw_mx. */
+static int raw_find(const char *k) {
+  for (int i = 0; i < RAW_SLOTS; i++)
+    if (g_raw[i].used && strcmp(g_raw[i].key, k) == 0) return i;
+  return -1;
+}
+
+/* Caller holds g_raw_mx. The key's entry, made (in a free slot, else the
+ * one left alone longest) when there is none. */
+static int raw_add(const char *k) {
+  int slot = raw_find(k);
+  if (slot >= 0) return slot;
+  uint64_t old = (uint64_t)-1;
+  for (int i = 0; i < RAW_SLOTS; i++) {
+    if (!g_raw[i].used) { slot = i; break; }
+    if (g_raw[i].t < old) { old = g_raw[i].t; slot = i; }
+  }
+  if (slot < 0) slot = 0;
+  memset(&g_raw[slot], 0, sizeof(g_raw[slot]));
+  snprintf(g_raw[slot].key, sizeof(g_raw[slot].key), "%s", k);
+  g_raw[slot].used = 1;
+  g_raw[slot].learned = -1;
+  g_raw[slot].next = -1;
+  g_raw[slot].t = now_ms();
+  return slot;
+}
+
+/* The usable raw technique after i (from the top when i < 0), wrapping. */
+static int raw_after(int i) {
+  int n = strategy_raw_count();
+  for (int k = 1; k <= n; k++) {
+    int j = ((i < 0 ? -1 : i) + k) % n;
+    if (raw_usable(j)) return j;
+  }
+  return -1;
+}
+
+static int raw_usable_count(void) {
+  int n = 0;
+  for (int i = 0; i < strategy_raw_count(); i++) n += raw_usable(i);
+  return n;
+}
+
+/* Two address literals in the same /24 (IPv4) or /48 (IPv6). */
+static int raw_neighbours(const char *a, const char *b) {
+  uint8_t x[16], y[16];
+  if (inet_pton(AF_INET, a, x) == 1 && inet_pton(AF_INET, b, y) == 1) return prefix_eq(x, y, 24);
+  if (inet_pton(AF_INET6, a, x) == 1 && inet_pton(AF_INET6, b, y) == 1) return prefix_eq(x, y, 48);
+  return 0;
+}
+
+/* What this destination's next connection goes out with: ATT_PLAIN, or
+ * ATT_RAW_BASE + a raw technique. *inherited when it is a neighbour's. */
+static int raw_pick(const char *k, int *inherited) {
+  *inherited = 0;
+  int c = ATT_PLAIN;
+  mutex_lock(&g_raw_mx);
+  int i = raw_find(k);
+  if (i >= 0) {
+    uint64_t now = now_ms();
+    if (g_raw[i].learned >= 0) {
+      c = ATT_RAW_BASE + g_raw[i].learned;
+      /* Now and then one connection goes untouched, to see whether the
+       * technique is still needed (see raw_result). */
+      if (!g_raw[i].rechecking && age_ms(now, g_raw[i].checked) >= RAW_RECHECK_MS) {
+        g_raw[i].rechecking = 1;
+        g_raw[i].checked = now;
+        c = ATT_PLAIN;
+      }
+    }
+    else if (g_raw[i].next >= 0) c = ATT_RAW_BASE + g_raw[i].next;
+  } else if (ip_literal(k)) {
+    for (int j = 0; j < RAW_SLOTS; j++)
+      if (g_raw[j].used && g_raw[j].learned >= 0 && raw_neighbours(k, g_raw[j].key)) {
+        c = ATT_RAW_BASE + g_raw[j].learned; *inherited = 1; break;
+      }
+  }
+  mutex_unlock(&g_raw_mx);
+  return c;
+}
+
+/* The client's own port on its connection to us: what a desktop app looks
+ * up to name the program behind a line. 0 when it cannot be had. */
+static int peer_port(sock_t c) {
+  struct sockaddr_storage ss;
+  socklen_t l = sizeof(ss);
+  if (getpeername(c, (struct sockaddr *)&ss, &l) != 0) return 0;
+  if (ss.ss_family == AF_INET) return ntohs(((struct sockaddr_in *)&ss)->sin_port);
+  if (ss.ss_family == AF_INET6) return ntohs(((struct sockaddr_in6 *)&ss)->sin6_port);
+  return 0;
+}
+
+#define RAW_FAIL_REFUSED 0
+#define RAW_FAIL_SILENT  1
+
+/* What one connection to a raw destination showed: ok (the server answered),
+ * or a failure of kind how. Only the attempt the destination is currently
+ * on counts: several connections are often open to one server at once, and
+ * the late word of one that went out with an earlier technique must not move
+ * the search twice. Returns 1 when it printed a line (the caller may hold
+ * the client a moment, see RAW_HOLD_MS). */
+static int raw_result(const char *k, uint16_t port, int cand, int inherited, int ok, int how,
+                      int fam, int cport) {
+  char h[256];
+  int printed = 0, tech = cand >= ATT_RAW_BASE ? cand - ATT_RAW_BASE : -1;
+  json_host(h, sizeof(h), k);
+  mutex_lock(&g_raw_mx);
+  uint64_t now = now_ms();
+  int i = raw_find(k);
+  if (ok) {
+    if (tech < 0) {
+      /* Untouched and answered: whatever this destination was searching for
+       * is over (a block lifted, or a server that was only down), and a
+       * learned technique that an untouched check got past is not needed. */
+      if (i >= 0 && (g_raw[i].learned < 0 || g_raw[i].rechecking)) g_raw[i].used = 0;
+    } else if (i < 0 ? inherited : (g_raw[i].learned != tech && g_raw[i].next == tech)) {
+      if (i < 0) i = raw_add(k);
+      int tries = g_raw[i].tries + 1;
+      g_raw[i].learned = tech; g_raw[i].next = -1; g_raw[i].round = 0;
+      g_raw[i].tries = 0; g_raw[i].refused = 0; g_raw[i].rest_until = 0; g_raw[i].t = now;
+      g_raw[i].plain_fails = 0; g_raw[i].checked = now; g_raw[i].rechecking = 0;
+      g_raw_good = tech;
+      engine_printf("{\"type\":\"bypass\",\"host\":\"%s\",\"strategy\":\"%s\",\"attempts\":%d,"
+                    "\"family\":\"%s\",\"raw\":true,\"port\":%u,\"cport\":%d%s}\n",
+                    h, strategy_raw(tech)->name, tries, fam == AF_INET6 ? "ipv6" : "ipv4",
+                    (unsigned)port, cport, inherited ? ",\"note\":\"neighbour\"" : "");
+    } else if (i >= 0 && g_raw[i].learned == tech) {
+      g_raw[i].t = now;
+    }
+    mutex_unlock(&g_raw_mx);
+    return printed;
+  }
+
+  int from = -2;   /* where the search goes on from; -2: this result moves nothing */
+  if (tech < 0) {
+    if (i >= 0 && g_raw[i].learned >= 0) {
+      /* The untouched check of a learned technique failed: still needed. */
+      g_raw[i].rechecking = 0;
+      mutex_unlock(&g_raw_mx);
+      return 0;
+    }
+    /* Untouched, and not answered: start a search, unless one is under
+     * way or the destination is resting — and only at the second such
+     * failure, a moment after the first: one is a server restarting as
+     * often as a filter, and connections that went out together and
+     * failed together are one failure. */
+    if (i < 0 || (g_raw[i].next < 0 && now >= g_raw[i].rest_until)) {
+      if (i < 0 || g_raw[i].plain_fails == 0 || age_ms(now, g_raw[i].first_fail) >= RAW_REST_MS) {
+        if (i < 0) i = raw_add(k);
+        g_raw[i].plain_fails = 1; g_raw[i].first_fail = now; g_raw[i].t = now;
+        if (how == RAW_FAIL_REFUSED) g_raw[i].refused = 1;
+        g_raw[i].tries = 1;
+        mutex_unlock(&g_raw_mx);
+        return 0;
+      }
+      if (age_ms(now, g_raw[i].first_fail) < RAW_SECOND_FAIL_MS) { mutex_unlock(&g_raw_mx); return 0; }
+      from = -1;
+    }
+  } else if (i < 0) {
+    if (inherited) from = tech;                         /* a neighbour's technique: not this one's */
+  } else if (g_raw[i].learned == tech) {
+    from = tech;                                        /* what worked here does not any more */
+  } else if (g_raw[i].learned < 0 && g_raw[i].next == tech) {
+    from = tech;
+  }
+  if (from == -2) { mutex_unlock(&g_raw_mx); return 0; }
+  if (i < 0) i = raw_add(k);
+  raw_ent *e = &g_raw[i];
+  e->t = now;
+  e->tries++;
+  e->plain_fails = 0;
+  if (how == RAW_FAIL_REFUSED) e->refused = 1;
+  if (tech < 0 || e->learned == tech || (inherited && e->next < 0)) {
+    /* A new round: from the technique that last opened something here or
+     * nearby, else from the top. */
+    e->learned = -1;
+    e->round = tech >= 0 ? 1 : 0;
+    int s = tech >= 0 ? raw_after(tech) : (g_raw_good >= 0 && raw_usable(g_raw_good) ? g_raw_good : raw_after(-1));
+    e->start = s; e->next = s;
+  } else {
+    e->round++;
+    e->next = raw_after(tech);
+  }
+  if (e->next < 0 || e->round >= raw_usable_count()) {
+    /* Every technique has had its turn: say so once, and leave the
+     * destination untouched for a while. */
+    engine_printf("{\"type\":\"blocked\",\"host\":\"%s\",\"strategy\":\"\",\"attempts\":%d,"
+                  "\"family\":\"%s\",\"raw\":true,\"port\":%u,\"cport\":%d%s}\n",
+                  h, e->tries, fam == AF_INET6 ? "ipv6" : "ipv4", (unsigned)port, cport,
+                  e->refused ? "" : ",\"note\":\"silent\"");
+    printed = 1;
+    e->next = -1; e->round = 0; e->tries = 0; e->refused = 0;
+    e->rest_until = now + RAW_REST_MS;
+  }
+  mutex_unlock(&g_raw_mx);
+  return printed;
+}
+
+/* Not worth a line: this computer, its network, or a stand-in address. */
+static int raw_local_dest(const char *h) {
+  struct in_addr a4; struct in6_addr a6;
+  if (inet_pton(AF_INET, h, &a4) == 1) {
+    uint32_t a = ntohl(a4.s_addr);
+    return (a >> 24) == 0 || (a >> 24) == 127 || udp_v4_private(a) || (a >> 28) >= 14 || host_in_fake_net(h);
+  }
+  if (inet_pton(AF_INET6, h, &a6) == 1) {
+    struct sockaddr_storage ss;
+    memset(&ss, 0, sizeof(ss));
+    ss.ss_family = AF_INET6;
+    memcpy(&((struct sockaddr_in6 *)&ss)->sin6_addr, &a6, 16);
+    return udp_dst_forbidden(&ss) || udp_dst_private(&ss) || host_in_fake_net(h) || a6.s6_addr[0] == 0xff;
+  }
+  return 0;
+}
+
+/* A connection that could not be opened at all, to an address or to a name
+ * on a port that is not the web's (those are report_unreachable's): the
+ * address itself is blocked, or the server is gone. Returns 1 when it
+ * printed a line. */
+static int report_raw_unreachable(const char *host, uint16_t port, const dial_info *di, int cport) {
+  if (!host || !host[0] || raw_local_dest(host)) return 0;
+  if (!ip_literal(host) && (port == 80 || port == 443)) return 0;
+  if (di && di->cut) return 0;   /* the dial's own time ran out, not the address's */
+  if (di && di->tried > 0 && di->local == di->tried) return 0;   /* a name for a local address */
+  if (!di || di->resolved <= 0) return 0;   /* the name did not resolve: DNS, not this address */
+  if (di->noroute > 0) return 0;            /* no route from this computer: no IPv6, offline */
+  char h[256];
+  json_host(h, sizeof(h), host);
+  int slot = -1, oldest = 0;
+  mutex_lock(&g_raw_mx);
+  uint64_t t = now_ms();
+  for (int i = 0; i < UNREACH_SLOTS; i++) {
+    if (g_raw_unreach[i].host[0] && strcmp(g_raw_unreach[i].host, h) == 0) { slot = i; break; }
+    if (g_raw_unreach[i].t < g_raw_unreach[oldest].t) oldest = i;
+  }
+  if (slot >= 0 && age_ms(t, g_raw_unreach[slot].t) < RAW_UNREACH_REPEAT_MS) { mutex_unlock(&g_raw_mx); return 0; }
+  if (raw_seen_near(host, t)) { mutex_unlock(&g_raw_mx); return 0; }   /* it, or its neighbours, answer */
+  if (age_ms(t, g_raw_unreach_win) >= 60000) { g_raw_unreach_win = t; g_raw_unreach_n = 0; }
+  if (g_raw_unreach_n >= RAW_UNREACH_BURST) { mutex_unlock(&g_raw_mx); return 0; }
+  g_raw_unreach_n++;
+  if (slot < 0) { slot = oldest; snprintf(g_raw_unreach[slot].host, sizeof(g_raw_unreach[slot].host), "%s", h); }
+  g_raw_unreach[slot].t = t;
+  mutex_unlock(&g_raw_mx);
+  engine_printf("{\"type\":\"unreachable\",\"host\":\"%s\",\"stage\":\"%s\",\"ips\":%d,"
+                "\"raw\":true,\"port\":%u,\"cport\":%d}\n",
+                h, "connect", di->tried, (unsigned)port, cport);
+  return 1;
+}
+
+/* A raw technique learned by an earlier run (see engine_restore). */
+static int raw_restore(const char *k, const char *technique, uint64_t age) {
+  int p = -1;
+  for (int i = 0; i < strategy_raw_count(); i++) if (strcmp(strategy_raw(i)->name, technique) == 0) { p = i; break; }
+  if (p < 0 || !raw_usable(p)) return -1;
+  mutex_lock(&g_raw_mx);
+  int i = raw_add(k);
+  g_raw[i].learned = p; g_raw[i].next = -1; g_raw[i].round = 0; g_raw[i].tries = 0;
+  uint64_t now = now_ms();
+  g_raw[i].checked = now > age ? now - age : 0;   /* one learned long ago is checked soon */
+  mutex_unlock(&g_raw_mx);
+  return 0;
+}
+
+/* ── names only this computer's own DNS knows ───────────────────────────
+ * A company's intranet, a VPN's split DNS, a hosts-file entry: the system's
+ * resolver answers them with a private address, and public DNS does not know
+ * them at all. Asking our own resolver for such a name fails the connection
+ * (and shows the name to public resolvers). So, as the program proxy does
+ * (electron/app-proxy.js), a name the system resolves to private addresses
+ * only, none of them a known block page, is connected to where the system
+ * says, and public DNS is not asked. Loopback and 0.0.0.0 answers are what a
+ * hosts file or an ad blocker gives on purpose, but also what some filtering
+ * DNS gives for a blocked site: those are followed only when our own resolver
+ * has no public address for the name either. A public answer from the system
+ * changes nothing. Decided once a minute per name; the system is given
+ * OSDNS_WAIT_MS to answer (it may be the one that is broken). */
+#define OSDNS_SLOTS   128
+#define OSDNS_TTL_MS  60000
+#define OSDNS_WAIT_MS 1500
+static struct { char host[256]; int follow; uint64_t t; } g_osdns[OSDNS_SLOTS];
+static mutex_t g_osdns_mx;
+/* The system's resolver did not answer in time: not asked again for a
+ * while, so a broken one costs one wait, not one per name. */
+static uint64_t g_osdns_slow_until;
+
+typedef struct { char host[256]; _Atomic int state; /* 0 asking, 1 private, 2 loopback, 3 other */ _Atomic int refs; } osdns_job;
+
+static void osdns_release(osdns_job *j) { if (atomic_fetch_sub(&j->refs, 1) == 1) free(j); }
+
+/* 1: every address private (RFC 1918, CGNAT, link-local, unique-local) and
+ * none a known block page; 2: every address private or loopback/unspecified,
+ * at least one of the latter; 3: anything else (a public address, none). */
+static int osdns_classify(const char *host) {
+  struct addrinfo hints, *res = NULL;
+  memset(&hints, 0, sizeof(hints));
+  hints.ai_family = AF_UNSPEC; hints.ai_socktype = SOCK_STREAM;
+  if (getaddrinfo(host, NULL, &hints, &res) != 0 || !res) { if (res) freeaddrinfo(res); return 3; }
+  int n = 0, priv = 0, loop = 0, other = 0;
+  for (struct addrinfo *ai = res; ai; ai = ai->ai_next) {
+    if ((size_t)ai->ai_addrlen > sizeof(struct sockaddr_storage)) continue;
+    struct sockaddr_storage ss; memset(&ss, 0, sizeof(ss));
+    memcpy(&ss, ai->ai_addr, ai->ai_addrlen);
+    n++;
+    if (ss.ss_family == AF_INET) {
+      uint32_t ip = ntohl(((struct sockaddr_in *)&ss)->sin_addr.s_addr);
+      if (doh_ipv4_is_blockpage(ip)) other++;
+      else if ((ip >> 24) == 0 || (ip >> 24) == 127) loop++;
+      else if (udp_v4_private(ip)) priv++;
+      else other++;
+    } else if (ss.ss_family == AF_INET6) {
+      if (udp_dst_forbidden(&ss)) loop++;
+      else if (udp_dst_private(&ss)) priv++;
+      else other++;
+    }
+  }
+  freeaddrinfo(res);
+  if (!n || other || !(priv || loop)) return 3;
+  return loop ? 2 : 1;
+}
+
+static void *osdns_thread(void *p) {
+  osdns_job *j = (osdns_job *)p;
+  atomic_store(&j->state, osdns_classify(j->host));
+  osdns_release(j);
+  return NULL;
+}
+
+/* Connect to host where the system's resolver says, rather than ask ours? */
+static int osdns_follow(const char *host) {
+  if (!g_cfg.use_doh || !host[0] || ip_literal(host) || doh_local_name(host)) return 0;
+  mutex_lock(&g_osdns_mx);
+  uint64_t now = now_ms();
+  int slot = -1, oldest = 0;
+  for (int i = 0; i < OSDNS_SLOTS; i++) {
+    if (g_osdns[i].host[0] && strcmp(g_osdns[i].host, host) == 0) { slot = i; break; }
+    if (g_osdns[i].t < g_osdns[oldest].t) oldest = i;
+  }
+  if (slot >= 0 && age_ms(now, g_osdns[slot].t) < OSDNS_TTL_MS) { int f = g_osdns[slot].follow; mutex_unlock(&g_osdns_mx); return f; }
+  if (now < g_osdns_slow_until) { mutex_unlock(&g_osdns_mx); return 0; }
+  mutex_unlock(&g_osdns_mx);
+
+  osdns_job *j = (osdns_job *)calloc(1, sizeof(*j));
+  if (!j) return 0;
+  snprintf(j->host, sizeof(j->host), "%s", host);
+  atomic_store(&j->refs, 2);
+  if (thread_spawn(osdns_thread, j, 256 * 1024) != 0) { free(j); return 0; }
+  uint64_t end = now + OSDNS_WAIT_MS;
+  int st;
+  while ((st = atomic_load(&j->state)) == 0 && now_ms() < end) sleep_ms(5);
+  osdns_release(j);
+  int follow = 0;
+  if (st == 1) follow = 1;
+  else if (st == 2) {
+    /* Loopback or 0.0.0.0: followed only if our resolver has no public
+     * address for it either. */
+    struct sockaddr_storage sa[DOH_MAX_ADDRS]; socklen_t sl[DOH_MAX_ADDRS];
+    follow = doh_resolve_all(host, 443, 0, sa, sl, DOH_MAX_ADDRS) <= 0 &&
+             doh_resolve_all(host, 443, 1, sa, sl, DOH_MAX_ADDRS) <= 0;
+  }
+  mutex_lock(&g_osdns_mx);
+  if (st == 0) g_osdns_slow_until = now_ms() + OSDNS_TTL_MS;   /* decided: ours, for a while */
+  if (slot < 0) slot = oldest;
+  snprintf(g_osdns[slot].host, sizeof(g_osdns[slot].host), "%s", host);
+  g_osdns[slot].follow = follow;
+  g_osdns[slot].t = now_ms();
+  mutex_unlock(&g_osdns_mx);
+  return follow;
+}
+
 static void handle(sock_t client) {
   atomic_fetch_add(&g_stats.conns_total, 1);
   atomic_fetch_add(&g_stats.conns_active, 1);
@@ -2417,7 +3010,7 @@ static void handle(sock_t client) {
   if (rq.cmd == 0x03) { udp_associate(client, &rq); goto done; }
   /* A stand-in address that outlived its mapping: "not allowed", at once. */
   if (host_in_fake_net(rq.host)) {
-    if (rq.ver == 4) socks4_reply(client, 0x5B); else socks5_reply(client, 0x02);
+    if (rq.ver == 4) socks4_reply(client, 0x5B); else if (rq.ver == 1) socks_reply(client, &rq, 0); else socks5_reply(client, 0x02);
     goto done;
   }
   snprintf(dial_host, sizeof(dial_host), "%s", rq.host);
@@ -2448,14 +3041,35 @@ static void handle(sock_t client) {
     if (up == SOCK_INVALID) up = dial(rq.host, rq.port, g_cfg.prefer_ipv6, g_cfg.use_doh, 0, &fam, &di);
     if (up == SOCK_INVALID) goto done;
   } else {
-    up = dial(rq.host, rq.port, g_cfg.prefer_ipv6, g_cfg.use_doh, 0, &fam, &di);
-    if (up == SOCK_INVALID) { socks_reply(client, &rq, 0); report_unreachable(rq.host, rq.port, &di); goto done; }
+    /* A name only this computer's DNS knows (an intranet, a hosts file):
+     * where the system says (see osdns_follow). */
+    if (osdns_follow(rq.host)) {
+      dial_doh = 0;
+      snprintf(dial_host, sizeof(dial_host), "%s", rq.host);
+    }
+    up = dial(rq.host, rq.port, g_cfg.prefer_ipv6, dial_doh, 0, &fam, &di);
+    if (up == SOCK_INVALID) {
+      /* Told while the app is still connected to us (see RAW_HOLD_MS); not
+       * where nobody could look (--auth-file: the tunnel on Android). */
+      if (report_raw_unreachable(rq.host, rq.port, &di, peer_port(client)) && !g_cfg.auth_user[0]) sleep_ms(RAW_HOLD_MS);
+      socks_reply(client, &rq, 0); report_unreachable(rq.host, rq.port, &di); goto done;
+    }
+    {
+      /* The network reaches this address (see raw_seen_near). */
+      struct sockaddr_storage pa; socklen_t pl = sizeof(pa);
+      if (getpeername(up, (struct sockaddr *)&pa, &pl) == 0 && !udp_dst_forbidden(&pa) && !udp_dst_private(&pa))
+        raw_seen_put(&pa);
+    }
     if (socks_reply(client, &rq, 1) != 0) goto done;
     flen = read_first(client, up, first, RELAY_BUF);
   }
 
   int watch_tls = 0;
   char cut_key[256]; cut_key[0] = 0;
+  /* A stream that is neither TLS nor HTTP: the technique it went out with
+   * (raw_cand), and when, for raw_result once its fate is known. */
+  int raw_cand = 0, raw_inh = 0, raw_done = 1;
+  uint64_t raw_at = 0;
   int told = 0;      /* the connection's fate is already in the log */
   int gave_up = 0;   /* the ladder ended with nothing answered: blocked, or unreachable */
   int race_head = race_head_ms(di.rtt_ms);
@@ -2475,15 +3089,36 @@ static void handle(sock_t client) {
                  retry_safe(&pi, first, flen);
     if (!ladder) {
       /* One attempt, as asked (the configured strategy, or untouched), and
-       * the relay takes it from there. */
-      int c = g_cfg.auto_probe ? ATT_PLAIN : -1;   /* -1 = configured */
+       * the relay takes it from there. A stream that is not TLS or HTTP goes
+       * out with what its destination's search is on (see raw_pick). */
+      /* Never on this computer or its network (see "streams that are not
+       * TLS or HTTP"); --raw-local lets the tests use loopback. */
+      int raw = g_cfg.auto_probe && pi.kind == PROTO_UNKNOWN &&
+                (g_cfg.raw_local || (!raw_local_dest(key) && !sock_peer_local(up)));
+      int hold_ok = !g_cfg.auth_user[0];
+      int c = raw ? raw_pick(key, &raw_inh) : g_cfg.auto_probe ? ATT_PLAIN : -1;   /* -1 = configured */
       uint64_t at = now_ms();
       memcpy(work, first, (size_t)flen);   /* strategies may rewrite in place */
-      if (attempt_send(up, fam, work, RELAY_BUF, flen, &pi, c) != 0) {
+      int sr = attempt_send(up, fam, work, RELAY_BUF, flen, &pi, c);
+      if (sr != 0) {
         report("send_failed", key, "", 1, fam, NULL); told = 1;
-      } else if (sock_wait_readable(up, VERIFY_PLAIN_MS) == 1 &&
-                 read_reply(up, &pi, rbuf, RELAY_BUF, &rlen) == ATT_OK) {
-        atomic_fetch_add(&g_stats.probe_success, 1);
+        if (raw && sr == ATT_REFUSED &&
+            raw_result(key, rq.port, c, raw_inh, 0, RAW_FAIL_REFUSED, fam, peer_port(client)) && hold_ok)
+          sleep_ms(RAW_HOLD_MS);
+      } else {
+        /* The answer, or the client: one that sends more, or leaves, before
+         * the server says anything is the relay's from here — its next bytes
+         * are not held back, and one that left early is no evidence. */
+        int w = sock_wait_either(client, up, VERIFY_PLAIN_MS);
+        if (w > 0 && (w & 2)) {
+          int rr = read_reply(up, &pi, rbuf, RELAY_BUF, &rlen);
+          if (rr == ATT_OK) atomic_fetch_add(&g_stats.probe_success, 1);
+          if (raw && raw_result(key, rq.port, c, raw_inh, rr == ATT_OK, RAW_FAIL_REFUSED, fam, peer_port(client)) && hold_ok)
+            sleep_ms(RAW_HOLD_MS);
+        } else if (raw) {
+          /* Not answered yet: the relay finds out. */
+          raw_cand = c; raw_at = at; raw_done = 0;
+        }
       }
       if (rlen == 0 && !told) waiting = at;
     } else {
@@ -2699,6 +3334,20 @@ static void handle(sock_t client) {
     cw.gave_up = gave_up;
     if (rlen > 0) tls_follow(&cw.tt, rbuf, rlen);
     relay(client, up, &cw);
+    if (!raw_done) {
+      /* Any answer at all: it got through. Nothing, and the server ended it:
+       * refused. Nothing, and the app gave up after a while: unanswered. An
+       * app that left sooner than that says nothing either way. */
+      if (cw.down > 0)
+        raw_result(cut_key, rq.port, raw_cand, raw_inh, 1, 0, fam, 0);
+      else if (cw.ended == 1) {
+        /* The app is still connected: held a moment if this was told. */
+        if (raw_result(cut_key, rq.port, raw_cand, raw_inh, 0, RAW_FAIL_REFUSED, fam, peer_port(client)) &&
+            !g_cfg.auth_user[0])
+          sleep_ms(RAW_HOLD_MS);
+      } else if (cw.ended == 2 && age_ms(now_ms(), raw_at) >= RAW_SILENT_MS)
+        raw_result(cut_key, rq.port, raw_cand, raw_inh, 0, RAW_FAIL_SILENT, fam, 0);
+    }
   }
 
 done:
@@ -2765,6 +3414,9 @@ static void engine_init_once(void) {
   mutex_init(&g_win_mx);
   mutex_init(&g_cool_mx);
   mutex_init(&g_seen_mx);
+  mutex_init(&g_raw_mx);
+  mutex_init(&g_osdns_mx);
+  strategy_raw_count();   /* the raw list built before any thread reads it */
   mutex_init(&g_out_mx);
   g_out_mx_ready = 1;
 }
@@ -2793,6 +3445,16 @@ static void engine_forget(void) {
   mutex_lock(&g_seen_mx);
   memset(g_seen, 0, sizeof(g_seen));
   mutex_unlock(&g_seen_mx);
+  mutex_lock(&g_raw_mx);
+  memset(g_raw, 0, sizeof(g_raw));
+  memset(g_raw_unreach, 0, sizeof(g_raw_unreach));
+  g_raw_unreach_win = 0; g_raw_unreach_n = 0; g_raw_good = -1;
+  memset(g_raw_seen, 0, sizeof(g_raw_seen)); g_raw_seen_at = 0;
+  mutex_unlock(&g_raw_mx);
+  mutex_lock(&g_osdns_mx);
+  memset(g_osdns, 0, sizeof(g_osdns));
+  g_osdns_slow_until = 0;
+  mutex_unlock(&g_osdns_mx);
   doh_clear_cache();   /* the answers, and which resolvers were found dead */
 }
 
@@ -2905,7 +3567,17 @@ void engine_learn(const char *host, int preset) { hs_put(host, preset); }
  * do anything here. */
 int engine_restore(const char *host, const char *technique, uint64_t age) {
   size_t n = strlen(host);
-  if (n == 0 || n > 253 || ip_literal(host)) return -1;
+  if (n == 0 || n > 253) return -1;
+  /* A raw technique (a stream that is not TLS or HTTP), learned for an
+   * address or a name alike. */
+  if (strncmp(technique, "raw-", 4) == 0) {
+    for (size_t i = 0; i < n; i++) {
+      char c = host[i];
+      if (!((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '.' || c == '-' || c == ':')) return -1;
+    }
+    return raw_restore(host, technique, age);
+  }
+  if (ip_literal(host)) return -1;
   for (size_t i = 0; i < n; i++) {
     char c = host[i];
     if (!((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '.' || c == '-')) return -1;

@@ -61,6 +61,11 @@ class ShroudlyVpnService : VpnService() {
         private const val ALERT_CHANNEL = "alerts"
         private const val NOTIFICATION_ID = 1
         private const val ALERT_ID = 2
+        // An app that cannot reach its servers (RawWatch): its own notice, so
+        // it never replaces the one that says protection stopped.
+        private const val RAW_ID = 3
+        private const val LEARNED_RAW_MAX = 100
+        private const val RAW_NETWORK_WORKS_MS = 3L * 60 * 1000
         private const val MAX_RESTARTS = 5
         // A STATS left unanswered this long (in uptime, so time asleep does not
         // count) means the engine's command loop hangs. In the app's own
@@ -235,6 +240,20 @@ class ShroudlyVpnService : VpnService() {
 
     private lateinit var learned: Learned
     private val told = HashSet<String>()
+    // Apps whose own connections (not TLS or HTTP) cannot get through.
+    private val rawWatch by lazy {
+        RawWatch(RawApps(try { assets.open("raw-apps.txt").bufferedReader().readLines() } catch (_: Exception) { emptyList() })) {
+            // Never told without a network under the VPN, nor while nothing
+            // else comes back either.
+            underlyingId != null && SystemClock.elapsedRealtime() - lastDownAt <= RAW_NETWORK_WORKS_MS
+        }
+    }
+    // When the engine's counters last showed bytes coming back (uptime).
+    @Volatile private var lastDownAt = Long.MIN_VALUE / 2
+    @Volatile private var lastBytesDown = 0L
+    // Techniques for streams that are not TLS or HTTP (raw-*), per address:
+    // kept apart, so an app's many addresses never push out sites' techniques.
+    private lateinit var learnedRaw: Learned
 
     override fun onCreate() {
         super.onCreate()
@@ -353,6 +372,7 @@ class ShroudlyVpnService : VpnService() {
             val prefs = getSharedPreferences(PREFS, MODE_PRIVATE)
             if (prefs.contains(OLD_PID_KEY)) prefs.edit().remove(OLD_PID_KEY).apply()
             learned = Learned(prefs.getString("learned", null))
+            learnedRaw = Learned(prefs.getString("learnedRaw", null), LEARNED_RAW_MAX)
             told.clear()
             restarts = 0
             tunnelRestartedAt = 0
@@ -872,6 +892,7 @@ class ShroudlyVpnService : VpnService() {
             return
         }
         log("Network: ${Net.describe(cm, now.first, now.second)}")
+        rawWatch.networkChanged()
         pathWatch.oneStrike = false
         healthReset(FIRST_PATH_CHECK_MS)
         // The interface carries IPv6 only where the network does.
@@ -907,7 +928,7 @@ class ShroudlyVpnService : VpnService() {
         when (ev) {
             is EngineEvent.Ready -> {
                 log("Engine listening on 127.0.0.1:${ev.port} (${ev.techniques} techniques)")
-                val cmds = learned.commands(System.currentTimeMillis())
+                val cmds = learnedRaw.commands(System.currentTimeMillis()) + learned.commands(System.currentTimeMillis())
                 if (cmds.isNotEmpty()) {
                     engine?.send(cmds.joinToString("\n"))
                     log("Techniques remembered for ${cmds.size} sites restored")
@@ -919,6 +940,8 @@ class ShroudlyVpnService : VpnService() {
                 }
             }
             is EngineEvent.Stats -> {
+                if (ev.bytesDown > lastBytesDown) lastDownAt = SystemClock.elapsedRealtime()
+                lastBytesDown = ev.bytesDown
                 Protection.stats = ev
                 Protection.changed()
             }
@@ -929,6 +952,7 @@ class ShroudlyVpnService : VpnService() {
     }
 
     private fun onHost(ev: EngineEvent.Host) {
+        if (ev.raw && (ev.kind == "blocked" || ev.kind == "unreachable")) { onRaw(ev); return }
         val key = "${ev.kind} ${ev.host}"
         val first = synchronized(told) {
             if (told.size > 400) told.clear()
@@ -936,9 +960,11 @@ class ShroudlyVpnService : VpnService() {
         }
         when (ev.kind) {
             "bypass" -> {
-                synchronized(learned) {
-                    learned.remember(ev.host, ev.strategy, System.currentTimeMillis())
-                    getSharedPreferences(PREFS, MODE_PRIVATE).edit().putString("learned", learned.encode()).apply()
+                val raw = ev.strategy.startsWith("raw-")
+                val store = if (raw) learnedRaw else learned
+                synchronized(store) {
+                    store.remember(ev.host, ev.strategy, System.currentTimeMillis())
+                    getSharedPreferences(PREFS, MODE_PRIVATE).edit().putString(if (raw) "learnedRaw" else "learned", store.encode()).apply()
                 }
                 if (first) logSite { "${ev.host}: blocked here, opened with ${ev.strategy} (${ev.attempts} tries, ${ev.family})" }
             }
@@ -952,6 +978,44 @@ class ShroudlyVpnService : VpnService() {
             "unreachable" -> if (first) logSite { "${ev.host}: could not be reached (${if (ev.stage == "dns") "DNS" else "connection"})" }
             "cut" -> if (first) logSite { "${ev.host}: connects, then the network cuts it (${ev.strategy})" }
             else -> {}
+        }
+    }
+
+    /* A connection that is not TLS or HTTP that no technique got through, or
+     * whose address does not answer at all (see RawApps.kt): a line in the
+     * log, and, for an app that can be named, one notice per network. */
+    private fun onRaw(ev: EngineEvent.Host) {
+        val kind = if (ev.kind == "blocked") RawWatch.Kind.BLOCKED else RawWatch.Kind.UNREACHABLE
+        when (val o = rawWatch.onEvent(kind, ev.host, ev.port, ev.attempts, System.currentTimeMillis(), ev.stage, ev.note)) {
+            is RawWatch.Outcome.Log -> logSite { o.line }
+            is RawWatch.Outcome.Tell -> {
+                val n = o.notice
+                val addrs = n.addrs.joinToString(", ")
+                log(
+                    if (n.kind == RawWatch.Kind.UNREACHABLE) "${n.app} cannot reach its servers ($addrs): the network blocks those addresses themselves; only the app's own proxy setting or a VPN gets around that"
+                    else "${n.app}: the network stops its connections ($addrs) and no technique got through; only the app's own proxy setting or a VPN gets around that",
+                )
+                notifyRaw(if (n.kind == RawWatch.Kind.UNREACHABLE) R.string.autoRawUnreachable else R.string.autoRawBlocked, n.app)
+            }
+            RawWatch.Outcome.Nothing -> {}
+        }
+    }
+
+    private fun notifyRaw(res: Int, app: String) {
+        try {
+            channels(this)
+            val text = text(res, "app" to app)
+            val n = Notification.Builder(this, ALERT_CHANNEL)
+                .setSmallIcon(R.drawable.ic_shield)
+                .setContentTitle(getString(R.string.app_name))
+                .setContentText(text)
+                .setStyle(Notification.BigTextStyle().bigText(text))
+                .setContentIntent(openApp(this))
+                .setAutoCancel(true)
+                .build()
+            getSystemService(NotificationManager::class.java).notify(RAW_ID, n)
+        } catch (e: Exception) {
+            log("Could not post the notice: ${e.message}")
         }
     }
 

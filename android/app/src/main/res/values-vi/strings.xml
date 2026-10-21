@@ -14,6 +14,8 @@
     <string name="androidShareLogs">Chia sẻ nhật ký</string>
     <string name="androidVpnDenied">Shroudly cần quyền VPN để chuyển tải kết nối của các ứng dụng.</string>
     <string name="androidVpnRevoked">Android đã tắt bảo vệ, thường là vì một ứng dụng VPN khác vừa được bật.</string>
+    <string name="autoRawBlocked">Mạng này chặn các kết nối của {app}, và không kỹ thuật nào của Shroudly vượt qua được. Hãy dùng cài đặt proxy riêng của {app} hoặc VPN.</string>
+    <string name="autoRawUnreachable">{app} không thể kết nối tới máy chủ của nó: mạng này chặn địa chỉ của các máy chủ đó, và Shroudly không thể vượt qua nếu không có một máy chủ ở nơi khác. Hãy dùng cài đặt proxy riêng của {app} hoặc VPN.</string>
     <string name="connections">Kết nối</string>
     <string name="download">Tải xuống</string>
     <string name="dpiBypassStopped">Đã dừng vượt chặn DPI</string>
