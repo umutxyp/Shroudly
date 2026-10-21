@@ -392,3 +392,30 @@ only, and the engine takes HTTP CONNECT on that port (never with
 --auth-file); plain http:// keeps the SOCKS entries. An app that ignores the
 system proxy (Telegram Desktop on Linux without libproxy, for one) never
 reaches the engine; its own proxy setting can point at Shroudly's SOCKS5 port.
+
+**What is not taken for a block** (after an independent review):
+- one failed connection (a server restarting): the search starts at the
+  second failure, a second or more after the first;
+- an app that sends and leaves before 4 s with nothing back (syslog, metrics,
+  printing): the engine watches the client while it waits for the answer;
+  "blocked" lines about connections that only went unanswered are never a
+  notification;
+- this computer and its network (loopback, LAN, link-local, unique-local) are
+  never searched (no filter sits there, and a TCP-MD5 decoy could reach a
+  device that ignores RFC 2385); `--raw-local` allows it for tests;
+- an unreachable address with no route from here (no IPv6, offline), a name
+  that did not resolve, or an address whose /24 (/48) took a connection in
+  the last 10 minutes: not told; the PAC sends IPv6 to the engine only where
+  the computer has a global IPv6 address;
+- "no technique got through" is told only on two of the app's addresses, on
+  the same one again after the engine's rest, or when a check of the
+  service's own name finds it filtered — and nothing is told while nothing
+  else comes back either.
+A learned raw technique is set aside for one untouched connection every 30
+minutes and dropped when that one gets through; raw learnings have their own
+store (100 entries), apart from the sites' techniques.
+
+**Names only the system's DNS knows** (intranet, VPN split DNS, hosts file):
+a CONNECT or a SOCKS request by name whose system answer is private only (not
+a known block page) goes there, and public DNS is not asked; a loopback or
+0.0.0.0 answer is followed when public DNS has no public address for the name.

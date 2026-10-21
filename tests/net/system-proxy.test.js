@@ -157,7 +157,10 @@ function pacEval(body) {
   const ctx = {
     isPlainHostName: (h) => !h.includes('.'),
     shExpMatch: (s, p) => new RegExp(`^${p.replace(/[.+^${}()|[\]\\]/g, '\\$&').replace(/\*/g, '.*').replace(/\?/g, '.')}$`).test(s),
+    dnsResolve: () => { throw new Error('the PAC looked a name up'); },
+    isResolvable: () => { throw new Error('the PAC looked a name up'); },
     isInNet: (h, pat, mask) => {
+      if (!/^\d+\.\d+\.\d+\.\d+$/.test(h)) throw new Error('the PAC looked a name up (isInNet on a name)');
       const m = ip(mask);
       return Number(BigInt(ip(h)) & BigInt(m)) === Number(BigInt(ip(pat)) & BigInt(m));
     },
@@ -204,6 +207,26 @@ const readState = (file) => { try { return JSON.parse(fs.readFileSync(file, 'utf
     t.ok(/\bSOCKS 127\.0\.0\.1:10808\b/.test(sp.pacProxy(10808)) && sp.pacProxy(10808).startsWith('SOCKS5 '),
       `PAC (${where}): offers SOCKS (SOCKS4) after SOCKS5, so non-SOCKS5 clients are routed`);
   }
+  // IPv6: sent to the engine only where this computer has IPv6 at all (else
+  // an app's IPv6 attempt would fail in the engine and be counted against the
+  // network); in listed mode, the IPv6 ranges of known services, matched on
+  // the address as written — a PAC must never look anything up.
+  for (const v6 of [true, false]) {
+    const sp6 = new SystemProxy(() => {}, { platform: 'darwin', hasIPv6: () => v6 });
+    sp6.mode = 'all';
+    const all6 = pacEval(sp6.pacBody(10808));
+    sp6.mode = 'listed'; sp6.list = ['discord.com'];
+    const listed6 = pacEval(sp6.pacBody(10808));
+    const via = /^SOCKS5 127\.0\.0\.1:10808/;
+    if (v6) {
+      t.ok(via.test(all6('2001:db8::1')) && all6('fe80::1') === 'DIRECT' && all6('fd00::1') === 'DIRECT', 'PAC (with IPv6): a global IPv6 address is routed, local ones are not');
+      t.ok(via.test(listed6('2001:67c:4e8:f004::9')) && via.test(listed6('[2001:b28:f23d:f001::a]')) && via.test(listed6('2a0a:f280::1')) && listed6('2001:db8::1') === 'DIRECT',
+        'PAC (with IPv6, listed): a known service\'s IPv6 range is routed, other IPv6 addresses are not');
+    } else {
+      t.ok(all6('2001:db8::1') === 'DIRECT' && listed6('2001:67c:4e8:f004::9') === 'DIRECT', 'PAC (no IPv6 here): IPv6 addresses are left to the app');
+    }
+  }
+
   // P1: XFCE, LXQt and other desktops, where Chromium keeps the PAC it read
   // and its address from its environment: it fails open, so a stop, a quit
   // or a crash never leaves Chromium browsers and apps without internet.

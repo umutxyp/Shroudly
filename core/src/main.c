@@ -127,6 +127,7 @@ static void usage(void) {
     "  --watch <domain>      tell connections to it or a name under it as\n"
     "                        {\"type\":\"seen\",\"host\":...} (repeatable)\n"
     "  --ipv6                prefer IPv6 upstream\n"
+    "  --raw-local           tests: search techniques for non-TLS streams on local addresses too\n"
     "  --advanced            packet-layer backend (needs elevation)\n"
     "  --fake-repeats <n>    Advanced: decoy datagrams per Discord voice flow\n"
     "  --no-quic-block       Advanced: keep QUIC (do not force browsers to TCP)\n"
@@ -154,6 +155,7 @@ int engine_main(int argc, char **argv, FILE *in, FILE *out, int embedded) {
     else if (!strcmp(argv[i], "--auto")) g_cfg.auto_probe = 1;
     else if (!strcmp(argv[i], "--doh")) g_cfg.use_doh = 1;
     else if (!strcmp(argv[i], "--ipv6")) g_cfg.prefer_ipv6 = 1;
+    else if (!strcmp(argv[i], "--raw-local")) g_cfg.raw_local = 1;
     else if (!strcmp(argv[i], "--doh-ip") && i+1<argc) strncpy(g_doh_fwd_ip, argv[++i], sizeof(g_doh_fwd_ip)-1);
     else if (!strcmp(argv[i], "--doh-port") && i+1<argc) g_doh_fwd_port = atoi(argv[++i]);
     else if (!strcmp(argv[i], "--block-ip") && i+1<argc) doh_add_block_ip(argv[++i]);

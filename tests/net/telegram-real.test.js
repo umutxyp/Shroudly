@@ -29,8 +29,8 @@ const DC = '149.154.167.50';            // DC 2
 const DC_V6 = '2001:67c:4e8:f002::a';   // DC 2 over IPv6
 const lines = (eng, from) => eng.out.slice(from).split('\n').filter(Boolean).map((l) => { try { return JSON.parse(l); } catch { return null; } }).filter(Boolean);
 
-function pacFor(mode, port) {
-  const sp = new SystemProxy(() => {}, { platform: 'darwin' });
+function pacFor(mode, port, hasIPv6 = true) {
+  const sp = new SystemProxy(() => {}, { platform: 'darwin', hasIPv6: () => hasIPv6 });
   sp.mode = mode; sp.list = ['example.com'];
   const ip4 = (h) => h.split('.').map(Number);
   const ctx = {
@@ -165,7 +165,9 @@ function socksAny(P, host, port) {
     t.ok(/^SOCKS5 127\.0\.0\.1:10808; SOCKS 127\.0\.0\.1:10808/.test(pac(DC)), `PAC (${mode}): a Telegram data centre goes through the engine`);
     t.ok(pac('192.168.1.10') === 'DIRECT' && pac('fe80::1') === 'DIRECT', `PAC (${mode}): the local network stays direct`);
   }
-  t.ok(/^SOCKS5/.test(pacFor('all', 10808)(DC_V6)), 'PAC (all): a Telegram IPv6 address goes through the engine');
+  t.ok(/^SOCKS5/.test(pacFor('all', 10808)(DC_V6)) && /^SOCKS5/.test(pacFor('listed', 10808)(DC_V6)),
+    'PAC (all and listed, with IPv6): a Telegram IPv6 address goes through the engine');
+  t.ok(pacFor('all', 10808, false)(DC_V6) === 'DIRECT', 'PAC (no IPv6 here): left to the app, which falls back to IPv4');
   t.ok(pacFor('listed', 10808)('8.8.8.8') === 'DIRECT', 'PAC (listed): an address of no listed service stays direct');
 
   if (process.platform === 'darwin') {
@@ -249,14 +251,20 @@ function socksAny(P, host, port) {
     /* 4. a filter that resets MTProto by its first bytes, in front of the real data centre */
     eng.stop(); await sleep(200);
     P = await freePort();
-    eng = await startEngine(P, ['--auto']);
+    // The filter stands on 127.0.0.1, which is never searched for a
+    // network's sake: --raw-local lets the test.
+    eng = await startEngine(P, ['--auto', '--raw-local']);
     const filter = mt.censor(443, { mode: 'first', host: DC });
     await new Promise((r) => filter.listen(0, '127.0.0.1', r));
     from = eng.out.length;
     const tries = [];
     // (A filter reading a stream can get two pieces in one read on a busy
     // machine; engine-raw.test.js says more. Hence room for a lost one.)
-    for (let i = 0; i < 10 && !tries.includes(true); i++) tries.push(await viaEngine(P, '127.0.0.1', filter.address().port));
+    // (A search starts at the second failure, a second or more after the first.)
+    for (let i = 0; i < 10 && !tries.includes(true); i++) {
+      if (i) await sleep(1100);
+      tries.push(await viaEngine(P, '127.0.0.1', filter.address().port));
+    }
     t.ok(tries[0] === false && filter.resets >= 1, 'the filter resets the untouched MTProto opening');
     t.ok(tries.includes(true), `a later connection gets resPQ from the real data centre (after ${tries.indexOf(true)} failed)`);
     await sleep(200);

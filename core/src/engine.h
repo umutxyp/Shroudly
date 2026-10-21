@@ -15,6 +15,10 @@ typedef struct {
   char     doh_ip[64];        /* bootstrap IP, e.g. 1.1.1.1 */
   int      auto_probe;        /* pick a working strategy per host automatically */
   int      prefer_ipv6;
+  /* --raw-local (tests): search for techniques for streams that are not TLS
+   * or HTTP on this computer and its network too, which is never done
+   * otherwise (no filter sits there). */
+  int      raw_local;
   strategy strat;             /* active strategy (used when auto_probe is off,
                                  and as the first candidate when it is on) */
   /* SOCKS5 username/password (RFC 1929), from --auth-file. Empty: no

@@ -82,6 +82,14 @@ const rawWatch = new RawWatch({
     const o = engine && engine.port ? await ProcNet.owner(cport, engine.port) : null;
     return o && o.name;
   },
+  // Other traffic comes back through the engine: the network works.
+  networkWorks: () => !!(engine && engine.isActive() && engine.receivedWithin(2 * 60 * 1000)),
+  // The service's own name, checked as the autopilot checks a service.
+  confirm: async (service) => {
+    if (!service || !service.probe || !engine || !engine.isActive()) return 'unknown';
+    const r = await BlockCheck.check(service.probe, { socksPort: engine.port, connect: DiscordRelay.socksConnect });
+    return r && r.blocked ? 'blocked' : r && !r.unknown ? 'open' : 'unknown';
+  },
 });
 let storeApps = null;
 let appEnv = null;
@@ -1641,6 +1649,11 @@ setInterval(() => {
   // about the new one (doh-forwarder.js).
   if (now !== networkPrint && engine && engine.doh) engine.doh.networkChanged();
   if (now !== networkPrint) rawWatch.networkChanged();
+  // IPv6 came or went: whether the PAC sends IPv6 addresses to the engine
+  // follows (system-proxy.js, hasGlobalIPv6).
+  if (now !== networkPrint && engine && engine.proxy && engine.proxy.updateRouting) {
+    try { engine.proxy.updateRouting(engine.proxy.mode, engine.proxy.list); } catch {}
+  }
   if (now !== networkPrint && autopilot) {
     autopilot.networkChanged();
     if (engine && engine.isActive()) setTimeout(() => { autopilot.survey().catch(() => {}); }, 5000);

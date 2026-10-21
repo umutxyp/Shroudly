@@ -38,8 +38,24 @@ class RawAppsTest {
         assertEquals(listOf("149.154.167.50:443", "149.154.175.50:443"), o.notice.addrs)
         // once per network
         assertEquals(RawWatch.Outcome.Nothing, w.onEvent(u, "149.154.167.91", 443, 0, now))
-        // nothing got through: told at once
-        assertTrue(w.onEvent(RawWatch.Kind.BLOCKED, "149.154.167.50", 443, 6, now) is RawWatch.Outcome.Tell)
+        // nothing got through: on one address it may be an outage; on a second, told
+        val b = RawWatch.Kind.BLOCKED
+        assertEquals(RawWatch.Outcome.Nothing, w.onEvent(b, "149.154.167.50", 443, 6, now))
+        assertTrue(w.onEvent(b, "149.154.175.50", 443, 6, now) is RawWatch.Outcome.Tell)
+        // or the same address again after the engine's rest
+        val wr = RawWatch(apps)
+        assertEquals(RawWatch.Outcome.Nothing, wr.onEvent(b, "91.108.56.130", 443, 6, now))
+        assertTrue(wr.onEvent(b, "91.108.56.130", 443, 6, now + RawWatch.BLOCKED_AGAIN_MS) is RawWatch.Outcome.Tell)
+        // never: a name that did not resolve, connections only unanswered,
+        // or while nothing else comes back either (no network)
+        val wn = RawWatch(apps)
+        assertEquals(RawWatch.Outcome.Nothing, wn.onEvent(u, "149.154.167.50", 443, 0, now, stage = "dns"))
+        assertEquals(RawWatch.Outcome.Nothing, wn.onEvent(u, "149.154.175.50", 443, 0, now, stage = "dns"))
+        assertTrue(wn.onEvent(b, "149.154.167.50", 443, 6, now, note = "silent") is RawWatch.Outcome.Log)
+        assertTrue(wn.onEvent(b, "149.154.175.50", 443, 6, now, note = "silent") is RawWatch.Outcome.Log)
+        val off = RawWatch(apps) { false }
+        off.onEvent(u, "149.154.167.50", 443, 0, now)
+        assertEquals(RawWatch.Outcome.Nothing, off.onEvent(u, "149.154.175.50", 443, 0, now))
         // an address of no known app: a log line, rarely
         val l = w.onEvent(u, "203.0.113.5", 5222, 0, now) as RawWatch.Outcome.Log
         assertEquals("203.0.113.5:5222: could not be reached (not a web connection)", l.line)

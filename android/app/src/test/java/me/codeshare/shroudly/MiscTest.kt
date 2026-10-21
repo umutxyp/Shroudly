@@ -78,6 +78,16 @@ class LearnedTest {
         assertEquals(Learned.MAX, l.commands(1000).size)
         assertTrue(l.commands(1000).last().startsWith("LEARN h399.example"))
     }
+
+    @Test
+    fun aStoreOfItsOwnHasItsOwnCap() {
+        // Raw techniques (per address) live in a store of their own with a
+        // smaller cap, so they never push out sites' techniques.
+        val raw = Learned(null, 100)
+        for (i in 0 until 150) raw.remember("149.154.167.$i", "raw-split1", 100L + i)
+        assertEquals(100, raw.commands(1000).size)
+        assertTrue(raw.commands(1000).last().startsWith("LEARN 149.154.167.149 raw-split1"))
+    }
 }
 
 class TunnelConfigTest {

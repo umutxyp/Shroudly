@@ -16,6 +16,7 @@
  * Everything is local: a stand-in data centre, and filters in front of it. */
 
 const net = require('net');
+const crypto = require('crypto');
 const { startEngine, sleep, freePort, socks, suite } = require('./helpers');
 const mt = require('./mtproto');
 
@@ -28,9 +29,13 @@ const lines = (eng, from) => eng.out.slice(from).split('\n').filter(Boolean).map
  * resolves true when the data centre answered. */
 async function attempt(P, port, timeoutMs = 8000) {
   let s;
+  const t0 = Date.now();
   try { s = await socks(P, '127.0.0.1', port); } catch { return false; }
-  try { await mt.client(s, timeoutMs); return true; } catch { return false; }
+  try { await mt.client(s, timeoutMs); attempt.ms = Date.now() - t0; return true; } catch { attempt.ms = Date.now() - t0; return false; }
 }
+/* The app trying again a moment later: a search starts only at a second
+ * failure at least a second after the first. */
+async function retry(P, port, timeoutMs) { await sleep(1100); return attempt(P, port, timeoutMs); }
 
 (async () => {
   const dc = mt.server();
@@ -46,9 +51,11 @@ async function attempt(P, port, timeoutMs = 8000) {
 
   /* What the engine learns is per destination (an address here, all on
    * 127.0.0.1), so each part starts an engine of its own. */
+  // Everything here is on 127.0.0.1, which the engine never searches for a
+  // network's sake (no filter sits there): --raw-local lets the tests.
   let P = await freePort();
-  let eng = await startEngine(P, ['--auto']);
-  const fresh = async () => { eng.stop(); await sleep(200); P = await freePort(); eng = await startEngine(P, ['--auto']); };
+  let eng = await startEngine(P, ['--auto', '--raw-local']);
+  const fresh = async (args = ['--auto', '--raw-local']) => { eng.stop(); await sleep(200); P = await freePort(); eng = await startEngine(P, args); };
   try {
     /* 0. an unfiltered destination: answered at once, untouched, no word */
     let from = eng.out.length;
@@ -65,8 +72,13 @@ async function attempt(P, port, timeoutMs = 8000) {
      * real network stack in the Android emulator run.) */
     from = eng.out.length;
     const tries = [];
-    for (let i = 0; i < 10 && !tries.includes(true); i++) tries.push(await attempt(P, filterPort));
-    t.ok(tries[0] === false, 'the untouched opening is reset by the filter');
+    let answeredMs = 0;
+    for (let i = 0; i < 10 && !tries.includes(true); i++) {
+      tries.push(await (i ? retry(P, filterPort) : attempt(P, filterPort)));
+      if (tries[i]) answeredMs = attempt.ms;
+    }
+    t.ok(tries[0] === false && tries[1] === false, 'the untouched opening is reset by the filter (twice: a search starts at the second failure)');
+    t.ok(answeredMs < 1000, `the connection a technique opened is not held back (${answeredMs} ms)`);
     t.ok(tries.includes(true), `a later connection of the app gets through (after ${tries.indexOf(true)} failed)`);
     t.ok(filter.resets >= 1 && filter.resets <= tries.indexOf(true), 'every failure was the filter, one per connection');
     await sleep(200);
@@ -93,14 +105,14 @@ async function attempt(P, port, timeoutMs = 8000) {
     from = eng.out.length;
     let made = 0, blockedAt = -1;
     for (let i = 0; i < 12 && blockedAt < 0; i++) {
-      t.ok(!(await attempt(P, wallPort)), `a reassembling filter stops connection ${i + 1}`);
+      t.ok(!(await (i ? retry(P, wallPort) : attempt(P, wallPort))), `a reassembling filter stops connection ${i + 1}`);
       made++;
       await sleep(100);
       if (lines(eng, from).some((l) => l.type === 'blocked' && l.raw)) blockedAt = made;
     }
     const bl = lines(eng, from).filter((l) => l.type === 'blocked' && l.raw);
     t.ok(bl.length === 1 && bl[0].port === wallPort && !bl[0].note, `told once that nothing got through (${bl[0] && bl[0].attempts} connections, refused)`);
-    t.ok(blockedAt >= 4 && blockedAt <= 7, `after the untouched one and each technique once (${blockedAt} connections)`);
+    t.ok(blockedAt >= 5 && blockedAt <= 8, `after two untouched ones and each technique once (${blockedAt} connections)`);
     const firstsBefore = wall.firsts.length;
     for (let i = 0; i < 3; i++) await attempt(P, wallPort);
     await sleep(200);
@@ -111,8 +123,8 @@ async function attempt(P, port, timeoutMs = 8000) {
     await fresh();
     from = eng.out.length;
     t.ok(!(await attempt(P, quietPort, 6000)), 'a silently dropped opening is not answered');
-    await sleep(500);
-    t.ok(await attempt(P, quietPort), 'the next connection of the app gets through');
+    t.ok(!(await retry(P, quietPort, 6000)), 'nor the next (two failures before a search)');
+    t.ok(await retry(P, quietPort), 'the one after that gets through');
     await sleep(200);
     const qb = lines(eng, from).filter((l) => l.type === 'bypass' && l.raw);
     t.ok(qb.length === 1 && qb[0].port === quietPort, `told once (${qb[0] && qb[0].strategy})`);
@@ -188,6 +200,102 @@ async function attempt(P, port, timeoutMs = 8000) {
     t.ok(a === '', 'a plain proxy request (GET http://...) is not served at all');
 
     t.ok(eng.exited === null, 'the engine is still running');
+
+    /* 8. no search on this computer or its network (no filter sits there,
+     * and a decoy could reach a device that ignores RFC 2385) */
+    await fresh(['--auto']);
+    from = eng.out.length;
+    let q0 = await eng.stats();
+    const local = [];
+    for (let i = 0; i < 4; i++) local.push(await (i ? retry(P, filterPort) : attempt(P, filterPort)));
+    let q1 = await eng.stats();
+    t.ok(!local.some(Boolean) && q1.desync === q0.desync, 'a local destination behind a resetting filter: never searched (no technique sent)');
+    await sleep(200);
+    t.ok(!lines(eng, from).some((l) => l.raw), 'and nothing said about it');
+
+    /* 9. a protocol that only sends (syslog, metrics, printing): the app
+     * sends and leaves, nothing ever comes back; never searched, never told */
+    await fresh();
+    const sink = net.createServer((c) => { c.on('error', () => {}); c.on('data', () => {}); });
+    const sinkPort = await listen(sink);
+    from = eng.out.length;
+    q0 = await eng.stats();
+    for (let i = 0; i < 5; i++) {
+      const c = await socks(P, '127.0.0.1', sinkPort);
+      c.on('error', () => {});
+      const b = crypto.randomBytes(80); b[0] = 0x5a;
+      c.write(b);
+      await sleep(300);
+      c.destroy();
+      await sleep(900);
+    }
+    await sleep(300);
+    q1 = await eng.stats();
+    t.ok(q1.desync === q0.desync, `send-and-leave connections are not searched (${q1.desync - q0.desync} techniques sent)`);
+    t.ok(!lines(eng, from).some((l) => l.raw), 'nor told about');
+    sink.close();
+
+    /* 10. one failure is not a block: a server that refuses one connection
+     * (restarting) and then answers is never searched or learned */
+    let once = 0;
+    const blip = net.createServer((c) => { c.on('error', () => {}); c.once('data', () => { if (once++ === 0) c.destroy(); else c.write(crypto.randomBytes(8)); }); });
+    const blipPort = await listen(blip);
+    from = eng.out.length;
+    q0 = await eng.stats();
+    const bl2 = [];
+    for (let i = 0; i < 3; i++) bl2.push(await (i ? retry(P, blipPort) : attempt(P, blipPort)));
+    q1 = await eng.stats();
+    t.ok(bl2[0] === false && bl2[1] && bl2[2], 'a server that refused one connection, then answers');
+    t.ok(q1.desync === q0.desync && !lines(eng, from).some((l) => l.raw), 'is never searched, learned or told');
+    blip.close();
+
+    /* 11. not the network's doing: no route from here (an IPv6 address on a
+     * computer without IPv6), a name that does not resolve */
+    from = eng.out.length;
+    const v6 = await new Promise((r) => { const c = net.connect({ host: '2001:db8::1', port: 443 }); const tm = setTimeout(() => { c.destroy(); r('timeout'); }, 3000); c.on('error', (e) => { clearTimeout(tm); r(e.code); }); c.on('connect', () => { clearTimeout(tm); c.destroy(); r('connected'); }); });
+    if (v6 === 'ENETUNREACH' || v6 === 'EHOSTUNREACH' || v6 === 'EADDRNOTAVAIL') {
+      const socks6 = await new Promise((resolve) => {
+        const c = net.connect(P, '127.0.0.1'); let st = 0, b = Buffer.alloc(0);
+        c.on('error', () => resolve('error'));
+        c.on('connect', () => c.write(Buffer.from([5, 1, 0])));
+        c.on('data', (d) => {
+          b = Buffer.concat([b, d]);
+          if (st === 0 && b.length >= 2) { b = b.subarray(2); st = 1; c.write(Buffer.concat([Buffer.from([5, 1, 0, 4, 0x20, 0x01, 0x0d, 0xb8]), Buffer.alloc(11), Buffer.from([1, 1, 187])])); }
+          else if (st === 1 && b.length >= 2) { c.destroy(); resolve(b[1]); }
+        });
+      });
+      await sleep(300);
+      t.ok(socks6 !== 0 && !lines(eng, from).some((l) => l.type === 'unreachable'), `no IPv6 route here (${v6}): refused, and not told as a blocked address`);
+    } else {
+      console.log(`  --  this computer has an IPv6 route (${v6}): the no-route check is in core/test`);
+    }
+    from = eng.out.length;
+    await socks(P, 'no-such-name.invalid', 5222).catch(() => {});
+    await sleep(300);
+    t.ok(!lines(eng, from).some((l) => l.type === 'unreachable' && l.raw), 'a name that does not resolve: not told as a blocked address');
+
+    /* 12. a name only this computer's DNS knows (a hosts-file entry, an
+     * intranet): with our own resolver on, CONNECT and SOCKS by name still
+     * go where the system says */
+    const dnsName = '127.0.0.1.nip.io';
+    const sys = await new Promise((r) => require('dns').lookup(dnsName, { all: true }, (e, a) => r(e ? null : a.map((x) => x.address))));
+    if (sys && sys.includes('127.0.0.1')) {
+      await fresh(['--auto', '--doh']);
+      const echo = net.createServer((c) => { c.on('error', () => {}); c.on('data', (d) => c.write(d)); });
+      const echoPort = await listen(echo);
+      const st = await new Promise((resolve) => {
+        const c = net.connect(P, '127.0.0.1'); let b = '';
+        c.on('connect', () => c.write(`CONNECT ${dnsName}:${echoPort} HTTP/1.1\r\nHost: x\r\n\r\n`));
+        c.on('data', (d) => { b += d; if (b.includes('\r\n\r\n')) { c.destroy(); resolve(b.split('\r\n')[0]); } });
+        c.on('error', () => resolve('error'));
+      });
+      t.ok(/^HTTP\/1\.1 200/.test(st), `CONNECT to a name the system resolves to this computer: ${st}`);
+      const s5 = await socks(P, dnsName, echoPort).then((c) => { c.destroy(); return true; }, () => false);
+      t.ok(s5, 'SOCKS5 by that name too');
+      echo.close();
+    } else {
+      console.log(`  --  ${dnsName} does not resolve here (${JSON.stringify(sys)}): split DNS not checked`);
+    }
   } finally {
     eng.stop();
     for (const s of [dc, plainDc, filter, wall, quiet]) s.close();

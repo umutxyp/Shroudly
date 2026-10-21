@@ -74,13 +74,23 @@ class RawApps(lines: List<String>) {
     }
 }
 
-/* What to tell, from the engine's raw lines: a known service after MIN_ADDRS
- * of its addresses did not answer within WINDOW_MS, or one of them still did
- * not AGAIN_MS later (the engine says it again at most once a minute while
- * the app keeps trying), or at once when no technique got through (that took
- * several of its connections already); once per service and kind on a
- * network. */
-class RawWatch(private val apps: RawApps) {
+/* What to tell, from the engine's raw lines (the desktop's raw-apps.js, the
+ * same rules):
+ *  - unreachable: a known service after MIN_ADDRS of its addresses did not
+ *    answer within WINDOW_MS, or one of them still did not AGAIN_MS later
+ *    (the engine says it again at most once a minute while the app keeps
+ *    trying); never for a name that did not resolve (stage "dns");
+ *  - no technique got through: only once it is the network's doing rather
+ *    than an outage (a server that takes connections and drops them looks
+ *    the same): on two of the service's addresses, or on the same one again
+ *    after the engine's rest (BLOCKED_AGAIN_MS later); never when the
+ *    connections only went unanswered (note "silent": an app that sends and
+ *    waits looks the same);
+ *  - never while nothing else comes back either (networkWorks: an
+ *    underlying network, and something received lately): offline is not a
+ *    block.
+ * Once per service and kind on a network. */
+class RawWatch(private val apps: RawApps, private val networkWorks: () -> Boolean = { true }) {
     enum class Kind { UNREACHABLE, BLOCKED }
     data class Notice(val kind: Kind, val app: String, val addrs: List<String>)
     sealed class Outcome {
@@ -89,33 +99,44 @@ class RawWatch(private val apps: RawApps) {
         object Nothing : Outcome()
     }
 
+    companion object {
+        const val BLOCKED_AGAIN_MS = 9L * 60 * 1000
+        const val BLOCKED_WINDOW_MS = 30L * 60 * 1000
+    }
+
     private val recent = HashMap<String, ArrayList<Pair<String, Long>>>()   // "kind app" -> (addr, at)
     private val told = HashSet<String>()
     private val logged = HashMap<String, Long>()
 
     @Synchronized fun networkChanged() { recent.clear(); told.clear(); logged.clear() }
 
-    @Synchronized fun onEvent(kind: Kind, host: String, port: Int, attempts: Int, now: Long): Outcome {
+    private fun logRarely(k: String, line: String, now: Long): Outcome {
+        if (now - (logged[k] ?: Long.MIN_VALUE / 2) < 30 * 60 * 1000L) return Outcome.Nothing
+        if (logged.size > 500) logged.clear()
+        logged[k] = now
+        return Outcome.Log(line)
+    }
+
+    @Synchronized fun onEvent(
+        kind: Kind, host: String, port: Int, attempts: Int, now: Long,
+        stage: String? = null, note: String? = null,
+    ): Outcome {
+        if (kind == Kind.UNREACHABLE && stage == "dns") return Outcome.Nothing
         val addr = if (host.contains(':')) "[$host]:$port" else "$host:$port"
+        val unreach = "$addr: could not be reached (not a web connection)"
+        val blocked = "$addr: still blocked after $attempts techniques (not a web connection)"
+        if (kind == Kind.BLOCKED && note == "silent") return logRarely("silent $addr", blocked, now)
         val app = apps.serviceOf(host)
-        if (app == null) {
-            val k = "$kind $addr"
-            if (now - (logged[k] ?: Long.MIN_VALUE / 2) < 30 * 60 * 1000L) return Outcome.Nothing
-            if (logged.size > 500) logged.clear()
-            logged[k] = now
-            return Outcome.Log(
-                if (kind == Kind.UNREACHABLE) "$addr: could not be reached (not a web connection)"
-                else "$addr: still blocked after $attempts techniques (not a web connection)",
-            )
-        }
+            ?: return logRarely("$kind $addr", if (kind == Kind.UNREACHABLE) unreach else blocked, now)
         val key = "$kind $app"
         val seen = recent.getOrPut(key) { ArrayList() }
-        seen.removeAll { now - it.second > RawApps.WINDOW_MS }
-        val again = seen.any { it.first == addr && now - it.second >= RawApps.AGAIN_MS }
+        seen.removeAll { now - it.second > (if (kind == Kind.BLOCKED) BLOCKED_WINDOW_MS else RawApps.WINDOW_MS) }
+        val again = seen.any { it.first == addr && now - it.second >= (if (kind == Kind.BLOCKED) BLOCKED_AGAIN_MS else RawApps.AGAIN_MS) }
         seen += addr to now
         val addrs = seen.map { it.first }.distinct()
-        val enough = kind == Kind.BLOCKED || addrs.size >= RawApps.MIN_ADDRS || again
+        val enough = if (kind == Kind.BLOCKED) addrs.size >= 2 || again else addrs.size >= RawApps.MIN_ADDRS || again
         if (!enough || key in told) return Outcome.Nothing
+        if (!networkWorks()) return Outcome.Nothing
         told += key
         return Outcome.Tell(Notice(kind, app, addrs.take(3)))
     }

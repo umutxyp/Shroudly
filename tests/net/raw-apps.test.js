@@ -72,7 +72,10 @@ const t = suite('raw-apps');
   for (let i = 0; i < 5; i++) { await w2.onEvent('unreachable', { host: `203.0.113.${i}`, port: 7000, cport: 9 }); now += raw.WINDOW_MS + 1; }
   t.ok(told.length === 0, 'failures far apart in time are never added up');
   // every technique failed: one is enough, it is strong evidence
-  t.ok(await w.onEvent('blocked', { host: '149.154.167.50', port: 443, attempts: 6, cport: 8 }) === 'notified', 'nothing got through: told at once');
+  // nothing got through: told only once it is confirmed to be the network,
+  // not the service being down (one address once could be an outage)
+  t.ok(await w.onEvent('blocked', { host: '149.154.167.50', port: 443, attempts: 6, cport: 8 }) === 'counting', 'nothing got through on one address: not yet (an outage looks the same)');
+  t.ok(await w.onEvent('blocked', { host: '149.154.175.50', port: 443, attempts: 6, cport: 8 }) === 'notified', 'on a second address of the app: told');
   t.ok(told[0][0] === 'autoRawBlocked' && told[0][1].app === 'Telegram', 'naming the program (Telegram.exe as Telegram)');
   // nothing to name it by: a log line, rarely, never a notification
   told.length = 0;
@@ -89,9 +92,32 @@ const t = suite('raw-apps');
   const w3 = mk(async (cport) => (cport === 5 ? 'Signal' : null));
   await w3.onEvent('blocked', { host: '203.0.113.77', port: 443, cport: 5 });
   told.length = 0;
-  const w3b = w3;
-  w3b.told.clear();
-  t.ok(await w3b.onEvent('blocked', { host: '203.0.113.77', port: 443, cport: 0 }) === 'notified' && told[0][1].app === 'Signal', 'an address once seen with a program keeps its name');
+  now += raw.BLOCKED_AGAIN_MS;
+  t.ok(await w3.onEvent('blocked', { host: '203.0.113.77', port: 443, cport: 0 }) === 'notified' && told[0][1].app === 'Signal',
+    'the same address blocked again after the engine\'s rest: told, and an address once seen with a program keeps its name');
+
+  // a service whose own name a blockcheck finds filtered here: told at once
+  told.length = 0;
+  const confirmed = [];
+  const wc = new raw.RawWatch({ log: () => {}, tell: (id, p) => told.push([id, p]), now: () => now,
+    confirm: async (svc) => { confirmed.push(svc.probe); return 'blocked'; } });
+  t.ok(await wc.onEvent('blocked', { host: '91.108.56.130', port: 443, attempts: 6 }) === 'notified' && confirmed[0] === 'telegram.org',
+    'a service confirmed blocked by a check of its own name (telegram.org): told at once');
+  const wo = new raw.RawWatch({ log: () => {}, tell: (id, p) => told.push([id, p]), now: () => now, confirm: async () => 'open' });
+  t.ok(await wo.onEvent('blocked', { host: '91.108.56.130', port: 443, attempts: 6 }) === 'counting', 'its name opens directly: not confirmed, waits');
+
+  // never told: a name that did not resolve, connections only unanswered
+  // ("silent": an app that sends and waits looks the same), or while nothing
+  // else comes back either (offline)
+  told.length = 0;
+  const wd = mk(async () => 'Telegram');
+  t.ok(await wd.onEvent('unreachable', { host: 'dc.example', port: 5222, stage: 'dns' }) === 'ignored', 'a name that did not resolve: ignored');
+  t.ok(await wd.onEvent('blocked', { host: '149.154.167.50', port: 443, attempts: 6, note: 'silent', cport: 3 }) === 'silent'
+    && await wd.onEvent('blocked', { host: '149.154.175.50', port: 443, attempts: 6, note: 'silent', cport: 3 }) === 'silent', 'only unanswered ("silent"): a log line, never a notification');
+  const off = new raw.RawWatch({ log: () => {}, tell: (id, p) => told.push([id, p]), now: () => now, networkWorks: () => false });
+  await off.onEvent('unreachable', { host: '149.154.167.50', port: 443 });
+  t.ok(await off.onEvent('unreachable', { host: '149.154.175.50', port: 443 }) === 'offline', 'nothing else comes back either (offline): not told');
+  t.ok(told.length === 0, 'and no notification for any of these');
 
   console.log(`raw-apps: ${t.count} checks passed`);
   process.exit(0);
