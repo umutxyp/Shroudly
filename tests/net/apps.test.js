@@ -118,8 +118,9 @@ async function robloxInstaller(proxy, socksPort) {
     signed: (file, kind) => RobloxApp.signedInstaller(file, kind), same: (file, hash) => RobloxApp.sameFile(file, hash),
     kill: (pids) => { acted.push({ kill: pids, at: Date.now() }); return RobloxApp.kill(pids); },
     startInstaller: (file) => { const pid = RobloxApp.startInstaller(file, env); restarted = { pid, file, at: Date.now() }; return pid; },
-    install: async () => { acted.push({ download: true }); return { success: false }; },
-    restart: async (pids) => { acted.push({ player: pids }); return false; },
+    fetch: async () => { acted.push({ download: true }); return { success: false, code: 'not in this test' }; },
+    startFetched: async () => false,
+    restart: async (pids) => { acted.push({ player: pids }); return { success: false, code: 'not in this test' }; },
     log: () => {}, tell: () => {}, needAdvanced: () => {}, studioReopen: () => {},
   });
   watch.start();
@@ -266,20 +267,40 @@ async function robloxInstaller(proxy, socksPort) {
     t.ok(JSON.stringify(inst) === '{"player":[6100],"studio":[6300]}', "Windows: the player's and Studio's installers, each by its own name");
   }
   {
+    // Only this user's session: another user's Roblox on the same PC (fast
+    // user switching, a terminal server) is not this Shroudly's to judge.
+    const two = `${tasklist}\r\n"RobloxPlayerBeta.exe","7120","RDP-Tcp#3","2","400,000 K"\r\n"RobloxPlayerInstaller.exe","7100","RDP-Tcp#3","2","20,000 K"`;
+    t.ok(JSON.stringify(RobloxApp.parseProcesses(two, 'win32', 1)) === '{"players":[4120,4121],"studios":[5100],"installers":{"player":[6100],"studio":[]}}'
+      && JSON.stringify(RobloxApp.parseProcesses(two, 'win32', 2)) === '{"players":[7120],"studios":[],"installers":{"player":[7100],"studio":[]}}'
+      && RobloxApp.parseProcesses(two, 'win32').players.length === 3,
+    "Windows: only the programs in Shroudly's own session (every session's when it is not known)");
+    t.ok(RobloxApp.parseSession('"electron.exe","8812","Console","1","90,000 K"\r\n', 8812) === 1 && RobloxApp.parseSession('"electron.exe","8812","RDP-Tcp#3","2","90,000 K"', 8812) === 2
+      && RobloxApp.parseSession('INFO: No tasks are running which match the specified criteria.', 8812) === null, "Shroudly's own session read from the process list");
+  }
+  {
     // One look at the process list, for every program of Roblox's at once.
     const all = RobloxApp.parseProcesses(`${tasklist}\r\n"RobloxStudioInstaller.exe","6300","Console","1","20,000 K"`, 'win32');
     t.ok(JSON.stringify(all) === '{"players":[4120,4121],"studios":[5100],"installers":{"player":[6100],"studio":[6300]}}',
       `Windows: players, Studio and both installers from one process listing (${JSON.stringify(all)})`);
     t.ok(JSON.stringify(RobloxApp.parseProcesses('INFO: No tasks are running which match the specified criteria.\r\n', 'win32')) === '{"players":[],"studios":[],"installers":{"player":[],"studio":[]}}', 'none running');
     // When each started and the file it runs (PowerShell, one call).
-    const b = (v) => Buffer.from(v, 'utf8').toString('base64');
-    const info = RobloxApp.parseProcessInfo(`6100|133759296000000000|${b('D:\\Games\\Roblox\\RobloxPlayerInstaller.exe')};5100||;`
+    // Text comes as its UTF-16 code units (what a ConstrainedLanguage
+    // PowerShell can still produce): ASCII whatever the console code page.
+    const b = (v) => RobloxApp.toCodes(v);
+    t.ok(/^[\d,]+$/.test(b('C:\\Users\\Ümit 測試 😀')) && RobloxApp.fromCodes(b('C:\\Users\\Ümit 測試 😀')) === 'C:\\Users\\Ümit 測試 😀'
+      && RobloxApp.fromCodes('') === '' && RobloxApp.fromCodes('QzpcVXNlcnM=') === '' && RobloxApp.fromCodes('65,70000') === '',
+    'text to and from code units: any name whole (Turkish, Chinese, an emoji), anything else read as nothing');
+    const info = RobloxApp.parseProcessInfo(`mode=FullLanguage;6100|133759296000000000|${b('D:\\Games\\Roblox\\RobloxPlayerInstaller.exe')};5100||;`
       + `4120|133759296123456789|${b('C:\\Users\\Ümit Şahin\\AppData\\Local\\Roblox\\Versions\\v\\RobloxPlayerBeta.exe')};noise|x|y`);
     t.ok(info.get(6100).startedAt === Date.UTC(2024, 10, 13) && info.get(6100).path === 'D:\\Games\\Roblox\\RobloxPlayerInstaller.exe' && info.get(4120).startedAt === Date.UTC(2024, 10, 13) + 12346,
       `Windows: a process's start time (FILETIME, UTC) and its file (${new Date(info.get(6100).startedAt).toISOString()})`);
-    t.ok(info.get(4120).path === 'C:\\Users\\Ümit Şahin\\AppData\\Local\\Roblox\\Versions\\v\\RobloxPlayerBeta.exe', 'a file under a user name in Turkish arrives whole (base64, whatever the console code page)');
+    t.ok(info.get(4120).path === 'C:\\Users\\Ümit Şahin\\AppData\\Local\\Roblox\\Versions\\v\\RobloxPlayerBeta.exe', 'a file under a user name in Turkish arrives whole (code units, whatever the console code page)');
     t.ok(info.get(5100).startedAt === null && info.get(5100).path === null && info.size === 3, "one whose start time and file cannot be read (another user's, elevated): known to be there, nothing more");
-    t.ok(RobloxApp.parseProcessInfo(null).size === 0, 'no answer from PowerShell in time: nothing known (the watcher judges without it)');
+    t.ok(info.answered === true && info.restricted === null, 'answered by a PowerShell in full language mode');
+    const none = RobloxApp.parseProcessInfo(null);
+    t.ok(none.size === 0 && none.answered === false, 'no answer from PowerShell in time: nothing known, and said so (the watcher judges without it, and stops nothing)');
+    const clm = RobloxApp.parseProcessInfo(`mode=ConstrainedLanguage;6100|133759296000000000|${b('D:\\x\\RobloxPlayerInstaller.exe')}`);
+    t.ok(clm.restricted === 'ConstrainedLanguage' && clm.get(6100).startedAt === Date.UTC(2024, 10, 13), 'a PowerShell an administrator restricted (AppLocker, Device Guard) says so in its answer');
     t.ok(RobloxApp.parseSignature(`Valid|${b('CN="Roblox Corporation", O="Roblox Corporation"')}|${b('İmza doğrulandı.')}`) === 'Valid|CN="Roblox Corporation", O="Roblox Corporation"|İmza doğrulandı.'
       && RobloxApp.parseSignature(null) === 'no answer: timed out' && RobloxApp.parseSignature(`error|${b('Access denied\r\nmore')}`) === 'no answer: Access denied',
     "a signature's answer read back (signer and a Turkish Windows' message intact); no answer, or PowerShell's error, said as such");
@@ -361,9 +382,9 @@ async function robloxInstaller(proxy, socksPort) {
     clock += 2 * H; look([10]);
     t.ok(w.quiet().length === 0, 'a player that sent requests at start is never reported, however long it then runs');
     clock += 2000; look([10, 20]);
-    clock += 5000; look([10, 20]);
-    t.ok(w.quiet().length === 0, 'a new player gets its quiet wait');
-    clock += 4000; look([10, 20]);
+    clock += 20000; look([10, 20]);
+    t.ok(w.quiet().length === 0, 'a new player gets its quiet wait (long: a player can take a while to load on a slow PC)');
+    clock += 6000; look([10, 20]);
     t.ok(JSON.stringify(w.quiet()) === '[20]', 'after it, only the new silent player is reported, not the one that uses Shroudly');
     clock += 60000; look([10]); clock += 60000; look([10]);
     t.ok(w.quiet().length === 0 && w.procs.size === 1, 'players coming and going never restart the clock of one that stays');

@@ -592,6 +592,8 @@ async function safeStart({ user = false } = {}) {
 
 async function safeStop({ user = false } = {}) {
   if (user) store.set(PROTECTION_KEY, false);
+  // Nothing of Roblox's is stopped or started once protection is going off.
+  robloxWatch.halt();
   // A settings change still waiting to be applied belongs to the session
   // being stopped (EngineManager ignores one that slips through anyway).
   clearTimeout(engineRestartTimer); engineRestartTimer = null;
@@ -935,6 +937,9 @@ app.whenReady().then(() => { powerMonitor.on('shutdown', restoreForSessionEnd); 
 const QUIT_RESTORE_LIMIT_MS = 5000;
 app.on('before-quit', (e) => {
   app.isQuitting = true;
+  // Nothing of Roblox's is stopped or started while Shroudly quits.
+  robloxWatch.halt();
+  robloxWatch.stop();
   // Quitting on purpose: take the line out of Discord's settings, so Discord
   // started without Shroudly goes to Discord directly, exactly as before.
   if (!keepDiscordLine && store.get('discordMode') === true) {
@@ -1350,17 +1355,23 @@ function robloxEnv() {
 }
 
 /* Roblox's current installer for the player or Studio, fetched through the
- * engine, checked to be signed by Roblox, and started through Shroudly. */
-async function installRoblox(kind) {
-  const r = await RobloxApp.install({
+ * engine and checked to be signed by Roblox (fetchRoblox), then started
+ * through Shroudly (startFetchedRoblox), if it is still that very file. */
+const robloxName = (kind) => (kind === 'studio' ? 'Roblox Studio' : 'Roblox');
+async function fetchRoblox(kind) {
+  if (!engine || !engine.isActive()) return { success: false, code: 'unreachable', detail: 'protection is off' };
+  const r = await RobloxApp.fetchInstaller({
     kind, socksPort: engine.port, connect: DiscordRelay.socksConnect,
-    env: robloxEnv(), dir: path.join(app.getPath('userData'), 'roblox'), cache: robloxSigned,
+    dir: path.join(app.getPath('userData'), 'roblox'), cache: robloxSigned,
   });
-  const name = kind === 'studio' ? 'Roblox Studio' : 'Roblox';
-  if (r.success) addLog('success', `${name} installer downloaded through Shroudly and started (${r.version})`);
-  else if (r.code === 'unsigned') addLog('error', 'The downloaded Roblox installer was not signed by Roblox, so it was deleted and not started');
-  else addLog('error', `${name} could not be downloaded (${r.detail || r.code})`);
+  if (r.code === 'unsigned') addLog('error', 'The downloaded Roblox installer was not signed by Roblox, so it was deleted and not started');
+  else if (!r.success) addLog('error', `${robloxName(kind)} could not be downloaded (${r.detail || r.code})`);
   return r;
+}
+async function startFetchedRoblox(r) {
+  const pid = await RobloxApp.startFetched(r, robloxEnv());
+  if (pid) addLog('success', `${robloxName(r.kind)} installer downloaded through Shroudly and started (${r.version})`);
+  return pid;
 }
 
 function setStudioReopen(at) {
@@ -1389,7 +1400,8 @@ const robloxWatch = new RobloxWatch({
   same: (file, hash) => RobloxApp.sameFile(file, hash),
   kill: (pids) => RobloxApp.kill(pids),
   startInstaller: (file) => RobloxApp.startInstaller(file, robloxEnv()),
-  install: (kind) => installRoblox(kind),
+  fetch: (kind) => fetchRoblox(kind),
+  startFetched: (r) => startFetchedRoblox(r),
   restart: (pids) => RobloxApp.restart(robloxEnv(), pids),
   log: (level, msg) => addLog(level, msg),
   tell: (id) => autoTell(id),

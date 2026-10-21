@@ -14,8 +14,9 @@
  * session: each question then starts a PowerShell of its own, as before.
  *
  * Requests "<id> <op> <arg>", answers "<id> <op> <payload>": ASCII only
- * (anything else goes in base64), so no console code page can garble a path
- * such as C:\Users\Ümit.
+ * (text goes as its character codes), so no console code page can garble a
+ * path such as C:\Users\Ümit. What it writes as errors is kept (errors),
+ * never mistaken for an answer.
  */
 
 const { spawn, execFile } = require('child_process');
@@ -24,14 +25,15 @@ const { envFor } = require('./win-powershell');
 const IDLE_MS = 3 * 60 * 1000;
 
 const defaultStart = (script) => spawn('powershell.exe', ['-NoProfile', '-NonInteractive', '-Command', script],
-  { windowsHide: true, stdio: ['pipe', 'pipe', 'ignore'], env: envFor('powershell.exe') });
+  { windowsHide: true, stdio: ['pipe', 'pipe', 'pipe'], env: envFor('powershell.exe') });
 
 /* The same script answering a single request given in SHROUDLY_REQ: what
  * is used once the long-lived one has proved not to work here. */
 const defaultOnce = (script, line, timeoutMs) => new Promise((resolve) => {
-  execFile('powershell.exe', ['-NoProfile', '-NonInteractive', '-Command', script],
+  const c = execFile('powershell.exe', ['-NoProfile', '-NonInteractive', '-Command', script],
     { windowsHide: true, timeout: timeoutMs, env: envFor('powershell.exe', { ...process.env, SHROUDLY_REQ: line }) },
     (err, out) => resolve(String(out || '')));
+  try { if (c && c.stdin) c.stdin.end(); } catch {}
 });
 
 class PsHost {
@@ -48,12 +50,13 @@ class PsHost {
     this.idleMs = opts.idleMs || IDLE_MS;
     this.child = null;
     this.buf = '';
-    this.pending = new Map();   // id -> { resolve, timer }
+    this.pending = new Map();   // id -> { resolve, timeoutMs, timer }, in the order asked
     this.seq = 0;
     this.idleTimer = null;
     this.answered = false;      // the running one has answered something
     this.silent = 0;            // ones that ended without answering anything
     this.starts = 0;
+    this.errors = '';           // the end of what PowerShell wrote as errors (tests, support)
   }
 
   /* Started now, so that the first real question does not wait for it. */
@@ -63,7 +66,11 @@ class PsHost {
     this._idle();
   }
 
-  /* The answer's payload, or null (no answer in time, or it died). */
+  /* The answer's payload, or null (no answer in time, or it died). The time
+   * counts from when PowerShell gets to the question: it answers one at a
+   * time, in order, so a question waiting behind a slow signature check (up
+   * to two minutes, asking about revocation online) is not taken for one
+   * that hangs, and never brings down the check it waits behind. */
   request(op, arg, timeoutMs) {
     const id = ++this.seq;
     const line = `${id} ${op} ${arg}`;
@@ -71,14 +78,9 @@ class PsHost {
     return new Promise((resolve) => {
       const c = this.child || this._start();
       if (!c) { resolve(null); return; }
-      const timer = setTimeout(() => {
-        if (!this.pending.delete(id)) return;
-        resolve(null);
-        // Stuck (or never got going): replaced at the next question.
-        this._end(c, true);
-      }, timeoutMs);
-      this.pending.set(id, { resolve, timer });
+      this.pending.set(id, { resolve, timeoutMs, timer: null });
       this._hold(c, true);
+      this._arm(c);
       try { c.stdin.write(`${line}\n`); } catch { this._end(c, true); }
       this._idle();
     });
@@ -108,6 +110,10 @@ class PsHost {
     c.stdin.on('error', () => {});
     c.stdout.setEncoding('utf8');
     c.stdout.on('data', (d) => this._data(c, d));
+    if (c.stderr) {
+      c.stderr.setEncoding('utf8');
+      c.stderr.on('data', (d) => { this.errors = (this.errors + d).slice(-2000); });
+    }
     this._hold(c, false);
     return c;
   }
@@ -129,12 +135,24 @@ class PsHost {
       p.resolve(m[3]);
     }
     if (!this.pending.size) this._hold(c, false);
+    else this._arm(c);
+  }
+
+  /* The question PowerShell is on now (the oldest one open) is timed; the
+   * ones behind it are timed once they come up. One that runs out of time
+   * means this PowerShell is stuck: it and what waits on it get no answer,
+   * and the next question starts another. */
+  _arm(c) {
+    const first = this.pending.entries().next().value;
+    if (!first || first[1].timer) return;
+    const [id, p] = first;
+    p.timer = setTimeout(() => { if (this.pending.get(id) === p) this._end(c, true); }, p.timeoutMs);
   }
 
   /* Waited on while a question is open; otherwise it never keeps the app
    * (or a test) from ending. */
   _hold(c, on) {
-    for (const h of [c, c.stdout, c.stdin]) {
+    for (const h of [c, c.stdout, c.stdin, c.stderr]) {
       try { if (h && (on ? h.ref : h.unref)) (on ? h.ref : h.unref).call(h); } catch {}
     }
   }

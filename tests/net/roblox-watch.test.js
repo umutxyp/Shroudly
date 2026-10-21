@@ -17,13 +17,19 @@ const W = require(path.join(ROOT, 'electron', 'roblox-watch.js'));
 const t = suite('roblox-watch');
 
 const settle = async () => { for (let i = 0; i < 20; i++) await new Promise((r) => setImmediate(r)); };
+// Right before a program is stopped: a listing and a question to the
+// PowerShell kept running, to make sure it is still the same process.
+const VERIFY_MS = 120 + 150 + 150;
 
 /* A computer, with a clock that only moves when the simulation says so.
- *   probeMs   a PowerShell call reading start times and files
+ *   probeMs   the first PowerShell call reading start times and files
+ *   warmInfoMs  the next ones (PowerShell kept running)
  *   sigMs     the signature check (revocation asked online)
- *   listMs    one process listing
- *   firstAskMs  how soon a program started through Shroudly asks Roblox */
-function world({ probeMs = 1200, sigMs = 1500, listMs = 120, firstAskMs = 800, watched = true, coldMs = 0, infoFails = false } = {}) {
+ *   listMs    one process listing (snapshotAt: 'end', or 'start' as tasklist
+ *             takes it before it returns)
+ *   firstAskMs  how soon a program started through Shroudly asks Roblox
+ *   offset    the system clock against the simulation's (set it to step it) */
+function world({ probeMs = 1200, warmInfoMs = 150, sigMs = 1500, listMs = 120, snapshotAt = 'end', firstAskMs = 800, watched = true, coldMs = 0, infoFails = false, restricted = null } = {}) {
   let now = 0;
   let seq = 1;
   const timers = [];
@@ -33,26 +39,34 @@ function world({ probeMs = 1200, sigMs = 1500, listMs = 120, firstAskMs = 800, w
   const procs = new Map();   // pid -> { role, kind, start, path, through, alive, end }
   let nextPid = 4000;
   let lastRequestAt = 0;
+  let infoAsked = 0;
   // PowerShell, kept running once started: its first answer waits for it to start.
   let hostUpAt = null;
   const host = () => { if (hostUpAt == null) hostUpAt = now + coldMs; return Math.max(0, hostUpAt - now); };
   const w = {
     get now() { return now; },
+    get wall() { return now + w.offset; },
+    offset: 0,
     procs, lists: 0, probes: 0, sigs: 0, killed: [], started: [], checks: 0, logs: [], told: [], installs: 0,
-    on: false, active: false, blocked: false,
+    on: false, active: false, blocked: false, killFails: false, fetchFails: false, unsigned: false,
     sleep,
     /* A program starts. through: it has the setting (it asks Roblox through
-     * Shroudly firstAskMs later, and again every `every` ms if given). */
-    start(role, kind, { through = false, file = null, every = 0, ask = firstAskMs } = {}) {
-      const pid = nextPid++;
-      const p = { pid, role, kind, start: now, path: file || `D:\\Games\\Roblox\\${kind === 'studio' ? 'RobloxStudioInstaller' : 'RobloxPlayerInstaller'}.exe`, through, alive: true, end: 0 };
+     * Shroudly firstAskMs later, and again every `every` ms if given, or at
+     * each of `asks`). `pid` reuses a process id. */
+    start(role, kind, { through = false, file = null, every = 0, ask = firstAskMs, asks = null, pid: reuse = null } = {}) {
+      const pid = reuse || nextPid++;
+      const p = { pid, role, kind, start: w.wall, path: file || `D:\\Games\\Roblox\\${kind === 'studio' ? 'RobloxStudioInstaller' : 'RobloxPlayerInstaller'}.exe`, through, alive: true, end: 0 };
       procs.set(pid, p);
       if (through) {
-        const asks = () => { if (p.alive) { lastRequestAt = now; if (every) setT(asks, every); } };
-        setT(asks, ask);
+        const once = () => { if (p.alive && procs.get(pid) === p) lastRequestAt = w.wall; };
+        const asks0 = () => { once(); if (every && p.alive) setT(asks0, every); };
+        if (asks) for (const a of asks) setT(once, a); else setT(asks0, ask);
       }
       return pid;
     },
+    end(pid) { const p = procs.get(pid); if (p) { p.alive = false; p.end = now; } },
+    /* A request from Roblox through Shroudly, `ms` from now. */
+    ask(ms) { setT(() => { lastRequestAt = w.wall; }, ms); },
     async run(until) {
       for (;;) {
         await settle();
@@ -66,49 +80,62 @@ function world({ probeMs = 1200, sigMs = 1500, listMs = 120, firstAskMs = 800, w
     },
   };
   const alive = () => [...procs.values()].filter((p) => p.alive);
+  const listing = () => {
+    const a = alive();
+    const of = (role, kind) => a.filter((p) => p.role === role && (!kind || p.kind === kind)).map((p) => p.pid);
+    return { players: of('player'), studios: of('studio'), installers: { player: of('installer', 'player'), studio: of('installer', 'studio') } };
+  };
   w.watch = new W.RobloxWatch({
-    now: () => now,
+    now: () => w.wall,
     setTimeout: setT,
     clearTimeout: clearT,
     watched,
     on: () => w.on,
     active: () => w.active,
     blocked: () => w.blocked,
-    stillBlocked: async () => w.blocked,
+    stillBlocked: async () => { if (w.stillMs) await sleep(w.stillMs); return w.blocked; },
     checkSoon: () => { w.checks++; },
     lastRequestAt: () => lastRequestAt,
     list: async () => {
       w.lists++;
+      if (snapshotAt === 'start') { const l = listing(); await sleep(listMs); return l; }
       await sleep(listMs);
-      const a = alive();
-      const of = (role, kind) => a.filter((p) => p.role === role && (!kind || p.kind === kind)).map((p) => p.pid);
-      return { players: of('player'), studios: of('studio'), installers: { player: of('installer', 'player'), studio: of('installer', 'studio') } };
+      return listing();
     },
     prepare: () => { host(); },
     info: async (pids) => {
       w.probes++;
-      await sleep(host() + probeMs);
-      if (infoFails) return new Map();
+      await sleep(host() + (infoAsked++ ? warmInfoMs : probeMs));
       const m = new Map();
-      for (const pid of pids) { const p = procs.get(pid); if (p && p.alive) m.set(pid, { startedAt: p.start, path: p.role === 'installer' ? p.path : null }); }
+      m.answered = !infoFails;
+      m.restricted = restricted;
+      if (infoFails) return m;
+      for (const pid of pids) { const p = procs.get(pid); if (p && p.alive) m.set(pid, { startedAt: p.start, path: p.role === 'installer' ? p.path : `C:\\Roblox\\RobloxPlayerBeta.exe` }); }
       return m;
     },
     signed: async (file) => { w.sigs++; await sleep(host() + sigMs); w.signedAt = now; return /Installer\.exe$/.test(file) && !w.unsigned ? 'a'.repeat(64) : null; },
     same: async () => true,
-    kill: async (pids) => { await sleep(150); for (const pid of pids) { const p = procs.get(pid); if (p) { p.alive = false; p.end = now; w.killed.push({ pid, at: now }); } } return true; },
+    kill: async (pids) => {
+      await sleep(150);
+      if (w.killFails) return false;
+      for (const pid of pids) { const p = procs.get(pid); if (p) { p.alive = false; p.end = now; w.killed.push({ pid, at: now, start: p.start }); } }
+      return true;
+    },
     startInstaller: (file) => {
       const old = [...procs.values()].find((p) => p.path === file && p.role === 'installer');
       const pid = w.start('installer', old ? old.kind : 'player', { through: true, file });
       w.started.push({ pid, at: now, file });
       return pid;
     },
-    install: async (kind) => { w.installs++; await sleep(4000); const pid = w.start('installer', kind, { through: true }); w.started.push({ pid, at: now, download: true }); return { success: true, pid }; },
+    fetch: async (kind) => { w.installs++; await sleep(4000); return w.fetchFails ? { success: false, code: 'unreachable', detail: 'timed out' } : { success: true, kind, file: `C:\\dl\\${kind}.exe`, hash: 'b'.repeat(64), version: 'version-1' }; },
+    startFetched: async (r) => { const pid = w.start('installer', r.kind, { through: true, file: r.file }); w.started.push({ pid, at: now, download: true }); return pid; },
     restart: async (pids) => {
       await sleep(300);
-      for (const pid of pids) { const p = procs.get(pid); if (p) { p.alive = false; p.end = now; w.killed.push({ pid, at: now }); } }
+      if (w.killFails) return { success: false, code: 'notstopped' };
+      for (const pid of pids) { const p = procs.get(pid); if (p) { p.alive = false; p.end = now; w.killed.push({ pid, at: now, start: p.start }); } }
       const pid = w.start('player', 'player', { through: true });
       w.started.push({ pid, at: now, player: true });
-      return pid;
+      return { success: true, pid };
     },
     log: (level, msg) => w.logs.push(msg),
     tell: (id) => w.told.push(id),
@@ -119,17 +146,16 @@ function world({ probeMs = 1200, sigMs = 1500, listMs = 120, firstAskMs = 800, w
    * comes on, the autopilot's verdict comes. */
   w.modeOn = async () => {
     w.on = true;
-    const a = alive();
-    const of = (role, kind) => a.filter((p) => p.role === role && (!kind || p.kind === kind)).map((p) => p.pid);
-    w.watch.modeOn({ players: of('player'), studios: of('studio'), installers: { player: of('installer', 'player'), studio: of('installer', 'studio') } }, now);
+    w.watch.modeOn(listing(), w.wall);
   };
   w.engineOn = () => { w.active = true; w.watch.warm(); };
+  w.engineOff = () => { w.active = false; w.watch.halt(); };
   w.verdict = () => { w.blocked = true; w.watch.warm(); };
   w.restartedAfter = (pid) => {
     const k = w.killed.find((x) => x.pid === pid);
     const player = procs.get(pid).role === 'player';
     const s = k && w.started.find((x) => x.at >= k.at && !!x.player === player);
-    return s ? s.at - procs.get(pid).start : null;
+    return s ? s.at + w.offset - k.start : null;
   };
   return w;
 }
@@ -163,8 +189,15 @@ async function steady(opts) {
     t.ok(J({ ...base, after: null, probing: true }, { now: 10000 + W.INFO_WAIT_MS }) === 'around' && J({ ...base, after: null, probing: true }, { now: 10000 + W.INFO_WAIT_MS, lastRequestAt: 1 }) === 'through',
       `not for longer than ${W.INFO_WAIT_MS / 1000} s (a PowerShell that takes 20 s to start): judged without it, any request from Roblox sparing it`);
     t.ok(J({ ...base, after: null }, { now: 30000, lastRequestAt: 1 }) === 'through', 'and if it cannot be read, any request from Roblox at all spares it');
-    t.ok(J({ ...base, role: 'player' }, { now: 16000 }) === 'waiting' && J({ ...base, role: 'player' }, { now: 18000 }) === 'around',
-      `a player gets ${W.QUIET_MS.player / 1000} s (it starts slower than an installer)`);
+    t.ok(J({ ...base, role: 'player' }, { now: 10000 + 16000 }) === 'waiting' && J({ ...base, role: 'player' }, { now: 10000 + W.QUIET_MS.player }) === 'around' && W.QUIET_MS.player >= 20000,
+      `a player gets ${W.QUIET_MS.player / 1000} s (a slow PC can take long to load it before its first request)`);
+    // A Shroudly started again (after a crash) has seen no request from
+    // before it started: a player in a game since long ago is given its
+    // quiet wait from then, not judged around at once.
+    t.ok(J({ ...base, role: 'player', startedAt: 1000, after: null }, { now: 10000 + 5000, from: 10000 }) === 'waiting'
+      && J({ ...base, role: 'player', startedAt: 1000, after: null }, { now: 10000 + W.QUIET_MS.player, from: 10000 }) === 'around'
+      && W.dueAt({ ...base, role: 'player', startedAt: 1000, after: null }, 10000) === 10000 + W.QUIET_MS.player,
+    "silence from before this Shroudly could see requests is not counted (a restart after a crash)");
   }
   {
     const P = W.pollDelay;
@@ -179,7 +212,9 @@ async function steady(opts) {
     const times = [];
     // The worst case: first seen a whole idle look after it started, then
     // read, then its file checked. Within the quiet wait on most machines.
-    const bound = Math.max(W.QUIET_MS.installer + W.FAST_MS + 600, W.IDLE_MS + 120 + probeMs + sigMs + 600);
+    // Then, right before it is stopped, it is made sure it is still the same
+    // process (a listing and a question to the PowerShell kept running).
+    const bound = Math.max(W.QUIET_MS.installer + W.FAST_MS + 600, W.IDLE_MS + 120 + probeMs + sigMs + 600) + VERIFY_MS;
     {
       for (let k = 0; k < 12; k++) {
         const w = world({ probeMs, sigMs });
@@ -198,7 +233,7 @@ async function steady(opts) {
       }
     }
     const max = Math.max(...times); const avg = times.reduce((a, b) => a + b, 0) / times.length;
-    t.ok(max <= bound && (probeMs + sigMs > 3000 || max <= 8000) && avg >= W.QUIET_MS.installer,
+    t.ok(max <= bound && (probeMs + sigMs > 3000 || max <= 8000 + VERIFY_MS) && avg >= W.QUIET_MS.installer,
       `${machine} (PowerShell ${probeMs / 1000} s, signature ${sigMs / 1000} s): an installer started around Shroudly is started again through it after ${(avg / 1000).toFixed(1)} s on average, ${(max / 1000).toFixed(1)} s at most, whenever it starts (12 moments); never before its ${W.QUIET_MS.installer / 1000} s`);
   }
   {
@@ -210,7 +245,7 @@ async function steady(opts) {
     const pid = w.start('installer', 'player');
     await w.run(w.now + 60000);
     const took = w.restartedAfter(pid);
-    t.ok(took != null && took <= W.IDLE_MS + 120 + 1200 + 20000 + 600, `a 20 s signature check: started again ${(took / 1000).toFixed(1)} s after it started (the check began when it was first seen, not when it was judged)`);
+    t.ok(took != null && took <= W.IDLE_MS + 120 + 1200 + 20000 + 600 + VERIFY_MS, `a 20 s signature check: started again ${(took / 1000).toFixed(1)} s after it started (the check began when it was first seen, not when it was judged)`);
   }
   {
     // The same file a second time: its signature is not asked again.
@@ -223,7 +258,7 @@ async function steady(opts) {
     await w.run(w.now + 60000);
     const b = w.start('installer', 'player');
     await w.run(w.now + 60000);
-    t.ok(w.sigs === 1 && w.restartedAfter(b) <= 8000, `the same installer again: no second signature check, started again within ${(w.restartedAfter(b) / 1000).toFixed(1)} s (first time ${(w.restartedAfter(a) / 1000).toFixed(1)} s)`);
+    t.ok(w.sigs === 1 && w.restartedAfter(b) <= 8000 + VERIFY_MS, `the same installer again: no second signature check, started again within ${(w.restartedAfter(b) / 1000).toFixed(1)} s (first time ${(w.restartedAfter(a) / 1000).toFixed(1)} s)`);
   }
 
   // ── slow machines: PowerShell that takes 20 s to start, signatures that take 20 s ──
@@ -240,7 +275,7 @@ async function steady(opts) {
     await w.run(w.now + 120000);
     const took = w.restartedAfter(pid);
     const s = w.started.find((x) => x.at - w.procs.get(pid).start === took);
-    t.ok(took != null && took <= W.IDLE_MS + 120 + 300 + 3500 + 800 && s && s.file && !w.installs,
+    t.ok(took != null && took <= W.IDLE_MS + 120 + 300 + 3500 + 800 + VERIFY_MS && s && s.file && !w.installs,
       `a slow PC whose PowerShell was started ahead: an installer around Shroudly started again from its own file after ${(took / 1000).toFixed(1)} s`);
   }
   {
@@ -258,31 +293,74 @@ async function steady(opts) {
       `at a slow PC's boot: started again ${(took / 1000).toFixed(1)} s after it started, ${((took - (w.signedAt - w.procs.get(pid).start)) / 1000).toFixed(1)} s after its signature was known (PowerShell started with the mode, 20 s to start)`);
   }
   {
-    // A 23 s signature check holds up nothing else: a player around Shroudly
+    // A slow signature check holds up nothing else: a player around Shroudly
     // started meanwhile is restarted on time.
-    const w = world({ sigMs: 23000 });
+    const w = world({ sigMs: 40000 });
     w.watch.start(); await w.modeOn(); w.engineOn(); w.verdict();
     await w.run(60000);
     const inst = w.start('installer', 'player');
-    await w.run(w.now + 9000);
+    await w.run(w.now + 3000);
     const player = w.start('player', 'player');
     await w.run(w.now + 60000);
     const tp = w.restartedAfter(player); const ti = w.restartedAfter(inst);
-    t.ok(tp != null && tp <= 11000 && ti != null && ti >= 23000,
-      `while an installer's signature takes 23 s (started again after ${(ti / 1000).toFixed(1)} s), a player around Shroudly is restarted after ${(tp / 1000).toFixed(1)} s: the looks go on`);
+    t.ok(tp != null && tp <= W.QUIET_MS.player + 3000 + VERIFY_MS && ti != null && ti >= 40000 && ti > tp + 3000,
+      `while an installer's signature takes 40 s (started again after ${(ti / 1000).toFixed(1)} s), a player around Shroudly is restarted after ${(tp / 1000).toFixed(1)} s: the looks go on`);
   }
   {
-    // PowerShell gives nothing at all (it never starts, or cannot read the
-    // process): the installer is still judged, from the process list alone,
-    // stopped, and the current installer downloaded through the engine.
+    // PowerShell gives nothing at all (missing, blocked by AppLocker, never
+    // answering): the installer is still judged, from the process list
+    // alone, but it cannot be told apart from a program that got its process
+    // id later, so it is never stopped: the user is asked to start it again.
     const w = world({ infoFails: true });
     w.watch.start(); await w.modeOn(); w.engineOn(); w.verdict();
     await w.run(60000);
     const pid = w.start('installer', 'player');
+    const pid2 = w.start('installer', 'player');
+    await w.run(w.now + 3 * 60000);
+    t.ok(!w.killed.length && w.procs.get(pid).alive && w.procs.get(pid2).alive && !w.installs && !w.started.length
+      && w.told.filter((x) => x === 'autoInstallerAround').length === 1 && w.logs.some((l) => /left running \(PowerShell did not answer\)/.test(l)),
+    `no answer from PowerShell: nothing stopped, nothing downloaded; the user told once (${w.told.join(', ')}): ${w.logs.filter((l) => /left running/.test(l)).length} lines in the log`);
+  }
+  {
+    // A PowerShell an administrator restricted (ConstrainedLanguage, under
+    // AppLocker or Device Guard): what it says is not acted on.
+    const w = world({ restricted: 'ConstrainedLanguage' });
+    w.watch.start(); await w.modeOn(); w.engineOn(); w.verdict();
+    await w.run(60000);
+    const inst = w.start('installer', 'player');
+    const player = w.start('player', 'player');
+    await w.run(w.now + 2 * 60000);
+    t.ok(!w.killed.length && w.procs.get(inst).alive && w.procs.get(player).alive && !w.installs && !w.started.length
+      && w.told.includes('autoInstallerAround') && w.told.includes('autoRobloxAround') && w.logs.some((l) => /restricted here \(ConstrainedLanguage\)/.test(l)),
+    `PowerShell in ConstrainedLanguage: the installer and the player are left running, the user is told (${w.told.join(', ')})`);
+  }
+  {
+    // Neither its own file (not Roblox's signed one) nor a download (the
+    // engine cannot reach Roblox's servers): nothing could be started in its
+    // place, so it is not stopped.
+    const w = world();
+    w.unsigned = true; w.fetchFails = true;
+    w.watch.start(); await w.modeOn(); w.engineOn(); w.verdict();
+    await w.run(60000);
+    const pid = w.start('installer', 'player');
     await w.run(w.now + 60000);
-    const k = w.killed.find((x) => x.pid === pid);
-    t.ok(k && k.at - w.procs.get(pid).start <= W.QUIET_MS.installer + W.IDLE_MS + 1000 && w.installs === 1 && w.sigs === 0,
-      `no start time and no file from PowerShell: still judged and stopped after ${((k ? k.at : 0) - w.procs.get(pid).start) / 1000} s, and the current installer downloaded instead`);
+    t.ok(!w.killed.length && w.procs.get(pid).alive && w.installs === 1 && !w.started.length && w.told.includes('autoInstallerAround')
+      && w.logs.some((l) => /left running \(no installer to start in its place: timed out\)/.test(l)),
+    'no installer to start in its place: the one around Shroudly is never stopped, the user is told');
+  }
+  {
+    // It cannot be stopped (an administrator's, or another user's): no
+    // second installer is started beside it; the user is told.
+    const w = world();
+    w.killFails = true;
+    w.watch.start(); await w.modeOn(); w.engineOn(); w.verdict();
+    await w.run(60000);
+    const pid = w.start('installer', 'player');
+    const player = w.start('player', 'player');
+    await w.run(w.now + 60000);
+    t.ok(w.procs.get(pid).alive && w.procs.get(player).alive && !w.started.length && w.told.includes('autoInstallerAround') && w.told.includes('autoRobloxAround')
+      && w.logs.filter((l) => /left running \(it could not be stopped\)/.test(l)).length === 2 && !w.logs.some((l) => /started it again|restarted it/.test(l)),
+    'one that could not be stopped: nothing started beside it, the user told, nothing said to be started again');
   }
   {
     // Its file is not Roblox's signed installer: never started.
@@ -316,7 +394,7 @@ async function steady(opts) {
     const around = w.start('player', 'player');
     await w.run(w.now + 60000);
     const took = w.restartedAfter(around);
-    t.ok(w.procs.get(inGame).alive && took != null && took <= 10000 && w.killed.every((k) => k.pid === around),
+    t.ok(w.procs.get(inGame).alive && took != null && took <= W.QUIET_MS.player + 3000 + VERIFY_MS && w.killed.every((k) => k.pid === around),
       `only the player that goes around Shroudly is restarted (after ${(took / 1000).toFixed(1)} s), never the one in a game`);
   }
   {
@@ -334,6 +412,112 @@ async function steady(opts) {
     const studio = w.start('studio', 'studio');
     await w.run(w.now + 60000);
     t.ok(!w.killed.length && w.procs.get(studio).alive && w.told.filter((x) => x === 'autoStudioReopen').length === 1, 'a Studio around Shroudly is never closed; the user is told, once');
+  }
+
+  // ── timing that must not fool it ──
+  {
+    // A listing is taken somewhere between being asked for and returning
+    // (tasklist takes its snapshot first): an installer that started while
+    // one was under way, asked Roblox's servers through Shroudly before it
+    // returned and then only downloads over the connections it opened, is
+    // never taken for one going around Shroudly.
+    let touched = 0; let n = 0;
+    for (let k = 0; k < 20; k++) {
+      const w = world({ listMs: 1500, snapshotAt: 'start' });
+      w.watch.start(); await w.modeOn(); w.engineOn(); w.verdict();
+      await w.run(90000 + k * 397);
+      const pid = w.start('installer', 'player', { through: true, asks: [200, 500] });
+      await w.run(w.now + 60000);
+      n++;
+      if (w.killed.some((x) => x.pid === pid)) touched++;
+    }
+    t.ok(!touched, `an installer that asked through Shroudly while a 1.5 s listing was under way, then only downloads, is never touched (${touched} of ${n} moments)`);
+  }
+  {
+    // While its start time and file are still being read (PowerShell takes
+    // 30 s at a slow PC's boot), the installer ends and Windows gives its
+    // process id to another program: that one is never stopped, and the
+    // user is not told about an installer that is gone.
+    const w = world({ coldMs: 30000, probeMs: 300 });
+    w.watch.start();
+    await w.run(1000); await w.modeOn(); w.engineOn(); w.verdict();
+    await w.run(2000);
+    const pid = w.start('installer', 'player');
+    await w.run(15000); w.end(pid);
+    await w.run(15500);
+    w.start('installer', 'player', { pid, through: true });
+    await w.run(w.now + 120000);
+    t.ok(!w.killed.length && w.procs.get(pid).alive && !w.told.length && !w.started.length,
+      `a process id given to another program while the first was being read is never stopped (killed: ${JSON.stringify(w.killed)}, told: ${w.told.join(', ') || 'nothing'})`);
+  }
+  {
+    // Protection is stopped while an installer's signature is being checked:
+    // nothing is stopped or started after that; once protection is back, it
+    // is seen to.
+    const w = world({ sigMs: 20000 });
+    w.watch.start(); await w.modeOn(); w.engineOn(); w.verdict();
+    await w.run(60000);
+    const pid = w.start('installer', 'player');
+    await w.run(w.now + 12000);
+    w.engineOff();
+    await w.run(w.now + 60000);
+    const untouched = !w.killed.length && !w.started.length && w.procs.get(pid).alive;
+    w.engineOn();
+    await w.run(w.now + 30000);
+    t.ok(untouched && w.killed.some((x) => x.pid === pid) && w.started.length === 1,
+      `protection stopped while it was being seen to: nothing stopped or started (${untouched}); seen to once protection is back (${w.started.length} started)`);
+  }
+  {
+    // Shroudly started again after a crash, the setting still in place (so
+    // nothing tells what was open before it): a player in a game through it
+    // for half an hour, whose connections went with the old Shroudly, asks
+    // again 12 s later: never restarted. One that stays silent is, after its
+    // quiet wait counted from then.
+    const w = world();
+    const player = w.start('player', 'player');
+    await w.run(30 * 60000);
+    w.watch.start(); w.on = true; w.watch.warm(); w.engineOn(); w.verdict();
+    w.ask(12000);
+    await w.run(w.now + 5 * 60000);
+    const w2 = world();
+    const silent = w2.start('player', 'player');
+    await w2.run(30 * 60000);
+    const back = w2.now;
+    w2.watch.start(); w2.on = true; w2.watch.warm(); w2.engineOn(); w2.verdict();
+    await w2.run(w2.now + 5 * 60000);
+    const k = w2.killed.find((x) => x.pid === silent);
+    t.ok(!w.killed.length && w.procs.get(player).alive && k && k.at - back >= W.QUIET_MS.player && k.at - back <= W.QUIET_MS.player + 3000 + VERIFY_MS,
+      `after a crash: a player that asks again within seconds is left in its game; a silent one is restarted ${k ? ((k.at - back) / 1000).toFixed(1) : '-'} s after Shroudly is back, not at once`);
+  }
+  {
+    // The clock is set back after the setting was put in place (Windows
+    // correcting a clock that ran fast): programs started since, through
+    // Shroudly, are not taken for ones started before the setting.
+    const w = world();
+    w.watch.start();
+    await w.run(1000 * 1000);
+    await w.modeOn(); w.engineOn(); w.verdict();
+    await w.run(w.now + 60000);
+    w.offset -= 250000;
+    const inst = w.start('installer', 'player', { through: true });
+    const player = w.start('player', 'player', { through: true, ask: 1500 });
+    await w.run(w.now + 5 * 60000);
+    t.ok(!w.killed.length && w.procs.get(inst).alive && w.procs.get(player).alive, `a clock set back 250 s after the setting: what goes through Shroudly is never touched (${w.killed.length} stopped)`);
+  }
+  {
+    // A player that takes long to load on a slow PC (its first request 15 s
+    // after it started) goes through Shroudly: never restarted. Nor one
+    // whose first request comes while the verdict is checked again right
+    // before it would be: it is judged again then.
+    const w = await steady();
+    const slow = w.start('player', 'player', { through: true, ask: 15000 });
+    await w.run(w.now + 10 * 60000);
+    const w2 = await steady();
+    w2.stillMs = 3000;
+    const late = w2.start('player', 'player', { through: true, ask: W.QUIET_MS.player + 1000 });
+    await w2.run(w2.now + 5 * 60000);
+    t.ok(!w.killed.length && w.procs.get(slow).alive && !w2.killed.length && w2.procs.get(late).alive,
+      `a slow player (first request after 15 s), and one asking only while it was being seen to, are never restarted (${w.killed.length + w2.killed.length} restarted)`);
   }
 
   // ── the internet cafe: a script starts the installer as Shroudly starts ──
