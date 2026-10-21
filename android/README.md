@@ -160,17 +160,34 @@ and compare "Signer #1 certificate SHA-256 digest" with the value above.
 - **Health.** While protection is on, every app depends on it, so it is
   watched (`Health.kt`): hev's thread runs; the engine's run has not
   returned, it answers STATS within 30 s, and it accepts a SOCKS5 connection
-  on its port every 20 s; and a connection through the engine reaches the
-  internet (Android's own check hosts, by name). That last check is made
-  soon after a start, a restart or a network change, when apps keep sending
-  into the tunnel and nothing comes back for 12 s, and while apps are busy
-  at most every two minutes; an idle phone is never checked. A failure counts
-  only while Android says the network underneath works. When the way through
-  the engine is broken on a network that works (for instance the phone
-  maker's per-app network switch has cut off Shroudly), everything is
-  started anew once; if that does not help, protection ends, a notification
-  says why, and apps connect directly. The phone is never left "Protected"
-  with no internet.
+  on its port every 20 s; hev answers what apps send it (packets going in
+  with none coming out for 10 s means it is stuck) and is not full (the
+  engine holding 95% of hev's session cap for a minute); and a connection
+  through the engine reaches the internet (Google's, Cloudflare's, Apple's
+  and Microsoft's check hosts, by name). That last check is made soon after
+  a start, a restart or a network change, when apps keep sending into the
+  tunnel and nothing comes back for 12 s, and while apps are busy at most
+  every two minutes; an idle phone is never checked. A failure counts only
+  when the network underneath works for everyone but Shroudly: the same
+  hosts are tried from the app's own socket, outside the VPN, and when they
+  do not answer there either, Android is asked to check the network again
+  (`reportNetworkConnectivity`); if Android then finds no internet, it is an
+  outage or a slow handover, not Shroudly, and protection stays on. When
+  only the way through Shroudly is broken (for instance the phone maker's
+  per-app network switch has cut it off), everything is started anew once;
+  if that does not help, protection ends, a notification says why, and apps
+  connect directly. A stuck or full hev is started again once, then the
+  same. The phone is never left "Protected" with no internet.
+- **Always-on VPN.** With Android's "Block connections without VPN"
+  (lockdown, Android 10+), ending protection would not let apps connect
+  directly: Android lets nothing out without the VPN. Protection then never
+  ends on its own: it starts everything anew again and again, with a pause
+  that doubles from 15 s up to 5 minutes, and a notification and the window
+  say honestly that apps are offline until it works. Always-on without
+  lockdown ends as usual; if Android starts it again within ten minutes, one
+  failed check ends it again, without a second notice. A stuck engine or
+  tunnel under always-on ends the app's process, and Android starts the
+  VPN again.
 - **Engine restarts.** An engine whose run returns, or that stops answering,
   is restarted, up to five times in a row, on the port it had and with the
   password it had, so the tunnel goes on as it was and the addresses apps
@@ -195,8 +212,9 @@ and compare "Signer #1 certificate SHA-256 digest" with the value above.
 - **The network underneath** is this app's default network, which is left
   out of the VPN, never the VPN itself; Android follows the system's default
   network for the VPN on its own (`setUnderlyingNetworks` is not called) and
-  the VPN is metered when that network is. Up to 2.6.1 the VPN was made its
-  own underlying network and declared unmetered, and on any network with
+  the VPN is metered when that network is (`setMetered(false)` on Android
+  10+, where a VPN otherwise counts as metered even on Wi-Fi). Up to 2.6.1
+  the VPN was made its own underlying network, and on any network with
   IPv6 the VPN interface was rebuilt three seconds after every start (it
   judged IPv6 by the VPN's own addresses), cutting every connection and
   mixing up apps' stand-in addresses.
@@ -216,7 +234,9 @@ and compare "Signer #1 certificate SHA-256 digest" with the value above.
   version and maker has that setting. No permission is used for it.
 - **Share logs** (About) sends, through Android's share sheet and only when
   the user taps it, the app's version, the Android version, phone model and
-  build, the network (kind, IPv4/IPv6, 464XLAT, Private DNS, metered), the
+  build, the network (kind, IPv4/IPv6, 464XLAT, Private DNS (a server's
+  name with its first label hidden, unless it is a public resolver's, as
+  some services put the user's id there), metered), the
   battery settings, and the last 300 lines of the app's log and the last 300
   site lines. Site lines are kept in memory only; the app's own lines are also
   kept in its private files, so a log from before a crash is still there.

@@ -76,6 +76,7 @@ cleanup() {
   adb_ shell run-as "$PKG" cat files/log.txt > "$OUT/app-log.txt" 2>/dev/null || true
   # What the test changed on the device, back to Android's defaults.
   adb_ shell "settings delete global private_dns_mode; settings delete global private_dns_specifier" >/dev/null 2>&1 || true
+  adb_ shell "settings delete secure always_on_vpn_app; settings delete secure always_on_vpn_lockdown" >/dev/null 2>&1 || true
   adb_ shell "svc wifi enable" >/dev/null 2>&1 || true
   if [ "$KEEP" = 0 ]; then
     adb_ emu kill >/dev/null 2>&1 || true
@@ -250,6 +251,12 @@ vpnid="$(grep -o 'network{[0-9]*}  handle{[0-9]*}  ni{VPN' <<<"$conn" | sed 's/n
 if [ -n "$vpnid" ]; then
   grep -q "underlying{\[$vpnid\]}" <<<"$conn" && fail "the VPN (network $vpnid) is its own underlying network"
   say "the VPN (network $vpnid) is not its own underlying network"
+  # Metered exactly when the network underneath is (Wi-Fi here).
+  vcaps="$(grep -o 'ni{VPN CONNECTED.*' <<<"$conn" | grep -o 'Transports: [A-Z|]* Capabilities: [A-Z_&]*' | head -1)"
+  if grep -q 'WIFI' <<<"$vcaps"; then
+    grep -q 'NOT_METERED' <<<"$vcaps" || fail "the VPN is metered on Wi-Fi: $vcaps"
+    say "the VPN on Wi-Fi is not metered: $vcaps"
+  fi
 else
   say "this Android's dumpsys does not show the VPN's underlying networks; check skipped"
 fi
@@ -354,11 +361,66 @@ if [ "$("$ADB" -s "$SERIAL" root 2>&1 | grep -c 'cannot run as root')" = 0 ]; th
   t0=$(date +%s)
   # Apps keep trying meanwhile, as they do.
   direct_again() { http_get >/dev/null; ! vpn_up && grep -q '^HTTP/1' <<<"$(http_get)"; }
-  if ! wait_for 150 direct_again; then cut D; fail "with the app's network cut, protection did not end: other apps got nothing"; fi
+  if ! wait_for 300 direct_again; then cut D; fail "with the app's network cut, protection did not end: other apps got nothing"; fi
   cut D
-  has_log "ending protection so apps connect directly" || fail "protection ended, but not for the cut network"
+  has_log "Ending protection so apps connect directly" || fail "protection ended, but not for the cut network"
   notice="$(sh_ "dumpsys notification --noredact" | grep -c "pkg=$PKG" || true)"
   say "app's network cut: protection ended by itself after $(( $(date +%s) - t0 )) s, other apps connect directly ($notice notices of the app)"
+
+  # The network itself down (its own egress dropped, while Android still
+  # calls it working for a while): not Shroudly's doing, so protection stays.
+  clear_log
+  ctl start
+  wait_for 60 has_log "Protection on" || fail "protection did not come on again"
+  wait_for 30 has_log "Path check (.*): through the engine to" || fail "no path check after start"
+  outage() { sh_ "for t in iptables ip6tables; do for i in wlan0 eth0; do \$t -$1 OUTPUT -o \$i -j DROP; done; done" >/dev/null; }
+  outage I
+  t0=$(date +%s)
+  while [ $(( $(date +%s) - t0 )) -lt 100 ]; do http_get >/dev/null; done
+  outage D
+  vpn_up || fail "protection ended during an outage of the network itself"
+  has_log "Ending protection" && fail "protection ended during an outage of the network itself"
+  wait_for 90 net_up || fail "no internet through the VPN after the outage"
+  say "network outage of $(( $(date +%s) - t0 )) s: protection stayed on ($(applog | grep -c 'the network is down') checks found the network down), works after: $(http_get)"
+
+  # Always-on VPN with "Block connections without VPN" (lockdown, Android
+  # 10+): ending protection would leave apps nothing, so with the app's
+  # network cut it must stay on, keep trying and say so; and come back once
+  # the cut is gone. Set as Settings does, then the framework restarted.
+  if [ "${SDK:-0}" -ge 29 ]; then
+    ctl stop
+    wait_for 30 tun_gone || fail "VPN still up before the always-on check"
+    framework() {
+      # Settings and app ops reach storage a moment after they are set; the
+      # framework is ended without a chance to write them.
+      sh_ "appops write-settings" >/dev/null; sleep 5
+      sh_ stop >/dev/null; sleep 2; sh_ start >/dev/null; sleep 8
+      wait_for 300 boot_done || fail "the framework did not come back"
+      sleep 10
+    }
+    sh_ "settings put secure always_on_vpn_app $PKG; settings put secure always_on_vpn_lockdown 1" >/dev/null
+    clear_log
+    framework
+    wait_for 120 vpn_up || fail "Android did not start the always-on VPN"
+    wait_for 60 net_up || fail "no internet through the always-on VPN"
+    clear_log
+    cut I
+    t0=$(date +%s)
+    while [ $(( $(date +%s) - t0 )) -lt 200 ]; do http_get >/dev/null; done
+    lockdown_holds() { has_log "Lockdown (Android blocks connections without the VPN): staying on"; }
+    if ! vpn_up || ! lockdown_holds; then cut D; fail "under lockdown, protection ended or did not say it holds on"; fi
+    has_log "Ending protection" && { cut D; fail "under lockdown, protection ended"; }
+    say "lockdown, app's network cut for 200 s: protection stayed on and keeps trying ($(applog | grep -c 'Trying everything again') retries)"
+    cut D
+    wait_for 400 has_log "The way through works again" || fail "under lockdown, protection did not come back after the cut"
+    wait_for 60 net_up || fail "no internet under lockdown after the cut"
+    say "lockdown, cut gone: back by itself: $(http_get)"
+    sh_ "settings delete secure always_on_vpn_app; settings delete secure always_on_vpn_lockdown" >/dev/null
+    framework
+    "$ADB" -s "$SERIAL" root >/dev/null 2>&1 || true; sleep 3; adb_ wait-for-device
+    wait_for 60 boot_done || fail "adbd did not come back as root"
+    if vpn_up; then ctl stop; wait_for 30 tun_gone || fail "VPN still up after always-on was switched off"; fi
+  fi
 else
   say "no root on this image: the cut-network check is skipped"
 fi
