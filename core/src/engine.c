@@ -1457,7 +1457,6 @@ static int read_first(sock_t c, sock_t up, uint8_t *buf, int cap) {
   return total > 0 ? total : -1;
 }
 
-typedef struct { sock_t client; } conn_arg;
 
 /* Replaying a payload must be harmless. A TLS ClientHello always is; for HTTP
  * only idempotent methods qualify, so a POST is never sent twice. */
@@ -2709,10 +2708,10 @@ done:
   sock_close_graceful(client);
 }
 
+/* The connection's socket travels as the thread's argument itself: nothing
+ * to allocate, nothing to free. */
 static void *conn_thread(void *p) {
-  conn_arg *a = (conn_arg *)p;
-  sock_t c = a->client;
-  free(a);
+  sock_t c = (sock_t)(uintptr_t)p;
   handle(c);
   return NULL;
 }
@@ -2744,12 +2743,7 @@ static void *accept_loop(void *p) {
       sock_close(c);
       continue;
     }
-    conn_arg *arg = (conn_arg *)malloc(sizeof(*arg));
-    if (!arg) { sock_close(c); continue; }
-    arg->client = c;
-    if (thread_spawn(conn_thread, arg, 256 * 1024) != 0) {
-      sock_close(c); free(arg);
-    }
+    if (thread_spawn(conn_thread, (void *)(uintptr_t)c, 256 * 1024) != 0) sock_close(c);
   }
 #if defined(__linux__)
   /* engine_stop only shut it down (see there): the loop closes it. */

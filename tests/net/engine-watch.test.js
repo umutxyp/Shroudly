@@ -11,11 +11,12 @@ const { startEngine, sleep, freePort, socks, testServerOptions, suite } = requir
 const t = suite('engine-watch');
 
 /* One TLS request through the engine to the local server, with `name` as the
- * server name. Resolves the answer. */
+ * server name (the test certificate is trusted; its name is not the one
+ * asked for). Resolves the answer. */
 async function fetchAs(socksPort, port, name) {
   const raw = await socks(socksPort, '127.0.0.1', port);
   return new Promise((resolve, reject) => {
-    const s = tls.connect({ socket: raw, servername: name, rejectUnauthorized: false }, () => s.write('ping'));
+    const s = tls.connect({ socket: raw, servername: name, ca: testServerOptions().cert, checkServerIdentity: () => undefined }, () => s.write('ping'));
     let got = '';
     s.on('data', (d) => { got += d; if (got.includes('pong')) { s.end(); resolve(got); } });
     s.on('error', reject);
