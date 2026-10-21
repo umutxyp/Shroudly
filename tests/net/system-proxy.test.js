@@ -319,14 +319,21 @@ const readState = (file) => { try { return JSON.parse(fs.readFileSync(file, 'utf
     // in one line, and the window keeps showing it as set. The record of the
     // user's own settings, the PAC server and its address stay as they were.
     {
-      for (const [why, take] of [
-        ['removed', () => reg.delete('AutoConfigURL')],
-        ['replaced by another tool\'s PAC on this computer', () => reg.set('AutoConfigURL', { type: 'REG_SZ', data: 'http://127.0.0.1:7890/pac' })],
-        ['replaced by a PAC of Shroudly\'s at another address', () => reg.set('AutoConfigURL', { type: 'REG_SZ', data: 'http://127.0.0.1:10999/proxy.pac' })],
+      // Issue #29: the line says, from the first time, what it was changed
+      // to (nothing private: a port, never a PAC's path) and the program
+      // when it can be told.
+      for (const [why, take, to, who] of [
+        ['removed', () => reg.delete('AutoConfigURL'), 'no proxy (removed)', []],
+        ['replaced by another tool\'s PAC on this computer', () => reg.set('AutoConfigURL', { type: 'REG_SZ', data: 'http://127.0.0.1:7890/pac?user=me' }),
+          'a PAC on this computer at port 7890, probably V2Ray / Clash', ['V2Ray / Clash']],
+        ['replaced by a PAC of Shroudly\'s at another address', () => reg.set('AutoConfigURL', { type: 'REG_SZ', data: 'http://127.0.0.1:10999/proxy.pac' }),
+          'a PAC on this computer at port 10999', []],
       ]) {
         const seen = [];
         const log = logs();
-        const sp = new SystemProxy(log, { platform: 'win32', stateFile: file, onOwnership: (o, i) => seen.push([o, i]), ownershipIntervalMs: 60000, takeoverConfirmMs: 0 });
+        const asked = [];
+        const sp = new SystemProxy(log, { platform: 'win32', stateFile: file, onOwnership: (o, i) => seen.push([o, i]), ownershipIntervalMs: 60000, takeoverConfirmMs: 0,
+          whoTookIt: async (tk) => { asked.push(tk.kind); return who; } });
         await sp.apply(10808, 'all');
         const url = sp.pacUrl;
         const ps0 = ran(fx, 'powershell.exe').length;
@@ -335,8 +342,9 @@ const readState = (file) => { try { return JSON.parse(fs.readFileSync(file, 'utf
         const lost = await sp.checkOwnership();
         t.ok(lost.length === 0 && reg.get('AutoConfigURL').data === url && seen.length === 0 && sp._owned,
           `issue #27 (${why}): set back by itself, nothing for the window to show`);
-        t.ok(log.lines.filter((l) => l.includes('system proxy')).join('|') === 'info: Autopilot: another program changed the system proxy (AutoConfigURL); set it back to Shroudly',
-          `issue #27 (${why}): one line says so`);
+        t.ok(log.lines.filter((l) => l.includes('system proxy')).join('|') === `info: Autopilot: another program changed the system proxy (AutoConfigURL) to ${to}; set it back to Shroudly`
+          && asked.length === 1 && !log.lines.some((l) => l.includes('user=me')),
+          `issue #27/#29 (${why}): one line says so, from the first time with what it was changed to${who.length ? ' and the program' : ''} (${log.lines.filter((l) => l.includes('system proxy')).join('|')})`);
         t.ok(readText(file) === state0 && readState(file).snapshot.AutoConfigURL.data === 'http://wpad.corp/proxy.pac' && sp.pacUrl === url
           && reg.get('ProxyServer').data === 'corp-proxy:8080' && reg.get('ProxyEnable').data === '0x1' && ran(fx, 'powershell.exe').length === ps0 + 1,
         `issue #27 (${why}): the user's own settings are still what Stop puts back, the manual proxy under ours untouched, WinINET told once`);
@@ -359,12 +367,12 @@ const readState = (file) => { try { return JSON.parse(fs.readFileSync(file, 'utf
       await sp.checkOwnership();
       t.ok(!reg.has('AutoConfigURL') && reg.get('ProxyServer').data === '127.0.0.1:8118' && seen.length === 1 && seen[0][0] === false
         && seen[0][1].takeover.kind === 'manual' && seen[0][1].takeover.server === '127.0.0.1:8118' && !seen[0][1].gaveUp
-        && log.lines.includes('warning: Another program changed the system proxy (AutoConfigURL): that traffic no longer goes through Shroudly'),
-      'a manual proxy server switched on meanwhile: reported once, left as it is (not fought)');
+        && log.lines.includes('warning: Another program changed the system proxy (AutoConfigURL) to a manual proxy on this computer at port 8118: that traffic no longer goes through Shroudly'),
+      'a manual proxy server switched on meanwhile: reported once, with what it is (issue #29), left as it is (not fought)');
       reg.set('ProxyServer', { type: 'REG_SZ', data: 'corp-proxy:8080' });
       await sp.checkOwnership();
       t.ok(reg.get('AutoConfigURL').data === url && seen.length === 2 && seen[1][0] === true && seen[1][1].retaken
-        && log.lines.includes('info: Autopilot: another program changed the system proxy (AutoConfigURL); set it back to Shroudly'),
+        && log.lines.includes('info: Autopilot: another program changed the system proxy (AutoConfigURL) to no proxy (removed); set it back to Shroudly'),
       '…and once it is gone (the user\'s own manual proxy, kept under ours, is no new choice), ours is set back and the window told');
       await sp.restore();
       t.ok(JSON.stringify([...reg]) === before, 'manual proxy case: Stop puts back exactly what was there');
@@ -398,7 +406,7 @@ const readState = (file) => { try { return JSON.parse(fs.readFileSync(file, 'utf
       for (let i = 0; i < 6; i++) await sp.checkOwnership();
       t.ok(writes() - w0 === 2, `anti-flap: set back twice, then no more (${writes() - w0} writes over 6 checks)`);
       const last = seen[seen.length - 1];
-      t.ok(seen.length === 2 && seen.every((e) => e[0] === false) && !seen[0][1].gaveUp && last[1].gaveUp && last[1].by.join() === 'V2Ray / Clash' && asked.join() === 'cleared',
+      t.ok(seen.length === 2 && seen.every((e) => e[0] === false) && !seen[0][1].gaveUp && last[1].gaveUp && last[1].by.join() === 'V2Ray / Clash' && asked.length >= 3 && asked.every((k) => k === 'cleared'),
         'anti-flap: taken again at once is shown as taken over; the third takeover within the window: the window is told it is a fight, with the program named');
       t.ok(log.lines.filter((l) => l.startsWith('warning: Another program keeps changing')).length === 1
         && log.lines.includes('warning: Another program keeps changing the system proxy (AutoConfigURL), probably V2Ray / Clash; Shroudly stopped setting it back. Close it or turn off its proxy setting, then set Shroudly again.')
@@ -847,6 +855,65 @@ const readState = (file) => { try { return JSON.parse(fs.readFileSync(file, 'utf
     }
   }
 
+  // ── Issue #29: a manual proxy for https:// a test build left ─────────
+  // Shroudly never writes a manual proxy; a leftover "https=127.0.0.1:<engine
+  // port>" that no running Shroudly owns is switched off at the next start
+  // (browsers fall back to a manual proxy when the PAC cannot be fetched).
+  {
+    const reg = new Map();
+    SystemProxy._setExec(fakeExec({ 'reg.exe': fakeReg(reg) }));
+    const file = stateFile('stray');
+    const OV = '<local>;localhost;127.*;10.*;172.16.*;172.17.*;172.18.*;172.19.*;172.20.*;172.21.*;172.22.*;172.23.*;172.24.*;172.25.*;172.26.*;172.27.*;172.28.*;172.29.*;172.30.*;172.31.*;192.168.*;169.254.*;*.local;*.localhost;*.lan;*.internal;*.home.arpa';
+    const put = (server, ov = OV) => { reg.clear(); reg.set('ProxyEnable', { type: 'REG_DWORD', data: '0x1' }); reg.set('ProxyServer', { type: 'REG_SZ', data: server }); if (ov) reg.set('ProxyOverride', { type: 'REG_SZ', data: ov }); };
+    const opts = { platform: 'win32', stateFile: file, ports: [10808, 10809] };
+    const log = logs();
+    put('https=127.0.0.1:10808');
+    t.ok(SystemProxy.clearStrayHttpsSync(log, opts) === true && reg.get('ProxyEnable').data === '0' && !reg.has('ProxyServer') && !reg.has('ProxyOverride')
+      && log.lines.includes('success: System proxy left by an earlier version switched off'), 'issue #29: a leftover manual proxy for https:// at the engine is switched off at start');
+    put('https=127.0.0.1:10808', '*.corp.example;<local>');
+    t.ok(SystemProxy.clearStrayHttpsSync(() => {}, opts) && reg.get('ProxyOverride').data === '*.corp.example;<local>', 'issue #29: …a bypass list of the user\'s stays');
+    for (const [why, server] of [['another port', 'https=127.0.0.1:7890'], ['another program\'s form', '127.0.0.1:10808'], ['the user\'s own', 'corp-proxy:8080'], ['per-protocol, not ours exactly', 'http=127.0.0.1:10808;https=127.0.0.1:10808']]) {
+      put(server);
+      t.ok(SystemProxy.clearStrayHttpsSync(() => {}, opts) === false && reg.get('ProxyServer').data === server && reg.get('ProxyEnable').data === '0x1', `issue #29: ${why} is never touched (${server})`);
+    }
+    put('https=127.0.0.1:10808');
+    fs.mkdirSync(path.dirname(file), { recursive: true });
+    const sleeper = spawn(process.execPath, ['-e', 'setTimeout(() => {}, 20000)'], { stdio: 'ignore' });
+    fs.writeFileSync(file, JSON.stringify({ v: 2, platform: 'win32', snapshot: { form: 'pac' }, owner: { pid: sleeper.pid, boot: require(path.join(ROOT, 'electron', 'boot.js')).bootTime(), bootKey: require(path.join(ROOT, 'electron', 'boot.js')).bootKey(), exe: path.basename(process.execPath) } }));
+    t.ok(SystemProxy.clearStrayHttpsSync(() => {}, opts) === false && reg.get('ProxyServer').data === 'https=127.0.0.1:10808', 'issue #29: while a running Shroudly owns the setting, nothing is touched');
+    sleeper.kill();
+    fs.rmSync(file, { force: true });
+    t.ok(SystemProxy.clearStrayHttpsSync(() => {}, { ...opts, platform: 'darwin' }) === false, 'issue #29: Windows only');
+    SystemProxy._setExec(null);
+  }
+
+  // ── Issue #29: what another program changed the system proxy to ────────
+  {
+    const D = (tk) => SystemProxy.describeTakeover(tk);
+    const cases = [
+      [{ kind: 'cleared' }, 'no proxy (removed)', 0],
+      [{ kind: 'local', pac: 'http://127.0.0.1:7890/pac?token=secret', port: 7890, host: '127.0.0.1' }, 'a PAC on this computer at port 7890', 7890],
+      [{ kind: 'ours', pac: 'http://127.0.0.1:10999/proxy.pac' }, 'a PAC on this computer at port 10999', 10999],
+      [{ kind: 'pac', pac: 'https://user:pw@pac.corp.example/tenant/12345/proxy.pac?key=abc' }, 'a PAC on another computer', 0],
+      [{ kind: 'pac', pac: 'http://192.168.1.20:8080/wpad.dat' }, 'a PAC on another computer', 0],
+      [{ kind: 'pac', pac: 'file:///C:/Users/alice/proxy.pac' }, 'a PAC file on this computer', 0],
+      [{ kind: 'manual', server: 'localhost' }, 'a manual proxy on this computer', 0],
+      [{ kind: 'manual', server: 'http=127.0.0.1' }, 'a manual proxy on this computer', 0],
+      [{ kind: 'pac', pac: 'not a url' }, 'a PAC on another computer', 0],
+      [{ kind: 'pac' }, 'a PAC found on the network', 0],
+      [{ kind: 'pac', env: true }, 'the proxy from the environment variables', 0],
+      [{ kind: 'manual', server: '127.0.0.1:8118' }, 'a manual proxy on this computer at port 8118', 8118],
+      [{ kind: 'manual', server: 'http=127.0.0.1:7890;https=127.0.0.1:7890' }, 'a manual proxy on this computer at port 7890', 7890],
+      [{ kind: 'manual', server: 'socks=localhost:1080' }, 'a manual proxy on this computer at port 1080', 1080],
+      [{ kind: 'manual', server: 'proxy.corp.example:8080' }, 'a manual proxy on another computer', 0],
+      [{ kind: 'manual', server: 'http://alice:pw@10.0.0.5:3128' }, 'a manual proxy on another computer', 0],
+      [{ kind: 'manual' }, 'a manual proxy', 0],
+    ];
+    const bad = cases.filter(([tk, text, port]) => { const d = D(tk); return d.text !== text || d.port !== port; });
+    t.ok(!bad.length, bad.length ? `describeTakeover: ${JSON.stringify(bad.map(([tk]) => [tk, D(tk)]))}` : 'issue #29: what it was changed to, by kind: at most a port on this computer, nothing of anything elsewhere');
+    t.ok(cases.every(([tk]) => !/secret|token|tenant|12345|key=|alice|pw|user|corp|example|192\.168|10\.0\.0\.5|wpad|C:/i.test(D(tk).text)), 'issue #29: no host, address, path, query or account is ever said');
+  }
+
   // ── the Windows installer's hook (scripts/installer.nsh), interpreted ──
   {
     // Git on Windows checks the file out with CRLF line ends.
@@ -1014,7 +1081,7 @@ const readState = (file) => { try { return JSON.parse(fs.readFileSync(file, 'utf
       await sp.apply(10808, 'all');
       let s = nsState(); s.services['Wi-Fi'].auto.enabled = false; FakeNS.save(nsFile, s);
       t.ok((await sp.checkOwnership()).length === 0 && ourPacOn(nsState().services['Wi-Fi']) && seen.length === 0
-        && log.lines.includes('info: Autopilot: another program changed the system proxy (Wi-Fi); set it back to Shroudly'), 'macOS: a service switched off by another program is set back');
+        && log.lines.includes('info: Autopilot: another program changed the system proxy (Wi-Fi) to no proxy (removed); set it back to Shroudly'), 'macOS: a service switched off by another program is set back');
       s = nsState(); s.services['Wi-Fi'].auto.enabled = false; s.services['Wi-Fi'].web = { enabled: true, server: '10.1.1.1', port: '3128' }; FakeNS.save(nsFile, s);
       t.ok((await sp.checkOwnership()).join() === 'Wi-Fi' && !nsState().services['Wi-Fi'].auto.enabled && seen.length === 1 && seen[0][1].takeover.kind === 'manual',
         'macOS: one given a manual proxy meanwhile is reported and left as it is');
@@ -1576,7 +1643,7 @@ const readState = (file) => { try { return JSON.parse(fs.readFileSync(file, 'utf
       // Switched off by another program: set back by itself (issue #27).
       g.set('org.gnome.system.proxy mode', "'none'");
       t.ok((await sp.checkOwnership()).length === 0 && seen.length === 0 && g.get('org.gnome.system.proxy mode') === "'auto'"
-        && g.get('org.gnome.system.proxy autoconfig-url') === `'${sp.pacUrl}'` && log.lines.includes('info: Autopilot: another program changed the system proxy (GNOME); set it back to Shroudly'),
+        && g.get('org.gnome.system.proxy autoconfig-url') === `'${sp.pacUrl}'` && log.lines.includes('info: Autopilot: another program changed the system proxy (GNOME) to no proxy (removed); set it back to Shroudly'),
       'GNOME ownership: switched off by another program: set back, one line');
       g.set('org.gnome.system.proxy mode', "'manual'");
       t.ok((await sp.checkOwnership())[0] === 'GNOME' && seen.length === 1 && seen[0][0] === false, 'GNOME ownership: a switch to manual is reported');
@@ -1896,6 +1963,10 @@ const readState = (file) => { try { return JSON.parse(fs.readFileSync(file, 'utf
         && (await W({ kind: 'cleared' }, { listener: async () => { throw new Error('not asked'); }, tools })).join() === 'Psiphon'
         && (await W(null, { listener, tools: async () => { throw new Error('no list'); } })).length === 0,
       'EngineManager (issue #27): the program named is the one serving the PAC that replaced ours, else a running tool known to set the proxy, else none');
+      t.ok((await W({ kind: 'manual', server: 'http=127.0.0.1:7890;https=127.0.0.1:7890' }, { listener, tools })).join() === 'V2Ray / Clash'
+        && (await W({ kind: 'ours', pac: 'http://127.0.0.1:8000/proxy.pac' }, { listener, tools })).join() === 'MyProxy'
+        && (await W({ kind: 'manual', server: 'proxy.corp.example:8080' }, { listener: async () => { throw new Error('not asked'); }, tools })).join() === 'Psiphon',
+      'EngineManager (issue #29): a manual proxy on this computer is named by whoever listens on its port too');
     }
     const calls = [];
     em.proxy = {

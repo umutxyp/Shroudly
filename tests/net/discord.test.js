@@ -184,6 +184,20 @@ function get(url, o = {}) {
   await new Promise((r) => setTimeout(r, 300));
   t.ok((await get(`${base}/distributions/app/manifests/latest?channel=stable&platform=${plat}`)).status === 502, 'engine gone: clean 502, relay keeps running');
   relay.stop();
+  {
+    // Issue #29: the updater asks again and again; a host it cannot reach
+    // is said once (then at most every half hour), not every half minute.
+    const lines = [];
+    const dead = await freePort();
+    const r3 = new DiscordRelay((l, m) => lines.push(m), () => dead);
+    const p3 = await r3.start(await freePort());
+    for (let i = 0; i < 3; i++) await get(`http://127.0.0.1:${p3}/distributions/app/manifests/latest?channel=stable&platform=${plat}`);
+    await get(`http://127.0.0.1:${p3}/__h/dl.discordapp.net/apps/x.zip`);
+    r3.stop();
+    t.ok(lines.filter((l) => l.startsWith('Discord app: could not reach updates.discord.com (')).length === 1
+      && lines.filter((l) => l.startsWith('Discord app: could not reach dl.discordapp.net (')).length === 1,
+    `issue #29: the Discord relay says each unreachable host once, another host at once too (${lines.join(' | ')})`);
+  }
   console.log(`discord: ${t.count} passed`);
   process.exit(0);
 })().catch((e) => { console.error('FAIL', e.message); process.exit(1); });

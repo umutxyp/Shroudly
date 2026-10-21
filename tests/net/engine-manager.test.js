@@ -81,6 +81,54 @@ const t = suite('engine-manager');
   // A site's own page is always told, working rest or not.
   blocked('www.vendor.example', { site_ok: true });
   t.ok(blockedNotices.length === 1 && blockedNotices[0] === 'www.vendor.example', 'a site\'s own page that defeats every technique is still announced');
+  // Issue #29: still blocked while Advanced mode is already on: nothing to
+  // suggest; it says that the engine keeps trying.
+  blocked('www.unblocked-yet.example');
+  t.ok(logs.includes('warning: www.unblocked-yet.example: still blocked after 9 techniques (ipv4) — this network may need Advanced mode'),
+    'still blocked with Advanced mode off: Advanced mode is suggested');
+  em.advancedOn = () => true;
+  blocked('gateway.discord.example');
+  t.ok(logs.includes('warning: gateway.discord.example: still blocked after 9 techniques (ipv4) — Advanced mode is on, and Shroudly keeps trying other ways')
+    && !logs.some((l) => l.startsWith('warning: gateway.discord.example') && l.includes('may need Advanced mode')),
+    'issue #29: with Advanced mode on, it is not suggested again; the line says it is still being tried');
+  em.advancedOn = () => { throw new Error('unknown'); };
+  blocked('www.unknown-adv.example');
+  t.ok(logs.some((l) => l.startsWith('warning: www.unknown-adv.example: still blocked')), 'issue #29: Advanced mode that cannot be read: the old line, nothing lost');
+  em.advancedOn = () => false;
+  // Issue #29: an unreachable host said once, then at most every half hour,
+  // per host and kind, with one gate shared by the engine, Games and apps
+  // and the Discord relay. The first time is at once.
+  {
+    const LogGate = require(path.join(ROOT, 'electron', 'log-gate.js'));
+    let clock = 1e9;
+    const gate = new LogGate({ now: () => clock });
+    em.logGate = gate;
+    const n = (line) => logs.filter((l) => l === line).length;
+    const A = 'warning: silver.roblox.example: could not be reached (connection)';
+    for (let i = 0; i < 30; i++) { unreach('silver.roblox.example', 'connect'); clock += 60 * 1000; }
+    t.ok(n(A) === 1, `issue #29: a host retried every minute for half an hour: said once (${n(A)})`);
+    unreach('silver.roblox.example', 'connect');
+    t.ok(n(A) === 2, 'issue #29: …and again once the half hour is up');
+    unreach('silver.roblox.example', 'dns');
+    t.ok(n('warning: silver.roblox.example: could not be reached (DNS)') === 1, 'issue #29: another kind of line about the same host has its own half hour');
+    unreach('pulsar.roblox.example', 'connect');
+    t.ok(n('warning: pulsar.roblox.example: could not be reached (connection)') === 1, 'issue #29: another host is said at once');
+    clock -= 3 * 3600 * 1000;
+    unreach('silver.roblox.example', 'connect');
+    t.ok(n(A) === 3, 'issue #29: a clock set back never silences a host for longer');
+    // It got through (the engine opened it): its next failure is news again.
+    clock += 60 * 1000;
+    unreach('silver.roblox.example', 'connect');
+    t.ok(n(A) === 3, 'issue #29: (still within its half hour)');
+    em._onLine(JSON.stringify({ type: 'bypass', host: 'silver.roblox.example', strategy: 'tlsrec-sni', attempts: 2, family: 'ipv4' }));
+    unreach('silver.roblox.example', 'connect');
+    t.ok(n(A) === 4, 'issue #29: a host that got through is forgotten: its next failure is said at once');
+    // Kept for the engine start below, which begins afresh.
+    unreach('restart.roblox.example', 'connect');
+    gate.allow('apps-restarting', '*');
+    gate.allow('apps-unreachable', 'restart.roblox.example');
+    gate.allow('discord-failed', 'kept.example');
+  }
   // Cuts on one address of a site whose rest works: not put in front of the user.
   em._onCut('ws.chat.example', 'reset', 0, true); em._onCut('ws.chat.example', 'reset', 0, true);
   t.ok(!em.advice.cut || em.advice.cut.host !== 'ws.chat.example', 'cuts on an address of a working site raise no warning');
@@ -118,6 +166,12 @@ const t = suite('engine-manager');
   t.ok(!em.proc && em.doh.socksPort === 0, 'stop: engine gone, DNS routes through it off');
   await em.start();
   t.ok(em.advice.cut === null, 'a new start clears the old cut warning');
+  // Issue #29: each engine start begins afresh for the unreachable lines and
+  // for "Shroudly is restarting" (one line per restart); other lines keep
+  // their half hour.
+  t.ok(em.logGate.allow('unreachable-connection', 'restart.roblox.example') && em.logGate.allow('apps-restarting', '*')
+    && em.logGate.allow('apps-unreachable', 'restart.roblox.example'), 'issue #29: an engine start: the unreachable and restarting lines are news again');
+  t.ok(!em.logGate.allow('discord-failed', 'kept.example'), 'issue #29: …and only those');
   await em.stop();
 
   // Another program (v2rayN, Clash...) already holds the configured port.

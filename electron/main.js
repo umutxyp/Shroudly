@@ -32,6 +32,7 @@ const { restoreProxy } = require('./restore-proxy');
 const Launch = require('./launch');
 const wake = require('./wake');
 const { buildReport } = require('./log-report');
+const LogGate = require('./log-gate');
 
 /* "Shroudly --restore-proxy" runs once at login after a run that never got to
  * restore the system proxy (power loss, forced reboot), and from the watchdog
@@ -66,6 +67,9 @@ let mainWindow = null;
 let tray = null;
 let engine = null;
 let advanced = null;
+// Lines about a host that cannot be reached: the first at once, then at most
+// one every half hour per host and kind (log-gate.js).
+const logGate = new LogGate();
 let updater = null;
 let presence = null;
 let systemLogs = [];
@@ -754,6 +758,11 @@ app.whenReady().then(async () => {
   engine = new EngineManager(store, {
     addLog, onStatusChange: broadcastStatus,
     siteList: () => siteList.domains,
+    // A site still blocked while Advanced mode is on: nothing to suggest.
+    advancedOn: () => !!(advanced && advanced.active),
+    // One line per unreachable host every half hour, wherever it comes from
+    // (the engine, Games and apps, the Discord relay).
+    logGate,
     // Connections under the domain of Discord's voice servers, told to the
     // autopilot, which takes one to a voice server's own name for a call
     // starting, in the app or a browser (autopilot.js).
@@ -831,7 +840,10 @@ app.whenReady().then(async () => {
       const now = Date.now();
       if (now - lastBlockedNotice < 5 * 60 * 1000) return;
       lastBlockedNotice = now;
-      notify(tr().notifySiteBlockedTitle, tr().notifySiteBlockedBody.replace('{host}', host));
+      // With Advanced mode already on there is nothing to suggest: it is
+      // still being tried.
+      const advOn = !!(advanced && advanced.active);
+      notify(tr().notifySiteBlockedTitle, (advOn ? tr().notifySiteBlockedBodyAdvancedOn : tr().notifySiteBlockedBody).replace('{host}', host));
       toWindow('dpi:site-blocked', { host, asked });
       showWindow();
     },
@@ -849,6 +861,7 @@ app.whenReady().then(async () => {
   discordRelay = new DiscordRelay(addLog, () => (engine && engine.isActive() ? engine.port : null));
   discordRelay.waitForEngine = waitForEngine;
   discordRelay.engineDue = engineComing;
+  discordRelay.logGate = logGate;
   if (store.get('discordMode') === true) applyDiscordMode(true, { interactive: false }).catch(() => {});
 
   // Like the relay: through the engine while protection is on, direct while
@@ -856,6 +869,7 @@ app.whenReady().then(async () => {
   appProxy = new AppProxy(addLog, () => (engine && engine.isActive() ? engine.port : null), isRouted);
   appProxy.waitForEngine = waitForEngine;
   appProxy.engineDue = engineComing;
+  appProxy.logGate = logGate;
   appProxy.onTunnel = onAppTunnel;
   appProxy.onRequest = onAppRequest;
   appEnv = new AppEnv({ stateFile: appEnvStateFile(), watchdog });

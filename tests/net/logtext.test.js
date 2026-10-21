@@ -150,6 +150,23 @@ const LINES = [
   'Autopilot: Roblox is blocked on this network, but its mode could not be turned on (unsupported); turn it on in Settings to try again',
   'Games and apps: could not reach clientsettingscdn.roblox.com (Shroudly is restarting; try again in a moment)',
   'Discord app: could not reach updates.discord.com (Shroudly is restarting; try again in a moment)',
+  // Issue #29: no country in the explanation; nothing suggested while
+  // Advanced mode is on; what another program changed the system proxy to,
+  // and the program when it can be told.
+  'DNS on this network answers blocked sites with a known block page.',
+  'gateway.discord.gg: still blocked after 19 techniques (ipv4) — Advanced mode is on, and Shroudly keeps trying other ways',
+  'Autopilot: another program changed the system proxy (AutoConfigURL) to no proxy (removed); set it back to Shroudly',
+  'Autopilot: another program changed the system proxy (AutoConfigURL) to no proxy (removed), probably Psiphon; set it back to Shroudly',
+  'Autopilot: another program changed the system proxy (AutoConfigURL) to a PAC on this computer at port 7890, probably V2Ray / Clash; set it back to Shroudly',
+  'Autopilot: another program changed the system proxy (Wi-Fi, Ethernet) to a PAC on this computer at port 10999; set it back to Shroudly',
+  'Another program changed the system proxy (AutoConfigURL) to a PAC file on this computer: that traffic no longer goes through Shroudly',
+  'Another program changed the system proxy (AutoConfigURL) to a manual proxy on this computer, probably Fiddler: that traffic no longer goes through Shroudly',
+  'Another program changed the system proxy (GNOME) to a PAC on another computer: that traffic no longer goes through Shroudly',
+  'Another program changed the system proxy (KDE) to a PAC found on the network: that traffic no longer goes through Shroudly',
+  'Another program changed the system proxy (AutoConfigURL) to a manual proxy on this computer at port 8118, probably privoxy: that traffic no longer goes through Shroudly',
+  'Another program changed the system proxy (Wi-Fi) to a manual proxy on another computer: that traffic no longer goes through Shroudly',
+  'Another program changed the system proxy (GNOME) to a manual proxy, probably V2Ray / Clash, Psiphon: that traffic no longer goes through Shroudly',
+  'Another program changed the system proxy (KDE) to the proxy from the environment variables: that traffic no longer goes through Shroudly',
 ];
 
 const langs = Object.keys(translations);
@@ -164,6 +181,30 @@ for (const line of LINES) {
   const bad = outs.map((o, i) => [langs[i], o]).filter(([l, o]) => (l !== 'en' && o === line) || /MISSING:|\{\w+\}/.test(o));
   t.ok(!bad.length, bad.length ? `untranslated: "${line.slice(0, 50)}" in ${bad.map((b) => b[0]).join(' ')}` : `translated in all ${langs.length}: ${line.slice(0, 60)}…`);
 }
+// Issue #29: what the system proxy was changed to is translated inside the
+// line too, the program named as it was, and English reads as it is written.
+const tr = (l) => (k, p) => {
+  let v = translations[l][k];
+  if (v === undefined) return `MISSING:${k}`;
+  for (const [a, b] of Object.entries(p || {})) v = v.split(`{${a}}`).join(b);
+  return v;
+};
+const NESTED = /no proxy \(removed\)|a PAC (on|at|found|file)|a manual proxy|the proxy from the environment|, probably /;
+const takeoverLines = LINES.filter((l) => /changed the system proxy \(.+?\) to /.test(l));
+t.ok(takeoverLines.length === 12 && takeoverLines.every((l) => localizeLog(l, tr('en')) === l),
+  'issue #29: every "changed the system proxy … to …" line reads in English exactly as the app writes it');
+const nestedBad = [];
+for (const l of langs.filter((x) => x !== 'en')) {
+  for (const line of takeoverLines) {
+    const out = localizeLog(line, tr(l));
+    if (NESTED.test(out) || (/probably (.+?)[:;]/.test(line) && !out.includes(/probably (.+?)(?:: that|; set)/.exec(line)[1]))) nestedBad.push(`${l}: ${out.slice(0, 80)}`);
+  }
+}
+t.ok(!nestedBad.length, nestedBad.length ? `issue #29: what it was changed to is left in English: ${nestedBad.slice(0, 3).join(' | ')}` : `issue #29: what it was changed to, and the program, are translated in all ${langs.length - 1} other languages`);
+// Issue #29: the explanation of the DNS answers names no country, in any
+// language, and an older line that did is shown without it.
+const countryLeft = langs.filter((l) => /\{country\}/.test(translations[l].logRegion) || /\bTR\b/.test(localizeLog('DNS answers on this network match the filtering used in TR.', tr(l))));
+t.ok(!countryLeft.length, countryLeft.length ? `issue #29: a country is still named in ${countryLeft.join(' ')}` : 'issue #29: no country in the DNS explanation, in any language, old lines included');
 // Placeholders match English in every language, for every key.
 const mism = [];
 for (const k of Object.keys(translations.en)) for (const l of langs) if (ph(translations[l][k]) !== ph(translations.en[k])) mism.push(`${l}.${k}`);

@@ -79,6 +79,13 @@ const WIN_RUNONCE_VALUE = 'ShroudlyProxyRestore';
 // so a proxy left by those versions is taken out.
 const WIN_LEGACY_SERVER = /^socks=127\.0\.0\.1:\d+$/;
 const WIN_LEGACY_OVERRIDE = '<local>;127.*;10.*;172.16.*;192.168.*;localhost';
+// What a test build of 2.6.3 wrote next to the PAC (the engine as the manual
+// proxy for https://). Never written by a release; only recognised, so a
+// leftover of it is switched off at the next start (clearStrayHttpsSync).
+const WIN_STRAY_SERVER = /^https=127\.0\.0\.1:(\d+)$/;
+const WIN_STRAY_OVERRIDE = ['<local>', 'localhost', '127.*', '10.*',
+  ...Array.from({ length: 16 }, (_, i) => `172.${16 + i}.*`), '192.168.*', '169.254.*',
+  '*.local', '*.localhost', '*.lan', '*.internal', '*.home.arpa'].join(';');
 const MAC_AGENT_LABEL = 'me.codeshare.shroudly.proxy-restore';
 const MAC_NETWORKSETUP = '/usr/sbin/networksetup';
 // The only networksetup verbs ever run with the administrator's password.
@@ -1043,6 +1050,12 @@ ${argsXml}
       const what = lost.join(', ');
       const takeover = await this._takeoverInfo(snap || {}, url);
       if (stale()) return null;
+      // What is there now and, when it can be told, which program put it
+      // there: said from the first takeover on, not only once Shroudly has
+      // stopped setting it back (issue #29). Looked up next to the set-back,
+      // which it never holds up.
+      const to = takeover ? SystemProxy.describeTakeover(takeover).text : null;
+      const toBy = (by) => (by.length ? `${to}, probably ${by.join(', ')}` : to);
       if (this.autoRetake && this._canRetake(snap) && takeover && RETAKE_KINDS.has(takeover.kind)) {
         // Taken again soon after Shroudly set it back: one more answer in a
         // row. Anything else is a takeover of its own, and counts from one.
@@ -1051,7 +1064,9 @@ ${argsXml}
         const answer = this._retakenAt > 0 && since >= 0 && since <= this.fightWindowMs;
         this._fight = answer ? this._fight + 1 : 1;
         if (this._fight < this.retakeLimit) {
+          const who = this._who(takeover);
           const r = await this._serial(() => this._retake(snap, url, lost));
+          const by = await who;
           if (stale()) return null;
           // Not written at all (refused): nothing to answer, and tried again
           // next time.
@@ -1062,16 +1077,14 @@ ${argsXml}
             const was = this._owned;
             this._owned = true;
             this._lost = [];
-            this.log('info', `Autopilot: another program changed the system proxy (${what}); set it back to Shroudly`);
+            this.log('info', `Autopilot: another program changed the system proxy (${what}) to ${toBy(by)}; set it back to Shroudly`);
             if (!was) tell(true, { lost: [], retaken: true });
             return [];
           }
         } else {
           this._gaveUp = true;
-          let by = [];
-          try { by = this.whoTookIt ? (await this.whoTookIt(takeover)) || [] : []; } catch {}
+          const by = await this._who(takeover);
           if (stale()) return null;
-          by = [...new Set(by.filter((n) => typeof n === 'string' && n.trim()).map((n) => n.trim()))].slice(0, 3);
           this._owned = false;
           this.log('warning', by.length
             ? `Another program keeps changing the system proxy (${what}), probably ${by.join(', ')}; Shroudly stopped setting it back. Close it or turn off its proxy setting, then set Shroudly again.`
@@ -1081,12 +1094,63 @@ ${argsXml}
         }
       }
       if (this._owned) {
+        const by = to ? await this._who(takeover) : [];
+        if (stale()) return null;
         this._owned = false;
-        this.log('warning', `Another program changed the system proxy (${what}): that traffic no longer goes through Shroudly`);
+        this.log('warning', to
+          ? `Another program changed the system proxy (${what}) to ${toBy(by)}: that traffic no longer goes through Shroudly`
+          : `Another program changed the system proxy (${what}): that traffic no longer goes through Shroudly`);
         tell(false, { lost, takeover });
       }
       return lost;
     } finally { this._checking = false; }
+  }
+
+  /* The programs that most likely made a takeover (whoTookIt): names only,
+   * at most three, [] when none can be told. */
+  async _who(takeover) {
+    let by = [];
+    try { by = this.whoTookIt && takeover ? (await this.whoTookIt(takeover)) || [] : []; } catch {}
+    return [...new Set(by.filter((n) => typeof n === 'string' && n.trim()).map((n) => n.trim()))].slice(0, 3);
+  }
+
+  /* What another program put in Shroudly's place, in words that carry
+   * nothing private: a PAC or a proxy on this computer by its port at most;
+   * a PAC or a proxy anywhere else only as "on another computer", never its
+   * host, address, path or query (a company's name, an account or a token
+   * can be in them). English; the window translates it
+   * (components/logText.js). `port`: where it is served on this computer,
+   * for naming the program that listens there (EngineManager.whoTookProxy). */
+  static describeTakeover(t) {
+    const k = t || {};
+    const loop = (h) => /^127\./.test(h) || h === 'localhost' || h === '::1' || h === '[::1]';
+    if (k.kind === 'cleared') return { text: 'no proxy (removed)', port: 0 };
+    if (/^file:/i.test(String(k.pac || '').trim())) return { text: 'a PAC file on this computer', port: 0 };
+    if (k.kind === 'ours' || k.kind === 'local') {
+      let port = Number(k.port) || 0;
+      if (!port) { try { const u = new URL(String(k.pac)); port = Number(u.port) || (u.protocol === 'https:' ? 443 : 80); } catch {} }
+      return port ? { text: `a PAC on this computer at port ${port}`, port } : { text: 'a PAC on another computer', port: 0 };
+    }
+    if (k.kind === 'pac') {
+      if (k.env) return { text: 'the proxy from the environment variables', port: 0 };
+      if (!k.pac) return { text: 'a PAC found on the network', port: 0 };
+      return { text: 'a PAC on another computer', port: 0 };
+    }
+    if (k.kind === 'manual') {
+      // WinINET: "host:port", or "proto=host:port;…" (the first one tells
+      // where); macOS: "host:port". GNOME and KDE: not read.
+      const first = String(k.server || '').split(';').map((s) => s.trim()).filter(Boolean)[0] || '';
+      if (!first) return { text: 'a manual proxy', port: 0 };
+      const addr = first.replace(/^[a-z]+=/i, '').replace(/^[a-z][a-z0-9+.-]*:\/\//i, '');
+      const m = /^(\[[^\]]+\]|[^:/]+)(?::(\d{1,5}))?/.exec(addr);
+      const host = m ? m[1].toLowerCase() : '';
+      const port = m && m[2] ? Number(m[2]) : 0;
+      if (loop(host)) {
+        return port > 0 && port < 65536 ? { text: `a manual proxy on this computer at port ${port}`, port } : { text: 'a manual proxy on this computer', port: 0 };
+      }
+      return { text: 'a manual proxy on another computer', port: 0 };
+    }
+    return { text: 'a manual proxy', port: 0 };
   }
 
   /* "Set Shroudly again", pressed by the user over a takeover Shroudly sets
@@ -1350,7 +1414,7 @@ ${argsXml}
         // environment. 3 and 4 are choices of the user's too.
         found.push(cur.type === '1' ? { kind: 'manual' }
           : cur.type === '2' ? SystemProxy._pacKind(cur.script)
-            : cur.type === '3' || cur.type === '4' ? { kind: 'pac' } : { kind: 'cleared' });
+            : cur.type === '3' ? { kind: 'pac' } : cur.type === '4' ? { kind: 'pac', env: true } : { kind: 'cleared' });
       }
       return SystemProxy._mostDeliberate(found);
     } catch { return null; }
@@ -1586,6 +1650,37 @@ ${argsXml}
       log('success', 'System proxy left by an earlier version switched off');
       return true;
     } catch { return false; }
+  }
+
+  /*
+   * Windows, at Shroudly's start: a manual proxy for https:// pointing at
+   * Shroudly's engine (ProxyServer exactly "https=127.0.0.1:<engine port>")
+   * that no running Shroudly owns, left by a test build. Browsers fall back
+   * to a manual proxy when the PAC cannot be fetched, so one that nothing
+   * answers would cut off HTTPS: it is switched off (ProxyEnable 0, the
+   * value and its exact bypass list removed). Anything else, a manual proxy
+   * of the user's or another program's included, is never touched; this
+   * never writes a proxy. `ports`: the engine's ports (its saved one and the
+   * range it picks from). True when something was switched off.
+   */
+  static clearStrayHttpsSync(log = () => {}, opts = {}) {
+    if ((opts.platform || process.platform) !== 'win32') return false;
+    try {
+      const state = opts.stateFile ? JSON.parse(readOrNull(opts.stateFile) || 'null') : null;
+      if (state && SystemProxy._ownerAlive(state.owner, 'win32')) return false;
+    } catch {}
+    const server = regGet('ProxyServer');
+    const m = server && WIN_STRAY_SERVER.exec(String(server.data).trim());
+    const ports = new Set((opts.ports || []).map(Number));
+    if (!m || !ports.has(Number(m[1]))) return false;
+    try {
+      regSet('ProxyEnable', 'REG_DWORD', '0');
+      regDel('ProxyServer');
+      const ov = regGet('ProxyOverride');
+      if (ov && ov.data === WIN_STRAY_OVERRIDE) regDel('ProxyOverride');
+    } catch { return false; }
+    log('success', 'System proxy left by an earlier version switched off');
+    return true;
   }
 
   _stillOursSync() {

@@ -404,6 +404,32 @@ async function robloxInstaller(proxy, socksPort) {
     t.ok(r.startsWith('HTTP/1.1 502') && asked.join() === 'clientsettingscdn.roblox.com' && carried.length === 0, `a request whose server cannot be reached is still seen as Roblox using Shroudly (${r.split('\r\n')[0]}, asked ${asked.length})`);
   }
   {
+    // Issue #29: a host it cannot reach, asked for again and again, is said
+    // once (then at most every half hour); another host is said at once,
+    // not held back behind the first.
+    const lines = [];
+    const deadPort = await freePort();
+    const p = new AppProxy((l, m) => lines.push(m), () => deadPort, () => true);
+    p.lookup = async () => ['93.184.216.34'];
+    const pp = await p.start(await freePort());
+    for (let i = 0; i < 4; i++) await raw(pp, 'CONNECT silver.roblox.com:443 HTTP/1.1\r\nHost: silver.roblox.com:443\r\n\r\n');
+    await raw(pp, 'CONNECT pulsar.roblox.com:443 HTTP/1.1\r\nHost: pulsar.roblox.com:443\r\n\r\n');
+    p.stop();
+    const n = (h) => lines.filter((l) => l.startsWith(`Games and apps: could not reach ${h} (`)).length;
+    t.ok(n('silver.roblox.com') === 1 && n('pulsar.roblox.com') === 1, `issue #29: Games and apps says each unreachable host once, the second at once too (${lines.join(' | ')})`);
+  }
+  {
+    // Issue #29: "Shroudly is restarting" is one line per restart, whichever
+    // hosts were waiting.
+    const lines = [];
+    const p = new AppProxy((l, m) => lines.push(m), () => null, () => true);
+    p.engineDue = () => true;
+    const pp = await p.start(await freePort());
+    for (const h of ['a.roblox.com', 'b.roblox.com', 'a.roblox.com']) await raw(pp, `CONNECT ${h}:443 HTTP/1.1\r\nHost: ${h}:443\r\n\r\n`);
+    p.stop();
+    t.ok(lines.length === 1 && /^Games and apps: could not reach a\.roblox\.com \(Shroudly is restarting/.test(lines[0]), `issue #29: one "restarting" line for the whole restart (${lines.join(' | ')})`);
+  }
+  {
     // A download that fails leaves nothing open and nothing behind.
     const openFiles = () => {
       if (process.platform === 'linux') return fs.readdirSync('/proc/self/fd').map((f) => { try { return fs.readlinkSync(`/proc/self/fd/${f}`); } catch { return ''; } });
