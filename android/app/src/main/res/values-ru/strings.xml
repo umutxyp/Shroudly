@@ -27,6 +27,8 @@
     <string name="openSourceTitle">Открытый исходный код</string>
     <string name="protected_">Защищено</string>
     <string name="protectionStopped">Защита выключена</string>
+    <string name="shareOnlineCount">Учитывать меня в счётчике реального времени</string>
+    <string name="shareOnlineCountDesc">Отправляет случайный номер, который меняется при каждом запуске, чтобы приложение могло показать, сколько копий работает. Отправляется только при включённой защите, поэтому идёт тем же защищённым путём, что и остальной трафик. Выключите, если не хотите, чтобы сеть вообще видела что-либо от Shroudly.</string>
     <string name="start">Включить защиту</string>
     <string name="startFailed">Не удалось включить защиту</string>
     <string name="starting">Запуск…</string>

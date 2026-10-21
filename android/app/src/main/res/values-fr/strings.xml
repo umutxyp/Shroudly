@@ -27,6 +27,8 @@
     <string name="openSourceTitle">Open source</string>
     <string name="protected_">Protégé</string>
     <string name="protectionStopped">Protection désactivée</string>
+    <string name="shareOnlineCount">Me compter dans le total en direct</string>
+    <string name="shareOnlineCountDesc">Envoie un nombre aléatoire, différent à chaque lancement, pour que l’app puisse indiquer combien d’exemplaires tournent. Il n’est envoyé que lorsque la protection est active, et emprunte donc le même chemin protégé que le reste de votre trafic. Désactivez-le si vous préférez que votre réseau ne voie rien de Shroudly.</string>
     <string name="start">Activer la protection</string>
     <string name="startFailed">Impossible d’activer la protection</string>
     <string name="starting">Activation…</string>

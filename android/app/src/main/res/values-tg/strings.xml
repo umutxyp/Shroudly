@@ -27,6 +27,8 @@
     <string name="openSourceTitle">Коди кушода</string>
     <string name="protected_">Ҳимоя шудааст</string>
     <string name="protectionStopped">Ҳимоя қатъ шуд</string>
+    <string name="shareOnlineCount">Маро ба шумораи умумии зинда дохил кунед</string>
+    <string name="shareOnlineCountDesc">Рақами тасодуфӣ мефиристад, ки бо ҳар оғоз иваз мешавад, то барнома нишон диҳад, ки чанд нусхаи он кор мекунад. Он танҳо ҳангоми фаъол будани ҳимоя фиристода мешавад, бинобар ин аз ҳамон роҳи ҳимояшуда мегузарад, ки боқимондаи трафики Шумо. Агар хоҳед, ки шабакаи Шумо аз Shroudly умуман ҳеҷ чиз набинад, онро хомӯш кунед.</string>
     <string name="start">Оғози ҳимоя</string>
     <string name="startFailed">Оғоз кардани ҳимоя муяссар нашуд</string>
     <string name="starting">Оғоз мешавад…</string>

@@ -295,6 +295,9 @@ class ShroudlyVpnService : VpnService() {
         if (Protection.state == Protection.State.OFF || Protection.state == Protection.State.STOPPING) return
         Protection.set(Protection.State.STOPPING)
         later {
+            // Out of the live count first, through the engine while it still
+            // runs; at the user's stop only (OnlineCount.stop).
+            OnlineCount.stop(leave = errorRes == 0, port = port, auth = auth)
             teardown()
             Protection.set(Protection.State.OFF)
             if (errorRes != 0) {
@@ -373,6 +376,8 @@ class ShroudlyVpnService : VpnService() {
             Protection.set(Protection.State.ON)
             Protection.socksPort = port
             Protection.socksAuth = auth
+            // The live count, as the desktop's: while protection is on (OnlineCount).
+            OnlineCount.sync(this)
             clearAlert(this)
             goForeground(starting = false)
             refreshTile()
@@ -971,6 +976,7 @@ class ShroudlyVpnService : VpnService() {
     private fun teardown() {
         val wasActive = active
         active = false
+        OnlineCount.stop(leave = false)
         healthEpoch++
         poll?.cancel(false); poll = null
         restartCredit?.cancel(false); restartCredit = null

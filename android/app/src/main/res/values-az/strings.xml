@@ -27,6 +27,8 @@
     <string name="openSourceTitle">Açıq mənbə</string>
     <string name="protected_">Qorunur</string>
     <string name="protectionStopped">Qoruma dayandırıldı</string>
+    <string name="shareOnlineCount">Məni də canlı saya əlavə et</string>
+    <string name="shareOnlineCountDesc">Hər açılışda dəyişən təsadüfi bir nömrə göndərir ki, tətbiq neçə nüsxənin işlədiyini göstərə bilsin. O, yalnız qoruma aktiv olanda göndərilir, yəni trafikinin qalan hissəsi ilə eyni qorunan yolla gedir. Şəbəkənin Shroudly-dən ümumiyyətlə heç nə görməməsini istəyirsənsə, bunu söndür.</string>
     <string name="start">Qorumanı başlat</string>
     <string name="startFailed">Qorumanı başlatmaq mümkün olmadı</string>
     <string name="starting">Başladılır…</string>

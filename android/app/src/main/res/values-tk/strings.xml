@@ -27,6 +27,8 @@
     <string name="openSourceTitle">Açyk çeşme</string>
     <string name="protected_">Goragly</string>
     <string name="protectionStopped">Gorag togtadyldy</string>
+    <string name="shareOnlineCount">Meni onlaýn sana goşmak</string>
+    <string name="shareOnlineCountDesc">Her işledilende üýtgeýän tötänleýin san iberilýär, şonuň üçin programma özüniň näçe nusgasynyň işleýändigini görkezip bilýär. Ol diňe gorag açyk wagty iberilýär, şonuň üçin beýleki trafigiňiz ýaly şol goralýan ýol bilen geçýär. Toruňyzyň Shroudly-den asla hiç zat görmezligini isleseňiz, muny öçüriň.</string>
     <string name="start">Goragy işlediň</string>
     <string name="startFailed">Goragy işledip bolmady</string>
     <string name="starting">Işledilýär…</string>

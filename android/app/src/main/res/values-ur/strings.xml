@@ -27,6 +27,8 @@
     <string name="openSourceTitle">اوپن سورس</string>
     <string name="protected_">محفوظ</string>
     <string name="protectionStopped">تحفظ بند ہو گیا</string>
+    <string name="shareOnlineCount">مجھے لائیو شمار میں شامل کریں</string>
+    <string name="shareOnlineCountDesc">ہر بار کھلنے پر بدلنے والا ایک بے ترتیب نمبر بھیجتا ہے تاکہ ایپ دکھا سکے کہ کتنی کاپیاں چل رہی ہیں۔ یہ صرف تحفظ آن ہونے پر بھیجا جاتا ہے، چنانچہ یہ آپ کے باقی ٹریفک والے محفوظ راستے سے ہی جاتا ہے۔ اگر آپ چاہتے ہیں کہ آپ کا نیٹ ورک Shroudly سے کچھ بھی نہ دیکھے تو اسے بند کر دیں۔</string>
     <string name="start">تحفظ شروع کریں</string>
     <string name="startFailed">تحفظ شروع نہیں ہو سکا</string>
     <string name="starting">شروع ہو رہا ہے…</string>

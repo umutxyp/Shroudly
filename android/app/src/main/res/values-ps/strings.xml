@@ -27,6 +27,8 @@
     <string name="openSourceTitle">پرانیستې سرچینه</string>
     <string name="protected_">خوندي</string>
     <string name="protectionStopped">ساتنه ودرول شوه</string>
+    <string name="shareOnlineCount">ما په ژوندي شمېر کې وشمېرئ</string>
+    <string name="shareOnlineCountDesc">یوه تصادفي شمېره لېږي چې په هر ځل پیلولو بدلېږي، ترڅو اپ وښيي چې څو نسخې چلېږي. دا یوازې هغه وخت لېږل کېږي چې ساتنه فعاله وي، نو ستاسو د نور ټرافیک په څېر له همغې خوندي لارې تېرېږي. که غواړئ چې ستاسو شبکه له Shroudly څخه هېڅ شی ونه ویني، دا بند کړئ.</string>
     <string name="start">ساتنه پیل کړئ</string>
     <string name="startFailed">ساتنه پیل نه شوه</string>
     <string name="starting">پیلېږي…</string>

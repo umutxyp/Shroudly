@@ -474,6 +474,29 @@
 
             <View style="@style/Divider" />
 
+            <!-- The live count (OnlineCount), as the desktop's setting: its
+                 label, and under it the description (MainActivity), are the
+                 switch's own text, so TalkBack reads them as one control. -->
+            <Switch
+                android:id="@+id/shareOnlineCount"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="52dp"
+                android:drawableStart="@drawable/row_users"
+                android:drawablePadding="14dp"
+                android:lineSpacingMultiplier="1.1"
+                android:paddingStart="14dp"
+                android:paddingTop="10dp"
+                android:paddingEnd="12dp"
+                android:paddingBottom="10dp"
+                android:switchPadding="12dp"
+                android:text="@string/shareOnlineCount"
+                android:textAlignment="viewStart"
+                android:textColor="@color/text"
+                android:textSize="15sp" />
+
+            <View style="@style/Divider" />
+
             <!-- The recent log and the phone's details, to send to us. -->
             <LinearLayout
                 android:id="@+id/shareLogs"

@@ -27,6 +27,8 @@
     <string name="openSourceTitle">Sumber terbuka</string>
     <string name="protected_">Dilindungi</string>
     <string name="protectionStopped">Perlindungan dihentikan</string>
+    <string name="shareOnlineCount">Kira saya dalam jumlah pengguna dalam talian</string>
+    <string name="shareOnlineCountDesc">Menghantar nombor rawak yang berubah setiap kali aplikasi dilancarkan, supaya aplikasi dapat menunjukkan berapa banyak salinan yang sedang berjalan. Nombor ini hanya dihantar semasa perlindungan dihidupkan, jadi ia melalui laluan dilindungi yang sama seperti trafik anda yang lain. Matikan pilihan ini jika anda lebih suka rangkaian anda tidak melihat apa-apa langsung daripada Shroudly.</string>
     <string name="start">Mulakan perlindungan</string>
     <string name="startFailed">Tidak dapat memulakan perlindungan</string>
     <string name="starting">Memulakan…</string>

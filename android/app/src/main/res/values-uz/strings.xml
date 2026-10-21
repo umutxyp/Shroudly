@@ -27,6 +27,8 @@
     <string name="openSourceTitle">Ochiq manba</string>
     <string name="protected_">Himoyalangan</string>
     <string name="protectionStopped">Himoya oʻchirildi</string>
+    <string name="shareOnlineCount">Meni jonli hisobga qoʻshish</string>
+    <string name="shareOnlineCountDesc">Har safar ishga tushganda oʻzgaradigan tasodifiy raqam yuboriladi, shunda ilova nechta nusxa ishlayotganini koʻrsata oladi. U faqat himoya yoqilganida yuboriladi, shuning uchun trafikingizning qolgan qismi bilan bir xil himoyalangan yoʻldan oʻtadi. Agar tarmogʻingiz Shroudlydan umuman hech narsa koʻrmasligini istasangiz, buni oʻchiring.</string>
     <string name="start">Himoyani yoqish</string>
     <string name="startFailed">Himoyani yoqib boʻlmadi</string>
     <string name="starting">Yoqilmoqda…</string>

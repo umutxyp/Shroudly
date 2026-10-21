@@ -161,6 +161,9 @@ phone's own connections.
 - Advanced mode is not available (Android would need root for it).
 - Android allows one VPN at a time, so another VPN app and Shroudly cannot be
   on together.
+- It is counted in the live user count exactly like the desktop app: the same
+  request, only while protection is on, through the engine, and it can be
+  switched off under About ([Privacy](#privacy)).
 
 Building and testing it: [android/README.md](android/README.md).
 
@@ -784,7 +787,8 @@ certificate by [SignPath Foundation](https://signpath.org/).
 - **Privacy:** see [Privacy](#privacy), which also links the privacy policies
   of the services Shroudly talks to. Shroudly sends nothing about you to any
   server; the only things it contacts are listed there, and the one optional
-  report, the anonymous live count, can be turned off in Settings.
+  report, the anonymous live count, can be turned off in Settings (on Android,
+  under About).
 
 The Android app (`Shroudly-<version>-Android.apk`) is signed with the project's
 own key, the same for every version, so an update installs over the previous
@@ -806,13 +810,20 @@ Technology Ltd; questions about privacy go to
 Shroudly does not collect personal data. These are the only things that contact servers:
 
 - **Live user count** (`shroudly.codeshare.me`): only while protection is on,
-  and only if *Share online count* is left on in Settings, it sends a random
-  id that is created fresh at every launch and never stored. It travels through
-  the protected connection like everything else. The
+  and only if *Count me in the live total* is left on (in Settings on the
+  desktop, under About on Android), it sends a random id that is created fresh
+  each time protection starts and never stored on the device: the request's
+  body is `{"id":"<random id>"}` and nothing else. It travels through the
+  protected connection like everything else. The Android app sends the same
+  request, headers included, as Shroudly on a Windows computer, so the server
+  cannot tell a phone from a computer: both are counted in one total, the same
+  way. The
   server only keeps those ids and when each was last seen, to count how many
-  apps are online. An id disappears when the app quits or stops pinging. No IP
-  addresses or other details are logged: the server keeps no access log, and it
-  is reached through a Cloudflare tunnel, so it never sees your address anyway.
+  apps are online. An id disappears when protection is stopped, when the app
+  quits, or a few minutes after it stops pinging (a computer or phone that
+  sleeps, too). No IP addresses or other details are logged: the server keeps
+  no access log, and it is reached through a Cloudflare tunnel, so it never
+  sees your address anyway.
   The server code, with its service and web-server settings, is in
   [`server/stats`](server/stats/server.js).
 - **Update checks** (GitHub): the app downloads the release feed from
@@ -854,14 +865,17 @@ does not have to search again. Nothing of it is sent anywhere.
 in the app's own engine on the phone, and no traffic goes through a server of
 ours; apps' connections leave the phone as they would without Shroudly, only
 reshaped (their contents are not read or changed), and stay encrypted by the
-apps themselves. The Android app has no live count and downloads no site
-list. It contacts only: the encrypted DNS resolvers above, while protection
+apps themselves. The Android app downloads no site list. It contacts only:
+the live user count above, exactly as the desktop does (only while protection
+is on, through the engine, and not at all with *Count me in the live total*
+switched off under About); the encrypted DNS resolvers above, while protection
 is on; GitHub for update checks, only in the APK from GitHub (not when Google
 Play installed or updates it); and, to find what opens a blocked site, that
 same site (a few TLS handshakes, nothing about you). What worked for which
 site is kept in the app's private storage on the phone for 30 days at most,
 is never backed up or copied to another device, and is deleted with the app.
-There are no accounts, no analytics, no ads and no crash reports.
+There are no accounts, no analytics beyond the anonymous live count, no ads
+and no crash reports.
 
 The privacy policies of the services involved:
 [GitHub](https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement)

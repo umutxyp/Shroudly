@@ -27,6 +27,8 @@
     <string name="openSourceTitle">متن‌باز</string>
     <string name="protected_">محافظت‌شده</string>
     <string name="protectionStopped">محافظت متوقف شد</string>
+    <string name="shareOnlineCount">من را در شمار زندهٔ کاربران حساب کن</string>
+    <string name="shareOnlineCountDesc">شماره‌ای تصادفی می‌فرستد که در هر اجرا عوض می‌شود تا برنامه بتواند نشان دهد چند نسخه در حال کار است. فقط وقتی محافظت روشن است فرستاده می‌شود، پس از همان مسیر محافظت‌شدهٔ بقیهٔ ترافیک شما می‌رود. اگر ترجیح می‌دهید شبکه‌تان هیچ چیزی از Shroudly نبیند، خاموشش کنید.</string>
     <string name="start">شروع محافظت</string>
     <string name="startFailed">شروع محافظت ممکن نشد</string>
     <string name="starting">در حال شروع…</string>

@@ -27,6 +27,8 @@
     <string name="openSourceTitle">Çavkaniya vekirî</string>
     <string name="protected_">Parastî</string>
     <string name="protectionStopped">Parastin rawestiya</string>
+    <string name="shareOnlineCount">Min jî têxe hejmara zindî</string>
+    <string name="shareOnlineCountDesc">Hejmareke rasthatî ya ku her carê sepan vedibe diguhere dişîne, da ku sepan nîşan bide çend kopî dixebitin. Ew tenê dema parastin çalak e tê şandin, ji ber vê yekê ew jî wekî trafîka te ya din di heman rêya parastî de diçe. Heke tu dixwazî tora te qet tiştekî ji Shroudly nebîne, vê neçalak bike.</string>
     <string name="start">Parastinê dest pê bike</string>
     <string name="startFailed">Parastin nehat destpêkirin</string>
     <string name="starting">Dest pê dike…</string>

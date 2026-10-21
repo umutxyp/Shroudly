@@ -11,7 +11,8 @@ engine the desktop runs (`core/`).
   `Engine` (one run of the engine), `Health` (the checks), `DohForwarder`
   (encrypted DNS for the engine), `MainActivity` (the window),
   `ShroudlyTileService` (the Quick Settings tile), `AppLog` and `Diagnostics`
-  ("Share logs").
+  ("Share logs"), and `OnlineCount` (the live user count: the desktop's
+  request, byte for byte, through the engine while protection is on).
 - The engine is built from `core/` by the Gradle build (ndk-build,
   `app/src/main/cpp/Android.mk`) into `libshroudlycore_jni.so`, and runs
   inside the app's process on threads of its own: `engine_main` in

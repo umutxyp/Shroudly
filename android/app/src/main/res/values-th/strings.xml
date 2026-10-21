@@ -27,6 +27,8 @@
     <string name="openSourceTitle">โอเพนซอร์ส</string>
     <string name="protected_">ได้รับการป้องกัน</string>
     <string name="protectionStopped">หยุดการป้องกันแล้ว</string>
+    <string name="shareOnlineCount">นับรวมฉันในยอดผู้ใช้ขณะนี้</string>
+    <string name="shareOnlineCountDesc">ส่งตัวเลขสุ่มที่เปลี่ยนใหม่ทุกครั้งที่เปิดแอป เพื่อให้แอปแสดงได้ว่ามี Shroudly ทำงานอยู่กี่ชุด ตัวเลขนี้จะถูกส่งเฉพาะตอนที่เปิดการป้องกันอยู่ จึงผ่านเส้นทางที่ได้รับการป้องกันเดียวกับการรับส่งข้อมูลอื่น ๆ ของคุณ ปิดตัวเลือกนี้หากคุณไม่ต้องการให้เครือข่ายเห็นข้อมูลใด ๆ จาก Shroudly เลย</string>
     <string name="start">เริ่มการป้องกัน</string>
     <string name="startFailed">ไม่สามารถเริ่มการป้องกันได้</string>
     <string name="starting">กำลังเริ่ม…</string>

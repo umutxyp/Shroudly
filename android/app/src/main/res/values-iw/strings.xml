@@ -27,6 +27,8 @@
     <string name="openSourceTitle">קוד פתוח</string>
     <string name="protected_">מוגן</string>
     <string name="protectionStopped">ההגנה הופסקה</string>
+    <string name="shareOnlineCount">לכלול אותי בספירה החיה</string>
+    <string name="shareOnlineCountDesc">נשלח מספר אקראי שמשתנה בכל הפעלה, כדי שהאפליקציה תוכל להציג כמה עותקים פועלים. הוא נשלח רק כשההגנה פועלת, ולכן עובר באותו נתיב מוגן כמו שאר התעבורה שלך. אפשר לכבות את האפשרות אם עדיף שהרשת לא תראה שום דבר מ-Shroudly.</string>
     <string name="start">להפעיל הגנה</string>
     <string name="startFailed">לא ניתן היה להפעיל את ההגנה</string>
     <string name="starting">מפעיל…</string>

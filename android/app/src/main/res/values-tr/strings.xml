@@ -27,6 +27,8 @@
     <string name="openSourceTitle">Açık kaynak</string>
     <string name="protected_">Korunuyor</string>
     <string name="protectionStopped">Koruma durduruldu</string>
+    <string name="shareOnlineCount">Canlı sayıma beni de kat</string>
+    <string name="shareOnlineCountDesc">Her açılışta değişen rastgele bir numara gönderir; uygulama böylece kaç kopyanın çalıştığını gösterebilir. Yalnızca koruma açıkken gönderilir, yani diğer trafiğinle aynı korumalı yoldan gider. Ağının Shroudly’den hiçbir şey görmesini istemiyorsan kapat.</string>
     <string name="start">Korumayı başlat</string>
     <string name="startFailed">Koruma başlatılamadı</string>
     <string name="starting">Başlatılıyor…</string>

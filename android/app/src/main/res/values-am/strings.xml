@@ -27,6 +27,8 @@
     <string name="openSourceTitle">ክፍት ምንጭ</string>
     <string name="protected_">ተጠብቋል</string>
     <string name="protectionStopped">ጥበቃ ቆሟል</string>
+    <string name="shareOnlineCount">እኔንም በቀጥታ ድምሩ ውስጥ መቁጠር</string>
+    <string name="shareOnlineCountDesc">መተግበሪያው ምን ያህል ቅጂዎች እየሰሩ እንደሆነ ማሳየት እንዲችል በእያንዳንዱ ጅምር የሚቀየር የዘፈቀደ ቁጥር ይልካል። የሚላከው ጥበቃ በርቶ እያለ ብቻ ነው፤ ስለዚህ እንደ ሌላው ትራፊክዎ በዚያው በተጠበቀ መንገድ ይጓዛል። አውታረ መረብዎ ከShroudly ምንም ነገር እንዳያይ ከመረጡ ይህን ያጥፉት።</string>
     <string name="start">ጥበቃ ይጀምሩ</string>
     <string name="startFailed">ጥበቃን መጀመር አልተቻለም</string>
     <string name="starting">በመጀመር ላይ…</string>

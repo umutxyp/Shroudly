@@ -27,6 +27,8 @@
     <string name="openSourceTitle">Ашық бастапқы код</string>
     <string name="protected_">Қорғалған</string>
     <string name="protectionStopped">Қорғаныс тоқтатылды</string>
+    <string name="shareOnlineCount">Мені нақты уақыттағы жалпы санға қосу</string>
+    <string name="shareOnlineCountDesc">Әр іске қосылған сайын өзгеретін кездейсоқ сан жіберіледі, сол арқылы қолданба қанша көшірмесі жұмыс істеп тұрғанын көрсете алады. Ол тек қорғаныс қосулы кезде жіберіледі, сондықтан қалған трафигіңізбен бірдей қорғалған жолмен өтеді. Желіңіз Shroudly тарапынан мүлде ештеңе көрмегенін қаласаңыз, мұны өшіріңіз.</string>
     <string name="start">Қорғанысты қосу</string>
     <string name="startFailed">Қорғанысты қосу мүмкін болмады</string>
     <string name="starting">Іске қосылуда…</string>

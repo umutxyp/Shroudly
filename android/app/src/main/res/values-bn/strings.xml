@@ -27,6 +27,8 @@
     <string name="openSourceTitle">ওপেন সোর্স</string>
     <string name="protected_">সুরক্ষিত</string>
     <string name="protectionStopped">সুরক্ষা বন্ধ হয়েছে</string>
+    <string name="shareOnlineCount">লাইভ গণনায় আমাকে ধরুন</string>
+    <string name="shareOnlineCountDesc">প্রতিবার চালু হলে বদলে যাওয়া একটি এলোমেলো সংখ্যা পাঠায়, যাতে অ্যাপ দেখাতে পারে কতগুলো কপি চলছে। কেবল সুরক্ষা চালু থাকলেই পাঠানো হয়, তাই এটি আপনার বাকি ট্রাফিকের মতো একই সুরক্ষিত পথে যায়। আপনার নেটওয়ার্ক Shroudly থেকে কিছুই না দেখুক চাইলে বন্ধ করুন।</string>
     <string name="start">সুরক্ষা চালু করুন</string>
     <string name="startFailed">সুরক্ষা চালু করা যায়নি</string>
     <string name="starting">চালু হচ্ছে…</string>

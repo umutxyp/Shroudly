@@ -27,6 +27,8 @@
     <string name="openSourceTitle">ပွင့်လင်းရင်းမြစ်</string>
     <string name="protected_">ကာကွယ်ထားသည်</string>
     <string name="protectionStopped">ကာကွယ်မှု ရပ်ပြီးပါပြီ</string>
+    <string name="shareOnlineCount">တိုက်ရိုက်စုစုပေါင်းတွင် ကျွန်ုပ်ကို ထည့်ရေတွက်ရန်</string>
+    <string name="shareOnlineCountDesc">အက်ပ် မည်မျှ လုပ်ဆောင်နေသည်ကို ပြနိုင်ရန် ဖွင့်တိုင်း ပြောင်းလဲသော ကျပန်းနံပါတ်တစ်ခုကို ပို့သည်။ ကာကွယ်မှု ဖွင့်ထားစဉ်သာ ပို့သဖြင့် သင့်အခြား ဒေတာအသွားအလာနှင့် အတူတူ ကာကွယ်ထားသော လမ်းကြောင်းဖြင့် သွားသည်။ Shroudly ထံမှ မည်သည့်အရာကိုမျှ သင့်ကွန်ရက်က မမြင်စေလိုပါက ပိတ်ထားပါ။</string>
     <string name="start">ကာကွယ်မှု စတင်ရန်</string>
     <string name="startFailed">ကာကွယ်မှု စတင်၍ မရပါ</string>
     <string name="starting">စတင်နေသည်…</string>

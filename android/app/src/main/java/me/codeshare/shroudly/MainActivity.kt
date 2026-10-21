@@ -15,10 +15,15 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.provider.Settings
+import android.text.SpannableStringBuilder
+import android.text.Spanned
+import android.text.style.ForegroundColorSpan
+import android.text.style.RelativeSizeSpan
 import android.view.View
 import android.view.WindowInsets
 import android.widget.ImageView
 import android.widget.ScrollView
+import android.widget.Switch
 import android.widget.TextView
 import java.text.NumberFormat
 
@@ -96,6 +101,18 @@ class MainActivity : Activity() {
         findViewById<View>(R.id.notices).setOnClickListener { showNotices() }
         findViewById<View>(R.id.privacy).setOnClickListener { open(UpdateCheck.PRIVACY_URL) }
         findViewById<View>(R.id.shareLogs).setOnClickListener { shareLogs() }
+        findViewById<Switch>(R.id.shareOnlineCount).apply {
+            // The label, and the description under it, smaller and dimmer.
+            val desc = getString(R.string.shareOnlineCountDesc)
+            text = SpannableStringBuilder(getString(R.string.shareOnlineCount)).append('\n').apply {
+                val from = length
+                append(desc)
+                setSpan(ForegroundColorSpan(getColor(R.color.text_dim)), from, length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                setSpan(RelativeSizeSpan(12.5f / 15f), from, length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            }
+            isChecked = OnlineCount.enabled(this@MainActivity)
+            setOnCheckedChangeListener { _, on -> OnlineCount.setEnabled(this@MainActivity, on) }
+        }
         findViewById<View>(R.id.batteryOpen).setOnClickListener { openBatterySettings() }
         findViewById<View>(R.id.updateOpen).setOnClickListener { updateUrl?.let { open(it) } }
         detailMore.setOnClickListener { showDetail() }

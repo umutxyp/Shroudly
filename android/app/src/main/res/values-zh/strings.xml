@@ -27,6 +27,8 @@
     <string name="openSourceTitle">开源</string>
     <string name="protected_">已受保护</string>
     <string name="protectionStopped">保护已停止</string>
+    <string name="shareOnlineCount">将我计入在线人数</string>
+    <string name="shareOnlineCountDesc">发送一个每次启动都会变化的随机编号，以便应用显示有多少副本正在运行。它只在保护开启时发送，因此与你的其他流量走同一条受保护的路径。如果你不希望网络看到来自 Shroudly 的任何内容，请关闭。</string>
     <string name="start">启动保护</string>
     <string name="startFailed">无法启动保护</string>
     <string name="starting">正在启动…</string>

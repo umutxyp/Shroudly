@@ -27,6 +27,8 @@
     <string name="openSourceTitle">Ачык булак</string>
     <string name="protected_">Корголгон</string>
     <string name="protectionStopped">Коргоо токтотулду</string>
+    <string name="shareOnlineCount">Мени учурдагы жалпы санга кошуу</string>
+    <string name="shareOnlineCountDesc">Колдонмо канча нуска иштеп жатканын көрсөтө алышы үчүн ар бир ишке киргизүүдө өзгөрүп туруучу кокус санды жөнөтөт. Ал коргоо күйүк турганда гана жөнөтүлөт, ошондуктан трафигиңиздин калган бөлүгү сыяктуу эле корголгон жол менен өтөт. Тармагыңыз Shroudly чыгарган эч кандай трафикти көрбөшүн кааласаңыз, муну өчүрүңүз.</string>
     <string name="start">Коргоону баштоо</string>
     <string name="startFailed">Коргоону баштоо мүмкүн болгон жок</string>
     <string name="starting">Башталууда…</string>
