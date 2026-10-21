@@ -75,6 +75,23 @@ public static class WH {
     { windowsHide: true, timeout: 30000, env: powershellEnv() }, (err, out, errOut) => resolve(String(out || errOut || err || '').trim())));
 }
 
+/* macOS: what CFNetwork makes of the PAC for a URL (Qt on macOS asks it,
+ * and reads kCFProxyTypeSOCKS as SOCKS5: qnetworkproxy_darwin.cpp). */
+function cfnetworkProxyFor(pacText, url) {
+  const fs = require('fs');
+  const os = require('os');
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'shroudly-cf-'));
+  fs.writeFileSync(path.join(dir, 'pac.js'), pacText);
+  fs.writeFileSync(path.join(dir, 'pac.swift'), `import Foundation
+let script = try! String(contentsOfFile: CommandLine.arguments[1], encoding: .utf8)
+var err: Unmanaged<CFError>?
+let arr = CFNetworkCopyProxiesForAutoConfigurationScript(script as CFString, URL(string: CommandLine.arguments[2])! as CFURL, &err)?.takeRetainedValue() as? [[String: Any]] ?? []
+print(arr.map { "\\($0[kCFProxyTypeKey as String] ?? "") \\($0[kCFProxyHostNameKey as String] ?? ""):\\($0[kCFProxyPortNumberKey as String] ?? "")" }.joined(separator: "; "))
+`);
+  return new Promise((resolve) => execFile('swift', [path.join(dir, 'pac.swift'), path.join(dir, 'pac.js'), url], { timeout: 180000 },
+    (err, out, errOut) => { fs.rmSync(dir, { recursive: true, force: true }); resolve(err ? `error: ${String(errOut || err).slice(0, 200)}` : String(out).trim()); }));
+}
+
 function direct(host, port, ms = 8000) {
   return new Promise((resolve) => {
     const s = net.connect({ host, port, timeout: ms });
@@ -151,6 +168,14 @@ function socksAny(P, host, port) {
   t.ok(/^SOCKS5/.test(pacFor('all', 10808)(DC_V6)), 'PAC (all): a Telegram IPv6 address goes through the engine');
   t.ok(pacFor('listed', 10808)('8.8.8.8') === 'DIRECT', 'PAC (listed): an address of no listed service stays direct');
 
+  if (process.platform === 'darwin') {
+    const sp = new SystemProxy(() => {}, { platform: 'darwin' });
+    sp.mode = 'all';
+    const got = await cfnetworkProxyFor(sp.pacBody(10808), `https://${DC}:443`);
+    console.log(`  --  CFNetwork for a Telegram data centre: ${got}`);
+    if (/^error/.test(got)) console.log('  --  (no Swift here: CFNetwork not checked)');
+    else t.ok(/kCFProxyTypeSOCKS 127\.0\.0\.1:10808/.test(got), 'CFNetwork hands Telegram Desktop (Qt) the engine as a SOCKS proxy');
+  }
   if (process.platform === 'win32') {
     const sp = new SystemProxy(() => {});
     sp.mode = 'all';
