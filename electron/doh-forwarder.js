@@ -89,6 +89,9 @@ const WARM_INTERVAL_MS = 120000;
 // block with few lookups still adds up.
 const STREAK_GAP_MS    = WARM_INTERVAL_MS + 30000;
 const SESSION_IDLE_MS  = 300000;
+// Just after the computer wakes up its network is still coming back: lookups
+// failing then are no sign that encrypted DNS is blocked (see resumed()).
+const WAKE_QUIET_MS    = 30000;
 const CACHE_MAX        = 1500;
 const TTL_MIN_S        = 20;
 const TTL_MAX_S        = 3600;
@@ -233,6 +236,7 @@ class DohForwarder {
    * count as average), resting routes last. */
   ordered() {
     const now = Date.now();
+    this._clockBack(now);
     const score = (r) => (r.restUntil > now ? 1e9 + r.restUntil - now : (r.ewma || 400));
     return this.routes.filter((r) => this.usable(r)).sort((a, b) => {
       if (a.id === this.preferredId && a.restUntil <= now) return -1;
@@ -335,6 +339,9 @@ class DohForwarder {
    * two blips with an answer between them, or with the computer asleep or
    * nothing looked up between (STREAK_GAP_MS): either starts a new streak. */
   lookupFailed(now = Date.now()) {
+    this._clockBack(now);
+    // Just woken up: the network is not back yet; a streak starts after.
+    if (now < (this.quietUntil || 0)) { this.failures = 0; this.failingSince = 0; this.lastFailAt = 0; return; }
     if (!this.failures || now - this.lastFailAt > STREAK_GAP_MS) { this.failures = 0; this.failingSince = now; }
     this.failures++;
     this.lastFailAt = now;
@@ -367,6 +374,7 @@ class DohForwarder {
   failed(r, since = Date.now(), sess = null) {
     if (sess && r.session === sess) this.dropSession(r);
     const now = Date.now();
+    this._clockBack(now);
     if (r.failAt && r.failAt >= since) return;
     r.failAt = now;
     r.fails++;
@@ -550,6 +558,26 @@ class DohForwarder {
   networkChanged() {
     for (const r of this.routes) this.dropSession(r);
     this.clearRests();
+  }
+
+  /* The computer woke up: the same network back after a gap, its
+   * connections dead (networkChanged), and a moment before failed lookups
+   * mean anything. */
+  resumed(now = Date.now()) {
+    this.networkChanged();
+    this.quietUntil = now + WAKE_QUIET_MS;
+  }
+
+  /* The clock was set back: times recorded "in the future" would rest a
+   * route, or hold a streak, until it caught up. They count as now. */
+  _clockBack(now) {
+    for (const r of this.routes) {
+      if (r.restUntil > now + REST_MAX_MS) r.restUntil = now + REST_MAX_MS;
+      if (r.failAt > now) r.failAt = now;
+      if (r.okAt > now) r.okAt = now;
+    }
+    if (this.lastFailAt > now) this.lastFailAt = now;
+    if (this.failingSince > now) this.failingSince = now;
   }
 
   stop() {

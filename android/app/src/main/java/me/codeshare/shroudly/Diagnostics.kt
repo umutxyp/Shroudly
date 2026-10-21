@@ -15,6 +15,22 @@ import java.util.Locale
  * they tap it; nothing is sent anywhere by the app.
  */
 object Diagnostics {
+    /* The protection line of the report: its state, for how long, how
+     * Android runs the VPN, whether IPv6 goes through it, and whether it is
+     * holding on offline (lockdown). onForMs < 0: not on. */
+    fun protectionLine(state: String, error: String?, onForMs: Long, alwaysOn: Boolean, lockdown: Boolean, ipv6: Boolean, offline: Boolean): String {
+        val sb = StringBuilder("Protection: ").append(state)
+        if (onForMs >= 0) sb.append(" for ").append(onForMs / 60000).append(" min")
+        if (onForMs >= 0) {
+            sb.append("; always-on VPN ").append(if (alwaysOn) "yes" else "no")
+                .append(", lockdown ").append(if (lockdown) "yes" else "no")
+                .append("; IPv6 ").append(if (ipv6) "routed" else "off")
+            if (offline) sb.append("; holding on offline")
+        }
+        error?.let { sb.append("; last error: ").append(it) }
+        return sb.toString()
+    }
+
     /* The battery state as Android and the phone's maker see it. */
     data class Battery(
         /* The user let the app run without battery optimization. */
@@ -71,9 +87,10 @@ object Diagnostics {
         val cm = ctx.getSystemService(ConnectivityManager::class.java)
         sb.append("Network: ").append(if (cm != null) Net.describe(cm) else "unknown").append('\n')
         sb.append("Battery: ").append(battery(ctx)).append('\n')
-        sb.append("Protection: ").append(Protection.state.name.lowercase(Locale.ROOT))
-        Protection.errorDetail?.let { sb.append("; last error: ").append(it) }
-        sb.append('\n')
+        val on = Protection.state == Protection.State.ON && Protection.startedAt > 0
+        sb.append(protectionLine(Protection.state.name.lowercase(Locale.ROOT), Protection.errorDetail,
+            if (on) android.os.SystemClock.elapsedRealtime() - Protection.startedAt else -1L,
+            Protection.alwaysOn, Protection.lockdown, Protection.ipv6, Protection.troubleRes != 0)).append('\n')
         sb.append("Now: ").append(SimpleDateFormat("yyyy-MM-dd HH:mm:ss Z", Locale.ROOT).format(Date())).append('\n')
         val lines = AppLog.snapshot()
         sb.append('\n').append("Log, last ").append(lines.size).append(" lines (with the names of sites Shroudly handled):\n")

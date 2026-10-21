@@ -422,5 +422,22 @@
   "androidNoInternet": "Shroudly በዚህ አውታረ መረብ ላይ ኢንተርኔት ማግኘት ስላልቻለ ጥበቃው ቆሟል፤ ስለዚህ መተግበሪያዎችዎ አሁን በቀጥታ ይገናኛሉ። እንደገና ለመሞከር Shroudlyን ይክፈቱ።",
   "androidBatteryHint": "የባትሪ ቅንብሮች Shroudlyን ከበስተጀርባ ሊያቆሙት እና ግንኙነትዎን ሊያቋርጡ ይችላሉ። ያለ ባትሪ ገደቦች እንዲሠራ ይፍቀዱለት።",
   "androidBatterySettings": "የባትሪ ቅንብሮች",
-  "androidLockdownOffline": "ኢንተርኔት የለም፦ Shroudly አሁን በዚህ አውታረ መረብ ላይ መገናኘት አልቻለም፣ እና Android ያለ VPN ግንኙነቶችን እንዲያግድ ተቀናብሯል። Shroudly መሞከሩን ቀጥሏል።"
+  "androidLockdownOffline": "ኢንተርኔት የለም፦ Shroudly አሁን በዚህ አውታረ መረብ ላይ መገናኘት አልቻለም፣ እና Android ያለ VPN ግንኙነቶችን እንዲያግድ ተቀናብሯል። Shroudly መሞከሩን ቀጥሏል።",
+  "copyLogs": "መዝገቡን ይቅዱ",
+  "logsCopied": "ተቀድቷል",
+  "trayCopyLogs": "መዝገቡን ይቅዱ",
+  "notifyLogsCopied": "መዝገቡ ወደ ቅንጥብ ሰሌዳ ተቀድቷል። በመልዕክትዎ ወይም በሪፖርትዎ ውስጥ ይለጥፉት።",
+  "autoAdvancedOffBefore": "{host} በዚህ አውታረ መረብ ላይ የላቀ ሁነታ ያስፈልገዋል። ሁነታው በ{date} ስለጠፋ Shroudly በራሱ አያበራውም፤ በቅንብሮች ውስጥ ያብሩት።",
+  "autoAdvancedDeclinedBefore": "{host} በዚህ አውታረ መረብ ላይ የላቀ ሁነታ ያስፈልገዋል። በ{date} ስላልተፈቀደ Shroudly በራሱ አይጠይቅም፤ በቅንብሮች ውስጥ ያብሩት።",
+  "autoAdvancedFailedBefore": "{host} በዚህ አውታረ መረብ ላይ የላቀ ሁነታ ያስፈልገዋል፣ ግን ቀደም ብሎ ሊበራ አልቻለም። በቅንብሮች ውስጥ ለማብራት ይሞክሩ።",
+  "autoAdvancedAntiCheat": "{host} በዚህ አውታረ መረብ ላይ የላቀ ሁነታ ያስፈልገዋል፣ ግን የአንድ ጨዋታ ፀረ-ማጭበርበሪያ ({program}) እየሠራ ስለሆነ Shroudly በራሱ አያስጀምረውም። ሲፈልጉ በቅንብሮች ውስጥ ያብሩት።",
+  "autoDiscordOffByHand": "Discord በዚህ አውታረ መረብ ላይ ታግዷል፣ ግን የDiscord መተግበሪያ ሁነታ በ{date} ጠፍቷል። የDiscord መተግበሪያውን ለመጠቀም በቅንብሮች ውስጥ ያብሩት።",
+  "autoRobloxOffByHand": "Roblox በዚህ አውታረ መረብ ላይ ታግዷል፣ ግን የጨዋታዎችና የመተግበሪያዎች ሁነታ በ{date} ጠፍቷል። Robloxን ለመጠቀም በቅንብሮች ውስጥ ያብሩት።",
+  "autoStoreAppsOffBefore": "{apps} ከShroudly ጋር መገናኘት አይችሉም፤ የMicrosoft Store መተግበሪያዎች ማብሪያ በ{date} ጠፍቷል። እንዲያልፉ ለመፍቀድ በቅንብሮች ውስጥ ያብሩት።",
+  "autoStoreAppsDeclinedBefore": "{apps} ከShroudly ጋር መገናኘት አይችሉም፤ በ{date} ፈቃድ አልተሰጠም። እንዲያልፉ ለመፍቀድ በቅንብሮች ውስጥ የMicrosoft Store መተግበሪያዎች ማብሪያን ያብሩ።",
+  "logWake": "ኮምፒውተሩ ከእንቅልፍ ነቅቷል ወይም ሰዓቱ ተቀይሯል፤ የመጠበቂያ ጊዜያት እንደገና ከመጀመሪያ ይቆጠራሉ",
+  "logHeldRestart": "{host}: Shroudly እንደገና እየጀመረ ስለሆነ ተይዞ ቆይቷል፤ ፕሮግራሙ እንደገና ይሞክራል",
+  "autoDiscordFailed": "Discord በዚህ አውታረ መረብ ላይ ታግዷል፣ ግን የDiscord መተግበሪያ ሁነታን ማብራት አልተቻለም። እንደገና ለመሞከር በቅንብሮች ውስጥ ያብሩት።",
+  "autoRobloxFailed": "Roblox በዚህ አውታረ መረብ ላይ ታግዷል፣ ግን የጨዋታዎችና የመተግበሪያዎች ሁነታን ማብራት አልተቻለም። እንደገና ለመሞከር በቅንብሮች ውስጥ ያብሩት።",
+  "autoStoreAppsNoAdmin": "አስተዳዳሪ እስኪፈቅድ ድረስ {apps} ከShroudly ጋር መገናኘት አይችሉም፤ አስተዳዳሪ በቅንብሮች ውስጥ የMicrosoft Store መተግበሪያዎች ማብሪያን ማብራት ይችላል።"
 }

@@ -24,6 +24,7 @@ const procnet = require('./procnet');
 const { DISCORD_DOMAINS } = require('./discord-relay');
 const fingerprints = require('./censor-fingerprints');
 const { isMainName } = require('./service-check');
+const sharedWake = require('./wake');
 const net = require('net');
 
 /* Can we listen on 127.0.0.1:port right now? */
@@ -134,7 +135,14 @@ const MAX_RESTARTS = 5;
 // the engine hangs: the system proxy then points at a dead endpoint, so treat
 // it like a crash. Generous, because a site test (PROBE) blocks the engine's
 // command loop while it runs.
+// Measured only while the computer is awake: a poll that runs much later
+// than asked (the computer slept, the main process was frozen) or across a
+// clock change gives the engine a fresh window instead (see _pollGap).
 const HANG_TIMEOUT_MS = 60000;
+const POLL_MS = 1000;
+// Cuts reported this soon after a wake are about connections the sleep
+// stalled, not about the network (see _onLine 'cut').
+const WAKE_QUIET_MS = 30000;
 
 function coreBinaryPath() {
   const plat = process.platform;              // win32 | darwin | linux
@@ -169,6 +177,11 @@ class EngineManager {
     this.watch = Array.isArray(hooks.watch) ? hooks.watch : [];
     this.onNeedRestart = hooks.onNeedRestart || (() => {});
     this.onDnsAutoEnabled = hooks.onDnsAutoEnabled || (() => {});
+    // Sleep and clock jumps (wake.js); the tests bring their own.
+    this.wake = hooks.wake || sharedWake;
+    this.hangTimeoutMs = hooks.hangTimeoutMs || HANG_TIMEOUT_MS;
+    this.pollMs = hooks.pollMs || POLL_MS;
+    this.startTimeoutMs = hooks.startTimeoutMs || 6000;
     // The current automatic list (site-list.js); the one shipped with the app
     // when there is none.
     this.siteList = hooks.siteList || (() => DEFAULT_SITE_LIST);
@@ -187,6 +200,9 @@ class EngineManager {
     this.proxyRecovery = null;
     this.proxyRecoveryPending = false;
     this._restartTimer = null;
+    // A crash restart decided and not yet under way (the system proxy being
+    // put back, the delay before the start): already "coming".
+    this._restartPending = false;
     // Starts, stops and settings restarts run one at a time, in the order they
     // were asked for (_serial); _stops counts the stops asked for and not yet
     // done, during which nothing may point the system at the engine again.
@@ -267,7 +283,7 @@ class EngineManager {
 
   /* The engine is on its way: a start under way, or a restart after a crash
    * or a settings change. Programs carried by Shroudly wait for it. */
-  get coming() { return !this.stopping && (!!this._starting || !!this._restartTimer || !!this.restarting); }
+  get coming() { return !this.stopping && (!!this._starting || !!this._restartTimer || !!this.restarting || this._restartPending); }
 
   _serial(fn) {
     const run = this._ops.then(fn);
@@ -378,7 +394,10 @@ class EngineManager {
     if (!all || typeof all !== 'object') return [];
     return Object.entries(all)
       .filter(([h, v]) => /^[a-z0-9.-]{1,253}$/i.test(h) && v && typeof v.s === 'string' && /^[\w.()+-]{1,63}$/.test(v.s)
-        && Number.isFinite(v.t) && now - v.t < LEARNED_TTL_MS && v.t <= now + 60000)
+        && Number.isFinite(v.t) && now - v.t < LEARNED_TTL_MS)
+      // Learnt "in the future": the clock was set back since. Counted as
+      // learnt now, not thrown away (the next save would lose them all).
+      .map(([h, v]) => [h, v.t > now ? { ...v, t: now } : v])
       .sort((a, b) => a[1].t - b[1].t);
   }
 
@@ -524,6 +543,9 @@ class EngineManager {
 
       let buf = '';
       this.lastOutputAt = Date.now();
+      // A command written as the engine dies (STATS, STOP) fails later, as
+      // an event: never an uncaught error that takes the whole app down.
+      this.proc.stdin.on('error', () => {});
       this.proc.stdout.on('data', (d) => {
         this.lastOutputAt = Date.now();
         buf += d.toString();
@@ -544,7 +566,10 @@ class EngineManager {
       const proc = this.proc;
       proc.on('close', (code) => { if (this.proc !== proc) return; this._onClose(code); if (!settled) finish(false); });
 
-      setTimeout(() => { if (!settled) { this.lastError = 'engine start timeout'; finish(false); } }, 6000);
+      // Not counted across a sleep: one during a start, and the engine's
+      // "ready" waiting unread at wake, is no failed start.
+      const limit = this.wake.timeout(() => { if (!settled) { this.lastError = 'engine start timeout'; finish(false); } }, this.startTimeoutMs);
+      proc.once('close', () => limit.cancel());
     });
   }
 
@@ -760,6 +785,10 @@ class EngineManager {
         }
         break;
       case 'cut':
+        // Just after a wake: connections the sleep stalled, whatever the
+        // network does (the engine's stall timers count the sleep on Windows
+        // and macOS). Nothing to tell, nothing to turn on.
+        if (this.wake.recent(WAKE_QUIET_MS)) break;
         try { this.onHostEvent('cut', msg.host, msg.strategy || null); } catch {}
         this._onCut(msg.host, msg.strategy, msg.attempts, msg.note === 'site_ok');
         break;
@@ -802,20 +831,48 @@ class EngineManager {
 
   _startStatsPoll() {
     this._stopStatsPoll();
+    this._pollWall = Date.now();
+    this._pollMono = this.wake.mono();
+    this._pollEpoch = this.wake.epoch;
     this._poll = setInterval(() => {
       if (!this.proc) return;
-      if (this.active && Date.now() - this.lastOutputAt > HANG_TIMEOUT_MS) {
+      if (this._pollGap()) return;
+      if (this.active && Date.now() - this.lastOutputAt > this.hangTimeoutMs) {
         this.log('error', 'Engine stopped responding; restarting it');
         this.lastOutputAt = Date.now();
-        try { this.proc.kill('SIGKILL'); } catch {} // _onClose restores the proxy and restarts
+        try { this.proc.kill('SIGKILL'); } catch {} // _onClose restarts it
         return;
       }
       if (this.proc.stdin.writable) {
         try { this.proc.stdin.write('STATS\n'); } catch {}
       }
-    }, 1000);
+    }, this.pollMs);
   }
   _stopStatsPoll() { if (this._poll) { clearInterval(this._poll); this._poll = null; } }
+
+  /* This poll ran much later than asked for since the last one (the
+   * computer slept, the main process was frozen), the clock jumped, or a
+   * wake was seen elsewhere meanwhile: the engine had no chance to answer
+   * in between, and its answer may be waiting unread (timers run before
+   * pending output is read). It gets a fresh window; nothing is decided on
+   * this poll. A real hang still shows within the window after it. */
+  _pollGap() {
+    const late = this.wake.gap(this._pollWall, this._pollMono, this.pollMs);
+    this._pollWall = Date.now();
+    this._pollMono = this.wake.mono();
+    if (late) this.wake.resumed(late);
+    if (this._pollEpoch === this.wake.epoch) return false;
+    this._pollEpoch = this.wake.epoch;
+    this.lastOutputAt = Date.now();
+    return true;
+  }
+
+  /* The system says it woke up (powerMonitor 'resume'): the same fresh
+   * window, at once, before any poll runs. */
+  resumed() {
+    this.wake.resumed('system');
+    if (this.proc) this.lastOutputAt = Date.now();
+  }
 
   // Ask the engine to probe a host (used by UI "test site").
   probe(host) {
@@ -832,11 +889,19 @@ class EngineManager {
 
     this.log('error', `Engine exited unexpectedly (code ${code}).`);
     const retry = this.restarts < MAX_RESTARTS;
-    // Restore proxy immediately so the user is never left half-routed —
-    // except one set with an administrator's password (macOS Standard
-    // account) while the engine is about to come back: taking it down now
-    // and setting it again would ask for the password again. It stays, and
-    // the restarted engine's port goes into the PAC.
+    // Coming back from this moment on: programs carried by Shroudly (the
+    // Discord relay, the app proxy) wait for it instead of going out
+    // directly, which a filtering network refuses (a Discord update mid
+    // download, a name its DNS does not answer).
+    if (retry) this._restartPending = true;
+    // While the engine is about to come back the system proxy stays, and
+    // the restarted engine's port goes into the PAC: browsers wait a few
+    // seconds instead of going out directly and failing on a network that
+    // filters, and the system setting is not taken down and written again
+    // (each change is one more for other programs to answer, and a macOS
+    // setting made with an administrator's password would ask for it
+    // again). Not coming back (it keeps crashing, or the start fails): the
+    // user's own settings are put back at once.
     const kept = retry && this._keepsProxy();
     // Off at once, so nothing points the system at the dead engine while
     // the restore runs (a re-apply, a settings restart).
@@ -844,12 +909,12 @@ class EngineManager {
     this._stopStatsPoll();
     const gen = this._stopGen;
     if (!kept) {
-      await this.proxy.restore();
+      try { await this.proxy.restore(); } catch {}
       this._setProxyStatus(null);
     }
     this.onStatusChange(false);
     // A Stop pressed while that restore ran: nothing comes back after it.
-    if (gen !== this._stopGen) return;
+    if (gen !== this._stopGen) { this._restartPending = false; return; }
 
     if (retry) {
       this.restarts++;
@@ -858,6 +923,7 @@ class EngineManager {
       clearTimeout(this._restartTimer);
       this._restartTimer = setTimeout(() => {
         this._restartTimer = null;
+        this._restartPending = false;
         this.start().catch(async (e) => {
           this.log('error', `Restart failed: ${e.message}`);
           // A kept system setting must not outlive an engine that is not
@@ -888,7 +954,7 @@ class EngineManager {
     // A system proxy set with an administrator's password stays through it
     // (see _onClose): only the PAC learns the new port.
     if (cfg.port !== (this.configuredPort || this.port)) {
-      await this._stop({ keepProxy: this._keepsProxy() });
+      await this._stop({ keepProxy: this._keepsProxy({ adminOnly: true }) });
       return this._start();
     }
     cfg.port = this.port;
@@ -941,6 +1007,7 @@ class EngineManager {
     this._starting = null;
     clearTimeout(this._restartTimer);
     this._restartTimer = null;
+    this._restartPending = false;
     const p = this._serial(() => this._stop(opts));
     const done = () => { this._stops--; };
     p.then(done, done);
@@ -985,10 +1052,16 @@ class EngineManager {
     return { success: true };
   }
 
-  /* Is the system proxy one set with an administrator's password, which an
-   * engine restart should leave in place? */
-  _keepsProxy() {
-    return !!(this.proxyStatus && this.proxyStatus.admin && this.proxy.applied && typeof this.proxy.updatePort === 'function');
+  /* Is the system proxy set (by us, wholly or in part, or taken over since)
+   * so that an engine restart can leave it in place and only give the PAC
+   * the new port? adminOnly: only one set with an administrator's password
+   * (a port changed in Settings: the setting is made again with it, except
+   * where that would ask for the password again). */
+  _keepsProxy({ adminOnly = false } = {}) {
+    const st = this.proxyStatus;
+    if (!st || !this.proxy.applied || typeof this.proxy.updatePort !== 'function') return false;
+    if (adminOnly) return !!st.admin;
+    return !!(st.ok || st.admin || st.partial || st.code === 'partial_env' || st.code === 'replaced');
   }
 
   _clearProxyEnv() {

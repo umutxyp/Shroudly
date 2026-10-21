@@ -8,11 +8,12 @@ import android.os.Bundle
  * Debug builds only (src/debug). adb cannot start a VPN service itself, so
  * scripts/emulator-smoke.sh starts this instead:
  *
- *   am start -n me.codeshare.shroudly/.DebugControlActivity --es cmd start|stop|stats
+ *   am start -n me.codeshare.shroudly/.DebugControlActivity --es cmd start|stop|stats|report
  *   am start -n me.codeshare.shroudly/.DebugControlActivity --es cmd test --es what engine-stop|tunnel-stop|path-check
  *
  * The VPN consent has to be granted first (appops ACTIVATE_VPN allow). "test"
  * makes one part fail while protection is on (ShroudlyVpnService.ACTION_TEST).
+ * "report" writes the head of what "Share logs" sends to logcat.
  */
 class DebugControlActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -25,6 +26,8 @@ class DebugControlActivity : Activity() {
                 Intent(this, ShroudlyVpnService::class.java).setAction(ShroudlyVpnService.ACTION_TEST)
                     .putExtra("what", intent.getStringExtra("what")),
             )
+            "report" -> Diagnostics.report(this).lineSequence().takeWhile { it.isNotEmpty() }
+                .forEach { android.util.Log.i("Shroudly", "report: $it") }
             else -> ShroudlyVpnService.log("debug control: unknown command")
         }
         finish()

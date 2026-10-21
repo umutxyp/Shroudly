@@ -232,11 +232,15 @@ export default function BlockedNotice({ onNavigate, active = false }) {
    * or could not start keeps its button, while it is still off: turning it
    * on then is the user's call. Once it is on, that line has nothing to say. */
   const advNotice = notice && (notice.id === 'autoAdvancedDeclined' || notice.id === 'autoAdvancedFailed');
+  // Advanced mode needed and not asked for by itself (declined or turned off
+  // earlier, failed earlier this session, a game's anti-cheat): one line
+  // saying so and what to do, gone once Advanced mode is on.
+  const advNotAsked = notice && ['autoAdvancedOffBefore', 'autoAdvancedDeclinedBefore', 'autoAdvancedFailedBefore', 'autoAdvancedAntiCheat'].includes(notice.id);
   // A site that failed after this line, and that the autopilot did not ask
   // about, is newer news than the line.
   const hostNewer = host && !hostAsked && hostAt > (notice ? notice.at : 0);
   const noticeShown = notice && Date.now() - notice.at < NOTICE_MS && !hidden[`auto:${notice.at}`]
-    && !(advNotice && adv.active) && !(notice.id === 'autoAdvancedAsk' && adv.active)
+    && !(advNotice && adv.active) && !(advNotAsked && adv.active) && !(notice.id === 'autoAdvancedAsk' && adv.active)
     && !(notice.id === 'autoAdvancedOn' && !adv.active) && !hostNewer;
   if (noticeShown) {
     const offer = advNotice && adv.available && !adv.active;

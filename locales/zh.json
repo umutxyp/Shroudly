@@ -422,5 +422,22 @@
   "androidNoInternet": "由于 Shroudly 在此网络上无法连接互联网，保护已停止，你的应用现在直接联网。打开 Shroudly 即可重试。",
   "androidBatteryHint": "电池设置可能会在后台停止 Shroudly 并中断你的连接。请允许它不受电池限制地运行。",
   "androidBatterySettings": "电池设置",
-  "androidLockdownOffline": "无法上网：Shroudly 目前无法在此网络上连通，而 Android 已设置为阻止不经 VPN 的连接。Shroudly 正在继续尝试。"
+  "androidLockdownOffline": "无法上网：Shroudly 目前无法在此网络上连通，而 Android 已设置为阻止不经 VPN 的连接。Shroudly 正在继续尝试。",
+  "copyLogs": "复制日志",
+  "logsCopied": "已复制",
+  "trayCopyLogs": "复制日志",
+  "notifyLogsCopied": "日志已复制到剪贴板，请粘贴到你的消息或报告中。",
+  "autoAdvancedOffBefore": "{host} 在此网络上需要高级模式。高级模式已于 {date} 被关闭，因此 Shroudly 不会自行开启：请在设置中开启。",
+  "autoAdvancedDeclinedBefore": "{host} 在此网络上需要高级模式。{date} 未允许开启高级模式，因此 Shroudly 不会自行询问：请在设置中开启。",
+  "autoAdvancedFailedBefore": "{host} 在此网络上需要高级模式，但之前未能开启。请尝试在设置中开启。",
+  "autoAdvancedAntiCheat": "{host} 在此网络上需要高级模式，但某个游戏的反作弊程序（{program}）正在运行，因此 Shroudly 不会自行启动高级模式。需要时请在设置中开启。",
+  "autoDiscordOffByHand": "Discord 在此网络上被封锁，但 Discord 应用模式已于 {date} 被关闭。要使用 Discord 应用，请在设置中开启。",
+  "autoRobloxOffByHand": "Roblox 在此网络上被封锁，但游戏和应用模式已于 {date} 被关闭。要使用 Roblox，请在设置中开启。",
+  "autoStoreAppsOffBefore": "{apps} 无法连接到 Shroudly：“Microsoft Store 应用”开关已于 {date} 被关闭。要让它们通过，请在设置中开启。",
+  "autoStoreAppsDeclinedBefore": "{apps} 无法连接到 Shroudly：{date} 未获得允许。要让它们通过，请在设置中开启“Microsoft Store 应用”。",
+  "logWake": "电脑已从睡眠中唤醒或时钟已更改；等待时间重新计算",
+  "logHeldRestart": "{host}：Shroudly 正在重启，连接已暂缓；程序会再试一次",
+  "autoDiscordFailed": "Discord 在此网络上被封锁，但无法开启 Discord 应用模式。请在设置中开启以重试。",
+  "autoRobloxFailed": "Roblox 在此网络上被封锁，但无法开启游戏和应用模式。请在设置中开启以重试。",
+  "autoStoreAppsNoAdmin": "在管理员允许之前，{apps} 无法连接到 Shroudly：管理员可以在设置中开启“Microsoft Store 应用”。"
 }

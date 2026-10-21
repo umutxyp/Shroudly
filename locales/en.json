@@ -422,5 +422,22 @@
   "androidNoInternet": "Protection stopped because Shroudly could not reach the internet on this network, so your apps are connecting directly. Open Shroudly to try again.",
   "androidBatteryHint": "Battery settings can stop Shroudly in the background and cut your connection. Let it run without battery restrictions.",
   "androidBatterySettings": "Battery settings",
-  "androidLockdownOffline": "No internet: Shroudly cannot get through on this network right now, and Android is set to block connections without a VPN. Shroudly keeps trying."
+  "androidLockdownOffline": "No internet: Shroudly cannot get through on this network right now, and Android is set to block connections without a VPN. Shroudly keeps trying.",
+  "copyLogs": "Copy logs",
+  "logsCopied": "Copied",
+  "trayCopyLogs": "Copy logs",
+  "notifyLogsCopied": "The log is on the clipboard. Paste it into your message or report.",
+  "autoAdvancedOffBefore": "{host} needs Advanced mode on this network. It was turned off on {date}, so Shroudly does not turn it on by itself: turn it on in Settings.",
+  "autoAdvancedDeclinedBefore": "{host} needs Advanced mode on this network. It was not allowed on {date}, so Shroudly does not ask by itself: turn it on in Settings.",
+  "autoAdvancedFailedBefore": "{host} needs Advanced mode on this network, but it could not be turned on earlier. Try turning it on in Settings.",
+  "autoAdvancedAntiCheat": "{host} needs Advanced mode on this network, but a game's anti-cheat ({program}) is running, so Shroudly does not start it by itself. Turn it on in Settings when you want it.",
+  "autoDiscordOffByHand": "Discord is blocked on this network, but Discord app mode was turned off on {date}. To use the Discord app, turn it on in Settings.",
+  "autoRobloxOffByHand": "Roblox is blocked on this network, but Games and apps mode was turned off on {date}. To use Roblox, turn it on in Settings.",
+  "autoStoreAppsOffBefore": "{apps} cannot reach Shroudly: Microsoft Store apps was turned off on {date}. To let them through, turn it on in Settings.",
+  "autoStoreAppsDeclinedBefore": "{apps} cannot reach Shroudly: permission was not given on {date}. To let them through, turn on Microsoft Store apps in Settings.",
+  "logWake": "The computer woke up or its clock changed; waiting times start afresh",
+  "logHeldRestart": "{host}: held back while Shroudly restarts; the program will try again",
+  "autoDiscordFailed": "Discord is blocked on this network, but Discord app mode could not be turned on. Turn it on in Settings to try again.",
+  "autoRobloxFailed": "Roblox is blocked on this network, but Games and apps mode could not be turned on. Turn it on in Settings to try again.",
+  "autoStoreAppsNoAdmin": "{apps} cannot reach Shroudly until an administrator allows it: an administrator can turn on Microsoft Store apps in Settings."
 }

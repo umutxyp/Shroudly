@@ -422,5 +422,22 @@
   "androidNoInternet": "Shroudly がこのネットワークでインターネットに接続できなかったため、保護を停止しました。アプリは現在直接接続しています。もう一度試すには Shroudly を開いてください。",
   "androidBatteryHint": "バッテリー設定によって Shroudly がバックグラウンドで停止され、接続が切れることがあります。バッテリーの制限なしで動作できるようにしてください。",
   "androidBatterySettings": "バッテリー設定",
-  "androidLockdownOffline": "インターネットに接続できません：Shroudly は現在このネットワークで通信できず、Android は VPN なしの接続をブロックするよう設定されています。Shroudly は再試行を続けています。"
+  "androidLockdownOffline": "インターネットに接続できません：Shroudly は現在このネットワークで通信できず、Android は VPN なしの接続をブロックするよう設定されています。Shroudly は再試行を続けています。",
+  "copyLogs": "ログをコピー",
+  "logsCopied": "コピーしました",
+  "trayCopyLogs": "ログをコピー",
+  "notifyLogsCopied": "ログをクリップボードにコピーしました。メッセージやレポートに貼り付けてください。",
+  "autoAdvancedOffBefore": "このネットワークでは {host} に高度なモードが必要です。{date} にオフにされたため、Shroudly は自動ではオンにしません。設定でオンにしてください。",
+  "autoAdvancedDeclinedBefore": "このネットワークでは {host} に高度なモードが必要です。{date} に許可されなかったため、Shroudly は自分からは確認しません。設定でオンにしてください。",
+  "autoAdvancedFailedBefore": "このネットワークでは {host} に高度なモードが必要ですが、以前オンにできませんでした。設定でオンにしてみてください。",
+  "autoAdvancedAntiCheat": "このネットワークでは {host} に高度なモードが必要ですが、ゲームのアンチチート（{program}）が動作中のため、Shroudly は自動では開始しません。必要なときに設定でオンにしてください。",
+  "autoDiscordOffByHand": "このネットワークでは Discord がブロックされていますが、Discord アプリモードは {date} にオフにされています。Discord アプリを使うには、設定でオンにしてください。",
+  "autoRobloxOffByHand": "このネットワークでは Roblox がブロックされていますが、ゲームとアプリモードは {date} にオフにされています。Roblox を使うには、設定でオンにしてください。",
+  "autoStoreAppsOffBefore": "{apps} は Shroudly に接続できません。「Microsoft Store アプリ」スイッチが {date} にオフにされています。Shroudly を経由できるようにするには、設定でオンにしてください。",
+  "autoStoreAppsDeclinedBefore": "{apps} は Shroudly に接続できません。{date} に許可されませんでした。Shroudly を経由できるようにするには、設定で「Microsoft Store アプリ」をオンにしてください。",
+  "logWake": "コンピューターがスリープから復帰したか、時計が変更されました。待ち時間を最初から数え直します",
+  "logHeldRestart": "{host}: Shroudly の再起動中のため保留しました。プログラムが再試行します",
+  "autoDiscordFailed": "このネットワークでは Discord がブロックされていますが、Discord アプリモードをオンにできませんでした。もう一度試すには、設定でオンにしてください。",
+  "autoRobloxFailed": "このネットワークでは Roblox がブロックされていますが、ゲームとアプリモードをオンにできませんでした。もう一度試すには、設定でオンにしてください。",
+  "autoStoreAppsNoAdmin": "管理者が許可するまで {apps} は Shroudly に接続できません。管理者は設定で「Microsoft Store アプリ」をオンにできます。"
 }

@@ -297,6 +297,32 @@ async function steady(opts) {
       `at a slow PC's boot: started again ${(took / 1000).toFixed(1)} s after it started, ${((took - (w.signedAt - w.procs.get(pid).start)) / 1000).toFixed(1)} s after its signature was known (PowerShell started with the mode, 20 s to start)`);
   }
   {
+    // The computer sleeps ten seconds after a player started, before it
+    // asked anything: it could not ask while asleep. Its silence counts from
+    // the wake, and the request it makes then spares it. A player that stays
+    // silent after the wake is still restarted.
+    const w = world();
+    w.watch.start(); await w.modeOn(); w.engineOn(); w.verdict();
+    await w.run(60000);
+    const player = w.start('player', 'player', { through: true, asks: [15000] });
+    await w.run(w.now + 10000);
+    w.offset += 3600 * 1000;           // an hour asleep: the clock jumps, the timers do not run
+    w.watch.resumed();
+    await w.run(w.now + 60000);
+    t.ok(!w.killed.some((k) => k.pid === player), 'woken up an hour later: a player that asks right after the wake is not restarted (it could not ask while asleep)');
+    const v = world();
+    v.watch.start(); await v.modeOn(); v.engineOn(); v.verdict();
+    await v.run(60000);
+    const around = v.start('player', 'player');
+    await v.run(v.now + 10000);
+    v.offset += 3600 * 1000;
+    v.watch.resumed();
+    await v.run(v.now + 4000);
+    t.ok(!v.killed.length, 'a silent one is not restarted at the wake either');
+    await v.run(v.now + 40000);
+    t.ok(v.killed.some((k) => k.pid === around), 'but once it has stayed silent for its time after the wake, it is');
+  }
+  {
     // A slow signature check holds up nothing else: a player around Shroudly
     // started meanwhile is restarted on time.
     const w = world({ sigMs: 40000 });

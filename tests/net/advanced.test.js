@@ -135,4 +135,32 @@ function windowsArgv(line) {
   t.ok(JSON.stringify(back) === JSON.stringify(tricky), `elevated engine arguments survive Windows' own parsing (${tricky.length} awkward ones)`);
   t.ok(winQuoteArg('plain') === 'plain' && winQuoteArg('') === '""', 'plain arguments are left alone, an empty one is kept');
 }
-console.log(`advanced: ${t.count} passed`);
+(async () => {
+  // The permission prompt on screen when the computer goes to sleep: the
+  // answer after the wake is no timeout. The limit counts awake time only.
+  const AdvancedMode = require(path.join(ROOT, 'electron', 'advanced-mode.js'));
+  const am = new AdvancedMode(() => {});
+  am.readyTimeoutMs = 3000;
+  let ready = null;
+  am._readStatus = () => (ready ? { ready, errors: [] } : { errors: [] });
+  am.childExit = null;
+  const realNow = Date.now;
+  let skew = 0;
+  Date.now = () => realNow() + skew;
+  const p = am._waitReady().then((r) => r, (e) => e);
+  await new Promise((r) => setTimeout(r, 300));
+  skew += 30 * 60 * 1000;            // half an hour asleep with the prompt up
+  await new Promise((r) => setTimeout(r, 300));
+  ready = { pid: 1 };
+  const got = await p;
+  t.ok(got && got.pid === 1, `asleep for half an hour while the prompt waited: the answer after the wake is taken (${got && got.code ? got.code : 'ready'})`);
+  ready = null;
+  const am2 = new AdvancedMode(() => {});
+  am2.readyTimeoutMs = 600;
+  am2._readStatus = () => ({ errors: [] });
+  am2.childExit = null;
+  const e2 = await am2._waitReady().then(() => null, (e) => e);
+  Date.now = realNow;
+  t.ok(e2 && e2.code === 'timeout', 'awake and no answer within the limit: still a timeout');
+  console.log(`advanced: ${t.count} passed`);
+})();

@@ -331,7 +331,7 @@ class MainActivity : Activity() {
             connectionsTotal.show(text(R.string.totalCount, "count" to n.format(s.connsTotal)))
             upload.show(Format.bytes(s.bytesUp))
             download.show(Format.bytes(s.bytesDown))
-            uptime.show(Format.duration(System.currentTimeMillis() - Protection.startedAt))
+            uptime.show(Format.duration(android.os.SystemClock.elapsedRealtime() - Protection.startedAt))
             statsHint.visibility = View.GONE
         } else {
             // Set only when it changes: the window redraws every second, and a

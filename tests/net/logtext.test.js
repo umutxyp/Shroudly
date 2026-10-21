@@ -130,6 +130,21 @@ const LINES = [
   'Store apps: the exemptions Shroudly added could not be taken out',
   'Store apps: the permission prompt was not answered; Shroudly will ask again next time',
   'Store apps: Xbox, Microsoft Store cannot go through Shroudly until an administrator allows it (the Microsoft Store apps switch in Settings)',
+  // 2.6.3: Advanced mode needed and not asked for, said once with what to
+  // do; modes turned off by hand; a wake; what is held back while the
+  // engine restarts.
+  'Autopilot: c-fra06-61574a2c.discord.media needs Advanced mode (a Discord call is starting; its sound goes over UDP); asking for permission',
+  'Autopilot: Discord needs Advanced mode on this network (a Discord call is starting; its sound goes over UDP); it was not allowed on 2026-10-18, so it is not asked for by itself; turn it on in Settings',
+  'Autopilot: Discord needs Advanced mode on this network (Discord is open and cannot reach it); it was turned off by hand on 2026-10-20, so it is not turned on by itself; turn it on in Settings',
+  'Autopilot: cut.example needs Advanced mode on this network; it could not be started earlier in this session; turn it on in Settings',
+  'Autopilot: Discord is blocked on this network, but its mode was turned off by hand on 2026-10-20; turn it on in Settings to use its app',
+  'Autopilot: Roblox is blocked on this network, but its mode was turned off by hand on 2026-10-20; turn it on in Settings to use its app',
+  'Store apps: Xbox, Microsoft Store cannot go through Shroudly; the switch was turned off by hand on 2026-10-20; turn it on in Settings to let them through',
+  'The computer woke up or its clock changed (late); waiting times start afresh',
+  'Autopilot: Discord is blocked on this network, but its mode could not be turned on (permission); turn it on in Settings to try again',
+  'Autopilot: Roblox is blocked on this network, but its mode could not be turned on (unsupported); turn it on in Settings to try again',
+  'Games and apps: could not reach clientsettingscdn.roblox.com (Shroudly is restarting; try again in a moment)',
+  'Discord app: could not reach updates.discord.com (Shroudly is restarting; try again in a moment)',
 ];
 
 const langs = Object.keys(translations);
