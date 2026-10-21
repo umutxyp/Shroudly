@@ -34,6 +34,11 @@ const CALC = containerSid('microsoft.windowscalculator_8wekyb3d8bbwe');
 const AAD = containerSid('microsoft.aad.brokerplugin_cw5n1h2txyewy');
 const CHROME = containerSid('cr.sb.net9a1fd3');
 const CHILD = `${STORE}-1-2-3-4`;
+const XBOX_APP = 'microsoft.gamingapp_8wekyb3d8bbwe';
+const XBOX_ID = 'microsoft.xboxidentityprovider_8wekyb3d8bbwe';
+const TERMINAL = 'microsoft.windowsterminal_8wekyb3d8bbwe';
+// Desktop programs in a package: outside any app container.
+const DESKTOP = new Set([XBOX_APP, TERMINAL]);
 const decode = (b64) => Buffer.from(b64, 'base64').toString('utf16le');
 
 (async () => {
@@ -213,16 +218,32 @@ const decode = (b64) => Buffer.from(b64, 'base64').toString('utf16le');
   const scriptOf = (cmd, args) => (/powershell\.exe$/i.test(String(cmd)) ? decode(args[args.indexOf('-EncodedCommand') + 1] || '') : '');
   const tick = async (n = 50, until = () => false) => { for (let i = 0; i < n && !until(); i++) await new Promise((r) => setImmediate(r)); };
   // open: the Store apps this account has open, a window of each on screen
-  // (family names; Start's host always runs too, and its window is on
-  // screen); background: packaged programs of this account running with no
-  // window (widgets, Phone Link); system: packaged services running as
-  // SYSTEM, which only an unfiltered process list shows. winFails: the
-  // windows cannot be looked at (Add-Type refused). admin: 'yes', 'no' or 'fails'.
+  // (family names): a UWP app runs in its app container, a desktop one
+  // (DESKTOP: the Xbox app, Windows Terminal) in none. brokers: programs in
+  // an app container with no window started after those were opened (by
+  // default the Xbox app's sign-in, XboxIdentityProvider, once Xbox is open);
+  // before: programs in an app container that were running before anything
+  // was opened (an app's background task). Start's host always runs, in an
+  // app container with a window. background: packaged desktop programs of
+  // this account running with no window (widgets, Phone Link); system:
+  // packaged services running as SYSTEM, which only an unfiltered process
+  // list shows. procsFails: the programs cannot be looked at (Add-Type
+  // refused). admin: 'yes', 'no' or 'fails'.
   // answer: 'now', or 'late' (nobody answers in time; w.late[i]() is the Yes
   // that comes afterwards).
   function fakeWindows({ containers, exempt = [], accept = true, works = () => true, psFails = false, cniList = true,
-    open = ['microsoft.gamingapp_8wekyb3d8bbwe'], background = [], system = [], winFails = false, admin = 'yes', tasklist = true, answer = 'now' } = {}) {
-    const w = { containers, exempt: new Set(exempt), prompts: [], calls: [], scripts: [], accept, open, background, system, winFails, admin, tasklist, answer, late: [] };
+    open = ['microsoft.gamingapp_8wekyb3d8bbwe'], brokers = null, before = [], background = [], system = [], procsFails = false, admin = 'yes', tasklist = true, answer = 'now' } = {}) {
+    const w = { containers, exempt: new Set(exempt), prompts: [], calls: [], scripts: [], accept, open, brokers, before, background, system, procsFails, admin, tasklist, answer, late: [] };
+    // Every program of this account's in a package or an app container.
+    w.procs = () => {
+      const brk = w.brokers || (w.open.includes(XBOX_APP) ? [XBOX_ID] : []);
+      const list = [{ fam: 'microsoft.windows.startmenuexperiencehost_cw5n1h2txyewy', win: true, ac: true, start: 100 }];
+      for (const f of w.background) list.push({ fam: f, win: false, ac: false, start: 500 });
+      for (const f of w.before) list.push({ fam: f, win: false, ac: true, start: 500 });
+      for (const f of w.open) list.push({ fam: f, win: true, ac: !DESKTOP.has(f), start: 2000 });
+      for (const f of brk) list.push({ fam: f, win: false, ac: true, start: 3000 });
+      return list.map((p, i) => ({ ...p, pid: 100 + i }));
+    };
     const full = (fam) => { const [n, p] = fam.split('_'); return `${n}_1.0.0.0_x64__${p}`; };
     const apply = (verb, sids) => { for (const s of sids) if (StoreApps.SID_RE.test(s) && works(s)) { if (verb === 'add') w.exempt.add(s); else w.exempt.delete(s); } };
     w.run = async (cmd, args) => {
@@ -231,8 +252,8 @@ const decode = (b64) => Buffer.from(b64, 'base64').toString('utf16le');
       if (exe === 'tasklist.exe') {
         if (!w.tasklist) return { code: 1, stdout: '', stderr: 'ERROR: Invalid argument/option - \'/apps\'.' };
         const own = args.some((a) => /^USERNAME eq \S/.test(a));
-        const fams = [...w.open, ...w.background, 'microsoft.windows.startmenuexperiencehost_cw5n1h2txyewy', ...(own ? [] : w.system)];
-        return { code: 0, stdout: fams.map((f, i) => `"app${i}.exe","${100 + i}","1,000 K","${full(f)}"`).join('\r\n'), stderr: '' };
+        const procs = [...w.procs(), ...(own ? [] : w.system.map((fam, i) => ({ fam, pid: 900 + i })))];
+        return { code: 0, stdout: procs.map((p) => `"app${p.pid}.exe","${p.pid}","1,000 K","${full(p.fam)}"`).join('\r\n'), stderr: '' };
       }
       if (exe === 'whoami.exe') {
         if (w.admin === 'fails') return { code: 1, stdout: '', stderr: 'blocked by policy' };
@@ -240,20 +261,16 @@ const decode = (b64) => Buffer.from(b64, 'base64').toString('utf16le');
       }
       if (exe === 'powershell.exe') {
         const script = scriptOf(cmd, args);
-        if (script.includes('ShroudlyWin')) {
-          w.scripts.push('windows');
-          if (psFails || w.winFails) return { code: 1, stdout: '', stderr: 'Add-Type: Cannot add type. Constrained language' };
-          return { code: 0, stdout: [...w.open, 'microsoft.windows.startmenuexperiencehost_cw5n1h2txyewy'].map(full).join('\r\n'), stderr: '' };
+        if (script.includes('ShroudlyProcs')) {
+          w.scripts.push('procs');
+          if (psFails || w.procsFails) return { code: 1, stdout: '', stderr: 'Add-Type: Cannot add type. Constrained language' };
+          return { code: 0, stdout: w.procs().map((p) => `P\t${p.pid}\t${p.win ? 1 : 0}\t${p.ac ? 1 : 0}\t${p.ac ? containerSid(p.fam) : ''}\t${full(p.fam)}\t${p.start}\tapp`).join('\r\n'), stderr: '' };
         }
         if (script.includes('ShroudlyNetIso')) {
           w.scripts.push('scan');
           if (psFails) return { code: 1, stdout: '', stderr: 'Add-Type: Cannot add type. Constrained language' };
           const lines = w.containers.map((c) => `C\t${c.sid}\t${c.name}\t${c.display || ''}\t\t${(c.caps || []).join(',')}`);
           return { code: 0, stdout: [...lines, ...[...w.exempt].map((s) => `X\t${s}`)].join('\r\n'), stderr: '' };
-        }
-        if (script.includes('Get-Process')) {
-          w.scripts.push('paths');
-          return { code: 0, stdout: w.open.map((f) => `C:\\Program Files\\WindowsApps\\${full(f)}\\app.exe`).join('\r\n'), stderr: '' };
         }
         const body = decode(script.match(/-EncodedCommand ([A-Za-z0-9+/=]+)/)[1]);
         const b64 = body.match(/FromBase64String\('([A-Za-z0-9+/=]+)'\)/);
@@ -384,13 +401,62 @@ const decode = (b64) => Buffer.from(b64, 'base64').toString('utf16le');
     r.clock.t += 10 * 60 * 1000;
     const c = await r.sa.survey();
     t.ok(c.result === 'on' && w.prompts[0].sids.join() === [STORE, XBOX, XBOXID].join(), '…the Store opened then: noticed at the next look');
-    // tasklist /apps refused: the windows are looked at all the same.
+    // tasklist /apps refused: the programs are looked at all the same.
     const w2 = fakeWindows({ containers: MACHINE(), exempt: [WEBVIEW], tasklist: false });
-    t.ok((await rig(w2).sa.survey()).result === 'on' && w2.scripts.includes('windows'), 'no tasklist /apps: the windows on screen are looked at all the same');
-    // The windows cannot be looked at (a locked-down PowerShell): the paths
-    // of the programs with a main window.
-    const w3 = fakeWindows({ containers: MACHINE(), exempt: [WEBVIEW], winFails: true });
-    t.ok((await rig(w3).sa.survey()).result === 'on' && w3.scripts.join() === 'windows,paths,scan,scan', "the windows not readable: the paths of the programs with a window");
+    t.ok((await rig(w2).sa.survey()).result === 'on' && w2.scripts.includes('procs'), 'no tasklist /apps: the programs are looked at all the same');
+    // The programs cannot be looked at (a locked-down PowerShell): nothing
+    // tells a Store app in use, so nothing is asked by itself; the switch still asks.
+    const w3 = fakeWindows({ containers: MACHINE(), exempt: [WEBVIEW], procsFails: true });
+    const r3 = rig(w3);
+    t.ok((await r3.sa.survey()).why === 'idle' && !w3.prompts.length && !w3.scripts.includes('scan'), 'the programs not readable: not asked by itself');
+    t.ok((await r3.sa.setMode(true)).success && w3.prompts.length === 1, '…the switch still asks');
+  }
+
+  {
+    // What tells a Store app in use: only programs in an app container, the
+    // one place Windows keeps off loopback addresses.
+    const P = (pid, win, ac, fam, start) => `P\t${pid}\t${win ? 1 : 0}\t${ac ? 1 : 0}\t${ac ? containerSid(fam) : ''}\t${fam.replace('_', '_1.0.0.0_x64__')}\t${start}\tx`;
+    const procs = StoreApps.parseProcs([
+      P(1, true, true, 'microsoft.windows.startmenuexperiencehost_cw5n1h2txyewy', 100),
+      P(2, true, false, TERMINAL, 1000),
+      P(3, false, true, 'microsoft.windowsstore_8wekyb3d8bbwe', 500),
+      `P\t4\t1\t1\t${STORE}-1-2-3-4\t\t900\tchild`,
+      'garbage',
+    ].join('\r\n'));
+    t.ok(procs.length === 4 && procs[1].family === TERMINAL && !procs[1].appContainer && procs[3].sid === STORE,
+      "the programs' lines: window, app container, its SID (a child container's parent), package, start");
+    t.ok(StoreApps.openSigns(procs).size === 1 && StoreApps.openSigns(procs).has(STORE),
+      "signs: a program in an app container with a window; not Windows' own, not a desktop program in a package, not one in an app container running before by itself");
+    const later = StoreApps.parseProcs([P(2, true, false, XBOX_APP, 1000), P(5, false, true, XBOX_ID, 1500), P(6, false, true, 'microsoft.aad.brokerplugin_cw5n1h2txyewy', 1600)].join('\n'));
+    t.ok([...StoreApps.openSigns(later)].join() === XBOXID, "…and one in an app container started after a desktop Store app was opened (its sign-in), Windows' own excepted");
+  }
+
+  {
+    // Windows Terminal open alone: a desktop program in a package, outside
+    // any app container. Its container may list the network, it needs no
+    // exemption: nobody is asked.
+    const TERM = containerSid(TERMINAL);
+    const containers = [...MACHINE(), { sid: TERM, name: TERMINAL, caps: net }];
+    const w = fakeWindows({ containers, exempt: [WEBVIEW], open: [TERMINAL] });
+    const r = rig(w);
+    const a = await r.sa.survey();
+    t.ok(a.why === 'idle' && !w.prompts.length && !r.logs.length, `Windows Terminal open alone: no prompt (${a.why})`);
+    // An app's background task in an app container, running before: no sign either.
+    const w2 = fakeWindows({ containers, exempt: [WEBVIEW], open: [TERMINAL], before: ['microsoft.windowsstore_8wekyb3d8bbwe'] });
+    t.ok((await rig(w2).sa.survey()).why === 'idle' && !w2.prompts.length, '…nor with a Store background task that was running before');
+    // The Xbox app, a desktop program too: its sign-in (XboxIdentityProvider,
+    // in an app container) is what cannot reach Shroudly. Asked once that runs.
+    const w3 = fakeWindows({ containers, exempt: [WEBVIEW], open: [XBOX_APP], brokers: [] });
+    const r3 = rig(w3);
+    t.ok((await r3.sa.survey()).why === 'idle' && !w3.prompts.length, 'Xbox open, its sign-in not started yet: not yet');
+    w3.brokers = [XBOX_ID];
+    r3.clock.t += 60 * 1000;
+    const x = await r3.sa.survey();
+    t.ok(x.result === 'on' && w3.prompts[0].sids.includes(XBOXID) && w3.prompts[0].sids.includes(STORE) && w3.prompts[0].sids.includes(TERM),
+      'Xbox open and signing in: one prompt at the next look (a minute), every app that needs it in it');
+    // A UWP app open: it runs in its app container.
+    const w4 = fakeWindows({ containers, exempt: [WEBVIEW], open: ['microsoft.windowsstore_8wekyb3d8bbwe'] });
+    t.ok((await rig(w4).sa.survey()).result === 'on' && w4.prompts.length === 1, 'the Microsoft Store (a UWP app, in its app container) open: asked');
   }
 
   {
@@ -404,11 +470,11 @@ const decode = (b64) => Buffer.from(b64, 'base64').toString('utf16le');
     const a = await r.sa.survey();
     r.clock.t += 10 * 60 * 1000;
     const b = await r.sa.survey();
-    t.ok(a.why === 'idle' && b.why === 'idle' && !w.prompts.length && !w.scripts.includes('scan') && w.scripts.join() === 'windows' && !r.logs.length,
-      `programs of Store packages running in the background, no window: nobody asked, the list not read, the windows looked at once (${w.scripts.join()})`);
+    t.ok(a.why === 'idle' && b.why === 'idle' && !w.prompts.length && !w.scripts.includes('scan') && w.scripts.join() === 'procs' && !r.logs.length,
+      `programs of Store packages running in the background, no window: nobody asked, the list not read, the programs looked at once (${w.scripts.join()})`);
     r.clock.t += 30 * 60 * 1000;
     await r.sa.survey();
-    t.ok(w.scripts.join() === 'windows,windows' && !w.prompts.length, '…and again after half an hour');
+    t.ok(w.scripts.join() === 'procs,procs' && !w.prompts.length, '…and again after half an hour');
     w.open.push('microsoft.windowsstore_8wekyb3d8bbwe');
     r.clock.t += 10 * 60 * 1000;
     const c = await r.sa.survey();
@@ -455,10 +521,10 @@ const decode = (b64) => Buffer.from(b64, 'base64').toString('utf16le');
     t.ok(res3.result === 'on' && w.prompts[2].sids.join() === [STORE, XBOX, XBOXID].join() && !r3.store.get('storeAppsHandled'),
       'settings of the version before (each one added kept as handled): asked again too');
     // One gone while the others stay: only that one.
-    w.exempt.delete(XBOX);
+    w.exempt.delete(XBOXID);
     const r4 = rig(w, { store: r3.store, record: r3.record });
     const res4 = await r4.sa.survey();
-    t.ok(res4.result === 'on' && w.prompts[3].sids.join() === XBOX && r4.sa.ours().length === 3, 'one of them taken out by another tool: only that one is asked for');
+    t.ok(res4.result === 'on' && w.prompts[3].sids.join() === XBOXID && r4.sa.ours().length === 3, 'one of them taken out by another tool: only that one is asked for');
   }
 
   {
@@ -732,8 +798,9 @@ const decode = (b64) => Buffer.from(b64, 'base64').toString('utf16le');
     const s = await r.sa.scan();
     t.ok(s.source === 'registry' && s.containers.length === 5 && s.containers.every((c) => c.caps === null) && s.exempt.join() === WEBVIEW,
       'PowerShell refused: the registry\'s app containers and CheckNetIsolation\'s list');
-    const res = await r.sa.survey();
-    t.ok(res.result === 'on' && w.prompts[0].sids.join() === [STORE, XBOX, XBOXID, CALC].join(), '…and every package without an exemption is given one');
+    t.ok((await r.sa.survey()).why === 'idle' && !w.prompts.length, '…nothing tells a Store app in use there: not asked by itself');
+    const res = await r.sa.setMode(true);
+    t.ok(res.success && w.prompts[0].sids.join() === [STORE, XBOX, XBOXID, CALC].join(), '…the switch: every package without an exemption is given one');
     const w2 = fakeWindows({ containers: MACHINE(), psFails: true, cniList: false });
     t.ok((await rig(w2).sa.scan()) === null, 'nothing readable: nothing done');
   }
@@ -822,7 +889,7 @@ const decode = (b64) => Buffer.from(b64, 'base64').toString('utf16le');
   if (process.platform === 'win32') {
     const { powershellEnv } = require(path.join(ROOT, 'electron', 'win-powershell.js'));
     // Each PowerShell script parses.
-    const scripts = { scan: StoreApps.SCAN_PS, windows: StoreApps.WINDOWS_PS, paths: StoreApps.PATHS_PS, elevated: elevatedScript('add', odd), launcher: outer, uninstaller: unin };
+    const scripts = { scan: StoreApps.SCAN_PS, procs: StoreApps.PROCS_PS, elevated: elevatedScript('add', odd), launcher: outer, uninstaller: unin };
     for (const [name, s] of Object.entries(scripts)) {
       const check = `$e = $null; [void][System.Management.Automation.Language.Parser]::ParseInput([Text.Encoding]::Unicode.GetString([Convert]::FromBase64String('${Buffer.from(s, 'utf16le').toString('base64')}')), [ref]$null, [ref]$e); if ($e.Count) { $e | ForEach-Object { $_.Message }; exit 1 }`;
       const p = spawnSync('powershell.exe', ['-NoProfile', '-NonInteractive', '-Command', check], { encoding: 'utf8', env: powershellEnv() });
@@ -839,10 +906,11 @@ const decode = (b64) => Buffer.from(b64, 'base64').toString('utf16le');
       const pk = s.containers.filter((c) => isPackage(c.name));
       t.ok(pk.every((c) => containerSid(c.name) === c.sid), `…and the firewall's SIDs are the derived ones too (${pk.length})`);
     }
-    // The windows on screen, for real (compiled and run, whatever runs here).
-    const win = spawnSync('powershell.exe', ['-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass', '-EncodedCommand', Buffer.from(StoreApps.WINDOWS_PS, 'utf16le').toString('base64')],
+    // The programs, for real (compiled and run, whatever runs here).
+    const pr = spawnSync('powershell.exe', ['-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass', '-EncodedCommand', Buffer.from(StoreApps.PROCS_PS, 'utf16le').toString('base64')],
       { encoding: 'utf8', env: powershellEnv(), timeout: 120000 });
-    t.ok(win.status === 0, `the windows on screen are looked at (${win.status ? String(win.stderr).trim().slice(0, 200) : `${StoreApps.runningFamilies(win.stdout).join(', ') || 'no Store app'} open`})`);
+    const seen = StoreApps.parseProcs(pr.stdout);
+    t.ok(pr.status === 0 && seen.length > 0, `the programs are looked at (${pr.status ? String(pr.stderr).trim().slice(0, 200) : `${seen.length} in a package or an app container, ${seen.filter((p) => p.appContainer).length} in an app container, ${seen.filter((p) => p.window).length} with a window`})`);
     const open = await sa.runningApps();
     t.ok(open instanceof Set, `the open Store apps are read (${open ? open.size : 'none'})`);
     t.ok([true, false].includes(await sa.canConsent()), 'whether this account can say Yes is read');

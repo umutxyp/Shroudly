@@ -16,9 +16,11 @@
  *   3. its elevated step exempts it, from a TEMP whose path has quotes of
  *      every kind in it, deleting its list as it reads it; CheckNetIsolation
  *      lists it, and the same curl now reaches both: the fix;
- *   4. the autopilot's whole round on this machine: with no Store app open
- *      (a window of one on screen; packaged programs running in the
- *      background are no sign) it asks nothing; with one open (the lab's container stands in for it)
+ *   4. the autopilot's whole round on this machine: each program in a
+ *      package or an app container, from its token, and the decision taken
+ *      here now (Windows Terminal, a desktop program in a package, is no
+ *      sign); with no Store app in use it asks nothing; a program with a
+ *      window in the lab's app container is seen as one, and then
  *      everything it exempts is remembered (settings and HKCU\Software\
  *      Shroudly, one value per SID), an exemption that was there before is
  *      not; the switch turned off takes out its own only, and so does the
@@ -124,6 +126,35 @@ public static class AcLab {
       uint code; GetExitCodeProcess(pi.hProcess, out code); return (int)code;
     } finally {
       CloseHandle(pi.hProcess); CloseHandle(pi.hThread);
+      DeleteProcThreadAttributeList(list); Marshal.FreeHGlobal(list); Marshal.FreeHGlobal(scPtr); Marshal.FreeHGlobal(capPtr);
+    }
+  }
+  // A program with a window in the app container, left running: its process id.
+  public static int Start(string name, string exe) {
+    IntPtr sid = Profile(name);
+    int saSize = Marshal.SizeOf(typeof(SidAttr));
+    IntPtr capPtr = Marshal.AllocHGlobal(saSize);
+    Marshal.StructureToPtr(new SidAttr { Sid = Cap(), Attributes = 4 }, capPtr, false);
+    SecCaps sc = new SecCaps { AppContainerSid = sid, Capabilities = capPtr, CapabilityCount = 1, Reserved = 0 };
+    int scSize = Marshal.SizeOf(typeof(SecCaps));
+    IntPtr scPtr = Marshal.AllocHGlobal(scSize);
+    Marshal.StructureToPtr(sc, scPtr, false);
+    IntPtr size = IntPtr.Zero;
+    InitializeProcThreadAttributeList(IntPtr.Zero, 1, 0, ref size);
+    IntPtr list = Marshal.AllocHGlobal(size);
+    if (!InitializeProcThreadAttributeList(list, 1, 0, ref size)) throw new Exception("attribute list " + Marshal.GetLastWin32Error());
+    if (!UpdateProcThreadAttribute(list, 0, (IntPtr)0x00020009, scPtr, (IntPtr)scSize, IntPtr.Zero, IntPtr.Zero)) throw new Exception("security capabilities " + Marshal.GetLastWin32Error());
+    StartupInfoEx si = new StartupInfoEx();
+    si.StartupInfo.cb = Marshal.SizeOf(typeof(StartupInfoEx));
+    si.lpAttributeList = list;
+    ProcInfo pi;
+    StringBuilder cmd = new StringBuilder("\\"" + exe + "\\"");
+    try {
+      if (!CreateProcessW(exe, cmd, IntPtr.Zero, IntPtr.Zero, false, 0x00080000, IntPtr.Zero, Environment.SystemDirectory, ref si, out pi))
+        throw new Exception("CreateProcess " + Marshal.GetLastWin32Error());
+      CloseHandle(pi.hProcess); CloseHandle(pi.hThread);
+      return pi.dwProcessId;
+    } finally {
       DeleteProcThreadAttributeList(list); Marshal.FreeHGlobal(list); Marshal.FreeHGlobal(scPtr); Marshal.FreeHGlobal(capPtr);
     }
   }
@@ -316,32 +347,78 @@ function uninstallerScript() {
 
     // ── 4. the autopilot's round ──
     cni('-a', `-p=${sidUsers}`);     // the user's own, from before
-    // What it reads to know a Store app is open (a window of it on screen),
-    // and that this account can say Yes.
+    // What it reads to know a Store app is in use: the programs of this
+    // session in a package or an app container, each from its own token.
     const tl = spawnSync(path.join(SYS, 'System32', 'tasklist.exe'), ['/apps', '/fi', `USERNAME eq ${process.env.USERNAME}`, '/fo', 'csv', '/nh'], { encoding: 'utf8', timeout: 30000 });
-    const running = StoreApps.runningFamilies(tl.stdout);
-    // Not a failure here: store-apps.js then looks at the windows directly.
-    console.log(`  ..  tasklist /apps for this account: exit ${tl.status}, packaged programs running besides Windows' own: ${running.join(', ') || 'none'}${tl.status ? ` (${String(tl.stderr || tl.stdout).trim().slice(0, 120)})` : ''}`);
+    console.log(`  ..  tasklist /apps for this account: exit ${tl.status}, packaged programs running besides Windows' own: ${StoreApps.runningFamilies(tl.stdout).join(', ') || 'none'}${tl.status ? ` (${String(tl.stderr || tl.stdout).trim().slice(0, 120)})` : ''}`);
+    const procsNow = () => {
+      const r = ps(StoreApps.PROCS_PS.replace(/^\$ErrorActionPreference = 'Stop'\n/, ''));
+      return r.code === 0 ? StoreApps.parseProcs(r.out) : null;
+    };
+    const showProcs = (list) => {
+      for (const p of list) console.log(`      ${p.name} (${p.pid}): window ${p.window ? 'yes' : 'no'}, app container ${p.appContainer ? `yes ${p.sid}` : 'no'}, package ${p.family || '-'}`);
+    };
+    const procs0 = procsNow();
+    check(Array.isArray(procs0), `the programs in a package or an app container are read from their tokens (${procs0 ? procs0.length : 'could not be'})`);
+    if (procs0) showProcs(procs0);
+    // The decision Shroudly makes on this runner right now, with what it
+    // really detects (nothing stood in).
+    const real = new StoreApps({ store: memStore(), platform: 'win32', protectionOn: () => true });
+    const signs = await real.runningApps();
+    const nowScan = await real.scan();
+    const needNow = nowScan ? StoreApps.candidates(nowScan) : [];
+    const hit = signs ? needNow.filter((c) => signs.has(c.sid)) : [];
+    const decision = !signs ? 'not asked: the programs could not be looked at'
+      : hit.length ? `ask: ${hit.map((c) => c.name).join(', ')} in use and without an exemption`
+        : signs.size ? `not asked: what is in use (${[...signs].join(', ')}) needs no exemption` : 'not asked: no Store app in use (no program in an app container with a window, none called on by a desktop Store app)';
+    console.log(`  ..  the decision here now: ${decision}; ${needNow.length} app containers would need an exemption`);
+    const term = (procs0 || []).find((p) => /^microsoft\.windowsterminal/.test(p.family));
+    if (term) {
+      const tsid = StoreApps.containerSid(term.family);
+      console.log(`  ..  Windows Terminal: app container ${term.appContainer ? 'yes' : 'no'}; its package's container ${tsid} ${needNow.some((c) => c.sid === tsid) ? 'is' : 'is not'} among those that need an exemption`);
+      check(!term.appContainer && !(signs && signs.has(tsid)), 'Windows Terminal, a desktop program in a package, is no sign of a Store app in use');
+    }
     const probe = new StoreApps({ store: memStore(), platform: 'win32' });
-    const openFams = await probe.openFamilies();
-    check(Array.isArray(openFams), `the Store apps with a window on screen are read: ${openFams ? openFams.join(', ') || 'none' : 'could not be told'}; running with no window (no sign): ${running.filter((f) => !(openFams || []).includes(f)).join(', ') || 'none'}`);
     check((await probe.canConsent()) === true, 'this administrator can say Yes');
     const store = memStore();
     const told = [];
     const ap = new StoreApps({ store, platform: 'win32', protectionOn: () => true, tell: (id) => told.push(id), log: (l, m) => console.log(`      [${l}] ${m}`) });
     const before = exemptNow();
-    if (openFams && !openFams.length) {
+    if (signs && !hit.length) {
       const idle = await ap.survey();
       const same = exemptNow();
-      check(idle.why === 'idle' && !told.length && same.size === before.size && [...before].every((s) => same.has(s)), `no Store app open: nothing asked, nothing changed (${idle.why})`);
+      check(idle.why === 'idle' && !idle.asked && !told.length && same.size === before.size && [...before].every((s) => same.has(s)), `no Store app in use: nothing asked, nothing changed (${idle.why})`);
+      ap.asked = false; ap.lastScanAt = -Infinity; ap._readFor = null;
     } else {
-      console.log(`  ..  a Store app has a window open on this runner (${(openFams || []).join(', ')}); the no-app case is left out`);
+      console.log(`  ..  a Store app is in use on this runner (${hit.map((c) => c.name).join(', ')}); the no-app case is left out`);
     }
-    // The lab's container stands in for an open Store app.
-    ap.runningApps = async () => new Set([sidOurs]);
+    // A program with a window in the lab's own app container: what a UWP
+    // app is. Shroudly sees it for itself; where Windows will not show such
+    // a window here, the lab's container stands in.
+    let labPid = 0;
+    let shown = null;
+    for (const exe of ['charmap.exe', 'notepad.exe']) {
+      const full = path.join(SYS, 'System32', exe);
+      if (!fs.existsSync(full)) continue;
+      const st = lab('[Console]::Out.WriteLine([AcLab]::Start($env:LAB_NAME, $env:LAB_EXE))', { LAB_NAME: OURS, LAB_EXE: full });
+      labPid = Number((st.out.match(/(\d+)\s*$/) || [])[1]) || 0;
+      for (let i = 0; i < 10 && labPid && !shown; i++) {
+        await new Promise((r) => setTimeout(r, 1000));
+        shown = (procsNow() || []).find((p) => p.pid === labPid && p.window) || null;
+      }
+      console.log(`  ..  ${exe} in the lab's app container: ${labPid ? `process ${labPid}` : `not started (${st.err.trim().slice(0, 160)})`}, ${shown ? `window on screen, app container ${shown.appContainer ? shown.sid : 'no'}` : 'no window seen'}`);
+      if (shown) break;
+      if (labPid) { try { process.kill(labPid); } catch {} labPid = 0; }
+    }
+    if (shown) {
+      check(shown.appContainer && shown.sid === sidOurs && StoreApps.openSigns([shown]).has(sidOurs), 'a program with a window in an app container is a sign of a Store app in use, by its own token');
+    } else {
+      ap.runningApps = async () => new Set([sidOurs]);
+    }
     const s1 = await ap.survey();
     const ours = ap.ours();
-    check(s1.result === 'on' && told.join() === 'autoStoreAppsAsk,autoStoreAppsOn', `a Store app open: asked once and told (${s1.result}; ${told.join(', ')})`);
+    if (labPid) { try { process.kill(labPid); } catch {} }
+    check(s1.result === 'on' && told.join() === 'autoStoreAppsAsk,autoStoreAppsOn', `a Store app in use${shown ? ' (seen for real)' : ' (stood in)'}: asked once and told (${s1.result || s1.why}; ${told.join(', ')})`);
     check(ours.includes(sidOurs) && !ours.includes(sidUsers), `the lab's container is Shroudly's now; the user's own is not (${ours.length} added)`);
     check(ours.every((s) => !before.has(s)), 'nothing that was exempt before is counted as Shroudly\'s');
     check(!store.get('storeAppsPending'), 'nothing is left pending');

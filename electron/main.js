@@ -1747,10 +1747,12 @@ function createStoreApps() {
     onChange: () => toWindow('storeapps:state', storeApps.status()),
   });
   if (!storeApps.available()) return;
-  // A Store app opened later is seen at the next look (the open programs
-  // only; the app containers are read again for an app not seen open before,
-  // or every half hour).
-  setInterval(() => { storeApps.survey().catch(() => {}); }, 10 * 60 * 1000).unref();
+  // A Store app opened later is seen at the next look, once a minute: a
+  // sign-in broker an app calls on may not run for long. Cheap: tasklist
+  // /apps; the programs' app containers are looked at only once that list
+  // changed, the app containers' list read only for a sign not seen before
+  // (or every half hour).
+  setInterval(() => { storeApps.survey().catch(() => {}); }, 60 * 1000).unref();
 }
 ipcMain.handle('storeapps:status', () => (storeApps ? storeApps.status() : { available: false, on: false }));
 ipcMain.handle('storeapps:set', async (e, on) => (storeApps ? storeApps.setMode(on === true) : { success: false }));

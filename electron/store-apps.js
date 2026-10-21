@@ -25,14 +25,18 @@
  * fix is the exemption, which only an administrator can add (CheckNetIsolation
  * LoopbackExempt -a -p=<package SID>).
  *
- * Autopilot (autopilot.js): while protection is on and a Store app is open
- * (a window of it on screen) whose app container may use the network (internetClient, internetClient-
- * Server or privateNetworkClientServer) and has no exemption, the app
- * containers that need one are given one, all of them in one elevated step
- * (one UAC prompt: a PowerShell that runs CheckNetIsolation for each; the
- * sign-in brokers go with the app), and the user is told in one line. With
- * no Store app open nobody is asked (Windows' own parts, and packaged
- * programs that run in the background by themselves, are no sign), and an account that cannot give administrator permission is
+ * Autopilot (autopilot.js): while protection is on and a Store app is in
+ * use (openSigns: a program in an app container with a window on screen, or
+ * one a desktop Store app opened just now called on, such as the Xbox app's
+ * sign-in) whose app container may use the network (internetClient,
+ * internetClientServer or privateNetworkClientServer) and has no exemption,
+ * the app containers that need one are given one, all of them in one
+ * elevated step (one UAC prompt: a PowerShell that runs CheckNetIsolation
+ * for each; the sign-in brokers go with the app), and the user is told in
+ * one line. With no Store app in use nobody is asked (Windows' own parts,
+ * packaged programs running in the background, and desktop programs in a
+ * package such as Windows Terminal, which no app container holds, are no
+ * sign), and an account that cannot give administrator permission is
  * never asked by itself: the log says so once a session. What Shroudly adds
  * is written down before the prompt (the settings, and HKCU\Software\
  * Shroudly for the uninstaller) and kept once Windows lists it; an exemption
@@ -155,10 +159,9 @@ function parseScan(out) {
   return { containers, exempt: [...new Set(exempt)], errors };
 }
 
-/* Package family names in a list of package full names, or of programs'
- * paths (…\WindowsApps\<full name>\…): `tasklist /apps`, the windows on
- * screen (WINDOWS_PS), Get-Process. Windows' own parts (Start, search, the
- * lock screen) always run, so they are left out. */
+/* Package family names in a list of package full names (`tasklist /apps`),
+ * or of programs' paths (…\WindowsApps\<full name>\…). Windows' own parts
+ * (Start, search, the lock screen) always run, so they are left out. */
 const FULL_NAME_ANY = /(?:^|[^A-Za-z0-9.-])([A-Za-z0-9][A-Za-z0-9.-]{0,63})_\d+(?:\.\d+){0,3}_[A-Za-z0-9]+_[A-Za-z0-9.~-]*_([a-z0-9]{13})(?![A-Za-z0-9])/gi;
 function runningFamilies(out) {
   const fams = new Set();
@@ -182,6 +185,45 @@ function packagedProcesses(out) {
     if (fam) list.push(`${pid[1]}:${fam}`);
   }
   return list.sort();
+}
+
+/* PROCS_PS's lines: [{ pid, window, appContainer, sid (the package's app
+ * container, a child container's parent), family, start, name }]. */
+function parseProcs(out) {
+  const list = [];
+  for (const raw of String(out || '').split(/\r?\n/)) {
+    const f = raw.replace(/\r$/, '').split('\t');
+    if (f[0] !== 'P' || f.length < 8) continue;
+    const m = String(f[4] || '').toUpperCase().match(/^S-1-15-2(?:-\d{1,10}){7}/);
+    list.push({ pid: Number(f[1]), window: f[2] === '1', appContainer: f[3] === '1', sid: f[3] === '1' && m ? m[0] : '',
+      family: familyOf(f[5]) ? familyOf(f[5]).toLowerCase() : '', start: Number(f[6]) || 0, name: f[7] });
+  }
+  return list;
+}
+
+/* Signs that a Store app is in use, as the app containers it runs in (a Set
+ * of SIDs). Windows keeps only app containers off loopback addresses; a
+ * desktop program in a package (Windows Terminal, the Xbox app, Store
+ * versions of WhatsApp or Spotify) runs outside one and reaches Shroudly
+ * like any program, so it is no sign by itself:
+ *  - a program in an app container with a window on screen: a UWP app open
+ *    (the Microsoft Store, a game, any app);
+ *  - a program in an app container, window or not, started after a desktop
+ *    program in a package was opened (a window of it on screen): what that
+ *    one called on, such as the Xbox app's sign-in (XboxIdentityProvider).
+ * Never Windows' own parts (Start, search, the sign-in broker of Windows,
+ * which run whatever anyone opens), nor a program in an app container that
+ * was already running before, by itself. */
+function openSigns(procs) {
+  const own = (p) => p.family && p.family.endsWith(`_${WINDOWS_PUBLISHER}`);
+  const opened = procs.filter((p) => p.window && p.family && !p.appContainer && !own(p)).map((p) => p.start);
+  const since = opened.length ? Math.min(...opened) : Infinity;
+  const sids = new Set();
+  for (const p of procs) {
+    if (!p.appContainer || !SID_RE.test(p.sid) || own(p)) continue;
+    if (p.window || p.start >= since) sids.add(p.sid);
+  }
+  return sids;
 }
 
 function hasAdministrators(out) {
@@ -366,19 +408,20 @@ const SCAN_PS = [
   'foreach ($l in [ShroudlyNetIso]::Run()) { [Console]::Out.WriteLine($l) }',
 ].join('\n');
 
-/* The Store apps someone has open: the packages of the programs with a
- * window on screen (visible, and not cloaked: a suspended app's frame, a
- * window on another desktop). A UWP app's window (Windows.UI.Core.CoreWindow)
- * sits inside a frame of ApplicationFrameHost's, so that one's program is
- * looked up too. Packaged programs that run in the background by themselves
- * (widgets, Phone Link, a sync client) have none. Needs no administrator;
- * only this session's windows are seen. Prints package full names. */
-const WINDOWS_CS = [
+/* The programs of this session that matter here, each a "P" line: process
+ * id, a window of it on screen (1/0: visible and not cloaked; a UWP app's
+ * window sits inside ApplicationFrameHost's frame and is found through its
+ * CoreWindow), whether it runs in an app container (1/0, from its token),
+ * that app container's SID, its package's full name, when it started (a
+ * FILETIME) and its name. Programs with neither a package nor an app
+ * container are left out. Needs no administrator. */
+const PROCS_CS = [
   'using System;',
   'using System.Collections.Generic;',
+  'using System.Diagnostics;',
   'using System.Runtime.InteropServices;',
   'using System.Text;',
-  'public static class ShroudlyWin {',
+  'public static class ShroudlyProcs {',
   '  delegate bool EnumProc(IntPtr h, IntPtr l);',
   '  [DllImport("user32.dll")] static extern bool EnumWindows(EnumProc f, IntPtr l);',
   '  [DllImport("user32.dll", CharSet = CharSet.Unicode)] static extern IntPtr FindWindowEx(IntPtr parent, IntPtr after, string cls, string title);',
@@ -388,57 +431,82 @@ const WINDOWS_CS = [
   '  [DllImport("dwmapi.dll")] static extern int DwmGetWindowAttribute(IntPtr h, int attr, out int v, int size);',
   '  [DllImport("kernel32.dll")] static extern IntPtr OpenProcess(uint access, bool inherit, uint pid);',
   '  [DllImport("kernel32.dll", CharSet = CharSet.Unicode)] static extern int GetPackageFullName(IntPtr p, ref uint len, StringBuilder name);',
+  '  [DllImport("kernel32.dll")] static extern bool GetProcessTimes(IntPtr p, out long create, out long exit, out long kernel, out long user);',
   '  [DllImport("kernel32.dll")] static extern bool CloseHandle(IntPtr h);',
+  '  [DllImport("kernel32.dll")] static extern IntPtr LocalFree(IntPtr p);',
+  '  [DllImport("advapi32.dll")] static extern bool OpenProcessToken(IntPtr p, uint access, out IntPtr token);',
+  '  [DllImport("advapi32.dll")] static extern bool GetTokenInformation(IntPtr token, int cls, IntPtr info, int len, out int ret);',
+  '  [DllImport("advapi32.dll", CharSet = CharSet.Unicode)] static extern bool ConvertSidToStringSid(IntPtr sid, out IntPtr str);',
   '  static bool Shown(IntPtr h) {',
   '    if (!IsWindowVisible(h)) return false;',
   '    int cloaked;',
   '    return DwmGetWindowAttribute(h, 14, out cloaked, 4) != 0 || cloaked == 0;',
   '  }',
+  '  static string Clean(string s) { return (s ?? "").Replace("\\t", " ").Replace("\\r", " ").Replace("\\n", " "); }',
   '  public static string[] Run() {',
-  '    HashSet<uint> pids = new HashSet<uint>();',
+  '    HashSet<uint> shown = new HashSet<uint>();',
   '    EnumWindows(delegate (IntPtr h, IntPtr l) {',
   '      if (!Shown(h)) return true;',
   '      uint wp;',
   '      GetWindowThreadProcessId(h, out wp);',
-  '      pids.Add(wp);',
+  '      shown.Add(wp);',
   '      StringBuilder cls = new StringBuilder(64);',
   '      GetClassName(h, cls, 64);',
   '      if (cls.ToString() == "ApplicationFrameWindow") {',
   '        IntPtr c = IntPtr.Zero;',
-  '        while ((c = FindWindowEx(h, c, "Windows.UI.Core.CoreWindow", null)) != IntPtr.Zero) { uint cp; GetWindowThreadProcessId(c, out cp); pids.Add(cp); }',
+  '        while ((c = FindWindowEx(h, c, "Windows.UI.Core.CoreWindow", null)) != IntPtr.Zero) { uint cp; GetWindowThreadProcessId(c, out cp); shown.Add(cp); }',
   '      }',
   '      return true;',
   '    }, IntPtr.Zero);',
-  '    List<string> names = new List<string>();',
-  '    foreach (uint pid in pids) {',
-  '      IntPtr p = OpenProcess(0x1000, false, pid);',
-  '      if (p == IntPtr.Zero) continue;',
-  '      try {',
-  '        uint len = 0;',
-  '        if (GetPackageFullName(p, ref len, null) != 122 || len == 0) continue;',
-  '        StringBuilder sb = new StringBuilder((int)len);',
-  '        if (GetPackageFullName(p, ref len, sb) == 0) names.Add(sb.ToString());',
-  '      } finally { CloseHandle(p); }',
-  '    }',
-  '    return names.ToArray();',
+  '    int session = Process.GetCurrentProcess().SessionId;',
+  '    List<string> lines = new List<string>();',
+  '    IntPtr buf = Marshal.AllocHGlobal(256);',
+  '    try {',
+  '      foreach (Process proc in Process.GetProcesses()) {',
+  '        uint pid = (uint)proc.Id;',
+  '        string name = "";',
+  '        try { if (proc.SessionId != session) continue; name = proc.ProcessName; } catch { continue; } finally { proc.Dispose(); }',
+  '        IntPtr p = OpenProcess(0x1000, false, pid);',
+  '        if (p == IntPtr.Zero) continue;',
+  '        try {',
+  '          string pkg = "";',
+  '          uint len = 0;',
+  '          if (GetPackageFullName(p, ref len, null) == 122 && len > 0) {',
+  '            StringBuilder sb = new StringBuilder((int)len);',
+  '            if (GetPackageFullName(p, ref len, sb) == 0) pkg = sb.ToString();',
+  '          }',
+  '          bool ac = false;',
+  '          string sid = "";',
+  '          IntPtr tok;',
+  '          if (OpenProcessToken(p, 8, out tok)) {',
+  '            try {',
+  '              int ret;',
+  '              if (GetTokenInformation(tok, 29, buf, 4, out ret)) ac = Marshal.ReadInt32(buf) != 0;',
+  '              if (ac && GetTokenInformation(tok, 31, buf, 256, out ret)) {',
+  '                IntPtr s;',
+  '                if (ConvertSidToStringSid(Marshal.ReadIntPtr(buf), out s)) { sid = Marshal.PtrToStringUni(s); LocalFree(s); }',
+  '              }',
+  '            } finally { CloseHandle(tok); }',
+  '          }',
+  '          if (pkg == "" && !ac) continue;',
+  '          long created, exited, kt, ut;',
+  '          if (!GetProcessTimes(p, out created, out exited, out kt, out ut)) created = 0;',
+  '          lines.Add("P\\t" + pid + "\\t" + (shown.Contains(pid) ? "1" : "0") + "\\t" + (ac ? "1" : "0") + "\\t" + sid + "\\t" + Clean(pkg) + "\\t" + created + "\\t" + Clean(name));',
+  '        } finally { CloseHandle(p); }',
+  '      }',
+  '    } finally { Marshal.FreeHGlobal(buf); }',
+  '    return lines.ToArray();',
   '  }',
   '}',
 ].join('\n');
 
-const WINDOWS_PS = [
+const PROCS_PS = [
   "$ErrorActionPreference = 'Stop'",
   "Add-Type -TypeDefinition @'",
-  WINDOWS_CS,
+  PROCS_CS,
   "'@",
-  'foreach ($l in [ShroudlyWin]::Run()) { [Console]::Out.WriteLine($l) }',
+  'foreach ($l in [ShroudlyProcs]::Run()) { [Console]::Out.WriteLine($l) }',
 ].join('\n');
-
-/* Where that cannot be had (PowerShell locked down): the paths of the
- * programs with a main window. Only cmdlets; a UWP app's own program is
- * missed here (its window is inside ApplicationFrameHost's), a game's or a
- * desktop Store app's is not. The part read (a package's full name) is plain
- * ASCII whatever the console's code page. */
-const PATHS_PS = 'Get-Process | Where-Object { $_.MainWindowHandle -ne 0 -and $_.Path } | ForEach-Object { $_.Path }';
 
 const encode = (script) => Buffer.from(script, 'utf16le').toString('base64');
 // PowerShell takes ‘ ’ ‚ ‛ for a single quote too; each is doubled like '.
@@ -522,7 +590,7 @@ class StoreApps {
     this.admin = null;           // this account can say Yes to a prompt (null: not known yet)
     this.lastScanAt = -Infinity;
     this._readFor = null;        // the open apps the last read (no prompt after it) was made for
-    this._winFor = null;         // the packaged programs the windows were last looked at for, and what was open
+    this._procsFor = null;       // the packaged programs the processes were last looked at for, and what they showed
     this._running = null;        // a survey under way
     this._removing = null;       // the switch's removal under way
     this._gen = 0;               // the switch turned: a survey under way stands down
@@ -575,41 +643,39 @@ class StoreApps {
     return r.code === 0 ? parseExemptList(r.stdout) : null;
   }
 
-  /* The Store apps this account has open now, as family names: a window of
-   * theirs on screen (Windows' own parts left out; a packaged program running
-   * in the background by itself, or a packaged service running as SYSTEM,
-   * such as Gaming Services, is no sign), or null when that cannot be told.
-   * Cheap first: with no packaged program of this account's running (tasklist
-   * /apps), or the same ones as at the last look a while ago, the windows are
-   * not looked at again. */
-  async openFamilies() {
+  /* The programs of this session in a package or an app container
+   * (parseProcs), or null when they cannot be looked at (a locked-down
+   * PowerShell: then nothing is asked by itself; the switch still asks).
+   * Cheap first: with no packaged program of this account's running
+   * (tasklist /apps), nothing to look at; with the same ones as at the last
+   * look less than half an hour ago, that look stands. */
+  async processes() {
     if (!this.available()) return null;
     let user = process.env.USERNAME || '';
     try { user = user || os.userInfo().username; } catch {}
     const t = user
       ? await this.run(SYSTEM_TOOL('tasklist.exe'), ['/apps', '/fi', `USERNAME eq ${user}`, '/fo', 'csv', '/nh'], 15000)
       : { code: -1 };
-    let sig = null;
+    let sig = '?';
     if (t.code === 0) {
       const procs = packagedProcesses(t.stdout);
-      if (!procs.length) { this._winFor = null; return []; }
+      if (!procs.length) { this._procsFor = null; return []; }
       sig = procs.join(' ');
-      const last = this._winFor;
-      if (last && last.sig === sig && this.now() - last.at < RESCAN_MS) return last.families;
     }
-    const ps = (script) => this.run(POWERSHELL(), ['-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass', '-EncodedCommand', encode(script)], 60000);
-    let r = await ps(WINDOWS_PS);
-    if (r.code !== 0) r = await ps(PATHS_PS);
+    const last = this._procsFor;
+    // Without tasklist /apps, looked at again every ten minutes.
+    if (last && last.sig === sig && this.now() - last.at < (sig === '?' ? 10 * 60 * 1000 : RESCAN_MS)) return last.procs;
+    const r = await this.run(POWERSHELL(), ['-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass', '-EncodedCommand', encode(PROCS_PS)], 60000);
     if (r.code !== 0) return null;
-    const families = runningFamilies(r.stdout);
-    this._winFor = sig ? { sig, at: this.now(), families } : null;
-    return families;
+    const procs = parseProcs(r.stdout);
+    this._procsFor = { sig, at: this.now(), procs };
+    return procs;
   }
 
-  /* Their app containers (a Set of SIDs), or null. */
+  /* The app containers that show a Store app in use (openSigns), or null. */
   async runningApps() {
-    const f = await this.openFamilies();
-    return f ? new Set(f.map(containerSid)) : null;
+    const p = await this.processes();
+    return p ? openSigns(p) : null;
   }
 
   /* Whether this account can say Yes to a permission prompt: true, false,
@@ -964,6 +1030,6 @@ class StoreApps {
 module.exports = StoreApps;
 Object.assign(module.exports, {
   containerSid, familyOf, isPackage, usesNetwork, parseMappings, parseExemptList, parseScan, candidates, decide, appNames,
-  runningFamilies, packagedProcesses, hasAdministrators, parseRecord, recordReg, elevatedScript, launcherScript, psQuote, SCAN_PS, WINDOWS_PS, PATHS_PS, SID_RE, RESPECT_MS,
+  runningFamilies, packagedProcesses, parseProcs, openSigns, hasAdministrators, parseRecord, recordReg, elevatedScript, launcherScript, psQuote, SCAN_PS, PROCS_PS, SID_RE, RESPECT_MS,
   RESCAN_MS, ELEVATE_TIMEOUT_MS, RECORD_KEY, RECORD_VALUE, RECORD_LIST, MAPPINGS_KEY,
 });
