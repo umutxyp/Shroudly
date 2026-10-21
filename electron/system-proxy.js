@@ -417,8 +417,25 @@ class SystemProxy {
   /* A PAC that always sends local/private hosts direct. In 'all' mode every
    * other host goes through the proxy; in 'listed' mode only the domains in
    * this.list (and their subdomains) do, everything else goes direct. */
+  /* Windows: WinHTTP reads a PAC's SOCKS entries as nothing at all and
+   * answers "no proxy" (tests/net/telegram-real.test.js saw it), so every
+   * program that asks WinHTTP for the system proxy went around Shroudly: Qt
+   * programs such as Telegram Desktop on "use system proxy", .NET ones. For
+   * https:// (and what such programs ask for a plain TCP connection, which Qt
+   * asks as https://) the engine is offered as an HTTP proxy too, after the
+   * SOCKS entries: the engine takes CONNECT on its port. Everything that
+   * understands SOCKS (browsers, WinINET, Java) still takes the first entry
+   * it knows, as before. Plain http:// is left as it was: a proxy there gets
+   * whole requests, not a tunnel. */
+  pacRoute(port) {
+    const proxy = this.pacProxy(port);
+    if (this.platform !== 'win32') return `"${proxy}"`;
+    return `(url.substring(0, 6).toLowerCase() === "https:" ? "${proxy}; PROXY 127.0.0.1:${port}" : "${proxy}")`;
+  }
+
   pacBody(port) {
     const proxy = this.pacProxy(port);
+    const route = this.pacRoute(port);
     /* Anything on this machine or this network never goes through the engine.
      * The previous list only covered 172.16, leaving the other fifteen private
      * /16s inside 172.16/12 — plus link-local and carrier-grade NAT, which is
@@ -466,13 +483,13 @@ function FindProxyForURL(url, host) {
 ${local}
   var h = ("" + host).toLowerCase();
   while (true) {
-    if (SHROUDLY_LIST.hasOwnProperty(h)) return "${proxy}";
+    if (SHROUDLY_LIST.hasOwnProperty(h)) return ${route};
     var i = h.indexOf(".");
     if (i < 0) break;
     h = h.substring(i + 1);
   }
   if (/^\\d+\\.\\d+\\.\\d+\\.\\d+$/.test(host) && (${ranges ? `\n      ${ranges}` : 'false'})) {
-    return "${proxy}";
+    return ${route};
   }
   return "DIRECT";
 }
@@ -484,9 +501,9 @@ ${local}
     // literal with no dot in it as a plain name. Every other IPv6 literal
     // (this computer, link-local, unique-local) stays direct below.
     return `function FindProxyForURL(url, host) {
-  if (/^\\[?[23][0-9a-fA-F]{0,3}:[0-9a-fA-F:.]*\\]?$/.test(host)) { return "${proxy}"; }
+  if (/^\\[?[23][0-9a-fA-F]{0,3}:[0-9a-fA-F:.]*\\]?$/.test(host)) { return ${route}; }
 ${local}
-  return "${proxy}";
+  return ${route};
 }
 `;
   }

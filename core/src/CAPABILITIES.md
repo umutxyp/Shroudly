@@ -383,6 +383,11 @@ points at the app's own proxy setting or a VPN.
 Reaching apps at all: on Android every app goes through the VPN. On Windows
 and macOS an app that follows the system proxy reads Shroudly's PAC, which now
 sends global IPv6 addresses to the engine too (IPv4 ones already went), and in
-"listed" mode the address ranges of known services. An app that ignores the
+"listed" mode the address ranges of known services. On Windows, WinHTTP turned
+out to read the PAC's SOCKS entries as nothing and answer "no proxy", so every
+program asking it (Qt ones such as Telegram Desktop on "use system proxy",
+.NET) went around Shroudly; the PAC now also offers the engine's port as an
+HTTP proxy for https:// (last, so SOCKS clients are unaffected), and the
+engine takes HTTP CONNECT on that port (never with --auth-file). An app that ignores the
 system proxy (Telegram Desktop on Linux without libproxy, for one) never
 reaches the engine; its own proxy setting can point at Shroudly's SOCKS5 port.

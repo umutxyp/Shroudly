@@ -634,7 +634,7 @@ void engine_emit_stats(void) {
 typedef struct {
   char     host[256];
   uint16_t port;
-  int      ver;        /* 4 or 5: decides the reply format */
+  int      ver;        /* 4 or 5, or 1 for HTTP CONNECT: decides the reply format */
   /* 0x01 CONNECT, or (SOCKS5 only) 0x03 UDP ASSOCIATE: host and port are
    * then where the client says it will send its datagrams from; see
    * udp_associate() for when that is used. */
@@ -686,8 +686,15 @@ static int socks5_reply(sock_t c, uint8_t rep) {
   return sock_send_all(c, r, 10, 0);
 }
 
+static int send_str(sock_t c, const char *s) { return sock_send_all(c, (const uint8_t *)s, strlen(s), 0); }
+
 /* Tell the client whether its connection is up, in its own protocol. */
 static int socks_reply(sock_t c, const socks_req *rq, int ok) {
+  if (rq->ver == 1) {
+    static const char yes[] = "HTTP/1.1 200 Connection established\r\n\r\n";
+    static const char no[]  = "HTTP/1.1 502 Bad Gateway\r\nContent-Length: 0\r\nConnection: close\r\n\r\n";
+    return ok ? send_str(c, yes) : send_str(c, no);
+  }
   if (rq->ver == 4) return socks4_reply(c, ok ? 0x5A : 0x5B);
   return socks5_reply(c, ok ? 0x00 : 0x04);
 }
@@ -919,12 +926,76 @@ static int socks5_auth(sock_t c) {
   return ok ? 0 : -1;
 }
 
+/* HTTP CONNECT, for the programs that can be given only an HTTP proxy.
+ * Windows' WinHTTP drops a PAC's SOCKS entries (it answers "no proxy"), so a
+ * program that asks it for the system proxy (Qt programs such as Telegram
+ * Desktop, .NET) would otherwise go around Shroudly; the PAC offers it this
+ * port as a "PROXY" for https:// as well (system-proxy.js). Only a tunnel:
+ * "CONNECT host:port HTTP/1.x", headers to the blank line (read to the byte,
+ * so nothing of the tunnel is taken with them), then the same connection as
+ * a SOCKS one. Never with --auth-file (Android), which no HTTP client here
+ * would answer; and a web page cannot send CONNECT. The two bytes "CO" are
+ * already read. */
+static int http_connect_accept(sock_t c, socks_req *rq) {
+  char h[2048];
+  int n = 2;
+  h[0] = 'C'; h[1] = 'O';
+  while (n < (int)sizeof(h) - 1) {
+    if (recv_exact(c, (uint8_t *)h + n, 1) != 0) return -1;
+    n++;
+    if (n >= 4 && memcmp(h + n - 4, "\r\n\r\n", 4) == 0) break;
+  }
+  h[n] = 0;
+  static const char bad[] = "HTTP/1.1 400 Bad Request\r\nContent-Length: 0\r\nConnection: close\r\n\r\n";
+  if (n < 4 || memcmp(h + n - 4, "\r\n\r\n", 4) != 0 || strncmp(h, "CONNECT ", 8) != 0) {
+    send_str(c, bad); return -1;
+  }
+  const char *t = h + 8, *sp = strchr(t, ' ');
+  if (!sp || strncmp(sp, " HTTP/1.", 8) != 0 || sp - t <= 0 || sp - t > 262) {
+    send_str(c, bad); return -1;
+  }
+  char target[264];
+  memcpy(target, t, (size_t)(sp - t)); target[sp - t] = 0;
+  char *colon = strrchr(target, ':');
+  long port = colon ? strtol(colon + 1, NULL, 10) : 0;
+  if (!colon || port <= 0 || port > 65535) { send_str(c, bad); return -1; }
+  *colon = 0;
+  char *host = target;
+  if (host[0] == '[') {
+    size_t l = strlen(host);
+    if (l < 3 || host[l - 1] != ']') { send_str(c, bad); return -1; }
+    host[l - 1] = 0; host++;
+    struct in6_addr a6;
+    if (inet_pton(AF_INET6, host, &a6) != 1) { send_str(c, bad); return -1; }
+  }
+  if (!host[0] || strlen(host) > 253) { send_str(c, bad); return -1; }
+  for (const char *q = host; *q; q++) {
+    char ch = *q;
+    if (!((ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z') || (ch >= '0' && ch <= '9') || ch == '.' || ch == '-' || ch == ':' || ch == '_')) {
+      send_str(c, bad); return -1;
+    }
+  }
+  rq->ver = 1;
+  rq->cmd = 0x01;
+  snprintf(rq->host, sizeof(rq->host), "%s", host);
+  rq->port = (uint16_t)port;
+  return 0;
+}
+
 static int socks_accept(sock_t c, socks_req *rq) {
   uint8_t b[300];
   memset(rq, 0, sizeof(*rq));
   int auth = g_cfg.auth_user[0] != 0;
   if (sock_wait_readable(c, 5000) != 1) return -1;
   if (recv_exact(c, b, 2) != 0) return -1;
+  if (b[0] == 'C' && b[1] == 'O') {
+    if (auth) {
+      static const char no[] = "HTTP/1.1 403 Forbidden\r\nContent-Length: 0\r\nConnection: close\r\n\r\n";
+      send_str(c, no);
+      return -1;
+    }
+    return http_connect_accept(c, rq);
+  }
   if (b[0] == 0x04) {
     if (auth) { socks4_reply(c, 0x5B); return -1; }
     return socks4_accept(c, b[1], rq);
@@ -2718,7 +2789,7 @@ static void handle(sock_t client) {
   if (rq.cmd == 0x03) { udp_associate(client, &rq); goto done; }
   /* A stand-in address that outlived its mapping: "not allowed", at once. */
   if (host_in_fake_net(rq.host)) {
-    if (rq.ver == 4) socks4_reply(client, 0x5B); else socks5_reply(client, 0x02);
+    if (rq.ver == 4) socks4_reply(client, 0x5B); else if (rq.ver == 1) socks_reply(client, &rq, 0); else socks5_reply(client, 0x02);
     goto done;
   }
   snprintf(dial_host, sizeof(dial_host), "%s", rq.host);
