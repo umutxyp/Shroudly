@@ -30,6 +30,10 @@ const ok = (cond, label) => {
   console.log(`  ok  ${label}`);
 };
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+// Quit, but never wait forever: a program that kept Shroudly's output open
+// (a browser opened for it) would hold Playwright's close; the check after it
+// then says what is left instead of the job hanging until it is cancelled.
+const closeApp = (a) => Promise.race([a.close().catch(() => {}), sleep(30000)]);
 async function until(fn, ms, step = 200) {
   const end = Date.now() + ms;
   for (;;) {
@@ -378,7 +382,7 @@ async function record(label, pid) {
     }
   } finally {
     const before = (await tree(pid)).map((p) => p.pid);
-    await app.close().catch(() => {});
+    await closeApp(app);
     // Everything it started is gone with it (the watchdog exits when there
     // is nothing left to restore).
     const left = await until(() => {
@@ -402,7 +406,7 @@ async function record(label, pid) {
       });
       const engineUp = async () => (await tree(a.process().pid)).some((p) => /shroudly-core/.test(p.cmd) && !/--watchdog/.test(p.cmd));
       const up = await until(engineUp, 8000, 500);
-      await a.close().catch(() => {});
+      await closeApp(a);
       return !!up;
     };
     ok(!(await relaunch(false)), 'stopped by the user, then restarted: protection stays off');
@@ -428,7 +432,7 @@ async function record(label, pid) {
       const second = require('child_process').spawn(bin, [APP, `--user-data-dir=${ud}`, ...extra], { env, stdio: 'ignore' });
       await new Promise((r) => { second.once('exit', r); second.once('error', r); setTimeout(r, 30000); });
       ok(!!(await until(shown, 20000, 300)), 'icon hidden: starting Shroudly again brings the window back');
-    } finally { await a.close().catch(() => {}); }
+    } finally { await closeApp(a); }
     const after = JSON.parse(fs.readFileSync(path.join(ud, 'config.json'), 'utf8'));
     delete after.showTrayIcon;
     fs.writeFileSync(path.join(ud, 'config.json'), JSON.stringify(after));
@@ -468,7 +472,7 @@ async function record(label, pid) {
       });
       ok(!!st && st.asked > 0 && st.shown, `no tray: closing minimises instead of hiding (${JSON.stringify(st)})`);
       ok(await w.evaluate(() => typeof window.electron.quitApp === 'function'), 'the window offers its own Quit');
-    } finally { await a.close().catch(() => {}); }
+    } finally { await closeApp(a); }
     // Started at login (or by an update) with "minimize to tray" on: with no
     // tray to come back from, a window all the same, minimised.
     const b = await _electron.launch({
@@ -478,7 +482,7 @@ async function record(label, pid) {
     try {
       await b.firstWindow({ timeout: 30000 });
       ok(await b.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows().length) === 1, 'no tray, started at login: a window all the same, never nothing on screen');
-    } finally { await b.close().catch(() => {}); }
+    } finally { await closeApp(b); }
   }
   fs.rmSync(ud, { recursive: true, force: true });
 

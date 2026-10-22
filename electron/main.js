@@ -45,6 +45,7 @@ const wake = require('./wake');
 const { buildReport, buildCompact, saveReport, toClipboard } = require('./log-report');
 const LogGate = require('./log-gate');
 const { AdblockList } = require('./adblock');
+const { reveal } = require('./reveal');
 
 /* "Shroudly --restore-proxy" runs once at login after a run that never got to
  * restore the system proxy (power loss, forced reboot), and from the watchdog
@@ -232,7 +233,8 @@ function saveLogs() {
   const dirs = ['downloads', 'desktop', 'documents', 'home'].map((n) => () => app.getPath(n));
   const r = saveReport(text, dirs);
   if (!r.ok) { addLog('error', `Logs could not be saved: ${r.error}`); return { ok: false }; }
-  try { shell.showItemInFolder(r.file); } catch {}
+  // Shown in the file manager (on Linux never as a program of ours: reveal.js).
+  reveal(r.file).catch(() => {});
   return { ok: true, file: r.file, name: path.basename(r.file), folder: path.dirname(r.file) };
 }
 
