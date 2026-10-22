@@ -129,8 +129,13 @@ function get(url, o = {}) {
       const at = await DA.startedAt({ exe: path.basename(process.execPath) });
       t.ok(typeof at === 'number' && at <= Date.now() && at > Date.now() - 7 * 86400000, `Windows: when a running program started, from PowerShell (${at && new Date(at).toISOString()})`);
     } else {
-      const at = DA.oldestStart(await new Promise((r) => require('child_process').execFile('ps', ['-o', 'etime=', '-p', String(process.pid)], (e, o) => r(String(o || '')))));
-      t.ok(typeof at === 'number' && Math.abs(at - (Date.now() - process.uptime() * 1000)) < 3000, 'this system: how long a program has run, from ps');
+      // (Minimal containers have no ps; the lookup is for macOS, where it always is.)
+      const out = await new Promise((r) => require('child_process').execFile('ps', ['-o', 'etime=', '-p', String(process.pid)], (e, o) => r(e ? null : String(o || ''))));
+      if (out === null && process.platform !== 'darwin') console.log('  --  no ps here: the elapsed-time lookup is checked on macOS');
+      else {
+        const at = DA.oldestStart(out);
+        t.ok(typeof at === 'number' && Math.abs(at - (Date.now() - process.uptime() * 1000)) < 3000, 'this system: how long a program has run, from ps');
+      }
     }
   }
   t.ok(typeof DA.anyRunning === 'function' && Array.isArray(DA.present()), 'builds present on any system, and whether one runs, for the autopilot');
