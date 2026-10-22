@@ -51,6 +51,9 @@ function Actions({ children }) {
 function remembered(key) { try { return localStorage.getItem(key) === '1'; } catch { return false; } }
 function remember(key) { try { localStorage.setItem(key, '1'); } catch {} }
 
+// The lines about a Roblox Studio around Shroudly (shown from the apps state).
+const STUDIO_LINES = ['autoStudioReopen', 'autoStudioParent', 'autoStudioAgain'];
+
 export default function BlockedNotice({ onNavigate, active = false }) {
   const { t, locale, language } = useLanguage();
   const [host, setHost] = useState(null);
@@ -101,11 +104,11 @@ export default function BlockedNotice({ onNavigate, active = false }) {
   const discordRetry = () => run(() => window.electron.discordSet(discord?.pendingOn !== false));
   // A notice is shown while it is news: a quarter of an hour at most.
   const NOTICE_MS = 15 * 60 * 1000;
-  // The line about Roblox Studio comes from the apps state (it stays while
-  // that Studio runs), so it never replaces another line here.
+  // The lines about Roblox Studio come from the apps state (they stay while
+  // that Studio runs), so they never replace another line here.
   const onNotice = (n) => {
     if (!n || !n.id) return;
-    if (n.id !== 'autoStudioReopen') setNotice(n);
+    if (!STUDIO_LINES.includes(n.id)) setNotice(n);
     // Advanced mode on: the site it was turned on for is no longer a failure.
     if (n.id === 'autoAdvancedOn') setHost(null);
     refreshAdv(); refreshApps(); refreshDiscord();
@@ -227,10 +230,13 @@ export default function BlockedNotice({ onNavigate, active = false }) {
 
   /* Roblox Studio open around Shroudly. Shroudly never closes Studio itself:
    * it may hold work that is not saved. Said while that Studio runs; a later
-   * Studio is a new line, even if this one was closed. */
+   * Studio is a new line, even if this one was closed. The first asks to
+   * reopen it; one around again says what works (autoStudioParent names the
+   * program that started it, autoStudioAgain does not). */
   const studioAt = apps?.studioReopenAt || 0;
   if (active && studioAt && !hidden[`studio:${studioAt}`]) {
-    return <Banner tone="accent" Icon={RefreshIcon} body={t('autoStudioReopen')}
+    const studioLine = { autoStudioParent: 'autoStudioParent', autoStudioAgain: 'autoStudioAgain' }[apps?.studioReopenId] || 'autoStudioReopen';
+    return <Banner tone="accent" Icon={RefreshIcon} body={t(studioLine, apps?.studioReopenParams || {})}
                    onClose={() => hide(`studio:${studioAt}`)} closeLabel={closeLabel} />;
   }
 

@@ -386,10 +386,21 @@ Games and apps mode sets it, on Windows and macOS, without admin rights:
   logout. On **Windows** it is your user environment, and Explorer is told
   about the change: programs started from the Start menu, the desktop or File
   Explorer get it.
+- On **Windows**, a link clicked in a browser (the website's *Play* and *Edit*
+  buttons: `roblox-player:`, `roblox-studio:`) is started by the browser, which
+  keeps the environment it started with, usually from before Shroudly. So
+  while the mode is on, Roblox's links (whichever program handles them:
+  Roblox's own, or a Bloxstrap-style launcher) go through Shroudly, for your
+  user only and without admin rights: Windows runs Shroudly for the link, and
+  Shroudly starts the link's own program with the setting and steps aside.
+  The link never depends on Shroudly: with Shroudly stopped, quit or killed it
+  opens its program exactly as before. Each link is put back exactly as it was
+  wherever the setting is removed (below); one that Roblox wrote again since
+  (an update) keeps what Roblox wrote.
 - A program reads it when it starts, so what was already open, and on Windows
-  what a browser that was already open starts (it keeps its old environment:
-  the website's *Play* and *Edit* buttons, an installer opened from the
-  download bar), goes around Shroudly. Shroudly checks what actually happens,
+  what a browser that was already open starts other than by a link (it keeps
+  its old environment: an installer opened from the download bar), goes
+  around Shroudly. Shroudly checks what actually happens,
   not just that the setting was written: a Roblox program that has run for
   half a minute without a single request reaching Shroudly is going around it.
   Where Roblox is blocked, such a **player** is restarted through Shroudly (or
@@ -398,7 +409,10 @@ Games and apps mode sets it, on Windows and macOS, without admin rights:
   and Roblox's current one is fetched through the engine, checked to be signed
   by Roblox Corporation, and started through Shroudly instead. **Roblox
   Studio** is never closed by Shroudly, since it may hold work that is not
-  saved: the user is asked to save, close and reopen it. A player that still
+  saved: the user is asked once to save, close and reopen it. Should a Studio
+  go around Shroudly again, the same advice would not help, so the user is
+  told once what does, naming the program that started it when Windows says
+  (one that was open before Shroudly). A player that still
   does not get through after two restarts is left to Advanced mode. The first
   program, and the first Roblox connection, to go through the mode are logged.
   The Microsoft Store edition of Roblox runs in a sandbox that cannot reach
@@ -410,7 +424,8 @@ Games and apps mode sets it, on Windows and macOS, without admin rights:
   value is Shroudly's.
 - It is removed when you turn the mode off, when you quit Shroudly, at logout
   and shutdown, by a watchdog within a second if Shroudly is killed, at the
-  next sign-in after a power cut (Windows), and by the Windows uninstaller. A
+  next sign-in after a power cut (Windows), and by the Windows uninstaller,
+  and Roblox's links with it. A
   program started without Shroudly connects as it always did. One that was
   started while the mode was on keeps the setting it started with until it
   is restarted; if such a program cannot connect after you quit Shroudly,
@@ -426,7 +441,12 @@ That Roblox Studio honours the setting is tested for real on every change: on a
 Windows CI machine, Studio's current installer is fetched through the engine and
 run with the setting, and Studio itself then runs for a minute; every
 connection Roblox's programs make must go through Shroudly
-([`tests/net/studio.test.js`](tests/net/studio.test.js)).
+([`tests/net/studio.test.js`](tests/net/studio.test.js)). The same machine then
+opens Studio by its `roblox-studio:` link from a program without the setting,
+as a browser open since before Shroudly does: around Shroudly before the mode
+takes the link over, through it after, and through it from the Start menu
+([`tests/net/link-handlers.test.js`](tests/net/link-handlers.test.js) does the
+same with a link of its own on every Windows machine, x64 and ARM).
 
 ## Autopilot
 

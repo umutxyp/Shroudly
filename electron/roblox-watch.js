@@ -28,7 +28,14 @@
  *
  * Installers and the player are started again through Shroudly (nothing in
  * them is the user's, and they were not reaching Roblox anyway); Studio,
- * which may hold work that is not saved, is never closed: the user is told.
+ * which may hold work that is not saved, is never closed: the user is told,
+ * once, to reopen it (links that open Studio go through Shroudly while the
+ * mode is on: link-handlers.js). Should a Studio go around Shroudly again
+ * after that, reopening it the same way would not help: the user is told
+ * once what does, naming the program that started it when Windows says
+ * (a program that was open before Shroudly, which hands what it starts its
+ * own older environment); later ones are only logged and shown in the
+ * window, never told again.
  * A program is only ever stopped when Shroudly can make sure, right before,
  * that it is the very program that was judged (its start time and file, read
  * from Windows), and when what replaces it is in hand: the installer's own
@@ -158,7 +165,11 @@ class RobloxWatch {
    * d.startInstaller(path) -> pid, d.startFetched(r) -> pid
    * d.restart(pids)            quit these players and open Roblox again:
    *                            { success, pid } or { success: false, code, left, stopped }
-   * d.log(level, msg), d.tell(id), d.needAdvanced(), d.studioReopen(at)
+   * d.log(level, msg), d.tell(id, params), d.needAdvanced()
+   * d.studioReopen(at, note)   the line about Studio in the window ({ id, params }), 0: none
+   * d.parent(pid)              the program that started it: { exe, name } or null (Windows), optional
+   * d.reannounce()             tell Explorer the setting again, optional
+   * d.newProcess()             a program of Roblox's started (it may have written its links again), optional
    */
   constructor(d) {
     this.d = d;
@@ -171,7 +182,9 @@ class RobloxWatch {
     this.claimed = new Set();   // being seen to right now
     this.jobs = new Set();      // what is being done (never waited for by a look)
     this.ours = new Set();      // started by Shroudly, with the setting
-    this.studioTold = new Map();// Studio pid -> when the user was asked to reopen it
+    this.studioTold = new Map();// Studio pid -> { at, id, params }: what the window says about it
+    this.studioAskedAt = 0;     // when the user was first asked to reopen Studio (0: not yet)
+    this.studioAgainSaid = false; // ... and told what works when one went around again
     this.toldAt = new Map();    // line -> when the user was last told it
     this.restarts = [];         // when the player was restarted
     this.warmUntil = 0;
@@ -322,6 +335,8 @@ class RobloxWatch {
     this.handled.clear();
     this.ours.clear();
     this.studioTold.clear();
+    this.studioAskedAt = 0;
+    this.studioAgainSaid = false;
     this.d.studioReopen(0);
   }
 
@@ -344,9 +359,12 @@ class RobloxWatch {
     const live = new Set(roles.map((r) => r[0]));
     for (const pid of [...this.procs.keys()]) if (!live.has(pid)) this.procs.delete(pid);
     for (const set of [this.handled, this.before, this.ours]) for (const pid of [...set]) if (!live.has(pid)) set.delete(pid);
+    let added = 0;
     for (const [pid, role, kind] of roles) {
-      if (!this.procs.has(pid)) this.procs.set(pid, { pid, role, kind, firstSeen: now, after, startedAt: null, probing: false, probed: false, path: null, file: null, why: null, gone: false });
+      if (!this.procs.has(pid)) { added++; this.procs.set(pid, { pid, role, kind, firstSeen: now, after, startedAt: null, probing: false, probed: false, path: null, file: null, why: null, gone: false }); }
     }
+    // Not on the first look: what was already running says nothing new.
+    if (added && this.listedAt != null && this.d.newProcess) { try { this.d.newProcess(); } catch {} }
     this.listedAt = asked;
   }
 
@@ -429,7 +447,8 @@ class RobloxWatch {
     // The line about Studio stays while a Studio the user was asked about
     // still runs (the window shows it while protection is on).
     for (const pid of [...this.studioTold.keys()]) if (!list.studios.includes(pid)) this.studioTold.delete(pid);
-    d.studioReopen(this.studioTold.size ? Math.max(...this.studioTold.values()) : 0);
+    const latest = [...this.studioTold.values()].reduce((a, b) => (!a || b.at > a.at ? b : a), null);
+    d.studioReopen(latest ? latest.at : 0, latest ? { id: latest.id, params: latest.params } : null);
     if (!d.active()) return;
     if (d.watched) this._probe();
     const dec = decide({
@@ -464,12 +483,39 @@ class RobloxWatch {
 
     if (dec.tellStudios.length) {
       const at = d.now();
-      dec.tellStudios.forEach((pid) => { this.handled.add(pid); this.studioTold.set(pid, at); });
-      d.log('warning', 'Autopilot: Roblox Studio was opened before Shroudly could take it through; the user was asked to reopen it');
-      d.tell('autoStudioReopen');
-      d.studioReopen(at);
+      dec.tellStudios.forEach((pid) => this.handled.add(pid));
+      if (!this.studioAskedAt) {
+        this.studioAskedAt = at;
+        const note = { id: 'autoStudioReopen', params: {} };
+        dec.tellStudios.forEach((pid) => this.studioTold.set(pid, { at, ...note }));
+        d.log('warning', 'Autopilot: Roblox Studio was opened before Shroudly could take it through; the user was asked to reopen it');
+        d.tell(note.id, note.params);
+        d.studioReopen(at, note);
+      } else jobs.push(this._studioAgain(dec.tellStudios, at, gen));
     }
     await Promise.all(jobs);
+  }
+
+  /* A Studio went around Shroudly after the user was asked to reopen one:
+   * the same advice again would not help. What started it decides what
+   * does: a program that was open before Shroudly (it hands what it starts
+   * its own older environment) is named; Explorer is told the setting
+   * again. Told once; later ones are only logged and shown in the window. */
+  async _studioAgain(pids, at, gen) {
+    const d = this.d;
+    let p = null;
+    if (d.parent) p = await this._within(Promise.resolve().then(() => d.parent(pids[0])), PATH_WAIT_MS);
+    if (gen !== this.gen) return;
+    const shell = !!p && p.exe === 'explorer';
+    if (shell && d.reannounce) { try { d.reannounce(); } catch {} }
+    const app = p && !shell && p.name ? String(p.name) : null;
+    const note = app ? { id: 'autoStudioParent', params: { app } } : { id: 'autoStudioAgain', params: {} };
+    pids.forEach((pid) => this.studioTold.set(pid, { at, ...note }));
+    d.log('warning', app
+      ? `Autopilot: Roblox Studio went around Shroudly again (started by ${app}); the user was told what works`
+      : 'Autopilot: Roblox Studio went around Shroudly again; the user was told what works');
+    if (!this.studioAgainSaid) { this.studioAgainSaid = true; d.tell(note.id, note.params); }
+    d.studioReopen(at, note);
   }
 
   _proc(pid, role, kind) {

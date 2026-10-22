@@ -47,7 +47,8 @@ function world({ probeMs = 1200, warmInfoMs = 150, sigMs = 1500, listMs = 120, s
     get now() { return now; },
     get wall() { return now + w.offset; },
     offset: 0,
-    procs, lists: 0, probes: 0, sigs: 0, killed: [], started: [], checks: 0, logs: [], told: [], installs: 0,
+    procs, lists: 0, probes: 0, sigs: 0, killed: [], started: [], checks: 0, logs: [], told: [], toldWith: [], installs: 0,
+    parents: new Map(), reannounced: 0, newProcs: 0, studioLine: null,
     // killFails: true (nothing can be stopped) or the pids that cannot be;
     // startFails: nothing can be started (installer or Roblox).
     on: false, active: false, blocked: false, killFails: false, fetchFails: false, unsigned: false, startFails: false,
@@ -142,9 +143,12 @@ function world({ probeMs = 1200, warmInfoMs = 150, sigMs = 1500, listMs = 120, s
       return { success: true, pid };
     },
     log: (level, msg) => w.logs.push(msg),
-    tell: (id) => w.told.push(id),
+    tell: (id, params) => { w.told.push(id); w.toldWith.push({ id, params }); },
     needAdvanced: () => {},
-    studioReopen: () => {},
+    studioReopen: (at, note) => { w.studioLine = at ? { at, ...(note || { id: 'autoStudioReopen' }) } : null; },
+    parent: async (pid) => { await sleep(400); return w.parents.get(pid) || null; },
+    reannounce: () => { w.reannounced++; },
+    newProcess: () => { w.newProcs++; },
   });
   /* What main.js does: the mode comes on (what is open is listed), protection
    * comes on, the autopilot's verdict comes. */
@@ -485,6 +489,56 @@ async function steady(opts) {
     const studio = w.start('studio', 'studio');
     await w.run(w.now + 60000);
     t.ok(!w.killed.length && w.procs.get(studio).alive && w.told.filter((x) => x === 'autoStudioReopen').length === 1, 'a Studio around Shroudly is never closed; the user is told, once');
+  }
+  {
+    // Issue #30: the user reopens Studio the way they opened it (the
+    // website's Edit button, from a browser open since before Shroudly) and
+    // it goes around again. Asking them to reopen it again would loop: they
+    // are told once what works instead, naming the program that started it,
+    // and never told again; Studio is never closed.
+    const w = await steady();
+    const s1 = w.start('studio', 'studio');
+    await w.run(w.now + 60000);
+    t.ok(w.told.join() === 'autoStudioReopen' && w.studioLine && w.studioLine.id === 'autoStudioReopen', 'first Studio around Shroudly: asked to reopen it, the window says so');
+    w.end(s1);
+    const s2 = w.start('studio', 'studio');
+    w.parents.set(s2, { pid: 77, exe: 'chrome', name: 'Google Chrome' });
+    await w.run(w.now + 60000);
+    const again = w.toldWith.filter((x) => x.id !== 'autoStudioReopen');
+    t.ok(w.told.filter((x) => x === 'autoStudioReopen').length === 1 && again.length === 1 && again[0].id === 'autoStudioParent' && again[0].params.app === 'Google Chrome',
+      `reopened and around again: not asked to reopen it a second time, told once what works, naming what started it (${w.told.join(', ')})`);
+    t.ok(w.studioLine && w.studioLine.id === 'autoStudioParent' && w.studioLine.params.app === 'Google Chrome' && w.logs.some((l) => /went around Shroudly again \(started by Google Chrome\)/.test(l)),
+      'the window shows that line while that Studio runs, and the log says what started it');
+    w.end(s2);
+    const s3 = w.start('studio', 'studio');
+    w.parents.set(s3, { pid: 78, exe: 'chrome', name: 'Google Chrome' });
+    await w.run(w.now + 60000);
+    t.ok(w.told.length === 2 && w.logs.filter((l) => /went around Shroudly again/.test(l)).length === 2 && !w.killed.length,
+      'a third: logged, shown in the window, never told again, never closed');
+    w.end(s3);
+    const s4 = w.start('studio', 'studio', { through: true, every: 5000 });
+    await w.run(w.now + 60000);
+    t.ok(w.told.length === 2 && w.procs.get(s4).alive && w.studioLine === null, 'opened through Shroudly (its link now goes through it): nothing said, the line is gone');
+    t.ok(w.newProcs >= 3, `every new program of Roblox's is reported (links are checked again after it): ${w.newProcs}`);
+  }
+  {
+    // Started by Explorer (the Start menu) and still around: Explorer is told
+    // the setting again, and the user is told to use the website or the
+    // Start menu; an unknown starter (it ended) is said the same way.
+    const w = await steady();
+    const s1 = w.start('studio', 'studio');
+    await w.run(w.now + 60000);
+    w.end(s1);
+    const s2 = w.start('studio', 'studio');
+    w.parents.set(s2, { pid: 5, exe: 'explorer', name: 'Windows Explorer' });
+    await w.run(w.now + 60000);
+    t.ok(w.reannounced === 1 && w.told.join() === 'autoStudioReopen,autoStudioAgain' && !w.toldWith[1].params.app,
+      'started by Explorer: the setting is announced to it again, and the user is told what works without naming Explorer');
+    // The mode off and on again: a new start, the first advice again.
+    w.on = false; w.watch.modeOff(); await w.modeOn();
+    const s3 = w.start('studio', 'studio');
+    await w.run(w.now + 60000);
+    t.ok(w.told[w.told.length - 1] === 'autoStudioReopen', 'after the mode went off and on: asked to reopen it again (a new start)');
   }
 
   // ── timing that must not fool it ──

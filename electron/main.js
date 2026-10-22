@@ -1,5 +1,15 @@
 'use strict';
 
+/* "Shroudly --open-link=<class> -- <link>": what Windows runs for a link
+ * Games and apps mode took over (roblox-studio: from the website's Edit
+ * button, for one): its own program is started with the setting the mode
+ * keeps in the session, and this process ends (link-open.js). First, before
+ * anything else of Shroudly loads: a link should open at once. */
+if (process.argv.some((a) => typeof a === 'string' && a.startsWith('--open-link='))) {
+  require('./link-open').main(process.argv).then((code) => process.exit(code), () => process.exit(1));
+  return;
+}
+
 const { app, BrowserWindow, ipcMain, Tray, Menu, nativeImage, shell, Notification, powerMonitor, dialog, session, clipboard } = require('electron');
 const path = require('path');
 const url = require('url');
@@ -14,6 +24,7 @@ const DiscordApp = require('./discord-app');
 const DiscordRelay = require('./discord-relay');
 const AppProxy = require('./app-proxy');
 const AppEnv = require('./app-env');
+const LinkHandlers = require('./link-handlers');
 const RobloxApp = require('./roblox-app');
 const { RobloxWatch } = require('./roblox-watch');
 const Autopilot = require('./autopilot');
@@ -1440,9 +1451,11 @@ ipcMain.handle('discord:set', async (e, on) => {
  * then sees to Roblox's programs that started before the mode or around it.
  * What the window shows: a proxy of the user's own in the way, a change that
  * could not be made, and a Roblox Studio to reopen. */
-// studioReopenAt: when the user was last asked to reopen a Roblox Studio
-// that goes around Shroudly (0 while there is none).
-const appState = { foreign: false, failed: false, studioReopenAt: 0 };
+// studioReopenAt: when the user was last told about a Roblox Studio that
+// goes around Shroudly (0 while there is none); studioReopenId and
+// studioReopenParams: the line the window shows about it.
+const appState = { foreign: false, failed: false, studioReopenAt: 0, studioReopenId: null, studioReopenParams: null };
+const STUDIO_LINES = ['autoStudioReopen', 'autoStudioParent', 'autoStudioAgain'];
 
 function sendAppState() {
   toWindow('apps:state', appState);
@@ -1539,9 +1552,13 @@ async function startFetchedRoblox(r) {
   return pid;
 }
 
-function setStudioReopen(at) {
-  if (appState.studioReopenAt === at) return;
+function setStudioReopen(at, note) {
+  const id = at ? ((note && note.id) || 'autoStudioReopen') : null;
+  const params = at && note && note.params && Object.keys(note.params).length ? note.params : null;
+  if (appState.studioReopenAt === at && appState.studioReopenId === id && JSON.stringify(appState.studioReopenParams) === JSON.stringify(params)) return;
   appState.studioReopenAt = at;
+  appState.studioReopenId = id;
+  appState.studioReopenParams = params;
   sendAppState();
 }
 
@@ -1572,11 +1589,53 @@ const robloxWatch = new RobloxWatch({
   startFetched: async (r) => soonProxy(await startFetchedRoblox(r)),
   restart: async (pids) => soonProxy(await RobloxApp.restart(robloxEnv(), pids)),
   log: (level, msg) => addLog(level, msg),
-  tell: (id) => autoTell(id),
+  tell: (id, params) => autoTell(id, params),
   needAdvanced: () => { if (autopilot) autopilot.needAdvanced('www.roblox.com', { label: 'Roblox', why: 'Roblox does not get through' }).catch(() => {}); },
   studioReopen: setStudioReopen,
+  // What started a Studio that went around Shroudly again (Windows).
+  parent: process.platform === 'win32' ? (pid) => RobloxApp.parentOf(pid) : null,
+  // Explorer started one without the setting: it is told again.
+  reannounce: () => { try { if (appEnv) appEnv.announce(); } catch {} },
+  // A program of Roblox's started: it, or its installer, may have written
+  // its links again (link-handlers.js).
+  newProcess: () => checkLinksSoon(),
 });
 robloxWatch.start();
+
+/* Windows: links that open Roblox's programs (the website's Play and Edit
+ * buttons, a bootstrapper's) go through Shroudly while the mode's setting is
+ * in place, so a program opened from a browser that was running before
+ * Shroudly gets the setting too (issue #30: Studio opened from the website
+ * went around Shroudly however often it was reopened). Put back with the
+ * setting (app-env.js clearSync: Stop, quit, the watchdog, the next start,
+ * the uninstaller). Programs write their links again when they update, or
+ * at each start: looked at again after one starts and every few minutes. */
+let linksSaid = '';
+async function applyLinks() {
+  if (process.platform !== 'win32' || !appEnv || !appEnv.links || !appEnv.applied) return;
+  try {
+    const r = await appEnv.links.apply(LinkHandlers.prefixFor(process.execPath, app.isPackaged ? null : app.getAppPath()));
+    const said = r.links.join(', ');
+    if (said && said !== linksSaid) addLog('info', `Games and apps: links that open ${said} go through Shroudly`);
+    linksSaid = said;
+  } catch (e) {
+    addLog('warning', `Games and apps: links could not be set to go through Shroudly (${String((e && e.message) || e).split(/\r?\n/)[0]})`);
+  }
+  // Turned off while this ran: nothing of it stays.
+  if (!appEnv.applied) { try { appEnv.links.restoreSync(); } catch {} }
+}
+let linkTimer = null;
+function checkLinksSoon(ms = 15000) {
+  if (process.platform !== 'win32') return;
+  if (linkTimer) clearTimeout(linkTimer);
+  linkTimer = setTimeout(() => {
+    linkTimer = null;
+    if (store.get('appMode') !== true || !appEnv || !appEnv.applied) return;
+    appModeQueue = appModeQueue.then(() => applyLinks()).catch(() => {});
+  }, ms);
+  if (linkTimer.unref) linkTimer.unref();
+}
+if (process.platform === 'win32') { const h = setInterval(() => checkLinksSoon(0), 5 * 60 * 1000); if (h.unref) h.unref(); }
 
 /* One change at a time: on and off in quick succession must not interleave
  * (an "on" finishing after the "off" would leave the mode on behind a toggle
@@ -1597,6 +1656,9 @@ async function applyAppModeNow(on) {
     store.set('appMode', false);
     appState.foreign = false;
     appState.studioReopenAt = 0;
+    appState.studioReopenId = null;
+    appState.studioReopenParams = null;
+    linksSaid = '';
     robloxWatch.modeOff();
     addLog('success', 'Games and apps mode off: settings restored');
     sendAppState();
@@ -1640,6 +1702,7 @@ async function applyAppModeNow(on) {
     addLog('success', 'Games and apps mode on: Roblox and similar programs go through Shroudly');
   } else robloxWatch.warm();
   sendAppState();
+  await applyLinks();
   return { success: true };
 }
 
@@ -1667,14 +1730,14 @@ ipcMain.handle('apps:set', async (e, on) => {
 /* What Shroudly turns on and restarts by itself (autopilot.js), and how it
  * says so: a notification, and a line in the window, which also gets the
  * last few when it opens later. */
-// The latest line for a window opened later. Studio's line is not kept here:
-// it comes with the apps state, for as long as that Studio runs.
+// The latest line for a window opened later. Studio's lines are not kept
+// here: they come with the apps state, for as long as that Studio runs.
 let autoLatest = null;
 function autoTell(id, params = {}) {
   const text = String(tr()[id] || '').replace(/\{(\w+)\}/g, (m, k) => (params[k] != null ? String(params[k]) : m));
   if (text) notify('Shroudly', text);
   const n = { id, params, at: Date.now() };
-  if (id !== 'autoStudioReopen') autoLatest = n;
+  if (!STUDIO_LINES.includes(id)) autoLatest = n;
   toWindow('auto:notice', n);
 }
 // The window is closed for real when it goes to the tray: a line the user
