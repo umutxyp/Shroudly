@@ -461,5 +461,15 @@
   "logRawUnreachable": "{app} ilovasi oʻz serverlariga ulana olmayapti ({addrs}): tarmoq aynan shu manzillarni bloklaydi; buni faqat ilovaning oʻz proksi sozlamasi yoki VPN chetlab oʻta oladi",
   "logRawBlocked": "{app}: tarmoq ilova ulanishlarini toʻxtatadi ({addrs}) va hech bir usul oʻta olmadi; buni faqat ilovaning oʻz proksi sozlamasi yoki VPN chetlab oʻta oladi",
   "logRawUnreachableAddr": "{addr}: bogʻlanib boʻlmadi (veb-ulanish emas)",
-  "logRawStillBlockedAddr": "{addr}: {tries} ta usuldan keyin ham bloklangan (veb-ulanish emas)"
+  "logRawStillBlockedAddr": "{addr}: {tries} ta usuldan keyin ham bloklangan (veb-ulanish emas)",
+  "adBlock": "Reklama va kuzatuvchilarni bloklash",
+  "adBlockDesc": "Ochiq reklama va kuzatuvchilar roʻyxatidagi nomlar hech bir ilovada javob olmaydi. Roʻyxat Shroudly orqali yuklanadi va haftada bir yangilanadi.",
+  "adBlockAllow": "Hech qachon bloklanmaydigan saytlar",
+  "adBlockAllowDesc": "Sayt ishlamay qolsa, domenini shu yerga yozing, har qatorga bittadan: u va uning ostidagi barcha nomlar hech qachon bloklanmaydi.",
+  "adsBlocked": "Bloklangan reklamalar",
+  "logAdblockFetching": "Reklama bloklash: roʻyxat yuklanmoqda",
+  "logAdblockInUse": "Reklama bloklash: {count} ta nomli roʻyxat ishlatilmoqda",
+  "logAdblockUnusable": "Reklama bloklash: roʻyxatdan foydalanib boʻlmadi ({why})",
+  "logAdblockFetchFailed": "Reklama bloklash: roʻyxat yuklanmadi ({why}); Shroudly keyinroq yana urinib koʻradi",
+  "logAdblockRejected": "Reklama bloklash: yuklangan roʻyxat yaroqsiz ({why})"
 }

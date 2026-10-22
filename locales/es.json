@@ -461,5 +461,15 @@
   "logRawUnreachable": "La app {app} no puede llegar a sus servidores ({addrs}): la red bloquea esas mismas direcciones; solo el ajuste de proxy de la propia app o una VPN pueden sortearlo",
   "logRawBlocked": "{app}: la red corta las conexiones de la app ({addrs}) y ninguna técnica ha logrado pasar; solo el ajuste de proxy de la propia app o una VPN pueden sortearlo",
   "logRawUnreachableAddr": "{addr}: inaccesible (no es una conexión web)",
-  "logRawStillBlockedAddr": "{addr}: sigue bloqueado tras {tries} técnicas (no es una conexión web)"
+  "logRawStillBlockedAddr": "{addr}: sigue bloqueado tras {tries} técnicas (no es una conexión web)",
+  "adBlock": "Bloquear anuncios y rastreadores",
+  "adBlockDesc": "Los nombres de una lista pública de anuncios y rastreadores no reciben respuesta en ninguna app. La lista se descarga a través de Shroudly y se actualiza cada semana.",
+  "adBlockAllow": "Sitios que nunca se bloquean",
+  "adBlockAllowDesc": "Si un sitio deja de funcionar, escribe aquí su dominio, uno por línea: ni él ni ningún nombre bajo él se bloquearán.",
+  "adsBlocked": "Anuncios bloqueados",
+  "logAdblockFetching": "Bloqueo de anuncios: descargando la lista",
+  "logAdblockInUse": "Bloqueo de anuncios: lista de {count} nombres en uso",
+  "logAdblockUnusable": "Bloqueo de anuncios: no se pudo usar la lista ({why})",
+  "logAdblockFetchFailed": "Bloqueo de anuncios: no se pudo descargar la lista ({why}); Shroudly lo intentará más tarde",
+  "logAdblockRejected": "Bloqueo de anuncios: la lista descargada no es válida ({why})"
 }

@@ -461,5 +461,15 @@
   "logRawUnreachable": "{app} がサーバー（{addrs}）に接続できません。ネットワークがこれらのアドレス自体をブロックしています。回避できるのはアプリ自体のプロキシ設定か VPN だけです",
   "logRawBlocked": "{app}: ネットワークが接続（{addrs}）を止めており、どの手法でも通れませんでした。回避できるのはアプリ自体のプロキシ設定か VPN だけです",
   "logRawUnreachableAddr": "{addr}: 到達できませんでした（ウェブ接続ではありません）",
-  "logRawStillBlockedAddr": "{addr}: {tries} 種類の手法を試してもブロックされたままです（ウェブ接続ではありません）"
+  "logRawStillBlockedAddr": "{addr}: {tries} 種類の手法を試してもブロックされたままです（ウェブ接続ではありません）",
+  "adBlock": "広告とトラッカーをブロック",
+  "adBlockDesc": "公開されている広告・トラッカーのリストにある名前は、どのアプリでも応答を受けません。リストは Shroudly 経由でダウンロードされ、毎週更新されます。",
+  "adBlockAllow": "ブロックしないサイト",
+  "adBlockAllowDesc": "サイトが正しく動かない場合は、そのドメインをここに 1 行に 1 つずつ書いてください。そのドメインとその下のすべての名前はブロックされません。",
+  "adsBlocked": "ブロックした広告",
+  "logAdblockFetching": "広告ブロック: リストをダウンロード中",
+  "logAdblockInUse": "広告ブロック: {count} 件の名前のリストを使用中",
+  "logAdblockUnusable": "広告ブロック: リストを使用できませんでした（{why}）",
+  "logAdblockFetchFailed": "広告ブロック: リストをダウンロードできませんでした（{why}）。Shroudly は後でもう一度試します",
+  "logAdblockRejected": "広告ブロック: ダウンロードしたリストは使用できません（{why}）"
 }

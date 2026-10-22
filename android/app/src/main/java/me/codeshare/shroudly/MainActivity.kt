@@ -21,6 +21,7 @@ import android.text.style.ForegroundColorSpan
 import android.text.style.RelativeSizeSpan
 import android.view.View
 import android.view.WindowInsets
+import android.widget.EditText
 import android.widget.ImageView
 import android.widget.ScrollView
 import android.widget.Switch
@@ -113,6 +114,24 @@ class MainActivity : Activity() {
             isChecked = OnlineCount.enabled(this@MainActivity)
             setOnCheckedChangeListener { _, on -> OnlineCount.setEnabled(this@MainActivity, on) }
         }
+        val allowRow = findViewById<View>(R.id.adBlockAllow)
+        findViewById<Switch>(R.id.adBlock).apply {
+            val desc = getString(R.string.adBlockDesc)
+            text = SpannableStringBuilder(getString(R.string.adBlock)).append('\n').apply {
+                val from = length
+                append(desc)
+                setSpan(ForegroundColorSpan(getColor(R.color.text_dim)), from, length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                setSpan(RelativeSizeSpan(12.5f / 15f), from, length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            }
+            isChecked = AdBlock.enabled(this@MainActivity)
+            allowRow.visibility = if (isChecked) View.VISIBLE else View.GONE
+            setOnCheckedChangeListener { _, on ->
+                AdBlock.setEnabled(this@MainActivity, on)
+                allowRow.visibility = if (on) View.VISIBLE else View.GONE
+                tellAdBlock()
+            }
+        }
+        allowRow.setOnClickListener { editAdBlockAllow() }
         findViewById<View>(R.id.batteryOpen).setOnClickListener { openBatterySettings() }
         findViewById<View>(R.id.updateOpen).setOnClickListener { updateUrl?.let { open(it) } }
         detailMore.setOnClickListener { showDetail() }
@@ -328,7 +347,9 @@ class MainActivity : Activity() {
             val n = NumberFormat.getIntegerInstance()
             // Active now, and the session's total under it.
             connections.show(n.format(s.connsActive))
-            connectionsTotal.show(text(R.string.totalCount, "count" to n.format(s.connsTotal)))
+            val total = text(R.string.totalCount, "count" to n.format(s.connsTotal))
+            // With "Block ads and trackers": how many it ended, beside it.
+            connectionsTotal.show(if (s.blocked > 0) "$total · ${getString(R.string.adsBlocked)}: ${n.format(s.blocked)}" else total)
             upload.show(Format.bytes(s.bytesUp))
             download.show(Format.bytes(s.bytesDown))
             uptime.show(Format.duration(android.os.SystemClock.elapsedRealtime() - Protection.startedAt))
@@ -426,6 +447,47 @@ class MainActivity : Activity() {
             .setTitle(R.string.androidDetails)
             .setView(ScrollView(this).apply { addView(body) })
             .setPositiveButton(android.R.string.ok, null)
+            .show()
+    }
+
+    /* The service, when protection is on, puts the setting to use at once. */
+    private fun tellAdBlock() {
+        if (Protection.state == Protection.State.OFF) return
+        try {
+            startService(Intent(this, ShroudlyVpnService::class.java).setAction(ShroudlyVpnService.ACTION_ADBLOCK))
+        } catch (_: Exception) {
+        }
+    }
+
+    /* "Sites never to block": one domain per line, cleaned on save. */
+    private fun editAdBlockAllow() {
+        val pad = (20 * resources.displayMetrics.density).toInt()
+        val field = EditText(this).apply {
+            setText(AdBlock.allow(this@MainActivity).joinToString("\n"))
+            hint = "example.com"
+            minLines = 4
+            textDirection = View.TEXT_DIRECTION_LTR
+            typeface = Typeface.MONOSPACE
+        }
+        val hintText = TextView(this).apply {
+            text = getString(R.string.adBlockAllowDesc)
+            setTextColor(getColor(R.color.text_dim))
+            textSize = 13f
+        }
+        val box = android.widget.LinearLayout(this).apply {
+            orientation = android.widget.LinearLayout.VERTICAL
+            setPadding(pad, pad / 2, pad, 0)
+            addView(hintText)
+            addView(field)
+        }
+        AlertDialog.Builder(this)
+            .setTitle(R.string.adBlockAllow)
+            .setView(box)
+            .setPositiveButton(android.R.string.ok) { _, _ ->
+                AdBlock.setAllow(this, field.text.toString())
+                tellAdBlock()
+            }
+            .setNegativeButton(android.R.string.cancel, null)
             .show()
     }
 

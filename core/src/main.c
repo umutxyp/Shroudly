@@ -12,6 +12,11 @@
  * elevated IPC. Emits JSON status lines on stdout.
  *   Commands:  STATS            -> emit one stats line
  *              PROBE <host>     -> auto-detect a working strategy for host
+ *              ADBLOCK <path>   -> block the names of the list in path (adblock.h)
+ *              ADBLOCK OFF      -> block nothing
+ *              ADBLOCK-CHECK <path> -> is the list in path fit to use?
+ *              ALLOW <name>     -> never block name, nor any name under it
+ *              ALLOW-CLEAR      -> forget the names allowed
  *              STOP             -> shut down
  *
  * The same run is engine_main() (engine.h), which the Android app calls on a
@@ -27,6 +32,7 @@
 #include "strategy.h"
 #include "doh.h"
 #include "watchdog.h"
+#include "adblock.h"
 #if defined(SHROUDLY_RAW) && defined(__linux__)
 #include "raw_linux.h"
 #endif
@@ -58,6 +64,7 @@ static int g_fake_repeats = 6;  /* how many decoy datagrams per voice flow */
 static char g_status_file[1024] = "";
 static char g_auth_file[1024] = "";
 static long g_parent_pid = 0;
+static char g_adblock_file[1024] = "";
 #if defined(SHROUDLY_RAW)
 /* Advanced-mode packet-layer options; defaults in raw_desync.h. */
 static int g_drop_rst = RAW_DEF_DROP_RST;
@@ -101,6 +108,10 @@ static void defaults(void) {
   g_status_file[0] = 0;
   g_auth_file[0] = 0;
   g_parent_pid = 0;
+  g_adblock_file[0] = 0;
+  /* No list and no exceptions from an earlier run (embedded). */
+  adblock_init();
+  adblock_reset();
 #if defined(SHROUDLY_RAW)
   g_drop_rst = RAW_DEF_DROP_RST;
   g_autottl  = RAW_DEF_AUTOTTL;
@@ -127,11 +138,39 @@ static void usage(void) {
     "  --watch <domain>      tell connections to it or a name under it as\n"
     "                        {\"type\":\"seen\",\"host\":...} (repeatable)\n"
     "  --ipv6                prefer IPv6 upstream\n"
+    "  --adblock <path>      block the names of an ad and tracker list (adblock.h)\n"
+    "  --allow <domain>      never block it, nor a name under it (repeatable)\n"
     "  --raw-local           tests: search techniques for non-TLS streams on local addresses too\n"
     "  --advanced            packet-layer backend (needs elevation)\n"
     "  --fake-repeats <n>    Advanced: decoy datagrams per Discord voice flow\n"
     "  --no-quic-block       Advanced: keep QUIC (do not force browsers to TCP)\n"
     "  --no-udp-fake         Advanced: no decoys for Discord voice UDP\n");
+}
+
+/* What became of a list: {"type":"adblock","on":...,"entries":...} with its
+ * size and how long it took to read, or with "error" when it could not be
+ * used (the list in use before, if any, stays). Never a path or a name. */
+static void adblock_use_report(const char *path) {
+  adb_stats st; const char *why = "";
+  uint64_t t0 = now_ms();
+  int rc = adblock_use(path, &st, &why);
+  unsigned long long ms = (unsigned long long)(now_ms() - t0);
+  if (rc == 0)
+    engine_printf("{\"type\":\"adblock\",\"on\":true,\"entries\":%llu,\"skipped\":%llu,\"bytes\":%llu,\"ms\":%llu}\n",
+                  (unsigned long long)st.entries, (unsigned long long)st.skipped, (unsigned long long)st.bytes, ms);
+  else
+    engine_printf("{\"type\":\"adblock\",\"on\":%s,\"error\":\"%s\"}\n", adblock_on() ? "true" : "false", why);
+}
+
+static void adblock_check_report(const char *path) {
+  adb_stats st; const char *why = "";
+  memset(&st, 0, sizeof(st));
+  int rc = adblock_check(path, &st, &why);
+  if (rc == 0)
+    engine_printf("{\"type\":\"adblock_check\",\"ok\":true,\"entries\":%llu}\n", (unsigned long long)st.entries);
+  else
+    engine_printf("{\"type\":\"adblock_check\",\"ok\":false,\"entries\":%llu,\"error\":\"%s\"}\n",
+                  (unsigned long long)st.entries, why);
 }
 
 int engine_main(int argc, char **argv, FILE *in, FILE *out, int embedded) {
@@ -176,6 +215,8 @@ int engine_main(int argc, char **argv, FILE *in, FILE *out, int embedded) {
 #endif
     else if (!strcmp(argv[i], "--fake-net") && i+1<argc) { if (engine_add_fake_net(&g_cfg, argv[++i]) != 0) bad_fake_net = 1; }
     else if (!strcmp(argv[i], "--watch") && i+1<argc) engine_add_watch(&g_cfg, argv[++i]);  /* a bad one is left out */
+    else if (!strcmp(argv[i], "--adblock") && i+1<argc) strncpy(g_adblock_file, argv[++i], sizeof(g_adblock_file)-1);
+    else if (!strcmp(argv[i], "--allow") && i+1<argc) adblock_allow(argv[++i]);   /* a bad one is left out */
     else if (!strcmp(argv[i], "--auth-file") && i+1<argc) strncpy(g_auth_file, argv[++i], sizeof(g_auth_file)-1);
     else if (!strcmp(argv[i], "--status-file") && i+1<argc) strncpy(g_status_file, argv[++i], sizeof(g_status_file)-1);
     else if (!strcmp(argv[i], "--parent-pid") && i+1<argc) g_parent_pid = atol(argv[++i]);
@@ -256,6 +297,10 @@ int engine_main(int argc, char **argv, FILE *in, FILE *out, int embedded) {
   }
 #endif
 
+  /* The ad and tracker list, before the first connection is taken. One that
+   * cannot be used is told about, and the engine starts without it. */
+  if (g_adblock_file[0]) adblock_use_report(g_adblock_file);
+
   int r = engine_start(&g_cfg);
   if (r != 0) {
     engine_printf("{\"type\":\"error\",\"code\":%d,\"msg\":\"listen failed\"}\n", r);
@@ -265,13 +310,23 @@ int engine_main(int argc, char **argv, FILE *in, FILE *out, int embedded) {
 
   /* Control loop on stdin. When the UI dies, stdin EOFs and we exit cleanly —
    * no orphaned engine, no leftover state (we never touched the OS network). */
-  char line[512];
+  /* Long enough for a list's path (ADBLOCK) on any system. */
+  char line[2048];
   while (engine_is_running()) {
     if (!fgets(line, sizeof(line), in)) break; /* EOF -> shut down */
     char *nl = strpbrk(line, "\r\n"); if (nl) *nl = 0;
     if (!strncmp(line, "STOP", 4)) break;
     else if (!strncmp(line, "STATS", 5)) engine_emit_stats();
     else if (!strncmp(line, "PROBE ", 6)) probe_host(line + 6, &g_cfg);
+    else if (!strcmp(line, "ADBLOCK OFF")) {
+      adblock_off();
+      engine_printf("{\"type\":\"adblock\",\"on\":false}\n");
+    }
+    /* The rest of the line is the path: it may hold spaces. */
+    else if (!strncmp(line, "ADBLOCK-CHECK ", 14)) adblock_check_report(line + 14);
+    else if (!strncmp(line, "ADBLOCK ", 8)) adblock_use_report(line + 8);
+    else if (!strcmp(line, "ALLOW-CLEAR")) adblock_allow_clear();
+    else if (!strncmp(line, "ALLOW ", 6)) adblock_allow(line + 6);
     else if (!strncmp(line, "LEARN ", 6)) {
       /* LEARN <host> <technique> <seconds ago>: what an earlier run learned. */
       char host[256], tech[64]; unsigned long long secs = 0;

@@ -455,22 +455,11 @@
 
             <View style="@style/Divider" />
 
-            <LinearLayout
+            <TextView
                 android:id="@+id/privacy"
-                style="@style/AboutRow">
-
-                <ImageView
-                    android:importantForAccessibility="no"
-                    style="@style/RowIcon"
-                    android:src="@drawable/ic_lock" />
-
-                <TextView
-                    style="@style/RowLabel"
-                    android:text="@string/androidPrivacyPolicy" />
-
-                <ImageView
-                    android:importantForAccessibility="no" style="@style/Chevron" />
-            </LinearLayout>
+                style="@style/AboutRowText"
+                android:drawableStart="@drawable/row_lock"
+                android:text="@string/androidPrivacyPolicy" />
 
             <View style="@style/Divider" />
 
@@ -494,6 +483,36 @@
                 android:textAlignment="viewStart"
                 android:textColor="@color/text"
                 android:textSize="15sp" />
+
+            <View style="@style/Divider" />
+
+            <!-- "Block ads and trackers" (AdBlock), off by default; as the
+                 desktop's setting, label and description in the switch. -->
+            <Switch
+                android:id="@+id/adBlock"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="52dp"
+                android:drawableStart="@drawable/row_shield"
+                android:drawablePadding="14dp"
+                android:lineSpacingMultiplier="1.1"
+                android:paddingStart="14dp"
+                android:paddingTop="10dp"
+                android:paddingEnd="12dp"
+                android:paddingBottom="10dp"
+                android:switchPadding="12dp"
+                android:text="@string/adBlock"
+                android:textAlignment="viewStart"
+                android:textColor="@color/text"
+                android:textSize="15sp" />
+
+            <!-- Its exceptions, shown while it is on. -->
+            <TextView
+                android:id="@+id/adBlockAllow"
+                android:visibility="gone"
+                style="@style/AboutRowText"
+                android:drawableStart="@drawable/row_link"
+                android:text="@string/adBlockAllow" />
 
             <View style="@style/Divider" />
 

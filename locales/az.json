@@ -461,5 +461,15 @@
   "logRawUnreachable": "{app} tətbiqi öz serverlərinə çata bilmir ({addrs}): şəbəkə bu ünvanların özünü bloklayır; bunu yalnız tətbiqin öz proksi ayarı və ya VPN keçə bilər",
   "logRawBlocked": "{app}: şəbəkə tətbiqin bağlantılarını dayandırır ({addrs}) və heç bir üsul keçə bilmədi; bunu yalnız tətbiqin öz proksi ayarı və ya VPN keçə bilər",
   "logRawUnreachableAddr": "{addr}: ona çatmaq mümkün olmadı (veb bağlantısı deyil)",
-  "logRawStillBlockedAddr": "{addr}: {tries} üsuldan sonra hələ də bloklanıb (veb bağlantısı deyil)"
+  "logRawStillBlockedAddr": "{addr}: {tries} üsuldan sonra hələ də bloklanıb (veb bağlantısı deyil)",
+  "adBlock": "Reklamları və izləyiciləri blokla",
+  "adBlockDesc": "Açıq reklam və izləyici siyahısındakı adlar heç bir tətbiqdə cavab almır. Siyahı Shroudly vasitəsilə yüklənir və həftədə bir yenilənir.",
+  "adBlockAllow": "Heç vaxt bloklanmayan saytlar",
+  "adBlockAllowDesc": "Sayt işləmirsə, domenini bura yaz, hər sətirdə bir: o və altındakı bütün adlar heç vaxt bloklanmır.",
+  "adsBlocked": "Bloklanan reklamlar",
+  "logAdblockFetching": "Reklam bloklama: siyahı yüklənir",
+  "logAdblockInUse": "Reklam bloklama: {count} adlıq siyahı istifadədədir",
+  "logAdblockUnusable": "Reklam bloklama: siyahıdan istifadə etmək olmadı ({why})",
+  "logAdblockFetchFailed": "Reklam bloklama: siyahı yüklənmədi ({why}); Shroudly sonra yenidən cəhd edəcək",
+  "logAdblockRejected": "Reklam bloklama: yüklənən siyahı yararlı deyil ({why})"
 }

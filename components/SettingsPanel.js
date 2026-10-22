@@ -169,6 +169,7 @@ export default function SettingsPanel({ active = false }) {
   const [defaultList, setDefaultList] = useState([]);
   const [siteText, setSiteText] = useState(null);   // textarea draft (null until loaded)
   const [badEntries, setBadEntries] = useState([]); // lines dropped as unusable
+  const [allowText, setAllowText] = useState(null);  // ad blocking exceptions draft
   const [look, setLook] = useState({ accent: 'sky', surface: 'solid' });
 
   useEffect(() => { setLook(readAppearance()); }, []);
@@ -439,6 +440,31 @@ export default function SettingsPanel({ active = false }) {
         <div className="divide-y" style={{ borderColor: 'var(--line)' }}>
           <Toggle label={t('autoMode')} desc={t('autoModeDesc')} checked={settings.autoMode} onChange={(v) => save('autoMode', v)} />
           <Toggle label={t('dnsProtection')} desc={t('dnsProtectionDesc')} checked={settings.dnsProtection !== false} onChange={(v) => save('dnsProtection', v)} />
+          <Toggle label={t('adBlock')} desc={t('adBlockDesc')} checked={settings.adBlock === true} onChange={(v) => save('adBlock', v)} />
+          {settings.adBlock === true && (
+            <div className="py-2.5">
+              <p className="mb-1.5 text-[12px] leading-snug" style={{ color: 'var(--text-faint)' }}>{t('adBlockAllowDesc')}</p>
+              <textarea
+                aria-label={t('adBlockAllow')}
+                value={allowText == null ? (Array.isArray(settings.adBlockAllow) ? settings.adBlockAllow : []).join('\n') : allowText}
+                onChange={(e) => setAllowText(e.target.value)}
+                onBlur={() => {
+                  if (allowText == null) return;
+                  const list = [...new Set(allowText
+                    .split(/[\s,]+/)
+                    .map((d) => d.trim().toLowerCase().replace(/^https?:\/\//, '').replace(/^\*?\./, '').replace(/\/.*$/, ''))
+                    .filter(isHostname))];
+                  setAllowText(null);
+                  save('adBlockAllow', list);
+                }}
+                rows={3}
+                spellCheck={false}
+                placeholder="example.com"
+                className="mono w-full resize-y rounded-[var(--radius-sm)] p-2.5 text-[12.5px] leading-relaxed outline-none"
+                style={{ background: 'var(--surface-2)', border: '1px solid var(--line)', color: 'var(--text)' }}
+              />
+            </div>
+          )}
           <Toggle label={t('preferIpv6')}
                   desc={ipv6Ok === false ? t('ipv6Unavailable') : t('preferIpv6Desc')}
                   checked={settings.preferIpv6}

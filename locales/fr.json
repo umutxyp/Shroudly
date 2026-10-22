@@ -461,5 +461,15 @@
   "logRawUnreachable": "L’application {app} ne parvient pas à joindre ses serveurs ({addrs}) : le réseau bloque ces adresses elles-mêmes ; seul le réglage proxy de l’application ou un VPN permet de contourner cela",
   "logRawBlocked": "{app} : le réseau interrompt les connexions de l’application ({addrs}) et aucune technique n’est passée ; seul le réglage proxy de l’application ou un VPN permet de contourner cela",
   "logRawUnreachableAddr": "{addr} : injoignable (ce n’est pas une connexion web)",
-  "logRawStillBlockedAddr": "{addr} : toujours bloqué après {tries} techniques (ce n’est pas une connexion web)"
+  "logRawStillBlockedAddr": "{addr} : toujours bloqué après {tries} techniques (ce n’est pas une connexion web)",
+  "adBlock": "Bloquer les pubs et les traqueurs",
+  "adBlockDesc": "Les noms d’une liste publique de pubs et de traqueurs ne reçoivent aucune réponse, dans toutes les applis. La liste est téléchargée via Shroudly et mise à jour chaque semaine.",
+  "adBlockAllow": "Sites jamais bloqués",
+  "adBlockAllowDesc": "Si un site ne marche plus, écrivez son domaine ici, un par ligne : ni lui ni aucun nom en dessous ne sera bloqué.",
+  "adsBlocked": "Pubs bloquées",
+  "logAdblockFetching": "Blocage des pubs : téléchargement de la liste",
+  "logAdblockInUse": "Blocage des pubs : liste de {count} noms en service",
+  "logAdblockUnusable": "Blocage des pubs : la liste n’a pas pu servir ({why})",
+  "logAdblockFetchFailed": "Blocage des pubs : la liste n’a pas pu être téléchargée ({why}) ; Shroudly réessaiera plus tard",
+  "logAdblockRejected": "Blocage des pubs : la liste téléchargée ne convient pas ({why})"
 }

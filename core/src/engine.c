@@ -6,6 +6,7 @@
 #include "doh.h"
 #include "fake.h"
 #include "socksudp.h"
+#include "adblock.h"
 #include <ctype.h>
 #include <string.h>
 #include <stdlib.h>
@@ -608,7 +609,7 @@ int engine_is_running(void) { return atomic_load(&g_running); }
 void engine_emit_stats(void) {
   engine_printf("{\"type\":\"stats\",\"conns_total\":%llu,\"conns_active\":%llu,"
          "\"bytes_up\":%llu,\"bytes_down\":%llu,\"desync\":%llu,"
-         "\"tls\":%llu,\"http\":%llu,\"probe_ok\":%llu,\"probe_fail\":%llu}\n",
+         "\"tls\":%llu,\"http\":%llu,\"probe_ok\":%llu,\"probe_fail\":%llu,\"blocked\":%llu}\n",
          (unsigned long long)atomic_load(&g_stats.conns_total),
          (unsigned long long)atomic_load(&g_stats.conns_active),
          (unsigned long long)atomic_load(&g_stats.bytes_up),
@@ -617,7 +618,8 @@ void engine_emit_stats(void) {
          (unsigned long long)atomic_load(&g_stats.tls_seen),
          (unsigned long long)atomic_load(&g_stats.http_seen),
          (unsigned long long)atomic_load(&g_stats.probe_success),
-         (unsigned long long)atomic_load(&g_stats.probe_fail));
+         (unsigned long long)atomic_load(&g_stats.probe_fail),
+         (unsigned long long)adblock_total());
 }
 
 /* ── SOCKS handshake (client side) ──────────────────────────────────────── */
@@ -2346,6 +2348,30 @@ static void udp_dns_answers(udp_assoc *u) {
   }
 }
 
+/* Plain DNS from the client asking for a name on the ad and tracker list:
+ * answered here, as if the resolver it asked had answered, with 0.0.0.0 or
+ * :: (adb_dns_answer). Not NXDOMAIN: "no such name" sends some resolvers on
+ * to the next server or the LAN's search domain, and is cached the longer;
+ * an address that leads nowhere ends the attempt on the spot, which is what
+ * AdGuard and Pi-hole answer too. 1 when it was answered. */
+static int udp_dns_blocked(udp_assoc *u, const sudp_dst *d, const uint8_t *hdr,
+                           const uint8_t *q, size_t ql) {
+  if (!adblock_on() || !u->have_client) return 0;
+  char name[256]; size_t qend; int edns;
+  if (dns_query_parse(q, ql, name, sizeof(name), &qend, &edns) != 0) return 0;
+  if (!adblock_blocked(name)) return 0;
+  uint8_t out[SUDP_HDR_MAX + 512];
+  memcpy(out, hdr, d->hdr_len);
+  out[0] = out[1] = out[2] = 0;                           /* RSV, FRAG */
+  int n = adb_dns_answer(q, qend, out + d->hdr_len, sizeof(out) - d->hdr_len);
+  if (n < 0) return 0;
+  adblock_count();
+  sendto(u->relay, (const char *)out, (int)d->hdr_len + n, 0,
+         (struct sockaddr *)&u->client, sizeof(u->client));
+  u->last = now_ms();
+  return 1;
+}
+
 /* Datagrams from the client: each one, unwrapped, goes to its destination. */
 static void udp_from_client(udp_assoc *u) {
   for (int i = 0; i < UDP_DRAIN; i++) {
@@ -2373,6 +2399,10 @@ static void udp_from_client(udp_assoc *u) {
     /* A stand-in address leads nowhere: dropped, DNS to it included. */
     struct sockaddr_storage to; socklen_t tl;
     if (sudp_dst_addr(&d, &to, &tl) == 0 && sa_in_fake_net(&to)) continue;
+    /* To a name on the ad and tracker list: dropped (an app then tries TCP,
+     * which ends the same way). A lookup of one is answered here. */
+    if (d.atyp == 3 && adblock_blocked(d.host)) continue;
+    if (d.port == 53 && udp_dns_blocked(u, &d, u->buf, payload, plen)) continue;
     /* Plain DNS: to the encrypted forwarder, when it is a query for it. */
     if (d.port == 53 && udp_dns_redirect(u, &d, u->buf, payload, plen)) continue;
     udp_send_out(u, &d, payload, plen);
@@ -2989,6 +3019,34 @@ static int osdns_follow(const char *host) {
   return follow;
 }
 
+/* ── names on the ad and tracker list (adblock.h) ────────────────────────
+ * A connection to a listed name is accepted and then ended inside it, never
+ * refused at the proxy step. A browser takes a refusal there for a broken
+ * proxy: Chromium falls over to the next entry of the PAC (the plain "SOCKS"
+ * one, for which it looks names up through the system's DNS) and avoids this
+ * one for five minutes, and on a desktop whose PAC ends in DIRECT it goes
+ * around Shroudly altogether. So the proxy step succeeds, and then a TLS
+ * client gets a fatal unrecognized_name alert (Chromium shows
+ * ERR_SSL_UNRECOGNIZED_NAME_ALERT, not a proxy failure), an HTTP one
+ * "403 Forbidden", anything else the end of the connection. Nothing goes to
+ * the network for it: no lookup, no connection. buf holds the client's first
+ * payload (flen bytes), or flen < 0 when the proxy step is still to be
+ * answered and nothing has been read. */
+static void adblock_refuse(sock_t client, const socks_req *rq, uint8_t *buf, int flen) {
+  adblock_count();
+  if (flen < 0) {
+    if (socks_reply(client, rq, 1) != 0) return;
+    flen = read_first(client, SOCK_INVALID, buf, RELAY_BUF);
+  }
+  if (flen <= 0) return;
+  if (buf[0] == 0x16) {
+    static const uint8_t alert[] = { 0x15, 0x03, 0x01, 0x00, 0x02, 0x02, 0x70 };
+    sock_send_all(client, alert, sizeof(alert), 0);
+  } else if (http_is_request(buf, (size_t)flen)) {
+    send_str(client, "HTTP/1.1 403 Forbidden\r\nContent-Length: 0\r\nConnection: close\r\n\r\n");
+  }
+}
+
 static void handle(sock_t client) {
   atomic_fetch_add(&g_stats.conns_total, 1);
   atomic_fetch_add(&g_stats.conns_active, 1);
@@ -3020,6 +3078,9 @@ static void handle(sock_t client) {
   rbuf  = (uint8_t *)malloc(RELAY_BUF);
   if (!first || !work || !rbuf) { socks_reply(client, &rq, 0); goto done; }
 
+  /* A name on the ad and tracker list: not looked up, not connected to. */
+  if (!ip_literal(rq.host) && adblock_blocked(rq.host)) { adblock_refuse(client, &rq, first, -1); goto done; }
+
   if (rq.blockpage) {
     /* The client looked the name up itself and the system's DNS answered with
      * a known block page, so connecting where it asks only shows the block
@@ -3031,6 +3092,7 @@ static void handle(sock_t client) {
     proto_info pi0;
     memset(&pi0, 0, sizeof(pi0));
     if (flen > 0) proto_inspect(first, (size_t)flen, &pi0);
+    if (pi0.host[0] && adblock_blocked(pi0.host)) { adblock_refuse(client, &rq, first, flen); goto done; }
     if (pi0.host[0] && !doh_local_name(pi0.host)) {
       up = dial(pi0.host, rq.port, g_cfg.prefer_ipv6, 1, 0, &fam, &di);
       if (up != SOCK_INVALID) { snprintf(dial_host, sizeof(dial_host), "%s", pi0.host); dial_doh = 1; }
@@ -3077,6 +3139,12 @@ static void handle(sock_t client) {
   if (flen > 0) {
     proto_info pi;
     proto_inspect(first, (size_t)flen, &pi);
+    /* Asked for by address (the app looked the name up itself): the name it
+     * means is in the payload, and a listed one ends here. */
+    if (ip_literal(rq.host) && pi.host[0] && adblock_blocked(pi.host)) {
+      adblock_refuse(client, &rq, first, flen);
+      goto done;
+    }
     if (pi.kind == PROTO_TLS)  atomic_fetch_add(&g_stats.tls_seen, 1);
     if (pi.kind == PROTO_HTTP) atomic_fetch_add(&g_stats.http_seen, 1);
 

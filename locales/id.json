@@ -461,5 +461,15 @@
   "logRawUnreachable": "{app} tidak dapat menjangkau servernya ({addrs}): jaringan memblokir alamat-alamat itu sendiri; hanya pengaturan proxy milik aplikasi itu atau VPN yang dapat menembusnya",
   "logRawBlocked": "{app}: jaringan menghentikan koneksinya ({addrs}) dan tidak ada teknik yang berhasil lolos; hanya pengaturan proxy milik aplikasi itu atau VPN yang dapat menembusnya",
   "logRawUnreachableAddr": "{addr}: tidak dapat dijangkau (bukan koneksi web)",
-  "logRawStillBlockedAddr": "{addr}: masih diblokir setelah {tries} teknik (bukan koneksi web)"
+  "logRawStillBlockedAddr": "{addr}: masih diblokir setelah {tries} teknik (bukan koneksi web)",
+  "adBlock": "Blokir iklan dan pelacak",
+  "adBlockDesc": "Nama-nama di daftar publik iklan dan pelacak tidak mendapat jawaban di aplikasi mana pun. Daftar diunduh lewat Shroudly dan diperbarui setiap minggu.",
+  "adBlockAllow": "Situs yang tidak pernah diblokir",
+  "adBlockAllowDesc": "Jika sebuah situs rusak, tulis domainnya di sini, satu per baris: situs itu dan semua nama di bawahnya tidak akan diblokir.",
+  "adsBlocked": "Iklan diblokir",
+  "logAdblockFetching": "Pemblokir iklan: mengunduh daftar",
+  "logAdblockInUse": "Pemblokir iklan: daftar berisi {count} nama sedang dipakai",
+  "logAdblockUnusable": "Pemblokir iklan: daftar tidak dapat dipakai ({why})",
+  "logAdblockFetchFailed": "Pemblokir iklan: daftar tidak dapat diunduh ({why}); Shroudly akan mencoba lagi nanti",
+  "logAdblockRejected": "Pemblokir iklan: daftar yang diunduh tidak layak dipakai ({why})"
 }

@@ -70,6 +70,7 @@ const EXACT = {
   // Since 2.6.3 the explanation names no country (the older line below
   // still maps to it).
   'DNS on this network answers blocked sites with a known block page.': 'logRegion',
+  'Ad blocking: fetching the list': 'logAdblockFetching',
 };
 
 /* What another program put in place of Shroudly's system proxy setting
@@ -96,6 +97,10 @@ function proxyTo(value, t) {
 }
 
 const PATTERNS = [
+  [/^Ad blocking: a list of (\d+) names in use$/, 'logAdblockInUse', ['count']],
+  [/^Ad blocking: the list could not be used \((.+)\)$/, 'logAdblockUnusable', ['why']],
+  [/^Ad blocking: the list could not be fetched \((.+)\); Shroudly tries again later$/, 'logAdblockFetchFailed', ['why']],
+  [/^Ad blocking: the list fetched is not one to use \((.+)\)$/, 'logAdblockRejected', ['why']],
   // An app's own connections (not TLS or HTTP) that cannot get through (raw-apps.js).
   [/^(.+?) cannot reach its servers \((.+?)\): the network blocks those addresses themselves;/, 'logRawUnreachable', ['app', 'addrs']],
   [/^(.+?): the network stops its connections \((.+?)\) and no technique got through;/, 'logRawBlocked', ['app', 'addrs']],

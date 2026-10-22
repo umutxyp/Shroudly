@@ -461,5 +461,15 @@
   "logRawUnreachable": "{app} programmasy öz serwerlerine ýetip bilmeýär ({addrs}): tor bu salgylaryň özüni petikleýär; muny diňe programmanyň öz proksi sazlamasy ýa-da VPN aýlanyp geçip bilýär",
   "logRawBlocked": "{app}: tor programmanyň birikmelerini togtadýar ({addrs}) we hiç bir usul geçip bilmedi; muny diňe programmanyň öz proksi sazlamasy ýa-da VPN aýlanyp geçip bilýär",
   "logRawUnreachableAddr": "{addr}: oňa ýetip bolmady (web birikmesi däl)",
-  "logRawStillBlockedAddr": "{addr}: {tries} usuldan soň hem petikli (web birikmesi däl)"
+  "logRawStillBlockedAddr": "{addr}: {tries} usuldan soň hem petikli (web birikmesi däl)",
+  "adBlock": "Mahabatlary we yzarlaýjylary blokla",
+  "adBlockDesc": "Açyk mahabat we yzarlaýjy sanawyndaky atlar hiç bir programmada jogap almaýar. Sanaw Shroudly arkaly ýüklenýär we hepdede bir täzelenýär.",
+  "adBlockAllow": "Hiç haçan bloklanmaýan saýtlar",
+  "adBlockAllowDesc": "Saýt işlemese, domenini şu ýere ýaz, her setire biri: ol we onuň aşagyndaky ähli atlar hiç haçan bloklanmaýar.",
+  "adsBlocked": "Bloklanan mahabatlar",
+  "logAdblockFetching": "Mahabat bloklamak: sanaw ýüklenýär",
+  "logAdblockInUse": "Mahabat bloklamak: {count} atly sanaw ulanylýar",
+  "logAdblockUnusable": "Mahabat bloklamak: sanawy ulanyp bolmady ({why})",
+  "logAdblockFetchFailed": "Mahabat bloklamak: sanaw ýüklenmedi ({why}); Shroudly soňra täzeden synanyşar",
+  "logAdblockRejected": "Mahabat bloklamak: ýüklenen sanaw ýaramly däl ({why})"
 }

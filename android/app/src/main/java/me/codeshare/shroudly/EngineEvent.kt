@@ -19,6 +19,8 @@ sealed class EngineEvent {
         val http: Long,
         val probeOk: Long,
         val probeFail: Long,
+        /* Connections and lookups ended by "Block ads and trackers". */
+        val blocked: Long = 0,
     ) : EngineEvent()
 
     /* bypass, blocked, cut, unreachable, send_failed: something about one site. */
@@ -39,6 +41,10 @@ sealed class EngineEvent {
     ) : EngineEvent()
 
     data class Error(val message: String, val code: Int?) : EngineEvent()
+    /* What became of the ad and tracker list (ADBLOCK, --adblock), and the
+     * engine's verdict on a fetched one (ADBLOCK-CHECK). Never a path. */
+    data class Adblock(val on: Boolean, val entries: Long, val error: String?) : EngineEvent()
+    data class AdblockCheck(val ok: Boolean, val entries: Long, val error: String?) : EngineEvent()
     object Stopped : EngineEvent()
     data class Other(val type: String) : EngineEvent()
     data class Text(val line: String) : EngineEvent()
@@ -57,7 +63,10 @@ sealed class EngineEvent {
                 "stats" -> Stats(
                     num("conns_total"), num("conns_active"), num("bytes_up"), num("bytes_down"),
                     num("desync"), num("tls"), num("http"), num("probe_ok"), num("probe_fail"),
+                    num("blocked"),
                 )
+                "adblock" -> Adblock(bool("on"), num("entries"), str("error"))
+                "adblock_check" -> AdblockCheck(bool("ok"), num("entries"), str("error"))
                 in HOST_KINDS -> Host(
                     kind = type,
                     host = str("host") ?: "",

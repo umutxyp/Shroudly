@@ -190,6 +190,7 @@ export default function StatsPanel({ active }) {
         <Stat Icon={ShieldCheckIcon} label={t('bypassed')} value={s.desync ?? 0} sub={`TLS ${s.tlsSeen ?? 0}`} />
         <Stat Icon={DatabaseIcon} label={t('dataTransferred')} value={fmtBytes((s.bytesUp || 0) + (s.bytesDown || 0))} />
         <Stat Icon={ClockIcon} label={t('uptime')} value={s.uptime ? fmtUptime(s.uptime) : '—'} />
+        {s.adsBlocked > 0 && <Stat Icon={ShieldCheckIcon} label={t('adsBlocked')} value={s.adsBlocked} />}
       </div>
     </div>
   );

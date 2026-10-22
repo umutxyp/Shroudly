@@ -461,5 +461,15 @@
   "logRawUnreachable": "{app} sunucularına ulaşamıyor ({addrs}): ağ bu adreslerin kendisini engelliyor; bunu yalnızca uygulamanın kendi proxy ayarı ya da bir VPN aşar",
   "logRawBlocked": "{app}: ağ bağlantılarını durduruyor ({addrs}) ve hiçbir teknik geçemedi; bunu yalnızca uygulamanın kendi proxy ayarı ya da bir VPN aşar",
   "logRawUnreachableAddr": "{addr}: ulaşılamadı (web bağlantısı değil)",
-  "logRawStillBlockedAddr": "{addr}: {tries} teknik denendi, hâlâ engelli (web bağlantısı değil)"
+  "logRawStillBlockedAddr": "{addr}: {tries} teknik denendi, hâlâ engelli (web bağlantısı değil)",
+  "adBlock": "Reklamları ve izleyicileri engelle",
+  "adBlockDesc": "Herkese açık bir reklam ve izleyici listesindeki adlar her uygulamada cevapsız kalır. Liste Shroudly üzerinden indirilir ve haftada bir güncellenir.",
+  "adBlockAllow": "Hiç engellenmeyecek siteler",
+  "adBlockAllowDesc": "Bir site bozulursa alan adını buraya yaz, her satıra bir tane: o ve altındaki tüm adlar hiç engellenmez.",
+  "adsBlocked": "Engellenen reklamlar",
+  "logAdblockFetching": "Reklam engelleme: liste indiriliyor",
+  "logAdblockInUse": "Reklam engelleme: {count} adlık liste kullanılıyor",
+  "logAdblockUnusable": "Reklam engelleme: liste kullanılamadı ({why})",
+  "logAdblockFetchFailed": "Reklam engelleme: liste indirilemedi ({why}); Shroudly sonra yeniden deneyecek",
+  "logAdblockRejected": "Reklam engelleme: indirilen liste kullanılacak bir liste değil ({why})"
 }

@@ -461,5 +461,15 @@
   "logRawUnreachable": "Die App {app} erreicht ihre Server nicht ({addrs}): Das Netz sperrt genau diese Adressen; daran kommt nur die eigene Proxy-Einstellung der App oder ein VPN vorbei",
   "logRawBlocked": "{app}: Das Netz unterbricht die Verbindungen der App ({addrs}) und keine Technik ist durchgekommen; daran kommt nur die eigene Proxy-Einstellung der App oder ein VPN vorbei",
   "logRawUnreachableAddr": "{addr}: nicht erreichbar (keine Web-Verbindung)",
-  "logRawStillBlockedAddr": "{addr}: nach {tries} Techniken weiter gesperrt (keine Web-Verbindung)"
+  "logRawStillBlockedAddr": "{addr}: nach {tries} Techniken weiter gesperrt (keine Web-Verbindung)",
+  "adBlock": "Werbung und Tracker blockieren",
+  "adBlockDesc": "Namen auf einer öffentlichen Werbe- und Trackerliste bekommen in jeder App keine Antwort. Die Liste wird über Shroudly geladen und wöchentlich erneuert.",
+  "adBlockAllow": "Nie blockierte Seiten",
+  "adBlockAllowDesc": "Wenn eine Seite nicht mehr geht, trage ihre Domain hier ein, eine pro Zeile: sie und alle Namen darunter werden nie blockiert.",
+  "adsBlocked": "Blockierte Werbung",
+  "logAdblockFetching": "Werbeblocker: Liste wird geladen",
+  "logAdblockInUse": "Werbeblocker: Liste mit {count} Namen aktiv",
+  "logAdblockUnusable": "Werbeblocker: Liste nicht verwendbar ({why})",
+  "logAdblockFetchFailed": "Werbeblocker: Liste nicht geladen ({why}); Shroudly versucht es später erneut",
+  "logAdblockRejected": "Werbeblocker: die geladene Liste ist nicht verwendbar ({why})"
 }

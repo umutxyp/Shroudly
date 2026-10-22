@@ -33,6 +33,7 @@ const Launch = require('./launch');
 const wake = require('./wake');
 const { buildReport, toClipboard } = require('./log-report');
 const LogGate = require('./log-gate');
+const { AdblockList } = require('./adblock');
 
 /* "Shroudly --restore-proxy" runs once at login after a run that never got to
  * restore the system proxy (power loss, forced reboot), and from the watchdog
@@ -662,6 +663,8 @@ async function safeStart({ user = false } = {}) {
     // login waits for this verdict. And whether Microsoft Store apps can
     // reach Shroudly (store-apps.js).
     setTimeout(() => { if (autopilot) autopilot.survey().catch(() => {}); }, 1000);
+    // The ad and tracker list, when that is on and there is none or it is old.
+    setTimeout(() => { ensureAdblock().catch(() => {}); }, 5000);
     setTimeout(() => { if (storeApps) storeApps.survey().catch(() => {}); }, 3000);
     robloxWatch.warm();
     return r || { success: true };
@@ -773,8 +776,11 @@ app.whenReady().then(async () => {
     log: addLog,
     getSocksPort: () => (engine && engine.isActive() ? engine.port : null),
   });
+  adblockList = new AdblockList({ dir: app.getPath('userData'), connect: DiscordRelay.socksConnect });
   engine = new EngineManager(store, {
     addLog, onStatusChange: broadcastStatus,
+    // "Block ads and trackers": the list in use, once one has been fetched.
+    adblockFile: () => (adblockList && adblockList.has() ? adblockList.file : null),
     siteList: () => siteList.domains,
     // A site still blocked while Advanced mode is on: nothing to suggest.
     advancedOn: () => !!(advanced && advanced.active),
@@ -1884,12 +1890,40 @@ function createStoreApps() {
 ipcMain.handle('storeapps:status', () => (storeApps ? storeApps.status() : { available: false, on: false }));
 ipcMain.handle('storeapps:set', async (e, on) => (storeApps ? storeApps.setMode(on === true) : { success: false }));
 
+/* "Block ads and trackers" (adblock.js): the list fetched through the engine
+ * when there is none or it is a week old, checked by the engine, then put to
+ * use without a restart. A failed or wrong download leaves things as they
+ * were and is tried again later. */
+let adblockList = null;
+async function ensureAdblock() {
+  if (store.get('adBlock') !== true || !adblockList || !engine || !engine.isActive() || !adblockList.due()) return;
+  addLog('info', 'Ad blocking: fetching the list');
+  let tmp;
+  try { tmp = await adblockList.fetch(engine.port); } catch (e) {
+    addLog('warning', `Ad blocking: the list could not be fetched (${e.message}); Shroudly tries again later`);
+    return;
+  }
+  const v = await engine.adblockCheck(tmp);
+  if (!v.ok) {
+    adblockList.discard(tmp);
+    addLog('warning', `Ad blocking: the list fetched is not one to use (${v.error || 'unknown'})`);
+    return;
+  }
+  adblockList.adopt(tmp);
+  if (store.get('adBlock') === true && engine.isActive()) engine.adblockApply();
+}
+setInterval(() => { ensureAdblock().catch(() => {}); }, 60 * 60 * 1000).unref();
+
 ipcMain.handle('settings:set', (e, key, value) => {
   // No list of one's own: follow the automatic list again.
   if (key === 'siteList' && !Array.isArray(value)) store.delete('siteList');
   else store.set(key, value);
   if (ENGINE_SETTINGS.has(key)) scheduleEngineRestart();
   if (PROXY_SETTINGS.has(key)) { routing = null; scheduleProxyReapply(); scheduleSiteListCheck(5000); }
+  if (key === 'adBlock' || key === 'adBlockAllow') {
+    if (engine && engine.isActive()) engine.adblockApply();
+    ensureAdblock().catch(() => {});
+  }
   if (key === 'language') rebuildTrayMenu();
   if (key === 'showTrayIcon') setTrayIcon(value !== false);
   if (key === 'autoUpdate' && updater) updater.autoChanged();

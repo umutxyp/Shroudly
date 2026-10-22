@@ -461,5 +461,15 @@
   "logRawUnreachable": "{app} 无法连接到其服务器（{addrs}）：网络封锁的是这些地址本身；只有应用自带的代理设置或 VPN 才能绕过",
   "logRawBlocked": "{app}：网络阻断了其连接（{addrs}），且没有任何技术能突破；只有应用自带的代理设置或 VPN 才能绕过",
   "logRawUnreachableAddr": "{addr}：无法访问（非网页连接）",
-  "logRawStillBlockedAddr": "{addr}：尝试 {tries} 种技术后仍被封锁（非网页连接）"
+  "logRawStillBlockedAddr": "{addr}：尝试 {tries} 种技术后仍被封锁（非网页连接）",
+  "adBlock": "拦截广告和跟踪器",
+  "adBlockDesc": "公开的广告和跟踪器列表中的名称在任何应用中都得不到响应。列表通过 Shroudly 下载，并每周更新。",
+  "adBlockAllow": "永不拦截的网站",
+  "adBlockAllowDesc": "如果某个网站无法正常使用，请在此填写其域名，每行一个：该域名及其下的所有名称都不会被拦截。",
+  "adsBlocked": "已拦截的广告",
+  "logAdblockFetching": "广告拦截：正在下载列表",
+  "logAdblockInUse": "广告拦截：正在使用含 {count} 个名称的列表",
+  "logAdblockUnusable": "广告拦截：无法使用该列表（{why}）",
+  "logAdblockFetchFailed": "广告拦截：无法下载列表（{why}）；Shroudly 稍后会再试",
+  "logAdblockRejected": "广告拦截：下载的列表不可用（{why}）"
 }

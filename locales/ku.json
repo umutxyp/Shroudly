@@ -461,5 +461,15 @@
   "logRawUnreachable": "Sepana {app} nikare bigihîje rajekarên xwe ({addrs}): tor van navnîşanan bi xwe asteng dike; tenê mîhenga proksiyê ya sepanê bi xwe an VPN dikare vê derbas bike",
   "logRawBlocked": "{app}: tor girêdanên wê radiwestîne ({addrs}) û ti teknîk derbas nebû; tenê mîhenga proksiyê ya sepanê bi xwe an VPN dikare vê derbas bike",
   "logRawUnreachableAddr": "{addr}: nehat gihîştin (ne girêdana webê ye)",
-  "logRawStillBlockedAddr": "{addr}: piştî {tries} teknîkan hîn jî astengkirî ye (ne girêdana webê ye)"
+  "logRawStillBlockedAddr": "{addr}: piştî {tries} teknîkan hîn jî astengkirî ye (ne girêdana webê ye)",
+  "adBlock": "Reklam û şopîneran asteng bike",
+  "adBlockDesc": "Navên li ser lîsteyeke giştî ya reklam û şopîneran di tu sepanê de bersiv nagirin. Lîste bi rêya Shroudly tê daxistin û her hefte tê nûkirin.",
+  "adBlockAllow": "Malperên ku qet nayên astengkirin",
+  "adBlockAllowDesc": "Ger malperek xera bibe, domaina wê li vir binivîse, her rêzê yek: ew û hemû navên di bin wê de qet nayên astengkirin.",
+  "adsBlocked": "Reklamên astengkirî",
+  "logAdblockFetching": "Astengkirina reklaman: lîste tê daxistin",
+  "logAdblockInUse": "Astengkirina reklaman: lîsteya {count} navan tê bikaranîn",
+  "logAdblockUnusable": "Astengkirina reklaman: lîste nehat bikaranîn ({why})",
+  "logAdblockFetchFailed": "Astengkirina reklaman: lîste nehat daxistin ({why}); Shroudly paşê dîsa biceribîne",
+  "logAdblockRejected": "Astengkirina reklaman: lîsteya hatî daxistin ne ya bikaranînê ye ({why})"
 }

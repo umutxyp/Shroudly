@@ -461,5 +461,15 @@
   "logRawUnreachable": "{app} không thể kết nối tới máy chủ của nó ({addrs}): mạng chặn chính các địa chỉ đó; chỉ cài đặt proxy riêng của ứng dụng hoặc VPN mới vượt qua được",
   "logRawBlocked": "{app}: mạng chặn các kết nối của nó ({addrs}) và không kỹ thuật nào vượt qua được; chỉ cài đặt proxy riêng của ứng dụng hoặc VPN mới vượt qua được",
   "logRawUnreachableAddr": "{addr}: không thể truy cập (không phải kết nối web)",
-  "logRawStillBlockedAddr": "{addr}: vẫn bị chặn sau {tries} kỹ thuật (không phải kết nối web)"
+  "logRawStillBlockedAddr": "{addr}: vẫn bị chặn sau {tries} kỹ thuật (không phải kết nối web)",
+  "adBlock": "Chặn quảng cáo và trình theo dõi",
+  "adBlockDesc": "Các tên trong một danh sách công khai về quảng cáo và trình theo dõi sẽ không nhận được phản hồi trong bất kỳ ứng dụng nào. Danh sách được tải qua Shroudly và cập nhật hằng tuần.",
+  "adBlockAllow": "Trang không bao giờ bị chặn",
+  "adBlockAllowDesc": "Nếu một trang bị lỗi, hãy ghi tên miền của nó vào đây, mỗi dòng một tên: trang đó và mọi tên bên dưới sẽ không bao giờ bị chặn.",
+  "adsBlocked": "Quảng cáo đã chặn",
+  "logAdblockFetching": "Chặn quảng cáo: đang tải danh sách",
+  "logAdblockInUse": "Chặn quảng cáo: đang dùng danh sách {count} tên",
+  "logAdblockUnusable": "Chặn quảng cáo: không thể dùng danh sách ({why})",
+  "logAdblockFetchFailed": "Chặn quảng cáo: không tải được danh sách ({why}); Shroudly sẽ thử lại sau",
+  "logAdblockRejected": "Chặn quảng cáo: danh sách đã tải không dùng được ({why})"
 }

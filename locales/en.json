@@ -461,5 +461,15 @@
   "logRawUnreachable": "{app} cannot reach its servers ({addrs}): the network blocks those addresses themselves; only the app's own proxy setting or a VPN gets around that",
   "logRawBlocked": "{app}: the network stops its connections ({addrs}) and no technique got through; only the app's own proxy setting or a VPN gets around that",
   "logRawUnreachableAddr": "{addr}: could not be reached (not a web connection)",
-  "logRawStillBlockedAddr": "{addr}: still blocked after {tries} techniques (not a web connection)"
+  "logRawStillBlockedAddr": "{addr}: still blocked after {tries} techniques (not a web connection)",
+  "adBlock": "Block ads and trackers",
+  "adBlockDesc": "Names on a public ad and tracker list get no answer, in every app. The list is fetched through Shroudly and refreshed weekly.",
+  "adBlockAllow": "Sites never to block",
+  "adBlockAllowDesc": "If a site breaks, write its domain here, one per line: it and every name under it are never blocked.",
+  "adsBlocked": "Ads blocked",
+  "logAdblockFetching": "Ad blocking: fetching the list",
+  "logAdblockInUse": "Ad blocking: a list of {count} names in use",
+  "logAdblockUnusable": "Ad blocking: the list could not be used ({why})",
+  "logAdblockFetchFailed": "Ad blocking: the list could not be fetched ({why}); Shroudly tries again later",
+  "logAdblockRejected": "Ad blocking: the list fetched is not one to use ({why})"
 }

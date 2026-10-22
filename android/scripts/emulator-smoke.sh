@@ -120,6 +120,12 @@ http_get() {
   sh_ "(printf 'GET / HTTP/1.1\r\nHost: example.com\r\nUser-Agent: shroudly-smoke\r\nConnection: close\r\n\r\n'; sleep 6) | timeout 20 $NC -q 1 -w 15 example.com 80 | head -1"
 }
 
+# The same to another name, port 80 (the engine sees the name: the tunnel
+# hands apps stand-in addresses and passes the name on).
+http_host() {
+  sh_ "(printf 'GET / HTTP/1.1\r\nHost: $1\r\nUser-Agent: shroudly-smoke\r\nConnection: close\r\n\r\n'; sleep 6) | timeout 20 $NC -q 1 -w 15 $1 80 | head -1"
+}
+
 # A DNS query for example.com straight to 8.8.8.8 over UDP: not the VPN's own
 # DNS, so it has to go through the engine's UDP relay. Prints the reply's hex.
 udp_dns() {
@@ -237,6 +243,27 @@ total="$(echo "$stats" | sed -n 's/.*connections \([0-9]*\) total.*/\1/p')"
 [ "${total:-0}" -ge 1 ] || fail "the engine counted no connections"
 dns="$(applog | grep 'Encrypted DNS answering via' | tail -1 | sed 's/.*Encrypted/Encrypted/' || true)"
 [ -n "$dns" ] && say "$dns"
+
+# ── "Block ads and trackers" ─────────────────────────────────────────────
+# Apps' lookups get stand-in addresses from the tunnel (198.19.0.0/16) and the
+# name reaches the engine with the connection, so on a phone a listed name is
+# stopped there: its connection is ended inside the engine (an HTTP request
+# gets 403), other names are untouched. Off by default; on: the list is
+# fetched through the engine and checked by it; off again: no restart.
+ad_before="$(http_host doubleclick.net)"
+case "$ad_before" in *403*|"") fail "doubleclick.net stopped while ad blocking is off ($ad_before)";; esac
+ctl adblock-on
+wait_for 120 has_log "Ad blocking: a list of" || fail "ad blocking: the list was not fetched and put to use ($(applog | grep 'Ad blocking' | tail -2 | tr '\n' ' '))"
+ad_on="$(http_host doubleclick.net)"
+case "$ad_on" in *403*) ;; *) fail "ad blocking on: doubleclick.net answered '$ad_on', not 403 from the engine";; esac
+ok_on="$(http_get)"
+case "$ok_on" in *" 200 "*|*" 30"*) ;; *) fail "ad blocking on: example.com did not load ($ok_on)";; esac
+say "ad blocking: $(applog | grep 'Ad blocking: a list of' | tail -1 | sed 's/.*Ad blocking/Ad blocking/'); doubleclick.net: ${ad_on%%$'\r'}; example.com: ${ok_on%%$'\r'}"
+ctl adblock-off
+sleep 2
+ad_off="$(http_host doubleclick.net)"
+case "$ad_off" in *403*|"") fail "ad blocking off: doubleclick.net still stopped ($ad_off)";; esac
+say "ad blocking off again: doubleclick.net: ${ad_off%%$'\r'}, no restart"
 
 # ── inside the app's process ─────────────────────────────────────────────
 # Up to 2.6.1 the engine was a process of its own, which Android 12+ and

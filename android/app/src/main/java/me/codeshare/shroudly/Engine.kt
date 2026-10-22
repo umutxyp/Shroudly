@@ -63,12 +63,21 @@ class Engine(
         /* The desktop's arguments (electron/engine-manager.js _args): auto mode,
          * encrypted DNS through the local forwarder, and every known block page;
          * the file with this session's SOCKS5 password, and the stand-in range. */
-        fun args(port: Int, dohPort: Int, blockIps: List<String>, authFile: File? = null, fakeNet: String? = null): List<String> {
+        fun args(
+            port: Int, dohPort: Int, blockIps: List<String>, authFile: File? = null, fakeNet: String? = null,
+            adblock: File? = null, allow: List<String> = emptyList(),
+        ): List<String> {
             val a = mutableListOf("--listen", "127.0.0.1", "--port", port.toString(), "--strategy", "split(sni)", "--auto", "--doh")
             if (dohPort > 0) a += listOf("--doh-port", dohPort.toString())
             if (authFile != null) a += listOf(SocksAuth.OPTION, authFile.path)
             if (fakeNet != null) a += listOf(FAKE_NET_OPTION, fakeNet)
             for (ip in blockIps) a += listOf("--block-ip", ip)
+            // "Block ads and trackers" (AdBlock): the list fetched, and the
+            // user's exceptions.
+            if (adblock != null) {
+                a += listOf("--adblock", adblock.path)
+                for (d in allow) a += listOf("--allow", d)
+            }
             return a
         }
 

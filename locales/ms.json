@@ -461,5 +461,15 @@
   "logRawUnreachable": "{app} tidak dapat mencapai pelayannya ({addrs}): rangkaian menyekat alamat itu sendiri; hanya tetapan proksi aplikasi itu sendiri atau VPN yang dapat memintasnya",
   "logRawBlocked": "{app}: rangkaian menghentikan sambungannya ({addrs}) dan tiada teknik yang berjaya menembusinya; hanya tetapan proksi aplikasi itu sendiri atau VPN yang dapat memintasnya",
   "logRawUnreachableAddr": "{addr}: tidak dapat dicapai (bukan sambungan web)",
-  "logRawStillBlockedAddr": "{addr}: masih disekat selepas {tries} teknik (bukan sambungan web)"
+  "logRawStillBlockedAddr": "{addr}: masih disekat selepas {tries} teknik (bukan sambungan web)",
+  "adBlock": "Sekat iklan dan penjejak",
+  "adBlockDesc": "Nama dalam senarai awam iklan dan penjejak tidak mendapat jawapan dalam mana-mana aplikasi. Senarai dimuat turun melalui Shroudly dan dikemas kini setiap minggu.",
+  "adBlockAllow": "Laman yang tidak pernah disekat",
+  "adBlockAllowDesc": "Jika sesebuah laman rosak, tulis domainnya di sini, satu setiap baris: ia dan semua nama di bawahnya tidak akan disekat.",
+  "adsBlocked": "Iklan disekat",
+  "logAdblockFetching": "Sekatan iklan: memuat turun senarai",
+  "logAdblockInUse": "Sekatan iklan: senarai {count} nama sedang digunakan",
+  "logAdblockUnusable": "Sekatan iklan: senarai tidak dapat digunakan ({why})",
+  "logAdblockFetchFailed": "Sekatan iklan: senarai tidak dapat dimuat turun ({why}); Shroudly akan mencuba lagi kemudian",
+  "logAdblockRejected": "Sekatan iklan: senarai yang dimuat turun tidak boleh digunakan ({why})"
 }

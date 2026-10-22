@@ -20,6 +20,7 @@ import android.os.SystemClock
 import android.service.quicksettings.TileService
 import android.util.Log
 import java.io.File
+import java.io.IOException
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.RejectedExecutionException
@@ -56,6 +57,8 @@ class ShroudlyVpnService : VpnService() {
          * use to make a part fail and watch protection deal with it. The
          * extra "what" says which: "engine-stop", "tunnel-stop", "path-check". */
         const val ACTION_TEST = "me.codeshare.shroudly.TEST"
+        /* "Block ads and trackers" or its exceptions changed (MainActivity). */
+        const val ACTION_ADBLOCK = "me.codeshare.shroudly.ADBLOCK"
 
         private const val CHANNEL = "protection"
         private const val ALERT_CHANNEL = "alerts"
@@ -276,6 +279,11 @@ class ShroudlyVpnService : VpnService() {
                 if (!active && Protection.state == Protection.State.OFF) stopSelf()
                 return START_NOT_STICKY
             }
+            ACTION_ADBLOCK -> {
+                if (active) { applyAdblock(); refreshAdblockSoon(0) }
+                if (!active && Protection.state == Protection.State.OFF) stopSelf()
+                return START_NOT_STICKY
+            }
             ACTION_TEST -> {
                 if (BuildConfig.DEBUG) later { test(intent.getStringExtra("what")) }
                 if (!active && Protection.state == Protection.State.OFF) stopSelf()
@@ -424,6 +432,8 @@ class ShroudlyVpnService : VpnService() {
             Protection.socksAuth = auth
             // The live count, as the desktop's: while protection is on (OnlineCount).
             OnlineCount.sync(this)
+            // The ad and tracker list, when that is on and there is none or it is old.
+            refreshAdblockSoon(5)
             clearAlert(this)
             goForeground(starting = false)
             refreshTile()
@@ -472,7 +482,7 @@ class ShroudlyVpnService : VpnService() {
             authFile = File(filesDir, AUTH_FILE).also { auth!!.writeTo(it) }
             val e = Engine(::log, ::logSite, ::onEngineEvent, ::onEngineExit)
             engine = e
-            val ok = e.start(Engine.args(p, dohPort, blockIps, authFile, Engine.FAKE_NET))
+            val ok = e.start(Engine.args(p, dohPort, blockIps, authFile, Engine.FAKE_NET, AdBlock.listFile(this), AdBlock.allow(this)))
             // Read once, at its start: the secret is not left lying in a file.
             authFile?.delete()
             if (ok) {
@@ -924,6 +934,57 @@ class ShroudlyVpnService : VpnService() {
         try { old?.close() } catch (_: Exception) {}
     }
 
+    /* ── "Block ads and trackers" (AdBlock) ──
+     * The list is fetched on a thread of its own (a download must not hold up
+     * the health checks), checked by the engine, then put to use without a
+     * restart. */
+    private val adblockCheck = java.util.concurrent.atomic.AtomicReference<java.util.concurrent.CompletableFuture<EngineEvent.AdblockCheck>?>(null)
+    private val adblockFetching = java.util.concurrent.atomic.AtomicBoolean(false)
+
+    private fun refreshAdblockSoon(delayS: Long) {
+        if (!AdBlock.enabled(this) || !AdBlock.due(this)) return
+        if (!adblockFetching.compareAndSet(false, true)) return
+        Thread({
+            try {
+                if (delayS > 0) Thread.sleep(delayS * 1000)
+                refreshAdblock()
+            } catch (_: InterruptedException) {
+            } finally {
+                adblockFetching.set(false)
+            }
+        }, "adblock").apply { isDaemon = true }.start()
+    }
+
+    private fun refreshAdblock() {
+        val e = engine ?: return
+        if (!active || !AdBlock.enabled(this) || !AdBlock.due(this)) return
+        log("Ad blocking: fetching the list")
+        val tmp = try { AdBlock.fetch(this, port, auth) } catch (x: Exception) {
+            log("Ad blocking: the list could not be fetched (${x.message ?: x.javaClass.simpleName}); Shroudly tries again later")
+            return
+        }
+        val f = java.util.concurrent.CompletableFuture<EngineEvent.AdblockCheck>()
+        adblockCheck.set(f)
+        e.send("ADBLOCK-CHECK ${tmp.path}")
+        val v = try { f.get(30, TimeUnit.SECONDS) } catch (_: Exception) { null } finally { adblockCheck.compareAndSet(f, null) }
+        if (v == null || !v.ok) {
+            AdBlock.discard(tmp)
+            log("Ad blocking: the list fetched is not one to use (${v?.error ?: "no answer"})")
+            return
+        }
+        try { AdBlock.adopt(this, tmp) } catch (x: IOException) {
+            log("Ad blocking: the list could not be used (${x.message})")
+            return
+        }
+        applyAdblock()
+    }
+
+    /* The setting as it is now, into the running engine. */
+    private fun applyAdblock() {
+        if (!active) return
+        engine?.send(AdBlock.commands(this).joinToString("\n"))
+    }
+
     private fun onEngineEvent(ev: EngineEvent) {
         when (ev) {
             is EngineEvent.Ready -> {
@@ -947,6 +1008,11 @@ class ShroudlyVpnService : VpnService() {
             }
             is EngineEvent.Host -> onHost(ev)
             is EngineEvent.Error -> log("engine: ${ev.message}")
+            is EngineEvent.Adblock -> when {
+                ev.error != null -> log("Ad blocking: the list could not be used (${ev.error})")
+                ev.on -> log("Ad blocking: a list of ${ev.entries} names in use")
+            }
+            is EngineEvent.AdblockCheck -> adblockCheck.getAndSet(null)?.complete(ev)
             else -> {}
         }
     }

@@ -461,5 +461,15 @@
   "logRawUnreachable": "የ{app} መተግበሪያ ወደ አገልጋዮቹ መድረስ አይችልም ({addrs})፤ አውታረ መረቡ እነዚህን አድራሻዎች ራሳቸውን ያግዳል፤ ይህን ማለፍ የሚችሉት የመተግበሪያው የራሱ proxy ቅንብር ወይም VPN ብቻ ናቸው",
   "logRawBlocked": "{app}: አውታረ መረቡ የመተግበሪያውን ግንኙነቶች ያስቆማል ({addrs})፣ አንድም ዘዴ አላለፈም፤ ይህን ማለፍ የሚችሉት የመተግበሪያው የራሱ proxy ቅንብር ወይም VPN ብቻ ናቸው",
   "logRawUnreachableAddr": "{addr}: ሊደረስበት አልተቻለም (የድር ግንኙነት አይደለም)",
-  "logRawStillBlockedAddr": "{addr}: ከ{tries} ዘዴዎች በኋላም ታግዷል (የድር ግንኙነት አይደለም)"
+  "logRawStillBlockedAddr": "{addr}: ከ{tries} ዘዴዎች በኋላም ታግዷል (የድር ግንኙነት አይደለም)",
+  "adBlock": "ማስታወቂያዎችንና መከታተያዎችን አግድ",
+  "adBlockDesc": "በሕዝብ የማስታወቂያና የመከታተያ ዝርዝር ላይ ያሉ ስሞች በየትኛውም መተግበሪያ ምላሽ አያገኙም። ዝርዝሩ በShroudly በኩል ይወርዳል፣ በየሳምንቱም ይታደሳል።",
+  "adBlockAllow": "ፈጽሞ የማይታገዱ ጣቢያዎች",
+  "adBlockAllowDesc": "አንድ ጣቢያ ከተበላሸ ዶሜኑን እዚህ ይጻፉ፣ በእያንዳንዱ መስመር አንድ፦ እሱና ከሥሩ ያሉ ስሞች በሙሉ ፈጽሞ አይታገዱም።",
+  "adsBlocked": "የታገዱ ማስታወቂያዎች",
+  "logAdblockFetching": "ማስታወቂያ ማገድ፦ ዝርዝሩ እየወረደ ነው",
+  "logAdblockInUse": "ማስታወቂያ ማገድ፦ የ{count} ስሞች ዝርዝር በሥራ ላይ ነው",
+  "logAdblockUnusable": "ማስታወቂያ ማገድ፦ ዝርዝሩን መጠቀም አልተቻለም ({why})",
+  "logAdblockFetchFailed": "ማስታወቂያ ማገድ፦ ዝርዝሩን ማውረድ አልተቻለም ({why})፤ Shroudly በኋላ እንደገና ይሞክራል",
+  "logAdblockRejected": "ማስታወቂያ ማገድ፦ የወረደው ዝርዝር ለአገልግሎት የሚውል አይደለም ({why})"
 }

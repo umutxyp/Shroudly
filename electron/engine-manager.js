@@ -26,6 +26,7 @@ const fingerprints = require('./censor-fingerprints');
 const { isMainName } = require('./service-check');
 const sharedWake = require('./wake');
 const LogGate = require('./log-gate');
+const { cleanAllow } = require('./adblock');
 const net = require('net');
 
 /* Can we listen on 127.0.0.1:port right now? */
@@ -191,6 +192,10 @@ class EngineManager {
     // Domains the engine tells about each time a program connects to one
     // (once per name in a while; nothing about the connection changes).
     this.watch = Array.isArray(hooks.watch) ? hooks.watch : [];
+    // The ad and tracker list in use, when "Block ads and trackers" is on
+    // (adblock.js keeps it): the path, or null for none yet.
+    this.adblockFile = hooks.adblockFile || (() => null);
+    this._adblockChecks = [];
     this.onNeedRestart = hooks.onNeedRestart || (() => {});
     this.onDnsAutoEnabled = hooks.onDnsAutoEnabled || (() => {});
     // Sleep and clock jumps (wake.js); the tests bring their own.
@@ -326,6 +331,8 @@ class EngineManager {
       routeMode: s.routeMode === 'listed' ? 'listed' : 'all',
       siteList: Families.expand(withDiscord(Array.isArray(s.siteList) ? s.siteList : this.siteList())),
       port: Number(s.listenPort) || DEFAULT_PORT,
+      adBlock: s.adBlock === true,
+      adBlockAllow: cleanAllow(s.adBlockAllow),
     };
   }
 
@@ -335,6 +342,11 @@ class EngineManager {
     if (cfg.useDoh) { a.push('--doh'); if (this.dohPort) a.push('--doh-port', String(this.dohPort)); }
     if (cfg.preferIpv6) a.push('--ipv6');
     for (const d of this.watch) a.push('--watch', d);
+    const list = cfg.adBlock ? this.adblockFile() : null;
+    if (list) {
+      a.push('--adblock', list);
+      for (const d of cfg.adBlockAllow) a.push('--allow', d);
+    }
     // Block pages and sinkholes of every country we know: an answer pointing
     // at one is forged, so the engine refuses it and keeps looking.
     for (const ip of fingerprints.ALL) a.push('--block-ip', ip);
@@ -739,6 +751,7 @@ class EngineManager {
         this.stats.httpSeen = msg.http;
         this.stats.probeOk = msg.probe_ok;
         this.stats.probeFail = msg.probe_fail;
+        this.stats.adsBlocked = Number(msg.blocked) || 0;
         this.stats.sampledAt = Date.now(); // lets the UI compute rates per sample
         break;
       // A site that needed a technique, and one that defeated all of them. These
@@ -861,6 +874,16 @@ class EngineManager {
                            strategy: msg.strategy || null, suggest: msg.suggest || null };
         if (typeof this.onProbe === 'function') this.onProbe(this.lastProbe);
         break;
+      case 'adblock':
+        // What became of the list: never a path or a name, only its size.
+        if (msg.error) this.log('warning', `Ad blocking: the list could not be used (${msg.error})`);
+        else if (msg.on) this.log('info', `Ad blocking: a list of ${msg.entries} names in use`);
+        break;
+      case 'adblock_check': {
+        const w = this._adblockChecks.shift();
+        if (w) w(msg);
+        break;
+      }
       case 'error':
         this.lastError = msg.msg || `code ${msg.code}`;
         this.log('error', `engine: ${this.lastError}`);
@@ -918,6 +941,35 @@ class EngineManager {
   }
 
   // Ask the engine to probe a host (used by UI "test site").
+  /* A line to the engine; false when it is not running. */
+  _command(line) {
+    if (!this.proc || !this.proc.stdin.writable) return false;
+    try { this.proc.stdin.write(`${line}\n`); return true; } catch { return false; }
+  }
+
+  /* Is the list in file one to use? Resolves the engine's verdict
+   * ({ ok, entries, error }), or { ok: false } with no engine. */
+  adblockCheck(file) {
+    if (!this.proc) return Promise.resolve({ ok: false, error: 'engine not running' });
+    return new Promise((resolve) => {
+      const timer = setTimeout(() => { this._adblockChecks = this._adblockChecks.filter((f) => f !== done); resolve({ ok: false, error: 'no answer' }); }, 30000);
+      const done = (msg) => { clearTimeout(timer); resolve(msg); };
+      this._adblockChecks.push(done);
+      if (!this._command(`ADBLOCK-CHECK ${file}`)) { this._adblockChecks = this._adblockChecks.filter((f) => f !== done); clearTimeout(timer); resolve({ ok: false, error: 'engine not running' }); }
+    });
+  }
+
+  /* The setting and the list, as they are now, into the running engine:
+   * no restart, nothing dropped. */
+  adblockApply() {
+    const cfg = this._settings();
+    const list = cfg.adBlock ? this.adblockFile() : null;
+    if (!list) return this._command('ADBLOCK OFF');
+    this._command('ALLOW-CLEAR');
+    for (const d of cfg.adBlockAllow) this._command(`ALLOW ${d}`);
+    return this._command(`ADBLOCK ${list}`);
+  }
+
   probe(host) {
     if (this.proc && this.proc.stdin.writable) {
       try { this.proc.stdin.write(`PROBE ${host}\n`); } catch {}

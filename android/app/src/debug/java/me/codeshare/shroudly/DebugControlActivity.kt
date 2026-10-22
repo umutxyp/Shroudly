@@ -14,6 +14,7 @@ import android.os.Bundle
  * The VPN consent has to be granted first (appops ACTIVATE_VPN allow). "test"
  * makes one part fail while protection is on (ShroudlyVpnService.ACTION_TEST).
  * "report" writes the head of what "Share logs" sends to logcat.
+ * "adblock-on" / "adblock-off" set "Block ads and trackers".
  */
 class DebugControlActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -26,6 +27,11 @@ class DebugControlActivity : Activity() {
                 Intent(this, ShroudlyVpnService::class.java).setAction(ShroudlyVpnService.ACTION_TEST)
                     .putExtra("what", intent.getStringExtra("what")),
             )
+            // "Block ads and trackers" on or off, as the switch under About does.
+            "adblock-on", "adblock-off" -> {
+                AdBlock.setEnabled(this, intent.getStringExtra("cmd") == "adblock-on")
+                startService(Intent(this, ShroudlyVpnService::class.java).setAction(ShroudlyVpnService.ACTION_ADBLOCK))
+            }
             "report" -> Diagnostics.report(this).lineSequence().takeWhile { it.isNotEmpty() }
                 .forEach { android.util.Log.i("Shroudly", "report: $it") }
             else -> ShroudlyVpnService.log("debug control: unknown command")

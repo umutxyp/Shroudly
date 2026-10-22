@@ -102,6 +102,28 @@
         <item name="android:focusable">true</item>
     </style>
 
+    <!-- An AboutRow that is one TextView: the tile and the chevron are its
+         compound drawables (row_*.xml, chevron_end.xml), one view instead of
+         four. -->
+    <style name="AboutRowText">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:minHeight">52dp</item>
+        <item name="android:gravity">center_vertical|start</item>
+        <item name="android:paddingStart">14dp</item>
+        <item name="android:paddingEnd">12dp</item>
+        <item name="android:paddingTop">8dp</item>
+        <item name="android:paddingBottom">8dp</item>
+        <item name="android:background">@drawable/row</item>
+        <item name="android:drawablePadding">14dp</item>
+        <item name="android:textAlignment">viewStart</item>
+        <item name="android:textColor">@color/text</item>
+        <item name="android:textSize">15sp</item>
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
+        <item name="android:drawableEnd">@drawable/chevron_end</item>
+    </style>
+
     <style name="RowIcon">
         <item name="android:layout_width">30dp</item>
         <item name="android:layout_height">30dp</item>
