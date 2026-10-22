@@ -31,7 +31,7 @@ const ServiceCheck = require('./service-check');
 const { restoreProxy } = require('./restore-proxy');
 const Launch = require('./launch');
 const wake = require('./wake');
-const { buildReport, toClipboard } = require('./log-report');
+const { buildReport, buildCompact, saveReport, toClipboard } = require('./log-report');
 const LogGate = require('./log-gate');
 
 /* "Shroudly --restore-proxy" runs once at login after a run that never got to
@@ -177,10 +177,9 @@ function notify(title, body) {
   }
 }
 
-/* "Copy logs": the whole log with a short header (log-report.js), to the
- * clipboard. Nothing is sent anywhere. */
-function copyLogs() {
-  const report = buildReport({
+/* What the log's header says about this computer and Shroudly now. */
+function reportState() {
+  return {
     version: appVersion(),
     os: `${{ win32: 'Windows', darwin: 'macOS', linux: 'Linux' }[process.platform] || process.platform} ${(() => { try { return process.getSystemVersion(); } catch { return os.release(); } })()}`,
     arch: process.arch,
@@ -190,9 +189,28 @@ function copyLogs() {
     discordMode: store.get('discordMode') === true,
     appsMode: store.get('appMode') === true,
     storeApps: process.platform === 'win32' ? store.get('storeAppsMode') === true : null,
-  }, systemLogs);
+  };
+}
+
+/* "Copy logs": a short version of the log, with its header, that a chat app
+ * takes as one message (log-report.js), to the clipboard. Nothing is sent
+ * anywhere. */
+function copyLogs() {
+  const report = buildCompact(reportState(), systemLogs);
   if (!toClipboard(report, clipboard)) return { ok: false };
   return { ok: true, lines: systemLogs.length, chars: report.length };
+}
+
+/* "Save logs": the whole log in a .txt file in the user's Downloads folder
+ * (else Desktop, Documents, home), shown in the file manager, so it can be
+ * attached to a message or an issue. Nothing is sent anywhere. */
+function saveLogs() {
+  const text = buildReport({ ...reportState(), verb: 'saved' }, systemLogs);
+  const dirs = ['downloads', 'desktop', 'documents', 'home'].map((n) => () => app.getPath(n));
+  const r = saveReport(text, dirs);
+  if (!r.ok) { addLog('error', `Logs could not be saved: ${r.error}`); return { ok: false }; }
+  try { shell.showItemInFolder(r.file); } catch {}
+  return { ok: true, file: r.file, name: path.basename(r.file), folder: path.dirname(r.file) };
 }
 
 /* From the tray: on the clipboard, said; where the desktop would not take it
@@ -203,6 +221,14 @@ function trayCopyLogs(s) {
   showWindow();
   toWindow('ui:navigate', 'logs');
   notify('Shroudly', s.notifyLogsCopyFailed);
+}
+
+/* From the tray: saved, the file shown in the file manager and named in a
+ * notification. */
+function traySaveLogs(s) {
+  const r = saveLogs();
+  if (r.ok) notify('Shroudly', String(s.notifyLogsSaved || '').replace('{file}', r.name).replace('{folder}', r.folder));
+  else notify('Shroudly', s.notifyLogsSaveFailed);
 }
 
 /* ── tray + status ───────────────────────────────────────────────────────── */
@@ -251,6 +277,7 @@ function rebuildTrayMenu(active = trayActive) {
     },
     { type: 'separator' },
     { label: s.trayCopyLogs, click: () => trayCopyLogs(s) },
+    { label: s.traySaveLogs, click: () => traySaveLogs(s) },
     { label: s.trayQuit, click: () => { app.isQuitting = true; shutdownAndQuit(); } },
   ]);
   tray.setContextMenu(menu);
@@ -894,7 +921,7 @@ app.whenReady().then(async () => {
   createAutopilot();
   createStoreApps();
   // The end-to-end tests look inside (tests/e2e): never in a normal run.
-  if (process.env.SHROUDLY_E2E === '1') global.shroudlyE2E = { engine, appProxy, discordRelay, autopilot, wake, store, addLog, require, trayCopyLogs: () => trayCopyLogs(tr()) };
+  if (process.env.SHROUDLY_E2E === '1') global.shroudlyE2E = { engine, appProxy, discordRelay, autopilot, wake, store, addLog, require, trayCopyLogs: () => trayCopyLogs(tr()), saveLogs };
 
   updater = new Updater({
     log: addLog,
@@ -1907,8 +1934,10 @@ ipcMain.handle('update:install', () => updater && updater.install());
 ipcMain.handle('update:postpone', () => updater && updater.postpone());
 
 ipcMain.handle('logs:get', () => systemLogs);
-// The whole log, with what a report needs to know, to the clipboard only.
+// A short version of the log, with what a report needs to know, to the
+// clipboard only; the whole log to a file the user attaches.
 ipcMain.handle('logs:copy', () => copyLogs());
+ipcMain.handle('logs:save', () => saveLogs());
 ipcMain.handle('logs:clear', () => { systemLogs = []; addLog('info', 'Logs cleared'); return true; });
 
 ipcMain.handle('net:stats', async () => {

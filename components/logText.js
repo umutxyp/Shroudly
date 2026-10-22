@@ -178,6 +178,7 @@ const PATTERNS = [
   [/^System routed through local proxy on port (\d+)$/, 'logProxyApplied', ['port']],
   [/^Could not set system proxy: (.+)$/, 'logProxyFailed', ['detail']],
   [/^Proxy restore issue: (.+)$/, 'logProxyRestoreIssue', ['detail']],
+  [/^Logs could not be saved: (.+)$/, 'logLogsSaveFailed', ['detail']],
   [/^Start failed: (.+)$/, 'logStartFailed', ['detail']],
   [/^Stop failed: (.+)$/, 'logStopFailed', ['detail']],
   [/^Advanced mode failed: (.+)$/, 'logAdvancedFailed', ['detail']],
