@@ -471,5 +471,12 @@
   "logAdblockInUse": "Mahabat bloklamak: {count} atly sanaw ulanylýar",
   "logAdblockUnusable": "Mahabat bloklamak: sanawy ulanyp bolmady ({why})",
   "logAdblockFetchFailed": "Mahabat bloklamak: sanaw ýüklenmedi ({why}); Shroudly soňra täzeden synanyşar",
-  "logAdblockRejected": "Mahabat bloklamak: ýüklenen sanaw ýaramly däl ({why})"
+  "logAdblockRejected": "Mahabat bloklamak: ýüklenen sanaw ýaramly däl ({why})",
+  "androidAppsSection": "Programmalar",
+  "excludedApps": "Shroudly-dan aýlanyp geçýän programmalar",
+  "excludedAppsDesc": "Olaryň trafigi Shroudly-dan geçmän göni çykýar: meselem, oňa mätäç däl oýun.",
+  "excludedAppsCount": "{count} programma Shroudly-dan aýlanyp geçýär",
+  "searchApps": "Programma gözle",
+  "androidStartAtBoot": "Telefon açylanda başla",
+  "androidStartAtBootDesc": "VPN-e bir gezek rugsat berlen bolsa, telefon täzeden açylanda gorag özi açylýar."
 }

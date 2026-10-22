@@ -265,6 +265,36 @@ ad_off="$(http_host doubleclick.net)"
 case "$ad_off" in *403*|"") fail "ad blocking off: doubleclick.net still stopped ($ad_off)";; esac
 say "ad blocking off again: doubleclick.net: ${ad_off%%$'\r'}, no restart"
 
+# ── "Apps that skip Shroudly" ────────────────────────────────────────────
+# This shell is an app too (com.android.shell, uid 2000): set to skip
+# Shroudly, Android leaves its uid out of the VPN network (dumpsys shows the
+# VPN's uid ranges) and its requests still load, straight out; back in, its
+# uid is in the VPN again. (The engine's own counters cannot tell: other apps
+# on the phone keep using it meanwhile.)
+vpn_has_uid() {
+  local u="$1" ranges
+  ranges="$(sh_ "dumpsys connectivity" | grep -o 'VPN CONNECTED.*' | head -1 | grep -o 'Uids: <[^>]*>' | head -1)"
+  [ -n "$ranges" ] || return 2
+  python3 - "$u" "$ranges" <<'PY'
+import re, sys
+u = int(sys.argv[1])
+for a, b in re.findall(r'\{(\d+)(?:-(\d+))?\}', sys.argv[2]):
+    if int(a) <= u <= int(b or a): sys.exit(0)
+sys.exit(1)
+PY
+}
+vpn_has_uid 2000; [ $? = 0 ] || fail "before: the shell's uid 2000 is not in the VPN"
+sh_ "am start -n $PKG/.DebugControlActivity --es cmd exclude --es pkg com.android.shell" >/dev/null
+wait_for 20 has_log "Apps that skip Shroudly changed" || fail "the app list change did not renew the VPN interface"
+wait_for 20 eval '! vpn_has_uid 2000' || fail "an app set to skip Shroudly is still in the VPN ($(sh_ "dumpsys connectivity" | grep -o 'VPN CONNECTED.*' | grep -o 'Uids: <[^>]*>' | head -1))"
+skip="$(http_get)"
+case "$skip" in *" 200 "*|*" 30"*) ;; *) fail "an app that skips Shroudly lost its internet ($skip)";; esac
+sh_ "am start -n $PKG/.DebugControlActivity --es cmd exclude --es pkg ''" >/dev/null
+wait_for 20 vpn_has_uid 2000 || fail "back in: the shell's uid 2000 is not in the VPN again"
+back="$(http_get)"
+case "$back" in *" 200 "*|*" 30"*) ;; *) fail "back through Shroudly, the shell's request failed ($back)";; esac
+say "apps that skip Shroudly: uid 2000 left out of the VPN and loading straight out (${skip%%$'\r'}), in the VPN again once back (${back%%$'\r'})"
+
 # ── inside the app's process ─────────────────────────────────────────────
 # Up to 2.6.1 the engine was a process of its own, which Android 12+ and
 # phone makers end or freeze ("phantom processes"), leaving the VPN pointing

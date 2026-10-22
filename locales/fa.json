@@ -471,5 +471,12 @@
   "logAdblockInUse": "مسدودسازی تبلیغات: فهرستی با {count} نام در حال استفاده است",
   "logAdblockUnusable": "مسدودسازی تبلیغات: فهرست قابل استفاده نبود ({why})",
   "logAdblockFetchFailed": "مسدودسازی تبلیغات: فهرست دریافت نشد ({why})؛ Shroudly بعدا دوباره تلاش می‌کند",
-  "logAdblockRejected": "مسدودسازی تبلیغات: فهرست دریافت‌شده قابل استفاده نیست ({why})"
+  "logAdblockRejected": "مسدودسازی تبلیغات: فهرست دریافت‌شده قابل استفاده نیست ({why})",
+  "androidAppsSection": "برنامه‌ها",
+  "excludedApps": "برنامه‌هایی که از Shroudly عبور نمی‌کنند",
+  "excludedAppsDesc": "ترافیک آن‌ها مستقیم و بدون گذر از Shroudly بیرون می‌رود: مثلاً بازی‌ای که به آن نیازی ندارد.",
+  "excludedAppsCount": "{count} برنامه از Shroudly عبور نمی‌کنند",
+  "searchApps": "جست‌وجوی برنامه",
+  "androidStartAtBoot": "شروع هنگام روشن شدن گوشی",
+  "androidStartAtBootDesc": "پس از اجازه دادن به VPN، با راه‌اندازی دوبارهٔ گوشی، محافظت خودبه‌خود روشن می‌شود."
 }

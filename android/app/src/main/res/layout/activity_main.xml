@@ -128,7 +128,7 @@
                 android:layout_width="16dp"
                 android:layout_height="16dp"
                 android:src="@drawable/ic_power"
-                android:tint="@color/accent_light" />
+                android:tint="?attr/accentLight" />
 
             <TextView
                 android:id="@+id/hintLabel"
@@ -136,7 +136,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="7dp"
                 android:fontFamily="sans-serif-medium"
-                android:textColor="@color/accent_light"
+                android:textColor="?attr/accentLight"
                 android:textSize="15sp" />
         </LinearLayout>
 
@@ -281,7 +281,7 @@
                 android:layout_marginTop="1dp"
                 android:importantForAccessibility="no"
                 android:src="@drawable/ic_info"
-                android:tint="@color/accent_light" />
+                android:tint="?attr/accentLight" />
 
             <TextView
                 android:layout_width="0dp"
@@ -516,23 +516,22 @@
 
             <View style="@style/Divider" />
 
+            <!-- The technique, the apps that skip Shroudly and starting with
+                 the phone (SettingsActivity). -->
+            <TextView
+                android:id="@+id/settings"
+                style="@style/AboutRowText"
+                android:drawableStart="@drawable/row_settings"
+                android:text="@string/navSettings" />
+
+            <View style="@style/Divider" />
+
             <!-- The recent log and the phone's details, to send to us. -->
-            <LinearLayout
+            <TextView
                 android:id="@+id/shareLogs"
-                style="@style/AboutRow">
-
-                <ImageView
-                    android:importantForAccessibility="no"
-                    style="@style/RowIcon"
-                    android:src="@drawable/ic_share" />
-
-                <TextView
-                    style="@style/RowLabel"
-                    android:text="@string/androidShareLogs" />
-
-                <ImageView
-                    android:importantForAccessibility="no" style="@style/Chevron" />
-            </LinearLayout>
+                style="@style/AboutRowText"
+                android:drawableStart="@drawable/row_share"
+                android:text="@string/androidShareLogs" />
         </LinearLayout>
 
         <View

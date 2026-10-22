@@ -471,5 +471,12 @@
   "logAdblockInUse": "Жарнаманы бұғаттау: {count} атаулы тізім қолданылуда",
   "logAdblockUnusable": "Жарнаманы бұғаттау: тізімді қолдану мүмкін болмады ({why})",
   "logAdblockFetchFailed": "Жарнаманы бұғаттау: тізім жүктелмеді ({why}); Shroudly кейін қайта тырысады",
-  "logAdblockRejected": "Жарнаманы бұғаттау: жүктелген тізім жарамсыз ({why})"
+  "logAdblockRejected": "Жарнаманы бұғаттау: жүктелген тізім жарамсыз ({why})",
+  "androidAppsSection": "Қолданбалар",
+  "excludedApps": "Shroudly-ді айналып өтетін қолданбалар",
+  "excludedAppsDesc": "Олардың трафигі Shroudly арқылы өтпей, тікелей шығады: мысалы, оған мұқтаж емес ойын.",
+  "excludedAppsCount": "Shroudly-ді айналып өтетін қолданбалар: {count}",
+  "searchApps": "Қолданба іздеу",
+  "androidStartAtBoot": "Телефон қосылғанда іске қосу",
+  "androidStartAtBootDesc": "VPN-ге бір рет рұқсат берілсе, телефон қайта қосылғанда қорғаныс өзі қосылады."
 }

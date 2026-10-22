@@ -471,5 +471,12 @@
   "logAdblockInUse": "ማስታወቂያ ማገድ፦ የ{count} ስሞች ዝርዝር በሥራ ላይ ነው",
   "logAdblockUnusable": "ማስታወቂያ ማገድ፦ ዝርዝሩን መጠቀም አልተቻለም ({why})",
   "logAdblockFetchFailed": "ማስታወቂያ ማገድ፦ ዝርዝሩን ማውረድ አልተቻለም ({why})፤ Shroudly በኋላ እንደገና ይሞክራል",
-  "logAdblockRejected": "ማስታወቂያ ማገድ፦ የወረደው ዝርዝር ለአገልግሎት የሚውል አይደለም ({why})"
+  "logAdblockRejected": "ማስታወቂያ ማገድ፦ የወረደው ዝርዝር ለአገልግሎት የሚውል አይደለም ({why})",
+  "androidAppsSection": "መተግበሪያዎች",
+  "excludedApps": "Shroudlyን የሚያልፉ መተግበሪያዎች",
+  "excludedAppsDesc": "ትራፊካቸው በShroudly ሳያልፍ በቀጥታ ይወጣል፦ ለምሳሌ የማያስፈልገው ጨዋታ።",
+  "excludedAppsCount": "{count} መተግበሪያዎች Shroudlyን ያልፋሉ",
+  "searchApps": "መተግበሪያ ፈልግ",
+  "androidStartAtBoot": "ስልኩ ሲበራ ጀምር",
+  "androidStartAtBootDesc": "ለVPN አንዴ ፈቃድ ከተሰጠ በኋላ ስልኩ እንደገና ሲጀምር ጥበቃው በራሱ ይበራል።"
 }

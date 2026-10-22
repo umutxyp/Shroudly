@@ -471,5 +471,12 @@
   "logAdblockInUse": "Bloqueo de anuncios: lista de {count} nombres en uso",
   "logAdblockUnusable": "Bloqueo de anuncios: no se pudo usar la lista ({why})",
   "logAdblockFetchFailed": "Bloqueo de anuncios: no se pudo descargar la lista ({why}); Shroudly lo intentará más tarde",
-  "logAdblockRejected": "Bloqueo de anuncios: la lista descargada no es válida ({why})"
+  "logAdblockRejected": "Bloqueo de anuncios: la lista descargada no es válida ({why})",
+  "androidAppsSection": "Apps",
+  "excludedApps": "Apps que no pasan por Shroudly",
+  "excludedAppsDesc": "Su tráfico sale directo, sin pasar por Shroudly: por ejemplo, un juego que no lo necesita.",
+  "excludedAppsCount": "{count} apps no pasan por Shroudly",
+  "searchApps": "Buscar apps",
+  "androidStartAtBoot": "Iniciar al encender el teléfono",
+  "androidStartAtBootDesc": "La protección se activa sola cuando el teléfono se reinicia, una vez permitida la VPN."
 }

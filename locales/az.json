@@ -471,5 +471,12 @@
   "logAdblockInUse": "Reklam bloklama: {count} adlıq siyahı istifadədədir",
   "logAdblockUnusable": "Reklam bloklama: siyahıdan istifadə etmək olmadı ({why})",
   "logAdblockFetchFailed": "Reklam bloklama: siyahı yüklənmədi ({why}); Shroudly sonra yenidən cəhd edəcək",
-  "logAdblockRejected": "Reklam bloklama: yüklənən siyahı yararlı deyil ({why})"
+  "logAdblockRejected": "Reklam bloklama: yüklənən siyahı yararlı deyil ({why})",
+  "androidAppsSection": "Tətbiqlər",
+  "excludedApps": "Shroudly-dən yan keçən tətbiqlər",
+  "excludedAppsDesc": "Onların trafiki Shroudly-yə uğramadan birbaşa çıxır: məsələn, buna ehtiyacı olmayan bir oyun.",
+  "excludedAppsCount": "{count} tətbiq Shroudly-dən yan keçir",
+  "searchApps": "Tətbiq axtar",
+  "androidStartAtBoot": "Telefon açılanda başlat",
+  "androidStartAtBootDesc": "VPN-ə bir dəfə icazə verilibsə, telefon yenidən başlayanda qoruma özü açılır."
 }

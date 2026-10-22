@@ -471,5 +471,12 @@
   "logAdblockInUse": "د اعلانونو بندول: د {count} نومونو لېست کارول کېږي",
   "logAdblockUnusable": "د اعلانونو بندول: لېست ونه کارول شو ({why})",
   "logAdblockFetchFailed": "د اعلانونو بندول: لېست ښکته نه شو ({why})؛ Shroudly به وروسته بیا هڅه وکړي",
-  "logAdblockRejected": "د اعلانونو بندول: ښکته شوی لېست د کارولو وړ نه دی ({why})"
+  "logAdblockRejected": "د اعلانونو بندول: ښکته شوی لېست د کارولو وړ نه دی ({why})",
+  "androidAppsSection": "اپونه",
+  "excludedApps": "هغه اپونه چې له Shroudly نه تېرېږي",
+  "excludedAppsDesc": "د هغوی ټرافیک له Shroudly پرته مستقیم وځي: د بېلګې په توګه یوه لوبه چې ورته اړتیا نه لري.",
+  "excludedAppsCount": "{count} اپونه له Shroudly نه تېرېږي",
+  "searchApps": "اپ ولټوئ",
+  "androidStartAtBoot": "د تلیفون د چالانېدو پر وخت پیل کړه",
+  "androidStartAtBootDesc": "کله چې VPN ته اجازه ورکړل شي، د تلیفون له بیا پیلېدو وروسته ساتنه پخپله چالانېږي."
 }

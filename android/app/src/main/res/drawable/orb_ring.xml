@@ -8,7 +8,7 @@
     android:useLevel="false">
     <gradient
         android:centerColor="#000A6CF5"
-        android:endColor="@color/accent"
+        android:endColor="?attr/accent"
         android:startColor="#000A6CF5"
         android:type="sweep" />
 </shape>

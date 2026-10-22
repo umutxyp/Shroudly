@@ -59,7 +59,7 @@ class Orb(private val halo: View, private val ring: View, private val logo: Imag
     private var spin: ObjectAnimator? = null
 
     init {
-        val accent = logo.context.getColor(R.color.accent)
+        val accent = Accent.color(logo.context, R.attr.accent)
         fun a(alpha: Int) = (alpha shl 24) or (accent and 0xFFFFFF)
         halo.background = ShapeDrawable(OvalShape()).apply {
             shaderFactory = object : ShapeDrawable.ShaderFactory() {

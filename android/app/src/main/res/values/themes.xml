@@ -3,20 +3,26 @@
     <style name="Theme.Shroudly" parent="android:Theme.Material.NoActionBar">
         <item name="android:colorPrimary">@color/bg</item>
         <item name="android:colorPrimaryDark">@color/bg</item>
-        <item name="android:colorAccent">@color/accent_light</item>
+        <item name="android:colorAccent">?attr/accentLight</item>
         <item name="android:colorBackground">@color/bg</item>
         <item name="android:windowBackground">@color/bg</item>
         <item name="android:statusBarColor">@color/bg</item>
         <item name="android:navigationBarColor">@color/bg</item>
         <item name="android:textColorPrimary">@color/text</item>
         <item name="android:textColorSecondary">@color/text_dim</item>
-        <item name="android:textColorLink">@color/accent_light</item>
-        <item name="android:colorControlHighlight">@color/accent_soft</item>
+        <item name="android:textColorLink">?attr/accentLight</item>
+        <item name="android:colorControlHighlight">?attr/accentSoft</item>
         <item name="android:alertDialogTheme">@style/Theme.Shroudly.Dialog</item>
+        <item name="accent">@color/accent</item>
+        <item name="accentLight">@color/accent_light</item>
+        <item name="accentSoft">@color/accent_soft</item>
+        <item name="accentLine">@color/accent_line</item>
+        <item name="accentButtonStart">@color/brand_royal</item>
+        <item name="accentButtonEnd">@color/accent</item>
     </style>
 
     <style name="Theme.Shroudly.Dialog" parent="android:Theme.Material.Dialog.Alert">
-        <item name="android:colorAccent">@color/accent_light</item>
+        <item name="android:colorAccent">?attr/accentLight</item>
         <item name="android:colorBackground">@color/surface_pop</item>
         <item name="android:textColorPrimary">@color/text</item>
         <item name="android:textColorSecondary">@color/text_dim</item>
@@ -130,7 +136,7 @@
         <item name="android:padding">7dp</item>
         <item name="android:background">@drawable/icon_tile</item>
         <item name="android:importantForAccessibility">no</item>
-        <item name="android:tint">@color/accent_light</item>
+        <item name="android:tint">?attr/accentLight</item>
     </style>
 
     <style name="RowLabel">
@@ -167,10 +173,86 @@
         <item name="android:gravity">center</item>
         <item name="android:paddingStart">12dp</item>
         <item name="android:paddingEnd">12dp</item>
-        <item name="android:textColor">@color/accent_light</item>
+        <item name="android:textColor">?attr/accentLight</item>
         <item name="android:textSize">14sp</item>
         <item name="android:background">@drawable/pressable</item>
         <item name="android:clickable">true</item>
         <item name="android:focusable">true</item>
+    </style>
+
+    <!-- The desktop's accents (components/Appearance.js ACCENTS), applied over
+         the theme (Accent.kt): the swatch for large text and the ring, a
+         lighter step for small text, and a darker pair for button fills. -->
+    <style name="Accent.Sky" parent="">
+        <item name="accent">#FF38BDF8</item>
+        <item name="accentLight">#FF7DD3FC</item>
+        <item name="accentSoft">#2438BDF8</item>
+        <item name="accentLine">#8038BDF8</item>
+        <item name="accentButtonStart">#FF0369A1</item>
+        <item name="accentButtonEnd">#FF0284C7</item>
+    </style>
+    <style name="Accent.Teal" parent="">
+        <item name="accent">#FF2DD4BF</item>
+        <item name="accentLight">#FF5EEAD4</item>
+        <item name="accentSoft">#242DD4BF</item>
+        <item name="accentLine">#802DD4BF</item>
+        <item name="accentButtonStart">#FF0F766E</item>
+        <item name="accentButtonEnd">#FF0D9488</item>
+    </style>
+    <style name="Accent.Emerald" parent="">
+        <item name="accent">#FF34D399</item>
+        <item name="accentLight">#FF6EE7B7</item>
+        <item name="accentSoft">#2434D399</item>
+        <item name="accentLine">#8034D399</item>
+        <item name="accentButtonStart">#FF047857</item>
+        <item name="accentButtonEnd">#FF059669</item>
+    </style>
+    <style name="Accent.Lime" parent="">
+        <item name="accent">#FFA3E635</item>
+        <item name="accentLight">#FFBEF264</item>
+        <item name="accentSoft">#24A3E635</item>
+        <item name="accentLine">#80A3E635</item>
+        <item name="accentButtonStart">#FF4D7C0F</item>
+        <item name="accentButtonEnd">#FF4D7C0F</item>
+    </style>
+    <style name="Accent.Amber" parent="">
+        <item name="accent">#FFFBBF24</item>
+        <item name="accentLight">#FFFCD34D</item>
+        <item name="accentSoft">#24FBBF24</item>
+        <item name="accentLine">#80FBBF24</item>
+        <item name="accentButtonStart">#FFB45309</item>
+        <item name="accentButtonEnd">#FFB45309</item>
+    </style>
+    <style name="Accent.Rose" parent="">
+        <item name="accent">#FFFB7185</item>
+        <item name="accentLight">#FFFDA4AF</item>
+        <item name="accentSoft">#24FB7185</item>
+        <item name="accentLine">#80FB7185</item>
+        <item name="accentButtonStart">#FFBE123C</item>
+        <item name="accentButtonEnd">#FFE11D48</item>
+    </style>
+    <style name="Accent.Pink" parent="">
+        <item name="accent">#FFF472B6</item>
+        <item name="accentLight">#FFF9A8D4</item>
+        <item name="accentSoft">#24F472B6</item>
+        <item name="accentLine">#80F472B6</item>
+        <item name="accentButtonStart">#FFBE185D</item>
+        <item name="accentButtonEnd">#FFDB2777</item>
+    </style>
+    <style name="Accent.Violet" parent="">
+        <item name="accent">#FFA78BFA</item>
+        <item name="accentLight">#FFC4B5FD</item>
+        <item name="accentSoft">#24A78BFA</item>
+        <item name="accentLine">#80A78BFA</item>
+        <item name="accentButtonStart">#FF6D28D9</item>
+        <item name="accentButtonEnd">#FF7C3AED</item>
+    </style>
+    <style name="Accent.Indigo" parent="">
+        <item name="accent">#FF818CF8</item>
+        <item name="accentLight">#FFA5B4FC</item>
+        <item name="accentSoft">#24818CF8</item>
+        <item name="accentLine">#80818CF8</item>
+        <item name="accentButtonStart">#FF4338CA</item>
+        <item name="accentButtonEnd">#FF4F46E5</item>
     </style>
 </resources>

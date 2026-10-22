@@ -471,5 +471,12 @@
   "logAdblockInUse": "Reklama bloklash: {count} ta nomli roʻyxat ishlatilmoqda",
   "logAdblockUnusable": "Reklama bloklash: roʻyxatdan foydalanib boʻlmadi ({why})",
   "logAdblockFetchFailed": "Reklama bloklash: roʻyxat yuklanmadi ({why}); Shroudly keyinroq yana urinib koʻradi",
-  "logAdblockRejected": "Reklama bloklash: yuklangan roʻyxat yaroqsiz ({why})"
+  "logAdblockRejected": "Reklama bloklash: yuklangan roʻyxat yaroqsiz ({why})",
+  "androidAppsSection": "Ilovalar",
+  "excludedApps": "Shroudly’ni chetlab oʻtadigan ilovalar",
+  "excludedAppsDesc": "Ularning trafigi Shroudly’dan oʻtmay toʻgʻridan-toʻgʻri chiqadi: masalan, unga muhtoj boʻlmagan oʻyin.",
+  "excludedAppsCount": "{count} ta ilova Shroudly’ni chetlab oʻtadi",
+  "searchApps": "Ilova qidirish",
+  "androidStartAtBoot": "Telefon yonganda ishga tushirish",
+  "androidStartAtBootDesc": "VPN’ga bir marta ruxsat berilgan boʻlsa, telefon qayta yonganda himoya oʻzi yoqiladi."
 }

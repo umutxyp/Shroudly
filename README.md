@@ -134,6 +134,7 @@ strategy**:
 | **HTTP Host scramble** | Rewrites `Host:` casing for plain HTTP. |
 | **Encrypted DNS** | DNS-over-HTTPS over [17 routes from 6 operators](#encrypted-dns-routes); answers pointing at ~180 known block pages are refused. On by default. |
 | **Block ads and trackers** | Optional, off by default (desktop Settings, Android About). Names on a public ad and tracker list ([StevenBlack/hosts](https://github.com/StevenBlack/hosts), MIT) get 0.0.0.0 / `::` or have their connection ended inside the engine, in every app; nothing is fetched for them. The list is downloaded through the engine, checked before use, refreshed weekly; sites can be exempted. Nothing about blocked names is logged or sent. |
+| **Android settings** | Under About → Settings: the accent colour (the desktop's nine, or the logo's blue), the bypass technique (the desktop's list; automatic by default), apps that skip Shroudly (their traffic goes straight out, e.g. a game), and starting when the phone starts. |
 | **Auto-probe** | Opens each blocked site with a real handshake, trying combinations of the above, and remembers the one that works per site. If a site connects and is then cut, the next connection tries the next technique. |
 
 > **Note on fake packets.** Low-TTL decoys like those used by driver-based tools

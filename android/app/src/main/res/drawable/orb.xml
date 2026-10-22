@@ -2,7 +2,7 @@
 <!-- The round switch around the logo: the dark surface with a navy line when
      off; when protected, the logo's royal blue glowing out of its navy, with
      the eye's blue round it. -->
-<ripple xmlns:android="http://schemas.android.com/apk/res/android" android:color="@color/accent_soft">
+<ripple xmlns:android="http://schemas.android.com/apk/res/android" android:color="?attr/accentSoft">
     <item>
         <selector
             android:enterFadeDuration="350"
@@ -15,7 +15,7 @@
                         android:gradientRadius="86dp"
                         android:startColor="@color/brand_bright"
                         android:type="radial" />
-                    <stroke android:width="2dp" android:color="@color/accent" />
+                    <stroke android:width="2dp" android:color="?attr/accent" />
                 </shape>
             </item>
             <item>

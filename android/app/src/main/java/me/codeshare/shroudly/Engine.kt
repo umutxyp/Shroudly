@@ -66,8 +66,13 @@ class Engine(
         fun args(
             port: Int, dohPort: Int, blockIps: List<String>, authFile: File? = null, fakeNet: String? = null,
             adblock: File? = null, allow: List<String> = emptyList(),
+            strategy: AppSettings.Strategy = AppSettings.STRATEGIES[0],
         ): List<String> {
-            val a = mutableListOf("--listen", "127.0.0.1", "--port", port.toString(), "--strategy", "split(sni)", "--auto", "--doh")
+            // The technique chosen in Settings: automatic (the engine looks for
+            // what works per site and keeps it) or one for every site.
+            val a = mutableListOf("--listen", "127.0.0.1", "--port", port.toString(), "--strategy", strategy.spec)
+            if (strategy.auto) a += "--auto"
+            a += "--doh"
             if (dohPort > 0) a += listOf("--doh-port", dohPort.toString())
             if (authFile != null) a += listOf(SocksAuth.OPTION, authFile.path)
             if (fakeNet != null) a += listOf(FAKE_NET_OPTION, fakeNet)

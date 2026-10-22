@@ -9,8 +9,8 @@
         <shape android:shape="rectangle">
             <gradient
                 android:angle="0"
-                android:endColor="@color/accent"
-                android:startColor="@color/brand_royal" />
+                android:endColor="?attr/accentButtonEnd"
+                android:startColor="?attr/accentButtonStart" />
             <corners android:radius="11dp" />
         </shape>
     </item>

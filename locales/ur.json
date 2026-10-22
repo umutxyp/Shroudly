@@ -471,5 +471,12 @@
   "logAdblockInUse": "اشتہار روکنا: {count} ناموں کی فہرست استعمال میں ہے",
   "logAdblockUnusable": "اشتہار روکنا: فہرست استعمال نہیں ہو سکی ({why})",
   "logAdblockFetchFailed": "اشتہار روکنا: فہرست ڈاؤن لوڈ نہیں ہو سکی ({why})؛ Shroudly بعد میں دوبارہ کوشش کرے گا",
-  "logAdblockRejected": "اشتہار روکنا: ڈاؤن لوڈ کی گئی فہرست قابلِ استعمال نہیں ({why})"
+  "logAdblockRejected": "اشتہار روکنا: ڈاؤن لوڈ کی گئی فہرست قابلِ استعمال نہیں ({why})",
+  "androidAppsSection": "ایپس",
+  "excludedApps": "وہ ایپس جو Shroudly سے نہیں گزرتیں",
+  "excludedAppsDesc": "ان کی ٹریفک Shroudly سے گزرے بغیر سیدھی باہر جاتی ہے: مثلاً کوئی گیم جسے اس کی ضرورت نہیں۔",
+  "excludedAppsCount": "{count} ایپس Shroudly سے نہیں گزرتیں",
+  "searchApps": "ایپس تلاش کریں",
+  "androidStartAtBoot": "فون آن ہونے پر شروع کریں",
+  "androidStartAtBootDesc": "VPN کی اجازت ملنے کے بعد، فون دوبارہ شروع ہونے پر تحفظ خود بخود آن ہو جاتا ہے۔"
 }

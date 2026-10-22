@@ -471,5 +471,12 @@
   "logAdblockInUse": "Astengkirina reklaman: lîsteya {count} navan tê bikaranîn",
   "logAdblockUnusable": "Astengkirina reklaman: lîste nehat bikaranîn ({why})",
   "logAdblockFetchFailed": "Astengkirina reklaman: lîste nehat daxistin ({why}); Shroudly paşê dîsa biceribîne",
-  "logAdblockRejected": "Astengkirina reklaman: lîsteya hatî daxistin ne ya bikaranînê ye ({why})"
+  "logAdblockRejected": "Astengkirina reklaman: lîsteya hatî daxistin ne ya bikaranînê ye ({why})",
+  "androidAppsSection": "Sepan",
+  "excludedApps": "Sepanên ku Shroudly derbas dikin",
+  "excludedAppsDesc": "Seyrûsefera wan rasterast derdikeve, bê ku di Shroudly re derbas bibe: mînak lîstikek ku hewcedariya wê pê tune.",
+  "excludedAppsCount": "{count} sepan Shroudly derbas dikin",
+  "searchApps": "Li sepanan bigere",
+  "androidStartAtBoot": "Dema telefon vedibe dest pê bike",
+  "androidStartAtBootDesc": "Piştî ku destûr ji VPN re hat dayîn, gava telefon ji nû ve dest pê dike parastin bi xwe vedibe."
 }

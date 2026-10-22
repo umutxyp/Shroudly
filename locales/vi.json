@@ -471,5 +471,12 @@
   "logAdblockInUse": "Chặn quảng cáo: đang dùng danh sách {count} tên",
   "logAdblockUnusable": "Chặn quảng cáo: không thể dùng danh sách ({why})",
   "logAdblockFetchFailed": "Chặn quảng cáo: không tải được danh sách ({why}); Shroudly sẽ thử lại sau",
-  "logAdblockRejected": "Chặn quảng cáo: danh sách đã tải không dùng được ({why})"
+  "logAdblockRejected": "Chặn quảng cáo: danh sách đã tải không dùng được ({why})",
+  "androidAppsSection": "Ứng dụng",
+  "excludedApps": "Ứng dụng đi tắt qua Shroudly",
+  "excludedAppsDesc": "Lưu lượng của chúng đi thẳng ra ngoài, không qua Shroudly: ví dụ một trò chơi không cần đến nó.",
+  "excludedAppsCount": "{count} ứng dụng đi tắt qua Shroudly",
+  "searchApps": "Tìm ứng dụng",
+  "androidStartAtBoot": "Khởi động cùng điện thoại",
+  "androidStartAtBootDesc": "Bảo vệ tự bật sau khi điện thoại khởi động lại, khi VPN đã được cho phép."
 }

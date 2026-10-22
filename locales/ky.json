@@ -471,5 +471,12 @@
   "logAdblockInUse": "Жарнаманы бөгөттөө: {count} аттан турган тизме колдонулууда",
   "logAdblockUnusable": "Жарнаманы бөгөттөө: тизмени колдонуу мүмкүн болбоду ({why})",
   "logAdblockFetchFailed": "Жарнаманы бөгөттөө: тизме жүктөлгөн жок ({why}); Shroudly кийин кайра аракет кылат",
-  "logAdblockRejected": "Жарнаманы бөгөттөө: жүктөлгөн тизме жараксыз ({why})"
+  "logAdblockRejected": "Жарнаманы бөгөттөө: жүктөлгөн тизме жараксыз ({why})",
+  "androidAppsSection": "Колдонмолор",
+  "excludedApps": "Shroudly'ди айланып өткөн колдонмолор",
+  "excludedAppsDesc": "Алардын трафиги Shroudly аркылуу өтпөй, түз чыгат: мисалы, ага муктаж эмес оюн.",
+  "excludedAppsCount": "Shroudly'ди айланып өткөн колдонмолор: {count}",
+  "searchApps": "Колдонмо издөө",
+  "androidStartAtBoot": "Телефон күйгөндө иштетүү",
+  "androidStartAtBootDesc": "VPN'ге бир жолу уруксат берилсе, телефон кайра күйгөндө коргоо өзү күйөт."
 }

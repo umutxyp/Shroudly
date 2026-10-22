@@ -471,5 +471,12 @@
   "logAdblockInUse": "Бастани реклама: рӯйхати {count} ном истифода мешавад",
   "logAdblockUnusable": "Бастани реклама: рӯйхатро истифода бурдан нашуд ({why})",
   "logAdblockFetchFailed": "Бастани реклама: рӯйхат боргирӣ нашуд ({why}); Shroudly баъдтар боз кӯшиш мекунад",
-  "logAdblockRejected": "Бастани реклама: рӯйхати боргиришуда корношоям аст ({why})"
+  "logAdblockRejected": "Бастани реклама: рӯйхати боргиришуда корношоям аст ({why})",
+  "androidAppsSection": "Барномаҳо",
+  "excludedApps": "Барномаҳое, ки Shroudly-ро давр мезананд",
+  "excludedAppsDesc": "Трафики онҳо бе гузаштан аз Shroudly мустақим мебарояд: масалан, бозие, ки ба он ниёз надорад.",
+  "excludedAppsCount": "Барномаҳое, ки Shroudly-ро давр мезананд: {count}",
+  "searchApps": "Ҷустуҷӯи барнома",
+  "androidStartAtBoot": "Ҳангоми фурӯзон шудани телефон оғоз кардан",
+  "androidStartAtBootDesc": "Агар VPN як бор иҷозат гирифта бошад, пас аз бозоғозии телефон ҳимоя худ фаъол мешавад."
 }

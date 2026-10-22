@@ -471,5 +471,12 @@
   "logAdblockInUse": "Reklam engelleme: {count} adlık liste kullanılıyor",
   "logAdblockUnusable": "Reklam engelleme: liste kullanılamadı ({why})",
   "logAdblockFetchFailed": "Reklam engelleme: liste indirilemedi ({why}); Shroudly sonra yeniden deneyecek",
-  "logAdblockRejected": "Reklam engelleme: indirilen liste kullanılacak bir liste değil ({why})"
+  "logAdblockRejected": "Reklam engelleme: indirilen liste kullanılacak bir liste değil ({why})",
+  "androidAppsSection": "Uygulamalar",
+  "excludedApps": "Shroudly'yi atlayan uygulamalar",
+  "excludedAppsDesc": "Trafikleri Shroudly'ye uğramadan doğrudan çıkar: örneğin buna ihtiyacı olmayan bir oyun.",
+  "excludedAppsCount": "{count} uygulama Shroudly'yi atlıyor",
+  "searchApps": "Uygulama ara",
+  "androidStartAtBoot": "Telefon açılınca başlat",
+  "androidStartAtBootDesc": "VPN'e bir kez izin verildiyse telefon yeniden başlayınca koruma kendiliğinden açılır."
 }

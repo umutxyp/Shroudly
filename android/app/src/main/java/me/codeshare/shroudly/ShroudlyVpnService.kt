@@ -59,6 +59,10 @@ class ShroudlyVpnService : VpnService() {
         const val ACTION_TEST = "me.codeshare.shroudly.TEST"
         /* "Block ads and trackers" or its exceptions changed (MainActivity). */
         const val ACTION_ADBLOCK = "me.codeshare.shroudly.ADBLOCK"
+        /* A setting of the Settings window changed (extra "what": "strategy"
+         * restarts the engine with it, "apps" renews the VPN interface with
+         * the apps that skip Shroudly). Nothing while protection is off. */
+        const val ACTION_SETTINGS = "me.codeshare.shroudly.SETTINGS"
 
         private const val CHANNEL = "protection"
         private const val ALERT_CHANNEL = "alerts"
@@ -279,6 +283,21 @@ class ShroudlyVpnService : VpnService() {
                 if (!active && Protection.state == Protection.State.OFF) stopSelf()
                 return START_NOT_STICKY
             }
+            ACTION_SETTINGS -> {
+                if (active) when (intent.getStringExtra("what")) {
+                    "strategy" -> later {
+                        engine?.let { engineGone(it, "restarted with the technique chosen in Settings", countsAsCrash = false) }
+                    }
+                    "apps" -> later {
+                        if (active) {
+                            log("Apps that skip Shroudly changed; the VPN interface is renewed")
+                            renewInterface(v6Routed)
+                        }
+                    }
+                }
+                if (!active && Protection.state == Protection.State.OFF) stopSelf()
+                return START_NOT_STICKY
+            }
             ACTION_ADBLOCK -> {
                 if (active) { applyAdblock(); refreshAdblockSoon(0) }
                 if (!active && Protection.state == Protection.State.OFF) stopSelf()
@@ -482,7 +501,7 @@ class ShroudlyVpnService : VpnService() {
             authFile = File(filesDir, AUTH_FILE).also { auth!!.writeTo(it) }
             val e = Engine(::log, ::logSite, ::onEngineEvent, ::onEngineExit)
             engine = e
-            val ok = e.start(Engine.args(p, dohPort, blockIps, authFile, Engine.FAKE_NET, AdBlock.listFile(this), AdBlock.allow(this)))
+            val ok = e.start(Engine.args(p, dohPort, blockIps, authFile, Engine.FAKE_NET, AdBlock.listFile(this), AdBlock.allow(this), AppSettings.strategy(this)))
             // Read once, at its start: the secret is not left lying in a file.
             authFile?.delete()
             if (ok) {
@@ -527,6 +546,11 @@ class ShroudlyVpnService : VpnService() {
             .addDnsServer(TunnelConfig.DNS_V4)
             .addDisallowedApplication(packageName)
             .setConfigureIntent(openApp(this))
+        // Apps the user set to skip Shroudly (Settings): straight out, past
+        // the VPN. One no longer installed is left out.
+        for (pkg in AppSettings.excluded(this)) {
+            try { b.addDisallowedApplication(pkg) } catch (_: android.content.pm.PackageManager.NameNotFoundException) {}
+        }
         // Without an IPv6 address and route, Android answers apps' IPv6 with
         // "unreachable" at once, and they use IPv4.
         if (v6) b.addAddress(TunnelConfig.ADDRESS_V6, 128).addRoute("::", 0)
@@ -1342,7 +1366,7 @@ class ShroudlyVpnService : VpnService() {
             .setOngoing(true)
             .setShowWhen(false)
             .setCategory(Notification.CATEGORY_SERVICE)
-            .setColor(getColor(R.color.accent))
+            .setColor(Accent.swatch(this))
             .addAction(Notification.Action.Builder(null, getString(R.string.stop), stopIntent).build())
             .apply { if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) setForegroundServiceBehavior(Notification.FOREGROUND_SERVICE_IMMEDIATE) }
             .build()

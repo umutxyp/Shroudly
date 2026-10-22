@@ -471,5 +471,12 @@
   "logAdblockInUse": "Ad blocking: a list of {count} names in use",
   "logAdblockUnusable": "Ad blocking: the list could not be used ({why})",
   "logAdblockFetchFailed": "Ad blocking: the list could not be fetched ({why}); Shroudly tries again later",
-  "logAdblockRejected": "Ad blocking: the list fetched is not one to use ({why})"
+  "logAdblockRejected": "Ad blocking: the list fetched is not one to use ({why})",
+  "androidAppsSection": "Apps",
+  "excludedApps": "Apps that skip Shroudly",
+  "excludedAppsDesc": "Their traffic goes straight out, past Shroudly: for example a game that does not need it.",
+  "excludedAppsCount": "{count} apps skip Shroudly",
+  "searchApps": "Search apps",
+  "androidStartAtBoot": "Start when the phone starts",
+  "androidStartAtBootDesc": "Protection comes on by itself after the phone restarts, once the VPN has been allowed."
 }

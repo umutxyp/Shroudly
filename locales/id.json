@@ -471,5 +471,12 @@
   "logAdblockInUse": "Pemblokir iklan: daftar berisi {count} nama sedang dipakai",
   "logAdblockUnusable": "Pemblokir iklan: daftar tidak dapat dipakai ({why})",
   "logAdblockFetchFailed": "Pemblokir iklan: daftar tidak dapat diunduh ({why}); Shroudly akan mencoba lagi nanti",
-  "logAdblockRejected": "Pemblokir iklan: daftar yang diunduh tidak layak dipakai ({why})"
+  "logAdblockRejected": "Pemblokir iklan: daftar yang diunduh tidak layak dipakai ({why})",
+  "androidAppsSection": "Aplikasi",
+  "excludedApps": "Aplikasi yang melewati Shroudly",
+  "excludedAppsDesc": "Lalu lintasnya langsung keluar tanpa lewat Shroudly: misalnya game yang tidak membutuhkannya.",
+  "excludedAppsCount": "{count} aplikasi melewati Shroudly",
+  "searchApps": "Cari aplikasi",
+  "androidStartAtBoot": "Mulai saat ponsel menyala",
+  "androidStartAtBootDesc": "Perlindungan menyala sendiri setelah ponsel dinyalakan ulang, setelah VPN diizinkan."
 }

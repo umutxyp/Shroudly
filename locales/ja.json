@@ -471,5 +471,12 @@
   "logAdblockInUse": "広告ブロック: {count} 件の名前のリストを使用中",
   "logAdblockUnusable": "広告ブロック: リストを使用できませんでした（{why}）",
   "logAdblockFetchFailed": "広告ブロック: リストをダウンロードできませんでした（{why}）。Shroudly は後でもう一度試します",
-  "logAdblockRejected": "広告ブロック: ダウンロードしたリストは使用できません（{why}）"
+  "logAdblockRejected": "広告ブロック: ダウンロードしたリストは使用できません（{why}）",
+  "androidAppsSection": "アプリ",
+  "excludedApps": "Shroudly を通さないアプリ",
+  "excludedAppsDesc": "これらのアプリの通信は Shroudly を通らず直接出ていきます（例: 不要なゲームなど）。",
+  "excludedAppsCount": "{count} 個のアプリが Shroudly を通りません",
+  "searchApps": "アプリを検索",
+  "androidStartAtBoot": "スマホの起動時に開始",
+  "androidStartAtBootDesc": "VPN を一度許可していれば、スマホの再起動後に保護が自動で有効になります。"
 }

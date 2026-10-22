@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The accent, chosen under Settings → Appearance as on the desktop
+     (components/Appearance.js ACCENTS); the theme holds it, so every view
+     and drawable follows (Accent.kt). The greys and the logo stay. -->
+<resources>
+    <!-- Large text, the ring and the halo. -->
+    <attr name="accent" format="color" />
+    <!-- Small text and icons. -->
+    <attr name="accentLight" format="color" />
+    <!-- Ripples and tile backgrounds. -->
+    <attr name="accentSoft" format="color" />
+    <!-- Outlines. -->
+    <attr name="accentLine" format="color" />
+    <!-- A button's fill, from start to end: dark enough for its white text. -->
+    <attr name="accentButtonStart" format="color" />
+    <attr name="accentButtonEnd" format="color" />
+</resources>

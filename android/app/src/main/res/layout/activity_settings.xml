@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Settings (SettingsActivity): what the desktop's Settings has that a phone
+     can use, in the main window's cards. -->
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true">
+
+    <me.codeshare.shroudly.Column
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:orientation="vertical"
+        android:paddingStart="20dp"
+        android:paddingTop="14dp"
+        android:paddingEnd="20dp"
+        android:paddingBottom="20dp">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:accessibilityHeading="true"
+            android:paddingTop="6dp"
+            android:paddingBottom="6dp"
+            android:text="@string/navSettings"
+            android:textColor="@color/text"
+            android:textSize="22sp"
+            android:textStyle="bold" />
+
+        <!-- Appearance: the accent colour, as the desktop's. -->
+        <TextView
+            style="@style/SectionTitle"
+            android:accessibilityHeading="true"
+            android:text="@string/accentColour" />
+
+        <HorizontalScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/card"
+            android:paddingStart="12dp"
+            android:paddingTop="8dp"
+            android:paddingEnd="2dp"
+            android:paddingBottom="8dp"
+            android:scrollbars="none">
+
+            <LinearLayout
+                android:id="@+id/accents"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal" />
+        </HorizontalScrollView>
+
+        <!-- The technique, as the desktop's "Bypass strategy". -->
+        <TextView
+            style="@style/SectionTitle"
+            android:accessibilityHeading="true"
+            android:text="@string/strategy" />
+
+        <RadioGroup
+            android:id="@+id/strategy"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/card"
+            android:orientation="vertical"
+            android:paddingStart="10dp"
+            android:paddingTop="4dp"
+            android:paddingEnd="10dp"
+            android:paddingBottom="4dp" />
+
+        <TextView
+            style="@style/SectionTitle"
+            android:accessibilityHeading="true"
+            android:text="@string/androidAppsSection" />
+
+        <LinearLayout
+            android:id="@+id/appsCard"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/card"
+            android:orientation="vertical"
+            android:padding="1dp">
+
+            <!-- Apps that skip Shroudly: the label, and how many under it. -->
+            <TextView
+                android:id="@+id/excludedApps"
+                style="@style/AboutRowText"
+                android:drawableStart="@drawable/row_link"
+                android:text="@string/excludedApps" />
+
+            <View style="@style/Divider" />
+
+            <Switch
+                android:id="@+id/startAtBoot"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="52dp"
+                android:drawableStart="@drawable/row_shield"
+                android:drawablePadding="14dp"
+                android:lineSpacingMultiplier="1.1"
+                android:paddingStart="14dp"
+                android:paddingTop="10dp"
+                android:paddingEnd="12dp"
+                android:paddingBottom="10dp"
+                android:switchPadding="12dp"
+                android:text="@string/androidStartAtBoot"
+                android:textAlignment="viewStart"
+                android:textColor="@color/text"
+                android:textSize="15sp" />
+        </LinearLayout>
+    </me.codeshare.shroudly.Column>
+</ScrollView>

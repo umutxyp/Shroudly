@@ -471,5 +471,12 @@
   "logAdblockInUse": "حظر الإعلانات: قائمة من {count} اسمًا قيد الاستخدام",
   "logAdblockUnusable": "حظر الإعلانات: تعذّر استخدام القائمة ({why})",
   "logAdblockFetchFailed": "حظر الإعلانات: تعذّر تنزيل القائمة ({why})؛ سيحاول Shroudly مرة أخرى لاحقًا",
-  "logAdblockRejected": "حظر الإعلانات: القائمة المنزَّلة غير صالحة للاستخدام ({why})"
+  "logAdblockRejected": "حظر الإعلانات: القائمة المنزَّلة غير صالحة للاستخدام ({why})",
+  "androidAppsSection": "التطبيقات",
+  "excludedApps": "تطبيقات تتجاوز Shroudly",
+  "excludedAppsDesc": "يخرج اتصالها مباشرةً دون المرور عبر Shroudly: مثل لعبة لا تحتاج إليه.",
+  "excludedAppsCount": "{count} تطبيقات تتجاوز Shroudly",
+  "searchApps": "ابحث عن تطبيق",
+  "androidStartAtBoot": "البدء عند تشغيل الهاتف",
+  "androidStartAtBootDesc": "تعمل الحماية من تلقاء نفسها بعد إعادة تشغيل الهاتف، بعد السماح بالشبكة الافتراضية الخاصة."
 }

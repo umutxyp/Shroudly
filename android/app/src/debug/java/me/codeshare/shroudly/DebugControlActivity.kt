@@ -15,6 +15,7 @@ import android.os.Bundle
  * makes one part fail while protection is on (ShroudlyVpnService.ACTION_TEST).
  * "report" writes the head of what "Share logs" sends to logcat.
  * "adblock-on" / "adblock-off" set "Block ads and trackers".
+ * "exclude" (extra "pkg", empty for none) sets "Apps that skip Shroudly".
  */
 class DebugControlActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -31,6 +32,12 @@ class DebugControlActivity : Activity() {
             "adblock-on", "adblock-off" -> {
                 AdBlock.setEnabled(this, intent.getStringExtra("cmd") == "adblock-on")
                 startService(Intent(this, ShroudlyVpnService::class.java).setAction(ShroudlyVpnService.ACTION_ADBLOCK))
+            }
+            // "Apps that skip Shroudly", as Settings sets it: one package, or none.
+            "exclude" -> {
+                val pkg = intent.getStringExtra("pkg")
+                AppSettings.setExcluded(this, if (pkg.isNullOrEmpty()) emptySet() else setOf(pkg))
+                startService(Intent(this, ShroudlyVpnService::class.java).setAction(ShroudlyVpnService.ACTION_SETTINGS).putExtra("what", "apps"))
             }
             "report" -> Diagnostics.report(this).lineSequence().takeWhile { it.isNotEmpty() }
                 .forEach { android.util.Log.i("Shroudly", "report: $it") }

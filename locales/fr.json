@@ -471,5 +471,12 @@
   "logAdblockInUse": "Blocage des pubs : liste de {count} noms en service",
   "logAdblockUnusable": "Blocage des pubs : la liste n’a pas pu servir ({why})",
   "logAdblockFetchFailed": "Blocage des pubs : la liste n’a pas pu être téléchargée ({why}) ; Shroudly réessaiera plus tard",
-  "logAdblockRejected": "Blocage des pubs : la liste téléchargée ne convient pas ({why})"
+  "logAdblockRejected": "Blocage des pubs : la liste téléchargée ne convient pas ({why})",
+  "androidAppsSection": "Applis",
+  "excludedApps": "Applis qui contournent Shroudly",
+  "excludedAppsDesc": "Leur trafic sort directement, sans passer par Shroudly : par exemple un jeu qui n’en a pas besoin.",
+  "excludedAppsCount": "{count} applis contournent Shroudly",
+  "searchApps": "Rechercher une appli",
+  "androidStartAtBoot": "Démarrer avec le téléphone",
+  "androidStartAtBootDesc": "La protection s’active d’elle-même après un redémarrage du téléphone, une fois le VPN autorisé."
 }

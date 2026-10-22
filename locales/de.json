@@ -471,5 +471,12 @@
   "logAdblockInUse": "Werbeblocker: Liste mit {count} Namen aktiv",
   "logAdblockUnusable": "Werbeblocker: Liste nicht verwendbar ({why})",
   "logAdblockFetchFailed": "Werbeblocker: Liste nicht geladen ({why}); Shroudly versucht es später erneut",
-  "logAdblockRejected": "Werbeblocker: die geladene Liste ist nicht verwendbar ({why})"
+  "logAdblockRejected": "Werbeblocker: die geladene Liste ist nicht verwendbar ({why})",
+  "androidAppsSection": "Apps",
+  "excludedApps": "Apps, die Shroudly umgehen",
+  "excludedAppsDesc": "Ihr Verkehr geht direkt hinaus, an Shroudly vorbei: zum Beispiel ein Spiel, das es nicht braucht.",
+  "excludedAppsCount": "{count} Apps umgehen Shroudly",
+  "searchApps": "Apps suchen",
+  "androidStartAtBoot": "Beim Start des Telefons starten",
+  "androidStartAtBootDesc": "Der Schutz schaltet sich nach einem Neustart des Telefons selbst ein, sobald das VPN erlaubt wurde."
 }

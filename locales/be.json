@@ -471,5 +471,12 @@
   "logAdblockInUse": "Блакаванне рэкламы: выкарыстоўваецца спіс з {count} імёнаў",
   "logAdblockUnusable": "Блакаванне рэкламы: спіс не ўдалося выкарыстаць ({why})",
   "logAdblockFetchFailed": "Блакаванне рэкламы: спіс не загрузіўся ({why}); Shroudly паспрабуе пазней",
-  "logAdblockRejected": "Блакаванне рэкламы: загружаны спіс не падыходзіць ({why})"
+  "logAdblockRejected": "Блакаванне рэкламы: загружаны спіс не падыходзіць ({why})",
+  "androidAppsSection": "Праграмы",
+  "excludedApps": "Праграмы ў абыход Shroudly",
+  "excludedAppsDesc": "Іх трафік ідзе наўпрост, міма Shroudly: напрыклад, гульня, якой ён не патрэбны.",
+  "excludedAppsCount": "Праграм у абыход Shroudly: {count}",
+  "searchApps": "Пошук праграм",
+  "androidStartAtBoot": "Запускаць пры ўключэнні тэлефона",
+  "androidStartAtBootDesc": "Абарона ўключаецца сама пасля перазапуску тэлефона, калі VPN ужо дазволены."
 }

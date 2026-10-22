@@ -471,5 +471,12 @@
   "logAdblockInUse": "বিজ্ঞাপন ব্লক: {count}টি নামের তালিকা ব্যবহৃত হচ্ছে",
   "logAdblockUnusable": "বিজ্ঞাপন ব্লক: তালিকাটি ব্যবহার করা যায়নি ({why})",
   "logAdblockFetchFailed": "বিজ্ঞাপন ব্লক: তালিকা ডাউনলোড করা যায়নি ({why}); Shroudly পরে আবার চেষ্টা করবে",
-  "logAdblockRejected": "বিজ্ঞাপন ব্লক: ডাউনলোড করা তালিকাটি ব্যবহারযোগ্য নয় ({why})"
+  "logAdblockRejected": "বিজ্ঞাপন ব্লক: ডাউনলোড করা তালিকাটি ব্যবহারযোগ্য নয় ({why})",
+  "androidAppsSection": "অ্যাপ",
+  "excludedApps": "যে অ্যাপগুলো Shroudly এড়িয়ে চলে",
+  "excludedAppsDesc": "এদের ট্রাফিক Shroudly দিয়ে না গিয়ে সরাসরি বাইরে যায়: যেমন এমন একটি গেম যার এটির দরকার নেই।",
+  "excludedAppsCount": "{count}টি অ্যাপ Shroudly এড়িয়ে চলে",
+  "searchApps": "অ্যাপ খুঁজুন",
+  "androidStartAtBoot": "ফোন চালু হলে শুরু করুন",
+  "androidStartAtBootDesc": "VPN-এর অনুমতি একবার দেওয়া হলে, ফোন আবার চালু হলে সুরক্ষা নিজে থেকেই চালু হয়।"
 }

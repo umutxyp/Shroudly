@@ -471,5 +471,12 @@
   "logAdblockInUse": "Sekatan iklan: senarai {count} nama sedang digunakan",
   "logAdblockUnusable": "Sekatan iklan: senarai tidak dapat digunakan ({why})",
   "logAdblockFetchFailed": "Sekatan iklan: senarai tidak dapat dimuat turun ({why}); Shroudly akan mencuba lagi kemudian",
-  "logAdblockRejected": "Sekatan iklan: senarai yang dimuat turun tidak boleh digunakan ({why})"
+  "logAdblockRejected": "Sekatan iklan: senarai yang dimuat turun tidak boleh digunakan ({why})",
+  "androidAppsSection": "Aplikasi",
+  "excludedApps": "Aplikasi yang memintas Shroudly",
+  "excludedAppsDesc": "Trafiknya keluar terus tanpa melalui Shroudly: contohnya permainan yang tidak memerlukannya.",
+  "excludedAppsCount": "{count} aplikasi memintas Shroudly",
+  "searchApps": "Cari aplikasi",
+  "androidStartAtBoot": "Mula apabila telefon dihidupkan",
+  "androidStartAtBootDesc": "Perlindungan hidup sendiri selepas telefon dimulakan semula, setelah VPN dibenarkan."
 }

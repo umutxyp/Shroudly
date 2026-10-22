@@ -471,5 +471,12 @@
   "logAdblockInUse": "广告拦截：正在使用含 {count} 个名称的列表",
   "logAdblockUnusable": "广告拦截：无法使用该列表（{why}）",
   "logAdblockFetchFailed": "广告拦截：无法下载列表（{why}）；Shroudly 稍后会再试",
-  "logAdblockRejected": "广告拦截：下载的列表不可用（{why}）"
+  "logAdblockRejected": "广告拦截：下载的列表不可用（{why}）",
+  "androidAppsSection": "应用",
+  "excludedApps": "绕过 Shroudly 的应用",
+  "excludedAppsDesc": "它们的流量直接出去，不经过 Shroudly：例如不需要它的游戏。",
+  "excludedAppsCount": "{count} 个应用绕过 Shroudly",
+  "searchApps": "搜索应用",
+  "androidStartAtBoot": "手机开机时启动",
+  "androidStartAtBootDesc": "一旦允许了 VPN，手机重启后保护会自动开启。"
 }

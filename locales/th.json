@@ -471,5 +471,12 @@
   "logAdblockInUse": "การบล็อกโฆษณา: ใช้รายการ {count} ชื่ออยู่",
   "logAdblockUnusable": "การบล็อกโฆษณา: ใช้รายการไม่ได้ ({why})",
   "logAdblockFetchFailed": "การบล็อกโฆษณา: ดาวน์โหลดรายการไม่ได้ ({why}); Shroudly จะลองใหม่ภายหลัง",
-  "logAdblockRejected": "การบล็อกโฆษณา: รายการที่ดาวน์โหลดมาใช้ไม่ได้ ({why})"
+  "logAdblockRejected": "การบล็อกโฆษณา: รายการที่ดาวน์โหลดมาใช้ไม่ได้ ({why})",
+  "androidAppsSection": "แอป",
+  "excludedApps": "แอปที่ไม่ผ่าน Shroudly",
+  "excludedAppsDesc": "ทราฟฟิกของแอปเหล่านี้ออกไปตรง ๆ โดยไม่ผ่าน Shroudly เช่น เกมที่ไม่จำเป็นต้องใช้",
+  "excludedAppsCount": "{count} แอปไม่ผ่าน Shroudly",
+  "searchApps": "ค้นหาแอป",
+  "androidStartAtBoot": "เริ่มเมื่อเปิดโทรศัพท์",
+  "androidStartAtBootDesc": "เมื่ออนุญาต VPN แล้ว การป้องกันจะเปิดเองหลังรีสตาร์ตโทรศัพท์"
 }

@@ -68,7 +68,13 @@ class MainActivity : Activity() {
     private var updateUrl: String? = null
     private var vpnDenied = false
 
+    /* The accent this window was made with; another one chosen in Settings
+     * makes it again on return. */
+    private var accentShown = ""
+
     override fun onCreate(savedInstanceState: Bundle?) {
+        Accent.apply(this)
+        accentShown = Accent.id(this)
         super.onCreate(savedInstanceState)
         ShroudlyVpnService.attachLog(this)
         setContentView(R.layout.activity_main)
@@ -102,6 +108,7 @@ class MainActivity : Activity() {
         findViewById<View>(R.id.notices).setOnClickListener { showNotices() }
         findViewById<View>(R.id.privacy).setOnClickListener { open(UpdateCheck.PRIVACY_URL) }
         findViewById<View>(R.id.shareLogs).setOnClickListener { shareLogs() }
+        findViewById<View>(R.id.settings).setOnClickListener { startActivity(Intent(this, SettingsActivity::class.java)) }
         findViewById<Switch>(R.id.shareOnlineCount).apply {
             // The label, and the description under it, smaller and dimmer.
             val desc = getString(R.string.shareOnlineCountDesc)
@@ -158,6 +165,7 @@ class MainActivity : Activity() {
 
     override fun onStart() {
         super.onStart()
+        if (Accent.id(this) != accentShown) { recreate(); return }
         Protection.windowVisible = true
         ShroudlyVpnService.clearAlert(this)
         Protection.listen(onChange)
@@ -312,7 +320,7 @@ class MainActivity : Activity() {
         // Set only when it changes: status and detail are live regions, and
         // TalkBack reads every change out.
         status.show(statusText)
-        status.setTextColor(getColor(if (on) R.color.accent else R.color.text))
+        status.setTextColor(if (on) Accent.color(this, R.attr.accent) else getColor(R.color.text))
 
         val error = Protection.errorRes
         var more = false

@@ -471,5 +471,12 @@
   "logAdblockInUse": "Блокировка рекламы: используется список из {count} имён",
   "logAdblockUnusable": "Блокировка рекламы: список не удалось использовать ({why})",
   "logAdblockFetchFailed": "Блокировка рекламы: список не загрузился ({why}); Shroudly попробует позже",
-  "logAdblockRejected": "Блокировка рекламы: загруженный список не подходит ({why})"
+  "logAdblockRejected": "Блокировка рекламы: загруженный список не подходит ({why})",
+  "androidAppsSection": "Приложения",
+  "excludedApps": "Приложения в обход Shroudly",
+  "excludedAppsDesc": "Их трафик идёт напрямую, мимо Shroudly: например, игра, которой он не нужен.",
+  "excludedAppsCount": "Приложений в обход Shroudly: {count}",
+  "searchApps": "Поиск приложений",
+  "androidStartAtBoot": "Запускать при включении телефона",
+  "androidStartAtBootDesc": "Защита включается сама после перезагрузки телефона, если VPN уже разрешён."
 }
