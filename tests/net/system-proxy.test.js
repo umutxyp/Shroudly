@@ -282,6 +282,35 @@ const readState = (file) => { try { return JSON.parse(fs.readFileSync(file, 'utf
       t.ok(SystemProxy.recoverSync({ stateFile: file, platform: 'win32' }) === true && JSON.stringify([...reg]) === before && !fs.existsSync(file),
         'Windows: after a crash, recovery restores exactly and clears the state file');
     }
+    // Shroudly opened again while it runs (its icon clicked): the start of
+    // that second copy finds the running copy's record. It is that copy's
+    // live setting, not a leftover: its PAC, its record and its restore at
+    // login all stay (2.6.3 removed AutoConfigURL there, seconds after each
+    // click: "another program changed the system proxy ... to no proxy").
+    {
+      const sp = new SystemProxy(() => {}, { platform: 'win32', stateFile: file });
+      await sp.apply(10808, 'all');
+      const live = spawn(process.execPath, ['-e', 'setTimeout(() => {}, 60000)'], { stdio: 'ignore' });
+      await sleep(300);
+      const st = readState(file);
+      st.owner = { ...st.owner, pid: live.pid, exe: path.basename(process.execPath) };
+      fs.writeFileSync(file, JSON.stringify(st));
+      const kept = fs.readFileSync(file, 'utf8');
+      const EngineManager = require(path.join(ROOT, 'electron', 'engine-manager.js'));
+      const mem = {};
+      const em = new EngineManager({ get: (k, d) => (k in mem ? mem[k] : d), set: (k, v) => { mem[k] = v; }, delete: (k) => { delete mem[k]; } },
+        { addLog: () => {}, proxyOptions: { platform: 'win32', stateFile: file } });
+      const n0 = fx.calls.length;
+      await em.recover({ protectionOn: true });
+      t.ok(reg.get('AutoConfigURL').data === sp.pacUrl && fs.existsSync(file) && fs.readFileSync(file, 'utf8') === kept
+        && !fx.calls.slice(n0).some((c) => c[0] === 'reg.exe' && c[1] === 'delete'),
+      "Windows: a second copy's start leaves the running copy's PAC, its record and its restore at login alone");
+      live.kill();
+      await sleep(200);
+      t.ok(SystemProxy.recoverSync({ stateFile: file, platform: 'win32' }) === true && JSON.stringify([...reg]) === before && !fs.existsSync(file),
+        'and once that copy is gone, its record is a leftover again, restored as after a crash');
+      sp.stopPacServer();
+    }
     // A state file left by 2.5.4 ('all': SOCKS ProxyServer + PAC + override).
     {
       fs.mkdirSync(path.dirname(file), { recursive: true });

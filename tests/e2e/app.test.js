@@ -184,8 +184,33 @@ async function record(label, pid) {
         ok(clip.startsWith(`Shroudly ${version} log, copied `) && /\nSystem: .+ \((x64|arm64)\)\n/.test(clip) && clip.includes('\nProtection: on; route: ')
           && /\nAdvanced mode: (on|off)/.test(clip) && clip.includes('\nModes: Discord app mode off, Games and apps mode off') && /\nNetwork: /.test(clip),
         `the clipboard holds the header: version, system and architecture, protection and route, Advanced mode, the modes, the network (${clip.split('\n').slice(0, 6).join(' | ').slice(0, 300)})`);
-        ok(/\n\S+Z OK Shroudly engine active \(strategy: /.test(clip) && /\n\S+Z INFO Starting engine: shroudly-core/.test(clip),
-          'and every log line as written: English, with its time and level');
+        ok(/\n\d\d:\d\d:\d\d OK Shroudly engine active \(strategy: /.test(clip) && /\n\d\d:\d\d:\d\d Starting engine: shroudly-core(\.exe)?\n/.test(clip)
+          && clip.length <= 4000, `and the log lines short, for a chat message: English, the time of day, the level where it matters, no engine arguments (${clip.length} characters)`);
+        // "Save logs": the whole log in a file in Downloads (else Desktop,
+        // Documents, home), every line as written.
+        const saveBtn = page.locator('[data-testid="save-logs"]');
+        ok((await saveBtn.innerText()).includes(tr.saveLogs), `the Logs panel has "${tr.saveLogs}"`);
+        const savedFrom = Date.now() - 2000;
+        await saveBtn.evaluate((el) => el.click());
+        ok(!!(await until(async () => (await saveBtn.innerText()).includes(tr.logsSaved), 5000)), `pressed: it says "${tr.logsSaved}"`);
+        const saved = await app.evaluate(({ app: a }, from) => {
+          const fs = global.shroudlyE2E.require('fs');
+          const p = global.shroudlyE2E.require('path');
+          for (const n of ['downloads', 'desktop', 'documents', 'home']) {
+            let dir = '';
+            try { dir = a.getPath(n); } catch { continue; }
+            let names = [];
+            try { names = fs.readdirSync(dir).filter((f) => /^Shroudly-log-.*\.txt$/.test(f)); } catch { continue; }
+            for (const f of names) {
+              const file = p.join(dir, f);
+              if (fs.statSync(file).mtimeMs >= from) { const text = fs.readFileSync(file, 'utf8'); fs.rmSync(file, { force: true }); return { where: n, text }; }
+            }
+          }
+          return null;
+        }, savedFrom);
+        ok(!!saved && saved.text.startsWith(`Shroudly ${version} log, saved `) && /\n\S+Z INFO Starting engine: shroudly-core\S* --/.test(saved.text)
+          && /\n\S+Z OK Shroudly engine active \(strategy: /.test(saved.text),
+          `the whole log is in a .txt file (${saved ? saved.where : 'none found'}): every line with its full time, level and text`);
         await page.locator('[data-tour="nav-control"]').evaluate((el) => el.click()).catch(() => {});
         // From the tray, on a desktop whose clipboard takes nothing from a
         // program without a focused window (Wayland): not said to be copied;
@@ -272,6 +297,33 @@ async function record(label, pid) {
         'the system proxy stayed pointed at Shroudly through the restart (nothing put back and set again)');
         if (process.platform !== 'win32') { try { process.kill(pid2, 'SIGCONT'); } catch {} }
         await app.evaluate(() => { const g = global.shroudlyE2E; g.engine.hangTimeoutMs = 60000; if (g.store.get('appMode') !== true) g.appProxy.stop(); });
+
+        // ── 5e. Shroudly opened again from its icon while it runs: the
+        //        second copy only hands over to this one and ends. In 2.6.3
+        //        it went through a start of its own first, put back "the
+        //        system proxy from the previous session" (this copy's live
+        //        setting), deleted its record, and moved Discord's line to a
+        //        relay of its own that vanished with it ──
+        const lostNow = () => app.evaluate(() => { const p = global.shroudlyE2E.engine.proxy; return p.applied ? p._lostSettings(p.snapshot || {}, p.pacUrl) : 'not applied'; });
+        const lost0 = await lostNow();
+        const stateFile = path.join(ud, 'proxy-state.json');
+        const state0 = fs.existsSync(stateFile) ? fs.readFileSync(stateFile, 'utf8') : null;
+        const relay0 = JSON.parse(fs.readFileSync(path.join(ud, 'config.json'), 'utf8')).discordRelayPort;
+        const mark3 = stamp();
+        const t3 = Date.now();
+        const second = require('child_process').spawn(require(path.join(APP, 'node_modules', 'electron')),
+          [APP, `--user-data-dir=${ud}`, ...(process.platform === 'linux' ? ['--no-sandbox'] : [])], { env, stdio: 'ignore' });
+        const code = await new Promise((res) => {
+          const k = setTimeout(() => { try { second.kill(); } catch {} res('still running after 30 s'); }, 30000);
+          second.on('exit', (c) => { clearTimeout(k); res(c); });
+        });
+        await sleep(1000);
+        const lost1 = await lostNow();
+        const state1 = fs.existsSync(stateFile) ? fs.readFileSync(stateFile, 'utf8') : null;
+        const relay1 = JSON.parse(fs.readFileSync(path.join(ud, 'config.json'), 'utf8')).discordRelayPort;
+        ok(code === 0 && JSON.stringify(lost1) === JSON.stringify(lost0) && state1 === state0 && relay1 === relay0
+          && !(await has(/another program changed the system proxy|previous session restored/i, mark3)),
+        `Shroudly opened again while it runs: the second copy ended (${code}, ${Date.now() - t3} ms) and changed nothing: the system proxy still ours (${JSON.stringify(lost1)}), its record kept (${state1 === state0}), the relay's port kept`);
       }
       stop();
       await page.evaluate(() => window.electron.closeWindow());

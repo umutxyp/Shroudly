@@ -12,6 +12,11 @@
  *    running is never overwritten. Discord just has to be restarted to use it.
  *  - Only our own value is ever removed: an endpoint the user set themselves
  *    is left alone, and never replaced.
+ * (Discord 1.0.9265 on Windows, watched with file and registry auditing,
+ * never wrote the file at all: not at its start, not when its window was
+ * maximised, moved, minimised or closed, not when it was killed. Nothing in
+ * it reads or writes the system's proxy setting either; its updater only
+ * reads a manual ProxyServer.)
  *
  * The line is there only while Shroudly can answer it: it is taken out when
  * the user quits Shroudly or turns the mode off (and by the Windows
@@ -141,6 +146,52 @@ async function pids(v) {
   return list(await run('pgrep', ['-x', v.proc]));
 }
 
+/* "[[dd-]hh:]mm:ss" (ps -o etime): seconds, or null. */
+function etimeSeconds(text) {
+  const m = /^\s*(?:(\d+)-)?(?:(\d+):)?(\d+):(\d+)\s*$/.exec(String(text || ''));
+  if (!m) return null;
+  return ((Number(m[1] || 0) * 24 + Number(m[2] || 0)) * 60 + Number(m[3])) * 60 + Number(m[4]);
+}
+
+/* When the oldest process of this build started (ms since 1970), or null
+ * when that cannot be told. Windows: the times PowerShell prints, one ISO
+ * time per process; macOS: how long each has run (ps -o etime). */
+function oldestStart(out, { platform = process.platform, now = Date.now() } = {}) {
+  const times = String(out || '').split(/\r?\n/).map((l) => l.trim()).filter(Boolean).map((l) => {
+    if (platform === 'win32') { const t = Date.parse(l); return Number.isNaN(t) ? null : t; }
+    const s = etimeSeconds(l);
+    return s === null ? null : now - s * 1000;
+  }).filter((t) => t !== null);
+  return times.length ? Math.min(...times) : null;
+}
+
+async function startedAt(v) {
+  if (process.platform === 'win32') {
+    const { envFor } = require('./win-powershell');
+    const name = v.exe.replace(/\.exe$/i, '');
+    const out = await new Promise((resolve) => execFile('powershell.exe', ['-NoProfile', '-NonInteractive', '-Command',
+      `Get-Process -Name '${name.replace(/'/g, "''")}' -ErrorAction SilentlyContinue | ForEach-Object { try { $_.StartTime.ToUniversalTime().ToString('o') } catch {} }`],
+    { windowsHide: true, timeout: 15000, env: envFor('powershell.exe') }, (err, o) => resolve(err ? '' : String(o))));
+    return oldestStart(out, { platform: 'win32' });
+  }
+  const list = await pids(v);
+  if (!list.length) return null;
+  return oldestStart(await run('ps', ['-o', 'etime=', '-p', list.join(',')]), { platform: process.platform });
+}
+
+/* Whether a running Discord has to be started again after its line was
+ * put back: only one that may have read its settings while the line was
+ * not there, i.e. one started since the line was last seen in place
+ * (lineSeenAt; a little earlier, for the time between two looks). A Discord
+ * that started before read the line, and goes on using it whatever is
+ * written over the file later: restarting it for every rewrite would cut
+ * its calls again and again for nothing. When its start cannot be told,
+ * it is restarted, as before. */
+function readWithoutLine({ startedAt: at, lineSeenAt }) {
+  if (at == null || !lineSeenAt) return true;
+  return at >= lineSeenAt - 2000;
+}
+
 /* Whether any Discord build here is running (Linux included). */
 async function anyRunning() {
   for (const v of present()) if (await isRunning(v)) return true;
@@ -150,10 +201,15 @@ async function anyRunning() {
 /* The log lines for putting our line back into builds' settings (names: the
  * builds whose file had lost it), with counts, a Map the caller keeps for the
  * session. The first time for a build, that it was put back; the second, once,
- * that this build keeps writing its file without it; after that nothing.
- * Discord, or a program that changes Discord, can write the file back every
- * few minutes; the line goes back within seconds each time, and saying so
- * each time only buries what matters in the log. */
+ * that this build's file keeps losing it; after that nothing. A program that
+ * changes Discord can write the file every few minutes; the line goes back
+ * within seconds each time, and saying so each time only buries what matters
+ * in the log. The line names no writer: in the 2.6.3 reports it was not
+ * Discord (a real Discord on Windows, watched with the file and registry
+ * audited, never wrote the file: at its start, its window maximised, moved,
+ * minimised or closed, or killed), but a second copy of Shroudly opened from
+ * its icon, which moved the line to a relay of its own (main.js, "single
+ * instance"). */
 function healNote(counts, names) {
   const fresh = [];
   const again = [];
@@ -166,7 +222,7 @@ function healNote(counts, names) {
   const lines = [];
   if (fresh.length) lines.push(`Discord app mode: ${fresh.join(', ')} added`);
   if (again.length) {
-    lines.push(`Discord app mode: ${again.join(', ')} wrote its settings without the line again; it is put back each time, and not logged again this session`);
+    lines.push(`Discord app mode: ${again.join(', ')} settings lost the line again; it is put back each time, and not logged again this session`);
   }
   return lines;
 }
@@ -204,4 +260,5 @@ async function restart(v) {
   return detached(v.bin, v.binArgs || []);
 }
 
-module.exports = { KEY, endpointUrl, variants, present, installed, settingsFile, patchSync, hasOurs, isRunning, anyRunning, pids, restart, healNote };
+module.exports = { KEY, endpointUrl, variants, present, installed, settingsFile, patchSync, hasOurs, isRunning, anyRunning, pids, restart, healNote,
+  startedAt, oldestStart, etimeSeconds, readWithoutLine };

@@ -2,7 +2,7 @@
 
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
-import { CheckIcon, CopyIcon, LogsIcon, TrashIcon } from './icons';
+import { CheckIcon, CopyIcon, DownloadIcon, LogsIcon, TrashIcon } from './icons';
 import { localizeLog } from './logText';
 
 const LEVEL = {
@@ -27,6 +27,10 @@ export default function LogsPanel() {
   // "Copy logs": shown as done for a moment after the log went to the clipboard.
   const [copied, setCopied] = useState(false);
   const copiedTimer = useRef(null);
+  // "Save logs": 'saved' or 'failed' for a moment after the file was written
+  // (or could not be).
+  const [saved, setSaved] = useState(null);
+  const savedTimer = useRef(null);
   const listRef = useRef(null);
   const stickToBottom = useRef(true);
 
@@ -56,9 +60,10 @@ export default function LogsPanel() {
     } catch { setLogs([]); }
   };
 
-  // The whole log as the background process wrote it (English, with times
-  // and levels) and a short header: what a report needs, whatever language
-  // the window is in. To the clipboard only.
+  // A short version of the log as the background process wrote it (English,
+  // with times and levels) and a header: what a report needs, whatever
+  // language the window is in, short enough for a chat message. To the
+  // clipboard only.
   const copy = async () => {
     if (typeof window === 'undefined' || !window.electron?.copyLogs) return;
     try {
@@ -69,7 +74,17 @@ export default function LogsPanel() {
       copiedTimer.current = setTimeout(() => setCopied(false), 2500);
     } catch {}
   };
-  useEffect(() => () => clearTimeout(copiedTimer.current), []);
+  // The whole log in a .txt file in Downloads, shown in the file manager, to
+  // attach to a message or an issue.
+  const save = async () => {
+    if (typeof window === 'undefined' || !window.electron?.saveLogs) return;
+    let ok = false;
+    try { ok = !!(await window.electron.saveLogs())?.ok; } catch {}
+    setSaved(ok ? 'saved' : 'failed');
+    clearTimeout(savedTimer.current);
+    savedTimer.current = setTimeout(() => setSaved(null), 3000);
+  };
+  useEffect(() => () => { clearTimeout(copiedTimer.current); clearTimeout(savedTimer.current); }, []);
 
   const timeFmt = useMemo(() => {
     try { return new Intl.DateTimeFormat(locale, { hour: '2-digit', minute: '2-digit', second: '2-digit', hourCycle: 'h23' }); }
@@ -144,6 +159,16 @@ export default function LogsPanel() {
           >
             {copied ? <CheckIcon className="h-3.5 w-3.5" /> : <CopyIcon className="h-3.5 w-3.5" />}
             <span aria-live="polite">{copied ? t('logsCopied') : t('copyLogs')}</span>
+          </button>
+          <button
+            type="button"
+            onClick={save}
+            disabled={logs.length === 0}
+            data-testid="save-logs"
+            className="btn btn-ghost rounded-full px-3 py-1.5 text-[12px] font-medium"
+          >
+            {saved === 'saved' ? <CheckIcon className="h-3.5 w-3.5" /> : <DownloadIcon className="h-3.5 w-3.5" />}
+            <span aria-live="polite">{saved === 'saved' ? t('logsSaved') : saved === 'failed' ? t('logsSaveFailed') : t('saveLogs')}</span>
           </button>
           <button
             type="button"

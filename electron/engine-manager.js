@@ -1314,8 +1314,12 @@ class EngineManager {
     // only the runtimeActive flag, so fall back to switching its proxy off.
     // The app's own start waits only briefly for a macOS root helper, and
     // never asks for a password here, before there is a window.
+    // A record of a Shroudly that is still running (another copy started
+    // with the same settings) is its live setting, never a leftover: it is
+    // left alone, and so is its restore at the next login.
     let restored = false;
-    try { restored = SystemProxy.recoverSync({ ...this.proxyOptions, helperWaitMs: 3000 }, this.log); } catch {}
+    try { restored = SystemProxy.recoverSync({ ...this.proxyOptions, helperWaitMs: 3000, skipIfOwnerAlive: true }, this.log); } catch {}
+    if (restored === 'running') return;
     // 'kept': ours, still set, waiting for an administrator's password. Not
     // 2.0.0's leftover: switching it off blindly would lose the user's own
     // setting recorded with it.

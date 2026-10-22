@@ -795,8 +795,23 @@ const settle = async () => { for (let i = 0; i < 5; i++) await new Promise((r) =
 
   // ── a game's anti-cheat: no packet driver loaded beside it by itself ──
   {
-    const list = '"svchost.exe","900","Services","0","9,000 K"\r\n"vgc.exe","4100","Services","0","30,000 K"';
-    t.ok(Autopilot.antiCheatIn(list) === 'vgc.exe', 'an anti-cheat service in the process list is found');
+    const row = (n, pid = 100) => `"${n}","${pid}","Console","1","9,000 K"`;
+    const ps = (...names) => names.map((n, i) => row(n, 100 + i)).join('\r\n');
+    // The reported PC: Riot Vanguard's service and tray icon, there from the
+    // boot on, no game open (and Discord, Shroudly).
+    t.ok(Autopilot.antiCheatIn(ps('svchost.exe', 'vgc.exe', 'vgtray.exe', 'Discord.exe', 'Shroudly.exe')) === null,
+      "an anti-cheat's service and tray icon that run whenever the PC is on, with no game open: no game being played");
+    t.ok(Autopilot.antiCheatIn(ps('EasyAntiCheat_EOS.exe', 'BEService.exe', 'FACEIT.exe', 'faceitservice.exe', 'PnkBstrA.exe', 'EAAntiCheat.GameService.exe')) === null,
+      'the services Easy Anti-Cheat, BattlEye, FACEIT, PunkBuster and EA leave running: not a game either');
+    t.ok(Autopilot.antiCheatIn(ps('vgc.exe', 'vgtray.exe', 'VALORANT-Win64-Shipping.exe')) === 'VALORANT-Win64-Shipping.exe',
+      'VALORANT open beside Vanguard: the game is found, by its name');
+    t.ok(Autopilot.antiCheatIn(ps('vgc.exe', 'League of Legends.exe')) === 'League of Legends.exe', 'League beside Vanguard: found');
+    t.ok(Autopilot.antiCheatIn(ps('EasyAntiCheat_EOS.exe', 'SomeNewGame-Win64-Shipping.exe')) === 'SomeNewGame-Win64-Shipping.exe',
+      'an Unreal game not on the list, beside Easy Anti-Cheat: found');
+    t.ok(Autopilot.antiCheatIn(ps('BEService.exe', 'DayZ_BE.exe')) === 'DayZ_BE.exe', "a BattlEye game's own program beside its service: found");
+    t.ok(Autopilot.antiCheatIn(ps('faceitservice.exe', 'cs2.exe')) === 'cs2.exe', 'CS2 beside FACEIT: found');
+    t.ok(Autopilot.antiCheatIn(ps('svchost.exe', 'GameMon64.des')) === 'GameMon64.des', "an anti-cheat's in-game part counts by itself");
+    t.ok(Autopilot.antiCheatIn(ps('SomeIndie-Win64-Shipping.exe', 'cs2.exe')) === null, 'a game with no anti-cheat running: nothing to keep away from');
     t.ok(Autopilot.antiCheatIn('"svchost.exe","900","Services","0","9,000 K"') === null, 'and nothing else is taken for one');
     let tries = 0;
     const r = rig({ adv: { available: () => true, active: () => false, start: async () => { tries++; return { success: true }; }, antiCheat: async () => 'vgc.exe' } });

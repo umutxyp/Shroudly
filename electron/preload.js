@@ -44,8 +44,11 @@ contextBridge.exposeInMainWorld('electron', {
   // Logs
   getLogs: () => ipcRenderer.invoke('logs:get'),
   clearLogs: () => ipcRenderer.invoke('logs:clear'),
-  // The whole log with a short header, to the clipboard (nothing is sent).
+  // A short version of the log with its header, to the clipboard; the whole
+  // log to a .txt file in Downloads, shown in the file manager (nothing is
+  // sent).
   copyLogs: () => ipcRenderer.invoke('logs:copy'),
+  saveLogs: () => ipcRenderer.invoke('logs:save'),
   // The background process asks for a panel to be shown (e.g. 'logs').
   onNavigate: (cb) => { const h = (e, tab) => cb(tab); ipcRenderer.on('ui:navigate', h); return () => ipcRenderer.removeListener('ui:navigate', h); },
   onNewLog: (cb) => ipcRenderer.on('log:new', (e, log) => cb(log)),

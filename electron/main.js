@@ -42,7 +42,7 @@ const ServiceCheck = require('./service-check');
 const { restoreProxy } = require('./restore-proxy');
 const Launch = require('./launch');
 const wake = require('./wake');
-const { buildReport, toClipboard } = require('./log-report');
+const { buildReport, buildCompact, saveReport, toClipboard } = require('./log-report');
 const LogGate = require('./log-gate');
 const { AdblockList } = require('./adblock');
 
@@ -127,11 +127,22 @@ function appVersion() {
 if (process.platform === 'win32') app.setAppUserModelId('me.codeshare.shroudly');
 
 /* ── single instance ─────────────────────────────────────────────────────── */
+/* Shroudly opened again while it runs (its icon clicked, its shortcut, the
+ * Start menu): the copy that is already running shows its window, and this
+ * one ends here, before it does anything at all. It used to go on through
+ * its start while it quit: it put back "the system proxy from the previous
+ * session" (the running copy's live setting: AutoConfigURL removed, its
+ * record and its restore-at-login deleted), started a Discord relay of its
+ * own on another port and wrote that port into Discord's settings, then
+ * vanished, leaving Discord pointed at nothing. The running copy saw "another
+ * program changed the system proxy ... to no proxy (removed)" and "Discord
+ * wrote its settings without the line", seconds after each click (shown on a
+ * real Windows by tests/e2e/app.test.js, 5e). */
 if (!app.requestSingleInstanceLock()) {
   app.quit();
-} else {
-  app.on('second-instance', () => showWindow());
+  return;
 }
+app.on('second-instance', () => showWindow());
 
 /* ── crash / hard-exit safety: restore the system proxy synchronously ─────── */
 process.on('exit', () => {
@@ -189,10 +200,9 @@ function notify(title, body) {
   }
 }
 
-/* "Copy logs": the whole log with a short header (log-report.js), to the
- * clipboard. Nothing is sent anywhere. */
-function copyLogs() {
-  const report = buildReport({
+/* What the log's header says about this computer and Shroudly now. */
+function reportState() {
+  return {
     version: appVersion(),
     os: `${{ win32: 'Windows', darwin: 'macOS', linux: 'Linux' }[process.platform] || process.platform} ${(() => { try { return process.getSystemVersion(); } catch { return os.release(); } })()}`,
     arch: process.arch,
@@ -202,9 +212,28 @@ function copyLogs() {
     discordMode: store.get('discordMode') === true,
     appsMode: store.get('appMode') === true,
     storeApps: process.platform === 'win32' ? store.get('storeAppsMode') === true : null,
-  }, systemLogs);
+  };
+}
+
+/* "Copy logs": a short version of the log, with its header, that a chat app
+ * takes as one message (log-report.js), to the clipboard. Nothing is sent
+ * anywhere. */
+function copyLogs() {
+  const report = buildCompact(reportState(), systemLogs);
   if (!toClipboard(report, clipboard)) return { ok: false };
   return { ok: true, lines: systemLogs.length, chars: report.length };
+}
+
+/* "Save logs": the whole log in a .txt file in the user's Downloads folder
+ * (else Desktop, Documents, home), shown in the file manager, so it can be
+ * attached to a message or an issue. Nothing is sent anywhere. */
+function saveLogs() {
+  const text = buildReport({ ...reportState(), verb: 'saved' }, systemLogs);
+  const dirs = ['downloads', 'desktop', 'documents', 'home'].map((n) => () => app.getPath(n));
+  const r = saveReport(text, dirs);
+  if (!r.ok) { addLog('error', `Logs could not be saved: ${r.error}`); return { ok: false }; }
+  try { shell.showItemInFolder(r.file); } catch {}
+  return { ok: true, file: r.file, name: path.basename(r.file), folder: path.dirname(r.file) };
 }
 
 /* From the tray: on the clipboard, said; where the desktop would not take it
@@ -215,6 +244,14 @@ function trayCopyLogs(s) {
   showWindow();
   toWindow('ui:navigate', 'logs');
   notify('Shroudly', s.notifyLogsCopyFailed);
+}
+
+/* From the tray: saved, the file shown in the file manager and named in a
+ * notification. */
+function traySaveLogs(s) {
+  const r = saveLogs();
+  if (r.ok) notify('Shroudly', String(s.notifyLogsSaved || '').replace('{file}', r.name).replace('{folder}', r.folder));
+  else notify('Shroudly', s.notifyLogsSaveFailed);
 }
 
 /* ── tray + status ───────────────────────────────────────────────────────── */
@@ -263,6 +300,7 @@ function rebuildTrayMenu(active = trayActive) {
     },
     { type: 'separator' },
     { label: s.trayCopyLogs, click: () => trayCopyLogs(s) },
+    { label: s.traySaveLogs, click: () => traySaveLogs(s) },
     { label: s.trayQuit, click: () => { app.isQuitting = true; shutdownAndQuit(); } },
   ]);
   tray.setContextMenu(menu);
@@ -911,7 +949,7 @@ app.whenReady().then(async () => {
   createAutopilot();
   createStoreApps();
   // The end-to-end tests look inside (tests/e2e): never in a normal run.
-  if (process.env.SHROUDLY_E2E === '1') global.shroudlyE2E = { engine, appProxy, discordRelay, autopilot, wake, store, addLog, require, trayCopyLogs: () => trayCopyLogs(tr()) };
+  if (process.env.SHROUDLY_E2E === '1') global.shroudlyE2E = { engine, appProxy, discordRelay, autopilot, wake, store, addLog, require, trayCopyLogs: () => trayCopyLogs(tr()), saveLogs };
 
   updater = new Updater({
     log: addLog,
@@ -1370,6 +1408,7 @@ async function applyDiscordMode(on, { interactive = true } = {}) {
   }
 
   store.set('discordMode', on);
+  if (on) discordLineSeenAt = Date.now();
   if (!on) discordRelay.stop();
 
   // Discord reads the line when it starts: one that is already open needs a
@@ -1399,17 +1438,31 @@ async function applyDiscordMode(on, { interactive = true } = {}) {
  * through watchDiscord, which leaves alone a Discord that already goes
  * through Shroudly. */
 const discordHealed = new Map();   // build -> times its line was put back this session
+// When the line was last seen in every build's settings (or written there).
+let discordLineSeenAt = 0;
 async function healDiscordLine() {
   if (store.get('discordMode') !== true || !discordRelay || !discordRelay.running || discordState.needsPermission) return;
+  const seenAt = discordLineSeenAt;
   const r = patchDiscordSync(DiscordApp.endpointUrl(discordRelay.port));
+  if (!r.denied.length && !r.failed.length) discordLineSeenAt = Date.now();
   if (!r.changed.length) return;
   for (const line of DiscordApp.healNote(discordHealed, r.changed.map((v) => v.app))) addLog('info', line);
-  // Discord's settings were written anew: Discord, or something started with
-  // it, has just started. In issue #27's log the system proxy was taken over
-  // within a minute of that, every time: it is looked at again shortly.
+  // Discord's settings were written anew. In issue #27's log, and in 2.6.3's
+  // reports, the system proxy was taken over seconds after that, every time
+  // (in 2.6.3's, both were a second copy of Shroudly opened from its icon):
+  // it is looked at again shortly.
   if (engine) engine.checkProxySoon();
+  // A Discord running now has to be started again only if it may have read
+  // the file while the line was not there: one that started since the line
+  // was last seen. One that was already running read the line when it
+  // started, and goes on using it: it is not restarted for every rewrite.
   let running = false;
-  for (const v of r.changed) if (await DiscordApp.isRunning(v)) running = true;
+  for (const v of r.changed) {
+    if (!(await DiscordApp.isRunning(v))) continue;
+    let at = null;
+    try { at = await DiscordApp.startedAt(v); } catch {}
+    if (DiscordApp.readWithoutLine({ startedAt: at, lineSeenAt: seenAt })) running = true;
+  }
   // Told to the window only when that changes what it shows.
   if (running && !discordState.needsRestart) {
     discordState.needsRestart = true;
@@ -2007,8 +2060,10 @@ ipcMain.handle('update:install', () => updater && updater.install());
 ipcMain.handle('update:postpone', () => updater && updater.postpone());
 
 ipcMain.handle('logs:get', () => systemLogs);
-// The whole log, with what a report needs to know, to the clipboard only.
+// A short version of the log, with what a report needs to know, to the
+// clipboard only; the whole log to a file the user attaches.
 ipcMain.handle('logs:copy', () => copyLogs());
+ipcMain.handle('logs:save', () => saveLogs());
 ipcMain.handle('logs:clear', () => { systemLogs = []; addLog('info', 'Logs cleared'); return true; });
 
 ipcMain.handle('net:stats', async () => {
