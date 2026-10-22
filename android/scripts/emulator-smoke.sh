@@ -293,10 +293,13 @@ vpn_has_uid 2000 || fail "before: the shell's uid 2000 is not in the VPN"
 sh_ "am start -n $PKG/.DebugControlActivity --es cmd exclude --es pkg com.android.shell" >/dev/null
 wait_for 20 has_log "Apps that skip Shroudly changed" || fail "the app list change did not renew the VPN interface"
 wait_for 20 eval '! vpn_has_uid 2000' || fail "an app set to skip Shroudly is still in the VPN"
+# Android moves the app's routes and DNS a moment after the VPN's change.
+wait_for 30 net_up || fail "an app that skips Shroudly lost its internet ($(http_get))"
 skip="$(http_get)"
 case "$skip" in *" 200 "*|*" 30"*) ;; *) fail "an app that skips Shroudly lost its internet ($skip)";; esac
 sh_ "am start -n $PKG/.DebugControlActivity --es cmd exclude --es pkg ''" >/dev/null
 wait_for 20 vpn_has_uid 2000 || fail "back in: the shell's uid 2000 is not in the VPN again"
+wait_for 30 net_up || fail "back through Shroudly, the shell's request failed ($(http_get))"
 back="$(http_get)"
 case "$back" in *" 200 "*|*" 30"*) ;; *) fail "back through Shroudly, the shell's request failed ($back)";; esac
 say "apps that skip Shroudly: uid 2000 left out of the VPN and loading straight out (${skip%%$'\r'}), in the VPN again once back (${back%%$'\r'})"
