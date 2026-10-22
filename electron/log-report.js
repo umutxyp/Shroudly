@@ -134,12 +134,14 @@ function buildCompact(s, logs = [], { max = COPY_MAX_CHARS } = {}) {
   entries.forEach((e, i) => { if (!firstAt.has(e.msg)) firstAt.set(e.msg, i); });
   let from = entries.length;
   let used = 0;
+  let oldestDay = null;   // the day of the oldest line kept so far: its "[day]" line is counted once
   while (from > 0) {
     const e = entries[from - 1];
     const m = firstAt.get(e.msg) < from - 1 ? again(e.msg) : e.msg;
-    const size = e.time.length + e.level.length + m.length + e.more.length + 2 + (e.day ? 13 : 0);
+    const size = e.time.length + e.level.length + m.length + e.more.length + 2 + (e.day && e.day !== oldestDay ? 13 : 0);
     if (used + size > room) break;
     used += size;
+    if (e.day) oldestDay = e.day;
     from--;
   }
   let out = text(from);
