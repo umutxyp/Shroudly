@@ -10,6 +10,10 @@
     <string name="androidAlertsChannel">保护提醒</string>
     <string name="androidAllApps">此设备上的所有应用都经由 Shroudly 连接。</string>
     <string name="androidAppsSection">应用</string>
+    <string name="androidAutomationBattery">电池设置</string>
+    <string name="androidAutomationNotStarted">未开启保护</string>
+    <string name="androidAutomationTapBattery">自动化应用请求开启保护，但只有当 Shroudly 的电池使用不受限制时，Android 才允许其他应用启动它。点按即可立即开启。</string>
+    <string name="androidAutomationTapVpn">自动化应用请求开启保护，但尚未允许 VPN。点按即可允许并开启保护。</string>
     <string name="androidBatteryHint">电池设置可能会在后台停止 Shroudly 并中断你的连接。请允许它不受电池限制地运行。</string>
     <string name="androidBatterySettings">电池设置</string>
     <string name="androidDetails">详细信息</string>
@@ -25,6 +29,8 @@
     <string name="androidPrivacyPolicy">隐私政策</string>
     <string name="androidProtectionLost">保护因出错而停止，你的应用现在直接联网。打开 Shroudly 即可重新开启。</string>
     <string name="androidProxyOnlyOn">仅代理：设置为 127.0.0.1:{port} 的应用经过 Shroudly</string>
+    <string name="androidRemoteControl">允许自动化应用</string>
+    <string name="androidRemoteControlDesc">Tasker、MacroDroid 等应用可通过向软件包 {package} 发送广播（操作 {action}.START、.STOP 或 .TOGGLE）开关保护。此项关闭时，其他应用都无法这样做。</string>
     <string name="androidShareLogs">分享日志</string>
     <string name="androidStartAtBoot">手机开机时启动</string>
     <string name="androidStartAtBootDesc">一旦允许了 VPN，手机重启后保护会自动开启。</string>

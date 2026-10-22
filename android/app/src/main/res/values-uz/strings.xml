@@ -10,6 +10,10 @@
     <string name="androidAlertsChannel">Himoya ogohlantirishlari</string>
     <string name="androidAllApps">Bu qurilmadagi har bir ilova Shroudly orqali o‘tadi.</string>
     <string name="androidAppsSection">Ilovalar</string>
+    <string name="androidAutomationBattery">Batareya sozlamalari</string>
+    <string name="androidAutomationNotStarted">Himoya yoqilmadi</string>
+    <string name="androidAutomationTapBattery">Avtomatlashtirish ilovasi himoyani yoqishni soʻradi, lekin Android boshqa ilovalarga Shroudly’ni faqat uning batareya sarfi cheklanmagan boʻlsa ishga tushirishga ruxsat beradi. Hozir yoqish uchun bosing.</string>
+    <string name="androidAutomationTapVpn">Avtomatlashtirish ilovasi himoyani yoqishni soʻradi, lekin VPN’ga hali ruxsat berilmagan. Ruxsat berib, himoyani yoqish uchun bosing.</string>
     <string name="androidBatteryHint">Batareya sozlamalari Shroudly’ni fonda to‘xtatib, ulanishingizni uzib qo‘yishi mumkin. Unga batareya cheklovlarisiz ishlashga ruxsat bering.</string>
     <string name="androidBatterySettings">Batareya sozlamalari</string>
     <string name="androidDetails">Batafsil</string>
@@ -25,6 +29,8 @@
     <string name="androidPrivacyPolicy">Maxfiylik siyosati</string>
     <string name="androidProtectionLost">Himoya xato tufayli to‘xtadi, shuning uchun ilovalaringiz hozir to‘g‘ridan-to‘g‘ri ulanmoqda. Uni qayta yoqish uchun Shroudly’ni oching.</string>
     <string name="androidProxyOnlyOn">Faqat proksi: 127.0.0.1:{port} ga sozlangan ilovalar Shroudly orqali oʻtadi</string>
+    <string name="androidRemoteControl">Avtomatlashtirish ilovalariga ruxsat berish</string>
+    <string name="androidRemoteControlDesc">Tasker, MacroDroid va shunga oʻxshash ilovalar {package} paketiga yuborilgan translyatsiya orqali himoyani yoqib-oʻchira oladi: amal {action}.START, .STOP yoki .TOGGLE. Bu oʻchiq ekan, boshqa hech bir ilova buni qila olmaydi.</string>
     <string name="androidShareLogs">Jurnalni ulashish</string>
     <string name="androidStartAtBoot">Telefon yonganda ishga tushirish</string>
     <string name="androidStartAtBootDesc">VPN’ga bir marta ruxsat berilgan boʻlsa, telefon qayta yonganda himoya oʻzi yoqiladi.</string>

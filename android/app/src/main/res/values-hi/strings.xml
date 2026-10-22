@@ -10,6 +10,10 @@
     <string name="androidAlertsChannel">सुरक्षा अलर्ट</string>
     <string name="androidAllApps">इस डिवाइस का हर ऐप Shroudly से होकर जाता है।</string>
     <string name="androidAppsSection">ऐप्स</string>
+    <string name="androidAutomationBattery">बैटरी सेटिंग्स</string>
+    <string name="androidAutomationNotStarted">सुरक्षा चालू नहीं हुई</string>
+    <string name="androidAutomationTapBattery">एक ऑटोमेशन ऐप ने सुरक्षा चालू करने को कहा, लेकिन Android दूसरे ऐप्स को Shroudly शुरू करने की अनुमति तभी देता है जब उसका बैटरी उपयोग अप्रतिबंधित हो। अभी चालू करने के लिए टैप करें।</string>
+    <string name="androidAutomationTapVpn">एक ऑटोमेशन ऐप ने सुरक्षा चालू करने को कहा, लेकिन VPN की अनुमति अभी नहीं दी गई है। अनुमति देकर सुरक्षा चालू करने के लिए टैप करें।</string>
     <string name="androidBatteryHint">बैटरी सेटिंग्स Shroudly को बैकग्राउंड में रोककर आपका कनेक्शन काट सकती हैं। इसे बैटरी प्रतिबंधों के बिना चलने दें।</string>
     <string name="androidBatterySettings">बैटरी सेटिंग्स</string>
     <string name="androidDetails">विवरण</string>
@@ -25,6 +29,8 @@
     <string name="androidPrivacyPolicy">गोपनीयता नीति</string>
     <string name="androidProtectionLost">एक त्रुटि के कारण सुरक्षा बंद हो गई, इसलिए आपके ऐप्स अब सीधे कनेक्ट हो रहे हैं। इसे फिर से शुरू करने के लिए Shroudly खोलें।</string>
     <string name="androidProxyOnlyOn">केवल प्रॉक्सी: 127.0.0.1:{port} पर सेट ऐप्स Shroudly से गुज़रते हैं</string>
+    <string name="androidRemoteControl">ऑटोमेशन ऐप्स को अनुमति दें</string>
+    <string name="androidRemoteControlDesc">Tasker, MacroDroid और ऐसे ही ऐप्स पैकेज {package} को ब्रॉडकास्ट भेजकर सुरक्षा चालू और बंद कर सकते हैं: एक्शन {action}.START, .STOP या .TOGGLE। जब तक यह बंद है, कोई दूसरा ऐप ऐसा नहीं कर सकता।</string>
     <string name="androidShareLogs">लॉग साझा करें</string>
     <string name="androidStartAtBoot">फ़ोन चालू होने पर शुरू करें</string>
     <string name="androidStartAtBootDesc">VPN की अनुमति एक बार मिलने के बाद, फ़ोन फिर से चालू होने पर सुरक्षा अपने आप चालू हो जाती है।</string>

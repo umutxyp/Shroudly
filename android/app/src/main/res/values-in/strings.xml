@@ -10,6 +10,10 @@
     <string name="androidAlertsChannel">Peringatan perlindungan</string>
     <string name="androidAllApps">Semua aplikasi di perangkat ini melewati Shroudly.</string>
     <string name="androidAppsSection">Aplikasi</string>
+    <string name="androidAutomationBattery">Pengaturan baterai</string>
+    <string name="androidAutomationNotStarted">Perlindungan tidak dinyalakan</string>
+    <string name="androidAutomationTapBattery">Aplikasi otomatisasi meminta perlindungan dinyalakan, tetapi Android hanya mengizinkan aplikasi lain memulai Shroudly jika penggunaan baterainya tidak dibatasi. Ketuk untuk menyalakannya sekarang.</string>
+    <string name="androidAutomationTapVpn">Aplikasi otomatisasi meminta perlindungan dinyalakan, tetapi VPN belum diizinkan. Ketuk untuk mengizinkannya dan menyalakan perlindungan.</string>
     <string name="androidBatteryHint">Pengaturan baterai dapat menghentikan Shroudly di latar belakang dan memutus koneksi Anda. Izinkan Shroudly berjalan tanpa batasan baterai.</string>
     <string name="androidBatterySettings">Pengaturan baterai</string>
     <string name="androidDetails">Detail</string>
@@ -25,6 +29,8 @@
     <string name="androidPrivacyPolicy">Kebijakan privasi</string>
     <string name="androidProtectionLost">Perlindungan berhenti karena terjadi kesalahan, jadi aplikasi Anda kini terhubung langsung. Buka Shroudly untuk memulainya lagi.</string>
     <string name="androidProxyOnlyOn">Hanya proxy: aplikasi yang diatur ke 127.0.0.1:{port} lewat Shroudly</string>
+    <string name="androidRemoteControl">Izinkan aplikasi otomatisasi</string>
+    <string name="androidRemoteControlDesc">Tasker, MacroDroid, dan aplikasi serupa dapat menyalakan dan mematikan perlindungan dengan broadcast ke paket {package}, aksi {action}.START, .STOP, atau .TOGGLE. Selama ini mati, tidak ada aplikasi lain yang bisa.</string>
     <string name="androidShareLogs">Bagikan log</string>
     <string name="androidStartAtBoot">Mulai saat ponsel menyala</string>
     <string name="androidStartAtBootDesc">Perlindungan menyala sendiri setelah ponsel dinyalakan ulang, setelah VPN diizinkan.</string>

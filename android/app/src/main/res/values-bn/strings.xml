@@ -10,6 +10,10 @@
     <string name="androidAlertsChannel">সুরক্ষা সতর্কতা</string>
     <string name="androidAllApps">এই ডিভাইসের প্রতিটি অ্যাপ Shroudly-এর মধ্য দিয়ে যায়।</string>
     <string name="androidAppsSection">অ্যাপ</string>
+    <string name="androidAutomationBattery">ব্যাটারি সেটিংস</string>
+    <string name="androidAutomationNotStarted">সুরক্ষা চালু হয়নি</string>
+    <string name="androidAutomationTapBattery">একটি অটোমেশন অ্যাপ সুরক্ষা চালু করতে বলেছিল, কিন্তু Android অন্য অ্যাপকে Shroudly চালু করতে দেয় শুধু তখনই যখন এর ব্যাটারি ব্যবহার অবাধ থাকে। এখনই চালু করতে ট্যাপ করুন।</string>
+    <string name="androidAutomationTapVpn">একটি অটোমেশন অ্যাপ সুরক্ষা চালু করতে বলেছিল, কিন্তু VPN-এর অনুমতি এখনো দেওয়া হয়নি। অনুমতি দিয়ে সুরক্ষা চালু করতে ট্যাপ করুন।</string>
     <string name="androidBatteryHint">ব্যাটারি সেটিংস Shroudly-কে ব্যাকগ্রাউন্ডে বন্ধ করে আপনার সংযোগ কেটে দিতে পারে। এটিকে ব্যাটারির বিধিনিষেধ ছাড়া চলতে দিন।</string>
     <string name="androidBatterySettings">ব্যাটারি সেটিংস</string>
     <string name="androidDetails">বিস্তারিত</string>
@@ -25,6 +29,8 @@
     <string name="androidPrivacyPolicy">গোপনীয়তা নীতি</string>
     <string name="androidProtectionLost">একটি ত্রুটির কারণে সুরক্ষা বন্ধ হয়ে গেছে, তাই আপনার অ্যাপগুলো এখন সরাসরি সংযোগ করছে। আবার চালু করতে Shroudly খুলুন।</string>
     <string name="androidProxyOnlyOn">শুধু প্রক্সি: 127.0.0.1:{port}-এ সেট করা অ্যাপগুলো Shroudly দিয়ে যায়</string>
+    <string name="androidRemoteControl">অটোমেশন অ্যাপকে অনুমতি দিন</string>
+    <string name="androidRemoteControlDesc">Tasker, MacroDroid ও এ ধরনের অ্যাপ {package} প্যাকেজে একটি ব্রডকাস্ট পাঠিয়ে সুরক্ষা চালু ও বন্ধ করতে পারে: অ্যাকশন {action}.START, .STOP বা .TOGGLE। এটি বন্ধ থাকা পর্যন্ত অন্য কোনো অ্যাপ তা পারে না।</string>
     <string name="androidShareLogs">লগ শেয়ার করুন</string>
     <string name="androidStartAtBoot">ফোন চালু হলে শুরু করুন</string>
     <string name="androidStartAtBootDesc">VPN-এর অনুমতি একবার দেওয়া হলে, ফোন আবার চালু হলে সুরক্ষা নিজে থেকেই চালু হয়।</string>

@@ -10,6 +10,10 @@
     <string name="androidAlertsChannel">Qoruma xəbərdarlıqları</string>
     <string name="androidAllApps">Bu cihazdakı hər tətbiq Shroudly üzərindən keçir.</string>
     <string name="androidAppsSection">Tətbiqlər</string>
+    <string name="androidAutomationBattery">Batareya ayarları</string>
+    <string name="androidAutomationNotStarted">Qoruma açılmadı</string>
+    <string name="androidAutomationTapBattery">Avtomatlaşdırma tətbiqi qorumanı açmaq istədi, amma Android başqa tətbiqlərin Shroudly-ni başlatmasına yalnız onun batareya istifadəsi məhdudlaşdırılmayanda icazə verir. İndi açmaq üçün toxun.</string>
+    <string name="androidAutomationTapVpn">Avtomatlaşdırma tətbiqi qorumanı açmaq istədi, amma VPN-ə hələ icazə verilməyib. İcazə verib qorumanı açmaq üçün toxun.</string>
     <string name="androidBatteryHint">Batareya ayarları Shroudly-ni arxa planda dayandırıb bağlantınızı kəsə bilər. Ona batareya məhdudiyyətləri olmadan işləməyə icazə verin.</string>
     <string name="androidBatterySettings">Batareya ayarları</string>
     <string name="androidDetails">Təfərrüatlar</string>
@@ -25,6 +29,8 @@
     <string name="androidPrivacyPolicy">Məxfilik siyasəti</string>
     <string name="androidProtectionLost">Qoruma xəta səbəbindən dayandı, ona görə tətbiqləriniz indi birbaşa qoşulur. Yenidən başlatmaq üçün Shroudly-ni açın.</string>
     <string name="androidProxyOnlyOn">Yalnız proksi: 127.0.0.1:{port} ayarlanmış tətbiqlər Shroudly-dən keçir</string>
+    <string name="androidRemoteControl">Avtomatlaşdırma tətbiqlərinə icazə ver</string>
+    <string name="androidRemoteControlDesc">Tasker, MacroDroid və oxşar tətbiqlər {package} paketinə göndərilən yayımla qorumanı açıb-söndürə bilər: əməliyyat {action}.START, .STOP və ya .TOGGLE. Bu söndürülü olduqca başqa heç bir tətbiq bunu edə bilməz.</string>
     <string name="androidShareLogs">Qeydləri paylaş</string>
     <string name="androidStartAtBoot">Telefon açılanda başlat</string>
     <string name="androidStartAtBootDesc">VPN-ə bir dəfə icazə verilibsə, telefon yenidən başlayanda qoruma özü açılır.</string>

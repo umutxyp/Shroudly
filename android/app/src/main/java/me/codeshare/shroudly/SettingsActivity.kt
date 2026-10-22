@@ -30,7 +30,8 @@ import android.widget.TextView
 
 /*
  * Settings: the technique (as the desktop's "Bypass strategy"), the apps that
- * skip Shroudly, and starting when the phone starts (AppSettings). A change
+ * skip Shroudly, starting when the phone starts, and automation apps
+ * (AppSettings). A change
  * reaches a running protection at once (ShroudlyVpnService.ACTION_SETTINGS).
  */
 class SettingsActivity : Activity() {
@@ -84,6 +85,22 @@ class SettingsActivity : Activity() {
             }
             isChecked = AppSettings.startAtBoot(this@SettingsActivity)
             setOnCheckedChangeListener { _, on -> AppSettings.setStartAtBoot(this@SettingsActivity, on) }
+        }
+
+        // Automation apps: what to send, under the switch.
+        findViewById<Switch>(R.id.remoteControl).apply {
+            val desc = text(R.string.androidRemoteControlDesc, "package" to packageName, "action" to AutomationReceiver.ACTION_START.substringBeforeLast('.'))
+            text = SpannableStringBuilder(getString(R.string.androidRemoteControl)).append('\n').apply {
+                val from = length
+                append(desc)
+                setSpan(ForegroundColorSpan(getColor(R.color.text_dim)), from, length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                setSpan(RelativeSizeSpan(12.5f / 15f), from, length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            }
+            isChecked = AppSettings.remoteControl(this@SettingsActivity)
+            setOnCheckedChangeListener { _, on ->
+                AppSettings.setRemoteControl(this@SettingsActivity, on)
+                ShroudlyVpnService.log(if (on) "Automation apps allowed (Settings)" else "Automation apps no longer allowed (Settings)")
+            }
         }
     }
 

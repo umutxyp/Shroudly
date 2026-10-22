@@ -10,6 +10,10 @@
     <string name="androidAlertsChannel">تنبيهات الحماية</string>
     <string name="androidAllApps">كل التطبيقات على هذا الجهاز تمر عبر Shroudly.</string>
     <string name="androidAppsSection">التطبيقات</string>
+    <string name="androidAutomationBattery">إعدادات البطارية</string>
+    <string name="androidAutomationNotStarted">لم تُفعَّل الحماية</string>
+    <string name="androidAutomationTapBattery">طلب تطبيق أتمتة تفعيل الحماية، لكن Android لا يسمح للتطبيقات الأخرى بتشغيل Shroudly إلا عندما يكون استخدامه للبطارية غير مقيّد. اضغط لتفعيلها الآن.</string>
+    <string name="androidAutomationTapVpn">طلب تطبيق أتمتة تفعيل الحماية، لكن لم يُسمح بشبكة VPN بعد. اضغط للسماح بها وتفعيل الحماية.</string>
     <string name="androidBatteryHint">قد توقف إعدادات البطارية Shroudly في الخلفية وتقطع اتصالك. اسمح له بالعمل دون قيود على البطارية.</string>
     <string name="androidBatterySettings">إعدادات البطارية</string>
     <string name="androidDetails">التفاصيل</string>
@@ -25,6 +29,8 @@
     <string name="androidPrivacyPolicy">سياسة الخصوصية</string>
     <string name="androidProtectionLost">توقفت الحماية بسبب خطأ، لذا تتصل تطبيقاتك الآن مباشرةً. افتح Shroudly لتشغيلها من جديد.</string>
     <string name="androidProxyOnlyOn">وكيل فقط: التطبيقات المضبوطة على ‎127.0.0.1:{port}‎ تمر عبر Shroudly</string>
+    <string name="androidRemoteControl">السماح لتطبيقات الأتمتة</string>
+    <string name="androidRemoteControlDesc">يمكن لـ Tasker وMacroDroid والتطبيقات المشابهة تشغيل الحماية وإيقافها ببث إلى الحزمة {package}، والإجراء {action}.START أو ‎.STOP أو ‎.TOGGLE. ما دام هذا متوقفًا، لا يستطيع أي تطبيق آخر ذلك.</string>
     <string name="androidShareLogs">مشاركة السجلات</string>
     <string name="androidStartAtBoot">البدء عند تشغيل الهاتف</string>
     <string name="androidStartAtBootDesc">تعمل الحماية من تلقاء نفسها بعد إعادة تشغيل الهاتف، بعد السماح بالشبكة الافتراضية الخاصة.</string>

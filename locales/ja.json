@@ -503,5 +503,11 @@
   "autoForgedDnsOffByHand": "このネットワークは DNS の応答を偽装するため、システムのプロキシを使わないプログラムは Shroudly を通りません。ゲームとアプリモードは {date} にオフにされました。それらのために設定でオンにしてください。",
   "logForgedDnsAppsOn": "自動操縦: このネットワークは DNS の応答を偽装します（{names}）。ゲームとアプリモードをオンにしたため、システムのプロキシを使わないプログラムも Shroudly を通ります",
   "logForgedDnsAppsOff": "自動操縦: このネットワークは DNS の応答を偽装します（{names}）。そのためシステムのプロキシを使わないプログラムは Shroudly を通りません。ゲームとアプリモードは {date} に手動でオフにされました。それらのために設定でオンにしてください",
-  "logForgedDnsAppsFailed": "自動操縦: このネットワークは DNS の応答を偽装します（{names}）が、ゲームとアプリモードをオンにできませんでした（{why}）。もう一度試すには設定でオンにしてください"
+  "logForgedDnsAppsFailed": "自動操縦: このネットワークは DNS の応答を偽装します（{names}）が、ゲームとアプリモードをオンにできませんでした（{why}）。もう一度試すには設定でオンにしてください",
+  "androidRemoteControl": "自動化アプリを許可",
+  "androidRemoteControlDesc": "Tasker、MacroDroid などのアプリは、パッケージ {package} へのブロードキャスト（アクション {action}.START、.STOP、.TOGGLE）で保護をオン・オフできます。これがオフの間は、ほかのアプリは操作できません。",
+  "androidAutomationNotStarted": "保護はオンになりませんでした",
+  "androidAutomationTapVpn": "自動化アプリが保護をオンにしようとしましたが、VPN がまだ許可されていません。タップして許可し、保護をオンにします。",
+  "androidAutomationTapBattery": "自動化アプリが保護をオンにしようとしましたが、Android では Shroudly の電池の使用が制限なしの場合にのみ、ほかのアプリが起動できます。タップして今すぐオンにします。",
+  "androidAutomationBattery": "電池の設定"
 }

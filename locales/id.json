@@ -503,5 +503,11 @@
   "autoForgedDnsOffByHand": "Jaringan ini memalsukan jawaban DNS, jadi program yang tidak memakai proxy sistem melewati Shroudly. Mode Game dan aplikasi dimatikan pada {date}: nyalakan di Pengaturan untuk mereka.",
   "logForgedDnsAppsOn": "Autopilot: jaringan ini memalsukan jawaban DNS ({names}); mode Game dan aplikasi dinyalakan, program tanpa proxy sistem juga lewat Shroudly",
   "logForgedDnsAppsOff": "Autopilot: jaringan ini memalsukan jawaban DNS ({names}), jadi program tanpa proxy sistem melewati Shroudly; mode Game dan aplikasi dimatikan manual pada {date}; nyalakan di Pengaturan untuk mereka",
-  "logForgedDnsAppsFailed": "Autopilot: jaringan ini memalsukan jawaban DNS ({names}), tetapi mode Game dan aplikasi tidak dapat dinyalakan ({why}); nyalakan di Pengaturan untuk mencoba lagi"
+  "logForgedDnsAppsFailed": "Autopilot: jaringan ini memalsukan jawaban DNS ({names}), tetapi mode Game dan aplikasi tidak dapat dinyalakan ({why}); nyalakan di Pengaturan untuk mencoba lagi",
+  "androidRemoteControl": "Izinkan aplikasi otomatisasi",
+  "androidRemoteControlDesc": "Tasker, MacroDroid, dan aplikasi serupa dapat menyalakan dan mematikan perlindungan dengan broadcast ke paket {package}, aksi {action}.START, .STOP, atau .TOGGLE. Selama ini mati, tidak ada aplikasi lain yang bisa.",
+  "androidAutomationNotStarted": "Perlindungan tidak dinyalakan",
+  "androidAutomationTapVpn": "Aplikasi otomatisasi meminta perlindungan dinyalakan, tetapi VPN belum diizinkan. Ketuk untuk mengizinkannya dan menyalakan perlindungan.",
+  "androidAutomationTapBattery": "Aplikasi otomatisasi meminta perlindungan dinyalakan, tetapi Android hanya mengizinkan aplikasi lain memulai Shroudly jika penggunaan baterainya tidak dibatasi. Ketuk untuk menyalakannya sekarang.",
+  "androidAutomationBattery": "Pengaturan baterai"
 }

@@ -10,6 +10,10 @@
     <string name="androidAlertsChannel">Сповіщення про захист</string>
     <string name="androidAllApps">Усі застосунки на цьому пристрої йдуть через Shroudly.</string>
     <string name="androidAppsSection">Застосунки</string>
+    <string name="androidAutomationBattery">Налаштування батареї</string>
+    <string name="androidAutomationNotStarted">Захист не ввімкнено</string>
+    <string name="androidAutomationTapBattery">Застосунок автоматизації попросив увімкнути захист, але Android дозволяє іншим застосункам запускати Shroudly, лише якщо його використання батареї не обмежене. Торкніться, щоб увімкнути зараз.</string>
+    <string name="androidAutomationTapVpn">Застосунок автоматизації попросив увімкнути захист, але VPN ще не дозволено. Торкніться, щоб дозволити його й увімкнути захист.</string>
     <string name="androidBatteryHint">Налаштування батареї можуть зупиняти Shroudly у фоні й обривати ваше з’єднання. Дозвольте йому працювати без обмежень батареї.</string>
     <string name="androidBatterySettings">Налаштування батареї</string>
     <string name="androidDetails">Докладніше</string>
@@ -25,6 +29,8 @@
     <string name="androidPrivacyPolicy">Політика конфіденційності</string>
     <string name="androidProtectionLost">Захист зупинився через помилку, тому ваші застосунки зараз підключаються напряму. Відкрийте Shroudly, щоб увімкнути його знову.</string>
     <string name="androidProxyOnlyOn">Лише проксі: застосунки, налаштовані на 127.0.0.1:{port}, ідуть через Shroudly</string>
+    <string name="androidRemoteControl">Дозволити застосунки автоматизації</string>
+    <string name="androidRemoteControlDesc">Tasker, MacroDroid і схожі застосунки можуть вмикати й вимикати захист широкомовним повідомленням пакету {package}, дія {action}.START, .STOP або .TOGGLE. Поки це вимкнено, жоден інший застосунок не може.</string>
     <string name="androidShareLogs">Поділитися журналом</string>
     <string name="androidStartAtBoot">Запускати під час увімкнення телефона</string>
     <string name="androidStartAtBootDesc">Захист вмикається сам після перезапуску телефона, якщо VPN уже дозволено.</string>

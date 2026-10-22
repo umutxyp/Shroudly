@@ -10,6 +10,10 @@
     <string name="androidAlertsChannel">Cảnh báo bảo vệ</string>
     <string name="androidAllApps">Mọi ứng dụng trên thiết bị này đều đi qua Shroudly.</string>
     <string name="androidAppsSection">Ứng dụng</string>
+    <string name="androidAutomationBattery">Cài đặt pin</string>
+    <string name="androidAutomationNotStarted">Bảo vệ chưa được bật</string>
+    <string name="androidAutomationTapBattery">Một ứng dụng tự động hóa đã yêu cầu bật bảo vệ, nhưng Android chỉ cho ứng dụng khác khởi động Shroudly khi mức dùng pin của nó không bị hạn chế. Chạm để bật ngay.</string>
+    <string name="androidAutomationTapVpn">Một ứng dụng tự động hóa đã yêu cầu bật bảo vệ, nhưng VPN chưa được cho phép. Chạm để cho phép và bật bảo vệ.</string>
     <string name="androidBatteryHint">Cài đặt pin có thể dừng Shroudly khi chạy nền và làm mất kết nối của bạn. Hãy cho phép Shroudly chạy mà không bị giới hạn pin.</string>
     <string name="androidBatterySettings">Cài đặt pin</string>
     <string name="androidDetails">Chi tiết</string>
@@ -25,6 +29,8 @@
     <string name="androidPrivacyPolicy">Chính sách quyền riêng tư</string>
     <string name="androidProtectionLost">Bảo vệ đã dừng do lỗi, vì vậy các ứng dụng của bạn hiện đang kết nối trực tiếp. Mở Shroudly để bật lại.</string>
     <string name="androidProxyOnlyOn">Chỉ proxy: các ứng dụng đặt 127.0.0.1:{port} đi qua Shroudly</string>
+    <string name="androidRemoteControl">Cho phép ứng dụng tự động hóa</string>
+    <string name="androidRemoteControlDesc">Tasker, MacroDroid và các ứng dụng tương tự có thể bật và tắt bảo vệ bằng một broadcast tới gói {package}, hành động {action}.START, .STOP hoặc .TOGGLE. Khi tùy chọn này tắt, không ứng dụng nào khác làm được.</string>
     <string name="androidShareLogs">Chia sẻ nhật ký</string>
     <string name="androidStartAtBoot">Khởi động cùng điện thoại</string>
     <string name="androidStartAtBootDesc">Bảo vệ tự bật sau khi điện thoại khởi động lại, khi VPN đã được cho phép.</string>

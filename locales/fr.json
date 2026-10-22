@@ -503,5 +503,11 @@
   "autoForgedDnsOffByHand": "Ce réseau falsifie les réponses DNS, donc les programmes qui n’utilisent pas le proxy du système contournent Shroudly. Le mode Jeux et applis a été désactivé le {date} : activez-le dans les Réglages pour eux.",
   "logForgedDnsAppsOn": "Pilote automatique : ce réseau falsifie les réponses DNS ({names}) ; mode Jeux et applis activé, les programmes sans proxy système passent aussi par Shroudly",
   "logForgedDnsAppsOff": "Pilote automatique : ce réseau falsifie les réponses DNS ({names}), donc les programmes sans proxy système contournent Shroudly ; le mode Jeux et applis a été désactivé à la main le {date} ; activez-le dans les Réglages pour eux",
-  "logForgedDnsAppsFailed": "Pilote automatique : ce réseau falsifie les réponses DNS ({names}), mais le mode Jeux et applis n’a pas pu être activé ({why}) ; activez-le dans les Réglages pour réessayer"
+  "logForgedDnsAppsFailed": "Pilote automatique : ce réseau falsifie les réponses DNS ({names}), mais le mode Jeux et applis n’a pas pu être activé ({why}) ; activez-le dans les Réglages pour réessayer",
+  "androidRemoteControl": "Autoriser les applis d’automatisation",
+  "androidRemoteControlDesc": "Tasker, MacroDroid et les applis semblables peuvent activer et désactiver la protection par un broadcast au paquet {package}, action {action}.START, .STOP ou .TOGGLE. Tant que ceci est désactivé, aucune autre appli ne le peut.",
+  "androidAutomationNotStarted": "La protection n’a pas été activée",
+  "androidAutomationTapVpn": "Une appli d’automatisation a demandé d’activer la protection, mais le VPN n’est pas encore autorisé. Touchez pour l’autoriser et activer la protection.",
+  "androidAutomationTapBattery": "Une appli d’automatisation a demandé d’activer la protection, mais Android ne laisse d’autres applis démarrer Shroudly que si son utilisation de la batterie n’est pas restreinte. Touchez pour l’activer maintenant.",
+  "androidAutomationBattery": "Paramètres de batterie"
 }

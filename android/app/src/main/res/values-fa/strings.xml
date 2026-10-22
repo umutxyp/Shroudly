@@ -10,6 +10,10 @@
     <string name="androidAlertsChannel">هشدارهای محافظت</string>
     <string name="androidAllApps">همهٔ برنامه‌های این دستگاه از Shroudly عبور می‌کنند.</string>
     <string name="androidAppsSection">برنامه‌ها</string>
+    <string name="androidAutomationBattery">تنظیمات باتری</string>
+    <string name="androidAutomationNotStarted">محافظت روشن نشد</string>
+    <string name="androidAutomationTapBattery">یک برنامهٔ خودکارسازی خواست محافظت را روشن کند، اما Android فقط وقتی مصرف باتری Shroudly نامحدود باشد به برنامه‌های دیگر اجازه می‌دهد آن را اجرا کنند. برای روشن کردن آن در همین حالا بزنید.</string>
+    <string name="androidAutomationTapVpn">یک برنامهٔ خودکارسازی خواست محافظت را روشن کند، اما هنوز اجازهٔ VPN داده نشده است. برای اجازه دادن و روشن کردن محافظت بزنید.</string>
     <string name="androidBatteryHint">تنظیمات باتری ممکن است Shroudly را در پس‌زمینه متوقف کند و اتصال شما را قطع کند. اجازه دهید بدون محدودیت باتری کار کند.</string>
     <string name="androidBatterySettings">تنظیمات باتری</string>
     <string name="androidDetails">جزئیات</string>
@@ -25,6 +29,8 @@
     <string name="androidPrivacyPolicy">سیاست حریم خصوصی</string>
     <string name="androidProtectionLost">محافظت به‌دلیل یک خطا متوقف شد، پس برنامه‌هایتان اکنون مستقیم وصل می‌شوند. برای روشن کردن دوباره، Shroudly را باز کنید.</string>
     <string name="androidProxyOnlyOn">فقط پراکسی: برنامه‌هایی که روی ‎127.0.0.1:{port}‎ تنظیم شده‌اند از Shroudly می‌گذرند</string>
+    <string name="androidRemoteControl">اجازه به برنامه‌های خودکارسازی</string>
+    <string name="androidRemoteControlDesc">Tasker، MacroDroid و برنامه‌های مشابه می‌توانند محافظت را با یک پخش به بستهٔ {package} روشن و خاموش کنند: کنش {action}.START، ‎.STOP یا ‎.TOGGLE. تا وقتی این خاموش است، هیچ برنامهٔ دیگری نمی‌تواند.</string>
     <string name="androidShareLogs">اشتراک‌گذاری گزارش‌ها</string>
     <string name="androidStartAtBoot">شروع هنگام روشن شدن گوشی</string>
     <string name="androidStartAtBootDesc">پس از اجازه دادن به VPN، با راه‌اندازی دوبارهٔ گوشی، محافظت خودبه‌خود روشن می‌شود.</string>

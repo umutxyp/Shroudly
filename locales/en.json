@@ -503,5 +503,11 @@
   "autoForgedDnsOffByHand": "This network forges DNS answers, so programs that do not use the system proxy go around Shroudly. Games and apps mode was turned off on {date}: turn it on in Settings for them.",
   "logForgedDnsAppsOn": "Autopilot: this network forges DNS answers ({names}); Games and apps mode turned on, so programs that do not use the system proxy go through Shroudly too",
   "logForgedDnsAppsOff": "Autopilot: this network forges DNS answers ({names}), so programs that do not use the system proxy go around Shroudly; Games and apps mode was turned off by hand on {date}; turn it on in Settings for them",
-  "logForgedDnsAppsFailed": "Autopilot: this network forges DNS answers ({names}), but Games and apps mode could not be turned on ({why}); turn it on in Settings to try again"
+  "logForgedDnsAppsFailed": "Autopilot: this network forges DNS answers ({names}), but Games and apps mode could not be turned on ({why}); turn it on in Settings to try again",
+  "androidRemoteControl": "Allow automation apps",
+  "androidRemoteControlDesc": "Tasker, MacroDroid and similar apps can turn protection on and off with a broadcast to the package {package}, action {action}.START, .STOP or .TOGGLE. While this is off, no other app can.",
+  "androidAutomationNotStarted": "Protection was not turned on",
+  "androidAutomationTapVpn": "An automation app asked to turn protection on, but the VPN has not been allowed yet. Tap to allow it and turn protection on.",
+  "androidAutomationTapBattery": "An automation app asked to turn protection on, but Android lets other apps start it only when Shroudly's battery use is unrestricted. Tap to turn it on now.",
+  "androidAutomationBattery": "Battery settings"
 }

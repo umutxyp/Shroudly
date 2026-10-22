@@ -10,6 +10,10 @@
     <string name="androidAlertsChannel">تحفظ کے انتباہات</string>
     <string name="androidAllApps">اس ڈیوائس کی ہر ایپ Shroudly سے ہو کر جاتی ہے۔</string>
     <string name="androidAppsSection">ایپس</string>
+    <string name="androidAutomationBattery">بیٹری کی سیٹنگز</string>
+    <string name="androidAutomationNotStarted">تحفظ آن نہیں ہوا</string>
+    <string name="androidAutomationTapBattery">ایک آٹومیشن ایپ نے تحفظ آن کرنے کو کہا، لیکن Android دوسری ایپس کو Shroudly شروع کرنے کی اجازت صرف تب دیتا ہے جب اس کا بیٹری استعمال غیر محدود ہو۔ ابھی آن کرنے کے لیے ٹیپ کریں۔</string>
+    <string name="androidAutomationTapVpn">ایک آٹومیشن ایپ نے تحفظ آن کرنے کو کہا، لیکن VPN کی ابھی اجازت نہیں دی گئی۔ اجازت دے کر تحفظ آن کرنے کے لیے ٹیپ کریں۔</string>
     <string name="androidBatteryHint">بیٹری کی ترتیبات Shroudly کو پس منظر میں روک کر آپ کا کنکشن منقطع کر سکتی ہیں۔ اسے بیٹری کی پابندیوں کے بغیر چلنے دیں۔</string>
     <string name="androidBatterySettings">بیٹری کی ترتیبات</string>
     <string name="androidDetails">تفصیلات</string>
@@ -25,6 +29,8 @@
     <string name="androidPrivacyPolicy">رازداری کی پالیسی</string>
     <string name="androidProtectionLost">ایک خرابی کی وجہ سے تحفظ رک گیا، اس لیے آپ کی ایپس اب براہِ راست جڑ رہی ہیں۔ اسے دوبارہ شروع کرنے کے لیے Shroudly کھولیں۔</string>
     <string name="androidProxyOnlyOn">صرف پراکسی: ‏127.0.0.1:{port} پر سیٹ ایپس Shroudly سے گزرتی ہیں</string>
+    <string name="androidRemoteControl">آٹومیشن ایپس کو اجازت دیں</string>
+    <string name="androidRemoteControlDesc">Tasker، MacroDroid اور ان جیسی ایپس پیکیج {package} کو براڈکاسٹ بھیج کر تحفظ آن اور آف کر سکتی ہیں: ایکشن {action}.START، ‎.STOP یا ‎.TOGGLE۔ جب تک یہ بند ہے، کوئی دوسری ایپ ایسا نہیں کر سکتی۔</string>
     <string name="androidShareLogs">لاگز شیئر کریں</string>
     <string name="androidStartAtBoot">فون آن ہونے پر شروع کریں</string>
     <string name="androidStartAtBootDesc">VPN کی اجازت ملنے کے بعد، فون دوبارہ شروع ہونے پر تحفظ خود بخود آن ہو جاتا ہے۔</string>

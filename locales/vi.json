@@ -503,5 +503,11 @@
   "autoForgedDnsOffByHand": "Mạng này giả mạo câu trả lời DNS, nên các chương trình không dùng proxy hệ thống đi tắt qua Shroudly. Chế độ Trò chơi và ứng dụng đã bị tắt vào {date}: hãy bật nó trong Cài đặt cho chúng.",
   "logForgedDnsAppsOn": "Tự lái: mạng này giả mạo câu trả lời DNS ({names}); đã bật chế độ Trò chơi và ứng dụng, các chương trình không dùng proxy hệ thống cũng đi qua Shroudly",
   "logForgedDnsAppsOff": "Tự lái: mạng này giả mạo câu trả lời DNS ({names}), nên các chương trình không dùng proxy hệ thống đi tắt qua Shroudly; chế độ Trò chơi và ứng dụng đã bị tắt thủ công vào {date}; hãy bật nó trong Cài đặt cho chúng",
-  "logForgedDnsAppsFailed": "Tự lái: mạng này giả mạo câu trả lời DNS ({names}), nhưng không bật được chế độ Trò chơi và ứng dụng ({why}); hãy bật nó trong Cài đặt để thử lại"
+  "logForgedDnsAppsFailed": "Tự lái: mạng này giả mạo câu trả lời DNS ({names}), nhưng không bật được chế độ Trò chơi và ứng dụng ({why}); hãy bật nó trong Cài đặt để thử lại",
+  "androidRemoteControl": "Cho phép ứng dụng tự động hóa",
+  "androidRemoteControlDesc": "Tasker, MacroDroid và các ứng dụng tương tự có thể bật và tắt bảo vệ bằng một broadcast tới gói {package}, hành động {action}.START, .STOP hoặc .TOGGLE. Khi tùy chọn này tắt, không ứng dụng nào khác làm được.",
+  "androidAutomationNotStarted": "Bảo vệ chưa được bật",
+  "androidAutomationTapVpn": "Một ứng dụng tự động hóa đã yêu cầu bật bảo vệ, nhưng VPN chưa được cho phép. Chạm để cho phép và bật bảo vệ.",
+  "androidAutomationTapBattery": "Một ứng dụng tự động hóa đã yêu cầu bật bảo vệ, nhưng Android chỉ cho ứng dụng khác khởi động Shroudly khi mức dùng pin của nó không bị hạn chế. Chạm để bật ngay.",
+  "androidAutomationBattery": "Cài đặt pin"
 }

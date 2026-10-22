@@ -65,7 +65,7 @@ class ShroudlyVpnService : VpnService() {
         const val ACTION_SETTINGS = "me.codeshare.shroudly.SETTINGS"
 
         internal const val CHANNEL = "protection"
-        private const val ALERT_CHANNEL = "alerts"
+        internal const val ALERT_CHANNEL = "alerts"
         internal const val NOTIFICATION_ID = 1
         private const val ALERT_ID = 2
         // An app that cannot reach its servers (RawWatch): its own notice, so

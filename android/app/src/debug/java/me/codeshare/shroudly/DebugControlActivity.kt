@@ -25,6 +25,8 @@ class DebugControlActivity : Activity() {
             "stop" -> Protector.stop(this)
             // VPN or proxy only, as Settings sets it (extra "mode": "vpn" or "proxy").
             "mode" -> AppSettings.setProxyOnly(this, intent.getStringExtra("mode") == "proxy")
+            // "Allow automation apps", as Settings sets it (extra "on": "true" or "false").
+            "remote" -> AppSettings.setRemoteControl(this, intent.getStringExtra("on") == "true")
             "stats" -> Protector.tell(this, ShroudlyVpnService.ACTION_STATS)
             "test" -> Protector.tell(this, ShroudlyVpnService.ACTION_TEST, intent.getStringExtra("what"))
             // "Block ads and trackers" on or off, as the switch under About does.

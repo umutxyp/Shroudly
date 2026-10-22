@@ -12,7 +12,8 @@ import android.content.Context
  *    (VpnService.Builder.addDisallowedApplication), e.g. a game that does not
  *    need it;
  *  - start when the phone starts, once the user has allowed the VPN;
- *  - VPN (every app) or proxy only (the VPN slot left to another app).
+ *  - VPN (every app) or proxy only (the VPN slot left to another app);
+ *  - whether automation apps may turn protection on and off.
  */
 object AppSettings {
     private const val PREFS = "settings"
@@ -20,6 +21,7 @@ object AppSettings {
     private const val KEY_EXCLUDED = "excludedApps"
     private const val KEY_BOOT = "startAtBoot"
     private const val KEY_MODE = "mode"
+    private const val KEY_REMOTE = "remoteControl"
 
     /* The desktop's list, in its order: id, label (locale key), the
      * engine's spec, and whether the engine looks for what works by itself. */
@@ -58,6 +60,14 @@ object AppSettings {
 
     fun setProxyOnly(ctx: Context, on: Boolean) {
         prefs(ctx).edit().putString(KEY_MODE, if (on) "proxy" else "vpn").apply()
+    }
+
+    /* Automation apps (Tasker, MacroDroid) may turn protection on and off
+     * (AutomationReceiver); off by default. */
+    fun remoteControl(ctx: Context): Boolean = prefs(ctx).getBoolean(KEY_REMOTE, false)
+
+    fun setRemoteControl(ctx: Context, on: Boolean) {
+        prefs(ctx).edit().putBoolean(KEY_REMOTE, on).apply()
     }
 
     fun startAtBoot(ctx: Context): Boolean = prefs(ctx).getBoolean(KEY_BOOT, false)

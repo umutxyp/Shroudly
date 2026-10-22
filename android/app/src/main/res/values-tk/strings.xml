@@ -10,6 +10,10 @@
     <string name="androidAlertsChannel">Gorag duýduryşlary</string>
     <string name="androidAllApps">Bu enjamdaky her programma Shroudly arkaly geçýär.</string>
     <string name="androidAppsSection">Programmalar</string>
+    <string name="androidAutomationBattery">Batareýa sazlamalary</string>
+    <string name="androidAutomationNotStarted">Gorag açylmady</string>
+    <string name="androidAutomationTapBattery">Awtomatlaşdyryş programmasy goragy açmagy sorady, ýöne Android başga programmalara Shroudly-ny diňe onuň batareýa ulanylyşy çäklendirilmedik ýagdaýynda açmaga rugsat berýär. Häzir açmak üçin basyň.</string>
+    <string name="androidAutomationTapVpn">Awtomatlaşdyryş programmasy goragy açmagy sorady, ýöne VPN-e entek rugsat berilmedi. Rugsat berip, goragy açmak üçin basyň.</string>
     <string name="androidBatteryHint">Batareýa sazlamalary Shroudly-ny fonda togtadyp, birikmäňizi kesip biler. Oňa batareýa çäklendirmeleri bolmazdan işlemäge rugsat beriň.</string>
     <string name="androidBatterySettings">Batareýa sazlamalary</string>
     <string name="androidDetails">Jikme-jiklikler</string>
@@ -25,6 +29,8 @@
     <string name="androidPrivacyPolicy">Gizlinlik syýasaty</string>
     <string name="androidProtectionLost">Gorag ýalňyşlyk sebäpli togtady, şonuň üçin programmalaryňyz häzir göni birikýär. Ony täzeden işletmek üçin Shroudly-ny açyň.</string>
     <string name="androidProxyOnlyOn">Diňe proksi: 127.0.0.1:{port} sazlanan programmalar Shroudly-dan geçýär</string>
+    <string name="androidRemoteControl">Awtomatlaşdyryş programmalaryna rugsat ber</string>
+    <string name="androidRemoteControlDesc">Tasker, MacroDroid we meňzeş programmalar {package} paketine iberilen ýaýlym arkaly goragy açyp-öçürip bilýär: hereket {action}.START, .STOP ýa-da .TOGGLE. Bu öçük wagty başga hiç bir programma muny edip bilmeýär.</string>
     <string name="androidShareLogs">Ýazgylary paýlaş</string>
     <string name="androidStartAtBoot">Telefon açylanda başla</string>
     <string name="androidStartAtBootDesc">VPN-e bir gezek rugsat berlen bolsa, telefon täzeden açylanda gorag özi açylýar.</string>

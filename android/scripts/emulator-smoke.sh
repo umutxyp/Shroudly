@@ -489,6 +489,32 @@ mode vpn
 wait_for 60 vpn_allowed || fail "could not allow the VPN again after proxy only"
 say "proxy only: off, the port closed; back to the VPN mode"
 
+# ── automation apps (Settings, issue #32) ────────────────────────────────
+# What Tasker or MacroDroid send: a broadcast to the app with the action
+# START, STOP or TOGGLE (from the shell here). Nothing happens until the user
+# allows automation apps; then each one works with Shroudly in the
+# background, and the VPN mode needs no tap (the VPN is allowed).
+auto() { sh_ "am broadcast -a me.codeshare.shroudly.action.$1 -p $PKG" >/dev/null; }
+sh_ "input keyevent KEYCODE_HOME" >/dev/null
+clear_log
+auto START
+wait_for 15 has_log 'Automation: "start" from another app ignored' || fail "automation: a START was not ignored while automation apps are not allowed"
+sleep 3
+vpn_up && fail "automation: protection came on while automation apps are not allowed"
+sh_ "am start -n $PKG/.DebugControlActivity --es cmd remote --es on true" >/dev/null
+sh_ "input keyevent KEYCODE_HOME" >/dev/null
+clear_log
+auto START
+wait_for 60 has_log "Protection on" || fail "automation: START did not turn protection on ($(applog | grep -i automation | tail -2 | tr '\n' ' '))"
+auto STOP
+wait_for 30 tun_gone || fail "automation: STOP did not turn protection off"
+auto TOGGLE
+wait_for 60 vpn_up || fail "automation: TOGGLE did not turn protection on"
+auto TOGGLE
+wait_for 30 tun_gone || fail "automation: TOGGLE did not turn protection off"
+sh_ "am start -n $PKG/.DebugControlActivity --es cmd remote --es on false" >/dev/null
+say "automation apps: ignored until allowed; then START, STOP and TOGGLE from another app turn protection on and off"
+
 # ── the app's own network cut ────────────────────────────────────────────
 # What a phone maker's per-app network switch (or a firewall app) does: the
 # engine reaches nothing while Android's own check of the network passes.

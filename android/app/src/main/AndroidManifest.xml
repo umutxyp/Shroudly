@@ -93,6 +93,19 @@
             </intent-filter>
         </receiver>
 
+        <!-- Automation apps (Tasker, MacroDroid): on, off, switch. Every
+             broadcast is ignored until the user allows it in Settings. -->
+        <receiver
+            android:name=".AutomationReceiver"
+            android:exported="true"
+            tools:ignore="ExportedReceiver">
+            <intent-filter>
+                <action android:name="me.codeshare.shroudly.action.START" />
+                <action android:name="me.codeshare.shroudly.action.STOP" />
+                <action android:name="me.codeshare.shroudly.action.TOGGLE" />
+            </intent-filter>
+        </receiver>
+
         <!-- Renames the notification channels when the system language changes. -->
         <receiver
             android:name=".LocaleReceiver"

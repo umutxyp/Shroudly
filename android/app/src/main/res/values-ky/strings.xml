@@ -10,6 +10,10 @@
     <string name="androidAlertsChannel">Коргоо эскертүүлөрү</string>
     <string name="androidAllApps">Бул түзмөктөгү ар бир колдонмо Shroudly аркылуу өтөт.</string>
     <string name="androidAppsSection">Колдонмолор</string>
+    <string name="androidAutomationBattery">Батарея жөндөөлөрү</string>
+    <string name="androidAutomationNotStarted">Коргоо күйгүзүлгөн жок</string>
+    <string name="androidAutomationTapBattery">Автоматташтыруу колдонмосу коргоону күйгүзүүнү сурады, бирок Android башка колдонмолорго Shroudly\'ни анын батарея колдонуусу чектелбегенде гана иштетүүгө уруксат берет. Азыр күйгүзүү үчүн басыңыз.</string>
+    <string name="androidAutomationTapVpn">Автоматташтыруу колдонмосу коргоону күйгүзүүнү сурады, бирок VPN\'ге азырынча уруксат берилген эмес. Уруксат берип, коргоону күйгүзүү үчүн басыңыз.</string>
     <string name="androidBatteryHint">Батарея жөндөөлөрү Shroudly\'ди фондо токтотуп, байланышыңызды үзүп салышы мүмкүн. Ага батарея чектөөлөрүсүз иштөөгө уруксат бериңиз.</string>
     <string name="androidBatterySettings">Батарея жөндөөлөрү</string>
     <string name="androidDetails">Кененирээк</string>
@@ -25,6 +29,8 @@
     <string name="androidPrivacyPolicy">Купуялык саясаты</string>
     <string name="androidProtectionLost">Коргоо катадан улам токтоду, ошондуктан колдонмолоруңуз азыр түз туташып жатат. Кайра иштетүү үчүн Shroudly\'ди ачыңыз.</string>
     <string name="androidProxyOnlyOn">Прокси гана: 127.0.0.1:{port} жөндөлгөн колдонмолор Shroudly аркылуу өтөт</string>
+    <string name="androidRemoteControl">Автоматташтыруу колдонмолоруна уруксат берүү</string>
+    <string name="androidRemoteControlDesc">Tasker, MacroDroid жана ушул сыяктуу колдонмолор {package} пакетине жөнөтүлгөн берүү билдирүүсү менен коргоону күйгүзүп-өчүрө алат: аракет {action}.START, .STOP же .TOGGLE. Бул өчүк турганда башка эч бир колдонмо муну кыла албайт.</string>
     <string name="androidShareLogs">Журналды бөлүшүү</string>
     <string name="androidStartAtBoot">Телефон күйгөндө иштетүү</string>
     <string name="androidStartAtBootDesc">VPN\'ге бир жолу уруксат берилсе, телефон кайра күйгөндө коргоо өзү күйөт.</string>

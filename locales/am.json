@@ -503,5 +503,11 @@
   "autoForgedDnsOffByHand": "ይህ አውታረ መረብ የDNS መልሶችን ያጭበረብራል፣ ስለዚህ የሥርዓቱን ፕሮክሲ የማይጠቀሙ ፕሮግራሞች Shroudlyን ያልፋሉ። የጨዋታዎችና የመተግበሪያዎች ሁነታ በ{date} ጠፍቷል፦ ለእነሱ በቅንብሮች ውስጥ ያብሩት።",
   "logForgedDnsAppsOn": "ራስ-አብራሪ፦ ይህ አውታረ መረብ የDNS መልሶችን ያጭበረብራል ({names})፤ የጨዋታዎችና የመተግበሪያዎች ሁነታ በርቷል፣ የሥርዓት ፕሮክሲ የማይጠቀሙ ፕሮግራሞችም በShroudly ያልፋሉ",
   "logForgedDnsAppsOff": "ራስ-አብራሪ፦ ይህ አውታረ መረብ የDNS መልሶችን ያጭበረብራል ({names})፣ ስለዚህ የሥርዓት ፕሮክሲ የማይጠቀሙ ፕሮግራሞች Shroudlyን ያልፋሉ፤ የጨዋታዎችና የመተግበሪያዎች ሁነታ በ{date} በእጅ ጠፍቷል፤ ለእነሱ በቅንብሮች ውስጥ ያብሩት",
-  "logForgedDnsAppsFailed": "ራስ-አብራሪ፦ ይህ አውታረ መረብ የDNS መልሶችን ያጭበረብራል ({names})፣ ነገር ግን የጨዋታዎችና የመተግበሪያዎች ሁነታን ማብራት አልተቻለም ({why})፤ እንደገና ለመሞከር በቅንብሮች ውስጥ ያብሩት"
+  "logForgedDnsAppsFailed": "ራስ-አብራሪ፦ ይህ አውታረ መረብ የDNS መልሶችን ያጭበረብራል ({names})፣ ነገር ግን የጨዋታዎችና የመተግበሪያዎች ሁነታን ማብራት አልተቻለም ({why})፤ እንደገና ለመሞከር በቅንብሮች ውስጥ ያብሩት",
+  "androidRemoteControl": "ለራስ-ሰር መተግበሪያዎች ፍቀድ",
+  "androidRemoteControlDesc": "Tasker፣ MacroDroid እና ተመሳሳይ መተግበሪያዎች ወደ {package} ጥቅል በሚላክ ስርጭት ጥበቃን ማብራት እና ማጥፋት ይችላሉ፦ ድርጊት {action}.START፣ .STOP ወይም .TOGGLE። ይህ ጠፍቶ ሳለ ሌላ ምንም መተግበሪያ ይህን ማድረግ አይችልም።",
+  "androidAutomationNotStarted": "ጥበቃ አልበራም",
+  "androidAutomationTapVpn": "አንድ ራስ-ሰር መተግበሪያ ጥበቃን እንዲያበራ ጠይቋል፣ ግን VPN ገና አልተፈቀደም። ለመፍቀድ እና ጥበቃን ለማብራት ይንኩ።",
+  "androidAutomationTapBattery": "አንድ ራስ-ሰር መተግበሪያ ጥበቃን እንዲያበራ ጠይቋል፣ ግን Android ሌሎች መተግበሪያዎች Shroudlyን እንዲያስጀምሩ የሚፈቅደው የባትሪ አጠቃቀሙ ያልተገደበ ሲሆን ብቻ ነው። አሁን ለማብራት ይንኩ።",
+  "androidAutomationBattery": "የባትሪ ቅንብሮች"
 }

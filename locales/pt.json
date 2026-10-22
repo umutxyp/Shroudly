@@ -503,5 +503,11 @@
   "autoForgedDnsOffByHand": "Esta rede falsifica respostas DNS, então programas que não usam o proxy do sistema não passam pelo Shroudly. O modo Jogos e apps foi desativado em {date}: ative-o nos Ajustes para eles.",
   "logForgedDnsAppsOn": "Piloto automático: esta rede falsifica respostas DNS ({names}); modo Jogos e apps ativado, programas sem o proxy do sistema também passam pelo Shroudly",
   "logForgedDnsAppsOff": "Piloto automático: esta rede falsifica respostas DNS ({names}), então programas sem o proxy do sistema não passam pelo Shroudly; o modo Jogos e apps foi desativado manualmente em {date}; ative-o nos Ajustes para eles",
-  "logForgedDnsAppsFailed": "Piloto automático: esta rede falsifica respostas DNS ({names}), mas o modo Jogos e apps não pôde ser ativado ({why}); ative-o nos Ajustes para tentar de novo"
+  "logForgedDnsAppsFailed": "Piloto automático: esta rede falsifica respostas DNS ({names}), mas o modo Jogos e apps não pôde ser ativado ({why}); ative-o nos Ajustes para tentar de novo",
+  "androidRemoteControl": "Permitir apps de automação",
+  "androidRemoteControlDesc": "Tasker, MacroDroid e apps parecidos podem ligar e desligar a proteção com um broadcast para o pacote {package}, ação {action}.START, .STOP ou .TOGGLE. Enquanto isto estiver desligado, nenhum outro app pode.",
+  "androidAutomationNotStarted": "A proteção não foi ligada",
+  "androidAutomationTapVpn": "Um app de automação pediu para ligar a proteção, mas a VPN ainda não foi permitida. Toque para permitir e ligar a proteção.",
+  "androidAutomationTapBattery": "Um app de automação pediu para ligar a proteção, mas o Android só deixa outros apps iniciarem o Shroudly quando o uso de bateria dele não tem restrição. Toque para ligar agora.",
+  "androidAutomationBattery": "Configurações de bateria"
 }

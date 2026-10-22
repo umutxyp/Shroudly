@@ -10,6 +10,10 @@
     <string name="androidAlertsChannel">Қорғаныс ескертулері</string>
     <string name="androidAllApps">Осы құрылғыдағы әр қолданба Shroudly арқылы өтеді.</string>
     <string name="androidAppsSection">Қолданбалар</string>
+    <string name="androidAutomationBattery">Батарея баптаулары</string>
+    <string name="androidAutomationNotStarted">Қорғаныс қосылмады</string>
+    <string name="androidAutomationTapBattery">Автоматтандыру қолданбасы қорғанысты қосуды сұрады, бірақ Android басқа қолданбаларға Shroudly-ді тек оның батарея пайдалануы шектелмегенде іске қосуға рұқсат береді. Қазір қосу үшін түртіңіз.</string>
+    <string name="androidAutomationTapVpn">Автоматтандыру қолданбасы қорғанысты қосуды сұрады, бірақ VPN-ге әлі рұқсат берілмеген. Рұқсат беріп, қорғанысты қосу үшін түртіңіз.</string>
     <string name="androidBatteryHint">Батарея параметрлері Shroudly-ді фондық режимде тоқтатып, байланысыңызды үзуі мүмкін. Оған батарея шектеулерінсіз жұмыс істеуге рұқсат беріңіз.</string>
     <string name="androidBatterySettings">Батарея параметрлері</string>
     <string name="androidDetails">Толығырақ</string>
@@ -25,6 +29,8 @@
     <string name="androidPrivacyPolicy">Құпиялық саясаты</string>
     <string name="androidProtectionLost">Қорғаныс қатеге байланысты тоқтады, сондықтан қолданбаларыңыз қазір тікелей қосылып тұр. Қайта қосу үшін Shroudly-ді ашыңыз.</string>
     <string name="androidProxyOnlyOn">Тек прокси: 127.0.0.1:{port} бапталған қолданбалар Shroudly арқылы өтеді</string>
+    <string name="androidRemoteControl">Автоматтандыру қолданбаларына рұқсат ету</string>
+    <string name="androidRemoteControlDesc">Tasker, MacroDroid және ұқсас қолданбалар {package} бумасына жіберілген тарату хабарымен қорғанысты қосып-өшіре алады: әрекет {action}.START, .STOP немесе .TOGGLE. Бұл өшірулі тұрғанда басқа ешбір қолданба мұны істей алмайды.</string>
     <string name="androidShareLogs">Журналды бөлісу</string>
     <string name="androidStartAtBoot">Телефон қосылғанда іске қосу</string>
     <string name="androidStartAtBootDesc">VPN-ге бір рет рұқсат берілсе, телефон қайта қосылғанда қорғаныс өзі қосылады.</string>

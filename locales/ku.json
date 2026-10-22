@@ -503,5 +503,11 @@
   "autoForgedDnsOffByHand": "Ev tor bersivên DNS sexte dide, ji ber vê bernameyên ku proksiya pergalê bi kar naynin Shroudly derbas dikin. Moda Lîstik û sepanan di {date} de hatibû girtin: ji bo wan di Mîhengan de veke.",
   "logForgedDnsAppsOn": "Otopîlot: ev tor bersivên DNS sexte dide ({names}); moda Lîstik û sepanan hat vekirin, bernameyên bê proksiya pergalê jî di Shroudly re derbas dibin",
   "logForgedDnsAppsOff": "Otopîlot: ev tor bersivên DNS sexte dide ({names}), ji ber vê bernameyên bê proksiya pergalê Shroudly derbas dikin; moda Lîstik û sepanan di {date} de bi destan hatibû girtin; ji bo wan di Mîhengan de veke",
-  "logForgedDnsAppsFailed": "Otopîlot: ev tor bersivên DNS sexte dide ({names}), lê moda Lîstik û sepanan nehat vekirin ({why}); ji bo dîsa ceribandinê di Mîhengan de veke"
+  "logForgedDnsAppsFailed": "Otopîlot: ev tor bersivên DNS sexte dide ({names}), lê moda Lîstik û sepanan nehat vekirin ({why}); ji bo dîsa ceribandinê di Mîhengan de veke",
+  "androidRemoteControl": "Destûrê bide sepanên otomasyonê",
+  "androidRemoteControlDesc": "Tasker, MacroDroid û sepanên wek wan dikarin parastinê bi weşanekê ji pakêta {package} re veke û bigire: çalakî {action}.START, .STOP an .TOGGLE. Heta ku ev girtî be, ti sepaneke din nikare.",
+  "androidAutomationNotStarted": "Parastin nehat vekirin",
+  "androidAutomationTapVpn": "Sepaneke otomasyonê xwest parastinê veke, lê hîn destûr nehatiye dayîn ji VPN-ê re. Ji bo destûrdan û vekirina parastinê bitikîne.",
+  "androidAutomationTapBattery": "Sepaneke otomasyonê xwest parastinê veke, lê Android tenê dema ku bikaranîna bataryayê ya Shroudly bê sînor be destûrê dide sepanên din ku wê dest pê bikin. Ji bo niha vekirinê bitikîne.",
+  "androidAutomationBattery": "Mîhengên bataryayê"
 }

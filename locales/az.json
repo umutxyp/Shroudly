@@ -503,5 +503,11 @@
   "autoForgedDnsOffByHand": "Bu şəbəkə saxta DNS cavabları verir, ona görə sistem proksisindən istifadə etməyən proqramlar Shroudly-dən yan keçir. Oyunlar və tətbiqlər rejimi {date} tarixində bağlanıb: onlar üçün Ayarlardan açın.",
   "logForgedDnsAppsOn": "Avtopilot: bu şəbəkə saxta DNS cavabları verir ({names}); Oyunlar və tətbiqlər rejimi açıldı, sistem proksisi olmayan proqramlar da Shroudly-dən keçir",
   "logForgedDnsAppsOff": "Avtopilot: bu şəbəkə saxta DNS cavabları verir ({names}), ona görə sistem proksisi olmayan proqramlar Shroudly-dən yan keçir; Oyunlar və tətbiqlər rejimi {date} tarixində əllə bağlanıb; onlar üçün Ayarlardan açın",
-  "logForgedDnsAppsFailed": "Avtopilot: bu şəbəkə saxta DNS cavabları verir ({names}), amma Oyunlar və tətbiqlər rejimini açmaq olmadı ({why}); yenidən cəhd üçün Ayarlardan açın"
+  "logForgedDnsAppsFailed": "Avtopilot: bu şəbəkə saxta DNS cavabları verir ({names}), amma Oyunlar və tətbiqlər rejimini açmaq olmadı ({why}); yenidən cəhd üçün Ayarlardan açın",
+  "androidRemoteControl": "Avtomatlaşdırma tətbiqlərinə icazə ver",
+  "androidRemoteControlDesc": "Tasker, MacroDroid və oxşar tətbiqlər {package} paketinə göndərilən yayımla qorumanı açıb-söndürə bilər: əməliyyat {action}.START, .STOP və ya .TOGGLE. Bu söndürülü olduqca başqa heç bir tətbiq bunu edə bilməz.",
+  "androidAutomationNotStarted": "Qoruma açılmadı",
+  "androidAutomationTapVpn": "Avtomatlaşdırma tətbiqi qorumanı açmaq istədi, amma VPN-ə hələ icazə verilməyib. İcazə verib qorumanı açmaq üçün toxun.",
+  "androidAutomationTapBattery": "Avtomatlaşdırma tətbiqi qorumanı açmaq istədi, amma Android başqa tətbiqlərin Shroudly-ni başlatmasına yalnız onun batareya istifadəsi məhdudlaşdırılmayanda icazə verir. İndi açmaq üçün toxun.",
+  "androidAutomationBattery": "Batareya ayarları"
 }

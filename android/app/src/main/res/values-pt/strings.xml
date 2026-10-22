@@ -10,6 +10,10 @@
     <string name="androidAlertsChannel">Alertas de proteção</string>
     <string name="androidAllApps">Todos os apps deste dispositivo passam pelo Shroudly.</string>
     <string name="androidAppsSection">Apps</string>
+    <string name="androidAutomationBattery">Configurações de bateria</string>
+    <string name="androidAutomationNotStarted">A proteção não foi ligada</string>
+    <string name="androidAutomationTapBattery">Um app de automação pediu para ligar a proteção, mas o Android só deixa outros apps iniciarem o Shroudly quando o uso de bateria dele não tem restrição. Toque para ligar agora.</string>
+    <string name="androidAutomationTapVpn">Um app de automação pediu para ligar a proteção, mas a VPN ainda não foi permitida. Toque para permitir e ligar a proteção.</string>
     <string name="androidBatteryHint">As configurações de bateria podem parar o Shroudly em segundo plano e cortar sua conexão. Deixe-o funcionar sem restrições de bateria.</string>
     <string name="androidBatterySettings">Configurações de bateria</string>
     <string name="androidDetails">Detalhes</string>
@@ -25,6 +29,8 @@
     <string name="androidPrivacyPolicy">Política de privacidade</string>
     <string name="androidProtectionLost">A proteção parou por causa de um erro, então seus apps estão se conectando diretamente. Abra o Shroudly para ativá-la de novo.</string>
     <string name="androidProxyOnlyOn">Só proxy: apps configurados com 127.0.0.1:{port} passam pelo Shroudly</string>
+    <string name="androidRemoteControl">Permitir apps de automação</string>
+    <string name="androidRemoteControlDesc">Tasker, MacroDroid e apps parecidos podem ligar e desligar a proteção com um broadcast para o pacote {package}, ação {action}.START, .STOP ou .TOGGLE. Enquanto isto estiver desligado, nenhum outro app pode.</string>
     <string name="androidShareLogs">Compartilhar registros</string>
     <string name="androidStartAtBoot">Iniciar quando o telefone ligar</string>
     <string name="androidStartAtBootDesc">A proteção liga sozinha quando o telefone reinicia, depois que a VPN for permitida.</string>

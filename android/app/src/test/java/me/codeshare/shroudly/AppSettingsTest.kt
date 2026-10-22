@@ -61,4 +61,21 @@ class AppSettingsTest {
         assertTrue("the window asks for the VPN only in VPN mode",
             consent.indexOf("needsVpnConsent") in 0 until consent.indexOf("VpnService.prepare"))
     }
+
+    /* Automation apps (#32): another app turns protection on or off only
+     * once the user has allowed it; the check comes before anything is done. */
+    @Test
+    fun automationAppsOnlyWhenAllowed() {
+        val src = generateSequence(File("").absoluteFile) { it.parentFile }
+            .map { File(it, "android/app/src/main") }.first { File(it, "AndroidManifest.xml").exists() }
+        val receiver = File(src, "java/me/codeshare/shroudly/AutomationReceiver.kt").readText().substringAfter("override fun onReceive(")
+        val gate = receiver.indexOf("AppSettings.remoteControl(context)")
+        assertTrue("allowed or not is asked", gate > 0)
+        assertTrue("before any start", gate < receiver.indexOf("Protector.start"))
+        assertTrue("before any stop", gate < receiver.indexOf("Protector.stop"))
+        val manifest = File(src, "AndroidManifest.xml").readText()
+        for (a in listOf(AutomationReceiver.ACTION_START, AutomationReceiver.ACTION_STOP, AutomationReceiver.ACTION_TOGGLE)) {
+            assertTrue("the manifest takes $a", manifest.contains("android:name=\"$a\""))
+        }
+    }
 }

@@ -124,6 +124,27 @@
                 android:textAlignment="viewStart"
                 android:textColor="@color/text"
                 android:textSize="15sp" />
+
+            <View style="@style/Divider" />
+
+            <!-- Automation apps (Tasker, MacroDroid): AutomationReceiver. -->
+            <Switch
+                android:id="@+id/remoteControl"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="52dp"
+                android:drawableStart="@drawable/row_link"
+                android:drawablePadding="14dp"
+                android:lineSpacingMultiplier="1.1"
+                android:paddingStart="14dp"
+                android:paddingTop="10dp"
+                android:paddingEnd="12dp"
+                android:paddingBottom="10dp"
+                android:switchPadding="12dp"
+                android:text="@string/androidRemoteControl"
+                android:textAlignment="viewStart"
+                android:textColor="@color/text"
+                android:textSize="15sp" />
         </LinearLayout>
     </me.codeshare.shroudly.Column>
 </ScrollView>

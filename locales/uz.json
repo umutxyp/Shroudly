@@ -503,5 +503,11 @@
   "autoForgedDnsOffByHand": "Bu tarmoq soxta DNS javoblarini beradi, shuning uchun tizim proksisidan foydalanmaydigan dasturlar Shroudly’ni chetlab oʻtadi. Oʻyinlar va ilovalar rejimi {date} da oʻchirilgan: ular uchun Sozlamalarda yoqing.",
   "logForgedDnsAppsOn": "Avtopilot: bu tarmoq soxta DNS javoblarini beradi ({names}); Oʻyinlar va ilovalar rejimi yoqildi, tizim proksisiz dasturlar ham Shroudly orqali oʻtadi",
   "logForgedDnsAppsOff": "Avtopilot: bu tarmoq soxta DNS javoblarini beradi ({names}), shuning uchun tizim proksisiz dasturlar Shroudly’ni chetlab oʻtadi; Oʻyinlar va ilovalar rejimi {date} da qoʻlda oʻchirilgan; ular uchun Sozlamalarda yoqing",
-  "logForgedDnsAppsFailed": "Avtopilot: bu tarmoq soxta DNS javoblarini beradi ({names}), lekin Oʻyinlar va ilovalar rejimini yoqib boʻlmadi ({why}); qayta urinish uchun Sozlamalarda yoqing"
+  "logForgedDnsAppsFailed": "Avtopilot: bu tarmoq soxta DNS javoblarini beradi ({names}), lekin Oʻyinlar va ilovalar rejimini yoqib boʻlmadi ({why}); qayta urinish uchun Sozlamalarda yoqing",
+  "androidRemoteControl": "Avtomatlashtirish ilovalariga ruxsat berish",
+  "androidRemoteControlDesc": "Tasker, MacroDroid va shunga oʻxshash ilovalar {package} paketiga yuborilgan translyatsiya orqali himoyani yoqib-oʻchira oladi: amal {action}.START, .STOP yoki .TOGGLE. Bu oʻchiq ekan, boshqa hech bir ilova buni qila olmaydi.",
+  "androidAutomationNotStarted": "Himoya yoqilmadi",
+  "androidAutomationTapVpn": "Avtomatlashtirish ilovasi himoyani yoqishni soʻradi, lekin VPN’ga hali ruxsat berilmagan. Ruxsat berib, himoyani yoqish uchun bosing.",
+  "androidAutomationTapBattery": "Avtomatlashtirish ilovasi himoyani yoqishni soʻradi, lekin Android boshqa ilovalarga Shroudly’ni faqat uning batareya sarfi cheklanmagan boʻlsa ishga tushirishga ruxsat beradi. Hozir yoqish uchun bosing.",
+  "androidAutomationBattery": "Batareya sozlamalari"
 }

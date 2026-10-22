@@ -503,5 +503,11 @@
   "autoForgedDnsOffByHand": "Dieses Netz fälscht DNS-Antworten, darum gehen Programme, die den Systemproxy nicht nutzen, an Shroudly vorbei. Der Spiele- und App-Modus wurde am {date} ausgeschaltet: schalte ihn für sie in den Optionen ein.",
   "logForgedDnsAppsOn": "Autopilot: dieses Netz fälscht DNS-Antworten ({names}); Spiele- und App-Modus eingeschaltet, Programme ohne Systemproxy gehen jetzt auch über Shroudly",
   "logForgedDnsAppsOff": "Autopilot: dieses Netz fälscht DNS-Antworten ({names}), darum gehen Programme ohne Systemproxy an Shroudly vorbei; der Spiele- und App-Modus wurde am {date} von Hand ausgeschaltet; schalte ihn für sie in den Optionen ein",
-  "logForgedDnsAppsFailed": "Autopilot: dieses Netz fälscht DNS-Antworten ({names}), aber der Spiele- und App-Modus ließ sich nicht einschalten ({why}); schalte ihn in den Optionen ein, um es erneut zu versuchen"
+  "logForgedDnsAppsFailed": "Autopilot: dieses Netz fälscht DNS-Antworten ({names}), aber der Spiele- und App-Modus ließ sich nicht einschalten ({why}); schalte ihn in den Optionen ein, um es erneut zu versuchen",
+  "androidRemoteControl": "Automatisierungs-Apps erlauben",
+  "androidRemoteControlDesc": "Tasker, MacroDroid und ähnliche Apps können den Schutz mit einem Broadcast an das Paket {package} ein- und ausschalten, Aktion {action}.START, .STOP oder .TOGGLE. Solange dies aus ist, kann keine andere App das.",
+  "androidAutomationNotStarted": "Der Schutz wurde nicht eingeschaltet",
+  "androidAutomationTapVpn": "Eine Automatisierungs-App wollte den Schutz einschalten, aber das VPN ist noch nicht erlaubt. Tippe, um es zu erlauben und den Schutz einzuschalten.",
+  "androidAutomationTapBattery": "Eine Automatisierungs-App wollte den Schutz einschalten, aber Android lässt andere Apps Shroudly nur starten, wenn seine Akkunutzung nicht eingeschränkt ist. Tippe, um ihn jetzt einzuschalten.",
+  "androidAutomationBattery": "Akku-Einstellungen"
 }
