@@ -485,5 +485,10 @@
   "androidModeProxy": "Diňe proksi (beýleki VPN-iňiz galýar)",
   "androidModeProxyDesc": "Shroudly 127.0.0.1:{port} salgysynda proksi hökmünde işleýär (SOCKS5 we HTTP) we VPN-i başga programma galdyrýar. Diňe ony ulanmaga sazlanan programmalar Shroudly-dan geçýär: Wi-Fi toruň proksisi (host 127.0.0.1, port {port}) ýa-da programmanyň öz proksi sazlamasy.",
   "androidModeNextStart": "Täze režim gorag indiki gezek başlanda ulanylar.",
-  "androidProxyOnlyOn": "Diňe proksi: 127.0.0.1:{port} sazlanan programmalar Shroudly-dan geçýär"
+  "androidProxyOnlyOn": "Diňe proksi: 127.0.0.1:{port} sazlanan programmalar Shroudly-dan geçýär",
+  "autoForgedDnsOn": "Bu tor galp DNS jogaplaryny berýär, şonuň üçin Shroudly Oýunlar we programmalar režimini açdy: ulgam proksisini ulanmaýan programmalar (buýruk setiri gurallary, botlar, käbir oýunlar) indi hem Shroudly-dan geçýär. Eýýäm açyk durýanlary täzeden başladyň.",
+  "autoForgedDnsOffByHand": "Bu tor galp DNS jogaplaryny berýär, şonuň üçin ulgam proksisini ulanmaýan programmalar Shroudly-dan aýlanyp geçýär. Oýunlar we programmalar režimi {date} senesinde öçürilipdi: olar üçin Sazlamalardan açyň.",
+  "logForgedDnsAppsOn": "Awtopilot: bu tor galp DNS jogaplaryny berýär ({names}); Oýunlar we programmalar režimi açyldy, ulgam proksisiz programmalar hem Shroudly-dan geçýär",
+  "logForgedDnsAppsOff": "Awtopilot: bu tor galp DNS jogaplaryny berýär ({names}), şonuň üçin ulgam proksisiz programmalar Shroudly-dan aýlanyp geçýär; Oýunlar we programmalar režimi {date} senesinde el bilen öçürilipdi; olar üçin Sazlamalardan açyň",
+  "logForgedDnsAppsFailed": "Awtopilot: bu tor galp DNS jogaplaryny berýär ({names}), ýöne Oýunlar we programmalar režimini açyp bolmady ({why}); täzeden synanyşmak üçin Sazlamalardan açyň"
 }

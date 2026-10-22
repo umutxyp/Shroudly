@@ -86,6 +86,17 @@
     DeleteRegValue HKCU "${_KEY}" "SHROUDLY_APP_PROXY"
     StrCpy $2 "1"
   ${EndIf}
+  ; Node.js's switch for reading HTTPS_PROXY, when Shroudly set it
+  ; (SHROUDLY_NODE_PROXY says so); a value of the user's own is left alone.
+  ReadRegStr $0 HKCU "${_KEY}" "SHROUDLY_NODE_PROXY"
+  ${If} $0 != ""
+    ReadRegStr $1 HKCU "${_KEY}" "NODE_USE_ENV_PROXY"
+    ${If} $1 == "1"
+      DeleteRegValue HKCU "${_KEY}" "NODE_USE_ENV_PROXY"
+    ${EndIf}
+    DeleteRegValue HKCU "${_KEY}" "SHROUDLY_NODE_PROXY"
+    StrCpy $2 "1"
+  ${EndIf}
 !macroend
 
 !macro shroudlyAppEnvCleanup

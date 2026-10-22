@@ -485,5 +485,10 @@
   "androidModeProxy": "Yalnızca proxy (diğer VPN'in açık kalır)",
   "androidModeProxyDesc": "Shroudly 127.0.0.1:{port} adresinde proxy olarak çalışır (SOCKS5 ve HTTP) ve VPN'i başka bir uygulamaya bırakır. Yalnızca bunu kullanacak şekilde ayarlanan uygulamalar Shroudly'den geçer: Wi-Fi ağının proxy ayarı (sunucu 127.0.0.1, port {port}) ya da bir uygulamanın kendi proxy ayarı.",
   "androidModeNextStart": "Yeni mod, koruma bir sonraki başlatılışında kullanılır.",
-  "androidProxyOnlyOn": "Yalnızca proxy: 127.0.0.1:{port} kullanacak şekilde ayarlanan uygulamalar Shroudly'den geçer"
+  "androidProxyOnlyOn": "Yalnızca proxy: 127.0.0.1:{port} kullanacak şekilde ayarlanan uygulamalar Shroudly'den geçer",
+  "autoForgedDnsOn": "Bu ağ sahte DNS cevapları veriyor, bu yüzden Shroudly Oyun ve uygulama modunu açtı: sistem proxy'sini kullanmayan programlar (komut satırı araçları, botlar, bazı oyunlar) artık Shroudly'den geçiyor. Zaten açık olanları yeniden başlat.",
+  "autoForgedDnsOffByHand": "Bu ağ sahte DNS cevapları veriyor, bu yüzden sistem proxy'sini kullanmayan programlar Shroudly'yi atlıyor. Oyun ve uygulama modu {date} tarihinde kapatılmıştı: onlar için Ayarlar'dan aç.",
+  "logForgedDnsAppsOn": "Otomatik pilot: bu ağ sahte DNS cevapları veriyor ({names}); Oyun ve uygulama modu açıldı, sistem proxy'sini kullanmayan programlar da Shroudly'den geçiyor",
+  "logForgedDnsAppsOff": "Otomatik pilot: bu ağ sahte DNS cevapları veriyor ({names}), bu yüzden sistem proxy'sini kullanmayan programlar Shroudly'yi atlıyor; Oyun ve uygulama modu {date} tarihinde elle kapatılmıştı; onlar için Ayarlar'dan aç",
+  "logForgedDnsAppsFailed": "Otomatik pilot: bu ağ sahte DNS cevapları veriyor ({names}), ama Oyun ve uygulama modu açılamadı ({why}); yeniden denemek için Ayarlar'dan aç"
 }

@@ -485,5 +485,10 @@
   "androidModeProxy": "Proxy seul (garde votre autre VPN)",
   "androidModeProxyDesc": "Shroudly fonctionne comme proxy sur 127.0.0.1:{port} (SOCKS5 et HTTP) et laisse le VPN à une autre appli. Seules les applis réglées pour l’utiliser passent par Shroudly : le proxy du réseau Wi-Fi (hôte 127.0.0.1, port {port}) ou le réglage proxy d’une appli.",
   "androidModeNextStart": "Le nouveau mode sera utilisé au prochain démarrage de la protection.",
-  "androidProxyOnlyOn": "Proxy seul : les applis réglées sur 127.0.0.1:{port} passent par Shroudly"
+  "androidProxyOnlyOn": "Proxy seul : les applis réglées sur 127.0.0.1:{port} passent par Shroudly",
+  "autoForgedDnsOn": "Ce réseau falsifie les réponses DNS, alors Shroudly a activé le mode Jeux et applis : les programmes qui n’utilisent pas le proxy du système (outils en ligne de commande, bots, certains jeux) passent maintenant aussi par Shroudly. Redémarrez ceux qui étaient déjà ouverts.",
+  "autoForgedDnsOffByHand": "Ce réseau falsifie les réponses DNS, donc les programmes qui n’utilisent pas le proxy du système contournent Shroudly. Le mode Jeux et applis a été désactivé le {date} : activez-le dans les Réglages pour eux.",
+  "logForgedDnsAppsOn": "Pilote automatique : ce réseau falsifie les réponses DNS ({names}) ; mode Jeux et applis activé, les programmes sans proxy système passent aussi par Shroudly",
+  "logForgedDnsAppsOff": "Pilote automatique : ce réseau falsifie les réponses DNS ({names}), donc les programmes sans proxy système contournent Shroudly ; le mode Jeux et applis a été désactivé à la main le {date} ; activez-le dans les Réglages pour eux",
+  "logForgedDnsAppsFailed": "Pilote automatique : ce réseau falsifie les réponses DNS ({names}), mais le mode Jeux et applis n’a pas pu être activé ({why}) ; activez-le dans les Réglages pour réessayer"
 }

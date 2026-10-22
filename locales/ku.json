@@ -485,5 +485,10 @@
   "androidModeProxy": "Tenê proksî (VPN-a te ya din dimîne)",
   "androidModeProxyDesc": "Shroudly li 127.0.0.1:{port} wek proksî dixebite (SOCKS5 û HTTP) û VPN-ê ji sepaneke din re dihêle. Tenê sepanên ku ji bo bikaranîna wê hatine mîhengkirin di Shroudly re derbas dibin: proksiya tora Wi-Fi (host 127.0.0.1, port {port}) an mîhenga proksiyê ya sepanê bi xwe.",
   "androidModeNextStart": "Moda nû dê gava parastin cara din dest pê bike were bikaranîn.",
-  "androidProxyOnlyOn": "Tenê proksî: sepanên ku li ser 127.0.0.1:{port} hatine mîhengkirin di Shroudly re derbas dibin"
+  "androidProxyOnlyOn": "Tenê proksî: sepanên ku li ser 127.0.0.1:{port} hatine mîhengkirin di Shroudly re derbas dibin",
+  "autoForgedDnsOn": "Ev tor bersivên DNS sexte dide, ji ber vê Shroudly moda Lîstik û sepanan vekir: bernameyên ku proksiya pergalê bi kar naynin (amûrên rêza fermanê, bot, hin lîstik) êdî jî di Shroudly re derbas dibin. Yên ku berê vekirî bûn ji nû ve dest pê bike.",
+  "autoForgedDnsOffByHand": "Ev tor bersivên DNS sexte dide, ji ber vê bernameyên ku proksiya pergalê bi kar naynin Shroudly derbas dikin. Moda Lîstik û sepanan di {date} de hatibû girtin: ji bo wan di Mîhengan de veke.",
+  "logForgedDnsAppsOn": "Otopîlot: ev tor bersivên DNS sexte dide ({names}); moda Lîstik û sepanan hat vekirin, bernameyên bê proksiya pergalê jî di Shroudly re derbas dibin",
+  "logForgedDnsAppsOff": "Otopîlot: ev tor bersivên DNS sexte dide ({names}), ji ber vê bernameyên bê proksiya pergalê Shroudly derbas dikin; moda Lîstik û sepanan di {date} de bi destan hatibû girtin; ji bo wan di Mîhengan de veke",
+  "logForgedDnsAppsFailed": "Otopîlot: ev tor bersivên DNS sexte dide ({names}), lê moda Lîstik û sepanan nehat vekirin ({why}); ji bo dîsa ceribandinê di Mîhengan de veke"
 }

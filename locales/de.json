@@ -485,5 +485,10 @@
   "androidModeProxy": "Nur Proxy (dein anderes VPN bleibt)",
   "androidModeProxyDesc": "Shroudly läuft als Proxy auf 127.0.0.1:{port} (SOCKS5 und HTTP) und überlässt das VPN einer anderen App. Nur Apps, die ihn nutzen sollen, gehen über Shroudly: der Proxy des WLANs (Host 127.0.0.1, Port {port}) oder die eigene Proxy-Einstellung einer App.",
   "androidModeNextStart": "Der neue Modus gilt beim nächsten Start des Schutzes.",
-  "androidProxyOnlyOn": "Nur Proxy: Apps, die 127.0.0.1:{port} nutzen, gehen über Shroudly"
+  "androidProxyOnlyOn": "Nur Proxy: Apps, die 127.0.0.1:{port} nutzen, gehen über Shroudly",
+  "autoForgedDnsOn": "Dieses Netz fälscht DNS-Antworten, darum hat Shroudly den Spiele- und App-Modus eingeschaltet: Programme, die den Systemproxy nicht nutzen (Kommandozeilen-Tools, Bots, manche Spiele), gehen jetzt auch über Shroudly. Starte bereits geöffnete neu.",
+  "autoForgedDnsOffByHand": "Dieses Netz fälscht DNS-Antworten, darum gehen Programme, die den Systemproxy nicht nutzen, an Shroudly vorbei. Der Spiele- und App-Modus wurde am {date} ausgeschaltet: schalte ihn für sie in den Optionen ein.",
+  "logForgedDnsAppsOn": "Autopilot: dieses Netz fälscht DNS-Antworten ({names}); Spiele- und App-Modus eingeschaltet, Programme ohne Systemproxy gehen jetzt auch über Shroudly",
+  "logForgedDnsAppsOff": "Autopilot: dieses Netz fälscht DNS-Antworten ({names}), darum gehen Programme ohne Systemproxy an Shroudly vorbei; der Spiele- und App-Modus wurde am {date} von Hand ausgeschaltet; schalte ihn für sie in den Optionen ein",
+  "logForgedDnsAppsFailed": "Autopilot: dieses Netz fälscht DNS-Antworten ({names}), aber der Spiele- und App-Modus ließ sich nicht einschalten ({why}); schalte ihn in den Optionen ein, um es erneut zu versuchen"
 }

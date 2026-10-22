@@ -485,5 +485,10 @@
   "androidModeProxy": "Proksi sahaja (VPN anda yang lain kekal)",
   "androidModeProxyDesc": "Shroudly berjalan sebagai proksi di 127.0.0.1:{port} (SOCKS5 dan HTTP) dan menyerahkan VPN kepada aplikasi lain. Hanya aplikasi yang ditetapkan untuk menggunakannya melalui Shroudly: proksi rangkaian Wi-Fi (hos 127.0.0.1, port {port}) atau tetapan proksi aplikasi itu sendiri.",
   "androidModeNextStart": "Mod baharu digunakan apabila perlindungan dimulakan seterusnya.",
-  "androidProxyOnlyOn": "Proksi sahaja: aplikasi yang ditetapkan ke 127.0.0.1:{port} melalui Shroudly"
+  "androidProxyOnlyOn": "Proksi sahaja: aplikasi yang ditetapkan ke 127.0.0.1:{port} melalui Shroudly",
+  "autoForgedDnsOn": "Rangkaian ini memalsukan jawapan DNS, jadi Shroudly menghidupkan mod Permainan dan aplikasi: program yang tidak menggunakan proksi sistem (alat baris arahan, bot, sesetengah permainan) kini turut melalui Shroudly. Mulakan semula yang sudah dibuka.",
+  "autoForgedDnsOffByHand": "Rangkaian ini memalsukan jawapan DNS, jadi program yang tidak menggunakan proksi sistem memintas Shroudly. Mod Permainan dan aplikasi dimatikan pada {date}: hidupkannya dalam Tetapan untuk mereka.",
+  "logForgedDnsAppsOn": "Autopilot: rangkaian ini memalsukan jawapan DNS ({names}); mod Permainan dan aplikasi dihidupkan, program tanpa proksi sistem turut melalui Shroudly",
+  "logForgedDnsAppsOff": "Autopilot: rangkaian ini memalsukan jawapan DNS ({names}), jadi program tanpa proksi sistem memintas Shroudly; mod Permainan dan aplikasi dimatikan secara manual pada {date}; hidupkannya dalam Tetapan untuk mereka",
+  "logForgedDnsAppsFailed": "Autopilot: rangkaian ini memalsukan jawapan DNS ({names}), tetapi mod Permainan dan aplikasi tidak dapat dihidupkan ({why}); hidupkannya dalam Tetapan untuk mencuba lagi"
 }

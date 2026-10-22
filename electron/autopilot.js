@@ -349,6 +349,37 @@ class Autopilot {
     } finally { this.busy.delete(id); }
   }
 
+  /* The network forges DNS answers (the check at the start finds it):
+   * programs that do not use the system proxy (command-line tools, bots,
+   * some games) resolve through it and land on a block page, while
+   * everything that uses the proxy works. Games and apps mode points them at
+   * Shroudly (HTTPS_PROXY, and NODE_USE_ENV_PROXY for Node.js): turned on by
+   * itself, as a blocked service's mode is, once a run; a mode turned off by
+   * hand is respected and said once. hosts: the names found forged. */
+  async forgedDns(hosts) {
+    const s = this.services.find((x) => x.mode === 'appMode');
+    if (!s || this._forgedDone || !this.protectionOn() || this.store.get('appMode') === true) return false;
+    this._forgedDone = true;
+    const names = (hosts || []).slice(0, 3).join(', ');
+    if (this._offByHand('appMode')) {
+      const date = day(this._when('appModeOffAt'));
+      this.log('info', `Autopilot: this network forges DNS answers (${names}), so programs that do not use the system proxy go around Shroudly; Games and apps mode was turned off by hand on ${date}; turn it on in Settings for them`);
+      this.tell('autoForgedDnsOffByHand', { date });
+      return false;
+    }
+    let r = null;
+    try { r = await s.enable(); } catch (e) { r = { success: false, code: e.message }; }
+    if (r && r.success) {
+      this.log('success', `Autopilot: this network forges DNS answers (${names}); Games and apps mode turned on, so programs that do not use the system proxy go through Shroudly too`);
+      this.tell('autoForgedDnsOn', {});
+      return true;
+    }
+    // Not on this system (Linux: no one place every program reads it from).
+    if (r && r.code === 'unsupported') return false;
+    this.log('info', `Autopilot: this network forges DNS answers (${names}), but Games and apps mode could not be turned on (${(r && r.code) || 'failed'}); turn it on in Settings to try again`);
+    return false;
+  }
+
   /* When protection comes on, and every so often after: for each service
    * whose app is here, find out whether this network blocks it; a service
    * found blocked hours ago is looked at again. The services are checked side

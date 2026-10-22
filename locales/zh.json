@@ -485,5 +485,10 @@
   "androidModeProxy": "仅代理（保留你的其他 VPN）",
   "androidModeProxyDesc": "Shroudly 作为代理运行在 127.0.0.1:{port}（SOCKS5 和 HTTP），把 VPN 留给其他应用。只有设置为使用它的应用才经过 Shroudly：Wi-Fi 网络的代理（主机 127.0.0.1，端口 {port}）或应用自己的代理设置。",
   "androidModeNextStart": "新模式将在下次启动保护时使用。",
-  "androidProxyOnlyOn": "仅代理：设置为 127.0.0.1:{port} 的应用经过 Shroudly"
+  "androidProxyOnlyOn": "仅代理：设置为 127.0.0.1:{port} 的应用经过 Shroudly",
+  "autoForgedDnsOn": "该网络会伪造 DNS 应答，因此 Shroudly 开启了游戏和应用模式：不使用系统代理的程序（命令行工具、机器人、部分游戏）现在也经过 Shroudly。请重启已经打开的程序。",
+  "autoForgedDnsOffByHand": "该网络会伪造 DNS 应答，因此不使用系统代理的程序会绕过 Shroudly。游戏和应用模式已于 {date} 关闭：请在设置中为它们开启。",
+  "logForgedDnsAppsOn": "自动驾驶：该网络会伪造 DNS 应答（{names}）；已开启游戏和应用模式，不使用系统代理的程序也经过 Shroudly",
+  "logForgedDnsAppsOff": "自动驾驶：该网络会伪造 DNS 应答（{names}），因此不使用系统代理的程序会绕过 Shroudly；游戏和应用模式已于 {date} 被手动关闭；请在设置中为它们开启",
+  "logForgedDnsAppsFailed": "自动驾驶：该网络会伪造 DNS 应答（{names}），但无法开启游戏和应用模式（{why}）；请在设置中开启以重试"
 }

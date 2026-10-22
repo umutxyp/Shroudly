@@ -485,5 +485,10 @@
   "androidModeProxy": "プロキシのみ（ほかの VPN はそのまま）",
   "androidModeProxyDesc": "Shroudly は 127.0.0.1:{port} でプロキシとして動作し（SOCKS5 と HTTP）、VPN はほかのアプリに任せます。Shroudly を通るのは、使うように設定したアプリだけです：Wi-Fi ネットワークのプロキシ（ホスト 127.0.0.1、ポート {port}）またはアプリ自体のプロキシ設定。",
   "androidModeNextStart": "新しいモードは次回保護を開始したときに使われます。",
-  "androidProxyOnlyOn": "プロキシのみ: 127.0.0.1:{port} を使うように設定したアプリが Shroudly を通ります"
+  "androidProxyOnlyOn": "プロキシのみ: 127.0.0.1:{port} を使うように設定したアプリが Shroudly を通ります",
+  "autoForgedDnsOn": "このネットワークは DNS の応答を偽装するため、Shroudly はゲームとアプリモードをオンにしました。システムのプロキシを使わないプログラム（コマンドラインツール、ボット、一部のゲーム）も Shroudly を通るようになりました。すでに開いているものは再起動してください。",
+  "autoForgedDnsOffByHand": "このネットワークは DNS の応答を偽装するため、システムのプロキシを使わないプログラムは Shroudly を通りません。ゲームとアプリモードは {date} にオフにされました。それらのために設定でオンにしてください。",
+  "logForgedDnsAppsOn": "自動操縦: このネットワークは DNS の応答を偽装します（{names}）。ゲームとアプリモードをオンにしたため、システムのプロキシを使わないプログラムも Shroudly を通ります",
+  "logForgedDnsAppsOff": "自動操縦: このネットワークは DNS の応答を偽装します（{names}）。そのためシステムのプロキシを使わないプログラムは Shroudly を通りません。ゲームとアプリモードは {date} に手動でオフにされました。それらのために設定でオンにしてください",
+  "logForgedDnsAppsFailed": "自動操縦: このネットワークは DNS の応答を偽装します（{names}）が、ゲームとアプリモードをオンにできませんでした（{why}）。もう一度試すには設定でオンにしてください"
 }

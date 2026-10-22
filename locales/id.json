@@ -485,5 +485,10 @@
   "androidModeProxy": "Hanya proxy (VPN Anda yang lain tetap)",
   "androidModeProxyDesc": "Shroudly berjalan sebagai proxy di 127.0.0.1:{port} (SOCKS5 dan HTTP) dan menyerahkan VPN ke aplikasi lain. Hanya aplikasi yang diatur untuk memakainya yang lewat Shroudly: proxy jaringan Wi-Fi (host 127.0.0.1, port {port}) atau pengaturan proxy aplikasi itu sendiri.",
   "androidModeNextStart": "Mode baru dipakai saat perlindungan dimulai berikutnya.",
-  "androidProxyOnlyOn": "Hanya proxy: aplikasi yang diatur ke 127.0.0.1:{port} lewat Shroudly"
+  "androidProxyOnlyOn": "Hanya proxy: aplikasi yang diatur ke 127.0.0.1:{port} lewat Shroudly",
+  "autoForgedDnsOn": "Jaringan ini memalsukan jawaban DNS, jadi Shroudly menyalakan mode Game dan aplikasi: program yang tidak memakai proxy sistem (alat baris perintah, bot, beberapa game) kini juga lewat Shroudly. Mulai ulang yang sudah terbuka.",
+  "autoForgedDnsOffByHand": "Jaringan ini memalsukan jawaban DNS, jadi program yang tidak memakai proxy sistem melewati Shroudly. Mode Game dan aplikasi dimatikan pada {date}: nyalakan di Pengaturan untuk mereka.",
+  "logForgedDnsAppsOn": "Autopilot: jaringan ini memalsukan jawaban DNS ({names}); mode Game dan aplikasi dinyalakan, program tanpa proxy sistem juga lewat Shroudly",
+  "logForgedDnsAppsOff": "Autopilot: jaringan ini memalsukan jawaban DNS ({names}), jadi program tanpa proxy sistem melewati Shroudly; mode Game dan aplikasi dimatikan manual pada {date}; nyalakan di Pengaturan untuk mereka",
+  "logForgedDnsAppsFailed": "Autopilot: jaringan ini memalsukan jawaban DNS ({names}), tetapi mode Game dan aplikasi tidak dapat dinyalakan ({why}); nyalakan di Pengaturan untuk mencoba lagi"
 }

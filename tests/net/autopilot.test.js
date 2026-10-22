@@ -65,6 +65,24 @@ const settle = async () => { for (let i = 0; i < 5; i++) await new Promise((r) =
   t.ok(['media.giphy.com', 'tenor.com', 'withpersona.com', 'www.guilded.gg', 'hcaptcha.com'].every((h) => Autopilot.familyOf(h) === null),
     'third parties the services embed (GIFs, identity checks, captchas) say nothing about the service itself');
 
+  // ── a network that forges DNS answers: programs that do not use the
+  //    system proxy need Games and apps mode (HTTPS_PROXY) ──
+  {
+    const r = rig();
+    t.ok(await r.ap.forgedDns(['discord.com', 'roblox.com']) === true && r.enabled.join() === 'roblox' && r.store.get('appMode') === true
+      && r.told.map((x) => x.id).join() === 'autoForgedDnsOn' && r.logs.some((l) => /forges DNS answers \(discord\.com, roblox\.com\); Games and apps mode turned on/.test(l)),
+    'forged DNS answers: Games and apps mode turned on by itself, and the user told why');
+    t.ok(await r.ap.forgedDns(['discord.com']) === false && r.enabled.length === 1, 'once a run, and not again while it is on');
+    const off = rig({ store: memStore({ autopilotSince: 1, appModeOffAt: 1e12 - 1000 }) });
+    t.ok(await off.ap.forgedDns(['discord.com']) === false && off.enabled.length === 0 && off.told.map((x) => x.id).join() === 'autoForgedDnsOffByHand',
+      'turned off by hand lately: left off, and said once with the date');
+    const stopped = rig();
+    stopped.off();
+    t.ok(await stopped.ap.forgedDns(['discord.com']) === false && stopped.enabled.length === 0, 'protection off: nothing turned on');
+    const fail = rig({ enableResult: { success: false, code: 'foreign' } });
+    t.ok(await fail.ap.forgedDns(['discord.com']) === false && fail.logs.some((l) => /could not be turned on \(foreign\)/.test(l)), 'a mode that cannot be turned on (another proxy for programs): said, with why');
+  }
+
   // ── the engine's word, checked before it counts ──
   {
     const r = rig({ blocked: ['discord.com'] });

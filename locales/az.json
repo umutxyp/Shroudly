@@ -485,5 +485,10 @@
   "androidModeProxy": "Yalnız proksi (digər VPN-iniz qalır)",
   "androidModeProxyDesc": "Shroudly 127.0.0.1:{port} ünvanında proksi kimi işləyir (SOCKS5 və HTTP) və VPN-i başqa tətbiqə buraxır. Yalnız onu istifadə etməyə ayarlanmış tətbiqlər Shroudly-dən keçir: Wi-Fi şəbəkəsinin proksisi (host 127.0.0.1, port {port}) və ya tətbiqin öz proksi ayarı.",
   "androidModeNextStart": "Yeni rejim qoruma növbəti dəfə başlayanda istifadə olunacaq.",
-  "androidProxyOnlyOn": "Yalnız proksi: 127.0.0.1:{port} ayarlanmış tətbiqlər Shroudly-dən keçir"
+  "androidProxyOnlyOn": "Yalnız proksi: 127.0.0.1:{port} ayarlanmış tətbiqlər Shroudly-dən keçir",
+  "autoForgedDnsOn": "Bu şəbəkə saxta DNS cavabları verir, ona görə Shroudly Oyunlar və tətbiqlər rejimini açdı: sistem proksisindən istifadə etməyən proqramlar (əmr sətri alətləri, botlar, bəzi oyunlar) indi də Shroudly-dən keçir. Artıq açıq olanları yenidən başladın.",
+  "autoForgedDnsOffByHand": "Bu şəbəkə saxta DNS cavabları verir, ona görə sistem proksisindən istifadə etməyən proqramlar Shroudly-dən yan keçir. Oyunlar və tətbiqlər rejimi {date} tarixində bağlanıb: onlar üçün Ayarlardan açın.",
+  "logForgedDnsAppsOn": "Avtopilot: bu şəbəkə saxta DNS cavabları verir ({names}); Oyunlar və tətbiqlər rejimi açıldı, sistem proksisi olmayan proqramlar da Shroudly-dən keçir",
+  "logForgedDnsAppsOff": "Avtopilot: bu şəbəkə saxta DNS cavabları verir ({names}), ona görə sistem proksisi olmayan proqramlar Shroudly-dən yan keçir; Oyunlar və tətbiqlər rejimi {date} tarixində əllə bağlanıb; onlar üçün Ayarlardan açın",
+  "logForgedDnsAppsFailed": "Avtopilot: bu şəbəkə saxta DNS cavabları verir ({names}), amma Oyunlar və tətbiqlər rejimini açmaq olmadı ({why}); yenidən cəhd üçün Ayarlardan açın"
 }
