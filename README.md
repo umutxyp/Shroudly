@@ -133,6 +133,7 @@ strategy**:
 | **Decoy (Linux)** | A first segment the server is guaranteed to discard (TCP signature option), so only the filter reads it. No privileges needed. |
 | **HTTP Host scramble** | Rewrites `Host:` casing for plain HTTP. |
 | **Encrypted DNS** | DNS-over-HTTPS over [17 routes from 6 operators](#encrypted-dns-routes); answers pointing at ~180 known block pages are refused. On by default. |
+| **Programs that ignore the system proxy** | On a network that forges DNS answers, the autopilot turns on Games and apps mode by itself (Windows, macOS): new programs get `HTTPS_PROXY` (and `NODE_USE_ENV_PROXY=1` for Node.js) pointing at Shroudly, so command-line tools, bots and games that never read the system proxy go through it too; restart the ones already open. Only Shroudly's own values are ever removed. |
 | **Auto-probe** | Opens each blocked site with a real handshake, trying combinations of the above, and remembers the one that works per site. If a site connects and is then cut, the next connection tries the next technique. |
 
 > **Note on fake packets.** Low-TTL decoys like those used by driver-based tools

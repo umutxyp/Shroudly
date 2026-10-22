@@ -461,5 +461,10 @@
   "logRawUnreachable": "Sepana {app} nikare bigihîje rajekarên xwe ({addrs}): tor van navnîşanan bi xwe asteng dike; tenê mîhenga proksiyê ya sepanê bi xwe an VPN dikare vê derbas bike",
   "logRawBlocked": "{app}: tor girêdanên wê radiwestîne ({addrs}) û ti teknîk derbas nebû; tenê mîhenga proksiyê ya sepanê bi xwe an VPN dikare vê derbas bike",
   "logRawUnreachableAddr": "{addr}: nehat gihîştin (ne girêdana webê ye)",
-  "logRawStillBlockedAddr": "{addr}: piştî {tries} teknîkan hîn jî astengkirî ye (ne girêdana webê ye)"
+  "logRawStillBlockedAddr": "{addr}: piştî {tries} teknîkan hîn jî astengkirî ye (ne girêdana webê ye)",
+  "autoForgedDnsOn": "Ev tor bersivên DNS sexte dide, ji ber vê Shroudly moda Lîstik û sepanan vekir: bernameyên ku proksiya pergalê bi kar naynin (amûrên rêza fermanê, bot, hin lîstik) êdî jî di Shroudly re derbas dibin. Yên ku berê vekirî bûn ji nû ve dest pê bike.",
+  "autoForgedDnsOffByHand": "Ev tor bersivên DNS sexte dide, ji ber vê bernameyên ku proksiya pergalê bi kar naynin Shroudly derbas dikin. Moda Lîstik û sepanan di {date} de hatibû girtin: ji bo wan di Mîhengan de veke.",
+  "logForgedDnsAppsOn": "Otopîlot: ev tor bersivên DNS sexte dide ({names}); moda Lîstik û sepanan hat vekirin, bernameyên bê proksiya pergalê jî di Shroudly re derbas dibin",
+  "logForgedDnsAppsOff": "Otopîlot: ev tor bersivên DNS sexte dide ({names}), ji ber vê bernameyên bê proksiya pergalê Shroudly derbas dikin; moda Lîstik û sepanan di {date} de bi destan hatibû girtin; ji bo wan di Mîhengan de veke",
+  "logForgedDnsAppsFailed": "Otopîlot: ev tor bersivên DNS sexte dide ({names}), lê moda Lîstik û sepanan nehat vekirin ({why}); ji bo dîsa ceribandinê di Mîhengan de veke"
 }

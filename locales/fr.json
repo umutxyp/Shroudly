@@ -461,5 +461,10 @@
   "logRawUnreachable": "L’application {app} ne parvient pas à joindre ses serveurs ({addrs}) : le réseau bloque ces adresses elles-mêmes ; seul le réglage proxy de l’application ou un VPN permet de contourner cela",
   "logRawBlocked": "{app} : le réseau interrompt les connexions de l’application ({addrs}) et aucune technique n’est passée ; seul le réglage proxy de l’application ou un VPN permet de contourner cela",
   "logRawUnreachableAddr": "{addr} : injoignable (ce n’est pas une connexion web)",
-  "logRawStillBlockedAddr": "{addr} : toujours bloqué après {tries} techniques (ce n’est pas une connexion web)"
+  "logRawStillBlockedAddr": "{addr} : toujours bloqué après {tries} techniques (ce n’est pas une connexion web)",
+  "autoForgedDnsOn": "Ce réseau falsifie les réponses DNS, alors Shroudly a activé le mode Jeux et applis : les programmes qui n’utilisent pas le proxy du système (outils en ligne de commande, bots, certains jeux) passent maintenant aussi par Shroudly. Redémarrez ceux qui étaient déjà ouverts.",
+  "autoForgedDnsOffByHand": "Ce réseau falsifie les réponses DNS, donc les programmes qui n’utilisent pas le proxy du système contournent Shroudly. Le mode Jeux et applis a été désactivé le {date} : activez-le dans les Réglages pour eux.",
+  "logForgedDnsAppsOn": "Pilote automatique : ce réseau falsifie les réponses DNS ({names}) ; mode Jeux et applis activé, les programmes sans proxy système passent aussi par Shroudly",
+  "logForgedDnsAppsOff": "Pilote automatique : ce réseau falsifie les réponses DNS ({names}), donc les programmes sans proxy système contournent Shroudly ; le mode Jeux et applis a été désactivé à la main le {date} ; activez-le dans les Réglages pour eux",
+  "logForgedDnsAppsFailed": "Pilote automatique : ce réseau falsifie les réponses DNS ({names}), mais le mode Jeux et applis n’a pas pu être activé ({why}) ; activez-le dans les Réglages pour réessayer"
 }

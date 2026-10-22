@@ -461,5 +461,10 @@
   "logRawUnreachable": "{app} tidak dapat mencapai pelayannya ({addrs}): rangkaian menyekat alamat itu sendiri; hanya tetapan proksi aplikasi itu sendiri atau VPN yang dapat memintasnya",
   "logRawBlocked": "{app}: rangkaian menghentikan sambungannya ({addrs}) dan tiada teknik yang berjaya menembusinya; hanya tetapan proksi aplikasi itu sendiri atau VPN yang dapat memintasnya",
   "logRawUnreachableAddr": "{addr}: tidak dapat dicapai (bukan sambungan web)",
-  "logRawStillBlockedAddr": "{addr}: masih disekat selepas {tries} teknik (bukan sambungan web)"
+  "logRawStillBlockedAddr": "{addr}: masih disekat selepas {tries} teknik (bukan sambungan web)",
+  "autoForgedDnsOn": "Rangkaian ini memalsukan jawapan DNS, jadi Shroudly menghidupkan mod Permainan dan aplikasi: program yang tidak menggunakan proksi sistem (alat baris arahan, bot, sesetengah permainan) kini turut melalui Shroudly. Mulakan semula yang sudah dibuka.",
+  "autoForgedDnsOffByHand": "Rangkaian ini memalsukan jawapan DNS, jadi program yang tidak menggunakan proksi sistem memintas Shroudly. Mod Permainan dan aplikasi dimatikan pada {date}: hidupkannya dalam Tetapan untuk mereka.",
+  "logForgedDnsAppsOn": "Autopilot: rangkaian ini memalsukan jawapan DNS ({names}); mod Permainan dan aplikasi dihidupkan, program tanpa proksi sistem turut melalui Shroudly",
+  "logForgedDnsAppsOff": "Autopilot: rangkaian ini memalsukan jawapan DNS ({names}), jadi program tanpa proksi sistem memintas Shroudly; mod Permainan dan aplikasi dimatikan secara manual pada {date}; hidupkannya dalam Tetapan untuk mereka",
+  "logForgedDnsAppsFailed": "Autopilot: rangkaian ini memalsukan jawapan DNS ({names}), tetapi mod Permainan dan aplikasi tidak dapat dihidupkan ({why}); hidupkannya dalam Tetapan untuk mencuba lagi"
 }

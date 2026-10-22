@@ -50,6 +50,12 @@ const MARK = 'SHROUDLY_APP_PROXY';
 const NO_PROXY_VALUE = 'localhost,127.0.0.1,::1,.local,.localhost,.lan,.internal,.home.arpa,.home,.fritz.box,' +
   '10.0.0.0/8,172.16.0.0/12,192.168.0.0/16,169.254.0.0/16,100.64.0.0/10,fc00::/7,fe80::/10';
 const OURS = /^http:\/\/127\.0\.0\.1:\d+$/;
+// Node.js reads HTTPS_PROXY only when NODE_USE_ENV_PROXY is 1 (Node 22.21,
+// 24.5 and later; older ones ignore it). Set with the proxy when the user has
+// no such value of their own; NODE_MARK says the 1 is ours, so only ours is
+// ever taken out.
+const NODE_KEY = 'NODE_USE_ENV_PROXY';
+const NODE_MARK = 'SHROUDLY_NODE_PROXY';
 // Where Shroudly writes: emptied by Windows at logoff, never saved.
 const WIN_SESSION_ENV = 'HKCU\\Volatile Environment';
 // Kept across restarts; where versions up to 2.5.12 wrote. Only read now (a
@@ -113,7 +119,7 @@ function winBroadcast() {
 function backend(platform = process.platform) {
   if (platform === 'darwin') {
     return {
-      names: { proxy: ['HTTPS_PROXY', 'https_proxy'], noProxy: ['NO_PROXY', 'no_proxy'] },
+      names: { proxy: ['HTTPS_PROXY', 'https_proxy'], noProxy: ['NO_PROXY', 'no_proxy'], node: [NODE_KEY] },
       get: (k) => { try { return runSync('launchctl', ['getenv', k]).trim() || null; } catch { return null; } },
       set: (k, v) => { runSync('launchctl', ['setenv', k, v]); },
       del: (k) => { try { runSync('launchctl', ['unsetenv', k]); } catch {} },
@@ -130,7 +136,7 @@ function backend(platform = process.platform) {
     const sessionKey = () => { if (session === undefined) session = regKey(WIN_SESSION_ENV); return session; };
     const userKey = () => { if (user === undefined) user = regAll(WIN_USER_ENV); return user; };
     return {
-      names: { proxy: ['HTTPS_PROXY'], noProxy: ['NO_PROXY'] },
+      names: { proxy: ['HTTPS_PROXY'], noProxy: ['NO_PROXY'], node: [NODE_KEY] },
       refresh: () => { session = undefined; user = undefined; machine = undefined; },
       get: (k) => (sessionKey() || new Map()).get(k.toUpperCase()) || null,
       set: (k, v) => {
@@ -192,6 +198,10 @@ function removeOurs(store, names) {
   for (const k of names.proxy) if (store.get(k) === mark) store.del(k);
   if (names.proxy.every((k) => !store.get(k))) {
     for (const k of names.noProxy) if (store.get(k) === NO_PROXY_VALUE) store.del(k);
+  }
+  if (store.get(NODE_MARK)) {
+    for (const k of names.node || []) if (store.get(k) === '1') store.del(k);
+    store.del(NODE_MARK);
   }
   store.del(MARK);
   return true;
@@ -283,6 +293,10 @@ class AppEnv {
     const noProxyFree = b.names.noProxy.every((k) => { const v = b.get(k); return !v || v === NO_PROXY_VALUE; }) &&
                         !b.names.noProxy.some((k) => this._elsewhere(k));
     if (noProxyFree) for (const k of b.names.noProxy) b.set(k, NO_PROXY_VALUE);
+    // Node.js too, when the user has not said otherwise (mark first).
+    const nodeNames = b.names.node || [];
+    const nodeFree = nodeNames.length && nodeNames.every((k) => !b.get(k) && !this._elsewhere(k));
+    if (nodeFree) { b.set(NODE_MARK, '1'); for (const k of nodeNames) b.set(k, '1'); }
     this._commit(url);
     this.applied = true;
     return 'changed';
@@ -358,6 +372,8 @@ class AppEnv {
 
 module.exports = AppEnv;
 module.exports.MARK = MARK;
+module.exports.NODE_KEY = NODE_KEY;
+module.exports.NODE_MARK = NODE_MARK;
 module.exports.NO_PROXY_VALUE = NO_PROXY_VALUE;
 module.exports.backend = backend;
 module.exports.parseRegQuery = parseRegQuery;

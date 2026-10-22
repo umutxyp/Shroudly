@@ -274,7 +274,8 @@ async function realWindows() {
     t.ok(e.applySync(url) === 'changed', 'win32: applied');
     t.ok(w.val(VOL, 'HTTPS_PROXY') === url && w.val(VOL, MARK) === url && w.val(VOL, 'NO_PROXY') === NO_PROXY_VALUE,
       'win32: HTTPS_PROXY, NO_PROXY and the mark written to HKCU\\Volatile Environment');
-    t.ok(writes(w).length === 3 && writes(w).every(([, key]) => key === VOL), `win32: every write goes there, the key passed as one argument (${writes(w).map((x) => x[1]).join(', ')})`);
+    t.ok(w.val(VOL, 'NODE_USE_ENV_PROXY') === '1' && w.val(VOL, 'SHROUDLY_NODE_PROXY') === '1', 'win32: NODE_USE_ENV_PROXY for Node.js, and its own mark, there too');
+    t.ok(writes(w).length === 5 && writes(w).every(([, key]) => key === VOL), `win32: every write goes there, the key passed as one argument (${writes(w).map((x) => x[1]).join(', ')})`);
     t.ok(w.keys.get(USR).size === 1 && !ourUserWrites(w).length, 'win32: HKCU\\Environment is not written');
     t.ok(!w.log.some(([op, key]) => op === 'add' && /RunOnce/.test(key)), 'win32: no login entry (the value cannot outlive the session)');
     const ps = broadcasts(w);

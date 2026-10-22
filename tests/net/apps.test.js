@@ -26,7 +26,7 @@ function fakeBackend(session = {}, machine = {}) {
   let commits = 0;
   return {
     env, get commits() { return commits; },
-    names: { proxy: ['HTTPS_PROXY', 'https_proxy'], noProxy: ['NO_PROXY', 'no_proxy'] },
+    names: { proxy: ['HTTPS_PROXY', 'https_proxy'], noProxy: ['NO_PROXY', 'no_proxy'], node: ['NODE_USE_ENV_PROXY'] },
     get: (k) => env.get(k) || null,
     set: (k, v) => { env.set(k, v); },
     del: (k) => { env.delete(k); },
@@ -517,6 +517,24 @@ async function robloxInstaller(proxy, socksPort) {
   t.ok(e.applySync(url) === 'changed' && b.get('NO_PROXY') === 'intranet.corp', "the user's own NO_PROXY is kept");
   e.clearSync();
   t.ok(b.get('NO_PROXY') === 'intranet.corp' && b.env.size === 1, '…and still there after removal');
+  // Node.js reads HTTPS_PROXY only with NODE_USE_ENV_PROXY=1: set with it,
+  // marked, and only ours taken out.
+  b = fakeBackend();
+  e = new AppEnv({ backend: b });
+  e.applySync(url);
+  t.ok(b.get('NODE_USE_ENV_PROXY') === '1' && b.get(AppEnv.NODE_MARK) === '1', 'Node.js is told to read HTTPS_PROXY too (NODE_USE_ENV_PROXY=1, marked as ours)');
+  e.clearSync();
+  t.ok(!b.get('NODE_USE_ENV_PROXY') && !b.get(AppEnv.NODE_MARK) && b.env.size === 0, '…and both are gone with the proxy');
+  b = fakeBackend({ NODE_USE_ENV_PROXY: '0' });
+  e = new AppEnv({ backend: b });
+  e.applySync(url);
+  t.ok(b.get('NODE_USE_ENV_PROXY') === '0' && !b.get(AppEnv.NODE_MARK), "the user's own NODE_USE_ENV_PROXY is never replaced");
+  e.clearSync();
+  t.ok(b.get('NODE_USE_ENV_PROXY') === '0' && b.env.size === 1, '…nor removed');
+  b = fakeBackend({}, { NODE_USE_ENV_PROXY: '1' });
+  e = new AppEnv({ backend: b });
+  e.applySync(url);
+  t.ok(!b.get(AppEnv.NODE_MARK), 'one set for the whole machine is left to it, and not marked as ours');
   b = fakeBackend();
   e = new AppEnv({ backend: b });
   e.applySync(url);
@@ -574,6 +592,7 @@ async function robloxInstaller(proxy, socksPort) {
   // the uninstaller removes exactly these values
   const nsh = fs.readFileSync(path.join(ROOT, 'scripts', 'installer.nsh'), 'utf8');
   t.ok(nsh.includes(`"${AppEnv.MARK}"`) && nsh.includes(`"${AppEnv.NO_PROXY_VALUE}"`), 'installer.nsh removes the same mark and NO_PROXY value');
+  t.ok(nsh.includes(`"${AppEnv.NODE_MARK}"`) && nsh.includes(`"${AppEnv.NODE_KEY}"`), 'installer.nsh removes NODE_USE_ENV_PROXY by the same mark');
 
   // ── environment, for real (CI machines only: it changes the session) ──
   if (process.env.CI && AppEnv.supported()) {
@@ -673,6 +692,37 @@ async function robloxInstaller(proxy, socksPort) {
     { env, windowsHide: true }, (err, out) => resolve(String(out || '').trim())));
     const s3 = await eng.stats();
     t.ok(code === '200' && s3.conns_total > s2.conns_total && s3.tls > s2.tls, `curl with only HTTPS_PROXY set reaches Roblox through the engine (HTTP ${code})`);
+  }
+
+  // Node.js, a program that ignores the system proxy (a bot, a CLI): with
+  // NODE_USE_ENV_PROXY=1 as Games and apps mode sets it beside HTTPS_PROXY,
+  // its fetch and https.get go through Shroudly and the engine. Node 22.21,
+  // 24.5 and later read it; this one is the test's own.
+  {
+    const [maj, min] = process.versions.node.split('.').map(Number);
+    if (maj > 24 || (maj === 24 && min >= 5) || (maj === 22 && min >= 21)) {
+      const env = { ...process.env, NO_PROXY: AppEnv.NO_PROXY_VALUE, NODE_USE_ENV_PROXY: '1' };
+      for (const k of Object.keys(env)) if (/^(https?|all)_proxy$/i.test(k)) delete env[k];
+      env.HTTPS_PROXY = proxy.url;
+      const seen = new Set();
+      const prev = proxy.onRequest;
+      proxy.onRequest = (h) => { seen.add(h); if (prev) prev(h); };
+      const via = [];
+      const prevT = proxy.onTunnel;
+      proxy.onTunnel = (h, how) => { via.push(how); if (prevT) prevT(h, how); };
+      const s4 = await eng.stats();
+      const URL_ = 'https://clientsettingscdn.roblox.com/v2/client-version/WindowsPlayer';
+      const script = `const t0 = Date.now(); fetch('${URL_}').then((r) => { console.error('fetch ' + r.status + ' ' + (Date.now() - t0)); return r.text().then(() => require('https').get('${URL_}', (g) => { g.resume(); console.error('get ' + g.statusCode + ' ' + (Date.now() - t0)); console.log(r.status + ' ' + g.statusCode); }).on('error', (e) => console.log('get error ' + e.code))); }).catch((e) => console.log('error ' + (e.cause ? e.cause.code || e.cause.message : e.message)))`;
+      const out = await new Promise((resolve) => execFile(process.execPath, ['-e', script], { env, windowsHide: true, timeout: 40000 },
+        (err, o, e) => resolve(String(o || '').trim() || `no output: ${err ? err.message.split('\n')[0] : ''} ${String(e || '').trim().slice(0, 200)}`)));
+      const s5 = await eng.stats();
+      proxy.onRequest = prev;
+      proxy.onTunnel = prevT;
+      t.ok(/^200 \d{3}$/.test(out) && seen.has('clientsettingscdn.roblox.com') && via.length >= 2 && via.every((h) => h === 'engine'),
+        `Node.js with NODE_USE_ENV_PROXY=1 goes through Shroudly and the engine, fetch and https.get alike (${out}; via ${[...seen].join(',') || 'nothing'}; tunnels ${via.join(',')}; engine connections ${s4.conns_total} -> ${s5.conns_total})`);
+    } else {
+      console.log(`  --  Node ${process.versions.node} does not read HTTPS_PROXY: skipped`);
+    }
   }
 
   // The real Roblox installer on Windows (CI machines only): the program that

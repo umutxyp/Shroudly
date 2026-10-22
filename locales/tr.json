@@ -461,5 +461,10 @@
   "logRawUnreachable": "{app} sunucularına ulaşamıyor ({addrs}): ağ bu adreslerin kendisini engelliyor; bunu yalnızca uygulamanın kendi proxy ayarı ya da bir VPN aşar",
   "logRawBlocked": "{app}: ağ bağlantılarını durduruyor ({addrs}) ve hiçbir teknik geçemedi; bunu yalnızca uygulamanın kendi proxy ayarı ya da bir VPN aşar",
   "logRawUnreachableAddr": "{addr}: ulaşılamadı (web bağlantısı değil)",
-  "logRawStillBlockedAddr": "{addr}: {tries} teknik denendi, hâlâ engelli (web bağlantısı değil)"
+  "logRawStillBlockedAddr": "{addr}: {tries} teknik denendi, hâlâ engelli (web bağlantısı değil)",
+  "autoForgedDnsOn": "Bu ağ sahte DNS cevapları veriyor, bu yüzden Shroudly Oyun ve uygulama modunu açtı: sistem proxy'sini kullanmayan programlar (komut satırı araçları, botlar, bazı oyunlar) artık Shroudly'den geçiyor. Zaten açık olanları yeniden başlat.",
+  "autoForgedDnsOffByHand": "Bu ağ sahte DNS cevapları veriyor, bu yüzden sistem proxy'sini kullanmayan programlar Shroudly'yi atlıyor. Oyun ve uygulama modu {date} tarihinde kapatılmıştı: onlar için Ayarlar'dan aç.",
+  "logForgedDnsAppsOn": "Otomatik pilot: bu ağ sahte DNS cevapları veriyor ({names}); Oyun ve uygulama modu açıldı, sistem proxy'sini kullanmayan programlar da Shroudly'den geçiyor",
+  "logForgedDnsAppsOff": "Otomatik pilot: bu ağ sahte DNS cevapları veriyor ({names}), bu yüzden sistem proxy'sini kullanmayan programlar Shroudly'yi atlıyor; Oyun ve uygulama modu {date} tarihinde elle kapatılmıştı; onlar için Ayarlar'dan aç",
+  "logForgedDnsAppsFailed": "Otomatik pilot: bu ağ sahte DNS cevapları veriyor ({names}), ama Oyun ve uygulama modu açılamadı ({why}); yeniden denemek için Ayarlar'dan aç"
 }

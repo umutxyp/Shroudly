@@ -96,6 +96,9 @@ function proxyTo(value, t) {
 }
 
 const PATTERNS = [
+  [/^Autopilot: this network forges DNS answers \((.*)\); Games and apps mode turned on, so programs that do not use the system proxy go through Shroudly too$/, 'logForgedDnsAppsOn', ['names']],
+  [/^Autopilot: this network forges DNS answers \((.*)\), so programs that do not use the system proxy go around Shroudly; Games and apps mode was turned off by hand on (.+); turn it on in Settings for them$/, 'logForgedDnsAppsOff', ['names', 'date']],
+  [/^Autopilot: this network forges DNS answers \((.*)\), but Games and apps mode could not be turned on \((.+)\); turn it on in Settings to try again$/, 'logForgedDnsAppsFailed', ['names', 'why']],
   // An app's own connections (not TLS or HTTP) that cannot get through (raw-apps.js).
   [/^(.+?) cannot reach its servers \((.+?)\): the network blocks those addresses themselves;/, 'logRawUnreachable', ['app', 'addrs']],
   [/^(.+?): the network stops its connections \((.+?)\) and no technique got through;/, 'logRawBlocked', ['app', 'addrs']],

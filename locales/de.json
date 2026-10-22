@@ -461,5 +461,10 @@
   "logRawUnreachable": "Die App {app} erreicht ihre Server nicht ({addrs}): Das Netz sperrt genau diese Adressen; daran kommt nur die eigene Proxy-Einstellung der App oder ein VPN vorbei",
   "logRawBlocked": "{app}: Das Netz unterbricht die Verbindungen der App ({addrs}) und keine Technik ist durchgekommen; daran kommt nur die eigene Proxy-Einstellung der App oder ein VPN vorbei",
   "logRawUnreachableAddr": "{addr}: nicht erreichbar (keine Web-Verbindung)",
-  "logRawStillBlockedAddr": "{addr}: nach {tries} Techniken weiter gesperrt (keine Web-Verbindung)"
+  "logRawStillBlockedAddr": "{addr}: nach {tries} Techniken weiter gesperrt (keine Web-Verbindung)",
+  "autoForgedDnsOn": "Dieses Netz fälscht DNS-Antworten, darum hat Shroudly den Spiele- und App-Modus eingeschaltet: Programme, die den Systemproxy nicht nutzen (Kommandozeilen-Tools, Bots, manche Spiele), gehen jetzt auch über Shroudly. Starte bereits geöffnete neu.",
+  "autoForgedDnsOffByHand": "Dieses Netz fälscht DNS-Antworten, darum gehen Programme, die den Systemproxy nicht nutzen, an Shroudly vorbei. Der Spiele- und App-Modus wurde am {date} ausgeschaltet: schalte ihn für sie in den Optionen ein.",
+  "logForgedDnsAppsOn": "Autopilot: dieses Netz fälscht DNS-Antworten ({names}); Spiele- und App-Modus eingeschaltet, Programme ohne Systemproxy gehen jetzt auch über Shroudly",
+  "logForgedDnsAppsOff": "Autopilot: dieses Netz fälscht DNS-Antworten ({names}), darum gehen Programme ohne Systemproxy an Shroudly vorbei; der Spiele- und App-Modus wurde am {date} von Hand ausgeschaltet; schalte ihn für sie in den Optionen ein",
+  "logForgedDnsAppsFailed": "Autopilot: dieses Netz fälscht DNS-Antworten ({names}), aber der Spiele- und App-Modus ließ sich nicht einschalten ({why}); schalte ihn in den Optionen ein, um es erneut zu versuchen"
 }

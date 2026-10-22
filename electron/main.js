@@ -1855,6 +1855,9 @@ function createAutopilot() {
   });
   // Apps installed later, and the check that is due again after a while.
   setInterval(() => { autopilot.survey().catch(() => {}); }, 10 * 60 * 1000).unref();
+  // A network that forges DNS answers: Games and apps mode for the programs
+  // that do not use the system proxy (autopilot.js forgedDns).
+  if (engine) engine.onDnsTampering = (hosts) => { autopilot.forgedDns((hosts || []).map((h) => h.host)).catch(() => {}); };
 }
 
 /* Microsoft Store apps (Windows): Windows keeps the ones that run in an app

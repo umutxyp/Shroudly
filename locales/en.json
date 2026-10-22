@@ -461,5 +461,10 @@
   "logRawUnreachable": "{app} cannot reach its servers ({addrs}): the network blocks those addresses themselves; only the app's own proxy setting or a VPN gets around that",
   "logRawBlocked": "{app}: the network stops its connections ({addrs}) and no technique got through; only the app's own proxy setting or a VPN gets around that",
   "logRawUnreachableAddr": "{addr}: could not be reached (not a web connection)",
-  "logRawStillBlockedAddr": "{addr}: still blocked after {tries} techniques (not a web connection)"
+  "logRawStillBlockedAddr": "{addr}: still blocked after {tries} techniques (not a web connection)",
+  "autoForgedDnsOn": "This network forges DNS answers, so Shroudly turned on Games and apps mode: programs that do not use the system proxy (command-line tools, bots, some games) now go through Shroudly too. Restart any that were already open.",
+  "autoForgedDnsOffByHand": "This network forges DNS answers, so programs that do not use the system proxy go around Shroudly. Games and apps mode was turned off on {date}: turn it on in Settings for them.",
+  "logForgedDnsAppsOn": "Autopilot: this network forges DNS answers ({names}); Games and apps mode turned on, so programs that do not use the system proxy go through Shroudly too",
+  "logForgedDnsAppsOff": "Autopilot: this network forges DNS answers ({names}), so programs that do not use the system proxy go around Shroudly; Games and apps mode was turned off by hand on {date}; turn it on in Settings for them",
+  "logForgedDnsAppsFailed": "Autopilot: this network forges DNS answers ({names}), but Games and apps mode could not be turned on ({why}); turn it on in Settings to try again"
 }

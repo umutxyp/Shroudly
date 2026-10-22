@@ -461,5 +461,10 @@
   "logRawUnreachable": "{app} ilovasi oʻz serverlariga ulana olmayapti ({addrs}): tarmoq aynan shu manzillarni bloklaydi; buni faqat ilovaning oʻz proksi sozlamasi yoki VPN chetlab oʻta oladi",
   "logRawBlocked": "{app}: tarmoq ilova ulanishlarini toʻxtatadi ({addrs}) va hech bir usul oʻta olmadi; buni faqat ilovaning oʻz proksi sozlamasi yoki VPN chetlab oʻta oladi",
   "logRawUnreachableAddr": "{addr}: bogʻlanib boʻlmadi (veb-ulanish emas)",
-  "logRawStillBlockedAddr": "{addr}: {tries} ta usuldan keyin ham bloklangan (veb-ulanish emas)"
+  "logRawStillBlockedAddr": "{addr}: {tries} ta usuldan keyin ham bloklangan (veb-ulanish emas)",
+  "autoForgedDnsOn": "Bu tarmoq soxta DNS javoblarini beradi, shuning uchun Shroudly Oʻyinlar va ilovalar rejimini yoqdi: tizim proksisidan foydalanmaydigan dasturlar (buyruq qatori vositalari, botlar, baʼzi oʻyinlar) endi Shroudly orqali oʻtadi. Allaqachon ochiq boʻlganlarini qayta ishga tushiring.",
+  "autoForgedDnsOffByHand": "Bu tarmoq soxta DNS javoblarini beradi, shuning uchun tizim proksisidan foydalanmaydigan dasturlar Shroudly’ni chetlab oʻtadi. Oʻyinlar va ilovalar rejimi {date} da oʻchirilgan: ular uchun Sozlamalarda yoqing.",
+  "logForgedDnsAppsOn": "Avtopilot: bu tarmoq soxta DNS javoblarini beradi ({names}); Oʻyinlar va ilovalar rejimi yoqildi, tizim proksisiz dasturlar ham Shroudly orqali oʻtadi",
+  "logForgedDnsAppsOff": "Avtopilot: bu tarmoq soxta DNS javoblarini beradi ({names}), shuning uchun tizim proksisiz dasturlar Shroudly’ni chetlab oʻtadi; Oʻyinlar va ilovalar rejimi {date} da qoʻlda oʻchirilgan; ular uchun Sozlamalarda yoqing",
+  "logForgedDnsAppsFailed": "Avtopilot: bu tarmoq soxta DNS javoblarini beradi ({names}), lekin Oʻyinlar va ilovalar rejimini yoqib boʻlmadi ({why}); qayta urinish uchun Sozlamalarda yoqing"
 }
