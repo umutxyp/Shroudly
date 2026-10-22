@@ -16,6 +16,17 @@ const { sleep, suite } = require('./helpers');
 
 const t = suite('reveal');
 
+/* A process's parent: /proc on Linux (minimal distro containers have no ps),
+ * ps elsewhere. */
+function parentOf(pid) {
+  try {
+    const st = fs.readFileSync(`/proc/${pid}/stat`, 'utf8');
+    return Number(st.slice(st.lastIndexOf(')') + 2).split(' ')[1]);
+  } catch {
+    return Number(execFileSync('ps', ['-o', 'ppid=', '-p', String(pid)], { encoding: 'utf8' }).trim());
+  }
+}
+
 (async () => {
   const file = path.join(os.tmpdir(), 'Shroudly Ümit logs', 'shroudly-log.txt');
 
@@ -56,16 +67,16 @@ const t = suite('reveal');
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), "Shroudly Ümit's logs "));
     const pathBefore = process.env.PATH;
     process.env.PATH = `${bin}:${pathBefore}`;
+    let seen = null;
     try {
       const r3 = await reveal(path.join(dir, 'log.txt'), { platform: 'linux', execFile: (c, a, o, cb) => cb(new Error('no file manager')) });
-      let seen = null;
       for (let i = 0; i < 40 && !seen; i++) { await sleep(100); try { const s = fs.readFileSync(out, 'utf8').split('\n'); if (s[1]) seen = s; } catch {} }
       t.ok(r3 === 'xdg-open' && seen && seen[1] === dir, `xdg-open got the folder exactly (${seen && seen[1]})`);
-      const ppid = Number(execFileSync('ps', ['-o', 'ppid=', '-p', seen[0]], { encoding: 'utf8' }).trim());
+      const ppid = parentOf(Number(seen[0]));
       t.ok(ppid !== process.pid, `and is not one of our processes (its parent is ${ppid}, ours ${process.pid})`);
     } finally {
       process.env.PATH = pathBefore;
-      try { execFileSync('pkill', ['-f', `${bin}/xdg-open`]); } catch {}
+      if (seen) { try { process.kill(Number(seen[0])); } catch {} }
       fs.rmSync(bin, { recursive: true, force: true });
       fs.rmSync(dir, { recursive: true, force: true });
     }
