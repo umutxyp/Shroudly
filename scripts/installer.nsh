@@ -98,6 +98,60 @@
   DeleteRegValue HKCU "Software\Microsoft\Windows\CurrentVersion\RunOnce" "ShroudlyAppEnvRestore"
 !macroend
 
+; Games and apps mode also points the links of Roblox's programs (roblox-
+; player:, roblox-studio:, ...) at Shroudly, which starts the program with the
+; setting (electron/link-handlers.js). With Shroudly gone they would open
+; nothing, so put each back as it was: listed under
+; HKCU\Software\Shroudly\LinkHandlers (one value per class, its data where the
+; entry came from), and only while the entry is still ours (its command is the
+; one we wrote): one its program wrote again since stays. "user": the original
+; command goes back, with its type ("user-expand": REG_EXPAND_SZ); "machine":
+; the user had no entry, ours is removed and the machine's applies again. Our
+; values beside it go in every case. _ID keeps the labels apart where it is
+; used twice in one script.
+!macro shroudlyLinkCleanup _ID
+  Push $R5
+  Push $R6
+  Push $R7
+  Push $R8
+  Push $R9
+  StrCpy $R5 0
+  shroudlyLinkNext${_ID}:
+    EnumRegValue $R6 HKCU "Software\Shroudly\LinkHandlers" $R5
+    StrCmp $R6 "" shroudlyLinkDone${_ID}
+    IntOp $R5 $R5 + 1
+    ReadRegStr $R7 HKCU "Software\Classes\$R6\shell\open\command" ""
+    ReadRegStr $R8 HKCU "Software\Classes\$R6\shell\open\command" "ShroudlyCommand"
+    ReadRegStr $R9 HKCU "Software\Classes\$R6\shell\open\command" "ShroudlyFrom"
+    ${If} $R8 != ""
+    ${AndIf} $R7 == $R8
+      ${If} $R9 == "machine"
+        DeleteRegKey HKCU "Software\Classes\$R6"
+        Goto shroudlyLinkNext${_ID}
+      ${EndIf}
+      ReadRegStr $R7 HKCU "Software\Classes\$R6\shell\open\command" "ShroudlyOriginal"
+      ${If} $R7 != ""
+        ${If} $R9 == "user-expand"
+          WriteRegExpandStr HKCU "Software\Classes\$R6\shell\open\command" "" $R7
+        ${Else}
+          WriteRegStr HKCU "Software\Classes\$R6\shell\open\command" "" $R7
+        ${EndIf}
+      ${EndIf}
+    ${EndIf}
+    DeleteRegValue HKCU "Software\Classes\$R6\shell\open\command" "ShroudlyOriginal"
+    DeleteRegValue HKCU "Software\Classes\$R6\shell\open\command" "ShroudlyFrom"
+    DeleteRegValue HKCU "Software\Classes\$R6\shell\open\command" "ShroudlyCommand"
+    Goto shroudlyLinkNext${_ID}
+  shroudlyLinkDone${_ID}:
+  DeleteRegKey HKCU "Software\Shroudly\LinkHandlers"
+  DeleteRegKey /ifempty HKCU "Software\Shroudly"
+  Pop $R9
+  Pop $R8
+  Pop $R7
+  Pop $R6
+  Pop $R5
+!macroend
+
 ; The installer crashed on some first installs: an access violation in
 ; NSIS's System.dll (offset 0x1581), after which it exits having installed
 ; nothing — about one fresh install in five on Windows 11 x64, and in 2.4.2's
@@ -191,11 +245,13 @@ Shroudly, Windows 10 veya daha yenisini gerektirir."
     Abort
   ${EndIf}
   !insertmacro shroudlyResetProxy
+  !insertmacro shroudlyLinkCleanup "i"
   !insertmacro shroudlyAppEnvCleanup
 !macroend
 
 !macro customUnInstall
   !insertmacro shroudlyResetProxy
+  !insertmacro shroudlyLinkCleanup "u"
   !insertmacro shroudlyAppEnvCleanup
   ; An update also runs the old uninstaller: keep the user's auto-start then.
   ${ifNot} ${isUpdated}

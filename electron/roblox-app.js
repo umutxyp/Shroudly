@@ -23,6 +23,7 @@ const crypto = require('crypto');
 const { execFile, spawn } = require('child_process');
 const { envFor } = require('./win-powershell');
 const PsHost = require('./ps-host');
+const LinkHandlers = require('./link-handlers');
 
 function run(cmd, args, opts = {}) {
   return new Promise((resolve) => execFile(cmd, args, { windowsHide: true, timeout: 10000, ...opts, env: envFor(cmd, opts.env) }, (err, out) => resolve(err ? '' : String(out))));
@@ -94,11 +95,24 @@ function installed(kind = 'player') { return installs(process.platform, kind).le
 /* The program Windows runs for the website's link (Play, or Edit for
  * Studio): Roblox's own, or a bootstrapper that took the link over. Asked of
  * the merged view (HKCR): the user's own entry first, else the machine's
- * (Roblox installed for every user of the computer). */
+ * (Roblox installed for every user of the computer). While Games and apps
+ * mode has the link go through Shroudly (link-handlers.js), the program it
+ * stands for. */
 async function handler(kind = 'player') {
   if (process.platform !== 'win32') return null;
-  const out = await run('reg', ['query', `HKCR\\${kindOf(kind).link}\\shell\\open\\command`, '/ve']);
-  const m = /REG_(?:EXPAND_)?SZ\s+(?:"([^"]+\.exe)"|(\S+\.exe))/i.exec(out);
+  const link = kindOf(kind).link;
+  const ask = async (key, name) => {
+    const out = await run('reg', ['query', key, ...(name ? ['/v', name] : ['/ve'])]);
+    const m = /REG_(?:EXPAND_)?SZ\s+(.*)$/im.exec(out);
+    return m ? m[1].trim() : '';
+  };
+  let cmd = await ask(`HKCR\\${link}\\shell\\open\\command`);
+  if (LinkHandlers.isOurs(cmd)) {
+    cmd = (await ask(`HKCU\\Software\\Classes\\${link}\\shell\\open\\command`, LinkHandlers.V.original)) ||
+      (await ask(`HKLM\\Software\\Classes\\${link}\\shell\\open\\command`));
+    if (LinkHandlers.isOurs(cmd)) cmd = '';
+  }
+  const m = /^(?:"([^"]+\.exe)"|(\S+\.exe))/i.exec(cmd);
   const exe = m ? (m[1] || m[2]) : null;
   return exe && exists(exe) ? exe : null;
 }
@@ -223,6 +237,10 @@ async function processes() {
  *       elevated process, one already gone).
  *   "<id> sig <file>"  ->  "<id> sig Status|signer|message": the file's
  *       signature as Windows judges it.
+ *   "<id> parent <pid>"  ->  "<id> parent ppid|before|path|description": the
+ *       process that started it, `before` True when that one started first
+ *       (else its id went to another program since), its file and the
+ *       file's description ("Google Chrome").
  * Text (files, signers, messages) goes as its UTF-16 code units in decimal,
  * comma-separated: ASCII whatever the console's code page (C:\Users\Ümit).
  * With SHROUDLY_REQ set it answers that one request and ends.
@@ -245,7 +263,11 @@ const PS_HANDLE = [
     "$t = ''; try { $t = [string]$p.StartTime.ToFileTime() } catch {}; $q = ''; try { $q = [string]$p.Path } catch {}; " +
     "$r += ($x + '|' + $t + '|' + (ConvertTo-ShroudlyCodes $q)) }; $o = $r -join ';' } " +
     "elseif ($f[1] -eq 'sig') { $s = Get-AuthenticodeSignature -LiteralPath (ConvertFrom-ShroudlyCodes $a) -ErrorAction Stop; " +
-    "$o = [string]$s.Status + '|' + (ConvertTo-ShroudlyCodes $s.SignerCertificate.Subject) + '|' + (ConvertTo-ShroudlyCodes $s.StatusMessage) } } " +
+    "$o = [string]$s.Status + '|' + (ConvertTo-ShroudlyCodes $s.SignerCertificate.Subject) + '|' + (ConvertTo-ShroudlyCodes $s.StatusMessage) } " +
+    "elseif ($f[1] -eq 'parent') { $c = Get-CimInstance -ClassName Win32_Process -Filter ('ProcessId=' + [int]$a) -ErrorAction Stop; " +
+    "$pp = [int]$c.ParentProcessId; $q = Get-Process -Id $pp -ErrorAction Stop; $b = $false; try { $b = $q.StartTime -le $c.CreationDate } catch {}; " +
+    "$qp = ''; try { $qp = [string]$q.Path } catch {}; $qd = ''; try { $qd = [string]$q.MainModule.FileVersionInfo.FileDescription } catch {}; " +
+    "$o = [string]$pp + '|' + [string]$b + '|' + (ConvertTo-ShroudlyCodes $qp) + '|' + (ConvertTo-ShroudlyCodes $qd) } } " +
     "catch { $o = 'error|' + (ConvertTo-ShroudlyCodes $_.Exception.Message) }",
   "$f[0] + ' ' + $f[1] + ' ' + $o",
 ].join('; ');
@@ -420,6 +442,26 @@ async function restart(env, list) {
   if (!gone) { const left = alive(these); return { success: false, code: 'notstopped', left, stopped: these.length - left.length }; }
   const pid = await open(env);
   return pid ? { success: true, pid } : { success: false, code: 'failed' };
+}
+
+/* Windows: the program that started process `pid`, as the user knows it:
+ * { pid, exe (its file's name, lower-case, without .exe), name (its
+ * description, else that name) }, or null when it cannot be told (it ended,
+ * its id went to another program since, another user's or an
+ * administrator's). */
+function parseParent(payload) {
+  const [ppid, before, file, desc] = String(payload || '').split('|');
+  if (!/^\d+$/.test(ppid || '') || before !== 'True') return null;
+  const p = fromCodes(file).trim();
+  if (!/^[a-z]:\\|^\\\\/i.test(p)) return null;
+  const exe = path.win32.basename(p).replace(/\.exe$/i, '');
+  const d = fromCodes(desc).replace(/\s+/g, ' ').trim();
+  const name = d && d.length <= 60 && !/[\x00-\x1f]/.test(d) ? d : exe;
+  return exe ? { pid: Number(ppid), exe: exe.toLowerCase(), name } : null;
+}
+async function parentOf(pid) {
+  if (process.platform !== 'win32' || !Number.isInteger(pid) || pid <= 0) return null;
+  return parseParent(await psHost.request('parent', String(pid), INFO_TIMEOUT_MS));
 }
 
 /* ── installing (Windows) ────────────────────────────────────────────────── */
@@ -659,7 +701,7 @@ function isRobloxHost(h) { return ROBLOX_HOST.test(String(h || '')); }
 
 module.exports = {
   installs, installed, handler, launcher, isBootstrapper, storeEdition, pids, parsePids, installerPids, parseInstallerPids,
-  processes, parseProcesses, parseSession, ownSession, processInfo, parseProcessInfo, parseSignature, toCodes, fromCodes, prepare, release, PS_SCRIPT, psHost,
+  processes, parseProcesses, parseSession, ownSession, processInfo, parseProcessInfo, parseSignature, parentOf, parseParent, toCodes, fromCodes, prepare, release, PS_SCRIPT, psHost,
   decide, kill, routeWatched, alive, open, restart, install, fetchInstaller, startFetched,
   startInstaller, signedInstaller, signedCache, sameFile, fileHash, cleanDownloads, newDownload, isRobloxHost, get, signedByRoblox,
   BOOTSTRAPPERS, KINDS,

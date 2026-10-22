@@ -6,18 +6,28 @@
  * mode puts in place, then Studio itself runs for a minute. Everything
  * Roblox's programs connect to must go through Shroudly, Studio's own
  * connections included: the proof that Studio honours the setting, which
- * the autopilot relies on (electron/autopilot.js, main.js watchRoblox). */
+ * the autopilot relies on (electron/autopilot.js, main.js watchRoblox).
+ *
+ * Then issue #30: Studio opened as the website's Edit button opens it, by
+ * its roblox-studio: link, from a program that does not have the setting
+ * (a browser started before Shroudly), while the session has it. Before the
+ * mode takes the link over it goes around Shroudly (the cause, however often
+ * it is reopened); after, through it (the fix: electron/link-handlers.js,
+ * link-open.js, Shroudly's own program standing in, here Electron from this
+ * checkout). Opened from the Start menu (Explorer) it goes through too. The
+ * link is exactly as Roblox left it afterwards. */
 
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
-const { spawnSync, execFile } = require('child_process');
+const { spawnSync, spawn, execFile } = require('child_process');
 const { ROOT, startEngine, freePort, sleep, suite } = require('./helpers');
 
 const AppProxy = require(path.join(ROOT, 'electron', 'app-proxy.js'));
 const AppEnv = require(path.join(ROOT, 'electron', 'app-env.js'));
 const { powershellEnv } = require(path.join(ROOT, 'electron', 'win-powershell.js'));
 const t = suite('studio');
+const LinkHandlers = require(path.join(ROOT, 'electron', 'link-handlers.js'));
 
 /* Roblox's web connections (80/443) that do not go to this machine, i.e.
  * that bypass the proxy. */
@@ -92,6 +102,79 @@ async function robloxStudio(proxy, socksPort) {
   try { fs.rmSync(dir, { recursive: true, force: true }); } catch {}
 }
 
+/* Issue #30, for real (see the top). Studio is closed between the runs:
+ * this is a test machine (Shroudly itself never closes Studio). */
+async function studioLinks(proxy) {
+  const RobloxApp = require(path.join(ROOT, 'electron', 'roblox-app.js'));
+  const studioExe = RobloxApp.installs('win32', 'studio')[0];
+  if (!studioExe) { console.log('  --  Roblox Studio is not installed here; its link is not tried'); return; }
+  const regExe = path.join(process.env.SystemRoot || 'C:\\Windows', 'System32', 'reg.exe');
+  if (spawnSync(regExe, ['query', 'HKCU\\Volatile Environment'], { windowsHide: true }).status !== 0) { console.log('  --  SKIPPED: no HKCU\\Volatile Environment in this session'); return; }
+  const be = AppEnv.backend('win32');
+  if (be.get('HTTPS_PROXY') || be.machine('HTTPS_PROXY') || be.persistent.get('HTTPS_PROXY')) { console.log('  --  SKIPPED: this machine has an HTTPS_PROXY of its own'); return; }
+  let electronExe = null;
+  try { electronExe = require(path.join(ROOT, 'node_modules', 'electron')); } catch {}
+  if (!electronExe || !fs.existsSync(electronExe)) { console.log('  --  SKIPPED: Electron is not installed here'); return; }
+  const handler = () => String(spawnSync(regExe, ['query', 'HKCR\\roblox-studio\\shell\\open\\command', '/ve'], { windowsHide: true, encoding: 'utf8' }).stdout || '').trim();
+  const handlerBefore = handler();
+  console.log(`  ..  roblox-studio: link, before: ${handlerBefore.split(/\r?\n/).pop()}`);
+  // A parent without the setting, as a browser that was open before Shroudly.
+  const parentEnv = {};
+  for (const [k, v] of Object.entries(process.env)) if (!/^(https?_proxy|no_proxy|shroudly_app_proxy)$/i.test(k)) parentEnv[k] = v;
+  const kill = () => { for (const im of ['RobloxStudioBeta.exe', 'RobloxStudioInstaller.exe', 'RobloxCrashHandler.exe']) spawnSync('taskkill', ['/F', '/T', '/IM', im], { windowsHide: true }); };
+  /* Studio started by `how`, watched for a minute once it runs. */
+  const run = async (how) => {
+    kill();
+    await sleep(3000);
+    let tunnels = 0; const hosts = new Set(); const direct = new Set();
+    proxy.onTunnel = (host) => { tunnels++; hosts.add(host); };
+    const t0 = Date.now();
+    how();
+    let up = 0;
+    while (Date.now() - t0 < 90000) {
+      await sleep(2000);
+      for (const c of await robloxDirect()) direct.add(c);
+      if (((await RobloxApp.pids('studio')) || []).length) { up = Date.now() - t0; break; }
+    }
+    const end = Date.now() + 60000;
+    while (Date.now() < end) { await sleep(3000); for (const c of await robloxDirect()) direct.add(c); }
+    proxy.onTunnel = null;
+    kill();
+    return { up, direct, tunnels, hosts };
+  };
+  const viaLink = () => spawnSync('powershell.exe', ['-NoProfile', '-NonInteractive', '-Command', "Start-Process 'roblox-studio:1+launchmode:edit'"],
+    { windowsHide: true, timeout: 60000, env: powershellEnv(parentEnv) });
+  const say = (r) => `${r.up ? `running ${(r.up / 1000).toFixed(0)} s after the click` : 'not seen running'}; through Shroudly ${r.tunnels} (${[...r.hosts].slice(0, 6).join(', ')}), around it ${r.direct.size}${r.direct.size ? ` (${[...r.direct].slice(0, 4).join(', ')})` : ''}`;
+  const env = new AppEnv({ links: new LinkHandlers() });
+  try {
+    t.ok(env.applySync(proxy.url) === 'changed', `Games and apps mode's setting is in this session (${proxy.url})`);
+    await new Promise((resolve) => { const p = env.broadcast; if (!p || p.exitCode !== null) { resolve(); return; } const h = setTimeout(resolve, 30000); p.once('exit', () => { clearTimeout(h); resolve(); }); });
+    const before = await run(viaLink);
+    console.log(`  ..  link, not taken over: ${say(before)}`);
+    t.ok(before.up && before.direct.size > 0 && before.tunnels === 0,
+      'the cause, on real Windows: Studio opened by its roblox-studio: link from a program without the setting goes around Shroudly, although the session has it');
+    const a = await env.links.apply(LinkHandlers.prefixFor(electronExe, ROOT));
+    t.ok(a.links.includes('roblox-studio') && /--open-link=roblox-studio/.test(handler()), `the mode takes Roblox's links over (${a.links.join(', ')})`);
+    const seen = await RobloxApp.handler('studio');
+    t.ok(seen && /RobloxStudioBeta\.exe$/i.test(seen), `Shroudly still finds Studio behind its link (${seen})`);
+    const after = await run(viaLink);
+    console.log(`  ..  link, taken over: ${say(after)}`);
+    t.ok(after.up && after.direct.size === 0 && after.tunnels > 0 && [...after.hosts].some(RobloxApp.isRobloxHost),
+      'the fix: the same link from the same program opens Studio through Shroudly, nothing around it');
+    console.log(`  ..  roblox-studio: link while taken over, after Studio ran: ${handler().split(/\r?\n/).pop()}`);
+    const EXPLORER = path.join(process.env.SystemRoot || 'C:\\Windows', 'explorer.exe');
+    const start = await run(() => { const p = spawn(EXPLORER, [studioExe], { env: parentEnv, stdio: 'ignore', detached: true }); p.on('error', () => {}); p.unref(); });
+    console.log(`  ..  Start menu (Explorer): ${say(start)}`);
+    t.ok(start.up && start.direct.size === 0 && start.tunnels > 0, 'opened from the Start menu (Explorer, which got the setting): through Shroudly too');
+    env.clearSync();
+    t.ok(handler() === handlerBefore, 'mode off: its link exactly as Roblox left it');
+  } finally {
+    try { env.clearSync(); } catch {}
+    proxy.onTunnel = null;
+    kill();
+  }
+}
+
 (async () => {
   if (!(process.platform === 'win32' && process.env.CI && process.arch === 'x64')) {
     console.log('studio: Windows x64 CI machines only; skipped');
@@ -101,7 +184,7 @@ async function robloxStudio(proxy, socksPort) {
   const eng = await startEngine(P, ['--strategy', 'tlsrec(sni+1)', '--auto', '--doh']);
   const proxy = new AppProxy(() => {}, () => P);
   await proxy.start(await freePort());
-  try { await robloxStudio(proxy, P); } finally { proxy.stop(); eng.stop(); }
+  try { await robloxStudio(proxy, P); await studioLinks(proxy); } finally { proxy.stop(); eng.stop(); }
   console.log(`studio: ${t.count} passed`);
   process.exit(0);
 })().catch((e) => { console.error('FAIL', e.message); process.exit(1); });

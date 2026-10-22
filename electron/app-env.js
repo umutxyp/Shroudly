@@ -24,6 +24,13 @@
  *           written there any more.
  *  Linux    not offered: there is no one place every desktop reads it from.
  *
+ * Windows, links: a link clicked in a browser (the website's Play and Edit
+ * buttons: roblox-player:, roblox-studio:) starts its program with the
+ * browser's environment, from before the setting. While the mode is on,
+ * those links go through Shroudly, which starts the program with the
+ * setting (link-handlers.js, link-open.js); they are put back wherever the
+ * value is taken out below.
+ *
  * Only our own values are ever removed. A proxy the user set themselves, for
  * their session or (Windows) for the whole machine, is never replaced.
  * SHROUDLY_APP_PROXY, set alongside, is what marks the value as ours, so even
@@ -42,6 +49,7 @@ const os = require('os');
 const path = require('path');
 const Watchdog = require('./watchdog');
 const Boot = require('./boot');
+const LinkHandlers = require('./link-handlers');
 
 const MARK = 'SHROUDLY_APP_PROXY';
 // This machine and the local network never go through the proxy. The CIDR
@@ -203,11 +211,15 @@ class AppEnv {
    * opts.watchdog       watchdog.js options (the engine binary in its watchdog
    *                     mode and the restore command it runs)
    * opts.backend        stands in for the real OS (tests)
+   * opts.links          link-handlers.js (Windows; by default the real one
+   *                     wherever the real OS is used), put back with our values
    */
   constructor(opts = {}) {
     this.opts = opts;
     this.platform = opts.platform || process.platform;
     this.b = opts.backend !== undefined ? opts.backend : backend(this.platform);
+    this.links = opts.links !== undefined ? opts.links
+      : (this.platform === 'win32' && opts.backend === undefined ? new LinkHandlers({ platform: this.platform }) : null);
     this.applied = false;   // our values were set by this run
     this.broadcast = null;  // what the last change announcement returned (Windows: its process)
   }
@@ -294,18 +306,30 @@ class AppEnv {
   clearSync() {
     const b = this.b;
     let changed = false;
+    // The links first: one clicked meanwhile opens its program as before.
+    let links = false;
+    if (this.links) { try { links = this.links.restoreSync().length > 0; } catch {} }
     if (b) {
       if (b.refresh) b.refresh();
       changed = removeOurs(b, b.names);
       if (this._migrate()) changed = true;
       if (changed) this._commit(null);
     }
+    if (links) changed = true;
     this._disarm();
     this.applied = false;
     return changed ? 'changed' : 'unchanged';
   }
 
   _commit(url) { this.broadcast = this.b.commit(url) || null; }
+
+  /* Tell running programs about our values again (Windows: Explorer, which
+   * builds its environment again from them). */
+  announce() {
+    const url = this.applied ? this.current() : null;
+    if (url) this._commit(url);
+    return !!url;
+  }
 
   // ── crash safety ──────────────────────────────────────────────────────────
   _arm(url) {
