@@ -34,7 +34,8 @@
  * goes over UDP, which the default engine never touches, and only Advanced
  * mode can put its decoys ahead of it. It needs the system's permission, so
  * it is asked for at most once a session, not again by itself for two weeks
- * once the user declines, and never by itself beside a game's anti-cheat.
+ * once the user declines, and never by itself while a game with an
+ * anti-cheat is being played (antiCheatIn).
  */
 
 const RESPECT_OFF_MS = 14 * 24 * 60 * 60 * 1000;
@@ -551,13 +552,40 @@ function day(t) {
   return Number.isNaN(d.getTime()) ? '?' : `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
 }
 
-/* Anti-cheat programs in a Windows process list (tasklist /FO CSV): the
- * first one found, or null. */
-const ANTI_CHEAT = ['vgc.exe', 'vgtray.exe', 'EasyAntiCheat.exe', 'EasyAntiCheat_EOS.exe', 'BEService.exe', 'BEService_x64.exe',
-  'FACEIT.exe', 'faceitservice.exe', 'EAAntiCheat.GameService.exe', 'GameGuard.des', 'nProtect.exe', 'xigncode.exe', 'PnkBstrA.exe'];
+/* A game with an anti-cheat, running now, in a Windows process list
+ * (tasklist /FO CSV): its name, or null.
+ *
+ * Only a game that is being played counts. Many anti-cheats leave a part of
+ * themselves running whenever the PC is on, from the boot or the login on,
+ * with no game open at all: Riot Vanguard's service and tray icon (vgc,
+ * vgtray) on every PC with VALORANT or League installed, FACEIT's client and
+ * service, PunkBuster's service, the Easy Anti-Cheat, BattlEye and EA
+ * services a game started once and that stay. Counting those kept Advanced
+ * mode off for good on such a PC, where it was never anywhere near a game.
+ * They count only next to a game known to be protected by one, or an
+ * Unreal or BattlEye game (its "-Win64-Shipping" or "_BE" program) while one
+ * of them runs. The parts an anti-cheat runs only inside a game (GameGuard,
+ * XIGNCODE, PunkBuster's game-side program) count by themselves. */
+const RESIDENT_ANTI_CHEAT = ['vgc.exe', 'vgtray.exe', 'EasyAntiCheat.exe', 'EasyAntiCheat_EOS.exe', 'BEService.exe', 'BEService_x64.exe',
+  'FACEIT.exe', 'faceitservice.exe', 'FACEITClient.exe', 'EAAntiCheat.GameService.exe', 'EAAntiCheat.GameServiceLauncher.exe', 'PnkBstrA.exe',
+  'ACE-Tray.exe', 'SGuardSvc64.exe'];
+const IN_GAME_ANTI_CHEAT = ['GameMon.des', 'GameMon64.des', 'GameGuard.des', 'xcoronahost.xem', 'x3.xem', 'xigncode.exe', 'PnkBstrB.exe',
+  'EasyAntiCheat_launcher.exe', 'start_protected_game.exe', 'SGuard64.exe'];
+// Games whose anti-cheat runs beside them (Vanguard, Easy Anti-Cheat,
+// BattlEye, EA, FACEIT, ACE): a few of the most played, by program name.
+const PROTECTED_GAMES = ['VALORANT-Win64-Shipping.exe', 'League of Legends.exe', 'FortniteClient-Win64-Shipping.exe', 'r5apex.exe', 'r5apex_dx12.exe',
+  'RustClient.exe', 'TslGame.exe', 'RainbowSix.exe', 'RainbowSix_Vulkan.exe', 'DayZ_x64.exe', 'EscapeFromTarkov.exe', 'destiny2.exe', 'GTA5.exe',
+  'GTA5_Enhanced.exe', 'eldenring.exe', 'DeadByDaylight-Win64-Shipping.exe', 'FallGuys_client_game.exe', 'SoTGame.exe', 'HuntGame.exe',
+  'LOSTARK.exe', 'Discovery.exe', 'bf2042.exe', 'bf6.exe', 'FC25.exe', 'FC26.exe', 'cs2.exe', 'cod.exe', 'ArmA3_x64.exe',
+  'Overwatch.exe', 'NewWorld.exe', 'SquadGame.exe', 'NarakaBladepoint.exe'];
 function antiCheatIn(out) {
-  const names = new Set([...String(out || '').matchAll(/^"([^"]+)"/gm)].map((m) => m[1].toLowerCase()));
-  return ANTI_CHEAT.find((n) => names.has(n.toLowerCase())) || null;
+  const seen = [...String(out || '').matchAll(/^"([^"]+)"/gm)].map((m) => m[1]);
+  const has = (list) => { const set = new Set(list.map((n) => n.toLowerCase())); return seen.find((n) => set.has(n.toLowerCase())) || null; };
+  const inGame = has(IN_GAME_ANTI_CHEAT);
+  if (inGame) return inGame;
+  const resident = has(RESIDENT_ANTI_CHEAT);
+  if (!resident) return null;
+  return has(PROTECTED_GAMES) || seen.find((n) => /-Win64-Shipping\.exe$|_BE\.exe$/i.test(n)) || null;
 }
 
 function antiCheatRunning(platform = process.platform) {
@@ -568,6 +596,7 @@ function antiCheatRunning(platform = process.platform) {
 
 module.exports = Autopilot;
 module.exports.antiCheatIn = antiCheatIn;
+module.exports.RESIDENT_ANTI_CHEAT = RESIDENT_ANTI_CHEAT;
 module.exports.day = day;
 module.exports.antiCheatRunning = antiCheatRunning;
 module.exports.familyOf = familyOf;
