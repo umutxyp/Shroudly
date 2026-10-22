@@ -478,5 +478,12 @@
   "excludedAppsCount": "{count} اپونه له Shroudly نه تېرېږي",
   "searchApps": "اپ ولټوئ",
   "androidStartAtBoot": "د تلیفون د چالانېدو پر وخت پیل کړه",
-  "androidStartAtBootDesc": "کله چې VPN ته اجازه ورکړل شي، د تلیفون له بیا پیلېدو وروسته ساتنه پخپله چالانېږي."
+  "androidStartAtBootDesc": "کله چې VPN ته اجازه ورکړل شي، د تلیفون له بیا پیلېدو وروسته ساتنه پخپله چالانېږي.",
+  "androidModeTitle": "حالت",
+  "androidModeVpn": "VPN (ټول اپونه)",
+  "androidModeVpnDesc": "ټول اپونه له Shroudly تېرېږي. اندروېډ په یو وخت کې یوازې یو VPN ته اجازه ورکوي، نو د بل VPN اپ اړیکه پرې کېږي.",
+  "androidModeProxy": "یوازې پراکسي (ستاسو بل VPN پاتې کېږي)",
+  "androidModeProxyDesc": "Shroudly په ‎127.0.0.1:{port}‎ کې د پراکسي په توګه کار کوي (SOCKS5 او HTTP) او VPN بل اپ ته پرېږدي. یوازې هغه اپونه له Shroudly تېرېږي چې د دې کارولو لپاره تنظیم شوي وي: د Wi-Fi شبکې پراکسي (کوربه 127.0.0.1، پورټ {port}) یا د اپ خپله پراکسي امستنه.",
+  "androidModeNextStart": "نوې حالت به بل ځل چې ساتنه پیلېږي وکارول شي.",
+  "androidProxyOnlyOn": "یوازې پراکسي: هغه اپونه چې په ‎127.0.0.1:{port}‎ تنظیم شوي له Shroudly تېرېږي"
 }

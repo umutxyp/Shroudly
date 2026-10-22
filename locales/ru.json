@@ -478,5 +478,12 @@
   "excludedAppsCount": "Приложений в обход Shroudly: {count}",
   "searchApps": "Поиск приложений",
   "androidStartAtBoot": "Запускать при включении телефона",
-  "androidStartAtBootDesc": "Защита включается сама после перезагрузки телефона, если VPN уже разрешён."
+  "androidStartAtBootDesc": "Защита включается сама после перезагрузки телефона, если VPN уже разрешён.",
+  "androidModeTitle": "Режим",
+  "androidModeVpn": "VPN (все приложения)",
+  "androidModeVpnDesc": "Все приложения идут через Shroudly. Android допускает только один VPN одновременно, поэтому другое VPN-приложение отключится.",
+  "androidModeProxy": "Только прокси (ваш другой VPN остаётся)",
+  "androidModeProxyDesc": "Shroudly работает как прокси на 127.0.0.1:{port} (SOCKS5 и HTTP) и оставляет VPN другому приложению. Через Shroudly идут только приложения, настроенные на него: прокси сети Wi-Fi (хост 127.0.0.1, порт {port}) или собственная настройка прокси в приложении.",
+  "androidModeNextStart": "Новый режим будет использован при следующем запуске защиты.",
+  "androidProxyOnlyOn": "Только прокси: приложения, настроенные на 127.0.0.1:{port}, идут через Shroudly"
 }

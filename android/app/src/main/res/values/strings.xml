@@ -15,9 +15,16 @@
     <string name="androidDetails">Details</string>
     <string name="androidDownloadApk">Download update</string>
     <string name="androidLockdownOffline">No internet: Shroudly cannot get through on this network right now, and Android is set to block connections without a VPN. Shroudly keeps trying.</string>
+    <string name="androidModeNextStart">The new mode is used the next time protection starts.</string>
+    <string name="androidModeProxy">Proxy only (keeps your other VPN)</string>
+    <string name="androidModeProxyDesc">Shroudly runs as a proxy on 127.0.0.1:{port} (SOCKS5 and HTTP) and leaves the VPN to another app. Only apps set to use it go through Shroudly: the Wi-Fi network\'s proxy (host 127.0.0.1, port {port}) or an app\'s own proxy setting.</string>
+    <string name="androidModeTitle">Mode</string>
+    <string name="androidModeVpn">VPN (every app)</string>
+    <string name="androidModeVpnDesc">Every app goes through Shroudly. Android allows one VPN at a time, so another VPN app is disconnected.</string>
     <string name="androidNoInternet">Protection stopped because Shroudly could not reach the internet on this network, so your apps are connecting directly. Open Shroudly to try again.</string>
     <string name="androidPrivacyPolicy">Privacy policy</string>
     <string name="androidProtectionLost">Protection stopped because of an error, so your apps are connecting directly. Open Shroudly to start it again.</string>
+    <string name="androidProxyOnlyOn">Proxy only: apps set to use 127.0.0.1:{port} go through Shroudly</string>
     <string name="androidShareLogs">Share logs</string>
     <string name="androidStartAtBoot">Start when the phone starts</string>
     <string name="androidStartAtBootDesc">Protection comes on by itself after the phone restarts, once the VPN has been allowed.</string>

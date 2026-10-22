@@ -15,9 +15,16 @@
     <string name="androidDetails">פרטים</string>
     <string name="androidDownloadApk">להוריד את העדכון</string>
     <string name="androidLockdownOffline">אין אינטרנט: Shroudly לא מצליחה לעבור ברשת הזו כרגע, ו־Android מוגדרת לחסום חיבורים בלי VPN. Shroudly ממשיכה לנסות.</string>
+    <string name="androidModeNextStart">המצב החדש ישמש בפעם הבאה שההגנה תופעל.</string>
+    <string name="androidModeProxy">פרוקסי בלבד (ה-VPN האחר שלך נשאר)</string>
+    <string name="androidModeProxyDesc">Shroudly פועל כפרוקסי ב-‎127.0.0.1:{port}‎ ‏(SOCKS5 ו-HTTP) ומשאיר את ה-VPN לאפליקציה אחרת. רק אפליקציות שהוגדרו להשתמש בו עוברות דרך Shroudly: הפרוקסי של רשת ה-Wi-Fi (מארח 127.0.0.1, פורט {port}) או הגדרת הפרוקסי של האפליקציה עצמה.</string>
+    <string name="androidModeTitle">מצב</string>
+    <string name="androidModeVpn">VPN (כל האפליקציות)</string>
+    <string name="androidModeVpnDesc">כל האפליקציות עוברות דרך Shroudly. אנדרואיד מאפשרת VPN אחד בכל פעם, ולכן אפליקציית VPN אחרת מתנתקת.</string>
     <string name="androidNoInternet">ההגנה נעצרה כי Shroudly לא הצליחה להגיע לאינטרנט ברשת הזו, ולכן האפליקציות שלך מתחברות עכשיו ישירות. אפשר לפתוח את Shroudly כדי לנסות שוב.</string>
     <string name="androidPrivacyPolicy">מדיניות פרטיות</string>
     <string name="androidProtectionLost">ההגנה נעצרה בגלל שגיאה, ולכן האפליקציות שלך מתחברות עכשיו ישירות. אפשר לפתוח את Shroudly כדי להפעיל אותה מחדש.</string>
+    <string name="androidProxyOnlyOn">פרוקסי בלבד: אפליקציות שהוגדרו ל-‎127.0.0.1:{port}‎ עוברות דרך Shroudly</string>
     <string name="androidShareLogs">שיתוף יומנים</string>
     <string name="androidStartAtBoot">הפעלה עם הדלקת הטלפון</string>
     <string name="androidStartAtBootDesc">ההגנה נדלקת מעצמה אחרי הפעלה מחדש של הטלפון, לאחר שה-VPN אושר.</string>

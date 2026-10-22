@@ -478,5 +478,12 @@
   "excludedAppsCount": "{count} ứng dụng đi tắt qua Shroudly",
   "searchApps": "Tìm ứng dụng",
   "androidStartAtBoot": "Khởi động cùng điện thoại",
-  "androidStartAtBootDesc": "Bảo vệ tự bật sau khi điện thoại khởi động lại, khi VPN đã được cho phép."
+  "androidStartAtBootDesc": "Bảo vệ tự bật sau khi điện thoại khởi động lại, khi VPN đã được cho phép.",
+  "androidModeTitle": "Chế độ",
+  "androidModeVpn": "VPN (mọi ứng dụng)",
+  "androidModeVpnDesc": "Mọi ứng dụng đi qua Shroudly. Android chỉ cho phép một VPN mỗi lúc, nên ứng dụng VPN khác sẽ bị ngắt.",
+  "androidModeProxy": "Chỉ proxy (giữ VPN khác của bạn)",
+  "androidModeProxyDesc": "Shroudly chạy như proxy tại 127.0.0.1:{port} (SOCKS5 và HTTP) và để VPN cho ứng dụng khác. Chỉ các ứng dụng được đặt để dùng nó mới đi qua Shroudly: proxy của mạng Wi-Fi (máy chủ 127.0.0.1, cổng {port}) hoặc cài đặt proxy riêng của ứng dụng.",
+  "androidModeNextStart": "Chế độ mới sẽ dùng vào lần tới bảo vệ được bật.",
+  "androidProxyOnlyOn": "Chỉ proxy: các ứng dụng đặt 127.0.0.1:{port} đi qua Shroudly"
 }

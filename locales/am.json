@@ -478,5 +478,12 @@
   "excludedAppsCount": "{count} መተግበሪያዎች Shroudlyን ያልፋሉ",
   "searchApps": "መተግበሪያ ፈልግ",
   "androidStartAtBoot": "ስልኩ ሲበራ ጀምር",
-  "androidStartAtBootDesc": "ለVPN አንዴ ፈቃድ ከተሰጠ በኋላ ስልኩ እንደገና ሲጀምር ጥበቃው በራሱ ይበራል።"
+  "androidStartAtBootDesc": "ለVPN አንዴ ፈቃድ ከተሰጠ በኋላ ስልኩ እንደገና ሲጀምር ጥበቃው በራሱ ይበራል።",
+  "androidModeTitle": "ሁነታ",
+  "androidModeVpn": "VPN (ሁሉም መተግበሪያዎች)",
+  "androidModeVpnDesc": "ሁሉም መተግበሪያዎች በShroudly ያልፋሉ። Android በአንድ ጊዜ አንድ VPN ብቻ ስለሚፈቅድ ሌላ የVPN መተግበሪያ ይቋረጣል።",
+  "androidModeProxy": "ፕሮክሲ ብቻ (ሌላው VPNዎ ይቀጥላል)",
+  "androidModeProxyDesc": "Shroudly በ127.0.0.1:{port} እንደ ፕሮክሲ ይሠራል (SOCKS5 እና HTTP) እና VPNን ለሌላ መተግበሪያ ይተዋል። በShroudly የሚያልፉት እሱን እንዲጠቀሙ የተዘጋጁ መተግበሪያዎች ብቻ ናቸው፦ የWi-Fi አውታረ መረቡ ፕሮክሲ (አስተናጋጅ 127.0.0.1፣ ወደብ {port}) ወይም የመተግበሪያው የራሱ የፕሮክሲ ቅንብር።",
+  "androidModeNextStart": "አዲሱ ሁነታ ጥበቃው በሚቀጥለው ጊዜ ሲጀምር ጥቅም ላይ ይውላል።",
+  "androidProxyOnlyOn": "ፕሮክሲ ብቻ፦ 127.0.0.1:{port} እንዲጠቀሙ የተዘጋጁ መተግበሪያዎች በShroudly ያልፋሉ"
 }

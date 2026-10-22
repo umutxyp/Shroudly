@@ -15,9 +15,16 @@
     <string name="androidDetails">বিস্তারিত</string>
     <string name="androidDownloadApk">আপডেট ডাউনলোড করুন</string>
     <string name="androidLockdownOffline">ইন্টারনেট নেই: Shroudly এই মুহূর্তে এই নেটওয়ার্কে সংযোগ করতে পারছে না, আর Android VPN ছাড়া সংযোগ ব্লক করার জন্য সেট করা আছে। Shroudly চেষ্টা চালিয়ে যাচ্ছে।</string>
+    <string name="androidModeNextStart">পরেরবার সুরক্ষা চালু হলে নতুন মোড ব্যবহার হবে।</string>
+    <string name="androidModeProxy">শুধু প্রক্সি (আপনার অন্য VPN চালু থাকে)</string>
+    <string name="androidModeProxyDesc">Shroudly 127.0.0.1:{port}-এ প্রক্সি হিসেবে চলে (SOCKS5 ও HTTP) এবং VPN অন্য অ্যাপের জন্য ছেড়ে দেয়। শুধু সেই অ্যাপগুলো Shroudly দিয়ে যায় যেগুলো এটি ব্যবহারের জন্য সেট করা: Wi-Fi নেটওয়ার্কের প্রক্সি (হোস্ট 127.0.0.1, পোর্ট {port}) বা অ্যাপের নিজস্ব প্রক্সি সেটিং।</string>
+    <string name="androidModeTitle">মোড</string>
+    <string name="androidModeVpn">VPN (সব অ্যাপ)</string>
+    <string name="androidModeVpnDesc">সব অ্যাপ Shroudly দিয়ে যায়। Android একসাথে একটিমাত্র VPN চালাতে দেয়, তাই অন্য VPN অ্যাপের সংযোগ বিচ্ছিন্ন হয়।</string>
     <string name="androidNoInternet">Shroudly এই নেটওয়ার্কে ইন্টারনেটে পৌঁছাতে পারেনি বলে সুরক্ষা বন্ধ হয়ে গেছে, তাই আপনার অ্যাপগুলো এখন সরাসরি সংযোগ করছে। আবার চেষ্টা করতে Shroudly খুলুন।</string>
     <string name="androidPrivacyPolicy">গোপনীয়তা নীতি</string>
     <string name="androidProtectionLost">একটি ত্রুটির কারণে সুরক্ষা বন্ধ হয়ে গেছে, তাই আপনার অ্যাপগুলো এখন সরাসরি সংযোগ করছে। আবার চালু করতে Shroudly খুলুন।</string>
+    <string name="androidProxyOnlyOn">শুধু প্রক্সি: 127.0.0.1:{port}-এ সেট করা অ্যাপগুলো Shroudly দিয়ে যায়</string>
     <string name="androidShareLogs">লগ শেয়ার করুন</string>
     <string name="androidStartAtBoot">ফোন চালু হলে শুরু করুন</string>
     <string name="androidStartAtBootDesc">VPN-এর অনুমতি একবার দেওয়া হলে, ফোন আবার চালু হলে সুরক্ষা নিজে থেকেই চালু হয়।</string>

@@ -478,5 +478,12 @@
   "excludedAppsCount": "{count} 个应用绕过 Shroudly",
   "searchApps": "搜索应用",
   "androidStartAtBoot": "手机开机时启动",
-  "androidStartAtBootDesc": "一旦允许了 VPN，手机重启后保护会自动开启。"
+  "androidStartAtBootDesc": "一旦允许了 VPN，手机重启后保护会自动开启。",
+  "androidModeTitle": "模式",
+  "androidModeVpn": "VPN（所有应用）",
+  "androidModeVpnDesc": "所有应用都经过 Shroudly。Android 同一时间只允许一个 VPN，因此其他 VPN 应用会断开。",
+  "androidModeProxy": "仅代理（保留你的其他 VPN）",
+  "androidModeProxyDesc": "Shroudly 作为代理运行在 127.0.0.1:{port}（SOCKS5 和 HTTP），把 VPN 留给其他应用。只有设置为使用它的应用才经过 Shroudly：Wi-Fi 网络的代理（主机 127.0.0.1，端口 {port}）或应用自己的代理设置。",
+  "androidModeNextStart": "新模式将在下次启动保护时使用。",
+  "androidProxyOnlyOn": "仅代理：设置为 127.0.0.1:{port} 的应用经过 Shroudly"
 }

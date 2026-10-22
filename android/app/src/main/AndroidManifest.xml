@@ -12,6 +12,11 @@
          (ShroudlyVpnService.start), and Google Play needs no specialUse
          review for it. -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SYSTEM_EXEMPTED" />
+    <!-- "Proxy only" (ShroudlyProxyService) runs with no VPN, so it is not a
+         VPN app's service then: Android 14+ needs a type for it, and none of
+         the listed ones fits a local proxy (dataSync would stop it after six
+         hours a day on Android 15). -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <!-- "Start when the phone starts" (Settings, off by default). -->
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
@@ -63,6 +68,16 @@
             <meta-data
                 android:name="android.net.VpnService.SUPPORTS_ALWAYS_ON"
                 android:value="true" />
+        </service>
+
+        <!-- Proxy only (Settings): the engine as a proxy on 127.0.0.1, no VPN. -->
+        <service
+            android:name=".ShroudlyProxyService"
+            android:exported="false"
+            android:foregroundServiceType="specialUse">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="A local proxy on 127.0.0.1 that other apps on this device send their connections through, chosen by the user instead of the VPN so that another VPN app can stay connected; it runs while the user keeps protection on and stops when they turn it off." />
         </service>
 
         <activity

@@ -15,9 +15,16 @@
     <string name="androidDetails">Подробнее</string>
     <string name="androidDownloadApk">Скачать обновление</string>
     <string name="androidLockdownOffline">Нет интернета: Shroudly сейчас не может пробиться в этой сети, а Android настроен блокировать подключения без VPN. Shroudly продолжает попытки.</string>
+    <string name="androidModeNextStart">Новый режим будет использован при следующем запуске защиты.</string>
+    <string name="androidModeProxy">Только прокси (ваш другой VPN остаётся)</string>
+    <string name="androidModeProxyDesc">Shroudly работает как прокси на 127.0.0.1:{port} (SOCKS5 и HTTP) и оставляет VPN другому приложению. Через Shroudly идут только приложения, настроенные на него: прокси сети Wi-Fi (хост 127.0.0.1, порт {port}) или собственная настройка прокси в приложении.</string>
+    <string name="androidModeTitle">Режим</string>
+    <string name="androidModeVpn">VPN (все приложения)</string>
+    <string name="androidModeVpnDesc">Все приложения идут через Shroudly. Android допускает только один VPN одновременно, поэтому другое VPN-приложение отключится.</string>
     <string name="androidNoInternet">Защита остановилась, потому что Shroudly не смог выйти в интернет в этой сети, поэтому ваши приложения сейчас подключаются напрямую. Откройте Shroudly, чтобы попробовать снова.</string>
     <string name="androidPrivacyPolicy">Политика конфиденциальности</string>
     <string name="androidProtectionLost">Защита остановилась из-за ошибки, поэтому ваши приложения сейчас подключаются напрямую. Откройте Shroudly, чтобы снова её включить.</string>
+    <string name="androidProxyOnlyOn">Только прокси: приложения, настроенные на 127.0.0.1:{port}, идут через Shroudly</string>
     <string name="androidShareLogs">Поделиться журналом</string>
     <string name="androidStartAtBoot">Запускать при включении телефона</string>
     <string name="androidStartAtBootDesc">Защита включается сама после перезагрузки телефона, если VPN уже разрешён.</string>

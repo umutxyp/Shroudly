@@ -135,6 +135,7 @@ strategy**:
 | **Encrypted DNS** | DNS-over-HTTPS over [17 routes from 6 operators](#encrypted-dns-routes); answers pointing at ~180 known block pages are refused. On by default. |
 | **Block ads and trackers** | Optional, off by default (desktop Settings, Android About). Names on a public ad and tracker list ([StevenBlack/hosts](https://github.com/StevenBlack/hosts), MIT) get 0.0.0.0 / `::` or have their connection ended inside the engine, in every app; nothing is fetched for them. The list is downloaded through the engine, checked before use, refreshed weekly; sites can be exempted. Nothing about blocked names is logged or sent. |
 | **Android settings** | Under About → Settings: the accent colour (the desktop's nine, or the logo's blue), the bypass technique (the desktop's list; automatic by default), apps that skip Shroudly (their traffic goes straight out, e.g. a game), and starting when the phone starts. |
+| **Android proxy only** | Settings → Mode: instead of the VPN, Shroudly runs as a proxy on `127.0.0.1:10808` (SOCKS5 and HTTP) and leaves Android's one VPN slot to another VPN app. Apps set to use it go through Shroudly (the Wi-Fi network's proxy: host `127.0.0.1`, port `10808`, or an app's own proxy setting); the rest connect as they would without it. No VPN permission is asked for. |
 | **Auto-probe** | Opens each blocked site with a real handshake, trying combinations of the above, and remembers the one that works per site. If a site connects and is then cut, the next connection tries the next technique. |
 
 > **Note on fake packets.** Low-TTL decoys like those used by driver-based tools
@@ -562,7 +563,7 @@ directly. That list maintains itself:
 | Windows | **Windows 10** (x64 or ARM64) | The installer stops with a clear message on Windows 8.1 and earlier, which Electron no longer supports. |
 | macOS | **macOS 12 Monterey** (Intel or Apple Silicon) | Older versions are told so by macOS itself rather than failing to launch. |
 | Linux | **glibc 2.28+** — Debian 10, Ubuntu 18.04, Fedora 29 or newer | AppImage (x64, ARM64), plus native packages: .deb for Debian/Ubuntu, .pacman for Arch/Manjaro, .rpm for Fedora/openSUSE/RHEL. The bypass engine itself only needs glibc 2.17, so it is never the limiting part. |
-| Android | **Android 8** or newer (phones and tablets; ARM 64/32-bit, x86_64) | An APK from the releases page. It works as a VPN on the phone, so every app goes through Shroudly; no root needed. |
+| Android | **Android 8** or newer (phones and tablets; ARM 64/32-bit, x86_64) | An APK from the releases page. It works as a VPN on the phone, so every app goes through Shroudly; no root needed. To keep another VPN app connected, Settings → Mode → Proxy only. |
 
 Advanced mode needs administrator rights, and is available on Windows and Linux only.
 

@@ -15,9 +15,16 @@
     <string name="androidDetails">جزئيات</string>
     <string name="androidDownloadApk">تازه نسخه ښکته کړئ</string>
     <string name="androidLockdownOffline">انټرنېټ نشته: Shroudly اوس مهال په دې شبکه کې نشي نښلېدای، او Android داسې تنظیم شوی چې له VPN پرته اړیکې بندې کړي. Shroudly هڅې ته دوام ورکوي.</string>
+    <string name="androidModeNextStart">نوې حالت به بل ځل چې ساتنه پیلېږي وکارول شي.</string>
+    <string name="androidModeProxy">یوازې پراکسي (ستاسو بل VPN پاتې کېږي)</string>
+    <string name="androidModeProxyDesc">Shroudly په ‎127.0.0.1:{port}‎ کې د پراکسي په توګه کار کوي (SOCKS5 او HTTP) او VPN بل اپ ته پرېږدي. یوازې هغه اپونه له Shroudly تېرېږي چې د دې کارولو لپاره تنظیم شوي وي: د Wi-Fi شبکې پراکسي (کوربه 127.0.0.1، پورټ {port}) یا د اپ خپله پراکسي امستنه.</string>
+    <string name="androidModeTitle">حالت</string>
+    <string name="androidModeVpn">VPN (ټول اپونه)</string>
+    <string name="androidModeVpnDesc">ټول اپونه له Shroudly تېرېږي. اندروېډ په یو وخت کې یوازې یو VPN ته اجازه ورکوي، نو د بل VPN اپ اړیکه پرې کېږي.</string>
     <string name="androidNoInternet">ساتنه ودرېده ځکه چې Shroudly په دې شبکه کې انټرنېټ ته ونه رسېد، نو ستاسو اپونه اوس مستقیم نښلي. د بیا هڅې لپاره Shroudly پرانیزئ.</string>
     <string name="androidPrivacyPolicy">د محرمیت تګلاره</string>
     <string name="androidProtectionLost">ساتنه د یوې تېروتنې له امله ودرېده، نو ستاسو اپونه اوس مستقیم نښلي. د بیا پیلولو لپاره Shroudly پرانیزئ.</string>
+    <string name="androidProxyOnlyOn">یوازې پراکسي: هغه اپونه چې په ‎127.0.0.1:{port}‎ تنظیم شوي له Shroudly تېرېږي</string>
     <string name="androidShareLogs">لاګونه شریک کړئ</string>
     <string name="androidStartAtBoot">د تلیفون د چالانېدو پر وخت پیل کړه</string>
     <string name="androidStartAtBootDesc">کله چې VPN ته اجازه ورکړل شي، د تلیفون له بیا پیلېدو وروسته ساتنه پخپله چالانېږي.</string>

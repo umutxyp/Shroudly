@@ -15,9 +15,16 @@
     <string name="androidDetails">Chi tiết</string>
     <string name="androidDownloadApk">Tải bản cập nhật</string>
     <string name="androidLockdownOffline">Không có Internet: Shroudly hiện chưa thể kết nối trên mạng này, và Android đang được đặt để chặn kết nối không qua VPN. Shroudly vẫn đang thử lại.</string>
+    <string name="androidModeNextStart">Chế độ mới sẽ dùng vào lần tới bảo vệ được bật.</string>
+    <string name="androidModeProxy">Chỉ proxy (giữ VPN khác của bạn)</string>
+    <string name="androidModeProxyDesc">Shroudly chạy như proxy tại 127.0.0.1:{port} (SOCKS5 và HTTP) và để VPN cho ứng dụng khác. Chỉ các ứng dụng được đặt để dùng nó mới đi qua Shroudly: proxy của mạng Wi-Fi (máy chủ 127.0.0.1, cổng {port}) hoặc cài đặt proxy riêng của ứng dụng.</string>
+    <string name="androidModeTitle">Chế độ</string>
+    <string name="androidModeVpn">VPN (mọi ứng dụng)</string>
+    <string name="androidModeVpnDesc">Mọi ứng dụng đi qua Shroudly. Android chỉ cho phép một VPN mỗi lúc, nên ứng dụng VPN khác sẽ bị ngắt.</string>
     <string name="androidNoInternet">Bảo vệ đã dừng vì Shroudly không thể kết nối Internet trên mạng này, vì vậy các ứng dụng của bạn hiện đang kết nối trực tiếp. Mở Shroudly để thử lại.</string>
     <string name="androidPrivacyPolicy">Chính sách quyền riêng tư</string>
     <string name="androidProtectionLost">Bảo vệ đã dừng do lỗi, vì vậy các ứng dụng của bạn hiện đang kết nối trực tiếp. Mở Shroudly để bật lại.</string>
+    <string name="androidProxyOnlyOn">Chỉ proxy: các ứng dụng đặt 127.0.0.1:{port} đi qua Shroudly</string>
     <string name="androidShareLogs">Chia sẻ nhật ký</string>
     <string name="androidStartAtBoot">Khởi động cùng điện thoại</string>
     <string name="androidStartAtBootDesc">Bảo vệ tự bật sau khi điện thoại khởi động lại, khi VPN đã được cho phép.</string>

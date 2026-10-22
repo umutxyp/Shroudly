@@ -22,14 +22,14 @@ class ShroudlyTileService : TileService() {
 
     override fun onClick() {
         when (Protection.state) {
-            Protection.State.ON -> ShroudlyVpnService.stop(this)
+            Protection.State.ON -> Protector.stop(this)
             Protection.State.OFF -> {
                 // With the VPN allowed already, protection starts from here.
                 // Otherwise the window opens and asks at once (the consent
                 // dialog needs it); so it does when the system does not allow
                 // a start from here.
                 val allowed = try {
-                    ShroudlyVpnService.start(this)
+                    Protector.start(this)
                 } catch (_: Exception) {
                     false
                 }

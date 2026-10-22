@@ -15,9 +15,16 @@
     <string name="androidDetails">Толығырақ</string>
     <string name="androidDownloadApk">Жаңартуды жүктеу</string>
     <string name="androidLockdownOffline">Интернет жоқ: Shroudly қазір бұл желіде қосыла алмай тұр, ал Android VPN-сіз қосылымдарды бұғаттайтындай бапталған. Shroudly әрекетін жалғастыруда.</string>
+    <string name="androidModeNextStart">Жаңа режим қорғаныс келесі рет іске қосылғанда қолданылады.</string>
+    <string name="androidModeProxy">Тек прокси (басқа VPN-іңіз қалады)</string>
+    <string name="androidModeProxyDesc">Shroudly 127.0.0.1:{port} мекенжайында прокси ретінде жұмыс істейді (SOCKS5 және HTTP) және VPN-ді басқа қолданбаға қалдырады. Тек оны қолдануға бапталған қолданбалар Shroudly арқылы өтеді: Wi-Fi желісінің проксиі (хост 127.0.0.1, порт {port}) немесе қолданбаның өз прокси баптауы.</string>
+    <string name="androidModeTitle">Режим</string>
+    <string name="androidModeVpn">VPN (барлық қолданбалар)</string>
+    <string name="androidModeVpnDesc">Барлық қолданбалар Shroudly арқылы өтеді. Android бір уақытта бір ғана VPN-ге рұқсат береді, сондықтан басқа VPN қолданбасы ажыратылады.</string>
     <string name="androidNoInternet">Shroudly бұл желіде интернетке шыға алмағандықтан қорғаныс тоқтады, сондықтан қолданбаларыңыз қазір тікелей қосылып тұр. Қайта көру үшін Shroudly-ді ашыңыз.</string>
     <string name="androidPrivacyPolicy">Құпиялық саясаты</string>
     <string name="androidProtectionLost">Қорғаныс қатеге байланысты тоқтады, сондықтан қолданбаларыңыз қазір тікелей қосылып тұр. Қайта қосу үшін Shroudly-ді ашыңыз.</string>
+    <string name="androidProxyOnlyOn">Тек прокси: 127.0.0.1:{port} бапталған қолданбалар Shroudly арқылы өтеді</string>
     <string name="androidShareLogs">Журналды бөлісу</string>
     <string name="androidStartAtBoot">Телефон қосылғанда іске қосу</string>
     <string name="androidStartAtBootDesc">VPN-ге бір рет рұқсат берілсе, телефон қайта қосылғанда қорғаныс өзі қосылады.</string>

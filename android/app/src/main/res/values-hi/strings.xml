@@ -15,9 +15,16 @@
     <string name="androidDetails">विवरण</string>
     <string name="androidDownloadApk">अपडेट डाउनलोड करें</string>
     <string name="androidLockdownOffline">इंटरनेट नहीं: Shroudly अभी इस नेटवर्क पर कनेक्ट नहीं कर पा रहा, और Android को बिना VPN के कनेक्शन ब्लॉक करने के लिए सेट किया गया है। Shroudly कोशिश जारी रखे हुए है।</string>
+    <string name="androidModeNextStart">नया मोड अगली बार सुरक्षा शुरू होने पर इस्तेमाल होगा।</string>
+    <string name="androidModeProxy">केवल प्रॉक्सी (आपका दूसरा VPN बना रहता है)</string>
+    <string name="androidModeProxyDesc">Shroudly 127.0.0.1:{port} पर प्रॉक्सी के रूप में चलता है (SOCKS5 और HTTP) और VPN को किसी दूसरे ऐप के लिए छोड़ देता है। केवल वे ऐप्स Shroudly से गुज़रते हैं जो इसे उपयोग करने के लिए सेट हैं: Wi-Fi नेटवर्क की प्रॉक्सी (होस्ट 127.0.0.1, पोर्ट {port}) या ऐप की अपनी प्रॉक्सी सेटिंग।</string>
+    <string name="androidModeTitle">मोड</string>
+    <string name="androidModeVpn">VPN (सभी ऐप्स)</string>
+    <string name="androidModeVpnDesc">सभी ऐप्स Shroudly से गुज़रते हैं। Android एक समय में केवल एक VPN की अनुमति देता है, इसलिए दूसरा VPN ऐप डिस्कनेक्ट हो जाता है।</string>
     <string name="androidNoInternet">सुरक्षा बंद हो गई क्योंकि Shroudly इस नेटवर्क पर इंटरनेट तक नहीं पहुँच सका, इसलिए आपके ऐप्स अब सीधे कनेक्ट हो रहे हैं। फिर से कोशिश करने के लिए Shroudly खोलें।</string>
     <string name="androidPrivacyPolicy">गोपनीयता नीति</string>
     <string name="androidProtectionLost">एक त्रुटि के कारण सुरक्षा बंद हो गई, इसलिए आपके ऐप्स अब सीधे कनेक्ट हो रहे हैं। इसे फिर से शुरू करने के लिए Shroudly खोलें।</string>
+    <string name="androidProxyOnlyOn">केवल प्रॉक्सी: 127.0.0.1:{port} पर सेट ऐप्स Shroudly से गुज़रते हैं</string>
     <string name="androidShareLogs">लॉग साझा करें</string>
     <string name="androidStartAtBoot">फ़ोन चालू होने पर शुरू करें</string>
     <string name="androidStartAtBootDesc">VPN की अनुमति एक बार मिलने के बाद, फ़ोन फिर से चालू होने पर सुरक्षा अपने आप चालू हो जाती है।</string>

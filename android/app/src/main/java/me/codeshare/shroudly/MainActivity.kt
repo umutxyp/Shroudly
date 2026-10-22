@@ -216,7 +216,7 @@ class MainActivity : Activity() {
 
     private fun onToggle() {
         when (Protection.state) {
-            Protection.State.ON -> ShroudlyVpnService.stop(this)
+            Protection.State.ON -> Protector.stop(this)
             Protection.State.OFF -> {
                 vpnDenied = false
                 Protection.clearError()
@@ -247,6 +247,9 @@ class MainActivity : Activity() {
     }
 
     private fun startWithConsent() {
+        // Proxy only: no VPN, so no consent to ask for (asking would end
+        // another VPN app's connection).
+        if (!Protector.needsVpnConsent(this)) { startService(); return }
         val consent = try {
             VpnService.prepare(this)
         } catch (e: Exception) {
@@ -280,7 +283,7 @@ class MainActivity : Activity() {
 
     /* The service starts only once the VPN is allowed (see ShroudlyVpnService.start). */
     private fun startService() {
-        if (!ShroudlyVpnService.start(this)) {
+        if (!Protector.start(this)) {
             vpnDenied = true
             render()
         }
@@ -340,7 +343,12 @@ class MainActivity : Activity() {
                 more = Protection.errorDetail != null
             }
             else -> {
-                detail.show(if (on) getString(R.string.androidAllApps) else getString(R.string.dpiBypassStopped))
+                detail.show(when {
+                    !on -> getString(R.string.dpiBypassStopped)
+                    // Proxy only: where apps are to be pointed.
+                    Protection.proxyOnly -> text(R.string.androidProxyOnlyOn, "port" to Protection.socksPort)
+                    else -> getString(R.string.androidAllApps)
+                })
                 detail.setTextColor(getColor(R.color.text_dim))
             }
         }
@@ -460,11 +468,7 @@ class MainActivity : Activity() {
 
     /* The service, when protection is on, puts the setting to use at once. */
     private fun tellAdBlock() {
-        if (Protection.state == Protection.State.OFF) return
-        try {
-            startService(Intent(this, ShroudlyVpnService::class.java).setAction(ShroudlyVpnService.ACTION_ADBLOCK))
-        } catch (_: Exception) {
-        }
+        Protector.tell(this, ShroudlyVpnService.ACTION_ADBLOCK)
     }
 
     /* "Sites never to block": one domain per line, cleaned on save. */

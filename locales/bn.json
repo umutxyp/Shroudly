@@ -478,5 +478,12 @@
   "excludedAppsCount": "{count}টি অ্যাপ Shroudly এড়িয়ে চলে",
   "searchApps": "অ্যাপ খুঁজুন",
   "androidStartAtBoot": "ফোন চালু হলে শুরু করুন",
-  "androidStartAtBootDesc": "VPN-এর অনুমতি একবার দেওয়া হলে, ফোন আবার চালু হলে সুরক্ষা নিজে থেকেই চালু হয়।"
+  "androidStartAtBootDesc": "VPN-এর অনুমতি একবার দেওয়া হলে, ফোন আবার চালু হলে সুরক্ষা নিজে থেকেই চালু হয়।",
+  "androidModeTitle": "মোড",
+  "androidModeVpn": "VPN (সব অ্যাপ)",
+  "androidModeVpnDesc": "সব অ্যাপ Shroudly দিয়ে যায়। Android একসাথে একটিমাত্র VPN চালাতে দেয়, তাই অন্য VPN অ্যাপের সংযোগ বিচ্ছিন্ন হয়।",
+  "androidModeProxy": "শুধু প্রক্সি (আপনার অন্য VPN চালু থাকে)",
+  "androidModeProxyDesc": "Shroudly 127.0.0.1:{port}-এ প্রক্সি হিসেবে চলে (SOCKS5 ও HTTP) এবং VPN অন্য অ্যাপের জন্য ছেড়ে দেয়। শুধু সেই অ্যাপগুলো Shroudly দিয়ে যায় যেগুলো এটি ব্যবহারের জন্য সেট করা: Wi-Fi নেটওয়ার্কের প্রক্সি (হোস্ট 127.0.0.1, পোর্ট {port}) বা অ্যাপের নিজস্ব প্রক্সি সেটিং।",
+  "androidModeNextStart": "পরেরবার সুরক্ষা চালু হলে নতুন মোড ব্যবহার হবে।",
+  "androidProxyOnlyOn": "শুধু প্রক্সি: 127.0.0.1:{port}-এ সেট করা অ্যাপগুলো Shroudly দিয়ে যায়"
 }

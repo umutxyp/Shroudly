@@ -478,5 +478,12 @@
   "excludedAppsCount": "{count} ایپس Shroudly سے نہیں گزرتیں",
   "searchApps": "ایپس تلاش کریں",
   "androidStartAtBoot": "فون آن ہونے پر شروع کریں",
-  "androidStartAtBootDesc": "VPN کی اجازت ملنے کے بعد، فون دوبارہ شروع ہونے پر تحفظ خود بخود آن ہو جاتا ہے۔"
+  "androidStartAtBootDesc": "VPN کی اجازت ملنے کے بعد، فون دوبارہ شروع ہونے پر تحفظ خود بخود آن ہو جاتا ہے۔",
+  "androidModeTitle": "موڈ",
+  "androidModeVpn": "VPN (تمام ایپس)",
+  "androidModeVpnDesc": "تمام ایپس Shroudly سے گزرتی ہیں۔ اینڈرائیڈ ایک وقت میں صرف ایک VPN کی اجازت دیتا ہے، اس لیے کسی دوسری VPN ایپ کا کنکشن کٹ جاتا ہے۔",
+  "androidModeProxy": "صرف پراکسی (آپ کا دوسرا VPN رہتا ہے)",
+  "androidModeProxyDesc": "Shroudly ‏127.0.0.1:{port} پر پراکسی کے طور پر چلتا ہے (SOCKS5 اور HTTP) اور VPN کسی دوسری ایپ کے لیے چھوڑ دیتا ہے۔ صرف وہ ایپس Shroudly سے گزرتی ہیں جو اسے استعمال کرنے کے لیے سیٹ ہوں: Wi-Fi نیٹ ورک کی پراکسی (ہوسٹ 127.0.0.1، پورٹ {port}) یا ایپ کی اپنی پراکسی سیٹنگ۔",
+  "androidModeNextStart": "نیا موڈ اگلی بار تحفظ شروع ہونے پر استعمال ہوگا۔",
+  "androidProxyOnlyOn": "صرف پراکسی: ‏127.0.0.1:{port} پر سیٹ ایپس Shroudly سے گزرتی ہیں"
 }

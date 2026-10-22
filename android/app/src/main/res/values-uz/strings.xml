@@ -15,9 +15,16 @@
     <string name="androidDetails">Batafsil</string>
     <string name="androidDownloadApk">Yangilanishni yuklab olish</string>
     <string name="androidLockdownOffline">Internet yo‘q: Shroudly hozir bu tarmoqda ulana olmayapti, Android esa VPN’siz ulanishlarni bloklashga sozlangan. Shroudly urinishda davom etmoqda.</string>
+    <string name="androidModeNextStart">Yangi rejim himoya keyingi safar ishga tushganda qoʻllanadi.</string>
+    <string name="androidModeProxy">Faqat proksi (boshqa VPN’ingiz qoladi)</string>
+    <string name="androidModeProxyDesc">Shroudly 127.0.0.1:{port} da proksi sifatida ishlaydi (SOCKS5 va HTTP) va VPN’ni boshqa ilovaga qoldiradi. Faqat uni ishlatishga sozlangan ilovalar Shroudly orqali oʻtadi: Wi-Fi tarmogʻining proksisi (host 127.0.0.1, port {port}) yoki ilovaning oʻz proksi sozlamasi.</string>
+    <string name="androidModeTitle">Rejim</string>
+    <string name="androidModeVpn">VPN (barcha ilovalar)</string>
+    <string name="androidModeVpnDesc">Barcha ilovalar Shroudly orqali oʻtadi. Android bir vaqtda faqat bitta VPN’ga ruxsat beradi, shuning uchun boshqa VPN ilovasi uziladi.</string>
     <string name="androidNoInternet">Shroudly bu tarmoqda internetga chiqa olmagani uchun himoya to‘xtadi, shuning uchun ilovalaringiz hozir to‘g‘ridan-to‘g‘ri ulanmoqda. Qayta urinib ko‘rish uchun Shroudly’ni oching.</string>
     <string name="androidPrivacyPolicy">Maxfiylik siyosati</string>
     <string name="androidProtectionLost">Himoya xato tufayli to‘xtadi, shuning uchun ilovalaringiz hozir to‘g‘ridan-to‘g‘ri ulanmoqda. Uni qayta yoqish uchun Shroudly’ni oching.</string>
+    <string name="androidProxyOnlyOn">Faqat proksi: 127.0.0.1:{port} ga sozlangan ilovalar Shroudly orqali oʻtadi</string>
     <string name="androidShareLogs">Jurnalni ulashish</string>
     <string name="androidStartAtBoot">Telefon yonganda ishga tushirish</string>
     <string name="androidStartAtBootDesc">VPN’ga bir marta ruxsat berilgan boʻlsa, telefon qayta yonganda himoya oʻzi yoqiladi.</string>

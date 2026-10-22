@@ -11,8 +11,9 @@ Play Console'da elle yapılacak işleri sırayla anlatır. Kod tarafı hazır:
   imzayı görüp uygulamayı eşleştirir). Play'den kuran biri de isterse GitHub
   APK'sını üstüne kurabilir.
 - Play'in kuralları kodda karşılanıyor: hedef API 36; tüm `.so` dosyaları 16 KB
-  hizalı (CI her sürümde kontrol ediyor); ön plan servisi yalnızca
-  `systemExempted` (elle inceleme isteyen `specialUse` kaldırıldı); Play'den
+  hizalı (CI her sürümde kontrol ediyor); ön plan servisi VPN modunda
+  `systemExempted`, "Yalnızca proxy" modunda (Ayarlar, #31) `specialUse`
+  (VPN olmadığı için başka tür uymuyor; beyanı aşağıda, 5h); Play'den
   kurulan kopya kendini güncellemiyor ve dışarıdan kod indirmiyor; uygulama
   içinde gizlilik politikası bağlantısı var (Hakkında bölümü, 31 dil).
 
@@ -315,8 +316,9 @@ gönderilmeli.
 ### 5h. Ön plan servisi (Foreground service) beyanı
 
 Hedef API 34+ olduğu için kullanılan ön plan servis türleri beyan edilir.
-Shroudly yalnızca **`systemExempted`** kullanır (Android'in VPN uygulamalarına
-verdiği tür). Form tür soruyorsa onu seç; açıklama gerekiyorsa:
+Shroudly iki tür kullanır: VPN modunda **`systemExempted`** (Android'in VPN
+uygulamalarına verdiği tür), "Yalnızca proxy" modunda **`specialUse`**. Form
+türleri soruyorsa ikisini de seç. `systemExempted` için açıklama gerekiyorsa:
 
 ```
 The VPN service (ShroudlyVpnService) runs in the foreground while the user's
@@ -329,6 +331,30 @@ the VPN at once, so the user's apps connect directly again.
 Video istenirse (kısa, ekran kaydı): uygulamayı aç → "Start protection" →
 Android'in VPN izin penceresi → "OK" → bildirimde süren "Protected"
 bildirimi → bildirimdeki "Stop" ile durdurma.
+
+`specialUse` elle incelenir: Play bir gerekçe ve video ister. Neden bu tür:
+"Yalnızca proxy" modunda VPN yoktur (kullanıcının başka VPN uygulaması bağlı
+kalsın diye), bu yüzden `systemExempted` kullanılamaz; servis kullanıcı
+açık tuttuğu sürece çalışmalıdır, `dataSync` ise Android 15'te günde 6 saatle
+sınırlıdır; listedeki diğer türler (konum, medya, cihaz bağlantısı...) yerel
+bir proxy'yi tanımlamaz. Manifestteki alt tür
+(`PROPERTY_SPECIAL_USE_FGS_SUBTYPE`) aşağıdaki ilk cümleyle aynıdır. Gerekçe:
+
+```
+"Proxy only" mode (Settings, off by default): a local proxy on 127.0.0.1
+that other apps on this device send their connections through, chosen by
+the user instead of the VPN so that another VPN app can stay connected. It
+is not a VPN, so systemExempted does not apply, and it has to run for as
+long as the user keeps protection on, which dataSync (6 hours a day on
+Android 15) does not allow. It starts only when the user turns protection
+on, shows an ongoing notification with a Stop action, listens on 127.0.0.1
+only (no other device can reach it), and stops when the user turns it off.
+```
+
+Video: Ayarlar → Mod → "Proxy only" → ana ekranda "Start protection"
+(VPN izin penceresi çıkmaz) → bildirimde "Proxy only: apps set to use
+127.0.0.1:10808..." → Wi-Fi ağının proxy ayarına 127.0.0.1 / 10808 yazılır →
+tarayıcıda bir sayfa açılır → bildirimdeki "Stop".
 
 ### 5i. Diğer formlar
 

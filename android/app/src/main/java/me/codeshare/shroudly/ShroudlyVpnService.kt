@@ -64,23 +64,23 @@ class ShroudlyVpnService : VpnService() {
          * the apps that skip Shroudly). Nothing while protection is off. */
         const val ACTION_SETTINGS = "me.codeshare.shroudly.SETTINGS"
 
-        private const val CHANNEL = "protection"
+        internal const val CHANNEL = "protection"
         private const val ALERT_CHANNEL = "alerts"
-        private const val NOTIFICATION_ID = 1
+        internal const val NOTIFICATION_ID = 1
         private const val ALERT_ID = 2
         // An app that cannot reach its servers (RawWatch): its own notice, so
         // it never replaces the one that says protection stopped.
         private const val RAW_ID = 3
-        private const val LEARNED_RAW_MAX = 100
+        internal const val LEARNED_RAW_MAX = 100
         private const val RAW_NETWORK_WORKS_MS = 3L * 60 * 1000
-        private const val MAX_RESTARTS = 5
+        internal const val MAX_RESTARTS = 5
         // A STATS left unanswered this long (in uptime, so time asleep does not
         // count) means the engine's command loop hangs. In the app's own
         // process an answer takes a millisecond.
-        private const val HANG_TIMEOUT_MS = 30000L
+        internal const val HANG_TIMEOUT_MS = 30000L
         // How often the engine is asked for its counters when nobody is looking:
         // to know it still answers, and how much came back (PathWatch).
-        private const val IDLE_PROBE_MS = 10000L
+        internal const val IDLE_PROBE_MS = 10000L
         // The tunnel is restarted once; stopping again within this time (real
         // time, asleep included) ends protection.
         private const val TUNNEL_RETRY_WINDOW_MS = 10L * 60 * 1000
@@ -146,7 +146,7 @@ class ShroudlyVpnService : VpnService() {
         /* Names of sites and what worked on them: in the system log of debug
          * builds only, so a release build's log never lists the sites someone
          * opened; in the app's own log in memory, for "Share logs". */
-        private fun logSite(msg: String) {
+        internal fun logSite(msg: String) {
             if (BuildConfig.DEBUG) Log.i(TAG, msg)
             AppLog.add(msg, site = true)
         }

@@ -478,5 +478,12 @@
   "excludedAppsCount": "{count} sepan Shroudly derbas dikin",
   "searchApps": "Li sepanan bigere",
   "androidStartAtBoot": "Dema telefon vedibe dest pê bike",
-  "androidStartAtBootDesc": "Piştî ku destûr ji VPN re hat dayîn, gava telefon ji nû ve dest pê dike parastin bi xwe vedibe."
+  "androidStartAtBootDesc": "Piştî ku destûr ji VPN re hat dayîn, gava telefon ji nû ve dest pê dike parastin bi xwe vedibe.",
+  "androidModeTitle": "Mod",
+  "androidModeVpn": "VPN (hemû sepan)",
+  "androidModeVpnDesc": "Hemû sepan di Shroudly re derbas dibin. Android di heman demê de tenê destûrê dide yek VPN, ji ber vê sepaneke din a VPN tê qutkirin.",
+  "androidModeProxy": "Tenê proksî (VPN-a te ya din dimîne)",
+  "androidModeProxyDesc": "Shroudly li 127.0.0.1:{port} wek proksî dixebite (SOCKS5 û HTTP) û VPN-ê ji sepaneke din re dihêle. Tenê sepanên ku ji bo bikaranîna wê hatine mîhengkirin di Shroudly re derbas dibin: proksiya tora Wi-Fi (host 127.0.0.1, port {port}) an mîhenga proksiyê ya sepanê bi xwe.",
+  "androidModeNextStart": "Moda nû dê gava parastin cara din dest pê bike were bikaranîn.",
+  "androidProxyOnlyOn": "Tenê proksî: sepanên ku li ser 127.0.0.1:{port} hatine mîhengkirin di Shroudly re derbas dibin"
 }

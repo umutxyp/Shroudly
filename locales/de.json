@@ -478,5 +478,12 @@
   "excludedAppsCount": "{count} Apps umgehen Shroudly",
   "searchApps": "Apps suchen",
   "androidStartAtBoot": "Beim Start des Telefons starten",
-  "androidStartAtBootDesc": "Der Schutz schaltet sich nach einem Neustart des Telefons selbst ein, sobald das VPN erlaubt wurde."
+  "androidStartAtBootDesc": "Der Schutz schaltet sich nach einem Neustart des Telefons selbst ein, sobald das VPN erlaubt wurde.",
+  "androidModeTitle": "Modus",
+  "androidModeVpn": "VPN (alle Apps)",
+  "androidModeVpnDesc": "Alle Apps gehen über Shroudly. Android erlaubt nur ein VPN zugleich, daher wird eine andere VPN-App getrennt.",
+  "androidModeProxy": "Nur Proxy (dein anderes VPN bleibt)",
+  "androidModeProxyDesc": "Shroudly läuft als Proxy auf 127.0.0.1:{port} (SOCKS5 und HTTP) und überlässt das VPN einer anderen App. Nur Apps, die ihn nutzen sollen, gehen über Shroudly: der Proxy des WLANs (Host 127.0.0.1, Port {port}) oder die eigene Proxy-Einstellung einer App.",
+  "androidModeNextStart": "Der neue Modus gilt beim nächsten Start des Schutzes.",
+  "androidProxyOnlyOn": "Nur Proxy: Apps, die 127.0.0.1:{port} nutzen, gehen über Shroudly"
 }

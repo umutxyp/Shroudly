@@ -15,9 +15,16 @@
     <string name="androidDetails">Падрабязнасці</string>
     <string name="androidDownloadApk">Спампаваць абнаўленне</string>
     <string name="androidLockdownOffline">Няма інтэрнэту: Shroudly зараз не можа прабіцца ў гэтай сетцы, а Android наладжаны блакаваць злучэнні без VPN. Shroudly працягвае спробы.</string>
+    <string name="androidModeNextStart">Новы рэжым будзе выкарыстаны пры наступным запуску абароны.</string>
+    <string name="androidModeProxy">Толькі проксі (ваш іншы VPN застаецца)</string>
+    <string name="androidModeProxyDesc">Shroudly працуе як проксі на 127.0.0.1:{port} (SOCKS5 і HTTP) і пакідае VPN іншай праграме. Праз Shroudly ідуць толькі праграмы, настроеныя на яго: проксі сеткі Wi-Fi (хост 127.0.0.1, порт {port}) або ўласная налада проксі ў праграме.</string>
+    <string name="androidModeTitle">Рэжым</string>
+    <string name="androidModeVpn">VPN (усе праграмы)</string>
+    <string name="androidModeVpnDesc">Усе праграмы ідуць праз Shroudly. Android дазваляе толькі адзін VPN адначасова, таму іншая VPN-праграма адключыцца.</string>
     <string name="androidNoInternet">Абарона спынілася, бо Shroudly не змог выйсці ў інтэрнэт у гэтай сетцы, таму вашы праграмы цяпер падключаюцца напрамую. Адкрыйце Shroudly, каб паспрабаваць зноў.</string>
     <string name="androidPrivacyPolicy">Палітыка прыватнасці</string>
     <string name="androidProtectionLost">Абарона спынілася з-за памылкі, таму вашы праграмы цяпер падключаюцца напрамую. Адкрыйце Shroudly, каб запусціць яе зноў.</string>
+    <string name="androidProxyOnlyOn">Толькі проксі: праграмы, настроеныя на 127.0.0.1:{port}, ідуць праз Shroudly</string>
     <string name="androidShareLogs">Падзяліцца журналам</string>
     <string name="androidStartAtBoot">Запускаць пры ўключэнні тэлефона</string>
     <string name="androidStartAtBootDesc">Абарона ўключаецца сама пасля перазапуску тэлефона, калі VPN ужо дазволены.</string>

@@ -478,5 +478,12 @@
   "excludedAppsCount": "{count} aplikasi melewati Shroudly",
   "searchApps": "Cari aplikasi",
   "androidStartAtBoot": "Mulai saat ponsel menyala",
-  "androidStartAtBootDesc": "Perlindungan menyala sendiri setelah ponsel dinyalakan ulang, setelah VPN diizinkan."
+  "androidStartAtBootDesc": "Perlindungan menyala sendiri setelah ponsel dinyalakan ulang, setelah VPN diizinkan.",
+  "androidModeTitle": "Mode",
+  "androidModeVpn": "VPN (semua aplikasi)",
+  "androidModeVpnDesc": "Semua aplikasi lewat Shroudly. Android hanya mengizinkan satu VPN dalam satu waktu, jadi aplikasi VPN lain terputus.",
+  "androidModeProxy": "Hanya proxy (VPN Anda yang lain tetap)",
+  "androidModeProxyDesc": "Shroudly berjalan sebagai proxy di 127.0.0.1:{port} (SOCKS5 dan HTTP) dan menyerahkan VPN ke aplikasi lain. Hanya aplikasi yang diatur untuk memakainya yang lewat Shroudly: proxy jaringan Wi-Fi (host 127.0.0.1, port {port}) atau pengaturan proxy aplikasi itu sendiri.",
+  "androidModeNextStart": "Mode baru dipakai saat perlindungan dimulai berikutnya.",
+  "androidProxyOnlyOn": "Hanya proxy: aplikasi yang diatur ke 127.0.0.1:{port} lewat Shroudly"
 }

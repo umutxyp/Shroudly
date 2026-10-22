@@ -15,9 +15,16 @@
     <string name="androidDetails">Тафсилот</string>
     <string name="androidDownloadApk">Боргирии навсозӣ</string>
     <string name="androidLockdownOffline">Интернет нест: Shroudly ҳоло дар ин шабака пайваст шуда наметавонад, ва Android барои манъ кардани пайвастҳои бе VPN танзим шудааст. Shroudly кӯшишро идома медиҳад.</string>
+    <string name="androidModeNextStart">Реҷаи нав дафъаи дигар, ки ҳимоя оғоз мешавад, истифода мешавад.</string>
+    <string name="androidModeProxy">Танҳо прокси (VPN-и дигаратон мемонад)</string>
+    <string name="androidModeProxyDesc">Shroudly дар 127.0.0.1:{port} ҳамчун прокси кор мекунад (SOCKS5 ва HTTP) ва VPN-ро ба барномаи дигар мегузорад. Танҳо барномаҳое, ки барои истифодаи он танзим шудаанд, аз Shroudly мегузаранд: проксии шабакаи Wi-Fi (хост 127.0.0.1, порт {port}) ё танзими проксии худи барнома.</string>
+    <string name="androidModeTitle">Реҷа</string>
+    <string name="androidModeVpn">VPN (ҳамаи барномаҳо)</string>
+    <string name="androidModeVpnDesc">Ҳамаи барномаҳо аз Shroudly мегузаранд. Android ҳамзамон танҳо як VPN-ро иҷозат медиҳад, бинобар ин барномаи дигари VPN ҷудо мешавад.</string>
     <string name="androidNoInternet">Ҳимоя қатъ шуд, зеро Shroudly дар ин шабака ба интернет пайваст шуда натавонист, бинобар ин барномаҳоятон ҳоло мустақиман пайваст мешаванд. Барои боз кӯшиш кардан Shroudly-ро кушоед.</string>
     <string name="androidPrivacyPolicy">Сиёсати махфият</string>
     <string name="androidProtectionLost">Ҳимоя аз сабаби хатогӣ қатъ шуд, бинобар ин барномаҳоятон ҳоло мустақиман пайваст мешаванд. Барои дубора оғоз кардан Shroudly-ро кушоед.</string>
+    <string name="androidProxyOnlyOn">Танҳо прокси: барномаҳое, ки ба 127.0.0.1:{port} танзим шудаанд, аз Shroudly мегузаранд</string>
     <string name="androidShareLogs">Мубодилаи сабтҳо</string>
     <string name="androidStartAtBoot">Ҳангоми фурӯзон шудани телефон оғоз кардан</string>
     <string name="androidStartAtBootDesc">Агар VPN як бор иҷозат гирифта бошад, пас аз бозоғозии телефон ҳимоя худ фаъол мешавад.</string>

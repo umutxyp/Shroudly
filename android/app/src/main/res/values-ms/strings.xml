@@ -15,9 +15,16 @@
     <string name="androidDetails">Butiran</string>
     <string name="androidDownloadApk">Muat turun kemas kini</string>
     <string name="androidLockdownOffline">Tiada internet: Shroudly belum dapat bersambung pada rangkaian ini, dan Android ditetapkan untuk menyekat sambungan tanpa VPN. Shroudly terus mencuba.</string>
+    <string name="androidModeNextStart">Mod baharu digunakan apabila perlindungan dimulakan seterusnya.</string>
+    <string name="androidModeProxy">Proksi sahaja (VPN anda yang lain kekal)</string>
+    <string name="androidModeProxyDesc">Shroudly berjalan sebagai proksi di 127.0.0.1:{port} (SOCKS5 dan HTTP) dan menyerahkan VPN kepada aplikasi lain. Hanya aplikasi yang ditetapkan untuk menggunakannya melalui Shroudly: proksi rangkaian Wi-Fi (hos 127.0.0.1, port {port}) atau tetapan proksi aplikasi itu sendiri.</string>
+    <string name="androidModeTitle">Mod</string>
+    <string name="androidModeVpn">VPN (semua aplikasi)</string>
+    <string name="androidModeVpnDesc">Semua aplikasi melalui Shroudly. Android hanya membenarkan satu VPN pada satu masa, jadi aplikasi VPN lain terputus.</string>
     <string name="androidNoInternet">Perlindungan berhenti kerana Shroudly tidak dapat mencapai internet pada rangkaian ini, jadi aplikasi anda kini bersambung secara terus. Buka Shroudly untuk mencuba lagi.</string>
     <string name="androidPrivacyPolicy">Dasar privasi</string>
     <string name="androidProtectionLost">Perlindungan berhenti kerana ralat, jadi aplikasi anda kini bersambung secara terus. Buka Shroudly untuk memulakannya semula.</string>
+    <string name="androidProxyOnlyOn">Proksi sahaja: aplikasi yang ditetapkan ke 127.0.0.1:{port} melalui Shroudly</string>
     <string name="androidShareLogs">Kongsi log</string>
     <string name="androidStartAtBoot">Mula apabila telefon dihidupkan</string>
     <string name="androidStartAtBootDesc">Perlindungan hidup sendiri selepas telefon dimulakan semula, setelah VPN dibenarkan.</string>

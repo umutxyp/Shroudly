@@ -15,9 +15,16 @@
     <string name="androidDetails">အသေးစိတ်</string>
     <string name="androidDownloadApk">အပ်ဒိတ်ကို ဒေါင်းလုဒ်လုပ်ရန်</string>
     <string name="androidLockdownOffline">အင်တာနက် မရှိပါ- Shroudly သည် ယခု ဤကွန်ရက်တွင် ချိတ်ဆက်၍ မရသေးဘဲ Android ကို VPN မပါသော ချိတ်ဆက်မှုများ ပိတ်ဆို့ရန် သတ်မှတ်ထားပါသည်။ Shroudly ဆက်လက် ကြိုးစားနေပါသည်။</string>
+    <string name="androidModeNextStart">မုဒ်အသစ်ကို ကာကွယ်မှု နောက်တစ်ကြိမ် စတင်သည့်အခါ သုံးမည်။</string>
+    <string name="androidModeProxy">ပရောက်စီသာ (သင့်အခြား VPN ဆက်ရှိနေမည်)</string>
+    <string name="androidModeProxyDesc">Shroudly သည် 127.0.0.1:{port} တွင် ပရောက်စီအဖြစ် လုပ်ဆောင်ပြီး (SOCKS5 နှင့် HTTP) VPN ကို အခြားအက်ပ်အတွက် ချန်ထားသည်။ ၎င်းကို သုံးရန် သတ်မှတ်ထားသော အက်ပ်များသာ Shroudly မှတစ်ဆင့် သွားသည်- Wi-Fi ကွန်ရက်၏ ပရောက်စီ (host 127.0.0.1၊ port {port}) သို့မဟုတ် အက်ပ်၏ ကိုယ်ပိုင် ပရောက်စီဆက်တင်။</string>
+    <string name="androidModeTitle">မုဒ်</string>
+    <string name="androidModeVpn">VPN (အက်ပ်အားလုံး)</string>
+    <string name="androidModeVpnDesc">အက်ပ်အားလုံး Shroudly မှတစ်ဆင့် သွားသည်။ Android သည် တစ်ကြိမ်လျှင် VPN တစ်ခုသာ ခွင့်ပြုသဖြင့် အခြား VPN အက်ပ်၏ ချိတ်ဆက်မှု ပြတ်သွားမည်။</string>
     <string name="androidNoInternet">ဤကွန်ရက်တွင် Shroudly သည် အင်တာနက်သို့ မရောက်နိုင်သဖြင့် ကာကွယ်မှု ရပ်သွားပြီး သင့်အက်ပ်များသည် ယခု တိုက်ရိုက် ချိတ်ဆက်နေပါသည်။ ထပ်မံကြိုးစားရန် Shroudly ကို ဖွင့်ပါ။</string>
     <string name="androidPrivacyPolicy">ကိုယ်ရေးအချက်အလက် မူဝါဒ</string>
     <string name="androidProtectionLost">အမှားတစ်ခုကြောင့် ကာကွယ်မှု ရပ်သွားသဖြင့် သင့်အက်ပ်များသည် ယခု တိုက်ရိုက် ချိတ်ဆက်နေပါသည်။ ပြန်စတင်ရန် Shroudly ကို ဖွင့်ပါ။</string>
+    <string name="androidProxyOnlyOn">ပရောက်စီသာ- 127.0.0.1:{port} သုံးရန် သတ်မှတ်ထားသော အက်ပ်များ Shroudly မှတစ်ဆင့် သွားသည်</string>
     <string name="androidShareLogs">မှတ်တမ်းများ မျှဝေရန်</string>
     <string name="androidStartAtBoot">ဖုန်းဖွင့်သည့်အခါ စတင်ရန်</string>
     <string name="androidStartAtBootDesc">VPN ကို ခွင့်ပြုပြီးပါက ဖုန်းကို ပြန်စတင်သည့်အခါ ကာကွယ်မှု အလိုအလျောက် ပွင့်ပါသည်။</string>

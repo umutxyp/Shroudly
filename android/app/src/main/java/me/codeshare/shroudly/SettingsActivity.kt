@@ -40,6 +40,7 @@ class SettingsActivity : Activity() {
         setContentView(R.layout.activity_settings)
         edgeToEdge()
         showAccents()
+        showMode()
 
         val group = findViewById<RadioGroup>(R.id.strategy)
         val current = AppSettings.strategy(this).id
@@ -115,6 +116,38 @@ class SettingsActivity : Activity() {
         }
     }
 
+    /* VPN or proxy only, each with what it means; a change while protection
+     * is on takes effect at the next start (the window says so). */
+    private fun showMode() {
+        val group = findViewById<RadioGroup>(R.id.mode)
+        val proxy = AppSettings.proxyOnly(this)
+        val pad = (8 * resources.displayMetrics.density).toInt()
+        fun option(on: Boolean, label: Int, desc: String) = RadioButton(this).apply {
+            id = View.generateViewId()
+            tag = on
+            text = SpannableStringBuilder(getString(label)).append('\n').apply {
+                val from = length
+                append(desc)
+                setSpan(ForegroundColorSpan(getColor(R.color.text_dim)), from, length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                setSpan(RelativeSizeSpan(12.5f / 15f), from, length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            }
+            textSize = 15f
+            setTextColor(getColor(R.color.text))
+            setPadding(pad, pad, pad, pad)
+            isChecked = on == proxy
+        }
+        group.addView(option(false, R.string.androidModeVpn, getString(R.string.androidModeVpnDesc)))
+        group.addView(option(true, R.string.androidModeProxy, text(R.string.androidModeProxyDesc, "port" to ShroudlyProxyService.PORT)))
+        group.setOnCheckedChangeListener { g, checkedId ->
+            val on = g.findViewById<RadioButton>(checkedId)?.tag as? Boolean ?: return@setOnCheckedChangeListener
+            if (on == AppSettings.proxyOnly(this)) return@setOnCheckedChangeListener
+            AppSettings.setProxyOnly(this, on)
+            if (Protection.state != Protection.State.OFF) {
+                android.widget.Toast.makeText(this, R.string.androidModeNextStart, android.widget.Toast.LENGTH_LONG).show()
+            }
+        }
+    }
+
     /* The desktop's labels for the techniques (locales: strat*). */
     private fun labelOf(id: String): Int = when (id) {
         "split-sni" -> R.string.stratSplitSni
@@ -140,11 +173,7 @@ class SettingsActivity : Activity() {
 
     /* A running protection takes the change at once. */
     private fun tell(what: String) {
-        if (Protection.state == Protection.State.OFF) return
-        try {
-            startService(Intent(this, ShroudlyVpnService::class.java).setAction(ShroudlyVpnService.ACTION_SETTINGS).putExtra("what", what))
-        } catch (_: Exception) {
-        }
+        Protector.tell(this, ShroudlyVpnService.ACTION_SETTINGS, what)
     }
 
     private class App(val pkg: String, val label: String, val icon: Drawable?)

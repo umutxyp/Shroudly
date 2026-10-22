@@ -15,9 +15,16 @@
     <string name="androidDetails">Hûragahî</string>
     <string name="androidDownloadApk">Nûvekirinê daxe</string>
     <string name="androidLockdownOffline">Înternet tune: Shroudly niha li ser vê torê nikare derbas bibe, û Android hatiye mîhengkirin ku girêdanên bê VPN asteng bike. Shroudly hewl didomîne.</string>
+    <string name="androidModeNextStart">Moda nû dê gava parastin cara din dest pê bike were bikaranîn.</string>
+    <string name="androidModeProxy">Tenê proksî (VPN-a te ya din dimîne)</string>
+    <string name="androidModeProxyDesc">Shroudly li 127.0.0.1:{port} wek proksî dixebite (SOCKS5 û HTTP) û VPN-ê ji sepaneke din re dihêle. Tenê sepanên ku ji bo bikaranîna wê hatine mîhengkirin di Shroudly re derbas dibin: proksiya tora Wi-Fi (host 127.0.0.1, port {port}) an mîhenga proksiyê ya sepanê bi xwe.</string>
+    <string name="androidModeTitle">Mod</string>
+    <string name="androidModeVpn">VPN (hemû sepan)</string>
+    <string name="androidModeVpnDesc">Hemû sepan di Shroudly re derbas dibin. Android di heman demê de tenê destûrê dide yek VPN, ji ber vê sepaneke din a VPN tê qutkirin.</string>
     <string name="androidNoInternet">Parastin rawestiya ji ber ku Shroudly li ser vê torê negihişt înternetê, ji ber vê yekê sepanên te niha rasterast girêdidin. Ji bo ku tu dîsa biceribînî, Shroudly veke.</string>
     <string name="androidPrivacyPolicy">Polîtîkaya nepeniyê</string>
     <string name="androidProtectionLost">Parastin ji ber çewtiyekê rawestiya, ji ber vê yekê sepanên te niha rasterast girêdidin. Ji bo ku tu wê dîsa bidî destpêkirin, Shroudly veke.</string>
+    <string name="androidProxyOnlyOn">Tenê proksî: sepanên ku li ser 127.0.0.1:{port} hatine mîhengkirin di Shroudly re derbas dibin</string>
     <string name="androidShareLogs">Tomaran parve bike</string>
     <string name="androidStartAtBoot">Dema telefon vedibe dest pê bike</string>
     <string name="androidStartAtBootDesc">Piştî ku destûr ji VPN re hat dayîn, gava telefon ji nû ve dest pê dike parastin bi xwe vedibe.</string>

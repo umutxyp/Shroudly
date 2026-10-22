@@ -11,13 +11,15 @@ import android.content.Context
  *  - apps that skip Shroudly: their traffic goes straight out, past the VPN
  *    (VpnService.Builder.addDisallowedApplication), e.g. a game that does not
  *    need it;
- *  - start when the phone starts, once the user has allowed the VPN.
+ *  - start when the phone starts, once the user has allowed the VPN;
+ *  - VPN (every app) or proxy only (the VPN slot left to another app).
  */
 object AppSettings {
     private const val PREFS = "settings"
     private const val KEY_STRATEGY = "strategyId"
     private const val KEY_EXCLUDED = "excludedApps"
     private const val KEY_BOOT = "startAtBoot"
+    private const val KEY_MODE = "mode"
 
     /* The desktop's list, in its order: id, label (locale key), the
      * engine's spec, and whether the engine looks for what works by itself. */
@@ -48,6 +50,14 @@ object AppSettings {
 
     fun setExcluded(ctx: Context, packages: Set<String>) {
         prefs(ctx).edit().putStringSet(KEY_EXCLUDED, packages.filter { it != ctx.packageName }.toSet()).apply()
+    }
+
+    /* "Proxy only": Shroudly as a proxy on this phone, with no VPN, so the VPN
+     * slot stays free for another VPN app (ShroudlyProxyService). */
+    fun proxyOnly(ctx: Context): Boolean = prefs(ctx).getString(KEY_MODE, "vpn") == "proxy"
+
+    fun setProxyOnly(ctx: Context, on: Boolean) {
+        prefs(ctx).edit().putString(KEY_MODE, if (on) "proxy" else "vpn").apply()
     }
 
     fun startAtBoot(ctx: Context): Boolean = prefs(ctx).getBoolean(KEY_BOOT, false)

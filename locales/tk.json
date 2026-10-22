@@ -478,5 +478,12 @@
   "excludedAppsCount": "{count} programma Shroudly-dan aýlanyp geçýär",
   "searchApps": "Programma gözle",
   "androidStartAtBoot": "Telefon açylanda başla",
-  "androidStartAtBootDesc": "VPN-e bir gezek rugsat berlen bolsa, telefon täzeden açylanda gorag özi açylýar."
+  "androidStartAtBootDesc": "VPN-e bir gezek rugsat berlen bolsa, telefon täzeden açylanda gorag özi açylýar.",
+  "androidModeTitle": "Režim",
+  "androidModeVpn": "VPN (ähli programmalar)",
+  "androidModeVpnDesc": "Ähli programmalar Shroudly-dan geçýär. Android bir wagtda diňe bir VPN-e rugsat berýär, şonuň üçin başga VPN programmasy kesilýär.",
+  "androidModeProxy": "Diňe proksi (beýleki VPN-iňiz galýar)",
+  "androidModeProxyDesc": "Shroudly 127.0.0.1:{port} salgysynda proksi hökmünde işleýär (SOCKS5 we HTTP) we VPN-i başga programma galdyrýar. Diňe ony ulanmaga sazlanan programmalar Shroudly-dan geçýär: Wi-Fi toruň proksisi (host 127.0.0.1, port {port}) ýa-da programmanyň öz proksi sazlamasy.",
+  "androidModeNextStart": "Täze režim gorag indiki gezek başlanda ulanylar.",
+  "androidProxyOnlyOn": "Diňe proksi: 127.0.0.1:{port} sazlanan programmalar Shroudly-dan geçýär"
 }

@@ -32,6 +32,9 @@ object Protection {
      * session's password for it (null when the engine takes none). */
     @Volatile var socksPort = 0
     @Volatile var socksAuth: SocksAuth? = null
+    /* Proxy only (ShroudlyProxyService): no VPN, apps that are set to use
+     * 127.0.0.1:socksPort go through Shroudly; the VPN slot stays free. */
+    @Volatile var proxyOnly = false
     /* The window is on screen (between its onStart and onStop). */
     @Volatile var windowVisible = false
 
@@ -42,7 +45,7 @@ object Protection {
         state = s
         if (s == State.STARTING) { errorRes = 0; errorDetail = null }
         if (s != State.ON) { socksPort = 0; socksAuth = null }
-        if (s == State.OFF) { stats = null; startedAt = 0 }
+        if (s == State.OFF) { stats = null; startedAt = 0; proxyOnly = false }
         changed()
     }
 

@@ -15,9 +15,16 @@
     <string name="androidDetails">详细信息</string>
     <string name="androidDownloadApk">下载更新</string>
     <string name="androidLockdownOffline">无法上网：Shroudly 目前无法在此网络上连通，而 Android 已设置为阻止不经 VPN 的连接。Shroudly 正在继续尝试。</string>
+    <string name="androidModeNextStart">新模式将在下次启动保护时使用。</string>
+    <string name="androidModeProxy">仅代理（保留你的其他 VPN）</string>
+    <string name="androidModeProxyDesc">Shroudly 作为代理运行在 127.0.0.1:{port}（SOCKS5 和 HTTP），把 VPN 留给其他应用。只有设置为使用它的应用才经过 Shroudly：Wi-Fi 网络的代理（主机 127.0.0.1，端口 {port}）或应用自己的代理设置。</string>
+    <string name="androidModeTitle">模式</string>
+    <string name="androidModeVpn">VPN（所有应用）</string>
+    <string name="androidModeVpnDesc">所有应用都经过 Shroudly。Android 同一时间只允许一个 VPN，因此其他 VPN 应用会断开。</string>
     <string name="androidNoInternet">由于 Shroudly 在此网络上无法连接互联网，保护已停止，你的应用现在直接联网。打开 Shroudly 即可重试。</string>
     <string name="androidPrivacyPolicy">隐私政策</string>
     <string name="androidProtectionLost">保护因出错而停止，你的应用现在直接联网。打开 Shroudly 即可重新开启。</string>
+    <string name="androidProxyOnlyOn">仅代理：设置为 127.0.0.1:{port} 的应用经过 Shroudly</string>
     <string name="androidShareLogs">分享日志</string>
     <string name="androidStartAtBoot">手机开机时启动</string>
     <string name="androidStartAtBootDesc">一旦允许了 VPN，手机重启后保护会自动开启。</string>

@@ -21,17 +21,16 @@ class DebugControlActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         when (intent.getStringExtra("cmd")) {
-            "start" -> ShroudlyVpnService.start(this)
-            "stop" -> ShroudlyVpnService.stop(this)
-            "stats" -> startService(Intent(this, ShroudlyVpnService::class.java).setAction(ShroudlyVpnService.ACTION_STATS))
-            "test" -> startService(
-                Intent(this, ShroudlyVpnService::class.java).setAction(ShroudlyVpnService.ACTION_TEST)
-                    .putExtra("what", intent.getStringExtra("what")),
-            )
+            "start" -> Protector.start(this)
+            "stop" -> Protector.stop(this)
+            // VPN or proxy only, as Settings sets it (extra "mode": "vpn" or "proxy").
+            "mode" -> AppSettings.setProxyOnly(this, intent.getStringExtra("mode") == "proxy")
+            "stats" -> Protector.tell(this, ShroudlyVpnService.ACTION_STATS)
+            "test" -> Protector.tell(this, ShroudlyVpnService.ACTION_TEST, intent.getStringExtra("what"))
             // "Block ads and trackers" on or off, as the switch under About does.
             "adblock-on", "adblock-off" -> {
                 AdBlock.setEnabled(this, intent.getStringExtra("cmd") == "adblock-on")
-                startService(Intent(this, ShroudlyVpnService::class.java).setAction(ShroudlyVpnService.ACTION_ADBLOCK))
+                Protector.tell(this, ShroudlyVpnService.ACTION_ADBLOCK)
             }
             // "Apps that skip Shroudly", as Settings sets it: one package, or none.
             "exclude" -> {

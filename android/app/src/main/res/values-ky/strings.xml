@@ -15,9 +15,16 @@
     <string name="androidDetails">Кененирээк</string>
     <string name="androidDownloadApk">Жаңыртууну жүктөө</string>
     <string name="androidLockdownOffline">Интернет жок: Shroudly азыр бул тармакта туташа албай жатат, ал Android VPN\'сиз туташууларды бөгөттөөгө жөндөлгөн. Shroudly аракетин улантууда.</string>
+    <string name="androidModeNextStart">Жаңы режим коргоо кийинки жолу иштегенде колдонулат.</string>
+    <string name="androidModeProxy">Прокси гана (башка VPN\'иңиз калат)</string>
+    <string name="androidModeProxyDesc">Shroudly 127.0.0.1:{port} дарегинде прокси катары иштейт (SOCKS5 жана HTTP) жана VPN\'ди башка колдонмого калтырат. Аны колдонууга жөндөлгөн колдонмолор гана Shroudly аркылуу өтөт: Wi-Fi тармагынын проксиси (хост 127.0.0.1, порт {port}) же колдонмонун өз прокси жөндөөсү.</string>
+    <string name="androidModeTitle">Режим</string>
+    <string name="androidModeVpn">VPN (бардык колдонмолор)</string>
+    <string name="androidModeVpnDesc">Бардык колдонмолор Shroudly аркылуу өтөт. Android бир убакта бир гана VPN\'ге уруксат берет, ошондуктан башка VPN колдонмосу ажыратылат.</string>
     <string name="androidNoInternet">Shroudly бул тармакта интернетке чыга албагандыктан коргоо токтоду, ошондуктан колдонмолоруңуз азыр түз туташып жатат. Кайра аракет кылуу үчүн Shroudly\'ди ачыңыз.</string>
     <string name="androidPrivacyPolicy">Купуялык саясаты</string>
     <string name="androidProtectionLost">Коргоо катадан улам токтоду, ошондуктан колдонмолоруңуз азыр түз туташып жатат. Кайра иштетүү үчүн Shroudly\'ди ачыңыз.</string>
+    <string name="androidProxyOnlyOn">Прокси гана: 127.0.0.1:{port} жөндөлгөн колдонмолор Shroudly аркылуу өтөт</string>
     <string name="androidShareLogs">Журналды бөлүшүү</string>
     <string name="androidStartAtBoot">Телефон күйгөндө иштетүү</string>
     <string name="androidStartAtBootDesc">VPN\'ге бир жолу уруксат берилсе, телефон кайра күйгөндө коргоо өзү күйөт.</string>

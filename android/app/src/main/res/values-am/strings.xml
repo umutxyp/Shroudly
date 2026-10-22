@@ -15,9 +15,16 @@
     <string name="androidDetails">ዝርዝሮች</string>
     <string name="androidDownloadApk">ዝማኔውን አውርድ</string>
     <string name="androidLockdownOffline">ኢንተርኔት የለም፦ Shroudly አሁን በዚህ አውታረ መረብ ላይ መገናኘት አልቻለም፣ እና Android ያለ VPN ግንኙነቶችን እንዲያግድ ተቀናብሯል። Shroudly መሞከሩን ቀጥሏል።</string>
+    <string name="androidModeNextStart">አዲሱ ሁነታ ጥበቃው በሚቀጥለው ጊዜ ሲጀምር ጥቅም ላይ ይውላል።</string>
+    <string name="androidModeProxy">ፕሮክሲ ብቻ (ሌላው VPNዎ ይቀጥላል)</string>
+    <string name="androidModeProxyDesc">Shroudly በ127.0.0.1:{port} እንደ ፕሮክሲ ይሠራል (SOCKS5 እና HTTP) እና VPNን ለሌላ መተግበሪያ ይተዋል። በShroudly የሚያልፉት እሱን እንዲጠቀሙ የተዘጋጁ መተግበሪያዎች ብቻ ናቸው፦ የWi-Fi አውታረ መረቡ ፕሮክሲ (አስተናጋጅ 127.0.0.1፣ ወደብ {port}) ወይም የመተግበሪያው የራሱ የፕሮክሲ ቅንብር።</string>
+    <string name="androidModeTitle">ሁነታ</string>
+    <string name="androidModeVpn">VPN (ሁሉም መተግበሪያዎች)</string>
+    <string name="androidModeVpnDesc">ሁሉም መተግበሪያዎች በShroudly ያልፋሉ። Android በአንድ ጊዜ አንድ VPN ብቻ ስለሚፈቅድ ሌላ የVPN መተግበሪያ ይቋረጣል።</string>
     <string name="androidNoInternet">Shroudly በዚህ አውታረ መረብ ላይ ኢንተርኔት ማግኘት ስላልቻለ ጥበቃው ቆሟል፤ ስለዚህ መተግበሪያዎችዎ አሁን በቀጥታ ይገናኛሉ። እንደገና ለመሞከር Shroudlyን ይክፈቱ።</string>
     <string name="androidPrivacyPolicy">የግላዊነት መመሪያ</string>
     <string name="androidProtectionLost">በስህተት ምክንያት ጥበቃው ቆሟል፤ ስለዚህ መተግበሪያዎችዎ አሁን በቀጥታ ይገናኛሉ። እንደገና ለማስጀመር Shroudlyን ይክፈቱ።</string>
+    <string name="androidProxyOnlyOn">ፕሮክሲ ብቻ፦ 127.0.0.1:{port} እንዲጠቀሙ የተዘጋጁ መተግበሪያዎች በShroudly ያልፋሉ</string>
     <string name="androidShareLogs">መዝገብ አጋራ</string>
     <string name="androidStartAtBoot">ስልኩ ሲበራ ጀምር</string>
     <string name="androidStartAtBootDesc">ለVPN አንዴ ፈቃድ ከተሰጠ በኋላ ስልኩ እንደገና ሲጀምር ጥበቃው በራሱ ይበራል።</string>

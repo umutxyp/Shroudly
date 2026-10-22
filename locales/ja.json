@@ -478,5 +478,12 @@
   "excludedAppsCount": "{count} 個のアプリが Shroudly を通りません",
   "searchApps": "アプリを検索",
   "androidStartAtBoot": "スマホの起動時に開始",
-  "androidStartAtBootDesc": "VPN を一度許可していれば、スマホの再起動後に保護が自動で有効になります。"
+  "androidStartAtBootDesc": "VPN を一度許可していれば、スマホの再起動後に保護が自動で有効になります。",
+  "androidModeTitle": "モード",
+  "androidModeVpn": "VPN（すべてのアプリ）",
+  "androidModeVpnDesc": "すべてのアプリが Shroudly を通ります。Android では同時に 1 つの VPN しか使えないため、ほかの VPN アプリは切断されます。",
+  "androidModeProxy": "プロキシのみ（ほかの VPN はそのまま）",
+  "androidModeProxyDesc": "Shroudly は 127.0.0.1:{port} でプロキシとして動作し（SOCKS5 と HTTP）、VPN はほかのアプリに任せます。Shroudly を通るのは、使うように設定したアプリだけです：Wi-Fi ネットワークのプロキシ（ホスト 127.0.0.1、ポート {port}）またはアプリ自体のプロキシ設定。",
+  "androidModeNextStart": "新しいモードは次回保護を開始したときに使われます。",
+  "androidProxyOnlyOn": "プロキシのみ: 127.0.0.1:{port} を使うように設定したアプリが Shroudly を通ります"
 }

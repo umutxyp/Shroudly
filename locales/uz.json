@@ -478,5 +478,12 @@
   "excludedAppsCount": "{count} ta ilova Shroudly’ni chetlab oʻtadi",
   "searchApps": "Ilova qidirish",
   "androidStartAtBoot": "Telefon yonganda ishga tushirish",
-  "androidStartAtBootDesc": "VPN’ga bir marta ruxsat berilgan boʻlsa, telefon qayta yonganda himoya oʻzi yoqiladi."
+  "androidStartAtBootDesc": "VPN’ga bir marta ruxsat berilgan boʻlsa, telefon qayta yonganda himoya oʻzi yoqiladi.",
+  "androidModeTitle": "Rejim",
+  "androidModeVpn": "VPN (barcha ilovalar)",
+  "androidModeVpnDesc": "Barcha ilovalar Shroudly orqali oʻtadi. Android bir vaqtda faqat bitta VPN’ga ruxsat beradi, shuning uchun boshqa VPN ilovasi uziladi.",
+  "androidModeProxy": "Faqat proksi (boshqa VPN’ingiz qoladi)",
+  "androidModeProxyDesc": "Shroudly 127.0.0.1:{port} da proksi sifatida ishlaydi (SOCKS5 va HTTP) va VPN’ni boshqa ilovaga qoldiradi. Faqat uni ishlatishga sozlangan ilovalar Shroudly orqali oʻtadi: Wi-Fi tarmogʻining proksisi (host 127.0.0.1, port {port}) yoki ilovaning oʻz proksi sozlamasi.",
+  "androidModeNextStart": "Yangi rejim himoya keyingi safar ishga tushganda qoʻllanadi.",
+  "androidProxyOnlyOn": "Faqat proksi: 127.0.0.1:{port} ga sozlangan ilovalar Shroudly orqali oʻtadi"
 }

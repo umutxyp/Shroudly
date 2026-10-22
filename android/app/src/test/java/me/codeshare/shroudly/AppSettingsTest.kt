@@ -36,4 +36,29 @@ class AppSettingsTest {
         assertFalse("one technique for every site: no --auto", one.contains("--auto"))
         assertTrue("encrypted DNS either way", one.contains("--doh"))
     }
+
+    /* Proxy only (#31) leaves the VPN slot to another app: the engine listens
+     * on 127.0.0.1 alone, with no password and no stand-in range, and nothing
+     * on that path asks Android for the VPN (VpnService.prepare would end the
+     * other VPN app's connection). */
+    @Test
+    fun proxyOnlyNeverTouchesTheVpn() {
+        val a = Engine.args(ShroudlyProxyService.PORT, 5353, emptyList(), null, null)
+        assertEquals("127.0.0.1", a[a.indexOf("--listen") + 1])
+        assertEquals(ShroudlyProxyService.PORT.toString(), a[a.indexOf("--port") + 1])
+        assertFalse("no password", a.contains(SocksAuth.OPTION))
+        assertFalse("no stand-in range", a.contains(Engine.FAKE_NET_OPTION))
+
+        val src = generateSequence(File("").absoluteFile) { it.parentFile }
+            .map { File(it, "android/app/src/main/java/me/codeshare/shroudly") }.first { it.isDirectory }
+        val proxy = File(src, "ShroudlyProxyService.kt").readText()
+        assertFalse("the proxy service never prepares the VPN", proxy.contains("prepare("))
+        assertFalse("nor builds one", proxy.contains("Builder()"))
+        val protector = File(src, "Protector.kt").readText().substringAfter("fun start(")
+        assertTrue("proxy only starts before the VPN's start is reached",
+            protector.indexOf("ShroudlyProxyService.start") in 0 until protector.indexOf("ShroudlyVpnService.start"))
+        val consent = File(src, "MainActivity.kt").readText().substringAfter("private fun startWithConsent()")
+        assertTrue("the window asks for the VPN only in VPN mode",
+            consent.indexOf("needsVpnConsent") in 0 until consent.indexOf("VpnService.prepare"))
+    }
 }

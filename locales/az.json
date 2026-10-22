@@ -478,5 +478,12 @@
   "excludedAppsCount": "{count} tətbiq Shroudly-dən yan keçir",
   "searchApps": "Tətbiq axtar",
   "androidStartAtBoot": "Telefon açılanda başlat",
-  "androidStartAtBootDesc": "VPN-ə bir dəfə icazə verilibsə, telefon yenidən başlayanda qoruma özü açılır."
+  "androidStartAtBootDesc": "VPN-ə bir dəfə icazə verilibsə, telefon yenidən başlayanda qoruma özü açılır.",
+  "androidModeTitle": "Rejim",
+  "androidModeVpn": "VPN (bütün tətbiqlər)",
+  "androidModeVpnDesc": "Bütün tətbiqlər Shroudly-dən keçir. Android eyni anda yalnız bir VPN-ə icazə verir, ona görə başqa VPN tətbiqinin bağlantısı kəsilir.",
+  "androidModeProxy": "Yalnız proksi (digər VPN-iniz qalır)",
+  "androidModeProxyDesc": "Shroudly 127.0.0.1:{port} ünvanında proksi kimi işləyir (SOCKS5 və HTTP) və VPN-i başqa tətbiqə buraxır. Yalnız onu istifadə etməyə ayarlanmış tətbiqlər Shroudly-dən keçir: Wi-Fi şəbəkəsinin proksisi (host 127.0.0.1, port {port}) və ya tətbiqin öz proksi ayarı.",
+  "androidModeNextStart": "Yeni rejim qoruma növbəti dəfə başlayanda istifadə olunacaq.",
+  "androidProxyOnlyOn": "Yalnız proksi: 127.0.0.1:{port} ayarlanmış tətbiqlər Shroudly-dən keçir"
 }

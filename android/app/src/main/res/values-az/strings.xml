@@ -15,9 +15,16 @@
     <string name="androidDetails">Təfərrüatlar</string>
     <string name="androidDownloadApk">Yeniləməni endir</string>
     <string name="androidLockdownOffline">İnternet yoxdur: Shroudly hazırda bu şəbəkədə qoşula bilmir və Android VPN olmadan bağlantıları bloklamaq üçün ayarlanıb. Shroudly cəhd etməyə davam edir.</string>
+    <string name="androidModeNextStart">Yeni rejim qoruma növbəti dəfə başlayanda istifadə olunacaq.</string>
+    <string name="androidModeProxy">Yalnız proksi (digər VPN-iniz qalır)</string>
+    <string name="androidModeProxyDesc">Shroudly 127.0.0.1:{port} ünvanında proksi kimi işləyir (SOCKS5 və HTTP) və VPN-i başqa tətbiqə buraxır. Yalnız onu istifadə etməyə ayarlanmış tətbiqlər Shroudly-dən keçir: Wi-Fi şəbəkəsinin proksisi (host 127.0.0.1, port {port}) və ya tətbiqin öz proksi ayarı.</string>
+    <string name="androidModeTitle">Rejim</string>
+    <string name="androidModeVpn">VPN (bütün tətbiqlər)</string>
+    <string name="androidModeVpnDesc">Bütün tətbiqlər Shroudly-dən keçir. Android eyni anda yalnız bir VPN-ə icazə verir, ona görə başqa VPN tətbiqinin bağlantısı kəsilir.</string>
     <string name="androidNoInternet">Shroudly bu şəbəkədə internetə çıxa bilmədiyi üçün qoruma dayandı, ona görə tətbiqləriniz indi birbaşa qoşulur. Yenidən cəhd etmək üçün Shroudly-ni açın.</string>
     <string name="androidPrivacyPolicy">Məxfilik siyasəti</string>
     <string name="androidProtectionLost">Qoruma xəta səbəbindən dayandı, ona görə tətbiqləriniz indi birbaşa qoşulur. Yenidən başlatmaq üçün Shroudly-ni açın.</string>
+    <string name="androidProxyOnlyOn">Yalnız proksi: 127.0.0.1:{port} ayarlanmış tətbiqlər Shroudly-dən keçir</string>
     <string name="androidShareLogs">Qeydləri paylaş</string>
     <string name="androidStartAtBoot">Telefon açılanda başlat</string>
     <string name="androidStartAtBootDesc">VPN-ə bir dəfə icazə verilibsə, telefon yenidən başlayanda qoruma özü açılır.</string>

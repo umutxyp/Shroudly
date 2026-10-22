@@ -15,7 +15,9 @@
 #   - (with root, google_apis images) the app's own network is cut, as a
 #     phone maker's per-app network switch does: protection ends by itself,
 #     with a notice, and other apps connect directly again.
-# After Stop everything works directly again. Last, the window: installed
+# After Stop everything works directly again. Then "Proxy only": no VPN and
+# no VPN consent, the engine on 127.0.0.1 for apps set to use it. Last, the
+# window: installed
 # from a file it looks for updates on GitHub; installed as Google Play would
 # (pm install -i com.android.vending) it does not; it links the privacy policy
 # and offers "Share logs".
@@ -271,22 +273,26 @@ say "ad blocking off again: doubleclick.net: ${ad_off%%$'\r'}, no restart"
 # VPN's uid ranges) and its requests still load, straight out; back in, its
 # uid is in the VPN again. (The engine's own counters cannot tell: other apps
 # on the phone keep using it meanwhile.)
+# The VPN network's line says "VPN CONNECTED" (Android 12+) or "type: VPN[],
+# state: CONNECTED" (up to 11); its ranges read "Uids: <{0-1999, 2001-99999}>"
+# (one set, ranges split by commas). All in one step: a pipe cut short by head
+# counts as a failure under pipefail, and set -e would end the test without
+# a word.
 vpn_has_uid() {
-  local u="$1" ranges
-  ranges="$(sh_ "dumpsys connectivity" | grep -o 'VPN CONNECTED.*' | head -1 | grep -o 'Uids: <[^>]*>' | head -1)"
-  [ -n "$ranges" ] || return 2
-  python3 - "$u" "$ranges" <<'PY'
+  python3 -c '
 import re, sys
+vpn = [l for l in sys.stdin.read().splitlines() if re.search(r"VPN CONNECTED|type: VPN\[[^]]*\], state: CONNECTED", l) and "Uids: <" in l]
+uids = re.search(r"Uids: <([^>]*)>", vpn[0]) if vpn else None
+if not uids: sys.exit(2)
 u = int(sys.argv[1])
-for a, b in re.findall(r'\{(\d+)(?:-(\d+))?\}', sys.argv[2]):
+for a, b in re.findall(r"(\d+)(?:-(\d+))?", uids.group(1)):
     if int(a) <= u <= int(b or a): sys.exit(0)
-sys.exit(1)
-PY
+sys.exit(1)' "$1" <<<"$(sh_ "dumpsys connectivity")"
 }
-vpn_has_uid 2000; [ $? = 0 ] || fail "before: the shell's uid 2000 is not in the VPN"
+vpn_has_uid 2000 || fail "before: the shell's uid 2000 is not in the VPN"
 sh_ "am start -n $PKG/.DebugControlActivity --es cmd exclude --es pkg com.android.shell" >/dev/null
 wait_for 20 has_log "Apps that skip Shroudly changed" || fail "the app list change did not renew the VPN interface"
-wait_for 20 eval '! vpn_has_uid 2000' || fail "an app set to skip Shroudly is still in the VPN ($(sh_ "dumpsys connectivity" | grep -o 'VPN CONNECTED.*' | grep -o 'Uids: <[^>]*>' | head -1))"
+wait_for 20 eval '! vpn_has_uid 2000' || fail "an app set to skip Shroudly is still in the VPN"
 skip="$(http_get)"
 case "$skip" in *" 200 "*|*" 30"*) ;; *) fail "an app that skips Shroudly lost its internet ($skip)";; esac
 sh_ "am start -n $PKG/.DebugControlActivity --es cmd exclude --es pkg ''" >/dev/null
@@ -423,6 +429,65 @@ wait_for 30 direct_dns || fail "names still resolve to mapped addresses after St
 say "example.com -> $(resolved) after Stop"
 wait_for 30 net_up || fail "no direct network after Stop"
 say "direct HTTP after: $(http_get)"
+
+# ── "Proxy only" (Settings) ──────────────────────────────────────────────
+# The second mode: the engine as a proxy on 127.0.0.1 and no VPN at all, so
+# another VPN app keeps the phone's one VPN slot (issue #31). It never asks
+# for the VPN (asking would end the other app's connection), so it starts
+# here with the consent taken back. Android then shows no VPN; an app set to
+# use the proxy gets through it by HTTP CONNECT and by SOCKS5 with a name
+# (the engine looks the name up itself, over encrypted DNS); the ad blocker
+# stops a listed name there too; the engine is back on the same port after
+# it stops under the service; Stop closes the port.
+mode() { sh_ "am start -n $PKG/.DebugControlActivity --es cmd mode --es mode $1" >/dev/null; }
+# A client that speaks at once, as browsers do (the engine reads a first
+# payload for a moment only).
+via_connect() {
+  sh_ "(printf 'CONNECT $1:80 HTTP/1.1\r\nHost: $1:80\r\n\r\n'; sleep 0.2; printf 'GET / HTTP/1.1\r\nHost: $1\r\nUser-Agent: shroudly-smoke\r\nConnection: close\r\n\r\n'; sleep 6) | timeout 20 $NC -q 1 -w 15 127.0.0.1 $pport | grep -a '^HTTP/1' | tr '\n' ' '"
+}
+via_socks() {
+  sh_ "(printf '\\005\\001\\000'; sleep 0.3; printf '\\005\\001\\000\\003\\013example.com\\000\\120'; sleep 0.3; printf 'GET / HTTP/1.1\r\nHost: example.com\r\nUser-Agent: shroudly-smoke\r\nConnection: close\r\n\r\n'; sleep 6) | timeout 20 $NC -q 1 -w 15 127.0.0.1 $pport | grep -a -o 'HTTP/1.[01] [0-9]*' | head -1"
+}
+listening() { grep -qi " 0100007F:$(printf '%04X' "$1") 00000000:0000 0A " <<<"$(sh_ "cat /proc/net/tcp")"; }
+wait_for 60 vpn_refused || fail "could not take back the VPN consent for proxy only"
+mode proxy
+clear_log
+ctl start
+wait_for 30 has_log "Proxy only: Shroudly listens on 127.0.0.1:" || fail "proxy only did not start without the VPN consent ($(applog | grep -i 'proxy only' | tail -2 | tr '\n' ' '))"
+pport="$(applog | sed -n 's/.*Proxy only: Shroudly listens on 127\.0\.0\.1:\([0-9]*\).*/\1/p' | head -1)"
+[ -n "$pport" ] || fail "proxy only: no port in the log"
+vpn_up && fail "proxy only brought up a VPN interface"
+grep -q "VPN CONNECTED" <<<"$(sh_ "dumpsys connectivity")" && fail "proxy only: Android shows a VPN"
+listening "$pport" || fail "proxy only: nothing listens on 127.0.0.1:$pport"
+say "proxy only: on 127.0.0.1:$pport with the VPN consent taken back; no VPN on the phone"
+pc="$(via_connect example.com)"
+case "$pc" in *"200 Connection established"*"HTTP/1."*" 200 "*|*"200 Connection established"*"HTTP/1."*" 30"*) ;; *) fail "proxy only: HTTP CONNECT to example.com failed ($pc)";; esac
+ps="$(via_socks)"
+case "$ps" in *" 200"|*" 30"*) ;; *) fail "proxy only: SOCKS5 by name to example.com failed ($ps)";; esac
+say "proxy only: HTTP CONNECT: $pc; SOCKS5 by name: $ps"
+clear_log
+ctl adblock-on
+wait_for 30 has_log "Ad blocking: a list of" || fail "proxy only: ad blocking was not put to use ($(applog | grep 'Ad blocking' | tail -2 | tr '\n' ' '))"
+pad="$(via_connect doubleclick.net)"
+case "$pad" in *" 403 "*) ;; *) fail "proxy only, ad blocking on: doubleclick.net answered '$pad', not 403 from the engine";; esac
+ctl adblock-off
+say "proxy only: ad blocking stops doubleclick.net ($pad)"
+clear_log
+fault engine-stop
+wait_for 30 has_log "Restarting engine in" || fail "proxy only: the engine was not started again"
+wait_for 30 has_log "Starting engine: --listen 127.0.0.1 --port $pport " || fail "proxy only: the engine came back on another port than $pport, which apps are set to"
+wait_for 30 eval 'grep -q " 200 " <<<"$(via_connect example.com)"' || fail "proxy only: nothing through the engine after its restart"
+ctl stats
+wait_for 15 has_log "stats: on" || fail "proxy only: no stats line"
+pstats="$(applog | grep 'stats: on' | tail -1 | sed 's/.*stats: /stats: /')"
+[ "$(sed -n 's/.*connections \([0-9]*\) total.*/\1/p' <<<"$pstats")" -ge 1 ] || fail "proxy only: the engine counted no connections ($pstats)"
+say "proxy only: the engine back on $pport after it stopped; $pstats"
+ctl stop
+wait_for 30 has_log "Proxy only: off" || fail "proxy only did not go off"
+wait_for 15 eval '! listening $pport' || fail "proxy only: 127.0.0.1:$pport still open after Stop"
+mode vpn
+wait_for 60 vpn_allowed || fail "could not allow the VPN again after proxy only"
+say "proxy only: off, the port closed; back to the VPN mode"
 
 # ── the app's own network cut ────────────────────────────────────────────
 # What a phone maker's per-app network switch (or a firewall app) does: the

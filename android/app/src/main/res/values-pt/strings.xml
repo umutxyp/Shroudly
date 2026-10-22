@@ -15,9 +15,16 @@
     <string name="androidDetails">Detalhes</string>
     <string name="androidDownloadApk">Baixar a atualização</string>
     <string name="androidLockdownOffline">Sem internet: o Shroudly não consegue se conectar nesta rede agora, e o Android está configurado para bloquear conexões sem VPN. O Shroudly continua tentando.</string>
+    <string name="androidModeNextStart">O novo modo será usado na próxima vez que a proteção iniciar.</string>
+    <string name="androidModeProxy">Só proxy (mantém sua outra VPN)</string>
+    <string name="androidModeProxyDesc">O Shroudly funciona como proxy em 127.0.0.1:{port} (SOCKS5 e HTTP) e deixa a VPN para outro app. Só passam pelo Shroudly os apps configurados para usá-lo: o proxy da rede Wi-Fi (host 127.0.0.1, porta {port}) ou a configuração de proxy do próprio app.</string>
+    <string name="androidModeTitle">Modo</string>
+    <string name="androidModeVpn">VPN (todos os apps)</string>
+    <string name="androidModeVpnDesc">Todos os apps passam pelo Shroudly. O Android permite uma VPN por vez, então outro app de VPN é desconectado.</string>
     <string name="androidNoInternet">A proteção parou porque o Shroudly não conseguiu acessar a internet nesta rede, então seus apps estão se conectando diretamente. Abra o Shroudly para tentar de novo.</string>
     <string name="androidPrivacyPolicy">Política de privacidade</string>
     <string name="androidProtectionLost">A proteção parou por causa de um erro, então seus apps estão se conectando diretamente. Abra o Shroudly para ativá-la de novo.</string>
+    <string name="androidProxyOnlyOn">Só proxy: apps configurados com 127.0.0.1:{port} passam pelo Shroudly</string>
     <string name="androidShareLogs">Compartilhar registros</string>
     <string name="androidStartAtBoot">Iniciar quando o telefone ligar</string>
     <string name="androidStartAtBootDesc">A proteção liga sozinha quando o telefone reinicia, depois que a VPN for permitida.</string>

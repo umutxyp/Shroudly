@@ -478,5 +478,12 @@
   "excludedAppsCount": "{count} برنامه از Shroudly عبور نمی‌کنند",
   "searchApps": "جست‌وجوی برنامه",
   "androidStartAtBoot": "شروع هنگام روشن شدن گوشی",
-  "androidStartAtBootDesc": "پس از اجازه دادن به VPN، با راه‌اندازی دوبارهٔ گوشی، محافظت خودبه‌خود روشن می‌شود."
+  "androidStartAtBootDesc": "پس از اجازه دادن به VPN، با راه‌اندازی دوبارهٔ گوشی، محافظت خودبه‌خود روشن می‌شود.",
+  "androidModeTitle": "حالت",
+  "androidModeVpn": "VPN (همهٔ برنامه‌ها)",
+  "androidModeVpnDesc": "همهٔ برنامه‌ها از Shroudly می‌گذرند. اندروید هم‌زمان فقط یک VPN را مجاز می‌داند، پس اتصال برنامهٔ VPN دیگر قطع می‌شود.",
+  "androidModeProxy": "فقط پراکسی (VPN دیگرتان می‌ماند)",
+  "androidModeProxyDesc": "Shroudly به‌صورت پراکسی روی ‎127.0.0.1:{port}‎ کار می‌کند (SOCKS5 و HTTP) و VPN را به برنامهٔ دیگری می‌سپارد. فقط برنامه‌هایی که برای استفاده از آن تنظیم شده‌اند از Shroudly می‌گذرند: پراکسی شبکهٔ Wi-Fi (میزبان 127.0.0.1، درگاه {port}) یا تنظیم پراکسی خود برنامه.",
+  "androidModeNextStart": "حالت جدید دفعهٔ بعد که محافظت شروع شود به کار می‌رود.",
+  "androidProxyOnlyOn": "فقط پراکسی: برنامه‌هایی که روی ‎127.0.0.1:{port}‎ تنظیم شده‌اند از Shroudly می‌گذرند"
 }

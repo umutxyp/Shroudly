@@ -15,9 +15,16 @@
     <string name="androidDetails">تفصیلات</string>
     <string name="androidDownloadApk">اپ ڈیٹ ڈاؤن لوڈ کریں</string>
     <string name="androidLockdownOffline">انٹرنیٹ نہیں: Shroudly اس وقت اس نیٹ ورک پر جڑ نہیں پا رہا، اور Android کو VPN کے بغیر کنکشن روکنے کے لیے سیٹ کیا گیا ہے۔ Shroudly کوشش جاری رکھے ہوئے ہے۔</string>
+    <string name="androidModeNextStart">نیا موڈ اگلی بار تحفظ شروع ہونے پر استعمال ہوگا۔</string>
+    <string name="androidModeProxy">صرف پراکسی (آپ کا دوسرا VPN رہتا ہے)</string>
+    <string name="androidModeProxyDesc">Shroudly ‏127.0.0.1:{port} پر پراکسی کے طور پر چلتا ہے (SOCKS5 اور HTTP) اور VPN کسی دوسری ایپ کے لیے چھوڑ دیتا ہے۔ صرف وہ ایپس Shroudly سے گزرتی ہیں جو اسے استعمال کرنے کے لیے سیٹ ہوں: Wi-Fi نیٹ ورک کی پراکسی (ہوسٹ 127.0.0.1، پورٹ {port}) یا ایپ کی اپنی پراکسی سیٹنگ۔</string>
+    <string name="androidModeTitle">موڈ</string>
+    <string name="androidModeVpn">VPN (تمام ایپس)</string>
+    <string name="androidModeVpnDesc">تمام ایپس Shroudly سے گزرتی ہیں۔ اینڈرائیڈ ایک وقت میں صرف ایک VPN کی اجازت دیتا ہے، اس لیے کسی دوسری VPN ایپ کا کنکشن کٹ جاتا ہے۔</string>
     <string name="androidNoInternet">تحفظ رک گیا کیونکہ Shroudly اس نیٹ ورک پر انٹرنیٹ تک نہیں پہنچ سکا، اس لیے آپ کی ایپس اب براہِ راست جڑ رہی ہیں۔ دوبارہ کوشش کرنے کے لیے Shroudly کھولیں۔</string>
     <string name="androidPrivacyPolicy">رازداری کی پالیسی</string>
     <string name="androidProtectionLost">ایک خرابی کی وجہ سے تحفظ رک گیا، اس لیے آپ کی ایپس اب براہِ راست جڑ رہی ہیں۔ اسے دوبارہ شروع کرنے کے لیے Shroudly کھولیں۔</string>
+    <string name="androidProxyOnlyOn">صرف پراکسی: ‏127.0.0.1:{port} پر سیٹ ایپس Shroudly سے گزرتی ہیں</string>
     <string name="androidShareLogs">لاگز شیئر کریں</string>
     <string name="androidStartAtBoot">فون آن ہونے پر شروع کریں</string>
     <string name="androidStartAtBootDesc">VPN کی اجازت ملنے کے بعد، فون دوبارہ شروع ہونے پر تحفظ خود بخود آن ہو جاتا ہے۔</string>

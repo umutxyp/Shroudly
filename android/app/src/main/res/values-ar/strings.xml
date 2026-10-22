@@ -15,9 +15,16 @@
     <string name="androidDetails">التفاصيل</string>
     <string name="androidDownloadApk">تنزيل التحديث</string>
     <string name="androidLockdownOffline">لا يوجد إنترنت: لا يستطيع Shroudly الاتصال على هذه الشبكة حاليًا، وAndroid مضبوط على حظر الاتصالات دون VPN. يواصل Shroudly المحاولة.</string>
+    <string name="androidModeNextStart">سيُستخدم الوضع الجديد في المرة القادمة التي تبدأ فيها الحماية.</string>
+    <string name="androidModeProxy">وكيل فقط (تبقى شبكتك الافتراضية الأخرى)</string>
+    <string name="androidModeProxyDesc">يعمل Shroudly كوكيل على ‎127.0.0.1:{port}‎ ‏(SOCKS5 وHTTP) ويترك الشبكة الافتراضية لتطبيق آخر. تمر عبر Shroudly فقط التطبيقات المضبوطة لاستخدامه: وكيل شبكة Wi-Fi (المضيف 127.0.0.1، المنفذ {port}) أو إعداد الوكيل الخاص بالتطبيق.</string>
+    <string name="androidModeTitle">الوضع</string>
+    <string name="androidModeVpn">شبكة افتراضية خاصة (كل التطبيقات)</string>
+    <string name="androidModeVpnDesc">تمر كل التطبيقات عبر Shroudly. يسمح أندرويد بشبكة افتراضية خاصة واحدة في كل مرة، لذا يُقطع اتصال تطبيق VPN آخر.</string>
     <string name="androidNoInternet">توقفت الحماية لأن Shroudly لم يتمكن من الوصول إلى الإنترنت على هذه الشبكة، لذا تتصل تطبيقاتك الآن مباشرةً. افتح Shroudly للمحاولة مجددًا.</string>
     <string name="androidPrivacyPolicy">سياسة الخصوصية</string>
     <string name="androidProtectionLost">توقفت الحماية بسبب خطأ، لذا تتصل تطبيقاتك الآن مباشرةً. افتح Shroudly لتشغيلها من جديد.</string>
+    <string name="androidProxyOnlyOn">وكيل فقط: التطبيقات المضبوطة على ‎127.0.0.1:{port}‎ تمر عبر Shroudly</string>
     <string name="androidShareLogs">مشاركة السجلات</string>
     <string name="androidStartAtBoot">البدء عند تشغيل الهاتف</string>
     <string name="androidStartAtBootDesc">تعمل الحماية من تلقاء نفسها بعد إعادة تشغيل الهاتف، بعد السماح بالشبكة الافتراضية الخاصة.</string>

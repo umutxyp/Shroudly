@@ -478,5 +478,12 @@
   "excludedAppsCount": "{count} אפליקציות עוקפות את Shroudly",
   "searchApps": "חיפוש אפליקציות",
   "androidStartAtBoot": "הפעלה עם הדלקת הטלפון",
-  "androidStartAtBootDesc": "ההגנה נדלקת מעצמה אחרי הפעלה מחדש של הטלפון, לאחר שה-VPN אושר."
+  "androidStartAtBootDesc": "ההגנה נדלקת מעצמה אחרי הפעלה מחדש של הטלפון, לאחר שה-VPN אושר.",
+  "androidModeTitle": "מצב",
+  "androidModeVpn": "VPN (כל האפליקציות)",
+  "androidModeVpnDesc": "כל האפליקציות עוברות דרך Shroudly. אנדרואיד מאפשרת VPN אחד בכל פעם, ולכן אפליקציית VPN אחרת מתנתקת.",
+  "androidModeProxy": "פרוקסי בלבד (ה-VPN האחר שלך נשאר)",
+  "androidModeProxyDesc": "Shroudly פועל כפרוקסי ב-‎127.0.0.1:{port}‎ ‏(SOCKS5 ו-HTTP) ומשאיר את ה-VPN לאפליקציה אחרת. רק אפליקציות שהוגדרו להשתמש בו עוברות דרך Shroudly: הפרוקסי של רשת ה-Wi-Fi (מארח 127.0.0.1, פורט {port}) או הגדרת הפרוקסי של האפליקציה עצמה.",
+  "androidModeNextStart": "המצב החדש ישמש בפעם הבאה שההגנה תופעל.",
+  "androidProxyOnlyOn": "פרוקסי בלבד: אפליקציות שהוגדרו ל-‎127.0.0.1:{port}‎ עוברות דרך Shroudly"
 }

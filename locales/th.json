@@ -478,5 +478,12 @@
   "excludedAppsCount": "{count} แอปไม่ผ่าน Shroudly",
   "searchApps": "ค้นหาแอป",
   "androidStartAtBoot": "เริ่มเมื่อเปิดโทรศัพท์",
-  "androidStartAtBootDesc": "เมื่ออนุญาต VPN แล้ว การป้องกันจะเปิดเองหลังรีสตาร์ตโทรศัพท์"
+  "androidStartAtBootDesc": "เมื่ออนุญาต VPN แล้ว การป้องกันจะเปิดเองหลังรีสตาร์ตโทรศัพท์",
+  "androidModeTitle": "โหมด",
+  "androidModeVpn": "VPN (ทุกแอป)",
+  "androidModeVpnDesc": "ทุกแอปผ่าน Shroudly Android อนุญาต VPN ได้ครั้งละหนึ่งตัว ดังนั้นแอป VPN อื่นจะถูกตัดการเชื่อมต่อ",
+  "androidModeProxy": "พร็อกซีเท่านั้น (VPN อื่นของคุณยังอยู่)",
+  "androidModeProxyDesc": "Shroudly ทำงานเป็นพร็อกซีที่ 127.0.0.1:{port} (SOCKS5 และ HTTP) และปล่อย VPN ให้แอปอื่น เฉพาะแอปที่ตั้งค่าให้ใช้เท่านั้นที่ผ่าน Shroudly: พร็อกซีของเครือข่าย Wi-Fi (โฮสต์ 127.0.0.1 พอร์ต {port}) หรือการตั้งค่าพร็อกซีของแอปเอง",
+  "androidModeNextStart": "โหมดใหม่จะใช้ในครั้งถัดไปที่เริ่มการป้องกัน",
+  "androidProxyOnlyOn": "พร็อกซีเท่านั้น: แอปที่ตั้งค่าเป็น 127.0.0.1:{port} จะผ่าน Shroudly"
 }
