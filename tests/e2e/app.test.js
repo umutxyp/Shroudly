@@ -297,6 +297,33 @@ async function record(label, pid) {
         'the system proxy stayed pointed at Shroudly through the restart (nothing put back and set again)');
         if (process.platform !== 'win32') { try { process.kill(pid2, 'SIGCONT'); } catch {} }
         await app.evaluate(() => { const g = global.shroudlyE2E; g.engine.hangTimeoutMs = 60000; if (g.store.get('appMode') !== true) g.appProxy.stop(); });
+
+        // ── 5e. Shroudly opened again from its icon while it runs: the
+        //        second copy only hands over to this one and ends. In 2.6.3
+        //        it went through a start of its own first, put back "the
+        //        system proxy from the previous session" (this copy's live
+        //        setting), deleted its record, and moved Discord's line to a
+        //        relay of its own that vanished with it ──
+        const lostNow = () => app.evaluate(() => { const p = global.shroudlyE2E.engine.proxy; return p.applied ? p._lostSettings(p.snapshot || {}, p.pacUrl) : 'not applied'; });
+        const lost0 = await lostNow();
+        const stateFile = path.join(ud, 'proxy-state.json');
+        const state0 = fs.existsSync(stateFile) ? fs.readFileSync(stateFile, 'utf8') : null;
+        const relay0 = JSON.parse(fs.readFileSync(path.join(ud, 'config.json'), 'utf8')).discordRelayPort;
+        const mark3 = stamp();
+        const t3 = Date.now();
+        const second = require('child_process').spawn(require(path.join(APP, 'node_modules', 'electron')),
+          [APP, `--user-data-dir=${ud}`, ...(process.platform === 'linux' ? ['--no-sandbox'] : [])], { env, stdio: 'ignore' });
+        const code = await new Promise((res) => {
+          const k = setTimeout(() => { try { second.kill(); } catch {} res('still running after 30 s'); }, 30000);
+          second.on('exit', (c) => { clearTimeout(k); res(c); });
+        });
+        await sleep(1000);
+        const lost1 = await lostNow();
+        const state1 = fs.existsSync(stateFile) ? fs.readFileSync(stateFile, 'utf8') : null;
+        const relay1 = JSON.parse(fs.readFileSync(path.join(ud, 'config.json'), 'utf8')).discordRelayPort;
+        ok(code === 0 && JSON.stringify(lost1) === JSON.stringify(lost0) && state1 === state0 && relay1 === relay0
+          && !(await has(/another program changed the system proxy|previous session restored/i, mark3)),
+        `Shroudly opened again while it runs: the second copy ended (${code}, ${Date.now() - t3} ms) and changed nothing: the system proxy still ours (${JSON.stringify(lost1)}), its record kept (${state1 === state0}), the relay's port kept`);
       }
       stop();
       await page.evaluate(() => window.electron.closeWindow());

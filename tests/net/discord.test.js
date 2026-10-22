@@ -92,9 +92,9 @@ function get(url, o = {}) {
   }
   fs.rmSync(dir, { recursive: true, force: true });
 
-  // The line put back again and again (Discord, or a program that changes
-  // it, writing the file without it every few minutes): said twice, then
-  // nothing.
+  // The line put back again and again (a program writing the file without
+  // it every few minutes): said twice, then nothing, and with no writer
+  // named (in 2.6.3's reports it was a second copy of Shroudly, not Discord).
   {
     const counts = new Map();
     const a = DA.healNote(counts, ['Discord']);
@@ -102,9 +102,36 @@ function get(url, o = {}) {
     const c = DA.healNote(counts, ['Discord', 'Discord PTB']);
     const d = DA.healNote(counts, ['Discord']);
     t.ok(a.join() === 'Discord app mode: Discord added', 'the first time a build gets its line back, it is logged');
-    t.ok(b.length === 2 && /Discord PTB added/.test(b[0]) && /^Discord app mode: Discord wrote its settings without the line again; .*not logged again this session$/.test(b[1]),
+    t.ok(b.length === 2 && /Discord PTB added/.test(b[0]) && /^Discord app mode: Discord settings lost the line again; .*not logged again this session$/.test(b[1]),
       'the second time, once, that it keeps doing so (another build is its own first time)');
-    t.ok(/Discord PTB wrote its settings/.test(c.join()) && c.length === 1 && d.length === 0, 'after that, nothing');
+    t.ok(/Discord PTB settings lost the line/.test(c.join()) && c.length === 1 && d.length === 0, 'after that, nothing');
+  }
+  // The line put back while Discord runs: only a Discord that may have read
+  // the file without it is restarted, not one that started before (it read
+  // the line, and keeps using it whatever is written over the file later).
+  // In 2.6.3 every rewrite asked for a restart, and Discord was restarted
+  // ("did not get through Shroudly") while it worked.
+  {
+    const seen = 1e12;
+    t.ok(DA.readWithoutLine({ startedAt: seen - 60000, lineSeenAt: seen }) === false,
+      'Discord running since before the line was last seen in place: it read the line, no restart');
+    t.ok(DA.readWithoutLine({ startedAt: seen + 1500, lineSeenAt: seen }) === true && DA.readWithoutLine({ startedAt: seen - 1000, lineSeenAt: seen }) === true,
+      'Discord started since (or just before, within the time between two looks): it may have read the file without it');
+    t.ok(DA.readWithoutLine({ startedAt: null, lineSeenAt: seen }) === true && DA.readWithoutLine({ startedAt: seen - 60000, lineSeenAt: 0 }) === true,
+      "its start unknown, or the line never seen yet: restarted, as before");
+    t.ok(DA.etimeSeconds('05:07') === 307 && DA.etimeSeconds('02:05:07') === 7507 && DA.etimeSeconds('3-02:05:07') === 266707 && DA.etimeSeconds('x') === null,
+      'macOS ps elapsed times read: mm:ss, hh:mm:ss, dd-hh:mm:ss');
+    t.ok(DA.oldestStart('  05:07\n  00:09\n', { platform: 'darwin', now: 1e12 }) === 1e12 - 307000, "macOS: the build's oldest process");
+    t.ok(DA.oldestStart('2026-10-22T19:15:03.1234567Z\r\n2026-10-22T19:14:58.0000000Z\r\n', { platform: 'win32' }) === Date.parse('2026-10-22T19:14:58Z')
+      && DA.oldestStart('', { platform: 'win32' }) === null, "Windows: the oldest of PowerShell's start times; none: unknown");
+    // The real lookup, on this machine's own processes.
+    if (process.platform === 'win32') {
+      const at = await DA.startedAt({ exe: path.basename(process.execPath) });
+      t.ok(typeof at === 'number' && at <= Date.now() && at > Date.now() - 7 * 86400000, `Windows: when a running program started, from PowerShell (${at && new Date(at).toISOString()})`);
+    } else {
+      const at = DA.oldestStart(await new Promise((r) => require('child_process').execFile('ps', ['-o', 'etime=', '-p', String(process.pid)], (e, o) => r(String(o || '')))));
+      t.ok(typeof at === 'number' && Math.abs(at - (Date.now() - process.uptime() * 1000)) < 3000, 'this system: how long a program has run, from ps');
+    }
   }
   t.ok(typeof DA.anyRunning === 'function' && Array.isArray(DA.present()), 'builds present on any system, and whether one runs, for the autopilot');
 
