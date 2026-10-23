@@ -35,6 +35,8 @@ class MainActivity : Activity() {
         private const val REQUEST_NOTIFICATIONS = 2
         /* Start protection as soon as the window is up (from the tile). */
         const val EXTRA_START = "start"
+        // Networks' proxies on this phone found not running, told once a run (ProxyCheck).
+        private val deadProxyTold = HashSet<String>()
     }
 
     private lateinit var toggle: View
@@ -172,6 +174,7 @@ class MainActivity : Activity() {
         orb.resume()
         main.post(ticker)
         showBatteryHint()
+        checkNetworkProxy()
         // The APK from GitHub links its releases and looks for a newer one
         // there; a copy Google Play updates links the source code instead and
         // asks GitHub nothing (InstallSource).
@@ -409,6 +412,27 @@ class MainActivity : Activity() {
 
     /* Asked each time the window comes back: the user may just have changed
      * the setting. */
+    /* A network's proxy pointing at a proxy on this phone where nothing runs
+     * (ProxyCheck): told once a run, with the way to the Wi-Fi settings,
+     * where only the user may change it. */
+    private fun checkNetworkProxy() {
+        Thread({
+            val dead = try { ProxyCheck.deadLocal(this) } catch (_: Exception) { null } ?: return@Thread
+            main.post {
+                if (isFinishing || isDestroyed || !deadProxyTold.add(dead)) return@post
+                ShroudlyVpnService.log("A network's proxy points at $dead on this phone, where nothing is running; apps that use it cannot connect")
+                try {
+                    AlertDialog.Builder(this)
+                        .setTitle(R.string.androidWifiProxyDeadTitle)
+                        .setMessage(text(R.string.androidWifiProxyDead, "addr" to dead))
+                        .setPositiveButton(R.string.androidWifiSettings) { _, _ -> openWifiSettings(this) }
+                        .setNegativeButton(R.string.updLater, null)
+                        .show()
+                } catch (_: Exception) {}
+            }
+        }, "proxy-check").apply { isDaemon = true }.start()
+    }
+
     private fun showBatteryHint() {
         val b = Diagnostics.battery(this)
         battery.visibility = if (Diagnostics.batteryHint(b, Build.MANUFACTURER, Build.BRAND)) View.VISIBLE else View.GONE
@@ -527,5 +551,12 @@ class MainActivity : Activity() {
             startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
         } catch (_: ActivityNotFoundException) {
         }
+    }
+}
+
+/* Android's Wi-Fi settings (any network settings where a phone has none). */
+fun openWifiSettings(ctx: android.content.Context) {
+    for (action in listOf(Settings.ACTION_WIFI_SETTINGS, Settings.ACTION_WIRELESS_SETTINGS, Settings.ACTION_SETTINGS)) {
+        try { ctx.startActivity(Intent(action).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)); return } catch (_: ActivityNotFoundException) {}
     }
 }
