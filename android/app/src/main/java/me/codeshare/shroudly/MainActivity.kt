@@ -103,6 +103,7 @@ class MainActivity : Activity() {
         battery = findViewById(R.id.battery)
         // The rows' ripples stay inside the card's rounded corners.
         findViewById<View>(R.id.about).clipToOutline = true
+        Fit.apply(findViewById(R.id.root))
 
         // The logo's circle is the switch, the one control for on and off.
         toggle.setOnClickListener { onToggle() }

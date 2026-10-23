@@ -130,7 +130,9 @@
         <item name="android:drawableEnd">@drawable/chevron_end</item>
     </style>
 
+    <!-- Its tag lets Fit hide it where a row needs the room. -->
     <style name="RowIcon">
+        <item name="android:tag">tile</item>
         <item name="android:layout_width">30dp</item>
         <item name="android:layout_height">30dp</item>
         <item name="android:padding">7dp</item>

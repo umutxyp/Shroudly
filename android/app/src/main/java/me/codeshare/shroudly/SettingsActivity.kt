@@ -59,6 +59,8 @@ class SettingsActivity : Activity() {
                 }
                 textSize = 15f
                 setTextColor(getColor(R.color.text))
+                // The spec under the label lines up with it in right-to-left languages too.
+                textAlignment = View.TEXT_ALIGNMENT_VIEW_START
                 val pad = (8 * resources.displayMetrics.density).toInt()
                 setPadding(pad, pad, pad, pad)
                 isChecked = s.id == current
@@ -92,7 +94,8 @@ class SettingsActivity : Activity() {
 
         // Automation apps: what to send, under the switch.
         findViewById<Switch>(R.id.remoteControl).apply {
-            val desc = text(R.string.androidRemoteControlDesc, "package" to packageName, "action" to AutomationReceiver.ACTION_START.substringBeforeLast('.'))
+            // The names break only after a dot, never inside a word.
+            val desc = text(R.string.androidRemoteControlDesc, "package" to Fit.breakable(packageName), "action" to Fit.breakable(AutomationReceiver.ACTION_START.substringBeforeLast('.')))
             text = SpannableStringBuilder(getString(R.string.androidRemoteControl)).append('\n').apply {
                 val from = length
                 append(desc)
@@ -105,6 +108,7 @@ class SettingsActivity : Activity() {
                 ShroudlyVpnService.log(if (on) "Automation apps allowed (Settings)" else "Automation apps no longer allowed (Settings)")
             }
         }
+        Fit.apply(findViewById(R.id.root))
     }
 
     /* Appearance: the accents as round swatches, the chosen one ringed. A
@@ -153,6 +157,7 @@ class SettingsActivity : Activity() {
             }
             textSize = 15f
             setTextColor(getColor(R.color.text))
+            textAlignment = View.TEXT_ALIGNMENT_VIEW_START
             setPadding(pad, pad, pad, pad)
             isChecked = on == proxy
         }
@@ -191,15 +196,14 @@ class SettingsActivity : Activity() {
         }
     }
 
-    /* The row says which DNS server answers: automatic, or the user's own. */
+    /* The row (under the "DNS server" heading) says which one answers:
+     * automatic, or the user's own. */
     private fun showDns() {
         val spec = AppSettings.customDns(this)
-        val sub = if (spec == null) getString(R.string.dnsServerAuto) else CustomDns.shown(spec)
-        findViewById<TextView>(R.id.dnsServer).text = SpannableStringBuilder(getString(R.string.dnsServer)).append('\n').apply {
-            val from = length
-            append(sub)
-            setSpan(ForegroundColorSpan(getColor(R.color.text_dim)), from, length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-            setSpan(RelativeSizeSpan(12.5f / 15f), from, length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+        val shown = if (spec == null) getString(R.string.dnsServerAuto) else CustomDns.shown(spec)
+        findViewById<TextView>(R.id.dnsServer).apply {
+            text = Fit.breakable(shown)
+            contentDescription = "${getString(R.string.dnsServer)}: $shown"
         }
     }
 
@@ -224,6 +228,7 @@ class SettingsActivity : Activity() {
         val input = EditText(this).apply {
             setSingleLine()
             inputType = android.text.InputType.TYPE_CLASS_TEXT or android.text.InputType.TYPE_TEXT_VARIATION_URI
+            imeOptions = android.view.inputmethod.EditorInfo.IME_ACTION_DONE
             textDirection = View.TEXT_DIRECTION_LTR
             setText(typed?.second ?: "")
         }
@@ -234,6 +239,8 @@ class SettingsActivity : Activity() {
             text = label
             textSize = 15f
             setTextColor(getColor(R.color.text))
+            textAlignment = View.TEXT_ALIGNMENT_VIEW_START
+            minHeight = (48 * density).toInt()
             isChecked = id == kind
         }
         group.addView(option("auto", getString(R.string.dnsServerAuto)))
@@ -254,6 +261,7 @@ class SettingsActivity : Activity() {
                 setPadding(0, pad / 2, 0, 0)
             })
         }
+        Fit.apply(box)
         // What was asked last and did not answer: pressing again uses it anyway.
         var failed: String? = null
         val dialog = AlertDialog.Builder(this)
@@ -275,6 +283,14 @@ class SettingsActivity : Activity() {
                 kind = g.findViewById<RadioButton>(checkedId)?.tag as? String ?: return@setOnCheckedChangeListener
                 input.setText(if (typed != null && kind == typed.first) typed.second else "")
                 showInput(); reset()
+                // A kind picked: straight on to typing its address.
+                if (kind != "auto") {
+                    input.requestFocus()
+                    input.post { getSystemService(android.view.inputmethod.InputMethodManager::class.java)?.showSoftInput(input, 0) }
+                }
+            }
+            input.setOnEditorActionListener { _, action, _ ->
+                if (action == android.view.inputmethod.EditorInfo.IME_ACTION_DONE && use.isEnabled) { use.performClick(); true } else false
             }
             input.addTextChangedListener(object : TextWatcher {
                 override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
