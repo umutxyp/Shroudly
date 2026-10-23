@@ -128,6 +128,13 @@ static void ensure_presets(void) {
   add("split-disorder-tlsrec","split(1),disorder(sni+3),tlsrec(sni+1)");
   add("disorder-tlsrec",      "disorder(sni+1),tlsrec(sni+1)");
   add("tlsrec-sni-mid",       "tlsrec(sni_mid)");
+  /* The record cut one byte before the name ends, so no record carries its
+   * last label whole (ByeByeDPI's "-r-1+se"): what opens YouTube's video
+   * servers in Iran, where every cut at or near the start of the name is
+   * dropped (issue #37). Last of the record cuts: a site's first name that
+   * gets nowhere with the five before it leaves its next name to start
+   * here (see ladder_start). */
+  add("tlsrec-sni-end",       "tlsrec(sni_end-1)");
   add("split-sni",            "split(sni)");
   add("disorder-sni",         "disorder(sni)");
   add("oob-tlsrec",           "oob(sni+1),tlsrec(sni+1)");

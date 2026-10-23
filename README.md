@@ -126,7 +126,7 @@ strategy**:
 
 | Technique | What it does |
 |-----------|--------------|
-| **TLS record split** | Re-frames the handshake as two TLS records (allowed by RFC 8446 §5.1), with the name split between them. Beats filters that reassemble TCP, which plain splitting cannot. |
+| **TLS record split** | Re-frames the handshake as two TLS records (allowed by RFC 8446 §5.1), with the name split between them: just after its first byte, in its middle, or one byte before its end (ByeByeDPI's `-r-1+se`, which opens YouTube's video servers in Iran). Beats filters that reassemble TCP, which plain splitting cannot. |
 | **Split** | Sends the ClientHello as several TCP segments so the name is cut across segment boundaries. |
 | **Disorder** | The halves really arrive out of order; the server's TCP stack reorders them, a stateless filter cannot. |
 | **Out-of-band byte** | One byte goes as TCP urgent data: the server drops it from the stream, a filter that ignores the urgent pointer does not. |

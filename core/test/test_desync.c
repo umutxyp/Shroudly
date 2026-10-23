@@ -115,8 +115,44 @@ static void run_case(const char *spec, const char *host){
          (s.total==clen && memcmp(s.buf,ch,clen)==0)?"OK":"FAIL");
 }
 
+/* A TLS record cut: two records arrive that together carry the handshake,
+ * the first ending `before_end` bytes before the end of the name (in the
+ * original payload's terms). */
+static void run_tlsrec(const char *spec, const char *host, int before_end){
+  strategy st; strategy_parse(spec,&st);
+  srv_t s; memset(&s,0,sizeof(s));
+  s.lsn=socket(AF_INET,SOCK_STREAM,IPPROTO_TCP);
+  int yes=1; setsockopt(s.lsn,SOL_SOCKET,SO_REUSEADDR,(char*)&yes,sizeof(yes));
+  struct sockaddr_in a; memset(&a,0,sizeof(a)); a.sin_family=AF_INET; a.sin_addr.s_addr=htonl(INADDR_LOOPBACK); a.sin_port=0;
+  bind(s.lsn,(struct sockaddr*)&a,sizeof(a));
+  socklen_t al=sizeof(a); getsockname(s.lsn,(struct sockaddr*)&a,&al);
+  listen(s.lsn,1);
+  thread_spawn(srv_thread,&s,256*1024);
+  sleep_ms(50);
+  sock_t up=socket(AF_INET,SOCK_STREAM,IPPROTO_TCP);
+  if(sock_connect_timeout(up,(struct sockaddr*)&a,sizeof(a),2000)!=0){CHECK(0);return;}
+  uint8_t ch[1024], orig[1024]; int clen=make_ch(ch,host); memcpy(orig,ch,(size_t)clen);
+  proto_info pi; proto_inspect(ch,(size_t)clen,&pi);
+  int r=desync_send_first(up,AF_INET,ch,clen,(int)sizeof(ch),&pi,&st,NULL);
+  CHECK(r==0);
+  sock_close(up);
+  sleep_ms(150);
+  sock_close(s.lsn);
+  CHECK(s.total==clen+5 && s.buf[0]==0x16);
+  int l1=(s.buf[3]<<8)|s.buf[4];
+  CHECK(5+l1==pi.host_off+pi.host_len-before_end);
+  CHECK(s.buf[5+l1]==0x16);
+  int l2=(s.buf[5+l1+3]<<8)|s.buf[5+l1+4];
+  CHECK(l1+l2==clen-5);
+  CHECK(memcmp(s.buf+5,orig+5,(size_t)l1)==0 && memcmp(s.buf+10+l1,orig+5+l1,(size_t)l2)==0);
+  printf("  %-20s the first record ends %d byte(s) before the end of %s: %s\n", spec, before_end, host,
+         5+l1==pi.host_off+pi.host_len-before_end?"OK":"FAIL");
+}
+
 int main(void){
   plat_init();
+  /* ByeByeDPI's "-r-1+se" (issue #37): the last label never in one record. */
+  run_tlsrec("tlsrec(sni_end-1)","rr3---sn-4g5edndr.googlevideo.com",1);
   run_case("split(sni)","www.example.com");
   run_case("disorder(sni)","test.blocked.org");
   run_case("split(sni_mid)","a.verylonghostname.example.net");
