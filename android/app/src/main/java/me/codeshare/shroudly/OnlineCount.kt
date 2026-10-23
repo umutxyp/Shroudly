@@ -166,7 +166,7 @@ object OnlineHttp {
     const val HOST = "shroudly.codeshare.me"
     // The desktop's Electron (package.json) and its Chromium (process.versions.chrome).
     // OnlineCountTest fails when package.json moves to another Electron.
-    const val ELECTRON = "43.7.5"
+    const val ELECTRON = "43.7.6"
     const val CHROME = "150.0.7871.250"
     const val MAX_BODY = 4096
 
