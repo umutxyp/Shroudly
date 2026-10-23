@@ -175,6 +175,20 @@ const readBody = (req) => new Promise((r) => { const c = []; req.on('data', (d) 
     t.ok(C.firstA(await g.resolve(q)) === '93.184.215.20' && logs.some((l) => /^success: Your DNS server tcp:\/\/127\.0\.0\.1:\d+ answers again$/.test(l)) && g.custom.fails === 0,
       'its rest over and answering again: used, and the log says so');
     g.setCustom(null); back.close();
+
+    // "Only this server": not answering, nothing else is asked (the
+    // built-in routes neither, nor plain DNS: the engine is told the same,
+    // DNS-STRICT), the lookup fails, and the log says why, once.
+    const hl = [];
+    const h = new DohForwarder((level, text) => hl.push(`${level}: ${text}`));
+    let fellBack = 0;
+    h.resolveRoutes = async (m) => { fellBack++; return answer(m, '127.0.0.3'); };
+    h.setCustom(C.parse('tcp', `127.0.0.1:${sparePort}`), { strict: true });
+    const failed = [await h.resolve(q).then(() => false, () => true), await h.resolve(q).then(() => false, () => true)];
+    t.ok(failed.every(Boolean) && fellBack === 0 && h.usingCustom(), 'only this server, not answering: the lookup fails, nothing else is asked');
+    t.ok(hl.length === 1 && /^warning: Your DNS server tcp:\/\/127\.0\.0\.1:\d+ does not answer \(ECONNREFUSED\); it is the only one used, so lookups fail until it answers$/.test(hl[0]),
+      `and the log says so once (${hl.join(' | ')})`);
+    h.setCustom(null);
   } finally {
     udp.close(); tcp.close(); dot.close(); doh2.close(); doh1.close(); chunked.close();
   }

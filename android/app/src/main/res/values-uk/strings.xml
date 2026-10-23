@@ -56,6 +56,8 @@
     <string name="dnsServerDesc">Кожен запит імен від Shroudly йде на цей сервер. Якщо він перестане відповідати, відповідає зашифрований DNS Shroudly, доки сервер не повернеться.</string>
     <string name="dnsServerFails">Немає відповіді ({error}). Не використовується; перевірте адресу або однаково використайте його.</string>
     <string name="dnsServerOk">Відповів за {ms} мс (example.com: {address}). Використовується.</string>
+    <string name="dnsServerStrict">Лише цей сервер</string>
+    <string name="dnsServerStrictDesc">Інші не запитуються, навіть коли він не відповідає: тоді запити імен не проходять, доки він не відповість. Для перевірки сервера або коли ніхто інший не має бачити ваші запити.</string>
     <string name="dnsServerUse">Використати</string>
     <string name="dnsServerUseAnyway">Однаково використати</string>
     <string name="download">Завантаження</string>

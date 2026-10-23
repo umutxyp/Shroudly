@@ -56,6 +56,8 @@
     <string name="dnsServerDesc">Ҳар дархости номе, ки Shroudly мекунад, ба ҳамин сервер меравад. Агар он ҷавоб доданро бас кунад, то баргаштанаш DNS-и рамзгузоришудаи Shroudly ҷавоб медиҳад.</string>
     <string name="dnsServerFails">Ҷавоб нест ({error}). Истифода намешавад; суроғаро санҷед ё бо вуҷуди ин истифода баред.</string>
     <string name="dnsServerOk">Дар {ms} мс ҷавоб дод (example.com: {address}). Ҳоло истифода мешавад.</string>
+    <string name="dnsServerStrict">Танҳо ҳамин сервер</string>
+    <string name="dnsServerStrictDesc">Ҳатто вақте ки ҷавоб намедиҳад, аз дигараш пурсида намешавад: он гоҳ ҷустуҷӯи номҳо то ҷавоб доданаш иҷро намешавад. Барои санҷидани сервер ё вақте ки дигар касе набояд дархостҳои шуморо бинад.</string>
     <string name="dnsServerUse">Истифода бурдан</string>
     <string name="dnsServerUseAnyway">Бо вуҷуди ин истифода бурдан</string>
     <string name="download">Қабул</string>

@@ -56,6 +56,8 @@
     <string name="dnsServerDesc">การค้นหาชื่อทุกครั้งของ Shroudly จะไปที่เซิร์ฟเวอร์นี้ หากหยุดตอบกลับ DNS แบบเข้ารหัสของ Shroudly จะตอบแทนจนกว่าจะกลับมา</string>
     <string name="dnsServerFails">ไม่มีการตอบกลับ ({error}) ยังไม่ได้ใช้ ตรวจสอบที่อยู่ หรือใช้ต่อไป</string>
     <string name="dnsServerOk">ตอบกลับใน {ms} ms (example.com: {address}) กำลังใช้งานอยู่</string>
+    <string name="dnsServerStrict">ใช้เซิร์ฟเวอร์นี้เท่านั้น</string>
+    <string name="dnsServerStrictDesc">จะไม่ถามเซิร์ฟเวอร์อื่นเลย แม้เซิร์ฟเวอร์นี้ไม่ตอบ: การค้นหาชื่อจะล้มเหลวจนกว่าเซิร์ฟเวอร์นี้จะตอบ ใช้สำหรับทดสอบเซิร์ฟเวอร์ หรือเมื่อไม่ควรให้ผู้อื่นเห็นการค้นหาของคุณ</string>
     <string name="dnsServerUse">ใช้</string>
     <string name="dnsServerUseAnyway">ใช้ต่อไป</string>
     <string name="download">ดาวน์โหลด</string>

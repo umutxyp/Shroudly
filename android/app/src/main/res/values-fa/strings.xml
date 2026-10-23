@@ -56,6 +56,8 @@
     <string name="dnsServerDesc">هر جست‌وجوی نامی که Shroudly انجام می‌دهد به این سرور می‌رود. اگر پاسخ ندهد، تا برگشتنش DNS رمزگذاری‌شده Shroudly پاسخ می‌دهد.</string>
     <string name="dnsServerFails">پاسخی نیامد ({error}). استفاده نمی‌شود؛ نشانی را بررسی کنید یا با این حال از آن استفاده کنید.</string>
     <string name="dnsServerOk">در {ms} میلی‌ثانیه پاسخ داد (example.com: {address}). اکنون در حال استفاده است.</string>
+    <string name="dnsServerStrict">فقط همین سرور</string>
+    <string name="dnsServerStrictDesc">حتی وقتی پاسخ نمی‌دهد از هیچ سرور دیگری پرسیده نمی‌شود: در آن صورت جست‌وجوی نام‌ها تا پاسخ دادنش ناموفق می‌ماند. برای آزمودن یک سرور، یا وقتی کس دیگری نباید جست‌وجوهای شما را ببیند.</string>
     <string name="dnsServerUse">استفاده</string>
     <string name="dnsServerUseAnyway">با این حال استفاده شود</string>
     <string name="download">دانلود</string>

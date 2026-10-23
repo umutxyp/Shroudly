@@ -56,6 +56,8 @@
     <string name="dnsServerDesc">כל חיפוש שם ש-Shroudly עושה עובר לשרת הזה. אם הוא מפסיק לענות, ה-DNS המוצפן של Shroudly עונה עד שהוא חוזר.</string>
     <string name="dnsServerFails">אין תשובה ({error}). לא בשימוש; בדקו את הכתובת, או השתמשו בו בכל זאת.</string>
     <string name="dnsServerOk">ענה תוך {ms} אלפיות שנייה (example.com: {address}). בשימוש עכשיו.</string>
+    <string name="dnsServerStrict">רק השרת הזה</string>
+    <string name="dnsServerStrictDesc">אף שרת אחר לא נשאל, גם כשהוא לא עונה: אז חיפושי שמות נכשלים עד שהוא עונה. לבדיקת שרת, או כשאף אחד אחר לא אמור לראות את החיפושים שלך.</string>
     <string name="dnsServerUse">שימוש</string>
     <string name="dnsServerUseAnyway">להשתמש בכל זאת</string>
     <string name="download">הורדה</string>

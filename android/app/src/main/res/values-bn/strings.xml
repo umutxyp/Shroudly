@@ -56,6 +56,8 @@
     <string name="dnsServerDesc">Shroudly যত নাম খোঁজে, সব এই সার্ভারে যায়। এটি উত্তর দেওয়া বন্ধ করলে, ফিরে না আসা পর্যন্ত Shroudly-এর এনক্রিপ্ট করা DNS উত্তর দেয়।</string>
     <string name="dnsServerFails">কোনো উত্তর নেই ({error})। ব্যবহার হচ্ছে না; ঠিকানাটি দেখে নিন, বা তবুও ব্যবহার করুন।</string>
     <string name="dnsServerOk">{ms} ms-এ উত্তর দিয়েছে (example.com: {address})। এখন ব্যবহার হচ্ছে।</string>
+    <string name="dnsServerStrict">শুধু এই সার্ভার</string>
+    <string name="dnsServerStrictDesc">এটি উত্তর না দিলেও অন্য কাউকে জিজ্ঞাসা করা হয় না: তখন নাম খোঁজা ব্যর্থ হয় যতক্ষণ না এটি উত্তর দেয়। কোনো সার্ভার পরখ করতে, বা যখন অন্য কেউ আপনার খোঁজ দেখবে না।</string>
     <string name="dnsServerUse">ব্যবহার করুন</string>
     <string name="dnsServerUseAnyway">তবুও ব্যবহার করুন</string>
     <string name="download">ডাউনলোড</string>

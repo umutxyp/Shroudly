@@ -56,6 +56,8 @@
     <string name="dnsServerDesc">هره د نوم پوښتنه چې Shroudly یې کوي دې سرور ته ځي. که ځواب ورکول بند کړي، تر بېرته راتګ پورې د Shroudly کوډ شوی DNS ځواب ورکوي.</string>
     <string name="dnsServerFails">ځواب نشته ({error}). نه کارول کېږي؛ پته وګورئ، یا یې بیا هم وکاروئ.</string>
     <string name="dnsServerOk">په {ms} ملي‌ثانیو کې یې ځواب ورکړ (example.com: {address}). اوس کارول کېږي.</string>
+    <string name="dnsServerStrict">یوازې همدا سرور</string>
+    <string name="dnsServerStrictDesc">که ځواب هم ورنکړي، له بل هېڅ سرور نه پوښتل کېږي: بیا د نومونو لټونونه تر هغه ناکامېږي چې ځواب ورکړي. د یوه سرور د ازمویلو لپاره، یا کله چې بل هېڅوک باید ستاسو لټونونه ونه ویني.</string>
     <string name="dnsServerUse">کارول</string>
     <string name="dnsServerUseAnyway">بیا هم وکاروئ</string>
     <string name="download">ډاونلوډ</string>

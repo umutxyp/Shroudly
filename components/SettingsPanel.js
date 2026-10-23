@@ -161,11 +161,13 @@ function DnsServer({ value, onSave }) {
   const saved = value && typeof value === 'object' ? value : null;
   const [kind, setKind] = useState(saved ? saved.kind : 'auto');
   const [text, setText] = useState(saved ? saved.server : '');
+  const [strict, setStrict] = useState(!!(saved && saved.strict));
   const [state, setState] = useState(null);   // { testing } | { ok, ms, address } | { error | invalid, tried }
   useEffect(() => {
     setKind(saved ? saved.kind : 'auto');
     setText(saved ? saved.server : '');
-  }, [saved && saved.kind, saved && saved.server]); // eslint-disable-line react-hooks/exhaustive-deps
+    setStrict(!!(saved && saved.strict));
+  }, [saved && saved.kind, saved && saved.server, saved && saved.strict]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const pick = (k) => {
     setKind(k); setState(null);
@@ -174,7 +176,7 @@ function DnsServer({ value, onSave }) {
     else if (!saved || saved.kind !== k) setText('');
   };
   const use = async () => {
-    const v = { kind, server: text.trim() };
+    const v = { kind, server: text.trim(), strict };
     // Asked before and it did not answer: the user says use it anyway.
     if (state && state.tried === `${v.kind} ${v.server}` && !state.invalid) { onSave(v); setState(null); return; }
     setState({ testing: true });
@@ -237,6 +239,26 @@ function DnsServer({ value, onSave }) {
       </div>
       {kind !== 'auto' && (
         <p className="mt-2 text-[12px] leading-snug" style={{ color: 'var(--text-faint)' }}>{t('dnsServerDesc')}</p>
+      )}
+      {/* The exception to the line above. */}
+      {kind !== 'auto' && (
+        <label className="mt-2 flex cursor-pointer items-start gap-2 text-[12.5px] leading-snug" style={{ color: 'var(--text-dim)' }}>
+          <input
+            type="checkbox"
+            className="mt-[2px]"
+            checked={strict}
+            onChange={(e) => {
+              const v = e.target.checked;
+              setStrict(v);
+              // The server in use already: the choice applies at once.
+              if (saved && saved.kind === kind && saved.server === text.trim()) onSave({ ...saved, strict: v });
+            }}
+          />
+          <span className="min-w-0">
+            <span className="block font-medium" style={{ color: 'var(--text)' }}>{t('dnsServerStrict')}</span>
+            <span className="block" style={{ color: 'var(--text-faint)' }}>{t('dnsServerStrictDesc')}</span>
+          </span>
+        </label>
       )}
     </div>
   );

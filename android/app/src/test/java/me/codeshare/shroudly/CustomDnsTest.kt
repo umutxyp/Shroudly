@@ -2,6 +2,7 @@ package me.codeshare.shroudly
 
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import java.io.DataInputStream
@@ -145,5 +146,35 @@ class CustomDnsTest {
         val named = CustomDns(DnsSpec("dot", "dns.invalid", 853), { 0 }, { null }) { null }
         val e = runCatching { named.query(Dns.buildQuery("example.com", Dns.TYPE_A, 1)) }.exceptionOrNull()
         assertTrue(e?.message?.contains("could not be looked up") == true)
+    }
+
+    /* "Only this server" (issue #34): when it does not answer, nothing else
+     * is asked, the log says so, and the engine gets "server failure" at
+     * once rather than waiting and then asking plain DNS. */
+    @Test
+    fun onlyThisServerFailsWithNothingElseAsked() {
+        val port = ServerSocket(0, 1, lo).use { it.localPort }
+        val logs = java.util.Collections.synchronizedList(ArrayList<String>())
+        val f = DohForwarder({ logs += it }, null) {}
+        f.setCustom(DnsSpec("tcp", "127.0.0.1", port), strict = true)
+        assertTrue(f.usingCustom())
+        val q = Dns.buildQuery("example.com", Dns.TYPE_A, 0x0b0b)
+        assertNull(f.resolve(q))
+        assertTrue(logs.any { it.endsWith("it is the only one used, so lookups fail until it answers") })
+        val fp = f.start()
+        try {
+            DatagramSocket(0, lo).use { c ->
+                c.soTimeout = 3000
+                c.send(DatagramPacket(q, q.size, lo, fp))
+                val buf = ByteArray(512)
+                val p = DatagramPacket(buf, buf.size)
+                c.receive(p)
+                val a = buf.copyOf(p.length)
+                assertTrue(Dns.serverFailed(a))
+                assertTrue(Dns.matchAnswer(q, a) != null)
+            }
+        } finally {
+            f.stop()
+        }
     }
 }

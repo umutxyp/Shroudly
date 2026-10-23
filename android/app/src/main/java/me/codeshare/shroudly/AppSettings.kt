@@ -26,6 +26,7 @@ object AppSettings {
     private const val KEY_REMOTE = "remoteControl"
     private const val KEY_DNS_KIND = "customDnsKind"
     private const val KEY_DNS_SERVER = "customDnsServer"
+    private const val KEY_DNS_STRICT = "customDnsStrict"
 
     /* The desktop's list, in its order: id, label (locale key), the
      * engine's spec, and whether the engine looks for what works by itself. */
@@ -87,11 +88,14 @@ object AppSettings {
     /* Read: null when automatic, or when what was kept cannot be read. */
     fun customDns(ctx: Context): DnsSpec? = customDnsTyped(ctx)?.let { (k, t) -> CustomDns.parse(k, t).first }
 
+    /* That server used alone ("Only this server"): no fallback. */
+    fun customDnsStrict(ctx: Context): Boolean = customDns(ctx) != null && prefs(ctx).getBoolean(KEY_DNS_STRICT, false)
+
     /* null: automatic. */
-    fun setCustomDns(ctx: Context, kind: String?, text: String?) {
+    fun setCustomDns(ctx: Context, kind: String?, text: String?, strict: Boolean = false) {
         val e = prefs(ctx).edit()
-        if (kind == null || text.isNullOrBlank()) e.remove(KEY_DNS_KIND).remove(KEY_DNS_SERVER)
-        else e.putString(KEY_DNS_KIND, kind).putString(KEY_DNS_SERVER, text.trim())
+        if (kind == null || text.isNullOrBlank()) e.remove(KEY_DNS_KIND).remove(KEY_DNS_SERVER).remove(KEY_DNS_STRICT)
+        else e.putString(KEY_DNS_KIND, kind).putString(KEY_DNS_SERVER, text.trim()).putBoolean(KEY_DNS_STRICT, strict)
         e.apply()
     }
 

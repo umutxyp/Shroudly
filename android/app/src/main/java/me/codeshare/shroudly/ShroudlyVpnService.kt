@@ -294,7 +294,11 @@ class ShroudlyVpnService : VpnService() {
                     }
                     // Another DNS server: from the next lookup on, nothing restarted.
                     "dns" -> later {
-                        if (active) { doh?.setCustom(AppSettings.customDns(this)); engine?.send("DNS-CLEAR") }
+                        if (active) {
+                            doh?.setCustom(AppSettings.customDns(this), AppSettings.customDnsStrict(this))
+                            engine?.send(if (AppSettings.customDnsStrict(this)) "DNS-STRICT 1" else "DNS-STRICT 0")
+                            engine?.send("DNS-CLEAR")
+                        }
                     }
                     "apps" -> later {
                         if (active) {
@@ -431,7 +435,7 @@ class ShroudlyVpnService : VpnService() {
             val d = DohForwarder(::log, prefs.getString("dohRoute", null)) { id ->
                 prefs.edit().putString("dohRoute", id).apply()
             }
-            d.setCustom(AppSettings.customDns(this))
+            d.setCustom(AppSettings.customDns(this), AppSettings.customDnsStrict(this))
             dohPort = try { d.start() } catch (e: Exception) { log("Encrypted DNS unavailable: ${e.message}"); 0 }
             doh = if (dohPort > 0) d else null
 
@@ -510,7 +514,7 @@ class ShroudlyVpnService : VpnService() {
             authFile = File(filesDir, AUTH_FILE).also { auth!!.writeTo(it) }
             val e = Engine(::log, ::logSite, ::onEngineEvent, ::onEngineExit)
             engine = e
-            val ok = e.start(Engine.args(p, dohPort, blockIps, authFile, Engine.FAKE_NET, AdBlock.listFile(this), AdBlock.allow(this), AppSettings.strategy(this)))
+            val ok = e.start(Engine.args(p, dohPort, blockIps, authFile, Engine.FAKE_NET, AdBlock.listFile(this), AdBlock.allow(this), AppSettings.strategy(this), AppSettings.customDnsStrict(this)))
             // Read once, at its start: the secret is not left lying in a file.
             authFile?.delete()
             if (ok) {

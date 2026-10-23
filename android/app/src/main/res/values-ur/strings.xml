@@ -56,6 +56,8 @@
     <string name="dnsServerDesc">Shroudly جو بھی نام تلاش کرتا ہے وہ اس سرور پر جاتا ہے۔ اگر یہ جواب دینا بند کر دے تو اس کے واپس آنے تک Shroudly کا خفیہ DNS جواب دیتا ہے۔</string>
     <string name="dnsServerFails">کوئی جواب نہیں ({error})۔ استعمال نہیں ہو رہا؛ پتا چیک کریں، یا پھر بھی استعمال کریں۔</string>
     <string name="dnsServerOk">{ms} ms میں جواب دیا (example.com: {address})۔ اب استعمال ہو رہا ہے۔</string>
+    <string name="dnsServerStrict">صرف یہی سرور</string>
+    <string name="dnsServerStrictDesc">جواب نہ دینے پر بھی کسی اور سے نہیں پوچھا جاتا: تب ناموں کی تلاش اس کے جواب دینے تک ناکام رہتی ہے۔ کسی سرور کو آزمانے کے لیے، یا جب کوئی اور آپ کی تلاشیں نہ دیکھے۔</string>
     <string name="dnsServerUse">استعمال کریں</string>
     <string name="dnsServerUseAnyway">پھر بھی استعمال کریں</string>
     <string name="download">ڈاؤن لوڈ</string>

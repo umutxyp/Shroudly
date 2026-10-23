@@ -264,7 +264,7 @@ class EngineManager {
       onPreferred: (id) => store.set('dohRoute', id),
       onState: (state) => this._setAdvice({ dnsDown: state === 'down' }),
     });
-    this.doh.setCustom(this.customDns());
+    this.doh.setCustom(this.customDns(), { strict: this.customDnsStrict() });
     this.dohPort = 0;
 
     this.proc = null;
@@ -341,7 +341,11 @@ class EngineManager {
   _args(cfg) {
     const a = ['--listen', '127.0.0.1', '--port', String(cfg.port), '--strategy', cfg.strategy];
     if (cfg.autoProbe) a.push('--auto');
-    if (cfg.useDoh) { a.push('--doh'); if (this.dohPort) a.push('--doh-port', String(this.dohPort)); }
+    if (cfg.useDoh) {
+      a.push('--doh');
+      if (this.dohPort) a.push('--doh-port', String(this.dohPort));
+      if (this.dohPort && this.customDnsStrict()) a.push('--dns-strict');
+    }
     if (cfg.preferIpv6) a.push('--ipv6');
     for (const d of this.watch) a.push('--watch', d);
     const list = cfg.adBlock ? this.adblockFile() : null;
@@ -958,11 +962,20 @@ class EngineManager {
     return spec && !spec.error ? spec : null;
   }
 
+  /* That server set to be used alone ("Only this server"): no fallback in
+   * the forwarder, and none in the engine (--dns-strict). */
+  customDnsStrict() {
+    const c = this.store.get('customDns');
+    return !!(c && typeof c === 'object' && c.strict === true && this.customDns());
+  }
+
   /* The server now set into the forwarder, and the answers the engine keeps
    * dropped: the next lookup asks it, nothing restarted. */
   applyCustomDns() {
     const spec = this.customDns();
-    this.doh.setCustom(spec);
+    const strict = this.customDnsStrict();
+    this.doh.setCustom(spec, { strict });
+    this._command(strict ? 'DNS-STRICT 1' : 'DNS-STRICT 0');
     this._command('DNS-CLEAR');
     return spec;
   }

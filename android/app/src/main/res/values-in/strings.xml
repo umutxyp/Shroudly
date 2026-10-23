@@ -56,6 +56,8 @@
     <string name="dnsServerDesc">Setiap pencarian nama oleh Shroudly dikirim ke server ini. Jika berhenti menjawab, DNS terenkripsi Shroudly yang menjawab sampai server ini kembali.</string>
     <string name="dnsServerFails">Tidak ada jawaban ({error}). Tidak dipakai; periksa alamatnya, atau tetap gunakan.</string>
     <string name="dnsServerOk">Menjawab dalam {ms} md (example.com: {address}). Sekarang dipakai.</string>
+    <string name="dnsServerStrict">Hanya server ini</string>
+    <string name="dnsServerStrictDesc">Tidak ada server lain yang ditanya, bahkan saat server ini tidak menjawab: pencarian nama lalu gagal sampai server ini menjawab. Untuk menguji server, atau saat tidak boleh ada pihak lain yang melihat pencarian Anda.</string>
     <string name="dnsServerUse">Gunakan</string>
     <string name="dnsServerUseAnyway">Tetap gunakan</string>
     <string name="download">Unduh</string>

@@ -56,6 +56,8 @@
     <string name="dnsServerDesc">Shroudly жасайтын әр атау сұрауы осы серверге барады. Ол жауап беруді тоқтатса, қайта оралғанша Shroudly шифрланған DNS-і жауап береді.</string>
     <string name="dnsServerFails">Жауап жоқ ({error}). Қолданылмайды; мекенжайды тексеріңіз немесе бәрібір қолданыңыз.</string>
     <string name="dnsServerOk">{ms} мс ішінде жауап берді (example.com: {address}). Қазір қолданылуда.</string>
+    <string name="dnsServerStrict">Тек осы сервер</string>
+    <string name="dnsServerStrictDesc">Ол жауап бермесе де, басқасынан сұралмайды: онда ат сұраулары ол жауап бергенше орындалмайды. Серверді сынау үшін немесе сұрауларыңызды басқа ешкім көрмеуі керек болса.</string>
     <string name="dnsServerUse">Қолдану</string>
     <string name="dnsServerUseAnyway">Бәрібір қолдану</string>
     <string name="download">Жүктеп алу</string>

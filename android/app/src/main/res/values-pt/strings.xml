@@ -56,6 +56,8 @@
     <string name="dnsServerDesc">Toda consulta de nome que o Shroudly faz vai para este servidor. Se ele parar de responder, o DNS criptografado do Shroudly responde até ele voltar.</string>
     <string name="dnsServerFails">Sem resposta ({error}). Não está em uso; confira o endereço ou use mesmo assim.</string>
     <string name="dnsServerOk">Respondeu em {ms} ms (example.com: {address}). Em uso agora.</string>
+    <string name="dnsServerStrict">Somente este servidor</string>
+    <string name="dnsServerStrictDesc">Nenhum outro é consultado, mesmo quando ele não responde: as consultas então falham até que ele responda. Para testar um servidor, ou quando ninguém mais pode ver suas consultas.</string>
     <string name="dnsServerUse">Usar</string>
     <string name="dnsServerUseAnyway">Usar mesmo assim</string>
     <string name="download">Recebido</string>

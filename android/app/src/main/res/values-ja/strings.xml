@@ -56,6 +56,8 @@
     <string name="dnsServerDesc">Shroudly が行う名前の問い合わせはすべてこのサーバーに送られます。応答しなくなった場合は、戻るまで Shroudly の暗号化 DNS が応答します。</string>
     <string name="dnsServerFails">応答がありません（{error}）。使用していません。アドレスを確認するか、それでも使ってください。</string>
     <string name="dnsServerOk">{ms} ms で応答しました（example.com: {address}）。使用中です。</string>
+    <string name="dnsServerStrict">このサーバーのみ</string>
+    <string name="dnsServerStrictDesc">応答がないときでも他のサーバーには問い合わせません。その間、名前の解決は応答があるまで失敗します。サーバーを試すときや、他の誰にも問い合わせを見せたくないときに。</string>
     <string name="dnsServerUse">使う</string>
     <string name="dnsServerUseAnyway">それでも使う</string>
     <string name="download">ダウンロード</string>

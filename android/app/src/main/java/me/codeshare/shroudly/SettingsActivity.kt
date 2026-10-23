@@ -255,7 +255,7 @@ class SettingsActivity : Activity() {
      * an address. What is typed is asked once before it is used and the
      * answer shown; one that does not answer is used only when "Use anyway"
      * is pressed (if it stops answering later, the built-in DNS answers
-     * meanwhile). */
+     * meanwhile, unless "Only this server" is ticked). */
     private fun pickDns() {
         val density = resources.displayMetrics.density
         val pad = (16 * density).toInt()
@@ -270,6 +270,20 @@ class SettingsActivity : Activity() {
             setText(typed?.second ?: "")
         }
         val status = TextView(this).apply { textSize = 13f; setTextColor(getColor(R.color.text_dim)) }
+        // Nothing else asked, not even when it does not answer (issue #34).
+        val strict = CheckBox(this).apply {
+            text = getString(R.string.dnsServerStrict)
+            textSize = 15f
+            setTextColor(getColor(R.color.text))
+            textAlignment = View.TEXT_ALIGNMENT_VIEW_START
+            minHeight = (48 * density).toInt()
+            isChecked = AppSettings.customDnsStrict(this@SettingsActivity)
+        }
+        val strictDesc = TextView(this).apply {
+            text = getString(R.string.dnsServerStrictDesc)
+            setTextColor(getColor(R.color.text_dim))
+            textSize = 12.5f
+        }
         fun option(id: String, label: String) = RadioButton(this).apply {
             this.id = View.generateViewId()
             tag = id
@@ -283,7 +297,11 @@ class SettingsActivity : Activity() {
         group.addView(option("auto", getString(R.string.dnsServerAuto)))
         for ((id, label, _) in dnsKinds) group.addView(option(id, getString(label)))
         fun example() = dnsKinds.firstOrNull { it.first == kind }?.third ?: ""
-        fun showInput() { input.visibility = if (kind == "auto") View.GONE else View.VISIBLE; input.hint = example() }
+        fun showInput() {
+            val v = if (kind == "auto") View.GONE else View.VISIBLE
+            input.visibility = v; strict.visibility = v; strictDesc.visibility = v
+            input.hint = example()
+        }
         showInput()
         val box = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
@@ -295,9 +313,14 @@ class SettingsActivity : Activity() {
                 text = getString(R.string.dnsServerDesc)
                 setTextColor(getColor(R.color.text_dim))
                 textSize = 12.5f
-                setPadding(0, pad / 2, 0, 0)
+                setPadding(0, pad / 2, 0, pad / 2)
             })
+            // The exception to the line above.
+            addView(strict)
+            addView(strictDesc)
         }
+        // Its description lines up with the box's text, not the box.
+        strict.post { strictDesc.setPaddingRelative(strict.compoundPaddingStart, 0, 0, pad / 2) }
         Fit.apply(box)
         // What was asked last and did not answer: pressing again uses it anyway.
         var failed: String? = null
@@ -308,8 +331,8 @@ class SettingsActivity : Activity() {
             .setNegativeButton(android.R.string.cancel, null)
             .create()
         fun save(k: String?, t: String?) {
-            AppSettings.setCustomDns(this, k, t)
-            ShroudlyVpnService.log(if (k == null) "DNS server: automatic" else "DNS server: ${CustomDns.parse(k, t ?: "").first?.let { CustomDns.shown(it) } ?: t}")
+            AppSettings.setCustomDns(this, k, t, strict.isChecked)
+            ShroudlyVpnService.log(if (k == null) "DNS server: automatic" else "DNS server: ${CustomDns.parse(k, t ?: "").first?.let { CustomDns.shown(it) } ?: t}${if (strict.isChecked) " (only this one)" else ""}")
             showDns()
             tell("dns")
         }
@@ -325,6 +348,10 @@ class SettingsActivity : Activity() {
                     input.requestFocus()
                     input.post { getSystemService(android.view.inputmethod.InputMethodManager::class.java)?.showSoftInput(input, 0) }
                 }
+            }
+            // The server in use already: the choice applies at once.
+            strict.setOnCheckedChangeListener { _, _ ->
+                if (typed != null && typed.first == kind && typed.second == input.text.toString().trim()) save(kind, typed.second)
             }
             input.setOnEditorActionListener { _, action, _ ->
                 if (action == android.view.inputmethod.EditorInfo.IME_ACTION_DONE && use.isEnabled) { use.performClick(); true } else false

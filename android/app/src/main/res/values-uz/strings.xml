@@ -56,6 +56,8 @@
     <string name="dnsServerDesc">Shroudly qiladigan har bir nom soʻrovi shu serverga boradi. U javob berishni toʻxtatsa, qaytguncha Shroudly’ning shifrlangan DNS’i javob beradi.</string>
     <string name="dnsServerFails">Javob yoʻq ({error}). Foydalanilmayapti; manzilni tekshiring yoki baribir foydalaning.</string>
     <string name="dnsServerOk">{ms} ms da javob berdi (example.com: {address}). Hozir foydalanilmoqda.</string>
+    <string name="dnsServerStrict">Faqat shu server</string>
+    <string name="dnsServerStrictDesc">U javob bermasa ham, boshqasidan so‘ralmaydi: unda nom so‘rovlari u javob bermaguncha bajarilmaydi. Serverni sinash uchun yoki so‘rovlaringizni boshqa hech kim ko‘rmasligi kerak bo‘lganda.</string>
     <string name="dnsServerUse">Foydalanish</string>
     <string name="dnsServerUseAnyway">Baribir foydalanish</string>
     <string name="download">Yuklab olish</string>

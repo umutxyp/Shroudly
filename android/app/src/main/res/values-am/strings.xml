@@ -56,6 +56,8 @@
     <string name="dnsServerDesc">Shroudly የሚያደርገው እያንዳንዱ የስም ፍለጋ ወደዚህ አገልጋይ ይሄዳል። ምላሽ መስጠት ካቆመ፣ እስኪመለስ ድረስ የShroudly የተመሰጠረ DNS ምላሽ ይሰጣል።</string>
     <string name="dnsServerFails">ምላሽ የለም ({error})። ጥቅም ላይ አይደለም፤ አድራሻውን ያረጋግጡ፣ ወይም ቢሆንም ይጠቀሙበት።</string>
     <string name="dnsServerOk">በ{ms} ms ውስጥ ምላሽ ሰጥቷል (example.com: {address})። አሁን ጥቅም ላይ ነው።</string>
+    <string name="dnsServerStrict">ይህ አገልጋይ ብቻ</string>
+    <string name="dnsServerStrictDesc">ምላሽ ባይሰጥም እንኳ ሌላ አይጠየቅም፤ ያኔ ምላሽ እስኪሰጥ ድረስ የስም ፍለጋዎች አይሳኩም። አገልጋይን ለመሞከር፣ ወይም ፍለጋዎችዎን ሌላ ማንም ማየት በማይገባበት ጊዜ።</string>
     <string name="dnsServerUse">ተጠቀም</string>
     <string name="dnsServerUseAnyway">ቢሆንም ተጠቀም</string>
     <string name="download">ማውረድ</string>

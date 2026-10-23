@@ -56,6 +56,8 @@
     <string name="dnsServerDesc">Her lêgerîna navan a Shroudly diçe vê pêşkêşkarê. Heke bersiv nede, heta ku vegere DNS-a şîfrekirî ya Shroudly bersiv dide.</string>
     <string name="dnsServerFails">Bersiv tune ({error}). Nayê bikaranîn; navnîşanê kontrol bike, an jî dîsa jî bi kar bîne.</string>
     <string name="dnsServerOk">Di {ms} ms de bersiv da (example.com: {address}). Niha tê bikaranîn.</string>
+    <string name="dnsServerStrict">Tenê ev pêşkêşkar</string>
+    <string name="dnsServerStrictDesc">Tu yekî din nayê pirsîn, heta dema ku bersiv nede jî: wê demê lêgerînên navan heta ku bersiv bide têk diçin. Ji bo ceribandina pêşkêşkarekê, an dema ku divê kesekî din lêgerînên te nebîne.</string>
     <string name="dnsServerUse">Bi kar bîne</string>
     <string name="dnsServerUseAnyway">Dîsa jî bi kar bîne</string>
     <string name="download">Daxistin</string>

@@ -56,6 +56,8 @@
     <string name="dnsServerDesc">Shroudly-nin etdiyi hər ad sorğusu bu serverə gedir. Cavab verməyi dayandırsa, qayıdana qədər Shroudly-nin şifrələnmiş DNS-i cavab verir.</string>
     <string name="dnsServerFails">Cavab yoxdur ({error}). İstifadə olunmur; ünvanı yoxlayın və ya yenə də istifadə edin.</string>
     <string name="dnsServerOk">{ms} ms-də cavab verdi (example.com: {address}). İndi istifadə olunur.</string>
+    <string name="dnsServerStrict">Yalnız bu server</string>
+    <string name="dnsServerStrictDesc">Cavab vermədikdə belə başqa heç birindən soruşulmur: onda ad sorğuları o cavab verənə qədər alınmır. Serveri sınamaq üçün və ya sorğularınızı başqa heç kim görməməli olduqda.</string>
     <string name="dnsServerUse">İstifadə et</string>
     <string name="dnsServerUseAnyway">Yenə də istifadə et</string>
     <string name="download">Endirmə</string>

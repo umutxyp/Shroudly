@@ -56,6 +56,8 @@
     <string name="dnsServerDesc">كل استعلام أسماء يجريه Shroudly يذهب إلى هذا الخادم. إن توقف عن الإجابة، يجيب DNS المشفَّر من Shroudly حتى يعود.</string>
     <string name="dnsServerFails">لا إجابة ({error}). غير مستخدم؛ تحقّق من العنوان أو استخدمه على أي حال.</string>
     <string name="dnsServerOk">أجاب خلال {ms} ملّي ثانية (example.com: {address}). قيد الاستخدام الآن.</string>
+    <string name="dnsServerStrict">هذا الخادم فقط</string>
+    <string name="dnsServerStrictDesc">لا يُسأل أي خادم آخر حتى عندما لا يجيب: عندها تفشل عمليات البحث عن الأسماء حتى يجيب. لاختبار خادم، أو عندما يجب ألا يرى أحد غيره عمليات بحثك.</string>
     <string name="dnsServerUse">استخدام</string>
     <string name="dnsServerUseAnyway">استخدامه على أي حال</string>
     <string name="download">التنزيل</string>

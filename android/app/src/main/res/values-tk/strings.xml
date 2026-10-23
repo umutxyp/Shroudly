@@ -56,6 +56,8 @@
     <string name="dnsServerDesc">Shroudly-niň edýän her at soragy şu serwere gidýär. Ol jogap bermesini bes etse, gaýdyp gelýänçä Shroudly-niň şifrlenen DNS-i jogap berýär.</string>
     <string name="dnsServerFails">Jogap ýok ({error}). Ulanylmaýar; salgyny barlaň ýa-da şonda-da ulanyň.</string>
     <string name="dnsServerOk">{ms} ms-da jogap berdi (example.com: {address}). Häzir ulanylýar.</string>
+    <string name="dnsServerStrict">Diňe şu serwer</string>
+    <string name="dnsServerStrictDesc">Ol jogap bermese-de, başgasyndan soralmaýar: onda at soraglary ol jogap berýänçä başa barmaýar. Serweri synamak üçin ýa-da soraglaryňyzy başga hiç kim görmeli däl bolsa.</string>
     <string name="dnsServerUse">Ulanmak</string>
     <string name="dnsServerUseAnyway">Şonda-da ulanmak</string>
     <string name="download">Ýükläp alyş</string>

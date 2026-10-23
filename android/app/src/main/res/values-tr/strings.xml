@@ -56,6 +56,8 @@
     <string name="dnsServerDesc">Shroudly\'nin yaptığı her ad sorgusu bu sunucuya gider. Cevap vermeyi keserse, geri gelene kadar Shroudly\'nin şifreli DNS\'i cevap verir.</string>
     <string name="dnsServerFails">Cevap yok ({error}). Kullanılmıyor; adresi kontrol et ya da yine de kullan.</string>
     <string name="dnsServerOk">{ms} ms\'de cevap verdi (example.com: {address}). Şu an kullanılıyor.</string>
+    <string name="dnsServerStrict">Yalnızca bu sunucu</string>
+    <string name="dnsServerStrictDesc">Cevap vermediğinde bile başka hiçbir sunucuya sorulmaz: o zaman ad sorguları, o cevap verene kadar başarısız olur. Bir sunucuyu denemek için ya da sorgularını başka kimsenin görmemesi gerektiğinde.</string>
     <string name="dnsServerUse">Kullan</string>
     <string name="dnsServerUseAnyway">Yine de kullan</string>
     <string name="download">İndirme</string>

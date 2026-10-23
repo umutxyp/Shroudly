@@ -35,6 +35,9 @@ class AppSettingsTest {
         assertEquals("disorder(sni)", one[one.indexOf("--strategy") + 1])
         assertFalse("one technique for every site: no --auto", one.contains("--auto"))
         assertTrue("encrypted DNS either way", one.contains("--doh"))
+        assertFalse(one.contains("--dns-strict"))
+        assertTrue("only the user's DNS server", Engine.args(1080, 5353, emptyList(), dnsStrict = true).contains("--dns-strict"))
+        assertFalse("nothing to be strict about without the forwarder", Engine.args(1080, 0, emptyList(), dnsStrict = true).contains("--dns-strict"))
     }
 
     /* Proxy only (#31) leaves the VPN slot to another app: the engine listens

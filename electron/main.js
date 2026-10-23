@@ -2283,10 +2283,10 @@ function setCustomDns(value) {
     const spec = CustomDnsLib.parse(value.kind, value.server);
     if (spec.error) return { success: false, error: spec.error };
     const was = store.get('customDns');
-    const next = { kind: spec.kind, server: String(value.server).trim() };
-    if (was && was.kind === next.kind && was.server === next.server) return { success: true };
+    const next = { kind: spec.kind, server: String(value.server).trim(), strict: value.strict === true };
+    if (was && was.kind === next.kind && was.server === next.server && (was.strict === true) === next.strict) return { success: true };
     store.set('customDns', next);
-    addLog('info', `DNS server: ${CustomDnsLib.shown(spec)}`);
+    addLog('info', `DNS server: ${CustomDnsLib.shown(spec)}${next.strict ? ' (only this one)' : ''}`);
   } else {
     if (!store.get('customDns')) return { success: true };
     store.delete('customDns');

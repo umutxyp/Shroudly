@@ -56,6 +56,8 @@
     <string name="dnsServerDesc">Chaque résolution de nom de Shroudly passe par ce serveur. S\'il cesse de répondre, le DNS chiffré de Shroudly répond jusqu\'à son retour.</string>
     <string name="dnsServerFails">Pas de réponse ({error}). Non utilisé ; vérifiez l\'adresse ou utilisez-le quand même.</string>
     <string name="dnsServerOk">Réponse en {ms} ms (example.com : {address}). En service.</string>
+    <string name="dnsServerStrict">Uniquement ce serveur</string>
+    <string name="dnsServerStrictDesc">Aucun autre n\'est interrogé, même s\'il ne répond pas : les résolutions échouent alors jusqu\'à ce qu\'il réponde. Pour tester un serveur, ou quand personne d\'autre ne doit voir vos requêtes.</string>
     <string name="dnsServerUse">Utiliser</string>
     <string name="dnsServerUseAnyway">Utiliser quand même</string>
     <string name="download">Réception</string>

@@ -56,6 +56,8 @@
     <string name="dnsServerDesc">Mọi truy vấn tên mà Shroudly thực hiện đều gửi tới máy chủ này. Nếu nó ngừng trả lời, DNS mã hóa của Shroudly sẽ trả lời cho đến khi nó hoạt động lại.</string>
     <string name="dnsServerFails">Không có trả lời ({error}). Chưa được dùng; hãy kiểm tra địa chỉ, hoặc vẫn dùng nó.</string>
     <string name="dnsServerOk">Đã trả lời trong {ms} ms (example.com: {address}). Đang được dùng.</string>
+    <string name="dnsServerStrict">Chỉ máy chủ này</string>
+    <string name="dnsServerStrictDesc">Không hỏi máy chủ nào khác, kể cả khi nó không trả lời: khi đó tra cứu tên sẽ thất bại cho đến khi nó trả lời. Dùng để thử một máy chủ, hoặc khi không ai khác được thấy các tra cứu của bạn.</string>
     <string name="dnsServerUse">Dùng</string>
     <string name="dnsServerUseAnyway">Vẫn dùng</string>
     <string name="download">Tải xuống</string>

@@ -104,8 +104,10 @@ const PATTERNS = [
   // A DNS server of the user's own (issue #34).
   [/^Your DNS server is answering: (.+)$/, 'logCustomDnsRoutes', ['routes']],
   [/^Your DNS server (\S+) does not answer \((.+)\); Shroudly's built-in encrypted DNS answers until it does$/, 'logCustomDnsDown', ['server', 'reason']],
+  [/^Your DNS server (\S+) does not answer \((.+)\); it is the only one used, so lookups fail until it answers$/, 'logCustomDnsDownStrict', ['server', 'reason']],
   [/^Your DNS server (\S+) answers again$/, 'logCustomDnsBack', ['server']],
   [/^DNS server: (\S+)$/, 'logDnsServerSet', ['server']],
+  [/^DNS server: (\S+) \(only this one\)$/, 'logDnsServerSetStrict', ['server']],
   // A proxy on this computer where nothing runs (a program that has gone).
   [/^Games and apps: (.+) pointed at (.+), where nothing is running; Shroudly's is used while the mode is on, and the old one comes back when it goes off$/, 'logAppsDeadProxy', ['names', 'addrs']],
   [/^Autopilot: Discord Drover sent (.+) to (\S+), where nothing is running; its files \((.+)\) were moved to (.+) and it was restarted$/, 'logDroverMoved', ['app', 'addr', 'files', 'backup']],

@@ -56,6 +56,8 @@
     <string name="dnsServerDesc">Every lookup Shroudly makes goes to this server. If it stops answering, Shroudly\'s encrypted DNS answers until it is back.</string>
     <string name="dnsServerFails">No answer ({error}). Not in use; check the address, or use it anyway.</string>
     <string name="dnsServerOk">Answered in {ms} ms (example.com: {address}). In use now.</string>
+    <string name="dnsServerStrict">Only this server</string>
+    <string name="dnsServerStrictDesc">Nothing else is asked, even when it does not answer: lookups then fail until it does. For testing a server, or when no other may see your lookups.</string>
     <string name="dnsServerUse">Use</string>
     <string name="dnsServerUseAnyway">Use anyway</string>
     <string name="download">Download</string>

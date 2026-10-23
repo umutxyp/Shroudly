@@ -56,6 +56,8 @@
     <string name="dnsServerDesc">Setiap carian nama yang dibuat oleh Shroudly pergi ke pelayan ini. Jika ia berhenti menjawab, DNS tersulit Shroudly menjawab sehingga ia kembali.</string>
     <string name="dnsServerFails">Tiada jawapan ({error}). Tidak digunakan; semak alamatnya, atau guna juga.</string>
     <string name="dnsServerOk">Menjawab dalam {ms} ms (example.com: {address}). Sedang digunakan.</string>
+    <string name="dnsServerStrict">Hanya pelayan ini</string>
+    <string name="dnsServerStrictDesc">Tiada pelayan lain ditanya, walaupun pelayan ini tidak menjawab: carian nama kemudian gagal sehingga pelayan ini menjawab. Untuk menguji pelayan, atau apabila tiada pihak lain boleh melihat carian anda.</string>
     <string name="dnsServerUse">Guna</string>
     <string name="dnsServerUseAnyway">Guna juga</string>
     <string name="download">Muat turun</string>
