@@ -242,6 +242,53 @@ const readState = (file) => { try { return JSON.parse(fs.readFileSync(file, 'utf
   }
 
   // ── Windows ─────────────────────────────────────────────────────────
+  // Windows: a manual proxy of a program on this computer that is gone
+  // (ByeDPI's 127.0.0.1:1080, left behind when it was closed). Windows would
+  // send everything to nothing once our PAC is gone, and programs that read
+  // only the manual proxy do so meanwhile: switched off, its address kept,
+  // as on the other systems. One that runs, or one elsewhere, is left alone.
+  {
+    const reg = new Map([
+      ['ProxyEnable', { type: 'REG_DWORD', data: '0x1' }],
+      ['ProxyServer', { type: 'REG_SZ', data: '127.0.0.1:1080' }],
+    ]);
+    const fx = fakeExec({ 'reg.exe': fakeReg(reg) });
+    let up = new Set();
+    // null: whether anything listens could not be told (netstat failed).
+    fx.listening = (port) => (up === null ? null : up.has(port));
+    SystemProxy._setExec(fx);
+    const file = stateFile('win-gone');
+    const log = logs();
+    const sp = new SystemProxy(log, { platform: 'win32', stateFile: file });
+    await sp.apply(10808, 'all');
+    t.ok(reg.get('ProxyEnable').data === '0' && reg.get('ProxyServer').data === '127.0.0.1:1080' && reg.get('AutoConfigURL').data === sp.pacUrl
+      && log.lines.some((l) => /127\.0\.0\.1:1080\) points at a program on this computer that is no longer running/.test(l)),
+    'Windows: a manual proxy whose program here is gone is switched off when protection starts, its address kept, and said');
+    await sp.restore();
+    t.ok(reg.get('ProxyEnable').data === '0' && reg.get('ProxyServer').data === '127.0.0.1:1080' && !reg.has('AutoConfigURL'),
+      'Windows: and it stays off after the stop (never put back pointing at nothing)');
+    reg.set('ProxyEnable', { type: 'REG_DWORD', data: '0x1' });
+    up = new Set([1080]);
+    const sp2 = new SystemProxy(() => {}, { platform: 'win32', stateFile: file });
+    await sp2.apply(10808, 'all');
+    t.ok(reg.get('ProxyEnable').data === '0x1', 'Windows: one whose program runs is left on');
+    up = new Set();
+    await sp2.restore();
+    t.ok(reg.get('ProxyEnable').data === '0' && reg.get('ProxyServer').data === '127.0.0.1:1080',
+      'Windows: its program gone while protected: switched off at the stop, looked at afresh');
+    reg.set('ProxyEnable', { type: 'REG_DWORD', data: '0x1' });
+    reg.set('ProxyServer', { type: 'REG_SZ', data: 'http=127.0.0.1:1080;https=corp-proxy:8080' });
+    const sp3 = new SystemProxy(() => {}, { platform: 'win32', stateFile: file });
+    await sp3.apply(10808, 'all');
+    await sp3.restore();
+    t.ok(reg.get('ProxyEnable').data === '0x1', 'Windows: one with a server elsewhere is left as it is');
+    up = null;
+    reg.set('ProxyServer', { type: 'REG_SZ', data: '127.0.0.1:1080' });
+    const sp4 = new SystemProxy(() => {}, { platform: 'win32', stateFile: file });
+    await sp4.apply(10808, 'all');
+    await sp4.restore();
+    t.ok(reg.get('ProxyEnable').data === '0x1', "Windows: whether it listens unknown (netstat failed): left as it is");
+  }
   {
     const reg = new Map([
       ['ProxyEnable', { type: 'REG_DWORD', data: '0x1' }],

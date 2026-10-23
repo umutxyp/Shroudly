@@ -1827,7 +1827,9 @@ ${argsXml}
     this.snapshot.form = 'pac';
     this._arm();
     // WinINET loads the PAC over HTTP (file:// PACs are rejected). The user's
-    // manual proxy is left as it is: WinINET and Chromium use the PAC first.
+    // manual proxy is left as it is (WinINET and Chromium use the PAC first),
+    // unless it points at a program here that is gone.
+    this._offDeadManualWindows();
     regSet('AutoConfigURL', 'REG_SZ', this.pacUrl);
     this._takeOverInherited();
     this._refreshWinInet();
@@ -1847,6 +1849,9 @@ ${argsXml}
         // Chromium go on without a PAC they cannot fetch (see _pacGone).
         if (v && !OUR_PAC.test(v.data)) regSet('AutoConfigURL', v.type, v.data);
         else regDel('AutoConfigURL');
+        // Looked at again, freshly: a program that served it when we applied
+        // may have gone since.
+        this._offDeadManualWindows(true);
         this._refreshWinInet();
       }
       return;
@@ -1861,6 +1866,35 @@ ${argsXml}
       else regDel(name);
     }
     this._refreshWinInet();
+  }
+
+  /* The user's manual proxy (ProxyEnable 1, ProxyServer) when every server
+   * in it is on this computer and none is listening: the program that set it
+   * has gone (ByeDPI's 127.0.0.1:1080 left behind). Windows would send
+   * everything to nothing once our PAC is gone, and so do programs that read
+   * only the manual proxy (Discord's updater) meanwhile. Switched off, its
+   * address kept for the user to switch on again, as on the other systems
+   * (_localGone, which says so once). `fresh`: not from what was found
+   * earlier this run. True when it was switched off. */
+  _offDeadManualWindows(fresh = false) {
+    const on = regGet('ProxyEnable');
+    const server = regGet('ProxyServer');
+    if (!on || !/^(0x)?0*1$/i.test(String(on.data).trim()) || !server || !String(server.data).trim()) return false;
+    const shown = String(server.data).trim();
+    const servers = SystemProxy._winServers(shown);
+    if (fresh) this._gone.delete(shown);
+    if (!servers.length || !this._localGone(shown, servers)) return false;
+    try { regSet('ProxyEnable', 'REG_DWORD', '0'); } catch { return false; }
+    return true;
+  }
+
+  /* WinINET's ProxyServer: "host:port", or one per scheme,
+   * "http=host:port;https=host:port;socks=host:port". */
+  static _winServers(value) {
+    return String(value || '').split(';').map((p) => p.trim().replace(/^[a-z]+=/i, '')).filter(Boolean).map((hp) => {
+      const m = /^(?:[a-z]+:\/\/)?(\[[^\]]+\]|[^:\s]+):(\d+)$/i.exec(hp);
+      return m ? { host: m[1].replace(/^\[|\]$/g, ''), port: Number(m[2]) } : { host: hp, port: 0 };
+    });
   }
 
   /* Tell running WinINET apps to re-read the settings. Fire and forget:
