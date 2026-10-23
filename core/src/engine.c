@@ -2916,16 +2916,18 @@ static int raw_restore(const char *k, const char *technique, uint64_t age) {
 /* ── names only this computer's own DNS knows ───────────────────────────
  * A company's intranet, a VPN's split DNS, a hosts-file entry: the system's
  * resolver answers them with a private address, and public DNS does not know
- * them at all. Asking our own resolver for such a name fails the connection
- * (and shows the name to public resolvers). So, as the program proxy does
- * (electron/app-proxy.js), a name the system resolves to private addresses
- * only, none of them a known block page, is connected to where the system
- * says, and public DNS is not asked. Loopback and 0.0.0.0 answers are what a
- * hosts file or an ad blocker gives on purpose, but also what some filtering
- * DNS gives for a blocked site: those are followed only when our own resolver
- * has no public address for the name either. A public answer from the system
- * changes nothing. Decided once a minute per name; the system is given
- * OSDNS_WAIT_MS to answer (it may be the one that is broken). */
+ * them at all, so asking only our own resolver would fail the connection.
+ * Our own resolver (encrypted DNS, or the user's own server) is asked first,
+ * and a name it has a public address for goes there: the system's DNS, which
+ * is the network's and in plain text, is never shown it (issue #34; it was
+ * asked about every name before). Only a name ours does not know, or knows
+ * only by a private or loopback address, is asked of the system; and, as the
+ * program proxy does (electron/app-proxy.js), one the system resolves to
+ * private addresses only, none of them a known block page, or to loopback or
+ * 0.0.0.0 (a hosts file, an ad blocker), is connected to where the system
+ * says. A hosts-file entry for a name public DNS knows is not followed.
+ * Decided once a minute per name; the system is given OSDNS_WAIT_MS to answer
+ * (it may be the one that is broken). */
 #define OSDNS_SLOTS   128
 #define OSDNS_TTL_MS  60000
 #define OSDNS_WAIT_MS 1500
@@ -2988,26 +2990,27 @@ static int osdns_follow(const char *host) {
     if (g_osdns[i].t < g_osdns[oldest].t) oldest = i;
   }
   if (slot >= 0 && age_ms(now, g_osdns[slot].t) < OSDNS_TTL_MS) { int f = g_osdns[slot].follow; mutex_unlock(&g_osdns_mx); return f; }
-  if (now < g_osdns_slow_until) { mutex_unlock(&g_osdns_mx); return 0; }
+  int slow = now < g_osdns_slow_until;
   mutex_unlock(&g_osdns_mx);
 
-  osdns_job *j = (osdns_job *)calloc(1, sizeof(*j));
-  if (!j) return 0;
-  snprintf(j->host, sizeof(j->host), "%s", host);
-  atomic_store(&j->refs, 2);
-  if (thread_spawn(osdns_thread, j, 256 * 1024) != 0) { free(j); return 0; }
-  uint64_t end = now + OSDNS_WAIT_MS;
-  int st;
-  while ((st = atomic_load(&j->state)) == 0 && now_ms() < end) sleep_ms(5);
-  osdns_release(j);
-  int follow = 0;
-  if (st == 1) follow = 1;
-  else if (st == 2) {
-    /* Loopback or 0.0.0.0: followed only if our resolver has no public
-     * address for it either. */
-    struct sockaddr_storage sa[DOH_MAX_ADDRS]; socklen_t sl[DOH_MAX_ADDRS];
-    follow = doh_resolve_all(host, 443, 0, sa, sl, DOH_MAX_ADDRS) <= 0 &&
-             doh_resolve_all(host, 443, 1, sa, sl, DOH_MAX_ADDRS) <= 0;
+  /* Ours first: a public address there, and the system is not asked. */
+  struct sockaddr_storage sa[DOH_MAX_ADDRS]; socklen_t sl[DOH_MAX_ADDRS];
+  int ours = doh_resolve_all(host, 443, 0, sa, sl, DOH_MAX_ADDRS) > 0 ||
+             doh_resolve_all(host, 443, 1, sa, sl, DOH_MAX_ADDRS) > 0;
+  if (!ours && slow) return 0;
+  int follow = 0, st = 3;
+  if (!ours) {
+    osdns_job *j = (osdns_job *)calloc(1, sizeof(*j));
+    if (!j) return 0;
+    snprintf(j->host, sizeof(j->host), "%s", host);
+    atomic_store(&j->refs, 2);
+    if (thread_spawn(osdns_thread, j, 256 * 1024) != 0) { free(j); return 0; }
+    uint64_t end = now_ms() + OSDNS_WAIT_MS;
+    while ((st = atomic_load(&j->state)) == 0 && now_ms() < end) sleep_ms(5);
+    osdns_release(j);
+    /* A private address; or loopback / 0.0.0.0, ours having no public
+     * address for it either (known above). */
+    follow = st == 1 || st == 2;
   }
   mutex_lock(&g_osdns_mx);
   if (st == 0) g_osdns_slow_until = now_ms() + OSDNS_TTL_MS;   /* decided: ours, for a while */

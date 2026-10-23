@@ -880,7 +880,9 @@ Shroudly does not collect personal data. These are the only things that contact 
   over encrypted DNS by the resolvers listed under
   [Encrypted DNS routes](#encrypted-dns-routes), not by your provider; or, if
   you chose one in Settings (DNS server), by that server (and by the resolvers
-  above while it does not answer).
+  above while it does not answer). Only a name they have no public address
+  for (an intranet, a VPN's own names, a hosts-file entry) is then asked of
+  your system's DNS, so that it still opens.
 - **Discord's update servers**, only with Discord app mode on: the relay asks
   them on the Discord app's behalf, exactly what Discord would have asked.
 - **Whether an app's service is blocked here** (the [autopilot](#autopilot)),
