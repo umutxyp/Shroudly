@@ -359,8 +359,32 @@ int engine_main(int argc, char **argv, FILE *in, FILE *out, int embedded) {
 }
 
 #ifndef SHROUDLY_NO_MAIN
+/* "shroudly-core --broadcast-env": tell Explorer and every running program
+ * that the environment changed (WM_SETTINGCHANGE "Environment"). Explorer
+ * then builds its own again from the registry, so a program started from the
+ * Start menu, the taskbar or Win+R gets what the app wrote there (HTTPS_PROXY
+ * in Volatile Environment, electron/app-env.js; issue #33). The app had only
+ * PowerShell send it, which a security product or a policy can keep from
+ * starting. user32 is loaded for this alone. 0 when the message went out. */
+static int broadcast_env(void) {
+#ifdef _WIN32
+  typedef LRESULT (WINAPI *PFN_SendTimeout)(HWND, UINT, WPARAM, LPARAM, UINT, UINT, PDWORD_PTR);
+  HMODULE u = LoadLibraryA("user32.dll");
+  if (!u) return 1;
+  PFN_SendTimeout f = (PFN_SendTimeout)GetProcAddress(u, "SendMessageTimeoutW");
+  DWORD_PTR res = 0;
+  int ok = f && f(HWND_BROADCAST, WM_SETTINGCHANGE, 0, (LPARAM)L"Environment", SMTO_ABORTIFHUNG, 5000, &res) != 0;
+  FreeLibrary(u);
+  printf("{\"type\":\"broadcast\",\"ok\":%d}\n", ok);
+  return ok ? 0 : 1;
+#else
+  return 1;
+#endif
+}
+
 int main(int argc, char **argv) {
   if (argc > 1 && !strcmp(argv[1], "--watchdog")) return watchdog_main(argc, argv);
+  if (argc > 1 && !strcmp(argv[1], "--broadcast-env")) return broadcast_env();
   return engine_main(argc, argv, stdin, stdout, 0);
 }
 #endif

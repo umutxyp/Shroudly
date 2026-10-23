@@ -120,6 +120,19 @@ function regKey(key) {
  * (tests wait for it). */
 const BROADCAST_NAME = 'SHROUDLY_ENV_BROADCAST';
 function winBroadcast() {
+  // The engine sends it itself, a direct call (shroudly-core --broadcast-env);
+  // PowerShell too, as before, in case the engine is not there. A security
+  // product or a policy that keeps PowerShell from starting no longer keeps
+  // the message from going out (issue #33: "HTTPS_PROXY not defined" in a
+  // window opened with Win+R).
+  try {
+    const core = require('./engine-manager').coreBinaryPath();
+    if (fs.existsSync(core)) {
+      const c = spawn(core, ['--broadcast-env'], { detached: true, stdio: 'ignore', windowsHide: true });
+      c.on('error', () => {});
+      c.unref();
+    }
+  } catch {}
   const ps = `[Environment]::SetEnvironmentVariable('${BROADCAST_NAME}', $null, 'User')`;
   try {
     const p = spawn('powershell.exe', ['-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass', '-Command', ps],

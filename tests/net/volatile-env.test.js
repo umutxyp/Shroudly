@@ -13,7 +13,9 @@
  *   - on Windows CI, for real: a program started by the running Explorer,
  *     with the environment Explorer rebuilt on our announcement, has our
  *     HTTPS_PROXY after the mode is turned on and no longer has it after it
- *     is turned off, and HKCU\Environment never holds any of it. Skipped,
+ *     is turned off, and HKCU\Environment never holds any of it; and the
+ *     engine's own announcement (shroudly-core --broadcast-env) is enough by
+ *     itself, for a PC where PowerShell cannot start (issue #33). Skipped,
  *     saying why, where there is no Explorer in this session. */
 
 const fs = require('fs');
@@ -227,6 +229,21 @@ async function realWindows() {
     t.ok(on.ok, `a program Explorer starts after the change has HTTPS_PROXY=${url} (it had ${on.env.get('HTTPS_PROXY') || 'none'})`);
     t.ok(on.env.get('NO_PROXY') === NO_PROXY_VALUE, '…and our NO_PROXY');
 
+    // The engine's announcement alone, with no PowerShell (a PC whose
+    // security product or policy stops it, issue #33).
+    const core = require(path.join(ROOT, 'electron', 'engine-manager.js')).coreBinaryPath();
+    if (fs.existsSync(core)) {
+      const url2 = 'http://127.0.0.1:59322';
+      regAdd(VOL, 'HTTPS_PROXY', url2);
+      const r = cp.spawnSync(core, ['--broadcast-env'], { encoding: 'utf8', timeout: 15000, windowsHide: true });
+      t.ok(r.status === 0 && /"ok":1/.test(r.stdout || ''), `shroudly-core --broadcast-env sent the message (${(r.stdout || '').trim() || r.status})`);
+      const on2 = await explorerGives((env) => env.get('HTTPS_PROXY') === url2, 30000);
+      t.ok(on2.ok, `with that alone, a program Explorer starts has the new HTTPS_PROXY=${url2} (it had ${on2.env.get('HTTPS_PROXY') || 'none'})`);
+      regAdd(VOL, 'HTTPS_PROXY', url);
+    } else {
+      console.log(`  --  no engine at ${core}: its announcement not checked`);
+    }
+
     t.ok(e.clearSync() === 'changed', 'mode off: removed');
     const vol2 = regRead(VOL) || new Map();
     t.ok(!vol2.has('HTTPS_PROXY') && !vol2.has(MARK) && !vol2.has('NO_PROXY'), 'nothing of ours left in HKCU\\Volatile Environment');
@@ -272,6 +289,8 @@ async function realWindows() {
     const A = loadWith(w);
     const e = new A({ platform: 'win32' });
     t.ok(e.applySync(url) === 'changed', 'win32: applied');
+    const core = require(path.join(ROOT, 'electron', 'engine-manager.js')).coreBinaryPath();
+    if (fs.existsSync(core)) t.ok(w.spawned.some((a) => a[0] === core && a[1] === '--broadcast-env'), 'win32: the engine announces the change itself too (no PowerShell needed)');
     t.ok(w.val(VOL, 'HTTPS_PROXY') === url && w.val(VOL, MARK) === url && w.val(VOL, 'NO_PROXY') === NO_PROXY_VALUE,
       'win32: HTTPS_PROXY, NO_PROXY and the mark written to HKCU\\Volatile Environment');
     t.ok(w.val(VOL, 'NODE_USE_ENV_PROXY') === '1' && w.val(VOL, 'SHROUDLY_NODE_PROXY') === '1', 'win32: NODE_USE_ENV_PROXY for Node.js, and its own mark, there too');
