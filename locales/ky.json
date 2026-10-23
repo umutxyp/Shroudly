@@ -546,5 +546,7 @@
   "logAppProxyDead": "Автопилот: {app} ар бир туташууну эч нерсе иштебеген {addr} дарегиндеги проксиге жөнөтөт; ошол прокси кайра иштемейинче же анын жөндөөсү алынмайынча туташа албайт",
   "logWinhttpDead": "Windows'тун WinHTTP проксиси эч нерсе иштебеген {addr} дарегин көрсөтөт: Windows Update, Microsoft Store жана айрым программалар туташа албайт",
   "logWinhttpCleared": "Windows'тун WinHTTP проксиси тазаланды",
-  "logWinhttpNotCleared": "Windows'тун WinHTTP проксисин тазалоо мүмкүн болгон жок (администратордун уруксаты берилген жок)"
+  "logWinhttpNotCleared": "Windows'тун WinHTTP проксисин тазалоо мүмкүн болгон жок (администратордун уруксаты берилген жок)",
+  "stratNone": "Өчүк (шифрленген DNS гана)",
+  "languageSystem": "Системадагыдай"
 }

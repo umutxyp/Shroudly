@@ -546,5 +546,7 @@
   "logAppProxyDead": "خلبان خودکار: {app} همهٔ اتصال‌ها را به پراکسی‌ای در {addr} می‌فرستد که چیزی در آن اجرا نمی‌شود؛ تا آن پراکسی دوباره اجرا نشود یا تنظیمش برداشته نشود، وصل نمی‌شود",
   "logWinhttpDead": "پراکسی WinHTTP ویندوز به {addr} اشاره می‌کند که چیزی در آن اجرا نمی‌شود: Windows Update، Microsoft Store و برخی برنامه‌ها نمی‌توانند وصل شوند",
   "logWinhttpCleared": "پراکسی WinHTTP ویندوز پاک شد",
-  "logWinhttpNotCleared": "پراکسی WinHTTP ویندوز پاک نشد (اجازهٔ مدیر داده نشد)"
+  "logWinhttpNotCleared": "پراکسی WinHTTP ویندوز پاک نشد (اجازهٔ مدیر داده نشد)",
+  "stratNone": "خاموش (فقط DNS رمزگذاری‌شده)",
+  "languageSystem": "پیش‌فرض سیستم"
 }

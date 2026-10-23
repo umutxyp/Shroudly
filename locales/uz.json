@@ -546,5 +546,7 @@
   "logAppProxyDead": "Avtopilot: {app} har bir ulanishni hech narsa ishlamayotgan {addr} manzilidagi proksiga yuboradi; oʻsha proksi yana ishlamaguncha yoki uning sozlamasi olib tashlanmaguncha ulana olmaydi",
   "logWinhttpDead": "Windows’ning WinHTTP proksisi hech narsa ishlamayotgan {addr} manzilini koʻrsatadi: Windows Update, Microsoft Store va baʼzi dasturlar ulana olmaydi",
   "logWinhttpCleared": "Windows’ning WinHTTP proksisi tozalandi",
-  "logWinhttpNotCleared": "Windows’ning WinHTTP proksisini tozalab boʻlmadi (administrator ruxsati berilmadi)"
+  "logWinhttpNotCleared": "Windows’ning WinHTTP proksisini tozalab boʻlmadi (administrator ruxsati berilmadi)",
+  "stratNone": "Oʻchiq (faqat shifrlangan DNS)",
+  "languageSystem": "Tizimdagidek"
 }

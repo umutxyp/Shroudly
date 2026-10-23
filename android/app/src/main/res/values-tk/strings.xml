@@ -63,6 +63,8 @@
     <string name="excludedApps">Shroudly-dan aýlanyp geçýän programmalar</string>
     <string name="excludedAppsCount">{count} programma Shroudly-dan aýlanyp geçýär</string>
     <string name="excludedAppsDesc">Olaryň trafigi Shroudly-dan geçmän göni çykýar: meselem, oňa mätäç däl oýun.</string>
+    <string name="language">Dil</string>
+    <string name="languageSystem">Ulgamdaky ýaly</string>
     <string name="linkReleases">Wersiýa bellikleri</string>
     <string name="linkSourceCode">GitHub-daky çeşme kody</string>
     <string name="madeBy">Codeshare Technology Ltd önümi</string>
@@ -87,6 +89,7 @@
     <string name="stratAuto">Awtomatik (maslahat berilýär)</string>
     <string name="stratDisorderSni">SNI-de tertipsiz iberiş</string>
     <string name="stratDoubleSplit">Iki gezek bölmek</string>
+    <string name="stratNone">Öçürilen (diňe şifrlenen DNS)</string>
     <string name="stratSplit2">2-nji baýtda bölmek</string>
     <string name="stratSplitMid">SNI-niň ortasyndan bölmek</string>
     <string name="stratSplitSni">SNI-de bölmek</string>

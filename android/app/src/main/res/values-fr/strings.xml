@@ -63,6 +63,8 @@
     <string name="excludedApps">Applis qui contournent Shroudly</string>
     <string name="excludedAppsCount">{count} applis contournent Shroudly</string>
     <string name="excludedAppsDesc">Leur trafic sort directement, sans passer par Shroudly : par exemple un jeu qui n’en a pas besoin.</string>
+    <string name="language">Langue</string>
+    <string name="languageSystem">Langue du système</string>
     <string name="linkReleases">Notes de version</string>
     <string name="linkSourceCode">Code source sur GitHub</string>
     <string name="madeBy">Un produit Codeshare Technology Ltd</string>
@@ -87,6 +89,7 @@
     <string name="stratAuto">Auto (recommandé)</string>
     <string name="stratDisorderSni">Désordre au SNI</string>
     <string name="stratDoubleSplit">Double découpage</string>
+    <string name="stratNone">Désactivé (DNS chiffré seulement)</string>
     <string name="stratSplit2">Découpage à l’octet 2</string>
     <string name="stratSplitMid">Découpage au milieu du SNI</string>
     <string name="stratSplitSni">Découpage au SNI</string>

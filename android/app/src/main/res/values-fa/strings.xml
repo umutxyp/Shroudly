@@ -63,6 +63,8 @@
     <string name="excludedApps">برنامه‌هایی که از Shroudly عبور نمی‌کنند</string>
     <string name="excludedAppsCount">{count} برنامه از Shroudly عبور نمی‌کنند</string>
     <string name="excludedAppsDesc">ترافیک آن‌ها مستقیم و بدون گذر از Shroudly بیرون می‌رود: مثلاً بازی‌ای که به آن نیازی ندارد.</string>
+    <string name="language">زبان</string>
+    <string name="languageSystem">پیش‌فرض سیستم</string>
     <string name="linkReleases">یادداشت‌های انتشار</string>
     <string name="linkSourceCode">کد منبع در GitHub</string>
     <string name="madeBy">محصولی از Codeshare Technology Ltd</string>
@@ -87,6 +89,7 @@
     <string name="stratAuto">خودکار (توصیه‌شده)</string>
     <string name="stratDisorderSni">جابه‌جایی ترتیب در SNI</string>
     <string name="stratDoubleSplit">تقسیم دوگانه</string>
+    <string name="stratNone">خاموش (فقط DNS رمزگذاری‌شده)</string>
     <string name="stratSplit2">تقسیم در بایت 2</string>
     <string name="stratSplitMid">تقسیم در میانهٔ SNI</string>
     <string name="stratSplitSni">تقسیم در SNI</string>

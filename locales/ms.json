@@ -546,5 +546,7 @@
   "logAppProxyDead": "Autopandu: {app} menghantar setiap sambungan ke proksi di {addr}, tempat tiada apa-apa berjalan; ia tidak dapat bersambung sehingga proksi itu berjalan semula atau tetapannya dibuang",
   "logWinhttpDead": "Proksi WinHTTP Windows menghala ke {addr}, tempat tiada apa-apa berjalan: Windows Update, Microsoft Store dan sesetengah program tidak dapat bersambung",
   "logWinhttpCleared": "Proksi WinHTTP Windows dikosongkan",
-  "logWinhttpNotCleared": "Proksi WinHTTP Windows tidak dapat dikosongkan (tiada kebenaran pentadbir)"
+  "logWinhttpNotCleared": "Proksi WinHTTP Windows tidak dapat dikosongkan (tiada kebenaran pentadbir)",
+  "stratNone": "Mati (DNS tersulit sahaja)",
+  "languageSystem": "Lalai sistem"
 }

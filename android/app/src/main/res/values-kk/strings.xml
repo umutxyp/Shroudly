@@ -63,6 +63,8 @@
     <string name="excludedApps">Shroudly-ді айналып өтетін қолданбалар</string>
     <string name="excludedAppsCount">Shroudly-ді айналып өтетін қолданбалар: {count}</string>
     <string name="excludedAppsDesc">Олардың трафигі Shroudly арқылы өтпей, тікелей шығады: мысалы, оған мұқтаж емес ойын.</string>
+    <string name="language">Тіл</string>
+    <string name="languageSystem">Жүйедегідей</string>
     <string name="linkReleases">Нұсқа өзгерістері</string>
     <string name="linkSourceCode">GitHub-тағы бастапқы код</string>
     <string name="madeBy">Codeshare Technology Ltd өнімі</string>
@@ -87,6 +89,7 @@
     <string name="stratAuto">Автоматты (ұсынылады)</string>
     <string name="stratDisorderSni">SNI тұсында ретін ауыстыру</string>
     <string name="stratDoubleSplit">Қос бөлу</string>
+    <string name="stratNone">Өшірулі (тек шифрланған DNS)</string>
     <string name="stratSplit2">2-байттан бөлу</string>
     <string name="stratSplitMid">SNI ортасынан бөлу</string>
     <string name="stratSplitSni">SNI тұсынан бөлу</string>

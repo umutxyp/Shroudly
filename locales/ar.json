@@ -546,5 +546,7 @@
   "logAppProxyDead": "الطيار الآلي: يرسل {app} كل اتصال إلى وكيل على {addr} حيث لا يعمل شيء؛ لن يستطيع الاتصال حتى يعمل ذلك الوكيل من جديد أو يُحذف إعداده",
   "logWinhttpDead": "وكيل WinHTTP في Windows يشير إلى {addr} حيث لا يعمل شيء: لا يستطيع Windows Update وMicrosoft Store وبعض البرامج الاتصال",
   "logWinhttpCleared": "مُسح وكيل WinHTTP في Windows",
-  "logWinhttpNotCleared": "تعذّر مسح وكيل WinHTTP في Windows (لم تُمنح صلاحيات المسؤول)"
+  "logWinhttpNotCleared": "تعذّر مسح وكيل WinHTTP في Windows (لم تُمنح صلاحيات المسؤول)",
+  "stratNone": "إيقاف (DNS مشفَّر فقط)",
+  "languageSystem": "لغة النظام"
 }

@@ -63,6 +63,8 @@
     <string name="excludedApps">Барномаҳое, ки Shroudly-ро давр мезананд</string>
     <string name="excludedAppsCount">Барномаҳое, ки Shroudly-ро давр мезананд: {count}</string>
     <string name="excludedAppsDesc">Трафики онҳо бе гузаштан аз Shroudly мустақим мебарояд: масалан, бозие, ки ба он ниёз надорад.</string>
+    <string name="language">Забон</string>
+    <string name="languageSystem">Мисли система</string>
     <string name="linkReleases">Тавсифи версияҳо</string>
     <string name="linkSourceCode">Коди манбаъ дар GitHub</string>
     <string name="madeBy">Маҳсули Codeshare Technology Ltd</string>
@@ -87,6 +89,7 @@
     <string name="stratAuto">Худкор (тавсия мешавад)</string>
     <string name="stratDisorderSni">Бетартибӣ дар SNI</string>
     <string name="stratDoubleSplit">Тақсими дукарата</string>
+    <string name="stratNone">Хомӯш (танҳо DNS-и рамзгузоришуда)</string>
     <string name="stratSplit2">Тақсим дар байти 2</string>
     <string name="stratSplitMid">Тақсим дар миёнаи SNI</string>
     <string name="stratSplitSni">Тақсим дар SNI</string>

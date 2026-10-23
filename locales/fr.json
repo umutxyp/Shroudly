@@ -546,5 +546,7 @@
   "logAppProxyDead": "Pilote auto : {app} envoie chaque connexion vers un proxy à {addr}, où rien ne tourne ; il ne pourra pas se connecter tant que ce proxy ne tourne pas de nouveau ou que son réglage n'est pas retiré",
   "logWinhttpDead": "Le proxy WinHTTP de Windows pointe vers {addr}, où rien ne tourne : Windows Update, le Microsoft Store et certains programmes ne peuvent pas se connecter",
   "logWinhttpCleared": "Proxy WinHTTP de Windows effacé",
-  "logWinhttpNotCleared": "Le proxy WinHTTP de Windows n'a pas pu être effacé (pas d'autorisation d'administrateur)"
+  "logWinhttpNotCleared": "Le proxy WinHTTP de Windows n'a pas pu être effacé (pas d'autorisation d'administrateur)",
+  "stratNone": "Désactivé (DNS chiffré seulement)",
+  "languageSystem": "Langue du système"
 }

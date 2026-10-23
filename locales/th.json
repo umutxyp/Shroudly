@@ -546,5 +546,7 @@
   "logAppProxyDead": "ออโต้ไพลอต: {app} ส่งทุกการเชื่อมต่อไปที่พร็อกซีที่ {addr} ซึ่งไม่มีอะไรทำงานอยู่ จะเชื่อมต่อไม่ได้จนกว่าพร็อกซีนั้นจะทำงานอีกครั้งหรือลบการตั้งค่าออก",
   "logWinhttpDead": "พร็อกซี WinHTTP ของ Windows ชี้ไปที่ {addr} ซึ่งไม่มีอะไรทำงานอยู่: Windows Update, Microsoft Store และบางโปรแกรมเชื่อมต่อไม่ได้",
   "logWinhttpCleared": "ล้างพร็อกซี WinHTTP ของ Windows แล้ว",
-  "logWinhttpNotCleared": "ล้างพร็อกซี WinHTTP ของ Windows ไม่ได้ (ไม่ได้รับสิทธิ์ผู้ดูแล)"
+  "logWinhttpNotCleared": "ล้างพร็อกซี WinHTTP ของ Windows ไม่ได้ (ไม่ได้รับสิทธิ์ผู้ดูแล)",
+  "stratNone": "ปิด (เฉพาะ DNS แบบเข้ารหัส)",
+  "languageSystem": "ค่าเริ่มต้นของระบบ"
 }

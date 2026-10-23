@@ -546,5 +546,7 @@
   "logAppProxyDead": "Автопилот: {app} әр қосылымды ештеңе іске қосылмаған {addr} мекенжайындағы проксиге жібереді; сол прокси қайта жұмыс істегенше немесе оның баптауы алынғанша қосыла алмайды",
   "logWinhttpDead": "Windows WinHTTP проксиі ештеңе іске қосылмаған {addr} мекенжайын көрсетеді: Windows Update, Microsoft Store және кейбір бағдарламалар қосыла алмайды",
   "logWinhttpCleared": "Windows WinHTTP проксиі тазаланды",
-  "logWinhttpNotCleared": "Windows WinHTTP проксиін тазалау мүмкін болмады (әкімші рұқсаты берілмеді)"
+  "logWinhttpNotCleared": "Windows WinHTTP проксиін тазалау мүмкін болмады (әкімші рұқсаты берілмеді)",
+  "stratNone": "Өшірулі (тек шифрланған DNS)",
+  "languageSystem": "Жүйедегідей"
 }

@@ -63,6 +63,8 @@
     <string name="excludedApps">Aplikasi yang melewati Shroudly</string>
     <string name="excludedAppsCount">{count} aplikasi melewati Shroudly</string>
     <string name="excludedAppsDesc">Lalu lintasnya langsung keluar tanpa lewat Shroudly: misalnya game yang tidak membutuhkannya.</string>
+    <string name="language">Bahasa</string>
+    <string name="languageSystem">Bawaan sistem</string>
     <string name="linkReleases">Catatan rilis</string>
     <string name="linkSourceCode">Kode sumber di GitHub</string>
     <string name="madeBy">Produk dari Codeshare Technology Ltd</string>
@@ -87,6 +89,7 @@
     <string name="stratAuto">Otomatis (disarankan)</string>
     <string name="stratDisorderSni">Acak urutan di SNI</string>
     <string name="stratDoubleSplit">Pecah ganda</string>
+    <string name="stratNone">Mati (hanya DNS terenkripsi)</string>
     <string name="stratSplit2">Pecah di byte 2</string>
     <string name="stratSplitMid">Pecah di tengah SNI</string>
     <string name="stratSplitSni">Pecah di SNI</string>

@@ -63,6 +63,8 @@
     <string name="excludedApps">تطبيقات تتجاوز Shroudly</string>
     <string name="excludedAppsCount">{count} تطبيقات تتجاوز Shroudly</string>
     <string name="excludedAppsDesc">يخرج اتصالها مباشرةً دون المرور عبر Shroudly: مثل لعبة لا تحتاج إليه.</string>
+    <string name="language">اللغة</string>
+    <string name="languageSystem">لغة النظام</string>
     <string name="linkReleases">ملاحظات الإصدار</string>
     <string name="linkSourceCode">الشيفرة المصدرية على GitHub</string>
     <string name="madeBy">منتج من Codeshare Technology Ltd</string>
@@ -87,6 +89,7 @@
     <string name="stratAuto">تلقائي (موصى به)</string>
     <string name="stratDisorderSni">خلط الترتيب عند SNI</string>
     <string name="stratDoubleSplit">تقسيم مزدوج</string>
+    <string name="stratNone">إيقاف (DNS مشفَّر فقط)</string>
     <string name="stratSplit2">التقسيم عند البايت 2</string>
     <string name="stratSplitMid">التقسيم في منتصف SNI</string>
     <string name="stratSplitSni">التقسيم عند SNI</string>

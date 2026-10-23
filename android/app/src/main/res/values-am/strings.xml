@@ -63,6 +63,8 @@
     <string name="excludedApps">Shroudlyን የሚያልፉ መተግበሪያዎች</string>
     <string name="excludedAppsCount">{count} መተግበሪያዎች Shroudlyን ያልፋሉ</string>
     <string name="excludedAppsDesc">ትራፊካቸው በShroudly ሳያልፍ በቀጥታ ይወጣል፦ ለምሳሌ የማያስፈልገው ጨዋታ።</string>
+    <string name="language">ቋንቋ</string>
+    <string name="languageSystem">የሥርዓቱ ነባሪ</string>
     <string name="linkReleases">የልቀት ማስታወሻዎች</string>
     <string name="linkSourceCode">የምንጭ ኮድ በGitHub ላይ</string>
     <string name="madeBy">የCodeshare Technology Ltd ምርት</string>
@@ -87,6 +89,7 @@
     <string name="stratAuto">ራስ-ሰር (የሚመከር)</string>
     <string name="stratDisorderSni">በSNI ላይ ቅደም ተከተል ማዛባት</string>
     <string name="stratDoubleSplit">ድርብ ክፍፍል</string>
+    <string name="stratNone">ጠፍቷል (የተመሰጠረ DNS ብቻ)</string>
     <string name="stratSplit2">በባይት 2 ላይ መክፈል</string>
     <string name="stratSplitMid">በSNI መሃል ላይ መክፈል</string>
     <string name="stratSplitSni">በSNI ላይ መክፈል</string>

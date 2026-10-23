@@ -546,5 +546,7 @@
   "logAppProxyDead": "Pilot otomatis: {app} mengirim setiap koneksi ke proxy di {addr}, tempat tidak ada yang berjalan; aplikasi ini tidak bisa tersambung sampai proxy itu berjalan lagi atau pengaturannya dihapus",
   "logWinhttpDead": "Proxy WinHTTP Windows mengarah ke {addr}, tempat tidak ada yang berjalan: Windows Update, Microsoft Store, dan beberapa program tidak bisa tersambung",
   "logWinhttpCleared": "Proxy WinHTTP Windows dihapus",
-  "logWinhttpNotCleared": "Proxy WinHTTP Windows tidak bisa dihapus (izin administrator tidak diberikan)"
+  "logWinhttpNotCleared": "Proxy WinHTTP Windows tidak bisa dihapus (izin administrator tidak diberikan)",
+  "stratNone": "Mati (hanya DNS terenkripsi)",
+  "languageSystem": "Bawaan sistem"
 }

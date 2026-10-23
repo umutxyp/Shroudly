@@ -63,6 +63,8 @@
     <string name="excludedApps">Shroudly ကို ကျော်သွားသော အက်ပ်များ</string>
     <string name="excludedAppsCount">အက်ပ် {count} ခု Shroudly ကို ကျော်သွားသည်</string>
     <string name="excludedAppsDesc">၎င်းတို့၏ ဒေတာသွားလာမှုသည် Shroudly ကို မဖြတ်ဘဲ တိုက်ရိုက်ထွက်သည်- ဥပမာ မလိုအပ်သော ဂိမ်းတစ်ခု။</string>
+    <string name="language">ဘာသာစကား</string>
+    <string name="languageSystem">စနစ်မူလ</string>
     <string name="linkReleases">ထုတ်ဝေမှု မှတ်စုများ</string>
     <string name="linkSourceCode">GitHub ပေါ်ရှိ ရင်းမြစ်ကုဒ်</string>
     <string name="madeBy">Codeshare Technology Ltd ၏ ထုတ်ကုန်</string>
@@ -87,6 +89,7 @@
     <string name="stratAuto">အလိုအလျောက် (အကြံပြု)</string>
     <string name="stratDisorderSni">SNI နေရာတွင် အစီအစဉ်ပြောင်းခြင်း</string>
     <string name="stratDoubleSplit">နှစ်ကြိမ် ခွဲခြင်း</string>
+    <string name="stratNone">ပိတ် (ကုဒ်ဝှက်ထားသော DNS သာ)</string>
     <string name="stratSplit2">ဘိုက် ၂ တွင် ခွဲခြင်း</string>
     <string name="stratSplitMid">SNI အလယ်တွင် ခွဲခြင်း</string>
     <string name="stratSplitSni">SNI နေရာတွင် ခွဲခြင်း</string>

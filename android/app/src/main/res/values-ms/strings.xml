@@ -63,6 +63,8 @@
     <string name="excludedApps">Aplikasi yang memintas Shroudly</string>
     <string name="excludedAppsCount">{count} aplikasi memintas Shroudly</string>
     <string name="excludedAppsDesc">Trafiknya keluar terus tanpa melalui Shroudly: contohnya permainan yang tidak memerlukannya.</string>
+    <string name="language">Bahasa</string>
+    <string name="languageSystem">Lalai sistem</string>
     <string name="linkReleases">Nota keluaran</string>
     <string name="linkSourceCode">Kod sumber di GitHub</string>
     <string name="madeBy">Produk Codeshare Technology Ltd</string>
@@ -87,6 +89,7 @@
     <string name="stratAuto">Auto (disyorkan)</string>
     <string name="stratDisorderSni">Ubah susunan pada SNI</string>
     <string name="stratDoubleSplit">Pisah berganda</string>
+    <string name="stratNone">Mati (DNS tersulit sahaja)</string>
     <string name="stratSplit2">Pisah pada bait 2</string>
     <string name="stratSplitMid">Pisah di tengah SNI</string>
     <string name="stratSplitSni">Pisah pada SNI</string>

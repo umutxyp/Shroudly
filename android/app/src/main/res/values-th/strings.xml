@@ -63,6 +63,8 @@
     <string name="excludedApps">แอปที่ไม่ผ่าน Shroudly</string>
     <string name="excludedAppsCount">{count} แอปไม่ผ่าน Shroudly</string>
     <string name="excludedAppsDesc">ทราฟฟิกของแอปเหล่านี้ออกไปตรง ๆ โดยไม่ผ่าน Shroudly เช่น เกมที่ไม่จำเป็นต้องใช้</string>
+    <string name="language">ภาษา</string>
+    <string name="languageSystem">ค่าเริ่มต้นของระบบ</string>
     <string name="linkReleases">บันทึกประจำรุ่น</string>
     <string name="linkSourceCode">ซอร์สโค้ดบน GitHub</string>
     <string name="madeBy">ผลิตภัณฑ์ของ Codeshare Technology Ltd</string>
@@ -87,6 +89,7 @@
     <string name="stratAuto">อัตโนมัติ (แนะนำ)</string>
     <string name="stratDisorderSni">สลับลำดับที่ SNI</string>
     <string name="stratDoubleSplit">แบ่งสองครั้ง</string>
+    <string name="stratNone">ปิด (เฉพาะ DNS แบบเข้ารหัส)</string>
     <string name="stratSplit2">แบ่งที่ไบต์ที่ 2</string>
     <string name="stratSplitMid">แบ่งที่กึ่งกลาง SNI</string>
     <string name="stratSplitSni">แบ่งที่ SNI</string>

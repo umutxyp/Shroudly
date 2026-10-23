@@ -546,5 +546,7 @@
   "logAppProxyDead": "Autopilot: {app} sends every connection to a proxy at {addr}, where nothing is running; it cannot connect until that proxy runs again or its setting is removed",
   "logWinhttpDead": "Windows' WinHTTP proxy points at {addr}, where nothing is running: Windows Update, the Microsoft Store and some programs cannot connect",
   "logWinhttpCleared": "Windows' WinHTTP proxy cleared",
-  "logWinhttpNotCleared": "Windows' WinHTTP proxy could not be cleared (no administrator's permission)"
+  "logWinhttpNotCleared": "Windows' WinHTTP proxy could not be cleared (no administrator's permission)",
+  "stratNone": "Off (encrypted DNS only)",
+  "languageSystem": "System default"
 }

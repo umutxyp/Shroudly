@@ -63,6 +63,8 @@
     <string name="excludedApps">Shroudly’ni chetlab oʻtadigan ilovalar</string>
     <string name="excludedAppsCount">{count} ta ilova Shroudly’ni chetlab oʻtadi</string>
     <string name="excludedAppsDesc">Ularning trafigi Shroudly’dan oʻtmay toʻgʻridan-toʻgʻri chiqadi: masalan, unga muhtoj boʻlmagan oʻyin.</string>
+    <string name="language">Til</string>
+    <string name="languageSystem">Tizimdagidek</string>
     <string name="linkReleases">Reliz qaydlari</string>
     <string name="linkSourceCode">GitHubdagi manba kodi</string>
     <string name="madeBy">Codeshare Technology Ltd mahsuloti</string>
@@ -87,6 +89,7 @@
     <string name="stratAuto">Avto (tavsiya etiladi)</string>
     <string name="stratDisorderSni">SNI joyida tartibni buzish</string>
     <string name="stratDoubleSplit">Ikki marta boʻlish</string>
+    <string name="stratNone">Oʻchiq (faqat shifrlangan DNS)</string>
     <string name="stratSplit2">2-baytdan boʻlish</string>
     <string name="stratSplitMid">SNI oʻrtasidan boʻlish</string>
     <string name="stratSplitSni">SNI joyidan boʻlish</string>

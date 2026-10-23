@@ -63,6 +63,8 @@
     <string name="excludedApps">যে অ্যাপগুলো Shroudly এড়িয়ে চলে</string>
     <string name="excludedAppsCount">{count}টি অ্যাপ Shroudly এড়িয়ে চলে</string>
     <string name="excludedAppsDesc">এদের ট্রাফিক Shroudly দিয়ে না গিয়ে সরাসরি বাইরে যায়: যেমন এমন একটি গেম যার এটির দরকার নেই।</string>
+    <string name="language">ভাষা</string>
+    <string name="languageSystem">সিস্টেম ডিফল্ট</string>
     <string name="linkReleases">রিলিজ নোট</string>
     <string name="linkSourceCode">GitHub-এ সোর্স কোড</string>
     <string name="madeBy">Codeshare Technology Ltd-এর একটি পণ্য</string>
@@ -87,6 +89,7 @@
     <string name="stratAuto">স্বয়ংক্রিয় (প্রস্তাবিত)</string>
     <string name="stratDisorderSni">SNI-তে ক্রম এলোমেলো</string>
     <string name="stratDoubleSplit">দ্বৈত বিভাজন</string>
+    <string name="stratNone">বন্ধ (শুধু এনক্রিপ্ট করা DNS)</string>
     <string name="stratSplit2">২য় বাইটে বিভাজন</string>
     <string name="stratSplitMid">SNI-এর মাঝখানে বিভাজন</string>
     <string name="stratSplitSni">SNI-তে বিভাজন</string>

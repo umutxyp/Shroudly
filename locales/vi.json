@@ -546,5 +546,7 @@
   "logAppProxyDead": "Tự động xử lý: {app} gửi mọi kết nối tới một proxy tại {addr}, nơi không có gì đang chạy; nó không kết nối được cho đến khi proxy đó chạy lại hoặc cài đặt của nó được gỡ",
   "logWinhttpDead": "Proxy WinHTTP của Windows trỏ tới {addr}, nơi không có gì đang chạy: Windows Update, Microsoft Store và một số chương trình không kết nối được",
   "logWinhttpCleared": "Đã xóa proxy WinHTTP của Windows",
-  "logWinhttpNotCleared": "Không xóa được proxy WinHTTP của Windows (không có quyền quản trị)"
+  "logWinhttpNotCleared": "Không xóa được proxy WinHTTP của Windows (không có quyền quản trị)",
+  "stratNone": "Tắt (chỉ DNS mã hóa)",
+  "languageSystem": "Mặc định của hệ thống"
 }

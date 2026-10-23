@@ -63,6 +63,8 @@
     <string name="excludedApps">Shroudly を通さないアプリ</string>
     <string name="excludedAppsCount">{count} 個のアプリが Shroudly を通りません</string>
     <string name="excludedAppsDesc">これらのアプリの通信は Shroudly を通らず直接出ていきます（例: 不要なゲームなど）。</string>
+    <string name="language">言語</string>
+    <string name="languageSystem">システムの既定</string>
     <string name="linkReleases">リリースノート</string>
     <string name="linkSourceCode">GitHub のソースコード</string>
     <string name="madeBy">Codeshare Technology Ltd の製品</string>
@@ -87,6 +89,7 @@
     <string name="stratAuto">自動（推奨）</string>
     <string name="stratDisorderSni">SNI で順序入れ替え</string>
     <string name="stratDoubleSplit">二重分割</string>
+    <string name="stratNone">オフ（暗号化 DNS のみ）</string>
     <string name="stratSplit2">2 バイト目で分割</string>
     <string name="stratSplitMid">SNI の中央で分割</string>
     <string name="stratSplitSni">SNI で分割</string>

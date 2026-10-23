@@ -546,5 +546,7 @@
   "logAppProxyDead": "自動対処：{app} がすべての接続を、何も動いていない {addr} のプロキシに送っています。そのプロキシがまた動くか、設定が外されるまで接続できません",
   "logWinhttpDead": "Windows の WinHTTP プロキシが、何も動いていない {addr} を指しています：Windows Update、Microsoft Store、一部のプログラムが接続できません",
   "logWinhttpCleared": "Windows の WinHTTP プロキシを消去しました",
-  "logWinhttpNotCleared": "Windows の WinHTTP プロキシを消去できませんでした（管理者の許可がありません）"
+  "logWinhttpNotCleared": "Windows の WinHTTP プロキシを消去できませんでした（管理者の許可がありません）",
+  "stratNone": "オフ（暗号化 DNS のみ）",
+  "languageSystem": "システムの既定"
 }

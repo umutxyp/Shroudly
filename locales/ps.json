@@ -546,5 +546,7 @@
   "logAppProxyDead": "اتومات پیلوټ: {app} هره اړیکه په {addr} کې یوې پراکسي ته لېږي چې هلته هېڅ نه چلېږي؛ تر هغه چې دا پراکسي بیا ونه چلېږي یا یې تنظیم لرې نه شي، نه شي وصل کېدای",
   "logWinhttpDead": "د Windows د WinHTTP پراکسي {addr} ته اشاره کوي چې هلته هېڅ نه چلېږي: Windows Update، Microsoft Store او ځینې پروګرامونه نه شي وصل کېدای",
   "logWinhttpCleared": "د Windows د WinHTTP پراکسي پاکه شوه",
-  "logWinhttpNotCleared": "د Windows د WinHTTP پراکسي پاکه نه شوه (د مدیر اجازه ورنه کړل شوه)"
+  "logWinhttpNotCleared": "د Windows د WinHTTP پراکسي پاکه نه شوه (د مدیر اجازه ورنه کړل شوه)",
+  "stratNone": "بند (یوازې کوډ شوی DNS)",
+  "languageSystem": "د سیسټم ژبه"
 }

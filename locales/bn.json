@@ -546,5 +546,7 @@
   "logAppProxyDead": "অটোপাইলট: {app} প্রতিটি সংযোগ {addr}-এ একটি প্রক্সিতে পাঠায়, যেখানে কিছুই চলছে না; সেই প্রক্সি আবার না চলা বা এর সেটিং সরানো না হওয়া পর্যন্ত এটি সংযুক্ত হতে পারবে না",
   "logWinhttpDead": "Windows-এর WinHTTP প্রক্সি {addr} দেখাচ্ছে, যেখানে কিছুই চলছে না: Windows Update, Microsoft Store ও কিছু প্রোগ্রাম সংযুক্ত হতে পারছে না",
   "logWinhttpCleared": "Windows-এর WinHTTP প্রক্সি মুছে দেওয়া হয়েছে",
-  "logWinhttpNotCleared": "Windows-এর WinHTTP প্রক্সি মোছা যায়নি (অ্যাডমিনিস্ট্রেটরের অনুমতি পাওয়া যায়নি)"
+  "logWinhttpNotCleared": "Windows-এর WinHTTP প্রক্সি মোছা যায়নি (অ্যাডমিনিস্ট্রেটরের অনুমতি পাওয়া যায়নি)",
+  "stratNone": "বন্ধ (শুধু এনক্রিপ্ট করা DNS)",
+  "languageSystem": "সিস্টেম ডিফল্ট"
 }

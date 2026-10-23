@@ -546,5 +546,7 @@
   "logAppProxyDead": "ऑटोपायलट: {app} हर कनेक्शन {addr} पर एक प्रॉक्सी को भेजता है, जहाँ कुछ नहीं चल रहा; जब तक वह प्रॉक्सी फिर न चले या उसकी सेटिंग न हटे, यह नहीं जुड़ सकता",
   "logWinhttpDead": "Windows का WinHTTP प्रॉक्सी {addr} की ओर इशारा करता है, जहाँ कुछ नहीं चल रहा: Windows Update, Microsoft Store और कुछ प्रोग्राम नहीं जुड़ पाते",
   "logWinhttpCleared": "Windows का WinHTTP प्रॉक्सी साफ़ किया गया",
-  "logWinhttpNotCleared": "Windows का WinHTTP प्रॉक्सी साफ़ नहीं हो सका (एडमिनिस्ट्रेटर की अनुमति नहीं मिली)"
+  "logWinhttpNotCleared": "Windows का WinHTTP प्रॉक्सी साफ़ नहीं हो सका (एडमिनिस्ट्रेटर की अनुमति नहीं मिली)",
+  "stratNone": "बंद (सिर्फ़ एन्क्रिप्टेड DNS)",
+  "languageSystem": "सिस्टम डिफ़ॉल्ट"
 }

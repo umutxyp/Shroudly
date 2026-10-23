@@ -546,5 +546,7 @@
   "logAppProxyDead": "Awtopilot: {app} her birikmäni hiç zat işlemeýän {addr} salgysyndaky proksä iberýär; şol proksi ýene işleýänçä ýa-da onuň sazlamasy aýrylýança birigip bilmez",
   "logWinhttpDead": "Windows-yň WinHTTP proksisi hiç zat işlemeýän {addr} salgysyny görkezýär: Windows Update, Microsoft Store we käbir programmalar birigip bilmeýär",
   "logWinhttpCleared": "Windows-yň WinHTTP proksisi arassalandy",
-  "logWinhttpNotCleared": "Windows-yň WinHTTP proksisini arassalap bolmady (administratoryň rugsady berilmedi)"
+  "logWinhttpNotCleared": "Windows-yň WinHTTP proksisini arassalap bolmady (administratoryň rugsady berilmedi)",
+  "stratNone": "Öçürilen (diňe şifrlenen DNS)",
+  "languageSystem": "Ulgamdaky ýaly"
 }

@@ -63,6 +63,8 @@
     <string name="excludedApps">Sepanên ku Shroudly derbas dikin</string>
     <string name="excludedAppsCount">{count} sepan Shroudly derbas dikin</string>
     <string name="excludedAppsDesc">Seyrûsefera wan rasterast derdikeve, bê ku di Shroudly re derbas bibe: mînak lîstikek ku hewcedariya wê pê tune.</string>
+    <string name="language">Ziman</string>
+    <string name="languageSystem">Zimanê pergalê</string>
     <string name="linkReleases">Notên weşanê</string>
     <string name="linkSourceCode">Koda çavkaniyê li GitHubê</string>
     <string name="madeBy">Berhemeke Codeshare Technology Ltd</string>
@@ -87,6 +89,7 @@
     <string name="stratAuto">Xweber (tê pêşniyarkirin)</string>
     <string name="stratDisorderSni">Li SNI tevlihev bike</string>
     <string name="stratDoubleSplit">Parçekirina ducarî</string>
+    <string name="stratNone">Girtî (tenê DNS-a şîfrekirî)</string>
     <string name="stratSplit2">Li bayta 2an parçe bike</string>
     <string name="stratSplitMid">Di nîvê SNI de parçe bike</string>
     <string name="stratSplitSni">Li SNI parçe bike</string>

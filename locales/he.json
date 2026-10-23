@@ -546,5 +546,7 @@
   "logAppProxyDead": "טייס אוטומטי: {app} שולח כל חיבור ל-Proxy בכתובת {addr}, שבה שום דבר לא פועל; הוא לא יוכל להתחבר עד שה-Proxy הזה יפעל שוב או שההגדרה שלו תוסר",
   "logWinhttpDead": "ה-Proxy של WinHTTP ב-Windows מצביע על {addr}, שבה שום דבר לא פועל: Windows Update, ‏Microsoft Store ותוכנות מסוימות לא מצליחים להתחבר",
   "logWinhttpCleared": "ה-Proxy של WinHTTP ב-Windows נוקה",
-  "logWinhttpNotCleared": "לא ניתן היה לנקות את ה-Proxy של WinHTTP ב-Windows (לא ניתנה הרשאת מנהל)"
+  "logWinhttpNotCleared": "לא ניתן היה לנקות את ה-Proxy של WinHTTP ב-Windows (לא ניתנה הרשאת מנהל)",
+  "stratNone": "כבוי (DNS מוצפן בלבד)",
+  "languageSystem": "ברירת המחדל של המערכת"
 }

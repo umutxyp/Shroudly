@@ -63,6 +63,8 @@
     <string name="excludedApps">Застосунки в обхід Shroudly</string>
     <string name="excludedAppsCount">Застосунків в обхід Shroudly: {count}</string>
     <string name="excludedAppsDesc">Їхній трафік іде напряму, повз Shroudly: наприклад, гра, якій він не потрібен.</string>
+    <string name="language">Мова</string>
+    <string name="languageSystem">Як у системі</string>
     <string name="linkReleases">Примітки до випусків</string>
     <string name="linkSourceCode">Вихідний код на GitHub</string>
     <string name="madeBy">Продукт Codeshare Technology Ltd</string>
@@ -87,6 +89,7 @@
     <string name="stratAuto">Авто (рекомендовано)</string>
     <string name="stratDisorderSni">Перестановка на SNI</string>
     <string name="stratDoubleSplit">Подвійне розділення</string>
+    <string name="stratNone">Вимк. (лише зашифрований DNS)</string>
     <string name="stratSplit2">Розділення на 2-му байті</string>
     <string name="stratSplitMid">Розділення посередині SNI</string>
     <string name="stratSplitSni">Розділення на SNI</string>

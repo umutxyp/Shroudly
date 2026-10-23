@@ -546,5 +546,7 @@
   "logAppProxyDead": "Otomatik pilot: {app} her bağlantıyı hiçbir şeyin çalışmadığı {addr} adresindeki bir proxy'ye gönderiyor; o proxy yeniden çalışana ya da ayarı kaldırılana kadar bağlanamaz",
   "logWinhttpDead": "Windows'un WinHTTP proxy'si hiçbir şeyin çalışmadığı {addr} adresini gösteriyor: Windows Update, Microsoft Store ve bazı programlar bağlanamıyor",
   "logWinhttpCleared": "Windows'un WinHTTP proxy'si temizlendi",
-  "logWinhttpNotCleared": "Windows'un WinHTTP proxy'si temizlenemedi (yönetici izni verilmedi)"
+  "logWinhttpNotCleared": "Windows'un WinHTTP proxy'si temizlenemedi (yönetici izni verilmedi)",
+  "stratNone": "Kapalı (yalnızca şifreli DNS)",
+  "languageSystem": "Sistem varsayılanı"
 }

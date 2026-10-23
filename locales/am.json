@@ -546,5 +546,7 @@
   "logAppProxyDead": "ራስ-ሰር አብራሪ: {app} እያንዳንዱን ግንኙነት ምንም ወደማይሰራበት {addr} ወዳለ proxy ይልካል፤ ያ proxy እንደገና እስኪሰራ ወይም ቅንብሩ እስኪወገድ ድረስ መገናኘት አይችልም",
   "logWinhttpDead": "የWindows WinHTTP proxy ምንም ወደማይሰራበት {addr} ይጠቁማል፦ Windows Update፣ Microsoft Store እና አንዳንድ ፕሮግራሞች መገናኘት አይችሉም",
   "logWinhttpCleared": "የWindows WinHTTP proxy ተጸድቷል",
-  "logWinhttpNotCleared": "የWindows WinHTTP proxyን ማጽዳት አልተቻለም (የአስተዳዳሪ ፈቃድ አልተሰጠም)"
+  "logWinhttpNotCleared": "የWindows WinHTTP proxyን ማጽዳት አልተቻለም (የአስተዳዳሪ ፈቃድ አልተሰጠም)",
+  "stratNone": "ጠፍቷል (የተመሰጠረ DNS ብቻ)",
+  "languageSystem": "የሥርዓቱ ነባሪ"
 }

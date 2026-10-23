@@ -546,5 +546,7 @@
   "logAppProxyDead": "Pîlota xweber: {app} her girêdanê dişîne proksiyeke li {addr}, ku tiştek li wir naxebite; heta ku ew proksî dîsa nexebite an mîhenga wê neyê rakirin, nikare girê bide",
   "logWinhttpDead": "Proksiya WinHTTP ya Windows nîşanî {addr} dide, ku tiştek li wir naxebite: Windows Update, Microsoft Store û hin bername nikarin girê bidin",
   "logWinhttpCleared": "Proksiya WinHTTP ya Windows hat paqijkirin",
-  "logWinhttpNotCleared": "Proksiya WinHTTP ya Windows nehat paqijkirin (destûra rêveberiyê nehat dayîn)"
+  "logWinhttpNotCleared": "Proksiya WinHTTP ya Windows nehat paqijkirin (destûra rêveberiyê nehat dayîn)",
+  "stratNone": "Girtî (tenê DNS-a şîfrekirî)",
+  "languageSystem": "Zimanê pergalê"
 }

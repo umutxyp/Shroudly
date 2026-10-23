@@ -63,6 +63,8 @@
     <string name="excludedApps">Ứng dụng đi tắt qua Shroudly</string>
     <string name="excludedAppsCount">{count} ứng dụng đi tắt qua Shroudly</string>
     <string name="excludedAppsDesc">Lưu lượng của chúng đi thẳng ra ngoài, không qua Shroudly: ví dụ một trò chơi không cần đến nó.</string>
+    <string name="language">Ngôn ngữ</string>
+    <string name="languageSystem">Mặc định của hệ thống</string>
     <string name="linkReleases">Ghi chú phát hành</string>
     <string name="linkSourceCode">Mã nguồn trên GitHub</string>
     <string name="madeBy">Một sản phẩm của Codeshare Technology Ltd</string>
@@ -87,6 +89,7 @@
     <string name="stratAuto">Tự động (khuyên dùng)</string>
     <string name="stratDisorderSni">Đảo thứ tự tại SNI</string>
     <string name="stratDoubleSplit">Tách hai lần</string>
+    <string name="stratNone">Tắt (chỉ DNS mã hóa)</string>
     <string name="stratSplit2">Tách tại byte 2</string>
     <string name="stratSplitMid">Tách ở giữa SNI</string>
     <string name="stratSplitSni">Tách tại SNI</string>

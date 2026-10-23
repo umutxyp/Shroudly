@@ -546,5 +546,7 @@
   "logAppProxyDead": "آٹو پائلٹ: {app} ہر کنکشن {addr} پر ایک پراکسی کو بھیجتا ہے جہاں کچھ نہیں چل رہا؛ جب تک وہ پراکسی دوبارہ نہ چلے یا اس کی ترتیب نہ ہٹے، یہ نہیں جڑ سکتا",
   "logWinhttpDead": "Windows کی WinHTTP پراکسی {addr} کی طرف اشارہ کرتی ہے جہاں کچھ نہیں چل رہا: Windows Update، Microsoft Store اور کچھ پروگرام نہیں جڑ پاتے",
   "logWinhttpCleared": "Windows کی WinHTTP پراکسی صاف کر دی گئی",
-  "logWinhttpNotCleared": "Windows کی WinHTTP پراکسی صاف نہیں ہو سکی (منتظم کی اجازت نہیں ملی)"
+  "logWinhttpNotCleared": "Windows کی WinHTTP پراکسی صاف نہیں ہو سکی (منتظم کی اجازت نہیں ملی)",
+  "stratNone": "بند (صرف خفیہ DNS)",
+  "languageSystem": "سسٹم کی ڈیفالٹ"
 }

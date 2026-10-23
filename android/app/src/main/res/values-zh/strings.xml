@@ -63,6 +63,8 @@
     <string name="excludedApps">绕过 Shroudly 的应用</string>
     <string name="excludedAppsCount">{count} 个应用绕过 Shroudly</string>
     <string name="excludedAppsDesc">它们的流量直接出去，不经过 Shroudly：例如不需要它的游戏。</string>
+    <string name="language">语言</string>
+    <string name="languageSystem">跟随系统</string>
     <string name="linkReleases">版本说明</string>
     <string name="linkSourceCode">GitHub 上的源代码</string>
     <string name="madeBy">Codeshare Technology Ltd 出品</string>
@@ -87,6 +89,7 @@
     <string name="stratAuto">自动（推荐）</string>
     <string name="stratDisorderSni">在 SNI 处乱序</string>
     <string name="stratDoubleSplit">双重拆分</string>
+    <string name="stratNone">关闭（仅加密 DNS）</string>
     <string name="stratSplit2">在第 2 字节处拆分</string>
     <string name="stratSplitMid">在 SNI 中间拆分</string>
     <string name="stratSplitSni">在 SNI 处拆分</string>

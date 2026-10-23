@@ -63,6 +63,8 @@
     <string name="excludedApps">Apps that skip Shroudly</string>
     <string name="excludedAppsCount">{count} apps skip Shroudly</string>
     <string name="excludedAppsDesc">Their traffic goes straight out, past Shroudly: for example a game that does not need it.</string>
+    <string name="language">Language</string>
+    <string name="languageSystem">System default</string>
     <string name="linkReleases">Release notes</string>
     <string name="linkSourceCode">Source code on GitHub</string>
     <string name="madeBy">A Codeshare Technology Ltd product</string>
@@ -87,6 +89,7 @@
     <string name="stratAuto">Auto (recommended)</string>
     <string name="stratDisorderSni">Disorder at SNI</string>
     <string name="stratDoubleSplit">Double split</string>
+    <string name="stratNone">Off (encrypted DNS only)</string>
     <string name="stratSplit2">Split at byte 2</string>
     <string name="stratSplitMid">Split in the middle of SNI</string>
     <string name="stratSplitSni">Split at SNI</string>

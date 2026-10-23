@@ -546,5 +546,7 @@
   "logAppProxyDead": "Avtopilot: {app} hər bağlantını heç nəyin işləmədiyi {addr} ünvanındakı proksiyə göndərir; həmin proksi yenidən işləyənə və ya ayarı silinənə qədər qoşula bilməz",
   "logWinhttpDead": "Windows-un WinHTTP proksisi heç nəyin işləmədiyi {addr} ünvanını göstərir: Windows Update, Microsoft Store və bəzi proqramlar qoşula bilmir",
   "logWinhttpCleared": "Windows-un WinHTTP proksisi təmizləndi",
-  "logWinhttpNotCleared": "Windows-un WinHTTP proksisi təmizlənə bilmədi (administrator icazəsi verilmədi)"
+  "logWinhttpNotCleared": "Windows-un WinHTTP proksisi təmizlənə bilmədi (administrator icazəsi verilmədi)",
+  "stratNone": "Söndürülüb (yalnız şifrələnmiş DNS)",
+  "languageSystem": "Sistem dili"
 }

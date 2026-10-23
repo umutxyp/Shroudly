@@ -63,6 +63,8 @@
     <string name="excludedApps">هغه اپونه چې له Shroudly نه تېرېږي</string>
     <string name="excludedAppsCount">{count} اپونه له Shroudly نه تېرېږي</string>
     <string name="excludedAppsDesc">د هغوی ټرافیک له Shroudly پرته مستقیم وځي: د بېلګې په توګه یوه لوبه چې ورته اړتیا نه لري.</string>
+    <string name="language">ژبه</string>
+    <string name="languageSystem">د سیسټم ژبه</string>
     <string name="linkReleases">د خپرونو یادښتونه</string>
     <string name="linkSourceCode">په GitHub کې سرچینه کوډ</string>
     <string name="madeBy">د Codeshare Technology Ltd محصول</string>
@@ -87,6 +89,7 @@
     <string name="stratAuto">اتومات (سپارښتل شوی)</string>
     <string name="stratDisorderSni">په SNI کې ګډوډ ترتیب</string>
     <string name="stratDoubleSplit">دوه ځلي وېشل</string>
+    <string name="stratNone">بند (یوازې کوډ شوی DNS)</string>
     <string name="stratSplit2">په دوهم بایټ کې وېشل</string>
     <string name="stratSplitMid">د SNI په منځ کې وېشل</string>
     <string name="stratSplitSni">په SNI کې وېشل</string>

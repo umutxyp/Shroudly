@@ -63,6 +63,8 @@
     <string name="excludedApps">אפליקציות שעוקפות את Shroudly</string>
     <string name="excludedAppsCount">{count} אפליקציות עוקפות את Shroudly</string>
     <string name="excludedAppsDesc">התעבורה שלהן יוצאת ישירות, בלי לעבור דרך Shroudly: למשל משחק שלא צריך אותו.</string>
+    <string name="language">שפה</string>
+    <string name="languageSystem">ברירת המחדל של המערכת</string>
     <string name="linkReleases">הערות גרסה</string>
     <string name="linkSourceCode">קוד המקור ב-GitHub</string>
     <string name="madeBy">מוצר של Codeshare Technology Ltd</string>
@@ -87,6 +89,7 @@
     <string name="stratAuto">אוטומטי (מומלץ)</string>
     <string name="stratDisorderSni">שיבוש סדר ב-SNI</string>
     <string name="stratDoubleSplit">פיצול כפול</string>
+    <string name="stratNone">כבוי (DNS מוצפן בלבד)</string>
     <string name="stratSplit2">פיצול בבייט 2</string>
     <string name="stratSplitMid">פיצול באמצע ה-SNI</string>
     <string name="stratSplitSni">פיצול ב-SNI</string>

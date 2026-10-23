@@ -546,5 +546,7 @@
   "logAppProxyDead": "自动处理：{app} 把每个连接发往 {addr} 上的代理，那里没有任何程序在运行；在该代理重新运行或其设置被删除之前，它无法连接",
   "logWinhttpDead": "Windows 的 WinHTTP 代理指向 {addr}，那里没有任何程序在运行：Windows 更新、Microsoft Store 和部分程序无法连接",
   "logWinhttpCleared": "已清除 Windows 的 WinHTTP 代理",
-  "logWinhttpNotCleared": "无法清除 Windows 的 WinHTTP 代理（未获得管理员权限）"
+  "logWinhttpNotCleared": "无法清除 Windows 的 WinHTTP 代理（未获得管理员权限）",
+  "stratNone": "关闭（仅加密 DNS）",
+  "languageSystem": "跟随系统"
 }

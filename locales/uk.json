@@ -546,5 +546,7 @@
   "logAppProxyDead": "Автопілот: {app} надсилає всі з’єднання на проксі {addr}, де нічого не запущено; під’єднатися не вийде, доки цей проксі знову не запрацює або його налаштування не приберуть",
   "logWinhttpDead": "WinHTTP-проксі Windows вказує на {addr}, де нічого не запущено: Windows Update, Microsoft Store і деякі програми не можуть під’єднатися",
   "logWinhttpCleared": "WinHTTP-проксі Windows скинуто",
-  "logWinhttpNotCleared": "Не вдалося скинути WinHTTP-проксі Windows (немає дозволу адміністратора)"
+  "logWinhttpNotCleared": "Не вдалося скинути WinHTTP-проксі Windows (немає дозволу адміністратора)",
+  "stratNone": "Вимк. (лише зашифрований DNS)",
+  "languageSystem": "Як у системі"
 }

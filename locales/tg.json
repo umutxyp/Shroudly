@@ -546,5 +546,7 @@
   "logAppProxyDead": "Автопилот: {app} ҳар пайвастро ба проксии {addr} мефиристад, ки дар он ҷо ҳеҷ чиз кор намекунад; то он прокси боз кор накунад ё танзими он хориҷ нашавад, пайваст шуда наметавонад",
   "logWinhttpDead": "Проксии WinHTTP-и Windows ба {addr} нишон медиҳад, ки дар он ҷо ҳеҷ чиз кор намекунад: Windows Update, Microsoft Store ва баъзе барномаҳо пайваст шуда наметавонанд",
   "logWinhttpCleared": "Проксии WinHTTP-и Windows тоза шуд",
-  "logWinhttpNotCleared": "Проксии WinHTTP-и Windows-ро тоза кардан нашуд (иҷозати маъмур дода нашуд)"
+  "logWinhttpNotCleared": "Проксии WinHTTP-и Windows-ро тоза кардан нашуд (иҷозати маъмур дода нашуд)",
+  "stratNone": "Хомӯш (танҳо DNS-и рамзгузоришуда)",
+  "languageSystem": "Мисли система"
 }
