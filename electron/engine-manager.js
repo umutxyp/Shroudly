@@ -867,6 +867,13 @@ class EngineManager {
       case 'send_failed':
         this.log('warning', `${msg.host}: connection dropped while sending (${msg.family})`);
         break;
+      // A site whose addresses from encrypted DNS got nowhere, connected
+      // where the network's own DNS says (core/src/engine.c).
+      case 'netdns':
+        if (msg.stage === 'try') this.log('info', `${msg.host}: the addresses encrypted DNS gives get nowhere here; trying the one this network's DNS gives (${msg.addr})`);
+        else if (msg.stage === 'ok') this.log('success', `${msg.host}: opened at the address this network's DNS gives (${msg.addr})`);
+        else this.log('info', `${msg.host}: the address this network's DNS gives (${msg.addr}) gets nowhere either`);
+        break;
       case 'probe':
         if (msg.ok && msg.strategy === 'none') {
           this.log('info', `Auto: ${msg.host} is not blocked here`);

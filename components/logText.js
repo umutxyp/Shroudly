@@ -107,6 +107,9 @@ const PATTERNS = [
   [/^Your DNS server (\S+) does not answer \((.+)\); Shroudly's built-in encrypted DNS answers until it does$/, 'logCustomDnsDown', ['server', 'reason']],
   [/^Your DNS server (\S+) does not answer \((.+)\); it is the only one used, so lookups fail until it answers$/, 'logCustomDnsDownStrict', ['server', 'reason']],
   [/^Your DNS server (\S+) answers again$/, 'logCustomDnsBack', ['server']],
+  [/^(\S+): the addresses encrypted DNS gives get nowhere here; trying the one this network's DNS gives \((\S+)\)$/, 'logNetDnsTry', ['host', 'addr']],
+  [/^(\S+): opened at the address this network's DNS gives \((\S+)\)$/, 'logNetDnsOk', ['host', 'addr']],
+  [/^(\S+): the address this network's DNS gives \((\S+)\) gets nowhere either$/, 'logNetDnsBad', ['host', 'addr']],
   [/^DNS server: (\S+)$/, 'logDnsServerSet', ['server']],
   [/^DNS server: (\S+) \(only this one\)$/, 'logDnsServerSetStrict', ['server']],
   // A proxy on this computer where nothing runs (a program that has gone).

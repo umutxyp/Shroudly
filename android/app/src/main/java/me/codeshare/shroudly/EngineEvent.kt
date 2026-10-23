@@ -40,6 +40,11 @@ sealed class EngineEvent {
         val port: Int = 0,
     ) : EngineEvent()
 
+    /* A site whose addresses from encrypted DNS got nowhere, connected where
+     * the network's own DNS says (core/src/engine.c, "the network's own
+     * DNS"): stage "try", then "ok" or "bad". */
+    data class NetDns(val host: String, val addr: String, val stage: String) : EngineEvent()
+
     data class Error(val message: String, val code: Int?) : EngineEvent()
     /* What became of the ad and tracker list (ADBLOCK, --adblock), and the
      * engine's verdict on a fetched one (ADBLOCK-CHECK). Never a path. */
@@ -80,11 +85,21 @@ sealed class EngineEvent {
                     raw = bool("raw"),
                     port = num("port").toInt(),
                 )
+                "netdns" -> NetDns(str("host") ?: "", str("addr") ?: "", str("stage") ?: "")
                 "error" -> Error(str("msg") ?: "code ${num("code")}", (m["code"] as? Number)?.toInt())
                 "stopped" -> Stopped
                 else -> Other(type)
             }
         }
+    }
+}
+
+/* The log line for a NetDns event, as the desktop writes it (engine-manager.js). */
+object NetDnsText {
+    fun line(ev: EngineEvent.NetDns): String = when (ev.stage) {
+        "try" -> "${ev.host}: the addresses encrypted DNS gives get nowhere here; trying the one this network's DNS gives (${ev.addr})"
+        "ok" -> "${ev.host}: opened at the address this network's DNS gives (${ev.addr})"
+        else -> "${ev.host}: the address this network's DNS gives (${ev.addr}) gets nowhere either"
     }
 }
 

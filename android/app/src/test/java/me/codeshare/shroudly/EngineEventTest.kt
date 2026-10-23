@@ -94,4 +94,15 @@ class EngineEventTest {
             assertTrue(a, first[0] == 198 && first[1] in 18..19)
         }
     }
+
+    /* A site connected where the network's own DNS says (issue #37): parsed,
+     * and logged as the desktop logs it. */
+    @Test
+    fun netDns() {
+        val e = EngineEvent.parse("{\"type\":\"netdns\",\"host\":\"googlevideo.com\",\"addr\":\"5.160.12.34\",\"stage\":\"try\"}")
+        assertEquals(EngineEvent.NetDns("googlevideo.com", "5.160.12.34", "try"), e)
+        assertEquals("googlevideo.com: the addresses encrypted DNS gives get nowhere here; trying the one this network's DNS gives (5.160.12.34)", NetDnsText.line(e as EngineEvent.NetDns))
+        assertEquals("googlevideo.com: opened at the address this network's DNS gives (5.160.12.34)", NetDnsText.line(e.copy(stage = "ok")))
+        assertEquals("googlevideo.com: the address this network's DNS gives (5.160.12.34) gets nowhere either", NetDnsText.line(e.copy(stage = "bad")))
+    }
 }

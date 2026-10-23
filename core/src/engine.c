@@ -3022,6 +3022,140 @@ static int osdns_follow(const char *host) {
   return follow;
 }
 
+/* ── the network's own DNS, for a site encrypted DNS's addresses fail ────
+ * In some countries a site's servers get through only at the addresses the
+ * network's own DNS gives: a CDN's cache inside the country (Google's caches,
+ * which serve YouTube's videos in Iran, issue #37), while the addresses
+ * encrypted DNS gives are abroad, blocked by address or filtered past every
+ * technique. ByeByeDPI with the country's DNS plays the videos; with a
+ * foreign one it does not.
+ * So once every technique failed on a name of a site, or none of its
+ * addresses answered, the site's next names are also asked of the system's
+ * resolver (the network's DNS, in plain text: it learns only of a site that
+ * is failing anyway) and connected to where it says, when that is a public
+ * address our own resolver did not give: never a private, loopback or
+ * block-page address, which is what a censor answers with. Kept for the site
+ * while it works (NETDNS_TTL_MS from its last success); left alone for as
+ * long when that address does not get through either. Not with "Only this
+ * server" (doh_strict): the user wants that server's answers and no other. */
+#define NETDNS_SLOTS   64
+#define NETDNS_TTL_MS  (30 * 60 * 1000)
+#define NETDNS_WAIT_MS 1500
+enum { ND_NONE = 0, ND_TRY, ND_GOOD, ND_BAD };
+static struct { char site[256]; int state; uint64_t t; } g_nd[NETDNS_SLOTS];
+static mutex_t g_nd_mx;
+
+/* host's state: its site's, or its own where it has none. */
+static int nd_state(const char *host) {
+  char k[256];
+  ok_key(host, k, sizeof(k));
+  int st = ND_NONE;
+  mutex_lock(&g_nd_mx);
+  uint64_t t = now_ms();
+  for (int i = 0; i < NETDNS_SLOTS; i++)
+    if (g_nd[i].site[0] && strcmp(g_nd[i].site, k) == 0) { if (age_ms(t, g_nd[i].t) < NETDNS_TTL_MS) st = g_nd[i].state; break; }
+  mutex_unlock(&g_nd_mx);
+  return st;
+}
+
+static void nd_put(const char *host, int st) {
+  char k[256];
+  ok_key(host, k, sizeof(k));
+  mutex_lock(&g_nd_mx);
+  uint64_t t = now_ms();
+  int slot = -1, oldest = 0;
+  for (int i = 0; i < NETDNS_SLOTS; i++) {
+    if (g_nd[i].site[0] && strcmp(g_nd[i].site, k) == 0) { slot = i; break; }
+    if (g_nd[i].t < g_nd[oldest].t) oldest = i;
+  }
+  if (slot < 0) { slot = oldest; snprintf(g_nd[slot].site, sizeof(g_nd[slot].site), "%s", k); }
+  g_nd[slot].state = st;
+  g_nd[slot].t = t;
+  mutex_unlock(&g_nd_mx);
+}
+
+/* Our own resolver's addresses for host got nowhere: its site's next names
+ * try the network's DNS too, unless that was found no better lately. */
+static void nd_failed(const char *host) {
+  if (!g_cfg.use_doh || doh_strict() || !host[0] || ip_literal(host) || doh_local_name(host)) return;
+  int st = nd_state(host);
+  if (st == ND_NONE) nd_put(host, ND_TRY);
+}
+
+static void nd_tell(const char *host, const char *addr, const char *stage) {
+  char h[256], k[256], a[80];
+  ok_key(host, k, sizeof(k));
+  json_host(h, sizeof(h), k);
+  json_host(a, sizeof(a), addr);
+  engine_printf("{\"type\":\"netdns\",\"host\":\"%s\",\"addr\":\"%s\",\"stage\":\"%s\"}\n", h, a, stage);
+}
+
+/* An address the network's DNS may send a connection to: public, and not a
+ * known block page (loopback too under --raw-local, for the tests). */
+static int nd_usable(const struct sockaddr_storage *ss) {
+  if (ss->ss_family == AF_INET) {
+    uint32_t ip = ntohl(((const struct sockaddr_in *)ss)->sin_addr.s_addr);
+    if ((ip >> 24) == 127) return g_cfg.raw_local;
+    if (doh_ipv4_is_blockpage(ip) || (ip >> 24) == 0 || (ip >> 24) >= 224 || udp_v4_private(ip)) return 0;
+    return 1;
+  }
+  if (ss->ss_family == AF_INET6) return !udp_dst_forbidden(ss) && !udp_dst_private(ss);
+  return 0;
+}
+
+typedef struct { char host[256]; char addr[64]; _Atomic int done; _Atomic int refs; } nd_job;
+static void nd_release(nd_job *j) { if (atomic_fetch_sub(&j->refs, 1) == 1) free(j); }
+
+/* The first usable address the system's resolver gives for the job's host
+ * that our own resolver did not (IPv4 first), as text; "" when none. */
+static void *nd_thread(void *p) {
+  nd_job *j = (nd_job *)p;
+  struct addrinfo hints, *res = NULL;
+  memset(&hints, 0, sizeof(hints));
+  hints.ai_family = AF_UNSPEC; hints.ai_socktype = SOCK_STREAM;
+  if (getaddrinfo(j->host, NULL, &hints, &res) == 0 && res) {
+    struct sockaddr_storage ours[DOH_MAX_ADDRS * 2]; socklen_t ol[DOH_MAX_ADDRS * 2];
+    int no = 0, k = doh_resolve_all(j->host, 443, 0, ours, ol, DOH_MAX_ADDRS);
+    if (k > 0) no += k;
+    k = doh_resolve_all(j->host, 443, 1, ours + no, ol + no, DOH_MAX_ADDRS);
+    if (k > 0) no += k;
+    for (int pass = 0; pass < 2 && !j->addr[0]; pass++) {
+      for (struct addrinfo *ai = res; ai && !j->addr[0]; ai = ai->ai_next) {
+        if ((ai->ai_family == AF_INET) != (pass == 0) || (ai->ai_family != AF_INET && ai->ai_family != AF_INET6)) continue;
+        if ((size_t)ai->ai_addrlen > sizeof(struct sockaddr_storage)) continue;
+        struct sockaddr_storage ss; memset(&ss, 0, sizeof(ss));
+        memcpy(&ss, ai->ai_addr, ai->ai_addrlen);
+        if (!nd_usable(&ss)) continue;
+        int known = 0;
+        for (int i = 0; i < no && !known; i++) known = same_addr(&ours[i], &ss);
+        if (known) continue;
+        const void *src = ss.ss_family == AF_INET ? (const void *)&((struct sockaddr_in *)&ss)->sin_addr
+                                                  : (const void *)&((struct sockaddr_in6 *)&ss)->sin6_addr;
+        if (!inet_ntop(ss.ss_family, src, j->addr, sizeof(j->addr))) j->addr[0] = 0;
+      }
+    }
+  }
+  if (res) freeaddrinfo(res);
+  atomic_store(&j->done, 1);
+  nd_release(j);
+  return NULL;
+}
+
+/* The network's DNS's other address for host into out ("" when there is
+ * none, or it did not answer within NETDNS_WAIT_MS). */
+static void nd_lookup(const char *host, char *out, size_t cap) {
+  out[0] = 0;
+  nd_job *j = (nd_job *)calloc(1, sizeof(*j));
+  if (!j) return;
+  snprintf(j->host, sizeof(j->host), "%s", host);
+  atomic_store(&j->refs, 2);
+  if (thread_spawn(nd_thread, j, 256 * 1024) != 0) { free(j); return; }
+  uint64_t end = now_ms() + NETDNS_WAIT_MS;
+  while (!atomic_load(&j->done) && now_ms() < end) sleep_ms(5);
+  if (atomic_load(&j->done)) snprintf(out, cap, "%s", j->addr);
+  nd_release(j);
+}
+
 /* ── names on the ad and tracker list (adblock.h) ────────────────────────
  * A connection to a listed name is accepted and then ended inside it, never
  * refused at the proxy step. A browser takes a refusal there for a broken
@@ -3061,6 +3195,7 @@ static void handle(sock_t client) {
   /* What every attempt dials, and whether through our own resolver. */
   char dial_host[256];
   int dial_doh = g_cfg.use_doh;
+  int nd = 0;   /* connected where the network's own DNS says (see netdns) */
   dial_info di;
   uint64_t waiting = 0;   /* the first payload went out and is still unanswered */
 
@@ -3106,7 +3241,27 @@ static void handle(sock_t client) {
     if (up == SOCK_INVALID) up = dial(rq.host, rq.port, g_cfg.prefer_ipv6, g_cfg.use_doh, 0, &fam, &di);
     if (up == SOCK_INVALID) goto done;
   } else {
-    up = dial(rq.host, rq.port, g_cfg.prefer_ipv6, dial_doh, 0, &fam, &di);
+    /* A site whose addresses from our own resolver got nowhere lately: where
+     * the network's own DNS says, when that is another public address (see
+     * "the network's own DNS"). */
+    if (dial_doh && !ip_literal(rq.host) && !doh_strict() && !doh_local_name(rq.host)) {
+      int st = nd_state(rq.host);
+      if (st == ND_TRY || st == ND_GOOD) {
+        char alt[64];
+        nd_lookup(rq.host, alt, sizeof(alt));
+        if (alt[0]) up = dial(alt, rq.port, g_cfg.prefer_ipv6, 0, 0, &fam, &di);
+        if (up != SOCK_INVALID) {
+          nd = 1; dial_doh = 0;
+          snprintf(dial_host, sizeof(dial_host), "%s", alt);
+          if (st == ND_TRY) nd_tell(rq.host, alt, "try");
+        } else {
+          /* No other address, or it does not answer either: our own again. */
+          nd_put(rq.host, ND_BAD);
+          if (st == ND_TRY && alt[0]) nd_tell(rq.host, alt, "bad");
+        }
+      }
+    }
+    if (!nd) up = dial(rq.host, rq.port, g_cfg.prefer_ipv6, dial_doh, 0, &fam, &di);
     /* A name our resolver has no address for, which only this computer's DNS
      * knows (an intranet, a VPN's split DNS, a hosts file): where the system
      * says (see osdns_follow). A public name never gets here, so the
@@ -3120,6 +3275,9 @@ static void handle(sock_t client) {
       /* Told while the app is still connected to us (see RAW_HOLD_MS); not
        * where nobody could look (--auth-file: the tunnel on Android). */
       if (report_raw_unreachable(rq.host, rq.port, &di, peer_port(client)) && !g_cfg.auth_user[0]) sleep_ms(RAW_HOLD_MS);
+      /* Addresses, and none of them answered: the network's DNS may know
+       * others (see "the network's own DNS"). */
+      if (dial_doh && di.resolved > 0) nd_failed(rq.host);
       socks_reply(client, &rq, 0); report_unreachable(rq.host, rq.port, &di); goto done;
     }
     {
@@ -3382,6 +3540,20 @@ static void handle(sock_t client) {
         else if (rr == 2) pick = 0;   /* the oldest: on a fresh ladder, the untouched request */
       }
       if (win >= 0) ladder_won(&st, &st.L.l[win]);
+      /* The network's own DNS (see there): its address got through, or did
+       * not; or every technique failed at our own resolver's addresses. */
+      if (watch_tls && nd) {
+        if (win >= 0) { if (nd_state(rq.host) != ND_GOOD) nd_tell(rq.host, dial_host, "ok"); nd_put(rq.host, ND_GOOD); }
+        else if (gave_up) {
+          /* Found no better: left alone for a while. One that worked before
+           * (a node of a CDN gone, say) starts over instead. */
+          int was = nd_state(rq.host);
+          nd_put(rq.host, was == ND_GOOD ? ND_NONE : ND_BAD);
+          if (was != ND_GOOD) nd_tell(rq.host, dial_host, "bad");
+        }
+      } else if (watch_tls && gave_up && win < 0 && dial_doh) {
+        nd_failed(rq.host);
+      }
       leg cur = { SOCK_INVALID, fam, 0, 0, ATT_PLAIN, 0, 0 };
       if (pick >= 0) cur = legs_take(&st.L, pick);
       legs_close(&st.L);
@@ -3495,6 +3667,7 @@ static void engine_init_once(void) {
   mutex_init(&g_seen_mx);
   mutex_init(&g_raw_mx);
   mutex_init(&g_osdns_mx);
+  mutex_init(&g_nd_mx);
   strategy_raw_count();   /* the raw list built before any thread reads it */
   mutex_init(&g_out_mx);
   g_out_mx_ready = 1;
@@ -3534,6 +3707,9 @@ static void engine_forget(void) {
   memset(g_osdns, 0, sizeof(g_osdns));
   g_osdns_slow_until = 0;
   mutex_unlock(&g_osdns_mx);
+  mutex_lock(&g_nd_mx);
+  memset(g_nd, 0, sizeof(g_nd));
+  mutex_unlock(&g_nd_mx);
   doh_clear_cache();   /* the answers, and which resolvers were found dead */
 }
 

@@ -1058,6 +1058,7 @@ class ShroudlyVpnService : VpnService() {
                 Protection.changed()
             }
             is EngineEvent.Host -> onHost(ev)
+            is EngineEvent.NetDns -> logSite(NetDnsText.line(ev))
             is EngineEvent.Error -> log("engine: ${ev.message}")
             is EngineEvent.Adblock -> when {
                 ev.error != null -> log("Ad blocking: the list could not be used (${ev.error})")
