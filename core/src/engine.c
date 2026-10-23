@@ -514,12 +514,16 @@ static int rs_live(const char *k, uint64_t now) {
  * be checked again, see HS_VERIFY_MS), else neither. A resume point comes
  * before a learned technique: it means the last ladder, that technique
  * included, came to nothing. resume: 0 to ignore resume points (only TLS
- * ladders keep going through silence). */
+ * ladders keep going through silence). With nothing of its own and nothing
+ * learned for its site, a name carries on where its site's last name left
+ * off (*site_from): a site of many names, a video CDN's (googlevideo.com,
+ * issue #37), then has every technique tried across its names rather than
+ * the same first few on each, which the budget of one ladder allows. */
 static void ladder_start(const char *h, int resume, int *from, int *learned, int *inherited,
-                         int *stale) {
+                         int *stale, int *site_from) {
   char site[256];
   int has_site = site_key(h, site, sizeof(site));
-  *from = -1; *learned = -1; *inherited = 0; *stale = 0;
+  *from = -1; *learned = -1; *inherited = 0; *stale = 0; *site_from = 0;
   mutex_lock(&g_hs_mx);
   uint64_t now = now_ms();   /* under the lock, so no entry is newer than it */
   int r = resume ? rs_live(h, now) : -1, l = hs_find(h);
@@ -529,6 +533,9 @@ static void ladder_start(const char *h, int resume, int *from, int *learned, int
     if (l >= 0) {
       *learned = g_hs[l].preset;
       *stale = age_ms(now, g_hs[l].t) >= HS_VERIFY_MS;
+    } else if (resume && has_site && (r = rs_live(site, now)) >= 0) {
+      *from = g_rs[r].next;
+      *site_from = 1;
     }
   }
   mutex_unlock(&g_hs_mx);
@@ -3192,8 +3199,8 @@ static void handle(sock_t client) {
       /* Build the ladder. */
       int cand[ATT_MAX]; int ncand = 0;
       int np = strategy_preset_count();
-      int from = -1, learned = -1, inherited = 0, stale = 0;
-      ladder_start(key, watch_tls, &from, &learned, &inherited, &stale);
+      int from = -1, learned = -1, inherited = 0, stale = 0, site_from = 0;
+      ladder_start(key, watch_tls, &from, &learned, &inherited, &stale, &site_from);
       if (learned >= np) learned = -1;
       int resumed = from >= 0 && from < np;
       ladder_st st;
@@ -3225,8 +3232,8 @@ static void handle(sock_t client) {
             if (i != learned && preset_usable(strategy_preset(i))) cand[ncand++] = i;
         }
         /* The last connection was dropped from start to end: the techniques
-         * get the shorter wait from the start. */
-        st.silent = resumed;
+         * get the shorter wait from the start (not known for another name). */
+        st.silent = resumed && !site_from;
       } else {
         st.opened_learned = learned >= 0;
         if (learned >= 0) cand[ncand++] = learned;           /* known to work */
@@ -3357,6 +3364,11 @@ static void handle(sock_t client) {
         if (gave_up && !st.saw_refusal && st.silent > 0 && last_preset >= 0)
           rs_put(key, (last_preset + 1) % np);
         else if (gave_up) rs_drop(key);
+        /* The site's next name carries on after the last technique tried here
+         * (see ladder_start), refused or dropped alike: the point is to reach
+         * the techniques this ladder had no time for. */
+        char site[256];
+        if (gave_up && last_preset >= 0 && site_key(key, site, sizeof(site))) rs_put(site, (last_preset + 1) % np);
       }
       /* Nothing answered: for a while, its next ladders keep fewer connections
        * open (see COOL_MS). One that answers late, in the race below, ends

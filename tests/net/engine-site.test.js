@@ -11,7 +11,11 @@
  * The fake censor resets every handshake for a blocked name whose first TLS
  * record holds the whole name — untouched, or split at the TCP level only —
  * and lets one split into records inside the name through. For one stricter
- * name it lets through only a split in the middle of the name. */
+ * name it lets through only a split in the middle of the name. Names of one
+ * more site (a video CDN: many names, all dropped silently, whatever the
+ * shape) check that a site's next name carries on in the list of techniques
+ * where its last name's ladder ran out of time, instead of starting over at
+ * the same first few (issue #37: googlevideo.com). */
 
 const tls = require('tls');
 const net = require('net');
@@ -20,6 +24,7 @@ const { startEngine, sleep, freePort, socks, testServerOptions, suite } = requir
 const t = suite('engine-site');
 const BLOCKED = ['.blocked.example', '.github.io'];
 const STRICT = 'own.blocked.example';
+const SILENT = '.vid.example';
 
 /* The server name and the shape of a first flight, once the whole ClientHello
  * is in: 'one' (one record holding the whole name), 'sni+1' (records split one
@@ -77,6 +82,8 @@ function sni(h) {
       const k = look(buf);
       if (!k) return;
       decided = true;
+      // Dropped without a word: nothing comes back, nothing is reset.
+      if (k.name.endsWith(SILENT)) { seen.push({ ...k, passed: false }); return; }
       const blocked = BLOCKED.some((s) => k.name.endsWith(s));
       const passed = !blocked || (k.name === STRICT ? k.shape === 'mid' : k.shape !== 'one');
       seen.push({ ...k, passed });
@@ -141,6 +148,18 @@ function sni(h) {
   r = await visit('y.github.io');
   t.ok(r.ok && r.tries.length === 2 && r.tries[0].shape === 'one' && !r.tries[0].passed && r.bypass,
     `y.github.io inherits nothing from x.github.io: it starts untouched and learns for itself (${shapes(r)})`);
+
+  // A site whose names are all dropped silently: one ladder's time runs out
+  // after a few techniques (tlsrec(sni+1) and its variants come first, all
+  // "sni+1" in shape); the next name of the site starts after them.
+  r = await visit('rr1.vid.example');
+  const firstTech = r.tries.slice(1).map((x) => x.shape);
+  t.ok(!r.ok && firstTech.length >= 3 && firstTech[0] === 'sni+1',
+    `rr1.vid.example: dropped every time, ${r.tries.length} attempts in its time (${shapes(r)})`);
+  r = await visit('rr2.vid.example');
+  const second = r.tries[1] && r.tries[1].shape;
+  t.ok(!r.ok && second && second !== 'sni+1',
+    `rr2.vid.example carries on where rr1 stopped, not at the top: its first technique is "${second}" (${shapes(r)})`);
 
   t.ok(eng.exited === null && !/AddressSanitizer|runtime error:/.test(eng.err), 'engine still up, no sanitizer errors');
   eng.stop(); server.close(); censor.close();
