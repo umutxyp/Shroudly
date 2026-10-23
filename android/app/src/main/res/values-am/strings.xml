@@ -36,6 +36,10 @@
     <string name="androidShareLogs">መዝገብ አጋራ</string>
     <string name="androidStartAtBoot">ስልኩ ሲበራ ጀምር</string>
     <string name="androidStartAtBootDesc">ለVPN አንዴ ፈቃድ ከተሰጠ በኋላ ስልኩ እንደገና ሲጀምር ጥበቃው በራሱ ይበራል።</string>
+    <string name="androidTileAdd">የፈጣን ቅንብሮች ሰድር</string>
+    <string name="androidTileAddDesc">በማያ ገጹ አናት ባለው ፓነል ውስጥ ያለ የShroudly ሰድር ጥበቃን በአንድ ንክኪ ያበራል ያጠፋል።</string>
+    <string name="androidTileAdded">የShroudly ሰድር በፈጣን ቅንብሮች ውስጥ አለ።</string>
+    <string name="androidTileHowTo">በማያ ገጹ አናት ያለውን ፓነል እስከ መጨረሻው ወደ ታች ይጎትቱ፣ እርሳሱን (አርትዕ) ይንኩ፣ የShroudly ሰድርን በሌሎቹ መካከል ይጎትቱት።</string>
     <string name="androidVpnDenied">Shroudly የመተግበሪያዎችዎን ግንኙነቶች ለማሳለፍ የVPN ፈቃድ ያስፈልገዋል።</string>
     <string name="androidVpnRevoked">Android ጥበቃውን አጥፍቶታል፤ ብዙ ጊዜ ሌላ የVPN መተግበሪያ ስለበራ ነው።</string>
     <string name="androidWifiProxyDead">የዚህ አውታረ መረብ proxy ወደ {addr} ተቀናብሯል፣ ግን እዚያ ምንም አይሰራም፤ ስለዚህ የሚጠቀሙበት መተግበሪያዎች (Chromeን ጨምሮ) መገናኘት አይችሉም። በWi-Fi ቅንብሮች ውስጥ ይህን አውታረ መረብ ከፍተው Proxyን «ምንም» ያድርጉት።</string>

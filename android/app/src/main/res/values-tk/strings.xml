@@ -36,6 +36,10 @@
     <string name="androidShareLogs">Ýazgylary paýlaş</string>
     <string name="androidStartAtBoot">Telefon açylanda başla</string>
     <string name="androidStartAtBootDesc">VPN-e bir gezek rugsat berlen bolsa, telefon täzeden açylanda gorag özi açylýar.</string>
+    <string name="androidTileAdd">Çalt sazlamalar plitkasy</string>
+    <string name="androidTileAddDesc">Ekranyň ýokarsyndaky paneldäki Shroudly plitkasy goragy bir basmak bilen açýar we öçürýär.</string>
+    <string name="androidTileAdded">Shroudly plitkasy çalt sazlamalarda.</string>
+    <string name="androidTileHowTo">Ekranyň ýokarsyndaky paneli ahyryna çenli aşak çekiň, galama (üýtgetmek) basyň we Shroudly plitkasyny beýlekileriň arasyna süýşüriň.</string>
     <string name="androidVpnDenied">Programmalaryňyzyň baglanyşyklaryny geçirmek üçin Shroudly-a VPN rugsady gerek.</string>
     <string name="androidVpnRevoked">Gorag Android tarapyndan öçürildi, adatça başga VPN programmasy açylandygy sebäpli.</string>
     <string name="androidWifiProxyDead">Bu ulgamyň proksisi {addr} edilip goýlan, ýöne ol ýerde hiç zat işlemeýär, şonuň üçin ony ulanýan programmalar (Chrome hem) birigip bilmeýär. Wi-Fi sazlamalarynda bu ulgamy açyň we proksini «Ýok» ediň.</string>

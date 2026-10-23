@@ -475,8 +475,12 @@ class EngineManager {
     const weak = list.length - strong;
     if (strong < CUT_NEED.stall && weak < CUT_NEED.noreply) return;
     this.cutHosts.add(host);
-    this.log('warning', `${host}: connects, then the network cuts it (${reason} after ${kb} KB). This network filters whole connections; Shroudly is trying other techniques for it.`);
-    this._setAdvice({ cut: { host, reason } });
+    // With Auto mode off the engine tries nothing else (issue #41: the log
+    // said it did): say what is used, and what would help.
+    const s = this._settings();
+    if (s.autoProbe) this.log('warning', `${host}: connects, then the network cuts it (${reason} after ${kb} KB). This network filters whole connections; Shroudly is trying other techniques for it.`);
+    else this.log('warning', `${host}: connects, then the network cuts it (${reason} after ${kb} KB). Auto mode is off, so only ${s.strategy} is used: turn Auto mode on in Settings to let Shroudly try its other techniques.`);
+    this._setAdvice({ cut: { host, reason, auto: s.autoProbe } });
   }
 
   /* Asked again while a start is under way (the automatic start at launch

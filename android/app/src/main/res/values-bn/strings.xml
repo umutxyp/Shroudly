@@ -36,6 +36,10 @@
     <string name="androidShareLogs">লগ শেয়ার করুন</string>
     <string name="androidStartAtBoot">ফোন চালু হলে শুরু করুন</string>
     <string name="androidStartAtBootDesc">VPN-এর অনুমতি একবার দেওয়া হলে, ফোন আবার চালু হলে সুরক্ষা নিজে থেকেই চালু হয়।</string>
+    <string name="androidTileAdd">কুইক সেটিংস টাইল</string>
+    <string name="androidTileAddDesc">স্ক্রিনের ওপরের প্যানেলে একটি Shroudly টাইল এক ট্যাপে সুরক্ষা চালু ও বন্ধ করে।</string>
+    <string name="androidTileAdded">Shroudly টাইলটি কুইক সেটিংসে আছে।</string>
+    <string name="androidTileHowTo">স্ক্রিনের ওপরের প্যানেলটি পুরো নিচে টানুন, পেন্সিলে (সম্পাদনা) ট্যাপ করুন, আর Shroudly টাইলটি অন্যগুলোর মধ্যে টেনে আনুন।</string>
     <string name="androidVpnDenied">আপনার অ্যাপগুলোর সংযোগ বহন করতে Shroudly-এর VPN অনুমতি দরকার।</string>
     <string name="androidVpnRevoked">Android সুরক্ষা বন্ধ করে দিয়েছে, সাধারণত অন্য কোনো VPN অ্যাপ চালু হওয়ার কারণে।</string>
     <string name="androidWifiProxyDead">এই নেটওয়ার্কের প্রক্সি {addr}-এ সেট করা আছে, কিন্তু সেখানে কিছুই চলছে না, তাই যেসব অ্যাপ এটি ব্যবহার করে (Chrome সহ) সেগুলো সংযুক্ত হতে পারছে না। Wi-Fi সেটিংসে এই নেটওয়ার্কটি খুলে প্রক্সি «কোনোটিই নয়» করুন।</string>

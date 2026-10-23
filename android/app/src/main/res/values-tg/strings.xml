@@ -36,6 +36,10 @@
     <string name="androidShareLogs">Мубодилаи сабтҳо</string>
     <string name="androidStartAtBoot">Ҳангоми фурӯзон шудани телефон оғоз кардан</string>
     <string name="androidStartAtBootDesc">Агар VPN як бор иҷозат гирифта бошад, пас аз бозоғозии телефон ҳимоя худ фаъол мешавад.</string>
+    <string name="androidTileAdd">Плитка дар танзимоти зуд</string>
+    <string name="androidTileAddDesc">Плиткаи Shroudly дар панели болои экран муҳофизатро бо як ламс фаъол ва хомӯш мекунад.</string>
+    <string name="androidTileAdded">Плиткаи Shroudly дар танзимоти зуд аст.</string>
+    <string name="androidTileHowTo">Панели болои экранро то охир ба поён кашед, қаламро (таҳрир) ламс кунед ва плиткаи Shroudly-ро ба қатори дигарон кашед.</string>
     <string name="androidVpnDenied">Shroudly барои гузаронидани пайвастҳои барномаҳоятон иҷозати VPN лозим дорад.</string>
     <string name="androidVpnRevoked">Android муҳофизатро хомӯш кард, одатан чунки барномаи дигари VPN фаъол шуд.</string>
     <string name="androidWifiProxyDead">Проксии ин шабака {addr} танзим шудааст, вале дар он ҷо ҳеҷ чиз кор намекунад, бинобар ин барномаҳое, ки онро истифода мебаранд (аз ҷумла Chrome), пайваст шуда наметавонанд. Дар танзимоти Wi-Fi ин шабакаро кушоед ва проксиро «Не» гузоред.</string>

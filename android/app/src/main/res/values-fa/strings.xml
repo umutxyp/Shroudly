@@ -36,6 +36,10 @@
     <string name="androidShareLogs">اشتراک‌گذاری گزارش‌ها</string>
     <string name="androidStartAtBoot">شروع هنگام روشن شدن گوشی</string>
     <string name="androidStartAtBootDesc">پس از اجازه دادن به VPN، با راه‌اندازی دوبارهٔ گوشی، محافظت خودبه‌خود روشن می‌شود.</string>
+    <string name="androidTileAdd">کاشی تنظیمات سریع</string>
+    <string name="androidTileAddDesc">یک کاشی Shroudly در پنل بالای صفحه، محافظت را با یک لمس روشن و خاموش می‌کند.</string>
+    <string name="androidTileAdded">کاشی Shroudly در تنظیمات سریع است.</string>
+    <string name="androidTileHowTo">پنل بالای صفحه را تا آخر پایین بکشید، روی مداد (ویرایش) بزنید و کاشی Shroudly را میان بقیه بکشید.</string>
     <string name="androidVpnDenied">Shroudly برای عبور دادن اتصال‌های برنامه‌هایتان به مجوز VPN نیاز دارد.</string>
     <string name="androidVpnRevoked">اندروید محافظت را خاموش کرد؛ معمولاً چون یک برنامهٔ VPN دیگر روشن شده است.</string>
     <string name="androidWifiProxyDead">پراکسی این شبکه روی {addr} تنظیم شده، اما چیزی آنجا اجرا نمی‌شود؛ برای همین برنامه‌هایی که از آن استفاده می‌کنند (از جمله Chrome) نمی‌توانند وصل شوند. در تنظیمات Wi-Fi این شبکه را باز کنید و پراکسی را روی «هیچ‌کدام» بگذارید.</string>

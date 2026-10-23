@@ -36,6 +36,10 @@
     <string name="androidShareLogs">ログを共有</string>
     <string name="androidStartAtBoot">スマホの起動時に開始</string>
     <string name="androidStartAtBootDesc">VPN を一度許可していれば、スマホの再起動後に保護が自動で有効になります。</string>
+    <string name="androidTileAdd">クイック設定タイル</string>
+    <string name="androidTileAddDesc">画面上部のパネルにある Shroudly のタイルで、保護をワンタップでオン・オフできます。</string>
+    <string name="androidTileAdded">Shroudly のタイルはクイック設定にあります。</string>
+    <string name="androidTileHowTo">画面上部のパネルを一番下まで引き下げ、鉛筆（編集）をタップして、Shroudly のタイルをほかのタイルの間にドラッグしてください。</string>
     <string name="androidVpnDenied">アプリの通信を中継するには、Shroudly に VPN の許可が必要です。</string>
     <string name="androidVpnRevoked">Android が保護をオフにしました。通常は別の VPN アプリがオンになったためです。</string>
     <string name="androidWifiProxyDead">このネットワークのプロキシが {addr} に設定されていますが、そこでは何も動いていないため、それを使うアプリ（Chrome など）が接続できません。Wi-Fi 設定でこのネットワークを開き、プロキシを「なし」にしてください。</string>

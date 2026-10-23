@@ -36,6 +36,10 @@
     <string name="androidShareLogs">لاگز شیئر کریں</string>
     <string name="androidStartAtBoot">فون آن ہونے پر شروع کریں</string>
     <string name="androidStartAtBootDesc">VPN کی اجازت ملنے کے بعد، فون دوبارہ شروع ہونے پر تحفظ خود بخود آن ہو جاتا ہے۔</string>
+    <string name="androidTileAdd">فوری ترتیبات کا ٹائل</string>
+    <string name="androidTileAddDesc">اسکرین کے اوپر والے پینل میں Shroudly کا ٹائل ایک ٹیپ سے تحفظ آن اور آف کرتا ہے۔</string>
+    <string name="androidTileAdded">Shroudly کا ٹائل فوری ترتیبات میں ہے۔</string>
+    <string name="androidTileHowTo">اسکرین کے اوپر والا پینل پورا نیچے کھینچیں، پنسل (ترمیم) پر ٹیپ کریں، اور Shroudly کا ٹائل باقیوں کے درمیان گھسیٹیں۔</string>
     <string name="androidVpnDenied">آپ کی ایپس کے کنکشن لے جانے کے لیے Shroudly کو VPN کی اجازت درکار ہے۔</string>
     <string name="androidVpnRevoked">Android نے تحفظ بند کر دیا، عموماً اس لیے کہ کوئی دوسری VPN ایپ آن کی گئی۔</string>
     <string name="androidWifiProxyDead">اس نیٹ ورک کی پراکسی {addr} پر سیٹ ہے، لیکن وہاں کچھ نہیں چل رہا، اس لیے اسے استعمال کرنے والی ایپس (Chrome سمیت) نہیں جڑ پاتیں۔ Wi-Fi ترتیبات میں یہ نیٹ ورک کھولیں اور پراکسی کو «کوئی نہیں» پر سیٹ کریں۔</string>

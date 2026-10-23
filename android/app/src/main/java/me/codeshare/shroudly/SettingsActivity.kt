@@ -35,6 +35,11 @@ import android.widget.TextView
  * reaches a running protection at once (ShroudlyVpnService.ACTION_SETTINGS).
  */
 class SettingsActivity : Activity() {
+    private companion object {
+        /* The Quick Settings tile was added (or found there) from Settings. */
+        const val KEY_TILE_ADDED = "quickTileAdded"
+    }
+
     // In the language chosen below (Lang; before Android 13).
     override fun attachBaseContext(base: android.content.Context) = super.attachBaseContext(Lang.wrap(base))
 
@@ -85,6 +90,8 @@ class SettingsActivity : Activity() {
 
         findViewById<TextView>(R.id.excludedApps).setOnClickListener { pickApps() }
         showExcluded()
+
+        showQuickTile()
 
         findViewById<Switch>(R.id.startAtBoot).apply {
             val desc = getString(R.string.androidStartAtBootDesc)
@@ -188,6 +195,60 @@ class SettingsActivity : Activity() {
         "double-split" -> R.string.stratDoubleSplit
         "split2" -> R.string.stratSplit2
         else -> R.string.stratAuto
+    }
+
+    /* The Quick Settings tile (ShroudlyTileService), one tap to turn
+     * protection on and off. It is there from the start, but a phone shows a
+     * tile only once the user puts it in the panel, which few find on their
+     * own. Android 13 and later let the app ask (the system shows the tile
+     * with Add and Don't add); before, the row says how. Gone once added. */
+    private fun showQuickTile() {
+        val row = findViewById<TextView>(R.id.quickTile)
+        val added = getSharedPreferences("settings", MODE_PRIVATE).getBoolean(KEY_TILE_ADDED, false)
+        row.visibility = if (added) View.GONE else View.VISIBLE
+        findViewById<View>(R.id.quickTileDivider).visibility = row.visibility
+        if (added) return
+        row.text = SpannableStringBuilder(getString(R.string.androidTileAdd)).append('\n').apply {
+            val from = length
+            append(getString(R.string.androidTileAddDesc))
+            setSpan(ForegroundColorSpan(getColor(R.color.text_dim)), from, length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            setSpan(RelativeSizeSpan(12.5f / 15f), from, length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+        }
+        row.setOnClickListener { addQuickTile() }
+    }
+
+    private fun addQuickTile() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+            AlertDialog.Builder(this)
+                .setTitle(R.string.androidTileAdd)
+                .setMessage(R.string.androidTileHowTo)
+                .setPositiveButton(android.R.string.ok, null)
+                .show()
+            return
+        }
+        val sbm = getSystemService(android.app.StatusBarManager::class.java) ?: return
+        try {
+            sbm.requestAddTileService(
+                android.content.ComponentName(this, ShroudlyTileService::class.java),
+                getString(R.string.app_name),
+                android.graphics.drawable.Icon.createWithResource(this, R.drawable.ic_shield),
+                mainExecutor,
+            ) { result ->
+                if (result == android.app.StatusBarManager.TILE_ADD_REQUEST_RESULT_TILE_ADDED ||
+                    result == android.app.StatusBarManager.TILE_ADD_REQUEST_RESULT_TILE_ALREADY_ADDED) {
+                    getSharedPreferences("settings", MODE_PRIVATE).edit().putBoolean(KEY_TILE_ADDED, true).apply()
+                    android.widget.Toast.makeText(this, R.string.androidTileAdded, android.widget.Toast.LENGTH_SHORT).show()
+                    showQuickTile()
+                }
+            }
+        } catch (e: Exception) {
+            // Some phones refuse it: then by hand, as before Android 13.
+            AlertDialog.Builder(this)
+                .setTitle(R.string.androidTileAdd)
+                .setMessage(R.string.androidTileHowTo)
+                .setPositiveButton(android.R.string.ok, null)
+                .show()
+        }
     }
 
     /* The row says how many apps skip Shroudly. */

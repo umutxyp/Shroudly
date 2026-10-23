@@ -339,6 +339,20 @@ export default function BlockedNotice({ onNavigate, active = false }) {
    * never hides the banners above. */
   const cut = advice?.cut;
   if (cut && !hidden[`cut:${cut.host}`]) {
+    // Auto mode off: one technique for every site, and nothing else is tried
+    // (issue #41); turning it on is the first thing that helps.
+    if (cut.auto === false) {
+      return (
+        <Banner Icon={ShieldAlertIcon} title={t('cutTitle', { host: cut.host })} body={t('cutBodyAutoOff')}
+                onClose={() => hide(`cut:${cut.host}`)} closeLabel={closeLabel}>
+          <Actions>
+            <button type="button" disabled={busy}
+                    onClick={() => run(async () => { await window.electron?.setSetting?.('autoMode', true); hide(`cut:${cut.host}`); })}
+                    className="btn btn-warn rounded-[8px] px-3 py-1.5 text-[12.5px] font-semibold">{t('cutTurnAutoOn')}</button>
+          </Actions>
+        </Banner>
+      );
+    }
     const body = adv.active ? t('cutBodyAdvancedOn') : adv.available ? t('cutBodyAdvanced') : t('cutBodyNoAdvanced');
     return (
       <Banner Icon={ShieldAlertIcon} title={t('cutTitle', { host: cut.host })} body={body}

@@ -36,6 +36,10 @@
     <string name="androidShareLogs">Tomaran parve bike</string>
     <string name="androidStartAtBoot">Dema telefon vedibe dest pê bike</string>
     <string name="androidStartAtBootDesc">Piştî ku destûr ji VPN re hat dayîn, gava telefon ji nû ve dest pê dike parastin bi xwe vedibe.</string>
+    <string name="androidTileAdd">Kaşîya Mîhengên Bilez</string>
+    <string name="androidTileAddDesc">Kaşîyeke Shroudly di panela jorê ekranê de parastinê bi yek tikandinê vedike û digire.</string>
+    <string name="androidTileAdded">Kaşîya Shroudly di Mîhengên Bilez de ye.</string>
+    <string name="androidTileHowTo">Panela jorê ekranê heta dawiyê bikişîne jêr, li qelemê (sererastkirin) bitikîne û kaşîya Shroudly bikişîne nav yên din.</string>
     <string name="androidVpnDenied">Shroudly ji bo hilgirtina girêdanên sepanên te destûra VPN hewce dike.</string>
     <string name="androidVpnRevoked">Parastin ji aliyê Android ve hate girtin, bi gelemperî ji ber ku sepaneke VPN ya din hate vekirin.</string>
     <string name="androidWifiProxyDead">Proksiya vê torê wekî {addr} hatiye danîn, lê tiştek li wir naxebite, ji ber vê yekê sepanên ku wê bi kar tînin (Chrome jî) nikarin girê bidin. Di mîhengên Wi-Fi de vê torê veke û proksiyê bike «Tune».</string>

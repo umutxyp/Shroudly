@@ -36,6 +36,10 @@
     <string name="androidShareLogs">Jurnalni ulashish</string>
     <string name="androidStartAtBoot">Telefon yonganda ishga tushirish</string>
     <string name="androidStartAtBootDesc">VPN’ga bir marta ruxsat berilgan boʻlsa, telefon qayta yonganda himoya oʻzi yoqiladi.</string>
+    <string name="androidTileAdd">Tezkor sozlamalar plitkasi</string>
+    <string name="androidTileAddDesc">Ekran tepasidagi paneldagi Shroudly plitkasi himoyani bir bosishda yoqadi va o‘chiradi.</string>
+    <string name="androidTileAdded">Shroudly plitkasi tezkor sozlamalarda.</string>
+    <string name="androidTileHowTo">Ekran tepasidagi panelni oxirigacha pastga torting, qalamni (tahrirlash) bosing va Shroudly plitkasini boshqalari orasiga suring.</string>
     <string name="androidVpnDenied">Ilovalaringiz ulanishlarini o‘tkazish uchun Shroudly’ga VPN ruxsati kerak.</string>
     <string name="androidVpnRevoked">Himoya Android tomonidan o‘chirildi, odatda boshqa VPN ilovasi yoqilgani uchun.</string>
     <string name="androidWifiProxyDead">Bu tarmoqning proksisi {addr} qilib qoʻyilgan, lekin u yerda hech narsa ishlamayapti, shuning uchun undan foydalanadigan ilovalar (jumladan Chrome) ulana olmaydi. Wi-Fi sozlamalarida shu tarmoqni ochib, proksini «Yoʻq» qilib qoʻying.</string>

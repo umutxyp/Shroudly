@@ -147,6 +147,18 @@
 
             <View style="@style/Divider" />
 
+            <!-- The Quick Settings tile: added from here (Android 13 and
+                 later ask the user), or how to add it by hand before. -->
+            <TextView
+                android:id="@+id/quickTile"
+                style="@style/AboutRowText"
+                android:drawableStart="@drawable/row_shield"
+                android:text="@string/androidTileAdd" />
+
+            <View
+                android:id="@+id/quickTileDivider"
+                style="@style/Divider" />
+
             <Switch
                 android:id="@+id/startAtBoot"
                 android:layout_width="match_parent"

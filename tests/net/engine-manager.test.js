@@ -50,6 +50,15 @@ const t = suite('engine-manager');
   t.ok(logs.filter((l) => l.includes('a.example: connects')).length === 1, 'and only once');
   for (let i = 0; i < 3; i++) em._onCut('b.example', 'noreply', 0);
   t.ok(em.advice.cut.host === 'a.example', '"no reply" alone needs more than three');
+  t.ok(em.advice.cut.auto === true && logs.some((l) => l.includes('a.example: connects') && l.includes('Shroudly is trying other techniques')), 'with Auto mode on: the other techniques are being tried, and it says so');
+  // Auto mode off (issue #41): only the chosen technique is used, and the log
+  // and the notice say so, not that others are being tried.
+  mem.autoMode = false; mem.strategy = 'split(sni)';
+  em._onCut('c.example', 'reset', 0); em._onCut('c.example', 'reset', 0);
+  const off = logs.find((l) => l.includes('c.example: connects')) || '';
+  t.ok(off.includes('Auto mode is off, so only split(sni) is used') && !off.includes('trying other techniques') && em.advice.cut.auto === false,
+    `with Auto mode off: "${off.replace(/^\w+: /, '')}"`);
+  mem.autoMode = true; delete mem.strategy;
   // Hosts that cannot be reached at all: one plain line per host, not one per retry.
   const unreach = (h, stage) => em._onLine(JSON.stringify({ type: 'unreachable', host: h, stage, ips: stage === 'dns' ? 0 : 2 }));
   unreach('gone.example', 'connect'); unreach('gone.example', 'connect'); unreach('nxdomain.example', 'dns');

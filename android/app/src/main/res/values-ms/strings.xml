@@ -36,6 +36,10 @@
     <string name="androidShareLogs">Kongsi log</string>
     <string name="androidStartAtBoot">Mula apabila telefon dihidupkan</string>
     <string name="androidStartAtBootDesc">Perlindungan hidup sendiri selepas telefon dimulakan semula, setelah VPN dibenarkan.</string>
+    <string name="androidTileAdd">Jubin Tetapan Pantas</string>
+    <string name="androidTileAddDesc">Jubin Shroudly dalam panel di bahagian atas skrin menghidupkan dan mematikan perlindungan dengan satu ketikan.</string>
+    <string name="androidTileAdded">Jubin Shroudly ada dalam Tetapan Pantas.</string>
+    <string name="androidTileHowTo">Tarik panel di bahagian atas skrin sepenuhnya ke bawah, ketik pensel (edit), dan seret jubin Shroudly ke antara jubin lain.</string>
     <string name="androidVpnDenied">Shroudly memerlukan kebenaran VPN untuk membawa sambungan aplikasi anda.</string>
     <string name="androidVpnRevoked">Perlindungan dimatikan oleh Android, biasanya kerana aplikasi VPN lain dihidupkan.</string>
     <string name="androidWifiProxyDead">Proksi rangkaian ini ditetapkan kepada {addr}, tetapi tiada apa-apa berjalan di situ, jadi aplikasi yang menggunakannya (termasuk Chrome) tidak dapat bersambung. Dalam tetapan Wi-Fi, buka rangkaian ini dan tetapkan Proksi kepada Tiada.</string>

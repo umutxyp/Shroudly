@@ -180,6 +180,7 @@ const PATTERNS = [
   [/^(.+) is not going through Shroudly: a proxy or VPN setting of its own, or an extension, is in the way\. Turn it off in \1, or use another browser\.$/, 'autoBrowserAround', ['browser']],
   [/^Port (\d+) is in use by another program; Shroudly is using (\d+) instead\.$/, 'logPortMoved', ['from', 'to']],
   [/^(.+?) is installed but not connected; that does not interfere\.$/, 'logIdleVpn', ['tools']],
+  [/^(\S+): connects, then the network cuts it \((\w+) after (\d+) KB\)\. (Auto mode) is off, so only (\S+) is used: turn Auto mode on in Settings to let Shroudly try its other techniques\.$/, 'logCutFixed', ['host', 'reason', 'kb', 'mode', 'strategy'], { mode: (v, t) => t('autoMode') }],
   [/^(\S+): connects, then the network cuts it \((\w+) after (\d+) KB\)\./, 'logCut', ['host', 'reason', 'kb']],
   [/^DNS answers on this network match the filtering used in (\w+)\.$/, 'logRegion', ['country']],
   [/^Encrypted DNS answering via (.+)$/, 'logDohRoutes', ['routes']],

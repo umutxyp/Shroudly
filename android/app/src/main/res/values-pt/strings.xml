@@ -36,6 +36,10 @@
     <string name="androidShareLogs">Compartilhar registros</string>
     <string name="androidStartAtBoot">Iniciar quando o telefone ligar</string>
     <string name="androidStartAtBootDesc">A proteção liga sozinha quando o telefone reinicia, depois que a VPN for permitida.</string>
+    <string name="androidTileAdd">Bloco de Configurações rápidas</string>
+    <string name="androidTileAddDesc">Um bloco do Shroudly no painel do topo da tela liga e desliga a proteção com um toque.</string>
+    <string name="androidTileAdded">O bloco do Shroudly está nas Configurações rápidas.</string>
+    <string name="androidTileHowTo">Puxe o painel do topo da tela até o fim, toque no lápis (editar) e arraste o bloco do Shroudly para junto dos outros.</string>
     <string name="androidVpnDenied">O Shroudly precisa da permissão de VPN para levar as conexões dos seus apps.</string>
     <string name="androidVpnRevoked">O Android desligou a proteção, geralmente porque outro app de VPN foi ativado.</string>
     <string name="androidWifiProxyDead">O proxy desta rede está em {addr}, mas nada está rodando ali, então os apps que o usam (o Chrome entre eles) não conseguem se conectar. Nas configurações de Wi-Fi, abra esta rede e defina o proxy como Nenhum.</string>

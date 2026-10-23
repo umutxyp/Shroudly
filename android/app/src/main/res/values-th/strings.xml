@@ -36,6 +36,10 @@
     <string name="androidShareLogs">แชร์บันทึก</string>
     <string name="androidStartAtBoot">เริ่มเมื่อเปิดโทรศัพท์</string>
     <string name="androidStartAtBootDesc">เมื่ออนุญาต VPN แล้ว การป้องกันจะเปิดเองหลังรีสตาร์ตโทรศัพท์</string>
+    <string name="androidTileAdd">ไทล์การตั้งค่าด่วน</string>
+    <string name="androidTileAddDesc">ไทล์ Shroudly ในแผงด้านบนของหน้าจอเปิดและปิดการป้องกันได้ในแตะเดียว</string>
+    <string name="androidTileAdded">ไทล์ Shroudly อยู่ในการตั้งค่าด่วนแล้ว</string>
+    <string name="androidTileHowTo">ดึงแผงด้านบนของหน้าจอลงจนสุด แตะรูปดินสอ (แก้ไข) แล้วลากไทล์ Shroudly ไปไว้ระหว่างไทล์อื่น</string>
     <string name="androidVpnDenied">Shroudly ต้องได้รับสิทธิ์ VPN เพื่อส่งผ่านการเชื่อมต่อของแอปต่างๆ ของคุณ</string>
     <string name="androidVpnRevoked">Android ปิดการป้องกันแล้ว ซึ่งมักเป็นเพราะมีการเปิดแอป VPN อื่น</string>
     <string name="androidWifiProxyDead">พร็อกซีของเครือข่ายนี้ตั้งเป็น {addr} แต่ไม่มีอะไรทำงานอยู่ที่นั่น แอปที่ใช้พร็อกซีนี้ (รวมถึง Chrome) จึงเชื่อมต่อไม่ได้ ในการตั้งค่า Wi-Fi ให้เปิดเครือข่ายนี้แล้วตั้งพร็อกซีเป็น ไม่มี</string>

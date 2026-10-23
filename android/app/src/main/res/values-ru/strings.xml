@@ -36,6 +36,10 @@
     <string name="androidShareLogs">Поделиться журналом</string>
     <string name="androidStartAtBoot">Запускать при включении телефона</string>
     <string name="androidStartAtBootDesc">Защита включается сама после перезагрузки телефона, если VPN уже разрешён.</string>
+    <string name="androidTileAdd">Плитка в быстрых настройках</string>
+    <string name="androidTileAddDesc">Плитка Shroudly в панели вверху экрана включает и выключает защиту одним касанием.</string>
+    <string name="androidTileAdded">Плитка Shroudly в быстрых настройках.</string>
+    <string name="androidTileHowTo">Опустите панель вверху экрана до конца, нажмите карандаш (изменить) и перетащите плитку Shroudly к остальным.</string>
     <string name="androidVpnDenied">Shroudly нужно разрешение VPN, чтобы пропускать соединения ваших приложений.</string>
     <string name="androidVpnRevoked">Android отключил защиту — обычно потому, что включено другое VPN-приложение.</string>
     <string name="androidWifiProxyDead">Прокси этой сети задан как {addr}, но там ничего не запущено, поэтому приложения, которые его используют (в том числе Chrome), не могут подключиться. В настройках Wi-Fi откройте эту сеть и выберите для прокси «Нет».</string>

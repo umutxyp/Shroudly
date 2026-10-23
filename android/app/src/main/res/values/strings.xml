@@ -36,6 +36,10 @@
     <string name="androidShareLogs">Share logs</string>
     <string name="androidStartAtBoot">Start when the phone starts</string>
     <string name="androidStartAtBootDesc">Protection comes on by itself after the phone restarts, once the VPN has been allowed.</string>
+    <string name="androidTileAdd">Quick Settings tile</string>
+    <string name="androidTileAddDesc">A Shroudly tile in the panel at the top of the screen turns protection on and off with one tap.</string>
+    <string name="androidTileAdded">The Shroudly tile is in Quick Settings.</string>
+    <string name="androidTileHowTo">Pull the panel at the top of the screen all the way down, tap the pencil (edit), and drag the Shroudly tile up among the others.</string>
     <string name="androidVpnDenied">Shroudly needs the VPN permission to carry your apps\' connections.</string>
     <string name="androidVpnRevoked">Protection was switched off by Android, usually because another VPN app was turned on.</string>
     <string name="androidWifiProxyDead">This network\'s proxy is set to {addr}, but nothing is running there, so apps that use it (Chrome among them) cannot connect. In Wi-Fi settings, open this network and set Proxy to None.</string>

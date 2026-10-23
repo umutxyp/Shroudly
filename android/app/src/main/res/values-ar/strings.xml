@@ -36,6 +36,10 @@
     <string name="androidShareLogs">مشاركة السجلات</string>
     <string name="androidStartAtBoot">البدء عند تشغيل الهاتف</string>
     <string name="androidStartAtBootDesc">تعمل الحماية من تلقاء نفسها بعد إعادة تشغيل الهاتف، بعد السماح بالشبكة الافتراضية الخاصة.</string>
+    <string name="androidTileAdd">مربع الإعدادات السريعة</string>
+    <string name="androidTileAddDesc">مربع Shroudly في اللوحة أعلى الشاشة يشغّل الحماية ويوقفها بلمسة واحدة.</string>
+    <string name="androidTileAdded">مربع Shroudly موجود في الإعدادات السريعة.</string>
+    <string name="androidTileHowTo">اسحب اللوحة أعلى الشاشة إلى الأسفل بالكامل، واضغط على القلم (تعديل)، واسحب مربع Shroudly بين المربعات الأخرى.</string>
     <string name="androidVpnDenied">يحتاج Shroudly إلى إذن VPN لنقل اتصالات تطبيقاتك.</string>
     <string name="androidVpnRevoked">أوقف Android الحماية، غالبًا لأن تطبيق VPN آخر تم تشغيله.</string>
     <string name="androidWifiProxyDead">وكيل هذه الشبكة مضبوط على {addr}، لكن لا شيء يعمل هناك، لذا لا تستطيع التطبيقات التي تستخدمه (ومنها Chrome) الاتصال. في إعدادات Wi-Fi، افتح هذه الشبكة واضبط الوكيل على «بلا».</string>

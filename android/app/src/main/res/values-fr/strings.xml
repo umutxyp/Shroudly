@@ -36,6 +36,10 @@
     <string name="androidShareLogs">Partager le journal</string>
     <string name="androidStartAtBoot">Démarrer avec le téléphone</string>
     <string name="androidStartAtBootDesc">La protection s’active d’elle-même après un redémarrage du téléphone, une fois le VPN autorisé.</string>
+    <string name="androidTileAdd">Tuile des Réglages rapides</string>
+    <string name="androidTileAddDesc">Une tuile Shroudly dans le panneau en haut de l\'écran active et désactive la protection d\'un seul geste.</string>
+    <string name="androidTileAdded">La tuile Shroudly est dans les Réglages rapides.</string>
+    <string name="androidTileHowTo">Tirez le panneau en haut de l\'écran jusqu\'en bas, touchez le crayon (modifier) et faites glisser la tuile Shroudly parmi les autres.</string>
     <string name="androidVpnDenied">Shroudly a besoin de l’autorisation VPN pour faire passer les connexions de vos applis.</string>
     <string name="androidVpnRevoked">Android a coupé la protection, généralement parce qu’une autre appli VPN a été activée.</string>
     <string name="androidWifiProxyDead">Le proxy de ce réseau est réglé sur {addr}, mais rien n\'y tourne : les applis qui l\'utilisent (dont Chrome) ne peuvent pas se connecter. Dans les réglages Wi-Fi, ouvrez ce réseau et réglez le proxy sur Aucun.</string>

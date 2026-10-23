@@ -36,6 +36,10 @@
     <string name="androidShareLogs">Журналды бөлүшүү</string>
     <string name="androidStartAtBoot">Телефон күйгөндө иштетүү</string>
     <string name="androidStartAtBootDesc">VPN\'ге бир жолу уруксат берилсе, телефон кайра күйгөндө коргоо өзү күйөт.</string>
+    <string name="androidTileAdd">Тез жөндөөлөр плиткасы</string>
+    <string name="androidTileAddDesc">Экрандын жогору жагындагы панелдеги Shroudly плиткасы коргоону бир басуу менен күйгүзүп-өчүрөт.</string>
+    <string name="androidTileAdded">Shroudly плиткасы тез жөндөөлөрдө.</string>
+    <string name="androidTileHowTo">Экрандын жогору жагындагы панелди аягына чейин ылдый тартып, калемди (түзөтүү) басып, Shroudly плиткасын башкаларынын арасына сүйрөңүз.</string>
     <string name="androidVpnDenied">Колдонмолоруңуздун туташууларын өткөрүү үчүн Shroudly\'ге VPN уруксаты керек.</string>
     <string name="androidVpnRevoked">Android коргоону өчүрдү, адатта башка VPN колдонмосу күйгүзүлгөндүктөн.</string>
     <string name="androidWifiProxyDead">Бул тармактын проксиси {addr} деп коюлган, бирок ал жерде эч нерсе иштебейт, ошондуктан аны колдонгон колдонмолор (анын ичинде Chrome) туташа албайт. Wi-Fi жөндөөлөрүндө ушул тармакты ачып, проксини «Жок» кылып коюңуз.</string>

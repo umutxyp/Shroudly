@@ -36,6 +36,10 @@
     <string name="androidShareLogs">लॉग साझा करें</string>
     <string name="androidStartAtBoot">फ़ोन चालू होने पर शुरू करें</string>
     <string name="androidStartAtBootDesc">VPN की अनुमति एक बार मिलने के बाद, फ़ोन फिर से चालू होने पर सुरक्षा अपने आप चालू हो जाती है।</string>
+    <string name="androidTileAdd">क्विक सेटिंग्स टाइल</string>
+    <string name="androidTileAddDesc">स्क्रीन के ऊपर के पैनल में Shroudly की टाइल एक टैप में सुरक्षा चालू और बंद करती है।</string>
+    <string name="androidTileAdded">Shroudly की टाइल क्विक सेटिंग्स में है।</string>
+    <string name="androidTileHowTo">स्क्रीन के ऊपर का पैनल पूरा नीचे खींचें, पेंसिल (संपादित करें) पर टैप करें, और Shroudly की टाइल को बाकी टाइलों के बीच खींचें।</string>
     <string name="androidVpnDenied">आपके ऐप्स के कनेक्शन संभालने के लिए Shroudly को VPN अनुमति चाहिए।</string>
     <string name="androidVpnRevoked">Android ने सुरक्षा बंद कर दी, आमतौर पर इसलिए कि कोई दूसरा VPN ऐप चालू किया गया।</string>
     <string name="androidWifiProxyDead">इस नेटवर्क का प्रॉक्सी {addr} पर सेट है, लेकिन वहाँ कुछ नहीं चल रहा, इसलिए इसे इस्तेमाल करने वाले ऐप (Chrome समेत) नहीं जुड़ पाते। Wi-Fi सेटिंग में यह नेटवर्क खोलें और प्रॉक्सी को «कोई नहीं» पर सेट करें।</string>

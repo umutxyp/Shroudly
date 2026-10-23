@@ -36,6 +36,10 @@
     <string name="androidShareLogs">שיתוף יומנים</string>
     <string name="androidStartAtBoot">הפעלה עם הדלקת הטלפון</string>
     <string name="androidStartAtBootDesc">ההגנה נדלקת מעצמה אחרי הפעלה מחדש של הטלפון, לאחר שה-VPN אושר.</string>
+    <string name="androidTileAdd">אריח בהגדרות המהירות</string>
+    <string name="androidTileAddDesc">אריח Shroudly בלוח שבראש המסך מפעיל ומכבה את ההגנה בהקשה אחת.</string>
+    <string name="androidTileAdded">אריח Shroudly נמצא בהגדרות המהירות.</string>
+    <string name="androidTileHowTo">משכו את הלוח שבראש המסך עד הסוף למטה, הקישו על העיפרון (עריכה) וגררו את אריח Shroudly אל בין האחרים.</string>
     <string name="androidVpnDenied">Shroudly צריך הרשאת VPN כדי להעביר את החיבורים של האפליקציות שלך.</string>
     <string name="androidVpnRevoked">Android כיבה את ההגנה, בדרך כלל כי הופעלה אפליקציית VPN אחרת.</string>
     <string name="androidWifiProxyDead">ה-Proxy של הרשת הזאת מוגדר ל-{addr}, אבל שום דבר לא פועל שם, ולכן אפליקציות שמשתמשות בו (Chrome ביניהן) לא מצליחות להתחבר. בהגדרות Wi-Fi, פתחו את הרשת הזאת והגדירו את ה-Proxy ל\'ללא\'.</string>

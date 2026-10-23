@@ -36,6 +36,10 @@
     <string name="androidShareLogs">Chia sẻ nhật ký</string>
     <string name="androidStartAtBoot">Khởi động cùng điện thoại</string>
     <string name="androidStartAtBootDesc">Bảo vệ tự bật sau khi điện thoại khởi động lại, khi VPN đã được cho phép.</string>
+    <string name="androidTileAdd">Ô Cài đặt nhanh</string>
+    <string name="androidTileAddDesc">Ô Shroudly trong bảng ở đầu màn hình bật và tắt bảo vệ chỉ bằng một lần chạm.</string>
+    <string name="androidTileAdded">Ô Shroudly đã có trong Cài đặt nhanh.</string>
+    <string name="androidTileHowTo">Kéo bảng ở đầu màn hình xuống hết cỡ, chạm vào bút chì (chỉnh sửa) rồi kéo ô Shroudly vào giữa các ô khác.</string>
     <string name="androidVpnDenied">Shroudly cần quyền VPN để chuyển tải kết nối của các ứng dụng.</string>
     <string name="androidVpnRevoked">Android đã tắt bảo vệ, thường là vì một ứng dụng VPN khác vừa được bật.</string>
     <string name="androidWifiProxyDead">Proxy của mạng này được đặt là {addr}, nhưng không có gì chạy ở đó, nên các ứng dụng dùng nó (kể cả Chrome) không kết nối được. Trong cài đặt Wi-Fi, mở mạng này và đặt Proxy thành Không có.</string>

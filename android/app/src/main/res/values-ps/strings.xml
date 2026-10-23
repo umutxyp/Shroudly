@@ -36,6 +36,10 @@
     <string name="androidShareLogs">لاګونه شریک کړئ</string>
     <string name="androidStartAtBoot">د تلیفون د چالانېدو پر وخت پیل کړه</string>
     <string name="androidStartAtBootDesc">کله چې VPN ته اجازه ورکړل شي، د تلیفون له بیا پیلېدو وروسته ساتنه پخپله چالانېږي.</string>
+    <string name="androidTileAdd">د چټکو ترتیباتو ټایل</string>
+    <string name="androidTileAddDesc">د پردې په سر کې په پینل کې د Shroudly ټایل ساتنه په یوه ټک چالانوي او بندوي.</string>
+    <string name="androidTileAdded">د Shroudly ټایل په چټکو ترتیباتو کې دی.</string>
+    <string name="androidTileHowTo">د پردې د سر پینل تر پایه ښکته کش کړئ، په قلم (سمون) ټک وکړئ، او د Shroudly ټایل د نورو ترمنځ کش کړئ.</string>
     <string name="androidVpnDenied">Shroudly ته د VPN اجازه پکار ده څو ستاسو د اپونو اړیکې ولېږدوي.</string>
     <string name="androidVpnRevoked">Android ساتنه بنده کړه، معمولاً ځکه چې بل VPN اپ چالان شوی و.</string>
     <string name="androidWifiProxyDead">د دې شبکې پراکسي {addr} ته ټاکل شوې، خو هلته هېڅ نه چلېږي، نو هغه اپونه چې یې کاروي (Chrome هم) نه شي وصل کېدای. د Wi-Fi په تنظیماتو کې دا شبکه پرانیزئ او پراکسي «هېڅ» ته واړوئ.</string>

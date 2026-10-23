@@ -36,6 +36,10 @@
     <string name="androidShareLogs">Protokoll teilen</string>
     <string name="androidStartAtBoot">Beim Start des Telefons starten</string>
     <string name="androidStartAtBootDesc">Der Schutz schaltet sich nach einem Neustart des Telefons selbst ein, sobald das VPN erlaubt wurde.</string>
+    <string name="androidTileAdd">Kachel in den Schnelleinstellungen</string>
+    <string name="androidTileAddDesc">Eine Shroudly-Kachel im Bereich oben am Bildschirm schaltet den Schutz mit einem Tippen ein und aus.</string>
+    <string name="androidTileAdded">Die Shroudly-Kachel ist in den Schnelleinstellungen.</string>
+    <string name="androidTileHowTo">Ziehe den Bereich oben am Bildschirm ganz herunter, tippe auf den Stift (Bearbeiten) und ziehe die Shroudly-Kachel zu den anderen.</string>
     <string name="androidVpnDenied">Shroudly braucht die VPN-Berechtigung, um die Verbindungen deiner Apps zu übernehmen.</string>
     <string name="androidVpnRevoked">Android hat den Schutz beendet, meist weil eine andere VPN-App eingeschaltet wurde.</string>
     <string name="androidWifiProxyDead">Der Proxy dieses Netzwerks ist auf {addr} gesetzt, aber dort läuft nichts; Apps, die ihn nutzen (darunter Chrome), kommen nicht durch. Öffne in den WLAN-Einstellungen dieses Netzwerk und setze Proxy auf Keiner.</string>

@@ -36,6 +36,10 @@
     <string name="androidShareLogs">Kayıtları paylaş</string>
     <string name="androidStartAtBoot">Telefon açılınca başlat</string>
     <string name="androidStartAtBootDesc">VPN\'e bir kez izin verildiyse telefon yeniden başlayınca koruma kendiliğinden açılır.</string>
+    <string name="androidTileAdd">Hızlı Ayarlar karosu</string>
+    <string name="androidTileAddDesc">Ekranın üstündeki paneldeki bir Shroudly karosu, korumayı tek dokunuşla açıp kapatır.</string>
+    <string name="androidTileAdded">Shroudly karosu Hızlı Ayarlar\'da.</string>
+    <string name="androidTileHowTo">Ekranın üstündeki paneli sonuna kadar aşağı çek, kaleme (düzenle) dokun ve Shroudly karosunu diğerlerinin arasına sürükle.</string>
     <string name="androidVpnDenied">Shroudly, uygulamalarınızın bağlantılarını taşımak için VPN iznine ihtiyaç duyar.</string>
     <string name="androidVpnRevoked">Koruma Android tarafından kapatıldı; genellikle başka bir VPN uygulaması açıldığı için.</string>
     <string name="androidWifiProxyDead">Bu ağın proxy\'si {addr} olarak ayarlı ama orada çalışan bir şey yok; bu yüzden onu kullanan uygulamalar (Chrome dahil) bağlanamıyor. Wi-Fi ayarlarında bu ağı açıp Proxy\'yi Yok yap.</string>

@@ -36,6 +36,10 @@
     <string name="androidShareLogs">မှတ်တမ်းများ မျှဝေရန်</string>
     <string name="androidStartAtBoot">ဖုန်းဖွင့်သည့်အခါ စတင်ရန်</string>
     <string name="androidStartAtBootDesc">VPN ကို ခွင့်ပြုပြီးပါက ဖုန်းကို ပြန်စတင်သည့်အခါ ကာကွယ်မှု အလိုအလျောက် ပွင့်ပါသည်။</string>
+    <string name="androidTileAdd">အမြန်ဆက်တင် အကွက်</string>
+    <string name="androidTileAddDesc">မျက်နှာပြင်ထိပ်ရှိ panel ထဲက Shroudly အကွက်သည် ကာကွယ်မှုကို တစ်ချက်နှိပ်ရုံဖြင့် ဖွင့်ပိတ်ပေးသည်။</string>
+    <string name="androidTileAdded">Shroudly အကွက် အမြန်ဆက်တင်တွင် ရှိပြီး။</string>
+    <string name="androidTileHowTo">မျက်နှာပြင်ထိပ်ရှိ panel ကို အဆုံးထိ ဆွဲချပါ၊ ခဲတံ (ပြင်ဆင်ရန်) ကို နှိပ်ပြီး Shroudly အကွက်ကို အခြားအကွက်များကြားသို့ ဆွဲထည့်ပါ။</string>
     <string name="androidVpnDenied">သင့်အက်ပ်များ၏ ချိတ်ဆက်မှုများကို သယ်ဆောင်ရန် Shroudly သည် VPN ခွင့်ပြုချက် လိုအပ်သည်။</string>
     <string name="androidVpnRevoked">Android က ကာကွယ်မှုကို ပိတ်လိုက်သည်။ များသောအားဖြင့် အခြား VPN အက်ပ်တစ်ခု ဖွင့်လိုက်သောကြောင့် ဖြစ်သည်။</string>
     <string name="androidWifiProxyDead">ဤကွန်ရက်၏ ပရောက်စီကို {addr} သို့ သတ်မှတ်ထားသော်လည်း ထိုနေရာတွင် ဘာမှ အလုပ်မလုပ်ပါ၊ ထို့ကြောင့် ၎င်းကို သုံးသော အက်ပ်များ (Chrome အပါအဝင်) ချိတ်ဆက်၍ မရပါ။ Wi-Fi ဆက်တင်များတွင် ဤကွန်ရက်ကို ဖွင့်ပြီး ပရောက်စီကို «မရှိ» သို့ သတ်မှတ်ပါ။</string>

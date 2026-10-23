@@ -36,6 +36,10 @@
     <string name="androidShareLogs">Журналды бөлісу</string>
     <string name="androidStartAtBoot">Телефон қосылғанда іске қосу</string>
     <string name="androidStartAtBootDesc">VPN-ге бір рет рұқсат берілсе, телефон қайта қосылғанда қорғаныс өзі қосылады.</string>
+    <string name="androidTileAdd">Жылдам баптаулар тақтасы</string>
+    <string name="androidTileAddDesc">Экранның жоғарғы панеліндегі Shroudly тақтасы қорғауды бір түртумен қосып-өшіреді.</string>
+    <string name="androidTileAdded">Shroudly тақтасы жылдам баптауларда.</string>
+    <string name="androidTileHowTo">Экранның жоғарғы панелін соңына дейін төмен тартыңыз, қаламды (өңдеу) түртіңіз және Shroudly тақтасын басқаларының арасына сүйреңіз.</string>
     <string name="androidVpnDenied">Қолданбаларыңыздың қосылымдарын өткізу үшін Shroudly-ге VPN рұқсаты керек.</string>
     <string name="androidVpnRevoked">Android қорғанысты өшірді, әдетте басқа VPN қолданбасы қосылғандықтан.</string>
     <string name="androidWifiProxyDead">Бұл желінің проксиі {addr} деп орнатылған, бірақ онда ештеңе іске қосылмаған, сондықтан оны қолданатын қолданбалар (соның ішінде Chrome) қосыла алмайды. Wi-Fi баптауларында осы желіні ашып, проксиді «Жоқ» етіп қойыңыз.</string>

@@ -36,6 +36,10 @@
     <string name="androidShareLogs">Поділитися журналом</string>
     <string name="androidStartAtBoot">Запускати під час увімкнення телефона</string>
     <string name="androidStartAtBootDesc">Захист вмикається сам після перезапуску телефона, якщо VPN уже дозволено.</string>
+    <string name="androidTileAdd">Плитка у швидких налаштуваннях</string>
+    <string name="androidTileAddDesc">Плитка Shroudly на панелі вгорі екрана вмикає й вимикає захист одним дотиком.</string>
+    <string name="androidTileAdded">Плитка Shroudly у швидких налаштуваннях.</string>
+    <string name="androidTileHowTo">Опустіть панель угорі екрана до кінця, торкніться олівця (змінити) і перетягніть плитку Shroudly до інших.</string>
     <string name="androidVpnDenied">Shroudly потрібен дозвіл VPN, щоб пропускати з’єднання ваших застосунків.</string>
     <string name="androidVpnRevoked">Android вимкнув захист — зазвичай тому, що увімкнено інший VPN-застосунок.</string>
     <string name="androidWifiProxyDead">Проксі цієї мережі задано як {addr}, але там нічого не запущено, тому застосунки, що його використовують (зокрема Chrome), не можуть під’єднатися. У налаштуваннях Wi-Fi відкрийте цю мережу й виберіть для проксі «Немає».</string>
