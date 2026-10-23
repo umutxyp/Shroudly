@@ -6,9 +6,11 @@
  * standing in) gives the name an address nothing answers at (192.0.2.1, a
  * documentation address); the system's resolver gives 127.0.0.1, where a
  * TLS server is. What it proves:
- *   - the first connection fails, as it would have;
- *   - the next one goes where the network's DNS says and is answered; the
- *     engine says so (a "try", then an "ok" line), once;
+ *   - the very first connection, once nothing answers at the address from
+ *     encrypted DNS, goes on to where the network's DNS says and is
+ *     answered: no second try needed (issue #40);
+ *   - the next ones go there at once; the engine says so (a "try", then an
+ *     "ok" line), once;
  *   - with "Only this server" (--dns-strict) the network's DNS is never
  *     asked: both connections fail.
  * The system's resolver is this computer's real one: 127.0.0.1.nip.io
@@ -55,9 +57,11 @@ async function handshake(P, port) {
     let P = await freePort();
     eng = await startEngine(P, ['--auto', '--doh', '--doh-port', String(stub.port), '--raw-local']);
     let from = eng.out.length;
-    t.ok(!(await handshake(P, port)), "encrypted DNS's address answers nothing: the first connection fails");
-    t.ok(await handshake(P, port), "the next one goes where the network's DNS says (127.0.0.1) and is answered");
-    t.ok(await handshake(P, port), 'and the one after it, at once');
+    let t0 = Date.now();
+    t.ok(await handshake(P, port), `encrypted DNS's address answers nothing: the same connection goes where the network's DNS says (127.0.0.1) and is answered (${Date.now() - t0} ms)`);
+    t0 = Date.now();
+    t.ok(await handshake(P, port), `the next one goes there at once (${Date.now() - t0} ms)`);
+    t.ok(Date.now() - t0 < 3000, 'without waiting on the address that answers nothing');
     const nd = lines(eng, from).filter((l) => l.type === 'netdns');
     t.ok(nd.length === 2 && nd[0].stage === 'try' && nd[1].stage === 'ok' && nd.every((l) => l.addr === '127.0.0.1'),
       `said once, as it happened: ${nd.map((l) => `${l.stage} ${l.addr}`).join(', ')}`);

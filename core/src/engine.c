@@ -3075,11 +3075,13 @@ static void nd_put(const char *host, int st) {
 }
 
 /* Our own resolver's addresses for host got nowhere: its site's next names
- * try the network's DNS too, unless that was found no better lately. */
-static void nd_failed(const char *host) {
-  if (!g_cfg.use_doh || doh_strict() || !host[0] || ip_literal(host) || doh_local_name(host)) return;
-  int st = nd_state(host);
-  if (st == ND_NONE) nd_put(host, ND_TRY);
+ * try the network's DNS too, unless that was found no better lately. 1 when
+ * that starts now. */
+static int nd_failed(const char *host) {
+  if (!g_cfg.use_doh || doh_strict() || !host[0] || ip_literal(host) || doh_local_name(host)) return 0;
+  if (nd_state(host) != ND_NONE) return 0;
+  nd_put(host, ND_TRY);
+  return 1;
 }
 
 static void nd_tell(const char *host, const char *addr, const char *stage) {
@@ -3271,13 +3273,28 @@ static void handle(sock_t client) {
       snprintf(dial_host, sizeof(dial_host), "%s", rq.host);
       up = dial(rq.host, rq.port, g_cfg.prefer_ipv6, 0, 0, &fam, &di);
     }
+    /* Addresses, and none of them answered: the network's DNS may know
+     * others (see "the network's own DNS"). Tried on this very connection,
+     * so the page loads now rather than at the user's next try (issue #40). */
+    if (up == SOCK_INVALID && dial_doh && di.resolved > 0 && nd_failed(rq.host)) {
+      char alt[64];
+      dial_info di2;
+      memset(&di2, 0, sizeof(di2));
+      nd_lookup(rq.host, alt, sizeof(alt));
+      if (alt[0]) up = dial(alt, rq.port, g_cfg.prefer_ipv6, 0, 0, &fam, &di2);
+      if (up != SOCK_INVALID) {
+        nd = 1; dial_doh = 0; di = di2;
+        snprintf(dial_host, sizeof(dial_host), "%s", alt);
+        nd_tell(rq.host, alt, "try");
+      } else {
+        nd_put(rq.host, ND_BAD);
+        if (alt[0]) nd_tell(rq.host, alt, "bad");
+      }
+    }
     if (up == SOCK_INVALID) {
       /* Told while the app is still connected to us (see RAW_HOLD_MS); not
        * where nobody could look (--auth-file: the tunnel on Android). */
       if (report_raw_unreachable(rq.host, rq.port, &di, peer_port(client)) && !g_cfg.auth_user[0]) sleep_ms(RAW_HOLD_MS);
-      /* Addresses, and none of them answered: the network's DNS may know
-       * others (see "the network's own DNS"). */
-      if (dial_doh && di.resolved > 0) nd_failed(rq.host);
       socks_reply(client, &rq, 0); report_unreachable(rq.host, rq.port, &di); goto done;
     }
     {
