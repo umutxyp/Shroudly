@@ -28,6 +28,19 @@ for (const f of fs.readdirSync(path.join(ROOT, 'locales')).filter((x) => x.endsW
 const { localizeLog } = load('components/logText.js');
 
 const LINES = [
+  // A DNS server of the user's own (issue #34), and proxies left behind.
+  'Your DNS server is answering: tls://1.1.1.1:853 23ms',
+  "Your DNS server tcp://8.8.8.8:53 does not answer (ECONNREFUSED); Shroudly's built-in encrypted DNS answers until it does",
+  'Your DNS server https://dns.google/dns-query answers again',
+  'DNS server: udp://9.9.9.9:53',
+  'DNS server: automatic',
+  "Games and apps: HTTPS_PROXY, ALL_PROXY pointed at http://127.0.0.1:1080, where nothing is running; Shroudly's is used while the mode is on, and the old one comes back when it goes off",
+  'Autopilot: Discord Drover sent Discord to 127.0.0.1:1080, where nothing is running; its files (version.dll, drover.ini) were moved to C:\\Users\\A\\AppData\\Roaming\\Shroudly\\Discord Drover\\stable-app-1.0.9215 and it was restarted',
+  'Autopilot: Discord Drover (C:\\Users\\A\\AppData\\Local\\Discord\\app-1.0.9215\\drover.ini) sends Discord to 127.0.0.1:1080, where nothing is running; its files could not be moved (EPERM)',
+  'Autopilot: Telegram sends every connection to a proxy at 127.0.0.1:2080, where nothing is running; it cannot connect until that proxy runs again or its setting is removed',
+  "Windows' WinHTTP proxy points at 127.0.0.1:8888, where nothing is running: Windows Update, the Microsoft Store and some programs cannot connect",
+  "Windows' WinHTTP proxy cleared",
+  "Windows' WinHTTP proxy could not be cleared (no administrator's permission)",
   "Telegram cannot reach its servers (149.154.167.50:443, 149.154.175.50:443): the network blocks those addresses themselves; only the app's own proxy setting or a VPN gets around that",
   "Telegram: the network stops its connections (149.154.167.50:443) and no technique got through; only the app's own proxy setting or a VPN gets around that",
   '203.0.113.9:5222: could not be reached (not a web connection)',

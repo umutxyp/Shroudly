@@ -5,6 +5,9 @@
  */
 
 const EXACT = {
+  'DNS server: automatic': 'logDnsServerAuto',
+  "Windows' WinHTTP proxy cleared": 'logWinhttpCleared',
+  "Windows' WinHTTP proxy could not be cleared (no administrator's permission)": 'logWinhttpNotCleared',
   'Proxy routing updated': 'logProxyRoutingUpdated',
   'Application started': 'logAppStarted',
   "Your DNS service filters sites; Shroudly's encrypted DNS goes around it.": 'logDnsFilterService',
@@ -98,6 +101,17 @@ function proxyTo(value, t) {
 }
 
 const PATTERNS = [
+  // A DNS server of the user's own (issue #34).
+  [/^Your DNS server is answering: (.+)$/, 'logCustomDnsRoutes', ['routes']],
+  [/^Your DNS server (\S+) does not answer \((.+)\); Shroudly's built-in encrypted DNS answers until it does$/, 'logCustomDnsDown', ['server', 'reason']],
+  [/^Your DNS server (\S+) answers again$/, 'logCustomDnsBack', ['server']],
+  [/^DNS server: (\S+)$/, 'logDnsServerSet', ['server']],
+  // A proxy on this computer where nothing runs (a program that has gone).
+  [/^Games and apps: (.+) pointed at (.+), where nothing is running; Shroudly's is used while the mode is on, and the old one comes back when it goes off$/, 'logAppsDeadProxy', ['names', 'addrs']],
+  [/^Autopilot: Discord Drover sent (.+) to (\S+), where nothing is running; its files \((.+)\) were moved to (.+) and it was restarted$/, 'logDroverMoved', ['app', 'addr', 'files', 'backup']],
+  [/^Autopilot: Discord Drover \((.+)\) sends (.+) to (\S+), where nothing is running; its files could not be moved \((.+)\)$/, 'logDroverStuck', ['file', 'app', 'addr', 'why']],
+  [/^Autopilot: (.+) sends every connection to a proxy at (\S+), where nothing is running; it cannot connect until that proxy runs again or its setting is removed$/, 'logAppProxyDead', ['app', 'addr']],
+  [/^Windows' WinHTTP proxy points at (.+), where nothing is running: Windows Update, the Microsoft Store and some programs cannot connect$/, 'logWinhttpDead', ['addr']],
   [/^Ad blocking: a list of (\d+) names in use$/, 'logAdblockInUse', ['count']],
   [/^Ad blocking: the list could not be used \((.+)\)$/, 'logAdblockUnusable', ['why']],
   [/^Ad blocking: the list could not be fetched \((.+)\); Shroudly tries again later$/, 'logAdblockFetchFailed', ['why']],
