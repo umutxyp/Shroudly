@@ -133,6 +133,7 @@ strategy**:
 | **Decoy (Linux)** | A first segment the server is guaranteed to discard (TCP signature option), so only the filter reads it. No privileges needed. |
 | **HTTP Host scramble** | Rewrites `Host:` casing for plain HTTP. |
 | **Encrypted DNS** | DNS-over-HTTPS over [17 routes from 6 operators](#encrypted-dns-routes); answers pointing at ~180 known block pages are refused. On by default. |
+| **Your own DNS server** | Optional (desktop Settings → DNS server, Android About → Settings → DNS server; [#34](https://github.com/umutxyp/Shroudly/issues/34)): DNS over HTTPS, DNS over TLS, DNS over TCP (for networks that block or forge UDP port 53 but leave TCP alone) or plain DNS, by address or by name. It is asked once before it is used and the answer shown. DoH and DoT go through the engine like any site; a server's name is looked up over the built-in encrypted DNS, never the network's. If it stops answering, the built-in encrypted DNS answers until it is back, and the log says so. On Android DoH speaks HTTP/1.1 (as the built-in routes there), so a server that accepts only HTTP/2 answers on the desktop only. |
 | **Block ads and trackers** | Optional, off by default (desktop Settings, Android About). Names on a public ad and tracker list ([StevenBlack/hosts](https://github.com/StevenBlack/hosts), MIT) get 0.0.0.0 / `::` or have their connection ended inside the engine, in every app; nothing is fetched for them. The list is downloaded through the engine, checked before use, refreshed weekly; sites can be exempted. Nothing about blocked names is logged or sent. |
 | **Android settings** | Under About → Settings: the accent colour (the desktop's nine, or the logo's blue), the bypass technique (the desktop's list; automatic by default), apps that skip Shroudly (their traffic goes straight out, e.g. a game), starting when the phone starts, and **automation apps** (Tasker, MacroDroid; off by default): a broadcast to `me.codeshare.shroudly` with the action `me.codeshare.shroudly.action.START`, `STOP` or `TOGGLE` turns protection on and off. |
 | **Android proxy only** | Settings → Mode: instead of the VPN, Shroudly runs as a proxy on `127.0.0.1:10808` (SOCKS5 and HTTP) and leaves Android's one VPN slot to another VPN app. Apps set to use it go through Shroudly (the Wi-Fi network's proxy: host `127.0.0.1`, port `10808`, or an app's own proxy setting); the rest connect as they would without it. No VPN permission is asked for. |
@@ -462,6 +463,9 @@ what it did in one line, as a notification and in the window
 | Roblox is blocked on this network | Turns on [Games and apps mode](#games-and-apps-mode-roblox); restarts a player or installer that goes around Shroudly; asks the user to reopen a Roblox Studio that does |
 | A site no technique opens, or one that connects and is then cut | Turns on [Advanced mode](#advanced-mode-stateful-dpi) (Windows, Linux) after saying why; the system asks for permission |
 | Encrypted DNS is off and the network forges answers | Turns it back on |
+| A program sends everything to a proxy on this computer where nothing runs any more (a proxy tool that has gone, e.g. ByeDPI's `127.0.0.1:1080`) | **Discord Drover** (`version.dll` + `drover.ini` beside Discord): moves both files into Shroudly's folder, with a note saying how to put them back, and restarts Discord. **The system's manual proxy**: switched off, its address kept (Windows; macOS and Linux already did). **`HTTPS_PROXY` for programs**: Shroudly's in its place while Games and apps mode is on, the old one back afterwards. **Any other program** (Windows): named, with what to remove. A proxy that runs is never touched |
+| Windows' WinHTTP proxy (`netsh winhttp`) points at a program that is gone: Windows Update, the Microsoft Store and some programs stop connecting | Says so and offers to clear it (one administrator prompt) |
+| Android: the Wi-Fi network's proxy points at a proxy on the phone where nothing runs (no app may change it) | Says so when the app opens, with a button to Wi-Fi settings; turning Proxy only off while the network's proxy still points at it posts a notice to set it back |
 | A Microsoft Store app in an app container (the Store, a UWP app or game, the Xbox app's sign-in) is in use and cannot reach Shroudly: Windows keeps app containers off loopback addresses unless they have a loopback exemption | Adds the exemption for each one that uses the network, sign-in brokers included, with one administrator prompt; with none in use (a program in an app container with a window on screen, or one a desktop Store app opened just now called on) nobody is asked, and a desktop program in a package (Windows Terminal, a Store version of a desktop app) is no sign by itself, and an account that cannot give administrator permission is never asked by itself (Windows; [`electron/store-apps.js`](electron/store-apps.js)) |
 
 How it knows a service is blocked: by a check of its own
@@ -716,6 +720,8 @@ Shroudly/
     system-proxy.js           set/restore OS proxy (Win/mac/Linux), crash-safe
     restore-proxy.js          --restore-proxy: the login hook's and the watchdog's restore
     doh-forwarder.js          local DNS-over-HTTPS forwarder: routes, health, failover
+    custom-dns.js             the user's own DNS server: DoH, DoT, TCP, UDP (Settings)
+    winhttp.js                Windows' WinHTTP proxy: read, found gone, reset
     censor-fingerprints.js    known block-page / sinkhole addresses by country (OONI)
     diagnostics.js            what the log needs: OS, network, other VPNs, forged DNS
     discord-relay.js          Discord app mode: local relay for Discord's updater
@@ -871,7 +877,9 @@ Shroudly does not collect personal data. These are the only things that contact 
   nothing but the request itself.
 - **DNS lookups**, while DNS protection is on: names you visit are resolved
   over encrypted DNS by the resolvers listed under
-  [Encrypted DNS routes](#encrypted-dns-routes), not by your provider.
+  [Encrypted DNS routes](#encrypted-dns-routes), not by your provider; or, if
+  you chose one in Settings (DNS server), by that server (and by the resolvers
+  above while it does not answer).
 - **Discord's update servers**, only with Discord app mode on: the relay asks
   them on the Discord app's behalf, exactly what Discord would have asked.
 - **Whether an app's service is blocked here** (the [autopilot](#autopilot)),
@@ -896,8 +904,8 @@ reshaped (their contents are not read or changed), and stay encrypted by the
 apps themselves. The Android app downloads no site list. It contacts only:
 the live user count above, exactly as the desktop does (only while protection
 is on, through the engine, and not at all with *Count me in the live total*
-switched off under About); the encrypted DNS resolvers above, while protection
-is on; GitHub for update checks, only in the APK from GitHub (not when Google
+switched off under About); the encrypted DNS resolvers above (or the DNS
+server you chose in Settings), while protection is on; GitHub for update checks, only in the APK from GitHub (not when Google
 Play installed or updates it); and, to find what opens a blocked site, that
 same site (a few TLS handshakes, nothing about you). What worked for which
 site is kept in the app's private storage on the phone for 30 days at most,
