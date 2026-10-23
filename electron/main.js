@@ -46,6 +46,7 @@ const { buildReport, buildCompact, saveReport, toClipboard } = require('./log-re
 const LogGate = require('./log-gate');
 const { AdblockList } = require('./adblock');
 const { reveal } = require('./reveal');
+const WinHttp = require('./winhttp');
 
 /* "Shroudly --restore-proxy" runs once at login after a run that never got to
  * restore the system proxy (power loss, forced reboot), and from the watchdog
@@ -474,6 +475,7 @@ function showWindow() {
   if (mainWindow.isMinimized()) mainWindow.restore();
   mainWindow.show();
   mainWindow.focus();
+  if (winhttpGone) setTimeout(() => { offerWinHttpReset().catch(() => {}); }, 1500);
 }
 
 /* Close the window and free everything it held. The interface is first told
@@ -2053,6 +2055,50 @@ async function checkDiscordProxies() {
   } finally { discordBusy = false; }
 }
 setInterval(() => { checkDiscordProxies().catch(() => {}); }, 60000).unref();
+
+/* Windows: the WinHTTP proxy (winhttp.js) pointing at a program on this
+ * computer that is gone: Windows Update, the Microsoft Store and some
+ * programs stop connecting, whatever Shroudly does. Said once a run;
+ * clearing it is offered in the window (Windows then asks for an
+ * administrator), at once when the window is open, else the next time it
+ * is shown; asked once. */
+let winhttpGone = null;   // the proxy list found gone, until it is asked about
+let winhttpTold = false;
+const fillIn = (text, params) => String(text || '').replace(/\{(\w+)\}/g, (m, k) => (params[k] != null ? String(params[k]) : m));
+async function checkWinHttp() {
+  if (process.platform !== 'win32' || winhttpTold) return;
+  const list = await WinHttp.read();
+  const gone = list ? WinHttp.goneList(list, (port) => ProcNet.listeningSync(port)) : null;
+  if (!gone) return;
+  winhttpTold = true;
+  winhttpGone = gone;
+  addLog('warning', `Windows' WinHTTP proxy points at ${gone}, where nothing is running: Windows Update, the Microsoft Store and some programs cannot connect`);
+  autoTell('autoWinhttpDead', { addr: gone });
+  if (windowAlive() && mainWindow.isVisible()) offerWinHttpReset().catch(() => {});
+}
+async function offerWinHttpReset() {
+  if (!winhttpGone || modalOpen > 0 || !windowAlive()) return;
+  const s = tr();
+  const gone = winhttpGone;
+  winhttpGone = null;
+  modalOpen++;
+  let r;
+  try {
+    r = await dialog.showMessageBox(mainWindow, {
+      type: 'warning', noLink: true, buttons: [s.winhttpReset, s.updLater], defaultId: 0, cancelId: 1,
+      message: s.winhttpDeadTitle, detail: fillIn(s.autoWinhttpDead, { addr: gone }),
+    });
+  } finally { modalOpen--; }
+  if (r.response !== 0) return;
+  const ok = await WinHttp.reset();
+  addLog(ok ? 'success' : 'warning', ok ? "Windows' WinHTTP proxy cleared" : "Windows' WinHTTP proxy could not be cleared (no administrator's permission)");
+}
+if (process.platform === 'win32') {
+  app.whenReady().then(() => {
+    setTimeout(() => { checkWinHttp().catch(() => {}); }, 20000);
+    setInterval(() => { checkWinHttp().catch(() => {}); }, 30 * 60 * 1000).unref();
+  });
+}
 
 /* Advanced mode, started from the window or by the autopilot. */
 async function startAdvanced() {
