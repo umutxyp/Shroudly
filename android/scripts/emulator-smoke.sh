@@ -746,9 +746,11 @@ sh_ "am force-stop $PKG" >/dev/null
 # activity of the tile's package that takes QS_TILE_PREFERENCES, else App info.
 tile_pref() { grep -q "$PKG/.MainActivity\|$PKG/$PKG.MainActivity" <<<"$(sh_ "cmd package query-activities --brief -a android.service.quicksettings.action.QS_TILE_PREFERENCES -p $PKG")"; }
 tile_pref || fail "a long press on the tile would open App info: no activity for QS_TILE_PREFERENCES ($(sh_ "cmd package query-activities --brief -a android.service.quicksettings.action.QS_TILE_PREFERENCES -p $PKG" | tr '\n' ' '))"
+# As SystemUI does it: the activity resolved in the tile's package, started by name.
+tile_act="$(sh_ "cmd package query-activities --brief -a android.service.quicksettings.action.QS_TILE_PREFERENCES -p $PKG" | grep -o "$PKG/[A-Za-z0-9_.]*" | head -1)"
 clear_log
-sh_ "am start -W -a android.service.quicksettings.action.QS_TILE_PREFERENCES -p $PKG" >/dev/null
-wait_for 20 has_log "Updates: " || fail "the tile's long press did not open Shroudly's window"
+sh_ "am start -W -a android.service.quicksettings.action.QS_TILE_PREFERENCES -n $tile_act" >/dev/null
+wait_for 20 has_log "Updates: " || fail "the tile's long press did not open Shroudly's window ($tile_act)"
 sh_ "am force-stop $PKG" >/dev/null
 say "a long press on the Quick Settings tile opens Shroudly's window"
 
