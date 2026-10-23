@@ -260,7 +260,9 @@ and that users on heavily filtered networks rely on. Each is a flag
   if from the server it asked. Only a public address or "no such record" is
   answered; a name encrypted DNS does not know (an intranet, a VPN's own names),
   a private address or no answer in time, and the question goes on to its own
-  server unchanged, so local names keep working. Windows: IPv4 and IPv6;
+  server unchanged, so local names keep working. Answers the network's DNS
+  forged before are emptied from the system's DNS cache when it comes on (or
+  programs would keep getting them without asking). Windows: IPv4 and IPv6;
   Linux: IPv4. Checked on a real packet path in both labs.
 
 > The QUIC and voice ones only help where the **network** is what blocks QUIC or the voice
@@ -294,6 +296,7 @@ Shroudly does on its own, without the user having to know any of this:
 | **Blocked encrypted DNS** | Iran, China, Turkmenistan | Routes reached by address with no name to filter on, plus routes by name through the engine on addresses shared with millions of sites. Routes that fail rest and are retried; the one that works is remembered. |
 | **Name (SNI) filtering on the first packet** | Turkey, Russia, India, Pakistan, many ISPs | Desync techniques, learned per site. |
 | **Filters that follow the whole connection** | Iran, China, Russia | Noticed when a site connects and is then cut (a stall halfway through a record, a reset, a request never answered): the next connection tries another technique, and the user is told, with Advanced mode offered where the machine has it. |
+| **A site's addresses abroad blocked, its cache in the country open** | Iran (YouTube's videos from Google's caches in Iranian networks) | When every technique fails at the addresses encrypted DNS gives, the network's own DNS is asked too; a different public address it gives (the country's cache) is tried, and kept for the site while it works ([#37](https://github.com/umutxyp/Shroudly/issues/37)). |
 | **Blocking by server address, protocol whitelisting, shutdowns** | Russia's throttling of some hosting providers, Iran during shutdowns | Cannot be fixed by any technique that leaves the address unchanged. Shroudly says so plainly and points to a VPN, rather than looking like it works. |
 
 When DNS answers on a network match a country's known block pages, the log
@@ -902,9 +905,13 @@ Shroudly does not collect personal data. These are the only things that contact 
   above while it does not answer, unless you ticked Only this server: then by
   that server alone). Only a name they have no public address
   for (an intranet, a VPN's own names, a hosts-file entry) is then asked of
-  your system's DNS, so that it still opens. In Advanced mode, the plain DNS
-  questions of programs that ignore the proxy are answered the same way
-  (see [Advanced mode](#advanced-mode-stateful-dpi)).
+  your system's DNS, so that it still opens. Your system's DNS is also asked
+  about a site whose addresses from encrypted DNS got nowhere at all (every
+  technique failed, or none of them answered): where the network's DNS gives
+  another public address, such as a CDN's cache inside the country, that one
+  is tried, and kept while it works. Never with **Only this server**. In
+  Advanced mode, the plain DNS questions of programs that ignore the proxy
+  are answered the same way (see [Advanced mode](#advanced-mode-stateful-dpi)).
 - **Discord's update servers**, only with Discord app mode on: the relay asks
   them on the Discord app's behalf, exactly what Discord would have asked.
 - **Whether an app's service is blocked here** (the [autopilot](#autopilot)),
