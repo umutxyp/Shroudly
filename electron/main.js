@@ -18,6 +18,7 @@ const os = require('os');
 const netModule = require('net');
 const Store = require('electron-store');
 const EngineManager = require('./engine-manager');
+const CustomDnsLib = require('./custom-dns');
 const AdvancedMode = require('./advanced-mode');
 const AdvancedProtection = require('./advanced-protection');
 const DiscordApp = require('./discord-app');
@@ -2274,7 +2275,35 @@ async function ensureAdblock() {
 }
 setInterval(() => { ensureAdblock().catch(() => {}); }, 60 * 60 * 1000).unref();
 
+/* Settings, "DNS server" (issue #34): automatic (null), or the user's own
+ * { kind, server }, refused with the reason when it cannot be read. Used
+ * from the next lookup on; nothing restarts. */
+function setCustomDns(value) {
+  if (value && typeof value === 'object') {
+    const spec = CustomDnsLib.parse(value.kind, value.server);
+    if (spec.error) return { success: false, error: spec.error };
+    const was = store.get('customDns');
+    const next = { kind: spec.kind, server: String(value.server).trim() };
+    if (was && was.kind === next.kind && was.server === next.server) return { success: true };
+    store.set('customDns', next);
+    addLog('info', `DNS server: ${CustomDnsLib.shown(spec)}`);
+  } else {
+    if (!store.get('customDns')) return { success: true };
+    store.delete('customDns');
+    addLog('info', 'DNS server: automatic');
+  }
+  if (engine) engine.applyCustomDns();
+  return { success: true };
+}
+ipcMain.handle('dns:test', async (e, value) => {
+  const spec = CustomDnsLib.parse(value && value.kind, value && value.server);
+  if (spec.error) return { ok: false, invalid: spec.error };
+  if (!engine) return { ok: false, error: 'not ready' };
+  return engine.testDns(spec);
+});
+
 ipcMain.handle('settings:set', (e, key, value) => {
+  if (key === 'customDns') return setCustomDns(value);
   // No list of one's own: follow the automatic list again.
   if (key === 'siteList' && !Array.isArray(value)) store.delete('siteList');
   else store.set(key, value);

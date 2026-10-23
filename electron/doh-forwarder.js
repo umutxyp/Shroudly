@@ -83,6 +83,10 @@ const PROVEN_MS        = 600000; // a route that answered within this long ...
 const REST_PROVEN_MS   = 20000;  // ... rests at most this long: its failure is more likely the network's
 const DOWN_AFTER_MS    = 10000;  // lookups failing for this long, with no answer between: blocked
 const WARM_INTERVAL_MS = 120000;
+// The user's own server (setCustom) not answering twice in a row: the
+// built-in routes answer for this long before it is asked again.
+const CUSTOM_REST_MS = 30000;
+const CUSTOM_TELL_MS = 10 * 60 * 1000;
 // Two failures further apart than this, with nothing failing between (a warm
 // round that no route answered counts), are not one streak: the computer
 // slept, or nothing was looked up. Longer than the warm interval, so a real
@@ -222,6 +226,7 @@ class DohForwarder {
     this.state = 'ok';
     this.lastDowngradeWarn = 0;
     this.preferredId = opts.preferredId || null;
+    this.custom = null;         // the user's own server (setCustom), else null
     // fails: failures since it last answered; failAt: when the last one was
     // counted; okAt: when it last answered.
     this.routes = UPSTREAMS.map((u) => ({ ...u, fails: 0, failAt: 0, okAt: 0, restUntil: 0, ewma: 0, session: null, opening: null }));
@@ -229,6 +234,47 @@ class DohForwarder {
 
   /* The engine's port, once it is up: routes that go through it wait for it. */
   setSocksPort(port) { this.socksPort = Number(port) || 0; }
+
+  /* A DNS server of the user's own (custom-dns.js; null: the built-in
+   * routes): asked alone while it answers. Its name, if it has one, is
+   * looked up through the built-in routes. Answers kept from before are
+   * dropped: the user wants this server's. */
+  setCustom(spec, opts = {}) {
+    if (this.custom) { this.custom.close(); this.custom = null; }
+    this.cache.clear();
+    if (!spec) return;
+    const { CustomDns } = require('./custom-dns');
+    this.custom = new CustomDns(spec, {
+      socksPort: () => this.socksPort,
+      bootstrap: async (name) => require('./custom-dns').firstA(await this.resolveRoutes(buildQuery(name, 1))),
+      ...opts,
+    });
+    this.custom.fails = 0;
+    this.custom.restUntil = 0;
+    this.custom.toldAt = 0;
+  }
+
+  /* The user's server did not answer: after the second time in a row it
+   * rests, the built-in routes answering meanwhile, and the log says so (at
+   * most every ten minutes) rather than every lookup failing or waiting. */
+  customFailed(c, e) {
+    c.fails++;
+    if (c.fails < 2) return;
+    const now = Date.now();
+    c.restUntil = now + CUSTOM_REST_MS;
+    if (now - c.toldAt < CUSTOM_TELL_MS) return;
+    c.toldAt = now;
+    const why = String((e && (e.code || e.message)) || 'no answer').slice(0, 80);
+    this.log('warning', `Your DNS server ${require('./custom-dns').shown(c.spec)} does not answer (${why}); Shroudly's built-in encrypted DNS answers until it does`);
+  }
+
+  /* The user's server answers lookups now (set, and not resting). */
+  usingCustom() { return !!this.custom && this.custom.restUntil <= Date.now(); }
+
+  customAnswered(c) {
+    if (c.toldAt) this.log('success', `Your DNS server ${require('./custom-dns').shown(c.spec)} answers again`);
+    c.fails = 0; c.restUntil = 0; c.toldAt = 0;
+  }
 
   usable(r) { return !r.viaEngine || this.socksPort > 0; }
 
@@ -384,6 +430,16 @@ class DohForwarder {
 
   /* Race the routes in waves. The first valid answer wins. */
   resolve(dnsMsg) {
+    const c = this.custom;
+    if (!c || c.restUntil > Date.now()) return this.resolveRoutes(dnsMsg);
+    return c.query(dnsMsg).then((a) => { this.customAnswered(c); return a; }, (e) => {
+      if (this.custom === c) this.customFailed(c, e);
+      return this.resolveRoutes(dnsMsg);
+    });
+  }
+
+  /* Through the built-in routes, raced as below. */
+  resolveRoutes(dnsMsg) {
     return new Promise((resolve, reject) => {
       const now = Date.now();
       const order = this.ordered();
@@ -454,6 +510,8 @@ class DohForwarder {
   /* Which routes answer, for the log: "cloudflare-1 23ms, google-1 31ms". */
   summary() {
     const now = Date.now();
+    const c = this.custom;
+    if (this.usingCustom()) return c.ewma ? `${require('./custom-dns').shown(c.spec)} ${c.ewma}ms` : '';
     const up = this.routes.filter((r) => this.usable(r) && r.ewma && r.restUntil <= now)
       .sort((a, b) => a.ewma - b.ewma).slice(0, 3).map((r) => `${r.id} ${r.ewma}ms`);
     return up.join(', ');
@@ -486,6 +544,10 @@ class DohForwarder {
   warm() {
     if (this.stopped) return;
     const probe = buildQuery('cloudflare.com', 1);
+    const c = this.custom;
+    // The user's server is asked even while it rests, so one that comes back
+    // is used again by itself; while it answers, nothing else needs warming.
+    if (c) { c.query(probe).then(() => this.customAnswered(c), (e) => { if (this.custom === c) this.customFailed(c, e); }); if (c.restUntil <= Date.now()) return; }
     const now = Date.now();
     const order = this.ordered();
     const best = order.filter((r) => r.restUntil <= now).slice(0, 3);
@@ -557,6 +619,7 @@ class DohForwarder {
    * start afresh, the remembered route first. */
   networkChanged() {
     for (const r of this.routes) this.dropSession(r);
+    if (this.custom) this.custom.drop();
     this.clearRests();
   }
 
@@ -585,6 +648,7 @@ class DohForwarder {
     if (this.warmTimer) { clearInterval(this.warmTimer); this.warmTimer = null; }
     this.cache.clear();
     for (const r of this.routes) this.dropSession(r);
+    if (this.custom) this.custom.drop();
     this.socksPort = 0;
     if (this.sock) { try { this.sock.close(); } catch {} this.sock = null; }
   }
@@ -610,3 +674,4 @@ function buildQuery(name, qtype) {
 module.exports = DohForwarder;
 module.exports.UPSTREAMS = UPSTREAMS;
 module.exports.buildQuery = buildQuery;
+module.exports.socksConnect = socksConnect;

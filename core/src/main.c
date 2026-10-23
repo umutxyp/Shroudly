@@ -326,6 +326,9 @@ int engine_main(int argc, char **argv, FILE *in, FILE *out, int embedded) {
     else if (!strncmp(line, "ADBLOCK-CHECK ", 14)) adblock_check_report(line + 14);
     else if (!strncmp(line, "ADBLOCK ", 8)) adblock_use_report(line + 8);
     else if (!strcmp(line, "ALLOW-CLEAR")) adblock_allow_clear();
+    /* Another DNS server chosen (Settings): the answers kept from the last
+     * one go, so the next lookup asks the new one. */
+    else if (!strcmp(line, "DNS-CLEAR")) doh_clear_cache();
     else if (!strncmp(line, "ALLOW ", 6)) adblock_allow(line + 6);
     else if (!strncmp(line, "LEARN ", 6)) {
       /* LEARN <host> <technique> <seconds ago>: what an earlier run learned. */

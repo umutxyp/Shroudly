@@ -18,6 +18,7 @@ const path = require('path');
 const fs = require('fs');
 const SystemProxy = require('./system-proxy');
 const DohForwarder = require('./doh-forwarder');
+const CustomDnsLib = require('./custom-dns');
 const Families = require('./families');
 const diagnostics = require('./diagnostics');
 const procnet = require('./procnet');
@@ -263,6 +264,7 @@ class EngineManager {
       onPreferred: (id) => store.set('dohRoute', id),
       onState: (state) => this._setAdvice({ dnsDown: state === 'down' }),
     });
+    this.doh.setCustom(this.customDns());
     this.dohPort = 0;
 
     this.proc = null;
@@ -729,7 +731,7 @@ class EngineManager {
         clearTimeout(this._dohReport);
         this._dohReport = setTimeout(() => {
           const routes = this.doh.summary();
-          if (routes && this.active) this.log('info', `Encrypted DNS answering via ${routes}`);
+          if (routes && this.active) this.log('info', this.doh.usingCustom() ? `Your DNS server is answering: ${routes}` : `Encrypted DNS answering via ${routes}`);
         }, 6000);
         if (this._dohReport.unref) this._dohReport.unref();
         // A session that has been up for a while has earned a fresh restart
@@ -945,6 +947,48 @@ class EngineManager {
   _command(line) {
     if (!this.proc || !this.proc.stdin.writable) return false;
     try { this.proc.stdin.write(`${line}\n`); return true; } catch { return false; }
+  }
+
+  /* The user's own DNS server (Settings, "DNS server", issue #34) as
+   * stored, read: { kind, host, port, path }, or null for the built-in
+   * encrypted routes (none set, or one that cannot be read). */
+  customDns() {
+    const c = this.store.get('customDns');
+    const spec = c && typeof c === 'object' ? CustomDnsLib.parse(c.kind, c.server) : null;
+    return spec && !spec.error ? spec : null;
+  }
+
+  /* The server now set into the forwarder, and the answers the engine keeps
+   * dropped: the next lookup asks it, nothing restarted. */
+  applyCustomDns() {
+    const spec = this.customDns();
+    this.doh.setCustom(spec);
+    this._command('DNS-CLEAR');
+    return spec;
+  }
+
+  /* Does this server answer (Settings, before it is used)? Asked twice, the
+   * second time on the connection the first opened: { ok: true, ms, address }
+   * or { ok: false, error }. */
+  async testDns(spec) {
+    const { CustomDns, firstA } = CustomDnsLib;
+    const d = new CustomDns(spec, {
+      socksPort: () => this.doh.socksPort,
+      bootstrap: async (name) => firstA(await this.doh.resolveRoutes(DohForwarder.buildQuery(name, 1))),
+    });
+    try {
+      await d.query(DohForwarder.buildQuery('cloudflare.com', 1));
+      const t0 = Date.now();
+      const a = await d.query(DohForwarder.buildQuery('example.com', 1));
+      const address = firstA(a);
+      // Answered, but with no address: refused, or a server that does not
+      // look names up for others.
+      return address ? { ok: true, ms: Date.now() - t0, address } : { ok: false, error: `rcode ${a[3] & 15}` };
+    } catch (e) {
+      return { ok: false, error: String((e && (e.code || e.message)) || 'no answer').slice(0, 80) };
+    } finally {
+      d.close();
+    }
   }
 
   /* Is the list in file one to use? Resolves the engine's verdict

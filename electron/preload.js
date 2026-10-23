@@ -40,6 +40,9 @@ contextBridge.exposeInMainWorld('electron', {
   getSetting: (key) => ipcRenderer.invoke('settings:get', key),
   setSetting: (key, value) => ipcRenderer.invoke('settings:set', key, value),
   getAllSettings: () => ipcRenderer.invoke('settings:getAll'),
+  // Does this DNS server answer? ({ kind, server }) -> { ok, ms, address } or
+  // { ok: false, error | invalid }
+  testDns: (value) => ipcRenderer.invoke('dns:test', value),
 
   // Logs
   getLogs: () => ipcRenderer.invoke('logs:get'),

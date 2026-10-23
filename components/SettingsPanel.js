@@ -141,6 +141,105 @@ function Notice({ tone = 'info', Icon, children }) {
   );
 }
 
+/* "DNS server" (issue #34): automatic (the built-in encrypted DNS) or one of
+ * the user's own. What is typed is asked once before it is used, and the
+ * answer shown; one that does not answer is used only when the user says
+ * so (and, if it stops answering, the built-in one answers meanwhile). */
+const DNS_KINDS = [
+  { value: 'doh', labelKey: 'dnsKindDoh', example: 'https://dns.google/dns-query' },
+  { value: 'dot', labelKey: 'dnsKindDot', example: 'dns.quad9.net' },
+  { value: 'tcp', labelKey: 'dnsKindTcp', example: '8.8.8.8' },
+  { value: 'udp', labelKey: 'dnsKindUdp', example: '1.1.1.1' },
+];
+const DNS_ERRORS = { empty: 'dnsErrorEmpty', url: 'dnsErrorUrl', host: 'dnsErrorHost', port: 'dnsErrorPort', kind: 'dnsErrorHost' };
+
+function DnsServer({ value, onSave }) {
+  const { t } = useLanguage();
+  const labelId = useId();
+  const saved = value && typeof value === 'object' ? value : null;
+  const [kind, setKind] = useState(saved ? saved.kind : 'auto');
+  const [text, setText] = useState(saved ? saved.server : '');
+  const [state, setState] = useState(null);   // { testing } | { ok, ms, address } | { error | invalid, tried }
+  useEffect(() => {
+    setKind(saved ? saved.kind : 'auto');
+    setText(saved ? saved.server : '');
+  }, [saved && saved.kind, saved && saved.server]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const pick = (k) => {
+    setKind(k); setState(null);
+    if (k === 'auto') { if (saved) onSave(null); return; }
+    if (saved && saved.kind === k) setText(saved.server);
+    else if (!saved || saved.kind !== k) setText('');
+  };
+  const use = async () => {
+    const v = { kind, server: text.trim() };
+    // Asked before and it did not answer: the user says use it anyway.
+    if (state && state.tried === `${v.kind} ${v.server}` && !state.invalid) { onSave(v); setState(null); return; }
+    setState({ testing: true });
+    let r;
+    try { r = await window.electron.testDns(v); } catch { r = { ok: false, error: 'no answer' }; }
+    if (r && r.ok) { onSave(v); setState({ ok: true, ms: r.ms, address: r.address }); return; }
+    setState({ ...(r || {}), tried: `${v.kind} ${v.server}` });
+  };
+  const current = DNS_KINDS.find((k) => k.value === kind);
+  const dirty = !saved || saved.kind !== kind || saved.server !== text.trim();
+  const anyway = state && state.tried === `${kind} ${text.trim()}` && !state.invalid;
+
+  return (
+    <div className="py-2.5">
+      <p id={labelId} className="mb-1.5 text-[14px] font-medium leading-snug" style={{ color: 'var(--text)' }}>{t('dnsServer')}</p>
+      <Select
+        value={kind}
+        ariaLabelledBy={labelId}
+        options={[{ value: 'auto', label: t('dnsServerAuto') }, ...DNS_KINDS.map((k) => ({ value: k.value, label: t(k.labelKey) }))]}
+        onChange={pick}
+      />
+      {kind !== 'auto' && (
+        <form className="mt-2 flex flex-wrap gap-2" onSubmit={(e) => { e.preventDefault(); if (text.trim() && !(state && state.testing)) use(); }}>
+          <input
+            value={text}
+            onChange={(e) => { setText(e.target.value); if (state && !state.testing) setState(null); }}
+            placeholder={current ? current.example : ''}
+            aria-label={t('dnsServer')}
+            dir="ltr"
+            spellCheck={false}
+            autoCapitalize="off"
+            autoCorrect="off"
+            inputMode="url"
+            className="field mono min-w-[150px] flex-[1_1_180px] px-3 py-2 text-[13px]"
+            style={{ textAlign: 'start' }}
+          />
+          <button
+            type="submit"
+            disabled={!text.trim() || !!(state && state.testing) || (!dirty && !anyway)}
+            className="btn btn-primary flex-[0_0_auto] rounded-[var(--radius-sm)] px-4 py-2 text-[13px] font-semibold"
+          >
+            {state && state.testing && <SpinnerIcon className="spin h-4 w-4" />}
+            <span>{state && state.testing ? t('testing') : anyway ? t('dnsServerUseAnyway') : t('dnsServerUse')}</span>
+          </button>
+        </form>
+      )}
+      <div aria-live="polite">
+        {state && state.ok && (
+          <p className="mt-2 flex items-start gap-1.5 text-[12px] leading-snug" style={{ color: 'var(--ok)' }}>
+            <CheckCircleIcon className="mt-[1px] h-3.5 w-3.5 shrink-0" />
+            <span className="min-w-0">{t('dnsServerOk', { ms: state.ms, address: state.address })}</span>
+          </p>
+        )}
+        {state && (state.invalid || state.error) && (
+          <p className="mt-2 flex items-start gap-1.5 text-[12px] leading-snug" style={{ color: 'var(--warn)' }}>
+            <AlertTriangleIcon className="mt-[1px] h-3.5 w-3.5 shrink-0" />
+            <span className="min-w-0">{state.invalid ? t(DNS_ERRORS[state.invalid] || 'dnsErrorHost', { example: current ? current.example : '' }) : t('dnsServerFails', { error: state.error })}</span>
+          </p>
+        )}
+      </div>
+      {kind !== 'auto' && (
+        <p className="mt-2 text-[12px] leading-snug" style={{ color: 'var(--text-faint)' }}>{t('dnsServerDesc')}</p>
+      )}
+    </div>
+  );
+}
+
 export default function SettingsPanel({ active = false }) {
   const { language, setLanguage, t, availableLanguages, locale } = useLanguage();
   const strategyLabelId = useId();
@@ -440,6 +539,9 @@ export default function SettingsPanel({ active = false }) {
         <div className="divide-y" style={{ borderColor: 'var(--line)' }}>
           <Toggle label={t('autoMode')} desc={t('autoModeDesc')} checked={settings.autoMode} onChange={(v) => save('autoMode', v)} />
           <Toggle label={t('dnsProtection')} desc={t('dnsProtectionDesc')} checked={settings.dnsProtection !== false} onChange={(v) => save('dnsProtection', v)} />
+          {settings.dnsProtection !== false && (
+            <DnsServer value={settings.customDns} onSave={(v) => save('customDns', v)} />
+          )}
           <Toggle label={t('adBlock')} desc={t('adBlockDesc')} checked={settings.adBlock === true} onChange={(v) => save('adBlock', v)} />
           {settings.adBlock === true && (
             <div className="py-2.5">
