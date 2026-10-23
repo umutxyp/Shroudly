@@ -500,14 +500,16 @@ class RobloxWatch {
    * the same advice again would not help. What started it decides what
    * does: a program that was open before Shroudly (it hands what it starts
    * its own older environment) is named; Explorer is told the setting
-   * again. Told once; later ones are only logged and shown in the window. */
+   * again, and so it is when what started Studio cannot be told (its
+   * launcher ends once Studio runs, and Explorer is most often what started
+   * that). Told once; later ones are only logged and shown in the window. */
   async _studioAgain(pids, at, gen) {
     const d = this.d;
     let p = null;
     if (d.parent) p = await this._within(Promise.resolve().then(() => d.parent(pids[0])), PATH_WAIT_MS);
     if (gen !== this.gen) return;
     const shell = !!p && p.exe === 'explorer';
-    if (shell && d.reannounce) { try { d.reannounce(); } catch {} }
+    if ((shell || !p) && d.reannounce) { try { d.reannounce(); } catch {} }
     const app = p && !shell && p.name ? String(p.name) : null;
     const note = app ? { id: 'autoStudioParent', params: { app } } : { id: 'autoStudioAgain', params: {} };
     pids.forEach((pid) => this.studioTold.set(pid, { at, ...note }));

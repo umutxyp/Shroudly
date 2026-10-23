@@ -106,6 +106,19 @@ function get(url, o = {}) {
       'the second time, once, that it keeps doing so (another build is its own first time)');
     t.ok(/Discord PTB settings lost the line/.test(c.join()) && c.length === 1 && d.length === 0, 'after that, nothing');
   }
+  // A Discord open before this run's relay was up (it starts at login too,
+  // often first, and sat on "Starting" for good: its line was there already,
+  // so nothing was ever looked at). Looked at for a few minutes from then.
+  {
+    const now = 1e12;
+    t.ok(DA.watchSince({ needsRestart: true, changedAt: now - 5000, startCheckAt: now - 60000, now }) === now - 5000,
+      'the line written while it ran: watched from that write, as before');
+    t.ok(DA.watchSince({ needsRestart: false, changedAt: 0, startCheckAt: now - 60000, now }) === now - 60000,
+      'open already when the relay came up: watched from then, though the line did not change');
+    t.ok(DA.watchSince({ needsRestart: false, changedAt: 0, startCheckAt: now - DA.START_CHECK_MS - 1, now }) === null
+      && DA.watchSince({ needsRestart: false, changedAt: 0, startCheckAt: 0, now }) === null,
+      'after a few minutes, or none open: nothing to look at');
+  }
   // The line put back while Discord runs: only a Discord that may have read
   // the file without it is restarted, not one that started before (it read
   // the line, and keeps using it whatever is written over the file later).

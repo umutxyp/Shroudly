@@ -1333,6 +1333,9 @@ ipcMain.handle('presence:refresh', () => (presence ? presence.refresh() : null))
 /* What the window shows about it: whether a restart of Discord is still needed
  * to pick the line up, and whether macOS is withholding access to its files. */
 const discordState = { needsRestart: false, needsPermission: false, pendingOn: null, foreign: false, editFailed: null, changedAt: 0 };
+// A Discord already open when this run's relay came up (applyDiscordMode):
+// when it was found, 0 when there is none (DiscordApp.watchSince).
+let discordStartCheckAt = 0;
 
 function sendDiscordState() {
   toWindow('discord:state', discordState);
@@ -1421,6 +1424,13 @@ async function applyDiscordMode(on, { interactive = true } = {}) {
     discordState.needsRestart = on && running;
     discordState.changedAt = Date.now();
     addLog('success', on ? 'Discord app mode on: Discord updates through Shroudly' : 'Discord app mode off: Discord settings restored');
+  } else if (on && await DiscordApp.anyRunning()) {
+    // The line was there already (it stays across logout and shutdown), but
+    // a Discord that is open now started before this run's relay was up:
+    // at login it often starts first, reads the line while nothing answers
+    // it, and sits on "Starting" or "Update Failed" for good. It is looked
+    // at once (watchDiscord), without a word to the window.
+    discordStartCheckAt = Date.now();
   }
   sendDiscordState();
   return { success: true, restartNeeded: discordState.needsRestart };
@@ -1657,6 +1667,24 @@ const robloxWatch = new RobloxWatch({
 });
 robloxWatch.start();
 
+/* Windows: the setting told to Explorer again a little later. At login
+ * Explorer can still be too busy to take the first announcement (it is sent
+ * with a short wait and dropped when Explorer does not answer in time), and
+ * then every program started from the Start menu, the desktop or the
+ * taskbar goes without the setting for the whole session (issue #33: every
+ * Roblox Studio around Shroudly). Saying it again costs nothing when
+ * Explorer had it. */
+let announceTimers = [];
+function announceLater() {
+  if (process.platform !== 'win32') return;
+  for (const t of announceTimers) clearTimeout(t);
+  announceTimers = [15000, 60000].map((ms) => {
+    const t = setTimeout(() => { try { if (appEnv && appEnv.applied) appEnv.announce(); } catch {} }, ms);
+    if (t.unref) t.unref();
+    return t;
+  });
+}
+
 /* Windows: links that open Roblox's programs (the website's Play and Edit
  * buttons, a bootstrapper's) go through Shroudly while the mode's setting is
  * in place, so a program opened from a browser that was running before
@@ -1749,6 +1777,7 @@ async function applyAppModeNow(on) {
   }
   appState.foreign = false;
   store.set('appMode', true);
+  announceLater();
   if (r === 'changed') {
     // Roblox reads the proxy when it starts: what is already open does not
     // have it, installers included (robloxWatch sees to them at once, not
@@ -1882,7 +1911,11 @@ const discordRestarted = new Map();
 const DISCORD_RESTART_EVERY_MS = 10 * 60 * 1000;
 let discordBusy = false;
 async function watchDiscord() {
-  if (discordBusy || !discordState.needsRestart || store.get('discordMode') !== true) return;
+  // Since when: the line written while it ran, or the relay come up while
+  // it was open already.
+  const since = DiscordApp.watchSince({ needsRestart: discordState.needsRestart, changedAt: discordState.changedAt, startCheckAt: discordStartCheckAt, now: Date.now() });
+  if (since === null) { discordStartCheckAt = 0; return; }
+  if (discordBusy || store.get('discordMode') !== true) return;
   if (!engine || !engine.isActive() || !autopilot || !autopilot.isBlocked('discord')) return;
   // The system proxy not pointing at Shroudly (another program took it over,
   // or it still needs an administrator): no program's connections reach
@@ -1890,8 +1923,12 @@ async function watchDiscord() {
   // Shroudly" says nothing about Discord, and a restart would only cut its
   // call. Looked at again once the proxy is back.
   if (engine.proxyStatus && engine.proxyStatus.ok === false) return;
-  if (Date.now() - discordState.changedAt < 20000) return;
-  if (discordRelay && discordRelay.lastOkAt > discordState.changedAt) { discordState.needsRestart = false; sendDiscordState(); return; }
+  const done = () => {
+    discordStartCheckAt = 0;
+    if (discordState.needsRestart) { discordState.needsRestart = false; sendDiscordState(); }
+  };
+  if (Date.now() - since < 20000) return;
+  if (discordRelay && discordRelay.lastOkAt > since) { done(); return; }
   discordBusy = true;
   try {
     const ports = [engine.port, discordRelay && discordRelay.port].filter(Boolean);
@@ -1908,7 +1945,7 @@ async function watchDiscord() {
         engine.checkProxySoon();
       } else still = true;
     }
-    if (!still) { discordState.needsRestart = false; sendDiscordState(); }
+    if (!still) done();
   } finally { discordBusy = false; }
 }
 setInterval(() => { watchDiscord().catch(() => {}); }, 20000).unref();

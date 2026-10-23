@@ -192,6 +192,21 @@ function readWithoutLine({ startedAt: at, lineSeenAt }) {
   return at >= lineSeenAt - 2000;
 }
 
+/* Since when a running Discord has to have reached Shroudly for the watch
+ * (main.js watchDiscord) to leave it alone, or null when there is nothing to
+ * look at: its line was written while it ran (needsRestart, changedAt), or
+ * it was open already when this run's relay came up (startCheckAt: at login
+ * it often starts first, reads the line while nothing answers it, and sits
+ * on "Starting" or "Update Failed" for good), looked at for START_CHECK_MS
+ * only: by then it went through Shroudly, or the network does not block
+ * Discord and it never had to. */
+const START_CHECK_MS = 5 * 60 * 1000;
+function watchSince({ needsRestart, changedAt, startCheckAt, now }) {
+  if (needsRestart) return changedAt || 0;
+  if (startCheckAt && now - startCheckAt <= START_CHECK_MS) return startCheckAt;
+  return null;
+}
+
 /* Whether any Discord build here is running (Linux included). */
 async function anyRunning() {
   for (const v of present()) if (await isRunning(v)) return true;
@@ -261,4 +276,4 @@ async function restart(v) {
 }
 
 module.exports = { KEY, endpointUrl, variants, present, installed, settingsFile, patchSync, hasOurs, isRunning, anyRunning, pids, restart, healNote,
-  startedAt, oldestStart, etimeSeconds, readWithoutLine };
+  startedAt, oldestStart, etimeSeconds, readWithoutLine, watchSince, START_CHECK_MS };

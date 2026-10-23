@@ -534,6 +534,14 @@ async function steady(opts) {
     await w.run(w.now + 60000);
     t.ok(w.reannounced === 1 && w.told.join() === 'autoStudioReopen,autoStudioAgain' && !w.toldWith[1].params.app,
       'started by Explorer: the setting is announced to it again, and the user is told what works without naming Explorer');
+    // Its starter unknown (Studio's launcher ends once Studio runs): the
+    // setting is announced again all the same (issue #33), nothing told twice.
+    w.end(s2);
+    const s2b = w.start('studio', 'studio');
+    await w.run(w.now + 60000);
+    t.ok(w.reannounced === 2 && w.told.join() === 'autoStudioReopen,autoStudioAgain' && !w.killed.length,
+      'what started it unknown: the setting is announced again too, nothing told twice, never closed');
+    w.end(s2b);
     // The mode off and on again: a new start, the first advice again.
     w.on = false; w.watch.modeOff(); await w.modeOn();
     const s3 = w.start('studio', 'studio');
