@@ -9,7 +9,9 @@ engine the desktop runs (`core/`).
 - `app/src/main/java/me/codeshare/shroudly/` is the app: `ShroudlyVpnService`
   (the VPN, the engine and the tunnel, and watching that they work),
   `Engine` (one run of the engine), `Health` (the checks), `DohForwarder`
-  (encrypted DNS for the engine), `MainActivity` (the window),
+  (encrypted DNS for the engine), `CustomDns` (the user's own DNS server:
+  DoH, DoT, TCP or UDP), `ProxyCheck` (a network proxy on the phone where
+  nothing runs), `MainActivity` (the window),
   `ShroudlyTileService` (the Quick Settings tile), `AppLog` and `Diagnostics`
   ("Share logs"), and `OnlineCount` (the live user count: the desktop's
   request, byte for byte, through the engine while protection is on).
@@ -73,7 +75,9 @@ nothing crashes, switches protection on, checks that the engine runs inside
 the app's process, that the VPN is not its own underlying network, that names
 resolve to mapped addresses (198.19.0.0/16), that TCP and UDP go through the
 engine, that the engine's port refuses a client without the session's
-password, and that a path check through the engine passed. Then it makes
+password, and that a path check through the engine passed; then the user's
+own DNS server (DNS over TLS to 1.1.1.1) answers the engine's lookups, and one
+that does not answer leaves the built-in one answering. Then it makes
 parts fail one at a time (debug builds take `--es cmd test --es what
 engine-stop|tunnel-stop|path-check` on `DebugControlActivity`): the engine
 stopping under the service (it is back on the same port and an address an app
@@ -81,8 +85,9 @@ kept still works), Private DNS by name (strict, `dns.google`, Android 9+),
 before and after a tunnel restart, Wi-Fi off and on, airplane mode on and off
 (Android 11+), and, on images with root, the app's own network cut with
 iptables, after which protection must end by itself and other apps connect
-directly. Then everything must work directly after Stop, and the window:
-installed from a file it looks for updates on GitHub; installed as Google
+directly. Then everything must work directly after Stop; Proxy only turned
+off while the phone's proxy points at it posts a notice to set it back; and
+the window: a phone proxy where nothing runs is said; installed from a file it looks for updates on GitHub; installed as Google
 Play would (`pm install -i com.android.vending`) it does not; both link the
 privacy policy, and "Share logs" opens the share sheet. It needs the
 emulator, platform-tools, cmdline-tools and

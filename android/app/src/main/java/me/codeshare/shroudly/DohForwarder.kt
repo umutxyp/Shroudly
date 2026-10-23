@@ -117,6 +117,10 @@ class DohForwarder(
         const val ENGINE_WAIT_MS = 4000L
         const val STALE_MS = ENGINE_WAIT_MS - 500
         const val ANSWER_BY_MS = ENGINE_WAIT_MS - 200
+        // The user's own server not answering twice in a row: the built-in
+        // routes answer for this long before it is asked again.
+        const val CUSTOM_REST_MS = 30000L
+        const val CUSTOM_TELL_MS = 10 * 60 * 1000L
 
         private val CF = listOf("cloudflare-dns.com", "one.one.one.one")
 
@@ -182,6 +186,10 @@ class DohForwarder(
     }
 
     private val all = routes()
+    /* The user's own server (Settings, "DNS server", issue #34): asked alone
+     * while it answers; null: the built-in routes. */
+    @Volatile var custom: CustomDns? = null
+        private set
     @Volatile private var preferredId: String? = preferred
     @Volatile var socksPort = 0
     /* The engine's SOCKS5 password for this session, if it takes one. */
@@ -238,7 +246,44 @@ class DohForwarder(
         }
     }
 
+    /* A server of the user's own, or null for the built-in routes. Its name,
+     * if it has one, is looked up through the built-in routes. */
+    fun setCustom(spec: DnsSpec?) {
+        custom?.close()
+        custom = spec?.let { s ->
+            CustomDns(s, { socksPort }, { socksAuth }) { name ->
+                Dns.firstA(resolveRoutes(Dns.buildQuery(name, Dns.TYPE_A, (Math.random() * 65535).toInt()), System.nanoTime() / 1_000_000 + ANSWER_BY_MS))
+            }
+        }
+    }
+
+    /* The user's server answers lookups now (set, and not resting). */
+    fun usingCustom(): Boolean { val c = custom; return c != null && c.restUntil <= System.currentTimeMillis() }
+
+    /* It did not answer: after the second time in a row it rests, the
+     * built-in routes answering meanwhile, and the log says so (at most every
+     * ten minutes) rather than every lookup failing or waiting. */
+    private fun customFailed(c: CustomDns, e: Exception) {
+        if (custom !== c) return
+        c.fails++
+        if (c.fails < 2) return
+        val now = System.currentTimeMillis()
+        c.restUntil = now + CUSTOM_REST_MS
+        if (now - c.toldAt < CUSTOM_TELL_MS) return
+        c.toldAt = now
+        val why = (if (e is java.net.ConnectException) "ECONNREFUSED" else if (e is java.net.SocketTimeoutException) "timeout" else e.message ?: e.javaClass.simpleName).take(80)
+        log("Your DNS server ${CustomDns.shown(c.spec)} does not answer ($why); Shroudly's built-in encrypted DNS answers until it does")
+    }
+
+    private fun customAnswered(c: CustomDns) {
+        if (c.toldAt != 0L) log("Your DNS server ${CustomDns.shown(c.spec)} answers again")
+        c.fails = 0
+        c.restUntil = 0
+        c.toldAt = 0
+    }
+
     fun stop() {
+        custom?.drop()
         running = false
         timer?.shutdownNow()
         timer = null
@@ -287,6 +332,19 @@ class DohForwarder(
 
     /* answerBy: on the System.nanoTime() clock, in milliseconds. */
     fun resolve(msg: ByteArray, answerBy: Long = Long.MAX_VALUE): ByteArray? {
+        val c = custom
+        if (c != null && c.restUntil <= System.currentTimeMillis()) {
+            try {
+                return c.query(msg).also { customAnswered(c) }
+            } catch (e: Exception) {
+                customFailed(c, e)
+            }
+        }
+        return resolveRoutes(msg, answerBy)
+    }
+
+    /* Through the built-in routes, raced. */
+    fun resolveRoutes(msg: ByteArray, answerBy: Long = Long.MAX_VALUE): ByteArray? {
         val plan = plan(all, preferredId, System.currentTimeMillis(), socksPort > 0)
         val won = race(plan, queries, answerBy = answerBy) { r -> query(r, msg) } ?: return null
         if (preferredId != won.first.id) {
@@ -298,6 +356,8 @@ class DohForwarder(
 
     /* Which routes answer, for the log: "cloudflare-1 23ms, google-1 31ms". */
     fun summary(): String {
+        val c = custom
+        if (c != null && usingCustom()) return if (c.ewma > 0) "${CustomDns.shown(c.spec)} ${c.ewma}ms" else ""
         val now = System.currentTimeMillis()
         return all.filter { (!it.viaEngine || socksPort > 0) && it.ewma > 0 && it.restUntil <= now }
             .sortedBy { it.ewma }.take(3).joinToString(", ") { "${it.id} ${it.ewma}ms" }
@@ -307,6 +367,19 @@ class DohForwarder(
      * in on resting routes now and then. */
     private fun warm() {
         if (!running) return
+        // The user's server is asked even while it rests, so one that comes
+        // back is used again by itself; while it answers, nothing else needs
+        // warming.
+        val c = custom
+        if (c != null) {
+            val using = usingCustom()
+            try {
+                queries.execute {
+                    try { c.query(Dns.buildQuery("cloudflare.com", Dns.TYPE_A, 0)); customAnswered(c) } catch (e: Exception) { customFailed(c, e) }
+                }
+            } catch (_: RejectedExecutionException) {}
+            if (using) return
+        }
         val now = System.currentTimeMillis()
         val order = plan(all, preferredId, now, socksPort > 0)
         val due = all.filter { it.restUntil > now && it.restUntil - now < WARM_INTERVAL_MS }.take(2)

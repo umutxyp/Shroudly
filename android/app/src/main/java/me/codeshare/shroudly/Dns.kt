@@ -70,6 +70,29 @@ object Dns {
         return parts.joinToString(".") to u16(m, end - 4)
     }
 
+    /* The first IPv4 address among the answers, or null. */
+    fun firstA(m: ByteArray?): String? {
+        if (m == null) return null
+        try {
+            val end = questionEnd(m)
+            if (end < 0) return null
+            var p = end
+            repeat(u16(m, 6)) {
+                while (true) {
+                    val l = m[p].toInt() and 0xff
+                    if (l == 0) { p++; break }
+                    if (l and 0xc0 != 0) { p += 2; break }
+                    p += 1 + l
+                }
+                val type = u16(m, p)
+                val len = u16(m, p + 8)
+                if (type == TYPE_A && len == 4) return (0 until 4).joinToString(".") { (m[p + 10 + it].toInt() and 0xff).toString() }
+                p += 10 + len
+            }
+        } catch (_: IndexOutOfBoundsException) {}
+        return null
+    }
+
     fun buildQuery(name: String, qtype: Int, id: Int): ByteArray {
         val out = ByteArrayOutputStream()
         out.write(id shr 8 and 0xff); out.write(id and 0xff)

@@ -288,6 +288,10 @@ class ShroudlyVpnService : VpnService() {
                     "strategy" -> later {
                         engine?.let { engineGone(it, "restarted with the technique chosen in Settings", countsAsCrash = false) }
                     }
+                    // Another DNS server: from the next lookup on, nothing restarted.
+                    "dns" -> later {
+                        if (active) { doh?.setCustom(AppSettings.customDns(this)); engine?.send("DNS-CLEAR") }
+                    }
                     "apps" -> later {
                         if (active) {
                             log("Apps that skip Shroudly changed; the VPN interface is renewed")
@@ -423,6 +427,7 @@ class ShroudlyVpnService : VpnService() {
             val d = DohForwarder(::log, prefs.getString("dohRoute", null)) { id ->
                 prefs.edit().putString("dohRoute", id).apply()
             }
+            d.setCustom(AppSettings.customDns(this))
             dohPort = try { d.start() } catch (e: Exception) { log("Encrypted DNS unavailable: ${e.message}"); 0 }
             doh = if (dohPort > 0) d else null
 
@@ -1287,7 +1292,7 @@ class ShroudlyVpnService : VpnService() {
             log("stats: ${Protection.state.name.lowercase()}, connections ${s.connsTotal} total ${s.connsActive} active, " +
                 "up ${s.bytesUp} B, down ${s.bytesDown} B, tls ${s.tls}, http ${s.http}, desync ${s.desync}")
         }
-        doh?.summary()?.takeIf { it.isNotEmpty() }?.let { log("Encrypted DNS answering via $it") }
+        doh?.let { d -> d.summary().takeIf { it.isNotEmpty() }?.let { log(if (d.usingCustom()) "Your DNS server is answering: $it" else "Encrypted DNS answering via $it") } }
     }
 
     /* Debug builds: make one part fail as it might on a phone, for the

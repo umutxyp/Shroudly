@@ -41,6 +41,9 @@ class ShroudlyProxyService : Service() {
         // Its own notice: never the VPN's (ShroudlyVpnService.NOTIFICATION_ID),
         // so taking this one away never takes that one too.
         private const val NOTIFICATION_ID = 4
+        // The reminder that a network's proxy still points here (6: 5 is the
+        // automation apps' notice).
+        private const val WIFI_NOTICE_ID = 6
 
         fun start(ctx: Context) {
             ctx.startForegroundService(Intent(ctx, ShroudlyProxyService::class.java).setAction(ACTION_START))
@@ -105,6 +108,8 @@ class ShroudlyProxyService : Service() {
             // A new technique (Settings): the engine again, on the same port.
             ShroudlyVpnService.ACTION_SETTINGS -> {
                 if (intent.getStringExtra("what") == "strategy") work.execute { restartEngine("restarted with the technique chosen in Settings") }
+                // Another DNS server: from the next lookup on, nothing restarted.
+                if (intent.getStringExtra("what") == "dns") work.execute { if (active) { doh?.setCustom(AppSettings.customDns(this)); engine?.send("DNS-CLEAR") } }
                 if (!active && Protection.state == Protection.State.OFF) stopSelf()
                 return START_NOT_STICKY
             }
@@ -142,6 +147,7 @@ class ShroudlyProxyService : Service() {
             learnedRaw = Learned(prefs.getString("learnedRaw", null), ShroudlyVpnService.LEARNED_RAW_MAX)
             synchronized(told) { told.clear() }
             val d = DohForwarder(::log, prefs.getString("dohRoute", null)) { id -> prefs.edit().putString("dohRoute", id).apply() }
+            d.setCustom(AppSettings.customDns(this))
             dohPort = try { d.start() } catch (e: Exception) { log("Encrypted DNS unavailable: ${e.message}"); 0 }
             doh = if (dohPort > 0) d else null
             port = spawn()
@@ -315,6 +321,7 @@ class ShroudlyProxyService : Service() {
     private fun stopAll(byUser: Boolean, why: String? = null) {
         // Not running (a failed start already said so): nothing of the VPN's is touched.
         if (!active) { stopSelf(); return }
+        val was = port
         Protection.set(Protection.State.STOPPING)
         OnlineCount.stop(leave = byUser, port = port, auth = null)
         cleanup()
@@ -322,8 +329,39 @@ class ShroudlyProxyService : Service() {
         if (!byUser) Protection.fail(R.string.androidProtectionLost, why ?: "the engine kept stopping")
         log("Proxy only: off")
         stopForeground(STOP_FOREGROUND_REMOVE)
+        if (byUser) remindNetworkProxy(was)
         stopSelf()
         refreshTile()
+    }
+
+    /* Turned off by the user while a network's proxy still points at the
+     * port Shroudly listened on (the Wi-Fi's, set for Proxy only): nothing
+     * listens there now, and apps that use it reach nothing until the user
+     * sets it back to None, which only they can. Said in a notice that opens
+     * the Wi-Fi settings. */
+    private fun remindNetworkProxy(was: Int) {
+        val addr = listOf(was, PORT).filter { it > 0 }.distinct().firstNotNullOfOrNull { ProxyCheck.pointsAt(this, it) } ?: return
+        log("Proxy only is off, and a network's proxy still points at $addr")
+        try {
+            ShroudlyVpnService.channels(this)
+            val open = PendingIntent.getActivity(
+                this, 7, Intent(android.provider.Settings.ACTION_WIFI_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
+                PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
+            )
+            val body = text(R.string.androidProxyOnlyOffWifi, "addr" to addr)
+            val n = Notification.Builder(this, ShroudlyVpnService.ALERT_CHANNEL)
+                .setSmallIcon(R.drawable.ic_shield)
+                .setContentTitle(getString(R.string.androidWifiProxyDeadTitle))
+                .setContentText(body)
+                .setStyle(Notification.BigTextStyle().bigText(body))
+                .setContentIntent(open)
+                .setAutoCancel(true)
+                .setColor(Accent.swatch(this))
+                .build()
+            getSystemService(android.app.NotificationManager::class.java).notify(WIFI_NOTICE_ID, n)
+        } catch (e: Exception) {
+            log("Could not post the notice: ${e.message}")
+        }
     }
 
     private fun cleanup() {
@@ -331,7 +369,7 @@ class ShroudlyProxyService : Service() {
         poll?.cancel(false); poll = null
         restartCredit?.cancel(false); restartCredit = null
         probeSentAt = 0
-        doh?.summary()?.takeIf { it.isNotEmpty() }?.let { log("Encrypted DNS answering via $it") }
+        doh?.let { d -> d.summary().takeIf { it.isNotEmpty() }?.let { log(if (d.usingCustom()) "Your DNS server is answering: $it" else "Encrypted DNS answering via $it") } }
         engine?.let { if (!it.stop()) log("The engine did not stop in time") }
         engine = null
         doh?.stop(); doh = null

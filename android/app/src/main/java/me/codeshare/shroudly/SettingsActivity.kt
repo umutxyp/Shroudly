@@ -29,9 +29,9 @@ import android.widget.Switch
 import android.widget.TextView
 
 /*
- * Settings: the technique (as the desktop's "Bypass strategy"), the apps that
- * skip Shroudly, starting when the phone starts, and automation apps
- * (AppSettings). A change
+ * Settings: the technique (as the desktop's "Bypass strategy"), the DNS
+ * server, the apps that skip Shroudly, starting when the phone starts, and
+ * automation apps (AppSettings). A change
  * reaches a running protection at once (ShroudlyVpnService.ACTION_SETTINGS).
  */
 class SettingsActivity : Activity() {
@@ -71,6 +71,9 @@ class SettingsActivity : Activity() {
             AppSettings.setStrategy(this, id)
             tell("strategy")
         }
+
+        findViewById<TextView>(R.id.dnsServer).setOnClickListener { pickDns() }
+        showDns()
 
         findViewById<TextView>(R.id.excludedApps).setOnClickListener { pickApps() }
         showExcluded()
@@ -185,6 +188,164 @@ class SettingsActivity : Activity() {
             append(sub)
             setSpan(ForegroundColorSpan(getColor(R.color.text_dim)), from, length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
             setSpan(RelativeSizeSpan(12.5f / 15f), from, length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+        }
+    }
+
+    /* The row says which DNS server answers: automatic, or the user's own. */
+    private fun showDns() {
+        val spec = AppSettings.customDns(this)
+        val sub = if (spec == null) getString(R.string.dnsServerAuto) else CustomDns.shown(spec)
+        findViewById<TextView>(R.id.dnsServer).text = SpannableStringBuilder(getString(R.string.dnsServer)).append('\n').apply {
+            val from = length
+            append(sub)
+            setSpan(ForegroundColorSpan(getColor(R.color.text_dim)), from, length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            setSpan(RelativeSizeSpan(12.5f / 15f), from, length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+        }
+    }
+
+    private val dnsKinds = listOf(
+        Triple("doh", R.string.dnsKindDoh, "https://dns.google/dns-query"),
+        Triple("dot", R.string.dnsKindDot, "dns.quad9.net"),
+        Triple("tcp", R.string.dnsKindTcp, "8.8.8.8"),
+        Triple("udp", R.string.dnsKindUdp, "1.1.1.1"),
+    )
+
+    /* "DNS server" (issue #34), as on the desktop: automatic, or a kind and
+     * an address. What is typed is asked once before it is used and the
+     * answer shown; one that does not answer is used only when "Use anyway"
+     * is pressed (if it stops answering later, the built-in DNS answers
+     * meanwhile). */
+    private fun pickDns() {
+        val density = resources.displayMetrics.density
+        val pad = (16 * density).toInt()
+        val typed = AppSettings.customDnsTyped(this)
+        var kind = typed?.first ?: "auto"
+        val group = RadioGroup(this)
+        val input = EditText(this).apply {
+            setSingleLine()
+            inputType = android.text.InputType.TYPE_CLASS_TEXT or android.text.InputType.TYPE_TEXT_VARIATION_URI
+            textDirection = View.TEXT_DIRECTION_LTR
+            setText(typed?.second ?: "")
+        }
+        val status = TextView(this).apply { textSize = 13f; setTextColor(getColor(R.color.text_dim)) }
+        fun option(id: String, label: String) = RadioButton(this).apply {
+            this.id = View.generateViewId()
+            tag = id
+            text = label
+            textSize = 15f
+            setTextColor(getColor(R.color.text))
+            isChecked = id == kind
+        }
+        group.addView(option("auto", getString(R.string.dnsServerAuto)))
+        for ((id, label, _) in dnsKinds) group.addView(option(id, getString(label)))
+        fun example() = dnsKinds.firstOrNull { it.first == kind }?.third ?: ""
+        fun showInput() { input.visibility = if (kind == "auto") View.GONE else View.VISIBLE; input.hint = example() }
+        showInput()
+        val box = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(pad, pad / 2, pad, 0)
+            addView(group)
+            addView(input)
+            addView(status)
+            addView(TextView(context).apply {
+                text = getString(R.string.dnsServerDesc)
+                setTextColor(getColor(R.color.text_dim))
+                textSize = 12.5f
+                setPadding(0, pad / 2, 0, 0)
+            })
+        }
+        // What was asked last and did not answer: pressing again uses it anyway.
+        var failed: String? = null
+        val dialog = AlertDialog.Builder(this)
+            .setTitle(R.string.dnsServer)
+            .setView(ScrollView(this).apply { addView(box) })
+            .setPositiveButton(R.string.dnsServerUse, null)
+            .setNegativeButton(android.R.string.cancel, null)
+            .create()
+        fun save(k: String?, t: String?) {
+            AppSettings.setCustomDns(this, k, t)
+            ShroudlyVpnService.log(if (k == null) "DNS server: automatic" else "DNS server: ${CustomDns.parse(k, t ?: "").first?.let { CustomDns.shown(it) } ?: t}")
+            showDns()
+            tell("dns")
+        }
+        dialog.setOnShowListener {
+            val use = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
+            fun reset() { failed = null; use.setText(R.string.dnsServerUse); status.text = "" }
+            group.setOnCheckedChangeListener { g, checkedId ->
+                kind = g.findViewById<RadioButton>(checkedId)?.tag as? String ?: return@setOnCheckedChangeListener
+                input.setText(if (typed != null && kind == typed.first) typed.second else "")
+                showInput(); reset()
+            }
+            input.addTextChangedListener(object : TextWatcher {
+                override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+                override fun afterTextChanged(s: Editable?) { if (failed != null) reset() else status.text = "" }
+            })
+            use.setOnClickListener {
+                if (kind == "auto") {
+                    if (typed != null) save(null, null)
+                    dialog.dismiss()
+                    return@setOnClickListener
+                }
+                val server = input.text.toString().trim()
+                val (spec, err) = CustomDns.parse(kind, server)
+                if (spec == null) {
+                    status.setTextColor(getColor(R.color.warn))
+                    status.text = text(when (err) {
+                        "empty" -> R.string.dnsErrorEmpty
+                        "url" -> R.string.dnsErrorUrl
+                        "port" -> R.string.dnsErrorPort
+                        else -> R.string.dnsErrorHost
+                    }, "example" to example())
+                    return@setOnClickListener
+                }
+                if (failed == "$kind $server") { save(kind, server); dialog.dismiss(); return@setOnClickListener }
+                if (typed != null && typed.first == kind && typed.second == server) { dialog.dismiss(); return@setOnClickListener }
+                use.isEnabled = false
+                status.setTextColor(getColor(R.color.text_dim))
+                status.text = getString(R.string.testing)
+                val asked = "$kind $server"
+                Thread {
+                    val r = testDns(spec)
+                    runOnUiThread {
+                        if (isFinishing || !dialog.isShowing) return@runOnUiThread
+                        use.isEnabled = true
+                        if ("$kind ${input.text.toString().trim()}" != asked) return@runOnUiThread
+                        if (r.first != null) {
+                            save(kind, server)
+                            android.widget.Toast.makeText(this, text(R.string.dnsServerOk, "ms" to r.first!!, "address" to r.second), android.widget.Toast.LENGTH_LONG).show()
+                            dialog.dismiss()
+                        } else {
+                            failed = asked
+                            status.setTextColor(getColor(R.color.warn))
+                            status.text = text(R.string.dnsServerFails, "error" to r.second)
+                            use.setText(R.string.dnsServerUseAnyway)
+                        }
+                    }
+                }.apply { isDaemon = true }.start()
+            }
+        }
+        dialog.show()
+    }
+
+    /* Does it answer? (ms, address) or (null, why). Asked twice, the second
+     * time on the connection the first opened; a name looked up through the
+     * built-in routes. Not on the main thread. */
+    private fun testDns(spec: DnsSpec): Pair<Long?, String> {
+        val routes = DohForwarder({}, null) {}
+        val d = CustomDns(spec, { 0 }, { null }) { name ->
+            Dns.firstA(routes.resolveRoutes(Dns.buildQuery(name, Dns.TYPE_A, 1), System.nanoTime() / 1_000_000 + DohForwarder.ANSWER_BY_MS))
+        }
+        return try {
+            d.query(Dns.buildQuery("cloudflare.com", Dns.TYPE_A, 2))
+            val t0 = System.nanoTime()
+            val a = d.query(Dns.buildQuery("example.com", Dns.TYPE_A, 3))
+            val ms = (System.nanoTime() - t0) / 1_000_000
+            Dns.firstA(a)?.let { ms to it } ?: (null to "rcode ${a[3].toInt() and 15}")
+        } catch (e: Exception) {
+            null to (if (e is java.net.ConnectException) "ECONNREFUSED" else if (e is java.net.SocketTimeoutException) "timeout" else e.message ?: e.javaClass.simpleName).take(80)
+        } finally {
+            d.close()
         }
     }
 

@@ -85,6 +85,26 @@
             android:paddingEnd="10dp"
             android:paddingBottom="4dp" />
 
+        <!-- The DNS server: automatic, or one of the user's own (issue #34). -->
+        <TextView
+            style="@style/SectionTitle"
+            android:accessibilityHeading="true"
+            android:text="@string/dnsServer" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/card"
+            android:orientation="vertical"
+            android:padding="1dp">
+
+            <TextView
+                android:id="@+id/dnsServer"
+                style="@style/AboutRowText"
+                android:drawableStart="@drawable/row_lock"
+                android:text="@string/dnsServer" />
+        </LinearLayout>
+
         <TextView
             style="@style/SectionTitle"
             android:accessibilityHeading="true"

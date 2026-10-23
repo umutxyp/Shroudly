@@ -15,9 +15,13 @@
 #   - (with root, google_apis images) the app's own network is cut, as a
 #     phone maker's per-app network switch does: protection ends by itself,
 #     with a notice, and other apps connect directly again.
-# After Stop everything works directly again. Then "Proxy only": no VPN and
-# no VPN consent, the engine on 127.0.0.1 for apps set to use it. Last, the
-# window: installed
+# Before that, "DNS server": the user's own (DNS over TLS) answers the
+# engine's lookups, and one that does not answer leaves the built-in one
+# answering. After Stop everything works directly again. Then "Proxy only":
+# no VPN and no VPN consent, the engine on 127.0.0.1 for apps set to use it;
+# turned off while the phone's proxy still points at it, the user is told
+# to set it back. Last, the window: it tells about a phone proxy where
+# nothing runs; installed
 # from a file it looks for updates on GitHub; installed as Google Play would
 # (pm install -i com.android.vending) it does not; it links the privacy policy
 # and offers "Share logs".
@@ -78,6 +82,7 @@ cleanup() {
   adb_ shell run-as "$PKG" cat files/log.txt > "$OUT/app-log.txt" 2>/dev/null || true
   # What the test changed on the device, back to Android's defaults.
   adb_ shell "settings delete global private_dns_mode; settings delete global private_dns_specifier" >/dev/null 2>&1 || true
+  adb_ shell "settings put global http_proxy :0" >/dev/null 2>&1 || true
   adb_ shell "settings delete secure always_on_vpn_app; settings delete secure always_on_vpn_lockdown" >/dev/null 2>&1 || true
   adb_ shell "svc wifi enable" >/dev/null 2>&1 || true
   if [ "$KEEP" = 0 ]; then
@@ -266,6 +271,33 @@ sleep 2
 ad_off="$(http_host doubleclick.net)"
 case "$ad_off" in *403*|"") fail "ad blocking off: doubleclick.net still stopped ($ad_off)";; esac
 say "ad blocking off again: doubleclick.net: ${ad_off%%$'\r'}, no restart"
+
+# ── "DNS server" (Settings, issue #34) ───────────────────────────────────
+# The user's own server in place of the built-in encrypted DNS: DNS over TLS
+# to 1.1.1.1 (through the engine) answers a name not looked up before; one
+# that does not answer (nothing on 127.0.0.1:9) leaves the built-in one
+# answering, every name still loading, and the log says so; then automatic
+# again. Nothing restarts. (The log is not cleared here: the path check
+# below looks for a line from the start.)
+dns_set() { sh_ "am start -n $PKG/.DebugControlActivity --es cmd dns --es kind $1 --es server $2" >/dev/null; }
+dns_set dot 1.1.1.1
+wait_for 15 has_log "DNS server: tls://1.1.1.1:853" || fail "DNS server: the setting was not taken"
+d1="$(http_host example.org)"
+grep -q '^HTTP/1' <<<"$d1" || fail "DNS server tls://1.1.1.1: example.org did not load ($d1)"
+ctl stats
+wait_for 15 has_log "Your DNS server is answering: tls://1.1.1.1:853" || fail "DNS server tls://1.1.1.1 did not answer ($(applog | grep -i 'dns' | tail -3 | tr '\n' ' '))"
+say "DNS server: $(applog | grep 'Your DNS server is answering' | tail -1 | sed 's/.*Your DNS/Your DNS/'); example.org: $d1"
+dns_set tcp 127.0.0.1:9
+wait_for 15 has_log "DNS server: tcp://127.0.0.1:9" || fail "DNS server: the second setting was not taken"
+d2="$(http_host example.net)"
+d3="$(http_host www.example.org)"
+grep -q '^HTTP/1' <<<"$d2" || fail "a DNS server that does not answer: example.net did not load ($d2)"
+grep -q '^HTTP/1' <<<"$d3" || fail "a DNS server that does not answer: www.example.org did not load ($d3)"
+wait_for 15 has_log "Your DNS server tcp://127.0.0.1:9 does not answer" || fail "a DNS server that does not answer: not said in the log ($(applog | grep -i 'dns' | tail -3 | tr '\n' ' '))"
+say "$(applog | grep 'does not answer' | tail -1 | sed 's/.*Your DNS/Your DNS/'); example.net: $d2"
+sh_ "am start -n $PKG/.DebugControlActivity --es cmd dns" >/dev/null
+wait_for 15 has_log "DNS server: automatic" || fail "DNS server: automatic again was not taken"
+say "DNS server: automatic again"
 
 # ── "Apps that skip Shroudly" ────────────────────────────────────────────
 # This shell is an app too (com.android.shell, uid 2000): set to skip
@@ -485,8 +517,16 @@ wait_for 15 has_log "stats: on" || fail "proxy only: no stats line"
 pstats="$(applog | grep 'stats: on' | tail -1 | sed 's/.*stats: /stats: /')"
 [ "$(sed -n 's/.*connections \([0-9]*\) total.*/\1/p' <<<"$pstats")" -ge 1 ] || fail "proxy only: the engine counted no connections ($pstats)"
 say "proxy only: the engine back on $pport after it stopped; $pstats"
+# The phone's proxy pointed at it, as the user sets Wi-Fi's; turned off,
+# the user is told to set it back (a notice that opens Wi-Fi settings).
+sh_ "settings put global http_proxy 127.0.0.1:$pport" >/dev/null
+sleep 2
 ctl stop
 wait_for 30 has_log "Proxy only: off" || fail "proxy only did not go off"
+wifi_notice() { grep -q "Leftover proxy in Wi-Fi settings" <<<"$(sh_ "dumpsys notification --noredact")"; }
+wait_for 15 wifi_notice || fail "proxy only off while the phone's proxy points at it: the user was not told"
+sh_ "settings put global http_proxy :0" >/dev/null
+say "proxy only off with the phone's proxy on it: the user is told to set it back"
 wait_for 15 eval '! listening $pport' || fail "proxy only: 127.0.0.1:$pport still open after Stop"
 mode vpn
 wait_for 60 vpn_allowed || fail "could not allow the VPN again after proxy only"
@@ -672,6 +712,14 @@ ui_seek() {
   done
   return 1
 }
+# A phone proxy where nothing runs (a proxy app that has gone): the window
+# says so, with a way to Wi-Fi settings.
+sh_ "settings put global http_proxy 127.0.0.1:1" >/dev/null
+window
+wait_for 20 ui_has 'text="Leftover proxy in Wi-Fi settings"' || { sh_ "settings put global http_proxy :0" >/dev/null; fail "a phone proxy where nothing runs: the window did not say so"; }
+sh_ "settings put global http_proxy :0" >/dev/null
+sh_ "input keyevent KEYCODE_BACK" >/dev/null
+say "a phone proxy where nothing runs (127.0.0.1:1): the window says so"
 window
 wait_for 20 has_log "Updates: GitHub" || fail "installed from a file, the window does not look for updates on GitHub"
 wait_for 40 ui_seek 'text="Release notes"' || fail "no GitHub releases link"

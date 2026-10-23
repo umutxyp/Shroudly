@@ -16,6 +16,7 @@ import android.os.Bundle
  * "report" writes the head of what "Share logs" sends to logcat.
  * "adblock-on" / "adblock-off" set "Block ads and trackers".
  * "exclude" (extra "pkg", empty for none) sets "Apps that skip Shroudly".
+ * "dns" (extras "kind" and "server"; no kind: automatic) sets "DNS server".
  */
 class DebugControlActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -39,6 +40,15 @@ class DebugControlActivity : Activity() {
                 val pkg = intent.getStringExtra("pkg")
                 AppSettings.setExcluded(this, if (pkg.isNullOrEmpty()) emptySet() else setOf(pkg))
                 startService(Intent(this, ShroudlyVpnService::class.java).setAction(ShroudlyVpnService.ACTION_SETTINGS).putExtra("what", "apps"))
+            }
+            // "DNS server", as Settings sets it.
+            "dns" -> {
+                val kind = intent.getStringExtra("kind")?.takeIf { it.isNotEmpty() }
+                val server = intent.getStringExtra("server")
+                AppSettings.setCustomDns(this, kind, server)
+                val spec = AppSettings.customDns(this)
+                ShroudlyVpnService.log(if (spec == null) "DNS server: automatic" else "DNS server: ${CustomDns.shown(spec)}")
+                Protector.tell(this, ShroudlyVpnService.ACTION_SETTINGS, "dns")
             }
             "report" -> Diagnostics.report(this).lineSequence().takeWhile { it.isNotEmpty() }
                 .forEach { android.util.Log.i("Shroudly", "report: $it") }

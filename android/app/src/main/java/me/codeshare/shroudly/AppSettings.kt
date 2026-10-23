@@ -13,7 +13,9 @@ import android.content.Context
  *    need it;
  *  - start when the phone starts, once the user has allowed the VPN;
  *  - VPN (every app) or proxy only (the VPN slot left to another app);
- *  - whether automation apps may turn protection on and off.
+ *  - whether automation apps may turn protection on and off;
+ *  - the DNS server: automatic (the built-in encrypted routes) or the
+ *    user's own (CustomDns), kept as typed.
  */
 object AppSettings {
     private const val PREFS = "settings"
@@ -22,6 +24,8 @@ object AppSettings {
     private const val KEY_BOOT = "startAtBoot"
     private const val KEY_MODE = "mode"
     private const val KEY_REMOTE = "remoteControl"
+    private const val KEY_DNS_KIND = "customDnsKind"
+    private const val KEY_DNS_SERVER = "customDnsServer"
 
     /* The desktop's list, in its order: id, label (locale key), the
      * engine's spec, and whether the engine looks for what works by itself. */
@@ -68,6 +72,25 @@ object AppSettings {
 
     fun setRemoteControl(ctx: Context, on: Boolean) {
         prefs(ctx).edit().putBoolean(KEY_REMOTE, on).apply()
+    }
+
+    /* The user's own DNS server as typed (kind, text), or null: automatic. */
+    fun customDnsTyped(ctx: Context): Pair<String, String>? {
+        val p = prefs(ctx)
+        val kind = p.getString(KEY_DNS_KIND, null) ?: return null
+        val text = p.getString(KEY_DNS_SERVER, null) ?: return null
+        return if (kind in CustomDns.KINDS && text.isNotBlank()) kind to text else null
+    }
+
+    /* Read: null when automatic, or when what was kept cannot be read. */
+    fun customDns(ctx: Context): DnsSpec? = customDnsTyped(ctx)?.let { (k, t) -> CustomDns.parse(k, t).first }
+
+    /* null: automatic. */
+    fun setCustomDns(ctx: Context, kind: String?, text: String?) {
+        val e = prefs(ctx).edit()
+        if (kind == null || text.isNullOrBlank()) e.remove(KEY_DNS_KIND).remove(KEY_DNS_SERVER)
+        else e.putString(KEY_DNS_KIND, kind).putString(KEY_DNS_SERVER, text.trim())
+        e.apply()
     }
 
     fun startAtBoot(ctx: Context): Boolean = prefs(ctx).getBoolean(KEY_BOOT, false)
