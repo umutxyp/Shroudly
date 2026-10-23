@@ -106,6 +106,37 @@ function get(url, o = {}) {
       'the second time, once, that it keeps doing so (another build is its own first time)');
     t.ok(/Discord PTB settings lost the line/.test(c.join()) && c.length === 1 && d.length === 0, 'after that, nothing');
   }
+  // Discord Drover (a version.dll beside Discord.exe, its drover.ini): read
+  // in the newest app-* folder only (the one Discord runs), its proxy taken
+  // from the ini; set aside by moving both files, never deleting them, and
+  // with nothing left half done when one cannot be moved.
+  {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'shroudly-drover-'));
+    const v = DA.variants('win32')[0];
+    const app = (ver) => path.join(dir, v.local, `app-${ver}`);
+    for (const ver of ['1.0.9200', '1.0.9265', '1.0.10010']) fs.mkdirSync(app(ver), { recursive: true });
+    t.ok(DA.drover(v, { root: dir }) === null, 'no drover.ini in the newest folder: none');
+    fs.writeFileSync(path.join(app('1.0.9265'), 'drover.ini'), '[drover]\nproxy = http://127.0.0.1:1080\n');
+    t.ok(DA.drover(v, { root: dir }) === null, "one in an older folder Discord no longer runs: none");
+    fs.writeFileSync(path.join(app('1.0.10010'), 'drover.ini'), '[drover]\r\n; Proxy\r\nproxy = socks5://127.0.0.1:2080\r\nuse-nekobox-proxy = 0\r\n');
+    fs.writeFileSync(path.join(app('1.0.10010'), 'version.dll'), 'MZ');
+    const d = DA.drover(v, { root: dir });
+    t.ok(d && d.file === path.join(app('1.0.10010'), 'drover.ini') && d.host === '127.0.0.1' && d.port === 2080 && d.url === 'socks5://127.0.0.1:2080',
+      `the newest folder's (app-1.0.10010 after app-1.0.9265): its proxy read (${d && d.url})`);
+    const backup = path.join(dir, 'aside');
+    const moved = DA.setDroverAside(d, backup);
+    t.ok(moved.join() === 'version.dll,drover.ini' && !fs.existsSync(path.join(app('1.0.10010'), 'version.dll')) && !fs.existsSync(d.file)
+      && fs.readFileSync(path.join(backup, 'version.dll'), 'utf8') === 'MZ' && fs.existsSync(path.join(backup, 'drover.ini')),
+      'set aside: both moved to the backup folder, nothing deleted');
+    fs.writeFileSync(path.join(app('1.0.10010'), 'drover.ini'), 'proxy = http://127.0.0.1:1080\n');
+    fs.writeFileSync(path.join(app('1.0.10010'), 'version.dll'), 'MZ');
+    const failing = { ...fs, renameSync: (a, b) => { if (a.endsWith('drover.ini')) throw Object.assign(new Error('in use'), { code: 'EBUSY' }); return fs.renameSync(a, b); } };
+    let threw = null;
+    try { DA.setDroverAside({ file: path.join(app('1.0.10010'), 'drover.ini') }, path.join(dir, 'aside2'), failing); } catch (e) { threw = e.code; }
+    t.ok(threw === 'EBUSY' && fs.existsSync(path.join(app('1.0.10010'), 'version.dll')) && fs.existsSync(path.join(app('1.0.10010'), 'drover.ini')),
+      'one that cannot be moved: the other is put back, the folder as it was');
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
   // A Discord open before this run's relay was up (it starts at login too,
   // often first, and sat on "Starting" for good: its line was there already,
   // so nothing was ever looked at). Looked at for a few minutes from then.
