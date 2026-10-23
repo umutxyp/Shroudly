@@ -192,6 +192,43 @@ function readWithoutLine({ startedAt: at, lineSeenAt }) {
   return at >= lineSeenAt - 2000;
 }
 
+/* A proxy written as a URL or host:port (http://127.0.0.1:1080,
+ * socks5://user@[::1]:1080, 127.0.0.1:1080): { host, port }, or null. */
+function proxyHostPort(s) {
+  const m = /^(?:[a-z][a-z0-9+.-]*:\/\/)?(?:[^@/\s]*@)?(\[[^\]]+\]|[^:/\s]+):(\d+)/i.exec(String(s || '').trim());
+  return m ? { host: m[1].replace(/^\[|\]$/g, ''), port: Number(m[2]) } : null;
+}
+
+/* app-1.0.9265 before app-1.0.10000: Discord's version folders, oldest
+ * first. */
+function byAppVersion(a, b) {
+  const n = (d) => (String(d).match(/\d+/g) || []).map(Number);
+  const x = n(a); const y = n(b);
+  for (let i = 0; i < Math.max(x.length, y.length); i++) if ((x[i] || 0) !== (y[i] || 0)) return (x[i] || 0) - (y[i] || 0);
+  return 0;
+}
+
+/* Windows: Discord Drover, a version.dll put beside Discord.exe that sends
+ * every connection of Discord's to the proxy in its drover.ini, often left
+ * from a setup with another tool (ByeDPI, which listens on 127.0.0.1:1080).
+ * Read in the build's newest app-* folder only, the one Discord runs:
+ * { file, url, host, port } (host and port null when it names none), or
+ * null when there is none. */
+function drover(v, { root = null, fsx = fs } = {}) {
+  if (!v || !v.local) return null;
+  const local = root || process.env.LOCALAPPDATA || path.join(os.homedir(), 'AppData', 'Local');
+  const base = path.join(local, v.local);
+  let dirs = [];
+  try { dirs = fsx.readdirSync(base).filter((d) => /^app-\d/i.test(d)); } catch { return null; }
+  if (!dirs.length) return null;
+  const file = path.join(base, dirs.sort(byAppVersion)[dirs.length - 1], 'drover.ini');
+  let text;
+  try { text = fsx.readFileSync(file, 'utf8'); } catch { return null; }
+  const m = /^[ \t]*proxy[ \t]*=[ \t]*(\S+)/mi.exec(text);
+  const p = m ? proxyHostPort(m[1]) : null;
+  return { file, url: m ? m[1] : null, host: p ? p.host : null, port: p ? p.port : null };
+}
+
 /* Since when a running Discord has to have reached Shroudly for the watch
  * (main.js watchDiscord) to leave it alone, or null when there is nothing to
  * look at: its line was written while it ran (needsRestart, changedAt), or
@@ -256,24 +293,56 @@ function detached(cmd, args) {
 }
 
 /* Quit this Discord build and start it again, so it reads its settings anew. */
-async function restart(v) {
+/* `between`: run once Discord is gone and before it starts again (its
+ * files are free then). */
+async function restart(v, between = null) {
+  const gap = async () => { if (between) { try { await between(); } catch {} } };
   if (process.platform === 'darwin') {
     // SIGTERM is a normal quit for Electron apps. (Asking through AppleScript
     // would need a separate "control Discord" permission.)
     await run('pkill', ['-x', v.proc]);
     if (!(await waitGone(v, 8000))) { await run('pkill', ['-9', '-x', v.proc]); await waitGone(v, 3000); }
+    await gap();
     return detached('open', ['-a', v.app]);
   }
   if (process.platform === 'win32') {
     await run('taskkill', ['/IM', v.exe, '/T', '/F']);
     await waitGone(v, 5000);
+    await gap();
     return fs.existsSync(v.updateExe) ? detached(v.updateExe, ['--processStart', v.exe]) : false;
   }
   if (v.id === 'flatpak') await run('flatpak', ['kill', 'com.discordapp.Discord']);
   else await run('pkill', ['-x', v.proc]);
   await waitGone(v, 5000);
+  await gap();
   return detached(v.bin, v.binArgs || []);
 }
 
+/* Discord Drover's files set aside: version.dll and drover.ini moved from
+ * Discord's folder (beside drover.ini, `d.file`) into `backupDir`; nothing
+ * is deleted, so the user can put them back. Discord must not be running
+ * (it holds its version.dll). The names moved; throws when one cannot be
+ * moved, with any moved before it put back where it was. */
+function moveFile(from, to, fsx) {
+  try { fsx.renameSync(from, to); } catch (e) {
+    if (e.code !== 'EXDEV') throw e;
+    fsx.copyFileSync(from, to);
+    fsx.unlinkSync(from);
+  }
+}
+function setDroverAside(d, backupDir, fsx = fs) {
+  const dir = path.dirname(d.file);
+  const names = ['version.dll', 'drover.ini'].filter((n) => fsx.existsSync(path.join(dir, n)));
+  fsx.mkdirSync(backupDir, { recursive: true });
+  const moved = [];
+  try {
+    for (const n of names) { moveFile(path.join(dir, n), path.join(backupDir, n), fsx); moved.push(n); }
+  } catch (e) {
+    for (const n of moved) { try { moveFile(path.join(backupDir, n), path.join(dir, n), fsx); } catch {} }
+    throw e;
+  }
+  return moved;
+}
+
 module.exports = { KEY, endpointUrl, variants, present, installed, settingsFile, patchSync, hasOurs, isRunning, anyRunning, pids, restart, healNote,
-  startedAt, oldestStart, etimeSeconds, readWithoutLine, watchSince, START_CHECK_MS };
+  startedAt, oldestStart, etimeSeconds, readWithoutLine, watchSince, START_CHECK_MS, drover, proxyHostPort, byAppVersion, setDroverAside };

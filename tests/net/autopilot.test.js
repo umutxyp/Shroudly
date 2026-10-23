@@ -883,6 +883,23 @@ const settle = async () => { for (let i = 0; i < 5; i++) await new Promise((r) =
       + '  TCP    0.0.0.0:10810          0.0.0.0:0              ABHÖREN         900\r\n'
       + '  TCP    127.0.0.1:52344        127.0.0.1:10810        WARTEND         0\r\n');
     t.ok(JSON.stringify(local.map((r) => r.pid)) === '[4120,4121,4122]', 'German, Turkish and Russian Windows: connections still found whatever the state is called; listening and closed ones still left out');
+    // Held by a proxy on this computer: a 2.6.4 user's Discord made one
+    // connection only, a SYN to 127.0.0.1:1080 (ByeDPI's port, left by
+    // Discord Drover). Such a program is found from the same table; one that
+    // reaches anything elsewhere, one on Shroudly's own port, and one talking
+    // to a local service that is no proxy port are not.
+    {
+      const tbl = '  TCP    127.0.0.1:52000        127.0.0.1:1080         SYN_SENT        7000\r\n'
+        + '  TCP    127.0.0.1:52001        127.0.0.1:1080         SYN_GESENDET    7000\r\n'
+        + '  TCP    127.0.0.1:52002        127.0.0.1:7890         SYN_SENT        7100\r\n'
+        + '  TCP    192.168.1.5:52003      162.159.1.1:443        ESTABLISHED     7100\r\n'
+        + '  TCP    127.0.0.1:52004        127.0.0.1:10813        ESTABLISHED     7200\r\n'
+        + '  TCP    127.0.0.1:52005        127.0.0.1:6463         ESTABLISHED     7300\r\n'
+        + '  TCP    [::1]:52006            [::1]:9050             SYN_SENT        7400\r\n';
+      const held = ProcNet.heldLocally(ProcNet.parseNetstat(tbl), { ours: [10813] });
+      t.ok(JSON.stringify([...held]) === '[[7000,[1080]],[7400,[9050]]]',
+        `held by a proxy here: only programs whose every connection goes to a proxy port here that is not Shroudly's (${JSON.stringify([...held])})`);
+    }
     const lsof = ProcNet.parseLsof('p812\nf33\nn127.0.0.1:61000->127.0.0.1:10810\nf34\nn192.168.1.5:61001->162.159.1.1:443\np813\nf5\nn[::1]:6000->[::1]:10811\n');
     t.ok(lsof.length === 3 && lsof[0].pid === 812 && lsof[2].pid === 813 && lsof[2].remote.host === '::1', 'macOS (lsof): the same');
     const ss = ProcNet.parseSs('0      0      127.0.0.1:41000   127.0.0.1:10810 users:(("Discord",pid=700,fd=40),("Discord",pid=701,fd=41))\n');

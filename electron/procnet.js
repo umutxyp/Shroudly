@@ -318,4 +318,33 @@ async function owner(localPort, remotePort, platform = process.platform) {
   return procOwner(localPort, remotePort);
 }
 
-module.exports = { owner, parseNetstatOwner, parseLsofOwner, procOwner, connectsTo, connections, listener, listeningSync, parseNetstat, parseNetstatListeners, parseTasklistName, parseLsofListener, parseBsdListening, procListener, procListening, parseLsof, parseSs, parseProcNet, procConnections };
+/* Ports proxy programs listen on by default: ByeDPI and other SOCKS tools
+ * (1080, 1081, 1086, 1087), NekoBox (2080, 2081), Squid (3128), Clash and
+ * its forks (7890, 7891, 7897), HTTP proxies (8080, 8118 Privoxy, 8888,
+ * 8889), Tor (9050, 9150), v2rayN and similar (10808 to 10811), v2rayA
+ * (20170 to 20172), Cloudflare WARP's proxy mode (40000). */
+const PROXY_PORTS = [1080, 1081, 1086, 1087, 2080, 2081, 3128, 7890, 7891, 7897, 8080, 8118, 8888, 8889, 9050, 9150,
+  10808, 10809, 10810, 10811, 20170, 20171, 20172, 40000];
+
+/* Programs held by a proxy on this computer: from connection rows (netstat,
+ * any state, so a SYN that never got an answer counts), the processes all of
+ * whose connections stay on this computer and some of which go to a proxy
+ * port that is not one of `ours`. Map pid -> [ports]. A program that reaches
+ * anything elsewhere is not held by one. */
+function heldLocally(rows, { ours = [], proxyPorts = PROXY_PORTS } = {}) {
+  const want = new Set(proxyPorts);
+  const own = new Set(ours.map(Number));
+  const outside = new Set();
+  const held = new Map();
+  for (const r of rows || []) {
+    if (!LOOPBACK.test(r.remote.host)) { outside.add(r.pid); continue; }
+    if (!want.has(r.remote.port) || own.has(r.remote.port)) continue;
+    if (!held.has(r.pid)) held.set(r.pid, new Set());
+    held.get(r.pid).add(r.remote.port);
+  }
+  const out = new Map();
+  for (const [pid, ports] of held) if (!outside.has(pid)) out.set(pid, [...ports]);
+  return out;
+}
+
+module.exports = { LOOPBACK, PROXY_PORTS, heldLocally, owner, parseNetstatOwner, parseLsofOwner, procOwner, connectsTo, connections, listener, listeningSync, parseNetstat, parseNetstatListeners, parseTasklistName, parseLsofListener, parseBsdListening, procListener, procListening, parseLsof, parseSs, parseProcNet, procConnections };

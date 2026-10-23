@@ -2013,11 +2013,7 @@ async function handleDiscordDeadProxy(v, dead) {
   if (!first) { discordDeadSeen.set(key, Date.now()); return; }
   if (Date.now() - first < DISCORD_DEAD_CONFIRM_MS) return;
   discordDeadDone.add(key);
-  if (!dead.file) {
-    addLog('warning', `Autopilot: ${v.app} is set to use a proxy at ${dead.addr}, where nothing is running; it cannot connect until that setting is removed`);
-    autoTell('autoDiscordProxyDead', { app: v.app, addr: dead.addr });
-    return;
-  }
+  if (!dead.file) { tellHeld(v.app, dead.addr); return; }
   const folder = path.dirname(dead.file);
   const backup = path.join(app.getPath('userData'), 'Discord Drover', `${v.id}-${path.basename(folder)}`);
   let moved = null;
@@ -2055,6 +2051,62 @@ async function checkDiscordProxies() {
   } finally { discordBusy = false; }
 }
 setInterval(() => { checkDiscordProxies().catch(() => {}); }, 60000).unref();
+
+/* A program that sends every connection to a proxy on this computer where
+ * nothing runs (its own proxy setting, a launch option, a DLL put beside
+ * it): it reaches nothing, with or without Shroudly, and only its own
+ * setting can change that. Named once a run with the address. */
+const heldTold = new Set();
+function tellHeld(app, addr) {
+  const key = `${String(app).toLowerCase()} ${addr}`;
+  if (heldTold.has(key)) return;
+  heldTold.add(key);
+  addLog('warning', `Autopilot: ${app} sends every connection to a proxy at ${addr}, where nothing is running; it cannot connect until that proxy runs again or its setting is removed`);
+  autoTell('autoAppProxyDead', { app, addr });
+}
+
+/* Windows: any program held by such a proxy (procnet.js heldLocally), found
+ * from three looks at the connection table 0.7 s apart (a SYN no one
+ * answers lasts a second or two, and a held program keeps trying), seen
+ * again a minute later, and the port still refusing. Discord is looked
+ * after on its own (its Drover is set aside), Shroudly is never named. */
+const heldSeen = new Map();   // "pid port" -> when first seen
+function netstatTcp() {
+  return new Promise((resolve) => require('child_process').execFile('netstat', ['-ano', '-p', 'TCP'], { windowsHide: true, timeout: 8000, maxBuffer: 8 * 1024 * 1024 },
+    (err, out) => resolve(err && !out ? '' : String(out || ''))));
+}
+function processName(pid) {
+  return new Promise((resolve) => require('child_process').execFile('tasklist', ['/FI', `PID eq ${pid}`, '/FO', 'CSV', '/NH'], { windowsHide: true, timeout: 8000 },
+    (err, out) => resolve(err ? null : ProcNet.parseTasklistName(String(out || ''), pid))));
+}
+async function checkHeldPrograms() {
+  if (process.platform !== 'win32') return;
+  const ours = [engine && engine.port, discordRelay && discordRelay.port, appProxy && appProxy.port].filter(Boolean);
+  const rows = [];
+  for (let i = 0; i < 3; i++) {
+    rows.push(...ProcNet.parseNetstat(await netstatTcp()));
+    if (i < 2) await new Promise((r) => setTimeout(r, 700));
+  }
+  const now = Date.now();
+  const live = new Set();
+  for (const [pid, ports] of ProcNet.heldLocally(rows, { ours })) {
+    if (pid === process.pid) continue;
+    for (const port of ports) {
+      const key = `${pid} ${port}`;
+      live.add(key);
+      const first = heldSeen.get(key);
+      if (!first) { heldSeen.set(key, now); continue; }
+      if (now - first < 60000 || await portAnswers('127.0.0.1', port)) continue;
+      const name = await processName(pid);
+      if (!name || /^(shroudly|shroudly-core|discord|discordptb|discordcanary|discorddevelopment)(\.exe)?$/i.test(name)) continue;
+      tellHeld(name.replace(/\.exe$/i, ''), `127.0.0.1:${port}`);
+    }
+  }
+  for (const k of [...heldSeen.keys()]) if (!live.has(k)) heldSeen.delete(k);
+}
+if (process.platform === 'win32') {
+  app.whenReady().then(() => { setInterval(() => { checkHeldPrograms().catch(() => {}); }, 60000).unref(); });
+}
 
 /* Windows: the WinHTTP proxy (winhttp.js) pointing at a program on this
  * computer that is gone: Windows Update, the Microsoft Store and some
