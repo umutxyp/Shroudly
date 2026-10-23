@@ -27,12 +27,13 @@ const t = suite('engine-netdns');
 const NAME = '127.0.0.1.nip.io';
 const lines = (eng, from) => eng.out.slice(from).split('\n').filter(Boolean).map((l) => { try { return JSON.parse(l); } catch { return null; } }).filter(Boolean);
 
-/* A TLS handshake with NAME through the engine: true when the server answered. */
+/* A TLS handshake through the engine to NAME: true when the server answered
+ * with its certificate (test.local's, checked against it as a CA). */
 async function handshake(P, port) {
   let s;
   try { s = await socks(P, NAME, port); } catch { return false; }
   return new Promise((resolve) => {
-    const c = tls.connect({ socket: s, servername: NAME, rejectUnauthorized: false });
+    const c = tls.connect({ socket: s, servername: 'test.local', ca: testServerOptions().cert });
     const done = (ok) => { clearTimeout(timer); c.destroy(); s.destroy(); resolve(ok); };
     const timer = setTimeout(() => done(false), 20000);
     c.on('secureConnect', () => done(true));
