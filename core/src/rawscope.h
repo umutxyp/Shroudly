@@ -124,6 +124,8 @@ enum {
                           * pre-filter keeps a call's own datagrams out) */
   RAWSCOPE_UDP_DECOYS,   /* decoy datagrams sent ahead of voice / STUN requests */
   RAWSCOPE_QUIC_DROPPED, /* QUIC Initials dropped so the browser takes TCP */
+  RAWSCOPE_DNS_ANSWERED, /* other programs' DNS questions answered from encrypted DNS (dnsgate.h) */
+  RAWSCOPE_DNS_PASSED,   /* ... and sent on to their own server unchanged */
   RAWSCOPE_NCOUNTERS
 };
 void          rawscope_count(int which);
@@ -132,7 +134,8 @@ void          rawscope_counters_reset(void);
 
 /* The counters as one status line, without a newline:
  *   {"type":"raw_stats","desynced":N,"skipped":N,"rst_dropped":N,"rst_passed":N,
- *    "nodecoy":N,"decoy_hurt":N,"udp_seen":N,"udp_decoys":N,"quic_dropped":N}
+ *    "nodecoy":N,"decoy_hurt":N,"udp_seen":N,"udp_decoys":N,"quic_dropped":N,
+ *    "dns_answered":N,"dns_passed":N}
  * ("desynced" counts every first segment the engine cut or decoyed, the
  * no-decoy ones included.)
  * Returns its length, or 0 when it does not fit cap. */

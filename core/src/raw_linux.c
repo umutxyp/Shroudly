@@ -25,6 +25,13 @@
  *     discovery request or a STUN Binding request on the voice ports. A
  *     call's own datagrams stay in the kernel, so the queue can add no delay
  *     or loss to them. Without u32, the ports alone are queued, as before.
+ *   - Other programs' DNS questions (UDP port 53, not to loopback) go to the
+ *     DNS gate when the app gives it its forwarder (--dns-gate, dnsgate.h):
+ *     a program that ignores the proxy then gets encrypted DNS's answer, not
+ *     the network's forged one. The gate's answer is sent to the program
+ *     through the raw socket (marked, so never queued), and a question it
+ *     does not answer is sent on the same way, unchanged. IPv4, as the rest
+ *     of this backend.
  *   - Traffic to a local, private or special address is never changed, and a
  *     reset is only dropped from a server this engine recently desynced
  *     (rawscope.h).
@@ -79,6 +86,7 @@
 #include "raw_desync.h"
 #include "tcpdpi.h"
 #include "rawscope.h"
+#include "dnsgate.h"
 
 static int g_raw_fd = -1;
 static raw_config g_cfg;
@@ -96,6 +104,7 @@ static int g_udp_match = 0;       /* 1: the UDP rules test payloads (udpdpi.h) *
 static enum { RULE_NONE, RULE_IPTABLES, RULE_NFT } g_rule = RULE_NONE;
 static uint16_t g_ipid = 0x1000; /* rolling IP id for our crafted segments */
 static int g_alert_watch = 0;     /* 1: the inbound TLS alert rule is in place */
+static int g_gate = 0;            /* 1: DNS questions go to the gate (dnsgate.h) */
 
 
 /* Run a firewall tool quietly. Returns its exit status, or -1. */
@@ -215,6 +224,19 @@ static int ipt_alert(const char *op) {
   return run_quiet(argv);
 }
 
+/* OUTBOUND rule: queue other programs' DNS questions for the gate: UDP to
+ * port 53, not to loopback (a local resolver's own upstream question is
+ * queued instead), our own marked packets excluded. */
+static int ipt_dns(const char *op) {
+  char q[16], mark[32];
+  snprintf(q, sizeof(q), "%d", g_queue_num);
+  snprintf(mark, sizeof(mark), "0x%x/0x%x", SHROUDLY_FWMARK, SHROUDLY_FWMARK);
+  char *argv[] = { "iptables", "-w", "-t", "mangle", (char *)op, "OUTPUT", "-p", "udp", "--dport", "53",
+    "!", "-d", "127.0.0.0/8", "-m", "mark", "!", "--mark", mark,
+    "-j", "NFQUEUE", "--queue-num", q, "--queue-bypass", NULL };
+  return run_quiet(argv);
+}
+
 static int nft(const char *cmd) {
   char *argv[] = { "nft", (char *)cmd, NULL };
   return run_quiet(argv);
@@ -228,6 +250,7 @@ static void ipt_clean_all(void) {
   for (int i = 0; i < 8 && ipt_in("-D", "RST", "RST") == 0; i++) {}
   for (int i = 0; i < 8 && ipt_in("-D", "SYN,ACK", "SYN,ACK") == 0; i++) {}
   for (int i = 0; i < 8 && ipt_alert("-D") == 0; i++) {}
+  for (int i = 0; i < 8 && ipt_dns("-D") == 0; i++) {}
 }
 
 static int install_rule(void) {
@@ -239,6 +262,7 @@ static int install_rule(void) {
     if (g_cfg.autottl)  ipt_in("-I", "SYN,ACK", "SYN,ACK");
     iptables_udp_install();                       /* best effort: TCP still works without it */
     g_alert_watch = ipt_alert("-I") == 0;         /* best effort: needs the u32 match */
+    if (g_cfg.dns_gate > 0 && ipt_dns("-I") != 0) g_cfg.dns_gate = 0;
     return 0;
   }
 
@@ -251,6 +275,12 @@ static int install_rule(void) {
     "add rule ip shroudly out tcp dport { 80, 443 } meta mark and 0x%x == 0 queue num %d bypass",
     SHROUDLY_FWMARK, g_queue_num);
   if (nft(rule) != 0) { nft("delete table ip shroudly"); return -1; }
+  if (g_cfg.dns_gate > 0) {
+    snprintf(rule, sizeof(rule),
+      "add rule ip shroudly out udp dport 53 ip daddr != 127.0.0.0/8 meta mark and 0x%x == 0 queue num %d bypass",
+      SHROUDLY_FWMARK, g_queue_num);
+    if (nft(rule) != 0) g_cfg.dns_gate = 0;
+  }
   g_udp_match = 0;
   if (g_udp_ports[0]) {
     /* The tested rules first; should nft refuse one, the ports alone after
@@ -470,6 +500,23 @@ static int alert_from_server(uint32_t key, int ttl) {
   return h - known <= 1 && known - h <= 1;
 }
 
+/* What the DNS gate sends, from its own threads: an answer to the program
+ * that asked (delivered locally), or its question sent on unchanged (with
+ * the UDP checksum the kernel may have left to the network card). Through
+ * the marked raw socket, so neither is queued again. */
+static void gate_send(const uint8_t *pkt, int len, const void *meta, int inbound) {
+  (void)meta;
+  if (len < 28 || len > 4096 || (pkt[0] >> 4) != 4) return;
+  uint8_t buf[4096];
+  memcpy(buf, pkt, (size_t)len);
+  if (!inbound) dnsgate_checksum(buf, len);
+  int ihl = (buf[0] & 0x0f) * 4;
+  uint32_t daddr; uint16_t dport;
+  memcpy(&daddr, buf + 16, 4);
+  memcpy(&dport, buf + ihl + 2, 2);
+  raw_send(buf, len, daddr, dport);
+}
+
 static int cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg,
               struct nfq_data *nfa, void *data) {
   (void)nfmsg; (void)data;
@@ -550,10 +597,18 @@ static int cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg,
   }
 
   if (ip->protocol == IPPROTO_UDP) {
-    rawscope_count(RAWSCOPE_UDP_SEEN);
     if (len < iphl + (int)sizeof(struct udphdr)) return nfq_set_verdict(qh, id, NF_ACCEPT, 0, NULL);
     struct udphdr *udp = (struct udphdr *)(pkt + iphl);
     uint16_t dport_h = ntohs(udp->dest);
+
+    /* A DNS question: the gate answers it, or sends it on itself. Not one of
+     * the datagrams udp_seen counts (those the UDP features look at). */
+    if (dport_h == 53) {
+      static const uint8_t none = 0;
+      if (g_gate && dnsgate_take(pkt, len, &none)) return nfq_set_verdict(qh, id, NF_DROP, 0, NULL);
+      return nfq_set_verdict(qh, id, NF_ACCEPT, 0, NULL);
+    }
+    rawscope_count(RAWSCOPE_UDP_SEEN);
     int poff = iphl + (int)sizeof(struct udphdr);
     int plen = len - poff;
     const uint8_t *up = pkt + poff;
@@ -619,11 +674,12 @@ int raw_linux_start(int queue_num, const raw_config *cfg) {
     return -1;
   }
 
+  g_gate = g_cfg.dns_gate > 0 && dnsgate_start(g_cfg.dns_gate, gate_send, 0) == 0;
   g_run = 1;
   int fd = nfq_fd(g_h);
   char buf[4096] __attribute__((aligned));
-  printf("{\"type\":\"raw_ready\",\"queue\":%d,\"ttl\":%d,\"drop_rst\":%d,\"autottl\":%d,\"seqovl\":%d,\"split\":%d,\"mode\":%d,\"quic_block\":%d,\"udp_fake\":%d,\"alert_watch\":%d,\"udp_match\":%d}\n",
-         queue_num, g_cfg.fake_ttl, g_cfg.drop_rst, g_cfg.autottl, g_cfg.seqovl, g_cfg.split, g_cfg.desync_mode, g_quic_block, g_udp_fake, g_alert_watch, g_udp_match);
+  printf("{\"type\":\"raw_ready\",\"queue\":%d,\"ttl\":%d,\"drop_rst\":%d,\"autottl\":%d,\"seqovl\":%d,\"split\":%d,\"mode\":%d,\"quic_block\":%d,\"udp_fake\":%d,\"alert_watch\":%d,\"udp_match\":%d,\"dns_gate\":%d}\n",
+         queue_num, g_cfg.fake_ttl, g_cfg.drop_rst, g_cfg.autottl, g_cfg.seqovl, g_cfg.split, g_cfg.desync_mode, g_quic_block, g_udp_fake, g_alert_watch, g_udp_match, g_gate);
   fflush(stdout);
   while (g_run) {
     int rv = recv(fd, buf, sizeof(buf), 0);
@@ -637,6 +693,7 @@ int raw_linux_start(int queue_num, const raw_config *cfg) {
 
 void raw_linux_stop(void) {
   g_run = 0;
+  if (g_gate) { dnsgate_stop(); g_gate = 0; }
   raw_linux_teardown();
   if (g_qh) { nfq_destroy_queue(g_qh); g_qh = NULL; }
   if (g_h) { nfq_close(g_h); g_h = NULL; }

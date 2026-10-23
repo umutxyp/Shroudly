@@ -60,6 +60,7 @@ static int g_queue = 200;
 static int g_fake_ttl = 4;
 static int g_quic_block = 1;    /* Advanced mode: drop QUIC Initial -> TCP */
 static int g_udp_fake = 1;      /* Advanced mode: decoys for Discord voice UDP */
+static int g_dns_gate = 0;      /* Advanced mode: other programs' DNS from the forwarder on this port */
 static int g_fake_repeats = 6;  /* how many decoy datagrams per voice flow */
 static char g_status_file[1024] = "";
 static char g_auth_file[1024] = "";
@@ -104,6 +105,7 @@ static void defaults(void) {
   g_fake_ttl = 4;
   g_quic_block = 1;
   g_udp_fake = 1;
+  g_dns_gate = 0;
   g_fake_repeats = 6;
   g_status_file[0] = 0;
   g_auth_file[0] = 0;
@@ -145,7 +147,9 @@ static void usage(void) {
     "  --advanced            packet-layer backend (needs elevation)\n"
     "  --fake-repeats <n>    Advanced: decoy datagrams per Discord voice flow\n"
     "  --no-quic-block       Advanced: keep QUIC (do not force browsers to TCP)\n"
-    "  --no-udp-fake         Advanced: no decoys for Discord voice UDP\n");
+    "  --no-udp-fake         Advanced: no decoys for Discord voice UDP\n"
+    "  --dns-gate <port>     Advanced: answer other programs' DNS from the\n"
+    "                        encrypted-DNS forwarder on 127.0.0.1:<port>\n");
 }
 
 /* What became of a list: {"type":"adblock","on":...,"entries":...} with its
@@ -207,6 +211,7 @@ int engine_main(int argc, char **argv, FILE *in, FILE *out, int embedded) {
     else if (!strcmp(argv[i], "--fake-repeats") && i+1<argc) g_fake_repeats = atoi(argv[++i]);
     else if (!strcmp(argv[i], "--no-quic-block")) g_quic_block = 0;
     else if (!strcmp(argv[i], "--no-udp-fake")) g_udp_fake = 0;
+    else if (!strcmp(argv[i], "--dns-gate") && i+1<argc) g_dns_gate = atoi(argv[++i]);
 #if defined(SHROUDLY_RAW)
     else if (!strcmp(argv[i], "--drop-rst") && i+1<argc) g_drop_rst = atoi(argv[++i]) ? 1 : 0;
     else if (!strcmp(argv[i], "--autottl") && i+1<argc) g_autottl = atoi(argv[++i]) ? 1 : 0;
@@ -260,6 +265,7 @@ int engine_main(int argc, char **argv, FILE *in, FILE *out, int embedded) {
     rc.fake_pattern = (uint8_t)g_fake_pat;
     rc.quic_block = g_quic_block;
     rc.udp_fake = g_udp_fake;
+    rc.dns_gate = g_dns_gate;
     rc.fake_repeats = g_fake_repeats;
     /* What the engine did, as a raw_stats line: every minute and at stop. */
     rawscope_counters_reset();

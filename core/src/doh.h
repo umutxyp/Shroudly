@@ -55,4 +55,11 @@ int  doh_addr_is_block(const struct sockaddr_storage *sa);
  * hosts file or the user's own filtering DNS answers with on purpose. */
 int  doh_ipv4_is_blockpage(uint32_t ip);
 
+/* A reply that may be handed to another program as it is (Advanced mode's
+ * DNS gate, dnsgate.h): no error and, for A or AAAA (qtype 1, 28), a public
+ * address or no record of that type at all. Not a private or block-page
+ * address only, a failure or "no such name": that program's own DNS answers
+ * those (an intranet, a VPN's names). */
+int  doh_reply_usable(const uint8_t *r, int len, uint16_t qtype);
+
 #endif

@@ -240,12 +240,14 @@ int rawscope_stats_json(char *buf, size_t cap) {
   if (!buf || cap == 0) return 0;
   int n = snprintf(buf, cap,
     "{\"type\":\"raw_stats\",\"desynced\":%lu,\"skipped\":%lu,\"rst_dropped\":%lu,\"rst_passed\":%lu,"
-    "\"nodecoy\":%lu,\"decoy_hurt\":%lu,\"udp_seen\":%lu,\"udp_decoys\":%lu,\"quic_dropped\":%lu}",
+    "\"nodecoy\":%lu,\"decoy_hurt\":%lu,\"udp_seen\":%lu,\"udp_decoys\":%lu,\"quic_dropped\":%lu,"
+    "\"dns_answered\":%lu,\"dns_passed\":%lu}",
     rawscope_counter(RAWSCOPE_DESYNCED), rawscope_counter(RAWSCOPE_SKIPPED),
     rawscope_counter(RAWSCOPE_RST_DROPPED), rawscope_counter(RAWSCOPE_RST_PASSED),
     rawscope_counter(RAWSCOPE_NODECOY), rawscope_counter(RAWSCOPE_DECOY_HURT),
     rawscope_counter(RAWSCOPE_UDP_SEEN), rawscope_counter(RAWSCOPE_UDP_DECOYS),
-    rawscope_counter(RAWSCOPE_QUIC_DROPPED));
+    rawscope_counter(RAWSCOPE_QUIC_DROPPED),
+    rawscope_counter(RAWSCOPE_DNS_ANSWERED), rawscope_counter(RAWSCOPE_DNS_PASSED));
   if (n < 0 || (size_t)n >= cap) { buf[0] = 0; return 0; }
   return n;
 }

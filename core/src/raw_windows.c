@@ -17,6 +17,11 @@
  * A call's own datagrams never come up to this loop, so nothing here can add
  * delay or loss to a call.
  *
+ * Other programs' DNS questions (UDP port 53, IPv4 and IPv6) go to the DNS
+ * gate when the app gives it its forwarder (--dns-gate, dnsgate.h): a program
+ * that ignores the proxy then gets encrypted DNS's answer, not the network's
+ * forged one. Whatever the gate does not answer goes on unchanged.
+ *
  * Traffic to a local, private or special address is never changed, and a
  * reset is only dropped from a server this engine recently desynced
  * (rawscope.h). A server the decoy itself reaches and upsets (a TLS alert
@@ -55,6 +60,7 @@
 #include "raw_desync.h"
 #include "tcpdpi.h"
 #include "rawscope.h"
+#include "dnsgate.h"
 
 /* ── Minimal WinDivert 2.2 declarations (avoid needing the SDK header) ───────
  * Must match include/windivert.h of the bundled release byte for byte. */
@@ -105,6 +111,7 @@ static raw_config g_cfg;
 static int g_alert_watch = 0;     /* 1: inbound plaintext TLS alerts are captured */
 static int g_udp_match = 0;       /* 1: the kernel tests UDP payloads (udpdpi.h) */
 static uint16_t g_ipid = 0x1000; /* rolling IP id for our crafted segments */
+static int g_gate = 0;            /* 1: DNS questions go to the gate (dnsgate.h) */
 
 static uint32_t rd32be(const uint8_t *p) {
   return ((uint32_t)p[0]<<24)|((uint32_t)p[1]<<16)|((uint32_t)p[2]<<8)|p[3];
@@ -271,6 +278,25 @@ static int handle_outbound(const uint8_t *pkt, int len, int ihl, int tcphl, int 
   return 0;
 }
 
+/* What the DNS gate sends, from its own threads (a handle takes sends from
+ * any thread): an answer goes in to the program that asked, on the interface
+ * its question left by; a question it does not answer goes out as it came. */
+static void gate_send(const uint8_t *pkt, int len, const void *meta, int inbound) {
+  if (g_handle == INVALID_HANDLE_VALUE || len <= 0 || len > 4096) return;
+  WINDIVERT_ADDRESS a;
+  memcpy(&a, meta, sizeof(a));
+  UINT s = 0;
+  if (!inbound) { p_Send(g_handle, pkt, (UINT)len, &s, &a); return; }
+  uint8_t buf[4096];
+  memcpy(buf, pkt, (size_t)len);
+  a.Outbound = 0;
+  a.Loopback = 0;
+  a.Impostor = 0;
+  a.IPv6 = (buf[0] >> 4) == 6;
+  p_CalcCsum(buf, (UINT)len, &a, 0);
+  p_Send(g_handle, buf, (UINT)len, &s, &a);
+}
+
 int raw_windows_start(const raw_config *cfg) {
   g_cfg = *cfg;
   if (g_cfg.fake_ttl <= 0) g_cfg.fake_ttl = 4;
@@ -306,6 +332,9 @@ int raw_windows_start(const raw_config *cfg) {
       "(outbound and ip and tcp and (tcp.DstPort == 443 or tcp.DstPort == 80) and tcp.PayloadLength > 0)");
     if (udp[0])
       base += snprintf(filter + base, sizeof(filter) - base, " or (outbound and ip and udp and %s)", udp);
+    /* Other programs' DNS questions, for the gate (both address families). */
+    if (g_cfg.dns_gate > 0)
+      base += snprintf(filter + base, sizeof(filter) - base, " or (outbound and !loopback and udp and udp.DstPort == 53)");
     for (int watch = 1; watch >= 0; watch--) {
       char sub[256]; sub[0] = 0; int so = 0;
       if (g_cfg.drop_rst) so += snprintf(sub + so, sizeof(sub) - so, "tcp.Rst");
@@ -331,9 +360,10 @@ int raw_windows_start(const raw_config *cfg) {
     return -1;
   }
 
+  g_gate = g_cfg.dns_gate > 0 && dnsgate_start(g_cfg.dns_gate, gate_send, (int)sizeof(WINDIVERT_ADDRESS)) == 0;
   g_run = 1;
-  printf("{\"type\":\"raw_ready\",\"backend\":\"windivert\",\"ttl\":%d,\"drop_rst\":%d,\"autottl\":%d,\"seqovl\":%d,\"split\":%d,\"mode\":%d,\"quic_block\":%d,\"udp_fake\":%d,\"alert_watch\":%d,\"udp_match\":%d}\n",
-         g_cfg.fake_ttl, g_cfg.drop_rst, g_cfg.autottl, g_cfg.seqovl, g_cfg.split, g_cfg.desync_mode, g_quic_block, g_udp_fake, g_alert_watch, g_udp_match);
+  printf("{\"type\":\"raw_ready\",\"backend\":\"windivert\",\"ttl\":%d,\"drop_rst\":%d,\"autottl\":%d,\"seqovl\":%d,\"split\":%d,\"mode\":%d,\"quic_block\":%d,\"udp_fake\":%d,\"alert_watch\":%d,\"udp_match\":%d,\"dns_gate\":%d}\n",
+         g_cfg.fake_ttl, g_cfg.drop_rst, g_cfg.autottl, g_cfg.seqovl, g_cfg.split, g_cfg.desync_mode, g_quic_block, g_udp_fake, g_alert_watch, g_udp_match, g_gate);
   fflush(stdout);
 
   uint8_t pkt[65535];
@@ -385,6 +415,8 @@ int raw_windows_start(const raw_config *cfg) {
     }
 
     /* ── Outbound ───────────────────────────────────────────────────────── */
+    /* A DNS question: the gate answers it, or sends it on itself. */
+    if (g_gate && dnsgate_take(pkt, (int)len, &addr)) continue;
     if (addr.IPv6) { UINT s; p_Send(g_handle, pkt, len, &s, &addr); continue; }
     int ihl = (pkt[0] & 0x0f) * 4;
     if (ihl < 20 || (int)len < ihl) { UINT s; p_Send(g_handle, pkt, len, &s, &addr); continue; }
@@ -468,6 +500,7 @@ int raw_windows_start(const raw_config *cfg) {
 
 void raw_windows_stop(void) {
   g_run = 0;
+  if (g_gate) { dnsgate_stop(); g_gate = 0; }
   if (g_handle != INVALID_HANDLE_VALUE) {
     if (p_Shutdown) p_Shutdown(g_handle, 0x1 /*WINDIVERT_SHUTDOWN_RECV*/);
     p_Close(g_handle);

@@ -764,6 +764,16 @@ int doh_resolve_all(const char *name, uint16_t port, int want6,
   return got;
 }
 
+int doh_reply_usable(const uint8_t *r, int len, uint16_t qtype) {
+  if (!r || len < 12 || (r[3] & 0x0f) != 0) return 0;
+  if (qtype != 1 && qtype != 28) return 1;
+  uint8_t addrs[DOH_MAX_ADDRS][16];
+  int n = 0;
+  uint32_t ttl = 0;
+  int pr = dns_parse(r, len, qtype == 28, addrs, DOH_MAX_ADDRS, &n, &ttl);
+  return pr == 0 || pr == DNS_NODATA;
+}
+
 int doh_resolve(const char *name, uint16_t port, int want6,
                 struct sockaddr_storage *out, socklen_t *outlen) {
   return doh_resolve_all(name, port, want6, out, outlen, 1) > 0 ? 0 : -1;

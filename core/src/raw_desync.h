@@ -37,6 +37,8 @@ typedef struct {
   int     quic_block;     /* 1: drop QUIC Initial (UDP/443) so browsers fall back to TCP */
   int     udp_fake;       /* 1: decoys ahead of the first Discord voice datagrams */
   int     fake_repeats;   /* decoy datagrams per voice flow (defaults if <= 0) */
+  int     dns_gate;       /* >0: other programs' DNS answered from the forwarder
+                           * on this 127.0.0.1 port (dnsgate.h); 0: off */
 } raw_config;
 
 /* Sensible defaults: the strictly-additive, always-safe protections are on:
@@ -68,6 +70,7 @@ static inline void raw_config_defaults(raw_config *c, int fake_ttl) {
   c->quic_block = 1;
   c->udp_fake = 1;
   c->fake_repeats = 6;
+  c->dns_gate = 0;
 }
 
 #endif
