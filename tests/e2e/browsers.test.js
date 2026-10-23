@@ -118,8 +118,15 @@ function chromium(name, exe, extra = []) {
   return {
     name, chromium: true, available: exists(exe),
     run: async (env) => {
-      const r = await run(exe, ['--headless=new', '--disable-gpu', '--no-first-run', '--no-default-browser-check', `--user-data-dir=${tmp('cr')}`, ...extra, '--dump-dom', URL_], { timeoutMs: 60000, env });
-      return /Example Domain/.test(r.out) ? 'OK' : `FAIL ${r.err || ''} ${(r.errOut.match(/net::ERR_\w+/) || [''])[0]}`.trim();
+      for (let i = 0; ; i++) {
+        const r = await run(exe, ['--headless=new', '--disable-gpu', '--no-first-run', '--no-default-browser-check', `--user-data-dir=${tmp('cr')}`, ...extra, '--dump-dom', URL_], { timeoutMs: 60000, env });
+        const res = /Example Domain/.test(r.out) ? 'OK' : `FAIL ${r.err || ''} ${(r.errOut.match(/net::ERR_\w+/) || [''])[0]}`.trim();
+        // Chrome's own passing error: its certificate verifier was replaced
+        // while the page loaded (a fresh profile taking a root store update),
+        // nothing to do with the proxy. Asked once more.
+        if (i === 0 && /ERR_CERT_VERIFIER_CHANGED/.test(res)) continue;
+        return res;
+      }
     },
   };
 }
