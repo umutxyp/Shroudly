@@ -2917,17 +2917,17 @@ static int raw_restore(const char *k, const char *technique, uint64_t age) {
  * A company's intranet, a VPN's split DNS, a hosts-file entry: the system's
  * resolver answers them with a private address, and public DNS does not know
  * them at all, so asking only our own resolver would fail the connection.
- * Our own resolver (encrypted DNS, or the user's own server) is asked first,
- * and a name it has a public address for goes there: the system's DNS, which
- * is the network's and in plain text, is never shown it (issue #34; it was
- * asked about every name before). Only a name ours does not know, or knows
- * only by a private or loopback address, is asked of the system; and, as the
- * program proxy does (electron/app-proxy.js), one the system resolves to
- * private addresses only, none of them a known block page, or to loopback or
- * 0.0.0.0 (a hosts file, an ad blocker), is connected to where the system
- * says. A hosts-file entry for a name public DNS knows is not followed.
- * Decided once a minute per name; the system is given OSDNS_WAIT_MS to answer
- * (it may be the one that is broken). */
+ * The connection is made with our own resolver (encrypted DNS, or the user's
+ * own server) first; only a name it has no address for (it does not know it,
+ * or knows it only by a private or loopback address) is asked of the system,
+ * so the system's DNS, which is the network's and in plain text, is never
+ * shown a public name (issue #34; it was asked about every name before).
+ * Then, as the program proxy does (electron/app-proxy.js), a name the system
+ * resolves to private addresses only, none of them a known block page, or to
+ * loopback or 0.0.0.0 (a hosts file, an ad blocker), is connected to where
+ * the system says. A hosts-file entry for a name public DNS knows is not
+ * followed. Decided once a minute per name; the system is given
+ * OSDNS_WAIT_MS to answer (it may be the one that is broken). */
 #define OSDNS_SLOTS   128
 #define OSDNS_TTL_MS  60000
 #define OSDNS_WAIT_MS 1500
@@ -2990,28 +2990,21 @@ static int osdns_follow(const char *host) {
     if (g_osdns[i].t < g_osdns[oldest].t) oldest = i;
   }
   if (slot >= 0 && age_ms(now, g_osdns[slot].t) < OSDNS_TTL_MS) { int f = g_osdns[slot].follow; mutex_unlock(&g_osdns_mx); return f; }
-  int slow = now < g_osdns_slow_until;
+  if (now < g_osdns_slow_until) { mutex_unlock(&g_osdns_mx); return 0; }
   mutex_unlock(&g_osdns_mx);
 
-  /* Ours first: a public address there, and the system is not asked. */
-  struct sockaddr_storage sa[DOH_MAX_ADDRS]; socklen_t sl[DOH_MAX_ADDRS];
-  int ours = doh_resolve_all(host, 443, 0, sa, sl, DOH_MAX_ADDRS) > 0 ||
-             doh_resolve_all(host, 443, 1, sa, sl, DOH_MAX_ADDRS) > 0;
-  if (!ours && slow) return 0;
-  int follow = 0, st = 3;
-  if (!ours) {
-    osdns_job *j = (osdns_job *)calloc(1, sizeof(*j));
-    if (!j) return 0;
-    snprintf(j->host, sizeof(j->host), "%s", host);
-    atomic_store(&j->refs, 2);
-    if (thread_spawn(osdns_thread, j, 256 * 1024) != 0) { free(j); return 0; }
-    uint64_t end = now_ms() + OSDNS_WAIT_MS;
-    while ((st = atomic_load(&j->state)) == 0 && now_ms() < end) sleep_ms(5);
-    osdns_release(j);
-    /* A private address; or loopback / 0.0.0.0, ours having no public
-     * address for it either (known above). */
-    follow = st == 1 || st == 2;
-  }
+  /* Asked only once our own resolver had no address for the name (the
+   * caller), so a loopback or 0.0.0.0 answer is followed as well. */
+  osdns_job *j = (osdns_job *)calloc(1, sizeof(*j));
+  if (!j) return 0;
+  snprintf(j->host, sizeof(j->host), "%s", host);
+  atomic_store(&j->refs, 2);
+  if (thread_spawn(osdns_thread, j, 256 * 1024) != 0) { free(j); return 0; }
+  uint64_t end = now + OSDNS_WAIT_MS;
+  int st;
+  while ((st = atomic_load(&j->state)) == 0 && now_ms() < end) sleep_ms(5);
+  osdns_release(j);
+  int follow = st == 1 || st == 2;
   mutex_lock(&g_osdns_mx);
   if (st == 0) g_osdns_slow_until = now_ms() + OSDNS_TTL_MS;   /* decided: ours, for a while */
   if (slot < 0) slot = oldest;
@@ -3106,13 +3099,16 @@ static void handle(sock_t client) {
     if (up == SOCK_INVALID) up = dial(rq.host, rq.port, g_cfg.prefer_ipv6, g_cfg.use_doh, 0, &fam, &di);
     if (up == SOCK_INVALID) goto done;
   } else {
-    /* A name only this computer's DNS knows (an intranet, a hosts file):
-     * where the system says (see osdns_follow). */
-    if (osdns_follow(rq.host)) {
+    up = dial(rq.host, rq.port, g_cfg.prefer_ipv6, dial_doh, 0, &fam, &di);
+    /* A name our resolver has no address for, which only this computer's DNS
+     * knows (an intranet, a VPN's split DNS, a hosts file): where the system
+     * says (see osdns_follow). A public name never gets here, so the
+     * network's DNS is not shown it. */
+    if (up == SOCK_INVALID && dial_doh && di.resolved == 0 && osdns_follow(rq.host)) {
       dial_doh = 0;
       snprintf(dial_host, sizeof(dial_host), "%s", rq.host);
+      up = dial(rq.host, rq.port, g_cfg.prefer_ipv6, 0, 0, &fam, &di);
     }
-    up = dial(rq.host, rq.port, g_cfg.prefer_ipv6, dial_doh, 0, &fam, &di);
     if (up == SOCK_INVALID) {
       /* Told while the app is still connected to us (see RAW_HOLD_MS); not
        * where nobody could look (--auth-file: the tunnel on Android). */
