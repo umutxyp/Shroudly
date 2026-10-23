@@ -182,12 +182,21 @@ static void test_engine_state(void) {
   remove(p);
 }
 
+/* What snprintf wrote at t + *k, added to *k; the test stops if it did not
+ * fit (a truncated write would leave *k past the buffer, and cap - *k would
+ * wrap around). */
+static void put(size_t cap, size_t *k, int w) {
+  if (w < 0 || (size_t)w >= cap - *k) { fprintf(stderr, "big_list: buffer too small\n"); exit(1); }
+  *k += (size_t)w;
+}
+
 /* A list like the downloaded one: n entries, the two every ad list has. */
 static char *big_list(size_t n, size_t *len) {
-  size_t cap = n * 48 + 256, k = 0;
+  size_t cap = n * 64 + 256, k = 0;
   char *t = (char *)malloc(cap);
-  k += (size_t)snprintf(t + k, cap - k, "# Title: test\n0.0.0.0 doubleclick.net\n0.0.0.0 googlesyndication.com\n");
-  for (size_t i = 0; i < n; i++) k += (size_t)snprintf(t + k, cap - k, "0.0.0.0 ads%zu.tracker%zu.example-net.com\n", i, i % 977);
+  if (!t) { fprintf(stderr, "big_list: out of memory\n"); exit(1); }
+  put(cap, &k, snprintf(t + k, cap - k, "# Title: test\n0.0.0.0 doubleclick.net\n0.0.0.0 googlesyndication.com\n"));
+  for (size_t i = 0; i < n; i++) put(cap, &k, snprintf(t + k, cap - k, "0.0.0.0 ads%zu.tracker%zu.example-net.com\n", i, i % 977));
   *len = k;
   return t;
 }

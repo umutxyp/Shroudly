@@ -114,4 +114,15 @@ t.ok(!/https?:\/\//.test(r.replace(/--watch discord\.media/, '')) && !r.includes
   t.ok(saveReport(text, [path.join(tmp, 'none')], { now }).ok === false, 'no folder at all: not saved, and said so');
   fs.rmSync(tmp, { recursive: true, force: true });
 }
+// A message on several lines is one line in the short version, the blank
+// ones dropped; a long run of spaces costs no time (no regex that backtracks).
+{
+  const s0 = { version: '2.6.5', platform: 'win32', release: '10.0.26100', arch: 'x64', now: Date.parse('2026-10-23T12:00:00Z') };
+  const c = buildCompact(s0, [{ timestamp: '2026-10-23T11:00:00.000Z', level: 'info', message: 'first  \r\n\n   second\nthird' }]);
+  t.ok(c.includes('first second third'), 'several lines: joined by one space, blank ones dropped');
+  const spaces = ' '.repeat(200000);
+  const t0 = Date.now();
+  buildCompact(s0, [{ timestamp: '2026-10-23T11:00:00.000Z', level: 'info', message: `${spaces}x${spaces}` }]);
+  t.ok(Date.now() - t0 < 500, `a line of 400 000 spaces: ${Date.now() - t0} ms`);
+}
 console.log(`logreport: ${t.count} passed`);

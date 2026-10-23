@@ -72,7 +72,11 @@ function buildReport(s, logs = []) {
 /* A log line's text for the short version: on one line, an engine's
  * command line cut to the program, at most LINE_MAX_CHARS. */
 function shortMessage(msg) {
-  let m = String(msg ?? '').replace(/\s*\r?\n\s*/g, ' ');
+  let m = String(msg ?? '');
+  // Its lines joined by one space, the blank ones dropped. Split, not one
+  // regex: a pattern that starts with \s* takes quadratic time on a long run
+  // of spaces (CodeQL js/polynomial-redos).
+  if (m.includes('\n')) m = m.split('\n').map((l) => l.trim()).filter(Boolean).join(' ');
   m = m.replace(/^(Starting engine: \S+) .*$/, '$1');
   if (m.length > LINE_MAX_CHARS) m = `${m.slice(0, LINE_MAX_CHARS - 1)}…`;
   return m;
