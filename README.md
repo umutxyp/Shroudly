@@ -161,6 +161,13 @@ phone's own connections.
   no separate Discord or Games and apps mode needed.
 - A Quick Settings tile turns it on and off; Android's "Always-on VPN" brings
   it back after a restart.
+- It stays on until you turn it off. Some phones end apps while the screen is
+  locked (a power saver that also turns Wi-Fi and mobile data off): Shroudly
+  then comes back by itself as soon as a network is there again, with no tap
+  needed ([#39](https://github.com/umutxyp/Shroudly/issues/39)). The same
+  happens after protection ended on its own (at most three times an hour).
+  While there is no network at all, it does no checks that would wake the
+  phone for nothing.
 - The APK from Releases looks for updates on GitHub; a copy that Google Play
   installs or updates (same package and signing key, so either one updates
   the other) is updated by Play and does not ask GitHub.
