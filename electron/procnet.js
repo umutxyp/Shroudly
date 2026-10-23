@@ -318,6 +318,84 @@ async function owner(localPort, remotePort, platform = process.platform) {
   return procOwner(localPort, remotePort);
 }
 
+/* Connections from this computer to the addresses `want(host)` picks,
+ * whoever holds them: [{ pid, name, remote }]. Programs that go around
+ * Shroudly are seen by these (around-watch.js). Every state but listening:
+ * a SYN that never got an answer counts, and so does a connection already
+ * closed (TIME_WAIT), which a program that failed at once leaves behind for
+ * a minute or two; that one belongs to no process any more (pid 0, name
+ * null). Windows: netstat. Linux: the kernel's tables, a process for the
+ * sockets this user may see (their own, where a bot or a tool runs).
+ * macOS: [] (what they are looked for, Advanced mode, is not there). The
+ * program's name as the system gives it (tasklist; /proc/<pid>/comm), null
+ * when it is gone. */
+function parseNetstatAll(out) {
+  const rows = [];
+  for (const line of String(out || '').split(/\r?\n/)) {
+    const f = line.trim().split(/\s+/);
+    if (f[0] !== 'TCP' || f.length < 5) continue;
+    const remote = hostPort(f[2]);
+    const pid = Number(f[f.length - 1]);
+    // A listening socket has no peer (port 0; the State column is translated).
+    if (remote && remote.port > 0 && pid >= 0) rows.push({ pid, remote });
+  }
+  return rows;
+}
+
+function parseTasklistNames(out) {
+  const names = new Map();
+  for (const line of String(out || '').split(/\r?\n/)) {
+    const m = /^"([^"]+)","(\d+)"/.exec(line.trim());
+    if (m) names.set(Number(m[2]), m[1]);
+  }
+  return names;
+}
+
+function procOutbound(want, root = '/proc') {
+  const read = (f) => { try { return fs.readFileSync(f, 'utf8'); } catch { return ''; } };
+  const byInode = new Map();
+  const closed = [];
+  for (const table of ['tcp', 'tcp6']) {
+    for (const line of read(`${root}/net/${table}`).split('\n').slice(1)) {
+      const f = line.trim().split(/\s+/);
+      // 0A listening; inode 0: closed, no process holds it (TIME_WAIT)
+      if (f.length < 10 || f[3] === '0A') continue;
+      const [ip, port] = f[2].split(':');
+      if (!ip || !port) continue;
+      const remote = { host: ip.length === 8 ? v4(ip) : v6(ip), port: parseInt(port, 16) };
+      if (!remote.port || !want(remote.host)) continue;
+      if (f[9] === '0') closed.push({ pid: 0, name: null, remote });
+      else byInode.set(f[9], remote);
+    }
+  }
+  if (!byInode.size) return closed;
+  let pids = [];
+  try { pids = fs.readdirSync(root).filter((d) => /^\d+$/.test(d)); } catch { return closed; }
+  const rows = closed;
+  for (const pid of pids) {
+    let fds = [];
+    try { fds = fs.readdirSync(`${root}/${pid}/fd`); } catch { continue; }
+    for (const fd of fds) {
+      let link = '';
+      try { link = fs.readlinkSync(`${root}/${pid}/fd/${fd}`); } catch { continue; }
+      const m = /^socket:\[(\d+)\]$/.exec(link);
+      if (m && byInode.has(m[1])) rows.push({ pid: Number(pid), name: read(`${root}/${pid}/comm`).trim() || null, remote: byInode.get(m[1]) });
+    }
+  }
+  return rows;
+}
+
+async function outbound(want, platform = process.platform) {
+  if (platform === 'win32') {
+    const rows = parseNetstatAll(await run('netstat', ['-ano'])).filter((r) => want(r.remote.host));
+    if (!rows.some((r) => r.pid > 0)) return rows.map((r) => ({ ...r, name: null }));
+    const names = parseTasklistNames(await run('tasklist', ['/fo', 'csv', '/nh']));
+    return rows.map((r) => ({ ...r, name: (r.pid > 0 && names.get(r.pid)) || null }));
+  }
+  if (platform === 'linux') return procOutbound(want);
+  return [];
+}
+
 /* Ports proxy programs listen on by default: ByeDPI and other SOCKS tools
  * (1080, 1081, 1086, 1087), NekoBox (2080, 2081), Squid (3128), Clash and
  * its forks (7890, 7891, 7897), HTTP proxies (8080, 8118 Privoxy, 8888,
@@ -347,4 +425,4 @@ function heldLocally(rows, { ours = [], proxyPorts = PROXY_PORTS } = {}) {
   return out;
 }
 
-module.exports = { LOOPBACK, PROXY_PORTS, heldLocally, owner, parseNetstatOwner, parseLsofOwner, procOwner, connectsTo, connections, listener, listeningSync, parseNetstat, parseNetstatListeners, parseTasklistName, parseLsofListener, parseBsdListening, procListener, procListening, parseLsof, parseSs, parseProcNet, procConnections };
+module.exports = { LOOPBACK, PROXY_PORTS, heldLocally, owner, outbound, procOutbound, parseNetstatAll, parseTasklistNames, parseNetstatOwner, parseLsofOwner, procOwner, connectsTo, connections, listener, listeningSync, parseNetstat, parseNetstatListeners, parseTasklistName, parseLsofListener, parseBsdListening, procListener, procListening, parseLsof, parseSs, parseProcNet, procConnections };

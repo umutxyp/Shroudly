@@ -29,6 +29,7 @@ const LinkHandlers = require('./link-handlers');
 const RobloxApp = require('./roblox-app');
 const { RobloxWatch } = require('./roblox-watch');
 const Autopilot = require('./autopilot');
+const AroundWatch = require('./around-watch');
 const StoreApps = require('./store-apps');
 const BlockCheck = require('./blockcheck');
 const ProcNet = require('./procnet');
@@ -95,6 +96,7 @@ let discordRelay = null;
 let keepDiscordLine = false;
 let appProxy = null;
 let autopilot = null;
+let aroundWatch = null;
 // Apps whose own connections cannot get through, named and told (raw-apps.js).
 const rawWatch = new RawWatch({
   log: (level, msg) => addLog(level, msg),
@@ -863,6 +865,7 @@ app.whenReady().then(async () => {
       // Advanced mode is for.
       if (advice && advice.cut && advice.cut.host && autopilot) {
         autopilot.noteHost('cut', advice.cut.host, { believed: true });
+        if (aroundWatch) aroundWatch.note('cut', advice.cut.host, { believed: true });
         autopilot.needAdvanced(advice.cut.host).catch(() => {});
       }
     },
@@ -900,6 +903,7 @@ app.whenReady().then(async () => {
     // a CDN, API or storage host answers / with an error page of its own.
     onHostEvent: (kind, host, detail, info) => {
       if (autopilot) autopilot.noteHost(kind, host, info || { note: detail });
+      if (aroundWatch) aroundWatch.note(kind, host, info || { note: detail });
       if (kind === 'cut' && repeatedCut(host, detail) && ServiceCheck.isMainName(host)) checkServiceOnce(host).catch(() => {});
     },
     // A site that defeated every technique. Told once per site, and at most
@@ -1900,6 +1904,7 @@ setInterval(() => {
   // about the new one (doh-forwarder.js).
   if (now !== networkPrint && engine && engine.doh) engine.doh.networkChanged();
   if (now !== networkPrint) rawWatch.networkChanged();
+  if (now !== networkPrint && aroundWatch) aroundWatch.networkChanged();
   // IPv6 came or went: whether the PAC sends IPv6 addresses to the engine
   // follows (system-proxy.js, hasGlobalIPv6).
   if (now !== networkPrint && engine && engine.proxy && engine.proxy.updateRouting) {
@@ -2177,13 +2182,19 @@ async function startAdvanced() {
   }
 }
 
+/* Is host blocked on this network for a program that goes to it directly
+ * (blockcheck.js), through the engine while protection is on. */
+function checkBlocked(host) {
+  return BlockCheck.check(host, { socksPort: engine && engine.isActive() ? engine.port : null, connect: DiscordRelay.socksConnect });
+}
+
 function createAutopilot() {
   autopilot = new Autopilot({
     store,
     log: addLog,
     tell: autoTell,
     protectionOn: () => !!(engine && engine.isActive()),
-    check: (host) => BlockCheck.check(host, { socksPort: engine && engine.isActive() ? engine.port : null, connect: DiscordRelay.socksConnect }),
+    check: checkBlocked,
     services: [
       {
         id: 'discord', name: 'Discord', probe: 'discord.com', mode: 'discordMode', needsApp: true,
@@ -2225,7 +2236,44 @@ function createAutopilot() {
   setInterval(() => { autopilot.survey().catch(() => {}); }, 10 * 60 * 1000).unref();
   // A network that forges DNS answers: Games and apps mode for the programs
   // that do not use the system proxy (autopilot.js forgedDns).
-  if (engine) engine.onDnsTampering = (hosts) => { autopilot.forgedDns((hosts || []).map((h) => h.host)).catch(() => {}); };
+  // Its forged answers are also what a program around Shroudly is seen
+  // landing on (around-watch.js).
+  if (engine) {
+    engine.onDnsTampering = (hosts) => {
+      if (aroundWatch) aroundWatch.forged(hosts);
+      autopilot.forgedDns((hosts || []).map((h) => h.host)).catch(() => {});
+    };
+  }
+  createAroundWatch();
+}
+
+/* Programs that go around Shroudly and that this network stops (a bot, a
+ * command-line tool): Advanced mode carries them too, so the autopilot asks
+ * for it, naming the program (around-watch.js). Looked for only while it is
+ * available and off, and the autopilot would still ask or say why not; not
+ * with only listed sites going through Shroudly (the rest going around is
+ * the user's choice), nor just after a wake (connections from before it). */
+function createAroundWatch() {
+  aroundWatch = new AroundWatch({
+    wanted: () => !!(engine && engine.isActive() && advanced && advanced.available() && !advanced.active && !advanced._starting
+      && autopilot && autopilot.advancedPending() && store.get('routeMode') !== 'listed' && !wake.recent(2 * 60 * 1000)),
+    connections: (want) => ProcNet.outbound(want),
+    check: checkBlocked,
+    blockedServices: () => (autopilot ? autopilot.blockedAtHandshake() : []),
+    // From encrypted DNS: the network's DNS is never told the sites.
+    resolve: (name) => (engine && engine.dohPort ? AroundWatch.addrsVia(engine.dohPort)(name) : Promise.resolve([])),
+    modeOn: (mode) => store.get(mode) === true,
+    // Every process of the app (its network service too) and the engine.
+    ownPids: () => {
+      let pids = [process.pid];
+      try { pids = pids.concat(app.getAppMetrics().map((m) => m.pid)); } catch {}
+      if (engine && engine.proc && engine.proc.pid) pids.push(engine.proc.pid);
+      return pids;
+    },
+    need: (host, opts) => autopilot.needAdvanced(host, opts),
+    log: addLog,
+  });
+  setInterval(() => { aroundWatch.look().catch(() => {}); }, AroundWatch.LOOK_MS).unref();
 }
 
 /* Microsoft Store apps (Windows): Windows keeps the ones that run in an app

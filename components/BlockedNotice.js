@@ -110,7 +110,7 @@ export default function BlockedNotice({ onNavigate, active = false }) {
     if (!n || !n.id) return;
     if (!STUDIO_LINES.includes(n.id)) setNotice(n);
     // Advanced mode on: the site it was turned on for is no longer a failure.
-    if (n.id === 'autoAdvancedOn') setHost(null);
+    if (['autoAdvancedOn', 'autoAroundOn', 'autoAroundOnAny'].includes(n.id)) setHost(null);
     refreshAdv(); refreshApps(); refreshDiscord();
   };
 
@@ -252,8 +252,8 @@ export default function BlockedNotice({ onNavigate, active = false }) {
   // about, is newer news than the line.
   const hostNewer = host && !hostAsked && hostAt > (notice ? notice.at : 0);
   const noticeShown = notice && Date.now() - notice.at < NOTICE_MS && !hidden[`auto:${notice.at}`]
-    && !(advNotice && adv.active) && !(advNotAsked && adv.active) && !(notice.id === 'autoAdvancedAsk' && adv.active)
-    && !(notice.id === 'autoAdvancedOn' && !adv.active) && !hostNewer;
+    && !(advNotice && adv.active) && !(advNotAsked && adv.active) && !(['autoAdvancedAsk', 'autoAroundAsk', 'autoAroundAskAny'].includes(notice.id) && adv.active)
+    && !(['autoAdvancedOn', 'autoAroundOn', 'autoAroundOnAny'].includes(notice.id) && !adv.active) && !hostNewer;
   if (noticeShown) {
     const offer = advNotice && adv.available && !adv.active;
     return (

@@ -110,6 +110,7 @@ const PATTERNS = [
   [/^(\S+): the addresses encrypted DNS gives get nowhere here; trying the one this network's DNS gives \((\S+)\)$/, 'logNetDnsTry', ['host', 'addr']],
   [/^(\S+): opened at the address this network's DNS gives \((\S+)\)$/, 'logNetDnsOk', ['host', 'addr']],
   [/^(\S+): the address this network's DNS gives \((\S+)\) gets nowhere either$/, 'logNetDnsBad', ['host', 'addr']],
+  [/^(\S+): this network's DNS gives the same addresses \((\S*)\); they get nowhere here$/, 'logNetDnsSame', ['host', 'addr']],
   [/^DNS server: (\S+)$/, 'logDnsServerSet', ['server']],
   [/^DNS server: (\S+) \(only this one\)$/, 'logDnsServerSetStrict', ['server']],
   // A proxy on this computer where nothing runs (a program that has gone).
@@ -155,6 +156,8 @@ const PATTERNS = [
   [/^Autopilot: a Roblox installer went around Shroudly; it was left running \((.+)\) and the user was asked to start it again$/, 'logAutoInstallerLeft', ['why']],
   [/^Autopilot: Roblox went around Shroudly; it was left running \((.+)\) and the user was asked to open it again$/, 'logAutoRobloxLeft', ['why']],
   [/^Autopilot: (.+?) needs Advanced mode(?: \(.+\))?; asking for permission$/, 'logAutoAdvancedAsk', ['host']],
+  [/^Autopilot: a program reaches (\S+) directly, around Shroudly; it is not blocked on this network$/, 'logAroundClear', ['host']],
+  [/^Autopilot: a program reaches (\S+) directly, around Shroudly; only its DNS is blocked on this network, and the program has the real address$/, 'logAroundDnsOnly', ['host']],
   // Advanced mode needed and not asked for by itself: the same words as the
   // line in the window.
   [/^Autopilot: (.+?) needs Advanced mode on this network(?: \(.*\))?; it was turned off by hand on (\S+), so it is not turned on by itself; turn it on in Settings$/, 'autoAdvancedOffBefore', ['host', 'date']],

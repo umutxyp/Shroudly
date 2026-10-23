@@ -32,7 +32,9 @@
  * domain of Discord's voice servers, from the app or a browser, and a call
  * is one to a voice server's own name): the sound of a call
  * goes over UDP, which the default engine never touches, and only Advanced
- * mode can put its decoys ahead of it. It needs the system's permission, so
+ * mode can put its decoys ahead of it. So is a program that goes around
+ * Shroudly (a bot, a command-line tool) and is stopped by this network
+ * (around-watch.js finds it). It needs the system's permission, so
  * it is asked for at most once a session, not again by itself for two weeks
  * once the user declines, and never by itself while a game with an
  * anti-cheat is being played (antiCheatIn).
@@ -509,6 +511,22 @@ class Autopilot {
    * started themselves): not asked again by itself for two weeks. */
   recordDecline() { this.store.set('advancedDeclinedAt', this.now()); }
 
+  /* Whether something that needs Advanced mode is still worth looking for:
+   * it would be asked for now, or why it is not has yet to be said this
+   * session (around-watch.js looks only then). */
+  advancedPending() {
+    if (this.willAskAdvanced() || this._asking) return true;
+    const r = this._notAskedReason();
+    return !!r && !this.toldNotAsked.has(r.reason);
+  }
+
+  /* The services found blocked at the handshake (not only by DNS): a
+   * program that reaches their real addresses directly, around Shroudly,
+   * is stopped too (around-watch.js). */
+  blockedAtHandshake() {
+    return [...this.blocked].filter(([, b]) => b.how === 'tls').map(([id]) => id);
+  }
+
   /* Whether needAdvanced would ask now (the window shows its own offer
    * otherwise). */
   willAskAdvanced() {
@@ -523,7 +541,9 @@ class Autopilot {
    * line, opts.label is what the user is told needs it (the host by
    * default). One ask at a time: another reason arriving meanwhile gets the
    * same answer, not a second prompt. opts.since: protection's session the
-   * ask began in (advanced.session(); now by default), which a Stop ends. */
+   * ask began in (advanced.session(); now by default), which a Stop ends.
+   * opts.told: { ask, on, params }, the lines said when it is asked for and
+   * when it is on, in place of the ones about a site. */
   needAdvanced(host, opts = {}) {
     if (this._asking) return this._asking;
     const run = this._needAdvanced(host, opts);
@@ -532,7 +552,7 @@ class Autopilot {
     return run;
   }
 
-  async _needAdvanced(host, { why = null, label = null, since = this._session() } = {}) {
+  async _needAdvanced(host, { why = null, label = null, since = this._session(), told: lines = null } = {}) {
     if (!this.willAskAdvanced()) { this._notAsked(label || host, why); return false; }
     const a = this.advanced;
     // A game's anti-cheat running: a packet driver is never loaded beside it
@@ -554,11 +574,11 @@ class Autopilot {
     this._lastAsk = { host };
     this.log('info', `Autopilot: ${host} needs Advanced mode${why ? ` (${why})` : ''}; asking for permission`);
     const told = { host: label || host };
-    this.tell('autoAdvancedAsk', told);
+    this.tell((lines && lines.ask) || 'autoAdvancedAsk', (lines && lines.params) || told);
     let r = null;
     try { r = await a.start(since); } catch (e) { r = { success: false, code: e.code }; }
     if (r && r.success) {
-      this.tell('autoAdvancedOn', told);
+      this.tell((lines && lines.on) || 'autoAdvancedOn', (lines && lines.params) || told);
       return true;
     }
     // Protection was stopped before it came up: it went with it (main.js
