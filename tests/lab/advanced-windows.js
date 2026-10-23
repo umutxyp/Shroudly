@@ -126,7 +126,10 @@ async function loadAll(label) {
   await new Promise((res) => { fwd.stdout.once('data', res); setTimeout(res, 3000); });
   const gateBefore = ask(RESOLVER, GATE_NAME);
   console.log(`  ..  without the engine ${RESOLVER} says ${GATE_NAME}: ${gateBefore}`);
-  try { execFileSync('ipconfig', ['/flushdns'], { stdio: 'ignore' }); } catch {}
+  // The system's resolver keeps that answer ("no such name") in its cache:
+  // the engine has to empty it, or getaddrinfo below never asks again.
+  const sysBefore = await lookup4(GATE_NAME);
+  console.log(`  ..  without the engine the system's resolver says ${GATE_NAME}: ${sysBefore} (now in its cache)`);
 
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'shroudly-adv-'));
   const status = path.join(dir, 'status.log');
@@ -145,12 +148,14 @@ async function loadAll(label) {
   // DNS through the gate.
   if (/"dns_gate":1/.test(ready)) ok('the DNS gate is on (dns_gate 1)');
   else bad(`the DNS gate is not on: ${ready}`);
+  if (/"dns_flushed":1/.test(ready)) ok("the system's DNS cache was emptied as the gate came on (dns_flushed 1)");
+  else bad(`the system's DNS cache was not emptied: ${ready}`);
   const direct = ask(RESOLVER, GATE_NAME);
   if (direct === GATE_ADDR) ok(`a program asking ${RESOLVER} itself gets the forwarder's answer (${direct}; without the engine: ${gateBefore})`);
   else bad(`a program asking ${RESOLVER} itself got ${direct}, not ${GATE_ADDR}`);
   const sys = await lookup4(GATE_NAME);
   if (sys === GATE_ADDR) ok(`the system's resolver (getaddrinfo) gets the forwarder's answer too (${sys})`);
-  else bad(`the system's resolver got ${sys}, not ${GATE_ADDR}`);
+  else bad(`the system's resolver got ${sys}, not ${GATE_ADDR} (its cached answer from before: ${sysBefore})`);
   const other = ask(RESOLVER, 'example.com');
   if (/^\d+\.\d+\.\d+\.\d+/.test(other)) ok(`a name the forwarder does not know gets ${RESOLVER}'s own answer (${other})`);
   else bad(`a name the forwarder does not know: ${other}`);

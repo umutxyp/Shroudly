@@ -500,6 +500,19 @@ static int alert_from_server(uint32_t key, int ttl) {
   return h - known <= 1 && known - h <= 1;
 }
 
+/* The system's DNS caches emptied (systemd-resolved's, nscd's): answers the
+ * network's DNS forged before the gate was there would otherwise be handed to
+ * programs from them, with no question for the gate to answer. 1 when one
+ * was. */
+static int flush_dns_cache(void) {
+  char *resolvectl[] = { "resolvectl", "flush-caches", NULL };
+  char *resolve[] = { "systemd-resolve", "--flush-caches", NULL };
+  char *nscd[] = { "nscd", "-i", "hosts", NULL };
+  int ok = run_quiet(resolvectl) == 0 || run_quiet(resolve) == 0;
+  if (run_quiet(nscd) == 0) ok = 1;
+  return ok;
+}
+
 /* What the DNS gate sends, from its own threads: an answer to the program
  * that asked (delivered locally), or its question sent on unchanged (with
  * the UDP checksum the kernel may have left to the network card). Through
@@ -675,11 +688,12 @@ int raw_linux_start(int queue_num, const raw_config *cfg) {
   }
 
   g_gate = g_cfg.dns_gate > 0 && dnsgate_start(g_cfg.dns_gate, gate_send, 0) == 0;
+  int flushed = g_gate && flush_dns_cache();
   g_run = 1;
   int fd = nfq_fd(g_h);
   char buf[4096] __attribute__((aligned));
-  printf("{\"type\":\"raw_ready\",\"queue\":%d,\"ttl\":%d,\"drop_rst\":%d,\"autottl\":%d,\"seqovl\":%d,\"split\":%d,\"mode\":%d,\"quic_block\":%d,\"udp_fake\":%d,\"alert_watch\":%d,\"udp_match\":%d,\"dns_gate\":%d}\n",
-         queue_num, g_cfg.fake_ttl, g_cfg.drop_rst, g_cfg.autottl, g_cfg.seqovl, g_cfg.split, g_cfg.desync_mode, g_quic_block, g_udp_fake, g_alert_watch, g_udp_match, g_gate);
+  printf("{\"type\":\"raw_ready\",\"queue\":%d,\"ttl\":%d,\"drop_rst\":%d,\"autottl\":%d,\"seqovl\":%d,\"split\":%d,\"mode\":%d,\"quic_block\":%d,\"udp_fake\":%d,\"alert_watch\":%d,\"udp_match\":%d,\"dns_gate\":%d,\"dns_flushed\":%d}\n",
+         queue_num, g_cfg.fake_ttl, g_cfg.drop_rst, g_cfg.autottl, g_cfg.seqovl, g_cfg.split, g_cfg.desync_mode, g_quic_block, g_udp_fake, g_alert_watch, g_udp_match, g_gate, flushed);
   fflush(stdout);
   while (g_run) {
     int rv = recv(fd, buf, sizeof(buf), 0);

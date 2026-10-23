@@ -304,6 +304,9 @@ a=$(ask $NETDNS gate.lab)
 if [ "$a" = "$FORGED" ]; then ok "no engine: the network's DNS forges the answer ($a)"; else bad "no engine: the network's DNS said '$a'"; fi
 start_engine on --dns-gate $FWD_PORT
 if grep -m1 '"raw_ready"' "$WORK/status.log" | grep -q '"dns_gate":1'; then ok "the DNS gate is on"; else bad "the DNS gate is not on: $(grep -m1 '"raw_ready"' "$WORK/status.log")"; fi
+if ! command -v resolvectl >/dev/null 2>&1 && ! command -v nscd >/dev/null 2>&1; then ok "no DNS cache service here to empty"
+elif grep -m1 '"raw_ready"' "$WORK/status.log" | grep -q '"dns_flushed":1'; then ok "the system's DNS cache was emptied as the gate came on"
+else bad "the system's DNS cache was not emptied: $(grep -m1 '"raw_ready"' "$WORK/status.log")"; fi
 a=$(ask $NETDNS gate.lab)
 if [ "$a" = "93.184.216.34" ]; then ok "a program asking the network's DNS itself gets encrypted DNS's answer ($a)"; else bad "a program asking the network's DNS got '$a'"; fi
 a=$(ask $NETDNS other.lab)

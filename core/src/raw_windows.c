@@ -278,6 +278,20 @@ static int handle_outbound(const uint8_t *pkt, int len, int ihl, int tcphl, int 
   return 0;
 }
 
+/* The system's DNS cache emptied (what ipconfig /flushdns does): answers the
+ * network's DNS forged before the gate was there would otherwise be handed to
+ * programs from it for as long as they last, with no question for the gate to
+ * answer. 1 when it was. */
+static int flush_dns_cache(void) {
+  typedef BOOL (WINAPI *PFN_Flush)(void);
+  HMODULE m = LoadLibraryA("dnsapi.dll");
+  if (!m) return 0;
+  PFN_Flush f = (PFN_Flush)GetProcAddress(m, "DnsFlushResolverCache");
+  int ok = f && f();
+  FreeLibrary(m);
+  return ok;
+}
+
 /* What the DNS gate sends, from its own threads (a handle takes sends from
  * any thread): an answer goes in to the program that asked, on the interface
  * its question left by; a question it does not answer goes out as it came. */
@@ -361,9 +375,10 @@ int raw_windows_start(const raw_config *cfg) {
   }
 
   g_gate = g_cfg.dns_gate > 0 && dnsgate_start(g_cfg.dns_gate, gate_send, (int)sizeof(WINDIVERT_ADDRESS)) == 0;
+  int flushed = g_gate && flush_dns_cache();
   g_run = 1;
-  printf("{\"type\":\"raw_ready\",\"backend\":\"windivert\",\"ttl\":%d,\"drop_rst\":%d,\"autottl\":%d,\"seqovl\":%d,\"split\":%d,\"mode\":%d,\"quic_block\":%d,\"udp_fake\":%d,\"alert_watch\":%d,\"udp_match\":%d,\"dns_gate\":%d}\n",
-         g_cfg.fake_ttl, g_cfg.drop_rst, g_cfg.autottl, g_cfg.seqovl, g_cfg.split, g_cfg.desync_mode, g_quic_block, g_udp_fake, g_alert_watch, g_udp_match, g_gate);
+  printf("{\"type\":\"raw_ready\",\"backend\":\"windivert\",\"ttl\":%d,\"drop_rst\":%d,\"autottl\":%d,\"seqovl\":%d,\"split\":%d,\"mode\":%d,\"quic_block\":%d,\"udp_fake\":%d,\"alert_watch\":%d,\"udp_match\":%d,\"dns_gate\":%d,\"dns_flushed\":%d}\n",
+         g_cfg.fake_ttl, g_cfg.drop_rst, g_cfg.autottl, g_cfg.seqovl, g_cfg.split, g_cfg.desync_mode, g_quic_block, g_udp_fake, g_alert_watch, g_udp_match, g_gate, flushed);
   fflush(stdout);
 
   uint8_t pkt[65535];
