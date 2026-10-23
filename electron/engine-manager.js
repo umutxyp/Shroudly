@@ -876,6 +876,7 @@ class EngineManager {
       case 'netdns':
         if (msg.stage === 'try') this.log('info', `${msg.host}: the addresses encrypted DNS gives get nowhere here; trying the one this network's DNS gives (${msg.addr})`);
         else if (msg.stage === 'ok') this.log('success', `${msg.host}: opened at the address this network's DNS gives (${msg.addr})`);
+        else if (msg.stage === 'same') this.log('info', `${msg.host}: this network's DNS gives the same addresses (${msg.addr}); they get nowhere here`);
         else this.log('info', `${msg.host}: the address this network's DNS gives (${msg.addr}) gets nowhere either`);
         break;
       case 'probe':

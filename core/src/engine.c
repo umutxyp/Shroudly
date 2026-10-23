@@ -3041,6 +3041,10 @@ static int osdns_follow(const char *host) {
 #define NETDNS_SLOTS   64
 #define NETDNS_TTL_MS  (30 * 60 * 1000)
 #define NETDNS_WAIT_MS 1500
+/* After our own addresses have just failed, the connection is waiting for
+ * an answer anyway: the system's resolver gets longer (a slow network's DNS
+ * took more than 1.5 s, issue #43, and the site was then given up on). */
+#define NETDNS_FALLBACK_WAIT_MS 5000
 enum { ND_NONE = 0, ND_TRY, ND_GOOD, ND_BAD };
 static struct { char site[256]; int state; uint64_t t; } g_nd[NETDNS_SLOTS];
 static mutex_t g_nd_mx;
@@ -3105,7 +3109,7 @@ static int nd_usable(const struct sockaddr_storage *ss) {
   return 0;
 }
 
-typedef struct { char host[256]; char addr[64]; _Atomic int done; _Atomic int refs; } nd_job;
+typedef struct { char host[256]; char addr[64]; char first[64]; _Atomic int done; _Atomic int refs; } nd_job;
 static void nd_release(nd_job *j) { if (atomic_fetch_sub(&j->refs, 1) == 1) free(j); }
 
 /* The first usable address the system's resolver gives for the job's host
@@ -3128,11 +3132,13 @@ static void *nd_thread(void *p) {
         struct sockaddr_storage ss; memset(&ss, 0, sizeof(ss));
         memcpy(&ss, ai->ai_addr, ai->ai_addrlen);
         if (!nd_usable(&ss)) continue;
+        const void *src = ss.ss_family == AF_INET ? (const void *)&((struct sockaddr_in *)&ss)->sin_addr
+                                                  : (const void *)&((struct sockaddr_in6 *)&ss)->sin6_addr;
+        /* The first usable one, for the log when there is no other. */
+        if (!j->first[0] && !inet_ntop(ss.ss_family, src, j->first, sizeof(j->first))) j->first[0] = 0;
         int known = 0;
         for (int i = 0; i < no && !known; i++) known = same_addr(&ours[i], &ss);
         if (known) continue;
-        const void *src = ss.ss_family == AF_INET ? (const void *)&((struct sockaddr_in *)&ss)->sin_addr
-                                                  : (const void *)&((struct sockaddr_in6 *)&ss)->sin6_addr;
         if (!inet_ntop(ss.ss_family, src, j->addr, sizeof(j->addr))) j->addr[0] = 0;
       }
     }
@@ -3143,19 +3149,26 @@ static void *nd_thread(void *p) {
   return NULL;
 }
 
-/* The network's DNS's other address for host into out ("" when there is
- * none, or it did not answer within NETDNS_WAIT_MS). */
-static void nd_lookup(const char *host, char *out, size_t cap) {
+/* The network's DNS's answer for host, within wait_ms. 1: an address our
+ * own resolver did not give, in out. 0: none (out: the first usable one it
+ * gave, the same as ours, or "" when it gave none). -1: no answer in time,
+ * which says nothing about the site (a slow resolver, issue #43). */
+static int nd_lookup(const char *host, char *out, size_t cap, int wait_ms) {
   out[0] = 0;
   nd_job *j = (nd_job *)calloc(1, sizeof(*j));
-  if (!j) return;
+  if (!j) return -1;
   snprintf(j->host, sizeof(j->host), "%s", host);
   atomic_store(&j->refs, 2);
-  if (thread_spawn(nd_thread, j, 256 * 1024) != 0) { free(j); return; }
-  uint64_t end = now_ms() + NETDNS_WAIT_MS;
+  if (thread_spawn(nd_thread, j, 256 * 1024) != 0) { free(j); return -1; }
+  uint64_t end = now_ms() + (uint64_t)wait_ms;
   while (!atomic_load(&j->done) && now_ms() < end) sleep_ms(5);
-  if (atomic_load(&j->done)) snprintf(out, cap, "%s", j->addr);
+  int r = -1;
+  if (atomic_load(&j->done)) {
+    r = j->addr[0] ? 1 : 0;
+    snprintf(out, cap, "%s", r ? j->addr : j->first);
+  }
   nd_release(j);
+  return r;
 }
 
 /* ── names on the ad and tracker list (adblock.h) ────────────────────────
@@ -3250,16 +3263,17 @@ static void handle(sock_t client) {
       int st = nd_state(rq.host);
       if (st == ND_TRY || st == ND_GOOD) {
         char alt[64];
-        nd_lookup(rq.host, alt, sizeof(alt));
-        if (alt[0]) up = dial(alt, rq.port, g_cfg.prefer_ipv6, 0, 0, &fam, &di);
+        int r = nd_lookup(rq.host, alt, sizeof(alt), NETDNS_WAIT_MS);
+        if (r == 1) up = dial(alt, rq.port, g_cfg.prefer_ipv6, 0, 0, &fam, &di);
         if (up != SOCK_INVALID) {
           nd = 1; dial_doh = 0;
           snprintf(dial_host, sizeof(dial_host), "%s", alt);
           if (st == ND_TRY) nd_tell(rq.host, alt, "try");
-        } else {
-          /* No other address, or it does not answer either: our own again. */
+        } else if (r >= 0) {
+          /* No other address, or it does not answer either: our own again.
+           * (No answer in time: nothing learned, asked again next time.) */
           nd_put(rq.host, ND_BAD);
-          if (st == ND_TRY && alt[0]) nd_tell(rq.host, alt, "bad");
+          if (st == ND_TRY && alt[0]) nd_tell(rq.host, alt, r == 1 ? "bad" : "same");
         }
       }
     }
@@ -3280,16 +3294,17 @@ static void handle(sock_t client) {
       char alt[64];
       dial_info di2;
       memset(&di2, 0, sizeof(di2));
-      nd_lookup(rq.host, alt, sizeof(alt));
-      if (alt[0]) up = dial(alt, rq.port, g_cfg.prefer_ipv6, 0, 0, &fam, &di2);
+      int r = nd_lookup(rq.host, alt, sizeof(alt), NETDNS_FALLBACK_WAIT_MS);
+      if (r == 1) up = dial(alt, rq.port, g_cfg.prefer_ipv6, 0, 0, &fam, &di2);
       if (up != SOCK_INVALID) {
         nd = 1; dial_doh = 0; di = di2;
         snprintf(dial_host, sizeof(dial_host), "%s", alt);
         nd_tell(rq.host, alt, "try");
-      } else {
+      } else if (r >= 0) {
         nd_put(rq.host, ND_BAD);
-        if (alt[0]) nd_tell(rq.host, alt, "bad");
+        if (alt[0]) nd_tell(rq.host, alt, r == 1 ? "bad" : "same");
       }
+      /* No answer in time: still ND_TRY, so the next connection asks again. */
     }
     if (up == SOCK_INVALID) {
       /* Told while the app is still connected to us (see RAW_HOLD_MS); not

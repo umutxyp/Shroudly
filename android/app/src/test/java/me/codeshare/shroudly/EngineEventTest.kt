@@ -104,5 +104,6 @@ class EngineEventTest {
         assertEquals("googlevideo.com: the addresses encrypted DNS gives get nowhere here; trying the one this network's DNS gives (5.160.12.34)", NetDnsText.line(e as EngineEvent.NetDns))
         assertEquals("googlevideo.com: opened at the address this network's DNS gives (5.160.12.34)", NetDnsText.line(e.copy(stage = "ok")))
         assertEquals("googlevideo.com: the address this network's DNS gives (5.160.12.34) gets nowhere either", NetDnsText.line(e.copy(stage = "bad")))
+        assertEquals("googlevideo.com: this network's DNS gives the same addresses (5.160.12.34); they get nowhere here", NetDnsText.line(e.copy(stage = "same")))
     }
 }

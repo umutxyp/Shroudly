@@ -99,6 +99,7 @@ object NetDnsText {
     fun line(ev: EngineEvent.NetDns): String = when (ev.stage) {
         "try" -> "${ev.host}: the addresses encrypted DNS gives get nowhere here; trying the one this network's DNS gives (${ev.addr})"
         "ok" -> "${ev.host}: opened at the address this network's DNS gives (${ev.addr})"
+        "same" -> "${ev.host}: this network's DNS gives the same addresses (${ev.addr}); they get nowhere here"
         else -> "${ev.host}: the address this network's DNS gives (${ev.addr}) gets nowhere either"
     }
 }
