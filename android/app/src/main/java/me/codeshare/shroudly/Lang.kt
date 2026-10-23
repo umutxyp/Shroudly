@@ -3,6 +3,7 @@ package me.codeshare.shroudly
 import android.app.LocaleManager
 import android.content.Context
 import android.content.res.Configuration
+import android.content.res.Resources
 import android.os.Build
 import android.os.LocaleList
 import java.util.Locale
@@ -45,6 +46,9 @@ object Lang {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             ctx.getSystemService(LocaleManager::class.java)?.applicationLocales =
                 if (tag == null) LocaleList.getEmptyLocaleList() else LocaleList.forLanguageTags(tag)
+        } else if (tag == null) {
+            // Numbers and dates follow the phone's language again.
+            Locale.setDefault(Resources.getSystem().configuration.locales[0])
         }
     }
 
@@ -53,6 +57,10 @@ object Lang {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) return base
         val tag = base.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getString(KEY, null) ?: return base
         val locale = Locale.forLanguageTag(tag)
+        // Numbers and dates too (the stats, a duration): formatted in the
+        // process's default locale, which Android 13 and later set themselves
+        // (issue #38: Persian digits in an English window).
+        if (Locale.getDefault() != locale) Locale.setDefault(locale)
         val conf = Configuration(base.resources.configuration)
         conf.setLocale(locale)
         conf.setLayoutDirection(locale)
