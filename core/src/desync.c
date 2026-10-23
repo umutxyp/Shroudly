@@ -201,7 +201,8 @@ int desync_send_first(sock_t up, int family,
     splits[j+1] = v;
   }
 
-  if (desync_counter) (*desync_counter)++;
+  /* A strategy of no operations ("none") changes nothing: not counted. */
+  if (desync_counter && st->n_ops) (*desync_counter)++;
 
   int bounds[MAX_OPS + 2]; int nb = 0;
   bounds[nb++] = 0;

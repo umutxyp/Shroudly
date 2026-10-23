@@ -97,6 +97,9 @@ static void test_strategy_parse(void) {
   CHECK(st.ops[0].offset == 1);
 
   CHECK(strategy_parse("", &st) != 0);
+  CHECK(strategy_parse("nonsense", &st) != 0);
+  /* "none": no operation at all, accepted (Settings "Off", issue #37). */
+  CHECK(strategy_parse("none", &st) == 0 && st.n_ops == 0 && strcmp(st.name, "none") == 0);
 }
 
 static void test_presets(void) {

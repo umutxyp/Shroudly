@@ -122,6 +122,7 @@ int main(void){
   run_case("split(sni_mid)","a.verylonghostname.example.net");
   run_case("split(1),split(sni)","x.io");
   run_case("split(2)","host.example");
+  run_case("none","plain.example");      /* "Off": sent whole, untouched */
   for(int i=0;i<strategy_raw_count();i++) run_raw(i);
   plat_cleanup();
   if(fails==0){printf("ALL DESYNC TESTS PASSED\n");return 0;}

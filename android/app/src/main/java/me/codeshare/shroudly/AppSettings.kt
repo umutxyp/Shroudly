@@ -38,6 +38,8 @@ object AppSettings {
         Strategy("split-sni-mid", "stratSplitMid", "split(sni_mid)", false),
         Strategy("double-split", "stratDoubleSplit", "split(1),split(sni)", false),
         Strategy("split2", "stratSplit2", "split(2)", false),
+        // Off: connections untouched, encrypted DNS only (issue #37).
+        Strategy("none", "stratNone", "none", false),
     )
 
     private fun prefs(ctx: Context) = ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE)

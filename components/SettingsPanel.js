@@ -17,6 +17,8 @@ const STRATEGIES = [
   { id: 'split-sni-mid', labelKey: 'stratSplitMid', spec: 'split(sni_mid)', auto: false },
   { id: 'double-split', labelKey: 'stratDoubleSplit', spec: 'split(1),split(sni)', auto: false },
   { id: 'split2', labelKey: 'stratSplit2', spec: 'split(2)', auto: false },
+  // Off: connections untouched, encrypted DNS only (issue #37); Auto mode goes off with it.
+  { id: 'none', labelKey: 'stratNone', spec: 'none', auto: false },
 ];
 
 /* advancedAvailable().reasonCode → translation key */
@@ -400,12 +402,13 @@ export default function SettingsPanel({ active = false }) {
 
   async function onStrategyChange(id) {
     const s = STRATEGIES.find((x) => x.id === id) || STRATEGIES[0];
-    setSettings((p) => ({ ...p, strategyId: id, ...(s.auto ? { autoMode: true } : {}) }));
+    setSettings((p) => ({ ...p, strategyId: id, ...(s.auto ? { autoMode: true } : {}), ...(s.spec === 'none' ? { autoMode: false } : {}) }));
     if (typeof window !== 'undefined' && window.electron?.setSetting) {
       try {
         await window.electron.setSetting('strategyId', id);
         await window.electron.setSetting('strategy', s.spec);
         if (s.auto) await window.electron.setSetting('autoMode', true);
+        if (s.spec === 'none') await window.electron.setSetting('autoMode', false);
       } catch {}
     }
   }

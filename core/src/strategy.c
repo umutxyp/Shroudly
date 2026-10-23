@@ -29,6 +29,13 @@ int strategy_parse(const char *spec, strategy *out) {
   out->split_pos = 2;
   strncpy(out->name, "custom", sizeof(out->name) - 1);
   if (!spec || !*spec) return -1;
+  /* "none": every connection relayed as it is, encrypted DNS only (the
+   * Settings choice "Off"; issue #37). With --auto the engine still starts
+   * every connection untouched and tries techniques only on a refusal. */
+  if (strcmp(spec, "none") == 0) {
+    strncpy(out->name, "none", sizeof(out->name) - 1);
+    return 0;
+  }
 
   char tmp[512];
   strncpy(tmp, spec, sizeof(tmp) - 1);
