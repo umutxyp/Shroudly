@@ -159,8 +159,13 @@ phone's own connections.
 
 - Every app goes through it: browsers, Discord, Roblox and other games, with
   no separate Discord or Games and apps mode needed.
-- A Quick Settings tile turns it on and off; Android's "Always-on VPN" brings
-  it back after a restart.
+- A Quick Settings tile turns it on and off (Settings → Quick Settings tile
+  puts it in the panel; on Android 13 and later with one tap); Android's
+  "Always-on VPN" brings it back after a restart.
+- Connections that stay quiet for a long time are kept open: a chat app
+  waiting for the next message (Instagram, WhatsApp, Telegram) and push
+  notifications keep their connection for up to an hour of silence, where
+  the tunnel used to end it after five minutes and messages then went late.
 - It stays on until you turn it off. Some phones end apps while the screen is
   locked (a power saver that also turns Wi-Fi and mobile data off): Shroudly
   then comes back by itself as soon as a network is there again, with no tap
