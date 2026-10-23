@@ -385,7 +385,8 @@ async function realWindows() {
     t.ok(new AppEnv({ backend: b }).applySync(url) === 'unchanged' && p.m.size === 0 && b.commits === 1, 'backend: already on, the leftover still goes, and the change is announced');
     p = store({ HTTPS_PROXY: url });   // no mark: not provably ours
     b = fake(p);
-    t.ok(new AppEnv({ backend: b }).applySync(url) === 'foreign' && p.m.get('HTTPS_PROXY') === url && b.commits === 0, 'backend: an unmarked value is the user\'s, even if it looks like ours');
+    // Nothing listens on our port while Shroudly is not running (CI): still the user's.
+    t.ok(new AppEnv({ backend: b, listening: () => false }).applySync(url) === 'foreign' && p.m.get('HTTPS_PROXY') === url && b.commits === 0, 'backend: an unmarked value is the user\'s, even if it looks like ours (and nothing listens there yet)');
   }
 
   // ── the installer (scripts/installer.nsh) ──

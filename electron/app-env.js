@@ -286,10 +286,12 @@ class AppEnv {
    * where nothing listens: the program that set it has gone (ByeDPI's
    * http://127.0.0.1:1080 left behind), every program started now would
    * send everything to nothing, and it is no one's proxy to respect. Only
-   * when that is known (not when it cannot be told). */
+   * when that is known (not when it cannot be told), and never for one of
+   * Shroudly's own ports: nothing listens there until the mode is on, and an
+   * unmarked value there may be the user's own copy of ours. */
   _gone(value) {
     const lp = localProxy(value);
-    if (!lp) return false;
+    if (!lp || OWN_PORTS.includes(lp.port)) return false;
     let on = null;
     try { on = this.listening(lp.port); } catch {}
     return on === false;
