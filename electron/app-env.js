@@ -58,6 +58,17 @@ const MARK = 'SHROUDLY_APP_PROXY';
 const NO_PROXY_VALUE = 'localhost,127.0.0.1,::1,.local,.localhost,.lan,.internal,.home.arpa,.home,.fritz.box,' +
   '10.0.0.0/8,172.16.0.0/12,192.168.0.0/16,169.254.0.0/16,100.64.0.0/10,fc00::/7,fe80::/10';
 const OURS = /^http:\/\/127\.0\.0\.1:\d+$/;
+// A proxy value's server on this computer: { host, port } of
+// http://127.0.0.1:1080, socks5://[::1]:1080, 127.0.0.1:1080; else null.
+const LOCAL_PROXY = /^(?:[a-z][a-z0-9+.-]*:\/\/)?(?:[^@/\s]*@)?(127\.\d+\.\d+\.\d+|localhost|\[::1\]|::1):(\d+)\/?$/i;
+// The program proxy's own ports (app-proxy.js PREFERRED_PORTS): a value on
+// one of them is Shroudly's, left by a run that ended without its mark, and
+// is never put back as another program's.
+const OWN_PORTS = [10810, 18810, 28810];
+function localProxy(v) {
+  const m = LOCAL_PROXY.exec(String(v || '').trim());
+  return m ? { host: m[1].replace(/^\[|\]$/g, ''), port: Number(m[2]) } : null;
+}
 // Node.js reads HTTPS_PROXY only when NODE_USE_ENV_PROXY is 1 (Node 22.21,
 // 24.5 and later; older ones ignore it). Set with the proxy when the user has
 // no such value of their own; NODE_MARK says the 1 is ours, so only ours is
@@ -226,6 +237,15 @@ class AppEnv {
    */
   constructor(opts = {}) {
     this.opts = opts;
+    // Whether anything listens on a port here: true, false, or null when
+    // that cannot be told (procnet.js; tests stand in for it).
+    this.listening = opts.listening || ((port) => require('./procnet').listeningSync(port));
+    // Another program's values that point at a proxy here that is gone: set
+    // over in the session for as long as ours are, then put back (see
+    // applySync). name -> value.
+    this.replaced = null;
+    // What this run's apply found gone: [{ name, value }], for the log.
+    this.overrode = [];
     this.platform = opts.platform || process.platform;
     this.b = opts.backend !== undefined ? opts.backend : backend(this.platform);
     this.links = opts.links !== undefined ? opts.links
@@ -255,10 +275,24 @@ class AppEnv {
     const b = this.b;
     for (const k of b.names.proxy) {
       const v = b.get(k);
-      if (v && v !== mark) return true;
-      if (this._elsewhere(k)) return true;
+      if (v && v !== mark && !this._gone(v)) return true;
+      const e = this._elsewhere(k);
+      if (e && !this._gone(e)) return true;
     }
     return false;
+  }
+
+  /* A value of another program's that points at a proxy on this computer
+   * where nothing listens: the program that set it has gone (ByeDPI's
+   * http://127.0.0.1:1080 left behind), every program started now would
+   * send everything to nothing, and it is no one's proxy to respect. Only
+   * when that is known (not when it cannot be told). */
+  _gone(value) {
+    const lp = localProxy(value);
+    if (!lp) return false;
+    let on = null;
+    try { on = this.listening(lp.port); } catch {}
+    return on === false;
   }
 
   /* What the places we never write to say about k. */
@@ -294,6 +328,22 @@ class AppEnv {
       this._arm(url); this.applied = true; return 'unchanged';
     }
 
+    // Another program's values found gone (see _foreign): the session's own
+    // are kept to be put back; those of the user's kept or the machine's
+    // environment are simply outweighed by the session's (Windows reads the
+    // session's last), and come back by themselves.
+    this.overrode = [];
+    const replaced = {};
+    for (const k of b.names.proxy) {
+      const v = b.get(k);
+      if (v && v !== mark && this._gone(v)) {
+        if (!OWN_PORTS.includes(localProxy(v).port)) replaced[k] = v;
+        this.overrode.push({ name: k, value: v });
+      }
+      const e = this._elsewhere(k);
+      if (e && this._gone(e)) this.overrode.push({ name: k, value: e });
+    }
+    this.replaced = Object.keys(replaced).length ? replaced : null;
     this._arm(url);
     // From here on something may be written, so quitting must clean up even if
     // a later step fails.
@@ -325,10 +375,20 @@ class AppEnv {
     if (this.links) { try { links = this.links.restoreSync().length > 0; } catch {} }
     if (b) {
       if (b.refresh) b.refresh();
+      // Another program's values set over (applySync): from this run, else
+      // from the record of a run that never got to put them back.
+      let replaced = this.replaced;
+      if (!replaced && this.opts.stateFile) {
+        try { replaced = JSON.parse(fs.readFileSync(this.opts.stateFile, 'utf8')).replaced || null; } catch {}
+      }
       changed = removeOurs(b, b.names);
+      for (const [k, v] of Object.entries(replaced || {})) {
+        if (b.names.proxy.includes(k) && typeof v === 'string' && !b.get(k)) { b.set(k, v); changed = true; }
+      }
       if (this._migrate()) changed = true;
       if (changed) this._commit(null);
     }
+    this.replaced = null;
     if (links) changed = true;
     this._disarm();
     this.applied = false;
@@ -351,7 +411,7 @@ class AppEnv {
     if (stateFile) {
       try {
         fs.mkdirSync(path.dirname(stateFile), { recursive: true });
-        fs.writeFileSync(stateFile, JSON.stringify({ v: 1, platform: this.platform, pid: process.pid, boot: bootId(), bootKey: Boot.bootKey(), uptime: Boot.uptime(), exe: path.basename(process.execPath), url }));
+        fs.writeFileSync(stateFile, JSON.stringify({ v: 1, platform: this.platform, pid: process.pid, boot: bootId(), bootKey: Boot.bootKey(), uptime: Boot.uptime(), exe: path.basename(process.execPath), url, replaced: this.replaced || undefined }));
       } catch {}
     }
     if (watchdog && stateFile) Watchdog.watch(watchdog, 'env', stateFile);
@@ -399,6 +459,7 @@ module.exports.MARK = MARK;
 module.exports.NODE_KEY = NODE_KEY;
 module.exports.NODE_MARK = NODE_MARK;
 module.exports.NO_PROXY_VALUE = NO_PROXY_VALUE;
+module.exports.localProxy = localProxy;
 module.exports.backend = backend;
 module.exports.parseRegQuery = parseRegQuery;
 module.exports.BROADCAST_NAME = BROADCAST_NAME;

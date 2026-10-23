@@ -1778,6 +1778,14 @@ async function applyAppModeNow(on) {
   appState.foreign = false;
   store.set('appMode', true);
   announceLater();
+  // Another program's proxy for programs that points at nothing any more
+  // (app-env.js _gone): set over, and said once.
+  const over = appEnv.overrode || [];
+  if (over.length) {
+    const names = [...new Set(over.map((o) => o.name))].join(', ');
+    const addrs = [...new Set(over.map((o) => o.value))].join(', ');
+    addLog('info', `Games and apps: ${names} pointed at ${addrs}, where nothing is running; Shroudly's is used while the mode is on, and the old one comes back when it goes off`);
+  }
   if (r === 'changed') {
     // Roblox reads the proxy when it starts: what is already open does not
     // have it, installers included (robloxWatch sees to them at once, not
@@ -1937,6 +1945,10 @@ async function watchDiscord() {
       const pids = await DiscordApp.pids(v);
       if (!pids.length || Date.now() - (discordRestarted.get(v.id) || 0) < DISCORD_RESTART_EVERY_MS) continue;
       if (await ProcNet.connectsTo(pids, ports)) continue;
+      // Sent elsewhere by another tool, to a proxy that is gone: a restart
+      // would only come back to the same place.
+      const dead = await discordDeadProxy(v, pids, ports);
+      if (dead) { await handleDiscordDeadProxy(v, dead); continue; }
       if (!(await autopilot.stillBlocked('discord'))) break;
       discordRestarted.set(v.id, Date.now());
       if (await DiscordApp.restart(v)) {
@@ -1949,6 +1961,98 @@ async function watchDiscord() {
   } finally { discordBusy = false; }
 }
 setInterval(() => { watchDiscord().catch(() => {}); }, 20000).unref();
+
+/* Discord sent by another tool to a proxy on this computer where nothing
+ * runs any more (Discord Drover's drover.ini, a --proxy-server launch
+ * option): it reaches neither Shroudly nor Discord, and sits on "Starting"
+ * however often it is restarted. With 2.6.4 a user's Discord made one
+ * connection only, a SYN to 127.0.0.1:1080 (ByeDPI's port), left there by
+ * Discord Drover after ByeDPI was gone. Looked at every minute while a
+ * Discord runs and holds no connection to Shroudly (on any network: sent to
+ * a proxy that is gone, it reaches nothing anywhere). */
+function portAnswers(host, port) {
+  return new Promise((resolve) => {
+    const s = netModule.connect({ host, port });
+    const done = (v) => { try { s.destroy(); } catch {} resolve(v); };
+    s.setTimeout(1000, () => done(true));   // no answer either way: not said to be gone
+    s.once('connect', () => done(true));
+    s.once('error', (e) => done(!(e && e.code === 'ECONNREFUSED')));
+  });
+}
+/* { addr, file } (file: the drover.ini that sends it there), or null. */
+async function discordDeadProxy(v, pids, ours) {
+  const gone = async (host, port) => !!host && ProcNet.LOOPBACK.test(host) && port > 0 && !ours.includes(port) && !(await portAnswers(host, port));
+  const d = process.platform === 'win32' ? DiscordApp.drover(v) : null;
+  if (d && await gone(d.host, d.port)) return { addr: `${d.host}:${d.port}`, file: d.file };
+  // Anything else: only a Discord whose connections all stay on this
+  // computer (one that reaches anything outside is not held by a proxy), to
+  // a port where nothing runs.
+  const rows = await ProcNet.connections(pids);
+  if (rows.some((r) => !ProcNet.LOOPBACK.test(r.remote.host))) return null;
+  for (const r of rows) {
+    if (await gone(r.remote.host, r.remote.port)) return { addr: `${r.remote.host}:${r.remote.port}`, file: null };
+  }
+  return null;
+}
+/* Found gone twice, a minute apart (a proxy program started at login may
+ * come up a little after Discord), and Discord still without Shroudly: then
+ * Discord Drover's two files are set aside (moved into Shroudly's folder,
+ * never deleted, with a note saying how to put them back) and Discord is
+ * started again, which is all it takes; anything else that sends Discord
+ * there (a launch option) is only said, with what to remove. Once a session
+ * for each build and address. */
+const discordDeadSeen = new Map();
+const discordDeadDone = new Set();
+const DISCORD_DEAD_CONFIRM_MS = 60000;
+async function handleDiscordDeadProxy(v, dead) {
+  const key = `${v.id} ${dead.addr}`;
+  if (discordDeadDone.has(key)) return;
+  const first = discordDeadSeen.get(key);
+  if (!first) { discordDeadSeen.set(key, Date.now()); return; }
+  if (Date.now() - first < DISCORD_DEAD_CONFIRM_MS) return;
+  discordDeadDone.add(key);
+  if (!dead.file) {
+    addLog('warning', `Autopilot: ${v.app} is set to use a proxy at ${dead.addr}, where nothing is running; it cannot connect until that setting is removed`);
+    autoTell('autoDiscordProxyDead', { app: v.app, addr: dead.addr });
+    return;
+  }
+  const folder = path.dirname(dead.file);
+  const backup = path.join(app.getPath('userData'), 'Discord Drover', `${v.id}-${path.basename(folder)}`);
+  let moved = null;
+  let why = null;
+  discordRestarted.set(v.id, Date.now());
+  await DiscordApp.restart(v, async () => {
+    try { moved = DiscordApp.setDroverAside(dead, backup); } catch (e) { why = e.code || e.message; }
+  });
+  if (moved && moved.length) {
+    const params = { addr: dead.addr, backup, folder };
+    const note = String(tr().autoDiscordDroverMoved || '').replace(/\{(\w+)\}/g, (m, k) => (params[k] != null ? String(params[k]) : m));
+    try { fs.writeFileSync(path.join(backup, 'README.txt'), `${note}\r\n`); } catch {}
+    addLog('success', `Autopilot: Discord Drover sent ${v.app} to ${dead.addr}, where nothing is running; its files (${moved.join(', ')}) were moved to ${backup} and it was restarted`);
+    autoTell('autoDiscordDroverMoved', params);
+    engine.checkProxySoon();
+  } else {
+    addLog('warning', `Autopilot: Discord Drover (${dead.file}) sends ${v.app} to ${dead.addr}, where nothing is running; its files could not be moved (${why || 'none found'})`);
+    autoTell('autoDiscordDroverDead', { addr: dead.addr, folder });
+  }
+}
+async function checkDiscordProxies() {
+  // Whether the network blocks Discord or not: sent to a proxy that is gone,
+  // it reaches nothing anywhere.
+  if (discordBusy || !engine || !engine.isActive()) return;
+  if (engine.proxyStatus && engine.proxyStatus.ok === false) return;
+  const ports = [engine.port, discordRelay && discordRelay.port].filter(Boolean);
+  discordBusy = true;
+  try {
+    for (const v of DiscordApp.installed()) {
+      const pids = await DiscordApp.pids(v);
+      if (!pids.length || await ProcNet.connectsTo(pids, ports)) continue;
+      const dead = await discordDeadProxy(v, pids, ports);
+      if (dead) await handleDiscordDeadProxy(v, dead);
+    }
+  } finally { discordBusy = false; }
+}
+setInterval(() => { checkDiscordProxies().catch(() => {}); }, 60000).unref();
 
 /* Advanced mode, started from the window or by the autopilot. */
 async function startAdvanced() {

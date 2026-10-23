@@ -507,9 +507,35 @@ async function robloxInstaller(proxy, socksPort) {
   t.ok(e.clearSync() === 'unchanged', 'removing twice changes nothing');
 
   b = fakeBackend({ HTTPS_PROXY: 'http://127.0.0.1:7890' });
-  e = new AppEnv({ backend: b });
-  t.ok(e.applySync(url) === 'foreign' && b.get('HTTPS_PROXY') === 'http://127.0.0.1:7890' && !b.get(AppEnv.MARK), "another local proxy (Clash on 7890) is never replaced");
+  e = new AppEnv({ backend: b, listening: () => true });
+  t.ok(e.applySync(url) === 'foreign' && b.get('HTTPS_PROXY') === 'http://127.0.0.1:7890' && !b.get(AppEnv.MARK), "another local proxy that runs (Clash on 7890) is never replaced");
   t.ok(e.clearSync() === 'unchanged' && b.get('HTTPS_PROXY') === 'http://127.0.0.1:7890', '…nor removed');
+  b = fakeBackend({ HTTPS_PROXY: 'http://127.0.0.1:7890' });
+  t.ok(new AppEnv({ backend: b, listening: () => null }).applySync(url) === 'foreign' && b.get('HTTPS_PROXY') === 'http://127.0.0.1:7890',
+    "…nor one where it cannot be told whether anything listens");
+  // One whose program on this computer is gone (ByeDPI's 127.0.0.1:1080 left
+  // behind): every program started now would send everything to nothing, so
+  // the mode sets over it for as long as it is on, and puts it back exactly.
+  b = fakeBackend({ HTTPS_PROXY: 'http://127.0.0.1:1080' });
+  e = new AppEnv({ backend: b, listening: (port) => (port === 1080 ? false : null) });
+  t.ok(e.applySync(url) === 'changed' && b.get('HTTPS_PROXY') === url && b.get(AppEnv.MARK) === url
+    && e.overrode.length === 1 && e.overrode[0].name === 'HTTPS_PROXY' && e.overrode[0].value === 'http://127.0.0.1:1080',
+  "a local proxy whose program is gone is set over (and said), not taken for someone's choice");
+  t.ok(e.clearSync() === 'changed' && b.get('HTTPS_PROXY') === 'http://127.0.0.1:1080' && !b.get(AppEnv.MARK) && !b.get('https_proxy'),
+    '…and put back exactly when the mode goes off');
+  {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'shroudly-appenv-'));
+    const stateFile = path.join(dir, 'app-env.json');
+    b = fakeBackend({ HTTPS_PROXY: 'http://127.0.0.1:1080' });
+    new AppEnv({ backend: b, stateFile, listening: () => false }).applySync(url);
+    t.ok(b.get('HTTPS_PROXY') === url && new AppEnv({ backend: b, stateFile }).clearSync() === 'changed' && b.get('HTTPS_PROXY') === 'http://127.0.0.1:1080' && !b.get(AppEnv.MARK),
+      '…also by the recovery after a crash (it is kept in the record)');
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
+  b = fakeBackend({}, { HTTPS_PROXY: 'http://127.0.0.1:1080' });
+  e = new AppEnv({ backend: b, listening: () => false });
+  t.ok(e.applySync(url) === 'changed' && b.get('HTTPS_PROXY') === url && e.overrode.length === 1 && e.clearSync() === 'changed' && b.env.size === 0,
+    "one in the machine's environment is only outweighed by the session's, never touched");
   b = fakeBackend({}, { HTTPS_PROXY: 'http://proxy.corp:8080' });
   t.ok(new AppEnv({ backend: b }).applySync(url) === 'foreign' && b.env.size === 0, "a machine-wide proxy is never overridden");
   b = fakeBackend({ NO_PROXY: 'intranet.corp' });
