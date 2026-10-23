@@ -28,6 +28,10 @@ const tls = require('tls');
 const KINDS = ['doh', 'dot', 'tcp', 'udp'];
 const PORTS = { doh: 443, dot: 853, tcp: 53, udp: 53 };
 const TIMEOUT_MS = 2500;
+// Plain DNS over UDP: the question is sent again this long after, once, as
+// any resolver's client does; a lossy network then costs a moment, not the
+// whole wait (and the built-in DNS taking over).
+const UDP_RESEND_MS = 800;
 const IDLE_MS = 60000;
 
 const isIp = (h) => net.isIP(String(h || '').replace(/^\[|\]$/g, '')) !== 0;
@@ -247,9 +251,10 @@ class CustomDns {
     return new Promise((resolve, reject) => {
       const s = dgram.createSocket(net.isIP(ip) === 6 ? 'udp6' : 'udp4');
       const id = msg.readUInt16BE(0);
-      const t = setTimeout(() => { s.close(); reject(new Error('timeout')); }, TIMEOUT_MS);
-      s.on('message', (m) => { if (m.length >= 12 && m.readUInt16BE(0) === id) { clearTimeout(t); s.close(); resolve(m); } });
-      s.on('error', (e) => { clearTimeout(t); try { s.close(); } catch {} reject(e); });
+      const again = setTimeout(() => { try { s.send(msg, this.spec.port, ip); } catch {} }, UDP_RESEND_MS);
+      const t = setTimeout(() => { clearTimeout(again); s.close(); reject(new Error('timeout')); }, TIMEOUT_MS);
+      s.on('message', (m) => { if (m.length >= 12 && m.readUInt16BE(0) === id) { clearTimeout(t); clearTimeout(again); s.close(); resolve(m); } });
+      s.on('error', (e) => { clearTimeout(t); clearTimeout(again); try { s.close(); } catch {} reject(e); });
       s.send(msg, this.spec.port, ip);
     });
   }

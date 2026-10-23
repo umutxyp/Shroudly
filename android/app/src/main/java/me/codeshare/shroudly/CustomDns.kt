@@ -51,6 +51,9 @@ class CustomDns(
         val KINDS = listOf("doh", "dot", "tcp", "udp")
         private val PORTS = mapOf("doh" to 443, "dot" to 853, "tcp" to 53, "udp" to 53)
         const val TIMEOUT_MS = 2500
+        // Plain DNS over UDP: sent again this long after, once, as any
+        // resolver's client does, so a lost packet costs a moment.
+        const val UDP_RESEND_MS = 800
         private const val KEEP = 4
         private val HOST = Regex("^(?=.{1,253}$)([a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?\\.)*[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?$", RegexOption.IGNORE_CASE)
         private val V4 = Regex("^(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})$")
@@ -208,16 +211,19 @@ class CustomDns(
     private fun udp(msg: ByteArray): ByteArray {
         val to = InetSocketAddress(InetAddress.getByName(address()), spec.port)
         DatagramSocket().use { s ->
-            s.soTimeout = TIMEOUT_MS
             s.send(DatagramPacket(msg, msg.size, to))
             val buf = ByteArray(4096)
-            val until = System.nanoTime() / 1_000_000 + TIMEOUT_MS
+            val start = System.nanoTime() / 1_000_000
+            val until = start + TIMEOUT_MS
+            var resent = false
             while (true) {
-                val left = until - System.nanoTime() / 1_000_000
-                if (left <= 0) throw SocketTimeoutException("timeout")
-                s.soTimeout = left.toInt()
+                val now = System.nanoTime() / 1_000_000
+                if (now >= until) throw SocketTimeoutException("timeout")
+                if (!resent && now - start >= UDP_RESEND_MS) { resent = true; s.send(DatagramPacket(msg, msg.size, to)) }
+                val wait = if (resent) until - now else minOf(until, start + UDP_RESEND_MS) - now
+                s.soTimeout = wait.coerceAtLeast(1).toInt()
                 val p = DatagramPacket(buf, buf.size)
-                s.receive(p)
+                try { s.receive(p) } catch (_: SocketTimeoutException) { continue }
                 if (p.address != to.address) continue
                 Dns.matchAnswer(msg, buf.copyOf(p.length))?.let { return it }
             }

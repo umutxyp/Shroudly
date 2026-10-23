@@ -109,6 +109,15 @@ const readBody = (req) => new Promise((r) => { const c = []; req.on('data', (d) 
   const ask = (kind, text, opts = {}) => new C.CustomDns(C.parse(kind, text), { bootstrap: boot, ca, ...opts }).query(q);
   try {
     t.ok(C.firstA(await ask('udp', `127.0.0.1:${udp.address().port}`)) === '93.184.215.14', 'plain UDP answered');
+    // A lossy network: the first question is lost, the one sent again is answered.
+    const lossy = dgram.createSocket('udp4');
+    await new Promise((r) => lossy.bind(0, '127.0.0.1', r));
+    let seen = 0;
+    lossy.on('message', (m, ri) => { if (++seen > 1) lossy.send(answer(m, '93.184.215.21'), ri.port, ri.address); });
+    const l0 = Date.now();
+    const la = await ask('udp', `127.0.0.1:${lossy.address().port}`);
+    t.ok(C.firstA(la) === '93.184.215.21' && seen === 2 && Date.now() - l0 < 2000, `plain UDP, the first question lost: sent again and answered in ${Date.now() - l0} ms`);
+    lossy.close();
     t.ok(C.firstA(await ask('tcp', `127.0.0.1:${tcpPort}`)) === '93.184.215.15', 'plain TCP answered (length-prefixed)');
     t.ok(C.firstA(await ask('dot', `test.local:${dotPort}`)) === '93.184.215.16', 'DNS over TLS answered, its name looked up through the bootstrap and its certificate checked against it');
     t.ok(C.firstA(await ask('doh', `https://test.local:${doh2Port}/dns-query`)) === '93.184.215.17', 'DNS over HTTPS, HTTP/2: answered');

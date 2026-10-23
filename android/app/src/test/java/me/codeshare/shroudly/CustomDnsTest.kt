@@ -82,6 +82,30 @@ class CustomDnsTest {
     }
 
     @Test
+    fun plainUdpAsksAgainWhenTheFirstIsLost() {
+        DatagramSocket(0, lo).use { srv ->
+            val seen = AtomicInteger()
+            Thread {
+                val buf = ByteArray(512)
+                repeat(2) {
+                    val p = DatagramPacket(buf, buf.size)
+                    srv.receive(p)
+                    // The first question is lost on the way.
+                    if (seen.incrementAndGet() == 2) {
+                        val a = answer(buf.copyOf(p.length), "93.184.215.21")
+                        srv.send(DatagramPacket(a, a.size, p.socketAddress))
+                    }
+                }
+            }.start()
+            val t0 = System.nanoTime()
+            val a = dns(DnsSpec("udp", "127.0.0.1", srv.localPort)).query(Dns.buildQuery("example.com", Dns.TYPE_A, 7))
+            assertEquals("93.184.215.21", Dns.firstA(a))
+            assertEquals(2, seen.get())
+            assertTrue((System.nanoTime() - t0) / 1_000_000 < 2000)
+        }
+    }
+
+    @Test
     fun plainTcpKeepsItsConnection() {
         val conns = AtomicInteger()
         ServerSocket(0, 5, lo).use { srv ->
