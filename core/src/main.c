@@ -131,6 +131,7 @@ static void usage(void) {
     "  --strategy <spec>     e.g. \"fake(ttl=4),split(sni)\"\n"
     "  --auto                auto-probe best strategy per host\n"
     "  --doh                 use anti-poisoning resolver\n"
+    "  --dns-strict          only the --doh-port forwarder answers: no plaintext or system fallback\n"
     "  --auth-file <path>    SOCKS5 username/password: the file holds \"user:pass\";\n"
     "                        every client must give them, SOCKS4 is refused\n"
     "  --fake-net <cidr>     stand-in address range (repeatable, or comma-joined):\n"
@@ -187,6 +188,7 @@ int engine_main(int argc, char **argv, FILE *in, FILE *out, int embedded) {
   strategy_parse("split(sni)", &g_cfg.strat);
 
   int bad_fake_net = 0;
+  int dns_strict = 0;
   for (int i = 1; i < argc; i++) {
     if (!strcmp(argv[i], "--listen") && i+1<argc) strncpy(g_cfg.listen_addr, argv[++i], sizeof(g_cfg.listen_addr)-1);
     else if (!strcmp(argv[i], "--port") && i+1<argc) g_cfg.listen_port = atoi(argv[++i]);
@@ -197,6 +199,7 @@ int engine_main(int argc, char **argv, FILE *in, FILE *out, int embedded) {
     else if (!strcmp(argv[i], "--raw-local")) g_cfg.raw_local = 1;
     else if (!strcmp(argv[i], "--doh-ip") && i+1<argc) strncpy(g_doh_fwd_ip, argv[++i], sizeof(g_doh_fwd_ip)-1);
     else if (!strcmp(argv[i], "--doh-port") && i+1<argc) g_doh_fwd_port = atoi(argv[++i]);
+    else if (!strcmp(argv[i], "--dns-strict")) dns_strict = 1;
     else if (!strcmp(argv[i], "--block-ip") && i+1<argc) doh_add_block_ip(argv[++i]);
     else if (!strcmp(argv[i], "--advanced")) g_advanced = 1;
     else if (!strcmp(argv[i], "--queue") && i+1<argc) g_queue = atoi(argv[++i]);
@@ -225,6 +228,7 @@ int engine_main(int argc, char **argv, FILE *in, FILE *out, int embedded) {
 
   if (g_cfg.use_doh && g_doh_fwd_port > 0) doh_set_local(g_doh_fwd_ip, g_doh_fwd_port);
   else doh_set_local(NULL, 0);   /* none: not even one an earlier run named */
+  doh_set_strict(dns_strict);
   if (bad_fake_net) {
     engine_printf("{\"type\":\"error\",\"msg\":\"fake-net unusable\"}\n");
     plat_cleanup();
@@ -329,6 +333,9 @@ int engine_main(int argc, char **argv, FILE *in, FILE *out, int embedded) {
     /* Another DNS server chosen (Settings): the answers kept from the last
      * one go, so the next lookup asks the new one. */
     else if (!strcmp(line, "DNS-CLEAR")) doh_clear_cache();
+    /* The user's own DNS server set to be used alone, or no longer. */
+    else if (!strcmp(line, "DNS-STRICT 1")) doh_set_strict(1);
+    else if (!strcmp(line, "DNS-STRICT 0")) doh_set_strict(0);
     else if (!strncmp(line, "ALLOW ", 6)) adblock_allow(line + 6);
     else if (!strncmp(line, "LEARN ", 6)) {
       /* LEARN <host> <technique> <seconds ago>: what an earlier run learned. */

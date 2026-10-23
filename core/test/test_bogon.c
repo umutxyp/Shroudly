@@ -6,7 +6,7 @@
 
 /* The system resolver, replaced: doh.c's getaddrinfo() calls land here, so a
  * test can say what "the local network's DNS" answers. */
-static const char *g_sys_name[8]; static uint32_t g_sys_ip[8]; static int g_sys_n = 0, g_sys_asked = 0;
+static const char *g_sys_name[12]; static uint32_t g_sys_ip[12]; static int g_sys_n = 0, g_sys_asked = 0;
 static int test_getaddrinfo(const char *node, const char *svc, const struct addrinfo *hints, struct addrinfo **res) {
   (void)svc;
   g_sys_asked++;
@@ -91,7 +91,8 @@ static int build_multi(uint8_t *b, const char *name, const uint32_t *ips, const 
 }
 
 /* A forwarder on 127.0.0.1 standing in for encrypted DNS: "public.example"
- * has 93.184.216.34, "published.example" only 10.1.2.3, and every other name
+ * has 93.184.216.34, "published.example" only 10.1.2.3, "bogus.example" is
+ * a server failure (its DNSSEC signatures are wrong), and every other name
  * does not exist. Counts the queries it gets. */
 static struct { sock_t s; uint16_t port; _Atomic int queries; _Atomic int stop; } g_fwd;
 static void *fwd_thread(void *arg) {
@@ -110,7 +111,7 @@ static void *fwd_thread(void *arg) {
     if (!strcmp(name, "public.example")) ip = 0x5db8d822;
     else if (!strcmp(name, "published.example")) ip = 0x0a010203;
     memcpy(r, q, (size_t)qend);
-    r[2] = 0x81; r[3] = ip ? 0x80 : 0x83;
+    r[2] = 0x81; r[3] = ip ? 0x80 : !strcmp(name, "bogus.example") ? 0x82 : 0x83;
     r[6] = 0; r[7] = ip ? 1 : 0; r[8] = r[9] = r[10] = r[11] = 0;
     int m = qend;
     if (ip) {
@@ -211,12 +212,15 @@ int main(void){
     n=build_multi(b,"x.com",bp,ttls,1,0);
     CHECK(dns_parse(b,n,0,a,DOH_MAX_ADDRS,&na,&ttl)==DNS_NODATA && na==0); }
 
-  /* 9b. NXDOMAIN is an answer ("no such name"); SERVFAIL is not */
+  /* 9b. NXDOMAIN is an answer ("no such name"); SERVFAIL is told apart (the
+   * forwarder's is believed, a plaintext resolver's means ask the next); any
+   * other error code is a broken reply */
   { uint32_t ips[1]={0x08080808}, ttls[1]={60};
     n=build_multi(b,"x.com",ips,ttls,1,0);
     uint8_t a[DOH_MAX_ADDRS][16]; int na=0; uint32_t ttl=0;
     b[3]=0x83; CHECK(dns_parse(b,n,0,a,DOH_MAX_ADDRS,&na,&ttl)==DNS_NXDOMAIN);
-    b[3]=0x82; CHECK(dns_parse(b,n,0,a,DOH_MAX_ADDRS,&na,&ttl)==-1); }
+    b[3]=0x82; CHECK(dns_parse(b,n,0,a,DOH_MAX_ADDRS,&na,&ttl)==DNS_SERVFAIL);
+    b[3]=0x85; CHECK(dns_parse(b,n,0,a,DOH_MAX_ADDRS,&na,&ttl)==-1); }
 
   /* 10. TTL is honoured but held to 20 s .. 5 min */
   CHECK(ttl_clamp(0)==20 && ttl_clamp(19)==20 && ttl_clamp(60)==60 && ttl_clamp(300)==300 && ttl_clamp(86400)==300);
@@ -284,6 +288,8 @@ int main(void){
     sys_answers("nas.lan", 0xc0a8010a);
     sys_answers("loop.lan", 0x7f000001);
     sys_answers("poisoned.example", 0x0a0a2222);
+    sys_answers("bogus.example", 0x5db8d822);
+    sys_answers("elsewhere.example", 0x5db8d822);
     struct sockaddr_storage out[DOH_MAX_ADDRS]; socklen_t ol[DOH_MAX_ADDRS];
     #define V4(i) ntohl(((struct sockaddr_in*)&out[i])->sin_addr.s_addr)
 
@@ -300,6 +306,22 @@ int main(void){
     /* A public name: encrypted DNS's answer, the system resolver not asked. */
     int asked=g_sys_asked;
     CHECK(doh_resolve_all("public.example",80,0,out,ol,DOH_MAX_ADDRS)==1 && V4(0)==0x5db8d822 && g_sys_asked==asked);
+    /* Encrypted DNS says the server failed (a name whose signatures do not
+     * check out): that is the answer, at once. Before, the engine waited out
+     * its 4 s for another reply and then asked the plaintext resolvers and
+     * the system's, which gave the forged address (issue #34). */
+    asked=g_sys_asked;
+    uint64_t t0=now_ms();
+    CHECK(doh_resolve_all("bogus.example",80,0,out,ol,DOH_MAX_ADDRS)==-1 && g_sys_asked==asked);
+    CHECK(now_ms()-t0 < 1500);
+    /* Only the user's server (strict): a name it says does not exist is not
+     * asked of the system resolver, which would know it; without strict it
+     * is, as for a hosts-file entry. */
+    doh_set_strict(1);
+    CHECK(doh_strict()==1);
+    CHECK(doh_resolve_all("elsewhere.example",80,0,out,ol,DOH_MAX_ADDRS)==-1 && g_sys_asked==asked);
+    doh_set_strict(0);
+    CHECK(doh_resolve_all("elsewhere.example",80,0,out,ol,DOH_MAX_ADDRS)==1 && V4(0)==0x5db8d822 && g_sys_asked==asked+1);
     /* No such name, and the local DNS answers with a block page: refused. */
     CHECK(doh_resolve_all("blockpage.corp.example",80,0,out,ol,DOH_MAX_ADDRS)==-1);
     /* A local name: only the system resolver is asked, its private answer taken
@@ -311,6 +333,8 @@ int main(void){
     /* Encrypted DNS out of reach (no forwarder, public resolvers silent): the
      * system resolver's private answer is what a censor says, and refused. */
     doh_set_local(NULL, 0);
+    /* Strict means nothing without a forwarder to be strict about. */
+    doh_set_strict(1); CHECK(doh_strict()==0); doh_set_strict(0);
     CHECK(doh_resolve_all("poisoned.example",80,0,out,ol,DOH_MAX_ADDRS)==-1);
     CHECK(doh_local_addr(&fa)==-1);
     #undef V4

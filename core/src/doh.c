@@ -265,6 +265,10 @@ void doh_set_local(const char *ip, int port) {
   g_fwd_port = (uint16_t)port;
 }
 
+static _Atomic int g_strict = 0;
+void doh_set_strict(int on) { atomic_store(&g_strict, on ? 1 : 0); }
+int doh_strict(void) { return atomic_load(&g_strict) && g_fwd_port; }
+
 int doh_local_addr(struct sockaddr_in *out) {
   if (!g_fwd_port) return -1;
   memset(out, 0, sizeof(*out));
@@ -352,6 +356,10 @@ static int dns_build(uint8_t *q, const char *name, uint16_t id, int type) {
 /* As DNS_NODATA, but what was left out was a private address (is_private_v4):
  * the name is published with one. */
 #define DNS_PRIVATE  (-4)
+/* "Server failure" (SERVFAIL): the resolver could not get an answer it
+ * trusts. A validating one says it for a name whose signatures do not check
+ * out (DNSSEC), and for a name whose own servers do not answer. */
+#define DNS_SERVFAIL (-5)
 /* Does this reply echo the question we sent? A reply carrying someone else's
  * question is not an answer to ours, however well-formed it looks. */
 static int dns_question_matches(const uint8_t *r, int len, const uint8_t *q, int qlen) {
@@ -403,9 +411,12 @@ static int dns_parse(const uint8_t *r, int len, int want6,
   int an = (r[6] << 8) | r[7];
   /* NXDOMAIN is an answer, not a broken reply: treated as unusable, every
    * lookup of a name that does not exist sat out each resolver's whole
-   * timeout, so a mistyped or dead host took tens of seconds to fail. Any other
-   * error code is a resolver problem: ask the next. */
+   * timeout, so a mistyped or dead host took tens of seconds to fail. A
+   * server failure is told apart: from a plaintext resolver it means "ask the
+   * next", as any other error code does, but from the forwarder it is the
+   * answer (doh_resolve_all). */
   if ((r[3] & 0x0f) == 3) return DNS_NXDOMAIN;
+  if ((r[3] & 0x0f) == 2) return DNS_SERVFAIL;
   if ((r[3] & 0x0f) != 0) return -1;
   int p = 12;
   for (int i = 0; i < qd; i++) {
@@ -527,8 +538,9 @@ static int udp_ask_wait(udp_ask *a, int timeout_ms, uint8_t (*addrs)[16], int *n
     /* "No such record" (or name): don't sit out the whole window, but leave a
      * short grace period in case it was a forged reply racing the real one.
      * Longer for "no such name", the answer an injector would forge to make a
-     * site vanish. */
-    if ((pr == DNS_NODATA || pr == DNS_NXDOMAIN || pr == DNS_PRIVATE) && rc == -1) {
+     * site vanish. A server failure too: waiting out the window for another
+     * reply only kept the next resolver waiting for seconds. */
+    if ((pr == DNS_NODATA || pr == DNS_NXDOMAIN || pr == DNS_PRIVATE || pr == DNS_SERVFAIL) && rc == -1) {
       rc = pr;
       uint64_t grace = now_ms() + (pr == DNS_NXDOMAIN ? 600 : 250);
       if (grace < deadline) deadline = grace;
@@ -572,7 +584,7 @@ static int answer(const char *name, uint16_t port, int family, uint8_t (*addrs)[
 /* The forwarder's answer to a question it did not answer in time, if it has
  * come within wait_ms: 1 with addresses (the encrypted answer, taken over
  * any other), 2 when it says the name has no usable address of this family
- * (believed, as at first), 0 for nothing yet. The question is let go once
+ * or that the server failed (believed, as at first), 0 for nothing yet. The question is let go once
  * the forwarder has answered at all. */
 static int fwd_late(udp_ask *fwd, int wait_ms, uint8_t (*addrs)[16], int *n, uint32_t *ttl) {
   if (fwd->s == SOCK_INVALID) return 0;
@@ -580,7 +592,7 @@ static int fwd_late(udp_ask *fwd, int wait_ms, uint8_t (*addrs)[16], int *n, uin
   if (r == -1) return 0;
   udp_ask_close(fwd);
   if (r == 0) return 1;
-  if (r == DNS_NODATA || r == DNS_PRIVATE) return 2;
+  if (r == DNS_NODATA || r == DNS_PRIVATE || r == DNS_SERVFAIL) return 2;
   return 0;   /* no such name: what follows may still know it */
 }
 
@@ -711,8 +723,15 @@ int doh_resolve_all(const char *name, uint16_t port, int want6,
      * Or it says the name is published with only a private address. Its
      * owner may mean that, but so may an attacker who points a public name
      * at the LAN (DNS rebinding), and a private address is also what a censor
-     * answers with: refused, as the plaintext resolvers' would be. */
-    if (fr == DNS_NODATA || fr == DNS_PRIVATE) { udp_ask_close(&fwd); return -1; }
+     * answers with: refused, as the plaintext resolvers' would be.
+     * Or it says the server failed (DNS_SERVFAIL). The forwarder passes that
+     * on only from the user's own server or when two operators of encrypted
+     * DNS agree (see the forwarders): mostly a name whose DNSSEC signatures
+     * are wrong. Taken for "ask the next" (issue #34), it was then asked of
+     * the plaintext resolvers and the system's, not all of which check
+     * signatures: a forged answer passed as good, and each of them saw the
+     * name, after a 4 s wait. */
+    if (fr == DNS_NODATA || fr == DNS_PRIVATE || fr == DNS_SERVFAIL) { udp_ask_close(&fwd); return -1; }
     if (fr == -1) {
       /* No answer in time. The forwarder goes on looking, and may only now
        * be getting its routes back (a network that has just returned, its
@@ -731,7 +750,9 @@ int doh_resolve_all(const char *name, uint16_t port, int want6,
     }
   }
 
-  int got = resolve_fallback(name, port, want6, trusted, &fwd, out, outlen, max);
+  /* Strict (the user's own server and nothing else): no fallback; the
+   * forwarder's late answer below is all there is. */
+  int got = doh_strict() && !trusted ? -1 : resolve_fallback(name, port, want6, trusted, &fwd, out, outlen, max);
   /* Nothing usable from the fallback either: the forwarder's answer, if it
    * comes before FWD_LATE_MS from the first question. */
   if (got <= 0 && fwd.s != SOCK_INVALID) {

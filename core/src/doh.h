@@ -30,6 +30,11 @@ void doh_clear_cache(void);
 void doh_set_local(const char *ip, int port);
 /* That forwarder's address: 0, or -1 when there is none. */
 int  doh_local_addr(struct sockaddr_in *out);
+/* Strict: the forwarder alone answers (the user's own DNS server, set to be
+ * used with no fallback): no public resolver over UDP, no system resolver,
+ * except for a name only the local network knows (doh_local_name). */
+void doh_set_strict(int on);
+int  doh_strict(void);
 
 /* Names that never resolve on the public internet (RFC 6761, 6762, 8375 and
  * their usual relatives): one label ("router"), or ending in .local, .lan,

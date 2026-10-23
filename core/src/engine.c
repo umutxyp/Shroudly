@@ -2988,7 +2988,7 @@ static void *osdns_thread(void *p) {
 
 /* Connect to host where the system's resolver says, rather than ask ours? */
 static int osdns_follow(const char *host) {
-  if (!g_cfg.use_doh || !host[0] || ip_literal(host) || doh_local_name(host)) return 0;
+  if (!g_cfg.use_doh || doh_strict() || !host[0] || ip_literal(host) || doh_local_name(host)) return 0;
   mutex_lock(&g_osdns_mx);
   uint64_t now = now_ms();
   int slot = -1, oldest = 0;
