@@ -217,6 +217,7 @@
   "logAdvancedAskingAdmin": "پرمختللی حالت: د مدیر اجازه غوښتل کېږي",
   "logAdvancedNoStopConfirm": "د پرمختللي حالت شاتنۍ برخې د درېدو تایید ونه کړ؛ کله چې Shroudly بند شي، دا به هم بنده شي",
   "logAdvancedProtections": "پرمختللی حالت همدارنګه ننوتل شوي جعلي ریسېټونه غورځوي او د دوکې د کڅوړې TTL اندازه کوي",
+  "logAdvancedDnsGate": "پرمختللی حالت د هغو پروګرامونو د DNS پوښتنو ته هم په کوډ شوي DNS ځواب ورکوي چې پراکسي نه کاروي",
   "systemStatus": "د سیسټم وضعیت",
   "howItWorks": "دا څنګه کار کوي",
   "technique_frag": "د TCP ټوټه کول",

@@ -129,6 +129,16 @@ const restS = (r) => Math.max(0, Math.round((r.restUntil - Date.now()) / 1000));
     t.ok(destroyed === f.routes.length && f.routes.every((r) => !r.session && r.fails === 0 && r.restUntil === 0),
       'networkChanged(): every old connection dropped, no route resting');
     f.stop();
+    // Started again on the port it had (Advanced mode's DNS gate was told
+    // that one), or on any free one when another program has taken it.
+    const was = f.port;
+    t.ok(await f.start(was) === was, 'stop() and start(its port): the same port again');
+    f.stop();
+    const taker = dgram.createSocket('udp4');
+    await new Promise((res) => taker.bind(was, '127.0.0.1', res));
+    const other = await f.start(was);
+    t.ok(other > 0 && other !== was && f.sock && f.port === other, `its port taken meanwhile: another one (${other})`);
+    f.stop(); taker.close();
   }
 
   // "down" is one streak of failed lookups lasting 10 s. An answer between

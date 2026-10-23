@@ -217,6 +217,7 @@
   "logAdvancedAskingAdmin": "Mod Lanjutan: meminta kebenaran pentadbir",
   "logAdvancedNoStopConfirm": "Proses latar Mod Lanjutan tidak mengesahkan penghentian; ia akan keluar apabila Shroudly ditutup",
   "logAdvancedProtections": "Mod lanjutan juga membuang tetapan semula yang disuntik dan mengukur TTL paket umpan",
+  "logAdvancedDnsGate": "Mod lanjutan juga menjawab pertanyaan DNS program yang mengabaikan proksi dengan DNS tersulit",
   "systemStatus": "Status sistem",
   "howItWorks": "Cara ia berfungsi",
   "technique_frag": "Pemecahan TCP",

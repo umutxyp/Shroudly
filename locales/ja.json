@@ -217,6 +217,7 @@
   "logAdvancedAskingAdmin": "高度なモード：管理者権限を要求しています",
   "logAdvancedNoStopConfirm": "高度なバックエンドが停止を確認しませんでした。Shroudly の終了時に自動で終了します",
   "logAdvancedProtections": "高度なモードは、注入された偽のリセットも破棄し、おとりパケットの TTL を測定します",
+  "logAdvancedDnsGate": "詳細モードは、プロキシを使わないプログラムの DNS 問い合わせにも暗号化 DNS で応答します",
   "systemStatus": "システムの状態",
   "howItWorks": "しくみ",
   "technique_frag": "TCP フラグメンテーション",

@@ -217,6 +217,7 @@
   "logAdvancedAskingAdmin": "Mode avancé : demande d’autorisation d’administrateur",
   "logAdvancedNoStopConfirm": "Le module avancé n’a pas confirmé l’arrêt ; il se fermera à la fermeture de Shroudly",
   "logAdvancedProtections": "Le mode avancé rejette aussi les réinitialisations injectées et mesure le TTL du paquet leurre",
+  "logAdvancedDnsGate": "Le mode avancé répond aussi par le DNS chiffré aux requêtes DNS des programmes qui ignorent le proxy",
   "systemStatus": "État du système",
   "howItWorks": "Fonctionnement",
   "technique_frag": "Fragmentation TCP",

@@ -22,6 +22,15 @@
  * the engine: its raw_stats count only the requests (udp_seen), the decoys
  * (udp_decoys) and the QUIC Initial it dropped (quic_dropped).
  *
+ * DNS (the DNS gate, core/src/dnsgate.h): the app's encrypted-DNS forwarder
+ * stands in on 127.0.0.1 (lab-dns.js) and knows one made-up name. Without
+ * the engine a public resolver says it does not exist; with it, a program
+ * asking that resolver itself (Node's own resolver, as a bot on Node does)
+ * and the system's resolver (getaddrinfo, the DNS Client service) both get
+ * the forwarder's address. A name the forwarder does not know still gets
+ * the resolver's own answer, and every site above still loads with every
+ * lookup going through the gate.
+ *
  *   node tests/lab/advanced-windows.js electron/tools/core/win32-x64/shroudly-core-adv.exe
  */
 
@@ -30,7 +39,8 @@ const os = require('os');
 const path = require('path');
 const http = require('http');
 const https = require('https');
-const { spawn } = require('child_process');
+const { spawn, execFileSync } = require('child_process');
+const dnsNode = require('dns');
 const { buildAdvancedArgs } = require(path.join(__dirname, '..', '..', 'electron', 'advanced-mode.js'));
 const Udp = require('./lab-udp');
 
@@ -73,6 +83,12 @@ async function stunAnswered() {
   return { answered: false, sent };
 }
 
+const GATE_NAME = 'gate-lab.shroudly-test.example';
+const GATE_ADDR = '93.184.216.34';
+const RESOLVER = '8.8.8.8';
+const ask = (server, name) => execFileSync(process.execPath, [path.join(__dirname, 'lab-dns.js'), 'ask', server, name], { encoding: 'utf8' }).trim();
+const lookup4 = (name) => new Promise((res) => dnsNode.lookup(name, { family: 4 }, (e, a) => res(e ? e.code : a)));
+
 const TRIES = 3;
 const loaded = (r) => !r.error && r.status < 500 && r.complete && r.bytes > 0;
 const describe = (r) => r.error || `${r.status}, complete=${r.complete}, ${r.bytes} bytes`;
@@ -104,9 +120,17 @@ async function loadAll(label) {
   const stunBefore = await stunAnswered();
   console.log(`  ..  the STUN server ${stunBefore.answered ? 'answers' : 'does not answer'} without the engine`);
 
+  // The forwarder standing in, and what a public resolver says without the engine.
+  const fwdPort = 53000 + (process.pid % 900);
+  const fwd = spawn(process.execPath, [path.join(__dirname, 'lab-dns.js'), 'forwarder', String(fwdPort), `${GATE_NAME}=${GATE_ADDR}`], { stdio: ['ignore', 'pipe', 'inherit'] });
+  await new Promise((res) => { fwd.stdout.once('data', res); setTimeout(res, 3000); });
+  const gateBefore = ask(RESOLVER, GATE_NAME);
+  console.log(`  ..  without the engine ${RESOLVER} says ${GATE_NAME}: ${gateBefore}`);
+  try { execFileSync('ipconfig', ['/flushdns'], { stdio: 'ignore' }); } catch {}
+
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'shroudly-adv-'));
   const status = path.join(dir, 'status.log');
-  const args = buildAdvancedArgs({ fakeTtl: 4, statusFile: status, parentPid: process.pid, platform: 'win32' });
+  const args = buildAdvancedArgs({ fakeTtl: 4, statusFile: status, parentPid: process.pid, platform: 'win32', dnsGate: fwdPort });
   const child = spawn(engine, args, { stdio: 'ignore', windowsHide: true });
   let exited = null;
   child.on('exit', (code) => { exited = code; });
@@ -117,6 +141,19 @@ async function loadAll(label) {
   else { bad(`engine did not come up (exit ${exited}): ${read().slice(-600)}`); process.exit(1); }
 
   await loadAll('engine on');
+
+  // DNS through the gate.
+  if (/"dns_gate":1/.test(ready)) ok('the DNS gate is on (dns_gate 1)');
+  else bad(`the DNS gate is not on: ${ready}`);
+  const direct = ask(RESOLVER, GATE_NAME);
+  if (direct === GATE_ADDR) ok(`a program asking ${RESOLVER} itself gets the forwarder's answer (${direct}; without the engine: ${gateBefore})`);
+  else bad(`a program asking ${RESOLVER} itself got ${direct}, not ${GATE_ADDR}`);
+  const sys = await lookup4(GATE_NAME);
+  if (sys === GATE_ADDR) ok(`the system's resolver (getaddrinfo) gets the forwarder's answer too (${sys})`);
+  else bad(`the system's resolver got ${sys}, not ${GATE_ADDR}`);
+  const other = ask(RESOLVER, 'example.com');
+  if (/^\d+\.\d+\.\d+\.\d+/.test(other)) ok(`a name the forwarder does not know gets ${RESOLVER}'s own answer (${other})`);
+  else bad(`a name the forwarder does not know: ${other}`);
 
   // UDP while the engine runs.
   if (/"udp_match":1/.test(ready)) ok('the kernel filter tests UDP payloads (udp_match 1)');
@@ -152,11 +189,20 @@ async function loadAll(label) {
     // Initial (and any QUIC long header another program sent meanwhile).
     if (Number(s.udp_seen) < RTP_COUNT) ok(`the engine was handed ${s.udp_seen} UDP datagrams: the ${RTP_COUNT} RTP and ${SHORT_COUNT} short headers stayed in the kernel`);
     else bad(`the engine was handed ${s.udp_seen} UDP datagrams: a call's datagrams went through it`);
+    if (Number(s.dns_answered) >= 2) ok(`the gate answered ${s.dns_answered} DNS questions and sent ${s.dns_passed} on`);
+    else bad(`dns_answered is ${s.dns_answered}`);
+    if (Number(s.dns_passed) >= 1) ok('and sent on those the forwarder did not know');
+    else bad(`dns_passed is ${s.dns_passed}`);
   } else {
     bad('no raw_stats line when the engine stopped');
   }
 
   await loadAll('after stop');
+  try { execFileSync('ipconfig', ['/flushdns'], { stdio: 'ignore' }); } catch {}
+  const after = ask(RESOLVER, GATE_NAME);
+  if (after !== GATE_ADDR) ok(`after stop, ${RESOLVER}'s own answer again (${after})`);
+  else bad(`after stop, still the forwarder's answer from ${RESOLVER}`);
+  fwd.kill();
   fs.rmSync(dir, { recursive: true, force: true });
   if (fails) { console.log(`advanced-windows: ${fails} failed`); process.exit(1); }
   console.log('advanced-windows: all passed');

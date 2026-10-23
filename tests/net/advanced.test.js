@@ -99,6 +99,13 @@ t.ok(!noUdp.includes('--no-quic-block'), 'udpFake:false leaves QUIC block on');
 const both = buildArgs({ ...ubase, platform: 'win32', quicBlock: false, udpFake: false });
 t.ok(both.includes('--no-quic-block') && both.includes('--no-udp-fake'), 'both off -> both flags');
 
+// Other programs' DNS from the forwarder (core/src/dnsgate.h): only with a
+// forwarder port to give, and only a port.
+t.ok(!def.includes('--dns-gate'), 'no forwarder: no DNS gate');
+const gate = buildArgs({ ...ubase, platform: 'win32', dnsGate: 53123 });
+t.ok(gate[gate.indexOf('--dns-gate') + 1] === '53123', 'the forwarder port -> --dns-gate <port>');
+t.ok(['0', 'x', '70000', -1].every((p) => !buildArgs({ ...ubase, platform: 'linux', dnsGate: p }).includes('--dns-gate')), 'no port, or not a port: no DNS gate');
+
 // fake-repeats passed through when set, floored, ignored when not positive
 const rep = buildArgs({ ...ubase, platform: 'win32', fakeRepeats: 8 });
 t.ok(rep.join(' ').includes('--fake-repeats 8'), 'fakeRepeats:8 -> --fake-repeats 8');

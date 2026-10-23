@@ -217,6 +217,7 @@
   "logAdvancedAskingAdmin": "Advanced mode: asking for administrator permission",
   "logAdvancedNoStopConfirm": "Advanced backend did not confirm the stop; it will exit when Shroudly quits",
   "logAdvancedProtections": "Advanced mode also drops injected resets and measures the decoy TTL",
+  "logAdvancedDnsGate": "Advanced mode also answers the DNS of programs that ignore the proxy with encrypted DNS",
   "systemStatus": "System status",
   "howItWorks": "How it works",
   "technique_frag": "TCP fragmentation",

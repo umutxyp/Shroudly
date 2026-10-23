@@ -603,7 +603,10 @@ class DohForwarder {
     if (asks.length) Promise.all(asks).then((ok) => { if (!ok.some(Boolean)) this.stillFailing(); });
   }
 
-  start() {
+  /* port: the one it had before, taken again if it is free, so whoever was
+   * told it (Advanced mode's DNS gate, elevated and started once) still
+   * reaches it after a Stop and Start; otherwise any free one. */
+  start(port = 0) {
     return new Promise((resolve, reject) => {
       const sock = dgram.createSocket('udp4');
       // A transient send error (an unreachable loopback reply, a full buffer)
@@ -640,7 +643,7 @@ class DohForwarder {
             this.lookupFailed();
           });
       });
-      sock.bind(0, '127.0.0.1', () => {
+      sock.bind(port, '127.0.0.1', () => {
         this.sock = sock;
         this.port = sock.address().port;
         this.stopped = false;
@@ -654,7 +657,12 @@ class DohForwarder {
         if (this.warmTimer.unref) this.warmTimer.unref();
         resolve(this.port);
       });
-      sock.once('error', reject);
+      sock.once('error', (e) => {
+        if (this.sock === sock) return;
+        try { sock.close(); } catch {}
+        if (port) this.start(0).then(resolve, reject);
+        else reject(e);
+      });
     });
   }
 

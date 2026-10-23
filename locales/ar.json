@@ -217,6 +217,7 @@
   "logAdvancedAskingAdmin": "الوضع المتقدم: جارٍ طلب إذن المسؤول",
   "logAdvancedNoStopConfirm": "لم يؤكد المكوّن الخلفي المتقدم الإيقاف؛ سيُغلق عند إنهاء Shroudly",
   "logAdvancedProtections": "يتجاهل الوضع المتقدم أيضًا عمليات إعادة التعيين المحقونة ويقيس قيمة TTL للحزمة المضللة",
+  "logAdvancedDnsGate": "يجيب الوضع المتقدم أيضًا عن طلبات DNS للبرامج التي تتجاهل الوكيل باستخدام DNS المشفّر",
   "systemStatus": "حالة النظام",
   "howItWorks": "آلية العمل",
   "technique_frag": "تجزئة TCP",

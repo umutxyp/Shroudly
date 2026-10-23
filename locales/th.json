@@ -217,6 +217,7 @@
   "logAdvancedAskingAdmin": "โหมดขั้นสูง: กำลังขอสิทธิ์ผู้ดูแลระบบ",
   "logAdvancedNoStopConfirm": "แบ็กเอนด์ขั้นสูงไม่ได้ยืนยันการหยุด แบ็กเอนด์จะปิดตัวลงเมื่อออกจาก Shroudly",
   "logAdvancedProtections": "โหมดขั้นสูงยังทิ้งการรีเซ็ตที่ถูกแทรกเข้ามาและวัดค่า TTL ของแพ็กเก็ตล่อ",
+  "logAdvancedDnsGate": "โหมดขั้นสูงยังตอบคำขอ DNS ของโปรแกรมที่ไม่สนใจพร็อกซีด้วย DNS ที่เข้ารหัส",
   "systemStatus": "สถานะระบบ",
   "howItWorks": "วิธีการทำงาน",
   "technique_frag": "การแบ่งแพ็กเก็ต TCP",

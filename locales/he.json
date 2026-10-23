@@ -217,6 +217,7 @@
   "logAdvancedAskingAdmin": "מצב מתקדם: מבקש הרשאת מנהל",
   "logAdvancedNoStopConfirm": "תהליך הרקע של המצב המתקדם לא אישר את העצירה; הוא ייסגר עם היציאה מ-Shroudly",
   "logAdvancedProtections": "המצב המתקדם גם משליך איפוסים מוזרקים ומודד את ה-TTL של חבילת ההטעיה",
+  "logAdvancedDnsGate": "המצב המתקדם עונה גם לשאילתות ה-DNS של תוכנות שמתעלמות מהפרוקסי באמצעות DNS מוצפן",
   "systemStatus": "מצב המערכת",
   "howItWorks": "איך זה עובד",
   "technique_frag": "פיצול TCP",

@@ -59,6 +59,7 @@ const LINES = [
   'Discord app mode on: Discord updates through Shroudly',
   'Discord app mode off: Discord settings restored',
   'Advanced mode also drops injected resets and measures the decoy TTL',
+  'Advanced mode also answers the DNS of programs that ignore the proxy with encrypted DNS',
   // Bypass and block lines keep translating when the engine adds that the
   // network dropped the attempts silently, and the auto-mode label still fits.
   'discord.com: blocked here, opened with tlsrec-sni (2 tries, ipv4)',

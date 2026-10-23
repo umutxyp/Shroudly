@@ -217,6 +217,7 @@
   "logAdvancedAskingAdmin": "የላቀ ሁነታ: የአስተዳዳሪ ፈቃድ እየተጠየቀ ነው",
   "logAdvancedNoStopConfirm": "የላቀው የጀርባ ሂደት መቆሙን አላረጋገጠም፤ Shroudly ሲዘጋ ይወጣል",
   "logAdvancedProtections": "የላቀ ሁነታ የገቡ የሐሰት ዳግም ማስጀመሪያዎችንም ይጥላል እና የማታለያ ፓኬቱን TTL ይለካል",
+  "logAdvancedDnsGate": "የላቀ ሁነታ ፕሮክሲውን ችላ የሚሉ ፕሮግራሞችን የDNS ጥያቄዎችም በተመሰጠረ DNS ይመልሳል",
   "systemStatus": "የሲስተም ሁኔታ",
   "howItWorks": "እንዴት እንደሚሰራ",
   "technique_frag": "የTCP ክፍፍል",

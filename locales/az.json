@@ -217,6 +217,7 @@
   "logAdvancedAskingAdmin": "Təkmil rejim: administrator icazəsi istənilir",
   "logAdvancedNoStopConfirm": "Təkmil modul dayandığını təsdiqləmədi; Shroudly bağlananda o da bağlanacaq",
   "logAdvancedProtections": "Təkmil rejim həmçinin saxta bağlantı kəsmələrini (RST) atır və aldadıcı paketin TTL dəyərini ölçür",
+  "logAdvancedDnsGate": "Qabaqcıl rejim proksini nəzərə almayan proqramların DNS sorğularına da şifrələnmiş DNS ilə cavab verir",
   "systemStatus": "Sistemin vəziyyəti",
   "howItWorks": "Necə işləyir",
   "technique_frag": "TCP fraqmentasiyası",

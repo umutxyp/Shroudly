@@ -217,6 +217,7 @@
   "logAdvancedAskingAdmin": "Chế độ nâng cao: đang yêu cầu quyền quản trị viên",
   "logAdvancedNoStopConfirm": "Tiến trình nâng cao không xác nhận đã dừng; nó sẽ thoát khi Shroudly thoát",
   "logAdvancedProtections": "Chế độ nâng cao cũng loại bỏ các gói reset bị chèn vào và đo TTL của gói mồi",
+  "logAdvancedDnsGate": "Chế độ nâng cao cũng trả lời truy vấn DNS của các chương trình bỏ qua proxy bằng DNS mã hóa",
   "systemStatus": "Trạng thái hệ thống",
   "howItWorks": "Cách hoạt động",
   "technique_frag": "Phân mảnh TCP",

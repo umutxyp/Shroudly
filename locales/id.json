@@ -217,6 +217,7 @@
   "logAdvancedAskingAdmin": "Mode Lanjutan: meminta izin administrator",
   "logAdvancedNoStopConfirm": "Proses mode Lanjutan tidak mengonfirmasi penghentian; proses akan berhenti saat Shroudly ditutup",
   "logAdvancedProtections": "Mode lanjutan juga membuang reset yang disuntikkan dan mengukur TTL paket umpan",
+  "logAdvancedDnsGate": "Mode lanjutan juga menjawab kueri DNS program yang mengabaikan proxy dengan DNS terenkripsi",
   "systemStatus": "Status sistem",
   "howItWorks": "Cara kerja",
   "technique_frag": "Fragmentasi TCP",

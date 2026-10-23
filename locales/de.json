@@ -217,6 +217,7 @@
   "logAdvancedAskingAdmin": "Erweiterter Modus: Administratorrechte werden angefordert",
   "logAdvancedNoStopConfirm": "Erweitertes Backend hat das Beenden nicht bestätigt; es endet, wenn Shroudly geschlossen wird",
   "logAdvancedProtections": "Der erweiterte Modus verwirft außerdem eingeschleuste Resets und misst die TTL des Täuschpakets",
+  "logAdvancedDnsGate": "Der erweiterte Modus beantwortet auch die DNS-Anfragen von Programmen, die den Proxy ignorieren, mit verschlüsseltem DNS",
   "systemStatus": "Systemstatus",
   "howItWorks": "So funktioniert es",
   "technique_frag": "TCP-Fragmentierung",

@@ -266,6 +266,7 @@ class EngineManager {
     });
     this.doh.setCustom(this.customDns(), { strict: this.customDnsStrict() });
     this.dohPort = 0;
+    this.lastDohPort = 0;
 
     this.proc = null;
     this.active = false;
@@ -524,7 +525,7 @@ class EngineManager {
     // Start the local DoH forwarder so the engine gets real encrypted DNS.
     // If it can't start, the engine falls back to public UDP resolvers.
     if (cfg.useDoh && !this.dohPort) {
-      try { this.dohPort = await this.doh.start(); }
+      try { this.dohPort = await this.doh.start(this.lastDohPort); this.lastDohPort = this.dohPort; }
       catch (e) { this.dohPort = 0; this.log('warning', `Encrypted DNS unavailable: ${e.message}`); }
     }
 
@@ -1126,7 +1127,7 @@ class EngineManager {
       // DNS protection may have just been turned on: start the forwarder;
       // or turned off: it keeps running harmlessly and is dropped on stop().
       if (cfg.useDoh && !this.dohPort) {
-        try { this.dohPort = await this.doh.start(); } catch { this.dohPort = 0; }
+        try { this.dohPort = await this.doh.start(this.lastDohPort); this.lastDohPort = this.dohPort; } catch { this.dohPort = 0; }
       }
       const ready = await this._spawn(coreBinaryPath(), this._args(cfg));
       if (!ready) {

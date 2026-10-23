@@ -217,6 +217,7 @@
   "logAdvancedAskingAdmin": "Giňişleýin tertip: administratoryň rugsady soralýar",
   "logAdvancedNoStopConfirm": "Giňişleýin tertibiň fon hyzmaty togtandygyny tassyklamady; ol Shroudly ýapylanda çykar",
   "logAdvancedProtections": "Giňişleýin režim mundan başga-da salnan galp kesişmeleri (RST) taşlaýar we aldaw paketiniň TTL bahasyny ölçeýär",
+  "logAdvancedDnsGate": "Giňeldilen tertip proksini hasaba almaýan programmalaryň DNS soraglaryna hem şifrlenen DNS bilen jogap berýär",
   "systemStatus": "Ulgamyň ýagdaýy",
   "howItWorks": "Ol nähili işleýär",
   "technique_frag": "TCP bölekleme",

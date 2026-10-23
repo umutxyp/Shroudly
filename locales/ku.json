@@ -217,6 +217,7 @@
   "logAdvancedAskingAdmin": "Moda pêşketî: destûra rêveberê tê xwestin",
   "logAdvancedNoStopConfirm": "Pêvajoya pêşketî rawestandin piştrast nekir; dema Shroudly bê girtin ew ê derkeve",
   "logAdvancedProtections": "Moda pêşketî herwiha resetên sexte yên ku hatine têxistin davêje û TTL-ya pakêta xapînok dipîve",
+  "logAdvancedDnsGate": "Moda pêşketî bersiva pirsînên DNS ên bernameyên ku proxy paşguh dikin jî bi DNS-a şîfrekirî dide",
   "systemStatus": "Rewşa pergalê",
   "howItWorks": "Çawa dixebite",
   "technique_frag": "Parçekirina TCP",

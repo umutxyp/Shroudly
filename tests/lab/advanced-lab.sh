@@ -38,6 +38,12 @@
 #     address; and, where the kernel has the u32 match, the engine is never
 #     even handed the call's datagrams (its raw_stats udp_seen counts only the
 #     requests). Without u32 that last check is skipped, and said so;
+#   - DNS (the DNS gate, core/src/dnsgate.h): the network's DNS (198.51.100.5)
+#     forges every answer; the app's encrypted-DNS forwarder stands in on
+#     127.0.0.1 and knows one name. With the gate, a program asking the
+#     network's DNS itself gets the forwarder's address for that name, and
+#     the network's own answer for a name the forwarder does not know;
+#     without it, the forged one;
 #   - when the engine stops, none of its firewall rules are left.
 #
 #   sudo env "PATH=$PATH" bash tests/lab/advanced-lab.sh <shroudly-core-adv>
@@ -46,13 +52,16 @@ set -uo pipefail
 ENGINE="$(cd "$(dirname "$1")" && pwd)/$(basename "$1")"
 HERE="$(cd "$(dirname "$0")" && pwd)"
 WORK="$(mktemp -d)"
-SRV_PID=""; SRV2_PID=""; SRV3_PID=""; UDP_PID=""; UDP2_PID=""; ENG_PID=""
+SRV_PID=""; SRV2_PID=""; SRV3_PID=""; UDP_PID=""; UDP2_PID=""; ENG_PID=""; DNS_PID=""; FWD_PID=""
 FAILS=0
 PUB=198.51.100.2   # the server as seen on the internet
 PRIV=10.77.3.2     # the same server on a private (local network) address
 ALERT=198.51.100.3 # a server that answers every ClientHello with a TLS alert
 VOICE=198.51.100.4 # a voice / STUN server, UDP only: no TCP goes there, so the
                    # decoys keep the fixed TTL and reach it, in the order sent
+NETDNS=198.51.100.5 # the network's DNS, which forges every answer
+FORGED=198.51.100.66
+FWD_PORT=5399      # the app's encrypted-DNS forwarder standing in
 AT=$PUB            # where loads() connects
 
 ok()   { echo "  ok  $*"; }
@@ -65,6 +74,8 @@ cleanup() {
   [ -n "$SRV3_PID" ] && kill "$SRV3_PID" 2>/dev/null
   [ -n "$UDP_PID" ] && kill "$UDP_PID" 2>/dev/null
   [ -n "$UDP2_PID" ] && kill "$UDP2_PID" 2>/dev/null
+  [ -n "$DNS_PID" ] && kill "$DNS_PID" 2>/dev/null
+  [ -n "$FWD_PID" ] && kill "$FWD_PID" 2>/dev/null
   ip netns del shlab-r 2>/dev/null; ip netns del shlab-s 2>/dev/null; ip link del shlab-c 2>/dev/null
   rm -rf "$WORK"
 }
@@ -86,6 +97,7 @@ ip -n shlab-s addr add $PUB/24 dev shlab-s0
 ip -n shlab-s addr add $PRIV/24 dev shlab-s0 && ip -n shlab-s link set shlab-s0 up
 ip -n shlab-s addr add $ALERT/24 dev shlab-s0
 ip -n shlab-s addr add $VOICE/24 dev shlab-s0
+ip -n shlab-s addr add $NETDNS/24 dev shlab-s0
 ip -n shlab-s link set lo up
 ip -n shlab-s route add default via 198.51.100.1
 ip route add 198.51.100.0/24 via 10.77.1.2
@@ -133,7 +145,7 @@ expect_fail() { local out; out=$(loads "$@"); if [ $? -ne 0 ]; then ok "$LABEL: 
 start_engine() {
   rm -f "$WORK/status.log" "$WORK/status.log.stop"
   "$ENGINE" --advanced --fake-ttl 4 --status-file "$WORK/status.log" --parent-pid $$ \
-    --drop-rst 1 --autottl 1 --seqovl 0 --split "$1" --desync-mode fake --queue 200 &
+    --drop-rst 1 --autottl 1 --seqovl 0 --split "$1" --desync-mode fake --queue 200 "${@:2}" &
   ENG_PID=$!
   for _ in $(seq 100); do grep -q '"raw_ready"' "$WORK/status.log" 2>/dev/null && break; sleep 0.1; done
   if grep -q '"raw_ready"' "$WORK/status.log" 2>/dev/null; then
@@ -281,7 +293,28 @@ else
   ok "udp_seen is ${us:-none}: skipped, the kernel has no u32 match here, so the ports alone are queued"
 fi
 
-# ── 7. nothing left behind ──────────────────────────────────────────────────
+# ── 7. DNS: other programs' questions answered from encrypted DNS ───────────
+ip netns exec shlab-s node "$HERE/lab-dns.js" serve $NETDNS $FORGED > "$WORK/dns.log" 2>&1 &
+DNS_PID=$!
+node "$HERE/lab-dns.js" forwarder $FWD_PORT gate.lab=93.184.216.34 > "$WORK/fwd.log" 2>&1 &
+FWD_PID=$!
+for _ in $(seq 50); do [ "$(cat "$WORK/dns.log" "$WORK/fwd.log" 2>/dev/null | grep -c ready)" -ge 2 ] && break; sleep 0.1; done
+ask() { node "$HERE/lab-dns.js" ask "$@"; }
+a=$(ask $NETDNS gate.lab)
+if [ "$a" = "$FORGED" ]; then ok "no engine: the network's DNS forges the answer ($a)"; else bad "no engine: the network's DNS said '$a'"; fi
+start_engine on --dns-gate $FWD_PORT
+if grep -m1 '"raw_ready"' "$WORK/status.log" | grep -q '"dns_gate":1'; then ok "the DNS gate is on"; else bad "the DNS gate is not on: $(grep -m1 '"raw_ready"' "$WORK/status.log")"; fi
+a=$(ask $NETDNS gate.lab)
+if [ "$a" = "93.184.216.34" ]; then ok "a program asking the network's DNS itself gets encrypted DNS's answer ($a)"; else bad "a program asking the network's DNS got '$a'"; fi
+a=$(ask $NETDNS other.lab)
+if [ "$a" = "$FORGED" ]; then ok "a name encrypted DNS does not know: the question goes on to the network's DNS ($a)"; else bad "a name encrypted DNS does not know: '$a'"; fi
+stop_engine
+da=$(stat_of dns_answered); dp=$(stat_of dns_passed)
+if [ "${da:-0}" -ge 1 ] && [ "${dp:-0}" -ge 1 ]; then ok "dns_answered $da, dns_passed $dp"; else bad "dns_answered ${da:-none}, dns_passed ${dp:-none}"; fi
+a=$(ask $NETDNS gate.lab)
+if [ "$a" = "$FORGED" ]; then ok "after stop: the network's DNS answers again ($a)"; else bad "after stop: '$a'"; fi
+
+# ── 8. nothing left behind ──────────────────────────────────────────────────
 left=$( (iptables -t mangle -S 2>/dev/null; nft list ruleset 2>/dev/null) | grep -c -E 'NFQUEUE|queue num|shroudly' )
 if [ "$left" -eq 0 ]; then ok "after stopping, no firewall rule of the engine is left"; else bad "$left firewall rules left after stopping"; fi
 

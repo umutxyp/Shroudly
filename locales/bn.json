@@ -217,6 +217,7 @@
   "logAdvancedAskingAdmin": "উন্নত মোড: প্রশাসকের অনুমতি চাওয়া হচ্ছে",
   "logAdvancedNoStopConfirm": "উন্নত ব্যাকএন্ড বন্ধ হওয়া নিশ্চিত করেনি; Shroudly বন্ধ হলে এটি নিজে থেকেই বন্ধ হবে",
   "logAdvancedProtections": "উন্নত মোড ঢোকানো নকল রিসেটও বাদ দেয় এবং ছলনা প্যাকেটের TTL মাপে",
+  "logAdvancedDnsGate": "উন্নত মোড প্রক্সি উপেক্ষা করা প্রোগ্রামগুলোর DNS প্রশ্নের উত্তরও এনক্রিপ্ট করা DNS দিয়ে দেয়",
   "systemStatus": "সিস্টেমের অবস্থা",
   "howItWorks": "এটি কীভাবে কাজ করে",
   "technique_frag": "TCP ফ্র্যাগমেন্টেশন",

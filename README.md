@@ -243,8 +243,20 @@ and that users on heavily filtered networks rely on. Each is a flag
   the same size ahead of the first one or two real datagrams of each call, so
   the filter's pattern-match is poisoned before the real media goes out. On by
   default; can be turned off.
+- **Encrypted DNS for programs that ignore the proxy.** A program that does not
+  use the system proxy (a Discord bot on Node, a game launcher, a command-line
+  tool) asks the network's DNS, which on a censoring network forges the answer:
+  the program then reaches the block page and fails with a certificate error
+  (`ERR_TLS_CERT_ALTNAME_INVALID`), whatever happens to its TLS. With DNS
+  anti-poisoning on, Advanced mode answers every program's plain DNS question
+  (UDP port 53) from Shroudly's encrypted DNS, or the DNS server you chose, as
+  if from the server it asked. Only a public address or "no such record" is
+  answered; a name encrypted DNS does not know (an intranet, a VPN's own names),
+  a private address or no answer in time, and the question goes on to its own
+  server unchanged, so local names keep working. Windows: IPv4 and IPv6;
+  Linux: IPv4. Checked on a real packet path in both labs.
 
-> These two only help where the **network** is what blocks QUIC or the voice
+> The QUIC and voice ones only help where the **network** is what blocks QUIC or the voice
 > packets. If a censor blocks Discord's voice servers by **IP address**, no
 > packet trick reaches them — that needs a VPN. Shroudly says so rather than
 > looking like it works.
@@ -883,7 +895,9 @@ Shroudly does not collect personal data. These are the only things that contact 
   above while it does not answer, unless you ticked Only this server: then by
   that server alone). Only a name they have no public address
   for (an intranet, a VPN's own names, a hosts-file entry) is then asked of
-  your system's DNS, so that it still opens.
+  your system's DNS, so that it still opens. In Advanced mode, the plain DNS
+  questions of programs that ignore the proxy are answered the same way
+  (see [Advanced mode](#advanced-mode-stateful-dpi)).
 - **Discord's update servers**, only with Discord app mode on: the relay asks
   them on the Discord app's behalf, exactly what Discord would have asked.
 - **Whether an app's service is blocked here** (the [autopilot](#autopilot)),

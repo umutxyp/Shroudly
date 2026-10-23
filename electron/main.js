@@ -2162,6 +2162,10 @@ async function startAdvanced() {
     const opts = {
       quicBlock: store.get('advancedQuicBlock', true) !== false,
       udpFake: store.get('advancedUdpFake', true) !== false,
+      // Programs that ignore the proxy (a bot on Node, a launcher) get their
+      // DNS from the encrypted-DNS forwarder too, not the network's forged
+      // answers. Its port stays the same across a Stop and Start.
+      dnsGate: engine && engine.dohPort ? engine.dohPort : 0,
     };
     const r = await advanced.start(ttl, opts);
     addLog('success', 'Advanced mode enabled');

@@ -217,6 +217,7 @@
   "logAdvancedAskingAdmin": "高级模式：正在请求管理员权限",
   "logAdvancedNoStopConfirm": "高级后端未确认停止；它会在 Shroudly 退出时自行结束",
   "logAdvancedProtections": "高级模式还会丢弃注入的伪造重置，并测量诱饵数据包的 TTL",
+  "logAdvancedDnsGate": "高级模式也会用加密 DNS 回答不使用代理的程序的 DNS 查询",
   "systemStatus": "系统状态",
   "howItWorks": "工作原理",
   "technique_frag": "TCP 分片",

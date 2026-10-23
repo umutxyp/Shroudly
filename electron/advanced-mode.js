@@ -143,6 +143,10 @@ function buildArgs(o) {
   if (o.quicBlock === false) args.push('--no-quic-block');
   if (o.udpFake === false) args.push('--no-udp-fake');
   if (Number(o.fakeRepeats) > 0) args.push('--fake-repeats', String(Math.floor(Number(o.fakeRepeats))));
+  // Other programs' DNS answered from the app's encrypted-DNS forwarder
+  // (core/src/dnsgate.h), when there is one.
+  const gate = Math.floor(Number(o.dnsGate));
+  if (gate > 0 && gate < 65536) args.push('--dns-gate', String(gate));
   return args;
 }
 
@@ -312,7 +316,7 @@ class AdvancedMode {
     this.statusFile = path.join(this.dir, 'status.log');
     const args = buildArgs({
       ttl, statusFile: this.statusFile, parentPid: process.pid, platform: this.platform,
-      queueNum: QUEUE_NUM, quicBlock: o.quicBlock, udpFake: o.udpFake, fakeRepeats: o.fakeRepeats, opts: o,
+      queueNum: QUEUE_NUM, quicBlock: o.quicBlock, udpFake: o.udpFake, fakeRepeats: o.fakeRepeats, dnsGate: o.dnsGate, opts: o,
     });
 
     this.log('info', 'Advanced mode: asking for administrator permission');
@@ -329,6 +333,7 @@ class AdvancedMode {
         this.log('info', 'Advanced mode: the packet filter here cannot look inside UDP datagrams, so calls on the voice ports pass through the engine');
       }
       if (o.dropRst && o.autottl) this.log('info', 'Advanced mode also drops injected resets and measures the decoy TTL');
+      if (ready.dns_gate === 1) this.log('info', 'Advanced mode also answers the DNS of programs that ignore the proxy with encrypted DNS');
       this._startMonitor();
       return { success: true };
     } catch (e) {
