@@ -18,15 +18,15 @@ static int site_is(const char *h, const char *want) {
 /* Where the ladder starts: the resume point, else the learned technique as
  * 100 + preset (or 200 + preset when it is the site's), else -1. */
 static int start_of(const char *h) {
-  int from, learned, inh, stale;
-  ladder_start(h, 1, &from, &learned, &inh, &stale);
+  int from, learned, inh, stale, sf;
+  ladder_start(h, 1, &from, &learned, &inh, &stale, &sf);
   return from >= 0 ? from : learned >= 0 ? (inh ? 200 : 100) + learned : -1;
 }
 
 /* Whether the technique h's ladder would open with is due to be checked. */
 static int stale_of(const char *h) {
-  int from, learned, inh, stale;
-  ladder_start(h, 1, &from, &learned, &inh, &stale);
+  int from, learned, inh, stale, sf;
+  ladder_start(h, 1, &from, &learned, &inh, &stale, &sf);
   return learned >= 0 && stale;
 }
 
@@ -140,7 +140,16 @@ int main(void) {
   CHECK(start_of("m.own.example") == 8);
   rs_put("q.github.io", 7);
   CHECK(start_of("q.github.io") == 7 && start_of("r.github.io") == -1);
-  { int f, l, i, st; ladder_start("q.github.io", 0, &f, &l, &i, &st); CHECK(f == -1); }   /* not TLS */
+  { int f, l, i, st, sf; ladder_start("q.github.io", 0, &f, &l, &i, &st, &sf); CHECK(f == -1); }   /* not TLS */
+  /* a site's search goes on with its next name (issue #37: googlevideo.com) */
+  rs_put("vid2.example", 4);                 /* where the site's last name left off */
+  CHECK(start_of("rr7.vid2.example") == 4);
+  { int f, l, i, st, sf; ladder_start("rr7.vid2.example", 1, &f, &l, &i, &st, &sf); CHECK(f == 4 && sf == 1); }
+  { int f, l, i, st, sf; ladder_start("rr7.vid2.example", 0, &f, &l, &i, &st, &sf); CHECK(f == -1 && sf == 0); }   /* not TLS */
+  rs_put("rr8.vid2.example", 9);             /* a name's own search comes first */
+  CHECK(start_of("rr8.vid2.example") == 9);
+  hs_put("rr9.vid2.example", 5);             /* something works: the site's search is over */
+  CHECK(start_of("rr7.vid2.example") == 205);
   /* an expired entry is no entry */
   rs_put("old.example", 4);
   { int i = rs_find("old.example"); CHECK(i >= 0); if (i >= 0) g_rs[i].t -= RS_TTL_MS + 1; }
@@ -445,8 +454,8 @@ int main(void) {
     winner_put("forget5.example", &w);
     CHECK(hs_get("forget.example", NULL) == 1 && cool_is("forget3.example") && ok_recent("forget4.example"));
     engine_forget();
-    int from, learned, inh, stale;
-    ladder_start("forget2.example", 1, &from, &learned, &inh, &stale);
+    int from, learned, inh, stale, sf;
+    ladder_start("forget2.example", 1, &from, &learned, &inh, &stale, &sf);
     CHECK(hs_get("forget.example", NULL) == -1);
     CHECK(from == -1 && learned == -1);
     CHECK(!cool_is("forget3.example"));
