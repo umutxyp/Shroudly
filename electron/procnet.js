@@ -14,6 +14,7 @@
  */
 
 const fs = require('fs');
+const path = require('path');
 const { execFile, execFileSync } = require('child_process');
 
 function run(cmd, args, timeout = 8000) {
@@ -327,8 +328,9 @@ async function owner(localPort, remotePort, platform = process.platform) {
  * null). Windows: netstat. Linux: the kernel's tables, a process for the
  * sockets this user may see (their own, where a bot or a tool runs).
  * macOS: [] (what they are looked for, Advanced mode, is not there). The
- * program's name as the system gives it (tasklist; /proc/<pid>/comm), null
- * when it is gone. */
+ * program's name as the system gives it: tasklist's; on Linux its file's
+ * (/proc/<pid>/exe), else its main thread's (comm, which a program may
+ * rename: Node.js calls it "node-MainThread"); null when it is gone. */
 function parseNetstatAll(out) {
   const rows = [];
   for (const line of String(out || '').split(/\r?\n/)) {
@@ -379,7 +381,10 @@ function procOutbound(want, root = '/proc') {
       let link = '';
       try { link = fs.readlinkSync(`${root}/${pid}/fd/${fd}`); } catch { continue; }
       const m = /^socket:\[(\d+)\]$/.exec(link);
-      if (m && byInode.has(m[1])) rows.push({ pid: Number(pid), name: read(`${root}/${pid}/comm`).trim() || null, remote: byInode.get(m[1]) });
+      if (!m || !byInode.has(m[1])) continue;
+      let name = null;
+      try { name = path.basename(fs.readlinkSync(`${root}/${pid}/exe`)).replace(/ \(deleted\)$/, ''); } catch {}
+      rows.push({ pid: Number(pid), name: name || read(`${root}/${pid}/comm`).trim() || null, remote: byInode.get(m[1]) });
     }
   }
   return rows;

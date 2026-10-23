@@ -211,9 +211,11 @@ const row = (pid, name, host, port = 443) => ({ pid, name, remote: { host, port 
       + '   4: 0100007F:C354 02FEAFC3:01BB 06 00000000:00000000 00:00000000 00000000     0        0 0 1\n'
       + '   5: 0100007F:01BB 02FEAFC3:01BB 0A 00000000:00000000 00:00000000 00000000  1000        0 555 1\n');
     fs.writeFileSync(path.join(root, 'net', 'tcp6'), head);
-    for (const [pid, comm, inodes] of [[4242, 'node', ['111', '444', '555']], [4243, 'python3', ['222', '333']]]) {
+    for (const [pid, comm, inodes] of [[4242, 'node-MainThread', ['111', '444', '555']], [4243, 'python3', ['222', '333']]]) {
       fs.mkdirSync(path.join(root, String(pid), 'fd'), { recursive: true });
       fs.writeFileSync(path.join(root, String(pid), 'comm'), `${comm}\n`);
+      // Node.js renames its main thread; its file says what it is.
+      if (pid === 4242) fs.symlinkSync('/usr/bin/node', path.join(root, String(pid), 'exe'));
       inodes.forEach((ino, i) => fs.symlinkSync(`socket:[${ino}]`, path.join(root, String(pid), 'fd', String(10 + i))));
     }
     const got = ProcNet.procOutbound((ip) => ip === '195.175.254.2', root).map((x) => `${x.pid}:${x.name}:${x.remote.host}:${x.remote.port}`).sort();
@@ -235,7 +237,7 @@ const row = (pid, name, host, port = 443) => ({ pid, name, remote: { host, port 
         await new Promise((res) => setTimeout(res, 250));
         found = (await ProcNet.outbound((ip) => ip === '127.0.0.1')).filter((x) => x.pid === child.pid && x.remote.port === port);
       }
-      t.ok(found.length === 1 && /^node(\.exe)?$/i.test(found[0].name || ''), `this system: another program's connection, with its id and name (${found.map((x) => `${x.pid} ${x.name}`).join(', ') || 'none'})`);
+      t.ok(found.length === 1 && found[0].name === path.basename(process.execPath), `this system: another program's connection, with its id and its file's name (${found.map((x) => `${x.pid} ${x.name}`).join(', ') || 'none'})`);
     } finally { child.kill(); srv.close(); }
   }
 
