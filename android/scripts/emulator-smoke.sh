@@ -742,5 +742,14 @@ wait_for 20 chooser || fail "Share logs did not open the share sheet"
 say "Share logs opens the share sheet"
 sh_ "input keyevent KEYCODE_BACK" >/dev/null
 sh_ "am force-stop $PKG" >/dev/null
+# A long press on the Quick Settings tile (issue #35): Android opens the
+# activity of the tile's package that takes QS_TILE_PREFERENCES, else App info.
+tile_pref() { grep -q "$PKG/.MainActivity\|$PKG/$PKG.MainActivity" <<<"$(sh_ "cmd package query-activities --brief -a android.service.quicksettings.action.QS_TILE_PREFERENCES -p $PKG")"; }
+tile_pref || fail "a long press on the tile would open App info: no activity for QS_TILE_PREFERENCES ($(sh_ "cmd package query-activities --brief -a android.service.quicksettings.action.QS_TILE_PREFERENCES -p $PKG" | tr '\n' ' '))"
+clear_log
+sh_ "am start -W -a android.service.quicksettings.action.QS_TILE_PREFERENCES -p $PKG" >/dev/null
+wait_for 20 has_log "Updates: " || fail "the tile's long press did not open Shroudly's window"
+sh_ "am force-stop $PKG" >/dev/null
+say "a long press on the Quick Settings tile opens Shroudly's window"
 
 say "PASSED ($ABI, API $API)"
