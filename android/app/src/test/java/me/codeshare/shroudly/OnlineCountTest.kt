@@ -174,7 +174,7 @@ class OnlineCountTest {
     fun theRequestIsTheDesktopsByteForByte() {
         val id = "f95cc186-4e1a-4068-8598-2935496a1fed"
         val req = OnlineHttp.request("/v1/ping", Pinger.body(id), "2.6.1", "tr").toString(Charsets.ISO_8859_1)
-        // Electron 43.7.5's net.request, as electron/presence.js makes it
+        // Electron 43.7.6's net.request, as electron/presence.js makes it
         // (captured), with Windows as the system.
         val expected = "POST /v1/ping HTTP/1.1\r\n" +
             "Host: shroudly.codeshare.me\r\n" +
@@ -185,7 +185,7 @@ class OnlineCountTest {
             "Sec-Fetch-Mode: no-cors\r\n" +
             "Sec-Fetch-Dest: empty\r\n" +
             "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) " +
-            "Shroudly/2.6.1 Chrome/150.0.7871.250 Electron/43.7.5 Safari/537.36\r\n" +
+            "Shroudly/2.6.1 Chrome/150.0.7871.250 Electron/43.7.6 Safari/537.36\r\n" +
             "Accept-Encoding: gzip, deflate, br, zstd\r\n" +
             "Accept-Language: tr\r\n" +
             "\r\n" +

@@ -153,7 +153,7 @@ class Pinger(
  * The request itself, made to look exactly like the desktop's: Electron's
  * net module (desktop 2.6.x, Electron 43) on Windows, the most common
  * desktop, sends these headers in this order and the body. Captured from
- * Electron 43.7.5 itself; only the system in the User-Agent is Windows's
+ * Electron 43.7.6 itself; only the system in the User-Agent is Windows's
  * where the capture was made on a Mac. The version is this app's, which is
  * the desktop's of the same release (package.json).
  *
