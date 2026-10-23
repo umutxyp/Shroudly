@@ -55,6 +55,22 @@ object Dns {
 
     private fun lower(c: Int) = if (c in 'A'.code..'Z'.code) c + 32 else c
 
+    /* "Server failure" (SERVFAIL): the resolver could not get an answer it
+     * trusts, mostly for a name whose DNSSEC signatures are wrong. */
+    fun serverFailed(m: ByteArray) = m.size >= 12 && m[3].toInt() and 0x0f == 2
+
+    /* A server failure for this query: its header and question, with
+     * recursion available. null if the question cannot be read. */
+    fun failReply(query: ByteArray): ByteArray? {
+        val end = questionEnd(query)
+        if (end < 0) return null
+        val out = query.copyOf(end)
+        out[2] = (0x80 or (query[2].toInt() and 0x79)).toByte()   // a response; opcode, RD kept
+        out[3] = 0x82.toByte()                                      // RA, SERVFAIL
+        for (i in 6 until 12) out[i] = 0
+        return out
+    }
+
     /* Name and type of the question, for logs and tests. */
     fun question(m: ByteArray): Pair<String, Int>? {
         val end = questionEnd(m)

@@ -66,6 +66,19 @@ class DnsTest {
     }
 
     @Test
+    fun answersAServerFailure() {
+        val q = Dns.buildQuery("bogus.example", Dns.TYPE_A, 0x1234)
+        val f = Dns.failReply(q)!!
+        assertTrue(Dns.serverFailed(f))
+        assertEquals(q.size, f.size)                             // header and question only
+        assertEquals(0x81, f[2].toInt() and 0xff)                // a response, RD kept
+        assertEquals(0, (f[6].toInt() or f[7].toInt() or f[8].toInt() or f[9].toInt() or f[10].toInt() or f[11].toInt()))
+        assertTrue(Dns.matchAnswer(q, f) != null)                // the engine takes it as the answer to q
+        assertNull(Dns.failReply(byteArrayOf(1, 2, 3)))
+        assertTrue(!Dns.serverFailed(answerFor(q)))
+    }
+
+    @Test
     fun readsHttpResponses() {
         val body = byteArrayOf(1, 2, 3, 4)
         val plain = "HTTP/1.1 200 OK\r\nContent-Type: application/dns-message\r\nContent-Length: 4\r\n\r\n".toByteArray() + body

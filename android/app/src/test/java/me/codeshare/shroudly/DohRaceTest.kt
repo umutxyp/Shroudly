@@ -119,6 +119,40 @@ class DohRaceTest {
         assertEquals(listOf("a"), made.toList())
     }
 
+    /* A reply with this rcode in its header (only the header matters here). */
+    private fun reply(rcode: Int) = ByteArray(12).also { it[2] = 0x81.toByte(); it[3] = (0x80 or rcode).toByte() }
+
+    @Test
+    fun oneOperatorsServerFailureDoesNotWin() {
+        // Cloudflare by address and by name is one operator: its failure
+        // twice is still one vote, and Google's answer comes after it.
+        val vote = FailureVote()
+        val plan = listOf(route("cloudflare-1", "cloudflare"), route("front", "cloudflare-front"), route("google-1", "google"))
+        val got = race(plan, pool, fast) { r ->
+            vote.take(r, if (r.op == "google") { Thread.sleep(60); reply(0) } else reply(2))
+        }
+        assertEquals("google-1", got!!.first.id)
+        assertEquals(0, got.second[3].toInt() and 0x0f)
+    }
+
+    @Test
+    fun twoOperatorsAgreeingOnAServerFailureIsTheAnswer() {
+        val vote = FailureVote()
+        val plan = listOf(route("a", "quad9"), route("b", "google"), route("c", "adguard"))
+        val got = race(plan, pool, fast) { r -> if (r.id == "c") { Thread.sleep(2000); reply(0) } else vote.take(r, reply(2)) }
+        assertEquals("b", got!!.first.id)
+        assertTrue(Dns.serverFailed(got.second))
+    }
+
+    @Test
+    fun aServerFailureIsKeptWhenNothingBetterCame() {
+        val vote = FailureVote()
+        val plan = listOf(route("a", "quad9"), route("b", "google"))
+        val got = race(plan, pool, fast) { r -> if (r.id == "a") vote.take(r, reply(2)) else throw IOException("down") }
+        assertNull(got)
+        assertTrue(Dns.serverFailed(vote.held!!))
+    }
+
     @Test
     fun eachRouteKeepsOneVerifier() {
         val r = DohForwarder.routes()[0]

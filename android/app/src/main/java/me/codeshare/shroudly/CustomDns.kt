@@ -131,6 +131,8 @@ class CustomDns(
     @Volatile var fails = 0
     @Volatile var restUntil = 0L
     @Volatile var toldAt = 0L
+    // Used alone ("Only this server"): no fallback when it does not answer.
+    @Volatile var strict = false
 
     private val verifier = HttpsURLConnection.getDefaultHostnameVerifier()
     private val name: String? = if (isIp(spec.host)) null else spec.host

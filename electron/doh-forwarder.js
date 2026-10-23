@@ -172,6 +172,19 @@ function questionKey(msg) {
   } catch { return null; }
 }
 
+// "Server failure" (SERVFAIL) for a query: its header and question, with
+// recursion available. null if the question cannot be read.
+function failReply(msg) {
+  if (!questionKey(msg)) return null;
+  let p = 12;
+  while (msg[p]) p += 1 + msg[p];
+  const out = Buffer.from(msg.subarray(0, p + 5));
+  out[2] = 0x80 | (out[2] & 0x79);   // a response; opcode, RD kept; AA, TC off
+  out[3] = 0x82;                      // RA, SERVFAIL
+  out.writeUInt16BE(1, 4); out.fill(0, 6, 12);
+  return out;
+}
+
 // Smallest TTL in the answer, so the cache expires when DNS says it should.
 function answerTtlSeconds(msg) {
   try {
@@ -238,7 +251,9 @@ class DohForwarder {
   /* A DNS server of the user's own (custom-dns.js; null: the built-in
    * routes): asked alone while it answers. Its name, if it has one, is
    * looked up through the built-in routes. Answers kept from before are
-   * dropped: the user wants this server's. */
+   * dropped: the user wants this server's. opts.strict: it alone answers,
+   * with no fallback when it does not (issue #34: to test a server, and to
+   * show no lookup to anyone else). */
   setCustom(spec, opts = {}) {
     if (this.custom) { this.custom.close(); this.custom = null; }
     this.cache.clear();
@@ -252,6 +267,17 @@ class DohForwarder {
     this.custom.fails = 0;
     this.custom.restUntil = 0;
     this.custom.toldAt = 0;
+    this.custom.strict = !!opts.strict;
+  }
+
+  /* Strict: the user's server did not answer, and nothing else is asked;
+   * the log says so at most every ten minutes. */
+  customFailedStrict(c, e) {
+    const now = Date.now();
+    if (now - c.toldAt < CUSTOM_TELL_MS) return;
+    c.toldAt = now;
+    const why = String((e && (e.code || e.message)) || 'no answer').slice(0, 80);
+    this.log('warning', `Your DNS server ${require('./custom-dns').shown(c.spec)} does not answer (${why}); it is the only one used, so lookups fail until it answers`);
   }
 
   /* The user's server did not answer: after the second time in a row it
@@ -269,7 +295,7 @@ class DohForwarder {
   }
 
   /* The user's server answers lookups now (set, and not resting). */
-  usingCustom() { return !!this.custom && this.custom.restUntil <= Date.now(); }
+  usingCustom() { return !!this.custom && (this.custom.strict || this.custom.restUntil <= Date.now()); }
 
   customAnswered(c) {
     if (c.toldAt) this.log('success', `Your DNS server ${require('./custom-dns').shown(c.spec)} answers again`);
@@ -431,6 +457,12 @@ class DohForwarder {
   /* Race the routes in waves. The first valid answer wins. */
   resolve(dnsMsg) {
     const c = this.custom;
+    if (c && c.strict) {
+      return c.query(dnsMsg).then((a) => { this.customAnswered(c); return a; }, (e) => {
+        if (this.custom === c) this.customFailedStrict(c, e);
+        throw e;
+      });
+    }
     if (!c || c.restUntil > Date.now()) return this.resolveRoutes(dnsMsg);
     return c.query(dnsMsg).then((a) => { this.customAnswered(c); return a; }, (e) => {
       if (this.custom === c) this.customFailed(c, e);
@@ -464,6 +496,13 @@ class DohForwarder {
       const plan = [...awake, ...resting];
       if (!plan.length) { reject(new Error('no route')); return; }
       let settled = false, pending = 0, started = 0, lastErr = null;
+      // "Server failure" (SERVFAIL): the resolver could not get an answer it
+      // trusts, mostly for a name whose DNSSEC signatures are wrong, and the
+      // engine takes it as the answer (core/src/doh.c). One operator's could
+      // also be its own passing trouble: it is the answer once a second
+      // operator agrees, or when no route has anything better.
+      let failure = null;
+      const failedOps = new Set();
       const timers = [];
       const finish = () => timers.forEach((t) => { clearTimeout(t); clearInterval(t); });
       const fire = (r) => {
@@ -471,6 +510,13 @@ class DohForwarder {
         this.ask(r, dnsMsg).then((ans) => {
           pending--;
           if (settled) return;
+          if ((ans[3] & 0x0f) === 2) {
+            failure = failure || ans;
+            failedOps.add(r.op.replace(/-front$/, ''));
+            if (failedOps.size >= 2 || (pending === 0 && started === plan.length)) { settled = true; finish(); resolve(failure); }
+            else upTo(started + 1);
+            return;
+          }
           settled = true; finish();
           if (this.preferredId !== r.id) {
             this.preferredId = r.id;
@@ -480,7 +526,7 @@ class DohForwarder {
         }).catch((e) => {
           pending--;
           lastErr = e;
-          if (!settled && pending === 0 && started === plan.length) { settled = true; finish(); reject(lastErr); }
+          if (!settled && pending === 0 && started === plan.length) { settled = true; finish(); if (failure) resolve(failure); else reject(lastErr); }
         });
       };
       const upTo = (n) => { while (!settled && started < Math.min(n, plan.length)) fire(plan[started]); };
@@ -547,6 +593,7 @@ class DohForwarder {
     const c = this.custom;
     // The user's server is asked even while it rests, so one that comes back
     // is used again by itself; while it answers, nothing else needs warming.
+    if (c && c.strict) { c.query(probe).then(() => this.customAnswered(c), (e) => { if (this.custom === c) this.customFailedStrict(c, e); }); return; }
     if (c) { c.query(probe).then(() => this.customAnswered(c), (e) => { if (this.custom === c) this.customFailed(c, e); }); if (c.restUntil <= Date.now()) return; }
     const now = Date.now();
     const order = this.ordered();
@@ -581,6 +628,11 @@ class DohForwarder {
             try { sock.send(answer, rinfo.port, rinfo.address); } catch {}
           })
           .catch(() => {
+            // Only the user's server, and it did not answer: "server
+            // failure" goes back, so the engine stops waiting for it (it
+            // falls through to nothing else) and the app asking hears at once.
+            const c = this.custom;
+            if (c && c.strict) { const f = failReply(msg); if (f) { try { sock.send(f, rinfo.port, rinfo.address); } catch {} } return; }
             /* Nothing is sent back, so the engine falls through to plain DNS.
              * That is the right thing to do — a lookup that fails outright is
              * worse — but it quietly undoes the encryption this exists to
@@ -674,4 +726,5 @@ function buildQuery(name, qtype) {
 module.exports = DohForwarder;
 module.exports.UPSTREAMS = UPSTREAMS;
 module.exports.buildQuery = buildQuery;
+module.exports.failReply = failReply;
 module.exports.socksConnect = socksConnect;

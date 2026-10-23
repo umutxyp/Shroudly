@@ -247,18 +247,31 @@ class DohForwarder(
     }
 
     /* A server of the user's own, or null for the built-in routes. Its name,
-     * if it has one, is looked up through the built-in routes. */
-    fun setCustom(spec: DnsSpec?) {
+     * if it has one, is looked up through the built-in routes. strict: it
+     * alone answers, with no fallback when it does not (issue #34). */
+    fun setCustom(spec: DnsSpec?, strict: Boolean = false) {
         custom?.close()
         custom = spec?.let { s ->
             CustomDns(s, { socksPort }, { socksAuth }) { name ->
                 Dns.firstA(resolveRoutes(Dns.buildQuery(name, Dns.TYPE_A, (Math.random() * 65535).toInt()), System.nanoTime() / 1_000_000 + ANSWER_BY_MS))
-            }
+            }.also { it.strict = strict }
         }
     }
 
-    /* The user's server answers lookups now (set, and not resting). */
-    fun usingCustom(): Boolean { val c = custom; return c != null && c.restUntil <= System.currentTimeMillis() }
+    /* The user's server answers lookups now (set, and not resting; used
+     * alone, always). */
+    fun usingCustom(): Boolean { val c = custom; return c != null && (c.strict || c.restUntil <= System.currentTimeMillis()) }
+
+    /* Used alone, it did not answer, and nothing else is asked: said at most
+     * every ten minutes. */
+    private fun customFailedStrict(c: CustomDns, e: Exception) {
+        if (custom !== c) return
+        val now = System.currentTimeMillis()
+        if (now - c.toldAt < CUSTOM_TELL_MS) return
+        c.toldAt = now
+        val why = (if (e is java.net.ConnectException) "ECONNREFUSED" else if (e is java.net.SocketTimeoutException) "timeout" else e.message ?: e.javaClass.simpleName).take(80)
+        log("Your DNS server ${CustomDns.shown(c.spec)} does not answer ($why); it is the only one used, so lookups fail until it answers")
+    }
 
     /* It did not answer: after the second time in a row it rests, the
      * built-in routes answering meanwhile, and the log says so (at most every
@@ -313,7 +326,10 @@ class DohForwarder(
             lookups.execute {
                 // The engine has stopped waiting for this one.
                 if (System.nanoTime() / 1_000_000 - rx > STALE_MS) return@execute
-                val answer = resolve(msg, rx + ANSWER_BY_MS)
+                // Only the user's server, and it did not answer: "server
+                // failure" goes back, so the engine stops waiting for it (it
+                // falls through to nothing else) and the app asking hears at once.
+                val answer = resolve(msg, rx + ANSWER_BY_MS) ?: if (custom?.strict == true) Dns.failReply(msg) else null
                 if (answer != null) {
                     failuresInARow.set(0)
                     try { s.send(DatagramPacket(answer, answer.size, to)) } catch (_: IOException) {}
@@ -333,6 +349,9 @@ class DohForwarder(
     /* answerBy: on the System.nanoTime() clock, in milliseconds. */
     fun resolve(msg: ByteArray, answerBy: Long = Long.MAX_VALUE): ByteArray? {
         val c = custom
+        if (c != null && c.strict) {
+            return try { c.query(msg).also { customAnswered(c) } } catch (e: Exception) { customFailedStrict(c, e); null }
+        }
         if (c != null && c.restUntil <= System.currentTimeMillis()) {
             try {
                 return c.query(msg).also { customAnswered(c) }
@@ -343,10 +362,12 @@ class DohForwarder(
         return resolveRoutes(msg, answerBy)
     }
 
-    /* Through the built-in routes, raced. */
+    /* Through the built-in routes, raced (a server failure as FailureVote says). */
     fun resolveRoutes(msg: ByteArray, answerBy: Long = Long.MAX_VALUE): ByteArray? {
         val plan = plan(all, preferredId, System.currentTimeMillis(), socksPort > 0)
-        val won = race(plan, queries, answerBy = answerBy) { r -> query(r, msg) } ?: return null
+        val vote = FailureVote()
+        val won = race(plan, queries, answerBy = answerBy) { r -> vote.take(r, query(r, msg)) } ?: return vote.held
+        if (Dns.serverFailed(won.second)) return won.second
         if (preferredId != won.first.id) {
             preferredId = won.first.id
             onPreferred(won.first.id)
@@ -375,7 +396,7 @@ class DohForwarder(
             val using = usingCustom()
             try {
                 queries.execute {
-                    try { c.query(Dns.buildQuery("cloudflare.com", Dns.TYPE_A, 0)); customAnswered(c) } catch (e: Exception) { customFailed(c, e) }
+                    try { c.query(Dns.buildQuery("cloudflare.com", Dns.TYPE_A, 0)); customAnswered(c) } catch (e: Exception) { if (c.strict) customFailedStrict(c, e) else customFailed(c, e) }
                 }
             } catch (_: RejectedExecutionException) {}
             if (using) return
@@ -551,6 +572,29 @@ private fun raceUntil(
         if (answer != null) return res.first to answer
         // A route that fails fast does not hold up the rest.
         if (pending == 0) launch(started + 1)
+    }
+}
+
+/* A server failure (SERVFAIL) in a race of the built-in routes: the
+ * resolver could not get an answer it trusts, mostly for a name whose DNSSEC
+ * signatures are wrong, and the engine takes it as the answer (core/src/doh.c).
+ * One operator's could also be its own passing trouble, so it is the answer
+ * once a second operator agrees (take), or when no route has anything better
+ * (held). */
+class FailureVote {
+    private val ops = HashSet<String>()
+    @Volatile var held: ByteArray? = null
+        private set
+
+    /* a, or an IOException (the race goes on) while one operator alone
+     * has said the server failed. */
+    @Synchronized
+    fun take(r: DohRoute, a: ByteArray): ByteArray {
+        if (!Dns.serverFailed(a)) return a
+        if (held == null) held = a
+        ops.add(r.op.removeSuffix("-front"))
+        if (ops.size < 2) throw IOException("server failure")
+        return a
     }
 }
 

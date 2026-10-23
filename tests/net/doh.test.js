@@ -222,6 +222,60 @@ const restS = (r) => Math.max(0, Math.round((r.restUntil - Date.now()) / 1000));
   w = await waves({ [id8]: 50 });
   t.ok(w.ok && w.asked.length === 9 && w.ms < 1800, `an answer from the eighth route: ${w.asked.length} asked of ${w.plan.length}, ${w.ms} ms`);
 
+  // "Server failure" (SERVFAIL, mostly a name whose DNSSEC signatures are
+  // wrong) is the engine's answer (core/src/doh.c), so one operator's alone
+  // does not win: the race goes on, and another operator's address is taken.
+  // A second operator agreeing makes it the answer, and so does nothing
+  // better coming at all.
+  {
+    const reply = (rcode) => { const b = Buffer.alloc(12); b[2] = 0x81; b[3] = 0x80 | rcode; return b; };
+    const vote = async (says) => {
+      const v = new F(() => {});
+      v.setSocksPort(1);
+      const asked = [];
+      v.query = (r) => {
+        asked.push(r.id);
+        const s = says(r);
+        return new Promise((res, rej) => setTimeout(() => (s === 'none' ? rej(new Error('timeout')) : res(reply(s))), s === 0 ? 80 : 10));
+      };
+      const t0 = Date.now();
+      const a = await v.resolve(F.buildQuery('dnssec-failed.example', 1)).catch(() => null);
+      v.stop();
+      return { rcode: a ? a[3] & 0x0f : null, asked, ms: Date.now() - t0 };
+    };
+    const cf = (r) => r.op.replace(/-front$/, '') === 'cloudflare';
+    let s = await vote((r) => (cf(r) ? 2 : 0));
+    t.ok(s.rcode === 0 && s.asked.length >= 3 && s.ms < 600, `one operator's server failure (Cloudflare, by address and by name): the race goes on, another's answer is taken (${s.asked.join(', ')}, ${s.ms} ms)`);
+    s = await vote(() => 2);
+    t.ok(s.rcode === 2 && s.ms < 400, `two operators agree on a server failure: that is the answer, at once (${s.asked.join(', ')}, ${s.ms} ms)`);
+    s = await vote((r) => (r.id === 'cloudflare-1' ? 2 : 'none'));
+    t.ok(s.rcode === 2, `one server failure and nothing better from any route: the server failure (${s.ms} ms)`);
+  }
+
+  // Only the user's own server, and it does not answer: "server failure"
+  // goes back at once, so the engine stops waiting (it asks nothing else).
+  {
+    const net = require('net');
+    const gone = net.createServer(); await new Promise((res) => gone.listen(0, '127.0.0.1', res));
+    const gonePort = gone.address().port; await new Promise((res) => gone.close(res));
+    const strict = new F(() => {});
+    let routed = 0;
+    strict.resolveRoutes = async () => { routed++; throw new Error('not asked'); };
+    strict.setCustom(require(path.join(ROOT, 'electron', 'custom-dns.js')).parse('tcp', `127.0.0.1:${gonePort}`), { strict: true });
+    const sp = await strict.start();
+    const q = F.buildQuery('example.com', 1);
+    const got = await new Promise((res) => {
+      const s = dgram.createSocket('udp4'); const t0 = Date.now();
+      const to = setTimeout(() => { s.close(); res(null); }, 3000);
+      s.on('message', (m) => { clearTimeout(to); s.close(); res({ m, ms: Date.now() - t0 }); });
+      s.send(q, sp, '127.0.0.1');
+    });
+    t.ok(got && (got.m[3] & 0x0f) === 2 && got.m.readUInt16BE(0) === q.readUInt16BE(0) && got.m.subarray(12).equals(q.subarray(12)) && routed === 0,
+      `only this server, not answering: "server failure" for that question${got ? ` in ${got.ms} ms` : ''}, nothing else asked`);
+    t.ok(F.failReply(Buffer.from([1, 2, 3])) === null, 'no question to answer: nothing sent');
+    strict.stop();
+  }
+
   // Open network.
   let f = new F(() => {});
   let port = await f.start();
