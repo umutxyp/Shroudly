@@ -436,6 +436,7 @@
   "androidAllApps": "Bu enjamdaky her programma Shroudly arkaly geçýär.",
   "androidVpnDenied": "Programmalaryňyzyň baglanyşyklaryny geçirmek üçin Shroudly-a VPN rugsady gerek.",
   "androidVpnRevoked": "Gorag Android tarapyndan öçürildi, adatça başga VPN programmasy açylandygy sebäpli.",
+  "androidKeepOnOffer": "Telefonyňyz Shroudly-ni ýapdy. Goragy täzeden açmak üçin basyň.",
   "androidAlertsChannel": "Gorag duýduryşlary",
   "androidProtectionLost": "Gorag ýalňyşlyk sebäpli togtady, şonuň üçin programmalaryňyz häzir göni birikýär. Ony täzeden işletmek üçin Shroudly-ny açyň.",
   "androidDetails": "Jikme-jiklikler",

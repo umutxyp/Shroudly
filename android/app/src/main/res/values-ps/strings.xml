@@ -18,6 +18,7 @@
     <string name="androidBatterySettings">د بیټرۍ امستنې</string>
     <string name="androidDetails">جزئيات</string>
     <string name="androidDownloadApk">تازه نسخه ښکته کړئ</string>
+    <string name="androidKeepOnOffer">ستاسو تلیفون Shroudly وتړلو. د ساتنې د بیا چالانولو لپاره ټک وکړئ.</string>
     <string name="androidLockdownOffline">انټرنېټ نشته: Shroudly اوس مهال په دې شبکه کې نشي نښلېدای، او Android داسې تنظیم شوی چې له VPN پرته اړیکې بندې کړي. Shroudly هڅې ته دوام ورکوي.</string>
     <string name="androidModeNextStart">نوې حالت به بل ځل چې ساتنه پیلېږي وکارول شي.</string>
     <string name="androidModeProxy">یوازې پراکسي (ستاسو بل VPN پاتې کېږي)</string>

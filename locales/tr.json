@@ -436,6 +436,7 @@
   "androidAllApps": "Bu cihazdaki her uygulama Shroudly üzerinden geçiyor.",
   "androidVpnDenied": "Shroudly, uygulamalarınızın bağlantılarını taşımak için VPN iznine ihtiyaç duyar.",
   "androidVpnRevoked": "Koruma Android tarafından kapatıldı; genellikle başka bir VPN uygulaması açıldığı için.",
+  "androidKeepOnOffer": "Telefonun Shroudly'yi kapattı. Korumayı yeniden açmak için dokun.",
   "androidAlertsChannel": "Koruma uyarıları",
   "androidProtectionLost": "Koruma bir hata nedeniyle durdu, bu yüzden uygulamalarınız şu anda doğrudan bağlanıyor. Yeniden başlatmak için Shroudly'yi açın.",
   "androidDetails": "Ayrıntılar",

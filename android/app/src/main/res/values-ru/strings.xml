@@ -18,6 +18,7 @@
     <string name="androidBatterySettings">Настройки батареи</string>
     <string name="androidDetails">Подробнее</string>
     <string name="androidDownloadApk">Скачать обновление</string>
+    <string name="androidKeepOnOffer">Телефон закрыл Shroudly. Нажмите, чтобы снова включить защиту.</string>
     <string name="androidLockdownOffline">Нет интернета: Shroudly сейчас не может пробиться в этой сети, а Android настроен блокировать подключения без VPN. Shroudly продолжает попытки.</string>
     <string name="androidModeNextStart">Новый режим будет использован при следующем запуске защиты.</string>
     <string name="androidModeProxy">Только прокси (ваш другой VPN остаётся)</string>

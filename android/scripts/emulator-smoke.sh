@@ -428,6 +428,43 @@ fi
 vpn_up || fail "protection ended during the network changes"
 has_log "Protection off" && fail "protection ended during the network changes"
 
+# ── ended by the phone while the network is off (issue #39) ──────────────
+# A power saver that turns the network off at lock may end apps then too:
+# the app's process is ended with no network, and protection comes back by
+# itself once there is one. Turned off by the user, it stays off. Ending the
+# process takes root (adb root, on images without Google Play).
+if [ "${SDK:-0}" -ge 30 ] && adb_ root >/dev/null 2>&1 && sleep 3 && adb_ wait-for-device && [ "$(sh_ id -u)" = 0 ]; then
+  end_offline() {
+    sh_ "cmd connectivity airplane-mode enable" >/dev/null
+    wait_for 30 has_log "Network: none" || [ "$1" = off ] || fail "airplane mode on, but no network change seen"
+    sleep 3
+    local pid; pid="$(sh_ "pidof $PKG")"
+    [ -n "$pid" ] && sh_ "kill -9 $pid" >/dev/null
+    sleep 3
+    sh_ "cmd connectivity airplane-mode disable" >/dev/null
+  }
+  clear_log
+  end_offline on
+  wait_for 120 vpn_up || fail "protection did not come back by itself with the network after the app was ended"
+  has_log "protection was not turned off by you: turning it on again" || fail "protection came back, but not by the job (KeepOn)"
+  wait_for 90 net_up || fail "no internet through the VPN after protection came back"
+  say "ended while offline (issue #39): back by itself with the network: $(http_get)"
+  ctl stop
+  vpn_down() { ! vpn_up; }
+  wait_for 30 vpn_down || fail "protection did not stop"
+  clear_log
+  end_offline off
+  sleep 30
+  vpn_up && fail "turned off by the user, protection came back by itself"
+  has_log "turning it on again" && fail "turned off by the user, the job turned protection on"
+  say "turned off by the user: stays off after the same"
+  ctl start
+  wait_for 60 vpn_up || fail "protection did not start again"
+  wait_for 90 net_up || fail "no internet through the VPN after starting again"
+else
+  say "no root on this emulator (or Android before 11): the app ended while offline (issue #39) is not checked here"
+fi
+
 # ── Doze, and what "Share logs" says ─────────────────────────────────────
 # Deep idle (Doze) for a minute and back: time passing with nothing
 # answering is no failure. Protection stays on, nothing is restarted, and the

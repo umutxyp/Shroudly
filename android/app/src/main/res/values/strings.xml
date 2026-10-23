@@ -18,6 +18,7 @@
     <string name="androidBatterySettings">Battery settings</string>
     <string name="androidDetails">Details</string>
     <string name="androidDownloadApk">Download update</string>
+    <string name="androidKeepOnOffer">Your phone turned Shroudly off. Tap to turn protection back on.</string>
     <string name="androidLockdownOffline">No internet: Shroudly cannot get through on this network right now, and Android is set to block connections without a VPN. Shroudly keeps trying.</string>
     <string name="androidModeNextStart">The new mode is used the next time protection starts.</string>
     <string name="androidModeProxy">Proxy only (keeps your other VPN)</string>

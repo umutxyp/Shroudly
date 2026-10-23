@@ -18,6 +18,7 @@
     <string name="androidBatterySettings">ဘက်ထရီဆက်တင်များ</string>
     <string name="androidDetails">အသေးစိတ်</string>
     <string name="androidDownloadApk">အပ်ဒိတ်ကို ဒေါင်းလုဒ်လုပ်ရန်</string>
+    <string name="androidKeepOnOffer">သင့်ဖုန်းက Shroudly ကို ပိတ်လိုက်သည်။ ကာကွယ်မှုကို ပြန်ဖွင့်ရန် နှိပ်ပါ။</string>
     <string name="androidLockdownOffline">အင်တာနက် မရှိပါ- Shroudly သည် ယခု ဤကွန်ရက်တွင် ချိတ်ဆက်၍ မရသေးဘဲ Android ကို VPN မပါသော ချိတ်ဆက်မှုများ ပိတ်ဆို့ရန် သတ်မှတ်ထားပါသည်။ Shroudly ဆက်လက် ကြိုးစားနေပါသည်။</string>
     <string name="androidModeNextStart">မုဒ်အသစ်ကို ကာကွယ်မှု နောက်တစ်ကြိမ် စတင်သည့်အခါ သုံးမည်။</string>
     <string name="androidModeProxy">ပရောက်စီသာ (သင့်အခြား VPN ဆက်ရှိနေမည်)</string>

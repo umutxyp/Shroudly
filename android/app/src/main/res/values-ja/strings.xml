@@ -18,6 +18,7 @@
     <string name="androidBatterySettings">バッテリー設定</string>
     <string name="androidDetails">詳細</string>
     <string name="androidDownloadApk">アップデートをダウンロード</string>
+    <string name="androidKeepOnOffer">スマートフォンが Shroudly を終了しました。タップして保護をもう一度オンにします。</string>
     <string name="androidLockdownOffline">インターネットに接続できません：Shroudly は現在このネットワークで通信できず、Android は VPN なしの接続をブロックするよう設定されています。Shroudly は再試行を続けています。</string>
     <string name="androidModeNextStart">新しいモードは次回保護を開始したときに使われます。</string>
     <string name="androidModeProxy">プロキシのみ（ほかの VPN はそのまま）</string>

@@ -436,6 +436,7 @@
   "androidAllApps": "Todas las apps de este dispositivo pasan por Shroudly.",
   "androidVpnDenied": "Shroudly necesita el permiso de VPN para llevar las conexiones de tus apps.",
   "androidVpnRevoked": "Android desactivó la protección, normalmente porque se activó otra app de VPN.",
+  "androidKeepOnOffer": "Tu teléfono cerró Shroudly. Toca para volver a activar la protección.",
   "androidAlertsChannel": "Avisos de protección",
   "androidProtectionLost": "La protección se detuvo por un error, así que tus apps se conectan ahora directamente. Abre Shroudly para volver a activarla.",
   "androidDetails": "Detalles",

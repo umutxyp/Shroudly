@@ -18,6 +18,7 @@
     <string name="androidBatterySettings">የባትሪ ቅንብሮች</string>
     <string name="androidDetails">ዝርዝሮች</string>
     <string name="androidDownloadApk">ዝማኔውን አውርድ</string>
+    <string name="androidKeepOnOffer">ስልክዎ Shroudlyን ዘጋው። ጥበቃን እንደገና ለማብራት ይንኩ።</string>
     <string name="androidLockdownOffline">ኢንተርኔት የለም፦ Shroudly አሁን በዚህ አውታረ መረብ ላይ መገናኘት አልቻለም፣ እና Android ያለ VPN ግንኙነቶችን እንዲያግድ ተቀናብሯል። Shroudly መሞከሩን ቀጥሏል።</string>
     <string name="androidModeNextStart">አዲሱ ሁነታ ጥበቃው በሚቀጥለው ጊዜ ሲጀምር ጥቅም ላይ ይውላል።</string>
     <string name="androidModeProxy">ፕሮክሲ ብቻ (ሌላው VPNዎ ይቀጥላል)</string>

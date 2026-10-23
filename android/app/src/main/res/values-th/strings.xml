@@ -18,6 +18,7 @@
     <string name="androidBatterySettings">การตั้งค่าแบตเตอรี่</string>
     <string name="androidDetails">รายละเอียด</string>
     <string name="androidDownloadApk">ดาวน์โหลดอัปเดต</string>
+    <string name="androidKeepOnOffer">โทรศัพท์ของคุณปิด Shroudly แตะเพื่อเปิดการป้องกันอีกครั้ง</string>
     <string name="androidLockdownOffline">ไม่มีอินเทอร์เน็ต: ขณะนี้ Shroudly เชื่อมต่อบนเครือข่ายนี้ไม่ได้ และ Android ถูกตั้งค่าให้บล็อกการเชื่อมต่อที่ไม่ผ่าน VPN Shroudly กำลังพยายามต่อไป</string>
     <string name="androidModeNextStart">โหมดใหม่จะใช้ในครั้งถัดไปที่เริ่มการป้องกัน</string>
     <string name="androidModeProxy">พร็อกซีเท่านั้น (VPN อื่นของคุณยังอยู่)</string>

@@ -18,6 +18,7 @@
     <string name="androidBatterySettings">Batareya sozlamalari</string>
     <string name="androidDetails">Batafsil</string>
     <string name="androidDownloadApk">Yangilanishni yuklab olish</string>
+    <string name="androidKeepOnOffer">Telefoningiz Shroudly\'ni yopdi. Himoyani qayta yoqish uchun bosing.</string>
     <string name="androidLockdownOffline">Internet yo‘q: Shroudly hozir bu tarmoqda ulana olmayapti, Android esa VPN’siz ulanishlarni bloklashga sozlangan. Shroudly urinishda davom etmoqda.</string>
     <string name="androidModeNextStart">Yangi rejim himoya keyingi safar ishga tushganda qoʻllanadi.</string>
     <string name="androidModeProxy">Faqat proksi (boshqa VPN’ingiz qoladi)</string>

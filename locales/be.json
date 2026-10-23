@@ -436,6 +436,7 @@
   "androidAllApps": "Усе праграмы на гэтай прыладзе ідуць праз Shroudly.",
   "androidVpnDenied": "Shroudly патрэбны дазвол VPN, каб прапускаць злучэнні вашых праграм.",
   "androidVpnRevoked": "Android выключыў абарону — звычайна таму, што ўключана іншая VPN-праграма.",
+  "androidKeepOnOffer": "Тэлефон закрыў Shroudly. Націсніце, каб зноў уключыць абарону.",
   "androidAlertsChannel": "Апавяшчэнні абароны",
   "androidProtectionLost": "Абарона спынілася з-за памылкі, таму вашы праграмы цяпер падключаюцца напрамую. Адкрыйце Shroudly, каб запусціць яе зноў.",
   "androidDetails": "Падрабязнасці",

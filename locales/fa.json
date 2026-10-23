@@ -436,6 +436,7 @@
   "androidAllApps": "همهٔ برنامه‌های این دستگاه از Shroudly عبور می‌کنند.",
   "androidVpnDenied": "Shroudly برای عبور دادن اتصال‌های برنامه‌هایتان به مجوز VPN نیاز دارد.",
   "androidVpnRevoked": "اندروید محافظت را خاموش کرد؛ معمولاً چون یک برنامهٔ VPN دیگر روشن شده است.",
+  "androidKeepOnOffer": "گوشی شما Shroudly را بست. برای روشن کردن دوبارهٔ محافظت ضربه بزنید.",
   "androidAlertsChannel": "هشدارهای محافظت",
   "androidProtectionLost": "محافظت به‌دلیل یک خطا متوقف شد، پس برنامه‌هایتان اکنون مستقیم وصل می‌شوند. برای روشن کردن دوباره، Shroudly را باز کنید.",
   "androidDetails": "جزئیات",

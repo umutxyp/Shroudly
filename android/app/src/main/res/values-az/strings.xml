@@ -18,6 +18,7 @@
     <string name="androidBatterySettings">Batareya ayarları</string>
     <string name="androidDetails">Təfərrüatlar</string>
     <string name="androidDownloadApk">Yeniləməni endir</string>
+    <string name="androidKeepOnOffer">Telefonun Shroudly-ni bağladı. Qorumanı yenidən açmaq üçün toxun.</string>
     <string name="androidLockdownOffline">İnternet yoxdur: Shroudly hazırda bu şəbəkədə qoşula bilmir və Android VPN olmadan bağlantıları bloklamaq üçün ayarlanıb. Shroudly cəhd etməyə davam edir.</string>
     <string name="androidModeNextStart">Yeni rejim qoruma növbəti dəfə başlayanda istifadə olunacaq.</string>
     <string name="androidModeProxy">Yalnız proksi (digər VPN-iniz qalır)</string>

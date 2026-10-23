@@ -159,6 +159,7 @@ class ShroudlyProxyService : Service() {
             poll = work.scheduleWithFixedDelay({ tick() }, 1, 1, TimeUnit.SECONDS)
             Protection.startedAt = SystemClock.elapsedRealtime()
             Protection.set(Protection.State.ON)
+            KeepOn.on(this)
             Protection.proxyOnly = true
             Protection.socksPort = port
             Protection.socksAuth = null
@@ -326,6 +327,7 @@ class ShroudlyProxyService : Service() {
         if (!active) { stopSelf(); return }
         val was = port
         Protection.set(Protection.State.STOPPING)
+        if (byUser) KeepOn.stoppedByUser(this) else KeepOn.endedByItself(this)
         OnlineCount.stop(leave = byUser, port = port, auth = null)
         cleanup()
         Protection.set(Protection.State.OFF)

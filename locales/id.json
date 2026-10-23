@@ -436,6 +436,7 @@
   "androidAllApps": "Semua aplikasi di perangkat ini melewati Shroudly.",
   "androidVpnDenied": "Shroudly memerlukan izin VPN untuk membawa koneksi aplikasi Anda.",
   "androidVpnRevoked": "Perlindungan dimatikan oleh Android, biasanya karena aplikasi VPN lain dinyalakan.",
+  "androidKeepOnOffer": "Ponsel Anda menutup Shroudly. Ketuk untuk menyalakan perlindungan lagi.",
   "androidAlertsChannel": "Peringatan perlindungan",
   "androidProtectionLost": "Perlindungan berhenti karena terjadi kesalahan, jadi aplikasi Anda kini terhubung langsung. Buka Shroudly untuk memulainya lagi.",
   "androidDetails": "Detail",

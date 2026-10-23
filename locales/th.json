@@ -436,6 +436,7 @@
   "androidAllApps": "ทุกแอปในอุปกรณ์นี้ผ่าน Shroudly",
   "androidVpnDenied": "Shroudly ต้องได้รับสิทธิ์ VPN เพื่อส่งผ่านการเชื่อมต่อของแอปต่างๆ ของคุณ",
   "androidVpnRevoked": "Android ปิดการป้องกันแล้ว ซึ่งมักเป็นเพราะมีการเปิดแอป VPN อื่น",
+  "androidKeepOnOffer": "โทรศัพท์ของคุณปิด Shroudly แตะเพื่อเปิดการป้องกันอีกครั้ง",
   "androidAlertsChannel": "การแจ้งเตือนการป้องกัน",
   "androidProtectionLost": "การป้องกันหยุดทำงานเนื่องจากเกิดข้อผิดพลาด แอปของคุณจึงเชื่อมต่อโดยตรงอยู่ในขณะนี้ เปิด Shroudly เพื่อเริ่มการป้องกันอีกครั้ง",
   "androidDetails": "รายละเอียด",

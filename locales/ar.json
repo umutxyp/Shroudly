@@ -436,6 +436,7 @@
   "androidAllApps": "كل التطبيقات على هذا الجهاز تمر عبر Shroudly.",
   "androidVpnDenied": "يحتاج Shroudly إلى إذن VPN لنقل اتصالات تطبيقاتك.",
   "androidVpnRevoked": "أوقف Android الحماية، غالبًا لأن تطبيق VPN آخر تم تشغيله.",
+  "androidKeepOnOffer": "أغلق هاتفك Shroudly. اضغط لتشغيل الحماية مجددًا.",
   "androidAlertsChannel": "تنبيهات الحماية",
   "androidProtectionLost": "توقفت الحماية بسبب خطأ، لذا تتصل تطبيقاتك الآن مباشرةً. افتح Shroudly لتشغيلها من جديد.",
   "androidDetails": "التفاصيل",

@@ -91,6 +91,13 @@
             android:exported="false"
             android:label="@string/navSettings" />
 
+        <!-- Brings protection back once a network is there, if it ended
+             without the user turning it off (KeepOn). -->
+        <service
+            android:name=".ResumeJob"
+            android:exported="false"
+            android:permission="android.permission.BIND_JOB_SERVICE" />
+
         <receiver
             android:name=".BootReceiver"
             android:exported="false">

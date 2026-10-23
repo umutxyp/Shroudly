@@ -18,6 +18,7 @@
     <string name="androidBatterySettings">Танзимоти батарея</string>
     <string name="androidDetails">Тафсилот</string>
     <string name="androidDownloadApk">Боргирии навсозӣ</string>
+    <string name="androidKeepOnOffer">Телефон Shroudly-ро пӯшид. Барои дубора фаъол кардани муҳофизат ламс кунед.</string>
     <string name="androidLockdownOffline">Интернет нест: Shroudly ҳоло дар ин шабака пайваст шуда наметавонад, ва Android барои манъ кардани пайвастҳои бе VPN танзим шудааст. Shroudly кӯшишро идома медиҳад.</string>
     <string name="androidModeNextStart">Реҷаи нав дафъаи дигар, ки ҳимоя оғоз мешавад, истифода мешавад.</string>
     <string name="androidModeProxy">Танҳо прокси (VPN-и дигаратон мемонад)</string>

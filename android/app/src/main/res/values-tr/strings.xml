@@ -18,6 +18,7 @@
     <string name="androidBatterySettings">Pil ayarları</string>
     <string name="androidDetails">Ayrıntılar</string>
     <string name="androidDownloadApk">Güncellemeyi indir</string>
+    <string name="androidKeepOnOffer">Telefonun Shroudly\'yi kapattı. Korumayı yeniden açmak için dokun.</string>
     <string name="androidLockdownOffline">İnternet yok: Shroudly şu anda bu ağda bağlantı kuramıyor ve Android, VPN olmadan bağlantıları engelleyecek şekilde ayarlı. Shroudly denemeye devam ediyor.</string>
     <string name="androidModeNextStart">Yeni mod, koruma bir sonraki başlatılışında kullanılır.</string>
     <string name="androidModeProxy">Yalnızca proxy (diğer VPN\'in açık kalır)</string>

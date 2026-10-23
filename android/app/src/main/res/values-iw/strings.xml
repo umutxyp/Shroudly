@@ -18,6 +18,7 @@
     <string name="androidBatterySettings">הגדרות סוללה</string>
     <string name="androidDetails">פרטים</string>
     <string name="androidDownloadApk">להוריד את העדכון</string>
+    <string name="androidKeepOnOffer">הטלפון סגר את Shroudly. הקישו כדי להפעיל שוב את ההגנה.</string>
     <string name="androidLockdownOffline">אין אינטרנט: Shroudly לא מצליחה לעבור ברשת הזו כרגע, ו־Android מוגדרת לחסום חיבורים בלי VPN. Shroudly ממשיכה לנסות.</string>
     <string name="androidModeNextStart">המצב החדש ישמש בפעם הבאה שההגנה תופעל.</string>
     <string name="androidModeProxy">פרוקסי בלבד (ה-VPN האחר שלך נשאר)</string>

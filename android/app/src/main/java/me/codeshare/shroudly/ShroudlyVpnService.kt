@@ -340,6 +340,8 @@ class ShroudlyVpnService : VpnService() {
         work.shutdown()
         try { work.awaitTermination(8, TimeUnit.SECONDS) } catch (_: InterruptedException) {}
         checks.shutdownNow()
+        // Ended by Android while on (not through a stop): back once a network is there.
+        if (Protection.state == Protection.State.ON || Protection.state == Protection.State.STARTING) KeepOn.networkGone(this)
         if (Protection.state != Protection.State.OFF) Protection.set(Protection.State.OFF)
         refreshTile()
         super.onDestroy()
@@ -373,6 +375,10 @@ class ShroudlyVpnService : VpnService() {
     private fun requestStop(errorRes: Int, detail: String?) {
         if (Protection.state == Protection.State.OFF || Protection.state == Protection.State.STOPPING) return
         Protection.set(Protection.State.STOPPING)
+        // Off by the user's choice (or another VPN's): it stays off. Ended by
+        // itself: it comes back once a network is there (KeepOn).
+        if (errorRes == 0 || errorRes == R.string.androidVpnRevoked) KeepOn.stoppedByUser(this)
+        else if (KeepOn.endedByItself(this)) log("Protection comes back by itself once a network is there, in ${KeepOn.RETRY_MS / 60000} minutes at the earliest")
         later {
             // Out of the live count first, through the engine while it still
             // runs; at the user's stop only (OnlineCount.stop).
@@ -462,6 +468,8 @@ class ShroudlyVpnService : VpnService() {
             Protection.set(Protection.State.ON)
             Protection.socksPort = port
             Protection.socksAuth = auth
+            // On until the user turns it off (KeepOn).
+            KeepOn.on(this)
             // The live count, as the desktop's: while protection is on (OnlineCount).
             OnlineCount.sync(this)
             // The ad and tracker list, when that is on and there is none or it is old.
@@ -694,7 +702,10 @@ class ShroudlyVpnService : VpnService() {
             return
         }
         pathWatch.traffic(now, tx, Protection.stats?.bytesDown ?: -1L)
-        if (pathWatch.due(now)) {
+        // No network at all: nothing to check until one comes (the network
+        // callback asks for a check then). A locked phone with its network
+        // off was checked every 10 seconds, for nothing.
+        if (underlyingId != null && pathWatch.due(now)) {
             val why = if (pathWatch.stalled(now)) "apps get nothing back" else "routine"
             pathWatch.started(now)
             check {
@@ -936,6 +947,9 @@ class ShroudlyVpnService : VpnService() {
         underlyingV6 = v6
         if (now == null) {
             log("Network: none")
+            // A phone that turns the network off at lock may end apps then
+            // too: should it end this one, it comes back with the network.
+            KeepOn.networkGone(this)
             return
         }
         log("Network: ${Net.describe(cm, now.first, now.second)}")

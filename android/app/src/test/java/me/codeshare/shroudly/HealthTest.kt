@@ -99,6 +99,33 @@ class PathWatchTest {
         assertEquals(PathWatch.Verdict.BROKEN, w.result(10_000, ok = false, networkWorks = true))
     }
 
+    /* A locked phone whose network is off (issue #39): with nothing
+     * underneath, the next check waits a minute instead of coming every few
+     * seconds; a network that comes back asks for one at once. */
+    @Test
+    fun noNetworkUnderneathPausesTheChecks() {
+        val w = watch()
+        w.traffic(0, 0, 0)
+        w.traffic(1_000, 100, 0)
+        assertTrue(w.due(13_000))                                  // apps get nothing back
+        w.started(13_000)
+        assertEquals(PathWatch.Verdict.NO_NETWORK, w.result(14_000, ok = false, networkWorks = false))
+        w.traffic(15_000, 200, 0)
+        assertFalse(w.due(17_000))
+        assertFalse(w.due(14_000 + PathWatch.NO_NETWORK_PAUSE_MS - 1))
+        assertTrue(w.due(14_000 + PathWatch.NO_NETWORK_PAUSE_MS))
+        // A network back (the service asks): at once.
+        w.ask(20_000, 0)
+        assertTrue(w.due(20_000))
+        // And a new start forgets the pause.
+        w.started(20_000)
+        assertEquals(PathWatch.Verdict.NO_NETWORK, w.result(21_000, ok = false, networkWorks = false))
+        w.reset(22_000)
+        w.traffic(22_000, 300, 0)
+        w.traffic(23_000, 400, 0)
+        assertTrue(w.due(22_000 + 12_000))
+    }
+
     @Test
     fun aSuccessInBetweenStartsTheCountOver() {
         val w = watch()

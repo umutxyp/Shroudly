@@ -18,6 +18,7 @@
     <string name="androidBatterySettings">Батарея параметрлері</string>
     <string name="androidDetails">Толығырақ</string>
     <string name="androidDownloadApk">Жаңартуды жүктеу</string>
+    <string name="androidKeepOnOffer">Телефон Shroudly-ді жапты. Қорғауды қайта қосу үшін түртіңіз.</string>
     <string name="androidLockdownOffline">Интернет жоқ: Shroudly қазір бұл желіде қосыла алмай тұр, ал Android VPN-сіз қосылымдарды бұғаттайтындай бапталған. Shroudly әрекетін жалғастыруда.</string>
     <string name="androidModeNextStart">Жаңа режим қорғаныс келесі рет іске қосылғанда қолданылады.</string>
     <string name="androidModeProxy">Тек прокси (басқа VPN-іңіз қалады)</string>

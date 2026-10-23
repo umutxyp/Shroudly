@@ -18,6 +18,7 @@
     <string name="androidBatterySettings">Pengaturan baterai</string>
     <string name="androidDetails">Detail</string>
     <string name="androidDownloadApk">Unduh pembaruan</string>
+    <string name="androidKeepOnOffer">Ponsel Anda menutup Shroudly. Ketuk untuk menyalakan perlindungan lagi.</string>
     <string name="androidLockdownOffline">Tidak ada internet: Shroudly belum bisa tersambung di jaringan ini, dan Android diatur untuk memblokir koneksi tanpa VPN. Shroudly terus mencoba.</string>
     <string name="androidModeNextStart">Mode baru dipakai saat perlindungan dimulai berikutnya.</string>
     <string name="androidModeProxy">Hanya proxy (VPN Anda yang lain tetap)</string>

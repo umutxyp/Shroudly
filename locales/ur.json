@@ -436,6 +436,7 @@
   "androidAllApps": "اس ڈیوائس کی ہر ایپ Shroudly سے ہو کر جاتی ہے۔",
   "androidVpnDenied": "آپ کی ایپس کے کنکشن لے جانے کے لیے Shroudly کو VPN کی اجازت درکار ہے۔",
   "androidVpnRevoked": "Android نے تحفظ بند کر دیا، عموماً اس لیے کہ کوئی دوسری VPN ایپ آن کی گئی۔",
+  "androidKeepOnOffer": "آپ کے فون نے Shroudly بند کر دیا۔ تحفظ دوبارہ آن کرنے کے لیے تھپتھپائیں۔",
   "androidAlertsChannel": "تحفظ کے انتباہات",
   "androidProtectionLost": "ایک خرابی کی وجہ سے تحفظ رک گیا، اس لیے آپ کی ایپس اب براہِ راست جڑ رہی ہیں۔ اسے دوبارہ شروع کرنے کے لیے Shroudly کھولیں۔",
   "androidDetails": "تفصیلات",

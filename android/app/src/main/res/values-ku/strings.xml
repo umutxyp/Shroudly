@@ -18,6 +18,7 @@
     <string name="androidBatterySettings">Mîhengên bataryayê</string>
     <string name="androidDetails">Hûragahî</string>
     <string name="androidDownloadApk">Nûvekirinê daxe</string>
+    <string name="androidKeepOnOffer">Telefona te Shroudly girt. Ji bo ku parastinê dîsa vekî, bitikîne.</string>
     <string name="androidLockdownOffline">Înternet tune: Shroudly niha li ser vê torê nikare derbas bibe, û Android hatiye mîhengkirin ku girêdanên bê VPN asteng bike. Shroudly hewl didomîne.</string>
     <string name="androidModeNextStart">Moda nû dê gava parastin cara din dest pê bike were bikaranîn.</string>
     <string name="androidModeProxy">Tenê proksî (VPN-a te ya din dimîne)</string>

@@ -18,6 +18,7 @@
     <string name="androidBatterySettings">تنظیمات باتری</string>
     <string name="androidDetails">جزئیات</string>
     <string name="androidDownloadApk">دانلود به‌روزرسانی</string>
+    <string name="androidKeepOnOffer">گوشی شما Shroudly را بست. برای روشن کردن دوبارهٔ محافظت ضربه بزنید.</string>
     <string name="androidLockdownOffline">اینترنت در دسترس نیست: Shroudly فعلاً در این شبکه نمی‌تواند وصل شود و Android طوری تنظیم شده که اتصال‌های بدون VPN را مسدود کند. Shroudly به تلاش ادامه می‌دهد.</string>
     <string name="androidModeNextStart">حالت جدید دفعهٔ بعد که محافظت شروع شود به کار می‌رود.</string>
     <string name="androidModeProxy">فقط پراکسی (VPN دیگرتان می‌ماند)</string>

@@ -436,6 +436,7 @@
   "androidAllApps": "Mọi ứng dụng trên thiết bị này đều đi qua Shroudly.",
   "androidVpnDenied": "Shroudly cần quyền VPN để chuyển tải kết nối của các ứng dụng.",
   "androidVpnRevoked": "Android đã tắt bảo vệ, thường là vì một ứng dụng VPN khác vừa được bật.",
+  "androidKeepOnOffer": "Điện thoại đã tắt Shroudly. Chạm để bật lại bảo vệ.",
   "androidAlertsChannel": "Cảnh báo bảo vệ",
   "androidProtectionLost": "Bảo vệ đã dừng do lỗi, vì vậy các ứng dụng của bạn hiện đang kết nối trực tiếp. Mở Shroudly để bật lại.",
   "androidDetails": "Chi tiết",

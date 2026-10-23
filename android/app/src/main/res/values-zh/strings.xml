@@ -18,6 +18,7 @@
     <string name="androidBatterySettings">电池设置</string>
     <string name="androidDetails">详细信息</string>
     <string name="androidDownloadApk">下载更新</string>
+    <string name="androidKeepOnOffer">手机关闭了 Shroudly。点按即可重新开启保护。</string>
     <string name="androidLockdownOffline">无法上网：Shroudly 目前无法在此网络上连通，而 Android 已设置为阻止不经 VPN 的连接。Shroudly 正在继续尝试。</string>
     <string name="androidModeNextStart">新模式将在下次启动保护时使用。</string>
     <string name="androidModeProxy">仅代理（保留你的其他 VPN）</string>

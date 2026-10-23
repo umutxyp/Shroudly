@@ -170,6 +170,9 @@ class PathWatch(
         const val STALL_MS = 12_000L
         const val RETRY_MS = 3_000L
         const val FAILURES = 2
+        // The network underneath does not work: the next check, unless one
+        // is asked for (a network change asks), waits this long.
+        const val NO_NETWORK_PAUSE_MS = 60_000L
         // Packets apps sent into the tunnel since anything came back, before
         // silence counts as a stall (a phone's background chatter is less).
         const val STALL_PACKETS = 20L
@@ -188,6 +191,7 @@ class PathWatch(
 
     private var askedAt = 0L
     private var lastCheckAt = 0L
+    private var quietUntil = 0L
     private var failures = 0
     /* The next failure alone is enough (until a check succeeds): the way
      * through was found broken already, and what was done about it is being
@@ -238,6 +242,7 @@ class PathWatch(
     fun due(now: Long): Boolean {
         if (checking) return false
         if (askedAt != 0L && now >= askedAt) return true
+        if (now < quietUntil) return false
         if (stalled(now) && now - lastCheckAt >= retryMs) return true
         return appsSinceCheck && now - lastCheckAt >= intervalMs
     }
@@ -271,6 +276,7 @@ class PathWatch(
         }
         if (!networkWorks) {
             failures = 0
+            quietUntil = now + NO_NETWORK_PAUSE_MS
             return Verdict.NO_NETWORK
         }
         failures++
@@ -284,6 +290,7 @@ class PathWatch(
     fun reset(now: Long) {
         checking = false
         askedAt = 0
+        quietUntil = 0
         lastCheckAt = now
         failures = 0
         downAt = now

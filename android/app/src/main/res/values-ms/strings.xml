@@ -18,6 +18,7 @@
     <string name="androidBatterySettings">Tetapan bateri</string>
     <string name="androidDetails">Butiran</string>
     <string name="androidDownloadApk">Muat turun kemas kini</string>
+    <string name="androidKeepOnOffer">Telefon anda menutup Shroudly. Ketik untuk menghidupkan perlindungan semula.</string>
     <string name="androidLockdownOffline">Tiada internet: Shroudly belum dapat bersambung pada rangkaian ini, dan Android ditetapkan untuk menyekat sambungan tanpa VPN. Shroudly terus mencuba.</string>
     <string name="androidModeNextStart">Mod baharu digunakan apabila perlindungan dimulakan seterusnya.</string>
     <string name="androidModeProxy">Proksi sahaja (VPN anda yang lain kekal)</string>

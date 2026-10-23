@@ -18,6 +18,7 @@
     <string name="androidBatterySettings">Cài đặt pin</string>
     <string name="androidDetails">Chi tiết</string>
     <string name="androidDownloadApk">Tải bản cập nhật</string>
+    <string name="androidKeepOnOffer">Điện thoại đã tắt Shroudly. Chạm để bật lại bảo vệ.</string>
     <string name="androidLockdownOffline">Không có Internet: Shroudly hiện chưa thể kết nối trên mạng này, và Android đang được đặt để chặn kết nối không qua VPN. Shroudly vẫn đang thử lại.</string>
     <string name="androidModeNextStart">Chế độ mới sẽ dùng vào lần tới bảo vệ được bật.</string>
     <string name="androidModeProxy">Chỉ proxy (giữ VPN khác của bạn)</string>
