@@ -320,7 +320,21 @@ async function realWindows() {
     const w = fakeWindows();
     w.keys.get(VOL).set('HTTPS_PROXY', 'http://127.0.0.1:7890');
     const A = loadWith(w);
-    t.ok(new A({ platform: 'win32' }).applySync(url) === 'foreign' && !writes(w).length, 'win32: another local proxy in Volatile Environment is never replaced');
+    t.ok(new A({ platform: 'win32', listening: () => true }).applySync(url) === 'foreign' && !writes(w).length,
+      'win32: another local proxy in Volatile Environment, running, is never replaced');
+  }
+  {
+    // One left by a program that has gone (nothing listens there): every
+    // program would reach nothing; ours is used while the mode is on, and
+    // the user's comes back when it goes off.
+    const w = fakeWindows();
+    w.keys.get(VOL).set('HTTPS_PROXY', 'http://127.0.0.1:7890');
+    const A = loadWith(w);
+    const a = new A({ platform: 'win32', listening: (port) => (port === 7890 ? false : null) });
+    t.ok(a.applySync(url) === 'changed' && w.val(VOL, 'HTTPS_PROXY') === url,
+      'win32: another local proxy in Volatile Environment where nothing runs: ours in its place');
+    a.clearSync();
+    t.ok(w.val(VOL, 'HTTPS_PROXY') === 'http://127.0.0.1:7890', 'win32: off again, the one that was there is put back');
   }
   {
     const w = fakeWindows();
