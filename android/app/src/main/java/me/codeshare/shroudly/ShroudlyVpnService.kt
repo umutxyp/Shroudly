@@ -155,7 +155,8 @@ class ShroudlyVpnService : VpnService() {
 
         /* Creates the channels, or renames them in the current language. The
          * user's own settings for them (importance, sound) are kept. */
-        fun channels(ctx: Context) {
+        fun channels(context: Context) {
+            val ctx = Lang.wrap(context)
             val nm = ctx.getSystemService(NotificationManager::class.java) ?: return
             nm.createNotificationChannel(
                 NotificationChannel(CHANNEL, ctx.getString(R.string.navProtection), NotificationManager.IMPORTANCE_LOW).apply {
@@ -261,6 +262,9 @@ class ShroudlyVpnService : VpnService() {
     // Techniques for streams that are not TLS or HTTP (raw-*), per address:
     // kept apart, so an app's many addresses never push out sites' techniques.
     private lateinit var learnedRaw: Learned
+
+    // In the language chosen in Settings (Lang; before Android 13).
+    override fun attachBaseContext(base: Context) = super.attachBaseContext(Lang.wrap(base))
 
     override fun onCreate() {
         super.onCreate()

@@ -77,7 +77,8 @@ class AutomationReceiver : BroadcastReceiver() {
     /* Tapped, it opens the window and starts protection (asking for the VPN
      * when needed); `battery`: with a button to Shroudly's page in Android's
      * settings, where its battery use is set. */
-    private fun notStarted(ctx: Context, text: Int, battery: Boolean) {
+    private fun notStarted(context: Context, text: Int, battery: Boolean) {
+        val ctx = Lang.wrap(context)
         try {
             ShroudlyVpnService.channels(ctx)
             val start = PendingIntent.getActivity(

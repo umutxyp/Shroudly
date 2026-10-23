@@ -77,6 +77,9 @@ class ShroudlyProxyService : Service() {
 
     override fun onBind(intent: Intent?): IBinder? = null
 
+    // In the language chosen in Settings (Lang; before Android 13).
+    override fun attachBaseContext(base: Context) = super.attachBaseContext(Lang.wrap(base))
+
     override fun onCreate() {
         super.onCreate()
         ShroudlyVpnService.attachLog(this)

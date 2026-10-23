@@ -1,5 +1,6 @@
 package me.codeshare.shroudly
 
+import android.content.Context
 import android.annotation.SuppressLint
 import android.app.PendingIntent
 import android.content.Intent
@@ -10,6 +11,9 @@ import android.service.quicksettings.TileService
 /* A Quick Settings tile that switches protection on and off. */
 class ShroudlyTileService : TileService() {
     private val onChange: () -> Unit = { refresh() }
+
+    // In the language chosen in Settings (Lang; before Android 13).
+    override fun attachBaseContext(base: Context) = super.attachBaseContext(Lang.wrap(base))
 
     override fun onStartListening() {
         Protection.listen(onChange)

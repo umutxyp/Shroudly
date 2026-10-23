@@ -35,6 +35,9 @@ import android.widget.TextView
  * reaches a running protection at once (ShroudlyVpnService.ACTION_SETTINGS).
  */
 class SettingsActivity : Activity() {
+    // In the language chosen below (Lang; before Android 13).
+    override fun attachBaseContext(base: android.content.Context) = super.attachBaseContext(Lang.wrap(base))
+
     override fun onCreate(savedInstanceState: Bundle?) {
         Accent.apply(this)
         super.onCreate(savedInstanceState)
@@ -73,6 +76,9 @@ class SettingsActivity : Activity() {
             AppSettings.setStrategy(this, id)
             tell("strategy")
         }
+
+        findViewById<TextView>(R.id.language).setOnClickListener { pickLanguage() }
+        showLanguage()
 
         findViewById<TextView>(R.id.dnsServer).setOnClickListener { pickDns() }
         showDns()
@@ -175,6 +181,7 @@ class SettingsActivity : Activity() {
 
     /* The desktop's labels for the techniques (locales: strat*). */
     private fun labelOf(id: String): Int = when (id) {
+        "none" -> R.string.stratNone
         "split-sni" -> R.string.stratSplitSni
         "disorder-sni" -> R.string.stratDisorderSni
         "split-sni-mid" -> R.string.stratSplitMid
@@ -194,6 +201,36 @@ class SettingsActivity : Activity() {
             setSpan(ForegroundColorSpan(getColor(R.color.text_dim)), from, length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
             setSpan(RelativeSizeSpan(12.5f / 15f), from, length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         }
+    }
+
+    /* The row says the app's language: the phone's, or the one chosen. */
+    private fun showLanguage() {
+        val tag = Lang.chosen(this)
+        val i = if (tag == null) -1 else Lang.tags(this).indexOf(tag)
+        findViewById<TextView>(R.id.language).text = if (i < 0) getString(R.string.languageSystem) else Lang.names(this)[i]
+    }
+
+    /* The phone's language, or one of the app's, each in its own name (issue
+     * #38). Android 13 and later remake the windows by themselves; before
+     * that this one is remade here and the main window when it comes back. */
+    private fun pickLanguage() {
+        val tags = Lang.tags(this)
+        val items = arrayOf(getString(R.string.languageSystem)) + Lang.names(this)
+        val now = Lang.chosen(this)
+        val checked = if (now == null) 0 else tags.indexOf(now) + 1
+        AlertDialog.Builder(this)
+            .setTitle(R.string.language)
+            .setSingleChoiceItems(items, checked) { d, which ->
+                d.dismiss()
+                val tag = if (which == 0) null else tags[which - 1]
+                if (tag == now) return@setSingleChoiceItems
+                Lang.set(this, tag)
+                ShroudlyVpnService.log("Language: ${tag ?: "the phone's"} (Settings)")
+                ShroudlyVpnService.channels(applicationContext)
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) recreate() else showLanguage()
+            }
+            .setNegativeButton(android.R.string.cancel, null)
+            .show()
     }
 
     /* The row (under the "DNS server" heading) says which one answers:

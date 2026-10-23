@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- A RowIcon as one drawable (the tile, lucide "languages" in it), for a
+     row that is one TextView. -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:width="30dp"
+        android:height="30dp"
+        android:drawable="@drawable/icon_tile" />
+    <item
+        android:width="16dp"
+        android:height="16dp"
+        android:gravity="center"
+        android:drawable="@drawable/ic_languages_accent" />
+</layer-list>

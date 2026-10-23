@@ -1,5 +1,6 @@
 package me.codeshare.shroudly
 
+import android.content.Context
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
@@ -73,10 +74,15 @@ class MainActivity : Activity() {
     /* The accent this window was made with; another one chosen in Settings
      * makes it again on return. */
     private var accentShown = ""
+    private var langShown: String? = null
+
+    // In the language chosen in Settings (Lang; before Android 13).
+    override fun attachBaseContext(base: Context) = super.attachBaseContext(Lang.wrap(base))
 
     override fun onCreate(savedInstanceState: Bundle?) {
         Accent.apply(this)
         accentShown = Accent.id(this)
+        langShown = Lang.chosen(this)
         super.onCreate(savedInstanceState)
         ShroudlyVpnService.attachLog(this)
         setContentView(R.layout.activity_main)
@@ -168,7 +174,7 @@ class MainActivity : Activity() {
 
     override fun onStart() {
         super.onStart()
-        if (Accent.id(this) != accentShown) { recreate(); return }
+        if (Accent.id(this) != accentShown || Lang.chosen(this) != langShown) { recreate(); return }
         Protection.windowVisible = true
         ShroudlyVpnService.clearAlert(this)
         Protection.listen(onChange)

@@ -68,6 +68,26 @@
                 android:orientation="horizontal" />
         </HorizontalScrollView>
 
+        <!-- The app's language: the phone's, or one chosen here (issue #38). -->
+        <TextView
+            style="@style/SectionTitle"
+            android:accessibilityHeading="true"
+            android:text="@string/language" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/card"
+            android:orientation="vertical"
+            android:padding="1dp">
+
+            <TextView
+                android:id="@+id/language"
+                style="@style/AboutRowText"
+                android:drawableStart="@drawable/row_languages"
+                android:text="@string/languageSystem" />
+        </LinearLayout>
+
         <!-- The technique, as the desktop's "Bypass strategy". -->
         <TextView
             style="@style/SectionTitle"
