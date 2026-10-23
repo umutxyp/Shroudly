@@ -98,6 +98,9 @@ class TunnelConfigTest {
         assertTrue(y.contains("mapdns:\n  address: ${TunnelConfig.DNS_V4}\n  port: 53\n  network: 198.19.0.0\n  netmask: 255.255.192.0\n"))
         assertTrue(y.contains("tunnel:\n  mtu: 8500\n"))
         assertTrue(y.contains("  max-session-count: 1800\n"))
+        // Quiet connections (a chat app waiting for a message, push) are not
+        // ended after hev's own 5 minutes.
+        assertTrue(y.contains("  tcp-read-write-timeout: 3600000\n  udp-read-write-timeout: 120000\n"))
         assertFalse(y.contains("username"))
         assertTrue(TunnelConfig.yaml(1, udp = false).contains("udp: 'tcp'"))
         // Every line is "key: value" or a section, two spaces deep at most.

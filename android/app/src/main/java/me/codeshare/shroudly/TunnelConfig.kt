@@ -45,6 +45,18 @@ object TunnelConfig {
     // 256 KB stack per connection, and hev's 84 KB per session), fewer: the
     // address space is 4 GB for everything the app does.
     const val MAX_SESSIONS_32 = 600
+    // How long an app's connection may carry nothing before hev ends it.
+    // hev's own 5 minutes ended the quiet connections that chat apps and
+    // push notifications keep open to be told of a new message (Instagram's
+    // messages, WhatsApp, Telegram, Google's push channel with its ~28
+    // minute heartbeat): the next message then waited until the app noticed
+    // and connected again ("messages go late, or not at all"). An hour is
+    // longer than any of their keepalives; a connection whose server is gone
+    // is still ended by the engine's TCP keepalive. UDP: the engine's own
+    // two minutes (UDP_IDLE_MS in core/src/engine.c), not hev's one, so a
+    // quiet call or QUIC connection keeps its port.
+    const val TCP_IDLE_MS = 3_600_000
+    const val UDP_IDLE_MS = 120_000
 
     /* The range for the hev started `generation`-th (any number; it wraps). */
     fun mappedNetwork(generation: Int): String = MAPPED_RANGES[Math.floorMod(generation, MAPPED_RANGES.size)]
@@ -83,6 +95,8 @@ object TunnelConfig {
             |misc:
             |  task-stack-size: 86016
             |  connect-timeout: 10000
+            |  tcp-read-write-timeout: $TCP_IDLE_MS
+            |  udp-read-write-timeout: $UDP_IDLE_MS
             |  max-session-count: $maxSessions
             |  log-level: warn
             |""".trimMargin()
