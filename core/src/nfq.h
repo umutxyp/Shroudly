@@ -40,6 +40,12 @@ int nfq_parse(uint8_t *buf, size_t len, void (*cb)(const nfq_packet *, void *), 
 int  nfq_open_queue(uint16_t queue, uint32_t copy_range);
 /* The verdict for packet id: NF_ACCEPT (1) or NF_DROP (0). 0, or -1. */
 int  nfq_verdict(int fd, uint16_t queue, uint32_t id, uint32_t verdict);
+/* The same, but the kernel puts the packet back changed: `payload`/`plen`
+ * (the IP packet from its header on) replaces what was queued. Used to shift a
+ * segment's sequence or acknowledgement number for a connection whose TLS
+ * record was split (tcpdpi_xlate_*). 0, or -1. */
+int  nfq_verdict_mangle(int fd, uint16_t queue, uint32_t id, uint32_t verdict,
+                        const uint8_t *payload, int plen);
 /* Unbind and close. */
 void nfq_close_queue(int fd, uint16_t queue);
 
@@ -49,5 +55,9 @@ void nfq_close_queue(int fd, uint16_t queue);
 int nfq_build_cmd(uint8_t *out, size_t cap, uint16_t queue, uint8_t cmd, uint32_t seq);
 int nfq_build_mode(uint8_t *out, size_t cap, uint16_t queue, uint32_t copy_range, uint32_t seq);
 int nfq_build_verdict(uint8_t *out, size_t cap, uint16_t queue, uint32_t id, uint32_t verdict);
+/* A verdict that also carries the replacement packet (NFQA_PAYLOAD). Its
+ * length, or -1 when cap is too small. */
+int nfq_build_verdict_mangle(uint8_t *out, size_t cap, uint16_t queue, uint32_t id,
+                             uint32_t verdict, const uint8_t *payload, int plen);
 
 #endif

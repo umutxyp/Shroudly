@@ -128,6 +128,21 @@ int nfq_build_verdict(uint8_t *out, size_t cap, uint16_t queue, uint32_t id, uin
   return (int)n;
 }
 
+int nfq_build_verdict_mangle(uint8_t *out, size_t cap, uint16_t queue, uint32_t id,
+                             uint32_t verdict, const uint8_t *payload, int plen) {
+  if (!payload || plen < 1) return -1;
+  size_t need = NLHDR + NFGEN + ALIGN4(4 + 8) + ALIGN4(4 + (size_t)plen);
+  if (cap < need) return -1;
+  size_t n = head(out, MSG_VERDICT, NLM_F_REQ, 0, 0, queue);
+  uint8_t v[8];
+  wr32be(v, verdict);
+  wr32be(v + 4, id);
+  n += attr(out + n, A_VERDICT, v, 8);
+  n += attr(out + n, A_PAYLOAD, payload, (size_t)plen);
+  wr32h(out, (uint32_t)n);
+  return (int)n;
+}
+
 #if defined(__linux__)
 #include <errno.h>
 #include <unistd.h>
@@ -205,6 +220,17 @@ int nfq_open_queue(uint16_t queue, uint32_t copy_range) {
 int nfq_verdict(int fd, uint16_t queue, uint32_t id, uint32_t verdict) {
   uint8_t msg[64];
   int n = nfq_build_verdict(msg, sizeof(msg), queue, id, verdict);
+  struct sockaddr_nl to;
+  memset(&to, 0, sizeof(to));
+  to.nl_family = AF_NETLINK;
+  return sendto(fd, msg, (size_t)n, 0, (struct sockaddr *)&to, sizeof(to)) == n ? 0 : -1;
+}
+
+int nfq_verdict_mangle(int fd, uint16_t queue, uint32_t id, uint32_t verdict,
+                       const uint8_t *payload, int plen) {
+  uint8_t msg[2600];                       /* a verdict plus one <= MTU packet */
+  int n = nfq_build_verdict_mangle(msg, sizeof(msg), queue, id, verdict, payload, plen);
+  if (n < 0) return -1;
   struct sockaddr_nl to;
   memset(&to, 0, sizeof(to));
   to.nl_family = AF_NETLINK;

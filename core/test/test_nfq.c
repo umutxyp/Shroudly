@@ -44,6 +44,18 @@ static void test_messages(void) {
   CHECK(be32(m + 24) == 1 && be32(m + 28) == 0x01020304);
   /* Too little room: nothing written. */
   CHECK(nfq_build_cmd(m, 16, 200, 1, 1) == -1 && nfq_build_verdict(m, 8, 200, 1, 1) == -1);
+
+  /* A verdict that carries a replacement packet (NFQA_PAYLOAD): accept id
+   * 0x01020304 with a 5-byte new packet. */
+  uint8_t repl[5] = { 0x45, 0x11, 0x22, 0x33, 0x44 };
+  n = nfq_build_verdict_mangle(m, sizeof m, 200, 0x01020304, 1, repl, 5);
+  CHECK(n == 44 && h32(m) == 44);                /* 20 + 12 (verdict) + 4+5->12 (payload) */
+  CHECK(h16(m + 4) == ((3 << 8) | 1));
+  CHECK(h16(m + 20) == 12 && h16(m + 22) == 2 && be32(m + 24) == 1 && be32(m + 28) == 0x01020304);
+  CHECK(h16(m + 32) == (4 + 5) && h16(m + 34) == 10);  /* NFQA_PAYLOAD, 4 + 5 bytes */
+  CHECK(memcmp(m + 36, repl, 5) == 0 && m[41] == 0 && m[42] == 0 && m[43] == 0); /* padded */
+  CHECK(nfq_build_verdict_mangle(m, 20, 200, 1, 1, repl, 5) == -1);     /* no room */
+  CHECK(nfq_build_verdict_mangle(m, sizeof m, 200, 1, 1, repl, 0) == -1); /* nothing to put back */
 }
 
 /* A packet message as the kernel writes it: id, mark, payload. */
