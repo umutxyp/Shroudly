@@ -449,16 +449,16 @@ static int handle_outbound(const struct iphdr *ip, const struct tcphdr *tcp,
   if (g_cfg.tlsrec && pi->kind == PROTO_TLS && pi->host_off >= 1) {
     int cuts[2], nc = tcpdpi_split_points(payload, plen, pi->host_off, pi->host_len, cuts);
     int cut = nc >= 2 ? cuts[1] : (nc == 1 ? cuts[0] : 0);  /* mid-name where there is one */
-    uint8_t out[2048];
-    int n = cut > 5 ? tcpdpi_build_tlsrec4(out, sizeof out, ip_tmpl, iphl, tcp_tmpl, tcphl,
-                                           g_ipid, seq, otl, payload, plen, cut) : 0;
-    if (n > 0 && tcpdpi_xlate_begin(ip->saddr, ip->daddr, tcp->source, tcp->dest,
-                                    seq + (uint32_t)plen, TCPDPI_TLSREC_GROWTH, now_ms())) {
-      g_ipid++;
+    tcpdpi_seg segs[2]; int ns = 0;
+    int ok = cut > 5 && tcpdpi_build_tlsrec_pair(segs, &ns, ip_tmpl, iphl, tcp_tmpl, tcphl,
+                                                 g_ipid, seq, otl, payload, plen, cut);
+    if (ok && tcpdpi_xlate_begin(ip->saddr, ip->daddr, tcp->source, tcp->dest,
+                                 seq + (uint32_t)plen, TCPDPI_TLSREC_GROWTH, now_ms())) {
+      g_ipid = (uint16_t)(g_ipid + 2);
       if (decoy) send_fake(ip, tcp, payload, plen, pi, decoy_ttl_for(ip->daddr));
-      raw_send(out, n, ip->daddr, tcp->dest);
+      for (int i = 0; i < ns; i++) raw_send(segs[i].data, segs[i].len, ip->daddr, tcp->dest);
       rawscope_count(RAWSCOPE_GROWN);
-      return 1;                          /* the original is replaced by the grown record */
+      return 1;                          /* the original is replaced by the two records */
     }
   }
 

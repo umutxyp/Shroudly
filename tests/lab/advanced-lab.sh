@@ -354,12 +354,14 @@ else
     # the sequence translation is wrong, so capture the router's view of the wire.
     TCAP=""
     if command -v tcpdump >/dev/null 2>&1; then
-      ip netns exec shlab-r tcpdump -i shlab-r1 -n -S -c 80 "tcp and host $PUB and port 443" > "$WORK/tcap.txt" 2>/dev/null &
+      # Bounded by a timeout so it never waits for packets that a broken
+      # connection will not send (an earlier -c count hung the whole job).
+      ip netns exec shlab-r timeout 11 tcpdump -i shlab-r1 -n -S "tcp and host $PUB and port 443" > "$WORK/tcap.txt" 2>/dev/null &
       TCAP=$!; sleep 0.4
     fi
     out=$(loads www.allowed.lab tls); rc=$?
     if [ $rc -eq 0 ]; then ok "reasm DPI, tlsrec: another name still loads: $out"; else bad "reasm DPI, tlsrec: another name still loads: $out"; fi
-    [ -n "$TCAP" ] && { wait "$TCAP" 2>/dev/null; if [ $rc -ne 0 ]; then echo "--- allowed.lab, router -> server view ---"; sed -n '1,40p' "$WORK/tcap.txt" | sed 's/^/    /'; fi; }
+    [ -n "$TCAP" ] && { kill "$TCAP" 2>/dev/null; wait "$TCAP" 2>/dev/null; if [ $rc -ne 0 ]; then echo "--- allowed.lab, router -> server view ---"; sed -n '1,40p' "$WORK/tcap.txt" | sed 's/^/    /'; fi; }
     stop_engine
     ok "at stop: $(grep '"type":"raw_stats"' "$WORK/status.log" | tail -1)"
     grown=$(stat_of grown)

@@ -339,6 +339,32 @@ static void test_tlsrec(void) {
   CHECK(tcpdpi_build_tlsrec4(out, sizeof out, tmpl, 20, tmpl + 20, 20, 1, 1, 64, span, 100, 5 + 96) == 0);
 }
 
+/* ───────── the two-segment split (never bigger than the original) ───────── */
+static void test_tlsrec_pair(void) {
+  uint8_t tmpl[40]; mk_hdr(tmpl, 50000, 443, 0x18, 0);
+  uint8_t real[64]; int rl = 50, rlen = 5 + rl;
+  real[0] = 0x16; real[1] = 0x03; real[2] = 0x01; wr16(real + 3, (uint16_t)rl);
+  for (int i = 0; i < rl; i++) real[5 + i] = (uint8_t)(0x41 + i);
+  uint32_t seq = 7000; int cut = 5 + 20;                 /* k = 20 */
+
+  tcpdpi_seg segs[2]; int ns = 0;
+  CHECK(tcpdpi_build_tlsrec_pair(segs, &ns, tmpl, 20, tmpl + 20, 20, 0x900, seq, 64, real, rlen, cut) == 1);
+  CHECK(ns == 2);
+  /* segment 1 = record 1 (5 + 20), at seq; segment 2 = record 2 (5 + 30), at seq+25 */
+  CHECK(segs[0].len - 40 == 25 && rd32(segs[0].data + 24) == seq);
+  CHECK(segs[1].len - 40 == 35 && rd32(segs[1].data + 24) == seq + 25);
+  /* neither segment is larger than the original would have been */
+  CHECK(segs[0].len - 40 <= rlen && segs[1].len - 40 <= rlen);
+  /* both carry a good checksum and the normal TTL */
+  CHECK(segs[0].data[8] == 64 && tcp_csum_ok(segs[0].data, segs[0].len, 20) && ip_csum_ok(segs[0].data, 20));
+  CHECK(segs[1].data[8] == 64 && tcp_csum_ok(segs[1].data, segs[1].len, 20) && ip_csum_ok(segs[1].data, 20));
+  /* the two record headers and the name across the boundary */
+  const uint8_t *r1 = segs[0].data + 40, *r2 = segs[1].data + 40;
+  CHECK(r1[0] == 0x16 && rd16(r1 + 3) == 20 && memcmp(r1 + 5, real + 5, 20) == 0);
+  CHECK(r2[0] == 0x16 && rd16(r2 + 3) == 30 && memcmp(r2 + 5, real + 5 + 20, 30) == 0);
+  CHECK(segs[0].data[9] != segs[1].data[9] || rd16(segs[0].data + 4) != rd16(segs[1].data + 4)); /* distinct IP ids */
+}
+
 /* ───────── sequence-number translation ───────── */
 static void test_xlate(void) {
   uint32_t sa = 0x01020304, da = 0x05060708; uint16_t sp = 0xc350, dp = 0x01bb;
@@ -378,6 +404,7 @@ int main(void) {
   test_fakedsplit();
   test_split();
   test_tlsrec();
+  test_tlsrec_pair();
   test_xlate();
   if (fails == 0) { printf("ALL TCPDPI TESTS PASSED\n"); return 0; }
   printf("%d FAILED\n", fails); return 1;

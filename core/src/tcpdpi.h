@@ -186,6 +186,19 @@ int tcpdpi_build_tlsrec4(uint8_t *dst, size_t dstcap,
                          uint16_t ip_id, uint32_t seq, int ttl,
                          const uint8_t *real, int real_len, int cut);
 
+/* The same split, emitted as two TCP segments cut at the record boundary:
+ * record 1 at `seq`, then record 2 (and any trailing bytes) at seq + its length.
+ * Each segment is no larger than `real`, so growing the stream by five bytes can
+ * never push a segment past the path MTU (one combined segment could), and the
+ * two records travel in separate segments. Fills segs[0..1] and *nsegs (2).
+ * Returns 1, or 0 on any error (the caller then sends `real` unchanged). The
+ * connection still grows by TCPDPI_TLSREC_GROWTH overall, tracked as below. */
+int tcpdpi_build_tlsrec_pair(tcpdpi_seg segs[2], int *nsegs,
+                             const uint8_t *ip_tmpl, int ihl,
+                             const uint8_t *tcp_tmpl, int tcphl,
+                             uint16_t ip_id, uint32_t seq, int ttl,
+                             const uint8_t *real, int real_len, int cut);
+
 /* The extra bytes tcpdpi_build_tlsrec4 adds (one TLS record header). */
 #define TCPDPI_TLSREC_GROWTH 5
 

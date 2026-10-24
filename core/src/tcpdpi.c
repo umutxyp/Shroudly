@@ -290,48 +290,78 @@ void tcpdpi_refresh_csum4(uint8_t *pkt, int len, int ihl) {
 }
 
 /* ───────────────────────── TLS record split (tlsrec) ───────────────────────── */
-int tcpdpi_build_tlsrec4(uint8_t *dst, size_t dstcap,
-                         const uint8_t *ip_tmpl, int ihl,
-                         const uint8_t *tcp_tmpl, int tcphl,
-                         uint16_t ip_id, uint32_t seq, int ttl,
-                         const uint8_t *real, int real_len, int cut) {
-  if (!dst || !real || real_len < 6) return 0;
+/* Form the two-record payload from a ClientHello segment. `pay` (capacity
+ * TCPDPI_SEG_MAX) gets record 1 (header + k body bytes), record 2 (its header
+ * declaring the whole remainder, then whatever of its body is present here), and
+ * any bytes that followed the record in the segment. Returns the total length,
+ * and *rec1_len the length of record 1 (5 + k) where record 2 begins; 0 on any
+ * error. A ClientHello that spans several TCP segments is handled: record 2's
+ * body simply continues in the later segments (shifted by the translation
+ * table); the split only needs the name to straddle it, and the name's SNI sits
+ * early, in this first segment. */
+static int tlsrec_form(uint8_t *pay, const uint8_t *real, int real_len, int cut, int *rec1_len) {
+  if (!pay || !real || real_len < 6) return 0;
   if (real[0] != 0x16 || real[1] != 0x03) return 0;        /* a TLS record */
   int rl = rd16(real + 3);                                  /* this record's body */
   if (rl < 2) return 0;
   int present = real_len - 5;                               /* body bytes in this segment */
   if (present < 2) return 0;
-  /* `cut` is a payload offset; k is its offset into the record body. The split
-   * must fall strictly inside the record, and inside the bytes present here (so
-   * record 1 is complete in this segment). A ClientHello that spans several TCP
-   * segments is fine: record 2's body simply continues in the later segments,
-   * which the sequence-translation table shifts; the name only needs to straddle
-   * the boundary, and the name sits early (its SNI is in the first segment). */
-  int k = cut - 5;
-  if (k < 1 || k >= rl || k > present) return 0;
+  int k = cut - 5;                                          /* split offset into the body */
+  if (k < 1 || k >= rl || k > present) return 0;            /* strictly inside, and present here */
   int this_rec = rl < present ? rl : present;               /* body of THIS record present here */
   int rec2_here = this_rec - k;                             /* record 2 body bytes in this segment */
   int tail = present - this_rec;                            /* bytes after this record (another record) */
-  int paylen = real_len + TCPDPI_TLSREC_GROWTH;
-  if (ihl < 20 || tcphl < 20) return 0;
-  if (ihl + tcphl + paylen > TCPDPI_SEG_MAX) return 0;
+  int total = real_len + TCPDPI_TLSREC_GROWTH;
+  if (total > TCPDPI_SEG_MAX) return 0;
 
-  uint8_t pay[TCPDPI_SEG_MAX];
   int o = 0;
-  /* record 1: header with length k, body real[5 .. 5+k) */
-  pay[o++] = 0x16; pay[o++] = real[1]; pay[o++] = real[2];
+  pay[o++] = 0x16; pay[o++] = real[1]; pay[o++] = real[2];   /* record 1 header, length k */
   wr16(pay + o, (uint16_t)k); o += 2;
   memcpy(pay + o, real + 5, (size_t)k); o += k;
-  /* record 2: header declares the whole remainder (rl-k); only rec2_here bytes
-   * of it are in this segment, the rest arrive in the following ones */
-  pay[o++] = 0x16; pay[o++] = real[1]; pay[o++] = real[2];
+  if (rec1_len) *rec1_len = o;                               /* record 2 begins here */
+  pay[o++] = 0x16; pay[o++] = real[1]; pay[o++] = real[2];   /* record 2 header, length rl-k */
   wr16(pay + o, (uint16_t)(rl - k)); o += 2;
   memcpy(pay + o, real + 5 + k, (size_t)rec2_here); o += rec2_here;
-  /* whatever followed this record in the segment (another record), unchanged */
   if (tail > 0) { memcpy(pay + o, real + 5 + this_rec, (size_t)tail); o += tail; }
+  return o;
+}
 
+int tcpdpi_build_tlsrec4(uint8_t *dst, size_t dstcap,
+                         const uint8_t *ip_tmpl, int ihl,
+                         const uint8_t *tcp_tmpl, int tcphl,
+                         uint16_t ip_id, uint32_t seq, int ttl,
+                         const uint8_t *real, int real_len, int cut) {
+  if (ihl < 20 || tcphl < 20) return 0;
+  uint8_t pay[TCPDPI_SEG_MAX];
+  int o = tlsrec_form(pay, real, real_len, cut, NULL);
+  if (o <= 0) return 0;
   return tcpdpi_build_segment4(dst, dstcap, ip_tmpl, ihl, tcp_tmpl, tcphl,
                                ip_id, seq, ttl, pay, o, 0 /* good: the server keeps it */);
+}
+
+int tcpdpi_build_tlsrec_pair(tcpdpi_seg segs[2], int *nsegs,
+                             const uint8_t *ip_tmpl, int ihl,
+                             const uint8_t *tcp_tmpl, int tcphl,
+                             uint16_t ip_id, uint32_t seq, int ttl,
+                             const uint8_t *real, int real_len, int cut) {
+  if (!segs || !nsegs || ihl < 20 || tcphl < 20) return 0;
+  uint8_t pay[TCPDPI_SEG_MAX];
+  int rec1 = 0;
+  int total = tlsrec_form(pay, real, real_len, cut, &rec1);
+  if (total <= 0 || rec1 <= 0 || rec1 >= total) return 0;
+  /* Two TCP segments, split at the record boundary: record 1, then record 2 and
+   * any tail. Each is no larger than the original segment, so neither can exceed
+   * the path MTU the way one five-bytes-bigger segment might; and the two
+   * records land in separate segments, which a filter must also reassemble. */
+  int a = tcpdpi_build_segment4(segs[0].data, sizeof segs[0].data, ip_tmpl, ihl, tcp_tmpl, tcphl,
+                                ip_id, seq, ttl, pay, rec1, 0);
+  int b = tcpdpi_build_segment4(segs[1].data, sizeof segs[1].data, ip_tmpl, ihl, tcp_tmpl, tcphl,
+                                (uint16_t)(ip_id + 1), seq + (uint32_t)rec1, ttl, pay + rec1, total - rec1, 0);
+  if (a <= 0 || b <= 0) return 0;
+  segs[0].len = a; segs[0].is_fake = 0;
+  segs[1].len = b; segs[1].is_fake = 0;
+  *nsegs = 2;
+  return 1;
 }
 
 /* ───────────────────────── sequence-number translation ───────────────────────── */
