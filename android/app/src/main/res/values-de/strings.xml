@@ -14,10 +14,12 @@
     <string name="androidAutomationNotStarted">Der Schutz wurde nicht eingeschaltet</string>
     <string name="androidAutomationTapBattery">Eine Automatisierungs-App wollte den Schutz einschalten, aber Android lässt andere Apps Shroudly nur starten, wenn seine Akkunutzung nicht eingeschränkt ist. Tippe, um ihn jetzt einzuschalten.</string>
     <string name="androidAutomationTapVpn">Eine Automatisierungs-App wollte den Schutz einschalten, aber das VPN ist noch nicht erlaubt. Tippe, um es zu erlauben und den Schutz einzuschalten.</string>
+    <string name="androidBack">Zurück</string>
     <string name="androidBatteryHint">Akku-Einstellungen können Shroudly im Hintergrund beenden und damit deine Verbindung unterbrechen. Erlaube Shroudly, ohne Akku-Einschränkungen zu laufen.</string>
     <string name="androidBatterySettings">Akku-Einstellungen</string>
     <string name="androidDetails">Details</string>
     <string name="androidDownloadApk">Update herunterladen</string>
+    <string name="androidHideExplanation">Erklärungen ausblenden</string>
     <string name="androidKeepOnOffer">Dein Telefon hat Shroudly beendet. Tippe, um den Schutz wieder einzuschalten.</string>
     <string name="androidLockdownOffline">Kein Internet: Shroudly kommt in diesem Netz gerade nicht durch, und Android ist so eingestellt, dass Verbindungen ohne VPN blockiert werden. Shroudly versucht es weiter.</string>
     <string name="androidModeNextStart">Der neue Modus gilt beim nächsten Start des Schutzes.</string>
@@ -34,6 +36,7 @@
     <string name="androidRemoteControl">Automatisierungs-Apps erlauben</string>
     <string name="androidRemoteControlDesc">Tasker, MacroDroid und ähnliche Apps können den Schutz mit einem Broadcast an das Paket {package} ein- und ausschalten, Aktion {action}.START, .STOP oder .TOGGLE. Solange dies aus ist, kann keine andere App das.</string>
     <string name="androidShareLogs">Protokoll teilen</string>
+    <string name="androidShowExplanation">Erklärungen anzeigen</string>
     <string name="androidStartAtBoot">Beim Start des Telefons starten</string>
     <string name="androidStartAtBootDesc">Der Schutz schaltet sich nach einem Neustart des Telefons selbst ein, sobald das VPN erlaubt wurde.</string>
     <string name="androidTileAdd">Kachel in den Schnelleinstellungen</string>

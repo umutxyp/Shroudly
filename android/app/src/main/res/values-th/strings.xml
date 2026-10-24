@@ -14,10 +14,12 @@
     <string name="androidAutomationNotStarted">ไม่ได้เปิดการป้องกัน</string>
     <string name="androidAutomationTapBattery">แอปอัตโนมัติขอให้เปิดการป้องกัน แต่ Android ให้แอปอื่นเริ่ม Shroudly ได้เฉพาะเมื่อการใช้แบตเตอรี่ของ Shroudly ไม่ถูกจำกัด แตะเพื่อเปิดตอนนี้</string>
     <string name="androidAutomationTapVpn">แอปอัตโนมัติขอให้เปิดการป้องกัน แต่ยังไม่ได้อนุญาต VPN แตะเพื่ออนุญาตและเปิดการป้องกัน</string>
+    <string name="androidBack">ย้อนกลับ</string>
     <string name="androidBatteryHint">การตั้งค่าแบตเตอรี่อาจหยุด Shroudly ที่ทำงานเบื้องหลังและทำให้การเชื่อมต่อของคุณขาด อนุญาตให้ Shroudly ทำงานโดยไม่มีข้อจำกัดด้านแบตเตอรี่</string>
     <string name="androidBatterySettings">การตั้งค่าแบตเตอรี่</string>
     <string name="androidDetails">รายละเอียด</string>
     <string name="androidDownloadApk">ดาวน์โหลดอัปเดต</string>
+    <string name="androidHideExplanation">ซ่อนคำอธิบาย</string>
     <string name="androidKeepOnOffer">โทรศัพท์ของคุณปิด Shroudly แตะเพื่อเปิดการป้องกันอีกครั้ง</string>
     <string name="androidLockdownOffline">ไม่มีอินเทอร์เน็ต: ขณะนี้ Shroudly เชื่อมต่อบนเครือข่ายนี้ไม่ได้ และ Android ถูกตั้งค่าให้บล็อกการเชื่อมต่อที่ไม่ผ่าน VPN Shroudly กำลังพยายามต่อไป</string>
     <string name="androidModeNextStart">โหมดใหม่จะใช้ในครั้งถัดไปที่เริ่มการป้องกัน</string>
@@ -34,6 +36,7 @@
     <string name="androidRemoteControl">อนุญาตแอปอัตโนมัติ</string>
     <string name="androidRemoteControlDesc">Tasker, MacroDroid และแอปที่คล้ายกันสามารถเปิดและปิดการป้องกันได้ด้วยการส่ง broadcast ไปยังแพ็กเกจ {package} แอ็กชัน {action}.START, .STOP หรือ .TOGGLE ขณะที่ตัวเลือกนี้ปิดอยู่ ไม่มีแอปอื่นใดทำได้</string>
     <string name="androidShareLogs">แชร์บันทึก</string>
+    <string name="androidShowExplanation">แสดงคำอธิบาย</string>
     <string name="androidStartAtBoot">เริ่มเมื่อเปิดโทรศัพท์</string>
     <string name="androidStartAtBootDesc">เมื่ออนุญาต VPN แล้ว การป้องกันจะเปิดเองหลังรีสตาร์ตโทรศัพท์</string>
     <string name="androidTileAdd">ไทล์การตั้งค่าด่วน</string>

@@ -14,10 +14,12 @@
     <string name="androidAutomationNotStarted">সুরক্ষা চালু হয়নি</string>
     <string name="androidAutomationTapBattery">একটি অটোমেশন অ্যাপ সুরক্ষা চালু করতে বলেছিল, কিন্তু Android অন্য অ্যাপকে Shroudly চালু করতে দেয় শুধু তখনই যখন এর ব্যাটারি ব্যবহার অবাধ থাকে। এখনই চালু করতে ট্যাপ করুন।</string>
     <string name="androidAutomationTapVpn">একটি অটোমেশন অ্যাপ সুরক্ষা চালু করতে বলেছিল, কিন্তু VPN-এর অনুমতি এখনো দেওয়া হয়নি। অনুমতি দিয়ে সুরক্ষা চালু করতে ট্যাপ করুন।</string>
+    <string name="androidBack">ফিরে যান</string>
     <string name="androidBatteryHint">ব্যাটারি সেটিংস Shroudly-কে ব্যাকগ্রাউন্ডে বন্ধ করে আপনার সংযোগ কেটে দিতে পারে। এটিকে ব্যাটারির বিধিনিষেধ ছাড়া চলতে দিন।</string>
     <string name="androidBatterySettings">ব্যাটারি সেটিংস</string>
     <string name="androidDetails">বিস্তারিত</string>
     <string name="androidDownloadApk">আপডেট ডাউনলোড করুন</string>
+    <string name="androidHideExplanation">ব্যাখ্যা লুকান</string>
     <string name="androidKeepOnOffer">আপনার ফোন Shroudly বন্ধ করে দিয়েছে। সুরক্ষা আবার চালু করতে ট্যাপ করুন।</string>
     <string name="androidLockdownOffline">ইন্টারনেট নেই: Shroudly এই মুহূর্তে এই নেটওয়ার্কে সংযোগ করতে পারছে না, আর Android VPN ছাড়া সংযোগ ব্লক করার জন্য সেট করা আছে। Shroudly চেষ্টা চালিয়ে যাচ্ছে।</string>
     <string name="androidModeNextStart">পরেরবার সুরক্ষা চালু হলে নতুন মোড ব্যবহার হবে।</string>
@@ -34,6 +36,7 @@
     <string name="androidRemoteControl">অটোমেশন অ্যাপকে অনুমতি দিন</string>
     <string name="androidRemoteControlDesc">Tasker, MacroDroid ও এ ধরনের অ্যাপ {package} প্যাকেজে একটি ব্রডকাস্ট পাঠিয়ে সুরক্ষা চালু ও বন্ধ করতে পারে: অ্যাকশন {action}.START, .STOP বা .TOGGLE। এটি বন্ধ থাকা পর্যন্ত অন্য কোনো অ্যাপ তা পারে না।</string>
     <string name="androidShareLogs">লগ শেয়ার করুন</string>
+    <string name="androidShowExplanation">ব্যাখ্যা দেখান</string>
     <string name="androidStartAtBoot">ফোন চালু হলে শুরু করুন</string>
     <string name="androidStartAtBootDesc">VPN-এর অনুমতি একবার দেওয়া হলে, ফোন আবার চালু হলে সুরক্ষা নিজে থেকেই চালু হয়।</string>
     <string name="androidTileAdd">কুইক সেটিংস টাইল</string>

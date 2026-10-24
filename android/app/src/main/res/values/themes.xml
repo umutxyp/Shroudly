@@ -42,6 +42,19 @@
         <item name="android:fontFamily">sans-serif-medium</item>
     </style>
 
+    <!-- A section title with an (i) at its end: a tap shows or hides the
+         explanations under the section's settings (issue #47). -->
+    <style name="SectionTitle.Explained">
+        <item name="android:drawableEnd">@drawable/ic_info</item>
+        <item name="android:drawableTint">@color/text_dim</item>
+        <item name="android:drawablePadding">8dp</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:minHeight">40dp</item>
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
+        <item name="android:background">?android:attr/selectableItemBackground</item>
+    </style>
+
     <!-- The counters (StatsPanel.js Stat): label over a large tabular value. -->
     <style name="StatTile">
         <item name="android:layout_width">0dp</item>

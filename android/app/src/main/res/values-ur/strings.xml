@@ -14,10 +14,12 @@
     <string name="androidAutomationNotStarted">تحفظ آن نہیں ہوا</string>
     <string name="androidAutomationTapBattery">ایک آٹومیشن ایپ نے تحفظ آن کرنے کو کہا، لیکن Android دوسری ایپس کو Shroudly شروع کرنے کی اجازت صرف تب دیتا ہے جب اس کا بیٹری استعمال غیر محدود ہو۔ ابھی آن کرنے کے لیے ٹیپ کریں۔</string>
     <string name="androidAutomationTapVpn">ایک آٹومیشن ایپ نے تحفظ آن کرنے کو کہا، لیکن VPN کی ابھی اجازت نہیں دی گئی۔ اجازت دے کر تحفظ آن کرنے کے لیے ٹیپ کریں۔</string>
+    <string name="androidBack">واپس</string>
     <string name="androidBatteryHint">بیٹری کی ترتیبات Shroudly کو پس منظر میں روک کر آپ کا کنکشن منقطع کر سکتی ہیں۔ اسے بیٹری کی پابندیوں کے بغیر چلنے دیں۔</string>
     <string name="androidBatterySettings">بیٹری کی ترتیبات</string>
     <string name="androidDetails">تفصیلات</string>
     <string name="androidDownloadApk">اپ ڈیٹ ڈاؤن لوڈ کریں</string>
+    <string name="androidHideExplanation">وضاحتیں چھپائیں</string>
     <string name="androidKeepOnOffer">آپ کے فون نے Shroudly بند کر دیا۔ تحفظ دوبارہ آن کرنے کے لیے تھپتھپائیں۔</string>
     <string name="androidLockdownOffline">انٹرنیٹ نہیں: Shroudly اس وقت اس نیٹ ورک پر جڑ نہیں پا رہا، اور Android کو VPN کے بغیر کنکشن روکنے کے لیے سیٹ کیا گیا ہے۔ Shroudly کوشش جاری رکھے ہوئے ہے۔</string>
     <string name="androidModeNextStart">نیا موڈ اگلی بار تحفظ شروع ہونے پر استعمال ہوگا۔</string>
@@ -34,6 +36,7 @@
     <string name="androidRemoteControl">آٹومیشن ایپس کو اجازت دیں</string>
     <string name="androidRemoteControlDesc">Tasker، MacroDroid اور ان جیسی ایپس پیکیج {package} کو براڈکاسٹ بھیج کر تحفظ آن اور آف کر سکتی ہیں: ایکشن {action}.START، ‎.STOP یا ‎.TOGGLE۔ جب تک یہ بند ہے، کوئی دوسری ایپ ایسا نہیں کر سکتی۔</string>
     <string name="androidShareLogs">لاگز شیئر کریں</string>
+    <string name="androidShowExplanation">وضاحتیں دکھائیں</string>
     <string name="androidStartAtBoot">فون آن ہونے پر شروع کریں</string>
     <string name="androidStartAtBootDesc">VPN کی اجازت ملنے کے بعد، فون دوبارہ شروع ہونے پر تحفظ خود بخود آن ہو جاتا ہے۔</string>
     <string name="androidTileAdd">فوری ترتیبات کا ٹائل</string>

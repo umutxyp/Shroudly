@@ -14,10 +14,12 @@
     <string name="androidAutomationNotStarted">Perlindungan tidak dihidupkan</string>
     <string name="androidAutomationTapBattery">Aplikasi automasi meminta perlindungan dihidupkan, tetapi Android hanya membenarkan aplikasi lain memulakan Shroudly apabila penggunaan baterinya tidak dihadkan. Ketik untuk menghidupkannya sekarang.</string>
     <string name="androidAutomationTapVpn">Aplikasi automasi meminta perlindungan dihidupkan, tetapi VPN belum dibenarkan. Ketik untuk membenarkannya dan menghidupkan perlindungan.</string>
+    <string name="androidBack">Kembali</string>
     <string name="androidBatteryHint">Tetapan bateri boleh menghentikan Shroudly di latar belakang dan memutuskan sambungan anda. Benarkan Shroudly berjalan tanpa sekatan bateri.</string>
     <string name="androidBatterySettings">Tetapan bateri</string>
     <string name="androidDetails">Butiran</string>
     <string name="androidDownloadApk">Muat turun kemas kini</string>
+    <string name="androidHideExplanation">Sembunyikan penerangan</string>
     <string name="androidKeepOnOffer">Telefon anda menutup Shroudly. Ketik untuk menghidupkan perlindungan semula.</string>
     <string name="androidLockdownOffline">Tiada internet: Shroudly belum dapat bersambung pada rangkaian ini, dan Android ditetapkan untuk menyekat sambungan tanpa VPN. Shroudly terus mencuba.</string>
     <string name="androidModeNextStart">Mod baharu digunakan apabila perlindungan dimulakan seterusnya.</string>
@@ -34,6 +36,7 @@
     <string name="androidRemoteControl">Benarkan aplikasi automasi</string>
     <string name="androidRemoteControlDesc">Tasker, MacroDroid dan aplikasi serupa boleh menghidupkan dan mematikan perlindungan dengan siaran kepada pakej {package}, tindakan {action}.START, .STOP atau .TOGGLE. Selagi ini dimatikan, tiada aplikasi lain boleh berbuat demikian.</string>
     <string name="androidShareLogs">Kongsi log</string>
+    <string name="androidShowExplanation">Tunjukkan penerangan</string>
     <string name="androidStartAtBoot">Mula apabila telefon dihidupkan</string>
     <string name="androidStartAtBootDesc">Perlindungan hidup sendiri selepas telefon dimulakan semula, setelah VPN dibenarkan.</string>
     <string name="androidTileAdd">Jubin Tetapan Pantas</string>

@@ -14,10 +14,12 @@
     <string name="androidAutomationNotStarted">Абарона не ўключана</string>
     <string name="androidAutomationTapBattery">Праграма аўтаматызацыі папрасіла ўключыць абарону, але Android дазваляе іншым праграмам запускаць Shroudly, толькі калі яго выкарыстанне батарэі не абмежавана. Націсніце, каб уключыць зараз.</string>
     <string name="androidAutomationTapVpn">Праграма аўтаматызацыі папрасіла ўключыць абарону, але VPN яшчэ не дазволены. Націсніце, каб дазволіць яго і ўключыць абарону.</string>
+    <string name="androidBack">Назад</string>
     <string name="androidBatteryHint">Налады батарэі могуць спыняць Shroudly у фоне і абрываць ваша злучэнне. Дазвольце яму працаваць без абмежаванняў батарэі.</string>
     <string name="androidBatterySettings">Налады батарэі</string>
     <string name="androidDetails">Падрабязнасці</string>
     <string name="androidDownloadApk">Спампаваць абнаўленне</string>
+    <string name="androidHideExplanation">Схаваць тлумачэнні</string>
     <string name="androidKeepOnOffer">Тэлефон закрыў Shroudly. Націсніце, каб зноў уключыць абарону.</string>
     <string name="androidLockdownOffline">Няма інтэрнэту: Shroudly зараз не можа прабіцца ў гэтай сетцы, а Android наладжаны блакаваць злучэнні без VPN. Shroudly працягвае спробы.</string>
     <string name="androidModeNextStart">Новы рэжым будзе выкарыстаны пры наступным запуску абароны.</string>
@@ -34,6 +36,7 @@
     <string name="androidRemoteControl">Дазволіць праграмы аўтаматызацыі</string>
     <string name="androidRemoteControlDesc">Tasker, MacroDroid і падобныя праграмы могуць уключаць і выключаць абарону шырокавяшчальным паведамленнем пакету {package}, дзеянне {action}.START, .STOP або .TOGGLE. Пакуль гэта выключана, ніводная іншая праграма не можа.</string>
     <string name="androidShareLogs">Падзяліцца журналам</string>
+    <string name="androidShowExplanation">Паказаць тлумачэнні</string>
     <string name="androidStartAtBoot">Запускаць пры ўключэнні тэлефона</string>
     <string name="androidStartAtBootDesc">Абарона ўключаецца сама пасля перазапуску тэлефона, калі VPN ужо дазволены.</string>
     <string name="androidTileAdd">Пліта ў хуткіх наладах</string>

@@ -14,10 +14,12 @@
     <string name="androidAutomationNotStarted">ጥበቃ አልበራም</string>
     <string name="androidAutomationTapBattery">አንድ ራስ-ሰር መተግበሪያ ጥበቃን እንዲያበራ ጠይቋል፣ ግን Android ሌሎች መተግበሪያዎች Shroudlyን እንዲያስጀምሩ የሚፈቅደው የባትሪ አጠቃቀሙ ያልተገደበ ሲሆን ብቻ ነው። አሁን ለማብራት ይንኩ።</string>
     <string name="androidAutomationTapVpn">አንድ ራስ-ሰር መተግበሪያ ጥበቃን እንዲያበራ ጠይቋል፣ ግን VPN ገና አልተፈቀደም። ለመፍቀድ እና ጥበቃን ለማብራት ይንኩ።</string>
+    <string name="androidBack">ተመለስ</string>
     <string name="androidBatteryHint">የባትሪ ቅንብሮች Shroudlyን ከበስተጀርባ ሊያቆሙት እና ግንኙነትዎን ሊያቋርጡ ይችላሉ። ያለ ባትሪ ገደቦች እንዲሠራ ይፍቀዱለት።</string>
     <string name="androidBatterySettings">የባትሪ ቅንብሮች</string>
     <string name="androidDetails">ዝርዝሮች</string>
     <string name="androidDownloadApk">ዝማኔውን አውርድ</string>
+    <string name="androidHideExplanation">ማብራሪያዎቹን ደብቅ</string>
     <string name="androidKeepOnOffer">ስልክዎ Shroudlyን ዘጋው። ጥበቃን እንደገና ለማብራት ይንኩ።</string>
     <string name="androidLockdownOffline">ኢንተርኔት የለም፦ Shroudly አሁን በዚህ አውታረ መረብ ላይ መገናኘት አልቻለም፣ እና Android ያለ VPN ግንኙነቶችን እንዲያግድ ተቀናብሯል። Shroudly መሞከሩን ቀጥሏል።</string>
     <string name="androidModeNextStart">አዲሱ ሁነታ ጥበቃው በሚቀጥለው ጊዜ ሲጀምር ጥቅም ላይ ይውላል።</string>
@@ -34,6 +36,7 @@
     <string name="androidRemoteControl">ለራስ-ሰር መተግበሪያዎች ፍቀድ</string>
     <string name="androidRemoteControlDesc">Tasker፣ MacroDroid እና ተመሳሳይ መተግበሪያዎች ወደ {package} ጥቅል በሚላክ ስርጭት ጥበቃን ማብራት እና ማጥፋት ይችላሉ፦ ድርጊት {action}.START፣ .STOP ወይም .TOGGLE። ይህ ጠፍቶ ሳለ ሌላ ምንም መተግበሪያ ይህን ማድረግ አይችልም።</string>
     <string name="androidShareLogs">መዝገብ አጋራ</string>
+    <string name="androidShowExplanation">ማብራሪያዎቹን አሳይ</string>
     <string name="androidStartAtBoot">ስልኩ ሲበራ ጀምር</string>
     <string name="androidStartAtBootDesc">ለVPN አንዴ ፈቃድ ከተሰጠ በኋላ ስልኩ እንደገና ሲጀምር ጥበቃው በራሱ ይበራል።</string>
     <string name="androidTileAdd">የፈጣን ቅንብሮች ሰድር</string>

@@ -14,10 +14,12 @@
     <string name="androidAutomationNotStarted">La protección no se activó</string>
     <string name="androidAutomationTapBattery">Una app de automatización pidió activar la protección, pero Android solo deja que otras apps inicien Shroudly cuando su uso de batería no está restringido. Toca para activarla ahora.</string>
     <string name="androidAutomationTapVpn">Una app de automatización pidió activar la protección, pero la VPN aún no está permitida. Toca para permitirla y activar la protección.</string>
+    <string name="androidBack">Atrás</string>
     <string name="androidBatteryHint">Los ajustes de batería pueden detener Shroudly en segundo plano y cortar tu conexión. Deja que funcione sin restricciones de batería.</string>
     <string name="androidBatterySettings">Ajustes de batería</string>
     <string name="androidDetails">Detalles</string>
     <string name="androidDownloadApk">Descargar la actualización</string>
+    <string name="androidHideExplanation">Ocultar las explicaciones</string>
     <string name="androidKeepOnOffer">Tu teléfono cerró Shroudly. Toca para volver a activar la protección.</string>
     <string name="androidLockdownOffline">Sin internet: Shroudly no consigue conectar en esta red ahora mismo, y Android está configurado para bloquear las conexiones sin VPN. Shroudly sigue intentándolo.</string>
     <string name="androidModeNextStart">El nuevo modo se usará la próxima vez que se inicie la protección.</string>
@@ -34,6 +36,7 @@
     <string name="androidRemoteControl">Permitir apps de automatización</string>
     <string name="androidRemoteControlDesc">Tasker, MacroDroid y apps similares pueden activar y desactivar la protección con un broadcast al paquete {package}, acción {action}.START, .STOP o .TOGGLE. Mientras esto esté desactivado, ninguna otra app puede.</string>
     <string name="androidShareLogs">Compartir registros</string>
+    <string name="androidShowExplanation">Mostrar las explicaciones</string>
     <string name="androidStartAtBoot">Iniciar al encender el teléfono</string>
     <string name="androidStartAtBootDesc">La protección se activa sola cuando el teléfono se reinicia, una vez permitida la VPN.</string>
     <string name="androidTileAdd">Icono de Ajustes rápidos</string>

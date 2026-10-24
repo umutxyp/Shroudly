@@ -14,10 +14,12 @@
     <string name="androidAutomationNotStarted">Parastin nehat vekirin</string>
     <string name="androidAutomationTapBattery">Sepaneke otomasyonê xwest parastinê veke, lê Android tenê dema ku bikaranîna bataryayê ya Shroudly bê sînor be destûrê dide sepanên din ku wê dest pê bikin. Ji bo niha vekirinê bitikîne.</string>
     <string name="androidAutomationTapVpn">Sepaneke otomasyonê xwest parastinê veke, lê hîn destûr nehatiye dayîn ji VPN-ê re. Ji bo destûrdan û vekirina parastinê bitikîne.</string>
+    <string name="androidBack">Paşve</string>
     <string name="androidBatteryHint">Mîhengên bataryayê dikarin Shroudly di paşxanê de rawestînin û girêdana te qut bikin. Destûrê bide ku ew bê sînorkirinên bataryayê bixebite.</string>
     <string name="androidBatterySettings">Mîhengên bataryayê</string>
     <string name="androidDetails">Hûragahî</string>
     <string name="androidDownloadApk">Nûvekirinê daxe</string>
+    <string name="androidHideExplanation">Ravekirinan veşêre</string>
     <string name="androidKeepOnOffer">Telefona te Shroudly girt. Ji bo ku parastinê dîsa vekî, bitikîne.</string>
     <string name="androidLockdownOffline">Înternet tune: Shroudly niha li ser vê torê nikare derbas bibe, û Android hatiye mîhengkirin ku girêdanên bê VPN asteng bike. Shroudly hewl didomîne.</string>
     <string name="androidModeNextStart">Moda nû dê gava parastin cara din dest pê bike were bikaranîn.</string>
@@ -34,6 +36,7 @@
     <string name="androidRemoteControl">Destûrê bide sepanên otomasyonê</string>
     <string name="androidRemoteControlDesc">Tasker, MacroDroid û sepanên wek wan dikarin parastinê bi weşanekê ji pakêta {package} re veke û bigire: çalakî {action}.START, .STOP an .TOGGLE. Heta ku ev girtî be, ti sepaneke din nikare.</string>
     <string name="androidShareLogs">Tomaran parve bike</string>
+    <string name="androidShowExplanation">Ravekirinan nîşan bide</string>
     <string name="androidStartAtBoot">Dema telefon vedibe dest pê bike</string>
     <string name="androidStartAtBootDesc">Piştî ku destûr ji VPN re hat dayîn, gava telefon ji nû ve dest pê dike parastin bi xwe vedibe.</string>
     <string name="androidTileAdd">Kaşîya Mîhengên Bilez</string>

@@ -14,10 +14,12 @@
     <string name="androidAutomationNotStarted">Gorag açylmady</string>
     <string name="androidAutomationTapBattery">Awtomatlaşdyryş programmasy goragy açmagy sorady, ýöne Android başga programmalara Shroudly-ny diňe onuň batareýa ulanylyşy çäklendirilmedik ýagdaýynda açmaga rugsat berýär. Häzir açmak üçin basyň.</string>
     <string name="androidAutomationTapVpn">Awtomatlaşdyryş programmasy goragy açmagy sorady, ýöne VPN-e entek rugsat berilmedi. Rugsat berip, goragy açmak üçin basyň.</string>
+    <string name="androidBack">Yza</string>
     <string name="androidBatteryHint">Batareýa sazlamalary Shroudly-ny fonda togtadyp, birikmäňizi kesip biler. Oňa batareýa çäklendirmeleri bolmazdan işlemäge rugsat beriň.</string>
     <string name="androidBatterySettings">Batareýa sazlamalary</string>
     <string name="androidDetails">Jikme-jiklikler</string>
     <string name="androidDownloadApk">Täzelenmäni ýükläň</string>
+    <string name="androidHideExplanation">Düşündirişleri gizle</string>
     <string name="androidKeepOnOffer">Telefonyňyz Shroudly-ni ýapdy. Goragy täzeden açmak üçin basyň.</string>
     <string name="androidLockdownOffline">Internet ýok: Shroudly häzir bu torda birigip bilmeýär, Android bolsa VPN-siz birikmeleri petiklemäge sazlanan. Shroudly synanyşmagyny dowam edýär.</string>
     <string name="androidModeNextStart">Täze režim gorag indiki gezek başlanda ulanylar.</string>
@@ -34,6 +36,7 @@
     <string name="androidRemoteControl">Awtomatlaşdyryş programmalaryna rugsat ber</string>
     <string name="androidRemoteControlDesc">Tasker, MacroDroid we meňzeş programmalar {package} paketine iberilen ýaýlym arkaly goragy açyp-öçürip bilýär: hereket {action}.START, .STOP ýa-da .TOGGLE. Bu öçük wagty başga hiç bir programma muny edip bilmeýär.</string>
     <string name="androidShareLogs">Ýazgylary paýlaş</string>
+    <string name="androidShowExplanation">Düşündirişleri görkez</string>
     <string name="androidStartAtBoot">Telefon açylanda başla</string>
     <string name="androidStartAtBootDesc">VPN-e bir gezek rugsat berlen bolsa, telefon täzeden açylanda gorag özi açylýar.</string>
     <string name="androidTileAdd">Çalt sazlamalar plitkasy</string>

@@ -14,10 +14,12 @@
     <string name="androidAutomationNotStarted">ساتنه روښانه نه شوه</string>
     <string name="androidAutomationTapBattery">یوه اتومات کوونکي اپ وغوښتل چې ساتنه روښانه کړي، خو Android نورو اپونو ته د Shroudly د پیلولو اجازه یوازې هغه وخت ورکوي چې د بیټرۍ کارول یې محدود نه وي. اوس د روښانه کولو لپاره ټک کړئ.</string>
     <string name="androidAutomationTapVpn">یوه اتومات کوونکي اپ وغوښتل چې ساتنه روښانه کړي، خو VPN ته لا اجازه نه ده ورکړل شوې. د اجازې ورکولو او ساتنې روښانه کولو لپاره ټک کړئ.</string>
+    <string name="androidBack">شاته</string>
     <string name="androidBatteryHint">د بیټرۍ امستنې کولی شي Shroudly په شالید کې ودروي او ستاسو اړیکه پرې کړي. اجازه ورکړئ چې د بیټرۍ له محدودیتونو پرته کار وکړي.</string>
     <string name="androidBatterySettings">د بیټرۍ امستنې</string>
     <string name="androidDetails">جزئيات</string>
     <string name="androidDownloadApk">تازه نسخه ښکته کړئ</string>
+    <string name="androidHideExplanation">توضیحات پټ کړئ</string>
     <string name="androidKeepOnOffer">ستاسو تلیفون Shroudly وتړلو. د ساتنې د بیا چالانولو لپاره ټک وکړئ.</string>
     <string name="androidLockdownOffline">انټرنېټ نشته: Shroudly اوس مهال په دې شبکه کې نشي نښلېدای، او Android داسې تنظیم شوی چې له VPN پرته اړیکې بندې کړي. Shroudly هڅې ته دوام ورکوي.</string>
     <string name="androidModeNextStart">نوې حالت به بل ځل چې ساتنه پیلېږي وکارول شي.</string>
@@ -34,6 +36,7 @@
     <string name="androidRemoteControl">د اتومات کولو اپونو ته اجازه ورکړئ</string>
     <string name="androidRemoteControlDesc">Tasker، MacroDroid او ورته اپونه کولی شي د {package} کڅوړې ته د خپرونې په لېږلو ساتنه روښانه او بنده کړي: کړنه {action}.START، ‎.STOP یا ‎.TOGGLE. تر هغه چې دا بند وي، هېڅ بل اپ دا نشي کولی.</string>
     <string name="androidShareLogs">لاګونه شریک کړئ</string>
+    <string name="androidShowExplanation">توضیحات ښکاره کړئ</string>
     <string name="androidStartAtBoot">د تلیفون د چالانېدو پر وخت پیل کړه</string>
     <string name="androidStartAtBootDesc">کله چې VPN ته اجازه ورکړل شي، د تلیفون له بیا پیلېدو وروسته ساتنه پخپله چالانېږي.</string>
     <string name="androidTileAdd">د چټکو ترتیباتو ټایل</string>

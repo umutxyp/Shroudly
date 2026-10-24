@@ -14,10 +14,12 @@
     <string name="androidAutomationNotStarted">ההגנה לא הופעלה</string>
     <string name="androidAutomationTapBattery">אפליקציית אוטומציה ביקשה להפעיל את ההגנה, אבל Android מאפשרת לאפליקציות אחרות להפעיל את Shroudly רק כשהשימוש שלו בסוללה אינו מוגבל. מקישים כדי להפעיל עכשיו.</string>
     <string name="androidAutomationTapVpn">אפליקציית אוטומציה ביקשה להפעיל את ההגנה, אבל עדיין לא ניתן אישור ל-VPN. מקישים כדי לאשר אותו ולהפעיל את ההגנה.</string>
+    <string name="androidBack">חזרה</string>
     <string name="androidBatteryHint">הגדרות הסוללה עלולות לעצור את Shroudly ברקע ולנתק את החיבור שלך. כדאי לאפשר לה לפעול בלי הגבלות סוללה.</string>
     <string name="androidBatterySettings">הגדרות סוללה</string>
     <string name="androidDetails">פרטים</string>
     <string name="androidDownloadApk">להוריד את העדכון</string>
+    <string name="androidHideExplanation">הסתרת ההסברים</string>
     <string name="androidKeepOnOffer">הטלפון סגר את Shroudly. הקישו כדי להפעיל שוב את ההגנה.</string>
     <string name="androidLockdownOffline">אין אינטרנט: Shroudly לא מצליחה לעבור ברשת הזו כרגע, ו־Android מוגדרת לחסום חיבורים בלי VPN. Shroudly ממשיכה לנסות.</string>
     <string name="androidModeNextStart">המצב החדש ישמש בפעם הבאה שההגנה תופעל.</string>
@@ -34,6 +36,7 @@
     <string name="androidRemoteControl">לאפשר אפליקציות אוטומציה</string>
     <string name="androidRemoteControlDesc">‏Tasker, ‏MacroDroid ואפליקציות דומות יכולות להפעיל ולכבות את ההגנה בשידור לחבילה {package}, פעולה {action}.START, ‎.STOP או ‎.TOGGLE. כל עוד זה כבוי, שום אפליקציה אחרת לא יכולה.</string>
     <string name="androidShareLogs">שיתוף יומנים</string>
+    <string name="androidShowExplanation">הצגת ההסברים</string>
     <string name="androidStartAtBoot">הפעלה עם הדלקת הטלפון</string>
     <string name="androidStartAtBootDesc">ההגנה נדלקת מעצמה אחרי הפעלה מחדש של הטלפון, לאחר שה-VPN אושר.</string>
     <string name="androidTileAdd">אריח בהגדרות המהירות</string>

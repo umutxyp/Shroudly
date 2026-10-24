@@ -14,10 +14,12 @@
     <string name="androidAutomationNotStarted">Ҳимоя фаъол нашуд</string>
     <string name="androidAutomationTapBattery">Барномаи автоматикунонӣ фаъол кардани ҳимояро хост, аммо Android ба барномаҳои дигар оғоз кардани Shroudly-ро танҳо вақте иҷозат медиҳад, ки истифодаи батареяи он маҳдуд нест. Барои ҳозир фаъол кардан ламс кунед.</string>
     <string name="androidAutomationTapVpn">Барномаи автоматикунонӣ фаъол кардани ҳимояро хост, аммо ба VPN ҳанӯз иҷозат дода нашудааст. Барои иҷозат додан ва фаъол кардани ҳимоя ламс кунед.</string>
+    <string name="androidBack">Бозгашт</string>
     <string name="androidBatteryHint">Танзимоти батарея метавонад Shroudly-ро дар пасзамина қатъ карда, пайвасти шуморо бурад. Иҷозат диҳед, ки он бе маҳдудиятҳои батарея кор кунад.</string>
     <string name="androidBatterySettings">Танзимоти батарея</string>
     <string name="androidDetails">Тафсилот</string>
     <string name="androidDownloadApk">Боргирии навсозӣ</string>
+    <string name="androidHideExplanation">Пинҳон кардани шарҳҳо</string>
     <string name="androidKeepOnOffer">Телефон Shroudly-ро пӯшид. Барои дубора фаъол кардани муҳофизат ламс кунед.</string>
     <string name="androidLockdownOffline">Интернет нест: Shroudly ҳоло дар ин шабака пайваст шуда наметавонад, ва Android барои манъ кардани пайвастҳои бе VPN танзим шудааст. Shroudly кӯшишро идома медиҳад.</string>
     <string name="androidModeNextStart">Реҷаи нав дафъаи дигар, ки ҳимоя оғоз мешавад, истифода мешавад.</string>
@@ -34,6 +36,7 @@
     <string name="androidRemoteControl">Иҷозат ба барномаҳои автоматикунонӣ</string>
     <string name="androidRemoteControlDesc">Tasker, MacroDroid ва барномаҳои монанд метавонанд ҳимояро бо паёми паҳнкунӣ ба бастаи {package} фаъол ва хомӯш кунанд: амал {action}.START, .STOP ё .TOGGLE. То даме ки ин хомӯш аст, ҳеҷ барномаи дигар наметавонад.</string>
     <string name="androidShareLogs">Мубодилаи сабтҳо</string>
+    <string name="androidShowExplanation">Нишон додани шарҳҳо</string>
     <string name="androidStartAtBoot">Ҳангоми фурӯзон шудани телефон оғоз кардан</string>
     <string name="androidStartAtBootDesc">Агар VPN як бор иҷозат гирифта бошад, пас аз бозоғозии телефон ҳимоя худ фаъол мешавад.</string>
     <string name="androidTileAdd">Плитка дар танзимоти зуд</string>

@@ -14,10 +14,12 @@
     <string name="androidAutomationNotStarted">Qoruma açılmadı</string>
     <string name="androidAutomationTapBattery">Avtomatlaşdırma tətbiqi qorumanı açmaq istədi, amma Android başqa tətbiqlərin Shroudly-ni başlatmasına yalnız onun batareya istifadəsi məhdudlaşdırılmayanda icazə verir. İndi açmaq üçün toxun.</string>
     <string name="androidAutomationTapVpn">Avtomatlaşdırma tətbiqi qorumanı açmaq istədi, amma VPN-ə hələ icazə verilməyib. İcazə verib qorumanı açmaq üçün toxun.</string>
+    <string name="androidBack">Geri</string>
     <string name="androidBatteryHint">Batareya ayarları Shroudly-ni arxa planda dayandırıb bağlantınızı kəsə bilər. Ona batareya məhdudiyyətləri olmadan işləməyə icazə verin.</string>
     <string name="androidBatterySettings">Batareya ayarları</string>
     <string name="androidDetails">Təfərrüatlar</string>
     <string name="androidDownloadApk">Yeniləməni endir</string>
+    <string name="androidHideExplanation">İzahları gizlət</string>
     <string name="androidKeepOnOffer">Telefonun Shroudly-ni bağladı. Qorumanı yenidən açmaq üçün toxun.</string>
     <string name="androidLockdownOffline">İnternet yoxdur: Shroudly hazırda bu şəbəkədə qoşula bilmir və Android VPN olmadan bağlantıları bloklamaq üçün ayarlanıb. Shroudly cəhd etməyə davam edir.</string>
     <string name="androidModeNextStart">Yeni rejim qoruma növbəti dəfə başlayanda istifadə olunacaq.</string>
@@ -34,6 +36,7 @@
     <string name="androidRemoteControl">Avtomatlaşdırma tətbiqlərinə icazə ver</string>
     <string name="androidRemoteControlDesc">Tasker, MacroDroid və oxşar tətbiqlər {package} paketinə göndərilən yayımla qorumanı açıb-söndürə bilər: əməliyyat {action}.START, .STOP və ya .TOGGLE. Bu söndürülü olduqca başqa heç bir tətbiq bunu edə bilməz.</string>
     <string name="androidShareLogs">Qeydləri paylaş</string>
+    <string name="androidShowExplanation">İzahları göstər</string>
     <string name="androidStartAtBoot">Telefon açılanda başlat</string>
     <string name="androidStartAtBootDesc">VPN-ə bir dəfə icazə verilibsə, telefon yenidən başlayanda qoruma özü açılır.</string>
     <string name="androidTileAdd">Sürətli Ayarlar plitəsi</string>

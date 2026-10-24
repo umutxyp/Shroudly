@@ -14,10 +14,12 @@
     <string name="androidAutomationNotStarted">ကာကွယ်မှု မဖွင့်ခဲ့ပါ</string>
     <string name="androidAutomationTapBattery">အလိုအလျောက်လုပ်ဆောင်သည့် အက်ပ်တစ်ခုက ကာကွယ်မှုဖွင့်ရန် တောင်းဆိုခဲ့သော်လည်း Shroudly ၏ ဘက်ထရီသုံးစွဲမှု ကန့်သတ်မထားမှသာ Android က အခြားအက်ပ်များကို ၎င်းကို စတင်ခွင့်ပြုသည်။ ယခုဖွင့်ရန် တို့ပါ။</string>
     <string name="androidAutomationTapVpn">အလိုအလျောက်လုပ်ဆောင်သည့် အက်ပ်တစ်ခုက ကာကွယ်မှုဖွင့်ရန် တောင်းဆိုခဲ့သော်လည်း VPN ကို မခွင့်ပြုရသေးပါ။ ခွင့်ပြုပြီး ကာကွယ်မှုဖွင့်ရန် တို့ပါ။</string>
+    <string name="androidBack">နောက်သို့</string>
     <string name="androidBatteryHint">ဘက်ထရီဆက်တင်များက Shroudly ကို နောက်ခံတွင် ရပ်စေပြီး သင့်ချိတ်ဆက်မှုကို ဖြတ်တောက်နိုင်ပါသည်။ ဘက်ထရီကန့်သတ်ချက်မရှိဘဲ အလုပ်လုပ်ခွင့်ပြုပါ။</string>
     <string name="androidBatterySettings">ဘက်ထရီဆက်တင်များ</string>
     <string name="androidDetails">အသေးစိတ်</string>
     <string name="androidDownloadApk">အပ်ဒိတ်ကို ဒေါင်းလုဒ်လုပ်ရန်</string>
+    <string name="androidHideExplanation">ရှင်းလင်းချက်များကို ဖျောက်ပါ</string>
     <string name="androidKeepOnOffer">သင့်ဖုန်းက Shroudly ကို ပိတ်လိုက်သည်။ ကာကွယ်မှုကို ပြန်ဖွင့်ရန် နှိပ်ပါ။</string>
     <string name="androidLockdownOffline">အင်တာနက် မရှိပါ- Shroudly သည် ယခု ဤကွန်ရက်တွင် ချိတ်ဆက်၍ မရသေးဘဲ Android ကို VPN မပါသော ချိတ်ဆက်မှုများ ပိတ်ဆို့ရန် သတ်မှတ်ထားပါသည်။ Shroudly ဆက်လက် ကြိုးစားနေပါသည်။</string>
     <string name="androidModeNextStart">မုဒ်အသစ်ကို ကာကွယ်မှု နောက်တစ်ကြိမ် စတင်သည့်အခါ သုံးမည်။</string>
@@ -34,6 +36,7 @@
     <string name="androidRemoteControl">အလိုအလျောက်လုပ်ဆောင်သည့် အက်ပ်များကို ခွင့်ပြုရန်</string>
     <string name="androidRemoteControlDesc">Tasker၊ MacroDroid နှင့် ဆင်တူအက်ပ်များသည် {package} ပက်ကေ့ချ်သို့ broadcast ပို့၍ ကာကွယ်မှုကို ဖွင့်/ပိတ် နိုင်သည်- action {action}.START၊ .STOP သို့မဟုတ် .TOGGLE။ ဤအရာ ပိတ်ထားစဉ် အခြားအက်ပ် မည်သည့်အက်ပ်မျှ မလုပ်နိုင်ပါ။</string>
     <string name="androidShareLogs">မှတ်တမ်းများ မျှဝေရန်</string>
+    <string name="androidShowExplanation">ရှင်းလင်းချက်များကို ပြပါ</string>
     <string name="androidStartAtBoot">ဖုန်းဖွင့်သည့်အခါ စတင်ရန်</string>
     <string name="androidStartAtBootDesc">VPN ကို ခွင့်ပြုပြီးပါက ဖုန်းကို ပြန်စတင်သည့်အခါ ကာကွယ်မှု အလိုအလျောက် ပွင့်ပါသည်။</string>
     <string name="androidTileAdd">အမြန်ဆက်တင် အကွက်</string>

@@ -8,6 +8,10 @@ contextBridge.exposeInMainWorld('electron', {
   maximizeWindow: () => ipcRenderer.send('window:maximize'),
   closeWindow: () => ipcRenderer.send('window:close'),
   quitApp: () => ipcRenderer.send('app:quit'),
+  // Settings → Application (issue #46): put right what went wrong over time,
+  // or every setting back to a new install's (the app restarts).
+  repairApp: () => ipcRenderer.invoke('app:repair'),
+  resetSettings: () => ipcRenderer.invoke('app:resetSettings'),
   // The window is closed for real when unused (see main.js): it reports use,
   // when it is listening, and is told to save before it goes.
   uiActive: () => ipcRenderer.send('ui:active'),

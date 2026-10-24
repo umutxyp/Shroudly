@@ -14,10 +14,12 @@
     <string name="androidAutomationNotStarted">Bảo vệ chưa được bật</string>
     <string name="androidAutomationTapBattery">Một ứng dụng tự động hóa đã yêu cầu bật bảo vệ, nhưng Android chỉ cho ứng dụng khác khởi động Shroudly khi mức dùng pin của nó không bị hạn chế. Chạm để bật ngay.</string>
     <string name="androidAutomationTapVpn">Một ứng dụng tự động hóa đã yêu cầu bật bảo vệ, nhưng VPN chưa được cho phép. Chạm để cho phép và bật bảo vệ.</string>
+    <string name="androidBack">Quay lại</string>
     <string name="androidBatteryHint">Cài đặt pin có thể dừng Shroudly khi chạy nền và làm mất kết nối của bạn. Hãy cho phép Shroudly chạy mà không bị giới hạn pin.</string>
     <string name="androidBatterySettings">Cài đặt pin</string>
     <string name="androidDetails">Chi tiết</string>
     <string name="androidDownloadApk">Tải bản cập nhật</string>
+    <string name="androidHideExplanation">Ẩn phần giải thích</string>
     <string name="androidKeepOnOffer">Điện thoại đã tắt Shroudly. Chạm để bật lại bảo vệ.</string>
     <string name="androidLockdownOffline">Không có Internet: Shroudly hiện chưa thể kết nối trên mạng này, và Android đang được đặt để chặn kết nối không qua VPN. Shroudly vẫn đang thử lại.</string>
     <string name="androidModeNextStart">Chế độ mới sẽ dùng vào lần tới bảo vệ được bật.</string>
@@ -34,6 +36,7 @@
     <string name="androidRemoteControl">Cho phép ứng dụng tự động hóa</string>
     <string name="androidRemoteControlDesc">Tasker, MacroDroid và các ứng dụng tương tự có thể bật và tắt bảo vệ bằng một broadcast tới gói {package}, hành động {action}.START, .STOP hoặc .TOGGLE. Khi tùy chọn này tắt, không ứng dụng nào khác làm được.</string>
     <string name="androidShareLogs">Chia sẻ nhật ký</string>
+    <string name="androidShowExplanation">Hiện phần giải thích</string>
     <string name="androidStartAtBoot">Khởi động cùng điện thoại</string>
     <string name="androidStartAtBootDesc">Bảo vệ tự bật sau khi điện thoại khởi động lại, khi VPN đã được cho phép.</string>
     <string name="androidTileAdd">Ô Cài đặt nhanh</string>

@@ -1,10 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Settings (SettingsActivity): what the desktop's Settings has that a phone
-     can use, in the main window's cards. -->
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/root"
+     can use, in the main window's cards, under a bar with its title and a way
+     back, as any Android screen has (issue #47). -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/frame"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical">
+
+<Toolbar
+    android:id="@+id/toolbar"
+    android:layout_width="match_parent"
+    android:layout_height="?android:attr/actionBarSize"
+    android:background="@color/bg"
+    android:navigationContentDescription="@string/androidBack"
+    android:navigationIcon="@drawable/ic_arrow_back"
+    android:title="@string/navSettings"
+    android:titleTextColor="@color/text" />
+
+<ScrollView
+    android:id="@+id/root"
+    android:layout_width="match_parent"
+    android:layout_height="0dp"
+    android:layout_weight="1"
     android:fillViewport="true">
 
     <me.codeshare.shroudly.Column
@@ -13,24 +31,13 @@
         android:layout_gravity="center_horizontal"
         android:orientation="vertical"
         android:paddingStart="20dp"
-        android:paddingTop="14dp"
         android:paddingEnd="20dp"
         android:paddingBottom="20dp">
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:accessibilityHeading="true"
-            android:paddingTop="6dp"
-            android:paddingBottom="6dp"
-            android:text="@string/navSettings"
-            android:textColor="@color/text"
-            android:textSize="22sp"
-            android:textStyle="bold" />
-
         <!-- VPN (every app) or proxy only (the VPN slot left free). -->
         <TextView
-            style="@style/SectionTitle"
+            android:id="@+id/modeTitle"
+            style="@style/SectionTitle.Explained"
             android:accessibilityHeading="true"
             android:text="@string/androidModeTitle" />
 
@@ -90,7 +97,8 @@
 
         <!-- The technique, as the desktop's "Bypass strategy". -->
         <TextView
-            style="@style/SectionTitle"
+            android:id="@+id/strategyTitle"
+            style="@style/SectionTitle.Explained"
             android:accessibilityHeading="true"
             android:text="@string/strategy" />
 
@@ -126,7 +134,8 @@
         </LinearLayout>
 
         <TextView
-            style="@style/SectionTitle"
+            android:id="@+id/appsTitle"
+            style="@style/SectionTitle.Explained"
             android:accessibilityHeading="true"
             android:text="@string/androidAppsSection" />
 
@@ -200,3 +209,4 @@
         </LinearLayout>
     </me.codeshare.shroudly.Column>
 </ScrollView>
+</LinearLayout>

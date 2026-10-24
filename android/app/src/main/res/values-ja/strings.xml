@@ -14,10 +14,12 @@
     <string name="androidAutomationNotStarted">保護はオンになりませんでした</string>
     <string name="androidAutomationTapBattery">自動化アプリが保護をオンにしようとしましたが、Android では Shroudly の電池の使用が制限なしの場合にのみ、ほかのアプリが起動できます。タップして今すぐオンにします。</string>
     <string name="androidAutomationTapVpn">自動化アプリが保護をオンにしようとしましたが、VPN がまだ許可されていません。タップして許可し、保護をオンにします。</string>
+    <string name="androidBack">戻る</string>
     <string name="androidBatteryHint">バッテリー設定によって Shroudly がバックグラウンドで停止され、接続が切れることがあります。バッテリーの制限なしで動作できるようにしてください。</string>
     <string name="androidBatterySettings">バッテリー設定</string>
     <string name="androidDetails">詳細</string>
     <string name="androidDownloadApk">アップデートをダウンロード</string>
+    <string name="androidHideExplanation">説明を隠す</string>
     <string name="androidKeepOnOffer">スマートフォンが Shroudly を終了しました。タップして保護をもう一度オンにします。</string>
     <string name="androidLockdownOffline">インターネットに接続できません：Shroudly は現在このネットワークで通信できず、Android は VPN なしの接続をブロックするよう設定されています。Shroudly は再試行を続けています。</string>
     <string name="androidModeNextStart">新しいモードは次回保護を開始したときに使われます。</string>
@@ -34,6 +36,7 @@
     <string name="androidRemoteControl">自動化アプリを許可</string>
     <string name="androidRemoteControlDesc">Tasker、MacroDroid などのアプリは、パッケージ {package} へのブロードキャスト（アクション {action}.START、.STOP、.TOGGLE）で保護をオン・オフできます。これがオフの間は、ほかのアプリは操作できません。</string>
     <string name="androidShareLogs">ログを共有</string>
+    <string name="androidShowExplanation">説明を表示</string>
     <string name="androidStartAtBoot">スマホの起動時に開始</string>
     <string name="androidStartAtBootDesc">VPN を一度許可していれば、スマホの再起動後に保護が自動で有効になります。</string>
     <string name="androidTileAdd">クイック設定タイル</string>

@@ -271,6 +271,7 @@ export default function SettingsPanel({ active = false }) {
   const [testNote, setTestNote] = useState(null);     // 'needsProtection' | 'noAnswer'
   const [probeResult, setProbeResult] = useState(null);
   const [advInfo, setAdvInfo] = useState({ available: false, active: false, reason: null, reasonCode: null });
+  const [repairState, setRepairState] = useState(null);   // 'busy' | { missing, flushed, restarted }
   const [advBusy, setAdvBusy] = useState(false);
   const [advError, setAdvError] = useState(null);
   const testingRef = useRef(null);
@@ -888,6 +889,38 @@ export default function SettingsPanel({ active = false }) {
           />
           <Toggle label={t('showNotifications')} desc={t('showNotificationsDesc')} checked={settings.showNotifications} onChange={(v) => save('showNotifications', v)} />
           <Toggle label={t('autoUpdate')} desc={t('autoUpdateDesc')} checked={settings.autoUpdate !== false} onChange={(v) => save('autoUpdate', v)} />
+        </div>
+        {/* Repair: Shroudly's files checked, what it learned forgotten, its
+            network settings set again (issue #46). */}
+        <div className="mt-3 flex items-center justify-between gap-3">
+          <p className="m-0 min-w-0 text-[12px] leading-snug" style={{ color: 'var(--text-faint)' }}>{t('repairAppDesc')}</p>
+          <button type="button" disabled={repairState === 'busy'}
+                  onClick={async () => {
+                    setRepairState('busy');
+                    try { setRepairState(await window.electron?.repairApp?.() || null); } catch { setRepairState(null); }
+                  }}
+                  className="btn btn-ghost inline-flex shrink-0 items-center gap-1.5 rounded-[8px] px-3 py-1.5 text-[12.5px] font-semibold">
+            {repairState === 'busy' && <SpinnerIcon className="spin h-3.5 w-3.5" />}
+            <span>{t('repairApp')}</span>
+          </button>
+        </div>
+        {repairState && repairState !== 'busy' && (
+          <p className="m-0 mt-2 text-[12px] leading-snug" role="status"
+             style={{ color: repairState.missing && repairState.missing.length ? 'var(--warn)' : 'var(--text-dim)' }}>
+            {repairState.missing && repairState.missing.length
+              ? (<>{t('repairFilesMissing', { files: repairState.missing.join(', ') })}{' '}
+                  <a href="https://github.com/umutxyp/Shroudly/releases/latest" target="_blank" rel="noreferrer"
+                     className="font-semibold underline">{t('repairDownload')}</a></>)
+              : t('repairDone')}
+          </p>
+        )}
+        {/* Every setting back to how a new install has it; the modes turned
+            off properly first, then the app starts again. */}
+        <div className="mt-3 flex items-center justify-between gap-3">
+          <p className="m-0 min-w-0 text-[12px] leading-snug" style={{ color: 'var(--text-faint)' }}>{t('resetSettingsDesc')}</p>
+          <button type="button"
+                  onClick={() => { if (window.confirm(t('resetSettingsConfirm'))) window.electron?.resetSettings?.(); }}
+                  className="btn btn-ghost shrink-0 rounded-[8px] px-3 py-1.5 text-[12.5px] font-semibold">{t('resetSettings')}</button>
         </div>
         {/* Quitting is otherwise only in the tray menu, which some desktops
             (stock GNOME) never show. Quitting restores every setting. */}

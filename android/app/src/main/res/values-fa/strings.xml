@@ -14,10 +14,12 @@
     <string name="androidAutomationNotStarted">محافظت روشن نشد</string>
     <string name="androidAutomationTapBattery">یک برنامهٔ خودکارسازی خواست محافظت را روشن کند، اما Android فقط وقتی مصرف باتری Shroudly نامحدود باشد به برنامه‌های دیگر اجازه می‌دهد آن را اجرا کنند. برای روشن کردن آن در همین حالا بزنید.</string>
     <string name="androidAutomationTapVpn">یک برنامهٔ خودکارسازی خواست محافظت را روشن کند، اما هنوز اجازهٔ VPN داده نشده است. برای اجازه دادن و روشن کردن محافظت بزنید.</string>
+    <string name="androidBack">بازگشت</string>
     <string name="androidBatteryHint">تنظیمات باتری ممکن است Shroudly را در پس‌زمینه متوقف کند و اتصال شما را قطع کند. اجازه دهید بدون محدودیت باتری کار کند.</string>
     <string name="androidBatterySettings">تنظیمات باتری</string>
     <string name="androidDetails">جزئیات</string>
     <string name="androidDownloadApk">دانلود به‌روزرسانی</string>
+    <string name="androidHideExplanation">پنهان کردن توضیحات</string>
     <string name="androidKeepOnOffer">گوشی شما Shroudly را بست. برای روشن کردن دوبارهٔ محافظت ضربه بزنید.</string>
     <string name="androidLockdownOffline">اینترنت در دسترس نیست: Shroudly فعلاً در این شبکه نمی‌تواند وصل شود و Android طوری تنظیم شده که اتصال‌های بدون VPN را مسدود کند. Shroudly به تلاش ادامه می‌دهد.</string>
     <string name="androidModeNextStart">حالت جدید دفعهٔ بعد که محافظت شروع شود به کار می‌رود.</string>
@@ -34,6 +36,7 @@
     <string name="androidRemoteControl">اجازه به برنامه‌های خودکارسازی</string>
     <string name="androidRemoteControlDesc">Tasker، MacroDroid و برنامه‌های مشابه می‌توانند محافظت را با یک پخش به بستهٔ {package} روشن و خاموش کنند: کنش {action}.START، ‎.STOP یا ‎.TOGGLE. تا وقتی این خاموش است، هیچ برنامهٔ دیگری نمی‌تواند.</string>
     <string name="androidShareLogs">اشتراک‌گذاری گزارش‌ها</string>
+    <string name="androidShowExplanation">نمایش توضیحات</string>
     <string name="androidStartAtBoot">شروع هنگام روشن شدن گوشی</string>
     <string name="androidStartAtBootDesc">پس از اجازه دادن به VPN، با راه‌اندازی دوبارهٔ گوشی، محافظت خودبه‌خود روشن می‌شود.</string>
     <string name="androidTileAdd">کاشی تنظیمات سریع</string>

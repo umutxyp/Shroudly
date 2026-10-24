@@ -30,6 +30,7 @@ const RobloxApp = require('./roblox-app');
 const { RobloxWatch } = require('./roblox-watch');
 const Autopilot = require('./autopilot');
 const AroundWatch = require('./around-watch');
+const Repair = require('./repair');
 const StoreApps = require('./store-apps');
 const BlockCheck = require('./blockcheck');
 const Diagnostics = require('./diagnostics');
@@ -2424,6 +2425,53 @@ ipcMain.handle('update:check', () => (updater ? updater.check(true) : null));
 ipcMain.handle('update:download', () => updater && updater.download());
 ipcMain.handle('update:install', () => updater && updater.install());
 ipcMain.handle('update:postpone', () => updater && updater.postpone());
+
+/* Repair, and Reset all settings (Settings → Application, issue #46;
+ * repair.js). */
+ipcMain.handle('app:repair', () => Repair.repair({
+  files: () => {
+    const core = EngineManager.coreBinaryPath();
+    const list = [{ name: path.basename(core), path: core }];
+    // Advanced mode's own files, where this system has Advanced mode.
+    const code = advanced ? advanced.reasonCode() : null;
+    if (code === 'not_built') list.push({ name: 'shroudly-core-adv', path: '' });
+    if (code === 'windivert_missing') list.push({ name: 'WinDivert', path: '' });
+    return list;
+  },
+  forgetLearned: () => { store.delete('learnedTechniques'); store.delete('learnedRawTechniques'); },
+  engineOn: () => !!(engine && engine.isActive()),
+  restartEngine: async () => {
+    if (engine.doh && engine.doh.networkChanged) engine.doh.networkChanged();
+    await engine.restart();
+    await engine.reapplyProxy({ userAsked: true });
+  },
+  flushDns: () => Repair.flushDnsCache(),
+  adblock: async () => {
+    if (store.get('adBlock') !== true || !adblockList) return;
+    try { fs.unlinkSync(adblockList.sourceFile); } catch {}
+    adblockList.lastTry = -Infinity;
+    await ensureAdblock();
+  },
+  winHttp: () => (process.platform === 'win32' ? checkWinHttp() : null),
+  log: addLog,
+}));
+ipcMain.handle('app:resetSettings', () => Repair.resetSettings({
+  store,
+  turnOffModes: async () => {
+    if (advanced && advanced.active) {
+      advancedProtection.offByHand();
+      await advanced.stop();
+      toWindow('advanced:state', { active: false });
+    }
+    if (store.get('discordMode') === true) await applyDiscordMode(false, { interactive: false });
+    if (store.get('appMode') === true) await applyAppMode(false);
+    if (storeApps && store.get('storeAppsMode') === true) await storeApps.setMode(false);
+  },
+  // The app again, with the settings a new install has (auto-start is
+  // written to the system at every start).
+  relaunch: () => { app.relaunch(); shutdownAndQuit(); },
+  log: addLog,
+}));
 
 ipcMain.handle('logs:get', () => systemLogs);
 // A short version of the log, with what a report needs to know, to the

@@ -14,10 +14,12 @@
     <string name="androidAutomationNotStarted">Protection was not turned on</string>
     <string name="androidAutomationTapBattery">An automation app asked to turn protection on, but Android lets other apps start it only when Shroudly\'s battery use is unrestricted. Tap to turn it on now.</string>
     <string name="androidAutomationTapVpn">An automation app asked to turn protection on, but the VPN has not been allowed yet. Tap to allow it and turn protection on.</string>
+    <string name="androidBack">Back</string>
     <string name="androidBatteryHint">Battery settings can stop Shroudly in the background and cut your connection. Let it run without battery restrictions.</string>
     <string name="androidBatterySettings">Battery settings</string>
     <string name="androidDetails">Details</string>
     <string name="androidDownloadApk">Download update</string>
+    <string name="androidHideExplanation">Hide the explanations</string>
     <string name="androidKeepOnOffer">Your phone turned Shroudly off. Tap to turn protection back on.</string>
     <string name="androidLockdownOffline">No internet: Shroudly cannot get through on this network right now, and Android is set to block connections without a VPN. Shroudly keeps trying.</string>
     <string name="androidModeNextStart">The new mode is used the next time protection starts.</string>
@@ -34,6 +36,7 @@
     <string name="androidRemoteControl">Allow automation apps</string>
     <string name="androidRemoteControlDesc">Tasker, MacroDroid and similar apps can turn protection on and off with a broadcast to the package {package}, action {action}.START, .STOP or .TOGGLE. While this is off, no other app can.</string>
     <string name="androidShareLogs">Share logs</string>
+    <string name="androidShowExplanation">Show the explanations</string>
     <string name="androidStartAtBoot">Start when the phone starts</string>
     <string name="androidStartAtBootDesc">Protection comes on by itself after the phone restarts, once the VPN has been allowed.</string>
     <string name="androidTileAdd">Quick Settings tile</string>

@@ -14,10 +14,12 @@
     <string name="androidAutomationNotStarted">Защита не включена</string>
     <string name="androidAutomationTapBattery">Приложение автоматизации попросило включить защиту, но Android позволяет другим приложениям запускать Shroudly, только если его расход батареи не ограничен. Нажмите, чтобы включить сейчас.</string>
     <string name="androidAutomationTapVpn">Приложение автоматизации попросило включить защиту, но VPN ещё не разрешён. Нажмите, чтобы разрешить его и включить защиту.</string>
+    <string name="androidBack">Назад</string>
     <string name="androidBatteryHint">Настройки батареи могут останавливать Shroudly в фоне и обрывать ваше соединение. Разрешите ему работать без ограничений батареи.</string>
     <string name="androidBatterySettings">Настройки батареи</string>
     <string name="androidDetails">Подробнее</string>
     <string name="androidDownloadApk">Скачать обновление</string>
+    <string name="androidHideExplanation">Скрыть пояснения</string>
     <string name="androidKeepOnOffer">Телефон закрыл Shroudly. Нажмите, чтобы снова включить защиту.</string>
     <string name="androidLockdownOffline">Нет интернета: Shroudly сейчас не может пробиться в этой сети, а Android настроен блокировать подключения без VPN. Shroudly продолжает попытки.</string>
     <string name="androidModeNextStart">Новый режим будет использован при следующем запуске защиты.</string>
@@ -34,6 +36,7 @@
     <string name="androidRemoteControl">Разрешить приложения автоматизации</string>
     <string name="androidRemoteControlDesc">Tasker, MacroDroid и похожие приложения могут включать и выключать защиту широковещательным сообщением пакету {package}, действие {action}.START, .STOP или .TOGGLE. Пока это выключено, ни одно другое приложение не может.</string>
     <string name="androidShareLogs">Поделиться журналом</string>
+    <string name="androidShowExplanation">Показать пояснения</string>
     <string name="androidStartAtBoot">Запускать при включении телефона</string>
     <string name="androidStartAtBootDesc">Защита включается сама после перезагрузки телефона, если VPN уже разрешён.</string>
     <string name="androidTileAdd">Плитка в быстрых настройках</string>

@@ -27,12 +27,18 @@ import android.widget.RadioGroup
 import android.widget.ScrollView
 import android.widget.Switch
 import android.widget.TextView
+import android.widget.Toolbar
 
 /*
  * Settings: the technique (as the desktop's "Bypass strategy"), the DNS
  * server, the apps that skip Shroudly, starting when the phone starts, and
  * automation apps (AppSettings). A change
  * reaches a running protection at once (ShroudlyVpnService.ACTION_SETTINGS).
+ *
+ * Under a bar with the title and a way back, as any Android screen has. A
+ * setting shows its title (and its value: a language, a count); what it
+ * does is explained under it only once its section's (i) is tapped, so the
+ * screen is not a wall of text (issue #47).
  */
 class SettingsActivity : Activity() {
     private companion object {
@@ -43,28 +49,50 @@ class SettingsActivity : Activity() {
     // In the language chosen below (Lang; before Android 13).
     override fun attachBaseContext(base: android.content.Context) = super.attachBaseContext(Lang.wrap(base))
 
+    /* The sections whose explanations are shown, and how each draws its
+     * settings again (see explanations()). */
+    private val open = mutableSetOf<Int>()
+    private val redraw = mutableMapOf<Int, () -> Unit>()
+
+    /* A setting's title, and under it, smaller and dimmer, sub (its
+     * explanation, or its value), when there is one. */
+    private fun titled(title: CharSequence, sub: CharSequence?, size: Float = 12.5f): CharSequence {
+        if (sub.isNullOrEmpty()) return title
+        return SpannableStringBuilder(title).append('\n').apply {
+            val from = length
+            append(sub)
+            setSpan(ForegroundColorSpan(getColor(R.color.text_dim)), from, length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            setSpan(RelativeSizeSpan(size / 15f), from, length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+        }
+    }
+
+    /* An explanation, when its section shows them. */
+    private fun ifOpen(section: Int, text: CharSequence): CharSequence? = if (section in open) text else null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         Accent.apply(this)
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_settings)
+        findViewById<Toolbar>(R.id.toolbar).apply {
+            navigationIcon?.mutate()?.setTint(getColor(R.color.text))
+            setNavigationOnClickListener { finish() }
+        }
         edgeToEdge()
         showAccents()
         showMode()
 
         val group = findViewById<RadioGroup>(R.id.strategy)
         val current = AppSettings.strategy(this).id
+        val strategies = mutableListOf<Pair<RadioButton, () -> CharSequence>>()
         for ((i, s) in AppSettings.STRATEGIES.withIndex()) {
             val label = getString(labelOf(s.id))
             group.addView(RadioButton(this).apply {
                 id = View.generateViewId()
                 tag = s.id
-                // The label, and the engine's spec under it, smaller and dimmer.
-                text = SpannableStringBuilder(label).append('\n').apply {
-                    val from = length
-                    append(s.spec)
-                    setSpan(ForegroundColorSpan(getColor(R.color.text_dim)), from, length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-                    setSpan(RelativeSizeSpan(12f / 15f), from, length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-                }
+                // The label, and the engine's spec under it, smaller and dimmer
+                // (with the section's explanations).
+                strategies += this to { titled(label, ifOpen(R.id.strategyTitle, s.spec), 12f) }
+                text = strategies.last().second()
                 textSize = 15f
                 setTextColor(getColor(R.color.text))
                 // The spec under the label lines up with it in right-to-left languages too.
@@ -81,6 +109,7 @@ class SettingsActivity : Activity() {
             AppSettings.setStrategy(this, id)
             tell("strategy")
         }
+        redraw[R.id.strategyTitle] = { for ((b, t) in strategies) b.text = t() }
 
         findViewById<TextView>(R.id.language).setOnClickListener { pickLanguage() }
         showLanguage()
@@ -89,39 +118,55 @@ class SettingsActivity : Activity() {
         showDns()
 
         findViewById<TextView>(R.id.excludedApps).setOnClickListener { pickApps() }
-        showExcluded()
-
-        showQuickTile()
 
         findViewById<Switch>(R.id.startAtBoot).apply {
-            val desc = getString(R.string.androidStartAtBootDesc)
-            text = SpannableStringBuilder(getString(R.string.androidStartAtBoot)).append('\n').apply {
-                val from = length
-                append(desc)
-                setSpan(ForegroundColorSpan(getColor(R.color.text_dim)), from, length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-                setSpan(RelativeSizeSpan(12.5f / 15f), from, length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-            }
             isChecked = AppSettings.startAtBoot(this@SettingsActivity)
             setOnCheckedChangeListener { _, on -> AppSettings.setStartAtBoot(this@SettingsActivity, on) }
         }
 
-        // Automation apps: what to send, under the switch.
+        // Automation apps: what to send, under the switch (showApps).
         findViewById<Switch>(R.id.remoteControl).apply {
-            // The names break only after a dot, never inside a word.
-            val desc = text(R.string.androidRemoteControlDesc, "package" to Fit.breakable(packageName), "action" to Fit.breakable(AutomationReceiver.ACTION_START.substringBeforeLast('.')))
-            text = SpannableStringBuilder(getString(R.string.androidRemoteControl)).append('\n').apply {
-                val from = length
-                append(desc)
-                setSpan(ForegroundColorSpan(getColor(R.color.text_dim)), from, length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-                setSpan(RelativeSizeSpan(12.5f / 15f), from, length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-            }
             isChecked = AppSettings.remoteControl(this@SettingsActivity)
             setOnCheckedChangeListener { _, on ->
                 AppSettings.setRemoteControl(this@SettingsActivity, on)
                 ShroudlyVpnService.log(if (on) "Automation apps allowed (Settings)" else "Automation apps no longer allowed (Settings)")
             }
         }
+        showApps()
+        redraw[R.id.appsTitle] = { showApps() }
+        explanations()
         Fit.apply(findViewById(R.id.root))
+    }
+
+    /* The (i) on a section's title shows its settings' explanations, or
+     * hides them again; it says which it will do. */
+    private fun explanations() {
+        for ((section, draw) in redraw) {
+            val title = findViewById<TextView>(section)
+            val name = title.text
+            fun say() {
+                title.contentDescription = "$name, " + getString(if (section in open) R.string.androidHideExplanation else R.string.androidShowExplanation)
+            }
+            say()
+            title.setOnClickListener {
+                if (!open.remove(section)) open += section
+                draw()
+                say()
+            }
+        }
+    }
+
+    /* The Apps section's settings that explain themselves: starting with the
+     * phone, automation apps, and (in showExcluded, showQuickTile) the apps
+     * that skip Shroudly and the Quick Settings tile. */
+    private fun showApps() {
+        findViewById<Switch>(R.id.startAtBoot).text =
+            titled(getString(R.string.androidStartAtBoot), ifOpen(R.id.appsTitle, getString(R.string.androidStartAtBootDesc)))
+        // The names break only after a dot, never inside a word.
+        findViewById<Switch>(R.id.remoteControl).text = titled(getString(R.string.androidRemoteControl), ifOpen(R.id.appsTitle,
+            text(R.string.androidRemoteControlDesc, "package" to Fit.breakable(packageName), "action" to Fit.breakable(AutomationReceiver.ACTION_START.substringBeforeLast('.')))))
+        showExcluded()
+        showQuickTile()
     }
 
     /* Appearance: the accents as round swatches, the chosen one ringed. A
@@ -159,15 +204,12 @@ class SettingsActivity : Activity() {
         val group = findViewById<RadioGroup>(R.id.mode)
         val proxy = AppSettings.proxyOnly(this)
         val pad = (8 * resources.displayMetrics.density).toInt()
+        val options = mutableListOf<Pair<RadioButton, () -> CharSequence>>()
         fun option(on: Boolean, label: Int, desc: String) = RadioButton(this).apply {
             id = View.generateViewId()
             tag = on
-            text = SpannableStringBuilder(getString(label)).append('\n').apply {
-                val from = length
-                append(desc)
-                setSpan(ForegroundColorSpan(getColor(R.color.text_dim)), from, length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-                setSpan(RelativeSizeSpan(12.5f / 15f), from, length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-            }
+            options += this to { titled(getString(label), ifOpen(R.id.modeTitle, desc)) }
+            text = options.last().second()
             textSize = 15f
             setTextColor(getColor(R.color.text))
             textAlignment = View.TEXT_ALIGNMENT_VIEW_START
@@ -176,6 +218,7 @@ class SettingsActivity : Activity() {
         }
         group.addView(option(false, R.string.androidModeVpn, getString(R.string.androidModeVpnDesc)))
         group.addView(option(true, R.string.androidModeProxy, text(R.string.androidModeProxyDesc, "port" to ShroudlyProxyService.PORT)))
+        redraw[R.id.modeTitle] = { for ((b, t) in options) b.text = t() }
         group.setOnCheckedChangeListener { g, checkedId ->
             val on = g.findViewById<RadioButton>(checkedId)?.tag as? Boolean ?: return@setOnCheckedChangeListener
             if (on == AppSettings.proxyOnly(this)) return@setOnCheckedChangeListener
@@ -208,12 +251,7 @@ class SettingsActivity : Activity() {
         row.visibility = if (added) View.GONE else View.VISIBLE
         findViewById<View>(R.id.quickTileDivider).visibility = row.visibility
         if (added) return
-        row.text = SpannableStringBuilder(getString(R.string.androidTileAdd)).append('\n').apply {
-            val from = length
-            append(getString(R.string.androidTileAddDesc))
-            setSpan(ForegroundColorSpan(getColor(R.color.text_dim)), from, length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-            setSpan(RelativeSizeSpan(12.5f / 15f), from, length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-        }
+        row.text = titled(getString(R.string.androidTileAdd), ifOpen(R.id.appsTitle, getString(R.string.androidTileAddDesc)))
         row.setOnClickListener { addQuickTile() }
     }
 
@@ -255,13 +293,10 @@ class SettingsActivity : Activity() {
     private fun showExcluded() {
         val n = AppSettings.excluded(this).size
         val label = getString(R.string.excludedApps)
-        val sub = if (n == 0) getString(R.string.excludedAppsDesc) else text(R.string.excludedAppsCount, "count" to n)
-        findViewById<TextView>(R.id.excludedApps).text = SpannableStringBuilder(label).append('\n').apply {
-            val from = length
-            append(sub)
-            setSpan(ForegroundColorSpan(getColor(R.color.text_dim)), from, length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-            setSpan(RelativeSizeSpan(12.5f / 15f), from, length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-        }
+        // How many skip it is a value, always shown; what the setting does
+        // only with the section's explanations.
+        val sub = if (n == 0) ifOpen(R.id.appsTitle, getString(R.string.excludedAppsDesc)) else text(R.string.excludedAppsCount, "count" to n)
+        findViewById<TextView>(R.id.excludedApps).text = titled(label, sub)
     }
 
     /* The row says the app's language: the phone's, or the one chosen. */
@@ -593,7 +628,7 @@ class SettingsActivity : Activity() {
             @Suppress("DEPRECATION")
             window.setDecorFitsSystemWindows(false)
         }
-        findViewById<ScrollView>(R.id.root).setOnApplyWindowInsetsListener { v, insets ->
+        findViewById<View>(R.id.frame).setOnApplyWindowInsetsListener { v, insets ->
             val bars = insets.getInsets(WindowInsets.Type.systemBars() or WindowInsets.Type.displayCutout())
             v.setPadding(bars.left, bars.top, bars.right, bars.bottom)
             insets

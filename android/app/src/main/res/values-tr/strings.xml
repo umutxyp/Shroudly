@@ -14,10 +14,12 @@
     <string name="androidAutomationNotStarted">Koruma açılmadı</string>
     <string name="androidAutomationTapBattery">Bir otomasyon uygulaması korumayı açmak istedi ama Android, başka uygulamaların Shroudly\'yi başlatmasına yalnızca pil kullanımı kısıtlamasız olduğunda izin veriyor. Şimdi açmak için dokun.</string>
     <string name="androidAutomationTapVpn">Bir otomasyon uygulaması korumayı açmak istedi ama VPN\'e henüz izin verilmedi. İzin verip korumayı açmak için dokun.</string>
+    <string name="androidBack">Geri</string>
     <string name="androidBatteryHint">Pil ayarları Shroudly\'yi arka planda durdurup bağlantınızı kesebilir. Pil kısıtlaması olmadan çalışmasına izin verin.</string>
     <string name="androidBatterySettings">Pil ayarları</string>
     <string name="androidDetails">Ayrıntılar</string>
     <string name="androidDownloadApk">Güncellemeyi indir</string>
+    <string name="androidHideExplanation">Açıklamaları gizle</string>
     <string name="androidKeepOnOffer">Telefonun Shroudly\'yi kapattı. Korumayı yeniden açmak için dokun.</string>
     <string name="androidLockdownOffline">İnternet yok: Shroudly şu anda bu ağda bağlantı kuramıyor ve Android, VPN olmadan bağlantıları engelleyecek şekilde ayarlı. Shroudly denemeye devam ediyor.</string>
     <string name="androidModeNextStart">Yeni mod, koruma bir sonraki başlatılışında kullanılır.</string>
@@ -34,6 +36,7 @@
     <string name="androidRemoteControl">Otomasyon uygulamalarına izin ver</string>
     <string name="androidRemoteControlDesc">Tasker, MacroDroid ve benzeri uygulamalar korumayı {package} paketine gönderilen bir yayınla açıp kapatabilir: eylem {action}.START, .STOP ya da .TOGGLE. Bu kapalıyken başka hiçbir uygulama bunu yapamaz.</string>
     <string name="androidShareLogs">Kayıtları paylaş</string>
+    <string name="androidShowExplanation">Açıklamaları göster</string>
     <string name="androidStartAtBoot">Telefon açılınca başlat</string>
     <string name="androidStartAtBootDesc">VPN\'e bir kez izin verildiyse telefon yeniden başlayınca koruma kendiliğinden açılır.</string>
     <string name="androidTileAdd">Hızlı Ayarlar karosu</string>
