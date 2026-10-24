@@ -153,7 +153,7 @@ class Pinger(
  * The request itself, made to look exactly like the desktop's: Electron's
  * net module (desktop 2.6.x, Electron 43) on Windows, the most common
  * desktop, sends these headers in this order and the body. Captured from
- * Electron 43.7.6 itself; only the system in the User-Agent is Windows's
+ * Electron 43.8.1 itself; only the system in the User-Agent is Windows's
  * where the capture was made on a Mac. The version is this app's, which is
  * the desktop's of the same release (package.json).
  *
@@ -166,7 +166,7 @@ object OnlineHttp {
     const val HOST = "shroudly.codeshare.me"
     // The desktop's Electron (package.json) and its Chromium (process.versions.chrome).
     // OnlineCountTest fails when package.json moves to another Electron.
-    const val ELECTRON = "43.7.6"
+    const val ELECTRON = "43.8.1"
     const val CHROME = "150.0.7871.250"
     const val MAX_BODY = 4096
 
