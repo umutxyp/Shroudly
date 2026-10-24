@@ -56,7 +56,7 @@ class AppSettingsTest {
             .map { File(it, "android/app/src/main/java/me/codeshare/shroudly") }.first { it.isDirectory }
         val proxy = File(src, "ShroudlyProxyService.kt").readText()
         assertFalse("the proxy service never prepares the VPN", proxy.contains("prepare("))
-        assertFalse("nor builds one", proxy.contains("Builder()"))
+        assertFalse("nor builds one", proxy.replace("NetworkRequest.Builder()", "").contains("Builder()"))
         val protector = File(src, "Protector.kt").readText().substringAfter("fun start(")
         assertTrue("proxy only starts before the VPN's start is reached",
             protector.indexOf("ShroudlyProxyService.start") in 0 until protector.indexOf("ShroudlyVpnService.start"))

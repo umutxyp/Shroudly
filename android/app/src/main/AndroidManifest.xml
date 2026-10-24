@@ -137,8 +137,12 @@
             <intent-filter>
                 <action android:name="android.service.quicksettings.action.QS_TILE" />
             </intent-filter>
+            <!-- An on/off switch (Android 13+). Not an "active" tile: the
+                 panel asks it for its state each time it opens, which every
+                 phone's panel does, while some never ask an active one and
+                 show a state of their own (issue #49). -->
             <meta-data
-                android:name="android.service.quicksettings.ACTIVE_TILE"
+                android:name="android.service.quicksettings.TOGGLEABLE_TILE"
                 android:value="true" />
         </service>
     </application>

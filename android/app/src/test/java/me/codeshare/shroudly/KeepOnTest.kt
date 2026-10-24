@@ -37,5 +37,25 @@ class KeepOnTest {
         assertTrue(Regex("""log\("Network: none"\)\s*\n(\s*//.*\n)*\s*KeepOn\.networkGone\(this\)""").containsMatchIn(vpn))
         val proxy = File(src, "java/me/codeshare/shroudly/ShroudlyProxyService.kt").readText()
         assertTrue(proxy.contains("KeepOn.on(this)") && proxy.contains("if (byUser) KeepOn.stoppedByUser(this) else KeepOn.endedByItself(this)"))
+        // Proxy only too (the mode of those with another VPN): the last network
+        // gone, or the service ended by Android while on, arms it.
+        assertTrue(Regex("""log\("Network: none"\)\s*\n\s*KeepOn\.networkGone\(this@ShroudlyProxyService\)""").containsMatchIn(proxy))
+        assertTrue(proxy.contains("watchNetwork()") && proxy.contains("unregisterNetworkCallback"))
+        assertTrue(Regex("""override fun onDestroy\(\)[\s\S]*KeepOn\.networkGone\(this\)""").containsMatchIn(proxy))
+    }
+
+    /* The Quick Settings tile (issue #49): a switch the panel asks for its
+     * state each time it opens (not an "active" tile, which some phones'
+     * panels never ask), showing what a tap asked for while it happens. */
+    @Test
+    fun theTileIsAPlainSwitch() {
+        val src = File("src/main")
+        val manifest = File(src, "AndroidManifest.xml").readText()
+        assertFalse(manifest.contains("quicksettings.ACTIVE_TILE"))
+        assertTrue(manifest.contains("quicksettings.TOGGLEABLE_TILE"))
+        val tile = File(src, "java/me/codeshare/shroudly/ShroudlyTileService.kt").readText()
+        assertTrue(tile.contains("Protection.State.ON, Protection.State.STARTING -> Tile.STATE_ACTIVE"))
+        assertTrue(tile.contains("Protection.State.OFF, Protection.State.STOPPING -> Tile.STATE_INACTIVE"))
+        assertFalse(tile.contains("STATE_UNAVAILABLE"))
     }
 }

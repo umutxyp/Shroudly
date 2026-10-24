@@ -41,6 +41,9 @@ class ShroudlyTileService : TileService() {
             }
             else -> {}
         }
+        // Right away, whatever the panel showed at the tap; the change itself
+        // follows (onChange).
+        refresh()
     }
 
     @SuppressLint("StartActivityAndCollapseDeprecated")
@@ -61,10 +64,12 @@ class ShroudlyTileService : TileService() {
 
     private fun refresh() {
         val tile = qsTile ?: return
+        // Starting shows as on and stopping as off, what the tap asked for:
+        // some phones' panels turn the tile over themselves at the tap, and
+        // the two then agree (issue #49). The subtitle says which it is.
         tile.state = when (Protection.state) {
-            Protection.State.ON -> Tile.STATE_ACTIVE
-            Protection.State.OFF -> Tile.STATE_INACTIVE
-            else -> Tile.STATE_UNAVAILABLE
+            Protection.State.ON, Protection.State.STARTING -> Tile.STATE_ACTIVE
+            Protection.State.OFF, Protection.State.STOPPING -> Tile.STATE_INACTIVE
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             tile.subtitle = getString(

@@ -7,6 +7,10 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.pm.ServiceInfo
+import android.net.ConnectivityManager
+import android.net.Network
+import android.net.NetworkCapabilities
+import android.net.NetworkRequest
 import android.os.Build
 import android.os.IBinder
 import android.os.SystemClock
@@ -74,6 +78,11 @@ class ShroudlyProxyService : Service() {
     private val adblockCheck = java.util.concurrent.atomic.AtomicReference<java.util.concurrent.CompletableFuture<EngineEvent.AdblockCheck>?>(null)
     private val adblockFetching = java.util.concurrent.atomic.AtomicBoolean(false)
     @Volatile private var active = false
+    // The networks underneath (with internet, not a VPN): when the last one
+    // goes, KeepOn waits for one to bring protection back (issue #39), as in
+    // VPN mode.
+    private var network: ConnectivityManager.NetworkCallback? = null
+    private val networks = HashSet<Network>()
 
     override fun onBind(intent: Intent?): IBinder? = null
 
@@ -163,6 +172,7 @@ class ShroudlyProxyService : Service() {
             Protection.proxyOnly = true
             Protection.socksPort = port
             Protection.socksAuth = null
+            watchNetwork()
             log("Proxy only: Shroudly listens on 127.0.0.1:$port (SOCKS5 and HTTP); the VPN slot is left free")
             OnlineCount.sync(this)
             goForeground(starting = false)
@@ -372,6 +382,9 @@ class ShroudlyProxyService : Service() {
 
     private fun cleanup() {
         active = false
+        network?.let { cb -> try { getSystemService(ConnectivityManager::class.java).unregisterNetworkCallback(cb) } catch (_: Exception) {} }
+        network = null
+        networks.clear()
         poll?.cancel(false); poll = null
         restartCredit?.cancel(false); restartCredit = null
         probeSentAt = 0
@@ -380,6 +393,36 @@ class ShroudlyProxyService : Service() {
         engine = null
         doh?.stop(); doh = null
         port = 0
+    }
+
+    /* A phone that turns Wi-Fi and mobile data off at lock may end apps then
+     * too: should it end this one, KeepOn's job brings it back with the
+     * network. Kept to the service's own thread. */
+    private fun watchNetwork() {
+        val request = NetworkRequest.Builder()
+            .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+            .addCapability(NetworkCapabilities.NET_CAPABILITY_NOT_VPN)
+            .build()
+        val cb = object : ConnectivityManager.NetworkCallback() {
+            override fun onAvailable(net: Network) = later { networks += net }
+            override fun onLost(net: Network) = later {
+                networks -= net
+                if (active && networks.isEmpty()) {
+                    log("Network: none")
+                    KeepOn.networkGone(this@ShroudlyProxyService)
+                }
+            }
+        }
+        try {
+            getSystemService(ConnectivityManager::class.java).registerNetworkCallback(request, cb)
+            network = cb
+        } catch (e: Exception) {
+            log("Cannot follow network changes: ${e.message}")
+        }
+    }
+
+    private fun later(f: () -> Unit) {
+        try { work.execute(f) } catch (_: RejectedExecutionException) {}
     }
 
     /* The ad and tracker list, as in VPN mode: fetched through the engine,
@@ -481,6 +524,8 @@ class ShroudlyProxyService : Service() {
         }
         work.shutdown()
         try { work.awaitTermination(8, TimeUnit.SECONDS) } catch (_: InterruptedException) {}
+        // Ended by Android while on (not through a stop): back once a network is there.
+        if (Protection.proxyOnly && (Protection.state == Protection.State.ON || Protection.state == Protection.State.STARTING)) KeepOn.networkGone(this)
         if (Protection.proxyOnly && Protection.state != Protection.State.OFF) Protection.set(Protection.State.OFF)
         refreshTile()
         super.onDestroy()
