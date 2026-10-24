@@ -419,6 +419,7 @@
   "autoAroundAsk": "{program} Shroudly-nyň proksisini ulanmaýar we bu tor ony petikleýär. Giňişleýin tertip şeýle programmalary hem geçirýär: kompýuteriňiz soranda rugsat beriň.",
   "autoAroundOn": "Giňişleýin tertip açyk, indi {program} bu torda geçýär. Entek garaşýan bolsa, täzeden başladyň.",
   "autoAroundAskAny": "Bu toruň DNS-i Shroudly-nyň proksisini ulanmaýan bir programmany petikleme sahypasyna iberdi. Giňişleýin tertip şeýle programmalary hem geçirýär: kompýuteriňiz soranda rugsat beriň.",
+  "autoAroundAskHost": "Shroudly-nyň proksisini ulanmaýan bir programma bu torda {host} salgysyna ýetip bilmeýär. Giňişleýin tertip şeýle programmalary hem geçirýär: kompýuteriňiz soranda rugsat beriň.",
   "autoAroundOnAny": "Giňişleýin tertip açyk, indi proksini ulanmaýan programmalar bu torda geçýär. Biri entek garaşýan bolsa, täzeden başladyň.",
   "autoAdvancedDeclined": "Giňişleýin tertibe rugsat berilmedi, şonuň üçin {host} açylmazlygy mümkin.",
   "logAutoDiscordOn": "Awtopilot: Discord bu torda petikli; Discord programmasynyň tertibi açyldy",

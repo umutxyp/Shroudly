@@ -419,6 +419,7 @@
   "autoAroundAsk": "{program} tidak menggunakan proksi Shroudly, dan rangkaian ini menyekatnya. Mod Lanjutan turut membawa program sebegitu: benarkan apabila komputer anda meminta.",
   "autoAroundOn": "Mod Lanjutan dihidupkan, jadi {program} kini dapat melalui rangkaian ini. Jika masih menunggu, mulakan semula.",
   "autoAroundAskAny": "DNS rangkaian ini menghantar program yang tidak menggunakan proksi Shroudly ke halaman sekatan. Mod Lanjutan turut membawa program sebegitu: benarkan apabila komputer anda meminta.",
+  "autoAroundAskHost": "Sebuah program yang tidak menggunakan proksi Shroudly tidak dapat sampai ke {host} pada rangkaian ini. Mod Lanjutan turut membawa program sebegitu: benarkan apabila komputer anda meminta.",
   "autoAroundOnAny": "Mod Lanjutan dihidupkan, jadi program yang tidak menggunakan proksi kini dapat melalui rangkaian ini. Jika ada yang masih menunggu, mulakan semula.",
   "autoAdvancedDeclined": "Mod Lanjutan tidak dibenarkan, jadi {host} mungkin tidak dapat dibuka.",
   "logAutoDiscordOn": "Autopandu: Discord disekat pada rangkaian ini; mod aplikasi Discord dihidupkan",

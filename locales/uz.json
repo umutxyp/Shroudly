@@ -419,6 +419,7 @@
   "autoAroundAsk": "{program} Shroudly proksisidan foydalanmaydi va bu tarmoq uni bloklaydi. Kengaytirilgan rejim bunday dasturlarni ham o‘tkazadi: kompyuteringiz so‘raganda ruxsat bering.",
   "autoAroundOn": "Kengaytirilgan rejim yoqilgan, endi {program} bu tarmoqdan o‘tadi. Hali ham kutayotgan bo‘lsa, qayta ishga tushiring.",
   "autoAroundAskAny": "Bu tarmoq DNS Shroudly proksisidan foydalanmaydigan dasturni bloklash sahifasiga yubordi. Kengaytirilgan rejim bunday dasturlarni ham o‘tkazadi: kompyuteringiz so‘raganda ruxsat bering.",
+  "autoAroundAskHost": "Shroudly proksisidan foydalanmaydigan dastur bu tarmoqda {host} manziliga yeta olmayapti. Kengaytirilgan rejim bunday dasturlarni ham o‘tkazadi: kompyuteringiz so‘raganda ruxsat bering.",
   "autoAroundOnAny": "Kengaytirilgan rejim yoqilgan, endi proksidan foydalanmaydigan dasturlar bu tarmoqdan o‘tadi. Biri hali ham kutayotgan bo‘lsa, qayta ishga tushiring.",
   "autoAdvancedDeclined": "Kengaytirilgan rejimga ruxsat berilmadi, shuning uchun {host} ochilmasligi mumkin.",
   "logAutoDiscordOn": "Avtopilot: bu tarmoqda Discord bloklangan; Discord ilovasi rejimi yoqildi",

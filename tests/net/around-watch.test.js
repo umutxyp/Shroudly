@@ -19,7 +19,7 @@ const t = suite('around-watch');
 
 /* rows: the connections the system lists; dns: name -> addresses;
  * verdict: name -> blockcheck's answer. */
-function rig({ rows = [], dns = {}, verdict = {}, services = [], modes = {}, own = [1], wanted = true, filtered = true } = {}) {
+function rig({ rows = [], dns = {}, verdict = {}, services = [], modes = {}, own = [1], wanted = true, filtered = true, cache = {} } = {}) {
   let clock = 1e12;
   const asked = [];
   const checked = [];
@@ -36,6 +36,7 @@ function rig({ rows = [], dns = {}, verdict = {}, services = [], modes = {}, own
     need: async (host, opts) => { asked.push({ host, ...opts }); return true; },
     log: (l, m) => logs.push(m),
     now: () => clock,
+    dnsCache: async () => new Map(Object.entries(cache)),
   });
   // A network that shows a filter (the start-up check saw forged answers).
   if (filtered) w.forged([{ host: 'canary.example', addrs: ['10.10.34.34'] }]);
@@ -133,11 +134,37 @@ const row = (pid, name, host, port = 443) => ({ pid, name, remote: { host, port 
   r.w.note('bypass', '198.51.100.50', null);
   t.ok(await r.w.look() === false && !r.checked.length, 'what says nothing about a filter is not noted (the server\'s refusal, one cut, an address)');
 
+  // ── a name a program looked up itself (the system's DNS cache, issue #48) ──
+  const RESET = { blocked: true, how: 'tls', detail: 'reset' };
+  r = rig({ cache: { 'gateway.discord.gg': ['162.159.135.234'] }, verdict: { 'gateway.discord.gg': RESET } });
+  t.ok(await r.w.look() === true && r.asked[0].host === 'gateway.discord.gg' && r.asked[0].told.ask === 'autoAroundAskHost'
+    && r.asked[0].told.params.host === 'gateway.discord.gg' && /looked gateway\.discord\.gg up itself/.test(r.asked[0].why),
+    'a Discord name in the DNS cache, reset at the handshake here, nothing in the connection table: asked for, the name said');
+  r = rig({ cache: { 'discord.com': ['162.159.137.232'] }, verdict: { 'discord.com': RESET }, rows: [row(900, 'serein.exe', '162.159.137.232', 443)] });
+  t.ok(await r.w.look() === true && r.asked[0].label === 'serein.exe' && r.asked[0].told.ask === 'autoAroundAsk',
+    'and a program still holding a connection to one of its addresses: named');
+  r = rig({ cache: { 'discord.com': ['195.175.254.2'] }, verdict: { 'discord.com': { blocked: true, how: 'dns', detail: '195.175.254.2' } }, filtered: false });
+  t.ok(await r.w.look() === true, 'blocked by DNS counts too (the program has the forged address), even on a network that shows no filter yet');
+  t.ok(await r.w.look() === false, '…where the cache is looked at once a minute, not at every look');
+  r = rig({ cache: { 'discord.com': ['162.159.137.232'] } });
+  t.ok(await r.w.look() === false && !r.asked.length && r.checked.join() === 'discord.com', 'not blocked here: checked, nothing asked');
+  r = rig({ cache: { 'gateway.discord.gg': ['162.159.135.234'] }, verdict: { 'gateway.discord.gg': RESET } });
+  r.w.note('netdns', 'discord.gg', 'try');
+  t.ok(await r.w.look() === false && !r.checked.length, 'a site the engine asked the system\'s DNS about itself: its names in the cache say nothing');
+  r = rig({ cache: { 'gateway.discord.gg': ['162.159.135.234'] }, verdict: { 'gateway.discord.gg': RESET }, modes: { discordMode: true } });
+  t.ok(await r.w.look() === false && !r.asked.length, 'Discord app mode on, nobody holding a connection: Discord\'s own updater may have looked it up, not counted');
+  r = rig({ cache: { 'gateway.discord.gg': ['162.159.135.234'] }, verdict: { 'gateway.discord.gg': RESET }, modes: { discordMode: true }, rows: [row(901, 'Serein.exe', '162.159.135.234')] });
+  t.ok(await r.w.look() === true && r.asked[0].label === 'Serein.exe', '…but a program of its own holding one is named and counted');
+  r = rig({ cache: { 'www.example.org': ['198.51.100.9'] }, verdict: { 'www.example.org': RESET } });
+  t.ok(await r.w.look() === false && !r.checked.length, 'a name neither a service\'s nor told by the engine: not looked at');
+  r.w.note('bypass', 'example.org', null);
+  t.ok(await r.w.look() === true && r.asked[0].host === 'www.example.org', 'once the engine needed a technique for its site: counted');
+
   // ── only when it is wanted, on a network that shows a filter ──
   r = rig({ rows: [row(500, 'node.exe', '195.175.254.2')], wanted: false });
   t.ok(await r.w.look() === false && !r.listed.length, 'not wanted (Advanced mode on, or nothing left to ask or say): the table is not even read');
   r = rig({ rows: [row(500, 'node.exe', '195.175.254.2')], filtered: false });
-  t.ok(await r.w.look() === false && !r.listed.length, 'a network that shows no filter: not read either');
+  t.ok(await r.w.look() === false && !r.listed.length, 'a network that shows no filter: the connection table is not read (the DNS cache only, once a minute)');
   r.w.note('bypass', 'a.example', null);
   t.ok(await r.w.look() === true && r.listed.length === 1, 'once the engine needed a technique for a site: read, and the block page found');
   r = rig({ rows: [row(500, 'node.exe', '195.175.254.2')], filtered: false, services: ['discord'] });
@@ -241,6 +268,14 @@ const row = (pid, name, host, port = 443) => ({ pid, name, remote: { host, port 
       }
       t.ok(found.length === 1 && found[0].name === path.basename(process.execPath), `this system: another program's connection, with its id and its file's name (${found.map((x) => `${x.pid} ${x.name}`).join(', ') || 'none'})`);
     } finally { child.kill(); srv.close(); }
+  }
+  // Windows: the system's DNS cache, as ipconfig shows it, has a name just
+  // looked up through the system (getaddrinfo, as a program does).
+  if (process.platform === 'win32') {
+    await new Promise((res) => require('dns').lookup('example.com', () => res()));
+    const cache = await ProcNet.dnsCache();
+    t.ok(cache.has('example.com') && cache.get('example.com').length > 0,
+      `this system's DNS cache: a name a program just looked up is there, with its addresses (${JSON.stringify(cache.get('example.com'))}, ${cache.size} names)`);
   }
 
   console.log(`around-watch: ${t.count} passed`);

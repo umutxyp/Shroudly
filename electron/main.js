@@ -2303,6 +2303,7 @@ function createAroundWatch() {
     wanted: () => !!(engine && engine.isActive() && advanced && advanced.available() && !advanced.active && !advanced._starting
       && autopilot && autopilot.advancedPending() && store.get('routeMode') !== 'listed' && !wake.recent(2 * 60 * 1000)),
     connections: (want) => ProcNet.outbound(want),
+    dnsCache: () => ProcNet.dnsCache(),
     check: checkBlocked,
     blockedServices: () => (autopilot ? autopilot.blockedAtHandshake() : []),
     // From encrypted DNS: the network's DNS is never told the sites.

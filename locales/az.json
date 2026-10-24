@@ -419,6 +419,7 @@
   "autoAroundAsk": "{program} Shroudly-nin proksisindən istifadə etmir və bu şəbəkə onu bloklayır. Təkmil rejim belə proqramları da keçirir: kompüterin soruşanda icazə ver.",
   "autoAroundOn": "Təkmil rejim aktivdir, {program} indi bu şəbəkədən keçir. Hələ də gözləyirsə, yenidən başlat.",
   "autoAroundAskAny": "Bu şəbəkənin DNS-i Shroudly-nin proksisindən istifadə etməyən bir proqramı blok səhifəsinə göndərdi. Təkmil rejim belə proqramları da keçirir: kompüterin soruşanda icazə ver.",
+  "autoAroundAskHost": "Shroudly-nin proksisindən istifadə etməyən bir proqram bu şəbəkədə {host} ünvanına çata bilmir. Təkmil rejim belə proqramları da keçirir: kompüterin soruşanda icazə ver.",
   "autoAroundOnAny": "Təkmil rejim aktivdir, proksidən istifadə etməyən proqramlar indi bu şəbəkədən keçir. Hələ də gözləyən varsa, yenidən başlat.",
   "autoAdvancedDeclined": "Təkmil rejimə icazə verilmədi, ona görə {host} açılmaya bilər.",
   "logAutoDiscordOn": "Avtopilot: Discord bu şəbəkədə bloklanıb; Discord tətbiqi rejimi aktiv edildi",

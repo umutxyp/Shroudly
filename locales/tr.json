@@ -419,6 +419,7 @@
   "autoAroundAsk": "{program} Shroudly'nin proxy'sini kullanmıyor ve bu ağ onu engelliyor. Gelişmiş mod böyle programları da taşır: bilgisayarın izin isteyince onayla.",
   "autoAroundOn": "Gelişmiş mod açık, {program} artık bu ağda geçebiliyor. Hâlâ bekliyorsa yeniden başlat.",
   "autoAroundAskAny": "Shroudly'nin proxy'sini kullanmayan bir program, bu ağın DNS'i tarafından engel sayfasına gönderildi. Gelişmiş mod böyle programları da taşır: bilgisayarın izin isteyince onayla.",
+  "autoAroundAskHost": "Shroudly'nin proxy'sini kullanmayan bir program bu ağda {host} adresine ulaşamıyor. Gelişmiş mod böyle programları da taşır: bilgisayarın izin isteyince onayla.",
   "autoAroundOnAny": "Gelişmiş mod açık, proxy'yi kullanmayan programlar artık bu ağda geçebiliyor. Hâlâ bekleyen varsa yeniden başlat.",
   "autoAdvancedDeclined": "Gelişmiş moda izin verilmedi; {host} açılmayabilir.",
   "logAutoDiscordOn": "Otomatik pilot: Discord bu ağda engelli; Discord uygulama modu açıldı",

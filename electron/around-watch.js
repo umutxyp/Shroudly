@@ -29,6 +29,20 @@
  *    here: at its real address a program gets through (and where it asked
  *    the network's DNS, it is at the block page, above). Only a connection
  *    a program holds counts here: a closed one may have been the engine's.
+ * A program whose connection the network resets at the handshake holds it a
+ * few milliseconds and leaves nothing in the connection table; what stays,
+ * for minutes, is the name it looked up through the system's DNS (Windows'
+ * DNS cache, procnet.dnsCache: Shroudly's own lookups go over encrypted DNS,
+ * and the engine says when it asks the system's itself, "netdns"). A
+ * service's name, or a site the engine told about, in that cache and found
+ * blocked here (by DNS or at the handshake: the program has whichever
+ * address the system's DNS gave) counts as well (issue #48: Serein, a Rust
+ * Discord client, reset at every handshake). The program is named where it
+ * still holds a connection to one of the name's addresses; a service's own
+ * programs, while its mode is on, may have looked it up (its updater), so
+ * an unnamed lookup of its names does not count then. The cache is looked
+ * at once a minute even on a network that shows no filter yet.
+ *
  * Either way Advanced mode is what makes it work: its DNS gate answers the
  * program's own lookups from the encrypted-DNS forwarder, and its decoys go
  * ahead of every connection, whoever makes it. The autopilot asks for it by
@@ -49,6 +63,7 @@
 const dns = require('dns');
 const net = require('net');
 const fingerprints = require('./censor-fingerprints');
+const { familyOf } = require('./autopilot');
 
 const LOOK_MS = 15 * 1000;
 // A name's addresses are asked of the system's DNS again after this long (a
@@ -62,6 +77,8 @@ const NOTED_MAX = 32;
 const CLEAR_MS = 6 * 60 * 60 * 1000;
 // Checks of sites (each a few handshakes) in one look, at most.
 const CHECKS_PER_LOOK = 2;
+// The DNS cache on a network that shows no filter yet: this often.
+const CACHE_EVERY_MS = 60 * 1000;
 
 /* The names of a service a program of its own connects to (its API, its
  * gateway, its files); their addresses count once the autopilot found the
@@ -115,6 +132,7 @@ class AroundWatch {
    * opts.modeOn(mode)        whether a mode is on
    * opts.ownPids()           Shroudly's processes (the app, the engine)
    * opts.need(host, opts)    autopilot.needAdvanced
+   * opts.dnsCache()          procnet.dnsCache: name -> [addresses]
    * opts.log(level, msg), opts.now()
    */
   constructor(opts) {
@@ -126,6 +144,7 @@ class AroundWatch {
     this.modeOn = opts.modeOn || (() => false);
     this.ownPids = opts.ownPids || (() => []);
     this.need = opts.need || (async () => false);
+    this.dnsCache = opts.dnsCache || (async () => new Map());
     this.log = opts.log || (() => {});
     this.now = opts.now || Date.now;
     // Address -> the name this network's DNS gave it for (null: a censor's
@@ -133,7 +152,9 @@ class AroundWatch {
     this.forgedAt = new Map(fingerprints.ALL.map((ip) => [ip, null]));
     this.noted = new Map();     // site -> when the engine last told it
     this.addrs = new Map();     // name -> { list, at }
-    this.verdicts = new Map();  // site -> { stopped, at }
+    this.verdicts = new Map();  // site -> { blocked, stopped (at the handshake), at }
+    this.selfAsked = new Map(); // sites the engine asked the system's DNS about itself
+    this.lastCache = -Infinity; // when the DNS cache was last looked at
     this.forgedSeen = false;    // the start-up check saw forged answers
     this.gen = 0;
     this.busy = false;
@@ -155,6 +176,7 @@ class AroundWatch {
    * connects. */
   note(kind, host, info) {
     info = info || {};
+    if (kind === 'netdns') { const s = norm(host); if (s) this.selfAsked.set(s, this.now()); return; }
     const real = kind === 'bypass' || (kind === 'blocked' && !info.alert && !info.siteOk) || (kind === 'cut' && info.believed === true);
     const h = norm(host);
     if (!real || !h || net.isIP(h)) return;
@@ -170,6 +192,7 @@ class AroundWatch {
     this.noted.clear();
     this.addrs.clear();
     this.verdicts.clear();
+    this.selfAsked.clear();
   }
 
   async _addressesOf(name) {
@@ -202,18 +225,43 @@ class AroundWatch {
     return out;
   }
 
-  /* Is a site stopped at the handshake on this network? Checked once (an
-   * answer that says nothing, offline say, is not kept). */
-  async _stopped(name) {
+  /* What blocks a site on this network: { blocked, stopped (at the
+   * handshake) }, and whether it was checked just now; null when nothing
+   * could be learnt (offline, say: not kept). Checked once, again only
+   * after CLEAR_MS of "not stopped". */
+  async _verdict(name) {
     const v = this.verdicts.get(name);
-    if (v && (v.stopped || this.now() - v.at < CLEAR_MS)) return v.stopped;
+    if (v && !this._due(name)) return { v, fresh: false };
     let r = null;
     try { r = await this.check(name); } catch {}
-    if (!r || r.unknown) return false;
-    const stopped = !!r.blocked && r.how === 'tls';
-    this.verdicts.set(name, { stopped, at: this.now() });
-    if (!stopped) this.log('info', `Autopilot: a program reaches ${name} directly, around Shroudly; ${r.blocked ? 'only its DNS is blocked on this network, and the program has the real address' : 'it is not blocked on this network'}`);
-    return stopped;
+    if (!r || r.unknown) return null;
+    const nv = { blocked: !!r.blocked, stopped: !!r.blocked && r.how === 'tls', at: this.now() };
+    this.verdicts.set(name, nv);
+    return { v: nv, fresh: true };
+  }
+
+  /* Is a site stopped at the handshake on this network (a program at its
+   * real address is)? */
+  async _stopped(name) {
+    const got = await this._verdict(name);
+    if (!got) return false;
+    if (!got.v.stopped && got.fresh) this.log('info', `Autopilot: a program reaches ${name} directly, around Shroudly; ${got.v.blocked ? 'only its DNS is blocked on this network, and the program has the real address' : 'it is not blocked on this network'}`);
+    return got.v.stopped;
+  }
+
+  /* A name worth finding in the DNS cache: a service's, or a site the
+   * engine told about (or one under it, or above it). */
+  _lookedFor(name) {
+    if (familyOf(name)) return true;
+    if (this.noted.has(name)) return true;
+    for (const h of this.noted.keys()) if (name.endsWith(`.${h}`) || h.endsWith(`.${name}`)) return true;
+    return false;
+  }
+
+  /* The engine asked the system's DNS about this name's site itself. */
+  _askedBySelf(name) {
+    for (const s of this.selfAsked.keys()) if (name === s || name.endsWith(`.${s}`)) return true;
+    return false;
   }
 
   _ours(row, own) {
@@ -221,23 +269,63 @@ class AroundWatch {
     return SERVICE_PROGRAMS.some((p) => p.name.test(row.name || '') && this.modeOn(p.mode));
   }
 
-  /* Whether a site's verdict is due (none yet, or an old "not blocked"). */
+  /* Whether a site's verdict is due (none yet, or an old "not stopped"). */
   _due(name) {
     const v = this.verdicts.get(name);
     return !v || (!v.stopped && this.now() - v.at >= CLEAR_MS);
   }
 
+  /* The names in the system's DNS cache that a program looked up itself,
+   * around Shroudly, and that this network blocks: Advanced mode asked for,
+   * naming the program where it still holds a connection to one of the
+   * name's addresses. Resolves whether it is on now, or null when nothing
+   * was found. */
+  async _lookedUp(gen, own, checks) {
+    this.lastCache = this.now();
+    let cache = new Map();
+    try { cache = await this.dnsCache(); } catch {}
+    for (const [raw, addrs] of cache) {
+      const name = norm(raw);
+      if (!this._lookedFor(name) || this._askedBySelf(name)) continue;
+      const due = this._due(name);
+      if (due && checks.n >= CHECKS_PER_LOOK) continue;
+      if (due) checks.n++;
+      const got = await this._verdict(name);
+      if (!got || !got.v.blocked) continue;
+      if (gen !== this.gen || !this.wanted()) return false;
+      const list = (addrs || []).map(plain);
+      let held = [];
+      if (list.length) {
+        try { held = (await this.connections((ip) => list.includes(plain(ip)))).filter((r) => r.pid > 0 && !this._ours(r, own)); } catch {}
+      }
+      if (held.length) return this._ask(held[0], plain(held[0].remote.host), { name, kind: 'site' });
+      const fam = familyOf(name);
+      const mode = fam === 'discord' ? 'discordMode' : fam === 'roblox' ? 'appMode' : null;
+      if (mode && this.modeOn(mode)) continue;
+      return this.need(name, {
+        why: `a program looked ${name} up itself, around Shroudly, and this network blocks it`,
+        label: name,
+        told: { ask: 'autoAroundAskHost', on: 'autoAroundOnAny', params: { host: name } },
+      });
+    }
+    return null;
+  }
+
   /* One look: the first program found stopped gets Advanced mode asked for
    * (one it names first). Resolves whether it is on now. */
   async look() {
-    if (this.busy || !this.wanted() || !this._filtered()) return false;
+    if (this.busy || !this.wanted()) return false;
+    const filtered = this._filtered();
+    // No filter seen yet: only the DNS cache, once a minute (cheap).
+    if (!filtered && this.now() - this.lastCache < CACHE_EVERY_MS) return false;
     this.busy = true;
     try {
       const gen = this.gen;
+      const own = new Set(this.ownPids().filter(Boolean).map(Number));
+      if (!filtered) return !!(await this._lookedUp(gen, own, { n: 0 }));
       const watched = await this._watched();
       if (gen !== this.gen || !this.wanted()) return false;
       const rows = (await this.connections((ip) => watched.has(plain(ip)))).sort((a, b) => (b.pid > 0) - (a.pid > 0));
-      const own = new Set(this.ownPids().filter(Boolean).map(Number));
       let checks = 0;
       for (const row of rows) {
         if (row.pid > 0 && this._ours(row, own)) continue;
@@ -253,7 +341,8 @@ class AroundWatch {
         if (gen !== this.gen || !this.wanted()) return false;
         return await this._ask(row, ip, hit);
       }
-      return false;
+      if (gen !== this.gen || !this.wanted()) return false;
+      return !!(await this._lookedUp(gen, own, { n: checks }));
     } finally { this.busy = false; }
   }
 

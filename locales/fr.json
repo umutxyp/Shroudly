@@ -419,6 +419,7 @@
   "autoAroundAsk": "{program} n’utilise pas le proxy de Shroudly, et ce réseau le bloque. Le mode Avancé prend aussi en charge ces programmes : autorisez-le quand votre ordinateur vous le demande.",
   "autoAroundOn": "Le mode Avancé est activé : {program} passe maintenant sur ce réseau. S’il attend encore, redémarrez-le.",
   "autoAroundAskAny": "Le DNS de ce réseau a envoyé vers une page de blocage un programme qui n’utilise pas le proxy de Shroudly. Le mode Avancé prend aussi en charge ces programmes : autorisez-le quand votre ordinateur vous le demande.",
+  "autoAroundAskHost": "Un programme qui n’utilise pas le proxy de Shroudly ne peut pas joindre {host} sur ce réseau. Le mode Avancé prend aussi en charge ces programmes : autorisez-le quand votre ordinateur vous le demande.",
   "autoAroundOnAny": "Le mode Avancé est activé : les programmes qui n’utilisent pas le proxy passent maintenant sur ce réseau. Si l’un attend encore, redémarrez-le.",
   "autoAdvancedDeclined": "Le mode Avancé n’a pas été autorisé : {host} risque donc de ne pas s’ouvrir.",
   "logAutoDiscordOn": "Pilote auto : Discord est bloqué sur ce réseau ; mode app Discord activé",

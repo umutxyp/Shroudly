@@ -419,6 +419,7 @@
   "autoAroundAsk": "{program} nutzt den Proxy von Shroudly nicht, und dieses Netz hält es auf. Der erweiterte Modus trägt auch solche Programme: Erlaube ihn, wenn dein Computer fragt.",
   "autoAroundOn": "Der erweiterte Modus ist an, {program} kommt jetzt durch dieses Netz. Wartet es noch, starte es neu.",
   "autoAroundAskAny": "Ein Programm, das den Proxy von Shroudly nicht nutzt, wurde vom DNS dieses Netzes auf eine Sperrseite geschickt. Der erweiterte Modus trägt auch solche Programme: Erlaube ihn, wenn dein Computer fragt.",
+  "autoAroundAskHost": "Ein Programm, das den Proxy von Shroudly nicht nutzt, erreicht {host} in diesem Netz nicht. Der erweiterte Modus trägt auch solche Programme: Erlaube ihn, wenn dein Computer fragt.",
   "autoAroundOnAny": "Der erweiterte Modus ist an, Programme ohne den Proxy kommen jetzt durch dieses Netz. Wartet eines noch, starte es neu.",
   "autoAdvancedDeclined": "Der erweiterte Modus wurde nicht erlaubt, deshalb öffnet sich {host} vielleicht nicht.",
   "logAutoDiscordOn": "Autopilot: Discord ist in diesem Netz gesperrt; Discord-App-Modus eingeschaltet",

@@ -419,6 +419,7 @@
   "autoAroundAsk": "{program} proksiya Shroudly bi kar nayne, û ev tor wê asteng dike. Moda pêşketî bernameyên wiha jî derbas dike: dema komputera te bipirse, destûr bide.",
   "autoAroundOn": "Moda pêşketî vekirî ye, êdî {program} di vê torê re derbas dibe. Heke hîn li bendê be, ji nû ve dest pê bike.",
   "autoAroundAskAny": "DNS-a vê torê bernameyek ku proksiya Shroudly bi kar nayne şand rûpela astengkirinê. Moda pêşketî bernameyên wiha jî derbas dike: dema komputera te bipirse, destûr bide.",
+  "autoAroundAskHost": "Bernameyek ku proksiya Shroudly bi kar nayne li ser vê torê nagihîje {host}. Moda pêşketî bernameyên wiha jî derbas dike: dema komputera te bipirse, destûr bide.",
   "autoAroundOnAny": "Moda pêşketî vekirî ye, êdî bernameyên bê proksî di vê torê re derbas dibin. Heke yek hîn li bendê be, ji nû ve dest pê bike.",
   "autoAdvancedDeclined": "Ji bo Moda pêşketî destûr nehat dayîn, ji ber vê yekê dibe ku {host} venebe.",
   "logAutoDiscordOn": "Pîlota xweber: Discord li ser vê torê astengkirî ye; Moda sepana Discord hat çalakkirin",

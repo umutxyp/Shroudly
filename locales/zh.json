@@ -419,6 +419,7 @@
   "autoAroundAsk": "{program} 不使用 Shroudly 的代理，被此网络拦截。高级模式也能让这类程序通过：电脑询问时请允许。",
   "autoAroundOn": "高级模式已开启，{program} 现在可以通过此网络。如果它仍在等待，请重启它。",
   "autoAroundAskAny": "一个不使用 Shroudly 代理的程序被此网络的 DNS 引向了封锁页面。高级模式也能让这类程序通过：电脑询问时请允许。",
+  "autoAroundAskHost": "一个不使用 Shroudly 代理的程序在此网络上无法访问 {host}。高级模式也能让这类程序通过：电脑询问时请允许。",
   "autoAroundOnAny": "高级模式已开启，不使用代理的程序现在可以通过此网络。如果仍有程序在等待，请重启它。",
   "autoAdvancedDeclined": "未允许开启高级模式，因此 {host} 可能打不开。",
   "logAutoDiscordOn": "自动处理：Discord 在此网络上被封锁；已开启 Discord 应用模式",

@@ -894,6 +894,10 @@ class EngineManager {
       // A site whose addresses from encrypted DNS got nowhere, connected
       // where the network's own DNS says (core/src/engine.c).
       case 'netdns':
+        // The engine asked the system's DNS about this site itself: its
+        // names in the system's DNS cache are no sign of a program going
+        // around Shroudly (around-watch.js).
+        try { this.onHostEvent('netdns', msg.host, msg.stage || null); } catch {}
         if (msg.stage === 'try') this.log('info', `${msg.host}: the addresses encrypted DNS gives get nowhere here; trying the one this network's DNS gives (${msg.addr})`);
         else if (msg.stage === 'ok') this.log('success', `${msg.host}: opened at the address this network's DNS gives (${msg.addr})`);
         else if (msg.stage === 'same') this.log('info', `${msg.host}: this network's DNS gives the same addresses (${msg.addr}); they get nowhere here`);

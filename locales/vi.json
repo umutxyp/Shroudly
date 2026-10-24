@@ -419,6 +419,7 @@
   "autoAroundAsk": "{program} không dùng proxy của Shroudly, và mạng này chặn nó. Chế độ nâng cao cũng đưa các chương trình như vậy đi qua: hãy cho phép khi máy tính hỏi.",
   "autoAroundOn": "Chế độ nâng cao đang bật, nên {program} giờ đã đi qua được mạng này. Nếu nó vẫn chờ, hãy khởi động lại.",
   "autoAroundAskAny": "DNS của mạng này đã đưa một chương trình không dùng proxy của Shroudly tới trang chặn. Chế độ nâng cao cũng đưa các chương trình như vậy đi qua: hãy cho phép khi máy tính hỏi.",
+  "autoAroundAskHost": "Một chương trình không dùng proxy của Shroudly không thể truy cập {host} trên mạng này. Chế độ nâng cao cũng đưa các chương trình như vậy đi qua: hãy cho phép khi máy tính hỏi.",
   "autoAroundOnAny": "Chế độ nâng cao đang bật, nên các chương trình không dùng proxy giờ đã đi qua được mạng này. Nếu có chương trình vẫn chờ, hãy khởi động lại.",
   "autoAdvancedDeclined": "Chế độ nâng cao không được cho phép, nên {host} có thể không mở được.",
   "logAutoDiscordOn": "Tự động xử lý: Discord bị chặn trên mạng này; đã bật Chế độ ứng dụng Discord",

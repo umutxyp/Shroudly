@@ -252,7 +252,7 @@ export default function BlockedNotice({ onNavigate, active = false }) {
   // about, is newer news than the line.
   const hostNewer = host && !hostAsked && hostAt > (notice ? notice.at : 0);
   const noticeShown = notice && Date.now() - notice.at < NOTICE_MS && !hidden[`auto:${notice.at}`]
-    && !(advNotice && adv.active) && !(advNotAsked && adv.active) && !(['autoAdvancedAsk', 'autoAroundAsk', 'autoAroundAskAny'].includes(notice.id) && adv.active)
+    && !(advNotice && adv.active) && !(advNotAsked && adv.active) && !(['autoAdvancedAsk', 'autoAroundAsk', 'autoAroundAskAny', 'autoAroundAskHost'].includes(notice.id) && adv.active)
     && !(['autoAdvancedOn', 'autoAroundOn', 'autoAroundOnAny'].includes(notice.id) && !adv.active) && !hostNewer;
   if (noticeShown) {
     const offer = advNotice && adv.available && !adv.active;

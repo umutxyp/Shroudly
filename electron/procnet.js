@@ -406,6 +406,42 @@ async function outbound(want, platform = process.platform) {
   return [];
 }
 
+/* The names programs on this computer looked up through the system's DNS
+ * lately, with the addresses it gave: the system's DNS cache, Map name ->
+ * [addresses]. A program that goes around Shroudly looks a blocked site's
+ * name up itself (Shroudly's own lookups go over encrypted DNS), and the
+ * name stays in the cache for its time to live: minutes, where a connection
+ * the network resets lives a few milliseconds and leaves nothing in the
+ * connection table (around-watch.js). Windows only (ipconfig /displaydns,
+ * no administrator needed); elsewhere the cache cannot be read without one:
+ * an empty Map.
+ *
+ * ipconfig's labels are in the system's language; its layout is not: each
+ * entry is a name over a line of dashes, then lines "label . . . : value",
+ * where an address is a value that parses as one. */
+function parseDisplayDns(out) {
+  const net = require('net');
+  const names = new Map();
+  const lines = String(out || '').split(/\r?\n/).map((l) => l.trim());
+  let name = null;
+  for (let i = 0; i < lines.length; i++) {
+    if (/^-{8,}$/.test(lines[i]) && i > 0 && lines[i - 1]) {
+      name = lines[i - 1].toLowerCase().replace(/\.$/, '');
+      if (!names.has(name)) names.set(name, []);
+      continue;
+    }
+    if (!name) continue;
+    const m = /:\s*(\S+)$/.exec(lines[i]);
+    if (m && net.isIP(m[1]) && !names.get(name).includes(m[1])) names.get(name).push(m[1]);
+  }
+  return names;
+}
+
+async function dnsCache(platform = process.platform) {
+  if (platform !== 'win32') return new Map();
+  return parseDisplayDns(await run('ipconfig', ['/displaydns'], 8000));
+}
+
 /* Ports proxy programs listen on by default: ByeDPI and other SOCKS tools
  * (1080, 1081, 1086, 1087), NekoBox (2080, 2081), Squid (3128), Clash and
  * its forks (7890, 7891, 7897), HTTP proxies (8080, 8118 Privoxy, 8888,
@@ -435,4 +471,4 @@ function heldLocally(rows, { ours = [], proxyPorts = PROXY_PORTS } = {}) {
   return out;
 }
 
-module.exports = { LOOPBACK, PROXY_PORTS, heldLocally, owner, outbound, procOutbound, parseNetstatAll, parseTasklistNames, parseNetstatOwner, parseLsofOwner, procOwner, connectsTo, connections, listener, listeningSync, parseNetstat, parseNetstatListeners, parseTasklistName, parseLsofListener, parseBsdListening, procListener, procListening, parseLsof, parseSs, parseProcNet, procConnections };
+module.exports = { LOOPBACK, PROXY_PORTS, heldLocally, owner, outbound, procOutbound, parseNetstatAll, parseTasklistNames, dnsCache, parseDisplayDns, parseNetstatOwner, parseLsofOwner, procOwner, connectsTo, connections, listener, listeningSync, parseNetstat, parseNetstatListeners, parseTasklistName, parseLsofListener, parseBsdListening, procListener, procListening, parseLsof, parseSs, parseProcNet, procConnections };
