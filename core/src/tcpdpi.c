@@ -297,12 +297,21 @@ int tcpdpi_build_tlsrec4(uint8_t *dst, size_t dstcap,
                          const uint8_t *real, int real_len, int cut) {
   if (!dst || !real || real_len < 6) return 0;
   if (real[0] != 0x16 || real[1] != 0x03) return 0;        /* a TLS record */
-  int rl = rd16(real + 3);                                  /* first record body */
-  if (rl < 2 || 5 + rl > real_len) return 0;                /* fully present here */
-  /* `cut` is a payload offset; it must fall strictly inside the record body. */
-  int k = cut - 5;                                          /* offset into the body */
-  if (k < 1 || k >= rl) return 0;
-  int tail = real_len - (5 + rl);                           /* bytes after the record */
+  int rl = rd16(real + 3);                                  /* this record's body */
+  if (rl < 2) return 0;
+  int present = real_len - 5;                               /* body bytes in this segment */
+  if (present < 2) return 0;
+  /* `cut` is a payload offset; k is its offset into the record body. The split
+   * must fall strictly inside the record, and inside the bytes present here (so
+   * record 1 is complete in this segment). A ClientHello that spans several TCP
+   * segments is fine: record 2's body simply continues in the later segments,
+   * which the sequence-translation table shifts; the name only needs to straddle
+   * the boundary, and the name sits early (its SNI is in the first segment). */
+  int k = cut - 5;
+  if (k < 1 || k >= rl || k > present) return 0;
+  int this_rec = rl < present ? rl : present;               /* body of THIS record present here */
+  int rec2_here = this_rec - k;                             /* record 2 body bytes in this segment */
+  int tail = present - this_rec;                            /* bytes after this record (another record) */
   int paylen = real_len + TCPDPI_TLSREC_GROWTH;
   if (ihl < 20 || tcphl < 20) return 0;
   if (ihl + tcphl + paylen > TCPDPI_SEG_MAX) return 0;
@@ -313,12 +322,13 @@ int tcpdpi_build_tlsrec4(uint8_t *dst, size_t dstcap,
   pay[o++] = 0x16; pay[o++] = real[1]; pay[o++] = real[2];
   wr16(pay + o, (uint16_t)k); o += 2;
   memcpy(pay + o, real + 5, (size_t)k); o += k;
-  /* record 2: header with length rl-k, body real[5+k .. 5+rl) */
+  /* record 2: header declares the whole remainder (rl-k); only rec2_here bytes
+   * of it are in this segment, the rest arrive in the following ones */
   pay[o++] = 0x16; pay[o++] = real[1]; pay[o++] = real[2];
   wr16(pay + o, (uint16_t)(rl - k)); o += 2;
-  memcpy(pay + o, real + 5 + k, (size_t)(rl - k)); o += rl - k;
-  /* whatever followed the first record, unchanged */
-  if (tail > 0) { memcpy(pay + o, real + 5 + rl, (size_t)tail); o += tail; }
+  memcpy(pay + o, real + 5 + k, (size_t)rec2_here); o += rec2_here;
+  /* whatever followed this record in the segment (another record), unchanged */
+  if (tail > 0) { memcpy(pay + o, real + 5 + this_rec, (size_t)tail); o += tail; }
 
   return tcpdpi_build_segment4(dst, dstcap, ip_tmpl, ihl, tcp_tmpl, tcphl,
                                ip_id, seq, ttl, pay, o, 0 /* good: the server keeps it */);

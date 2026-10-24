@@ -293,7 +293,7 @@ static void test_tlsrec(void) {
   real[0] = 0x16; real[1] = 0x03; real[2] = 0x01; wr16(real + 3, (uint16_t)rl);
   for (int i = 0; i < rl + tail; i++) real[5 + i] = (uint8_t)(0x41 + i);
 
-  uint8_t out[120];
+  uint8_t out[256];
   int cut = 5 + 15;                       /* 15 bytes into the record body */
   int n = tcpdpi_build_tlsrec4(out, sizeof out, tmpl, 20, tmpl + 20, 20, 0x700, 9000, 64, real, rlen, cut);
   int poff = 40, plen = n - poff;
@@ -314,13 +314,29 @@ static void test_tlsrec(void) {
   CHECK(rd32(out + 24) == 9000);                           /* sequence unchanged */
   CHECK(out[8] == 64 && tcp_csum_ok(out, n, 20) && ip_csum_ok(out, 20));  /* good checksum */
 
-  /* refusals: not a TLS record, record longer than the segment, cut outside it */
+  /* refusals: not a TLS record; the cut at the very start or end of the record */
   uint8_t bad[48]; memcpy(bad, real, 48);
   bad[0] = 0x17; CHECK(tcpdpi_build_tlsrec4(out, sizeof out, tmpl, 20, tmpl + 20, 20, 1, 1, 64, bad, rlen, cut) == 0);
-  memcpy(bad, real, 48); wr16(bad + 3, 500);  /* record claims 500 body bytes, not present */
-  CHECK(tcpdpi_build_tlsrec4(out, sizeof out, tmpl, 20, tmpl + 20, 20, 1, 1, 64, bad, rlen, cut) == 0);
   CHECK(tcpdpi_build_tlsrec4(out, sizeof out, tmpl, 20, tmpl + 20, 20, 1, 1, 64, real, rlen, 5) == 0);        /* cut at body start */
   CHECK(tcpdpi_build_tlsrec4(out, sizeof out, tmpl, 20, tmpl + 20, 20, 1, 1, 64, real, rlen, 5 + 40) == 0);   /* cut at body end */
+
+  /* A ClientHello that spans several TCP segments: this first segment holds a
+   * record header claiming 200 body bytes but only 95 of them (real_len 100).
+   * The record is still split at the cut (which must be within what is present);
+   * record 2 declares the whole remainder and continues in the later segments. */
+  uint8_t span[100];
+  span[0] = 0x16; span[1] = 0x03; span[2] = 0x01; wr16(span + 3, 200);     /* body claims 200 */
+  for (int i = 0; i < 95; i++) span[5 + i] = (uint8_t)(0x41 + (i % 26));
+  int sn = tcpdpi_build_tlsrec4(out, sizeof out, tmpl, 20, tmpl + 20, 20, 0x800, 1, 64, span, 100, 5 + 40);
+  CHECK(sn > 0 && sn - 40 == 100 + TCPDPI_TLSREC_GROWTH);                    /* grew by one header */
+  const uint8_t *sp = out + 40;
+  CHECK(sp[0] == 0x16 && rd16(sp + 3) == 40);                               /* record 1: 40 body bytes */
+  CHECK(memcmp(sp + 5, span + 5, 40) == 0);
+  const uint8_t *sq = sp + 5 + 40;
+  CHECK(sq[0] == 0x16 && rd16(sq + 3) == 160);                              /* record 2 declares 200-40 */
+  CHECK(memcmp(sq + 5, span + 5 + 40, 55) == 0);                            /* 95-40 = 55 of it present here */
+  /* the cut must be inside the bytes present: past them, it is refused */
+  CHECK(tcpdpi_build_tlsrec4(out, sizeof out, tmpl, 20, tmpl + 20, 20, 1, 1, 64, span, 100, 5 + 96) == 0);
 }
 
 /* ───────── sequence-number translation ───────── */
