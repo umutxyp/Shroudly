@@ -54,10 +54,9 @@ jobs:
 
       - name: Install Linux build dependencies
         if: matrix.platform == 'linux'
-        # libnetfilter-queue/libmnl: the advanced engine. rpm: rpmbuild, for the
-        # .rpm. libarchive-tools: bsdtar, which fpm shells out to for the
+        # rpm: rpmbuild, for the .rpm. libarchive-tools: bsdtar, which fpm shells out to for the
         # .pacman and which the runner image does not carry.
-        run: sudo apt-get update && sudo apt-get install -y libnetfilter-queue-dev libmnl-dev rpm libarchive-tools xz-utils
+        run: sudo apt-get update && sudo apt-get install -y rpm libarchive-tools xz-utils
 
       - name: Install dependencies
         run: npm ci

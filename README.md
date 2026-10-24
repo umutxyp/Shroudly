@@ -278,7 +278,7 @@ and that users on heavily filtered networks rely on. Each is a flag
 | OS | Backend | Needs |
 |----|---------|-------|
 | Windows x64 | WinDivert 2.2 (signed driver, bundled) | Administrator (UAC prompt) |
-| Linux x64 / arm64 | NFQUEUE + raw socket (`iptables`, else `nftables` rule) | Password prompt via `pkexec`, and libnetfilter_queue. The `.deb` brings it along; otherwise the app shows the command for your distribution: `sudo pacman -S libnetfilter_queue` (Arch), `sudo dnf install libnetfilter_queue` (Fedora/RHEL), `sudo zypper install libnetfilter_queue1` (openSUSE), `sudo apt install libnetfilter-queue1` (Debian/Ubuntu) |
+| Linux x64 / arm64 | NFQUEUE + raw socket (`iptables`, else `nftables` rule) | Password prompt via `pkexec`. Nothing to install: the queue is spoken over netlink by the engine itself ([`core/src/nfq.c`](core/src/nfq.c)), so it works on every distribution as it comes, Arch and CachyOS included (before 2.6.20 it needed libnetfilter_queue) |
 | Windows on ARM | — | Not available: WinDivert has no ARM64 driver |
 | macOS | — | Not possible: macOS has no packet-divert interface without an Apple-signed Network Extension |
 
@@ -708,8 +708,8 @@ npm run build:core:all
 npm run build:core:advanced   # or build:core:advanced:all to cross-build
 ```
 
-Linux advanced builds need `libnetfilter-queue-dev` and `libmnl-dev` (or, when
-cross-building, a sysroot; see `scripts/build-core-advanced.js`). Windows
+Linux advanced builds need only a C compiler (or zig, to cross-build): the
+packet queue is spoken over netlink, with the kernel's own headers. Windows
 packages also need `npm run fetch:windivert`, which downloads the official
 WinDivert release, verifies it and puts the driver next to
 `shroudly-core-adv.exe`.

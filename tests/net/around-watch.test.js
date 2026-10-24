@@ -209,7 +209,9 @@ const row = (pid, name, host, port = 443) => ({ pid, name, remote: { host, port 
       + '   2: 0100007F:C352 02FEAFC3:01BB 06 00000000:00000000 00:00000000 00000000  1000        0 333 1\n'
       + '   3: 0100007F:C353 01010101:01BB 01 00000000:00000000 00:00000000 00000000  1000        0 444 1\n'
       + '   4: 0100007F:C354 02FEAFC3:01BB 06 00000000:00000000 00:00000000 00000000     0        0 0 1\n'
-      + '   5: 0100007F:01BB 02FEAFC3:01BB 0A 00000000:00000000 00:00000000 00000000  1000        0 555 1\n');
+      + '   5: 0100007F:01BB 02FEAFC3:01BB 0A 00000000:00000000 00:00000000 00000000  1000        0 555 1\n'
+      // a sandboxed app's socket: its process cannot be read (inode 666)
+      + '   6: 0100007F:C355 02FEAFC3:01BB 01 00000000:00000000 00:00000000 00000000  1000        0 666 1\n');
     fs.writeFileSync(path.join(root, 'net', 'tcp6'), head);
     for (const [pid, comm, inodes] of [[4242, 'node-MainThread', ['111', '444', '555']], [4243, 'python3', ['222', '333']]]) {
       fs.mkdirSync(path.join(root, String(pid), 'fd'), { recursive: true });
@@ -219,8 +221,8 @@ const row = (pid, name, host, port = 443) => ({ pid, name, remote: { host, port 
       inodes.forEach((ino, i) => fs.symlinkSync(`socket:[${ino}]`, path.join(root, String(pid), 'fd', String(10 + i))));
     }
     const got = ProcNet.procOutbound((ip) => ip === '195.175.254.2', root).map((x) => `${x.pid}:${x.name}:${x.remote.host}:${x.remote.port}`).sort();
-    t.ok(got.join() === '0:null:195.175.254.2:443,4242:node:195.175.254.2:443,4243:python3:195.175.254.2:443,4243:python3:195.175.254.2:443',
-      `Linux: every connection to the addresses asked for but a listening one, with its program, a closed one with none (${got.join(' ')})`);
+    t.ok(got.join() === '0:null:195.175.254.2:443,0:null:195.175.254.2:443,4242:node:195.175.254.2:443,4243:python3:195.175.254.2:443,4243:python3:195.175.254.2:443',
+      `Linux: every connection to the addresses asked for but a listening one, with its program; a closed one, or a sandboxed app's, with none (${got.join(' ')})`);
   } finally { fs.rmSync(root, { recursive: true, force: true }); }
   t.ok((await ProcNet.outbound(() => true, 'darwin')).length === 0, 'macOS: nothing (no Advanced mode there)');
 

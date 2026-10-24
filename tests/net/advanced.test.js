@@ -7,7 +7,7 @@
 const path = require('path');
 const { ROOT, suite } = require('./helpers');
 
-const { linuxInstallCommand, buildArgs, buildAdvancedArgs, winQuoteArg } = require(path.join(ROOT, 'electron', 'advanced-mode.js'));
+const { buildArgs, buildAdvancedArgs, winQuoteArg } = require(path.join(ROOT, 'electron', 'advanced-mode.js'));
 const t = suite('advanced');
 
 /* The new packet-layer flags must reach the privileged engine as argv, with the
@@ -49,23 +49,6 @@ const bad = buildAdvancedArgs({ ...base, platform: 'linux', opts: { seqovl: -5, 
 t.ok(argval(bad, '--seqovl') === '0', 'negative seqovl clamps to 0');
 t.ok(argval(bad, '--desync-mode') === 'fake', 'unknown desync mode falls back to fake');
 
-const CASES = [
-  ['ID=arch', 'sudo pacman -S libnetfilter_queue'],
-  ['ID=manjaro\nID_LIKE=arch', 'sudo pacman -S libnetfilter_queue'],
-  ['ID=endeavouros\nID_LIKE=arch', 'sudo pacman -S libnetfilter_queue'],
-  ['ID=fedora', 'sudo dnf install libnetfilter_queue'],
-  ['ID="rocky"\nID_LIKE="rhel centos fedora"', 'sudo dnf install libnetfilter_queue'],
-  ['ID="opensuse-tumbleweed"\nID_LIKE="opensuse suse"', 'sudo zypper install libnetfilter_queue1'],
-  ['ID="opensuse-leap"\nID_LIKE="suse opensuse"', 'sudo zypper install libnetfilter_queue1'],
-  ['ID=ubuntu\nID_LIKE=debian', 'sudo apt install libnetfilter-queue1'],
-  ['ID=debian', 'sudo apt install libnetfilter-queue1'],
-  ['ID=linuxmint\nID_LIKE="ubuntu debian"', 'sudo apt install libnetfilter-queue1'],
-  ['', 'sudo apt install libnetfilter-queue1'],
-];
-for (const [osr, want] of CASES) {
-  const got = linuxInstallCommand(osr);
-  t.ok(got === want, `${JSON.stringify(osr).slice(0, 44)} -> ${got}`);
-}
 
 /* The flags the elevated engine is started with. QUIC forced to TCP and
  * Discord-voice decoys are on by default (no opt-out flag passed); turning one

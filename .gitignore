@@ -43,7 +43,6 @@ Thumbs.db
 .vscode/
 *.suo
 *.user
-.ci-sysroot-*/
 
 # End-to-end screenshots and memory reports
 test-results/

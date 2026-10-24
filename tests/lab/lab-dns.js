@@ -8,6 +8,9 @@
  *   node lab-dns.js forwarder <port> <name>=<ip> ...
  *       the app's encrypted-DNS forwarder standing in, on 127.0.0.1:<port>:
  *       those names have those addresses, any other does not exist;
+ *   node lab-dns.js network <ip> <name>=<ip>[@<delay ms>] ...
+ *       a network's DNS on <ip>:53 that knows those names (answering each
+ *       after its delay, a slow resolver), and no other;
  *   node lab-dns.js ask <server> <name>
  *       asks <server> over UDP (Node's own resolver, not the system's) and
  *       prints the addresses, comma-separated, or the error code.
@@ -35,11 +38,12 @@ function answer(q, ip) {
   return Buffer.concat([head, q.subarray(12, end), rr]);
 }
 
-function listen(host, port, pick) {
+function listen(host, port, pick, delayOf = () => 0) {
   const s = dgram.createSocket('udp4');
   s.on('message', (q, from) => {
     if (q.length < 17 || q[2] & 0x80) return;
-    s.send(answer(q, pick(question(q).name)), from.port, from.address);
+    const name = question(q).name;
+    setTimeout(() => s.send(answer(q, pick(name)), from.port, from.address), delayOf(name));
   });
   s.bind(port, host, () => console.log('ready'));
 }
@@ -50,11 +54,21 @@ if (mode === 'serve') {
 } else if (mode === 'forwarder') {
   const table = Object.fromEntries([b, ...rest].filter(Boolean).map((x) => x.split('=')));
   listen('127.0.0.1', Number(a), (name) => table[name] || null);
+} else if (mode === 'network') {
+  const table = {};
+  const delays = {};
+  for (const x of [b, ...rest].filter(Boolean)) {
+    const [name, v] = x.split('=');
+    const [ip, delay] = v.split('@');
+    table[name] = ip;
+    delays[name] = Number(delay) || 0;
+  }
+  listen(a, 53, (name) => table[name] || null, (name) => delays[name] || 0);
 } else if (mode === 'ask') {
   const r = new dns.Resolver({ timeout: 3000, tries: 2 });
   r.setServers([a]);
   r.resolve4(b, (e, addrs) => { console.log(e ? e.code : addrs.join(',')); process.exit(0); });
 } else {
-  console.error('usage: lab-dns.js serve <ip> <answer-ip> | forwarder <port> <name>=<ip>... | ask <server> <name>');
+  console.error('usage: lab-dns.js serve <ip> <answer-ip> | forwarder <port> <name>=<ip>... | network <ip> <name>=<ip>[@ms]... | ask <server> <name>');
   process.exit(2);
 }

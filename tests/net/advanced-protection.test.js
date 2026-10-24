@@ -190,6 +190,65 @@ function rig({ antiCheat = null, holdScan = false } = {}) {
       'Advanced mode turned on by hand with protection off is not stopped by it');
   }
 
+  // ── a game with an anti-cheat starting while Advanced mode runs ──
+  {
+    const b = { active: true, prompts: 0, stops: 0 };
+    let game = null;
+    let on = true;
+    let answer = true;
+    const told = [];
+    const logs = [];
+    const g = new AdvancedProtection({
+      active: () => b.active,
+      start: async () => { b.prompts++; if (answer) b.active = true; return answer ? { success: true } : { success: false, code: 'declined' }; },
+      stop: async () => { b.stops++; b.active = false; },
+      protectionOn: () => on,
+      antiCheat: async () => game,
+      tell: (id, p) => told.push(`${id}:${p.program}`),
+      log: (l, m) => logs.push(m),
+    });
+    await g.guard();                                  // the first look: nothing running
+    game = 'GTA5_Enhanced.exe';
+    await g.guard();
+    t.ok(!b.active && b.stops === 1 && g.paused && told.join() === 'autoAdvancedPausedForGame:GTA5_Enhanced.exe'
+      && logs.some((l) => /^Advanced mode paused: GTA5_Enhanced\.exe is running/.test(l)),
+      'a game with an anti-cheat starts: Advanced mode steps aside, said in one line');
+    await g.guard(); await g.guard();
+    t.ok(!b.active && b.prompts === 0 && told.length === 1, 'while the game runs it stays aside, said once');
+    game = null;
+    await g.guard();
+    t.ok(b.active && b.prompts === 1 && !g.paused && told[1] === 'autoAdvancedBackAfterGame:GTA5_Enhanced.exe',
+      'the game closed: it comes back (one permission prompt), said in one line');
+    // Started while the game already runs: the user's own choice.
+    game = 'r5apex.exe';
+    b.active = false;
+    g.lastGame = undefined;                           // main.js: not looked for while it is off
+    b.active = true;                                  // the user turns it on with the game open
+    await g.guard(); await g.guard();
+    t.ok(b.active && b.stops === 1, 'turned on while the game already runs: left alone');
+    // A Stop while it waits ends the wait; the user's own brings it back with
+    // the next Start (main.js's comeBack, which looks for the game again).
+    game = null; await g.guard();
+    game = 'VALORANT-Win64-Shipping.exe'; await g.guard();
+    t.ok(!b.active && g.paused, 'paused again for the next game');
+    await g.stopped({ user: true });
+    t.ok(!g.paused && g.resume === true, 'a Stop meanwhile ends the wait; Advanced mode comes back with the next Start');
+    on = false; game = null; await g.guard();
+    t.ok(!b.active, 'nothing is started with protection off');
+    // Turned off by hand while it waits: it does not come back.
+    on = true; b.active = true; g.lastGame = null; game = 'cs2.exe'; await g.guard();
+    t.ok(g.paused, 'paused for cs2.exe');
+    g.offByHand(); game = null; const before = b.prompts; await g.guard();
+    t.ok(!g.paused && !b.active && b.prompts === before, 'turned off by hand while it waited: not brought back');
+    // Declined when it comes back: recorded as a decline.
+    b.active = true; g.lastGame = null; game = 'GTA5.exe'; await g.guard();
+    answer = false; game = null;
+    let declined = 0;
+    g.declined = () => { declined++; };
+    await g.guard();
+    t.ok(!b.active && declined === 1, 'its permission prompt declined when it comes back: recorded as a decline');
+  }
+
   finished = true;
   console.log(`advanced-protection: ${t.count} passed`);
 })().catch((e) => { console.error('FAIL', e.message); process.exit(1); });

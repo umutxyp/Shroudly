@@ -27,7 +27,6 @@ const ADV_REASON_KEYS = {
   arch_unsupported: 'advReasonArchUnsupported',
   not_built: 'advReasonNotBuilt',
   windivert_missing: 'advReasonWindivertMissing',
-  linux_lib_missing: 'advReasonLinuxLibMissing',
   platform_unsupported: 'advReasonPlatformUnsupported',
 };
 /* startAdvanced().code → translation key */
@@ -37,12 +36,11 @@ const ADV_ERROR_KEYS = {
   start_failed: 'advErrorStartFailed',
   timeout: 'advErrorTimeout',
 };
-const LINUX_LIB_COMMAND = 'sudo apt install libnetfilter-queue1';
 const PROBE_TIMEOUT_MS = 25000;
 
 function advReasonText(info, t) {
   const key = info && ADV_REASON_KEYS[info.reasonCode];
-  if (key) return t(key, { command: info.installCommand || LINUX_LIB_COMMAND });
+  if (key) return t(key);
   return info?.reason || t('advancedUnavailable');
 }
 

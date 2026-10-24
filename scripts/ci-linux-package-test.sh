@@ -33,17 +33,12 @@ echo "$out" | grep -q '"ready"' || fail "engine did not start: $out"
 echo "ok  installed engine starts ($out)"
 
 if [ -x "$CORE/shroudly-core-adv" ]; then
-  if ldd "$CORE/shroudly-core-adv" | grep -q 'not found'; then
-    # The same package the app tells users to install (electron/advanced-mode.js).
-    echo "note: Advanced mode needs libnetfilter_queue here; installing it the way the app says"
-    if command -v pacman >/dev/null; then pacman -S --noconfirm libnetfilter_queue
-    elif command -v zypper >/dev/null; then zypper --non-interactive install libnetfilter_queue1
-    elif command -v dnf >/dev/null; then dnf install -y libnetfilter_queue
-    else DEBIAN_FRONTEND=noninteractive apt-get install -y libnetfilter-queue1; fi
-  fi
+  # Nothing to install first: the queue is spoken over netlink (core/src/nfq.c),
+  # so a fresh system has every library the Advanced engine needs.
   missing=$(ldd "$CORE/shroudly-core-adv" | grep 'not found' || true)
-  [ -z "$missing" ] || fail "Advanced mode engine still misses libraries: $missing"
-  echo "ok  Advanced mode engine has every library it needs"
+  [ -z "$missing" ] || fail "Advanced mode engine misses libraries on a fresh system: $missing"
+  ldd "$CORE/shroudly-core-adv" | grep -qE 'libnetfilter|libmnl|libnfnetlink' && fail "Advanced mode engine still links a netfilter library"
+  echo "ok  Advanced mode engine needs nothing installed (glibc only)"
 fi
 
 ls /usr/share/applications | grep -qi shroudly || fail "no desktop entry"

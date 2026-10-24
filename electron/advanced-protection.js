@@ -22,6 +22,15 @@
  *
  * A start from the Settings panel is the user's own, works with protection
  * off, and does not go through here.
+ *
+ * A game with an anti-cheat that starts while Advanced mode runs (BattlEye,
+ * Easy Anti-Cheat, Vanguard, FACEIT): the anti-cheat refuses the game, or
+ * drops it from its servers, beside a packet driver ("Rockstar Games:
+ * connection error"). So Advanced mode steps aside (guard(), every few
+ * seconds while it runs): it is stopped, the user is told in one line, and
+ * once the game has closed it comes back (one permission prompt). Started
+ * while the game already runs, it is the user's own choice and left alone.
+ * A Stop, or Advanced mode turned off by hand, ends the wait.
  */
 
 class AdvancedProtection {
@@ -33,6 +42,7 @@ class AdvancedProtection {
    * opts.protectionOn()    whether protection is on (or on its way back)
    * opts.antiCheat()       a game's anti-cheat running (its name), or null
    * opts.declined()        the user declined the permission prompt
+   * opts.tell(id, params)  a notification and a line in the window
    * opts.log(level, msg)
    */
   constructor(opts) {
@@ -43,7 +53,11 @@ class AdvancedProtection {
     this.protectionOn = opts.protectionOn;
     this.antiCheat = opts.antiCheat || (async () => null);
     this.declined = opts.declined || (() => {});
+    this.tell = opts.tell || (() => {});
     this.log = opts.log || (() => {});
+    this.paused = null;              // { game }: stepped aside for a game's anti-cheat
+    this.lastGame = undefined;       // the anti-cheat game seen at the last look (undefined: no look yet)
+    this.guarding = false;
     this.stops = 0;                  // protection's Stops in this run
     this.resume = false;             // Advanced mode comes back at the next Start
     this.tail = Promise.resolve();   // the last start on protection's behalf
@@ -59,13 +73,48 @@ class AdvancedProtection {
    * Stop, after which Advanced mode comes back with their next Start. */
   async stopped({ user = false } = {}) {
     this.stops++;
+    // Stepped aside for a game: the Stop ends the wait; after the user's
+    // own, the next Start brings it back (once the game has closed).
+    if (this.paused) { this.paused = null; this.resume = !!user; return; }
     if (!this.active()) return;
     this.resume = !!user;
     try { await this.stopBackend(); } catch {}
   }
 
   /* Turned off by hand: it does not come back by itself. */
-  offByHand() { this.resume = false; }
+  offByHand() { this.resume = false; this.paused = null; }
+
+  /* One look for a game's anti-cheat (see the top of this file). */
+  async guard() {
+    if (this.guarding) return;
+    this.guarding = true;
+    try {
+      let game = null;
+      try { game = await this.antiCheat(); } catch { return; }
+      const before = this.lastGame;
+      this.lastGame = game;
+      if (this.paused) {
+        // Started again meanwhile (by the user), or protection is off: the
+        // wait is over.
+        if (this.active() || !this.protectionOn()) { this.paused = null; return; }
+        if (game) return;
+        const was = this.paused.game;
+        this.paused = null;
+        this.log('info', `${was} has closed; Advanced mode comes back`);
+        this.tell('autoAdvancedBackAfterGame', { program: was });
+        const r = await this.start(this.stops);
+        if (r && r.code === 'declined') this.declined();
+        return;
+      }
+      // A game that has just started (not one that was already running when
+      // Advanced mode was started, nor at the first look).
+      if (!game || before === undefined || before || !this.active() || !this.protectionOn()) return;
+      this.paused = { game };
+      try { await this.stopBackend(); } catch {}
+      this.log('info', `Advanced mode paused: ${game} is running, and its anti-cheat does not allow the packet driver Advanced mode uses; it comes back when the game closes`);
+      this.tell('autoAdvancedPausedForGame', { program: game });
+    } finally { this.guarding = false; }
+  }
 
   /* The user started protection: Advanced mode comes back if it was running
    * when they stopped it. */

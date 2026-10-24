@@ -172,6 +172,8 @@ const PATTERNS = [
   [/^The computer woke up or its clock changed \(\w+\); waiting times start afresh$/, 'logWake', []],
   [/^(?:Games and apps|Discord app): could not reach (\S+) \(Shroudly is restarting; try again in a moment\)$/, 'logHeldRestart', ['host']],
   [/^Autopilot: (.+) needs Advanced mode, but a game's anti-cheat is running \((.+)\); not started by itself$/, 'logAutoAdvancedAntiCheat', ['host', 'program']],
+  [/^Advanced mode paused: (.+) is running, and its anti-cheat does not allow the packet driver Advanced mode uses; it comes back when the game closes$/, 'logAdvancedPausedForGame', ['program']],
+  [/^(.+) has closed; Advanced mode comes back$/, 'logAdvancedBackAfterGame', ['program']],
   [/^Store apps: (\d+) cannot reach Shroudly \((.+)\); asking for permission$/, 'logStoreAppsAsk', ['count', 'apps']],
   [/^Store apps: (\d+) can now reach Shroudly$/, 'logStoreAppsOn', ['count']],
   [/^Store apps: (.+) cannot go through Shroudly; permission was not given$/, 'logStoreAppsBlocked', ['apps']],

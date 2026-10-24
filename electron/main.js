@@ -704,8 +704,19 @@ const advancedProtection = new AdvancedProtection({
   protectionOn: () => !!(engine && (engine.isActive() || engine.coming)),
   antiCheat: () => Autopilot.antiCheatRunning(),
   declined: () => { if (autopilot) autopilot.recordDecline(); },
+  tell: (id, params) => autoTell(id, params),
   log: (level, msg) => addLog(level, msg),
 });
+// A game with an anti-cheat starting while Advanced mode runs: it steps
+// aside until the game has closed (advanced-protection.js guard). The
+// anti-cheats it is about are Windows ones; looked for only while Advanced
+// mode runs or waits.
+if (process.platform === 'win32') {
+  setInterval(() => {
+    if ((advanced && advanced.active) || advancedProtection.paused) advancedProtection.guard().catch(() => {});
+    else advancedProtection.lastGame = undefined;
+  }, 5000).unref();
+}
 
 async function safeStart({ user = false } = {}) {
   if (user) store.set(PROTECTION_KEY, true);
@@ -1216,7 +1227,6 @@ ipcMain.handle('advanced:available', () => ({
   available: advanced ? advanced.available() : false,
   reason: advanced ? advanced.reason() : 'not initialized',
   reasonCode: advanced ? advanced.reasonCode() : 'not_built',
-  installCommand: process.platform === 'linux' ? AdvancedMode.linuxInstallCommand() : null,
   active: advanced ? advanced.active : false,
 }));
 ipcMain.handle('advanced:start', async () => {

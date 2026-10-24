@@ -115,7 +115,7 @@ queue-bypass, so even a crashed engine never blocks traffic. On Windows the
 WinDivert filter disappears with the engine's handle when it exits.
 
 Build: `npm run build:core:advanced` (native) or `:all` (cross via zig; Linux
-cross-builds need a libnetfilter_queue sysroot, see the script header).
+needs no library: the queue is spoken over netlink, core/src/nfq.c).
 Windows packaging also needs `npm run fetch:windivert`, which downloads the
 official release, checks its pinned SHA-256 and copies `WinDivert.dll`,
 `WinDivert64.sys` and the license next to the x64 engine.

@@ -26,7 +26,7 @@ ENGINE_DEPS = src/platform.c src/proto.c src/strategy.c src/desync.c src/fake.c 
 # without its main(), and what it needs.
 EMBED_SRC = $(ENGINE_DEPS) src/engine.c src/probe.c src/main.c src/watchdog.c
 
-test: test/test_proto.c test/test_udpdpi.c test/test_desync.c test/test_bogon.c test/test_engine.c test/test_tcpdpi.c test/test_rawscope.c test/test_socksudp.c test/test_embedded.c test/test_adblock.c test/test_dnsgate.c $(SRC)
+test: test/test_proto.c test/test_udpdpi.c test/test_desync.c test/test_bogon.c test/test_engine.c test/test_tcpdpi.c test/test_rawscope.c test/test_socksudp.c test/test_embedded.c test/test_adblock.c test/test_dnsgate.c test/test_nfq.c $(SRC)
 	$(CC) -std=c11 -O2 -Wall -o /tmp/shroudly_test_proto src/proto.c src/strategy.c test/test_proto.c
 	/tmp/shroudly_test_proto
 	$(CC) -std=c11 -O2 -Wall -Wextra -o /tmp/shroudly_test_udpdpi src/udpdpi.c test/test_udpdpi.c
@@ -49,12 +49,14 @@ test: test/test_proto.c test/test_udpdpi.c test/test_desync.c test/test_bogon.c 
 	/tmp/shroudly_test_adblock
 	$(CC) -std=c11 -O2 -Wall -Wextra -pthread -o /tmp/shroudly_test_dnsgate src/dnsgate.c src/doh.c src/platform.c src/rawscope.c test/test_dnsgate.c $(LDLIBS)
 	/tmp/shroudly_test_dnsgate
+	$(CC) -std=c11 -O2 -Wall -Wextra -o /tmp/shroudly_test_nfq src/nfq.c test/test_nfq.c
+	/tmp/shroudly_test_nfq
 	$(CC) -std=c11 -O2 -Wall -Wextra -pthread -DSHROUDLY_NO_MAIN -o /tmp/shroudly_test_embedded \
 		$(EMBED_SRC) test/test_embedded.c $(LDLIBS)
 	/tmp/shroudly_test_embedded
 
 # Sanitizer build of the full test set (memory + UB checks).
-test-asan: test/test_proto.c test/test_udpdpi.c test/test_desync.c test/test_bogon.c test/test_engine.c test/test_tcpdpi.c test/test_rawscope.c test/test_socksudp.c test/test_embedded.c test/test_adblock.c test/test_dnsgate.c $(SRC)
+test-asan: test/test_proto.c test/test_udpdpi.c test/test_desync.c test/test_bogon.c test/test_engine.c test/test_tcpdpi.c test/test_rawscope.c test/test_socksudp.c test/test_embedded.c test/test_adblock.c test/test_dnsgate.c test/test_nfq.c $(SRC)
 	$(CC) -std=c11 -O1 -g -fsanitize=address,undefined -pthread \
 		-o /tmp/shroudly_test_asan \
 		src/platform.c src/proto.c src/strategy.c src/desync.c src/fake.c src/doh.c \
@@ -78,6 +80,9 @@ test-asan: test/test_proto.c test/test_udpdpi.c test/test_desync.c test/test_bog
 	$(CC) -std=c11 -O1 -g -fsanitize=address,undefined -pthread \
 		-o /tmp/shroudly_test_dnsgate_asan src/dnsgate.c src/doh.c src/platform.c src/rawscope.c test/test_dnsgate.c $(LDLIBS)
 	ASAN_OPTIONS=halt_on_error=0 /tmp/shroudly_test_dnsgate_asan
+	$(CC) -std=c11 -g -O1 -fsanitize=address,undefined -fno-omit-frame-pointer \
+		-o /tmp/shroudly_test_nfq_asan src/nfq.c test/test_nfq.c
+	ASAN_OPTIONS=halt_on_error=0 /tmp/shroudly_test_nfq_asan
 	$(CC) -std=c11 -O1 -g -fsanitize=address,undefined -Wall -Wextra \
 		-o /tmp/shroudly_test_socksudp_asan src/socksudp.c test/test_socksudp.c $(LDLIBS)
 	ASAN_OPTIONS=halt_on_error=1 /tmp/shroudly_test_socksudp_asan

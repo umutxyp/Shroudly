@@ -4,15 +4,13 @@
  * defeats stateful DPI (Iran/China) via low-TTL fake packets.
  *
  * Backends (one per OS, all privileged by nature):
- *   Linux  : NFQUEUE + raw sockets (needs libnetfilter-queue-dev, libmnl-dev)
+ *   Linux  : NFQUEUE (spoken over netlink, core/src/nfq.c: no library) + raw sockets
  *   Windows: WinDivert (loads WinDivert.dll/.sys at runtime; Administrator; x64 only)
  * macOS has none: its pf has no divert-to rule and the kernel no divert
  * sockets, so packet interception needs a signed Network Extension.
  *
- * Native build for the current OS by default; `--cross` builds all via zig.
- * Cross-building Linux needs a sysroot with the libnetfilter_queue headers and
- * libraries: set SHROUDLY_SYSROOT_LINUX_X64 (or _ARM64) to a directory holding
- * usr/include and usr/lib/<triple> (e.g. unpacked Debian -dev packages).
+ * Native build for the current OS by default; `--cross` builds all via zig,
+ * whose own headers (the kernel's included) are all Linux needs.
  */
 const fs = require('fs');
 const path = require('path');
@@ -24,8 +22,8 @@ const sources = fs.readdirSync(srcDir).filter(f => f.endsWith('.c')).map(f => pa
 const outRoot = path.join(root, 'electron', 'tools', 'core');
 
 const TARGETS = {
-  'linux-x64':   { zig: 'x86_64-linux-gnu.2.28',  triple: 'x86_64-linux-gnu',  bin: 'shroudly-core-adv', libs: ['-lnetfilter_queue', '-lmnl', '-lpthread'], feat: ['-D_GNU_SOURCE'] },
-  'linux-arm64': { zig: 'aarch64-linux-gnu.2.28', triple: 'aarch64-linux-gnu', bin: 'shroudly-core-adv', libs: ['-lnetfilter_queue', '-lmnl', '-lpthread'], feat: ['-D_GNU_SOURCE'] },
+  'linux-x64':   { zig: 'x86_64-linux-gnu.2.28',  bin: 'shroudly-core-adv', libs: ['-lpthread'], feat: ['-D_GNU_SOURCE'] },
+  'linux-arm64': { zig: 'aarch64-linux-gnu.2.28', bin: 'shroudly-core-adv', libs: ['-lpthread'], feat: ['-D_GNU_SOURCE'] },
   'win32-x64':   { zig: 'x86_64-windows-gnu', bin: 'shroudly-core-adv.exe', libs: ['-lws2_32'], feat: [] },
   // no win32-arm64: WinDivert ships no ARM64 driver
 };
@@ -44,19 +42,8 @@ function buildZig(zig, key) {
   const outDir = path.join(outRoot, key); fs.mkdirSync(outDir, { recursive: true });
   const out = path.join(outDir, t.bin);
   const parts = zig.split(' ');
-  // Linux needs libnetfilter_queue headers/libs, which zig's own sysroot does
-  // not provide: cross-build only when a sysroot is given.
-  let sysroot = [];
-  if (t.triple) {
-    const root = process.env[`SHROUDLY_SYSROOT_${key.split('-')[0].toUpperCase()}_${key.split('-')[1].toUpperCase()}`];
-    if (!root && platKey() !== key) {
-      console.log(`[core-adv] skip cross ${key} (set SHROUDLY_SYSROOT_LINUX_${key.split('-')[1].toUpperCase()}; see header)`);
-      return;
-    }
-    if (root) sysroot = [`-I${path.join(root, 'usr', 'include')}`, `-L${path.join(root, 'usr', 'lib', t.triple)}`];
-  }
   const args = [...parts.slice(1), 'cc', '-target', t.zig, '-std=c11', '-O2', '-DSHROUDLY_RAW',
-    ...t.feat, ...sysroot, '-o', out, ...sources, ...t.libs];
+    ...t.feat, '-o', out, ...sources, ...t.libs];
   try { execFileSync(parts[0], args, { stdio: 'inherit' }); console.log(`[core-adv] built ${key} -> ${out}`); }
   catch (e) { console.error(`[core-adv] ${key} failed: ${e.message}`); }
 }
@@ -74,12 +61,12 @@ function buildNative() {
   } catch (e) {
     const zig = zigPath();
     if (zig) return buildZig(zig, key);
-    console.error('[core-adv] build failed. Linux needs: libnetfilter-queue-dev libmnl-dev');
+    console.error('[core-adv] build failed (a C compiler, or zig, is needed)');
     process.exit(1);
   }
 }
 
-// --target <key>: build just that one with zig (Linux needs its sysroot set).
+// --target <key>: build just that one with zig.
 // Used by CI so the Linux engines link against an old glibc, not the runner's.
 const ti = process.argv.indexOf('--target');
 if (ti > 0) {
@@ -100,7 +87,6 @@ if (process.argv.includes('--cross')) {
     if (k === self && process.platform === 'linux') continue; // built natively below
     buildZig(zig, k);
   }
-  // native build for the host (Linux needs its real libnetfilter_queue)
   if (process.platform === 'linux') buildNative();
 } else {
   buildNative();

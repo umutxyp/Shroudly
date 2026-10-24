@@ -44,7 +44,8 @@
  *     without it only the client's side is watched.
  *
  * Requires root / CAP_NET_ADMIN + CAP_NET_RAW, and is Linux-only. Compiled only
- * when SHROUDLY_RAW is defined and linked with -lnetfilter_queue -lmnl.
+ * when SHROUDLY_RAW is defined; the queue is spoken over netlink (nfq.c), so
+ * no library is linked or needed on the user's system.
  *
  * The backend installs the rules itself once the queue is bound, and removes
  * them in raw_linux_teardown(), which runs on every stop path (see
@@ -74,10 +75,7 @@
 #include <fcntl.h>
 #include <linux/netfilter.h>   /* NF_ACCEPT, NF_DROP */
 
-#include <libnetfilter_queue/libnetfilter_queue.h>
-#include <libnetfilter_queue/pktbuff.h>
-#include <libnetfilter_queue/libnetfilter_queue_ipv4.h>
-#include <libnetfilter_queue/libnetfilter_queue_tcp.h>
+#include "nfq.h"                /* the queue, over netlink: no library needed */
 
 #include "proto.h"
 #include "udpdpi.h"
@@ -91,8 +89,7 @@
 static int g_raw_fd = -1;
 static raw_config g_cfg;
 static volatile int g_run = 0;
-static struct nfq_handle *g_h = NULL;
-static struct nfq_q_handle *g_qh = NULL;
+static int g_nfq = -1;            /* the queue's netlink socket (nfq.h) */
 static int g_queue_num = 200;
 static int g_quic_block = 1;      /* drop QUIC Initial -> browsers fall to TCP */
 static int g_udp_fake = 1;        /* decoys ahead of Discord voice datagrams */
@@ -530,27 +527,24 @@ static void gate_send(const uint8_t *pkt, int len, const void *meta, int inbound
   raw_send(buf, len, daddr, dport);
 }
 
-static int cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg,
-              struct nfq_data *nfa, void *data) {
-  (void)nfmsg; (void)data;
-  struct nfqnl_msg_packet_hdr *ph = nfq_get_msg_packet_hdr(nfa);
-  uint32_t id = ph ? ntohl(ph->packet_id) : 0;
-  if (nfq_get_nfmark(nfa) & SHROUDLY_FWMARK) return nfq_set_verdict(qh, id, NF_ACCEPT, 0, NULL);
+/* What becomes of one queued packet: NF_ACCEPT or NF_DROP. */
+static uint32_t judge(const nfq_packet *q) {
+  if (q->mark & SHROUDLY_FWMARK) return NF_ACCEPT;
 
-  unsigned char *pkt = NULL;
-  int len = nfq_get_payload(nfa, &pkt);
-  if (len < (int)sizeof(struct iphdr)) return nfq_set_verdict(qh, id, NF_ACCEPT, 0, NULL);
+  unsigned char *pkt = q->payload;
+  int len = pkt ? q->len : 0;
+  if (len < (int)sizeof(struct iphdr)) return NF_ACCEPT;
 
   struct iphdr *ip = (struct iphdr *)pkt;
-  if (ip->version != 4) return nfq_set_verdict(qh, id, NF_ACCEPT, 0, NULL);
+  if (ip->version != 4) return NF_ACCEPT;
   int iphl = ip->ihl * 4;
-  if (iphl < 20 || len < iphl) return nfq_set_verdict(qh, id, NF_ACCEPT, 0, NULL);
+  if (iphl < 20 || len < iphl) return NF_ACCEPT;
 
   if (ip->protocol == IPPROTO_TCP) {
-    if (len < iphl + (int)sizeof(struct tcphdr)) return nfq_set_verdict(qh, id, NF_ACCEPT, 0, NULL);
+    if (len < iphl + (int)sizeof(struct tcphdr)) return NF_ACCEPT;
     struct tcphdr *tcp = (struct tcphdr *)(pkt + iphl);
     int tcphl = tcp->doff * 4;
-    if (tcphl < 20 || iphl + tcphl > len) return nfq_set_verdict(qh, id, NF_ACCEPT, 0, NULL);
+    if (tcphl < 20 || iphl + tcphl > len) return NF_ACCEPT;
     int sport = ntohs(tcp->source), dport = ntohs(tcp->dest);
     int web_src = (sport == 80 || sport == 443);
     int web_dst = (dport == 80 || dport == 443);
@@ -562,7 +556,7 @@ static int cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg,
         /* Only from a server we desynced: any other host's reset passes. */
         if (rawscope_touched((const uint8_t *)&ip->saddr, 4, now_ms())) {
           rawscope_count(RAWSCOPE_RST_DROPPED);
-          return nfq_set_verdict(qh, id, NF_DROP, 0, NULL);          /* forged: drop it */
+          return NF_DROP;          /* forged: drop it */
         }
         rawscope_count(RAWSCOPE_RST_PASSED);
       }
@@ -575,13 +569,13 @@ static int cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg,
       if (sport == 443 && iphl + tcphl < len && alert_from_server(ip->saddr, ip->ttl))
         rawscope_decoy_hurt_in((const uint8_t *)&ip->saddr, 4, (uint16_t)sport, (uint16_t)dport,
                                pkt + iphl + tcphl, len - iphl - tcphl, now_ms());
-      return nfq_set_verdict(qh, id, NF_ACCEPT, 0, NULL);            /* everything else kept */
+      return NF_ACCEPT;            /* everything else kept */
     }
 
     /* Outbound ClientHello / first request. */
     int poff = iphl + tcphl;
     int plen = len - poff;
-    if (plen <= 0) return nfq_set_verdict(qh, id, NF_ACCEPT, 0, NULL);
+    if (plen <= 0) return NF_ACCEPT;
     uint64_t now = now_ms();
     uint32_t seq = ntohl(tcp->seq);
     /* The client giving up on a handshake whose ClientHello carried a decoy:
@@ -591,11 +585,11 @@ static int cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg,
                               seq, pkt + poff, plen, now);
     proto_info pi;
     proto_inspect(pkt + poff, (size_t)plen, &pi);
-    if (pi.kind == PROTO_UNKNOWN) return nfq_set_verdict(qh, id, NF_ACCEPT, 0, NULL);
+    if (pi.kind == PROTO_UNKNOWN) return NF_ACCEPT;
     /* The router, the LAN and other local hosts are left alone. */
     if (rawscope_local4((const uint8_t *)&ip->daddr)) {
       rawscope_count(RAWSCOPE_SKIPPED);
-      return nfq_set_verdict(qh, id, NF_ACCEPT, 0, NULL);
+      return NF_ACCEPT;
     }
     rawscope_touch((const uint8_t *)&ip->daddr, 4, now);
     rawscope_count(RAWSCOPE_DESYNCED);
@@ -605,12 +599,12 @@ static int cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg,
       rawscope_decoy_sent((const uint8_t *)&ip->daddr, 4, (uint16_t)dport, (uint16_t)sport,
                           rawscope_tls_next_seq(seq, pkt + poff, plen), now);
     if (handle_outbound(ip, tcp, pkt + poff, plen, &pi, decoy))
-      return nfq_set_verdict(qh, id, NF_DROP, 0, NULL);  /* replaced by our segments */
-    return nfq_set_verdict(qh, id, NF_ACCEPT, 0, NULL);   /* real packet unchanged */
+      return NF_DROP;  /* replaced by our segments */
+    return NF_ACCEPT;   /* real packet unchanged */
   }
 
   if (ip->protocol == IPPROTO_UDP) {
-    if (len < iphl + (int)sizeof(struct udphdr)) return nfq_set_verdict(qh, id, NF_ACCEPT, 0, NULL);
+    if (len < iphl + (int)sizeof(struct udphdr)) return NF_ACCEPT;
     struct udphdr *udp = (struct udphdr *)(pkt + iphl);
     uint16_t dport_h = ntohs(udp->dest);
 
@@ -618,8 +612,8 @@ static int cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg,
      * the datagrams udp_seen counts (those the UDP features look at). */
     if (dport_h == 53) {
       static const uint8_t none = 0;
-      if (g_gate && dnsgate_take(pkt, len, &none)) return nfq_set_verdict(qh, id, NF_DROP, 0, NULL);
-      return nfq_set_verdict(qh, id, NF_ACCEPT, 0, NULL);
+      if (g_gate && dnsgate_take(pkt, len, &none)) return NF_DROP;
+      return NF_ACCEPT;
     }
     rawscope_count(RAWSCOPE_UDP_SEEN);
     int poff = iphl + (int)sizeof(struct udphdr);
@@ -632,10 +626,10 @@ static int cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg,
      * address, is accepted unchanged. */
     if (g_quic_block && dport_h == 443) {
       if (plen > 0 && quic_is_initial(up, plen)) {
-        if (!local) { rawscope_count(RAWSCOPE_QUIC_DROPPED); return nfq_set_verdict(qh, id, NF_DROP, 0, NULL); }
+        if (!local) { rawscope_count(RAWSCOPE_QUIC_DROPPED); return NF_DROP; }
         rawscope_count(RAWSCOPE_SKIPPED);
       }
-      return nfq_set_verdict(qh, id, NF_ACCEPT, 0, NULL);
+      return NF_ACCEPT;
     }
 
     /* (2) Discord voice / STUN: decoys ahead of the first datagrams of a flow,
@@ -646,10 +640,15 @@ static int cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg,
       else if (udp_flow_note(&g_flows, ip->saddr, udp->source, ip->daddr, udp->dest, (uint32_t)now_ms()))
         send_udp_decoys(ip, udp, plen);
     }
-    return nfq_set_verdict(qh, id, NF_ACCEPT, 0, NULL);
+    return NF_ACCEPT;
   }
 
-  return nfq_set_verdict(qh, id, NF_ACCEPT, 0, NULL);
+  return NF_ACCEPT;
+}
+
+static void on_packet(const nfq_packet *q, void *ud) {
+  (void)ud;
+  nfq_verdict(g_nfq, (uint16_t)g_queue_num, q->id, judge(q));
 }
 
 int raw_linux_start(int queue_num, const raw_config *cfg) {
@@ -675,13 +674,8 @@ int raw_linux_start(int queue_num, const raw_config *cfg) {
     perror("SO_MARK"); close(g_raw_fd); g_raw_fd = -1; return -1;
   }
 
-  g_h = nfq_open();
-  if (!g_h) { fprintf(stderr, "nfq_open failed\n"); return -1; }
-  nfq_unbind_pf(g_h, AF_INET);
-  if (nfq_bind_pf(g_h, AF_INET) < 0) { fprintf(stderr, "nfq_bind_pf failed\n"); return -1; }
-  g_qh = nfq_create_queue(g_h, (uint16_t)queue_num, &cb, NULL);
-  if (!g_qh) { fprintf(stderr, "nfq_create_queue failed\n"); return -1; }
-  nfq_set_mode(g_qh, NFQNL_COPY_PACKET, 0xffff);
+  g_nfq = nfq_open_queue((uint16_t)queue_num, 0xffff);
+  if (g_nfq < 0) { fprintf(stderr, "could not open the packet queue: %s\n", strerror(errno)); return -1; }
   if (install_rule() != 0) {
     fprintf(stderr, "could not install the NFQUEUE rule (need iptables or nft)\n");
     return -1;
@@ -690,14 +684,15 @@ int raw_linux_start(int queue_num, const raw_config *cfg) {
   g_gate = g_cfg.dns_gate > 0 && dnsgate_start(g_cfg.dns_gate, gate_send, 0) == 0;
   int flushed = g_gate && flush_dns_cache();
   g_run = 1;
-  int fd = nfq_fd(g_h);
-  char buf[4096] __attribute__((aligned));
+  int fd = g_nfq;
+  /* A whole packet (up to the 64 KB copied) and its headers, at once. */
+  static uint8_t buf[65536 + 4096] __attribute__((aligned));
   printf("{\"type\":\"raw_ready\",\"queue\":%d,\"ttl\":%d,\"drop_rst\":%d,\"autottl\":%d,\"seqovl\":%d,\"split\":%d,\"mode\":%d,\"quic_block\":%d,\"udp_fake\":%d,\"alert_watch\":%d,\"udp_match\":%d,\"dns_gate\":%d,\"dns_flushed\":%d}\n",
          queue_num, g_cfg.fake_ttl, g_cfg.drop_rst, g_cfg.autottl, g_cfg.seqovl, g_cfg.split, g_cfg.desync_mode, g_quic_block, g_udp_fake, g_alert_watch, g_udp_match, g_gate, flushed);
   fflush(stdout);
   while (g_run) {
     int rv = recv(fd, buf, sizeof(buf), 0);
-    if (rv >= 0) { nfq_handle_packet(g_h, buf, rv); continue; }
+    if (rv >= 0) { nfq_parse(buf, (size_t)rv, on_packet, NULL); continue; }
     if (errno == ENOBUFS) continue;      /* dropped under load; keep going */
     if (errno == EINTR) continue;
     break;
@@ -709,8 +704,7 @@ void raw_linux_stop(void) {
   g_run = 0;
   if (g_gate) { dnsgate_stop(); g_gate = 0; }
   raw_linux_teardown();
-  if (g_qh) { nfq_destroy_queue(g_qh); g_qh = NULL; }
-  if (g_h) { nfq_close(g_h); g_h = NULL; }
+  if (g_nfq >= 0) { nfq_close_queue(g_nfq, (uint16_t)g_queue_num); g_nfq = -1; }
   if (g_raw_fd >= 0) { close(g_raw_fd); g_raw_fd = -1; }
 }
 

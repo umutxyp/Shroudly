@@ -9,7 +9,7 @@
  *
  *   Windows x64: WinDivert driver, bundled next to shroudly-core-adv.exe.
  *                Started through a UAC prompt.
- *   Linux      : NFQUEUE + raw sockets (needs libnetfilter-queue1). Started
+ *   Linux      : NFQUEUE (over netlink: no library needed) + raw sockets. Started
  *                through pkexec; the engine installs and removes its own
  *                iptables/nftables rule.
  *   macOS      : not possible — pf has no divert-to rule and the kernel no
@@ -64,33 +64,12 @@ function advBinaryPath() {
   return path.join(__dirname, 'tools', 'core', `${process.platform}-${archKey()}`, name);
 }
 
-const LINUX_LIB_DIRS = ['/usr/lib/x86_64-linux-gnu', '/lib/x86_64-linux-gnu', '/usr/lib/aarch64-linux-gnu',
-  '/lib/aarch64-linux-gnu', '/usr/lib64', '/lib64', '/usr/lib', '/lib'];
-
-function linuxHasNfqueueLib() {
-  return LINUX_LIB_DIRS.some((d) => fs.existsSync(path.join(d, 'libnetfilter_queue.so.1')));
-}
-
-/* The command that installs libnetfilter_queue on this distribution: the
- * package has a different name, and a different installer, on each family. */
-function linuxInstallCommand(osRelease) {
-  let text = osRelease;
-  if (text === undefined) { try { text = fs.readFileSync('/etc/os-release', 'utf8'); } catch { text = ''; } }
-  const field = (k) => ((text.match(new RegExp(`^${k}=(.*)$`, 'm')) || [])[1] || '').replace(/["']/g, '').toLowerCase();
-  const ids = `${field('ID')} ${field('ID_LIKE')}`;
-  if (/\b(arch|manjaro|endeavouros|garuda|artix)\b/.test(ids)) return 'sudo pacman -S libnetfilter_queue';
-  if (/\b(opensuse|suse|sles)\b/.test(ids) || /opensuse/.test(ids)) return 'sudo zypper install libnetfilter_queue1';
-  if (/\b(fedora|rhel|centos|rocky|almalinux|nobara)\b/.test(ids)) return 'sudo dnf install libnetfilter_queue';
-  return 'sudo apt install libnetfilter-queue1';
-}
-
 const REASONS = {
   mac_unsupported: 'Advanced mode is not available on macOS: the system offers no packet-divert interface without a signed Network Extension. The default engine still works.',
   arch_unsupported: 'Advanced mode is not available on this processor architecture (the WinDivert driver has no ARM64 build).',
   platform_unsupported: `Advanced mode is not available on ${process.platform}.`,
   not_built: 'The advanced engine is not included in this build. Run: npm run build:core:advanced',
   windivert_missing: 'WinDivert.dll / WinDivert64.sys are missing next to the advanced engine. Reinstall Shroudly.',
-  linux_lib_missing: 'Advanced mode needs libnetfilter_queue. Install it with: ' + (process.platform === 'linux' ? linuxInstallCommand() : 'sudo apt install libnetfilter-queue1'),
 };
 
 class AdvError extends Error {
@@ -199,7 +178,6 @@ class AdvancedMode {
         return 'windivert_missing';
       }
     }
-    if (this.platform === 'linux' && !linuxHasNfqueueLib()) return 'linux_lib_missing';
     return null;
   }
 
@@ -397,7 +375,6 @@ class AdvancedMode {
 }
 
 module.exports = AdvancedMode;
-module.exports.linuxInstallCommand = linuxInstallCommand;
 module.exports.buildArgs = buildArgs;
 module.exports.winQuoteArg = winQuoteArg;
 /* The TCP options' own name for the same argv (fakeTtl, opts). */

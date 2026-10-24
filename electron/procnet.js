@@ -326,7 +326,9 @@ async function owner(localPort, remotePort, platform = process.platform) {
  * closed (TIME_WAIT), which a program that failed at once leaves behind for
  * a minute or two; that one belongs to no process any more (pid 0, name
  * null). Windows: netstat. Linux: the kernel's tables, a process for the
- * sockets this user may see (their own, where a bot or a tool runs).
+ * sockets this user may see (their own, where a bot or a tool runs); a
+ * socket whose process cannot be seen (a sandboxed app: Flatpak's, Snap's;
+ * another user's) is there too, as pid 0.
  * macOS: [] (what they are looked for, Advanced mode, is not there). The
  * program's name as the system gives it: tasklist's; on Linux its file's
  * (/proc/<pid>/exe), else its main thread's (comm, which a program may
@@ -371,9 +373,10 @@ function procOutbound(want, root = '/proc') {
     }
   }
   if (!byInode.size) return closed;
-  let pids = [];
-  try { pids = fs.readdirSync(root).filter((d) => /^\d+$/.test(d)); } catch { return closed; }
   const rows = closed;
+  const owned = new Set();
+  let pids = [];
+  try { pids = fs.readdirSync(root).filter((d) => /^\d+$/.test(d)); } catch {}
   for (const pid of pids) {
     let fds = [];
     try { fds = fs.readdirSync(`${root}/${pid}/fd`); } catch { continue; }
@@ -382,11 +385,13 @@ function procOutbound(want, root = '/proc') {
       try { link = fs.readlinkSync(`${root}/${pid}/fd/${fd}`); } catch { continue; }
       const m = /^socket:\[(\d+)\]$/.exec(link);
       if (!m || !byInode.has(m[1])) continue;
+      owned.add(m[1]);
       let name = null;
       try { name = path.basename(fs.readlinkSync(`${root}/${pid}/exe`)).replace(/ \(deleted\)$/, ''); } catch {}
       rows.push({ pid: Number(pid), name: name || read(`${root}/${pid}/comm`).trim() || null, remote: byInode.get(m[1]) });
     }
   }
+  for (const [inode, remote] of byInode) if (!owned.has(inode)) rows.push({ pid: 0, name: null, remote });
   return rows;
 }
 
