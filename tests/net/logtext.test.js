@@ -43,6 +43,7 @@ const LINES = [
   "Autopilot: python.exe needs Advanced mode (it goes around Shroudly, and this network's DNS sent it to a block page (195.175.254.2 for discord.com)); asking for permission",
   'Autopilot: node.exe needs Advanced mode on this network (it goes around Shroudly, straight to discord.com (162.159.137.232), which this network stops at the handshake); it was not allowed on 2026-10-20, so it is not asked for by itself; turn it on in Settings',
   'Autopilot: a program reaches example.org directly, around Shroudly; it is not blocked on this network',
+  'Roblox: its servers (www.roblox.com: 128.116.46.3) do not answer on this network at all, while the internet does; the network blocks their addresses, and only a VPN gets around that',
   'Your DNS server udp://76.76.2.2:53 does not answer (timeout); it is the only one used, so lookups fail until it answers',
   'DNS server: udp://9.9.9.9:53',
   'DNS server: https://doh.umbrella.com/dns-query (only this one)',
@@ -77,6 +78,8 @@ const LINES = [
   'discord.com: blocked here, opened with tlsrec-sni (2 tries, ipv4) — the network drops these connections silently instead of refusing them',
   'discord.com: still blocked after 5 techniques (ipv4) — this network may need Advanced mode',
   'discord.com: no answer after 5 techniques (ipv4) — the network may be dropping these connections silently, or the site is down',
+  'www.opera.com: opened a moment ago, now no answer after 6 techniques (ipv4) — the site is up, so the network is stopping it; this network may need Advanced mode',
+  'www.opera.com: opened a moment ago, now no answer after 6 techniques (ipv4) — the site is up, so the network is stopping it; Advanced mode is on, and Shroudly keeps trying other ways',
   'Shroudly engine active (strategy: auto, 16 techniques)',
   // 2.5.5: games and apps, the system proxy, DNS, unreachable hosts.
   'System proxy from the previous session could not be restored yet',

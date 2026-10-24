@@ -32,6 +32,7 @@ const Autopilot = require('./autopilot');
 const AroundWatch = require('./around-watch');
 const StoreApps = require('./store-apps');
 const BlockCheck = require('./blockcheck');
+const Diagnostics = require('./diagnostics');
 const ProcNet = require('./procnet');
 const { RawWatch } = require('./raw-apps');
 const BrowserCheck = require('./browser-check');
@@ -904,6 +905,7 @@ app.whenReady().then(async () => {
     onHostEvent: (kind, host, detail, info) => {
       if (autopilot) autopilot.noteHost(kind, host, info || { note: detail });
       if (aroundWatch) aroundWatch.note(kind, host, info || { note: detail });
+      if (kind === 'unreachable' && detail === 'connect') checkServiceReach(host).catch(() => {});
       if (kind === 'cut' && repeatedCut(host, detail) && ServiceCheck.isMainName(host)) checkServiceOnce(host).catch(() => {});
     },
     // A site that defeated every technique. Told once per site, and at most
@@ -1905,6 +1907,7 @@ setInterval(() => {
   if (now !== networkPrint && engine && engine.doh) engine.doh.networkChanged();
   if (now !== networkPrint) rawWatch.networkChanged();
   if (now !== networkPrint && aroundWatch) aroundWatch.networkChanged();
+  if (now !== networkPrint) reachTold.clear();
   // IPv6 came or went: whether the PAC sends IPv6 addresses to the engine
   // follows (system-proxy.js, hasGlobalIPv6).
   if (now !== networkPrint && engine && engine.proxy && engine.proxy.updateRouting) {
@@ -2245,6 +2248,37 @@ function createAutopilot() {
     };
   }
   createAroundWatch();
+}
+
+/* A service's own name whose addresses take no connection, through Shroudly
+ * (the engine's "unreachable" at the connection stage; Roblox's servers on
+ * some networks): checked directly (blockcheck.addressesAnswer), the
+ * addresses encrypted DNS gives and those the network's DNS gives (the
+ * engine may reach a service at the latter, see "the network's own DNS"),
+ * and where none of them answers while the internet does, the network
+ * blocks the service's servers by address, which no technique on this
+ * computer gets past. Said in one line, once a network per service, instead of leaving
+ * the user waiting on the app with only a line in the log. */
+const SERVICE_NAME = { discord: 'Discord', roblox: 'Roblox' };
+const reachTold = new Set();
+const reachBusy = new Set();
+async function checkServiceReach(host) {
+  const id = Autopilot.familyOf(host);
+  if (!id || !SERVICE_NAME[id] || reachTold.has(id) || reachBusy.has(id) || wake.recent(2 * 60 * 1000)) return;
+  if (!engine || !engine.isActive() || !engine.dohPort) return;
+  reachBusy.add(id);
+  try {
+    const [ours, theirs] = await Promise.all([AroundWatch.addrsVia(engine.dohPort)(host), Diagnostics.systemResolve(host).then((a) => a || [])]);
+    // Both kinds in what is tried (it tries the first eight).
+    const other = theirs.filter((ip) => !Diagnostics.looksForged(ip));
+    const mixed = Array.from({ length: Math.max(ours.length, other.length) }, (_, i) => [ours[i], other[i]]).flat().filter(Boolean);
+    const addrs = [...new Set(mixed)].filter(AroundWatch.isPublic);
+    const ok = await BlockCheck.addressesAnswer(addrs);
+    if (ok !== false || reachTold.has(id)) return;
+    reachTold.add(id);
+    addLog('warning', `${SERVICE_NAME[id]}: its servers (${host}: ${addrs.slice(0, 8).join(', ')}) do not answer on this network at all, while the internet does; the network blocks their addresses, and only a VPN gets around that`);
+    autoTell('autoServiceUnreachable', { app: SERVICE_NAME[id] });
+  } finally { reachBusy.delete(id); }
 }
 
 /* Programs that go around Shroudly and that this network stops (a bot, a

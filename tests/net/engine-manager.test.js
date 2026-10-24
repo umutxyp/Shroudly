@@ -76,6 +76,13 @@ const t = suite('engine-manager');
   t.ok(logs.some((l) => l.startsWith('warning: dead.example: no answer after 5 techniques (ipv4) — the network may be dropping these connections silently, or the site is down')), 'no answer at all is logged as such');
   t.ok(!blockedNotices.length, 'no answer at all is not announced as a blocked site');
   t.ok(mem.dnsProtection === false, 'no answer at all does not switch encrypted DNS back on');
+  // Issue #43: a site a technique opened a moment ago is up; silence from it
+  // now is the network's, told as a block (Advanced mode offered), DNS left.
+  em._onLine(JSON.stringify({ type: 'blocked', host: 'quiet.example', strategy: '', attempts: 6, family: 'ipv4', note: 'silent' }));
+  t.ok(logs.includes('warning: quiet.example: opened a moment ago, now no answer after 6 techniques (ipv4) — the site is up, so the network is stopping it; this network may need Advanced mode')
+    && blockedNotices.join() === 'quiet.example' && mem.dnsProtection === false,
+    'silent right after a technique opened it: the network\'s doing, announced with Advanced mode, encrypted DNS left as it is');
+  blockedNotices.length = 0;
   delete mem.dnsProtection;
   // Refused, but not by the network: the server answered the unchanged
   // request with a TLS alert, or the rest of the site works and only one of

@@ -157,6 +157,7 @@ const PATTERNS = [
   [/^Autopilot: Roblox went around Shroudly; it was left running \((.+)\) and the user was asked to open it again$/, 'logAutoRobloxLeft', ['why']],
   [/^Autopilot: (.+?) needs Advanced mode(?: \(.+\))?; asking for permission$/, 'logAutoAdvancedAsk', ['host']],
   [/^Autopilot: a program reaches (\S+) directly, around Shroudly; it is not blocked on this network$/, 'logAroundClear', ['host']],
+  [/^(\S+): its servers \((.+)\) do not answer on this network at all, while the internet does; the network blocks their addresses, and only a VPN gets around that$/, 'logServiceUnreachable', ['app', 'addrs']],
   [/^Autopilot: a program reaches (\S+) directly, around Shroudly; only its DNS is blocked on this network, and the program has the real address$/, 'logAroundDnsOnly', ['host']],
   // Advanced mode needed and not asked for by itself: the same words as the
   // line in the window.
@@ -195,6 +196,8 @@ const PATTERNS = [
   [/^([A-Za-z0-9.:_-]+): still blocked after (\d+) techniques \((\S+)\) — Advanced mode is on, and Shroudly keeps trying other ways$/, 'logSiteStillBlockedAdvancedOn', ['host', 'tries', 'family']],
   [/^([A-Za-z0-9.:_-]+): still blocked after (\d+) techniques \((\S+)\)/, 'logSiteStillBlocked', ['host', 'tries', 'family']],
   [/^([A-Za-z0-9.:_-]+): no answer after (\d+) techniques \((\S+)\)/, 'logSiteNoAnswer', ['host', 'tries', 'family']],
+  [/^([A-Za-z0-9.:_-]+): opened a moment ago, now no answer after (\d+) techniques \((\S+)\) — the site is up, so the network is stopping it; Advanced mode is on, and Shroudly keeps trying other ways$/, 'logSiteSilentAfterOpenAdvancedOn', ['host', 'tries', 'family']],
+  [/^([A-Za-z0-9.:_-]+): opened a moment ago, now no answer after (\d+) techniques \((\S+)\)/, 'logSiteSilentAfterOpen', ['host', 'tries', 'family']],
   [/^([A-Za-z0-9.:_-]+): the server refused the connection itself \(a TLS alert to the unchanged request\); not a block$/, 'logSiteServerRefused', ['host']],
   [/^([A-Za-z0-9.:_-]+): does not answer, while the rest of the site works through Shroudly; not a block$/, 'logSiteOthersWork', ['host']],
   [/^Techniques remembered for (\d+) sites restored$/, 'logTechniquesRestored', ['count']],

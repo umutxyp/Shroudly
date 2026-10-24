@@ -150,6 +150,9 @@ const POLL_MS = 1000;
 // Cuts reported this soon after a wake are about connections the sleep
 // stalled, not about the network (see _onLine 'cut').
 const WAKE_QUIET_MS = 30000;
+// A site a technique opened this long ago or less is up: silence from it
+// then is the network's (see _onLine 'blocked').
+const OPENED_RECENTLY_MS = 30 * 60 * 1000;
 
 function coreBinaryPath() {
   const plat = process.platform;              // win32 | darwin | linux
@@ -274,6 +277,8 @@ class EngineManager {
     // rather than one per connection.
     this.bypassed = new Set();
     this.blockedHosts = new Set();
+    // When a technique last opened each site.
+    this.openedAt = new Map();
     // How many techniques the engine's ladder has; it says so when it starts.
     this.techniques = 0;
     this._dnsAutoFixed = false;
@@ -775,6 +780,8 @@ class EngineManager {
         try { this.onHostEvent('bypass', msg.host, msg.note || null); } catch {}
         this._rememberTechnique(msg.host, msg.strategy);
         this.blockedHosts.delete(msg.host);
+        if (this.openedAt.size > 400) this.openedAt.clear();
+        this.openedAt.set(msg.host, Date.now());
         // It got through: a later failure to reach it is news again.
         this.logGate.forget('unreachable-DNS', msg.host);
         this.logGate.forget('unreachable-connection', msg.host);
@@ -813,7 +820,14 @@ class EngineManager {
         // line in the log, not a notification, and no setting is changed
         // because of it. The engine starts the next connection to this host
         // further along the ladder, so a technique that works is still found.
-        if (msg.note === 'silent') {
+        // Unless a technique opened the site a little while ago (not just
+        // after a wake): the site is up, so the silence is the network's (one
+        // that follows these connections, or stops an address once it has
+        // seen a way through, issue #43): told as a block, below, with
+        // Advanced mode.
+        const opened = this.openedAt.get(msg.host);
+        const upNow = msg.note === 'silent' && opened != null && Date.now() - opened < OPENED_RECENTLY_MS && !this.wake.recent(WAKE_QUIET_MS);
+        if (msg.note === 'silent' && !upNow) {
           if (!this.blockedHosts.has(msg.host)) {
             if (this.blockedHosts.size > 400) this.blockedHosts.clear();
             this.blockedHosts.add(msg.host);
@@ -825,7 +839,7 @@ class EngineManager {
         // off: the most likely cause is the DNS answer itself, which none of
         // the techniques can fix. Turn it back on and retry rather than leave
         // the user staring at a page that will never load. Once per session.
-        if (this.store.get('dnsProtection') === false && !this._dnsReenabledForBlock) {
+        if (!upNow && this.store.get('dnsProtection') === false && !this._dnsReenabledForBlock) {
           this._dnsReenabledForBlock = true;
           this.store.set('dnsProtection', true);
           this.log('warning', `${msg.host} could not be opened with encrypted DNS switched off. It has been switched back on.`);
@@ -841,9 +855,15 @@ class EngineManager {
           // with the next connections to this host.
           let advanced = false;
           try { advanced = !!this.advancedOn(); } catch {}
-          this.log('warning', advanced
-            ? `${msg.host}: still blocked after ${msg.attempts} techniques (${msg.family}) — Advanced mode is on, and Shroudly keeps trying other ways`
-            : `${msg.host}: still blocked after ${msg.attempts} techniques (${msg.family}) — this network may need Advanced mode`);
+          if (upNow) {
+            this.log('warning', advanced
+              ? `${msg.host}: opened a moment ago, now no answer after ${msg.attempts} techniques (${msg.family}) — the site is up, so the network is stopping it; Advanced mode is on, and Shroudly keeps trying other ways`
+              : `${msg.host}: opened a moment ago, now no answer after ${msg.attempts} techniques (${msg.family}) — the site is up, so the network is stopping it; this network may need Advanced mode`);
+          } else {
+            this.log('warning', advanced
+              ? `${msg.host}: still blocked after ${msg.attempts} techniques (${msg.family}) — Advanced mode is on, and Shroudly keeps trying other ways`
+              : `${msg.host}: still blocked after ${msg.attempts} techniques (${msg.family}) — this network may need Advanced mode`);
+          }
           // Nobody reads a log unprompted. A site that could not be opened at
           // all is the one moment the user needs telling, because otherwise
           // they conclude the app simply does not work.

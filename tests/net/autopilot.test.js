@@ -1011,5 +1011,21 @@ const settle = async () => { for (let i = 0; i < 5; i++) await new Promise((r) =
     t.ok(on === true && off === false, `${process.platform}: a port this process listens on is seen at once, and no longer once it is closed (${on}, ${off})`);
   }
 
+  // ── a service's servers blocked by address (blockcheck.addressesAnswer) ──
+  {
+    const up = new Set(['1.1.1.1', '9.9.9.9', '203.0.113.10']);
+    const connect = async (ip) => up.has(ip);
+    t.ok(await BlockCheck.addressesAnswer(['203.0.113.10', '203.0.113.11'], { connect }) === true, 'one of its addresses takes a connection: not blocked by address');
+    t.ok(await BlockCheck.addressesAnswer(['128.116.46.3'], { connect }) === false, 'none of them does, while the internet does: blocked by address');
+    t.ok(await BlockCheck.addressesAnswer(['128.116.46.3'], { connect: async () => false }) === null, 'nothing answers at all (offline): nothing learnt');
+    t.ok(await BlockCheck.addressesAnswer([], { connect }) === null, 'no address to try: nothing learnt');
+    const net = require('net');
+    const srv = net.createServer((c) => c.destroy());
+    await new Promise((r) => srv.listen(0, '127.0.0.1', r));
+    const real = await BlockCheck.addressesAnswer(['127.0.0.1'], { port: srv.address().port, control: [], ms: 2000 });
+    srv.close();
+    t.ok(real === true, 'a real connection to a listening address: it answers');
+  }
+
   console.log(`autopilot: ${t.count} passed`);
 })().catch((e) => { console.error('FAIL', e.message); process.exit(1); });

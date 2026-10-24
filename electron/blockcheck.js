@@ -15,6 +15,7 @@
  * service that is down, or a computer that is offline, is not "blocked".
  */
 
+const net = require('net');
 const tls = require('tls');
 const diagnostics = require('./diagnostics');
 
@@ -109,4 +110,34 @@ async function check(host, opts = {}) {
   return { blocked: true, how, detail };
 }
 
-module.exports = { check, handshake, LOCAL_ERRORS };
+/* Addresses anyone may connect to, to tell a network that is up from one
+ * that is not (each operator's DNS over HTTPS, port 443). */
+const CONTROL = ['1.1.1.1', '8.8.8.8', '9.9.9.9'];
+
+/* A TCP connection to ip:port within ms: true, or false. */
+function tcpConnect(ip, port, ms) {
+  return new Promise((resolve) => {
+    const s = net.connect({ host: ip, port });
+    const finish = (ok) => { clearTimeout(timer); s.destroy(); resolve(ok); };
+    const timer = setTimeout(() => finish(false), ms);
+    s.once('connect', () => finish(true));
+    s.once('error', () => finish(false));
+  });
+}
+
+/* Do a site's addresses take a connection at all? Its servers blocked by
+ * address (no technique gets past that) look like this: none of them
+ * answers, while the internet does. Resolves true (one answered), false
+ * (none did, and a control address did), or null (no control answered
+ * either: this computer is offline, nothing learnt). opts.connect stands in
+ * for the connection (tests). */
+async function addressesAnswer(addrs, { port = 443, ms = 5000, control = CONTROL, connect = tcpConnect } = {}) {
+  const list = (addrs || []).slice(0, 8);
+  if (!list.length) return null;
+  const any = (ips, p) => Promise.all(ips.map((ip) => Promise.resolve(connect(ip, p, ms)).catch(() => false))).then((r) => r.some(Boolean));
+  const [own, ctl] = await Promise.all([any(list, port), any(control, 443)]);
+  if (own) return true;
+  return ctl ? false : null;
+}
+
+module.exports = { check, handshake, addressesAnswer, LOCAL_ERRORS, CONTROL };
