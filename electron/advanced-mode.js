@@ -86,7 +86,7 @@ class AdvError extends Error {
  * with sequence overlap off. Each is a flag, so a future UI (or a probe
  * result) can switch them per network.
  */
-const ADV_DEFAULTS = { dropRst: true, autottl: true, seqovl: 0, desyncMode: 'fake', split: 'on' };
+const ADV_DEFAULTS = { dropRst: true, autottl: true, seqovl: 0, desyncMode: 'fake', split: 'on', tlsrec: false };
 const DESYNC_MODES = ['fake', 'fakedsplit', 'fakeddisorder'];
 /* After the decoy the real first segment is cut so no part carries the whole
  * name ('on'), or cut and sent last part first ('disorder'): what programs
@@ -100,6 +100,7 @@ function resolveAdvOpts(opts) {
   o.seqovl = Math.max(0, Math.floor(Number(o.seqovl) || 0));
   o.desyncMode = DESYNC_MODES.includes(o.desyncMode) ? o.desyncMode : 'fake';
   o.split = o.split === false ? 'off' : SPLIT_MODES.includes(o.split) ? o.split : 'on';
+  o.tlsrec = !!o.tlsrec;
   return o;
 }
 
@@ -118,6 +119,10 @@ function buildArgs(o) {
     '--seqovl', String(t.seqovl),
     '--split', t.split,
     '--desync-mode', t.desyncMode];
+  // Split the ClientHello's TLS record for a DPI that reassembles the stream
+  // before it inspects (#48); off unless turned on, since it takes every 443
+  // packet of a connection to keep its sequence numbers in step.
+  if (t.tlsrec) args.push('--tlsrec', '1');
   if (o.platform === 'linux') args.push('--queue', String(o.queueNum != null ? o.queueNum : QUEUE_NUM));
   if (o.quicBlock === false) args.push('--no-quic-block');
   if (o.udpFake === false) args.push('--no-udp-fake');

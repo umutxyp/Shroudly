@@ -2185,6 +2185,11 @@ async function startAdvanced() {
       // DNS from the encrypted-DNS forwarder too, not the network's forged
       // answers. Its port stays the same across a Stop and Start.
       dnsGate: engine && engine.dohPort ? engine.dohPort : 0,
+      // Split the ClientHello's TLS record for networks that reassemble the TCP
+      // stream before they inspect (Türkiye's Superonline, #48). Off unless the
+      // user turns it on: it carries every 443 packet of a connection through
+      // the engine to keep its sequence numbers in step.
+      tlsrec: store.get('advancedTlsRec', false) === true,
     };
     const r = await advanced.start(ttl, opts);
     addLog('success', 'Advanced mode enabled');

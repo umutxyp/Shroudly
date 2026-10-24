@@ -116,6 +116,9 @@ static int g_gate = 0;            /* 1: DNS questions go to the gate (dnsgate.h)
 static uint32_t rd32be(const uint8_t *p) {
   return ((uint32_t)p[0]<<24)|((uint32_t)p[1]<<16)|((uint32_t)p[2]<<8)|p[3];
 }
+static void wr32be(uint8_t *p, uint32_t v) {
+  p[0]=(uint8_t)(v>>24); p[1]=(uint8_t)(v>>16); p[2]=(uint8_t)(v>>8); p[3]=(uint8_t)v;
+}
 
 static int load_windivert(void) {
   HMODULE m = LoadLibraryA("WinDivert.dll");
@@ -240,6 +243,29 @@ static int handle_outbound(const uint8_t *pkt, int len, int ihl, int tcphl, int 
   int otl = pkt[8] ? pkt[8] : 64;
   int faked = g_cfg.desync_mode == RAW_DESYNC_FAKEDSPLIT || g_cfg.desync_mode == RAW_DESYNC_FAKEDDISORDER;
 
+  /* tlsrec: split the ClientHello's TLS record into two records, carried in two
+   * TCP segments (for a DPI that reassembles the stream, issue #48). The split
+   * grows the connection by five bytes, tracked in the translation table; the
+   * loop shifts its later segments. Falls through to the cut if it cannot be
+   * built or tracked. */
+  if (g_cfg.tlsrec && pi->kind == PROTO_TLS && pi->host_off >= 1) {
+    int cuts[2], nc = tcpdpi_split_points(pkt + poff, plen, pi->host_off, pi->host_len, cuts);
+    int cut = nc >= 2 ? cuts[1] : (nc == 1 ? cuts[0] : 0);
+    tcpdpi_seg segs[2]; int ns = 0;
+    int ok = cut > 5 && tcpdpi_build_tlsrec_pair(segs, &ns, pkt, ihl, pkt + ihl, tcphl,
+                                                 g_ipid, seq, otl, pkt + poff, plen, cut);
+    uint32_t saddr = rd32be(pkt + 12);
+    if (ok && tcpdpi_xlate_begin(saddr, daddr, (uint16_t)((pkt[ihl] << 8) | pkt[ihl + 1]),
+                                 (uint16_t)((pkt[ihl + 2] << 8) | pkt[ihl + 3]),
+                                 seq + (uint32_t)plen, TCPDPI_TLSREC_GROWTH, now_ms())) {
+      g_ipid = (uint16_t)(g_ipid + 2);
+      if (decoy) send_fake(pkt, len, ihl, tcphl, poff, pi, decoy_ttl_for(daddr), addr);
+      for (int i = 0; i < ns; i++) raw_send(segs[i].data, segs[i].len, addr);
+      rawscope_count(RAWSCOPE_GROWN);
+      return 1;                          /* the original is replaced by the two records */
+    }
+  }
+
   if (!decoy) {
     /* Nothing the server could take for data: just the cut, in the order the
      * chosen technique would have used. */
@@ -320,6 +346,7 @@ int raw_windows_start(const raw_config *cfg) {
   g_udp_match = 0;
   udp_flow_init(&g_flows);
   tcpdpi_hops_reset();
+  tcpdpi_xlate_reset();
   rawscope_touch_reset();
   rawscope_nodecoy_reset();
   if (load_windivert() != 0) return -1;
@@ -342,8 +369,14 @@ int raw_windows_start(const raw_config *cfg) {
   for (int udp_how = UDP_PREFILTER_PAYLOAD; udp_how >= UDP_PREFILTER_PORTS && g_handle == INVALID_HANDLE_VALUE; udp_how--) {
     char udp[1024];
     if (udp_windivert_clause(udp, sizeof(udp), g_quic_block, g_udp_fake, udp_how) < 0) continue;
-    int base = snprintf(filter, sizeof(filter),
-      "(outbound and ip and tcp and (tcp.DstPort == 443 or tcp.DstPort == 80) and tcp.PayloadLength > 0)");
+    /* With tlsrec, every outbound 443 segment is taken (pure ACKs too), so a
+     * grown connection's later sequence numbers can all be shifted; 80 stays
+     * payload-only. Otherwise, payload-bearing 80/443 as before. */
+    int base = g_cfg.tlsrec
+      ? snprintf(filter, sizeof(filter),
+          "(outbound and ip and tcp and (tcp.DstPort == 443 or (tcp.DstPort == 80 and tcp.PayloadLength > 0)))")
+      : snprintf(filter, sizeof(filter),
+          "(outbound and ip and tcp and (tcp.DstPort == 443 or tcp.DstPort == 80) and tcp.PayloadLength > 0)");
     if (udp[0])
       base += snprintf(filter + base, sizeof(filter) - base, " or (outbound and ip and udp and %s)", udp);
     /* Other programs' DNS questions, for the gate (both address families). */
@@ -351,7 +384,10 @@ int raw_windows_start(const raw_config *cfg) {
       base += snprintf(filter + base, sizeof(filter) - base, " or (outbound and !loopback and udp and udp.DstPort == 53)");
     for (int watch = 1; watch >= 0; watch--) {
       char sub[256]; sub[0] = 0; int so = 0;
-      if (g_cfg.drop_rst) so += snprintf(sub + so, sizeof(sub) - so, "tcp.Rst");
+      /* With tlsrec, every inbound 443 segment is taken so its ack can be
+       * brought back for a grown connection. */
+      if (g_cfg.tlsrec) so += snprintf(sub + so, sizeof(sub) - so, "tcp.SrcPort == 443");
+      if (g_cfg.drop_rst) so += snprintf(sub + so, sizeof(sub) - so, "%stcp.Rst", so ? " or " : "");
       if (g_cfg.autottl)  so += snprintf(sub + so, sizeof(sub) - so, "%s(tcp.Syn and tcp.Ack)", so ? " or " : "");
       if (watch)
         so += snprintf(sub + so, sizeof(sub) - so,
@@ -377,8 +413,8 @@ int raw_windows_start(const raw_config *cfg) {
   g_gate = g_cfg.dns_gate > 0 && dnsgate_start(g_cfg.dns_gate, gate_send, (int)sizeof(WINDIVERT_ADDRESS)) == 0;
   int flushed = g_gate && flush_dns_cache();
   g_run = 1;
-  printf("{\"type\":\"raw_ready\",\"backend\":\"windivert\",\"ttl\":%d,\"drop_rst\":%d,\"autottl\":%d,\"seqovl\":%d,\"split\":%d,\"mode\":%d,\"quic_block\":%d,\"udp_fake\":%d,\"alert_watch\":%d,\"udp_match\":%d,\"dns_gate\":%d,\"dns_flushed\":%d}\n",
-         g_cfg.fake_ttl, g_cfg.drop_rst, g_cfg.autottl, g_cfg.seqovl, g_cfg.split, g_cfg.desync_mode, g_quic_block, g_udp_fake, g_alert_watch, g_udp_match, g_gate, flushed);
+  printf("{\"type\":\"raw_ready\",\"backend\":\"windivert\",\"ttl\":%d,\"drop_rst\":%d,\"autottl\":%d,\"seqovl\":%d,\"split\":%d,\"mode\":%d,\"quic_block\":%d,\"udp_fake\":%d,\"alert_watch\":%d,\"udp_match\":%d,\"dns_gate\":%d,\"dns_flushed\":%d,\"tlsrec\":%d}\n",
+         g_cfg.fake_ttl, g_cfg.drop_rst, g_cfg.autottl, g_cfg.seqovl, g_cfg.split, g_cfg.desync_mode, g_quic_block, g_udp_fake, g_alert_watch, g_udp_match, g_gate, flushed, g_cfg.tlsrec);
   fflush(stdout);
 
   uint8_t pkt[65535];
@@ -425,6 +461,20 @@ int raw_windows_start(const raw_config *cfg) {
             alert_from_server(rd32be(pkt + 12), pkt[8]))
           rawscope_decoy_hurt_in(pkt + 12, 4, sport, (uint16_t)((tcp[2] << 8) | tcp[3]),
                                  pkt + ihl + tcphl, (int)len - ihl - tcphl, now_ms());
+        /* tlsrec: bring the acknowledgement back for a grown connection, and
+         * forget it when it ends. */
+        if (g_cfg.tlsrec && (tcp[13] & 0x10)) {                 /* ACK set */
+          uint32_t sa = rd32be(pkt + 12), da = rd32be(pkt + 16);
+          uint16_t sp = (uint16_t)((tcp[0] << 8) | tcp[1]), dp = (uint16_t)((tcp[2] << 8) | tcp[3]);
+          uint32_t ack = rd32be(pkt + ihl + 8);
+          int changed = tcpdpi_xlate_in(sa, da, sp, dp, &ack, now_ms());
+          if (tcp[13] & 0x05) tcpdpi_xlate_end(da, sa, dp, sp);  /* FIN or RST (outbound tuple) */
+          if (changed) {
+            wr32be(pkt + ihl + 8, ack);
+            p_CalcCsum(pkt, len, &addr, 0);
+            UINT s; p_Send(g_handle, pkt, len, &s, &addr); continue;
+          }
+        }
       }
       UINT s; p_Send(g_handle, pkt, len, &s, &addr); continue; /* kept unchanged */
     }
@@ -481,6 +531,24 @@ int raw_windows_start(const raw_config *cfg) {
     if (tcphl < 20 || ihl + tcphl > (int)len) { UINT s; p_Send(g_handle, pkt, len, &s, &addr); continue; }
     int poff = ihl + tcphl;
     int plen = (int)len - poff;
+
+    /* tlsrec: shift a later outbound segment's sequence for a connection whose
+     * ClientHello record we grew (the ClientHello itself has no entry yet, so it
+     * falls through to the desync below), and forget the connection on FIN/RST. */
+    if (g_cfg.tlsrec) {
+      const uint8_t *tcp = pkt + ihl;
+      uint32_t sa = rd32be(pkt + 12), da = rd32be(pkt + 16);
+      uint16_t sp = (uint16_t)((tcp[0] << 8) | tcp[1]), dp = (uint16_t)((tcp[2] << 8) | tcp[3]);
+      uint32_t s = rd32be(pkt + ihl + 4);
+      int changed = tcpdpi_xlate_out(sa, da, sp, dp, &s, now_ms());
+      if (tcp[13] & 0x05) tcpdpi_xlate_end(sa, da, sp, dp);   /* FIN or RST */
+      if (changed) {
+        wr32be(pkt + ihl + 4, s);
+        p_CalcCsum(pkt, len, &addr, 0);
+        UINT sent; p_Send(g_handle, pkt, len, &sent, &addr);
+        continue;
+      }
+    }
 
     int handled = 0;
     if (plen > 0) {
