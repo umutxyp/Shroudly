@@ -284,12 +284,85 @@ static void test_split(void) {
   CHECK(tcpdpi_build_multisplit4(segs, &ns, tmpl, 20, tmpl + 20, 20, 1, seq, ttl, real, 60, one, 0, 0) == 0);   /* no cut */
 }
 
+/* ───────── splitting the TLS record (tlsrec) ───────── */
+static void test_tlsrec(void) {
+  uint8_t tmpl[40]; mk_hdr(tmpl, 50000, 443, 0x18, 0);
+  /* A ClientHello-shaped first segment: a TLS record of 40 body bytes, then
+   * four trailing bytes that belong to no record (kept after the split). */
+  uint8_t real[64]; int rl = 40, tail = 4, rlen = 5 + rl + tail;
+  real[0] = 0x16; real[1] = 0x03; real[2] = 0x01; wr16(real + 3, (uint16_t)rl);
+  for (int i = 0; i < rl + tail; i++) real[5 + i] = (uint8_t)(0x41 + i);
+
+  uint8_t out[120];
+  int cut = 5 + 15;                       /* 15 bytes into the record body */
+  int n = tcpdpi_build_tlsrec4(out, sizeof out, tmpl, 20, tmpl + 20, 20, 0x700, 9000, 64, real, rlen, cut);
+  int poff = 40, plen = n - poff;
+  CHECK(n > 0 && plen == rlen + TCPDPI_TLSREC_GROWTH);     /* grew by one record header */
+  const uint8_t *p = out + poff;
+  /* record 1: 0x16 03 01, length 15, body = real body[0..15) */
+  CHECK(p[0] == 0x16 && p[1] == 0x03 && p[2] == 0x01 && rd16(p + 3) == 15);
+  CHECK(memcmp(p + 5, real + 5, 15) == 0);
+  /* record 2: 0x16 03 01, length 25, body = real body[15..40) */
+  const uint8_t *q = p + 5 + 15;
+  CHECK(q[0] == 0x16 && q[1] == 0x03 && q[2] == 0x01 && rd16(q + 3) == 25);
+  CHECK(memcmp(q + 5, real + 5 + 15, 25) == 0);
+  /* the four trailing bytes, unchanged, after the second record */
+  CHECK(memcmp(q + 5 + 25, real + 5 + 40, 4) == 0);
+  /* the two record bodies back to back are the original record body */
+  uint8_t body[40]; memcpy(body, p + 5, 15); memcpy(body + 15, q + 5, 25);
+  CHECK(memcmp(body, real + 5, 40) == 0);
+  CHECK(rd32(out + 24) == 9000);                           /* sequence unchanged */
+  CHECK(out[8] == 64 && tcp_csum_ok(out, n, 20) && ip_csum_ok(out, 20));  /* good checksum */
+
+  /* refusals: not a TLS record, record longer than the segment, cut outside it */
+  uint8_t bad[48]; memcpy(bad, real, 48);
+  bad[0] = 0x17; CHECK(tcpdpi_build_tlsrec4(out, sizeof out, tmpl, 20, tmpl + 20, 20, 1, 1, 64, bad, rlen, cut) == 0);
+  memcpy(bad, real, 48); wr16(bad + 3, 500);  /* record claims 500 body bytes, not present */
+  CHECK(tcpdpi_build_tlsrec4(out, sizeof out, tmpl, 20, tmpl + 20, 20, 1, 1, 64, bad, rlen, cut) == 0);
+  CHECK(tcpdpi_build_tlsrec4(out, sizeof out, tmpl, 20, tmpl + 20, 20, 1, 1, 64, real, rlen, 5) == 0);        /* cut at body start */
+  CHECK(tcpdpi_build_tlsrec4(out, sizeof out, tmpl, 20, tmpl + 20, 20, 1, 1, 64, real, rlen, 5 + 40) == 0);   /* cut at body end */
+}
+
+/* ───────── sequence-number translation ───────── */
+static void test_xlate(void) {
+  uint32_t sa = 0x01020304, da = 0x05060708; uint16_t sp = 0xc350, dp = 0x01bb;
+  uint64_t T = 1000000;
+  tcpdpi_xlate_reset();
+  CHECK(tcpdpi_xlate_begin(sa, da, sp, dp, 1000, 5, T) == 1);
+  uint32_t s;
+  s = 1000; CHECK(tcpdpi_xlate_out(sa, da, sp, dp, &s, T) == 1 && s == 1005);  /* at the growth */
+  s = 2000; CHECK(tcpdpi_xlate_out(sa, da, sp, dp, &s, T) == 1 && s == 2005);  /* after it */
+  s = 999;  CHECK(tcpdpi_xlate_out(sa, da, sp, dp, &s, T) == 0 && s == 999);   /* before it */
+  s = 1234; CHECK(tcpdpi_xlate_out(sa, da, 0x1111, dp, &s, T) == 0);           /* another connection */
+  /* inbound (server -> client): the tuple reversed, the ack brought back */
+  uint32_t a;
+  a = 1005; CHECK(tcpdpi_xlate_in(da, sa, dp, sp, &a, T) == 1 && a == 1000);
+  a = 2005; CHECK(tcpdpi_xlate_in(da, sa, dp, sp, &a, T) == 1 && a == 2000);
+  a = 1004; CHECK(tcpdpi_xlate_in(da, sa, dp, sp, &a, T) == 0 && a == 1004);   /* not yet past the growth */
+  /* the sequence space wraps */
+  CHECK(tcpdpi_xlate_begin(sa, da, 0x2222, dp, 0xfffffff0u, 5, T) == 1);
+  s = 0x00000003u; CHECK(tcpdpi_xlate_out(sa, da, 0x2222, dp, &s, T) == 1 && s == 0x00000008u);
+  /* closing a connection forgets it */
+  tcpdpi_xlate_end(sa, da, sp, dp);
+  s = 2000; CHECK(tcpdpi_xlate_out(sa, da, sp, dp, &s, T) == 0 && s == 2000);
+  /* a full table of live connections refuses a new one, never corrupts one */
+  tcpdpi_xlate_reset();
+  for (int i = 0; i < TCPDPI_XLATE_CAP; i++) CHECK(tcpdpi_xlate_begin((uint32_t)(0x0a000000u + i), da, sp, dp, 100, 5, T) == 1);
+  CHECK(tcpdpi_xlate_live(T) == TCPDPI_XLATE_CAP);
+  CHECK(tcpdpi_xlate_begin(0xdeadbeef, da, sp, dp, 100, 5, T) == 0);
+  /* once the live ones age out, there is room again */
+  CHECK(tcpdpi_xlate_begin(0xdeadbeef, da, sp, dp, 100, 5, T + TCPDPI_XLATE_TTL_MS + 1) == 1);
+  tcpdpi_xlate_reset();
+}
+
 int main(void) {
   test_rst();
   test_hops();
   test_seqovl();
   test_fakedsplit();
   test_split();
+  test_tlsrec();
+  test_xlate();
   if (fails == 0) { printf("ALL TCPDPI TESTS PASSED\n"); return 0; }
   printf("%d FAILED\n", fails); return 1;
 }

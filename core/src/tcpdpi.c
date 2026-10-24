@@ -283,3 +283,111 @@ int tcpdpi_build_multisplit4(tcpdpi_seg segs[3], int *nsegs,
   *nsegs = k;
   return 1;
 }
+
+/* ───────────────────────── TLS record split (tlsrec) ───────────────────────── */
+int tcpdpi_build_tlsrec4(uint8_t *dst, size_t dstcap,
+                         const uint8_t *ip_tmpl, int ihl,
+                         const uint8_t *tcp_tmpl, int tcphl,
+                         uint16_t ip_id, uint32_t seq, int ttl,
+                         const uint8_t *real, int real_len, int cut) {
+  if (!dst || !real || real_len < 6) return 0;
+  if (real[0] != 0x16 || real[1] != 0x03) return 0;        /* a TLS record */
+  int rl = rd16(real + 3);                                  /* first record body */
+  if (rl < 2 || 5 + rl > real_len) return 0;                /* fully present here */
+  /* `cut` is a payload offset; it must fall strictly inside the record body. */
+  int k = cut - 5;                                          /* offset into the body */
+  if (k < 1 || k >= rl) return 0;
+  int tail = real_len - (5 + rl);                           /* bytes after the record */
+  int paylen = real_len + TCPDPI_TLSREC_GROWTH;
+  if (ihl < 20 || tcphl < 20) return 0;
+  if (ihl + tcphl + paylen > TCPDPI_SEG_MAX) return 0;
+
+  uint8_t pay[TCPDPI_SEG_MAX];
+  int o = 0;
+  /* record 1: header with length k, body real[5 .. 5+k) */
+  pay[o++] = 0x16; pay[o++] = real[1]; pay[o++] = real[2];
+  wr16(pay + o, (uint16_t)k); o += 2;
+  memcpy(pay + o, real + 5, (size_t)k); o += k;
+  /* record 2: header with length rl-k, body real[5+k .. 5+rl) */
+  pay[o++] = 0x16; pay[o++] = real[1]; pay[o++] = real[2];
+  wr16(pay + o, (uint16_t)(rl - k)); o += 2;
+  memcpy(pay + o, real + 5 + k, (size_t)(rl - k)); o += rl - k;
+  /* whatever followed the first record, unchanged */
+  if (tail > 0) { memcpy(pay + o, real + 5 + rl, (size_t)tail); o += tail; }
+
+  return tcpdpi_build_segment4(dst, dstcap, ip_tmpl, ihl, tcp_tmpl, tcphl,
+                               ip_id, seq, ttl, pay, o, 0 /* good: the server keeps it */);
+}
+
+/* ───────────────────────── sequence-number translation ───────────────────────── */
+typedef struct {
+  uint32_t sa, da; uint16_t sp, dp;   /* the outbound four-tuple (network order) */
+  uint32_t from;                      /* outbound sequence where the growth began */
+  int      growth;                    /* bytes added at/after `from` */
+  uint64_t t;                         /* last touched */
+  int      used;
+} xl_ent;
+static xl_ent g_xl[TCPDPI_XLATE_CAP];
+
+/* Serial-number comparison (RFC 1982): a is at or after b. */
+static int seq_ge(uint32_t a, uint32_t b) { return (int32_t)(a - b) >= 0; }
+
+void tcpdpi_xlate_reset(void) { memset(g_xl, 0, sizeof(g_xl)); }
+
+static xl_ent *xl_find(uint32_t sa, uint32_t da, uint16_t sp, uint16_t dp) {
+  for (int i = 0; i < TCPDPI_XLATE_CAP; i++)
+    if (g_xl[i].used && g_xl[i].sa == sa && g_xl[i].da == da && g_xl[i].sp == sp && g_xl[i].dp == dp)
+      return &g_xl[i];
+  return NULL;
+}
+
+int tcpdpi_xlate_begin(uint32_t saddr, uint32_t daddr, uint16_t sport, uint16_t dport,
+                       uint32_t at_seq, int growth, uint64_t now_ms) {
+  if (growth <= 0) return 0;
+  xl_ent *e = xl_find(saddr, daddr, sport, dport);
+  if (e) { e->from = at_seq; e->growth = growth; e->t = now_ms; return 1; } /* refresh */
+  int free_slot = -1;
+  for (int i = 0; i < TCPDPI_XLATE_CAP; i++) {
+    if (!g_xl[i].used) { free_slot = i; continue; }
+    if (now_ms - g_xl[i].t > TCPDPI_XLATE_TTL_MS) { g_xl[i].used = 0; if (free_slot < 0) free_slot = i; }
+  }
+  if (free_slot < 0) return 0;              /* full of live connections: do not grow */
+  xl_ent *s = &g_xl[free_slot];
+  s->sa = saddr; s->da = daddr; s->sp = sport; s->dp = dport;
+  s->from = at_seq; s->growth = growth; s->t = now_ms; s->used = 1;
+  return 1;
+}
+
+int tcpdpi_xlate_out(uint32_t saddr, uint32_t daddr, uint16_t sport, uint16_t dport,
+                     uint32_t *seq, uint64_t now_ms) {
+  xl_ent *e = xl_find(saddr, daddr, sport, dport);
+  if (!e) return 0;
+  e->t = now_ms;
+  if (!seq_ge(*seq, e->from)) return 0;     /* before the growth: unchanged */
+  *seq += (uint32_t)e->growth;
+  return 1;
+}
+
+int tcpdpi_xlate_in(uint32_t saddr, uint32_t daddr, uint16_t sport, uint16_t dport,
+                    uint32_t *ack, uint64_t now_ms) {
+  /* inbound server->client: match the stored outbound tuple reversed */
+  xl_ent *e = xl_find(daddr, saddr, dport, sport);
+  if (!e) return 0;
+  e->t = now_ms;
+  /* The server acknowledges grown bytes once it has taken anything past `from`. */
+  if (!seq_ge(*ack, e->from + (uint32_t)e->growth)) return 0;
+  *ack -= (uint32_t)e->growth;
+  return 1;
+}
+
+void tcpdpi_xlate_end(uint32_t saddr, uint32_t daddr, uint16_t sport, uint16_t dport) {
+  xl_ent *e = xl_find(saddr, daddr, sport, dport);
+  if (e) e->used = 0;
+}
+
+int tcpdpi_xlate_live(uint64_t now_ms) {
+  int n = 0;
+  for (int i = 0; i < TCPDPI_XLATE_CAP; i++)
+    if (g_xl[i].used && now_ms - g_xl[i].t <= TCPDPI_XLATE_TTL_MS) n++;
+  return n;
+}

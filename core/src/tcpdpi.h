@@ -157,4 +157,84 @@ int tcpdpi_build_multisplit4(tcpdpi_seg segs[3], int *nsegs,
                              const uint8_t *real, int real_len,
                              const int *cuts, int ncuts, int reverse);
 
+/* ───────── splitting the TLS record itself (zapret tlsrec, GoodbyeDPI -r) ─────────
+ * The cut above is a TCP one: it puts the name across two TCP segments. A DPI
+ * that reassembles the TCP stream before it looks (as some do, Türkiye's
+ * Superonline among them, issue #48) reads the whole name back out of the
+ * segments and blocks it anyway. The proxy gets past such a filter by splitting
+ * the TLS record, not the TCP stream: the ClientHello becomes two TLS records,
+ * each a valid record of its own, with the name across the boundary. Rebuilt
+ * from the stream, the handshake is identical; but a filter that matches the
+ * name inside one record never sees it whole. This is the single technique the
+ * engine's proxy tries first (tlsrec-sni-mid), done here at the packet layer so
+ * every program gets it, proxy-aware or not.
+ *
+ * `real` is the outbound first-payload TCP segment, which must begin with a
+ * complete TLS record (real[0]==0x16, and 5 + record-length <= real_len).
+ * `cut` is a byte offset into `real` (as tcpdpi_split_points returns), which
+ * must fall strictly inside that record's body (5 < cut < 5 + record_len). The
+ * record is split there into two records; any bytes of `real` after the first
+ * record are kept, unchanged, after the second. One TCP segment is written to
+ * dst at `seq`, good checksum, TTL `ttl`. It is five bytes longer than `real`
+ * (the second record's own 5-byte header), so the sender's later bytes on this
+ * connection sit five behind what the server now expects: the caller shifts
+ * them with the sequence-translation table below. Returns the segment length,
+ * or 0 on any error (the caller then sends `real` unchanged). */
+int tcpdpi_build_tlsrec4(uint8_t *dst, size_t dstcap,
+                         const uint8_t *ip_tmpl, int ihl,
+                         const uint8_t *tcp_tmpl, int tcphl,
+                         uint16_t ip_id, uint32_t seq, int ttl,
+                         const uint8_t *real, int real_len, int cut);
+
+/* The extra bytes tcpdpi_build_tlsrec4 adds (one TLS record header). */
+#define TCPDPI_TLSREC_GROWTH 5
+
+/* ───────── sequence-number translation for a grown connection ─────────
+ * Splitting the TLS record adds TCPDPI_TLSREC_GROWTH bytes to the one segment,
+ * so from that point every byte the client sends is five earlier in the stream
+ * than the byte the server now acknowledges. For the rest of the connection the
+ * backend must add the growth to the sequence number of each later outbound
+ * segment, and take it back off the acknowledgement number of each inbound one,
+ * so both stacks stay in step. This small table remembers, per connection (its
+ * four-tuple, addresses and ports in network byte order), the growth and the
+ * sequence at which it began.
+ *
+ * It is written and read only from the backend's single packet-loop thread, so
+ * no locking. Entries live until the connection's FIN or RST is seen (the
+ * backend calls _end then) or, as a backstop for a connection whose close is
+ * never seen, until TCPDPI_XLATE_TTL_MS of silence. The table is sized for many
+ * concurrent long-lived connections (a Discord gateway socket lasts hours);
+ * when it is nonetheless full of live entries, _begin returns 0 and the caller
+ * does not split that connection's record rather than ever corrupt another. */
+#define TCPDPI_XLATE_CAP     4096
+#define TCPDPI_XLATE_TTL_MS  (6 * 3600 * 1000) /* a long-lived socket, untouched */
+
+void tcpdpi_xlate_reset(void);
+
+/* A connection grew by `growth` bytes at outbound sequence `at_seq`. Returns 1
+ * if remembered (the caller may send the grown segment), 0 if the table is full
+ * of live connections (the caller must not grow this one). Refreshing an
+ * existing four-tuple always succeeds. */
+int  tcpdpi_xlate_begin(uint32_t saddr, uint32_t daddr, uint16_t sport, uint16_t dport,
+                        uint32_t at_seq, int growth, uint64_t now_ms);
+
+/* Adjust an outbound segment's sequence `*seq` for its connection: += growth
+ * when the segment is at or after where the growth began. Returns 1 if changed.
+ * A matching entry's age is refreshed. */
+int  tcpdpi_xlate_out(uint32_t saddr, uint32_t daddr, uint16_t sport, uint16_t dport,
+                      uint32_t *seq, uint64_t now_ms);
+
+/* Adjust an inbound segment's acknowledgement `*ack` for its connection: -=
+ * growth when the server is acknowledging bytes past where the growth began.
+ * The four-tuple is the inbound one (server -> client); it is matched against
+ * the stored outbound tuple reversed. Returns 1 if changed. */
+int  tcpdpi_xlate_in(uint32_t saddr, uint32_t daddr, uint16_t sport, uint16_t dport,
+                     uint32_t *ack, uint64_t now_ms);
+
+/* Forget a connection (its FIN or RST was seen), by its outbound four-tuple. */
+void tcpdpi_xlate_end(uint32_t saddr, uint32_t daddr, uint16_t sport, uint16_t dport);
+
+/* How many connections are currently remembered (for the raw_stats line). */
+int  tcpdpi_xlate_live(uint64_t now_ms);
+
 #endif
