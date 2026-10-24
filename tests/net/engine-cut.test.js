@@ -17,8 +17,8 @@ const BIG = Buffer.alloc(200 * 1024, 'x');
 
 /* The shape of a first flight once the whole ClientHello is in: 'one' (one
  * record holding the whole name), 'sni+1' (records split one byte into the
- * name), 'mid' (split further in), 'other'; null while it is still arriving.
- * Only the record split in the middle of the name (tlsrec-sni-mid) is 'mid'. */
+ * name), 'end' (one byte before its end: tlsrec-sni-end), 'mid' (split in
+ * between: tlsrec-sni-mid), 'other'; null while it is still arriving. */
 function shape(buf, name) {
   let p = 0, body = Buffer.alloc(0), first = -1;
   while (p + 5 <= buf.length) {
@@ -32,7 +32,7 @@ function shape(buf, name) {
       const i = body.indexOf(name);
       if (i < 0) return 'other';
       const inFirst = first - i;
-      return inFirst >= name.length ? 'one' : inFirst <= 1 ? 'sni+1' : 'mid';
+      return inFirst >= name.length ? 'one' : inFirst <= 1 ? 'sni+1' : inFirst === name.length - 1 ? 'end' : 'mid';
     }
   }
   return null;
@@ -114,8 +114,9 @@ function shape(buf, name) {
   // A filter that resets a handshake the moment its first piece arrives on its
   // own, before the rest: a technique that sends the handshake in several
   // writes then fails partway through sending. It also resets an untouched
-  // handshake and one split one byte into the name; only the record split in
-  // the middle of the name gets past. The engine has to treat the failed
+  // handshake and every other record split; only the one a byte before the
+  // name's end gets past, the sixth technique, so the ones sent in pieces
+  // before it are tried and reset first. The engine has to treat the failed
   // sends as refusals and keep going, not drop the connection.
   const PIECES = 'pieces.rst-site.local';
   let piecesReset = 0;
@@ -131,7 +132,7 @@ function shape(buf, name) {
       }
       const k = shape(buf, PIECES);
       if (!k) return;
-      if (k !== 'mid') { c.resetAndDestroy(); return; }
+      if (k !== 'end') { c.resetAndDestroy(); return; }
       u = net.connect(server.address().port, '127.0.0.1');
       u.on('error', () => c.destroy());
       u.write(buf); u.pipe(c);
@@ -161,7 +162,7 @@ function shape(buf, name) {
   r = await strictVisit();
   t.ok(r.got > BIG.length, `handshakes reset in pieces (${piecesReset} of them) do not end the ladder: the site loads (${r.ms} ms)`);
   t.ok(!r.failed.length && !r.blocked.length, 'no "send_failed", no "blocked"');
-  t.ok(r.bypass.length === 1 && r.bypass[0].strategy === 'tlsrec-sni-mid' && !r.bypass[0].note,
+  t.ok(r.bypass.length === 1 && r.bypass[0].strategy === 'tlsrec-sni-end' && !r.bypass[0].note,
     `learned and reported as a bypass of a refusing filter: ${JSON.stringify(r.bypass[0])}`);
   // Whether a reset lands between two writes of one technique depends on how
   // far apart the engine sends them: off Linux, disorder waits 10 ms between
@@ -179,7 +180,7 @@ function shape(buf, name) {
   {
     const P2 = await freePort();
     const eng2 = await startEngine(P2, ['--strategy', 'split(sni)', '--auto']);
-    eng2.proc.stdin.write(`LEARN ${PIECES} tlsrec-sni-mid 120\nLEARN bad_host! tlsrec-sni-mid 5\nLEARN fine.test.local no-such-technique 5\nLEARN 10.0.0.1 tlsrec-sni 5\n`);
+    eng2.proc.stdin.write(`LEARN ${PIECES} tlsrec-sni-end 120\nLEARN bad_host! tlsrec-sni-end 5\nLEARN fine.test.local no-such-technique 5\nLEARN 10.0.0.1 tlsrec-sni 5\n`);
     await sleep(300);
     const from = eng2.out.length;
     const s0 = await eng2.stats();

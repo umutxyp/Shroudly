@@ -82,8 +82,9 @@ function shape(buf) {
   t.ok(!events(mark, 'bypass').length, 'and nothing was learned from it');
 
   // The next connection carries on where the first left off: its untouched
-  // request first, then the technique after the last one tried (the record
-  // split in the middle of the name), not the list's first technique again.
+  // request first, then the technique after the last one tried (the fifth, a
+  // record split one byte into the name), not the list's first technique
+  // again (the record split in the middle of the name).
   mark = eng.out.length; from = seen.length;
   raw = await socks(P, '127.0.0.1', censor.address().port);
   s = tls.connect({ socket: raw, servername: NAME, rejectUnauthorized: false });
@@ -91,7 +92,7 @@ function shape(buf) {
   for (let i = 0; i < 50 && seen.length - from < 2; i++) await sleep(100);
   s.destroy();
   const next = seen.slice(from);
-  t.ok(next[0] === 'one' && next[1] === 'mid', `the next connection resumed where the search had stopped (${next.join(', ')})`);
+  t.ok(next[0] === 'one' && next[1] === 'sni+1', `the next connection resumed where the search had stopped (${next.join(', ')})`);
 
   await sleep(300);
   t.ok(eng.exited === null && !/AddressSanitizer|runtime error:/.test(eng.err), 'engine still up, no sanitizer errors');

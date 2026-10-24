@@ -99,12 +99,16 @@ function hello(buf) {
       bypass: events(mark, 'bypass'), blocked: events(mark, 'blocked') };
   }
 
+  // The engine's first technique (core/src/strategy.c), which these handshakes
+  // let through.
+  const FIRST = 'tlsrec-sni-mid';
+
   // Answers 3 s after the technique's handshake: later than the engine waits
   // before its next technique. 2.5.4 loaded this in about 8 s, every time.
   sites['three.slowpath.local'] = { blocked: true, delay: 3000 };
   let r = await visit('three.slowpath.local');
   t.ok(r.ok && r.ms < 12000, `technique answered 3 s late: the page still loads (${r.ms} ms)`);
-  t.ok(r.bypass.length === 1 && r.bypass[0].note === 'silent' && r.bypass[0].strategy === 'tlsrec-sni',
+  t.ok(r.bypass.length === 1 && r.bypass[0].note === 'silent' && r.bypass[0].strategy === FIRST,
     `learned from it, the untouched request being unanswered: ${JSON.stringify(r.bypass[0])}`);
   r = await visit('three.slowpath.local');
   t.ok(r.ok && r.ms < 3000 + 1500 && r.tries.length === 1 && r.tries[0].passed,
@@ -116,7 +120,7 @@ function hello(buf) {
   sites['late.slowpath2.local'] = { blocked: true, delay: 2700 };
   r = await visit('late.slowpath2.local');
   t.ok(r.ok && r.ms < 12000, `technique answered after the next one went out: still used (${r.ms} ms)`);
-  t.ok(r.bypass.length === 1 && r.bypass[0].strategy === 'tlsrec-sni' && r.tries.length >= 3,
+  t.ok(r.bypass.length === 1 && r.bypass[0].strategy === FIRST && r.tries.length >= 3,
     `the one that answered is learned, not the latest (${r.bypass[0] && r.bypass[0].strategy}, ${r.tries.length} attempts out)`);
 
   // Answers after the ladder's whole 15 s budget: "blocked" is said when the
@@ -125,7 +129,7 @@ function hello(buf) {
   sites['crawl.slowpath3.local'] = { blocked: true, delay: 11000 };
   r = await visit('crawl.slowpath3.local');
   t.ok(r.ok && r.ms < 19000, `technique answered after the ladder's budget: the page still loads (${r.ms} ms)`);
-  t.ok(r.bypass.length === 1 && r.bypass[0].strategy === 'tlsrec-sni',
+  t.ok(r.bypass.length === 1 && r.bypass[0].strategy === FIRST,
     `and that technique is learned: ${JSON.stringify(r.bypass[0])}`);
   sites['crawl.slowpath3.local'].delay = 0;
   r = await visit('crawl.slowpath3.local');

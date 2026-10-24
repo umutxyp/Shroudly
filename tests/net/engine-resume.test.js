@@ -14,10 +14,10 @@
  * The fake censor here does not model one real filter: it swallows every
  * handshake (nothing forwarded, nothing back, nothing closed) except the one
  * shape it is told to let through — the handshake split into two TLS records
- * in the middle of the server name, which is what tlsrec-sni-mid sends. For
- * the first two connections it lets nothing through, so the engine's place in
- * the list moves well past that technique, and reaching it again takes a
- * wrap-around. */
+ * one byte before the end of the server name, which is what tlsrec-sni-end
+ * sends, the sixth technique. For the first two connections it lets nothing
+ * through, so the engine's place in the list moves well past that technique,
+ * and reaching it again takes a wrap-around. */
 
 const tls = require('tls');
 const net = require('net');
@@ -28,8 +28,8 @@ const NAME = 'late.resume.local';
 
 /* The shape of a first flight, once the whole ClientHello is in: 'one' (one
  * record holding the whole name: untouched, or split at the TCP level only),
- * 'sni+1' (records split one byte into the name) or 'mid' (split further in);
- * null while it is still arriving. */
+ * 'sni+1' (records split one byte into the name), 'end' (one byte before its
+ * end) or 'mid' (split in between); null while it is still arriving. */
 function shape(buf) {
   let p = 0, body = Buffer.alloc(0), first = -1;
   while (p + 5 <= buf.length) {
@@ -43,7 +43,7 @@ function shape(buf) {
       const i = body.indexOf(NAME);
       if (i < 0) return 'other';
       const inFirst = first - i;
-      return inFirst >= NAME.length ? 'one' : inFirst <= 1 ? 'sni+1' : 'mid';
+      return inFirst >= NAME.length ? 'one' : inFirst <= 1 ? 'sni+1' : inFirst === NAME.length - 1 ? 'end' : 'mid';
     }
   }
   return null;
@@ -55,7 +55,7 @@ function shape(buf) {
   }).listen(0, '127.0.0.1');
   await new Promise((r) => server.once('listening', r));
 
-  let mode = 'nothing';      // or 'mid': what the censor lets through
+  let mode = 'nothing';      // or 'end': what the censor lets through
   const seen = [];           // the shape of every attempt that reached it
   const censor = net.createServer((c) => {
     const m = mode;
@@ -69,7 +69,7 @@ function shape(buf) {
       const k = shape(buf);
       if (!k) return;
       decided = true; seen.push(k);
-      if (m === 'mid' && k === 'mid') {
+      if (m === 'end' && k === 'end') {
         u = net.connect(server.address().port, '127.0.0.1');
         u.on('error', () => c.destroy());
         u.write(buf); u.pipe(c);
@@ -109,18 +109,20 @@ function shape(buf) {
   const firstAttempts = r.blocked.attempts;
 
   // The second connection carries on where the first stopped: the next
-  // technique in the list (the mid-name record split) goes out right after
-  // the untouched request, not 5 s after it, and so more techniques fit in the
-  // same 15 s.
+  // technique in the list (the fifth, a record split one byte into the name,
+  // then the one before the name's end) goes out right after the untouched
+  // request, not 5 s after it, and so more techniques fit in the same 15 s.
+  // Started over, it would begin with the first technique, the mid-name
+  // split.
   r = await visit();
   t.ok(!r.ok && r.blocked && r.blocked.note === 'silent', 'second connection: still blocked, silently');
-  t.ok(r.seen[0] === 'one' && r.seen[1] === 'mid',
+  t.ok(r.seen[0] === 'one' && r.seen[1] === 'sni+1' && r.seen[2] === 'end',
     `it started where the first left off, the untouched request raced beside it (${r.seen.join(', ')})`);
   t.ok(r.blocked.attempts > firstAttempts, `and fit more techniques in: ${r.blocked.attempts} against ${firstAttempts}`);
 
-  // Now the censor lets the mid-name split through — a technique the engine's
-  // place in the list has just gone past.
-  mode = 'mid';
+  // Now the censor lets the split before the name's end through — a technique
+  // the engine's place in the list has just gone past.
+  mode = 'end';
   const shapes = [];
   let opened = null, tries = 0;
   for (; tries < 4 && !opened; tries++) {
@@ -133,11 +135,11 @@ function shape(buf) {
   t.ok(opened, `repeated connections find it: connection ${tries + 2} opened the site`);
   const wrapped = shapes.indexOf('one') >= 0 && shapes.lastIndexOf('sni+1') > shapes.indexOf('one');
   t.ok(wrapped, `after wrapping round the end of the list to its start (${shapes.join(', ')})`);
-  t.ok(opened.bypass && opened.bypass.strategy === 'tlsrec-sni-mid' && opened.bypass.note === 'silent',
+  t.ok(opened.bypass && opened.bypass.strategy === 'tlsrec-sni-end' && opened.bypass.note === 'silent',
     `reported as a bypass of a silent drop: ${JSON.stringify(opened.bypass)}`);
 
   r = await visit();
-  t.ok(r.ok && r.ms < 2000 && r.seen.length === 1 && r.seen[0] === 'mid',
+  t.ok(r.ok && r.ms < 2000 && r.seen.length === 1 && r.seen[0] === 'end',
     `learned: the next connection opens on its first try (${r.ms} ms, ${r.seen.length} attempt)`);
   t.ok(!r.bypass && !r.blocked, 'and nothing more is reported');
 

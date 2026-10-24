@@ -12,8 +12,10 @@
 #
 # Each network kind, with what must come of it:
 #   - a filter that drops any packet carrying the name (DPI on the first
-#     packet, silently): the page loads through the engine, which says a
-#     technique opened it;
+#     packet, silently): the page loads through the engine on the first
+#     connection, which says a technique opened it (this lab found that the
+#     first five techniques all left the domain whole, and that 15 s of
+#     silent tries ran out before the sixth: the mid-name cut is now first);
 #   - one that resets the connection instead (an injected RST): the same;
 #   - the site's addresses from encrypted DNS blocked outright, the
 #     network's own DNS giving one that works (a CDN's cache in the country,
@@ -132,11 +134,13 @@ for n in drop reset; do
   if [ $? -eq 0 ]; then ok "DPI that ${n}s: loads through the engine ($out)"; else bad "DPI that ${n}s: $out"; fi
   l=$(lines_for "$m" www.$n.lab | grep '"type":"bypass"' | head -1)
   [ -n "$l" ] && ok "  and says a technique opened it: $l" || bad "  no bypass line: $(lines_for "$m" www.$n.lab | head -3)"
+  # Learned: the next connection opens at once.
+  out=$(through www.$n.lab 5000) && ok "  and the next connection opens at once ($out)" || bad "  the next connection: $out"
 done
 
 m=$(mark); out=$(through cdn.lab)
 if [ $? -eq 0 ]; then ok "address blocked, the network's DNS has one that works: loads on the first connection ($out)"; else bad "address blocked, network DNS has one: $out"; fi
-l=$(lines_for "$m" lab | grep '"type":"netdns"' | tr '\n' ' ')
+l=$(lines_for "$m" cdn.lab | grep '"type":"netdns"' | tr '\n' ' ')
 echo "$l" | grep -q '"stage":"try"' && ok "  at the network DNS's address: $l" || bad "  no netdns try: $(lines_for "$m" cdn.lab | head -3)"
 
 m=$(mark); out=$(through slow.lab 40000)
@@ -144,10 +148,13 @@ if [ $? -eq 0 ]; then ok "the same with a network DNS that takes 3 s (#43): load
 
 m=$(mark); out=$(through same.lab 40000)
 if [ $? -ne 0 ]; then ok "the network's DNS gives the blocked address too: does not load ($out)"; else bad "same.lab should not load: $out"; fi
-l=$(lines_for "$m" lab | grep -E '"stage":"same"|"type":"unreachable"' | tr '\n' ' ')
+l=$(lines_for "$m" same.lab | grep -E '"stage":"same"|"type":"unreachable"' | tr '\n' ' ')
 echo "$l" | grep -q '"stage":"same"' && echo "$l" | grep -q '"type":"unreachable"' && ok "  and says why: $l" || bad "  the engine did not say why: $(lines_for "$m" lab | tail -4)"
 
-kill "$ENG_PID" 2>/dev/null; wait "$ENG_PID" 2>/dev/null; ENG_PID=""
+# The engine stops on STOP (or when its input closes), not on a signal.
+echo STOP > "$WORK/stdin"
+for _ in $(seq 50); do kill -0 "$ENG_PID" 2>/dev/null || break; sleep 0.1; done
+kill "$ENG_PID" 2>/dev/null; ENG_PID=""
 echo
 if [ "$FAILS" -eq 0 ]; then echo "censor lab: all passed"; exit 0; fi
 echo "censor lab: $FAILS FAILED"; echo "--- engine output"; tail -40 "$WORK/engine.log"; tail -10 "$WORK/engine.err"

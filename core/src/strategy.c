@@ -122,12 +122,20 @@ static void ensure_presets(void) {
    * several independent projects (split + disorder + tlsrec together), which
    * matches what we measured: a filter that reassembles TCP defeats split on
    * its own but not tlsrec, while some networks need the record split placed
-   * slightly inside the name rather than at its start. */
+   * slightly inside the name rather than at its start.
+   *
+   * First, the record cut in the middle of the name: it does what the cut at
+   * the name's start does against a filter that parses the handshake (no
+   * record holds the whole name), and also beats one that only looks for the
+   * blocked domain's bytes anywhere in a packet, which every cut near the
+   * start leaves whole ("www." | "blocked.example"). Behind such a filter
+   * that drops silently, it came sixth and the first connection's 15 s ran
+   * out before it (tests/lab/censor-lab.sh). */
+  add("tlsrec-sni-mid",       "tlsrec(sni_mid)");
   add("tlsrec-sni",           "tlsrec(sni+1)");
   add("split-tlsrec",         "split(1),tlsrec(sni+1)");
   add("split-disorder-tlsrec","split(1),disorder(sni+3),tlsrec(sni+1)");
   add("disorder-tlsrec",      "disorder(sni+1),tlsrec(sni+1)");
-  add("tlsrec-sni-mid",       "tlsrec(sni_mid)");
   /* The record cut one byte before the name ends, so no record carries its
    * last label whole (ByeByeDPI's "-r-1+se"): what opens YouTube's video
    * servers in Iran, where every cut at or near the start of the name is
