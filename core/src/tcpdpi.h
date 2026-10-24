@@ -189,6 +189,12 @@ int tcpdpi_build_tlsrec4(uint8_t *dst, size_t dstcap,
 /* The extra bytes tcpdpi_build_tlsrec4 adds (one TLS record header). */
 #define TCPDPI_TLSREC_GROWTH 5
 
+/* Recompute the IPv4 and TCP checksums of a complete IPv4+TCP segment in place
+ * (good checksums), after its sequence or acknowledgement number was changed by
+ * the sequence translation below. `len` is the whole packet, `ihl` the IPv4
+ * header length in bytes. */
+void tcpdpi_refresh_csum4(uint8_t *pkt, int len, int ihl);
+
 /* ───────── sequence-number translation for a grown connection ─────────
  * Splitting the TLS record adds TCPDPI_TLSREC_GROWTH bytes to the one segment,
  * so from that point every byte the client sends is five earlier in the stream

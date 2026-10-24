@@ -209,6 +209,16 @@ static int ipt_in(const char *op, const char *mask, const char *flags) {
   return run_quiet(argv);
 }
 
+/* tlsrec: every inbound TCP segment from 443, so its acknowledgement number can
+ * be brought back for a connection whose ClientHello record we grew. */
+static int ipt_in_all443(const char *op) {
+  char q[16];
+  snprintf(q, sizeof(q), "%d", g_queue_num);
+  char *argv[] = { "iptables", "-w", "-t", "mangle", (char *)op, "INPUT", "-p", "tcp",
+    "--sport", "443", "-j", "NFQUEUE", "--queue-num", q, "--queue-bypass", NULL };
+  return run_quiet(argv);
+}
+
 /* INBOUND rule: queue inbound tcp from 443 whose payload starts 15 03 (a
  * plaintext TLS alert). u32 walks the IP and TCP header lengths to the first
  * payload bytes; a packet without payload never matches. */
@@ -246,6 +256,7 @@ static void ipt_clean_all(void) {
   for (int k = UDPR_QUIC; k <= UDPR_PORTS; k++) iptables_udp_drain(k);
   for (int i = 0; i < 8 && ipt_in("-D", "RST", "RST") == 0; i++) {}
   for (int i = 0; i < 8 && ipt_in("-D", "SYN,ACK", "SYN,ACK") == 0; i++) {}
+  for (int i = 0; i < 8 && ipt_in_all443("-D") == 0; i++) {}
   for (int i = 0; i < 8 && ipt_alert("-D") == 0; i++) {}
   for (int i = 0; i < 8 && ipt_dns("-D") == 0; i++) {}
 }
@@ -255,8 +266,11 @@ static int install_rule(void) {
   ipt_clean_all();
   if (ipt_out("-I") == 0) {
     g_rule = RULE_IPTABLES;
-    if (g_cfg.drop_rst) ipt_in("-I", "RST", "RST");
-    if (g_cfg.autottl)  ipt_in("-I", "SYN,ACK", "SYN,ACK");
+    if (g_cfg.tlsrec)   ipt_in_all443("-I");      /* every inbound 443 segment, for ack translation */
+    else {
+      if (g_cfg.drop_rst) ipt_in("-I", "RST", "RST");
+      if (g_cfg.autottl)  ipt_in("-I", "SYN,ACK", "SYN,ACK");
+    }
     iptables_udp_install();                       /* best effort: TCP still works without it */
     g_alert_watch = ipt_alert("-I") == 0;         /* best effort: needs the u32 match */
     if (g_cfg.dns_gate > 0 && ipt_dns("-I") != 0) g_cfg.dns_gate = 0;
@@ -309,7 +323,13 @@ static int install_rule(void) {
     }
   }
   if (nft("add chain ip shroudly in { type filter hook input priority -150 ; }") != 0) {
-    if (g_cfg.drop_rst || g_cfg.autottl) { nft("delete table ip shroudly"); return -1; }
+    if (g_cfg.drop_rst || g_cfg.autottl || g_cfg.tlsrec) { nft("delete table ip shroudly"); return -1; }
+  } else if (g_cfg.tlsrec) {
+    /* tlsrec: every inbound 443 segment, for acknowledgement translation. */
+    snprintf(rule, sizeof(rule), "add rule ip shroudly in tcp sport 443 queue num %d bypass", g_queue_num);
+    if (nft(rule) != 0) { nft("delete table ip shroudly"); return -1; }
+    snprintf(rule, sizeof(rule), "add rule ip shroudly in tcp sport 80 @ih,0,16 0x1503 queue num %d bypass", g_queue_num);
+    g_alert_watch = 1;   /* the 443 alerts come through the full rule above */
   } else {
     /* The TLS alert rule, best effort: the payload base (@ih) where nft and
      * the kernel know it, else the two usual TCP header lengths (20 bytes,
@@ -421,6 +441,26 @@ static int handle_outbound(const struct iphdr *ip, const struct tcphdr *tcp,
   int otl = ip->ttl ? ip->ttl : 64;
   int faked = g_cfg.desync_mode == RAW_DESYNC_FAKEDSPLIT || g_cfg.desync_mode == RAW_DESYNC_FAKEDDISORDER;
 
+  /* tlsrec: split the ClientHello's TLS record into two records (for a DPI that
+   * reassembles the TCP stream, issue #48). The split grows the segment by five
+   * bytes, so the connection is entered in the translation table; its later
+   * segments are shifted by judge(). If it cannot be built or tracked, fall
+   * through to the TCP cut below. */
+  if (g_cfg.tlsrec && pi->kind == PROTO_TLS && pi->host_off >= 1) {
+    int cuts[2], nc = tcpdpi_split_points(payload, plen, pi->host_off, pi->host_len, cuts);
+    int cut = nc >= 2 ? cuts[1] : (nc == 1 ? cuts[0] : 0);  /* mid-name where there is one */
+    uint8_t out[2048];
+    int n = cut > 5 ? tcpdpi_build_tlsrec4(out, sizeof out, ip_tmpl, iphl, tcp_tmpl, tcphl,
+                                           g_ipid, seq, otl, payload, plen, cut) : 0;
+    if (n > 0 && tcpdpi_xlate_begin(ip->saddr, ip->daddr, tcp->source, tcp->dest,
+                                    seq + (uint32_t)plen, TCPDPI_TLSREC_GROWTH, now_ms())) {
+      g_ipid++;
+      if (decoy) send_fake(ip, tcp, payload, plen, pi, decoy_ttl_for(ip->daddr));
+      raw_send(out, n, ip->daddr, tcp->dest);
+      return 1;                          /* the original is replaced by the grown record */
+    }
+  }
+
   if (!decoy) {
     /* Nothing the server could take for data: just the cut, in the order the
      * chosen technique would have used. */
@@ -528,6 +568,9 @@ static void gate_send(const uint8_t *pkt, int len, const void *meta, int inbound
 }
 
 /* What becomes of one queued packet: NF_ACCEPT or NF_DROP. */
+/* judge already sent a mangled-packet verdict itself; on_packet sends none. */
+#define NFQ_HANDLED 0xffffffffu
+
 static uint32_t judge(const nfq_packet *q) {
   if (q->mark & SHROUDLY_FWMARK) return NF_ACCEPT;
 
@@ -569,7 +612,37 @@ static uint32_t judge(const nfq_packet *q) {
       if (sport == 443 && iphl + tcphl < len && alert_from_server(ip->saddr, ip->ttl))
         rawscope_decoy_hurt_in((const uint8_t *)&ip->saddr, 4, (uint16_t)sport, (uint16_t)dport,
                                pkt + iphl + tcphl, len - iphl - tcphl, now_ms());
+      /* tlsrec: bring the acknowledgement back for a connection whose
+       * ClientHello record we grew, and forget the connection when it ends. */
+      if (g_cfg.tlsrec && tcp->ack) {
+        uint32_t ack = ntohl(tcp->ack_seq);
+        int changed = tcpdpi_xlate_in(ip->saddr, ip->daddr, tcp->source, tcp->dest, &ack, now_ms());
+        if (tcp->fin || tcp->rst)   /* the stored tuple is the outbound one (client -> server) */
+          tcpdpi_xlate_end(ip->daddr, ip->saddr, tcp->dest, tcp->source);
+        if (changed) {
+          tcp->ack_seq = htonl(ack);
+          tcpdpi_refresh_csum4(pkt, len, iphl);
+          nfq_verdict_mangle(g_nfq, (uint16_t)g_queue_num, q->id, NF_ACCEPT, pkt, len);
+          return NFQ_HANDLED;
+        }
+      }
       return NF_ACCEPT;            /* everything else kept */
+    }
+
+    /* tlsrec: a later outbound segment on a connection whose ClientHello record
+     * we grew sits five behind what the server expects; shift its sequence (and
+     * forget the connection on its FIN/RST). The ClientHello itself is before
+     * the growth, so it is left for handle_outbound below. */
+    if (g_cfg.tlsrec) {
+      uint32_t s = ntohl(tcp->seq);
+      int changed = tcpdpi_xlate_out(ip->saddr, ip->daddr, tcp->source, tcp->dest, &s, now_ms());
+      if (tcp->fin || tcp->rst) tcpdpi_xlate_end(ip->saddr, ip->daddr, tcp->source, tcp->dest);
+      if (changed) {
+        tcp->seq = htonl(s);
+        tcpdpi_refresh_csum4(pkt, len, iphl);
+        nfq_verdict_mangle(g_nfq, (uint16_t)g_queue_num, q->id, NF_ACCEPT, pkt, len);
+        return NFQ_HANDLED;
+      }
     }
 
     /* Outbound ClientHello / first request. */
@@ -648,7 +721,9 @@ static uint32_t judge(const nfq_packet *q) {
 
 static void on_packet(const nfq_packet *q, void *ud) {
   (void)ud;
-  nfq_verdict(g_nfq, (uint16_t)g_queue_num, q->id, judge(q));
+  uint32_t v = judge(q);
+  if (v != NFQ_HANDLED)                 /* judge gave a mangled packet its own verdict */
+    nfq_verdict(g_nfq, (uint16_t)g_queue_num, q->id, v);
 }
 
 int raw_linux_start(int queue_num, const raw_config *cfg) {
@@ -660,6 +735,7 @@ int raw_linux_start(int queue_num, const raw_config *cfg) {
   g_fake_repeats = (g_cfg.fake_repeats > 0 && g_cfg.fake_repeats <= 64) ? g_cfg.fake_repeats : 6;
   udp_flow_init(&g_flows);
   tcpdpi_hops_reset();
+  tcpdpi_xlate_reset();
   rawscope_touch_reset();
   rawscope_nodecoy_reset();
 
@@ -687,8 +763,8 @@ int raw_linux_start(int queue_num, const raw_config *cfg) {
   int fd = g_nfq;
   /* A whole packet (up to the 64 KB copied) and its headers, at once. */
   static uint8_t buf[65536 + 4096] __attribute__((aligned));
-  printf("{\"type\":\"raw_ready\",\"queue\":%d,\"ttl\":%d,\"drop_rst\":%d,\"autottl\":%d,\"seqovl\":%d,\"split\":%d,\"mode\":%d,\"quic_block\":%d,\"udp_fake\":%d,\"alert_watch\":%d,\"udp_match\":%d,\"dns_gate\":%d,\"dns_flushed\":%d}\n",
-         queue_num, g_cfg.fake_ttl, g_cfg.drop_rst, g_cfg.autottl, g_cfg.seqovl, g_cfg.split, g_cfg.desync_mode, g_quic_block, g_udp_fake, g_alert_watch, g_udp_match, g_gate, flushed);
+  printf("{\"type\":\"raw_ready\",\"queue\":%d,\"ttl\":%d,\"drop_rst\":%d,\"autottl\":%d,\"seqovl\":%d,\"split\":%d,\"mode\":%d,\"quic_block\":%d,\"udp_fake\":%d,\"alert_watch\":%d,\"udp_match\":%d,\"dns_gate\":%d,\"dns_flushed\":%d,\"tlsrec\":%d}\n",
+         queue_num, g_cfg.fake_ttl, g_cfg.drop_rst, g_cfg.autottl, g_cfg.seqovl, g_cfg.split, g_cfg.desync_mode, g_quic_block, g_udp_fake, g_alert_watch, g_udp_match, g_gate, flushed, g_cfg.tlsrec);
   fflush(stdout);
   while (g_run) {
     int rv = recv(fd, buf, sizeof(buf), 0);

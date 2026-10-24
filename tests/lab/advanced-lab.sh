@@ -52,7 +52,7 @@ set -uo pipefail
 ENGINE="$(cd "$(dirname "$1")" && pwd)/$(basename "$1")"
 HERE="$(cd "$(dirname "$0")" && pwd)"
 WORK="$(mktemp -d)"
-SRV_PID=""; SRV2_PID=""; SRV3_PID=""; UDP_PID=""; UDP2_PID=""; ENG_PID=""; DNS_PID=""; FWD_PID=""
+SRV_PID=""; SRV2_PID=""; SRV3_PID=""; UDP_PID=""; UDP2_PID=""; ENG_PID=""; DNS_PID=""; FWD_PID=""; DPI_PID=""
 FAILS=0
 PUB=198.51.100.2   # the server as seen on the internet
 PRIV=10.77.3.2     # the same server on a private (local network) address
@@ -76,6 +76,7 @@ cleanup() {
   [ -n "$UDP2_PID" ] && kill "$UDP2_PID" 2>/dev/null
   [ -n "$DNS_PID" ] && kill "$DNS_PID" 2>/dev/null
   [ -n "$FWD_PID" ] && kill "$FWD_PID" 2>/dev/null
+  [ -n "$DPI_PID" ] && kill "$DPI_PID" 2>/dev/null
   ip netns del shlab-r 2>/dev/null; ip netns del shlab-s 2>/dev/null; ip link del shlab-c 2>/dev/null
   rm -rf "$WORK"
 }
@@ -316,6 +317,45 @@ da=$(stat_of dns_answered); dp=$(stat_of dns_passed)
 if [ "${da:-0}" -ge 1 ] && [ "${dp:-0}" -ge 1 ]; then ok "dns_answered $da, dns_passed $dp"; else bad "dns_answered ${da:-none}, dns_passed ${dp:-none}"; fi
 a=$(ask $NETDNS gate.lab)
 if [ "$a" = "$FORGED" ]; then ok "after stop: the network's DNS answers again ($a)"; else bad "after stop: '$a'"; fi
+
+# ── 9. a DPI that reassembles TCP, then reads each TLS record (issue #48) ─────
+# The string filter above reads one packet at a time, so a TCP cut gets past it.
+# Türkiye's Superonline (and others) put the stream back together first, then
+# match the name inside a single TLS record: the cut does not fool them, but
+# splitting the record itself (tlsrec) does. A small reassembling censor in the
+# router proves it.
+CORE="$(cd "$HERE/../../core" && pwd)"
+if ! cc -O2 -o "$WORK/reasm_dpi" "$CORE/test/reasm_dpi.c" "$CORE/src/nfq.c" 2>"$WORK/dpi_build.log"; then
+  bad "reassembling DPI: could not build ($(tail -1 "$WORK/dpi_build.log"))"
+else
+  # Only the reassembler filters now: drop the per-packet string rules.
+  for port in 443 80; do ip netns exec shlab-r iptables -D FORWARD -p tcp --dport $port -m string --algo bm --string "blocked.lab" -j DROP 2>/dev/null; done
+  ip netns exec shlab-r iptables -A FORWARD -p tcp --dport 443 -j NFQUEUE --queue-num 201 --queue-bypass
+  ip netns exec shlab-r "$WORK/reasm_dpi" 201 blocked.lab > "$WORK/dpi.log" 2>&1 &
+  DPI_PID=$!
+  for _ in $(seq 50); do grep -q "reasm_dpi ready" "$WORK/dpi.log" 2>/dev/null && break; sleep 0.1; done
+  if ! grep -q "reasm_dpi ready" "$WORK/dpi.log" 2>/dev/null; then
+    bad "reassembling DPI: did not start ($(tail -2 "$WORK/dpi.log" 2>/dev/null))"
+  else
+    ok "reassembling DPI up: $(grep -m1 ready "$WORK/dpi.log")"
+    AT=$PUB
+    # No engine: it blocks the name (and lets another through).
+    LABEL="reasm DPI, no engine: the name is stopped"; expect_fail www.blocked.lab tls 5000
+    LABEL="reasm DPI, no engine: another name loads";   expect_load www.allowed.lab tls
+    # The TCP cut does not fool a reassembler.
+    start_engine on
+    LABEL="reasm DPI, TCP cut: the name is still stopped (the reassembler wins)"; expect_fail www.blocked.lab tls 6000
+    stop_engine
+    # Splitting the TLS record does: the name is never whole inside one record.
+    start_engine on --tlsrec 1
+    if grep -m1 '"raw_ready"' "$WORK/status.log" | grep -q '"tlsrec":1'; then ok "tlsrec is on"; else bad "tlsrec did not turn on: $(grep -m1 '"raw_ready"' "$WORK/status.log")"; fi
+    LABEL="reasm DPI, tlsrec: the name loads in full";  expect_load www.blocked.lab tls
+    LABEL="reasm DPI, tlsrec: another name still loads"; expect_load www.allowed.lab tls
+    stop_engine
+  fi
+  kill "$DPI_PID" 2>/dev/null; wait "$DPI_PID" 2>/dev/null; DPI_PID=""
+  ip netns exec shlab-r iptables -D FORWARD -p tcp --dport 443 -j NFQUEUE --queue-num 201 --queue-bypass 2>/dev/null
+fi
 
 # ── 8. nothing left behind ──────────────────────────────────────────────────
 left=$( (iptables -t mangle -S 2>/dev/null; nft list ruleset 2>/dev/null) | grep -c -E 'NFQUEUE|queue num|shroudly' )

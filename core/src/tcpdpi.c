@@ -284,6 +284,11 @@ int tcpdpi_build_multisplit4(tcpdpi_seg segs[3], int *nsegs,
   return 1;
 }
 
+void tcpdpi_refresh_csum4(uint8_t *pkt, int len, int ihl) {
+  if (!pkt || ihl < 20 || len < ihl + 20) return;
+  fill_checksums4(pkt, len, ihl, 0);
+}
+
 /* ───────────────────────── TLS record split (tlsrec) ───────────────────────── */
 int tcpdpi_build_tlsrec4(uint8_t *dst, size_t dstcap,
                          const uint8_t *ip_tmpl, int ihl,

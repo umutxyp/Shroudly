@@ -39,6 +39,11 @@ typedef struct {
   int     fake_repeats;   /* decoy datagrams per voice flow (defaults if <= 0) */
   int     dns_gate;       /* >0: other programs' DNS answered from the forwarder
                            * on this 127.0.0.1 port (dnsgate.h); 0: off */
+  int     tlsrec;         /* 1: split the TLS record of a ClientHello into two
+                           * records (tcpdpi tlsrec), for a DPI that reassembles
+                           * the TCP stream before it inspects (issue #48). The
+                           * split grows the segment, so the backend translates
+                           * the connection's later sequence numbers. */
 } raw_config;
 
 /* Sensible defaults: the strictly-additive, always-safe protections are on:
@@ -71,6 +76,7 @@ static inline void raw_config_defaults(raw_config *c, int fake_ttl) {
   c->udp_fake = 1;
   c->fake_repeats = 6;
   c->dns_gate = 0;
+  c->tlsrec = 0;
 }
 
 #endif
