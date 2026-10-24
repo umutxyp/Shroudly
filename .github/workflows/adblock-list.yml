@@ -1,0 +1,76 @@
+name: Ad block list
+
+# Rebuilds the list "Block ads and trackers" uses, on the desktop and on
+# Android, from AdGuard DNS filter, HaGeZi's Multi PRO, EasyList, EasyPrivacy
+# and StevenBlack/hosts (scripts/adblock-list/build.js), and publishes it as
+# adblock.txt on the site-list branch, which the app reads. A source that
+# fails, or a result that would block a site everyone needs, fails the run:
+# the published list stays as it is. Only that branch is written.
+
+on:
+  schedule:
+    - cron: '41 4 * * 2'   # Tuesdays, 04:41 UTC
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: site-list-branch   # site-list.yml publishes on the same branch
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false   # the build reads network data; no token near it
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+
+      - name: Previous list
+        shell: bash
+        run: |
+          mkdir -p "$RUNNER_TEMP/out"
+          if git fetch --depth=1 origin site-list 2>/dev/null && git cat-file -e FETCH_HEAD:adblock.txt 2>/dev/null; then
+            git show FETCH_HEAD:adblock.txt > "$RUNNER_TEMP/previous.txt"
+          fi
+
+      - name: Build
+        shell: bash   # -eo pipefail: a failed build must fail the job, not hide behind tee
+        run: |
+          prev=()
+          if [ -s "$RUNNER_TEMP/previous.txt" ]; then prev=(--previous "$RUNNER_TEMP/previous.txt"); fi
+          node scripts/adblock-list/build.js --out "$RUNNER_TEMP/out" "${prev[@]}" | tee "$RUNNER_TEMP/summary.txt"
+
+      - name: Publish on the site-list branch
+        shell: bash
+        env:
+          OUT: ${{ runner.temp }}/out
+          TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+        run: |
+          cd "$RUNNER_TEMP"
+          rm -rf publish && mkdir publish && cd publish
+          git init -q -b site-list
+          git config user.name "umutxyp"
+          git config user.email "69085038+umutxyp@users.noreply.github.com"
+          git remote add origin "https://github.com/$REPO.git"
+          git config http.extraheader "AUTHORIZATION: basic $(printf 'x-access-token:%s' "$TOKEN" | base64 -w0)"
+          # --mixed: the branch's other files (the site list) stay in the index
+          # and so in the commit.
+          if git fetch -q --depth=1 origin site-list 2>/dev/null; then git reset -q --mixed FETCH_HEAD; fi
+          cp "$OUT/adblock.txt" .
+          # Only the header's date changed: nothing to publish.
+          if git cat-file -e HEAD:adblock.txt 2>/dev/null \
+            && cmp -s <(git show HEAD:adblock.txt | grep -v '^! Built: ') <(grep -v '^! Built: ' adblock.txt); then
+            echo "No change."; exit 0
+          fi
+          git add adblock.txt
+          git commit -q -m "ad block list: $(head -1 "$RUNNER_TEMP/summary.txt")"
+          git push -q origin HEAD:site-list
+          git log -1 --format='%h %s'

@@ -99,6 +99,7 @@ struct adb_list {
   uint64_t *slot;
   size_t    mask;     /* slots - 1; slots is a power of two */
   size_t    n;
+  struct adb_list *ex; /* the exceptions (@@||name^), NULL when none */
 };
 
 static int table_init(adb_list *l, size_t slots) {
@@ -106,6 +107,7 @@ static int table_init(adb_list *l, size_t slots) {
   if (!l->slot) return -1;
   l->mask = slots - 1;
   l->n = 0;
+  l->ex = NULL;
   return 0;
 }
 
@@ -130,6 +132,7 @@ static int table_grow(adb_list *l) {
   if (table_init(&bigger, (l->mask + 1) * 2) != 0) return -1;
   for (size_t i = 0; i <= l->mask; i++) if (l->slot[i]) table_put(&bigger, l->slot[i]);
   free(l->slot);
+  bigger.ex = l->ex;
   *l = bigger;
   return 0;
 }
@@ -218,18 +221,31 @@ static int address_token(const char *s, size_t n) {
 
 typedef struct { adb_list *l; size_t max; size_t skipped; int full; int nomem; } parse_st;
 
-static void add_entry(parse_st *ps, const char *s, size_t n) {
+/* An entry (ex 0) or an exception (ex 1) of s[0..n). An exception may be a
+ * name any entry would be skipped for but a public suffix, an address or a
+ * local name: one above a shared parent takes nothing it should not. */
+static void add_name(parse_st *ps, const char *s, size_t n, int ex) {
   char tmp[256], norm[256];
   if (n == 0) return;
   if (n >= sizeof(tmp)) { ps->skipped++; return; }
   memcpy(tmp, s, n); tmp[n] = 0;
   if (adb_norm(tmp, norm, sizeof(norm)) != 0 || !usable_entry(norm)) { ps->skipped++; return; }
   uint64_t h = hash_name(norm, strlen(norm));
-  if (table_has(ps->l, h)) return;
-  if (ps->l->n >= ps->max) { ps->full = 1; return; }
-  if ((ps->l->n + 1) * 4 > (ps->l->mask + 1) * 3 && table_grow(ps->l) != 0) { ps->nomem = 1; return; }
-  table_put(ps->l, h);
+  adb_list *t = ps->l;
+  if (ex) {
+    if (!t->ex) {
+      t->ex = (adb_list *)calloc(1, sizeof(*t->ex));
+      if (!t->ex || table_init(t->ex, 64) != 0) { free(t->ex); t->ex = NULL; ps->nomem = 1; return; }
+    }
+    t = t->ex;
+  }
+  if (table_has(t, h)) return;
+  if (t->n >= (ex ? ADB_MAX_EXCEPTIONS : ps->max)) { ps->full = 1; return; }
+  if ((t->n + 1) * 4 > (t->mask + 1) * 3 && table_grow(t) != 0) { ps->nomem = 1; return; }
+  table_put(t, h);
 }
+
+static void add_entry(parse_st *ps, const char *s, size_t n) { add_name(ps, s, n, 0); }
 
 static void parse_line(parse_st *ps, const char *p, size_t n) {
   /* A comment: "#" anywhere, "!" at the start (ad-blocker lists). */
@@ -255,6 +271,12 @@ static void parse_line(parse_st *ps, const char *p, size_t n) {
   }
   if (nt != 1) { ps->skipped++; return; }
   const char *s = tok[0]; size_t len = tl[0];
+  if (len > 5 && s[0] == '@' && s[1] == '@' && s[2] == '|' && s[3] == '|') {
+    /* @@||example.com^ — an exception, with no options either. */
+    if (s[len - 1] != '^') { ps->skipped++; return; }
+    add_name(ps, s + 4, len - 5, 1);
+    return;
+  }
   if (len > 3 && s[0] == '|' && s[1] == '|') {
     /* ||example.com^ — and nothing after the ^ (no options, which are about
      * pages, not names), nor any wildcard or path. */
@@ -292,15 +314,21 @@ adb_list *adb_parse(const char *text, size_t len, size_t max_entries, adb_stats 
     if (table_init(&small, fit) == 0) {
       for (size_t i = 0; i <= l->mask; i++) if (l->slot[i]) table_put(&small, l->slot[i]);
       free(l->slot);
+      small.ex = l->ex;
       *l = small;
     }
   }
-  if (st) { st->entries = l->n; st->skipped = ps.skipped; st->bytes = (l->mask + 1) * sizeof(uint64_t); }
+  if (st) {
+    st->entries = l->n; st->skipped = ps.skipped;
+    st->exceptions = l->ex ? l->ex->n : 0;
+    st->bytes = (l->mask + 1 + (l->ex ? l->ex->mask + 1 : 0)) * sizeof(uint64_t);
+  }
   return l;
 }
 
 void adb_free(adb_list *l) {
   if (!l) return;
+  if (l->ex) { free(l->ex->slot); free(l->ex); }
   free(l->slot);
   free(l);
 }
@@ -356,11 +384,18 @@ static int listed_hashes(const adb_list *l, const uint64_t *h, int k) {
   return 0;
 }
 
+/* On a list: one of the names is an entry and none an exception (an
+ * exception wins at any level, as in any ad blocker). */
+static int list_match(const adb_list *l, const uint64_t *h, int k) {
+  if (l->ex && listed_hashes(l->ex, h, k)) return 0;
+  return listed_hashes(l, h, k);
+}
+
 int adb_listed(const adb_list *l, const char *name) {
   char norm[256];
   uint64_t h[SUFFIX_MAX];
   if (!l || adb_norm(name, norm, sizeof(norm)) != 0) return 0;
-  return listed_hashes(l, h, suffix_hashes(norm, h, SUFFIX_MAX));
+  return list_match(l, h, suffix_hashes(norm, h, SUFFIX_MAX));
 }
 
 /* KEPT as a table of its own, made once (adblock_init or the first use). */
@@ -527,7 +562,7 @@ int adblock_blocked(const char *name) {
   if (k == 0 || kept_hashes(h, k)) return 0;
   int blocked = 0;
   mutex_lock(&g_mx);
-  if (g_on && g_list && listed_hashes(g_list, h, k)) {
+  if (g_on && g_list && list_match(g_list, h, k)) {
     blocked = 1;
     for (int i = 0; i < k && blocked; i++)
       for (int j = 0; j < g_allow_n; j++) if (g_allow[j] == h[i]) { blocked = 0; break; }

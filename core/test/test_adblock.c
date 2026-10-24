@@ -74,8 +74,48 @@ static void test_formats(void) {
   CHECK(!adb_listed(l, "printer.local"));
   CHECK(!adb_listed(l, "box.home.arpa"));
   CHECK(st.entries == 11);
+  CHECK(st.exceptions == 1);                       /* @@||exception.example.net^ */
   CHECK(st.skipped >= 10);
   adb_free(l);
+}
+
+/* Exceptions, as in any ad blocker: @@||name^ takes that name and every
+ * name under it off the list, whatever entry above or below it says. */
+static void test_exceptions(void) {
+  adb_stats st;
+  adb_list *l = parse(
+    "doubleclick.net\n"
+    "@@||allowed.doubleclick.net^\n"
+    "tracker.example.com\n"
+    "deep.ads.example.org\n"
+    "@@||example.org^\n"
+    "@@||withopts.doubleclick.net^$important\n"   /* options: not an exception */
+    "@@||co.uk^\n"                                /* a public suffix: skipped */
+    "@@||only.example.net^\n", &st);
+  CHECK(l != NULL);
+  CHECK(st.entries == 3);
+  CHECK(st.exceptions == 2 || st.exceptions == 3);
+  CHECK(adb_listed(l, "ad.doubleclick.net"));
+  CHECK(!adb_listed(l, "allowed.doubleclick.net"));
+  CHECK(!adb_listed(l, "x.allowed.doubleclick.net"));        /* under the exception */
+  CHECK(adb_listed(l, "withopts.doubleclick.net"));
+  CHECK(!adb_listed(l, "deep.ads.example.org"));             /* an exception above the entry wins */
+  CHECK(adb_listed(l, "tracker.example.com"));
+  CHECK(!adb_listed(l, "only.example.net"));                 /* an exception alone blocks nothing */
+  adb_free(l);
+  /* The engine's state follows the list's exceptions. */
+  char path[512];
+  snprintf(path, sizeof(path), "/tmp/shroudly_adblock_ex_%ld.txt", (long)getpid());
+  FILE *f = fopen(path, "wb");
+  CHECK(f != NULL);
+  fputs("doubleclick.net\n@@||allowed.doubleclick.net^\n", f);
+  fclose(f);
+  adblock_reset();
+  CHECK(adblock_use(path, NULL, NULL) == 0);
+  CHECK(adblock_blocked("ad.doubleclick.net"));
+  CHECK(!adblock_blocked("allowed.doubleclick.net"));
+  adblock_off();
+  remove(path);
 }
 
 static void test_matching(void) {
@@ -230,11 +270,13 @@ static void test_check(void) {
   remove(path); remove(small); remove(html);
 }
 
-/* Time and memory for a list the size of the one the app downloads (about
- * 80 000 names) and for the most a list may hold. */
+/* Time and memory for a list the size of the hosts list alone (about
+ * 80 000 names), of the combined list the app downloads (about 350 000:
+ * 4 MB at most up to 393 216), and for the most a list may hold (8 MB). */
 static void test_measure(void) {
-  size_t sizes[] = { 80000, ADB_MAX_ENTRIES - 2 };
-  for (int s = 0; s < 2; s++) {
+  size_t sizes[] = { 80000, 390000, ADB_MAX_ENTRIES - 2 };
+  size_t most[] = { 4u * 1024 * 1024, 4u * 1024 * 1024, 8u * 1024 * 1024 };
+  for (int s = 0; s < 3; s++) {
     size_t len;
     char *t = big_list(sizes[s], &len);
     uint64_t t0 = now_ms();
@@ -255,7 +297,7 @@ static void test_measure(void) {
     printf("test_adblock: %zu entries: parse %llu ms, table %zu KB (%.1f bytes each), 1M lookups %llu ms\n",
            st.entries, (unsigned long long)(t1 - t0), st.bytes / 1024, (double)st.bytes / (double)st.entries,
            (unsigned long long)(t3 - t2));
-    CHECK(st.bytes <= 4u * 1024 * 1024);
+    CHECK(st.bytes <= most[s]);
     adb_free(l);
     free(t);
   }
@@ -311,6 +353,7 @@ static void test_fuzz(void) {
 }
 
 int main(void) {
+  test_exceptions();
   plat_init();
   test_formats();
   test_matching();

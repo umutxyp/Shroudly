@@ -17,14 +17,16 @@ import javax.net.ssl.SSLSocketFactory
  * (electron/adblock.js). The blocking is the engine's (core/src/adblock.c):
  * a lookup of a listed name gets 0.0.0.0 / ::, a connection to one is ended
  * before anything reaches the network. Here is only the switch, the user's
- * exceptions and the list: a public hosts list (StevenBlack/hosts, MIT
- * licence) fetched through the engine, checked by the engine (ADBLOCK-CHECK)
- * before it replaces the one in use, refreshed once a week. A failed or
- * wrong download changes nothing.
+ * exceptions and the list: Shroudly's own, combined every week from AdGuard
+ * DNS filter, HaGeZi's Multi PRO, EasyList, EasyPrivacy and StevenBlack/hosts
+ * (scripts/adblock-list/build.js), fetched through the engine, checked by the
+ * engine (ADBLOCK-CHECK) before it replaces the one in use, refreshed once a
+ * week. A failed or wrong download changes nothing. A list from another
+ * source (the hosts list alone, before 2.6.19) is replaced at once.
  */
 object AdBlock {
     const val HOST = "raw.githubusercontent.com"
-    const val PATH = "/StevenBlack/hosts/master/hosts"
+    const val PATH = "/umutxyp/Shroudly/site-list/adblock.txt"
     const val MAX_BYTES = 16 * 1024 * 1024        // the engine's ADB_MAX_FILE
     const val REFRESH_MS = 7L * 24 * 60 * 60 * 1000
     const val RETRY_MS = 30L * 60 * 1000
@@ -34,6 +36,8 @@ object AdBlock {
     private const val KEY_ALLOW = "adBlockAllow"
     private const val FILE = "adblock-list.txt"
     private const val NEW_FILE = "adblock-list.new"
+    private const val SOURCE_FILE = "adblock-list.source"
+    const val SOURCE_KEY = HOST + PATH
     const val ALLOW_MAX = 512                      // the engine's ADBLOCK_ALLOW_MAX
 
     private val DOMAIN = Regex("^[a-z0-9_-]+(\\.[a-z0-9_-]+)+$")
@@ -82,10 +86,13 @@ object AdBlock {
 
     /* Time to fetch it (again): none yet, or a week old; not twice in half an
      * hour after a failure. */
-    fun due(ctx: Context, now: Long = System.currentTimeMillis()): Boolean = due(file(ctx), now)
+    fun due(ctx: Context, now: Long = System.currentTimeMillis()): Boolean =
+        due(file(ctx), now, File(ctx.filesDir, SOURCE_FILE))
 
-    internal fun due(f: File, now: Long): Boolean {
+    /* source: where the list in use came from; one from elsewhere is due now. */
+    internal fun due(f: File, now: Long, source: File? = null): Boolean {
         if (lastTry != 0L && now - lastTry in 0 until RETRY_MS) return false
+        if (source != null && (if (source.isFile) source.readText().trim() else "") != SOURCE_KEY) return true
         return f.length() == 0L || now - f.lastModified() >= REFRESH_MS
     }
 
@@ -122,6 +129,7 @@ object AdBlock {
     /* The fetched file, checked by the engine, becomes the list in use. */
     fun adopt(ctx: Context, tmp: File) {
         if (!tmp.renameTo(file(ctx))) throw IOException("could not keep the list")
+        File(ctx.filesDir, SOURCE_FILE).writeText(SOURCE_KEY + "\n")
     }
 
     fun discard(tmp: File) {

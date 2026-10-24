@@ -30,6 +30,19 @@ class AdBlockTest {
             val now = f.lastModified()
             assertFalse("a fresh list is not due", AdBlock.due(f, now + 1000))
             assertTrue("a week-old list is due", AdBlock.due(f, now + AdBlock.REFRESH_MS + 1))
+            // Where the list in use came from: another source (the hosts list
+            // alone, before 2.6.19), or none recorded, is due at once.
+            val src = File.createTempFile("adblock", ".source")
+            try {
+                src.writeText(AdBlock.SOURCE_KEY + "\n")
+                assertFalse("a fresh list from this source is not due", AdBlock.due(f, now + 1000, src))
+                src.writeText("raw.githubusercontent.com/StevenBlack/hosts/master/hosts\n")
+                assertTrue("a list from another source is due at once", AdBlock.due(f, now + 1000, src))
+                src.delete()
+                assertTrue("a list with no record of its source is due at once", AdBlock.due(f, now + 1000, src))
+            } finally {
+                src.delete()
+            }
         } finally {
             f.delete()
         }

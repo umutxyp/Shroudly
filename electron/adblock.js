@@ -4,19 +4,23 @@
  *
  * The blocking itself is the engine's (core/src/adblock.c): it answers a
  * lookup of a listed name with 0.0.0.0 / :: and ends a connection to one
- * before anything reaches the network. Here is only the list: a public hosts
- * list (StevenBlack/hosts, MIT licence), fetched through the engine itself so
- * it arrives on a network that filters GitHub, checked by the engine
- * (ADBLOCK-CHECK: big enough, lists what every ad list lists, spares the
- * sites no list may take) before it replaces the one in use, kept in the
- * user's data folder and fetched again once a week. A download that fails or
- * brings something else changes nothing: the list in use stays. */
+ * before anything reaches the network. Here is only the list: Shroudly's
+ * own, combined every week from AdGuard DNS filter, HaGeZi's Multi PRO,
+ * EasyList, EasyPrivacy and StevenBlack/hosts (scripts/adblock-list/build.js;
+ * published on the repository's site-list branch), fetched through the
+ * engine itself so it arrives on a network that filters GitHub, checked by
+ * the engine (ADBLOCK-CHECK: big enough, lists what every ad list lists,
+ * spares the sites no list may take) before it replaces the one in use, kept
+ * in the user's data folder and fetched again once a week. A download that
+ * fails or brings something else changes nothing: the list in use stays.
+ * A list from another source (the hosts list alone, before 2.6.19) is
+ * replaced at once, not after its week. */
 
 const fs = require('fs');
 const path = require('path');
 const tls = require('tls');
 
-const SOURCE = { host: 'raw.githubusercontent.com', path: '/StevenBlack/hosts/master/hosts' };
+const SOURCE = { host: 'raw.githubusercontent.com', path: '/umutxyp/Shroudly/site-list/adblock.txt' };
 const MAX_BYTES = 16 * 1024 * 1024;            // as the engine's ADB_MAX_FILE
 const REFRESH_MS = 7 * 24 * 60 * 60 * 1000;
 const RETRY_MS = 30 * 60 * 1000;
@@ -72,6 +76,9 @@ class AdblockList {
   }
 
   get file() { return path.join(this.dir, 'adblock-list.txt'); }
+  /* Where the list in use came from (written when it is adopted). */
+  get sourceFile() { return path.join(this.dir, 'adblock-list.source'); }
+  _sourceKey() { return `${this.source.host}${this.source.path}`; }
 
   /* A list is here to use. */
   has() {
@@ -82,6 +89,9 @@ class AdblockList {
    * hour after a failure. */
   due() {
     if (this.now() - this.lastTry < RETRY_MS) return false;
+    let from = '';
+    try { from = fs.readFileSync(this.sourceFile, 'utf8').trim(); } catch {}
+    if (from !== this._sourceKey()) return true;
     try { return this.now() - fs.statSync(this.file).mtimeMs >= REFRESH_MS; } catch { return true; }
   }
 
@@ -135,6 +145,7 @@ class AdblockList {
   /* The fetched file, checked by the engine, becomes the list in use. */
   adopt(tmp) {
     fs.renameSync(tmp, this.file);
+    fs.writeFileSync(this.sourceFile, `${this._sourceKey()}\n`);
   }
 
   /* A fetched file the engine turned down. */

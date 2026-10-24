@@ -124,6 +124,16 @@ async function tlsVia(socksPort, name, target, port) {
     t.ok(al.has() && !al.due(), 'adopted: in use, not due again');
     now = fs.statSync(al.file).mtimeMs + 7 * 24 * 3600 * 1000 + 1;
     t.ok(al.due(), 'a week later it is due again');
+    // A list from another source (the hosts list alone, before 2.6.19): the
+    // new one is fetched at once, the old one used until it is adopted.
+    now = fs.statSync(al.file).mtimeMs + 1000;
+    const moved = new AdblockList({ dir: lists, connect, now: () => now, source: { host: 'localhost', path: '/chunked' }, tls: tlsOpts });
+    t.ok(moved.has() && moved.due(), 'a list from another source: kept in use, and due at once');
+    moved.adopt(await moved.fetch(P2));
+    t.ok(!moved.due() && fs.readFileSync(moved.sourceFile, 'utf8').trim() === 'localhost/chunked', 'adopted from the new source: not due again for a week');
+    fs.unlinkSync(moved.sourceFile);
+    now += 31 * 60 * 1000;   // past the half hour after the last fetch
+    t.ok(moved.due(), 'a list with no record of its source (kept by 2.6.18 or older): due at once');
     const alc = new AdblockList({ dir: path.join(dir, 'c'), connect, now: () => now, source: { host: 'localhost', path: '/chunked' }, tls: tlsOpts });
     t.ok(fs.readFileSync(await alc.fetch(P2), 'utf8') === body, 'a chunked answer arrives whole too');
     const al404 = new AdblockList({ dir: path.join(dir, 'n'), connect, now: () => now, source: { host: 'localhost', path: '/nope' }, tls: tlsOpts });

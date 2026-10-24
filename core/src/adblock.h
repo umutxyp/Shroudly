@@ -16,6 +16,9 @@
  *     0.0.0.0 example.com          (a hosts file; 127.0.0.1, ::, ::1 too,
  *                                   and several names on one line)
  *     ||example.com^               (an ad-blocker domain rule, no options)
+ *     @@||example.com^             (an exception: that name and every name
+ *                                   under it are not blocked, whatever else
+ *                                   the list says, as in any ad blocker)
  * "#" and "!" start a comment. An entry that is not a usable domain is
  * skipped: one label ("localhost"), an address, a public suffix ("co.uk"), a
  * platform whose names belong to unrelated people ("blogspot.com", which
@@ -37,10 +40,12 @@
 #include <stddef.h>
 #include <stdint.h>
 
-/* The most a list file may hold, and the most entries it may give. The
- * table for the most entries is 4 MB (2^19 slots). */
+/* The most a list file may hold, and the most entries (and exceptions) it
+ * may give. The table is 4 MB up to 393 216 entries (2^19 slots), 8 MB
+ * above. */
 #define ADB_MAX_FILE    (16u * 1024 * 1024)
-#define ADB_MAX_ENTRIES 300000u
+#define ADB_MAX_ENTRIES 500000u
+#define ADB_MAX_EXCEPTIONS 50000u
 /* A downloaded list with fewer entries than this is not the list asked for
  * (adblock_check): an error page, a cut download, an empty file. */
 #define ADB_MIN_DOWNLOADED 10000u
@@ -52,7 +57,8 @@ typedef struct adb_list adb_list;
 typedef struct {
   size_t entries;   /* distinct entries kept */
   size_t skipped;   /* entries that were not a usable domain */
-  size_t bytes;     /* memory the table holds */
+  size_t bytes;     /* memory the tables hold */
+  size_t exceptions; /* distinct exceptions kept */
 } adb_stats;
 
 /* Parse len bytes of text. Never NULL for a text with nothing usable (an
@@ -64,8 +70,9 @@ void      adb_free(adb_list *l);
  * cannot be read, is larger than ADB_MAX_FILE, or adb_parse fails. */
 adb_list *adb_load(const char *path, adb_stats *st, const char **why);
 
-/* name, or a name above it of two labels or more, is on the list. name is
- * as asked (any case, a trailing dot allowed). */
+/* name, or a name above it of two labels or more, is on the list, and
+ * neither it nor any name above it is an exception. name is as asked (any
+ * case, a trailing dot allowed). */
 int adb_listed(const adb_list *l, const char *name);
 
 /* name lower-cased, without a trailing dot, into out (cap >= 256): 0, or -1
