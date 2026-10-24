@@ -126,6 +126,7 @@ enum {
   RAWSCOPE_QUIC_DROPPED, /* QUIC Initials dropped so the browser takes TCP */
   RAWSCOPE_DNS_ANSWERED, /* other programs' DNS questions answered from encrypted DNS (dnsgate.h) */
   RAWSCOPE_DNS_PASSED,   /* ... and sent on to their own server unchanged */
+  RAWSCOPE_GROWN,        /* ClientHellos whose TLS record was split (tlsrec, #48) */
   RAWSCOPE_NCOUNTERS
 };
 void          rawscope_count(int which);

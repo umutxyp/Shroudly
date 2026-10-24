@@ -75,7 +75,13 @@ static void inspect(flow *f) {
     int rl = (r[3] << 8) | r[4];
     if (rl < 0 || rl > BUFCAP) { f->blocked = 1; return; }
     if (f->contig < f->parse + 5 + rl) return;      /* record not all here yet */
-    if (find_name(r + 5, rl)) { f->blocked = 1; return; }
+    if (find_name(r + 5, rl)) {
+      f->blocked = 1;
+      fprintf(stderr, "reasm_dpi: blocked, name in a record of %d bytes at offset %d (contig %d)\n",
+              rl, f->parse, f->contig);
+      fflush(stderr);
+      return;
+    }
     f->parse += 5 + rl;
   }
 }

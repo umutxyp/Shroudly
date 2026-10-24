@@ -457,6 +457,7 @@ static int handle_outbound(const struct iphdr *ip, const struct tcphdr *tcp,
       g_ipid++;
       if (decoy) send_fake(ip, tcp, payload, plen, pi, decoy_ttl_for(ip->daddr));
       raw_send(out, n, ip->daddr, tcp->dest);
+      rawscope_count(RAWSCOPE_GROWN);
       return 1;                          /* the original is replaced by the grown record */
     }
   }

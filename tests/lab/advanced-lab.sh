@@ -352,6 +352,10 @@ else
     LABEL="reasm DPI, tlsrec: the name loads in full";  expect_load www.blocked.lab tls
     LABEL="reasm DPI, tlsrec: another name still loads"; expect_load www.allowed.lab tls
     stop_engine
+    ok "at stop: $(grep '"type":"raw_stats"' "$WORK/status.log" | tail -1)"
+    grown=$(stat_of grown)
+    if [ "${grown:-0}" -ge 1 ]; then ok "tlsrec was applied (grown $grown)"; else bad "tlsrec was never applied (grown ${grown:-none})"; fi
+    [ -s "$WORK/dpi.log" ] && echo "    (reasm_dpi said: $(grep -m1 'blocked, name' "$WORK/dpi.log" 2>/dev/null))"
   fi
   kill "$DPI_PID" 2>/dev/null; wait "$DPI_PID" 2>/dev/null; DPI_PID=""
   ip netns exec shlab-r iptables -D FORWARD -p tcp --dport 443 -j NFQUEUE --queue-num 201 --queue-bypass 2>/dev/null

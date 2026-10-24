@@ -423,7 +423,7 @@ static void test_stats(void) {
   rawscope_counters_reset();
   CHECK(rawscope_stats_json(line, sizeof line) > 0);
   CHECK(strcmp(line, "{\"type\":\"raw_stats\",\"desynced\":0,\"skipped\":0,\"rst_dropped\":0,\"rst_passed\":0,\"nodecoy\":0,\"decoy_hurt\":0,"
-                     "\"udp_seen\":0,\"udp_decoys\":0,\"quic_dropped\":0,\"dns_answered\":0,\"dns_passed\":0}") == 0);
+                     "\"udp_seen\":0,\"udp_decoys\":0,\"quic_dropped\":0,\"dns_answered\":0,\"dns_passed\":0,\"grown\":0}") == 0);
   rawscope_count(RAWSCOPE_DESYNCED); rawscope_count(RAWSCOPE_DESYNCED);
   rawscope_count(RAWSCOPE_SKIPPED);
   for (int i = 0; i < 3; i++) rawscope_count(RAWSCOPE_RST_DROPPED);
@@ -435,12 +435,13 @@ static void test_stats(void) {
   for (int i = 0; i < 9; i++) rawscope_count(RAWSCOPE_QUIC_DROPPED);
   for (int i = 0; i < 10; i++) rawscope_count(RAWSCOPE_DNS_ANSWERED);
   for (int i = 0; i < 11; i++) rawscope_count(RAWSCOPE_DNS_PASSED);
+  for (int i = 0; i < 12; i++) rawscope_count(RAWSCOPE_GROWN);
   rawscope_count(-1); rawscope_count(RAWSCOPE_NCOUNTERS);   /* ignored */
   CHECK(rawscope_counter(RAWSCOPE_DESYNCED) == 2);
   CHECK(rawscope_counter(RAWSCOPE_NCOUNTERS) == 0);
   CHECK(rawscope_stats_json(line, sizeof line) > 0);
   CHECK(strcmp(line, "{\"type\":\"raw_stats\",\"desynced\":2,\"skipped\":1,\"rst_dropped\":3,\"rst_passed\":4,\"nodecoy\":5,\"decoy_hurt\":6,"
-                     "\"udp_seen\":7,\"udp_decoys\":8,\"quic_dropped\":9,\"dns_answered\":10,\"dns_passed\":11}") == 0);
+                     "\"udp_seen\":7,\"udp_decoys\":8,\"quic_dropped\":9,\"dns_answered\":10,\"dns_passed\":11,\"grown\":12}") == 0);
   /* The largest counters still fit the line rawscope_stats_print writes. */
   char big[512];
   for (int c = 0; c < RAWSCOPE_NCOUNTERS; c++) for (int i = 0; i < 3; i++) rawscope_count(c);
