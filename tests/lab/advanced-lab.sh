@@ -350,7 +350,16 @@ else
     start_engine on --tlsrec 1
     if grep -m1 '"raw_ready"' "$WORK/status.log" | grep -q '"tlsrec":1'; then ok "tlsrec is on"; else bad "tlsrec did not turn on: $(grep -m1 '"raw_ready"' "$WORK/status.log")"; fi
     LABEL="reasm DPI, tlsrec: the name loads in full";  expect_load www.blocked.lab tls
-    LABEL="reasm DPI, tlsrec: another name still loads"; expect_load www.allowed.lab tls
+    # allowed.lab should load (the reassembler never blocks it); if it does not,
+    # the sequence translation is wrong, so capture the router's view of the wire.
+    TCAP=""
+    if command -v tcpdump >/dev/null 2>&1; then
+      ip netns exec shlab-r tcpdump -i shlab-r1 -n -S -c 80 "tcp and host $PUB and port 443" > "$WORK/tcap.txt" 2>/dev/null &
+      TCAP=$!; sleep 0.4
+    fi
+    out=$(loads www.allowed.lab tls); rc=$?
+    if [ $rc -eq 0 ]; then ok "reasm DPI, tlsrec: another name still loads: $out"; else bad "reasm DPI, tlsrec: another name still loads: $out"; fi
+    [ -n "$TCAP" ] && { wait "$TCAP" 2>/dev/null; if [ $rc -ne 0 ]; then echo "--- allowed.lab, router -> server view ---"; sed -n '1,40p' "$WORK/tcap.txt" | sed 's/^/    /'; fi; }
     stop_engine
     ok "at stop: $(grep '"type":"raw_stats"' "$WORK/status.log" | tail -1)"
     grown=$(stat_of grown)
