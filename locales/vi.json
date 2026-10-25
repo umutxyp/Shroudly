@@ -111,6 +111,8 @@
   "discordModeDesc": "Cho phép ứng dụng Discord cập nhật và mở qua Shroudly bằng cách thêm một dòng vào tệp cài đặt của Discord; tắt tùy chọn này sẽ xóa dòng đó. Shroudly tự bật tùy chọn này khi Discord bị chặn.",
   "discordPermission": "Trước khi ứng dụng Discord có thể dùng Shroudly, macOS cần cho phép Shroudly thay đổi cài đặt của Discord.",
   "discordLocked": "Shroudly could not change Discord's settings: the file is in use or write-protected. Close Discord completely (quit it from the system tray too) and try again.",
+  "discordLockedRunning": "Discord is still running, so Shroudly can't change its settings. Quit Discord completely — including from the system tray (its icon near the clock → Quit Discord) — then click Try again.",
+  "discordLockedProtected": "Discord's settings file is write-protected even with Discord closed. It may be read-only, or a security product may be guarding the folder — on Windows, allow Shroudly through “Controlled folder access” (Windows Security → Virus & threat protection → Ransomware protection), then Try again.",
   "discordPermissionBtn": "Cho phép truy cập",
   "discordEditFailed": "Không thể thay đổi tệp cài đặt của Discord. Để tự làm, hãy thêm dòng này vào tệp: {line}",
   "logDiscordOn": "Đã bật Chế độ ứng dụng Discord: Discord cập nhật qua Shroudly",

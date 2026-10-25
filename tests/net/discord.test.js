@@ -292,6 +292,46 @@ function get(url, o = {}) {
     t.ok(en.discordLocked && !/macOS/i.test(en.discordLocked), 'that line never mentions macOS');
   }
 
+  /* The settings write survives a read-only file, and keeps its contents when
+   * a rename cannot go through (Windows holds the target open): the real cause
+   * of thecloudyy's "could not be written", #52/WhatsApp. */
+  {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'discord-wr-'));
+    // a read-only settings.json still gets our line, and keeps the rest
+    const f1 = path.join(dir, 'settings.json');
+    fs.writeFileSync(f1, JSON.stringify({ BACKGROUND_COLOR: '#fff' }, null, 2));
+    fs.chmodSync(f1, 0o444);
+    const r1 = DA.patchSync(f1, 'http://127.0.0.1:9target');
+    const after1 = JSON.parse(fs.readFileSync(f1, 'utf8'));
+    t.ok(r1 === 'changed' && after1[DA.KEY] === 'http://127.0.0.1:9target' && after1.BACKGROUND_COLOR === '#fff',
+      'a read-only settings file is still written, keeping its other keys');
+
+    // writeSettings falls back to an in-place write and keeps the file's bytes right
+    const f2 = path.join(dir, 's2.json');
+    DA.writeSettings(f2, 'hello');
+    t.ok(fs.readFileSync(f2, 'utf8') === 'hello', 'writeSettings writes a new file');
+    fs.chmodSync(f2, 0o444);
+    DA.writeSettings(f2, 'world');
+    t.ok(fs.readFileSync(f2, 'utf8') === 'world', 'writeSettings overwrites a read-only file');
+
+    // a genuinely unwritable location still throws (so the caller can warn)
+    let threw = false;
+    try { DA.writeSettings(path.join(dir, 'no-such-dir', 'x.json'), 'y'); } catch { threw = true; }
+    t.ok(threw, 'a write that truly cannot be done is reported, not swallowed');
+    fs.rmSync(dir, { recursive: true, force: true });
+
+    // the window is told which kind of refusal it is, with its own line
+    const main = fs.readFileSync(path.join(ROOT, 'electron', 'main.js'), 'utf8');
+    t.ok(/discordState\.lockedReason = stillOpen \? 'running' : 'protected'/.test(main),
+      'the refusal is split into Discord-still-running and write-protected');
+    const notice = fs.readFileSync(path.join(ROOT, 'components', 'BlockedNotice.js'), 'utf8');
+    t.ok(notice.includes("discord.lockedReason === 'running'") && notice.includes("t('discordLockedRunning')"),
+      'and the window shows the matching line');
+    const en = JSON.parse(fs.readFileSync(path.join(ROOT, 'locales', 'en.json'), 'utf8'));
+    t.ok(en.discordLockedRunning && en.discordLockedProtected && !/macOS/i.test(en.discordLockedRunning + en.discordLockedProtected),
+      'neither line mentions macOS');
+  }
+
   console.log(`discord: ${t.count} passed`);
   process.exit(0);
 })().catch((e) => { console.error('FAIL', e.message); process.exit(1); });

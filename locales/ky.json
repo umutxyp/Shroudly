@@ -111,6 +111,8 @@
   "discordModeDesc": "Discord жөндөөлөр файлына бир сап кошуп, Discord колдонмосуна Shroudly аркылуу жаңыртылууга жана ачылууга мүмкүндүк берет; муну өчүрсөңүз, ал сап өчүрүлөт. Discord бөгөттөлгөндө Shroudly муну өзү күйгүзөт.",
   "discordPermission": "Discord колдонмосу Shroudly колдоно алышы үчүн, адегенде macOS Shroudly программасына Discord жөндөөлөрүн өзгөртүүгө уруксат бериши керек.",
   "discordLocked": "Shroudly could not change Discord's settings: the file is in use or write-protected. Close Discord completely (quit it from the system tray too) and try again.",
+  "discordLockedRunning": "Discord is still running, so Shroudly can't change its settings. Quit Discord completely — including from the system tray (its icon near the clock → Quit Discord) — then click Try again.",
+  "discordLockedProtected": "Discord's settings file is write-protected even with Discord closed. It may be read-only, or a security product may be guarding the folder — on Windows, allow Shroudly through “Controlled folder access” (Windows Security → Virus & threat protection → Ransomware protection), then Try again.",
   "discordPermissionBtn": "Уруксат берүү",
   "discordEditFailed": "Discord жөндөөлөр файлын өзгөртүү мүмкүн болгон жок. Муну өзүңүз кылуу үчүн ага төмөнкү сапты кошуңуз: {line}",
   "logDiscordOn": "Discord колдонмосу режими күйүк: Discord Shroudly аркылуу жаңыртылат",

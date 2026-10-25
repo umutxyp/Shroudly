@@ -111,6 +111,8 @@
   "discordModeDesc": "Lässt die Discord-App über Shroudly aktualisieren und starten, indem Discords Einstellungsdatei eine Zeile hinzugefügt wird; beim Ausschalten wird die Zeile wieder entfernt. Shroudly schaltet das von selbst ein, wenn Discord gesperrt ist.",
   "discordPermission": "Damit die Discord-App Shroudly nutzen kann, muss macOS Shroudly erlauben, Discords Einstellungen zu ändern.",
   "discordLocked": "Shroudly could not change Discord's settings: the file is in use or write-protected. Close Discord completely (quit it from the system tray too) and try again.",
+  "discordLockedRunning": "Discord is still running, so Shroudly can't change its settings. Quit Discord completely — including from the system tray (its icon near the clock → Quit Discord) — then click Try again.",
+  "discordLockedProtected": "Discord's settings file is write-protected even with Discord closed. It may be read-only, or a security product may be guarding the folder — on Windows, allow Shroudly through “Controlled folder access” (Windows Security → Virus & threat protection → Ransomware protection), then Try again.",
   "discordPermissionBtn": "Zugriff erlauben",
   "discordEditFailed": "Discords Einstellungsdatei konnte nicht geändert werden. Um es selbst zu tun, füge diese Zeile hinzu: {line}",
   "logDiscordOn": "Discord-App-Modus an: Discord-Updates laufen über Shroudly",

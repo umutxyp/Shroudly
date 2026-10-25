@@ -1364,7 +1364,7 @@ ipcMain.handle('presence:refresh', () => (presence ? presence.refresh() : null))
 /* ── Discord app mode ────────────────────────────────────────────────────── */
 /* What the window shows about it: whether a restart of Discord is still needed
  * to pick the line up, and whether macOS is withholding access to its files. */
-const discordState = { needsRestart: false, needsPermission: false, locked: false, pendingOn: null, foreign: false, editFailed: null, changedAt: 0 };
+const discordState = { needsRestart: false, needsPermission: false, locked: false, lockedReason: null, pendingOn: null, foreign: false, editFailed: null, changedAt: 0 };
 // A Discord already open when this run's relay came up (applyDiscordMode):
 // when it was found, 0 when there is none (DiscordApp.watchSince).
 let discordStartCheckAt = 0;
@@ -1441,7 +1441,18 @@ async function applyDiscordMode(on, { interactive = true } = {}) {
   discordState.needsPermission = r.denied.length > 0 && process.platform === 'darwin';
   discordState.locked = r.denied.length > 0 && process.platform !== 'darwin';
   if (discordState.locked) {
-    addLog('warning', `Discord app: Discord's settings file could not be written (${r.denied.map((v) => v.id).join(', ')}): it is in use or write-protected. Close Discord completely and try again.`);
+    // Say which it is: the file a running Discord holds open (close it, from
+    // the tray too), or one that is write-protected even with Discord gone
+    // (the read-only attribute, or a security product guarding the folder —
+    // Windows' Controlled folder access). The retry button can then do the
+    // right thing.
+    const stillOpen = await DiscordApp.anyRunning().catch(() => false);
+    discordState.lockedReason = stillOpen ? 'running' : 'protected';
+    addLog('warning', stillOpen
+      ? `Discord app: Discord is still running, so its settings file (${r.denied.map((v) => v.id).join(', ')}) is held open and cannot be changed. Quit Discord completely — from the system tray too (its icon near the clock → Quit Discord) — then try again.`
+      : `Discord app: Discord's settings file (${r.denied.map((v) => v.id).join(', ')}) is write-protected even with Discord closed. It may be read-only, or a security product may be guarding the folder (on Windows, "Controlled folder access" in Windows Security → Virus & threat protection → Ransomware protection — allow Shroudly through it, or turn it off).`);
+  } else {
+    discordState.lockedReason = null;
   }
   discordState.foreign = r.foreign;
   discordState.editFailed = r.failed.length ? `"${DiscordApp.KEY}": "${url || ''}"` : null;

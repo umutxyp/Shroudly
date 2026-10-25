@@ -182,8 +182,11 @@ export default function BlockedNotice({ onNavigate, active = false }) {
     );
   }
   if (discord?.locked) {
+    const body = discord.lockedReason === 'running' ? t('discordLockedRunning')
+      : discord.lockedReason === 'protected' ? t('discordLockedProtected')
+        : t('discordLocked');
     return (
-      <Banner Icon={ShieldAlertIcon} body={t('discordLocked')}>
+      <Banner Icon={ShieldAlertIcon} body={body}>
         <Actions>
           <button type="button" onClick={discordRetry} disabled={busy}
                   className="btn btn-warn rounded-[8px] px-3 py-1.5 text-[12.5px] font-semibold">{t('discordPermissionBtn')}</button>

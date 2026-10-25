@@ -111,6 +111,8 @@
   "discordModeDesc": "Бо илова кардани як сатр ба файли танзимоти Discord ба барномаи Discord имкон медиҳад, ки тавассути Shroudly нав шавад ва кушода шавад; хомӯш кардани ин имконият он сатрро хориҷ мекунад. Вақте ки Discord баста мешавад, Shroudly инро худаш фаъол мекунад.",
   "discordPermission": "Пеш аз он ки барномаи Discord Shroudly-ро истифода барад, macOS бояд ба Shroudly иҷозат диҳад, ки танзимоти Discord-ро тағйир диҳад.",
   "discordLocked": "Shroudly could not change Discord's settings: the file is in use or write-protected. Close Discord completely (quit it from the system tray too) and try again.",
+  "discordLockedRunning": "Discord is still running, so Shroudly can't change its settings. Quit Discord completely — including from the system tray (its icon near the clock → Quit Discord) — then click Try again.",
+  "discordLockedProtected": "Discord's settings file is write-protected even with Discord closed. It may be read-only, or a security product may be guarding the folder — on Windows, allow Shroudly through “Controlled folder access” (Windows Security → Virus & threat protection → Ransomware protection), then Try again.",
   "discordPermissionBtn": "Иҷозат додан",
   "discordEditFailed": "Файли танзимоти Discord тағйир дода нашуд. Барои ин корро худатон кардан, ин сатрро ба он илова кунед: {line}",
   "logDiscordOn": "Реҷаи барномаи Discord фаъол: Discord тавассути Shroudly нав мешавад",

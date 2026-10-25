@@ -105,10 +105,40 @@ function patchSync(file, url) {
   if (url ? cur === url : cur === undefined) return 'unchanged';
   if (url) obj[KEY] = url; else delete obj[KEY];
   // Discord writes this file with two-space indentation and no trailing newline.
-  const tmp = `${file}.shroudly-${process.pid}`;
-  fs.writeFileSync(tmp, JSON.stringify(obj, null, 2));
-  try { fs.renameSync(tmp, file); } catch (e) { try { fs.rmSync(tmp, { force: true }); } catch {} throw e; }
+  writeSettings(file, JSON.stringify(obj, null, 2));
   return 'changed';
+}
+
+/* Write the settings file as robustly as Windows allows, since several things
+ * block the plain write-and-rename there:
+ *   - the file carries the read-only attribute (cleared first, and put back if
+ *     it was set and the write still fails);
+ *   - renaming over a file another process holds open fails with EPERM, where
+ *     writing the bytes in place can still go through (so that is the fallback,
+ *     and it keeps Discord's own file rather than a new one);
+ *   - a file Discord itself has open, or a security product guarding the folder
+ *     (Windows' Controlled folder access), refuses every write — that error is
+ *     passed up so the caller can say which it is.
+ * Atomic where it can be (temp + rename); in place only when rename will not. */
+function writeSettings(file, data) {
+  let wasReadonly = false;
+  try { wasReadonly = (fs.statSync(file).mode & 0o200) === 0; } catch {}
+  if (wasReadonly) { try { fs.chmodSync(file, 0o644); } catch {} }
+  const tmp = `${file}.shroudly-${process.pid}`;
+  try {
+    fs.writeFileSync(tmp, data);
+    try { fs.renameSync(tmp, file); return; }
+    catch (renameErr) {
+      try { fs.rmSync(tmp, { force: true }); } catch {}
+      if (renameErr.code !== 'EPERM' && renameErr.code !== 'EACCES' && renameErr.code !== 'EEXIST') throw renameErr;
+      // The target is held open or otherwise un-renamable: write in place.
+      fs.writeFileSync(file, data);
+    }
+  } catch (e) {
+    if (wasReadonly) { try { fs.chmodSync(file, 0o444); } catch {} }   // leave it as we found it
+    try { fs.rmSync(tmp, { force: true }); } catch {}
+    throw e;
+  }
 }
 
 /* Is our line in this build's settings right now? */
@@ -344,5 +374,5 @@ function setDroverAside(d, backupDir, fsx = fs) {
   return moved;
 }
 
-module.exports = { KEY, endpointUrl, variants, present, installed, settingsFile, patchSync, hasOurs, isRunning, anyRunning, pids, restart, healNote,
+module.exports = { KEY, endpointUrl, variants, present, installed, settingsFile, patchSync, writeSettings, hasOurs, isRunning, anyRunning, pids, restart, healNote,
   startedAt, oldestStart, etimeSeconds, readWithoutLine, watchSince, START_CHECK_MS, drover, proxyHostPort, byAppVersion, setDroverAside };

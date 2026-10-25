@@ -111,6 +111,8 @@
   "discordModeDesc": "Discord'un ayar dosyasına bir satır ekleyerek Discord uygulamasının Shroudly üzerinden güncellenip açılmasını sağlar; kapatınca satır silinir. Discord engellendiğinde Shroudly bunu kendiliğinden açar.",
   "discordPermission": "Discord uygulamasının Shroudly'yi kullanabilmesi için macOS'un, Shroudly'nin Discord ayarlarını değiştirmesine izin vermesi gerekiyor.",
   "discordLocked": "Shroudly, Discord'un ayarlarını değiştiremedi: dosya kullanımda veya yazmaya kapalı. Discord'u tamamen kapat (sistem tepsisinden de çık) ve yeniden dene.",
+  "discordLockedRunning": "Discord hâlâ açık olduğu için Shroudly ayarlarını değiştiremiyor. Discord'u tamamen kapat — sistem tepsisinden de (saatin yanındaki simge → Quit Discord) — sonra Yeniden dene'ye tıkla.",
+  "discordLockedProtected": "Discord'un ayar dosyası, Discord kapalıyken bile yazmaya kapalı. Dosya salt-okunur olabilir ya da bir güvenlik yazılımı klasörü koruyor olabilir — Windows'ta Shroudly'yi “Denetimli klasör erişimi”nde (Windows Güvenliği → Virüs ve tehdit koruması → Fidye yazılımı koruması) izinli yap, sonra Yeniden dene.",
   "discordPermissionBtn": "Erişime izin ver",
   "discordEditFailed": "Discord'un ayar dosyası değiştirilemedi. Kendin yapmak için dosyaya şu satırı ekle: {line}",
   "logDiscordOn": "Discord uygulama modu açık: Discord güncellemeleri Shroudly'den geçiyor",

@@ -111,6 +111,8 @@
   "discordModeDesc": "Discord ၏ ဆက်တင်ဖိုင်တွင် စာကြောင်းတစ်ကြောင်း ထည့်၍ Discord အက်ပ်ကို Shroudly မှတစ်ဆင့် အပ်ဒိတ်လုပ်ပြီး ပွင့်စေသည်။ ဤအရာကို ပိတ်လျှင် ထိုစာကြောင်းကို ပြန်ဖယ်ရှားသည်။ Discord ကို ပိတ်ဆို့ထားလျှင် Shroudly က ဤအရာကို အလိုအလျောက် ဖွင့်ပေးသည်။",
   "discordPermission": "Discord အက်ပ်က Shroudly ကို မသုံးနိုင်မီ macOS က Shroudly အား Discord ၏ ဆက်တင်များကို ပြောင်းခွင့် ပေးရန် လိုသည်။",
   "discordLocked": "Shroudly could not change Discord's settings: the file is in use or write-protected. Close Discord completely (quit it from the system tray too) and try again.",
+  "discordLockedRunning": "Discord is still running, so Shroudly can't change its settings. Quit Discord completely — including from the system tray (its icon near the clock → Quit Discord) — then click Try again.",
+  "discordLockedProtected": "Discord's settings file is write-protected even with Discord closed. It may be read-only, or a security product may be guarding the folder — on Windows, allow Shroudly through “Controlled folder access” (Windows Security → Virus & threat protection → Ransomware protection), then Try again.",
   "discordPermissionBtn": "ဝင်ခွင့်ပြုရန်",
   "discordEditFailed": "Discord ၏ ဆက်တင်ဖိုင်ကို ပြောင်း၍ မရပါ။ ကိုယ်တိုင် ပြုလုပ်ရန် ဤစာကြောင်းကို ၎င်းတွင် ထည့်ပါ: {line}",
   "logDiscordOn": "Discord အက်ပ်မုဒ် ဖွင့်ထားသည်: Discord သည် Shroudly မှတစ်ဆင့် အပ်ဒိတ်လုပ်သည်",
