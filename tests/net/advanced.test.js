@@ -95,11 +95,11 @@ t.ok(rep.join(' ').includes('--fake-repeats 8'), 'fakeRepeats:8 -> --fake-repeat
 t.ok(!buildArgs({ ...ubase, platform: 'win32' }).includes('--fake-repeats'), 'no fakeRepeats -> no flag');
 t.ok(!buildArgs({ ...ubase, platform: 'win32', fakeRepeats: 0 }).includes('--fake-repeats'), 'fakeRepeats:0 -> no flag');
 
-// tlsrec (#48): off by default, --tlsrec 1 only when turned on
-t.ok(!def.includes('--tlsrec'), 'default: no --tlsrec');
-const tr = buildArgs({ ...ubase, platform: 'win32', opts: { tlsrec: true } });
-t.ok(tr[tr.indexOf('--tlsrec') + 1] === '1', 'opts.tlsrec -> --tlsrec 1');
-t.ok(!buildArgs({ ...ubase, platform: 'linux', opts: { tlsrec: false } }).includes('--tlsrec'), 'tlsrec:false -> no flag');
+// tlsrec (#48): on by default in Advanced mode now that it is the technique
+// that actually gets through reassembling-DPI networks; a user can opt out.
+t.ok(def[def.indexOf('--tlsrec') + 1] === '1', 'default: --tlsrec 1 (on by default)');
+t.ok(buildArgs({ ...ubase, platform: 'win32', opts: { tlsrec: true } }).includes('--tlsrec'), 'opts.tlsrec:true -> --tlsrec 1');
+t.ok(!buildArgs({ ...ubase, platform: 'linux', opts: { tlsrec: false } }).includes('--tlsrec'), 'opts.tlsrec:false -> no flag (opt-out)');
 
 // The elevated engine's arguments on Windows, read back the way Windows reads
 // a command line (CommandLineToArgvW's rules): exactly what was given, spaces,
