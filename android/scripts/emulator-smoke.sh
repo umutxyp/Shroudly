@@ -264,7 +264,14 @@ wait_for 120 has_log "Ad blocking: a list of" || fail "ad blocking: the list was
 ad_on="$(http_host doubleclick.net)"
 case "$ad_on" in *403*) ;; *) fail "ad blocking on: doubleclick.net answered '$ad_on', not 403 from the engine";; esac
 ok_on="$(http_get)"
-case "$ok_on" in *" 200 "*|*" 30"*) ;; *) fail "ad blocking on: example.com did not load ($ok_on)";; esac
+# What is being checked is that the engine let an ordinary name through: its
+# own block is a 403. What example.com answers after that is the site's own
+# business — it once answered 503 and turned this red for nothing.
+case "$ok_on" in
+  *" 403 "*) fail "ad blocking on: the engine blocked example.com ($ok_on)";;
+  HTTP/1*)   ;;
+  *)         fail "ad blocking on: example.com gave no answer at all ($ok_on)";;
+esac
 say "ad blocking: $(applog | grep 'Ad blocking: a list of' | tail -1 | sed 's/.*Ad blocking/Ad blocking/'); doubleclick.net: ${ad_on%%$'\r'}; example.com: ${ok_on%%$'\r'}"
 ctl adblock-off
 sleep 2
