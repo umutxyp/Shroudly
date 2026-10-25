@@ -95,6 +95,12 @@ class DnsTest {
         val e = Http1.read(ByteArrayInputStream(toEnd))
         assertEquals(503, e.status)
         assertArrayEquals(body, e.body)
+
+        // The answer to a HEAD: the length of what a GET would get, and nothing after it.
+        val head = Http1.read(ByteArrayInputStream("HTTP/1.1 200 OK\r\nContent-Length: 1282290\r\n\r\n".toByteArray()), bodyless = true)
+        assertEquals(200, head.status)
+        assertEquals(0, head.body.size)
+        assertEquals("1282290", head.headers["content-length"])
     }
 
     @Test(expected = IOException::class)

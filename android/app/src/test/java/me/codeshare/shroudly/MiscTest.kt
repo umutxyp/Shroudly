@@ -43,6 +43,20 @@ class VersionsTest {
         assertNull(Versions.apkUrl(listOf("x.dmg" to "${dl}x.dmg")))
         assertNull(Versions.apkUrl(emptyList()))
     }
+
+    @Test
+    fun readsTheDownloadServersFeed() {
+        // What the release's latest.yml looks like (electron-builder writes it).
+        val yml = "version: 2.6.31\nfiles:\n  - url: Shroudly-2.6.31-Windows-x64-Setup.exe\n    sha512: abc==\n" +
+            "path: Shroudly-2.6.31-Windows-x64-Setup.exe\nreleaseDate: '2026-10-25T19:58:01.000Z'\n"
+        assertEquals("2.6.31", Versions.feedVersion(yml))
+        assertEquals("2.6.32", Versions.feedVersion("version: '2.6.32'\r\n"))
+        assertNull(Versions.feedVersion("files: []\n"))
+        assertNull(Versions.feedVersion("version: <html>\n"))
+        assertNull(Versions.feedVersion(""))
+        assertEquals("/dl/Shroudly-2.6.31-Android.apk", Versions.mirrorApkPath("2.6.31"))
+        assertEquals("/dl/Shroudly-2.6.31-Android.apk", Versions.mirrorApkPath("v2.6.31"))
+    }
 }
 
 class LearnedTest {

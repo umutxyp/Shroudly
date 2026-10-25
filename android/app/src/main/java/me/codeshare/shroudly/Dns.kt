@@ -128,13 +128,14 @@ object Dns {
 }
 
 /* An HTTP/1.1 response read off a stream: status line, headers, then a body
- * by Content-Length, chunked, or up to the end of the stream. */
+ * by Content-Length, chunked, or up to the end of the stream. The answer to
+ * a HEAD has no body, whatever its Content-Length says (bodyless). */
 object Http1 {
     class Response(val status: Int, val headers: Map<String, String>, val body: ByteArray)
 
     private const val MAX_BODY = 65536
 
-    fun read(input: InputStream, max: Int = MAX_BODY): Response {
+    fun read(input: InputStream, max: Int = MAX_BODY, bodyless: Boolean = false): Response {
         val statusLine = line(input) ?: throw IOException("no response")
         val parts = statusLine.split(' ')
         if (parts.size < 2 || !parts[0].startsWith("HTTP/1.")) throw IOException("not HTTP/1: $statusLine")
@@ -147,6 +148,7 @@ object Http1 {
             if (c > 0) headers[h.substring(0, c).trim().lowercase()] = h.substring(c + 1).trim()
         }
         val body = when {
+            bodyless -> ByteArray(0)
             headers["transfer-encoding"]?.lowercase()?.contains("chunked") == true -> chunked(input, max)
             headers["content-length"] != null -> {
                 val n = headers["content-length"]!!.toIntOrNull() ?: throw IOException("bad length")

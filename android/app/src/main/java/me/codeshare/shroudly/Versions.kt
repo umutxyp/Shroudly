@@ -37,6 +37,15 @@ object Versions {
             ?: ours.firstOrNull { it.first.endsWith(".apk", ignoreCase = true) })?.second
     }
 
+    /* The version an update feed (electron-builder's latest.yml) names, if readable. */
+    fun feedVersion(yml: String): String? =
+        yml.lineSequence().firstOrNull { it.startsWith("version:") }
+            ?.substringAfter(':')?.trim()?.trim('\'', '"')?.takeIf { parse(it) != null }
+
+    /* That release's APK on Shroudly's download server, which serves the
+     * latest release's files by name. */
+    fun mirrorApkPath(version: String) = "/dl/Shroudly-${display(version)}-Android.apk"
+
     /* "v2.6.0" -> "2.6.0", for display. */
     fun display(tag: String) = tag.trim().removePrefix("v").removePrefix("V")
 }
