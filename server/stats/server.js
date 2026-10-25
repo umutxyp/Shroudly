@@ -19,6 +19,8 @@
  *   GET  /dl                            -> 302 to the latest release page
  *   GET  /dl/<key>                      -> 302 to that installer in the latest release
  *                                          (HEAD too: download managers and link checkers ask first)
+ *   GET  /dl/<release file name>        -> that file itself, served from here: the
+ *                                          updater's mirror where github.com is blocked
  *
  *   node server.js [--port 8787] [--state /var/lib/shroudly-stats/seen.json]
  */
@@ -26,6 +28,7 @@
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
+const { Readable, pipeline } = require('stream');
 
 const arg = (k, d) => { const i = process.argv.indexOf(k); return i > 0 ? process.argv[i + 1] : d; };
 const PORT = Number(arg('--port', process.env.PORT || 8787));
@@ -142,6 +145,49 @@ async function download(pathname) {
   return RELEASES_LATEST;
 }
 
+/* The update mirror. Some networks block github.com's addresses outright, and
+ * an app on the device cannot get past that; the desktop updater (2.6.31+) then
+ * asks here for the same files by name, and they are passed through from GitHub
+ * instead of redirected to it. Only release file names pass: each versioned file
+ * comes from its own release, the update feeds from the latest. Cloudflare may
+ * keep the versioned files (they never change); the feeds are never kept. */
+const MIRROR_RE = /^(latest(?:-linux(?:-arm64)?|-mac)?\.yml|Shroudly-(\d+\.\d+\.\d+)-[A-Za-z0-9_.-]+\.(?:exe|dmg|zip|AppImage|deb|rpm|pacman|apk))$/;
+
+function mirrorUrl(pathname) {
+  const m = pathname.replace(/^\/dl\//, '').match(MIRROR_RE);
+  if (!m) return null;
+  return m[2] ? `${REPO}/releases/download/v${m[2]}/${m[1]}` : `${REPO}/releases/latest/download/${m[1]}`;
+}
+
+async function mirror(req, res, url) {
+  const name = url.slice(url.lastIndexOf('/') + 1);
+  const ctl = new AbortController();
+  const slow = setTimeout(() => ctl.abort(), 15000);   // for the answer to start, not for the whole file
+  res.on('close', () => ctl.abort());
+  let up;
+  try {
+    up = await fetch(url, { method: req.method, headers: { 'user-agent': 'shroudly-dl' }, signal: ctl.signal });
+  } finally {
+    clearTimeout(slow);
+  }
+  if (!up.ok) {
+    if (up.body) up.body.cancel().catch(() => {});
+    res.writeHead(up.status === 404 ? 404 : 502, { 'content-type': 'text/plain', 'cache-control': 'no-store' });
+    res.end(up.status === 404 ? 'not found' : 'github.com did not answer');
+    return;
+  }
+  const feed = name.endsWith('.yml');
+  const headers = {
+    'content-type': up.headers.get('content-type') || 'application/octet-stream',
+    'cache-control': feed ? 'no-store' : 'public, max-age=86400, immutable',
+  };
+  if (!feed) headers['content-disposition'] = `attachment; filename="${name}"`;
+  if (up.headers.get('content-length') && !up.headers.get('content-encoding')) headers['content-length'] = up.headers.get('content-length');
+  res.writeHead(200, headers);
+  if (req.method === 'HEAD' || !up.body) { res.end(); return; }
+  pipeline(Readable.fromWeb(up.body), res, () => {});
+}
+
 // ── http ─────────────────────────────────────────────────────────────────────
 function send(res, status, body) {
   res.writeHead(status, { 'content-type': 'application/json', 'cache-control': 'no-store', 'access-control-allow-origin': '*' });
@@ -163,6 +209,8 @@ const server = http.createServer(async (req, res) => {
   const route = `${req.method} ${pathname}`;
   try {
     if ((req.method === 'GET' || req.method === 'HEAD') && (pathname === '/dl' || pathname.startsWith('/dl/'))) {
+      const from = mirrorUrl(pathname);
+      if (from) { await mirror(req, res, from); return; }
       const to = await download(pathname);
       if (!to) { res.writeHead(404, { 'content-type': 'text/plain' }); res.end('unknown download key'); return; }
       res.writeHead(302, { location: to, 'cache-control': 'no-store' });
