@@ -203,8 +203,15 @@ function pacEval(body) {
   // ── for real: GitHub's raw files through the engine, certificate checked ──
   const P = await freePort();
   const eng = await startEngine(P, ['--auto', '--doh']);
+  // This one really goes to GitHub, so a moment when the runner cannot reach
+  // it says nothing about Shroudly: tried a few times, a little apart, before
+  // it counts as a failure (a release was turned red by one such moment).
   let body = '';
-  try { body = (await SiteList.fetchThrough(P, 'https://raw.githubusercontent.com/umutxyp/Shroudly/main/package.json')).body; } catch (e) { body = `error: ${e.message}`; }
+  for (let i = 0; i < 3; i++) {
+    try { body = (await SiteList.fetchThrough(P, 'https://raw.githubusercontent.com/umutxyp/Shroudly/main/package.json')).body; } catch (e) { body = `error: ${e.message}`; }
+    if (/"name":\s*"shroudly"/i.test(body)) break;
+    if (i < 2) await new Promise((r) => setTimeout(r, 3000));
+  }
   eng.stop();
   t.ok(/"name":\s*"shroudly"/i.test(body), 'GitHub raw files arrive through the engine (the path the published list takes)');
 
