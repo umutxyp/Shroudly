@@ -19,7 +19,7 @@
  *   GET  /dl                            -> 302 to the latest release page
  *   GET  /dl/<key>                      -> 302 to that installer in the latest release
  *                                          (HEAD too: download managers and link checkers ask first)
- *   GET  /dl/<release file name>        -> that file itself, served from here: the
+ *   GET  /dl/<latest release file name> -> that file itself, served from here: the
  *                                          updater's mirror where github.com is blocked
  *
  *   node server.js [--port 8787] [--state /var/lib/shroudly-stats/seen.json]
@@ -148,15 +148,19 @@ async function download(pathname) {
 /* The update mirror. Some networks block github.com's addresses outright, and
  * an app on the device cannot get past that; the desktop updater (2.6.31+) then
  * asks here for the same files by name, and they are passed through from GitHub
- * instead of redirected to it. Only release file names pass: each versioned file
- * comes from its own release, the update feeds from the latest. Cloudflare may
- * keep the versioned files (they never change); the feeds are never kept. */
-const MIRROR_RE = /^(latest(?:-linux(?:-arm64)?|-mac)?\.yml|Shroudly-(\d+\.\d+\.\d+)-[A-Za-z0-9_.-]+\.(?:exe|dmg|zip|AppImage|deb|rpm|pacman|apk))$/;
+ * instead of redirected to it. Only the latest release's own files pass, the
+ * feeds and the installers from one release, and the URL is built from this
+ * list, never from what was asked. Cloudflare may keep the installers (a
+ * versioned file never changes); the feeds are never kept. */
+const FEEDS = ['latest.yml', 'latest-linux.yml', 'latest-linux-arm64.yml', 'latest-mac.yml'];
 
-function mirrorUrl(pathname) {
-  const m = pathname.replace(/^\/dl\//, '').match(MIRROR_RE);
-  if (!m) return null;
-  return m[2] ? `${REPO}/releases/download/v${m[2]}/${m[1]}` : `${REPO}/releases/latest/download/${m[1]}`;
+async function mirrorUrl(pathname) {
+  const name = pathname.replace(/^\/dl\//, '');
+  if (!FEEDS.includes(name) && !/^Shroudly-[\d.]+-[\w.-]+$/.test(name)) return null;
+  const latest = await latestTag();
+  if (!latest) return null;
+  const file = [...FEEDS, ...Object.values(DL_FILES).map((f) => f(latest.version))].find((n) => n === name);
+  return file ? `${REPO}/releases/download/${latest.tag}/${file}` : null;
 }
 
 async function mirror(req, res, url) {
@@ -209,7 +213,7 @@ const server = http.createServer(async (req, res) => {
   const route = `${req.method} ${pathname}`;
   try {
     if ((req.method === 'GET' || req.method === 'HEAD') && (pathname === '/dl' || pathname.startsWith('/dl/'))) {
-      const from = mirrorUrl(pathname);
+      const from = await mirrorUrl(pathname);
       if (from) { await mirror(req, res, from); return; }
       const to = await download(pathname);
       if (!to) { res.writeHead(404, { 'content-type': 'text/plain' }); res.end('unknown download key'); return; }
