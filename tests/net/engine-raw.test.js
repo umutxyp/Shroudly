@@ -288,12 +288,21 @@ async function retry(P, port, timeoutMs) { await sleep(1100); return attempt(P, 
       await fresh(['--auto', '--doh']);
       const echo = net.createServer((c) => { c.on('error', () => {}); c.on('data', (d) => c.write(d)); });
       const echoPort = await listen(echo);
-      const st = await new Promise((resolve) => {
+      // The name is an outside one (nip.io), and the engine looks it up with
+      // encrypted DNS, so a moment when that lookup cannot be made says
+      // nothing about the engine: tried a few times before it counts.
+      const connectOnce = () => new Promise((resolve) => {
         const c = net.connect(P, '127.0.0.1'); let b = '';
         c.on('connect', () => c.write(`CONNECT ${dnsName}:${echoPort} HTTP/1.1\r\nHost: x\r\n\r\n`));
         c.on('data', (d) => { b += d; if (b.includes('\r\n\r\n')) { c.destroy(); resolve(b.split('\r\n')[0]); } });
         c.on('error', () => resolve('error'));
       });
+      let st = '';
+      for (let i = 0; i < 3; i++) {
+        st = await connectOnce();
+        if (/^HTTP\/1\.1 200/.test(st)) break;
+        if (i < 2) await new Promise((r) => setTimeout(r, 2000));
+      }
       t.ok(/^HTTP\/1\.1 200/.test(st), `CONNECT to a name the system resolves to this computer: ${st}`);
       const s5 = await socks(P, dnsName, echoPort).then((c) => { c.destroy(); return true; }, () => false);
       t.ok(s5, 'SOCKS5 by that name too');
