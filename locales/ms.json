@@ -502,6 +502,7 @@
   "notifyLogsSaveFailed": "Log tidak dapat disimpan. Gunakan “Salin log” sebagai ganti.",
   "autoRawUnreachable": "{app} tidak dapat mencapai pelayannya: rangkaian ini menyekat alamat pelayan tersebut, dan Shroudly tidak dapat memintasnya tanpa pelayan di tempat lain. Gunakan tetapan proksi {app} sendiri atau VPN.",
   "autoServiceUnreachable": "Pelayan {app} langsung tidak menjawab pada rangkaian ini: rangkaian menyekat alamatnya, dan Shroudly tidak dapat memintasnya tanpa pelayan di tempat lain. Di sini hanya VPN yang membolehkan {app} melepasinya.",
+  "autoRivalTool": "{rival} is running and changes the same connections Advanced mode does. Two programs doing that undo each other, so sites can stay closed. Turn one of them off.",
   "autoRawBlocked": "Rangkaian ini menghentikan sambungan {app}, dan tiada satu pun teknik Shroudly yang berjaya menembusinya. Gunakan tetapan proksi {app} sendiri atau VPN.",
   "logRawUnreachable": "{app} tidak dapat mencapai pelayannya ({addrs}): rangkaian menyekat alamat itu sendiri; hanya tetapan proksi aplikasi itu sendiri atau VPN yang dapat memintasnya",
   "logServiceUnreachable": "{app}: pelayannya ({addrs}) langsung tidak menjawab pada rangkaian ini, walaupun internet berfungsi; rangkaian menyekat alamatnya, dan hanya VPN dapat memintasnya",

@@ -502,6 +502,7 @@
   "notifyLogsSaveFailed": "No se pudo guardar el registro. Usa «Copiar registros» en su lugar.",
   "autoRawUnreachable": "La app {app} no puede llegar a sus servidores: esta red bloquea sus direcciones y Shroudly no puede sortear eso sin un servidor en otro lugar. Usa el ajuste de proxy de la propia app {app} o una VPN.",
   "autoServiceUnreachable": "Los servidores de {app} no responden en absoluto en esta red: bloquea sus direcciones y Shroudly no puede sortear eso sin un servidor en otro lugar. Aquí solo una VPN hace pasar a {app}.",
+  "autoRivalTool": "{rival} is running and changes the same connections Advanced mode does. Two programs doing that undo each other, so sites can stay closed. Turn one of them off.",
   "autoRawBlocked": "Esta red corta las conexiones de la app {app} y ninguna de las técnicas de Shroudly ha logrado pasar. Usa el ajuste de proxy de la propia app {app} o una VPN.",
   "logRawUnreachable": "La app {app} no puede llegar a sus servidores ({addrs}): la red bloquea esas mismas direcciones; solo el ajuste de proxy de la propia app o una VPN pueden sortearlo",
   "logServiceUnreachable": "{app}: sus servidores ({addrs}) no responden en absoluto en esta red, aunque internet sí; la red bloquea sus direcciones y solo una VPN puede sortear eso",

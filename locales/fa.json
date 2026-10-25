@@ -502,6 +502,7 @@
   "notifyLogsSaveFailed": "گزارش ذخیره نشد. به‌جای آن از «کپی گزارش‌ها» استفاده کنید.",
   "autoRawUnreachable": "برنامهٔ {app} نمی‌تواند به سرورهایش برسد: این شبکه نشانی‌های آن‌ها را مسدود کرده و Shroudly بدون سروری در جای دیگر نمی‌تواند از این مانع بگذرد. از تنظیم پراکسی خودِ برنامهٔ {app} یا یک VPN استفاده کنید.",
   "autoServiceUnreachable": "سرورهای {app} در این شبکه اصلاً پاسخ نمی‌دهند: شبکه نشانی‌های آن‌ها را مسدود کرده و Shroudly بدون سروری در جای دیگر نمی‌تواند از این مانع بگذرد. اینجا فقط یک VPN {app} را به کار می‌اندازد.",
+  "autoRivalTool": "{rival} is running and changes the same connections Advanced mode does. Two programs doing that undo each other, so sites can stay closed. Turn one of them off.",
   "autoRawBlocked": "این شبکه اتصال‌های برنامهٔ {app} را متوقف می‌کند و هیچ‌یک از روش‌های Shroudly از آن عبور نکرد. از تنظیم پراکسی خودِ برنامهٔ {app} یا یک VPN استفاده کنید.",
   "logRawUnreachable": "برنامهٔ {app} نمی‌تواند به سرورهایش برسد ({addrs}): شبکه خودِ این نشانی‌ها را مسدود می‌کند؛ فقط تنظیم پراکسی خودِ برنامه یا یک VPN از این مانع می‌گذرد",
   "logServiceUnreachable": "{app}: سرورهایش ({addrs}) در این شبکه اصلاً پاسخ نمی‌دهند، در حالی که اینترنت کار می‌کند؛ شبکه نشانی‌های آن‌ها را مسدود کرده و فقط یک VPN از این مانع می‌گذرد",

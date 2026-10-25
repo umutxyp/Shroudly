@@ -502,6 +502,7 @@
   "notifyLogsSaveFailed": "Không thể lưu nhật ký. Hãy dùng “Sao chép nhật ký” thay thế.",
   "autoRawUnreachable": "{app} không thể kết nối tới máy chủ của nó: mạng này chặn địa chỉ của các máy chủ đó, và Shroudly không thể vượt qua nếu không có một máy chủ ở nơi khác. Hãy dùng cài đặt proxy riêng của {app} hoặc VPN.",
   "autoServiceUnreachable": "Máy chủ của {app} hoàn toàn không phản hồi trên mạng này: mạng chặn địa chỉ của chúng, và Shroudly không thể vượt qua nếu không có một máy chủ ở nơi khác. Ở đây chỉ VPN mới đưa {app} đi qua được.",
+  "autoRivalTool": "{rival} is running and changes the same connections Advanced mode does. Two programs doing that undo each other, so sites can stay closed. Turn one of them off.",
   "autoRawBlocked": "Mạng này chặn các kết nối của {app}, và không kỹ thuật nào của Shroudly vượt qua được. Hãy dùng cài đặt proxy riêng của {app} hoặc VPN.",
   "logRawUnreachable": "{app} không thể kết nối tới máy chủ của nó ({addrs}): mạng chặn chính các địa chỉ đó; chỉ cài đặt proxy riêng của ứng dụng hoặc VPN mới vượt qua được",
   "logServiceUnreachable": "{app}: các máy chủ của nó ({addrs}) hoàn toàn không phản hồi trên mạng này, dù internet vẫn chạy; mạng chặn địa chỉ của chúng, và chỉ VPN mới vượt qua được",

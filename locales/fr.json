@@ -502,6 +502,7 @@
   "notifyLogsSaveFailed": "Le journal n’a pas pu être enregistré. Utilisez plutôt « Copier le journal ».",
   "autoRawUnreachable": "L’application {app} ne parvient pas à joindre ses serveurs : ce réseau bloque leurs adresses, et Shroudly ne peut pas contourner cela sans un serveur situé ailleurs. Utilisez le réglage proxy intégré à {app} ou un VPN.",
   "autoServiceUnreachable": "Les serveurs de {app} ne répondent pas du tout sur ce réseau : il bloque leurs adresses, et Shroudly ne peut pas contourner cela sans un serveur situé ailleurs. Ici, seul un VPN fait passer {app}.",
+  "autoRivalTool": "{rival} is running and changes the same connections Advanced mode does. Two programs doing that undo each other, so sites can stay closed. Turn one of them off.",
   "autoRawBlocked": "Ce réseau interrompt les connexions de l’application {app}, et aucune des techniques de Shroudly n’est passée. Utilisez le réglage proxy intégré à {app} ou un VPN.",
   "logRawUnreachable": "L’application {app} ne parvient pas à joindre ses serveurs ({addrs}) : le réseau bloque ces adresses elles-mêmes ; seul le réglage proxy de l’application ou un VPN permet de contourner cela",
   "logServiceUnreachable": "{app} : ses serveurs ({addrs}) ne répondent pas du tout sur ce réseau, alors qu’Internet fonctionne ; le réseau bloque leurs adresses, et seul un VPN contourne cela",

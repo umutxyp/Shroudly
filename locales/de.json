@@ -502,6 +502,7 @@
   "notifyLogsSaveFailed": "Das Protokoll konnte nicht gespeichert werden. Nutze stattdessen „Protokoll kopieren“.",
   "autoRawUnreachable": "Die App {app} erreicht ihre Server nicht: Dieses Netz sperrt ihre Adressen, und ohne einen Server woanders kommt Shroudly daran nicht vorbei. Nutze die eigene Proxy-Einstellung von {app} oder ein VPN.",
   "autoServiceUnreachable": "Die Server von {app} antworten in diesem Netz überhaupt nicht: Es sperrt ihre Adressen, und ohne einen Server woanders kommt Shroudly daran nicht vorbei. Hier bringt nur ein VPN {app} durch.",
+  "autoRivalTool": "{rival} is running and changes the same connections Advanced mode does. Two programs doing that undo each other, so sites can stay closed. Turn one of them off.",
   "autoRawBlocked": "Dieses Netz unterbricht die Verbindungen der App {app}, und keine der Techniken von Shroudly ist durchgekommen. Nutze die eigene Proxy-Einstellung von {app} oder ein VPN.",
   "logRawUnreachable": "Die App {app} erreicht ihre Server nicht ({addrs}): Das Netz sperrt genau diese Adressen; daran kommt nur die eigene Proxy-Einstellung der App oder ein VPN vorbei",
   "logServiceUnreachable": "{app}: Seine Server ({addrs}) antworten in diesem Netz überhaupt nicht, das Internet aber schon; das Netz sperrt ihre Adressen, und nur ein VPN kommt daran vorbei",

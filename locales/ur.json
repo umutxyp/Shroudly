@@ -502,6 +502,7 @@
   "notifyLogsSaveFailed": "لاگ محفوظ نہیں ہو سکا۔ اس کے بجائے “لاگز کاپی کریں” استعمال کریں۔",
   "autoRawUnreachable": "{app} ایپ اپنے سرورز تک نہیں پہنچ سکتی: یہ نیٹ ورک ان کے پتے بلاک کرتا ہے، اور Shroudly کسی دوسری جگہ کے سرور کے بغیر اس رکاوٹ کو پار نہیں کر سکتا۔ {app} ایپ کی اپنی پراکسی ترتیب یا کوئی VPN استعمال کریں۔",
   "autoServiceUnreachable": "{app} کے سرورز اس نیٹ ورک پر بالکل جواب نہیں دیتے: نیٹ ورک ان کے پتے بلاک کرتا ہے، اور Shroudly کسی دوسری جگہ کے سرور کے بغیر اس رکاوٹ کو پار نہیں کر سکتا۔ یہاں {app} صرف VPN سے چلے گا۔",
+  "autoRivalTool": "{rival} is running and changes the same connections Advanced mode does. Two programs doing that undo each other, so sites can stay closed. Turn one of them off.",
   "autoRawBlocked": "یہ نیٹ ورک {app} ایپ کے کنکشنز روک دیتا ہے، اور Shroudly کی کوئی بھی تکنیک کامیاب نہیں ہوئی۔ {app} ایپ کی اپنی پراکسی ترتیب یا کوئی VPN استعمال کریں۔",
   "logRawUnreachable": "{app} ایپ اپنے سرورز تک نہیں پہنچ سکتی ({addrs}): نیٹ ورک خود ان پتوں کو بلاک کرتا ہے؛ اس رکاوٹ کو صرف ایپ کی اپنی پراکسی ترتیب یا کوئی VPN پار کر سکتا ہے",
   "logServiceUnreachable": "{app}: اس کے سرورز ({addrs}) اس نیٹ ورک پر بالکل جواب نہیں دیتے، جبکہ انٹرنیٹ چل رہا ہے؛ نیٹ ورک ان کے پتے بلاک کرتا ہے، اور صرف VPN اسے پار کرتا ہے",

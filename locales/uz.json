@@ -502,6 +502,7 @@
   "notifyLogsSaveFailed": "Jurnalni saqlab boʻlmadi. Uning oʻrniga «Jurnalni nusxalash»dan foydalaning.",
   "autoRawUnreachable": "{app} ilovasi oʻz serverlariga ulana olmayapti: bu tarmoq ularning manzillarini bloklaydi, Shroudly esa boshqa joydagi serversiz buni chetlab oʻta olmaydi. {app} ilovasining oʻz proksi sozlamasidan yoki VPNdan foydalaning.",
   "autoServiceUnreachable": "{app} serverlari bu tarmoqda umuman javob bermaydi: tarmoq ularning manzillarini bloklaydi, Shroudly esa boshqa joydagi serversiz buni chetlab o‘ta olmaydi. Bu yerda {app} faqat VPN orqali ishlaydi.",
+  "autoRivalTool": "{rival} is running and changes the same connections Advanced mode does. Two programs doing that undo each other, so sites can stay closed. Turn one of them off.",
   "autoRawBlocked": "Bu tarmoq {app} ilovasining ulanishlarini toʻxtatadi va Shroudly usullaridan hech biri oʻta olmadi. {app} ilovasining oʻz proksi sozlamasidan yoki VPNdan foydalaning.",
   "logRawUnreachable": "{app} ilovasi oʻz serverlariga ulana olmayapti ({addrs}): tarmoq aynan shu manzillarni bloklaydi; buni faqat ilovaning oʻz proksi sozlamasi yoki VPN chetlab oʻta oladi",
   "logServiceUnreachable": "{app}: uning serverlari ({addrs}) bu tarmoqda umuman javob bermaydi, internet esa ishlayapti; tarmoq ularning manzillarini bloklaydi, buni faqat VPN chetlab o‘tadi",

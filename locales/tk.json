@@ -502,6 +502,7 @@
   "notifyLogsSaveFailed": "Ýazgylary saklap bolmady. Onuň ýerine “Ýazgylary göçüriň” düwmesini ulanyň.",
   "autoRawUnreachable": "{app} programmasy öz serwerlerine ýetip bilmeýär: bu tor olaryň salgylaryny petikleýär, Shroudly bolsa başga ýerdäki serwersiz muny aýlanyp geçip bilmeýär. {app} programmasynyň öz proksi sazlamasyny ýa-da VPN ulanyň.",
   "autoServiceUnreachable": "{app} serwerleri bu torda asla jogap bermeýär: tor olaryň salgylaryny petikleýär, Shroudly bolsa başga ýerdäki serwersiz muny aýlanyp geçip bilmeýär. Bu ýerde {app} diňe VPN bilen işleýär.",
+  "autoRivalTool": "{rival} is running and changes the same connections Advanced mode does. Two programs doing that undo each other, so sites can stay closed. Turn one of them off.",
   "autoRawBlocked": "Bu tor {app} programmasynyň birikmelerini togtadýar we Shroudly-niň usullarynyň hiç biri geçip bilmedi. {app} programmasynyň öz proksi sazlamasyny ýa-da VPN ulanyň.",
   "logRawUnreachable": "{app} programmasy öz serwerlerine ýetip bilmeýär ({addrs}): tor bu salgylaryň özüni petikleýär; muny diňe programmanyň öz proksi sazlamasy ýa-da VPN aýlanyp geçip bilýär",
   "logServiceUnreachable": "{app}: onuň serwerleri ({addrs}) bu torda asla jogap bermeýär, internet bolsa işleýär; tor olaryň salgylaryny petikleýär, muny diňe VPN aýlanyp geçýär",

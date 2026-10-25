@@ -502,6 +502,7 @@
   "notifyLogsSaveFailed": "ログを保存できませんでした。代わりに「ログをコピー」を使ってください。",
   "autoRawUnreachable": "{app} がサーバーに接続できません。このネットワークがサーバーのアドレスをブロックしており、別の場所にあるサーバーなしでは Shroudly でも回避できません。{app} 自体のプロキシ設定か VPN を使ってください。",
   "autoServiceUnreachable": "{app} のサーバーはこのネットワークではまったく応答しません。ネットワークがサーバーのアドレスをブロックしており、別の場所にあるサーバーなしでは Shroudly でも回避できません。ここでは VPN を使わないと {app} は通りません。",
+  "autoRivalTool": "{rival} is running and changes the same connections Advanced mode does. Two programs doing that undo each other, so sites can stay closed. Turn one of them off.",
   "autoRawBlocked": "このネットワークが {app} の接続を止めており、Shroudly のどの手法でも通れませんでした。{app} 自体のプロキシ設定か VPN を使ってください。",
   "logRawUnreachable": "{app} がサーバー（{addrs}）に接続できません。ネットワークがこれらのアドレス自体をブロックしています。回避できるのはアプリ自体のプロキシ設定か VPN だけです",
   "logServiceUnreachable": "{app}: サーバー（{addrs}）がこのネットワークではまったく応答しません。インターネットは使えます。ネットワークがアドレスをブロックしており、回避できるのは VPN だけです",

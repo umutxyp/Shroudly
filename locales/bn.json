@@ -502,6 +502,7 @@
   "notifyLogsSaveFailed": "লগ সংরক্ষণ করা যায়নি। এর বদলে “লগ কপি করুন” ব্যবহার করুন।",
   "autoRawUnreachable": "{app} তার সার্ভারে পৌঁছাতে পারছে না: এই নেটওয়ার্ক সেগুলোর ঠিকানা ব্লক করে, আর অন্য কোথাও থাকা কোনো সার্ভার ছাড়া Shroudly এটি পার হতে পারে না। {app}-এর নিজস্ব প্রক্সি সেটিং বা একটি VPN ব্যবহার করুন।",
   "autoServiceUnreachable": "{app}-এর সার্ভারগুলো এই নেটওয়ার্কে একেবারেই সাড়া দেয় না: নেটওয়ার্ক সেগুলোর ঠিকানা ব্লক করে, আর অন্য কোথাও থাকা কোনো সার্ভার ছাড়া Shroudly এটি পার হতে পারে না। এখানে শুধু একটি VPN দিয়েই {app} চলবে।",
+  "autoRivalTool": "{rival} is running and changes the same connections Advanced mode does. Two programs doing that undo each other, so sites can stay closed. Turn one of them off.",
   "autoRawBlocked": "এই নেটওয়ার্ক {app}-এর সংযোগ আটকে দিচ্ছে, আর Shroudly-এর কোনো কৌশলই পার হতে পারেনি। {app}-এর নিজস্ব প্রক্সি সেটিং বা একটি VPN ব্যবহার করুন।",
   "logRawUnreachable": "{app} তার সার্ভারে ({addrs}) পৌঁছাতে পারছে না: নেটওয়ার্ক এই ঠিকানাগুলোই ব্লক করে; শুধু অ্যাপের নিজস্ব প্রক্সি সেটিং বা VPN-ই এটি পার হতে পারে",
   "logServiceUnreachable": "{app}: এর সার্ভারগুলো ({addrs}) এই নেটওয়ার্কে একেবারেই সাড়া দেয় না, যদিও ইন্টারনেট চলছে; নেটওয়ার্ক সেগুলোর ঠিকানা ব্লক করে, আর শুধু একটি VPN এটি পার হয়",

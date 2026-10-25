@@ -502,6 +502,7 @@
   "notifyLogsSaveFailed": "Не ўдалося захаваць журнал. Скарыстайцеся «Скапіяваць журнал».",
   "autoRawUnreachable": "Праграма {app} не можа звязацца са сваімі серверамі: гэтая сетка блакуе іх адрасы, і без сервера ў іншым месцы Shroudly не можа гэта абысці. Скарыстайцеся наладай проксі ў самой праграме {app} або VPN.",
   "autoServiceUnreachable": "Серверы {app} у гэтай сетцы зусім не адказваюць: сетка блакуе іх адрасы, і без сервера ў іншым месцы Shroudly не можа гэта абысці. Тут {app} запрацуе толькі праз VPN.",
+  "autoRivalTool": "{rival} is running and changes the same connections Advanced mode does. Two programs doing that undo each other, so sites can stay closed. Turn one of them off.",
   "autoRawBlocked": "Гэтая сетка абрывае злучэнні праграмы {app}, і ніводны з метадаў Shroudly не прайшоў. Скарыстайцеся наладай проксі ў самой праграме {app} або VPN.",
   "logRawUnreachable": "Праграма {app} не можа звязацца са сваімі серверамі ({addrs}): сетка блакуе самі гэтыя адрасы; абысці гэта можна толькі наладай проксі ў самой праграме або праз VPN",
   "logServiceUnreachable": "{app}: яго серверы ({addrs}) у гэтай сетцы зусім не адказваюць, хоць інтэрнэт працуе; сетка блакуе іх адрасы, і абысці гэта можа толькі VPN",

@@ -502,6 +502,7 @@
   "notifyLogsSaveFailed": "Qeydləri saxlamaq mümkün olmadı. Bunun əvəzinə «Qeydləri köçür» düyməsini istifadə et.",
   "autoRawUnreachable": "{app} tətbiqi öz serverlərinə çata bilmir: bu şəbəkə onların ünvanlarını bloklayır və Shroudly başqa yerdə yerləşən server olmadan bunu keçə bilməz. {app} tətbiqinin öz proksi ayarından və ya VPN-dən istifadə et.",
   "autoServiceUnreachable": "{app} serverləri bu şəbəkədə ümumiyyətlə cavab vermir: şəbəkə onların ünvanlarını bloklayır və Shroudly başqa yerdə yerləşən server olmadan bunu keçə bilməz. Burada {app}-ı yalnız VPN keçirə bilər.",
+  "autoRivalTool": "{rival} is running and changes the same connections Advanced mode does. Two programs doing that undo each other, so sites can stay closed. Turn one of them off.",
   "autoRawBlocked": "Bu şəbəkə {app} tətbiqinin bağlantılarını dayandırır və Shroudly-nin heç bir üsulu keçə bilmədi. {app} tətbiqinin öz proksi ayarından və ya VPN-dən istifadə et.",
   "logRawUnreachable": "{app} tətbiqi öz serverlərinə çata bilmir ({addrs}): şəbəkə bu ünvanların özünü bloklayır; bunu yalnız tətbiqin öz proksi ayarı və ya VPN keçə bilər",
   "logServiceUnreachable": "{app}: serverləri ({addrs}) bu şəbəkədə ümumiyyətlə cavab vermir, internet isə işləyir; şəbəkə onların ünvanlarını bloklayır və bunu yalnız VPN keçə bilər",

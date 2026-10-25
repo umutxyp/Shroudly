@@ -502,6 +502,7 @@
   "notifyLogsSaveFailed": "Kayıtlar kaydedilemedi. Bunun yerine Kayıtları kopyala'yı kullan.",
   "autoRawUnreachable": "{app} sunucularına ulaşamıyor: bu ağ o adresleri engelliyor ve Shroudly başka bir yerde sunucu olmadan bunu aşamaz. {app} uygulamasının kendi proxy ayarını ya da bir VPN kullan.",
   "autoServiceUnreachable": "{app} sunucuları bu ağda hiç cevap vermiyor: ağ o adresleri engelliyor ve Shroudly başka bir yerde sunucu olmadan bunu aşamaz. Burada {app}'a yalnızca bir VPN ulaştırır.",
+  "autoRivalTool": "{rival} çalışıyor ve Gelişmiş modun değiştirdiği bağlantıları o da değiştiriyor. İki program bunu aynı anda yapınca birbirini bozar, siteler açılmayabilir. Birini kapatın.",
   "autoRawBlocked": "Bu ağ {app} bağlantılarını durduruyor ve Shroudly'nin tekniklerinden hiçbiri geçemedi. {app} uygulamasının kendi proxy ayarını ya da bir VPN kullan.",
   "logRawUnreachable": "{app} sunucularına ulaşamıyor ({addrs}): ağ bu adreslerin kendisini engelliyor; bunu yalnızca uygulamanın kendi proxy ayarı ya da bir VPN aşar",
   "logServiceUnreachable": "{app}: sunucuları ({addrs}) bu ağda hiç cevap vermiyor, internet ise çalışıyor; ağ o adresleri engelliyor, bunu yalnızca bir VPN aşar",

@@ -502,6 +502,7 @@
   "notifyLogsSaveFailed": "The log could not be saved. Use Copy logs instead.",
   "autoRawUnreachable": "{app} cannot reach its servers: this network blocks their addresses, and Shroudly cannot get around that without a server elsewhere. Use {app}'s own proxy setting or a VPN.",
   "autoServiceUnreachable": "{app}'s servers do not answer on this network at all: it blocks their addresses, and Shroudly cannot get around that without a server elsewhere. Only a VPN gets {app} through here.",
+  "autoRivalTool": "{rival} is running and changes the same connections Advanced mode does. Two programs doing that undo each other, so sites can stay closed. Turn one of them off.",
   "autoRawBlocked": "This network stops {app}'s connections, and none of Shroudly's techniques got through. Use {app}'s own proxy setting or a VPN.",
   "logRawUnreachable": "{app} cannot reach its servers ({addrs}): the network blocks those addresses themselves; only the app's own proxy setting or a VPN gets around that",
   "logServiceUnreachable": "{app}: its servers ({addrs}) do not answer on this network at all, while the internet does; the network blocks their addresses, and only a VPN gets around that",

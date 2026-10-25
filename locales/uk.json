@@ -502,6 +502,7 @@
   "notifyLogsSaveFailed": "Не вдалося зберегти журнал. Скористайтеся «Скопіювати журнал».",
   "autoRawUnreachable": "Застосунок {app} не може з’єднатися зі своїми серверами: ця мережа блокує їхні адреси, і без сервера деінде Shroudly не може це обійти. Скористайтеся налаштуванням проксі в самому застосунку {app} або VPN.",
   "autoServiceUnreachable": "Сервери {app} у цій мережі зовсім не відповідають: мережа блокує їхні адреси, і без сервера деінде Shroudly не може це обійти. Тут {app} запрацює лише через VPN.",
+  "autoRivalTool": "{rival} is running and changes the same connections Advanced mode does. Two programs doing that undo each other, so sites can stay closed. Turn one of them off.",
   "autoRawBlocked": "Ця мережа обриває з’єднання застосунку {app}, і жодна з технік Shroudly не пройшла. Скористайтеся налаштуванням проксі в самому застосунку {app} або VPN.",
   "logRawUnreachable": "Застосунок {app} не може з’єднатися зі своїми серверами ({addrs}): мережа блокує самі ці адреси; обійти це можна лише налаштуванням проксі в самому застосунку або через VPN",
   "logServiceUnreachable": "{app}: його сервери ({addrs}) у цій мережі зовсім не відповідають, хоча інтернет працює; мережа блокує їхні адреси, і обійти це може лише VPN",

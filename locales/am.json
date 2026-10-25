@@ -502,6 +502,7 @@
   "notifyLogsSaveFailed": "መዝገቡን ማስቀመጥ አልተቻለም። በምትኩ «መዝገቡን ይቅዱ» ይጠቀሙ።",
   "autoRawUnreachable": "የ{app} መተግበሪያ ወደ አገልጋዮቹ መድረስ አይችልም፤ ይህ አውታረ መረብ አድራሻዎቻቸውን ያግዳል፣ Shroudly ደግሞ ሌላ ቦታ ያለ አገልጋይ ከሌለው ይህን ማለፍ አይችልም። በ{app} መተግበሪያ ውስጥ ያለውን የproxy ቅንብር ወይም VPN ይጠቀሙ።",
   "autoServiceUnreachable": "የ{app} አገልጋዮች በዚህ አውታረ መረብ ላይ ጭራሽ አይመልሱም፤ አውታረ መረቡ አድራሻዎቻቸውን ያግዳል፣ Shroudly ደግሞ ሌላ ቦታ ያለ አገልጋይ ከሌለው ይህን ማለፍ አይችልም። እዚህ {app}ን የሚያሳልፈው VPN ብቻ ነው።",
+  "autoRivalTool": "{rival} is running and changes the same connections Advanced mode does. Two programs doing that undo each other, so sites can stay closed. Turn one of them off.",
   "autoRawBlocked": "ይህ አውታረ መረብ የ{app} መተግበሪያን ግንኙነቶች ያስቆማል፣ ከShroudly ዘዴዎችም አንዱም አላለፈም። በ{app} መተግበሪያ ውስጥ ያለውን የproxy ቅንብር ወይም VPN ይጠቀሙ።",
   "logRawUnreachable": "የ{app} መተግበሪያ ወደ አገልጋዮቹ መድረስ አይችልም ({addrs})፤ አውታረ መረቡ እነዚህን አድራሻዎች ራሳቸውን ያግዳል፤ ይህን ማለፍ የሚችሉት የመተግበሪያው የራሱ proxy ቅንብር ወይም VPN ብቻ ናቸው",
   "logServiceUnreachable": "{app}: አገልጋዮቹ ({addrs}) በዚህ አውታረ መረብ ላይ ጭራሽ አይመልሱም፣ ኢንተርኔቱ ግን ይሠራል፤ አውታረ መረቡ አድራሻዎቻቸውን ያግዳል፣ ይህን የሚያልፈው VPN ብቻ ነው",

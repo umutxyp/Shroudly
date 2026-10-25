@@ -25,6 +25,7 @@ const DiscordApp = require('./discord-app');
 const DiscordRelay = require('./discord-relay');
 const AppProxy = require('./app-proxy');
 const AppEnv = require('./app-env');
+const Rivals = require('./rivals');
 const LinkHandlers = require('./link-handlers');
 const RobloxApp = require('./roblox-app');
 const { RobloxWatch } = require('./roblox-watch');
@@ -2193,6 +2194,13 @@ async function startAdvanced() {
     };
     const r = await advanced.start(ttl, opts);
     addLog('success', 'Advanced mode enabled');
+    // Another program that changes the same packets undoes Advanced mode
+    // without either of them failing; say so as soon as it is on (rivals.js).
+    Rivals.running().then((rival) => {
+      if (!rival.length) return;
+      addLog('warning', `${rival.join(', ')} is running: it changes the same connections Advanced mode does, and two of them undo each other. Turn one of them off.`);
+      autoTell('autoRivalTool', { rival: rival.join(', ') });
+    }).catch(() => {});
     toWindow('advanced:state', { active: true });
     return r || { success: true };
   } catch (e) {
@@ -2292,6 +2300,14 @@ async function checkServiceReach(host) {
     const ok = await BlockCheck.addressesAnswer(addrs);
     if (ok !== false || reachTold.has(id)) return;
     reachTold.add(id);
+    // Another program changing the same packets can stop a connection just as
+    // a blocked address does. Name it rather than blame the network (rivals.js).
+    const rival = await Rivals.running();
+    if (rival.length) {
+      addLog('warning', `${SERVICE_NAME[id]}: its servers do not answer, and ${rival.join(', ')} is running: it changes the same connections Advanced mode does, and two of them undo each other. Turn one of them off.`);
+      autoTell('autoRivalTool', { rival: rival.join(', ') });
+      return;
+    }
     addLog('warning', `${SERVICE_NAME[id]}: its servers (${host}: ${addrs.slice(0, 8).join(', ')}) do not answer on this network at all, while the internet does; the network blocks their addresses, and only a VPN gets around that`);
     autoTell('autoServiceUnreachable', { app: SERVICE_NAME[id] });
   } finally { reachBusy.delete(id); }

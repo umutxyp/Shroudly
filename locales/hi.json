@@ -502,6 +502,7 @@
   "notifyLogsSaveFailed": "लॉग सहेजा नहीं जा सका। इसके बजाय “लॉग कॉपी करें” इस्तेमाल करें।",
   "autoRawUnreachable": "{app} अपने सर्वर तक नहीं पहुँच पा रहा: यह नेटवर्क उनके पते ब्लॉक करता है, और कहीं और मौजूद सर्वर के बिना Shroudly इसे पार नहीं कर सकता। {app} की अपनी प्रॉक्सी सेटिंग या कोई VPN इस्तेमाल करें।",
   "autoServiceUnreachable": "{app} के सर्वर इस नेटवर्क पर बिल्कुल जवाब नहीं देते: नेटवर्क उनके पते ब्लॉक करता है, और कहीं और मौजूद सर्वर के बिना Shroudly इसे पार नहीं कर सकता। यहाँ {app} सिर्फ़ VPN से चलेगा।",
+  "autoRivalTool": "{rival} is running and changes the same connections Advanced mode does. Two programs doing that undo each other, so sites can stay closed. Turn one of them off.",
   "autoRawBlocked": "यह नेटवर्क {app} के कनेक्शन रोक देता है, और Shroudly की कोई भी तकनीक पार नहीं हो पाई। {app} की अपनी प्रॉक्सी सेटिंग या कोई VPN इस्तेमाल करें।",
   "logRawUnreachable": "{app} अपने सर्वर ({addrs}) तक नहीं पहुँच पा रहा: नेटवर्क इन पतों को ही ब्लॉक करता है; इसे सिर्फ़ ऐप की अपनी प्रॉक्सी सेटिंग या VPN ही पार कर सकता है",
   "logServiceUnreachable": "{app}: इसके सर्वर ({addrs}) इस नेटवर्क पर बिल्कुल जवाब नहीं देते, जबकि इंटरनेट चल रहा है; नेटवर्क उनके पते ब्लॉक करता है, और इसे सिर्फ़ VPN पार करता है",
