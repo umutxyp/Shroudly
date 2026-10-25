@@ -548,9 +548,12 @@ grep -q "VPN CONNECTED" <<<"$(sh_ "dumpsys connectivity")" && fail "proxy only: 
 listening "$pport" || fail "proxy only: nothing listens on 127.0.0.1:$pport"
 say "proxy only: on 127.0.0.1:$pport with the VPN consent taken back; no VPN on the phone"
 pc="$(via_connect example.com)"
-case "$pc" in *"200 Connection established"*"HTTP/1."*" 200 "*|*"200 Connection established"*"HTTP/1."*" 30"*) ;; *) fail "proxy only: HTTP CONNECT to example.com failed ($pc)";; esac
+# The tunnel is established and the engine delivered a response (a second
+# HTTP line after it). example.com's own status — it has answered 503 — is
+# not Shroudly's concern.
+case "$pc" in *"200 Connection established"*"HTTP/1."*) ;; *) fail "proxy only: HTTP CONNECT to example.com failed (no tunnel or no response: $pc)";; esac
 ps="$(via_socks)"
-case "$ps" in *" 200"|*" 30"*) ;; *) fail "proxy only: SOCKS5 by name to example.com failed ($ps)";; esac
+case "$ps" in HTTP/1.*) ;; *) fail "proxy only: SOCKS5 by name to example.com failed (no response: $ps)";; esac
 say "proxy only: HTTP CONNECT: $pc; SOCKS5 by name: $ps"
 clear_log
 ctl adblock-on
@@ -563,7 +566,7 @@ clear_log
 fault engine-stop
 wait_for 30 has_log "Restarting engine in" || fail "proxy only: the engine was not started again"
 wait_for 30 has_log "Starting engine: --listen 127.0.0.1 --port $pport " || fail "proxy only: the engine came back on another port than $pport, which apps are set to"
-wait_for 30 eval 'grep -q " 200 " <<<"$(via_connect example.com)"' || fail "proxy only: nothing through the engine after its restart"
+wait_for 30 eval 'grep -q "200 Connection established" <<<"$(via_connect example.com)"' || fail "proxy only: nothing through the engine after its restart"
 ctl stats
 wait_for 15 has_log "stats: on" || fail "proxy only: no stats line"
 pstats="$(applog | grep 'stats: on' | tail -1 | sed 's/.*stats: /stats: /')"
