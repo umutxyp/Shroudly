@@ -26,6 +26,7 @@ const DiscordRelay = require('./discord-relay');
 const AppProxy = require('./app-proxy');
 const AppEnv = require('./app-env');
 const Rivals = require('./rivals');
+const FlatpakEnv = require('./flatpak-env');
 const LinkHandlers = require('./link-handlers');
 const RobloxApp = require('./roblox-app');
 const { RobloxWatch } = require('./roblox-watch');
@@ -119,6 +120,13 @@ const rawWatch = new RawWatch({
 });
 let storeApps = null;
 let appEnv = null;
+// Flatpak programs are sandboxed and never see the session's environment, so
+// on Linux the program proxy reaches them only through a per-program override
+// (flatpak-env.js). Where there is no flatpak, this stays null.
+const flatpakEnv = FlatpakEnv.availableSync() ? new FlatpakEnv({ log: (l, m) => addLog(l, m) }) : null;
+/* Games and apps mode can be offered where either way of reaching programs
+ * works: the session's environment (macOS, Windows) or Flatpak (Linux). */
+const appModeSupported = () => AppEnv.supported() || !!flatpakEnv;
 let siteList = null;
 
 const isDev = !app.isPackaged;
@@ -156,6 +164,7 @@ app.on('second-instance', () => showWindow());
 process.on('exit', () => {
   // The environment first: it is what fails outright when left behind.
   try { if (appEnv && appEnv.applied) appEnv.clearSync(); } catch {}
+  try { if (flatpakEnv && flatpakEnv.applied) flatpakEnv.clearSync(); } catch {}
   try { engine && engine.cleanupSync(); } catch {}
   try { advanced && advanced.cleanupSync(); } catch {}
 });
@@ -1028,8 +1037,8 @@ app.whenReady().then(async () => {
 
   // After the window is up: on Windows this writes the registry, which takes
   // a moment the window should not wait for.
-  if (store.get('appMode') === true && AppEnv.supported()) applyAppMode(true).catch(() => {});
-  else if (AppEnv.supported()) {
+  if (store.get('appMode') === true && appModeSupported()) applyAppMode(true).catch(() => {});
+  else if (appModeSupported()) {
     // Left by a run that never got to clean up. Ours are known by their mark,
     // so they go even when the state file did not survive (a profile reset,
     // a disk image taken while Shroudly ran).
@@ -1110,6 +1119,7 @@ function restoreForSessionEnd() {
   // next login, before Shroudly is back: it goes, and returns when we do. It
   // goes first: the system may end us at any moment now.
   try { if (appEnv && appEnv.applied) appEnv.clearSync(); } catch {}
+  try { if (flatpakEnv && flatpakEnv.applied) flatpakEnv.clearSync(); } catch {}
   try { engine && engine.cleanupSync(); } catch {}
   try { advanced && advanced.cleanupSync(); } catch {}
 }
@@ -1169,6 +1179,7 @@ app.on('before-quit', (e) => {
   }
   // Programs started after Shroudly has gone must go straight out again.
   try { if (appEnv && appEnv.applied) appEnv.clearSync(); } catch {}
+  try { if (flatpakEnv && flatpakEnv.applied) flatpakEnv.clearSync(); } catch {}
   if (appProxy) appProxy.stop();
   if (presence && !presence.stopped) presence.leave();
   try { updater && updater.installOnQuit(); } catch {}
@@ -1752,10 +1763,11 @@ function applyAppMode(on) {
 }
 
 async function applyAppModeNow(on) {
-  if (!AppEnv.supported()) return { success: false, code: 'unsupported' };
+  if (!appModeSupported()) return { success: false, code: 'unsupported' };
   appState.failed = false;
   if (!on) {
     try { appEnv.clearSync(); } catch {}
+    if (flatpakEnv) { try { await flatpakEnv.clear(); } catch {} }
     appProxy.stop();
     store.set('appMode', false);
     appState.foreign = false;
@@ -1781,6 +1793,30 @@ async function applyAppModeNow(on) {
   }
   let r;
   let setAt = 0;
+  if (!AppEnv.supported()) {
+    // Linux: the session's environment reaches no sandboxed program, so the
+    // Flatpak ones are pointed at Shroudly through their own override.
+    let done = [];
+    try { done = await flatpakEnv.apply(AppProxy.proxyUrl(port)); setAt = Date.now(); } catch (e) {
+      addLog('error', `Games and apps: ${e.message}`);
+      appProxy.stop();
+      appState.failed = true;
+      sendAppState();
+      return { success: false, code: 'edit_failed' };
+    }
+    if (!done.length) {
+      appProxy.stop();
+      addLog('warning', 'Games and apps: none of the Flatpak programs Shroudly covers is installed, so there was nothing to point at it');
+      appState.failed = true;
+      sendAppState();
+      return { success: false, code: 'no_apps' };
+    }
+    appState.foreign = false;
+    store.set('appMode', true);
+    addLog('success', `Games and apps mode on: ${done.join(', ')} go through Shroudly`);
+    sendAppState();
+    return { success: true };
+  }
   try { r = appEnv.applySync(AppProxy.proxyUrl(port)); setAt = Date.now(); } catch (e) {
     addLog('error', `Games and apps: ${e.message}`);
     appProxy.stop();
@@ -1827,7 +1863,7 @@ ipcMain.handle('apps:status', async (e, opts) => {
     storeEditionCache = await RobloxApp.storeEdition().catch(() => false);
   }
   return {
-    available: AppEnv.supported(),
+    available: appModeSupported(),
     mode: store.get('appMode') ?? null,  // true, false, or null (never set)
     storeEdition: storeEditionCache === true,
     platform: process.platform,
@@ -2238,8 +2274,8 @@ function createAutopilot() {
       },
       {
         id: 'roblox', name: 'Roblox', probe: 'clientsettingscdn.roblox.com', mode: 'appMode', needsApp: false,
-        present: () => AppEnv.supported() && (RobloxApp.installed() || RobloxApp.installed('studio')),
-        enable: () => (AppEnv.supported() ? applyAppMode(true) : Promise.resolve({ success: false, code: 'unsupported' })),
+        present: () => appModeSupported() && (RobloxApp.installed() || RobloxApp.installed('studio')),
+        enable: () => (appModeSupported() ? applyAppMode(true) : Promise.resolve({ success: false, code: 'unsupported' })),
         logOn: 'Autopilot: Roblox is blocked on this network; Games and apps mode turned on',
         told: 'autoRobloxOn',
         toldOff: 'autoRobloxOffByHand',

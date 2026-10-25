@@ -66,6 +66,17 @@ jobs:
         run: |
           sudo env "PATH=$PATH" bash tests/lab/advanced-lab.sh electron/tools/core/linux-x64/shroudly-core-adv
 
+      # Flatpak programs are sandboxed and never see the session's
+      # environment, so on Linux the program proxy reaches them only through a
+      # per-program override. Real flatpak answers what made-up output cannot:
+      # that it takes the arguments we build, prints what our parser expects,
+      # and that --unset-env really clears them again (electron/flatpak-env.js).
+      - name: Flatpak program proxy (Linux, real flatpak)
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq flatpak
+          node tests/lab/flatpak-env.js
+
       # The default engine on the kinds of networks people report from, on a
       # real packet path: DPI that drops or resets on the name, addresses
       # blocked outright with the network's DNS knowing another (or the same,
