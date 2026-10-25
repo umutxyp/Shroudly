@@ -110,6 +110,7 @@
   "discordModeLabel": "Застосунок Discord",
   "discordModeDesc": "Дає змогу застосунку Discord оновлюватися й відкриватися через Shroudly, додаючи один рядок у файл налаштувань Discord; якщо вимкнути цей параметр, рядок буде вилучено. Shroudly сам вмикає цей режим, коли Discord заблоковано.",
   "discordPermission": "Щоб застосунок Discord міг використовувати Shroudly, macOS має дозволити Shroudly змінювати налаштування Discord.",
+  "discordLocked": "Shroudly could not change Discord's settings: the file is in use or write-protected. Close Discord completely (quit it from the system tray too) and try again.",
   "discordPermissionBtn": "Дозволити доступ",
   "discordEditFailed": "Не вдалося змінити файл налаштувань Discord. Щоб зробити це самостійно, додайте в нього такий рядок: {line}",
   "logDiscordOn": "Режим застосунку Discord увімкнено: Discord оновлюється через Shroudly",

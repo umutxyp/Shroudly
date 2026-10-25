@@ -1364,7 +1364,7 @@ ipcMain.handle('presence:refresh', () => (presence ? presence.refresh() : null))
 /* ── Discord app mode ────────────────────────────────────────────────────── */
 /* What the window shows about it: whether a restart of Discord is still needed
  * to pick the line up, and whether macOS is withholding access to its files. */
-const discordState = { needsRestart: false, needsPermission: false, pendingOn: null, foreign: false, editFailed: null, changedAt: 0 };
+const discordState = { needsRestart: false, needsPermission: false, locked: false, pendingOn: null, foreign: false, editFailed: null, changedAt: 0 };
 // A Discord already open when this run's relay came up (applyDiscordMode):
 // when it was found, 0 when there is none (DiscordApp.watchSince).
 let discordStartCheckAt = 0;
@@ -1433,7 +1433,16 @@ async function applyDiscordMode(on, { interactive = true } = {}) {
   }
   for (const f of r.failed) addLog('error', `Discord app: ${f.message}`);
 
-  discordState.needsPermission = r.denied.length > 0;
+  // Being refused the file means different things. On macOS it is the system
+  // asking the user to allow Shroudly to change another app's settings, and
+  // there is a prompt for it. Everywhere else it means the file is in use
+  // (Discord still running) or write-protected — a different thing to say and
+  // a different thing to do, so never the macOS wording there.
+  discordState.needsPermission = r.denied.length > 0 && process.platform === 'darwin';
+  discordState.locked = r.denied.length > 0 && process.platform !== 'darwin';
+  if (discordState.locked) {
+    addLog('warning', `Discord app: Discord's settings file could not be written (${r.denied.map((v) => v.id).join(', ')}): it is in use or write-protected. Close Discord completely and try again.`);
+  }
   discordState.foreign = r.foreign;
   discordState.editFailed = r.failed.length ? `"${DiscordApp.KEY}": "${url || ''}"` : null;
   discordState.pendingOn = (r.denied.length || r.failed.length) ? on : null;

@@ -110,6 +110,7 @@
   "discordModeLabel": "Discord アプリ",
   "discordModeDesc": "Discord の設定ファイルに 1 行追加して、Discord アプリが Shroudly 経由で更新・起動できるようにします。オフにすると削除します。Discord がブロックされると、Shroudly が自動でオンにします。",
   "discordPermission": "Discord アプリが Shroudly を使えるようにするには、macOS が Shroudly に Discord の設定の変更を許可する必要があります。",
+  "discordLocked": "Shroudly could not change Discord's settings: the file is in use or write-protected. Close Discord completely (quit it from the system tray too) and try again.",
   "discordPermissionBtn": "アクセスを許可",
   "discordEditFailed": "Discord の設定ファイルを変更できませんでした。手動で行う場合は、次の行を追加してください：{line}",
   "logDiscordOn": "Discord アプリモード オン：Discord の更新は Shroudly を経由します",

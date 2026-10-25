@@ -110,6 +110,7 @@
   "discordModeLabel": "Праграма Discord",
   "discordModeDesc": "Дазваляе праграме Discord абнаўляцца і адкрывацца праз Shroudly, дадаючы адзін радок у файл налад Discord; калі выключыць гэта, радок выдаляецца. Shroudly сам уключае гэты рэжым, калі Discord заблакаваны.",
   "discordPermission": "Каб праграма Discord магла карыстацца Shroudly, macOS павінна дазволіць Shroudly змяняць налады Discord.",
+  "discordLocked": "Shroudly could not change Discord's settings: the file is in use or write-protected. Close Discord completely (quit it from the system tray too) and try again.",
   "discordPermissionBtn": "Дазволіць доступ",
   "discordEditFailed": "Не ўдалося змяніць файл налад Discord. Каб зрабіць гэта самастойна, дадайце ў яго гэты радок: {line}",
   "logDiscordOn": "Рэжым праграмы Discord уключаны: Discord абнаўляецца праз Shroudly",

@@ -110,6 +110,7 @@
   "discordModeLabel": "Discord tətbiqi",
   "discordModeDesc": "Discord-un ayarlar faylına bir sətir əlavə edərək Discord tətbiqinin Shroudly üzərindən yenilənməsinə və açılmasına imkan verir; bunu söndürəndə həmin sətir silinir. Discord bloklananda Shroudly bunu özü aktiv edir.",
   "discordPermission": "Discord tətbiqinin Shroudly-dən istifadə edə bilməsi üçün macOS Shroudly-yə Discord-un ayarlarını dəyişməyə icazə verməlidir.",
+  "discordLocked": "Shroudly could not change Discord's settings: the file is in use or write-protected. Close Discord completely (quit it from the system tray too) and try again.",
   "discordPermissionBtn": "Girişə icazə ver",
   "discordEditFailed": "Discord-un ayarlar faylını dəyişmək mümkün olmadı. Bunu özün etmək üçün fayla bu sətri əlavə et: {line}",
   "logDiscordOn": "Discord tətbiqi rejimi aktivdir: Discord Shroudly üzərindən yenilənir",

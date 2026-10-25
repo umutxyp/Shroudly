@@ -110,6 +110,7 @@
   "discordModeLabel": "App de Discord",
   "discordModeDesc": "Permite que la app de Discord se actualice y se abra a través de Shroudly añadiendo una línea al archivo de configuración de Discord; al desactivarlo se elimina. Shroudly lo activa por su cuenta cuando Discord está bloqueado.",
   "discordPermission": "Para que la app de Discord pueda usar Shroudly, macOS tiene que permitir que Shroudly cambie la configuración de Discord.",
+  "discordLocked": "Shroudly could not change Discord's settings: the file is in use or write-protected. Close Discord completely (quit it from the system tray too) and try again.",
   "discordPermissionBtn": "Permitir acceso",
   "discordEditFailed": "No se pudo cambiar el archivo de configuración de Discord. Para hacerlo tú, añade esta línea: {line}",
   "logDiscordOn": "Modo app de Discord activado: Discord se actualiza a través de Shroudly",

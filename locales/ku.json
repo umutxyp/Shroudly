@@ -110,6 +110,7 @@
   "discordModeLabel": "Sepana Discord",
   "discordModeDesc": "Bi zêdekirina rêzekê li pelê mîhengan ê Discordê, dihêle ku sepana Discord di ser Shroudly re nû bibe û vebe; neçalakkirina vê wê radike. Dema Discord tê astengkirin, Shroudly vê bi serê xwe çalak dike.",
   "discordPermission": "Berî ku sepana Discord bikaribe Shroudly bi kar bîne, divê macOS destûrê bide Shroudly ku mîhengên Discordê biguherîne.",
+  "discordLocked": "Shroudly could not change Discord's settings: the file is in use or write-protected. Close Discord completely (quit it from the system tray too) and try again.",
   "discordPermissionBtn": "Destûr bide",
   "discordEditFailed": "Pelê mîhengan ê Discordê nehat guhertin. Ji bo ku tu bi xwe bikî, vê rêzê lê zêde bike: {line}",
   "logDiscordOn": "Moda sepana Discord çalak e: Discord di ser Shroudly re nû dibe",

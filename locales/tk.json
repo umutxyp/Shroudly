@@ -110,6 +110,7 @@
   "discordModeLabel": "Discord programmasy",
   "discordModeDesc": "Discord-yň sazlamalar faýlyna bir setir goşup, Discord programmasyna Shroudly arkaly täzelenmäge we açylmaga mümkinçilik berýär; muny öçürseňiz, ol setir aýrylýar. Discord petiklenende Shroudly muny özi açýar.",
   "discordPermission": "Discord programmasy Shroudly-ni ulanmazdan öň, macOS Shroudly-niň Discord-yň sazlamalaryny üýtgetmegine rugsat bermeli.",
+  "discordLocked": "Shroudly could not change Discord's settings: the file is in use or write-protected. Close Discord completely (quit it from the system tray too) and try again.",
   "discordPermissionBtn": "Rugsat beriň",
   "discordEditFailed": "Discord-yň sazlamalar faýlyny üýtgedip bolmady. Muny özüňiz etmek üçin oňa şu setiri goşuň: {line}",
   "logDiscordOn": "Discord programmasynyň tertibi açyk: Discord Shroudly arkaly täzelenýär",

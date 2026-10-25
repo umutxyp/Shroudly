@@ -181,6 +181,16 @@ export default function BlockedNotice({ onNavigate, active = false }) {
       </Banner>
     );
   }
+  if (discord?.locked) {
+    return (
+      <Banner Icon={ShieldAlertIcon} body={t('discordLocked')}>
+        <Actions>
+          <button type="button" onClick={discordRetry} disabled={busy}
+                  className="btn btn-warn rounded-[8px] px-3 py-1.5 text-[12.5px] font-semibold">{t('discordPermissionBtn')}</button>
+        </Actions>
+      </Banner>
+    );
+  }
   if (discord?.editFailed) {
     return <Banner Icon={ShieldAlertIcon} body={t('discordEditFailed', { line: discord.editFailed })} />;
   }

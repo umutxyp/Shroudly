@@ -110,6 +110,7 @@
   "discordModeLabel": "Discord колдонмосу",
   "discordModeDesc": "Discord жөндөөлөр файлына бир сап кошуп, Discord колдонмосуна Shroudly аркылуу жаңыртылууга жана ачылууга мүмкүндүк берет; муну өчүрсөңүз, ал сап өчүрүлөт. Discord бөгөттөлгөндө Shroudly муну өзү күйгүзөт.",
   "discordPermission": "Discord колдонмосу Shroudly колдоно алышы үчүн, адегенде macOS Shroudly программасына Discord жөндөөлөрүн өзгөртүүгө уруксат бериши керек.",
+  "discordLocked": "Shroudly could not change Discord's settings: the file is in use or write-protected. Close Discord completely (quit it from the system tray too) and try again.",
   "discordPermissionBtn": "Уруксат берүү",
   "discordEditFailed": "Discord жөндөөлөр файлын өзгөртүү мүмкүн болгон жок. Муну өзүңүз кылуу үчүн ага төмөнкү сапты кошуңуз: {line}",
   "logDiscordOn": "Discord колдонмосу режими күйүк: Discord Shroudly аркылуу жаңыртылат",

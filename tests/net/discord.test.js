@@ -274,6 +274,24 @@ function get(url, o = {}) {
       && lines.filter((l) => l.startsWith('Discord app: could not reach dl.discordapp.net (')).length === 1,
     `issue #29: the Discord relay says each unreachable host once, another host at once too (${lines.join(' | ')})`);
   }
+  /* Being refused Discord's settings file means different things on different
+   * systems: on macOS the user has to allow it (there is a prompt), elsewhere
+   * the file is in use or write-protected. A Windows user was shown the macOS
+   * wording and could do nothing with it, so the two are kept apart. */
+  {
+    const fsx = require('fs');
+    const main = fsx.readFileSync(path.join(ROOT, 'electron', 'main.js'), 'utf8');
+    t.ok(/discordState\.needsPermission = r\.denied\.length > 0 && process\.platform === 'darwin'/.test(main),
+      'the macOS permission state is only ever set on macOS');
+    t.ok(/discordState\.locked = r\.denied\.length > 0 && process\.platform !== 'darwin'/.test(main),
+      'everywhere else the same refusal is reported as the file being locked');
+    const notice = fsx.readFileSync(path.join(ROOT, 'components', 'BlockedNotice.js'), 'utf8');
+    t.ok(notice.includes("discord?.locked") && notice.includes("t('discordLocked')"),
+      'and the window has a line of its own for it');
+    const en = JSON.parse(fsx.readFileSync(path.join(ROOT, 'locales', 'en.json'), 'utf8'));
+    t.ok(en.discordLocked && !/macOS/i.test(en.discordLocked), 'that line never mentions macOS');
+  }
+
   console.log(`discord: ${t.count} passed`);
   process.exit(0);
 })().catch((e) => { console.error('FAIL', e.message); process.exit(1); });

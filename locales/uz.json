@@ -110,6 +110,7 @@
   "discordModeLabel": "Discord ilovasi",
   "discordModeDesc": "Discord sozlamalar fayliga bitta qator qoʻshib, Discord ilovasiga Shroudly orqali yangilanish va ochilish imkonini beradi; buni oʻchirsangiz, qator olib tashlanadi. Discord bloklanganda Shroudly buni oʻzi yoqadi.",
   "discordPermission": "Discord ilovasi Shroudlydan foydalanishi uchun avval macOS Shroudlyga Discord sozlamalarini oʻzgartirishga ruxsat berishi kerak.",
+  "discordLocked": "Shroudly could not change Discord's settings: the file is in use or write-protected. Close Discord completely (quit it from the system tray too) and try again.",
   "discordPermissionBtn": "Ruxsat berish",
   "discordEditFailed": "Discord sozlamalar faylini oʻzgartirib boʻlmadi. Buni oʻzingiz qilish uchun unga quyidagi qatorni qoʻshing: {line}",
   "logDiscordOn": "Discord ilovasi rejimi yoqildi: Discord Shroudly orqali yangilanadi",

@@ -110,6 +110,7 @@
   "discordModeLabel": "የDiscord መተግበሪያ",
   "discordModeDesc": "የDiscord መተግበሪያ በShroudly በኩል እንዲዘምንና እንዲከፈት ያስችላል። በDiscord የቅንብሮች ፋይል ላይ አንድ መስመር ያክላል፤ ይህን ማጥፋት መስመሩን ያስወግዳል። Discord ሲታገድ Shroudly ይህን በራሱ ያበራዋል።",
   "discordPermission": "የDiscord መተግበሪያ Shroudlyን መጠቀም ከመቻሉ በፊት macOS Shroudly የDiscordን ቅንብሮች እንዲቀይር መፍቀድ አለበት።",
+  "discordLocked": "Shroudly could not change Discord's settings: the file is in use or write-protected. Close Discord completely (quit it from the system tray too) and try again.",
   "discordPermissionBtn": "መዳረሻ ይፍቀዱ",
   "discordEditFailed": "የDiscord የቅንብሮች ፋይል ሊቀየር አልቻለም። ራስዎ ለማድረግ ይህን መስመር ያክሉበት: {line}",
   "logDiscordOn": "የDiscord መተግበሪያ ሁነታ በርቷል: Discord በShroudly በኩል ይዘምናል",

@@ -110,6 +110,7 @@
   "discordModeLabel": "Discord অ্যাপ",
   "discordModeDesc": "Discord-এর সেটিং ফাইলে একটি লাইন যোগ করে Discord অ্যাপকে Shroudly-এর মাধ্যমে আপডেট হতে ও খুলতে দেয়; এটি বন্ধ করলে লাইনটি মুছে যায়। Discord ব্লক হলে Shroudly নিজে থেকেই এটি চালু করে।",
   "discordPermission": "Discord অ্যাপ Shroudly ব্যবহার করতে পারার আগে macOS-কে Shroudly-কে Discord-এর সেটিং বদলানোর অনুমতি দিতে হবে।",
+  "discordLocked": "Shroudly could not change Discord's settings: the file is in use or write-protected. Close Discord completely (quit it from the system tray too) and try again.",
   "discordPermissionBtn": "অ্যাক্সেস দিন",
   "discordEditFailed": "Discord-এর সেটিং ফাইল বদলানো যায়নি। নিজে করতে, ফাইলে এই লাইনটি যোগ করুন: {line}",
   "logDiscordOn": "Discord অ্যাপ মোড চালু: Discord-এর আপডেট Shroudly-এর মাধ্যমে যায়",

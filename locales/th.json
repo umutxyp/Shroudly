@@ -110,6 +110,7 @@
   "discordModeLabel": "แอป Discord",
   "discordModeDesc": "ให้แอป Discord อัปเดตและเปิดผ่าน Shroudly ได้ โดยเพิ่มหนึ่งบรรทัดลงในไฟล์การตั้งค่าของ Discord การปิดตัวเลือกนี้จะลบบรรทัดนั้นออก Shroudly จะเปิดตัวเลือกนี้เองเมื่อ Discord ถูกบล็อก",
   "discordPermission": "ก่อนที่แอป Discord จะใช้ Shroudly ได้ macOS ต้องอนุญาตให้ Shroudly เปลี่ยนการตั้งค่าของ Discord",
+  "discordLocked": "Shroudly could not change Discord's settings: the file is in use or write-protected. Close Discord completely (quit it from the system tray too) and try again.",
   "discordPermissionBtn": "อนุญาตการเข้าถึง",
   "discordEditFailed": "ไม่สามารถเปลี่ยนไฟล์การตั้งค่าของ Discord ได้ หากต้องการทำด้วยตัวเอง ให้เพิ่มบรรทัดนี้ลงในไฟล์: {line}",
   "logDiscordOn": "เปิดโหมดแอป Discord แล้ว: Discord อัปเดตผ่าน Shroudly",

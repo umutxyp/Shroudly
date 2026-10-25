@@ -110,6 +110,7 @@
   "discordModeLabel": "אפליקציית Discord",
   "discordModeDesc": "מאפשר לאפליקציית Discord להתעדכן ולהיפתח דרך Shroudly על ידי הוספת שורה אחת לקובץ ההגדרות של Discord; כיבוי האפשרות מסיר את השורה. Shroudly מפעיל את זה בעצמו כש-Discord חסום.",
   "discordPermission": "כדי שאפליקציית Discord תוכל להשתמש ב-Shroudly, צריך לאשר ב-macOS ש-Shroudly ישנה את ההגדרות של Discord.",
+  "discordLocked": "Shroudly could not change Discord's settings: the file is in use or write-protected. Close Discord completely (quit it from the system tray too) and try again.",
   "discordPermissionBtn": "לאשר גישה",
   "discordEditFailed": "לא ניתן היה לשנות את קובץ ההגדרות של Discord. כדי לעשות זאת ידנית, יש להוסיף אליו את השורה הזו: {line}",
   "logDiscordOn": "מצב אפליקציית Discord פועל: Discord מתעדכן דרך Shroudly",

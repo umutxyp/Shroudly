@@ -110,6 +110,7 @@
   "discordModeLabel": "برنامهٔ Discord",
   "discordModeDesc": "با افزودن یک خط به فایل تنظیمات Discord، به برنامهٔ Discord اجازه می‌دهد از طریق Shroudly به‌روز و باز شود؛ با خاموش کردن این گزینه، آن خط حذف می‌شود. وقتی Discord مسدود شود، Shroudly این را خودش روشن می‌کند.",
   "discordPermission": "برای اینکه برنامهٔ Discord بتواند از Shroudly استفاده کند، macOS باید به Shroudly اجازه دهد تنظیمات Discord را تغییر دهد.",
+  "discordLocked": "Shroudly could not change Discord's settings: the file is in use or write-protected. Close Discord completely (quit it from the system tray too) and try again.",
   "discordPermissionBtn": "اجازهٔ دسترسی",
   "discordEditFailed": "تغییر فایل تنظیمات Discord ممکن نشد. برای انجام دستی، این خط را به آن اضافه کنید: {line}",
   "logDiscordOn": "حالت برنامهٔ Discord روشن: به‌روزرسانی‌های Discord از Shroudly عبور می‌کند",

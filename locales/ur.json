@@ -110,6 +110,7 @@
   "discordModeLabel": "Discord ایپ",
   "discordModeDesc": "Discord کی سیٹنگز فائل میں ایک لائن شامل کر کے Discord ایپ کو Shroudly کے ذریعے اپڈیٹ ہونے اور کھلنے دیتا ہے؛ اسے بند کرنے پر وہ لائن ہٹ جاتی ہے۔ Discord بلاک ہو تو Shroudly اسے خود بخود آن کر دیتا ہے۔",
   "discordPermission": "Discord ایپ کے Shroudly استعمال کر سکنے کے لیے macOS کو Shroudly کو Discord کی سیٹنگز بدلنے کی اجازت دینی ہوگی۔",
+  "discordLocked": "Shroudly could not change Discord's settings: the file is in use or write-protected. Close Discord completely (quit it from the system tray too) and try again.",
   "discordPermissionBtn": "رسائی دیں",
   "discordEditFailed": "Discord کی سیٹنگز فائل نہیں بدلی جا سکی۔ خود کرنے کے لیے اس میں یہ لائن شامل کریں: {line}",
   "logDiscordOn": "Discord ایپ موڈ آن: Discord کی اپڈیٹس Shroudly سے گزرتی ہیں",

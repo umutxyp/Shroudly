@@ -110,6 +110,7 @@
   "discordModeLabel": "Aplikasi Discord",
   "discordModeDesc": "Membuat aplikasi Discord diperbarui dan dibuka melalui Shroudly dengan menambahkan satu baris ke file pengaturan Discord; mematikannya akan menghapus baris itu. Shroudly mengaktifkannya sendiri saat Discord diblokir.",
   "discordPermission": "Agar aplikasi Discord bisa memakai Shroudly, macOS harus mengizinkan Shroudly mengubah pengaturan Discord.",
+  "discordLocked": "Shroudly could not change Discord's settings: the file is in use or write-protected. Close Discord completely (quit it from the system tray too) and try again.",
   "discordPermissionBtn": "Izinkan akses",
   "discordEditFailed": "File pengaturan Discord tidak bisa diubah. Untuk melakukannya sendiri, tambahkan baris ini ke file itu: {line}",
   "logDiscordOn": "Mode aplikasi Discord aktif: pembaruan Discord lewat Shroudly",

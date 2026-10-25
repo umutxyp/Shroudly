@@ -110,6 +110,7 @@
   "discordModeLabel": "Discord қолданбасы",
   "discordModeDesc": "Discord баптаулар файлына бір жол қосып, Discord қолданбасының Shroudly арқылы жаңартылып, ашылуына мүмкіндік береді; мұны өшірсеңіз, ол жол жойылады. Discord бұғатталғанда Shroudly мұны өзі қосады.",
   "discordPermission": "Discord қолданбасы Shroudly пайдалана алуы үшін алдымен macOS жүйесі Shroudly-ге Discord баптауларын өзгертуге рұқсат беруі керек.",
+  "discordLocked": "Shroudly could not change Discord's settings: the file is in use or write-protected. Close Discord completely (quit it from the system tray too) and try again.",
   "discordPermissionBtn": "Рұқсат беру",
   "discordEditFailed": "Discord баптаулар файлын өзгерту мүмкін болмады. Мұны өзіңіз жасау үшін файлға мына жолды қосыңыз: {line}",
   "logDiscordOn": "Discord қолданбасы режимі қосулы: Discord Shroudly арқылы жаңартылады",
