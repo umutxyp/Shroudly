@@ -34,6 +34,23 @@ const path = require('path');
 const OWNER = 'umutxyp';
 const REPO = 'Shroudly';
 const RELEASES_URL = `https://github.com/${OWNER}/${REPO}/releases/latest`;
+// A mirror of the release files on Shroudly's own host, for networks that
+// block GitHub's addresses outright (whole-IP blackhole, as in Iran — then
+// GitHub cannot be reached by any technique, so the app cannot even fetch its
+// own fix). It is tried only after GitHub (direct and through the engine) has
+// failed. The host must SERVE the files and the electron-updater feeds
+// (latest.yml / latest-linux.yml / latest-mac.yml) at this path, not redirect
+// to GitHub. A less-known host than github.com is a smaller target to block.
+const MIRROR_URL = 'https://shroudly.codeshare.me/dl';
+/* The mirror's copy of a github.com/<owner>/<repo>/releases/... URL. Both
+ * .../releases/download/<tag>/<file> and .../releases/latest/download/<file>
+ * map to a flat <MIRROR>/<file> — the layout electron-updater's generic
+ * provider expects (feed and assets side by side). */
+function mirrorOf(url) {
+  return url.replace(
+    new RegExp(`^https://github\\.com/${OWNER}/${REPO}/releases/(?:download/[^/]+|latest/download)/`),
+    `${MIRROR_URL}/`);
+}
 const FIRST_CHECK_MS = 8000;
 const FIRST_CHECK_SPREAD_MS = 10 * 60 * 1000;
 const CHECK_EVERY_MS = 30 * 60 * 1000;
@@ -74,13 +91,17 @@ function parseMacFeed(text) {
 
 /* 'direct' or 'system' (through Shroudly's engine while protection is on,
  * else the OS proxy; main.js keeps it current through setSystemRoute). */
-const ROUTES = ['direct', 'system'];
+// GitHub first, direct then through the engine; the own-host mirror last.
+const ROUTES = ['direct', 'system', 'mirror'];
+// The mirror is a different host, reached directly (not through GitHub's
+// blocked addresses); every other route is a proxy mode for GitHub.
+const routeProxyMode = (route) => (route === 'system' ? 'system' : 'direct');
 const routeSessions = {};
 let systemRoute = { mode: 'system' };
 async function routeSession(route) {
   if (!routeSessions[route]) {
     const s = session.fromPartition(`shroudly-updater-${route}`, { cache: false });
-    await s.setProxy(route === 'system' ? systemRoute : { mode: route });
+    await s.setProxy(route === 'system' ? systemRoute : { mode: routeProxyMode(route) });
     routeSessions[route] = s;
   }
   return routeSessions[route];
@@ -101,6 +122,7 @@ async function viaRoutes(fn) {
 
 async function fetchText(url, route) {
   const ses = await routeSession(route);
+  if (route === 'mirror') url = mirrorOf(url);
   return new Promise((resolve, reject) => {
     const req = net.request({ url, redirect: 'follow', session: ses });
     let body = '';
@@ -117,6 +139,7 @@ async function fetchText(url, route) {
 
 async function download(url, dest, onProgress, route) {
   const ses = await routeSession(route);
+  if (route === 'mirror') url = mirrorOf(url);
   return new Promise((resolve, reject) => {
     const req = net.request({ url, redirect: 'follow', session: ses });
     req.on('response', (res) => {
@@ -235,7 +258,15 @@ class Updater {
   }
 
   /* electron-updater has one network session: point it at a route. */
-  async _euRoute(route) { await this.eu.netSession.setProxy({ mode: route }); }
+  async _euRoute(route) {
+    await this.eu.netSession.setProxy({ mode: routeProxyMode(route) });
+    // Direct and through-the-engine read the GitHub release feed; the mirror
+    // reads the same feed files served on our own host (generic provider).
+    try {
+      if (route === 'mirror') this.eu.setFeedURL({ provider: 'generic', url: MIRROR_URL, channel: 'latest' });
+      else this.eu.setFeedURL({ provider: 'github', owner: OWNER, repo: REPO });
+    } catch {}
+  }
 
   async check(manual) {
     if (['checking', 'downloading', 'ready'].includes(this.state.status)) return this.state;
@@ -494,6 +525,9 @@ rm -rf "$3"
 
 module.exports = Updater;
 module.exports.RELEASES_URL = RELEASES_URL;
+module.exports.MIRROR_URL = MIRROR_URL;
+module.exports.mirrorOf = mirrorOf;
+module.exports.ROUTES = ROUTES;
 module.exports.setSystemRoute = setSystemRoute;
 module.exports.restartPlan = restartPlan;
 module.exports.inUse = inUse;

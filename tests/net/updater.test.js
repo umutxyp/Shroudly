@@ -216,6 +216,20 @@ const HOURS = (h) => h * 60 * 60 * 1000;
     t.ok(store.get(Updater.WAIT_KEY) === undefined, 'the wait is forgotten once that version runs');
   }
 
+  /* The own-host mirror fallback (for networks that blackhole GitHub's IPs):
+   * tried last, after GitHub direct and through the engine, and it rewrites a
+   * GitHub release URL to the mirror host serving the same files. */
+  {
+    t.ok(JSON.stringify(Updater.ROUTES) === JSON.stringify(['direct', 'system', 'mirror']),
+      'routes: GitHub direct, then the engine, then the own-host mirror last');
+    const dl = `${Updater.RELEASES_URL}/download/latest-mac.yml`;
+    t.ok(Updater.mirrorOf(dl) === `${Updater.MIRROR_URL}/latest-mac.yml`, 'a release feed URL maps to the mirror');
+    const asset = `https://github.com/umutxyp/Shroudly/releases/download/v2.6.30/Shroudly-2.6.30-Windows-x64-Setup.exe`;
+    t.ok(Updater.mirrorOf(asset) === `${Updater.MIRROR_URL}/Shroudly-2.6.30-Windows-x64-Setup.exe`, 'a release asset URL maps to the mirror');
+    t.ok(Updater.mirrorOf('https://example.com/x') === 'https://example.com/x', 'an unrelated URL is left alone');
+    t.ok(Updater.MIRROR_URL.startsWith('https://') && !/github\.com/.test(Updater.MIRROR_URL), 'the mirror is a non-GitHub https host');
+  }
+
   console.log(`updater: ${t.count} passed`);
   process.exit(0);
 })().catch((e) => { console.error('FAIL', e.message); process.exit(1); });
