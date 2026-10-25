@@ -2243,12 +2243,14 @@ async function startAdvanced() {
       // answers. Its port stays the same across a Stop and Start.
       dnsGate: engine && engine.dohPort ? engine.dohPort : 0,
       // Split the ClientHello's TLS record for networks that reassemble the TCP
-      // stream before they inspect (Türkiye's Superonline, #48). On by default
-      // in Advanced mode: it is what gets through such networks, and is the
-      // stronger technique. A user can turn it off with advancedTlsRec:false
-      // (it carries every 443 packet of a connection through to keep its
-      // sequence numbers in step, which costs a little more).
-      tlsrec: store.get('advancedTlsRec', true) !== false,
+      // stream before they inspect (Türkiye's Superonline, #48). OPT-IN, not a
+      // default: Advanced mode's broadened capture would otherwise also catch
+      // the engine's own proxy connections — which the engine has already
+      // shaped — and grow them a second time, breaking them (regression seen in
+      // 2.6.29). Until Advanced mode skips the engine's own connections, this
+      // stays off unless the user turns it on for direct-connection cases
+      // (Serein and the like).
+      tlsrec: store.get('advancedTlsRec', false) === true,
     };
     const r = await advanced.start(ttl, opts);
     addLog('success', 'Advanced mode enabled');

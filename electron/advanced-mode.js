@@ -86,7 +86,7 @@ class AdvError extends Error {
  * with sequence overlap off. Each is a flag, so a future UI (or a probe
  * result) can switch them per network.
  */
-const ADV_DEFAULTS = { dropRst: true, autottl: true, seqovl: 0, desyncMode: 'fake', split: 'on', tlsrec: true };
+const ADV_DEFAULTS = { dropRst: true, autottl: true, seqovl: 0, desyncMode: 'fake', split: 'on', tlsrec: false };
 const DESYNC_MODES = ['fake', 'fakedsplit', 'fakeddisorder'];
 /* After the decoy the real first segment is cut so no part carries the whole
  * name ('on'), or cut and sent last part first ('disorder'): what programs
