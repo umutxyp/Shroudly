@@ -191,13 +191,18 @@ async function inUse({ protection, appMode, discordMode, robloxPlaying, discordO
 }
 
 class Updater {
-  constructor({ log, store, notify, beforeInstall, busy, away }) {
+  constructor({ log, store, notify, beforeInstall, busy, fullScreen, away }) {
     this.log = log || (() => {});
     this.store = store;
     this.notify = notify || (() => {});
     this.beforeInstall = beforeInstall || (async () => {});
     // Is something running that a restart would cut off (a game, a call)?
     this.busy = busy || (async () => false);
+    // A full-screen game or video in front (user-busy.js): the restart would
+    // cut it off too.
+    this.fullScreen = fullScreen || (async () => false);
+    this.busyApps = false;
+    this.toldWaiting = false;
     this.away = away || awayFromComputer;
     this.waitTimer = null;
     this.listeners = new Set();
@@ -378,6 +383,9 @@ class Updater {
   async _plan() {
     let busy = false;
     try { busy = !!(await this.busy()); } catch {}
+    // Said in the log only for Roblox and Discord (its line names them).
+    this.busyApps = busy;
+    if (!busy) { try { busy = !!(await this.fullScreen()); } catch {} }
     const waitedMs = this._waitedMs();
     let away = false;
     // Just woken up: the idle time counts the sleep, but someone has just
@@ -396,12 +404,14 @@ class Updater {
     if (plan === 'install') { this.install(); return; }
     if (plan === 'wait') {
       this._noteWaiting();
-      if (!this.waiting) { this.waiting = true; this.log('info', 'Update ready: it waits while Roblox or Discord goes through Shroudly, and installs once they are closed or the computer has not been used for a while'); }
+      this.waiting = true;
+      if (this.busyApps && !this.toldWaiting) { this.toldWaiting = true; this.log('info', 'Update ready: it waits while Roblox or Discord goes through Shroudly, and installs once they are closed or the computer has not been used for a while'); }
       this.waitTimer = setTimeout(() => this._armRestart(), WAIT_CHECK_MS);
       if (this.waitTimer.unref) this.waitTimer.unref();
       return;
     }
     this.waiting = false;
+    this.toldWaiting = false;
     const restartAt = Date.now() + RESTART_COUNTDOWN_S * 1000;
     this._set({ restartAt });
     this.notify(this.state.version); // "will restart to install it"

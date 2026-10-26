@@ -20,6 +20,11 @@
  * Stop followed by a quick Start counts too. One such start at a time, so a
  * Start waits for the answer to one from before its Stop.
  *
+ * Never in the middle of a full-screen game, video or presentation
+ * (user-busy.js): the permission prompt takes the screen (Windows' secure
+ * desktop) and throws the game back to the desktop. It is asked once the
+ * user is out of it; a Stop meanwhile still wins.
+ *
  * A start from the Settings panel is the user's own, works with protection
  * off, and does not go through here.
  *
@@ -38,6 +43,7 @@ class AdvancedProtection {
    * opts.active()          whether the Advanced backend is running
    * opts.start()           start it -> { success, code, alreadyActive }
    * opts.ready()           optional: waited for before asking (another permission prompt on screen)
+   * opts.notBusy(stop)     optional: resolves once no full-screen program is in front, or stop() is true
    * opts.stop()            stop it, and tell the window
    * opts.protectionOn()    whether protection is on (or on its way back)
    * opts.antiCheat()       a game's anti-cheat running (its name), or null
@@ -49,6 +55,7 @@ class AdvancedProtection {
     this.active = opts.active;
     this.startBackend = opts.start;
     this.ready = opts.ready || (async () => {});
+    this.notBusy = opts.notBusy || (async () => {});
     this.stopBackend = opts.stop;
     this.protectionOn = opts.protectionOn;
     this.antiCheat = opts.antiCheat || (async () => null);
@@ -142,8 +149,11 @@ class AdvancedProtection {
 
   async run(since) {
     if (!this.current(since)) return { success: false, code: 'protection_off' };
-    // Never two permission prompts at once; a Stop while waiting still wins.
+    // Never two permission prompts at once, nor one over a full-screen game;
+    // a Stop while waiting still wins.
     await this.ready();
+    if (!this.current(since)) return { success: false, code: 'protection_off' };
+    await this.notBusy(() => !this.current(since));
     if (!this.current(since)) return { success: false, code: 'protection_off' };
     const r = await this.startBackend();
     // Already running: the user's own start from Settings, left alone.

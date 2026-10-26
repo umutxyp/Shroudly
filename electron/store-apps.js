@@ -37,7 +37,8 @@
  * packaged programs running in the background, and desktop programs in a
  * package such as Windows Terminal, which no app container holds, are no
  * sign), and an account that cannot give administrator permission is
- * never asked by itself: the log says so once a session. What Shroudly adds
+ * never asked by itself: the log says so once a session. Nor is anyone
+ * asked over a full-screen game or video (user-busy.js): a later look asks. What Shroudly adds
  * is written down before the prompt (the settings, and HKCU\Software\
  * Shroudly for the uninstaller) and kept once Windows lists it; an exemption
  * that was there before is never Shroudly's, and is never taken out, and one
@@ -566,6 +567,7 @@ class StoreApps {
    * opts.tell(id, params)  a notification and a line in the window
    * opts.protectionOn()
    * opts.busy()         another permission prompt is on screen (Advanced mode)
+   * opts.fullScreen()   async: a full-screen program is in front (user-busy.js)
    * opts.platform, opts.run(cmd, args, timeout), opts.now(), opts.tmpdir   tests
    * opts.record         { get() -> [sid], set([sid]) }: what the uninstaller
    *                     reads (default HKCU\Software\Shroudly)
@@ -576,6 +578,7 @@ class StoreApps {
     this.tell = opts.tell || (() => {});
     this.protectionOn = opts.protectionOn || (() => false);
     this.busy = opts.busy || (() => false);
+    this.fullScreen = opts.fullScreen || (async () => false);
     this.platform = opts.platform || process.platform;
     this.run = opts.run || realRun;
     this.now = opts.now || Date.now;
@@ -837,6 +840,9 @@ class StoreApps {
       open = await this.runningApps();
       if (!open || !open.size) return { asked: false, why: 'idle' };
       if (this._readFor && this.now() - this.lastScanAt < RESCAN_MS && [...open].every((s) => this._readFor.has(s))) return { asked: false, why: 'idle' };
+      // Not over a full-screen game or video (Minecraft is a Store app): the
+      // prompt would throw it back to the desktop. A later look asks.
+      if (await this.fullScreen()) return { asked: false, why: 'fullscreen' };
     }
     this.lastScanAt = this.now();
     const before = await this.scan();

@@ -249,6 +249,31 @@ function rig({ antiCheat = null, holdScan = false } = {}) {
     t.ok(!b.active && declined === 1, 'its permission prompt declined when it comes back: recorded as a decline');
   }
 
+  // ── never over a full-screen game: asked once the user is out of it ──
+  {
+    const r = rig();
+    // A full-screen program in front until the test lets go (UserBusy.until's part).
+    let inGame = true;
+    let looks = 0;
+    r.g.notBusy = async (stop) => { while (!stop() && inGame) { looks++; await new Promise((res) => setTimeout(res, 5)); } };
+    const p = r.g.start(r.g.session());
+    await new Promise((res) => setTimeout(res, 40));
+    t.ok(r.b.prompts === 0 && looks > 1, 'a full-screen game in front: no permission prompt while it lasts');
+    inGame = false;
+    await settle(); await new Promise((res) => setTimeout(res, 20));
+    t.ok(r.b.prompts === 1, 'out of the game: the prompt comes then');
+    r.b.answer(true);
+    t.ok((await p).success && r.b.active, 'allowed after the game: Advanced mode is on');
+
+    const s = rig();
+    s.g.notBusy = async (stop) => { while (!stop()) await new Promise((res) => setTimeout(res, 5)); };
+    const q = s.g.start(s.g.session());
+    await new Promise((res) => setTimeout(res, 20));
+    await s.stop();
+    const got = await q;
+    t.ok(got.code === 'protection_off' && s.b.prompts === 0, 'protection stopped during the game: nothing is asked afterwards');
+  }
+
   finished = true;
   console.log(`advanced-protection: ${t.count} passed`);
 })().catch((e) => { console.error('FAIL', e.message); process.exit(1); });

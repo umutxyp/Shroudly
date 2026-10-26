@@ -308,11 +308,12 @@ const decode = (b64) => Buffer.from(b64, 'base64').toString('utf16le');
     const m = new Map(Object.entries(init));
     return { get: (k, d) => (m.has(k) ? m.get(k) : d), set: (k, v) => m.set(k, v), delete: (k) => m.delete(k), m };
   }
-  function rig(w, { store = memStore(), record = { list: [] }, on = true, busy = false, clock = { t: 1e12 }, run = w.run } = {}) {
+  function rig(w, { store = memStore(), record = { list: [] }, on = true, busy = false, full = null, clock = { t: 1e12 }, run = w.run } = {}) {
     const told = [];
     const logs = [];
     const sa = new StoreApps({
       store, platform: 'win32', run, now: () => clock.t, protectionOn: () => on, busy: () => busy, tmpdir: TMP,
+      fullScreen: async () => !!(full && full.on),
       tell: (id, p) => told.push({ id, p }), log: (l, m) => logs.push(`${l}: ${m}`),
       record: { get: async () => record.list, set: (v) => { record.list = v; } },
     });
@@ -326,6 +327,19 @@ const decode = (b64) => Buffer.from(b64, 'base64').toString('utf16le');
     { sid: WEBVIEW, name: 'microsoft.win32webviewhost_cw5n1h2txyewy', caps: net },
     { sid: CALC, name: 'microsoft.windowscalculator_8wekyb3d8bbwe', caps: [] },
   ];
+
+  // Minecraft is a Store app: over a full-screen game, nobody is asked; once
+  // the user is out of it, the next look asks.
+  {
+    const w = fakeWindows({ containers: MACHINE(), exempt: [WEBVIEW] });
+    const full = { on: true };
+    const r = rig(w, { full });
+    const a = await r.sa.survey();
+    t.ok(!a.asked && a.why === 'fullscreen' && !w.prompts.length && !r.told.length, `a full-screen game in front: no prompt over it (${a.why})`);
+    full.on = false;
+    const b = await r.sa.survey();
+    t.ok(b.result === 'on' && w.prompts.length === 1, 'out of it: the next look asks');
+  }
 
   {
     const w = fakeWindows({ containers: MACHINE(), exempt: [WEBVIEW] });

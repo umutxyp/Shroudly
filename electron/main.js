@@ -41,6 +41,7 @@ const { RawWatch } = require('./raw-apps');
 const BrowserCheck = require('./browser-check');
 const SiteList = require('./site-list');
 const Updater = require('./updater');
+const UserBusy = require('./user-busy');
 const Presence = require('./presence');
 const i18n = require('./main-i18n');
 const Families = require('./families');
@@ -119,6 +120,9 @@ const rawWatch = new RawWatch({
   },
 });
 let storeApps = null;
+// A full-screen game, video or presentation in front: what Shroudly does by
+// itself (a permission prompt, a program's restart, an update) waits.
+const userBusy = new UserBusy();
 let appEnv = null;
 // Flatpak programs are sandboxed and never see the session's environment, so
 // on Linux the program proxy reaches them only through a per-program override
@@ -211,9 +215,21 @@ function syncPresence() {
   else if (!wanted && !presence.stopped) presence.leave();
 }
 
+/* A notification; clicking it opens the window. Shroudly never brings its
+ * window up by itself: a full-screen game or video must not lose the screen
+ * to it (user-busy.js). Kept referenced until it goes, or its click is lost. */
+const shownNotes = new Set();
 function notify(title, body) {
   if (store.get('showNotifications', true) && Notification.isSupported()) {
-    try { new Notification({ title, body, icon: trayIconPath() }).show(); } catch {}
+    try {
+      const n = new Notification({ title, body, icon: trayIconPath() });
+      const gone = () => shownNotes.delete(n);
+      n.on('click', () => { gone(); showWindow(); });
+      n.on('close', gone);
+      shownNotes.add(n);
+      if (shownNotes.size > 20) shownNotes.delete(shownNotes.values().next().value);
+      n.show();
+    } catch {}
   }
 }
 
@@ -559,7 +575,7 @@ async function checkDevServer() {
   });
 }
 
-async function createWindow({ show = true, minimised = false } = {}) {
+async function createWindow({ show = true, minimised = false, quiet = false } = {}) {
   uiReady = false;
   if (show) await setDockIcon(true);
   const win = new BrowserWindow({
@@ -622,7 +638,8 @@ async function createWindow({ show = true, minimised = false } = {}) {
     const visible = win.isVisible();
     if (mainWindow === win) { mainWindow = null; uiReady = false; }
     win.destroy();
-    if (visible) createWindow({ show: true });
+    // Back where it was, without taking the screen from whatever is in front.
+    if (visible) createWindow({ show: true, quiet: true });
   });
 
   win.once('ready-to-show', () => {
@@ -633,6 +650,7 @@ async function createWindow({ show = true, minimised = false } = {}) {
     markActive();
     // In the taskbar without taking the screen (a quiet start with no tray).
     if (minimised) { win.showInactive(); win.minimize(); return; }
+    if (quiet) { win.showInactive(); return; }
     win.show(); win.focus();
   });
   // A page that never finishes loading must not keep the window forever.
@@ -707,6 +725,8 @@ const advancedProtection = new AdvancedProtection({
   start: () => startAdvanced(),
   // After the Store apps' permission prompt, if one is on screen.
   ready: async () => { if (storeApps) await storeApps.settled(); },
+  // Not over a full-screen game or video: asked once the user is out of it.
+  notBusy: (stop) => userBusy.until(stop),
   stop: async () => {
     try { await advanced.stop(); } catch {}
     toWindow('advanced:state', { active: false });
@@ -950,8 +970,9 @@ app.whenReady().then(async () => {
       // still being tried.
       const advOn = !!(advanced && advanced.active);
       notify(tr().notifySiteBlockedTitle, (advOn ? tr().notifySiteBlockedBodyAdvancedOn : tr().notifySiteBlockedBody).replace('{host}', host));
+      // Waits in the window for the next time it is opened (a click on the
+      // notification opens it); it never takes the screen from a game.
       toWindow('dpi:site-blocked', { host, asked });
-      showWindow();
     },
   });
   advanced = new AdvancedMode(addLog);
@@ -999,6 +1020,8 @@ app.whenReady().then(async () => {
       robloxPlaying: async () => { const p = await RobloxApp.pids(); const s = await RobloxApp.pids('studio'); return !p || !s || p.length > 0 || s.length > 0; },
       discordOpen: async () => { for (const v of DiscordApp.installed()) { if (await DiscordApp.isRunning(v)) return true; } return false; },
     }),
+    // A full-screen game or video while protection is on.
+    fullScreen: async () => !!(engine && engine.isActive()) && userBusy.fullScreen(),
     // Installing quits the app: stop the engine first so the system proxy is
     // put back, exactly as on a normal quit.
     beforeInstall: async () => {
@@ -2029,6 +2052,9 @@ async function watchDiscord() {
       const dead = await discordDeadProxy(v, pids, ports);
       if (dead) { await handleDiscordDeadProxy(v, dead); continue; }
       if (!(await autopilot.stillBlocked('discord'))) break;
+      // Its window would come up over a full-screen game or video (and a
+      // call in it would drop): restarted once the user is out of it.
+      if (await userBusy.fullScreen()) { still = true; continue; }
       discordRestarted.set(v.id, Date.now());
       if (await DiscordApp.restart(v)) {
         addLog('success', `Autopilot: ${v.app} did not get through Shroudly; restarted it`);
@@ -2089,6 +2115,8 @@ async function handleDiscordDeadProxy(v, dead) {
   const first = discordDeadSeen.get(key);
   if (!first) { discordDeadSeen.set(key, Date.now()); return; }
   if (Date.now() - first < DISCORD_DEAD_CONFIRM_MS) return;
+  // Not over a full-screen game or video (see watchDiscord): a later look.
+  if (dead.file && await userBusy.fullScreen()) return;
   discordDeadDone.add(key);
   if (!dead.file) { tellHeld(v.app, dead.addr); return; }
   const folder = path.dirname(dead.file);
@@ -2417,6 +2445,7 @@ function createStoreApps() {
     protectionOn: () => !!(engine && engine.isActive()),
     // Advanced mode's permission prompt on screen: never a second one beside it.
     busy: () => !!(advanced && advanced._starting),
+    fullScreen: () => userBusy.fullScreen(),
     onChange: () => toWindow('storeapps:state', storeApps.status()),
   });
   if (!storeApps.available()) return;
