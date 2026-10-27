@@ -60,7 +60,7 @@
   "showTrayIconDesc": "Söndürüləndə Shroudly nişansız arxa planda işləməyə davam edir (macOS-da menyu çubuğunda da görünmür). Pəncərəni açmaq üçün Shroudly-ni yenidən başlat.",
   "showNotifications": "Bildirişləri göstər",
   "showNotificationsDesc": "Shroudly-nin sistem bildirişləri: qoruma başladı və ya dayandı, özü nəyi düzəltdi, yeniləmələr",
-  "askByItself": "Özü icazə istəsin",
+  "askByItself": "İcazəni özü istə",
   "askByItselfDesc": "Sayt və ya tətbiq Təkmil rejimə ya da Microsoft Store tətbiqlərinə ehtiyac duyanda Shroudly kompüterindən özü icazə istəyir. Söndürüləndə bunu heç vaxt etmir: sənə xəbər verir, rejimi isə Ayarlarda özün aktiv edirsən.",
   "shareOnlineCount": "Məni də canlı saya əlavə et",
   "shareOnlineCountDesc": "Hər açılışda dəyişən təsadüfi bir nömrə göndərir ki, tətbiq neçə nüsxənin işlədiyini göstərə bilsin. O, yalnız qoruma aktiv olanda göndərilir, yəni trafikinin qalan hissəsi ilə eyni qorunan yolla gedir. Şəbəkənin Shroudly-dən ümumiyyətlə heç nə görməməsini istəyirsənsə, bunu söndür.",
