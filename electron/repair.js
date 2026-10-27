@@ -33,7 +33,7 @@ const { execFile } = require('child_process');
 const RESET_KEYS = [
   // Settings
   'autoMode', 'strategy', 'strategyId', 'dnsProtection', 'customDns', 'routeMode', 'siteList',
-  'adBlock', 'adBlockAllow', 'autoStart', 'minimizeToTray', 'showTrayIcon', 'showNotifications',
+  'adBlock', 'adBlockAllow', 'autoStart', 'minimizeToTray', 'showTrayIcon', 'showNotifications', 'askByItself',
   'shareOnlineCount', 'autoUpdate', 'fakeTtl', 'advancedQuicBlock', 'advancedUdpFake', 'preferIpv6',
   // what the autopilot respects: a switch turned off by hand, a prompt declined
   'discordModeOffAt', 'appModeOffAt', 'advancedModeOffAt', 'advancedDeclinedAt', 'storeAppsModeOffAt',

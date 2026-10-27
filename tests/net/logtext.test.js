@@ -110,6 +110,10 @@ const LINES = [
   'Autopilot: Roblox Studio was opened before Shroudly could take it through; the user was asked to reopen it',
   'Autopilot: Roblox still does not get through after being restarted through Shroudly',
   'Autopilot: www.example.org needs Advanced mode; asking for permission',
+  // "Ask for permission by itself" off (issue #55): what needs which mode is said instead.
+  'Autopilot: Discord needs Advanced mode on this network (its gateway is cut); Shroudly does not ask for permission by itself (a setting); turn it on in Settings',
+  'Store apps: Xbox, Microsoft Store cannot go through Shroudly; Shroudly does not ask for permission by itself (a setting); turn on Microsoft Store apps in Settings to let them through',
+  'cs2.exe has closed; Advanced mode is not brought back, as Shroudly does not ask for permission by itself (a setting)',
   'Advanced mode was not allowed; Shroudly will not ask by itself again for two weeks',
   'The downloaded Roblox installer was not signed by Roblox, so it was deleted and not started',
   'Update ready: it waits while Roblox or Discord goes through Shroudly, and installs once they are closed or the computer has not been used for a while',

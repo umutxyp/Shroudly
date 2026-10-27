@@ -187,6 +187,11 @@ class Autopilot {
 
   _offByHand(mode) { return this.now() - this._when(`${mode}OffAt`) < RESPECT_OFF_MS; }
 
+  /* "Ask for permission by itself" (Settings, on by default): off, no
+   * permission prompt is ever brought up by Shroudly on its own; the user is
+   * told what needs which mode instead (issue #55). */
+  mayAsk() { return this.store.get('askByItself', true) !== false; }
+
   /* A time kept in the settings; one "in the future" (the clock was set
    * back since) counts as now, so the two weeks are never stretched. */
   _when(key) {
@@ -474,13 +479,14 @@ class Autopilot {
   }
 
   /* Why Advanced mode would not be asked for now, when it is the user's to
-   * change: { reason: 'off' | 'declined' | 'failed', at } or null. */
+   * change: { reason: 'off' | 'declined' | 'noask' | 'failed', at } or null. */
   _notAskedReason() {
     const a = this.advanced;
     if (!a || !a.available() || a.active() || !this.protectionOn() || this._asking) return null;
     if (this._offByHand('advancedMode')) return { reason: 'off', at: this._when('advancedModeOffAt') };
     const declined = this._when('advancedDeclinedAt');
     if (this.now() - declined < RESPECT_OFF_MS) return { reason: 'declined', at: declined };
+    if (!this.mayAsk()) return { reason: 'noask', at: this.now() };
     if (this.advancedAsked) return { reason: 'failed', at: this.now() };
     return null;
   }
@@ -495,10 +501,11 @@ class Autopilot {
     const because = {
       off: `it was turned off by hand on ${date}, so it is not turned on by itself`,
       declined: `it was not allowed on ${date}, so it is not asked for by itself`,
+      noask: 'Shroudly does not ask for permission by itself (a setting)',
       failed: 'it could not be started earlier in this session',
     }[r.reason];
     this.log('info', `Autopilot: ${what} needs Advanced mode on this network${why ? ` (${why})` : ''}; ${because}; turn it on in Settings`);
-    this.tell({ off: 'autoAdvancedOffBefore', declined: 'autoAdvancedDeclinedBefore', failed: 'autoAdvancedFailedBefore' }[r.reason], { host: what, date });
+    this.tell({ off: 'autoAdvancedOffBefore', declined: 'autoAdvancedDeclinedBefore', noask: 'autoAdvancedNoAsk', failed: 'autoAdvancedFailedBefore' }[r.reason], { host: what, date });
     return true;
   }
 
@@ -532,7 +539,7 @@ class Autopilot {
   willAskAdvanced() {
     const a = this.advanced;
     if (!a || !a.available() || a.active() || !this.protectionOn() || this.advancedAsked) return false;
-    if (this._offByHand('advancedMode')) return false;
+    if (this._offByHand('advancedMode') || !this.mayAsk()) return false;
     return this.now() - this._when('advancedDeclinedAt') >= RESPECT_OFF_MS;
   }
 

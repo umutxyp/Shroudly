@@ -727,6 +727,8 @@ const advancedProtection = new AdvancedProtection({
   ready: async () => { if (storeApps) await storeApps.settled(); },
   // Not over a full-screen game or video: asked once the user is out of it.
   notBusy: (stop) => userBusy.until(stop),
+  // "Ask for permission by itself" off: not brought back after a game.
+  mayAsk: () => store.get('askByItself', true) !== false,
   stop: async () => {
     try { await advanced.stop(); } catch {}
     toWindow('advanced:state', { active: false });
@@ -2446,6 +2448,7 @@ function createStoreApps() {
     // Advanced mode's permission prompt on screen: never a second one beside it.
     busy: () => !!(advanced && advanced._starting),
     fullScreen: () => userBusy.fullScreen(),
+    mayAsk: () => store.get('askByItself', true) !== false,
     onChange: () => toWindow('storeapps:state', storeApps.status()),
   });
   if (!storeApps.available()) return;

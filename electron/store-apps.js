@@ -38,7 +38,9 @@
  * package such as Windows Terminal, which no app container holds, are no
  * sign), and an account that cannot give administrator permission is
  * never asked by itself: the log says so once a session. Nor is anyone
- * asked over a full-screen game or video (user-busy.js): a later look asks. What Shroudly adds
+ * asked over a full-screen game or video (user-busy.js): a later look asks.
+ * With "Ask for permission by itself" off (Settings), nobody is asked by
+ * itself at all: the user is told once a session which apps need the switch. What Shroudly adds
  * is written down before the prompt (the settings, and HKCU\Software\
  * Shroudly for the uninstaller) and kept once Windows lists it; an exemption
  * that was there before is never Shroudly's, and is never taken out, and one
@@ -568,6 +570,7 @@ class StoreApps {
    * opts.protectionOn()
    * opts.busy()         another permission prompt is on screen (Advanced mode)
    * opts.fullScreen()   async: a full-screen program is in front (user-busy.js)
+   * opts.mayAsk()       a permission prompt may be brought up by itself (the setting)
    * opts.platform, opts.run(cmd, args, timeout), opts.now(), opts.tmpdir   tests
    * opts.record         { get() -> [sid], set([sid]) }: what the uninstaller
    *                     reads (default HKCU\Software\Shroudly)
@@ -579,6 +582,8 @@ class StoreApps {
     this.protectionOn = opts.protectionOn || (() => false);
     this.busy = opts.busy || (() => false);
     this.fullScreen = opts.fullScreen || (async () => false);
+    this.mayAsk = opts.mayAsk || (() => true);
+    this.toldNoAsk = false;
     this.platform = opts.platform || process.platform;
     this.run = opts.run || realRun;
     this.now = opts.now || Date.now;
@@ -862,6 +867,17 @@ class StoreApps {
     if (!force && (!this.protectionOn() || this.busy())) return { asked: false, why: 'changed' };
 
     const apps = appNames(need).join(', ');
+    // "Ask for permission by itself" off (Settings): never a prompt on its
+    // own; said once a session, the switch is the user's (issue #55).
+    if (!force && !this.mayAsk()) {
+      this._readFor = open;
+      if (!this.toldNoAsk) {
+        this.toldNoAsk = true;
+        this.log('info', `Store apps: ${apps} cannot go through Shroudly; Shroudly does not ask for permission by itself (a setting); turn on Microsoft Store apps in Settings to let them through`);
+        this.tell('autoStoreAppsNoAsk', { apps });
+      }
+      return { asked: false, why: 'no_ask' };
+    }
     // A standard user would be asked for a password they do not have: the
     // log says once a session what an administrator can do.
     if (!force) {

@@ -249,6 +249,30 @@ function rig({ antiCheat = null, holdScan = false } = {}) {
     t.ok(!b.active && declined === 1, 'its permission prompt declined when it comes back: recorded as a decline');
   }
 
+  // ── "Ask for permission by itself" off (issue #55): after the game it
+  //    stays off, and the user is told ──
+  {
+    let game = 'cs2.exe';
+    const b = { active: true, prompts: 0 };
+    const told = [];
+    const g = new AdvancedProtection({
+      active: () => b.active,
+      start: async () => { b.prompts++; b.active = true; return { success: true }; },
+      stop: async () => { b.active = false; },
+      protectionOn: () => true,
+      antiCheat: async () => game,
+      mayAsk: () => false,
+      tell: (id, p) => told.push({ id, p }),
+    });
+    g.lastGame = null;
+    await g.guard();
+    t.ok(!b.active && g.paused, 'a game with an anti-cheat starts: paused, as before');
+    game = null;
+    await g.guard();
+    t.ok(!b.active && b.prompts === 0 && !g.paused && told.some((x) => x.id === 'autoAdvancedNoAskAfterGame' && x.p.program === 'cs2.exe'),
+      'the setting off: after the game no permission prompt, the user is told instead');
+  }
+
   // ── never over a full-screen game: asked once the user is out of it ──
   {
     const r = rig();

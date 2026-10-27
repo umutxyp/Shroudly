@@ -308,12 +308,12 @@ const decode = (b64) => Buffer.from(b64, 'base64').toString('utf16le');
     const m = new Map(Object.entries(init));
     return { get: (k, d) => (m.has(k) ? m.get(k) : d), set: (k, v) => m.set(k, v), delete: (k) => m.delete(k), m };
   }
-  function rig(w, { store = memStore(), record = { list: [] }, on = true, busy = false, full = null, clock = { t: 1e12 }, run = w.run } = {}) {
+  function rig(w, { store = memStore(), record = { list: [] }, on = true, busy = false, full = null, ask = true, clock = { t: 1e12 }, run = w.run } = {}) {
     const told = [];
     const logs = [];
     const sa = new StoreApps({
       store, platform: 'win32', run, now: () => clock.t, protectionOn: () => on, busy: () => busy, tmpdir: TMP,
-      fullScreen: async () => !!(full && full.on),
+      fullScreen: async () => !!(full && full.on), mayAsk: () => ask,
       tell: (id, p) => told.push({ id, p }), log: (l, m) => logs.push(`${l}: ${m}`),
       record: { get: async () => record.list, set: (v) => { record.list = v; } },
     });
@@ -327,6 +327,20 @@ const decode = (b64) => Buffer.from(b64, 'base64').toString('utf16le');
     { sid: WEBVIEW, name: 'microsoft.win32webviewhost_cw5n1h2txyewy', caps: net },
     { sid: CALC, name: 'microsoft.windowscalculator_8wekyb3d8bbwe', caps: [] },
   ];
+
+  // "Ask for permission by itself" off (issue #55): never a prompt on its
+  // own; told once a session which apps need the switch.
+  {
+    const w = fakeWindows({ containers: MACHINE(), exempt: [WEBVIEW] });
+    const r = rig(w, { ask: false });
+    const a = await r.sa.survey();
+    const b = await r.sa.survey();
+    t.ok(!a.asked && a.why === 'no_ask' && !b.asked && !w.prompts.length, `the setting off: no prompt by itself (${a.why}, ${b.why})`);
+    t.ok(r.told.length === 1 && r.told[0].id === 'autoStoreAppsNoAsk' && r.told[0].p.apps === 'Xbox, Microsoft Store'
+      && r.logs.filter((l) => /does not ask for permission by itself/.test(l)).length === 1, 'told once, with the apps that need it');
+    const f = await r.sa.survey({ force: true });
+    t.ok(w.prompts.length === 1 && f.result === 'on', 'the switch turned on by the user still asks (their own choice)');
+  }
 
   // Minecraft is a Store app: over a full-screen game, nobody is asked; once
   // the user is out of it, the next look asks.

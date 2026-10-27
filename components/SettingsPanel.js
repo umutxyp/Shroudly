@@ -278,7 +278,7 @@ export default function SettingsPanel({ active = false }) {
   const timeoutRef = useRef(null);
   const [settings, setSettings] = useState({
     strategyId: 'auto', autoMode: true, dnsProtection: true, preferIpv6: false, routeMode: 'all',
-    autoStart: false, minimizeToTray: true, showNotifications: true,
+    autoStart: false, minimizeToTray: true, showNotifications: true, askByItself: true,
   });
   // null while unknown; false greys out "Prefer IPv6" on IPv4-only networks
   const [ipv6Ok, setIpv6Ok] = useState(null);
@@ -888,6 +888,10 @@ export default function SettingsPanel({ active = false }) {
             onChange={(v) => save('shareOnlineCount', v)}
           />
           <Toggle label={t('showNotifications')} desc={t('showNotificationsDesc')} checked={settings.showNotifications} onChange={(v) => save('showNotifications', v)} />
+          {/* Off: no permission prompt is ever brought up by Shroudly on its
+              own (Advanced mode, Microsoft Store apps); it says what needs
+              which mode instead (issue #55). */}
+          <Toggle label={t('askByItself')} desc={t('askByItselfDesc')} checked={settings.askByItself !== false} onChange={(v) => save('askByItself', v)} />
           <Toggle label={t('autoUpdate')} desc={t('autoUpdateDesc')} checked={settings.autoUpdate !== false} onChange={(v) => save('autoUpdate', v)} />
         </div>
         {/* Repair: Shroudly's files checked, what it learned forgotten, its

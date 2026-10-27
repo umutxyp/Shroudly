@@ -644,6 +644,21 @@ const settle = async () => { for (let i = 0; i < 5; i++) await new Promise((r) =
       'turned off by hand: not turned on by itself, and the user is told so');
     }
     {
+      // "Ask for permission by itself" off (issue #55): never a prompt on its
+      // own; the user is told once what needs which mode.
+      const { st, r } = advRig2({ store: memStore({ autopilotSince: 1, askByItself: false }) });
+      t.ok(!r.ap.willAskAdvanced(), 'the setting off: the autopilot would not ask');
+      await r.ap.survey();
+      r.ap.noteHost('seen', V);
+      await settle();
+      await r.ap.needAdvanced('cut.example');
+      await settle();
+      const n = r.told.filter((x) => x.id === 'autoAdvancedNoAsk');
+      t.ok(st.prompts === 0 && n.length === 1 && n[0].p.host === 'discord', `the setting off: no permission prompt, told once instead (${JSON.stringify(n.map((x) => x.p))})`);
+      t.ok(r.logs.some((l) => l === 'Autopilot: discord needs Advanced mode on this network (a discord call is starting; its sound goes over UDP); Shroudly does not ask for permission by itself (a setting); turn it on in Settings'),
+        'and the log says why');
+    }
+    {
       // Asked earlier this session for another site, and it could not
       // start: the call is told about, not silently dropped.
       const { st, r } = advRig2({ result: { success: false, code: 'start_failed' } });

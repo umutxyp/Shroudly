@@ -20,6 +20,9 @@
  * Stop followed by a quick Start counts too. One such start at a time, so a
  * Start waits for the answer to one from before its Stop.
  *
+ * With "Ask for permission by itself" off (Settings), it does not come back
+ * after the game by itself: the user is told, and turns it on in Settings.
+ *
  * Never in the middle of a full-screen game, video or presentation
  * (user-busy.js): the permission prompt takes the screen (Windows' secure
  * desktop) and throws the game back to the desktop. It is asked once the
@@ -44,6 +47,7 @@ class AdvancedProtection {
    * opts.start()           start it -> { success, code, alreadyActive }
    * opts.ready()           optional: waited for before asking (another permission prompt on screen)
    * opts.notBusy(stop)     optional: resolves once no full-screen program is in front, or stop() is true
+   * opts.mayAsk()          optional: a permission prompt may be brought up by itself (the setting)
    * opts.stop()            stop it, and tell the window
    * opts.protectionOn()    whether protection is on (or on its way back)
    * opts.antiCheat()       a game's anti-cheat running (its name), or null
@@ -56,6 +60,7 @@ class AdvancedProtection {
     this.startBackend = opts.start;
     this.ready = opts.ready || (async () => {});
     this.notBusy = opts.notBusy || (async () => {});
+    this.mayAsk = opts.mayAsk || (() => true);
     this.stopBackend = opts.stop;
     this.protectionOn = opts.protectionOn;
     this.antiCheat = opts.antiCheat || (async () => null);
@@ -107,6 +112,11 @@ class AdvancedProtection {
         if (game) return;
         const was = this.paused.game;
         this.paused = null;
+        if (!this.mayAsk()) {
+          this.log('info', `${was} has closed; Advanced mode is not brought back, as Shroudly does not ask for permission by itself (a setting)`);
+          this.tell('autoAdvancedNoAskAfterGame', { program: was });
+          return;
+        }
         this.log('info', `${was} has closed; Advanced mode comes back`);
         this.tell('autoAdvancedBackAfterGame', { program: was });
         const r = await this.start(this.stops);
