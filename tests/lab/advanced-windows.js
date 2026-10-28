@@ -22,6 +22,11 @@
  * the engine: its raw_stats count only the requests (udp_seen), the decoys
  * (udp_decoys) and the QUIC Initial it dropped (quic_dropped).
  *
+ * The WinDivert driver (#56): it would stay loaded after the engine's last
+ * handle closed, and an anti-cheat that looks at the loaded drivers (Riot
+ * Vanguard) would refuse its game. The engine unloads it at stop, and leaves
+ * it loaded only with --keep-driver 1 (another program uses it).
+ *
  * DNS (the DNS gate, core/src/dnsgate.h): the app's encrypted-DNS forwarder
  * stands in on 127.0.0.1 (lab-dns.js) and knows one made-up name. Without
  * the engine a public resolver says it does not exist; with it, a program
@@ -49,6 +54,15 @@ let fails = 0;
 const ok = (m) => console.log(`  ok  ${m}`);
 const bad = (m) => { console.log(`FAIL  ${m}`); fails++; };
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+// The WinDivert driver service: 'missing' (sc: 1060), else its state line.
+function driverState() {
+  try {
+    const out = execFileSync('sc', ['query', 'WinDivert'], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
+    return ((out.match(/STATE\s*:\s*\d+\s+(\w+)/) || [])[1]) || out.trim();
+  } catch (e) {
+    return e.status === 1060 || /1060/.test(String(e.stdout || '')) ? 'missing' : `sc failed (${e.status})`;
+  }
+}
 
 function get(url, ms = 15000) {
   return new Promise((resolve) => {
@@ -178,6 +192,13 @@ async function loadAll(label) {
   if (exited !== null) ok(`engine stopped by its stop file (exit ${exited})`);
   else { bad('engine did not stop within 10 s'); child.kill(); }
 
+  // #56: the driver went with the engine.
+  if (/"type":"driver","unloaded":1/.test(read())) ok('the engine unloaded the WinDivert driver at stop');
+  else bad(`no driver unload reported at stop: ${read().slice(-300)}`);
+  const afterStop = driverState();
+  if (afterStop === 'missing') ok('the WinDivert driver service is gone after the stop (sc query: 1060)');
+  else bad(`the WinDivert driver service is still there after the stop: ${afterStop}`);
+
   const stats = (read().match(/\{"type":"raw_stats"[^\n]*\}/g) || []).pop();
   console.log(`raw_stats: ${stats || '(none)'}`);
   if (stats) {
@@ -208,6 +229,26 @@ async function loadAll(label) {
   if (after !== GATE_ADDR) ok(`after stop, ${RESOLVER}'s own answer again (${after})`);
   else bad(`after stop, still the forwarder's answer from ${RESOLVER}`);
   fwd.kill();
+
+  // ...and with --keep-driver 1 (another program uses it) it stays loaded.
+  const status2 = path.join(dir, 'status-keep.log');
+  const child2 = spawn(engine, buildAdvancedArgs({ fakeTtl: 4, statusFile: status2, parentPid: process.pid, platform: 'win32', opts: { keepDriver: true } }),
+    { stdio: 'ignore', windowsHide: true });
+  let exited2 = null;
+  child2.on('exit', (code) => { exited2 = code; });
+  const read2 = () => { try { return fs.readFileSync(status2, 'utf8'); } catch { return ''; } };
+  for (let i = 0; i < 150 && !/"raw_ready"/.test(read2()) && exited2 === null; i++) await sleep(100);
+  if (/"raw_ready"/.test(read2())) {
+    fs.writeFileSync(`${status2}.stop`, '');
+    for (let i = 0; i < 100 && exited2 === null; i++) await sleep(100);
+    const kept = driverState();
+    if (kept === 'RUNNING' && !/"type":"driver"/.test(read2())) ok('with --keep-driver 1 the driver stays loaded for the other program');
+    else bad(`with --keep-driver 1 the driver is ${kept} after the stop: ${read2().slice(-300)}`);
+  } else {
+    bad(`the --keep-driver run did not come up (exit ${exited2}): ${read2().slice(-300)}`);
+    child2.kill();
+  }
+  try { execFileSync('sc', ['stop', 'WinDivert'], { stdio: 'ignore' }); } catch {}
   fs.rmSync(dir, { recursive: true, force: true });
   if (fails) { console.log(`advanced-windows: ${fails} failed`); process.exit(1); }
   console.log('advanced-windows: all passed');

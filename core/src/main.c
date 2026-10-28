@@ -62,6 +62,7 @@ static int g_quic_block = 1;    /* Advanced mode: drop QUIC Initial -> TCP */
 static int g_udp_fake = 1;      /* Advanced mode: decoys for Discord voice UDP */
 static int g_dns_gate = 0;      /* Advanced mode: other programs' DNS from the forwarder on this port */
 static int g_tlsrec   = 0;      /* Advanced mode: split the TLS record of a ClientHello (#48) */
+static int g_keep_driver = 0;   /* Advanced mode, Windows: leave the WinDivert driver loaded at stop */
 static int g_fake_repeats = 6;  /* how many decoy datagrams per voice flow */
 static char g_status_file[1024] = "";
 static char g_auth_file[1024] = "";
@@ -150,8 +151,10 @@ static void usage(void) {
     "  --no-quic-block       Advanced: keep QUIC (do not force browsers to TCP)\n"
     "  --no-udp-fake         Advanced: no decoys for Discord voice UDP\n"
     "  --dns-gate <port>     Advanced: answer other programs' DNS from the\n"
+    "                        encrypted-DNS forwarder on 127.0.0.1:<port>\n"
     "  --tlsrec <0|1>        Advanced: split the ClientHello's TLS record (#48)\n"
-    "                        encrypted-DNS forwarder on 127.0.0.1:<port>\n");
+    "  --keep-driver <0|1>   Advanced, Windows: leave the WinDivert driver loaded\n"
+    "                        at stop (another program uses it; default: unload)\n");
 }
 
 /* What became of a list: {"type":"adblock","on":...,"entries":...} with its
@@ -215,6 +218,7 @@ int engine_main(int argc, char **argv, FILE *in, FILE *out, int embedded) {
     else if (!strcmp(argv[i], "--no-udp-fake")) g_udp_fake = 0;
     else if (!strcmp(argv[i], "--dns-gate") && i+1<argc) g_dns_gate = atoi(argv[++i]);
     else if (!strcmp(argv[i], "--tlsrec") && i+1<argc) g_tlsrec = atoi(argv[++i]) ? 1 : 0;
+    else if (!strcmp(argv[i], "--keep-driver") && i+1<argc) g_keep_driver = atoi(argv[++i]) ? 1 : 0;
 #if defined(SHROUDLY_RAW)
     else if (!strcmp(argv[i], "--drop-rst") && i+1<argc) g_drop_rst = atoi(argv[++i]) ? 1 : 0;
     else if (!strcmp(argv[i], "--autottl") && i+1<argc) g_autottl = atoi(argv[++i]) ? 1 : 0;
@@ -270,6 +274,7 @@ int engine_main(int argc, char **argv, FILE *in, FILE *out, int embedded) {
     rc.udp_fake = g_udp_fake;
     rc.dns_gate = g_dns_gate;
     rc.tlsrec = g_tlsrec;
+    rc.keep_driver = g_keep_driver;
     rc.fake_repeats = g_fake_repeats;
     /* What the engine did, as a raw_stats line: every minute and at stop. */
     rawscope_counters_reset();

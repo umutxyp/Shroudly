@@ -821,6 +821,11 @@ const settle = async () => { for (let i = 0; i < 5; i++) await new Promise((r) =
     t.ok(Autopilot.antiCheatIn(ps('vgc.exe', 'vgtray.exe', 'VALORANT-Win64-Shipping.exe')) === 'VALORANT-Win64-Shipping.exe',
       'VALORANT open beside Vanguard: the game is found, by its name');
     t.ok(Autopilot.antiCheatIn(ps('vgc.exe', 'League of Legends.exe')) === 'League of Legends.exe', 'League beside Vanguard: found');
+    // #56: the sign-in and Vanguard's check happen in Riot's clients, before the game's program.
+    t.ok(Autopilot.antiCheatIn(ps('vgc.exe', 'vgtray.exe', 'Riot Client.exe', 'RiotClientServices.exe')) !== null
+      && Autopilot.antiCheatIn(ps('vgc.exe', 'LeagueClientUx.exe')) === 'LeagueClientUx.exe',
+    "Riot Client or League's client beside Vanguard: counts as a game (#56)");
+    t.ok(Autopilot.antiCheatIn(ps('Riot Client.exe', 'RiotClientServices.exe')) === null, 'Riot Client without Vanguard: not a game with an anti-cheat');
     t.ok(Autopilot.antiCheatIn(ps('EasyAntiCheat_EOS.exe', 'SomeNewGame-Win64-Shipping.exe')) === 'SomeNewGame-Win64-Shipping.exe',
       'an Unreal game not on the list, beside Easy Anti-Cheat: found');
     t.ok(Autopilot.antiCheatIn(ps('BEService.exe', 'DayZ_BE.exe')) === 'DayZ_BE.exe', "a BattlEye game's own program beside its service: found");

@@ -2282,15 +2282,19 @@ async function startAdvanced() {
       // (Serein and the like).
       tlsrec: store.get('advancedTlsRec', false) === true,
     };
+    // Another program that changes the same packets (rivals.js) may use the
+    // same WinDivert driver: then the engine leaves it loaded at stop (#56).
+    let rival = [];
+    try { rival = await Rivals.running(); } catch {}
+    opts.keepDriver = rival.length > 0;
     const r = await advanced.start(ttl, opts);
     addLog('success', 'Advanced mode enabled');
-    // Another program that changes the same packets undoes Advanced mode
-    // without either of them failing; say so as soon as it is on (rivals.js).
-    Rivals.running().then((rival) => {
-      if (!rival.length) return;
+    // It undoes Advanced mode without either of them failing; say so as soon
+    // as it is on.
+    if (rival.length) {
       addLog('warning', `${rival.join(', ')} is running: it changes the same connections Advanced mode does, and two of them undo each other. Turn one of them off.`);
       autoTell('autoRivalTool', { rival: rival.join(', ') });
-    }).catch(() => {});
+    }
     toWindow('advanced:state', { active: true });
     return r || { success: true };
   } catch (e) {

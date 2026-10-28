@@ -127,6 +127,9 @@ function buildArgs(o) {
   // keep its sequence numbers in step); a user can turn it off with
   // advancedTlsRec:false.
   if (t.tlsrec) args.push('--tlsrec', '1');
+  // Windows: another program uses the WinDivert driver too (rivals.js), so
+  // the engine leaves it loaded at stop instead of unloading it (#56).
+  if (o.platform === 'win32' && o.opts && o.opts.keepDriver) args.push('--keep-driver', '1');
   if (o.platform === 'linux') args.push('--queue', String(o.queueNum != null ? o.queueNum : QUEUE_NUM));
   if (o.quicBlock === false) args.push('--no-quic-block');
   if (o.udpFake === false) args.push('--no-udp-fake');

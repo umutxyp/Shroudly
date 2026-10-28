@@ -24,7 +24,8 @@ const outRoot = path.join(root, 'electron', 'tools', 'core');
 const TARGETS = {
   'linux-x64':   { zig: 'x86_64-linux-gnu.2.28',  bin: 'shroudly-core-adv', libs: ['-lpthread'], feat: ['-D_GNU_SOURCE'] },
   'linux-arm64': { zig: 'aarch64-linux-gnu.2.28', bin: 'shroudly-core-adv', libs: ['-lpthread'], feat: ['-D_GNU_SOURCE'] },
-  'win32-x64':   { zig: 'x86_64-windows-gnu', bin: 'shroudly-core-adv.exe', libs: ['-lws2_32'], feat: [] },
+  // advapi32: the service manager, to unload the WinDivert driver at stop
+  'win32-x64':   { zig: 'x86_64-windows-gnu', bin: 'shroudly-core-adv.exe', libs: ['-lws2_32', '-ladvapi32'], feat: [] },
   // no win32-arm64: WinDivert ships no ARM64 driver
 };
 

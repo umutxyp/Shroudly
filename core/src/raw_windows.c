@@ -581,6 +581,36 @@ int raw_windows_start(const raw_config *cfg) {
   return 0;
 }
 
+/* The WinDivert driver stays loaded after its last handle is closed, until a
+ * restart or `sc stop WinDivert`. A game's anti-cheat that looks at the loaded
+ * drivers (Riot Vanguard, among others) would still see it once Advanced mode
+ * has stopped, or stepped aside for that very game, and refuse the game
+ * (#56). So it is unloaded at stop, unless another program that uses the same
+ * driver is running (GoodbyeDPI, zapret: --keep-driver 1, from rivals.js).
+ * WinDivert marks its service for deletion when it installs it, so the stop
+ * removes it as well; the next start installs it again. */
+static void unload_driver(void) {
+  int gone = 0;
+  SC_HANDLE scm = OpenSCManagerW(NULL, NULL, SC_MANAGER_CONNECT);
+  if (!scm) return;
+  SC_HANDLE svc = OpenServiceW(scm, L"WinDivert", SERVICE_STOP | SERVICE_QUERY_STATUS);
+  if (svc) {
+    SERVICE_STATUS st;
+    if (ControlService(svc, SERVICE_CONTROL_STOP, &st) || GetLastError() == ERROR_SERVICE_NOT_ACTIVE) {
+      for (int i = 0; i < 30 && !gone; i++) {
+        if (QueryServiceStatus(svc, &st) && st.dwCurrentState == SERVICE_STOPPED) gone = 1;
+        else Sleep(100);
+      }
+    }
+    CloseServiceHandle(svc);
+  } else if (GetLastError() == ERROR_SERVICE_DOES_NOT_EXIST) {
+    gone = 1;
+  }
+  CloseServiceHandle(scm);
+  printf("{\"type\":\"driver\",\"unloaded\":%d}\n", gone);
+  fflush(stdout);
+}
+
 void raw_windows_stop(void) {
   g_run = 0;
   if (g_gate) { dnsgate_stop(); g_gate = 0; }
@@ -589,6 +619,7 @@ void raw_windows_stop(void) {
     p_Close(g_handle);
     g_handle = INVALID_HANDLE_VALUE;
   }
+  if (!g_cfg.keep_driver) unload_driver();
 }
 
 #endif /* _WIN32 */

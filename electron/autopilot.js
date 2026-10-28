@@ -631,7 +631,11 @@ const IN_GAME_ANTI_CHEAT = ['GameMon.des', 'GameMon64.des', 'GameGuard.des', 'xc
   'EasyAntiCheat_launcher.exe', 'start_protected_game.exe', 'SGuard64.exe'];
 // Games whose anti-cheat runs beside them (Vanguard, Easy Anti-Cheat,
 // BattlEye, EA, FACEIT, ACE): a few of the most played, by program name.
-const PROTECTED_GAMES = ['VALORANT-Win64-Shipping.exe', 'League of Legends.exe', 'FortniteClient-Win64-Shipping.exe', 'r5apex.exe', 'r5apex_dx12.exe',
+// Riot's clients count too: the sign-in and Vanguard's check happen in the
+// Riot Client (and League's), before the game's own program starts, and a
+// packet driver loaded then keeps VALORANT and League from starting (#56).
+const PROTECTED_GAMES = ['VALORANT-Win64-Shipping.exe', 'VALORANT.exe', 'League of Legends.exe', 'Riot Client.exe', 'RiotClientServices.exe',
+  'RiotClientUx.exe', 'LeagueClient.exe', 'LeagueClientUx.exe', 'FortniteClient-Win64-Shipping.exe', 'r5apex.exe', 'r5apex_dx12.exe',
   'RustClient.exe', 'TslGame.exe', 'RainbowSix.exe', 'RainbowSix_Vulkan.exe', 'DayZ_x64.exe', 'EscapeFromTarkov.exe', 'destiny2.exe', 'GTA5.exe',
   'GTA5_Enhanced.exe', 'eldenring.exe', 'DeadByDaylight-Win64-Shipping.exe', 'FallGuys_client_game.exe', 'SoTGame.exe', 'HuntGame.exe',
   'LOSTARK.exe', 'Discovery.exe', 'bf2042.exe', 'bf6.exe', 'FC25.exe', 'FC26.exe', 'cs2.exe', 'cod.exe', 'ArmA3_x64.exe',

@@ -101,6 +101,12 @@ t.ok(!def.includes('--tlsrec'), 'default: no --tlsrec (opt-in)');
 t.ok(buildArgs({ ...ubase, platform: 'win32', opts: { tlsrec: true } }).includes('--tlsrec'), 'opts.tlsrec:true -> --tlsrec 1');
 t.ok(!buildArgs({ ...ubase, platform: 'linux', opts: { tlsrec: false } }).includes('--tlsrec'), 'opts.tlsrec:false -> no flag');
 
+// #56: the engine unloads the WinDivert driver at stop, unless another program
+// that uses it runs (rivals.js) -> --keep-driver 1. Windows only.
+t.ok(!def.includes('--keep-driver'), 'default: no --keep-driver (the driver is unloaded at stop)');
+t.ok(argval(buildArgs({ ...ubase, platform: 'win32', opts: { keepDriver: true } }), '--keep-driver') === '1', 'a rival tool running: --keep-driver 1');
+t.ok(!buildArgs({ ...ubase, platform: 'linux', opts: { keepDriver: true } }).includes('--keep-driver'), 'Linux has no WinDivert: no --keep-driver');
+
 // The elevated engine's arguments on Windows, read back the way Windows reads
 // a command line (CommandLineToArgvW's rules): exactly what was given, spaces,
 // quotes and backslashes included.

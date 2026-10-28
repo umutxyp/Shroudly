@@ -44,6 +44,8 @@ typedef struct {
                            * the TCP stream before it inspects (issue #48). The
                            * split grows the segment, so the backend translates
                            * the connection's later sequence numbers. */
+  int     keep_driver;    /* Windows: 1 leaves the WinDivert driver loaded at
+                           * stop (another program uses it); 0 unloads it */
 } raw_config;
 
 /* Sensible defaults: the strictly-additive, always-safe protections are on:
