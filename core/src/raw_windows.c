@@ -589,41 +589,48 @@ int raw_windows_start(const raw_config *cfg) {
  * driver is running (GoodbyeDPI, zapret: --keep-driver 1, from rivals.js).
  * WinDivert marks its service for deletion when it installs it, so the stop
  * removes it as well; the next start installs it again. */
-static volatile LONG g_unloading = 0;
+/* 0: not yet, 1: under way, 2: done. Both stop paths can get here at once
+ * (the watchdog on a stop request, the packet loop as it ends): the second
+ * waits for the first, since the watchdog ends the process right after. */
+static volatile LONG g_unload_state = 0;
 static void unload_driver(void) {
-  /* Once: raw_windows_stop runs from the watchdog (a stop request) and again
-   * when the packet loop ends. */
-  if (InterlockedExchange(&g_unloading, 1)) return;
+  if (InterlockedCompareExchange(&g_unload_state, 1, 0) != 0) {
+    for (int i = 0; i < 50 && g_unload_state != 2; i++) Sleep(100);
+    return;
+  }
   int gone = 0;
   SC_HANDLE scm = OpenSCManagerW(NULL, NULL, SC_MANAGER_CONNECT);
-  if (!scm) return;
-  SC_HANDLE svc = OpenServiceW(scm, L"WinDivert", SERVICE_STOP | SERVICE_QUERY_STATUS);
-  if (svc) {
-    SERVICE_STATUS st;
-    if (ControlService(svc, SERVICE_CONTROL_STOP, &st) || GetLastError() == ERROR_SERVICE_NOT_ACTIVE) {
-      for (int i = 0; i < 30 && !gone; i++) {
-        if (QueryServiceStatus(svc, &st) && st.dwCurrentState == SERVICE_STOPPED) gone = 1;
-        else Sleep(100);
+  if (scm) {
+    SC_HANDLE svc = OpenServiceW(scm, L"WinDivert", SERVICE_STOP | SERVICE_QUERY_STATUS);
+    if (svc) {
+      SERVICE_STATUS st;
+      if (ControlService(svc, SERVICE_CONTROL_STOP, &st) || GetLastError() == ERROR_SERVICE_NOT_ACTIVE) {
+        for (int i = 0; i < 30 && !gone; i++) {
+          if (QueryServiceStatus(svc, &st) && st.dwCurrentState == SERVICE_STOPPED) gone = 1;
+          else Sleep(100);
+        }
       }
+      CloseServiceHandle(svc);
+    } else if (GetLastError() == ERROR_SERVICE_DOES_NOT_EXIST) {
+      gone = 1;
     }
-    CloseServiceHandle(svc);
-  } else if (GetLastError() == ERROR_SERVICE_DOES_NOT_EXIST) {
-    gone = 1;
+    CloseServiceHandle(scm);
   }
-  CloseServiceHandle(scm);
   printf("{\"type\":\"driver\",\"unloaded\":%d}\n", gone);
   fflush(stdout);
+  InterlockedExchange(&g_unload_state, 2);
 }
 
 /* Every stop path: the watchdog's (a stop request, Shroudly gone; the process
- * ends right after) and the end of the packet loop. */
+ * ends right after) and the end of the packet loop. The handle is taken once,
+ * whichever comes first. */
 void raw_windows_stop(void) {
   g_run = 0;
   if (g_gate) { dnsgate_stop(); g_gate = 0; }
-  if (g_handle != INVALID_HANDLE_VALUE) {
-    if (p_Shutdown) p_Shutdown(g_handle, 0x1 /*WINDIVERT_SHUTDOWN_RECV*/);
-    p_Close(g_handle);
-    g_handle = INVALID_HANDLE_VALUE;
+  HANDLE h = (HANDLE)InterlockedExchangePointer((PVOID volatile *)&g_handle, INVALID_HANDLE_VALUE);
+  if (h != INVALID_HANDLE_VALUE) {
+    if (p_Shutdown) p_Shutdown(h, 0x1 /*WINDIVERT_SHUTDOWN_RECV*/);
+    p_Close(h);
   }
   if (!g_cfg.keep_driver) unload_driver();
 }
