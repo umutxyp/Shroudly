@@ -281,6 +281,10 @@ int engine_main(int argc, char **argv, FILE *in, FILE *out, int embedded) {
     sup_set_report(rawscope_stats_print, 60000);
   #if defined(__linux__)
     sup_start(g_status_file, g_parent_pid, raw_linux_teardown);
+  #elif defined(_WIN32)
+    /* A stop request (or Shroudly gone) ends the process from the watchdog:
+     * the handle is closed and the driver unloaded there too (#56). */
+    sup_start(g_status_file, g_parent_pid, raw_windows_stop);
   #else
     sup_start(g_status_file, g_parent_pid, NULL);
   #endif

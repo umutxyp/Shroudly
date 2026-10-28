@@ -589,7 +589,11 @@ int raw_windows_start(const raw_config *cfg) {
  * driver is running (GoodbyeDPI, zapret: --keep-driver 1, from rivals.js).
  * WinDivert marks its service for deletion when it installs it, so the stop
  * removes it as well; the next start installs it again. */
+static volatile LONG g_unloading = 0;
 static void unload_driver(void) {
+  /* Once: raw_windows_stop runs from the watchdog (a stop request) and again
+   * when the packet loop ends. */
+  if (InterlockedExchange(&g_unloading, 1)) return;
   int gone = 0;
   SC_HANDLE scm = OpenSCManagerW(NULL, NULL, SC_MANAGER_CONNECT);
   if (!scm) return;
@@ -611,6 +615,8 @@ static void unload_driver(void) {
   fflush(stdout);
 }
 
+/* Every stop path: the watchdog's (a stop request, Shroudly gone; the process
+ * ends right after) and the end of the packet loop. */
 void raw_windows_stop(void) {
   g_run = 0;
   if (g_gate) { dnsgate_stop(); g_gate = 0; }
