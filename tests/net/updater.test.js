@@ -230,6 +230,21 @@ const HOURS = (h) => h * 60 * 60 * 1000;
     t.ok(Updater.MIRROR_URL.startsWith('https://') && !/github\.com/.test(Updater.MIRROR_URL), 'the mirror is a non-GitHub https host');
   }
 
+  // #57: on Windows the update goes into the folder this copy runs from, when
+  // this user can write there; anywhere else, the installer's own records.
+  {
+    const yes = () => true;
+    const no = () => false;
+    t.ok(Updater.installDirFor('D:\\Uygulamalar\\Shroudly\\Shroudly.exe', { platform: 'win32', canWrite: yes }) === 'D:\\Uygulamalar\\Shroudly',
+      'installed on another disk: the update goes there (/D=D:\\Uygulamalar\\Shroudly)');
+    t.ok(Updater.installDirFor('C:\\Program Files\\Shroudly\\Shroudly.exe', { platform: 'win32', canWrite: no }) === null,
+      'a folder this user cannot write to (Program Files): left to the installer');
+    t.ok(Updater.installDirFor('C:\\dev\\node_modules\\electron\\dist\\electron.exe', { platform: 'win32', canWrite: yes }) === null,
+      'a development run (electron.exe): no folder');
+    t.ok(Updater.installDirFor('/Applications/Shroudly.app/Contents/MacOS/Shroudly', { platform: 'darwin', canWrite: yes }) === null
+      && Updater.installDirFor(null, { platform: 'win32', canWrite: yes }) === null, 'not Windows, or no path: no folder');
+  }
+
   console.log(`updater: ${t.count} passed`);
   process.exit(0);
 })().catch((e) => { console.error('FAIL', e.message); process.exit(1); });

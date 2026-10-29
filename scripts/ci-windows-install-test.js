@@ -88,5 +88,37 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
   if (obj.IS_MAXIMIZED !== true || obj.WINDOW_BOUNDS.width !== 1200) fail("Discord's other settings changed");
   ok("uninstaller removed the Discord app mode line and kept everything else");
   fs.rmSync(discordDir, { recursive: true, force: true });
+
+  // #57: a copy on another disk while the installer's own records point at
+  // the default folder. The update goes where that copy is (/D=, as the
+  // updater passes it, electron/updater.js installDirFor), not to the default
+  // folder as a second copy.
+  {
+    const other = fs.existsSync('D:\\') ? 'D:\\ShroudlyElsewhere' : path.join(process.env.SystemDrive || 'C:', 'ShroudlyElsewhere');
+    const exe = (d) => fs.existsSync(path.join(d, 'Shroudly.exe'));
+    const waitFor = async (cond, s) => { for (let i = 0; i < s && !cond(); i++) await sleep(1000); return cond(); };
+    if (spawnSync(path.join(dist, setup), ['/S', `/D=${other}`], { stdio: 'inherit' }).status !== 0) fail(`installer to ${other} failed`);
+    if (!(await waitFor(() => exe(other), 120))) fail(`not installed to ${other}`);
+    ok(`installed to another folder: ${other}`);
+    // The installer's record of where it is installed, pointed at the default folder.
+    const q = String(spawnSync('reg', ['query', 'HKCU\\Software', '/s', '/v', 'InstallLocation'], { encoding: 'utf8' }).stdout || '');
+    let key = null;
+    let cur = null;
+    for (const line of q.split(/\r?\n/)) {
+      if (/^HKEY_/.test(line)) cur = line.trim();
+      else if (/InstallLocation\s+REG_SZ\s+/.test(line) && line.split(/REG_SZ\s+/)[1].trim().toLowerCase() === other.toLowerCase()) key = cur;
+    }
+    if (!key) fail(`no InstallLocation record pointing at ${other}:\n${q.slice(0, 2000)}`);
+    if (spawnSync('reg', ['add', key, '/v', 'InstallLocation', '/t', 'REG_SZ', '/d', dir, '/f'], { stdio: 'ignore' }).status !== 0) fail(`could not change ${key}`);
+    ok(`the installer's record (${key}) now points at the default folder, not where the copy runs`);
+    // The update the way the updater runs it now.
+    if (spawnSync(path.join(dist, setup), ['--updated', '/S', `/D=${other}`], { stdio: 'inherit' }).status !== 0) fail('the update failed');
+    await waitFor(() => exe(other) && !exe(dir), 60);
+    if (exe(other) && !exe(dir)) ok(`the update went to ${other}, where the copy runs; nothing in the default folder`);
+    else fail(`after the update: ${other} ${exe(other) ? 'has' : 'lacks'} Shroudly.exe, the default folder ${exe(dir) ? 'has a second copy' : 'is empty'}`);
+    const un = fs.readdirSync(other).find((f) => /^Uninstall .*\.exe$/i.test(f));
+    if (un) spawnSync(path.join(other, un), ['/S'], { stdio: 'inherit' });
+    await waitFor(() => !exe(other), 90);
+  }
   console.log(`== Windows ${arch} installer passed`);
 })().catch((e) => fail(e.message));

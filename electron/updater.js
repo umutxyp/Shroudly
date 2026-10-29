@@ -72,6 +72,24 @@ const WAIT_KEY = 'updateWaiting';
 /* At launch, the most protection is held back for an update that is due. */
 const LAUNCH_INSTALL_MS = 10000;
 
+/* Windows: the folder the update is installed into (/D=), the one this copy
+ * of Shroudly runs from. Without it the installer goes by its own records,
+ * which can point elsewhere: a copy put on another disk beside an older one,
+ * or one installed for everyone beside one for "only me", left it picking the
+ * default folder, and the update became a second copy while the one the user
+ * runs stayed old (#57). Only a folder this user can write to: one under
+ * Program Files is left to the installer's records and its own permission
+ * prompt. null: no folder to give (another system, a development run). */
+function canWriteDir(dir) {
+  const probe = path.join(dir, `.shroudly-write-${process.pid}`);
+  try { fs.writeFileSync(probe, ''); fs.unlinkSync(probe); return true; } catch { return false; }
+}
+function installDirFor(execPath, { platform = process.platform, canWrite = canWriteDir } = {}) {
+  if (platform !== 'win32' || !/[\\/]Shroudly\.exe$/i.test(String(execPath || ''))) return null;
+  const dir = path.win32.dirname(execPath);
+  return canWrite(dir) ? dir : null;
+}
+
 function newer(a, b) { // is version a newer than b
   const pa = String(a).split(/[.-]/).map((n) => parseInt(n, 10) || 0);
   const pb = String(b).split(/[.-]/).map((n) => parseInt(n, 10) || 0);
@@ -500,7 +518,13 @@ class Updater {
     this.installing = true;
     if (this.onInstall) { try { this.onInstall(); } catch {} }
     await this.beforeInstall(); // stop the engine: puts the system proxy back first
-    if (!this.mac) { this.eu.quitAndInstall(true, true); return; }
+    if (!this.mac) {
+      // Into the folder this copy runs from (#57).
+      const dir = installDirFor(process.execPath);
+      if (dir) this.eu.installDirectory = dir;
+      this.eu.quitAndInstall(true, true);
+      return;
+    }
     this._macSwapOnExit();
     app.exit(0);
   }
@@ -537,6 +561,7 @@ module.exports = Updater;
 module.exports.RELEASES_URL = RELEASES_URL;
 module.exports.MIRROR_URL = MIRROR_URL;
 module.exports.mirrorOf = mirrorOf;
+module.exports.installDirFor = installDirFor;
 module.exports.ROUTES = ROUTES;
 module.exports.setSystemRoute = setSystemRoute;
 module.exports.restartPlan = restartPlan;
