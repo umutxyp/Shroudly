@@ -94,7 +94,7 @@ function parseProxy(text) {
   let user = '';
   let pass = '';
   try { user = decodeURIComponent(m[2] || ''); pass = decodeURIComponent(m[3] || ''); } catch { return { error: 'proxy' }; }
-  if (user.length > 255 || pass.length > 255) return { error: 'proxy' };
+  if (Buffer.byteLength(user) > 255 || Buffer.byteLength(pass) > 255) return { error: 'proxy' };
   return { type: /^http$/i.test(m[1]) ? 'http' : 'socks5', host, port, user, pass };
 }
 

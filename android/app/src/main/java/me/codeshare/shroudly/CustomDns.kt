@@ -153,7 +153,7 @@ class CustomDns(
             if (!hostOk(host) || port !in 1..65535) return null to "proxy"
             val user = unescape(m.groupValues[2]) ?: return null to "proxy"
             val pass = unescape(m.groupValues[3]) ?: return null to "proxy"
-            if (user.length > 255 || pass.length > 255) return null to "proxy"
+            if (user.toByteArray(Charsets.UTF_8).size > 255 || pass.toByteArray(Charsets.UTF_8).size > 255) return null to "proxy"
             val type = if (m.groupValues[1].equals("http", true)) "http" else "socks5"
             return DnsProxy(type, host, port, user, pass) to null
         }
@@ -229,7 +229,7 @@ class CustomDns(
                 raw.connect(InetSocketAddress(via.host, via.port), TIMEOUT_MS)
                 raw.soTimeout = TIMEOUT_MS * 2
                 if (via.type == "http") httpConnect(raw, addr, spec.port, via)
-                else Socks5.connect(raw, addr, spec.port, if (via.user.isNotEmpty() || via.pass.isNotEmpty()) SocksAuth(via.user, via.pass) else null)
+                else Socks5.connectWith(raw, addr, spec.port, if (via.user.isNotEmpty() || via.pass.isNotEmpty()) via.user to via.pass else null)
                 raw.soTimeout = TIMEOUT_MS
             } else if (engine > 0 && !addr.contains(':')) {
                 raw.connect(InetSocketAddress(InetAddress.getByName("127.0.0.1"), engine), TIMEOUT_MS)

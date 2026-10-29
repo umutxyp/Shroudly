@@ -599,15 +599,20 @@ class FailureVote {
 }
 
 /* A SOCKS5 CONNECT to an IPv4 address or a name, with the engine's
- * password (RFC 1929) when it has one. */
+ * password (RFC 1929) when it has one, or the user's own proxy login (#58). */
 object Socks5 {
     private val IPV4 = Regex("^\\d{1,3}(\\.\\d{1,3}){3}$")
 
-    fun hello(auth: SocksAuth?): ByteArray = if (auth != null) byteArrayOf(5, 1, 2) else byteArrayOf(5, 1, 0)
+    fun hello(auth: SocksAuth?): ByteArray = hello(auth != null)
 
-    fun login(auth: SocksAuth): ByteArray {
-        val u = auth.user.toByteArray(Charsets.US_ASCII)
-        val p = auth.pass.toByteArray(Charsets.US_ASCII)
+    private fun hello(login: Boolean): ByteArray = if (login) byteArrayOf(5, 1, 2) else byteArrayOf(5, 1, 0)
+
+    fun login(auth: SocksAuth): ByteArray = login(auth.user, auth.pass)
+
+    fun login(user: String, pass: String): ByteArray {
+        val u = user.toByteArray(Charsets.UTF_8)
+        val p = pass.toByteArray(Charsets.UTF_8)
+        if (u.size > 255 || p.size > 255) throw IOException("SOCKS user name or password too long")
         return byteArrayOf(1, u.size.toByte()) + u + byteArrayOf(p.size.toByte()) + p
     }
 
@@ -627,17 +632,20 @@ object Socks5 {
 
     /* The greeting, and the password when there is one: what a SOCKS5
      * server answers before any request. Throws unless it accepted. */
-    fun greet(s: Socket, auth: SocksAuth? = null) {
+    fun greet(s: Socket, auth: SocksAuth? = null) = greetWith(s, auth?.let { it.user to it.pass })
+
+    /* With a user name and password of any kind, not only the engine's. */
+    fun greetWith(s: Socket, cred: Pair<String, String>?) {
         val out = s.getOutputStream()
         val input = s.getInputStream()
-        out.write(hello(auth))
+        out.write(hello(cred != null))
         out.flush()
         val reply = ByteArray(2)
         readFully(input, reply)
-        val method = if (auth != null) 2 else 0
+        val method = if (cred != null) 2 else 0
         if (reply[0].toInt() != 5 || reply[1].toInt() != method) throw IOException("SOCKS refused")
-        if (auth != null) {
-            out.write(login(auth))
+        if (cred != null) {
+            out.write(login(cred.first, cred.second))
             out.flush()
             val ok = ByteArray(2)
             readFully(input, ok)
@@ -645,8 +653,10 @@ object Socks5 {
         }
     }
 
-    fun connect(s: Socket, host: String, port: Int, auth: SocksAuth? = null) {
-        greet(s, auth)
+    fun connect(s: Socket, host: String, port: Int, auth: SocksAuth? = null) = connectWith(s, host, port, auth?.let { it.user to it.pass })
+
+    fun connectWith(s: Socket, host: String, port: Int, cred: Pair<String, String>?) {
+        greetWith(s, cred)
         val out = s.getOutputStream()
         val input = s.getInputStream()
         out.write(request(host, port))
