@@ -54,6 +54,7 @@
     <string name="dnsErrorEmpty">سرور کا پتا لکھیں، جیسے {example}۔</string>
     <string name="dnsErrorHost">یہ نہ IP پتا ہے نہ سرور کا نام؛ اسے {example} کی طرح لکھیں۔</string>
     <string name="dnsErrorPort">پورٹ 1 سے 65535 تک کا کوئی عدد ہونا چاہیے۔</string>
+    <string name="dnsErrorProxy">یہ پراکسی کا پتا نہیں؛ اسے socks5://127.0.0.1:1080 یا http://127.0.0.1:8080 کی طرح لکھیں۔</string>
     <string name="dnsErrorUrl">یہ پتا اس قسم کے لیے موزوں نہیں؛ اسے {example} کی طرح لکھیں۔</string>
     <string name="dnsKindDoh">HTTPS پر DNS ‏(DoH)</string>
     <string name="dnsKindDot">TLS پر DNS ‏(DoT)</string>
@@ -64,6 +65,8 @@
     <string name="dnsServerDesc">Shroudly جو بھی نام تلاش کرتا ہے وہ اس سرور پر جاتا ہے۔ اگر یہ جواب دینا بند کر دے تو اس کے واپس آنے تک Shroudly کا خفیہ DNS جواب دیتا ہے۔</string>
     <string name="dnsServerFails">کوئی جواب نہیں ({error})۔ استعمال نہیں ہو رہا؛ پتا چیک کریں، یا پھر بھی استعمال کریں۔</string>
     <string name="dnsServerOk">{ms} ms میں جواب دیا (example.com: {address})۔ اب استعمال ہو رہا ہے۔</string>
+    <string name="dnsServerProxy">پراکسی کے ذریعے (اختیاری)</string>
+    <string name="dnsServerProxyDesc">صرف اس DNS سرور کے کنکشن اس سے گزرتے ہیں: ایسے سرور کے لیے جس کا پتا بلاک ہو۔ SOCKS5 یا HTTP پراکسی، جیسے socks5://127.0.0.1:1080۔</string>
     <string name="dnsServerStrict">صرف یہی سرور</string>
     <string name="dnsServerStrictDesc">جواب نہ دینے پر بھی کسی اور سے نہیں پوچھا جاتا: تب ناموں کی تلاش اس کے جواب دینے تک ناکام رہتی ہے۔ کسی سرور کو آزمانے کے لیے، یا جب کوئی اور آپ کی تلاشیں نہ دیکھے۔</string>
     <string name="dnsServerUse">استعمال کریں</string>

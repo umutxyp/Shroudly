@@ -54,6 +54,7 @@
     <string name="dnsErrorEmpty">Суроғаи серверро нависед, масалан {example}.</string>
     <string name="dnsErrorHost">Ин на суроғаи IP ва на номи сервер аст; онро мисли {example} нависед.</string>
     <string name="dnsErrorPort">Порт бояд адад аз 1 то 65535 бошад.</string>
+    <string name="dnsErrorProxy">Ин суроғаи прокси нест; онро мисли socks5://127.0.0.1:1080 ё http://127.0.0.1:8080 нависед.</string>
     <string name="dnsErrorUrl">Ин суроға ба ин навъ мувофиқ нест; онро мисли {example} нависед.</string>
     <string name="dnsKindDoh">DNS тавассути HTTPS (DoH)</string>
     <string name="dnsKindDot">DNS тавассути TLS (DoT)</string>
@@ -64,6 +65,8 @@
     <string name="dnsServerDesc">Ҳар дархости номе, ки Shroudly мекунад, ба ҳамин сервер меравад. Агар он ҷавоб доданро бас кунад, то баргаштанаш DNS-и рамзгузоришудаи Shroudly ҷавоб медиҳад.</string>
     <string name="dnsServerFails">Ҷавоб нест ({error}). Истифода намешавад; суроғаро санҷед ё бо вуҷуди ин истифода баред.</string>
     <string name="dnsServerOk">Дар {ms} мс ҷавоб дод (example.com: {address}). Ҳоло истифода мешавад.</string>
+    <string name="dnsServerProxy">Тавассути прокси (ихтиёрӣ)</string>
+    <string name="dnsServerProxyDesc">Танҳо пайвастҳо ба ҳамин сервери DNS аз он мегузаранд: барои сервере, ки суроғааш баста шудааст. Прокси SOCKS5 ё HTTP, масалан socks5://127.0.0.1:1080.</string>
     <string name="dnsServerStrict">Танҳо ҳамин сервер</string>
     <string name="dnsServerStrictDesc">Ҳатто вақте ки ҷавоб намедиҳад, аз дигараш пурсида намешавад: он гоҳ ҷустуҷӯи номҳо то ҷавоб доданаш иҷро намешавад. Барои санҷидани сервер ё вақте ки дигар касе набояд дархостҳои шуморо бинад.</string>
     <string name="dnsServerUse">Истифода бурдан</string>

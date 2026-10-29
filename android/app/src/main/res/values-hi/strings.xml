@@ -54,6 +54,7 @@
     <string name="dnsErrorEmpty">सर्वर का पता लिखें, जैसे {example}।</string>
     <string name="dnsErrorHost">यह न IP पता है न सर्वर का नाम; इसे {example} की तरह लिखें।</string>
     <string name="dnsErrorPort">पोर्ट 1 से 65535 के बीच की कोई संख्या होनी चाहिए।</string>
+    <string name="dnsErrorProxy">यह प्रॉक्सी का पता नहीं है; इसे socks5://127.0.0.1:1080 या http://127.0.0.1:8080 की तरह लिखें।</string>
     <string name="dnsErrorUrl">यह पता इस प्रकार के लिए सही नहीं है; इसे {example} की तरह लिखें।</string>
     <string name="dnsKindDoh">HTTPS पर DNS (DoH)</string>
     <string name="dnsKindDot">TLS पर DNS (DoT)</string>
@@ -64,6 +65,8 @@
     <string name="dnsServerDesc">Shroudly का हर नाम-खोज इसी सर्वर पर जाता है। अगर यह जवाब देना बंद कर दे, तो इसके लौटने तक Shroudly का एन्क्रिप्टेड DNS जवाब देता है।</string>
     <string name="dnsServerFails">कोई जवाब नहीं ({error})। इस्तेमाल नहीं हो रहा; पता जाँचें, या फिर भी इस्तेमाल करें।</string>
     <string name="dnsServerOk">{ms} ms में जवाब दिया (example.com: {address})। अब इस्तेमाल हो रहा है।</string>
+    <string name="dnsServerProxy">प्रॉक्सी से होकर (वैकल्पिक)</string>
+    <string name="dnsServerProxyDesc">सिर्फ़ इस DNS सर्वर के कनेक्शन इससे होकर जाते हैं: ऐसे सर्वर के लिए जिसका पता ब्लॉक है। SOCKS5 या HTTP प्रॉक्सी, जैसे socks5://127.0.0.1:1080।</string>
     <string name="dnsServerStrict">केवल यही सर्वर</string>
     <string name="dnsServerStrictDesc">जवाब न देने पर भी किसी और से नहीं पूछा जाता: तब नाम खोज तब तक विफल रहती है जब तक यह जवाब न दे। किसी सर्वर को परखने के लिए, या जब कोई और आपकी खोजें न देखे।</string>
     <string name="dnsServerUse">इस्तेमाल करें</string>

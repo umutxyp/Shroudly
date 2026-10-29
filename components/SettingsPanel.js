@@ -151,7 +151,9 @@ const DNS_KINDS = [
   { value: 'tcp', labelKey: 'dnsKindTcp', example: '8.8.8.8' },
   { value: 'udp', labelKey: 'dnsKindUdp', example: '1.1.1.1' },
 ];
-const DNS_ERRORS = { empty: 'dnsErrorEmpty', url: 'dnsErrorUrl', host: 'dnsErrorHost', port: 'dnsErrorPort', kind: 'dnsErrorHost' };
+const DNS_ERRORS = { empty: 'dnsErrorEmpty', url: 'dnsErrorUrl', host: 'dnsErrorHost', port: 'dnsErrorPort', kind: 'dnsErrorHost', proxy: 'dnsErrorProxy' };
+// A proxy of the user's own for the server's connections (#58): not for UDP.
+const proxyFor = (kind) => kind !== 'auto' && kind !== 'udp';
 
 function DnsServer({ value, onSave }) {
   const { t } = useLanguage();
@@ -160,12 +162,14 @@ function DnsServer({ value, onSave }) {
   const [kind, setKind] = useState(saved ? saved.kind : 'auto');
   const [text, setText] = useState(saved ? saved.server : '');
   const [strict, setStrict] = useState(!!(saved && saved.strict));
+  const [proxy, setProxy] = useState((saved && saved.proxy) || '');
   const [state, setState] = useState(null);   // { testing } | { ok, ms, address } | { error | invalid, tried }
   useEffect(() => {
     setKind(saved ? saved.kind : 'auto');
     setText(saved ? saved.server : '');
     setStrict(!!(saved && saved.strict));
-  }, [saved && saved.kind, saved && saved.server, saved && saved.strict]); // eslint-disable-line react-hooks/exhaustive-deps
+    setProxy((saved && saved.proxy) || '');
+  }, [saved && saved.kind, saved && saved.server, saved && saved.strict, saved && saved.proxy]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const pick = (k) => {
     setKind(k); setState(null);
@@ -174,18 +178,19 @@ function DnsServer({ value, onSave }) {
     else if (!saved || saved.kind !== k) setText('');
   };
   const use = async () => {
-    const v = { kind, server: text.trim(), strict };
+    const v = { kind, server: text.trim(), strict, proxy: proxyFor(kind) ? proxy.trim() : '' };
     // Asked before and it did not answer: the user says use it anyway.
-    if (state && state.tried === `${v.kind} ${v.server}` && !state.invalid) { onSave(v); setState(null); return; }
+    if (state && state.tried === `${v.kind} ${v.server} ${v.proxy}` && !state.invalid) { onSave(v); setState(null); return; }
     setState({ testing: true });
     let r;
     try { r = await window.electron.testDns(v); } catch { r = { ok: false, error: 'no answer' }; }
     if (r && r.ok) { onSave(v); setState({ ok: true, ms: r.ms, address: r.address }); return; }
-    setState({ ...(r || {}), tried: `${v.kind} ${v.server}` });
+    setState({ ...(r || {}), tried: `${v.kind} ${v.server} ${v.proxy}` });
   };
   const current = DNS_KINDS.find((k) => k.value === kind);
-  const dirty = !saved || saved.kind !== kind || saved.server !== text.trim();
-  const anyway = state && state.tried === `${kind} ${text.trim()}` && !state.invalid;
+  const proxyNow = proxyFor(kind) ? proxy.trim() : '';
+  const dirty = !saved || saved.kind !== kind || saved.server !== text.trim() || (saved.proxy || '') !== proxyNow;
+  const anyway = state && state.tried === `${kind} ${text.trim()} ${proxyNow}` && !state.invalid;
 
   return (
     <div className="py-2.5">
@@ -219,6 +224,24 @@ function DnsServer({ value, onSave }) {
             {state && state.testing && <SpinnerIcon className="spin h-4 w-4" />}
             <span>{state && state.testing ? t('testing') : anyway ? t('dnsServerUseAnyway') : t('dnsServerUse')}</span>
           </button>
+          {proxyFor(kind) && (
+            <label className="block basis-full">
+              <span className="mb-1 block text-[12.5px] font-medium" style={{ color: 'var(--text)' }}>{t('dnsServerProxy')}</span>
+              <input
+                value={proxy}
+                onChange={(e) => { setProxy(e.target.value); if (state && !state.testing) setState(null); }}
+                placeholder="socks5://127.0.0.1:1080"
+                dir="ltr"
+                spellCheck={false}
+                autoCapitalize="off"
+                autoCorrect="off"
+                inputMode="url"
+                className="field mono w-full px-3 py-2 text-[13px]"
+                style={{ textAlign: 'start' }}
+              />
+              <span className="mt-1 block text-[12px] leading-snug" style={{ color: 'var(--text-faint)' }}>{t('dnsServerProxyDesc')}</span>
+            </label>
+          )}
         </form>
       )}
       <div aria-live="polite">

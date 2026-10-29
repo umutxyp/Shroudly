@@ -54,6 +54,7 @@
     <string name="dnsErrorEmpty">Введіть адресу сервера, наприклад {example}.</string>
     <string name="dnsErrorHost">Це не IP-адреса й не ім’я сервера; введіть її як {example}.</string>
     <string name="dnsErrorPort">Порт має бути числом від 1 до 65535.</string>
+    <string name="dnsErrorProxy">Це не адреса проксі; введіть її як socks5://127.0.0.1:1080 або http://127.0.0.1:8080.</string>
     <string name="dnsErrorUrl">Ця адреса не підходить для цього типу; введіть її як {example}.</string>
     <string name="dnsKindDoh">DNS через HTTPS (DoH)</string>
     <string name="dnsKindDot">DNS через TLS (DoT)</string>
@@ -64,6 +65,8 @@
     <string name="dnsServerDesc">Кожен запит імен від Shroudly йде на цей сервер. Якщо він перестане відповідати, відповідає зашифрований DNS Shroudly, доки сервер не повернеться.</string>
     <string name="dnsServerFails">Немає відповіді ({error}). Не використовується; перевірте адресу або однаково використайте його.</string>
     <string name="dnsServerOk">Відповів за {ms} мс (example.com: {address}). Використовується.</string>
+    <string name="dnsServerProxy">Через проксі (необов’язково)</string>
+    <string name="dnsServerProxyDesc">Через нього йдуть лише з’єднання з цим DNS-сервером: для сервера, заблокованого за адресою. SOCKS5- або HTTP-проксі, наприклад socks5://127.0.0.1:1080.</string>
     <string name="dnsServerStrict">Лише цей сервер</string>
     <string name="dnsServerStrictDesc">Інші не запитуються, навіть коли він не відповідає: тоді запити імен не проходять, доки він не відповість. Для перевірки сервера або коли ніхто інший не має бачити ваші запити.</string>
     <string name="dnsServerUse">Використати</string>

@@ -54,6 +54,7 @@
     <string name="dnsErrorEmpty">Saisissez l\'adresse du serveur, par exemple {example}.</string>
     <string name="dnsErrorHost">Ce n\'est ni une adresse IP ni un nom de serveur ; saisissez-la comme {example}.</string>
     <string name="dnsErrorPort">Le port doit être un nombre de 1 à 65535.</string>
+    <string name="dnsErrorProxy">Ce n\'est pas une adresse de proxy ; saisissez-la comme socks5://127.0.0.1:1080 ou http://127.0.0.1:8080.</string>
     <string name="dnsErrorUrl">Cette adresse ne convient pas à ce type ; saisissez-la comme {example}.</string>
     <string name="dnsKindDoh">DNS sur HTTPS (DoH)</string>
     <string name="dnsKindDot">DNS sur TLS (DoT)</string>
@@ -64,6 +65,8 @@
     <string name="dnsServerDesc">Chaque résolution de nom de Shroudly passe par ce serveur. S\'il cesse de répondre, le DNS chiffré de Shroudly répond jusqu\'à son retour.</string>
     <string name="dnsServerFails">Pas de réponse ({error}). Non utilisé ; vérifiez l\'adresse ou utilisez-le quand même.</string>
     <string name="dnsServerOk">Réponse en {ms} ms (example.com : {address}). En service.</string>
+    <string name="dnsServerProxy">Via un proxy (facultatif)</string>
+    <string name="dnsServerProxyDesc">Seules les connexions vers ce serveur DNS passent par lui : pour un serveur bloqué par son adresse. Un proxy SOCKS5 ou HTTP, comme socks5://127.0.0.1:1080.</string>
     <string name="dnsServerStrict">Uniquement ce serveur</string>
     <string name="dnsServerStrictDesc">Aucun autre n\'est interrogé, même s\'il ne répond pas : les résolutions échouent alors jusqu\'à ce qu\'il réponde. Pour tester un serveur, ou quand personne d\'autre ne doit voir vos requêtes.</string>
     <string name="dnsServerUse">Utiliser</string>

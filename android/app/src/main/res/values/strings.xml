@@ -54,6 +54,7 @@
     <string name="dnsErrorEmpty">Type the server\'s address, like {example}.</string>
     <string name="dnsErrorHost">That is not an IP address or a server name; type it like {example}.</string>
     <string name="dnsErrorPort">The port must be a number from 1 to 65535.</string>
+    <string name="dnsErrorProxy">That is not a proxy address; type it like socks5://127.0.0.1:1080 or http://127.0.0.1:8080.</string>
     <string name="dnsErrorUrl">That address does not fit this kind; type it like {example}.</string>
     <string name="dnsKindDoh">DNS over HTTPS (DoH)</string>
     <string name="dnsKindDot">DNS over TLS (DoT)</string>
@@ -64,6 +65,8 @@
     <string name="dnsServerDesc">Every lookup Shroudly makes goes to this server. If it stops answering, Shroudly\'s encrypted DNS answers until it is back.</string>
     <string name="dnsServerFails">No answer ({error}). Not in use; check the address, or use it anyway.</string>
     <string name="dnsServerOk">Answered in {ms} ms (example.com: {address}). In use now.</string>
+    <string name="dnsServerProxy">Through a proxy (optional)</string>
+    <string name="dnsServerProxyDesc">Only the connections to this DNS server go through it: for a server that is blocked by its address. A SOCKS5 or HTTP proxy, like socks5://127.0.0.1:1080.</string>
     <string name="dnsServerStrict">Only this server</string>
     <string name="dnsServerStrictDesc">Nothing else is asked, even when it does not answer: lookups then fail until it does. For testing a server, or when no other may see your lookups.</string>
     <string name="dnsServerUse">Use</string>

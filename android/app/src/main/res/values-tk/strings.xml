@@ -54,6 +54,7 @@
     <string name="dnsErrorEmpty">Serweriň salgysyny ýazyň, meselem {example}.</string>
     <string name="dnsErrorHost">Bu ne IP salgy, ne-de serweriň ady; ony {example} ýaly ýazyň.</string>
     <string name="dnsErrorPort">Port 1-den 65535-e çenli san bolmaly.</string>
+    <string name="dnsErrorProxy">Bu proksi salgysy däl; ony socks5://127.0.0.1:1080 ýa-da http://127.0.0.1:8080 ýaly ýazyň.</string>
     <string name="dnsErrorUrl">Bu salgy bu görnüşe gabat gelmeýär; ony {example} ýaly ýazyň.</string>
     <string name="dnsKindDoh">HTTPS arkaly DNS (DoH)</string>
     <string name="dnsKindDot">TLS arkaly DNS (DoT)</string>
@@ -64,6 +65,8 @@
     <string name="dnsServerDesc">Shroudly-niň edýän her at soragy şu serwere gidýär. Ol jogap bermesini bes etse, gaýdyp gelýänçä Shroudly-niň şifrlenen DNS-i jogap berýär.</string>
     <string name="dnsServerFails">Jogap ýok ({error}). Ulanylmaýar; salgyny barlaň ýa-da şonda-da ulanyň.</string>
     <string name="dnsServerOk">{ms} ms-da jogap berdi (example.com: {address}). Häzir ulanylýar.</string>
+    <string name="dnsServerProxy">Proksi arkaly (hökmany däl)</string>
+    <string name="dnsServerProxyDesc">Diňe şu DNS serwerine baglanyşyklar ondan geçýär: salgysy petiklenen serwer üçin. SOCKS5 ýa-da HTTP proksi, meselem socks5://127.0.0.1:1080.</string>
     <string name="dnsServerStrict">Diňe şu serwer</string>
     <string name="dnsServerStrictDesc">Ol jogap bermese-de, başgasyndan soralmaýar: onda at soraglary ol jogap berýänçä başa barmaýar. Serweri synamak üçin ýa-da soraglaryňyzy başga hiç kim görmeli däl bolsa.</string>
     <string name="dnsServerUse">Ulanmak</string>

@@ -54,6 +54,7 @@
     <string name="dnsErrorEmpty">Nhập địa chỉ máy chủ, ví dụ {example}.</string>
     <string name="dnsErrorHost">Đó không phải địa chỉ IP hay tên máy chủ; hãy nhập như {example}.</string>
     <string name="dnsErrorPort">Cổng phải là số từ 1 đến 65535.</string>
+    <string name="dnsErrorProxy">Đó không phải địa chỉ proxy; hãy nhập như socks5://127.0.0.1:1080 hoặc http://127.0.0.1:8080.</string>
     <string name="dnsErrorUrl">Địa chỉ đó không hợp với loại này; hãy nhập như {example}.</string>
     <string name="dnsKindDoh">DNS qua HTTPS (DoH)</string>
     <string name="dnsKindDot">DNS qua TLS (DoT)</string>
@@ -64,6 +65,8 @@
     <string name="dnsServerDesc">Mọi truy vấn tên mà Shroudly thực hiện đều gửi tới máy chủ này. Nếu nó ngừng trả lời, DNS mã hóa của Shroudly sẽ trả lời cho đến khi nó hoạt động lại.</string>
     <string name="dnsServerFails">Không có trả lời ({error}). Chưa được dùng; hãy kiểm tra địa chỉ, hoặc vẫn dùng nó.</string>
     <string name="dnsServerOk">Đã trả lời trong {ms} ms (example.com: {address}). Đang được dùng.</string>
+    <string name="dnsServerProxy">Qua proxy (tùy chọn)</string>
+    <string name="dnsServerProxyDesc">Chỉ các kết nối tới máy chủ DNS này đi qua proxy: dành cho máy chủ bị chặn theo địa chỉ. Proxy SOCKS5 hoặc HTTP, ví dụ socks5://127.0.0.1:1080.</string>
     <string name="dnsServerStrict">Chỉ máy chủ này</string>
     <string name="dnsServerStrictDesc">Không hỏi máy chủ nào khác, kể cả khi nó không trả lời: khi đó tra cứu tên sẽ thất bại cho đến khi nó trả lời. Dùng để thử một máy chủ, hoặc khi không ai khác được thấy các tra cứu của bạn.</string>
     <string name="dnsServerUse">Dùng</string>

@@ -54,6 +54,7 @@
     <string name="dnsErrorEmpty">Sunucunun adresini yaz, örneğin {example}.</string>
     <string name="dnsErrorHost">Bu bir IP adresi ya da sunucu adı değil; {example} gibi yaz.</string>
     <string name="dnsErrorPort">Port 1 ile 65535 arasında bir sayı olmalı.</string>
+    <string name="dnsErrorProxy">Bu bir proxy adresi değil; socks5://127.0.0.1:1080 ya da http://127.0.0.1:8080 gibi yaz.</string>
     <string name="dnsErrorUrl">Bu adres bu türe uymuyor; {example} gibi yaz.</string>
     <string name="dnsKindDoh">HTTPS üzerinden DNS (DoH)</string>
     <string name="dnsKindDot">TLS üzerinden DNS (DoT)</string>
@@ -64,6 +65,8 @@
     <string name="dnsServerDesc">Shroudly\'nin yaptığı her ad sorgusu bu sunucuya gider. Cevap vermeyi keserse, geri gelene kadar Shroudly\'nin şifreli DNS\'i cevap verir.</string>
     <string name="dnsServerFails">Cevap yok ({error}). Kullanılmıyor; adresi kontrol et ya da yine de kullan.</string>
     <string name="dnsServerOk">{ms} ms\'de cevap verdi (example.com: {address}). Şu an kullanılıyor.</string>
+    <string name="dnsServerProxy">Proxy üzerinden (isteğe bağlı)</string>
+    <string name="dnsServerProxyDesc">Yalnızca bu DNS sunucusuna giden bağlantılar ondan geçer: adresi engellenmiş bir sunucu için. SOCKS5 ya da HTTP proxy\'si, socks5://127.0.0.1:1080 gibi.</string>
     <string name="dnsServerStrict">Yalnızca bu sunucu</string>
     <string name="dnsServerStrictDesc">Cevap vermediğinde bile başka hiçbir sunucuya sorulmaz: o zaman ad sorguları, o cevap verene kadar başarısız olur. Bir sunucuyu denemek için ya da sorgularını başka kimsenin görmemesi gerektiğinde.</string>
     <string name="dnsServerUse">Kullan</string>

@@ -138,6 +138,139 @@ class CustomDnsTest {
         }
     }
 
+    /* The proxy typed for the DNS server (#58), read as on the desktop. */
+    @Test
+    fun readsTheProxy() {
+        assertEquals(null to null, CustomDns.parseProxy("  "))
+        assertEquals(DnsProxy("socks5", "127.0.0.1", 1080), CustomDns.parseProxy("socks5://127.0.0.1:1080").first)
+        assertEquals(DnsProxy("socks5", "proxy.example", 9050), CustomDns.parseProxy("socks5h://proxy.example:9050").first)
+        assertEquals("::1", CustomDns.parseProxy("socks://[::1]:1080").first?.host)
+        assertEquals(DnsProxy("http", "10.0.0.2", 8080, "user", "p@ss"), CustomDns.parseProxy("http://user:p%40ss@10.0.0.2:8080").first)
+        for (bad in listOf("socks5://127.0.0.1", "ftp://1.2.3.4:21", "socks5://127.0.0.1:99999", "127.0.0.1:1080", "socks5://bad host:1", "http://300.1.1.1:80", "http://u:%zz@1.2.3.4:80"))
+            assertEquals(bad, "proxy", CustomDns.parseProxy(bad).second)
+        assertEquals("socks5://127.0.0.1:1080", CustomDns.shownProxy(CustomDns.parseProxy("socks5://me:secret@127.0.0.1:1080").first!!))
+    }
+
+    /* A TCP DNS server here answering every question with `ip`. */
+    private fun tcpDns(srv: ServerSocket, ip: String) = Thread {
+        try {
+            while (true) {
+                val s = srv.accept()
+                Thread {
+                    try {
+                        s.use {
+                            val input = DataInputStream(it.getInputStream())
+                            val out = DataOutputStream(it.getOutputStream())
+                            while (true) {
+                                val q = ByteArray(input.readUnsignedShort()).also { b -> input.readFully(b) }
+                                val a = answer(q, ip)
+                                out.writeShort(a.size); out.write(a); out.flush()
+                            }
+                        }
+                    } catch (_: IOException) {}
+                }.start()
+            }
+        } catch (_: IOException) {}
+    }.apply { isDaemon = true; start() }
+
+    private fun pipe(a: java.net.Socket, b: java.net.Socket) {
+        Thread { try { a.getInputStream().copyTo(b.getOutputStream()) } catch (_: IOException) {} finally { try { b.shutdownOutput() } catch (_: IOException) {} } }.apply { isDaemon = true; start() }
+        Thread { try { b.getInputStream().copyTo(a.getOutputStream()) } catch (_: IOException) {} finally { try { a.shutdownOutput() } catch (_: IOException) {} } }.apply { isDaemon = true; start() }
+    }
+
+    /* A SOCKS5 proxy (no login, or a user name and password) that resolves
+     * test.local itself; `asked` gets each target. */
+    private fun socksProxy(srv: ServerSocket, asked: MutableList<String>, login: Pair<String, String>? = null) = Thread {
+        try {
+            while (true) {
+                val c = srv.accept()
+                Thread {
+                    try {
+                        val input = DataInputStream(c.getInputStream())
+                        val out = c.getOutputStream()
+                        input.readUnsignedByte()
+                        val methods = ByteArray(input.readUnsignedByte()).also { input.readFully(it) }
+                        if (login != null) {
+                            if (2.toByte() !in methods) { out.write(byteArrayOf(5, 0xff.toByte())); c.close(); return@Thread }
+                            out.write(byteArrayOf(5, 2))
+                            input.readUnsignedByte()
+                            val u = String(ByteArray(input.readUnsignedByte()).also { input.readFully(it) })
+                            val p = String(ByteArray(input.readUnsignedByte()).also { input.readFully(it) })
+                            if (u to p != login) { out.write(byteArrayOf(1, 1)); c.close(); return@Thread }
+                            out.write(byteArrayOf(1, 0))
+                        } else out.write(byteArrayOf(5, 0))
+                        val head = ByteArray(4).also { input.readFully(it) }
+                        val host = when (head[3].toInt()) {
+                            1 -> ByteArray(4).also { input.readFully(it) }.joinToString(".") { (it.toInt() and 0xff).toString() }
+                            3 -> String(ByteArray(input.readUnsignedByte()).also { input.readFully(it) })
+                            else -> { c.close(); return@Thread }
+                        }
+                        val port = input.readUnsignedShort()
+                        asked += "$host:$port"
+                        val up = java.net.Socket(if (host == "test.local") "127.0.0.1" else host, port)
+                        out.write(byteArrayOf(5, 0, 0, 1, 127, 0, 0, 1, 0, 0)); out.flush()
+                        pipe(c, up)
+                    } catch (_: IOException) {}
+                }.start()
+            }
+        } catch (_: IOException) {}
+    }.apply { isDaemon = true; start() }
+
+    /* An HTTP proxy that takes CONNECT. */
+    private fun httpProxy(srv: ServerSocket, asked: MutableList<String>) = Thread {
+        try {
+            while (true) {
+                val c = srv.accept()
+                Thread {
+                    try {
+                        val input = c.getInputStream()
+                        val head = StringBuilder()
+                        while (!head.endsWith("\r\n\r\n")) head.append(input.read().also { if (it < 0) throw IOException("closed") }.toChar())
+                        val m = Regex("^CONNECT (\\S+):(\\d+) HTTP/1\\.1").find(head)!!
+                        asked += "${m.groupValues[1]}:${m.groupValues[2]}"
+                        val up = java.net.Socket(if (m.groupValues[1] == "test.local") "127.0.0.1" else m.groupValues[1], m.groupValues[2].toInt())
+                        c.getOutputStream().apply { write("HTTP/1.1 200 Connection established\r\n\r\n".toByteArray()); flush() }
+                        pipe(c, up)
+                    } catch (_: IOException) {}
+                }.start()
+            }
+        } catch (_: IOException) {}
+    }.apply { isDaemon = true; start() }
+
+    /* Through the user's proxy (#58): the server's name goes to the proxy,
+     * nothing is looked up here (the bootstrap would fail the test). */
+    @Test
+    fun throughTheUsersProxy() {
+        ServerSocket(0, 5, lo).use { dnsSrv ->
+            tcpDns(dnsSrv, "93.184.215.30")
+            val noBoot: (String) -> String? = { throw AssertionError("looked up here: $it") }
+            ServerSocket(0, 5, lo).use { s5 ->
+                val asked = java.util.Collections.synchronizedList(ArrayList<String>())
+                socksProxy(s5, asked)
+                val d = CustomDns(DnsSpec("tcp", "test.local", dnsSrv.localPort), { 0 }, { null }, DnsProxy("socks5", "127.0.0.1", s5.localPort), noBoot)
+                assertEquals("93.184.215.30", Dns.firstA(d.query(Dns.buildQuery("example.com", Dns.TYPE_A, 1))))
+                assertTrue(asked.contains("test.local:${dnsSrv.localPort}"))
+                d.close()
+            }
+            ServerSocket(0, 5, lo).use { locked ->
+                socksProxy(locked, java.util.Collections.synchronizedList(ArrayList<String>()), "me" to "s3cret")
+                val ok = CustomDns(DnsSpec("tcp", "127.0.0.1", dnsSrv.localPort), { 0 }, { null }, DnsProxy("socks5", "127.0.0.1", locked.localPort, "me", "s3cret"), noBoot)
+                assertEquals("93.184.215.30", Dns.firstA(ok.query(Dns.buildQuery("example.com", Dns.TYPE_A, 2))))
+                val wrong = CustomDns(DnsSpec("tcp", "127.0.0.1", dnsSrv.localPort), { 0 }, { null }, DnsProxy("socks5", "127.0.0.1", locked.localPort, "me", "nope"), noBoot)
+                assertTrue(runCatching { wrong.query(Dns.buildQuery("example.com", Dns.TYPE_A, 3)) }.isFailure)
+                ok.close(); wrong.close()
+            }
+            ServerSocket(0, 5, lo).use { hp ->
+                val asked = java.util.Collections.synchronizedList(ArrayList<String>())
+                httpProxy(hp, asked)
+                val d = CustomDns(DnsSpec("tcp", "test.local", dnsSrv.localPort), { 0 }, { null }, DnsProxy("http", "127.0.0.1", hp.localPort), noBoot)
+                assertEquals("93.184.215.30", Dns.firstA(d.query(Dns.buildQuery("example.com", Dns.TYPE_A, 4))))
+                assertTrue(asked.contains("test.local:${dnsSrv.localPort}"))
+                d.close()
+            }
+        }
+    }
+
     @Test
     fun aServerThatIsNotThereFails() {
         val port = ServerSocket(0, 1, lo).use { it.localPort }

@@ -54,6 +54,7 @@
     <string name="dnsErrorEmpty">הקלידו את כתובת השרת, למשל {example}.</string>
     <string name="dnsErrorHost">זו לא כתובת IP וגם לא שם שרת; הקלידו אותה כמו {example}.</string>
     <string name="dnsErrorPort">הפורט חייב להיות מספר בין 1 ל-65535.</string>
+    <string name="dnsErrorProxy">זו לא כתובת של שרת Proxy; הקלידו אותה כמו socks5://127.0.0.1:1080 או http://127.0.0.1:8080.</string>
     <string name="dnsErrorUrl">הכתובת הזאת לא מתאימה לסוג הזה; הקלידו אותה כמו {example}.</string>
     <string name="dnsKindDoh">DNS על גבי HTTPS (DoH)</string>
     <string name="dnsKindDot">DNS על גבי TLS (DoT)</string>
@@ -64,6 +65,8 @@
     <string name="dnsServerDesc">כל חיפוש שם ש-Shroudly עושה עובר לשרת הזה. אם הוא מפסיק לענות, ה-DNS המוצפן של Shroudly עונה עד שהוא חוזר.</string>
     <string name="dnsServerFails">אין תשובה ({error}). לא בשימוש; בדקו את הכתובת, או השתמשו בו בכל זאת.</string>
     <string name="dnsServerOk">ענה תוך {ms} אלפיות שנייה (example.com: {address}). בשימוש עכשיו.</string>
+    <string name="dnsServerProxy">דרך שרת Proxy (לא חובה)</string>
+    <string name="dnsServerProxyDesc">רק החיבורים לשרת ה-DNS הזה עוברים דרכו: לשרת שהכתובת שלו חסומה. שרת Proxy מסוג SOCKS5 או HTTP, למשל socks5://127.0.0.1:1080.</string>
     <string name="dnsServerStrict">רק השרת הזה</string>
     <string name="dnsServerStrictDesc">אף שרת אחר לא נשאל, גם כשהוא לא עונה: אז חיפושי שמות נכשלים עד שהוא עונה. לבדיקת שרת, או כשאף אחד אחר לא אמור לראות את החיפושים שלך.</string>
     <string name="dnsServerUse">שימוש</string>

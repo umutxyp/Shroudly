@@ -54,6 +54,7 @@
     <string name="dnsErrorEmpty">Navnîşana pêşkêşkarê binivîse, wekî {example}.</string>
     <string name="dnsErrorHost">Ev ne navnîşana IP ye û ne navê pêşkêşkarê ye; wê wekî {example} binivîse.</string>
     <string name="dnsErrorPort">Port divê hejmarek ji 1 heta 65535 be.</string>
+    <string name="dnsErrorProxy">Ev ne navnîşana proksiyê ye; wê wekî socks5://127.0.0.1:1080 an http://127.0.0.1:8080 binivîse.</string>
     <string name="dnsErrorUrl">Ev navnîşan li vî celebî nayê; wê wekî {example} binivîse.</string>
     <string name="dnsKindDoh">DNS li ser HTTPS (DoH)</string>
     <string name="dnsKindDot">DNS li ser TLS (DoT)</string>
@@ -64,6 +65,8 @@
     <string name="dnsServerDesc">Her lêgerîna navan a Shroudly diçe vê pêşkêşkarê. Heke bersiv nede, heta ku vegere DNS-a şîfrekirî ya Shroudly bersiv dide.</string>
     <string name="dnsServerFails">Bersiv tune ({error}). Nayê bikaranîn; navnîşanê kontrol bike, an jî dîsa jî bi kar bîne.</string>
     <string name="dnsServerOk">Di {ms} ms de bersiv da (example.com: {address}). Niha tê bikaranîn.</string>
+    <string name="dnsServerProxy">Bi riya proksiyê (bijarte)</string>
+    <string name="dnsServerProxyDesc">Tenê girêdanên bo vê pêşkêşkara DNS di ser wê re derbas dibin: ji bo pêşkêşkareke ku navnîşana wê hatiye astengkirin. Proksiya SOCKS5 an HTTP, wekî socks5://127.0.0.1:1080.</string>
     <string name="dnsServerStrict">Tenê ev pêşkêşkar</string>
     <string name="dnsServerStrictDesc">Tu yekî din nayê pirsîn, heta dema ku bersiv nede jî: wê demê lêgerînên navan heta ku bersiv bide têk diçin. Ji bo ceribandina pêşkêşkarekê, an dema ku divê kesekî din lêgerînên te nebîne.</string>
     <string name="dnsServerUse">Bi kar bîne</string>

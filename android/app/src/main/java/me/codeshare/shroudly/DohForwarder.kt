@@ -249,10 +249,10 @@ class DohForwarder(
     /* A server of the user's own, or null for the built-in routes. Its name,
      * if it has one, is looked up through the built-in routes. strict: it
      * alone answers, with no fallback when it does not (issue #34). */
-    fun setCustom(spec: DnsSpec?, strict: Boolean = false) {
+    fun setCustom(spec: DnsSpec?, strict: Boolean = false, proxy: DnsProxy? = null) {
         custom?.close()
         custom = spec?.let { s ->
-            CustomDns(s, { socksPort }, { socksAuth }) { name ->
+            CustomDns(s, { socksPort }, { socksAuth }, proxy) { name ->
                 Dns.firstA(resolveRoutes(Dns.buildQuery(name, Dns.TYPE_A, (Math.random() * 65535).toInt()), System.nanoTime() / 1_000_000 + ANSWER_BY_MS))
             }.also { it.strict = strict }
         }
@@ -618,6 +618,8 @@ object Socks5 {
             require(a.all { it in 0..255 }) { "bad address $host" }
             return byteArrayOf(5, 1, 0, 1) + a.map { it.toByte() }.toByteArray() + p
         }
+        // An IPv6 address as such (a literal: no lookup is made).
+        if (host.contains(':')) return byteArrayOf(5, 1, 0, 4) + java.net.InetAddress.getByName(host).address + p
         val n = host.toByteArray(Charsets.US_ASCII)
         require(n.size in 1..255) { "bad name" }
         return byteArrayOf(5, 1, 0, 3, n.size.toByte()) + n + p

@@ -54,6 +54,7 @@
     <string name="dnsErrorEmpty">Taip alamat pelayan, contohnya {example}.</string>
     <string name="dnsErrorHost">Itu bukan alamat IP atau nama pelayan; taip seperti {example}.</string>
     <string name="dnsErrorPort">Port mesti nombor dari 1 hingga 65535.</string>
+    <string name="dnsErrorProxy">Itu bukan alamat proksi; taip seperti socks5://127.0.0.1:1080 atau http://127.0.0.1:8080.</string>
     <string name="dnsErrorUrl">Alamat itu tidak sesuai untuk jenis ini; taip seperti {example}.</string>
     <string name="dnsKindDoh">DNS melalui HTTPS (DoH)</string>
     <string name="dnsKindDot">DNS melalui TLS (DoT)</string>
@@ -64,6 +65,8 @@
     <string name="dnsServerDesc">Setiap carian nama yang dibuat oleh Shroudly pergi ke pelayan ini. Jika ia berhenti menjawab, DNS tersulit Shroudly menjawab sehingga ia kembali.</string>
     <string name="dnsServerFails">Tiada jawapan ({error}). Tidak digunakan; semak alamatnya, atau guna juga.</string>
     <string name="dnsServerOk">Menjawab dalam {ms} ms (example.com: {address}). Sedang digunakan.</string>
+    <string name="dnsServerProxy">Melalui proksi (pilihan)</string>
+    <string name="dnsServerProxyDesc">Hanya sambungan ke pelayan DNS ini yang melalui proksi ini: untuk pelayan yang alamatnya disekat. Proksi SOCKS5 atau HTTP, seperti socks5://127.0.0.1:1080.</string>
     <string name="dnsServerStrict">Hanya pelayan ini</string>
     <string name="dnsServerStrictDesc">Tiada pelayan lain ditanya, walaupun pelayan ini tidak menjawab: carian nama kemudian gagal sehingga pelayan ini menjawab. Untuk menguji pelayan, atau apabila tiada pihak lain boleh melihat carian anda.</string>
     <string name="dnsServerUse">Guna</string>

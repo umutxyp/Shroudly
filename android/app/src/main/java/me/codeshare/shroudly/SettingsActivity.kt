@@ -366,6 +366,26 @@ class SettingsActivity : Activity() {
             setText(typed?.second ?: "")
         }
         val status = TextView(this).apply { textSize = 13f; setTextColor(getColor(R.color.text_dim)) }
+        // Through a proxy of the user's own (#58): not for UDP.
+        val proxyLabel = TextView(this).apply {
+            text = getString(R.string.dnsServerProxy)
+            textSize = 14f
+            setTextColor(getColor(R.color.text))
+            setPadding(0, pad / 2, 0, 0)
+        }
+        val proxyInput = EditText(this).apply {
+            setSingleLine()
+            inputType = android.text.InputType.TYPE_CLASS_TEXT or android.text.InputType.TYPE_TEXT_VARIATION_URI
+            imeOptions = android.view.inputmethod.EditorInfo.IME_ACTION_DONE
+            textDirection = View.TEXT_DIRECTION_LTR
+            hint = "socks5://127.0.0.1:1080"
+            setText(AppSettings.customDnsProxyTyped(this@SettingsActivity))
+        }
+        val proxyDesc = TextView(this).apply {
+            text = getString(R.string.dnsServerProxyDesc)
+            setTextColor(getColor(R.color.text_dim))
+            textSize = 12.5f
+        }
         // Nothing else asked, not even when it does not answer (issue #34).
         val strict = CheckBox(this).apply {
             text = getString(R.string.dnsServerStrict)
@@ -396,8 +416,11 @@ class SettingsActivity : Activity() {
         fun showInput() {
             val v = if (kind == "auto") View.GONE else View.VISIBLE
             input.visibility = v; strict.visibility = v; strictDesc.visibility = v
+            val p = if (kind == "auto" || kind == "udp") View.GONE else View.VISIBLE
+            proxyLabel.visibility = p; proxyInput.visibility = p; proxyDesc.visibility = p
             input.hint = example()
         }
+        fun proxyText() = if (kind == "udp") "" else proxyInput.text.toString().trim()
         showInput()
         val box = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
@@ -405,6 +428,9 @@ class SettingsActivity : Activity() {
             addView(group)
             addView(input)
             addView(status)
+            addView(proxyLabel)
+            addView(proxyInput)
+            addView(proxyDesc)
             addView(TextView(context).apply {
                 text = getString(R.string.dnsServerDesc)
                 setTextColor(getColor(R.color.text_dim))
@@ -427,8 +453,9 @@ class SettingsActivity : Activity() {
             .setNegativeButton(android.R.string.cancel, null)
             .create()
         fun save(k: String?, t: String?) {
-            AppSettings.setCustomDns(this, k, t, strict.isChecked)
+            AppSettings.setCustomDns(this, k, t, strict.isChecked, proxyText())
             ShroudlyVpnService.log(if (k == null) "DNS server: automatic" else "DNS server: ${CustomDns.parse(k, t ?: "").first?.let { CustomDns.shown(it) } ?: t}${if (strict.isChecked) " (only this one)" else ""}")
+            if (k != null) CustomDns.parseProxy(proxyText()).first?.let { ShroudlyVpnService.log("DNS server proxy: ${CustomDns.shownProxy(it)}") }
             showDns()
             tell("dns")
         }
@@ -457,6 +484,14 @@ class SettingsActivity : Activity() {
                 override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
                 override fun afterTextChanged(s: Editable?) { if (failed != null) reset() else status.text = "" }
             })
+            proxyInput.setOnEditorActionListener { _, action, _ ->
+                if (action == android.view.inputmethod.EditorInfo.IME_ACTION_DONE && use.isEnabled) { use.performClick(); true } else false
+            }
+            proxyInput.addTextChangedListener(object : TextWatcher {
+                override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+                override fun afterTextChanged(s: Editable?) { if (failed != null) reset() else status.text = "" }
+            })
             use.setOnClickListener {
                 if (kind == "auto") {
                     if (typed != null) save(null, null)
@@ -475,18 +510,25 @@ class SettingsActivity : Activity() {
                     }, "example" to example())
                     return@setOnClickListener
                 }
-                if (failed == "$kind $server") { save(kind, server); dialog.dismiss(); return@setOnClickListener }
-                if (typed != null && typed.first == kind && typed.second == server) { dialog.dismiss(); return@setOnClickListener }
+                val px = proxyText()
+                val (proxy, proxyErr) = CustomDns.parseProxy(px)
+                if (proxyErr != null) {
+                    status.setTextColor(getColor(R.color.warn))
+                    status.text = getString(R.string.dnsErrorProxy)
+                    return@setOnClickListener
+                }
+                if (failed == "$kind $server $px") { save(kind, server); dialog.dismiss(); return@setOnClickListener }
+                if (typed != null && typed.first == kind && typed.second == server && AppSettings.customDnsProxyTyped(this) == px) { dialog.dismiss(); return@setOnClickListener }
                 use.isEnabled = false
                 status.setTextColor(getColor(R.color.text_dim))
                 status.text = getString(R.string.testing)
-                val asked = "$kind $server"
+                val asked = "$kind $server $px"
                 Thread {
-                    val r = testDns(spec)
+                    val r = testDns(spec, proxy)
                     runOnUiThread {
                         if (isFinishing || !dialog.isShowing) return@runOnUiThread
                         use.isEnabled = true
-                        if ("$kind ${input.text.toString().trim()}" != asked) return@runOnUiThread
+                        if ("$kind ${input.text.toString().trim()} ${proxyText()}" != asked) return@runOnUiThread
                         if (r.first != null) {
                             save(kind, server)
                             android.widget.Toast.makeText(this, text(R.string.dnsServerOk, "ms" to r.first!!, "address" to r.second), android.widget.Toast.LENGTH_LONG).show()
@@ -507,9 +549,9 @@ class SettingsActivity : Activity() {
     /* Does it answer? (ms, address) or (null, why). Asked twice, the second
      * time on the connection the first opened; a name looked up through the
      * built-in routes. Not on the main thread. */
-    private fun testDns(spec: DnsSpec): Pair<Long?, String> {
+    private fun testDns(spec: DnsSpec, proxy: DnsProxy? = null): Pair<Long?, String> {
         val routes = DohForwarder({}, null) {}
-        val d = CustomDns(spec, { 0 }, { null }) { name ->
+        val d = CustomDns(spec, { 0 }, { null }, proxy) { name ->
             Dns.firstA(routes.resolveRoutes(Dns.buildQuery(name, Dns.TYPE_A, 1), System.nanoTime() / 1_000_000 + DohForwarder.ANSWER_BY_MS))
         }
         return try {

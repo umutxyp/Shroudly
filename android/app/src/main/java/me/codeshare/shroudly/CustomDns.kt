@@ -37,13 +37,23 @@ import javax.net.ssl.SSLSocketFactory
  * through the built-in encrypted routes (bootstrap), never the network's DNS.
  * Connections are kept for the next question, one question at a time on
  * each. Nothing is logged or stored.
+ *
+ * Through a proxy of the user's own (issue #58): a server blocked by its
+ * address is reached through a SOCKS5 or HTTP proxy the user has, for these
+ * connections only. The server's name goes to the proxy, so nothing is
+ * looked up here. DoH, DoT and TCP; not UDP.
  */
 data class DnsSpec(val kind: String, val host: String, val port: Int, val path: String = "")
+
+/* socks5://[user:pass@]host:port or http://[user:pass@]host:port. */
+data class DnsProxy(val type: String, val host: String, val port: Int, val user: String = "", val pass: String = "")
 
 class CustomDns(
     val spec: DnsSpec,
     private val socksPort: () -> Int,
     private val socksAuth: () -> SocksAuth?,
+    /* The user's proxy for this server (#58), or null. */
+    private val proxy: DnsProxy? = null,
     /* The server's IPv4 address through the built-in routes, or null. */
     private val bootstrap: (String) -> String?,
 ) {
@@ -111,6 +121,64 @@ class CustomDns(
             return DnsSpec(kind, host, port) to null
         }
 
+        private val PROXY = Regex("^(socks5h?|socks|http)://(?:([^:@/\\s]*)(?::([^@/\\s]*))?@)?(\\[[0-9a-fA-F:.]+\\]|[^:/\\s\\[\\]]+):(\\d{1,5})/?$", RegexOption.IGNORE_CASE)
+
+        /* %XX escapes in a typed login, as UTF-8; null when one is broken. */
+        private fun unescape(s: String): String? {
+            if (!s.contains('%')) return s
+            val out = java.io.ByteArrayOutputStream()
+            var i = 0
+            while (i < s.length) {
+                val c = s[i]
+                if (c == '%') {
+                    if (i + 2 >= s.length) return null
+                    out.write(s.substring(i + 1, i + 3).toIntOrNull(16) ?: return null)
+                    i += 3
+                } else {
+                    out.write(c.toString().toByteArray(Charsets.UTF_8))
+                    i++
+                }
+            }
+            return out.toString("UTF-8")
+        }
+
+        /* The proxy typed for the DNS server, as on the desktop: (null, null)
+         * for none, the proxy, or (null, "proxy") when it cannot be read. */
+        fun parseProxy(text: String?): Pair<DnsProxy?, String?> {
+            val s = text?.trim() ?: ""
+            if (s.isEmpty()) return null to null
+            val m = PROXY.matchEntire(s) ?: return null to "proxy"
+            val host = m.groupValues[4].removePrefix("[").removeSuffix("]")
+            val port = m.groupValues[5].toIntOrNull() ?: -1
+            if (!hostOk(host) || port !in 1..65535) return null to "proxy"
+            val user = unescape(m.groupValues[2]) ?: return null to "proxy"
+            val pass = unescape(m.groupValues[3]) ?: return null to "proxy"
+            if (user.length > 255 || pass.length > 255) return null to "proxy"
+            val type = if (m.groupValues[1].equals("http", true)) "http" else "socks5"
+            return DnsProxy(type, host, port, user, pass) to null
+        }
+
+        /* As the user sees it, without a password: "socks5://127.0.0.1:1080". */
+        fun shownProxy(p: DnsProxy): String = "${p.type}://${if (p.host.contains(':')) "[${p.host}]" else p.host}:${p.port}"
+
+        /* An HTTP CONNECT to host:port on a connection to an HTTP proxy. */
+        fun httpConnect(s: Socket, host: String, port: Int, p: DnsProxy) {
+            val h = if (host.contains(':')) "[$host]" else host
+            val auth = if (p.user.isNotEmpty() || p.pass.isNotEmpty())
+                "Proxy-Authorization: Basic ${java.util.Base64.getEncoder().encodeToString("${p.user}:${p.pass}".toByteArray(Charsets.UTF_8))}\r\n" else ""
+            s.getOutputStream().apply { write("CONNECT $h:$port HTTP/1.1\r\nHost: $h:$port\r\n$auth\r\n".toByteArray(Charsets.UTF_8)); flush() }
+            val input = s.getInputStream()
+            val head = StringBuilder()
+            while (!head.endsWith("\r\n\r\n")) {
+                val c = input.read()
+                if (c < 0) throw IOException("the proxy closed the connection")
+                head.append(c.toChar())
+                if (head.length > 8192) throw IOException("the proxy answered with no end")
+            }
+            val status = Regex("^HTTP/1\\.[01] (\\d{3})").find(head)?.groupValues?.get(1)
+            if (status != "200") throw IOException("the proxy refused (HTTP ${status ?: "?"})")
+        }
+
         /* As the user sees it: "https://dns.google/dns-query", "tls://1.1.1.1:853". */
         fun shown(spec: DnsSpec): String {
             val h = if (spec.host.contains(':')) "[${spec.host}]" else spec.host
@@ -151,11 +219,19 @@ class CustomDns(
      * the engine up), else straight; TLS checked against the server's name,
      * or the address it was given by. */
     private fun open(): Conn {
-        val addr = address()
+        // Through the user's proxy, by name: nothing is looked up here (#58).
+        val via = proxy?.takeIf { spec.kind != "udp" }
+        val addr = if (via != null) spec.host.removePrefix("[").removeSuffix("]") else address()
         val engine = if (spec.kind == "tcp") 0 else socksPort()
         val raw = Socket(Proxy.NO_PROXY)
         try {
-            if (engine > 0 && !addr.contains(':')) {
+            if (via != null) {
+                raw.connect(InetSocketAddress(via.host, via.port), TIMEOUT_MS)
+                raw.soTimeout = TIMEOUT_MS * 2
+                if (via.type == "http") httpConnect(raw, addr, spec.port, via)
+                else Socks5.connect(raw, addr, spec.port, if (via.user.isNotEmpty() || via.pass.isNotEmpty()) SocksAuth(via.user, via.pass) else null)
+                raw.soTimeout = TIMEOUT_MS
+            } else if (engine > 0 && !addr.contains(':')) {
                 raw.connect(InetSocketAddress(InetAddress.getByName("127.0.0.1"), engine), TIMEOUT_MS)
                 raw.soTimeout = TIMEOUT_MS
                 Socks5.connect(raw, addr, spec.port, socksAuth())

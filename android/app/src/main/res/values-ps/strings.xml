@@ -54,6 +54,7 @@
     <string name="dnsErrorEmpty">د سرور پته ولیکئ، لکه {example}.</string>
     <string name="dnsErrorHost">دا نه IP پته ده او نه د سرور نوم؛ داسې یې ولیکئ لکه {example}.</string>
     <string name="dnsErrorPort">پورټ باید له 1 څخه تر 65535 پورې یو شمېر وي.</string>
+    <string name="dnsErrorProxy">دا د پراکسي پته نه ده؛ داسې یې ولیکئ لکه socks5://127.0.0.1:1080 یا http://127.0.0.1:8080.</string>
     <string name="dnsErrorUrl">دا پته له دې ډول سره سمون نه لري؛ داسې یې ولیکئ لکه {example}.</string>
     <string name="dnsKindDoh">DNS د HTTPS له لارې (DoH)</string>
     <string name="dnsKindDot">DNS د TLS له لارې (DoT)</string>
@@ -64,6 +65,8 @@
     <string name="dnsServerDesc">هره د نوم پوښتنه چې Shroudly یې کوي دې سرور ته ځي. که ځواب ورکول بند کړي، تر بېرته راتګ پورې د Shroudly کوډ شوی DNS ځواب ورکوي.</string>
     <string name="dnsServerFails">ځواب نشته ({error}). نه کارول کېږي؛ پته وګورئ، یا یې بیا هم وکاروئ.</string>
     <string name="dnsServerOk">په {ms} ملي‌ثانیو کې یې ځواب ورکړ (example.com: {address}). اوس کارول کېږي.</string>
+    <string name="dnsServerProxy">د پراکسي له لارې (اختیاري)</string>
+    <string name="dnsServerProxyDesc">یوازې د دې DNS سرور اړیکې ترې تېرېږي: د هغه سرور لپاره چې پته یې بنده ده. SOCKS5 یا HTTP پراکسي، لکه socks5://127.0.0.1:1080.</string>
     <string name="dnsServerStrict">یوازې همدا سرور</string>
     <string name="dnsServerStrictDesc">که ځواب هم ورنکړي، له بل هېڅ سرور نه پوښتل کېږي: بیا د نومونو لټونونه تر هغه ناکامېږي چې ځواب ورکړي. د یوه سرور د ازمویلو لپاره، یا کله چې بل هېڅوک باید ستاسو لټونونه ونه ویني.</string>
     <string name="dnsServerUse">کارول</string>

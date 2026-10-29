@@ -54,6 +54,7 @@
     <string name="dnsErrorEmpty">Server manzilini yozing, masalan {example}.</string>
     <string name="dnsErrorHost">Bu na IP manzil, na server nomi; uni {example} kabi yozing.</string>
     <string name="dnsErrorPort">Port 1 dan 65535 gacha boʻlgan son boʻlishi kerak.</string>
+    <string name="dnsErrorProxy">Bu proksi manzili emas; uni socks5://127.0.0.1:1080 yoki http://127.0.0.1:8080 kabi yozing.</string>
     <string name="dnsErrorUrl">Bu manzil bu turga mos emas; uni {example} kabi yozing.</string>
     <string name="dnsKindDoh">HTTPS orqali DNS (DoH)</string>
     <string name="dnsKindDot">TLS orqali DNS (DoT)</string>
@@ -64,6 +65,8 @@
     <string name="dnsServerDesc">Shroudly qiladigan har bir nom soʻrovi shu serverga boradi. U javob berishni toʻxtatsa, qaytguncha Shroudly’ning shifrlangan DNS’i javob beradi.</string>
     <string name="dnsServerFails">Javob yoʻq ({error}). Foydalanilmayapti; manzilni tekshiring yoki baribir foydalaning.</string>
     <string name="dnsServerOk">{ms} ms da javob berdi (example.com: {address}). Hozir foydalanilmoqda.</string>
+    <string name="dnsServerProxy">Proksi orqali (ixtiyoriy)</string>
+    <string name="dnsServerProxyDesc">Faqat shu DNS serverga ulanishlar u orqali oʻtadi: manzili bloklangan server uchun. SOCKS5 yoki HTTP proksi, masalan socks5://127.0.0.1:1080.</string>
     <string name="dnsServerStrict">Faqat shu server</string>
     <string name="dnsServerStrictDesc">U javob bermasa ham, boshqasidan so‘ralmaydi: unda nom so‘rovlari u javob bermaguncha bajarilmaydi. Serverni sinash uchun yoki so‘rovlaringizni boshqa hech kim ko‘rmasligi kerak bo‘lganda.</string>
     <string name="dnsServerUse">Foydalanish</string>

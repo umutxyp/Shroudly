@@ -54,6 +54,7 @@
     <string name="dnsErrorEmpty">Сервердин дарегин жазыңыз, мисалы {example}.</string>
     <string name="dnsErrorHost">Бул IP дарек да, сервердин аты да эмес; аны {example} сыяктуу жазыңыз.</string>
     <string name="dnsErrorPort">Порт 1ден 65535ке чейинки сан болушу керек.</string>
+    <string name="dnsErrorProxy">Бул прокси дареги эмес; аны socks5://127.0.0.1:1080 же http://127.0.0.1:8080 сыяктуу жазыңыз.</string>
     <string name="dnsErrorUrl">Бул дарек бул түргө туура келбейт; аны {example} сыяктуу жазыңыз.</string>
     <string name="dnsKindDoh">HTTPS аркылуу DNS (DoH)</string>
     <string name="dnsKindDot">TLS аркылуу DNS (DoT)</string>
@@ -64,6 +65,8 @@
     <string name="dnsServerDesc">Shroudly жасаган ар бир аталыш суроосу ушул серверге барат. Ал жооп бербей калса, кайра келгенге чейин Shroudly\'нин шифрленген DNS\'и жооп берет.</string>
     <string name="dnsServerFails">Жооп жок ({error}). Колдонулбайт; даректи текшериңиз же баары бир колдонуңуз.</string>
     <string name="dnsServerOk">{ms} мс ичинде жооп берди (example.com: {address}). Азыр колдонулууда.</string>
+    <string name="dnsServerProxy">Прокси аркылуу (милдеттүү эмес)</string>
+    <string name="dnsServerProxyDesc">Ушул DNS серверге болгон туташуулар гана андан өтөт: дареги бөгөттөлгөн сервер үчүн. SOCKS5 же HTTP прокси, мисалы socks5://127.0.0.1:1080.</string>
     <string name="dnsServerStrict">Ушул сервер гана</string>
     <string name="dnsServerStrictDesc">Ал жооп бербесе да, башкасынан суралбайт: анда ат суроолору ал жооп бергенче ишке ашпайт. Серверди сыноо үчүн же сурооңузду башка эч ким көрбөшү керек болсо.</string>
     <string name="dnsServerUse">Колдонуу</string>

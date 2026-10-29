@@ -54,6 +54,7 @@
     <string name="dnsErrorEmpty">نشانی سرور را بنویسید، مثل {example}.</string>
     <string name="dnsErrorHost">این نه نشانی IP است و نه نام سرور؛ آن را مثل {example} بنویسید.</string>
     <string name="dnsErrorPort">درگاه باید عددی از 1 تا 65535 باشد.</string>
+    <string name="dnsErrorProxy">این نشانی پراکسی نیست؛ آن را مثل socks5://127.0.0.1:1080 یا http://127.0.0.1:8080 بنویسید.</string>
     <string name="dnsErrorUrl">این نشانی به این نوع نمی‌خورد؛ آن را مثل {example} بنویسید.</string>
     <string name="dnsKindDoh">DNS روی HTTPS (DoH)</string>
     <string name="dnsKindDot">DNS روی TLS (DoT)</string>
@@ -64,6 +65,8 @@
     <string name="dnsServerDesc">هر جست‌وجوی نامی که Shroudly انجام می‌دهد به این سرور می‌رود. اگر پاسخ ندهد، تا برگشتنش DNS رمزگذاری‌شده Shroudly پاسخ می‌دهد.</string>
     <string name="dnsServerFails">پاسخی نیامد ({error}). استفاده نمی‌شود؛ نشانی را بررسی کنید یا با این حال از آن استفاده کنید.</string>
     <string name="dnsServerOk">در {ms} میلی‌ثانیه پاسخ داد (example.com: {address}). اکنون در حال استفاده است.</string>
+    <string name="dnsServerProxy">از راه پراکسی (اختیاری)</string>
+    <string name="dnsServerProxyDesc">فقط اتصال‌ها به این سرور DNS از آن می‌گذرند: برای سروری که نشانی‌اش مسدود است. پراکسی SOCKS5 یا HTTP، مثل socks5://127.0.0.1:1080.</string>
     <string name="dnsServerStrict">فقط همین سرور</string>
     <string name="dnsServerStrictDesc">حتی وقتی پاسخ نمی‌دهد از هیچ سرور دیگری پرسیده نمی‌شود: در آن صورت جست‌وجوی نام‌ها تا پاسخ دادنش ناموفق می‌ماند. برای آزمودن یک سرور، یا وقتی کس دیگری نباید جست‌وجوهای شما را ببیند.</string>
     <string name="dnsServerUse">استفاده</string>

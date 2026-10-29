@@ -54,6 +54,7 @@
     <string name="dnsErrorEmpty">اكتب عنوان الخادم، مثل {example}.</string>
     <string name="dnsErrorHost">هذا ليس عنوان IP ولا اسم خادم؛ اكتبه مثل {example}.</string>
     <string name="dnsErrorPort">يجب أن يكون المنفذ رقمًا من 1 إلى 65535.</string>
+    <string name="dnsErrorProxy">هذا ليس عنوان وكيل؛ اكتبه مثل socks5://127.0.0.1:1080 أو http://127.0.0.1:8080.</string>
     <string name="dnsErrorUrl">هذا العنوان لا يناسب هذا النوع؛ اكتبه مثل {example}.</string>
     <string name="dnsKindDoh">DNS عبر HTTPS (DoH)</string>
     <string name="dnsKindDot">DNS عبر TLS (DoT)</string>
@@ -64,6 +65,8 @@
     <string name="dnsServerDesc">كل استعلام أسماء يجريه Shroudly يذهب إلى هذا الخادم. إن توقف عن الإجابة، يجيب DNS المشفَّر من Shroudly حتى يعود.</string>
     <string name="dnsServerFails">لا إجابة ({error}). غير مستخدم؛ تحقّق من العنوان أو استخدمه على أي حال.</string>
     <string name="dnsServerOk">أجاب خلال {ms} ملّي ثانية (example.com: {address}). قيد الاستخدام الآن.</string>
+    <string name="dnsServerProxy">عبر وكيل (اختياري)</string>
+    <string name="dnsServerProxyDesc">تمر عبره اتصالات خادم DNS هذا فقط: لخادم محظور بعنوانه. وكيل SOCKS5 أو HTTP، مثل socks5://127.0.0.1:1080.</string>
     <string name="dnsServerStrict">هذا الخادم فقط</string>
     <string name="dnsServerStrictDesc">لا يُسأل أي خادم آخر حتى عندما لا يجيب: عندها تفشل عمليات البحث عن الأسماء حتى يجيب. لاختبار خادم، أو عندما يجب ألا يرى أحد غيره عمليات بحثك.</string>
     <string name="dnsServerUse">استخدام</string>

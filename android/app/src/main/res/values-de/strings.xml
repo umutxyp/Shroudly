@@ -54,6 +54,7 @@
     <string name="dnsErrorEmpty">Gib die Adresse des Servers ein, etwa {example}.</string>
     <string name="dnsErrorHost">Das ist keine IP-Adresse und kein Servername; gib sie wie {example} ein.</string>
     <string name="dnsErrorPort">Der Port muss eine Zahl von 1 bis 65535 sein.</string>
+    <string name="dnsErrorProxy">Das ist keine Proxy-Adresse; gib sie wie socks5://127.0.0.1:1080 oder http://127.0.0.1:8080 ein.</string>
     <string name="dnsErrorUrl">Diese Adresse passt nicht zu dieser Art; gib sie wie {example} ein.</string>
     <string name="dnsKindDoh">DNS über HTTPS (DoH)</string>
     <string name="dnsKindDot">DNS über TLS (DoT)</string>
@@ -64,6 +65,8 @@
     <string name="dnsServerDesc">Jede Namensabfrage von Shroudly geht an diesen Server. Antwortet er nicht mehr, antwortet das verschlüsselte DNS von Shroudly, bis er wieder da ist.</string>
     <string name="dnsServerFails">Keine Antwort ({error}). Nicht in Gebrauch; prüfe die Adresse oder verwende ihn trotzdem.</string>
     <string name="dnsServerOk">Antwort in {ms} ms (example.com: {address}). Jetzt in Gebrauch.</string>
+    <string name="dnsServerProxy">Über einen Proxy (optional)</string>
+    <string name="dnsServerProxyDesc">Nur die Verbindungen zu diesem DNS-Server laufen darüber: für einen Server, dessen Adresse gesperrt ist. Ein SOCKS5- oder HTTP-Proxy, etwa socks5://127.0.0.1:1080.</string>
     <string name="dnsServerStrict">Nur dieser Server</string>
     <string name="dnsServerStrictDesc">Kein anderer wird gefragt, auch wenn er nicht antwortet: Namensabfragen schlagen dann fehl, bis er antwortet. Zum Testen eines Servers, oder wenn niemand sonst deine Abfragen sehen darf.</string>
     <string name="dnsServerUse">Verwenden</string>

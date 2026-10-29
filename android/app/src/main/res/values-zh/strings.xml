@@ -54,6 +54,7 @@
     <string name="dnsErrorEmpty">请输入服务器地址，例如 {example}。</string>
     <string name="dnsErrorHost">这既不是 IP 地址也不是服务器名称；请按 {example} 的格式输入。</string>
     <string name="dnsErrorPort">端口必须是 1 到 65535 之间的数字。</string>
+    <string name="dnsErrorProxy">这不是代理地址；请按 socks5://127.0.0.1:1080 或 http://127.0.0.1:8080 的格式输入。</string>
     <string name="dnsErrorUrl">该地址不适用于此类型；请按 {example} 的格式输入。</string>
     <string name="dnsKindDoh">DNS over HTTPS（DoH）</string>
     <string name="dnsKindDot">DNS over TLS（DoT）</string>
@@ -64,6 +65,8 @@
     <string name="dnsServerDesc">Shroudly 的每次域名查询都发往此服务器。如果它不再应答，在它恢复之前由 Shroudly 的加密 DNS 应答。</string>
     <string name="dnsServerFails">无应答（{error}）。未使用；请检查地址，或仍然使用它。</string>
     <string name="dnsServerOk">{ms} 毫秒内应答（example.com：{address}）。正在使用。</string>
+    <string name="dnsServerProxy">通过代理（可选）</string>
+    <string name="dnsServerProxyDesc">只有到此 DNS 服务器的连接经过该代理：适用于按地址被封锁的服务器。SOCKS5 或 HTTP 代理，例如 socks5://127.0.0.1:1080。</string>
     <string name="dnsServerStrict">仅使用此服务器</string>
     <string name="dnsServerStrictDesc">即使它不响应，也不会询问其他服务器：此时域名解析会失败，直到它响应。适用于测试服务器，或不希望其他任何人看到你的查询时。</string>
     <string name="dnsServerUse">使用</string>

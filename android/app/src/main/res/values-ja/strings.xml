@@ -54,6 +54,7 @@
     <string name="dnsErrorEmpty">サーバーのアドレスを入力してください（例: {example}）。</string>
     <string name="dnsErrorHost">IP アドレスでもサーバー名でもありません。{example} のように入力してください。</string>
     <string name="dnsErrorPort">ポートは 1 から 65535 までの数字にしてください。</string>
+    <string name="dnsErrorProxy">プロキシのアドレスではありません。socks5://127.0.0.1:1080 や http://127.0.0.1:8080 のように入力してください。</string>
     <string name="dnsErrorUrl">このアドレスはこの種類に合いません。{example} のように入力してください。</string>
     <string name="dnsKindDoh">DNS over HTTPS（DoH）</string>
     <string name="dnsKindDot">DNS over TLS（DoT）</string>
@@ -64,6 +65,8 @@
     <string name="dnsServerDesc">Shroudly が行う名前の問い合わせはすべてこのサーバーに送られます。応答しなくなった場合は、戻るまで Shroudly の暗号化 DNS が応答します。</string>
     <string name="dnsServerFails">応答がありません（{error}）。使用していません。アドレスを確認するか、それでも使ってください。</string>
     <string name="dnsServerOk">{ms} ms で応答しました（example.com: {address}）。使用中です。</string>
+    <string name="dnsServerProxy">プロキシ経由（任意）</string>
+    <string name="dnsServerProxyDesc">この DNS サーバーへの接続だけがプロキシを通ります。アドレスでブロックされているサーバー向けです。SOCKS5 または HTTP プロキシ（例：socks5://127.0.0.1:1080）。</string>
     <string name="dnsServerStrict">このサーバーのみ</string>
     <string name="dnsServerStrictDesc">応答がないときでも他のサーバーには問い合わせません。その間、名前の解決は応答があるまで失敗します。サーバーを試すときや、他の誰にも問い合わせを見せたくないときに。</string>
     <string name="dnsServerUse">使う</string>

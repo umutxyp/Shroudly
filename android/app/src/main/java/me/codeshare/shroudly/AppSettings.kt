@@ -27,6 +27,7 @@ object AppSettings {
     private const val KEY_DNS_KIND = "customDnsKind"
     private const val KEY_DNS_SERVER = "customDnsServer"
     private const val KEY_DNS_STRICT = "customDnsStrict"
+    private const val KEY_DNS_PROXY = "customDnsProxy"
 
     /* The desktop's list, in its order: id, label (locale key), the
      * engine's spec, and whether the engine looks for what works by itself. */
@@ -91,11 +92,23 @@ object AppSettings {
     /* That server used alone ("Only this server"): no fallback. */
     fun customDnsStrict(ctx: Context): Boolean = customDns(ctx) != null && prefs(ctx).getBoolean(KEY_DNS_STRICT, false)
 
+    /* The user's proxy for that server as typed (#58), "" for none. */
+    fun customDnsProxyTyped(ctx: Context): String = prefs(ctx).getString(KEY_DNS_PROXY, null) ?: ""
+
+    /* Read: null with no server, a UDP one, or none that can be read. */
+    fun customDnsProxy(ctx: Context): DnsProxy? {
+        val spec = customDns(ctx) ?: return null
+        return if (spec.kind == "udp") null else CustomDns.parseProxy(customDnsProxyTyped(ctx)).first
+    }
+
     /* null: automatic. */
-    fun setCustomDns(ctx: Context, kind: String?, text: String?, strict: Boolean = false) {
+    fun setCustomDns(ctx: Context, kind: String?, text: String?, strict: Boolean = false, proxy: String? = null) {
         val e = prefs(ctx).edit()
-        if (kind == null || text.isNullOrBlank()) e.remove(KEY_DNS_KIND).remove(KEY_DNS_SERVER).remove(KEY_DNS_STRICT)
-        else e.putString(KEY_DNS_KIND, kind).putString(KEY_DNS_SERVER, text.trim()).putBoolean(KEY_DNS_STRICT, strict)
+        if (kind == null || text.isNullOrBlank()) e.remove(KEY_DNS_KIND).remove(KEY_DNS_SERVER).remove(KEY_DNS_STRICT).remove(KEY_DNS_PROXY)
+        else {
+            e.putString(KEY_DNS_KIND, kind).putString(KEY_DNS_SERVER, text.trim()).putBoolean(KEY_DNS_STRICT, strict)
+            if (proxy.isNullOrBlank() || kind == "udp") e.remove(KEY_DNS_PROXY) else e.putString(KEY_DNS_PROXY, proxy.trim())
+        }
         e.apply()
     }
 

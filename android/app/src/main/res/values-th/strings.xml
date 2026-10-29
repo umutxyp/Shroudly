@@ -54,6 +54,7 @@
     <string name="dnsErrorEmpty">พิมพ์ที่อยู่ของเซิร์ฟเวอร์ เช่น {example}</string>
     <string name="dnsErrorHost">นี่ไม่ใช่ที่อยู่ IP หรือชื่อเซิร์ฟเวอร์ พิมพ์แบบ {example}</string>
     <string name="dnsErrorPort">พอร์ตต้องเป็นตัวเลขตั้งแต่ 1 ถึง 65535</string>
+    <string name="dnsErrorProxy">นี่ไม่ใช่ที่อยู่พร็อกซี พิมพ์แบบ socks5://127.0.0.1:1080 หรือ http://127.0.0.1:8080</string>
     <string name="dnsErrorUrl">ที่อยู่นี้ไม่เข้ากับประเภทนี้ พิมพ์แบบ {example}</string>
     <string name="dnsKindDoh">DNS ผ่าน HTTPS (DoH)</string>
     <string name="dnsKindDot">DNS ผ่าน TLS (DoT)</string>
@@ -64,6 +65,8 @@
     <string name="dnsServerDesc">การค้นหาชื่อทุกครั้งของ Shroudly จะไปที่เซิร์ฟเวอร์นี้ หากหยุดตอบกลับ DNS แบบเข้ารหัสของ Shroudly จะตอบแทนจนกว่าจะกลับมา</string>
     <string name="dnsServerFails">ไม่มีการตอบกลับ ({error}) ยังไม่ได้ใช้ ตรวจสอบที่อยู่ หรือใช้ต่อไป</string>
     <string name="dnsServerOk">ตอบกลับใน {ms} ms (example.com: {address}) กำลังใช้งานอยู่</string>
+    <string name="dnsServerProxy">ผ่านพร็อกซี (ไม่บังคับ)</string>
+    <string name="dnsServerProxyDesc">เฉพาะการเชื่อมต่อไปยังเซิร์ฟเวอร์ DNS นี้เท่านั้นที่ผ่านพร็อกซี สำหรับเซิร์ฟเวอร์ที่ถูกบล็อกตามที่อยู่ ใช้พร็อกซี SOCKS5 หรือ HTTP เช่น socks5://127.0.0.1:1080</string>
     <string name="dnsServerStrict">ใช้เซิร์ฟเวอร์นี้เท่านั้น</string>
     <string name="dnsServerStrictDesc">จะไม่ถามเซิร์ฟเวอร์อื่นเลย แม้เซิร์ฟเวอร์นี้ไม่ตอบ: การค้นหาชื่อจะล้มเหลวจนกว่าเซิร์ฟเวอร์นี้จะตอบ ใช้สำหรับทดสอบเซิร์ฟเวอร์ หรือเมื่อไม่ควรให้ผู้อื่นเห็นการค้นหาของคุณ</string>
     <string name="dnsServerUse">ใช้</string>

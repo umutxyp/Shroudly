@@ -113,6 +113,7 @@ const PATTERNS = [
   [/^(\S+): this network's DNS gives the same addresses \((\S*)\); they get nowhere here$/, 'logNetDnsSame', ['host', 'addr']],
   [/^DNS server: (\S+)$/, 'logDnsServerSet', ['server']],
   [/^DNS server: (\S+) \(only this one\)$/, 'logDnsServerSetStrict', ['server']],
+  [/^DNS server proxy: (\S+)$/, 'logDnsServerProxy', ['proxy']],
   // A proxy on this computer where nothing runs (a program that has gone).
   [/^Games and apps: (.+) pointed at (.+), where nothing is running; Shroudly's is used while the mode is on, and the old one comes back when it goes off$/, 'logAppsDeadProxy', ['names', 'addrs']],
   [/^Autopilot: Discord Drover sent (.+) to (\S+), where nothing is running; its files \((.+)\) were moved to (.+) and it was restarted$/, 'logDroverMoved', ['app', 'addr', 'files', 'backup']],

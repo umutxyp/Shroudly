@@ -18,6 +18,12 @@
  * (bootstrap), never the network's own DNS. Only this server is asked while
  * it is set: an answer that differs from the built-in routes' is what the
  * user wants to see. Nothing is logged or stored.
+ *
+ * Through a proxy of the user's own (issue #58): a server blocked by its
+ * address (a public DoH one in some networks) is reached through a SOCKS5 or
+ * HTTP proxy the user has, for these connections only; everything else still
+ * goes through the engine. The server's name goes to the proxy, so nothing is
+ * looked up here. DoH, DoT and TCP; not UDP, which proxies hardly relay.
  */
 
 const dgram = require('dgram');
@@ -72,6 +78,119 @@ function parse(kind, text) {
   if (!(Number.isInteger(port) && port > 0 && port < 65536)) return { error: 'port' };
   if (!hostOk(host)) return { error: 'host' };
   return { kind, host, port };
+}
+
+/* The proxy typed for the DNS server: socks5://[user:pass@]host:port (also
+ * socks5h:// and socks://) or http://[user:pass@]host:port. null for none,
+ * { type: 'socks5' | 'http', host, port, user, pass }, or { error: 'proxy' }. */
+function parseProxy(text) {
+  const s = String(text || '').trim();
+  if (!s) return null;
+  const m = /^(socks5h?|socks|http):\/\/(?:([^:@/\s]*)(?::([^@/\s]*))?@)?(\[[0-9a-f:.]+\]|[^:/\s[\]]+):(\d{1,5})\/?$/i.exec(s);
+  if (!m) return { error: 'proxy' };
+  const host = m[4].replace(/^\[|\]$/g, '');
+  const port = Number(m[5]);
+  if (!hostOk(host) || !(port > 0 && port < 65536)) return { error: 'proxy' };
+  let user = '';
+  let pass = '';
+  try { user = decodeURIComponent(m[2] || ''); pass = decodeURIComponent(m[3] || ''); } catch { return { error: 'proxy' }; }
+  if (user.length > 255 || pass.length > 255) return { error: 'proxy' };
+  return { type: /^http$/i.test(m[1]) ? 'http' : 'socks5', host, port, user, pass };
+}
+
+/* As the user sees it, without a password: "socks5://127.0.0.1:1080". */
+function shownProxy(p) {
+  if (!p || p.error) return '';
+  return `${p.type}://${p.host.includes(':') ? `[${p.host}]` : p.host}:${p.port}`;
+}
+
+/* A TCP connection to host:port (a name or an address) through proxy p:
+ * SOCKS5 (RFC 1928; no login, or a user name and password, RFC 1929), or an
+ * HTTP CONNECT. Rejects when the proxy refuses or does not answer. */
+function viaProxy(p, host, port) {
+  return new Promise((resolve, reject) => {
+    const s = net.connect({ host: p.host, port: p.port });
+    let buf = Buffer.alloc(0);
+    let step = 'connect';
+    const done = (e) => { clearTimeout(t); s.removeAllListeners('data'); s.removeAllListeners('error'); if (e) { s.destroy(); reject(e); } else resolve(s); };
+    const t = setTimeout(() => done(new Error(`the proxy did not answer (${step})`)), TIMEOUT_MS * 2);
+    s.once('error', (e) => done(e));
+    const target = () => {
+      const v4 = net.isIP(host) === 4;
+      const v6 = net.isIP(host) === 6;
+      const addr = v4 ? Buffer.from([1, ...host.split('.').map(Number)])
+        : v6 ? Buffer.concat([Buffer.from([4]), ip6Bytes(host)])
+          : Buffer.concat([Buffer.from([3, Buffer.byteLength(host)]), Buffer.from(host)]);
+      const pb = Buffer.alloc(2); pb.writeUInt16BE(port, 0);
+      step = 'socks connect';
+      s.write(Buffer.concat([Buffer.from([5, 1, 0]), addr, pb]));
+    };
+    s.once('connect', () => {
+      if (p.type === 'http') {
+        const h = host.includes(':') ? `[${host}]` : host;
+        const auth = p.user || p.pass ? `Proxy-Authorization: Basic ${Buffer.from(`${p.user}:${p.pass}`).toString('base64')}\r\n` : '';
+        step = 'http connect';
+        s.write(`CONNECT ${h}:${port} HTTP/1.1\r\nHost: ${h}:${port}\r\n${auth}\r\n`);
+      } else {
+        step = 'socks hello';
+        s.write(Buffer.from(p.user || p.pass ? [5, 2, 0, 2] : [5, 1, 0]));
+      }
+    });
+    s.on('data', (d) => {
+      buf = Buffer.concat([buf, d]);
+      if (step === 'http connect') {
+        const end = buf.indexOf('\r\n\r\n');
+        if (end < 0) { if (buf.length > 8192) done(new Error('the proxy answered with no end')); return; }
+        const status = Number((/^HTTP\/1\.[01] (\d{3})/.exec(buf.slice(0, end).toString('latin1')) || [])[1]);
+        if (status !== 200) { done(new Error(`the proxy refused (HTTP ${status || '?'})`)); return; }
+        const rest = buf.slice(end + 4);
+        done();
+        if (rest.length) s.unshift(rest);
+        return;
+      }
+      if (step === 'socks hello') {
+        if (buf.length < 2) return;
+        if (buf[0] !== 5 || (buf[1] !== 0 && buf[1] !== 2)) { done(new Error('the proxy refused (SOCKS5 method)')); return; }
+        const method = buf[1];
+        buf = buf.slice(2);
+        if (method === 2) {
+          const u = Buffer.from(p.user || '');
+          const w = Buffer.from(p.pass || '');
+          step = 'socks login';
+          s.write(Buffer.concat([Buffer.from([1, u.length]), u, Buffer.from([w.length]), w]));
+        } else target();
+        return;
+      }
+      if (step === 'socks login') {
+        if (buf.length < 2) return;
+        if (buf[1] !== 0) { done(new Error('the proxy refused the user name or password')); return; }
+        buf = buf.slice(2);
+        target();
+        return;
+      }
+      if (step === 'socks connect') {
+        if (buf.length < 5) return;
+        if (buf[0] !== 5 || buf[1] !== 0) { done(new Error(`the proxy could not connect (SOCKS5 ${buf[1]})`)); return; }
+        const len = buf[3] === 1 ? 4 : buf[3] === 4 ? 16 : buf[3] === 3 ? 1 + buf[4] : -1;
+        if (len < 0) { done(new Error('the proxy answered in a form not known')); return; }
+        if (buf.length < 4 + len + 2) return;
+        const rest = buf.slice(4 + len + 2);
+        done();
+        if (rest.length) s.unshift(rest);
+      }
+    });
+  });
+}
+
+/* The 16 bytes of an IPv6 address. */
+function ip6Bytes(a) {
+  const halves = a.split('::');
+  const l = halves[0] ? halves[0].split(':') : [];
+  const r = halves.length > 1 && halves[1] ? halves[1].split(':') : [];
+  const groups = [...l, ...Array(8 - l.length - r.length).fill('0'), ...r];
+  const out = Buffer.alloc(16);
+  groups.forEach((g, i) => out.writeUInt16BE(parseInt(g, 16) || 0, i * 2));
+  return out;
 }
 
 /* As the user sees it: "https://dns.google/dns-query", "tls://1.1.1.1",
@@ -165,7 +284,8 @@ class Framed {
 class CustomDns {
   /* spec: parse()'s result. opts.socksPort(): the engine's port (0 while
    * none); opts.bootstrap(name): its IPv4 address through the built-in
-   * routes; opts.ca: certificate authorities to trust instead of the
+   * routes; opts.proxy: parseProxy()'s result, the user's proxy for this
+   * server (#58); opts.ca: certificate authorities to trust instead of the
    * system's (tests). */
   constructor(spec, opts = {}) {
     this.spec = spec;
@@ -218,10 +338,13 @@ class CustomDns {
 
   async open() {
     const { kind, port } = this.spec;
-    const ip = await this.address();
-    if (kind === 'tcp') return new Framed(await this.raw(ip, port, false));
-    if (kind === 'dot') return new Framed(await this.tls(await this.raw(ip, port, true), undefined));
-    const sock = await this.tls(await this.raw(ip, port, true), ['h2', 'http/1.1']);
+    // Through the user's proxy, by name: nothing is looked up here (#58).
+    const proxy = this.opts.proxy && !this.opts.proxy.error ? this.opts.proxy : null;
+    const connect = proxy ? () => viaProxy(proxy, this.spec.host, port)
+      : async (viaEngine) => this.raw(await this.address(), port, viaEngine);
+    if (kind === 'tcp') return new Framed(await connect(false));
+    if (kind === 'dot') return new Framed(await this.tls(await connect(true), undefined));
+    const sock = await this.tls(await connect(true), ['h2', 'http/1.1']);
     if (sock.alpnProtocol !== 'h2') { this.h1Only = true; return { h1: sock }; }
     const sess = http2.connect(`https://${this.spec.host}`, { createConnection: () => sock });
     sess.on('error', () => {});
@@ -334,4 +457,4 @@ class CustomDns {
   close() { this.closed = true; this.drop(); }
 }
 
-module.exports = { CustomDns, parse, shown, firstA, KINDS, PORTS };
+module.exports = { CustomDns, parse, shown, parseProxy, shownProxy, viaProxy, firstA, KINDS, PORTS };

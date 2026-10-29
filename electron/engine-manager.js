@@ -267,7 +267,7 @@ class EngineManager {
       onPreferred: (id) => store.set('dohRoute', id),
       onState: (state) => this._setAdvice({ dnsDown: state === 'down' }),
     });
-    this.doh.setCustom(this.customDns(), { strict: this.customDnsStrict() });
+    this.doh.setCustom(this.customDns(), { strict: this.customDnsStrict(), proxy: this.customDnsProxy() });
     this.dohPort = 0;
     this.lastDohPort = 0;
 
@@ -1006,12 +1006,21 @@ class EngineManager {
     return !!(c && typeof c === 'object' && c.strict === true && this.customDns());
   }
 
+  /* The user's proxy for that server (#58), or null: not for UDP. */
+  customDnsProxy() {
+    const c = this.store.get('customDns');
+    const spec = this.customDns();
+    if (!spec || spec.kind === 'udp' || !c.proxy) return null;
+    const p = CustomDnsLib.parseProxy(c.proxy);
+    return p && !p.error ? p : null;
+  }
+
   /* The server now set into the forwarder, and the answers the engine keeps
    * dropped: the next lookup asks it, nothing restarted. */
   applyCustomDns() {
     const spec = this.customDns();
     const strict = this.customDnsStrict();
-    this.doh.setCustom(spec, { strict });
+    this.doh.setCustom(spec, { strict, proxy: this.customDnsProxy() });
     this._command(strict ? 'DNS-STRICT 1' : 'DNS-STRICT 0');
     this._command('DNS-CLEAR');
     return spec;
@@ -1020,9 +1029,10 @@ class EngineManager {
   /* Does this server answer (Settings, before it is used)? Asked twice, the
    * second time on the connection the first opened: { ok: true, ms, address }
    * or { ok: false, error }. */
-  async testDns(spec) {
+  async testDns(spec, proxy = null) {
     const { CustomDns, firstA } = CustomDnsLib;
     const d = new CustomDns(spec, {
+      proxy,
       socksPort: () => this.doh.socksPort,
       bootstrap: async (name) => firstA(await this.doh.resolveRoutes(DohForwarder.buildQuery(name, 1))),
     });

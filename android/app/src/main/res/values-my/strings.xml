@@ -54,6 +54,7 @@
     <string name="dnsErrorEmpty">ဆာဗာ၏ လိပ်စာကို ရိုက်ထည့်ပါ၊ ဥပမာ {example}။</string>
     <string name="dnsErrorHost">၎င်းသည် IP လိပ်စာ သို့မဟုတ် ဆာဗာအမည် မဟုတ်ပါ။ {example} ကဲ့သို့ ရိုက်ထည့်ပါ။</string>
     <string name="dnsErrorPort">ပေါ့တ်သည် 1 မှ 65535 အတွင်း နံပါတ် ဖြစ်ရမည်။</string>
+    <string name="dnsErrorProxy">၎င်းသည် ပရောက်စီလိပ်စာ မဟုတ်ပါ။ socks5://127.0.0.1:1080 သို့မဟုတ် http://127.0.0.1:8080 ကဲ့သို့ ရိုက်ထည့်ပါ။</string>
     <string name="dnsErrorUrl">ဤလိပ်စာသည် ဤအမျိုးအစားနှင့် မကိုက်ညီပါ။ {example} ကဲ့သို့ ရိုက်ထည့်ပါ။</string>
     <string name="dnsKindDoh">HTTPS ဖြင့် DNS (DoH)</string>
     <string name="dnsKindDot">TLS ဖြင့် DNS (DoT)</string>
@@ -64,6 +65,8 @@
     <string name="dnsServerDesc">Shroudly ပြုလုပ်သော အမည်ရှာဖွေမှုတိုင်း ဤဆာဗာသို့ သွားသည်။ ၎င်း ဖြေကြားမှု ရပ်သွားပါက ပြန်လာသည်အထိ Shroudly ၏ ကုဒ်ဝှက်ထားသော DNS က ဖြေကြားပေးသည်။</string>
     <string name="dnsServerFails">ဖြေကြားမှု မရှိပါ ({error})။ အသုံးမပြုပါ။ လိပ်စာကို စစ်ဆေးပါ သို့မဟုတ် မည်သို့ပင်ဖြစ်စေ အသုံးပြုပါ။</string>
     <string name="dnsServerOk">{ms} ms အတွင်း ဖြေကြားသည် (example.com: {address})။ ယခု အသုံးပြုနေသည်။</string>
+    <string name="dnsServerProxy">ပရောက်စီမှတစ်ဆင့် (ရွေးချယ်နိုင်)</string>
+    <string name="dnsServerProxyDesc">ဤ DNS ဆာဗာသို့ ချိတ်ဆက်မှုများသာ ၎င်းမှတစ်ဆင့် သွားသည်။ လိပ်စာဖြင့် ပိတ်ဆို့ခံထားရသော ဆာဗာအတွက်ဖြစ်သည်။ SOCKS5 သို့မဟုတ် HTTP ပရောက်စီ၊ ဥပမာ socks5://127.0.0.1:1080။</string>
     <string name="dnsServerStrict">ဤဆာဗာသာ</string>
     <string name="dnsServerStrictDesc">၎င်း မဖြေကြားသည့်အခါပင် အခြားဆာဗာကို မမေးပါ။ ထိုအခါ ၎င်း ဖြေကြားသည်အထိ အမည်ရှာဖွေမှုများ မအောင်မြင်ပါ။ ဆာဗာတစ်ခုကို စမ်းသပ်ရန် သို့မဟုတ် သင့်ရှာဖွေမှုများကို အခြားမည်သူမျှ မမြင်သင့်သည့်အခါ အသုံးပြုပါ။</string>
     <string name="dnsServerUse">အသုံးပြုရန်</string>

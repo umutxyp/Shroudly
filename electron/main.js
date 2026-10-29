@@ -2497,11 +2497,18 @@ function setCustomDns(value) {
   if (value && typeof value === 'object') {
     const spec = CustomDnsLib.parse(value.kind, value.server);
     if (spec.error) return { success: false, error: spec.error };
+    // Through the user's proxy (#58): not for UDP, which proxies hardly relay.
+    const proxyText = spec.kind === 'udp' ? '' : String(value.proxy || '').trim();
+    const proxy = CustomDnsLib.parseProxy(proxyText);
+    if (proxy && proxy.error) return { success: false, error: 'proxy' };
     const was = store.get('customDns');
     const next = { kind: spec.kind, server: String(value.server).trim(), strict: value.strict === true };
-    if (was && was.kind === next.kind && was.server === next.server && (was.strict === true) === next.strict) return { success: true };
+    if (proxy) next.proxy = proxyText;
+    if (was && was.kind === next.kind && was.server === next.server && (was.strict === true) === next.strict
+      && (was.proxy || '') === (next.proxy || '')) return { success: true };
     store.set('customDns', next);
     addLog('info', `DNS server: ${CustomDnsLib.shown(spec)}${next.strict ? ' (only this one)' : ''}`);
+    if (proxy) addLog('info', `DNS server proxy: ${CustomDnsLib.shownProxy(proxy)}`);
   } else {
     if (!store.get('customDns')) return { success: true };
     store.delete('customDns');
@@ -2513,8 +2520,10 @@ function setCustomDns(value) {
 ipcMain.handle('dns:test', async (e, value) => {
   const spec = CustomDnsLib.parse(value && value.kind, value && value.server);
   if (spec.error) return { ok: false, invalid: spec.error };
+  const proxy = spec.kind === 'udp' ? null : CustomDnsLib.parseProxy(value && value.proxy);
+  if (proxy && proxy.error) return { ok: false, invalid: 'proxy' };
   if (!engine) return { ok: false, error: 'not ready' };
-  return engine.testDns(spec);
+  return engine.testDns(spec, proxy);
 });
 
 ipcMain.handle('settings:set', (e, key, value) => {

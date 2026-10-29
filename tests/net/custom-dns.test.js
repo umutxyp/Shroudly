@@ -10,7 +10,9 @@
  * Questions asked at once are not mixed up (the same id twice on one
  * connection, an HTTP/1.1-only server), a chunked answer is read, and a
  * server that does not answer leaves the built-in routes answering, said
- * once in the log, until it answers again. */
+ * once in the log, until it answers again. Through the user's own proxy
+ * (issue #58): SOCKS5 (with and without a login) and HTTP CONNECT, the
+ * server's name handed to the proxy and nothing looked up here. */
 
 const net = require('net');
 const tls = require('tls');
@@ -49,6 +51,78 @@ function framed(sock, ip) {
 const qname = (m) => { const out = []; let p = 12; while (m[p]) { out.push(m.subarray(p + 1, p + 1 + m[p]).toString()); p += 1 + m[p]; } return out.join('.'); };
 const readBody = (req) => new Promise((r) => { const c = []; req.on('data', (d) => c.push(d)); req.on('end', () => r(Buffer.concat(c))); });
 
+/* A SOCKS5 proxy (RFC 1928/1929) that resolves test.local itself, as a real
+ * one resolves the names it is given; `asked` collects the targets. */
+function socks5Proxy(asked, login = null) {
+  return net.createServer((c) => {
+    let buf = Buffer.alloc(0);
+    let step = 'hello';
+    c.on('error', () => {});
+    c.on('data', (d) => {
+      buf = Buffer.concat([buf, d]);
+      if (step === 'hello') {
+        if (buf.length < 2 || buf.length < 2 + buf[1]) return;
+        const methods = [...buf.subarray(2, 2 + buf[1])];
+        buf = buf.subarray(2 + buf[1]);
+        if (login && !methods.includes(2)) { c.end(Buffer.from([5, 0xff])); return; }
+        c.write(Buffer.from([5, login ? 2 : 0]));
+        step = login ? 'login' : 'connect';
+      }
+      if (step === 'login') {
+        if (buf.length < 2) return;
+        const ul = buf[1]; if (buf.length < 3 + ul) return;
+        const pl = buf[2 + ul]; if (buf.length < 3 + ul + pl) return;
+        const user = buf.subarray(2, 2 + ul).toString(); const pass = buf.subarray(3 + ul, 3 + ul + pl).toString();
+        buf = buf.subarray(3 + ul + pl);
+        if (user !== login.user || pass !== login.pass) { c.end(Buffer.from([1, 1])); return; }
+        c.write(Buffer.from([1, 0])); step = 'connect';
+      }
+      if (step === 'connect') {
+        if (buf.length < 5) return;
+        let host; let off;
+        if (buf[3] === 1) { if (buf.length < 10) return; host = [...buf.subarray(4, 8)].join('.'); off = 8; }
+        else if (buf[3] === 3) { if (buf.length < 5 + buf[4] + 2) return; host = buf.subarray(5, 5 + buf[4]).toString(); off = 5 + buf[4]; }
+        else { c.end(Buffer.from([5, 8, 0, 1, 0, 0, 0, 0, 0, 0])); return; }
+        const port = buf.readUInt16BE(off);
+        const rest = buf.subarray(off + 2);
+        asked.push(`${host}:${port}`);
+        step = 'pipe';
+        const up = net.connect({ host: host === 'test.local' ? '127.0.0.1' : host, port }, () => {
+          c.write(Buffer.from([5, 0, 0, 1, 127, 0, 0, 1, 0, 0]));
+          if (rest.length) up.write(rest);
+          c.removeAllListeners('data'); c.pipe(up); up.pipe(c);
+        });
+        up.on('error', () => c.end(Buffer.from([5, 5, 0, 1, 0, 0, 0, 0, 0, 0])));
+      }
+    });
+  });
+}
+
+/* An HTTP proxy that takes CONNECT, with an optional Basic login. */
+function httpProxy(asked, auth = null) {
+  return net.createServer((c) => {
+    let buf = Buffer.alloc(0);
+    c.on('error', () => {});
+    const onData = (d) => {
+      buf = Buffer.concat([buf, d]);
+      const end = buf.indexOf('\r\n\r\n');
+      if (end < 0) return;
+      c.removeListener('data', onData);
+      const head = buf.subarray(0, end).toString();
+      const m = /^CONNECT (\S+):(\d+) HTTP\/1\.1/.exec(head);
+      if (!m) { c.end('HTTP/1.1 400 Bad Request\r\n\r\n'); return; }
+      if (auth && !head.includes(`Proxy-Authorization: Basic ${Buffer.from(auth).toString('base64')}`)) { c.end('HTTP/1.1 407 Proxy Authentication Required\r\n\r\n'); return; }
+      asked.push(`${m[1]}:${m[2]}`);
+      const up = net.connect({ host: m[1] === 'test.local' ? '127.0.0.1' : m[1], port: Number(m[2]) }, () => {
+        c.write('HTTP/1.1 200 Connection established\r\n\r\n');
+        c.pipe(up); up.pipe(c);
+      });
+      up.on('error', () => c.end('HTTP/1.1 502 Bad Gateway\r\n\r\n'));
+    };
+    c.on('data', onData);
+  });
+}
+
 (async () => {
   // ── what is typed ──
   const ok = (k, s) => C.parse(k, s);
@@ -64,6 +138,18 @@ const readBody = (req) => new Promise((r) => { const c = []; req.on('data', (d) 
   'refused with the reason: empty, not https for DoH, another scheme, a bad port, a bad name, a mistyped address, an unknown kind');
   t.ok(C.shown(ok('doh', 'dns.google')) === 'https://dns.google/dns-query' && C.shown(ok('dot', '1.1.1.1')) === 'tls://1.1.1.1:853' && C.shown(ok('tcp', '[::1]:53')) === 'tcp://[::1]:53',
     'shown as the user would type it');
+
+  // ── the proxy typed for it (#58) ──
+  const px = (s) => C.parseProxy(s);
+  t.ok(px('') === null && px('  ') === null, 'no proxy typed: none');
+  t.ok(JSON.stringify(px('socks5://127.0.0.1:1080')) === '{"type":"socks5","host":"127.0.0.1","port":1080,"user":"","pass":""}'
+    && px('socks5h://proxy.example:9050').type === 'socks5' && px('socks://[::1]:1080').host === '::1'
+    && px('http://user:p%40ss@10.0.0.2:8080').pass === 'p@ss' && px('http://10.0.0.2:8080').type === 'http',
+  'SOCKS5 (socks5://, socks5h://, socks://) and HTTP, an address or a name, IPv6 in brackets, a login with escaped characters');
+  t.ok(['socks5://127.0.0.1', 'ftp://1.2.3.4:21', 'socks5://127.0.0.1:99999', '127.0.0.1:1080', 'socks5://bad host:1', 'http://300.1.1.1:80'].every((v) => px(v).error === 'proxy'),
+    'refused: no port, another scheme, a bad port, no scheme, a bad name, a mistyped address');
+  t.ok(C.shownProxy(px('socks5://me:secret@127.0.0.1:1080')) === 'socks5://127.0.0.1:1080' && C.shownProxy(px('http://[::1]:3128')) === 'http://[::1]:3128',
+    'shown without the login (never in a log)');
 
   // ── each kind, against a server here ──
   const q = DohForwarder.buildQuery('example.com', 1);
@@ -189,6 +275,39 @@ const readBody = (req) => new Promise((r) => { const c = []; req.on('data', (d) 
     t.ok(hl.length === 1 && /^warning: Your DNS server tcp:\/\/127\.0\.0\.1:\d+ does not answer \(ECONNREFUSED\); it is the only one used, so lookups fail until it answers$/.test(hl[0]),
       `and the log says so once (${hl.join(' | ')})`);
     h.setCustom(null);
+
+    // ── through the user's proxy (#58) ──
+    const noBoot = async () => { throw new Error('looked up here'); };
+    const sAsked = [];
+    const socks = socks5Proxy(sAsked);
+    const socksPort = await listen(socks);
+    const viaS = (kind, text) => new C.CustomDns(C.parse(kind, text), { bootstrap: noBoot, ca, proxy: C.parseProxy(`socks5://127.0.0.1:${socksPort}`) }).query(q);
+    t.ok(C.firstA(await viaS('tcp', `127.0.0.1:${tcpPort}`)) === '93.184.215.15' && sAsked.includes(`127.0.0.1:${tcpPort}`), 'plain TCP through a SOCKS5 proxy: answered');
+    t.ok(C.firstA(await viaS('dot', `test.local:${dotPort}`)) === '93.184.215.16' && sAsked.includes(`test.local:${dotPort}`),
+      'DNS over TLS through SOCKS5: the name went to the proxy, nothing was looked up here, the certificate still checked');
+    t.ok(C.firstA(await viaS('doh', `https://test.local:${doh2Port}/dns-query`)) === '93.184.215.17', 'DNS over HTTPS (HTTP/2) through SOCKS5: answered');
+    const lAsked = [];
+    const locked = socks5Proxy(lAsked, { user: 'me', pass: 's3cret' });
+    const lockedPort = await listen(locked);
+    const viaL = (cred) => new C.CustomDns(C.parse('tcp', `127.0.0.1:${tcpPort}`), { bootstrap: noBoot, proxy: C.parseProxy(`socks5://${cred}@127.0.0.1:${lockedPort}`) }).query(q);
+    t.ok(C.firstA(await viaL('me:s3cret')) === '93.184.215.15', 'SOCKS5 with a user name and password: answered');
+    let bad = null;
+    try { await viaL('me:wrong'); } catch (e) { bad = e.message; }
+    t.ok(/user name or password/.test(bad || ''), `a wrong password: refused, said so (${bad})`);
+    const hAsked = [];
+    const hp = httpProxy(hAsked, 'u:pw');
+    const hpPort = await listen(hp);
+    const viaH = (cred, text) => new C.CustomDns(C.parse('doh', text), { bootstrap: noBoot, ca, proxy: C.parseProxy(`http://${cred}127.0.0.1:${hpPort}`) }).query(q);
+    t.ok(C.firstA(await viaH('u:pw@', `https://test.local:${doh1Port}/dns-query`)) === '93.184.215.18' && hAsked.includes(`test.local:${doh1Port}`),
+      'DNS over HTTPS through an HTTP proxy (CONNECT, with a login): answered, the name went to the proxy');
+    let refusedH = null;
+    try { await viaH('', `https://test.local:${doh1Port}/dns-query`); } catch (e) { refusedH = e.message; }
+    t.ok(/HTTP 407/.test(refusedH || ''), `the HTTP proxy wants a login that was not given: refused (${refusedH})`);
+    const gone = net.createServer(); const gonePort = await listen(gone); await new Promise((r) => gone.close(r));
+    let down = null;
+    try { await new C.CustomDns(C.parse('tcp', `127.0.0.1:${tcpPort}`), { proxy: C.parseProxy(`socks5://127.0.0.1:${gonePort}`) }).query(q); } catch (e) { down = e.code || e.message; }
+    t.ok(down === 'ECONNREFUSED', `the proxy not running: an error, so the built-in routes answer meanwhile (${down})`);
+    socks.close(); locked.close(); hp.close();
   } finally {
     udp.close(); tcp.close(); dot.close(); doh2.close(); doh1.close(); chunked.close();
   }
