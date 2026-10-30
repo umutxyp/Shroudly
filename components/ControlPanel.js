@@ -2,10 +2,10 @@
 
 import { useCallback, useState } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
-import { PowerIcon, ShieldCheckIcon, ShieldIcon, SpinnerIcon } from './icons';
+import { HeartIcon, PowerIcon, ShieldCheckIcon, ShieldIcon, SpinnerIcon } from './icons';
 import Toast from './Toast';
 
-export default function ControlPanel({ dpiStatus, onStatusChange }) {
+export default function ControlPanel({ dpiStatus, onStatusChange, onSupport }) {
   const { t } = useLanguage();
   const [loading, setLoading] = useState(false);
   const [toast, setToast] = useState(null);
@@ -80,20 +80,35 @@ export default function ControlPanel({ dpiStatus, onStatusChange }) {
           </p>
         </div>
 
-        {/* Primary action */}
-        <button
-          type="button"
-          onClick={onClick}
-          disabled={loading}
-          aria-busy={loading}
-          data-tour="power"
-          className={`btn w-full max-w-xs rounded-[var(--radius)] px-5 py-3.5 text-[15px] font-semibold ${active ? 'btn-danger' : 'btn-primary'}`}
-        >
-          {loading
-            ? <SpinnerIcon className="spin h-[18px] w-[18px]" />
-            : <PowerIcon className="h-[18px] w-[18px]" />}
-          <span className="min-w-0 wrap-anywhere">{label}</span>
-        </button>
+        {/* Primary action, and under it, quietly, the way to support
+            Shroudly (About → Support Shroudly), always there as on Android's
+            main screen. */}
+        <div className="flex w-full flex-col items-center gap-3">
+          <button
+            type="button"
+            onClick={onClick}
+            disabled={loading}
+            aria-busy={loading}
+            data-tour="power"
+            className={`btn w-full max-w-xs rounded-[var(--radius)] px-5 py-3.5 text-[15px] font-semibold ${active ? 'btn-danger' : 'btn-primary'}`}
+          >
+            {loading
+              ? <SpinnerIcon className="spin h-[18px] w-[18px]" />
+              : <PowerIcon className="h-[18px] w-[18px]" />}
+            <span className="min-w-0 wrap-anywhere">{label}</span>
+          </button>
+          {onSupport && (
+            <button
+              type="button"
+              onClick={onSupport}
+              className="row-hover inline-flex max-w-xs items-center gap-1.5 rounded-full px-3 py-1.5 text-[12.5px] font-medium"
+              style={{ color: 'var(--text-dim)' }}
+            >
+              <HeartIcon className="h-3.5 w-3.5" style={{ color: 'var(--accent)' }} />
+              <span className="min-w-0 wrap-anywhere">{t('supportTitle')}</span>
+            </button>
+          )}
+        </div>
       </div>
     </>
   );
