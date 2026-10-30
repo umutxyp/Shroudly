@@ -11,6 +11,7 @@ import UpdateBanner from '../components/UpdateBanner';
 import Onboarding from '../components/Onboarding';
 import BlockedNotice from '../components/BlockedNotice';
 import Appearance from '../components/Appearance';
+import { SupportBanner } from '../components/Support';
 import { ChartIcon, InfoIcon, LogsIcon, SettingsIcon, ShieldIcon } from '../components/icons';
 import { useLanguage } from '../contexts/LanguageContext';
 
@@ -40,6 +41,9 @@ export default function Home() {
   const { t, isLoaded } = useLanguage();
   const [dpiStatus, setDpiStatus] = useState({ active: false, stats: {} });
   const [version, setVersion] = useState(null);
+  // Bumped to bring "Support Shroudly" into view (the card, the tray).
+  const [supportFocus, setSupportFocus] = useState(0);
+  const openSupport = () => { setActiveTab('info'); setSupportFocus((n) => n + 1); };
 
   useEffect(() => {
     const check = async () => {
@@ -77,6 +81,11 @@ export default function Home() {
     kinds.forEach((k) => window.addEventListener(k, seen, { passive: true, capture: true }));
     e.onRelease?.(() => { try { document.activeElement?.blur?.(); } catch {} });
     return () => kinds.forEach((k) => window.removeEventListener(k, seen, { capture: true }));
+  }, []);
+
+  useEffect(() => {
+    const off = typeof window !== 'undefined' ? window.electron?.onNavigate?.((tab) => { if (tab === 'support') openSupport(); }) : null;
+    return () => { if (typeof off === 'function') off(); };
   }, []);
 
   const refresh = async () => {
@@ -145,6 +154,7 @@ export default function Home() {
       <div className="pt-3 empty:hidden">
         <BlockedNotice onNavigate={setActiveTab} active={active} />
         <UpdateBanner />
+        <SupportBanner show={activeTab === 'control' && active} onOpen={openSupport} />
       </div>
 
       {/* Content */}
@@ -157,7 +167,7 @@ export default function Home() {
         {activeTab === 'stats'    && <StatsPanel active={active} />}
         {activeTab === 'settings' && <SettingsPanel active={active} />}
         {activeTab === 'logs'     && <LogsPanel />}
-        {activeTab === 'info'     && <InfoPanel dpiStatus={dpiStatus} version={version} />}
+        {activeTab === 'info'     && <InfoPanel dpiStatus={dpiStatus} version={version} supportFocus={supportFocus} />}
       </main>
 
       {/* Bottom navigation */}

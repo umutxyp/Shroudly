@@ -55,6 +55,8 @@ contextBridge.exposeInMainWorld('electron', {
   // log to a .txt file in Downloads, shown in the file manager (nothing is
   // sent).
   copyLogs: () => ipcRenderer.invoke('logs:copy'),
+  // A short text the user asked to copy (an account number).
+  copyText: (text) => ipcRenderer.invoke('clipboard:write', text),
   saveLogs: () => ipcRenderer.invoke('logs:save'),
   // The background process asks for a panel to be shown (e.g. 'logs').
   onNavigate: (cb) => { const h = (e, tab) => cb(tab); ipcRenderer.on('ui:navigate', h); return () => ipcRenderer.removeListener('ui:navigate', h); },

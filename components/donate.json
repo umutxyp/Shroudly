@@ -1,0 +1,69 @@
+{
+  "paypal": "https://www.paypal.com/donate?campaign_id=BV7WTVT9VJQQ6",
+  "recipient": "Codeshare Technology Ltd",
+  "noPay": ["BY", "CU", "IR", "KP", "RU", "SY"],
+  "accounts": [
+    {
+      "id": "try", "currency": "TRY", "countries": ["TR"],
+      "fields": [["iban", "TR63 0010 3000 0000 0082 3610 20"]],
+      "bank": "Moka United Ödeme Hizmetleri ve Elektronik Para Kuruluşu A.Ş."
+    },
+    {
+      "id": "gbp", "currency": "GBP", "countries": ["GB", "GG", "IM", "JE"],
+      "fields": [["account", "54810041"], ["sortCode", "60-84-64"]],
+      "bank": "Wise Payments Limited, Worship Square, 65 Clifton Street, London, EC2A 4JE, United Kingdom"
+    },
+    {
+      "id": "eur", "currency": "EUR",
+      "countries": ["AD", "AT", "AX", "BE", "BG", "BL", "CH", "CY", "CZ", "DE", "DK", "EE", "ES", "FI", "FR", "GF", "GI", "GP", "GR", "HR", "IE", "IS", "IT", "LI", "LT", "LU", "LV", "MC", "MF", "MQ", "MT", "NL", "NO", "PL", "PM", "PT", "RE", "RO", "SE", "SI", "SK", "SM", "VA", "YT"],
+      "fields": [["iban", "BE28 9679 7064 5620"], ["swift", "TRWIBEB1XXX"]],
+      "bank": "Wise, Rue du Trône 100, 3rd floor, Brussels, 1050, Belgium"
+    },
+    {
+      "id": "usd", "currency": "USD", "countries": ["US", "AS", "GU", "MP", "PR", "VI"],
+      "fields": [["routing", "101019628"], ["account", "217448457287"], ["accountType", "Checking"]],
+      "bank": "Wise US Inc, 108 W 13th St, Wilmington, DE, 19801, United States"
+    },
+    {
+      "id": "aud", "currency": "AUD", "countries": ["AU"],
+      "fields": [["bsb", "774-001"], ["account", "241487268"]],
+      "bank": "Wise Australia Pty Ltd, Suite 1, Level 11, 66 Goulburn Street, Sydney, NSW, 2000, Australia"
+    },
+    {
+      "id": "cad", "currency": "CAD", "countries": ["CA"],
+      "fields": [["institution", "621"], ["transit", "16001"], ["account", "200117526468"]],
+      "bank": "Peoples Trust, 595 Burrard Street, Vancouver, BC, V7X 1L7, Canada"
+    },
+    {
+      "id": "nzd", "currency": "NZD", "countries": ["NZ"],
+      "fields": [["account", "04-2021-0397464-38"]],
+      "bank": "Wise Payments New Zealand Ltd., Level 11, 41 Shortland Street, Auckland, 1010, New Zealand"
+    },
+    {
+      "id": "sgd", "currency": "SGD", "countries": ["SG"],
+      "fields": [["bankCode", "0516"], ["account", "280-309-14"]],
+      "bank": "Wise Asia-Pacific Pte. Ltd., 2 Tanjong Katong Road, #07-01, PLQ3, Singapore, 437161, Singapore"
+    },
+    {
+      "id": "hkd", "currency": "HKD", "countries": ["HK"],
+      "fields": [["bankCode", "016"], ["branchCode", "478"], ["account", "79680190420"]],
+      "bank": "DBS Bank (Hong Kong) Limited, G/F, The Center, 99 Queen's Road Central, Central, Hong Kong"
+    },
+    {
+      "id": "php", "currency": "PHP", "countries": ["PH"],
+      "fields": [["account", "2008720160"], ["brstn", "01828-001-6"]],
+      "bank": "Wise Pilipinas Inc.",
+      "qr": "donate/qr-ph.png"
+    },
+    {
+      "id": "huf", "currency": "HUF", "countries": ["HU"],
+      "fields": [["account", "12600016-16600269-48850188"], ["iban", "HU60 1260 0016 1660 0269 4885 0188"]],
+      "bank": "Wise, Rue du Trône 100, 3rd floor, Brussels, 1050, Belgium"
+    },
+    {
+      "id": "swift", "currency": "GBP", "countries": [],
+      "fields": [["iban", "GB36 TRWI 6084 6454 8100 41"], ["swift", "TRWIGB2LXXX"]],
+      "bank": "Wise Payments Limited, Worship Square, 65 Clifton Street, London, EC2A 4JE, United Kingdom"
+    }
+  ]
+}

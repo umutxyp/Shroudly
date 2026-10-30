@@ -13,6 +13,7 @@
   [![macOS](https://img.shields.io/badge/macOS-000000?logo=apple)](#)
   [![Linux](https://img.shields.io/badge/Linux-FCC624?logo=linux&logoColor=black)](#)
   [![Android](https://img.shields.io/badge/Android-3DDC84?logo=android&logoColor=white)](#android)
+  [![Donate](https://img.shields.io/badge/Donate-PayPal-00457C?logo=paypal&logoColor=white)](https://www.paypal.com/donate?campaign_id=BV7WTVT9VJQQ6)
 
   > Break through internet censorship on **Windows, macOS, Linux and Android**. No VPN, no drivers by default, no third-party tools, and nothing that permanently changes your network settings.
 
@@ -25,6 +26,8 @@
   </a>
 
   ▶ **[Watch the 2-minute launch video](https://www.youtube.com/watch?v=Mb4Zkq1din8)**
+
+  ♥ **[Support Shroudly](#support-shroudly)**: PayPal, or a bank transfer from your own country
 </div>
 
 ---
@@ -980,6 +983,58 @@ apply to you. Do not use it to attack systems or to access things you are not
 entitled to.
 
 ---
+
+## Support Shroudly
+
+Shroudly is free, with no ads and no tracking, and it will stay that way. Donations pay for its servers, code signing and the work of keeping up with new blocks. We share what comes in and what it is spent on.
+
+<a href="https://www.paypal.com/donate?campaign_id=BV7WTVT9VJQQ6"><img src="https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif" alt="Donate with PayPal" /></a>
+
+<img src="public/donate/paypal-qr.png" alt="PayPal donation QR code" width="128" />
+
+Or scan the code with your phone's camera.
+
+### Bank transfer
+
+Every account is in the name of **Codeshare Technology Ltd**. Use the line for the country you send from: it is a local transfer there. From anywhere else, send an international (Swift) transfer to the account in the last line, which takes them from more than 150 countries. The app shows the right one for your country, with copy buttons, under **About → Support Shroudly**.
+
+| Sending from | Currency | Details |
+|---|---|---|
+| Türkiye | TRY | IBAN `TR63 0010 3000 0000 0082 3610 20` |
+| United Kingdom | GBP | Account `54810041`, sort code `60-84-64` |
+| SEPA countries | EUR | IBAN `BE28 9679 7064 5620`, BIC `TRWIBEB1XXX` |
+| United States | USD | Routing number (ACH, wire) `101019628`, account `217448457287`, checking |
+| Australia | AUD | BSB `774-001`, account `241487268` |
+| Canada | CAD | Institution `621`, transit `16001`, account `200117526468` |
+| New Zealand | NZD | Account `04-2021-0397464-38` |
+| Singapore | SGD | Bank code `0516`, account `280-309-14` |
+| Hong Kong | HKD | Bank code `016`, branch code `478`, account `79680190420` |
+| Philippines | PHP | Account `2008720160`, BRSTN `01828-001-6`, or the QR Ph code below |
+| Hungary | HUF | Account `12600016-16600269-48850188`, IBAN `HU60 1260 0016 1660 0269 4885 0188` |
+| **Anywhere else** | GBP (Swift) | IBAN `GB36 TRWI 6084 6454 8100 41`, BIC `TRWIGB2LXXX` |
+
+<details>
+<summary>The banks and their addresses, for forms that ask</summary>
+
+| Currency | Bank | Swift/BIC from abroad |
+|---|---|---|
+| TRY | Moka United Ödeme Hizmetleri ve Elektronik Para Kuruluşu A.Ş. | (local transfers only) |
+| GBP | Wise Payments Limited, Worship Square, 65 Clifton Street, London, EC2A 4JE, United Kingdom | `TRWIGB2LXXX` |
+| EUR | Wise, Rue du Trône 100, 3rd floor, Brussels, 1050, Belgium | `TRWIBEB1XXX` |
+| USD | Wise US Inc, 108 W 13th St, Wilmington, DE, 19801, United States | `TRWIUS35XXX` |
+| AUD | Wise Australia Pty Ltd, Suite 1, Level 11, 66 Goulburn Street, Sydney, NSW, 2000, Australia | `TRWIAUS1XXX` |
+| CAD | Peoples Trust, 595 Burrard Street, Vancouver, BC, V7X 1L7, Canada | `TRWICAW1XXX` |
+| NZD | Wise Payments New Zealand Ltd., Level 11, 41 Shortland Street, Auckland, 1010, New Zealand | `TRWINZ21XXX` |
+| SGD | Wise Asia-Pacific Pte. Ltd., 2 Tanjong Katong Road, #07-01, PLQ3, Singapore, 437161, Singapore | `TRWISGSGXXX` |
+| HKD | DBS Bank (Hong Kong) Limited, G/F, The Center, 99 Queen's Road Central, Central, Hong Kong | `DHBKHKHH` |
+| PHP | Wise Pilipinas Inc. | (local transfers only) |
+| HUF | Wise, Rue du Trône 100, 3rd floor, Brussels, 1050, Belgium | `TRWIBEBBXXX` |
+
+From the Philippines, scan this with your bank or e-wallet app (QR Ph, InstaPay):
+
+<img src="public/donate/qr-ph.png" alt="QR Ph code for the PHP account" width="160" />
+
+</details>
 
 ## License
 

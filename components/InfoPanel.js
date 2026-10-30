@@ -6,6 +6,7 @@ import {
   BugIcon, ChevronDownIcon, CodeIcon, ExternalLinkIcon, FileTextIcon, GlobeIcon, LockIcon, RefreshIcon,
   ScissorsIcon, SearchIcon, ShuffleIcon, SpinnerIcon, TypeIcon, ZapIcon,
 } from './icons';
+import { SupportSection } from './Support';
 import { updateActions, useUpdate } from './useUpdate';
 
 const LOGO_SRC = './logo.png';
@@ -105,7 +106,7 @@ function TechRow({ Icon, title, desc }) {
   );
 }
 
-export default function InfoPanel({ dpiStatus, version: versionProp }) {
+export default function InfoPanel({ dpiStatus, version: versionProp, supportFocus = 0 }) {
   const { t } = useLanguage();
   const [version, setVersion] = useState(versionProp || null);
   const [advActive, setAdvActive] = useState(false);
@@ -162,6 +163,8 @@ export default function InfoPanel({ dpiStatus, version: versionProp }) {
       </Section>
 
       <UpdatesSection version={version} />
+
+      <SupportSection focus={supportFocus} />
 
       {/* How it works */}
       <Section title={t('howItWorks')}>

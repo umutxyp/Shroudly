@@ -59,6 +59,8 @@ class MainActivity : Activity() {
     private lateinit var releasesLabel: TextView
     private lateinit var releasesIcon: ImageView
     private lateinit var battery: View
+    private lateinit var support: View
+    private var supportDue = false
 
     private val main = Handler(Looper.getMainLooper())
     private val onChange: () -> Unit = { render() }
@@ -107,6 +109,7 @@ class MainActivity : Activity() {
         releasesLabel = findViewById(R.id.releasesLabel)
         releasesIcon = findViewById(R.id.releasesIcon)
         battery = findViewById(R.id.battery)
+        support = findViewById(R.id.support)
         // The rows' ripples stay inside the card's rounded corners.
         findViewById<View>(R.id.about).clipToOutline = true
         Fit.apply(findViewById(R.id.root))
@@ -150,6 +153,13 @@ class MainActivity : Activity() {
         allowRow.setOnClickListener { editAdBlockAllow() }
         findViewById<View>(R.id.batteryOpen).setOnClickListener { openBatterySettings() }
         findViewById<View>(R.id.updateOpen).setOnClickListener { updateUrl?.let { open(it) } }
+        findViewById<View>(R.id.supportRow).setOnClickListener { openSupport() }
+        findViewById<View>(R.id.supportOpen).setOnClickListener { openSupport() }
+        findViewById<View>(R.id.supportLater).setOnClickListener {
+            Support.rest(this)
+            supportDue = false
+            support.visibility = View.GONE
+        }
         detailMore.setOnClickListener { showDetail() }
         // The channels' names follow the language, also after a per-app
         // language change (which recreates this window).
@@ -182,6 +192,10 @@ class MainActivity : Activity() {
         main.post(ticker)
         showBatteryHint()
         checkNetworkProxy()
+        val offered = Support.offered(this)
+        findViewById<View>(R.id.supportRow).visibility = if (offered) View.VISIBLE else View.GONE
+        findViewById<View>(R.id.supportDivider).visibility = if (offered) View.VISIBLE else View.GONE
+        supportDue = try { Support.cardDue(this) } catch (_: Exception) { false }
         // The APK from GitHub links its releases and looks for a newer one
         // there; a copy Google Play updates links the source code instead and
         // asks GitHub nothing (InstallSource).
@@ -329,6 +343,7 @@ class MainActivity : Activity() {
             toggle.stateDescription = statusText
         }
         orb.set(if (busy) Orb.Mode.BUSY else if (on) Orb.Mode.ON else Orb.Mode.OFF)
+        support.visibility = if (supportDue && on) View.VISIBLE else View.GONE
 
         // Set only when it changes: status and detail are live regions, and
         // TalkBack reads every change out.
@@ -551,6 +566,12 @@ class MainActivity : Activity() {
             .setView(ScrollView(this).apply { addView(body) })
             .setPositiveButton(android.R.string.ok, null)
             .show()
+    }
+
+    private fun openSupport() {
+        supportDue = false
+        support.visibility = View.GONE
+        try { Support.show(this) } catch (_: Exception) {}
     }
 
     private fun open(url: String) {

@@ -333,6 +333,8 @@ function rebuildTrayMenu(active = trayActive) {
       click: async () => { active ? await safeStop({ user: true }) : await safeStart({ user: true }); },
     },
     { type: 'separator' },
+    { label: s.traySupport, click: () => { showWindow(); toWindow('ui:navigate', 'support'); } },
+    { type: 'separator' },
     { label: s.trayCopyLogs, click: () => trayCopyLogs(s) },
     { label: s.traySaveLogs, click: () => traySaveLogs(s) },
     { label: s.trayQuit, click: () => { app.isQuitting = true; shutdownAndQuit(); } },
@@ -1319,6 +1321,8 @@ ipcMain.handle('app:getInfo', async () => ({
   year: new Date().getFullYear(),
   platform: process.platform,
   isAdmin: false,
+  // The system's region, for the bank account shown under Support Shroudly.
+  country: (() => { try { return app.getLocaleCountryCode() || ''; } catch { return ''; } })(),
 }));
 
 ipcMain.handle('settings:get', (e, key) => store.get(key));
@@ -2604,6 +2608,7 @@ ipcMain.handle('logs:get', () => systemLogs);
 // A short version of the log, with what a report needs to know, to the
 // clipboard only; the whole log to a file the user attaches.
 ipcMain.handle('logs:copy', () => copyLogs());
+ipcMain.handle('clipboard:write', (e, text) => typeof text === 'string' && text.length <= 300 && toClipboard(text, clipboard));
 ipcMain.handle('logs:save', () => saveLogs());
 ipcMain.handle('logs:clear', () => { systemLogs = []; addLog('info', 'Logs cleared'); return true; });
 
