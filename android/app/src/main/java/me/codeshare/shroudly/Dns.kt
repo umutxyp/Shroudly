@@ -86,6 +86,36 @@ object Dns {
         return parts.joinToString(".") to u16(m, end - 4)
     }
 
+    /* The smallest TTL among the answers, in seconds: how long the answer may
+     * be kept. null when it is not one to keep (an error, no answer at all,
+     * or one that cannot be read). */
+    fun answerTtl(m: ByteArray): Long? {
+        try {
+            if (m.size < 12 || m[3].toInt() and 0x0f != 0) return null
+            val an = u16(m, 6)
+            if (an == 0) return null
+            var p = questionEnd(m)
+            if (p < 0) return null
+            var min = Long.MAX_VALUE
+            repeat(an) {
+                while (true) {
+                    val l = m[p].toInt() and 0xff
+                    if (l == 0) { p++; break }
+                    if (l and 0xc0 != 0) { p += 2; break }
+                    p += 1 + l
+                }
+                val ttl = (u16(m, p + 4).toLong() shl 16) or u16(m, p + 6).toLong()
+                val len = u16(m, p + 8)
+                if (p + 10 + len > m.size) return null
+                if (ttl < min) min = ttl
+                p += 10 + len
+            }
+            return min
+        } catch (_: IndexOutOfBoundsException) {
+            return null
+        }
+    }
+
     /* The first IPv4 address among the answers, or null. */
     fun firstA(m: ByteArray?): String? {
         if (m == null) return null

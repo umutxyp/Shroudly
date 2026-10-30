@@ -615,6 +615,7 @@
   "logNetDnsTry": "{host}: alamat dari DNS terenkripsi tidak sampai ke mana pun di sini; mencoba alamat dari DNS jaringan ini ({addr})",
   "logNetDnsOk": "{host}: terbuka di alamat dari DNS jaringan ini ({addr})",
   "logNetDnsBad": "{host}: alamat dari DNS jaringan ini ({addr}) juga tidak sampai ke mana pun",
+  "logUdpFull": "UDP: {max} aliran sekaligus, batas maksimum mesin; aliran baru (game, panggilan, QUIC aplikasi) ditolak sampai yang lain selesai",
   "logNetDnsSame": "{host}: DNS jaringan ini memberi alamat yang sama ({addr}); di sini alamat itu tidak sampai ke mana pun",
   "logDnsServerSet": "Server DNS: {server}",
   "logDnsServerSetStrict": "Server DNS: {server} (hanya ini)",

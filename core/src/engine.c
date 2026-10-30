@@ -1979,9 +1979,21 @@ static void report_gave_up(const ladder_st *st, int local_fails, int fam) {
  *   - whatever comes back to an outbound socket goes to the client, headed
  *     with where it came from: nothing is sent anywhere that did not send
  *     first, so the relay cannot be used to amplify.
- * At most UDP_ASSOC_MAX associations at once; one more is refused. */
-#define UDP_ASSOC_MAX    256
+ * At most UDP_ASSOC_MAX associations at once; one more is refused, and the
+ * log is told (at most once a minute, "udp_full"). The tun2socks opens one
+ * per flow, every QUIC connection and every app's own DNS socket a flow of
+ * its own, and each one lives on for UDP_IDLE_MS: 256 was reached on a busy
+ * phone, and then a game, a call or a page's QUIC got no answer at all. An
+ * association that only ever carried DNS (port 53) ends after
+ * UDP_DNS_IDLE_MS instead: an app's lookup is answered within a second, and
+ * its next one opens another. */
+#if UINTPTR_MAX > 0xffffffffu
+#define UDP_ASSOC_MAX    1024
+#else
+#define UDP_ASSOC_MAX    256    /* a 32-bit process: a thread and a buffer each */
+#endif
 #define UDP_IDLE_MS      120000
+#define UDP_DNS_IDLE_MS  15000
 #define UDP_MAX_PAYLOAD  65507   /* the most an IPv4 datagram can carry */
 #define UDP_DRAIN        64      /* datagrams read from one socket per wake-up */
 #define UDP_SOCK_BUF     (256 * 1024)
@@ -1993,6 +2005,7 @@ static void report_gave_up(const ladder_st *st, int local_fails, int fam) {
 #define UDP_DNS_Q_MAX    1232    /* the longest query redirected (a common EDNS size) */
 
 static _Atomic int g_udp_assocs = 0;
+static _Atomic uint64_t g_udp_full_told = 0;   /* when the log was last told it was full */
 
 static void sa_set_port(struct sockaddr_storage *ss, uint16_t port) {
   if (ss->ss_family == AF_INET) ((struct sockaddr_in *)ss)->sin_port = htons(port);
@@ -2114,6 +2127,7 @@ typedef struct {
   uint32_t idseq;                        /* where the next forwarder id comes from */
   uint8_t *buf;
   uint64_t last;                         /* last datagram either way */
+  int other;                             /* a datagram went to a port other than 53 */
 } udp_assoc;
 
 /* Private and link-local ranges (a LAN's own resolver lives there): IPv4
@@ -2409,6 +2423,7 @@ static void udp_from_client(udp_assoc *u) {
     /* To a name on the ad and tracker list: dropped (an app then tries TCP,
      * which ends the same way). A lookup of one is answered here. */
     if (d.atyp == 3 && adblock_blocked(d.host)) continue;
+    if (d.port != 53) u->other = 1;
     if (d.port == 53 && udp_dns_blocked(u, &d, u->buf, payload, plen)) continue;
     /* Plain DNS: to the encrypted forwarder, when it is a query for it. */
     if (d.port == 53 && udp_dns_redirect(u, &d, u->buf, payload, plen)) continue;
@@ -2468,6 +2483,9 @@ static void udp_associate(sock_t client, const socks_req *rq) {
   if (atomic_fetch_add(&g_udp_assocs, 1) >= UDP_ASSOC_MAX) {
     atomic_fetch_sub(&g_udp_assocs, 1);
     socks5_reply(client, 0x01);
+    uint64_t t = now_ms(), told = atomic_load(&g_udp_full_told);
+    if ((told == 0 || t - told >= 60000) && atomic_compare_exchange_strong(&g_udp_full_told, &told, t))
+      engine_printf("{\"type\":\"udp_full\",\"max\":%d}\n", UDP_ASSOC_MAX);
     return;
   }
   u.have_client = udp_request_endpoint(rq, &u.peer, &u.client);
@@ -2509,7 +2527,7 @@ static void udp_associate(sock_t client, const socks_req *rq) {
     if (r > 0 && i4 >= 0 && ready[i4]) udp_to_client(&u, u.out4);
     if (r > 0 && i6 >= 0 && ready[i6]) udp_to_client(&u, u.out6);
     if (r > 0 && id >= 0 && ready[id]) udp_dns_answers(&u);
-    if (age_ms(now_ms(), u.last) >= UDP_IDLE_MS) break;
+    if (age_ms(now_ms(), u.last) >= (u.other ? UDP_IDLE_MS : UDP_DNS_IDLE_MS)) break;
   }
 
 out:
@@ -3119,6 +3137,9 @@ static void *nd_thread(void *p) {
   struct addrinfo hints, *res = NULL;
   memset(&hints, 0, sizeof(hints));
   hints.ai_family = AF_UNSPEC; hints.ai_socktype = SOCK_STREAM;
+  /* Only the families this machine has an address of: on a network without
+   * IPv6, its AAAA answers were tried and "got nowhere" (a phone's log). */
+  hints.ai_flags = AI_ADDRCONFIG;
   if (getaddrinfo(j->host, NULL, &hints, &res) == 0 && res) {
     struct sockaddr_storage ours[DOH_MAX_ADDRS * 2]; socklen_t ol[DOH_MAX_ADDRS * 2];
     int no = 0, k = doh_resolve_all(j->host, 443, 0, ours, ol, DOH_MAX_ADDRS);

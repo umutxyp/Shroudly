@@ -615,6 +615,7 @@
   "logNetDnsTry": "{host}: адреси із зашифрованого DNS тут недоступні; пробується адреса від DNS цієї мережі ({addr})",
   "logNetDnsOk": "{host}: відкрито за адресою від DNS цієї мережі ({addr})",
   "logNetDnsBad": "{host}: адреса від DNS цієї мережі ({addr}) теж недоступна",
+  "logUdpFull": "UDP: одночасно {max} потоків — більше рушій не приймає; новий (гра, дзвінок, QUIC застосунку) відхилено, доки не завершаться інші",
   "logNetDnsSame": "{host}: DNS цієї мережі дає ті самі адреси ({addr}); тут вони недоступні",
   "logDnsServerSet": "DNS-сервер: {server}",
   "logDnsServerSetStrict": "DNS-сервер: {server} (лише цей)",

@@ -232,6 +232,7 @@ class ShroudlyProxyService : Service() {
             }
             is EngineEvent.Host -> onHost(ev)
             is EngineEvent.NetDns -> ShroudlyVpnService.logSite(NetDnsText.line(ev))
+            is EngineEvent.UdpFull -> log(ev.line)
             is EngineEvent.Stats -> { Protection.stats = ev; Protection.changed() }
             is EngineEvent.Adblock -> when {
                 ev.error != null -> log("Ad blocking: the list could not be used (${ev.error})")

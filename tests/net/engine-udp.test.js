@@ -11,7 +11,11 @@
  * else the one the first well-formed datagram comes from; another socket on
  * this machine gets nothing through it and nothing back from it. Fragments,
  * malformed headers and datagrams to loopback or unspecified addresses are
- * dropped; closing the control connection ends the association. Plain DNS
+ * dropped; closing the control connection ends the association, as do two
+ * minutes without a datagram, or 15 s for one that only ever carried DNS
+ * (port 53): every app socket is a flow of its own, and lookups would hold
+ * hundreds of them for nothing. At most 1024 at once (256 in a 32-bit
+ * build); one more is refused and the log is told ("udp_full"). Plain DNS
  * (port 53) goes to the engine's encrypted-DNS forwarder when it has one:
  * only a standard query, not one for a LAN resolver or a LAN name; under an
  * id of its own; the question with TC set when the answer is too big for a
@@ -438,13 +442,20 @@ const LAN6 = (ifaces.find((i) => (i.family === 'IPv6' || i.family === 6) && !/^f
   await sleep(800);
   t.ok(lo4.got === lo2, '"localhost" through the system resolver is refused too');
 
-  // ── the cap: 256 associations at once, the next one refused
+  // ── the cap: 1024 associations at once (a 64-bit engine), the next one
+  // refused, and the log told once
+  const CAP = 1024;
   const held = [];
-  for (let i = 0; i < 255; i++) held.push(await associate(P2));
-  t.ok(held.every((h) => h.rep === 0), '256 associations at once are granted');
+  for (let i = 0; i < CAP - 1; i++) held.push(await associate(P2));
+  t.ok(held.every((h) => h.rep === 0), `${CAP} associations at once are granted`);
   const over = await associate(P2);
-  t.ok(over.rep === 1, `the 257th is refused (reply ${over.rep}) and nothing else is affected`);
+  t.ok(over.rep === 1, `the ${CAP + 1}th is refused (reply ${over.rep}) and nothing else is affected`);
   over.ctl.destroy();
+  const over2 = await associate(P2);
+  over2.ctl.destroy();
+  await sleep(300);
+  const full = (eng2.out.match(/"type":"udp_full"/g) || []).length;
+  t.ok(full === 1 && eng2.out.includes(`"max":${CAP}`), `the log is told it was full, once a minute (${full} time(s))`);
   r = await roundTrip(cb, b.port, LAN4, e4.port, Buffer.from('under load'));
   t.ok(r && r.data.toString() === 'under load', 'the ones held still relay');
   held.forEach((h) => h.ctl.destroy());
@@ -468,6 +479,27 @@ const LAN6 = (ifaces.find((i) => (i.family === 'IPv6' || i.family === 6) && !/^f
     d.ctl.destroy(); cd.close();
   } else {
     console.log('  --  no public DNS reachable from here (offline?): the real DNS check is skipped');
+  }
+
+  // ── one that only carried DNS ends after about 15 s of quiet; one that
+  // carried anything else is kept (two minutes)
+  {
+    const dq = await associate(P);
+    const cq = await client();
+    const q = dnsQuery('udp-echo.example');
+    r = await roundTrip(cq, dq.port, '192.0.2.53', 53, q.buf, 3000);
+    const ka = await associate(P);
+    const ck = await client();
+    const rk = await roundTrip(ck, ka.port, LAN4, e4.port, Buffer.from('kept'));
+    let dqClosed = 0; let kaClosed = 0;
+    const t0 = Date.now();
+    dq.ctl.on('close', () => { dqClosed = Date.now() - t0; });
+    ka.ctl.on('close', () => { kaClosed = Date.now() - t0; });
+    for (let w = 0; w < 20000 && !dqClosed; w += 250) await sleep(250);
+    t.ok(r && dnsAnswers(r.data, q.id) === 1 && dqClosed >= 13000 && dqClosed <= 18000,
+      `an association that only carried DNS ended after ${dqClosed} ms of quiet`);
+    t.ok(rk && rk.data.toString() === 'kept' && !kaClosed, 'one that carried a game\'s datagrams is still there');
+    ka.ctl.destroy(); cq.close(); ck.close();
   }
 
   const st = await eng.stats();

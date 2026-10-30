@@ -615,6 +615,7 @@
   "logNetDnsTry": "{host}: Die Adressen aus verschlüsseltem DNS führen hier nirgendwohin; versucht wird die des DNS dieses Netzes ({addr})",
   "logNetDnsOk": "{host}: über die Adresse des DNS dieses Netzes geöffnet ({addr})",
   "logNetDnsBad": "{host}: Auch die Adresse des DNS dieses Netzes ({addr}) führt nirgendwohin",
+  "logUdpFull": "UDP: {max} Datenströme gleichzeitig, mehr nimmt die Engine nicht; ein neuer (ein Spiel, ein Anruf, das QUIC einer App) wurde abgelehnt, bis andere enden",
   "logNetDnsSame": "{host}: Das DNS dieses Netzes gibt dieselben Adressen ({addr}); sie führen hier nirgendwohin",
   "logDnsServerSet": "DNS-Server: {server}",
   "logDnsServerSetStrict": "DNS-Server: {server} (nur dieser)",

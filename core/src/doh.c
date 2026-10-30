@@ -47,7 +47,6 @@
 #include <stdio.h>
 
 #define MAX_RESOLVERS 5
-#define CACHE_SIZE    256
 
 static const char *RESOLVERS[MAX_RESOLVERS] = {
   "1.1.1.1", "8.8.8.8", "9.9.9.9", "208.67.222.222", "8.8.4.4"
@@ -57,9 +56,33 @@ static const char *RESOLVERS[MAX_RESOLVERS] = {
  * in the order DNS gave them), kept for as long as its TTL says. Addresses are
  * stored bare rather than as sockaddr_storage, which would make the table five
  * times larger for no gain; the port is filled in when an answer is handed out,
- * so one entry serves every port of the name. */
-#define TTL_MIN_S 20     /* a lower TTL would mean a lookup on nearly every connection */
+ * so one entry serves every port of the name.
+ *
+ * Room for 4096 answers, in sets of eight found by the name's hash. It held
+ * 256, about a hundred names with both families: a phone's apps, or a few
+ * pages with their ads and CDNs, ask for many more within a TTL, so names in
+ * use were pushed out and every new connection waited for a lookup again (on
+ * Android, whose forwarder keeps no answers of its own, a full round trip of
+ * encrypted DNS).
+ *
+ * An answer past its TTL is still handed out for STALE_S (RFC 8767), and a
+ * fresh one is fetched meanwhile in the background, one fetch per name: a
+ * connection to a name in use never waits for its lookup. Should an old
+ * address no longer answer, the dialler drops it (doh_forget) and the next
+ * connection looks the name up afresh. */
+#ifndef DOH_TTL_MIN_S
+#define DOH_TTL_MIN_S 20   /* a lower TTL would mean a lookup on nearly every connection */
+#endif
+#define TTL_MIN_S DOH_TTL_MIN_S
 #define TTL_MAX_S 300    /* a higher one would keep an address the site has moved away from */
+#ifndef DOH_STALE_S
+#define DOH_STALE_S 600
+#endif
+#define STALE_S DOH_STALE_S
+#define CACHE_SETS 512
+#define CACHE_WAYS 8
+#define REFRESH_MAX 16          /* background fetches of stale answers at once */
+#define REFRESH_RETRY_MS 30000  /* after one that failed, before the next for that name */
 #define PLAIN_DEAD_MS 60000  /* public resolvers that never answered: skipped this long */
 #define FWD_WAIT_MS   4000   /* the forwarder's answer, before anything else is asked */
 #define FWD_LATE_MS   8000   /* still taken this long after the question, when nothing else answers */
@@ -71,12 +94,15 @@ typedef struct {
   int      naddr;
   uint64_t expires;
   int      used;
+  int      refreshing;      /* a fresh answer is being fetched for it */
+  uint64_t refresh_after;   /* and the last fetch failed: not again before this */
 } cache_entry;
 
-static cache_entry g_cache[CACHE_SIZE];
+static cache_entry g_cache[CACHE_SETS][CACHE_WAYS];
 static mutex_t     g_cache_mx;
 static int         g_init = 0;
 static uint64_t    g_plain_dead_until = 0;   /* under g_cache_mx */
+static int         g_refreshing = 0;         /* under g_cache_mx */
 
 void doh_init(const char *doh_host, const char *doh_ip) {
   (void)doh_host; (void)doh_ip;
@@ -114,14 +140,25 @@ static socklen_t addr_out(int family, const uint8_t *a, uint16_t port, struct so
   return (socklen_t)sizeof(*s);
 }
 
-/* Caller holds g_cache_mx. */
-static cache_entry *cache_find(const char *name, int family) {
+/* The set a name's answers of one family live in (FNV-1a). */
+static cache_entry *cache_set(const char *name, int family) {
+  uint32_t h = 2166136261u;
+  for (const unsigned char *p = (const unsigned char *)name; *p; p++) { h ^= *p; h *= 16777619u; }
+  h ^= (uint32_t)family; h *= 16777619u;
+  return g_cache[h & (CACHE_SETS - 1)];
+}
+
+/* The name's answer: within its TTL, or with stale_ok up to STALE_S past
+ * it; *stale (if given) says which. Caller holds g_cache_mx. */
+static cache_entry *cache_find(const char *name, int family, int stale_ok, int *stale) {
   uint64_t t = now_ms();
-  for (int i = 0; i < CACHE_SIZE; i++) {
-    cache_entry *e = &g_cache[i];
-    if (e->used && e->naddr > 0 && e->expires > t && e->family == family &&
-        strcmp(e->name, name) == 0)
-      return e;
+  cache_entry *set = cache_set(name, family);
+  for (int i = 0; i < CACHE_WAYS; i++) {
+    cache_entry *e = &set[i];
+    if (!e->used || e->naddr <= 0 || e->family != family || strcmp(e->name, name) != 0) continue;
+    if (stale) *stale = e->expires <= t;
+    if (e->expires > t || (stale_ok && t - e->expires <= (uint64_t)STALE_S * 1000)) return e;
+    return NULL;
   }
   return NULL;
 }
@@ -131,19 +168,20 @@ static void cache_put(const char *name, int family, uint8_t (*addrs)[16], int n,
   if (n <= 0) return;
   if (n > DOH_MAX_ADDRS) n = DOH_MAX_ADDRS;
   uint64_t t = now_ms();
+  cache_entry *set = cache_set(name, family);
   int slot = -1, victim = 0;
   uint64_t oldest = (uint64_t)-1;
   /* The name's own entry first, so a fresh answer replaces the old one
-   * instead of sitting next to it; else a free or expired slot; else the
-   * entry closest to expiring. */
-  for (int i = 0; i < CACHE_SIZE; i++)
-    if (g_cache[i].used && g_cache[i].family == family && strcmp(g_cache[i].name, name) == 0) { slot = i; break; }
-  for (int i = 0; i < CACHE_SIZE && slot < 0; i++) {
-    if (!g_cache[i].used || g_cache[i].expires <= t) { slot = i; break; }
-    if (g_cache[i].expires < oldest) { oldest = g_cache[i].expires; victim = i; }
+   * instead of sitting next to it; else a free slot; else the one that
+   * expired longest ago or is closest to expiring. */
+  for (int i = 0; i < CACHE_WAYS; i++)
+    if (set[i].used && set[i].family == family && strcmp(set[i].name, name) == 0) { slot = i; break; }
+  for (int i = 0; i < CACHE_WAYS && slot < 0; i++) {
+    if (!set[i].used) { slot = i; break; }
+    if (set[i].expires < oldest) { oldest = set[i].expires; victim = i; }
   }
   if (slot < 0) slot = victim;
-  cache_entry *e = &g_cache[slot];
+  cache_entry *e = &set[slot];
   memset(e, 0, sizeof(*e));
   strncpy(e->name, name, sizeof(e->name) - 1);
   e->family = family;
@@ -165,7 +203,7 @@ void doh_forget(const char *name, const struct sockaddr_storage *sa) {
   else if (family == AF_INET6) a = (const uint8_t *)&((const struct sockaddr_in6 *)sa)->sin6_addr;
   else return;
   mutex_lock(&g_cache_mx);
-  cache_entry *e = cache_find(name, family);
+  cache_entry *e = cache_find(name, family, 1, NULL);
   if (e) {
     for (int i = 0; i < e->naddr; i++) {
       if (memcmp(e->addr[i], a, (size_t)addr_len(family)) != 0) continue;
@@ -677,26 +715,11 @@ static int resolve_fallback(const char *name, uint16_t port, int want6, int trus
   return got > 0 ? got : -1;
 }
 
-int doh_resolve_all(const char *name, uint16_t port, int want6,
-                    struct sockaddr_storage *out, socklen_t *outlen, int max) {
-  if (!g_init) doh_init(NULL, NULL);
-  if (!name || max <= 0) return -1;
+/* A lookup of the name, the cache aside: the forwarder, then the fallbacks.
+ * Its answer is cached. */
+static int resolve_fresh(const char *name, uint16_t port, int want6,
+                         struct sockaddr_storage *out, socklen_t *outlen, int max) {
   int family = want6 ? AF_INET6 : AF_INET;
-
-  /* literal IP? */
-  struct in_addr a4; struct in6_addr a6;
-  if (inet_pton(AF_INET, name, &a4) == 1) {
-    outlen[0] = addr_out(AF_INET, (const uint8_t *)&a4, port, &out[0]); return 1;
-  }
-  if (inet_pton(AF_INET6, name, &a6) == 1) {
-    outlen[0] = addr_out(AF_INET6, (const uint8_t *)&a6, port, &out[0]); return 1;
-  }
-
-  mutex_lock(&g_cache_mx);
-  cache_entry *c = cache_find(name, family);
-  if (c) { int n = cache_copy(c, port, out, outlen, max); mutex_unlock(&g_cache_mx); return n; }
-  mutex_unlock(&g_cache_mx);
-
   uint8_t addrs[DOH_MAX_ADDRS][16];
   int n = 0;
   uint32_t ttl = 0;
@@ -762,6 +785,72 @@ int doh_resolve_all(const char *name, uint16_t port, int want6,
   }
   udp_ask_close(&fwd);
   return got;
+}
+
+/* A stale answer's fresh one, fetched in the background. */
+typedef struct { char name[256]; int family; } refresh_job;
+
+static void refresh_done(const char *name, int family, int ok) {
+  mutex_lock(&g_cache_mx);
+  cache_entry *e = cache_find(name, family, 1, NULL);
+  if (e && e->refreshing) {
+    e->refreshing = 0;
+    if (!ok) e->refresh_after = now_ms() + REFRESH_RETRY_MS;
+  }
+  g_refreshing--;
+  mutex_unlock(&g_cache_mx);
+}
+
+static void *refresh_thread(void *p) {
+  refresh_job *j = (refresh_job *)p;
+  struct sockaddr_storage out[DOH_MAX_ADDRS]; socklen_t ol[DOH_MAX_ADDRS];
+  int n = resolve_fresh(j->name, 0, j->family == AF_INET6, out, ol, DOH_MAX_ADDRS);
+  refresh_done(j->name, j->family, n > 0);
+  free(j);
+  return NULL;
+}
+
+static void refresh_start(const char *name, int family) {
+  refresh_job *j = (refresh_job *)calloc(1, sizeof(*j));
+  if (j) {
+    snprintf(j->name, sizeof(j->name), "%s", name);
+    j->family = family;
+    if (thread_spawn(refresh_thread, j, 256 * 1024) == 0) return;
+    free(j);
+  }
+  refresh_done(name, family, 0);
+}
+
+int doh_resolve_all(const char *name, uint16_t port, int want6,
+                    struct sockaddr_storage *out, socklen_t *outlen, int max) {
+  if (!g_init) doh_init(NULL, NULL);
+  if (!name || max <= 0) return -1;
+  int family = want6 ? AF_INET6 : AF_INET;
+
+  /* literal IP? */
+  struct in_addr a4; struct in6_addr a6;
+  if (inet_pton(AF_INET, name, &a4) == 1) {
+    outlen[0] = addr_out(AF_INET, (const uint8_t *)&a4, port, &out[0]); return 1;
+  }
+  if (inet_pton(AF_INET6, name, &a6) == 1) {
+    outlen[0] = addr_out(AF_INET6, (const uint8_t *)&a6, port, &out[0]); return 1;
+  }
+
+  /* Cached: handed out at once. Past its TTL, a fresh one is fetched
+   * meanwhile, one fetch per name. */
+  mutex_lock(&g_cache_mx);
+  int stale = 0;
+  cache_entry *c = cache_find(name, family, 1, &stale);
+  if (c) {
+    int n = cache_copy(c, port, out, outlen, max);
+    int refresh = stale && !c->refreshing && now_ms() >= c->refresh_after && g_refreshing < REFRESH_MAX;
+    if (refresh) { c->refreshing = 1; g_refreshing++; }
+    mutex_unlock(&g_cache_mx);
+    if (refresh) refresh_start(name, family);
+    return n;
+  }
+  mutex_unlock(&g_cache_mx);
+  return resolve_fresh(name, port, want6, out, outlen, max);
 }
 
 int doh_reply_usable(const uint8_t *r, int len, uint16_t qtype) {

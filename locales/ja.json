@@ -615,6 +615,7 @@
   "logNetDnsTry": "{host}: 暗号化 DNS のアドレスはここではどこにも届きません。このネットワークの DNS が返すアドレスを試します ({addr})",
   "logNetDnsOk": "{host}: このネットワークの DNS が返すアドレスで開きました ({addr})",
   "logNetDnsBad": "{host}: このネットワークの DNS が返すアドレス ({addr}) もどこにも届きません",
+  "logUdpFull": "UDP: 同時に {max} フロー（エンジンの上限）。新しいフロー（ゲーム、通話、アプリの QUIC）は他が終わるまで拒否されました",
   "logNetDnsSame": "{host}: このネットワークの DNS も同じアドレスを返します ({addr})。ここではどこにも届きません",
   "logDnsServerSet": "DNS サーバー：{server}",
   "logDnsServerSetStrict": "DNS サーバー: {server} (このサーバーのみ)",

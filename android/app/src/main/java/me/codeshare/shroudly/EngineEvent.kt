@@ -45,6 +45,12 @@ sealed class EngineEvent {
      * DNS"): stage "try", then "ok" or "bad". */
     data class NetDns(val host: String, val addr: String, val stage: String) : EngineEvent()
 
+    /* Every UDP flow the engine takes at once is in use, and a new one was
+     * refused (said at most once a minute; core/src/engine.c, udp_full). */
+    data class UdpFull(val max: Int) : EngineEvent() {
+        val line get() = "UDP: $max flows at once, the most the engine takes; a new one (a game, a call, an app's QUIC) was refused until others end"
+    }
+
     data class Error(val message: String, val code: Int?) : EngineEvent()
     /* What became of the ad and tracker list (ADBLOCK, --adblock), and the
      * engine's verdict on a fetched one (ADBLOCK-CHECK). Never a path. */
@@ -86,6 +92,7 @@ sealed class EngineEvent {
                     port = num("port").toInt(),
                 )
                 "netdns" -> NetDns(str("host") ?: "", str("addr") ?: "", str("stage") ?: "")
+                "udp_full" -> UdpFull(num("max").toInt())
                 "error" -> Error(str("msg") ?: "code ${num("code")}", (m["code"] as? Number)?.toInt())
                 "stopped" -> Stopped
                 else -> Other(type)

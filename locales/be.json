@@ -615,6 +615,7 @@
   "logNetDnsTry": "{host}: адрасы з зашыфраванага DNS тут недаступныя; спрабуецца адрас ад DNS гэтай сеткі ({addr})",
   "logNetDnsOk": "{host}: адкрыта па адрасе ад DNS гэтай сеткі ({addr})",
   "logNetDnsBad": "{host}: адрас ад DNS гэтай сеткі ({addr}) таксама недаступны",
+  "logUdpFull": "UDP: адначасова {max} патокаў — больш рухавік не прымае; новы (гульня, званок, QUIC праграмы) адхілены, пакуль не завершацца іншыя",
   "logNetDnsSame": "{host}: DNS гэтай сеткі дае тыя ж адрасы ({addr}); тут яны недаступныя",
   "logDnsServerSet": "DNS-сервер: {server}",
   "logDnsServerSetStrict": "DNS-сервер: {server} (толькі гэты)",

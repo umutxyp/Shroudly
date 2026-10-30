@@ -615,6 +615,7 @@
   "logNetDnsTry": "{host}: alamat daripada DNS tersulit tidak sampai ke mana-mana di sini; mencuba alamat daripada DNS rangkaian ini ({addr})",
   "logNetDnsOk": "{host}: dibuka di alamat daripada DNS rangkaian ini ({addr})",
   "logNetDnsBad": "{host}: alamat daripada DNS rangkaian ini ({addr}) juga tidak sampai ke mana-mana",
+  "logUdpFull": "UDP: {max} aliran serentak, had maksimum enjin; aliran baharu (permainan, panggilan, QUIC aplikasi) ditolak sehingga yang lain tamat",
   "logNetDnsSame": "{host}: DNS rangkaian ini memberi alamat yang sama ({addr}); di sini alamat itu tidak sampai ke mana-mana",
   "logDnsServerSet": "Pelayan DNS: {server}",
   "logDnsServerSetStrict": "Pelayan DNS: {server} (hanya ini)",

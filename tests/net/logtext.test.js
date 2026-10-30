@@ -37,6 +37,7 @@ const LINES = [
   "googlevideo.com: opened at the address this network's DNS gives (5.160.12.34)",
   "googlevideo.com: the address this network's DNS gives (2a01:5ec0::1) gets nowhere either",
   "zynk.it: this network's DNS gives the same addresses (104.21.15.223); they get nowhere here",
+  "UDP: 1024 flows at once, the most the engine takes; a new one (a game, a call, an app's QUIC) was refused until others end",
   'Autopilot: node.exe needs Advanced mode (it goes around Shroudly, straight to discord.com (162.159.137.232), which this network stops at the handshake); asking for permission',
   "Autopilot: discord.com needs Advanced mode (a program goes around Shroudly, and this network's DNS sent it to a block page (195.175.254.2 for discord.com)); asking for permission",
   'Autopilot: a program reaches forged.example directly, around Shroudly; only its DNS is blocked on this network, and the program has the real address',

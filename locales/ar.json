@@ -615,6 +615,7 @@
   "logNetDnsTry": "{host}: العناوين التي يعطيها DNS المشفّر لا تصل إلى شيء هنا؛ تجربة العنوان الذي يعطيه DNS هذه الشبكة ({addr})",
   "logNetDnsOk": "{host}: فُتح على العنوان الذي يعطيه DNS هذه الشبكة ({addr})",
   "logNetDnsBad": "{host}: العنوان الذي يعطيه DNS هذه الشبكة ({addr}) لا يصل إلى شيء أيضًا",
+  "logUdpFull": "UDP: {max} تدفقًا في وقت واحد، وهو أقصى ما يقبله المحرك؛ رُفض تدفق جديد (لعبة أو مكالمة أو QUIC لتطبيق) حتى تنتهي تدفقات أخرى",
   "logNetDnsSame": "{host}: يعطي DNS هذه الشبكة العناوين نفسها ({addr})؛ ولا تصل إلى شيء هنا",
   "logDnsServerSet": "خادم DNS: {server}",
   "logDnsServerSetStrict": "خادم DNS: {server} (هذا فقط)",

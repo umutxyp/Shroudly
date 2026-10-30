@@ -615,6 +615,7 @@
   "logNetDnsTry": "{host} : les adresses du DNS chiffré ne mènent nulle part ici ; essai de celle que donne le DNS de ce réseau ({addr})",
   "logNetDnsOk": "{host} : ouvert à l'adresse que donne le DNS de ce réseau ({addr})",
   "logNetDnsBad": "{host} : l'adresse que donne le DNS de ce réseau ({addr}) ne mène nulle part non plus",
+  "logUdpFull": "UDP : {max} flux à la fois, le maximum que le moteur accepte ; un nouveau (un jeu, un appel, le QUIC d'une app) a été refusé jusqu'à ce que d'autres se terminent",
   "logNetDnsSame": "{host} : le DNS de ce réseau donne les mêmes adresses ({addr}) ; elles ne mènent nulle part ici",
   "logDnsServerSet": "Serveur DNS : {server}",
   "logDnsServerSetStrict": "Serveur DNS : {server} (uniquement celui-ci)",

@@ -110,6 +110,7 @@ const PATTERNS = [
   [/^(\S+): the addresses encrypted DNS gives get nowhere here; trying the one this network's DNS gives \((\S+)\)$/, 'logNetDnsTry', ['host', 'addr']],
   [/^(\S+): opened at the address this network's DNS gives \((\S+)\)$/, 'logNetDnsOk', ['host', 'addr']],
   [/^(\S+): the address this network's DNS gives \((\S+)\) gets nowhere either$/, 'logNetDnsBad', ['host', 'addr']],
+  [/^UDP: (\d+) flows at once, the most the engine takes; a new one \(a game, a call, an app's QUIC\) was refused until others end$/, 'logUdpFull', ['max']],
   [/^(\S+): this network's DNS gives the same addresses \((\S*)\); they get nowhere here$/, 'logNetDnsSame', ['host', 'addr']],
   [/^DNS server: (\S+)$/, 'logDnsServerSet', ['server']],
   [/^DNS server: (\S+) \(only this one\)$/, 'logDnsServerSetStrict', ['server']],

@@ -615,6 +615,7 @@
   "logNetDnsTry": "{host}: the addresses encrypted DNS gives get nowhere here; trying the one this network's DNS gives ({addr})",
   "logNetDnsOk": "{host}: opened at the address this network's DNS gives ({addr})",
   "logNetDnsBad": "{host}: the address this network's DNS gives ({addr}) gets nowhere either",
+  "logUdpFull": "UDP: {max} flows at once, the most the engine takes; a new one (a game, a call, an app's QUIC) was refused until others end",
   "logNetDnsSame": "{host}: this network's DNS gives the same addresses ({addr}); they get nowhere here",
   "logDnsServerSet": "DNS server: {server}",
   "logDnsServerSetStrict": "DNS server: {server} (only this one)",

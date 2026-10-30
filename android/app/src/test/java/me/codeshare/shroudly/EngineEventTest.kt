@@ -6,6 +6,14 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class EngineEventTest {
+    /* Every UDP flow the engine takes was in use (core/src/engine.c). */
+    @Test
+    fun udpFull() {
+        val ev = EngineEvent.parse("""{"type":"udp_full","max":1024}""")
+        assertEquals(EngineEvent.UdpFull(1024), ev)
+        assertTrue((ev as EngineEvent.UdpFull).line.startsWith("UDP: 1024 flows at once"))
+    }
+
     @Test
     fun ready() {
         assertEquals(EngineEvent.Ready(41234, 27), EngineEvent.parse("""{"type":"ready","port":41234,"techniques":27}"""))

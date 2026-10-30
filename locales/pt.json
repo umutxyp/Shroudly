@@ -615,6 +615,7 @@
   "logNetDnsTry": "{host}: os endereços do DNS criptografado não chegam a lugar nenhum aqui; tentando o que o DNS desta rede dá ({addr})",
   "logNetDnsOk": "{host}: aberto no endereço que o DNS desta rede dá ({addr})",
   "logNetDnsBad": "{host}: o endereço que o DNS desta rede dá ({addr}) também não chega a lugar nenhum",
+  "logUdpFull": "UDP: {max} fluxos ao mesmo tempo, o máximo que o mecanismo aceita; um novo (um jogo, uma chamada, o QUIC de um app) foi recusado até outros terminarem",
   "logNetDnsSame": "{host}: o DNS desta rede dá os mesmos endereços ({addr}); aqui eles não chegam a lugar nenhum",
   "logDnsServerSet": "Servidor DNS: {server}",
   "logDnsServerSetStrict": "Servidor DNS: {server} (somente este)",

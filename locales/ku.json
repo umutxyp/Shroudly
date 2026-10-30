@@ -615,6 +615,7 @@
   "logNetDnsTry": "{host}: navnîşanên ku DNS-a şîfrekirî dide li vir nagihîjin tu derê; navnîşana ku DNS-a vê torê dide tê ceribandin ({addr})",
   "logNetDnsOk": "{host}: bi navnîşana ku DNS-a vê torê dide vebû ({addr})",
   "logNetDnsBad": "{host}: navnîşana ku DNS-a vê torê dide ({addr}) jî nagihîje tu derê",
+  "logUdpFull": "UDP: di heman demê de {max} herik, ya herî zêde ku motor qebûl dike; herikeke nû (lîstik, bang, QUIC'a sepanekê) heta yên din biqedin hate redkirin",
   "logNetDnsSame": "{host}: DNS-a vê torê jî heman navnîşanan dide ({addr}); li vir nagihîjin tu derê",
   "logDnsServerSet": "Pêşkêşkara DNS: {server}",
   "logDnsServerSetStrict": "Pêşkêşkara DNS: {server} (tenê ev)",

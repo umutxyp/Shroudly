@@ -615,6 +615,7 @@
   "logNetDnsTry": "{host}: הכתובות שנותן ה-DNS המוצפן לא מגיעות לשום מקום כאן; מנסים את הכתובת שנותן ה-DNS של הרשת הזו ({addr})",
   "logNetDnsOk": "{host}: נפתח בכתובת שנותן ה-DNS של הרשת הזו ({addr})",
   "logNetDnsBad": "{host}: גם הכתובת שנותן ה-DNS של הרשת הזו ({addr}) לא מגיעה לשום מקום",
+  "logUdpFull": "UDP: {max} זרימות בבת אחת, המקסימום שהמנוע מקבל; זרימה חדשה (משחק, שיחה, QUIC של אפליקציה) נדחתה עד שאחרות יסתיימו",
   "logNetDnsSame": "{host}: ה-DNS של הרשת הזו נותן את אותן כתובות ({addr}); הן לא מגיעות לשום מקום כאן",
   "logDnsServerSet": "שרת DNS: {server}",
   "logDnsServerSetStrict": "שרת DNS: {server} (רק זה)",

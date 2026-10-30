@@ -615,6 +615,7 @@
   "logNetDnsTry": "{host}：加密 DNS 给出的地址在这里都连不上；正在尝试此网络 DNS 给出的地址（{addr}）",
   "logNetDnsOk": "{host}：已通过此网络 DNS 给出的地址打开（{addr}）",
   "logNetDnsBad": "{host}：此网络 DNS 给出的地址（{addr}）也连不上",
+  "logUdpFull": "UDP：同时 {max} 个流，已达引擎上限；新的流（游戏、通话、应用的 QUIC）在其他流结束前被拒绝",
   "logNetDnsSame": "{host}：此网络的 DNS 给出的也是相同的地址（{addr}），在这里都连不上",
   "logDnsServerSet": "DNS 服务器：{server}",
   "logDnsServerSetStrict": "DNS 服务器：{server}（仅此一个）",

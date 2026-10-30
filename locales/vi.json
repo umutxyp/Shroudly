@@ -615,6 +615,7 @@
   "logNetDnsTry": "{host}: các địa chỉ DNS mã hóa đưa ra không đi tới đâu ở đây; đang thử địa chỉ DNS của mạng này đưa ra ({addr})",
   "logNetDnsOk": "{host}: đã mở tại địa chỉ DNS của mạng này đưa ra ({addr})",
   "logNetDnsBad": "{host}: địa chỉ DNS của mạng này đưa ra ({addr}) cũng không đi tới đâu",
+  "logUdpFull": "UDP: {max} luồng cùng lúc, tối đa mà lõi nhận; luồng mới (trò chơi, cuộc gọi, QUIC của ứng dụng) bị từ chối cho đến khi luồng khác kết thúc",
   "logNetDnsSame": "{host}: DNS của mạng này cũng cho cùng các địa chỉ ({addr}); ở đây chúng không đi tới đâu",
   "logDnsServerSet": "Máy chủ DNS: {server}",
   "logDnsServerSetStrict": "Máy chủ DNS: {server} (chỉ máy chủ này)",

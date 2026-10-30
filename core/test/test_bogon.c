@@ -94,7 +94,7 @@ static int build_multi(uint8_t *b, const char *name, const uint32_t *ips, const 
  * has 93.184.216.34, "published.example" only 10.1.2.3, "bogus.example" is
  * a server failure (its DNSSEC signatures are wrong), and every other name
  * does not exist. Counts the queries it gets. */
-static struct { sock_t s; uint16_t port; _Atomic int queries; _Atomic int stop; } g_fwd;
+static struct { sock_t s; uint16_t port; _Atomic int queries; _Atomic int stop; _Atomic int moving; } g_fwd;
 static void *fwd_thread(void *arg) {
   (void)arg;
   while (!atomic_load(&g_fwd.stop)) {
@@ -110,6 +110,8 @@ static void *fwd_thread(void *arg) {
     uint32_t ip = 0;
     if (!strcmp(name, "public.example")) ip = 0x5db8d822;
     else if (!strcmp(name, "published.example")) ip = 0x0a010203;
+    else if (!strncmp(name, "n", 1) && strstr(name, ".many.example")) ip = 0x5db80000u | (uint32_t)(atoi(name + 1) & 0xffff);
+    else if (!strcmp(name, "moving.example")) ip = 0x5db8d900u | (uint32_t)(atomic_fetch_add(&g_fwd.moving, 1) + 1);
     memcpy(r, q, (size_t)qend);
     r[2] = 0x81; r[3] = ip ? 0x80 : !strcmp(name, "bogus.example") ? 0x82 : 0x83;
     r[6] = 0; r[7] = ip ? 1 : 0; r[8] = r[9] = r[10] = r[11] = 0;
@@ -227,9 +229,9 @@ int main(void){
   { uint8_t a[3][16]; memset(a,0,sizeof(a));
     a[0][0]=93; a[0][3]=1; a[1][0]=8; a[1][3]=8; a[2][0]=1; a[2][3]=1;
     uint64_t t0=now_ms();
-    mutex_lock(&g_cache_mx); cache_put("ttl.example",AF_INET,a,3,1); cache_entry *e=cache_find("ttl.example",AF_INET);
+    mutex_lock(&g_cache_mx); cache_put("ttl.example",AF_INET,a,3,1); cache_entry *e=cache_find("ttl.example",AF_INET,0,NULL);
     CHECK(e && e->expires>=t0+20000 && e->expires<=now_ms()+20000);
-    cache_put("ttl.example",AF_INET,a,3,100000); e=cache_find("ttl.example",AF_INET);
+    cache_put("ttl.example",AF_INET,a,3,100000); e=cache_find("ttl.example",AF_INET,0,NULL);
     CHECK(e && e->expires<=now_ms()+300000 && e->expires>=t0+300000);
     mutex_unlock(&g_cache_mx);
 
@@ -245,7 +247,7 @@ int main(void){
     CHECK(doh_resolve_all("ttl.example",443,0,out,ol,DOH_MAX_ADDRS)==2);
     CHECK(((uint8_t*)&((struct sockaddr_in*)&out[0])->sin_addr)[0]==8);
     doh_forget("ttl.example",&out[0]); doh_forget("ttl.example",&out[1]);
-    mutex_lock(&g_cache_mx); CHECK(cache_find("ttl.example",AF_INET)==NULL); mutex_unlock(&g_cache_mx);
+    mutex_lock(&g_cache_mx); CHECK(cache_find("ttl.example",AF_INET,1,NULL)==NULL); mutex_unlock(&g_cache_mx);
   }
   printf("  TTL clamp, multi-address cache, forget-on-failure: OK\n");
 
@@ -337,9 +339,66 @@ int main(void){
     doh_set_strict(1); CHECK(doh_strict()==0); doh_set_strict(0);
     CHECK(doh_resolve_all("poisoned.example",80,0,out,ol,DOH_MAX_ADDRS)==-1);
     CHECK(doh_local_addr(&fa)==-1);
+    printf("  private answers only for local names: OK\n");
+
+    /* 16. Room for thousands of names: of 2000 looked up, nearly all are
+     *     kept (it held 256 answers, so names in use were pushed out and
+     *     looked up again), and each comes back with its own address. */
+    doh_set_local("127.0.0.1", g_fwd.port);
+    doh_clear_cache();
+    mutex_lock(&g_cache_mx); g_plain_dead_until = now_ms() + 600000; mutex_unlock(&g_cache_mx);
+    char nm[64]; int all_ok = 1, kept = 0;
+    for (int i = 0; i < 2000; i++) {
+      snprintf(nm, sizeof(nm), "n%d.many.example", i);
+      if (doh_resolve_all(nm,443,0,out,ol,DOH_MAX_ADDRS) != 1 || V4(0) != (0x5db80000u | (uint32_t)i)) all_ok = 0;
+    }
+    for (int i = 0; i < 2000; i++) {
+      snprintf(nm, sizeof(nm), "n%d.many.example", i);
+      mutex_lock(&g_cache_mx);
+      cache_entry *ke = cache_find(nm, AF_INET, 0, NULL);
+      if (ke && ke->naddr == 1 && ke->addr[0][3] == (uint8_t)i && ke->addr[0][2] == (uint8_t)(i >> 8)) kept++;
+      mutex_unlock(&g_cache_mx);
+    }
+    CHECK(all_ok && kept >= 1960);
+    int q0 = atomic_load(&g_fwd.queries);
+    for (int i = 1990; i >= 0; i -= 10) {
+      snprintf(nm, sizeof(nm), "n%d.many.example", i);
+      if (doh_resolve_all(nm,443,0,out,ol,DOH_MAX_ADDRS) != 1 || V4(0) != (0x5db80000u | (uint32_t)i)) all_ok = 0;
+    }
+    CHECK(all_ok && atomic_load(&g_fwd.queries) - q0 <= 4);
+    printf("  2000 names: %d kept: OK\n", kept);
+
+    /* 17. Past its TTL, an answer is still handed out at once, and one fresh
+     *     lookup runs in the background for any number of connections; the
+     *     next connection after it gets the fresh answer. */
+    CHECK(doh_resolve_all("moving.example",443,0,out,ol,DOH_MAX_ADDRS)==1 && V4(0)==0x5db8d901);
+    mutex_lock(&g_cache_mx);
+    cache_entry *mv = cache_find("moving.example",AF_INET,0,NULL);
+    CHECK(mv != NULL); if (mv) mv->expires = now_ms() - 1000;
+    mutex_unlock(&g_cache_mx);
+    q0 = atomic_load(&g_fwd.queries);
+    uint64_t t1 = now_ms(); int stale_ok = 1;
+    for (int i = 0; i < 20; i++)
+      if (doh_resolve_all("moving.example",443,0,out,ol,DOH_MAX_ADDRS) != 1 || V4(0) != 0x5db8d901) stale_ok = 0;
+    CHECK(stale_ok && now_ms() - t1 < 500);
+    for (int i = 0; i < 200 && atomic_load(&g_fwd.queries) == q0; i++) sleep_ms(10);
+    for (int i = 0; i < 200; i++) {
+      mutex_lock(&g_cache_mx); int busy = g_refreshing; mutex_unlock(&g_cache_mx);
+      if (!busy) break;
+      sleep_ms(10);
+    }
+    CHECK(atomic_load(&g_fwd.queries) - q0 == 1);
+    CHECK(doh_resolve_all("moving.example",443,0,out,ol,DOH_MAX_ADDRS)==1 && V4(0)==0x5db8d902);
+    /* Long past it (beyond STALE_S): looked up before it is handed out. */
+    mutex_lock(&g_cache_mx);
+    mv = cache_find("moving.example",AF_INET,0,NULL);
+    CHECK(mv != NULL); if (mv) mv->expires = now_ms() - (uint64_t)STALE_S * 1000 - 1000;
+    mutex_unlock(&g_cache_mx);
+    CHECK(doh_resolve_all("moving.example",443,0,out,ol,DOH_MAX_ADDRS)==1 && V4(0)==0x5db8d903);
+    printf("  stale answers at once, one fetch in the background: OK\n");
+    doh_set_local(NULL, 0);
     #undef V4
     fwd_stop(); }
-  printf("  private answers only for local names: OK\n");
 
   if(fails==0){printf("ANTI-POISONING TESTS PASSED\n");return 0;}
   printf("%d FAILED\n",fails);return 1;

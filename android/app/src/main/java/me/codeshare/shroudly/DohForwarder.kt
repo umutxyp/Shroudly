@@ -216,6 +216,9 @@ class DohForwarder(
 
     @Volatile private var serveThread: Thread? = null
 
+    // Answers kept for their TTL (AnswerCache): an app's own lookups among them.
+    val answers = AnswerCache()
+
     /* Binds 127.0.0.1 on `port` (0: a free one) and returns the port. */
     fun start(port: Int = 0): Int {
         val s = DatagramSocket(InetSocketAddress(InetAddress.getByName("127.0.0.1"), port))
@@ -251,6 +254,8 @@ class DohForwarder(
      * alone answers, with no fallback when it does not (issue #34). */
     fun setCustom(spec: DnsSpec?, strict: Boolean = false, proxy: DnsProxy? = null) {
         custom?.close()
+        // The answers kept from before: the user wants this server's.
+        answers.clear()
         custom = spec?.let { s ->
             CustomDns(s, { socksPort }, { socksAuth }, proxy) { name ->
                 Dns.firstA(resolveRoutes(Dns.buildQuery(name, Dns.TYPE_A, (Math.random() * 65535).toInt()), System.nanoTime() / 1_000_000 + ANSWER_BY_MS))
@@ -297,6 +302,7 @@ class DohForwarder(
 
     fun stop() {
         custom?.drop()
+        answers.clear()
         running = false
         timer?.shutdownNow()
         timer = null
@@ -322,6 +328,11 @@ class DohForwarder(
             if (!Dns.isQuery(pkt.data, pkt.length)) continue
             val msg = pkt.data.copyOf(pkt.length)
             val to = pkt.socketAddress
+            val kept = answers.get(msg)
+            if (kept != null) {
+                try { s.send(DatagramPacket(kept, kept.size, to)) } catch (_: IOException) {}
+                continue
+            }
             val rx = System.nanoTime() / 1_000_000
             lookups.execute {
                 // The engine has stopped waiting for this one.
@@ -331,6 +342,7 @@ class DohForwarder(
                 // falls through to nothing else) and the app asking hears at once.
                 val answer = resolve(msg, rx + ANSWER_BY_MS) ?: if (custom?.strict == true) Dns.failReply(msg) else null
                 if (answer != null) {
+                    answers.put(msg, answer)
                     failuresInARow.set(0)
                     try { s.send(DatagramPacket(answer, answer.size, to)) } catch (_: IOException) {}
                 } else {

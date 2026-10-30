@@ -615,6 +615,7 @@
   "logNetDnsTry": "{host}: هغه پتې چې کوډ شوی DNS یې ورکوي دلته چېرته نه رسېږي؛ هغه پته ازمویل کېږي چې د دې شبکې DNS یې ورکوي ({addr})",
   "logNetDnsOk": "{host}: په هغه پته پرانیستل شو چې د دې شبکې DNS یې ورکوي ({addr})",
   "logNetDnsBad": "{host}: هغه پته چې د دې شبکې DNS یې ورکوي ({addr}) هم چېرته نه رسېږي",
+  "logUdpFull": "UDP: په یوه وخت {max} بهیرونه، چې انجن تر دې ډېر نه مني؛ یو نوی بهیر (لوبه، اړیکه، د اپ QUIC) تر هغو رد شو چې نور پای ته ورسېږي",
   "logNetDnsSame": "{host}: د دې شبکې DNS هم همغه پتې ورکوي ({addr})؛ دلته چېرته نه رسېږي",
   "logDnsServerSet": "DNS سرور: {server}",
   "logDnsServerSetStrict": "DNS سرور: {server} (یوازې همدا)",

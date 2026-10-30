@@ -615,6 +615,7 @@
   "logNetDnsTry": "{host}: şifrlenen DNS-iň berýän salgylaryna bu ýerde ýetip bolanok; bu toruň DNS-iniň berýän salgysy synanylýar ({addr})",
   "logNetDnsOk": "{host}: bu toruň DNS-iniň berýän salgysy arkaly açyldy ({addr})",
   "logNetDnsBad": "{host}: bu toruň DNS-iniň berýän salgysyna ({addr}) hem ýetip bolanok",
+  "logUdpFull": "UDP: bir wagtda {max} akym, hereketlendiriji mundan köp kabul etmeýär; täze akym (oýun, jaň, programmanyň QUIC-i) beýlekiler gutarýança ret edildi",
   "logNetDnsSame": "{host}: bu toruň DNS-i hem şol salgylary berýär ({addr}); bu ýerde olara ýetip bolanok",
   "logDnsServerSet": "DNS serweri: {server}",
   "logDnsServerSetStrict": "DNS serwer: {server} (diňe şu)",

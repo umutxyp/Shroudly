@@ -615,6 +615,7 @@
   "logNetDnsTry": "{host}: shifrlangan DNS bergan manzillarga bu yerda yetib bo‘lmaydi; ushbu tarmoq DNS bergan manzil sinab ko‘rilmoqda ({addr})",
   "logNetDnsOk": "{host}: ushbu tarmoq DNS bergan manzil orqali ochildi ({addr})",
   "logNetDnsBad": "{host}: ushbu tarmoq DNS bergan manzilga ({addr}) ham yetib bo‘lmaydi",
+  "logUdpFull": "UDP: bir vaqtda {max} oqim, dvigatel qabul qiladigan eng koʻp son; yangi oqim (oʻyin, qoʻngʻiroq, ilovaning QUIC’i) boshqalari tugaguncha rad etildi",
   "logNetDnsSame": "{host}: ushbu tarmoq DNS ham o‘sha manzillarni beradi ({addr}); bu yerda ularga yetib bo‘lmaydi",
   "logDnsServerSet": "Tanlangan DNS server: {server}",
   "logDnsServerSetStrict": "DNS server: {server} (faqat shu)",

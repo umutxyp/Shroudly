@@ -903,6 +903,10 @@ class EngineManager {
         else if (msg.stage === 'same') this.log('info', `${msg.host}: this network's DNS gives the same addresses (${msg.addr}); they get nowhere here`);
         else this.log('info', `${msg.host}: the address this network's DNS gives (${msg.addr}) gets nowhere either`);
         break;
+      // Every UDP flow the engine takes at once is in use (core/src/engine.c).
+      case 'udp_full':
+        this.log('warning', `UDP: ${msg.max} flows at once, the most the engine takes; a new one (a game, a call, an app's QUIC) was refused until others end`);
+        break;
       case 'probe':
         if (msg.ok && msg.strategy === 'none') {
           this.log('info', `Auto: ${msg.host} is not blocked here`);

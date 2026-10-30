@@ -615,6 +615,7 @@
   "logNetDnsTry": "{host}: şifrələnmiş DNS-in verdiyi ünvanlara burada çatmaq olmur; bu şəbəkənin DNS-inin verdiyi ünvan sınanır ({addr})",
   "logNetDnsOk": "{host}: bu şəbəkənin DNS-inin verdiyi ünvanla açıldı ({addr})",
   "logNetDnsBad": "{host}: bu şəbəkənin DNS-inin verdiyi ünvana ({addr}) da çatmaq olmur",
+  "logUdpFull": "UDP: eyni anda {max} axın, mühərrikin qəbul etdiyi maksimum; yeni axın (oyun, zəng, tətbiqin QUIC-i) digərləri bitənə qədər rədd edildi",
   "logNetDnsSame": "{host}: bu şəbəkənin DNS-i də eyni ünvanları verir ({addr}); burada onlara çatmaq olmur",
   "logDnsServerSet": "DNS serveri: {server}",
   "logDnsServerSetStrict": "DNS server: {server} (yalnız bu)",

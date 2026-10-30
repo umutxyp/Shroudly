@@ -615,6 +615,7 @@
   "logNetDnsTry": "{host}: የተመሰጠረው DNS የሚሰጣቸው አድራሻዎች እዚህ የትም አይደርሱም፤ የዚህ አውታረ መረብ DNS የሚሰጠው አድራሻ እየተሞከረ ነው ({addr})",
   "logNetDnsOk": "{host}: የዚህ አውታረ መረብ DNS በሚሰጠው አድራሻ ተከፍቷል ({addr})",
   "logNetDnsBad": "{host}: የዚህ አውታረ መረብ DNS የሚሰጠው አድራሻ ({addr}) እንዲሁ የትም አይደርስም",
+  "logUdpFull": "UDP: በአንድ ጊዜ {max} ፍሰቶች፣ ሞተሩ የሚቀበለው ከፍተኛ ቁጥር፤ አዲስ ፍሰት (ጨዋታ፣ ጥሪ ወይም የመተግበሪያ QUIC) ሌሎች እስኪያልቁ ድረስ ተቀባይነት አላገኘም",
   "logNetDnsSame": "{host}: የዚህ አውታረ መረብ DNS እነዚያኑ አድራሻዎች ይሰጣል ({addr})፤ እዚህ የትም አይደርሱም",
   "logDnsServerSet": "የDNS አገልጋይ፦ {server}",
   "logDnsServerSetStrict": "DNS አገልጋይ: {server} (ይህ ብቻ)",

@@ -18,7 +18,8 @@ int  doh_resolve(const char *name, uint16_t port, int want6,
                  struct sockaddr_storage *out, socklen_t *outlen);
 /* Every usable address of the name (A, or AAAA when want6), in DNS order, up
  * to max. Returns how many were filled in, or -1. Answers are cached for their
- * TTL, held between 20 s and 5 minutes. */
+ * TTL, held between 20 s and 5 minutes, and still handed out for 10 minutes
+ * past it while a fresh one is fetched in the background. */
 int  doh_resolve_all(const char *name, uint16_t port, int want6,
                      struct sockaddr_storage *out, socklen_t *outlen, int max);
 /* A connection to this address of the name failed: drop it from the cache. */

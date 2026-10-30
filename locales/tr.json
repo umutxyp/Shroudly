@@ -615,6 +615,7 @@
   "logNetDnsTry": "{host}: şifreli DNS'in verdiği adreslere burada ulaşılamıyor; bu ağın DNS'inin verdiği adres deneniyor ({addr})",
   "logNetDnsOk": "{host}: bu ağın DNS'inin verdiği adresle açıldı ({addr})",
   "logNetDnsBad": "{host}: bu ağın DNS'inin verdiği adrese ({addr}) de ulaşılamıyor",
+  "logUdpFull": "UDP: aynı anda {max} akış, motorun alabileceği en fazla sayı; yenisi (bir oyun, bir arama, bir uygulamanın QUIC'i) diğerleri bitene kadar reddedildi",
   "logNetDnsSame": "{host}: bu ağın DNS'i de aynı adresleri veriyor ({addr}); onlara burada ulaşılamıyor",
   "logDnsServerSet": "DNS sunucusu: {server}",
   "logDnsServerSetStrict": "DNS sunucusu: {server} (yalnızca bu)",
