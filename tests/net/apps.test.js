@@ -666,8 +666,10 @@ async function robloxInstaller(proxy, socksPort) {
     if (process.env.GITHUB_ACTIONS) {
     const pf = path.join(dir2, 'proxy-state.json');
     fs.writeFileSync(pf, JSON.stringify({ v: 1, platform: 'elsewhere', port: 1, snapshot: {} }));
+    const restore2 = `require(${JSON.stringify(path.join(ROOT, 'electron', 'system-proxy.js'))}).recoverSync({stateFile:${JSON.stringify(pf)}})`;
+    const wd2 = { core: enginePath(), restore: { exe: process.execPath, args: ['-e', restore2] } };
     const code2 = `const W=require(${JSON.stringify(path.join(ROOT, 'electron', 'watchdog.js'))});
-      W.watch({execPath:process.execPath,script:${JSON.stringify(path.join(ROOT, 'electron', 'proxy-watchdog.js'))}},'proxy',${JSON.stringify(pf)});
+      W.watch(${JSON.stringify(wd2)},'proxy',${JSON.stringify(pf)});
       console.log('READY'); setInterval(()=>{},1000);`;
     const app2 = require('child_process').spawn(process.execPath, ['-e', code2], { stdio: ['ignore', 'pipe', 'inherit'] });
     await new Promise((r) => app2.stdout.on('data', (d) => { if (String(d).includes('READY')) r(); }));
@@ -675,7 +677,7 @@ async function robloxInstaller(proxy, socksPort) {
     app2.kill('SIGKILL');
     const t1 = Date.now();
     while (Date.now() - t1 < 15000 && fs.existsSync(pf)) await sleep(100);
-    t.ok(!fs.existsSync(pf), `crash test: the system proxy's state is handled by the fallback watchdog too (${Date.now() - t1} ms)`);
+    t.ok(!fs.existsSync(pf), `crash test: the system proxy's state is handled by the same engine watchdog (${Date.now() - t1} ms)`);
     }
     fs.rmSync(dir2, { recursive: true, force: true });
   }

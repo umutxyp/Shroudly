@@ -9,8 +9,12 @@
  * The watchdog is the engine binary in its "--watchdog" mode (core/src/
  * watchdog.c, about 1-2 MB): if Shroudly disappears with something still
  * applied it starts "Shroudly --restore-proxy", the same restore that runs
- * after a power cut. Only when that binary is missing does it fall back to
- * proxy-watchdog.js run by a second copy of Electron (about 18 MB).
+ * after a power cut. When that binary is missing (an antivirus quarantined
+ * it), nothing is started: Shroudly.exe is never run as plain Node.js for
+ * this (ELECTRON_RUN_AS_NODE, switched off in the build: package.json
+ * electronFuses), which antivirus programs flag as a known way to disguise a
+ * program. The restore at the next login or the next start, and the
+ * installer, put things back then.
  */
 
 const fs = require('fs');
@@ -52,10 +56,6 @@ function start(opts) {
     delete env.ELECTRON_RUN_AS_NODE;   // the restore is a normal Shroudly start
     cmd = runnableCore(opts.core, opts.copyDir);
     args = ['--watchdog', String(process.pid), opts.restore.exe, ...(opts.restore.args || [])];
-  } else if (opts.execPath && opts.script) {
-    env.ELECTRON_RUN_AS_NODE = '1';
-    cmd = opts.execPath;
-    args = [opts.script, String(process.pid)];
   } else return null;
   const c = spawn(cmd, args, { detached: true, stdio: ['pipe', 'ignore', 'ignore'], windowsHide: true, env });
   c.on('error', () => { if (child === c) child = null; });
@@ -84,7 +84,7 @@ function respawn() {
   if (t.unref) t.unref();
 }
 
-/* opts: { core, restore: { exe, args }, copyDir, execPath, script };
+/* opts: { core, restore: { exe, args }, copyDir };
  * kind: 'proxy' | 'env'. */
 function watch(opts, kind, file) {
   if (!opts || !file) return false;

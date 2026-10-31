@@ -7,7 +7,8 @@
  * gets restored (with arguments that need quoting, in a folder named with
  * spaces and non-ASCII letters, as a Windows user folder can be), nothing
  * left means nothing runs, a closed pipe while Shroudly is still alive does
- * nothing until it ends, and the watchdog stays small. */
+ * nothing until it ends, the watchdog stays small, and with the engine binary
+ * gone nothing is started in its place (Electron is never run as Node.js). */
 
 const path = require('path');
 const fs = require('fs');
@@ -132,6 +133,33 @@ function rssKb(pid) {
     try { process.kill(first, 'SIGKILL'); } catch {}
     t.ok(await waitFor(() => Watchdog.pid() > 0 && Watchdog.pid() !== first, 5000), 'killed while Shroudly runs: started again');
     // Nothing left to restore when this test ends.
+    fs.rmSync(state, { force: true });
+  }
+
+  // 6. The engine binary gone (an antivirus quarantined it): nothing is
+  //    started in its place. Shroudly.exe is never run as plain Node.js
+  //    (ELECTRON_RUN_AS_NODE), which antivirus programs flag; the build
+  //    switches that off in Electron itself.
+  {
+    const cp = require('child_process');
+    const file = path.join(__dirname, '..', '..', 'electron', 'watchdog.js');
+    const realSpawn = cp.spawn;
+    const spawned = [];
+    cp.spawn = (cmd, args, o) => { spawned.push({ cmd, args, env: o && o.env }); return realSpawn(process.execPath, ['-e', ''], o); };
+    delete require.cache[require.resolve(file)];
+    let W;
+    try { W = require(file); } finally { cp.spawn = realSpawn; }
+    const state = path.join(dir, 'state 6.json');
+    fs.writeFileSync(state, '{}');
+    const gone = { core: path.join(dir, 'quarantined', path.basename(enginePath())), restore: { exe: process.execPath }, execPath: process.execPath, script: path.join(dir, 'x.js') };
+    t.ok(W.watch(gone, 'proxy', state) === false && !W.running() && !spawned.length, 'engine binary missing: no watchdog, and nothing started in its place');
+    const root = path.join(__dirname, '..', '..');
+    const setsRunAsNode = fs.readdirSync(path.join(root, 'electron')).filter((f) => f.endsWith('.js'))
+      .filter((f) => /ELECTRON_RUN_AS_NODE\s*=(?!=)|\bfork\s*\(/.test(fs.readFileSync(path.join(root, 'electron', f), 'utf8')));
+    t.ok(!setsRunAsNode.length, `nothing in the app runs Electron as Node.js (${setsRunAsNode.join(', ') || 'none'})`);
+    const fuses = require(path.join(root, 'package.json')).build.electronFuses || {};
+    t.ok(fuses.runAsNode === false && fuses.enableNodeOptionsEnvironmentVariable === false && fuses.enableNodeCliInspectArguments === false,
+      'the packaged app ignores ELECTRON_RUN_AS_NODE, NODE_OPTIONS and --inspect (electronFuses)');
     fs.rmSync(state, { force: true });
   }
 

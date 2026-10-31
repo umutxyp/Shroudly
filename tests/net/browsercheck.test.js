@@ -5,8 +5,9 @@
  * read, each browser is found with all its processes and nothing else, the
  * verdict (direct to the internet and never to Shroudly) is right in every
  * case that is not it, and Firefox's own "no proxy" choice is put back while
- * the user's own proxy is never touched. And the real process list of this
- * machine is read without error. */
+ * the user's own proxy is never touched, its profiles read only when they can
+ * have changed. And the real process list of this machine is read without
+ * error. */
 
 const fs = require('fs');
 const os = require('os');
@@ -70,6 +71,14 @@ const t = suite('browsercheck');
     'the manual proxy profile untouched');
   t.ok(!fs.readdirSync(a).some((f) => f.includes('shroudly')), 'no temporary file left');
   fs.rmSync(home, { recursive: true, force: true });
+
+  // ── when Firefox's profiles are read: not at every look ──
+  const due = B.firefoxLookout();
+  const looks = (seq) => seq.map((running) => due(running));
+  t.ok(JSON.stringify(looks([false, false, false])) === '[true,false,false]', 'read at the first look, then not again while Firefox stays closed');
+  t.ok(JSON.stringify(looks([true, true, false, false])) === '[false,false,true,false]', 'never while Firefox runs (it writes them back); once after it has been closed');
+  due.reset();
+  t.ok(JSON.stringify(looks([false, false])) === '[true,false]', 'after a while not watched (protection off): read once more');
 
   // ── this machine ──
   const real = await B.runningBrowsers();

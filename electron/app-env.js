@@ -111,28 +111,35 @@ function regKey(key) {
 /* Windows: tell Explorer and the other running programs that the
  * environment changed (WM_SETTINGCHANGE "Environment"), on which Explorer
  * builds its environment again from the registry, Volatile Environment
- * included. .NET's SetEnvironmentVariable sends that message itself after
- * writing HKCU\Environment: no code to compile, unlike calling
- * SendMessageTimeout from PowerShell. Asked to remove a name that is never
- * set there, it writes nothing and still sends the message (.NET Framework
- * and .NET alike), so nothing is kept. Fire and forget: PowerShell takes a
- * moment to start, and the registry is already right. Returns the process
+ * included. The engine sends it, a direct call (shroudly-core
+ * --broadcast-env): a security product or a policy that keeps PowerShell
+ * from starting does not keep the message from going out (issue #33:
+ * "HTTPS_PROXY not defined" in a window opened with Win+R). PowerShell sends
+ * the same message only when the engine cannot (an antivirus quarantined it
+ * or stopped it from starting). Both at once, as before, sent it twice and
+ * started a hidden PowerShell each time the mode came on or went off, which
+ * antivirus programs count against Shroudly. In PowerShell, .NET's
+ * SetEnvironmentVariable sends that message itself after writing
+ * HKCU\Environment: no code to compile, unlike calling SendMessageTimeout.
+ * Asked to remove a name that is never set there, it writes nothing and
+ * still sends the message (.NET Framework and .NET alike), so nothing is
+ * kept. Fire and forget: the registry is already right. Returns the process
  * (tests wait for it). */
 const BROADCAST_NAME = 'SHROUDLY_ENV_BROADCAST';
 function winBroadcast() {
-  // The engine sends it itself, a direct call (shroudly-core --broadcast-env);
-  // PowerShell too, as before, in case the engine is not there. A security
-  // product or a policy that keeps PowerShell from starting no longer keeps
-  // the message from going out (issue #33: "HTTPS_PROXY not defined" in a
-  // window opened with Win+R).
   try {
     const core = require('./engine-manager').coreBinaryPath();
     if (fs.existsSync(core)) {
       const c = spawn(core, ['--broadcast-env'], { detached: true, stdio: 'ignore', windowsHide: true });
-      c.on('error', () => {});
+      c.on('error', () => { psBroadcast(); });
       c.unref();
+      return c;
     }
   } catch {}
+  return psBroadcast();
+}
+
+function psBroadcast() {
   const ps = `[Environment]::SetEnvironmentVariable('${BROADCAST_NAME}', $null, 'User')`;
   try {
     const p = spawn('powershell.exe', ['-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass', '-Command', ps],

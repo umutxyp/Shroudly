@@ -11,6 +11,7 @@
 const fs = require('fs');
 const path = require('path');
 const { execFileSync, spawnSync } = require('child_process');
+const { versionRcFile } = require('./core-version-info');
 
 const root = path.join(__dirname, '..');
 const srcDir = path.join(root, 'core', 'src');
@@ -51,10 +52,13 @@ function buildWithZig(zig, targetKey) {
   fs.mkdirSync(outDir, { recursive: true });
   const out = path.join(outDir, t.bin);
   const parts = zig.split(' ');
-  const feat = t.zig.includes('windows') ? [] : ['-D_GNU_SOURCE', '-D_DARWIN_C_SOURCE'];
-  const args = [...parts.slice(1), 'cc', '-target', t.zig, '-std=c11', '-O2', ...feat, '-o', out, ...sources, ...t.libs];
+  const win = t.zig.includes('windows');
+  const feat = win ? [] : ['-D_GNU_SOURCE', '-D_DARWIN_C_SOURCE'];
+  // Windows: the product, company and version compiled in (core-version-info.js).
+  const rc = win ? versionRcFile(t.bin) : null;
+  const args = [...parts.slice(1), 'cc', '-target', t.zig, '-std=c11', '-O2', ...feat, '-o', out, ...sources, ...(rc ? [rc.file] : []), ...t.libs];
   console.log(`[core] zig -> ${targetKey}`);
-  execFileSync(parts[0], args, { stdio: 'inherit' });
+  try { execFileSync(parts[0], args, { stdio: 'inherit' }); } finally { if (rc) rc.remove(); }
   return out;
 }
 

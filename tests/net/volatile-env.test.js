@@ -9,7 +9,8 @@
  *     Environment, nothing is ever written to HKCU\Environment, an older
  *     version's marked values there are removed (apply, clear, the restore at
  *     login, the installer), the user's own are never touched or replaced,
- *     and the change is announced without storing anything
+ *     and the change is announced without storing anything: by the engine,
+ *     and by PowerShell only when the engine is gone or cannot start
  *   - on Windows CI, for real: a program started by the running Explorer,
  *     with the environment Explorer rebuilt on our announcement, has our
  *     HTTPS_PROXY after the mode is turned on and no longer has it after it
@@ -62,8 +63,17 @@ function fakeWindows() {
     }
     throw new Error(`unexpected reg ${op}`);
   };
-  const spawn = (cmd, args) => { spawned.push([cmd, ...args]); return { pid: 1, on() {}, once() {}, unref() {} }; };
-  return { keys, log, spawned, exec, spawn, val: (key, name) => { const m = keys.get(key); const n = m && find(m, name); return n ? m.get(n) : null; } };
+  // Each started program can be made to fail to start ('error'), as one an
+  // antivirus blocks does.
+  const children = [];
+  const spawn = (cmd, args) => {
+    spawned.push([cmd, ...args]);
+    const on = {};
+    const c = { pid: 1, on(ev, fn) { on[ev] = fn; return c; }, once() { return c; }, unref() {}, fail: (e) => on.error && on.error(e) };
+    children.push(c);
+    return c;
+  };
+  return { keys, log, spawned, children, exec, spawn, val: (key, name) => { const m = keys.get(key); const n = m && find(m, name); return n ? m.get(n) : null; } };
 }
 
 /* app-env.js loaded afresh with reg.exe and PowerShell replaced by `w`. */
@@ -132,7 +142,7 @@ function regDel(key, name) {
 function regAdd(key, name, data) {
   cp.execFileSync('reg.exe', ['add', key, '/v', name, '/t', 'REG_SZ', '/d', data, '/f'], { windowsHide: true, timeout: 10000, stdio: 'ignore' });
 }
-/* The announcement's PowerShell, given time to finish (at most 30 s). */
+/* The announcement's process, given time to finish (at most 30 s). */
 function waitBroadcast(p) {
   return new Promise((resolve) => {
     if (!p || p.exitCode !== null || p.signalCode) { resolve(); return; }
@@ -280,30 +290,55 @@ async function realWindows() {
   const url = 'http://127.0.0.1:10810';
   const writes = (w) => w.log.filter(([op]) => op === 'add');
   const ourUserWrites = (w) => w.log.filter(([op, key]) => key === USR && op !== 'query');
-  const broadcasts = (w) => w.spawned.filter((a) => /powershell/i.test(a[0]));
+  // The announcement: the engine's (shroudly-core --broadcast-env), or, only
+  // when the engine cannot send it, PowerShell's.
+  const broadcasts = (w) => w.spawned.filter((a) => a[1] === '--broadcast-env' || /powershell/i.test(a[0]));
+  const powershells = (w) => w.spawned.filter((a) => /powershell/i.test(a[0]));
   const legacy = (w) => { const m = w.keys.get(USR); m.set(MARK, url); m.set('HTTPS_PROXY', url); m.set('NO_PROXY', NO_PROXY_VALUE); };
+  // Where app-env.js finds the engine: a file that is there, or one an
+  // antivirus took away.
+  const EM = require(path.join(ROOT, 'electron', 'engine-manager.js'));
+  const engineAt = (file, fn) => { const real = EM.coreBinaryPath; EM.coreBinaryPath = () => file; try { return fn(); } finally { EM.coreBinaryPath = real; } };
+  const ENGINE = process.execPath;
+  const GONE = path.join(os.tmpdir(), 'shroudly-quarantined', 'shroudly-core.exe');
 
   // ── the Windows code, over a registry in memory ──
   {
     const w = fakeWindows();
     const A = loadWith(w);
     const e = new A({ platform: 'win32' });
-    t.ok(e.applySync(url) === 'changed', 'win32: applied');
-    const core = require(path.join(ROOT, 'electron', 'engine-manager.js')).coreBinaryPath();
-    if (fs.existsSync(core)) t.ok(w.spawned.some((a) => a[0] === core && a[1] === '--broadcast-env'), 'win32: the engine announces the change itself too (no PowerShell needed)');
-    t.ok(w.val(VOL, 'HTTPS_PROXY') === url && w.val(VOL, MARK) === url && w.val(VOL, 'NO_PROXY') === NO_PROXY_VALUE,
-      'win32: HTTPS_PROXY, NO_PROXY and the mark written to HKCU\\Volatile Environment');
-    t.ok(w.val(VOL, 'NODE_USE_ENV_PROXY') === '1' && w.val(VOL, 'SHROUDLY_NODE_PROXY') === '1', 'win32: NODE_USE_ENV_PROXY for Node.js, and its own mark, there too');
-    t.ok(writes(w).length === 5 && writes(w).every(([, key]) => key === VOL), `win32: every write goes there, the key passed as one argument (${writes(w).map((x) => x[1]).join(', ')})`);
-    t.ok(w.keys.get(USR).size === 1 && !ourUserWrites(w).length, 'win32: HKCU\\Environment is not written');
-    t.ok(!w.log.some(([op, key]) => op === 'add' && /RunOnce/.test(key)), 'win32: no login entry (the value cannot outlive the session)');
-    const ps = broadcasts(w);
-    t.ok(ps.length === 1 && ps[0].join(' ').includes(`[Environment]::SetEnvironmentVariable('${BROADCAST_NAME}', $null, 'User')`),
-      'win32: announced by removing a name that is never set (nothing stored), which still broadcasts WM_SETTINGCHANGE');
-    t.ok(!ps[0].join(' ').includes(MARK), 'win32: the announcement does not touch the mark');
-    t.ok(e.applySync(url) === 'unchanged' && broadcasts(w).length === 1, 'win32: applying again changes nothing');
-    t.ok(e.clearSync() === 'changed' && w.keys.get(VOL).size === 0 && broadcasts(w).length === 2, 'win32: cleared, and announced');
-    t.ok(w.keys.get(USR).size === 1 && !ourUserWrites(w).length, 'win32: HKCU\\Environment still untouched');
+    engineAt(ENGINE, () => {
+      t.ok(e.applySync(url) === 'changed', 'win32: applied');
+      t.ok(broadcasts(w).length === 1 && broadcasts(w)[0][0] === ENGINE && !powershells(w).length,
+        'win32: the engine announces the change itself (WM_SETTINGCHANGE), and no PowerShell is started');
+      t.ok(w.val(VOL, 'HTTPS_PROXY') === url && w.val(VOL, MARK) === url && w.val(VOL, 'NO_PROXY') === NO_PROXY_VALUE,
+        'win32: HTTPS_PROXY, NO_PROXY and the mark written to HKCU\\Volatile Environment');
+      t.ok(w.val(VOL, 'NODE_USE_ENV_PROXY') === '1' && w.val(VOL, 'SHROUDLY_NODE_PROXY') === '1', 'win32: NODE_USE_ENV_PROXY for Node.js, and its own mark, there too');
+      t.ok(writes(w).length === 5 && writes(w).every(([, key]) => key === VOL), `win32: every write goes there, the key passed as one argument (${writes(w).map((x) => x[1]).join(', ')})`);
+      t.ok(w.keys.get(USR).size === 1 && !ourUserWrites(w).length, 'win32: HKCU\\Environment is not written');
+      t.ok(!w.log.some(([op, key]) => op === 'add' && /RunOnce/.test(key)), 'win32: no login entry (the value cannot outlive the session)');
+      t.ok(e.applySync(url) === 'unchanged' && broadcasts(w).length === 1, 'win32: applying again changes nothing');
+      t.ok(e.clearSync() === 'changed' && w.keys.get(VOL).size === 0 && broadcasts(w).length === 2 && !powershells(w).length, 'win32: cleared, and announced by the engine');
+      t.ok(w.keys.get(USR).size === 1 && !ourUserWrites(w).length, 'win32: HKCU\\Environment still untouched');
+    });
+  }
+  {
+    // The engine quarantined, or stopped from starting: PowerShell sends it.
+    const w = fakeWindows();
+    const A = loadWith(w);
+    engineAt(GONE, () => {
+      t.ok(new A({ platform: 'win32' }).applySync(url) === 'changed' && w.val(VOL, 'HTTPS_PROXY') === url, 'win32, no engine: applied');
+    });
+    const ps = powershells(w);
+    t.ok(broadcasts(w).length === 1 && ps.length === 1 && ps[0].join(' ').includes(`[Environment]::SetEnvironmentVariable('${BROADCAST_NAME}', $null, 'User')`),
+      'win32, no engine: announced by PowerShell instead, by removing a name that is never set (nothing stored), which still broadcasts WM_SETTINGCHANGE');
+    t.ok(!ps[0].join(' ').includes(MARK), 'win32: that announcement does not touch the mark');
+    const w2 = fakeWindows();
+    const A2 = loadWith(w2);
+    engineAt(ENGINE, () => { new A2({ platform: 'win32' }).applySync(url); });
+    t.ok(!powershells(w2).length, 'win32: the engine there, PowerShell waits');
+    w2.children[0].fail(Object.assign(new Error('spawn EACCES'), { code: 'EACCES' }));
+    t.ok(powershells(w2).length === 1, 'win32: the engine refused to start (an antivirus): PowerShell announces it instead');
   }
   {
     const w = fakeWindows();

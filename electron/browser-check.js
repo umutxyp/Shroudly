@@ -159,6 +159,26 @@ function fixFirefox(opts, skip = []) {
   return done;
 }
 
+/* When Firefox's profiles are worth reading. Firefox writes prefs.js, its
+ * proxy choice included, while it runs and when it quits; with Firefox closed
+ * nothing changes it. So they are read once, and after that only once each
+ * time Firefox has been closed again, not at every look: a program that
+ * reads a browser's profile folder minute after minute is what antivirus
+ * programs look for in software that steals from browsers. Called at each
+ * look with whether Firefox runs; true: read them now. reset(): nothing was
+ * looked at for a while (protection off), so Firefox may have run unseen. */
+function firefoxLookout() {
+  let due = true;
+  const look = (firefoxRunning) => {
+    if (firefoxRunning) { due = true; return false; }
+    const now = due;
+    due = false;
+    return now;
+  };
+  look.reset = () => { due = true; };
+  return look;
+}
+
 async function runningBrowsers(platform = process.platform) {
   const out = platform === 'win32' ? await run('tasklist', ['/FO', 'CSV', '/NH']) : await run('ps', ['-axo', 'pid=,comm=']);
   return browsersIn(parseProcesses(out, platform), platform);
@@ -174,5 +194,5 @@ async function around(ports, platform = process.platform) {
 
 module.exports = {
   BROWSERS, parseProcesses, browsersIn, goesAround, firefoxProxyType, firefoxFixed,
-  firefoxProfileDirs, firefoxProfiles, fixFirefox, runningBrowsers, around,
+  firefoxProfileDirs, firefoxProfiles, fixFirefox, firefoxLookout, runningBrowsers, around,
 };

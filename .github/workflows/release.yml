@@ -64,10 +64,12 @@ jobs:
       - name: Build engine (all arches)
         run: node scripts/build-core.js --cross
 
+      # With zig, as the engine above: zig compiles in its version info
+      # (scripts/core-version-info.js), and a failed build fails the job.
       - name: Build advanced engine + fetch WinDivert (Windows)
         if: matrix.platform == 'win'
         run: |
-          node scripts/build-core-advanced.js
+          node scripts/build-core-advanced.js --target win32-x64
           npm run fetch:windivert
 
       - name: Build advanced engine (Linux x64 and arm64, against glibc 2.28)

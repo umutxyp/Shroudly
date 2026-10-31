@@ -15,6 +15,7 @@
 const fs = require('fs');
 const path = require('path');
 const { execFileSync, spawnSync } = require('child_process');
+const { versionRcFile } = require('./core-version-info');
 
 const root = path.join(__dirname, '..');
 const srcDir = path.join(root, 'core', 'src');
@@ -43,10 +44,13 @@ function buildZig(zig, key) {
   const outDir = path.join(outRoot, key); fs.mkdirSync(outDir, { recursive: true });
   const out = path.join(outDir, t.bin);
   const parts = zig.split(' ');
+  // Windows: the product, company and version compiled in (core-version-info.js).
+  const rc = t.zig.includes('windows') ? versionRcFile(t.bin) : null;
   const args = [...parts.slice(1), 'cc', '-target', t.zig, '-std=c11', '-O2', '-DSHROUDLY_RAW',
-    ...t.feat, '-o', out, ...sources, ...t.libs];
+    ...t.feat, '-o', out, ...sources, ...(rc ? [rc.file] : []), ...t.libs];
   try { execFileSync(parts[0], args, { stdio: 'inherit' }); console.log(`[core-adv] built ${key} -> ${out}`); }
   catch (e) { console.error(`[core-adv] ${key} failed: ${e.message}`); }
+  finally { if (rc) rc.remove(); }
 }
 
 function buildNative() {

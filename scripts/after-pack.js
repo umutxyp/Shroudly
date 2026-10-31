@@ -6,6 +6,10 @@
  * Apple Silicon then refuses to open the app ("is damaged"). Re-sign the whole
  * bundle ad hoc so it opens after the usual unidentified-developer prompt.
  * Skipped off macOS (codesign is unavailable) and when a real identity is set.
+ * electron-builder switches Electron's fuses off after this hook (package.json
+ * electronFuses: no running as plain Node.js, no NODE_OPTIONS, no --inspect),
+ * which changes the framework once more; its resetAdHocDarwinSignature signs
+ * the bundle ad hoc again after that.
  *
  * Windows: stamp Shroudly.exe with our icon and version info. electron-builder
  * normally does this with rcedit, which needs Wine off Windows, so

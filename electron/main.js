@@ -875,8 +875,6 @@ app.whenReady().then(async () => {
     core: EngineManager.coreBinaryPath(),
     restore: restoreCommand,
     copyDir: app.getPath('userData'),
-    execPath: process.execPath,
-    script: path.join(__dirname, 'proxy-watchdog.js'),
   };
   siteList = new SiteList({
     cacheFile: path.join(app.getPath('userData'), 'site-list.json'),
@@ -1952,12 +1950,15 @@ ipcMain.on('auto:dismiss', (e, at) => { if (autoLatest && autoLatest.at <= at) a
  * VPN setting, an extension, a policy. Looked at every minute while every
  * site goes through Shroudly; a browser seen going around twice in a row is
  * named once a session. Firefox's own "no proxy" choice is put back while
- * Firefox is closed, once per profile. */
+ * Firefox is closed, once per profile; its profiles are read only when they
+ * can have changed (browser-check.js firefoxLookout). */
 const browserAroundSeen = new Map();
 const browserTold = new Set();
+const firefoxDue = BrowserCheck.firefoxLookout();
 let browserBusy = false;
 async function watchBrowsers() {
-  if (browserBusy || !engine || !engine.isActive() || store.get('routeMode') === 'listed') return;
+  if (browserBusy) return;
+  if (!engine || !engine.isActive() || store.get('routeMode') === 'listed') { firefoxDue.reset(); return; }
   // Just after a wake, connections opened before the sleep (or while the
   // network came back) are no sign of a browser going around Shroudly.
   if (wake.recent(2 * 60 * 1000)) { browserAroundSeen.clear(); return; }
@@ -1965,7 +1966,7 @@ async function watchBrowsers() {
   try {
     const list = await BrowserCheck.runningBrowsers();
     const ffOff = () => BrowserCheck.firefoxProfiles().some((p) => p.type === 0 || p.type === 4);
-    if (!list.some((b) => b.id === 'firefox') && ffOff()) {
+    if (firefoxDue(list.some((b) => b.id === 'firefox')) && ffOff()) {
       const done = BrowserCheck.fixFirefox(undefined, store.get('firefoxProxyFixed', []));
       if (done.length) {
         store.set('firefoxProxyFixed', [...store.get('firefoxProxyFixed', []), ...done]);

@@ -66,6 +66,12 @@
       "electron/tools/core/**"
     ],
     "afterPack": "scripts/after-pack.js",
+    "electronFuses": {
+      "runAsNode": false,
+      "enableNodeOptionsEnvironmentVariable": false,
+      "enableNodeCliInspectArguments": false,
+      "resetAdHocDarwinSignature": true
+    },
     "electronLanguages": [
       "en-US"
     ],
