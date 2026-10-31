@@ -134,7 +134,7 @@
         </LinearLayout>
 
         <!-- QUIC and IPv6 turned off, for networks that block or slow them
-             down (#59): the engine's --drop-quic and --ipv4-only, and no
+             down (#59): the engine's options for them (Engine.args), and no
              IPv6 on the VPN interface. -->
         <TextView
             android:id="@+id/networkTitle"
