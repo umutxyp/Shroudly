@@ -195,6 +195,10 @@ class MainActivity : Activity() {
         val offered = Support.offered(this)
         findViewById<View>(R.id.supportRow).visibility = if (offered) View.VISIBLE else View.GONE
         findViewById<View>(R.id.supportDivider).visibility = if (offered) View.VISIBLE else View.GONE
+        val adBlock = AdBlock.offered(this)
+        findViewById<View>(R.id.adBlock).visibility = if (adBlock) View.VISIBLE else View.GONE
+        findViewById<View>(R.id.adBlockDivider).visibility = if (adBlock) View.VISIBLE else View.GONE
+        if (!adBlock) findViewById<View>(R.id.adBlockAllow).visibility = View.GONE
         supportDue = try { Support.cardDue(this) } catch (_: Exception) { false }
         // The APK from GitHub links its releases and looks for a newer one
         // there; a copy Google Play updates links the source code instead and

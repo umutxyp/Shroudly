@@ -45,8 +45,14 @@ object AdBlock {
     /* When a fetch was last tried, wall clock; not again within RETRY_MS. */
     @Volatile private var lastTry = 0L
 
+    /* Offered at all: the copy from GitHub. Play's Device and Network Abuse
+     * policy does not let an app block other apps' ads, so a copy Google
+     * Play installed or updates (InstallSource) has no such setting and
+     * blocks nothing, whatever was chosen before. */
+    fun offered(ctx: Context) = InstallSource.githubUpdates(ctx)
+
     fun enabled(ctx: Context): Boolean =
-        ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getBoolean(KEY_ON, false)
+        offered(ctx) && ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getBoolean(KEY_ON, false)
 
     fun setEnabled(ctx: Context, on: Boolean) {
         ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit().putBoolean(KEY_ON, on).apply()

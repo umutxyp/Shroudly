@@ -577,10 +577,13 @@
                 android:textColor="@color/text"
                 android:textSize="15sp" />
 
-            <View style="@style/Divider" />
+            <View
+                android:id="@+id/adBlockDivider"
+                style="@style/Divider" />
 
             <!-- "Block ads and trackers" (AdBlock), off by default; as the
-                 desktop's setting, label and description in the switch. -->
+                 desktop's setting, label and description in the switch.
+                 Only in the copy from GitHub (AdBlock.offered). -->
             <Switch
                 android:id="@+id/adBlock"
                 android:layout_width="match_parent"
