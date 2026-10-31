@@ -160,10 +160,16 @@ function winQuoteArg(a) {
   return `${out}${'\\'.repeat(bs * 2)}"`;
 }
 
+/* A program that could not be started at all (ENOENT...) or ran out of
+ * time says so in stderr: "PowerShell exited with -1" alone told nobody why. */
 function run(cmd, args, timeout) {
   return new Promise((resolve) => {
-    execFile(cmd, args, { timeout, windowsHide: true, env: envFor(cmd) }, (err, stdout, stderr) =>
-      resolve({ code: err ? (typeof err.code === 'number' ? err.code : -1) : 0, stderr: String(stderr || '') }));
+    execFile(cmd, args, { timeout, windowsHide: true, env: envFor(cmd) }, (err, stdout, stderr) => {
+      if (!err) { resolve({ code: 0, stderr: String(stderr || '') }); return; }
+      if (typeof err.code === 'number') { resolve({ code: err.code, stderr: String(stderr || '') }); return; }
+      const why = err.killed ? `${path.basename(cmd)} did not finish in time` : `${path.basename(cmd)} could not be started (${err.code || err.message})`;
+      resolve({ code: -1, stderr: String(stderr || '').trim() || why });
+    });
   });
 }
 

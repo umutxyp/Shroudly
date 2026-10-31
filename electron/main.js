@@ -1,5 +1,9 @@
 'use strict';
 
+/* Windows' own folders first on PATH, before anything here starts one of its
+ * tools by name (win-path.js, issue #61). */
+const windowsPathFixed = require('./win-path').ensureWindowsPath();
+
 /* "Shroudly --open-link=<class> -- <link>": what Windows runs for a link
  * Games and apps mode took over (roblox-studio: from the website's Edit
  * button, for one): its own program is started with the setting the mode
@@ -1058,6 +1062,7 @@ app.whenReady().then(async () => {
   if (how === 'tray') { setDockIcon(false); addLog('info', 'Auto-started in tray'); }
   else await createWindow({ show: true, minimised: how === 'minimised' });
   addLog('success', 'Application started');
+  if (windowsPathFixed) addLog('info', "Windows' own folders were missing from PATH or not first; Shroudly put them first for itself");
   updater.start();
   // Roblox installers downloaded in an earlier run have done their work.
   if (process.platform === 'win32') RobloxApp.cleanDownloads(path.join(app.getPath('userData'), 'roblox'));
