@@ -406,9 +406,11 @@ class ShroudlyProxyService : Service() {
             .addCapability(NetworkCapabilities.NET_CAPABILITY_NOT_VPN)
             .build()
         val cb = object : ConnectivityManager.NetworkCallback() {
-            override fun onAvailable(net: Network) = later { networks += net }
+            // Encrypted DNS opens new connections on another network (DohForwarder.networkChanged).
+            override fun onAvailable(net: Network) = later { networks += net; if (active) doh?.networkChanged() }
             override fun onLost(net: Network) = later {
                 networks -= net
+                if (active && networks.isNotEmpty()) doh?.networkChanged()
                 if (active && networks.isEmpty()) {
                     log("Network: none")
                     KeepOn.networkGone(this@ShroudlyProxyService)

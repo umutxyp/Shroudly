@@ -964,6 +964,8 @@ class ShroudlyVpnService : VpnService() {
         val id = now?.first?.toString()
         val v6 = Net.hasIpv6(now?.second)
         if (id == underlyingId && v6 == underlyingV6) return
+        // Another network, or one back after none (not just its IPv6).
+        val changed = id != underlyingId
         underlyingId = id
         underlyingV6 = v6
         if (now == null) {
@@ -975,12 +977,41 @@ class ShroudlyVpnService : VpnService() {
         }
         log("Network: ${Net.describe(cm, now.first, now.second)}")
         rawWatch.networkChanged()
+        if (changed) doh?.networkChanged()
         pathWatch.oneStrike = false
         healthReset(FIRST_PATH_CHECK_MS)
-        // The interface carries IPv6 only where the network does.
-        if (routesV6(v6) == v6Routed) return
-        log("IPv6 ${if (v6) "available" else "gone"} on this network; renewing the VPN interface")
-        renewInterface(routesV6(v6))
+        // The interface carries IPv6 only where the network does. A new one
+        // starts a new tunnel, which ends the old connections too.
+        if (routesV6(v6) != v6Routed) {
+            log("IPv6 ${if (v6) "available" else "gone"} on this network; renewing the VPN interface")
+            renewInterface(routesV6(v6))
+            return
+        }
+        if (changed) endOldConnections()
+    }
+
+    /* Another network: apps' connections through the tunnel were carried
+     * over the old one, and where it did not go away at once (Wi-Fi out of
+     * range but still joined, mobile data lingering) they are dead without
+     * knowing it. Android ends an app's own connections when their network
+     * goes, but these are on the VPN, which stays: the apps kept waiting on
+     * them, and nothing came until protection was turned off and on (a
+     * user's report). A new tunnel ends every one of them, and the apps
+     * connect again over the new network. */
+    private fun endOldConnections() {
+        if (!tunnelRunning || engine == null) return
+        log("Network changed: apps' connections over the old one are ended, so they connect again")
+        stopTunnel()
+        if (restartProcess) {
+            wedged("the tunnel did not stop after the network changed")
+            return
+        }
+        try {
+            startTunnel()
+        } catch (e: Exception) {
+            log("Tunnel restart failed: ${e.message}")
+            giveUp(R.string.androidProtectionLost, "the tunnel could not be restarted: ${e.message}")
+        }
     }
 
     /* IPv6 on the interface: where the network has it, unless turned off. */

@@ -1,6 +1,7 @@
 package me.codeshare.shroudly
 
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotSame
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -9,6 +10,23 @@ import java.util.Collections
 import java.util.concurrent.Executors
 
 class DohRaceTest {
+    /* Another network (DohForwarder.networkChanged): a route forgets the rest
+     * it earned on the old one, and its new verifier keeps the old network's
+     * pooled connections from being used again; its speed is kept. */
+    @Test
+    fun anotherNetworkStartsAfresh() {
+        val r = DohRoute("t-1", "t", "192.0.2.1", listOf("dns.example"))
+        val before = r.verifier
+        r.succeeded(40)
+        r.failed(1_000); r.failed(2_000); r.failed(3_000)
+        assertTrue(r.fails == 3 && r.restUntil > 3_000)
+        r.fresh()
+        assertEquals(0, r.fails)
+        assertEquals(0L, r.restUntil)
+        assertEquals(40L, r.ewma)
+        assertNotSame(before, r.verifier)
+    }
+
     private val pool = Executors.newCachedThreadPool()
     private val fast = longArrayOf(40, 120, 80)
 

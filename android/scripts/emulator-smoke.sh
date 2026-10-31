@@ -415,6 +415,11 @@ say "tunnel restarted: example.com -> $fresh; the old $before is refused, never 
 mobile_up() { grep -qE 'MOBILE[^}]*CONNECTED' <<<"$(sh_ "dumpsys connectivity")"; }
 if grep -q 'inet ' <<<"$(sh_ "ip addr show wlan0")" && mobile_up; then
   sh_ "svc wifi disable" >/dev/null; sleep 5
+  # What was opened over Wi-Fi is let go: encrypted DNS connects anew, and a
+  # new tunnel ends apps' old connections (or a new interface, when IPv6
+  # came or went with the network).
+  wait_for 30 has_log "Network changed: apps' connections over the old one are ended\|renewing the VPN interface" ||
+    fail "the network changed and the connections over the old one were kept"
   wait_for 90 net_up || fail "no internet through the VPN on mobile data after Wi-Fi went off"
   say "Wi-Fi off: through the VPN on mobile data: $(http_get)"
   sh_ "svc wifi enable" >/dev/null

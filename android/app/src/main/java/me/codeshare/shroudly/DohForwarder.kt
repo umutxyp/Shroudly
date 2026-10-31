@@ -73,16 +73,28 @@ class DohRoute(
     /* The address as a URL's host. */
     val urlHost get() = if (v6) "[$ip]" else ip
 
-    /* One verifier for the route's whole life: HttpsURLConnection pools
-     * connections per verifier, so a new one per request would mean a new
-     * TCP and TLS handshake for every lookup. */
-    val verifier: HostnameVerifier by lazy {
-        val d = HttpsURLConnection.getDefaultHostnameVerifier()
-        HostnameVerifier { _, session -> d.verify(ip, session) || names.any { d.verify(it, session) } }
-    }
+    /* One verifier per network: HttpsURLConnection pools connections per
+     * verifier, so a new one per request would mean a new TCP and TLS
+     * handshake for every lookup, and a new one once the network changed
+     * (fresh) keeps the old network's connections out of the pool's reach. */
+    @Volatile var verifier: HostnameVerifier = newVerifier()
+        private set
     @Volatile var fails = 0
     @Volatile var restUntil = 0L
     @Volatile var ewma = 0L
+
+    private fun newVerifier(): HostnameVerifier {
+        val d = HttpsURLConnection.getDefaultHostnameVerifier()
+        return HostnameVerifier { _, session -> d.verify(ip, session) || names.any { d.verify(it, session) } }
+    }
+
+    /* Another network: new connections, and the rest earned on the old one
+     * forgotten (its speed is kept, a fair first guess). */
+    fun fresh() {
+        verifier = newVerifier()
+        fails = 0
+        restUntil = 0
+    }
 
     fun succeeded(ms: Long) {
         ewma = if (ewma == 0L) ms else (ewma * 7 + ms * 3) / 10
@@ -385,6 +397,22 @@ class DohForwarder(
             onPreferred(won.first.id)
         }
         return won.second
+    }
+
+    /* Another network, or the same one back after a gap: the connections
+     * made before are dead without knowing it where the old network did not
+     * go away at once (Wi-Fi out of range but still joined, mobile data
+     * lingering), and a lookup on one waits out its whole timeout; the rests
+     * earned there say nothing about here. Lookups start afresh, the
+     * remembered route first, and the user's own server connects again. As
+     * the desktop's (electron/doh-forwarder.js networkChanged). Moving
+     * between Wi-Fi and mobile data stopped every lookup until protection was
+     * turned off and on (a user's report). */
+    fun networkChanged() {
+        for (r in all) r.fresh()
+        custom?.let { it.drop(); it.fails = 0; it.restUntil = 0 }
+        failuresInARow.set(0)
+        try { timer?.execute { warm() } } catch (_: RejectedExecutionException) {}
     }
 
     /* Which routes answer, for the log: "cloudflare-1 23ms, google-1 31ms". */
