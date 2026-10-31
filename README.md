@@ -287,7 +287,8 @@ and that users on heavily filtered networks rely on. Each is a flag
 | macOS | — | Not possible: macOS has no packet-divert interface without an Apple-signed Network Extension |
 
 > Some antivirus products flag WinDivert, as they do for every tool built on
-> it. It is only loaded while Advanced mode is on.
+> it. It is only loaded while Advanced mode is on. If yours blocks it, see
+> [If your antivirus blocks Shroudly](#if-your-antivirus-blocks-shroudly).
 
 See [`core/src/CAPABILITIES.md`](core/src/CAPABILITIES.md) for the full threat
 model and test results.
@@ -686,6 +687,34 @@ No administrator or root rights are needed to run it; only the optional
 [Advanced mode](#advanced-mode-stateful-dpi) asks for them, and on a Standard
 macOS account, setting the system proxy (see [What is Shroudly?](#what-is-shroudly)).
 
+### If your antivirus blocks Shroudly
+
+Shroudly is not signed yet (see the [code signing policy](#code-signing-policy)),
+and what it does, setting the system proxy and, in Advanced mode, loading the
+WinDivert driver, looks to some antivirus programs like what malware does. If
+yours quarantines Shroudly, stops its engine, blocks Advanced mode or stops the
+setup:
+
+1. Restore the files from your antivirus's quarantine, if it lists them.
+2. Add two exceptions: the folder Shroudly is installed in,
+   `%LOCALAPPDATA%\Programs\Shroudly`, and the setup file you downloaded.
+3. Run the setup again. It installs over whatever is left, and puts back the
+   system proxy and Roblox's links that a removed Shroudly could leave pointing
+   at nothing.
+
+- **Bitdefender:** *Protection → Antivirus → Open → Settings → Manage exceptions
+  → Add an exception*. Enter the folder, switch on **Antivirus** and **Advanced
+  Threat Defense**, and save; then the same for the setup file. Advanced Threat
+  Defense is a protection of its own: turning off only the antivirus shield
+  leaves it on, and it alone can stop the setup or the engine. If it will not
+  take the folder, add each program to it one by one (*Protection → Advanced
+  Threat Defense → Open → Settings → Manage exceptions*): the setup file,
+  `Shroudly.exe` in that folder, and `shroudly-core.exe` and
+  `shroudly-core-adv.exe` in its `resources\app.asar.unpacked\electron\tools\core\win32-x64`.
+- **Windows Security (Microsoft Defender):** *Virus & threat protection →
+  Manage settings → Exclusions → Add or remove exclusions → Add an exclusion →
+  Folder*, and *File* for the setup.
+
 ---
 
 ## Build from source
@@ -764,7 +793,6 @@ Shroudly/
     app-env.js                Games and apps mode: HTTPS_PROXY in the session, crash-safe
     roblox-app.js             Games and apps mode: finding and restarting Roblox
     watchdog.js               starts the engine's --watchdog and tells it what to look after
-    proxy-watchdog.js         the same job in JavaScript, used only if the engine binary is missing
     updater.js                automatic updates from GitHub releases
     site-list.js              the automatic site list: fetch, check, keep
     data/sites.json           the site list as it was at release
@@ -777,9 +805,10 @@ Shroudly/
   locales/<code>.json         every string, one file per language (31)
   scripts/build-core.js       native + cross compile
   scripts/build-core-advanced.js   Advanced-mode engine build
+  scripts/core-version-info.js     product, company and version compiled into the Windows engines
   scripts/fetch-windivert.js       fetch + verify the WinDivert driver
   scripts/after-pack.js            stamp icon + version info into Shroudly.exe
-  scripts/installer.nsh            Windows installer hooks (proxy reset, Discord, HTTPS_PROXY and Store app exemption clean-up)
+  scripts/installer.nsh            Windows installer hooks (proxy reset, Discord, HTTPS_PROXY and Store app exemption clean-up; an old version's failed uninstaller never stops an install)
   scripts/site-list/               weekly site-list build: families, policy, OONI
   scripts/adblock-list/            weekly ad and tracker list build: sources, checks
   tests/net/                  network tests (fake censor, hostile servers, DNS, Discord, games and apps, site list, watchdog)
@@ -824,7 +853,8 @@ npm run test:net         # network tests: the engine against a fake censor and
                          # and against impostor resolvers, Discord app mode,
                          # games and apps mode (with the real Roblox installer
                          # on Windows CI), the block-page list, the Windows
-                         # uninstaller hook
+                         # installer and uninstaller hooks, the engines'
+                         # version info
 cd core && make test-asan fuzz   # sanitizers and fuzzing
 cd android && ./gradlew testDebugUnitTest lintDebug   # the Android app
 android/scripts/emulator-smoke.sh   # the app on an Android emulator: VPN, DNS, TCP, UDP
