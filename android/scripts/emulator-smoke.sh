@@ -330,7 +330,7 @@ sys.exit(1)' "$1" <<<"$(sh_ "dumpsys connectivity")"
 }
 vpn_has_uid 2000 || fail "before: the shell's uid 2000 is not in the VPN"
 sh_ "am start -n $PKG/.DebugControlActivity --es cmd exclude --es pkg com.android.shell" >/dev/null
-wait_for 20 has_log "Apps that skip Shroudly changed" || fail "the app list change did not renew the VPN interface"
+wait_for 20 has_log "The apps that go through Shroudly changed" || fail "the app list change did not renew the VPN interface"
 wait_for 20 eval '! vpn_has_uid 2000' || fail "an app set to skip Shroudly is still in the VPN"
 # Android moves the app's routes and DNS a moment after the VPN's change.
 # An answer from the site is the proof either way; its status is example.com's
