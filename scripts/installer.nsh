@@ -11,7 +11,6 @@
 ; with that manual proxy: with the PAC alone it is the user's own setting.
 
 !include LogicLib.nsh
-!include WinVer.nsh
 !include WinMessages.nsh
 
 !define SHROUDLY_INET "Software\Microsoft\Windows\CurrentVersion\Internet Settings"
@@ -41,10 +40,21 @@
 ; Discord app mode points the Discord app's updater at Shroudly (one line in
 ; Discord's settings.json). Take our line out, so Discord keeps working once
 ; Shroudly is gone. Only our own loopback value is removed; written without a
-; byte-order mark, which Discord's JSON reader would reject.
+; byte-order mark, which Discord's JSON reader would reject. PowerShell is
+; started only when a Discord settings file is there: an uninstaller that
+; starts PowerShell for nothing is what antivirus programs stop, and the
+; next install then fails on it. The same APPDATA as PowerShell's, read from
+; the environment: for an install for all users, NSIS's $APPDATA is not the
+; user's.
 !macro shroudlyDiscordCleanup
-  nsExec::Exec `powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command "foreach ($$d in 'discord','discordptb','discordcanary','discorddevelopment') { $$f = Join-Path $$env:APPDATA ($$d + '\settings.json'); if (Test-Path -LiteralPath $$f) { try { $$j = [IO.File]::ReadAllText($$f) | ConvertFrom-Json; if ([string]$$j.NEW_UPDATE_ENDPOINT -match '^http://127\.0\.0\.1:\d+/$$') { $$j.PSObject.Properties.Remove('NEW_UPDATE_ENDPOINT'); [IO.File]::WriteAllText($$f, ($$j | ConvertTo-Json -Depth 32)) } } catch {} } }"`
-  Pop $0
+  ReadEnvStr $1 APPDATA
+  ${If} ${FileExists} "$1\discord\settings.json"
+  ${OrIf} ${FileExists} "$1\discordptb\settings.json"
+  ${OrIf} ${FileExists} "$1\discordcanary\settings.json"
+  ${OrIf} ${FileExists} "$1\discorddevelopment\settings.json"
+    nsExec::Exec `powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command "foreach ($$d in 'discord','discordptb','discordcanary','discorddevelopment') { $$f = Join-Path $$env:APPDATA ($$d + '\settings.json'); if (Test-Path -LiteralPath $$f) { try { $$j = [IO.File]::ReadAllText($$f) | ConvertFrom-Json; if ([string]$$j.NEW_UPDATE_ENDPOINT -match '^http://127\.0\.0\.1:\d+/$$') { $$j.PSObject.Properties.Remove('NEW_UPDATE_ENDPOINT'); [IO.File]::WriteAllText($$f, ($$j | ConvertTo-Json -Depth 32)) } } catch {} } }"`
+    Pop $0
+  ${EndIf}
 !macroend
 
 ; Microsoft Store apps reach Shroudly through loopback exemptions it added
@@ -52,17 +62,42 @@
 ; one value per SID (before: the LoopbackExempt value, the SIDs joined by ';';
 ; read too). Take out those, and only those: an exemption the user had is not
 ; in the list. PowerShell reads the list, not NSIS, whose strings end at 8192
-; characters (a long list would read as nothing), so this always runs; with
-; no SIDs it does nothing and nothing is asked. Each entry must be an app
-; container SID before it reaches CheckNetIsolation, which runs elevated (one
+; characters (a long list would read as nothing); with no SIDs in it, it does
+; nothing and nothing is asked. Each entry must be an app container SID
+; before it reaches CheckNetIsolation, which runs elevated (one
 ; administrator prompt) from a script that reads them from a file; the file's
 ; path reaches that script as base64, never inside quotes, so any character
 ; in TEMP works, and the script deletes it once read. The PowerShell started
 ; from here is the 32-bit one, so that script reaches the 64-bit tool through
 ; Sysnative. The list goes once it ran.
+;
+; PowerShell is started only when there is a list: most people never had a
+; Store app exempted, and an uninstaller that starts an elevating PowerShell
+; for nothing is what antivirus programs stop. NSIS looks only at the names
+; of the values (EnumRegValue), never at the data, so a long list is still
+; seen; the old single value is found by its name too. An empty list key is
+; simply removed.
 !macro shroudlyLoopbackCleanup
-  nsExec::Exec `powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command "$$k = 'HKCU:\Software\Shroudly'; $$r = Join-Path $$k 'LoopbackExemptions'; $$v = [string](Get-ItemProperty -LiteralPath $$k -Name LoopbackExempt -ErrorAction SilentlyContinue).LoopbackExempt; $$o = Get-Item -LiteralPath $$r -ErrorAction SilentlyContinue; $$ids = @(@($$v -split ';') + @(if ($$o) { $$o.GetValueNames() }) | Where-Object { $$_ -match '^S-1-15-2(-\d{1,10}){7}$$' } | Select-Object -Unique); $$done = $$true; if ($$ids.Count) { $$done = $$false; $$f = Join-Path ([IO.Path]::GetTempPath()) ('shroudly-lb-' + [guid]::NewGuid().ToString('N') + '.txt'); [IO.File]::WriteAllLines($$f, [string[]]$$ids); $$b = [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($$f)); $$c = '$$f = [Text.Encoding]::Unicode.GetString([Convert]::FromBase64String(''' + $$b + ''')); $$l = [IO.File]::ReadAllLines($$f); Remove-Item -LiteralPath $$f -Force -ErrorAction SilentlyContinue; $$n = if ([Environment]::Is64BitOperatingSystem -and -not [Environment]::Is64BitProcess) { ''Sysnative'' } else { ''System32'' }; $$t = Join-Path $$env:SystemRoot ($$n + ''\CheckNetIsolation.exe''); foreach ($$s in $$l) { if ($$s -match ''^S-1-15-2(-\d{1,10}){7}$$'') { & $$t LoopbackExempt -d (''-p='' + $$s) | Out-Null } }'; $$e = [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($$c)); try { Start-Process -FilePath (Join-Path $$env:SystemRoot 'System32\WindowsPowerShell\v1.0\powershell.exe') -ArgumentList ('-NoProfile -NonInteractive -ExecutionPolicy Bypass -WindowStyle Hidden -EncodedCommand ' + $$e) -Verb RunAs -WindowStyle Hidden -Wait -ErrorAction Stop; $$done = $$true } catch {}; Remove-Item -LiteralPath $$f -Force -ErrorAction SilentlyContinue }; if ($$done) { Remove-ItemProperty -LiteralPath $$k -Name LoopbackExempt -ErrorAction SilentlyContinue; Remove-Item -LiteralPath $$r -Recurse -Force -ErrorAction SilentlyContinue }; exit 0"`
-  Pop $0
+  ClearErrors
+  EnumRegValue $0 HKCU "Software\Shroudly\LoopbackExemptions" 0
+  ${If} $0 == ""
+    StrCpy $1 0
+    ${Do}
+      EnumRegValue $2 HKCU "Software\Shroudly" $1
+      ${If} $2 == "LoopbackExempt"
+        StrCpy $0 $2
+        ${ExitDo}
+      ${EndIf}
+      IntOp $1 $1 + 1
+    ${LoopUntil} $2 == ""
+  ${EndIf}
+  ClearErrors
+  ${If} $0 == ""
+    DeleteRegKey /ifempty HKCU "Software\Shroudly\LoopbackExemptions"
+  ${Else}
+    nsExec::Exec `powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command "$$k = 'HKCU:\Software\Shroudly'; $$r = Join-Path $$k 'LoopbackExemptions'; $$v = [string](Get-ItemProperty -LiteralPath $$k -Name LoopbackExempt -ErrorAction SilentlyContinue).LoopbackExempt; $$o = Get-Item -LiteralPath $$r -ErrorAction SilentlyContinue; $$ids = @(@($$v -split ';') + @(if ($$o) { $$o.GetValueNames() }) | Where-Object { $$_ -match '^S-1-15-2(-\d{1,10}){7}$$' } | Select-Object -Unique); $$done = $$true; if ($$ids.Count) { $$done = $$false; $$f = Join-Path ([IO.Path]::GetTempPath()) ('shroudly-lb-' + [guid]::NewGuid().ToString('N') + '.txt'); [IO.File]::WriteAllLines($$f, [string[]]$$ids); $$b = [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($$f)); $$c = '$$f = [Text.Encoding]::Unicode.GetString([Convert]::FromBase64String(''' + $$b + ''')); $$l = [IO.File]::ReadAllLines($$f); Remove-Item -LiteralPath $$f -Force -ErrorAction SilentlyContinue; $$n = if ([Environment]::Is64BitOperatingSystem -and -not [Environment]::Is64BitProcess) { ''Sysnative'' } else { ''System32'' }; $$t = Join-Path $$env:SystemRoot ($$n + ''\CheckNetIsolation.exe''); foreach ($$s in $$l) { if ($$s -match ''^S-1-15-2(-\d{1,10}){7}$$'') { & $$t LoopbackExempt -d (''-p='' + $$s) | Out-Null } }'; $$e = [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($$c)); try { Start-Process -FilePath (Join-Path $$env:SystemRoot 'System32\WindowsPowerShell\v1.0\powershell.exe') -ArgumentList ('-NoProfile -NonInteractive -ExecutionPolicy Bypass -WindowStyle Hidden -EncodedCommand ' + $$e) -Verb RunAs -WindowStyle Hidden -Wait -ErrorAction Stop; $$done = $$true } catch {}; Remove-Item -LiteralPath $$f -Force -ErrorAction SilentlyContinue }; if ($$done) { Remove-ItemProperty -LiteralPath $$k -Name LoopbackExempt -ErrorAction SilentlyContinue; Remove-Item -LiteralPath $$r -Recurse -Force -ErrorAction SilentlyContinue }; exit 0"`
+    Pop $0
+  ${EndIf}
 !macroend
 
 ; Games and apps mode puts HTTPS_PROXY in the user's environment, pointing at
@@ -245,11 +280,97 @@
   ${endIf}
 !macroend
 
+; Installing over an older Shroudly first runs that version's uninstaller.
+; When it cannot finish (an antivirus stopped it or took one of its files, a
+; file it could not move), electron-builder's installer stopped right there
+; with "Failed to uninstall old application files. Please try running the
+; installer again", on every try, so Shroudly could not be installed again
+; at all. Now the new version is installed over the old files instead.
+; Nothing of ours is lost: what that uninstaller puts back on an update (the
+; proxy, the links, the environment) customInit has put back already.
+; Both hooks run inside one electron-builder function: LogicLib only (no
+; labels of their own), only $R0 (the old uninstaller's exit code) and the
+; error flag (it could not be started at all), and the stack and
+; electron-builder's own variables left alone.
+!macro shroudlyOldUninstallerFailed _WHICH
+  ${If} ${Errors}
+    DetailPrint `Previous ${PRODUCT_NAME} (${_WHICH}): its uninstaller could not be started; installing over it.`
+  ${ElseIf} $R0 != 0
+    DetailPrint `Previous ${PRODUCT_NAME} (${_WHICH}): its uninstaller ended with code $R0; installing over it.`
+  ${EndIf}
+  ClearErrors
+!macroend
+
+!macro customUnInstallCheck
+  !insertmacro shroudlyOldUninstallerFailed "SHELL_CONTEXT"
+!macroend
+
+!macro customUnInstallCheckCurrentUser
+  !insertmacro shroudlyOldUninstallerFailed "HKCU"
+!macroend
+
+; The other half, for the updates after this one: this uninstaller is the
+; "old" one then. On an update electron-builder's uninstaller moves every
+; file out of the way and, at the first it cannot move (an antivirus holding
+; it, say), puts them all back and gives up, which is what stopped the
+; installer. Here every file that can be moved is moved, to the same place,
+; and one that cannot is left for the installer to replace; nothing gives
+; up. A program file still running moves like any other, and Shroudly
+; itself was closed before this. Then the folder is removed, on an update
+; and on a plain uninstall alike, as electron-builder does.
+!ifdef BUILD_UNINSTALLER
+  Function un.shroudlyMoveOut
+    Exch $R0
+    Push $R1
+    Push $R2
+    FindFirst $R1 $R2 "$INSTDIR$R0\*.*"
+    ${DoWhile} $R2 != ""
+      ${If} $R2 != "."
+      ${AndIf} $R2 != ".."
+        ${If} ${FileExists} "$INSTDIR$R0\$R2\*.*"
+          CreateDirectory "$PLUGINSDIR\old-install$R0\$R2"
+          Push "$R0\$R2"
+          Call un.shroudlyMoveOut
+        ${Else}
+          ClearErrors
+          Rename "$INSTDIR$R0\$R2" "$PLUGINSDIR\old-install$R0\$R2"
+          ${If} ${Errors}
+            DetailPrint `File is busy, left for the installer to replace: $INSTDIR$R0\$R2`
+          ${EndIf}
+        ${EndIf}
+      ${EndIf}
+      FindNext $R1 $R2
+    ${Loop}
+    FindClose $R1
+    Pop $R2
+    Pop $R1
+    Pop $R0
+  FunctionEnd
+!endif
+
+!macro customRemoveFiles
+  ${if} ${isUpdated}
+    CreateDirectory "$PLUGINSDIR\old-install"
+    Push ""
+    Call un.shroudlyMoveOut
+  ${endif}
+  SetOutPath $TEMP
+  RMDir /r $INSTDIR
+!macroend
+
 !macro customInit
   ; Electron 43 does not run on Windows 8.1 or earlier. Without this the
   ; installer would succeed and the app would then fail to start with nothing
-  ; to explain why, so say it here instead and stop.
-  ${IfNot} ${AtLeastWin10}
+  ; to explain why, so say it here instead and stop. The version comes from
+  ; the registry, not from Windows' version call: a compatibility setting on
+  ; the installer (its Compatibility tab, or the "recommended settings"
+  ; Windows can offer after an install that failed) makes that call report an
+  ; older Windows, and the installer would then stop here on every run. The
+  ; value is there on Windows 10 and 11 and missing on 8.1 and older, which
+  ; reads as 0.
+  ReadRegDWORD $0 HKLM "SOFTWARE\Microsoft\Windows NT\CurrentVersion" "CurrentMajorVersionNumber"
+  ClearErrors
+  ${If} $0 < 10
     MessageBox MB_OK|MB_ICONSTOP \
       "Shroudly needs Windows 10 or later.$\r$\n$\r$\n\
 Shroudly, Windows 10 veya daha yenisini gerektirir."

@@ -947,7 +947,10 @@ const decode = (b64) => Buffer.from(b64, 'base64').toString('utf16le');
   '…only the SIDs in its record, checked twice, removed with one prompt; nothing added');
   const mStart = nsh.indexOf('!macro shroudlyLoopbackCleanup');
   const macro = nsh.slice(mStart, nsh.indexOf('!macroend', mStart));
-  t.ok(!/ReadRegStr|\$\{If\}/.test(macro), "…always run: NSIS itself reads none of the list (its strings end at 8192 characters, a longer value reads as nothing)");
+  t.ok(!/ReadRegStr/.test(macro), "…NSIS itself reads none of the list's data (its strings end at 8192 characters, a longer value reads as nothing)");
+  t.ok(/EnumRegValue \$0 HKCU "Software\\Shroudly\\LoopbackExemptions" 0/.test(macro) && /EnumRegValue \$2 HKCU "Software\\Shroudly" \$1/.test(macro)
+    && macro.indexOf('${Else}') < macro.indexOf('nsExec::Exec'),
+  "…it looks only at the names: PowerShell starts only when there is a list or the old value");
   t.ok(/'LoopbackExemptions'/.test(unin) && /GetValueNames\(\)/.test(unin) && /Remove-Item -LiteralPath \$r -Recurse/.test(unin) && /Remove-ItemProperty -LiteralPath \$k -Name LoopbackExempt/.test(unin),
     '…the list read in both forms, and both removed once done');
   t.ok(/FromBase64String\(''' \+ \$b \+ '''\)\)/.test(unin) && !/-replace/.test(unin) && /ReadAllLines\(\$f\); Remove-Item -LiteralPath \$f/.test(unin),
