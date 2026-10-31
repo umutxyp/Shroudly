@@ -53,6 +53,8 @@
     <string name="androidTileAddDesc">Ô Shroudly trong bảng ở đầu màn hình bật và tắt bảo vệ chỉ bằng một lần chạm.</string>
     <string name="androidTileAdded">Ô Shroudly đã có trong Cài đặt nhanh.</string>
     <string name="androidTileHowTo">Kéo bảng ở đầu màn hình xuống hết cỡ, chạm vào bút chì (chỉnh sửa) rồi kéo ô Shroudly vào giữa các ô khác.</string>
+    <string name="androidUpdateImportant">Phiên bản {version} là bản cập nhật quan trọng</string>
+    <string name="androidUpdateReadyTap">Chạm để khởi động lại Shroudly và hoàn tất cập nhật. Bảo vệ sẽ tự bật lại.</string>
     <string name="androidVpnDenied">Shroudly cần quyền VPN để chuyển tải kết nối của các ứng dụng.</string>
     <string name="androidVpnRevoked">Android đã tắt bảo vệ, thường là vì một ứng dụng VPN khác vừa được bật.</string>
     <string name="androidWifiProxyDead">Proxy của mạng này được đặt là {addr}, nhưng không có gì chạy ở đó, nên các ứng dụng dùng nó (kể cả Chrome) không kết nối được. Trong cài đặt Wi-Fi, mở mạng này và đặt Proxy thành Không có.</string>
@@ -136,7 +138,11 @@
     <string name="testing">Đang kiểm tra…</string>
     <string name="totalCount">Tổng: {count}</string>
     <string name="updAvailable">Đã có phiên bản {version}</string>
+    <string name="updDownload">Tải xuống và cài đặt</string>
+    <string name="updDownloading" formatted="false">Đang tải xuống phiên bản {version}… {percent}%</string>
     <string name="updLater">Để sau</string>
+    <string name="updReady">Phiên bản {version} đã sẵn sàng để cài đặt</string>
+    <string name="updRestartNow">Khởi động lại ngay</string>
     <string name="upload">Tải lên</string>
     <string name="uptime">Thời gian chạy</string>
     <string name="versionLabel">Phiên bản {version}</string>

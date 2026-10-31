@@ -53,6 +53,8 @@
     <string name="androidTileAddDesc">د پردې په سر کې په پینل کې د Shroudly ټایل ساتنه په یوه ټک چالانوي او بندوي.</string>
     <string name="androidTileAdded">د Shroudly ټایل په چټکو ترتیباتو کې دی.</string>
     <string name="androidTileHowTo">د پردې د سر پینل تر پایه ښکته کش کړئ، په قلم (سمون) ټک وکړئ، او د Shroudly ټایل د نورو ترمنځ کش کړئ.</string>
+    <string name="androidUpdateImportant">{version} نسخه یو مهم اوسمهال دی</string>
+    <string name="androidUpdateReadyTap">د Shroudly د بیا پیلولو او اوسمهال د بشپړولو لپاره ټک وکړئ. ساتنه به پخپله بیا چالانه شي.</string>
     <string name="androidVpnDenied">Shroudly ته د VPN اجازه پکار ده څو ستاسو د اپونو اړیکې ولېږدوي.</string>
     <string name="androidVpnRevoked">Android ساتنه بنده کړه، معمولاً ځکه چې بل VPN اپ چالان شوی و.</string>
     <string name="androidWifiProxyDead">د دې شبکې پراکسي {addr} ته ټاکل شوې، خو هلته هېڅ نه چلېږي، نو هغه اپونه چې یې کاروي (Chrome هم) نه شي وصل کېدای. د Wi-Fi په تنظیماتو کې دا شبکه پرانیزئ او پراکسي «هېڅ» ته واړوئ.</string>
@@ -136,7 +138,11 @@
     <string name="testing">ازمویل کېږي…</string>
     <string name="totalCount">ټول: {count}</string>
     <string name="updAvailable">{version} نسخه شته</string>
+    <string name="updDownload">ډاونلوډ او نصب کړئ</string>
+    <string name="updDownloading">{version} نسخه ډاونلوډېږي… {percent}٪</string>
     <string name="updLater">وروسته</string>
+    <string name="updReady">{version} نسخه د نصبولو لپاره چمتو ده</string>
+    <string name="updRestartNow">اوس بیا پیل کړئ</string>
     <string name="upload">اپلوډ</string>
     <string name="uptime">د کار موده</string>
     <string name="versionLabel">نسخه {version}</string>

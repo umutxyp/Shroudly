@@ -487,6 +487,8 @@
   "androidVpnDenied": "আপনার অ্যাপগুলোর সংযোগ বহন করতে Shroudly-এর VPN অনুমতি দরকার।",
   "androidVpnRevoked": "Android সুরক্ষা বন্ধ করে দিয়েছে, সাধারণত অন্য কোনো VPN অ্যাপ চালু হওয়ার কারণে।",
   "androidKeepOnOffer": "আপনার ফোন Shroudly বন্ধ করে দিয়েছে। সুরক্ষা আবার চালু করতে ট্যাপ করুন।",
+  "androidUpdateImportant": "সংস্করণ {version} একটি গুরুত্বপূর্ণ আপডেট",
+  "androidUpdateReadyTap": "Shroudly আবার চালু করে আপডেট শেষ করতে ট্যাপ করুন। সুরক্ষা নিজে থেকেই আবার চালু হবে।",
   "androidAlertsChannel": "সুরক্ষা সতর্কতা",
   "androidProtectionLost": "একটি ত্রুটির কারণে সুরক্ষা বন্ধ হয়ে গেছে, তাই আপনার অ্যাপগুলো এখন সরাসরি সংযোগ করছে। আবার চালু করতে Shroudly খুলুন।",
   "androidDetails": "বিস্তারিত",

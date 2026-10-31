@@ -53,6 +53,8 @@
     <string name="androidTileAddDesc">Jubin Shroudly dalam panel di bahagian atas skrin menghidupkan dan mematikan perlindungan dengan satu ketikan.</string>
     <string name="androidTileAdded">Jubin Shroudly ada dalam Tetapan Pantas.</string>
     <string name="androidTileHowTo">Tarik panel di bahagian atas skrin sepenuhnya ke bawah, ketik pensel (edit), dan seret jubin Shroudly ke antara jubin lain.</string>
+    <string name="androidUpdateImportant">Versi {version} ialah kemas kini penting</string>
+    <string name="androidUpdateReadyTap">Ketik untuk memulakan semula Shroudly dan menyelesaikan kemas kini. Perlindungan akan hidup semula dengan sendirinya.</string>
     <string name="androidVpnDenied">Shroudly memerlukan kebenaran VPN untuk membawa sambungan aplikasi anda.</string>
     <string name="androidVpnRevoked">Perlindungan dimatikan oleh Android, biasanya kerana aplikasi VPN lain dihidupkan.</string>
     <string name="androidWifiProxyDead">Proksi rangkaian ini ditetapkan kepada {addr}, tetapi tiada apa-apa berjalan di situ, jadi aplikasi yang menggunakannya (termasuk Chrome) tidak dapat bersambung. Dalam tetapan Wi-Fi, buka rangkaian ini dan tetapkan Proksi kepada Tiada.</string>
@@ -136,7 +138,11 @@
     <string name="testing">Menguji…</string>
     <string name="totalCount">Jumlah: {count}</string>
     <string name="updAvailable">Versi {version} tersedia</string>
+    <string name="updDownload">Muat turun dan pasang</string>
+    <string name="updDownloading" formatted="false">Memuat turun versi {version}… {percent}%</string>
     <string name="updLater">Kemudian</string>
+    <string name="updReady">Versi {version} sedia untuk dipasang</string>
+    <string name="updRestartNow">Mula semula kini</string>
     <string name="upload">Muat naik</string>
     <string name="uptime">Masa aktif</string>
     <string name="versionLabel">Versi {version}</string>

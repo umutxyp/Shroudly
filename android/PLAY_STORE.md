@@ -4,7 +4,8 @@ Bu dosya, Shroudly Android uygulamasını ileride Google Play'de yayınlamak iç
 Play Console'da elle yapılacak işleri sırayla anlatır. Kod tarafı hazır:
 
 - Play için ayrı bir paket (AAB) her sürümde otomatik üretilir. Bu paket
-  GitHub'a güncelleme sormaz, çünkü uygulamayı Play günceller.
+  GitHub'a güncelleme sormaz, çünkü uygulamayı Play günceller (uygulamanın
+  içinden de, Play'in kendi arayüzüyle: 4a).
 - GitHub'daki APK ile Play sürümü **aynı uygulamadır**: paket adı
   (`me.codeshare.shroudly`), imza sertifikası ve sürüm kodu aynıdır. Bu yüzden
   APK'yı GitHub'dan kuran biri ileride Play'den güncelleme alır (Play aynı
@@ -14,7 +15,8 @@ Play Console'da elle yapılacak işleri sırayla anlatır. Kod tarafı hazır:
   hizalı (CI her sürümde kontrol ediyor); ön plan servisi VPN modunda
   `systemExempted`, "Yalnızca proxy" modunda (Ayarlar, #31) `specialUse`
   (VPN olmadığı için başka tür uymuyor; beyanı aşağıda, 5h); Play'den
-  kurulan kopya kendini güncellemiyor ve dışarıdan kod indirmiyor; uygulama
+  kurulan kopya güncellemeyi yalnızca Play'in kendi uygulama içi güncelleme
+  arayüzüyle alıyor (4a) ve dışarıdan kod indirmiyor; uygulama
   içinde gizlilik politikası bağlantısı var (Hakkında bölümü, 31 dil).
 
 Play Console'daki menü adları zamanla değişebilir. Aşağıda yazanları bulamazsan
@@ -187,6 +189,95 @@ Elle üretmek gerekirse (repo kökünden, yükleme anahtarının değişkenleriy
     bash scripts/check-16k.sh app/build/outputs/bundle/release/app-release.aab
     # çıktı: android/app/build/outputs/bundle/release/app-release.aab
 
+### 4a. Uygulama içi güncelleme (Play)
+
+Play'den kurulan kopya yeni sürümü uygulamanın içinden, Google Play'in kendi
+**uygulama içi güncelleme** (In-App Updates) arayüzüyle alır. Play'in
+kurallarına uyan tek yol budur: uygulama kendini başka bir yoldan
+güncellemez, GitHub'a hiç sormaz. Kitaplık
+`com.google.android.play:app-update:2.1.0`, yalnızca Play paketinde vardır
+(`android/app/src/play/kotlin/.../PlayUpdates.kt`); GitHub APK'sında bu
+kitaplık ve Google kodu yoktur. Kurallar
+`android/app/src/main/java/.../PlayUpdatePolicy.kt` dosyasında, testleriyle.
+
+Kullanıcının gördüğü:
+
+- Play'de daha yeni bir sürüm varsa ana penceredeki güncelleme kartı
+  "Sürüm X kullanılabilir" der, düğmesi **İndir ve kur**. Play'e günde en
+  fazla bir kez sorulur.
+- Play'in kendi penceresi, kullanıcı Shroudly'yi açtığında, günde en fazla
+  bir kez kendiliğinden çıkar. Koruma açılırken ya da kapanırken çıkmaz.
+  Varsayılan **esnek** (flexible) güncellemedir: indirme arka planda olur,
+  uygulama kullanılmaya devam eder, kartta yüzde görünür.
+- Şu durumlarda **hemen** (immediate, tam ekran) güncelleme istenir ve kart
+  "Sürüm X önemli bir güncelleme" der:
+  - sürümün önceliği 4 ya da 5 ise (aşağıya bak),
+  - kopya 20 ya da daha fazla sürüm numarası gerideyse (yeni bir major her
+    zaman sayılır; yalnızca masaüstü için çıkan sürümler de numara
+    harcadığından eşik bilerek yüksek),
+  - güncelleme 7 gündür bekliyorsa.
+- Kullanıcı "hayır" derse ya da Play'in ekranını kapatırsa Shroudly normal
+  çalışır; ertesi gün yeniden sorulur. Uygulama **asla kilitlenmez**.
+- İndirme bitince: pencere açıksa kart **Şimdi yeniden başlat** der. Pencere
+  kapalı ve koruma kapalıysa Play güncellemeyi sessizce kurar. Koruma açıksa
+  bir bildirim çıkar ("dokununca kurulur"), çünkü kurulum korumayı bir an
+  keser; zamanı kullanıcı seçer. Shroudly'nin Ayarlar penceresi açıkken
+  hiçbir şey ekranı kaplamaz; kart, kullanıcı ana pencereye dönünce çıkar.
+- Kurulum uygulamayı ve korumayı kapatır. Koruma açıkken güncellendiyse
+  kurulum biter bitmez kendiliğinden yeniden açılır (`MY_PACKAGE_REPLACED`,
+  `KeepOn.updated`). Bu, Play'in kendi otomatik güncellemesi ve GitHub
+  APK'sının üstüne yeni APK kurulumu için de geçerlidir.
+- Play'in pencerelerini Play kendisi, telefonun dilinde gösterir.
+
+Önceliği (priority) vermek:
+
+- `inAppUpdatePriority` (0–5) yalnızca **Google Play Developer API** ile,
+  sürüm yayına alınırken verilir. Play Console'da bunun için bir alan yok;
+  sonradan değiştirilemez; dahili uygulama paylaşımında (internal app
+  sharing) desteklenmez.
+- Bölüm 4'teki gibi Console'dan elle yüklenen her sürümün önceliği **0**
+  olur: yalnızca esnek güncelleme; 20 sürüm / 7 gün kuralları yine çalışır.
+- Acil bir sürüm için API akışı: `edits.insert` → `edits.bundles.upload` →
+  `edits.tracks.update`, gövde:
+
+      {"releases":[{"versionCodes":["20644"],"status":"completed","inAppUpdatePriority":5}]}
+
+  → `edits.commit`. Bunun için Play Console'da yayın izni olan bir hizmet
+  hesabı (service account) ve onun JSON anahtarı gerekir; release
+  workflow'una eklenecekse GitHub secret olarak (örneğin
+  `PLAY_SERVICE_ACCOUNT_JSON`). Bu yol henüz kurulu değil: ilk acil
+  sürümden **önce** karar ver, çünkü öncelik sonradan verilemez.
+- Play, kurulu sürümle en yeni sürüm arasındaki tüm sürümlerin önceliğine
+  bakar: tek bir acil sürüm, kullanıcı onu geçene kadar hemen güncellemeyi
+  ister.
+- Eşikler kodda: `PlayUpdatePolicy.URGENT_PRIORITY` (4), `FAR_BEHIND` (20),
+  `STALE_DAYS` (7), `ASK_EVERY_MS` (1 gün).
+
+Test etmek (dahili uygulama paylaşımı, Internal app sharing):
+
+1. Play Console → **Test et ve yayınla → Dahili uygulama paylaşımı**: açık
+   olsun, telefondaki Google hesabı yükleyiciler/test edenler listesinde
+   olsun.
+2. Telefona önce düşük `versionCode`'lu bir Play paketini **dahili paylaşım
+   bağlantısından** kur (aynı paket adı, aynı imza).
+3. Daha yüksek `versionCode`'lu AAB'yi dahili paylaşıma yükle. Bağlantıyı
+   telefonda aç ama Play sayfasında **Güncelle'ye basma**.
+4. Shroudly'yi aç: kart ve Play'in penceresi çıkmalı. Günde bir sınırını
+   yeniden denemek için uygulamanın verilerini sil ya da bir gün bekle.
+5. Play Store'u olmayan bir telefonda ya da emülatörde Play paketi hiçbir şey
+   göstermez; günlükte bir kez "Google Play gave no update information (-9)"
+   (ya da -3, -10) yazar.
+
+Lisans: kitaplık açık kaynak değildir; **Play Core Software Development Kit
+Terms of Service** altındadır (https://developer.android.com/guide/playcore/license):
+uygulamanın içinde dağıtılabilir, değiştirilemez. Getirdiği Play services
+Basement/Tasks "Android Software Development Kit License", eski AndroidX
+kitaplıkları (core, fragment, lifecycle...) Apache 2.0 altındadır. Hepsi
+yalnızca Play paketindedir; uygulamanın açık kaynak bildirimlerinde
+(Hakkında → "Açık kaynak") "In the copy from Google Play only" başlığıyla
+listelenir. GitHub APK'sının bağımlılıkları değişmedi (yalnızca Kotlin'in
+standart kitaplığı).
+
 ## 5. Uygulama içeriği (App content) formları
 
 Play Console → **Politika → Uygulama içeriği**. Hepsi doldurulmadan yayın
@@ -271,7 +362,17 @@ site bağlantıları kullanıcının kendi istediği trafiktir ve telefondan
 doğrudan sitelere/çözücülere gider. Hangi tekniğin hangi sitede işe yaradığı
 yalnızca telefonda, en fazla 30 gün tutulur ve yedeğe alınmaz. Play sürümü
 GitHub'a güncelleme sorgusu bile yapmaz. Çökme raporu, analiz ve reklam
-kitaplığı yok. (İleride bir çökme raporu gönderilirse "Uygulama bilgileri ve
+kitaplığı yok.
+
+Play sürümü güncellemeyi telefondaki Google Play Store uygulamasına sorar
+(uygulama içi güncelleme, 4a). Bu istek bize değil, Google Play'e gider.
+Google'ın bu kitaplık için açıkladığı: toplanan veriler cihaz meta verileri,
+uygulama sürümü ve yüklü modül/varlık paketleri listesi; amaç güncelleme olup
+olmadığını ve boyutunu bulmak; aktarımda şifreli; üçüncü taraflarla
+paylaşılmaz; belirli bir saklama süresinden sonra silinir
+(https://developer.android.com/guide/playcore/in-app-updates, "Data
+safety"). Google, formdaki cevaplardan yalnızca geliştiricinin sorumlu
+olduğunu söylüyor: formu doldururken bu satırları da gözden geçir. (İleride bir çökme raporu gönderilirse "Uygulama bilgileri ve
 performans → Çökme günlükleri" olarak beyan edilmeli.)
 
 ### 5g. VPN beyanı (VpnService declaration)
@@ -513,3 +614,6 @@ kontrol et.
    dahili teste yükle (4).
 9. Ana sayfada paket kaydını kontrol et (8).
 10. Dahili test sorunsuzsa kapalı test, sonra üretim.
+11. Uygulama içi güncellemeyi dahili uygulama paylaşımıyla bir kez dene;
+    acil sürümler için öncelik (API ve hizmet hesabı) gerekecekse ilk acil
+    sürümden önce kur (4a).

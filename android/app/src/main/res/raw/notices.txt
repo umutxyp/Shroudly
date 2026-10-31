@@ -105,3 +105,20 @@ CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
 IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
 OF SUCH DAMAGE.
 
+------------------------------------------------------------
+
+In the copy from Google Play only (updates inside the app):
+
+Google Play In-App Updates (com.google.android.play:app-update 2.1.0)
+and Play Core Common
+https://developer.android.com/guide/playcore
+Play Core Software Development Kit Terms of Service:
+https://developer.android.com/guide/playcore/license
+
+Google Play services Basement and Tasks
+Android Software Development Kit License:
+https://developer.android.com/studio/terms
+
+The AndroidX libraries these use (core, fragment, lifecycle and others)
+https://developer.android.com/jetpack/androidx
+Apache License 2.0: https://www.apache.org/licenses/LICENSE-2.0

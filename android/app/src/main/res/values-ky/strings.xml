@@ -53,6 +53,8 @@
     <string name="androidTileAddDesc">Экрандын жогору жагындагы панелдеги Shroudly плиткасы коргоону бир басуу менен күйгүзүп-өчүрөт.</string>
     <string name="androidTileAdded">Shroudly плиткасы тез жөндөөлөрдө.</string>
     <string name="androidTileHowTo">Экрандын жогору жагындагы панелди аягына чейин ылдый тартып, калемди (түзөтүү) басып, Shroudly плиткасын башкаларынын арасына сүйрөңүз.</string>
+    <string name="androidUpdateImportant">{version} версиясы — маанилүү жаңыртуу</string>
+    <string name="androidUpdateReadyTap">Shroudly\'ни кайра иштетип, жаңыртууну бүтүрүү үчүн басыңыз. Коргоо өзү кайра күйөт.</string>
     <string name="androidVpnDenied">Колдонмолоруңуздун туташууларын өткөрүү үчүн Shroudly\'ге VPN уруксаты керек.</string>
     <string name="androidVpnRevoked">Android коргоону өчүрдү, адатта башка VPN колдонмосу күйгүзүлгөндүктөн.</string>
     <string name="androidWifiProxyDead">Бул тармактын проксиси {addr} деп коюлган, бирок ал жерде эч нерсе иштебейт, ошондуктан аны колдонгон колдонмолор (анын ичинде Chrome) туташа албайт. Wi-Fi жөндөөлөрүндө ушул тармакты ачып, проксини «Жок» кылып коюңуз.</string>
@@ -136,7 +138,11 @@
     <string name="testing">Текшерилүүдө…</string>
     <string name="totalCount">Бардыгы: {count}</string>
     <string name="updAvailable">{version} версиясы жеткиликтүү</string>
+    <string name="updDownload">Жүктөп алып орнотуу</string>
+    <string name="updDownloading" formatted="false">{version} версиясы жүктөлүүдө… {percent}%</string>
     <string name="updLater">Кийинчерээк</string>
+    <string name="updReady">{version} версиясы орнотууга даяр</string>
+    <string name="updRestartNow">Азыр кайра иштетүү</string>
     <string name="upload">Жөнөтүү</string>
     <string name="uptime">Иштөө убактысы</string>
     <string name="versionLabel">Версия {version}</string>

@@ -53,6 +53,8 @@
     <string name="androidTileAddDesc">Kaşîyeke Shroudly di panela jorê ekranê de parastinê bi yek tikandinê vedike û digire.</string>
     <string name="androidTileAdded">Kaşîya Shroudly di Mîhengên Bilez de ye.</string>
     <string name="androidTileHowTo">Panela jorê ekranê heta dawiyê bikişîne jêr, li qelemê (sererastkirin) bitikîne û kaşîya Shroudly bikişîne nav yên din.</string>
+    <string name="androidUpdateImportant">Guhertoya {version} nûvekirineke girîng e</string>
+    <string name="androidUpdateReadyTap">Ji bo ku Shroudly ji nû ve vekî û nûvekirinê biqedînî, bitikîne. Parastin bi xwe dîsa vedibe.</string>
     <string name="androidVpnDenied">Shroudly ji bo hilgirtina girêdanên sepanên te destûra VPN hewce dike.</string>
     <string name="androidVpnRevoked">Parastin ji aliyê Android ve hate girtin, bi gelemperî ji ber ku sepaneke VPN ya din hate vekirin.</string>
     <string name="androidWifiProxyDead">Proksiya vê torê wekî {addr} hatiye danîn, lê tiştek li wir naxebite, ji ber vê yekê sepanên ku wê bi kar tînin (Chrome jî) nikarin girê bidin. Di mîhengên Wi-Fi de vê torê veke û proksiyê bike «Tune».</string>
@@ -136,7 +138,11 @@
     <string name="testing">Tê ceribandin…</string>
     <string name="totalCount">Bi giştî: {count}</string>
     <string name="updAvailable">Guhertoya {version} heye</string>
+    <string name="updDownload">Daxe û saz bike</string>
+    <string name="updDownloading" formatted="false">Guhertoya {version} tê daxistin… %{percent}</string>
     <string name="updLater">Paşê</string>
+    <string name="updReady">Guhertoya {version} ji bo sazkirinê amade ye</string>
+    <string name="updRestartNow">Niha ji nû ve veke</string>
     <string name="upload">Barkirin</string>
     <string name="uptime">Dema xebatê</string>
     <string name="versionLabel">Guherto {version}</string>

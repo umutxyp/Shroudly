@@ -22,6 +22,7 @@ import android.text.style.ForegroundColorSpan
 import android.text.style.RelativeSizeSpan
 import android.view.View
 import android.view.WindowInsets
+import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.ScrollView
@@ -36,6 +37,8 @@ class MainActivity : Activity() {
         private const val REQUEST_NOTIFICATIONS = 2
         /* Start protection as soon as the window is up (from the tile). */
         const val EXTRA_START = "start"
+        /* Install the update Google Play has downloaded (PlayUpdates' notice). */
+        const val EXTRA_INSTALL_UPDATE = "installUpdate"
         // Networks' proxies on this phone found not running, told once a run (ProxyCheck).
         private val deadProxyTold = HashSet<String>()
     }
@@ -72,6 +75,7 @@ class MainActivity : Activity() {
     }
     private var updateUrl: String? = null
     private var vpnDenied = false
+    private var installUpdate = false
 
     /* The accent this window was made with; another one chosen in Settings
      * makes it again on return. */
@@ -164,13 +168,17 @@ class MainActivity : Activity() {
         // The channels' names follow the language, also after a per-app
         // language change (which recreates this window).
         ShroudlyVpnService.channels(this)
-        if (savedInstanceState == null) handleStart(intent)
+        if (savedInstanceState == null) {
+            handleStart(intent)
+            handleInstall(intent)
+        }
     }
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         setIntent(intent)
         handleStart(intent)
+        handleInstall(intent)
     }
 
     private fun handleStart(intent: Intent?) {
@@ -180,6 +188,14 @@ class MainActivity : Activity() {
         // intent, extra included): the user did not ask to start again.
         if (intent.flags and Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY != 0) return
         if (Protection.state == Protection.State.OFF) onToggle()
+    }
+
+    /* From PlayUpdates' notice: installed once the window is in front. */
+    private fun handleInstall(intent: Intent?) {
+        if (intent?.getBooleanExtra(EXTRA_INSTALL_UPDATE, false) != true) return
+        intent.removeExtra(EXTRA_INSTALL_UPDATE)
+        if (intent.flags and Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY != 0) return
+        installUpdate = true
     }
 
     override fun onStart() {
@@ -212,8 +228,29 @@ class MainActivity : Activity() {
             showUpdate(UpdateCheck.remembered(this))
             if (UpdateCheck.due(this)) checkForUpdate()
         } else {
+            // Google Play's own offer, if any, comes in onResume (PlayUpdates).
             showUpdate(null)
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (installUpdate) { installUpdate = false; PlayUpdates.install(this); return }
+        // A copy Google Play updates: Play's in-app update (PlayUpdates; the
+        // APK's does nothing). Every time the window comes back, as Play asks,
+        // so an update left half way is taken up again; Play's dialog not
+        // while protection is starting or stopping.
+        PlayUpdates.resume(this, mayAsk = {
+            val st = Protection.state
+            !isFinishing && (st == Protection.State.OFF || st == Protection.State.ON)
+        }) { card ->
+            runOnUiThread { if (!isFinishing && !isDestroyed) showPlayUpdate(card) }
+        }
+    }
+
+    override fun onPause() {
+        PlayUpdates.pause()
+        super.onPause()
     }
 
     override fun onStop() {
@@ -431,6 +468,28 @@ class MainActivity : Activity() {
         }
         updateUrl = offer.url
         updateText.text = text(R.string.updAvailable, "version" to offer.version)
+        update.visibility = View.VISIBLE
+    }
+
+    /* A copy Google Play updates: the APK's card, with Play behind its button. */
+    private fun showPlayUpdate(card: PlayUpdatePolicy.Card?) {
+        if (card == null) { update.visibility = View.GONE; return }
+        val button = findViewById<Button>(R.id.updateOpen)
+        when (card.stage) {
+            PlayUpdatePolicy.Stage.AVAILABLE -> {
+                updateText.show(text(if (card.urgent) R.string.androidUpdateImportant else R.string.updAvailable, "version" to card.version))
+                button.setText(R.string.updDownload)
+                button.setOnClickListener { PlayUpdates.offer(this) }
+            }
+            PlayUpdatePolicy.Stage.DOWNLOADING ->
+                updateText.show(text(R.string.updDownloading, "version" to card.version, "percent" to card.percent))
+            PlayUpdatePolicy.Stage.READY -> {
+                updateText.show(text(R.string.updReady, "version" to card.version))
+                button.setText(R.string.updRestartNow)
+                button.setOnClickListener { PlayUpdates.install(this) }
+            }
+        }
+        button.visibility = if (card.stage == PlayUpdatePolicy.Stage.DOWNLOADING) View.GONE else View.VISIBLE
         update.visibility = View.VISIBLE
     }
 

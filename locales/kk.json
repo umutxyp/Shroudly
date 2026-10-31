@@ -487,6 +487,8 @@
   "androidVpnDenied": "Қолданбаларыңыздың қосылымдарын өткізу үшін Shroudly-ге VPN рұқсаты керек.",
   "androidVpnRevoked": "Android қорғанысты өшірді, әдетте басқа VPN қолданбасы қосылғандықтан.",
   "androidKeepOnOffer": "Телефон Shroudly-ді жапты. Қорғауды қайта қосу үшін түртіңіз.",
+  "androidUpdateImportant": "{version} нұсқасы — маңызды жаңарту",
+  "androidUpdateReadyTap": "Shroudly-ді қайта қосып, жаңартуды аяқтау үшін түртіңіз. Қорғау өзі қайта қосылады.",
   "androidAlertsChannel": "Қорғаныс ескертулері",
   "androidProtectionLost": "Қорғаныс қатеге байланысты тоқтады, сондықтан қолданбаларыңыз қазір тікелей қосылып тұр. Қайта қосу үшін Shroudly-ді ашыңыз.",
   "androidDetails": "Толығырақ",

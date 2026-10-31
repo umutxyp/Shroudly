@@ -53,6 +53,8 @@
     <string name="androidTileAddDesc">Un icono de Shroudly en el panel de la parte superior de la pantalla activa y desactiva la protección con un toque.</string>
     <string name="androidTileAdded">El icono de Shroudly está en Ajustes rápidos.</string>
     <string name="androidTileHowTo">Desliza el panel de la parte superior de la pantalla del todo hacia abajo, toca el lápiz (editar) y arrastra el icono de Shroudly junto a los demás.</string>
+    <string name="androidUpdateImportant">La versión {version} es una actualización importante</string>
+    <string name="androidUpdateReadyTap">Toca para reiniciar Shroudly y terminar la actualización. La protección se vuelve a activar sola.</string>
     <string name="androidVpnDenied">Shroudly necesita el permiso de VPN para llevar las conexiones de tus apps.</string>
     <string name="androidVpnRevoked">Android desactivó la protección, normalmente porque se activó otra app de VPN.</string>
     <string name="androidWifiProxyDead">El proxy de esta red está en {addr}, pero ahí no hay nada en marcha, así que las apps que lo usan (Chrome, entre ellas) no pueden conectarse. En los ajustes de Wi-Fi, abre esta red y pon el proxy en Ninguno.</string>
@@ -136,7 +138,11 @@
     <string name="testing">Probando…</string>
     <string name="totalCount">Total: {count}</string>
     <string name="updAvailable">La versión {version} está disponible</string>
+    <string name="updDownload">Descargar e instalar</string>
+    <string name="updDownloading" formatted="false">Descargando la versión {version}… {percent} %</string>
     <string name="updLater">Más tarde</string>
+    <string name="updReady">La versión {version} está lista para instalarse</string>
+    <string name="updRestartNow">Reiniciar ahora</string>
     <string name="upload">Subida</string>
     <string name="uptime">Tiempo activo</string>
     <string name="versionLabel">Versión {version}</string>

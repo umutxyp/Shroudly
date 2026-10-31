@@ -53,6 +53,8 @@
     <string name="androidTileAddDesc">A Shroudly tile in the panel at the top of the screen turns protection on and off with one tap.</string>
     <string name="androidTileAdded">The Shroudly tile is in Quick Settings.</string>
     <string name="androidTileHowTo">Pull the panel at the top of the screen all the way down, tap the pencil (edit), and drag the Shroudly tile up among the others.</string>
+    <string name="androidUpdateImportant">Version {version} is an important update</string>
+    <string name="androidUpdateReadyTap">Tap to restart Shroudly and finish the update. Protection comes back on by itself.</string>
     <string name="androidVpnDenied">Shroudly needs the VPN permission to carry your apps\' connections.</string>
     <string name="androidVpnRevoked">Protection was switched off by Android, usually because another VPN app was turned on.</string>
     <string name="androidWifiProxyDead">This network\'s proxy is set to {addr}, but nothing is running there, so apps that use it (Chrome among them) cannot connect. In Wi-Fi settings, open this network and set Proxy to None.</string>
@@ -136,7 +138,11 @@
     <string name="testing">Testing…</string>
     <string name="totalCount">Total: {count}</string>
     <string name="updAvailable">Version {version} is available</string>
+    <string name="updDownload">Download and install</string>
+    <string name="updDownloading" formatted="false">Downloading version {version}… {percent}%</string>
     <string name="updLater">Later</string>
+    <string name="updReady">Version {version} is ready to install</string>
+    <string name="updRestartNow">Restart now</string>
     <string name="upload">Upload</string>
     <string name="uptime">Uptime</string>
     <string name="versionLabel">Version {version}</string>

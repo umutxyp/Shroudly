@@ -487,6 +487,8 @@
   "androidVpnDenied": "アプリの通信を中継するには、Shroudly に VPN の許可が必要です。",
   "androidVpnRevoked": "Android が保護をオフにしました。通常は別の VPN アプリがオンになったためです。",
   "androidKeepOnOffer": "スマートフォンが Shroudly を終了しました。タップして保護をもう一度オンにします。",
+  "androidUpdateImportant": "バージョン {version} は重要なアップデートです",
+  "androidUpdateReadyTap": "タップすると Shroudly を再起動してアップデートを完了します。保護は自動的にオンに戻ります。",
   "androidAlertsChannel": "保護に関するお知らせ",
   "androidProtectionLost": "エラーにより保護が停止したため、アプリは現在直接接続しています。もう一度開始するには Shroudly を開いてください。",
   "androidDetails": "詳細",

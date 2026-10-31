@@ -53,6 +53,8 @@
     <string name="androidTileAddDesc">Плиткаи Shroudly дар панели болои экран муҳофизатро бо як ламс фаъол ва хомӯш мекунад.</string>
     <string name="androidTileAdded">Плиткаи Shroudly дар танзимоти зуд аст.</string>
     <string name="androidTileHowTo">Панели болои экранро то охир ба поён кашед, қаламро (таҳрир) ламс кунед ва плиткаи Shroudly-ро ба қатори дигарон кашед.</string>
+    <string name="androidUpdateImportant">Версияи {version} навсозии муҳим аст</string>
+    <string name="androidUpdateReadyTap">Барои бозоғози Shroudly ва анҷом додани навсозӣ ламс кунед. Муҳофизат худ ба худ дубора фаъол мешавад.</string>
     <string name="androidVpnDenied">Shroudly барои гузаронидани пайвастҳои барномаҳоятон иҷозати VPN лозим дорад.</string>
     <string name="androidVpnRevoked">Android муҳофизатро хомӯш кард, одатан чунки барномаи дигари VPN фаъол шуд.</string>
     <string name="androidWifiProxyDead">Проксии ин шабака {addr} танзим шудааст, вале дар он ҷо ҳеҷ чиз кор намекунад, бинобар ин барномаҳое, ки онро истифода мебаранд (аз ҷумла Chrome), пайваст шуда наметавонанд. Дар танзимоти Wi-Fi ин шабакаро кушоед ва проксиро «Не» гузоред.</string>
@@ -136,7 +138,11 @@
     <string name="testing">Санҷиш…</string>
     <string name="totalCount">Ҳамагӣ: {count}</string>
     <string name="updAvailable">Версияи {version} дастрас аст</string>
+    <string name="updDownload">Боргирӣ ва насб</string>
+    <string name="updDownloading" formatted="false">Боргирии версияи {version}… {percent}%</string>
     <string name="updLater">Баъдтар</string>
+    <string name="updReady">Версияи {version} барои насб омода аст</string>
+    <string name="updRestartNow">Ҳозир бозоғоз</string>
     <string name="upload">Ирсол</string>
     <string name="uptime">Вақти кор</string>
     <string name="versionLabel">Версияи {version}</string>

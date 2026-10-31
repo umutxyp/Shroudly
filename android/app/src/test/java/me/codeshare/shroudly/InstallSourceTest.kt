@@ -23,6 +23,20 @@ class InstallSourceTest {
     }
 
     @Test
+    fun onlyThePlayBuildPlayInstalledIsUpdatedInsideTheApp() {
+        assertTrue(InstallSource.playUpdates(storeBuild = true, installer = "com.android.vending"))
+        // The bundle made for Play, put on the phone some other way (bundletool,
+        // an APK mirror): Play would not answer for it.
+        assertFalse(InstallSource.playUpdates(storeBuild = true, installer = null))
+        assertFalse(InstallSource.playUpdates(storeBuild = true, installer = "com.android.chrome"))
+        // The APK from GitHub has no Play library, even once Play updates it
+        // (then it is Play's bundle, STORE_BUILD); the emulator's debug APK
+        // installed as Play would (-i com.android.vending) neither.
+        assertFalse(InstallSource.playUpdates(storeBuild = false, installer = "com.android.vending"))
+        assertFalse(InstallSource.playUpdates(storeBuild = false, installer = null))
+    }
+
+    @Test
     fun thePlayBuildNeverAsksGithub() {
         assertFalse(InstallSource.githubUpdates(storeBuild = true, installer = null))
         assertFalse(InstallSource.githubUpdates(storeBuild = true, installer = "com.android.chrome"))

@@ -487,6 +487,8 @@
   "androidVpnDenied": "Shroudly потрібен дозвіл VPN, щоб пропускати з’єднання ваших застосунків.",
   "androidVpnRevoked": "Android вимкнув захист — зазвичай тому, що увімкнено інший VPN-застосунок.",
   "androidKeepOnOffer": "Телефон закрив Shroudly. Торкніться, щоб знову ввімкнути захист.",
+  "androidUpdateImportant": "Версія {version} — важливе оновлення",
+  "androidUpdateReadyTap": "Торкніться, щоб перезапустити Shroudly й завершити оновлення. Захист знову ввімкнеться сам.",
   "androidAlertsChannel": "Сповіщення про захист",
   "androidProtectionLost": "Захист зупинився через помилку, тому ваші застосунки зараз підключаються напряму. Відкрийте Shroudly, щоб увімкнути його знову.",
   "androidDetails": "Докладніше",
