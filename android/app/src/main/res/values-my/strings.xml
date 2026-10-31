@@ -9,6 +9,11 @@
     <string name="adsBlocked">ပိတ်ဆို့ထားသော ကြော်ငြာများ</string>
     <string name="androidAlertsChannel">ကာကွယ်မှု သတိပေးချက်များ</string>
     <string name="androidAllApps">ဤစက်ပေါ်ရှိ အက်ပ်တိုင်းသည် Shroudly မှတစ်ဆင့် သွားသည်။</string>
+    <string name="androidAppsModeOnly">အမှတ်ခြစ်ထားသော အက်ပ်များသာ Shroudly မှတစ်ဆင့် သွားသည်</string>
+    <string name="androidAppsModeSkip">အမှတ်ခြစ်ထားသည်များမှလွဲ၍ အက်ပ်တိုင်း Shroudly မှတစ်ဆင့် သွားသည်</string>
+    <string name="androidAppsOnly">Shroudly မှတစ်ဆင့် သွားသော အက်ပ်များ</string>
+    <string name="androidAppsOnlyCount">{count} ခုသာ၊ အခြားအက်ပ်တိုင်း တိုက်ရိုက်ထွက်သည်</string>
+    <string name="androidAppsOnlyDesc">အခြားအက်ပ်အားလုံး၊ စနစ်အက်ပ်များပါ၊ Shroudly ကို မဖြတ်ဘဲ တိုက်ရိုက်ထွက်သည်။ ဘာမှ အမှတ်မခြစ်ထားပါက အက်ပ်တိုင်း Shroudly မှတစ်ဆင့် သွားသည်။</string>
     <string name="androidAppsSection">အက်ပ်များ</string>
     <string name="androidAutomationBattery">ဘက်ထရီ ဆက်တင်များ</string>
     <string name="androidAutomationNotStarted">ကာကွယ်မှု မဖွင့်ခဲ့ပါ</string>
@@ -20,6 +25,8 @@
     <string name="androidDetails">အသေးစိတ်</string>
     <string name="androidDownloadApk">အပ်ဒိတ်ကို ဒေါင်းလုဒ်လုပ်ရန်</string>
     <string name="androidHideExplanation">ရှင်းလင်းချက်များကို ဖျောက်ပါ</string>
+    <string name="androidIpv6Off">IPv6 ကို ပိတ်ရန်</string>
+    <string name="androidIpv6OffDesc">အက်ပ်များနှင့် Shroudly သည် IPv4 ကိုသာ အသုံးပြုပြီး အက်ပ်များသည် IPv6 မရှိကြောင်း မစောင့်ဘဲ ချက်ချင်း သိသည်။ IPv6 ပျက်နေသော သို့မဟုတ် နှေးသော ကွန်ရက်များအတွက်။</string>
     <string name="androidKeepOnOffer">သင့်ဖုန်းက Shroudly ကို ပိတ်လိုက်သည်။ ကာကွယ်မှုကို ပြန်ဖွင့်ရန် နှိပ်ပါ။</string>
     <string name="androidLockdownOffline">အင်တာနက် မရှိပါ- Shroudly သည် ယခု ဤကွန်ရက်တွင် ချိတ်ဆက်၍ မရသေးဘဲ Android ကို VPN မပါသော ချိတ်ဆက်မှုများ ပိတ်ဆို့ရန် သတ်မှတ်ထားပါသည်။ Shroudly ဆက်လက် ကြိုးစားနေပါသည်။</string>
     <string name="androidModeNextStart">မုဒ်အသစ်ကို ကာကွယ်မှု နောက်တစ်ကြိမ် စတင်သည့်အခါ သုံးမည်။</string>
@@ -28,11 +35,14 @@
     <string name="androidModeTitle">မုဒ်</string>
     <string name="androidModeVpn">VPN (အက်ပ်အားလုံး)</string>
     <string name="androidModeVpnDesc">အက်ပ်အားလုံး Shroudly မှတစ်ဆင့် သွားသည်။ Android သည် တစ်ကြိမ်လျှင် VPN တစ်ခုသာ ခွင့်ပြုသဖြင့် အခြား VPN အက်ပ်၏ ချိတ်ဆက်မှု ပြတ်သွားမည်။</string>
+    <string name="androidNetworkSection">ကွန်ရက်</string>
     <string name="androidNoInternet">ဤကွန်ရက်တွင် Shroudly သည် အင်တာနက်သို့ မရောက်နိုင်သဖြင့် ကာကွယ်မှု ရပ်သွားပြီး သင့်အက်ပ်များသည် ယခု တိုက်ရိုက် ချိတ်ဆက်နေပါသည်။ ထပ်မံကြိုးစားရန် Shroudly ကို ဖွင့်ပါ။</string>
     <string name="androidPrivacyPolicy">ကိုယ်ရေးအချက်အလက် မူဝါဒ</string>
     <string name="androidProtectionLost">အမှားတစ်ခုကြောင့် ကာကွယ်မှု ရပ်သွားသဖြင့် သင့်အက်ပ်များသည် ယခု တိုက်ရိုက် ချိတ်ဆက်နေပါသည်။ ပြန်စတင်ရန် Shroudly ကို ဖွင့်ပါ။</string>
     <string name="androidProxyOnlyOffWifi">ပရောက်စီသာ ပိတ်လိုက်ပြီ။ ဤကွန်ရက်၏ ပရောက်စီကို {addr} သို့ သတ်မှတ်ထားပါက Wi-Fi ဆက်တင်များတွင် «မရှိ» သို့ ပြန်ထားပါ၊ မဟုတ်ပါက ၎င်းကို သုံးသော အက်ပ်များ ချိတ်ဆက်၍ မရပါ။</string>
     <string name="androidProxyOnlyOn">ပရောက်စီသာ- 127.0.0.1:{port} သုံးရန် သတ်မှတ်ထားသော အက်ပ်များ Shroudly မှတစ်ဆင့် သွားသည်</string>
+    <string name="androidQuicOff">QUIC ကို ပိတ်ရန်</string>
+    <string name="androidQuicOffDesc">အက်ပ်များသည် QUIC (UDP ပေါက် 443) အစား TCP ကို အသုံးပြုသည်။ ၎င်းကို Shroudly က ပိုကောင်းစွာ ဖြတ်ကျော်ပေးနိုင်သည်။ QUIC ကို ပိတ်ဆို့သော သို့မဟုတ် နှေးစေသော ကွန်ရက်များအတွက်။</string>
     <string name="androidRemoteControl">အလိုအလျောက်လုပ်ဆောင်သည့် အက်ပ်များကို ခွင့်ပြုရန်</string>
     <string name="androidRemoteControlDesc">Tasker၊ MacroDroid နှင့် ဆင်တူအက်ပ်များသည် {package} ပက်ကေ့ချ်သို့ broadcast ပို့၍ ကာကွယ်မှုကို ဖွင့်/ပိတ် နိုင်သည်- action {action}.START၊ .STOP သို့မဟုတ် .TOGGLE။ ဤအရာ ပိတ်ထားစဉ် အခြားအက်ပ် မည်သည့်အက်ပ်မျှ မလုပ်နိုင်ပါ။</string>
     <string name="androidShareLogs">မှတ်တမ်းများ မျှဝေရန်</string>

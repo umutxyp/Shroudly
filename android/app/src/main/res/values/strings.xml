@@ -9,6 +9,11 @@
     <string name="adsBlocked">Ads blocked</string>
     <string name="androidAlertsChannel">Protection alerts</string>
     <string name="androidAllApps">Every app on this device goes through Shroudly.</string>
+    <string name="androidAppsModeOnly">Only the apps checked go through Shroudly</string>
+    <string name="androidAppsModeSkip">Every app goes through Shroudly, except the ones checked</string>
+    <string name="androidAppsOnly">Apps that go through Shroudly</string>
+    <string name="androidAppsOnlyCount">Only {count} apps; every other app goes straight out</string>
+    <string name="androidAppsOnlyDesc">Every other app, system apps too, goes straight out, past Shroudly. With none checked, every app goes through Shroudly.</string>
     <string name="androidAppsSection">Apps</string>
     <string name="androidAutomationBattery">Battery settings</string>
     <string name="androidAutomationNotStarted">Protection was not turned on</string>
@@ -20,6 +25,8 @@
     <string name="androidDetails">Details</string>
     <string name="androidDownloadApk">Download update</string>
     <string name="androidHideExplanation">Hide the explanations</string>
+    <string name="androidIpv6Off">Turn IPv6 off</string>
+    <string name="androidIpv6OffDesc">Apps and Shroudly use IPv4 only, and apps learn at once that there is no IPv6 instead of waiting for it. For networks whose IPv6 is broken or slow.</string>
     <string name="androidKeepOnOffer">Your phone turned Shroudly off. Tap to turn protection back on.</string>
     <string name="androidLockdownOffline">No internet: Shroudly cannot get through on this network right now, and Android is set to block connections without a VPN. Shroudly keeps trying.</string>
     <string name="androidModeNextStart">The new mode is used the next time protection starts.</string>
@@ -28,11 +35,14 @@
     <string name="androidModeTitle">Mode</string>
     <string name="androidModeVpn">VPN (every app)</string>
     <string name="androidModeVpnDesc">Every app goes through Shroudly. Android allows one VPN at a time, so another VPN app is disconnected.</string>
+    <string name="androidNetworkSection">Network</string>
     <string name="androidNoInternet">Protection stopped because Shroudly could not reach the internet on this network, so your apps are connecting directly. Open Shroudly to try again.</string>
     <string name="androidPrivacyPolicy">Privacy policy</string>
     <string name="androidProtectionLost">Protection stopped because of an error, so your apps are connecting directly. Open Shroudly to start it again.</string>
     <string name="androidProxyOnlyOffWifi">Proxy only is off. If this network\'s proxy is set to {addr}, set it back to None in Wi-Fi settings, or apps that use it cannot connect.</string>
     <string name="androidProxyOnlyOn">Proxy only: apps set to use 127.0.0.1:{port} go through Shroudly</string>
+    <string name="androidQuicOff">Turn QUIC off</string>
+    <string name="androidQuicOffDesc">Apps use TCP instead of QUIC (UDP port 443), which Shroudly gets through better. For networks that block QUIC or slow it down.</string>
     <string name="androidRemoteControl">Allow automation apps</string>
     <string name="androidRemoteControlDesc">Tasker, MacroDroid and similar apps can turn protection on and off with a broadcast to the package {package}, action {action}.START, .STOP or .TOGGLE. While this is off, no other app can.</string>
     <string name="androidShareLogs">Share logs</string>

@@ -40,6 +40,16 @@ class AppSettingsTest {
         assertFalse("nothing to be strict about without the forwarder", Engine.args(1080, 0, emptyList(), dnsStrict = true).contains("--dns-strict"))
     }
 
+    /* QUIC and IPv6 turned off in Settings (#59): the engine's options, only then. */
+    @Test
+    fun quicAndIpv6Off() {
+        val plain = Engine.args(1080, 5353, emptyList())
+        assertFalse(plain.contains("--drop-quic") || plain.contains("--ipv4-only"))
+        val off = Engine.args(1080, 5353, emptyList(), quicOff = true, ipv6Off = true)
+        assertTrue(off.contains("--drop-quic") && off.contains("--ipv4-only"))
+        assertEquals(listOf("--drop-quic"), Engine.args(1080, 5353, emptyList(), quicOff = true).filter { it == "--drop-quic" || it == "--ipv4-only" })
+    }
+
     /* Proxy only (#31) leaves the VPN slot to another app: the engine listens
      * on 127.0.0.1 alone, with no password and no stand-in range, and nothing
      * on that path asks Android for the VPN (VpnService.prepare would end the

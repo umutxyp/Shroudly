@@ -302,8 +302,17 @@ class ShroudlyVpnService : VpnService() {
                     }
                     "apps" -> later {
                         if (active) {
-                            log("Apps that skip Shroudly changed; the VPN interface is renewed")
+                            log("The apps that go through Shroudly changed; the VPN interface is renewed")
                             renewInterface(v6Routed)
+                        }
+                    }
+                    // QUIC or IPv6 turned off or on (#59): the engine again with
+                    // its options, and the interface with IPv6 or without.
+                    "network" -> later {
+                        if (active) {
+                            log("Network settings: QUIC ${if (AppSettings.quicOff(this)) "off" else "on"}, IPv6 ${if (AppSettings.ipv6Off(this)) "off" else "on"}")
+                            engine?.let { engineGone(it, "restarted with the network settings chosen in Settings", countsAsCrash = false) }
+                            if (routesV6(underlyingV6) != v6Routed) renewInterface(routesV6(underlyingV6))
                         }
                     }
                 }
@@ -452,9 +461,9 @@ class ShroudlyVpnService : VpnService() {
             if (prepare(this) != null) throw StartError("VPN permission is missing", R.string.androidVpnDenied)
             val cm = getSystemService(ConnectivityManager::class.java)
             val under = underlying(cm)
-            v6Routed = Net.hasIpv6(under?.second)
+            underlyingV6 = Net.hasIpv6(under?.second)
+            v6Routed = routesV6(underlyingV6)
             underlyingId = under?.first?.toString()
-            underlyingV6 = v6Routed
             val pfd = establish(v6Routed) ?: throw StartError("VPN permission is missing", R.string.androidVpnDenied)
             tun = pfd
             startTunnel()
@@ -522,7 +531,8 @@ class ShroudlyVpnService : VpnService() {
             authFile = File(filesDir, AUTH_FILE).also { auth!!.writeTo(it) }
             val e = Engine(::log, ::logSite, ::onEngineEvent, ::onEngineExit)
             engine = e
-            val ok = e.start(Engine.args(p, dohPort, blockIps, authFile, Engine.FAKE_NET, AdBlock.listFile(this), AdBlock.allow(this), AppSettings.strategy(this), AppSettings.customDnsStrict(this)))
+            val ok = e.start(Engine.args(p, dohPort, blockIps, authFile, Engine.FAKE_NET, AdBlock.listFile(this), AdBlock.allow(this), AppSettings.strategy(this), AppSettings.customDnsStrict(this),
+                AppSettings.quicOff(this), AppSettings.ipv6Off(this)))
             // Read once, at its start: the secret is not left lying in a file.
             authFile?.delete()
             if (ok) {
@@ -565,12 +575,23 @@ class ShroudlyVpnService : VpnService() {
             .addAddress(TunnelConfig.ADDRESS_V4, 32)
             .addRoute("0.0.0.0", 0)
             .addDnsServer(TunnelConfig.DNS_V4)
-            .addDisallowedApplication(packageName)
             .setConfigureIntent(openApp(this))
-        // Apps the user set to skip Shroudly (Settings): straight out, past
-        // the VPN. One no longer installed is left out.
-        for (pkg in AppSettings.excluded(this)) {
-            try { b.addDisallowedApplication(pkg) } catch (_: android.content.pm.PackageManager.NameNotFoundException) {}
+        // Only the apps chosen (Settings, #60): every other one, this app
+        // among them, straight out. Android takes one way or the other, never
+        // both; with none of them installed any more, the usual way.
+        var only = 0
+        if (AppSettings.appsOnly(this)) {
+            for (pkg in AppSettings.included(this)) {
+                try { b.addAllowedApplication(pkg); only++ } catch (_: android.content.pm.PackageManager.NameNotFoundException) {}
+            }
+        }
+        if (only == 0) {
+            b.addDisallowedApplication(packageName)
+            // Apps the user set to skip Shroudly (Settings): straight out, past
+            // the VPN. One no longer installed is left out.
+            for (pkg in AppSettings.excluded(this)) {
+                try { b.addDisallowedApplication(pkg) } catch (_: android.content.pm.PackageManager.NameNotFoundException) {}
+            }
         }
         // Without an IPv6 address and route, Android answers apps' IPv6 with
         // "unreachable" at once, and they use IPv4.
@@ -957,10 +978,13 @@ class ShroudlyVpnService : VpnService() {
         pathWatch.oneStrike = false
         healthReset(FIRST_PATH_CHECK_MS)
         // The interface carries IPv6 only where the network does.
-        if (v6 == v6Routed) return
+        if (routesV6(v6) == v6Routed) return
         log("IPv6 ${if (v6) "available" else "gone"} on this network; renewing the VPN interface")
-        renewInterface(v6)
+        renewInterface(routesV6(v6))
     }
+
+    /* IPv6 on the interface: where the network has it, unless turned off. */
+    private fun routesV6(networkHasV6: Boolean) = networkHasV6 && !AppSettings.ipv6Off(this)
 
     /* A new VPN interface (with IPv6 or without), and the tunnel on it. */
     private fun renewInterface(v6: Boolean) {

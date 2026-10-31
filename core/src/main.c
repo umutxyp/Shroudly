@@ -143,6 +143,8 @@ static void usage(void) {
     "  --watch <domain>      tell connections to it or a name under it as\n"
     "                        {\"type\":\"seen\",\"host\":...} (repeatable)\n"
     "  --ipv6                prefer IPv6 upstream\n"
+    "  --ipv4-only           never use IPv6 upstream (no AAAA lookups, no IPv6 connects)\n"
+    "  --drop-quic           SOCKS5 UDP: drop datagrams to port 443 (QUIC), so apps use TCP\n"
     "  --adblock <path>      block the names of an ad and tracker list (adblock.h)\n"
     "  --allow <domain>      never block it, nor a name under it (repeatable)\n"
     "  --raw-local           tests: search techniques for non-TLS streams on local addresses too\n"
@@ -205,6 +207,8 @@ int engine_main(int argc, char **argv, FILE *in, FILE *out, int embedded) {
     else if (!strcmp(argv[i], "--auto")) g_cfg.auto_probe = 1;
     else if (!strcmp(argv[i], "--doh")) g_cfg.use_doh = 1;
     else if (!strcmp(argv[i], "--ipv6")) g_cfg.prefer_ipv6 = 1;
+    else if (!strcmp(argv[i], "--ipv4-only")) g_cfg.ipv4_only = 1;
+    else if (!strcmp(argv[i], "--drop-quic")) g_cfg.drop_quic = 1;
     else if (!strcmp(argv[i], "--raw-local")) g_cfg.raw_local = 1;
     else if (!strcmp(argv[i], "--doh-ip") && i+1<argc) strncpy(g_doh_fwd_ip, argv[++i], sizeof(g_doh_fwd_ip)-1);
     else if (!strcmp(argv[i], "--doh-port") && i+1<argc) g_doh_fwd_port = atoi(argv[++i]);

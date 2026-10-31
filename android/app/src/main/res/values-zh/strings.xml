@@ -9,6 +9,11 @@
     <string name="adsBlocked">已拦截的广告</string>
     <string name="androidAlertsChannel">保护提醒</string>
     <string name="androidAllApps">此设备上的所有应用都经由 Shroudly 连接。</string>
+    <string name="androidAppsModeOnly">只有勾选的应用经过 Shroudly</string>
+    <string name="androidAppsModeSkip">除勾选的应用外，所有应用都经过 Shroudly</string>
+    <string name="androidAppsOnly">经过 Shroudly 的应用</string>
+    <string name="androidAppsOnlyCount">仅 {count} 个；其他应用都直接出去</string>
+    <string name="androidAppsOnlyDesc">其他所有应用（包括系统应用）都直接出去，不经过 Shroudly。若一个都没勾选，所有应用都经过 Shroudly。</string>
     <string name="androidAppsSection">应用</string>
     <string name="androidAutomationBattery">电池设置</string>
     <string name="androidAutomationNotStarted">未开启保护</string>
@@ -20,6 +25,8 @@
     <string name="androidDetails">详细信息</string>
     <string name="androidDownloadApk">下载更新</string>
     <string name="androidHideExplanation">隐藏说明</string>
+    <string name="androidIpv6Off">关闭 IPv6</string>
+    <string name="androidIpv6OffDesc">应用和 Shroudly 只使用 IPv4，应用会立即得知没有 IPv6，而不是一直等待。适用于 IPv6 损坏或缓慢的网络。</string>
     <string name="androidKeepOnOffer">手机关闭了 Shroudly。点按即可重新开启保护。</string>
     <string name="androidLockdownOffline">无法上网：Shroudly 目前无法在此网络上连通，而 Android 已设置为阻止不经 VPN 的连接。Shroudly 正在继续尝试。</string>
     <string name="androidModeNextStart">新模式将在下次启动保护时使用。</string>
@@ -28,11 +35,14 @@
     <string name="androidModeTitle">模式</string>
     <string name="androidModeVpn">VPN（所有应用）</string>
     <string name="androidModeVpnDesc">所有应用都经过 Shroudly。Android 同一时间只允许一个 VPN，因此其他 VPN 应用会断开。</string>
+    <string name="androidNetworkSection">网络</string>
     <string name="androidNoInternet">由于 Shroudly 在此网络上无法连接互联网，保护已停止，你的应用现在直接联网。打开 Shroudly 即可重试。</string>
     <string name="androidPrivacyPolicy">隐私政策</string>
     <string name="androidProtectionLost">保护因出错而停止，你的应用现在直接联网。打开 Shroudly 即可重新开启。</string>
     <string name="androidProxyOnlyOffWifi">仅代理已关闭。如果此网络的代理设置为 {addr}，请在 Wi-Fi 设置中改回“无”，否则使用它的应用无法连接。</string>
     <string name="androidProxyOnlyOn">仅代理：设置为 127.0.0.1:{port} 的应用经过 Shroudly</string>
+    <string name="androidQuicOff">关闭 QUIC</string>
+    <string name="androidQuicOffDesc">应用改用 TCP 而不是 QUIC（UDP 端口 443），Shroudly 对 TCP 的穿透效果更好。适用于封锁或限速 QUIC 的网络。</string>
     <string name="androidRemoteControl">允许自动化应用</string>
     <string name="androidRemoteControlDesc">Tasker、MacroDroid 等应用可通过向软件包 {package} 发送广播（操作 {action}.START、.STOP 或 .TOGGLE）开关保护。此项关闭时，其他应用都无法这样做。</string>
     <string name="androidShareLogs">分享日志</string>

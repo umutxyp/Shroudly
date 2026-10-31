@@ -9,6 +9,11 @@
     <string name="adsBlocked">Заблакавана рэкламы</string>
     <string name="androidAlertsChannel">Апавяшчэнні абароны</string>
     <string name="androidAllApps">Усе праграмы на гэтай прыладзе ідуць праз Shroudly.</string>
+    <string name="androidAppsModeOnly">Праз Shroudly ідуць толькі пазначаныя праграмы</string>
+    <string name="androidAppsModeSkip">Усе праграмы ідуць праз Shroudly, акрамя пазначаных</string>
+    <string name="androidAppsOnly">Праграмы праз Shroudly</string>
+    <string name="androidAppsOnlyCount">Толькі {count}; усе астатнія праграмы ідуць наўпрост</string>
+    <string name="androidAppsOnlyDesc">Усе астатнія праграмы, у тым ліку сістэмныя, ідуць наўпрост, міма Shroudly. Калі нічога не пазначана, праз Shroudly ідуць усе праграмы.</string>
     <string name="androidAppsSection">Праграмы</string>
     <string name="androidAutomationBattery">Налады батарэі</string>
     <string name="androidAutomationNotStarted">Абарона не ўключана</string>
@@ -20,6 +25,8 @@
     <string name="androidDetails">Падрабязнасці</string>
     <string name="androidDownloadApk">Спампаваць абнаўленне</string>
     <string name="androidHideExplanation">Схаваць тлумачэнні</string>
+    <string name="androidIpv6Off">Адключыць IPv6</string>
+    <string name="androidIpv6OffDesc">Праграмы і Shroudly выкарыстоўваюць толькі IPv4, і праграмы адразу даведваюцца, што IPv6 няма, а не чакаюць яго. Для сетак з няспраўным або павольным IPv6.</string>
     <string name="androidKeepOnOffer">Тэлефон закрыў Shroudly. Націсніце, каб зноў уключыць абарону.</string>
     <string name="androidLockdownOffline">Няма інтэрнэту: Shroudly зараз не можа прабіцца ў гэтай сетцы, а Android наладжаны блакаваць злучэнні без VPN. Shroudly працягвае спробы.</string>
     <string name="androidModeNextStart">Новы рэжым будзе выкарыстаны пры наступным запуску абароны.</string>
@@ -28,11 +35,14 @@
     <string name="androidModeTitle">Рэжым</string>
     <string name="androidModeVpn">VPN (усе праграмы)</string>
     <string name="androidModeVpnDesc">Усе праграмы ідуць праз Shroudly. Android дазваляе толькі адзін VPN адначасова, таму іншая VPN-праграма адключыцца.</string>
+    <string name="androidNetworkSection">Сетка</string>
     <string name="androidNoInternet">Абарона спынілася, бо Shroudly не змог выйсці ў інтэрнэт у гэтай сетцы, таму вашы праграмы цяпер падключаюцца напрамую. Адкрыйце Shroudly, каб паспрабаваць зноў.</string>
     <string name="androidPrivacyPolicy">Палітыка прыватнасці</string>
     <string name="androidProtectionLost">Абарона спынілася з-за памылкі, таму вашы праграмы цяпер падключаюцца напрамую. Адкрыйце Shroudly, каб запусціць яе зноў.</string>
     <string name="androidProxyOnlyOffWifi">«Толькі проксі» выключаны. Калі проксі гэтай сеткі зададзены як {addr}, вярніце яго на «Няма» ў наладах Wi-Fi, інакш праграмы, якія яго выкарыстоўваюць, не змогуць падключыцца.</string>
     <string name="androidProxyOnlyOn">Толькі проксі: праграмы, настроеныя на 127.0.0.1:{port}, ідуць праз Shroudly</string>
+    <string name="androidQuicOff">Адключыць QUIC</string>
+    <string name="androidQuicOffDesc">Праграмы выкарыстоўваюць TCP замест QUIC (UDP-порт 443), а TCP Shroudly праводзіць лепш. Для сетак, якія блакуюць або запавольваюць QUIC.</string>
     <string name="androidRemoteControl">Дазволіць праграмы аўтаматызацыі</string>
     <string name="androidRemoteControlDesc">Tasker, MacroDroid і падобныя праграмы могуць уключаць і выключаць абарону шырокавяшчальным паведамленнем пакету {package}, дзеянне {action}.START, .STOP або .TOGGLE. Пакуль гэта выключана, ніводная іншая праграма не можа.</string>
     <string name="androidShareLogs">Падзяліцца журналам</string>

@@ -1209,7 +1209,9 @@ static sock_t dial(const char *host, uint16_t port, int prefer6, int use_doh,
   uint64_t end = t0 + (uint64_t)(budget_ms > 0 ? budget_ms : DIAL_FIRST_MS);
   struct sockaddr_storage hint;
   int has_hint = winner_get(host, &hint);
+  if (has_hint && g_cfg.ipv4_only && hint.ss_family == AF_INET6) has_hint = 0;
   if (has_hint) prefer6 = hint.ss_family == AF_INET6;   /* the family that worked last */
+  if (g_cfg.ipv4_only) prefer6 = 0;
   dial_addr ad[2][DOH_MAX_ADDRS];   /* [0] the preferred family, [1] the other */
   int cnt[2] = { 0, 0 }, nxt[2] = { 0, 0 };
   int other = 2;                    /* the other family: 0 not looked up, 1 being looked up, 2 known */
@@ -1217,11 +1219,12 @@ static sock_t dial(const char *host, uint16_t port, int prefer6, int use_doh,
 
   if (use_doh) {
     cnt[0] = resolve_family(host, port, prefer6, ad[0]);
-    other = ip_literal(host) ? 2 : 0;   /* an address literal is all there is */
+    /* An address literal is all there is; IPv4 only: no other family. */
+    other = ip_literal(host) || g_cfg.ipv4_only ? 2 : 0;
   } else {
     struct addrinfo hints, *res = NULL;
     memset(&hints, 0, sizeof(hints));
-    hints.ai_family = AF_UNSPEC; hints.ai_socktype = SOCK_STREAM;
+    hints.ai_family = g_cfg.ipv4_only ? AF_INET : AF_UNSPEC; hints.ai_socktype = SOCK_STREAM;
     hints.ai_flags = AI_ADDRCONFIG; /* no AAAA answers on an IPv4-only machine */
     char ps[8]; snprintf(ps, sizeof(ps), "%u", port);
     if (getaddrinfo(host, ps, &hints, &res) != 0 || !res) { if (res) freeaddrinfo(res); return SOCK_INVALID; }
@@ -2059,14 +2062,14 @@ static sock_t udp_socket(int fam) {
  * resolver when the engine uses it (as a CONNECT would), else the system's.
  * 0 on success. */
 static int udp_resolve(const char *host, uint16_t port, struct sockaddr_storage *out, socklen_t *ol) {
-  int pref6 = g_cfg.prefer_ipv6;
+  int pref6 = g_cfg.prefer_ipv6 && !g_cfg.ipv4_only;
   if (g_cfg.use_doh) {
     if (doh_resolve(host, port, pref6, out, ol) == 0) return 0;
-    return doh_resolve(host, port, !pref6, out, ol);
+    return g_cfg.ipv4_only ? -1 : doh_resolve(host, port, !pref6, out, ol);
   }
   struct addrinfo hints, *res = NULL;
   memset(&hints, 0, sizeof(hints));
-  hints.ai_family = AF_UNSPEC; hints.ai_socktype = SOCK_DGRAM;
+  hints.ai_family = g_cfg.ipv4_only ? AF_INET : AF_UNSPEC; hints.ai_socktype = SOCK_DGRAM;
   hints.ai_flags = AI_ADDRCONFIG;
   char ps[8]; snprintf(ps, sizeof(ps), "%u", port);
   if (getaddrinfo(host, ps, &hints, &res) != 0 || !res) { if (res) freeaddrinfo(res); return -1; }
@@ -2423,6 +2426,10 @@ static void udp_from_client(udp_assoc *u) {
     /* To a name on the ad and tracker list: dropped (an app then tries TCP,
      * which ends the same way). A lookup of one is answered here. */
     if (d.atyp == 3 && adblock_blocked(d.host)) continue;
+    /* QUIC turned off (--drop-quic): the app falls back to TCP. An
+     * association that only ever carried it ends like a DNS one. */
+    if (g_cfg.drop_quic && d.port == 443) continue;
+    if (g_cfg.ipv4_only && d.atyp == 4) continue;
     if (d.port != 53) u->other = 1;
     if (d.port == 53 && udp_dns_blocked(u, &d, u->buf, payload, plen)) continue;
     /* Plain DNS: to the encrypted forwarder, when it is a query for it. */
@@ -3140,6 +3147,7 @@ static void *nd_thread(void *p) {
   /* Only the families this machine has an address of: on a network without
    * IPv6, its AAAA answers were tried and "got nowhere" (a phone's log). */
   hints.ai_flags = AI_ADDRCONFIG;
+  if (g_cfg.ipv4_only) hints.ai_family = AF_INET;
   if (getaddrinfo(j->host, NULL, &hints, &res) == 0 && res) {
     struct sockaddr_storage ours[DOH_MAX_ADDRS * 2]; socklen_t ol[DOH_MAX_ADDRS * 2];
     int no = 0, k = doh_resolve_all(j->host, 443, 0, ours, ol, DOH_MAX_ADDRS);

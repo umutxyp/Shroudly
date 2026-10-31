@@ -9,6 +9,11 @@
     <string name="adsBlocked">የታገዱ ማስታወቂያዎች</string>
     <string name="androidAlertsChannel">የጥበቃ ማንቂያዎች</string>
     <string name="androidAllApps">በዚህ መሣሪያ ላይ ያለ እያንዳንዱ መተግበሪያ በShroudly በኩል ያልፋል።</string>
+    <string name="androidAppsModeOnly">የተመረጡት መተግበሪያዎች ብቻ በShroudly በኩል ያልፋሉ</string>
+    <string name="androidAppsModeSkip">ከተመረጡት በስተቀር ሁሉም መተግበሪያዎች በShroudly በኩል ያልፋሉ</string>
+    <string name="androidAppsOnly">በShroudly በኩል የሚያልፉ መተግበሪያዎች</string>
+    <string name="androidAppsOnlyCount">{count} ብቻ፤ ሌሎቹ መተግበሪያዎች በሙሉ በቀጥታ ይወጣሉ</string>
+    <string name="androidAppsOnlyDesc">ሌሎቹ መተግበሪያዎች በሙሉ፣ የሲስተም መተግበሪያዎችም ጭምር፣ በShroudly ሳያልፉ በቀጥታ ይወጣሉ። አንዱም ካልተመረጠ ሁሉም መተግበሪያዎች በShroudly በኩል ያልፋሉ።</string>
     <string name="androidAppsSection">መተግበሪያዎች</string>
     <string name="androidAutomationBattery">የባትሪ ቅንብሮች</string>
     <string name="androidAutomationNotStarted">ጥበቃ አልበራም</string>
@@ -20,6 +25,8 @@
     <string name="androidDetails">ዝርዝሮች</string>
     <string name="androidDownloadApk">ዝማኔውን አውርድ</string>
     <string name="androidHideExplanation">ማብራሪያዎቹን ደብቅ</string>
+    <string name="androidIpv6Off">IPv6ን አጥፋ</string>
+    <string name="androidIpv6OffDesc">መተግበሪያዎችና Shroudly IPv4 ብቻ ይጠቀማሉ፤ መተግበሪያዎችም IPv6 እንደሌለ ሳይጠብቁ ወዲያውኑ ያውቃሉ። IPv6ቸው ለተበላሸ ወይም ለዘገየ አውታረ መረቦች።</string>
     <string name="androidKeepOnOffer">ስልክዎ Shroudlyን ዘጋው። ጥበቃን እንደገና ለማብራት ይንኩ።</string>
     <string name="androidLockdownOffline">ኢንተርኔት የለም፦ Shroudly አሁን በዚህ አውታረ መረብ ላይ መገናኘት አልቻለም፣ እና Android ያለ VPN ግንኙነቶችን እንዲያግድ ተቀናብሯል። Shroudly መሞከሩን ቀጥሏል።</string>
     <string name="androidModeNextStart">አዲሱ ሁነታ ጥበቃው በሚቀጥለው ጊዜ ሲጀምር ጥቅም ላይ ይውላል።</string>
@@ -28,11 +35,14 @@
     <string name="androidModeTitle">ሁነታ</string>
     <string name="androidModeVpn">VPN (ሁሉም መተግበሪያዎች)</string>
     <string name="androidModeVpnDesc">ሁሉም መተግበሪያዎች በShroudly ያልፋሉ። Android በአንድ ጊዜ አንድ VPN ብቻ ስለሚፈቅድ ሌላ የVPN መተግበሪያ ይቋረጣል።</string>
+    <string name="androidNetworkSection">አውታረ መረብ</string>
     <string name="androidNoInternet">Shroudly በዚህ አውታረ መረብ ላይ ኢንተርኔት ማግኘት ስላልቻለ ጥበቃው ቆሟል፤ ስለዚህ መተግበሪያዎችዎ አሁን በቀጥታ ይገናኛሉ። እንደገና ለመሞከር Shroudlyን ይክፈቱ።</string>
     <string name="androidPrivacyPolicy">የግላዊነት መመሪያ</string>
     <string name="androidProtectionLost">በስህተት ምክንያት ጥበቃው ቆሟል፤ ስለዚህ መተግበሪያዎችዎ አሁን በቀጥታ ይገናኛሉ። እንደገና ለማስጀመር Shroudlyን ይክፈቱ።</string>
     <string name="androidProxyOnlyOffWifi">ፕሮክሲ ብቻ ጠፍቷል። የዚህ አውታረ መረብ proxy ወደ {addr} ከተቀናበረ፣ በWi-Fi ቅንብሮች ውስጥ ወደ «ምንም» ይመልሱት፤ አለበለዚያ የሚጠቀሙበት መተግበሪያዎች መገናኘት አይችሉም።</string>
     <string name="androidProxyOnlyOn">ፕሮክሲ ብቻ፦ 127.0.0.1:{port} እንዲጠቀሙ የተዘጋጁ መተግበሪያዎች በShroudly ያልፋሉ</string>
+    <string name="androidQuicOff">QUICን አጥፋ</string>
+    <string name="androidQuicOffDesc">መተግበሪያዎች ከQUIC (UDP ወደብ 443) ይልቅ TCP ይጠቀማሉ፤ Shroudly TCPን በተሻለ ያሳልፋል። QUICን ለሚያግዱ ወይም ለሚያዘገዩ አውታረ መረቦች።</string>
     <string name="androidRemoteControl">ለራስ-ሰር መተግበሪያዎች ፍቀድ</string>
     <string name="androidRemoteControlDesc">Tasker፣ MacroDroid እና ተመሳሳይ መተግበሪያዎች ወደ {package} ጥቅል በሚላክ ስርጭት ጥበቃን ማብራት እና ማጥፋት ይችላሉ፦ ድርጊት {action}.START፣ .STOP ወይም .TOGGLE። ይህ ጠፍቶ ሳለ ሌላ ምንም መተግበሪያ ይህን ማድረግ አይችልም።</string>
     <string name="androidShareLogs">መዝገብ አጋራ</string>

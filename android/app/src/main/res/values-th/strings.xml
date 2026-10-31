@@ -9,6 +9,11 @@
     <string name="adsBlocked">โฆษณาที่บล็อกแล้ว</string>
     <string name="androidAlertsChannel">การแจ้งเตือนการป้องกัน</string>
     <string name="androidAllApps">ทุกแอปในอุปกรณ์นี้ผ่าน Shroudly</string>
+    <string name="androidAppsModeOnly">เฉพาะแอปที่เลือกเท่านั้นที่ผ่าน Shroudly</string>
+    <string name="androidAppsModeSkip">ทุกแอปผ่าน Shroudly ยกเว้นแอปที่เลือก</string>
+    <string name="androidAppsOnly">แอปที่ผ่าน Shroudly</string>
+    <string name="androidAppsOnlyCount">เพียง {count} แอป แอปอื่นทั้งหมดออกไปตรง ๆ</string>
+    <string name="androidAppsOnlyDesc">แอปอื่นทั้งหมด รวมถึงแอประบบ ออกไปตรง ๆ โดยไม่ผ่าน Shroudly หากไม่ได้เลือกแอปใดเลย ทุกแอปจะผ่าน Shroudly</string>
     <string name="androidAppsSection">แอป</string>
     <string name="androidAutomationBattery">การตั้งค่าแบตเตอรี่</string>
     <string name="androidAutomationNotStarted">ไม่ได้เปิดการป้องกัน</string>
@@ -20,6 +25,8 @@
     <string name="androidDetails">รายละเอียด</string>
     <string name="androidDownloadApk">ดาวน์โหลดอัปเดต</string>
     <string name="androidHideExplanation">ซ่อนคำอธิบาย</string>
+    <string name="androidIpv6Off">ปิด IPv6</string>
+    <string name="androidIpv6OffDesc">แอปและ Shroudly ใช้เฉพาะ IPv4 และแอปจะรู้ทันทีว่าไม่มี IPv6 แทนที่จะรอ สำหรับเครือข่ายที่ IPv6 เสียหรือช้า</string>
     <string name="androidKeepOnOffer">โทรศัพท์ของคุณปิด Shroudly แตะเพื่อเปิดการป้องกันอีกครั้ง</string>
     <string name="androidLockdownOffline">ไม่มีอินเทอร์เน็ต: ขณะนี้ Shroudly เชื่อมต่อบนเครือข่ายนี้ไม่ได้ และ Android ถูกตั้งค่าให้บล็อกการเชื่อมต่อที่ไม่ผ่าน VPN Shroudly กำลังพยายามต่อไป</string>
     <string name="androidModeNextStart">โหมดใหม่จะใช้ในครั้งถัดไปที่เริ่มการป้องกัน</string>
@@ -28,11 +35,14 @@
     <string name="androidModeTitle">โหมด</string>
     <string name="androidModeVpn">VPN (ทุกแอป)</string>
     <string name="androidModeVpnDesc">ทุกแอปผ่าน Shroudly Android อนุญาต VPN ได้ครั้งละหนึ่งตัว ดังนั้นแอป VPN อื่นจะถูกตัดการเชื่อมต่อ</string>
+    <string name="androidNetworkSection">เครือข่าย</string>
     <string name="androidNoInternet">การป้องกันหยุดทำงานเพราะ Shroudly เชื่อมต่ออินเทอร์เน็ตบนเครือข่ายนี้ไม่ได้ แอปของคุณจึงเชื่อมต่อโดยตรงอยู่ในขณะนี้ เปิด Shroudly เพื่อลองอีกครั้ง</string>
     <string name="androidPrivacyPolicy">นโยบายความเป็นส่วนตัว</string>
     <string name="androidProtectionLost">การป้องกันหยุดทำงานเนื่องจากเกิดข้อผิดพลาด แอปของคุณจึงเชื่อมต่อโดยตรงอยู่ในขณะนี้ เปิด Shroudly เพื่อเริ่มการป้องกันอีกครั้ง</string>
     <string name="androidProxyOnlyOffWifi">ปิดพร็อกซีเท่านั้นแล้ว หากพร็อกซีของเครือข่ายนี้ตั้งเป็น {addr} ให้เปลี่ยนกลับเป็น ไม่มี ในการตั้งค่า Wi-Fi มิฉะนั้นแอปที่ใช้พร็อกซีนี้จะเชื่อมต่อไม่ได้</string>
     <string name="androidProxyOnlyOn">พร็อกซีเท่านั้น: แอปที่ตั้งค่าเป็น 127.0.0.1:{port} จะผ่าน Shroudly</string>
+    <string name="androidQuicOff">ปิด QUIC</string>
+    <string name="androidQuicOffDesc">แอปจะใช้ TCP แทน QUIC (พอร์ต UDP 443) ซึ่ง Shroudly พาผ่านได้ดีกว่า สำหรับเครือข่ายที่บล็อกหรือทำให้ QUIC ช้า</string>
     <string name="androidRemoteControl">อนุญาตแอปอัตโนมัติ</string>
     <string name="androidRemoteControlDesc">Tasker, MacroDroid และแอปที่คล้ายกันสามารถเปิดและปิดการป้องกันได้ด้วยการส่ง broadcast ไปยังแพ็กเกจ {package} แอ็กชัน {action}.START, .STOP หรือ .TOGGLE ขณะที่ตัวเลือกนี้ปิดอยู่ ไม่มีแอปอื่นใดทำได้</string>
     <string name="androidShareLogs">แชร์บันทึก</string>

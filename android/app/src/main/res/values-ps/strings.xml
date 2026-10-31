@@ -9,6 +9,11 @@
     <string name="adsBlocked">بند شوي اعلانونه</string>
     <string name="androidAlertsChannel">د ساتنې خبرتیاوې</string>
     <string name="androidAllApps">د دې وسیلې هر اپ د Shroudly له لارې تېرېږي.</string>
+    <string name="androidAppsModeOnly">یوازې نښه شوي اپونه د Shroudly له لارې ځي</string>
+    <string name="androidAppsModeSkip">پرته له نښه شویو اپونو، هر اپ د Shroudly له لارې ځي</string>
+    <string name="androidAppsOnly">هغه اپونه چې د Shroudly له لارې ځي</string>
+    <string name="androidAppsOnlyCount">یوازې {count} اپونه؛ نور هر اپ مستقیم وځي</string>
+    <string name="androidAppsOnlyDesc">نور هر اپ، د سیسټم اپونه هم، له Shroudly پرته مستقیم وځي. که هېڅ یو نښه شوی نه وي، هر اپ د Shroudly له لارې ځي.</string>
     <string name="androidAppsSection">اپونه</string>
     <string name="androidAutomationBattery">د بیټرۍ امستنې</string>
     <string name="androidAutomationNotStarted">ساتنه روښانه نه شوه</string>
@@ -20,6 +25,8 @@
     <string name="androidDetails">جزئيات</string>
     <string name="androidDownloadApk">تازه نسخه ښکته کړئ</string>
     <string name="androidHideExplanation">توضیحات پټ کړئ</string>
+    <string name="androidIpv6Off">IPv6 بند کړه</string>
+    <string name="androidIpv6OffDesc">اپونه او Shroudly یوازې IPv4 کاروي، او اپونه د انتظار پر ځای سمدستي پوهېږي چې IPv6 نشته. د هغو شبکو لپاره چې IPv6 یې خراب یا ورو دی.</string>
     <string name="androidKeepOnOffer">ستاسو تلیفون Shroudly وتړلو. د ساتنې د بیا چالانولو لپاره ټک وکړئ.</string>
     <string name="androidLockdownOffline">انټرنېټ نشته: Shroudly اوس مهال په دې شبکه کې نشي نښلېدای، او Android داسې تنظیم شوی چې له VPN پرته اړیکې بندې کړي. Shroudly هڅې ته دوام ورکوي.</string>
     <string name="androidModeNextStart">نوې حالت به بل ځل چې ساتنه پیلېږي وکارول شي.</string>
@@ -28,11 +35,14 @@
     <string name="androidModeTitle">حالت</string>
     <string name="androidModeVpn">VPN (ټول اپونه)</string>
     <string name="androidModeVpnDesc">ټول اپونه له Shroudly تېرېږي. اندروېډ په یو وخت کې یوازې یو VPN ته اجازه ورکوي، نو د بل VPN اپ اړیکه پرې کېږي.</string>
+    <string name="androidNetworkSection">شبکه</string>
     <string name="androidNoInternet">ساتنه ودرېده ځکه چې Shroudly په دې شبکه کې انټرنېټ ته ونه رسېد، نو ستاسو اپونه اوس مستقیم نښلي. د بیا هڅې لپاره Shroudly پرانیزئ.</string>
     <string name="androidPrivacyPolicy">د محرمیت تګلاره</string>
     <string name="androidProtectionLost">ساتنه د یوې تېروتنې له امله ودرېده، نو ستاسو اپونه اوس مستقیم نښلي. د بیا پیلولو لپاره Shroudly پرانیزئ.</string>
     <string name="androidProxyOnlyOffWifi">«یوازې پراکسي» بند شو. که د دې شبکې پراکسي {addr} ته ټاکل شوې وي، د Wi-Fi په تنظیماتو کې یې بېرته «هېڅ» ته واړوئ، کنه هغه اپونه چې یې کاروي نه شي وصل کېدای.</string>
     <string name="androidProxyOnlyOn">یوازې پراکسي: هغه اپونه چې په ‎127.0.0.1:{port}‎ تنظیم شوي له Shroudly تېرېږي</string>
+    <string name="androidQuicOff">QUIC بند کړه</string>
+    <string name="androidQuicOffDesc">اپونه د QUIC (UDP پورټ 443) پر ځای TCP کاروي، چې Shroudly یې ښه تېروي. د هغو شبکو لپاره چې QUIC بندوي یا یې ورو کوي.</string>
     <string name="androidRemoteControl">د اتومات کولو اپونو ته اجازه ورکړئ</string>
     <string name="androidRemoteControlDesc">Tasker، MacroDroid او ورته اپونه کولی شي د {package} کڅوړې ته د خپرونې په لېږلو ساتنه روښانه او بنده کړي: کړنه {action}.START، ‎.STOP یا ‎.TOGGLE. تر هغه چې دا بند وي، هېڅ بل اپ دا نشي کولی.</string>
     <string name="androidShareLogs">لاګونه شریک کړئ</string>

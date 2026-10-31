@@ -9,6 +9,11 @@
     <string name="adsBlocked">ブロックした広告</string>
     <string name="androidAlertsChannel">保護に関するお知らせ</string>
     <string name="androidAllApps">このデバイスのすべてのアプリが Shroudly を経由します。</string>
+    <string name="androidAppsModeOnly">チェックしたアプリだけ Shroudly を通す</string>
+    <string name="androidAppsModeSkip">チェックしたアプリ以外はすべて Shroudly を通す</string>
+    <string name="androidAppsOnly">Shroudly を通すアプリ</string>
+    <string name="androidAppsOnlyCount">{count} 個のみ。ほかのアプリはすべて直接出ていきます</string>
+    <string name="androidAppsOnlyDesc">ほかのアプリはシステムアプリも含め、Shroudly を通らず直接出ていきます。何もチェックしていなければ、すべてのアプリが Shroudly を通ります。</string>
     <string name="androidAppsSection">アプリ</string>
     <string name="androidAutomationBattery">電池の設定</string>
     <string name="androidAutomationNotStarted">保護はオンになりませんでした</string>
@@ -20,6 +25,8 @@
     <string name="androidDetails">詳細</string>
     <string name="androidDownloadApk">アップデートをダウンロード</string>
     <string name="androidHideExplanation">説明を隠す</string>
+    <string name="androidIpv6Off">IPv6 をオフにする</string>
+    <string name="androidIpv6OffDesc">アプリと Shroudly は IPv4 だけを使い、アプリは IPv6 を待たずにすぐ「ない」と分かります。IPv6 が壊れている、または遅いネットワーク向けです。</string>
     <string name="androidKeepOnOffer">スマートフォンが Shroudly を終了しました。タップして保護をもう一度オンにします。</string>
     <string name="androidLockdownOffline">インターネットに接続できません：Shroudly は現在このネットワークで通信できず、Android は VPN なしの接続をブロックするよう設定されています。Shroudly は再試行を続けています。</string>
     <string name="androidModeNextStart">新しいモードは次回保護を開始したときに使われます。</string>
@@ -28,11 +35,14 @@
     <string name="androidModeTitle">モード</string>
     <string name="androidModeVpn">VPN（すべてのアプリ）</string>
     <string name="androidModeVpnDesc">すべてのアプリが Shroudly を通ります。Android では同時に 1 つの VPN しか使えないため、ほかの VPN アプリは切断されます。</string>
+    <string name="androidNetworkSection">ネットワーク</string>
     <string name="androidNoInternet">Shroudly がこのネットワークでインターネットに接続できなかったため、保護を停止しました。アプリは現在直接接続しています。もう一度試すには Shroudly を開いてください。</string>
     <string name="androidPrivacyPolicy">プライバシーポリシー</string>
     <string name="androidProtectionLost">エラーにより保護が停止したため、アプリは現在直接接続しています。もう一度開始するには Shroudly を開いてください。</string>
     <string name="androidProxyOnlyOffWifi">プロキシのみをオフにしました。このネットワークのプロキシを {addr} に設定している場合は、Wi-Fi 設定で「なし」に戻してください。そうしないと、それを使うアプリが接続できません。</string>
     <string name="androidProxyOnlyOn">プロキシのみ: 127.0.0.1:{port} を使うように設定したアプリが Shroudly を通ります</string>
+    <string name="androidQuicOff">QUIC をオフにする</string>
+    <string name="androidQuicOffDesc">アプリは QUIC（UDP ポート 443）の代わりに TCP を使います。TCP のほうが Shroudly で通しやすくなります。QUIC をブロックしたり遅くしたりするネットワーク向けです。</string>
     <string name="androidRemoteControl">自動化アプリを許可</string>
     <string name="androidRemoteControlDesc">Tasker、MacroDroid などのアプリは、パッケージ {package} へのブロードキャスト（アクション {action}.START、.STOP、.TOGGLE）で保護をオン・オフできます。これがオフの間は、ほかのアプリは操作できません。</string>
     <string name="androidShareLogs">ログを共有</string>

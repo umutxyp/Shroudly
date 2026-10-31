@@ -133,6 +133,61 @@
                 android:text="@string/dnsServer" />
         </LinearLayout>
 
+        <!-- QUIC and IPv6 turned off, for networks that block or slow them
+             down (#59): the engine's --drop-quic and --ipv4-only, and no
+             IPv6 on the VPN interface. -->
+        <TextView
+            android:id="@+id/networkTitle"
+            style="@style/SectionTitle.Explained"
+            android:accessibilityHeading="true"
+            android:text="@string/androidNetworkSection" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/card"
+            android:orientation="vertical"
+            android:padding="1dp">
+
+            <Switch
+                android:id="@+id/quicOff"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="52dp"
+                android:drawableStart="@drawable/row_link"
+                android:drawablePadding="14dp"
+                android:lineSpacingMultiplier="1.1"
+                android:paddingStart="14dp"
+                android:paddingTop="10dp"
+                android:paddingEnd="12dp"
+                android:paddingBottom="10dp"
+                android:switchPadding="12dp"
+                android:text="@string/androidQuicOff"
+                android:textAlignment="viewStart"
+                android:textColor="@color/text"
+                android:textSize="15sp" />
+
+            <View style="@style/Divider" />
+
+            <Switch
+                android:id="@+id/ipv6Off"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="52dp"
+                android:drawableStart="@drawable/row_link"
+                android:drawablePadding="14dp"
+                android:lineSpacingMultiplier="1.1"
+                android:paddingStart="14dp"
+                android:paddingTop="10dp"
+                android:paddingEnd="12dp"
+                android:paddingBottom="10dp"
+                android:switchPadding="12dp"
+                android:text="@string/androidIpv6Off"
+                android:textAlignment="viewStart"
+                android:textColor="@color/text"
+                android:textSize="15sp" />
+        </LinearLayout>
+
         <TextView
             android:id="@+id/appsTitle"
             style="@style/SectionTitle.Explained"
@@ -147,7 +202,8 @@
             android:orientation="vertical"
             android:padding="1dp">
 
-            <!-- Apps that skip Shroudly: the label, and how many under it. -->
+            <!-- Apps that skip Shroudly, or (#60) the only ones that go
+                 through it: the label, and how many under it. -->
             <TextView
                 android:id="@+id/excludedApps"
                 style="@style/AboutRowText"

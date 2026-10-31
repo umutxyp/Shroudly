@@ -9,6 +9,11 @@
     <string name="adsBlocked">Engellenen reklamlar</string>
     <string name="androidAlertsChannel">Koruma uyarıları</string>
     <string name="androidAllApps">Bu cihazdaki her uygulama Shroudly üzerinden geçiyor.</string>
+    <string name="androidAppsModeOnly">Yalnızca işaretlenen uygulamalar Shroudly\'den geçer</string>
+    <string name="androidAppsModeSkip">İşaretlenenler dışında her uygulama Shroudly\'den geçer</string>
+    <string name="androidAppsOnly">Shroudly\'den geçen uygulamalar</string>
+    <string name="androidAppsOnlyCount">Yalnızca {count} uygulama; diğer her uygulama doğrudan çıkar</string>
+    <string name="androidAppsOnlyDesc">Diğer tüm uygulamalar, sistem uygulamaları da, Shroudly\'ye uğramadan doğrudan çıkar. Hiçbiri işaretli değilse her uygulama Shroudly\'den geçer.</string>
     <string name="androidAppsSection">Uygulamalar</string>
     <string name="androidAutomationBattery">Pil ayarları</string>
     <string name="androidAutomationNotStarted">Koruma açılmadı</string>
@@ -20,6 +25,8 @@
     <string name="androidDetails">Ayrıntılar</string>
     <string name="androidDownloadApk">Güncellemeyi indir</string>
     <string name="androidHideExplanation">Açıklamaları gizle</string>
+    <string name="androidIpv6Off">IPv6\'yı kapat</string>
+    <string name="androidIpv6OffDesc">Uygulamalar ve Shroudly yalnızca IPv4 kullanır; uygulamalar IPv6 olmadığını beklemeden hemen öğrenir. IPv6\'sı bozuk ya da yavaş ağlar için.</string>
     <string name="androidKeepOnOffer">Telefonun Shroudly\'yi kapattı. Korumayı yeniden açmak için dokun.</string>
     <string name="androidLockdownOffline">İnternet yok: Shroudly şu anda bu ağda bağlantı kuramıyor ve Android, VPN olmadan bağlantıları engelleyecek şekilde ayarlı. Shroudly denemeye devam ediyor.</string>
     <string name="androidModeNextStart">Yeni mod, koruma bir sonraki başlatılışında kullanılır.</string>
@@ -28,11 +35,14 @@
     <string name="androidModeTitle">Mod</string>
     <string name="androidModeVpn">VPN (tüm uygulamalar)</string>
     <string name="androidModeVpnDesc">Tüm uygulamalar Shroudly\'den geçer. Android aynı anda tek VPN\'e izin verir, bu yüzden başka bir VPN uygulamasının bağlantısı kesilir.</string>
+    <string name="androidNetworkSection">Ağ</string>
     <string name="androidNoInternet">Shroudly bu ağda internete ulaşamadığı için koruma durdu, bu yüzden uygulamalarınız şu anda doğrudan bağlanıyor. Yeniden denemek için Shroudly\'yi açın.</string>
     <string name="androidPrivacyPolicy">Gizlilik politikası</string>
     <string name="androidProtectionLost">Koruma bir hata nedeniyle durdu, bu yüzden uygulamalarınız şu anda doğrudan bağlanıyor. Yeniden başlatmak için Shroudly\'yi açın.</string>
     <string name="androidProxyOnlyOffWifi">Yalnızca proxy kapandı. Bu ağın proxy\'sini {addr} yaptıysan Wi-Fi ayarlarından Yok\'a geri al; yoksa onu kullanan uygulamalar bağlanamaz.</string>
     <string name="androidProxyOnlyOn">Yalnızca proxy: 127.0.0.1:{port} kullanacak şekilde ayarlanan uygulamalar Shroudly\'den geçer</string>
+    <string name="androidQuicOff">QUIC\'i kapat</string>
+    <string name="androidQuicOffDesc">Uygulamalar QUIC (UDP 443 portu) yerine TCP kullanır; Shroudly TCP\'yi daha iyi geçirir. QUIC\'i engelleyen ya da yavaşlatan ağlar için.</string>
     <string name="androidRemoteControl">Otomasyon uygulamalarına izin ver</string>
     <string name="androidRemoteControlDesc">Tasker, MacroDroid ve benzeri uygulamalar korumayı {package} paketine gönderilen bir yayınla açıp kapatabilir: eylem {action}.START, .STOP ya da .TOGGLE. Bu kapalıyken başka hiçbir uygulama bunu yapamaz.</string>
     <string name="androidShareLogs">Kayıtları paylaş</string>

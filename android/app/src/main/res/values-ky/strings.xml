@@ -9,6 +9,11 @@
     <string name="adsBlocked">Бөгөттөлгөн жарнама</string>
     <string name="androidAlertsChannel">Коргоо эскертүүлөрү</string>
     <string name="androidAllApps">Бул түзмөктөгү ар бир колдонмо Shroudly аркылуу өтөт.</string>
+    <string name="androidAppsModeOnly">Белгиленген колдонмолор гана Shroudly аркылуу өтөт</string>
+    <string name="androidAppsModeSkip">Белгиленгендерден башка бардык колдонмо Shroudly аркылуу өтөт</string>
+    <string name="androidAppsOnly">Shroudly аркылуу өткөн колдонмолор</string>
+    <string name="androidAppsOnlyCount">{count} гана; калган бардык колдонмо түз чыгат</string>
+    <string name="androidAppsOnlyDesc">Калган бардык колдонмолор, тутумдук колдонмолор да, Shroudly аркылуу өтпөй түз чыгат. Эч нерсе белгиленбесе, бардык колдонмо Shroudly аркылуу өтөт.</string>
     <string name="androidAppsSection">Колдонмолор</string>
     <string name="androidAutomationBattery">Батарея жөндөөлөрү</string>
     <string name="androidAutomationNotStarted">Коргоо күйгүзүлгөн жок</string>
@@ -20,6 +25,8 @@
     <string name="androidDetails">Кененирээк</string>
     <string name="androidDownloadApk">Жаңыртууну жүктөө</string>
     <string name="androidHideExplanation">Түшүндүрмөлөрдү жашыруу</string>
+    <string name="androidIpv6Off">IPv6\'ны өчүрүү</string>
+    <string name="androidIpv6OffDesc">Колдонмолор менен Shroudly IPv4 гана колдонот, ал эми колдонмолор IPv6 жок экенин күтпөй дароо билет. IPv6\'сы бузук же жай тармактар үчүн.</string>
     <string name="androidKeepOnOffer">Телефон Shroudly\'ни жаап салды. Коргоону кайра күйгүзүү үчүн басыңыз.</string>
     <string name="androidLockdownOffline">Интернет жок: Shroudly азыр бул тармакта туташа албай жатат, ал Android VPN\'сиз туташууларды бөгөттөөгө жөндөлгөн. Shroudly аракетин улантууда.</string>
     <string name="androidModeNextStart">Жаңы режим коргоо кийинки жолу иштегенде колдонулат.</string>
@@ -28,11 +35,14 @@
     <string name="androidModeTitle">Режим</string>
     <string name="androidModeVpn">VPN (бардык колдонмолор)</string>
     <string name="androidModeVpnDesc">Бардык колдонмолор Shroudly аркылуу өтөт. Android бир убакта бир гана VPN\'ге уруксат берет, ошондуктан башка VPN колдонмосу ажыратылат.</string>
+    <string name="androidNetworkSection">Тармак</string>
     <string name="androidNoInternet">Shroudly бул тармакта интернетке чыга албагандыктан коргоо токтоду, ошондуктан колдонмолоруңуз азыр түз туташып жатат. Кайра аракет кылуу үчүн Shroudly\'ди ачыңыз.</string>
     <string name="androidPrivacyPolicy">Купуялык саясаты</string>
     <string name="androidProtectionLost">Коргоо катадан улам токтоду, ошондуктан колдонмолоруңуз азыр түз туташып жатат. Кайра иштетүү үчүн Shroudly\'ди ачыңыз.</string>
     <string name="androidProxyOnlyOffWifi">«Прокси гана» өчүрүлдү. Бул тармактын проксиси {addr} деп коюлса, аны Wi-Fi жөндөөлөрүндө «Жок» абалына кайтарыңыз, болбосо аны колдонгон колдонмолор туташа албайт.</string>
     <string name="androidProxyOnlyOn">Прокси гана: 127.0.0.1:{port} жөндөлгөн колдонмолор Shroudly аркылуу өтөт</string>
+    <string name="androidQuicOff">QUIC\'ти өчүрүү</string>
+    <string name="androidQuicOffDesc">Колдонмолор QUIC (UDP 443 порту) ордуна TCP колдонот, аны Shroudly жакшыраак өткөрөт. QUIC\'ти бөгөттөгөн же жайлаткан тармактар үчүн.</string>
     <string name="androidRemoteControl">Автоматташтыруу колдонмолоруна уруксат берүү</string>
     <string name="androidRemoteControlDesc">Tasker, MacroDroid жана ушул сыяктуу колдонмолор {package} пакетине жөнөтүлгөн берүү билдирүүсү менен коргоону күйгүзүп-өчүрө алат: аракет {action}.START, .STOP же .TOGGLE. Бул өчүк турганда башка эч бир колдонмо муну кыла албайт.</string>
     <string name="androidShareLogs">Журналды бөлүшүү</string>

@@ -9,6 +9,11 @@
     <string name="adsBlocked">Заблокировано рекламы</string>
     <string name="androidAlertsChannel">Оповещения о защите</string>
     <string name="androidAllApps">Все приложения на этом устройстве идут через Shroudly.</string>
+    <string name="androidAppsModeOnly">Через Shroudly идут только отмеченные приложения</string>
+    <string name="androidAppsModeSkip">Все приложения идут через Shroudly, кроме отмеченных</string>
+    <string name="androidAppsOnly">Приложения через Shroudly</string>
+    <string name="androidAppsOnlyCount">Только {count}; все остальные приложения идут напрямую</string>
+    <string name="androidAppsOnlyDesc">Все остальные приложения, включая системные, идут напрямую, мимо Shroudly. Если ничего не отмечено, через Shroudly идут все приложения.</string>
     <string name="androidAppsSection">Приложения</string>
     <string name="androidAutomationBattery">Настройки батареи</string>
     <string name="androidAutomationNotStarted">Защита не включена</string>
@@ -20,6 +25,8 @@
     <string name="androidDetails">Подробнее</string>
     <string name="androidDownloadApk">Скачать обновление</string>
     <string name="androidHideExplanation">Скрыть пояснения</string>
+    <string name="androidIpv6Off">Отключить IPv6</string>
+    <string name="androidIpv6OffDesc">Приложения и Shroudly используют только IPv4, и приложения сразу узнают, что IPv6 нет, а не ждут его. Для сетей с неработающим или медленным IPv6.</string>
     <string name="androidKeepOnOffer">Телефон закрыл Shroudly. Нажмите, чтобы снова включить защиту.</string>
     <string name="androidLockdownOffline">Нет интернета: Shroudly сейчас не может пробиться в этой сети, а Android настроен блокировать подключения без VPN. Shroudly продолжает попытки.</string>
     <string name="androidModeNextStart">Новый режим будет использован при следующем запуске защиты.</string>
@@ -28,11 +35,14 @@
     <string name="androidModeTitle">Режим</string>
     <string name="androidModeVpn">VPN (все приложения)</string>
     <string name="androidModeVpnDesc">Все приложения идут через Shroudly. Android допускает только один VPN одновременно, поэтому другое VPN-приложение отключится.</string>
+    <string name="androidNetworkSection">Сеть</string>
     <string name="androidNoInternet">Защита остановилась, потому что Shroudly не смог выйти в интернет в этой сети, поэтому ваши приложения сейчас подключаются напрямую. Откройте Shroudly, чтобы попробовать снова.</string>
     <string name="androidPrivacyPolicy">Политика конфиденциальности</string>
     <string name="androidProtectionLost">Защита остановилась из-за ошибки, поэтому ваши приложения сейчас подключаются напрямую. Откройте Shroudly, чтобы снова её включить.</string>
     <string name="androidProxyOnlyOffWifi">«Только прокси» выключен. Если прокси этой сети задан как {addr}, верните его на «Нет» в настройках Wi-Fi, иначе приложения, которые его используют, не смогут подключиться.</string>
     <string name="androidProxyOnlyOn">Только прокси: приложения, настроенные на 127.0.0.1:{port}, идут через Shroudly</string>
+    <string name="androidQuicOff">Отключить QUIC</string>
+    <string name="androidQuicOffDesc">Приложения используют TCP вместо QUIC (UDP-порт 443), а TCP Shroudly проводит лучше. Для сетей, которые блокируют или замедляют QUIC.</string>
     <string name="androidRemoteControl">Разрешить приложения автоматизации</string>
     <string name="androidRemoteControlDesc">Tasker, MacroDroid и похожие приложения могут включать и выключать защиту широковещательным сообщением пакету {package}, действие {action}.START, .STOP или .TOGGLE. Пока это выключено, ни одно другое приложение не может.</string>
     <string name="androidShareLogs">Поделиться журналом</string>

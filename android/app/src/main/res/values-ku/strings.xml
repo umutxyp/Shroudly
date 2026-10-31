@@ -9,6 +9,11 @@
     <string name="adsBlocked">Reklamên astengkirî</string>
     <string name="androidAlertsChannel">Hişyariyên parastinê</string>
     <string name="androidAllApps">Her sepana li ser vê amûrê di Shroudly re derbas dibe.</string>
+    <string name="androidAppsModeOnly">Tenê sepanên nîşankirî di Shroudly re derbas dibin</string>
+    <string name="androidAppsModeSkip">Ji bilî yên nîşankirî, her sepan di Shroudly re derbas dibe</string>
+    <string name="androidAppsOnly">Sepanên ku di Shroudly re derbas dibin</string>
+    <string name="androidAppsOnlyCount">Tenê {count}; her sepaneke din rasterast derdikeve</string>
+    <string name="androidAppsOnlyDesc">Hemû sepanên din, sepanên pergalê jî, bê ku di Shroudly re derbas bibin rasterast derdikevin. Heke yek jî nehatibe nîşankirin, her sepan di Shroudly re derbas dibe.</string>
     <string name="androidAppsSection">Sepan</string>
     <string name="androidAutomationBattery">Mîhengên bataryayê</string>
     <string name="androidAutomationNotStarted">Parastin nehat vekirin</string>
@@ -20,6 +25,8 @@
     <string name="androidDetails">Hûragahî</string>
     <string name="androidDownloadApk">Nûvekirinê daxe</string>
     <string name="androidHideExplanation">Ravekirinan veşêre</string>
+    <string name="androidIpv6Off">IPv6\'ê bigire</string>
+    <string name="androidIpv6OffDesc">Sepan û Shroudly tenê IPv4 bi kar tînin, û sepan li şûna ku li benda IPv6 bimînin, yekser dizanin ku IPv6 tune ye. Ji bo torên ku IPv6\'a wan xerab an hêdî ye.</string>
     <string name="androidKeepOnOffer">Telefona te Shroudly girt. Ji bo ku parastinê dîsa vekî, bitikîne.</string>
     <string name="androidLockdownOffline">Înternet tune: Shroudly niha li ser vê torê nikare derbas bibe, û Android hatiye mîhengkirin ku girêdanên bê VPN asteng bike. Shroudly hewl didomîne.</string>
     <string name="androidModeNextStart">Moda nû dê gava parastin cara din dest pê bike were bikaranîn.</string>
@@ -28,11 +35,14 @@
     <string name="androidModeTitle">Mod</string>
     <string name="androidModeVpn">VPN (hemû sepan)</string>
     <string name="androidModeVpnDesc">Hemû sepan di Shroudly re derbas dibin. Android di heman demê de tenê destûrê dide yek VPN, ji ber vê sepaneke din a VPN tê qutkirin.</string>
+    <string name="androidNetworkSection">Tor</string>
     <string name="androidNoInternet">Parastin rawestiya ji ber ku Shroudly li ser vê torê negihişt înternetê, ji ber vê yekê sepanên te niha rasterast girêdidin. Ji bo ku tu dîsa biceribînî, Shroudly veke.</string>
     <string name="androidPrivacyPolicy">Polîtîkaya nepeniyê</string>
     <string name="androidProtectionLost">Parastin ji ber çewtiyekê rawestiya, ji ber vê yekê sepanên te niha rasterast girêdidin. Ji bo ku tu wê dîsa bidî destpêkirin, Shroudly veke.</string>
     <string name="androidProxyOnlyOffWifi">«Tenê proksî» girtî ye. Heke proksiya vê torê wekî {addr} hatibe danîn, di mîhengên Wi-Fi de wê vegerîne «Tune», wekî din sepanên ku wê bi kar tînin nikarin girê bidin.</string>
     <string name="androidProxyOnlyOn">Tenê proksî: sepanên ku li ser 127.0.0.1:{port} hatine mîhengkirin di Shroudly re derbas dibin</string>
+    <string name="androidQuicOff">QUIC\'ê bigire</string>
+    <string name="androidQuicOffDesc">Sepan li şûna QUIC (porta UDP 443) TCP bi kar tînin, ku Shroudly wê baştir derbas dike. Ji bo torên ku QUIC asteng dikin an hêdî dikin.</string>
     <string name="androidRemoteControl">Destûrê bide sepanên otomasyonê</string>
     <string name="androidRemoteControlDesc">Tasker, MacroDroid û sepanên wek wan dikarin parastinê bi weşanekê ji pakêta {package} re veke û bigire: çalakî {action}.START, .STOP an .TOGGLE. Heta ku ev girtî be, ti sepaneke din nikare.</string>
     <string name="androidShareLogs">Tomaran parve bike</string>

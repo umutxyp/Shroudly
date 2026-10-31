@@ -15,6 +15,12 @@ typedef struct {
   char     doh_ip[64];        /* bootstrap IP, e.g. 1.1.1.1 */
   int      auto_probe;        /* pick a working strategy per host automatically */
   int      prefer_ipv6;
+  /* --ipv4-only: never look an address up as IPv6 nor connect over it, for
+   * a network whose IPv6 is broken or throttled (the user's choice, #59). */
+  int      ipv4_only;
+  /* --drop-quic: datagrams to UDP port 443 (QUIC) are dropped by the relay,
+   * so apps use TCP, which the techniques get through (#59). */
+  int      drop_quic;
   /* --raw-local (tests): search for techniques for streams that are not TLS
    * or HTTP on this computer and its network too, which is never done
    * otherwise (no filter sits there). */

@@ -9,6 +9,11 @@
     <string name="adsBlocked">Bloklangan reklamalar</string>
     <string name="androidAlertsChannel">Himoya ogohlantirishlari</string>
     <string name="androidAllApps">Bu qurilmadagi har bir ilova Shroudly orqali o‘tadi.</string>
+    <string name="androidAppsModeOnly">Faqat belgilangan ilovalar Shroudly orqali oʻtadi</string>
+    <string name="androidAppsModeSkip">Belgilanganlardan tashqari har bir ilova Shroudly orqali oʻtadi</string>
+    <string name="androidAppsOnly">Shroudly orqali oʻtadigan ilovalar</string>
+    <string name="androidAppsOnlyCount">Faqat {count} ta; qolgan har bir ilova toʻgʻridan-toʻgʻri chiqadi</string>
+    <string name="androidAppsOnlyDesc">Qolgan barcha ilovalar, tizim ilovalari ham, Shroudly’dan oʻtmay toʻgʻridan-toʻgʻri chiqadi. Hech biri belgilanmasa, har bir ilova Shroudly orqali oʻtadi.</string>
     <string name="androidAppsSection">Ilovalar</string>
     <string name="androidAutomationBattery">Batareya sozlamalari</string>
     <string name="androidAutomationNotStarted">Himoya yoqilmadi</string>
@@ -20,6 +25,8 @@
     <string name="androidDetails">Batafsil</string>
     <string name="androidDownloadApk">Yangilanishni yuklab olish</string>
     <string name="androidHideExplanation">Izohlarni yashirish</string>
+    <string name="androidIpv6Off">IPv6’ni oʻchirish</string>
+    <string name="androidIpv6OffDesc">Ilovalar va Shroudly faqat IPv4 ishlatadi, ilovalar esa IPv6 yoʻqligini kutmasdan darhol biladi. IPv6’si buzuq yoki sekin tarmoqlar uchun.</string>
     <string name="androidKeepOnOffer">Telefoningiz Shroudly\'ni yopdi. Himoyani qayta yoqish uchun bosing.</string>
     <string name="androidLockdownOffline">Internet yo‘q: Shroudly hozir bu tarmoqda ulana olmayapti, Android esa VPN’siz ulanishlarni bloklashga sozlangan. Shroudly urinishda davom etmoqda.</string>
     <string name="androidModeNextStart">Yangi rejim himoya keyingi safar ishga tushganda qoʻllanadi.</string>
@@ -28,11 +35,14 @@
     <string name="androidModeTitle">Rejim</string>
     <string name="androidModeVpn">VPN (barcha ilovalar)</string>
     <string name="androidModeVpnDesc">Barcha ilovalar Shroudly orqali oʻtadi. Android bir vaqtda faqat bitta VPN’ga ruxsat beradi, shuning uchun boshqa VPN ilovasi uziladi.</string>
+    <string name="androidNetworkSection">Tarmoq</string>
     <string name="androidNoInternet">Shroudly bu tarmoqda internetga chiqa olmagani uchun himoya to‘xtadi, shuning uchun ilovalaringiz hozir to‘g‘ridan-to‘g‘ri ulanmoqda. Qayta urinib ko‘rish uchun Shroudly’ni oching.</string>
     <string name="androidPrivacyPolicy">Maxfiylik siyosati</string>
     <string name="androidProtectionLost">Himoya xato tufayli to‘xtadi, shuning uchun ilovalaringiz hozir to‘g‘ridan-to‘g‘ri ulanmoqda. Uni qayta yoqish uchun Shroudly’ni oching.</string>
     <string name="androidProxyOnlyOffWifi">«Faqat proksi» oʻchirildi. Bu tarmoqning proksisi {addr} qilib qoʻyilgan boʻlsa, Wi-Fi sozlamalarida uni «Yoʻq» holatiga qaytaring, aks holda undan foydalanadigan ilovalar ulana olmaydi.</string>
     <string name="androidProxyOnlyOn">Faqat proksi: 127.0.0.1:{port} ga sozlangan ilovalar Shroudly orqali oʻtadi</string>
+    <string name="androidQuicOff">QUIC’ni oʻchirish</string>
+    <string name="androidQuicOffDesc">Ilovalar QUIC (UDP 443-port) oʻrniga TCP ishlatadi, uni Shroudly yaxshiroq oʻtkazadi. QUIC’ni bloklaydigan yoki sekinlashtiradigan tarmoqlar uchun.</string>
     <string name="androidRemoteControl">Avtomatlashtirish ilovalariga ruxsat berish</string>
     <string name="androidRemoteControlDesc">Tasker, MacroDroid va shunga oʻxshash ilovalar {package} paketiga yuborilgan translyatsiya orqali himoyani yoqib-oʻchira oladi: amal {action}.START, .STOP yoki .TOGGLE. Bu oʻchiq ekan, boshqa hech bir ilova buni qila olmaydi.</string>
     <string name="androidShareLogs">Jurnalni ulashish</string>

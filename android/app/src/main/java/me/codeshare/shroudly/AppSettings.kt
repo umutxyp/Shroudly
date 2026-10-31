@@ -21,6 +21,10 @@ object AppSettings {
     private const val PREFS = "settings"
     private const val KEY_STRATEGY = "strategyId"
     private const val KEY_EXCLUDED = "excludedApps"
+    private const val KEY_APPS_ONLY = "appsOnly"
+    private const val KEY_INCLUDED = "includedApps"
+    private const val KEY_QUIC_OFF = "quicOff"
+    private const val KEY_IPV6_OFF = "ipv6Off"
     private const val KEY_BOOT = "startAtBoot"
     private const val KEY_MODE = "mode"
     private const val KEY_REMOTE = "remoteControl"
@@ -60,6 +64,40 @@ object AppSettings {
 
     fun setExcluded(ctx: Context, packages: Set<String>) {
         prefs(ctx).edit().putStringSet(KEY_EXCLUDED, packages.filter { it != ctx.packageName }.toSet()).apply()
+    }
+
+    /* The other way round (#60): only the apps chosen here go through
+     * Shroudly (VpnService.Builder.addAllowedApplication), every other app
+     * straight out. Its own list, so switching back finds the other one as
+     * it was. With none chosen, every app goes through, as before. */
+    fun appsOnly(ctx: Context): Boolean = prefs(ctx).getBoolean(KEY_APPS_ONLY, false)
+
+    fun setAppsOnly(ctx: Context, on: Boolean) {
+        prefs(ctx).edit().putBoolean(KEY_APPS_ONLY, on).apply()
+    }
+
+    fun included(ctx: Context): Set<String> =
+        (prefs(ctx).getStringSet(KEY_INCLUDED, emptySet()) ?: emptySet()).filter { it != ctx.packageName }.toSet()
+
+    fun setIncluded(ctx: Context, packages: Set<String>) {
+        prefs(ctx).edit().putStringSet(KEY_INCLUDED, packages.filter { it != ctx.packageName }.toSet()).apply()
+    }
+
+    /* QUIC off (#59): apps' UDP to port 443 is dropped, so they use TCP,
+     * which the techniques get through (engine --drop-quic). */
+    fun quicOff(ctx: Context): Boolean = prefs(ctx).getBoolean(KEY_QUIC_OFF, false)
+
+    fun setQuicOff(ctx: Context, on: Boolean) {
+        prefs(ctx).edit().putBoolean(KEY_QUIC_OFF, on).apply()
+    }
+
+    /* IPv6 off (#59): the VPN carries no IPv6, so Android tells apps at once
+     * that there is none and they use IPv4, and the engine never uses it
+     * either (--ipv4-only). For a network whose IPv6 is broken or slow. */
+    fun ipv6Off(ctx: Context): Boolean = prefs(ctx).getBoolean(KEY_IPV6_OFF, false)
+
+    fun setIpv6Off(ctx: Context, on: Boolean) {
+        prefs(ctx).edit().putBoolean(KEY_IPV6_OFF, on).apply()
     }
 
     /* "Proxy only": Shroudly as a proxy on this phone, with no VPN, so the VPN

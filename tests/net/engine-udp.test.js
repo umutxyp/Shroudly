@@ -502,6 +502,27 @@ const LAN6 = (ifaces.find((i) => (i.family === 'IPv6' || i.family === 6) && !/^f
     ka.ctl.destroy(); cq.close(); ck.close();
   }
 
+  // ── QUIC and IPv6 turned off by the user (#59): datagrams to port 443,
+  // and to IPv6 addresses, are dropped; every other datagram goes as before
+  {
+    const P3 = await freePort();
+    const eng3 = await startEngine(P3, ['--auto', '--drop-quic', '--ipv4-only']);
+    const g = await associate(P3);
+    const cg = await client();
+    r = await roundTrip(cg, g.port, LAN4, e4.port, Buffer.from('still udp'));
+    t.ok(r && r.data.toString() === 'still udp', 'with QUIC and IPv6 off, other UDP still goes through');
+    const before = (await eng3.stats()).bytes_up;
+    for (let i = 0; i < 10; i++) cg.s.send(Buffer.concat([header('192.0.2.1', 443), Buffer.alloc(1000, 0xc3)]), g.port, '127.0.0.1');
+    await sleep(600);
+    const after = (await eng3.stats()).bytes_up;
+    t.ok(after - before < 1000, `QUIC off: datagrams to port 443 are dropped (${after - before} bytes went out of 10000)`);
+    if (e6) {
+      r = await roundTrip(cg, g.port, LAN6, e6.port, Buffer.from('six'), 1500);
+      t.ok(!r, 'IPv6 off: a datagram to an IPv6 address is dropped');
+    }
+    g.ctl.destroy(); cg.close(); eng3.stop();
+  }
+
   const st = await eng.stats();
   t.ok(st && st.bytes_up > 60000 && st.bytes_down > 60000, `datagram bytes are counted (up ${st && st.bytes_up}, down ${st && st.bytes_down})`);
   await sleep(300);

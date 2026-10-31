@@ -9,6 +9,11 @@
     <string name="adsBlocked">ব্লক করা বিজ্ঞাপন</string>
     <string name="androidAlertsChannel">সুরক্ষা সতর্কতা</string>
     <string name="androidAllApps">এই ডিভাইসের প্রতিটি অ্যাপ Shroudly-এর মধ্য দিয়ে যায়।</string>
+    <string name="androidAppsModeOnly">শুধু চিহ্নিত অ্যাপগুলো Shroudly দিয়ে যায়</string>
+    <string name="androidAppsModeSkip">চিহ্নিতগুলো ছাড়া প্রতিটি অ্যাপ Shroudly দিয়ে যায়</string>
+    <string name="androidAppsOnly">যে অ্যাপগুলো Shroudly দিয়ে যায়</string>
+    <string name="androidAppsOnlyCount">শুধু {count}টি অ্যাপ; বাকি প্রতিটি অ্যাপ সরাসরি বাইরে যায়</string>
+    <string name="androidAppsOnlyDesc">বাকি প্রতিটি অ্যাপ, সিস্টেম অ্যাপও, Shroudly দিয়ে না গিয়ে সরাসরি বাইরে যায়। কোনোটি চিহ্নিত না থাকলে প্রতিটি অ্যাপ Shroudly দিয়ে যায়।</string>
     <string name="androidAppsSection">অ্যাপ</string>
     <string name="androidAutomationBattery">ব্যাটারি সেটিংস</string>
     <string name="androidAutomationNotStarted">সুরক্ষা চালু হয়নি</string>
@@ -20,6 +25,8 @@
     <string name="androidDetails">বিস্তারিত</string>
     <string name="androidDownloadApk">আপডেট ডাউনলোড করুন</string>
     <string name="androidHideExplanation">ব্যাখ্যা লুকান</string>
+    <string name="androidIpv6Off">IPv6 বন্ধ করুন</string>
+    <string name="androidIpv6OffDesc">অ্যাপগুলো ও Shroudly শুধু IPv4 ব্যবহার করে, আর অ্যাপগুলো অপেক্ষা না করে সঙ্গে সঙ্গে জানে যে IPv6 নেই। যে নেটওয়ার্কের IPv6 নষ্ট বা ধীর তার জন্য।</string>
     <string name="androidKeepOnOffer">আপনার ফোন Shroudly বন্ধ করে দিয়েছে। সুরক্ষা আবার চালু করতে ট্যাপ করুন।</string>
     <string name="androidLockdownOffline">ইন্টারনেট নেই: Shroudly এই মুহূর্তে এই নেটওয়ার্কে সংযোগ করতে পারছে না, আর Android VPN ছাড়া সংযোগ ব্লক করার জন্য সেট করা আছে। Shroudly চেষ্টা চালিয়ে যাচ্ছে।</string>
     <string name="androidModeNextStart">পরেরবার সুরক্ষা চালু হলে নতুন মোড ব্যবহার হবে।</string>
@@ -28,11 +35,14 @@
     <string name="androidModeTitle">মোড</string>
     <string name="androidModeVpn">VPN (সব অ্যাপ)</string>
     <string name="androidModeVpnDesc">সব অ্যাপ Shroudly দিয়ে যায়। Android একসাথে একটিমাত্র VPN চালাতে দেয়, তাই অন্য VPN অ্যাপের সংযোগ বিচ্ছিন্ন হয়।</string>
+    <string name="androidNetworkSection">নেটওয়ার্ক</string>
     <string name="androidNoInternet">Shroudly এই নেটওয়ার্কে ইন্টারনেটে পৌঁছাতে পারেনি বলে সুরক্ষা বন্ধ হয়ে গেছে, তাই আপনার অ্যাপগুলো এখন সরাসরি সংযোগ করছে। আবার চেষ্টা করতে Shroudly খুলুন।</string>
     <string name="androidPrivacyPolicy">গোপনীয়তা নীতি</string>
     <string name="androidProtectionLost">একটি ত্রুটির কারণে সুরক্ষা বন্ধ হয়ে গেছে, তাই আপনার অ্যাপগুলো এখন সরাসরি সংযোগ করছে। আবার চালু করতে Shroudly খুলুন।</string>
     <string name="androidProxyOnlyOffWifi">শুধু প্রক্সি বন্ধ হয়েছে। এই নেটওয়ার্কের প্রক্সি {addr}-এ সেট করা থাকলে Wi-Fi সেটিংসে আবার «কোনোটিই নয়» করুন, নইলে যেসব অ্যাপ এটি ব্যবহার করে সেগুলো সংযুক্ত হতে পারবে না।</string>
     <string name="androidProxyOnlyOn">শুধু প্রক্সি: 127.0.0.1:{port}-এ সেট করা অ্যাপগুলো Shroudly দিয়ে যায়</string>
+    <string name="androidQuicOff">QUIC বন্ধ করুন</string>
+    <string name="androidQuicOffDesc">অ্যাপগুলো QUIC (UDP পোর্ট 443)-এর বদলে TCP ব্যবহার করে, যা Shroudly আরও ভালোভাবে পার করায়। যে নেটওয়ার্ক QUIC ব্লক করে বা ধীর করে দেয় তার জন্য।</string>
     <string name="androidRemoteControl">অটোমেশন অ্যাপকে অনুমতি দিন</string>
     <string name="androidRemoteControlDesc">Tasker, MacroDroid ও এ ধরনের অ্যাপ {package} প্যাকেজে একটি ব্রডকাস্ট পাঠিয়ে সুরক্ষা চালু ও বন্ধ করতে পারে: অ্যাকশন {action}.START, .STOP বা .TOGGLE। এটি বন্ধ থাকা পর্যন্ত অন্য কোনো অ্যাপ তা পারে না।</string>
     <string name="androidShareLogs">লগ শেয়ার করুন</string>

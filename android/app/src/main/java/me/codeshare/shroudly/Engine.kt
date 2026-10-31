@@ -68,6 +68,8 @@ class Engine(
             adblock: File? = null, allow: List<String> = emptyList(),
             strategy: AppSettings.Strategy = AppSettings.STRATEGIES[0],
             dnsStrict: Boolean = false,
+            quicOff: Boolean = false,
+            ipv6Off: Boolean = false,
         ): List<String> {
             // The technique chosen in Settings: automatic (the engine looks for
             // what works per site and keeps it) or one for every site.
@@ -80,6 +82,9 @@ class Engine(
             if (authFile != null) a += listOf(SocksAuth.OPTION, authFile.path)
             if (fakeNet != null) a += listOf(FAKE_NET_OPTION, fakeNet)
             for (ip in blockIps) a += listOf("--block-ip", ip)
+            // QUIC and IPv6 turned off in Settings (#59).
+            if (quicOff) a += "--drop-quic"
+            if (ipv6Off) a += "--ipv4-only"
             // "Block ads and trackers" (AdBlock): the list fetched, and the
             // user's exceptions.
             if (adblock != null) {

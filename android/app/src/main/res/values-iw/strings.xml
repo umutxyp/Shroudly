@@ -9,6 +9,11 @@
     <string name="adsBlocked">פרסומות שנחסמו</string>
     <string name="androidAlertsChannel">התראות הגנה</string>
     <string name="androidAllApps">כל האפליקציות במכשיר הזה עוברות דרך Shroudly.</string>
+    <string name="androidAppsModeOnly">רק האפליקציות המסומנות עוברות דרך Shroudly</string>
+    <string name="androidAppsModeSkip">כל האפליקציות עוברות דרך Shroudly, חוץ מהמסומנות</string>
+    <string name="androidAppsOnly">אפליקציות שעוברות דרך Shroudly</string>
+    <string name="androidAppsOnlyCount">רק {count} אפליקציות; כל אפליקציה אחרת יוצאת ישירות</string>
+    <string name="androidAppsOnlyDesc">כל אפליקציה אחרת, גם אפליקציות מערכת, יוצאת ישירות בלי לעבור דרך Shroudly. אם אף אחת לא מסומנת, כל האפליקציות עוברות דרך Shroudly.</string>
     <string name="androidAppsSection">אפליקציות</string>
     <string name="androidAutomationBattery">הגדרות סוללה</string>
     <string name="androidAutomationNotStarted">ההגנה לא הופעלה</string>
@@ -20,6 +25,8 @@
     <string name="androidDetails">פרטים</string>
     <string name="androidDownloadApk">להוריד את העדכון</string>
     <string name="androidHideExplanation">הסתרת ההסברים</string>
+    <string name="androidIpv6Off">כיבוי IPv6</string>
+    <string name="androidIpv6OffDesc">האפליקציות ו-Shroudly משתמשים ב-IPv4 בלבד, והאפליקציות יודעות מיד שאין IPv6 במקום לחכות לו. לרשתות שה-IPv6 שלהן תקול או איטי.</string>
     <string name="androidKeepOnOffer">הטלפון סגר את Shroudly. הקישו כדי להפעיל שוב את ההגנה.</string>
     <string name="androidLockdownOffline">אין אינטרנט: Shroudly לא מצליחה לעבור ברשת הזו כרגע, ו־Android מוגדרת לחסום חיבורים בלי VPN. Shroudly ממשיכה לנסות.</string>
     <string name="androidModeNextStart">המצב החדש ישמש בפעם הבאה שההגנה תופעל.</string>
@@ -28,11 +35,14 @@
     <string name="androidModeTitle">מצב</string>
     <string name="androidModeVpn">VPN (כל האפליקציות)</string>
     <string name="androidModeVpnDesc">כל האפליקציות עוברות דרך Shroudly. אנדרואיד מאפשרת VPN אחד בכל פעם, ולכן אפליקציית VPN אחרת מתנתקת.</string>
+    <string name="androidNetworkSection">רשת</string>
     <string name="androidNoInternet">ההגנה נעצרה כי Shroudly לא הצליחה להגיע לאינטרנט ברשת הזו, ולכן האפליקציות שלך מתחברות עכשיו ישירות. אפשר לפתוח את Shroudly כדי לנסות שוב.</string>
     <string name="androidPrivacyPolicy">מדיניות פרטיות</string>
     <string name="androidProtectionLost">ההגנה נעצרה בגלל שגיאה, ולכן האפליקציות שלך מתחברות עכשיו ישירות. אפשר לפתוח את Shroudly כדי להפעיל אותה מחדש.</string>
     <string name="androidProxyOnlyOffWifi">\'פרוקסי בלבד\' כבוי. אם ה-Proxy של הרשת הזאת מוגדר ל-{addr}, החזירו אותו ל\'ללא\' בהגדרות Wi-Fi, אחרת אפליקציות שמשתמשות בו לא יצליחו להתחבר.</string>
     <string name="androidProxyOnlyOn">פרוקסי בלבד: אפליקציות שהוגדרו ל-‎127.0.0.1:{port}‎ עוברות דרך Shroudly</string>
+    <string name="androidQuicOff">כיבוי QUIC</string>
+    <string name="androidQuicOffDesc">האפליקציות משתמשות ב-TCP במקום ב-QUIC (פורט UDP 443), ש-Shroudly מעביר טוב יותר. לרשתות שחוסמות את QUIC או מאטות אותו.</string>
     <string name="androidRemoteControl">לאפשר אפליקציות אוטומציה</string>
     <string name="androidRemoteControlDesc">‏Tasker, ‏MacroDroid ואפליקציות דומות יכולות להפעיל ולכבות את ההגנה בשידור לחבילה {package}, פעולה {action}.START, ‎.STOP או ‎.TOGGLE. כל עוד זה כבוי, שום אפליקציה אחרת לא יכולה.</string>
     <string name="androidShareLogs">שיתוף יומנים</string>

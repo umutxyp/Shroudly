@@ -117,6 +117,18 @@ class SettingsActivity : Activity() {
         findViewById<TextView>(R.id.dnsServer).setOnClickListener { pickDns() }
         showDns()
 
+        // QUIC and IPv6 off (#59): the engine again with its options.
+        findViewById<Switch>(R.id.quicOff).apply {
+            isChecked = AppSettings.quicOff(this@SettingsActivity)
+            setOnCheckedChangeListener { _, on -> AppSettings.setQuicOff(this@SettingsActivity, on); tell("network") }
+        }
+        findViewById<Switch>(R.id.ipv6Off).apply {
+            isChecked = AppSettings.ipv6Off(this@SettingsActivity)
+            setOnCheckedChangeListener { _, on -> AppSettings.setIpv6Off(this@SettingsActivity, on); tell("network") }
+        }
+        showNetwork()
+        redraw[R.id.networkTitle] = { showNetwork() }
+
         findViewById<TextView>(R.id.excludedApps).setOnClickListener { pickApps() }
 
         findViewById<Switch>(R.id.startAtBoot).apply {
@@ -154,6 +166,13 @@ class SettingsActivity : Activity() {
                 say()
             }
         }
+    }
+
+    private fun showNetwork() {
+        findViewById<Switch>(R.id.quicOff).text =
+            titled(getString(R.string.androidQuicOff), ifOpen(R.id.networkTitle, getString(R.string.androidQuicOffDesc)))
+        findViewById<Switch>(R.id.ipv6Off).text =
+            titled(getString(R.string.androidIpv6Off), ifOpen(R.id.networkTitle, getString(R.string.androidIpv6OffDesc)))
     }
 
     /* The Apps section's settings that explain themselves: starting with the
@@ -289,8 +308,15 @@ class SettingsActivity : Activity() {
         }
     }
 
-    /* The row says how many apps skip Shroudly. */
+    /* The row says how many apps skip Shroudly, or (#60) how many are the
+     * only ones that go through it; with none of those, that every app does. */
     private fun showExcluded() {
+        if (AppSettings.appsOnly(this)) {
+            val n = AppSettings.included(this).size
+            val sub = if (n == 0) getString(R.string.androidAppsOnlyDesc) else text(R.string.androidAppsOnlyCount, "count" to n)
+            findViewById<TextView>(R.id.excludedApps).text = titled(getString(R.string.androidAppsOnly), sub)
+            return
+        }
         val n = AppSettings.excluded(this).size
         val label = getString(R.string.excludedApps)
         // How many skip it is a value, always shown; what the setting does
@@ -575,7 +601,8 @@ class SettingsActivity : Activity() {
     private class App(val pkg: String, val label: String, val icon: Drawable?)
 
     /* The apps that can be opened (their launcher entries), by name, with a
-     * search field; the ones checked skip Shroudly. */
+     * search field; the ones checked skip Shroudly, or (#60) are the only ones
+     * that go through it. Each way keeps its own list. */
     private fun pickApps() {
         val pm = packageManager
         val launcher = Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_LAUNCHER)
@@ -585,7 +612,10 @@ class SettingsActivity : Activity() {
             val ai = try { pm.getApplicationInfo(pkg, 0) } catch (_: PackageManager.NameNotFoundException) { null }
             App(pkg, ai?.let { pm.getApplicationLabel(it).toString() } ?: pkg, ai?.let { pm.getApplicationIcon(it) })
         }.sortedBy { it.label.lowercase() }
-        val chosen = AppSettings.excluded(this).toMutableSet()
+        var only = AppSettings.appsOnly(this)
+        val skip = AppSettings.excluded(this).toMutableSet()
+        val through = AppSettings.included(this).toMutableSet()
+        fun chosen() = if (only) through else skip
         var shown = all
 
         val density = resources.displayMetrics.density
@@ -612,7 +642,7 @@ class SettingsActivity : Activity() {
                 val app = shown[position]
                 (row.getChildAt(0) as ImageView).setImageDrawable(app.icon)
                 (row.getChildAt(1) as TextView).text = app.label
-                (row.getChildAt(2) as CheckBox).isChecked = app.pkg in chosen
+                (row.getChildAt(2) as CheckBox).isChecked = app.pkg in chosen()
                 row.contentDescription = app.label
                 return row
             }
@@ -621,8 +651,8 @@ class SettingsActivity : Activity() {
             this.adapter = adapter
             setOnItemClickListener { _, view, position, _ ->
                 val app = shown[position]
-                if (!chosen.remove(app.pkg)) chosen += app.pkg
-                ((view as LinearLayout).getChildAt(2) as CheckBox).isChecked = app.pkg in chosen
+                if (!chosen().remove(app.pkg)) chosen().add(app.pkg)
+                ((view as LinearLayout).getChildAt(2) as CheckBox).isChecked = app.pkg in chosen()
             }
         }
         val search = EditText(this).apply {
@@ -639,23 +669,41 @@ class SettingsActivity : Activity() {
             })
         }
         val pad = (16 * density).toInt()
+        val desc = TextView(this).apply {
+            setTextColor(getColor(R.color.text_dim))
+            textSize = 13f
+        }
+        fun describe() { desc.text = getString(if (only) R.string.androidAppsOnlyDesc else R.string.excludedAppsDesc) }
+        describe()
+        // Which way the list works.
+        val ways = RadioGroup(this).apply {
+            orientation = RadioGroup.VERTICAL
+            val skipWay = RadioButton(context).apply { id = View.generateViewId(); text = getString(R.string.androidAppsModeSkip); textSize = 15f }
+            val onlyWay = RadioButton(context).apply { id = View.generateViewId(); text = getString(R.string.androidAppsModeOnly); textSize = 15f }
+            addView(skipWay); addView(onlyWay)
+            check(if (only) onlyWay.id else skipWay.id)
+            setOnCheckedChangeListener { _, checked ->
+                only = checked == onlyWay.id
+                describe()
+                adapter.notifyDataSetChanged()
+            }
+        }
         val box = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             setPadding(pad, pad / 2, pad, 0)
-            addView(TextView(context).apply {
-                text = getString(R.string.excludedAppsDesc)
-                setTextColor(getColor(R.color.text_dim))
-                textSize = 13f
-            })
+            addView(ways)
+            addView(desc)
             addView(search)
             addView(list, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, (resources.displayMetrics.heightPixels * 0.5).toInt()))
         }
         AlertDialog.Builder(this)
-            .setTitle(R.string.excludedApps)
+            .setTitle(R.string.androidAppsSection)
             .setView(box)
             .setPositiveButton(android.R.string.ok) { _, _ ->
-                if (chosen != AppSettings.excluded(this)) {
-                    AppSettings.setExcluded(this, chosen)
+                if (only != AppSettings.appsOnly(this) || skip != AppSettings.excluded(this) || through != AppSettings.included(this)) {
+                    AppSettings.setAppsOnly(this, only)
+                    AppSettings.setExcluded(this, skip)
+                    AppSettings.setIncluded(this, through)
                     showExcluded()
                     tell("apps")
                 }

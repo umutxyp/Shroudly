@@ -9,6 +9,11 @@
     <string name="adsBlocked">الإعلانات المحظورة</string>
     <string name="androidAlertsChannel">تنبيهات الحماية</string>
     <string name="androidAllApps">كل التطبيقات على هذا الجهاز تمر عبر Shroudly.</string>
+    <string name="androidAppsModeOnly">تمر التطبيقات المحددة فقط عبر Shroudly</string>
+    <string name="androidAppsModeSkip">تمر كل التطبيقات عبر Shroudly، باستثناء المحددة</string>
+    <string name="androidAppsOnly">تطبيقات تمر عبر Shroudly</string>
+    <string name="androidAppsOnlyCount">{count} تطبيقات فقط؛ يخرج كل تطبيق آخر مباشرةً</string>
+    <string name="androidAppsOnlyDesc">يخرج كل تطبيق آخر، بما فيها تطبيقات النظام، مباشرةً دون المرور عبر Shroudly. إن لم يُحدَّد أي تطبيق، تمر كل التطبيقات عبر Shroudly.</string>
     <string name="androidAppsSection">التطبيقات</string>
     <string name="androidAutomationBattery">إعدادات البطارية</string>
     <string name="androidAutomationNotStarted">لم تُفعَّل الحماية</string>
@@ -20,6 +25,8 @@
     <string name="androidDetails">التفاصيل</string>
     <string name="androidDownloadApk">تنزيل التحديث</string>
     <string name="androidHideExplanation">إخفاء الشروح</string>
+    <string name="androidIpv6Off">إيقاف IPv6</string>
+    <string name="androidIpv6OffDesc">تستخدم التطبيقات وShroudly ‏IPv4 فقط، وتعرف التطبيقات فورًا أنه لا يوجد IPv6 بدل انتظاره. للشبكات التي يكون فيها IPv6 معطّلًا أو بطيئًا.</string>
     <string name="androidKeepOnOffer">أغلق هاتفك Shroudly. اضغط لتشغيل الحماية مجددًا.</string>
     <string name="androidLockdownOffline">لا يوجد إنترنت: لا يستطيع Shroudly الاتصال على هذه الشبكة حاليًا، وAndroid مضبوط على حظر الاتصالات دون VPN. يواصل Shroudly المحاولة.</string>
     <string name="androidModeNextStart">سيُستخدم الوضع الجديد في المرة القادمة التي تبدأ فيها الحماية.</string>
@@ -28,11 +35,14 @@
     <string name="androidModeTitle">الوضع</string>
     <string name="androidModeVpn">شبكة افتراضية خاصة (كل التطبيقات)</string>
     <string name="androidModeVpnDesc">تمر كل التطبيقات عبر Shroudly. يسمح أندرويد بشبكة افتراضية خاصة واحدة في كل مرة، لذا يُقطع اتصال تطبيق VPN آخر.</string>
+    <string name="androidNetworkSection">الشبكة</string>
     <string name="androidNoInternet">توقفت الحماية لأن Shroudly لم يتمكن من الوصول إلى الإنترنت على هذه الشبكة، لذا تتصل تطبيقاتك الآن مباشرةً. افتح Shroudly للمحاولة مجددًا.</string>
     <string name="androidPrivacyPolicy">سياسة الخصوصية</string>
     <string name="androidProtectionLost">توقفت الحماية بسبب خطأ، لذا تتصل تطبيقاتك الآن مباشرةً. افتح Shroudly لتشغيلها من جديد.</string>
     <string name="androidProxyOnlyOffWifi">وضع «وكيل فقط» متوقف. إن كان وكيل هذه الشبكة مضبوطًا على {addr}، فأعِده إلى «بلا» في إعدادات Wi-Fi، وإلا فلن تستطيع التطبيقات التي تستخدمه الاتصال.</string>
     <string name="androidProxyOnlyOn">وكيل فقط: التطبيقات المضبوطة على ‎127.0.0.1:{port}‎ تمر عبر Shroudly</string>
+    <string name="androidQuicOff">إيقاف QUIC</string>
+    <string name="androidQuicOffDesc">تستخدم التطبيقات TCP بدل QUIC (منفذ UDP 443)، وهو ما يمرّره Shroudly بشكل أفضل. للشبكات التي تحظر QUIC أو تبطئه.</string>
     <string name="androidRemoteControl">السماح لتطبيقات الأتمتة</string>
     <string name="androidRemoteControlDesc">يمكن لـ Tasker وMacroDroid والتطبيقات المشابهة تشغيل الحماية وإيقافها ببث إلى الحزمة {package}، والإجراء {action}.START أو ‎.STOP أو ‎.TOGGLE. ما دام هذا متوقفًا، لا يستطيع أي تطبيق آخر ذلك.</string>
     <string name="androidShareLogs">مشاركة السجلات</string>

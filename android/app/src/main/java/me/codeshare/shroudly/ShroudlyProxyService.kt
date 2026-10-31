@@ -120,6 +120,7 @@ class ShroudlyProxyService : Service() {
             // A new technique (Settings): the engine again, on the same port.
             ShroudlyVpnService.ACTION_SETTINGS -> {
                 if (intent.getStringExtra("what") == "strategy") work.execute { restartEngine("restarted with the technique chosen in Settings") }
+                if (intent.getStringExtra("what") == "network") work.execute { restartEngine("restarted with the network settings chosen in Settings") }
                 // Another DNS server: from the next lookup on, nothing restarted.
                 if (intent.getStringExtra("what") == "dns") work.execute { if (active) { doh?.setCustom(AppSettings.customDns(this), AppSettings.customDnsStrict(this)); engine?.send(if (AppSettings.customDnsStrict(this)) "DNS-STRICT 1" else "DNS-STRICT 0"); engine?.send("DNS-CLEAR") } }
                 if (!active && Protection.state == Protection.State.OFF) stopSelf()
@@ -200,7 +201,7 @@ class ShroudlyProxyService : Service() {
             val e = Engine(::log, ShroudlyVpnService::logSite, ::onEvent, ::onExit)
             engine = e
             // No password and no stand-in range: apps reach it by name or address.
-            if (e.start(Engine.args(p, dohPort, blockIps, null, null, AdBlock.listFile(this), AdBlock.allow(this), AppSettings.strategy(this), AppSettings.customDnsStrict(this)))) {
+            if (e.start(Engine.args(p, dohPort, blockIps, null, null, AdBlock.listFile(this), AdBlock.allow(this), AppSettings.strategy(this), AppSettings.customDnsStrict(this), AppSettings.quicOff(this), AppSettings.ipv6Off(this)))) {
                 doh?.socksPort = p
                 doh?.socksAuth = null
                 return p

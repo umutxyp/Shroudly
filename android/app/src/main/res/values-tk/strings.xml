@@ -9,6 +9,11 @@
     <string name="adsBlocked">Bloklanan mahabatlar</string>
     <string name="androidAlertsChannel">Gorag duýduryşlary</string>
     <string name="androidAllApps">Bu enjamdaky her programma Shroudly arkaly geçýär.</string>
+    <string name="androidAppsModeOnly">Diňe bellenen programmalar Shroudly arkaly geçýär</string>
+    <string name="androidAppsModeSkip">Bellenenlerden başga her programma Shroudly arkaly geçýär</string>
+    <string name="androidAppsOnly">Shroudly arkaly geçýän programmalar</string>
+    <string name="androidAppsOnlyCount">Diňe {count}; galan her programma göni çykýar</string>
+    <string name="androidAppsOnlyDesc">Galan ähli programmalar, ulgam programmalary hem, Shroudly-dan geçmän göni çykýar. Hiç biri bellenmese, her programma Shroudly arkaly geçýär.</string>
     <string name="androidAppsSection">Programmalar</string>
     <string name="androidAutomationBattery">Batareýa sazlamalary</string>
     <string name="androidAutomationNotStarted">Gorag açylmady</string>
@@ -20,6 +25,8 @@
     <string name="androidDetails">Jikme-jiklikler</string>
     <string name="androidDownloadApk">Täzelenmäni ýükläň</string>
     <string name="androidHideExplanation">Düşündirişleri gizle</string>
+    <string name="androidIpv6Off">IPv6-ny öçür</string>
+    <string name="androidIpv6OffDesc">Programmalar we Shroudly diňe IPv4 ulanýar, programmalar bolsa IPv6-nyň ýokdugyny garaşman derrew bilýär. IPv6-sy bozuk ýa-da haýal torlar üçin.</string>
     <string name="androidKeepOnOffer">Telefonyňyz Shroudly-ni ýapdy. Goragy täzeden açmak üçin basyň.</string>
     <string name="androidLockdownOffline">Internet ýok: Shroudly häzir bu torda birigip bilmeýär, Android bolsa VPN-siz birikmeleri petiklemäge sazlanan. Shroudly synanyşmagyny dowam edýär.</string>
     <string name="androidModeNextStart">Täze režim gorag indiki gezek başlanda ulanylar.</string>
@@ -28,11 +35,14 @@
     <string name="androidModeTitle">Režim</string>
     <string name="androidModeVpn">VPN (ähli programmalar)</string>
     <string name="androidModeVpnDesc">Ähli programmalar Shroudly-dan geçýär. Android bir wagtda diňe bir VPN-e rugsat berýär, şonuň üçin başga VPN programmasy kesilýär.</string>
+    <string name="androidNetworkSection">Tor</string>
     <string name="androidNoInternet">Shroudly bu torda internete çykyp bilmänligi sebäpli gorag togtady, şonuň üçin programmalaryňyz häzir göni birikýär. Täzeden synanyşmak üçin Shroudly-ny açyň.</string>
     <string name="androidPrivacyPolicy">Gizlinlik syýasaty</string>
     <string name="androidProtectionLost">Gorag ýalňyşlyk sebäpli togtady, şonuň üçin programmalaryňyz häzir göni birikýär. Ony täzeden işletmek üçin Shroudly-ny açyň.</string>
     <string name="androidProxyOnlyOffWifi">«Diňe proksi» öçürildi. Bu ulgamyň proksisi {addr} edilip goýlan bolsa, Wi-Fi sazlamalarynda ony «Ýok» ýagdaýyna gaýtaryň, ýogsa ony ulanýan programmalar birigip bilmez.</string>
     <string name="androidProxyOnlyOn">Diňe proksi: 127.0.0.1:{port} sazlanan programmalar Shroudly-dan geçýär</string>
+    <string name="androidQuicOff">QUIC-i öçür</string>
+    <string name="androidQuicOffDesc">Programmalar QUIC (UDP 443 porty) ýerine TCP ulanýar, ony Shroudly has gowy geçirýär. QUIC-i petikleýän ýa-da haýalladýan torlar üçin.</string>
     <string name="androidRemoteControl">Awtomatlaşdyryş programmalaryna rugsat ber</string>
     <string name="androidRemoteControlDesc">Tasker, MacroDroid we meňzeş programmalar {package} paketine iberilen ýaýlym arkaly goragy açyp-öçürip bilýär: hereket {action}.START, .STOP ýa-da .TOGGLE. Bu öçük wagty başga hiç bir programma muny edip bilmeýär.</string>
     <string name="androidShareLogs">Ýazgylary paýlaş</string>

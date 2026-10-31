@@ -9,6 +9,11 @@
     <string name="adsBlocked">روکے گئے اشتہارات</string>
     <string name="androidAlertsChannel">تحفظ کے انتباہات</string>
     <string name="androidAllApps">اس ڈیوائس کی ہر ایپ Shroudly سے ہو کر جاتی ہے۔</string>
+    <string name="androidAppsModeOnly">صرف نشان زدہ ایپس Shroudly سے گزرتی ہیں</string>
+    <string name="androidAppsModeSkip">نشان زدہ ایپس کے سوا ہر ایپ Shroudly سے گزرتی ہے</string>
+    <string name="androidAppsOnly">وہ ایپس جو Shroudly سے گزرتی ہیں</string>
+    <string name="androidAppsOnlyCount">صرف {count} ایپس؛ باقی ہر ایپ سیدھی باہر جاتی ہے</string>
+    <string name="androidAppsOnlyDesc">باقی ہر ایپ، سسٹم ایپس بھی، Shroudly سے گزرے بغیر سیدھی باہر جاتی ہے۔ اگر کوئی نشان زدہ نہ ہو تو ہر ایپ Shroudly سے گزرتی ہے۔</string>
     <string name="androidAppsSection">ایپس</string>
     <string name="androidAutomationBattery">بیٹری کی سیٹنگز</string>
     <string name="androidAutomationNotStarted">تحفظ آن نہیں ہوا</string>
@@ -20,6 +25,8 @@
     <string name="androidDetails">تفصیلات</string>
     <string name="androidDownloadApk">اپ ڈیٹ ڈاؤن لوڈ کریں</string>
     <string name="androidHideExplanation">وضاحتیں چھپائیں</string>
+    <string name="androidIpv6Off">IPv6 بند کریں</string>
+    <string name="androidIpv6OffDesc">ایپس اور Shroudly صرف IPv4 استعمال کرتے ہیں، اور ایپس انتظار کرنے کے بجائے فوراً جان لیتی ہیں کہ IPv6 نہیں ہے۔ ان نیٹ ورکس کے لیے جن کا IPv6 خراب یا سست ہے۔</string>
     <string name="androidKeepOnOffer">آپ کے فون نے Shroudly بند کر دیا۔ تحفظ دوبارہ آن کرنے کے لیے تھپتھپائیں۔</string>
     <string name="androidLockdownOffline">انٹرنیٹ نہیں: Shroudly اس وقت اس نیٹ ورک پر جڑ نہیں پا رہا، اور Android کو VPN کے بغیر کنکشن روکنے کے لیے سیٹ کیا گیا ہے۔ Shroudly کوشش جاری رکھے ہوئے ہے۔</string>
     <string name="androidModeNextStart">نیا موڈ اگلی بار تحفظ شروع ہونے پر استعمال ہوگا۔</string>
@@ -28,11 +35,14 @@
     <string name="androidModeTitle">موڈ</string>
     <string name="androidModeVpn">VPN (تمام ایپس)</string>
     <string name="androidModeVpnDesc">تمام ایپس Shroudly سے گزرتی ہیں۔ اینڈرائیڈ ایک وقت میں صرف ایک VPN کی اجازت دیتا ہے، اس لیے کسی دوسری VPN ایپ کا کنکشن کٹ جاتا ہے۔</string>
+    <string name="androidNetworkSection">نیٹ ورک</string>
     <string name="androidNoInternet">تحفظ رک گیا کیونکہ Shroudly اس نیٹ ورک پر انٹرنیٹ تک نہیں پہنچ سکا، اس لیے آپ کی ایپس اب براہِ راست جڑ رہی ہیں۔ دوبارہ کوشش کرنے کے لیے Shroudly کھولیں۔</string>
     <string name="androidPrivacyPolicy">رازداری کی پالیسی</string>
     <string name="androidProtectionLost">ایک خرابی کی وجہ سے تحفظ رک گیا، اس لیے آپ کی ایپس اب براہِ راست جڑ رہی ہیں۔ اسے دوبارہ شروع کرنے کے لیے Shroudly کھولیں۔</string>
     <string name="androidProxyOnlyOffWifi">«صرف پراکسی» بند ہے۔ اگر اس نیٹ ورک کی پراکسی {addr} پر سیٹ ہے تو Wi-Fi ترتیبات میں اسے واپس «کوئی نہیں» کر دیں، ورنہ اسے استعمال کرنے والی ایپس نہیں جڑ پائیں گی۔</string>
     <string name="androidProxyOnlyOn">صرف پراکسی: ‏127.0.0.1:{port} پر سیٹ ایپس Shroudly سے گزرتی ہیں</string>
+    <string name="androidQuicOff">QUIC بند کریں</string>
+    <string name="androidQuicOffDesc">ایپس QUIC (UDP پورٹ 443) کی جگہ TCP استعمال کرتی ہیں، جسے Shroudly بہتر طور پر گزارتا ہے۔ ان نیٹ ورکس کے لیے جو QUIC کو روکتے یا سست کرتے ہیں۔</string>
     <string name="androidRemoteControl">آٹومیشن ایپس کو اجازت دیں</string>
     <string name="androidRemoteControlDesc">Tasker، MacroDroid اور ان جیسی ایپس پیکیج {package} کو براڈکاسٹ بھیج کر تحفظ آن اور آف کر سکتی ہیں: ایکشن {action}.START، ‎.STOP یا ‎.TOGGLE۔ جب تک یہ بند ہے، کوئی دوسری ایپ ایسا نہیں کر سکتی۔</string>
     <string name="androidShareLogs">لاگز شیئر کریں</string>

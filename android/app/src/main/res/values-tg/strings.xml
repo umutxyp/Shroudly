@@ -9,6 +9,11 @@
     <string name="adsBlocked">Рекламаи басташуда</string>
     <string name="androidAlertsChannel">Огоҳиҳои ҳимоя</string>
     <string name="androidAllApps">Ҳар як барномаи ин дастгоҳ тавассути Shroudly мегузарад.</string>
+    <string name="androidAppsModeOnly">Танҳо барномаҳои қайдшуда аз Shroudly мегузаранд</string>
+    <string name="androidAppsModeSkip">Ҳамаи барномаҳо, ба ҷуз қайдшудаҳо, аз Shroudly мегузаранд</string>
+    <string name="androidAppsOnly">Барномаҳое, ки аз Shroudly мегузаранд</string>
+    <string name="androidAppsOnlyCount">Танҳо {count}; ҳар барномаи дигар мустақим мебарояд</string>
+    <string name="androidAppsOnlyDesc">Ҳамаи барномаҳои дигар, ҳатто барномаҳои системавӣ, бе гузаштан аз Shroudly мустақим мебароянд. Агар ҳеҷ кадом қайд нашуда бошад, ҳамаи барномаҳо аз Shroudly мегузаранд.</string>
     <string name="androidAppsSection">Барномаҳо</string>
     <string name="androidAutomationBattery">Танзимоти батарея</string>
     <string name="androidAutomationNotStarted">Ҳимоя фаъол нашуд</string>
@@ -20,6 +25,8 @@
     <string name="androidDetails">Тафсилот</string>
     <string name="androidDownloadApk">Боргирии навсозӣ</string>
     <string name="androidHideExplanation">Пинҳон кардани шарҳҳо</string>
+    <string name="androidIpv6Off">Хомӯш кардани IPv6</string>
+    <string name="androidIpv6OffDesc">Барномаҳо ва Shroudly танҳо IPv4-ро истифода мебаранд ва барномаҳо бе интизорӣ фавран мефаҳманд, ки IPv6 нест. Барои шабакаҳое, ки IPv6-и онҳо вайрон ё суст аст.</string>
     <string name="androidKeepOnOffer">Телефон Shroudly-ро пӯшид. Барои дубора фаъол кардани муҳофизат ламс кунед.</string>
     <string name="androidLockdownOffline">Интернет нест: Shroudly ҳоло дар ин шабака пайваст шуда наметавонад, ва Android барои манъ кардани пайвастҳои бе VPN танзим шудааст. Shroudly кӯшишро идома медиҳад.</string>
     <string name="androidModeNextStart">Реҷаи нав дафъаи дигар, ки ҳимоя оғоз мешавад, истифода мешавад.</string>
@@ -28,11 +35,14 @@
     <string name="androidModeTitle">Реҷа</string>
     <string name="androidModeVpn">VPN (ҳамаи барномаҳо)</string>
     <string name="androidModeVpnDesc">Ҳамаи барномаҳо аз Shroudly мегузаранд. Android ҳамзамон танҳо як VPN-ро иҷозат медиҳад, бинобар ин барномаи дигари VPN ҷудо мешавад.</string>
+    <string name="androidNetworkSection">Шабака</string>
     <string name="androidNoInternet">Ҳимоя қатъ шуд, зеро Shroudly дар ин шабака ба интернет пайваст шуда натавонист, бинобар ин барномаҳоятон ҳоло мустақиман пайваст мешаванд. Барои боз кӯшиш кардан Shroudly-ро кушоед.</string>
     <string name="androidPrivacyPolicy">Сиёсати махфият</string>
     <string name="androidProtectionLost">Ҳимоя аз сабаби хатогӣ қатъ шуд, бинобар ин барномаҳоятон ҳоло мустақиман пайваст мешаванд. Барои дубора оғоз кардан Shroudly-ро кушоед.</string>
     <string name="androidProxyOnlyOffWifi">«Танҳо прокси» хомӯш шуд. Агар проксии ин шабака {addr} танзим шуда бошад, онро дар танзимоти Wi-Fi ба «Не» баргардонед, вагарна барномаҳое, ки онро истифода мебаранд, пайваст шуда наметавонанд.</string>
     <string name="androidProxyOnlyOn">Танҳо прокси: барномаҳое, ки ба 127.0.0.1:{port} танзим шудаанд, аз Shroudly мегузаранд</string>
+    <string name="androidQuicOff">Хомӯш кардани QUIC</string>
+    <string name="androidQuicOffDesc">Барномаҳо ба ҷои QUIC (порти UDP 443) TCP-ро истифода мебаранд, ки Shroudly онро беҳтар мегузаронад. Барои шабакаҳое, ки QUIC-ро мебанданд ё суст мекунанд.</string>
     <string name="androidRemoteControl">Иҷозат ба барномаҳои автоматикунонӣ</string>
     <string name="androidRemoteControlDesc">Tasker, MacroDroid ва барномаҳои монанд метавонанд ҳимояро бо паёми паҳнкунӣ ба бастаи {package} фаъол ва хомӯш кунанд: амал {action}.START, .STOP ё .TOGGLE. То даме ки ин хомӯш аст, ҳеҷ барномаи дигар наметавонад.</string>
     <string name="androidShareLogs">Мубодилаи сабтҳо</string>

@@ -9,6 +9,11 @@
     <string name="adsBlocked">Iklan disekat</string>
     <string name="androidAlertsChannel">Amaran perlindungan</string>
     <string name="androidAllApps">Setiap aplikasi pada peranti ini melalui Shroudly.</string>
+    <string name="androidAppsModeOnly">Hanya aplikasi yang ditanda melalui Shroudly</string>
+    <string name="androidAppsModeSkip">Semua aplikasi melalui Shroudly, kecuali yang ditanda</string>
+    <string name="androidAppsOnly">Aplikasi yang melalui Shroudly</string>
+    <string name="androidAppsOnlyCount">Hanya {count} aplikasi; aplikasi lain keluar terus</string>
+    <string name="androidAppsOnlyDesc">Semua aplikasi lain, termasuk aplikasi sistem, keluar terus tanpa melalui Shroudly. Jika tiada yang ditanda, semua aplikasi melalui Shroudly.</string>
     <string name="androidAppsSection">Aplikasi</string>
     <string name="androidAutomationBattery">Tetapan bateri</string>
     <string name="androidAutomationNotStarted">Perlindungan tidak dihidupkan</string>
@@ -20,6 +25,8 @@
     <string name="androidDetails">Butiran</string>
     <string name="androidDownloadApk">Muat turun kemas kini</string>
     <string name="androidHideExplanation">Sembunyikan penerangan</string>
+    <string name="androidIpv6Off">Matikan IPv6</string>
+    <string name="androidIpv6OffDesc">Aplikasi dan Shroudly hanya menggunakan IPv4, dan aplikasi terus tahu tiada IPv6 tanpa menunggunya. Untuk rangkaian yang IPv6-nya rosak atau perlahan.</string>
     <string name="androidKeepOnOffer">Telefon anda menutup Shroudly. Ketik untuk menghidupkan perlindungan semula.</string>
     <string name="androidLockdownOffline">Tiada internet: Shroudly belum dapat bersambung pada rangkaian ini, dan Android ditetapkan untuk menyekat sambungan tanpa VPN. Shroudly terus mencuba.</string>
     <string name="androidModeNextStart">Mod baharu digunakan apabila perlindungan dimulakan seterusnya.</string>
@@ -28,11 +35,14 @@
     <string name="androidModeTitle">Mod</string>
     <string name="androidModeVpn">VPN (semua aplikasi)</string>
     <string name="androidModeVpnDesc">Semua aplikasi melalui Shroudly. Android hanya membenarkan satu VPN pada satu masa, jadi aplikasi VPN lain terputus.</string>
+    <string name="androidNetworkSection">Rangkaian</string>
     <string name="androidNoInternet">Perlindungan berhenti kerana Shroudly tidak dapat mencapai internet pada rangkaian ini, jadi aplikasi anda kini bersambung secara terus. Buka Shroudly untuk mencuba lagi.</string>
     <string name="androidPrivacyPolicy">Dasar privasi</string>
     <string name="androidProtectionLost">Perlindungan berhenti kerana ralat, jadi aplikasi anda kini bersambung secara terus. Buka Shroudly untuk memulakannya semula.</string>
     <string name="androidProxyOnlyOffWifi">Proksi sahaja dimatikan. Jika proksi rangkaian ini ditetapkan kepada {addr}, kembalikan kepada Tiada dalam tetapan Wi-Fi; jika tidak, aplikasi yang menggunakannya tidak dapat bersambung.</string>
     <string name="androidProxyOnlyOn">Proksi sahaja: aplikasi yang ditetapkan ke 127.0.0.1:{port} melalui Shroudly</string>
+    <string name="androidQuicOff">Matikan QUIC</string>
+    <string name="androidQuicOffDesc">Aplikasi menggunakan TCP dan bukan QUIC (port UDP 443), yang lebih baik dilalukan oleh Shroudly. Untuk rangkaian yang menyekat atau melambatkan QUIC.</string>
     <string name="androidRemoteControl">Benarkan aplikasi automasi</string>
     <string name="androidRemoteControlDesc">Tasker, MacroDroid dan aplikasi serupa boleh menghidupkan dan mematikan perlindungan dengan siaran kepada pakej {package}, tindakan {action}.START, .STOP atau .TOGGLE. Selagi ini dimatikan, tiada aplikasi lain boleh berbuat demikian.</string>
     <string name="androidShareLogs">Kongsi log</string>

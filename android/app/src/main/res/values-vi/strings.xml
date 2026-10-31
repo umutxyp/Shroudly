@@ -9,6 +9,11 @@
     <string name="adsBlocked">Quảng cáo đã chặn</string>
     <string name="androidAlertsChannel">Cảnh báo bảo vệ</string>
     <string name="androidAllApps">Mọi ứng dụng trên thiết bị này đều đi qua Shroudly.</string>
+    <string name="androidAppsModeOnly">Chỉ các ứng dụng được chọn mới qua Shroudly</string>
+    <string name="androidAppsModeSkip">Mọi ứng dụng đều qua Shroudly, trừ các ứng dụng được chọn</string>
+    <string name="androidAppsOnly">Ứng dụng qua Shroudly</string>
+    <string name="androidAppsOnlyCount">Chỉ {count} ứng dụng; mọi ứng dụng khác đi thẳng ra ngoài</string>
+    <string name="androidAppsOnlyDesc">Mọi ứng dụng khác, kể cả ứng dụng hệ thống, đi thẳng ra ngoài, không qua Shroudly. Nếu không chọn ứng dụng nào, mọi ứng dụng đều qua Shroudly.</string>
     <string name="androidAppsSection">Ứng dụng</string>
     <string name="androidAutomationBattery">Cài đặt pin</string>
     <string name="androidAutomationNotStarted">Bảo vệ chưa được bật</string>
@@ -20,6 +25,8 @@
     <string name="androidDetails">Chi tiết</string>
     <string name="androidDownloadApk">Tải bản cập nhật</string>
     <string name="androidHideExplanation">Ẩn phần giải thích</string>
+    <string name="androidIpv6Off">Tắt IPv6</string>
+    <string name="androidIpv6OffDesc">Ứng dụng và Shroudly chỉ dùng IPv4, và ứng dụng biết ngay là không có IPv6 thay vì chờ. Dành cho mạng có IPv6 hỏng hoặc chậm.</string>
     <string name="androidKeepOnOffer">Điện thoại đã tắt Shroudly. Chạm để bật lại bảo vệ.</string>
     <string name="androidLockdownOffline">Không có Internet: Shroudly hiện chưa thể kết nối trên mạng này, và Android đang được đặt để chặn kết nối không qua VPN. Shroudly vẫn đang thử lại.</string>
     <string name="androidModeNextStart">Chế độ mới sẽ dùng vào lần tới bảo vệ được bật.</string>
@@ -28,11 +35,14 @@
     <string name="androidModeTitle">Chế độ</string>
     <string name="androidModeVpn">VPN (mọi ứng dụng)</string>
     <string name="androidModeVpnDesc">Mọi ứng dụng đi qua Shroudly. Android chỉ cho phép một VPN mỗi lúc, nên ứng dụng VPN khác sẽ bị ngắt.</string>
+    <string name="androidNetworkSection">Mạng</string>
     <string name="androidNoInternet">Bảo vệ đã dừng vì Shroudly không thể kết nối Internet trên mạng này, vì vậy các ứng dụng của bạn hiện đang kết nối trực tiếp. Mở Shroudly để thử lại.</string>
     <string name="androidPrivacyPolicy">Chính sách quyền riêng tư</string>
     <string name="androidProtectionLost">Bảo vệ đã dừng do lỗi, vì vậy các ứng dụng của bạn hiện đang kết nối trực tiếp. Mở Shroudly để bật lại.</string>
     <string name="androidProxyOnlyOffWifi">Chỉ proxy đã tắt. Nếu proxy của mạng này được đặt là {addr}, hãy đặt lại thành Không có trong cài đặt Wi-Fi, nếu không các ứng dụng dùng nó sẽ không kết nối được.</string>
     <string name="androidProxyOnlyOn">Chỉ proxy: các ứng dụng đặt 127.0.0.1:{port} đi qua Shroudly</string>
+    <string name="androidQuicOff">Tắt QUIC</string>
+    <string name="androidQuicOffDesc">Ứng dụng dùng TCP thay cho QUIC (cổng UDP 443), loại mà Shroudly đưa qua tốt hơn. Dành cho mạng chặn hoặc làm chậm QUIC.</string>
     <string name="androidRemoteControl">Cho phép ứng dụng tự động hóa</string>
     <string name="androidRemoteControlDesc">Tasker, MacroDroid và các ứng dụng tương tự có thể bật và tắt bảo vệ bằng một broadcast tới gói {package}, hành động {action}.START, .STOP hoặc .TOGGLE. Khi tùy chọn này tắt, không ứng dụng nào khác làm được.</string>
     <string name="androidShareLogs">Chia sẻ nhật ký</string>

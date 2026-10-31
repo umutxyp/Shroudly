@@ -9,6 +9,11 @@
     <string name="adsBlocked">Заблоковано реклами</string>
     <string name="androidAlertsChannel">Сповіщення про захист</string>
     <string name="androidAllApps">Усі застосунки на цьому пристрої йдуть через Shroudly.</string>
+    <string name="androidAppsModeOnly">Через Shroudly йдуть лише позначені застосунки</string>
+    <string name="androidAppsModeSkip">Усі застосунки йдуть через Shroudly, крім позначених</string>
+    <string name="androidAppsOnly">Застосунки через Shroudly</string>
+    <string name="androidAppsOnlyCount">Лише {count}; усі інші застосунки йдуть напряму</string>
+    <string name="androidAppsOnlyDesc">Усі інші застосунки, зокрема системні, йдуть напряму, повз Shroudly. Якщо нічого не позначено, через Shroudly йдуть усі застосунки.</string>
     <string name="androidAppsSection">Застосунки</string>
     <string name="androidAutomationBattery">Налаштування батареї</string>
     <string name="androidAutomationNotStarted">Захист не ввімкнено</string>
@@ -20,6 +25,8 @@
     <string name="androidDetails">Докладніше</string>
     <string name="androidDownloadApk">Завантажити оновлення</string>
     <string name="androidHideExplanation">Сховати пояснення</string>
+    <string name="androidIpv6Off">Вимкнути IPv6</string>
+    <string name="androidIpv6OffDesc">Застосунки й Shroudly використовують лише IPv4, і застосунки одразу дізнаються, що IPv6 немає, а не чекають на нього. Для мереж із несправним або повільним IPv6.</string>
     <string name="androidKeepOnOffer">Телефон закрив Shroudly. Торкніться, щоб знову ввімкнути захист.</string>
     <string name="androidLockdownOffline">Немає інтернету: Shroudly зараз не може пробитися в цій мережі, а Android налаштовано блокувати з’єднання без VPN. Shroudly продовжує спроби.</string>
     <string name="androidModeNextStart">Новий режим застосується під час наступного запуску захисту.</string>
@@ -28,11 +35,14 @@
     <string name="androidModeTitle">Режим</string>
     <string name="androidModeVpn">VPN (усі застосунки)</string>
     <string name="androidModeVpnDesc">Усі застосунки йдуть через Shroudly. Android дозволяє лише один VPN водночас, тож інший VPN-застосунок від’єднається.</string>
+    <string name="androidNetworkSection">Мережа</string>
     <string name="androidNoInternet">Захист зупинився, бо Shroudly не зміг вийти в інтернет у цій мережі, тому ваші застосунки зараз підключаються напряму. Відкрийте Shroudly, щоб спробувати знову.</string>
     <string name="androidPrivacyPolicy">Політика конфіденційності</string>
     <string name="androidProtectionLost">Захист зупинився через помилку, тому ваші застосунки зараз підключаються напряму. Відкрийте Shroudly, щоб увімкнути його знову.</string>
     <string name="androidProxyOnlyOffWifi">«Лише проксі» вимкнено. Якщо проксі цієї мережі задано як {addr}, поверніть його на «Немає» в налаштуваннях Wi-Fi, інакше застосунки, що його використовують, не зможуть під’єднатися.</string>
     <string name="androidProxyOnlyOn">Лише проксі: застосунки, налаштовані на 127.0.0.1:{port}, ідуть через Shroudly</string>
+    <string name="androidQuicOff">Вимкнути QUIC</string>
+    <string name="androidQuicOffDesc">Застосунки використовують TCP замість QUIC (UDP-порт 443), а TCP Shroudly проводить краще. Для мереж, які блокують або сповільнюють QUIC.</string>
     <string name="androidRemoteControl">Дозволити застосунки автоматизації</string>
     <string name="androidRemoteControlDesc">Tasker, MacroDroid і схожі застосунки можуть вмикати й вимикати захист широкомовним повідомленням пакету {package}, дія {action}.START, .STOP або .TOGGLE. Поки це вимкнено, жоден інший застосунок не може.</string>
     <string name="androidShareLogs">Поділитися журналом</string>
