@@ -12,7 +12,7 @@
     <string name="androidAppsModeOnly">Nur die markierten Apps gehen durch Shroudly</string>
     <string name="androidAppsModeSkip">Jede App geht durch Shroudly, außer den markierten</string>
     <string name="androidAppsOnly">Apps, die durch Shroudly gehen</string>
-    <string name="androidAppsOnlyCount">Nur {count} Apps; jede andere App geht direkt hinaus</string>
+    <string name="androidAppsOnlyCount">Ausgewählt: {count}; jede andere App geht direkt hinaus</string>
     <string name="androidAppsOnlyDesc">Jede andere App, auch Systemapps, geht direkt hinaus, an Shroudly vorbei. Ist keine markiert, geht jede App durch Shroudly.</string>
     <string name="androidAppsSection">Apps</string>
     <string name="androidAutomationBattery">Akku-Einstellungen</string>

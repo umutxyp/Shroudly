@@ -558,7 +558,7 @@
   "androidAppsModeSkip": "نشان زدہ ایپس کے سوا ہر ایپ Shroudly سے گزرتی ہے",
   "androidAppsModeOnly": "صرف نشان زدہ ایپس Shroudly سے گزرتی ہیں",
   "androidAppsOnly": "وہ ایپس جو Shroudly سے گزرتی ہیں",
-  "androidAppsOnlyCount": "صرف {count} ایپس؛ باقی ہر ایپ سیدھی باہر جاتی ہے",
+  "androidAppsOnlyCount": "منتخب: {count}؛ باقی ہر ایپ سیدھی باہر جاتی ہے",
   "androidAppsOnlyDesc": "باقی ہر ایپ، سسٹم ایپس بھی، Shroudly سے گزرے بغیر سیدھی باہر جاتی ہے۔ اگر کوئی نشان زدہ نہ ہو تو ہر ایپ Shroudly سے گزرتی ہے۔",
   "searchApps": "ایپس تلاش کریں",
   "androidStartAtBoot": "فون آن ہونے پر شروع کریں",

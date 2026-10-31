@@ -558,7 +558,7 @@
   "androidAppsModeSkip": "تمر كل التطبيقات عبر Shroudly، باستثناء المحددة",
   "androidAppsModeOnly": "تمر التطبيقات المحددة فقط عبر Shroudly",
   "androidAppsOnly": "تطبيقات تمر عبر Shroudly",
-  "androidAppsOnlyCount": "{count} تطبيقات فقط؛ يخرج كل تطبيق آخر مباشرةً",
+  "androidAppsOnlyCount": "المحددة: {count}؛ يخرج كل تطبيق آخر مباشرةً",
   "androidAppsOnlyDesc": "يخرج كل تطبيق آخر، بما فيها تطبيقات النظام، مباشرةً دون المرور عبر Shroudly. إن لم يُحدَّد أي تطبيق، تمر كل التطبيقات عبر Shroudly.",
   "searchApps": "ابحث عن تطبيق",
   "androidStartAtBoot": "البدء عند تشغيل الهاتف",

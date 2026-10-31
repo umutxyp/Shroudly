@@ -558,7 +558,7 @@
   "androidAppsModeSkip": "پرته له نښه شویو اپونو، هر اپ د Shroudly له لارې ځي",
   "androidAppsModeOnly": "یوازې نښه شوي اپونه د Shroudly له لارې ځي",
   "androidAppsOnly": "هغه اپونه چې د Shroudly له لارې ځي",
-  "androidAppsOnlyCount": "یوازې {count} اپونه؛ نور هر اپ مستقیم وځي",
+  "androidAppsOnlyCount": "ټاکل شوي: {count}؛ نور هر اپ مستقیم وځي",
   "androidAppsOnlyDesc": "نور هر اپ، د سیسټم اپونه هم، له Shroudly پرته مستقیم وځي. که هېڅ یو نښه شوی نه وي، هر اپ د Shroudly له لارې ځي.",
   "searchApps": "اپ ولټوئ",
   "androidStartAtBoot": "د تلیفون د چالانېدو پر وخت پیل کړه",

@@ -12,7 +12,7 @@
     <string name="androidAppsModeOnly">یوازې نښه شوي اپونه د Shroudly له لارې ځي</string>
     <string name="androidAppsModeSkip">پرته له نښه شویو اپونو، هر اپ د Shroudly له لارې ځي</string>
     <string name="androidAppsOnly">هغه اپونه چې د Shroudly له لارې ځي</string>
-    <string name="androidAppsOnlyCount">یوازې {count} اپونه؛ نور هر اپ مستقیم وځي</string>
+    <string name="androidAppsOnlyCount">ټاکل شوي: {count}؛ نور هر اپ مستقیم وځي</string>
     <string name="androidAppsOnlyDesc">نور هر اپ، د سیسټم اپونه هم، له Shroudly پرته مستقیم وځي. که هېڅ یو نښه شوی نه وي، هر اپ د Shroudly له لارې ځي.</string>
     <string name="androidAppsSection">اپونه</string>
     <string name="androidAutomationBattery">د بیټرۍ امستنې</string>

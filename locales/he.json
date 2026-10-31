@@ -558,7 +558,7 @@
   "androidAppsModeSkip": "כל האפליקציות עוברות דרך Shroudly, חוץ מהמסומנות",
   "androidAppsModeOnly": "רק האפליקציות המסומנות עוברות דרך Shroudly",
   "androidAppsOnly": "אפליקציות שעוברות דרך Shroudly",
-  "androidAppsOnlyCount": "רק {count} אפליקציות; כל אפליקציה אחרת יוצאת ישירות",
+  "androidAppsOnlyCount": "נבחרו: {count}; כל אפליקציה אחרת יוצאת ישירות",
   "androidAppsOnlyDesc": "כל אפליקציה אחרת, גם אפליקציות מערכת, יוצאת ישירות בלי לעבור דרך Shroudly. אם אף אחת לא מסומנת, כל האפליקציות עוברות דרך Shroudly.",
   "searchApps": "חיפוש אפליקציות",
   "androidStartAtBoot": "הפעלה עם הדלקת הטלפון",

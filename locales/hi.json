@@ -558,7 +558,7 @@
   "androidAppsModeSkip": "चुने गए ऐप्स को छोड़कर हर ऐप Shroudly से होकर जाता है",
   "androidAppsModeOnly": "सिर्फ़ चुने गए ऐप्स Shroudly से होकर जाते हैं",
   "androidAppsOnly": "Shroudly से होकर जाने वाले ऐप्स",
-  "androidAppsOnlyCount": "सिर्फ़ {count} ऐप्स; बाकी हर ऐप सीधे बाहर जाता है",
+  "androidAppsOnlyCount": "चुने गए: {count}; बाकी हर ऐप सीधे बाहर जाता है",
   "androidAppsOnlyDesc": "बाकी हर ऐप, सिस्टम ऐप्स भी, Shroudly से गुज़रे बिना सीधे बाहर जाता है। अगर कोई नहीं चुना गया, तो हर ऐप Shroudly से होकर जाता है।",
   "searchApps": "ऐप खोजें",
   "androidStartAtBoot": "फ़ोन चालू होने पर शुरू करें",
