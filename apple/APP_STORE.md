@@ -148,6 +148,34 @@ Sonra:
 
 ## 6. Yükle
 
+### Otomatik (önerilen): her `v*` etiketinde sürüm akışı yükler
+
+`.github/workflows/release.yml` içindeki `apple` işi, aşağıdaki dört secret
+GitHub'da tanımlıyken her sürümde iOS ve Mac yapısını arşivler ve App Store
+Connect'e yükler (önce TestFlight'a düşer; incelemeye gönderme yine App
+Store Connect'ten tek tıktır). Secret'lar yokken iş kendiliğinden atlanır,
+masaüstü ve Android sürümü etkilenmez.
+
+1. App Store Connect → **Users and Access → Integrations → App Store
+   Connect API** → **Team Keys** → **Generate API Key** (erişim: **App
+   Manager**). `.p8` dosyasını indir (bir kez indirilebilir), Key ID ve
+   Issuer ID'yi not et.
+2. GitHub → Shroudly → Settings → Secrets and variables → Actions:
+   - `ASC_KEY_ID`: Key ID
+   - `ASC_ISSUER_ID`: Issuer ID
+   - `ASC_KEY_P8`: `.p8` dosyasının base64 hâli (`base64 -i AuthKey_XXXX.p8 | pbcopy`)
+   - `APPLE_TEAM_ID`: Team ID (developer.apple.com → Membership)
+3. Aynı API anahtarı Mac'te GitHub'dan indirilen DMG'nin Apple onayı
+   (notarization) için de kullanılır. Bunun için ayrıca:
+   - `MAC_CERT_P12`: **Developer ID Application** sertifikasının (Xcode →
+     Settings → Accounts → Manage Certificates → + → Developer ID
+     Application; Anahtar Zinciri'nden .p12 olarak dışa aktar) base64 hâli
+   - `MAC_CERT_PASSWORD`: o .p12'nin parolası
+
+   Bu ikisi yokken DMG eskisi gibi imzasız (ad-hoc) çıkar.
+
+### Elle (Xcode ile)
+
 1. `node apple/scripts/gen-version.js`
 2. Xcode'da hedef **Any iOS Device (arm64)** → Product → **Archive** →
    Organizer → **Distribute App** → App Store Connect → Upload. (İlk
@@ -168,13 +196,21 @@ açıldıysa ve şu an açık ve çalışıyorsa; sonra 14, 28, 56, 112... gün
 arayla, oturum başına en fazla bir kez). Bayrak deponun kökündeki
 `stores.json` dosyasıdır ve uygulama onu `main` dalından okur:
 
-    { "play": { "live": true }, "appStore": { "live": false }, "macAppStore": { "live": false } }
+    {
+      "play":        { "live": false, "countries": ["*"], "exclude": [] },
+      "appStore":    { "live": false, "countries": ["*"], "exclude": ["CN"] },
+      "macAppStore": { "live": false, "countries": ["*"], "exclude": ["CN"], "url": "" }
+    }
 
-- iOS sürümü yayına çıkınca `"appStore": { "live": true }`,
-- Mac sürümü yayına çıkınca `"macAppStore": { "live": true }`
+- iOS sürümü yayına çıkınca `"appStore": { "live": true, ... }`,
+- Mac sürümü yayına çıkınca `"macAppStore": { "live": true, ..., "url": "https://apps.apple.com/app/id<numara>" }`
 
 yapıp `main`'e gönder. Uygulama en geç 12 saat içinde görür. Yayından önce
 `true` yapma: inceleme kopyası ya da bekleyen bir sürüm boşuna sorar.
+Bir ülkede kaldırılırsa (bir yasa yüzünden, Apple'ın kararıyla) o ülkenin
+iki harfli kodunu `exclude` listesine ekle; liste dışındaki ülkelerde öneri
+de puan isteği de çıkmaz. `url` boşken GitHub'dan indirilen Mac sürümü Mac
+App Store'u önermez.
 
 ## 8. App Review notları (İngilizce, olduğu gibi yapıştır)
 
@@ -317,21 +353,24 @@ Bilmekte fayda var
 Gizlilik: https://github.com/umutxyp/Shroudly#privacy
 ```
 
-## 10. Sahibin vereceği kararlar
+## 10. Verilen kararlar
 
 1. **Şifreleme beyanı:** `ITSAppUsesNonExemptEncryption = NO` (yalnızca
-   işletim sisteminin şifrelemesi) doğru kabul edildi. Farklı düşünülürse
-   `apple/Config/App-Info.plist` ve `Tunnel-Info.plist` içindeki değer
-   kaldırılır ve App Store Connect'teki anket doldurulur.
-2. **Veri toplama:** "Data Not Collected" önerildi (5. adım).
-3. **Ülkeler:** Çin anakarası (ve Apple'ın VPN'e izin vermediği başka
-   ülkeler) dışarıda bırakılsın mı.
-4. **iPad:** uygulama iPad'i de destekliyor (iPad ekran görüntüleri
-   gerekir). Yalnızca iPhone istenirse `TARGETED_DEVICE_FAMILY = 1`
-   (`Config/Shroudly.xcconfig`).
-5. **Mac:** iOS ile birlikte mi, sonra mı yayınlanacak (tek kayıt; Mac sürüm
-   sayfası ayrıca gönderilir).
-6. **Ad:** "Shroudly" App Store'da alınmışsa yedek ad.
+   işletim sisteminin şifrelemesi; motor kendi şifrelemesini yapmaz,
+   şifreli DNS URLSession'ın HTTPS'iyle gider).
+2. **Veri toplama:** "Data Not Collected" (5. adım).
+3. **Ülkeler:** Çin anakarası hariç (Apple orada VPN uygulamaları için
+   devlet lisansı ister); App Store Connect → Pricing and Availability'de
+   China mainland'i kaldır. Başka bir ülkede kaldırılırsa `stores.json`
+   `exclude` listesine eklenir.
+4. **iPad:** destekleniyor; iPad ekran görüntüleri simülatörden alınır
+   (iPad Pro 13").
+5. **Mac:** iOS ile aynı anda gönderilir.
+6. **Ad:** "Shroudly"; alınmışsa "Shroudly: Unblock Sites".
+7. **Simge:** Liquid Glass (Icon Composer) `App/AppIcon.icon`: mavi zemin,
+   cam beyaz kalkan, göz ve mavi göz bebeği. Karanlık, şeffaf ve renkli
+   görünümleri sistem kendisi üretir; eski iOS/macOS için düz hâli `actool`
+   derlerken çıkar. Masaüstü Mac uygulaması da aynı dosyayı kullanır.
 
 ## 11. Sıra (özet)
 
