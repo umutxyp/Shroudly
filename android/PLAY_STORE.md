@@ -286,26 +286,50 @@ standart kitaplığı).
 
 Uygulama Play'de olduğu sürece, Play'den kurulan kopyanın ana penceresinde
 arada bir küçük bir kart puan ister ("Help others find Shroudly", düğmesi
-**Rate on Google Play**). Kart yalnızca Shroudly gerçekten Play'deyken çıkar;
-bunu uygulamanın güncellenmesine gerek kalmadan deponun kökündeki
-`stores.json` söyler:
+**Rate on Google Play**). Kart yalnızca Shroudly kullanıcının ülkesinde
+gerçekten Play'deyken çıkar; bunu uygulamanın güncellenmesine gerek kalmadan
+deponun kökündeki `stores.json` söyler:
 
-    { "play": { "live": true }, "appStore": { "live": false }, "macAppStore": { "live": false } }
+    {
+      "play": { "live": false, "countries": ["*"], "exclude": [] },
+      "appStore": { "live": false, "countries": ["*"], "exclude": [] },
+      "macAppStore": { "live": false, "countries": ["*"], "exclude": [] }
+    }
+
+- `live`: mağazada yayında mı. **Şu an `false`** (Play incelemesi sürüyor);
+  onaylanınca `true` yap.
+- `countries`: yayında olduğu ülkeler, ISO 3166-1 alfa-2 kodlarıyla
+  (`"TR"`, `"DE"`...), ya da hepsi için `"*"`.
+- `exclude`: yayında **olmadığı** ülkeler. `countries` `"*"` olsa bile bu
+  ülkelerde kart çıkmaz.
+- Eski biçim (`{ "play": { "live": true } }`) de okunur: `countries` yoksa
+  `"*"`, `exclude` yoksa boş sayılır.
 
 Android yalnızca `play` kısmını okur (diğerleri iOS ve macOS uygulamaları
-için). Uygulama dosyayı
-`https://raw.githubusercontent.com/umutxyp/Shroudly/main/stores.json`
-adresinden, koruma açıkken motor üzerinden, en fazla 12 saatte bir alır;
-alınamazsa bir saat sonra yeniden dener. Bir cevap bir hafta geçerlidir.
-Dosya yoksa, okunamıyorsa ya da bir haftadır alınamadıysa Play "yok" sayılır
-ve hiçbir kart çıkmaz.
+için). Telefonun ülkesi şu sırayla bulunur: SIM kartın ülkesi, yoksa mobil
+ağın ülkesi (SIM varken SIM'inki geçer, yurt dışında dolaşımda da), yoksa
+telefonun dilinin bölgesi. Ülke bulunamazsa kart çıkmaz.
 
-**Kapatmak için** (uygulama Play'den kalkarsa, askıya alınırsa ya da başka bir
-nedenle kimse Play'e gönderilmemeli): `main` dalında `stores.json` içinde
-`"play": { "live": false }` yap ve gönder (ya da dosyayı sil). Kurulu
-uygulamalar en geç 12 saat içinde (o sırada açık olmayan bir telefon için de
-en geç bir hafta içinde) kartı göstermeyi bırakır. Yeniden açmak için
-`true` yap.
+Uygulama dosyayı
+`https://raw.githubusercontent.com/umutxyp/Shroudly/main/stores.json`
+adresinden, koruma açıkken motor üzerinden (kapalıyken doğrudan), en fazla 12
+saatte bir alır; alınamazsa bir saat sonra yeniden dener. Bir cevap bir hafta
+geçerlidir. Dosya yoksa, alınamadıysa, okunamıyorsa ya da bir haftadır
+alınamadıysa Play "yok" sayılır ve hiçbir kart çıkmaz (alınamayan ya da
+okunamayan bir cevap, eldeki son cevabı da siler).
+
+**Bir ülkede kaldırıldıysa** (örneğin oranın bir yasası yüzünden Play
+uygulamayı o ülkede yayından kaldırdıysa, ya da o ülkede henüz
+yayınlanmadıysa): `main` dalında `stores.json` içinde o ülkenin kodunu
+`exclude` listesine ekle ve gönder, örneğin Vietnam için
+`"exclude": ["VN"]`. Yalnızca birkaç ülkede yayındaysa `countries` listesine
+yalnızca onları yaz (`"countries": ["TR", "AZ"]`).
+
+**Tamamen kapatmak için** (uygulama Play'den kalkarsa, askıya alınırsa ya da
+başka bir nedenle kimse Play'e gönderilmemeli): `"live": false` yap ve gönder
+(ya da dosyayı sil). Kurulu uygulamalar en geç 12 saat içinde (o sırada açık
+olmayan bir telefon için de en geç bir hafta içinde) kartları göstermeyi
+bırakır. Yeniden açmak için `true` yap.
 
 Kartın kuralları (`StoreCards.kt`, testleriyle): Play'in kurallarına uygun,
 kullanıcının fikrini sormaz ve karşılığında bir şey vaat etmez; bildirim ya da
@@ -326,7 +350,8 @@ değiştirdiğin ayarlar baştan başlar" (kaldırınca ayarlar gerçekten silin
 bu yüzden böyle söylüyor). Düğmesi **Open Google Play**. Kurallar
 (`StoreCards.kt`): en fazla iki kez (ilk "Not now"dan 30 gün sonra bir kez
 daha, sonra hiç); **Open Google Play**'e dokunulduysa hiç. Yalnızca Play
-Store telefonda varken, "Block ads and trackers" kapalıyken (Play kopyasında
+kullanıcının ülkesinde yayındayken (yukarıdaki kurallar), Play Store
+telefonda kurulu ve açıkken, "Block ads and trackers" kapalıyken (Play kopyasında
 reklam engelleme yok; geçince kaybolurdu), koruma açık ve çalışırken,
 uygulama en az 3 gündür kuruluyken ve koruma en az 2 ayrı günde çalışmışken.
 Play'in kurduğu kopyada hiç çıkmaz. Pencere 3 gündür açılmadıysa öneri, ses

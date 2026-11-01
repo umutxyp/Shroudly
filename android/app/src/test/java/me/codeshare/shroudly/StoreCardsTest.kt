@@ -17,41 +17,91 @@ class StoreCardsTest {
 
     @Test
     fun theFlag() {
-        assertEquals(true, Stores.parsePlay("""{ "play": { "live": true }, "appStore": { "live": false }, "macAppStore": { "live": false } }"""))
-        assertEquals(false, Stores.parsePlay("""{"play":{"live":false},"appStore":{"live":true}}"""))
+        val all = Stores.Listing(true, listOf("*"), emptyList())
+        assertEquals(all, Stores.parsePlay("""{"play":{"live":true,"countries":["*"],"exclude":[]},"appStore":{"live":false,"countries":["*"],"exclude":[]}}"""))
+        assertEquals(Stores.Listing(true, listOf("TR", "DE"), listOf("VN")),
+            Stores.parsePlay("""{ "play": { "live": true, "countries": ["tr", "DE"], "exclude": ["vn"] } }"""))
+        // The first shape: "live" alone is every country, none excluded.
+        assertEquals(all, Stores.parsePlay("""{ "play": { "live": true }, "appStore": { "live": false }, "macAppStore": { "live": false } }"""))
+        assertEquals(Stores.Listing(false), Stores.parsePlay("""{"play":{"live":false},"appStore":{"live":true}}"""))
         // Another store live, or no "play" at all: not Play.
-        assertEquals(false, Stores.parsePlay("""{"appStore":{"live":true}}"""))
-        assertEquals(false, Stores.parsePlay("""{"play":{}}"""))
-        assertEquals(false, Stores.parsePlay("""{"play":{"live":"yes"}}"""))
+        assertFalse(Stores.parsePlay("""{"appStore":{"live":true}}""")!!.live)
+        assertFalse(Stores.parsePlay("""{"play":{}}""")!!.live)
+        assertFalse(Stores.parsePlay("""{"play":{"live":"yes"}}""")!!.live)
         // Not the file (an error page): no answer.
         assertNull(Stores.parsePlay("<html>404</html>"))
         assertNull(Stores.parsePlay(""))
     }
 
+    /* Only where the listing is: "*" or the country listed, never one
+     * excluded, never an unknown country, never while not live. */
+    @Test
+    fun theCountryRule() {
+        val all = Stores.Listing(true, listOf("*"), emptyList())
+        assertTrue(Stores.availableIn(all, "TR"))
+        assertTrue(Stores.availableIn(all, "tr"))
+        assertFalse(Stores.availableIn(all, null))
+        // Removed in one country (its law, say).
+        val notVn = all.copy(exclude = listOf("VN"))
+        assertTrue(Stores.availableIn(notVn, "TR"))
+        assertFalse(Stores.availableIn(notVn, "VN"))
+        // Published in some countries only.
+        val some = Stores.Listing(true, listOf("TR", "DE"), listOf("DE"))
+        assertTrue(Stores.availableIn(some, "TR"))
+        assertFalse(Stores.availableIn(some, "DE"))
+        assertFalse(Stores.availableIn(some, "RU"))
+        // Not live: nowhere.
+        assertFalse(Stores.availableIn(all.copy(live = false), "TR"))
+        // The old shape, as read: everywhere.
+        assertTrue(Stores.availableIn(Stores.parsePlay("""{"play":{"live":true}}""")!!, "IR"))
+        assertFalse(Stores.availableIn(Stores.parsePlay("""{"play":{"live":false}}""")!!, "IR"))
+    }
+
+    /* The phone's country: the SIM's, else the network's, else the region
+     * of the phone's language; unknown when none is a country code. */
+    @Test
+    fun thePhonesCountry() {
+        assertEquals("TR", Country.pick(sim = "tr", network = "de", locale = "US"))
+        // Roaming: the SIM's country, not the network's.
+        assertEquals("TR", Country.pick(sim = "TR", network = "DE", locale = "DE"))
+        assertEquals("DE", Country.pick(sim = "", network = "de", locale = "US"))
+        assertEquals("US", Country.pick(sim = null, network = "", locale = "US"))
+        assertNull(Country.pick(sim = null, network = null, locale = ""))
+        assertNull(Country.pick(sim = "x", network = "123", locale = "419"))
+    }
+
     @Test
     fun aRecentAnswerOnly() {
-        assertTrue(Stores.live(said = true, checkedAt = now - day, now = now))
-        assertFalse(Stores.live(said = false, checkedAt = now - day, now = now))
-        // Never fetched, or only long ago: not live, nothing shown.
-        assertFalse(Stores.live(said = true, checkedAt = 0, now = now))
-        assertFalse(Stores.live(said = true, checkedAt = now - Stores.VALID_MS, now = now))
+        assertTrue(Stores.fresh(checkedAt = now - day, now = now))
+        // Never fetched (or a fetch failed or could not be read, which
+        // forgets the answer), or only long ago: nothing shown.
+        assertFalse(Stores.fresh(checkedAt = 0, now = now))
+        assertFalse(Stores.fresh(checkedAt = now - Stores.VALID_MS, now = now))
         // A clock set back before the answer: unknown until asked again.
-        assertFalse(Stores.live(said = true, checkedAt = now + day, now = now))
+        assertFalse(Stores.fresh(checkedAt = now + day, now = now))
         assertTrue(Stores.due(checkedAt = now + day, triedAt = 0, now = now))
         // Asked every 12 hours, again an hour after a failure.
         assertFalse(Stores.due(checkedAt = now - 11 * 60 * 60 * 1000L, triedAt = 0, now = now))
         assertTrue(Stores.due(checkedAt = now - Stores.EVERY_MS, triedAt = 0, now = now))
         assertFalse(Stores.due(checkedAt = 0, triedAt = now - 10 * 60 * 1000L, now = now))
         assertTrue(Stores.due(checkedAt = 0, triedAt = now - Stores.RETRY_MS, now = now))
+        val stores = File("src/main/java/me/codeshare/shroudly/Stores.kt").readText()
+        // A failure or an unreadable answer forgets what was known.
+        assertTrue(stores.contains("if (said == null) {\n                    failed(p)"))
+        assertTrue(stores.contains("} catch (_: Exception) {\n                failed(p)"))
+        assertTrue(stores.substringAfter("private fun failed(").contains("remove(\"checkedAt\")"))
     }
 
-    /* The file the app reads, as the repository serves it. */
+    /* The file the app reads, as the repository serves it: every store with
+     * its countries and exclusions. */
     @Test
     fun theRepositorysFile() {
         val f = generateSequence(File("").absoluteFile) { it.parentFile }.map { File(it, "stores.json") }.first { it.exists() }
         val text = f.readText()
-        assertEquals(true, Stores.parsePlay(text))
-        for (k in listOf("\"play\"", "\"appStore\"", "\"macAppStore\"")) assertTrue(k, text.contains(k))
+        assertTrue(Stores.parsePlay(text) != null)
+        for (store in listOf("play", "appStore", "macAppStore")) {
+            assertTrue(store, Regex("\"$store\"\\s*:\\s*\\{\\s*\"live\"\\s*:\\s*(true|false),\\s*\"countries\"\\s*:\\s*\\[[^\\]]*\\],\\s*\"exclude\"\\s*:\\s*\\[[^\\]]*\\]\\s*\\}").containsMatchIn(text))
+        }
         assertEquals("https://raw.githubusercontent.com/umutxyp/Shroudly/main/stores.json", "https://${Stores.HOST}${Stores.PATH}")
     }
 
@@ -182,6 +232,11 @@ class StoreCardsTest {
         assertTrue(show.contains("if (listOf(notice, update, support).any { it.visibility == View.VISIBLE }) return"))
         assertTrue(main.contains("StoreCards.save(this, key, StoreCards.load(this, key).copy(done = true))"))
         assertTrue(main.contains("Stores.openPlay(this)"))
+        // Live in the phone's own country only; the Play Store there and on.
+        assertTrue(main.contains("val live = Stores.playHere(this, now, country)"))
+        val cards = File("src/main/java/me/codeshare/shroudly/StoreCards.kt").readText()
+        assertTrue(cards.contains("Stores.playHere(ctx, now)"))
+        assertTrue(cards.contains("getApplicationInfo(InstallSource.PLAY_STORE, 0).enabled"))
         assertFalse(main.contains("ReviewManager"))
         val stores = File("src/main/java/me/codeshare/shroudly/Stores.kt").readText()
         assertTrue(stores.contains("market://details?id=\$id") && stores.contains("https://play.google.com/store/apps/details?id=\$id"))

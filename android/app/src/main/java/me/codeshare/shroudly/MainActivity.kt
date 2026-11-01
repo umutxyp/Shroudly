@@ -87,6 +87,9 @@ class MainActivity : Activity() {
     private var storeAsked: String? = null
     private var fromPlay = false
     private var playStore = false
+    // The phone's country (Country), as of onStart: the store cards only
+    // where the listing is there for it.
+    private var country: String? = null
     private var installedAt = 0L
     private var workedDays = 0
     private var startedAt = 0L
@@ -273,6 +276,7 @@ class MainActivity : Activity() {
         Stores.refreshIfDue(this, Protection.socksPort, Protection.socksAuth)
         fromPlay = StoreCards.fromPlay(InstallSource.installer(this))
         playStore = !fromPlay && StoreCards.playStoreInstalled(this)
+        country = Country.of(this)
         // Seen: the suggestion's notification, if any, has had its turn.
         StoreCards.clearNotice(this)
         installedAt = Usage.installedAt(this)
@@ -659,7 +663,7 @@ class MainActivity : Activity() {
         if (SystemClock.uptimeMillis() - startedAt < STORE_CARD_AFTER_MS) return
         if (listOf(notice, update, support).any { it.visibility == View.VISIBLE }) return
         val now = System.currentTimeMillis()
-        val live = Stores.playLive(this, now)
+        val live = Stores.playHere(this, now, country)
         val rate = StoreCards.load(this, StoreCards.RATE, now)
         val move = StoreCards.load(this, StoreCards.MOVE, now)
         when {

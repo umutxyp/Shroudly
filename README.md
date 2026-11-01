@@ -943,9 +943,11 @@ Shroudly does not collect personal data. These are the only things that contact 
   twice a day (through the protected connection while protection is on,
   directly otherwise), the app downloads
   `raw.githubusercontent.com/umutxyp/Shroudly/main/stores.json`,
-  a few bytes that say whether the Play Store listing is up, so the app never
-  sends anyone to a store page that is gone. It sends nothing but the request
-  itself.
+  a few bytes that say whether the Play Store listing is up and in which
+  countries, so the app never sends anyone to a store page that is gone or
+  not there for their country (which it takes from the SIM, the mobile
+  network or the phone's language, on the phone; it is never sent). It
+  sends nothing but the request itself.
 - **The site list** (GitHub): about once a day, only while protection is on
   and through the protected connection, the app downloads
   [the published list](#the-automatic-site-list) from
