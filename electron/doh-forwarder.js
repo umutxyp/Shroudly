@@ -40,6 +40,8 @@
  * Speed matters as much as privacy: a lookup that takes too long is
  * indistinguishable from a broken one, and the engine would fall back to plain
  * DNS, which is exactly what censors forge. Answers are cached for their TTL.
+ * And where no route answers at all, the engine is told so ("no route",
+ * noRouteReply) rather than left waiting seconds for every new name.
  *
  * Nothing is logged or stored: a query comes in, a DoH request goes out, the
  * answer goes back.
@@ -185,6 +187,35 @@ function failReply(msg) {
   return out;
 }
 
+// "No route" for a query: encrypted DNS has no answer for it now, so the
+// engine (core/src/doh.c, doh.h) asks plain DNS at once instead of waiting
+// seconds for one, and stops waiting on the next names too until an answer
+// comes. REFUSED, with an OPT record carrying a private option: not "server
+// failure", which is an answer (a name whose DNSSEC signatures do not check
+// out) that is never asked of anyone else, nor an upstream's own refusal.
+// Anything else that reads it (Advanced mode's DNS gate, an app's resolver)
+// takes it for "ask the next server". null if the question cannot be read.
+const NOROUTE_OPT = 65001;
+function noRouteReply(msg) {
+  if (!questionKey(msg)) return null;
+  let p = 12;
+  while (msg[p]) p += 1 + msg[p];
+  const q = msg.subarray(0, p + 5);
+  const out = Buffer.alloc(q.length + 15);
+  q.copy(out);
+  out[2] = 0x80 | (out[2] & 0x79);   // a response; opcode, RD kept; AA, TC off
+  out[3] = 0x85;                      // RA, REFUSED
+  out.writeUInt16BE(1, 4); out.fill(0, 6, 10);
+  out.writeUInt16BE(1, 10);           // one additional record: the OPT
+  let o = q.length + 1;               // its name: the root
+  out.writeUInt16BE(41, o); o += 2;   // OPT
+  out.writeUInt16BE(1232, o); o += 2; // UDP payload size
+  o += 4;                             // extended RCODE, version, flags: 0
+  out.writeUInt16BE(4, o); o += 2;    // its data: one option, empty
+  out.writeUInt16BE(NOROUTE_OPT, o);
+  return out;
+}
+
 // Smallest TTL in the answer, so the cache expires when DNS says it should.
 function answerTtlSeconds(msg) {
   try {
@@ -236,6 +267,11 @@ class DohForwarder {
     this.failures = 0;          // lookups in a row that no route could answer
     this.failingSince = 0;      // when the first of them failed
     this.lastFailAt = 0;        // when the streak was last seen still failing
+    // A lookup failed on every route, and no route has answered since it
+    // began: questions get "no route" at once (see start). okAt: when a
+    // route last answered anything.
+    this.noRoute = false;
+    this.okAt = 0;
     this.state = 'ok';
     this.lastDowngradeWarn = 0;
     this.preferredId = opts.preferredId || null;
@@ -403,6 +439,8 @@ class DohForwarder {
     r.fails = 0; r.restUntil = 0; r.okAt = Date.now();
     this.failures = 0;
     this.failingSince = 0;
+    this.noRoute = false;
+    this.okAt = r.okAt;
   }
 
   /* A lookup no route could answer. "down" takes a streak of them lasting
@@ -622,24 +660,40 @@ class DohForwarder {
           const hit = this.cacheGet(key, msg);
           if (hit) { try { sock.send(hit, rinfo.port, rinfo.address); } catch {} return; }
         }
+        const send = (b) => { if (b) { try { sock.send(b, rinfo.port, rinfo.address); } catch {} } };
+        // "No route" (noRouteReply), at most once per question. At once
+        // while no route has answered since a lookup failed on every one of
+        // them: the engine asks plain DNS now rather than wait seconds for
+        // this lookup too. The routes are still raced, and an answer they
+        // find goes back as well (the engine still listens).
+        const t0 = Date.now();
+        let told = false;
+        const noRoute = () => { if (!told) { told = true; send(noRouteReply(msg)); } };
+        if (this.noRoute && !(this.custom && this.custom.strict)) noRoute();
         this.resolve(msg)
           .then((answer) => {
             if (key) this.cachePut(key, answer);
             this.failures = 0;
             this.failingSince = 0;
+            this.noRoute = false;
             this.setState('ok');
-            try { sock.send(answer, rinfo.port, rinfo.address); } catch {}
+            send(answer);
           })
           .catch(() => {
             // Only the user's server, and it did not answer: "server
             // failure" goes back, so the engine stops waiting for it (it
             // falls through to nothing else) and the app asking hears at once.
             const c = this.custom;
-            if (c && c.strict) { const f = failReply(msg); if (f) { try { sock.send(f, rinfo.port, rinfo.address); } catch {} } return; }
-            /* Nothing is sent back, so the engine falls through to plain DNS.
-             * That is the right thing to do — a lookup that fails outright is
-             * worse — but it quietly undoes the encryption this exists to
-             * provide. Say so, rather than let it pass unnoticed. */
+            if (c && c.strict) { send(failReply(msg)); return; }
+            /* "No route" goes back, so the engine falls through to plain DNS
+             * at once. That is the right thing to do — a lookup that fails
+             * outright is worse — but it quietly undoes the encryption this
+             * exists to provide. Say so, rather than let it pass unnoticed.
+             * A failure no newer than an answer (a lookup still running when
+             * another found a route) says nothing about now; nor does one
+             * just after a wake (resumed). */
+            noRoute();
+            if (this.okAt < t0 && Date.now() >= (this.quietUntil || 0)) this.noRoute = true;
             this.lookupFailed();
           });
       });
@@ -671,6 +725,7 @@ class DohForwarder {
     this.failures = 0;
     this.failingSince = 0;
     this.lastFailAt = 0;
+    this.noRoute = false;
   }
 
   /* Another network, or the same one back after a gap: the connections made
@@ -701,6 +756,7 @@ class DohForwarder {
     }
     if (this.lastFailAt > now) this.lastFailAt = now;
     if (this.failingSince > now) this.failingSince = now;
+    if (this.okAt > now) this.okAt = now;
   }
 
   stop() {
@@ -735,4 +791,6 @@ module.exports = DohForwarder;
 module.exports.UPSTREAMS = UPSTREAMS;
 module.exports.buildQuery = buildQuery;
 module.exports.failReply = failReply;
+module.exports.noRouteReply = noRouteReply;
+module.exports.NOROUTE_OPT = NOROUTE_OPT;
 module.exports.socksConnect = socksConnect;

@@ -63,4 +63,15 @@ int  doh_ipv4_is_blockpage(uint32_t ip);
  * those (an intranet, a VPN's names). */
 int  doh_reply_usable(const uint8_t *r, int len, uint16_t qtype);
 
+/* The forwarder's "no route" (electron/doh-forwarder.js noRouteReply, the
+ * Android app's Dns.noRouteReply): encrypted DNS has no answer for now, every
+ * route having failed or still failing. REFUSED, with an OPT record carrying
+ * this option from RFC 6891's local range. Not "server failure": that one is
+ * an answer (a name whose DNSSEC signatures do not check out) and is never
+ * asked of anyone else, while this one sends the asker on to plain DNS at
+ * once instead of after seconds of waiting. Nor an upstream's own REFUSED,
+ * which carries no such option. An answer may still follow it. */
+#define DOH_NOROUTE_OPT 65001
+int  doh_reply_noroute(const uint8_t *r, int len);
+
 #endif

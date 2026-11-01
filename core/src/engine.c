@@ -1976,9 +1976,10 @@ static void report_gave_up(const ladder_st *st, int local_fails, int fam) {
  *     id back and is headed with the address the app asked, as if that one
  *     had answered. One not answered within UDP_DNS_PLAIN_MS is also sent
  *     where it was headed, in plaintext, as before there was a forwarder,
- *     and that answer is relayed like any datagram. An answer longer than
- *     512 bytes to a query without EDNS comes back as the question with TC
- *     set, so the app asks again over TCP;
+ *     and that answer is relayed like any datagram; so is one the forwarder
+ *     says it has no route for (doh_reply_noroute), at once. An answer
+ *     longer than 512 bytes to a query without EDNS comes back as the
+ *     question with TC set, so the app asks again over TCP;
  *   - whatever comes back to an outbound socket goes to the client, headed
  *     with where it came from: nothing is sent anywhere that did not send
  *     first, so the relay cannot be used to amplify.
@@ -2354,6 +2355,18 @@ static void udp_dns_answers(udp_assoc *u) {
     for (int k = 0; k < UDP_DNS_SLOTS && !e; k++)
       if (u->dq[k].used && u->dq[k].fid == fid && age_ms(t, u->dq[k].t) < UDP_DNS_WAIT_MS) e = &u->dq[k];
     if (!e) continue;
+    /* "No route" (doh_reply_noroute): encrypted DNS has no answer for now,
+     * and the app is not told "refused". Its query goes where it was sent,
+     * now rather than after UDP_DNS_PLAIN_MS, and an answer the forwarder
+     * may still find is passed on too. */
+    if (doh_reply_noroute(a, n)) {
+      if (!e->plain) {
+        e->plain = 1;
+        sudp_dst d;
+        if (sudp_parse(e->hdr, e->hl, &d) == SUDP_OK) udp_send_out(u, &d, e->q, e->ql);
+      }
+      continue;
+    }
     e->used = 0;
     a[0] = (uint8_t)(e->aid >> 8); a[1] = (uint8_t)e->aid;
     if (!e->edns && n > 512) {

@@ -78,6 +78,20 @@ class DnsTest {
         assertTrue(!Dns.serverFailed(answerFor(q)))
     }
 
+    /* "No route": byte for byte what the desktop's forwarder sends
+     * (tests/net/doh.test.js holds the same bytes), which the engine tells
+     * apart from a server failure (core/test/test_bogon.c). */
+    @Test
+    fun answersNoRoute() {
+        val q = Dns.buildQuery("example.com", Dns.TYPE_A, 0x53cb)
+        val r = Dns.noRouteReply(q)!!
+        val hex = r.joinToString("") { "%02x".format(it.toInt() and 0xff) }
+        assertEquals("53cb81850001000000000001076578616d706c6503636f6d000001000100002904d0000000000004fde90000", hex)
+        assertTrue(!Dns.serverFailed(r))                         // never taken for a DNSSEC failure
+        assertTrue(Dns.matchAnswer(q, r) != null)                // a reply to q
+        assertNull(Dns.noRouteReply(byteArrayOf(1, 2, 3)))
+    }
+
     @Test
     fun readsHttpResponses() {
         val body = byteArrayOf(1, 2, 3, 4)

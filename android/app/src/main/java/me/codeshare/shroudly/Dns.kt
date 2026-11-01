@@ -71,6 +71,31 @@ object Dns {
         return out
     }
 
+    /* The option that makes a refusal the forwarder's "no route" (core/src/doh.h). */
+    const val NOROUTE_OPT = 65001
+
+    /* "No route" for this query, as the desktop's forwarder sends it
+     * (electron/doh-forwarder.js noRouteReply): encrypted DNS has no answer
+     * for now, so the engine asks plain DNS at once instead of waiting
+     * seconds for one, and the next names too until an answer comes.
+     * REFUSED with an OPT record carrying NOROUTE_OPT: not a server failure,
+     * which is an answer (a name whose DNSSEC signatures do not check out)
+     * that is never asked of anyone else. null if the question cannot be read. */
+    fun noRouteReply(query: ByteArray): ByteArray? {
+        val end = questionEnd(query)
+        if (end < 0) return null
+        val out = query.copyOf(end + 15)
+        out[2] = (0x80 or (query[2].toInt() and 0x79)).toByte()   // a response; opcode, RD kept
+        out[3] = 0x85.toByte()                                      // RA, REFUSED
+        for (i in 6 until 12) out[i] = 0
+        out[11] = 1                                                 // one additional record: the OPT
+        // Its name (the root), OPT, a 1232-byte payload size, no extended
+        // code or flags, and one option with no data.
+        val opt = intArrayOf(0, 0, 41, 0x04, 0xd0, 0, 0, 0, 0, 0, 4, NOROUTE_OPT shr 8, NOROUTE_OPT and 0xff, 0, 0)
+        for (i in opt.indices) out[end + i] = opt[i].toByte()
+        return out
+    }
+
     /* Name and type of the question, for logs and tests. */
     fun question(m: ByteArray): Pair<String, Int>? {
         val end = questionEnd(m)

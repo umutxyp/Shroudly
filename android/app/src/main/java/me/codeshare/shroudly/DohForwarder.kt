@@ -55,7 +55,9 @@ import javax.net.ssl.SSLSocketFactory
  * The engine waits ENGINE_WAIT_MS for an answer and then asks plain DNS
  * instead, so a lookup is answered within that time or not at all: one that
  * waited too long in the queue is dropped, the queue itself is bounded, and
- * a race ends before the engine stops waiting.
+ * a race ends before the engine stops waiting. One no route answers gets
+ * "no route" back (Dns.noRouteReply), so the engine stops waiting for this
+ * forwarder until it answers again, rather than wait out every new name.
  */
 
 class DohRoute(
@@ -346,6 +348,13 @@ class DohForwarder(
                 continue
             }
             val rx = System.nanoTime() / 1_000_000
+            // "No route" (Dns.noRouteReply), at most once per question. At
+            // once while the last lookups found no route: the engine asks
+            // plain DNS now rather than wait for this one too. It is still
+            // looked up, and its answer goes back as well (the engine still
+            // listens).
+            val told = custom?.strict != true && failuresInARow.get() > 0
+            if (told) Dns.noRouteReply(msg)?.let { try { s.send(DatagramPacket(it, it.size, to)) } catch (_: IOException) {} }
             lookups.execute {
                 // The engine has stopped waiting for this one.
                 if (System.nanoTime() / 1_000_000 - rx > STALE_MS) return@execute
@@ -358,8 +367,10 @@ class DohForwarder(
                     failuresInARow.set(0)
                     try { s.send(DatagramPacket(answer, answer.size, to)) } catch (_: IOException) {}
                 } else {
-                    // Nothing goes back, so the engine falls through to plain DNS.
-                    // Say so, rather than let it pass unnoticed.
+                    // "No route" goes back, so the engine falls through to
+                    // plain DNS at once. Say so, rather than let it pass
+                    // unnoticed.
+                    if (!told) Dns.noRouteReply(msg)?.let { try { s.send(DatagramPacket(it, it.size, to)) } catch (_: IOException) {} }
                     val now = System.currentTimeMillis()
                     if (failuresInARow.incrementAndGet() >= 3 && now - lastDownWarn > 300000) {
                         lastDownWarn = now

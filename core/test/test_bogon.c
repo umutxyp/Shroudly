@@ -6,7 +6,7 @@
 
 /* The system resolver, replaced: doh.c's getaddrinfo() calls land here, so a
  * test can say what "the local network's DNS" answers. */
-static const char *g_sys_name[12]; static uint32_t g_sys_ip[12]; static int g_sys_n = 0, g_sys_asked = 0;
+static const char *g_sys_name[16]; static uint32_t g_sys_ip[16]; static int g_sys_n = 0, g_sys_asked = 0;
 static int test_getaddrinfo(const char *node, const char *svc, const struct addrinfo *hints, struct addrinfo **res) {
   (void)svc;
   g_sys_asked++;
@@ -90,10 +90,24 @@ static int build_multi(uint8_t *b, const char *name, const uint32_t *ips, const 
   return p;
 }
 
+/* The forwarder's "no route" for a query whose question ends at qend
+ * (electron/doh-forwarder.js noRouteReply). */
+static int noroute_reply(uint8_t *r, const uint8_t *q, int qend) {
+  static const uint8_t opt[15] = { 0, 0, 41, 0x04, 0xd0, 0, 0, 0, 0, 0, 4,
+                                   DOH_NOROUTE_OPT >> 8, DOH_NOROUTE_OPT & 0xff, 0, 0 };
+  memcpy(r, q, (size_t)qend);
+  r[2] = 0x81; r[3] = 0x85;                       /* a response: refused */
+  r[6] = r[7] = r[8] = r[9] = r[10] = 0; r[11] = 1;
+  memcpy(r + qend, opt, sizeof(opt));
+  return qend + (int)sizeof(opt);
+}
+
 /* A forwarder on 127.0.0.1 standing in for encrypted DNS: "public.example"
  * has 93.184.216.34, "published.example" only 10.1.2.3, "bogus.example" is
- * a server failure (its DNSSEC signatures are wrong), and every other name
- * does not exist. Counts the queries it gets. */
+ * a server failure (its DNSSEC signatures are wrong), "noroute*.example"
+ * gets its "no route", "late.example" that and then, 300 ms later, an
+ * answer, "silent.example" nothing at all, and every other name does not
+ * exist. Counts the queries it gets. */
 static struct { sock_t s; uint16_t port; _Atomic int queries; _Atomic int stop; _Atomic int moving; } g_fwd;
 static void *fwd_thread(void *arg) {
   (void)arg;
@@ -108,6 +122,14 @@ static void *fwd_thread(void *arg) {
     name[k] = 0;
     int qend = p + 5;
     uint32_t ip = 0;
+    if (!strcmp(name, "silent.example")) continue;
+    if (!strncmp(name, "noroute", 7) || !strcmp(name, "late.example")) {
+      int m = noroute_reply(r, q, qend);
+      sendto(g_fwd.s, (const char *)r, m, 0, (struct sockaddr *)&from, fl);
+      if (strcmp(name, "late.example") != 0) continue;
+      sleep_ms(300);
+      ip = 0x5db8d877;
+    }
     if (!strcmp(name, "public.example")) ip = 0x5db8d822;
     else if (!strcmp(name, "published.example")) ip = 0x0a010203;
     else if (!strncmp(name, "n", 1) && strstr(name, ".many.example")) ip = 0x5db80000u | (uint32_t)(atoi(name + 1) & 0xffff);
@@ -396,6 +418,60 @@ int main(void){
     mutex_unlock(&g_cache_mx);
     CHECK(doh_resolve_all("moving.example",443,0,out,ol,DOH_MAX_ADDRS)==1 && V4(0)==0x5db8d903);
     printf("  stale answers at once, one fetch in the background: OK\n");
+
+    /* 18. The forwarder's "no route" (encrypted DNS blocked here): the
+     *     fallback is asked at once, not after FWD_WAIT_MS, and for a while
+     *     the next names wait only a moment for the forwarder; any answer
+     *     from it ends that. A server failure stays the answer throughout. */
+    { uint8_t q[512], r[600];
+      int ql = dns_build(q, "noroute.example", 0x4242, 1), qe = ql;
+      int rl = noroute_reply(r, q, qe);
+      uint8_t ad[DOH_MAX_ADDRS][16]; int an = 0; uint32_t at = 0;
+      CHECK(dns_parse(r, rl, 0, ad, DOH_MAX_ADDRS, &an, &at) == DNS_NOROUTE);
+      CHECK(doh_reply_noroute(r, rl) == 1 && doh_reply_usable(r, rl, 1) == 0);
+      /* An upstream's own refusal, without the option, and a server failure
+       * with it, are not "no route". */
+      uint8_t plain[600]; memcpy(plain, r, (size_t)rl); plain[11] = 0;
+      CHECK(dns_parse(plain, qe, 0, ad, DOH_MAX_ADDRS, &an, &at) == -1 && doh_reply_noroute(plain, qe) == 0);
+      uint8_t other[600]; memcpy(other, r, (size_t)rl); other[rl - 4] = 0xfd; other[rl - 3] = 0xea;
+      CHECK(doh_reply_noroute(other, rl) == 0);
+      uint8_t sf[600]; memcpy(sf, r, (size_t)rl); sf[3] = 0x82;
+      CHECK(dns_parse(sf, rl, 0, ad, DOH_MAX_ADDRS, &an, &at) == DNS_SERVFAIL && doh_reply_noroute(sf, rl) == 0);
+      /* Cut short anywhere: never read past its end. */
+      for (int cut = 12; cut < rl; cut++) CHECK(doh_reply_noroute(r, cut) == 0); }
+    sys_answers("noroute.example", 0x5db8d830);
+    sys_answers("noroute2.example", 0x5db8d831);
+    sys_answers("silent.example", 0x5db8d832);
+    doh_clear_cache();
+    mutex_lock(&g_cache_mx); g_plain_dead_until = now_ms() + 600000; mutex_unlock(&g_cache_mx);
+    uint64_t t2 = now_ms();
+    CHECK(doh_resolve_all("noroute.example",443,0,out,ol,DOH_MAX_ADDRS)==1 && V4(0)==0x5db8d830);
+    CHECK(now_ms() - t2 < 1500);
+    mutex_lock(&g_cache_mx); int dead = g_fwd_dead_until > now_ms(); mutex_unlock(&g_cache_mx);
+    CHECK(dead);
+    /* While it has no route, a name it does not answer at all waits only
+     * a moment for it. */
+    t2 = now_ms();
+    CHECK(doh_resolve_all("silent.example",443,0,out,ol,DOH_MAX_ADDRS)==1 && V4(0)==0x5db8d832);
+    CHECK(now_ms() - t2 < 1500);
+    /* "No route", then its answer after all: taken over the fallback's
+     * nothing (the system resolver does not know the name). */
+    t2 = now_ms();
+    CHECK(doh_resolve_all("late.example",443,0,out,ol,DOH_MAX_ADDRS)==1 && V4(0)==0x5db8d877);
+    CHECK(now_ms() - t2 < 2000);
+    /* A server failure (DNSSEC) is the answer even now: nothing else is
+     * asked, and the forwarder has answered, so it is waited for again. */
+    mutex_lock(&g_cache_mx); g_fwd_dead_until = now_ms() + 30000; mutex_unlock(&g_cache_mx);
+    asked = g_sys_asked;
+    CHECK(doh_resolve_all("bogus.example",443,0,out,ol,DOH_MAX_ADDRS)==-1 && g_sys_asked==asked);
+    mutex_lock(&g_cache_mx); dead = g_fwd_dead_until > now_ms(); mutex_unlock(&g_cache_mx);
+    CHECK(!dead);
+    /* A new network: the forwarder is waited for again. */
+    CHECK(doh_resolve_all("noroute2.example",443,0,out,ol,DOH_MAX_ADDRS)==1 && V4(0)==0x5db8d831);
+    doh_clear_cache();
+    mutex_lock(&g_cache_mx); dead = g_fwd_dead_until != 0; mutex_unlock(&g_cache_mx);
+    CHECK(!dead);
+    printf("  the forwarder's \"no route\": the fallback at once, not waited for: OK\n");
     doh_set_local(NULL, 0);
     #undef V4
     fwd_stop(); }
