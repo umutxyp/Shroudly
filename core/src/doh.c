@@ -29,6 +29,13 @@
  * still listened to while the fallback runs, and its answer is taken first:
  * on a network that forges plaintext answers the fallback has nothing to give
  * for a filtered name.
+ *
+ * A forwarder that says it has no route (DOH_NOROUTE_OPT, doh.h) is not waited
+ * for: the fallback is asked at once, and for FWD_DEAD_MS after, every new
+ * name waits only FWD_DEAD_WAIT_MS for it, until it answers anything again.
+ * Where encrypted DNS is blocked outright, each new name used to wait the
+ * whole FWD_WAIT_MS for nothing, for as long as the block lasted: every page
+ * seconds slower.
  */
 /* rand_s is only declared when _CRT_RAND_S is set before the C runtime header
    is pulled in — but only Windows needs that. Including <stdlib.h> here on
@@ -86,6 +93,8 @@ static const char *RESOLVERS[MAX_RESOLVERS] = {
 #define PLAIN_DEAD_MS 60000  /* public resolvers that never answered: skipped this long */
 #define FWD_WAIT_MS   4000   /* the forwarder's answer, before anything else is asked */
 #define FWD_LATE_MS   8000   /* still taken this long after the question, when nothing else answers */
+#define FWD_DEAD_MS   30000  /* it said it has no route: not waited for this long, unless it answers */
+#define FWD_DEAD_WAIT_MS 250 /* ... meanwhile, its answer before anything else is asked */
 
 typedef struct {
   char     name[256];
@@ -102,6 +111,7 @@ static cache_entry g_cache[CACHE_SETS][CACHE_WAYS];
 static mutex_t     g_cache_mx;
 static int         g_init = 0;
 static uint64_t    g_plain_dead_until = 0;   /* under g_cache_mx */
+static uint64_t    g_fwd_dead_until = 0;     /* under g_cache_mx (fwd_heard) */
 static int         g_refreshing = 0;         /* under g_cache_mx */
 
 void doh_init(const char *doh_host, const char *doh_ip) {
@@ -114,6 +124,7 @@ void doh_clear_cache(void) {
   mutex_lock(&g_cache_mx);
   memset(g_cache, 0, sizeof(g_cache));
   g_plain_dead_until = 0;   /* a new network: its resolvers are asked again */
+  g_fwd_dead_until = 0;     /* and encrypted DNS waited for again */
   mutex_unlock(&g_cache_mx);
 }
 
@@ -398,6 +409,9 @@ static int dns_build(uint8_t *q, const char *name, uint16_t id, int type) {
  * trusts. A validating one says it for a name whose signatures do not check
  * out (DNSSEC), and for a name whose own servers do not answer. */
 #define DNS_SERVFAIL (-5)
+/* The forwarder's "no route" (DOH_NOROUTE_OPT, doh.h): it has no answer for
+ * now, and the next resolver is asked at once. */
+#define DNS_NOROUTE  (-6)
 /* Does this reply echo the question we sent? A reply carrying someone else's
  * question is not an answer to ours, however well-formed it looks. */
 static int dns_question_matches(const uint8_t *r, int len, const uint8_t *q, int qlen) {
@@ -434,6 +448,37 @@ static int dns_skip_name(const uint8_t *r, int len, int p) {
   return -1;
 }
 
+/* A refusal that carries DOH_NOROUTE_OPT in an OPT record of its additional
+ * section: the forwarder's "no route" (doh.h), and nothing else's. */
+static int dns_noroute(const uint8_t *r, int len) {
+  if (len < 12 || !(r[2] & 0x80) || (r[3] & 0x0f) != 5) return 0;
+  int qd = (r[4] << 8) | r[5];
+  int rest = ((r[6] << 8) | r[7]) + ((r[8] << 8) | r[9]);   /* answer and authority records */
+  int ar = (r[10] << 8) | r[11];
+  int p = 12;
+  for (int i = 0; i < qd; i++) {
+    p = dns_skip_name(r, len, p);
+    if (p < 0 || p + 4 > len) return 0;
+    p += 4;
+  }
+  for (int i = 0; i < rest + ar; i++) {
+    p = dns_skip_name(r, len, p);
+    if (p < 0 || p + 10 > len) return 0;
+    int type = (r[p] << 8) | r[p + 1];
+    int rdlen = (r[p + 8] << 8) | r[p + 9];
+    int rd = p + 10;
+    if (rd + rdlen > len) return 0;
+    if (i >= rest && type == 41) {
+      for (int o = rd; o + 4 <= rd + rdlen; o += 4 + ((r[o + 2] << 8) | r[o + 3]))
+        if (((r[o] << 8) | r[o + 1]) == DOH_NOROUTE_OPT) return 1;
+    }
+    p = rd + rdlen;
+  }
+  return 0;
+}
+
+int doh_reply_noroute(const uint8_t *r, int len) { return r && dns_noroute(r, len); }
+
 /* Every usable A (or AAAA) record of the answer, in the order given, up to
  * `max`, and the smallest TTL among them. A name usually has several
  * addresses, and the first one being down or unreachable from here is common
@@ -455,6 +500,7 @@ static int dns_parse(const uint8_t *r, int len, int want6,
    * answer (doh_resolve_all). */
   if ((r[3] & 0x0f) == 3) return DNS_NXDOMAIN;
   if ((r[3] & 0x0f) == 2) return DNS_SERVFAIL;
+  if (dns_noroute(r, len)) return DNS_NOROUTE;
   if ((r[3] & 0x0f) != 0) return -1;
   int p = 12;
   for (int i = 0; i < qd; i++) {
@@ -510,6 +556,7 @@ typedef struct {
   int                qlen;
   uint16_t           id;
   int                want6;
+  uint64_t           again_at;   /* the forwarder's: asked once more then, if still unanswered (fwd_late) */
 } udp_ask;
 
 static void udp_ask_close(udp_ask *a) {
@@ -573,6 +620,8 @@ static int udp_ask_wait(udp_ask *a, int timeout_ms, uint8_t (*addrs)[16], int *n
     if (!dns_question_matches(r, n, a->q, a->qlen)) { if (left == 0) break; continue; } /* answers something else */
     int pr = dns_parse(r, n, a->want6, addrs, DOH_MAX_ADDRS, naddr, ttl);
     if (pr == 0) { rc = 0; break; }
+    /* "No route": no answer is coming soon; the caller goes on at once. */
+    if (pr == DNS_NOROUTE) { if (rc == -1) rc = pr; break; }
     /* "No such record" (or name): don't sit out the whole window, but leave a
      * short grace period in case it was a forged reply racing the real one.
      * Longer for "no such name", the answer an injector would forge to make a
@@ -619,19 +668,40 @@ static int answer(const char *name, uint16_t port, int family, uint8_t (*addrs)[
   return n;
 }
 
+/* What a reply from the forwarder says about it (r as udp_ask_wait returns):
+ * its "no route", that the next names are not to wait for it (FWD_DEAD_MS);
+ * any answer at all, "no such name" too, that it reaches encrypted DNS
+ * again. Nothing (-1) says nothing. */
+static void fwd_heard(int r) {
+  if (r == -1) return;
+  mutex_lock(&g_cache_mx);
+  g_fwd_dead_until = r == DNS_NOROUTE ? now_ms() + FWD_DEAD_MS : 0;
+  mutex_unlock(&g_cache_mx);
+}
+
 /* The forwarder's answer to a question it did not answer in time, if it has
  * come within wait_ms: 1 with addresses (the encrypted answer, taken over
  * any other), 2 when it says the name has no usable address of this family
- * or that the server failed (believed, as at first), 0 for nothing yet. The question is let go once
- * the forwarder has answered at all. */
+ * or that the server failed (believed, as at first), 0 for nothing yet. The
+ * question is let go once the forwarder has answered at all; its "no route"
+ * is no answer (one may follow), and the question is asked once more at
+ * again_at if it is still unanswered then. */
 static int fwd_late(udp_ask *fwd, int wait_ms, uint8_t (*addrs)[16], int *n, uint32_t *ttl) {
-  if (fwd->s == SOCK_INVALID) return 0;
-  int r = udp_ask_wait(fwd, wait_ms, addrs, n, ttl);
-  if (r == -1) return 0;
-  udp_ask_close(fwd);
-  if (r == 0) return 1;
-  if (r == DNS_NODATA || r == DNS_PRIVATE || r == DNS_SERVFAIL) return 2;
-  return 0;   /* no such name: what follows may still know it */
+  uint64_t end = now_ms() + (uint64_t)(wait_ms > 0 ? wait_ms : 0);
+  while (fwd->s != SOCK_INVALID) {
+    uint64_t t = now_ms();
+    if (fwd->again_at && t >= fwd->again_at) { fwd->again_at = 0; udp_ask_again(fwd); }
+    uint64_t until = fwd->again_at && fwd->again_at < end ? fwd->again_at : end;
+    int r = udp_ask_wait(fwd, t < until ? (int)(until - t) : 0, addrs, n, ttl);
+    fwd_heard(r);
+    if (r == -1) { if (until >= end) return 0; continue; }
+    if (r == DNS_NOROUTE) continue;
+    udp_ask_close(fwd);
+    if (r == 0) return 1;
+    if (r == DNS_NODATA || r == DNS_PRIVATE || r == DNS_SERVFAIL) return 2;
+    return 0;   /* no such name: what follows may still know it */
+  }
+  return 0;
 }
 
 /* Everything after the forwarder: the public resolvers over UDP/53, then the
@@ -732,11 +802,18 @@ static int resolve_fresh(const char *name, uint16_t port, int want6,
 
   /* 1. Real encrypted DNS via the local forwarder, if the app started one. */
   udp_ask fwd;
+  memset(&fwd, 0, sizeof(fwd));
   fwd.s = SOCK_INVALID;
   uint64_t asked = 0;
   if (g_fwd_port && !trusted && udp_ask_open(&fwd, g_fwd_ip, g_fwd_port, name, want6) == 0) {
     asked = now_ms();
-    int fr = udp_ask_wait(&fwd, FWD_WAIT_MS, addrs, &n, &ttl);
+    /* It said a moment ago that it has no route (fwd_heard): waited for only
+     * briefly, then the fallback is asked while it is still listened to. */
+    mutex_lock(&g_cache_mx);
+    int dead = asked < g_fwd_dead_until;
+    mutex_unlock(&g_cache_mx);
+    int fr = udp_ask_wait(&fwd, dead ? FWD_DEAD_WAIT_MS : FWD_WAIT_MS, addrs, &n, &ttl);
+    fwd_heard(fr);
     if (fr == 0) { udp_ask_close(&fwd); return answer(name, port, family, addrs, n, ttl, out, outlen, max); }
     /* It says the name has no address of this family. That is an answer, not
      * a failure, and one nobody on the path could forge: asking the plaintext
@@ -755,7 +832,7 @@ static int resolve_fresh(const char *name, uint16_t port, int want6,
      * signatures: a forged answer passed as good, and each of them saw the
      * name, after a 4 s wait. */
     if (fr == DNS_NODATA || fr == DNS_PRIVATE || fr == DNS_SERVFAIL) { udp_ask_close(&fwd); return -1; }
-    if (fr == -1) {
+    if (fr == -1 && !dead) {
       /* No answer in time. The forwarder goes on looking, and may only now
        * be getting its routes back (a network that has just returned, its
        * connections gone with the old one): ask once more, so a fresh try
@@ -764,6 +841,12 @@ static int resolve_fresh(const char *name, uint16_t port, int want6,
        * answers the fallback has nothing to give for a filtered name, and
        * that name failed although encrypted DNS answered a moment later. */
       udp_ask_again(&fwd);
+    } else if (fr == -1 || fr == DNS_NOROUTE) {
+      /* It has no route, or said so lately and has no answer yet: the
+       * fallback now. It is still listened to, and asked once more where
+       * the wait above would have ended, should the fallback still be
+       * running or have found nothing by then. */
+      fwd.again_at = asked + FWD_WAIT_MS;
     } else {
       /* "No such name" (DNS_NXDOMAIN) falls through: a hosts-file entry may
        * still know it, but the system resolver's private answer is taken only

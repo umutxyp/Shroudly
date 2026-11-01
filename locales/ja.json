@@ -150,6 +150,7 @@
   "dnsDownBody": "Shroudly は自動で別の経路を試し続けます。通る経路が見つかるまで、一部のサイトが偽のアドレスに誘導されることがあります。Shroudly が知っている偽のアドレスは拒否されます。",
   "logCut": "{host}：接続できますが、その後ネットワークに切断されます（{reason}、{kb} KB 後）。Shroudly は別の手法を試しています。",
   "logCutFixed": "{host}: 接続後、ネットワークに切断されます ({kb} KB 後に {reason})。{mode} がオフのため {strategy} しか使われていません。Shroudly に他の手法も試させるには、設定で {mode} をオンにしてください。",
+  "logCutNotMoved": "{host}：結局ネットワークによる切断ではありませんでした。その時このコンピューターが別のネットワークに切り替わっていました",
   "logRegion": "このネットワークの DNS は、ブロックされたサイトに対して既知のブロックページを返します。",
   "logDnsFilterService": "お使いの DNS サービスはサイトをフィルタリングしています。Shroudly の暗号化 DNS はそれを回避します。",
   "logDohRoutes": "暗号化 DNS の応答経路：{routes}",

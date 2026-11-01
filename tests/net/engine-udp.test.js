@@ -20,7 +20,8 @@
  * only a standard query, not one for a LAN resolver or a LAN name; under an
  * id of its own; the question with TC set when the answer is too big for a
  * query without EDNS; and where the app sent it, in plaintext, when the
- * forwarder has not answered within about 2.5 s.
+ * forwarder has not answered within about 2.5 s, or at once when it says it
+ * has no route (encrypted DNS blocked).
  *
  * The far side is played by echo servers on this machine's LAN address (the
  * relay refuses loopback), and a local DNS server stands in for the app's
@@ -31,7 +32,10 @@
 const net = require('net');
 const os = require('os');
 const dgram = require('dgram');
-const { startEngine, sleep, freePort, dnsStub, suite } = require('./helpers');
+const path = require('path');
+const { ROOT, startEngine, sleep, freePort, dnsStub, suite } = require('./helpers');
+
+const F = require(path.join(ROOT, 'electron', 'doh-forwarder.js'));
 
 const t = suite('engine-udp');
 const BUF = { sendBufferSize: 1 << 20, recvBufferSize: 1 << 20 };
@@ -175,6 +179,8 @@ const LAN6 = (ifaces.find((i) => (i.family === 'IPv6' || i.family === 6) && !/^f
     'big.example': { A: Array.from({ length: 40 }, (_, i) => `203.0.113.${i + 1}`) },
     // The forwarder never answers this one: the query goes out as sent.
     'example.com': { silent: true },
+    // It has no route for this one (encrypted DNS blocked): the same, at once.
+    'example.net': { reply: (q) => F.noRouteReply(q) },
   });
   const P = await freePort();
   const eng = await startEngine(P, ['--auto', '--doh', '--doh-port', String(dns.port)]);
@@ -406,6 +412,14 @@ const LAN6 = (ifaces.find((i) => (i.family === 'IPv6' || i.family === 6) && !/^f
     t.ok((dns.asked['example.com/A'] || 0) >= 1, 'the forwarder was asked first');
     t.ok(r && dnsAnswers(r.data, q.id) > 0 && r.host === server && r.port === 53 && took >= 2000,
       `it did not answer: after ${took} ms the query went to ${server}:53 as sent and that answer came back`);
+    // Its "no route" is no answer for the app: the query goes where it was
+    // sent at once, and the app never hears "refused".
+    const qn = dnsQuery('example.net');
+    const t1 = Date.now();
+    r = await roundTrip(cd, d.port, server, 53, qn.buf, 8000);
+    const tookN = Date.now() - t1;
+    t.ok((dns.asked['example.net/A'] || 0) >= 1 && r && dnsAnswers(r.data, qn.id) > 0 && r.host === server && tookN < 1500,
+      `it has no route: after ${tookN} ms (not 2.5 s) the query went to ${server}:53 as sent and that answer came back, not "refused"`);
     d.ctl.destroy(); cd.close();
   } else {
     console.log('  --  no public DNS reachable from here (offline?): the plaintext fallback check is skipped');

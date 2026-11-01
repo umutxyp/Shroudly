@@ -150,6 +150,7 @@
   "dnsDownBody": "Shroudly tự động tiếp tục thử các đường khác. Cho đến khi có đường thông, một số trang có thể bị chuyển đến địa chỉ giả; các địa chỉ giả mà Shroudly biết sẽ bị từ chối.",
   "logCut": "{host}: kết nối được, rồi bị mạng cắt ({reason} sau {kb} KB). Shroudly đang thử các kỹ thuật khác cho trang này.",
   "logCutFixed": "{host}: kết nối được, rồi mạng cắt ({reason} sau {kb} KB). {mode} đang tắt nên chỉ dùng {strategy}: bật {mode} trong Cài đặt để Shroudly thử các kỹ thuật khác.",
+  "logCutNotMoved": "{host}: hóa ra không phải mạng cắt; lúc đó máy tính này đã chuyển sang mạng khác",
   "logRegion": "DNS trên mạng này trả lời các trang bị chặn bằng một trang chặn đã biết.",
   "logDnsFilterService": "Dịch vụ DNS của bạn lọc các trang web; DNS mã hóa của Shroudly đi vòng qua nó.",
   "logDohRoutes": "DNS mã hóa đang phản hồi qua {routes}",

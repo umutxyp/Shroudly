@@ -150,6 +150,7 @@
   "dnsDownBody": "Shroudly başga ýollary özbaşdak synap görmegini dowam etdirýär. Olaryň biri geçýänçä, käbir saýtlar galp salgylara iberilip bilner; Shroudly-niň bilýän galp salgylary ret edilýär.",
   "logCut": "{host}: birikýär, soňra tor ony kesýär ({kb} KB-dan soň {reason}). Shroudly onuň üçin başga usullary synap görýär.",
   "logCutFixed": "{host}: birikýär, soňra tor ony kesýär ({kb} KB-dan soň {reason}). {mode} öçük, şonuň üçin diňe {strategy} ulanylýar: Shroudly beýleki usullaryny synap görer ýaly Sazlamalarda {mode} açyň.",
+  "logCutNotMoved": "{host}: aslynda ony tor kesmändir; şol pursatda bu kompýuter başga tora geçipdir",
   "logRegion": "Bu tordaky DNS petiklenen saýtlara mälim bolan petikleme sahypasy bilen jogap berýär.",
   "logDnsFilterService": "DNS hyzmatyňyz saýtlary süzýär; Shroudly-niň şifrlenen DNS-i ony aýlanyp geçýär.",
   "logDohRoutes": "Şifrlenen DNS {routes} arkaly jogap berýär",

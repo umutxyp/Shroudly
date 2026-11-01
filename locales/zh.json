@@ -150,6 +150,7 @@
   "dnsDownBody": "Shroudly 会自动继续尝试其他线路。在找到可用线路之前，部分网站可能被指向假地址；Shroudly 已知的假地址会被拒绝。",
   "logCut": "{host}：能连上，随后被网络切断（{reason}，{kb} KB 后）。Shroudly 正在为它尝试其他技术。",
   "logCutFixed": "{host}：连接后被网络切断（{kb} KB 后 {reason}）。{mode}已关闭，因此只使用 {strategy}：在设置中开启{mode}，让 Shroudly 尝试其他技术。",
+  "logCutNotMoved": "{host}：其实并不是网络切断的；当时这台电脑切换到了另一个网络",
   "logRegion": "此网络的 DNS 会对被封锁的网站返回一个已知的拦截页面。",
   "logDnsFilterService": "你的 DNS 服务会过滤网站；Shroudly 的加密 DNS 可以绕过它。",
   "logDohRoutes": "加密 DNS 通过以下线路应答：{routes}",

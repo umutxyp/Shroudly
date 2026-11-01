@@ -150,6 +150,7 @@
   "dnsDownBody": "Shroudly kendi kendine başka yollar denemeye devam ediyor. Biri geçene kadar bazı siteler sahte adreslere yönlenebilir; Shroudly'nin bildiği sahte adresler reddediliyor.",
   "logCut": "{host}: bağlanıyor, sonra ağ kesiyor ({reason}, {kb} KB sonra). Shroudly bu site için başka teknikler deniyor.",
   "logCutFixed": "{host}: bağlanıyor, sonra ağ kesiyor ({reason}, {kb} KB sonra). {mode} kapalı, bu yüzden yalnızca {strategy} kullanılıyor: Shroudly'nin diğer teknikleri denemesi için Ayarlar'da {mode}'u aç.",
+  "logCutNotMoved": "{host}: aslında ağ kesmemiş; bu bilgisayar o anda başka bir ağa geçmiş",
   "logRegion": "Bu ağdaki DNS, engelli sitelere bilinen bir engelleme sayfasıyla cevap veriyor.",
   "logDnsFilterService": "DNS servisin siteleri filtreliyor; Shroudly'nin şifreli DNS'i bunun etrafından dolaşıyor.",
   "logDohRoutes": "Şifreli DNS şu yollardan cevap veriyor: {routes}",

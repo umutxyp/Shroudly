@@ -194,6 +194,7 @@ const hung = (logs) => logs.some((l) => l.includes('Engine stopped responding'))
     em._onLine(JSON.stringify({ type: 'cut', host: 'a.example', strategy: 'stall', attempts: 5 }));
     t.ok(!events.length && !em.advice.cut, 'connections reported cut just after a wake: no news (the sleep stalled them)');
     wake.at -= 31000;
+    em.lastDownAt = Date.now();   // the network carries other traffic again
     em._onLine(JSON.stringify({ type: 'cut', host: 'a.example', strategy: 'stall', attempts: 5 }));
     em._onLine(JSON.stringify({ type: 'cut', host: 'a.example', strategy: 'reset', attempts: 5 }));
     t.ok(events.length === 2 && em.advice.cut && em.advice.cut.host === 'a.example', 'half a minute later they count again');

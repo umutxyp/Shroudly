@@ -202,6 +202,7 @@ const PATTERNS = [
   [/^(.+?) is installed but not connected; that does not interfere\.$/, 'logIdleVpn', ['tools']],
   [/^(\S+): connects, then the network cuts it \((\w+) after (\d+) KB\)\. (Auto mode) is off, so only (\S+) is used: turn Auto mode on in Settings to let Shroudly try its other techniques\.$/, 'logCutFixed', ['host', 'reason', 'kb', 'mode', 'strategy'], { mode: (v, t) => t('autoMode') }],
   [/^(\S+): connects, then the network cuts it \((\w+) after (\d+) KB\)\./, 'logCut', ['host', 'reason', 'kb']],
+  [/^(\S+): not cut by the network after all; this computer moved to another network/, 'logCutNotMoved', ['host']],
   [/^DNS answers on this network match the filtering used in (\w+)\.$/, 'logRegion', ['country']],
   [/^Encrypted DNS answering via (.+)$/, 'logDohRoutes', ['routes']],
   [/^(\S+) could not be opened with encrypted DNS switched off\./, 'logDnsReenabledForBlock', ['host']],

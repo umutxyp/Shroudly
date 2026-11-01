@@ -987,15 +987,21 @@ app.whenReady().then(async () => {
     // encrypted DNS blocked.
     onAdvice: (advice) => {
       toWindow('dpi:advice', advice);
-      // A cut the engine believes (enough of them, not one stalled
-      // connection): about a service the autopilot looks after, and what
-      // Advanced mode is for.
-      if (advice && advice.cut && advice.cut.host && autopilot) {
-        autopilot.noteHost('cut', advice.cut.host, { believed: true });
-        if (aroundWatch) aroundWatch.note('cut', advice.cut.host, { believed: true });
-        autopilot.needAdvanced(advice.cut.host).catch(() => {});
-      }
     },
+    // A cut the engine believes (enough of them, not one stalled connection,
+    // nor a link that went quiet), still standing a few seconds later (not
+    // a moment when other sites went quiet too, nor a move to another
+    // network): about a service the autopilot looks after, and what Advanced
+    // mode is for.
+    onCut: (host) => {
+      if (!autopilot) return;
+      autopilot.noteHost('cut', host, { believed: true });
+      if (aroundWatch) aroundWatch.note('cut', host, { believed: true });
+      autopilot.needAdvanced(host).catch(() => {});
+    },
+    // Which networks this computer is on: a cut told just after a move to
+    // another one is the move's doing (engine-manager.js, SILENT_CUTS).
+    networkPrint: () => networkFingerprint(),
     // Encrypted DNS was switched back on because a site could not be reached
     // without it. The settings screen has to show the new state.
     onDnsAutoEnabled: (host) => {

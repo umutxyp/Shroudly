@@ -14,7 +14,10 @@
  *     have nothing to give for a filtered name (it used to fail);
  *   - once the silence ends the next name answers at once;
  *   - silent for 20 s: "down" (a lookup gives up after about 6 s, and
- *     lookups have to have failed for 10 s), and "ok" at the next answer.
+ *     lookups have to have failed for 10 s), and "ok" at the next answer;
+ *   - every route refused: the forwarder says "no route", and new names go
+ *     to the plaintext fallback at once instead of 4 s later each (this one
+ *     with real names, where this machine's DNS answers).
  * The fallback the engine tries meanwhile asks this machine's network for
  * names under .example, which exist nowhere: it only costs time. */
 
@@ -118,6 +121,30 @@ async function reach(P, name, port) {
 
   t.ok(eng.exited === null && !/AddressSanitizer|runtime error:/.test(eng.err), 'engine still up, no sanitizer errors');
   eng.stop(); f.stop(); target.close();
+
+  // Encrypted DNS blocked outright (every route refused: a network that
+  // resets them, one that inspects TLS with its own certificate, one with
+  // IPv6 only): the forwarder says "no route", and each new name goes to
+  // the plaintext fallback at once. It waited 4 s for nothing, every name,
+  // for as long as the block lasted. Real names, so this needs a network
+  // whose DNS answers.
+  const online = await require('dns').promises.resolve4('example.com').then((a) => a.length > 0, () => false);
+  if (online) {
+    const blocked = new F(() => {});
+    blocked.query = () => Promise.reject(new Error('ECONNRESET'));
+    const bport = await blocked.start();
+    const P2 = await freePort();
+    const eng2 = await startEngine(P2, ['--auto', '--doh', '--doh-port', String(bport)]);
+    blocked.setSocksPort(P2);
+    const names = ['example.com', 'example.net', 'example.org', 'www.example.com', 'www.example.net', 'www.example.org'];
+    const took = [];
+    for (const n of names) took.push(await reach(P2, n, 80));
+    t.ok(took.every((x) => x.ok) && took[0].ms < 3000 && took.slice(1).every((x) => x.ms < 1500),
+      `encrypted DNS refused everywhere: each new name connects through the fallback without waiting for it (${took.map((x) => `${x.ms} ms`).join(', ')})`);
+    eng2.stop(); blocked.stop();
+  } else {
+    console.log('  --  this network\'s DNS does not answer (offline?): the blocked-encrypted-DNS check is skipped');
+  }
   console.log(`engine-doh: ${t.count} passed`);
   process.exit(0);
 })().catch((e) => { console.error('FAIL', e.message); process.exit(1); });

@@ -150,6 +150,7 @@
   "dnsDownBody": "Shroudly bi serê xwe rêyên din diceribîne. Heta ku yek derbas bibe, dibe ku hin malper ber bi navnîşanên sexte ve bên şandin; navnîşanên sexte yên ku Shroudly nas dike tên redkirin.",
   "logCut": "{host}: girê dide, paşê tor wê qut dike ({reason} piştî {kb} KB). Shroudly ji bo wê teknîkên din diceribîne.",
   "logCutFixed": "{host}: girê dide, paşê tor wê dibire ({reason} piştî {kb} KB). {mode} girtî ye, ji ber vê yekê tenê {strategy} tê bikaranîn: {mode} di Mîhengan de veke da ku Shroudly teknîkên xwe yên din biceribîne.",
+  "logCutNotMoved": "{host}: di rastiyê de tor ew qut nekir; vê komputerê di wê kêliyê de derbasî torek din bû",
   "logRegion": "DNS-ê vê torê bersiva malperên astengkirî bi rûpeleke astengkirinê ya naskirî dide.",
   "logDnsFilterService": "Karûbarê te yê DNS-ê malperan fîltre dike; DNS-a şîfrekirî ya Shroudly wê derbas dike.",
   "logDohRoutes": "DNS-a şîfrekirî bi rêya {routes} bersiv dide",

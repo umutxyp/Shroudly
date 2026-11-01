@@ -113,7 +113,8 @@ function socks4(socksPort, host, port, { cmd = 1, user = 'shroudly-test' } = {})
  * app's encrypted-DNS forwarder (the engine's --doh-port), so tests can give a
  * name exactly the addresses they need. table: { name: { A: [...], AAAA:
  * [...], ttl } }; a name not in it gets NXDOMAIN, a type it lacks an empty
- * answer; { silent: true } is never answered. Counts the questions it is
+ * answer; { silent: true } is never answered, and { reply(query) } is
+ * answered with what that returns (a "no route", say). Counts the questions it is
  * asked, per "name/type", and logs each one's name, type and id (queries). */
 function ip6Bytes(a) {
   let v4 = null;
@@ -140,6 +141,7 @@ function dnsStub(table) {
     queries.push({ name, type, id: q.readUInt16BE(0) });
     const e = table[name];
     if (e && e.silent) return;                               // never answers
+    if (e && e.reply) { const b = e.reply(q); if (b) sock.send(b, from.port, from.address); return; }
     const addrs = (e && e[type]) || [];
     const head = Buffer.from(q.subarray(0, 12));
     head[2] = 0x81; head[3] = e ? 0x80 : 0x83;            // response; NXDOMAIN when unknown

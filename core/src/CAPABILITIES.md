@@ -228,8 +228,13 @@ answers SOCKS5 `UDP ASSOCIATE` (RFC 1928 section 7, `udp_associate` in
   forwarder (the app's comes back on the answer), so two queries with the
   same id cannot get each other's answers. One the forwarder has not
   answered within 2.5 s is also sent where it was headed, in plaintext, and
-  that answer relayed. An answer over 512 bytes to a query without EDNS comes
-  back as the question with TC set; the app asks again over TCP.
+  that answer relayed; so is one it says it has no route for (`doh.h`,
+  `DOH_NOROUTE_OPT`), at once, and the app never sees that refusal. The
+  engine's own resolver does the same: on "no route" it asks the plaintext
+  fallback at once, and waits only a moment for the forwarder on the names
+  after, until the forwarder answers again. An answer over 512 bytes to a
+  query without EDNS comes back as the question with TC set; the app asks
+  again over TCP.
 - Each association sends from outbound sockets of its own (one per address
   family) and returns replies, headed with their source, only to its client:
   nothing goes anywhere that did not send first.

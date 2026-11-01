@@ -20,11 +20,16 @@ const { ROOT, startEngine, freePort, fixture, suite } = require('./helpers');
 const F = require(path.join(ROOT, 'electron', 'doh-forwarder.js'));
 const t = suite('doh');
 
-function ask(port, name) {
+/* One lookup: the first reply, or with pastNoRoute the first after a "no
+ * route" (refused), as the engine listens on for an answer that may follow. */
+function ask(port, name, { pastNoRoute = false } = {}) {
   return new Promise((resolve) => {
     const s = dgram.createSocket('udp4'); const q = F.buildQuery(name, 1); const t0 = Date.now();
     const to = setTimeout(() => { s.close(); resolve({ ok: false, ms: Date.now() - t0, msg: null }); }, 6000);
-    s.on('message', (m) => { clearTimeout(to); s.close(); resolve({ ok: m.readUInt16BE(0) === q.readUInt16BE(0) && m.readUInt16BE(6) > 0, ms: Date.now() - t0, msg: m }); });
+    s.on('message', (m) => {
+      if (pastNoRoute && (m[3] & 0x0f) === 5) return;
+      clearTimeout(to); s.close(); resolve({ ok: m.readUInt16BE(0) === q.readUInt16BE(0) && m.readUInt16BE(6) > 0, ms: Date.now() - t0, msg: m });
+    });
     s.send(q, port, '127.0.0.1');
   });
 }
@@ -286,6 +291,49 @@ const restS = (r) => Math.max(0, Math.round((r.restUntil - Date.now()) / 1000));
     strict.stop();
   }
 
+  // No route answers (encrypted DNS blocked outright): "no route" goes back
+  // at once, never silence, so the engine asks plain DNS then instead of
+  // waiting seconds for every name. Once a lookup has failed on every route,
+  // the next question gets it before its own race ends, and the answer that
+  // race finds goes back after it. Never a server failure, which the engine
+  // takes as a name's final answer (DNSSEC).
+  {
+    const q0 = F.buildQuery('example.com', 1); q0.writeUInt16BE(0x53cb, 0);
+    const nr = F.noRouteReply(q0);
+    // The same bytes as the Android app's (DnsTest.kt), which the engine
+    // reads (core/test/test_bogon.c).
+    t.ok(nr.toString('hex') === '53cb81850001000000000001076578616d706c6503636f6d000001000100002904d0000000000004fde90000' && F.NOROUTE_OPT === 65001,
+      '"no route": refused, with the private option in an OPT record');
+    t.ok(F.noRouteReply(Buffer.from([1, 2, 3])) === null, '…and nothing for a question that cannot be read');
+    const answerA = (msg) => {
+      const a = Buffer.concat([Buffer.from(msg), Buffer.from([0xc0, 0x0c, 0, 1, 0, 1, 0, 0, 0, 60, 0, 4, 93, 184, 216, 34])]);
+      a[2] = 0x81; a[3] = 0x80; a.writeUInt16BE(1, 6); return a;
+    };
+    let refuse = true;
+    const nf = new F(() => {});
+    nf.query = (r, msg) => (refuse ? Promise.reject(new Error('ECONNRESET')) : new Promise((res) => setTimeout(() => res(answerA(msg)), 300)));
+    const np = await nf.start();
+    // Every reply to one question within ms: [{ rcode, an, ms }].
+    const replies = (name, ms) => new Promise((res) => {
+      const s = dgram.createSocket('udp4'); const q = F.buildQuery(name, 1); const t0 = Date.now(); const got = [];
+      s.on('message', (m) => { if (m.readUInt16BE(0) === q.readUInt16BE(0)) got.push({ rcode: m[3] & 0x0f, an: m.readUInt16BE(6), ms: Date.now() - t0 }); });
+      setTimeout(() => { s.close(); res(got); }, ms);
+      s.send(q, np, '127.0.0.1');
+    });
+    let got = await replies('a.example', 2500);
+    t.ok(got.length === 1 && got[0].rcode === 5 && got[0].ms < 1500,
+      `every route refused: "no route" back in ${got[0] ? got[0].ms : '-'} ms, not silence`);
+    refuse = false;
+    got = await replies('b.example', 1500);
+    t.ok(got.length === 2 && got[0].rcode === 5 && got[0].ms < 100 && got[1].rcode === 0 && got[1].an === 1,
+      `the next question: "no route" at once (${got[0] ? got[0].ms : '-'} ms), then the answer its race found (${got[1] ? got[1].ms : '-'} ms)`);
+    got = await replies('c.example', 1500);
+    t.ok(got.length === 1 && got[0].rcode === 0, 'a route has answered since: the answer alone');
+    nf.stop();
+    // The user's own server alone (strict): its "server failure", never "no route".
+    t.ok(!(F.failReply(q0)[3] === 0x85), 'the strict server\'s failure is a server failure');
+  }
+
   // Open network.
   let f = new F(() => {});
   let port = await f.start();
@@ -329,13 +377,16 @@ const restS = (r) => Math.max(0, Math.round((r.restUntil - Date.now()) / 1000));
   f.routes.forEach((x) => { x.ip = '127.0.0.2'; });
   port = await f.start();
   const tDown = Date.now();
-  for (let i = 0; i < 3; i++) await ask(port, `t${i}.example.com`);
-  // The third failure can land a moment after the client gave up on its
-  // answer (a slow machine): wait for it rather than race it.
-  for (let i = 0; i < 50 && !states.length; i++) await new Promise((res) => setTimeout(res, 100));
+  // Each one hears "no route" at once now: asked 5 s apart, they still fail
+  // over 10 s.
+  for (let i = 0; i < 3; i++) { if (i) await new Promise((res) => setTimeout(res, 5000)); await ask(port, `t${i}.example.com`); }
+  // The third failure lands when its race ends, after the client has had
+  // its "no route" (routes that time out take seconds): wait for it rather
+  // than race it.
+  for (let i = 0; i < 100 && !states.length; i++) await new Promise((res) => setTimeout(res, 100));
   t.ok(states.join() === 'down' && Date.now() - tDown >= 10000, `lookups failing for over 10 s -> state "down" (after ${((Date.now() - tDown) / 1000).toFixed(1)} s)`);
   f.routes.forEach((x, i) => { x.ip = real[i]; x.restUntil = 0; });
-  r = await ask(port, 'example.org');
+  r = await ask(port, 'example.org', { pastNoRoute: true });
   t.ok(r.ok && states.join() === 'down,ok', 'network recovers -> state "ok" again, by itself');
   f.stop();
 
