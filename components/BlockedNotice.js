@@ -297,12 +297,12 @@ export default function BlockedNotice({ onNavigate, active = false, proxyInPanel
    * left a green "Protected" with nothing to say otherwise. On the
    * Protection panel the panel itself says it, under its status, and
    * nothing further down here is shown until it is fixed. */
-  const pn = proxyNotice(proxy, { active, recovery });
+  const pn = proxyNotice(proxy, { active, recovery, advanced: adv });
   if (pn && pn.notRouting && proxyInPanel) return null;
   if (pn && (pn.notRouting || !hidden[pn.id])) {
     const a = pn.action ? PROXY_ACTIONS[pn.action] : null;
     const go = async () => {
-      const r = await a.run();
+      const r = await a.run(pn);
       if (r && r.ok && pn.action === 'admin') setProxy({ ...proxy, ok: true });
       if (r && r.ok && pn.action === 'recover') setRecovery(null);
     };

@@ -267,7 +267,7 @@ class EngineManager {
     this.proxyOptions = hooks.proxyOptions || {};
     // What the system proxy is doing, for the window: SystemProxy.apply()'s
     // result ({ ok, code: 'ok' | 'partial_env' | 'no_system_proxy' |
-    // 'needs_admin' | 'apply_failed' | 'replaced', ... }), or null while
+    // 'needs_admin' | 'apply_failed' | 'replaced' | 'machine_policy', ... }), or null while
     // protection is off.
     this.onProxyStatus = hooks.onProxyStatus || (() => {});
     this.proxyStatus = null;
@@ -371,7 +371,14 @@ class EngineManager {
   isActive() { return this.active; }
 
   /* Protection is on and browsers go through it (SystemProxy.routes). */
-  routing() { return this.active && SystemProxy.routes(this.proxyStatus); }
+  routing() {
+    if (!this.active) return false;
+    if (SystemProxy.routes(this.proxyStatus)) return true;
+    // A proxy this computer's administrator set for all its users
+    // (system-proxy.js, machine_policy): browsers do not follow Shroudly's,
+    // but Advanced mode carries their connections beneath it.
+    return !!(this.proxyStatus && this.proxyStatus.code === 'machine_policy' && this.advancedOn());
+  }
 
   /* A stop has been asked for and is not done yet. */
   get stopping() { return this._stops > 0; }

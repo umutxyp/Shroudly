@@ -31,11 +31,11 @@ export default function ControlPanel({ dpiStatus, onStatusChange, onSupport }) {
   // "Protected" that made the browser's proxy error look like Shroudly's.
   const offline = active && !notRouting && !!dpiStatus.offline;
   const ownProxy = offline && !!dpiStatus.ownProxy;
-  const pn = notRouting ? proxyNotice(dpiStatus.proxy, { active }) : null;
+  const pn = notRouting ? proxyNotice(dpiStatus.proxy, { active, advanced: dpiStatus.advanced }) : null;
   const fix = pn && pn.action ? PROXY_ACTIONS[pn.action] : null;
   const runFix = async () => {
     setFixing(true);
-    try { await fix.run(); } catch {}
+    try { await fix.run(pn); } catch {}
     setFixing(false);
     onStatusChange();
   };

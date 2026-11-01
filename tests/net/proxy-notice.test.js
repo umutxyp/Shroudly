@@ -15,6 +15,11 @@
  *     process (SystemProxy.routes: the tray, the start's notification)
  *     decides the same for every status; a proxy that could not be set has
  *     a button to try again
+ *   - a proxy the computer's administrator set for all its users (Windows'
+ *     Group Policy, M3) is "Not working yet" with Advanced mode's button,
+ *     not "Protected"; with Advanced mode on, said and not alarming; where
+ *     there is no Advanced mode, Firefox's own setting and a button that
+ *     copies the address
  *   - every key it names exists in English */
 
 const fs = require('fs');
@@ -83,6 +88,29 @@ t.ok(rec && rec.action === 'recover' && rec.title === 'proxyRecoverTitle' && en.
 t.ok(show(null, { active: false, recovery: { declined: false } }) === null && show({ ok: true, code: 'ok' }, { active: true, recovery: { declined: true } }) === null,
   'P6: …not before the user was asked, and not while protection is on (its own password request covers it)');
 
+// M3: the administrator's proxy for all users (system-proxy.js).
+const policy = { ok: false, code: 'machine_policy', pacUrl: PAC };
+const pAdv = show(policy, { active: true, advanced: { available: true, on: false } });
+const pOn = show(policy, { active: true, advanced: { available: true, on: true } });
+const pNone = show(policy, { active: true, advanced: { available: false, on: false } });
+t.ok(pAdv.notRouting && pAdv.action === 'advanced' && pAdv.title === 'proxyPolicyTitle' && pAdv.body === 'proxyPolicyBody' && PROXY_ACTIONS.advanced.label === 'advancedTurnOn'
+  && !pOn.notRouting && pOn.icon === 'info' && pOn.body === 'proxyPolicyAdvancedOn' && !pOn.action && pOn.id !== pAdv.id
+  && pNone.notRouting && pNone.body === 'proxyPolicyBodyNoAdvanced' && pNone.params.pac === PAC && pNone.action === 'copyPac' && /\{pac\}/.test(en.proxyPolicyBodyNoAdvanced),
+'M3: the administrator\'s proxy: "Not working yet" with Advanced mode\'s button; with it on, a quiet line; without it, Firefox\'s own setting and the address to copy');
+const m3 = (async () => {
+  const calls = [];
+  global.window = { electron: { copyText: async (x) => { calls.push(['copy', x]); return true; }, startAdvanced: async () => { calls.push(['adv']); return { success: false, code: 'declined' }; } } };
+  const copied = await PROXY_ACTIONS.copyPac.run(pNone);
+  const adv = await PROXY_ACTIONS.advanced.run(pAdv);
+  delete global.window;
+  t.ok(copied.ok && calls[0][0] === 'copy' && calls[0][1] === PAC && adv.ok === false && calls[1][0] === 'adv',
+    'M3: the buttons copy the address shown, and start Advanced mode (a refusal is not taken for done)');
+  const src = fs.readFileSync(path.join(ROOT, 'components', 'BlockedNotice.js'), 'utf8') + fs.readFileSync(path.join(ROOT, 'components', 'ControlPanel.js'), 'utf8');
+  t.ok(/a\.run\(pn\)/.test(src) && /fix\.run\(pn\)/.test(src) && /proxyNotice\(proxy, \{ active, recovery, advanced: adv \}\)/.test(src)
+    && /proxyNotice\(dpiStatus\.proxy, \{ active, advanced: dpiStatus\.advanced \}\)/.test(src),
+  'M3: the banner and the panel give the buttons their notice, and know whether Advanced mode is on');
+})();
+
 // "Not working yet": the window (proxyNotice) and the background process
 // (SystemProxy.routes) agree for every status system-proxy.js reports.
 const STATUSES = [
@@ -94,6 +122,7 @@ const STATUSES = [
   { ok: false, code: 'no_system_proxy', chromiumNotTaken: true, pacUrl: PAC },
   { ok: false, code: 'partial_env', firefox: true, chromiumAfterRelogin: true, pacUrl: PAC },
   { ok: false, code: 'partial_env', chromiumNow: true, pacUrl: PAC },
+  { ok: false, code: 'machine_policy', pacUrl: PAC },
 ];
 const disagree = STATUSES.filter((st) => !!(proxyNotice(st, { active: true }) || {}).notRouting === SystemProxy.routes(st));
 t.ok(!disagree.length, disagree.length ? `the window and the tray disagree on ${JSON.stringify(disagree)}`
@@ -119,4 +148,4 @@ used.push('notWorkingYet', 'notifyStartedNotRouted', 'bannerMore');
 
 const missing = [...new Set(used)].filter((k) => !(k in en));
 t.ok(!missing.length, missing.length ? `keys missing in English: ${missing.join(', ')}` : `every key it names is in English (${new Set(used).size})`);
-console.log(`proxy-notice: ${t.count} passed`);
+m3.then(() => console.log(`proxy-notice: ${t.count} passed`)).catch((e) => { console.error('FAIL', e.message); process.exit(1); });

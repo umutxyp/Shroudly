@@ -34,6 +34,8 @@
  *     fought twice, then named and left to the user; reg.exe failing, a
  *     value gone for a moment, or our address rewritten in capitals is no
  *     takeover; "Set Shroudly again" sets it back in place
+ *   - Windows' per-machine proxy policy is "Not working yet", not
+ *     "Protected" (M3)
  *   - a session end or a quit while a set-back is writing (macOS, GNOME): the
  *     restore wins, nothing of ours is left set after it
  *   - the user's own PAC or manual proxy served on this computer by a
@@ -242,6 +244,33 @@ const readState = (file) => { try { return JSON.parse(fs.readFileSync(file, 'utf
   }
 
   // ── Windows ─────────────────────────────────────────────────────────
+  // M3: "Make proxy settings per-machine" (Group Policy): Windows reads the
+  // machine's proxy, not the user's, so the PAC written for the user reads
+  // back as set and is used by no browser. Said as it is ("Not working
+  // yet", machine_policy), not "Protected"; the value is still put back at
+  // the stop. Set to 1, or not set, changes nothing.
+  for (const [where, data, want] of [['Policies', '0x0', 'machine_policy'], ['Microsoft', '0x0', 'machine_policy'], ['Policies', '0x1', 'ok'], [null, null, 'ok']]) {
+    const reg = new Map();
+    const user = fakeReg(reg);
+    const fx = fakeExec({ 'reg.exe': (args) => {
+      if (/^HKLM/.test(args[1])) {
+        if (args[0] !== 'query' || !where || !args[1].startsWith(`HKLM\\Software\\${where}\\`)) { const e = new Error('not found'); e.status = 1; throw e; }
+        return `\r\n${args[1]}\r\n    ProxySettingsPerUser    REG_DWORD    ${data}\r\n\r\n`;
+      }
+      return user(args);
+    } });
+    fx.listening = () => false;
+    SystemProxy._setExec(fx);
+    const log = logs();
+    const sp = new SystemProxy(log, { platform: 'win32', stateFile: stateFile(`win-policy-${where}-${data}`) });
+    const st = await sp.apply(10808, 'all');
+    const said = log.lines.some((l) => /^warning: The administrator of this computer set the proxy for all its users \(Group Policy\), so browsers do not follow Shroudly's; Advanced mode works beneath it\. Apps can still use SOCKS5 127\.0\.0\.1:10808 directly \(PAC: \S+\)\.$/.test(l));
+    const wrote = reg.get('AutoConfigURL') && reg.get('AutoConfigURL').data === sp.pacUrl;
+    await sp.restore();
+    t.ok(st.code === want && wrote && !reg.has('AutoConfigURL') && SystemProxy.routes(st) === (want === 'ok') && said === (want !== 'ok'),
+      want === 'ok' ? `Windows: ProxySettingsPerUser ${data === null ? 'not set' : `1 (${where})`}: protected as usual`
+        : `Windows (M3): the per-machine proxy policy (${where === 'Policies' ? 'Group Policy' : "the machine's own setting"}): "Not working yet", said in Logs, the PAC still written and put back`);
+  }
   // Windows: a manual proxy of a program on this computer that is gone
   // (ByeDPI's 127.0.0.1:1080, left behind when it was closed). Windows would
   // send everything to nothing once our PAC is gone, and programs that read

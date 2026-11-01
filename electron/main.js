@@ -459,6 +459,17 @@ function tr() {
  * a small banner under a big green "Protected" was read as "it works". */
 function notRouting() { return !!(engine && engine.isActive() && !engine.routing()); }
 
+/* Advanced mode on or off, told to the window. Where the system proxy is
+ * set by the computer's administrator (system-proxy.js, machine_policy) it
+ * is what carries browsers, so the tray and the status follow it too. */
+function advancedState(active) {
+  toWindow('advanced:state', { active });
+  if (engine && engine.proxyStatus && engine.proxyStatus.code === 'machine_policy') {
+    rebuildTrayMenu();
+    toWindow('dpi:status-changed', engine.isActive());
+  }
+}
+
 let trayActive = false;
 let trayLook = null;
 // Windows' taskbar turned light or dark: the tray's line follows.
@@ -902,7 +913,7 @@ const advancedProtection = new AdvancedProtection({
   blocked: () => advancedBlocked,
   stop: async () => {
     try { await advanced.stop(); } catch {}
-    toWindow('advanced:state', { active: false });
+    advancedState(false);
   },
   // A crash restart or a settings restart under way is still protection on.
   protectionOn: () => !!(engine && (engine.isActive() || engine.coming)),
@@ -1241,7 +1252,7 @@ app.whenReady().then(async () => {
   });
   advanced = new AdvancedMode(addLog);
   // The backend ended by itself: the window must not keep saying it is on.
-  advanced.onExit = () => toWindow('advanced:state', { active: false });
+  advanced.onExit = () => advancedState(false);
   // Ended from outside while it ran, its files gone with it.
   advanced.onSecurityBlock = (info) => securityBlocked(info);
   // Protection as the user left it (see safeStart and below). Recovery needs
@@ -1595,7 +1606,7 @@ ipcMain.handle('advanced:start', async () => {
 ipcMain.handle('advanced:stop', async () => {
   advancedProtection.offByHand();
   if (autopilot) autopilot.userSet('advancedMode', false);
-  try { await advanced.stop(); toWindow('advanced:state', { active: false }); return { success: true }; }
+  try { await advanced.stop(); advancedState(false); return { success: true }; }
   catch (e) { return { success: false, error: e.message }; }
 });
 ipcMain.handle('app:placement', () => ({ move: outsideApplications() }));
@@ -1657,6 +1668,10 @@ ipcMain.handle('dpi:status', () => ({
   // On, but browsers are not going through it, and why (proxyNotice.js).
   notRouting: notRouting(),
   proxy: engine ? engine.proxyStatus : null,
+  // What the window can offer where the proxy is not Shroudly's to set
+  // (looked at only then: it reads the files of Advanced mode).
+  advanced: engine && engine.proxyStatus && engine.proxyStatus.code === 'machine_policy'
+    ? { on: !!(advanced && advanced.active), available: !!(advanced && advanced.available()) } : null,
   // The network itself has no internet (engine-manager.js, advice.offline).
   offline: !!(engine && engine.isActive() && engine.advice && engine.advice.offline),
   // ...because the network's own proxy, set before Shroudly's, is the only
@@ -2348,6 +2363,9 @@ let browserBusy = false;
 async function watchBrowsers() {
   if (browserBusy) return;
   if (!engine || !engine.isActive() || store.get('routeMode') === 'listed') { firefoxDue.reset(); return; }
+  // Browsers that cannot follow Shroudly's proxy here (the administrator's
+  // setting for all users): not theirs to change, and the window says so.
+  if (engine.proxyStatus && engine.proxyStatus.code === 'machine_policy') { browserAroundSeen.clear(); return; }
   // Just after a wake, connections opened before the sleep (or while the
   // network came back) are no sign of a browser going around Shroudly.
   if (wake.recent(2 * 60 * 1000)) { browserAroundSeen.clear(); return; }
@@ -2707,7 +2725,7 @@ async function startAdvanced() {
       addLog('warning', `${rival.join(', ')} is running: it changes the same connections Advanced mode does, and two of them undo each other. Turn one of them off.`);
       autoTell('autoRivalTool', { rival: rival.join(', ') });
     }
-    toWindow('advanced:state', { active: true });
+    advancedState(true);
     return r || { success: true };
   } catch (e) {
     // An antivirus that removed its files or refused it: told as that, in
@@ -3028,7 +3046,7 @@ ipcMain.handle('app:resetSettings', () => Repair.resetSettings({
     if (advanced && advanced.active) {
       advancedProtection.offByHand();
       await advanced.stop();
-      toWindow('advanced:state', { active: false });
+      advancedState(false);
     }
     if (store.get('discordMode') === true) await applyDiscordMode(false, { interactive: false });
     if (store.get('appMode') === true) await applyAppMode(false);

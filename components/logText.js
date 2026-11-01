@@ -304,6 +304,7 @@ const PATTERNS = [
   [/^The desktop refused the proxy setting\. Apps can still use SOCKS5 (\S+) directly \(PAC: (\S+)\)\.$/, 'logProxyManualRefused', ['socks', 'pac']],
   [/^This desktop has no system proxy setting\. Apps can still use SOCKS5 (\S+) directly \(PAC: (\S+)\)\.$/, 'logProxyManualNoSystem', ['socks', 'pac']],
   [/^This session does not read the setting Shroudly writes for Chrome and other Chromium browsers\. Apps can still use SOCKS5 (\S+) directly \(PAC: (\S+)\)\.$/, 'logProxyManualNotTaken', ['socks', 'pac']],
+  [/^The administrator of this computer set the proxy for all its users \(Group Policy\), so browsers do not follow Shroudly's; Advanced mode works beneath it\. Apps can still use SOCKS5 (\S+) directly \(PAC: (\S+)\)\.$/, 'logProxyManualPolicy', ['socks', 'pac']],
   [/^The system proxy was not set\. Apps can still use SOCKS5 (\S+) directly \(PAC: (\S+)\)\.$/, 'logProxyManualNotSet', ['socks', 'pac']],
 ];
 

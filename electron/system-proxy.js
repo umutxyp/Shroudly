@@ -307,6 +307,23 @@ function regSet(name, type, data) {
 function regDel(name) {
   try { exec.runSync('reg.exe', ['delete', WIN_KEY, '/v', name, '/f']); } catch {}
 }
+/* "Make proxy settings per-machine" (Group Policy, ProxySettingsPerUser 0):
+ * Windows then takes every user's proxy from the machine's settings, which
+ * only an administrator can change, and reads nothing written for the user.
+ * The policy's key first, then the same value in the machine's own
+ * settings, which Windows reads too; the first one found decides. */
+const WIN_MACHINE_KEYS = [
+  'HKLM\\Software\\Policies\\Microsoft\\Windows\\CurrentVersion\\Internet Settings',
+  'HKLM\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings',
+];
+function winMachineWide() {
+  for (const key of WIN_MACHINE_KEYS) {
+    let v = null;
+    try { v = regParse('ProxySettingsPerUser', exec.runSync('reg.exe', ['query', key, '/v', 'ProxySettingsPerUser'])); } catch {}
+    if (v && /^REG_DWORD$/i.test(v.type)) return Number(v.data) === 0;
+  }
+  return false;
+}
 
 class SystemProxy {
   /*
@@ -1911,6 +1928,14 @@ ${argsXml}
     regSet('AutoConfigURL', 'REG_SZ', this.pacUrl);
     this._takeOverInherited();
     this._refreshWinInet();
+    // Written, and read back as set, but not what browsers use here: said
+    // as it is, not "Protected" (the window then offers Advanced mode, which
+    // works beneath proxy settings). The value stays and is put back as
+    // usual: programs that read the user's own setting directly follow it.
+    if (winMachineWide()) {
+      return { ok: false, code: 'machine_policy', system: 'windows',
+        detail: 'The administrator of this computer set the proxy for all its users (Group Policy), so browsers do not follow Shroudly\'s; Advanced mode works beneath it.' };
+    }
     return { ok: true, code: 'ok', system: 'windows' };
   }
 

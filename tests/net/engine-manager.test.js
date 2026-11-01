@@ -559,6 +559,24 @@ const t = suite('engine-manager');
       'AV: …in one line, not also as an engine error');
   }
   fs.rmSync(tmp, { recursive: true, force: true });
+
+  // M3: a proxy the computer's administrator set for all users is not
+  // routing, unless Advanced mode carries the browsers beneath it.
+  {
+    let adv = false;
+    const r = new EngineManager(store, { addLog: () => {}, advancedOn: () => adv });
+    r.active = true;
+    r.proxyStatus = { ok: false, code: 'machine_policy' };
+    const off = r.routing();
+    adv = true;
+    const on = r.routing();
+    r.proxyStatus = { ok: false, code: 'apply_failed' };
+    const failed = r.routing();
+    r.active = false;
+    r.proxyStatus = { ok: false, code: 'machine_policy' };
+    t.ok(!off && on && !failed && !r.routing(),
+      'M3: the administrator\'s proxy: "Not working yet" until Advanced mode is on; other proxy failures as before');
+  }
   console.log(`engine-manager: ${t.count} passed`);
   process.exit(0);
 })().catch((e) => { console.error('FAIL', e.message); process.exit(1); });

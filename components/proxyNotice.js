@@ -8,8 +8,10 @@
  *   icon    'alert' or 'info'
  *   action  the button (PROXY_ACTIONS): 'admin' (an administrator's
  *           password, macOS), 'reapply' (set Shroudly again), 'retry' (try
- *           again after it could not be set) or 'recover' (put back the
- *           settings a restart of the Mac left behind)
+ *           again after it could not be set), 'recover' (put back the
+ *           settings a restart of the Mac left behind), 'advanced' (turn
+ *           on Advanced mode, where the proxy is the administrator's) or
+ *           'copyPac' (Shroudly's address, for a browser's own setting)
  *   notRouting  protection is on, but browsers and most programs are not
  *           going through Shroudly: the window says "Not working yet" in
  *           place of "Protected", with these words and this button under
@@ -22,7 +24,9 @@
  * Shroudly, nothing else matters. recovery: macOS settings from before a
  * restart, still waiting for an administrator's password after the user
  * dismissed that dialog (shown while protection is off). */
-export function proxyNotice(proxy, { active = false, recovery = null } = {}) {
+/* advanced: { on, available } of Advanced mode, for a proxy this computer's
+ * administrator set for all its users. */
+export function proxyNotice(proxy, { active = false, recovery = null, advanced = null } = {}) {
   if (!active && recovery && recovery.declined) {
     return { id: 'proxy:recover', icon: 'alert', title: 'proxyRecoverTitle', body: 'proxyRecoverBody', action: 'recover' };
   }
@@ -59,18 +63,32 @@ export function proxyNotice(proxy, { active = false, recovery = null } = {}) {
     return { id, icon: 'info', body, params: { pac } };
   }
   if (proxy.code === 'no_system_proxy') return { id, icon: 'info', body: 'proxyNoneBody', params: { pac } };
+  /* Windows, where the administrator set the proxy for every user of the
+   * computer (Group Policy): browsers read that one, not Shroudly's, and
+   * setting it again changes nothing. Advanced mode works beneath proxy
+   * settings; where there is none (Windows on Arm), a browser's own proxy
+   * setting is the way. */
+  if (proxy.code === 'machine_policy') {
+    if (advanced && advanced.on) return { id: `${id}:advanced`, icon: 'info', body: 'proxyPolicyAdvancedOn' };
+    return advanced && advanced.available
+      ? { id, icon: 'alert', title: 'proxyPolicyTitle', body: 'proxyPolicyBody', action: 'advanced', notRouting: true }
+      : { id, icon: 'alert', title: 'proxyPolicyTitle', body: 'proxyPolicyBodyNoAdvanced', params: { pac }, action: 'copyPac', notRouting: true };
+  }
   // Could not be set (refused, a command that failed): trying again often
   // works once whatever held the setting lets go.
   return { id, icon: 'alert', body: 'proxyFailedBody', action: 'retry', notRouting: true };
 }
 
 /* The buttons: their words, and what they ask the background process for
- * (electron/preload.js). Each resolves to what came of it ({ ok }). */
+ * (electron/preload.js), given the notice they are on. Each resolves to what
+ * came of it ({ ok }). */
 export const PROXY_ACTIONS = {
   admin: { label: 'proxyAdminButton', run: () => window.electron.proxyApplyAsAdmin() },
   reapply: { label: 'proxyReapply', run: () => window.electron.proxyReapply() },
   retry: { label: 'proxyTryAgain', run: () => window.electron.proxyReapply() },
   recover: { label: 'proxyRecoverButton', run: () => window.electron.proxyRecoverAsAdmin() },
+  advanced: { label: 'advancedTurnOn', run: async () => { const r = await window.electron.startAdvanced(); return { ok: !!(r && r.success) }; } },
+  copyPac: { label: 'proxyCopyAddress', run: async (n) => ({ ok: !!(await window.electron.copyText(n.params.pac)) }) },
 };
 
 /* Further down, once nothing more urgent is showing: on XFCE, LXQt and
