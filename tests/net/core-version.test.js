@@ -54,16 +54,23 @@ function zig() {
     const rc = versionRcFile('shroudly-core.exe');
     const r = spawnSync(z[0], [...z.slice(1), 'cc', '-target', 'x86_64-windows-gnu', '-std=c11', '-O2', '-o', out, src, rc.file], { encoding: 'utf8', timeout: 240000 });
     rc.remove();
-    t.ok(r.status === 0 && fs.existsSync(out), `zig builds a Windows program with it${r.status ? `: ${String(r.stderr).trim().slice(0, 300)}` : ''}`);
     t.ok(!fs.existsSync(path.dirname(rc.file)), 'the resource script is not left behind');
-    const { NtExecutable, NtExecutableResource, Resource } = await import('resedit');
-    const res = NtExecutableResource.from(NtExecutable.from(fs.readFileSync(out), { ignoreCert: true }));
-    const [info] = Resource.VersionInfo.fromEntries(res.entries);
-    const s = info ? info.getStringValues(info.getAllLanguagesForStringValues()[0]) : {};
-    t.ok(!!info && info.fixedInfo.fileVersionMS === ((major << 16) | minor) && info.fixedInfo.fileVersionLS === (patch << 16),
-      `the program says version ${major}.${minor}.${patch}.0`);
-    t.ok(s.CompanyName === pkg.author.name && s.ProductName === 'Shroudly' && s.FileDescription === 'Shroudly engine' && s.LegalCopyright === pkg.build.copyright,
-      `and whose it is: ${s.ProductName} by ${s.CompanyName} (${s.LegalCopyright})`);
+    // zig 0.14.1's resource compiler does not link on macOS (undefined
+    // _abort, _bzero): there build-core.js builds without it, and releases
+    // build Windows' engines on Windows.
+    if (r.status && process.platform === 'darwin' && /resinator/.test(r.stderr)) {
+      console.log("  --  zig's resource compiler does not link on macOS: the built program is checked on Linux and Windows");
+    } else {
+      t.ok(r.status === 0 && fs.existsSync(out), `zig builds a Windows program with it${r.status ? `: ${String(r.stderr).trim().slice(0, 300)}` : ''}`);
+      const { NtExecutable, NtExecutableResource, Resource } = await import('resedit');
+      const res = NtExecutableResource.from(NtExecutable.from(fs.readFileSync(out), { ignoreCert: true }));
+      const [info] = Resource.VersionInfo.fromEntries(res.entries);
+      const s = info ? info.getStringValues(info.getAllLanguagesForStringValues()[0]) : {};
+      t.ok(!!info && info.fixedInfo.fileVersionMS === ((major << 16) | minor) && info.fixedInfo.fileVersionLS === (patch << 16),
+        `the program says version ${major}.${minor}.${patch}.0`);
+      t.ok(s.CompanyName === pkg.author.name && s.ProductName === 'Shroudly' && s.FileDescription === 'Shroudly engine' && s.LegalCopyright === pkg.build.copyright,
+        `and whose it is: ${s.ProductName} by ${s.CompanyName} (${s.LegalCopyright})`);
+    }
     fs.rmSync(dir, { recursive: true, force: true });
   }
 

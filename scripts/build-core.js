@@ -58,7 +58,15 @@ function buildWithZig(zig, targetKey) {
   const rc = win ? versionRcFile(t.bin) : null;
   const args = [...parts.slice(1), 'cc', '-target', t.zig, '-std=c11', '-O2', ...feat, '-o', out, ...sources, ...(rc ? [rc.file] : []), ...t.libs];
   console.log(`[core] zig -> ${targetKey}`);
-  try { execFileSync(parts[0], args, { stdio: 'inherit' }); } finally { if (rc) rc.remove(); }
+  try { execFileSync(parts[0], args, { stdio: 'inherit' }); }
+  catch (e) {
+    // zig 0.14.1's resource compiler does not link on macOS: there the
+    // program is built without its version info (releases build Windows'
+    // engines on Windows, where it is compiled in).
+    if (!rc || process.platform !== 'darwin') throw e;
+    console.warn(`[core] ${targetKey}: zig's resource compiler does not run on macOS; built without version info`);
+    execFileSync(parts[0], args.filter((a) => a !== rc.file), { stdio: 'inherit' });
+  } finally { if (rc) rc.remove(); }
   return out;
 }
 
