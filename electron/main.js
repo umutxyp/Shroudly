@@ -354,7 +354,20 @@ function trayIconPath() {
 
 /* macOS menu bar: monochrome template images (sources in scripts/tray-icons)
  * that macOS tints for light and dark menu bars; @2x/@3x are picked up
- * automatically. A solid pupil means protection is on. Elsewhere: app icon. */
+ * automatically. A solid pupil means protection is on. Elsewhere: the app
+ * icon, in color while protection is on and in gray while it is off
+ * (launch.js, grayPixels), at each size the icon has. */
+function grayIcon(img) {
+  try {
+    const out = nativeImage.createEmpty();
+    for (const scaleFactor of img.getScaleFactors()) {
+      const { width, height } = img.getSize(scaleFactor);
+      const gray = nativeImage.createFromBitmap(Launch.grayPixels(img.toBitmap({ scaleFactor })), { width, height, scaleFactor });
+      out.addRepresentation({ scaleFactor, buffer: gray.toPNG({ scaleFactor }) });
+    }
+    return out.isEmpty() ? img : out;
+  } catch { return img; }
+}
 function makeTrayIcon(active = false) {
   try {
     if (process.platform === 'darwin') {
@@ -363,7 +376,8 @@ function makeTrayIcon(active = false) {
       return img;
     }
     const img = nativeImage.createFromPath(trayIconPath());
-    return img.isEmpty() ? nativeImage.createEmpty() : img;
+    if (img.isEmpty()) return nativeImage.createEmpty();
+    return active ? img : grayIcon(img);
   } catch { return nativeImage.createEmpty(); }
 }
 
@@ -406,7 +420,7 @@ function rebuildTrayMenu(active = trayActive) {
   ]);
   tray.setContextMenu(menu);
   tray.setToolTip(`Shroudly — ${state}`);
-  if (process.platform === 'darwin') tray.setImage(makeTrayIcon(active));
+  tray.setImage(makeTrayIcon(active));
 }
 
 /* The icon in the notification area (the menu bar on macOS), unless the user
@@ -645,9 +659,13 @@ async function checkDevServer() {
 async function createWindow({ show = true, minimised = false, quiet = false } = {}) {
   uiReady = false;
   if (show) await setDockIcon(true);
+  // Never taller than the screen it opens on (launch.js, windowHeights).
+  const { screen } = require('electron');
+  const workHeight = () => { try { return screen.getPrimaryDisplay().workAreaSize.height; } catch { return 0; } };
+  const fit = Launch.windowHeights(workHeight());
   const win = new BrowserWindow({
-    width: 460, height: 760,
-    minWidth: 360, minHeight: 560,
+    width: 460, height: fit.height,
+    minWidth: 360, minHeight: fit.minHeight,
     maxWidth: 720, maxHeight: 1100,
     webPreferences: {
       nodeIntegration: false,
@@ -709,6 +727,15 @@ async function createWindow({ show = true, minimised = false, quiet = false } = 
     if (visible) createWindow({ show: true, quiet: true });
   });
 
+  // Moved to another screen, or its scaling changed: the least height again.
+  const refit = () => {
+    if (win.isDestroyed()) return;
+    try { win.setMinimumSize(360, Launch.windowHeights(screen.getDisplayMatching(win.getBounds()).workAreaSize.height).minHeight); } catch {}
+  };
+  win.on('moved', refit);
+  screen.on('display-metrics-changed', refit);
+  win.once('closed', () => screen.removeListener('display-metrics-changed', refit));
+
   win.once('ready-to-show', () => {
     loading.delete(win);
     // Closed (sent to the background) before it had even appeared: it must
@@ -738,7 +765,12 @@ async function createWindow({ show = true, minimised = false, quiet = false } = 
       if (!canLeave()) { win.minimize(); return; }
       sentAway.add(win);
       win.hide();
-      notify('Shroudly', trayWanted() ? tr().trayMinimized : tr().trayHiddenRunning);
+      // Said the first time only: one at every close piled up in the
+      // notification centre.
+      if (!store.get('closeToldInTray', false)) {
+        try { store.set('closeToldInTray', true); } catch {}
+        notify('Shroudly', trayWanted() ? tr().trayMinimized : tr().trayHiddenRunning);
+      }
     }
   });
 }
@@ -2754,7 +2786,7 @@ ipcMain.handle('app:resetSettings', () => Repair.resetSettings({
   },
   // The app again, with the settings a new install has (auto-start is
   // written to the system at every start).
-  relaunch: () => { app.relaunch(); shutdownAndQuit(); },
+  relaunch: () => { app.relaunch({ args: Launch.relaunchArgs(process.argv) }); shutdownAndQuit(); },
   log: addLog,
 }));
 

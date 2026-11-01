@@ -47,6 +47,30 @@ const t = suite('launch');
   t.ok(!Launch.isUpdateRelaunch({ window: false }, '2.5.5', now) && !Launch.isUpdateRelaunch(null, '2.5.5', now) && !Launch.isUpdateRelaunch('x', '2.5.5', now),
     'a note that cannot say which update it was about: the window is shown');
 
+  // W4: Settings > Reset all settings restarts Shroudly; a copy started at
+  // login must come back with its window, not into the tray.
+  t.ok(JSON.stringify(Launch.relaunchArgs(['C:\\Shroudly\\Shroudly.exe', '--autostart'])) === '[]'
+    && JSON.stringify(Launch.relaunchArgs(['/usr/bin/electron', '.', '--autostart', '--updated', '--update-failed', '--no-sandbox'])) === '[".","--no-sandbox"]',
+  'a restart by Reset: without --autostart (or an update\'s arguments), so the window comes back where the button was pressed');
+  t.ok(Launch.startWindow({ autoStart: false, minimizeToTray: true, trayShown: true }) === 'shown', '…and that start shows the window');
+
+  // W9: never taller than the screen above the taskbar.
+  const h = Launch.windowHeights;
+  t.ok(JSON.stringify(h(1040)) === '{"height":760,"minHeight":560}' && JSON.stringify(h(0)) === '{"height":760,"minHeight":560}',
+    'a usual screen (or one that cannot be read): 760 high, 560 at least, as before');
+  t.ok(JSON.stringify(h(492)) === '{"height":492,"minHeight":492}' && JSON.stringify(h(464)) === '{"height":464,"minHeight":464}',
+    '1080p at 200% (492 above the taskbar), 1366x768 at 150% (464): the window fits, tabs and all, and the page scrolls');
+  t.ok(h(200).minHeight === 200 && h(680).height === 680 && h(680).minHeight === 560, 'never more than the screen has, never less than it needs to');
+
+  // W10: the tray tells protection off from on (Windows, Linux).
+  const px = Launch.grayPixels(Buffer.from([0, 128, 255, 255, 10, 20, 30, 0]));
+  t.ok(px[0] === 128 && px[1] === 128 && px[2] === 128 && px[3] === 153 && px[4] === 20 && px[7] === 0,
+    'protection off: the icon in gray, a little faded (see-through stays see-through)');
+  const main = require('fs').readFileSync(path.join(ROOT, 'electron', 'main.js'), 'utf8');
+  t.ok(/tray\.setImage\(makeTrayIcon\(active\)\);/.test(main) && !/if \(process\.platform === 'darwin'\) tray\.setImage/.test(main),
+    '…switched with protection on every system, not only macOS');
+  t.ok(/if \(!store\.get\('closeToldInTray', false\)\)/.test(main), 'closing the window says "still running in the tray" the first time only, not at every close');
+
   console.log(`launch: ${t.count} passed`);
   process.exit(0);
 })().catch((e) => { console.error('FAIL', e.message); process.exit(1); });
