@@ -395,12 +395,12 @@ wait_for 30 kept_works || fail "an address given before the engine restart ($bef
 say "engine stopped under the service: back on port $eport, the tunnel went on, $before still reaches example.com"
 
 # ── Private DNS by name (strict) ─────────────────────────────────────────
-# Android then looks names up over DNS-over-TLS to dns.google, through the
+# Android 10 and later then look names up over DNS-over-TLS to dns.google, through the
 # tunnel, by the stand-in address the VPN's DNS gave for dns.google. After a
 # tunnel restart that address is the old tunnel's: the app has Android look
 # the server up again (reportNetworkConnectivity), or every name would fail.
 real_name() { local ip; ip="$(resolved "$1")"; [ -n "$ip" ] && case "$ip" in 198.1[89].*) false ;; *) true ;; esac; }
-if [ "${SDK:-0}" -ge 28 ]; then
+if [ "${SDK:-0}" -ge 29 ]; then
   sh_ "settings put global private_dns_mode hostname; settings put global private_dns_specifier dns.google" >/dev/null
   wait_for 60 real_name example.org || fail "with Private DNS strict (dns.google), names do not resolve through the VPN"
   say "Private DNS strict: example.org -> $(resolved example.org) (DNS-over-TLS through the tunnel)"
@@ -414,10 +414,21 @@ if [ "${SDK:-0}" -ge 28 ]; then
   mapped_again() { stand_in "$(resolved)"; }
   wait_for 60 mapped_again || fail "names not mapped again after Private DNS went back to automatic"
 else
+  # Android 9 has Private DNS but does not apply it to a VPN (from Android 10
+  # on it does): names still go through the tunnel's own DNS there.
+  if [ "${SDK:-0}" -eq 28 ]; then
+    sh_ "settings put global private_dns_mode hostname; settings put global private_dns_specifier dns.google" >/dev/null
+    sleep 5
+    mapped_strict() { stand_in "$(resolved)"; }
+    wait_for 30 mapped_strict || fail "Android 9 with Private DNS strict: names not given by the tunnel's DNS ($(resolved))"
+    wait_for 30 net_up || fail "HTTP with Private DNS strict failed (Android 9)"
+    say "Android 9 applies Private DNS to Wi-Fi and mobile networks, not to a VPN: names through the tunnel's DNS ($(resolved)), HTTP works"
+    sh_ "settings delete global private_dns_mode; settings delete global private_dns_specifier" >/dev/null
+  fi
   fault tunnel-stop
   wait_for 30 has_log "Tunnel started again" || fail "the tunnel did not start again"
   wait_for 30 net_up || fail "HTTP failed after a tunnel restart"
-  say "Android $SDK has no Private DNS: tunnel restart checked alone"
+  [ "${SDK:-0}" -eq 28 ] || say "Android $SDK has no Private DNS: tunnel restart checked alone"
 fi
 fresh="$(resolved)"
 [ "$fresh" != "$before" ] || fail "the restarted tunnel gave out the old stand-in address $before again"
