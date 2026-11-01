@@ -7,6 +7,7 @@
     <string name="adBlockAllowDesc">Ger malperek xera bibe, domaina wê li vir binivîse, her rêzê yek: ew û hemû navên di bin wê de qet nayên astengkirin.</string>
     <string name="adBlockDesc">Navên li ser lîsteyeke giştî ya reklam û şopîneran di tu sepanê de bersiv nagirin. Lîste bi rêya Shroudly tê daxistin û her hefte tê nûkirin.</string>
     <string name="adsBlocked">Reklamên astengkirî</string>
+    <string name="androidAccentSwatch">Rengê sereke {n} ji {total}</string>
     <string name="androidAdvanced">Pêşketî</string>
     <string name="androidAdvancedDesc">Van tenê biguherîne heke kesê ku alîkariya te dike ji te bixwaze. Shroudly bi xwe tiştê ku dixebite dibîne.</string>
     <string name="androidAlertsChannel">Hişyariyên parastinê</string>

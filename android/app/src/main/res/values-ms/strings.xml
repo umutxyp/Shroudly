@@ -7,6 +7,7 @@
     <string name="adBlockAllowDesc">Jika sesebuah laman rosak, tulis domainnya di sini, satu setiap baris: ia dan semua nama di bawahnya tidak akan disekat.</string>
     <string name="adBlockDesc">Nama dalam senarai awam iklan dan penjejak tidak mendapat jawapan dalam mana-mana aplikasi. Senarai dimuat turun melalui Shroudly dan dikemas kini setiap minggu.</string>
     <string name="adsBlocked">Iklan disekat</string>
+    <string name="androidAccentSwatch">Warna aksen {n} daripada {total}</string>
     <string name="androidAdvanced">Lanjutan</string>
     <string name="androidAdvancedDesc">Ubah ini hanya jika orang yang membantu anda memintanya. Shroudly mencari sendiri cara yang berkesan.</string>
     <string name="androidAlertsChannel">Amaran perlindungan</string>

@@ -7,6 +7,7 @@
     <string name="adBlockAllowDesc">If a site breaks, write its domain here, one per line: it and every name under it are never blocked.</string>
     <string name="adBlockDesc">Names on a public ad and tracker list get no answer, in every app. The list is fetched through Shroudly and refreshed weekly.</string>
     <string name="adsBlocked">Ads blocked</string>
+    <string name="androidAccentSwatch">Accent colour {n} of {total}</string>
     <string name="androidAdvanced">Advanced</string>
     <string name="androidAdvancedDesc">Change these only if someone helping you asks you to. Shroudly finds what works by itself.</string>
     <string name="androidAlertsChannel">Protection alerts</string>

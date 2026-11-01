@@ -694,6 +694,7 @@
   "androidMoveTitle": "Shroudly Google Play'де бар",
   "androidMoveBody": "Жаңыртууларды Google Play'ден автоматтык түрдө алыңыз: андагы Shroudly барагында «Өчүрүү», андан кийин «Орнотуу» дегенди басыңыз. Анан коргоону кайра күйгүзүңүз; өзгөрткөн жөндөөлөрүңүз башынан башталат.",
   "androidMoveOpen": "Google Play'ди ачуу",
+  "androidAccentSwatch": "Акцент түсү: {total} ичинен {n}",
   "logCustomDnsRoutes": "DNS сервериңиз жооп берип жатат: {routes}",
   "logCustomDnsDown": "DNS сервериңиз {server} жооп бербей жатат ({reason}); ал жооп бергенге чейин Shroudly'нин орнотулган шифрленген DNS'и жооп берет",
   "logCustomDnsDownStrict": "DNS серверициз {server} жооп бербейт ({reason}); ал гана колдонулат, ошондуктан ат суроолору ал жооп бергенче ишке ашпайт",

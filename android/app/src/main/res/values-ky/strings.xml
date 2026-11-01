@@ -7,6 +7,7 @@
     <string name="adBlockAllowDesc">Сайт иштебей калса, анын доменин бул жерге жазыңыз, ар сапка бирден: ал жана анын астындагы бардык аттар эч качан бөгөттөлбөйт.</string>
     <string name="adBlockDesc">Ачык жарнама жана тректер тизмесиндеги аттарга эч бир колдонмодо жооп берилбейт. Тизме Shroudly аркылуу жүктөлүп, жумасына бир жаңыланат.</string>
     <string name="adsBlocked">Бөгөттөлгөн жарнама</string>
+    <string name="androidAccentSwatch">Акцент түсү: {total} ичинен {n}</string>
     <string name="androidAdvanced">Кошумча</string>
     <string name="androidAdvancedDesc">Муну сизге жардам берип жаткан адам сураса гана өзгөртүңүз. Shroudly эмне иштээрин өзү табат.</string>
     <string name="androidAlertsChannel">Коргоо эскертүүлөрү</string>

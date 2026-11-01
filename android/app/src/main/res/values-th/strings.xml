@@ -7,6 +7,7 @@
     <string name="adBlockAllowDesc">ถ้าเว็บไซต์ใดใช้งานไม่ได้ ให้เขียนโดเมนไว้ที่นี่ บรรทัดละหนึ่งรายการ: เว็บไซต์นั้นและทุกชื่อที่อยู่ภายใต้จะไม่ถูกบล็อก</string>
     <string name="adBlockDesc">ชื่อที่อยู่ในรายการสาธารณะของโฆษณาและตัวติดตามจะไม่ได้รับคำตอบในทุกแอป รายการจะดาวน์โหลดผ่าน Shroudly และอัปเดตทุกสัปดาห์</string>
     <string name="adsBlocked">โฆษณาที่บล็อกแล้ว</string>
+    <string name="androidAccentSwatch">สีเน้น {n} จาก {total}</string>
     <string name="androidAdvanced">ขั้นสูง</string>
     <string name="androidAdvancedDesc">เปลี่ยนส่วนนี้เฉพาะเมื่อคนที่ช่วยคุณขอให้เปลี่ยนเท่านั้น Shroudly หาวิธีที่ใช้ได้เอง</string>
     <string name="androidAlertsChannel">การแจ้งเตือนการป้องกัน</string>

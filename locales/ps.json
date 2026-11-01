@@ -694,6 +694,7 @@
   "androidMoveTitle": "Shroudly په Google Play کې دی",
   "androidMoveBody": "تازه معلومات له Google Play څخه پخپله ترلاسه کړئ: هلته د Shroudly په پاڼه کې «لرې کول» او بیا «نصبول» ټک کړئ. بیا ساتنه بیا چالانه کړئ؛ هغه امستنې چې تاسو بدلې کړې وې له سره پیلېږي.",
   "androidMoveOpen": "Google Play پرانیزئ",
+  "androidAccentSwatch": "د ټینګار رنګ {n} له {total}",
   "logCustomDnsRoutes": "ستاسو DNS سرور ځواب ورکوي: {routes}",
   "logCustomDnsDown": "ستاسو DNS سرور {server} ځواب نه ورکوي ({reason})؛ تر هغه چې ځواب ورکړي، د Shroudly دننه کوډ شوی DNS ځواب ورکوي",
   "logCustomDnsDownStrict": "ستاسو DNS سرور {server} ځواب نه ورکوي ({reason})؛ یوازې همدا کارول کېږي، نو د نومونو لټونونه تر هغه ناکامېږي چې ځواب ورکړي",

@@ -7,6 +7,7 @@
     <string name="adBlockAllowDesc">አንድ ጣቢያ ከተበላሸ ዶሜኑን እዚህ ይጻፉ፣ በእያንዳንዱ መስመር አንድ፦ እሱና ከሥሩ ያሉ ስሞች በሙሉ ፈጽሞ አይታገዱም።</string>
     <string name="adBlockDesc">በሕዝብ የማስታወቂያና የመከታተያ ዝርዝር ላይ ያሉ ስሞች በየትኛውም መተግበሪያ ምላሽ አያገኙም። ዝርዝሩ በShroudly በኩል ይወርዳል፣ በየሳምንቱም ይታደሳል።</string>
     <string name="adsBlocked">የታገዱ ማስታወቂያዎች</string>
+    <string name="androidAccentSwatch">የማድመቂያ ቀለም {n} ከ{total}</string>
     <string name="androidAdvanced">የላቀ</string>
     <string name="androidAdvancedDesc">እነዚህን የሚረዳዎ ሰው ከጠየቀዎት ብቻ ይቀይሩ። Shroudly የሚሠራውን በራሱ ያገኛል።</string>
     <string name="androidAlertsChannel">የጥበቃ ማንቂያዎች</string>

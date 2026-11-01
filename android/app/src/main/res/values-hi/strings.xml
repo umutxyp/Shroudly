@@ -7,6 +7,7 @@
     <string name="adBlockAllowDesc">अगर कोई साइट ठीक से न चले, तो उसका डोमेन यहाँ लिखें, हर पंक्ति में एक: वह और उसके नीचे का हर नाम कभी ब्लॉक नहीं होगा।</string>
     <string name="adBlockDesc">विज्ञापनों और ट्रैकरों की एक सार्वजनिक सूची के नामों को किसी भी ऐप में जवाब नहीं मिलता। सूची Shroudly के ज़रिए डाउनलोड होती है और हर हफ़्ते अपडेट होती है।</string>
     <string name="adsBlocked">ब्लॉक किए गए विज्ञापन</string>
+    <string name="androidAccentSwatch">एक्सेंट रंग {total} में से {n}</string>
     <string name="androidAdvanced">उन्नत</string>
     <string name="androidAdvancedDesc">इन्हें तभी बदलें जब आपकी मदद करने वाला कहे। जो काम करता है, Shroudly उसे खुद ढूँढ लेता है।</string>
     <string name="androidAlertsChannel">सुरक्षा अलर्ट</string>

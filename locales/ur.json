@@ -694,6 +694,7 @@
   "androidMoveTitle": "Shroudly اب Google Play پر ہے",
   "androidMoveBody": "Google Play سے خودکار طور پر اپ ڈیٹس پائیں: وہاں Shroudly کے صفحے پر ان انسٹال، پھر انسٹال پر ٹیپ کریں۔ پھر تحفظ دوبارہ آن کریں؛ آپ کی بدلی ہوئی سیٹنگز نئے سرے سے شروع ہوں گی۔",
   "androidMoveOpen": "Google Play کھولیں",
+  "androidAccentSwatch": "نمایاں رنگ {total} میں سے {n}",
   "logCustomDnsRoutes": "آپ کا DNS سرور جواب دے رہا ہے: {routes}",
   "logCustomDnsDown": "آپ کا DNS سرور {server} جواب نہیں دے رہا ({reason})؛ جب تک وہ جواب نہ دے، Shroudly کا اندرونی خفیہ DNS جواب دیتا ہے",
   "logCustomDnsDownStrict": "آپ کا DNS سرور {server} جواب نہیں دے رہا ({reason})؛ صرف یہی استعمال ہوتا ہے، اس لیے ناموں کی تلاش اس کے جواب دینے تک ناکام ہے",

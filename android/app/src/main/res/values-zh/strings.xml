@@ -7,6 +7,7 @@
     <string name="adBlockAllowDesc">如果某个网站无法正常使用，请在此填写其域名，每行一个：该域名及其下的所有名称都不会被拦截。</string>
     <string name="adBlockDesc">公开的广告和跟踪器列表中的名称在任何应用中都得不到响应。列表通过 Shroudly 下载，并每周更新。</string>
     <string name="adsBlocked">已拦截的广告</string>
+    <string name="androidAccentSwatch">强调色 {n}/{total}</string>
     <string name="androidAdvanced">高级</string>
     <string name="androidAdvancedDesc">只有在帮助你的人要求时才更改这些。Shroudly 会自己找到可行的方法。</string>
     <string name="androidAlertsChannel">保护提醒</string>

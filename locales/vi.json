@@ -694,6 +694,7 @@
   "androidMoveTitle": "Shroudly đã có trên Google Play",
   "androidMoveBody": "Nhận bản cập nhật tự động từ Google Play: trên trang Shroudly ở đó, chạm Gỡ cài đặt rồi Cài đặt. Sau đó bật lại bảo vệ; các cài đặt bạn đã đổi sẽ bắt đầu lại từ đầu.",
   "androidMoveOpen": "Mở Google Play",
+  "androidAccentSwatch": "Màu nhấn {n} trên {total}",
   "logCustomDnsRoutes": "Máy chủ DNS của bạn đang trả lời: {routes}",
   "logCustomDnsDown": "Máy chủ DNS của bạn {server} không trả lời ({reason}); cho đến khi nó trả lời, DNS mã hóa tích hợp của Shroudly sẽ trả lời",
   "logCustomDnsDownStrict": "Máy chủ DNS của bạn {server} không trả lời ({reason}); chỉ máy chủ này được dùng, nên tra cứu tên thất bại cho đến khi nó trả lời",

@@ -694,6 +694,7 @@
   "androidMoveTitle": "Shroudly متوفر على Google Play",
   "androidMoveBody": "احصل على التحديثات تلقائيًا من Google Play: في صفحة Shroudly هناك، اضغط «إلغاء التثبيت» ثم «تثبيت». بعدها شغّل الحماية من جديد؛ وتعود الإعدادات التي غيّرتها إلى بدايتها.",
   "androidMoveOpen": "افتح Google Play",
+  "androidAccentSwatch": "لون التمييز {n} من {total}",
   "logCustomDnsRoutes": "خادم DNS الخاص بك يجيب: {routes}",
   "logCustomDnsDown": "خادم DNS الخاص بك {server} لا يجيب ({reason})؛ يجيب DNS المشفَّر المدمج في Shroudly حتى يعود",
   "logCustomDnsDownStrict": "خادم DNS الخاص بك {server} لا يجيب ({reason})؛ إنه الوحيد المستخدم، لذا تفشل عمليات البحث عن الأسماء حتى يجيب",

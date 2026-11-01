@@ -7,6 +7,7 @@
     <string name="adBlockAllowDesc">サイトが正しく動かない場合は、そのドメインをここに 1 行に 1 つずつ書いてください。そのドメインとその下のすべての名前はブロックされません。</string>
     <string name="adBlockDesc">公開されている広告・トラッカーのリストにある名前は、どのアプリでも応答を受けません。リストは Shroudly 経由でダウンロードされ、毎週更新されます。</string>
     <string name="adsBlocked">ブロックした広告</string>
+    <string name="androidAccentSwatch">アクセントカラー {n}/{total}</string>
     <string name="androidAdvanced">詳細設定</string>
     <string name="androidAdvancedDesc">サポートしてくれている人に頼まれたときだけ変更してください。うまくいく方法は Shroudly が自分で見つけます。</string>
     <string name="androidAlertsChannel">保護に関するお知らせ</string>

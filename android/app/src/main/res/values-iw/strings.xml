@@ -7,6 +7,7 @@
     <string name="adBlockAllowDesc">אם אתר נשבר, כתבו כאן את הדומיין שלו, אחד בכל שורה: הוא וכל שם תחתיו לעולם לא ייחסמו.</string>
     <string name="adBlockDesc">שמות שברשימה ציבורית של פרסומות ומעקב לא מקבלים תשובה באף אפליקציה. הרשימה מורדת דרך Shroudly ומתעדכנת כל שבוע.</string>
     <string name="adsBlocked">פרסומות שנחסמו</string>
+    <string name="androidAccentSwatch">צבע הדגשה {n} מתוך {total}</string>
     <string name="androidAdvanced">מתקדם</string>
     <string name="androidAdvancedDesc">שנו את אלה רק אם מי שעוזר לך מבקש זאת. Shroudly מוצא בעצמו מה עובד.</string>
     <string name="androidAlertsChannel">התראות הגנה</string>

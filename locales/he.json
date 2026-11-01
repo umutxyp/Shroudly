@@ -694,6 +694,7 @@
   "androidMoveTitle": "Shroudly נמצא ב-Google Play",
   "androidMoveBody": "קבלו עדכונים אוטומטית מ-Google Play: בדף של Shroudly שם, הקישו 'הסרת התקנה' ואז 'התקנה'. אחר כך הפעילו שוב את ההגנה; הגדרות ששיניתם יתחילו מחדש.",
   "androidMoveOpen": "פתיחת Google Play",
+  "androidAccentSwatch": "צבע הדגשה {n} מתוך {total}",
   "logCustomDnsRoutes": "שרת ה-DNS שלך עונה: {routes}",
   "logCustomDnsDown": "שרת ה-DNS שלך {server} לא עונה ({reason}); ה-DNS המוצפן המובנה של Shroudly עונה עד שהוא יענה",
   "logCustomDnsDownStrict": "שרת ה-DNS שלך {server} לא עונה ({reason}); רק הוא בשימוש, ולכן חיפושי שמות נכשלים עד שהוא עונה",

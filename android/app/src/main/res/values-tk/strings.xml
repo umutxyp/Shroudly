@@ -7,6 +7,7 @@
     <string name="adBlockAllowDesc">Saýt işlemese, domenini şu ýere ýaz, her setire biri: ol we onuň aşagyndaky ähli atlar hiç haçan bloklanmaýar.</string>
     <string name="adBlockDesc">Açyk mahabat we yzarlaýjy sanawyndaky atlar hiç bir programmada jogap almaýar. Sanaw Shroudly arkaly ýüklenýär we hepdede bir täzelenýär.</string>
     <string name="adsBlocked">Bloklanan mahabatlar</string>
+    <string name="androidAccentSwatch">Nygtaw reňki: {total}-dan {n}</string>
     <string name="androidAdvanced">Giňişleýin</string>
     <string name="androidAdvancedDesc">Muny diňe size kömek edýän adam haýyş etse üýtgediň. Shroudly işleýän zady özi tapýar.</string>
     <string name="androidAlertsChannel">Gorag duýduryşlary</string>

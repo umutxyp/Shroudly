@@ -694,6 +694,7 @@
   "androidMoveTitle": "Shroudly ada di Google Play",
   "androidMoveBody": "Dapatkan kemas kini secara automatik daripada Google Play: pada halaman Shroudly di sana, ketik Nyahpasang, kemudian Pasang. Kemudian hidupkan semula perlindungan; tetapan yang anda ubah bermula semula.",
   "androidMoveOpen": "Buka Google Play",
+  "androidAccentSwatch": "Warna aksen {n} daripada {total}",
   "logCustomDnsRoutes": "Pelayan DNS anda sedang menjawab: {routes}",
   "logCustomDnsDown": "Pelayan DNS anda {server} tidak menjawab ({reason}); sehingga ia menjawab, DNS tersulit terbina dalam Shroudly yang menjawab",
   "logCustomDnsDownStrict": "Pelayan DNS anda {server} tidak menjawab ({reason}); hanya pelayan ini digunakan, jadi carian nama gagal sehingga ia menjawab",

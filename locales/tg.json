@@ -694,6 +694,7 @@
   "androidMoveTitle": "Shroudly дар Google Play ҳаст",
   "androidMoveBody": "Навсозиҳоро аз Google Play худкор гиред: дар саҳифаи Shroudly дар он ҷо «Нест кардан», баъд «Насб кардан»-ро пахш кунед. Баъд ҳимояро боз фаъол кунед; танзимоте, ки иваз карда будед, аз нав оғоз мешаванд.",
   "androidMoveOpen": "Кушодани Google Play",
+  "androidAccentSwatch": "Ранги таъкидӣ {n} аз {total}",
   "logCustomDnsRoutes": "Сервери DNS-и шумо ҷавоб медиҳад: {routes}",
   "logCustomDnsDown": "Сервери DNS-и шумо {server} ҷавоб намедиҳад ({reason}); то он ҷавоб диҳад, DNS-и рамзгузоришудаи дарунсохти Shroudly ҷавоб медиҳад",
   "logCustomDnsDownStrict": "Сервери DNS-и шумо {server} ҷавоб намедиҳад ({reason}); танҳо он истифода мешавад, бинобар ин ҷустуҷӯи номҳо то ҷавоб доданаш иҷро намешавад",

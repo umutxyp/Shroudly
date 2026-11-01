@@ -694,6 +694,7 @@
   "androidMoveTitle": "Shroudly está en Google Play",
   "androidMoveBody": "Recibe las actualizaciones automáticamente desde Google Play: en la página de Shroudly allí, toca Desinstalar y luego Instalar. Después vuelve a activar la protección; los ajustes que cambiaste empiezan de nuevo.",
   "androidMoveOpen": "Abrir Google Play",
+  "androidAccentSwatch": "Color de acento {n} de {total}",
   "logCustomDnsRoutes": "Tu servidor DNS está respondiendo: {routes}",
   "logCustomDnsDown": "Tu servidor DNS {server} no responde ({reason}); hasta que lo haga, responde el DNS cifrado integrado de Shroudly",
   "logCustomDnsDownStrict": "Tu servidor DNS {server} no responde ({reason}); es el único que se usa, así que las consultas fallan hasta que responda",

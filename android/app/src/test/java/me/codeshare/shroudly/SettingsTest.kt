@@ -62,8 +62,10 @@ class SettingsTest {
     @Test
     fun swatchesAndHints() {
         assertFalse(layout.contains("HorizontalScrollView"))
-        assertTrue(settings.contains("contentDescription = \"\${getString(R.string.accentColour)} \${i + 1}/\${Accent.OPTIONS.size}\""))
+        assertTrue(settings.contains("contentDescription = text(R.string.androidAccentSwatch, \"n\" to i + 1, \"total\" to Accent.OPTIONS.size)"))
         assertTrue(settings.contains("isSelected = o.id == chosen"))
+        // Pressed, it shows: a round ripple on the swatch.
+        assertTrue(settings.contains("android.graphics.drawable.ShapeDrawable(android.graphics.drawable.shapes.OvalShape())"))
         assertTrue(settings.substringAfter("private fun pickDns()").contains("setHintTextColor(getColor(R.color.text_faint))"))
     }
 

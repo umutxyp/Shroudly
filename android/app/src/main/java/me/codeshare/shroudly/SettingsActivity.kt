@@ -329,8 +329,13 @@ class SettingsActivity : Activity() {
                     setColor(o.swatch)
                     if (o.id == chosen) setStroke((3 * density).toInt(), getColor(R.color.text))
                 }
-                contentDescription = "${getString(R.string.accentColour)} ${i + 1}/${Accent.OPTIONS.size}"
+                contentDescription = text(R.string.androidAccentSwatch, "n" to i + 1, "total" to Accent.OPTIONS.size)
                 isSelected = o.id == chosen
+                // A tap shows on the circle itself, as on any button.
+                foreground = android.graphics.drawable.RippleDrawable(
+                    android.content.res.ColorStateList.valueOf(0x55FFFFFF), null,
+                    android.graphics.drawable.ShapeDrawable(android.graphics.drawable.shapes.OvalShape()),
+                )
                 isClickable = true
                 isFocusable = true
                 setOnClickListener {

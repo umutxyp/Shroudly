@@ -694,6 +694,7 @@
   "androidMoveTitle": "Shroudly ကို Google Play တွင် ရနိုင်ပါပြီ",
   "androidMoveBody": "Google Play မှ အပ်ဒိတ်များကို အလိုအလျောက် ရယူပါ- ထိုနေရာရှိ Shroudly စာမျက်နှာတွင် ဖြုတ်ရန် ကို တို့ပြီးနောက် ထည့်သွင်းရန် ကို တို့ပါ။ ထို့နောက် ကာကွယ်မှုကို ပြန်ဖွင့်ပါ။ သင်ပြောင်းထားသော ဆက်တင်များ အစမှ ပြန်စပါမည်။",
   "androidMoveOpen": "Google Play ကို ဖွင့်ရန်",
+  "androidAccentSwatch": "အသားပေးအရောင် {total} ခုအနက် {n}",
   "logCustomDnsRoutes": "သင့် DNS ဆာဗာ ဖြေကြားနေသည်: {routes}",
   "logCustomDnsDown": "သင့် DNS ဆာဗာ {server} ဖြေကြားမှု မရှိပါ ({reason})။ ၎င်း ဖြေကြားသည်အထိ Shroudly ၏ ပါဝင်ပြီးသား ကုဒ်ဝှက်ထားသော DNS က ဖြေကြားပေးသည်",
   "logCustomDnsDownStrict": "သင့် DNS ဆာဗာ {server} ဖြေကြားမှု မရှိပါ ({reason})။ ၎င်းတစ်ခုတည်းကိုသာ အသုံးပြုသဖြင့် ၎င်း ဖြေကြားသည်အထိ အမည်ရှာဖွေမှုများ မအောင်မြင်ပါ",

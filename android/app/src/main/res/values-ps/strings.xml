@@ -7,6 +7,7 @@
     <string name="adBlockAllowDesc">که کوم سایټ خراب شي، د هغه ډومېن دلته ولیکئ، په هره کرښه کې یو: هغه او د هغه لاندې ټول نومونه هېڅکله نه بندېږي.</string>
     <string name="adBlockDesc">د اعلانونو او تعقیبوونکو په یوه عامه لېست کې نومونه په هېڅ اپ کې ځواب نه ترلاسه کوي. لېست د Shroudly له لارې ښکته کېږي او هره اونۍ تازه کېږي.</string>
     <string name="adsBlocked">بند شوي اعلانونه</string>
+    <string name="androidAccentSwatch">د ټینګار رنګ {n} له {total}</string>
     <string name="androidAdvanced">پرمختللي</string>
     <string name="androidAdvancedDesc">دا یوازې هغه وخت بدل کړئ چې څوک ستاسو سره مرسته کوي له تاسو یې وغواړي. Shroudly پخپله هغه لاره مومي چې کار کوي.</string>
     <string name="androidAlertsChannel">د ساتنې خبرتیاوې</string>

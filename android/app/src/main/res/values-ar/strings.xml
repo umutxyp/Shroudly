@@ -7,6 +7,7 @@
     <string name="adBlockAllowDesc">إذا تعطّل موقع، اكتب نطاقه هنا، واحدًا في كل سطر: لن يُحظر هو ولا أي اسم تحته.</string>
     <string name="adBlockDesc">الأسماء الموجودة في قائمة عامة للإعلانات وأدوات التتبع لا تتلقى ردًا في أي تطبيق. تُنزَّل القائمة عبر Shroudly وتُحدَّث كل أسبوع.</string>
     <string name="adsBlocked">الإعلانات المحظورة</string>
+    <string name="androidAccentSwatch">لون التمييز {n} من {total}</string>
     <string name="androidAdvanced">متقدّم</string>
     <string name="androidAdvancedDesc">لا تغيّر هذه الإعدادات إلا إذا طلب منك ذلك من يساعدك. يجد Shroudly ما ينجح من تلقاء نفسه.</string>
     <string name="androidAlertsChannel">تنبيهات الحماية</string>

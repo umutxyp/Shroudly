@@ -7,6 +7,7 @@
     <string name="adBlockAllowDesc">Se um site quebrar, escreva o domínio aqui, um por linha: ele e todos os nomes abaixo dele nunca são bloqueados.</string>
     <string name="adBlockDesc">Os nomes de uma lista pública de anúncios e rastreadores ficam sem resposta em todos os apps. A lista é baixada pelo Shroudly e atualizada toda semana.</string>
     <string name="adsBlocked">Anúncios bloqueados</string>
+    <string name="androidAccentSwatch">Cor de destaque {n} de {total}</string>
     <string name="androidAdvanced">Avançado</string>
     <string name="androidAdvancedDesc">Mude isto só se quem está ajudando você pedir. O Shroudly encontra sozinho o que funciona.</string>
     <string name="androidAlertsChannel">Alertas de proteção</string>

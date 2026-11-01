@@ -7,6 +7,7 @@
     <string name="adBlockAllowDesc">ဆိုက်တစ်ခု ပျက်သွားပါက ၎င်း၏ ဒိုမိန်းကို ဤနေရာတွင် တစ်ကြောင်းလျှင် တစ်ခု ရေးပါ- ၎င်းနှင့် ၎င်းအောက်ရှိ အမည်အားလုံးကို ဘယ်တော့မှ မပိတ်ဆို့ပါ။</string>
     <string name="adBlockDesc">ကြော်ငြာနှင့် ခြေရာခံကိရိယာ အများသုံးစာရင်းပါ အမည်များသည် မည်သည့်အက်ပ်တွင်မျှ အဖြေမရပါ။ စာရင်းကို Shroudly မှတစ်ဆင့် ဒေါင်းလုဒ်လုပ်ပြီး အပတ်စဉ် အသစ်ပြုလုပ်ပါသည်။</string>
     <string name="adsBlocked">ပိတ်ဆို့ထားသော ကြော်ငြာများ</string>
+    <string name="androidAccentSwatch">အသားပေးအရောင် {total} ခုအနက် {n}</string>
     <string name="androidAdvanced">အဆင့်မြင့်</string>
     <string name="androidAdvancedDesc">သင့်ကို ကူညီနေသူက တောင်းဆိုမှသာ ဤအရာများကို ပြောင်းပါ။ Shroudly သည် အလုပ်ဖြစ်သည့်နည်းကို ကိုယ်တိုင် ရှာဖွေပါသည်။</string>
     <string name="androidAlertsChannel">ကာကွယ်မှု သတိပေးချက်များ</string>

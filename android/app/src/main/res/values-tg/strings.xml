@@ -7,6 +7,7 @@
     <string name="adBlockAllowDesc">Агар сомона кор накунад, домени онро дар ин ҷо нависед, дар ҳар сатр як: он ва ҳамаи номҳои зери он ҳеҷ гоҳ баста намешаванд.</string>
     <string name="adBlockDesc">Номҳои рӯйхати кушодаи реклама ва пайгирҳо дар ягон барнома ҷавоб намегиранд. Рӯйхат тавассути Shroudly боргирӣ шуда, ҳар ҳафта нав мешавад.</string>
     <string name="adsBlocked">Рекламаи басташуда</string>
+    <string name="androidAccentSwatch">Ранги таъкидӣ {n} аз {total}</string>
     <string name="androidAdvanced">Иловагӣ</string>
     <string name="androidAdvancedDesc">Инҳоро танҳо вақте тағйир диҳед, ки касе, ки ба шумо кӯмак мекунад, хоҳиш кунад. Shroudly худаш он чиро, ки кор мекунад, меёбад.</string>
     <string name="androidAlertsChannel">Огоҳиҳои ҳимоя</string>

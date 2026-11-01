@@ -7,6 +7,7 @@
     <string name="adBlockAllowDesc">Калі сайт перастаў працаваць, упішыце сюды яго дамен, па адным на радок: ён і ўсе імёны пад ім ніколі не блакуюцца.</string>
     <string name="adBlockDesc">Імёны са свабоднага спісу рэкламы і трэкераў не атрымліваюць адказу ні ў адной праграме. Спіс загружаецца праз Shroudly і абнаўляецца штотыдзень.</string>
     <string name="adsBlocked">Заблакавана рэкламы</string>
+    <string name="androidAccentSwatch">Акцэнтны колер {n} з {total}</string>
     <string name="androidAdvanced">Дадаткова</string>
     <string name="androidAdvancedDesc">Мяняйце гэта, толькі калі вас папросіць той, хто вам дапамагае. Shroudly сам знаходзіць тое, што працуе.</string>
     <string name="androidAlertsChannel">Апавяшчэнні абароны</string>
