@@ -66,6 +66,9 @@ for (const file of fs.readdirSync(path.join(root, 'electron'))) {
   const source = fs.readFileSync(path.join(root, 'electron', file), 'utf8');
   allSource += source + '\n';
   for (const match of source.matchAll(/\b(?:tr\(\)|s)\.((?:tray|notify|discordPick)[A-Z]\w*)/g)) usedKeys.add(match[1]);
+  // Any other key the main process reads the same way (tr().winhttpReset):
+  // used, not "possibly unused".
+  for (const match of source.matchAll(/\b(?:tr\(\)|s)\.([a-z]\w*)/g)) if (translations.en && match[1] in translations.en) allSource += `'${match[1]}'\n`;
 }
 
 // The Android app uses keys as string resources (android/scripts/gen-strings.js):
@@ -98,6 +101,55 @@ for (const language of languages) {
     console.error(`${language}: missing used keys=${missingUsed.join(', ') || '-'}, missing en keys=${missingEnglish.join(', ') || '-'}`);
   } else {
     console.log(`${language}: ok (${Object.keys(languageKeys).length} keys)`);
+  }
+}
+
+// Every language's text has the same {placeholders} as the English one: one
+// missing shows nothing where a host or a count belongs, one misspelt shows
+// the braces themselves.
+const holders = (v) => [...new Set(String(v).match(/\{\w+\}/g) || [])].sort().join(',');
+for (const language of languages) {
+  if (language === 'en') continue;
+  for (const [key, value] of Object.entries(translations.en)) {
+    const theirs = translations[language][key];
+    if (typeof theirs === 'string' && holders(theirs) !== holders(value)) {
+      failed = true;
+      console.error(`${language}.${key}: placeholders ${holders(theirs) || '(none)'} instead of ${holders(value) || '(none)'}`);
+    }
+  }
+}
+
+// A text left in English: the four Discord and rival lines were, in 29
+// languages, and this check let them through. The same words are right
+// where a language writes them so (German "Status", French "Mode").
+const SAME_AS_ENGLISH = {
+  testPlaceholder: '*',
+  supportBankName: 'az de id ku ms tk uz',
+  trayStatus: 'de id ms',
+  androidAppsSection: 'de es pt',
+  totalCount: 'es id pt',
+  versionLabel: 'de fr',
+  androidModeTitle: 'fr id',
+  dnsKindTcp: 'ja zh',
+  routing: 'de',
+  logInfo: 'de',
+  updatesTitle: 'de',
+  androidDetails: 'de',
+  logError: 'es',
+  navProtection: 'fr',
+  navStats: 'fr',
+  appSection: 'fr',
+  openSourceTitle: 'fr',
+  dnsServer: 'uz',
+};
+for (const language of languages) {
+  if (language === 'en') continue;
+  for (const [key, value] of Object.entries(translations.en)) {
+    if (translations[language][key] !== value || !/[a-z]{3}/.test(String(value).replace(/\{\w+\}/g, ''))) continue;
+    const ok = SAME_AS_ENGLISH[key];
+    if (ok === '*' || (ok && ok.split(' ').includes(language))) continue;
+    failed = true;
+    console.error(`${language}.${key}: still in English ("${String(value).slice(0, 60)}"); translate it, or list it in SAME_AS_ENGLISH if ${language} writes it so`);
   }
 }
 

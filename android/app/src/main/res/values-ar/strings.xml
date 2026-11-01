@@ -126,7 +126,7 @@
     <string name="dnsServerUseAnyway">استخدامه على أي حال</string>
     <string name="download">التنزيل</string>
     <string name="excludedApps">تطبيقات تتجاوز Shroudly</string>
-    <string name="excludedAppsCount">{count} تطبيقات تتجاوز Shroudly</string>
+    <string name="excludedAppsCount">تطبيقات تتجاوز Shroudly: {count}</string>
     <string name="excludedAppsDesc">يخرج اتصالها مباشرةً دون المرور عبر Shroudly: مثل لعبة لا تحتاج إليه.</string>
     <string name="language">اللغة</string>
     <string name="languageSystem">لغة النظام</string>

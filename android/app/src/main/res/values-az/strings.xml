@@ -126,7 +126,7 @@
     <string name="dnsServerUseAnyway">Yenə də istifadə et</string>
     <string name="download">Endirmə</string>
     <string name="excludedApps">Shroudly-dən yan keçən tətbiqlər</string>
-    <string name="excludedAppsCount">{count} tətbiq Shroudly-dən yan keçir</string>
+    <string name="excludedAppsCount">Shroudly-dən yan keçən tətbiqlər: {count}</string>
     <string name="excludedAppsDesc">Onların trafiki Shroudly-yə uğramadan birbaşa çıxır: məsələn, buna ehtiyacı olmayan bir oyun.</string>
     <string name="language">Dil</string>
     <string name="languageSystem">Sistem dili</string>

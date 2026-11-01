@@ -125,8 +125,8 @@
     <string name="dnsServerUse">Gunakan</string>
     <string name="dnsServerUseAnyway">Tetap gunakan</string>
     <string name="download">Unduh</string>
-    <string name="excludedApps">Aplikasi yang melewati Shroudly</string>
-    <string name="excludedAppsCount">{count} aplikasi melewati Shroudly</string>
+    <string name="excludedApps">Aplikasi yang tidak lewat Shroudly</string>
+    <string name="excludedAppsCount">Aplikasi yang tidak lewat Shroudly: {count}</string>
     <string name="excludedAppsDesc">Lalu lintasnya langsung keluar tanpa lewat Shroudly: misalnya game yang tidak membutuhkannya.</string>
     <string name="language">Bahasa</string>
     <string name="languageSystem">Bawaan sistem</string>

@@ -125,8 +125,8 @@
     <string name="dnsServerUse">Dùng</string>
     <string name="dnsServerUseAnyway">Vẫn dùng</string>
     <string name="download">Tải xuống</string>
-    <string name="excludedApps">Ứng dụng đi tắt qua Shroudly</string>
-    <string name="excludedAppsCount">{count} ứng dụng đi tắt qua Shroudly</string>
+    <string name="excludedApps">Ứng dụng không đi qua Shroudly</string>
+    <string name="excludedAppsCount">Ứng dụng không đi qua Shroudly: {count}</string>
     <string name="excludedAppsDesc">Lưu lượng của chúng đi thẳng ra ngoài, không qua Shroudly: ví dụ một trò chơi không cần đến nó.</string>
     <string name="language">Ngôn ngữ</string>
     <string name="languageSystem">Mặc định của hệ thống</string>

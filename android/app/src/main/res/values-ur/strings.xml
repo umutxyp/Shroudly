@@ -126,7 +126,7 @@
     <string name="dnsServerUseAnyway">پھر بھی استعمال کریں</string>
     <string name="download">ڈاؤن لوڈ</string>
     <string name="excludedApps">وہ ایپس جو Shroudly سے نہیں گزرتیں</string>
-    <string name="excludedAppsCount">{count} ایپس Shroudly سے نہیں گزرتیں</string>
+    <string name="excludedAppsCount">وہ ایپس جو Shroudly سے نہیں گزرتیں: {count}</string>
     <string name="excludedAppsDesc">ان کی ٹریفک Shroudly سے گزرے بغیر سیدھی باہر جاتی ہے: مثلاً کوئی گیم جسے اس کی ضرورت نہیں۔</string>
     <string name="language">زبان</string>
     <string name="languageSystem">سسٹم کی ڈیفالٹ</string>

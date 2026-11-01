@@ -126,7 +126,7 @@
     <string name="dnsServerUseAnyway">仍然使用</string>
     <string name="download">下载</string>
     <string name="excludedApps">绕过 Shroudly 的应用</string>
-    <string name="excludedAppsCount">{count} 个应用绕过 Shroudly</string>
+    <string name="excludedAppsCount">绕过 Shroudly 的应用：{count}</string>
     <string name="excludedAppsDesc">它们的流量直接出去，不经过 Shroudly：例如不需要它的游戏。</string>
     <string name="language">语言</string>
     <string name="languageSystem">跟随系统</string>

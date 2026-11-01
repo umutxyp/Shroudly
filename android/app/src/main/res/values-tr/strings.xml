@@ -126,7 +126,7 @@
     <string name="dnsServerUseAnyway">Yine de kullan</string>
     <string name="download">İndirme</string>
     <string name="excludedApps">Shroudly\'yi atlayan uygulamalar</string>
-    <string name="excludedAppsCount">{count} uygulama Shroudly\'yi atlıyor</string>
+    <string name="excludedAppsCount">Shroudly\'yi atlayan uygulamalar: {count}</string>
     <string name="excludedAppsDesc">Trafikleri Shroudly\'ye uğramadan doğrudan çıkar: örneğin buna ihtiyacı olmayan bir oyun.</string>
     <string name="language">Dil</string>
     <string name="languageSystem">Sistem varsayılanı</string>

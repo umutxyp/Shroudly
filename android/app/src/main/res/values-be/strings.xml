@@ -126,7 +126,7 @@
     <string name="dnsServerUseAnyway">Усё роўна выкарыстаць</string>
     <string name="download">Спампоўка</string>
     <string name="excludedApps">Праграмы ў абыход Shroudly</string>
-    <string name="excludedAppsCount">Праграм у абыход Shroudly: {count}</string>
+    <string name="excludedAppsCount">Праграмы ў абыход Shroudly: {count}</string>
     <string name="excludedAppsDesc">Іх трафік ідзе наўпрост, міма Shroudly: напрыклад, гульня, якой ён не патрэбны.</string>
     <string name="language">Мова</string>
     <string name="languageSystem">Як у сістэме</string>

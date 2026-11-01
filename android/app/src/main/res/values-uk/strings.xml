@@ -126,7 +126,7 @@
     <string name="dnsServerUseAnyway">Однаково використати</string>
     <string name="download">Завантаження</string>
     <string name="excludedApps">Застосунки в обхід Shroudly</string>
-    <string name="excludedAppsCount">Застосунків в обхід Shroudly: {count}</string>
+    <string name="excludedAppsCount">Застосунки в обхід Shroudly: {count}</string>
     <string name="excludedAppsDesc">Їхній трафік іде напряму, повз Shroudly: наприклад, гра, якій він не потрібен.</string>
     <string name="language">Мова</string>
     <string name="languageSystem">Як у системі</string>

@@ -126,7 +126,7 @@
     <string name="dnsServerUseAnyway">それでも使う</string>
     <string name="download">ダウンロード</string>
     <string name="excludedApps">Shroudly を通さないアプリ</string>
-    <string name="excludedAppsCount">{count} 個のアプリが Shroudly を通りません</string>
+    <string name="excludedAppsCount">Shroudly を通さないアプリ：{count}</string>
     <string name="excludedAppsDesc">これらのアプリの通信は Shroudly を通らず直接出ていきます（例: 不要なゲームなど）。</string>
     <string name="language">言語</string>
     <string name="languageSystem">システムの既定</string>

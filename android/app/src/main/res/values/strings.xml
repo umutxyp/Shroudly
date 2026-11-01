@@ -126,7 +126,7 @@
     <string name="dnsServerUseAnyway">Use anyway</string>
     <string name="download">Download</string>
     <string name="excludedApps">Apps that skip Shroudly</string>
-    <string name="excludedAppsCount">{count} apps skip Shroudly</string>
+    <string name="excludedAppsCount">Apps that skip Shroudly: {count}</string>
     <string name="excludedAppsDesc">Their traffic goes straight out, past Shroudly: for example a game that does not need it.</string>
     <string name="language">Language</string>
     <string name="languageSystem">System default</string>

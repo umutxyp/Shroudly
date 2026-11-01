@@ -126,7 +126,7 @@
     <string name="dnsServerUseAnyway">ቢሆንም ተጠቀም</string>
     <string name="download">ማውረድ</string>
     <string name="excludedApps">Shroudlyን የሚያልፉ መተግበሪያዎች</string>
-    <string name="excludedAppsCount">{count} መተግበሪያዎች Shroudlyን ያልፋሉ</string>
+    <string name="excludedAppsCount">Shroudlyን የሚያልፉ መተግበሪያዎች: {count}</string>
     <string name="excludedAppsDesc">ትራፊካቸው በShroudly ሳያልፍ በቀጥታ ይወጣል፦ ለምሳሌ የማያስፈልገው ጨዋታ።</string>
     <string name="language">ቋንቋ</string>
     <string name="languageSystem">የሥርዓቱ ነባሪ</string>

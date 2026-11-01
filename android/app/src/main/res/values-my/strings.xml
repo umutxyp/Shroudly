@@ -126,7 +126,7 @@
     <string name="dnsServerUseAnyway">မည်သို့ပင်ဖြစ်စေ အသုံးပြုရန်</string>
     <string name="download">ဒေါင်းလုဒ်</string>
     <string name="excludedApps">Shroudly ကို ကျော်သွားသော အက်ပ်များ</string>
-    <string name="excludedAppsCount">အက်ပ် {count} ခု Shroudly ကို ကျော်သွားသည်</string>
+    <string name="excludedAppsCount">Shroudly ကို ကျော်သွားသော အက်ပ်များ: {count}</string>
     <string name="excludedAppsDesc">၎င်းတို့၏ ဒေတာသွားလာမှုသည် Shroudly ကို မဖြတ်ဘဲ တိုက်ရိုက်ထွက်သည်- ဥပမာ မလိုအပ်သော ဂိမ်းတစ်ခု။</string>
     <string name="language">ဘာသာစကား</string>
     <string name="languageSystem">စနစ်မူလ</string>

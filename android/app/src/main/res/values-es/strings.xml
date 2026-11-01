@@ -126,7 +126,7 @@
     <string name="dnsServerUseAnyway">Usar de todos modos</string>
     <string name="download">Descarga</string>
     <string name="excludedApps">Apps que no pasan por Shroudly</string>
-    <string name="excludedAppsCount">{count} apps no pasan por Shroudly</string>
+    <string name="excludedAppsCount">Apps que no pasan por Shroudly: {count}</string>
     <string name="excludedAppsDesc">Su tráfico sale directo, sin pasar por Shroudly: por ejemplo, un juego que no lo necesita.</string>
     <string name="language">Idioma</string>
     <string name="languageSystem">Predeterminado del sistema</string>

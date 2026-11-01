@@ -125,8 +125,8 @@
     <string name="dnsServerUse">Bi kar bîne</string>
     <string name="dnsServerUseAnyway">Dîsa jî bi kar bîne</string>
     <string name="download">Daxistin</string>
-    <string name="excludedApps">Sepanên ku Shroudly derbas dikin</string>
-    <string name="excludedAppsCount">{count} sepan Shroudly derbas dikin</string>
+    <string name="excludedApps">Sepanên ku di Shroudly re derbas nabin</string>
+    <string name="excludedAppsCount">Sepanên ku di Shroudly re derbas nabin: {count}</string>
     <string name="excludedAppsDesc">Seyrûsefera wan rasterast derdikeve, bê ku di Shroudly re derbas bibe: mînak lîstikek ku hewcedariya wê pê tune.</string>
     <string name="language">Ziman</string>
     <string name="languageSystem">Zimanê pergalê</string>

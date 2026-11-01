@@ -126,7 +126,7 @@
     <string name="dnsServerUseAnyway">তবুও ব্যবহার করুন</string>
     <string name="download">ডাউনলোড</string>
     <string name="excludedApps">যে অ্যাপগুলো Shroudly এড়িয়ে চলে</string>
-    <string name="excludedAppsCount">{count}টি অ্যাপ Shroudly এড়িয়ে চলে</string>
+    <string name="excludedAppsCount">যে অ্যাপগুলো Shroudly এড়িয়ে চলে: {count}</string>
     <string name="excludedAppsDesc">এদের ট্রাফিক Shroudly দিয়ে না গিয়ে সরাসরি বাইরে যায়: যেমন এমন একটি গেম যার এটির দরকার নেই।</string>
     <string name="language">ভাষা</string>
     <string name="languageSystem">সিস্টেম ডিফল্ট</string>

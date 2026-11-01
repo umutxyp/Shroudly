@@ -212,7 +212,8 @@ export default function BlockedNotice({ onNavigate, active = false, proxyInPanel
   // stopped with it.
   useEffect(() => { refreshAdv(); }, [active]);
 
-  const closeLabel = t('obSkip');
+  // What the X on a notice does, as screen readers say it (was "Skip").
+  const closeLabel = t('close');
 
   /* The engine taken or refused by an antivirus: before everything else,
    * since nothing else here works without it. */
@@ -264,8 +265,9 @@ export default function BlockedNotice({ onNavigate, active = false, proxyInPanel
     return (
       <Banner Icon={ShieldAlertIcon} body={body}>
         <Actions>
+          {/* The messages say "click Try again": the button says so too. */}
           <button type="button" onClick={discordRetry} disabled={busy}
-                  className="btn btn-warn rounded-[8px] px-3 py-1.5 text-[12.5px] font-semibold">{t('discordPermissionBtn')}</button>
+                  className="btn btn-warn rounded-[8px] px-3 py-1.5 text-[12.5px] font-semibold">{t('discordTryAgain')}</button>
         </Actions>
       </Banner>
     );
