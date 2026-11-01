@@ -182,7 +182,15 @@ NC="$(sh_ 'command -v nc >/dev/null 2>&1 && echo nc || echo toybox nc')"
 
 # The network may come up a little after boot.
 net_up() { grep -q '^HTTP/1' <<<"$(http_get)"; }
-wait_for 120 net_up || fail "no network on the emulator before the test"
+if ! wait_for 120 net_up; then
+  # What the check itself got, and the tools it used (toybox differs by
+  # Android version), so a failure here says why.
+  say "check's answer: [$(http_get)]"
+  say "nc: $NC ($(sh_ "$NC --help 2>&1 | head -2 | tr '\n' ' '"))"
+  say "toybox: $(sh_ 'toybox --version 2>&1'); timeout: $(sh_ 'command -v timeout || echo none')"
+  say "plain: [$(sh_ "printf 'GET / HTTP/1.0\r\nHost: example.com\r\n\r\n' | $NC -w 15 example.com 80 2>&1 | head -1")]"
+  fail "no network on the emulator before the test"
+fi
 say "direct HTTP before: $(http_get)"
 
 # ── install and switch on ────────────────────────────────────────────────
