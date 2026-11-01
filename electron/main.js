@@ -21,6 +21,7 @@ const fs = require('fs');
 const os = require('os');
 const netModule = require('net');
 const Store = require('electron-store');
+const SettingsFile = require('./settings-file');
 const EngineManager = require('./engine-manager');
 const CustomDnsLib = require('./custom-dns');
 const AdvancedMode = require('./advanced-mode');
@@ -71,8 +72,9 @@ if (process.argv.includes(RESTORE_PROXY_ARG)) {
   restoreProxy({
     stateFile: proxyStateFile(),
     settings: () => {
-      const s = new Store();
-      return { autoStart: s.get('autoStart', false), protectionOn: s.get('protectionOn', s.get('autoMode', true) !== false), language: s.get('language') };
+      // Read only: a damaged file is the start's to set aside (settings-file.js).
+      const s = new Store({ clearInvalidConfig: true });
+      return { autoStart: s.get('autoStart', false), protectionOn: SettingsFile.protectionWanted(s), language: s.get('language') };
     },
     languages: () => systemLanguages(),
     ready: () => app.whenReady().then(() => { try { if (app.dock) app.dock.hide(); } catch {} }),
@@ -88,7 +90,11 @@ if (process.argv.includes(RESTORE_PROXY_ARG)) {
  * long as Shroudly runs, even after the window was closed, and spiked it to
  * about 200 MB on a first paint. */
 app.disableHardwareAcceleration();
-const store = new Store();
+// A damaged settings file is set aside rather than ending Shroudly here,
+// before it could show anything (settings-file.js); what it found is
+// settled once the log can take it.
+const settingsOpened = SettingsFile.open(Store, { dir: app.getPath('userData') });
+const store = settingsOpened.store;
 let mainWindow = null;
 let tray = null;
 let engine = null;
@@ -732,11 +738,12 @@ async function createWindow({ show = true, minimised = false, quiet = false } = 
 /* Whether protection should be on is the user's call alone: it changes only
  * when they press Start or Stop (window or tray), and Shroudly comes back
  * that way after a restart, an update, a crash or a reboot. Sleep, waking,
- * locking the screen or closing the lid never change it. */
-const PROTECTION_KEY = 'protectionOn';
+ * locking the screen or closing the lid never change it, and neither does
+ * any switch in Settings (Auto mode, the strategy): a settings file from
+ * before there was a setting for it gets one at the start
+ * (SettingsFile.settle). */
+const PROTECTION_KEY = SettingsFile.PROTECTION_KEY;
 
-/* Before there was a setting for that, Auto mode alone decided, and it still
- * does for anyone who has not pressed Start or Stop since. */
 /* Discord app mode and Games and apps mode carry other programs'
  * connections. While protection is on its way up (the start at launch, a
  * start under way, the engine restarting after a crash or a settings change)
@@ -755,7 +762,7 @@ async function waitForEngine() {
   while (engineComing() && Date.now() < until) await new Promise((r) => setTimeout(r, 200));
 }
 
-function protectionWanted() { return !!store.get(PROTECTION_KEY, store.get('autoMode', true) !== false); }
+function protectionWanted() { return SettingsFile.protectionWanted(store); }
 
 /* macOS: settings a restart of the Mac left waiting for an administrator's
  * password (EngineManager.recoverProxyAsAdmin). Asked by itself only with
@@ -914,6 +921,9 @@ function getAutoStartEnabled() {
 
 /* ── app ready ───────────────────────────────────────────────────────────── */
 app.whenReady().then(async () => {
+  // Before anything reads the settings: a damaged file, a new install, and
+  // protection from a version that let Auto mode decide (settings-file.js).
+  SettingsFile.settle(store, { ...settingsOpened, packaged: app.isPackaged, autoStartNow: getAutoStartEnabled, log: addLog });
   const restoreCommand = {
     exe: launcherPath(),
     args: app.isPackaged ? [RESTORE_PROXY_ARG] : [app.getAppPath(), RESTORE_PROXY_ARG],
@@ -1118,6 +1128,8 @@ app.whenReady().then(async () => {
   if (how === 'tray') { setDockIcon(false); addLog('info', 'Auto-started in tray'); }
   else await createWindow({ show: true, minimised: how === 'minimised' });
   addLog('success', 'Application started');
+  // Kept for the next time the settings file is found damaged.
+  SettingsFile.keepCopy(app.getPath('userData'));
   if (windowsPathFixed) addLog('info', "Windows' own folders were missing from PATH or not first; Shroudly put them first for itself");
   updater.start();
   // Roblox installers downloaded in an earlier run have done their work.
@@ -1152,12 +1164,11 @@ app.whenReady().then(async () => {
   // (moved app, updated AppImage, 2.0.0's broken Linux entry, legacy names).
   setAutoStart(store.get('autoStart', false));
 
-  // Protection as the user left it (see safeStart). Before there was a
-  // setting for that, Auto mode alone decided, and it still does for anyone
-  // who has not pressed Start or Stop since. Independent of the window, which
-  // may never be opened this session.
+  // Protection as the user left it with Start or Stop (see safeStart),
+  // whatever Auto mode is set to. Independent of the window, which may never
+  // be opened this session.
   if (protectionOn) {
-    addLog('info', 'Auto Mode: starting protection');
+    addLog('info', 'Starting protection, as it was left');
     // An update that has waited its limit for a game or a call installs
     // first, while nothing goes through Shroudly yet (updater.js); should
     // the install not get as far as quitting, protection starts anyway,
