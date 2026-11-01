@@ -748,7 +748,7 @@ async function createWindow({ show = true, minimised = false, quiet = false } = 
       spellcheck: false,
     },
     icon: trayIconPath(),
-    title: 'Shroudly — Unseen. Unstoppable.',
+    title: `Shroudly — ${tr().tagline}`,
     // Native window buttons drawn over our own title bar (components/TitleBar):
     // traffic lights on macOS, the system caption buttons on Windows/Linux.
     ...(process.platform === 'darwin'
@@ -1062,12 +1062,23 @@ function windowsStartupOff() {
  * Ctrl+Shift+I) working on Linux too. macOS keeps what every Mac app has:
  * the app menu (About, Hide, Quit) and Edit, so copy and paste work in the
  * window; Windows and Linux have none. */
+/* macOS: the menu bar in the user's language (Electron's own is English
+ * whatever the language, with View → Toggle Developer Tools in it); built
+ * again on a language change. None on Windows and Linux. */
 function setAppMenu() {
   if (process.platform !== 'darwin') { Menu.setApplicationMenu(null); return; }
-  Menu.setApplicationMenu(Menu.buildFromTemplate([{ role: 'appMenu', submenu: [
-    { role: 'about' }, { type: 'separator' }, { role: 'hide' }, { role: 'hideOthers' }, { role: 'unhide' }, { type: 'separator' },
-    { role: 'quit' },
-  ] }, { role: 'editMenu' }]));
+  const s = tr();
+  Menu.setApplicationMenu(Menu.buildFromTemplate([{ label: 'Shroudly', submenu: [
+    { role: 'about', label: s.menuAbout }, { type: 'separator' },
+    { role: 'hide', label: s.menuHide }, { role: 'hideOthers', label: s.menuHideOthers }, { role: 'unhide', label: s.menuShowAll },
+    { type: 'separator' }, { role: 'quit', label: s.quitApp },
+  ] }, { label: s.menuEdit, submenu: [
+    { role: 'undo', label: s.menuUndo }, { role: 'redo', label: s.menuRedo }, { type: 'separator' },
+    { role: 'cut', label: s.menuCut }, { role: 'copy', label: s.supportCopy }, { role: 'paste', label: s.menuPaste },
+    { role: 'selectAll', label: s.menuSelectAll },
+  ] }, { role: 'windowMenu', label: s.menuWindow, submenu: [
+    { role: 'minimize', label: s.menuMinimize }, { role: 'close', label: s.close },
+  ] }]));
 }
 
 app.whenReady().then(async () => {
@@ -2963,7 +2974,7 @@ ipcMain.handle('settings:set', (e, key, value) => {
     if (engine && engine.isActive()) engine.adblockApply();
     ensureAdblock().catch(() => {});
   }
-  if (key === 'language') rebuildTrayMenu();
+  if (key === 'language') { rebuildTrayMenu(); setAppMenu(); }
   if (key === 'showTrayIcon') setTrayIcon(value !== false);
   if (key === 'autoUpdate' && updater) updater.autoChanged();
   if (key === 'autoStart') {

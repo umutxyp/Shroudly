@@ -153,6 +153,7 @@ const SAME_AS_ENGLISH = {
   androidModeTitle: 'fr id',
   dnsKindTcp: 'ja zh',
   routing: 'de',
+  menuEdit: 'id ms',
   logInfo: 'de',
   updatesTitle: 'de',
   androidDetails: 'de',

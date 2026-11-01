@@ -128,6 +128,9 @@
     "mac": {
       "icon": "apple/App/AppIcon.icon",
       "category": "public.app-category.utilities",
+      "extendInfo": {
+        "CFBundleAllowMixedLocalizations": true
+      },
       "target": [
         {
           "target": "dmg",

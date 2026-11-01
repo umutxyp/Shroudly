@@ -173,6 +173,13 @@ export function LanguageProvider({ children }) {
     return s;
   }, [language]);
 
+  // The title the taskbar, Alt+Tab and the Window list show, in the same
+  // language as the window.
+  useEffect(() => {
+    if (typeof document === 'undefined' || !isLoaded) return;
+    document.title = `Shroudly — ${t('tagline')}`;
+  }, [t, isLoaded]);
+
   const value = useMemo(() => ({
     language, setLanguage, t, availableLanguages, isLoaded, dir, isRTL: dir === 'rtl', locale: meta.locale,
   }), [language, setLanguage, t, isLoaded, dir, meta.locale]);

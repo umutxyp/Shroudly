@@ -7,7 +7,9 @@
  *   - Kurdish in Arabic script (Sorani) is not given our Latin Kurmanji: the
  *     next language the system lists is
  *   - an Arabic, Persian, Hebrew, Urdu or Pashto notification starts right
- *     to left, with each site, version or name in it isolated (i18n-04) */
+ *     to left, with each site, version or name in it isolated (i18n-04)
+ *   - the macOS menu bar and the window's title are in the user's language,
+ *     built again when it changes (i18n-v03) */
 
 const fs = require('fs');
 const path = require('path');
@@ -36,6 +38,21 @@ t.ok(ar.startsWith('‏') && ar.includes('⁨discord.com⁩') && ar.includes('�
 t.ok(I.bidi('discord.com did not open', 'en') === 'discord.com did not open' && I.bidi('', 'fa') === '' && I.bidi(null, 'he') === null,
   'other languages, and nothing, as they are');
 t.ok(/i18n\.bidi\(title, lang\)/.test(fs.readFileSync(path.join(ROOT, 'electron', 'main.js'), 'utf8')), 'every notification goes through it');
+
+// The macOS menu bar: every label from the user's language, none of
+// Electron's English defaults, and built again on a language change.
+const mainSrc = fs.readFileSync(path.join(ROOT, 'electron', 'main.js'), 'utf8');
+const menu = (mainSrc.match(/function setAppMenu\(\) \{[\s\S]*?\n\}/) || [''])[0];
+const roles = menu.match(/role: '\w+'/g) || [];
+const labelled = menu.match(/role: '\w+', label: s\.\w+/g) || [];
+const keys = [...new Set((menu.match(/\bs\.(\w+)/g) || []).map((k) => k.slice(2)))];
+const all = fs.readdirSync(path.join(ROOT, 'locales')).map((f) => JSON.parse(fs.readFileSync(path.join(ROOT, 'locales', f), 'utf8')));
+t.ok(roles.length >= 14 && labelled.length === roles.length && !/role: '(appMenu|editMenu|viewMenu|fileMenu)'/.test(menu)
+  && keys.length >= 14 && all.length === 31 && all.every((d) => keys.every((k) => typeof d[k] === 'string' && d[k].trim())),
+  `macOS menu: all ${roles.length} items labelled from the ${keys.length} keys every language has, no English default menu`);
+t.ok(/key === 'language'\) \{[^}]*setAppMenu\(\)/.test(mainSrc) && /title: `Shroudly — \$\{tr\(\)\.tagline\}`/.test(mainSrc)
+  && /document\.title = `Shroudly — \$\{t\('tagline'\)\}`/.test(ui),
+  'built again on a language change; the window title in the user\'s language');
 
 console.log(`languages: ${t.count} passed`);
 process.exit(0);
