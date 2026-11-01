@@ -2204,10 +2204,30 @@ $t = Add-Type -MemberDefinition $sig -Name WinINet -Namespace Net -PassThru
     const plan = [];
     for (const s of (snap.services || [])) {
       if (snap.form === 'pac' && !(force && force.has(s.name)) && !SystemProxy._macOwnedAutoSync(s.name)) continue;
+      // Another user's Shroudly, running (fast user switching): the
+      // setting is the Mac's, not the user's, and theirs was there first.
+      // It was taken for a stale one of ours and switched off, and their
+      // browsers went direct until their next check (ML-11).
+      if (this._otherShroudlyLive(s.prevAuto)) {
+        plan.push(['-setautoproxyurl', s.name, s.prevAuto.url], ['-setautoproxystate', s.name, 'on']);
+        continue;
+      }
       const gone = s.prevAuto && s.prevAuto.enabled && this._pacGone(SystemProxy._macSafeUrl(s.prevAuto.url));
       plan.push(...SystemProxy._macRestoreArgs(gone ? { ...s, prevAuto: { ...s.prevAuto, enabled: false } } : s));
     }
     return plan;
+  }
+
+  /* A Shroudly PAC that was on and is not this run's, with its server
+   * listening: another user's Shroudly, live. */
+  _otherShroudlyLive(prev) {
+    const url = prev && prev.enabled ? String(prev.url || '').trim() : '';
+    if (!OUR_PAC.test(url) || SystemProxy._samePac(url, this.pacUrl)) return false;
+    const port = Number((/:(\d+)\//.exec(url) || [])[1]);
+    if (!port || port === this.pacPort) return false;
+    let on = null;
+    try { on = exec.listening(port); } catch {}
+    return on === true;
   }
 
   async _restoreMac(interactive = false) {

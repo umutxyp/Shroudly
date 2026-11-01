@@ -1199,6 +1199,30 @@ const readState = (file) => { try { return JSON.parse(fs.readFileSync(file, 'utf
   }
 
   {
+    // macOS, two users logged in, both running Shroudly (ML-11): the setting
+    // is the Mac's. B quitting puts back A's PAC, still served by A's
+    // Shroudly, instead of switching it off as a stale one of its own.
+    nsInit();
+    const fx = macExec();
+    let A = null;
+    fx.listening = (port) => !!A && port === A.pacPort;
+    SystemProxy._setExec(fx);
+    A = new SystemProxy(() => {}, { platform: 'darwin', stateFile: stateFile('mac-a') });
+    await A.apply(10808, 'all');
+    const B = new SystemProxy(() => {}, { platform: 'darwin', stateFile: stateFile('mac-b') });
+    B._pacListen = async (ports) => A._pacListen(ports.filter((p) => p !== A.pacPort));
+    await B.apply(10812, 'all');
+    await A.checkOwnership();
+    await B.restore();
+    const wifi = nsState().services['Wi-Fi'];
+    t.ok(wifi.auto.enabled && wifi.auto.url === A.pacUrl, `macOS, two users: one quitting leaves the other's live setting on (${wifi.auto.enabled ? 'on' : 'off'})`);
+    await A.restore();
+    A.stopPacServer(); B.stopPacServer();
+    const back = nsState().services;
+    t.ok(!back['Wi-Fi'].auto.enabled && back['USB 10/100/1000 LAN'].auto.url === 'http://wpad.lan/p.pac', 'and the last one out puts back what was there before either');
+  }
+
+  {
     // A network service added after Start (an iPhone over USB, a new
     // adapter): it gets the PAC with the next ownership check, and Stop puts
     // it back as it was (net-desktop-06).
