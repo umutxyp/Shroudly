@@ -358,6 +358,86 @@
   RMDir /r $INSTDIR
 !macroend
 
+; New installs are for this user only, in their own folder, with no question
+; about it. electron-builder's page asked "Anyone who uses this computer, or
+; only for me?", a question nobody new to this can answer, and "Anyone"
+; needs an administrator: then so did every update afterwards (a prompt a
+; standard account cannot answer, coming up by itself), and the uninstaller
+; tidied the administrator's settings instead of the user's. A copy that is
+; already installed for everyone, and only such a copy, is updated where it
+; is, as before (no second copy beside it, #57). The uninstaller's page,
+; which asks which copy to remove when there are two, stays as it is.
+!macro customInstallMode
+  !ifndef BUILD_UNINSTALLER
+  ${If} $hasPerMachineInstallation == "1"
+  ${AndIf} $hasPerUserInstallation != "1"
+    StrCpy $isForceMachineInstall "1"
+  ${Else}
+    StrCpy $isForceCurrentInstall "1"
+  ${EndIf}
+  !endif
+!macroend
+
+; Shroudly's own update of a copy installed for everyone (silent, with
+; --updated) needs an administrator's permission. electron-builder asks for
+; it in its install section and, when it is refused or cannot be asked,
+; quits there: Shroudly had already closed for the update, did not come
+; back, and protection stayed off. It is asked here instead, the same way,
+; before anything is touched; the elevated copy then installs and starts the
+; new version. Refused, or Windows could not ask (an account whose requests
+; are turned down): nothing is installed, and the Shroudly that was there is
+; started again once it has closed, with a note of why. It says that once
+; and does not install this version by itself again (electron/updater.js,
+; _readFailedNote; the steps are its INSTALL_STEPS). No message box: the
+; user has just answered Windows' own.
+!macro shroudlyElevateUpdate
+  !ifndef INSTALL_MODE_PER_ALL_USERS
+  !ifndef ONE_CLICK
+  ${If} ${isUpdated}
+  ${AndIf} ${Silent}
+  ${AndIf} $hasPerMachineInstallation == "1"
+  ${AndIfNot} ${UAC_IsInnerInstance}
+  ${AndIfNot} ${UAC_IsAdmin}
+    !insertmacro UAC_RunElevated
+    StrCpy $R2 "elevation"
+    ${If} $0 == 1223
+      StrCpy $R2 "permission"
+    ${ElseIf} $0 == 0
+    ${AndIf} $1 == 1
+      Quit
+    ${ElseIf} $0 == 0
+    ${AndIf} $1 == 3
+      ; a name and password given that are not an administrator's
+      StrCpy $R2 "permission"
+    ${EndIf}
+    StrCpy $R3 0
+    ${Do}
+      !insertmacro shroudlyFindApp $R0
+      ${If} $R0 != 0
+        ${ExitDo}
+      ${EndIf}
+      Sleep 500
+      IntOp $R3 $R3 + 1
+    ${LoopUntil} $R3 >= 20
+    ReadEnvStr $R1 APPDATA
+    ${If} $R1 != ""
+      CreateDirectory "$R1\${PRODUCT_NAME}\update"
+      ClearErrors
+      FileOpen $R0 "$R1\${PRODUCT_NAME}\update\failed" w
+      ${IfNot} ${Errors}
+        FileWrite $R0 "${VERSION} $R2"
+        FileClose $R0
+      ${EndIf}
+    ${EndIf}
+    ${If} ${FileExists} "$INSTDIR\${APP_EXECUTABLE_FILENAME}"
+      Exec '"$INSTDIR\${APP_EXECUTABLE_FILENAME}" --update-failed'
+    ${EndIf}
+    Quit
+  ${EndIf}
+  !endif
+  !endif
+!macroend
+
 !macro customInit
   ; Electron 43 does not run on Windows 8.1 or earlier. Without this the
   ; installer would succeed and the app would then fail to start with nothing
@@ -379,6 +459,28 @@ Shroudly, Windows 10 veya daha yenisini gerektirir."
   !insertmacro shroudlyResetProxy
   !insertmacro shroudlyLinkCleanup "i"
   !insertmacro shroudlyAppEnvCleanup
+  !insertmacro shroudlyElevateUpdate
+!macroend
+
+; What only Shroudly's downloads kept, 100 MB and more: electron-updater's
+; last installer (%LOCALAPPDATA%\shroudly-updater), the ad and tracker list,
+; Roblox installers fetched for Games and apps mode, an update's leftovers.
+; Each is fetched again when needed. The settings, the logs and the Discord
+; files moved aside (with the note on how to put them back) stay, so a
+; reinstall finds everything as it was. The same folders as Shroudly's, read
+; from the environment: for an install for all users, NSIS's are not the
+; user's.
+!macro shroudlyCacheCleanup
+  ReadEnvStr $1 LOCALAPPDATA
+  ${If} $1 != ""
+    RMDir /r "$1\shroudly-updater"
+  ${EndIf}
+  ReadEnvStr $1 APPDATA
+  ${If} $1 != ""
+    Delete "$1\${PRODUCT_NAME}\adblock-list.*"
+    RMDir /r "$1\${PRODUCT_NAME}\roblox"
+    RMDir /r "$1\${PRODUCT_NAME}\update"
+  ${EndIf}
 !macroend
 
 !macro customUnInstall
@@ -392,5 +494,6 @@ Shroudly, Windows 10 veya daha yenisini gerektirir."
     DeleteRegValue HKCU "Software\Microsoft\Windows\CurrentVersion\Run" "Shroudly"
     DeleteRegValue HKCU "Software\Microsoft\Windows\CurrentVersion\Run" "electron.app.Shroudly"
     DeleteRegValue HKCU "Software\Microsoft\Windows\CurrentVersion\Run" "me.codeshare.shroudly"
+    !insertmacro shroudlyCacheCleanup
   ${endIf}
 !macroend
