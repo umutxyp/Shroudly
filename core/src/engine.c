@@ -16,7 +16,12 @@
 #define RELAY_BUF   32768
 #define FIRST_WAIT  4000   /* ms to gather the client's first payload */
 #define QUIET_WAIT   400   /* ms to decide nobody is going to speak first */
-#define MAX_CONNS   2048   /* hard cap on concurrent connections (loopback) */
+/* Hard cap on concurrent connections (loopback). A build may set a lower one
+ * (-DMAX_CONNS=...): the Apple app's packet tunnel, which iOS ends when it
+ * holds more than about 50 MB, and a connection can hold over 100 KB. */
+#ifndef MAX_CONNS
+#define MAX_CONNS   2048
+#endif
 
 /* ── attempt ladder ──────────────────────────────────────────────────────
  * A censored connection must never reach the browser as an error page. The
@@ -1991,10 +1996,12 @@ static void report_gave_up(const ladder_st *st, int local_fails, int fam) {
  * association that only ever carried DNS (port 53) ends after
  * UDP_DNS_IDLE_MS instead: an app's lookup is answered within a second, and
  * its next one opens another. */
+#ifndef UDP_ASSOC_MAX           /* a build may set a lower one, as for MAX_CONNS */
 #if UINTPTR_MAX > 0xffffffffu
 #define UDP_ASSOC_MAX    1024
 #else
 #define UDP_ASSOC_MAX    256    /* a 32-bit process: a thread and a buffer each */
+#endif
 #endif
 #define UDP_IDLE_MS      120000
 #define UDP_DNS_IDLE_MS  15000
