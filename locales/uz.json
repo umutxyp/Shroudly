@@ -686,6 +686,8 @@
   "androidAutomationSection": "Avtomatlashtirish",
   "androidAppsVpnOnly": "Faqat VPN rejimida. «Faqat proksi»da ilova Shroudly orqali o‘tishini uning o‘z proksi sozlamasi hal qiladi.",
   "androidModeSwitching": "Himoya yangi rejimda qayta ishga tushmoqda.",
+  "androidShareLogsWho": "Buni sizga yordam berayotgan kishiga yuboring yoki GitHub’dagi hisobotga ilova qiling. Unda Shroudly ishlov bergan saytlar nomlari bor; ularni olib tashlashingiz mumkin.",
+  "androidShareLogsNoSites": "Sayt nomlarisiz",
   "logCustomDnsRoutes": "DNS serveringiz javob bermoqda: {routes}",
   "logCustomDnsDown": "DNS serveringiz {server} javob bermayapti ({reason}); u javob bermaguncha Shroudly’ning ichki shifrlangan DNS’i javob beradi",
   "logCustomDnsDownStrict": "DNS serveringiz {server} javob bermayapti ({reason}); faqat u ishlatiladi, shuning uchun nom so‘rovlari u javob bermaguncha bajarilmaydi",

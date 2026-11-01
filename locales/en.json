@@ -686,6 +686,8 @@
   "androidAutomationSection": "Automation",
   "androidAppsVpnOnly": "Only in VPN mode. In Proxy only, each app's own proxy setting decides whether it goes through Shroudly.",
   "androidModeSwitching": "Protection is starting again in the new mode.",
+  "androidShareLogsWho": "Send it to the person helping you, or attach it to a report on GitHub. It includes the names of sites Shroudly handled; you can leave them out.",
+  "androidShareLogsNoSites": "Without site names",
   "logCustomDnsRoutes": "Your DNS server is answering: {routes}",
   "logCustomDnsDown": "Your DNS server {server} does not answer ({reason}); Shroudly's built-in encrypted DNS answers until it does",
   "logCustomDnsDownStrict": "Your DNS server {server} does not answer ({reason}); it is the only one used, so lookups fail until it answers",

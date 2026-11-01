@@ -686,6 +686,8 @@
   "androidAutomationSection": "اتوماتیک کول",
   "androidAppsVpnOnly": "یوازې په VPN حالت کې. په «یوازې پراکسي» کې د هر اپ خپله پراکسي امستنه پرېکړه کوي چې له Shroudly تېرېږي که نه.",
   "androidModeSwitching": "ساتنه په نوي حالت کې بیا پیلېږي.",
+  "androidShareLogsWho": "دا هغه چا ته ولېږئ چې له تاسو سره مرسته کوي، یا یې په GitHub کې له یو راپور سره ونښلوئ. په دې کې د هغو سایټونو نومونه دي چې Shroudly ورسره کار کړی؛ تاسو یې لرې کولی شئ.",
+  "androidShareLogsNoSites": "د سایټونو له نومونو پرته",
   "logCustomDnsRoutes": "ستاسو DNS سرور ځواب ورکوي: {routes}",
   "logCustomDnsDown": "ستاسو DNS سرور {server} ځواب نه ورکوي ({reason})؛ تر هغه چې ځواب ورکړي، د Shroudly دننه کوډ شوی DNS ځواب ورکوي",
   "logCustomDnsDownStrict": "ستاسو DNS سرور {server} ځواب نه ورکوي ({reason})؛ یوازې همدا کارول کېږي، نو د نومونو لټونونه تر هغه ناکامېږي چې ځواب ورکړي",

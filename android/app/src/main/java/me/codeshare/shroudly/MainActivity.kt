@@ -801,9 +801,26 @@ class MainActivity : Activity() {
     }
 
     /* The recent log and the phone's details, as text the user sends where
-     * they choose (Diagnostics). */
+     * they choose (Diagnostics). First who to send it to, and that it names
+     * the sites Shroudly handled, with the choice to leave them out: a bare
+     * share sheet said neither, and a log with someone's browsing could end
+     * up in a public issue. */
     private fun shareLogs() {
-        val text = try { Diagnostics.report(this) } catch (e: Exception) { "Shroudly ${BuildConfig.VERSION_NAME}: no report ($e)" }
+        try {
+            AlertDialog.Builder(this)
+                .setTitle(R.string.androidShareLogs)
+                .setMessage(R.string.androidShareLogsWho)
+                .setPositiveButton(R.string.androidShareLogs) { _, _ -> sendLogs(sites = true) }
+                .setNeutralButton(R.string.androidShareLogsNoSites) { _, _ -> sendLogs(sites = false) }
+                .setNegativeButton(android.R.string.cancel, null)
+                .show()
+        } catch (_: Exception) {
+            sendLogs(sites = true)
+        }
+    }
+
+    private fun sendLogs(sites: Boolean) {
+        val text = try { Diagnostics.report(this, sites) } catch (e: Exception) { "Shroudly ${BuildConfig.VERSION_NAME}: no report ($e)" }
         val send = Intent(Intent.ACTION_SEND)
             .setType("text/plain")
             .putExtra(Intent.EXTRA_SUBJECT, "Shroudly ${BuildConfig.VERSION_NAME} log")

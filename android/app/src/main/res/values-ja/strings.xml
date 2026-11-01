@@ -68,6 +68,8 @@
     <string name="androidRemoteControl">自動化アプリを許可</string>
     <string name="androidRemoteControlDesc">Tasker、MacroDroid などのアプリは、パッケージ {package} へのブロードキャスト（アクション {action}.START、.STOP、.TOGGLE）で保護をオン・オフできます。これがオフの間は、ほかのアプリは操作できません。</string>
     <string name="androidShareLogs">ログを共有</string>
+    <string name="androidShareLogsNoSites">サイト名なしで</string>
+    <string name="androidShareLogsWho">サポートしてくれている人に送るか、GitHub の報告に添付してください。Shroudly が扱ったサイト名が含まれますが、除いて送ることもできます。</string>
     <string name="androidShowExplanation">説明を表示</string>
     <string name="androidSomeApps">Shroudly を通るのは、選んだアプリだけです（{count}）。</string>
     <string name="androidStartAtBoot">スマホの起動時に開始</string>

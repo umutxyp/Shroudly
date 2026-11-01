@@ -68,6 +68,8 @@
     <string name="androidRemoteControl">לאפשר אפליקציות אוטומציה</string>
     <string name="androidRemoteControlDesc">‏Tasker, ‏MacroDroid ואפליקציות דומות יכולות להפעיל ולכבות את ההגנה בשידור לחבילה {package}, פעולה {action}.START, ‎.STOP או ‎.TOGGLE. כל עוד זה כבוי, שום אפליקציה אחרת לא יכולה.</string>
     <string name="androidShareLogs">שיתוף יומנים</string>
+    <string name="androidShareLogsNoSites">בלי שמות אתרים</string>
+    <string name="androidShareLogsWho">שלחו את זה למי שעוזר לך, או צרפו לדיווח ב-GitHub. יש בו את שמות האתרים ש-Shroudly טיפל בהם; אפשר להשמיט אותם.</string>
     <string name="androidShowExplanation">הצגת ההסברים</string>
     <string name="androidSomeApps">רק האפליקציות שבחרת עוברות דרך Shroudly ‏({count}).</string>
     <string name="androidStartAtBoot">הפעלה עם הדלקת הטלפון</string>

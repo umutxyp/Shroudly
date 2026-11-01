@@ -68,6 +68,8 @@
     <string name="androidRemoteControl">Automatisierungs-Apps erlauben</string>
     <string name="androidRemoteControlDesc">Tasker, MacroDroid und ähnliche Apps können den Schutz mit einem Broadcast an das Paket {package} ein- und ausschalten, Aktion {action}.START, .STOP oder .TOGGLE. Solange dies aus ist, kann keine andere App das.</string>
     <string name="androidShareLogs">Protokoll teilen</string>
+    <string name="androidShareLogsNoSites">Ohne Seitennamen</string>
+    <string name="androidShareLogsWho">Schick es der Person, die dir hilft, oder hänge es an einen Bericht auf GitHub an. Es enthält die Namen der Seiten, die Shroudly bearbeitet hat; du kannst sie weglassen.</string>
     <string name="androidShowExplanation">Erklärungen anzeigen</string>
     <string name="androidSomeApps">Nur die Apps, die du ausgewählt hast, laufen über Shroudly ({count}).</string>
     <string name="androidStartAtBoot">Beim Start des Telefons starten</string>

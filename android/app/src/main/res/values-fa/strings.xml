@@ -68,6 +68,8 @@
     <string name="androidRemoteControl">اجازه به برنامه‌های خودکارسازی</string>
     <string name="androidRemoteControlDesc">Tasker، MacroDroid و برنامه‌های مشابه می‌توانند محافظت را با یک پخش به بستهٔ {package} روشن و خاموش کنند: کنش {action}.START، ‎.STOP یا ‎.TOGGLE. تا وقتی این خاموش است، هیچ برنامهٔ دیگری نمی‌تواند.</string>
     <string name="androidShareLogs">اشتراک‌گذاری گزارش‌ها</string>
+    <string name="androidShareLogsNoSites">بدون نام سایت‌ها</string>
+    <string name="androidShareLogsWho">آن را برای کسی که به شما کمک می‌کند بفرستید یا به یک گزارش در GitHub پیوست کنید. نام سایت‌هایی که Shroudly با آن‌ها کار کرده در آن هست؛ می‌توانید آن‌ها را کنار بگذارید.</string>
     <string name="androidShowExplanation">نمایش توضیحات</string>
     <string name="androidSomeApps">فقط برنامه‌هایی که انتخاب کرده‌اید از Shroudly عبور می‌کنند ({count}).</string>
     <string name="androidStartAtBoot">شروع هنگام روشن شدن گوشی</string>

@@ -68,6 +68,8 @@
     <string name="androidRemoteControl">Разрешить приложения автоматизации</string>
     <string name="androidRemoteControlDesc">Tasker, MacroDroid и похожие приложения могут включать и выключать защиту широковещательным сообщением пакету {package}, действие {action}.START, .STOP или .TOGGLE. Пока это выключено, ни одно другое приложение не может.</string>
     <string name="androidShareLogs">Поделиться журналом</string>
+    <string name="androidShareLogsNoSites">Без названий сайтов</string>
+    <string name="androidShareLogsWho">Отправьте это тому, кто вам помогает, или приложите к отчёту на GitHub. Там есть названия сайтов, с которыми работал Shroudly; их можно убрать.</string>
     <string name="androidShowExplanation">Показать пояснения</string>
     <string name="androidSomeApps">Через Shroudly идут только выбранные вами приложения ({count}).</string>
     <string name="androidStartAtBoot">Запускать при включении телефона</string>

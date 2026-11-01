@@ -686,6 +686,8 @@
   "androidAutomationSection": "الأتمتة",
   "androidAppsVpnOnly": "في وضع VPN فقط. في وضع «وكيل فقط» يحدّد إعداد الوكيل الخاص بكل تطبيق ما إذا كان يمر عبر Shroudly.",
   "androidModeSwitching": "تعود الحماية للعمل بالوضع الجديد.",
+  "androidShareLogsWho": "أرسله إلى من يساعدك، أو أرفقه ببلاغ على GitHub. يتضمن أسماء المواقع التي تعامل معها Shroudly، ويمكنك استبعادها.",
+  "androidShareLogsNoSites": "بدون أسماء المواقع",
   "logCustomDnsRoutes": "خادم DNS الخاص بك يجيب: {routes}",
   "logCustomDnsDown": "خادم DNS الخاص بك {server} لا يجيب ({reason})؛ يجيب DNS المشفَّر المدمج في Shroudly حتى يعود",
   "logCustomDnsDownStrict": "خادم DNS الخاص بك {server} لا يجيب ({reason})؛ إنه الوحيد المستخدم، لذا تفشل عمليات البحث عن الأسماء حتى يجيب",

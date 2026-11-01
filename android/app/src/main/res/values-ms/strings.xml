@@ -68,6 +68,8 @@
     <string name="androidRemoteControl">Benarkan aplikasi automasi</string>
     <string name="androidRemoteControlDesc">Tasker, MacroDroid dan aplikasi serupa boleh menghidupkan dan mematikan perlindungan dengan siaran kepada pakej {package}, tindakan {action}.START, .STOP atau .TOGGLE. Selagi ini dimatikan, tiada aplikasi lain boleh berbuat demikian.</string>
     <string name="androidShareLogs">Kongsi log</string>
+    <string name="androidShareLogsNoSites">Tanpa nama laman</string>
+    <string name="androidShareLogsWho">Hantarkannya kepada orang yang membantu anda, atau lampirkan pada laporan di GitHub. Ia mengandungi nama laman yang dikendalikan Shroudly; anda boleh meninggalkannya.</string>
     <string name="androidShowExplanation">Tunjukkan penerangan</string>
     <string name="androidSomeApps">Hanya aplikasi yang anda pilih melalui Shroudly ({count}).</string>
     <string name="androidStartAtBoot">Mula apabila telefon dihidupkan</string>

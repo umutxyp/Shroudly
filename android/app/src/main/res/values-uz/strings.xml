@@ -68,6 +68,8 @@
     <string name="androidRemoteControl">Avtomatlashtirish ilovalariga ruxsat berish</string>
     <string name="androidRemoteControlDesc">Tasker, MacroDroid va shunga oʻxshash ilovalar {package} paketiga yuborilgan translyatsiya orqali himoyani yoqib-oʻchira oladi: amal {action}.START, .STOP yoki .TOGGLE. Bu oʻchiq ekan, boshqa hech bir ilova buni qila olmaydi.</string>
     <string name="androidShareLogs">Jurnalni ulashish</string>
+    <string name="androidShareLogsNoSites">Sayt nomlarisiz</string>
+    <string name="androidShareLogsWho">Buni sizga yordam berayotgan kishiga yuboring yoki GitHub’dagi hisobotga ilova qiling. Unda Shroudly ishlov bergan saytlar nomlari bor; ularni olib tashlashingiz mumkin.</string>
     <string name="androidShowExplanation">Izohlarni ko‘rsatish</string>
     <string name="androidSomeApps">Shroudly orqali faqat siz tanlagan ilovalar o‘tadi ({count}).</string>
     <string name="androidStartAtBoot">Telefon yonganda ishga tushirish</string>

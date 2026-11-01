@@ -68,6 +68,8 @@
     <string name="androidRemoteControl">အလိုအလျောက်လုပ်ဆောင်သည့် အက်ပ်များကို ခွင့်ပြုရန်</string>
     <string name="androidRemoteControlDesc">Tasker၊ MacroDroid နှင့် ဆင်တူအက်ပ်များသည် {package} ပက်ကေ့ချ်သို့ broadcast ပို့၍ ကာကွယ်မှုကို ဖွင့်/ပိတ် နိုင်သည်- action {action}.START၊ .STOP သို့မဟုတ် .TOGGLE။ ဤအရာ ပိတ်ထားစဉ် အခြားအက်ပ် မည်သည့်အက်ပ်မျှ မလုပ်နိုင်ပါ။</string>
     <string name="androidShareLogs">မှတ်တမ်းများ မျှဝေရန်</string>
+    <string name="androidShareLogsNoSites">ဆိုက်အမည်များ မပါဘဲ</string>
+    <string name="androidShareLogsWho">သင့်ကို ကူညီနေသူထံ ပို့ပါ သို့မဟုတ် GitHub ရှိ အစီရင်ခံစာတွင် ပူးတွဲပါ။ ၎င်းတွင် Shroudly ကိုင်တွယ်ခဲ့သော ဆိုက်အမည်များ ပါဝင်ပြီး ၎င်းတို့ကို ချန်ထားနိုင်ပါသည်။</string>
     <string name="androidShowExplanation">ရှင်းလင်းချက်များကို ပြပါ</string>
     <string name="androidSomeApps">သင်ရွေးထားသော အက်ပ်များသာ Shroudly မှတစ်ဆင့် သွားပါသည် ({count})။</string>
     <string name="androidStartAtBoot">ဖုန်းဖွင့်သည့်အခါ စတင်ရန်</string>

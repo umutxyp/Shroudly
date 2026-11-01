@@ -686,6 +686,8 @@
   "androidAutomationSection": "خودکارسازی",
   "androidAppsVpnOnly": "فقط در حالت VPN. در «فقط پراکسی»، تنظیم پراکسی خود هر برنامه تعیین می‌کند که از Shroudly عبور کند یا نه.",
   "androidModeSwitching": "محافظت در حالت جدید دوباره روشن می‌شود.",
+  "androidShareLogsWho": "آن را برای کسی که به شما کمک می‌کند بفرستید یا به یک گزارش در GitHub پیوست کنید. نام سایت‌هایی که Shroudly با آن‌ها کار کرده در آن هست؛ می‌توانید آن‌ها را کنار بگذارید.",
+  "androidShareLogsNoSites": "بدون نام سایت‌ها",
   "logCustomDnsRoutes": "سرور DNS شما پاسخ می‌دهد: {routes}",
   "logCustomDnsDown": "سرور DNS شما {server} پاسخ نمی‌دهد ({reason})؛ تا پاسخ دهد، DNS رمزگذاری‌شدهٔ داخلی Shroudly پاسخ می‌دهد",
   "logCustomDnsDownStrict": "سرور DNS شما {server} پاسخ نمی‌دهد ({reason})؛ فقط همین سرور استفاده می‌شود، پس جست‌وجوی نام‌ها تا پاسخ دادنش ناموفق است",

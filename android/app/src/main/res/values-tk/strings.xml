@@ -68,6 +68,8 @@
     <string name="androidRemoteControl">Awtomatlaşdyryş programmalaryna rugsat ber</string>
     <string name="androidRemoteControlDesc">Tasker, MacroDroid we meňzeş programmalar {package} paketine iberilen ýaýlym arkaly goragy açyp-öçürip bilýär: hereket {action}.START, .STOP ýa-da .TOGGLE. Bu öçük wagty başga hiç bir programma muny edip bilmeýär.</string>
     <string name="androidShareLogs">Ýazgylary paýlaş</string>
+    <string name="androidShareLogsNoSites">Saýt atlary bolmazdan</string>
+    <string name="androidShareLogsWho">Ony size kömek edýän adama iberiň ýa-da GitHub-daky hasabata goşuň. Onda Shroudly-nyň işlän saýtlarynyň atlary bar; olary aýryp bilersiňiz.</string>
     <string name="androidShowExplanation">Düşündirişleri görkez</string>
     <string name="androidSomeApps">Shroudly arkaly diňe saýlan programmalaryňyz geçýär ({count}).</string>
     <string name="androidStartAtBoot">Telefon açylanda başla</string>

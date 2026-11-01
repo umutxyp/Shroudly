@@ -686,6 +686,8 @@
   "androidAutomationSection": "অটোমেশন",
   "androidAppsVpnOnly": "শুধু VPN মোডে। শুধু প্রক্সিতে, প্রতিটি অ্যাপ Shroudly-এর মধ্য দিয়ে যাবে কি না তা তার নিজস্ব প্রক্সি সেটিং ঠিক করে।",
   "androidModeSwitching": "নতুন মোডে সুরক্ষা আবার চালু হচ্ছে।",
+  "androidShareLogsWho": "যিনি আপনাকে সাহায্য করছেন তাঁকে পাঠান, অথবা GitHub-এ একটি রিপোর্টে যুক্ত করুন। এতে Shroudly যেসব সাইট সামলেছে সেগুলোর নাম থাকে; চাইলে সেগুলো বাদ দিতে পারেন।",
+  "androidShareLogsNoSites": "সাইটের নাম ছাড়া",
   "logCustomDnsRoutes": "আপনার DNS সার্ভার উত্তর দিচ্ছে: {routes}",
   "logCustomDnsDown": "আপনার DNS সার্ভার {server} উত্তর দিচ্ছে না ({reason}); এটি উত্তর না দেওয়া পর্যন্ত Shroudly-এর ভেতরের এনক্রিপ্ট করা DNS উত্তর দিচ্ছে",
   "logCustomDnsDownStrict": "আপনার DNS সার্ভার {server} উত্তর দিচ্ছে না ({reason}); শুধু এটিই ব্যবহৃত হয়, তাই এটি উত্তর না দেওয়া পর্যন্ত নাম খোঁজা ব্যর্থ হচ্ছে",

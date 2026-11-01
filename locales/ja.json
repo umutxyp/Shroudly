@@ -686,6 +686,8 @@
   "androidAutomationSection": "自動化",
   "androidAppsVpnOnly": "VPN モードのときだけです。「プロキシのみ」では、Shroudly を通るかどうかは各アプリのプロキシ設定で決まります。",
   "androidModeSwitching": "新しいモードで保護を再開しています。",
+  "androidShareLogsWho": "サポートしてくれている人に送るか、GitHub の報告に添付してください。Shroudly が扱ったサイト名が含まれますが、除いて送ることもできます。",
+  "androidShareLogsNoSites": "サイト名なしで",
   "logCustomDnsRoutes": "あなたの DNS サーバーが応答しています：{routes}",
   "logCustomDnsDown": "あなたの DNS サーバー {server} が応答しません（{reason}）。応答するまで Shroudly 内蔵の暗号化 DNS が応答します",
   "logCustomDnsDownStrict": "DNS サーバー {server} が応答しません ({reason})。このサーバーのみを使うため、応答があるまで名前の解決は失敗します",

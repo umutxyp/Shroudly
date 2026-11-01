@@ -68,6 +68,8 @@
     <string name="androidRemoteControl">د اتومات کولو اپونو ته اجازه ورکړئ</string>
     <string name="androidRemoteControlDesc">Tasker، MacroDroid او ورته اپونه کولی شي د {package} کڅوړې ته د خپرونې په لېږلو ساتنه روښانه او بنده کړي: کړنه {action}.START، ‎.STOP یا ‎.TOGGLE. تر هغه چې دا بند وي، هېڅ بل اپ دا نشي کولی.</string>
     <string name="androidShareLogs">لاګونه شریک کړئ</string>
+    <string name="androidShareLogsNoSites">د سایټونو له نومونو پرته</string>
+    <string name="androidShareLogsWho">دا هغه چا ته ولېږئ چې له تاسو سره مرسته کوي، یا یې په GitHub کې له یو راپور سره ونښلوئ. په دې کې د هغو سایټونو نومونه دي چې Shroudly ورسره کار کړی؛ تاسو یې لرې کولی شئ.</string>
     <string name="androidShowExplanation">توضیحات ښکاره کړئ</string>
     <string name="androidSomeApps">یوازې هغه اپونه چې تاسو غوره کړي له Shroudly تېرېږي ({count}).</string>
     <string name="androidStartAtBoot">د تلیفون د چالانېدو پر وخت پیل کړه</string>

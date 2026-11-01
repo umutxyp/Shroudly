@@ -686,6 +686,8 @@
   "androidAutomationSection": "Otomasyon",
   "androidAppsVpnOnly": "Yalnızca VPN modunda. Yalnızca proxy'de bir uygulamanın Shroudly'den geçip geçmeyeceğine o uygulamanın kendi proxy ayarı karar verir.",
   "androidModeSwitching": "Koruma yeni modda yeniden başlıyor.",
+  "androidShareLogsWho": "Size yardım eden kişiye gönderin ya da GitHub'daki bir bildirime ekleyin. Shroudly'nin işlediği sitelerin adlarını içerir; bunları çıkarabilirsiniz.",
+  "androidShareLogsNoSites": "Site adları olmadan",
   "logCustomDnsRoutes": "DNS sunucun cevap veriyor: {routes}",
   "logCustomDnsDown": "DNS sunucun {server} cevap vermiyor ({reason}); o cevap verene kadar Shroudly'nin yerleşik şifreli DNS'i cevap veriyor",
   "logCustomDnsDownStrict": "DNS sunucun {server} cevap vermiyor ({reason}); yalnızca o kullanıldığı için ad sorguları o cevap verene kadar başarısız oluyor",

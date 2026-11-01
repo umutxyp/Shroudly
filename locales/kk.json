@@ -686,6 +686,8 @@
   "androidAutomationSection": "Автоматтандыру",
   "androidAppsVpnOnly": "Тек VPN режимінде. «Тек прокси» режимінде қолданбаның Shroudly арқылы өтетінін оның өз прокси баптауы шешеді.",
   "androidModeSwitching": "Қорғаныс жаңа режимде қайта іске қосылуда.",
+  "androidShareLogsWho": "Мұны сізге көмектесіп жатқан адамға жіберіңіз немесе GitHub-тағы есепке тіркеңіз. Онда Shroudly өңдеген сайттардың атаулары бар; оларды алып тастай аласыз.",
+  "androidShareLogsNoSites": "Сайт атауларынсыз",
   "logCustomDnsRoutes": "DNS серверіңіз жауап беріп жатыр: {routes}",
   "logCustomDnsDown": "DNS серверіңіз {server} жауап бермейді ({reason}); ол жауап бергенше Shroudly-дің кірістірілген шифрланған DNS-і жауап береді",
   "logCustomDnsDownStrict": "DNS серверіңіз {server} жауап бермейді ({reason}); тек сол қолданылады, сондықтан ат сұраулары ол жауап бергенше орындалмайды",

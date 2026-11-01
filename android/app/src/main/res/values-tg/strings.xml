@@ -68,6 +68,8 @@
     <string name="androidRemoteControl">Иҷозат ба барномаҳои автоматикунонӣ</string>
     <string name="androidRemoteControlDesc">Tasker, MacroDroid ва барномаҳои монанд метавонанд ҳимояро бо паёми паҳнкунӣ ба бастаи {package} фаъол ва хомӯш кунанд: амал {action}.START, .STOP ё .TOGGLE. То даме ки ин хомӯш аст, ҳеҷ барномаи дигар наметавонад.</string>
     <string name="androidShareLogs">Мубодилаи сабтҳо</string>
+    <string name="androidShareLogsNoSites">Бе номи сомонаҳо</string>
+    <string name="androidShareLogsWho">Инро ба шахсе, ки ба шумо кӯмак мекунад, фиристед ё ба гузориш дар GitHub замима кунед. Дар он номи сомонаҳое ҳаст, ки Shroudly бо онҳо кор кардааст; онҳоро хориҷ карда метавонед.</string>
     <string name="androidShowExplanation">Нишон додани шарҳҳо</string>
     <string name="androidSomeApps">Танҳо барномаҳое, ки шумо интихоб кардед, аз Shroudly мегузаранд ({count}).</string>
     <string name="androidStartAtBoot">Ҳангоми фурӯзон шудани телефон оғоз кардан</string>

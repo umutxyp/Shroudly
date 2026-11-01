@@ -68,6 +68,8 @@
     <string name="androidRemoteControl">آٹومیشن ایپس کو اجازت دیں</string>
     <string name="androidRemoteControlDesc">Tasker، MacroDroid اور ان جیسی ایپس پیکیج {package} کو براڈکاسٹ بھیج کر تحفظ آن اور آف کر سکتی ہیں: ایکشن {action}.START، ‎.STOP یا ‎.TOGGLE۔ جب تک یہ بند ہے، کوئی دوسری ایپ ایسا نہیں کر سکتی۔</string>
     <string name="androidShareLogs">لاگز شیئر کریں</string>
+    <string name="androidShareLogsNoSites">سائٹس کے ناموں کے بغیر</string>
+    <string name="androidShareLogsWho">اسے اپنی مدد کرنے والے کو بھیجیں، یا GitHub پر کسی رپورٹ کے ساتھ لگائیں۔ اس میں ان سائٹس کے نام ہوتے ہیں جنہیں Shroudly نے سنبھالا؛ آپ انہیں نکال سکتے ہیں۔</string>
     <string name="androidShowExplanation">وضاحتیں دکھائیں</string>
     <string name="androidSomeApps">صرف آپ کی منتخب کردہ ایپس Shroudly سے گزرتی ہیں ({count})۔</string>
     <string name="androidStartAtBoot">فون آن ہونے پر شروع کریں</string>

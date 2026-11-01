@@ -68,6 +68,8 @@
     <string name="androidRemoteControl">ለራስ-ሰር መተግበሪያዎች ፍቀድ</string>
     <string name="androidRemoteControlDesc">Tasker፣ MacroDroid እና ተመሳሳይ መተግበሪያዎች ወደ {package} ጥቅል በሚላክ ስርጭት ጥበቃን ማብራት እና ማጥፋት ይችላሉ፦ ድርጊት {action}.START፣ .STOP ወይም .TOGGLE። ይህ ጠፍቶ ሳለ ሌላ ምንም መተግበሪያ ይህን ማድረግ አይችልም።</string>
     <string name="androidShareLogs">መዝገብ አጋራ</string>
+    <string name="androidShareLogsNoSites">ያለ ጣቢያ ስሞች</string>
+    <string name="androidShareLogsWho">ለሚረዳዎ ሰው ይላኩት፣ ወይም በGitHub ላይ ካለ ሪፖርት ጋር ያያይዙት። Shroudly ያስተናገዳቸውን የጣቢያዎች ስሞች ይዟል፤ እነሱን ማስቀረት ይችላሉ።</string>
     <string name="androidShowExplanation">ማብራሪያዎቹን አሳይ</string>
     <string name="androidSomeApps">በShroudly በኩል የሚያልፉት እርስዎ የመረጧቸው መተግበሪያዎች ብቻ ናቸው ({count})።</string>
     <string name="androidStartAtBoot">ስልኩ ሲበራ ጀምር</string>

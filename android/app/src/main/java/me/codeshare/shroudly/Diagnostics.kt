@@ -93,7 +93,9 @@ object Diagnostics {
     fun notificationsDue(enabled: Boolean, workedDays: Int, laterAt: Long, now: Long): Boolean =
         !enabled && workedDays > 0 && (laterAt == 0L || now - laterAt !in 0 until NOTICE_AGAIN_MS)
 
-    fun report(ctx: Context): String {
+    /* sites: false leaves the lines about sites out (Share logs' "Without
+     * site names"). */
+    fun report(ctx: Context, sites: Boolean = true): String {
         val sb = StringBuilder()
         val source = try { if (InstallSource.githubUpdates(ctx)) "APK from GitHub" else "Google Play" } catch (_: Exception) { "unknown source" }
         sb.append("Shroudly ").append(BuildConfig.VERSION_NAME).append(" (").append(BuildConfig.VERSION_CODE).append(") for Android, ")
@@ -110,8 +112,9 @@ object Diagnostics {
             if (on) android.os.SystemClock.elapsedRealtime() - Protection.startedAt else -1L,
             Protection.alwaysOn, Protection.lockdown, Protection.ipv6, Protection.troubleRes == R.string.androidLockdownOffline)).append('\n')
         sb.append("Now: ").append(SimpleDateFormat("yyyy-MM-dd HH:mm:ss Z", Locale.ROOT).format(Date())).append('\n')
-        val lines = AppLog.snapshot()
-        sb.append('\n').append("Log, last ").append(lines.size).append(" lines (with the names of sites Shroudly handled):\n")
+        val lines = AppLog.snapshot(sites)
+        sb.append('\n').append("Log, last ").append(lines.size)
+            .append(if (sites) " lines (with the names of sites Shroudly handled):\n" else " lines (the lines about sites left out):\n")
         for (l in lines) sb.append(l).append('\n')
         return sb.toString()
     }

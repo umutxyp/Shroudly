@@ -686,6 +686,8 @@
   "androidAutomationSection": "Otomatisasi",
   "androidAppsVpnOnly": "Hanya di mode VPN. Di Hanya proxy, setelan proxy masing-masing aplikasi yang menentukan apakah aplikasi itu melewati Shroudly.",
   "androidModeSwitching": "Perlindungan dimulai ulang dalam mode baru.",
+  "androidShareLogsWho": "Kirim ke orang yang membantu Anda, atau lampirkan ke laporan di GitHub. Isinya mencakup nama situs yang ditangani Shroudly; Anda bisa menghilangkannya.",
+  "androidShareLogsNoSites": "Tanpa nama situs",
   "logCustomDnsRoutes": "Server DNS Anda menjawab: {routes}",
   "logCustomDnsDown": "Server DNS Anda {server} tidak menjawab ({reason}); sampai ia menjawab, DNS terenkripsi bawaan Shroudly yang menjawab",
   "logCustomDnsDownStrict": "Server DNS Anda {server} tidak menjawab ({reason}); hanya server ini yang dipakai, jadi pencarian nama gagal sampai server ini menjawab",

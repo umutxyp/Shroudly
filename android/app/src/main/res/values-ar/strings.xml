@@ -68,6 +68,8 @@
     <string name="androidRemoteControl">السماح لتطبيقات الأتمتة</string>
     <string name="androidRemoteControlDesc">يمكن لـ Tasker وMacroDroid والتطبيقات المشابهة تشغيل الحماية وإيقافها ببث إلى الحزمة {package}، والإجراء {action}.START أو ‎.STOP أو ‎.TOGGLE. ما دام هذا متوقفًا، لا يستطيع أي تطبيق آخر ذلك.</string>
     <string name="androidShareLogs">مشاركة السجلات</string>
+    <string name="androidShareLogsNoSites">بدون أسماء المواقع</string>
+    <string name="androidShareLogsWho">أرسله إلى من يساعدك، أو أرفقه ببلاغ على GitHub. يتضمن أسماء المواقع التي تعامل معها Shroudly، ويمكنك استبعادها.</string>
     <string name="androidShowExplanation">إظهار الشروح</string>
     <string name="androidSomeApps">تمر عبر Shroudly التطبيقات التي اخترتها فقط ({count}).</string>
     <string name="androidStartAtBoot">البدء عند تشغيل الهاتف</string>

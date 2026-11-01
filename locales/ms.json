@@ -686,6 +686,8 @@
   "androidAutomationSection": "Automasi",
   "androidAppsVpnOnly": "Hanya dalam mod VPN. Dalam Proksi sahaja, tetapan proksi setiap aplikasi menentukan sama ada ia melalui Shroudly.",
   "androidModeSwitching": "Perlindungan dimulakan semula dalam mod baharu.",
+  "androidShareLogsWho": "Hantarkannya kepada orang yang membantu anda, atau lampirkan pada laporan di GitHub. Ia mengandungi nama laman yang dikendalikan Shroudly; anda boleh meninggalkannya.",
+  "androidShareLogsNoSites": "Tanpa nama laman",
   "logCustomDnsRoutes": "Pelayan DNS anda sedang menjawab: {routes}",
   "logCustomDnsDown": "Pelayan DNS anda {server} tidak menjawab ({reason}); sehingga ia menjawab, DNS tersulit terbina dalam Shroudly yang menjawab",
   "logCustomDnsDownStrict": "Pelayan DNS anda {server} tidak menjawab ({reason}); hanya pelayan ini digunakan, jadi carian nama gagal sehingga ia menjawab",

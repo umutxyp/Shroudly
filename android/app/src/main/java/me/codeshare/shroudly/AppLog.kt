@@ -69,10 +69,10 @@ object AppLog {
         }
     }
 
-    /* Every line, oldest first, site lines included: only for what the user
-     * shares. */
-    fun snapshot(): List<String> = synchronized(this) {
-        (app + sites).sortedBy { it.seq }.map { it.text }
+    /* Every line, oldest first, site lines included unless the user leaves
+     * them out: only for what the user shares. */
+    fun snapshot(sites: Boolean = true): List<String> = synchronized(this) {
+        (if (sites) app + this.sites else app.toList()).sortedBy { it.seq }.map { it.text }
     }
 
     /* Waits for what has been handed to the writer (tests). */

@@ -68,6 +68,8 @@
     <string name="androidRemoteControl">Otomasyon uygulamalarına izin ver</string>
     <string name="androidRemoteControlDesc">Tasker, MacroDroid ve benzeri uygulamalar korumayı {package} paketine gönderilen bir yayınla açıp kapatabilir: eylem {action}.START, .STOP ya da .TOGGLE. Bu kapalıyken başka hiçbir uygulama bunu yapamaz.</string>
     <string name="androidShareLogs">Kayıtları paylaş</string>
+    <string name="androidShareLogsNoSites">Site adları olmadan</string>
+    <string name="androidShareLogsWho">Size yardım eden kişiye gönderin ya da GitHub\'daki bir bildirime ekleyin. Shroudly\'nin işlediği sitelerin adlarını içerir; bunları çıkarabilirsiniz.</string>
     <string name="androidShowExplanation">Açıklamaları göster</string>
     <string name="androidSomeApps">Shroudly\'den yalnızca seçtiğiniz uygulamalar geçer ({count}).</string>
     <string name="androidStartAtBoot">Telefon açılınca başlat</string>

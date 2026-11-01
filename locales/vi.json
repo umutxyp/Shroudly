@@ -686,6 +686,8 @@
   "androidAutomationSection": "Tự động hóa",
   "androidAppsVpnOnly": "Chỉ ở chế độ VPN. Ở Chỉ proxy, cài đặt proxy riêng của từng ứng dụng quyết định nó có đi qua Shroudly hay không.",
   "androidModeSwitching": "Bảo vệ đang khởi động lại ở chế độ mới.",
+  "androidShareLogsWho": "Gửi cho người đang giúp bạn, hoặc đính kèm vào một báo cáo trên GitHub. Nội dung có tên các trang Shroudly đã xử lý; bạn có thể bỏ chúng ra.",
+  "androidShareLogsNoSites": "Không kèm tên trang",
   "logCustomDnsRoutes": "Máy chủ DNS của bạn đang trả lời: {routes}",
   "logCustomDnsDown": "Máy chủ DNS của bạn {server} không trả lời ({reason}); cho đến khi nó trả lời, DNS mã hóa tích hợp của Shroudly sẽ trả lời",
   "logCustomDnsDownStrict": "Máy chủ DNS của bạn {server} không trả lời ({reason}); chỉ máy chủ này được dùng, nên tra cứu tên thất bại cho đến khi nó trả lời",

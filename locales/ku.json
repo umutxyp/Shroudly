@@ -686,6 +686,8 @@
   "androidAutomationSection": "Otomasyon",
   "androidAppsVpnOnly": "Tenê di moda VPN de. Di Tenê proksî de, mîhenga proksiyê ya her sepanê biryar dide ka ew di Shroudly re derbas dibe an na.",
   "androidModeSwitching": "Parastin bi moda nû ji nû ve dest pê dike.",
+  "androidShareLogsWho": "Wê ji kesê ku alîkariya te dike re bişîne, an jî bi raporeke li ser GitHub ve girê bide. Navên malperên ku Shroudly bi wan re mijûl bûye tê de hene; tu dikarî wan derxî.",
+  "androidShareLogsNoSites": "Bê navên malperan",
   "logCustomDnsRoutes": "Pêşkêşkara te ya DNS bersiv dide: {routes}",
   "logCustomDnsDown": "Pêşkêşkara te ya DNS {server} bersiv nade ({reason}); heta ku bersiv bide, DNS-a şîfrekirî ya hundirîn a Shroudly bersiv dide",
   "logCustomDnsDownStrict": "Pêşkêşkara te ya DNS {server} bersiv nade ({reason}); tenê ew tê bikaranîn, ji ber vê yekê lêgerînên navan heta ku bersiv bide têk diçin",

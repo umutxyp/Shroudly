@@ -68,6 +68,8 @@
     <string name="androidRemoteControl">Автоматтандыру қолданбаларына рұқсат ету</string>
     <string name="androidRemoteControlDesc">Tasker, MacroDroid және ұқсас қолданбалар {package} бумасына жіберілген тарату хабарымен қорғанысты қосып-өшіре алады: әрекет {action}.START, .STOP немесе .TOGGLE. Бұл өшірулі тұрғанда басқа ешбір қолданба мұны істей алмайды.</string>
     <string name="androidShareLogs">Журналды бөлісу</string>
+    <string name="androidShareLogsNoSites">Сайт атауларынсыз</string>
+    <string name="androidShareLogsWho">Мұны сізге көмектесіп жатқан адамға жіберіңіз немесе GitHub-тағы есепке тіркеңіз. Онда Shroudly өңдеген сайттардың атаулары бар; оларды алып тастай аласыз.</string>
     <string name="androidShowExplanation">Түсіндірмелерді көрсету</string>
     <string name="androidSomeApps">Shroudly арқылы тек сіз таңдаған қолданбалар өтеді ({count}).</string>
     <string name="androidStartAtBoot">Телефон қосылғанда іске қосу</string>

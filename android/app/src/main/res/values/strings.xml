@@ -68,6 +68,8 @@
     <string name="androidRemoteControl">Allow automation apps</string>
     <string name="androidRemoteControlDesc">Tasker, MacroDroid and similar apps can turn protection on and off with a broadcast to the package {package}, action {action}.START, .STOP or .TOGGLE. While this is off, no other app can.</string>
     <string name="androidShareLogs">Share logs</string>
+    <string name="androidShareLogsNoSites">Without site names</string>
+    <string name="androidShareLogsWho">Send it to the person helping you, or attach it to a report on GitHub. It includes the names of sites Shroudly handled; you can leave them out.</string>
     <string name="androidShowExplanation">Show the explanations</string>
     <string name="androidSomeApps">Only the apps you chose go through Shroudly ({count}).</string>
     <string name="androidStartAtBoot">Start when the phone starts</string>

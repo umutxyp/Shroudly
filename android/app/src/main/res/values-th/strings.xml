@@ -68,6 +68,8 @@
     <string name="androidRemoteControl">อนุญาตแอปอัตโนมัติ</string>
     <string name="androidRemoteControlDesc">Tasker, MacroDroid และแอปที่คล้ายกันสามารถเปิดและปิดการป้องกันได้ด้วยการส่ง broadcast ไปยังแพ็กเกจ {package} แอ็กชัน {action}.START, .STOP หรือ .TOGGLE ขณะที่ตัวเลือกนี้ปิดอยู่ ไม่มีแอปอื่นใดทำได้</string>
     <string name="androidShareLogs">แชร์บันทึก</string>
+    <string name="androidShareLogsNoSites">ไม่ใส่ชื่อเว็บไซต์</string>
+    <string name="androidShareLogsWho">ส่งให้คนที่ช่วยคุณ หรือแนบไปกับรายงานบน GitHub ในนั้นมีชื่อเว็บไซต์ที่ Shroudly จัดการ คุณเลือกไม่ใส่ได้</string>
     <string name="androidShowExplanation">แสดงคำอธิบาย</string>
     <string name="androidSomeApps">เฉพาะแอปที่คุณเลือกเท่านั้นที่ผ่าน Shroudly ({count})</string>
     <string name="androidStartAtBoot">เริ่มเมื่อเปิดโทรศัพท์</string>

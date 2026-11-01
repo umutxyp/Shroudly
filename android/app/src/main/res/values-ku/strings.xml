@@ -68,6 +68,8 @@
     <string name="androidRemoteControl">Destûrê bide sepanên otomasyonê</string>
     <string name="androidRemoteControlDesc">Tasker, MacroDroid û sepanên wek wan dikarin parastinê bi weşanekê ji pakêta {package} re veke û bigire: çalakî {action}.START, .STOP an .TOGGLE. Heta ku ev girtî be, ti sepaneke din nikare.</string>
     <string name="androidShareLogs">Tomaran parve bike</string>
+    <string name="androidShareLogsNoSites">Bê navên malperan</string>
+    <string name="androidShareLogsWho">Wê ji kesê ku alîkariya te dike re bişîne, an jî bi raporeke li ser GitHub ve girê bide. Navên malperên ku Shroudly bi wan re mijûl bûye tê de hene; tu dikarî wan derxî.</string>
     <string name="androidShowExplanation">Ravekirinan nîşan bide</string>
     <string name="androidSomeApps">Tenê sepanên ku te hilbijartine di Shroudly re derbas dibin ({count}).</string>
     <string name="androidStartAtBoot">Dema telefon vedibe dest pê bike</string>

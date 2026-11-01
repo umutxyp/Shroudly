@@ -68,6 +68,8 @@
     <string name="androidRemoteControl">允许自动化应用</string>
     <string name="androidRemoteControlDesc">Tasker、MacroDroid 等应用可通过向软件包 {package} 发送广播（操作 {action}.START、.STOP 或 .TOGGLE）开关保护。此项关闭时，其他应用都无法这样做。</string>
     <string name="androidShareLogs">分享日志</string>
+    <string name="androidShareLogsNoSites">不含网站名称</string>
+    <string name="androidShareLogsWho">请发送给帮助你的人，或附在 GitHub 上的报告中。其中包含 Shroudly 处理过的网站名称；你可以选择不包含它们。</string>
     <string name="androidShowExplanation">显示说明</string>
     <string name="androidSomeApps">只有你选择的应用经过 Shroudly（{count}）。</string>
     <string name="androidStartAtBoot">手机开机时启动</string>
