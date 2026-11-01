@@ -31,7 +31,7 @@ class DebugControlActivity : Activity() {
             "remote" -> AppSettings.setRemoteControl(this, intent.getStringExtra("on") == "true")
             "stats" -> Protector.tell(this, ShroudlyVpnService.ACTION_STATS)
             "test" -> Protector.tell(this, ShroudlyVpnService.ACTION_TEST, intent.getStringExtra("what"))
-            // "Block ads and trackers" on or off, as the switch under About does.
+            // "Block ads and trackers" on or off, as the switch in Settings does.
             "adblock-on", "adblock-off" -> {
                 AdBlock.setEnabled(this, intent.getStringExtra("cmd") == "adblock-on")
                 Protector.tell(this, ShroudlyVpnService.ACTION_ADBLOCK)

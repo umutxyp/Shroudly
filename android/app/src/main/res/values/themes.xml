@@ -79,10 +79,18 @@
         <item name="android:tint">@color/text_faint</item>
     </style>
 
+    <!-- One line, the size giving way first (large text, a long
+         language): broken in two ("Connec-tions"), the label pushed its
+         value below its neighbour's. -->
     <style name="StatLabel">
         <item name="android:layout_width">0dp</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_weight">1</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:autoSizeTextType">uniform</item>
+        <item name="android:autoSizeMinTextSize">8sp</item>
+        <item name="android:autoSizeMaxTextSize">12.5sp</item>
+        <item name="android:autoSizeStepGranularity">0.5sp</item>
         <item name="android:layout_marginStart">7dp</item>
         <item name="android:textAlignment">viewStart</item>
         <item name="android:textColor">@color/text_dim</item>
@@ -181,6 +189,12 @@
         <item name="android:background">@color/line</item>
     </style>
 
+    <!-- The Settings bar's title, in sp like every other text: the
+         system's is in dp and stayed small with large text. -->
+    <style name="ToolbarTitle" parent="@android:style/TextAppearance.Material.Widget.Toolbar.Title">
+        <item name="android:textSize">20sp</item>
+    </style>
+
     <style name="Link">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
@@ -197,14 +211,17 @@
 
     <!-- The desktop's accents (components/Appearance.js ACCENTS), applied over
          the theme (Accent.kt): the swatch for large text and the ring, a
-         lighter step for small text, and a darker pair for button fills. -->
+         lighter step for small text, and a darker pair for button fills.
+         White text needs 4.5:1 on all of a button: where the lighter end was
+         below it (sky 4.1, teal 3.7, emerald 3.8), the fill is the darker one
+         throughout, as lime's and amber's are. -->
     <style name="Accent.Sky" parent="">
         <item name="accent">#FF38BDF8</item>
         <item name="accentLight">#FF7DD3FC</item>
         <item name="accentSoft">#2438BDF8</item>
         <item name="accentLine">#8038BDF8</item>
         <item name="accentButtonStart">#FF0369A1</item>
-        <item name="accentButtonEnd">#FF0284C7</item>
+        <item name="accentButtonEnd">#FF0369A1</item>
     </style>
     <style name="Accent.Teal" parent="">
         <item name="accent">#FF2DD4BF</item>
@@ -212,7 +229,7 @@
         <item name="accentSoft">#242DD4BF</item>
         <item name="accentLine">#802DD4BF</item>
         <item name="accentButtonStart">#FF0F766E</item>
-        <item name="accentButtonEnd">#FF0D9488</item>
+        <item name="accentButtonEnd">#FF0F766E</item>
     </style>
     <style name="Accent.Emerald" parent="">
         <item name="accent">#FF34D399</item>
@@ -220,7 +237,7 @@
         <item name="accentSoft">#2434D399</item>
         <item name="accentLine">#8034D399</item>
         <item name="accentButtonStart">#FF047857</item>
-        <item name="accentButtonEnd">#FF059669</item>
+        <item name="accentButtonEnd">#FF047857</item>
     </style>
     <style name="Accent.Lime" parent="">
         <item name="accent">#FFA3E635</item>

@@ -12,9 +12,8 @@ import android.content.Intent
  * Always-on VPN does the same from the system's settings; this is for those
  * who have not set it.
  *
- * Without that setting, Proxy only still comes back if it was on when the
- * phone restarted (KeepOn.booted): apps set to use it reach nothing while
- * it is off.
+ * Without that setting, protection still comes back if it was on when the
+ * phone restarted (KeepOn.booted): a restart is not the user turning it off.
  *
  * And after an update of Shroudly itself (from Google Play, inside the app or
  * by itself, or a new APK over it), which ends the app and protection with

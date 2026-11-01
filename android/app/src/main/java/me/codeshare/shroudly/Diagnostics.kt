@@ -75,7 +75,27 @@ object Diagnostics {
     fun batteryHint(b: Battery, manufacturer: String?, brand: String?): Boolean =
         b.backgroundRestricted || (!b.unrestricted && strictMaker(manufacturer, brand))
 
-    fun report(ctx: Context): String {
+    const val NOTICE_AGAIN_MS = 30L * 24 * 60 * 60 * 1000
+
+    /* The battery card (MainActivity.showNotice): only once protection has
+     * been used (worked on a day, or was on when Android ended it), so the
+     * first screen of a new install is not a warning about something not yet
+     * running. "Not now" (laterAt) hides it for NOTICE_AGAIN_MS, or until
+     * Android next ends protection by itself (endedAt), which shows the
+     * warning was right. A clock set back shows it again. */
+    fun batteryDue(hint: Boolean, workedDays: Int, laterAt: Long, endedAt: Long, now: Long): Boolean =
+        hint && (workedDays > 0 || endedAt > 0) && (laterAt == 0L || endedAt > laterAt || now - laterAt !in 0 until NOTICE_AGAIN_MS)
+
+    /* Notifications turned off for Shroudly (asked for once at the first
+     * start, Android 13+; or off in Android's settings): the notices that
+     * protection stopped, or needs a tap to come back, never show. Said
+     * once protection has been used, until "Not now" for NOTICE_AGAIN_MS. */
+    fun notificationsDue(enabled: Boolean, workedDays: Int, laterAt: Long, now: Long): Boolean =
+        !enabled && workedDays > 0 && (laterAt == 0L || now - laterAt !in 0 until NOTICE_AGAIN_MS)
+
+    /* sites: false leaves the lines about sites out (Share logs' "Without
+     * site names"). */
+    fun report(ctx: Context, sites: Boolean = true): String {
         val sb = StringBuilder()
         val source = try { if (InstallSource.githubUpdates(ctx)) "APK from GitHub" else "Google Play" } catch (_: Exception) { "unknown source" }
         sb.append("Shroudly ").append(BuildConfig.VERSION_NAME).append(" (").append(BuildConfig.VERSION_CODE).append(") for Android, ")
@@ -90,10 +110,11 @@ object Diagnostics {
         val on = Protection.state == Protection.State.ON && Protection.startedAt > 0
         sb.append(protectionLine(Protection.state.name.lowercase(Locale.ROOT), Protection.errorDetail,
             if (on) android.os.SystemClock.elapsedRealtime() - Protection.startedAt else -1L,
-            Protection.alwaysOn, Protection.lockdown, Protection.ipv6, Protection.troubleRes != 0)).append('\n')
+            Protection.alwaysOn, Protection.lockdown, Protection.ipv6, Protection.troubleRes == R.string.androidLockdownOffline)).append('\n')
         sb.append("Now: ").append(SimpleDateFormat("yyyy-MM-dd HH:mm:ss Z", Locale.ROOT).format(Date())).append('\n')
-        val lines = AppLog.snapshot()
-        sb.append('\n').append("Log, last ").append(lines.size).append(" lines (with the names of sites Shroudly handled):\n")
+        val lines = AppLog.snapshot(sites)
+        sb.append('\n').append("Log, last ").append(lines.size)
+            .append(if (sites) " lines (with the names of sites Shroudly handled):\n" else " lines (the lines about sites left out):\n")
         for (l in lines) sb.append(l).append('\n')
         return sb.toString()
     }

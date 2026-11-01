@@ -394,7 +394,14 @@ Windows CI: only "PROXY x" alone is taken), so every program asking it (Qt
 ones such as Telegram Desktop on "use system proxy", .NET) went around
 Shroudly. For https:// the PAC now offers the engine's port as an HTTP proxy
 only, and the engine takes HTTP CONNECT on that port (never with
---auth-file); plain http:// keeps the SOCKS entries. An app that ignores the
+--auth-file); plain http:// keeps the SOCKS entries. The port also serves a
+plain http:// request made to it as to an HTTP proxy ("GET http://host/path",
+the whole URL): Android's Wi-Fi proxy, set to it for Proxy only, sends every
+http:// URL that way, and up to 2.6.44 each got an empty answer. Dialled at
+the URL's host like a CONNECT, the server gets "GET /path" with the Host from
+the URL and "Connection: close"; what was for the proxy (Proxy-Connection,
+Proxy-Authorization) stays here. Only a whole http:// URL is served: what a
+web page sends to the port itself ("GET /path") is refused (400). An app that ignores the
 system proxy (Telegram Desktop on Linux without libproxy, for one) never
 reaches the engine; its own proxy setting can point at Shroudly's SOCKS5 port.
 

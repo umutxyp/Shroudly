@@ -21,12 +21,15 @@
     <!-- "Start when the phone starts" (Settings, off by default). -->
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <!-- "Apps that skip Shroudly" lists the apps that can be opened (their
-         launcher entries), not every package on the phone. -->
+         launcher entries), not every package on the phone; and whether the
+         Play Store is there, for the suggestion to move to the copy from
+         Google Play (StoreCards). -->
     <queries>
         <intent>
             <action android:name="android.intent.action.MAIN" />
             <category android:name="android.intent.category.LAUNCHER" />
         </intent>
+        <package android:name="com.android.vending" />
     </queries>
 
     <!-- No backup and no device-to-device copy of anything: see

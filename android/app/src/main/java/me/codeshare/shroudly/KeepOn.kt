@@ -26,8 +26,9 @@ import android.content.Intent
  *     is not tried over and over;
  *   - never after the user turned protection off, or another VPN took over.
  * An update of Shroudly ends it too; that one needs no job: it comes back
- * at once (updated). So does Proxy only after the phone restarts (booted),
- * or after Android ended the app while it was on (ShroudlyProxyService,
+ * at once (updated). So does a restart of the phone (booted): turning the
+ * phone off and on is not turning protection off. And Proxy only after
+ * Android ended the app while it was on (ShroudlyProxyService,
  * START_STICKY): a network's proxy set to it reaches nothing while it is
  * off, and apps that use it would have no connection at all.
  * A VPN app the user has allowed may start its service from the background,
@@ -139,14 +140,16 @@ object KeepOn {
         startAgain(ctx, "Updated to ${BuildConfig.VERSION_NAME} while protection was on: turning it on again", "after the update")
     }
 
-    /* The phone restarted while Proxy only was on, and "Start when the
-     * phone starts" is off (BootReceiver). The VPN stays off then, as the
-     * user chose: apps connect directly without it. Proxy only does not:
-     * apps set to use it (the Wi-Fi network's proxy, an app's own proxy
-     * setting) would reach nothing until the user found out why. */
+    /* The phone restarted while protection was on, and "Start when the
+     * phone starts" is off (BootReceiver): it comes back, in either mode.
+     * Up to 2.6.44 only Proxy only did (apps set to use it reach nothing
+     * without it), and the VPN stayed off without a word: blocked sites were
+     * blocked again in the morning, though the user had never turned it
+     * off. The VPN starts only where it is still allowed (another app made
+     * the always-on VPN meanwhile: nothing, and it stays off). */
     fun booted(ctx: Context) {
-        if (!AppSettings.proxyOnly(ctx) || !wanted(ctx) || Protection.state != Protection.State.OFF) return
-        startAgain(ctx, "The phone restarted while Proxy only was on: turning it on again, as apps set to use it reach nothing without it", "after the phone restarted")
+        if (!wanted(ctx) || Protection.state != Protection.State.OFF) return
+        startAgain(ctx, "The phone restarted while protection was on: turning it on again", "after the phone restarted")
     }
 
     private fun startAgain(ctx: Context, line: String, moment: String) {

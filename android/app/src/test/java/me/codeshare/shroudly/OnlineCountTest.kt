@@ -62,6 +62,23 @@ class OnlineCountTest {
         assertEquals(sent[0].body, sent[1].body)
     }
 
+    /* The total the server answers with is the window's "Online now", and
+     * only while this phone is counted in it. */
+    @Test
+    fun theLiveTotal() {
+        assertEquals(88, Pinger.onlineIn("{\"online\":88,\"interval\":60}"))
+        assertEquals(1234, Pinger.onlineIn("{ \"interval\": 30, \"online\" : 1234 }"))
+        assertNull(Pinger.onlineIn("{\"interval\":60}"))
+        assertNull(Pinger.onlineIn("<html>"))
+        val clock = Clock()
+        val p = pinger(clock, mutableListOf())
+        assertNull(p.online)
+        p.start(); clock.next()
+        assertEquals(88, p.online)
+        p.stop()
+        assertNull(p.online)
+    }
+
     @Test
     fun aFreshIdEachTimeCountingStarts() {
         val clock = Clock()

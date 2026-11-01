@@ -639,6 +639,56 @@ int main(void) {
   }
   printf("  streams that are not TLS or HTTP: searched, learned, told, rested: OK\n");
 
+  /* plain http:// through the HTTP proxy port: the URL's host and port, and
+   * the request as the server is to get it */
+  {
+    char out[2048], host[256];
+    uint16_t port = 0;
+    const char *in = "GET http://Example.com:8080/a/b?c=1#top HTTP/1.1\r\nHost: wrong\r\n"
+                     "Proxy-Connection: keep-alive\r\nUser-Agent: x\r\n  folded\r\nConnection: keep-alive\r\n"
+                     "Proxy-Authorization: Basic eDp5\r\nAccept: */*\r\n\r\n";
+    int n = http_forward_head(in, (int)strlen(in), out, sizeof(out), host, sizeof(host), &port);
+    CHECK(n > 0 && n == (int)strlen(out));
+    CHECK(strcmp(out, "GET /a/b?c=1 HTTP/1.1\r\nHost: Example.com:8080\r\nUser-Agent: x\r\n  folded\r\n"
+                      "Accept: */*\r\nConnection: close\r\n\r\n") == 0);
+    CHECK(strcmp(host, "Example.com") == 0 && port == 8080);
+    /* no path: "/"; a query alone: "/?q"; port 80 when none */
+    in = "HEAD http://example.org HTTP/1.0\r\n\r\n";
+    CHECK(http_forward_head(in, (int)strlen(in), out, sizeof(out), host, sizeof(host), &port) > 0);
+    CHECK(strcmp(out, "HEAD / HTTP/1.0\r\nHost: example.org\r\nConnection: close\r\n\r\n") == 0 && port == 80);
+    in = "GET http://example.org?q HTTP/1.1\r\n\r\n";
+    CHECK(http_forward_head(in, (int)strlen(in), out, sizeof(out), host, sizeof(host), &port) > 0 && strncmp(out, "GET /?q HTTP/1.1\r\n", 18) == 0);
+    in = "POST http://[2001:db8::1]:81/x HTTP/1.1\r\nContent-Length: 2\r\n\r\n";
+    CHECK(http_forward_head(in, (int)strlen(in), out, sizeof(out), host, sizeof(host), &port) > 0);
+    CHECK(strcmp(host, "2001:db8::1") == 0 && port == 81 && strstr(out, "Host: [2001:db8::1]:81\r\n") && strstr(out, "Content-Length: 2\r\n"));
+    /* refused: what a web page sends to the port itself, another scheme, a
+     * password in the URL, a bad port or host, an unfinished head */
+    const char *bad[] = {
+      "GET / HTTP/1.1\r\nHost: 127.0.0.1:10808\r\n\r\n",
+      "GET https://example.com/ HTTP/1.1\r\n\r\n",
+      "GET ftp://example.com/ HTTP/1.1\r\n\r\n",
+      "GET http://user:pw@example.com/ HTTP/1.1\r\n\r\n",
+      "GET http://example.com:0/ HTTP/1.1\r\n\r\n",
+      "GET http://example.com:99999/ HTTP/1.1\r\n\r\n",
+      "GET http://exa mple.com/ HTTP/1.1\r\n\r\n",
+      "GET http://ex\"ample.com/ HTTP/1.1\r\n\r\n",
+      "GET http:/// HTTP/1.1\r\n\r\n",
+      "get http://example.com/ HTTP/1.1\r\n\r\n",
+      "GET http://example.com/ HTTP/2\r\n\r\n",
+      "GET http://example.com/ HTTP/1.1\r\nNo colon here\r\n\r\n",
+      "GET http://[::1/ HTTP/1.1\r\n\r\n",
+    };
+    for (size_t i = 0; i < sizeof(bad) / sizeof(bad[0]); i++)
+      CHECK(http_forward_head(bad[i], (int)strlen(bad[i]), out, sizeof(out), host, sizeof(host), &port) == -1);
+    /* a head that does not fit is refused, never cut */
+    char big[3000];
+    int bl = snprintf(big, sizeof(big), "GET http://example.com/ HTTP/1.1\r\nCookie: ");
+    memset(big + bl, 'a', 2500); bl += 2500;
+    memcpy(big + bl, "\r\n\r\n", 5); bl += 4;
+    CHECK(http_forward_head(big, bl, out, sizeof(out), host, sizeof(host), &port) == -1);
+  }
+  printf("  plain http:// through the HTTP proxy port: rewritten, or refused: OK\n");
+
   if (fails == 0) { printf("ENGINE MEMORY TESTS PASSED\n"); return 0; }
   printf("%d FAILED\n", fails);
   return 1;

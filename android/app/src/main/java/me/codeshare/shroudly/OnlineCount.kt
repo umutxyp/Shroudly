@@ -29,7 +29,7 @@ import javax.net.ssl.SSLSocketFactory
  * what it sends says it is a phone.
  *
  *   - Only while protection is on, and only with "Count me in the live total"
- *     on (About; on by default, like the desktop's setting).
+ *     on (Settings; on by default, like the desktop's setting).
  *   - A random id made fresh each time counting starts, never stored, sent as
  *     {"id":"<id>"} to /v1/ping and nothing else; again after the interval
  *     the server asks for (30 s to 15 min), after 30 s when a ping failed.
@@ -69,6 +69,11 @@ class Pinger(
         fun body(id: String) = "{\"id\":\"$id\"}"
 
         private val INTERVAL = Regex("\"interval\"\\s*:\\s*(-?[0-9]+(?:\\.[0-9]+)?)")
+        private val ONLINE = Regex("\"online\"\\s*:\\s*([0-9]{1,9})")
+
+        /* How many are online, as the server's answer says ({"online": n}),
+         * or null. Shown as the desktop's "Online now" (MainActivity). */
+        fun onlineIn(answer: String): Int? = ONLINE.find(answer)?.groupValues?.get(1)?.toIntOrNull()
 
         /* Seconds to the next ping after an answer, as the desktop works it
          * out: the server's interval, 60 when it gives none, kept between 30
@@ -92,6 +97,9 @@ class Pinger(
     private var generation = 0
     private var cancel: (() -> Unit)? = null
     private var lastDelayS = DEFAULT_INTERVAL_S
+    // The total from the last answer while counted (null: none yet).
+    @Volatile var online: Int? = null
+        private set
 
     val counting: Boolean get() = synchronized(this) { id != null }
 
@@ -105,6 +113,7 @@ class Pinger(
     fun start() {
         synchronized(this) {
             if (id != null) return
+            online = null
             id = newId()
             generation++
             lastDelayS = DEFAULT_INTERVAL_S
@@ -118,6 +127,7 @@ class Pinger(
         synchronized(this) {
             val was = id ?: return null
             id = null
+            online = null
             generation++
             cancel?.invoke()
             cancel = null
@@ -138,6 +148,7 @@ class Pinger(
                 // failed JSON.parse) is a failure.
                 val d = if (answer == null) lastDelayS else nextDelayS(answer)
                 if (d != null) { next = d; lastDelayS = d }
+                answer?.let { onlineIn(it) }?.let { n -> if (synchronized(this) { g == generation }) online = n }
             } catch (_: Exception) {
                 // Offline or blocked: again soon.
             }
@@ -321,10 +332,13 @@ object OnlineCount {
         }
     }
 
+    /* The live total while this phone is counted in it, else null. */
+    fun online(): Int? = if (pinger.counting) pinger.online else null
+
     fun enabled(ctx: Context): Boolean =
         ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getBoolean(KEY, true)
 
-    /* The switch under About: takes effect at once. */
+    /* The switch in Settings: takes effect at once. */
     fun setEnabled(ctx: Context, on: Boolean) {
         ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit().putBoolean(KEY, on).apply()
         sync(ctx)

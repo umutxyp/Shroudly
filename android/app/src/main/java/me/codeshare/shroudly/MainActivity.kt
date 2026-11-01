@@ -15,18 +15,14 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.os.SystemClock
+import android.os.UserManager
 import android.provider.Settings
-import android.text.SpannableStringBuilder
-import android.text.Spanned
-import android.text.style.ForegroundColorSpan
-import android.text.style.RelativeSizeSpan
 import android.view.View
 import android.view.WindowInsets
 import android.widget.Button
-import android.widget.EditText
 import android.widget.ImageView
 import android.widget.ScrollView
-import android.widget.Switch
 import android.widget.TextView
 import java.text.NumberFormat
 
@@ -35,10 +31,21 @@ class MainActivity : Activity() {
     companion object {
         private const val REQUEST_VPN = 1
         private const val REQUEST_NOTIFICATIONS = 2
+        // Asked again from the notice that notifications are off.
+        private const val REQUEST_NOTIFICATIONS_AGAIN = 3
+        // When "Not now" was pressed on each notice ("ui" preferences).
+        private const val KEY_BATTERY_LATER = "batteryLater"
+        private const val KEY_NOTIFICATIONS_LATER = "notificationsLater"
+        // How long the window has been up before a store card may show.
+        private const val STORE_CARD_AFTER_MS = 3000L
         /* Start protection as soon as the window is up (from the tile). */
         const val EXTRA_START = "start"
         /* Install the update Google Play has downloaded (PlayUpdates' notice). */
         const val EXTRA_INSTALL_UPDATE = "installUpdate"
+        /* The notification's Stop under lockdown: asked here first (confirmStop). */
+        const val EXTRA_CONFIRM_STOP = "confirmStop"
+        /* The suggestion's notification (StoreCards.look): its card, shown. */
+        const val EXTRA_STORE_CARD = "storeCard"
         // Networks' proxies on this phone found not running, told once a run (ProxyCheck).
         private val deadProxyTold = HashSet<String>()
     }
@@ -56,26 +63,60 @@ class MainActivity : Activity() {
     private lateinit var download: TextView
     private lateinit var uptime: TextView
     private lateinit var statsHint: View
+    private lateinit var onlineNow: TextView
     private lateinit var update: View
     private lateinit var updateText: TextView
     private lateinit var releases: View
     private lateinit var releasesLabel: TextView
     private lateinit var releasesIcon: ImageView
-    private lateinit var battery: View
+    private lateinit var notice: View
+    private lateinit var noticeIcon: ImageView
+    private lateinit var noticeText: TextView
+    private lateinit var noticeOpen: Button
+    // The notice on screen (showNotice): R.string.androidBatterySettings for
+    // the battery's, R.string.showNotifications for notifications', or 0.
+    private var noticeShown = 0
     private lateinit var support: View
     private var supportDue = false
+    private lateinit var storeCard: View
+    // The store card on screen (StoreCards.RATE), or null; what it goes by,
+    // as of onStart; and when the window came (uptime): the other cards
+    // have their say first.
+    private var storeShown: String? = null
+    // The card a tap on the suggestion's notification asked for.
+    private var storeAsked: String? = null
+    private var fromPlay = false
+    private var playStore = false
+    private var installedAt = 0L
+    private var workedDays = 0
+    private var startedAt = 0L
 
     private val main = Handler(Looper.getMainLooper())
     private val onChange: () -> Unit = { render() }
     private val ticker = object : Runnable {
         override fun run() {
             render()
+            // Proxy only: whether a network's proxy is set to it, now and then.
+            if (++ticks % 3 == 0) checkProxyUse()
             main.postDelayed(this, 1000)
         }
     }
     private var updateUrl: String? = null
     private var vpnDenied = false
+    // Android would not ask for the VPN at all (another app's always-on VPN,
+    // or VPN changes not allowed on this phone): see onActivityResult.
+    private var vpnBlocked = false
+    // The VPN's consent asked for (uptime), and whether its dialog took the
+    // window's focus, as a dialog the user answers does.
+    private var consentAskedAt = 0L
+    private var consentSeen = false
     private var installUpdate = false
+    // What protection covers in VPN mode (Coverage), as of onStart.
+    private var coverage = ""
+    // Proxy only: a network's proxy is set to its port (null: not known).
+    private var proxySet: Boolean? = null
+    private var proxyChecking = false
+    private var ticks = 0
 
     /* The accent this window was made with; another one chosen in Settings
      * makes it again on return. */
@@ -107,55 +148,43 @@ class MainActivity : Activity() {
         download = findViewById(R.id.download)
         uptime = findViewById(R.id.uptime)
         statsHint = findViewById(R.id.statsHint)
+        onlineNow = findViewById(R.id.onlineNow)
         update = findViewById(R.id.update)
         updateText = findViewById(R.id.updateText)
         releases = findViewById(R.id.releases)
         releasesLabel = findViewById(R.id.releasesLabel)
         releasesIcon = findViewById(R.id.releasesIcon)
-        battery = findViewById(R.id.battery)
+        notice = findViewById(R.id.notice)
+        noticeIcon = findViewById(R.id.noticeIcon)
+        noticeText = findViewById(R.id.noticeText)
+        noticeOpen = findViewById(R.id.noticeOpen)
         support = findViewById(R.id.support)
+        storeCard = findViewById(R.id.storeCard)
         // The rows' ripples stay inside the card's rounded corners.
         findViewById<View>(R.id.about).clipToOutline = true
         Fit.apply(findViewById(R.id.root))
 
-        // The logo's circle is the switch, the one control for on and off.
+        // The logo's circle is the switch, the one control for on and off;
+        // the line under it, which reads like a link, does the same.
         toggle.setOnClickListener { onToggle() }
+        hint.setOnClickListener { onToggle() }
         findViewById<TextView>(R.id.version).text = text(R.string.versionLabel, "version" to BuildConfig.VERSION_NAME)
         findViewById<View>(R.id.notices).setOnClickListener { showNotices() }
         findViewById<View>(R.id.privacy).setOnClickListener { open(UpdateCheck.PRIVACY_URL) }
         findViewById<View>(R.id.shareLogs).setOnClickListener { shareLogs() }
-        findViewById<View>(R.id.settings).setOnClickListener { startActivity(Intent(this, SettingsActivity::class.java)) }
-        findViewById<Switch>(R.id.shareOnlineCount).apply {
-            // The label, and the description under it, smaller and dimmer.
-            val desc = getString(R.string.shareOnlineCountDesc)
-            text = SpannableStringBuilder(getString(R.string.shareOnlineCount)).append('\n').apply {
-                val from = length
-                append(desc)
-                setSpan(ForegroundColorSpan(getColor(R.color.text_dim)), from, length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-                setSpan(RelativeSizeSpan(12.5f / 15f), from, length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-            }
-            isChecked = OnlineCount.enabled(this@MainActivity)
-            setOnCheckedChangeListener { _, on -> OnlineCount.setEnabled(this@MainActivity, on) }
+        // Settings: the gear at the top, and the row under About.
+        val settings = View.OnClickListener { startActivity(Intent(this, SettingsActivity::class.java)) }
+        findViewById<View>(R.id.settings).setOnClickListener(settings)
+        findViewById<View>(R.id.settingsTop).setOnClickListener(settings)
+        noticeOpen.setOnClickListener {
+            if (noticeShown == R.string.androidBatterySettings) openBatterySettings() else openNotificationSettings()
         }
-        val allowRow = findViewById<View>(R.id.adBlockAllow)
-        findViewById<Switch>(R.id.adBlock).apply {
-            val desc = getString(R.string.adBlockDesc)
-            text = SpannableStringBuilder(getString(R.string.adBlock)).append('\n').apply {
-                val from = length
-                append(desc)
-                setSpan(ForegroundColorSpan(getColor(R.color.text_dim)), from, length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-                setSpan(RelativeSizeSpan(12.5f / 15f), from, length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-            }
-            isChecked = AdBlock.enabled(this@MainActivity)
-            allowRow.visibility = if (isChecked) View.VISIBLE else View.GONE
-            setOnCheckedChangeListener { _, on ->
-                AdBlock.setEnabled(this@MainActivity, on)
-                allowRow.visibility = if (on) View.VISIBLE else View.GONE
-                tellAdBlock()
-            }
+        findViewById<View>(R.id.noticeLater).setOnClickListener {
+            val key = if (noticeShown == R.string.androidBatterySettings) KEY_BATTERY_LATER else KEY_NOTIFICATIONS_LATER
+            getSharedPreferences("ui", MODE_PRIVATE).edit().putLong(key, System.currentTimeMillis()).apply()
+            noticeShown = 0
+            notice.visibility = View.GONE
         }
-        allowRow.setOnClickListener { editAdBlockAllow() }
-        findViewById<View>(R.id.batteryOpen).setOnClickListener { openBatterySettings() }
         findViewById<View>(R.id.updateOpen).setOnClickListener { updateUrl?.let { open(it) } }
         findViewById<View>(R.id.supportRow).setOnClickListener { openSupport() }
         findViewById<View>(R.id.supportOpen).setOnClickListener { openSupport() }
@@ -165,12 +194,23 @@ class MainActivity : Activity() {
             support.visibility = View.GONE
         }
         detailMore.setOnClickListener { showDetail() }
+        findViewById<View>(R.id.storeOpen).setOnClickListener {
+            val key = storeShown ?: return@setOnClickListener
+            // Done: never again.
+            StoreCards.save(this, key, StoreCards.load(this, key).copy(done = true))
+            hideStoreCard()
+            Stores.openPlay(this)
+        }
+        // Counted as a "no" when it was shown; it only goes away here.
+        findViewById<View>(R.id.storeLater).setOnClickListener { hideStoreCard() }
         // The channels' names follow the language, also after a per-app
         // language change (which recreates this window).
         ShroudlyVpnService.channels(this)
         if (savedInstanceState == null) {
             handleStart(intent)
             handleInstall(intent)
+            handleConfirmStop(intent)
+            handleStoreCard(intent)
         }
     }
 
@@ -179,6 +219,23 @@ class MainActivity : Activity() {
         setIntent(intent)
         handleStart(intent)
         handleInstall(intent)
+        handleConfirmStop(intent)
+        handleStoreCard(intent)
+    }
+
+    private fun handleStoreCard(intent: Intent?) {
+        val key = intent?.getStringExtra(EXTRA_STORE_CARD) ?: return
+        intent.removeExtra(EXTRA_STORE_CARD)
+        if (intent.flags and Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY != 0) return
+        if (key == StoreCards.MOVE) storeAsked = key
+    }
+
+    /* The notification's Stop under lockdown (ShroudlyVpnService.goForeground). */
+    private fun handleConfirmStop(intent: Intent?) {
+        if (intent?.getBooleanExtra(EXTRA_CONFIRM_STOP, false) != true) return
+        intent.removeExtra(EXTRA_CONFIRM_STOP)
+        if (intent.flags and Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY != 0) return
+        if (Protection.state == Protection.State.ON) confirmStop()
     }
 
     private fun handleStart(intent: Intent?) {
@@ -206,16 +263,25 @@ class MainActivity : Activity() {
         ShroudlyProxyService.clearAlert(this)
         Protection.listen(onChange)
         orb.resume()
+        coverage = Coverage.text(this)
+        proxySet = null
+        checkProxyUse()
         main.post(ticker)
-        showBatteryHint()
+        Usage.windowSeen(this)
+        showNotice()
+        // Is Shroudly on Google Play (stores.json): asked now and then.
+        Stores.refreshIfDue(this, Protection.socksPort, Protection.socksAuth)
+        fromPlay = StoreCards.fromPlay(InstallSource.installer(this))
+        playStore = !fromPlay && StoreCards.playStoreInstalled(this)
+        // Seen: the suggestion's notification, if any, has had its turn.
+        StoreCards.clearNotice(this)
+        installedAt = Usage.installedAt(this)
+        workedDays = Usage.days(this)
+        startedAt = SystemClock.uptimeMillis()
         checkNetworkProxy()
         val offered = Support.offered(this)
         findViewById<View>(R.id.supportRow).visibility = if (offered) View.VISIBLE else View.GONE
         findViewById<View>(R.id.supportDivider).visibility = if (offered) View.VISIBLE else View.GONE
-        val adBlock = AdBlock.offered(this)
-        findViewById<View>(R.id.adBlock).visibility = if (adBlock) View.VISIBLE else View.GONE
-        findViewById<View>(R.id.adBlockDivider).visibility = if (adBlock) View.VISIBLE else View.GONE
-        if (!adBlock) findViewById<View>(R.id.adBlockAllow).visibility = View.GONE
         supportDue = try { Support.cardDue(this) } catch (_: Exception) { false }
         // The APK from GitHub links its releases and looks for a newer one
         // there; a copy Google Play updates links the source code instead and
@@ -255,6 +321,8 @@ class MainActivity : Activity() {
     }
 
     override fun onStop() {
+        // Shown once in this run of the app; it does not come back with the window.
+        if (storeShown != null) hideStoreCard()
         Protection.windowVisible = false
         Protection.unlisten(onChange)
         main.removeCallbacks(ticker)
@@ -282,9 +350,10 @@ class MainActivity : Activity() {
 
     private fun onToggle() {
         when (Protection.state) {
-            Protection.State.ON -> Protector.stop(this)
+            Protection.State.ON -> if (Protection.lockdown && !Protection.proxyOnly) confirmStop() else Protector.stop(this)
             Protection.State.OFF -> {
                 vpnDenied = false
+                vpnBlocked = false
                 Protection.clearError()
                 ShroudlyVpnService.clearAlert(this)
                 ShroudlyProxyService.clearAlert(this)
@@ -311,6 +380,7 @@ class MainActivity : Activity() {
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == REQUEST_NOTIFICATIONS) startWithConsent()
+        if (requestCode == REQUEST_NOTIFICATIONS_AGAIN) showNotice()
     }
 
     private fun startWithConsent() {
@@ -324,15 +394,44 @@ class MainActivity : Activity() {
         }
         if (consent == null) {
             startService()
-        } else {
-            try {
-                @Suppress("DEPRECATION")
-                startActivityForResult(consent, REQUEST_VPN)
-            } catch (e: ActivityNotFoundException) {
-                vpnDenied = true
-                render()
-            }
+            return
         }
+        // Another VPN app is on: Android ends it once Shroudly's VPN is
+        // allowed, and its own dialog does not say so. Said first, with the
+        // way to keep it (NA-5).
+        if (otherVpnOn()) {
+            try {
+                AlertDialog.Builder(this)
+                    .setMessage(R.string.androidOtherVpn)
+                    .setPositiveButton(R.string.androidContinue) { _, _ -> askConsent(consent) }
+                    .setNeutralButton(R.string.androidUseProxyOnly) { _, _ -> useProxyOnly() }
+                    .setNegativeButton(android.R.string.cancel, null)
+                    .show()
+                return
+            } catch (_: Exception) {}
+        }
+        askConsent(consent)
+    }
+
+    private fun askConsent(consent: Intent) {
+        try {
+            consentAskedAt = SystemClock.elapsedRealtime()
+            consentSeen = false
+            @Suppress("DEPRECATION")
+            startActivityForResult(consent, REQUEST_VPN)
+        } catch (e: ActivityNotFoundException) {
+            // No dialog to ask with on this phone: Android's refusal too.
+            consentAskedAt = 0
+            vpnBlocked = true
+            render()
+            showVpnBlocked()
+        }
+    }
+
+    /* The VPN's dialog took the focus: the user saw it. */
+    override fun onWindowFocusChanged(hasFocus: Boolean) {
+        super.onWindowFocusChanged(hasFocus)
+        if (!hasFocus && consentAskedAt > 0) consentSeen = true
     }
 
     @Deprecated("Activity result API of the framework")
@@ -340,11 +439,71 @@ class MainActivity : Activity() {
         @Suppress("DEPRECATION")
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode != REQUEST_VPN) return
+        val ms = SystemClock.elapsedRealtime() - consentAskedAt
+        consentAskedAt = 0
         if (resultCode == RESULT_OK) {
             startService()
+            return
+        }
+        val restricted = try { getSystemService(UserManager::class.java)?.hasUserRestriction(UserManager.DISALLOW_CONFIG_VPN) == true } catch (_: Exception) { false }
+        if (Protector.refusedByAndroid(consentSeen, ms, restricted)) {
+            ShroudlyVpnService.log("Android did not ask for the VPN (${ms}ms, ${if (restricted) "VPN changes not allowed on this phone" else "another app's always-on VPN, most likely"})")
+            vpnBlocked = true
+            render()
+            showVpnBlocked()
         } else {
             vpnDenied = true
             render()
+        }
+    }
+
+    /* Android would not ask for the VPN: why, and the two ways on (NA-4). */
+    private fun showVpnBlocked() {
+        try {
+            AlertDialog.Builder(this)
+                .setMessage(R.string.androidVpnBlocked)
+                .setPositiveButton(R.string.androidVpnSettings) { _, _ -> openVpnSettings() }
+                .setNeutralButton(R.string.androidUseProxyOnly) { _, _ -> useProxyOnly() }
+                .setNegativeButton(android.R.string.cancel, null)
+                .show()
+        } catch (_: Exception) {}
+    }
+
+    /* Another VPN app's VPN is up (Shroudly's own is off here). */
+    @Suppress("DEPRECATION")
+    private fun otherVpnOn(): Boolean = try {
+        val cm = getSystemService(android.net.ConnectivityManager::class.java)
+        cm.allNetworks.any { cm.getNetworkCapabilities(it)?.hasTransport(android.net.NetworkCapabilities.TRANSPORT_VPN) == true }
+    } catch (_: Exception) {
+        false
+    }
+
+    /* Proxy only from now on, and on: the other VPN stays as it is. */
+    private fun useProxyOnly() {
+        AppSettings.setProxyOnly(this, true)
+        ShroudlyVpnService.log("Proxy only chosen in the window, so the other VPN app keeps the VPN")
+        vpnBlocked = false
+        vpnDenied = false
+        if (Protection.state == Protection.State.OFF) startService()
+    }
+
+    private fun openVpnSettings() {
+        for (action in listOf(Settings.ACTION_VPN_SETTINGS, Settings.ACTION_WIRELESS_SETTINGS, Settings.ACTION_SETTINGS)) {
+            try { startActivity(Intent(action)); return } catch (_: ActivityNotFoundException) {}
+        }
+    }
+
+    /* Under "Block connections without VPN", off means no internet at all
+     * for every app: asked once more (NA-8). */
+    private fun confirmStop() {
+        try {
+            AlertDialog.Builder(this)
+                .setMessage(R.string.androidLockdownStop)
+                .setPositiveButton(R.string.stop) { _, _ -> if (Protection.state == Protection.State.ON) Protector.stop(this) }
+                .setNegativeButton(android.R.string.cancel, null)
+                .show()
+        } catch (_: Exception) {
+            Protector.stop(this)
         }
     }
 
@@ -363,10 +522,13 @@ class MainActivity : Activity() {
         val st = Protection.state
         val on = st == Protection.State.ON
         val busy = st == Protection.State.STARTING || st == Protection.State.STOPPING
+        // Proxy only on, and no network's proxy set to it: only apps with a
+        // proxy setting of their own go through it, so not "Protected".
+        val proxyIdle = on && Protection.proxyOnly && proxySet == false
 
         val statusText = getString(
             when (st) {
-                Protection.State.ON -> R.string.protected_
+                Protection.State.ON -> if (proxyIdle) R.string.androidProxyOnlyRunning else R.string.protected_
                 Protection.State.STARTING -> R.string.starting
                 Protection.State.STOPPING -> R.string.stopping
                 Protection.State.OFF -> R.string.notProtected
@@ -387,40 +549,73 @@ class MainActivity : Activity() {
         }
         orb.set(if (busy) Orb.Mode.BUSY else if (on) Orb.Mode.ON else Orb.Mode.OFF)
         support.visibility = if (supportDue && on) View.VISIBLE else View.GONE
+        showStoreCard(on && !proxyIdle && Protection.troubleRes == 0)
 
         // Set only when it changes: status and detail are live regions, and
         // TalkBack reads every change out.
         status.show(statusText)
-        status.setTextColor(if (on) Accent.color(this, R.attr.accent) else getColor(R.color.text))
+        status.setTextColor(if (on && !proxyIdle) Accent.color(this, R.attr.accent) else getColor(R.color.text))
 
         val error = Protection.errorRes
-        var more = false
+        val off = st == Protection.State.OFF
+        // The link under the line: what more there is to it.
+        var more = 0
         when {
-            vpnDenied && st == Protection.State.OFF -> {
-                detail.show(getString(R.string.androidVpnDenied))
+            vpnBlocked && off -> {
+                detail.show(getString(R.string.androidVpnBlocked))
+                detail.setTextColor(getColor(R.color.warn))
+                more = R.string.androidVpnSettings
+            }
+            vpnDenied && off -> {
+                detail.show(getString(R.string.androidVpnDeniedHere))
                 detail.setTextColor(getColor(R.color.warn))
             }
             on && Protection.troubleRes != 0 -> {
                 detail.show(getString(Protection.troubleRes))
                 detail.setTextColor(getColor(R.color.warn))
             }
-            error != 0 && st == Protection.State.OFF -> {
-                // In the user's language; the technical words behind "Details".
-                detail.show(getString(error))
+            proxyIdle -> {
+                detail.show(text(R.string.androidProxyNotSet, "port" to Protection.socksPort))
                 detail.setTextColor(getColor(R.color.warn))
-                more = Protection.errorDetail != null
+                more = R.string.androidWifiSettings
+            }
+            error != 0 && off -> {
+                // In the user's language, as the window says it (no "open
+                // Shroudly" here); the technical words behind "Details".
+                detail.show(getString(here(error)))
+                detail.setTextColor(getColor(R.color.warn))
+                if (Protection.errorDetail != null) more = R.string.androidDetails
+            }
+            // Turned off under "Block connections without VPN": no app has
+            // internet now, which is not what "off" means anywhere else.
+            off && Usage.lockdown(this) && !AppSettings.proxyOnly(this) -> {
+                detail.show(getString(R.string.androidLockdownStop))
+                detail.setTextColor(getColor(R.color.warn))
             }
             else -> {
                 detail.show(when {
-                    !on -> getString(R.string.dpiBypassStopped)
+                    // Starting or stopping: nothing that says otherwise.
+                    busy -> ""
+                    !on -> getString(R.string.androidOffHint)
                     // Proxy only: where apps are to be pointed.
                     Protection.proxyOnly -> ProxyPort.onText(this, Protection.socksPort)
-                    else -> getString(R.string.androidAllApps)
+                    else -> coverage
                 })
                 detail.setTextColor(getColor(R.color.text_dim))
             }
         }
-        detailMore.visibility = if (more) View.VISIBLE else View.GONE
+        detailMore.visibility = if (more != 0) View.VISIBLE else View.GONE
+        if (more != 0 && detailMore.tag != more) {
+            detailMore.tag = more
+            detailMore.setText(more)
+            detailMore.setOnClickListener {
+                when (more) {
+                    R.string.androidVpnSettings -> openVpnSettings()
+                    R.string.androidWifiSettings -> openWifiSettings(this)
+                    else -> showDetail()
+                }
+            }
+        }
 
         // Under the status, what a tap on the switch does; nothing while it works.
         if (!busy) hintLabel.show(getString(if (on) R.string.stop else R.string.start))
@@ -438,13 +633,93 @@ class MainActivity : Activity() {
             download.show(Format.bytes(s.bytesDown))
             uptime.show(Format.duration(android.os.SystemClock.elapsedRealtime() - Protection.startedAt))
             statsHint.visibility = View.GONE
+            // The live total this phone is counted in ("Count me in", Settings).
+            val online = OnlineCount.online()
+            if (online != null) onlineNow.show("${getString(R.string.onlineNow)}: ${n.format(online)}")
+            onlineNow.visibility = if (online != null) View.VISIBLE else View.GONE
         } else {
             // Set only when it changes: the window redraws every second, and a
             // text set again is announced to accessibility services again.
             for (v in listOf(connections, upload, download, uptime)) v.show("–")
+            onlineNow.visibility = View.GONE
             connectionsTotal.show(text(R.string.totalCount, "count" to "–"))
-            statsHint.visibility = if (on) View.GONE else View.VISIBLE
+            // "Start protection to see live traffic": while it is off, not
+            // while it starts or stops.
+            statsHint.visibility = if (off) View.VISIBLE else View.GONE
         }
+    }
+
+    /* The store card (StoreCards), once a run at most: only after the other
+     * cards have had their say, and never beside one of them. */
+    private fun showStoreCard(working: Boolean) {
+        if (storeShown != null) return
+        // Asked for from the suggestion's notification: already counted then.
+        storeAsked?.let { storeAsked = null; putStoreCard(it); return }
+        if (StoreCards.promptedThisRun || !working) return
+        if (SystemClock.uptimeMillis() - startedAt < STORE_CARD_AFTER_MS) return
+        if (listOf(notice, update, support).any { it.visibility == View.VISIBLE }) return
+        val now = System.currentTimeMillis()
+        val live = Stores.playLive(this, now)
+        val rate = StoreCards.load(this, StoreCards.RATE, now)
+        val move = StoreCards.load(this, StoreCards.MOVE, now)
+        when {
+            StoreCards.rateDue(fromPlay, live, working, installedAt, workedDays, rate, now) -> {
+                StoreCards.save(this, StoreCards.RATE, StoreCards.rateShown(rate, now))
+                ShroudlyVpnService.log("Asking for a rating on Google Play (${rate.shown + 1}. time)")
+                putStoreCard(StoreCards.RATE)
+            }
+            StoreCards.moveDue(fromPlay, live, playStore, working, AdBlock.enabled(this), installedAt, workedDays, move, now) -> {
+                StoreCards.save(this, StoreCards.MOVE, StoreCards.moveShown(move, now))
+                ShroudlyVpnService.log("Suggesting the copy from Google Play (${move.shown + 1}. time)")
+                putStoreCard(StoreCards.MOVE)
+            }
+            else -> return
+        }
+        StoreCards.promptedThisRun = true
+    }
+
+    private fun putStoreCard(key: String) {
+        val rate = key == StoreCards.RATE
+        storeShown = key
+        findViewById<ImageView>(R.id.storeIcon).setImageResource(if (rate) R.drawable.ic_star else R.drawable.ic_download)
+        findViewById<TextView>(R.id.storeTitle).setText(if (rate) R.string.androidRateTitle else R.string.androidMoveTitle)
+        findViewById<TextView>(R.id.storeText).setText(if (rate) R.string.androidRateBody else R.string.androidMoveBody)
+        findViewById<Button>(R.id.storeOpen).setText(if (rate) R.string.androidRateOpen else R.string.androidMoveOpen)
+        storeCard.visibility = View.VISIBLE
+    }
+
+    private fun hideStoreCard() {
+        storeShown = null
+        storeCard.visibility = View.GONE
+    }
+
+    /* A reason as the window says it: the notice's own words tell the user
+     * to open Shroudly, where they already are. */
+    private fun here(res: Int) = when (res) {
+        R.string.androidProtectionLost -> R.string.androidProtectionLostHere
+        R.string.androidProxyOnlyLost -> R.string.androidProxyOnlyLostHere
+        R.string.androidNoInternet -> R.string.androidNoInternetHere
+        R.string.androidVpnDenied -> R.string.androidVpnDeniedHere
+        else -> res
+    }
+
+    /* Proxy only: whether a network's proxy is set to its port, off the main
+     * thread (ProxyCheck asks Android about every network). */
+    private fun checkProxyUse() {
+        if (Protection.state != Protection.State.ON || !Protection.proxyOnly) {
+            proxySet = null
+            return
+        }
+        if (proxyChecking) return
+        val port = Protection.socksPort
+        proxyChecking = true
+        Thread({
+            val set = try { ProxyCheck.pointsAt(this, port) != null } catch (_: Exception) { null }
+            main.post {
+                proxyChecking = false
+                if (set != proxySet) { proxySet = set; render() }
+            }
+        }, "proxy-use").apply { isDaemon = true }.start()
     }
 
     /* ── about and updates ─────────────────────────────────────────────── */
@@ -548,16 +823,65 @@ class MainActivity : Activity() {
         }, "proxy-check").apply { isDaemon = true }.start()
     }
 
-    private fun showBatteryHint() {
-        val b = Diagnostics.battery(this)
-        battery.visibility = if (Diagnostics.batteryHint(b, Build.MANUFACTURER, Build.BRAND)) View.VISIBLE else View.GONE
+    /* One notice at most, the one that matters most: battery settings that
+     * may stop protection in the background (Diagnostics.batteryDue), else
+     * notifications turned off, so that protection stopping is never said
+     * (notificationsDue). Each with its one way to fix it and "Not now";
+     * neither on a new install's first screen. */
+    @SuppressLint("SetTextI18n")
+    private fun showNotice() {
+        val now = System.currentTimeMillis()
+        val ui = getSharedPreferences("ui", MODE_PRIVATE)
+        val days = Usage.days(this)
+        val battery = Diagnostics.batteryDue(Diagnostics.batteryHint(Diagnostics.battery(this), Build.MANUFACTURER, Build.BRAND),
+            days, ui.getLong(KEY_BATTERY_LATER, 0), Usage.endedByAndroidAt(this), now)
+        val notifications = Diagnostics.notificationsDue(notificationsEnabled(), days, ui.getLong(KEY_NOTIFICATIONS_LATER, 0), now)
+        noticeShown = when {
+            battery -> R.string.androidBatterySettings
+            notifications -> R.string.showNotifications
+            else -> 0
+        }
+        notice.visibility = if (noticeShown != 0) View.VISIBLE else View.GONE
+        if (noticeShown == 0) return
+        if (battery) {
+            // The steps for the screen it opens, where the setting is not
+            // the first thing in sight.
+            noticeText.text = getString(R.string.androidBatteryHint) + "\n" + getString(R.string.androidBatterySteps)
+            noticeIcon.setImageResource(R.drawable.ic_battery)
+        } else {
+            noticeText.setText(R.string.androidNotificationsOff)
+            noticeIcon.setImageResource(R.drawable.ic_bell_off)
+        }
+        noticeOpen.setText(noticeShown)
+    }
+
+    private fun notificationsEnabled(): Boolean =
+        try { getSystemService(android.app.NotificationManager::class.java)?.areNotificationsEnabled() != false } catch (_: Exception) { true }
+
+    /* Android 13+ asks again while it still may (it lets an app ask twice);
+     * after that, and before 13, Shroudly's page in Android's notification
+     * settings. */
+    private fun openNotificationSettings() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+            checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED &&
+            shouldShowRequestPermissionRationale(Manifest.permission.POST_NOTIFICATIONS)
+        ) {
+            requestPermissions(arrayOf(Manifest.permission.POST_NOTIFICATIONS), REQUEST_NOTIFICATIONS_AGAIN)
+            return
+        }
+        val page = Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).putExtra(Settings.EXTRA_APP_PACKAGE, packageName)
+        try {
+            startActivity(page)
+        } catch (_: ActivityNotFoundException) {
+            try { startActivity(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.fromParts("package", packageName, null))) } catch (_: ActivityNotFoundException) {}
+        }
     }
 
     /* The app's own page in Settings: every Android version and every phone
      * maker has its battery setting there ("Battery", "App battery usage",
-     * "Battery saver"), where the user can choose no restrictions. No
-     * permission is needed for it, unlike asking Android to exempt the app
-     * directly. */
+     * "Battery saver"), where the user can choose no restrictions; the
+     * notice says where to look. No permission is needed for it, unlike
+     * asking Android to exempt the app directly. */
     private fun openBatterySettings() {
         val details = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.fromParts("package", packageName, null))
         try {
@@ -568,9 +892,26 @@ class MainActivity : Activity() {
     }
 
     /* The recent log and the phone's details, as text the user sends where
-     * they choose (Diagnostics). */
+     * they choose (Diagnostics). First who to send it to, and that it names
+     * the sites Shroudly handled, with the choice to leave them out: a bare
+     * share sheet said neither, and a log with someone's browsing could end
+     * up in a public issue. */
     private fun shareLogs() {
-        val text = try { Diagnostics.report(this) } catch (e: Exception) { "Shroudly ${BuildConfig.VERSION_NAME}: no report ($e)" }
+        try {
+            AlertDialog.Builder(this)
+                .setTitle(R.string.androidShareLogs)
+                .setMessage(R.string.androidShareLogsWho)
+                .setPositiveButton(R.string.androidShareLogs) { _, _ -> sendLogs(sites = true) }
+                .setNeutralButton(R.string.androidShareLogsNoSites) { _, _ -> sendLogs(sites = false) }
+                .setNegativeButton(android.R.string.cancel, null)
+                .show()
+        } catch (_: Exception) {
+            sendLogs(sites = true)
+        }
+    }
+
+    private fun sendLogs(sites: Boolean) {
+        val text = try { Diagnostics.report(this, sites) } catch (e: Exception) { "Shroudly ${BuildConfig.VERSION_NAME}: no report ($e)" }
         val send = Intent(Intent.ACTION_SEND)
             .setType("text/plain")
             .putExtra(Intent.EXTRA_SUBJECT, "Shroudly ${BuildConfig.VERSION_NAME} log")
@@ -602,43 +943,6 @@ class MainActivity : Activity() {
             .setTitle(R.string.androidDetails)
             .setView(ScrollView(this).apply { addView(body) })
             .setPositiveButton(android.R.string.ok, null)
-            .show()
-    }
-
-    /* The service, when protection is on, puts the setting to use at once. */
-    private fun tellAdBlock() {
-        Protector.tell(this, ShroudlyVpnService.ACTION_ADBLOCK)
-    }
-
-    /* "Sites never to block": one domain per line, cleaned on save. */
-    private fun editAdBlockAllow() {
-        val pad = (20 * resources.displayMetrics.density).toInt()
-        val field = EditText(this).apply {
-            setText(AdBlock.allow(this@MainActivity).joinToString("\n"))
-            hint = "example.com"
-            minLines = 4
-            textDirection = View.TEXT_DIRECTION_LTR
-            typeface = Typeface.MONOSPACE
-        }
-        val hintText = TextView(this).apply {
-            text = getString(R.string.adBlockAllowDesc)
-            setTextColor(getColor(R.color.text_dim))
-            textSize = 13f
-        }
-        val box = android.widget.LinearLayout(this).apply {
-            orientation = android.widget.LinearLayout.VERTICAL
-            setPadding(pad, pad / 2, pad, 0)
-            addView(hintText)
-            addView(field)
-        }
-        AlertDialog.Builder(this)
-            .setTitle(R.string.adBlockAllow)
-            .setView(box)
-            .setPositiveButton(android.R.string.ok) { _, _ ->
-                AdBlock.setAllow(this, field.text.toString())
-                tellAdBlock()
-            }
-            .setNegativeButton(android.R.string.cancel, null)
             .show()
     }
 

@@ -360,6 +360,10 @@ class AppLogTest {
             val all = AppLog.snapshot()
             assertTrue(all.indexOfFirst { it.contains("earlier run") } < all.indexOfFirst { it.contains("Protection on") })
             assertTrue(all.indexOfFirst { it.contains("Protection on") } < all.indexOfFirst { it.contains("example.com") })
+            // Share logs' "Without site names": the app's lines alone.
+            val noSites = AppLog.snapshot(sites = false)
+            assertTrue(noSites.any { it.contains("Protection on") })
+            assertFalse(noSites.any { it.contains("example.com") })
             // Each kind keeps its own last CAPACITY lines.
             repeat(AppLog.CAPACITY + 50) { AppLog.add("site $it", site = true) }
             val after = AppLog.snapshot()

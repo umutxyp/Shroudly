@@ -2,6 +2,7 @@ package me.codeshare.shroudly
 
 import android.content.Context
 import android.annotation.SuppressLint
+import android.app.AlertDialog
 import android.app.PendingIntent
 import android.content.Intent
 import android.os.Build
@@ -26,7 +27,7 @@ class ShroudlyTileService : TileService() {
 
     override fun onClick() {
         when (Protection.state) {
-            Protection.State.ON -> Protector.stop(this)
+            Protection.State.ON -> if (Protection.lockdown && !Protection.proxyOnly) confirmStop() else Protector.stop(this)
             Protection.State.OFF -> {
                 // With the VPN allowed already, protection starts from here.
                 // Otherwise the window opens and asks at once (the consent
@@ -44,6 +45,22 @@ class ShroudlyTileService : TileService() {
         // Right away, whatever the panel showed at the tap; the change itself
         // follows (onChange).
         refresh()
+    }
+
+    /* Under "Block connections without VPN", off means no internet at all
+     * for every app: asked once more, as the window does. */
+    private fun confirmStop() {
+        try {
+            showDialog(
+                AlertDialog.Builder(this, android.R.style.Theme_DeviceDefault_Dialog_Alert)
+                    .setMessage(R.string.androidLockdownStop)
+                    .setPositiveButton(R.string.stop) { _, _ -> if (Protection.state == Protection.State.ON) Protector.stop(this) }
+                    .setNegativeButton(android.R.string.cancel, null)
+                    .create(),
+            )
+        } catch (_: Exception) {
+            Protector.stop(this)
+        }
     }
 
     @SuppressLint("StartActivityAndCollapseDeprecated")

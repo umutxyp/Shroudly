@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- lucide "globe", in the accent (it sits in row_globe). -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:tint="?attr/accentLight"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:pathData="M2,12a10,10 0,1 0,20 0a10,10 0,1 0,-20 0"
+        android:strokeWidth="1.75"
+        android:strokeColor="#FFFFFFFF"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round" />
+    <path
+        android:pathData="M12,2a14.5,14.5 0,0 0,0 20a14.5,14.5 0,0 0,0 -20"
+        android:strokeWidth="1.75"
+        android:strokeColor="#FFFFFFFF"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round" />
+    <path
+        android:pathData="M2,12h20"
+        android:strokeWidth="1.75"
+        android:strokeColor="#FFFFFFFF"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round" />
+</vector>

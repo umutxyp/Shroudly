@@ -208,7 +208,10 @@ class ShroudlyVpnService : VpnService() {
     // still worked there (Handover): ended once one goes or stops working.
     private val kept = HashSet<Network>()
     // Every network that could be underneath, as the callback reports them.
-    private val networks = LinkedHashSet<Network>()
+    // Changed on `work`, read by the path checks on `checks` too (underlying):
+    // a plain set read while a network came or went threw there, and the
+    // check took the network for one that does not work.
+    private val networks = java.util.concurrent.CopyOnWriteArraySet<Network>()
 
     private var engine: Engine? = null
     private var doh: DohForwarder? = null
@@ -262,6 +265,10 @@ class ShroudlyVpnService : VpnService() {
     // When the engine's counters last showed bytes coming back (uptime).
     @Volatile private var lastDownAt = Long.MIN_VALUE / 2
     @Volatile private var lastBytesDown = 0L
+    // This session has been counted as a day protection worked (Usage).
+    @Volatile private var workedToday = false
+    // When the services last looked at the store flag and notice (uptime).
+    private var storeLookAt = 0L
     // Techniques for streams that are not TLS or HTTP (raw-*), per address:
     // kept apart, so an app's many addresses never push out sites' techniques.
     private lateinit var learnedRaw: Learned
@@ -294,11 +301,13 @@ class ShroudlyVpnService : VpnService() {
                 if (active) when (intent.getStringExtra("what")) {
                     "strategy" -> later {
                         engine?.let { engineGone(it, "restarted with the technique chosen in Settings", countsAsCrash = false) }
+                        // "Off" or not: what the notice says protection covers.
+                        if (active) goForeground(starting = false)
                     }
                     // Another DNS server: from the next lookup on, nothing restarted.
                     "dns" -> later {
                         if (active) {
-                            doh?.setCustom(AppSettings.customDns(this), AppSettings.customDnsStrict(this), AppSettings.customDnsProxy(this))
+                            doh?.let { AppSettings.applyDns(this, it) }
                             engine?.send(if (AppSettings.customDnsStrict(this)) "DNS-STRICT 1" else "DNS-STRICT 0")
                             engine?.send("DNS-CLEAR")
                         }
@@ -306,7 +315,8 @@ class ShroudlyVpnService : VpnService() {
                     "apps" -> later {
                         if (active) {
                             log("The apps that go through Shroudly changed; the VPN interface is renewed")
-                            renewInterface(v6Routed)
+                            renewInterface(routesV6(underlyingV6))
+                            if (active) goForeground(starting = false)
                         }
                     }
                     // QUIC or IPv6 turned off or on (#59): the engine again with
@@ -334,7 +344,11 @@ class ShroudlyVpnService : VpnService() {
             }
             // ACTION_START, the system's always-on VPN, or a restart after the
             // process was killed (START_STICKY): all mean "be on".
-            else -> requestStart(bySystem = intent?.action != ACTION_START)
+            else -> {
+                // Started again after Android ended the process while on.
+                if (intent == null) Usage.endedByAndroid(this)
+                requestStart(bySystem = intent?.action != ACTION_START)
+            }
         }
         return START_STICKY
     }
@@ -348,6 +362,7 @@ class ShroudlyVpnService : VpnService() {
     override fun onRevoke() {
         // Another VPN app took over, or the user switched this one off in Settings.
         log("VPN permission revoked")
+        Usage.setLockdown(this, false)
         requestStop(R.string.androidVpnRevoked, null)
     }
 
@@ -359,7 +374,10 @@ class ShroudlyVpnService : VpnService() {
         try { work.awaitTermination(8, TimeUnit.SECONDS) } catch (_: InterruptedException) {}
         checks.shutdownNow()
         // Ended by Android while on (not through a stop): back once a network is there.
-        if (Protection.state == Protection.State.ON || Protection.state == Protection.State.STARTING) KeepOn.networkGone(this)
+        if (Protection.state == Protection.State.ON || Protection.state == Protection.State.STARTING) {
+            KeepOn.networkGone(this)
+            Usage.endedByAndroid(this)
+        }
         if (Protection.state != Protection.State.OFF) Protection.set(Protection.State.OFF)
         refreshTile()
         super.onDestroy()
@@ -437,6 +455,7 @@ class ShroudlyVpnService : VpnService() {
             learned = Learned(prefs.getString("learned", null))
             learnedRaw = Learned(prefs.getString("learnedRaw", null), LEARNED_RAW_MAX)
             told.clear()
+            workedToday = false
             restarts = 0
             tunnelRestartedAt = 0
             pathRestartedAt = 0
@@ -459,7 +478,7 @@ class ShroudlyVpnService : VpnService() {
             val d = DohForwarder(::log, prefs.getString("dohRoute", null)) { id ->
                 prefs.edit().putString("dohRoute", id).apply()
             }
-            d.setCustom(AppSettings.customDns(this), AppSettings.customDnsStrict(this), AppSettings.customDnsProxy(this))
+            AppSettings.applyDns(this, d)
             dohPort = try { d.start() } catch (e: Exception) { log("Encrypted DNS unavailable: ${e.message}"); 0 }
             doh = if (dohPort > 0) d else null
 
@@ -474,6 +493,8 @@ class ShroudlyVpnService : VpnService() {
             v6Routed = routesV6(underlyingV6)
             underlyingId = under?.first?.toString()
             underlyingNet = under?.first
+            // No network yet: said in the window until one is there.
+            if (under == null) Protection.trouble(R.string.androidNoNetwork)
             val pfd = establish(v6Routed) ?: throw StartError("VPN permission is missing", R.string.androidVpnDenied)
             tun = pfd
             startTunnel()
@@ -483,6 +504,7 @@ class ShroudlyVpnService : VpnService() {
             Protection.startedAt = SystemClock.elapsedRealtime()
             Protection.alwaysOn = alwaysOn()
             Protection.lockdown = lockdown()
+            Usage.setLockdown(this, Protection.lockdown)
             Protection.ipv6 = v6Routed
             Protection.set(Protection.State.ON)
             Protection.socksPort = port
@@ -513,12 +535,16 @@ class ShroudlyVpnService : VpnService() {
                 "network: ${if (under == null) "none" else Net.describe(cm, under.first, under.second)}")
         } catch (e: Exception) {
             val detail = (e as? StartError)?.message ?: e.toString()
-            val res = (e as? StartError)?.res ?: R.string.startFailed
+            // Never on: "could not start", not "stopped" (the window's
+            // Details and the log say why).
+            val res = (e as? StartError)?.res?.takeIf { it != R.string.androidProtectionLost } ?: R.string.startFailed
             log("Could not start protection: $detail")
             teardown()
             Protection.set(Protection.State.OFF)
             Protection.fail(res, detail)
-            notifyStopped(res)
+            // Never on: not "Protection stopped" (the reason under the title
+            // that it could not start, or the app's name over that line).
+            notifyStopped(res, title = if (res == R.string.startFailed) R.string.app_name else R.string.startFailed)
             finish()
         }
     }
@@ -595,14 +621,19 @@ class ShroudlyVpnService : VpnService() {
                 try { b.addAllowedApplication(pkg); only++ } catch (_: android.content.pm.PackageManager.NameNotFoundException) {}
             }
         }
+        var skip = 0
         if (only == 0) {
             b.addDisallowedApplication(packageName)
             // Apps the user set to skip Shroudly (Settings): straight out, past
             // the VPN. One no longer installed is left out.
             for (pkg in AppSettings.excluded(this)) {
-                try { b.addDisallowedApplication(pkg) } catch (_: android.content.pm.PackageManager.NameNotFoundException) {}
+                try { b.addDisallowedApplication(pkg); skip++ } catch (_: android.content.pm.PackageManager.NameNotFoundException) {}
             }
         }
+        // Under "Block connections without VPN", Android lets nothing out of
+        // an app the VPN leaves out (it reads only its own allowlist): those
+        // apps have no internet at all (Settings says so, NA-2).
+        if ((only > 0 || skip > 0) && lockdown()) log("Lockdown: the ${if (only > 0) "apps not chosen" else "$skip apps left out"} have no internet while Android blocks connections without a VPN")
         // Without an IPv6 address and route, Android answers apps' IPv6 with
         // "unreachable" at once, and they use IPv4.
         if (v6) b.addAddress(TunnelConfig.ADDRESS_V6, 128).addRoute("::", 0)
@@ -667,6 +698,9 @@ class ShroudlyVpnService : VpnService() {
 
     private fun tick() {
         if (!active) return
+        // Now and then: Google Play's flag, and the suggestion's notice (StoreCards).
+        val up = SystemClock.uptimeMillis()
+        if (storeLookAt == 0L || up - storeLookAt >= StoreCards.LOOK_EVERY_MS) { storeLookAt = up; StoreCards.look(this, port, auth) }
         if (tunnelRunning && !Tun2Socks.TProxyIsRunning()) {
             onTunnelStopped()
             return
@@ -981,28 +1015,36 @@ class ShroudlyVpnService : VpnService() {
             // A phone that turns the network off at lock may end apps then
             // too: should it end this one, it comes back with the network.
             KeepOn.networkGone(this)
+            // Said in the window, so no one takes it for Shroudly's doing.
+            if (Protection.troubleRes == 0) Protection.trouble(R.string.androidNoNetwork)
             return
         }
         log("Network: ${Net.describe(cm, now.first, now.second)}")
+        if (Protection.troubleRes == R.string.androidNoNetwork) Protection.trouble(0)
         rawWatch.networkChanged()
         if (changed) doh?.networkChanged()
         pathWatch.oneStrike = false
         healthReset(FIRST_PATH_CHECK_MS)
+        // What was opened over the old network is ended, unless it still
+        // works there (Handover): then it is kept until that network goes.
+        val keepOld = changed && keptGone.isEmpty() && old != null && !Handover.endsOld(Handover.look(cm, old), Handover.look(cm, now.first))
+        val ending = (changed || keptGone.isNotEmpty()) && !keepOld
         // The interface carries IPv6 only where the network does. A new one
-        // starts a new tunnel, which ends the old connections too.
-        if (routesV6(v6) != v6Routed) {
+        // starts a new tunnel, which ends every connection apps have: at
+        // once for IPv6 gone, only along with an end anyway for IPv6 come
+        // (Handover.renewsForV6).
+        if (Handover.renewsForV6(routesV6(v6), v6Routed, ending)) {
             log("IPv6 ${if (v6) "available" else "gone"} on this network; renewing the VPN interface")
             renewInterface(routesV6(v6))
             return
         }
-        // What was opened over the old network is ended, unless it still
-        // works there (Handover): then it is kept until that network goes.
-        if (changed && keptGone.isEmpty() && old != null && !Handover.endsOld(Handover.look(cm, old), Handover.look(cm, now.first))) {
-            kept += old
+        if (routesV6(v6) != v6Routed) log("IPv6 available on this network; the VPN interface takes it once apps' connections end anyway, not now")
+        if (keepOld) {
+            kept += old!!
             log("The network before (${Net.describe(cm, old)}) still works: apps' connections over it are kept until it goes")
             return
         }
-        if (changed || keptGone.isNotEmpty()) endOldConnections()
+        if (ending) endOldConnections()
     }
 
     /* Another network: apps' connections through the tunnel were carried
@@ -1017,6 +1059,11 @@ class ShroudlyVpnService : VpnService() {
         kept.clear()
         if (!tunnelRunning || engine == null) return
         log(line)
+        // IPv6 the network gained meanwhile comes with it (onNetworkSettled).
+        if (routesV6(underlyingV6) != v6Routed) {
+            renewInterface(routesV6(underlyingV6))
+            return
+        }
         stopTunnel()
         if (restartProcess) {
             wedged("the tunnel did not stop after the network changed")
@@ -1126,6 +1173,8 @@ class ShroudlyVpnService : VpnService() {
             }
             is EngineEvent.Stats -> {
                 if (ev.bytesDown > lastBytesDown) lastDownAt = SystemClock.elapsedRealtime()
+                // Carried traffic: a day protection worked (Usage), once a session.
+                if (ev.bytesDown > 0 && !workedToday && active && Protection.troubleRes == 0) { workedToday = true; Usage.worked(this) }
                 lastBytesDown = ev.bytesDown
                 Protection.stats = ev
                 Protection.changed()
@@ -1460,16 +1509,26 @@ class ShroudlyVpnService : VpnService() {
             this, 1, Intent(this, ShroudlyVpnService::class.java).setAction(ACTION_STOP),
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
         )
+        // Under lockdown, Stop asks first in the window (with Shroudly off
+        // there apps have no internet at all, MainActivity.confirmStop).
+        val stop = if (Protection.lockdown) PendingIntent.getActivity(
+            this, 4, Intent(this, MainActivity::class.java).putExtra(MainActivity.EXTRA_CONFIRM_STOP, true)
+                .addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_NEW_TASK),
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
+        ) else stopIntent
+        // What it covers (Coverage): every app, only some, all but some.
+        val text = if (starting) getString(R.string.starting) else Coverage.text(this)
         val n = Notification.Builder(this, CHANNEL)
             .setSmallIcon(R.drawable.ic_shield)
             .setContentTitle(getString(if (starting) R.string.starting else R.string.protected_))
-            .setContentText(getString(R.string.androidAllApps))
+            .setContentText(text)
+            .setStyle(Notification.BigTextStyle().bigText(text))
             .setContentIntent(openApp(this))
             .setOngoing(true)
             .setShowWhen(false)
             .setCategory(Notification.CATEGORY_SERVICE)
             .setColor(Accent.swatch(this))
-            .addAction(Notification.Action.Builder(null, getString(R.string.stop), stopIntent).build())
+            .addAction(Notification.Action.Builder(null, getString(R.string.stop), stop).build())
             .apply { if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) setForegroundServiceBehavior(Notification.FOREGROUND_SERVICE_IMMEDIATE) }
             .build()
         try {
