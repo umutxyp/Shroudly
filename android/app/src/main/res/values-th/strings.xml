@@ -45,6 +45,9 @@
     <string name="androidModeTitle">โหมด</string>
     <string name="androidModeVpn">VPN (ทุกแอป)</string>
     <string name="androidModeVpnDesc">ทุกแอปผ่าน Shroudly Android อนุญาต VPN ได้ครั้งละหนึ่งตัว ดังนั้นแอป VPN อื่นจะถูกตัดการเชื่อมต่อ</string>
+    <string name="androidMoveBody">รับอัปเดตอัตโนมัติจาก Google Play: ที่หน้าของ Shroudly บน Play ให้แตะถอนการติดตั้ง แล้วแตะติดตั้ง จากนั้นเปิดการป้องกันอีกครั้ง การตั้งค่าที่คุณเปลี่ยนไว้จะเริ่มใหม่</string>
+    <string name="androidMoveOpen">เปิด Google Play</string>
+    <string name="androidMoveTitle">Shroudly มีบน Google Play แล้ว</string>
     <string name="androidNetworkSection">เครือข่าย</string>
     <string name="androidNoInternet">การป้องกันหยุดทำงานเพราะ Shroudly เชื่อมต่ออินเทอร์เน็ตบนเครือข่ายนี้ไม่ได้ แอปของคุณจึงเชื่อมต่อโดยตรงอยู่ในขณะนี้ เปิด Shroudly เพื่อลองอีกครั้ง</string>
     <string name="androidNoInternetHere">การป้องกันหยุดทำงานเพราะ Shroudly เชื่อมต่ออินเทอร์เน็ตบนเครือข่ายนี้ไม่ได้ แอปของคุณจึงเชื่อมต่อโดยตรงอยู่ในขณะนี้</string>

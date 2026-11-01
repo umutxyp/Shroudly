@@ -45,6 +45,9 @@
     <string name="androidModeTitle">Реҷа</string>
     <string name="androidModeVpn">VPN (ҳамаи барномаҳо)</string>
     <string name="androidModeVpnDesc">Ҳамаи барномаҳо аз Shroudly мегузаранд. Android ҳамзамон танҳо як VPN-ро иҷозат медиҳад, бинобар ин барномаи дигари VPN ҷудо мешавад.</string>
+    <string name="androidMoveBody">Навсозиҳоро аз Google Play худкор гиред: дар саҳифаи Shroudly дар он ҷо «Нест кардан», баъд «Насб кардан»-ро пахш кунед. Баъд ҳимояро боз фаъол кунед; танзимоте, ки иваз карда будед, аз нав оғоз мешаванд.</string>
+    <string name="androidMoveOpen">Кушодани Google Play</string>
+    <string name="androidMoveTitle">Shroudly дар Google Play ҳаст</string>
     <string name="androidNetworkSection">Шабака</string>
     <string name="androidNoInternet">Ҳимоя қатъ шуд, зеро Shroudly дар ин шабака ба интернет пайваст шуда натавонист, бинобар ин барномаҳоятон ҳоло мустақиман пайваст мешаванд. Барои боз кӯшиш кардан Shroudly-ро кушоед.</string>
     <string name="androidNoInternetHere">Ҳимоя қатъ шуд, зеро Shroudly дар ин шабака ба интернет пайваст шуда натавонист, бинобар ин барномаҳоятон ҳоло мустақиман пайваст мешаванд.</string>

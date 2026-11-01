@@ -83,6 +83,8 @@ class ShroudlyProxyService : Service() {
     @Volatile private var active = false
     // This session has been counted as a day protection worked (Usage).
     @Volatile private var workedToday = false
+    // When the services last looked at the store flag and notice (uptime).
+    private var storeLookAt = 0L
     // The networks underneath (with internet, not a VPN): when the last one
     // goes, KeepOn waits for one to bring protection back (issue #39), as in
     // VPN mode. And the phone's network as last looked at, with those it
@@ -322,6 +324,9 @@ class ShroudlyProxyService : Service() {
      * and then otherwise), as the VPN mode's tick does. */
     private fun tick() {
         if (!active) return
+        // Now and then: Google Play's flag, and the suggestion's notice (StoreCards).
+        val up = SystemClock.uptimeMillis()
+        if (storeLookAt == 0L || up - storeLookAt >= StoreCards.LOOK_EVERY_MS) { storeLookAt = up; StoreCards.look(this, port, null) }
         val e = engine ?: return
         if (!e.running) { engineGone(e, "is no longer running"); return }
         val now = SystemClock.uptimeMillis()

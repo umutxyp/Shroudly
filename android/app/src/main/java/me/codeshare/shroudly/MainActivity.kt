@@ -44,6 +44,8 @@ class MainActivity : Activity() {
         const val EXTRA_INSTALL_UPDATE = "installUpdate"
         /* The notification's Stop under lockdown: asked here first (confirmStop). */
         const val EXTRA_CONFIRM_STOP = "confirmStop"
+        /* The suggestion's notification (StoreCards.look): its card, shown. */
+        const val EXTRA_STORE_CARD = "storeCard"
         // Networks' proxies on this phone found not running, told once a run (ProxyCheck).
         private val deadProxyTold = HashSet<String>()
     }
@@ -81,7 +83,10 @@ class MainActivity : Activity() {
     // as of onStart; and when the window came (uptime): the other cards
     // have their say first.
     private var storeShown: String? = null
+    // The card a tap on the suggestion's notification asked for.
+    private var storeAsked: String? = null
     private var fromPlay = false
+    private var playStore = false
     private var installedAt = 0L
     private var workedDays = 0
     private var startedAt = 0L
@@ -205,6 +210,7 @@ class MainActivity : Activity() {
             handleStart(intent)
             handleInstall(intent)
             handleConfirmStop(intent)
+            handleStoreCard(intent)
         }
     }
 
@@ -214,6 +220,14 @@ class MainActivity : Activity() {
         handleStart(intent)
         handleInstall(intent)
         handleConfirmStop(intent)
+        handleStoreCard(intent)
+    }
+
+    private fun handleStoreCard(intent: Intent?) {
+        val key = intent?.getStringExtra(EXTRA_STORE_CARD) ?: return
+        intent.removeExtra(EXTRA_STORE_CARD)
+        if (intent.flags and Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY != 0) return
+        if (key == StoreCards.MOVE) storeAsked = key
     }
 
     /* The notification's Stop under lockdown (ShroudlyVpnService.goForeground). */
@@ -258,6 +272,9 @@ class MainActivity : Activity() {
         // Is Shroudly on Google Play (stores.json): asked now and then.
         Stores.refreshIfDue(this, Protection.socksPort, Protection.socksAuth)
         fromPlay = StoreCards.fromPlay(InstallSource.installer(this))
+        playStore = !fromPlay && StoreCards.playStoreInstalled(this)
+        // Seen: the suggestion's notification, if any, has had its turn.
+        StoreCards.clearNotice(this)
         installedAt = Usage.installedAt(this)
         workedDays = Usage.days(this)
         startedAt = SystemClock.uptimeMillis()
@@ -635,21 +652,39 @@ class MainActivity : Activity() {
     /* The store card (StoreCards), once a run at most: only after the other
      * cards have had their say, and never beside one of them. */
     private fun showStoreCard(working: Boolean) {
-        if (storeShown != null || StoreCards.promptedThisRun || !working) return
+        if (storeShown != null) return
+        // Asked for from the suggestion's notification: already counted then.
+        storeAsked?.let { storeAsked = null; putStoreCard(it); return }
+        if (StoreCards.promptedThisRun || !working) return
         if (SystemClock.uptimeMillis() - startedAt < STORE_CARD_AFTER_MS) return
         if (listOf(notice, update, support).any { it.visibility == View.VISIBLE }) return
         val now = System.currentTimeMillis()
         val live = Stores.playLive(this, now)
         val rate = StoreCards.load(this, StoreCards.RATE, now)
-        if (!StoreCards.rateDue(fromPlay, live, working, installedAt, workedDays, rate, now)) return
+        val move = StoreCards.load(this, StoreCards.MOVE, now)
+        when {
+            StoreCards.rateDue(fromPlay, live, working, installedAt, workedDays, rate, now) -> {
+                StoreCards.save(this, StoreCards.RATE, StoreCards.rateShown(rate, now))
+                ShroudlyVpnService.log("Asking for a rating on Google Play (${rate.shown + 1}. time)")
+                putStoreCard(StoreCards.RATE)
+            }
+            StoreCards.moveDue(fromPlay, live, playStore, working, AdBlock.enabled(this), installedAt, workedDays, move, now) -> {
+                StoreCards.save(this, StoreCards.MOVE, StoreCards.moveShown(move, now))
+                ShroudlyVpnService.log("Suggesting the copy from Google Play (${move.shown + 1}. time)")
+                putStoreCard(StoreCards.MOVE)
+            }
+            else -> return
+        }
         StoreCards.promptedThisRun = true
-        StoreCards.save(this, StoreCards.RATE, StoreCards.rateShown(rate, now))
-        ShroudlyVpnService.log("Asking for a rating on Google Play (${rate.shown + 1}. time)")
-        storeShown = StoreCards.RATE
-        findViewById<ImageView>(R.id.storeIcon).setImageResource(R.drawable.ic_star)
-        findViewById<TextView>(R.id.storeTitle).setText(R.string.androidRateTitle)
-        findViewById<TextView>(R.id.storeText).setText(R.string.androidRateBody)
-        findViewById<Button>(R.id.storeOpen).setText(R.string.androidRateOpen)
+    }
+
+    private fun putStoreCard(key: String) {
+        val rate = key == StoreCards.RATE
+        storeShown = key
+        findViewById<ImageView>(R.id.storeIcon).setImageResource(if (rate) R.drawable.ic_star else R.drawable.ic_download)
+        findViewById<TextView>(R.id.storeTitle).setText(if (rate) R.string.androidRateTitle else R.string.androidMoveTitle)
+        findViewById<TextView>(R.id.storeText).setText(if (rate) R.string.androidRateBody else R.string.androidMoveBody)
+        findViewById<Button>(R.id.storeOpen).setText(if (rate) R.string.androidRateOpen else R.string.androidMoveOpen)
         storeCard.visibility = View.VISIBLE
     }
 

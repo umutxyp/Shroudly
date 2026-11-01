@@ -45,6 +45,9 @@
     <string name="androidModeTitle">Mode</string>
     <string name="androidModeVpn">VPN (every app)</string>
     <string name="androidModeVpnDesc">Every app goes through Shroudly. Android allows one VPN at a time, so another VPN app is disconnected.</string>
+    <string name="androidMoveBody">Get updates automatically from Google Play: on Shroudly\'s page there, tap Uninstall, then Install. Then turn protection on again; settings you changed start fresh.</string>
+    <string name="androidMoveOpen">Open Google Play</string>
+    <string name="androidMoveTitle">Shroudly is on Google Play</string>
     <string name="androidNetworkSection">Network</string>
     <string name="androidNoInternet">Protection stopped because Shroudly could not reach the internet on this network, so your apps are connecting directly. Open Shroudly to try again.</string>
     <string name="androidNoInternetHere">Protection stopped because Shroudly could not reach the internet on this network, so your apps are connecting directly.</string>

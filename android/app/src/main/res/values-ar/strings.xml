@@ -45,6 +45,9 @@
     <string name="androidModeTitle">الوضع</string>
     <string name="androidModeVpn">شبكة افتراضية خاصة (كل التطبيقات)</string>
     <string name="androidModeVpnDesc">تمر كل التطبيقات عبر Shroudly. يسمح أندرويد بشبكة افتراضية خاصة واحدة في كل مرة، لذا يُقطع اتصال تطبيق VPN آخر.</string>
+    <string name="androidMoveBody">احصل على التحديثات تلقائيًا من Google Play: في صفحة Shroudly هناك، اضغط «إلغاء التثبيت» ثم «تثبيت». بعدها شغّل الحماية من جديد؛ وتعود الإعدادات التي غيّرتها إلى بدايتها.</string>
+    <string name="androidMoveOpen">افتح Google Play</string>
+    <string name="androidMoveTitle">Shroudly متوفر على Google Play</string>
     <string name="androidNetworkSection">الشبكة</string>
     <string name="androidNoInternet">توقفت الحماية لأن Shroudly لم يتمكن من الوصول إلى الإنترنت على هذه الشبكة، لذا تتصل تطبيقاتك الآن مباشرةً. افتح Shroudly للمحاولة مجددًا.</string>
     <string name="androidNoInternetHere">توقفت الحماية لأن Shroudly لم يتمكن من الوصول إلى الإنترنت على هذه الشبكة، لذا تتصل تطبيقاتك الآن مباشرةً.</string>

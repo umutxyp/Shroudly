@@ -45,6 +45,9 @@
     <string name="androidModeTitle">Рэжым</string>
     <string name="androidModeVpn">VPN (усе праграмы)</string>
     <string name="androidModeVpnDesc">Усе праграмы ідуць праз Shroudly. Android дазваляе толькі адзін VPN адначасова, таму іншая VPN-праграма адключыцца.</string>
+    <string name="androidMoveBody">Атрымлівайце абнаўленні з Google Play аўтаматычна: на старонцы Shroudly там націсніце «Выдаліць», потым «Усталяваць». Потым зноў уключыце абарону; змененыя вамі налады пачнуцца нанова.</string>
+    <string name="androidMoveOpen">Адкрыць Google Play</string>
+    <string name="androidMoveTitle">Shroudly ёсць у Google Play</string>
     <string name="androidNetworkSection">Сетка</string>
     <string name="androidNoInternet">Абарона спынілася, бо Shroudly не змог выйсці ў інтэрнэт у гэтай сетцы, таму вашы праграмы цяпер падключаюцца напрамую. Адкрыйце Shroudly, каб паспрабаваць зноў.</string>
     <string name="androidNoInternetHere">Абарона спынілася, бо Shroudly не змог выйсці ў інтэрнэт у гэтай сетцы, таму вашы праграмы цяпер падключаюцца напрамую.</string>

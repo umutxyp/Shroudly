@@ -45,6 +45,9 @@
     <string name="androidModeTitle">ሁነታ</string>
     <string name="androidModeVpn">VPN (ሁሉም መተግበሪያዎች)</string>
     <string name="androidModeVpnDesc">ሁሉም መተግበሪያዎች በShroudly ያልፋሉ። Android በአንድ ጊዜ አንድ VPN ብቻ ስለሚፈቅድ ሌላ የVPN መተግበሪያ ይቋረጣል።</string>
+    <string name="androidMoveBody">ዝማኔዎችን ከGoogle Play በራስ-ሰር ያግኙ፦ እዚያ ባለው የShroudly ገጽ ላይ «አራግፍ»ን፣ ከዚያም «ጫን»ን ይንኩ። ከዚያ ጥበቃውን እንደገና ያብሩ፤ የቀየሯቸው ቅንብሮች ከመጀመሪያው ይጀምራሉ።</string>
+    <string name="androidMoveOpen">Google Playን ክፈት</string>
+    <string name="androidMoveTitle">Shroudly በGoogle Play ላይ አለ</string>
     <string name="androidNetworkSection">አውታረ መረብ</string>
     <string name="androidNoInternet">Shroudly በዚህ አውታረ መረብ ላይ ኢንተርኔት ማግኘት ስላልቻለ ጥበቃው ቆሟል፤ ስለዚህ መተግበሪያዎችዎ አሁን በቀጥታ ይገናኛሉ። እንደገና ለመሞከር Shroudlyን ይክፈቱ።</string>
     <string name="androidNoInternetHere">Shroudly በዚህ አውታረ መረብ ላይ ኢንተርኔት ማግኘት ስላልቻለ ጥበቃው ቆሟል፤ ስለዚህ መተግበሪያዎችዎ አሁን በቀጥታ ይገናኛሉ።</string>

@@ -45,6 +45,9 @@
     <string name="androidModeTitle">မုဒ်</string>
     <string name="androidModeVpn">VPN (အက်ပ်အားလုံး)</string>
     <string name="androidModeVpnDesc">အက်ပ်အားလုံး Shroudly မှတစ်ဆင့် သွားသည်။ Android သည် တစ်ကြိမ်လျှင် VPN တစ်ခုသာ ခွင့်ပြုသဖြင့် အခြား VPN အက်ပ်၏ ချိတ်ဆက်မှု ပြတ်သွားမည်။</string>
+    <string name="androidMoveBody">Google Play မှ အပ်ဒိတ်များကို အလိုအလျောက် ရယူပါ- ထိုနေရာရှိ Shroudly စာမျက်နှာတွင် ဖြုတ်ရန် ကို တို့ပြီးနောက် ထည့်သွင်းရန် ကို တို့ပါ။ ထို့နောက် ကာကွယ်မှုကို ပြန်ဖွင့်ပါ။ သင်ပြောင်းထားသော ဆက်တင်များ အစမှ ပြန်စပါမည်။</string>
+    <string name="androidMoveOpen">Google Play ကို ဖွင့်ရန်</string>
+    <string name="androidMoveTitle">Shroudly ကို Google Play တွင် ရနိုင်ပါပြီ</string>
     <string name="androidNetworkSection">ကွန်ရက်</string>
     <string name="androidNoInternet">ဤကွန်ရက်တွင် Shroudly သည် အင်တာနက်သို့ မရောက်နိုင်သဖြင့် ကာကွယ်မှု ရပ်သွားပြီး သင့်အက်ပ်များသည် ယခု တိုက်ရိုက် ချိတ်ဆက်နေပါသည်။ ထပ်မံကြိုးစားရန် Shroudly ကို ဖွင့်ပါ။</string>
     <string name="androidNoInternetHere">ဤကွန်ရက်တွင် Shroudly သည် အင်တာနက်သို့ မရောက်နိုင်သဖြင့် ကာကွယ်မှု ရပ်သွားပြီး သင့်အက်ပ်များသည် ယခု တိုက်ရိုက် ချိတ်ဆက်နေပါသည်။</string>

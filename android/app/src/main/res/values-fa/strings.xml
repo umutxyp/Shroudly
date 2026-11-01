@@ -45,6 +45,9 @@
     <string name="androidModeTitle">حالت</string>
     <string name="androidModeVpn">VPN (همهٔ برنامه‌ها)</string>
     <string name="androidModeVpnDesc">همهٔ برنامه‌ها از Shroudly می‌گذرند. اندروید هم‌زمان فقط یک VPN را مجاز می‌داند، پس اتصال برنامهٔ VPN دیگر قطع می‌شود.</string>
+    <string name="androidMoveBody">به‌روزرسانی‌ها را خودکار از Google Play بگیرید: در صفحهٔ Shroudly آنجا، «حذف نصب» و سپس «نصب» را بزنید. بعد محافظت را دوباره روشن کنید؛ تنظیماتی که تغییر داده بودید از نو شروع می‌شوند.</string>
+    <string name="androidMoveOpen">باز کردن Google Play</string>
+    <string name="androidMoveTitle">Shroudly در Google Play هست</string>
     <string name="androidNetworkSection">شبکه</string>
     <string name="androidNoInternet">محافظت متوقف شد چون Shroudly نتوانست در این شبکه به اینترنت برسد، پس برنامه‌هایتان اکنون مستقیم وصل می‌شوند. برای امتحان دوباره، Shroudly را باز کنید.</string>
     <string name="androidNoInternetHere">محافظت متوقف شد چون Shroudly نتوانست در این شبکه به اینترنت برسد، پس برنامه‌هایتان اکنون مستقیم وصل می‌شوند.</string>

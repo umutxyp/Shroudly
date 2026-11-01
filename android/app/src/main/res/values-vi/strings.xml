@@ -45,6 +45,9 @@
     <string name="androidModeTitle">Chế độ</string>
     <string name="androidModeVpn">VPN (mọi ứng dụng)</string>
     <string name="androidModeVpnDesc">Mọi ứng dụng đi qua Shroudly. Android chỉ cho phép một VPN mỗi lúc, nên ứng dụng VPN khác sẽ bị ngắt.</string>
+    <string name="androidMoveBody">Nhận bản cập nhật tự động từ Google Play: trên trang Shroudly ở đó, chạm Gỡ cài đặt rồi Cài đặt. Sau đó bật lại bảo vệ; các cài đặt bạn đã đổi sẽ bắt đầu lại từ đầu.</string>
+    <string name="androidMoveOpen">Mở Google Play</string>
+    <string name="androidMoveTitle">Shroudly đã có trên Google Play</string>
     <string name="androidNetworkSection">Mạng</string>
     <string name="androidNoInternet">Bảo vệ đã dừng vì Shroudly không thể kết nối Internet trên mạng này, vì vậy các ứng dụng của bạn hiện đang kết nối trực tiếp. Mở Shroudly để thử lại.</string>
     <string name="androidNoInternetHere">Bảo vệ đã dừng vì Shroudly không thể kết nối Internet trên mạng này, vì vậy các ứng dụng của bạn hiện đang kết nối trực tiếp.</string>

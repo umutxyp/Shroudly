@@ -45,6 +45,9 @@
     <string name="androidModeTitle">मोड</string>
     <string name="androidModeVpn">VPN (सभी ऐप्स)</string>
     <string name="androidModeVpnDesc">सभी ऐप्स Shroudly से गुज़रते हैं। Android एक समय में केवल एक VPN की अनुमति देता है, इसलिए दूसरा VPN ऐप डिस्कनेक्ट हो जाता है।</string>
+    <string name="androidMoveBody">Google Play से अपने आप अपडेट पाएँ: वहाँ Shroudly के पेज पर अनइंस्टॉल, फिर इंस्टॉल पर टैप करें। फिर सुरक्षा दोबारा चालू करें; आपकी बदली हुई सेटिंग्स नए सिरे से शुरू होंगी।</string>
+    <string name="androidMoveOpen">Google Play खोलें</string>
+    <string name="androidMoveTitle">Shroudly Google Play पर है</string>
     <string name="androidNetworkSection">नेटवर्क</string>
     <string name="androidNoInternet">सुरक्षा बंद हो गई क्योंकि Shroudly इस नेटवर्क पर इंटरनेट तक नहीं पहुँच सका, इसलिए आपके ऐप्स अब सीधे कनेक्ट हो रहे हैं। फिर से कोशिश करने के लिए Shroudly खोलें।</string>
     <string name="androidNoInternetHere">सुरक्षा बंद हो गई क्योंकि Shroudly इस नेटवर्क पर इंटरनेट तक नहीं पहुँच सका, इसलिए आपके ऐप्स अब सीधे कनेक्ट हो रहे हैं।</string>

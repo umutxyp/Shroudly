@@ -45,6 +45,9 @@
     <string name="androidModeTitle">Mode</string>
     <string name="androidModeVpn">VPN (semua aplikasi)</string>
     <string name="androidModeVpnDesc">Semua aplikasi lewat Shroudly. Android hanya mengizinkan satu VPN dalam satu waktu, jadi aplikasi VPN lain terputus.</string>
+    <string name="androidMoveBody">Dapatkan pembaruan otomatis dari Google Play: di halaman Shroudly di sana, ketuk Uninstal, lalu Instal. Setelah itu nyalakan lagi perlindungan; setelan yang Anda ubah mulai dari awal.</string>
+    <string name="androidMoveOpen">Buka Google Play</string>
+    <string name="androidMoveTitle">Shroudly ada di Google Play</string>
     <string name="androidNetworkSection">Jaringan</string>
     <string name="androidNoInternet">Perlindungan berhenti karena Shroudly tidak dapat menjangkau internet di jaringan ini, jadi aplikasi Anda kini terhubung langsung. Buka Shroudly untuk mencoba lagi.</string>
     <string name="androidNoInternetHere">Perlindungan berhenti karena Shroudly tidak dapat menjangkau internet di jaringan ini, jadi aplikasi Anda kini terhubung langsung.</string>

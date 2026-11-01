@@ -282,7 +282,7 @@ yalnızca Play paketindedir; uygulamanın açık kaynak bildirimlerinde
 listelenir. GitHub APK'sının bağımlılıkları değişmedi (yalnızca Kotlin'in
 standart kitaplığı).
 
-### 4b. Mağaza bayrağı (stores.json): puanlama kartı
+### 4b. Mağaza bayrağı (stores.json): puanlama kartı ve Play'e geçiş önerisi
 
 Uygulama Play'de olduğu sürece, Play'den kurulan kopyanın ana penceresinde
 arada bir küçük bir kart puan ister ("Help others find Shroudly", düğmesi
@@ -317,6 +317,21 @@ kartı başka bir yolla geçmek) bir "hayır" sayılır: sonraki en erken 14 gü
 sonra 28, 56, 112 gün sonra. **Rate on Google Play** Play'deki sayfayı açar
 (uygulama içi değerlendirme arayüzü değil; onun kotası dokunuştan sonra hiçbir
 şey göstermeyebilir) ve kart bir daha çıkmaz.
+
+Aynı bayrakla, Play'den **kurulmamış** kopyalarda (GitHub APK'sı ya da başka
+bir yerden kurulan) bir kez de Play'e geçme önerisi çıkar: "Shroudly is on
+Google Play" ve "güncellemeleri Play'den otomatik al: oradaki Shroudly
+sayfasında Kaldır'a, sonra Yükle'ye dokun; sonra korumayı yeniden aç;
+değiştirdiğin ayarlar baştan başlar" (kaldırınca ayarlar gerçekten silinir,
+bu yüzden böyle söylüyor). Düğmesi **Open Google Play**. Kurallar
+(`StoreCards.kt`): en fazla iki kez (ilk "Not now"dan 30 gün sonra bir kez
+daha, sonra hiç); **Open Google Play**'e dokunulduysa hiç. Yalnızca Play
+Store telefonda varken, "Block ads and trackers" kapalıyken (Play kopyasında
+reklam engelleme yok; geçince kaybolurdu), koruma açık ve çalışırken,
+uygulama en az 3 gündür kuruluyken ve koruma en az 2 ayrı günde çalışmışken.
+Play'in kurduğu kopyada hiç çıkmaz. Pencere 3 gündür açılmadıysa öneri, ses
+ve açılır pencere olmadan, düşük önemli bir bildirim olarak bir kez gelir
+(bir gösterim sayılır); dokununca pencere kartla açılır.
 
 ## 5. Uygulama içeriği (App content) formları
 

@@ -45,6 +45,9 @@
     <string name="androidModeTitle">Mod</string>
     <string name="androidModeVpn">VPN (semua aplikasi)</string>
     <string name="androidModeVpnDesc">Semua aplikasi melalui Shroudly. Android hanya membenarkan satu VPN pada satu masa, jadi aplikasi VPN lain terputus.</string>
+    <string name="androidMoveBody">Dapatkan kemas kini secara automatik daripada Google Play: pada halaman Shroudly di sana, ketik Nyahpasang, kemudian Pasang. Kemudian hidupkan semula perlindungan; tetapan yang anda ubah bermula semula.</string>
+    <string name="androidMoveOpen">Buka Google Play</string>
+    <string name="androidMoveTitle">Shroudly ada di Google Play</string>
     <string name="androidNetworkSection">Rangkaian</string>
     <string name="androidNoInternet">Perlindungan berhenti kerana Shroudly tidak dapat mencapai internet pada rangkaian ini, jadi aplikasi anda kini bersambung secara terus. Buka Shroudly untuk mencuba lagi.</string>
     <string name="androidNoInternetHere">Perlindungan berhenti kerana Shroudly tidak dapat mencapai internet pada rangkaian ini, jadi aplikasi anda kini bersambung secara terus.</string>

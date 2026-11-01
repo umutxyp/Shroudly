@@ -45,6 +45,9 @@
     <string name="androidModeTitle">حالت</string>
     <string name="androidModeVpn">VPN (ټول اپونه)</string>
     <string name="androidModeVpnDesc">ټول اپونه له Shroudly تېرېږي. اندروېډ په یو وخت کې یوازې یو VPN ته اجازه ورکوي، نو د بل VPN اپ اړیکه پرې کېږي.</string>
+    <string name="androidMoveBody">تازه معلومات له Google Play څخه پخپله ترلاسه کړئ: هلته د Shroudly په پاڼه کې «لرې کول» او بیا «نصبول» ټک کړئ. بیا ساتنه بیا چالانه کړئ؛ هغه امستنې چې تاسو بدلې کړې وې له سره پیلېږي.</string>
+    <string name="androidMoveOpen">Google Play پرانیزئ</string>
+    <string name="androidMoveTitle">Shroudly په Google Play کې دی</string>
     <string name="androidNetworkSection">شبکه</string>
     <string name="androidNoInternet">ساتنه ودرېده ځکه چې Shroudly په دې شبکه کې انټرنېټ ته ونه رسېد، نو ستاسو اپونه اوس مستقیم نښلي. د بیا هڅې لپاره Shroudly پرانیزئ.</string>
     <string name="androidNoInternetHere">ساتنه ودرېده ځکه چې Shroudly په دې شبکه کې انټرنېټ ته ونه رسېد، نو ستاسو اپونه اوس مستقیم نښلي.</string>

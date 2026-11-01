@@ -267,6 +267,8 @@ class ShroudlyVpnService : VpnService() {
     @Volatile private var lastBytesDown = 0L
     // This session has been counted as a day protection worked (Usage).
     @Volatile private var workedToday = false
+    // When the services last looked at the store flag and notice (uptime).
+    private var storeLookAt = 0L
     // Techniques for streams that are not TLS or HTTP (raw-*), per address:
     // kept apart, so an app's many addresses never push out sites' techniques.
     private lateinit var learnedRaw: Learned
@@ -694,6 +696,9 @@ class ShroudlyVpnService : VpnService() {
 
     private fun tick() {
         if (!active) return
+        // Now and then: Google Play's flag, and the suggestion's notice (StoreCards).
+        val up = SystemClock.uptimeMillis()
+        if (storeLookAt == 0L || up - storeLookAt >= StoreCards.LOOK_EVERY_MS) { storeLookAt = up; StoreCards.look(this, port, auth) }
         if (tunnelRunning && !Tun2Socks.TProxyIsRunning()) {
             onTunnelStopped()
             return

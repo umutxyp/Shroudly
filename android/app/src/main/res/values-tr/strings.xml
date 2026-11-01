@@ -45,6 +45,9 @@
     <string name="androidModeTitle">Mod</string>
     <string name="androidModeVpn">VPN (tüm uygulamalar)</string>
     <string name="androidModeVpnDesc">Tüm uygulamalar Shroudly\'den geçer. Android aynı anda tek VPN\'e izin verir, bu yüzden başka bir VPN uygulamasının bağlantısı kesilir.</string>
+    <string name="androidMoveBody">Güncellemeleri Google Play\'den otomatik alın: oradaki Shroudly sayfasında Kaldır\'a, sonra Yükle\'ye dokunun. Ardından korumayı yeniden açın; değiştirdiğiniz ayarlar baştan başlar.</string>
+    <string name="androidMoveOpen">Google Play\'i aç</string>
+    <string name="androidMoveTitle">Shroudly Google Play\'de</string>
     <string name="androidNetworkSection">Ağ</string>
     <string name="androidNoInternet">Shroudly bu ağda internete ulaşamadığı için koruma durdu, bu yüzden uygulamalarınız şu anda doğrudan bağlanıyor. Yeniden denemek için Shroudly\'yi açın.</string>
     <string name="androidNoInternetHere">Shroudly bu ağda internete ulaşamadığı için koruma durdu, bu yüzden uygulamalarınız şu anda doğrudan bağlanıyor.</string>

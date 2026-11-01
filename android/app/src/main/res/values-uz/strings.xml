@@ -45,6 +45,9 @@
     <string name="androidModeTitle">Rejim</string>
     <string name="androidModeVpn">VPN (barcha ilovalar)</string>
     <string name="androidModeVpnDesc">Barcha ilovalar Shroudly orqali oʻtadi. Android bir vaqtda faqat bitta VPN’ga ruxsat beradi, shuning uchun boshqa VPN ilovasi uziladi.</string>
+    <string name="androidMoveBody">Yangilanishlarni Google Play’dan avtomatik oling: u yerdagi Shroudly sahifasida «O‘chirish», so‘ng «O‘rnatish»ni bosing. Keyin himoyani qayta yoqing; o‘zgartirgan sozlamalaringiz boshidan boshlanadi.</string>
+    <string name="androidMoveOpen">Google Play’ni ochish</string>
+    <string name="androidMoveTitle">Shroudly Google Play’da bor</string>
     <string name="androidNetworkSection">Tarmoq</string>
     <string name="androidNoInternet">Shroudly bu tarmoqda internetga chiqa olmagani uchun himoya to‘xtadi, shuning uchun ilovalaringiz hozir to‘g‘ridan-to‘g‘ri ulanmoqda. Qayta urinib ko‘rish uchun Shroudly’ni oching.</string>
     <string name="androidNoInternetHere">Shroudly bu tarmoqda internetga chiqa olmagani uchun himoya to‘xtadi, shuning uchun ilovalaringiz hozir to‘g‘ridan-to‘g‘ri ulanmoqda.</string>

@@ -45,6 +45,9 @@
     <string name="androidModeTitle">מצב</string>
     <string name="androidModeVpn">VPN (כל האפליקציות)</string>
     <string name="androidModeVpnDesc">כל האפליקציות עוברות דרך Shroudly. אנדרואיד מאפשרת VPN אחד בכל פעם, ולכן אפליקציית VPN אחרת מתנתקת.</string>
+    <string name="androidMoveBody">קבלו עדכונים אוטומטית מ-Google Play: בדף של Shroudly שם, הקישו \'הסרת התקנה\' ואז \'התקנה\'. אחר כך הפעילו שוב את ההגנה; הגדרות ששיניתם יתחילו מחדש.</string>
+    <string name="androidMoveOpen">פתיחת Google Play</string>
+    <string name="androidMoveTitle">Shroudly נמצא ב-Google Play</string>
     <string name="androidNetworkSection">רשת</string>
     <string name="androidNoInternet">ההגנה נעצרה כי Shroudly לא הצליחה להגיע לאינטרנט ברשת הזו, ולכן האפליקציות שלך מתחברות עכשיו ישירות. אפשר לפתוח את Shroudly כדי לנסות שוב.</string>
     <string name="androidNoInternetHere">ההגנה נעצרה כי Shroudly לא הצליחה להגיע לאינטרנט ברשת הזו, ולכן האפליקציות שלך מתחברות עכשיו ישירות.</string>

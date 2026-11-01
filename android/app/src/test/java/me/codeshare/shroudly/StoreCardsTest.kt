@@ -111,13 +111,74 @@ class StoreCardsTest {
         assertEquals(s, StoreCards.rebase(s, now + day))
     }
 
+    private fun move(s: StoreCards.State = StoreCards.State(), fromPlay: Boolean = false, live: Boolean = true, playStore: Boolean = true,
+                     working: Boolean = true, adBlock: Boolean = false, installedAt: Long = installed, days: Int = 5, at: Long = now) =
+        StoreCards.moveDue(fromPlay, live, playStore, working, adBlock, installedAt, days, s, at)
+
+    /* The suggestion to move to the copy from Google Play: in any other copy,
+     * only while Play is live and the Play Store is there, never while the
+     * ad blocker (which the Play copy lacks) is on, at a good moment. */
+    @Test
+    fun whenTheSuggestionMayShow() {
+        assertTrue(move())
+        // The copy from Play: nothing.
+        assertFalse(move(fromPlay = true))
+        // Play not live, or not known to be: nothing.
+        assertFalse(move(live = false))
+        assertFalse(move(playStore = false))
+        assertFalse(move(working = false))
+        assertFalse(move(adBlock = true))
+        // Not on a new install.
+        assertFalse(move(installedAt = now - day))
+        assertFalse(move(days = 1))
+        assertTrue(move(days = 2))
+    }
+
+    /* Twice at most: again 30 days after the first, never after the second;
+     * "Open Google Play" ends it at once. */
+    @Test
+    fun twiceAtMost() {
+        var s = StoreCards.State()
+        assertTrue(move(s))
+        s = StoreCards.moveShown(s, now)
+        assertFalse(move(s, at = now + 29 * day))
+        assertTrue(move(s, at = now + 30 * day))
+        s = StoreCards.moveShown(s, now + 30 * day)
+        assertFalse(move(s, at = now + 1000 * day))
+        assertFalse(move(StoreCards.moveShown(StoreCards.State(), now).copy(done = true), at = now + 1000 * day))
+        // A clock set back after the first: 30 days from then.
+        val back = StoreCards.rebase(StoreCards.moveShown(StoreCards.State(), now), now - 365 * day)
+        assertFalse(move(back, installedAt = now - 400 * day, at = now - 365 * day + 29 * day))
+        assertTrue(move(back, installedAt = now - 400 * day, at = now - 365 * day + 30 * day))
+    }
+
+    /* The notification only when the window has not been opened for three
+     * days (it counts as a showing). */
+    @Test
+    fun theNotificationOnlyForAWindowNotOpened() {
+        assertFalse(StoreCards.windowIdle(now - 2 * day, now))
+        assertTrue(StoreCards.windowIdle(now - 3 * day, now))
+        assertTrue(StoreCards.windowIdle(0, now))
+        assertTrue(StoreCards.windowIdle(now + day, now))
+        val look = File("src/main/java/me/codeshare/shroudly/StoreCards.kt").readText().substringAfter("fun look(")
+        assertTrue(look.indexOf("if (promptedThisRun || !windowIdle(") in 0 until look.indexOf("notify(NOTICE_ID, n)"))
+        assertTrue(look.contains("save(ctx, MOVE, moveShown(load(ctx, MOVE, now), now))"))
+        // The quiet channel: low importance, no sound, no heads-up.
+        assertTrue(look.contains("Notification.Builder(ctx, ShroudlyVpnService.CHANNEL)"))
+        for (name in listOf("ShroudlyVpnService.kt", "ShroudlyProxyService.kt")) {
+            assertTrue(name, File("src/main/java/me/codeshare/shroudly/$name").readText().contains("StoreCards.look(this, port, "))
+        }
+    }
+
     /* Wired in: once a run, after the other cards, never beside one; the
      * button opens the Play page itself and ends it. */
     @Test
     fun wiredIn() {
         val main = File("src/main/java/me/codeshare/shroudly/MainActivity.kt").readText()
         val show = main.substringAfter("private fun showStoreCard(").substringBefore("\n    }\n")
-        assertTrue(show.contains("if (storeShown != null || StoreCards.promptedThisRun || !working) return"))
+        assertTrue(show.contains("if (StoreCards.promptedThisRun || !working) return"))
+        // One a run: shown, it is the run's prompt.
+        assertTrue(show.trimEnd().endsWith("StoreCards.promptedThisRun = true"))
         assertTrue(show.contains("if (listOf(notice, update, support).any { it.visibility == View.VISIBLE }) return"))
         assertTrue(main.contains("StoreCards.save(this, key, StoreCards.load(this, key).copy(done = true))"))
         assertTrue(main.contains("Stores.openPlay(this)"))

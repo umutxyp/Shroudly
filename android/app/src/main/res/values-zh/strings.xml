@@ -45,6 +45,9 @@
     <string name="androidModeTitle">模式</string>
     <string name="androidModeVpn">VPN（所有应用）</string>
     <string name="androidModeVpnDesc">所有应用都经过 Shroudly。Android 同一时间只允许一个 VPN，因此其他 VPN 应用会断开。</string>
+    <string name="androidMoveBody">从 Google Play 自动获取更新：在那里的 Shroudly 页面上点按“卸载”，再点按“安装”。然后重新开启保护；你更改过的设置会恢复为初始状态。</string>
+    <string name="androidMoveOpen">打开 Google Play</string>
+    <string name="androidMoveTitle">Shroudly 已上架 Google Play</string>
     <string name="androidNetworkSection">网络</string>
     <string name="androidNoInternet">由于 Shroudly 在此网络上无法连接互联网，保护已停止，你的应用现在直接联网。打开 Shroudly 即可重试。</string>
     <string name="androidNoInternetHere">由于 Shroudly 在此网络上无法连接互联网，保护已停止，你的应用现在直接联网。</string>

@@ -45,6 +45,9 @@
     <string name="androidModeTitle">Režim</string>
     <string name="androidModeVpn">VPN (ähli programmalar)</string>
     <string name="androidModeVpnDesc">Ähli programmalar Shroudly-dan geçýär. Android bir wagtda diňe bir VPN-e rugsat berýär, şonuň üçin başga VPN programmasy kesilýär.</string>
+    <string name="androidMoveBody">Täzelenmeleri Google Play-den awtomatik alyň: ondaky Shroudly sahypasynda «Aýyr», soňra «Gur» düwmesine basyň. Soňra goragy täzeden açyň; üýtgeden sazlamalaryňyz başdan başlar.</string>
+    <string name="androidMoveOpen">Google Play-i aç</string>
+    <string name="androidMoveTitle">Shroudly Google Play-de bar</string>
     <string name="androidNetworkSection">Tor</string>
     <string name="androidNoInternet">Shroudly bu torda internete çykyp bilmänligi sebäpli gorag togtady, şonuň üçin programmalaryňyz häzir göni birikýär. Täzeden synanyşmak üçin Shroudly-ny açyň.</string>
     <string name="androidNoInternetHere">Shroudly bu torda internete çykyp bilmänligi sebäpli gorag togtady, şonuň üçin programmalaryňyz häzir göni birikýär.</string>

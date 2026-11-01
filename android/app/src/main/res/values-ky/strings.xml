@@ -45,6 +45,9 @@
     <string name="androidModeTitle">Режим</string>
     <string name="androidModeVpn">VPN (бардык колдонмолор)</string>
     <string name="androidModeVpnDesc">Бардык колдонмолор Shroudly аркылуу өтөт. Android бир убакта бир гана VPN\'ге уруксат берет, ошондуктан башка VPN колдонмосу ажыратылат.</string>
+    <string name="androidMoveBody">Жаңыртууларды Google Play\'ден автоматтык түрдө алыңыз: андагы Shroudly барагында «Өчүрүү», андан кийин «Орнотуу» дегенди басыңыз. Анан коргоону кайра күйгүзүңүз; өзгөрткөн жөндөөлөрүңүз башынан башталат.</string>
+    <string name="androidMoveOpen">Google Play\'ди ачуу</string>
+    <string name="androidMoveTitle">Shroudly Google Play\'де бар</string>
     <string name="androidNetworkSection">Тармак</string>
     <string name="androidNoInternet">Shroudly бул тармакта интернетке чыга албагандыктан коргоо токтоду, ошондуктан колдонмолоруңуз азыр түз туташып жатат. Кайра аракет кылуу үчүн Shroudly\'ди ачыңыз.</string>
     <string name="androidNoInternetHere">Shroudly бул тармакта интернетке чыга албагандыктан коргоо токтоду, ошондуктан колдонмолоруңуз азыр түз туташып жатат.</string>
