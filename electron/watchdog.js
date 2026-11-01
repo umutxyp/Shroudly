@@ -21,10 +21,21 @@
  * and starting anything again then can only fail or give it one more reason
  * to act. That is said once (opts.onCoreGone; the engine's own end tells
  * the user).
+ *
+ * Windows: a process tree kill (Task Manager's "End process tree", taskkill
+ * /T, which cafe reset scripts use) ends every process Shroudly started, a
+ * watchdog among them, and nothing would be put back. There the watchdog
+ * starts a copy of itself outside Shroudly's tree and leaves (core/src/
+ * watchdog.c), and the copy talks to Shroudly over a named pipe Shroudly
+ * serves: it says its process id, reads what to look after, and the pipe
+ * breaking, however Shroudly ends, is the signal stdin's closing is
+ * elsewhere.
  */
 
 const fs = require('fs');
+const net = require('net');
 const path = require('path');
+const crypto = require('crypto');
 const { spawn } = require('child_process');
 const { fileState, isGone } = require('./security-block');
 
@@ -57,6 +68,7 @@ function runnableCore(core, copyDir) {
   } catch { return core; }
 }
 
+/* The running watchdog: { pid, write(line) }. */
 function start(opts) {
   const env = { ...process.env };
   let cmd, args;
@@ -65,15 +77,64 @@ function start(opts) {
     cmd = runnableCore(opts.core, opts.copyDir);
     args = ['--watchdog', String(process.pid), opts.restore.exe, ...(opts.restore.args || [])];
   } else return null;
+  if (process.platform === 'win32') return startPiped(cmd, args, env);
   const c = spawn(cmd, args, { detached: true, stdio: ['pipe', 'ignore', 'ignore'], windowsHide: true, env });
-  c.on('error', () => { if (child === c) child = null; });
-  c.on('exit', () => { if (child === c) { child = null; respawn(); } });
+  const w = { pid: c.pid, write: (line) => c.stdin.write(line) };
+  c.on('error', () => { if (child === w) child = null; });
+  c.on('exit', () => { if (child === w) { child = null; respawn(); } });
   c.stdin.on('error', () => {});
   c.unref();
   // The pipe must not keep Shroudly from exiting: its closing at exit is the
   // signal.
   if (c.stdin.unref) c.stdin.unref();
-  return c;
+  return w;
+}
+
+/* Windows (see the top): the pipe served here, the watchdog started with its
+ * name; lines written before the copy connects wait for it. Gone (the pipe
+ * broke, or no copy connected): started again as one that ended. */
+const CONNECT_MS = 15000;
+function startPiped(cmd, args, env) {
+  const name = `\\\\.\\pipe\\shroudly-watchdog-${process.pid}-${crypto.randomBytes(8).toString('hex')}`;
+  const pending = [];
+  let sock = null;
+  let ended = false;
+  const w = {
+    pid: 0,
+    write: (line) => { if (sock) sock.write(line); else pending.push(line); },
+  };
+  const gone = () => {
+    if (ended) return;
+    ended = true;
+    clearTimeout(wait);
+    try { server.close(); } catch {}
+    if (child === w) { child = null; respawn(); }
+  };
+  const server = net.createServer((s) => {
+    // One copy, once: anything else that connects is turned away.
+    if (sock || ended) { s.destroy(); return; }
+    sock = s;
+    s.unref();
+    s.setEncoding('utf8');
+    s.on('error', () => {});
+    s.on('close', gone);
+    let said = '';
+    s.on('data', (d) => {
+      said = (said + d).slice(-64);
+      const m = /pid\t(\d+)\n/.exec(said);
+      if (m) w.pid = Number(m[1]);
+    });
+    for (const line of pending.splice(0)) s.write(line);
+  });
+  server.on('error', gone);
+  server.listen(name);
+  server.unref();
+  const c = spawn(cmd, args, { detached: true, stdio: 'ignore', windowsHide: true, env: { ...env, SHROUDLY_WD_PIPE: name } });
+  c.on('error', gone);
+  c.unref();
+  const wait = setTimeout(() => { if (!sock) gone(); }, CONNECT_MS);
+  if (wait.unref) wait.unref();
+  return w;
 }
 
 /* Its file gone (see the top): said once. */
@@ -96,7 +157,7 @@ function respawn() {
     if (child || !lastOpts || coreGone()) return;
     try { child = start(lastOpts); } catch { child = null; }
     if (!child) return;
-    for (const line of watched) { try { child.stdin.write(line); } catch {} }
+    for (const line of watched) { try { child.write(line); } catch {} }
   }, 1000);
   if (t.unref) t.unref();
 }
@@ -111,7 +172,7 @@ function watch(opts, kind, file) {
     try { child = start(opts); } catch { child = null; }
     if (!child) return false;
   }
-  try { child.stdin.write(`${kind}\t${file}\n`); return true; } catch { return false; }
+  try { child.write(`${kind}\t${file}\n`); return true; } catch { return false; }
 }
 
 function running() { return !!child; }

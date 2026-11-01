@@ -461,7 +461,9 @@ Games and apps mode sets it, on Windows and macOS, without admin rights:
   your own is never removed: `SHROUDLY_APP_PROXY`, set alongside, marks which
   value is Shroudly's.
 - It is removed when you turn the mode off, when you quit Shroudly, at logout
-  and shutdown, by a watchdog within a second if Shroudly is killed, at the
+  and shutdown, by a watchdog within a second if Shroudly is killed (also
+  with everything it started, as Task Manager's "End process tree" does: on
+  Windows the watchdog runs outside Shroudly's process tree), at the
   next sign-in after a power cut (Windows), and by the Windows uninstaller,
   and Roblox's links with it. A
   program started without Shroudly connects as it always did. One that was

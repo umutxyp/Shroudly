@@ -10,7 +10,10 @@
  * nothing until it ends, the watchdog stays small, one stopped while
  * Shroudly runs is started again, but not once its file is gone (an
  * antivirus took it), and with the engine binary gone nothing is started in
- * its place (Electron is never run as Node.js). */
+ * its place (Electron is never run as Node.js). Shroudly ended together with
+ * everything it started (Windows' "End process tree", taskkill /T; its
+ * whole process group elsewhere): the watchdog is not among them, and puts
+ * things back (W7). */
 
 const path = require('path');
 const fs = require('fs');
@@ -145,6 +148,8 @@ function rssKb(pid) {
     fs.writeFileSync(state, '{}');
     const opts = { core: enginePath(), restore: { exe: process.execPath, args: ['-e', RECORD, out] } };
     t.ok(Watchdog.watch(opts, 'proxy', state) && Watchdog.running(), 'a watchdog is started for a state file');
+    // (Windows: known once its copy outside Shroudly's tree has connected.)
+    await waitFor(() => Watchdog.pid() > 0, 5000);
     const first = Watchdog.pid();
     t.ok(first > 0, `its process is there (${first})`);
     try { process.kill(first, 'SIGKILL'); } catch {}
@@ -166,6 +171,7 @@ function rssKb(pid) {
     const opts = { core, restore: { exe: process.execPath, args: ['-e', RECORD, path.join(dir, 'restored 6.json')] }, onCoreGone: (c) => gone.push(c) };
     Watchdog.watch(opts, 'proxy', state);
     // The one running now came from test 5: ended, it comes back from this copy.
+    await waitFor(() => Watchdog.pid() > 0, 5000);
     const before = Watchdog.pid();
     try { process.kill(before, 'SIGKILL'); } catch {}
     t.ok(await waitFor(() => Watchdog.pid() > 0 && Watchdog.pid() !== before, 5000), 'started again from its file while that is there');
@@ -203,6 +209,39 @@ function rssKb(pid) {
     const fuses = require(path.join(root, 'package.json')).build.electronFuses || {};
     t.ok(fuses.runAsNode === false && fuses.enableNodeOptionsEnvironmentVariable === false && fuses.enableNodeCliInspectArguments === false,
       'the packaged app ignores ELECTRON_RUN_AS_NODE, NODE_OPTIONS and --inspect (electronFuses)');
+    fs.rmSync(state, { force: true });
+  }
+
+  // 8. Shroudly ended with everything it started at once: Windows' "End
+  //    process tree" and taskkill /T, which cafe reset scripts use; its whole
+  //    process group elsewhere. The watchdog is not among them (on Windows a
+  //    copy outside Shroudly's tree, told over a named pipe), and puts
+  //    things back (W7).
+  {
+    const state = path.join(dir, 'state 8.json');
+    const out = path.join(dir, 'restored 8.json');
+    fs.writeFileSync(state, '{}');
+    const lib = path.join(__dirname, '..', '..', 'electron', 'watchdog.js');
+    const script = `const W = require(${JSON.stringify(lib)});
+      W.watch({ core: ${JSON.stringify(enginePath())}, restore: { exe: process.execPath, args: ['-e', ${JSON.stringify(RECORD)}, ${JSON.stringify(out)}] } }, 'proxy', ${JSON.stringify(state)});
+      const t = setInterval(() => { if (W.pid() > 0) { console.log('watchdog ' + W.pid()); clearInterval(t); } }, 50);
+      setInterval(() => {}, 1000);`;
+    const win = process.platform === 'win32';
+    const app = spawn(process.execPath, ['-e', script], { stdio: ['ignore', 'pipe', 'ignore'], detached: !win });
+    let said = '';
+    app.stdout.on('data', (d) => { said += d; });
+    t.ok(await waitFor(() => /watchdog \d+/.test(said), 8000), `Shroudly's stand-in started its watchdog (${said.trim() || 'nothing said'})`);
+    const wpid = Number((/watchdog (\d+)/.exec(said) || [])[1]);
+    if (win) {
+      // The watchdog's parent is a process that has already left.
+      const tree = execFileSync('powershell.exe', ['-NoProfile', '-Command', `(Get-CimInstance Win32_Process -Filter 'ParentProcessId=${app.pid}').ProcessId`], { encoding: 'utf8' }).match(/\d+/g) || [];
+      t.ok(!tree.includes(String(wpid)), `Windows: the watchdog (${wpid}) is not in Shroudly's process tree (${tree.join(', ') || 'no children'})`);
+      execFileSync('taskkill', ['/T', '/F', '/PID', String(app.pid)], { stdio: 'ignore' });
+    } else {
+      process.kill(-app.pid, 'SIGKILL');
+    }
+    t.ok(await waitFor(() => fs.existsSync(out), 10000),
+      `${win ? 'taskkill /T /F' : "the whole process group killed"}: the watchdog lived on and the restore ran`);
     fs.rmSync(state, { force: true });
   }
 
