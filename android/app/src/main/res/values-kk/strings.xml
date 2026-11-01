@@ -24,6 +24,7 @@
     <string name="androidBack">Артқа</string>
     <string name="androidBatteryHint">Батарея параметрлері Shroudly-ді фондық режимде тоқтатып, байланысыңызды үзуі мүмкін. Оған батарея шектеулерінсіз жұмыс істеуге рұқсат беріңіз.</string>
     <string name="androidBatterySettings">Батарея параметрлері</string>
+    <string name="androidBatterySteps">Келесі экранда «Батарея» (кейбір телефондарда «Қолданбаның батарея пайдалануы») бөлімін ашып, «Шектеусіз» дегенді таңдаңыз.</string>
     <string name="androidBypassOff">Баптауларда айналып өту стратегиясы өшірулі: тек DNS шифрланады.</string>
     <string name="androidContinue">Жалғастыру</string>
     <string name="androidDetails">Толығырақ</string>
@@ -44,6 +45,7 @@
     <string name="androidNoInternet">Shroudly бұл желіде интернетке шыға алмағандықтан қорғаныс тоқтады, сондықтан қолданбаларыңыз қазір тікелей қосылып тұр. Қайта көру үшін Shroudly-ді ашыңыз.</string>
     <string name="androidNoInternetHere">Shroudly бұл желіде интернетке шыға алмағандықтан қорғаныс тоқтады, сондықтан қолданбаларыңыз қазір тікелей қосылып тұр.</string>
     <string name="androidNoNetwork">Желі жоқ: Shroudly қосулы және Wi-Fi не мобильді интернетті күтуде.</string>
+    <string name="androidNotificationsOff">Хабарландырулар өшірулі, сондықтан қорғаныс тоқтағанда не оны қайтару үшін түрту керек болғанда Shroudly сізге айта алмайды.</string>
     <string name="androidOffHint">Бұғатталған сайттар мен қолданбаларды ашу үшін шеңберді түртіңіз.</string>
     <string name="androidOtherVpn">Басқа VPN қосулы. Android бір уақытта бір ғана VPN-ге рұқсат береді, сондықтан Shroudly-ді қосу оны ажыратады. Оны сақтау үшін «Тек прокси» режимін қолданыңыз.</string>
     <string name="androidPrivacyPolicy">Құпиялық саясаты</string>
@@ -128,6 +130,7 @@
     <string name="searchApps">Қолданба іздеу</string>
     <string name="shareOnlineCount">Мені нақты уақыттағы жалпы санға қосу</string>
     <string name="shareOnlineCountDesc">Әр іске қосылған сайын өзгеретін кездейсоқ сан жіберіледі, сол арқылы қолданба қанша көшірмесі жұмыс істеп тұрғанын көрсете алады. Ол тек қорғаныс қосулы кезде жіберіледі, сондықтан қалған трафигіңізбен бірдей қорғалған жолмен өтеді. Желіңіз Shroudly тарапынан мүлде ештеңе көрмегенін қаласаңыз, мұны өшіріңіз.</string>
+    <string name="showNotifications">Хабарландыруларды көрсету</string>
     <string name="start">Қорғанысты қосу</string>
     <string name="startFailed">Қорғанысты қосу мүмкін болмады</string>
     <string name="starting">Іске қосылуда…</string>

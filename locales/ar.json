@@ -679,6 +679,8 @@
   "androidProxyNotSet": "لا يوجد وكيل Wi-Fi مضبوط على Shroudly، لذا لا يمر عبره إلا التطبيقات التي ضُبط وكيلها الخاص على 127.0.0.1:{port}. لتمرير مزيد من التطبيقات، اضبط وكيل شبكة Wi-Fi هذه على المضيف 127.0.0.1 والمنفذ {port}.",
   "androidLockdownStop": "Android مضبوط على حظر الاتصالات دون VPN، لذا لا يكون للتطبيقات إنترنت ما دام Shroudly متوقفًا.",
   "androidAppsLockdown": "Android مضبوط على حظر الاتصالات دون VPN، لذا لا يكون للتطبيقات المستثناة من Shroudly إنترنت.",
+  "androidNotificationsOff": "الإشعارات متوقفة، لذا لا يستطيع Shroudly إخبارك عندما تتوقف الحماية أو تحتاج إلى نقرة لتعود.",
+  "androidBatterySteps": "في الشاشة التالية، افتح «البطارية» («استخدام بطارية التطبيق» في بعض الهواتف) واختر «غير مقيَّد».",
   "logCustomDnsRoutes": "خادم DNS الخاص بك يجيب: {routes}",
   "logCustomDnsDown": "خادم DNS الخاص بك {server} لا يجيب ({reason})؛ يجيب DNS المشفَّر المدمج في Shroudly حتى يعود",
   "logCustomDnsDownStrict": "خادم DNS الخاص بك {server} لا يجيب ({reason})؛ إنه الوحيد المستخدم، لذا تفشل عمليات البحث عن الأسماء حتى يجيب",

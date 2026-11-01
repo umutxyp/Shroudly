@@ -24,6 +24,7 @@
     <string name="androidBack">شاته</string>
     <string name="androidBatteryHint">د بیټرۍ امستنې کولی شي Shroudly په شالید کې ودروي او ستاسو اړیکه پرې کړي. اجازه ورکړئ چې د بیټرۍ له محدودیتونو پرته کار وکړي.</string>
     <string name="androidBatterySettings">د بیټرۍ امستنې</string>
+    <string name="androidBatterySteps">په راتلونکې پرده کې «بیټرۍ» (په ځینو تلیفونونو کې «د اپ د بیټرۍ کارول») پرانیزئ او «بې محدودیته» غوره کړئ.</string>
     <string name="androidBypassOff">په امستنو کې د تېرېدو تګلاره بنده ده: یوازې DNS کوډ کېږي.</string>
     <string name="androidContinue">دوام ورکړئ</string>
     <string name="androidDetails">جزئيات</string>
@@ -44,6 +45,7 @@
     <string name="androidNoInternet">ساتنه ودرېده ځکه چې Shroudly په دې شبکه کې انټرنېټ ته ونه رسېد، نو ستاسو اپونه اوس مستقیم نښلي. د بیا هڅې لپاره Shroudly پرانیزئ.</string>
     <string name="androidNoInternetHere">ساتنه ودرېده ځکه چې Shroudly په دې شبکه کې انټرنېټ ته ونه رسېد، نو ستاسو اپونه اوس مستقیم نښلي.</string>
     <string name="androidNoNetwork">شبکه نشته: Shroudly چالان دی او Wi-Fi یا ګرځنده ډېټا ته انتظار باسي.</string>
+    <string name="androidNotificationsOff">خبرتیاوې بندې دي، نو Shroudly نه شي کولی تاسو ته ووايي کله چې ساتنه ودرېږي یا د بېرته راتګ لپاره ټک ته اړتیا ولري.</string>
     <string name="androidOffHint">د بند شویو سایټونو او اپونو د پرانیستو لپاره پر دایره ټک وکړئ.</string>
     <string name="androidOtherVpn">بل VPN چالان دی. Android په یو وخت کې یوازې یو VPN ته اجازه ورکوي، نو د Shroudly چالانول به هغه پرې کړي. د ساتلو لپاره یې «یوازې پراکسي» وکاروئ.</string>
     <string name="androidPrivacyPolicy">د محرمیت تګلاره</string>
@@ -128,6 +130,7 @@
     <string name="searchApps">اپ ولټوئ</string>
     <string name="shareOnlineCount">ما په ژوندي شمېر کې وشمېرئ</string>
     <string name="shareOnlineCountDesc">یوه تصادفي شمېره لېږي چې په هر ځل پیلولو بدلېږي، ترڅو اپ وښيي چې څو نسخې چلېږي. دا یوازې هغه وخت لېږل کېږي چې ساتنه فعاله وي، نو ستاسو د نور ټرافیک په څېر له همغې خوندي لارې تېرېږي. که غواړئ چې ستاسو شبکه له Shroudly څخه هېڅ شی ونه ویني، دا بند کړئ.</string>
+    <string name="showNotifications">خبرتیاوې ښودل</string>
     <string name="start">ساتنه پیل کړئ</string>
     <string name="startFailed">ساتنه پیل نه شوه</string>
     <string name="starting">پیلېږي…</string>

@@ -24,6 +24,7 @@
     <string name="androidBack">Yza</string>
     <string name="androidBatteryHint">Batareýa sazlamalary Shroudly-ny fonda togtadyp, birikmäňizi kesip biler. Oňa batareýa çäklendirmeleri bolmazdan işlemäge rugsat beriň.</string>
     <string name="androidBatterySettings">Batareýa sazlamalary</string>
+    <string name="androidBatterySteps">Indiki ekranda «Batareýa» (käbir telefonlarda «Programmanyň batareýa ulanylyşy») açyň we «Çäklendirmesiz» saýlaň.</string>
     <string name="androidBypassOff">Sazlamalarda aýlanyp geçmek strategiýasy öçük: diňe DNS şifrlenýär.</string>
     <string name="androidContinue">Dowam et</string>
     <string name="androidDetails">Jikme-jiklikler</string>
@@ -44,6 +45,7 @@
     <string name="androidNoInternet">Shroudly bu torda internete çykyp bilmänligi sebäpli gorag togtady, şonuň üçin programmalaryňyz häzir göni birikýär. Täzeden synanyşmak üçin Shroudly-ny açyň.</string>
     <string name="androidNoInternetHere">Shroudly bu torda internete çykyp bilmänligi sebäpli gorag togtady, şonuň üçin programmalaryňyz häzir göni birikýär.</string>
     <string name="androidNoNetwork">Tor ýok: Shroudly açyk we Wi-Fi ýa-da mobil interneti garaşýar.</string>
+    <string name="androidNotificationsOff">Bildirişler öçük, şonuň üçin gorag togtanda ýa-da yzyna gaýtarmak üçin basmak gerek bolanda Shroudly size aýdyp bilmeýär.</string>
     <string name="androidOffHint">Petiklenen saýtlary we programmalary açmak üçin tegelege basyň.</string>
     <string name="androidOtherVpn">Başga bir VPN açyk. Android bir wagtda diňe bir VPN-e rugsat berýär, şonuň üçin Shroudly-ny açmak ony kesýär. Ony saklamak üçin «Diňe proksi» ulanyň.</string>
     <string name="androidPrivacyPolicy">Gizlinlik syýasaty</string>
@@ -128,6 +130,7 @@
     <string name="searchApps">Programma gözle</string>
     <string name="shareOnlineCount">Meni onlaýn sana goşmak</string>
     <string name="shareOnlineCountDesc">Her işledilende üýtgeýän tötänleýin san iberilýär, şonuň üçin programma özüniň näçe nusgasynyň işleýändigini görkezip bilýär. Ol diňe gorag açyk wagty iberilýär, şonuň üçin beýleki trafigiňiz ýaly şol goralýan ýol bilen geçýär. Toruňyzyň Shroudly-den asla hiç zat görmezligini isleseňiz, muny öçüriň.</string>
+    <string name="showNotifications">Bildirişleri görkezmek</string>
     <string name="start">Goragy işlediň</string>
     <string name="startFailed">Goragy işledip bolmady</string>
     <string name="starting">Işledilýär…</string>

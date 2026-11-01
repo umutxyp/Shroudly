@@ -24,6 +24,7 @@
     <string name="androidBack">Atrás</string>
     <string name="androidBatteryHint">Los ajustes de batería pueden detener Shroudly en segundo plano y cortar tu conexión. Deja que funcione sin restricciones de batería.</string>
     <string name="androidBatterySettings">Ajustes de batería</string>
+    <string name="androidBatterySteps">En la siguiente pantalla, abre Batería («Uso de batería de la aplicación» en algunos teléfonos) y elige Sin restricciones.</string>
     <string name="androidBypassOff">La estrategia de evasión está desactivada en Ajustes: solo se cifra el DNS.</string>
     <string name="androidContinue">Continuar</string>
     <string name="androidDetails">Detalles</string>
@@ -44,6 +45,7 @@
     <string name="androidNoInternet">La protección se detuvo porque Shroudly no pudo llegar a internet en esta red, así que tus apps se conectan ahora directamente. Abre Shroudly para intentarlo de nuevo.</string>
     <string name="androidNoInternetHere">La protección se detuvo porque Shroudly no pudo llegar a internet en esta red, así que tus apps se conectan ahora directamente.</string>
     <string name="androidNoNetwork">Sin red: Shroudly está activado y espera al Wi-Fi o a los datos móviles.</string>
+    <string name="androidNotificationsOff">Las notificaciones están desactivadas, así que Shroudly no puede avisarte cuando la protección se detenga o necesite un toque para volver.</string>
     <string name="androidOffHint">Toca el círculo para abrir sitios y apps bloqueados.</string>
     <string name="androidOtherVpn">Hay otra VPN activada. Android permite una sola VPN a la vez, así que activar Shroudly la desconectará. Para mantenerla, usa Solo proxy.</string>
     <string name="androidPrivacyPolicy">Política de privacidad</string>
@@ -128,6 +130,7 @@
     <string name="searchApps">Buscar apps</string>
     <string name="shareOnlineCount">Contarme en el total en vivo</string>
     <string name="shareOnlineCountDesc">Envía un número aleatorio que cambia en cada inicio, para que la app pueda mostrar cuántas copias están en marcha. Solo se envía con la protección activa, así que viaja por el mismo camino protegido que el resto de tu tráfico. Desactívalo si prefieres que tu red no vea nada de Shroudly.</string>
+    <string name="showNotifications">Mostrar notificaciones</string>
     <string name="start">Iniciar protección</string>
     <string name="startFailed">No se pudo iniciar la protección</string>
     <string name="starting">Iniciando…</string>

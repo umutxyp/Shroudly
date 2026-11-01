@@ -679,6 +679,8 @@
   "androidProxyNotSet": "Wi-Fi のプロキシが Shroudly に設定されていないため、Shroudly を通るのは独自のプロキシを 127.0.0.1:{port} に設定したアプリだけです。ほかのアプリも通すには、この Wi-Fi ネットワークのプロキシをホスト 127.0.0.1、ポート {port} に設定してください。",
   "androidLockdownStop": "Android は VPN なしの接続をブロックするよう設定されているため、Shroudly がオフの間、アプリはインターネットに接続できません。",
   "androidAppsLockdown": "Android は VPN なしの接続をブロックするよう設定されているため、Shroudly を通らないアプリはインターネットに接続できません。",
+  "androidNotificationsOff": "通知がオフのため、保護が止まったときや、戻すのにタップが必要なときに Shroudly からお知らせできません。",
+  "androidBatterySteps": "次の画面で［バッテリー］（機種によっては［アプリのバッテリー使用量］）を開き、［制限なし］を選んでください。",
   "logCustomDnsRoutes": "あなたの DNS サーバーが応答しています：{routes}",
   "logCustomDnsDown": "あなたの DNS サーバー {server} が応答しません（{reason}）。応答するまで Shroudly 内蔵の暗号化 DNS が応答します",
   "logCustomDnsDownStrict": "DNS サーバー {server} が応答しません ({reason})。このサーバーのみを使うため、応答があるまで名前の解決は失敗します",

@@ -24,6 +24,7 @@
     <string name="androidBack">Paşve</string>
     <string name="androidBatteryHint">Mîhengên bataryayê dikarin Shroudly di paşxanê de rawestînin û girêdana te qut bikin. Destûrê bide ku ew bê sînorkirinên bataryayê bixebite.</string>
     <string name="androidBatterySettings">Mîhengên bataryayê</string>
+    <string name="androidBatterySteps">Di ekrana din de Batarya (li hin telefonan Bikaranîna bataryayê ya sepanê) veke û Bêsînor hilbijêre.</string>
     <string name="androidBypassOff">Di mîhengan de stratejiya derbasbûnê girtî ye: tenê DNS tê şîfrekirin.</string>
     <string name="androidContinue">Bidomîne</string>
     <string name="androidDetails">Hûragahî</string>
@@ -44,6 +45,7 @@
     <string name="androidNoInternet">Parastin rawestiya ji ber ku Shroudly li ser vê torê negihişt înternetê, ji ber vê yekê sepanên te niha rasterast girêdidin. Ji bo ku tu dîsa biceribînî, Shroudly veke.</string>
     <string name="androidNoInternetHere">Parastin rawestiya ji ber ku Shroudly li ser vê torê negihişt înternetê, ji ber vê yekê sepanên te niha rasterast girêdidin.</string>
     <string name="androidNoNetwork">Tor tune: Shroudly vekirî ye û li benda Wi-Fi an daneyên mobîl e.</string>
+    <string name="androidNotificationsOff">Agahdarî girtî ne, ji ber vê yekê Shroudly nikare ji te re bibêje dema parastin radiweste an ji bo vegerê tikandinek hewce dike.</string>
     <string name="androidOffHint">Ji bo vekirina malper û sepanên astengkirî, li ser xelekê bitikîne.</string>
     <string name="androidOtherVpn">VPN-eke din vekirî ye. Android di carekê de tenê destûrê dide yek VPN, ji ber vê yekê vekirina Shroudly wê qut dike. Ji bo parastina wê, Tenê proksî bi kar bîne.</string>
     <string name="androidPrivacyPolicy">Polîtîkaya nepeniyê</string>
@@ -128,6 +130,7 @@
     <string name="searchApps">Li sepanan bigere</string>
     <string name="shareOnlineCount">Min jî têxe hejmara zindî</string>
     <string name="shareOnlineCountDesc">Hejmareke rasthatî ya ku her carê sepan vedibe diguhere dişîne, da ku sepan nîşan bide çend kopî dixebitin. Ew tenê dema parastin çalak e tê şandin, ji ber vê yekê ew jî wekî trafîka te ya din di heman rêya parastî de diçe. Heke tu dixwazî tora te qet tiştekî ji Shroudly nebîne, vê neçalak bike.</string>
+    <string name="showNotifications">Agahdariyan nîşan bide</string>
     <string name="start">Parastinê dest pê bike</string>
     <string name="startFailed">Parastin nehat destpêkirin</string>
     <string name="starting">Dest pê dike…</string>

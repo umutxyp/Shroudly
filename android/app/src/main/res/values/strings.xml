@@ -24,6 +24,7 @@
     <string name="androidBack">Back</string>
     <string name="androidBatteryHint">Battery settings can stop Shroudly in the background and cut your connection. Let it run without battery restrictions.</string>
     <string name="androidBatterySettings">Battery settings</string>
+    <string name="androidBatterySteps">On the next screen, open Battery (App battery usage on some phones) and choose Unrestricted.</string>
     <string name="androidBypassOff">Bypass strategy is Off in Settings: only DNS is encrypted.</string>
     <string name="androidContinue">Continue</string>
     <string name="androidDetails">Details</string>
@@ -44,6 +45,7 @@
     <string name="androidNoInternet">Protection stopped because Shroudly could not reach the internet on this network, so your apps are connecting directly. Open Shroudly to try again.</string>
     <string name="androidNoInternetHere">Protection stopped because Shroudly could not reach the internet on this network, so your apps are connecting directly.</string>
     <string name="androidNoNetwork">No network: Shroudly is on and waits for Wi-Fi or mobile data.</string>
+    <string name="androidNotificationsOff">Notifications are off, so Shroudly cannot tell you when protection stops or needs a tap to come back.</string>
     <string name="androidOffHint">Tap the circle to open blocked sites and apps.</string>
     <string name="androidOtherVpn">Another VPN is on. Android allows one VPN at a time, so turning Shroudly on disconnects it. To keep it, use Proxy only.</string>
     <string name="androidPrivacyPolicy">Privacy policy</string>
@@ -128,6 +130,7 @@
     <string name="searchApps">Search apps</string>
     <string name="shareOnlineCount">Count me in the live total</string>
     <string name="shareOnlineCountDesc">Sends a random number that changes every launch, so the app can show how many copies are running. It is only sent while protection is on, so it travels the same protected path as the rest of your traffic. Turn it off if you would rather your network saw nothing from Shroudly at all.</string>
+    <string name="showNotifications">Show notifications</string>
     <string name="start">Start protection</string>
     <string name="startFailed">Could not start protection</string>
     <string name="starting">Starting…</string>

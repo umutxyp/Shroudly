@@ -24,6 +24,7 @@
     <string name="androidBack">Geri</string>
     <string name="androidBatteryHint">Batareya ayarları Shroudly-ni arxa planda dayandırıb bağlantınızı kəsə bilər. Ona batareya məhdudiyyətləri olmadan işləməyə icazə verin.</string>
     <string name="androidBatterySettings">Batareya ayarları</string>
+    <string name="androidBatterySteps">Növbəti ekranda «Batareya»nı (bəzi telefonlarda «Tətbiqin batareya istifadəsi») açın və «Məhdudiyyətsiz» seçin.</string>
     <string name="androidBypassOff">Ayarlarda yan keçmə strategiyası söndürülüb: yalnız DNS şifrələnir.</string>
     <string name="androidContinue">Davam et</string>
     <string name="androidDetails">Təfərrüatlar</string>
@@ -44,6 +45,7 @@
     <string name="androidNoInternet">Shroudly bu şəbəkədə internetə çıxa bilmədiyi üçün qoruma dayandı, ona görə tətbiqləriniz indi birbaşa qoşulur. Yenidən cəhd etmək üçün Shroudly-ni açın.</string>
     <string name="androidNoInternetHere">Shroudly bu şəbəkədə internetə çıxa bilmədiyi üçün qoruma dayandı, ona görə tətbiqləriniz indi birbaşa qoşulur.</string>
     <string name="androidNoNetwork">Şəbəkə yoxdur: Shroudly açıqdır və Wi-Fi və ya mobil data gözləyir.</string>
+    <string name="androidNotificationsOff">Bildirişlər söndürülüb, ona görə qoruma dayananda və ya geri qayıtmaq üçün toxunuş lazım olanda Shroudly sizə deyə bilmir.</string>
     <string name="androidOffHint">Bloklanmış saytları və tətbiqləri açmaq üçün dairəyə toxunun.</string>
     <string name="androidOtherVpn">Başqa bir VPN açıqdır. Android eyni anda bir VPN-ə icazə verir, ona görə Shroudly-ni açmaq onu ayıracaq. Onu saxlamaq üçün Yalnız proksi istifadə edin.</string>
     <string name="androidPrivacyPolicy">Məxfilik siyasəti</string>
@@ -128,6 +130,7 @@
     <string name="searchApps">Tətbiq axtar</string>
     <string name="shareOnlineCount">Məni də canlı saya əlavə et</string>
     <string name="shareOnlineCountDesc">Hər açılışda dəyişən təsadüfi bir nömrə göndərir ki, tətbiq neçə nüsxənin işlədiyini göstərə bilsin. O, yalnız qoruma aktiv olanda göndərilir, yəni trafikinin qalan hissəsi ilə eyni qorunan yolla gedir. Şəbəkənin Shroudly-dən ümumiyyətlə heç nə görməməsini istəyirsənsə, bunu söndür.</string>
+    <string name="showNotifications">Bildirişləri göstər</string>
     <string name="start">Qorumanı başlat</string>
     <string name="startFailed">Qorumanı başlatmaq mümkün olmadı</string>
     <string name="starting">Başladılır…</string>

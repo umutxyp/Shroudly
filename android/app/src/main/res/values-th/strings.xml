@@ -24,6 +24,7 @@
     <string name="androidBack">ย้อนกลับ</string>
     <string name="androidBatteryHint">การตั้งค่าแบตเตอรี่อาจหยุด Shroudly ที่ทำงานเบื้องหลังและทำให้การเชื่อมต่อของคุณขาด อนุญาตให้ Shroudly ทำงานโดยไม่มีข้อจำกัดด้านแบตเตอรี่</string>
     <string name="androidBatterySettings">การตั้งค่าแบตเตอรี่</string>
+    <string name="androidBatterySteps">ในหน้าจอถัดไป เปิดแบตเตอรี่ (การใช้แบตเตอรี่ของแอปในโทรศัพท์บางรุ่น) แล้วเลือกไม่จำกัด</string>
     <string name="androidBypassOff">กลยุทธ์บายพาสปิดอยู่ในการตั้งค่า: เข้ารหัสเฉพาะ DNS</string>
     <string name="androidContinue">ดำเนินการต่อ</string>
     <string name="androidDetails">รายละเอียด</string>
@@ -44,6 +45,7 @@
     <string name="androidNoInternet">การป้องกันหยุดทำงานเพราะ Shroudly เชื่อมต่ออินเทอร์เน็ตบนเครือข่ายนี้ไม่ได้ แอปของคุณจึงเชื่อมต่อโดยตรงอยู่ในขณะนี้ เปิด Shroudly เพื่อลองอีกครั้ง</string>
     <string name="androidNoInternetHere">การป้องกันหยุดทำงานเพราะ Shroudly เชื่อมต่ออินเทอร์เน็ตบนเครือข่ายนี้ไม่ได้ แอปของคุณจึงเชื่อมต่อโดยตรงอยู่ในขณะนี้</string>
     <string name="androidNoNetwork">ไม่มีเครือข่าย: Shroudly เปิดอยู่และกำลังรอ Wi-Fi หรืออินเทอร์เน็ตมือถือ</string>
+    <string name="androidNotificationsOff">การแจ้งเตือนปิดอยู่ Shroudly จึงบอกคุณไม่ได้เมื่อการป้องกันหยุดทำงานหรือต้องแตะเพื่อเปิดกลับมา</string>
     <string name="androidOffHint">แตะวงกลมเพื่อเปิดเว็บไซต์และแอปที่ถูกบล็อก</string>
     <string name="androidOtherVpn">มี VPN อื่นเปิดอยู่ Android อนุญาตให้ใช้ VPN ได้ทีละตัว การเปิด Shroudly จึงจะตัดการเชื่อมต่อ VPN นั้น หากต้องการเก็บไว้ ให้ใช้พร็อกซีเท่านั้น</string>
     <string name="androidPrivacyPolicy">นโยบายความเป็นส่วนตัว</string>
@@ -128,6 +130,7 @@
     <string name="searchApps">ค้นหาแอป</string>
     <string name="shareOnlineCount">นับรวมฉันในยอดผู้ใช้ขณะนี้</string>
     <string name="shareOnlineCountDesc">ส่งตัวเลขสุ่มที่เปลี่ยนใหม่ทุกครั้งที่เปิดแอป เพื่อให้แอปแสดงได้ว่ามี Shroudly ทำงานอยู่กี่ชุด ตัวเลขนี้จะถูกส่งเฉพาะตอนที่เปิดการป้องกันอยู่ จึงผ่านเส้นทางที่ได้รับการป้องกันเดียวกับการรับส่งข้อมูลอื่น ๆ ของคุณ ปิดตัวเลือกนี้หากคุณไม่ต้องการให้เครือข่ายเห็นข้อมูลใด ๆ จาก Shroudly เลย</string>
+    <string name="showNotifications">แสดงการแจ้งเตือน</string>
     <string name="start">เริ่มการป้องกัน</string>
     <string name="startFailed">ไม่สามารถเริ่มการป้องกันได้</string>
     <string name="starting">กำลังเริ่ม…</string>

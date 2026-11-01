@@ -81,6 +81,8 @@ class ShroudlyProxyService : Service() {
     private val adblockCheck = java.util.concurrent.atomic.AtomicReference<java.util.concurrent.CompletableFuture<EngineEvent.AdblockCheck>?>(null)
     private val adblockFetching = java.util.concurrent.atomic.AtomicBoolean(false)
     @Volatile private var active = false
+    // This session has been counted as a day protection worked (Usage).
+    @Volatile private var workedToday = false
     // The networks underneath (with internet, not a VPN): when the last one
     // goes, KeepOn waits for one to bring protection back (issue #39), as in
     // VPN mode. And the phone's network as last looked at, with those it
@@ -144,7 +146,7 @@ class ShroudlyProxyService : Service() {
             if (!active) stopSelf()
             return if (active) START_STICKY else START_NOT_STICKY
         }
-        if (again) log("Android started Proxy only again after it ended the app")
+        if (again) { log("Android started Proxy only again after it ended the app"); Usage.endedByAndroid(this) }
         // A start owes Android the foreground at once (a second start while
         // on keeps the notice as it is).
         if (goForeground(starting = !active) != null) {
@@ -181,6 +183,7 @@ class ShroudlyProxyService : Service() {
             learned = Learned(prefs.getString("learned", null))
             learnedRaw = Learned(prefs.getString("learnedRaw", null), ShroudlyVpnService.LEARNED_RAW_MAX)
             synchronized(told) { told.clear() }
+            workedToday = false
             val d = DohForwarder(::log, prefs.getString("dohRoute", null)) { id -> prefs.edit().putString("dohRoute", id).apply() }
             AppSettings.applyDns(this, d)
             dohPort = try { d.start() } catch (e: Exception) { log("Encrypted DNS unavailable: ${e.message}"); 0 }
@@ -265,7 +268,12 @@ class ShroudlyProxyService : Service() {
             is EngineEvent.Host -> onHost(ev)
             is EngineEvent.NetDns -> ShroudlyVpnService.logSite(NetDnsText.line(ev))
             is EngineEvent.UdpFull -> log(ev.line)
-            is EngineEvent.Stats -> { Protection.stats = ev; Protection.changed() }
+            is EngineEvent.Stats -> {
+                // Carried traffic: a day protection worked (Usage), once a session.
+                if (ev.bytesDown > 0 && !workedToday && active && Protection.troubleRes == 0) { workedToday = true; Usage.worked(this) }
+                Protection.stats = ev
+                Protection.changed()
+            }
             is EngineEvent.Adblock -> when {
                 ev.error != null -> log("Ad blocking: the list could not be used (${ev.error})")
                 ev.on -> log("Ad blocking: a list of ${ev.entries} names in use")
@@ -632,7 +640,10 @@ class ShroudlyProxyService : Service() {
         work.shutdown()
         try { work.awaitTermination(8, TimeUnit.SECONDS) } catch (_: InterruptedException) {}
         // Ended by Android while on (not through a stop): back once a network is there.
-        if (Protection.proxyOnly && (Protection.state == Protection.State.ON || Protection.state == Protection.State.STARTING)) KeepOn.networkGone(this)
+        if (Protection.proxyOnly && (Protection.state == Protection.State.ON || Protection.state == Protection.State.STARTING)) {
+            KeepOn.networkGone(this)
+            Usage.endedByAndroid(this)
+        }
         if (Protection.proxyOnly && Protection.state != Protection.State.OFF) Protection.set(Protection.State.OFF)
         refreshTile()
         super.onDestroy()

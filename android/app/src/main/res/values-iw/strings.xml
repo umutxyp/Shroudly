@@ -24,6 +24,7 @@
     <string name="androidBack">חזרה</string>
     <string name="androidBatteryHint">הגדרות הסוללה עלולות לעצור את Shroudly ברקע ולנתק את החיבור שלך. כדאי לאפשר לה לפעול בלי הגבלות סוללה.</string>
     <string name="androidBatterySettings">הגדרות סוללה</string>
+    <string name="androidBatterySteps">במסך הבא, פתחו את \'סוללה\' (\'שימוש בסוללה של האפליקציה\' בחלק מהטלפונים) ובחרו \'ללא הגבלה\'.</string>
     <string name="androidBypassOff">אסטרטגיית העקיפה כבויה בהגדרות: רק ה-DNS מוצפן.</string>
     <string name="androidContinue">המשך</string>
     <string name="androidDetails">פרטים</string>
@@ -44,6 +45,7 @@
     <string name="androidNoInternet">ההגנה נעצרה כי Shroudly לא הצליחה להגיע לאינטרנט ברשת הזו, ולכן האפליקציות שלך מתחברות עכשיו ישירות. אפשר לפתוח את Shroudly כדי לנסות שוב.</string>
     <string name="androidNoInternetHere">ההגנה נעצרה כי Shroudly לא הצליחה להגיע לאינטרנט ברשת הזו, ולכן האפליקציות שלך מתחברות עכשיו ישירות.</string>
     <string name="androidNoNetwork">אין רשת: Shroudly פועל ומחכה ל-Wi-Fi או לחבילת גלישה.</string>
+    <string name="androidNotificationsOff">ההתראות כבויות, ולכן Shroudly לא יכול להודיע לך כשההגנה נעצרת או צריכה הקשה כדי לחזור.</string>
     <string name="androidOffHint">הקישו על העיגול כדי לפתוח אתרים ואפליקציות חסומים.</string>
     <string name="androidOtherVpn">VPN אחר פועל. Android מאפשר רק VPN אחד בכל פעם, ולכן הפעלת Shroudly תנתק אותו. כדי לשמור עליו, השתמשו ב\'פרוקסי בלבד\'.</string>
     <string name="androidPrivacyPolicy">מדיניות פרטיות</string>
@@ -128,6 +130,7 @@
     <string name="searchApps">חיפוש אפליקציות</string>
     <string name="shareOnlineCount">לכלול אותי בספירה החיה</string>
     <string name="shareOnlineCountDesc">נשלח מספר אקראי שמשתנה בכל הפעלה, כדי שהאפליקציה תוכל להציג כמה עותקים פועלים. הוא נשלח רק כשההגנה פועלת, ולכן עובר באותו נתיב מוגן כמו שאר התעבורה שלך. אפשר לכבות את האפשרות אם עדיף שהרשת לא תראה שום דבר מ-Shroudly.</string>
+    <string name="showNotifications">הצגת התראות</string>
     <string name="start">להפעיל הגנה</string>
     <string name="startFailed">לא ניתן היה להפעיל את ההגנה</string>
     <string name="starting">מפעיל…</string>

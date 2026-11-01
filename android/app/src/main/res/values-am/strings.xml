@@ -24,6 +24,7 @@
     <string name="androidBack">ተመለስ</string>
     <string name="androidBatteryHint">የባትሪ ቅንብሮች Shroudlyን ከበስተጀርባ ሊያቆሙት እና ግንኙነትዎን ሊያቋርጡ ይችላሉ። ያለ ባትሪ ገደቦች እንዲሠራ ይፍቀዱለት።</string>
     <string name="androidBatterySettings">የባትሪ ቅንብሮች</string>
+    <string name="androidBatterySteps">በሚቀጥለው ማያ ገጽ ላይ «ባትሪ»ን (በአንዳንድ ስልኮች «የመተግበሪያ ባትሪ አጠቃቀም») ይክፈቱና «ያልተገደበ»ን ይምረጡ።</string>
     <string name="androidBypassOff">በቅንብሮች ውስጥ የማለፊያ ስልት ጠፍቷል፦ የሚመሰጠረው DNS ብቻ ነው።</string>
     <string name="androidContinue">ቀጥል</string>
     <string name="androidDetails">ዝርዝሮች</string>
@@ -44,6 +45,7 @@
     <string name="androidNoInternet">Shroudly በዚህ አውታረ መረብ ላይ ኢንተርኔት ማግኘት ስላልቻለ ጥበቃው ቆሟል፤ ስለዚህ መተግበሪያዎችዎ አሁን በቀጥታ ይገናኛሉ። እንደገና ለመሞከር Shroudlyን ይክፈቱ።</string>
     <string name="androidNoInternetHere">Shroudly በዚህ አውታረ መረብ ላይ ኢንተርኔት ማግኘት ስላልቻለ ጥበቃው ቆሟል፤ ስለዚህ መተግበሪያዎችዎ አሁን በቀጥታ ይገናኛሉ።</string>
     <string name="androidNoNetwork">አውታረ መረብ የለም፦ Shroudly በርቷል፣ Wi-Fi ወይም የሞባይል ዳታ እየጠበቀ ነው።</string>
+    <string name="androidNotificationsOff">ማሳወቂያዎች ጠፍተዋል፤ ስለዚህ Shroudly ጥበቃው ሲቆም ወይም ለመመለስ መንካት ሲያስፈልገው ሊነግርዎ አይችልም።</string>
     <string name="androidOffHint">የታገዱ ጣቢያዎችንና መተግበሪያዎችን ለመክፈት ክቡን ይንኩ።</string>
     <string name="androidOtherVpn">ሌላ VPN በርቷል። Android በአንድ ጊዜ አንድ VPN ብቻ ስለሚፈቅድ Shroudlyን ማብራት ያንን ያቋርጣል። ለማቆየት ፕሮክሲ ብቻ ይጠቀሙ።</string>
     <string name="androidPrivacyPolicy">የግላዊነት መመሪያ</string>
@@ -128,6 +130,7 @@
     <string name="searchApps">መተግበሪያ ፈልግ</string>
     <string name="shareOnlineCount">እኔንም በቀጥታ ድምሩ ውስጥ መቁጠር</string>
     <string name="shareOnlineCountDesc">መተግበሪያው ምን ያህል ቅጂዎች እየሰሩ እንደሆነ ማሳየት እንዲችል በእያንዳንዱ ጅምር የሚቀየር የዘፈቀደ ቁጥር ይልካል። የሚላከው ጥበቃ በርቶ እያለ ብቻ ነው፤ ስለዚህ እንደ ሌላው ትራፊክዎ በዚያው በተጠበቀ መንገድ ይጓዛል። አውታረ መረብዎ ከShroudly ምንም ነገር እንዳያይ ከመረጡ ይህን ያጥፉት።</string>
+    <string name="showNotifications">ማሳወቂያዎችን ማሳየት</string>
     <string name="start">ጥበቃ ይጀምሩ</string>
     <string name="startFailed">ጥበቃን መጀመር አልተቻለም</string>
     <string name="starting">በመጀመር ላይ…</string>

@@ -679,6 +679,8 @@
   "androidProxyNotSet": "Chưa có proxy Wi-Fi nào trỏ tới Shroudly, nên chỉ những ứng dụng có proxy riêng đặt là 127.0.0.1:{port} mới đi qua nó. Để có thêm ứng dụng đi qua, hãy đặt proxy của mạng Wi-Fi này là máy chủ 127.0.0.1, cổng {port}.",
   "androidLockdownStop": "Android được đặt để chặn kết nối không qua VPN, nên khi Shroudly tắt, các ứng dụng không có Internet.",
   "androidAppsLockdown": "Android được đặt để chặn kết nối không qua VPN, nên các ứng dụng không đi qua Shroudly không có Internet.",
+  "androidNotificationsOff": "Thông báo đang tắt, nên Shroudly không thể báo cho bạn khi bảo vệ dừng hoặc cần một lần chạm để bật lại.",
+  "androidBatterySteps": "Ở màn hình tiếp theo, mở Pin (Mức sử dụng pin của ứng dụng trên một số điện thoại) và chọn Không hạn chế.",
   "logCustomDnsRoutes": "Máy chủ DNS của bạn đang trả lời: {routes}",
   "logCustomDnsDown": "Máy chủ DNS của bạn {server} không trả lời ({reason}); cho đến khi nó trả lời, DNS mã hóa tích hợp của Shroudly sẽ trả lời",
   "logCustomDnsDownStrict": "Máy chủ DNS của bạn {server} không trả lời ({reason}); chỉ máy chủ này được dùng, nên tra cứu tên thất bại cho đến khi nó trả lời",

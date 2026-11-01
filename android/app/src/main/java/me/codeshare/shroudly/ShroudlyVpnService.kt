@@ -265,6 +265,8 @@ class ShroudlyVpnService : VpnService() {
     // When the engine's counters last showed bytes coming back (uptime).
     @Volatile private var lastDownAt = Long.MIN_VALUE / 2
     @Volatile private var lastBytesDown = 0L
+    // This session has been counted as a day protection worked (Usage).
+    @Volatile private var workedToday = false
     // Techniques for streams that are not TLS or HTTP (raw-*), per address:
     // kept apart, so an app's many addresses never push out sites' techniques.
     private lateinit var learnedRaw: Learned
@@ -340,7 +342,11 @@ class ShroudlyVpnService : VpnService() {
             }
             // ACTION_START, the system's always-on VPN, or a restart after the
             // process was killed (START_STICKY): all mean "be on".
-            else -> requestStart(bySystem = intent?.action != ACTION_START)
+            else -> {
+                // Started again after Android ended the process while on.
+                if (intent == null) Usage.endedByAndroid(this)
+                requestStart(bySystem = intent?.action != ACTION_START)
+            }
         }
         return START_STICKY
     }
@@ -366,7 +372,10 @@ class ShroudlyVpnService : VpnService() {
         try { work.awaitTermination(8, TimeUnit.SECONDS) } catch (_: InterruptedException) {}
         checks.shutdownNow()
         // Ended by Android while on (not through a stop): back once a network is there.
-        if (Protection.state == Protection.State.ON || Protection.state == Protection.State.STARTING) KeepOn.networkGone(this)
+        if (Protection.state == Protection.State.ON || Protection.state == Protection.State.STARTING) {
+            KeepOn.networkGone(this)
+            Usage.endedByAndroid(this)
+        }
         if (Protection.state != Protection.State.OFF) Protection.set(Protection.State.OFF)
         refreshTile()
         super.onDestroy()
@@ -444,6 +453,7 @@ class ShroudlyVpnService : VpnService() {
             learned = Learned(prefs.getString("learned", null))
             learnedRaw = Learned(prefs.getString("learnedRaw", null), LEARNED_RAW_MAX)
             told.clear()
+            workedToday = false
             restarts = 0
             tunnelRestartedAt = 0
             pathRestartedAt = 0
@@ -1156,6 +1166,8 @@ class ShroudlyVpnService : VpnService() {
             }
             is EngineEvent.Stats -> {
                 if (ev.bytesDown > lastBytesDown) lastDownAt = SystemClock.elapsedRealtime()
+                // Carried traffic: a day protection worked (Usage), once a session.
+                if (ev.bytesDown > 0 && !workedToday && active && Protection.troubleRes == 0) { workedToday = true; Usage.worked(this) }
                 lastBytesDown = ev.bytesDown
                 Protection.stats = ev
                 Protection.changed()

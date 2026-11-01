@@ -679,6 +679,8 @@
   "androidProxyNotSet": "Tu proksiya Wi-Fi li ser Shroudly nehatiye mîhengkirin, ji ber vê yekê tenê sepanên ku proksiya wan a xwe 127.0.0.1:{port} e di wê re derbas dibin. Ji bo derbaskirina bêtir sepanan, proksiya vê tora Wi-Fi bike host 127.0.0.1, port {port}.",
   "androidLockdownStop": "Android ji bo astengkirina girêdanên bê VPN hatiye mîhengkirin, ji ber vê yekê heta Shroudly girtî be, sepanan înternet tune.",
   "androidAppsLockdown": "Android ji bo astengkirina girêdanên bê VPN hatiye mîhengkirin, ji ber vê yekê sepanên ku ji Shroudly derve hatine hiştin înternet tune.",
+  "androidNotificationsOff": "Agahdarî girtî ne, ji ber vê yekê Shroudly nikare ji te re bibêje dema parastin radiweste an ji bo vegerê tikandinek hewce dike.",
+  "androidBatterySteps": "Di ekrana din de Batarya (li hin telefonan Bikaranîna bataryayê ya sepanê) veke û Bêsînor hilbijêre.",
   "logCustomDnsRoutes": "Pêşkêşkara te ya DNS bersiv dide: {routes}",
   "logCustomDnsDown": "Pêşkêşkara te ya DNS {server} bersiv nade ({reason}); heta ku bersiv bide, DNS-a şîfrekirî ya hundirîn a Shroudly bersiv dide",
   "logCustomDnsDownStrict": "Pêşkêşkara te ya DNS {server} bersiv nade ({reason}); tenê ew tê bikaranîn, ji ber vê yekê lêgerînên navan heta ku bersiv bide têk diçin",

@@ -24,6 +24,7 @@
     <string name="androidBack">ফিরে যান</string>
     <string name="androidBatteryHint">ব্যাটারি সেটিংস Shroudly-কে ব্যাকগ্রাউন্ডে বন্ধ করে আপনার সংযোগ কেটে দিতে পারে। এটিকে ব্যাটারির বিধিনিষেধ ছাড়া চলতে দিন।</string>
     <string name="androidBatterySettings">ব্যাটারি সেটিংস</string>
+    <string name="androidBatterySteps">পরের স্ক্রিনে ব্যাটারি (কিছু ফোনে অ্যাপের ব্যাটারি ব্যবহার) খুলুন এবং সীমাবদ্ধতাহীন বেছে নিন।</string>
     <string name="androidBypassOff">সেটিংসে বাইপাস কৌশল বন্ধ: শুধু DNS এনক্রিপ্ট করা হয়।</string>
     <string name="androidContinue">চালিয়ে যান</string>
     <string name="androidDetails">বিস্তারিত</string>
@@ -44,6 +45,7 @@
     <string name="androidNoInternet">Shroudly এই নেটওয়ার্কে ইন্টারনেটে পৌঁছাতে পারেনি বলে সুরক্ষা বন্ধ হয়ে গেছে, তাই আপনার অ্যাপগুলো এখন সরাসরি সংযোগ করছে। আবার চেষ্টা করতে Shroudly খুলুন।</string>
     <string name="androidNoInternetHere">Shroudly এই নেটওয়ার্কে ইন্টারনেটে পৌঁছাতে পারেনি বলে সুরক্ষা বন্ধ হয়ে গেছে, তাই আপনার অ্যাপগুলো এখন সরাসরি সংযোগ করছে।</string>
     <string name="androidNoNetwork">কোনো নেটওয়ার্ক নেই: Shroudly চালু আছে এবং Wi-Fi বা মোবাইল ডেটার অপেক্ষা করছে।</string>
+    <string name="androidNotificationsOff">বিজ্ঞপ্তি বন্ধ আছে, তাই সুরক্ষা বন্ধ হলে বা ফিরিয়ে আনতে একটি ট্যাপ দরকার হলে Shroudly আপনাকে জানাতে পারে না।</string>
     <string name="androidOffHint">ব্লক করা সাইট ও অ্যাপ খুলতে বৃত্তে ট্যাপ করুন।</string>
     <string name="androidOtherVpn">অন্য একটি VPN চালু আছে। Android একবারে একটিই VPN চালাতে দেয়, তাই Shroudly চালু করলে সেটি বিচ্ছিন্ন হয়ে যাবে। সেটি রাখতে শুধু প্রক্সি ব্যবহার করুন।</string>
     <string name="androidPrivacyPolicy">গোপনীয়তা নীতি</string>
@@ -128,6 +130,7 @@
     <string name="searchApps">অ্যাপ খুঁজুন</string>
     <string name="shareOnlineCount">লাইভ গণনায় আমাকে ধরুন</string>
     <string name="shareOnlineCountDesc">প্রতিবার চালু হলে বদলে যাওয়া একটি এলোমেলো সংখ্যা পাঠায়, যাতে অ্যাপ দেখাতে পারে কতগুলো কপি চলছে। কেবল সুরক্ষা চালু থাকলেই পাঠানো হয়, তাই এটি আপনার বাকি ট্রাফিকের মতো একই সুরক্ষিত পথে যায়। আপনার নেটওয়ার্ক Shroudly থেকে কিছুই না দেখুক চাইলে বন্ধ করুন।</string>
+    <string name="showNotifications">বিজ্ঞপ্তি দেখান</string>
     <string name="start">সুরক্ষা চালু করুন</string>
     <string name="startFailed">সুরক্ষা চালু করা যায়নি</string>
     <string name="starting">চালু হচ্ছে…</string>

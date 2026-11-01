@@ -24,6 +24,7 @@
     <string name="androidBack">Назад</string>
     <string name="androidBatteryHint">Налаштування батареї можуть зупиняти Shroudly у фоні й обривати ваше з’єднання. Дозвольте йому працювати без обмежень батареї.</string>
     <string name="androidBatterySettings">Налаштування батареї</string>
+    <string name="androidBatterySteps">На наступному екрані відкрийте «Акумулятор» (на деяких телефонах «Використання акумулятора застосунком») і виберіть «Без обмежень».</string>
     <string name="androidBypassOff">Стратегію обходу в налаштуваннях вимкнено: шифрується лише DNS.</string>
     <string name="androidContinue">Продовжити</string>
     <string name="androidDetails">Докладніше</string>
@@ -44,6 +45,7 @@
     <string name="androidNoInternet">Захист зупинився, бо Shroudly не зміг вийти в інтернет у цій мережі, тому ваші застосунки зараз підключаються напряму. Відкрийте Shroudly, щоб спробувати знову.</string>
     <string name="androidNoInternetHere">Захист зупинився, бо Shroudly не зміг вийти в інтернет у цій мережі, тому ваші застосунки зараз підключаються напряму.</string>
     <string name="androidNoNetwork">Немає мережі: Shroudly увімкнено, і він чекає на Wi-Fi або мобільний інтернет.</string>
+    <string name="androidNotificationsOff">Сповіщення вимкнено, тож Shroudly не зможе повідомити, коли захист зупиниться або його треба буде повернути одним дотиком.</string>
     <string name="androidOffHint">Торкніться кола, щоб відкривати заблоковані сайти й застосунки.</string>
     <string name="androidOtherVpn">Увімкнено інший VPN. Android дозволяє лише один VPN одночасно, тож увімкнення Shroudly його від’єднає. Щоб його зберегти, скористайтеся «Лише проксі».</string>
     <string name="androidPrivacyPolicy">Політика конфіденційності</string>
@@ -128,6 +130,7 @@
     <string name="searchApps">Пошук застосунків</string>
     <string name="shareOnlineCount">Враховувати мене в загальному лічильнику реального часу</string>
     <string name="shareOnlineCountDesc">Надсилає випадкове число, яке змінюється під час кожного запуску, щоб програма могла показувати, скільки її копій працює. Число надсилається лише тоді, коли захист увімкнено, тож воно йде тим самим захищеним шляхом, що й решта вашого трафіку. Вимкніть цей параметр, якщо хочете, щоб ваша мережа взагалі нічого не бачила від Shroudly.</string>
+    <string name="showNotifications">Показувати сповіщення</string>
     <string name="start">Увімкнути захист</string>
     <string name="startFailed">Не вдалося увімкнути захист</string>
     <string name="starting">Увімкнення…</string>

@@ -24,6 +24,7 @@
     <string name="androidBack">Бозгашт</string>
     <string name="androidBatteryHint">Танзимоти батарея метавонад Shroudly-ро дар пасзамина қатъ карда, пайвасти шуморо бурад. Иҷозат диҳед, ки он бе маҳдудиятҳои батарея кор кунад.</string>
     <string name="androidBatterySettings">Танзимоти батарея</string>
+    <string name="androidBatterySteps">Дар экрани навбатӣ «Батарея»-ро (дар баъзе телефонҳо «Истифодаи батарея аз ҷониби барнома») кушоед ва «Бе маҳдудият»-ро интихоб кунед.</string>
     <string name="androidBypassOff">Стратегияи гузариш дар танзимот хомӯш аст: танҳо DNS рамзгузорӣ мешавад.</string>
     <string name="androidContinue">Идома додан</string>
     <string name="androidDetails">Тафсилот</string>
@@ -44,6 +45,7 @@
     <string name="androidNoInternet">Ҳимоя қатъ шуд, зеро Shroudly дар ин шабака ба интернет пайваст шуда натавонист, бинобар ин барномаҳоятон ҳоло мустақиман пайваст мешаванд. Барои боз кӯшиш кардан Shroudly-ро кушоед.</string>
     <string name="androidNoInternetHere">Ҳимоя қатъ шуд, зеро Shroudly дар ин шабака ба интернет пайваст шуда натавонист, бинобар ин барномаҳоятон ҳоло мустақиман пайваст мешаванд.</string>
     <string name="androidNoNetwork">Шабака нест: Shroudly фаъол аст ва Wi-Fi ё интернети мобилиро интизор аст.</string>
+    <string name="androidNotificationsOff">Огоҳиномаҳо хомӯшанд, бинобар ин Shroudly наметавонад ба шумо гӯяд, ки кай ҳимоя қатъ шуд ё барои баргаштан пахш карданро талаб мекунад.</string>
     <string name="androidOffHint">Барои кушодани сомонаҳо ва барномаҳои басташуда доираро пахш кунед.</string>
     <string name="androidOtherVpn">VPN-и дигар фаъол аст. Android дар як вақт танҳо як VPN-ро иҷозат медиҳад, бинобар ин фаъол кардани Shroudly онро қатъ мекунад. Барои нигоҳ доштани он «Танҳо прокси»-ро истифода баред.</string>
     <string name="androidPrivacyPolicy">Сиёсати махфият</string>
@@ -128,6 +130,7 @@
     <string name="searchApps">Ҷустуҷӯи барнома</string>
     <string name="shareOnlineCount">Маро ба шумораи умумии зинда дохил кунед</string>
     <string name="shareOnlineCountDesc">Рақами тасодуфӣ мефиристад, ки бо ҳар оғоз иваз мешавад, то барнома нишон диҳад, ки чанд нусхаи он кор мекунад. Он танҳо ҳангоми фаъол будани ҳимоя фиристода мешавад, бинобар ин аз ҳамон роҳи ҳимояшуда мегузарад, ки боқимондаи трафики Шумо. Агар хоҳед, ки шабакаи Шумо аз Shroudly умуман ҳеҷ чиз набинад, онро хомӯш кунед.</string>
+    <string name="showNotifications">Нишон додани огоҳиномаҳо</string>
     <string name="start">Оғози ҳимоя</string>
     <string name="startFailed">Оғоз кардани ҳимоя муяссар нашуд</string>
     <string name="starting">Оғоз мешавад…</string>

@@ -679,6 +679,8 @@
   "androidProxyNotSet": "ምንም የWi-Fi ፕሮክሲ ወደ Shroudly አልተቀናበረም፤ ስለዚህ በሱ በኩል የሚያልፉት የራሳቸው ፕሮክሲ ወደ 127.0.0.1:{port} የተቀናበረ መተግበሪያዎች ብቻ ናቸው። ተጨማሪ መተግበሪያዎችን ለማሳለፍ የዚህን Wi-Fi አውታረ መረብ ፕሮክሲ ወደ አስተናጋጅ 127.0.0.1፣ ወደብ {port} ያቀናብሩ።",
   "androidLockdownStop": "Android ያለ VPN ግንኙነቶችን እንዲያግድ ተቀናብሯል፤ ስለዚህ Shroudly ጠፍቶ እያለ መተግበሪያዎች ኢንተርኔት የላቸውም።",
   "androidAppsLockdown": "Android ያለ VPN ግንኙነቶችን እንዲያግድ ተቀናብሯል፤ ስለዚህ ከShroudly ውጭ የተተዉ መተግበሪያዎች ኢንተርኔት የላቸውም።",
+  "androidNotificationsOff": "ማሳወቂያዎች ጠፍተዋል፤ ስለዚህ Shroudly ጥበቃው ሲቆም ወይም ለመመለስ መንካት ሲያስፈልገው ሊነግርዎ አይችልም።",
+  "androidBatterySteps": "በሚቀጥለው ማያ ገጽ ላይ «ባትሪ»ን (በአንዳንድ ስልኮች «የመተግበሪያ ባትሪ አጠቃቀም») ይክፈቱና «ያልተገደበ»ን ይምረጡ።",
   "logCustomDnsRoutes": "የእርስዎ DNS አገልጋይ ምላሽ እየሰጠ ነው፦ {routes}",
   "logCustomDnsDown": "የእርስዎ DNS አገልጋይ {server} ምላሽ አይሰጥም ({reason})፤ ምላሽ እስኪሰጥ ድረስ የShroudly አብሮገነብ የተመሰጠረ DNS ምላሽ ይሰጣል",
   "logCustomDnsDownStrict": "የእርስዎ DNS አገልጋይ {server} ምላሽ አይሰጥም ({reason})፤ እሱ ብቻ ስለሚሠራበት ምላሽ እስኪሰጥ ድረስ የስም ፍለጋዎች አይሳኩም",

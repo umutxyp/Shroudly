@@ -679,6 +679,8 @@
   "androidProxyNotSet": "Hiç bir Wi-Fi proksisi Shroudly-a sazlanmandyr, şonuň üçin ol arkaly diňe öz proksisi 127.0.0.1:{port} bolan programmalar geçýär. Has köp programmany geçirmek üçin bu Wi-Fi toruň proksisini host 127.0.0.1, port {port} ediň.",
   "androidLockdownStop": "Android VPN-siz baglanyşyklary petiklemäge sazlanypdyr, şonuň üçin Shroudly öçük wagty programmalarda internet bolmaýar.",
   "androidAppsLockdown": "Android VPN-siz baglanyşyklary petiklemäge sazlanypdyr, şonuň üçin Shroudly-dan daşda galan programmalarda internet bolmaýar.",
+  "androidNotificationsOff": "Bildirişler öçük, şonuň üçin gorag togtanda ýa-da yzyna gaýtarmak üçin basmak gerek bolanda Shroudly size aýdyp bilmeýär.",
+  "androidBatterySteps": "Indiki ekranda «Batareýa» (käbir telefonlarda «Programmanyň batareýa ulanylyşy») açyň we «Çäklendirmesiz» saýlaň.",
   "logCustomDnsRoutes": "DNS serweriňiz jogap berýär: {routes}",
   "logCustomDnsDown": "DNS serweriňiz {server} jogap bermeýär ({reason}); ol jogap berýänçä Shroudly-niň içine gurlan şifrlenen DNS-i jogap berýär",
   "logCustomDnsDownStrict": "DNS serweriňiz {server} jogap bermeýär ({reason}); diňe ol ulanylýar, şonuň üçin at soraglary ol jogap berýänçä başa barmaýar",

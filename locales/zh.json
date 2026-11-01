@@ -679,6 +679,8 @@
   "androidProxyNotSet": "没有 Wi-Fi 代理设置为 Shroudly，所以只有自身代理设为 127.0.0.1:{port} 的应用会经过它。要让更多应用经过它，请把这个 Wi-Fi 网络的代理设为主机 127.0.0.1、端口 {port}。",
   "androidLockdownStop": "Android 设置为阻止不经过 VPN 的连接，因此 Shroudly 关闭期间，应用无法上网。",
   "androidAppsLockdown": "Android 设置为阻止不经过 VPN 的连接，因此不经过 Shroudly 的应用无法上网。",
+  "androidNotificationsOff": "通知已关闭，保护停止或需要轻触才能恢复时，Shroudly 无法告诉你。",
+  "androidBatterySteps": "在下一个界面打开“电池”（部分手机为“应用耗电情况”），然后选择“不受限制”。",
   "logCustomDnsRoutes": "你的 DNS 服务器正在应答：{routes}",
   "logCustomDnsDown": "你的 DNS 服务器 {server} 无应答（{reason}）；在它应答之前，由 Shroudly 内置的加密 DNS 应答",
   "logCustomDnsDownStrict": "你的 DNS 服务器 {server} 没有响应（{reason}）；只使用它，因此在它响应之前域名解析会失败",

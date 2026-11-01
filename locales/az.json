@@ -679,6 +679,8 @@
   "androidProxyNotSet": "Heç bir Wi-Fi proksisi Shroudly-yə ayarlanmayıb, ona görə onun üzərindən yalnız öz proksisi 127.0.0.1:{port} olan tətbiqlər keçir. Daha çox tətbiqi keçirmək üçün bu Wi-Fi şəbəkəsinin proksisini host 127.0.0.1, port {port} edin.",
   "androidLockdownStop": "Android VPN olmadan bağlantıları bloklamaq üçün ayarlanıb, ona görə Shroudly söndürülü olanda tətbiqlərin interneti olmur.",
   "androidAppsLockdown": "Android VPN olmadan bağlantıları bloklamaq üçün ayarlanıb, ona görə Shroudly-dən kənarda qalan tətbiqlərin interneti olmur.",
+  "androidNotificationsOff": "Bildirişlər söndürülüb, ona görə qoruma dayananda və ya geri qayıtmaq üçün toxunuş lazım olanda Shroudly sizə deyə bilmir.",
+  "androidBatterySteps": "Növbəti ekranda «Batareya»nı (bəzi telefonlarda «Tətbiqin batareya istifadəsi») açın və «Məhdudiyyətsiz» seçin.",
   "logCustomDnsRoutes": "DNS serveriniz cavab verir: {routes}",
   "logCustomDnsDown": "DNS serveriniz {server} cavab vermir ({reason}); o cavab verənə qədər Shroudly-nin daxili şifrələnmiş DNS-i cavab verir",
   "logCustomDnsDownStrict": "DNS serveriniz {server} cavab vermir ({reason}); yalnız o istifadə olunur, buna görə ad sorğuları o cavab verənə qədər alınmır",

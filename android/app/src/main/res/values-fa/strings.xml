@@ -24,6 +24,7 @@
     <string name="androidBack">بازگشت</string>
     <string name="androidBatteryHint">تنظیمات باتری ممکن است Shroudly را در پس‌زمینه متوقف کند و اتصال شما را قطع کند. اجازه دهید بدون محدودیت باتری کار کند.</string>
     <string name="androidBatterySettings">تنظیمات باتری</string>
+    <string name="androidBatterySteps">در صفحهٔ بعد، «باتری» (در برخی گوشی‌ها «مصرف باتری برنامه») را باز کنید و «نامحدود» را انتخاب کنید.</string>
     <string name="androidBypassOff">راهبرد دور زدن در تنظیمات خاموش است: فقط DNS رمزگذاری می‌شود.</string>
     <string name="androidContinue">ادامه</string>
     <string name="androidDetails">جزئیات</string>
@@ -44,6 +45,7 @@
     <string name="androidNoInternet">محافظت متوقف شد چون Shroudly نتوانست در این شبکه به اینترنت برسد، پس برنامه‌هایتان اکنون مستقیم وصل می‌شوند. برای امتحان دوباره، Shroudly را باز کنید.</string>
     <string name="androidNoInternetHere">محافظت متوقف شد چون Shroudly نتوانست در این شبکه به اینترنت برسد، پس برنامه‌هایتان اکنون مستقیم وصل می‌شوند.</string>
     <string name="androidNoNetwork">شبکه‌ای نیست: Shroudly روشن است و منتظر Wi-Fi یا دادهٔ همراه است.</string>
+    <string name="androidNotificationsOff">اعلان‌ها خاموش‌اند، پس Shroudly نمی‌تواند به شما بگوید کِی محافظت متوقف شده یا برای برگشتن به یک ضربه نیاز دارد.</string>
     <string name="androidOffHint">برای باز کردن سایت‌ها و برنامه‌های مسدودشده، روی دایره بزنید.</string>
     <string name="androidOtherVpn">یک VPN دیگر روشن است. Android هم‌زمان فقط یک VPN را اجازه می‌دهد، پس روشن کردن Shroudly آن را قطع می‌کند. برای نگه داشتن آن، از «فقط پراکسی» استفاده کنید.</string>
     <string name="androidPrivacyPolicy">سیاست حریم خصوصی</string>
@@ -128,6 +130,7 @@
     <string name="searchApps">جست‌وجوی برنامه</string>
     <string name="shareOnlineCount">من را در شمار زندهٔ کاربران حساب کن</string>
     <string name="shareOnlineCountDesc">شماره‌ای تصادفی می‌فرستد که در هر اجرا عوض می‌شود تا برنامه بتواند نشان دهد چند نسخه در حال کار است. فقط وقتی محافظت روشن است فرستاده می‌شود، پس از همان مسیر محافظت‌شدهٔ بقیهٔ ترافیک شما می‌رود. اگر ترجیح می‌دهید شبکه‌تان هیچ چیزی از Shroudly نبیند، خاموشش کنید.</string>
+    <string name="showNotifications">نمایش اعلان‌ها</string>
     <string name="start">شروع محافظت</string>
     <string name="startFailed">شروع محافظت ممکن نشد</string>
     <string name="starting">در حال شروع…</string>

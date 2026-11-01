@@ -37,6 +37,11 @@ class MainActivity : Activity() {
     companion object {
         private const val REQUEST_VPN = 1
         private const val REQUEST_NOTIFICATIONS = 2
+        // Asked again from the notice that notifications are off.
+        private const val REQUEST_NOTIFICATIONS_AGAIN = 3
+        // When "Not now" was pressed on each notice ("ui" preferences).
+        private const val KEY_BATTERY_LATER = "batteryLater"
+        private const val KEY_NOTIFICATIONS_LATER = "notificationsLater"
         /* Start protection as soon as the window is up (from the tile). */
         const val EXTRA_START = "start"
         /* Install the update Google Play has downloaded (PlayUpdates' notice). */
@@ -65,7 +70,13 @@ class MainActivity : Activity() {
     private lateinit var releases: View
     private lateinit var releasesLabel: TextView
     private lateinit var releasesIcon: ImageView
-    private lateinit var battery: View
+    private lateinit var notice: View
+    private lateinit var noticeIcon: ImageView
+    private lateinit var noticeText: TextView
+    private lateinit var noticeOpen: Button
+    // The notice on screen (showNotice): R.string.androidBatterySettings for
+    // the battery's, R.string.showNotifications for notifications', or 0.
+    private var noticeShown = 0
     private lateinit var support: View
     private var supportDue = false
 
@@ -131,7 +142,10 @@ class MainActivity : Activity() {
         releases = findViewById(R.id.releases)
         releasesLabel = findViewById(R.id.releasesLabel)
         releasesIcon = findViewById(R.id.releasesIcon)
-        battery = findViewById(R.id.battery)
+        notice = findViewById(R.id.notice)
+        noticeIcon = findViewById(R.id.noticeIcon)
+        noticeText = findViewById(R.id.noticeText)
+        noticeOpen = findViewById(R.id.noticeOpen)
         support = findViewById(R.id.support)
         // The rows' ripples stay inside the card's rounded corners.
         findViewById<View>(R.id.about).clipToOutline = true
@@ -176,7 +190,15 @@ class MainActivity : Activity() {
             }
         }
         allowRow.setOnClickListener { editAdBlockAllow() }
-        findViewById<View>(R.id.batteryOpen).setOnClickListener { openBatterySettings() }
+        noticeOpen.setOnClickListener {
+            if (noticeShown == R.string.androidBatterySettings) openBatterySettings() else openNotificationSettings()
+        }
+        findViewById<View>(R.id.noticeLater).setOnClickListener {
+            val key = if (noticeShown == R.string.androidBatterySettings) KEY_BATTERY_LATER else KEY_NOTIFICATIONS_LATER
+            getSharedPreferences("ui", MODE_PRIVATE).edit().putLong(key, System.currentTimeMillis()).apply()
+            noticeShown = 0
+            notice.visibility = View.GONE
+        }
         findViewById<View>(R.id.updateOpen).setOnClickListener { updateUrl?.let { open(it) } }
         findViewById<View>(R.id.supportRow).setOnClickListener { openSupport() }
         findViewById<View>(R.id.supportOpen).setOnClickListener { openSupport() }
@@ -241,7 +263,8 @@ class MainActivity : Activity() {
         proxySet = null
         checkProxyUse()
         main.post(ticker)
-        showBatteryHint()
+        Usage.windowSeen(this)
+        showNotice()
         checkNetworkProxy()
         val offered = Support.offered(this)
         findViewById<View>(R.id.supportRow).visibility = if (offered) View.VISIBLE else View.GONE
@@ -346,6 +369,7 @@ class MainActivity : Activity() {
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == REQUEST_NOTIFICATIONS) startWithConsent()
+        if (requestCode == REQUEST_NOTIFICATIONS_AGAIN) showNotice()
     }
 
     private fun startWithConsent() {
@@ -738,16 +762,64 @@ class MainActivity : Activity() {
         }, "proxy-check").apply { isDaemon = true }.start()
     }
 
-    private fun showBatteryHint() {
-        val b = Diagnostics.battery(this)
-        battery.visibility = if (Diagnostics.batteryHint(b, Build.MANUFACTURER, Build.BRAND)) View.VISIBLE else View.GONE
+    /* One notice at most, the one that matters most: battery settings that
+     * may stop protection in the background (Diagnostics.batteryDue), else
+     * notifications turned off, so that protection stopping is never said
+     * (notificationsDue). Each with its one way to fix it and "Not now";
+     * neither on a new install's first screen. */
+    private fun showNotice() {
+        val now = System.currentTimeMillis()
+        val ui = getSharedPreferences("ui", MODE_PRIVATE)
+        val days = Usage.days(this)
+        val battery = Diagnostics.batteryDue(Diagnostics.batteryHint(Diagnostics.battery(this), Build.MANUFACTURER, Build.BRAND),
+            days, ui.getLong(KEY_BATTERY_LATER, 0), Usage.endedByAndroidAt(this), now)
+        val notifications = Diagnostics.notificationsDue(notificationsEnabled(), days, ui.getLong(KEY_NOTIFICATIONS_LATER, 0), now)
+        noticeShown = when {
+            battery -> R.string.androidBatterySettings
+            notifications -> R.string.showNotifications
+            else -> 0
+        }
+        notice.visibility = if (noticeShown != 0) View.VISIBLE else View.GONE
+        if (noticeShown == 0) return
+        if (battery) {
+            // The steps for the screen it opens, where the setting is not
+            // the first thing in sight.
+            noticeText.text = getString(R.string.androidBatteryHint) + "\n" + getString(R.string.androidBatterySteps)
+            noticeIcon.setImageResource(R.drawable.ic_battery)
+        } else {
+            noticeText.setText(R.string.androidNotificationsOff)
+            noticeIcon.setImageResource(R.drawable.ic_bell_off)
+        }
+        noticeOpen.setText(noticeShown)
+    }
+
+    private fun notificationsEnabled(): Boolean =
+        try { getSystemService(android.app.NotificationManager::class.java)?.areNotificationsEnabled() != false } catch (_: Exception) { true }
+
+    /* Android 13+ asks again while it still may (it lets an app ask twice);
+     * after that, and before 13, Shroudly's page in Android's notification
+     * settings. */
+    private fun openNotificationSettings() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+            checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED &&
+            shouldShowRequestPermissionRationale(Manifest.permission.POST_NOTIFICATIONS)
+        ) {
+            requestPermissions(arrayOf(Manifest.permission.POST_NOTIFICATIONS), REQUEST_NOTIFICATIONS_AGAIN)
+            return
+        }
+        val page = Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).putExtra(Settings.EXTRA_APP_PACKAGE, packageName)
+        try {
+            startActivity(page)
+        } catch (_: ActivityNotFoundException) {
+            try { startActivity(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.fromParts("package", packageName, null))) } catch (_: ActivityNotFoundException) {}
+        }
     }
 
     /* The app's own page in Settings: every Android version and every phone
      * maker has its battery setting there ("Battery", "App battery usage",
-     * "Battery saver"), where the user can choose no restrictions. No
-     * permission is needed for it, unlike asking Android to exempt the app
-     * directly. */
+     * "Battery saver"), where the user can choose no restrictions; the
+     * notice says where to look. No permission is needed for it, unlike
+     * asking Android to exempt the app directly. */
     private fun openBatterySettings() {
         val details = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.fromParts("package", packageName, null))
         try {

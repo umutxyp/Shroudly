@@ -24,6 +24,7 @@
     <string name="androidBack">واپس</string>
     <string name="androidBatteryHint">بیٹری کی ترتیبات Shroudly کو پس منظر میں روک کر آپ کا کنکشن منقطع کر سکتی ہیں۔ اسے بیٹری کی پابندیوں کے بغیر چلنے دیں۔</string>
     <string name="androidBatterySettings">بیٹری کی ترتیبات</string>
+    <string name="androidBatterySteps">اگلی اسکرین پر بیٹری (کچھ فونز میں ایپ کا بیٹری استعمال) کھولیں اور غیر محدود منتخب کریں۔</string>
     <string name="androidBypassOff">سیٹنگز میں بائی پاس حکمت عملی بند ہے: صرف DNS انکرپٹ ہوتا ہے۔</string>
     <string name="androidContinue">جاری رکھیں</string>
     <string name="androidDetails">تفصیلات</string>
@@ -44,6 +45,7 @@
     <string name="androidNoInternet">تحفظ رک گیا کیونکہ Shroudly اس نیٹ ورک پر انٹرنیٹ تک نہیں پہنچ سکا، اس لیے آپ کی ایپس اب براہِ راست جڑ رہی ہیں۔ دوبارہ کوشش کرنے کے لیے Shroudly کھولیں۔</string>
     <string name="androidNoInternetHere">تحفظ رک گیا کیونکہ Shroudly اس نیٹ ورک پر انٹرنیٹ تک نہیں پہنچ سکا، اس لیے آپ کی ایپس اب براہِ راست جڑ رہی ہیں۔</string>
     <string name="androidNoNetwork">کوئی نیٹ ورک نہیں: Shroudly آن ہے اور Wi-Fi یا موبائل ڈیٹا کا انتظار کر رہا ہے۔</string>
+    <string name="androidNotificationsOff">اطلاعات بند ہیں، اس لیے جب تحفظ رک جائے یا اسے واپس لانے کے لیے ایک ٹیپ درکار ہو تو Shroudly آپ کو نہیں بتا سکتا۔</string>
     <string name="androidOffHint">بلاک شدہ سائٹس اور ایپس کھولنے کے لیے دائرے پر ٹیپ کریں۔</string>
     <string name="androidOtherVpn">ایک اور VPN آن ہے۔ Android ایک وقت میں ایک ہی VPN کی اجازت دیتا ہے، اس لیے Shroudly آن کرنے سے وہ منقطع ہو جائے گا۔ اسے برقرار رکھنے کے لیے صرف پراکسی استعمال کریں۔</string>
     <string name="androidPrivacyPolicy">رازداری کی پالیسی</string>
@@ -128,6 +130,7 @@
     <string name="searchApps">ایپس تلاش کریں</string>
     <string name="shareOnlineCount">مجھے لائیو شمار میں شامل کریں</string>
     <string name="shareOnlineCountDesc">ہر بار کھلنے پر بدلنے والا ایک بے ترتیب نمبر بھیجتا ہے تاکہ ایپ دکھا سکے کہ کتنی کاپیاں چل رہی ہیں۔ یہ صرف تحفظ آن ہونے پر بھیجا جاتا ہے، چنانچہ یہ آپ کے باقی ٹریفک والے محفوظ راستے سے ہی جاتا ہے۔ اگر آپ چاہتے ہیں کہ آپ کا نیٹ ورک Shroudly سے کچھ بھی نہ دیکھے تو اسے بند کر دیں۔</string>
+    <string name="showNotifications">اطلاعات دکھائیں</string>
     <string name="start">تحفظ شروع کریں</string>
     <string name="startFailed">تحفظ شروع نہیں ہو سکا</string>
     <string name="starting">شروع ہو رہا ہے…</string>

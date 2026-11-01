@@ -679,6 +679,8 @@
   "androidProxyNotSet": "Tidak ada proxy Wi-Fi yang diatur ke Shroudly, jadi hanya aplikasi dengan proxy sendiri di 127.0.0.1:{port} yang melewatinya. Agar lebih banyak aplikasi lewat, atur proxy jaringan Wi-Fi ini ke host 127.0.0.1, port {port}.",
   "androidLockdownStop": "Android diatur untuk memblokir koneksi tanpa VPN, jadi selama Shroudly mati, aplikasi tidak punya internet.",
   "androidAppsLockdown": "Android diatur untuk memblokir koneksi tanpa VPN, jadi aplikasi yang tidak melewati Shroudly tidak punya internet.",
+  "androidNotificationsOff": "Notifikasi mati, jadi Shroudly tidak bisa memberi tahu Anda saat perlindungan berhenti atau perlu diketuk untuk kembali.",
+  "androidBatterySteps": "Di layar berikutnya, buka Baterai (Penggunaan baterai aplikasi di beberapa ponsel) dan pilih Tidak dibatasi.",
   "logCustomDnsRoutes": "Server DNS Anda menjawab: {routes}",
   "logCustomDnsDown": "Server DNS Anda {server} tidak menjawab ({reason}); sampai ia menjawab, DNS terenkripsi bawaan Shroudly yang menjawab",
   "logCustomDnsDownStrict": "Server DNS Anda {server} tidak menjawab ({reason}); hanya server ini yang dipakai, jadi pencarian nama gagal sampai server ini menjawab",

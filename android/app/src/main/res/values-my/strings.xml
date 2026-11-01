@@ -24,6 +24,7 @@
     <string name="androidBack">နောက်သို့</string>
     <string name="androidBatteryHint">ဘက်ထရီဆက်တင်များက Shroudly ကို နောက်ခံတွင် ရပ်စေပြီး သင့်ချိတ်ဆက်မှုကို ဖြတ်တောက်နိုင်ပါသည်။ ဘက်ထရီကန့်သတ်ချက်မရှိဘဲ အလုပ်လုပ်ခွင့်ပြုပါ။</string>
     <string name="androidBatterySettings">ဘက်ထရီဆက်တင်များ</string>
+    <string name="androidBatterySteps">နောက်မျက်နှာပြင်တွင် ဘက်ထရီ (အချို့ဖုန်းများတွင် အက်ပ်ဘက်ထရီ အသုံးပြုမှု) ကို ဖွင့်ပြီး ကန့်သတ်ချက်မရှိ ကို ရွေးပါ။</string>
     <string name="androidBypassOff">ဆက်တင်များတွင် ကျော်ဖြတ်နည်းဗျူဟာ ပိတ်ထားသည်- DNS ကိုသာ စာဝှက်ထားပါသည်။</string>
     <string name="androidContinue">ဆက်လုပ်ရန်</string>
     <string name="androidDetails">အသေးစိတ်</string>
@@ -44,6 +45,7 @@
     <string name="androidNoInternet">ဤကွန်ရက်တွင် Shroudly သည် အင်တာနက်သို့ မရောက်နိုင်သဖြင့် ကာကွယ်မှု ရပ်သွားပြီး သင့်အက်ပ်များသည် ယခု တိုက်ရိုက် ချိတ်ဆက်နေပါသည်။ ထပ်မံကြိုးစားရန် Shroudly ကို ဖွင့်ပါ။</string>
     <string name="androidNoInternetHere">ဤကွန်ရက်တွင် Shroudly သည် အင်တာနက်သို့ မရောက်နိုင်သဖြင့် ကာကွယ်မှု ရပ်သွားပြီး သင့်အက်ပ်များသည် ယခု တိုက်ရိုက် ချိတ်ဆက်နေပါသည်။</string>
     <string name="androidNoNetwork">ကွန်ရက်မရှိပါ- Shroudly ပွင့်နေပြီး Wi-Fi သို့မဟုတ် မိုဘိုင်းဒေတာကို စောင့်နေပါသည်။</string>
+    <string name="androidNotificationsOff">အသိပေးချက်များ ပိတ်ထားသဖြင့် ကာကွယ်မှု ရပ်သွားသည့်အခါ သို့မဟုတ် ပြန်ဖွင့်ရန် တို့ရန်လိုသည့်အခါ Shroudly က သင့်ကို မပြောနိုင်ပါ။</string>
     <string name="androidOffHint">ပိတ်ဆို့ထားသော ဆိုက်များနှင့် အက်ပ်များကို ဖွင့်ရန် စက်ဝိုင်းကို တို့ပါ။</string>
     <string name="androidOtherVpn">အခြား VPN တစ်ခု ပွင့်နေပါသည်။ Android သည် တစ်ကြိမ်လျှင် VPN တစ်ခုသာ ခွင့်ပြုသဖြင့် Shroudly ကို ဖွင့်ပါက ၎င်းကို ဖြတ်တောက်ပါမည်။ ၎င်းကို ဆက်ထားရန် ပရောက်စီသာကို သုံးပါ။</string>
     <string name="androidPrivacyPolicy">ကိုယ်ရေးအချက်အလက် မူဝါဒ</string>
@@ -128,6 +130,7 @@
     <string name="searchApps">အက်ပ် ရှာရန်</string>
     <string name="shareOnlineCount">တိုက်ရိုက်စုစုပေါင်းတွင် ကျွန်ုပ်ကို ထည့်ရေတွက်ရန်</string>
     <string name="shareOnlineCountDesc">အက်ပ် မည်မျှ လုပ်ဆောင်နေသည်ကို ပြနိုင်ရန် ဖွင့်တိုင်း ပြောင်းလဲသော ကျပန်းနံပါတ်တစ်ခုကို ပို့သည်။ ကာကွယ်မှု ဖွင့်ထားစဉ်သာ ပို့သဖြင့် သင့်အခြား ဒေတာအသွားအလာနှင့် အတူတူ ကာကွယ်ထားသော လမ်းကြောင်းဖြင့် သွားသည်။ Shroudly ထံမှ မည်သည့်အရာကိုမျှ သင့်ကွန်ရက်က မမြင်စေလိုပါက ပိတ်ထားပါ။</string>
+    <string name="showNotifications">အသိပေးချက်များ ပြရန်</string>
     <string name="start">ကာကွယ်မှု စတင်ရန်</string>
     <string name="startFailed">ကာကွယ်မှု စတင်၍ မရပါ</string>
     <string name="starting">စတင်နေသည်…</string>

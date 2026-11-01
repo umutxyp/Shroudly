@@ -679,6 +679,8 @@
   "androidProxyNotSet": "Hech bir Wi-Fi proksisi Shroudly’ga sozlanmagan, shuning uchun u orqali faqat o‘z proksisi 127.0.0.1:{port} bo‘lgan ilovalar o‘tadi. Ko‘proq ilovani o‘tkazish uchun bu Wi-Fi tarmog‘ining proksisini xost 127.0.0.1, port {port} qilib sozlang.",
   "androidLockdownStop": "Android VPN’siz ulanishlarni bloklashga sozlangan, shuning uchun Shroudly o‘chiq turganda ilovalarda internet bo‘lmaydi.",
   "androidAppsLockdown": "Android VPN’siz ulanishlarni bloklashga sozlangan, shuning uchun Shroudly’dan tashqarida qolgan ilovalarda internet bo‘lmaydi.",
+  "androidNotificationsOff": "Bildirishnomalar o‘chiq, shuning uchun himoya to‘xtaganda yoki qaytishi uchun bir bosish kerak bo‘lganda Shroudly sizga ayta olmaydi.",
+  "androidBatterySteps": "Keyingi ekranda «Batareya» (ba’zi telefonlarda «Ilovaning batareya sarfi») bo‘limini oching va «Cheklanmagan»ni tanlang.",
   "logCustomDnsRoutes": "DNS serveringiz javob bermoqda: {routes}",
   "logCustomDnsDown": "DNS serveringiz {server} javob bermayapti ({reason}); u javob bermaguncha Shroudly’ning ichki shifrlangan DNS’i javob beradi",
   "logCustomDnsDownStrict": "DNS serveringiz {server} javob bermayapti ({reason}); faqat u ishlatiladi, shuning uchun nom so‘rovlari u javob bermaguncha bajarilmaydi",

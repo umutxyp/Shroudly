@@ -679,6 +679,8 @@
   "androidProxyNotSet": "Aucun proxy Wi-Fi n’est réglé sur Shroudly : seules les applis dont le propre proxy est 127.0.0.1:{port} passent par lui. Pour y faire passer plus d’applis, réglez le proxy de ce réseau Wi-Fi sur l’hôte 127.0.0.1, port {port}.",
   "androidLockdownStop": "Android est réglé pour bloquer les connexions sans VPN : tant que Shroudly est désactivé, les applis n’ont pas Internet.",
   "androidAppsLockdown": "Android est réglé pour bloquer les connexions sans VPN : les applis qui ne passent pas par Shroudly n’ont pas Internet.",
+  "androidNotificationsOff": "Les notifications sont désactivées : Shroudly ne peut pas vous prévenir quand la protection s’arrête ou a besoin d’un appui pour revenir.",
+  "androidBatterySteps": "Sur l’écran suivant, ouvrez Batterie (« Utilisation de la batterie par l’appli » sur certains téléphones) et choisissez Non restreinte.",
   "logCustomDnsRoutes": "Votre serveur DNS répond : {routes}",
   "logCustomDnsDown": "Votre serveur DNS {server} ne répond pas ({reason}) ; le DNS chiffré intégré de Shroudly répond en attendant",
   "logCustomDnsDownStrict": "Votre serveur DNS {server} ne répond pas ({reason}) ; c'est le seul utilisé, donc les résolutions échouent jusqu'à ce qu'il réponde",

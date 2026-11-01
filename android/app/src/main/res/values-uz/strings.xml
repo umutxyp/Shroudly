@@ -24,6 +24,7 @@
     <string name="androidBack">Orqaga</string>
     <string name="androidBatteryHint">Batareya sozlamalari Shroudly’ni fonda to‘xtatib, ulanishingizni uzib qo‘yishi mumkin. Unga batareya cheklovlarisiz ishlashga ruxsat bering.</string>
     <string name="androidBatterySettings">Batareya sozlamalari</string>
+    <string name="androidBatterySteps">Keyingi ekranda «Batareya» (ba’zi telefonlarda «Ilovaning batareya sarfi») bo‘limini oching va «Cheklanmagan»ni tanlang.</string>
     <string name="androidBypassOff">Sozlamalarda chetlab o‘tish strategiyasi o‘chirilgan: faqat DNS shifrlanadi.</string>
     <string name="androidContinue">Davom etish</string>
     <string name="androidDetails">Batafsil</string>
@@ -44,6 +45,7 @@
     <string name="androidNoInternet">Shroudly bu tarmoqda internetga chiqa olmagani uchun himoya to‘xtadi, shuning uchun ilovalaringiz hozir to‘g‘ridan-to‘g‘ri ulanmoqda. Qayta urinib ko‘rish uchun Shroudly’ni oching.</string>
     <string name="androidNoInternetHere">Shroudly bu tarmoqda internetga chiqa olmagani uchun himoya to‘xtadi, shuning uchun ilovalaringiz hozir to‘g‘ridan-to‘g‘ri ulanmoqda.</string>
     <string name="androidNoNetwork">Tarmoq yo‘q: Shroudly yoqiq va Wi-Fi yoki mobil internetni kutmoqda.</string>
+    <string name="androidNotificationsOff">Bildirishnomalar o‘chiq, shuning uchun himoya to‘xtaganda yoki qaytishi uchun bir bosish kerak bo‘lganda Shroudly sizga ayta olmaydi.</string>
     <string name="androidOffHint">Bloklangan saytlar va ilovalarni ochish uchun doirani bosing.</string>
     <string name="androidOtherVpn">Boshqa VPN yoqilgan. Android bir vaqtda faqat bitta VPN’ga ruxsat beradi, shuning uchun Shroudly’ni yoqish uni uzib qo‘yadi. Uni saqlab qolish uchun «Faqat proksi»dan foydalaning.</string>
     <string name="androidPrivacyPolicy">Maxfiylik siyosati</string>
@@ -128,6 +130,7 @@
     <string name="searchApps">Ilova qidirish</string>
     <string name="shareOnlineCount">Meni jonli hisobga qoʻshish</string>
     <string name="shareOnlineCountDesc">Har safar ishga tushganda oʻzgaradigan tasodifiy raqam yuboriladi, shunda ilova nechta nusxa ishlayotganini koʻrsata oladi. U faqat himoya yoqilganida yuboriladi, shuning uchun trafikingizning qolgan qismi bilan bir xil himoyalangan yoʻldan oʻtadi. Agar tarmogʻingiz Shroudlydan umuman hech narsa koʻrmasligini istasangiz, buni oʻchiring.</string>
+    <string name="showNotifications">Bildirishnomalarni koʻrsatish</string>
     <string name="start">Himoyani yoqish</string>
     <string name="startFailed">Himoyani yoqib boʻlmadi</string>
     <string name="starting">Yoqilmoqda…</string>

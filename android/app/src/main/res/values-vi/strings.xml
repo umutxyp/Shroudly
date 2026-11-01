@@ -24,6 +24,7 @@
     <string name="androidBack">Quay lại</string>
     <string name="androidBatteryHint">Cài đặt pin có thể dừng Shroudly khi chạy nền và làm mất kết nối của bạn. Hãy cho phép Shroudly chạy mà không bị giới hạn pin.</string>
     <string name="androidBatterySettings">Cài đặt pin</string>
+    <string name="androidBatterySteps">Ở màn hình tiếp theo, mở Pin (Mức sử dụng pin của ứng dụng trên một số điện thoại) và chọn Không hạn chế.</string>
     <string name="androidBypassOff">Chiến lược vượt chặn đang Tắt trong Cài đặt: chỉ DNS được mã hóa.</string>
     <string name="androidContinue">Tiếp tục</string>
     <string name="androidDetails">Chi tiết</string>
@@ -44,6 +45,7 @@
     <string name="androidNoInternet">Bảo vệ đã dừng vì Shroudly không thể kết nối Internet trên mạng này, vì vậy các ứng dụng của bạn hiện đang kết nối trực tiếp. Mở Shroudly để thử lại.</string>
     <string name="androidNoInternetHere">Bảo vệ đã dừng vì Shroudly không thể kết nối Internet trên mạng này, vì vậy các ứng dụng của bạn hiện đang kết nối trực tiếp.</string>
     <string name="androidNoNetwork">Không có mạng: Shroudly đang bật và chờ Wi-Fi hoặc dữ liệu di động.</string>
+    <string name="androidNotificationsOff">Thông báo đang tắt, nên Shroudly không thể báo cho bạn khi bảo vệ dừng hoặc cần một lần chạm để bật lại.</string>
     <string name="androidOffHint">Chạm vào vòng tròn để mở các trang web và ứng dụng bị chặn.</string>
     <string name="androidOtherVpn">Một VPN khác đang bật. Android chỉ cho phép một VPN mỗi lúc, nên bật Shroudly sẽ ngắt kết nối VPN đó. Để giữ nó, hãy dùng Chỉ proxy.</string>
     <string name="androidPrivacyPolicy">Chính sách quyền riêng tư</string>
@@ -128,6 +130,7 @@
     <string name="searchApps">Tìm ứng dụng</string>
     <string name="shareOnlineCount">Tính tôi vào tổng số trực tuyến</string>
     <string name="shareOnlineCountDesc">Gửi một số ngẫu nhiên thay đổi sau mỗi lần mở ứng dụng, để ứng dụng có thể hiển thị số bản đang chạy. Số này chỉ được gửi khi đang bật bảo vệ, nên nó đi qua cùng đường truyền được bảo vệ như phần còn lại trong lưu lượng của bạn. Hãy tắt tùy chọn này nếu bạn không muốn mạng của mình thấy bất cứ thứ gì từ Shroudly.</string>
+    <string name="showNotifications">Hiện thông báo</string>
     <string name="start">Bật bảo vệ</string>
     <string name="startFailed">Không thể bật bảo vệ</string>
     <string name="starting">Đang bật…</string>

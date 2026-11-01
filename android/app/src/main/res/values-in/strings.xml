@@ -24,6 +24,7 @@
     <string name="androidBack">Kembali</string>
     <string name="androidBatteryHint">Pengaturan baterai dapat menghentikan Shroudly di latar belakang dan memutus koneksi Anda. Izinkan Shroudly berjalan tanpa batasan baterai.</string>
     <string name="androidBatterySettings">Pengaturan baterai</string>
+    <string name="androidBatterySteps">Di layar berikutnya, buka Baterai (Penggunaan baterai aplikasi di beberapa ponsel) dan pilih Tidak dibatasi.</string>
     <string name="androidBypassOff">Strategi bypass dimatikan di Setelan: hanya DNS yang dienkripsi.</string>
     <string name="androidContinue">Lanjutkan</string>
     <string name="androidDetails">Detail</string>
@@ -44,6 +45,7 @@
     <string name="androidNoInternet">Perlindungan berhenti karena Shroudly tidak dapat menjangkau internet di jaringan ini, jadi aplikasi Anda kini terhubung langsung. Buka Shroudly untuk mencoba lagi.</string>
     <string name="androidNoInternetHere">Perlindungan berhenti karena Shroudly tidak dapat menjangkau internet di jaringan ini, jadi aplikasi Anda kini terhubung langsung.</string>
     <string name="androidNoNetwork">Tidak ada jaringan: Shroudly menyala dan menunggu Wi-Fi atau data seluler.</string>
+    <string name="androidNotificationsOff">Notifikasi mati, jadi Shroudly tidak bisa memberi tahu Anda saat perlindungan berhenti atau perlu diketuk untuk kembali.</string>
     <string name="androidOffHint">Ketuk lingkaran untuk membuka situs dan aplikasi yang diblokir.</string>
     <string name="androidOtherVpn">VPN lain sedang aktif. Android hanya mengizinkan satu VPN dalam satu waktu, jadi menyalakan Shroudly akan memutuskannya. Untuk mempertahankannya, gunakan Hanya proxy.</string>
     <string name="androidPrivacyPolicy">Kebijakan privasi</string>
@@ -128,6 +130,7 @@
     <string name="searchApps">Cari aplikasi</string>
     <string name="shareOnlineCount">Hitung saya dalam jumlah pengguna online</string>
     <string name="shareOnlineCountDesc">Mengirim angka acak yang berubah setiap kali dibuka, agar aplikasi bisa menampilkan berapa salinan yang sedang berjalan. Hanya dikirim saat perlindungan aktif, jadi melewati jalur terlindungi yang sama dengan lalu lintas Anda. Matikan jika Anda lebih suka jaringan Anda tidak melihat apa pun dari Shroudly.</string>
+    <string name="showNotifications">Tampilkan notifikasi</string>
     <string name="start">Mulai perlindungan</string>
     <string name="startFailed">Tidak dapat memulai perlindungan</string>
     <string name="starting">Memulai…</string>

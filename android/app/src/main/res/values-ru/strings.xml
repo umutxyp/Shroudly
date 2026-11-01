@@ -24,6 +24,7 @@
     <string name="androidBack">Назад</string>
     <string name="androidBatteryHint">Настройки батареи могут останавливать Shroudly в фоне и обрывать ваше соединение. Разрешите ему работать без ограничений батареи.</string>
     <string name="androidBatterySettings">Настройки батареи</string>
+    <string name="androidBatterySteps">На следующем экране откройте «Батарея» (на некоторых телефонах «Использование батареи приложением») и выберите «Без ограничений».</string>
     <string name="androidBypassOff">Стратегия обхода в настройках выключена: шифруется только DNS.</string>
     <string name="androidContinue">Продолжить</string>
     <string name="androidDetails">Подробнее</string>
@@ -44,6 +45,7 @@
     <string name="androidNoInternet">Защита остановилась, потому что Shroudly не смог выйти в интернет в этой сети, поэтому ваши приложения сейчас подключаются напрямую. Откройте Shroudly, чтобы попробовать снова.</string>
     <string name="androidNoInternetHere">Защита остановилась, потому что Shroudly не смог выйти в интернет в этой сети, поэтому ваши приложения сейчас подключаются напрямую.</string>
     <string name="androidNoNetwork">Нет сети: Shroudly включён и ждёт Wi-Fi или мобильный интернет.</string>
+    <string name="androidNotificationsOff">Уведомления выключены, поэтому Shroudly не сможет сообщить, когда защита остановится или её нужно будет вернуть одним нажатием.</string>
     <string name="androidOffHint">Нажмите на круг, чтобы открывать заблокированные сайты и приложения.</string>
     <string name="androidOtherVpn">Включён другой VPN. Android позволяет только один VPN одновременно, поэтому включение Shroudly отключит его. Чтобы его сохранить, используйте «Только прокси».</string>
     <string name="androidPrivacyPolicy">Политика конфиденциальности</string>
@@ -128,6 +130,7 @@
     <string name="searchApps">Поиск приложений</string>
     <string name="shareOnlineCount">Учитывать меня в счётчике реального времени</string>
     <string name="shareOnlineCountDesc">Отправляет случайный номер, который меняется при каждом запуске, чтобы приложение могло показать, сколько копий работает. Отправляется только при включённой защите, поэтому идёт тем же защищённым путём, что и остальной трафик. Выключите, если не хотите, чтобы сеть вообще видела что-либо от Shroudly.</string>
+    <string name="showNotifications">Показывать уведомления</string>
     <string name="start">Включить защиту</string>
     <string name="startFailed">Не удалось включить защиту</string>
     <string name="starting">Запуск…</string>

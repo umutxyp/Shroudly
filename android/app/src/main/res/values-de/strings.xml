@@ -24,6 +24,7 @@
     <string name="androidBack">Zurück</string>
     <string name="androidBatteryHint">Akku-Einstellungen können Shroudly im Hintergrund beenden und damit deine Verbindung unterbrechen. Erlaube Shroudly, ohne Akku-Einschränkungen zu laufen.</string>
     <string name="androidBatterySettings">Akku-Einstellungen</string>
+    <string name="androidBatterySteps">Öffne auf dem nächsten Bildschirm „Akku“ (auf manchen Telefonen „Akkunutzung der App“) und wähle „Nicht eingeschränkt“.</string>
     <string name="androidBypassOff">Die Umgehungsstrategie ist in den Einstellungen aus: Nur DNS wird verschlüsselt.</string>
     <string name="androidContinue">Weiter</string>
     <string name="androidDetails">Details</string>
@@ -44,6 +45,7 @@
     <string name="androidNoInternet">Der Schutz wurde beendet, weil Shroudly in diesem Netz das Internet nicht erreicht hat. Deine Apps verbinden sich jetzt direkt. Öffne Shroudly, um es erneut zu versuchen.</string>
     <string name="androidNoInternetHere">Der Schutz wurde beendet, weil Shroudly in diesem Netz das Internet nicht erreicht hat. Deine Apps verbinden sich jetzt direkt.</string>
     <string name="androidNoNetwork">Kein Netz: Shroudly ist an und wartet auf WLAN oder mobile Daten.</string>
+    <string name="androidNotificationsOff">Benachrichtigungen sind aus, daher kann Shroudly dir nicht sagen, wenn der Schutz endet oder ein Tippen braucht, um zurückzukommen.</string>
     <string name="androidOffHint">Tippe auf den Kreis, um gesperrte Seiten und Apps zu öffnen.</string>
     <string name="androidOtherVpn">Ein anderes VPN ist an. Android erlaubt nur ein VPN zur Zeit, Shroudly einzuschalten trennt es also. Um es zu behalten, nutze „Nur Proxy“.</string>
     <string name="androidPrivacyPolicy">Datenschutzerklärung</string>
@@ -128,6 +130,7 @@
     <string name="searchApps">Apps suchen</string>
     <string name="shareOnlineCount">Mich bei der Live-Zahl mitzählen</string>
     <string name="shareOnlineCountDesc">Sendet eine Zufallszahl, die sich bei jedem Start ändert, damit die App zeigen kann, wie viele Kopien laufen. Sie wird nur bei aktivem Schutz gesendet und nimmt damit denselben geschützten Weg wie dein übriger Verkehr. Schalte sie ab, wenn dein Netz lieber gar nichts von Shroudly sehen soll.</string>
+    <string name="showNotifications">Benachrichtigungen anzeigen</string>
     <string name="start">Schutz starten</string>
     <string name="startFailed">Schutz konnte nicht gestartet werden</string>
     <string name="starting">Wird gestartet…</string>

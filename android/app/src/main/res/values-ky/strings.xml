@@ -24,6 +24,7 @@
     <string name="androidBack">Артка</string>
     <string name="androidBatteryHint">Батарея жөндөөлөрү Shroudly\'ди фондо токтотуп, байланышыңызды үзүп салышы мүмкүн. Ага батарея чектөөлөрүсүз иштөөгө уруксат бериңиз.</string>
     <string name="androidBatterySettings">Батарея жөндөөлөрү</string>
+    <string name="androidBatterySteps">Кийинки экранда «Батарея» (кээ бир телефондордо «Колдонмонун батарея колдонуусу») бөлүмүн ачып, «Чектөөсүз» дегенди тандаңыз.</string>
     <string name="androidBypassOff">Жөндөөлөрдө айланып өтүү стратегиясы өчүк: DNS гана шифрленет.</string>
     <string name="androidContinue">Улантуу</string>
     <string name="androidDetails">Кененирээк</string>
@@ -44,6 +45,7 @@
     <string name="androidNoInternet">Shroudly бул тармакта интернетке чыга албагандыктан коргоо токтоду, ошондуктан колдонмолоруңуз азыр түз туташып жатат. Кайра аракет кылуу үчүн Shroudly\'ди ачыңыз.</string>
     <string name="androidNoInternetHere">Shroudly бул тармакта интернетке чыга албагандыктан коргоо токтоду, ошондуктан колдонмолоруңуз азыр түз туташып жатат.</string>
     <string name="androidNoNetwork">Тармак жок: Shroudly күйүк жана Wi-Fi же мобилдик интернетти күтүүдө.</string>
+    <string name="androidNotificationsOff">Билдирмелер өчүк, ошондуктан коргоо токтогондо же аны кайтаруу үчүн басуу керек болгондо Shroudly сизге айта албайт.</string>
     <string name="androidOffHint">Бөгөттөлгөн сайттарды жана колдонмолорду ачуу үчүн тегеректи басыңыз.</string>
     <string name="androidOtherVpn">Башка VPN күйүк. Android бир эле учурда бир VPN\'ге уруксат берет, ошондуктан Shroudly\'ни күйгүзүү аны ажыратат. Аны калтыруу үчүн «Прокси гана» режимин колдонуңуз.</string>
     <string name="androidPrivacyPolicy">Купуялык саясаты</string>
@@ -128,6 +130,7 @@
     <string name="searchApps">Колдонмо издөө</string>
     <string name="shareOnlineCount">Мени учурдагы жалпы санга кошуу</string>
     <string name="shareOnlineCountDesc">Колдонмо канча нуска иштеп жатканын көрсөтө алышы үчүн ар бир ишке киргизүүдө өзгөрүп туруучу кокус санды жөнөтөт. Ал коргоо күйүк турганда гана жөнөтүлөт, ошондуктан трафигиңиздин калган бөлүгү сыяктуу эле корголгон жол менен өтөт. Тармагыңыз Shroudly чыгарган эч кандай трафикти көрбөшүн кааласаңыз, муну өчүрүңүз.</string>
+    <string name="showNotifications">Билдирмелерди көрсөтүү</string>
     <string name="start">Коргоону баштоо</string>
     <string name="startFailed">Коргоону баштоо мүмкүн болгон жок</string>
     <string name="starting">Башталууда…</string>
