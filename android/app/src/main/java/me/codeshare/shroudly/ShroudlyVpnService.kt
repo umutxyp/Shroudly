@@ -208,7 +208,10 @@ class ShroudlyVpnService : VpnService() {
     // still worked there (Handover): ended once one goes or stops working.
     private val kept = HashSet<Network>()
     // Every network that could be underneath, as the callback reports them.
-    private val networks = LinkedHashSet<Network>()
+    // Changed on `work`, read by the path checks on `checks` too (underlying):
+    // a plain set read while a network came or went threw there, and the
+    // check took the network for one that does not work.
+    private val networks = java.util.concurrent.CopyOnWriteArraySet<Network>()
 
     private var engine: Engine? = null
     private var doh: DohForwarder? = null

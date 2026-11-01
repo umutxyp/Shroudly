@@ -64,6 +64,8 @@ class HandoverTest {
 
         val vpn = File(src, "ShroudlyVpnService.kt").readText()
         assertTrue(vpn.contains("NetWatch(::later, { networks += it }, { networks -= it }, ::onNetwork)"))
+        // Read by the path checks on their own thread too.
+        assertTrue(vpn.contains("private val networks = java.util.concurrent.CopyOnWriteArraySet<Network>()"))
         val settled = vpn.substringAfter("private fun onNetworkSettled()").substringBefore("\n    }\n")
         assertTrue(settled.contains("!Handover.endsOld(Handover.look(cm, old), Handover.look(cm, now.first))"))
         assertTrue(settled.contains("if (keptGone.isNotEmpty()) endOldConnections("))
