@@ -772,5 +772,14 @@
   "logWinhttpCleared": "Windows の WinHTTP プロキシを消去しました",
   "logWinhttpNotCleared": "Windows の WinHTTP プロキシを消去できませんでした（管理者の許可がありません）",
   "stratNone": "オフ（暗号化 DNS のみ）",
-  "languageSystem": "システムの既定"
+  "languageSystem": "システムの既定",
+  "appleKeepOn": "保護をオンのままにする",
+  "appleKeepOnDesc": "保護が切れたりデバイスが再起動したりしても、停止するまで自動でオンに戻ります。",
+  "appleLanguageDesc": "Shroudly はデバイスの言語を使います。Shroudly だけ別の言語にするには、システムの設定で選べます。",
+  "appleOpenSettings": "設定を開く",
+  "appleVpnRevoked": "システムが保護をオフにしました。通常は別の VPN アプリがオンになったためです。",
+  "appleLocalNetworkUsage": "Shroudly はアプリの通信を中継します。ルーターなど、ローカルネットワーク上のデバイスへの通信も含みます。",
+  "appleNoticeTitle": "はじめる前に",
+  "appleNoticeBody": "Shroudly は VPN 構成を追加し、アプリの通信をこのデバイス上だけで動くエンジンに通します。Shroudly のサーバーもアカウントもなく、Shroudly はデータを一切収集しません。訪れたサイトが記録されたり、私たちに送られたりすることはありません。名前の解決は、公開リゾルバー（Cloudflare、Google、AdGuard、OpenDNS、DNS.SB）への暗号化 DNS で行います。",
+  "appleNoticeContinue": "続ける"
 }

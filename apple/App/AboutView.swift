@@ -1,0 +1,42 @@
+import SwiftUI
+
+/* About: the version, who makes it, open source, the privacy policy and
+ * "Share logs". As in the Google Play copy, the source code is linked, not
+ * the downloads of other platforms. */
+struct AboutView: View {
+    @EnvironmentObject private var controller: TunnelController
+    @State private var logs = ""
+
+    var body: some View {
+        Form {
+            Section {
+                HStack(spacing: 14) {
+                    Image("Logo")
+                        .resizable()
+                        .frame(width: 56, height: 56)
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Shroudly").font(.headline)
+                        Text(tr("versionLabel", ["version": Diagnostics.version])).font(.footnote).foregroundStyle(Theme.secondaryText)
+                        Text(tr("madeBy")).font(.footnote).foregroundStyle(Theme.secondaryText)
+                    }
+                }
+            }
+            Section(tr("openSourceTitle")) {
+                Text(tr("openSourceDesc")).font(.footnote).foregroundStyle(Theme.secondaryText)
+                Link(destination: Ids.repoURL) { Label(tr("linkSourceCode"), systemImage: "chevron.left.forwardslash.chevron.right") }
+                Link(destination: Ids.privacyURL) { Label(tr("androidPrivacyPolicy"), systemImage: "hand.raised") }
+            }
+            Section {
+                ShareLink(item: logs.isEmpty ? Diagnostics.header() : logs) {
+                    Label(tr("androidShareLogs"), systemImage: "square.and.arrow.up")
+                }
+            }
+        }
+        .formStyle(.grouped)
+        .scrollContentBackground(.hidden)
+        .background(Theme.background)
+        .navigationTitle(tr("navInfo"))
+        .task { logs = await Diagnostics.text(sites: controller.siteLog()) }
+    }
+}

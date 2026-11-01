@@ -318,3 +318,25 @@ jobs:
             android/app/build/outputs/bundle/release/app-release.aab
       - name: The app on an Android emulator (x86_64, API 35)
         run: bash android/scripts/emulator-smoke.sh --abi x86_64 --api 35
+
+  # The Apple app (apple/): hev-socks5-tunnel from its pinned, verified
+  # source (the Android app's pin) built for iOS, the iOS simulator and
+  # macOS; the generated strings; then, without signing, the app and its
+  # packet tunnel for the iOS simulator, iOS devices and macOS, and the unit
+  # tests on an iOS simulator and on macOS: among them the engine (core/) and
+  # hev in the test's own process, a SOCKS5 relay with the session's
+  # password, and packets through hev and the engine to a local server
+  # (apple/scripts/test.sh). A packet tunnel itself needs a signed app on a
+  # device, so it is not started here.
+  apple:
+    runs-on: macos-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+      - name: Xcode
+        run: xcodebuild -version
+      - name: Build and unit tests
+        run: bash apple/scripts/test.sh

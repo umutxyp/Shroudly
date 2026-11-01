@@ -772,5 +772,14 @@
   "logWinhttpCleared": "Proxy WinHTTP de Windows quitado",
   "logWinhttpNotCleared": "No se pudo quitar el proxy WinHTTP de Windows (sin permiso de administrador)",
   "stratNone": "Desactivado (solo DNS cifrado)",
-  "languageSystem": "Predeterminado del sistema"
+  "languageSystem": "Predeterminado del sistema",
+  "appleKeepOn": "Mantener la protección activada",
+  "appleKeepOnDesc": "Si la protección se corta o el dispositivo se reinicia, vuelve a activarse sola hasta que la detengas.",
+  "appleLanguageDesc": "Shroudly usa el idioma de tu dispositivo. Puedes elegir otro idioma solo para Shroudly en los ajustes del sistema.",
+  "appleOpenSettings": "Abrir Ajustes",
+  "appleVpnRevoked": "El sistema desactivó la protección, normalmente porque se activó otra app de VPN.",
+  "appleLocalNetworkUsage": "Shroudly lleva las conexiones de tus apps, incluidas las que van a dispositivos de tu red local, como tu router.",
+  "appleNoticeTitle": "Antes de empezar",
+  "appleNoticeBody": "Shroudly añade una configuración de VPN para llevar las conexiones de tus apps a través de su motor, que funciona solo en este dispositivo. No hay servidor de Shroudly ni cuenta, y Shroudly no recopila datos: los sitios que visitas no se registran ni se nos envían. Los nombres se resuelven con DNS cifrado en resolutores públicos (Cloudflare, Google, AdGuard, OpenDNS, DNS.SB).",
+  "appleNoticeContinue": "Continuar"
 }

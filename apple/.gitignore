@@ -1,0 +1,10 @@
+# Fetched by scripts/fetch-hev.js, built by scripts/build-hev.sh
+third_party/
+# xcodebuild's output when run with -derivedDataPath build (scripts/test.sh)
+build/
+# Xcode's per-user files
+xcuserdata/
+*.xcuserstate
+# The owner's own team, if not set in Signing.xcconfig; the version, from package.json (scripts/gen-version.js)
+Config/Signing.local.xcconfig
+Config/Version.xcconfig

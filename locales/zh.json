@@ -772,5 +772,14 @@
   "logWinhttpCleared": "已清除 Windows 的 WinHTTP 代理",
   "logWinhttpNotCleared": "无法清除 Windows 的 WinHTTP 代理（未获得管理员权限）",
   "stratNone": "关闭（仅加密 DNS）",
-  "languageSystem": "跟随系统"
+  "languageSystem": "跟随系统",
+  "appleKeepOn": "保持保护开启",
+  "appleKeepOnDesc": "如果保护中断或设备重启，它会自动重新开启，直到你停止它。",
+  "appleLanguageDesc": "Shroudly 使用设备的语言。你可以在系统设置中为 Shroudly 单独选择其他语言。",
+  "appleOpenSettings": "打开设置",
+  "appleVpnRevoked": "保护已被系统关闭，通常是因为开启了另一个 VPN 应用。",
+  "appleLocalNetworkUsage": "Shroudly 会转发你的应用的连接，包括通往本地网络中设备（例如路由器）的连接。",
+  "appleNoticeTitle": "开始之前",
+  "appleNoticeBody": "Shroudly 会添加一个 VPN 配置，让你的应用的连接经过它的引擎，而这个引擎只在本设备上运行。没有 Shroudly 服务器，也不需要账户，Shroudly 不收集任何数据：你访问的网站不会被记录，也不会发送给我们。域名通过加密 DNS 向公共解析服务器（Cloudflare、Google、AdGuard、OpenDNS、DNS.SB）查询。",
+  "appleNoticeContinue": "继续"
 }

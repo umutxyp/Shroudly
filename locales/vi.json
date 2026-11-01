@@ -772,5 +772,14 @@
   "logWinhttpCleared": "Đã xóa proxy WinHTTP của Windows",
   "logWinhttpNotCleared": "Không xóa được proxy WinHTTP của Windows (không có quyền quản trị)",
   "stratNone": "Tắt (chỉ DNS mã hóa)",
-  "languageSystem": "Mặc định của hệ thống"
+  "languageSystem": "Mặc định của hệ thống",
+  "appleKeepOn": "Luôn giữ bảo vệ bật",
+  "appleKeepOnDesc": "Nếu bảo vệ bị ngắt hoặc thiết bị khởi động lại, nó sẽ tự bật lại cho đến khi bạn dừng.",
+  "appleLanguageDesc": "Shroudly dùng ngôn ngữ của thiết bị. Bạn có thể chọn ngôn ngữ khác chỉ cho Shroudly trong cài đặt hệ thống.",
+  "appleOpenSettings": "Mở Cài đặt",
+  "appleVpnRevoked": "Hệ thống đã tắt bảo vệ, thường là vì một ứng dụng VPN khác vừa được bật.",
+  "appleLocalNetworkUsage": "Shroudly chuyển tiếp các kết nối của ứng dụng, kể cả kết nối tới thiết bị trong mạng nội bộ như bộ định tuyến.",
+  "appleNoticeTitle": "Trước khi bắt đầu",
+  "appleNoticeBody": "Shroudly thêm một cấu hình VPN để chuyển các kết nối của ứng dụng qua bộ máy của mình, vốn chỉ chạy trên thiết bị này. Không có máy chủ Shroudly và không cần tài khoản, và Shroudly không thu thập dữ liệu nào: các trang bạn truy cập không bị ghi lại hay gửi cho chúng tôi. Tên miền được tra cứu qua DNS mã hóa tại các máy chủ phân giải công cộng (Cloudflare, Google, AdGuard, OpenDNS, DNS.SB).",
+  "appleNoticeContinue": "Tiếp tục"
 }

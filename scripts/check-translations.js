@@ -87,6 +87,27 @@ for (const file of fs.readdirSync(path.join(root, 'electron'))) {
   }
 })(path.join(root, 'android', 'app', 'src'));
 
+// The Apple app uses keys as tr("key") and labelKey: "key" in its Swift
+// sources (apple/scripts/gen-strings.js, whose own keys for the system's
+// prompts are counted as referenced).
+for (const sub of ['App', 'Shared', 'Tunnel', 'scripts']) {
+  (function walkApple(dir) {
+    if (!fs.existsSync(dir)) return;
+    for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+      const fullPath = path.join(dir, entry.name);
+      if (entry.isDirectory()) { if (!/\.xcassets$/.test(entry.name)) walkApple(fullPath); continue; }
+      if (entry.name.endsWith('.js')) { allSource += fs.readFileSync(fullPath, 'utf8') + '\n'; continue; }
+      if (!entry.name.endsWith('.swift')) continue;
+      const source = fs.readFileSync(fullPath, 'utf8');
+      for (const match of source.matchAll(/\btr\(\s*"(\w+)"|\blabelKey:\s*"(\w+)"/g)) {
+        const key = match[1] || match[2];
+        usedKeys.add(key);
+        allSource += `'${key}'\n`;
+      }
+    }
+  })(path.join(root, 'apple', sub));
+}
+
 const languages = Object.keys(translations);
 const englishKeys = Object.keys(translations.en || {});
 let failed = false;

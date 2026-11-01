@@ -1,5 +1,5 @@
 {
   "play": { "live": false, "countries": ["*"], "exclude": [] },
-  "appStore": { "live": false, "countries": ["*"], "exclude": [] },
-  "macAppStore": { "live": false, "countries": ["*"], "exclude": [] }
+  "appStore": { "live": false, "countries": ["*"], "exclude": ["CN"] },
+  "macAppStore": { "live": false, "countries": ["*"], "exclude": ["CN"], "url": "" }
 }

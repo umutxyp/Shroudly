@@ -772,5 +772,14 @@
   "logWinhttpCleared": "ה-Proxy של WinHTTP ב-Windows נוקה",
   "logWinhttpNotCleared": "לא ניתן היה לנקות את ה-Proxy של WinHTTP ב-Windows (לא ניתנה הרשאת מנהל)",
   "stratNone": "כבוי (DNS מוצפן בלבד)",
-  "languageSystem": "ברירת המחדל של המערכת"
+  "languageSystem": "ברירת המחדל של המערכת",
+  "appleKeepOn": "להשאיר את ההגנה פועלת",
+  "appleKeepOnDesc": "אם ההגנה נקטעת או שהמכשיר מופעל מחדש, היא חוזרת לפעול מעצמה עד שעוצרים אותה.",
+  "appleLanguageDesc": "Shroudly משתמשת בשפת המכשיר. אפשר לבחור שפה אחרת רק עבור Shroudly בהגדרות המערכת.",
+  "appleOpenSettings": "פתיחת ההגדרות",
+  "appleVpnRevoked": "המערכת כיבתה את ההגנה, בדרך כלל כי הופעלה אפליקציית VPN אחרת.",
+  "appleLocalNetworkUsage": "Shroudly מעבירה את החיבורים של האפליקציות שלך, כולל חיבורים למכשירים ברשת המקומית, כמו הנתב.",
+  "appleNoticeTitle": "לפני שמתחילים",
+  "appleNoticeBody": "Shroudly מוסיפה תצורת VPN כדי להעביר את החיבורים של האפליקציות שלך דרך המנוע שלה, שפועל רק במכשיר הזה. אין שרת של Shroudly ואין חשבון, ו-Shroudly לא אוספת שום מידע: האתרים שבהם ביקרת לא נרשמים ולא נשלחים אלינו. שמות מאותרים ב-DNS מוצפן אצל שרתים ציבוריים (Cloudflare, Google, AdGuard, OpenDNS, DNS.SB).",
+  "appleNoticeContinue": "המשך"
 }
