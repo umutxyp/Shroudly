@@ -680,5 +680,14 @@
   "logWinhttpCleared": "د Windows د WinHTTP پراکسي پاکه شوه",
   "logWinhttpNotCleared": "د Windows د WinHTTP پراکسي پاکه نه شوه (د مدیر اجازه ورنه کړل شوه)",
   "stratNone": "بند (یوازې کوډ شوی DNS)",
-  "languageSystem": "د سیسټم ژبه"
+  "languageSystem": "د سیسټم ژبه",
+  "appleKeepOn": "ساتنه چالانه وساته",
+  "appleKeepOnDesc": "که ساتنه پرې شي یا وسیله بیا پیل شي، تر هغه چې تاسو یې ودروئ پخپله بیا چالانېږي.",
+  "appleLanguageDesc": "Shroudly ستاسو د وسیلې ژبه کاروي. یوازې د Shroudly لپاره بله ژبه د سیسټم په ترتیباتو کې ټاکلی شئ.",
+  "appleOpenSettings": "ترتیبات پرانیزئ",
+  "appleVpnRevoked": "سیسټم ساتنه بنده کړه، معمولاً ځکه چې بل VPN اپ چالان شوی و.",
+  "appleLocalNetworkUsage": "Shroudly ستاسو د اپونو اړیکې لېږدوي، په شمول د هغو چې ستاسو په محلي شبکه کې وسیلو لکه روټر ته ځي.",
+  "appleNoticeTitle": "د پیل څخه مخکې",
+  "appleNoticeBody": "Shroudly د VPN یوه تنظیم ورزیاتوي ترڅو ستاسو د اپونو اړیکې د خپل انجن له لارې ولېږدوي، چې یوازې په همدې وسیله چلېږي. د Shroudly سرور او حساب نشته، او Shroudly هېڅ معلومات نه راټولوي: هغه سایټونه چې تاسو یې ګورئ نه ثبتېږي او نه موږ ته لېږل کېږي. نومونه د کوډ شوي DNS له لارې په عامه رېزالورونو (Cloudflare، Google، AdGuard، OpenDNS، DNS.SB) کې لټول کېږي.",
+  "appleNoticeContinue": "دوام ورکړئ"
 }

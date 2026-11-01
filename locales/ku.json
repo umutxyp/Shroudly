@@ -680,5 +680,14 @@
   "logWinhttpCleared": "Proksiya WinHTTP ya Windows hat paqijkirin",
   "logWinhttpNotCleared": "Proksiya WinHTTP ya Windows nehat paqijkirin (destûra rêveberiyê nehat dayîn)",
   "stratNone": "Girtî (tenê DNS-a şîfrekirî)",
-  "languageSystem": "Zimanê pergalê"
+  "languageSystem": "Zimanê pergalê",
+  "appleKeepOn": "Parastinê vekirî bihêle",
+  "appleKeepOnDesc": "Heke parastin qut bibe an amûr ji nû ve dest pê bike, heta ku tu wê rawestînî bi xwe dîsa vedibe.",
+  "appleLanguageDesc": "Shroudly zimanê amûra te bi kar tîne. Tu dikarî tenê ji bo Shroudly zimanekî din di mîhengên pergalê de hilbijêrî.",
+  "appleOpenSettings": "Mîhengan veke",
+  "appleVpnRevoked": "Parastin ji aliyê pergalê ve hate girtin, bi gelemperî ji ber ku sepaneke VPN ya din hate vekirin.",
+  "appleLocalNetworkUsage": "Shroudly girêdanên sepanên te digihîne, di nav de yên ber bi amûrên tora te ya herêmî ve, wek rûterê te.",
+  "appleNoticeTitle": "Berî ku dest pê bikî",
+  "appleNoticeBody": "Shroudly mîhengeke VPN zêde dike da ku girêdanên sepanên te di nav motora xwe re derbas bike, ku tenê li ser vê amûrê dixebite. Ne servereke Shroudly heye ne jî hesabek, û Shroudly ti daneyan berhev nake: malperên ku tu diçî wan nayên tomarkirin û ji me re nayên şandin. Nav bi DNSa şîfrekirî li çareserkerên giştî (Cloudflare, Google, AdGuard, OpenDNS, DNS.SB) têne lêgerîn.",
+  "appleNoticeContinue": "Bidomîne"
 }

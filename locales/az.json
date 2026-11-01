@@ -680,5 +680,14 @@
   "logWinhttpCleared": "Windows-un WinHTTP proksisi təmizləndi",
   "logWinhttpNotCleared": "Windows-un WinHTTP proksisi təmizlənə bilmədi (administrator icazəsi verilmədi)",
   "stratNone": "Söndürülüb (yalnız şifrələnmiş DNS)",
-  "languageSystem": "Sistem dili"
+  "languageSystem": "Sistem dili",
+  "appleKeepOn": "Qorumanı açıq saxla",
+  "appleKeepOnDesc": "Qoruma kəsilsə və ya cihaz yenidən başlasa, siz dayandırana qədər özü yenidən açılır.",
+  "appleLanguageDesc": "Shroudly cihazınızın dilindən istifadə edir. Yalnız Shroudly üçün başqa dili sistem ayarlarında seçə bilərsiniz.",
+  "appleOpenSettings": "Ayarları aç",
+  "appleVpnRevoked": "Qoruma sistem tərəfindən söndürüldü; adətən başqa VPN tətbiqi açıldığı üçün.",
+  "appleLocalNetworkUsage": "Shroudly tətbiqlərinizin bağlantılarını, o cümlədən yerli şəbəkənizdəki cihazlara, məsələn, routerinizə olan bağlantıları ötürür.",
+  "appleNoticeTitle": "Başlamazdan əvvəl",
+  "appleNoticeBody": "Shroudly tətbiqlərinizin bağlantılarını yalnız bu cihazda işləyən mühərriki vasitəsilə ötürmək üçün VPN konfiqurasiyası əlavə edir. Shroudly serveri və hesab yoxdur, Shroudly heç bir məlumat toplamır: ziyarət etdiyiniz saytlar qeydə alınmır və bizə göndərilmir. Adlar şifrələnmiş DNS ilə ictimai serverlərdə (Cloudflare, Google, AdGuard, OpenDNS, DNS.SB) axtarılır.",
+  "appleNoticeContinue": "Davam et"
 }

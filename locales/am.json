@@ -680,5 +680,14 @@
   "logWinhttpCleared": "የWindows WinHTTP proxy ተጸድቷል",
   "logWinhttpNotCleared": "የWindows WinHTTP proxyን ማጽዳት አልተቻለም (የአስተዳዳሪ ፈቃድ አልተሰጠም)",
   "stratNone": "ጠፍቷል (የተመሰጠረ DNS ብቻ)",
-  "languageSystem": "የሥርዓቱ ነባሪ"
+  "languageSystem": "የሥርዓቱ ነባሪ",
+  "appleKeepOn": "ጥበቃውን እንደበራ አቆይ",
+  "appleKeepOnDesc": "ጥበቃው ቢቋረጥ ወይም መሣሪያው እንደገና ቢጀምር፣ እስኪያቆሙት ድረስ በራሱ ተመልሶ ይበራል።",
+  "appleLanguageDesc": "Shroudly የመሣሪያዎን ቋንቋ ይጠቀማል። ለShroudly ብቻ ሌላ ቋንቋ በሥርዓቱ ቅንብሮች ውስጥ መምረጥ ይችላሉ።",
+  "appleOpenSettings": "ቅንብሮችን ክፈት",
+  "appleVpnRevoked": "ሥርዓቱ ጥበቃውን አጥፍቶታል፤ ብዙ ጊዜ ሌላ የVPN መተግበሪያ ስለበራ ነው።",
+  "appleLocalNetworkUsage": "Shroudly የመተግበሪያዎችዎን ግንኙነቶች ያስተላልፋል፤ በአካባቢዎ አውታረ መረብ ላይ ወዳሉ እንደ ራውተርዎ ያሉ መሣሪያዎች የሚደረጉትንም ጨምሮ።",
+  "appleNoticeTitle": "ከመጀመርዎ በፊት",
+  "appleNoticeBody": "Shroudly የመተግበሪያዎችዎን ግንኙነቶች በዚህ መሣሪያ ላይ ብቻ በሚሠራው ሞተሩ በኩል እንዲያስተላልፍ የVPN ውቅረት ያክላል። የShroudly አገልጋይም መለያም የለም፤ Shroudly ምንም መረጃ አይሰበስብም፦ የሚጎበኟቸው ድረ-ገጾች አይመዘገቡም ወደ እኛም አይላኩም። ስሞች በተመሰጠረ DNS በሕዝብ ሪዞልቨሮች (Cloudflare, Google, AdGuard, OpenDNS, DNS.SB) ይፈለጋሉ።",
+  "appleNoticeContinue": "ቀጥል"
 }

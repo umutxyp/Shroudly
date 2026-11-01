@@ -680,5 +680,14 @@
   "logWinhttpCleared": "Proksi WinHTTP Windows dikosongkan",
   "logWinhttpNotCleared": "Proksi WinHTTP Windows tidak dapat dikosongkan (tiada kebenaran pentadbir)",
   "stratNone": "Mati (DNS tersulit sahaja)",
-  "languageSystem": "Lalai sistem"
+  "languageSystem": "Lalai sistem",
+  "appleKeepOn": "Kekalkan perlindungan hidup",
+  "appleKeepOnDesc": "Jika perlindungan terputus atau peranti dimulakan semula, ia hidup semula sendiri sehingga anda menghentikannya.",
+  "appleLanguageDesc": "Shroudly menggunakan bahasa peranti anda. Anda boleh memilih bahasa lain untuk Shroudly sahaja dalam tetapan sistem.",
+  "appleOpenSettings": "Buka Tetapan",
+  "appleVpnRevoked": "Perlindungan dimatikan oleh sistem, biasanya kerana aplikasi VPN lain dihidupkan.",
+  "appleLocalNetworkUsage": "Shroudly membawa sambungan aplikasi anda, termasuk sambungan ke peranti dalam rangkaian setempat anda, seperti penghala.",
+  "appleNoticeTitle": "Sebelum bermula",
+  "appleNoticeBody": "Shroudly menambah konfigurasi VPN supaya dapat membawa sambungan aplikasi anda melalui enjinnya, yang hanya berjalan pada peranti ini. Tiada pelayan Shroudly dan tiada akaun, dan Shroudly tidak mengumpul sebarang data: laman yang anda lawati tidak direkodkan atau dihantar kepada kami. Nama dicari melalui DNS tersulit di penyelesai awam (Cloudflare, Google, AdGuard, OpenDNS, DNS.SB).",
+  "appleNoticeContinue": "Teruskan"
 }

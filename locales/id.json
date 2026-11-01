@@ -680,5 +680,14 @@
   "logWinhttpCleared": "Proxy WinHTTP Windows dihapus",
   "logWinhttpNotCleared": "Proxy WinHTTP Windows tidak bisa dihapus (izin administrator tidak diberikan)",
   "stratNone": "Mati (hanya DNS terenkripsi)",
-  "languageSystem": "Bawaan sistem"
+  "languageSystem": "Bawaan sistem",
+  "appleKeepOn": "Biarkan perlindungan tetap aktif",
+  "appleKeepOnDesc": "Jika perlindungan terputus atau perangkat dinyalakan ulang, perlindungan menyala lagi sendiri sampai Anda menghentikannya.",
+  "appleLanguageDesc": "Shroudly memakai bahasa perangkat Anda. Anda bisa memilih bahasa lain khusus untuk Shroudly di pengaturan sistem.",
+  "appleOpenSettings": "Buka Pengaturan",
+  "appleVpnRevoked": "Perlindungan dimatikan oleh sistem, biasanya karena aplikasi VPN lain dinyalakan.",
+  "appleLocalNetworkUsage": "Shroudly meneruskan koneksi aplikasi Anda, termasuk koneksi ke perangkat di jaringan lokal Anda, seperti router.",
+  "appleNoticeTitle": "Sebelum mulai",
+  "appleNoticeBody": "Shroudly menambahkan konfigurasi VPN agar dapat membawa koneksi aplikasi Anda melalui mesinnya, yang hanya berjalan di perangkat ini. Tidak ada server Shroudly dan tidak ada akun, dan Shroudly tidak mengumpulkan data apa pun: situs yang Anda kunjungi tidak dicatat atau dikirim ke kami. Nama dicari melalui DNS terenkripsi di resolver publik (Cloudflare, Google, AdGuard, OpenDNS, DNS.SB).",
+  "appleNoticeContinue": "Lanjutkan"
 }

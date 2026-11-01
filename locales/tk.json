@@ -680,5 +680,14 @@
   "logWinhttpCleared": "Windows-yň WinHTTP proksisi arassalandy",
   "logWinhttpNotCleared": "Windows-yň WinHTTP proksisini arassalap bolmady (administratoryň rugsady berilmedi)",
   "stratNone": "Öçürilen (diňe şifrlenen DNS)",
-  "languageSystem": "Ulgamdaky ýaly"
+  "languageSystem": "Ulgamdaky ýaly",
+  "appleKeepOn": "Goragy açyk sakla",
+  "appleKeepOnDesc": "Gorag kesilse ýa-da enjam täzeden açylsa, siz ony duruzýançaňyz özi gaýtadan açylýar.",
+  "appleLanguageDesc": "Shroudly enjamyňyzyň dilini ulanýar. Diňe Shroudly üçin başga dili ulgam sazlamalarynda saýlap bilersiňiz.",
+  "appleOpenSettings": "Sazlamalary aç",
+  "appleVpnRevoked": "Gorag ulgam tarapyndan öçürildi, adatça başga VPN programmasy açylandygy sebäpli.",
+  "appleLocalNetworkUsage": "Shroudly programmalaryňyzyň baglanyşyklaryny, şol sanda ýerli toruňyzdaky enjamlara, meselem, routere baglanyşyklary geçirýär.",
+  "appleNoticeTitle": "Başlamazdan öň",
+  "appleNoticeBody": "Shroudly programmalaryňyzyň baglanyşyklaryny diňe şu enjamda işleýän öz hereketlendirijisi arkaly geçirmek üçin VPN sazlamasyny goşýar. Shroudly serweri hem hasaby ýok, Shroudly hiç hili maglumat ýygnamaýar: girýän saýtlaryňyz ýazylmaýar we bize iberilmeýär. Atlar şifrlenen DNS arkaly umumy rezolwerlerde (Cloudflare, Google, AdGuard, OpenDNS, DNS.SB) gözlenýär.",
+  "appleNoticeContinue": "Dowam et"
 }

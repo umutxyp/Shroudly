@@ -680,5 +680,14 @@
   "logWinhttpCleared": "Windows کی WinHTTP پراکسی صاف کر دی گئی",
   "logWinhttpNotCleared": "Windows کی WinHTTP پراکسی صاف نہیں ہو سکی (منتظم کی اجازت نہیں ملی)",
   "stratNone": "بند (صرف خفیہ DNS)",
-  "languageSystem": "سسٹم کی ڈیفالٹ"
+  "languageSystem": "سسٹم کی ڈیفالٹ",
+  "appleKeepOn": "تحفظ آن رکھیں",
+  "appleKeepOnDesc": "اگر تحفظ ٹوٹ جائے یا ڈیوائس دوبارہ شروع ہو، تو جب تک آپ اسے بند نہ کریں یہ خود بخود دوبارہ آن ہو جاتا ہے۔",
+  "appleLanguageDesc": "Shroudly آپ کی ڈیوائس کی زبان استعمال کرتا ہے۔ صرف Shroudly کے لیے کوئی اور زبان سسٹم کی سیٹنگز میں چن سکتے ہیں۔",
+  "appleOpenSettings": "سیٹنگز کھولیں",
+  "appleVpnRevoked": "سسٹم نے تحفظ بند کر دیا، عموماً اس لیے کہ کوئی دوسری VPN ایپ آن کی گئی۔",
+  "appleLocalNetworkUsage": "Shroudly آپ کی ایپس کے کنکشن آگے پہنچاتا ہے، جن میں آپ کے لوکل نیٹ ورک کے آلات، جیسے راؤٹر، تک کے کنکشن بھی شامل ہیں۔",
+  "appleNoticeTitle": "شروع کرنے سے پہلے",
+  "appleNoticeBody": "Shroudly ایک VPN کنفیگریشن شامل کرتا ہے تاکہ آپ کی ایپس کے کنکشن اپنے انجن کے ذریعے لے جا سکے، جو صرف اسی ڈیوائس پر چلتا ہے۔ Shroudly کا کوئی سرور نہیں اور کوئی اکاؤنٹ نہیں، اور Shroudly کوئی ڈیٹا جمع نہیں کرتا: آپ جن سائٹس پر جاتے ہیں وہ نہ ریکارڈ ہوتی ہیں نہ ہمیں بھیجی جاتی ہیں۔ نام انکرپٹڈ DNS کے ذریعے عوامی ریزولورز (Cloudflare، Google، AdGuard، OpenDNS، DNS.SB) سے تلاش کیے جاتے ہیں۔",
+  "appleNoticeContinue": "جاری رکھیں"
 }
