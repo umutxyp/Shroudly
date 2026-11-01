@@ -110,6 +110,9 @@ export default function BlockedNotice({ onNavigate, active = false, proxyInPanel
   const [recovery, setRecovery] = useState(null); // macOS: settings from before a restart, still to put back
   const [discord, setDiscord] = useState(null);
   const [apps, setApps] = useState(null);
+  // macOS: run from its disk image or Downloads (main.js outsideApplications).
+  const [moveApp, setMoveApp] = useState(false);
+  const [moving, setMoving] = useState(false);
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState(null);     // the autopilot's latest: { id, params, at }
   const [advice, setAdvice] = useState(null);
@@ -156,6 +159,10 @@ export default function BlockedNotice({ onNavigate, active = false, proxyInPanel
     if (['autoAdvancedOn', 'autoAroundOn', 'autoAroundOnAny'].includes(n.id)) setHost(null);
     refreshAdv(); refreshApps(); refreshDiscord();
   };
+
+  useEffect(() => {
+    window.electron?.appPlacement?.().then((p) => setMoveApp(!!(p && p.move))).catch(() => {});
+  }, []);
 
   useEffect(() => {
     if (typeof window === 'undefined' || !window.electron?.onSiteBlocked) return undefined;
@@ -214,6 +221,25 @@ export default function BlockedNotice({ onNavigate, active = false, proxyInPanel
     return <SecurityNotice info={security} t={t} onClose={() => hide(`security:${security.at}`)} closeLabel={closeLabel} />;
   }
 
+  /* macOS, run from its disk image or Downloads: starting at login and
+   * updates need it in Applications. One button moves it there, and it
+   * starts again from there by itself. */
+  if (moveApp && !hidden.moveApp) {
+    const move = async () => {
+      setMoving(true);
+      const r = await window.electron?.moveToApplications?.().catch(() => null);
+      if (!r || !r.ok) setMoving(false);
+    };
+    return (
+      <Banner tone="accent" Icon={InfoIcon} title={t('moveToAppsTitle')} body={t('moveToAppsBody')}
+              onClose={() => hide('moveApp')} closeLabel={closeLabel}>
+        <Actions>
+          <button type="button" onClick={move} disabled={moving}
+                  className="btn btn-primary rounded-[8px] px-3 py-1.5 text-[12.5px] font-semibold">{t('moveToAppsBtn')}</button>
+        </Actions>
+      </Banner>
+    );
+  }
   if (dnsAuto && !restartApps) {
     return <Banner tone="accent" Icon={ShieldAlertIcon} body={t('dnsAutoEnabledNotice', { host: dnsAuto })}
                    onClose={() => setDnsAuto(null)} closeLabel={closeLabel} />;

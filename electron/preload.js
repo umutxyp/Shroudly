@@ -11,6 +11,9 @@ contextBridge.exposeInMainWorld('electron', {
   // Settings → Application (issue #46): put right what went wrong over time,
   // or every setting back to a new install's (the app restarts).
   repairApp: () => ipcRenderer.invoke('app:repair'),
+  // macOS: run from the disk image or Downloads, and the move to Applications.
+  appPlacement: () => ipcRenderer.invoke('app:placement'),
+  moveToApplications: () => ipcRenderer.invoke('app:moveToApplications'),
   resetSettings: () => ipcRenderer.invoke('app:resetSettings'),
   // The window is closed for real when unused (see main.js): it reports use,
   // when it is listening, and is told to save before it goes.

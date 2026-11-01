@@ -47,6 +47,18 @@ const t = suite('launch');
   t.ok(!Launch.isUpdateRelaunch({ window: false }, '2.5.5', now) && !Launch.isUpdateRelaunch(null, '2.5.5', now) && !Launch.isUpdateRelaunch('x', '2.5.5', now),
     'a note that cannot say which update it was about: the window is shown');
 
+  {
+    // macOS, run from its disk image or Downloads (ML-5): nothing registered
+    // for login (the login item, the restore agent) until it is moved, and
+    // the window offers the move.
+    const fs = require('fs');
+    const main = fs.readFileSync(path.join(ROOT, 'electron', 'main.js'), 'utf8');
+    const notice = fs.readFileSync(path.join(ROOT, 'components', 'BlockedNotice.js'), 'utf8');
+    t.ok(/app\.isInApplicationsFolder\(\)/.test(main) && /if \(enable && outsideApplications\(\)\) return true;/.test(main)
+      && /restoreCommand: outsideApplications\(\) \? null : restoreCommand/.test(main) && /app\.moveToApplicationsFolder\(/.test(main),
+      'macOS outside Applications: no login item or restore agent pointing at a temporary path, and the move is there');
+    t.ok(/moveToApplications\?\.\(\)/.test(notice) && /t\('moveToAppsBtn'\)/.test(notice), 'the window offers it with one button');
+  }
   console.log(`launch: ${t.count} passed`);
   process.exit(0);
 })().catch((e) => { console.error('FAIL', e.message); process.exit(1); });

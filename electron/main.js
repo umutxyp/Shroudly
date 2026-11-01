@@ -947,6 +947,17 @@ const WIN_LEGACY_LOGIN_NAMES = ['electron.app.Shroudly', 'me.codeshare.shroudly'
 function launcherPath() { return process.env.APPIMAGE || process.execPath; }
 
 /* exe: what the Linux entry starts (an AppImage an update has just renamed). */
+/* macOS: a copy run from its disk image, or from Downloads (where App
+ * Translocation gives it a random read-only path): a login item, the
+ * restore agent and the updater would all point at a path that is gone
+ * once the disk image is ejected. The window offers the move to
+ * Applications (BlockedNotice), and nothing is registered for login until
+ * then. */
+function outsideApplications() {
+  if (process.platform !== 'darwin' || !app.isPackaged) return false;
+  try { return !app.isInApplicationsFolder(); } catch { return false; }
+}
+
 function setAutoStart(enable, exe = launcherPath()) {
   try {
     if (process.platform === 'win32') {
@@ -955,6 +966,8 @@ function setAutoStart(enable, exe = launcherPath()) {
       return true;
     }
     if (process.platform === 'darwin') {
+      // Kept as the user's choice (the setting) and registered after the move.
+      if (enable && outsideApplications()) return true;
       app.setLoginItemSettings({ openAtLogin: enable });
       return true;
     }
@@ -1046,7 +1059,10 @@ app.whenReady().then(async () => {
     // starting, in the app or a browser (autopilot.js).
     watch: Autopilot.WATCH,
     proxyOptions: {
-      stateFile: proxyStateFile(), watchdog, restoreCommand,
+      stateFile: proxyStateFile(), watchdog,
+      // Not from a disk image or a translocated copy (outsideApplications):
+      // the login agent would point at a path gone after the eject.
+      restoreCommand: outsideApplications() ? null : restoreCommand,
       // macOS's administrator password dialog says why Shroudly asks, in the
       // user's language once main-i18n.js has these strings; system-proxy.js
       // falls back to English.
@@ -1493,6 +1509,19 @@ ipcMain.handle('advanced:stop', async () => {
   if (autopilot) autopilot.userSet('advancedMode', false);
   try { await advanced.stop(); toWindow('advanced:state', { active: false }); return { success: true }; }
   catch (e) { return { success: false, error: e.message }; }
+});
+ipcMain.handle('app:placement', () => ({ move: outsideApplications() }));
+ipcMain.handle('app:moveToApplications', () => {
+  if (!outsideApplications()) return { ok: true };
+  try {
+    // A copy already there that is not running is replaced; a running one is
+    // left alone. Moved, Shroudly starts again from Applications by itself.
+    const ok = app.moveToApplicationsFolder({ conflictHandler: (kind) => kind === 'exists' });
+    return { ok };
+  } catch (e) {
+    addLog('warning', `Could not move Shroudly to Applications: ${e.message}`);
+    return { ok: false };
+  }
 });
 ipcMain.handle('dpi:status', () => ({
   active: engine ? engine.isActive() : false,
