@@ -206,7 +206,7 @@ export default function Onboarding({ onNavigate }) {
             {STEPS.map((_, n) => (
               <span
                 key={n}
-                className="h-1.5 rounded-full transition-all duration-300"
+                className="forced-mark h-1.5 rounded-full transition-all duration-300"
                 style={{ width: n === i ? 16 : 6, background: n === i ? 'var(--accent)' : 'var(--line-strong)' }}
               />
             ))}

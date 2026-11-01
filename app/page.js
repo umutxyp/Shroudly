@@ -125,7 +125,7 @@ export default function Home() {
           <img src={LOGO_SRC} alt="" draggable={false} className="h-full w-full select-none object-contain" />
           <span
             aria-hidden
-            className="absolute -end-0.5 -top-0.5 h-3 w-3 rounded-full border-2"
+            className="forced-mark absolute -end-0.5 -top-0.5 h-3 w-3 rounded-full border-2"
             style={{
               background: `var(--${tone})`,
               borderColor: 'var(--bg)',
@@ -151,7 +151,7 @@ export default function Home() {
           }}
           title={statusText}
         >
-          <span className="h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: 'currentColor' }} />
+          <span className="forced-mark h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: 'currentColor' }} />
           <span className="truncate">{statusText}</span>
         </span>
       </header>

@@ -474,6 +474,14 @@ input::placeholder { color: var(--text-faint); opacity: 1; }
 }
 
 /* Someone who asked for less transparency gets the colour without the cost. */
+/* A Windows Contrast theme (forced colours) paints every background in the
+ * theme's own colour: dots and bars drawn with a background colour alone
+ * (the status dot, the onboarding steps) vanished. They keep a mark in the
+ * theme's text colour. */
+@media (forced-colors: active) {
+  .forced-mark { forced-color-adjust: none; background: CanvasText !important; border-color: Canvas !important; }
+}
+
 @media (prefers-reduced-transparency: reduce) {
   :root[data-surface="glass"] .card,
   :root[data-surface="glass"] .card-2,
