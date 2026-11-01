@@ -71,6 +71,9 @@ for (const file of fs.readdirSync(path.join(root, 'electron'))) {
   for (const match of source.matchAll(/\b(?:tr\(\)|s)\.([a-z]\w*)/g)) if (translations.en && match[1] in translations.en) allSource += `'${match[1]}'\n`;
 }
 
+// Linux's polkit action (scripts/gen-polkit.js) reads its own keys by name.
+allSource += fs.readFileSync(path.join(root, 'scripts', 'gen-polkit.js'), 'utf8') + '\n';
+
 // The Android app uses keys as string resources (android/scripts/gen-strings.js):
 // R.string.key and @string/key, with a trailing _ where the key is a Java keyword.
 (function walkAndroid(dir) {
