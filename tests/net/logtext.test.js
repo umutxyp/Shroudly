@@ -118,6 +118,12 @@ const LINES = [
   'Advanced mode was not allowed; Shroudly will not ask by itself again for two weeks',
   'The downloaded Roblox installer was not signed by Roblox, so it was deleted and not started',
   'Update ready: it waits while Roblox or Discord goes through Shroudly, and installs once they are closed or the computer has not been used for a while',
+  // An update that could not go ahead (electron/updater.js).
+  'Update 2.6.45 could not be installed (Command pkexec exited with code 126); Shroudly carries on with version 2.6.44',
+  'Update 2.6.45 could not be installed (its signature did not check out); Shroudly carries on with version 2.6.44',
+  'Update 2.6.45 needs 446 MB of free disk space; Shroudly tries again at the next check',
+  'The downloaded update 2.6.45 is missing or damaged; downloading it again',
+  'Update 2.6.45: Shroudly cannot replace itself in /opt/apps; download it from the download page',
   'No tray on this desktop: the window is minimised instead of closed',
   'gone.example: could not be reached (DNS)',
   'gone.example: could not be reached (connection)',

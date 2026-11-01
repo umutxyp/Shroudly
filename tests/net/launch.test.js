@@ -39,6 +39,10 @@ const t = suite('launch');
   t.ok(rec.window === false && rec.from === '2.5.5' && rec.at === now, 'an update notes the window and the version it replaces');
   t.ok(Launch.isUpdateRelaunch(rec, '2.5.6', now + 20000), 'the copy the update started: the note counts');
   t.ok(!Launch.isUpdateRelaunch(rec, '2.5.5', now + 20000), 'the update never got to run: the same version, started by hand, ignores it');
+  t.ok(Launch.isUpdateRelaunch(rec, '2.5.5', now + 20000, { failed: true })
+    && W({ autoStart: false, minimizeToTray: true, afterUpdate: rec, trayShown: true }) === 'tray',
+  'macOS: opened again by the install script after its swap failed (the same version): back the way it was, no window that was closed before');
+  t.ok(!Launch.isUpdateRelaunch(rec, '2.5.5', now + Launch.AFTER_UPDATE_MS + 1000, { failed: true }), '…but not from a note of long ago');
   t.ok(!Launch.isUpdateRelaunch(rec, '2.5.6', now + Launch.AFTER_UPDATE_MS + 1000), 'a note from long ago is not about this launch');
   t.ok(!Launch.isUpdateRelaunch({ window: false }, '2.5.5', now) && !Launch.isUpdateRelaunch(null, '2.5.5', now) && !Launch.isUpdateRelaunch('x', '2.5.5', now),
     'a note that cannot say which update it was about: the window is shown');

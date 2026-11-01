@@ -104,6 +104,8 @@ let discordRelay = null;
 // Logout, shutdown or an update restart: leave Discord's line in place, so a
 // Discord that starts at the next login finds the relay as soon as we are up.
 let keepDiscordLine = false;
+// What it was before an update began, for an update that does not happen.
+let lineBeforeUpdate = false;
 let appProxy = null;
 let autopilot = null;
 let aroundWatch = null;
@@ -877,7 +879,8 @@ const WIN_LEGACY_LOGIN_NAMES = ['electron.app.Shroudly', 'me.codeshare.shroudly'
  * temporary mount that is gone after a reboot. */
 function launcherPath() { return process.env.APPIMAGE || process.execPath; }
 
-function setAutoStart(enable) {
+/* exe: what the Linux entry starts (an AppImage an update has just renamed). */
+function setAutoStart(enable, exe = launcherPath()) {
   try {
     if (process.platform === 'win32') {
       for (const name of WIN_LEGACY_LOGIN_NAMES) app.setLoginItemSettings({ openAtLogin: false, path: process.execPath, name });
@@ -894,7 +897,7 @@ function setAutoStart(enable) {
       const q = (a) => `"${String(a).replace(/(["`$\\])/g, '\\$1')}"`;
       fs.mkdirSync(dir, { recursive: true });
       fs.writeFileSync(file,
-        `[Desktop Entry]\nType=Application\nName=Shroudly\nExec=${q(launcherPath())} ${AUTOSTART_ARG}\nX-GNOME-Autostart-enabled=true\n`);
+        `[Desktop Entry]\nType=Application\nName=Shroudly\nExec=${q(exe)} ${AUTOSTART_ARG}\nX-GNOME-Autostart-enabled=true\n`);
     } else if (fs.existsSync(file)) {
       fs.unlinkSync(file);
     }
@@ -1072,7 +1075,9 @@ app.whenReady().then(async () => {
   updater = new Updater({
     log: addLog,
     store,
-    notify: (version) => notify('Shroudly', tr().notifyUpdateReady.replace('{version}', version)),
+    // "will restart to install it", or (a Linux package) "open Shroudly to
+    // install it": that install asks for a password, so only the button does.
+    notify: (version, kind) => notify('Shroudly', (kind === 'password' ? tr().notifyUpdatePassword : tr().notifyUpdateReady).replace('{version}', version)),
     // What a restart would interrupt: the Roblox player or Studio and
     // Discord, while their mode sends them through Shroudly and protection
     // is on.
@@ -1091,12 +1096,29 @@ app.whenReady().then(async () => {
     beforeInstall: async () => {
       // Back the way it was: the window only if it was open on screen.
       try { store.set('afterUpdate', Launch.afterUpdateRecord(windowAlive() && mainWindow.isVisible() && !mainWindow.isMinimized(), appVersion())); } catch {}
+      lineBeforeUpdate = keepDiscordLine;
       exitInProgress = true;
       keepDiscordLine = true;
       app.isQuitting = true;
       try { await engine.stop(); } catch {}
-      try { await advanced.stop(); } catch {}
+      // As the user's own Stop: should the install not happen, Advanced mode
+      // comes back with their next Start, without a permission prompt now.
+      try { await advancedProtection.stopped({ user: true }); } catch {}
     },
+    // The install did not happen (a password prompt dismissed, a folder it
+    // cannot write to): Shroudly carries on as before the install began,
+    // protection back on, the window's close button hiding it again.
+    onInstallFailed: () => {
+      exitInProgress = false;
+      app.isQuitting = false;
+      keepDiscordLine = lineBeforeUpdate;
+      try { store.delete('afterUpdate'); } catch {}
+      if (protectionWanted() && engine && !engine.isActive()) safeStart().catch(() => {});
+    },
+    // An AppImage update installed at a quit put the new version under its
+    // own name and deleted this file: "Start at login" follows it at once
+    // (this runs on the way out; the next start re-registers it anyway).
+    onAppImageMoved: (file) => { if (store.get('autoStart', false)) setAutoStart(true, file); },
   });
   updater.onState((s) => {
     toWindow('update:state', s);
@@ -1111,9 +1133,12 @@ app.whenReady().then(async () => {
   await trayChecked;
   const afterUpdate = store.get('afterUpdate');
   if (afterUpdate !== undefined) store.delete('afterUpdate');
+  // macOS: opened again by an install script whose swap failed, the same
+  // version still: as after an update, not as a start by hand.
+  const updateFailed = process.argv.includes(Updater.UPDATE_FAILED_ARG);
   const how = Launch.startWindow({
     autoStart: isAutoStartLaunch(), minimizeToTray: store.get('minimizeToTray', true),
-    afterUpdate: Launch.isUpdateRelaunch(afterUpdate, appVersion()) ? afterUpdate : null, trayShown: canLeave(),
+    afterUpdate: Launch.isUpdateRelaunch(afterUpdate, appVersion(), Date.now(), { failed: updateFailed }) ? afterUpdate : null, trayShown: canLeave(),
   });
   if (how === 'tray') { setDockIcon(false); addLog('info', 'Auto-started in tray'); }
   else await createWindow({ show: true, minimised: how === 'minimised' });
@@ -1161,11 +1186,12 @@ app.whenReady().then(async () => {
     // An update that has waited its limit for a game or a call installs
     // first, while nothing goes through Shroudly yet (updater.js); should
     // the install not get as far as quitting, protection starts anyway,
-    // unless the user pressed Stop in the meantime.
+    // unless the user pressed Stop in the meantime (or the failed install
+    // has started it already: onInstallFailed).
     launchStartPending = true;
     const installing = await updater.installBeforeProtection().catch(() => false);
     setTimeout(() => {
-      const started = protectionWanted() ? safeStart() : null;
+      const started = protectionWanted() && !engine.isActive() ? safeStart() : null;
       Promise.resolve(started).catch(() => {}).finally(() => { launchStartPending = false; });
     }, installing ? 60000 : 1200);
   } else {

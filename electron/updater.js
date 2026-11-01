@@ -15,9 +15,14 @@
  *   the latest*.yml files electron-builder writes next to the installers.
  * macOS: electron-updater relies on Squirrel.Mac, which only accepts apps
  *   signed with an Apple Developer ID. Shroudly is ad-hoc signed, so macOS gets
- *   its own path: read latest-mac.yml, download the zip for this CPU, verify its
- *   SHA-512, then a small script swaps the .app bundle after Shroudly quits and
- *   relaunches it.
+ *   its own path: read latest-mac.yml, download the zip for this CPU into
+ *   Shroudly's own folder, verify the SHA-512 of the file on disk, then a small
+ *   script swaps the .app bundle after Shroudly quits and relaunches it.
+ *
+ * An install that does not happen (a password prompt dismissed, a folder that
+ * cannot be written to, a download that is no longer intact) never leaves
+ * Shroudly closed or half-quit: it carries on as it was, protection back on,
+ * and says so in one line (_installFailed).
  *
  * Connections go direct first, so updates never depend on Shroudly's own
  * engine (a broken engine must still be able to fetch its fix), then through
@@ -71,6 +76,34 @@ const LATE_MS = 5000;
 const WAIT_KEY = 'updateWaiting';
 /* At launch, the most protection is held back for an update that is due. */
 const LAUNCH_INSTALL_MS = 10000;
+/* Installing quits Shroudly within a moment (electron-updater quits once the
+ * installer is on its way). Still running this long after: it did not
+ * install (_installFailed). */
+const INSTALL_QUIT_MS = 10000;
+/* A download from which nothing has arrived for this long is given up, and
+ * tried on the next route; without it a connection that went silent kept the
+ * update "downloading" for the rest of the session. */
+const STALL_MS = 60000;
+/* Free disk space a macOS update needs, as a multiple of its zip: the zip,
+ * and the app it unpacks to beside it before the swap (2.6.43: a 112 MB zip,
+ * a 262 MB app), with room to spare. */
+const SPACE_FACTOR = 4;
+/* An update whose install failed: { version }. That version is not installed
+ * by itself again, at no later start either; the user's button still can. */
+const FAILED_KEY = 'updateFailed';
+/* Downloads left by a run that never finished with them are cleared at the
+ * next start; one touched this recently may still be in use by the install
+ * script of the run that has just quit. */
+const LEFTOVER_MS = 60 * 60 * 1000;
+/* How the macOS install script opens the old app again when the swap failed
+ * (main.js: the same window as before, as after an update). */
+const UPDATE_FAILED_ARG = '--update-failed';
+/* What failed in the macOS install script, for the log. */
+const MAC_STEPS = {
+  unpack: 'the download could not be unpacked',
+  signature: 'its signature did not check out',
+  replace: 'the app could not be replaced',
+};
 
 /* Windows: the folder the update is installed into (/D=), the one this copy
  * of Shroudly runs from. Without it the installer goes by its own records,
@@ -129,13 +162,33 @@ function setSystemRoute(cfg) {
   if (routeSessions.system) routeSessions.system.setProxy(cfg).catch(() => {});
 }
 
-/* Run fn(route) for each route until one succeeds. */
+/* Run fn(route) for each route until one succeeds. A failure on this
+ * computer (e.local: the disk) would fail the same on every route. */
 async function viaRoutes(fn) {
   let last;
   for (const route of ROUTES) {
-    try { return await fn(route); } catch (e) { last = e; }
+    try { return await fn(route); } catch (e) { last = e; if (e && e.local) break; }
   }
   throw last;
+}
+
+/* The disk is full: for the user to fix, and said so (not "could not check
+ * for updates"). */
+function noSpace(e) {
+  return !!e && (e.code === 'ENOSPC' || /\bENOSPC\b|no space left/i.test(String(e.message || e)));
+}
+
+/* SHA-512 (base64, as in latest-mac.yml) of a file as it is on disk. */
+function fileSha512(file) {
+  return new Promise((resolve, reject) => {
+    const hash = crypto.createHash('sha512');
+    fs.createReadStream(file).on('error', reject).on('data', (d) => hash.update(d)).on('end', () => resolve(hash.digest('base64')));
+  });
+}
+
+/* Is the file on disk the one the feed describes, every byte of it? */
+async function fileMatches(file, { size, sha512 }) {
+  try { return fs.statSync(file).size === size && (await fileSha512(file)) === sha512; } catch { return false; }
 }
 
 async function fetchText(url, route) {
@@ -155,22 +208,47 @@ async function fetchText(url, route) {
   });
 }
 
-async function download(url, dest, onProgress, route) {
+/* Download url to dest. Resolves once the file is written and closed;
+ * rejects, exactly once, on anything else: an HTTP error, a broken
+ * connection, nothing arriving for stallMs, or the disk refusing the file
+ * (full, not writable). That last one comes as the file stream's 'error'
+ * event, which with no listener is an uncaught exception, and main.js quits
+ * Shroudly on one: a nearly full disk closed Shroudly at every update check.
+ * Whether the right file arrived is judged from the file on disk
+ * (fileMatches), never from the bytes that came in, which a write that failed
+ * partway does not show. */
+async function download(url, dest, onProgress, route, { stallMs = STALL_MS } = {}) {
   const ses = await routeSession(route);
   if (route === 'mirror') url = mirrorOf(url);
   return new Promise((resolve, reject) => {
+    let settled = false;
+    let out = null;
+    let stall = null;
     const req = net.request({ url, redirect: 'follow', session: ses });
+    const settle = (err) => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(stall);
+      if (!err) { resolve(); return; }
+      try { req.abort(); } catch {}
+      if (out) out.destroy();
+      reject(err);
+    };
+    const alive = () => { clearTimeout(stall); stall = setTimeout(() => settle(new Error('the download stalled')), stallMs); };
+    alive();
     req.on('response', (res) => {
-      if (res.statusCode !== 200) { reject(new Error(`HTTP ${res.statusCode}`)); return; }
+      if (res.statusCode !== 200) { settle(new Error(`HTTP ${res.statusCode}`)); res.resume?.(); return; }
       const total = Number(res.headers['content-length']) || 0;
       let got = 0;
-      const out = fs.createWriteStream(dest);
-      const hash = crypto.createHash('sha512');
-      res.on('data', (d) => { got += d.length; hash.update(d); out.write(d); if (total) onProgress(got / total); });
-      res.on('end', () => out.end(() => resolve(hash.digest('base64'))));
-      res.on('error', (e) => { out.destroy(); reject(e); });
+      out = fs.createWriteStream(dest);
+      out.on('error', (e) => { e.local = true; settle(e); });
+      out.on('close', () => settle(out.writableFinished ? null : new Error('the download was cut short')));
+      res.on('data', (d) => { got += d.length; alive(); if (total) onProgress(got / total); });
+      res.on('aborted', () => settle(new Error('the connection was closed')));
+      res.on('error', settle);
+      res.pipe(out);
     });
-    req.on('error', reject);
+    req.on('error', settle);
     req.end();
   });
 }
@@ -208,12 +286,26 @@ async function inUse({ protection, appMode, discordMode, robloxPlaying, discordO
   return false;
 }
 
+/* Where downloads and the note of a failed install are kept: Shroudly's own
+ * folder, not the system's temporary one, which macOS empties of anything
+ * three days old, while an update may wait longer than that (for a game, a
+ * call, or the user). */
+function updateDir() {
+  try { return path.join(app.getPath('userData'), 'update'); } catch { return path.join(os.tmpdir(), 'shroudly-updates'); }
+}
+
 class Updater {
-  constructor({ log, store, notify, beforeInstall, busy, fullScreen, away }) {
+  /* onInstallFailed: undo beforeInstall (protection back on, no longer
+   * quitting). onAppImageMoved(file): the AppImage now lives at file. */
+  constructor({ log, store, notify, beforeInstall, onInstallFailed, onAppImageMoved, busy, fullScreen, away, dir }) {
     this.log = log || (() => {});
     this.store = store;
     this.notify = notify || (() => {});
     this.beforeInstall = beforeInstall || (async () => {});
+    this.onInstallFailed = onInstallFailed || (() => {});
+    this.onAppImageMoved = onAppImageMoved || (() => {});
+    this.dir = dir || updateDir();
+    this.tmp = os.tmpdir();   // where versions before this one kept downloads
     // Is something running that a restart would cut off (a game, a call)?
     this.busy = busy || (async () => false);
     // A full-screen game or video in front (user-busy.js): the restart would
@@ -224,16 +316,28 @@ class Updater {
     this.away = away || awayFromComputer;
     this.waitTimer = null;
     this.listeners = new Set();
-    this.state = { status: 'idle', current: app.getVersion(), version: null, percent: 0, restartAt: null, error: null };
+    this.mac = process.platform === 'darwin';
+    this.asksPassword = false;   // see _initElectronUpdater
+    this.appImage = null;
+    // access() is exact on Linux (permissions, ACLs, a read-only disk), and
+    // leaves nothing behind in the user's folder.
+    this.canWrite = (d) => { try { fs.accessSync(d, fs.constants.W_OK); return true; } catch { return false; } };
+    this.told = {};
+    this.state = { status: 'idle', current: app.getVersion(), version: null, percent: 0, restartAt: null, error: null, asksPassword: false };
     this.timer = null;
     this.restartTimer = null;
-    this.mac = process.platform === 'darwin';
-    this.macDownload = null; // { zip, version }
+    this.installWatch = null;
+    this.installQuitMs = INSTALL_QUIT_MS;
+    this.stallMs = STALL_MS;
+    this.macDownload = null; // { zip, dir, version, size, sha512 }
     this.eu = null;
     this.atLaunch = false;
     this.onInstall = null;
-    // A wait for an update this version already has is over.
-    try { const w = store.get(WAIT_KEY); if (w && !newer(w.version, app.getVersion())) store.delete(WAIT_KEY); } catch {}
+    // A wait for an update this version already has is over, and so is a
+    // failed install of one.
+    for (const key of [WAIT_KEY, FAILED_KEY]) {
+      try { const w = store.get(key); if (w && !newer(w.version, app.getVersion())) store.delete(key); } catch {}
+    }
   }
 
   get auto() { return this.store.get('autoUpdate', true) !== false; }
@@ -248,6 +352,8 @@ class Updater {
 
   start() {
     if (!app.isPackaged) { this._set({ status: 'unsupported' }); return; }
+    this._readFailedNote();
+    this._clearLeftovers();
     if (!this.mac) this._initElectronUpdater();
     // Spread over the first minutes: computers started together (a classroom,
     // an internet cafe, an office after a power cut) do not all ask and
@@ -257,10 +363,26 @@ class Updater {
   }
 
   _initElectronUpdater() {
-    const { autoUpdater } = require('electron-updater');
+    // deb, rpm and pacman installs go through the system's package manager,
+    // which asks for an administrator's password (pkexec). Such an update is
+    // never installed by itself: not after a countdown, nor at a quit or a
+    // logout, where the prompt comes up with nobody expecting it, or cannot
+    // come up at all (no polkit agent on Sway, i3 or Hyprland). The user
+    // installs it with the button that says it asks for a password.
+    this.asksPassword = process.platform === 'linux' && !process.env.APPIMAGE;
+    // An AppImage is replaced where it is (electron-updater deletes it and
+    // puts the new one beside it): only in a folder this user can write to.
+    this.appImage = process.platform === 'linux' ? process.env.APPIMAGE || null : null;
+    this._set({ asksPassword: this.asksPassword });
+    this._wire(require('electron-updater').autoUpdater);
+  }
+
+  _wire(autoUpdater) {
     this.eu = autoUpdater;
     autoUpdater.autoDownload = false;          // we decide, based on the setting
-    autoUpdater.autoInstallOnAppQuit = true;   // a downloaded update installs on quit
+    // A downloaded update installs on quit, except where that asks for a
+    // password (see asksPassword).
+    autoUpdater.autoInstallOnAppQuit = !this.asksPassword;
     autoUpdater.logger = null;
     autoUpdater.on('checking-for-update', () => this._set({ status: 'checking', error: null }));
     autoUpdater.on('update-not-available', () => this._set({ status: 'up-to-date' }));
@@ -271,13 +393,84 @@ class Updater {
     });
     autoUpdater.on('download-progress', (p) => this._set({ status: 'downloading', percent: Math.round(p.percent || 0) }));
     autoUpdater.on('update-downloaded', (info) => this._downloaded(info.version));
-    autoUpdater.on('error', (e) => { if (!this.euQuiet) this._fail(e); });
+    autoUpdater.on('error', (e) => {
+      // While installing: the install's own failure, which install() and
+      // _awaitQuit report (_installFailed), not a failed check.
+      if (this.installing) { this.installError = e; return; }
+      if (!this.euQuiet) this._fail(e);
+    });
+    // An AppImage update installed at a quit leaves the new version under its
+    // own name (Shroudly-<version>-Linux-x86_64.AppImage) and deletes the old
+    // file: "Start at login" must follow it (main.js), or the next login
+    // starts a file that is gone and protection stays off without a word.
+    autoUpdater.on('appimage-filename-updated', (file) => { try { this.onAppImageMoved(file); } catch {} });
+    this._onePrompt(autoUpdater);
+  }
+
+  /* One password prompt per install. After a failed `dpkg -i`,
+   * electron-updater runs `apt-get install -f` (pacman: a refresh, then the
+   * install again), each through pkexec, so a dismissed prompt came straight
+   * back. Once the user has dismissed or refused it, or no prompt could come
+   * up (pkexec exits 126 or 127), the rest is not asked: the same failure
+   * stands for them (reset at each install). */
+  _onePrompt(eu) {
+    if (typeof eu.runCommandWithSudoIfNeeded !== 'function') return;
+    const run = eu.runCommandWithSudoIfNeeded.bind(eu);
+    eu.runCommandWithSudoIfNeeded = (cmd) => {
+      if (this.promptRefused) throw this.promptRefused;
+      try { return run(cmd); } catch (e) {
+        if (/exited with code 12[67]\b/.test(String(e && e.message))) this.promptRefused = e;
+        throw e;
+      }
+    };
   }
 
   _fail(e) {
     const msg = (e && e.message ? e.message : String(e)).split('\n')[0];
     if (msg !== this.lastLoggedError) { this.lastLoggedError = msg; this.log('warning', `Update failed: ${msg}`); }
-    this._set({ status: 'error', error: msg });
+    this._set({ status: noSpace(e) ? 'no-space' : 'error', error: msg });
+  }
+
+  /* The macOS install script failed after Shroudly had quit, and left a note
+   * ("<version> <step>"): said once, and that version is not installed by
+   * itself again. */
+  _readFailedNote() {
+    const file = path.join(this.dir, 'failed');
+    let text;
+    try { text = fs.readFileSync(file, 'utf8'); } catch { return; }
+    try { fs.rmSync(file, { force: true }); } catch {}
+    const [version, step] = text.trim().split(/\s+/);
+    if (!version || !newer(version, app.getVersion())) return;
+    this.log('warning', `Update ${version} could not be installed (${MAC_STEPS[step] || step || 'unknown'}); Shroudly carries on with version ${app.getVersion()}`);
+    this._noteFailed(version);
+  }
+
+  /* The first time for this version: a line said once, not at every check. */
+  _first(kind, version) {
+    if (this.told[kind] === version) return false;
+    this.told[kind] = version;
+    return true;
+  }
+
+  _noteFailed(version) { try { this.store.set(FAILED_KEY, { version, at: Date.now() }); } catch {} }
+
+  _failedBefore(version) {
+    try { const f = this.store.get(FAILED_KEY); return !!(f && version && f.version === version); } catch { return false; }
+  }
+
+  /* Downloads left by a run that never finished with them (Shroudly closed
+   * mid-download, an install script that failed), in our folder and in the
+   * system's temporary one, where earlier versions kept them: on a nearly
+   * full disk each left another 100 MB behind. */
+  _clearLeftovers() {
+    for (const base of [this.dir, this.tmp]) {
+      let names = [];
+      try { names = fs.readdirSync(base); } catch { continue; }
+      for (const name of names.filter((n) => n.startsWith('shroudly-update-'))) {
+        const p = path.join(base, name);
+        try { if (Date.now() - fs.statSync(p).mtimeMs > LEFTOVER_MS) fs.rmSync(p, { recursive: true, force: true }); } catch {}
+      }
+    }
   }
 
   /* electron-updater has one network session: point it at a route. */
@@ -317,6 +510,15 @@ class Updater {
 
   async download() {
     if (!this.mac) {
+      // An AppImage in a folder this user cannot write to (/opt, a system
+      // folder): the install would fail after protection had been stopped
+      // for it, again at every start. Said at once instead, with the
+      // download page.
+      if (this.appImage && !this.canWrite(path.dirname(this.appImage))) {
+        if (this._first('manual', this.state.version)) this.log('warning', `Update ${this.state.version}: Shroudly cannot replace itself in ${path.dirname(this.appImage)}; download it from the download page`);
+        this._set({ status: 'manual', reason: 'folder' });
+        return;
+      }
       this._set({ status: 'downloading', percent: 0 });
       try {
         // Keep the route the check succeeded on; fall back to the other one.
@@ -338,20 +540,44 @@ class Updater {
     const zips = feed.files.filter((f) => f.url.endsWith('.zip'));
     const file = zips.find((f) => /arm64/i.test(f.url) === arm) || zips[0];
     if (!file) { this._fail(new Error('no macOS zip in latest-mac.yml')); return; }
-    if (!this._macCanReplace()) { this._set({ status: 'manual' }); return; }
-    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'shroudly-update-'));
+    if (!this._macCanReplace()) { this._set({ status: 'manual', reason: 'location' }); return; }
+    try { fs.mkdirSync(this.dir, { recursive: true }); } catch {}
+    // Not enough room for the zip and the app it unpacks to: nothing is
+    // downloaded, and the next check (every half hour) tries again.
+    if (!this._roomFor(file.size)) {
+      if (this._first('space', feed.version)) this.log('warning', `Update ${feed.version} needs ${Math.ceil((file.size * SPACE_FACTOR) / 1048576)} MB of free disk space; Shroudly tries again at the next check`);
+      this._set({ status: 'no-space', error: null });
+      return;
+    }
+    let dir;
+    try { dir = fs.mkdtempSync(path.join(this.dir, 'shroudly-update-')); } catch (e) { this._fail(e); return; }
     const zip = path.join(dir, path.basename(file.url));
     this._set({ status: 'downloading', percent: 0 });
     try {
-      const sha = await viaRoutes((route) => download(`https://github.com/${OWNER}/${REPO}/releases/download/v${feed.version}/${file.url}`, zip,
-        (f) => this._set({ percent: Math.round(f * 100) }), route));
-      if (sha !== file.sha512) throw new Error('checksum mismatch');
-      this.macDownload = { zip, dir, version: feed.version };
+      await viaRoutes(async (route) => {
+        await download(`https://github.com/${OWNER}/${REPO}/releases/download/v${feed.version}/${file.url}`, zip,
+          (f) => this._set({ percent: Math.round(f * 100) }), route, { stallMs: this.stallMs });
+        // What is on disk, every byte of it, not what came in.
+        if (!(await fileMatches(zip, file))) throw new Error('checksum mismatch');
+      });
+      this.macDownload = { zip, dir, version: feed.version, size: file.size, sha512: file.sha512 };
       this._downloaded(feed.version);
     } catch (e) {
       fs.rmSync(dir, { recursive: true, force: true });
       this._fail(e);
     }
+  }
+
+  /* Room on the disk for a macOS update whose zip is `bytes`. Unknown
+   * counts as room. */
+  _roomFor(bytes) {
+    try { const s = fs.statfsSync(this.dir); return Number(s.bavail) * Number(s.bsize) >= bytes * SPACE_FACTOR; } catch { return true; }
+  }
+
+  /* The downloaded zip, gone (and its folder with it). */
+  _dropMacDownload() {
+    if (this.macDownload) { try { fs.rmSync(this.macDownload.dir, { recursive: true, force: true }); } catch {} }
+    this.macDownload = null;
   }
 
   _macBundle() { return path.resolve(process.execPath, '..', '..', '..'); }
@@ -367,10 +593,15 @@ class Updater {
 
   _downloaded(version) {
     this.log('success', `Update downloaded: version ${version}`);
-    this._set({ status: 'ready', version, percent: 100, restartAt: null });
+    // failed: its install failed before; the window says so beside the button.
+    const failed = this._failedBefore(version);
+    this._set({ status: 'ready', version, percent: 100, restartAt: null, failed });
     clearTimeout(this.restartTimer);
     this.restartTimer = null;
     if (this.auto) this._armRestart();
+    // Installed only with the button (asksPassword): said once, or it would
+    // wait unseen while Shroudly sits in the tray.
+    if (this.auto && this.asksPassword && !failed && this._first('ready', version)) this.notify(version, 'password');
   }
 
   /* Restarting interrupts for a few seconds what goes through Shroudly: the
@@ -380,8 +611,11 @@ class Updater {
    * wait has an end: after WAIT_LIMIT_MS the update also installs once nobody
    * is at the computer, and at the next launch before protection starts
    * (installBeforeProtection). Everything is looked at again when the
-   * countdown ends, the setting included. */
-  _mayInstall() { return this.auto && this.state.status === 'ready' && !this.installing; }
+   * countdown ends, the setting included. Never by itself: an install that
+   * asks for a password (asksPassword), or a version whose install failed
+   * before (it would fail again, and each time stop protection for it). */
+  _autoInstalls() { return this.auto && !this.asksPassword; }
+  _mayInstall() { return this._autoInstalls() && this.state.status === 'ready' && !this.state.failed && !this.installing; }
 
   _waitedMs() {
     let w = null;
@@ -484,7 +718,8 @@ class Updater {
   installBeforeProtection(ms = LAUNCH_INSTALL_MS) {
     let w = null;
     try { w = this.store.get(WAIT_KEY); } catch {}
-    if (this.mac || !this.eu || !this.auto || this.installing || this._waitedMs() < WAIT_LIMIT_MS || (w && w.route && w.route !== 'direct')) return Promise.resolve(false);
+    if (this.mac || !this.eu || !this._autoInstalls() || this.installing || this._waitedMs() < WAIT_LIMIT_MS || (w && w.route && w.route !== 'direct')
+      || this._failedBefore(w && w.version)) return Promise.resolve(false);
     return new Promise((resolve) => {
       let timer = null;
       // The check found nothing, or failed: protection starts at once.
@@ -514,47 +749,125 @@ class Updater {
     clearTimeout(this.waitTimer);
     this.restartTimer = null;
     this.waitTimer = null;
-    this.log('info', `Installing update ${this.state.version}`);
     this.installing = true;
+    // macOS: the zip may have gone or changed since it was verified (a disk
+    // tidied up, a file damaged): checked again before anything is stopped,
+    // and downloaded again if it is not the one verified. Swapping in a
+    // damaged one would leave Shroudly closed.
+    if (this.mac && !(this.macDownload && await fileMatches(this.macDownload.zip, this.macDownload))) {
+      this.installing = false;
+      this.log('warning', `The downloaded update ${this.state.version} is missing or damaged; downloading it again`);
+      this._dropMacDownload();
+      this._set({ status: 'available', restartAt: null });
+      this.download();
+      return;
+    }
+    this.log('info', `Installing update ${this.state.version}`);
     if (this.onInstall) { try { this.onInstall(); } catch {} }
+    this.installError = null;
+    this.promptRefused = null;
     await this.beforeInstall(); // stop the engine: puts the system proxy back first
     if (!this.mac) {
       // Into the folder this copy runs from (#57).
       const dir = installDirFor(process.execPath);
       if (dir) this.eu.installDirectory = dir;
-      this.eu.quitAndInstall(true, true);
+      // A failure comes as electron-updater's 'error' event, during this
+      // call (a refused password, a folder it cannot write to) or soon after
+      // (an installer that would not start), and Shroudly is not quit.
+      try { this.eu.quitAndInstall(true, true); } catch (e) { this.installError = e; }
+      if (this.installError) { this._installFailed(this.installError); return; }
+      this._awaitQuit();
       return;
     }
-    this._macSwapOnExit();
+    try { this._macSwapOnExit(); } catch (e) { this._installFailed(e); return; }
     app.exit(0);
   }
 
-  /* Called on a normal quit: a downloaded macOS update installs then. */
+  /* Installing quits Shroudly. Still running installQuitMs later: it did
+   * not install. */
+  _awaitQuit() {
+    clearTimeout(this.installWatch);
+    this.installWatch = setTimeout(() => this._installFailed(this.installError || new Error('Shroudly was not closed to install it')), this.installQuitMs);
+    try { app.once('will-quit', () => clearTimeout(this.installWatch)); } catch {}
+  }
+
+  /* The install did not happen: a password prompt dismissed or refused, no
+   * prompt possible (no polkit agent), a folder it cannot write to, an
+   * installer that would not start. beforeInstall had already stopped
+   * protection and readied Shroudly to quit, and without this it stayed so:
+   * protection off, the window's close button quitting for real, "Restart
+   * now" doing nothing for the rest of the session. main.js undoes it
+   * (onInstallFailed). The update stays downloaded for the button, which now
+   * says it failed and offers the download page; this version is not
+   * installed by itself again, here or at a later start. */
+  _installFailed(e) {
+    clearTimeout(this.installWatch);
+    this.installWatch = null;
+    if (!this.installing) return;
+    this.installing = false;
+    const msg = (e && e.message ? e.message : String(e)).split('\n')[0];
+    const version = this.state.version;
+    this.log('warning', `Update ${version} could not be installed (${msg}); Shroudly carries on with version ${app.getVersion()}`);
+    this._noteFailed(version);
+    this._set({ status: 'ready', restartAt: null, failed: true, error: msg });
+    try { this.onInstallFailed(); } catch {}
+  }
+
+  /* Called on a normal quit: a downloaded macOS update installs then. On the
+   * way out there is no time to hash it again: only that the zip is all
+   * there. The script verifies the rest, and keeps the app as it was if the
+   * update does not unpack or its signature does not check out. */
   installOnQuit() {
-    if (this.mac && this.macDownload && !this.installing) { this.installing = true; this._macSwapOnExit(false); }
+    if (!this.mac || !this.macDownload || this.installing) return;
+    try { if (fs.statSync(this.macDownload.zip).size !== this.macDownload.size) return; } catch { return; }
+    this.installing = true;
+    this._macSwapOnExit(false);
   }
 
   _macSwapOnExit(relaunch = true) {
-    const { zip, dir } = this.macDownload;
+    const { zip, dir, version } = this.macDownload;
     const bundle = this._macBundle();
     const script = path.join(dir, 'install.sh');
-    fs.writeFileSync(script, `#!/bin/sh
-# Wait for Shroudly to exit, then replace the app bundle with the verified update.
-while kill -0 "$1" 2>/dev/null; do sleep 0.3; done
-X="$3/x"; rm -rf "$X"; mkdir -p "$X"
-/usr/bin/ditto -x -k "$2" "$X" || exit 1
-NEW=$(ls -d "$X"/*.app 2>/dev/null | head -n 1)
-[ -d "$NEW" ] && /usr/bin/codesign --verify --deep --strict "$NEW" || exit 1
-rm -rf "$4.old"
-mv "$4" "$4.old" || exit 1
-if mv "$NEW" "$4"; then rm -rf "$4.old"; else mv "$4.old" "$4"; fi
-/usr/bin/xattr -dr com.apple.quarantine "$4" 2>/dev/null
-[ "$5" = 1 ] && /usr/bin/open "$4" --args --updated
-rm -rf "$3"
-`);
-    const p = spawn('/bin/sh', [script, String(process.pid), zip, dir, bundle, relaunch ? '1' : '0'], { detached: true, stdio: 'ignore' });
+    fs.writeFileSync(script, macSwapScript());
+    const p = spawn('/bin/sh', [script, String(process.pid), zip, dir, bundle, relaunch ? '1' : '0', path.join(this.dir, 'failed'), version],
+      { detached: true, stdio: 'ignore' });
     p.unref();
   }
+}
+
+/* The script that swaps the app bundle once Shroudly has quit:
+ *   $1 Shroudly's pid  $2 the zip  $3 its folder  $4 the .app  $5 1: open it afterwards
+ *   $6 where to note a failure  $7 the version
+ * Whatever fails, the app that was there stays, and is opened again when the
+ * update was to open it: before, a zip that would not unpack or a signature
+ * that did not check out ended the script with Shroudly closed for good, and
+ * protection off. The failure is noted for the next start (_readFailedNote).
+ * The tools are passed in for the tests. */
+function macSwapScript({ ditto = '/usr/bin/ditto', codesign = '/usr/bin/codesign', xattr = '/usr/bin/xattr', open = '/usr/bin/open' } = {}) {
+  return `#!/bin/sh
+# Wait for Shroudly to exit, then replace the app bundle with the verified update.
+PID="$1"; ZIP="$2"; DIR="$3"; APP="$4"; REOPEN="$5"; NOTE="$6"; VERSION="$7"
+X="$DIR/x"
+fail() {
+  echo "$VERSION $1" > "$NOTE"
+  rm -rf "$DIR"
+  [ "$REOPEN" = 1 ] && ${open} "$APP" --args ${UPDATE_FAILED_ARG}
+  exit 1
+}
+while kill -0 "$PID" 2>/dev/null; do sleep 0.3; done
+rm -rf "$X"; mkdir -p "$X" || fail unpack
+${ditto} -x -k "$ZIP" "$X" || fail unpack
+NEW=$(ls -d "$X"/*.app 2>/dev/null | head -n 1)
+[ -d "$NEW" ] || fail unpack
+${codesign} --verify --deep --strict "$NEW" || fail signature
+rm -rf "$APP.old"
+mv "$APP" "$APP.old" || fail replace
+if ! mv "$NEW" "$APP"; then mv "$APP.old" "$APP"; fail replace; fi
+rm -rf "$APP.old"
+${xattr} -dr com.apple.quarantine "$APP" 2>/dev/null
+[ "$REOPEN" = 1 ] && ${open} "$APP" --args --updated
+rm -rf "$DIR"
+`;
 }
 
 module.exports = Updater;
@@ -568,3 +881,7 @@ module.exports.restartPlan = restartPlan;
 module.exports.inUse = inUse;
 module.exports.WAIT_LIMIT_MS = WAIT_LIMIT_MS;
 module.exports.WAIT_KEY = WAIT_KEY;
+module.exports.FAILED_KEY = FAILED_KEY;
+module.exports.UPDATE_FAILED_ARG = UPDATE_FAILED_ARG;
+module.exports.download = download;
+module.exports.macSwapScript = macSwapScript;

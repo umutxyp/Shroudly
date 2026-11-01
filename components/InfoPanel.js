@@ -36,6 +36,7 @@ function updateLine(u, t) {
     case 'available': case 'manual': return t('updAvailable', { version: u.version });
     case 'downloading': return t('updDownloading', { version: u.version, percent: u.percent || 0 });
     case 'ready': return t('updReady', { version: u.version });
+    case 'no-space': return t('updNoSpace', { version: u.version });
     case 'error': return t('updError');
     case 'unsupported': return t('updUnsupported');
     default: return null;
@@ -52,7 +53,7 @@ function UpdatesSection({ version }) {
       <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
         <div className="min-w-0 flex-1">
           {version && <p className="num text-[13px] font-medium" style={{ color: 'var(--text)' }}>{t('versionLabel', { version })}</p>}
-          {line && <p className="mt-0.5 text-[12.5px] leading-snug wrap-anywhere" style={{ color: u.status === 'error' ? 'var(--warn)' : 'var(--text-dim)' }}>{line}</p>}
+          {line && <p className="mt-0.5 text-[12.5px] leading-snug wrap-anywhere" style={{ color: ['error', 'no-space'].includes(u.status) ? 'var(--warn)' : 'var(--text-dim)' }}>{line}</p>}
         </div>
         {u?.status !== 'unsupported' && (
           <button type="button" onClick={updateActions.check} disabled={busy || u?.status === 'ready'}
