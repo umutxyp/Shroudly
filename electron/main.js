@@ -53,6 +53,7 @@ const Families = require('./families');
 const ServiceCheck = require('./service-check');
 const { restoreProxy } = require('./restore-proxy');
 const SystemProxy = require('./system-proxy');
+const WinReg = require('./win-reg');
 const Watchdog = require('./watchdog');
 const DiscordLine = require('./discord-line');
 const Launch = require('./launch');
@@ -246,6 +247,8 @@ function addLog(level, message) {
   if (systemLogs.length > 500) systemLogs = systemLogs.slice(-500);
   toWindow('log:new', entry);
 }
+// reg.exe that Windows will not start: said once, in the log (win-reg.js).
+WinReg.setLog(addLog);
 
 function isAutoStartLaunch() {
   if (process.argv.includes(AUTOSTART_ARG)) return true;

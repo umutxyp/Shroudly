@@ -22,7 +22,8 @@
 const fs = require('fs');
 const net = require('net');
 const path = require('path');
-const { spawn, execFileSync } = require('child_process');
+const { spawn } = require('child_process');
+const WinReg = require('./win-reg');
 const LH = require('./link-handlers');
 
 // As app-env.js writes them (not required from there: this runs at every
@@ -142,8 +143,8 @@ function launchEnv(parent, vol, live) {
 function readVolatile() {
   const out = new Map();
   try {
-    const text = execFileSync(path.join(process.env.SystemRoot || 'C:\\Windows', 'System32', 'reg.exe'),
-      ['query', 'HKCU\\Volatile Environment'], { windowsHide: true, timeout: 10000, stdio: ['ignore', 'pipe', 'ignore'] });
+    const text = WinReg.runSync(['query', 'HKCU\\Volatile Environment'],
+      { timeout: 10000, cmd: path.join(process.env.SystemRoot || 'C:\\Windows', 'System32', 'reg.exe') });
     for (const line of String(text).split(/\r?\n/)) {
       const m = /^\s+(\S+)\s+REG_(?:EXPAND_)?SZ\s+(.*)$/.exec(line);
       if (m && m[2].trim()) out.set(m[1].toUpperCase(), m[2].trim());

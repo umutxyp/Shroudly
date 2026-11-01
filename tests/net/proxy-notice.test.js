@@ -123,6 +123,7 @@ const STATUSES = [
   { ok: false, code: 'partial_env', firefox: true, chromiumAfterRelogin: true, pacUrl: PAC },
   { ok: false, code: 'partial_env', chromiumNow: true, pacUrl: PAC },
   { ok: false, code: 'machine_policy', pacUrl: PAC },
+  { ok: false, code: 'apply_failed', refused: true, pacUrl: PAC },
 ];
 const disagree = STATUSES.filter((st) => !!(proxyNotice(st, { active: true }) || {}).notRouting === SystemProxy.routes(st));
 t.ok(!disagree.length, disagree.length ? `the window and the tray disagree on ${JSON.stringify(disagree)}`
@@ -132,6 +133,11 @@ t.ok(!SystemProxy.routes({ ok: false, code: 'needs_admin' }) && !SystemProxy.rou
 'not routed: a password needed, taken over, could not be set; a desktop set by hand is not called broken');
 const failed = show({ ok: false, code: 'apply_failed' }, { active: true });
 t.ok(failed.action === 'retry' && PROXY_ACTIONS.retry.label === 'proxyTryAgain', 'could not be set: a "Try again" button, not only "the details are in Logs"');
+// Issue #64: Windows refused the setting; protection is on with its PAC
+// served, so a browser can be pointed at it by hand meanwhile.
+const refusedNotice = show({ ok: false, code: 'apply_failed', refused: true, system: 'windows', pacUrl: PAC }, { active: true });
+t.ok(refusedNotice.notRouting && refusedNotice.action === 'retry' && refusedNotice.body === 'proxyFailedBodyPac' && refusedNotice.params.pac === PAC && /\{pac\}/.test(en.proxyFailedBodyPac),
+  'issue #64: refused by Windows: "Not working yet", Try again, and the address to set in a browser by hand (with its copy button)');
 const stuck = STATUSES.map((st) => proxyNotice(st, { active: true })).filter((n) => n && n.notRouting);
 t.ok(stuck.length && stuck.every((n) => n.action && PROXY_ACTIONS[n.action]), 'every "Not working yet" has a button that fixes it');
 // The background process: what the window asks it, the tray, the start's

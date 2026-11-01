@@ -17,6 +17,7 @@
 
 const path = require('path');
 const { execFile } = require('child_process');
+const WinReg = require('./win-reg');
 
 const KEY = 'HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\Connections';
 
@@ -60,8 +61,7 @@ function regExe() { return path.join(process.env.SystemRoot || 'C:\\Windows', 'S
 
 /* The proxy list as Windows has it now ('' none), or null. */
 function read() {
-  return new Promise((resolve) => execFile(regExe(), ['query', KEY, '/v', 'WinHttpSettings'], { windowsHide: true, timeout: 8000 },
-    (err, out) => resolve(err ? null : parse(out))));
+  return WinReg.run(['query', KEY, '/v', 'WinHttpSettings'], { timeout: 8000, cmd: regExe() }).then(parse, () => null);
 }
 
 /* "netsh winhttp reset proxy" as an administrator: Windows asks the user.

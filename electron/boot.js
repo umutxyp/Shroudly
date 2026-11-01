@@ -26,6 +26,7 @@
 const fs = require('fs');
 const os = require('os');
 const { execFileSync } = require('child_process');
+const WinReg = require('./win-reg');
 
 let cached;
 let reader = defaultReader;
@@ -37,8 +38,7 @@ function defaultReader(platform = process.platform) {
       return String(execFileSync('/usr/sbin/sysctl', ['-n', 'kern.bootsessionuuid'], { timeout: 3000, encoding: 'utf8' })).trim() || null;
     }
     if (platform === 'win32') {
-      const out = String(execFileSync('reg.exe', ['query', 'HKLM\\SYSTEM\\CurrentControlSet\\Control\\Windows', '/v', 'ShutdownTime'],
-        { timeout: 3000, encoding: 'utf8', windowsHide: true }));
+      const out = WinReg.runSync(['query', 'HKLM\\SYSTEM\\CurrentControlSet\\Control\\Windows', '/v', 'ShutdownTime'], { timeout: 3000 });
       const m = /ShutdownTime\s+REG_BINARY\s+([0-9A-F]+)/i.exec(out);
       return m ? `shutdown-${m[1].toUpperCase()}` : null;
     }

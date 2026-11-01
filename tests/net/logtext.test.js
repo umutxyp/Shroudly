@@ -216,6 +216,8 @@ const LINES = [
   'This desktop has no system proxy setting. Apps can still use SOCKS5 127.0.0.1:10808 directly (PAC: http://127.0.0.1:10840/proxy.pac).',
   'This session does not read the setting Shroudly writes for Chrome and other Chromium browsers. Apps can still use SOCKS5 127.0.0.1:10808 directly (PAC: http://127.0.0.1:10840/proxy.pac).',
   'The system proxy was not set. Apps can still use SOCKS5 127.0.0.1:10808 directly (PAC: http://127.0.0.1:10840/proxy.pac).',
+  'Windows did not let Shroudly set the system proxy (ERROR: Access is denied.). Apps can still use SOCKS5 127.0.0.1:10808 directly (PAC: http://127.0.0.1:10840/proxy.pac).',
+  'Windows does not let Shroudly start reg.exe (EPERM); Shroudly reads and writes these settings itself',
   'Could not update proxy routing: timeout',
   'Shroudly engine stopped',
   'Encrypted DNS unavailable: bind EADDRINUSE 127.0.0.1:53',

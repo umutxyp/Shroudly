@@ -75,7 +75,10 @@ export function proxyNotice(proxy, { active = false, recovery = null, advanced =
       : { id, icon: 'alert', title: 'proxyPolicyTitle', body: 'proxyPolicyBodyNoAdvanced', params: { pac }, action: 'copyPac', notRouting: true };
   }
   // Could not be set (refused, a command that failed): trying again often
-  // works once whatever held the setting lets go.
+  // works once whatever held the setting lets go. Meanwhile a browser can be
+  // pointed at Shroudly by hand: its address, with a button that copies it
+  // (issue #64: Windows refused the setting outright).
+  if (pac) return { id, icon: 'alert', body: 'proxyFailedBodyPac', params: { pac }, action: 'retry', notRouting: true };
   return { id, icon: 'alert', body: 'proxyFailedBody', action: 'retry', notRouting: true };
 }
 

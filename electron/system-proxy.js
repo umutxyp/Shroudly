@@ -61,6 +61,8 @@
  */
 
 const { execFile, execFileSync, spawn } = require('child_process');
+const WinReg = require('./win-reg');
+const { coreBinaryPath } = require('./core-path');
 const { pacRanges, pacRanges6 } = require('./raw-apps');
 
 /* This computer has a global IPv6 address (2000::/3) on some interface: it
@@ -184,6 +186,8 @@ const LXQT_GROUP = 'Environment';
  * set-back's command runs stops it, so it cannot write after the restore
  * (_retake). */
 function run(cmd, args, timeout = 8000, onChild = null) {
+  // reg.exe, or the engine where Windows will not start it (win-reg.js).
+  if (process.platform === 'win32' && WinReg.isReg(cmd)) return WinReg.run(args, { timeout, cmd });
   return new Promise((resolve, reject) => {
     const child = execFile(cmd, args, { timeout, windowsHide: true }, (err, stdout, stderr) => {
       if (err) { err.stdout = stdout; err.stderr = stderr; return reject(err); }
@@ -194,6 +198,7 @@ function run(cmd, args, timeout = 8000, onChild = null) {
 }
 
 function runSync(cmd, args, timeout = 4000) {
+  if (process.platform === 'win32' && WinReg.isReg(cmd)) return WinReg.runSync(args, { timeout, cmd });
   return String(execFileSync(cmd, args, { timeout, windowsHide: true, stdio: ['ignore', 'pipe', 'ignore'] }) || '');
 }
 
@@ -1924,8 +1929,21 @@ ${argsXml}
     // WinINET loads the PAC over HTTP (file:// PACs are rejected). The user's
     // manual proxy is left as it is (WinINET and Chromium use the PAC first),
     // unless it points at a program here that is gone.
-    this._offDeadManualWindows();
-    regSet('AutoConfigURL', 'REG_SZ', this.pacUrl);
+    try {
+      this._offDeadManualWindows();
+      regSet('AutoConfigURL', 'REG_SZ', this.pacUrl);
+    } catch (e) {
+      // Windows refused the setting even through the engine (win-reg.js): a
+      // policy or a security program. Protection runs all the same, with the
+      // PAC still served, and the window says so with its address to set in
+      // a browser by hand (proxyNotice.js); up to 2.6.45 protection did not
+      // start at all (issue #64). Nothing of ours was written: no restore is
+      // armed for it, and the record of the user's own values stays.
+      try { this._unarm(); } catch {}
+      const why = String((e && (e.code || (e.stderr && String(e.stderr).trim()) || e.message)) || 'refused').split(/\r?\n/)[0].slice(0, 120);
+      return { ok: false, code: 'apply_failed', system: 'windows', refused: true,
+        detail: `Windows did not let Shroudly set the system proxy (${why}).` };
+    }
     this._takeOverInherited();
     this._refreshWinInet();
     // Written, and read back as set, but not what browsers use here: said
@@ -2013,7 +2031,12 @@ $t = Add-Type -MemberDefinition $sig -Name WinINet -Namespace Net -PassThru
 [void]$t::InternetSetOption([IntPtr]::Zero, 39, [IntPtr]::Zero, 0)
 [void]$t::InternetSetOption([IntPtr]::Zero, 37, [IntPtr]::Zero, 0)
 `;
-    exec.spawnDetached('powershell.exe', ['-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass', '-Command', ps]);
+    // The engine tells WinINET itself (core/src/winreg.c): no PowerShell,
+    // which a policy may block as it blocks reg.exe, and whose inline C#
+    // security programs eye. PowerShell only where the engine is missing.
+    const core = coreBinaryPath();
+    if (fs.existsSync(core)) exec.spawnDetached(core, ['--reg', 'refresh']);
+    else exec.spawnDetached('powershell.exe', ['-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass', '-Command', ps]);
   }
 
   // ── macOS (networksetup) ───────────────────────────────────────────────

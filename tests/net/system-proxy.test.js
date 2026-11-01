@@ -92,6 +92,9 @@ function fakeExec(handlers) {
   };
 }
 const ran = (fx, cmd) => fx.calls.filter((c) => c[0] === cmd);
+// WinINET told the setting changed: by the engine (--reg refresh), or
+// PowerShell where the engine is missing.
+const refreshes = (fx) => fx.calls.filter((c) => c[0] === 'powershell.exe' || (c[1] === '--reg' && c[2] === 'refresh')).length;
 
 /* reg.exe over a Map, printing what reg.exe prints. */
 function fakeReg(values) {
@@ -271,6 +274,49 @@ const readState = (file) => { try { return JSON.parse(fs.readFileSync(file, 'utf
       want === 'ok' ? `Windows: ProxySettingsPerUser ${data === null ? 'not set' : `1 (${where})`}: protected as usual`
         : `Windows (M3): the per-machine proxy policy (${where === 'Policies' ? 'Group Policy' : "the machine's own setting"}): "Not working yet", said in Logs, the PAC still written and put back`);
   }
+  // Issue #64: Windows refuses the setting outright (reg.exe and the engine
+  // both: a policy, a security program). Protection runs all the same, the
+  // PAC still served for a browser set by hand, "Not working yet" with the
+  // reason in Logs; nothing armed for a restore of a value never written,
+  // and the user's own values untouched. Up to 2.6.45 the start failed.
+  {
+    const reg = new Map([['ProxyEnable', { type: 'REG_DWORD', data: '0x1' }], ['ProxyServer', { type: 'REG_SZ', data: 'corp-proxy:8080' }]]);
+    const before = JSON.stringify([...reg]);
+    const user = fakeReg(reg);
+    const fx = fakeExec({ 'reg.exe': (args) => {
+      if (args[0] === 'add') { const e = new Error('ERROR: Access is denied.'); e.status = 1; e.stderr = 'ERROR: Access is denied.'; throw e; }
+      return user(args);
+    } });
+    fx.listening = () => false;
+    SystemProxy._setExec(fx);
+    const log = logs();
+    const file = stateFile('win-refused');
+    const sp = new SystemProxy(log, { platform: 'win32', stateFile: file });
+    let threw = null;
+    let st = null;
+    try { st = await sp.apply(10808, 'all'); } catch (e) { threw = e; }
+    const served = await new Promise((resolve) => {
+      require('http').get(sp.pacUrl, (r) => { let b = ''; r.on('data', (d) => { b += d; }); r.on('end', () => resolve(/SOCKS5? 127\.0\.0\.1:10808|PROXY 127\.0\.0\.1:10808/.test(b))); }).on('error', () => resolve(false));
+    });
+    const said = log.lines.some((l) => /^warning: Windows did not let Shroudly set the system proxy \(ERROR: Access is denied\.\)\. Apps can still use SOCKS5 127\.0\.0\.1:10808 directly \(PAC: \S+\)\.$/.test(l));
+    t.ok(!threw && st && st.code === 'apply_failed' && st.refused === true && !SystemProxy.routes(st) && st.pacUrl === sp.pacUrl,
+      `Windows refuses the proxy setting (issue #64): protection still starts, "Not working yet"${threw ? ` (threw: ${threw.message})` : ''}`);
+    t.ok(served && said && !fs.existsSync(file) && JSON.stringify([...reg]) === before,
+      '…the PAC still served for a browser set by hand, the reason in Logs, no restore armed, the user\'s own proxy untouched');
+    await sp.restore();
+    t.ok(JSON.stringify([...reg]) === before, '…and Stop changes nothing of theirs either');
+    // Set as usual: WinINET is told by the engine, not by PowerShell (which a
+    // policy may block too, and whose inline C# security programs eye).
+    const reg2 = new Map();
+    const fx2 = fakeExec({ 'reg.exe': fakeReg(reg2) });
+    fx2.listening = () => false;
+    SystemProxy._setExec(fx2);
+    const sp2 = new SystemProxy(() => {}, { platform: 'win32', stateFile: stateFile('win-refresh') });
+    await sp2.apply(10808, 'all');
+    t.ok(fx2.calls.some((c) => /^shroudly-core/.test(c[0]) && c[1] === '--reg' && c[2] === 'refresh') && !ran(fx2, 'powershell.exe').length,
+      'Windows: WinINET is told of the change by the engine (--reg refresh), with no PowerShell');
+    await sp2.restore();
+  }
   // Windows: a manual proxy of a program on this computer that is gone
   // (ByeDPI's 127.0.0.1:1080, left behind when it was closed). Windows would
   // send everything to nothing once our PAC is gone, and programs that read
@@ -428,7 +474,7 @@ const readState = (file) => { try { return JSON.parse(fs.readFileSync(file, 'utf
         'Windows: read back every 20 s (one reg.exe query), elsewhere every minute');
       const queries = () => ran(fx, 'reg.exe').filter((c) => c[1] === 'query').length;
       const q0 = queries();
-      const ps0 = ran(fx, 'powershell.exe').length;
+      const ps0 = refreshes(fx);
       await sleep(150);
       t.ok(seen.length === 0 && queries() > q0, 'ownership: our PAC in place, nothing reported (one reg query per check)');
       reg.set('AutoConfigURL', { type: 'REG_SZ', data: 'http://wpad.example/proxy.pac' });
@@ -438,7 +484,7 @@ const readState = (file) => { try { return JSON.parse(fs.readFileSync(file, 'utf
       reg.set('AutoConfigURL', { type: 'REG_SZ', data: sp.pacUrl });
       await sleep(150);
       t.ok(seen.length === 2 && seen[1][0] === true, 'ownership: and its coming back');
-      t.ok(ps0 > 0 && ran(fx, 'powershell.exe').length === ps0, 'ownership: no PowerShell on the timer (WinINET is told only on apply, restore and setting it back)');
+      t.ok(ps0 > 0 && refreshes(fx) === ps0, 'ownership: WinINET not told on the timer (only on apply, restore and setting it back)');
       await sp.restore();
       t.ok(!sp._ownTimer, 'ownership: the check stops with the restore');
     }
@@ -464,7 +510,7 @@ const readState = (file) => { try { return JSON.parse(fs.readFileSync(file, 'utf
           whoTookIt: async (tk) => { asked.push(tk.kind); return who; } });
         await sp.apply(10808, 'all');
         const url = sp.pacUrl;
-        const ps0 = ran(fx, 'powershell.exe').length;
+        const ps0 = refreshes(fx);
         const state0 = readText(file);
         take();
         const lost = await sp.checkOwnership();
@@ -474,7 +520,7 @@ const readState = (file) => { try { return JSON.parse(fs.readFileSync(file, 'utf
           && asked.length === 1 && !log.lines.some((l) => l.includes('user=me')),
           `issue #27/#29 (${why}): one line says so, from the first time with what it was changed to${who.length ? ' and the program' : ''} (${log.lines.filter((l) => l.includes('system proxy')).join('|')})`);
         t.ok(readText(file) === state0 && readState(file).snapshot.AutoConfigURL.data === 'http://wpad.corp/proxy.pac' && sp.pacUrl === url
-          && reg.get('ProxyServer').data === 'corp-proxy:8080' && reg.get('ProxyEnable').data === '0x1' && ran(fx, 'powershell.exe').length === ps0 + 1,
+          && reg.get('ProxyServer').data === 'corp-proxy:8080' && reg.get('ProxyEnable').data === '0x1' && refreshes(fx) === ps0 + 1,
         `issue #27 (${why}): the user's own settings are still what Stop puts back, the manual proxy under ours untouched, WinINET told once`);
         await sp.restore();
         t.ok(JSON.stringify([...reg]) === before && !fs.existsSync(file), `issue #27 (${why}): …and Stop puts exactly those back`);

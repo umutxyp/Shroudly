@@ -185,21 +185,7 @@ const WAKE_QUIET_MS = 30000;
 // then is the network's (see _onLine 'blocked').
 const OPENED_RECENTLY_MS = 30 * 60 * 1000;
 
-function coreBinaryPath() {
-  const plat = process.platform;              // win32 | darwin | linux
-  const arch = process.arch === 'arm64' ? 'arm64' : 'x64';
-  const dir = `${plat}-${arch}`;
-  const bin = plat === 'win32' ? 'shroudly-core.exe' : 'shroudly-core';
-
-  // Packaged: resources/app.asar.unpacked/electron/tools/core/<dir>/bin
-  const rel = path.join('electron', 'tools', 'core', dir, bin);
-  const packaged = __dirname.includes('app.asar');
-  if (packaged) {
-    const res = process.resourcesPath || path.join(__dirname, '..', '..', '..');
-    return path.join(res, 'app.asar.unpacked', rel);
-  }
-  return path.join(__dirname, 'tools', 'core', dir, bin);
-}
+const { coreBinaryPath } = require('./core-path');
 
 class EngineManager {
   constructor(store, hooks = {}) {

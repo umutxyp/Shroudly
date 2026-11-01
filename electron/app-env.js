@@ -43,6 +43,7 @@
  */
 
 const { execFileSync, spawn } = require('child_process');
+const WinReg = require('./win-reg');
 const { envFor } = require('./win-powershell');
 const fs = require('fs');
 const os = require('os');
@@ -85,6 +86,8 @@ const WIN_RUNONCE_KEY = 'HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run
 const WIN_RUNONCE_VALUE = 'ShroudlyAppEnvRestore';
 
 function runSync(cmd, args, timeout = 4000) {
+  // reg.exe, or the engine where Windows will not start it (win-reg.js).
+  if (process.platform === 'win32' && WinReg.isReg(cmd)) return WinReg.runSync(args, { timeout, cmd });
   return String(execFileSync(cmd, args, { timeout, windowsHide: true, stdio: ['ignore', 'pipe', 'ignore'] }) || '');
 }
 

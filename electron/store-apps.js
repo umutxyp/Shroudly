@@ -56,6 +56,7 @@ const fs = require('fs');
 const os = require('os');
 const path = require('path');
 const { execFile } = require('child_process');
+const WinReg = require('./win-reg');
 const { envFor } = require('./win-powershell');
 const { day } = require('./autopilot');
 
@@ -551,6 +552,11 @@ function launcherScript(inner) {
 }
 
 function realRun(cmd, args, timeout) {
+  // reg.exe, or the engine where Windows will not start it (win-reg.js).
+  if (process.platform === 'win32' && WinReg.isReg(cmd)) {
+    return WinReg.run(args, { timeout, cmd }).then((stdout) => ({ code: 0, timedOut: false, stdout, stderr: '' }),
+      (err) => ({ code: typeof err.status === 'number' ? err.status : (typeof err.code === 'number' ? err.code : -1), timedOut: !!err.killed, stdout: String(err.stdout || ''), stderr: String(err.stderr || err.message || '') }));
+  }
   return new Promise((resolve) => {
     try {
       // timedOut: stopped after `timeout` (for the prompt: nobody answered it).

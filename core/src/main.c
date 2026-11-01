@@ -32,6 +32,7 @@
 #include "strategy.h"
 #include "doh.h"
 #include "watchdog.h"
+#include "winreg.h"
 #include "adblock.h"
 #if defined(SHROUDLY_RAW) && defined(__linux__)
 #include "raw_linux.h"
@@ -436,6 +437,7 @@ static char **utf8_argv(int *argc) {
 int main(int argc, char **argv) {
   if (argc > 1 && !strcmp(argv[1], "--watchdog")) return watchdog_main(argc, argv);
   if (argc > 1 && !strcmp(argv[1], "--broadcast-env")) return broadcast_env();
+  if (argc > 1 && !strcmp(argv[1], "--reg")) return winreg_main(argc, argv);
 #ifdef _WIN32
   char **u = utf8_argv(&argc);
   if (u) argv = u;
