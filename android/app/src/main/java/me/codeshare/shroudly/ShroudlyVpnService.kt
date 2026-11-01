@@ -542,7 +542,9 @@ class ShroudlyVpnService : VpnService() {
             teardown()
             Protection.set(Protection.State.OFF)
             Protection.fail(res, detail)
-            notifyStopped(res)
+            // Never on: not "Protection stopped" (the reason under the title
+            // that it could not start, or the app's name over that line).
+            notifyStopped(res, title = if (res == R.string.startFailed) R.string.app_name else R.string.startFailed)
             finish()
         }
     }

@@ -74,6 +74,8 @@ class CoverageTest {
         // The notice says what the window says.
         val vpn = File(src, "java/me/codeshare/shroudly/ShroudlyVpnService.kt").readText()
         assertTrue(vpn.contains("val text = if (starting) getString(R.string.starting) else Coverage.text(this)"))
+        // A start that failed is never announced as "Protection stopped".
+        assertTrue(vpn.contains("notifyStopped(res, title = if (res == R.string.startFailed) R.string.app_name else R.string.startFailed)"))
         assertFalse(vpn.contains("getString(R.string.androidAllApps)"))
     }
 }
