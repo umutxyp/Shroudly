@@ -60,6 +60,7 @@ const { AdblockList } = require('./adblock');
 const { reveal } = require('./reveal');
 const WinHttp = require('./winhttp');
 const SecurityBlock = require('./security-block');
+const { ProtectionKeeper } = require('./protection-keeper');
 
 /* "Shroudly --restore-proxy" runs once at login after a run that never got to
  * restore the system proxy (power loss, forced reboot), and from the watchdog
@@ -103,6 +104,7 @@ let advanced = null;
 // one every half hour per host and kind (log-gate.js).
 const logGate = new LogGate();
 let updater = null;
+let keeper = null;
 let presence = null;
 let systemLogs = [];
 let exitInProgress = false;
@@ -185,11 +187,30 @@ process.on('exit', () => {
   try { engine && engine.cleanupSync(); } catch {}
   try { advanced && advanced.cleanupSync(); } catch {}
 });
+/* An error nothing caught, in one feature's event or timer: logged, and
+ * Shroudly goes on. Quitting on it left the computer without protection and
+ * without Shroudly until someone noticed. Before the start is through there
+ * is nothing to go on with, and it quits as before. The same error is
+ * logged at most once a minute. */
+let startedUp = false;
+const uncaughtSeen = new Map();
+function uncaught(err) {
+  const what = String((err && (err.stack || err.message)) || err).split('\n').slice(0, 2).join(' ').slice(0, 300);
+  const now = Date.now();
+  if (now - (uncaughtSeen.get(what) || 0) < 60000) return;
+  uncaughtSeen.set(what, now);
+  try { addLog('error', `Unexpected error, Shroudly keeps running: ${what}`); } catch {}
+}
 process.on('uncaughtException', (err) => {
   console.error('[Shroudly] uncaught:', err);
-  if (!exitInProgress) shutdownAndQuit();
+  if (exitInProgress) return;
+  if (!startedUp) { shutdownAndQuit(); return; }
+  uncaught(err);
 });
-process.on('unhandledRejection', (r) => console.error('[Shroudly] rejection:', r));
+process.on('unhandledRejection', (r) => {
+  console.error('[Shroudly] rejection:', r);
+  if (startedUp && !exitInProgress) uncaught(r);
+});
 
 /* ── helpers ─────────────────────────────────────────────────────────────── */
 /* Icons live in public/ during development; packaged builds copy them to the
@@ -363,8 +384,33 @@ function makeTrayIcon(active = false) {
       return img;
     }
     const img = nativeImage.createFromPath(trayIconPath());
-    return img.isEmpty() ? nativeImage.createEmpty() : img;
+    if (img.isEmpty()) return nativeImage.createEmpty();
+    return active ? img : grayIcon(img);
   } catch { return nativeImage.createEmpty(); }
+}
+
+/* Windows and Linux: the app's own icon, in gray and a little faded while
+ * protection is off. The notification area showed the same icon either way,
+ * so a protection that had gone off looked on. Every size the icon has is
+ * kept, so it stays sharp on any display scale. */
+function grayIcon(img) {
+  try {
+    return grayed(img);
+  } catch { return img; }
+}
+function grayed(img) {
+  const out = nativeImage.createEmpty();
+  for (const scaleFactor of img.getScaleFactors()) {
+    const { width, height } = img.getSize(scaleFactor);
+    const px = Buffer.from(img.toBitmap({ scaleFactor }));
+    for (let i = 0; i + 3 < px.length; i += 4) {
+      const g = Math.round(0.299 * px[i + 2] + 0.587 * px[i + 1] + 0.114 * px[i]);
+      px[i] = px[i + 1] = px[i + 2] = g;
+      px[i + 3] = Math.round(px[i + 3] * 0.7);
+    }
+    out.addRepresentation({ scaleFactor, width, height, buffer: px });
+  }
+  return out.isEmpty() ? img : out;
 }
 
 function systemLanguages() {
@@ -384,6 +430,7 @@ function tr() {
 function notRouting() { return !!(engine && engine.isActive() && !engine.routing()); }
 
 let trayActive = false;
+let trayLook = null;
 function rebuildTrayMenu(active = trayActive) {
   trayActive = active;
   if (!tray) return;
@@ -406,7 +453,10 @@ function rebuildTrayMenu(active = trayActive) {
   ]);
   tray.setContextMenu(menu);
   tray.setToolTip(`Shroudly — ${state}`);
-  if (process.platform === 'darwin') tray.setImage(makeTrayIcon(active));
+  // Only when it changes: a new image makes some Linux panels redraw the
+  // whole icon.
+  const look = !!active;
+  if (look !== trayLook) { trayLook = look; tray.setImage(makeTrayIcon(look)); }
 }
 
 /* The icon in the notification area (the menu bar on macOS), unless the user
@@ -417,6 +467,7 @@ const trayWanted = () => store.get('showTrayIcon', true) !== false;
 function setTrayIcon(on) {
   if (on && !tray) {
     tray = new Tray(makeTrayIcon(trayActive));
+    trayLook = !!trayActive;
     rebuildTrayMenu();
     tray.on('click', () => showWindow());
   } else if (!on && tray) {
@@ -936,6 +987,11 @@ app.whenReady().then(async () => {
   // Before anything reads the settings: a damaged file, a new install, and
   // protection from a version that let Auto mode decide (settings-file.js).
   SettingsFile.settle(store, { ...settingsOpened, packaged: app.isPackaged, autoStartNow: getAutoStartEnabled, log: addLog });
+  // Settings that cannot be written (a full disk, a folder not writable):
+  // kept for this run instead of ending it (settings-file.js), said once.
+  const unsaved = (e) => addLog('warning', `Settings cannot be saved (${(e && (e.code || e.message)) || 'unknown'}); changes last until Shroudly closes`);
+  if (settingsOpened.unsaved) unsaved(settingsOpened.unsaved);
+  else settingsOpened.onUnsaved = unsaved;
   const restoreCommand = {
     exe: launcherPath(),
     args: app.isPackaged ? [RESTORE_PROXY_ARG] : [app.getAppPath(), RESTORE_PROXY_ARG],
@@ -1078,7 +1134,9 @@ app.whenReady().then(async () => {
   // Protection as the user left it (see safeStart and below). Recovery needs
   // it: with protection off, what was written for the next login goes.
   const protectionOn = protectionWanted();
-  await engine.recover({ protectionOn });
+  // Whatever goes wrong putting back what a previous run left, the tray,
+  // the window and protection still come up.
+  try { await engine.recover({ protectionOn }); } catch (e) { addLog('warning', `Recovery at start failed: ${e.message}`); }
 
   // The relay goes through the engine while protection is on, straight to
   // Discord while it is off, and runs whenever Shroudly does.
@@ -1233,6 +1291,19 @@ app.whenReady().then(async () => {
     setTimeout(askProxyRecovery, 1500);
   }
 
+  // Protection left on that is not running (a start at login that timed
+  // out, a crash restart that failed): started again by itself
+  // (protection-keeper.js), unless an antivirus blocked the engine.
+  keeper = new ProtectionKeeper({
+    due: () => !exitInProgress && !app.isQuitting && !!engine && protectionWanted() && !engine.isActive() && !engineComing()
+      && !(engine.advice.security && engine.advice.security.part === 'engine'),
+    start: () => safeStart(),
+    log: addLog,
+    onFirst: () => notify('Shroudly', tr().notifyProtectionRetrying),
+  });
+  keeper.begin();
+  startedUp = true;
+
   if (isDev) {
     const { globalShortcut } = require('electron');
     globalShortcut.register('F12', () => mainWindow && mainWindow.webContents.toggleDevTools());
@@ -1289,6 +1360,7 @@ function onWake(why) {
   // Programs (VPN clients among them) set their proxy again at a wake: the
   // setting is read again soon, a takeover then counting from one.
   if (engine) engine.checkProxySoon();
+  if (keeper) keeper.poke().catch(() => {});
   const now = Date.now();
   if (now - lastWakeLog > 60000) {
     lastWakeLog = now;
@@ -2136,6 +2208,8 @@ setInterval(() => {
   if (now !== networkPrint) rawWatch.networkChanged();
   if (now !== networkPrint && aroundWatch) aroundWatch.networkChanged();
   if (now !== networkPrint) reachTold.clear();
+  // Protection that could not start may well start on the new network.
+  if (now !== networkPrint && keeper) keeper.poke().catch(() => {});
   // IPv6 came or went: whether the PAC sends IPv6 addresses to the engine
   // follows (system-proxy.js, hasGlobalIPv6).
   if (now !== networkPrint && engine && engine.proxy && engine.proxy.updateRouting) {

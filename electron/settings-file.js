@@ -54,8 +54,72 @@ function open(Store, { dir, now = Date.now() } = {}) {
       try { fs.copyFileSync(copy, file); out.restored = true; } catch {}
     }
   }
-  out.store = new Store({ clearInvalidConfig: true });
+  let real = null;
+  try { real = new Store({ clearInvalidConfig: true }); } catch (e) { out.unsaved = e; }
+  out.store = sparing(real || memoryStore(), (e) => {
+    if (out.unsaved) return;
+    out.unsaved = e;
+    if (out.onUnsaved) out.onUnsaved(e);
+  });
   return out;
+}
+
+/* A write that cannot reach the disk (full, read-only, a folder the user
+ * cannot write to) threw out of whatever was saving, and at a start that
+ * was the start itself: no tray, no window, no protection. Now such a value
+ * is kept for this run and read back from here, each later write tries the
+ * disk again with everything kept, and the first failure is told once
+ * (onUnsaved). Keys are taken as the code uses them: whole, without dots. */
+const GONE = Symbol('deleted');
+function sparing(store, onUnsaved = () => {}) {
+  const kept = new Map();
+  const flush = () => {
+    for (const [k, v] of kept) {
+      if (v === GONE) store.delete(k); else store.set(k, v);
+      kept.delete(k);
+    }
+  };
+  const write = (fn, k, v) => {
+    try { flush(); fn(); kept.delete(k); } catch (e) { kept.set(k, v); onUnsaved(e); }
+  };
+  return new Proxy(store, {
+    get(target, prop) {
+      if (prop === 'get') {
+        return (k, d) => {
+          if (kept.has(k)) return kept.get(k) === GONE ? d : kept.get(k);
+          return target.get(k, d);
+        };
+      }
+      if (prop === 'has') return (k) => (kept.has(k) ? kept.get(k) !== GONE : target.has(k));
+      if (prop === 'set') {
+        return (k, v) => {
+          if (k && typeof k === 'object') { for (const [kk, vv] of Object.entries(k)) write(() => target.set(kk, vv), kk, vv); return; }
+          write(() => target.set(k, v), k, v);
+        };
+      }
+      if (prop === 'delete') return (k) => write(() => target.delete(k), k, GONE);
+      if (prop === 'store') {
+        const all = { ...target.store };
+        for (const [k, v] of kept) { if (v === GONE) delete all[k]; else all[k] = v; }
+        return all;
+      }
+      if (prop === 'unsavedCount') return kept.size;
+      const v = target[prop];
+      return typeof v === 'function' ? v.bind(target) : v;
+    },
+  });
+}
+
+/* Settings that could not be opened at all: this run's only. */
+function memoryStore() {
+  const m = new Map();
+  return {
+    get: (k, d) => (m.has(k) ? m.get(k) : d),
+    set: (k, v) => { m.set(k, v); },
+    has: (k) => m.has(k),
+    delete: (k) => { m.delete(k); },
+    get store() { return Object.fromEntries(m); },
+  };
 }
 
 /* After a start that got this far: the settings as they are now, kept for
@@ -120,4 +184,4 @@ function settle(store, { firstRun = false, damaged = false, restored = false, pa
   }
 }
 
-module.exports = { open, keepCopy, settle, protectionWanted, check, FILE, COPY, PROTECTION_KEY };
+module.exports = { open, keepCopy, settle, protectionWanted, check, sparing, FILE, COPY, PROTECTION_KEY };

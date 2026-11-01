@@ -28,6 +28,12 @@ for (const f of fs.readdirSync(path.join(ROOT, 'locales')).filter((x) => x.endsW
 const { localizeLog } = load('components/logText.js');
 
 const LINES = [
+  // Protection put back by itself, settings that cannot be written, an
+  // error that no longer ends Shroudly, a recovery at start that failed.
+  'Protection is meant to be on but is not running: starting it again (try 2)',
+  'Settings cannot be saved (ENOSPC); changes last until Shroudly closes',
+  'Unexpected error, Shroudly keeps running: TypeError: x is not a function',
+  'Recovery at start failed: EACCES',
   // A DNS server of the user's own (issue #34), and proxies left behind.
   'Your DNS server is answering: tls://1.1.1.1:853 23ms',
   "Your DNS server tcp://8.8.8.8:53 does not answer (ECONNREFUSED); Shroudly's built-in encrypted DNS answers until it does",

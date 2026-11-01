@@ -160,6 +160,56 @@ try {
       `lost with no copy, the system ${sys ? 'starts' : 'does not start'} Shroudly at sign-in: kept so`);
   }
 
+  // ── settings that cannot be written (a full disk, a folder not writable) ──
+  {
+    // A store whose disk is full, then has room again.
+    let full = false;
+    class FullStore extends FileStore {
+      set(k, v) { if (full) { const e = new Error('ENOSPC: no space left on device'); e.code = 'ENOSPC'; throw e; } super.set(k, v); }
+      delete(k) { if (full) throw Object.assign(new Error('ENOSPC'), { code: 'ENOSPC' }); const s = this.store; delete s[k]; fs.writeFileSync(this.path, JSON.stringify(s)); }
+    }
+    const dir = fresh();
+    const o = SF.open(FullStore, { dir });
+    const told = [];
+    o.onUnsaved = (e) => told.push(e.code);
+    o.store.set('language', 'de');
+    full = true;
+    let threw = false;
+    try { o.store.set('runtimeActive', false); o.store.set('language', 'tr'); o.store.delete('language'); o.store.set({ autoStart: true }); } catch { threw = true; }
+    t.ok(!threw, 'a full disk: saving no longer throws out of what saved (at a start: the start itself)');
+    t.ok(o.store.get('runtimeActive') === false && o.store.get('language', 'x') === 'x' && !o.store.has('language') && o.store.get('autoStart') === true,
+      'what could not be written reads back as it was set, this run');
+    t.ok(o.store.store.autoStart === true && !('language' in o.store.store), 'and the whole store shows it too');
+    t.ok(told.join() === 'ENOSPC', 'told once, however many writes failed');
+    t.ok(read(dir, SF.FILE).language === 'de' && !('autoStart' in read(dir, SF.FILE)), 'the file keeps what it had');
+    full = false;
+    o.store.set('theme', 'dark');
+    const now = read(dir, SF.FILE);
+    t.ok(now.theme === 'dark' && now.autoStart === true && now.runtimeActive === false && !('language' in now) && o.store.unsavedCount === 0,
+      'with room again, the next write puts everything kept on disk');
+  }
+  {
+    // A store that cannot even be opened: Shroudly still starts, on this
+    // run's settings only.
+    class NoStore { constructor() { throw Object.assign(new Error('EACCES: permission denied'), { code: 'EACCES' }); } }
+    const o = SF.open(NoStore, { dir: fresh() });
+    o.store.set('protectionOn', true);
+    t.ok(o.unsaved && o.unsaved.code === 'EACCES' && o.store.get('protectionOn') === true && o.store.has('protectionOn'),
+      'settings that cannot be opened: kept in memory, and the reason is there to be logged');
+  }
+  if (process.platform !== 'win32' && process.getuid && process.getuid() !== 0) {
+    // The real store, its folder made read-only (as a full disk fails it).
+    const dir = fresh();
+    const o = SF.open(Store, { dir });
+    o.store.set('language', 'tr');
+    let told = 0;
+    o.onUnsaved = () => { told++; };
+    fs.chmodSync(dir, 0o555);
+    let threw = false;
+    try { o.store.set('runtimeActive', false); } catch { threw = true; } finally { fs.chmodSync(dir, 0o755); }
+    t.ok(!threw && told === 1 && o.store.get('runtimeActive') === false, 'the real electron-store in a folder it cannot write: no throw, told, value kept');
+  }
+
   // ── main.js opens it this way, and nowhere a store that throws ──
   const main = fs.readFileSync(path.join(ROOT, 'electron', 'main.js'), 'utf8');
   t.ok(!/new Store\(\s*\)/.test(main) && /SettingsFile\.open\(Store/.test(main) && /SettingsFile\.settle\(store/.test(main) && /SettingsFile\.keepCopy\(/.test(main),
