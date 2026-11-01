@@ -145,6 +145,9 @@ udp_dns() {
 # The address ping resolved a name (default example.com) to; ping may show
 # the name it is an alias of instead.
 resolved() { sh_ "ping -c1 -W2 ${1:-example.com}" | sed -n 's/^PING [^ ]* (\([0-9.]*\)).*/\1/p' | head -1; }
+# A stand-in address from the tunnel (TunnelConfig.MAPPED_RANGES: 198.18.0.0/15
+# but for its first /18, the interface's and the DNS's).
+stand_in() { case "$1" in 198.18.[0-9].*|198.18.[1-5][0-9].*|198.18.6[0-3].*) false ;; 198.1[89].*) true ;; *) false ;; esac; }
 
 # The same request to an address (an app that kept the address it was given).
 http_get_at() {
@@ -215,10 +218,8 @@ say "VPN interface tun0 is up"
 
 # ── through the VPN ──────────────────────────────────────────────────────
 ip="$(resolved)"
-case "$ip" in
-  198.19.*) say "example.com -> $ip (mapped by the VPN's DNS)" ;;
-  *) fail "example.com resolved to '$ip', not a mapped address" ;;
-esac
+stand_in "$ip" || fail "example.com resolved to '$ip', not a mapped address"
+say "example.com -> $ip (mapped by the VPN's DNS)"
 
 first="$(http_get)"
 grep -q '^HTTP/1' <<<"$first" || fail "HTTP through the engine failed: '$first'"
@@ -255,7 +256,7 @@ dns="$(applog | grep 'Encrypted DNS answering via' | tail -1 | sed 's/.*Encrypte
 [ -n "$dns" ] && say "$dns"
 
 # ── "Block ads and trackers" ─────────────────────────────────────────────
-# Apps' lookups get stand-in addresses from the tunnel (198.19.0.0/16) and the
+# Apps' lookups get stand-in addresses from the tunnel (198.18.0.0/15) and the
 # name reaches the engine with the connection, so on a phone a listed name is
 # stopped there: its connection is ended inside the engine (an HTTP request
 # gets 403), other names are untouched. Off by default; on: the list is
@@ -398,7 +399,7 @@ if [ "${SDK:-0}" -ge 28 ]; then
   wait_for 30 net_up || fail "HTTP with Private DNS strict failed after a tunnel restart"
   say "Private DNS strict after a tunnel restart: www.iana.org -> $(resolved www.iana.org); $(applog | grep -m1 'Asking Android' | sed 's/.*Asking/asked/')"
   sh_ "settings delete global private_dns_mode; settings delete global private_dns_specifier" >/dev/null
-  mapped_again() { case "$(resolved)" in 198.19.*) true ;; *) false ;; esac; }
+  mapped_again() { stand_in "$(resolved)"; }
   wait_for 60 mapped_again || fail "names not mapped again after Private DNS went back to automatic"
 else
   fault tunnel-stop

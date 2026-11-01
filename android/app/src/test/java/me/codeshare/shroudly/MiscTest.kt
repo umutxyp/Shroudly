@@ -139,25 +139,35 @@ class TunnelConfigTest {
         TunnelConfig.yaml(0)
     }
 
+    /* An address as a number, for the ranges' arithmetic. */
+    private fun v4(a: String): Long = a.split('.').fold(0L) { n, p -> n * 256 + p.toLong() }
+
     @Test
     fun everyAddressIsInBenchmarkSpace() {
-        // 198.18.0.0/16 for the interface and the DNS, 198.19.0.0/16 for mapped names:
-        // apart, and none of it a real host's (as carrier NAT space would be).
-        assertTrue(TunnelConfig.DNS_V4.startsWith("198.18."))
-        assertTrue(TunnelConfig.ADDRESS_V4.startsWith("198.18."))
+        // 198.18.0.0/18 for the interface and the DNS, the rest of
+        // 198.18.0.0/15 for mapped names: apart, and none of it a real host's
+        // (as carrier NAT space would be).
+        val first = v4("198.18.0.0")
+        for (a in listOf(TunnelConfig.DNS_V4, TunnelConfig.ADDRESS_V4)) assertTrue(a, v4(a) - first in 0 until 16384)
         assertEquals("198.19.0.0", TunnelConfig.MAPPED_NETWORK)
         assertEquals("255.255.192.0", TunnelConfig.MAPPED_NETMASK)
+        for (r in TunnelConfig.MAPPED_RANGES) assertTrue(r, v4(r) - first in 16384 until 131072)
     }
 
     @Test
     fun eachTunnelGetsTheNextStandInRange() {
-        // Four /18s that tile 198.19.0.0/16, each with room for the whole cache.
-        val ranges = (0 until 4).map { TunnelConfig.mappedNetwork(it) }
-        assertEquals(listOf("198.19.0.0", "198.19.64.0", "198.19.128.0", "198.19.192.0"), ranges)
-        assertEquals(TunnelConfig.mappedNetwork(0), TunnelConfig.mappedNetwork(4))
-        assertEquals(TunnelConfig.mappedNetwork(3), TunnelConfig.mappedNetwork(-1))
+        // Seven /18s, apart from each other and from the interface's, each
+        // with room for the whole cache: an address an app kept from any of
+        // the last six tunnels is in none of the new one's names.
+        val ranges = (0 until 7).map { TunnelConfig.mappedNetwork(it) }
+        assertEquals(TunnelConfig.MAPPED_RANGES, ranges)
+        assertEquals(7, ranges.toSet().size)
+        assertEquals("198.19.0.0", ranges[0])
+        for (r in ranges) assertEquals(r, 0L, v4(r) % 16384)
+        assertEquals(TunnelConfig.mappedNetwork(0), TunnelConfig.mappedNetwork(7))
+        assertEquals(TunnelConfig.mappedNetwork(6), TunnelConfig.mappedNetwork(-1))
         assertTrue(TunnelConfig.CACHE_SIZE < 16384)
-        for (i in 0 until 4) {
+        for (i in 0 until 7) {
             val y = TunnelConfig.yaml(41234, mapped = TunnelConfig.mappedNetwork(i))
             assertTrue(y, y.contains("  network: ${ranges[i]}\n  netmask: 255.255.192.0\n  cache-size: ${TunnelConfig.CACHE_SIZE}\n"))
         }

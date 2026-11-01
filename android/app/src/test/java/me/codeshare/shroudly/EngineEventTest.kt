@@ -97,7 +97,7 @@ class EngineEventTest {
     @Test
     fun theStandInRangeCoversTheTunnelsAddresses() {
         // 198.18.0.0/15 is 198.18.0.0 to 198.19.255.255.
-        for (a in listOf(TunnelConfig.ADDRESS_V4, TunnelConfig.DNS_V4, TunnelConfig.MAPPED_NETWORK)) {
+        for (a in listOf(TunnelConfig.ADDRESS_V4, TunnelConfig.DNS_V4) + TunnelConfig.MAPPED_RANGES) {
             val first = a.split('.').map { it.toInt() }
             assertTrue(a, first[0] == 198 && first[1] in 18..19)
         }

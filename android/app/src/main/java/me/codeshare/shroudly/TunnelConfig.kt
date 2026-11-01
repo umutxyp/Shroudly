@@ -12,9 +12,9 @@ package me.codeshare.shroudly
  * with the desktop's system proxy.
  *
  * Every address here is in 198.18.0.0/15, the benchmarking range (RFC 2544),
- * which no real host uses: the interface and the DNS in 198.18.0.0/16, the
- * stand-in addresses in 198.19.0.0/16. A stale stand-in address can never
- * reach a real host, as one from carrier NAT space (100.64.0.0/10) could.
+ * which no real host uses: the interface and the DNS in 198.18.0.0/18, the
+ * stand-in addresses in the rest. A stale stand-in address can never reach a
+ * real host, as one from carrier NAT space (100.64.0.0/10) could.
  *
  * hev hands stand-in addresses out in order from the start of its range, and
  * a new hev (a new session, or the tunnel restarted) starts again from the
@@ -23,7 +23,11 @@ package me.codeshare.shroudly
  * app kept for one site would soon be given to another, and the app would
  * reach the wrong site. So each hev gets the next of MAPPED_RANGES: an
  * address from before is in none of the new hev's names, the engine refuses
- * it at once (--fake-net), and the app looks the name up again.
+ * it at once (--fake-net), and the app looks the name up again. The tunnel
+ * also starts again when the phone moves to another network (2.6.42), so
+ * there are seven: with four, a phone at the edge of a Wi-Fi, dropping it
+ * and joining it again, went round them within the minute an app keeps an
+ * address.
  */
 object TunnelConfig {
     const val ADDRESS_V4 = "198.18.0.1"
@@ -31,8 +35,12 @@ object TunnelConfig {
     // The DNS server the VPN hands to apps; hev answers it itself.
     const val DNS_V4 = "198.18.0.2"
     const val MAPPED_NETWORK = "198.19.0.0"
-    /* 198.19.0.0/16 in four: 16384 addresses each, more than CACHE_SIZE. */
-    val MAPPED_RANGES = listOf("198.19.0.0", "198.19.64.0", "198.19.128.0", "198.19.192.0")
+    /* 198.18.0.0/15 in /18s, but for the first (the interface and the DNS):
+     * 16384 addresses each, more than CACHE_SIZE. */
+    val MAPPED_RANGES = listOf(
+        "198.19.0.0", "198.19.64.0", "198.19.128.0", "198.19.192.0",
+        "198.18.64.0", "198.18.128.0", "198.18.192.0",
+    )
     const val MAPPED_NETMASK = "255.255.192.0"
     // How many names hev keeps a stand-in address for at once.
     const val CACHE_SIZE = 10000
