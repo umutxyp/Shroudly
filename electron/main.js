@@ -767,8 +767,21 @@ async function createWindow({ show = true, minimised = false, quiet = false } = 
   } else {
     const indexPath = path.join(__dirname, '..', 'out', 'index.html');
     if (!fs.existsSync(indexPath)) {
-      const { dialog } = require('electron');
-      dialog.showErrorBox('Build Required', 'Build files not found.\n\nRun: npm run build');
+      if (isDev) {
+        dialog.showErrorBox('Build Required', 'Build files not found.\n\nRun: npm run build');
+      } else {
+        // An installed copy with its window's files gone (an update cut
+        // short, an antivirus): said in the user's language, with the way
+        // out, as Settings → Repair says it. It told users to "Run: npm run
+        // build", in English.
+        const s = tr();
+        const r = await dialog.showMessageBox({
+          type: 'error', noLink: true, defaultId: 0, cancelId: 1,
+          message: fillIn(s.repairFilesMissing, { files: 'index.html' }),
+          buttons: [s.repairDownload, s.trayQuit],
+        }).catch(() => ({ response: 1 }));
+        if (r.response === 0) await shell.openExternal('https://github.com/umutxyp/Shroudly/releases/latest').catch(() => {});
+      }
       app.quit();
       return;
     }
