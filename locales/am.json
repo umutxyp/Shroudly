@@ -311,6 +311,7 @@
   "autoUpdate": "ዝማኔዎችን በራስ-ሰር መጫን",
   "autoUpdateDesc": "አዲስ ስሪቶችን ከበስተጀርባ ያወርዳል እና እነሱን ለመጫን Shroudlyን እንደገና ያስጀምራል",
   "logUpdateAvailable": "ዝማኔ ይገኛል: ስሪት {version}",
+  "logAutoStartOffInWindows": "በመግቢያ ጊዜ መጀመር በWindows ውስጥ ጠፍቷል፤ Shroudly እንደጠፋ ይተወዋል",
   "logUpdateDownloaded": "ዝማኔ ወርዷል: ስሪት {version}",
   "logUpdateFailed": "ዝማኔ አልተሳካም: {detail}",
   "logUpdateInstalling": "ዝማኔ {version} በመጫን ላይ",

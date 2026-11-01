@@ -311,6 +311,7 @@
   "autoUpdate": "Насби худкори навсозиҳо",
   "autoUpdateDesc": "Версияҳои нав дар замина боргирӣ мешаванд ва Shroudly барои насби онҳо аз нав оғоз мешавад",
   "logUpdateAvailable": "Навсозӣ дастрас аст: версияи {version}",
+  "logAutoStartOffInWindows": "Оғоз ҳангоми воридшавӣ дар Windows хомӯш аст; Shroudly онро хомӯш мегузорад",
   "logUpdateDownloaded": "Навсозӣ боргирӣ шуд: версияи {version}",
   "logUpdateFailed": "Навсозӣ ноком шуд: {detail}",
   "logUpdateInstalling": "Насби навсозии {version}",

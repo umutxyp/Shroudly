@@ -311,6 +311,7 @@
   "autoUpdate": "Güncellemeleri otomatik kur",
   "autoUpdateDesc": "Yeni sürümleri arka planda indir ve kurmak için Shroudly’yi yeniden başlat",
   "logUpdateAvailable": "Güncelleme mevcut: sürüm {version}",
+  "logAutoStartOffInWindows": "Oturum açılışında başlatma Windows'ta kapatılmış; Shroudly onu kapalı bırakıyor",
   "logUpdateDownloaded": "Güncelleme indirildi: sürüm {version}",
   "logUpdateFailed": "Güncelleme başarısız: {detail}",
   "logUpdateInstalling": "Güncelleme kuruluyor: sürüm {version}",

@@ -311,6 +311,7 @@
   "autoUpdate": "Усталёўваць абнаўленні аўтаматычна",
   "autoUpdateDesc": "Спампоўваць новыя версіі ў фоне і перазапускаць Shroudly, каб іх усталяваць",
   "logUpdateAvailable": "Даступна абнаўленне: версія {version}",
+  "logAutoStartOffInWindows": "Запуск пры ўваходзе выключаны ў Windows; Shroudly пакідае яго выключаным",
   "logUpdateDownloaded": "Абнаўленне спампавана: версія {version}",
   "logUpdateFailed": "Збой абнаўлення: {detail}",
   "logUpdateInstalling": "Усталяванне абнаўлення {version}",

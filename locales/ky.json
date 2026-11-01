@@ -311,6 +311,7 @@
   "autoUpdate": "Жаңыртууларды автоматтык түрдө орнотуу",
   "autoUpdateDesc": "Жаңы версияларды фондо жүктөп алып, аларды орнотуу үчүн Shroudly программасын кайра иштетүү",
   "logUpdateAvailable": "Жаңыртуу жеткиликтүү: {version} версиясы",
+  "logAutoStartOffInWindows": "Киргенде иштетүү Windows'то өчүрүлгөн; Shroudly аны өчүк калтырат",
   "logUpdateDownloaded": "Жаңыртуу жүктөлүп алынды: {version} версиясы",
   "logUpdateFailed": "Жаңыртуу ишке ашкан жок: {detail}",
   "logUpdateInstalling": "{version} жаңыртуусу орнотулууда",

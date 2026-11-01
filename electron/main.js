@@ -960,7 +960,17 @@ function getAutoStartEnabled() {
   if (process.platform === 'linux') {
     return fs.existsSync(path.join(app.getPath('home'), '.config', 'autostart', 'shroudly.desktop'));
   }
-  try { return app.getLoginItemSettings(process.platform === 'win32' ? WIN_LOGIN_ITEM : undefined).openAtLogin; } catch { return false; }
+  try { return app.getLoginItemSettings(process.platform === 'win32' ? WIN_LOGIN_ITEM : undefined).openAtLogin && !windowsStartupOff(); } catch { return false; }
+}
+
+/* Windows: start at login turned off in Task Manager or Settings (launch.js,
+ * startupTurnedOff). Re-registering the entry at every launch turned it
+ * back on behind the user's back, Shroudly's own switch still said "on",
+ * and at a logoff Discord's line was kept for a login at which Shroudly
+ * would not start. */
+function windowsStartupOff() {
+  if (process.platform !== 'win32') return false;
+  try { return Launch.startupTurnedOff(app.getLoginItemSettings(WIN_LOGIN_ITEM), WIN_LOGIN_ITEM.name); } catch { return false; }
 }
 
 /* ── app ready ───────────────────────────────────────────────────────────── */
@@ -968,6 +978,12 @@ app.whenReady().then(async () => {
   // Before anything reads the settings: a damaged file, a new install, and
   // protection from a version that let Auto mode decide (settings-file.js).
   SettingsFile.settle(store, { ...settingsOpened, packaged: app.isPackaged, autoStartNow: getAutoStartEnabled, log: addLog });
+  // Turned off in Windows itself: off here too, and left off (the switch in
+  // Settings turns it on again, for Windows as well).
+  if (store.get('autoStart', false) === true && windowsStartupOff()) {
+    try { store.set('autoStart', false); } catch {}
+    addLog('info', 'Start at login is turned off in Windows; Shroudly leaves it off');
+  }
   const restoreCommand = {
     exe: launcherPath(),
     args: app.isPackaged ? [RESTORE_PROXY_ARG] : [app.getAppPath(), RESTORE_PROXY_ARG],
@@ -1293,7 +1309,7 @@ app.on('window-all-closed', () => { /* keep running in tray */ });
  * by itself at the next login, so a Discord that starts then does not race it.
  * Without that, a Discord opened next time would wait on "Checking for
  * updates" for a Shroudly that is not coming: the line goes, as on a quit. */
-function discordLineOutlivesSession() { return store.get('autoStart', false) === true; }
+function discordLineOutlivesSession() { return store.get('autoStart', false) === true && !windowsStartupOff(); }
 
 function restoreForSessionEnd() {
   keepDiscordLine = discordLineOutlivesSession();

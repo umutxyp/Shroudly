@@ -311,6 +311,7 @@
   "autoUpdate": "अपडेट अपने आप इंस्टॉल करें",
   "autoUpdateDesc": "नए संस्करण पृष्ठभूमि में डाउनलोड करें और इंस्टॉल करने के लिए Shroudly को फिर से शुरू करें",
   "logUpdateAvailable": "अपडेट उपलब्ध: संस्करण {version}",
+  "logAutoStartOffInWindows": "लॉगिन पर शुरू होना Windows में बंद है; Shroudly इसे बंद ही रहने देता है",
   "logUpdateDownloaded": "अपडेट डाउनलोड हुआ: संस्करण {version}",
   "logUpdateFailed": "अपडेट विफल: {detail}",
   "logUpdateInstalling": "अपडेट {version} इंस्टॉल हो रहा है",

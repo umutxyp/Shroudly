@@ -104,4 +104,16 @@ function grayPixels(buf) {
   return px;
 }
 
-module.exports = { trayVisible, afterUpdateRecord, isUpdateRelaunch, startWindow, relaunchArgs, windowHeights, grayPixels, AFTER_UPDATE_MS };
+/* Windows: Shroudly's login entry is there but turned off in Task
+ * Manager's Startup apps or in Settings > Apps > Startup, so Windows will
+ * not start it at the next login. settings: Electron's
+ * getLoginItemSettings() for that entry. Its own launch item says so
+ * (enabled: false); without one, the entry runs but not this program. */
+function startupTurnedOff(settings, name = 'Shroudly') {
+  if (!settings || !settings.openAtLogin) return false;
+  const item = (settings.launchItems || []).find((i) => i && i.name === name);
+  if (item && typeof item.enabled === 'boolean') return !item.enabled;
+  return settings.executableWillLaunchAtLogin === false;
+}
+
+module.exports = { trayVisible, afterUpdateRecord, isUpdateRelaunch, startWindow, relaunchArgs, windowHeights, grayPixels, startupTurnedOff, AFTER_UPDATE_MS };

@@ -311,6 +311,7 @@
   "autoUpdate": "Instalar actualizaciones automáticamente",
   "autoUpdateDesc": "Descargar las nuevas versiones en segundo plano y reiniciar Shroudly para instalarlas",
   "logUpdateAvailable": "Actualización disponible: versión {version}",
+  "logAutoStartOffInWindows": "El inicio al iniciar sesión está desactivado en Windows; Shroudly lo deja desactivado",
   "logUpdateDownloaded": "Actualización descargada: versión {version}",
   "logUpdateFailed": "Error al actualizar: {detail}",
   "logUpdateInstalling": "Instalando la actualización {version}",

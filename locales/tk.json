@@ -311,6 +311,7 @@
   "autoUpdate": "Täzelenmeleri awtomatik gurnamak",
   "autoUpdateDesc": "Täze wersiýalary fonda ýükläp almak we olary gurnamak üçin Shroudly-ni täzeden açmak",
   "logUpdateAvailable": "Täzelenme elýeterli: {version} wersiýasy",
+  "logAutoStartOffInWindows": "Girişde başlamak Windows-da öçürilen; Shroudly ony öçük goýýar",
   "logUpdateDownloaded": "Täzelenme ýüklenip alyndy: {version} wersiýasy",
   "logUpdateFailed": "Täzelenmede ýalňyşlyk: {detail}",
   "logUpdateInstalling": "{version} täzelenmesi gurnalýar",

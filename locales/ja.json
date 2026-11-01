@@ -311,6 +311,7 @@
   "autoUpdate": "アップデートを自動でインストール",
   "autoUpdateDesc": "新しいバージョンをバックグラウンドでダウンロードし、Shroudly を再起動してインストールします",
   "logUpdateAvailable": "アップデートがあります：バージョン {version}",
+  "logAutoStartOffInWindows": "ログイン時の起動は Windows でオフになっています。Shroudly はオフのままにします",
   "logUpdateDownloaded": "アップデートをダウンロードしました：バージョン {version}",
   "logUpdateFailed": "アップデートに失敗しました：{detail}",
   "logUpdateInstalling": "アップデート {version} をインストールしています",

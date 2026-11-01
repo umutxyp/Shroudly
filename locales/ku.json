@@ -311,6 +311,7 @@
   "autoUpdate": "Nûvekirinan bi xweber saz bike",
   "autoUpdateDesc": "Guhertoyên nû li paşperdeyê daxe û ji bo sazkirina wan Shroudly ji nû ve veke",
   "logUpdateAvailable": "Nûvekirin heye: guhertoya {version}",
+  "logAutoStartOffInWindows": "Destpêkirina dema têketinê di Windows de hatiye girtin; Shroudly wê girtî dihêle",
   "logUpdateDownloaded": "Nûvekirin hat daxistin: guhertoya {version}",
   "logUpdateFailed": "Nûvekirin bi ser neket: {detail}",
   "logUpdateInstalling": "Nûvekirina {version} tê sazkirin",

@@ -311,6 +311,7 @@
   "autoUpdate": "تثبيت التحديثات تلقائيًا",
   "autoUpdateDesc": "تنزيل الإصدارات الجديدة في الخلفية وإعادة تشغيل Shroudly لتثبيتها",
   "logUpdateAvailable": "تحديث متاح: الإصدار {version}",
+  "logAutoStartOffInWindows": "التشغيل عند تسجيل الدخول متوقف في Windows؛ يتركه Shroudly متوقفًا",
   "logUpdateDownloaded": "تم تنزيل التحديث: الإصدار {version}",
   "logUpdateFailed": "فشل التحديث: {detail}",
   "logUpdateInstalling": "جارٍ تثبيت التحديث {version}",

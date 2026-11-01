@@ -71,6 +71,17 @@ const t = suite('launch');
     '…switched with protection on every system, not only macOS');
   t.ok(/if \(!store\.get\('closeToldInTray', false\)\)/.test(main), 'closing the window says "still running in the tray" the first time only, not at every close');
 
+  // W3: start at login turned off in Task Manager or Settings stays off.
+  const off = Launch.startupTurnedOff;
+  const item = (enabled) => ({ openAtLogin: true, executableWillLaunchAtLogin: enabled, launchItems: [{ name: 'Shroudly', path: 'C:\\S\\Shroudly.exe', args: ['--autostart'], scope: 'user', enabled }] });
+  t.ok(off(item(false)) === true && off(item(true)) === false, 'turned off in Task Manager (StartupApproved): seen as off; on: on');
+  t.ok(off({ openAtLogin: false, executableWillLaunchAtLogin: false, launchItems: [] }) === false && off(null) === false,
+    'no entry at all: not "turned off in Windows" (Shroudly\'s own switch is off)');
+  t.ok(off({ openAtLogin: true, executableWillLaunchAtLogin: false }) === true, 'an Electron that lists no launch items: its own answer');
+  const mainSrc = require('fs').readFileSync(path.join(ROOT, 'electron', 'main.js'), 'utf8');
+  t.ok(/store\.get\('autoStart', false\) === true && windowsStartupOff\(\)/.test(mainSrc) && /discordLineOutlivesSession\(\) \{ return store\.get\('autoStart', false\) === true && !windowsStartupOff\(\); \}/.test(mainSrc),
+    '…then Shroudly\'s switch is off too (not turned back on at the next launch), and Discord\'s line is not kept for a login at which Shroudly will not start');
+
   console.log(`launch: ${t.count} passed`);
   process.exit(0);
 })().catch((e) => { console.error('FAIL', e.message); process.exit(1); });

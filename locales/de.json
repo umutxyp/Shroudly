@@ -311,6 +311,7 @@
   "autoUpdate": "Updates automatisch installieren",
   "autoUpdateDesc": "Neue Versionen im Hintergrund laden und Shroudly zur Installation neu starten",
   "logUpdateAvailable": "Update verfügbar: Version {version}",
+  "logAutoStartOffInWindows": "Start bei der Anmeldung ist in Windows ausgeschaltet; Shroudly lässt ihn aus",
   "logUpdateDownloaded": "Update heruntergeladen: Version {version}",
   "logUpdateFailed": "Update fehlgeschlagen: {detail}",
   "logUpdateInstalling": "Update {version} wird installiert",

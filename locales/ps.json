@@ -311,6 +311,7 @@
   "autoUpdate": "د اوسمهالونو اتومات نصبول",
   "autoUpdateDesc": "نوې نسخې په شالید کې ډاونلوډ کول او د نصبولو لپاره Shroudly بیا پیلول",
   "logUpdateAvailable": "اوسمهال شته: {version} نسخه",
+  "logAutoStartOffInWindows": "د ننوتو پر مهال پیلېدل په Windows کې بند دي؛ Shroudly يې بند پرېږدي",
   "logUpdateDownloaded": "اوسمهال ډاونلوډ شو: {version} نسخه",
   "logUpdateFailed": "اوسمهال ناکام شو: {detail}",
   "logUpdateInstalling": "د {version} اوسمهال نصبېږي",

@@ -311,6 +311,7 @@
   "autoUpdate": "ติดตั้งการอัปเดตโดยอัตโนมัติ",
   "autoUpdateDesc": "ดาวน์โหลดเวอร์ชันใหม่ในเบื้องหลังและเริ่ม Shroudly ใหม่เพื่อติดตั้ง",
   "logUpdateAvailable": "มีการอัปเดต: เวอร์ชัน {version}",
+  "logAutoStartOffInWindows": "การเริ่มเมื่อลงชื่อเข้าใช้ถูกปิดใน Windows; Shroudly จะปล่อยให้ปิดไว้",
   "logUpdateDownloaded": "ดาวน์โหลดการอัปเดตแล้ว: เวอร์ชัน {version}",
   "logUpdateFailed": "อัปเดตไม่สำเร็จ: {detail}",
   "logUpdateInstalling": "กำลังติดตั้งการอัปเดต {version}",

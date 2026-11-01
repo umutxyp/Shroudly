@@ -239,6 +239,7 @@ const PATTERNS = [
   [/^Stop failed: (.+)$/, 'logStopFailed', ['detail']],
   [/^Advanced mode failed: (.+)$/, 'logAdvancedFailed', ['detail']],
   [/^Advanced backend active \(fake TTL (\d+)\)$/, 'logAdvancedBackendActive', ['ttl']],
+  [/^Start at login is turned off in Windows; Shroudly leaves it off$/, 'logAutoStartOffInWindows', []],
   [/^Update available: version (\S+)$/, 'logUpdateAvailable', ['version']],
   [/^Update downloaded: version (\S+)$/, 'logUpdateDownloaded', ['version']],
   [/^Update failed: (.+)$/, 'logUpdateFailed', ['detail']],

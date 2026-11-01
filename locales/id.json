@@ -311,6 +311,7 @@
   "autoUpdate": "Pasang pembaruan secara otomatis",
   "autoUpdateDesc": "Unduh versi baru di latar belakang dan mulai ulang Shroudly untuk memasangnya",
   "logUpdateAvailable": "Pembaruan tersedia: versi {version}",
+  "logAutoStartOffInWindows": "Mulai saat masuk dimatikan di Windows; Shroudly membiarkannya mati",
   "logUpdateDownloaded": "Pembaruan terunduh: versi {version}",
   "logUpdateFailed": "Pembaruan gagal: {detail}",
   "logUpdateInstalling": "Memasang pembaruan {version}",

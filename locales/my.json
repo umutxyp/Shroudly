@@ -311,6 +311,7 @@
   "autoUpdate": "အပ်ဒိတ်များကို အလိုအလျောက် ထည့်သွင်းရန်",
   "autoUpdateDesc": "ဗားရှင်းအသစ်များကို နောက်ခံတွင် ဒေါင်းလုဒ်လုပ်ပြီး ထည့်သွင်းရန် Shroudly ကို ပြန်စတင်သည်",
   "logUpdateAvailable": "အပ်ဒိတ် ရနိုင်သည်: ဗားရှင်း {version}",
+  "logAutoStartOffInWindows": "ဝင်ရောက်ချိန်တွင် စတင်ခြင်းကို Windows တွင် ပိတ်ထားသည်။ Shroudly က ပိတ်ထားသည့်အတိုင်း ထားပါမည်",
   "logUpdateDownloaded": "အပ်ဒိတ် ဒေါင်းလုဒ်လုပ်ပြီး: ဗားရှင်း {version}",
   "logUpdateFailed": "အပ်ဒိတ် မအောင်မြင်ပါ: {detail}",
   "logUpdateInstalling": "အပ်ဒိတ် {version} ကို ထည့်သွင်းနေသည်",

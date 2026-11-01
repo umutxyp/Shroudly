@@ -311,6 +311,7 @@
   "autoUpdate": "התקנת עדכונים אוטומטית",
   "autoUpdateDesc": "הורדת גרסאות חדשות ברקע והפעלה מחדש של Shroudly כדי להתקין אותן",
   "logUpdateAvailable": "יש עדכון זמין: גרסה {version}",
+  "logAutoStartOffInWindows": "ההפעלה בכניסה כבויה ב-Windows; Shroudly משאיר אותה כבויה",
   "logUpdateDownloaded": "העדכון הורד: גרסה {version}",
   "logUpdateFailed": "העדכון נכשל: {detail}",
   "logUpdateInstalling": "מתקין את העדכון לגרסה {version}",

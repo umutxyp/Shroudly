@@ -311,6 +311,7 @@
   "autoUpdate": "نصب خودکار به‌روزرسانی‌ها",
   "autoUpdateDesc": "نسخه‌های جدید را در پس‌زمینه دانلود کن و برای نصب، Shroudly را دوباره راه‌اندازی کن",
   "logUpdateAvailable": "به‌روزرسانی در دسترس است: نسخهٔ {version}",
+  "logAutoStartOffInWindows": "اجرا هنگام ورود در Windows خاموش شده است؛ Shroudly آن را خاموش نگه می‌دارد",
   "logUpdateDownloaded": "به‌روزرسانی دانلود شد: نسخهٔ {version}",
   "logUpdateFailed": "به‌روزرسانی ناموفق بود: {detail}",
   "logUpdateInstalling": "در حال نصب به‌روزرسانی {version}",

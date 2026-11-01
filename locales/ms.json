@@ -311,6 +311,7 @@
   "autoUpdate": "Pasang kemas kini secara automatik",
   "autoUpdateDesc": "Muat turun versi baharu di latar belakang dan mulakan semula Shroudly untuk memasangnya",
   "logUpdateAvailable": "Kemas kini tersedia: versi {version}",
+  "logAutoStartOffInWindows": "Mula semasa log masuk dimatikan dalam Windows; Shroudly membiarkannya dimatikan",
   "logUpdateDownloaded": "Kemas kini dimuat turun: versi {version}",
   "logUpdateFailed": "Kemas kini gagal: {detail}",
   "logUpdateInstalling": "Memasang kemas kini {version}",

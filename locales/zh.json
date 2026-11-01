@@ -311,6 +311,7 @@
   "autoUpdate": "自动安装更新",
   "autoUpdateDesc": "在后台下载新版本，并重启 Shroudly 进行安装",
   "logUpdateAvailable": "有可用更新：版本 {version}",
+  "logAutoStartOffInWindows": "登录时启动已在 Windows 中关闭；Shroudly 保持关闭",
   "logUpdateDownloaded": "更新已下载：版本 {version}",
   "logUpdateFailed": "更新失败：{detail}",
   "logUpdateInstalling": "正在安装更新 {version}",

@@ -311,6 +311,7 @@
   "autoUpdate": "Tự động cài đặt bản cập nhật",
   "autoUpdateDesc": "Tải phiên bản mới trong nền và khởi động lại Shroudly để cài đặt",
   "logUpdateAvailable": "Có bản cập nhật: phiên bản {version}",
+  "logAutoStartOffInWindows": "Khởi động khi đăng nhập đã bị tắt trong Windows; Shroudly để nguyên trạng thái tắt",
   "logUpdateDownloaded": "Đã tải xuống bản cập nhật: phiên bản {version}",
   "logUpdateFailed": "Cập nhật thất bại: {detail}",
   "logUpdateInstalling": "Đang cài đặt bản cập nhật {version}",

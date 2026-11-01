@@ -311,6 +311,7 @@
   "autoUpdate": "Yeniləmələri avtomatik quraşdır",
   "autoUpdateDesc": "Yeni versiyaları arxa planda endir və quraşdırmaq üçün Shroudly-ni yenidən başlat",
   "logUpdateAvailable": "Yeniləmə mövcuddur: {version} versiyası",
+  "logAutoStartOffInWindows": "Girişdə başlatma Windows-da söndürülüb; Shroudly onu sönülü saxlayır",
   "logUpdateDownloaded": "Yeniləmə endirildi: {version} versiyası",
   "logUpdateFailed": "Yeniləmə uğursuz oldu: {detail}",
   "logUpdateInstalling": "Yeniləmə quraşdırılır: {version} versiyası",
