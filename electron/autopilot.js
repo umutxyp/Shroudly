@@ -157,6 +157,11 @@ class Autopilot {
     this.check = opts.check || (async () => null);
     this.services = opts.services || [];
     this.advanced = opts.advanced || null;
+    // Windows: whether this account can say Yes to a permission prompt
+    // (true, false, or null when it cannot tell); asked once, before the
+    // first ask for Advanced mode.
+    this.canConsent = opts.canConsent || null;
+    this.admin = null;
     this.onBlocked = opts.onBlocked || (() => {});
     this.now = opts.now || Date.now;
     this.later = opts.later || ((fn, ms) => { const t = setTimeout(fn, ms); if (t.unref) t.unref(); return t; });
@@ -478,23 +483,25 @@ class Autopilot {
     return on;
   }
 
-  /* Why Advanced mode would not be asked for now, when it is the user's to
-   * change: { reason: 'off' | 'declined' | 'noask' | 'failed', at } or null. */
-  _notAskedReason() {
+  /* Why Advanced mode would not be asked for now, when it is the user's (or
+   * an administrator's) to change: { reason: 'off' | 'declined' | 'noask' |
+   * 'failed' | 'admin', at } or null. own: from inside the ask under way. */
+  _notAskedReason(own = false) {
     const a = this.advanced;
-    if (!a || !a.available() || a.active() || !this.protectionOn() || this._asking) return null;
+    if (!a || !a.available() || a.active() || !this.protectionOn() || (this._asking && !own)) return null;
     if (this._offByHand('advancedMode')) return { reason: 'off', at: this._when('advancedModeOffAt') };
     const declined = this._when('advancedDeclinedAt');
     if (this.now() - declined < RESPECT_OFF_MS) return { reason: 'declined', at: declined };
     if (!this.mayAsk()) return { reason: 'noask', at: this.now() };
+    if (this.admin === false) return { reason: 'admin', at: this.now() };
     if (this.advancedAsked) return { reason: 'failed', at: this.now() };
     return null;
   }
 
   /* `what` needs Advanced mode and it is not asked for: one line, and a
    * line in the window, once a session per reason, saying what to do. */
-  _notAsked(what, why = null) {
-    const r = this._notAskedReason();
+  _notAsked(what, why = null, own = false) {
+    const r = this._notAskedReason(own);
     if (!r || this.toldNotAsked.has(r.reason)) return false;
     this.toldNotAsked.add(r.reason);
     const date = day(r.at);
@@ -503,9 +510,10 @@ class Autopilot {
       declined: `it was not allowed on ${date}, so it is not asked for by itself`,
       noask: 'Shroudly does not ask for permission by itself (a setting)',
       failed: 'it could not be started earlier in this session',
+      admin: 'this account cannot give administrator permission, so it is not asked for by itself',
     }[r.reason];
     this.log('info', `Autopilot: ${what} needs Advanced mode on this network${why ? ` (${why})` : ''}; ${because}; turn it on in Settings`);
-    this.tell({ off: 'autoAdvancedOffBefore', declined: 'autoAdvancedDeclinedBefore', noask: 'autoAdvancedNoAsk', failed: 'autoAdvancedFailedBefore' }[r.reason], { host: what, date });
+    this.tell({ off: 'autoAdvancedOffBefore', declined: 'autoAdvancedDeclinedBefore', noask: 'autoAdvancedNoAsk', failed: 'autoAdvancedFailedBefore', admin: 'autoAdvancedNoAdmin' }[r.reason], { host: what, date });
     return true;
   }
 
@@ -538,7 +546,7 @@ class Autopilot {
    * otherwise). */
   willAskAdvanced() {
     const a = this.advanced;
-    if (!a || !a.available() || a.active() || !this.protectionOn() || this.advancedAsked) return false;
+    if (!a || !a.available() || a.active() || !this.protectionOn() || this.advancedAsked || this.admin === false) return false;
     if (this._offByHand('advancedMode') || !this.mayAsk()) return false;
     return this.now() - this._when('advancedDeclinedAt') >= RESPECT_OFF_MS;
   }
@@ -577,6 +585,17 @@ class Autopilot {
       this.antiCheatLogged = true;
       return false;
     }
+    // A standard account (a child's, an internet cafe's) would get Windows'
+    // prompt for an administrator's name and password, which it does not
+    // have, and cafes that reset their profiles lose the "not allowed" that
+    // keeps it from coming back: not asked by itself, said once, with what an
+    // administrator can do (as the Store apps already do). Unknown: asked.
+    if (this.canConsent && this.admin === null) {
+      try { this.admin = await this.canConsent(); } catch { this.admin = null; }
+      if (this.admin !== true && this.admin !== false) this.admin = null;
+      if (!this._stillOn(since)) return false;
+    }
+    if (this.admin === false) { this._notAsked(label || host, why, true); return false; }
     this.advancedAsked = true;
     this._lastAsk = { host };
     this.log('info', `Autopilot: ${host} needs Advanced mode${why ? ` (${why})` : ''}; asking for permission`);

@@ -557,6 +557,7 @@
   "autoAdvancedDeclinedBefore": "{host} perlu mode Lanjutan di jaringan ini. Mode ini tidak diizinkan pada {date}, jadi Shroudly tidak memintanya sendiri: aktifkan di Pengaturan.",
   "autoAdvancedFailedBefore": "{host} perlu mode Lanjutan di jaringan ini, tetapi sebelumnya mode ini tidak dapat diaktifkan. Coba aktifkan di Pengaturan.",
   "autoAdvancedNoAsk": "{host} perlu mode Lanjutan di jaringan ini. Sesuai pengaturan Anda, Shroudly tidak meminta izin sendiri: aktifkan di Pengaturan.",
+  "autoAdvancedNoAdmin": "{host} perlu mode Lanjutan di jaringan ini. Akun ini tidak dapat memberi izin administrator, jadi Shroudly tidak memintanya sendiri: administrator dapat menyalakannya di Pengaturan.",
   "autoAdvancedAntiCheat": "{host} perlu mode Lanjutan di jaringan ini, tetapi anti-cheat sebuah game ({program}) sedang berjalan, jadi Shroudly tidak menjalankannya sendiri. Aktifkan di Pengaturan bila Anda menginginkannya.",
   "autoAdvancedPausedForGame": "Mode Lanjutan dijeda selama {program} berjalan: anti-cheat game itu tidak mengizinkan driver paket yang dipakainya. Mode ini kembali sendiri saat game ditutup.",
   "autoAdvancedBackAfterGame": "{program} sudah ditutup, jadi mode Lanjutan kembali. Izinkan saat komputer Anda meminta.",

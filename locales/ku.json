@@ -557,6 +557,7 @@
   "autoAdvancedDeclinedBefore": "{host} li ser vê torê Moda pêşketî hewce dike. Di {date} de destûr jê re nehat dayîn, ji ber vê yekê Shroudly bi serê xwe napirse: wê di Mîhengan de çalak bike.",
   "autoAdvancedFailedBefore": "{host} li ser vê torê Moda pêşketî hewce dike, lê berê nehat çalakkirin. Biceribîne ku wê di Mîhengan de çalak bikî.",
   "autoAdvancedNoAsk": "{host} li ser vê torê Moda pêşketî hewce dike. Li gorî mîhenga te Shroudly bi serê xwe destûr naxwaze: wê di Mîhengan de çalak bike.",
+  "autoAdvancedNoAdmin": "{host} li ser vê torê Moda pêşketî hewce dike. Ev hesab nikare destûra rêveberê bide, ji ber vê Shroudly bi xwe naxwaze: rêveberek dikare wê di Mîhengan de veke.",
   "autoAdvancedAntiCheat": "{host} li ser vê torê Moda pêşketî hewce dike, lê dij-xapînoka lîstikekê ({program}) dixebite, ji ber vê yekê Shroudly wê bi serê xwe dest pê nake. Kengî bixwazî, wê di Mîhengan de çalak bike.",
   "autoAdvancedPausedForGame": "Dema {program} dixebite Moda pêşketî rawestandî ye: dij-xapandina lîstikê destûrê nade ajokara pakêtan a ku ew bi kar tîne. Dema lîstik bê girtin, bi xwe vedigere.",
   "autoAdvancedBackAfterGame": "{program} hat girtin, ji ber vê Moda pêşketî vedigere. Dema komputera te bipirse, destûr bide.",

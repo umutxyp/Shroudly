@@ -2517,6 +2517,8 @@ function createAutopilot() {
     store,
     log: addLog,
     tell: autoTell,
+    // Windows: a standard account is not asked for Advanced mode by itself.
+    canConsent: process.platform === 'win32' ? () => (storeApps ? storeApps.canConsent() : null) : null,
     protectionOn: () => !!(engine && engine.isActive()),
     check: checkBlocked,
     services: [

@@ -557,6 +557,7 @@
   "autoAdvancedDeclinedBefore": "{host} bu ağda Gelişmiş mod gerektiriyor. {date} tarihinde izin verilmediği için Shroudly kendiliğinden sormuyor: Ayarlar'dan aç.",
   "autoAdvancedFailedBefore": "{host} bu ağda Gelişmiş mod gerektiriyor, ancak mod daha önce açılamadı. Ayarlar'dan açmayı dene.",
   "autoAdvancedNoAsk": "{host} bu ağda Gelişmiş mod gerektiriyor. Ayarın gereği Shroudly kendiliğinden izin istemiyor: Ayarlar'dan aç.",
+  "autoAdvancedNoAdmin": "{host} bu ağda Gelişmiş mod gerektiriyor. Bu hesap yönetici izni veremediği için Shroudly kendiliğinden sormuyor: bir yönetici onu Ayarlar'dan açabilir.",
   "autoAdvancedAntiCheat": "{host} bu ağda Gelişmiş mod gerektiriyor, ancak bir oyunun hile koruması ({program}) çalışıyor; bu yüzden Shroudly modu kendiliğinden başlatmıyor. İstediğinde Ayarlar'dan aç.",
   "autoAdvancedPausedForGame": "{program} çalışırken Gelişmiş mod duraklatıldı: oyunun anti-cheat'i onun kullandığı paket sürücüsüne izin vermiyor. Oyun kapanınca kendiliğinden geri gelir.",
   "autoAdvancedBackAfterGame": "{program} kapandı, Gelişmiş mod geri geliyor. Bilgisayarın izin isteyince onayla.",

@@ -557,6 +557,7 @@
   "autoAdvancedDeclinedBefore": "{host} cần Chế độ nâng cao trên mạng này. Chế độ này không được cho phép vào {date}, nên Shroudly không tự hỏi: hãy bật trong Cài đặt.",
   "autoAdvancedFailedBefore": "{host} cần Chế độ nâng cao trên mạng này, nhưng trước đó không thể bật được. Hãy thử bật trong Cài đặt.",
   "autoAdvancedNoAsk": "{host} cần Chế độ nâng cao trên mạng này. Theo cài đặt của bạn, Shroudly không tự xin quyền: hãy bật trong Cài đặt.",
+  "autoAdvancedNoAdmin": "{host} cần Chế độ nâng cao trên mạng này. Tài khoản này không thể cấp quyền quản trị viên, nên Shroudly không tự hỏi: quản trị viên có thể bật nó trong Cài đặt.",
   "autoAdvancedAntiCheat": "{host} cần Chế độ nâng cao trên mạng này, nhưng phần mềm chống gian lận của một trò chơi ({program}) đang chạy, nên Shroudly không tự bật. Hãy bật trong Cài đặt khi bạn muốn.",
   "autoAdvancedPausedForGame": "Chế độ nâng cao tạm dừng khi {program} đang chạy: hệ thống chống gian lận của trò chơi không cho phép trình điều khiển gói tin mà nó dùng. Nó sẽ tự bật lại khi trò chơi đóng.",
   "autoAdvancedBackAfterGame": "{program} đã đóng, nên Chế độ nâng cao đang bật lại. Hãy cho phép khi máy tính hỏi.",

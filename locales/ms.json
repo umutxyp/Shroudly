@@ -557,6 +557,7 @@
   "autoAdvancedDeclinedBefore": "{host} memerlukan Mod Lanjutan pada rangkaian ini. Mod ini tidak dibenarkan pada {date}, jadi Shroudly tidak memintanya sendiri: hidupkannya dalam Tetapan.",
   "autoAdvancedFailedBefore": "{host} memerlukan Mod Lanjutan pada rangkaian ini, tetapi mod ini tidak dapat dihidupkan sebelum ini. Cuba hidupkannya dalam Tetapan.",
   "autoAdvancedNoAsk": "{host} memerlukan Mod Lanjutan pada rangkaian ini. Mengikut tetapan anda, Shroudly tidak meminta kebenaran sendiri: hidupkannya dalam Tetapan.",
+  "autoAdvancedNoAdmin": "{host} memerlukan Mod Lanjutan pada rangkaian ini. Akaun ini tidak dapat memberi kebenaran pentadbir, jadi Shroudly tidak memintanya sendiri: pentadbir boleh menghidupkannya dalam Tetapan.",
   "autoAdvancedAntiCheat": "{host} memerlukan Mod Lanjutan pada rangkaian ini, tetapi anti-tipu sebuah permainan ({program}) sedang berjalan, jadi Shroudly tidak memulakannya sendiri. Hidupkannya dalam Tetapan apabila anda mahu.",
   "autoAdvancedPausedForGame": "Mod Lanjutan dijeda semasa {program} berjalan: anti-tipu permainan itu tidak membenarkan pemacu paket yang digunakannya. Ia kembali sendiri apabila permainan ditutup.",
   "autoAdvancedBackAfterGame": "{program} telah ditutup, jadi Mod Lanjutan kembali. Benarkan apabila komputer anda meminta.",

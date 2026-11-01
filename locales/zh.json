@@ -557,6 +557,7 @@
   "autoAdvancedDeclinedBefore": "{host} 在此网络上需要高级模式。{date} 未允许开启高级模式，因此 Shroudly 不会自行询问：请在设置中开启。",
   "autoAdvancedFailedBefore": "{host} 在此网络上需要高级模式，但之前未能开启。请尝试在设置中开启。",
   "autoAdvancedNoAsk": "{host} 在此网络上需要高级模式。根据你的设置，Shroudly 不会自行请求权限：请在设置中开启。",
+  "autoAdvancedNoAdmin": "{host} 在此网络上需要高级模式。此账户无法给予管理员许可，因此 Shroudly 不会自行请求：管理员可以在设置中开启。",
   "autoAdvancedAntiCheat": "{host} 在此网络上需要高级模式，但某个游戏的反作弊程序（{program}）正在运行，因此 Shroudly 不会自行启动高级模式。需要时请在设置中开启。",
   "autoAdvancedPausedForGame": "{program} 运行期间高级模式已暂停：该游戏的反作弊不允许它使用的数据包驱动。游戏关闭后会自动恢复。",
   "autoAdvancedBackAfterGame": "{program} 已关闭，高级模式正在恢复。电脑询问时请允许。",

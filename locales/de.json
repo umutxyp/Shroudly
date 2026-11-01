@@ -557,6 +557,7 @@
   "autoAdvancedDeclinedBefore": "{host} braucht in diesem Netz den erweiterten Modus. Er wurde am {date} nicht erlaubt, deshalb fragt Shroudly nicht von selbst danach: Schalte ihn in den Optionen ein.",
   "autoAdvancedFailedBefore": "{host} braucht in diesem Netz den erweiterten Modus, aber er ließ sich zuvor nicht einschalten. Versuche, ihn in den Optionen einzuschalten.",
   "autoAdvancedNoAsk": "{host} braucht in diesem Netz den erweiterten Modus. Laut deiner Einstellung fragt Shroudly nicht von selbst um Erlaubnis: Schalte ihn in den Optionen ein.",
+  "autoAdvancedNoAdmin": "{host} braucht in diesem Netz den erweiterten Modus. Dieses Konto kann keine Administratorrechte erteilen, daher fragt Shroudly nicht von selbst: Ein Administrator kann ihn in den Einstellungen einschalten.",
   "autoAdvancedAntiCheat": "{host} braucht in diesem Netz den erweiterten Modus, aber der Anti-Cheat eines Spiels ({program}) läuft, deshalb startet Shroudly ihn nicht von selbst. Schalte ihn in den Optionen ein, wenn du ihn möchtest.",
   "autoAdvancedPausedForGame": "Der erweiterte Modus pausiert, solange {program} läuft: Der Anti-Cheat des Spiels erlaubt den Paket-Treiber nicht, den er nutzt. Er kommt von selbst zurück, wenn das Spiel geschlossen wird.",
   "autoAdvancedBackAfterGame": "{program} wurde geschlossen, der erweiterte Modus kommt zurück. Erlaube ihn, wenn dein Computer fragt.",

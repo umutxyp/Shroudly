@@ -170,6 +170,7 @@ const PATTERNS = [
   [/^Autopilot: (.+?) needs Advanced mode on this network(?: \(.*\))?; it was not allowed on (\S+), so it is not asked for by itself; turn it on in Settings$/, 'autoAdvancedDeclinedBefore', ['host', 'date']],
   [/^Autopilot: (.+?) needs Advanced mode on this network(?: \(.*\))?; it could not be started earlier in this session; turn it on in Settings$/, 'autoAdvancedFailedBefore', ['host']],
   [/^Autopilot: (.+?) needs Advanced mode on this network(?: \(.*\))?; Shroudly does not ask for permission by itself \(a setting\); turn it on in Settings$/, 'autoAdvancedNoAsk', ['host']],
+  [/^Autopilot: (.+?) needs Advanced mode on this network(?: \(.*\))?; this account cannot give administrator permission, so it is not asked for by itself; turn it on in Settings$/, 'autoAdvancedNoAdmin', ['host']],
   [/^Autopilot: Discord is blocked on this network, but its mode was turned off by hand on (\S+); turn it on in Settings to use its app$/, 'autoDiscordOffByHand', ['date']],
   [/^Autopilot: Discord is blocked on this network, but its mode could not be turned on \((.+)\); turn it on in Settings to try again$/, 'autoDiscordFailed', []],
   [/^Autopilot: Roblox is blocked on this network, but its mode could not be turned on \((.+)\); turn it on in Settings to try again$/, 'autoRobloxFailed', []],

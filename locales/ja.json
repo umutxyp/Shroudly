@@ -557,6 +557,7 @@
   "autoAdvancedDeclinedBefore": "このネットワークでは {host} に高度なモードが必要です。{date} に許可されなかったため、Shroudly は自分からは確認しません。設定でオンにしてください。",
   "autoAdvancedFailedBefore": "このネットワークでは {host} に高度なモードが必要ですが、以前オンにできませんでした。設定でオンにしてみてください。",
   "autoAdvancedNoAsk": "このネットワークでは {host} に高度なモードが必要です。設定により、Shroudly は自分からは許可を求めません。設定でオンにしてください。",
+  "autoAdvancedNoAdmin": "このネットワークでは {host} に高度なモードが必要です。このアカウントは管理者の許可を出せないため、Shroudly からは求めません。管理者が設定でオンにできます。",
   "autoAdvancedAntiCheat": "このネットワークでは {host} に高度なモードが必要ですが、ゲームのアンチチート（{program}）が動作中のため、Shroudly は自動では開始しません。必要なときに設定でオンにしてください。",
   "autoAdvancedPausedForGame": "{program} の実行中は高度なモードを一時停止しています。ゲームのアンチチートが、このモードの使うパケットドライバーを許可しないためです。ゲームを閉じると自動で戻ります。",
   "autoAdvancedBackAfterGame": "{program} が終了したので、高度なモードを戻します。コンピューターに確認されたら許可してください。",

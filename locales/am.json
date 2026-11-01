@@ -557,6 +557,7 @@
   "autoAdvancedDeclinedBefore": "{host} በዚህ አውታረ መረብ ላይ የላቀ ሁነታ ያስፈልገዋል። በ{date} ስላልተፈቀደ Shroudly በራሱ አይጠይቅም፤ በቅንብሮች ውስጥ ያብሩት።",
   "autoAdvancedFailedBefore": "{host} በዚህ አውታረ መረብ ላይ የላቀ ሁነታ ያስፈልገዋል፣ ግን ቀደም ብሎ ሊበራ አልቻለም። በቅንብሮች ውስጥ ለማብራት ይሞክሩ።",
   "autoAdvancedNoAsk": "{host} በዚህ አውታረ መረብ ላይ የላቀ ሁነታ ያስፈልገዋል። በቅንብርዎ መሠረት Shroudly በራሱ ፈቃድ አይጠይቅም፤ በቅንብሮች ውስጥ ያብሩት።",
+  "autoAdvancedNoAdmin": "{host} በዚህ አውታረ መረብ ላይ የላቀ ሁነታ ያስፈልገዋል። ይህ መለያ የአስተዳዳሪ ፈቃድ መስጠት ስለማይችል Shroudly በራሱ አይጠይቅም፤ አስተዳዳሪ በቅንብሮች ውስጥ ሊያበራው ይችላል።",
   "autoAdvancedAntiCheat": "{host} በዚህ አውታረ መረብ ላይ የላቀ ሁነታ ያስፈልገዋል፣ ግን የአንድ ጨዋታ ፀረ-ማጭበርበሪያ ({program}) እየሠራ ስለሆነ Shroudly በራሱ አያስጀምረውም። ሲፈልጉ በቅንብሮች ውስጥ ያብሩት።",
   "autoAdvancedPausedForGame": "{program} እየሠራ ሳለ የላቀ ሁነታ ቆሟል፤ የጨዋታው ፀረ-ማጭበርበሪያ እሱ የሚጠቀመውን የፓኬት ሾፌር አይፈቅድም። ጨዋታው ሲዘጋ በራሱ ይመለሳል።",
   "autoAdvancedBackAfterGame": "{program} ተዘግቷል፣ ስለዚህ የላቀ ሁነታ እየተመለሰ ነው። ኮምፒውተርዎ ሲጠይቅ ይፍቀዱ።",

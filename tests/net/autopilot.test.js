@@ -371,6 +371,26 @@ const settle = async () => { for (let i = 0; i < 5; i++) await new Promise((r) =
     t.ok(await r.ap.needAdvanced('other.example') === false && started === 1, 'never twice');
   }
   {
+    // W5: a standard account (a child's, a cafe's) is not shown Windows'
+    // prompt for an administrator's name and password by itself.
+    let started = 0;
+    let looked = 0;
+    const adv = { available: () => true, active: () => false, start: async () => { started++; return { success: true }; } };
+    const r = rig({ adv });
+    r.ap.canConsent = async () => { looked++; return false; };
+    t.ok(await r.ap.needAdvanced('blocked.example') === false && started === 0, 'an account that cannot give administrator permission: Advanced mode is not asked for by itself');
+    t.ok(r.told.map((x) => x.id).join() === 'autoAdvancedNoAdmin' && r.logs.some((l) => /^Autopilot: blocked\.example needs Advanced mode on this network; this account cannot give administrator permission, so it is not asked for by itself; turn it on in Settings$/.test(l)),
+      '…said once, with what an administrator can do');
+    t.ok(await r.ap.needAdvanced('other.example') === false && looked === 1 && r.told.length === 1 && !r.ap.willAskAdvanced() && !r.ap.advancedPending(),
+      '…asked of Windows once, said once a session, and nothing more looked for');
+    const r2 = rig({ adv });
+    r2.ap.canConsent = async () => null;   // whoami could not tell
+    t.ok(await r2.ap.needAdvanced('blocked.example') === true && started === 1, 'cannot tell: asked as before');
+    const r3 = rig({ adv: { ...adv, active: () => false } });
+    r3.ap.canConsent = async () => true;
+    t.ok(await r3.ap.needAdvanced('blocked.example') === true && started === 2, 'an administrator: asked as before');
+  }
+  {
     let tries = 0;
     const adv = { available: () => true, active: () => false, start: async () => { tries++; return { success: false, code: 'declined' }; } };
     const store = memStore({ autopilotSince: 1 });

@@ -557,6 +557,7 @@
   "autoAdvancedDeclinedBefore": "Bu tarmoqda {host} uchun Kengaytirilgan rejim kerak. {date} kuni unga ruxsat berilmagan, shuning uchun Shroudly oʻzi soʻramaydi: uni Sozlamalarda yoqing.",
   "autoAdvancedFailedBefore": "Bu tarmoqda {host} uchun Kengaytirilgan rejim kerak, lekin avvalroq uni yoqib boʻlmadi. Uni Sozlamalarda yoqib koʻring.",
   "autoAdvancedNoAsk": "Bu tarmoqda {host} uchun Kengaytirilgan rejim kerak. Sozlamangizga koʻra Shroudly oʻzi ruxsat soʻramaydi: uni Sozlamalarda yoqing.",
+  "autoAdvancedNoAdmin": "Bu tarmoqda {host} uchun Kengaytirilgan rejim kerak. Bu hisob administrator ruxsatini bera olmaydi, shuning uchun Shroudly oʻzi soʻramaydi: administrator uni Sozlamalarda yoqishi mumkin.",
   "autoAdvancedAntiCheat": "Bu tarmoqda {host} uchun Kengaytirilgan rejim kerak, lekin oʻyinning antichit dasturi ({program}) ishlayapti, shuning uchun Shroudly uni oʻzi ishga tushirmaydi. Kerak boʻlganda uni Sozlamalarda yoqing.",
   "autoAdvancedPausedForGame": "{program} ishlayotganda Kengaytirilgan rejim to‘xtatildi: o‘yinning anti-cheati u ishlatadigan paket drayveriga ruxsat bermaydi. O‘yin yopilganda o‘zi qaytadi.",
   "autoAdvancedBackAfterGame": "{program} yopildi, Kengaytirilgan rejim qaytmoqda. Kompyuteringiz so‘raganda ruxsat bering.",

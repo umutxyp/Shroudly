@@ -557,6 +557,7 @@
   "autoAdvancedDeclinedBefore": "{host} needs Advanced mode on this network. It was not allowed on {date}, so Shroudly does not ask by itself: turn it on in Settings.",
   "autoAdvancedFailedBefore": "{host} needs Advanced mode on this network, but it could not be turned on earlier. Try turning it on in Settings.",
   "autoAdvancedNoAsk": "{host} needs Advanced mode on this network. Shroudly does not ask for permission by itself (your setting): turn it on in Settings.",
+  "autoAdvancedNoAdmin": "{host} needs Advanced mode on this network. This account cannot give administrator permission, so Shroudly does not ask by itself: an administrator can turn it on in Settings.",
   "autoAdvancedAntiCheat": "{host} needs Advanced mode on this network, but a game's anti-cheat ({program}) is running, so Shroudly does not start it by itself. Turn it on in Settings when you want it.",
   "autoAdvancedPausedForGame": "Advanced mode is paused while {program} runs: the game's anti-cheat does not allow the packet driver it uses. It comes back by itself when the game closes.",
   "autoAdvancedBackAfterGame": "{program} has closed, so Advanced mode is coming back. Allow it when your computer asks.",

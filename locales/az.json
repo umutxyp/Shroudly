@@ -557,6 +557,7 @@
   "autoAdvancedDeclinedBefore": "{host} üçün bu şəbəkədə Təkmil rejim lazımdır. {date} tarixində ona icazə verilməyib, ona görə Shroudly özü soruşmur: Ayarlarda aktiv et.",
   "autoAdvancedFailedBefore": "{host} üçün bu şəbəkədə Təkmil rejim lazımdır, amma əvvəl onu aktiv etmək mümkün olmadı. Ayarlarda aktiv etməyə çalış.",
   "autoAdvancedNoAsk": "{host} üçün bu şəbəkədə Təkmil rejim lazımdır. Ayarına görə Shroudly özü icazə istəmir: Ayarlarda aktiv et.",
+  "autoAdvancedNoAdmin": "{host} üçün bu şəbəkədə Təkmil rejim lazımdır. Bu hesab administrator icazəsi verə bilmir, ona görə Shroudly özü soruşmur: administrator onu Ayarlarda yandıra bilər.",
   "autoAdvancedAntiCheat": "{host} üçün bu şəbəkədə Təkmil rejim lazımdır, amma bir oyunun anti-cheat proqramı ({program}) işləyir, ona görə Shroudly onu özü başlatmır. İstədiyin vaxt Ayarlarda aktiv et.",
   "autoAdvancedPausedForGame": "{program} işləyərkən Təkmil rejim dayandırıldı: oyunun anti-cheat-i onun istifadə etdiyi paket sürücüsünə icazə vermir. Oyun bağlananda öz-özünə geri gəlir.",
   "autoAdvancedBackAfterGame": "{program} bağlandı, Təkmil rejim geri gəlir. Kompüterin soruşanda icazə ver.",

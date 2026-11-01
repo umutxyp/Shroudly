@@ -557,6 +557,7 @@
   "autoAdvancedDeclinedBefore": "{host} üçin bu torda Giňişleýin tertip gerek. {date} senesinde oňa rugsat berilmedi, şonuň üçin Shroudly özi soramaýar: ony Sazlamalarda açyň.",
   "autoAdvancedFailedBefore": "{host} üçin bu torda Giňişleýin tertip gerek, ýöne ony öň açyp bolmady. Ony Sazlamalarda açyp görüň.",
   "autoAdvancedNoAsk": "{host} üçin bu torda Giňişleýin tertip gerek. Sazlamaňyza görä Shroudly özi rugsat soramaýar: ony Sazlamalarda açyň.",
+  "autoAdvancedNoAdmin": "{host} üçin bu torda Giňişleýin tertip gerek. Bu hasap administratoryň rugsadyny berip bilmeýär, şonuň üçin Shroudly özi soramaýar: administrator ony Sazlamalarda açyp biler.",
   "autoAdvancedAntiCheat": "{host} üçin bu torda Giňişleýin tertip gerek, ýöne bir oýnuň anti-çit programmasy ({program}) işleýär, şonuň üçin Shroudly ony özi işletmeýär. Isleseňiz, ony Sazlamalarda açyň.",
   "autoAdvancedPausedForGame": "{program} işleýärkä Giňişleýin tertip togtadyldy: oýnuň anti-çiti onuň ulanýan paket sürüjisine rugsat bermeýär. Oýun ýapylanda özi gaýdyp gelýär.",
   "autoAdvancedBackAfterGame": "{program} ýapyldy, Giňişleýin tertip gaýdyp gelýär. Kompýuteriňiz soranda rugsat beriň.",

@@ -557,6 +557,7 @@
   "autoAdvancedDeclinedBefore": "{host} precisa do modo Avançado nesta rede. Ele não foi permitido em {date}, então o Shroudly não pede sozinho: ative-o em Ajustes.",
   "autoAdvancedFailedBefore": "{host} precisa do modo Avançado nesta rede, mas ele não pôde ser ativado antes. Tente ativá-lo em Ajustes.",
   "autoAdvancedNoAsk": "{host} precisa do modo Avançado nesta rede. Pelo seu ajuste, o Shroudly não pede permissão por conta própria: ative-o em Ajustes.",
+  "autoAdvancedNoAdmin": "{host} precisa do modo Avançado nesta rede. Esta conta não pode dar permissão de administrador, então o Shroudly não pede sozinho: um administrador pode ativá-lo nos Ajustes.",
   "autoAdvancedAntiCheat": "{host} precisa do modo Avançado nesta rede, mas o antitrapaça de um jogo ({program}) está em execução, então o Shroudly não o inicia sozinho. Ative-o em Ajustes quando quiser.",
   "autoAdvancedPausedForGame": "O modo Avançado está pausado enquanto {program} roda: o anti-cheat do jogo não permite o driver de pacotes que ele usa. Ele volta sozinho quando o jogo fechar.",
   "autoAdvancedBackAfterGame": "{program} foi fechado, então o modo Avançado está voltando. Permita quando o computador pedir.",
