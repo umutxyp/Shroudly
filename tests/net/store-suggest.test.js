@@ -57,6 +57,15 @@ t.ok(!due({ shown: 2, at: 1 }, 10 * GAP_MS) && !due({ shown: 1, at: 1, done: tru
     && await make({ packaged: false }).pending() === null && await make({ country: () => { throw new Error('no region'); } }).pending() === null,
   "the App Store's own copy, Windows, a copy run from source, or no region: nothing");
 
+  // Wired in: main.js answers the window, which shows it last of all.
+  const fs = require('fs');
+  const main = fs.readFileSync(path.join(ROOT, 'electron', 'main.js'), 'utf8');
+  const notice = fs.readFileSync(path.join(ROOT, 'components', 'BlockedNotice.js'), 'utf8');
+  const stores = JSON.parse(fs.readFileSync(path.join(ROOT, 'stores.json'), 'utf8'));
+  t.ok(/ipcMain\.handle\('app:storeSuggest'/.test(main) && /app\.getLocaleCountryCode\(\)/.test(main) && /storeSuggestAnswer/.test(notice)
+    && notice.indexOf("t('masTitle')") > notice.indexOf("t('cutTitle'"), 'wired in, and shown only when no other notice is');
+  t.ok(stores.macAppStore && stores.macAppStore.live === false && Array.isArray(stores.macAppStore.exclude),
+    'stores.json: the Mac App Store copy not live yet, with its country lists');
   console.log(`store-suggest: ${t.count} passed`);
   process.exit(0);
 })().catch((e) => { console.error('FAIL', e.message); process.exit(1); });

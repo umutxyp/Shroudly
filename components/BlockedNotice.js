@@ -113,6 +113,8 @@ export default function BlockedNotice({ onNavigate, active = false, proxyInPanel
   // macOS: run from its disk image or Downloads (main.js outsideApplications).
   const [moveApp, setMoveApp] = useState(false);
   const [moving, setMoving] = useState(false);
+  // macOS: the Mac App Store copy suggested (main.js, store-suggest.js).
+  const [storeOffer, setStoreOffer] = useState(null);
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState(null);     // the autopilot's latest: { id, params, at }
   const [advice, setAdvice] = useState(null);
@@ -162,6 +164,10 @@ export default function BlockedNotice({ onNavigate, active = false, proxyInPanel
 
   useEffect(() => {
     window.electron?.appPlacement?.().then((p) => setMoveApp(!!(p && p.move))).catch(() => {});
+    // Asked a little after the window opens, so it is never what greets a
+    // first start; shown only when nothing else here needs saying.
+    const t = setTimeout(() => { window.electron?.storeSuggest?.().then((o) => setStoreOffer(o || null)).catch(() => {}); }, 20000);
+    return () => clearTimeout(t);
   }, []);
 
   useEffect(() => {
@@ -471,5 +477,23 @@ export default function BlockedNotice({ onNavigate, active = false, proxyInPanel
     );
   }
 
+
+  /* macOS, the copy from GitHub: the Mac App Store copy, once it is live in
+   * this Mac's country. Last of all: only when nothing above needs saying.
+   * "Not now" or the X: once more in 30 days at most (store-suggest.js). */
+  if (storeOffer && !hidden.storeOffer) {
+    const answer = (opened) => { hide('storeOffer'); window.electron?.storeSuggestAnswer?.(opened).catch?.(() => {}); };
+    return (
+      <Banner tone="accent" Icon={InfoIcon} title={t('masTitle')} body={t('masBody')}
+              onClose={() => answer(false)} closeLabel={closeLabel}>
+        <Actions>
+          <button type="button" onClick={() => answer(true)}
+                  className="btn btn-primary rounded-[8px] px-3 py-1.5 text-[12.5px] font-semibold">{t('masOpen')}</button>
+          <button type="button" onClick={() => answer(false)}
+                  className="btn btn-ghost rounded-[8px] px-3 py-1.5 text-[12.5px] font-medium">{t('supportBannerLater')}</button>
+        </Actions>
+      </Banner>
+    );
+  }
   return null;
 }

@@ -64,6 +64,7 @@ const { reveal } = require('./reveal');
 const WinHttp = require('./winhttp');
 const SecurityBlock = require('./security-block');
 const { ProtectionKeeper } = require('./protection-keeper');
+const { StoreSuggest } = require('./store-suggest');
 
 /* "Shroudly --restore-proxy" runs once at login after a run that never got to
  * restore the system proxy (power loss, forced reboot), and from the watchdog
@@ -1587,6 +1588,44 @@ ipcMain.handle('advanced:stop', async () => {
   catch (e) { return { success: false, error: e.message }; }
 });
 ipcMain.handle('app:placement', () => ({ move: outsideApplications() }));
+
+/* The Mac copy from GitHub suggesting the Mac App Store one, once it is
+ * live in this Mac's country (store-suggest.js). Asked by the window; the
+ * App Store page is opened from here. */
+let storeSuggest = null;
+let storeSuggestUrl = null;
+function macStoreSuggest() {
+  if (!storeSuggest) {
+    storeSuggest = new StoreSuggest({
+      store,
+      packaged: app.isPackaged,
+      mas: !!process.mas,
+      country: () => app.getLocaleCountryCode(),
+      fetchJson: async (url) => {
+        const res = await fetch(url, { signal: AbortSignal.timeout(8000), cache: 'no-store' });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return res.json();
+      },
+    });
+  }
+  return storeSuggest;
+}
+ipcMain.handle('app:storeSuggest', async () => {
+  try {
+    const s = await macStoreSuggest().pending();
+    if (!s) return null;
+    storeSuggestUrl = s.url;
+    macStoreSuggest().shown();
+    return { store: 'mac' };
+  } catch { return null; }
+});
+ipcMain.handle('app:storeSuggestAnswer', (e, opened) => {
+  try {
+    macStoreSuggest().answered(!!opened);
+    if (opened && storeSuggestUrl) shell.openExternal(storeSuggestUrl).catch(() => {});
+  } catch {}
+  return true;
+});
 ipcMain.handle('app:moveToApplications', () => {
   if (!outsideApplications()) return { ok: true };
   try {

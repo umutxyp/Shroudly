@@ -14,6 +14,9 @@ contextBridge.exposeInMainWorld('electron', {
   // macOS: run from the disk image or Downloads, and the move to Applications.
   appPlacement: () => ipcRenderer.invoke('app:placement'),
   moveToApplications: () => ipcRenderer.invoke('app:moveToApplications'),
+  // macOS: the Mac App Store copy, once it is live here (store-suggest.js).
+  storeSuggest: () => ipcRenderer.invoke('app:storeSuggest'),
+  storeSuggestAnswer: (opened) => ipcRenderer.invoke('app:storeSuggestAnswer', opened),
   resetSettings: () => ipcRenderer.invoke('app:resetSettings'),
   // The window is closed for real when unused (see main.js): it reports use,
   // when it is listening, and is told to save before it goes.

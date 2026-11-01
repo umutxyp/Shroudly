@@ -126,7 +126,7 @@
       }
     ],
     "mac": {
-      "icon": "public/icon.png",
+      "icon": "apple/App/AppIcon.icon",
       "category": "public.app-category.utilities",
       "target": [
         {
