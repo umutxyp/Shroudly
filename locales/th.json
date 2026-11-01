@@ -30,6 +30,7 @@
   "protectionStarted": "เริ่มการป้องกันแล้ว",
   "protectionStopped": "หยุดการป้องกันแล้ว",
   "startFailed": "ไม่สามารถเริ่มการป้องกันได้",
+  "startFailedBody": "Shroudly เปิดการป้องกันไม่ได้ และจะพยายามต่อไปเอง ถ้ายังไม่ได้ ให้กด «{repair}»",
   "startBlockedBySecurity": "แอนตี้ไวรัสของคุณบล็อกเอนจินของ Shroudly",
   "stopFailed": "ไม่สามารถหยุดการป้องกันได้",
   "desktopOnly": "เปิด Shroudly จากแอปบนเดสก์ท็อปเพื่อใช้งานส่วนนี้",

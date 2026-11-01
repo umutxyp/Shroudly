@@ -30,6 +30,7 @@
   "protectionStarted": "ጥበቃ ተጀምሯል",
   "protectionStopped": "ጥበቃ ቆሟል",
   "startFailed": "ጥበቃን መጀመር አልተቻለም",
+  "startFailedBody": "Shroudly ጥበቃውን ማብራት አልቻለም። በራሱ መሞከሩን ይቀጥላል፤ አሁንም ካልሰራ «{repair}»ን ይጫኑ።",
   "startBlockedBySecurity": "ጸረ-ቫይረስዎ የShroudlyን ሞተር አግዷል",
   "stopFailed": "ጥበቃን ማቆም አልተቻለም",
   "desktopOnly": "ይህን ለመጠቀም Shroudlyን ከዴስክቶፕ መተግበሪያው ይክፈቱ።",

@@ -30,6 +30,7 @@
   "protectionStarted": "Perlindungan dimulakan",
   "protectionStopped": "Perlindungan dihentikan",
   "startFailed": "Tidak dapat memulakan perlindungan",
+  "startFailedBody": "Shroudly tidak dapat menghidupkan perlindungan. Ia terus mencuba dengan sendirinya; jika masih tidak berjaya, tekan “{repair}”.",
   "startBlockedBySecurity": "Antivirus anda menyekat enjin Shroudly",
   "stopFailed": "Tidak dapat menghentikan perlindungan",
   "desktopOnly": "Buka Shroudly daripada aplikasi desktop untuk menggunakan ciri ini.",

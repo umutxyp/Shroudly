@@ -921,10 +921,16 @@ if (process.platform === 'win32') {
   }, 5000).unref();
 }
 
+/* The last start, by the user or by itself, failed (not an antivirus's
+ * doing: that has its own state): the window says so, with Repair, until a
+ * start works or the user stops protection (dpi:status failed). */
+let lastStartFailed = false;
+
 async function safeStart({ user = false } = {}) {
   if (user) store.set(PROTECTION_KEY, true);
   try {
     const r = await engine.start();
+    lastStartFailed = false;
     broadcastStatus(true);
     // Started, but browsers are not going through it yet: said so, not "on".
     const routed = !notRouting();
@@ -944,13 +950,14 @@ async function safeStart({ user = false } = {}) {
   } catch (e) {
     // An antivirus block has its own line already (securityBlocked).
     if (e.code !== 'security_blocked') addLog('error', `Start failed: ${e.message}`);
+    lastStartFailed = e.code !== 'security_blocked';
     broadcastStatus(false);
     return { success: false, error: e.message, code: e.code || null };
   }
 }
 
 async function safeStop({ user = false } = {}) {
-  if (user) store.set(PROTECTION_KEY, false);
+  if (user) { store.set(PROTECTION_KEY, false); lastStartFailed = false; }
   // Nothing of Roblox's is stopped or started once protection is going off.
   robloxWatch.halt();
   // A settings change still waiting to be applied belongs to the session
@@ -1611,6 +1618,14 @@ ipcMain.handle('app:moveToApplications', () => {
 });
 ipcMain.handle('dpi:status', () => ({
   active: engine ? engine.isActive() : false,
+  // On its way up (the start at launch, after an update, a start under way,
+  // a restart): "Starting…", not a red "Not protected" with a Start button.
+  starting: !!engine && !engine.isActive() && engineComing(),
+  // Meant to be on, and the last start failed: said, with Repair, in place
+  // of a toast with the system's error that was gone in six seconds, and
+  // of nothing at all for a start at login (protection-keeper.js tries
+  // again meanwhile).
+  failed: lastStartFailed && !!engine && !engine.isActive() && !engineComing() && protectionWanted(),
   stats: engine ? engine.getStats() : {},
   // An antivirus took or refused the engine: the window says so.
   blocked: engineBlocked(),

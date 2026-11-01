@@ -30,6 +30,7 @@
   "protectionStarted": "Захист увімкнено",
   "protectionStopped": "Захист вимкнено",
   "startFailed": "Не вдалося увімкнути захист",
+  "startFailedBody": "Shroudly не вдалося ввімкнути захист. Він і далі пробує сам; якщо не вийде, натисніть «{repair}».",
   "startBlockedBySecurity": "Ваш антивірус заблокував рушій Shroudly",
   "stopFailed": "Не вдалося вимкнути захист",
   "desktopOnly": "Щоб скористатися цією функцією, відкрийте Shroudly у програмі для комп’ютера.",

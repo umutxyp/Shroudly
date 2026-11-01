@@ -30,6 +30,7 @@
   "protectionStarted": "محافظت شروع شد",
   "protectionStopped": "محافظت متوقف شد",
   "startFailed": "شروع محافظت ممکن نشد",
+  "startFailedBody": "Shroudly نتوانست محافظت را روشن کند. خودش به تلاش ادامه می‌دهد؛ اگر باز هم نشد، «{repair}» را بزنید.",
   "startBlockedBySecurity": "آنتی‌ویروس شما موتور Shroudly را مسدود کرد",
   "stopFailed": "توقف محافظت ممکن نشد",
   "desktopOnly": "برای استفاده از این قابلیت، Shroudly را از برنامهٔ دسکتاپ باز کنید.",

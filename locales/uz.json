@@ -30,6 +30,7 @@
   "protectionStarted": "Himoya yoqildi",
   "protectionStopped": "Himoya oʻchirildi",
   "startFailed": "Himoyani yoqib boʻlmadi",
+  "startFailedBody": "Shroudly himoyani yoqa olmadi. U oʻzi urinishda davom etmoqda; baribir boʻlmasa, «{repair}» tugmasini bosing.",
   "startBlockedBySecurity": "Antivirusingiz Shroudly dvigatelini blokladi",
   "stopFailed": "Himoyani oʻchirib boʻlmadi",
   "desktopOnly": "Bundan foydalanish uchun Shroudly kompyuter ilovasini oching.",

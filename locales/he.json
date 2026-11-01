@@ -30,6 +30,7 @@
   "protectionStarted": "ההגנה הופעלה",
   "protectionStopped": "ההגנה הופסקה",
   "startFailed": "לא ניתן היה להפעיל את ההגנה",
+  "startFailedBody": "Shroudly לא הצליח להפעיל את ההגנה. הוא ממשיך לנסות בעצמו; אם זה עדיין לא עובד, לוחצים על „{repair}”.",
   "startBlockedBySecurity": "האנטי-וירוס חסם את המנוע של Shroudly",
   "stopFailed": "לא ניתן היה להפסיק את ההגנה",
   "desktopOnly": "כדי להשתמש בזה, יש לפתוח את Shroudly מאפליקציית שולחן העבודה.",

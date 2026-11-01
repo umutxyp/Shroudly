@@ -30,6 +30,7 @@
   "protectionStarted": "सुरक्षा शुरू हो गई",
   "protectionStopped": "सुरक्षा बंद हो गई",
   "startFailed": "सुरक्षा शुरू नहीं की जा सकी",
+  "startFailedBody": "Shroudly सुरक्षा चालू नहीं कर सका। यह अपने-आप कोशिश करता रहेगा; फिर भी काम न बने तो «{repair}» दबाएँ।",
   "startBlockedBySecurity": "आपके एंटीवायरस ने Shroudly का इंजन ब्लॉक कर दिया",
   "stopFailed": "सुरक्षा बंद नहीं की जा सकी",
   "desktopOnly": "इसका उपयोग करने के लिए Shroudly को डेस्कटॉप ऐप से खोलें।",

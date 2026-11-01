@@ -30,6 +30,7 @@
   "protectionStarted": "Qoruma başladıldı",
   "protectionStopped": "Qoruma dayandırıldı",
   "startFailed": "Qorumanı başlatmaq mümkün olmadı",
+  "startFailedBody": "Shroudly qorumanı aça bilmədi. Özü cəhd etməyə davam edir; yenə də alınmasa, “{repair}” düyməsinə basın.",
   "startBlockedBySecurity": "Antivirusun Shroudly-nin mühərrikini blokladı",
   "stopFailed": "Qorumanı dayandırmaq mümkün olmadı",
   "desktopOnly": "Bundan istifadə etmək üçün Shroudly-ni masaüstü tətbiqindən aç.",

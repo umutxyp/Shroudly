@@ -30,6 +30,7 @@
   "protectionStarted": "Koruma başlatıldı",
   "protectionStopped": "Koruma durduruldu",
   "startFailed": "Koruma başlatılamadı",
+  "startFailedBody": "Shroudly korumayı açamadı. Kendi kendine denemeye devam ediyor; yine olmazsa “{repair}” düğmesine bas.",
   "startBlockedBySecurity": "Antivirüsün Shroudly'nin motorunu engelledi",
   "stopFailed": "Koruma durdurulamadı",
   "desktopOnly": "Bunu kullanmak için Shroudly masaüstü uygulamasını aç.",

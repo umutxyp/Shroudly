@@ -30,6 +30,7 @@
   "protectionStarted": "ساتنه پیل شوه",
   "protectionStopped": "ساتنه ودرول شوه",
   "startFailed": "ساتنه پیل نه شوه",
+  "startFailedBody": "Shroudly ونه شو کولای ساتنه فعاله کړي. دا پخپله هڅې ته دوام ورکوي؛ که بیا هم کار ونه کړي، «{repair}» کېکاږئ.",
   "startBlockedBySecurity": "ستاسو انټي ویروس د Shroudly انجن بند کړ",
   "stopFailed": "ساتنه ودرول نه شوه",
   "desktopOnly": "د دې کارولو لپاره Shroudly د ډیسکټاپ له اپ څخه پرانیزئ.",

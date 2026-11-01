@@ -30,6 +30,7 @@
   "protectionStarted": "保护已启动",
   "protectionStopped": "保护已停止",
   "startFailed": "无法启动保护",
+  "startFailedBody": "Shroudly 无法开启保护，会自动继续尝试；如果仍然不行，请点击“{repair}”。",
   "startBlockedBySecurity": "你的杀毒软件拦截了 Shroudly 的引擎",
   "stopFailed": "无法停止保护",
   "desktopOnly": "请在 Shroudly 桌面应用中打开以使用此功能。",

@@ -30,6 +30,7 @@
   "protectionStarted": "Schutz gestartet",
   "protectionStopped": "Schutz beendet",
   "startFailed": "Schutz konnte nicht gestartet werden",
+  "startFailedBody": "Shroudly konnte den Schutz nicht einschalten. Es versucht es von selbst weiter; klappt es trotzdem nicht, tippe auf „{repair}“.",
   "startBlockedBySecurity": "Dein Virenschutz hat die Engine von Shroudly blockiert",
   "stopFailed": "Schutz konnte nicht beendet werden",
   "desktopOnly": "Nur in der Desktop-App von Shroudly verfügbar.",

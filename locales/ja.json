@@ -30,6 +30,7 @@
   "protectionStarted": "保護を開始しました",
   "protectionStopped": "保護を停止しました",
   "startFailed": "保護を開始できませんでした",
+  "startFailedBody": "Shroudly は保護をオンにできませんでした。自動で試し続けます。それでもうまくいかない場合は「{repair}」を押してください。",
   "startBlockedBySecurity": "ウイルス対策ソフトが Shroudly のエンジンをブロックしました",
   "stopFailed": "保護を停止できませんでした",
   "desktopOnly": "この機能を使用するには、Shroudly をデスクトップアプリで開いてください。",

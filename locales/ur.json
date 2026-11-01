@@ -30,6 +30,7 @@
   "protectionStarted": "تحفظ شروع ہو گیا",
   "protectionStopped": "تحفظ بند ہو گیا",
   "startFailed": "تحفظ شروع نہیں ہو سکا",
+  "startFailedBody": "Shroudly حفاظت آن نہیں کر سکا۔ یہ خود کوشش جاری رکھے ہوئے ہے؛ اگر پھر بھی کام نہ بنے تو «{repair}» دبائیں۔",
   "startBlockedBySecurity": "آپ کے اینٹی وائرس نے Shroudly کا انجن بلاک کر دیا",
   "stopFailed": "تحفظ بند نہیں ہو سکا",
   "desktopOnly": "اسے استعمال کرنے کے لیے Shroudly کو ڈیسک ٹاپ ایپ سے کھولیں۔",

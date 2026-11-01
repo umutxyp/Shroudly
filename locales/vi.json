@@ -30,6 +30,7 @@
   "protectionStarted": "Đã bật bảo vệ",
   "protectionStopped": "Đã tắt bảo vệ",
   "startFailed": "Không thể bật bảo vệ",
+  "startFailedBody": "Shroudly không bật được chế độ bảo vệ. Ứng dụng vẫn tự thử lại; nếu vẫn không được, hãy nhấn “{repair}”.",
   "startBlockedBySecurity": "Phần mềm diệt virus của bạn đã chặn lõi của Shroudly",
   "stopFailed": "Không thể tắt bảo vệ",
   "desktopOnly": "Hãy mở Shroudly bằng ứng dụng trên máy tính để dùng tính năng này.",

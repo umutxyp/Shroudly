@@ -30,6 +30,7 @@
   "protectionStarted": "Protection started",
   "protectionStopped": "Protection stopped",
   "startFailed": "Could not start protection",
+  "startFailedBody": "Shroudly could not turn protection on. It keeps trying by itself; if it still does not work, press “{repair}”.",
   "startBlockedBySecurity": "Your antivirus blocked Shroudly's engine",
   "stopFailed": "Could not stop protection",
   "desktopOnly": "Open Shroudly from the desktop app to use this.",

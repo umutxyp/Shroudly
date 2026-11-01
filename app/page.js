@@ -102,8 +102,10 @@ export default function Home() {
   const notRouting = active && !!dpiStatus.notRouting;
   // The network itself without internet: amber, and said so (ControlPanel).
   const offline = active && !notRouting && !!dpiStatus.offline;
-  const tone = !active ? 'danger' : notRouting || offline ? 'warn' : 'ok';
-  const statusText = !active ? t('inactive') : notRouting ? t('notWorkingYet') : offline ? t('noInternet') : t('active');
+  // On its way up at launch: "Starting…", not a red "Inactive" (ControlPanel).
+  const starting = !active && !!dpiStatus.starting;
+  const tone = starting ? 'accent' : !active ? 'danger' : notRouting || offline ? 'warn' : 'ok';
+  const statusText = starting ? t('starting') : !active ? t('inactive') : notRouting ? t('notWorkingYet') : offline ? t('noInternet') : t('active');
   // A restart for an update that is counting down comes before any other
   // notice: its "Later" must be there to press. Otherwise an update waits
   // while the Protection panel says what is not working yet.
@@ -121,19 +123,11 @@ export default function Home() {
     <div className="shell" style={{ opacity: isLoaded ? 1 : 0 }}>
       <TitleBar />
 
-      {/* Header: logo, wordmark, status */}
+      {/* Header: logo, wordmark, status (said once, in the pill: a dot on
+          the logo said it again) */}
       <header className="no-drag flex items-center gap-3 px-4 py-3 sm:px-5">
-        <div className="relative h-9 w-9 shrink-0">
+        <div className="h-9 w-9 shrink-0">
           <img src={LOGO_SRC} alt="" draggable={false} className="h-full w-full select-none object-contain" />
-          <span
-            aria-hidden
-            className="forced-mark absolute -end-0.5 -top-0.5 h-3 w-3 rounded-full border-2"
-            style={{
-              background: `var(--${tone})`,
-              borderColor: 'var(--bg)',
-              boxShadow: tone === 'ok' ? '0 0 8px var(--ok)' : 'none',
-            }}
-          />
         </div>
         <div className="min-w-0 flex-1">
           <div className="flex min-w-0 items-baseline gap-2">

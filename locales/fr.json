@@ -30,6 +30,7 @@
   "protectionStarted": "Protection activée",
   "protectionStopped": "Protection désactivée",
   "startFailed": "Impossible d’activer la protection",
+  "startFailedBody": "Shroudly n’a pas pu activer la protection. Il continue d’essayer tout seul ; si cela ne fonctionne toujours pas, appuyez sur « {repair} ».",
   "startBlockedBySecurity": "Votre antivirus a bloqué le moteur de Shroudly",
   "stopFailed": "Impossible de désactiver la protection",
   "desktopOnly": "Ouvrez Shroudly depuis l’application de bureau pour utiliser cette fonction.",

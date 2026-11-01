@@ -30,6 +30,7 @@
   "protectionStarted": "Абарона ўключана",
   "protectionStopped": "Абарона выключана",
   "startFailed": "Не ўдалося ўключыць абарону",
+  "startFailedBody": "Shroudly не змог уключыць абарону. Ён працягвае спрабаваць сам; калі гэта не дапаможа, націсніце «{repair}».",
   "startBlockedBySecurity": "Ваш антывірус заблакаваў рухавік Shroudly",
   "stopFailed": "Не ўдалося выключыць абарону",
   "desktopOnly": "Каб скарыстацца гэтай функцыяй, адкрыйце праграму Shroudly на камп’ютары.",

@@ -30,6 +30,7 @@
   "protectionStarted": "بدأت الحماية",
   "protectionStopped": "توقفت الحماية",
   "startFailed": "تعذّر بدء الحماية",
+  "startFailedBody": "تعذّر على Shroudly تفعيل الحماية. سيواصل المحاولة من تلقاء نفسه؛ وإن ظلّ الأمر كذلك فاضغط «{repair}».",
   "startBlockedBySecurity": "حظر برنامج مكافحة الفيروسات محرك Shroudly",
   "stopFailed": "تعذّر إيقاف الحماية",
   "desktopOnly": "افتح Shroudly من تطبيق سطح المكتب لاستخدام هذه الميزة.",

@@ -30,6 +30,7 @@
   "protectionStarted": "Gorag işledildi",
   "protectionStopped": "Gorag togtadyldy",
   "startFailed": "Goragy işledip bolmady",
+  "startFailedBody": "Shroudly goragy açyp bilmedi. Ol özbaşdak synanyşmagyny dowam etdirýär; şonda-da başartmasa, «{repair}» düwmesine basyň.",
   "startBlockedBySecurity": "Antiwirusyňyz Shroudly-niň hereketlendirijisini petikledi",
   "stopFailed": "Goragy togtadyp bolmady",
   "desktopOnly": "Muny ulanmak üçin Shroudly-ni kompýuterdäki programmadan açyň.",

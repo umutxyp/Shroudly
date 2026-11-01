@@ -30,6 +30,7 @@
   "protectionStarted": "Parastin dest pê kir",
   "protectionStopped": "Parastin rawestiya",
   "startFailed": "Parastin nehat destpêkirin",
+  "startFailedBody": "Shroudly nikarî parastinê veke. Ew bi serê xwe hewldana xwe didomîne; heke dîsa jî neyê, li «{repair}» bitikîne.",
   "startBlockedBySecurity": "Antîvîrusa te motora Shroudly asteng kir",
   "stopFailed": "Parastin nehat rawestandin",
   "desktopOnly": "Ji bo vê yekê Shroudly ji sepana sermaseyê veke.",
