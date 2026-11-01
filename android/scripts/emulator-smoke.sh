@@ -127,19 +127,19 @@ has_log() { grep -q -- "$1" <<<"$(applog)"; }
 # input ends, so the input stays open while the answer comes; timeout is the
 # device's own, so a stuck nc cannot hang the test.
 http_get() {
-  sh_ "(printf 'GET / HTTP/1.1\r\nHost: example.com\r\nUser-Agent: shroudly-smoke\r\nConnection: close\r\n\r\n'; sleep 6) | timeout 20 $NC -q 1 -w 15 example.com 80 | head -1"
+  sh_ "(printf 'GET / HTTP/1.1\r\nHost: example.com\r\nUser-Agent: shroudly-smoke\r\nConnection: close\r\n\r\n'; sleep 6) | timeout 20 $NC $QUIT -w 15 example.com 80 | head -1"
 }
 
 # The same to another name, port 80 (the engine sees the name: the tunnel
 # hands apps stand-in addresses and passes the name on).
 http_host() {
-  sh_ "(printf 'GET / HTTP/1.1\r\nHost: $1\r\nUser-Agent: shroudly-smoke\r\nConnection: close\r\n\r\n'; sleep 6) | timeout 20 $NC -q 1 -w 15 $1 80 | head -1"
+  sh_ "(printf 'GET / HTTP/1.1\r\nHost: $1\r\nUser-Agent: shroudly-smoke\r\nConnection: close\r\n\r\n'; sleep 6) | timeout 20 $NC $QUIT -w 15 $1 80 | head -1"
 }
 
 # A DNS query for example.com straight to 8.8.8.8 over UDP: not the VPN's own
 # DNS, so it has to go through the engine's UDP relay. Prints the reply's hex.
 udp_dns() {
-  sh_ "(printf '\\022\\064\\001\\000\\000\\001\\000\\000\\000\\000\\000\\000\\007example\\003com\\000\\000\\001\\000\\001'; sleep 3) | timeout 10 $NC -u -q 1 8.8.8.8 53 | od -An -tx1 | head -1"
+  sh_ "(printf '\\022\\064\\001\\000\\000\\001\\000\\000\\000\\000\\000\\000\\007example\\003com\\000\\000\\001\\000\\001'; sleep 3) | timeout 10 $NC -u $QUIT 8.8.8.8 53 | od -An -tx1 | head -1"
 }
 
 # The address ping resolved a name (default example.com) to; ping may show
@@ -151,7 +151,7 @@ stand_in() { case "$1" in 198.18.[0-9].*|198.18.[1-5][0-9].*|198.18.6[0-3].*) fa
 
 # The same request to an address (an app that kept the address it was given).
 http_get_at() {
-  sh_ "(printf 'GET / HTTP/1.1\r\nHost: example.com\r\nUser-Agent: shroudly-smoke\r\nConnection: close\r\n\r\n'; sleep 6) | timeout 20 $NC -q 1 -w 15 $1 80 | head -1"
+  sh_ "(printf 'GET / HTTP/1.1\r\nHost: example.com\r\nUser-Agent: shroudly-smoke\r\nConnection: close\r\n\r\n'; sleep 6) | timeout 20 $NC $QUIT -w 15 $1 80 | head -1"
 }
 
 ctl() { sh_ "am start -n $PKG/.DebugControlActivity --es cmd $1" >/dev/null; }
@@ -179,6 +179,10 @@ say "booted: $(sh_ getprop ro.build.fingerprint)"
 SDK="$(sh_ getprop ro.build.version.sdk | tr -dc 0-9)"
 # Android 8 has netcat in toybox but no "nc" of its own.
 NC="$(sh_ 'command -v nc >/dev/null 2>&1 && echo nc || echo toybox nc')"
+# toybox's netcat quits a second after its input ends (-q 1); Android 9's nc
+# is OpenBSD's, which has no -q: there the server's close (or -w) ends it.
+QUIT="-q 1"
+if grep -q 'invalid option' <<<"$(sh_ "$NC -q 1 -w 1 127.0.0.1 9 </dev/null 2>&1")"; then QUIT=""; fi
 
 # The network may come up a little after boot.
 net_up() { grep -q '^HTTP/1' <<<"$(http_get)"; }
@@ -246,7 +250,7 @@ fi
 on_line="$(applog | grep -m1 'Protection on')"
 eport="$(sed -n 's/.*engine on 127\.0\.0\.1:\([0-9]*\).*/\1/p' <<<"$on_line")"
 [ -n "$eport" ] || fail "no engine port in '$on_line'"
-noauth="$(sh_ "(printf '\\005\\001\\000'; sleep 2) | timeout 6 $NC -q 1 127.0.0.1 $eport | od -An -tx1 | head -1")"
+noauth="$(sh_ "(printf '\\005\\001\\000'; sleep 2) | timeout 6 $NC $QUIT 127.0.0.1 $eport | od -An -tx1 | head -1")"
 if grep -q '(password)' <<<"$on_line"; then
   grep -q '^ *05 00' <<<"$noauth" && fail "the engine let in a client without the password"
   say "engine port 127.0.0.1:$eport refuses a client without the password (reply: ${noauth:-none})"
@@ -569,15 +573,15 @@ mode() { sh_ "am start -n $PKG/.DebugControlActivity --es cmd mode --es mode $1"
 # A client that speaks at once, as browsers do (the engine reads a first
 # payload for a moment only).
 via_connect() {
-  sh_ "(printf 'CONNECT $1:80 HTTP/1.1\r\nHost: $1:80\r\n\r\n'; sleep 0.2; printf 'GET / HTTP/1.1\r\nHost: $1\r\nUser-Agent: shroudly-smoke\r\nConnection: close\r\n\r\n'; sleep 6) | timeout 20 $NC -q 1 -w 15 127.0.0.1 $pport | grep -a '^HTTP/1' | tr '\n' ' '"
+  sh_ "(printf 'CONNECT $1:80 HTTP/1.1\r\nHost: $1:80\r\n\r\n'; sleep 0.2; printf 'GET / HTTP/1.1\r\nHost: $1\r\nUser-Agent: shroudly-smoke\r\nConnection: close\r\n\r\n'; sleep 6) | timeout 20 $NC $QUIT -w 15 127.0.0.1 $pport | grep -a '^HTTP/1' | tr '\n' ' '"
 }
 via_socks() {
-  sh_ "(printf '\\005\\001\\000'; sleep 0.3; printf '\\005\\001\\000\\003\\013example.com\\000\\120'; sleep 0.3; printf 'GET / HTTP/1.1\r\nHost: example.com\r\nUser-Agent: shroudly-smoke\r\nConnection: close\r\n\r\n'; sleep 6) | timeout 20 $NC -q 1 -w 15 127.0.0.1 $pport | grep -a -o 'HTTP/1.[01] [0-9]*' | head -1"
+  sh_ "(printf '\\005\\001\\000'; sleep 0.3; printf '\\005\\001\\000\\003\\013example.com\\000\\120'; sleep 0.3; printf 'GET / HTTP/1.1\r\nHost: example.com\r\nUser-Agent: shroudly-smoke\r\nConnection: close\r\n\r\n'; sleep 6) | timeout 20 $NC $QUIT -w 15 127.0.0.1 $pport | grep -a -o 'HTTP/1.[01] [0-9]*' | head -1"
 }
 # What an app that follows the Wi-Fi's proxy sends for a plain http:// URL:
 # the request itself, with the whole URL.
 via_plain() {
-  sh_ "(printf 'GET http://$1/ HTTP/1.1\r\nHost: $1\r\nUser-Agent: shroudly-smoke\r\n\r\n'; sleep 6) | timeout 20 $NC -q 1 -w 15 127.0.0.1 $pport | grep -a -o '^HTTP/1.[01] [0-9]*' | head -1"
+  sh_ "(printf 'GET http://$1/ HTTP/1.1\r\nHost: $1\r\nUser-Agent: shroudly-smoke\r\n\r\n'; sleep 6) | timeout 20 $NC $QUIT -w 15 127.0.0.1 $pport | grep -a -o '^HTTP/1.[01] [0-9]*' | head -1"
 }
 listening() { grep -qi " 0100007F:$(printf '%04X' "$1") 00000000:0000 0A " <<<"$(sh_ "cat /proc/net/tcp")"; }
 wait_for 60 vpn_refused || fail "could not take back the VPN consent for proxy only"
