@@ -55,8 +55,9 @@ export const availableLanguages = [
 const RTL_LANGUAGES = new Set(['ar', 'fa', 'ur', 'he', 'ps']);
 
 /* Older tags some systems still report: "in" (Indonesian), "iw" (Hebrew),
-   "kmr" (Kurmanji), "zsm" (Standard Malay). */
-const ALIASES = { in: 'id', iw: 'he', kmr: 'ku', zsm: 'ms' };
+   "kmr" (Kurmanji), "zsm" (Standard Malay), and Windows' Dari ("prs",
+   written as Persian). */
+const ALIASES = { in: 'id', iw: 'he', kmr: 'ku', zsm: 'ms', prs: 'fa' };
 const STORAGE_KEY = 'shroudly_language';
 
 /* Map an OS / browser language tag (e.g. "tr-TR", "zh-Hans-CN", "zh-TW",
@@ -65,6 +66,9 @@ const STORAGE_KEY = 'shroudly_language';
    base code before "-"/"_", lower-cased, legacy codes mapped (ALIASES). */
 export function matchLanguage(tag) {
   if (!tag || typeof tag !== 'string') return null;
+  // Kurdish in Arabic script (Sorani, ku-Arab): not our Latin Kurmanji, so
+  // the next language the system lists is tried.
+  if (/^ku[-_]arab/i.test(tag.trim())) return null;
   let base = tag.trim().toLowerCase().split(/[-_]/)[0];
   base = ALIASES[base] || base;
   return availableLanguages.some((l) => l.code === base) ? base : null;

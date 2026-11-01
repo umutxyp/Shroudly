@@ -256,7 +256,9 @@ const shownNotes = new Set();
 function notify(title, body) {
   if (store.get('showNotifications', true) && Notification.isSupported()) {
     try {
-      const n = new Notification({ title, body, icon: trayIconPath() });
+      // Right-to-left languages laid out as such (main-i18n.js, bidi).
+      const lang = i18n.resolveLanguage(store.get('language'), systemLanguages());
+      const n = new Notification({ title: i18n.bidi(title, lang), body: i18n.bidi(body, lang), icon: trayIconPath() });
       const gone = () => shownNotes.delete(n);
       n.on('click', () => { gone(); showWindow(); });
       n.on('close', gone);

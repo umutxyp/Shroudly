@@ -33,11 +33,14 @@ function load(code) {
 }
 
 // Older tags some systems still report (same as contexts/LanguageContext.js).
-const ALIASES = { in: 'id', iw: 'he', kmr: 'ku', zsm: 'ms' };
+const ALIASES = { in: 'id', iw: 'he', kmr: 'ku', zsm: 'ms', prs: 'fa' };
 
 /* "tr-TR" / "zh_Hant_TW" / "pt-BR" -> a supported code, or null. */
 function matchLanguage(tag) {
   if (!tag) return null;
+  // Kurdish in Arabic script (Sorani, ku-Arab): not our Latin Kurmanji, so
+  // the next language the system lists is tried.
+  if (/^ku[-_]arab/i.test(String(tag))) return null;
   let base = String(tag).split(/[-_]/)[0].toLowerCase();
   base = ALIASES[base] || base;
   return supported().has(base) ? base : null;
@@ -60,4 +63,15 @@ function strings(lang) {
   return merged[code];
 }
 
-module.exports = { resolveLanguage, strings };
+/* Right-to-left text in a system notification (Arabic, Persian, Urdu,
+ * Pashto, Hebrew), which the system lays out left to right: it starts with
+ * a right-to-left mark, and each run of Latin letters and digits in it (a
+ * site, a version, a program's name) is isolated, so its dots and slashes
+ * do not scramble the sentence around it. Other languages as they are. */
+const RTL = new Set(['ar', 'fa', 'ur', 'ps', 'he']);
+function bidi(text, lang) {
+  if (!RTL.has(lang) || typeof text !== 'string' || !text) return text;
+  return '\u200F' + text.replace(/[A-Za-z0-9][A-Za-z0-9._:/@+-]*[A-Za-z0-9]|[A-Za-z0-9]/g, (m) => `\u2068${m}\u2069`);
+}
+
+module.exports = { resolveLanguage, strings, bidi, RTL };
