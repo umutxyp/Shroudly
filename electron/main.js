@@ -3056,7 +3056,9 @@ ipcMain.handle('net:stats', async () => {
     bytesUp: s.bytesUp || 0,
     bytesDown: s.bytesDown || 0,
     desync: s.desync || 0,
-    tlsSeen: s.tlsSeen || 0,
+    // The ad blocker's count (engine-manager.js): the Stats tab shows it
+    // once there is one; it was left out here, so the tile never came.
+    adsBlocked: s.adsBlocked || 0,
     uptime: s.uptime || 0,
     sampledAt: s.sampledAt || 0,
   };

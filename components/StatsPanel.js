@@ -79,9 +79,9 @@ function Rate({ Icon, label, value, color, data }) {
   );
 }
 
-function Stat({ Icon, label, value, sub }) {
+function Stat({ Icon, label, value, sub, wide = false }) {
   return (
-    <div className="card-2 flex min-w-0 flex-col p-3.5">
+    <div className={`card-2 flex min-w-0 flex-col p-3.5 ${wide ? 'col-span-2' : ''}`}>
       <div className="flex min-w-0 items-start gap-1.5 text-[12px] font-medium leading-snug" style={{ color: 'var(--text-dim)' }}>
         <Icon className="mt-[1px] h-3.5 w-3.5" style={{ color: 'var(--text-faint)' }} />
         <span className="min-w-0 wrap-anywhere">{label}</span>
@@ -188,10 +188,14 @@ export default function StatsPanel({ active }) {
       <div className="grid grid-cols-2 gap-3">
         <Stat Icon={LinkIcon} label={t('connections')} value={s.connsActive ?? 0}
               sub={t('totalCount', { count: s.connsTotal ?? 0 })} />
-        <Stat Icon={ShieldCheckIcon} label={t('bypassed')} value={s.desync ?? 0} sub={`TLS ${s.tlsSeen ?? 0}`} />
+        {/* Connections a technique got through; how many were TLS ("TLS
+            1650" under it) meant nothing to anyone reading it. */}
+        <Stat Icon={ShieldCheckIcon} label={t('bypassed')} value={s.desync ?? 0} />
         <Stat Icon={DatabaseIcon} label={t('dataTransferred')} value={fmtBytes((s.bytesUp || 0) + (s.bytesDown || 0))} />
         <Stat Icon={ClockIcon} label={t('uptime')} value={s.uptime ? fmtUptime(s.uptime) : '—'} />
-        {s.adsBlocked > 0 && <Stat Icon={ShieldCheckIcon} label={t('adsBlocked')} value={s.adsBlocked} />}
+        {/* The ad blocker at work, once it has blocked something; on its
+            own row, the counters above staying two by two. */}
+        {s.adsBlocked > 0 && <Stat Icon={ShieldCheckIcon} label={t('adsBlocked')} value={s.adsBlocked} wide />}
       </div>
     </div>
   );
