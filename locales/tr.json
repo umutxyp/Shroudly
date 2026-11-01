@@ -192,6 +192,8 @@
   "probeNoAnswer": "Henüz sonuç yok. Ayrıntılar için Kayıtlar sekmesine bak.",
   "tryAdvanced": "Gelişmiş modu dene",
   "advancedAdminHint": "Sistemin yönetici izni isteyecek.",
+  "polkitAdvancedDescription": "Shroudly'nin Gelişmiş modunu aç",
+  "polkitAdvancedMessage": "Shroudly'nin Gelişmiş modu açabilmesi için yönetici izni gerekiyor.",
   "advancedOn": "Gelişmiş mod açık",
   "advancedActive": "Gelişmiş mod etkin (paket düzeyinde senkron bozma)",
   "advancedTurnOff": "Kapat",

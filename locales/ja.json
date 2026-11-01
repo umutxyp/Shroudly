@@ -192,6 +192,8 @@
   "probeNoAnswer": "まだ結果がありません。詳細は「ログ」タブを確認してください。",
   "tryAdvanced": "高度なモードを試す",
   "advancedAdminHint": "システムから管理者権限を求められます。",
+  "polkitAdvancedDescription": "Shroudly の高度なモードをオンにする",
+  "polkitAdvancedMessage": "高度なモードをオンにするには、Shroudly に管理者の許可が必要です。",
   "advancedOn": "高度なモードはオンです",
   "advancedActive": "高度なモードが有効（パケットレベルのデシンク）",
   "advancedTurnOff": "オフにする",

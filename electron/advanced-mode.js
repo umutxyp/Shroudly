@@ -80,6 +80,38 @@ function advBinaryPath() {
   return path.join(__dirname, 'tools', 'core', `${process.platform}-${archKey()}`, name);
 }
 
+/* Where the status file (and an AppImage's copy of the engine) is kept: on
+ * Linux the user's own runtime folder (/run/user/<uid>, 0700), not /tmp,
+ * where a program asking for administrator permission looks like anything
+ * but Shroudly. /tmp when there is none that is this user's, or when it is
+ * mounted noexec (the copy could not run from it). */
+function workBase(platform = process.platform, env = process.env, mounts = null) {
+  const run = env.XDG_RUNTIME_DIR;
+  if (platform === 'linux' && run && path.isAbsolute(run)) {
+    try {
+      const st = fs.statSync(run);
+      if (st.isDirectory() && (typeof process.getuid !== 'function' || st.uid === process.getuid()) && !noexec(run, mounts)) return run;
+    } catch {}
+  }
+  return os.tmpdir();
+}
+
+/* Is the folder on a filesystem mounted noexec? From /proc/self/mounts (or
+ * the text given): the longest mount point it is under decides. */
+function noexec(dir, mounts = null) {
+  let text = mounts;
+  if (text == null) { try { text = fs.readFileSync('/proc/self/mounts', 'utf8'); } catch { return false; } }
+  let best = null;
+  for (const line of String(text).split('\n')) {
+    const f = line.split(' ');
+    if (f.length < 4) continue;
+    const mp = f[1].replace(/\\(\d{3})/g, (m, o) => String.fromCharCode(parseInt(o, 8)));
+    const under = mp === '/' || dir === mp || dir.startsWith(`${mp}/`);
+    if (under && (!best || mp.length >= best.mp.length)) best = { mp, opts: f[3].split(',') };
+  }
+  return !!(best && best.opts.includes('noexec'));
+}
+
 const REASONS = {
   mac_unsupported: 'Advanced mode is not available on macOS: the system offers no packet-divert interface without a signed Network Extension. The default engine still works.',
   arch_unsupported: 'Advanced mode is not available on this processor architecture (the WinDivert driver has no ARM64 build).',
@@ -459,7 +491,7 @@ class AdvancedMode {
     const o = opts || {};
 
     this._removeDir();
-    this.dir = fs.mkdtempSync(path.join(os.tmpdir(), 'shroudly-adv-'));
+    this.dir = fs.mkdtempSync(path.join(workBase(this.platform), 'shroudly-adv-'));
     this.statusFile = path.join(this.dir, 'status.log');
     const args = buildArgs({
       ttl, statusFile: this.statusFile, parentPid: process.pid, platform: this.platform,
@@ -564,3 +596,4 @@ module.exports.buildAdvancedArgs = ({ fakeTtl, opts, ...rest }) => buildArgs({ .
 module.exports.ADV_DEFAULTS = ADV_DEFAULTS;
 module.exports.AdvError = AdvError;
 module.exports.launcherArgs = launcherArgs;
+module.exports.workBase = workBase;

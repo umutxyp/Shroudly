@@ -192,6 +192,8 @@
   "probeNoAnswer": "Belum ada hasil. Periksa tab Log untuk detailnya.",
   "tryAdvanced": "Coba mode Lanjutan",
   "advancedAdminHint": "Sistem akan meminta izin administrator.",
+  "polkitAdvancedDescription": "Aktifkan Mode Lanjutan Shroudly",
+  "polkitAdvancedMessage": "Shroudly memerlukan izin administrator untuk mengaktifkan Mode Lanjutan.",
   "advancedOn": "Mode Lanjutan aktif",
   "advancedActive": "Mode Lanjutan berjalan (desinkronisasi tingkat paket)",
   "advancedTurnOff": "Matikan",

@@ -192,6 +192,8 @@
   "probeNoAnswer": "暂无结果。请查看“日志”选项卡了解详情。",
   "tryAdvanced": "尝试高级模式",
   "advancedAdminHint": "系统将请求管理员权限。",
+  "polkitAdvancedDescription": "开启 Shroudly 的高级模式",
+  "polkitAdvancedMessage": "Shroudly 需要管理员权限才能开启高级模式。",
   "advancedOn": "高级模式已开启",
   "advancedActive": "高级模式已启用（数据包级去同步）",
   "advancedTurnOff": "关闭",

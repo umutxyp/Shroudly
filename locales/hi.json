@@ -192,6 +192,8 @@
   "probeNoAnswer": "अभी तक कोई परिणाम नहीं। विवरण के लिए लॉग टैब देखें।",
   "tryAdvanced": "उन्नत मोड आज़माएँ",
   "advancedAdminHint": "आपका सिस्टम व्यवस्थापक अनुमति माँगेगा।",
+  "polkitAdvancedDescription": "Shroudly का उन्नत मोड चालू करें",
+  "polkitAdvancedMessage": "उन्नत मोड चालू करने के लिए Shroudly को व्यवस्थापक की अनुमति चाहिए।",
   "advancedOn": "उन्नत मोड चालू है",
   "advancedActive": "उन्नत मोड सक्रिय (पैकेट-स्तरीय डीसिंक)",
   "advancedTurnOff": "बंद करें",

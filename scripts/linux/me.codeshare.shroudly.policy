@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE policyconfig PUBLIC "-//freedesktop//DTD PolicyKit Policy Configuration 1.0//EN"
+ "http://www.freedesktop.org/standards/PolicyKit/1/policyconfig.dtd">
+<!-- Written by scripts/gen-polkit.js from locales/*.json: change those. -->
+<policyconfig>
+  <vendor>Shroudly</vendor>
+  <vendor_url>https://github.com/umutxyp/Shroudly</vendor_url>
+  <icon_name>shroudly</icon_name>
+  <action id="me.codeshare.shroudly.advanced">
+    <description>Turn on Shroudly's Advanced mode</description>
+    <description xml:lang="am">የShroudlyን የላቀ ሁነታ ማብራት</description>
+    <description xml:lang="ar">تشغيل الوضع المتقدم في Shroudly</description>
+    <description xml:lang="az">Shroudly-nin Təkmil rejimini aç</description>
+    <description xml:lang="be">Уключыць пашыраны рэжым Shroudly</description>
+    <description xml:lang="bn">Shroudly-এর উন্নত মোড চালু করুন</description>
+    <description xml:lang="de">Den Erweiterten Modus von Shroudly einschalten</description>
+    <description xml:lang="es">Activar el Modo Avanzado de Shroudly</description>
+    <description xml:lang="fa">روشن کردن حالت پیشرفتهٔ Shroudly</description>
+    <description xml:lang="fr">Activer le mode Avancé de Shroudly</description>
+    <description xml:lang="he">הפעלת המצב המתקדם של Shroudly</description>
+    <description xml:lang="hi">Shroudly का उन्नत मोड चालू करें</description>
+    <description xml:lang="id">Aktifkan Mode Lanjutan Shroudly</description>
+    <description xml:lang="ja">Shroudly の高度なモードをオンにする</description>
+    <description xml:lang="kk">Shroudly-дің кеңейтілген режимін қосу</description>
+    <description xml:lang="ku">Moda pêşketî ya Shroudly veke</description>
+    <description xml:lang="ky">Shroudly'дин кеңейтилген режимин күйгүзүү</description>
+    <description xml:lang="ms">Hidupkan Mod Lanjutan Shroudly</description>
+    <description xml:lang="my">Shroudly ၏ အဆင့်မြင့်မုဒ်ကို ဖွင့်ရန်</description>
+    <description xml:lang="ps">د Shroudly پرمختللی حالت روښانه کړئ</description>
+    <description xml:lang="pt">Ativar o Modo Avançado do Shroudly</description>
+    <description xml:lang="ru">Включить расширенный режим Shroudly</description>
+    <description xml:lang="tg">Фаъол кардани реҷаи пешрафтаи Shroudly</description>
+    <description xml:lang="th">เปิดโหมดขั้นสูงของ Shroudly</description>
+    <description xml:lang="tk">Shroudly-niň Giňişleýin tertibini açyň</description>
+    <description xml:lang="tr">Shroudly'nin Gelişmiş modunu aç</description>
+    <description xml:lang="uk">Увімкнути розширений режим Shroudly</description>
+    <description xml:lang="ur">Shroudly کا ایڈوانسڈ موڈ آن کریں</description>
+    <description xml:lang="uz">Shroudlyning kengaytirilgan rejimini yoqish</description>
+    <description xml:lang="vi">Bật Chế độ nâng cao của Shroudly</description>
+    <description xml:lang="zh">开启 Shroudly 的高级模式</description>
+    <message>Shroudly needs administrator permission to turn on Advanced mode.</message>
+    <message xml:lang="am">Shroudly የላቀ ሁነታን ለማብራት የአስተዳዳሪ ፈቃድ ይፈልጋል።</message>
+    <message xml:lang="ar">يحتاج Shroudly إلى إذن المسؤول لتشغيل الوضع المتقدم.</message>
+    <message xml:lang="az">Shroudly-yə Təkmil rejimi açmaq üçün administrator icazəsi lazımdır.</message>
+    <message xml:lang="be">Shroudly патрэбны дазвол адміністратара, каб уключыць пашыраны рэжым.</message>
+    <message xml:lang="bn">উন্নত মোড চালু করতে Shroudly-এর অ্যাডমিনিস্ট্রেটরের অনুমতি প্রয়োজন।</message>
+    <message xml:lang="de">Shroudly braucht Administratorrechte, um den Erweiterten Modus einzuschalten.</message>
+    <message xml:lang="es">Shroudly necesita permiso de administrador para activar el Modo Avanzado.</message>
+    <message xml:lang="fa">Shroudly برای روشن کردن حالت پیشرفته به اجازهٔ مدیر سیستم نیاز دارد.</message>
+    <message xml:lang="fr">Shroudly a besoin de l’autorisation d’un administrateur pour activer le mode Avancé.</message>
+    <message xml:lang="he">Shroudly צריך הרשאת מנהל מערכת כדי להפעיל את המצב המתקדם.</message>
+    <message xml:lang="hi">उन्नत मोड चालू करने के लिए Shroudly को व्यवस्थापक की अनुमति चाहिए।</message>
+    <message xml:lang="id">Shroudly memerlukan izin administrator untuk mengaktifkan Mode Lanjutan.</message>
+    <message xml:lang="ja">高度なモードをオンにするには、Shroudly に管理者の許可が必要です。</message>
+    <message xml:lang="kk">Кеңейтілген режимді қосу үшін Shroudly-ге әкімші рұқсаты қажет.</message>
+    <message xml:lang="ku">Shroudly ji bo vekirina moda pêşketî destûra rêveberê pêwîst dike.</message>
+    <message xml:lang="ky">Кеңейтилген режимди күйгүзүү үчүн Shroudly'ге администратордун уруксаты керек.</message>
+    <message xml:lang="ms">Shroudly memerlukan kebenaran pentadbir untuk menghidupkan Mod Lanjutan.</message>
+    <message xml:lang="my">အဆင့်မြင့်မုဒ်ကို ဖွင့်ရန် Shroudly သည် စီမံခန့်ခွဲသူ၏ ခွင့်ပြုချက် လိုအပ်သည်။</message>
+    <message xml:lang="ps">Shroudly د پرمختللي حالت د روښانه کولو لپاره د مدیر اجازې ته اړتیا لري.</message>
+    <message xml:lang="pt">O Shroudly precisa de permissão de administrador para ativar o Modo Avançado.</message>
+    <message xml:lang="ru">Shroudly нужно разрешение администратора, чтобы включить расширенный режим.</message>
+    <message xml:lang="tg">Shroudly барои фаъол кардани реҷаи пешрафта иҷозати маъмурро лозим дорад.</message>
+    <message xml:lang="th">Shroudly ต้องได้รับสิทธิ์ผู้ดูแลระบบเพื่อเปิดโหมดขั้นสูง</message>
+    <message xml:lang="tk">Giňişleýin tertibi açmak üçin Shroudly-e administratoryň rugsady gerek.</message>
+    <message xml:lang="tr">Shroudly'nin Gelişmiş modu açabilmesi için yönetici izni gerekiyor.</message>
+    <message xml:lang="uk">Shroudly потрібен дозвіл адміністратора, щоб увімкнути розширений режим.</message>
+    <message xml:lang="ur">ایڈوانسڈ موڈ آن کرنے کے لیے Shroudly کو ایڈمنسٹریٹر کی اجازت درکار ہے۔</message>
+    <message xml:lang="uz">Kengaytirilgan rejimni yoqish uchun Shroudlyga administrator ruxsati kerak.</message>
+    <message xml:lang="vi">Shroudly cần quyền quản trị viên để bật Chế độ nâng cao.</message>
+    <message xml:lang="zh">Shroudly 需要管理员权限才能开启高级模式。</message>
+    <defaults>
+      <allow_any>auth_admin</allow_any>
+      <allow_inactive>auth_admin</allow_inactive>
+      <allow_active>auth_admin</allow_active>
+    </defaults>
+    <annotate key="org.freedesktop.policykit.exec.path">/opt/Shroudly/resources/app.asar.unpacked/electron/tools/core/linux-x64/shroudly-core-adv</annotate>
+  </action>
+</policyconfig>

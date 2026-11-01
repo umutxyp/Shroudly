@@ -192,6 +192,8 @@
   "probeNoAnswer": "Noch kein Ergebnis. Details im Tab „Protokoll“.",
   "tryAdvanced": "Erweiterten Modus testen",
   "advancedAdminHint": "Das System fragt nach Administratorrechten.",
+  "polkitAdvancedDescription": "Den Erweiterten Modus von Shroudly einschalten",
+  "polkitAdvancedMessage": "Shroudly braucht Administratorrechte, um den Erweiterten Modus einzuschalten.",
   "advancedOn": "Erweiterter Modus ist aktiviert",
   "advancedActive": "Erweiterter Modus aktiv (Desynchronisierung auf Paketebene)",
   "advancedTurnOff": "Deaktivieren",

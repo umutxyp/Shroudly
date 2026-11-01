@@ -192,6 +192,8 @@
   "probeNoAnswer": "Hələ nəticə yoxdur. Təfərrüatlar üçün Qeydlər bölməsinə bax.",
   "tryAdvanced": "Təkmil rejimi sına",
   "advancedAdminHint": "Sistemin administrator icazəsi istəyəcək.",
+  "polkitAdvancedDescription": "Shroudly-nin Təkmil rejimini aç",
+  "polkitAdvancedMessage": "Shroudly-yə Təkmil rejimi açmaq üçün administrator icazəsi lazımdır.",
   "advancedOn": "Təkmil rejim aktivdir",
   "advancedActive": "Təkmil rejim aktivdir (paket səviyyəsində desinxronizasiya)",
   "advancedTurnOff": "Söndür",

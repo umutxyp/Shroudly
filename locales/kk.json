@@ -192,6 +192,8 @@
   "probeNoAnswer": "Әзірге нәтиже жоқ. Толығырақ «Журнал» қойындысынан қараңыз.",
   "tryAdvanced": "Кеңейтілген режимді сынау",
   "advancedAdminHint": "Жүйеңіз әкімші рұқсатын сұрайды.",
+  "polkitAdvancedDescription": "Shroudly-дің кеңейтілген режимін қосу",
+  "polkitAdvancedMessage": "Кеңейтілген режимді қосу үшін Shroudly-ге әкімші рұқсаты қажет.",
   "advancedOn": "Кеңейтілген режим қосулы",
   "advancedActive": "Кеңейтілген режим белсенді (пакет деңгейінде синхрондауды бұзу)",
   "advancedTurnOff": "Өшіру",

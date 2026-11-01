@@ -26,7 +26,7 @@
     "postinstall": "node scripts/build-core.js || echo \"[core] skipped (no compiler); run npm run build:core later\"",
     "test:core": "cd core && make test",
     "create-icon": "node scripts/create-icon.js",
-    "check:translations": "node scripts/check-translations.js",
+    "check:translations": "node scripts/check-translations.js && node scripts/gen-polkit.js --check",
     "verify": "npm run build:core && npm run check:translations && npm run build",
     "electron": "npm run build && electron .",
     "electron:dev": "concurrently \"next dev\" \"wait-on http://localhost:3000 && electron .\"",
@@ -205,6 +205,9 @@
       "recommends": [
         "libappindicator3-1",
         "pkexec | policykit-1"
+      ],
+      "fpm": [
+        "scripts/linux/me.codeshare.shroudly.policy=/usr/share/polkit-1/actions/me.codeshare.shroudly.policy"
       ]
     },
     "publish": [
@@ -234,7 +237,8 @@
       ],
       "fpm": [
         "--pacman-optional-depends",
-        "polkit: lets Advanced mode ask for administrator permission"
+        "polkit: lets Advanced mode ask for administrator permission",
+        "scripts/linux/me.codeshare.shroudly.policy=/usr/share/polkit-1/actions/me.codeshare.shroudly.policy"
       ]
     },
     "rpm": {
@@ -253,7 +257,8 @@
       ],
       "fpm": [
         "--rpm-tag",
-        "Recommends: polkit"
+        "Recommends: polkit",
+        "scripts/linux/me.codeshare.shroudly.policy=/usr/share/polkit-1/actions/me.codeshare.shroudly.policy"
       ]
     }
   },

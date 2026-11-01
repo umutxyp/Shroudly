@@ -192,6 +192,8 @@
   "probeNoAnswer": "No result yet. Check the Logs tab for details.",
   "tryAdvanced": "Try Advanced mode",
   "advancedAdminHint": "Your system will ask for administrator permission.",
+  "polkitAdvancedDescription": "Turn on Shroudly's Advanced mode",
+  "polkitAdvancedMessage": "Shroudly needs administrator permission to turn on Advanced mode.",
   "advancedOn": "Advanced mode is on",
   "advancedActive": "Advanced mode active (packet-level desync)",
   "advancedTurnOff": "Turn off",

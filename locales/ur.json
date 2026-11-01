@@ -192,6 +192,8 @@
   "probeNoAnswer": "ابھی تک کوئی نتیجہ نہیں۔ تفصیلات کے لیے لاگز ٹیب دیکھیں۔",
   "tryAdvanced": "ایڈوانسڈ موڈ آزمائیں",
   "advancedAdminHint": "آپ کا سسٹم ایڈمنسٹریٹر کی اجازت طلب کرے گا۔",
+  "polkitAdvancedDescription": "Shroudly کا ایڈوانسڈ موڈ آن کریں",
+  "polkitAdvancedMessage": "ایڈوانسڈ موڈ آن کرنے کے لیے Shroudly کو ایڈمنسٹریٹر کی اجازت درکار ہے۔",
   "advancedOn": "ایڈوانسڈ موڈ آن ہے",
   "advancedActive": "ایڈوانسڈ موڈ فعال ہے (پیکٹ کی سطح پر ڈی سنک)",
   "advancedTurnOff": "آف کریں",

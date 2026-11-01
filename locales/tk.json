@@ -192,6 +192,8 @@
   "probeNoAnswer": "Entek netije ýok. Jikme-jiklikler üçin Ýazgylar bölümine serediň.",
   "tryAdvanced": "Giňişleýin tertibi synaň",
   "advancedAdminHint": "Ulgamyňyz administratoryň rugsadyny sorar.",
+  "polkitAdvancedDescription": "Shroudly-niň Giňişleýin tertibini açyň",
+  "polkitAdvancedMessage": "Giňişleýin tertibi açmak üçin Shroudly-e administratoryň rugsady gerek.",
   "advancedOn": "Giňişleýin tertip açyk",
   "advancedActive": "Giňişleýin tertip işjeň (paket derejesinde sinhronlamany bozmak)",
   "advancedTurnOff": "Öçüriň",

@@ -192,6 +192,8 @@
   "probeNoAnswer": "עדיין אין תוצאה. הפרטים מופיעים בכרטיסייה \"יומנים\".",
   "tryAdvanced": "לנסות מצב מתקדם",
   "advancedAdminHint": "המערכת תבקש הרשאת מנהל.",
+  "polkitAdvancedDescription": "הפעלת המצב המתקדם של Shroudly",
+  "polkitAdvancedMessage": "Shroudly צריך הרשאת מנהל מערכת כדי להפעיל את המצב המתקדם.",
   "advancedOn": "המצב המתקדם פועל",
   "advancedActive": "מצב מתקדם פעיל (שיבוש סנכרון ברמת החבילות)",
   "advancedTurnOff": "לכבות",

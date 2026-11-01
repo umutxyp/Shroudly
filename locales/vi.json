@@ -192,6 +192,8 @@
   "probeNoAnswer": "Chưa có kết quả. Hãy xem thẻ Nhật ký để biết chi tiết.",
   "tryAdvanced": "Thử Chế độ nâng cao",
   "advancedAdminHint": "Hệ thống sẽ yêu cầu quyền quản trị viên.",
+  "polkitAdvancedDescription": "Bật Chế độ nâng cao của Shroudly",
+  "polkitAdvancedMessage": "Shroudly cần quyền quản trị viên để bật Chế độ nâng cao.",
   "advancedOn": "Chế độ nâng cao đang bật",
   "advancedActive": "Chế độ nâng cao đang hoạt động (lệch đồng bộ ở tầng gói tin)",
   "advancedTurnOff": "Tắt",

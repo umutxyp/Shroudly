@@ -192,6 +192,8 @@
   "probeNoAnswer": "እስካሁን ውጤት የለም። ለዝርዝሩ የመዝገብ ትሩን ይመልከቱ።",
   "tryAdvanced": "የላቀ ሁነታን ይሞክሩ",
   "advancedAdminHint": "ሲስተምዎ የአስተዳዳሪ ፈቃድ ይጠይቃል።",
+  "polkitAdvancedDescription": "የShroudlyን የላቀ ሁነታ ማብራት",
+  "polkitAdvancedMessage": "Shroudly የላቀ ሁነታን ለማብራት የአስተዳዳሪ ፈቃድ ይፈልጋል።",
   "advancedOn": "የላቀ ሁነታ በርቷል",
   "advancedActive": "የላቀ ሁነታ ንቁ ነው (በፓኬት ደረጃ ማዛባት)",
   "advancedTurnOff": "ያጥፉ",

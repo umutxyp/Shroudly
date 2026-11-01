@@ -192,6 +192,8 @@
   "probeNoAnswer": "এখনও কোনো ফলাফল নেই। বিস্তারিত জানতে লগ ট্যাব দেখুন।",
   "tryAdvanced": "উন্নত মোড চেষ্টা করুন",
   "advancedAdminHint": "আপনার সিস্টেম প্রশাসকের অনুমতি চাইবে।",
+  "polkitAdvancedDescription": "Shroudly-এর উন্নত মোড চালু করুন",
+  "polkitAdvancedMessage": "উন্নত মোড চালু করতে Shroudly-এর অ্যাডমিনিস্ট্রেটরের অনুমতি প্রয়োজন।",
   "advancedOn": "উন্নত মোড চালু আছে",
   "advancedActive": "উন্নত মোড সক্রিয় (প্যাকেট-স্তরের ডিসিঙ্ক)",
   "advancedTurnOff": "বন্ধ করুন",

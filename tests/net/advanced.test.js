@@ -7,7 +7,9 @@
  * errors with Windows' code, the launcher's exits, an elevated engine ended
  * from outside while it starts (told in about a second, not after two
  * minutes) and while it runs, and Advanced mode's files gone from an
- * installed Shroudly. */
+ * installed Shroudly. Linux's password window names Shroudly and says why,
+ * in the user's language, for the engine the packages install, and an
+ * AppImage's copy runs from the user's runtime folder, not /tmp (VML-4). */
 
 const path = require('path');
 const fs = require('fs');
@@ -369,5 +371,40 @@ function windowsArgv(line) {
     t.ok(/advanced\.available\(\)[\s\S]{0,300}notifySiteBlockedBodyNoAdvanced/.test(main), 'a blocked site: Advanced mode is not suggested where it is not available');
   }
   fs.rmSync(tmp, { recursive: true, force: true });
+
+  // VML-4: the polkit action the deb, rpm and pacman packages install.
+  {
+    const { ENGINE, render } = require(path.join(ROOT, 'scripts', 'gen-polkit.js'));
+    const file = path.join(ROOT, 'scripts', 'linux', 'me.codeshare.shroudly.policy');
+    const policy = fs.readFileSync(file, 'utf8');
+    const pkg = require(path.join(ROOT, 'package.json'));
+    const langs = fs.readdirSync(path.join(ROOT, 'locales')).filter((f) => f.endsWith('.json')).map((f) => f.slice(0, -5));
+    t.ok(policy === render(), 'the polkit action is up to date with the translations (node scripts/gen-polkit.js)');
+    t.ok(ENGINE === `/opt/${pkg.build.productName}/resources/app.asar.unpacked/electron/tools/core/linux-x64/shroudly-core-adv`
+      && policy.includes(`<annotate key="org.freedesktop.policykit.exec.path">${ENGINE}</annotate>`),
+    `it names the engine where the packages install it (${ENGINE})`);
+    t.ok(langs.length === 31 && langs.filter((l) => l !== 'en').every((l) => policy.includes(`<message xml:lang="${l}">`)) && /<message>Shroudly needs administrator permission/.test(policy),
+      'its message is in all 31 languages');
+    const map = 'scripts/linux/me.codeshare.shroudly.policy=/usr/share/polkit-1/actions/me.codeshare.shroudly.policy';
+    t.ok(['deb', 'rpm', 'pacman'].every((k) => { const f = pkg.build[k].fpm || []; return f[f.length - 1] === map; }),
+      'deb, rpm and pacman install it (last in their fpm lists: fpm reads its options first)');
+    t.ok(/check:translations": "[^"]*gen-polkit\.js --check/.test(fs.readFileSync(path.join(ROOT, 'package.json'), 'utf8'))
+      && /polkit-1\/actions\/me\.codeshare\.shroudly\.policy/.test(fs.readFileSync(path.join(ROOT, 'scripts', 'ci-linux-package-test.sh'), 'utf8')),
+    'CI checks it is up to date, and that each installed package has it');
+  }
+  // VML-4: an AppImage's copy of the engine runs from the user's runtime
+  // folder, not /tmp; /tmp still where that is missing, someone else's, or
+  // mounted noexec.
+  {
+    const { workBase } = require(path.join(ROOT, 'electron', 'advanced-mode.js'));
+    const run = fs.mkdtempSync(path.join(os.tmpdir(), 'shroudly-run-'));
+    const plain = `tmpfs ${run} tmpfs rw,nosuid,nodev,relatime,mode=700 0 0\n/dev/sda1 / ext4 rw,relatime 0 0\n`;
+    const locked = `tmpfs ${run} tmpfs rw,nosuid,nodev,noexec,relatime,mode=700 0 0\n/dev/sda1 / ext4 rw,relatime 0 0\n`;
+    t.ok(workBase('linux', { XDG_RUNTIME_DIR: run }, plain) === run, 'Linux: the user\'s runtime folder');
+    t.ok(workBase('linux', { XDG_RUNTIME_DIR: run }, locked) === os.tmpdir() && workBase('linux', {}, plain) === os.tmpdir()
+      && workBase('linux', { XDG_RUNTIME_DIR: path.join(run, 'missing') }, plain) === os.tmpdir() && workBase('win32', { XDG_RUNTIME_DIR: run }, plain) === os.tmpdir(),
+    'and /tmp where it is mounted noexec, not set, missing, or off Linux');
+    fs.rmSync(run, { recursive: true, force: true });
+  }
   console.log(`advanced: ${t.count} passed`);
 })();

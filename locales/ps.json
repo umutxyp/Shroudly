@@ -192,6 +192,8 @@
   "probeNoAnswer": "تر اوسه پایله نشته. د جزییاتو لپاره د لاګونو ټب وګورئ.",
   "tryAdvanced": "پرمختللی حالت وازمویئ",
   "advancedAdminHint": "ستاسو سیسټم به د مدیر اجازه وغواړي.",
+  "polkitAdvancedDescription": "د Shroudly پرمختللی حالت روښانه کړئ",
+  "polkitAdvancedMessage": "Shroudly د پرمختللي حالت د روښانه کولو لپاره د مدیر اجازې ته اړتیا لري.",
   "advancedOn": "پرمختللی حالت فعال دی",
   "advancedActive": "پرمختللی حالت فعال دی (د پاکټ په کچه desync)",
   "advancedTurnOff": "بند کړئ",

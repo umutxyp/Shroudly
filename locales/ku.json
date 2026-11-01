@@ -192,6 +192,8 @@
   "probeNoAnswer": "Hîn encam tune. Ji bo hûrgiliyan li beşa Tomaran binêre.",
   "tryAdvanced": "Moda pêşketî biceribîne",
   "advancedAdminHint": "Pergala te dê destûra rêveberê bixwaze.",
+  "polkitAdvancedDescription": "Moda pêşketî ya Shroudly veke",
+  "polkitAdvancedMessage": "Shroudly ji bo vekirina moda pêşketî destûra rêveberê pêwîst dike.",
   "advancedOn": "Moda pêşketî çalak e",
   "advancedActive": "Moda pêşketî çalak e (nehevdemkirin di asta pakêtan de)",
   "advancedTurnOff": "Neçalak bike",

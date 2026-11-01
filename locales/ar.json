@@ -192,6 +192,8 @@
   "probeNoAnswer": "لا توجد نتيجة بعد. راجع علامة التبويب «السجلات» للاطلاع على التفاصيل.",
   "tryAdvanced": "تجربة الوضع المتقدم",
   "advancedAdminHint": "سيطلب منك النظام إذن المسؤول.",
+  "polkitAdvancedDescription": "تشغيل الوضع المتقدم في Shroudly",
+  "polkitAdvancedMessage": "يحتاج Shroudly إلى إذن المسؤول لتشغيل الوضع المتقدم.",
   "advancedOn": "الوضع المتقدم مُفعَّل",
   "advancedActive": "الوضع المتقدم نشط (إرباك التزامن على مستوى الحزم)",
   "advancedTurnOff": "إيقاف التشغيل",

@@ -192,6 +192,8 @@
   "probeNoAnswer": "ยังไม่มีผลลัพธ์ ดูรายละเอียดได้ในแท็บบันทึก",
   "tryAdvanced": "ลองโหมดขั้นสูง",
   "advancedAdminHint": "ระบบของคุณจะขอสิทธิ์ผู้ดูแลระบบ",
+  "polkitAdvancedDescription": "เปิดโหมดขั้นสูงของ Shroudly",
+  "polkitAdvancedMessage": "Shroudly ต้องได้รับสิทธิ์ผู้ดูแลระบบเพื่อเปิดโหมดขั้นสูง",
   "advancedOn": "โหมดขั้นสูงเปิดอยู่",
   "advancedActive": "โหมดขั้นสูงทำงานอยู่ (desync ระดับแพ็กเก็ต)",
   "advancedTurnOff": "ปิด",

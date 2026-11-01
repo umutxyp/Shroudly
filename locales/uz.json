@@ -192,6 +192,8 @@
   "probeNoAnswer": "Hozircha natija yoʻq. Tafsilotlar uchun «Jurnal» boʻlimini koʻring.",
   "tryAdvanced": "Kengaytirilgan rejimni sinash",
   "advancedAdminHint": "Tizimingiz administrator ruxsatini soʻraydi.",
+  "polkitAdvancedDescription": "Shroudlyning kengaytirilgan rejimini yoqish",
+  "polkitAdvancedMessage": "Kengaytirilgan rejimni yoqish uchun Shroudlyga administrator ruxsati kerak.",
   "advancedOn": "Kengaytirilgan rejim yoqilgan",
   "advancedActive": "Kengaytirilgan rejim faol (paketlar darajasida desinxronizatsiya)",
   "advancedTurnOff": "Oʻchirish",

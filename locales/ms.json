@@ -192,6 +192,8 @@
   "probeNoAnswer": "Belum ada keputusan. Semak tab Log untuk butiran.",
   "tryAdvanced": "Cuba Mod Lanjutan",
   "advancedAdminHint": "Sistem anda akan meminta kebenaran pentadbir.",
+  "polkitAdvancedDescription": "Hidupkan Mod Lanjutan Shroudly",
+  "polkitAdvancedMessage": "Shroudly memerlukan kebenaran pentadbir untuk menghidupkan Mod Lanjutan.",
   "advancedOn": "Mod Lanjutan dihidupkan",
   "advancedActive": "Mod Lanjutan aktif (penyahsegerakan peringkat paket)",
   "advancedTurnOff": "Matikan",

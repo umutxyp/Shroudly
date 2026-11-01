@@ -192,6 +192,8 @@
   "probeNoAnswer": "Aún no hay resultados. Consulta la pestaña Registros para ver los detalles.",
   "tryAdvanced": "Probar el modo Avanzado",
   "advancedAdminHint": "El sistema te pedirá permiso de administrador.",
+  "polkitAdvancedDescription": "Activar el Modo Avanzado de Shroudly",
+  "polkitAdvancedMessage": "Shroudly necesita permiso de administrador para activar el Modo Avanzado.",
   "advancedOn": "El modo Avanzado está activado",
   "advancedActive": "Modo Avanzado activo (desincronización a nivel de paquete)",
   "advancedTurnOff": "Desactivar",

@@ -192,6 +192,8 @@
   "probeNoAnswer": "هنوز نتیجه‌ای در دست نیست. برای جزئیات، زبانهٔ «گزارش‌ها» را ببینید.",
   "tryAdvanced": "امتحان حالت پیشرفته",
   "advancedAdminHint": "سیستم از شما مجوز سرپرست درخواست می‌کند.",
+  "polkitAdvancedDescription": "روشن کردن حالت پیشرفتهٔ Shroudly",
+  "polkitAdvancedMessage": "Shroudly برای روشن کردن حالت پیشرفته به اجازهٔ مدیر سیستم نیاز دارد.",
   "advancedOn": "حالت پیشرفته روشن است",
   "advancedActive": "حالت پیشرفته فعال است (ناهمگام‌سازی در سطح بسته)",
   "advancedTurnOff": "خاموش کردن",

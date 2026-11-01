@@ -41,6 +41,13 @@ if [ -x "$CORE/shroudly-core-adv" ]; then
   echo "ok  Advanced mode engine needs nothing installed (glibc only)"
 fi
 
+# Advanced mode's password window names Shroudly and says why (VML-4).
+POLICY=/usr/share/polkit-1/actions/me.codeshare.shroudly.policy
+[ -f "$POLICY" ] || fail "no polkit action at $POLICY"
+grep -q "<annotate key=\"org.freedesktop.policykit.exec.path\">$CORE/shroudly-core-adv</annotate>" "$POLICY" \
+  || fail "the polkit action does not name the installed Advanced mode engine ($CORE/shroudly-core-adv)"
+echo "ok  polkit action installed for the Advanced mode engine"
+
 ls /usr/share/applications | grep -qi shroudly || fail "no desktop entry"
 echo "ok  desktop entry installed"
 [ -f /usr/share/icons/hicolor/256x256/apps/shroudly.png ] || ls /usr/share/icons/hicolor/*/apps/ | grep -qi shroudly || fail "no icon"
