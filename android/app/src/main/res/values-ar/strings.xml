@@ -86,8 +86,12 @@
     <string name="androidTileAddDesc">مربع Shroudly في اللوحة أعلى الشاشة يشغّل الحماية ويوقفها بلمسة واحدة.</string>
     <string name="androidTileAdded">مربع Shroudly موجود في الإعدادات السريعة.</string>
     <string name="androidTileHowTo">اسحب اللوحة أعلى الشاشة إلى الأسفل بالكامل، واضغط على القلم (تعديل)، واسحب مربع Shroudly بين المربعات الأخرى.</string>
+    <string name="androidUnknownSources">لتثبيت التحديثات، يحتاج Android إلى إذنك كي يثبّت Shroudly التطبيقات. في الشاشة التالية، فعّل «السماح من هذا المصدر» ثم عد إلى هنا.</string>
     <string name="androidUpdateImportant">الإصدار {version} تحديث مهم</string>
+    <string name="androidUpdateInstallTap">اضغط لتثبيته.</string>
+    <string name="androidUpdateNotSigned">التحديث الذي نُزّل غير موقّع مثل هذه النسخة من Shroudly، لذا لم يُثبَّت.</string>
     <string name="androidUpdateReadyTap">اضغط لإعادة تشغيل Shroudly وإكمال التحديث. ستعود الحماية للعمل تلقائيًا.</string>
+    <string name="androidUpdateTap">اضغط لتنزيله وتثبيته.</string>
     <string name="androidUseProxyOnly">استخدم «وكيل فقط»</string>
     <string name="androidVpnBlocked">لم يطلب Android إذن VPN: إما أن تطبيق VPN آخر مضبوط كشبكة VPN دائمة التشغيل، أو أن هذا الهاتف لا يسمح بتغيير إعدادات VPN. أوقف خيار «التشغيل الدائم» لذلك التطبيق من إعدادات VPN في Android، أو استخدم وضع «وكيل فقط» الذي يُبقي شبكتك الافتراضية الأخرى.</string>
     <string name="androidVpnDenied">يحتاج Shroudly إلى إذن VPN لنقل اتصالات تطبيقاتك.</string>
@@ -182,6 +186,7 @@
     <string name="updAvailable">الإصدار {version} متاح</string>
     <string name="updDownload">تنزيل وتثبيت</string>
     <string name="updDownloading" formatted="false">جارٍ تنزيل الإصدار {version}… {percent}%</string>
+    <string name="updInstallFailed">تعذّر تثبيت التحديث. حاول مرة أخرى، أو نزّله من صفحة التنزيل.</string>
     <string name="updLater">لاحقًا</string>
     <string name="updReady">الإصدار {version} جاهز للتثبيت</string>
     <string name="updRestartNow">إعادة التشغيل الآن</string>

@@ -86,8 +86,12 @@
     <string name="androidTileAddDesc">မျက်နှာပြင်ထိပ်ရှိ panel ထဲက Shroudly အကွက်သည် ကာကွယ်မှုကို တစ်ချက်နှိပ်ရုံဖြင့် ဖွင့်ပိတ်ပေးသည်။</string>
     <string name="androidTileAdded">Shroudly အကွက် အမြန်ဆက်တင်တွင် ရှိပြီး။</string>
     <string name="androidTileHowTo">မျက်နှာပြင်ထိပ်ရှိ panel ကို အဆုံးထိ ဆွဲချပါ၊ ခဲတံ (ပြင်ဆင်ရန်) ကို နှိပ်ပြီး Shroudly အကွက်ကို အခြားအကွက်များကြားသို့ ဆွဲထည့်ပါ။</string>
+    <string name="androidUnknownSources">အပ်ဒိတ်များ ထည့်သွင်းရန် Shroudly က အက်ပ်များ ထည့်သွင်းနိုင်ရန် Android တွင် သင့်ခွင့်ပြုချက် လိုအပ်ပါသည်။ နောက်မျက်နှာပြင်တွင် \"ဤရင်းမြစ်မှ ခွင့်ပြုရန်\" ကို ဖွင့်ပြီး ဤနေရာသို့ ပြန်လာပါ။</string>
     <string name="androidUpdateImportant">ဗားရှင်း {version} သည် အရေးကြီးသော အပ်ဒိတ် ဖြစ်သည်</string>
+    <string name="androidUpdateInstallTap">ထည့်သွင်းရန် တို့ပါ။</string>
+    <string name="androidUpdateNotSigned">ဒေါင်းလုဒ်လုပ်ထားသော အပ်ဒိတ်သည် ဤ Shroudly ကော်ပီကဲ့သို့ လက်မှတ်ထိုးထားခြင်း မဟုတ်သဖြင့် ထည့်သွင်းမထားပါ။</string>
     <string name="androidUpdateReadyTap">Shroudly ကို ပြန်စတင်ပြီး အပ်ဒိတ်ကို အပြီးသတ်ရန် နှိပ်ပါ။ ကာကွယ်မှုသည် အလိုအလျောက် ပြန်ဖွင့်ပါမည်။</string>
+    <string name="androidUpdateTap">ဒေါင်းလုဒ်လုပ်ပြီး ထည့်သွင်းရန် တို့ပါ။</string>
     <string name="androidUseProxyOnly">ပရောက်စီသာ သုံးရန်</string>
     <string name="androidVpnBlocked">Android သည် VPN ခွင့်ပြုချက်ကို မမေးခဲ့ပါ- အခြား VPN အက်ပ်တစ်ခုကို အမြဲဖွင့် VPN အဖြစ် သတ်မှတ်ထားသည်၊ သို့မဟုတ် ဤဖုန်းက VPN ပြောင်းလဲခြင်းကို ခွင့်မပြုပါ။ Android ၏ VPN ဆက်တင်များတွင် ထိုအက်ပ်အတွက် အမြဲဖွင့်ကို ပိတ်ပါ၊ သို့မဟုတ် အခြား VPN ကို ဆက်ထားပေးသော ပရောက်စီသာကို သုံးပါ။</string>
     <string name="androidVpnDenied">သင့်အက်ပ်များ၏ ချိတ်ဆက်မှုများကို သယ်ဆောင်ရန် Shroudly သည် VPN ခွင့်ပြုချက် လိုအပ်သည်။</string>
@@ -182,6 +186,7 @@
     <string name="updAvailable">ဗားရှင်း {version} ရနိုင်ပါပြီ</string>
     <string name="updDownload">ဒေါင်းလုဒ်လုပ်ပြီး ထည့်သွင်းရန်</string>
     <string name="updDownloading" formatted="false">ဗားရှင်း {version} ကို ဒေါင်းလုဒ်လုပ်နေသည်… {percent}%</string>
+    <string name="updInstallFailed">အပ်ဒိတ်ကို ထည့်သွင်း၍ မရပါ။ ထပ်ကြိုးစားပါ သို့မဟုတ် ဒေါင်းလုဒ် စာမျက်နှာမှ ရယူပါ။</string>
     <string name="updLater">နောက်မှ</string>
     <string name="updReady">ဗားရှင်း {version} ကို ထည့်သွင်းရန် အသင့်ဖြစ်ပါပြီ</string>
     <string name="updRestartNow">ယခု ပြန်စတင်ရန်</string>

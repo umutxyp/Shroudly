@@ -3,6 +3,7 @@ package me.codeshare.shroudly
 import java.io.ByteArrayOutputStream
 import java.io.IOException
 import java.io.InputStream
+import java.io.OutputStream
 
 /* The little of the DNS wire format the forwarder needs. */
 object Dns {
@@ -188,9 +189,12 @@ object Dns {
 object Http1 {
     class Response(val status: Int, val headers: Map<String, String>, val body: ByteArray)
 
+    /* The status and the headers (names in lower case). */
+    class Head(val status: Int, val headers: Map<String, String>)
+
     private const val MAX_BODY = 65536
 
-    fun read(input: InputStream, max: Int = MAX_BODY, bodyless: Boolean = false): Response {
+    fun head(input: InputStream): Head {
         val statusLine = line(input) ?: throw IOException("no response")
         val parts = statusLine.split(' ')
         if (parts.size < 2 || !parts[0].startsWith("HTTP/1.")) throw IOException("not HTTP/1: $statusLine")
@@ -202,6 +206,56 @@ object Http1 {
             val c = h.indexOf(':')
             if (c > 0) headers[h.substring(0, c).trim().lowercase()] = h.substring(c + 1).trim()
         }
+        return Head(status, headers)
+    }
+
+    /* The body after `head`, into `out` as it comes (a large file: the
+     * APK of an update), at most `max` bytes; `progress` gets the bytes so
+     * far and the whole (-1 when the answer does not say). The bytes copied. */
+    fun copyBody(input: InputStream, head: Head, out: OutputStream, max: Long, progress: (Long, Long) -> Unit = { _, _ -> }): Long {
+        val buf = ByteArray(65536)
+        var done = 0L
+        fun put(n: Int, total: Long) {
+            done += n
+            if (done > max) throw IOException("body too large")
+            out.write(buf, 0, n)
+            progress(done, total)
+        }
+        val chunkedBody = head.headers["transfer-encoding"]?.lowercase()?.contains("chunked") == true
+        val length = if (chunkedBody) -1L else head.headers["content-length"]?.toLongOrNull() ?: -1L
+        if (length > max) throw IOException("body too large")
+        if (chunkedBody) {
+            while (true) {
+                val size = line(input)?.substringBefore(';')?.trim()?.toLongOrNull(16) ?: throw IOException("bad chunk")
+                if (size == 0L) break
+                if (size < 0) throw IOException("bad chunk")
+                var left = size
+                while (left > 0) {
+                    val r = input.read(buf, 0, minOf(buf.size.toLong(), left).toInt())
+                    if (r < 0) throw IOException("body cut short")
+                    put(r, -1)
+                    left -= r
+                }
+                line(input)
+            }
+        } else {
+            while (length < 0 || done < length) {
+                val want = if (length < 0) buf.size else minOf(buf.size.toLong(), length - done).toInt()
+                val r = input.read(buf, 0, want)
+                if (r < 0) {
+                    if (length >= 0) throw IOException("body cut short")
+                    break
+                }
+                put(r, length)
+            }
+        }
+        return done
+    }
+
+    fun read(input: InputStream, max: Int = MAX_BODY, bodyless: Boolean = false): Response {
+        val h = head(input)
+        val status = h.status
+        val headers = h.headers
         val body = when {
             bodyless -> ByteArray(0)
             headers["transfer-encoding"]?.lowercase()?.contains("chunked") == true -> chunked(input, max)

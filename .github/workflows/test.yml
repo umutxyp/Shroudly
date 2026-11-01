@@ -310,6 +310,19 @@ jobs:
           rm -rf "$dex" && mkdir -p "$dex" && unzip -q -o android/app/build/outputs/bundle/release/app-release.aab 'base/dex/*.dex' -d "$dex"
           LC_ALL=C grep -a -q -r 'com.google.android.play.core.appupdate' "$dex" \
             || { echo "::error::the bundle for Play lacks Google Play's in-app updates"; exit 1; }
+          # The APK installs its own updates (ApkUpdates); the bundle for Play
+          # may not. The manifests unpacked first (a pipe into grep -q would
+          # end unzip early, which pipefail counts as a failure).
+          man="$RUNNER_TEMP/manifests"
+          rm -rf "$man" && mkdir -p "$man/aab" "$man/apk"
+          unzip -q -o android/app/build/outputs/bundle/release/app-release.aab base/manifest/AndroidManifest.xml -d "$man/aab"
+          unzip -q -o android/app/build/outputs/apk/release/app-release-unsigned.apk AndroidManifest.xml -d "$man/apk"
+          if LC_ALL=C grep -a -q 'REQUEST_INSTALL_PACKAGES' "$man/aab/base/manifest/AndroidManifest.xml"; then
+            echo "::error::the bundle for Play asks to install packages"; exit 1
+          fi
+          # Binary XML keeps its strings in UTF-16.
+          LC_ALL=C grep -a -q 'R.E.Q.U.E.S.T._.I.N.S.T.A.L.L._.P.A.C.K.A.G.E.S' "$man/apk/AndroidManifest.xml" \
+            || { echo "::error::the APK for GitHub cannot install its own updates"; exit 1; }
       - name: 16 KB page size (APKs, and the APKs Play makes from the bundle)
         run: |
           export ANDROID_NDK_HOME="$ANDROID_HOME/ndk/$NDK_VERSION"

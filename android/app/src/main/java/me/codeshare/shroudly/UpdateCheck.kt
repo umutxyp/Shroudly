@@ -20,9 +20,10 @@ import javax.net.ssl.SSLSocketFactory
  * like the desktop updater's, so a network that blocks GitHub does not hide
  * updates; otherwise it goes direct. Where GitHub cannot be reached at all
  * (its addresses blackholed), Shroudly's own download server answers instead.
- * Nothing is downloaded or installed here: the window's button opens the
- * release's APK in the browser, which downloads it, and Android asks before
- * installing it.
+ * Asked when the window opens, and by the services now and then while
+ * protection is on (ApkUpdates.look). Nothing is downloaded or installed
+ * here: ApkUpdates does that when the user asks, and Android's installer
+ * asks them again.
  *
  * Only for the APK from GitHub: a copy that Google Play installed or updates,
  * and the build made for Play, never ask GitHub (InstallSource).
@@ -135,18 +136,7 @@ object UpdateCheck {
     private fun viaEngine(host: String, path: String, accept: String, port: Int, auth: SocksAuth?, head: Boolean): Http1.Response {
         val raw = Socket(Proxy.NO_PROXY)
         try {
-            raw.connect(InetSocketAddress(InetAddress.getByName("127.0.0.1"), port), TIMEOUT_MS)
-            raw.soTimeout = TIMEOUT_MS
-            Socks5.connect(raw, host, 443, auth)
-            val ssl = (SSLSocketFactory.getDefault() as SSLSocketFactory).createSocket(raw, host, 443, true) as SSLSocket
-            ssl.sslParameters = ssl.sslParameters.apply { serverNames = listOf(SNIHostName(host)) }
-            ssl.startHandshake()
-            if (!HttpsURLConnection.getDefaultHostnameVerifier().verify(host, ssl.session)) {
-                throw IOException("certificate does not belong to $host")
-            }
-            val request = "${if (head) "HEAD" else "GET"} $path HTTP/1.1\r\nHost: $host\r\nAccept: $accept\r\n" +
-                "User-Agent: ${userAgent()}\r\nAccept-Encoding: identity\r\nConnection: close\r\n\r\n"
-            ssl.outputStream.apply { write(request.toByteArray(Charsets.ISO_8859_1)); flush() }
+            val ssl = getViaEngine(raw, host, path, accept, port, auth, head)
             val resp = Http1.read(ssl.inputStream.buffered(), MAX_BODY, bodyless = head)
             ssl.close()
             return resp
@@ -155,5 +145,24 @@ object UpdateCheck {
         }
     }
 
-    private fun userAgent() = "Shroudly-Android/${BuildConfig.VERSION_NAME}"
+    /* `raw` connected through the engine to host:443, TLS on it with the
+     * host's certificate checked, and the request sent: the answer is the
+     * returned socket's to read (also ApkUpdates' download of an update). */
+    internal fun getViaEngine(raw: Socket, host: String, path: String, accept: String, port: Int, auth: SocksAuth?, head: Boolean = false): SSLSocket {
+        raw.connect(InetSocketAddress(InetAddress.getByName("127.0.0.1"), port), TIMEOUT_MS)
+        raw.soTimeout = TIMEOUT_MS
+        Socks5.connect(raw, host, 443, auth)
+        val ssl = (SSLSocketFactory.getDefault() as SSLSocketFactory).createSocket(raw, host, 443, true) as SSLSocket
+        ssl.sslParameters = ssl.sslParameters.apply { serverNames = listOf(SNIHostName(host)) }
+        ssl.startHandshake()
+        if (!HttpsURLConnection.getDefaultHostnameVerifier().verify(host, ssl.session)) {
+            throw IOException("certificate does not belong to $host")
+        }
+        val request = "${if (head) "HEAD" else "GET"} $path HTTP/1.1\r\nHost: $host\r\nAccept: $accept\r\n" +
+            "User-Agent: ${userAgent()}\r\nAccept-Encoding: identity\r\nConnection: close\r\n\r\n"
+        ssl.outputStream.apply { write(request.toByteArray(Charsets.ISO_8859_1)); flush() }
+        return ssl
+    }
+
+    internal fun userAgent() = "Shroudly-Android/${BuildConfig.VERSION_NAME}"
 }

@@ -71,7 +71,7 @@
     <string name="androidQuicOffDesc">Uygulamalar QUIC (UDP 443 portu) yerine TCP kullanır; Shroudly TCP\'yi daha iyi geçirir. QUIC\'i engelleyen ya da yavaşlatan ağlar için.</string>
     <string name="androidRateBody">Shroudly işine yarıyorsa, Google Play\'deki bir puan ona ihtiyacı olanların onu bulmasına yardımcı olur.</string>
     <string name="androidRateOpen">Google Play\'de puan ver</string>
-    <string name="androidRateTitle">Başkalarının Shroudly\'yi bulmasına yardım edin</string>
+    <string name="androidRateTitle">Başkalarının Shroudly\'yi bulmasına yardım et</string>
     <string name="androidRemoteControl">Otomasyon uygulamalarına izin ver</string>
     <string name="androidRemoteControlDesc">Tasker, MacroDroid ve benzeri uygulamalar korumayı {package} paketine gönderilen bir yayınla açıp kapatabilir: eylem {action}.START, .STOP ya da .TOGGLE. Bu kapalıyken başka hiçbir uygulama bunu yapamaz.</string>
     <string name="androidShareLogs">Kayıtları paylaş</string>
@@ -86,8 +86,12 @@
     <string name="androidTileAddDesc">Ekranın üstündeki paneldeki bir Shroudly karosu, korumayı tek dokunuşla açıp kapatır.</string>
     <string name="androidTileAdded">Shroudly karosu Hızlı Ayarlar\'da.</string>
     <string name="androidTileHowTo">Ekranın üstündeki paneli sonuna kadar aşağı çek, kaleme (düzenle) dokun ve Shroudly karosunu diğerlerinin arasına sürükle.</string>
+    <string name="androidUnknownSources">Android\'in güncellemeleri yükleyebilmesi için Shroudly\'nin uygulama yüklemesine izin vermen gerekiyor. Sonraki ekranda \"Bu kaynaktan izin ver\" seçeneğini aç, sonra buraya dön.</string>
     <string name="androidUpdateImportant">Sürüm {version} önemli bir güncelleme</string>
+    <string name="androidUpdateInstallTap">Yüklemek için dokun.</string>
+    <string name="androidUpdateNotSigned">İndirilen güncelleme Shroudly\'nin bu kopyası gibi imzalanmamış, bu yüzden yüklenmedi.</string>
     <string name="androidUpdateReadyTap">Shroudly\'yi yeniden başlatıp güncellemeyi bitirmek için dokun. Koruma kendiliğinden yeniden açılır.</string>
+    <string name="androidUpdateTap">İndirip yüklemek için dokun.</string>
     <string name="androidUseProxyOnly">Yalnızca proxy kullan</string>
     <string name="androidVpnBlocked">Android VPN izni istemedi: başka bir VPN uygulaması her zaman açık VPN olarak ayarlı ya da bu telefon VPN değişikliklerine izin vermiyor. Android\'in VPN ayarlarında o uygulama için her zaman açık seçeneğini kapat ya da diğer VPN\'i açık tutan Yalnızca proxy\'yi kullan.</string>
     <string name="androidVpnDenied">Shroudly, telefonundaki uygulamaların bağlantılarını taşımak için VPN iznine ihtiyaç duyar.</string>
@@ -182,6 +186,7 @@
     <string name="updAvailable">Sürüm {version} kullanılabilir</string>
     <string name="updDownload">İndir ve kur</string>
     <string name="updDownloading" formatted="false">Sürüm {version} indiriliyor… %{percent}</string>
+    <string name="updInstallFailed">Güncelleme kurulamadı. Yeniden dene veya indirme sayfasından al.</string>
     <string name="updLater">Sonra</string>
     <string name="updReady">Sürüm {version} kurulmaya hazır</string>
     <string name="updRestartNow">Şimdi yeniden başlat</string>

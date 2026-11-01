@@ -86,8 +86,12 @@
     <string name="androidTileAddDesc">Плитка Shroudly в панели вверху экрана включает и выключает защиту одним касанием.</string>
     <string name="androidTileAdded">Плитка Shroudly в быстрых настройках.</string>
     <string name="androidTileHowTo">Опустите панель вверху экрана до конца, нажмите карандаш (изменить) и перетащите плитку Shroudly к остальным.</string>
+    <string name="androidUnknownSources">Чтобы устанавливать обновления, Android нужно ваше разрешение на установку приложений из Shroudly. На следующем экране включите «Разрешить установку из этого источника» и вернитесь сюда.</string>
     <string name="androidUpdateImportant">Версия {version} — важное обновление</string>
+    <string name="androidUpdateInstallTap">Нажмите, чтобы установить.</string>
+    <string name="androidUpdateNotSigned">Скачанное обновление подписано не так, как эта копия Shroudly, поэтому оно не установлено.</string>
     <string name="androidUpdateReadyTap">Нажмите, чтобы перезапустить Shroudly и завершить обновление. Защита снова включится сама.</string>
+    <string name="androidUpdateTap">Нажмите, чтобы скачать и установить.</string>
     <string name="androidUseProxyOnly">Только прокси</string>
     <string name="androidVpnBlocked">Android не запросил разрешение VPN: другое VPN-приложение задано как постоянная VPN, или на этом телефоне нельзя менять VPN. Отключите «Постоянную VPN» для того приложения в настройках VPN Android или используйте «Только прокси», который сохраняет другой VPN.</string>
     <string name="androidVpnDenied">Shroudly нужно разрешение VPN, чтобы пропускать соединения ваших приложений.</string>
@@ -182,6 +186,7 @@
     <string name="updAvailable">Доступна версия {version}</string>
     <string name="updDownload">Скачать и установить</string>
     <string name="updDownloading" formatted="false">Загрузка версии {version}… {percent}%</string>
+    <string name="updInstallFailed">Не удалось установить обновление. Попробуйте ещё раз или скачайте его со страницы загрузки.</string>
     <string name="updLater">Позже</string>
     <string name="updReady">Версия {version} готова к установке</string>
     <string name="updRestartNow">Перезапустить сейчас</string>

@@ -86,8 +86,12 @@
     <string name="androidTileAddDesc">Ubin Shroudly di panel bagian atas layar menyalakan dan mematikan perlindungan dengan satu ketukan.</string>
     <string name="androidTileAdded">Ubin Shroudly ada di Setelan Cepat.</string>
     <string name="androidTileHowTo">Tarik panel di bagian atas layar sampai habis, ketuk pensil (edit), lalu seret ubin Shroudly ke antara ubin lainnya.</string>
+    <string name="androidUnknownSources">Untuk menginstal pembaruan, Android memerlukan izin Anda agar Shroudly boleh menginstal aplikasi. Di layar berikutnya, aktifkan \"Izinkan dari sumber ini\", lalu kembali ke sini.</string>
     <string name="androidUpdateImportant">Versi {version} adalah pembaruan penting</string>
+    <string name="androidUpdateInstallTap">Ketuk untuk menginstalnya.</string>
+    <string name="androidUpdateNotSigned">Pembaruan yang diunduh tidak ditandatangani seperti salinan Shroudly ini, jadi tidak diinstal.</string>
     <string name="androidUpdateReadyTap">Ketuk untuk memulai ulang Shroudly dan menyelesaikan pembaruan. Perlindungan akan menyala lagi dengan sendirinya.</string>
+    <string name="androidUpdateTap">Ketuk untuk mengunduh dan menginstalnya.</string>
     <string name="androidUseProxyOnly">Pakai Hanya proxy</string>
     <string name="androidVpnBlocked">Android tidak meminta izin VPN: aplikasi VPN lain diatur sebagai VPN selalu aktif, atau ponsel ini tidak mengizinkan perubahan VPN. Matikan selalu aktif untuk aplikasi itu di setelan VPN Android, atau gunakan Hanya proxy, yang mempertahankan VPN lain Anda.</string>
     <string name="androidVpnDenied">Shroudly memerlukan izin VPN untuk membawa koneksi aplikasi Anda.</string>
@@ -182,6 +186,7 @@
     <string name="updAvailable">Versi {version} tersedia</string>
     <string name="updDownload">Unduh dan pasang</string>
     <string name="updDownloading" formatted="false">Mengunduh versi {version}… {percent}%</string>
+    <string name="updInstallFailed">Pembaruan tidak dapat dipasang. Coba lagi, atau ambil dari halaman unduhan.</string>
     <string name="updLater">Nanti</string>
     <string name="updReady">Versi {version} siap dipasang</string>
     <string name="updRestartNow">Mulai ulang sekarang</string>

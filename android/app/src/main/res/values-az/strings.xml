@@ -86,8 +86,12 @@
     <string name="androidTileAddDesc">Ekranın yuxarısındakı paneldə Shroudly plitəsi qorumanı bir toxunuşla açıb-bağlayır.</string>
     <string name="androidTileAdded">Shroudly plitəsi Sürətli Ayarlardadır.</string>
     <string name="androidTileHowTo">Ekranın yuxarısındakı paneli sona qədər aşağı çək, qələmə (redaktə) toxun və Shroudly plitəsini digərlərinin arasına sürüklə.</string>
+    <string name="androidUnknownSources">Yeniləmələri quraşdırmaq üçün Android-ə Shroudly-nin tətbiq quraşdırmasına icazəniz lazımdır. Növbəti ekranda «Bu mənbədən icazə ver» seçimini açın, sonra bura qayıdın.</string>
     <string name="androidUpdateImportant">{version} versiyası vacib yeniləmədir</string>
+    <string name="androidUpdateInstallTap">Quraşdırmaq üçün toxunun.</string>
+    <string name="androidUpdateNotSigned">Endirilən yeniləmə Shroudly-nin bu nüsxəsi kimi imzalanmayıb, ona görə quraşdırılmadı.</string>
     <string name="androidUpdateReadyTap">Shroudly-ni yenidən başladıb yeniləməni bitirmək üçün toxun. Qoruma özü yenidən açılacaq.</string>
+    <string name="androidUpdateTap">Endirib quraşdırmaq üçün toxunun.</string>
     <string name="androidUseProxyOnly">Yalnız proksi istifadə et</string>
     <string name="androidVpnBlocked">Android VPN icazəsi istəmədi: başqa bir VPN tətbiqi həmişə aktiv VPN kimi ayarlanıb, ya da bu telefon VPN dəyişikliklərinə icazə vermir. Android-in VPN ayarlarında o tətbiq üçün həmişə aktiv rejimini söndürün, ya da digər VPN-i saxlayan Yalnız proksi rejimindən istifadə edin.</string>
     <string name="androidVpnDenied">Tətbiqlərinizin bağlantılarını daşımaq üçün Shroudly-yə VPN icazəsi lazımdır.</string>
@@ -182,6 +186,7 @@
     <string name="updAvailable">{version} versiyası mövcuddur</string>
     <string name="updDownload">Endir və quraşdır</string>
     <string name="updDownloading" formatted="false">{version} versiyası endirilir… {percent}%</string>
+    <string name="updInstallFailed">Yeniləməni quraşdırmaq mümkün olmadı. Yenidən cəhd et və ya onu endirmə səhifəsindən al.</string>
     <string name="updLater">Sonra</string>
     <string name="updReady">{version} versiyası quraşdırılmağa hazırdır</string>
     <string name="updRestartNow">İndi yenidən başlat</string>

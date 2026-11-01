@@ -1,0 +1,80 @@
+name: Android weekly
+
+# The app on the Android versions every push does not reach: the oldest the
+# emulator test still runs well on (API 28, Android 9) and the one it is
+# built for (API 36, Android 16, targetSdk), on x86_64 emulators with KVM.
+# Every push runs API 35 (test.yml); these run once a week, and by hand, so a
+# slow or flaky old image never holds up a push. The same steps as test.yml's
+# android job: hev from its pinned source, the generated files checked, the
+# debug APK built, then android/scripts/emulator-smoke.sh.
+
+on:
+  schedule:
+    # Mondays, 04:17 UTC (away from the top of the hour, when GitHub's
+    # schedules are busiest).
+    - cron: '17 4 * * 1'
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+concurrency:
+  group: android-weekly
+  cancel-in-progress: false
+
+jobs:
+  emulator:
+    name: Emulator (API ${{ matrix.api }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    strategy:
+      # One version failing says nothing about the other.
+      fail-fast: false
+      matrix:
+        api: [28, 36]
+    env:
+      NDK_VERSION: 28.2.13676358
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Gradle wrapper is the one published by Gradle
+        run: echo "7a9ce74cff467ca1bf60a4fcd9f05185acceda4d0f382434d393e17864262c5d  android/gradle/wrapper/gradle-wrapper.jar" | sha256sum -c -
+      - name: Android SDK packages
+        run: |
+          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses >/dev/null || true
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "platforms;android-36" "build-tools;36.0.0" "ndk;$NDK_VERSION" \
+            emulator platform-tools "system-images;android-${{ matrix.api }};google_apis;x86_64" >/dev/null
+      - name: Let the emulator use KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: hev source, generated files
+        run: |
+          node android/scripts/fetch-hev.js
+          node android/scripts/gen-strings.js --check
+          node android/scripts/gen-block-ips.js --check
+          node android/scripts/gen-raw-apps.js --check
+          node android/scripts/gen-donate.js --check
+      - name: Debug APK
+        working-directory: android
+        run: ./gradlew --no-daemon assembleDebug
+      - name: The app on an Android emulator (x86_64, API ${{ matrix.api }})
+        run: bash android/scripts/emulator-smoke.sh --abi x86_64 --api ${{ matrix.api }}
+      - name: The emulator's and the app's logs
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: smoke-api-${{ matrix.api }}
+          path: |
+            android/smoke-out/logcat.txt
+            android/smoke-out/app-log.txt
+            android/smoke-out/emulator.txt
+          if-no-files-found: ignore
+          retention-days: 14

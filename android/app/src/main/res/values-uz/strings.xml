@@ -86,8 +86,12 @@
     <string name="androidTileAddDesc">Ekran tepasidagi paneldagi Shroudly plitkasi himoyani bir bosishda yoqadi va oʻchiradi.</string>
     <string name="androidTileAdded">Shroudly plitkasi tezkor sozlamalarda.</string>
     <string name="androidTileHowTo">Ekran tepasidagi panelni oxirigacha pastga torting, qalamni (tahrirlash) bosing va Shroudly plitkasini boshqalari orasiga suring.</string>
+    <string name="androidUnknownSources">Yangilanishlarni oʻrnatish uchun Androidga Shroudly ilova oʻrnatishiga sizning ruxsatingiz kerak. Keyingi ekranda «Shu manbadan ruxsat berish»ni yoqing, soʻng bu yerga qayting.</string>
     <string name="androidUpdateImportant">{version} versiyasi muhim yangilanish</string>
+    <string name="androidUpdateInstallTap">Oʻrnatish uchun bosing.</string>
+    <string name="androidUpdateNotSigned">Yuklab olingan yangilanish Shroudlyning bu nusxasi kabi imzolanmagan, shuning uchun oʻrnatilmadi.</string>
     <string name="androidUpdateReadyTap">Shroudlyʼni qayta ishga tushirib, yangilanishni yakunlash uchun bosing. Himoya oʻzi qayta yoqiladi.</string>
+    <string name="androidUpdateTap">Yuklab olib, oʻrnatish uchun bosing.</string>
     <string name="androidUseProxyOnly">Faqat proksi ishlatish</string>
     <string name="androidVpnBlocked">Android VPN ruxsatini soʻramadi: boshqa VPN ilovasi doimiy VPN qilib sozlangan yoki bu telefon VPN oʻzgartirishga ruxsat bermaydi. Android VPN sozlamalarida oʻsha ilova uchun doimiy rejimni oʻchiring yoki boshqa VPNʼni saqlab qoladigan «Faqat proksi»dan foydalaning.</string>
     <string name="androidVpnDenied">Ilovalaringiz ulanishlarini oʻtkazish uchun Shroudlyʼga VPN ruxsati kerak.</string>
@@ -182,6 +186,7 @@
     <string name="updAvailable">{version} versiyasi mavjud</string>
     <string name="updDownload">Yuklab olish va oʻrnatish</string>
     <string name="updDownloading" formatted="false">{version} versiyasi yuklab olinmoqda… {percent}%</string>
+    <string name="updInstallFailed">Yangilanishni oʻrnatib boʻlmadi. Yana urinib koʻring yoki uni yuklab olish sahifasidan oling.</string>
     <string name="updLater">Keyinroq</string>
     <string name="updReady">{version} versiyasi oʻrnatishga tayyor</string>
     <string name="updRestartNow">Hozir qayta yoqish</string>

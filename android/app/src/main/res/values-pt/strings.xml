@@ -86,8 +86,12 @@
     <string name="androidTileAddDesc">Um bloco do Shroudly no painel do topo da tela liga e desliga a proteção com um toque.</string>
     <string name="androidTileAdded">O bloco do Shroudly está nas Configurações rápidas.</string>
     <string name="androidTileHowTo">Puxe o painel do topo da tela até o fim, toque no lápis (editar) e arraste o bloco do Shroudly para junto dos outros.</string>
+    <string name="androidUnknownSources">Para instalar atualizações, o Android precisa da sua permissão para o Shroudly instalar apps. Na próxima tela, ative \"Permitir desta fonte\" e depois volte aqui.</string>
     <string name="androidUpdateImportant">A versão {version} é uma atualização importante</string>
+    <string name="androidUpdateInstallTap">Toque para instalar.</string>
+    <string name="androidUpdateNotSigned">A atualização baixada não está assinada como esta cópia do Shroudly, então não foi instalada.</string>
     <string name="androidUpdateReadyTap">Toque para reiniciar o Shroudly e concluir a atualização. A proteção volta a ser ligada sozinha.</string>
+    <string name="androidUpdateTap">Toque para baixar e instalar.</string>
     <string name="androidUseProxyOnly">Usar Só proxy</string>
     <string name="androidVpnBlocked">O Android não pediu a permissão de VPN: outro app de VPN está definido como VPN sempre ativa, ou este telefone não permite mudar a VPN. Desligue o sempre ativo desse app nas configurações de VPN do Android, ou use o Só proxy, que mantém sua outra VPN.</string>
     <string name="androidVpnDenied">O Shroudly precisa da permissão de VPN para levar as conexões dos seus apps.</string>
@@ -182,6 +186,7 @@
     <string name="updAvailable">A versão {version} está disponível</string>
     <string name="updDownload">Baixar e instalar</string>
     <string name="updDownloading" formatted="false">Baixando a versão {version}… {percent}%</string>
+    <string name="updInstallFailed">Não foi possível instalar a atualização. Tente novamente ou baixe-a na página de download.</string>
     <string name="updLater">Mais tarde</string>
     <string name="updReady">A versão {version} está pronta para ser instalada</string>
     <string name="updRestartNow">Reiniciar agora</string>

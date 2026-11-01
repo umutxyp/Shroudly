@@ -772,6 +772,10 @@
   "androidMoveBody": "Recevez les mises à jour automatiquement via Google Play : sur la page de Shroudly, touchez Désinstaller, puis Installer. Réactivez ensuite la protection ; les réglages que vous aviez changés repartent de zéro.",
   "androidMoveOpen": "Ouvrir Google Play",
   "androidAccentSwatch": "Couleur d’accentuation {n} sur {total}",
+  "androidUpdateTap": "Touchez pour la télécharger et l’installer.",
+  "androidUpdateInstallTap": "Touchez pour l’installer.",
+  "androidUnknownSources": "Pour installer les mises à jour, Android a besoin de votre autorisation pour que Shroudly installe des applis. Sur l’écran suivant, activez « Autoriser cette source », puis revenez ici.",
+  "androidUpdateNotSigned": "La mise à jour téléchargée n’est pas signée comme cette copie de Shroudly : elle n’a pas été installée.",
   "logCustomDnsRoutes": "Votre serveur DNS répond : {routes}",
   "logCustomDnsDown": "Votre serveur DNS {server} ne répond pas ({reason}) ; le DNS chiffré intégré de Shroudly répond en attendant",
   "logCustomDnsDownStrict": "Votre serveur DNS {server} ne répond pas ({reason}) ; c'est le seul utilisé, donc les résolutions échouent jusqu'à ce qu'il réponde",
@@ -801,6 +805,6 @@
   "appleVpnRevoked": "Le système a coupé la protection, généralement parce qu’une autre appli VPN a été activée.",
   "appleLocalNetworkUsage": "Shroudly achemine les connexions de vos applis, y compris celles vers les appareils de votre réseau local, comme votre routeur.",
   "appleNoticeTitle": "Avant de commencer",
-  "appleNoticeBody": "Shroudly ajoute une configuration VPN pour faire passer les connexions de vos applis par son moteur, qui fonctionne uniquement sur cet appareil. Il n’y a ni serveur Shroudly ni compte, et Shroudly ne collecte aucune donnée : les sites que vous visitez ne sont ni enregistrés ni envoyés chez nous. Les noms sont résolus par DNS chiffré auprès de résolveurs publics (Cloudflare, Google, AdGuard, OpenDNS, DNS.SB).",
+  "appleNoticeBody": "Shroudly ajoute une configuration VPN pour faire passer les connexions de vos applis par son moteur, qui fonctionne uniquement sur cet appareil. Il n’y a ni serveur Shroudly ni compte, et Shroudly ne collecte aucune donnée : les sites que vous visitez ne sont ni enregistrés ni envoyés chez nous. Les noms sont résolus par DNS chiffré auprès de résolveurs publics (Cloudflare, Google, AdGuard, OpenDNS, DNS.SB).",
   "appleNoticeContinue": "Continuer"
 }

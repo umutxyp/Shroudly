@@ -86,8 +86,12 @@
     <string name="androidTileAddDesc">Kaşîyeke Shroudly di panela jorê ekranê de parastinê bi yek tikandinê vedike û digire.</string>
     <string name="androidTileAdded">Kaşîya Shroudly di Mîhengên Bilez de ye.</string>
     <string name="androidTileHowTo">Panela jorê ekranê heta dawiyê bikişîne jêr, li qelemê (sererastkirin) bitikîne û kaşîya Shroudly bikişîne nav yên din.</string>
+    <string name="androidUnknownSources">Ji bo sazkirina nûvekirinan, Android destûra te hewce dike ku Shroudly sepanan saz bike. Di ekrana din de \"Ji vê çavkaniyê destûr bide\" veke, paşê vegere vir.</string>
     <string name="androidUpdateImportant">Guhertoya {version} nûvekirineke girîng e</string>
+    <string name="androidUpdateInstallTap">Ji bo sazkirinê bitikîne.</string>
+    <string name="androidUpdateNotSigned">Nûvekirina daxistî wekî vê kopiya Shroudly nehatiye îmzekirin, ji ber vê yekê nehat sazkirin.</string>
     <string name="androidUpdateReadyTap">Ji bo ku Shroudly ji nû ve vekî û nûvekirinê biqedînî, bitikîne. Parastin bi xwe dîsa vedibe.</string>
+    <string name="androidUpdateTap">Ji bo daxistin û sazkirinê bitikîne.</string>
     <string name="androidUseProxyOnly">Tenê proksî bi kar bîne</string>
     <string name="androidVpnBlocked">Android destûra VPN nexwest: sepaneke VPN ya din wekî VPN-a her dem vekirî hatiye mîhengkirin, an jî ev telefon rê nade guhertinên VPN. Di mîhengên VPN yên Android de \'her dem vekirî\' ji bo wê sepanê bigire, an jî Tenê proksî bi kar bîne, ku VPN-a te ya din diparêze.</string>
     <string name="androidVpnDenied">Shroudly ji bo hilgirtina girêdanên sepanên te destûra VPN hewce dike.</string>
@@ -182,6 +186,7 @@
     <string name="updAvailable">Guhertoya {version} heye</string>
     <string name="updDownload">Daxe û saz bike</string>
     <string name="updDownloading" formatted="false">Guhertoya {version} tê daxistin… %{percent}</string>
+    <string name="updInstallFailed">Nûvekirin nehat sazkirin. Dîsa biceribîne, an ji rûpela daxistinê bistîne.</string>
     <string name="updLater">Paşê</string>
     <string name="updReady">Guhertoya {version} ji bo sazkirinê amade ye</string>
     <string name="updRestartNow">Niha ji nû ve veke</string>

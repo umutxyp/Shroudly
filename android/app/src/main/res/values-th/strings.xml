@@ -86,8 +86,12 @@
     <string name="androidTileAddDesc">ไทล์ Shroudly ในแผงด้านบนของหน้าจอเปิดและปิดการป้องกันได้ในแตะเดียว</string>
     <string name="androidTileAdded">ไทล์ Shroudly อยู่ในการตั้งค่าด่วนแล้ว</string>
     <string name="androidTileHowTo">ดึงแผงด้านบนของหน้าจอลงจนสุด แตะรูปดินสอ (แก้ไข) แล้วลากไทล์ Shroudly ไปไว้ระหว่างไทล์อื่น</string>
+    <string name="androidUnknownSources">หากต้องการติดตั้งอัปเดต Android ต้องได้รับอนุญาตจากคุณให้ Shroudly ติดตั้งแอปได้ ในหน้าจอถัดไป ให้เปิด \"อนุญาตจากแหล่งที่มานี้\" แล้วกลับมาที่นี่</string>
     <string name="androidUpdateImportant">เวอร์ชัน {version} เป็นอัปเดตสำคัญ</string>
+    <string name="androidUpdateInstallTap">แตะเพื่อติดตั้ง</string>
+    <string name="androidUpdateNotSigned">อัปเดตที่ดาวน์โหลดมาไม่ได้ลงนามแบบเดียวกับ Shroudly ชุดนี้ จึงไม่ได้ติดตั้ง</string>
     <string name="androidUpdateReadyTap">แตะเพื่อเริ่ม Shroudly ใหม่และติดตั้งอัปเดตให้เสร็จ การป้องกันจะเปิดกลับมาเอง</string>
+    <string name="androidUpdateTap">แตะเพื่อดาวน์โหลดและติดตั้ง</string>
     <string name="androidUseProxyOnly">ใช้พร็อกซีเท่านั้น</string>
     <string name="androidVpnBlocked">Android ไม่ได้ขอสิทธิ์ VPN: มีแอป VPN อื่นตั้งเป็น VPN แบบเปิดตลอดเวลา หรือโทรศัพท์นี้ไม่อนุญาตให้เปลี่ยน VPN ปิดเปิดตลอดเวลาของแอปนั้นในการตั้งค่า VPN ของ Android หรือใช้พร็อกซีเท่านั้น ซึ่งจะคง VPN อื่นไว้</string>
     <string name="androidVpnDenied">Shroudly ต้องได้รับสิทธิ์ VPN เพื่อส่งผ่านการเชื่อมต่อของแอปต่างๆ ของคุณ</string>
@@ -182,6 +186,7 @@
     <string name="updAvailable">มีเวอร์ชัน {version} ให้ใช้งานแล้ว</string>
     <string name="updDownload">ดาวน์โหลดและติดตั้ง</string>
     <string name="updDownloading" formatted="false">กำลังดาวน์โหลดเวอร์ชัน {version}… {percent}%</string>
+    <string name="updInstallFailed">ติดตั้งการอัปเดตไม่สำเร็จ ลองอีกครั้ง หรือดาวน์โหลดจากหน้าดาวน์โหลด</string>
     <string name="updLater">ภายหลัง</string>
     <string name="updReady">เวอร์ชัน {version} พร้อมติดตั้งแล้ว</string>
     <string name="updRestartNow">เริ่มใหม่เลย</string>

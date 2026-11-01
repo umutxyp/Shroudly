@@ -86,8 +86,12 @@
     <string name="androidTileAddDesc">Плиткаи Shroudly дар панели болои экран ҳимояро бо як ламс фаъол ва хомӯш мекунад.</string>
     <string name="androidTileAdded">Плиткаи Shroudly дар танзимоти зуд аст.</string>
     <string name="androidTileHowTo">Панели болои экранро то охир ба поён кашед, қаламро (таҳрир) ламс кунед ва плиткаи Shroudly-ро ба қатори дигарон кашед.</string>
+    <string name="androidUnknownSources">Барои насби навсозиҳо Android иҷозати шуморо лозим дорад, то Shroudly барномаҳо насб карда тавонад. Дар экрани навбатӣ «Иҷозат аз ин манбаъ»-ро фаъол кунед ва ба ин ҷо баргардед.</string>
     <string name="androidUpdateImportant">Версияи {version} навсозии муҳим аст</string>
+    <string name="androidUpdateInstallTap">Барои насб пахш кунед.</string>
+    <string name="androidUpdateNotSigned">Навсозии боргиришуда мисли ин нусхаи Shroudly имзо нашудааст, бинобар ин насб нашуд.</string>
     <string name="androidUpdateReadyTap">Барои бозоғози Shroudly ва анҷом додани навсозӣ ламс кунед. Ҳимоя худ ба худ дубора фаъол мешавад.</string>
+    <string name="androidUpdateTap">Барои боргирӣ ва насб пахш кунед.</string>
     <string name="androidUseProxyOnly">«Танҳо прокси»-ро истифода баред</string>
     <string name="androidVpnBlocked">Android иҷозати VPN-ро напурсид: барномаи дигари VPN ҳамчун VPN-и ҳамешагӣ танзим шудааст, ё ин телефон тағйири VPN-ро иҷозат намедиҳад. Дар танзимоти VPN-и Android барои он барнома «ҳамеша фаъол»-ро хомӯш кунед, ё «Танҳо прокси»-ро истифода баред, ки VPN-и дигаратонро нигоҳ медорад.</string>
     <string name="androidVpnDenied">Shroudly барои гузаронидани пайвастҳои барномаҳоятон иҷозати VPN лозим дорад.</string>
@@ -182,6 +186,7 @@
     <string name="updAvailable">Версияи {version} дастрас аст</string>
     <string name="updDownload">Боргирӣ ва насб</string>
     <string name="updDownloading" formatted="false">Боргирии версияи {version}… {percent}%</string>
+    <string name="updInstallFailed">Навсозӣ насб нашуд. Бори дигар кӯшиш кунед ё онро аз саҳифаи боргирӣ гиред.</string>
     <string name="updLater">Баъдтар</string>
     <string name="updReady">Версияи {version} барои насб омода аст</string>
     <string name="updRestartNow">Ҳозир бозоғоз</string>

@@ -86,8 +86,12 @@
     <string name="androidTileAddDesc">د پردې په سر کې په پینل کې د Shroudly ټایل ساتنه په یوه ټک چالانوي او بندوي.</string>
     <string name="androidTileAdded">د Shroudly ټایل په چټکو ترتیباتو کې دی.</string>
     <string name="androidTileHowTo">د پردې د سر پینل تر پایه ښکته کش کړئ، په قلم (سمون) ټک وکړئ، او د Shroudly ټایل د نورو ترمنځ کش کړئ.</string>
+    <string name="androidUnknownSources">د تازه معلوماتو د نصبولو لپاره، Android ستاسو اجازې ته اړتیا لري چې Shroudly اپونه نصب کړي. په راتلونکې پرده کې «له دې سرچینې اجازه» چالانه کړئ، بیا دلته راستانه شئ.</string>
     <string name="androidUpdateImportant">{version} نسخه یو مهم اوسمهال دی</string>
+    <string name="androidUpdateInstallTap">د نصبولو لپاره ټک وکړئ.</string>
+    <string name="androidUpdateNotSigned">ښکته شوې تازه معلومات د Shroudly د دې کاپي په څېر لاسلیک شوي نه دي، نو نصب نه شول.</string>
     <string name="androidUpdateReadyTap">د Shroudly د بیا پیلولو او اوسمهال د بشپړولو لپاره ټک وکړئ. ساتنه به پخپله بیا چالانه شي.</string>
+    <string name="androidUpdateTap">د ښکته کولو او نصبولو لپاره ټک وکړئ.</string>
     <string name="androidUseProxyOnly">یوازې پراکسي وکاروئ</string>
     <string name="androidVpnBlocked">Android د VPN اجازه ونه غوښته: بل VPN اپ د تل چالان VPN په توګه ټاکل شوی، یا دا تلیفون د VPN بدلون ته اجازه نه ورکوي. د Android د VPN په امستنو کې د هغه اپ لپاره «تل چالان» بند کړئ، یا «یوازې پراکسي» وکاروئ چې ستاسو بل VPN ساتي.</string>
     <string name="androidVpnDenied">Shroudly ته د VPN اجازه پکار ده څو ستاسو د اپونو اړیکې ولېږدوي.</string>
@@ -182,6 +186,7 @@
     <string name="updAvailable">{version} نسخه شته</string>
     <string name="updDownload">ډاونلوډ او نصب کړئ</string>
     <string name="updDownloading">{version} نسخه ډاونلوډېږي… {percent}٪</string>
+    <string name="updInstallFailed">اوسمهال نصب نه شو. بیا هڅه وکړئ، یا یې د ډاونلوډ له پاڼې څخه واخلئ.</string>
     <string name="updLater">وروسته</string>
     <string name="updReady">{version} نسخه د نصبولو لپاره چمتو ده</string>
     <string name="updRestartNow">اوس بیا پیل کړئ</string>
