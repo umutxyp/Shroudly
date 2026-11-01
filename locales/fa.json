@@ -660,7 +660,7 @@
   "autoDiscordDroverMoved": "Discord نمی‌توانست وصل شود: Discord Drover آن را به پراکسی‌ای در {addr} می‌فرستاد که اجرا نمی‌شود. Shroudly فایل‌های Drover (version.dll، drover.ini) را به {backup} منتقل کرد و Discord را دوباره اجرا کرد. برای استفادهٔ دوباره از Drover، آن‌ها را به {folder} برگردانید.",
   "autoDiscordDroverDead": "Discord نمی‌تواند وصل شود: Discord Drover آن را به پراکسی‌ای در {addr} می‌فرستد که اجرا نمی‌شود. Discord را ببندید، version.dll و drover.ini را از {folder} بیرون ببرید (مثلاً به دسکتاپ)، سپس Discord را باز کنید.",
   "autoAppProxyDead": "{app} نمی‌تواند وصل شود: همه چیز را به پراکسی‌ای در {addr} می‌فرستد که اجرا نمی‌شود. آن برنامهٔ پراکسی را دوباره اجرا کنید یا پراکسی را از تنظیمات {app} بردارید.",
-  "autoWinhttpDead": "پراکسی WinHTTP ویندوز به {addr} اشاره می‌کند که چیزی در آن اجرا نمی‌شود، برای همین Windows Update، Microsoft Store و برخی برنامه‌ها نمی‌توانند وصل شوند. Shroudly می‌تواند آن را پاک کند (ویندوز اجازهٔ مدیر می‌خواهد).",
+  "autoWinhttpDead": "یک تنظیم قدیمی پراکسی که برنامه‌ای جا گذاشته که دیگر اجرا نمی‌شود، نمی‌گذارد Windows Update، Microsoft Store و برخی برنامه‌ها وصل شوند. Shroudly می‌تواند آن را پاک کند (ویندوز اجازهٔ مدیر می‌خواهد).",
   "winhttpDeadTitle": "پراکسی جامانده اتصال‌های ویندوز را مسدود کرده است",
   "winhttpReset": "پاک کن",
   "androidWifiProxyDeadTitle": "پراکسی جامانده در تنظیمات Wi-Fi",

@@ -2423,9 +2423,16 @@ async function checkWinHttp() {
   const gone = list ? WinHttp.goneList(list, (port) => ProcNet.listeningSync(port)) : null;
   if (!gone) return;
   winhttpTold = true;
-  winhttpGone = gone;
   addLog('warning', `Windows' WinHTTP proxy points at ${gone}, where nothing is running: Windows Update, the Microsoft Store and some programs cannot connect`);
+  // The same leftover the user already answered "Later" to: not asked again
+  // (it came back at every start, as a dialog); a different one is.
+  if (store.get('winhttpLater') === gone) return;
   autoTell('autoWinhttpDead', { addr: gone });
+  // A standard account could not clear it: Windows would ask for an
+  // administrator's password it does not have. The line says what it is,
+  // and Settings > Repair is there for an administrator; no dialog.
+  if (storeApps && (await storeApps.canConsent().catch(() => null)) === false) return;
+  winhttpGone = gone;
   if (windowAlive() && mainWindow.isVisible()) offerWinHttpReset().catch(() => {});
 }
 async function offerWinHttpReset() {
@@ -2441,7 +2448,7 @@ async function offerWinHttpReset() {
       message: s.winhttpDeadTitle, detail: fillIn(s.autoWinhttpDead, { addr: gone }),
     });
   } finally { modalOpen--; }
-  if (r.response !== 0) return;
+  if (r.response !== 0) { try { store.set('winhttpLater', gone); } catch {} return; }
   const ok = await WinHttp.reset();
   addLog(ok ? 'success' : 'warning', ok ? "Windows' WinHTTP proxy cleared" : "Windows' WinHTTP proxy could not be cleared (no administrator's permission)");
 }

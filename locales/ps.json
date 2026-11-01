@@ -660,7 +660,7 @@
   "autoDiscordDroverMoved": "Discord نه شو وصل کېدای: Discord Drover هغه په {addr} کې یوې داسې پراکسي ته لېږه چې نه چلېږي. Shroudly د Drover فایلونه (version.dll، drover.ini) {backup} ته ولېږدول او Discord یې بیا پیل کړ. د Drover د بیا کارولو لپاره یې بېرته {folder} ته ولېږدوئ.",
   "autoDiscordDroverDead": "Discord نه شي وصل کېدای: Discord Drover هغه په {addr} کې یوې داسې پراکسي ته لېږي چې نه چلېږي. Discord وتړئ، version.dll او drover.ini له {folder} څخه وباسئ (د بېلګې په توګه ډیسکټاپ ته)، بیا Discord پرانیزئ.",
   "autoAppProxyDead": "{app} نه شي وصل کېدای: هر څه په {addr} کې یوې داسې پراکسي ته لېږي چې نه چلېږي. هغه پراکسي پروګرام بیا پیل کړئ، یا پراکسي د {app} له تنظیماتو لرې کړئ.",
-  "autoWinhttpDead": "د Windows د WinHTTP پراکسي {addr} ته اشاره کوي چې هلته هېڅ نه چلېږي، نو Windows Update، Microsoft Store او ځینې پروګرامونه نه شي وصل کېدای. Shroudly یې پاکولی شي (Windows د مدیر اجازه غواړي).",
+  "autoWinhttpDead": "د پراکسي یوه زړه امستنه، چې یو پروګرام پرېښې چې نور نه چلېږي، Windows Update، Microsoft Store او ځینې پروګرامونه له وصلېدو منع کوي. Shroudly یې پاکولی شي (Windows د مدیر اجازه غواړي).",
   "winhttpDeadTitle": "پاتې شوې پراکسي د Windows اړیکې بندوي",
   "winhttpReset": "پاک یې کړئ",
   "androidWifiProxyDeadTitle": "د Wi-Fi په تنظیماتو کې پاتې شوې پراکسي",

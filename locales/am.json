@@ -660,7 +660,7 @@
   "autoDiscordDroverMoved": "Discord መገናኘት አልቻለም ነበር፦ Discord Drover በ{addr} ወዳለ የማይሰራ proxy ይልከው ነበር። Shroudly የDrover ፋይሎችን (version.dll, drover.ini) ወደ {backup} አዛውሮ Discordን እንደገና አስጀምሯል። Droverን እንደገና ለመጠቀም ወደ {folder} መልሷቸው።",
   "autoDiscordDroverDead": "Discord መገናኘት አይችልም፦ Discord Drover በ{addr} ወዳለ የማይሰራ proxy ይልከዋል። Discordን ይዝጉ፣ version.dll እና drover.iniን ከ{folder} ያውጡ (ለምሳሌ ወደ ዴስክቶፕ)፣ ከዚያ Discordን ይክፈቱ።",
   "autoAppProxyDead": "{app} መገናኘት አይችልም፦ ሁሉንም ነገር በ{addr} ወዳለ የማይሰራ proxy ይልካል። ያንን የproxy ፕሮግራም እንደገና ያስጀምሩ፣ ወይም proxyውን ከ{app} ቅንብሮች ያስወግዱ።",
-  "autoWinhttpDead": "የWindows WinHTTP proxy ምንም ወደማይሰራበት {addr} ይጠቁማል፤ ስለዚህ Windows Update፣ Microsoft Store እና አንዳንድ ፕሮግራሞች መገናኘት አይችሉም። Shroudly ሊያጸዳው ይችላል (Windows የአስተዳዳሪ ፈቃድ ይጠይቃል)።",
+  "autoWinhttpDead": "ከአሁን በኋላ በማይሰራ ፕሮግራም የቀረ የቆየ የproxy ቅንብር Windows Update፣ Microsoft Store እና አንዳንድ ፕሮግራሞች እንዳይገናኙ ያደርጋል። Shroudly ሊያጸዳው ይችላል (Windows የአስተዳዳሪ ፈቃድ ይጠይቃል)።",
   "winhttpDeadTitle": "የቀረ proxy የWindows ግንኙነቶችን እየከለከለ ነው",
   "winhttpReset": "አጽዳ",
   "androidWifiProxyDeadTitle": "በWi-Fi ቅንብሮች ውስጥ የቀረ proxy",

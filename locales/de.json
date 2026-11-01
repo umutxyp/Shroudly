@@ -660,7 +660,7 @@
   "autoDiscordDroverMoved": "Discord konnte keine Verbindung herstellen: Discord Drover schickte es an einen Proxy unter {addr}, der nicht läuft. Shroudly hat die Dateien von Drover (version.dll, drover.ini) nach {backup} verschoben und Discord neu gestartet. Um Drover wieder zu nutzen, verschiebe sie zurück nach {folder}.",
   "autoDiscordDroverDead": "Discord kann keine Verbindung herstellen: Discord Drover schickt es an einen Proxy unter {addr}, der nicht läuft. Schließe Discord, verschiebe version.dll und drover.ini aus {folder} (zum Beispiel auf den Desktop) und öffne Discord dann wieder.",
   "autoAppProxyDead": "{app} kann keine Verbindung herstellen: Es schickt alles an einen Proxy unter {addr}, der nicht läuft. Starte dieses Proxy-Programm wieder oder entferne den Proxy aus den Einstellungen von {app}.",
-  "autoWinhttpDead": "Der WinHTTP-Proxy von Windows zeigt auf {addr}, wo nichts läuft; daher können Windows Update, der Microsoft Store und einige Programme keine Verbindung herstellen. Shroudly kann ihn entfernen (Windows fragt nach einem Administrator).",
+  "autoWinhttpDead": "Eine alte Proxy-Einstellung, die ein nicht mehr laufendes Programm hinterlassen hat, hindert Windows Update, den Microsoft Store und einige Programme daran, eine Verbindung herzustellen. Shroudly kann sie entfernen (Windows fragt nach einem Administrator).",
   "winhttpDeadTitle": "Ein zurückgebliebener Proxy blockiert Verbindungen von Windows",
   "winhttpReset": "Entfernen",
   "androidWifiProxyDeadTitle": "Zurückgebliebener Proxy in den WLAN-Einstellungen",

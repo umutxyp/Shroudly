@@ -660,7 +660,7 @@
   "autoDiscordDroverMoved": "Discord туташа алган жок: Discord Drover аны {addr} дарегиндеги иштебей турган проксиге жөнөтүп жаткан. Shroudly Drover'дин файлдарын (version.dll, drover.ini) {backup} папкасына жылдырып, Discord'ду кайра иштетти. Drover'ду кайра колдонуу үчүн аларды {folder} папкасына кайтарыңыз.",
   "autoDiscordDroverDead": "Discord туташа албайт: Discord Drover аны {addr} дарегиндеги иштебей турган проксиге жөнөтөт. Discord'ду жабыңыз, version.dll менен drover.ini файлдарын {folder} папкасынан чыгарыңыз (мисалы, иш тактага), анан Discord'ду ачыңыз.",
   "autoAppProxyDead": "{app} туташа албайт: баарын {addr} дарегиндеги иштебей турган проксиге жөнөтөт. Ошол прокси программасын кайра иштетиңиз же проксини {app} жөндөөлөрүнөн алып салыңыз.",
-  "autoWinhttpDead": "Windows'тун WinHTTP проксиси эч нерсе иштебеген {addr} дарегин көрсөтөт, ошондуктан Windows Update, Microsoft Store жана айрым программалар туташа албайт. Shroudly аны тазалай алат (Windows администратордун уруксатын сурайт).",
+  "autoWinhttpDead": "Мындан ары иштебеген программа калтырган эски прокси жөндөөсү Windows Update, Microsoft Store жана айрым программалардын туташуусуна тоскоол болот. Shroudly аны тазалай алат (Windows администратордун уруксатын сурайт).",
   "winhttpDeadTitle": "Калып калган прокси Windows'тун туташууларын бөгөттөп жатат",
   "winhttpReset": "Тазалоо",
   "androidWifiProxyDeadTitle": "Wi-Fi жөндөөлөрүндө калып калган прокси",

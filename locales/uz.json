@@ -660,7 +660,7 @@
   "autoDiscordDroverMoved": "Discord ulana olmadi: Discord Drover uni {addr} manzilidagi ishlamayotgan proksiga yuborardi. Shroudly Drover fayllarini (version.dll, drover.ini) {backup} jildiga koʻchirdi va Discord’ni qayta ishga tushirdi. Drover’dan yana foydalanish uchun ularni {folder} jildiga qaytaring.",
   "autoDiscordDroverDead": "Discord ulana olmaydi: Discord Drover uni {addr} manzilidagi ishlamayotgan proksiga yuboradi. Discord’ni yoping, version.dll va drover.ini fayllarini {folder} jildidan chiqaring (masalan, ish stoliga), soʻng Discord’ni oching.",
   "autoAppProxyDead": "{app} ulana olmaydi: hamma narsani {addr} manzilidagi ishlamayotgan proksiga yuboradi. Oʻsha proksi dasturini qayta ishga tushiring yoki proksini {app} sozlamalaridan olib tashlang.",
-  "autoWinhttpDead": "Windows’ning WinHTTP proksisi hech narsa ishlamayotgan {addr} manzilini koʻrsatadi, shuning uchun Windows Update, Microsoft Store va baʼzi dasturlar ulana olmaydi. Shroudly uni tozalashi mumkin (Windows administrator ruxsatini soʻraydi).",
+  "autoWinhttpDead": "Endi ishlamayotgan dastur qoldirgan eski proksi sozlamasi Windows Update, Microsoft Store va baʼzi dasturlarning ulanishiga toʻsqinlik qilmoqda. Shroudly uni tozalashi mumkin (Windows administrator ruxsatini soʻraydi).",
   "winhttpDeadTitle": "Qolib ketgan proksi Windows ulanishlarini toʻsmoqda",
   "winhttpReset": "Tozalash",
   "androidWifiProxyDeadTitle": "Wi-Fi sozlamalarida qolib ketgan proksi",

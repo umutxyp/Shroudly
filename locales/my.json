@@ -660,7 +660,7 @@
   "autoDiscordDroverMoved": "Discord ချိတ်ဆက်၍ မရခဲ့ပါ- Discord Drover က ၎င်းကို {addr} ရှိ အလုပ်မလုပ်သော ပရောက်စီသို့ ပို့နေခဲ့သည်။ Shroudly သည် Drover ၏ ဖိုင်များ (version.dll, drover.ini) ကို {backup} သို့ ရွှေ့ပြီး Discord ကို ပြန်စတင်ခဲ့သည်။ Drover ကို ထပ်သုံးလိုပါက ၎င်းတို့ကို {folder} သို့ ပြန်ရွှေ့ပါ။",
   "autoDiscordDroverDead": "Discord ချိတ်ဆက်၍ မရပါ- Discord Drover က ၎င်းကို {addr} ရှိ အလုပ်မလုပ်သော ပရောက်စီသို့ ပို့နေသည်။ Discord ကို ပိတ်ပါ၊ version.dll နှင့် drover.ini ကို {folder} မှ (ဥပမာ ဒက်စ်တော့ပ်သို့) ရွှေ့ထုတ်ပါ၊ ထို့နောက် Discord ကို ဖွင့်ပါ။",
   "autoAppProxyDead": "{app} ချိတ်ဆက်၍ မရပါ- အရာအားလုံးကို {addr} ရှိ အလုပ်မလုပ်သော ပရောက်စီသို့ ပို့နေသည်။ ထိုပရောက်စီ ပရိုဂရမ်ကို ပြန်စတင်ပါ သို့မဟုတ် {app} ၏ ဆက်တင်များမှ ပရောက်စီကို ဖယ်ရှားပါ။",
-  "autoWinhttpDead": "Windows ၏ WinHTTP ပရောက်စီသည် ဘာမှ အလုပ်မလုပ်သော {addr} ကို ညွှန်ပြနေသဖြင့် Windows Update၊ Microsoft Store နှင့် အချို့ ပရိုဂရမ်များ ချိတ်ဆက်၍ မရပါ။ Shroudly က ၎င်းကို ရှင်းလင်းပေးနိုင်သည် (Windows က စီမံခန့်ခွဲသူ ခွင့်ပြုချက် တောင်းမည်)။",
+  "autoWinhttpDead": "မလည်ပတ်တော့သော ပရိုဂရမ်တစ်ခု ချန်ခဲ့သည့် ပရောက်စီဆက်တင်အဟောင်းကြောင့် Windows Update၊ Microsoft Store နှင့် အချို့ ပရိုဂရမ်များ ချိတ်ဆက်၍ မရပါ။ Shroudly က ၎င်းကို ရှင်းလင်းပေးနိုင်သည် (Windows က စီမံခန့်ခွဲသူ ခွင့်ပြုချက် တောင်းမည်)။",
   "winhttpDeadTitle": "ကျန်ခဲ့သော ပရောက်စီတစ်ခုက Windows ချိတ်ဆက်မှုများကို ပိတ်ဆို့နေသည်",
   "winhttpReset": "ရှင်းလင်းရန်",
   "androidWifiProxyDeadTitle": "Wi-Fi ဆက်တင်များတွင် ကျန်ခဲ့သော ပရောက်စီ",

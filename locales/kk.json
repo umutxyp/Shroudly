@@ -660,7 +660,7 @@
   "autoDiscordDroverMoved": "Discord қосыла алмады: Discord Drover оны {addr} мекенжайындағы іске қосылмаған проксиге жіберіп отырды. Shroudly Drover файлдарын (version.dll, drover.ini) {backup} қалтасына жылжытып, Discord-ты қайта іске қосты. Drover-ды қайта қолдану үшін оларды {folder} қалтасына қайтарыңыз.",
   "autoDiscordDroverDead": "Discord қосыла алмайды: Discord Drover оны {addr} мекенжайындағы іске қосылмаған проксиге жібереді. Discord-ты жабыңыз, version.dll мен drover.ini файлдарын {folder} қалтасынан шығарыңыз (мысалы, жұмыс үстеліне), содан кейін Discord-ты ашыңыз.",
   "autoAppProxyDead": "{app} қосыла алмайды: бәрін {addr} мекенжайындағы іске қосылмаған проксиге жібереді. Сол прокси бағдарламасын қайта іске қосыңыз немесе проксиді {app} баптауларынан алып тастаңыз.",
-  "autoWinhttpDead": "Windows WinHTTP проксиі ештеңе іске қосылмаған {addr} мекенжайын көрсетеді, сондықтан Windows Update, Microsoft Store және кейбір бағдарламалар қосыла алмайды. Shroudly оны тазалай алады (Windows әкімші рұқсатын сұрайды).",
+  "autoWinhttpDead": "Енді іске қосылмаған бағдарлама қалдырған ескі прокси баптауы Windows Update, Microsoft Store және кейбір бағдарламалардың қосылуына кедергі келтіреді. Shroudly оны тазалай алады (Windows әкімші рұқсатын сұрайды).",
   "winhttpDeadTitle": "Қалып қойған прокси Windows қосылымдарын бұғаттап тұр",
   "winhttpReset": "Тазалау",
   "androidWifiProxyDeadTitle": "Wi-Fi баптауларында қалып қойған прокси",

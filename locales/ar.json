@@ -660,7 +660,7 @@
   "autoDiscordDroverMoved": "لم يستطع Discord الاتصال: كان Discord Drover يرسله إلى وكيل على {addr} لا يعمل. نقل Shroudly ملفات Drover (version.dll وdrover.ini) إلى {backup} وأعاد تشغيل Discord. لاستخدام Drover مجددًا، أعِدها إلى {folder}.",
   "autoDiscordDroverDead": "لا يستطيع Discord الاتصال: يرسله Discord Drover إلى وكيل على {addr} لا يعمل. أغلق Discord، وانقل version.dll وdrover.ini خارج {folder} (إلى سطح المكتب مثلًا)، ثم افتح Discord.",
   "autoAppProxyDead": "لا يستطيع {app} الاتصال: يرسل كل شيء إلى وكيل على {addr} لا يعمل. شغّل برنامج الوكيل ذاك من جديد، أو احذف الوكيل من إعدادات {app}.",
-  "autoWinhttpDead": "وكيل WinHTTP في Windows يشير إلى {addr} حيث لا يعمل شيء، لذا لا يستطيع Windows Update وMicrosoft Store وبعض البرامج الاتصال. يستطيع Shroudly مسحه (يطلب Windows صلاحيات المسؤول).",
+  "autoWinhttpDead": "إعداد وكيل قديم تركه برنامج لم يعد يعمل يمنع Windows Update وMicrosoft Store وبعض البرامج من الاتصال. يستطيع Shroudly مسحه (يطلب Windows صلاحيات المسؤول).",
   "winhttpDeadTitle": "وكيل متروك يحجب اتصالات Windows",
   "winhttpReset": "امسحه",
   "androidWifiProxyDeadTitle": "وكيل متروك في إعدادات Wi-Fi",

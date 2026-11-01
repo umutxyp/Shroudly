@@ -660,7 +660,7 @@
   "autoDiscordDroverMoved": "Discord не мог подключиться: Discord Drover отправлял его на прокси {addr}, который не запущен. Shroudly перенёс файлы Drover (version.dll, drover.ini) в {backup} и перезапустил Discord. Чтобы снова пользоваться Drover, верните их в {folder}.",
   "autoDiscordDroverDead": "Discord не может подключиться: Discord Drover отправляет его на прокси {addr}, который не запущен. Закройте Discord, уберите version.dll и drover.ini из {folder} (например, на рабочий стол) и откройте Discord.",
   "autoAppProxyDead": "{app} не может подключиться: всё отправляется на прокси {addr}, который не запущен. Запустите эту прокси-программу снова или уберите прокси из настроек {app}.",
-  "autoWinhttpDead": "WinHTTP-прокси Windows указывает на {addr}, где ничего не запущено, поэтому Windows Update, Microsoft Store и некоторые программы не могут подключиться. Shroudly может его сбросить (Windows попросит права администратора).",
+  "autoWinhttpDead": "Старая настройка прокси, оставленная программой, которая уже не работает, мешает Windows Update, Microsoft Store и некоторым программам подключаться. Shroudly может её сбросить (Windows попросит права администратора).",
   "winhttpDeadTitle": "Оставшийся прокси блокирует подключения Windows",
   "winhttpReset": "Сбросить",
   "androidWifiProxyDeadTitle": "Оставшийся прокси в настройках Wi-Fi",

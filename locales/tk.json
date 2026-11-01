@@ -660,7 +660,7 @@
   "autoDiscordDroverMoved": "Discord birigip bilmeýärdi: Discord Drover ony {addr} salgysyndaky işlemeýän proksä iberýärdi. Shroudly Drover-iň faýllaryny (version.dll, drover.ini) {backup} bukjasyna geçirdi we Discord-y täzeden işletdi. Drover-i ýene ulanmak üçin olary {folder} bukjasyna gaýtaryň.",
   "autoDiscordDroverDead": "Discord birigip bilmeýär: Discord Drover ony {addr} salgysyndaky işlemeýän proksä iberýär. Discord-y ýapyň, version.dll we drover.ini faýllaryny {folder} bukjasyndan çykaryň (meselem, iş stoluna), soňra Discord-y açyň.",
   "autoAppProxyDead": "{app} birigip bilmeýär: hemme zady {addr} salgysyndaky işlemeýän proksä iberýär. Şol proksi programmasyny täzeden işlediň ýa-da proksini {app} sazlamalaryndan aýyryň.",
-  "autoWinhttpDead": "Windows-yň WinHTTP proksisi hiç zat işlemeýän {addr} salgysyny görkezýär, şonuň üçin Windows Update, Microsoft Store we käbir programmalar birigip bilmeýär. Shroudly ony arassalap biler (Windows administratoryň rugsadyny soraýar).",
+  "autoWinhttpDead": "Indi işlemeýän bir programmanyň galdyran köne proksi sazlamasy Windows Update, Microsoft Store we käbir programmalaryň birikmegine päsgel berýär. Shroudly ony arassalap biler (Windows administratoryň rugsadyny soraýar).",
   "winhttpDeadTitle": "Galan proksi Windows birikmelerini petikleýär",
   "winhttpReset": "Arassala",
   "androidWifiProxyDeadTitle": "Wi-Fi sazlamalarynda galan proksi",

@@ -660,7 +660,7 @@
   "autoDiscordDroverMoved": "Discord जुड़ नहीं पा रहा था: Discord Drover उसे {addr} पर एक ऐसे प्रॉक्सी पर भेज रहा था जो चल नहीं रहा। Shroudly ने Drover की फ़ाइलें (version.dll, drover.ini) {backup} में ले जाकर Discord को फिर से शुरू किया। Drover को फिर इस्तेमाल करने के लिए उन्हें वापस {folder} में रखें।",
   "autoDiscordDroverDead": "Discord जुड़ नहीं पा रहा: Discord Drover उसे {addr} पर एक ऐसे प्रॉक्सी पर भेजता है जो चल नहीं रहा। Discord बंद करें, version.dll और drover.ini को {folder} से बाहर ले जाएँ (जैसे डेस्कटॉप पर), फिर Discord खोलें।",
   "autoAppProxyDead": "{app} जुड़ नहीं पा रहा: यह सब कुछ {addr} पर एक ऐसे प्रॉक्सी पर भेजता है जो चल नहीं रहा। उस प्रॉक्सी प्रोग्राम को फिर से चलाएँ, या {app} की सेटिंग से प्रॉक्सी हटा दें।",
-  "autoWinhttpDead": "Windows का WinHTTP प्रॉक्सी {addr} की ओर इशारा करता है, जहाँ कुछ नहीं चल रहा, इसलिए Windows Update, Microsoft Store और कुछ प्रोग्राम नहीं जुड़ पाते। Shroudly इसे साफ़ कर सकता है (Windows एडमिनिस्ट्रेटर की अनुमति माँगेगा)।",
+  "autoWinhttpDead": "अब न चल रहे किसी प्रोग्राम की छोड़ी गई पुरानी प्रॉक्सी सेटिंग Windows Update, Microsoft Store और कुछ प्रोग्रामों को जुड़ने नहीं देती। Shroudly इसे साफ़ कर सकता है (Windows एडमिनिस्ट्रेटर की अनुमति माँगेगा)।",
   "winhttpDeadTitle": "पीछे छूटा प्रॉक्सी Windows के कनेक्शन रोक रहा है",
   "winhttpReset": "साफ़ करें",
   "androidWifiProxyDeadTitle": "Wi-Fi सेटिंग में पीछे छूटा प्रॉक्सी",

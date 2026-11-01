@@ -660,7 +660,7 @@
   "autoDiscordDroverMoved": "Discord bağlanamıyordu: Discord Drover onu {addr} adresinde çalışmayan bir proxy'ye gönderiyordu. Shroudly, Drover'ın dosyalarını (version.dll, drover.ini) {backup} klasörüne taşıdı ve Discord'u yeniden başlattı. Drover'ı yine kullanmak istersen dosyaları {folder} klasörüne geri taşı.",
   "autoDiscordDroverDead": "Discord bağlanamıyor: Discord Drover onu {addr} adresinde çalışmayan bir proxy'ye gönderiyor. Discord'u kapat, version.dll ve drover.ini dosyalarını {folder} klasöründen çıkar (örneğin masaüstüne taşı), sonra Discord'u aç.",
   "autoAppProxyDead": "{app} bağlanamıyor: her şeyi {addr} adresinde çalışmayan bir proxy'ye gönderiyor. O proxy programını yeniden başlat ya da proxy'yi {app} ayarlarından kaldır.",
-  "autoWinhttpDead": "Windows'un WinHTTP proxy'si hiçbir şeyin çalışmadığı {addr} adresini gösteriyor; bu yüzden Windows Update, Microsoft Store ve bazı programlar bağlanamıyor. Shroudly bunu temizleyebilir (Windows yönetici izni ister).",
+  "autoWinhttpDead": "Artık çalışmayan bir programdan kalan eski bir proxy ayarı, Windows Update'in, Microsoft Store'un ve bazı programların bağlanmasını engelliyor. Shroudly bunu temizleyebilir (Windows yönetici izni ister).",
   "winhttpDeadTitle": "Geride kalmış bir proxy Windows bağlantılarını engelliyor",
   "winhttpReset": "Temizle",
   "androidWifiProxyDeadTitle": "Wi-Fi ayarlarında geride kalmış proxy",

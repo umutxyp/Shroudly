@@ -660,7 +660,7 @@
   "autoDiscordDroverMoved": "Discord לא הצליח להתחבר: Discord Drover שלח אותו לשרת Proxy בכתובת {addr} שלא פועל. Shroudly העביר את הקבצים של Drover ‏(version.dll,‏ drover.ini) אל {backup} והפעיל מחדש את Discord. כדי להשתמש שוב ב-Drover, החזירו אותם אל {folder}.",
   "autoDiscordDroverDead": "Discord לא מצליח להתחבר: Discord Drover שולח אותו לשרת Proxy בכתובת {addr} שלא פועל. סגרו את Discord, הוציאו את version.dll ו-drover.ini מ-{folder} (לשולחן העבודה, למשל), ואז פתחו את Discord.",
   "autoAppProxyDead": "{app} לא מצליח להתחבר: הוא שולח הכול לשרת Proxy בכתובת {addr} שלא פועל. הפעילו שוב את תוכנת ה-Proxy, או הסירו את ה-Proxy מההגדרות של {app}.",
-  "autoWinhttpDead": "ה-Proxy של WinHTTP ב-Windows מצביע על {addr}, שבה שום דבר לא פועל, ולכן Windows Update, ‏Microsoft Store ותוכנות מסוימות לא מצליחים להתחבר. Shroudly יכול לנקות אותו (Windows יבקש הרשאת מנהל).",
+  "autoWinhttpDead": "הגדרת Proxy ישנה, שהשאירה תוכנה שכבר לא פועלת, מונעת מ-Windows Update, ‏Microsoft Store ומתוכנות מסוימות להתחבר. Shroudly יכול לנקות אותה (Windows יבקש הרשאת מנהל).",
   "winhttpDeadTitle": "Proxy שנשאר מאחור חוסם חיבורים של Windows",
   "winhttpReset": "לנקות",
   "androidWifiProxyDeadTitle": "Proxy שנשאר בהגדרות Wi-Fi",

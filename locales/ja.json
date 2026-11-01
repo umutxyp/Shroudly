@@ -660,7 +660,7 @@
   "autoDiscordDroverMoved": "Discord が接続できませんでした。Discord Drover が、動いていない {addr} のプロキシに送っていました。Shroudly は Drover のファイル（version.dll、drover.ini）を {backup} に移し、Discord を再起動しました。Drover をまた使うには、{folder} に戻してください。",
   "autoDiscordDroverDead": "Discord が接続できません。Discord Drover が、動いていない {addr} のプロキシに送っています。Discord を閉じ、version.dll と drover.ini を {folder} から（たとえばデスクトップへ）移してから、Discord を開いてください。",
   "autoAppProxyDead": "{app} が接続できません。すべてを、動いていない {addr} のプロキシに送っています。そのプロキシのプログラムをもう一度起動するか、{app} の設定からプロキシを外してください。",
-  "autoWinhttpDead": "Windows の WinHTTP プロキシが、何も動いていない {addr} を指しているため、Windows Update、Microsoft Store、一部のプログラムが接続できません。Shroudly で消去できます（Windows が管理者の許可を求めます）。",
+  "autoWinhttpDead": "もう動いていないプログラムが残した古いプロキシ設定のせいで、Windows Update、Microsoft Store、一部のプログラムが接続できません。Shroudly で消去できます（Windows が管理者の許可を求めます）。",
   "winhttpDeadTitle": "残ったプロキシが Windows の接続を妨げています",
   "winhttpReset": "消去する",
   "androidWifiProxyDeadTitle": "Wi-Fi 設定に残ったプロキシ",

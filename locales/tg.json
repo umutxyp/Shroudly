@@ -660,7 +660,7 @@
   "autoDiscordDroverMoved": "Discord пайваст шуда наметавонист: Discord Drover онро ба проксии {addr}, ки кор намекунад, мефиристод. Shroudly файлҳои Drover-ро (version.dll, drover.ini) ба {backup} кӯчонд ва Discord-ро аз нав оғоз кард. Барои боз истифода бурдани Drover онҳоро ба {folder} баргардонед.",
   "autoDiscordDroverDead": "Discord пайваст шуда наметавонад: Discord Drover онро ба проксии {addr}, ки кор намекунад, мефиристад. Discord-ро пӯшед, version.dll ва drover.ini-ро аз {folder} бароред (масалан, ба мизи корӣ), баъд Discord-ро кушоед.",
   "autoAppProxyDead": "{app} пайваст шуда наметавонад: ҳама чизро ба проксии {addr}, ки кор намекунад, мефиристад. Он барномаи проксиро боз оғоз кунед ё проксиро аз танзимоти {app} хориҷ кунед.",
-  "autoWinhttpDead": "Проксии WinHTTP-и Windows ба {addr} нишон медиҳад, ки дар он ҷо ҳеҷ чиз кор намекунад, бинобар ин Windows Update, Microsoft Store ва баъзе барномаҳо пайваст шуда наметавонанд. Shroudly метавонад онро тоза кунад (Windows иҷозати маъмурро мепурсад).",
+  "autoWinhttpDead": "Танзими кӯҳнаи прокси, ки барномае гузоштааст, ки дигар кор намекунад, ба Windows Update, Microsoft Store ва баъзе барномаҳо пайваст шуданро намедиҳад. Shroudly метавонад онро тоза кунад (Windows иҷозати маъмурро мепурсад).",
   "winhttpDeadTitle": "Проксии боқимонда пайвастҳои Windows-ро манъ мекунад",
   "winhttpReset": "Тоза кардан",
   "androidWifiProxyDeadTitle": "Проксии боқимонда дар танзимоти Wi-Fi",

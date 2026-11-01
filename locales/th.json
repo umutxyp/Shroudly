@@ -660,7 +660,7 @@
   "autoDiscordDroverMoved": "Discord เชื่อมต่อไม่ได้: Discord Drover ส่งไปที่พร็อกซีที่ {addr} ซึ่งไม่ได้ทำงาน Shroudly ย้ายไฟล์ของ Drover (version.dll, drover.ini) ไปที่ {backup} และเริ่ม Discord ใหม่แล้ว หากต้องการใช้ Drover อีก ให้ย้ายกลับไปที่ {folder}",
   "autoDiscordDroverDead": "Discord เชื่อมต่อไม่ได้: Discord Drover ส่งไปที่พร็อกซีที่ {addr} ซึ่งไม่ได้ทำงาน ปิด Discord ย้าย version.dll และ drover.ini ออกจาก {folder} (เช่น ไปที่เดสก์ท็อป) แล้วเปิด Discord",
   "autoAppProxyDead": "{app} เชื่อมต่อไม่ได้: ส่งทุกอย่างไปที่พร็อกซีที่ {addr} ซึ่งไม่ได้ทำงาน เริ่มโปรแกรมพร็อกซีนั้นอีกครั้ง หรือลบพร็อกซีออกจากการตั้งค่าของ {app}",
-  "autoWinhttpDead": "พร็อกซี WinHTTP ของ Windows ชี้ไปที่ {addr} ซึ่งไม่มีอะไรทำงานอยู่ ทำให้ Windows Update, Microsoft Store และบางโปรแกรมเชื่อมต่อไม่ได้ Shroudly ล้างค่านี้ให้ได้ (Windows จะขอสิทธิ์ผู้ดูแล)",
+  "autoWinhttpDead": "การตั้งค่าพร็อกซีเก่าที่โปรแกรมซึ่งไม่ได้ทำงานแล้วทิ้งไว้ ทำให้ Windows Update, Microsoft Store และบางโปรแกรมเชื่อมต่อไม่ได้ Shroudly ล้างค่านี้ให้ได้ (Windows จะขอสิทธิ์ผู้ดูแล)",
   "winhttpDeadTitle": "พร็อกซีที่ค้างอยู่กำลังบล็อกการเชื่อมต่อของ Windows",
   "winhttpReset": "ล้างค่า",
   "androidWifiProxyDeadTitle": "พร็อกซีค้างอยู่ในการตั้งค่า Wi-Fi",

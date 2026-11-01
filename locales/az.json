@@ -660,7 +660,7 @@
   "autoDiscordDroverMoved": "Discord qoşula bilmirdi: Discord Drover onu {addr} ünvanında işləməyən proksiyə göndərirdi. Shroudly Drover-in fayllarını (version.dll, drover.ini) {backup} qovluğuna köçürdü və Discord-u yenidən başlatdı. Drover-dən yenidən istifadə etmək üçün onları {folder} qovluğuna qaytarın.",
   "autoDiscordDroverDead": "Discord qoşula bilmir: Discord Drover onu {addr} ünvanında işləməyən proksiyə göndərir. Discord-u bağlayın, version.dll və drover.ini fayllarını {folder} qovluğundan çıxarın (məsələn, iş masasına), sonra Discord-u açın.",
   "autoAppProxyDead": "{app} qoşula bilmir: hər şeyi {addr} ünvanında işləməyən proksiyə göndərir. Həmin proksi proqramını yenidən başladın və ya proksini {app} ayarlarından silin.",
-  "autoWinhttpDead": "Windows-un WinHTTP proksisi heç nəyin işləmədiyi {addr} ünvanını göstərir, buna görə Windows Update, Microsoft Store və bəzi proqramlar qoşula bilmir. Shroudly onu təmizləyə bilər (Windows administrator icazəsi istəyir).",
+  "autoWinhttpDead": "Artıq işləməyən bir proqramdan qalmış köhnə proksi ayarı Windows Update, Microsoft Store və bəzi proqramların qoşulmasına mane olur. Shroudly onu təmizləyə bilər (Windows administrator icazəsi istəyir).",
   "winhttpDeadTitle": "Qalmış proksi Windows bağlantılarını bloklayır",
   "winhttpReset": "Təmizlə",
   "androidWifiProxyDeadTitle": "Wi-Fi ayarlarında qalmış proksi",

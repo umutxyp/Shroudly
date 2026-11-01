@@ -660,7 +660,7 @@
   "autoDiscordDroverMoved": "Discord ne pouvait pas se connecter : Discord Drover l'envoyait vers un proxy à {addr} qui ne tourne pas. Shroudly a déplacé les fichiers de Drover (version.dll, drover.ini) dans {backup} et redémarré Discord. Pour réutiliser Drover, remettez-les dans {folder}.",
   "autoDiscordDroverDead": "Discord ne peut pas se connecter : Discord Drover l'envoie vers un proxy à {addr} qui ne tourne pas. Fermez Discord, sortez version.dll et drover.ini de {folder} (sur le bureau, par exemple), puis ouvrez Discord.",
   "autoAppProxyDead": "{app} ne peut pas se connecter : il envoie tout vers un proxy à {addr} qui ne tourne pas. Relancez ce programme de proxy ou retirez le proxy des réglages de {app}.",
-  "autoWinhttpDead": "Le proxy WinHTTP de Windows pointe vers {addr}, où rien ne tourne : Windows Update, le Microsoft Store et certains programmes ne peuvent pas se connecter. Shroudly peut l'effacer (Windows demande un administrateur).",
+  "autoWinhttpDead": "Un ancien réglage de proxy, laissé par un programme qui ne tourne plus, empêche Windows Update, le Microsoft Store et certains programmes de se connecter. Shroudly peut l'effacer (Windows demande un administrateur).",
   "winhttpDeadTitle": "Un proxy oublié bloque les connexions de Windows",
   "winhttpReset": "L'effacer",
   "androidWifiProxyDeadTitle": "Proxy oublié dans les réglages Wi-Fi",

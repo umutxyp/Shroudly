@@ -660,7 +660,7 @@
   "autoDiscordDroverMoved": "Discord جڑ نہیں پا رہا تھا: Discord Drover اسے {addr} پر ایک ایسی پراکسی کو بھیج رہا تھا جو چل نہیں رہی۔ Shroudly نے Drover کی فائلیں (version.dll، drover.ini) {backup} میں منتقل کر دیں اور Discord کو دوبارہ شروع کیا۔ Drover کو پھر استعمال کرنے کے لیے انہیں واپس {folder} میں رکھیں۔",
   "autoDiscordDroverDead": "Discord جڑ نہیں سکتا: Discord Drover اسے {addr} پر ایک ایسی پراکسی کو بھیجتا ہے جو چل نہیں رہی۔ Discord بند کریں، version.dll اور drover.ini کو {folder} سے باہر نکالیں (مثلاً ڈیسک ٹاپ پر)، پھر Discord کھولیں۔",
   "autoAppProxyDead": "{app} جڑ نہیں سکتا: یہ سب کچھ {addr} پر ایک ایسی پراکسی کو بھیجتا ہے جو چل نہیں رہی۔ اس پراکسی پروگرام کو دوبارہ چلائیں، یا {app} کی ترتیبات سے پراکسی ہٹا دیں۔",
-  "autoWinhttpDead": "Windows کی WinHTTP پراکسی {addr} کی طرف اشارہ کرتی ہے جہاں کچھ نہیں چل رہا، اس لیے Windows Update، Microsoft Store اور کچھ پروگرام نہیں جڑ پاتے۔ Shroudly اسے صاف کر سکتا ہے (Windows منتظم کی اجازت مانگے گا)۔",
+  "autoWinhttpDead": "ایک پرانی پراکسی سیٹنگ، جو اب نہ چلنے والے کسی پروگرام نے چھوڑی ہے، Windows Update، Microsoft Store اور کچھ پروگراموں کو جڑنے نہیں دیتی۔ Shroudly اسے صاف کر سکتا ہے (Windows منتظم کی اجازت مانگے گا)۔",
   "winhttpDeadTitle": "پیچھے رہ جانے والی پراکسی Windows کے کنکشن روک رہی ہے",
   "winhttpReset": "صاف کریں",
   "androidWifiProxyDeadTitle": "Wi-Fi ترتیبات میں پیچھے رہ جانے والی پراکسی",

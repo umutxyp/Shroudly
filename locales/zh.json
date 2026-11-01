@@ -660,7 +660,7 @@
   "autoDiscordDroverMoved": "Discord 无法连接：Discord Drover 把它发往 {addr} 上一个未在运行的代理。Shroudly 已将 Drover 的文件（version.dll、drover.ini）移到 {backup} 并重启了 Discord。若要再用 Drover，请把它们移回 {folder}。",
   "autoDiscordDroverDead": "Discord 无法连接：Discord Drover 把它发往 {addr} 上一个未在运行的代理。请关闭 Discord，把 version.dll 和 drover.ini 移出 {folder}（例如移到桌面），然后打开 Discord。",
   "autoAppProxyDead": "{app} 无法连接：它把所有流量发往 {addr} 上一个未在运行的代理。请重新启动那个代理程序，或在 {app} 的设置中删除该代理。",
-  "autoWinhttpDead": "Windows 的 WinHTTP 代理指向 {addr}，那里没有任何程序在运行，因此 Windows 更新、Microsoft Store 和部分程序无法连接。Shroudly 可以清除它（Windows 会请求管理员权限）。",
+  "autoWinhttpDead": "一个已不再运行的程序留下的旧代理设置，使 Windows 更新、Microsoft Store 和部分程序无法连接。Shroudly 可以清除它（Windows 会请求管理员权限）。",
   "winhttpDeadTitle": "遗留的代理正在阻止 Windows 的连接",
   "winhttpReset": "清除",
   "androidWifiProxyDeadTitle": "Wi-Fi 设置中遗留的代理",

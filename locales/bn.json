@@ -660,7 +660,7 @@
   "autoDiscordDroverMoved": "Discord সংযুক্ত হতে পারছিল না: Discord Drover এটিকে {addr}-এ এমন একটি প্রক্সিতে পাঠাচ্ছিল যা চলছে না। Shroudly, Drover-এর ফাইলগুলো (version.dll, drover.ini) {backup}-এ সরিয়ে Discord আবার চালু করেছে। Drover আবার ব্যবহার করতে চাইলে সেগুলো {folder}-এ ফিরিয়ে দিন।",
   "autoDiscordDroverDead": "Discord সংযুক্ত হতে পারছে না: Discord Drover এটিকে {addr}-এ এমন একটি প্রক্সিতে পাঠায় যা চলছে না। Discord বন্ধ করুন, version.dll ও drover.ini {folder} থেকে সরিয়ে নিন (যেমন ডেস্কটপে), তারপর Discord খুলুন।",
   "autoAppProxyDead": "{app} সংযুক্ত হতে পারছে না: এটি সবকিছু {addr}-এ এমন একটি প্রক্সিতে পাঠায় যা চলছে না। সেই প্রক্সি প্রোগ্রামটি আবার চালু করুন, বা {app}-এর সেটিংস থেকে প্রক্সিটি সরিয়ে দিন।",
-  "autoWinhttpDead": "Windows-এর WinHTTP প্রক্সি {addr} দেখাচ্ছে, যেখানে কিছুই চলছে না, তাই Windows Update, Microsoft Store ও কিছু প্রোগ্রাম সংযুক্ত হতে পারছে না। Shroudly এটি মুছে দিতে পারে (Windows অ্যাডমিনিস্ট্রেটরের অনুমতি চাইবে)।",
+  "autoWinhttpDead": "আর চলছে না এমন একটি প্রোগ্রামের রেখে যাওয়া পুরোনো প্রক্সি সেটিং Windows Update, Microsoft Store ও কিছু প্রোগ্রামকে সংযুক্ত হতে দিচ্ছে না। Shroudly এটি মুছে দিতে পারে (Windows অ্যাডমিনিস্ট্রেটরের অনুমতি চাইবে)।",
   "winhttpDeadTitle": "রয়ে যাওয়া একটি প্রক্সি Windows-এর সংযোগ আটকাচ্ছে",
   "winhttpReset": "মুছে দিন",
   "androidWifiProxyDeadTitle": "Wi-Fi সেটিংসে রয়ে যাওয়া প্রক্সি",

@@ -660,7 +660,7 @@
   "autoDiscordDroverMoved": "Discord tidak dapat bersambung: Discord Drover menghantarnya ke proksi di {addr} yang tidak berjalan. Shroudly memindahkan fail Drover (version.dll, drover.ini) ke {backup} dan memulakan semula Discord. Untuk menggunakan Drover semula, pindahkan fail itu kembali ke {folder}.",
   "autoDiscordDroverDead": "Discord tidak dapat bersambung: Discord Drover menghantarnya ke proksi di {addr} yang tidak berjalan. Tutup Discord, alihkan version.dll dan drover.ini keluar dari {folder} (ke desktop, contohnya), kemudian buka Discord.",
   "autoAppProxyDead": "{app} tidak dapat bersambung: semuanya dihantar ke proksi di {addr} yang tidak berjalan. Jalankan semula program proksi itu, atau buang proksi daripada tetapan {app}.",
-  "autoWinhttpDead": "Proksi WinHTTP Windows menghala ke {addr}, tempat tiada apa-apa berjalan, jadi Windows Update, Microsoft Store dan sesetengah program tidak dapat bersambung. Shroudly boleh mengosongkannya (Windows meminta kebenaran pentadbir).",
+  "autoWinhttpDead": "Tetapan proksi lama yang ditinggalkan program yang tidak lagi berjalan menghalang Windows Update, Microsoft Store dan sesetengah program daripada bersambung. Shroudly boleh mengosongkannya (Windows meminta kebenaran pentadbir).",
   "winhttpDeadTitle": "Proksi yang tertinggal menyekat sambungan Windows",
   "winhttpReset": "Kosongkan",
   "androidWifiProxyDeadTitle": "Proksi tertinggal dalam tetapan Wi-Fi",
