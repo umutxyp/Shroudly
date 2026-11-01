@@ -121,15 +121,18 @@ export default function ControlPanel({ dpiStatus, onStatusChange, onSupport }) {
     ? act('stopDPI', 'protectionStopped', 'stopFailed')
     : act('startDPI', 'protectionStarted', 'startFailed'));
 
-  const ShieldGlyph = notRouting ? ShieldAlertIcon : active ? ShieldCheckIcon : ShieldIcon;
+  // On but not working (browsers not going through it, or the user's own
+  // server not answering): the shield in amber with its alert, as the title.
+  const warned = notRouting || !!ownServerDown;
+  const ShieldGlyph = warned ? ShieldAlertIcon : active ? ShieldCheckIcon : ShieldIcon;
   const label = loading ? (active ? t('stopping') : t('starting')) : starting ? t('starting') : (active ? t('stop') : t('start'));
   // The shield and the title: the accent colour when it works, amber when it
   // is on and does not yet.
   // --state: the accent, except where the accent is a warning or danger
   // colour (globals.css).
-  const ring = notRouting ? 'var(--warn-line)' : active ? 'var(--state-line)' : 'var(--line-strong)';
-  const disc = notRouting ? 'var(--warn-soft)' : active ? 'var(--state-soft)' : 'var(--surface)';
-  const glyph = notRouting ? 'var(--warn)' : active ? 'var(--state)' : 'var(--text-faint)';
+  const ring = warned ? 'var(--warn-line)' : active ? 'var(--state-line)' : 'var(--line-strong)';
+  const disc = warned ? 'var(--warn-soft)' : active ? 'var(--state-soft)' : 'var(--surface)';
+  const glyph = warned ? 'var(--warn)' : active ? 'var(--state)' : 'var(--text-faint)';
 
   return (
     <>
@@ -140,7 +143,7 @@ export default function ControlPanel({ dpiStatus, onStatusChange, onSupport }) {
       <div ref={panelRef} data-room={room} className="power-panel flex min-h-full flex-col items-center justify-center">
         {/* The shield — the one bold moment */}
         <div className="power-shield relative flex shrink-0 items-center justify-center" aria-hidden>
-          {active && !notRouting && (
+          {active && !warned && (
             <span
               className="power-halo halo absolute rounded-full"
               style={{ background: 'radial-gradient(circle, var(--state-soft) 0%, transparent 70%)' }}

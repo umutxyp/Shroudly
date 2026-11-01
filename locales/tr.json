@@ -838,7 +838,7 @@
   "shareUpnpTrying": "Yönlendiriciden internetten bir giriş yolu isteniyor…",
   "shareUpnpNone": "İnternetten giriş yolu yok: yönlendirici bir yol açmadı. Yönlendirici TCP {port} portunu bu bilgisayara yönlendirmedikçe yalnızca bu ağdaki kişiler kullanabilir.",
   "shareUpnpPrivate": "Yönlendirici bir giriş yolu açtı, ama servis sağlayıcın bu bağlantıyı müşteriler arasında paylaştırıyor; bu yüzden internetten ulaşılamaz. Yalnızca bu ağdaki kişiler kullanabilir.",
-  "sharePeople": "Şu an: {people} kişi, {open} bağlantı (açıldığından beri {total})",
+  "sharePeople": "Şu an bağlı: {people} · Açık bağlantı: {open} · Açıldığından beri: {total}",
   "shareUnprotected": "Shroudly'nin koruması kapalı: açtıkları siteler Shroudly'nin teknikleri olmadan doğrudan çıkar.",
   "shareNewLink": "Yeni bağlantı",
   "shareNewLinkDesc": "Eski bağlantı hemen çalışmaz olur.",

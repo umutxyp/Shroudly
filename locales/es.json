@@ -838,7 +838,7 @@
   "shareUpnpTrying": "Pidiendo al router una entrada desde internet…",
   "shareUpnpNone": "No hay entrada desde internet: el router no abrió ninguna. Solo las personas de esta red pueden usarlo, salvo que el router reenvíe el puerto TCP {port} a este ordenador.",
   "shareUpnpPrivate": "El router abrió una entrada, pero tu proveedor comparte esta conexión entre clientes, así que no se puede llegar desde internet. Solo las personas de esta red pueden usarlo.",
-  "sharePeople": "Ahora: {people} personas, {open} conexiones ({total} desde que se activó)",
+  "sharePeople": "Conectados ahora: {people} · Conexiones abiertas: {open} · Desde que se activó: {total}",
   "shareUnprotected": "La protección de Shroudly está desactivada: lo que abren sale directamente, sin las técnicas de Shroudly.",
   "shareNewLink": "Nuevo enlace",
   "shareNewLinkDesc": "El enlace anterior deja de funcionar al instante.",

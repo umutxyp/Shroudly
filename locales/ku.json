@@ -838,7 +838,7 @@
   "shareUpnpTrying": "Ji routerê rêyeke ketinê ji înternetê tê xwestin…",
   "shareUpnpNone": "Ji înternetê rêya ketinê tune: routerê rê venekir. Heta ku router porta TCP {port} neşîne vê komputerê, tenê kesên li vê torê dikarin bi kar bînin.",
   "shareUpnpPrivate": "Routerê rêyeke ketinê vekir, lê pêşkêşkara te vê girêdanê di navbera xerîdaran de parve dike, ji ber vê ji înternetê nayê gihîştin. Tenê kesên li vê torê dikarin bi kar bînin.",
-  "sharePeople": "Niha: {people} kes, {open} girêdan ({total} ji dema vekirinê ve)",
+  "sharePeople": "Niha girêdayî: {people} · Girêdanên vekirî: {open} · Ji vekirinê ve: {total}",
   "shareUnprotected": "Parastina Shroudly girtî ye: tiştên ku ew vedikin rasterast derdikevin, bê teknîkên Shroudly.",
   "shareNewLink": "Girêdana nû",
   "shareNewLinkDesc": "Girêdana kevn di cih de naxebite.",

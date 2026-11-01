@@ -838,7 +838,7 @@
   "shareUpnpTrying": "Routerden internetden giriş ýoly soralýar…",
   "shareUpnpNone": "Internetden giriş ýoly ýok: router açmady. Router TCP {port} portuny şu kompýutere ugrukdyrmasa, diňe şu tordaky adamlar ulanyp biler.",
   "shareUpnpPrivate": "Router giriş ýoluny açdy, ýöne prowaýderiňiz bu baglanyşygy müşderiler arasynda paýlaşýar, şonuň üçin oňa internetden ýetip bolmaýar. Diňe şu tordaky adamlar ulanyp biler.",
-  "sharePeople": "Häzir: {people} adam, {open} baglanyşyk (açylaly bäri {total})",
+  "sharePeople": "Häzir birikdi: {people} · Açyk baglanyşyklar: {open} · Açylaly bäri: {total}",
   "shareUnprotected": "Shroudly-niň goragy öçük: olaryň açýan zatlary Shroudly-niň usullary bolmazdan göni çykýar.",
   "shareNewLink": "Täze salgy",
   "shareNewLinkDesc": "Köne salgy derrew işlemez bolýar.",

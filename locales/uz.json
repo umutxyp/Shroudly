@@ -838,7 +838,7 @@
   "shareUpnpTrying": "Routerdan internetdan kirish yoʻli soʻralmoqda…",
   "shareUpnpNone": "Internetdan kirish yoʻli yoʻq: router ochmadi. Router TCP {port} portini shu kompyuterga yoʻnaltirmasa, faqat shu tarmoqdagi odamlar foydalana oladi.",
   "shareUpnpPrivate": "Router kirish yoʻlini ochdi, lekin provayderingiz bu ulanishni mijozlar orasida taqsimlaydi, shuning uchun unga internetdan yetib boʻlmaydi. Faqat shu tarmoqdagi odamlar foydalana oladi.",
-  "sharePeople": "Hozir: {people} kishi, {open} ulanish (yoqilgandan beri {total})",
+  "sharePeople": "Hozir ulangan: {people} · Ochiq ulanishlar: {open} · Yoqilgandan beri: {total}",
   "shareUnprotected": "Shroudly himoyasi oʻchirilgan: ular ochgan narsa Shroudly usullarisiz toʻgʻridan-toʻgʻri chiqadi.",
   "shareNewLink": "Yangi havola",
   "shareNewLinkDesc": "Eski havola darhol ishlamay qoladi.",

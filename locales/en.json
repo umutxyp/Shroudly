@@ -838,7 +838,7 @@
   "shareUpnpTrying": "Asking the router for a way in from the internet…",
   "shareUpnpNone": "No way in from the internet: the router did not open one. Only people on this network can use it, unless the router forwards TCP port {port} to this computer.",
   "shareUpnpPrivate": "The router opened a way in, but your provider shares this connection among customers, so it cannot be reached from the internet. Only people on this network can use it.",
-  "sharePeople": "Now: {people} people, {open} connections ({total} since it was turned on)",
+  "sharePeople": "Connected now: {people} · Open connections: {open} · Since it was turned on: {total}",
   "shareUnprotected": "Shroudly's protection is off: what they open goes out directly, without Shroudly's techniques.",
   "shareNewLink": "New link",
   "shareNewLinkDesc": "The old link stops working at once.",

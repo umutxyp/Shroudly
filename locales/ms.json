@@ -838,7 +838,7 @@
   "shareUpnpTrying": "Meminta penghala membuka jalan masuk dari internet…",
   "shareUpnpNone": "Tiada jalan masuk dari internet: penghala tidak membukanya. Hanya orang di rangkaian ini boleh menggunakannya, melainkan penghala memajukan port TCP {port} ke komputer ini.",
   "shareUpnpPrivate": "Penghala membuka jalan masuk, tetapi pembekal anda berkongsi sambungan ini antara pelanggan, jadi ia tidak dapat dicapai dari internet. Hanya orang di rangkaian ini boleh menggunakannya.",
-  "sharePeople": "Kini: {people} orang, {open} sambungan ({total} sejak dihidupkan)",
+  "sharePeople": "Bersambung kini: {people} · Sambungan terbuka: {open} · Sejak dihidupkan: {total}",
   "shareUnprotected": "Perlindungan Shroudly dimatikan: apa yang mereka buka keluar terus, tanpa teknik Shroudly.",
   "shareNewLink": "Pautan baharu",
   "shareNewLinkDesc": "Pautan lama serta-merta berhenti berfungsi.",

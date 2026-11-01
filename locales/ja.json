@@ -838,7 +838,7 @@
   "shareUpnpTrying": "ルーターにインターネットからの入口を開くよう頼んでいます…",
   "shareUpnpNone": "インターネットからの入口がありません。ルーターが開きませんでした。ルーターが TCP ポート {port} をこのコンピューターに転送しない限り、このネットワークの人しか使えません。",
   "shareUpnpPrivate": "ルーターは入口を開きましたが、プロバイダーがこの接続を複数の契約者で共有しているため、インターネットからは届きません。このネットワークの人しか使えません。",
-  "sharePeople": "現在：{people} 人、{open} 接続（オンにしてから {total}）",
+  "sharePeople": "接続中：{people} 人 · 開いている接続：{open} · オンにしてから：{total}",
   "shareUnprotected": "Shroudly の保護がオフです。相手が開いたものは Shroudly の技術なしで直接出ていきます。",
   "shareNewLink": "新しいリンク",
   "shareNewLinkDesc": "古いリンクはすぐに使えなくなります。",

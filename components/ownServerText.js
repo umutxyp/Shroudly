@@ -21,6 +21,14 @@ const b64 = (s) => {
   try { return decodeURIComponent(escape(atob(s.replace(/-/g, '+').replace(/_/g, '/')))); } catch { return ''; }
 };
 
+/* The link with its password covered (••••), for the field while it is
+ * not being edited: the screen may be seen by others. */
+export function maskLink(link) {
+  const text = String(link || '');
+  if (/^ss:\/\//i.test(text)) return text.replace(/^(ss:\/\/)[^@#]+@/i, '$1••••@').replace(/^(ss:\/\/)[A-Za-z0-9+/=_-]{12,}(#|$)/i, '$1••••$2');
+  return text.replace(/^([a-z0-9]+:\/\/[^:@/]*):[^@/]*@/i, '$1:••••@');
+}
+
 /* "SOCKS5 1.2.3.4:1080", "HTTP proxy.example:3128", "Shadowsocks
  * 5.6.7.8:8388": the kind and the address of a link, or '' . */
 export function serverShown(link) {

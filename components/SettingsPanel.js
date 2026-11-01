@@ -9,7 +9,7 @@ import {
 } from './icons';
 import Select from './Select';
 import { probeView } from './probeView';
-import { OWN_SERVER_ERRORS, OWN_SERVER_WHY, serverShown } from './ownServerText';
+import { OWN_SERVER_ERRORS, OWN_SERVER_WHY, maskLink, serverShown } from './ownServerText';
 
 /* The technique, one choice (as on Android): Auto finds what works for each
  * site by itself (the engine's auto mode); any other is that one technique
@@ -320,7 +320,10 @@ function OwnServer({ value, onSave }) {
   const saved = typeof value === 'string' ? value : '';
   const [text, setText] = useState(saved);
   const [state, setState] = useState(null);   // { testing } | { ok, ms } | { why | invalid, method, tried }
+  const [editing, setEditing] = useState(false);
   useEffect(() => { setText(saved); }, [saved]);
+  // The saved link's password covered while the field is not being edited.
+  const covered = !editing && !!saved && text === saved;
 
   const use = async () => {
     const v = text.trim();
@@ -342,7 +345,9 @@ function OwnServer({ value, onSave }) {
       <p id={descId} className="text-[12.5px] leading-snug" style={{ color: 'var(--text-dim)' }}>{t('ownServerDesc')}</p>
       <form className="mt-2 flex flex-wrap gap-2" onSubmit={(e) => { e.preventDefault(); if (text.trim() && !(state && state.testing)) use(); }}>
         <input
-          value={text}
+          value={covered ? maskLink(saved) : text}
+          onFocus={() => setEditing(true)}
+          onBlur={() => setEditing(false)}
           onChange={(e) => { setText(e.target.value); if (state && !state.testing) setState(null); }}
           placeholder="socks5://1.2.3.4:1080 · ss://…"
           aria-label={t('ownServer')}
@@ -410,15 +415,20 @@ function ShareConnection({ onChange }) {
     const iv = setInterval(load, 3000);
     return () => { alive = false; clearInterval(iv); };
   }, []);
+  // After each change, and again a moment later: what the router said
+  // comes a little after.
+  const refresh = () => window.electron?.getShareStatus?.().then((s) => s && setSt((p) => (p && p.error && !s.on ? { ...s, error: p.error } : s))).catch(() => {});
   const set = async (on) => {
     setBusy(true);
     try { const s = await window.electron.setShare(on); setSt(s); onChange(!!(s && s.on)); } catch {}
     setBusy(false);
+    setTimeout(refresh, 1500);
   };
   const renew = async () => {
     setBusy(true);
     try { setSt(await window.electron.newShareLink()); } catch {}
     setBusy(false);
+    setTimeout(refresh, 1500);
   };
   const copy = async (link) => {
     let ok = false;

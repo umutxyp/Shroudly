@@ -838,7 +838,7 @@
   "shareUpnpTrying": "Đang yêu cầu bộ định tuyến mở đường vào từ internet…",
   "shareUpnpNone": "Không có đường vào từ internet: bộ định tuyến không mở. Chỉ người trong mạng này dùng được, trừ khi bộ định tuyến chuyển tiếp cổng TCP {port} tới máy tính này.",
   "shareUpnpPrivate": "Bộ định tuyến đã mở đường vào, nhưng nhà cung cấp của bạn chia sẻ kết nối này giữa các khách hàng, nên không thể truy cập từ internet. Chỉ người trong mạng này dùng được.",
-  "sharePeople": "Hiện tại: {people} người, {open} kết nối ({total} kể từ khi bật)",
+  "sharePeople": "Đang kết nối: {people} · Kết nối mở: {open} · Kể từ khi bật: {total}",
   "shareUnprotected": "Bảo vệ của Shroudly đang tắt: những gì họ mở sẽ đi thẳng ra, không có kỹ thuật của Shroudly.",
   "shareNewLink": "Liên kết mới",
   "shareNewLinkDesc": "Liên kết cũ ngừng hoạt động ngay lập tức.",

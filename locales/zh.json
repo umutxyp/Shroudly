@@ -838,7 +838,7 @@
   "shareUpnpTrying": "正在请求路由器开放来自互联网的入口…",
   "shareUpnpNone": "没有来自互联网的入口：路由器没有开放。除非路由器把 TCP 端口 {port} 转发到这台电脑，否则只有这个网络中的人能使用。",
   "shareUpnpPrivate": "路由器开放了入口，但你的运营商让多个用户共用这个连接，因此无法从互联网访问。只有这个网络中的人能使用。",
-  "sharePeople": "当前：{people} 人，{open} 个连接（开启以来共 {total} 个）",
+  "sharePeople": "当前连接：{people} 人 · 打开的连接：{open} · 开启以来：{total}",
   "shareUnprotected": "Shroudly 的保护已关闭：他们打开的内容会直接出去，不经过 Shroudly 的技术。",
   "shareNewLink": "新链接",
   "shareNewLinkDesc": "旧链接会立即失效。",

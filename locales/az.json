@@ -838,7 +838,7 @@
   "shareUpnpTrying": "Routerdən internetdən giriş yolu istənilir…",
   "shareUpnpNone": "İnternetdən giriş yolu yoxdur: router açmadı. Router TCP {port} portunu bu kompüterə yönləndirməsə, yalnız bu şəbəkədəki insanlar istifadə edə bilər.",
   "shareUpnpPrivate": "Router giriş yolu açdı, amma provayderiniz bu bağlantını müştərilər arasında bölüşdürür, ona görə internetdən ona çatmaq olmur. Yalnız bu şəbəkədəki insanlar istifadə edə bilər.",
-  "sharePeople": "İndi: {people} nəfər, {open} bağlantı (açılandan bəri {total})",
+  "sharePeople": "İndi qoşulub: {people} · Açıq bağlantılar: {open} · Açılandan bəri: {total}",
   "shareUnprotected": "Shroudly-nin qorunması söndürülüb: onların açdıqları Shroudly-nin texnikaları olmadan birbaşa çıxır.",
   "shareNewLink": "Yeni link",
   "shareNewLinkDesc": "Köhnə link dərhal işləməz olur.",

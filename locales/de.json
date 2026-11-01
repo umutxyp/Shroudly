@@ -838,7 +838,7 @@
   "shareUpnpTrying": "Der Router wird um einen Weg herein aus dem Internet gebeten …",
   "shareUpnpNone": "Kein Weg herein aus dem Internet: Der Router hat keinen geöffnet. Nur Leute in diesem Netz können es nutzen, es sei denn, der Router leitet TCP-Port {port} an diesen Computer weiter.",
   "shareUpnpPrivate": "Der Router hat einen Weg herein geöffnet, aber dein Anbieter teilt diese Verbindung unter Kunden, daher ist sie aus dem Internet nicht erreichbar. Nur Leute in diesem Netz können es nutzen.",
-  "sharePeople": "Jetzt: {people} Personen, {open} Verbindungen ({total} seit dem Einschalten)",
+  "sharePeople": "Jetzt verbunden: {people} · Offene Verbindungen: {open} · Seit dem Einschalten: {total}",
   "shareUnprotected": "Der Schutz von Shroudly ist aus: Was sie öffnen, geht direkt hinaus, ohne Shroudlys Techniken.",
   "shareNewLink": "Neuer Link",
   "shareNewLinkDesc": "Der alte Link funktioniert sofort nicht mehr.",

@@ -838,7 +838,7 @@
   "shareUpnpTrying": "Meminta router membuka jalan masuk dari internet…",
   "shareUpnpNone": "Tidak ada jalan masuk dari internet: router tidak membukanya. Hanya orang di jaringan ini yang bisa memakainya, kecuali router meneruskan port TCP {port} ke komputer ini.",
   "shareUpnpPrivate": "Router membuka jalan masuk, tetapi penyedia Anda membagi koneksi ini di antara pelanggan, jadi tidak bisa dijangkau dari internet. Hanya orang di jaringan ini yang bisa memakainya.",
-  "sharePeople": "Sekarang: {people} orang, {open} koneksi ({total} sejak dinyalakan)",
+  "sharePeople": "Terhubung sekarang: {people} · Koneksi terbuka: {open} · Sejak dinyalakan: {total}",
   "shareUnprotected": "Perlindungan Shroudly mati: apa yang mereka buka keluar langsung, tanpa teknik Shroudly.",
   "shareNewLink": "Tautan baru",
   "shareNewLinkDesc": "Tautan lama langsung berhenti berfungsi.",
