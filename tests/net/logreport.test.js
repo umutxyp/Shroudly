@@ -3,8 +3,9 @@
 /* The log for a report (electron/log-report.js): as the background process
  * wrote it (English, with times and levels), whatever language the window
  * shows it in, under a short header that says what a report needs: the
- * version, the system, protection, the route mode, Advanced mode, the modes,
- * and the network as the log last described it. "Save logs" writes all of
+ * version, the system, protection, the route mode, Advanced mode, an
+ * antivirus in the way, the modes, and the network as the log last
+ * described it. "Save logs" writes all of
  * it to a file; "Copy logs" puts a short version on the clipboard that a
  * chat app takes as one message. */
 
@@ -41,6 +42,15 @@ const mac = buildReport({ ...s, os: 'macOS 15.1', arch: 'arm64', storeApps: null
 t.ok(mac.includes('Modes: Discord app mode on, Games and apps mode off\n') && mac.includes('route: listed sites only') && mac.includes('Advanced mode: on')
   && mac.includes('Network: not logged yet') && mac.includes('Lines: 0'), 'macOS and Linux: no Store apps line; listed sites; an empty log');
 t.ok(!/https?:\/\//.test(r.replace(/--watch discord\.media/, '')) && !r.includes('siteList'), 'nothing beyond what the log already says (no site list, no history)');
+// An antivirus in the way (security-block.js summary): said in the header,
+// right under Advanced mode, the first thing a report needs to know.
+{
+  const blocked = buildReport({ ...s, security: 'engine blocked (shroudly-core.exe missing)' }, logs);
+  t.ok(blocked.includes('Advanced mode: off\nSecurity software: engine blocked (shroudly-core.exe missing)\nModes: '), 'an antivirus block: one header line, under Advanced mode');
+  t.ok(!r.includes('Security software') && !buildReport({ ...s, security: null }, []).includes('Security software'), 'none: no such line');
+  const short = buildCompact({ ...s, security: 'Advanced mode blocked (WinDivert driver refused, error 1275)', utcOffsetMin: 0 }, logs);
+  t.ok(short.includes('\nSecurity software: Advanced mode blocked (WinDivert driver refused, error 1275)\n'), 'the short version keeps it too');
+}
 // The clipboard read back: a desktop that takes nothing from a program
 // without a focused window (Wayland, from the tray) is not reported as done.
 {

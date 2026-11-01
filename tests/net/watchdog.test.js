@@ -7,7 +7,9 @@
  * gets restored (with arguments that need quoting, in a folder named with
  * spaces and non-ASCII letters, as a Windows user folder can be), nothing
  * left means nothing runs, a closed pipe while Shroudly is still alive does
- * nothing until it ends, and the watchdog stays small. */
+ * nothing until it ends, the watchdog stays small, one stopped while
+ * Shroudly runs is started again, but not once its file is gone (an
+ * antivirus took it). */
 
 const path = require('path');
 const fs = require('fs');
@@ -132,6 +134,34 @@ function rssKb(pid) {
     try { process.kill(first, 'SIGKILL'); } catch {}
     t.ok(await waitFor(() => Watchdog.pid() > 0 && Watchdog.pid() !== first, 5000), 'killed while Shroudly runs: started again');
     // Nothing left to restore when this test ends.
+    fs.rmSync(state, { force: true });
+  }
+
+  // 6. Ended with its file gone (an antivirus quarantined the engine, which
+  //    is the watchdog too): not started again, said once.
+  {
+    const Watchdog = require(path.join(__dirname, '..', '..', 'electron', 'watchdog.js'));
+    const core = path.join(dir, path.basename(enginePath()));
+    fs.copyFileSync(enginePath(), core);
+    fs.chmodSync(core, 0o755);
+    const gone = [];
+    const state = path.join(dir, 'state 6.json');
+    fs.writeFileSync(state, '{}');
+    const opts = { core, restore: { exe: process.execPath, args: ['-e', RECORD, path.join(dir, 'restored 6.json')] }, onCoreGone: (c) => gone.push(c) };
+    Watchdog.watch(opts, 'proxy', state);
+    // The one running now came from test 5: ended, it comes back from this copy.
+    const before = Watchdog.pid();
+    try { process.kill(before, 'SIGKILL'); } catch {}
+    t.ok(await waitFor(() => Watchdog.pid() > 0 && Watchdog.pid() !== before, 5000), 'started again from its file while that is there');
+    const fromCopy = Watchdog.pid();
+    try { process.kill(fromCopy, 'SIGKILL'); } catch {}
+    // As an antivirus does: the program ended, its file moved away (Windows
+    // lets go of the file a moment after the end).
+    await waitFor(() => !Watchdog.running(), 3000);
+    fs.rmSync(core, { force: true, maxRetries: 20, retryDelay: 50 });
+    await sleep(2500);
+    t.ok(!Watchdog.running() && !fs.existsSync(core), 'its file gone: not started again');
+    t.ok(gone.length === 1 && gone[0] === core, 'and said once (the engine\'s own end tells the user)');
     fs.rmSync(state, { force: true });
   }
 

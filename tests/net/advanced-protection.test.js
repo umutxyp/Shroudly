@@ -4,7 +4,8 @@
  * stops with protection, comes back at the user's next Start, and a Stop wins
  * over a start on protection's behalf (that return, the autopilot's ask)
  * still looking for a game's anti-cheat or waiting for its permission prompt:
- * WinDivert / NFQUEUE must never stay on after the user stopped protection. */
+ * WinDivert / NFQUEUE must never stay on after the user stopped protection.
+ * Once an antivirus blocked it, it does not come back by itself. */
 
 const path = require('path');
 const { ROOT, suite } = require('./helpers');
@@ -271,6 +272,38 @@ function rig({ antiCheat = null, holdScan = false } = {}) {
     await g.guard();
     t.ok(!b.active && b.prompts === 0 && !g.paused && told.some((x) => x.id === 'autoAdvancedNoAskAfterGame' && x.p.program === 'cs2.exe'),
       'the setting off: after the game no permission prompt, the user is told instead');
+  }
+
+  // ── an antivirus blocked it this session: it does not come back by
+  //    itself, neither at the next Start nor after a game ──
+  {
+    const r = rig();
+    let blocked = true;
+    r.g.blocked = () => blocked;
+    r.b.active = true;
+    await r.stop();
+    await r.start();
+    t.ok(r.b.prompts === 0 && r.logs.some((l) => /security software blocked it earlier in this session/.test(l)),
+      'blocked this session: the user\'s next Start does not ask for it again');
+    let game = 'cs2.exe';
+    const b = { active: true, prompts: 0 };
+    const logs = [];
+    const g = new AdvancedProtection({
+      active: () => b.active,
+      start: async () => { b.prompts++; b.active = true; return { success: true }; },
+      stop: async () => { b.active = false; },
+      protectionOn: () => true,
+      antiCheat: async () => game,
+      blocked: () => blocked,
+      log: (l, m) => logs.push(m),
+    });
+    g.lastGame = null;
+    await g.guard();
+    game = null;
+    await g.guard();
+    t.ok(!b.active && b.prompts === 0 && !g.paused && logs.some((l) => /not brought back, as security software blocked it/.test(l)),
+      'blocked this session: not brought back after the game');
+    blocked = false;
   }
 
   // ── never over a full-screen game: asked once the user is out of it ──

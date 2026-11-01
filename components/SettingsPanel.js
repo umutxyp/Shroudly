@@ -28,6 +28,8 @@ const ADV_REASON_KEYS = {
   not_built: 'advReasonNotBuilt',
   windivert_missing: 'advReasonWindivertMissing',
   platform_unsupported: 'advReasonPlatformUnsupported',
+  // An installed Shroudly whose Advanced mode files an antivirus took.
+  files_missing: 'advReasonFilesMissing',
 };
 /* startAdvanced().code → translation key */
 const ADV_ERROR_KEYS = {
@@ -35,6 +37,9 @@ const ADV_ERROR_KEYS = {
   elevation_unavailable: 'advErrorElevationUnavailable',
   start_failed: 'advErrorStartFailed',
   timeout: 'advErrorTimeout',
+  // An antivirus refused it, or took its files (main.js securityBlocked).
+  security_blocked: 'advErrorSecurity',
+  files_missing: 'advReasonFilesMissing',
 };
 const PROBE_TIMEOUT_MS = 25000;
 
@@ -45,12 +50,21 @@ function advReasonText(info, t) {
 }
 
 function advErrorMessage(r, t) {
+  // The WinDivert driver refused: said with Windows' error code, for a report.
+  if (r && r.code === 'security_blocked' && r.kind === 'driver') {
+    return { text: t('securityDriverBody', { code: r.win32 ?? '?' }), detail: null, tone: 'warn' };
+  }
+  // Ended from outside without a word: an antivirus only may have; what to
+  // do, without saying it did.
+  if (r && r.code === 'security_blocked' && r.certain === false) {
+    return { text: t('securityAdvancedBody'), detail: null, tone: 'warn' };
+  }
   const key = r && ADV_ERROR_KEYS[r.code];
   if (key) {
     return {
       text: t(key),
       detail: r.code === 'start_failed' ? r.error : null,
-      tone: r.code === 'declined' ? 'warn' : 'danger',
+      tone: ['declined', 'security_blocked', 'files_missing'].includes(r.code) ? 'warn' : 'danger',
     };
   }
   if (r?.error) return { text: t('advErrorGeneric'), detail: r.error, tone: 'danger' };

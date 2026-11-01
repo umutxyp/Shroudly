@@ -8,7 +8,10 @@
  *   - translate UI settings into engine CLI args
  *   - set the system proxy while active, restore it on stop/crash/exit
  *   - parse the engine's JSON stdout into live stats + logs
- *   - restart the engine with backoff if it dies unexpectedly
+ *   - restart the engine with backoff if it dies unexpectedly, unless an
+ *     antivirus took or keeps ending it (security-block.js): restarting a
+ *     program it just stopped only gives it more reason to act, so that is
+ *     told instead (hooks.onSecurityBlock)
  *
  * No elevation, no drivers, no third-party tools.
  */
@@ -28,6 +31,7 @@ const { isMainName } = require('./service-check');
 const sharedWake = require('./wake');
 const LogGate = require('./log-gate');
 const { cleanAllow } = require('./adblock');
+const SecurityBlock = require('./security-block');
 const net = require('net');
 
 /* Can we listen on 127.0.0.1:port right now? */
@@ -202,6 +206,22 @@ class EngineManager {
     this._adblockChecks = [];
     this.onNeedRestart = hooks.onNeedRestart || (() => {});
     this.onDnsAutoEnabled = hooks.onDnsAutoEnabled || (() => {});
+    // An antivirus that quarantined, refused or keeps ending the engine
+    // (security-block.js), as { part: 'engine', kind, certain, file, folder,
+    // detail }: main.js tells it once, in the log, a notification and the
+    // window. Without it, the log line alone.
+    this.onSecurityBlock = hooks.onSecurityBlock || ((info) => this.log('error', SecurityBlock.logLine(info)));
+    // The engine's file; the tests bring a stand-in.
+    this.binPath = hooks.binPath || coreBinaryPath();
+    // An installed Shroudly, where a missing engine file was taken by someone
+    // (a developer's run says how to build it instead).
+    this.packaged = hooks.packaged != null ? !!hooks.packaged : __dirname.includes('app.asar');
+    this.platform = hooks.platform || process.platform;
+    // Engines in a row that ended right after they started, by themselves
+    // and without a word (SecurityBlock.classifyEarlyExit). The tests that
+    // end the engine themselves, as a crash, turn this off.
+    this.judgeQuickExits = hooks.judgeQuickExits !== false;
+    this._quickExits = 0;
     // Sleep and clock jumps (wake.js); the tests bring their own.
     this.wake = hooks.wake || sharedWake;
     this.hangTimeoutMs = hooks.hangTimeoutMs || HANG_TIMEOUT_MS;
@@ -504,8 +524,12 @@ class EngineManager {
   async _start() {
     if (this.active) return { success: true, alreadyActive: true };
 
-    const bin = coreBinaryPath();
-    if (!fs.existsSync(bin)) {
+    const bin = this.binPath;
+    // Not there, empty or unreadable in an installed Shroudly: an antivirus
+    // took it (or a damaged install), never "npm run build:core".
+    const state = await SecurityBlock.settledFileState(bin, { platform: this.platform });
+    if (SecurityBlock.isGone(state)) {
+      if (this.packaged) throw this._blocked({ kind: state });
       const msg = `Engine binary not found for ${process.platform}-${process.arch}. Run: npm run build:core`;
       this.log('error', msg);
       throw new Error(msg);
@@ -547,6 +571,10 @@ class EngineManager {
     }
     if (!ready) {
       await this._cleanup();
+      // Refused by Windows, or ended right after it started twice in a row:
+      // told as what it is, not as an engine failure.
+      if (this._spawnBlock) throw this._spawnBlock;
+      if (this._quickExits >= 2) throw this._blocked({ kind: 'early_exit', certain: false, detail: this._quickDetail });
       throw new Error(this.lastError || 'Engine failed to start');
     }
 
@@ -574,6 +602,8 @@ class EngineManager {
     this.startedAt = Date.now();
     this.stats.startTime = this.startedAt;
     this.store.set('runtimeActive', true);
+    // Running again: an antivirus block told earlier is over.
+    if (this.advice.security && this.advice.security.part === 'engine') this._setAdvice({ security: null });
     this._startStatsPoll();
     this.onStatusChange(true);
     this.stats.strategy = this._strategyLabel(cfg);
@@ -589,11 +619,19 @@ class EngineManager {
       this.log('info', `Starting engine: ${path.basename(bin)} ${shown.join(' ')}${blockIps ? ` (+${blockIps} known block pages)` : ''}`);
       let settled = false;
       const finish = (v) => { if (!settled) { settled = true; resolve(v); } };
+      // What this start said and when, so that its end can be told apart
+      // (SecurityBlock.classifyEarlyExit); and no older error stands in for it.
+      const run = { at: Date.now(), quiet: true };
+      this._run = run;
+      this.lastError = null;
+      this._spawnBlock = null;
 
       try {
         this.proc = spawn(bin, args, { windowsHide: true, stdio: ['pipe', 'pipe', 'pipe'] });
       } catch (e) {
+        // Windows' refusals (EPERM, UNKNOWN) come here, at once.
         this.lastError = e.message;
+        if (!this._spawnFailed(e, bin)) this.log('error', `engine error: ${e.message}`);
         return finish(false);
       }
 
@@ -609,24 +647,54 @@ class EngineManager {
         while ((i = buf.indexOf('\n')) >= 0) {
           const line = buf.slice(0, i).trim();
           buf = buf.slice(i + 1);
-          if (line) this._onLine(line, finish);
+          if (line) { if (line.includes('"type":"error"')) run.quiet = false; this._onLine(line, finish); }
         }
       });
       this.proc.stderr.on('data', (d) => {
         const t = d.toString().trim();
-        if (t) { this.lastError = t; this.log('warning', `engine: ${t}`); }
+        if (t) { run.quiet = false; this.lastError = t; this.log('warning', `engine: ${t}`); }
       });
-      this.proc.on('error', (e) => { this.lastError = e.message; this.log('error', `engine error: ${e.message}`); finish(false); });
+      // ENOENT and EACCES come here, a moment later.
+      this.proc.on('error', (e) => { this.lastError = e.message; if (!this._spawnFailed(e, bin)) this.log('error', `engine error: ${e.message}`); finish(false); });
       // Only this process's own exit counts: a replaced engine (restart())
       // may close after its successor is already running.
       const proc = this.proc;
-      proc.on('close', (code) => { if (this.proc !== proc) return; this._onClose(code); if (!settled) finish(false); });
+      proc.on('close', (code) => { if (this.proc !== proc) return; this._onClose(code, run); if (!settled) finish(false); });
 
       // Not counted across a sleep: one during a start, and the engine's
       // "ready" waiting unread at wake, is no failed start.
       const limit = this.wake.timeout(() => { if (!settled) { this.lastError = 'engine start timeout'; finish(false); } }, this.startTimeoutMs);
       proc.once('close', () => limit.cancel());
     });
+  }
+
+  /* Where the user adds the antivirus exception: the folder Shroudly is
+   * installed in (a developer's run: the engine's own). */
+  _securityFolder() {
+    return this.packaged ? SecurityBlock.installFolder({ platform: this.platform }) : path.dirname(this.binPath);
+  }
+
+  /* An antivirus block of the engine, told (onSecurityBlock), as the error
+   * a start fails with (code 'security_blocked'). */
+  _blocked({ kind, certain = true, detail = null }) {
+    const info = { part: 'engine', kind, certain, file: path.basename(this.binPath), folder: this._securityFolder(), detail };
+    try { this.onSecurityBlock(info); } catch {}
+    const e = new Error(SecurityBlock.logLine(info).replace(/^Security software: /, 'Blocked by security software: '));
+    e.code = 'security_blocked';
+    e.info = info;
+    return e;
+  }
+
+  /* The engine could not be started at all: refused by Windows with its
+   * file there, or its file gone meanwhile, is a block, told once in its
+   * own line and kept as the start's error (true); anything else stays an
+   * engine error (false). */
+  _spawnFailed(err, bin) {
+    const kind = SecurityBlock.classifySpawnError(err, SecurityBlock.fileState(bin, { platform: this.platform }), this.platform);
+    // A developer's run without the engine built: not someone else's doing.
+    if (!kind || (kind === 'missing' && !this.packaged)) return false;
+    this._spawnBlock = this._blocked({ kind, detail: err.code ? `spawn ${err.code}` : null });
+    return true;
   }
 
   /* Write down what this machine looks like, and act on the two findings that
@@ -953,6 +1021,8 @@ class EngineManager {
       if (this.active && Date.now() - this.lastOutputAt > this.hangTimeoutMs) {
         this.log('error', 'Engine stopped responding; restarting it');
         this.lastOutputAt = Date.now();
+        // Ended by us: no sign of anyone else ending it.
+        if (this._run) this._run.quiet = false;
         try { this.proc.kill('SIGKILL'); } catch {} // _onClose restarts it
         return;
       }
@@ -1084,14 +1154,28 @@ class EngineManager {
     }
   }
 
-  async _onClose(code) {
+  async _onClose(code, run = null) {
     const wasActive = this.active;
     this.proc = null;
     this._exitCode = code;
-    if (this.expectingStop || !wasActive) return;
+    // Ended by us: no sign of anything.
+    if (this.expectingStop) { this._quickExits = 0; return; }
+    // Ended right after it started, by itself and without a word: two of
+    // those in a row (a start's or a restart's) look like an antivirus
+    // ending it, and are told as "may" (SecurityBlock.classifyEarlyExit).
+    const ms = run ? Date.now() - run.at : -1;
+    const quick = run && this.judgeQuickExits && SecurityBlock.classifyEarlyExit({ code, ms, quiet: run.quiet, platform: this.platform });
+    this._quickExits = quick ? this._quickExits + 1 : 0;
+    if (quick) this._quickDetail = `exit code ${code}, ${ms} ms after its start`;
+    if (!wasActive) return;
 
     this.log('error', `Engine exited unexpectedly (code ${code}).`);
-    const retry = this.restarts < MAX_RESTARTS;
+    // Its file gone (an antivirus quarantines a program and ends it at the
+    // same moment), or ended right after its start again: no restart, which
+    // could only fail or give the antivirus one more reason; told instead.
+    const gone = SecurityBlock.isGone(SecurityBlock.fileState(this.binPath, { platform: this.platform }));
+    const blocked = gone || this._quickExits >= 2;
+    const retry = !blocked && this.restarts < MAX_RESTARTS;
     // Coming back from this moment on: programs carried by Shroudly (the
     // Discord relay, the app proxy) wait for it instead of going out
     // directly, which a filtering network refuses (a Discord update mid
@@ -1119,7 +1203,10 @@ class EngineManager {
     // A Stop pressed while that restore ran: nothing comes back after it.
     if (gen !== this._stopGen) { this._restartPending = false; return; }
 
-    if (retry) {
+    if (blocked) {
+      this.restarts = 0;
+      this._blocked(gone ? { kind: 'vanished' } : { kind: 'early_exit', certain: false, detail: this._quickDetail });
+    } else if (retry) {
       this.restarts++;
       const delay = Math.min(500 * this.restarts, 4000);
       this.log('warning', `Restarting engine in ${delay}ms (attempt ${this.restarts}/${MAX_RESTARTS})`);
@@ -1129,7 +1216,8 @@ class EngineManager {
         this._restartPending = false;
         this._crashRestart = true;
         this.start().catch(async (e) => {
-          this.log('error', `Restart failed: ${e.message}`);
+          // A block has been told already, in its own line.
+          if (e.code !== 'security_blocked') this.log('error', `Restart failed: ${e.message}`);
           // A kept system setting must not outlive an engine that is not
           // coming back.
           if (!this.active && this.proxy.applied) { try { await this.proxy.restore(); } catch {} this._setProxyStatus(null); }
@@ -1179,12 +1267,12 @@ class EngineManager {
       if (cfg.useDoh && !this.dohPort) {
         try { this.dohPort = await this.doh.start(this.lastDohPort); this.lastDohPort = this.dohPort; } catch { this.dohPort = 0; }
       }
-      const ready = await this._spawn(coreBinaryPath(), this._args(cfg));
+      const ready = await this._spawn(this.binPath, this._args(cfg));
       if (!ready) {
         await this._cleanup(); // restores the proxy
         this.store.set('runtimeActive', false);
         this.onStatusChange(false);
-        throw new Error(this.lastError || 'Engine failed to restart');
+        throw this._spawnBlock || new Error(this.lastError || 'Engine failed to restart');
       }
       this._startStatsPoll();
       this.stats.strategy = this._strategyLabel(cfg);

@@ -19,10 +19,21 @@
  * so it talks through files (see core/src/supervise.h): it writes JSON lines to
  * a status file, exits when a ".stop" file appears, and also exits by itself
  * when this process dies. Its packet hook is released whenever it exits.
+ *
+ * An antivirus is what most often stands in the way here (WinDivert is a
+ * packet driver, and many of them flag it): it removes Advanced mode's
+ * files, refuses to start the engine, refuses the driver, or ends the engine
+ * without a word. Each is told as what it is (codes 'files_missing' and
+ * 'security_blocked', with the details security-block.js and main.js use),
+ * not as "did not respond in time" after two minutes. On Windows the engine
+ * is no child of ours, so the launcher hands back its process id, and a
+ * check that the process is still there notices one ended from outside,
+ * while it starts (in about a second) and while it runs.
  */
 
 const { spawn, execFile } = require('child_process');
 const { envFor } = require('./win-powershell');
+const SecurityBlock = require('./security-block');
 const path = require('path');
 const fs = require('fs');
 const os = require('os');
@@ -30,6 +41,11 @@ const os = require('os');
 const QUEUE_NUM = 200;
 const READY_TIMEOUT_MS = 120000; // includes the time the user spends on the prompt
 const STOP_TIMEOUT_MS = 4000;
+// While it runs, whether its process is still there is looked at this often:
+// each look asks Windows for a handle to an elevated process (refused, which
+// is the answer), and a security program watching such requests should not
+// see one every second for hours.
+const ALIVE_CHECK_MS = 5000;
 
 function archKey() { return process.arch === 'arm64' ? 'arm64' : 'x64'; }
 
@@ -70,10 +86,19 @@ const REASONS = {
   platform_unsupported: `Advanced mode is not available on ${process.platform}.`,
   not_built: 'The advanced engine is not included in this build. Run: npm run build:core:advanced',
   windivert_missing: 'WinDivert.dll / WinDivert64.sys are missing next to the advanced engine. Reinstall Shroudly.',
+  files_missing: "Advanced mode's files are missing or cannot be read; an antivirus may have removed them. Restore them from its quarantine, or install Shroudly again.",
 };
 
+/* info: for 'security_blocked' and 'files_missing', what main.js tells
+ * (security-block.js). */
 class AdvError extends Error {
-  constructor(code, message) { super(message); this.code = code; }
+  constructor(code, message, info = null) { super(message); this.code = code; this.info = info; }
+}
+
+/* Is the process still there? Windows refuses an unelevated process a
+ * handle to an elevated one (EPERM): that one is there too. */
+function alive(pid) {
+  try { process.kill(pid, 0); return true; } catch (e) { return !!e && e.code === 'EPERM'; }
 }
 
 /*
@@ -160,15 +185,39 @@ function winQuoteArg(a) {
   return `${out}${'\\'.repeat(bs * 2)}"`;
 }
 
+/* Windows: PowerShell's arguments that start the engine elevated (a UAC
+ * prompt). Start-Process passes a single ArgumentList string through
+ * verbatim, so each argument is quoted here. -PassThru gives the elevated
+ * engine's process id, written out for the checks that it is still there
+ * (on its own, so that a process id that cannot be read never fails an
+ * engine that did start). Exit 2: 1223 = ERROR_CANCELLED (UAC declined).
+ * Exit 3: Windows or an antivirus refused to start it (5 = access denied,
+ * 225/226 = "contains a virus"). Exit 4: its file is not there (2, 3). The
+ * script stays encoded (-EncodedCommand): a user folder with letters outside
+ * the console's code page (C:\Users\Ümit) would not survive any other way
+ * in. */
+function launcherArgs(bin, args) {
+  const argLine = args.map(winQuoteArg).join(' ');
+  const q = (s) => `'${String(s).replace(/'/g, "''")}'`;
+  const script =
+    `try { $p = Start-Process -FilePath ${q(bin)} -ArgumentList ${q(argLine)} -Verb RunAs -WindowStyle Hidden -PassThru -ErrorAction Stop } ` +
+    'catch { $e = $_.Exception; while ($e) { $c = $e.NativeErrorCode; if ($c -eq 1223) { exit 2 }; ' +
+    'if ($c -eq 5 -or $c -eq 225 -or $c -eq 226) { exit 3 }; if ($c -eq 2 -or $c -eq 3) { exit 4 }; $e = $e.InnerException }; ' +
+    '[Console]::Error.WriteLine($_.Exception.Message); exit 1 }; ' +
+    'try { if ($p) { [Console]::Out.WriteLine($p.Id) } } catch {}';
+  const encoded = Buffer.from(script, 'utf16le').toString('base64');
+  return ['-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass', '-EncodedCommand', encoded];
+}
+
 /* A program that could not be started at all (ENOENT...) or ran out of
  * time says so in stderr: "PowerShell exited with -1" alone told nobody why. */
 function run(cmd, args, timeout) {
   return new Promise((resolve) => {
     execFile(cmd, args, { timeout, windowsHide: true, env: envFor(cmd) }, (err, stdout, stderr) => {
-      if (!err) { resolve({ code: 0, stderr: String(stderr || '') }); return; }
-      if (typeof err.code === 'number') { resolve({ code: err.code, stderr: String(stderr || '') }); return; }
+      if (!err) { resolve({ code: 0, stdout: String(stdout || ''), stderr: String(stderr || '') }); return; }
+      if (typeof err.code === 'number') { resolve({ code: err.code, stdout: String(stdout || ''), stderr: String(stderr || '') }); return; }
       const why = err.killed ? `${path.basename(cmd)} did not finish in time` : `${path.basename(cmd)} could not be started (${err.code || err.message})`;
-      resolve({ code: -1, stderr: String(stderr || '').trim() || why });
+      resolve({ code: -1, stdout: '', stderr: String(stderr || '').trim() || why });
     });
   });
 }
@@ -182,13 +231,52 @@ class AdvancedMode {
     this.statusFile = null;
     this.child = null;      // pkexec / direct child on Linux; none on Windows
     this.childExit = null;  // exit code of that child, once it has exited
+    this.pid = null;        // Windows: the elevated engine's process, from the launcher
+    this.alive = alive;     // the tests bring their own
+    this.aliveCheckMs = ALIVE_CHECK_MS;
     this.monitor = null;
+    // An installed Shroudly: Advanced mode's files are always part of it
+    // where it has Advanced mode (release.yml builds them for Windows x64
+    // and Linux), so one gone was taken, most likely by an antivirus.
+    this.packaged = __dirname.includes('app.asar');
+    // A block found while it runs (main.js securityBlocked).
+    this.onSecurityBlock = null;
+  }
+
+  /* Advanced mode's own files here: the engine, and WinDivert's on Windows. */
+  _files() {
+    const bin = advBinaryPath();
+    if (this.platform !== 'win32') return [bin];
+    const dir = path.dirname(bin);
+    return [bin, path.join(dir, 'WinDivert.dll'), path.join(dir, 'WinDivert64.sys')];
+  }
+
+  /* The first of them that is gone (SecurityBlock.fileState): { file, state }, or null. */
+  _badFile() {
+    for (const file of this._files()) {
+      const state = SecurityBlock.fileState(file, { platform: this.platform });
+      if (SecurityBlock.isGone(state)) return { file, state };
+    }
+    return null;
+  }
+
+  /* What main.js tells about a block of Advanced mode (security-block.js). */
+  _info(kind, { file = null, certain = true, detail = null, win32 = null } = {}) {
+    const folder = this.packaged ? SecurityBlock.installFolder({ platform: this.platform }) : path.dirname(advBinaryPath());
+    return { part: 'advanced', kind, certain, file: file || path.basename(advBinaryPath()), folder, detail, win32 };
+  }
+
+  _blockError(code, kind, opts = {}) {
+    const info = this._info(kind, opts);
+    const message = code === 'files_missing' ? REASONS.files_missing : SecurityBlock.logLine(info).replace(/^Security software: /, 'Blocked by security software: ');
+    return new AdvError(code, message, info);
   }
 
   reasonCode() {
     if (this.platform === 'darwin') return 'mac_unsupported';
     if (this.platform !== 'win32' && this.platform !== 'linux') return 'platform_unsupported';
     if (this.platform === 'win32' && (archKey() !== 'x64' || windowsHostIsArm())) return 'arch_unsupported';
+    if (this.packaged) return this._badFile() ? 'files_missing' : null;
     if (!fs.existsSync(advBinaryPath())) return 'not_built';
     if (this.platform === 'win32') {
       const dir = path.dirname(advBinaryPath());
@@ -212,6 +300,9 @@ class AdvancedMode {
     let ready = null;
     let stopped = false;
     const errors = [];
+    // The last error that carries Windows' own code (core/src/raw_windows.c):
+    // what SecurityBlock.classifyWinDivert reads.
+    let fault = null;
     for (const raw of text.split(/\r?\n/)) {
       const line = raw.trim();
       if (!line) continue;
@@ -219,25 +310,50 @@ class AdvancedMode {
         const m = JSON.parse(line);
         if (m.type === 'raw_ready') ready = m;
         else if (m.type === 'stopped') stopped = true;
-        else if (m.type === 'error' && m.msg) errors.push(m.msg);
+        else if (m.type === 'error') {
+          if (m.msg) errors.push(m.msg);
+          if (m.code && Number.isFinite(Number(m.win32))) fault = { code: String(m.code), win32: Number(m.win32) };
+        }
       } catch { errors.push(line); }
     }
-    return { ready, stopped, errors };
+    return { ready, stopped, errors, fault };
+  }
+
+  /* The engine ended before it was ready: why, as an AdvError. A WinDivert
+   * error with Windows' code says whether a file is missing or Windows or
+   * an antivirus refused the driver; anything else is 'start_failed' with
+   * the engine's own last lines. */
+  _failure(s, fallback) {
+    const said = (s.errors || []).slice(-3).join(' | ');
+    const c = SecurityBlock.classifyWinDivert(s.fault);
+    if (c && (c.code === 'security_blocked' || c.code === 'files_missing')) {
+      const load = s.fault.code === 'windivert_load';
+      return this._blockError(c.code, c.kind, {
+        file: load ? 'WinDivert.dll' : 'WinDivert64.sys', win32: s.fault.win32,
+        detail: `${load ? 'loading WinDivert.dll' : 'WinDivertOpen'}: error ${s.fault.win32}`,
+      });
+    }
+    if (c && c.code === 'rival') return new AdvError('start_failed', 'Another program has a different version of the WinDivert driver loaded (error 654). Close it (GoodbyeDPI, zapret and the like), or restart Windows.');
+    if (c && c.code === 'bfe_off') return new AdvError('start_failed', "Windows' Base Filtering Engine service is off (error 1753); Advanced mode needs it.");
+    return new AdvError('start_failed', said || fallback);
   }
 
   async _launchWindows(bin, args) {
-    // Start-Process passes a single ArgumentList string through verbatim, so
-    // quote each argument ourselves. 1223 = ERROR_CANCELLED (UAC declined).
-    const argLine = args.map(winQuoteArg).join(' ');
-    const q = (s) => `'${String(s).replace(/'/g, "''")}'`;
-    const script =
-      `try { Start-Process -FilePath ${q(bin)} -ArgumentList ${q(argLine)} -Verb RunAs -WindowStyle Hidden -ErrorAction Stop } ` +
-      'catch { $e = $_.Exception; while ($e) { if ($e.NativeErrorCode -eq 1223) { exit 2 }; $e = $e.InnerException }; ' +
-      '[Console]::Error.WriteLine($_.Exception.Message); exit 1 }';
-    const encoded = Buffer.from(script, 'utf16le').toString('base64');
-    const r = await run('powershell.exe', ['-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass', '-EncodedCommand', encoded], 180000);
+    this._launched(await run('powershell.exe', launcherArgs(bin, args), 180000));
+  }
+
+  /* What the launcher's exit says (launcherArgs): the engine's process id
+   * kept, or the AdvError it stands for. */
+  _launched(r) {
     if (r.code === 2) throw new AdvError('declined', 'Administrator permission was not granted.');
+    if (r.code === 3) throw this._blockError('security_blocked', 'denied', { detail: 'elevated start' });
+    if (r.code === 4) {
+      const bad = this._badFile();
+      throw this._blockError('files_missing', bad ? bad.state : 'missing', { file: bad ? path.basename(bad.file) : null });
+    }
     if (r.code !== 0) throw new AdvError('start_failed', r.stderr.trim() || `PowerShell exited with ${r.code}`);
+    const pid = Number(String(r.stdout || '').trim().split(/\s+/).pop());
+    this.pid = Number.isInteger(pid) && pid > 0 ? pid : null;
   }
 
   _launchLinux(bin, args) {
@@ -277,11 +393,21 @@ class AdvancedMode {
     while (waited < limit) {
       const s = this._readStatus();
       if (s.ready) return s.ready;
-      if (s.stopped) throw new AdvError('start_failed', s.errors.slice(-3).join(' | ') || 'The advanced engine exited.');
+      if (s.stopped) throw this._failure(s, 'The advanced engine exited.');
       if (this.childExit !== null) {
         // pkexec: 126 = dialog dismissed, 127 = not authorized
         if (this.childExit === 126 || this.childExit === 127) throw new AdvError('declined', 'Administrator permission was not granted.');
-        throw new AdvError('start_failed', s.errors.slice(-3).join(' | ') || `The advanced engine exited with code ${this.childExit}.`);
+        throw this._failure(s, `The advanced engine exited with code ${this.childExit}.`);
+      }
+      // Windows: its process is gone, and it said nothing (an engine that
+      // fails writes why, then "stopped"): ended from outside. An
+      // antivirus, for certain when it took a file too.
+      if (this.pid && !this.alive(this.pid)) {
+        const last = this._readStatus();
+        if (last.ready) return last.ready;
+        if (last.stopped || last.errors.length) throw this._failure(last, 'The advanced engine exited.');
+        const bad = this._badFile();
+        throw this._blockError('security_blocked', bad ? bad.state : 'killed', { certain: !!bad, file: bad ? path.basename(bad.file) : null });
       }
       await new Promise((r) => setTimeout(r, 250));
       const now = Date.now();
@@ -303,6 +429,10 @@ class AdvancedMode {
   async _start(fakeTtl, opts) {
     if (this.active) return { success: true, alreadyActive: true };
     const code = this.reasonCode();
+    if (code === 'files_missing') {
+      const bad = this._badFile();
+      throw this._blockError(code, bad ? bad.state : 'missing', { file: bad ? path.basename(bad.file) : null });
+    }
     if (code) throw new AdvError(code, REASONS[code]);
     const ttl = Number(fakeTtl) > 0 ? Number(fakeTtl) : 4;
     const o = opts || {};
@@ -342,15 +472,26 @@ class AdvancedMode {
 
   _startMonitor() {
     clearInterval(this.monitor);
+    let looked = Date.now();
     this.monitor = setInterval(() => {
       if (!this.active) return;
       const s = this._readStatus();
-      if (s.stopped || this.childExit !== null) {
+      // Windows: ended from outside while it ran leaves no "stopped" line,
+      // and would otherwise be taken for on for the rest of the session.
+      const look = !!this.pid && Date.now() - looked >= this.aliveCheckMs;
+      if (look) looked = Date.now();
+      const gone = look && !s.stopped && this.childExit === null && !this.alive(this.pid);
+      if (s.stopped || this.childExit !== null || gone) {
         this.active = false;
         clearInterval(this.monitor);
-        this.log('warning', 'Advanced backend exited');
+        this.log('warning', gone ? 'Advanced backend was ended from outside (no stop was asked)' : 'Advanced backend exited');
         if (typeof this.onExit === 'function') { try { this.onExit(); } catch {} }
         if (s.errors.length) this.log('warning', s.errors[s.errors.length - 1]);
+        // Its files gone with it: an antivirus took them (main.js tells it).
+        const bad = gone ? this._badFile() : null;
+        if (bad && typeof this.onSecurityBlock === 'function') {
+          try { this.onSecurityBlock(this._info('vanished', { file: path.basename(bad.file) })); } catch {}
+        }
         this._removeDir();
       }
     }, 1000);
@@ -362,6 +503,7 @@ class AdvancedMode {
     const deadline = Date.now() + STOP_TIMEOUT_MS;
     while (Date.now() < deadline) {
       if (this._readStatus().stopped || this.childExit !== null) return;
+      if (this.pid && !this.alive(this.pid)) return; // ended already
       if (!fs.existsSync(this.statusFile)) return; // never started
       await new Promise((r) => setTimeout(r, 150));
     }
@@ -374,6 +516,7 @@ class AdvancedMode {
     this.dir = null;
     this.statusFile = null;
     this.child = null;
+    this.pid = null;
   }
 
   async stop() {
@@ -398,3 +541,5 @@ module.exports.winQuoteArg = winQuoteArg;
 /* The TCP options' own name for the same argv (fakeTtl, opts). */
 module.exports.buildAdvancedArgs = ({ fakeTtl, opts, ...rest }) => buildArgs({ ...rest, ttl: fakeTtl, opts });
 module.exports.ADV_DEFAULTS = ADV_DEFAULTS;
+module.exports.AdvError = AdvError;
+module.exports.launcherArgs = launcherArgs;

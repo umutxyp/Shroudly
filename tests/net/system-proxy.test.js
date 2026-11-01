@@ -2049,7 +2049,8 @@ const readState = (file) => { try { return JSON.parse(fs.readFileSync(file, 'utf
     const mem = {};
     const store = { get: (k, dflt) => (k in mem ? mem[k] : dflt), set: (k, v) => { mem[k] = v; } };
     const statuses = [];
-    const em = new EngineManager(store, { onProxyStatus: (s) => statuses.push(s && s.code) });
+    // The check of an engine's end that its file is still there: one that is.
+    const em = new EngineManager(store, { onProxyStatus: (s) => statuses.push(s && s.code), binPath: process.execPath });
     t.ok(typeof em.proxy.onOwnership === 'function', 'EngineManager: listens for the proxy being taken over');
     em._setProxyStatus({ ok: true, code: 'ok', system: 'windows' });
     em.proxy.onOwnership(false, { lost: ['AutoConfigURL'] });
@@ -2420,8 +2421,6 @@ const readState = (file) => { try { return JSON.parse(fs.readFileSync(file, 'utf
     const EngineManager = require(path.join(ROOT, 'electron', 'engine-manager.js'));
     const { Wake } = require(path.join(ROOT, 'electron', 'wake.js'));
     const FAKE = path.join(__dirname, 'fixtures', 'fake-engine.js');
-    const exists = fs.existsSync;
-    fs.existsSync = (p) => (p === EngineManager.coreBinaryPath() ? true : exists(p));
     const backends = [];
     {
       const reg = new Map();
@@ -2450,8 +2449,10 @@ const readState = (file) => { try { return JSON.parse(fs.readFileSync(file, 'utf
       SystemProxy._setExec(b.exec);
       const lines = [];
       const store = { m: { listenPort: await require('./helpers').freePort(), dnsProtection: false }, get(k, d) { return k in this.m ? this.m[k] : d; }, set(k, v) { this.m[k] = v; }, delete(k) { delete this.m[k]; }, get store() { return this.m; } };
+      // binPath: the binary checks see the stand-in's own program; its
+      // ends are crashes the test makes, never an antivirus's (judgeQuickExits).
       const em = new EngineManager(store, { addLog: (l, m) => lines.push(`${l}: ${m}`), wake: new Wake(), hangTimeoutMs: 60000, pollMs: 200,
-        proxyOptions: { ...b.opts, stateFile: stateFile(`crash-${b.name}`), takeoverConfirmMs: 0, retakeLooksMs: [] } });
+        binPath: process.execPath, judgeQuickExits: false, proxyOptions: { ...b.opts, stateFile: stateFile(`crash-${b.name}`), takeoverConfirmMs: 0, retakeLooksMs: [] } });
       em._describeEnvironment = async () => {};
       const spawnIt = em._spawn.bind(em);
       em._spawn = (bin, args) => spawnIt(process.execPath, [FAKE, ...args]);
@@ -2499,7 +2500,6 @@ const readState = (file) => { try { return JSON.parse(fs.readFileSync(file, 'utf
       await em.stop();
       t.ok(b.read() !== set, `${b.name}: Stop then puts the user's own setting back`);
     }
-    fs.existsSync = exists;
   }
 
   SystemProxy._setExec(null);
