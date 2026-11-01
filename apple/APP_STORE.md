@@ -367,10 +367,13 @@ Gizlilik: https://github.com/umutxyp/Shroudly#privacy
    (iPad Pro 13").
 5. **Mac:** iOS ile aynı anda gönderilir.
 6. **Ad:** "Shroudly"; alınmışsa "Shroudly: Unblock Sites".
-7. **Simge:** Liquid Glass (Icon Composer) `App/AppIcon.icon`: mavi zemin,
-   cam beyaz kalkan, göz ve mavi göz bebeği. Karanlık, şeffaf ve renkli
-   görünümleri sistem kendisi üretir; eski iOS/macOS için düz hâli `actool`
-   derlerken çıkar. Masaüstü Mac uygulaması da aynı dosyayı kullanır.
+7. **Simge:** Liquid Glass (Icon Composer) `App/AppIcon.icon`: Google
+   Play'deki simgenin aynısı (mavi zemin, orijinal lacivert kalkan, göz ve
+   mavi göz bebeği; kalkan `public/icon.png`'den). Renkler korunur (saydamlık
+   kapalı); camın kenar ışığını ve gölgeyi sistem ekler, karanlık ve
+   renklendirilmiş görünümleri de kendisi üretir. Eski iOS/macOS için düz
+   hâli `actool` derlerken çıkar. Masaüstü Mac uygulaması da aynı dosyayı
+   kullanır.
 
 ## 11. Sıra (özet)
 
