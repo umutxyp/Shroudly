@@ -4,12 +4,17 @@ import { useEffect, useId, useRef, useState } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { ACCENTS, applyAppearance, readAppearance } from './Appearance';
 import {
-  AlertTriangleIcon, CheckCircleIcon, CheckIcon, GlobeIcon, PaletteIcon, InfoIcon, LanguagesIcon, SearchIcon, ShieldAlertIcon,
+  AlertTriangleIcon, CheckCircleIcon, CheckIcon, ChevronDownIcon, GlobeIcon, PaletteIcon, InfoIcon, LanguagesIcon, SearchIcon, ShieldAlertIcon,
   SpinnerIcon, XCircleIcon, ZapIcon,
 } from './icons';
 import Select from './Select';
 import { probeView } from './probeView';
 
+/* The technique, one choice (as on Android): Auto finds what works for each
+ * site by itself (the engine's auto mode); any other is that one technique
+ * for every site, nothing else tried. Two controls, a list and an "Auto
+ * mode" switch, could say opposite things. The engine's specs are not shown:
+ * they meant nothing to the person choosing. */
 const STRATEGIES = [
   { id: 'auto', labelKey: 'stratAuto', spec: 'split(sni)', auto: true },
   { id: 'split-sni', labelKey: 'stratSplitSni', spec: 'split(sni)', auto: false },
@@ -17,7 +22,7 @@ const STRATEGIES = [
   { id: 'split-sni-mid', labelKey: 'stratSplitMid', spec: 'split(sni_mid)', auto: false },
   { id: 'double-split', labelKey: 'stratDoubleSplit', spec: 'split(1),split(sni)', auto: false },
   { id: 'split2', labelKey: 'stratSplit2', spec: 'split(2)', auto: false },
-  // Off: connections untouched, encrypted DNS only (issue #37); Auto mode goes off with it.
+  // Off: connections untouched, encrypted DNS only (issue #37).
   { id: 'none', labelKey: 'stratNone', spec: 'none', auto: false },
 ];
 
@@ -94,9 +99,9 @@ function isHostname(d) {
   return labels.every((l) => l.length >= 1 && l.length <= 63 && !l.startsWith('-') && !l.endsWith('-'));
 }
 
-function Section({ title, Icon, titleId, tour, children }) {
+function Section({ title, Icon, titleId, children }) {
   return (
-    <section className="card p-4" data-tour={tour}>
+    <section className="card p-4">
       {title && (
         <h2 id={titleId} className="mb-3 flex items-center gap-2 text-[13px] font-semibold leading-snug" style={{ color: 'var(--text-dim)' }}>
           {Icon && <Icon className="h-4 w-4" style={{ color: 'var(--text-faint)' }} />}
@@ -467,16 +472,30 @@ export default function SettingsPanel({ active = false }) {
 
   async function onStrategyChange(id) {
     const s = STRATEGIES.find((x) => x.id === id) || STRATEGIES[0];
-    setSettings((p) => ({ ...p, strategyId: id, ...(s.auto ? { autoMode: true } : {}), ...(s.spec === 'none' ? { autoMode: false } : {}) }));
+    setSettings((p) => ({ ...p, strategyId: s.id, autoMode: s.auto }));
     if (typeof window !== 'undefined' && window.electron?.setSetting) {
       try {
-        await window.electron.setSetting('strategyId', id);
+        await window.electron.setSetting('strategyId', s.id);
         await window.electron.setSetting('strategy', s.spec);
-        if (s.auto) await window.electron.setSetting('autoMode', true);
-        if (s.spec === 'none') await window.electron.setSetting('autoMode', false);
+        await window.electron.setSetting('autoMode', s.auto);
       } catch {}
     }
   }
+  /* What the list shows. Auto mode on is "Auto", whatever technique an
+   * earlier version kept beside it (it is only where the search starts);
+   * off with "Auto" picked is the technique Auto starts from, alone. */
+  const shownStrategy = settings.autoMode !== false ? 'auto'
+    : settings.strategyId === 'auto' || !STRATEGIES.some((x) => x.id === settings.strategyId) ? 'split-sni' : settings.strategyId;
+
+  /* "More settings" open by itself when something in it is not as a new
+   * install has it (the modes the autopilot turns on by itself aside): the
+   * user, or someone helping them, set it and should find it. */
+  const moreId = useId();
+  const [more, setMore] = useState(null);
+  const moreSet = shownStrategy !== 'auto' || settings.dnsProtection === false || !!settings.customDns
+    || settings.preferIpv6 === true || settings.routeMode === 'listed' || settings.showTrayIcon === false
+    || (!isMac && settings.askByItself === false);
+  const moreOpen = more ?? moreSet;
 
   async function runTest() {
     const host = normalizeHost(testHost);
@@ -536,7 +555,7 @@ export default function SettingsPanel({ active = false }) {
     ),
   }));
 
-  const strategyOptions = STRATEGIES.map((s) => ({ value: s.id, label: t(s.labelKey), hint: s.spec }));
+  const strategyOptions = STRATEGIES.map((s) => ({ value: s.id, label: t(s.labelKey) }));
 
   const probeShown = probeView(probeResult);
   const probeBlocked = probeShown.blocked;
@@ -553,208 +572,13 @@ export default function SettingsPanel({ active = false }) {
         />
       </Section>
 
-      {/* Bypass */}
-      <Section title={t('appearance')} Icon={PaletteIcon}>
-        <p className="mb-3 text-[12px] leading-snug" style={{ color: 'var(--text-faint)' }}>{t('accentColour')}</p>
-        {/* A nine-column grid rather than a wrapping row: the swatches scale
-            with the window instead of spilling into a stray second line at
-            narrow widths, which read as a layout accident. */}
-        <div className="grid grid-cols-9 gap-1.5 sm:gap-2.5">
-          {ACCENTS.map((a, i) => {
-            const on = look.accent === a.id;
-            return (
-              <button
-                key={a.id}
-                type="button"
-                aria-label={t('accentSwatch', { n: i + 1, total: ACCENTS.length })}
-                aria-pressed={on}
-                onClick={() => setAppearance({ accent: a.id })}
-                className="swatch relative aspect-square w-full rounded-full transition-transform duration-150 hover:scale-110"
-                style={{
-                  background: a.swatch,
-                  boxShadow: on
-                    ? `0 0 0 2px var(--surface), 0 0 0 4px ${a.swatch}`
-                    : 'inset 0 1px 0 rgba(255,255,255,.25)',
-                }}
-              >
-                {on && <CheckIcon className="absolute inset-0 m-auto h-[14px] w-[14px]" style={{ color: 'rgba(0,0,0,.7)' }} />}
-              </button>
-            );
-          })}
-        </div>
-
-        <div className="mt-4 border-t pt-3" style={{ borderColor: 'var(--line)' }}>
-          <Toggle
-            label={t('glassSurface')}
-            desc={t('glassSurfaceDesc')}
-            checked={look.surface === 'glass'}
-            onChange={(v) => setAppearance({ surface: v ? 'glass' : 'solid' })}
-          />
-        </div>
-      </Section>
-
-      <Section title={t('dpiBypassTechniques')}>
-        <p id={strategyLabelId} className="mb-1.5 text-[12px] font-medium" style={{ color: 'var(--text-faint)' }}>{t('strategy')}</p>
-        <div className="mb-2">
-          <Select
-            value={settings.strategyId}
-            options={strategyOptions}
-            onChange={onStrategyChange}
-            ariaLabelledBy={strategyLabelId}
-          />
-        </div>
-
-        <div className="divide-y" style={{ borderColor: 'var(--line)' }}>
-          <Toggle label={t('autoMode')} desc={t('autoModeDesc')} checked={settings.autoMode} onChange={(v) => save('autoMode', v)} />
-          <Toggle label={t('dnsProtection')} desc={t('dnsProtectionDesc')} checked={settings.dnsProtection !== false} onChange={(v) => save('dnsProtection', v)} />
-          {settings.dnsProtection !== false && (
-            <DnsServer value={settings.customDns} onSave={(v) => save('customDns', v)} />
-          )}
-          <Toggle label={t('adBlock')} desc={t('adBlockDesc')} checked={settings.adBlock === true} onChange={(v) => save('adBlock', v)} />
-          {settings.adBlock === true && (
-            <div className="py-2.5">
-              <p className="mb-1.5 text-[12px] leading-snug" style={{ color: 'var(--text-faint)' }}>{t('adBlockAllowDesc')}</p>
-              <textarea
-                aria-label={t('adBlockAllow')}
-                value={allowText == null ? (Array.isArray(settings.adBlockAllow) ? settings.adBlockAllow : []).join('\n') : allowText}
-                onChange={(e) => setAllowText(e.target.value)}
-                onBlur={() => {
-                  if (allowText == null) return;
-                  const list = [...new Set(allowText
-                    .split(/[\s,]+/)
-                    .map((d) => d.trim().toLowerCase().replace(/^https?:\/\//, '').replace(/^\*?\./, '').replace(/\/.*$/, ''))
-                    .filter(isHostname))];
-                  setAllowText(null);
-                  save('adBlockAllow', list);
-                }}
-                rows={3}
-                spellCheck={false}
-                placeholder="example.com"
-                className="mono w-full resize-y rounded-[var(--radius-sm)] p-2.5 text-[12.5px] leading-relaxed outline-none"
-                style={{ background: 'var(--surface-2)', border: '1px solid var(--line)', color: 'var(--text)' }}
-              />
-            </div>
-          )}
-          <Toggle label={t('preferIpv6')}
-                  desc={ipv6Ok === false ? t('ipv6Unavailable') : t('preferIpv6Desc')}
-                  checked={settings.preferIpv6}
-                  disabled={ipv6Ok === false && !settings.preferIpv6}
-                  onChange={(v) => save('preferIpv6', v)} />
-          {discord.installed && (
-            <Toggle label={t('discordModeLabel')} desc={t('discordModeDesc')}
-                    checked={discord.on} onChange={setDiscordMode} />
-          )}
-          {/* Shroudly turns this on by itself when Roblox is blocked
-              (autopilot.js); the switch is for whoever wants it either way. */}
-          {apps.available && (
-            <div>
-            <Toggle label={t('appModeLabel')} desc={t('appModeDesc')}
-                    checked={apps.on} onChange={setAppMode} />
-            {apps.on && apps.store && (
-              <p className="pb-3 text-[12px] leading-snug" style={{ color: 'var(--warn)' }}>{t('appStoreEdition')}</p>
-            )}
-            </div>
-          )}
-          {/* Windows: Shroudly lets Store apps reach it by itself
-              (store-apps.js); off takes its exemptions out again. */}
-          {storeApps.available && (
-            <Toggle label={t('storeAppsLabel')} desc={t('storeAppsDesc')}
-                    checked={storeApps.on} onChange={setStoreAppsMode} />
-          )}
-        </div>
-
-        {active && (
-          <p className="mt-2 flex items-start gap-2 text-[12px] leading-snug" style={{ color: 'var(--text-faint)' }}>
-            <InfoIcon className="mt-[1px] h-3.5 w-3.5" />
-            <span className="min-w-0">{t('restartToApply')}</span>
-          </p>
-        )}
-      </Section>
-
-      {/* Routing: which sites go through Shroudly */}
-      <Section title={t('routing')} Icon={GlobeIcon} tour="routing">
-        <Select
-          value={settings.routeMode === 'listed' ? 'listed' : 'all'}
-          options={[
-            { value: 'listed', label: t('routeListed') },
-            { value: 'all', label: t('routeAll') },
-          ]}
-          onChange={(v) => save('routeMode', v)}
-        />
-        <p className="mt-2 text-[12px] leading-snug" style={{ color: 'var(--text-faint)' }}>
-          {settings.routeMode === 'listed' ? t('routeListedDesc') : t('routeAllDesc')}
-        </p>
-
-        {settings.routeMode === 'listed' && (
-          <div className="mt-3">
-            <div className="mb-1.5 flex items-center justify-between gap-2">
-              <span className="text-[12px] font-medium" style={{ color: 'var(--text-faint)' }}>{t('siteListLabel')}</span>
-              {Array.isArray(settings.siteList) && (
-                <button type="button"
-                        onClick={() => { setSiteText(null); setBadEntries([]); save('siteList', null); setListInfo((i) => i && { ...i, custom: false }); }}
-                        className="text-[12px] underline" style={{ color: 'var(--text-dim)' }}>
-                  {t('siteListUseAuto')}
-                </button>
-              )}
-            </div>
-            <p className="mb-1.5 text-[12px] leading-snug" style={{ color: 'var(--text-faint)' }}>
-              {Array.isArray(settings.siteList)
-                ? t('siteListCustom')
-                : t('siteListAuto', {
-                  count: (listInfo?.count || defaultList.length).toLocaleString(locale || undefined),
-                  date: listInfo?.generated ? new Date(listInfo.generated).toLocaleDateString(locale || undefined) : '—',
-                })}
-            </p>
-            <textarea
-              value={siteText == null ? (settings.siteList || defaultList).join('\n') : siteText}
-              onChange={(e) => setSiteText(e.target.value)}
-              onBlur={() => {
-                // Nothing typed: the box shows the list in use, and leaving it
-                // must not save anything (an empty draft is not an empty list).
-                if (siteText == null) return;
-                const entries = siteText
-                  .split(/[\s,]+/)
-                  .map((d) => d.trim().toLowerCase().replace(/^https?:\/\//, '').replace(/^\*?\./, '').replace(/\/.*$/, ''))
-                  .filter(Boolean);
-                const list = [...new Set(entries.filter(isHostname))];
-                const dropped = [...new Set(entries.filter((d) => !isHostname(d)))];
-                setBadEntries(dropped);
-                // Only an actual edit makes the list the user's own: merely
-                // clicking into the box must not stop it updating itself.
-                const current = Array.isArray(settings.siteList) ? settings.siteList : defaultList;
-                if (list.length === current.length && list.every((d, i) => d === current[i])) { setSiteText(null); return; }
-                setSiteText(list.join('\n'));   // show the cleaned list back
-                save('siteList', list);
-              }}
-              spellCheck={false} rows={6} dir="ltr"
-              placeholder={'discord.com\nroblox.com'}
-              className="mono w-full resize-y rounded-[var(--radius-sm)] p-2.5 text-[12.5px] leading-relaxed outline-none"
-              style={{ background: 'var(--surface-2)', border: '1px solid var(--line)', color: 'var(--text)' }}
-            />
-            {badEntries.length > 0 && (
-              <p className="mt-1.5 flex items-start gap-2 text-[12px] leading-snug" style={{ color: 'var(--warn)' }}>
-                <AlertTriangleIcon className="mt-[1px] h-3.5 w-3.5 shrink-0" />
-                <span className="min-w-0 wrap-anywhere">
-                  {t('siteListDropped', { entries: badEntries.slice(0, 4).join(', ') + (badEntries.length > 4 ? '…' : '') })}
-                </span>
-              </p>
-            )}
-            <p className="mt-1.5 text-[12px] leading-snug" style={{ color: 'var(--text-faint)' }}>{t('siteListHint')}</p>
-          </div>
-        )}
-
-        {active && (
-          <p className="mt-2 flex items-start gap-2 text-[12px] leading-snug" style={{ color: 'var(--text-faint)' }}>
-            <InfoIcon className="mt-[1px] h-3.5 w-3.5" />
-            <span className="min-w-0">{t('routeAppliesNow')}</span>
-          </p>
-        )}
-      </Section>
-
       {/* Test a site */}
-      <Section title={t('testSite')} Icon={SearchIcon} tour="sitetest">
+      <Section title={t('testSite')} Icon={SearchIcon}>
         <p className="mb-3 text-[12px] leading-snug" style={{ color: 'var(--text-faint)' }}>{t('testSiteDesc')}</p>
+        {/* The tour points at the field itself: the whole section, with a
+            result in it, could be taller than the room its card has. */}
         <form
+          data-tour="sitetest"
           className="flex flex-wrap gap-2"
           onSubmit={(e) => { e.preventDefault(); runTest(); }}
         >
@@ -926,7 +750,31 @@ export default function SettingsPanel({ active = false }) {
         <div className="divide-y" style={{ borderColor: 'var(--line)' }}>
           <Toggle label={t('startOnBoot')} desc={t('startOnBootDesc')} checked={settings.autoStart} onChange={(v) => save('autoStart', v)} />
           <Toggle label={t(isMac ? 'minimizeToTrayMac' : 'minimizeToTray')} desc={t(isMac ? 'minimizeToTrayDescMac' : 'minimizeToTrayDesc')} checked={settings.minimizeToTray} onChange={(v) => save('minimizeToTray', v)} />
-          <Toggle label={t('showTrayIcon')} desc={t('showTrayIconDesc')} checked={settings.showTrayIcon !== false} onChange={(v) => save('showTrayIcon', v)} />
+          <Toggle label={t('adBlock')} desc={t('adBlockDesc')} checked={settings.adBlock === true} onChange={(v) => save('adBlock', v)} />
+          {settings.adBlock === true && (
+            <div className="py-2.5">
+              <p className="mb-1.5 text-[12px] leading-snug" style={{ color: 'var(--text-faint)' }}>{t('adBlockAllowDesc')}</p>
+              <textarea
+                aria-label={t('adBlockAllow')}
+                value={allowText == null ? (Array.isArray(settings.adBlockAllow) ? settings.adBlockAllow : []).join('\n') : allowText}
+                onChange={(e) => setAllowText(e.target.value)}
+                onBlur={() => {
+                  if (allowText == null) return;
+                  const list = [...new Set(allowText
+                    .split(/[\s,]+/)
+                    .map((d) => d.trim().toLowerCase().replace(/^https?:\/\//, '').replace(/^\*?\./, '').replace(/\/.*$/, ''))
+                    .filter(isHostname))];
+                  setAllowText(null);
+                  save('adBlockAllow', list);
+                }}
+                rows={3}
+                spellCheck={false}
+                placeholder="example.com"
+                className="mono w-full resize-y rounded-[var(--radius-sm)] p-2.5 text-[12.5px] leading-relaxed outline-none"
+                style={{ background: 'var(--surface-2)', border: '1px solid var(--line)', color: 'var(--text)' }}
+              />
+            </div>
+          )}
           <Toggle
             label={t('shareOnlineCount')}
             desc={t('shareOnlineCountDesc')}
@@ -934,12 +782,6 @@ export default function SettingsPanel({ active = false }) {
             onChange={(v) => save('shareOnlineCount', v)}
           />
           <Toggle label={t('showNotifications')} desc={t('showNotificationsDesc')} checked={settings.showNotifications} onChange={(v) => save('showNotifications', v)} />
-          {/* Off: no permission prompt is ever brought up by Shroudly on its
-              own (Advanced mode, Microsoft Store apps); it says what needs
-              which mode instead (issue #55). */}
-          {/* macOS has neither Advanced mode nor Microsoft Store apps: nothing
-              there to ask about. */}
-          {!isMac && <Toggle label={t('askByItself')} desc={t('askByItselfDesc')} checked={settings.askByItself !== false} onChange={(v) => save('askByItself', v)} />}
           <Toggle label={t('autoUpdate')} desc={t('autoUpdateDesc')} checked={settings.autoUpdate !== false} onChange={(v) => save('autoUpdate', v)} />
         </div>
         {/* Repair: Shroudly's files checked, what it learned forgotten, its
@@ -988,6 +830,211 @@ export default function SettingsPanel({ active = false }) {
                   className="btn btn-ghost shrink-0 rounded-[8px] px-3 py-1.5 text-[12.5px] font-semibold">{t('quitApp')}</button>
         </div>
       </Section>
+      {/* Appearance: after what Shroudly does, not before it */}
+      <Section title={t('appearance')} Icon={PaletteIcon}>
+        <p className="mb-3 text-[12px] leading-snug" style={{ color: 'var(--text-faint)' }}>{t('accentColour')}</p>
+        {/* A nine-column grid rather than a wrapping row: the swatches scale
+            with the window instead of spilling into a stray second line at
+            narrow widths, which read as a layout accident. */}
+        <div className="grid grid-cols-9 gap-1.5 sm:gap-2.5">
+          {ACCENTS.map((a, i) => {
+            const on = look.accent === a.id;
+            return (
+              <button
+                key={a.id}
+                type="button"
+                aria-label={t('accentSwatch', { n: i + 1, total: ACCENTS.length })}
+                aria-pressed={on}
+                onClick={() => setAppearance({ accent: a.id })}
+                className="swatch relative aspect-square w-full rounded-full transition-transform duration-150 hover:scale-110"
+                style={{
+                  background: a.swatch,
+                  boxShadow: on
+                    ? `0 0 0 2px var(--surface), 0 0 0 4px ${a.swatch}`
+                    : 'inset 0 1px 0 rgba(255,255,255,.25)',
+                }}
+              >
+                {on && <CheckIcon className="absolute inset-0 m-auto h-[14px] w-[14px]" style={{ color: 'rgba(0,0,0,.7)' }} />}
+              </button>
+            );
+          })}
+        </div>
+
+        <div className="mt-4 border-t pt-3" style={{ borderColor: 'var(--line)' }}>
+          <Toggle
+            label={t('glassSurface')}
+            desc={t('glassSurfaceDesc')}
+            checked={look.surface === 'glass'}
+            onChange={(v) => setAppearance({ surface: v ? 'glass' : 'solid' })}
+          />
+        </div>
+      </Section>
+
+      {/* "More settings": what only someone helping the user should
+          change, folded away as on Android ("Advanced", a name the desktop
+          keeps for its packet-level mode). Open from the start when
+          something in it is set otherwise than a new install has it. */}
+      <section className="card">
+        <button
+          type="button"
+          onClick={() => setMore(!moreOpen)}
+          aria-expanded={moreOpen}
+          aria-controls={moreId}
+          className="row-hover flex w-full items-center gap-3 rounded-[var(--radius)] p-4 text-start"
+        >
+          <span className="min-w-0 flex-1">
+            <span className="block text-[13px] font-semibold leading-snug" style={{ color: 'var(--text-dim)' }}>{t('moreSettings')}</span>
+            <span className="mt-0.5 block text-[12px] leading-snug" style={{ color: 'var(--text-faint)' }}>{t('androidAdvancedDesc')}</span>
+          </span>
+          <ChevronDownIcon className="h-4 w-4 shrink-0 transition-transform duration-150"
+                           style={{ color: 'var(--text-faint)', transform: moreOpen ? 'rotate(180deg)' : 'none' }} />
+        </button>
+      </section>
+      {moreOpen && (
+        <div id={moreId} className="flex flex-col gap-3">
+          <Section title={t('dpiBypassTechniques')}>
+            <p id={strategyLabelId} className="mb-1.5 text-[12px] font-medium" style={{ color: 'var(--text-faint)' }}>{t('strategy')}</p>
+            <div className="mb-2">
+              <Select
+                value={shownStrategy}
+                options={strategyOptions}
+                onChange={onStrategyChange}
+                ariaLabelledBy={strategyLabelId}
+              />
+            </div>
+
+            <div className="divide-y" style={{ borderColor: 'var(--line)' }}>
+              <Toggle label={t('dnsProtection')} desc={t('dnsProtectionDesc')} checked={settings.dnsProtection !== false} onChange={(v) => save('dnsProtection', v)} />
+              {settings.dnsProtection !== false && (
+                <DnsServer value={settings.customDns} onSave={(v) => save('customDns', v)} />
+              )}
+              <Toggle label={t('preferIpv6')}
+                      desc={ipv6Ok === false ? t('ipv6Unavailable') : t('preferIpv6Desc')}
+                      checked={settings.preferIpv6}
+                      disabled={ipv6Ok === false && !settings.preferIpv6}
+                      onChange={(v) => save('preferIpv6', v)} />
+              {discord.installed && (
+                <Toggle label={t('discordModeLabel')} desc={t('discordModeDesc')}
+                        checked={discord.on} onChange={setDiscordMode} />
+              )}
+              {/* Shroudly turns this on by itself when Roblox is blocked
+                  (autopilot.js); the switch is for whoever wants it either way. */}
+              {apps.available && (
+                <div>
+                <Toggle label={t('appModeLabel')} desc={t('appModeDesc')}
+                        checked={apps.on} onChange={setAppMode} />
+                {apps.on && apps.store && (
+                  <p className="pb-3 text-[12px] leading-snug" style={{ color: 'var(--warn)' }}>{t('appStoreEdition')}</p>
+                )}
+                </div>
+              )}
+              {/* Windows: Shroudly lets Store apps reach it by itself
+                  (store-apps.js); off takes its exemptions out again. */}
+              {storeApps.available && (
+                <Toggle label={t('storeAppsLabel')} desc={t('storeAppsDesc')}
+                        checked={storeApps.on} onChange={setStoreAppsMode} />
+              )}
+            </div>
+
+            {active && (
+              <p className="mt-2 flex items-start gap-2 text-[12px] leading-snug" style={{ color: 'var(--text-faint)' }}>
+                <InfoIcon className="mt-[1px] h-3.5 w-3.5" />
+                <span className="min-w-0">{t('restartToApply')}</span>
+              </p>
+            )}
+          </Section>
+          {/* Routing: which sites go through Shroudly */}
+          <Section title={t('routing')} Icon={GlobeIcon}>
+            <Select
+              value={settings.routeMode === 'listed' ? 'listed' : 'all'}
+              options={[
+                { value: 'listed', label: t('routeListed') },
+                { value: 'all', label: t('routeAll') },
+              ]}
+              onChange={(v) => save('routeMode', v)}
+            />
+            <p className="mt-2 text-[12px] leading-snug" style={{ color: 'var(--text-faint)' }}>
+              {settings.routeMode === 'listed' ? t('routeListedDesc') : t('routeAllDesc')}
+            </p>
+
+            {settings.routeMode === 'listed' && (
+              <div className="mt-3">
+                <div className="mb-1.5 flex items-center justify-between gap-2">
+                  <span className="text-[12px] font-medium" style={{ color: 'var(--text-faint)' }}>{t('siteListLabel')}</span>
+                  {Array.isArray(settings.siteList) && (
+                    <button type="button"
+                            onClick={() => { setSiteText(null); setBadEntries([]); save('siteList', null); setListInfo((i) => i && { ...i, custom: false }); }}
+                            className="text-[12px] underline" style={{ color: 'var(--text-dim)' }}>
+                      {t('siteListUseAuto')}
+                    </button>
+                  )}
+                </div>
+                <p className="mb-1.5 text-[12px] leading-snug" style={{ color: 'var(--text-faint)' }}>
+                  {Array.isArray(settings.siteList)
+                    ? t('siteListCustom')
+                    : t('siteListAuto', {
+                      count: (listInfo?.count || defaultList.length).toLocaleString(locale || undefined),
+                      date: listInfo?.generated ? new Date(listInfo.generated).toLocaleDateString(locale || undefined) : '—',
+                    })}
+                </p>
+                <textarea
+                  value={siteText == null ? (settings.siteList || defaultList).join('\n') : siteText}
+                  onChange={(e) => setSiteText(e.target.value)}
+                  onBlur={() => {
+                    // Nothing typed: the box shows the list in use, and leaving it
+                    // must not save anything (an empty draft is not an empty list).
+                    if (siteText == null) return;
+                    const entries = siteText
+                      .split(/[\s,]+/)
+                      .map((d) => d.trim().toLowerCase().replace(/^https?:\/\//, '').replace(/^\*?\./, '').replace(/\/.*$/, ''))
+                      .filter(Boolean);
+                    const list = [...new Set(entries.filter(isHostname))];
+                    const dropped = [...new Set(entries.filter((d) => !isHostname(d)))];
+                    setBadEntries(dropped);
+                    // Only an actual edit makes the list the user's own: merely
+                    // clicking into the box must not stop it updating itself.
+                    const current = Array.isArray(settings.siteList) ? settings.siteList : defaultList;
+                    if (list.length === current.length && list.every((d, i) => d === current[i])) { setSiteText(null); return; }
+                    setSiteText(list.join('\n'));   // show the cleaned list back
+                    save('siteList', list);
+                  }}
+                  spellCheck={false} rows={6} dir="ltr"
+                  placeholder={'discord.com\nroblox.com'}
+                  className="mono w-full resize-y rounded-[var(--radius-sm)] p-2.5 text-[12.5px] leading-relaxed outline-none"
+                  style={{ background: 'var(--surface-2)', border: '1px solid var(--line)', color: 'var(--text)' }}
+                />
+                {badEntries.length > 0 && (
+                  <p className="mt-1.5 flex items-start gap-2 text-[12px] leading-snug" style={{ color: 'var(--warn)' }}>
+                    <AlertTriangleIcon className="mt-[1px] h-3.5 w-3.5 shrink-0" />
+                    <span className="min-w-0 wrap-anywhere">
+                      {t('siteListDropped', { entries: badEntries.slice(0, 4).join(', ') + (badEntries.length > 4 ? '…' : '') })}
+                    </span>
+                  </p>
+                )}
+                <p className="mt-1.5 text-[12px] leading-snug" style={{ color: 'var(--text-faint)' }}>{t('siteListHint')}</p>
+              </div>
+            )}
+
+            {active && (
+              <p className="mt-2 flex items-start gap-2 text-[12px] leading-snug" style={{ color: 'var(--text-faint)' }}>
+                <InfoIcon className="mt-[1px] h-3.5 w-3.5" />
+                <span className="min-w-0">{t('routeAppliesNow')}</span>
+              </p>
+            )}
+          </Section>
+          <Section>
+            <div className="divide-y" style={{ borderColor: 'var(--line)' }}>
+              <Toggle label={t(isMac ? 'showTrayIconMac' : 'showTrayIcon')} desc={t('showTrayIconDesc')} checked={settings.showTrayIcon !== false} onChange={(v) => save('showTrayIcon', v)} />
+              {/* Off: no permission prompt is ever brought up by Shroudly on its
+                  own (Advanced mode, Microsoft Store apps); it says what needs
+                  which mode instead (issue #55). */}
+              {/* macOS has neither Advanced mode nor Microsoft Store apps: nothing
+                  there to ask about. */}
+              {!isMac && <Toggle label={t('askByItself')} desc={t('askByItselfDesc')} checked={settings.askByItself !== false} onChange={(v) => save('askByItself', v)} />}
+            </div>
+          </Section>
+        </div>
+      )}
     </div>
   );
 }

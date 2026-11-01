@@ -12,17 +12,18 @@
 
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
-import { PowerIcon, GlobeIcon, SearchIcon, ShieldCheckIcon, LogsIcon, CloseIcon } from './icons';
+import { PowerIcon, SearchIcon, ShieldCheckIcon, LogsIcon, CloseIcon } from './icons';
 
 const SEEN_KEY = 'shroudly_onboarded';
 const PAD = 10;         // breathing room around the highlighted control
 const GAP = 22;         // between the highlight and the card, arrow included
 const ARROW = 9;        // half-width of the pointer
 
+/* Which sites go through Shroudly is no longer a step: every site does, and
+ * the choice lives under Settings → "More settings", for someone helping. */
 const STEPS = [
   { tab: 'control',  target: null,              icon: ShieldCheckIcon, title: 'obTitle1', body: 'obBody1' },
   { tab: 'control',  target: '[data-tour="power"]',    icon: PowerIcon,  title: 'obTitle2', body: 'obBody2' },
-  { tab: 'settings', target: '[data-tour="routing"]',  icon: GlobeIcon,  title: 'obTitle3', body: 'obBody3' },
   { tab: 'settings', target: '[data-tour="sitetest"]', icon: SearchIcon, title: 'obTitle4', body: 'obBody4' },
   { tab: 'logs',     target: '[data-tour="nav-logs"]', icon: LogsIcon,   title: 'obTitle5', body: 'obBody5' },
 ];
