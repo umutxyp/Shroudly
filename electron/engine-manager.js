@@ -1153,6 +1153,14 @@ class EngineManager {
     if (this.proc) this.lastOutputAt = Date.now();
   }
 
+  /* Another network, or a wake (main.js): what the old network's DNS
+   * answered through the plain or system fallback (a hotel portal's forged
+   * answers before login among them) is dropped and its resolvers are asked
+   * again, instead of being kept for their TTL (doh.c, DNS-CLEAR). */
+  networkChanged() {
+    return this.active ? this._command('DNS-CLEAR') : false;
+  }
+
   // Ask the engine to probe a host (used by UI "test site").
   /* A line to the engine; false when it is not running. */
   _command(line) {

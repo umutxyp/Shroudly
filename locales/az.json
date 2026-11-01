@@ -425,6 +425,7 @@
   "notifyUpdatePassword": "{version} versiyası quraşdırılmağa hazırdır. Quraşdırmaq üçün Shroudly-ni aç (parolunu soruşacaq).",
   "notifySiteBlockedTitle": "Sayt hələ də bloklanıb",
   "notifySiteBlockedBody": "{host} heç bir üsulla açılmadı. Bu şəbəkədə Təkmil rejim keçə bilər.",
+  "notifySiteBlockedBodyNoAdvanced": "{host} bu şəbəkədə heç bir üsulla açılmadı. Təfərrüatlar «Qeydlər» bölməsindədir.",
   "notifySiteBlockedBodyAdvancedOn": "{host} hələ açılmayıb. Təkmil rejim aktivdir və Shroudly başqa yolları sınamağa davam edir.",
   "notifySecurityEngine": "Antivirusun Shroudly-ni blokladı, ona görə qoruma söndürülüb. Onu karantindən bərpa et və Shroudly qovluğunu istisnalara əlavə et.",
   "notifySecurityEngineMaybe": "Qoruma başlayan kimi dayanır; antivirusun Shroudly-ni bloklaya bilər. Shroudly qovluğunu istisnalara əlavə et.",

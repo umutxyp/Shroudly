@@ -425,6 +425,7 @@
   "notifyUpdatePassword": "ورژن {version} انسٹال ہونے کے لیے تیار ہے۔ انسٹال کرنے کے لیے Shroudly کھولیں (آپ کا پاس ورڈ پوچھے گا)۔",
   "notifySiteBlockedTitle": "ایک سائٹ اب بھی بلاک ہے",
   "notifySiteBlockedBody": "{host} کسی بھی طریقے سے نہ کھلی۔ اس نیٹ ورک پر ایڈوانسڈ موڈ کام کر سکتا ہے۔",
+  "notifySiteBlockedBodyNoAdvanced": "{host} اس نیٹ ورک پر کسی بھی طریقے سے نہ کھلی۔ تفصیل «لاگز» ٹیب میں ہے۔",
   "notifySiteBlockedBodyAdvancedOn": "{host} ابھی تک نہیں کھلی۔ ایڈوانسڈ موڈ آن ہے، اور Shroudly دوسرے طریقے آزماتا جا رہا ہے۔",
   "notifySecurityEngine": "آپ کے اینٹی وائرس نے Shroudly کو بلاک کر دیا، اس لیے تحفظ بند ہے۔ اسے قرنطینہ سے بحال کریں اور Shroudly فولڈر کو استثنا کے طور پر شامل کریں۔",
   "notifySecurityEngineMaybe": "تحفظ شروع ہوتے ہی رک جاتا ہے؛ ہو سکتا ہے آپ کا اینٹی وائرس Shroudly کو بلاک کر رہا ہو۔ Shroudly فولڈر کو استثنا کے طور پر شامل کریں۔",

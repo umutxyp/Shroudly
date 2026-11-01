@@ -425,6 +425,7 @@
   "notifyUpdatePassword": "バージョン {version} をインストールする準備ができました。Shroudly を開いてインストールしてください（パスワードが必要です）。",
   "notifySiteBlockedTitle": "まだ開けないサイトがあります",
   "notifySiteBlockedBody": "{host} はどの方法でも開けませんでした。このネットワークでは高度なモードなら通るかもしれません。",
+  "notifySiteBlockedBodyNoAdvanced": "{host} はこのネットワークではどの方法でも開けませんでした。詳しくは「ログ」タブにあります。",
   "notifySiteBlockedBodyAdvancedOn": "{host} はまだ開けていません。高度なモードはオンで、Shroudly は別の方法を試し続けています。",
   "notifySecurityEngine": "ウイルス対策ソフトが Shroudly をブロックしたため、保護はオフです。隔離から復元し、Shroudly のフォルダーを除外に追加してください。",
   "notifySecurityEngineMaybe": "保護が開始直後に止まります。ウイルス対策ソフトが Shroudly をブロックしている可能性があります。Shroudly のフォルダーを除外に追加してください。",

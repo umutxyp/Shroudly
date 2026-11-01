@@ -425,6 +425,7 @@
   "notifyUpdatePassword": "Sürüm {version} kurulmaya hazır. Kurmak için Shroudly'yi açın (parolanızı sorar).",
   "notifySiteBlockedTitle": "Bir site hâlâ engelli",
   "notifySiteBlockedBody": "{host} hiçbir yöntemle açılmadı. Bu ağda Gelişmiş mod geçebilir.",
+  "notifySiteBlockedBodyNoAdvanced": "{host} bu ağda hiçbir yöntemle açılmadı. Ayrıntılar Kayıtlar sekmesinde.",
   "notifySiteBlockedBodyAdvancedOn": "{host} henüz açılmadı. Gelişmiş mod açık, Shroudly başka yollar denemeye devam ediyor.",
   "notifySecurityEngine": "Antivirüsün Shroudly'yi engelledi, bu yüzden koruma kapalı. Karantinadan geri yükle ve Shroudly klasörünü istisnalara ekle.",
   "notifySecurityEngineMaybe": "Koruma başlar başlamaz duruyor; antivirüsün Shroudly'yi engelliyor olabilir. Shroudly klasörünü istisnalara ekle.",

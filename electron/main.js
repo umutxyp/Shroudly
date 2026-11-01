@@ -1119,8 +1119,12 @@ app.whenReady().then(async () => {
       lastBlockedNotice = now;
       // With Advanced mode already on there is nothing to suggest: it is
       // still being tried.
+      // Without Advanced mode on this computer (macOS, or Windows and Linux
+      // where it cannot run), it is not offered either.
       const advOn = !!(advanced && advanced.active);
-      notify(tr().notifySiteBlockedTitle, (advOn ? tr().notifySiteBlockedBodyAdvancedOn : tr().notifySiteBlockedBody).replace('{host}', host));
+      const advCan = !!(advanced && advanced.available());
+      const body = advOn ? tr().notifySiteBlockedBodyAdvancedOn : advCan ? tr().notifySiteBlockedBody : tr().notifySiteBlockedBodyNoAdvanced;
+      notify(tr().notifySiteBlockedTitle, body.replace('{host}', host));
       // Waits in the window for the next time it is opened (a click on the
       // notification opens it); it never takes the screen from a game.
       toWindow('dpi:site-blocked', { host, asked });
@@ -1360,6 +1364,8 @@ function onWake(why) {
   // Programs (VPN clients among them) set their proxy again at a wake: the
   // setting is read again soon, a takeover then counting from one.
   if (engine) engine.checkProxySoon();
+  // What the network before the sleep answered is not kept either.
+  if (engine) engine.networkChanged();
   if (keeper) keeper.poke().catch(() => {});
   const now = Date.now();
   if (now - lastWakeLog > 60000) {
@@ -2205,6 +2211,7 @@ setInterval(() => {
   // Encrypted DNS: connections and rests from the old network say nothing
   // about the new one (doh-forwarder.js).
   if (now !== networkPrint && engine && engine.doh) engine.doh.networkChanged();
+  if (now !== networkPrint && engine) engine.networkChanged();
   if (now !== networkPrint) rawWatch.networkChanged();
   if (now !== networkPrint && aroundWatch) aroundWatch.networkChanged();
   if (now !== networkPrint) reachTold.clear();

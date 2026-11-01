@@ -425,6 +425,7 @@
   "notifyUpdatePassword": "{version} wersiýasy gurnamaga taýýar. Gurnamak üçin Shroudly-ni açyň (açar sözüňizi sorar).",
   "notifySiteBlockedTitle": "Saýt henizem petikli",
   "notifySiteBlockedBody": "{host} hiç bir usul bilen açylmady. Bu torda Giňişleýin tertip geçip biler.",
+  "notifySiteBlockedBodyNoAdvanced": "{host} bu torda hiç bir usul bilen açylmady. Jikme-jiklikler «Ýazgylar» bölüminde.",
   "notifySiteBlockedBodyAdvancedOn": "{host} entek açylmady. Giňişleýin tertip açyk, Shroudly başga ýollary synamagy dowam edýär.",
   "notifySecurityEngine": "Antiwirusyňyz Shroudly-ni petikledi, şonuň üçin gorag öçük. Ony karantinden dikeldiň we Shroudly bukjasyny kadadan çykmalara goşuň.",
   "notifySecurityEngineMaybe": "Gorag başlan badyna togtaýar; antiwirusyňyz Shroudly-ni petikleýän bolmagy mümkin. Shroudly bukjasyny kadadan çykmalara goşuň.",

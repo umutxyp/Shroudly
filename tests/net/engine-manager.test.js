@@ -33,6 +33,22 @@ const t = suite('engine-manager');
   // Programs carried by Shroudly wait while the engine is on its way, never
   // while it is being stopped.
   t.ok(em.coming === false, 'nothing coming at rest');
+  {
+    // Another network or a wake: the engine drops what the old network's DNS
+    // answered (DNS-CLEAR); nothing is sent to an engine that is not running.
+    const sent = [];
+    const was = { proc: em.proc, active: em.active };
+    em.proc = { stdin: { writable: true, write: (l) => sent.push(l) } };
+    em.active = false;
+    const off = em.networkChanged();
+    em.active = true;
+    const on = em.networkChanged();
+    Object.assign(em, was);
+    t.ok(off === false && on === true && sent.join() === 'DNS-CLEAR\n', 'another network: the DNS answers of the old one are dropped, only while running');
+    const main = require('fs').readFileSync(path.join(ROOT, 'electron', 'main.js'), 'utf8');
+    t.ok(/now !== networkPrint && engine\) engine\.networkChanged\(\)/.test(main) && /function onWake[\s\S]{0,900}engine\.networkChanged\(\)/.test(main),
+      'main.js asks for it at a network change and at a wake');
+  }
   em._starting = Promise.resolve(); t.ok(em.coming === true, 'a start under way: the engine is coming');
   em._stops = 1; t.ok(em.coming === false, '…but not while a stop is asked for');
   em._stops = 0; em._starting = null;

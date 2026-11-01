@@ -64,6 +64,22 @@ const CONFLICTS = [
   { re: /surfshark/i,               name: 'Surfshark',  tunnel: /surfshark/i },
   { re: /\bcloudflare ?warp\b|warp-svc/i, name: 'Cloudflare WARP', tunnel: /cloudflarewarp|^warp/i },
   { re: /tailscale/i,               name: 'Tailscale',  tunnel: /tailscale/i, routeOnly: true },
+  { re: /windscribe/i,              name: 'Windscribe', tunnel: /windscribe/i },
+  { re: /mullvad/i,                 name: 'Mullvad VPN', tunnel: /mullvad/i },
+  { re: /urban ?vpn/i,              name: 'Urban VPN',  tunnel: /urban/i },
+  { re: /hotspot ?shield|\bhsscp\b/i, name: 'Hotspot Shield', tunnel: /hotspot ?shield/i },
+  { re: /\bpia-(client|service|daemon)\b|private ?internet ?access/i, name: 'Private Internet Access', tunnel: /^(pia|wgpia)/i },
+  { re: /cyberghost/i,              name: 'CyberGhost', tunnel: /cyberghost/i },
+  { re: /tunnelbear/i,              name: 'TunnelBear', tunnel: /tunnelbear/i },
+  { re: /adguard ?vpn/i,            name: 'AdGuard VPN', tunnel: /adguard/i },
+  // Company and school VPNs.
+  { re: /anyconnect|cisco secure client|(^|["\\/])vpn(agent|ui)(\.exe)?("|$)/im, name: 'Cisco Secure Client', tunnel: /cisco|anyconnect|^cscotun/i },
+  { re: /globalprotect|(^|["\\/])pangp[as](\.exe)?("|$)/im, name: 'GlobalProtect', tunnel: /pangp|globalprotect|^gpd/i },
+  { re: /forticlient|fortitray|openfortivpn/i, name: 'FortiClient', tunnel: /forti/i },
+  // "Pulse.exe" as a whole name: PulseAudio is everywhere on Linux.
+  { re: /pulse ?secure|ivanti|dsaccessservice|(^|["\\/])pulse(\.exe)?("|$)/im, name: 'Ivanti Secure Access', tunnel: /juniper|pulse|ivanti/i },
+  // Zscaler steers traffic whenever it runs, without a tunnel of its own.
+  { re: /zscaler|zsatunnel|zsatray/i, name: 'Zscaler' },
   // The whole name, not its end: "Monitor.exe", "Navigator.exe" and the
   // like are everywhere on Windows. tasklist quotes names, ps gives a path
   // (macOS) or a bare name (Linux); the browser shows up as "Tor Browser".

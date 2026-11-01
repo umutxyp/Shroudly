@@ -425,6 +425,7 @@
   "notifyUpdatePassword": "版本 {version} 已可安装。请打开 Shroudly 进行安装（需要输入密码）。",
   "notifySiteBlockedTitle": "有网站仍被封锁",
   "notifySiteBlockedBody": "{host} 用所有方法都打不开。在此网络上，高级模式也许可以通过。",
+  "notifySiteBlockedBodyNoAdvanced": "{host} 在此网络上用所有方法都打不开。详情见“日志”标签页。",
   "notifySiteBlockedBodyAdvancedOn": "{host} 还没有打开。高级模式已开启，Shroudly 仍在尝试其他方法。",
   "notifySecurityEngine": "你的杀毒软件拦截了 Shroudly，保护已关闭。请从隔离区恢复它，并将 Shroudly 文件夹添加为排除项。",
   "notifySecurityEngineMaybe": "保护刚启动就停止了，你的杀毒软件可能在拦截 Shroudly。请将 Shroudly 文件夹添加为排除项。",

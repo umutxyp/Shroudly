@@ -425,6 +425,7 @@
   "notifyUpdatePassword": "Versi {version} siap dipasang. Buka Shroudly untuk memasangnya (meminta kata sandi Anda).",
   "notifySiteBlockedTitle": "Sebuah situs masih diblokir",
   "notifySiteBlockedBody": "{host} tidak terbuka dengan metode apa pun. Mode Lanjutan mungkin bisa menembus di jaringan ini.",
+  "notifySiteBlockedBodyNoAdvanced": "{host} tidak terbuka dengan metode apa pun di jaringan ini. Detailnya ada di tab Log.",
   "notifySiteBlockedBodyAdvancedOn": "{host} belum terbuka. Mode Lanjutan sudah aktif, dan Shroudly terus mencoba cara lain.",
   "notifySecurityEngine": "Antivirus Anda memblokir Shroudly, jadi perlindungan mati. Pulihkan dari karantina dan tambahkan folder Shroudly sebagai pengecualian.",
   "notifySecurityEngineMaybe": "Perlindungan berhenti tepat setelah dimulai; antivirus Anda mungkin memblokir Shroudly. Tambahkan folder Shroudly sebagai pengecualian.",

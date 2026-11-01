@@ -45,6 +45,34 @@ const TAIL_UP = { ...ETH, Tailscale: [{ address: '100.64.0.5', family: 'IPv4', i
   }
   r = await D.runningTools({ probe: { processes: '"chrome.exe","1"', interfaces: ETH, route: 'Ethernet' } });
   t.ok(Array.isArray(r) && r.length === 0, 'nothing running: nothing reported (plain list form)');
+  // Clients that were not recognised: connected (their adapter, or the
+  // default route through a tunnel) and installed but not connected.
+  const UP = (name) => ({ ...ETH, [name]: [{ address: '10.64.0.2', family: 'IPv4', internal: false }] });
+  for (const [proc, adapter, name] of [
+    ['"WindscribeService.exe","10"', 'Windscribe', 'Windscribe'],
+    ['"mullvad-daemon.exe","11"', 'Mullvad', 'Mullvad VPN'],
+    ['"Urban VPN.exe","12"', 'Urban VPN', 'Urban VPN'],
+    ['"hsscp.exe","13"', 'Hotspot Shield', 'Hotspot Shield'],
+    ['"pia-service.exe","14"', 'PIA', 'Private Internet Access'],
+    ['"CyberGhost.Service.exe","15"', 'CyberGhost', 'CyberGhost'],
+    ['"TunnelBear.exe","16"', 'TunnelBear', 'TunnelBear'],
+    ['"AdGuardVpn.exe","17"', 'AdGuard VPN', 'AdGuard VPN'],
+    ['"vpnagent.exe","18"', 'Cisco AnyConnect', 'Cisco Secure Client'],
+    ['"PanGPS.exe","19"', 'PANGP Virtual Ethernet Adapter', 'GlobalProtect'],
+    ['"FortiClient.exe","20"', 'Fortinet SSL VPN', 'FortiClient'],
+    ['"Pulse.exe","21"', 'Juniper Networks Virtual Adapter', 'Ivanti Secure Access'],
+  ]) {
+    r = await D.runningTools({ details: true, probe: { processes: proc, interfaces: UP(adapter), route: 'Ethernet' } });
+    const up = r.active.join() === name;
+    r = await D.runningTools({ details: true, probe: { processes: proc, interfaces: ETH, route: 'Ethernet' } });
+    t.ok(up && r.active.length === 0 && r.idle.join() === name, `${name}: connected is named, installed but not connected is only noted`);
+  }
+  r = await D.runningTools({ details: true, probe: { processes: '/Applications/Mullvad VPN.app/Contents/Resources/mullvad-daemon', interfaces: ETH, route: 'utun6' } });
+  t.ok(r.active.join() === 'Mullvad VPN', 'macOS: Mullvad carrying the default route through a utun: connected');
+  r = await D.runningTools({ details: true, probe: { processes: '"ZSATunnel.exe","30"', interfaces: ETH, route: 'Ethernet' } });
+  t.ok(r.active.join() === 'Zscaler', 'Zscaler steers traffic whenever it runs');
+  r = await D.runningTools({ probe: { processes: '"AdGuard.exe","31"\n"vpnkit.exe","32"\n"MyVpnUI.exe","33"\n"pianist.exe","34"\n/usr/bin/pulseaudio', interfaces: ETH, route: 'Ethernet' } });
+  t.ok(r.length === 0, 'the AdGuard ad blocker, Docker\'s vpnkit and names that only contain these words are not VPN clients');
 
   // Issue #27: naming the program that keeps taking the system proxy over.
   // Only tools that set the system proxy count (a DPI tool or a VPN tunnel

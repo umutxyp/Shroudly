@@ -425,6 +425,7 @@
   "notifyUpdatePassword": "संस्करण {version} इंस्टॉल होने के लिए तैयार है। इसे इंस्टॉल करने के लिए Shroudly खोलें (आपका पासवर्ड पूछेगा)।",
   "notifySiteBlockedTitle": "एक साइट अब भी ब्लॉक है",
   "notifySiteBlockedBody": "{host} किसी भी तरीके से नहीं खुली। इस नेटवर्क पर उन्नत मोड काम कर सकता है।",
+  "notifySiteBlockedBodyNoAdvanced": "{host} इस नेटवर्क पर किसी भी तरीके से नहीं खुली। विवरण «लॉग» टैब में है।",
   "notifySiteBlockedBodyAdvancedOn": "{host} अभी तक नहीं खुली। उन्नत मोड चालू है, और Shroudly दूसरे तरीके आज़माता जा रहा है।",
   "notifySecurityEngine": "आपके एंटीवायरस ने Shroudly को ब्लॉक कर दिया, इसलिए सुरक्षा बंद है। उसे क्वारंटीन से वापस लाएँ और Shroudly फ़ोल्डर को अपवाद के रूप में जोड़ें।",
   "notifySecurityEngineMaybe": "सुरक्षा शुरू होते ही रुक जाती है; शायद आपका एंटीवायरस Shroudly को ब्लॉक कर रहा है। Shroudly फ़ोल्डर को अपवाद के रूप में जोड़ें।",

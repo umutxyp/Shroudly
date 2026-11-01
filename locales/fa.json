@@ -425,6 +425,7 @@
   "notifyUpdatePassword": "نسخهٔ {version} آمادهٔ نصب است. برای نصب، Shroudly را باز کنید (رمز عبورتان را می‌پرسد).",
   "notifySiteBlockedTitle": "یک سایت هنوز مسدود است",
   "notifySiteBlockedBody": "{host} با هیچ روشی باز نشد. در این شبکه شاید حالت پیشرفته عبور کند.",
+  "notifySiteBlockedBodyNoAdvanced": "{host} در این شبکه با هیچ روشی باز نشد. جزئیات در زبانهٔ «گزارش‌ها» است.",
   "notifySiteBlockedBodyAdvancedOn": "{host} هنوز باز نشده است. حالت پیشرفته روشن است و Shroudly همچنان راه‌های دیگری را امتحان می‌کند.",
   "notifySecurityEngine": "آنتی‌ویروس شما Shroudly را مسدود کرد، پس محافظت خاموش است. آن را از قرنطینه بازگردانید و پوشهٔ Shroudly را به استثناها اضافه کنید.",
   "notifySecurityEngineMaybe": "محافظت درست پس از شروع متوقف می‌شود؛ ممکن است آنتی‌ویروس شما Shroudly را مسدود کند. پوشهٔ Shroudly را به استثناها اضافه کنید.",

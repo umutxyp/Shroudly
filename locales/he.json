@@ -425,6 +425,7 @@
   "notifyUpdatePassword": "גרסה {version} מוכנה להתקנה. יש לפתוח את Shroudly כדי להתקין אותה (תידרש סיסמה).",
   "notifySiteBlockedTitle": "אתר עדיין חסום",
   "notifySiteBlockedBody": "לא ניתן היה לפתוח את {host} בשום שיטה. ייתכן שהמצב המתקדם יצליח לעבור ברשת הזו.",
+  "notifySiteBlockedBodyNoAdvanced": "לא ניתן היה לפתוח את {host} ברשת הזו בשום שיטה. הפרטים בכרטיסייה „יומנים”.",
   "notifySiteBlockedBodyAdvancedOn": "{host} עדיין לא נפתח. המצב המתקדם פועל, ו-Shroudly ממשיך לנסות דרכים אחרות.",
   "notifySecurityEngine": "האנטי-וירוס חסם את Shroudly, ולכן ההגנה כבויה. יש לשחזר אותו מההסגר ולהוסיף את התיקייה של Shroudly כהחרגה.",
   "notifySecurityEngineMaybe": "ההגנה נעצרת מיד אחרי שהיא מתחילה; ייתכן שהאנטי-וירוס חוסם את Shroudly. יש להוסיף את התיקייה של Shroudly כהחרגה.",

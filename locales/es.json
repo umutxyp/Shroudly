@@ -425,6 +425,7 @@
   "notifyUpdatePassword": "La versión {version} está lista para instalarse. Abre Shroudly para instalarla (te pedirá la contraseña).",
   "notifySiteBlockedTitle": "Un sitio sigue bloqueado",
   "notifySiteBlockedBody": "{host} no se abrió con ningún método. El modo Avanzado puede funcionar en esta red.",
+  "notifySiteBlockedBodyNoAdvanced": "{host} no se abrió con ningún método en esta red. Los detalles están en la pestaña Registros.",
   "notifySiteBlockedBodyAdvancedOn": "{host} todavía no se ha abierto. El modo Avanzado está activado y Shroudly sigue probando otras formas.",
   "notifySecurityEngine": "Tu antivirus bloqueó Shroudly, así que la protección está desactivada. Restáuralo desde la cuarentena y añade la carpeta de Shroudly como excepción.",
   "notifySecurityEngineMaybe": "La protección se detiene justo después de iniciarse; puede que tu antivirus esté bloqueando Shroudly. Añade la carpeta de Shroudly como excepción.",

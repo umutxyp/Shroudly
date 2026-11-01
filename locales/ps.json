@@ -425,6 +425,7 @@
   "notifyUpdatePassword": "{version} نسخه د نصبولو لپاره چمتو ده. د نصبولو لپاره Shroudly پرانیزئ (ستاسو پټنوم غواړي).",
   "notifySiteBlockedTitle": "یو سایټ لا هم بند دی",
   "notifySiteBlockedBody": "{host} په هېڅ طریقه پرانیستل نه شو. ښايي پرمختللی حالت په دې شبکه کې ترې تېر شي.",
+  "notifySiteBlockedBodyNoAdvanced": "{host} په دې شبکه کې په هېڅ طریقه پرانیستل نه شو. جزییات د «لاګونه» برخه کې دي.",
   "notifySiteBlockedBodyAdvancedOn": "{host} لا نه دی پرانیستل شوی. پرمختللی حالت فعال دی، او Shroudly لا هم نورې لارې ازمویي.",
   "notifySecurityEngine": "ستاسو انټي ویروس Shroudly بند کړ، نو ساتنه بنده ده. له قرنطین څخه یې بېرته راوګرځوئ او د Shroudly فولډر د استثنا په توګه ورزیات کړئ.",
   "notifySecurityEngineMaybe": "ساتنه له پیل سمدستي وروسته درېږي؛ ښايي ستاسو انټي ویروس Shroudly بندوي. د Shroudly فولډر د استثنا په توګه ورزیات کړئ.",

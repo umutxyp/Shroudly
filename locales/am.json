@@ -425,6 +425,7 @@
   "notifyUpdatePassword": "ስሪት {version} ለመጫን ዝግጁ ነው። ለመጫን Shroudlyን ይክፈቱ (የይለፍ ቃልዎን ይጠይቃል)።",
   "notifySiteBlockedTitle": "አንድ ድረ-ገጽ አሁንም ታግዷል",
   "notifySiteBlockedBody": "{host} በየትኛውም ዘዴ ሊከፈት አልቻለም። በዚህ አውታረ መረብ ላይ የላቀ ሁነታ ሊያልፍ ይችላል።",
+  "notifySiteBlockedBodyNoAdvanced": "{host} በዚህ አውታረ መረብ ላይ በየትኛውም ዘዴ ሊከፈት አልቻለም። ዝርዝሩ በ«መዝገብ» ትር ውስጥ አለ።",
   "notifySiteBlockedBodyAdvancedOn": "{host} እስካሁን አልተከፈተም። የላቀ ሁነታ በርቷል፣ Shroudly ደግሞ ሌሎች መንገዶችን መሞከሩን ቀጥሏል።",
   "notifySecurityEngine": "ጸረ-ቫይረስዎ Shroudlyን ስላገደ ጥበቃ ጠፍቷል። ከማቆያው (quarantine) ይመልሱትና የShroudly አቃፊን እንደ ልዩ ሁኔታ (exception) ያክሉ።",
   "notifySecurityEngineMaybe": "ጥበቃ ልክ እንደጀመረ ይቆማል፤ ጸረ-ቫይረስዎ Shroudlyን እያገደ ሊሆን ይችላል። የShroudly አቃፊን እንደ ልዩ ሁኔታ (exception) ያክሉ።",

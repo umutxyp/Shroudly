@@ -425,6 +425,7 @@
   "notifyUpdatePassword": "{version} versiyasi oʻrnatishga tayyor. Oʻrnatish uchun Shroudlyni oching (parolingizni soʻraydi).",
   "notifySiteBlockedTitle": "Sayt hamon bloklangan",
   "notifySiteBlockedBody": "{host} hech qanday usul bilan ochilmadi. Bu tarmoqda Kengaytirilgan rejim yordam berishi mumkin.",
+  "notifySiteBlockedBodyNoAdvanced": "{host} bu tarmoqda hech qanday usul bilan ochilmadi. Tafsilotlar «Jurnal» boʻlimida.",
   "notifySiteBlockedBodyAdvancedOn": "{host} hali ochilmadi. Kengaytirilgan rejim yoqilgan, Shroudly boshqa yoʻllarni sinab koʻrishda davom etmoqda.",
   "notifySecurityEngine": "Antivirusingiz Shroudlyni blokladi, shuning uchun himoya oʻchiq. Uni karantindan tiklang va Shroudly jildini istisnolarga qoʻshing.",
   "notifySecurityEngineMaybe": "Himoya ishga tushishi bilanoq toʻxtab qoladi; antivirusingiz Shroudlyni bloklayotgan boʻlishi mumkin. Shroudly jildini istisnolarga qoʻshing.",

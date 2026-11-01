@@ -425,6 +425,7 @@
   "notifyUpdatePassword": "Phiên bản {version} đã sẵn sàng để cài đặt. Hãy mở Shroudly để cài đặt (sẽ hỏi mật khẩu của bạn).",
   "notifySiteBlockedTitle": "Một trang web vẫn bị chặn",
   "notifySiteBlockedBody": "Không thể mở {host} bằng bất kỳ cách nào. Chế độ nâng cao có thể vượt qua được trên mạng này.",
+  "notifySiteBlockedBodyNoAdvanced": "Không thể mở {host} bằng bất kỳ cách nào trên mạng này. Chi tiết có trong thẻ Nhật ký.",
   "notifySiteBlockedBodyAdvancedOn": "{host} vẫn chưa mở được. Chế độ nâng cao đang bật, và Shroudly vẫn tiếp tục thử các cách khác.",
   "notifySecurityEngine": "Phần mềm diệt virus của bạn đã chặn Shroudly, nên bảo vệ đang tắt. Hãy khôi phục nó từ khu cách ly và thêm thư mục Shroudly làm ngoại lệ.",
   "notifySecurityEngineMaybe": "Bảo vệ dừng ngay sau khi khởi động; phần mềm diệt virus của bạn có thể đang chặn Shroudly. Hãy thêm thư mục Shroudly làm ngoại lệ.",

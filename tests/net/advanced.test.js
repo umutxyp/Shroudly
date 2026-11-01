@@ -344,6 +344,12 @@ function windowsArgv(line) {
     t.ok(as({ code: 4, stdout: '', stderr: '' }).code === 'files_missing', 'exit 4: files_missing');
     t.ok(as({ code: 1, stdout: '', stderr: 'Something else' }).code === 'start_failed', 'anything else: start_failed');
   }
+  {
+    // A site no method opened: the notification offers Advanced mode only
+    // where this computer has it (never on macOS).
+    const main = fs.readFileSync(path.join(ROOT, 'electron', 'main.js'), 'utf8');
+    t.ok(/advanced\.available\(\)[\s\S]{0,300}notifySiteBlockedBodyNoAdvanced/.test(main), 'a blocked site: Advanced mode is not suggested where it is not available');
+  }
   fs.rmSync(tmp, { recursive: true, force: true });
   console.log(`advanced: ${t.count} passed`);
 })();

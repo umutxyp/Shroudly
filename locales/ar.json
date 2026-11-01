@@ -425,6 +425,7 @@
   "notifyUpdatePassword": "الإصدار {version} جاهز للتثبيت. افتح Shroudly لتثبيته (سيطلب كلمة المرور).",
   "notifySiteBlockedTitle": "لا يزال أحد المواقع محجوبًا",
   "notifySiteBlockedBody": "لم يُفتح {host} بأي أسلوب. قد ينجح الوضع المتقدم على هذه الشبكة.",
+  "notifySiteBlockedBodyNoAdvanced": "لم يُفتح {host} بأي أسلوب على هذه الشبكة. التفاصيل في تبويب «السجلات».",
   "notifySiteBlockedBodyAdvancedOn": "لم يُفتح {host} بعد. الوضع المتقدم مفعّل، ويواصل Shroudly تجربة طرق أخرى.",
   "notifySecurityEngine": "حظر برنامج مكافحة الفيروسات Shroudly، لذا الحماية متوقفة. استعِده من الحجر وأضِف مجلد Shroudly كاستثناء.",
   "notifySecurityEngineMaybe": "تتوقف الحماية فور بدئها؛ قد يكون برنامج مكافحة الفيروسات يحظر Shroudly. أضِف مجلد Shroudly كاستثناء.",

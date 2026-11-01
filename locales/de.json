@@ -425,6 +425,7 @@
   "notifyUpdatePassword": "Version {version} ist bereit zur Installation. Öffnen Sie Shroudly, um sie zu installieren (fragt nach Ihrem Passwort).",
   "notifySiteBlockedTitle": "Eine Seite ist weiterhin gesperrt",
   "notifySiteBlockedBody": "{host} ließ sich mit keiner Methode öffnen. Der erweiterte Modus kommt in diesem Netz vielleicht durch.",
+  "notifySiteBlockedBodyNoAdvanced": "{host} ließ sich in diesem Netz mit keiner Methode öffnen. Details stehen im Tab „Protokoll“.",
   "notifySiteBlockedBodyAdvancedOn": "{host} hat sich noch nicht geöffnet. Der erweiterte Modus ist an, und Shroudly probiert weiter andere Wege.",
   "notifySecurityEngine": "Dein Virenschutz hat Shroudly blockiert, deshalb ist der Schutz aus. Stelle es aus der Quarantäne wieder her und füge den Shroudly-Ordner als Ausnahme hinzu.",
   "notifySecurityEngineMaybe": "Der Schutz stoppt gleich nach dem Start; vielleicht blockiert dein Virenschutz Shroudly. Füge den Shroudly-Ordner als Ausnahme hinzu.",

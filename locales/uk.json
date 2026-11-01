@@ -425,6 +425,7 @@
   "notifyUpdatePassword": "Версія {version} готова до встановлення. Відкрийте Shroudly, щоб установити її (потрібен ваш пароль).",
   "notifySiteBlockedTitle": "Сайт досі заблоковано",
   "notifySiteBlockedBody": "{host} не відкривається жодним способом. У цій мережі може допомогти розширений режим.",
+  "notifySiteBlockedBodyNoAdvanced": "{host} не відкривається в цій мережі жодним способом. Подробиці — на вкладці «Журнал».",
   "notifySiteBlockedBodyAdvancedOn": "{host} поки не відкрився. Розширений режим увімкнено, і Shroudly далі пробує інші способи.",
   "notifySecurityEngine": "Ваш антивірус заблокував Shroudly, тому захист вимкнено. Відновіть його з карантину й додайте теку Shroudly до винятків.",
   "notifySecurityEngineMaybe": "Захист зупиняється одразу після запуску; можливо, ваш антивірус блокує Shroudly. Додайте теку Shroudly до винятків.",

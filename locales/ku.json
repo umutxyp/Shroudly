@@ -425,6 +425,7 @@
   "notifyUpdatePassword": "Guhertoya {version} ji bo sazkirinê amade ye. Ji bo sazkirinê Shroudly veke (şîfreya te dixwaze).",
   "notifySiteBlockedTitle": "Malperek hîn jî astengkirî ye",
   "notifySiteBlockedBody": "{host} bi tu rêbazê venebû. Dibe ku Moda pêşketî li ser vê torê derbas bibe.",
+  "notifySiteBlockedBodyNoAdvanced": "{host} li ser vê torê bi tu rêbazê venebû. Hûrgulî di beşa «Tomar» de ne.",
   "notifySiteBlockedBodyAdvancedOn": "{host} hîn venebûye. Moda pêşketî çalak e, û Shroudly berdewam rêyên din diceribîne.",
   "notifySecurityEngine": "Antîvîrusa te Shroudly asteng kir, ji ber vê yekê parastin girtî ye. Wê ji karantînê vegerîne û peldanka Shroudly wekî îstîsna lê zêde bike.",
   "notifySecurityEngineMaybe": "Parastin tavilê piştî destpêkirinê radiweste; dibe ku antîvîrusa te Shroudly asteng dike. Peldanka Shroudly wekî îstîsna lê zêde bike.",
