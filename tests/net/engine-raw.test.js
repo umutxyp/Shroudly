@@ -194,15 +194,43 @@ async function retry(P, port, timeoutMs) { await sleep(1100); return attempt(P, 
       s.on('close', () => resolve(b));
     });
     t.ok(/^HTTP\/1\.1 400/.test(notConnect), 'anything but CONNECT is refused');
-    const a = await new Promise((resolve) => {
+    /* 7b. a plain http:// request through the same port, as Android's Wi-Fi
+     * proxy (Proxy only) sends it: the server gets it as a browser sends it
+     * straight, the client the server's answer; what was for the proxy stays
+     * here, and the next request comes on a new connection */
+    const seen = [];
+    const web = require('http').createServer((req, res) => {
+      let body = '';
+      req.on('data', (d) => { body += d; });
+      req.on('end', () => {
+        seen.push({ method: req.method, url: req.url, headers: req.headers, body });
+        const text = `hello ${req.url}`;
+        res.writeHead(200, { 'Content-Type': 'text/plain', 'Content-Length': Buffer.byteLength(text) });
+        res.end(text);
+      });
+    });
+    const webPort = await listen(web);
+    const plain = (head) => new Promise((resolve) => {
       const s = net.connect(P, '127.0.0.1');
       let b = '';
-      s.on('connect', () => s.write('GET http://127.0.0.1/ HTTP/1.1\r\nHost: x\r\n\r\n'));
+      s.on('connect', () => s.write(head));
       s.on('data', (d) => { b += d; });
       s.on('error', () => {});
       s.on('close', () => resolve(b));
+      setTimeout(() => s.destroy(), 8000);
     });
-    t.ok(a === '', 'a plain proxy request (GET http://...) is not served at all');
+    const got = await plain(`GET http://127.0.0.1:${webPort}/page?x=1 HTTP/1.1\r\nHost: wrong\r\nProxy-Connection: keep-alive\r\nUser-Agent: Chrome\r\n\r\n`);
+    t.ok(/^HTTP\/1\.1 200/.test(got) && got.endsWith('hello /page?x=1'), `GET http://...: the server's answer (${JSON.stringify(got.slice(0, 40))})`);
+    const r0 = seen[0] || { headers: {} };
+    t.ok(r0.url === '/page?x=1' && r0.headers.host === `127.0.0.1:${webPort}` && r0.headers['user-agent'] === 'Chrome',
+      'the server gets the path, and the Host from the URL');
+    t.ok(r0.headers.connection === 'close' && !('proxy-connection' in r0.headers), 'with Connection: close, and nothing that was for the proxy');
+    const posted = await plain(`POST http://localhost:${webPort}/form HTTP/1.1\r\nContent-Length: 5\r\n\r\nabcde`);
+    t.ok(/^HTTP\/1\.1 200/.test(posted) && seen[1] && seen[1].method === 'POST' && seen[1].body === 'abcde', 'POST by name, its body after the head');
+    t.ok(/^HTTP\/1\.1 502/.test(await plain(`GET http://127.0.0.1:${closed}/ HTTP/1.1\r\n\r\n`)), 'GET http:// to nothing: 502');
+    t.ok(/^HTTP\/1\.1 400/.test(await plain(`GET /page HTTP/1.1\r\nHost: 127.0.0.1:${P}\r\n\r\n`)), 'what a web page sends to the port itself: 400');
+    t.ok(/^HTTP\/1\.1 400/.test(await plain('GET https://example.com/ HTTP/1.1\r\n\r\n')), 'another scheme: 400');
+    web.close();
 
     t.ok(eng.exited === null, 'the engine is still running');
 

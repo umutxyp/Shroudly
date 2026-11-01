@@ -643,7 +643,9 @@ void engine_emit_stats(void) {
 typedef struct {
   char     host[256];
   uint16_t port;
-  int      ver;        /* 4 or 5, or 1 for HTTP CONNECT: decides the reply format */
+  /* 4 or 5, 1 for HTTP CONNECT, 2 for a plain http:// request through the
+   * HTTP proxy port (see http_forward_accept): decides the reply format */
+  int      ver;
   /* 0x01 CONNECT, or (SOCKS5 only) 0x03 UDP ASSOCIATE: host and port are
    * then where the client says it will send its datagrams from; see
    * udp_associate() for when that is used. */
@@ -656,6 +658,10 @@ typedef struct {
    * hosts file, an ad blocker or the user's own filtering DNS answers with
    * those on purpose, and they are connected to as asked. */
   int      blockpage;
+  /* ver 2: the request's head, as the server is to get it, sent as the
+   * client's first payload (first_payload); NULL otherwise. Freed by handle(). */
+  char    *head;
+  int      head_len;
 } socks_req;
 
 static int recv_exact(sock_t c, uint8_t *b, int n) {
@@ -697,12 +703,14 @@ static int socks5_reply(sock_t c, uint8_t rep) {
 
 static int send_str(sock_t c, const char *s) { return sock_send_all(c, (const uint8_t *)s, strlen(s), 0); }
 
-/* Tell the client whether its connection is up, in its own protocol. */
+/* Tell the client whether its connection is up, in its own protocol. A plain
+ * http:// request (ver 2) is answered by the server itself once it is up. */
 static int socks_reply(sock_t c, const socks_req *rq, int ok) {
-  if (rq->ver == 1) {
+  if (rq->ver == 1 || rq->ver == 2) {
     static const char yes[] = "HTTP/1.1 200 Connection established\r\n\r\n";
     static const char no[]  = "HTTP/1.1 502 Bad Gateway\r\nContent-Length: 0\r\nConnection: close\r\n\r\n";
-    return ok ? send_str(c, yes) : send_str(c, no);
+    if (ok) return rq->ver == 1 ? send_str(c, yes) : 0;
+    return send_str(c, no);
   }
   if (rq->ver == 4) return socks4_reply(c, ok ? 0x5A : 0x5B);
   return socks5_reply(c, ok ? 0x00 : 0x04);
@@ -991,6 +999,160 @@ static int http_connect_accept(sock_t c, socks_req *rq) {
   return 0;
 }
 
+/* ── plain http:// through the HTTP proxy port ───────────────────────────
+ * An HTTP proxy is asked for an https:// site with CONNECT, and for a plain
+ * http:// one with the request itself, its whole URL in it: "GET
+ * http://example.com/page HTTP/1.1". Android's Wi-Fi proxy, set to the
+ * engine's port for Proxy only, is such a proxy for every app that follows
+ * it (Chrome among them), and up to 2.6.44 every such request got an empty
+ * answer: http-only sites, a captive portal's page, apps' plain-HTTP APIs.
+ * Taken here: dialled at the URL's host and port like a CONNECT, the server
+ * given the request as a browser sends it straight ("GET /page", the Host
+ * from the URL), techniques and all. With "Connection: close", so that the
+ * next request on the client's connection, which may be for another site,
+ * comes on a new one. Only an absolute http:// URL is served: a web page
+ * fetching this port itself sends "GET /page" and is refused, as it cannot
+ * send a CONNECT either. Never with --auth-file. */
+#define HTTP_HEAD_MAX 16384
+
+static int is_hop_header(const char *name, size_t n) {
+  static const char *const hop[] = { "host", "connection", "proxy-connection", "keep-alive", "proxy-authorization" };
+  for (size_t i = 0; i < sizeof(hop) / sizeof(hop[0]); i++) {
+    size_t l = strlen(hop[i]);
+    if (n != l) continue;
+    size_t k = 0;
+    while (k < l && tolower((unsigned char)name[k]) == hop[i][k]) k++;
+    if (k == l) return 1;
+  }
+  return 0;
+}
+
+/* in: a request head to its blank line (n bytes). Writes the head the server
+ * is to get to out (at most cap bytes) and the URL's host and port. Returns
+ * its length, or -1 for anything but "METHOD http://host[:port][/...]
+ * HTTP/1.x". */
+static int http_forward_head(const char *in, int n, char *out, int cap, char *host, size_t hostcap, uint16_t *port) {
+  const char *end = in + n;
+  const char *eol = NULL;
+  for (const char *q = in; q + 1 < end; q++) if (q[0] == '\r' && q[1] == '\n') { eol = q; break; }
+  if (!eol) return -1;
+  /* The method: capitals only. */
+  const char *m = in, *sp = m;
+  while (sp < eol && *sp >= 'A' && *sp <= 'Z') sp++;
+  if (sp == m || sp - m > 16 || sp >= eol || *sp != ' ') return -1;
+  const char *t = sp + 1, *sp2 = t;
+  while (sp2 < eol && *sp2 != ' ') sp2++;
+  if (sp2 >= eol || eol - (sp2 + 1) != 8 || strncmp(sp2 + 1, "HTTP/1.", 7) != 0 || (sp2[8] != '0' && sp2[8] != '1')) return -1;
+  static const char scheme[] = "http://";
+  if (sp2 - t < 8) return -1;
+  for (int i = 0; i < 7; i++) if (tolower((unsigned char)t[i]) != scheme[i]) return -1;
+  const char *a = t + 7, *ae = a;
+  while (ae < sp2 && *ae != '/' && *ae != '?' && *ae != '#') ae++;
+  if (ae == a || ae - a > 262) return -1;
+  for (const char *q = a; q < ae; q++) if (*q == '@') return -1;   /* no user:password@ */
+  char auth[264];
+  memcpy(auth, a, (size_t)(ae - a)); auth[ae - a] = 0;
+  /* host, [v6] or a name, and the port (80 when none is given) */
+  char h[264];
+  long pt = 80;
+  if (auth[0] == '[') {
+    char *rb = strchr(auth, ']');
+    if (!rb) return -1;
+    size_t hl = (size_t)(rb - auth - 1);
+    memcpy(h, auth + 1, hl); h[hl] = 0;
+    struct in6_addr a6;
+    if (inet_pton(AF_INET6, h, &a6) != 1) return -1;
+    if (rb[1] == ':') { char *e; pt = strtol(rb + 2, &e, 10); if (*e || e == rb + 2) return -1; }
+    else if (rb[1]) return -1;
+  } else {
+    char *colon = strchr(auth, ':');
+    size_t hl = colon ? (size_t)(colon - auth) : strlen(auth);
+    memcpy(h, auth, hl); h[hl] = 0;
+    if (colon) { char *e; pt = strtol(colon + 1, &e, 10); if (*e || e == colon + 1) return -1; }
+    for (const char *q = h; *q; q++) {
+      char ch = *q;
+      if (!((ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z') || (ch >= '0' && ch <= '9') || ch == '.' || ch == '-' || ch == '_')) return -1;
+    }
+  }
+  if (!h[0] || strlen(h) > 253 || strlen(h) >= hostcap || pt <= 0 || pt > 65535) return -1;
+  /* The path, "/" when the URL has none; never the #fragment. */
+  const char *p = ae, *pe = sp2;
+  for (const char *q = p; q < pe; q++) if (*q == '#') { pe = q; break; }
+  int w = snprintf(out, (size_t)cap, "%.*s %s%.*s %.8s\r\nHost: %s\r\n",
+                   (int)(sp - m), m, (p == pe || *p == '?') ? "/" : "", (int)(pe - p), p, sp2 + 1, auth);
+  if (w < 0 || w >= cap) return -1;
+  /* The headers, but those that were for the proxy or this one hop. */
+  const char *line = eol + 2;
+  int skipping = 0;
+  while (line + 1 < end && !(line[0] == '\r' && line[1] == '\n')) {
+    const char *le = line;
+    while (le + 1 < end && !(le[0] == '\r' && le[1] == '\n')) le++;
+    if (le + 1 >= end) return -1;
+    if (*line == ' ' || *line == '\t') {
+      /* folded onto the line before: goes where that one went */
+    } else {
+      const char *colon = memchr(line, ':', (size_t)(le - line));
+      if (!colon) return -1;
+      skipping = is_hop_header(line, (size_t)(colon - line));
+    }
+    if (!skipping) {
+      int l = (int)(le - line) + 2;
+      if (w + l >= cap) return -1;
+      memcpy(out + w, line, (size_t)l);
+      w += l;
+    }
+    line = le + 2;
+  }
+  static const char close_[] = "Connection: close\r\n\r\n";
+  if (w + (int)sizeof(close_) > cap) return -1;
+  memcpy(out + w, close_, sizeof(close_));
+  w += (int)sizeof(close_) - 1;
+  snprintf(host, hostcap, "%s", h);
+  *port = (uint16_t)pt;
+  return w;
+}
+
+/* The head of a plain http:// proxy request, read to its blank line (to the
+ * byte: a body after it is the relay's), rewritten for the server. The two
+ * bytes already read are in b2. */
+static int http_forward_accept(sock_t c, socks_req *rq, const uint8_t *b2) {
+  static const char bad[] = "HTTP/1.1 400 Bad Request\r\nContent-Length: 0\r\nConnection: close\r\n\r\n";
+  char *h = (char *)malloc(HTTP_HEAD_MAX + 1);
+  char *out = (char *)malloc(HTTP_HEAD_MAX + 512);
+  if (!h || !out) { free(h); free(out); return -1; }
+  int n = 2;
+  h[0] = (char)b2[0]; h[1] = (char)b2[1];
+  while (n < HTTP_HEAD_MAX) {
+    if (recv_exact(c, (uint8_t *)h + n, 1) != 0) { free(h); free(out); return -1; }
+    n++;
+    if (n >= 4 && memcmp(h + n - 4, "\r\n\r\n", 4) == 0) break;
+  }
+  h[n] = 0;
+  int len = n >= 4 && memcmp(h + n - 4, "\r\n\r\n", 4) == 0
+    ? http_forward_head(h, n, out, HTTP_HEAD_MAX + 512, rq->host, sizeof(rq->host), &rq->port) : -1;
+  free(h);
+  if (len < 0) { free(out); send_str(c, bad); return -1; }
+  rq->ver = 2;
+  rq->cmd = 0x01;
+  rq->head = out;
+  rq->head_len = len;
+  return 0;
+}
+
+/* The client's first bytes: the head a plain http:// request came with
+ * (taken at accept), else what it sends now (read_first). */
+static int read_first(sock_t c, sock_t up, uint8_t *buf, int cap);
+static int first_payload(sock_t c, sock_t up, socks_req *rq, uint8_t *buf, int cap) {
+  if (rq->head) {
+    int n = rq->head_len < cap ? rq->head_len : cap;
+    memcpy(buf, rq->head, (size_t)n);
+    free(rq->head);
+    rq->head = NULL;
+    return n;
+  }
+  return read_first(c, up, buf, cap);
+}
+
 static int socks_accept(sock_t c, socks_req *rq) {
   uint8_t b[300];
   memset(rq, 0, sizeof(*rq));
@@ -1004,6 +1166,15 @@ static int socks_accept(sock_t c, socks_req *rq) {
       return -1;
     }
     return http_connect_accept(c, rq);
+  }
+  /* Any other request in capitals: a plain http:// one, or refused. */
+  if (b[0] >= 'A' && b[0] <= 'Z' && b[1] >= 'A' && b[1] <= 'Z') {
+    if (auth) {
+      static const char no[] = "HTTP/1.1 403 Forbidden\r\nContent-Length: 0\r\nConnection: close\r\n\r\n";
+      send_str(c, no);
+      return -1;
+    }
+    return http_forward_accept(c, rq, b);
   }
   if (b[0] == 0x04) {
     if (auth) { socks4_reply(c, 0x5B); return -1; }
@@ -3226,11 +3397,11 @@ static int nd_lookup(const char *host, char *out, size_t cap, int wait_ms) {
  * the network for it: no lookup, no connection. buf holds the client's first
  * payload (flen bytes), or flen < 0 when the proxy step is still to be
  * answered and nothing has been read. */
-static void adblock_refuse(sock_t client, const socks_req *rq, uint8_t *buf, int flen) {
+static void adblock_refuse(sock_t client, socks_req *rq, uint8_t *buf, int flen) {
   adblock_count();
   if (flen < 0) {
     if (socks_reply(client, rq, 1) != 0) return;
-    flen = read_first(client, SOCK_INVALID, buf, RELAY_BUF);
+    flen = first_payload(client, SOCK_INVALID, rq, buf, RELAY_BUF);
   }
   if (flen <= 0) return;
   if (buf[0] == 0x16) {
@@ -3263,7 +3434,7 @@ static void handle(sock_t client) {
   if (rq.cmd == 0x03) { udp_associate(client, &rq); goto done; }
   /* A stand-in address that outlived its mapping: "not allowed", at once. */
   if (host_in_fake_net(rq.host)) {
-    if (rq.ver == 4) socks4_reply(client, 0x5B); else if (rq.ver == 1) socks_reply(client, &rq, 0); else socks5_reply(client, 0x02);
+    if (rq.ver == 4) socks4_reply(client, 0x5B); else if (rq.ver == 1 || rq.ver == 2) socks_reply(client, &rq, 0); else socks5_reply(client, 0x02);
     goto done;
   }
   snprintf(dial_host, sizeof(dial_host), "%s", rq.host);
@@ -3283,7 +3454,7 @@ static void handle(sock_t client) {
      * the HTTP Host), so accept now, read that, and look the name up with our
      * own resolver — always ours, since the system's is the one that lied. */
     if (socks_reply(client, &rq, 1) != 0) goto done;
-    flen = read_first(client, SOCK_INVALID, first, RELAY_BUF);
+    flen = first_payload(client, SOCK_INVALID, &rq, first, RELAY_BUF);
     proto_info pi0;
     memset(&pi0, 0, sizeof(pi0));
     if (flen > 0) proto_inspect(first, (size_t)flen, &pi0);
@@ -3361,7 +3532,7 @@ static void handle(sock_t client) {
         raw_seen_put(&pa);
     }
     if (socks_reply(client, &rq, 1) != 0) goto done;
-    flen = read_first(client, up, first, RELAY_BUF);
+    flen = first_payload(client, up, &rq, first, RELAY_BUF);
   }
 
   int watch_tls = 0;
@@ -3677,7 +3848,7 @@ static void handle(sock_t client) {
 
 done:
   if (up != SOCK_INVALID) sock_close(up);
-  free(first); free(work); free(rbuf);
+  free(first); free(work); free(rbuf); free(rq.head);
   atomic_fetch_sub(&g_stats.conns_active, 1);
   sock_close_graceful(client);
 }

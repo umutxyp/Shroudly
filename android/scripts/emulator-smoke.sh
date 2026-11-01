@@ -553,7 +553,8 @@ say "direct HTTP after: $(http_get)"
 # for the VPN (asking would end the other app's connection), so it starts
 # here with the consent taken back. Android then shows no VPN; an app set to
 # use the proxy gets through it by HTTP CONNECT and by SOCKS5 with a name
-# (the engine looks the name up itself, over encrypted DNS); the ad blocker
+# (the engine looks the name up itself, over encrypted DNS), and a plain
+# http:// request as the Wi-Fi's proxy sends it is answered; the ad blocker
 # stops a listed name there too; the engine is back on the same port after
 # it stops under the service; Stop closes the port.
 mode() { sh_ "am start -n $PKG/.DebugControlActivity --es cmd mode --es mode $1" >/dev/null; }
@@ -564,6 +565,11 @@ via_connect() {
 }
 via_socks() {
   sh_ "(printf '\\005\\001\\000'; sleep 0.3; printf '\\005\\001\\000\\003\\013example.com\\000\\120'; sleep 0.3; printf 'GET / HTTP/1.1\r\nHost: example.com\r\nUser-Agent: shroudly-smoke\r\nConnection: close\r\n\r\n'; sleep 6) | timeout 20 $NC -q 1 -w 15 127.0.0.1 $pport | grep -a -o 'HTTP/1.[01] [0-9]*' | head -1"
+}
+# What an app that follows the Wi-Fi's proxy sends for a plain http:// URL:
+# the request itself, with the whole URL.
+via_plain() {
+  sh_ "(printf 'GET http://$1/ HTTP/1.1\r\nHost: $1\r\nUser-Agent: shroudly-smoke\r\n\r\n'; sleep 6) | timeout 20 $NC -q 1 -w 15 127.0.0.1 $pport | grep -a -o '^HTTP/1.[01] [0-9]*' | head -1"
 }
 listening() { grep -qi " 0100007F:$(printf '%04X' "$1") 00000000:0000 0A " <<<"$(sh_ "cat /proc/net/tcp")"; }
 wait_for 60 vpn_refused || fail "could not take back the VPN consent for proxy only"
@@ -600,7 +606,9 @@ pc="$(via_connect example.com)"
 case "$pc" in *"200 Connection established"*"HTTP/1."*) ;; *) fail "proxy only: HTTP CONNECT to example.com failed (no tunnel or no response: $pc)";; esac
 ps="$(via_socks)"
 case "$ps" in HTTP/1.*) ;; *) fail "proxy only: SOCKS5 by name to example.com failed (no response: $ps)";; esac
-say "proxy only: HTTP CONNECT: $pc; SOCKS5 by name: $ps"
+pp="$(via_plain example.com)"
+case "$pp" in HTTP/1.*) ;; *) fail "proxy only: a plain http:// request through the proxy got no answer ($pp)";; esac
+say "proxy only: HTTP CONNECT: $pc; SOCKS5 by name: $ps; GET http://: $pp"
 clear_log
 ctl adblock-on
 wait_for 30 has_log "Ad blocking: a list of" || fail "proxy only: ad blocking was not put to use ($(applog | grep 'Ad blocking' | tail -2 | tr '\n' ' '))"
