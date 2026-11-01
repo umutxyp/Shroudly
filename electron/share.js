@@ -29,7 +29,9 @@ const SS = require('./shadowsocks');
 const Own = require('./own-server');
 const UPnP = require('./upnp');
 
-const METHOD = 'chacha20-ietf-poly1305';
+// AES-256-GCM: native in Electron's crypto (BoringSSL, which has no
+// ChaCha20-Poly1305), in every Shadowsocks app, and in Android's from 8 on.
+const METHOD = 'aes-256-gcm';
 const RENEW_MS = 30 * 60 * 1000;
 
 /* Names for this computer or its network, never for a site. */

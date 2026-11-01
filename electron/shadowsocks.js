@@ -26,6 +26,11 @@
 
 const crypto = require('crypto');
 const net = require('net');
+const ChaCha = require('./chacha20poly1305');
+
+// Electron's crypto (BoringSSL) has no chacha20-poly1305; plain Node's
+// does. Without it, the one in chacha20poly1305.js (the tests run both).
+let nativeChaCha = crypto.getCiphers().includes('chacha20-poly1305');
 
 const METHODS = {
   'chacha20-ietf-poly1305': { key: 32, cipher: 'chacha20-poly1305' },
@@ -59,15 +64,26 @@ class Sealer {
     for (let i = 0; i < this.nonce.length; i++) { this.nonce[i]++; if (this.nonce[i] !== 0) break; }
   }
 
+  get _js() { return this.cipher === 'chacha20-poly1305' && !nativeChaCha; }
+
   seal(plain) {
-    const c = crypto.createCipheriv(this.cipher, this.subkey, this.nonce, { authTagLength: TAG });
-    const body = Buffer.concat([c.update(plain), c.final(), c.getAuthTag()]);
+    let body;
+    if (this._js) body = ChaCha.seal(this.subkey, this.nonce, plain);
+    else {
+      const c = crypto.createCipheriv(this.cipher, this.subkey, this.nonce, { authTagLength: TAG });
+      body = Buffer.concat([c.update(plain), c.final(), c.getAuthTag()]);
+    }
     this._bump();
     return body;
   }
 
   /* null when it does not authenticate. */
   open(sealed) {
+    if (this._js) {
+      const plain = ChaCha.open(this.subkey, this.nonce, sealed);
+      if (plain) this._bump();
+      return plain;
+    }
     try {
       const d = crypto.createDecipheriv(this.cipher, this.subkey, this.nonce, { authTagLength: TAG });
       d.setAuthTag(sealed.subarray(sealed.length - TAG));
@@ -374,4 +390,7 @@ function startServer({ host = '0.0.0.0', port = 0, method, password, dial, maxCo
   });
 }
 
-module.exports = { METHODS, masterKey, Encoder, Decoder, encodeTarget, decodeTarget, connect, startClient, startServer, SaltLog };
+/* The tests: the same checks with the ChaCha20-Poly1305 Electron uses. */
+function _nativeChaCha(on) { nativeChaCha = on && crypto.getCiphers().includes('chacha20-poly1305'); }
+
+module.exports = { METHODS, masterKey, Encoder, Decoder, encodeTarget, decodeTarget, connect, startClient, startServer, SaltLog, _nativeChaCha };

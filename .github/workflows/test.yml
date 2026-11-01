@@ -138,6 +138,15 @@ jobs:
       - name: Network tests
         run: npm run test:net
 
+      # Shadowsocks, sharing and the user's own server again under Electron's
+      # own runtime, the one the app runs on: its crypto is BoringSSL, not
+      # OpenSSL, and has no ChaCha20-Poly1305 (chacha20poly1305.js stands in).
+      - name: Shadowsocks under Electron's runtime
+        shell: bash
+        env:
+          ELECTRON_RUN_AS_NODE: '1'
+        run: for t in shadowsocks share own-server; do npx electron "tests/net/$t.test.js"; done
+
       # The same engine tests again on a build with AddressSanitizer and
       # UndefinedBehaviorSanitizer, so a memory error fails the run: every
       # engine-* test that starts the engine itself (engine-manager runs the

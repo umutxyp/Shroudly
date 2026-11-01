@@ -41,16 +41,18 @@ object Shadowsocks {
     const val TAG = 16
     const val MAX_CHUNK = 0x3fff
 
+    /* The tests: ChaCha20-Poly1305 of our own even where the system has one. */
+    @Volatile var ownChaCha = false
+
     /* ChaCha20-Poly1305 by its name on Android (Conscrypt, 9 and later) or
-     * on a JVM (the tests): null where neither is there. */
+     * on a JVM (the tests); null on Android 8, where ChaCha20Poly1305.kt
+     * stands in. */
     private fun cipher(m: Method): Cipher? =
         if (!m.chacha) Cipher.getInstance("AES/GCM/NoPadding")
+        else if (ownChaCha) null
         else listOf("ChaCha20/Poly1305/NoPadding", "ChaCha20-Poly1305").firstNotNullOfOrNull {
             try { Cipher.getInstance(it) } catch (_: GeneralSecurityException) { null }
         }
-
-    /* This device can use the method (ChaCha20-Poly1305: Android 9 and later). */
-    fun supported(method: String): Boolean = METHODS[method]?.let { cipher(it) != null } ?: false
 
     fun masterKey(password: String, len: Int): ByteArray {
         val out = ByteArrayOutputStream()
@@ -82,8 +84,9 @@ object Shadowsocks {
 
     class Sealer(method: String, key: ByteArray, salt: ByteArray) {
         private val m = METHODS.getValue(method)
-        private val c = cipher(m) ?: throw GeneralSecurityException("$method is not available on this device")
-        private val k = SecretKeySpec(hkdfSha1(key, salt, "ss-subkey".toByteArray(), m.keyLen), if (m.chacha) "ChaCha20" else "AES")
+        private val c = cipher(m)   // null: ChaCha20Poly1305.kt
+        private val raw = hkdfSha1(key, salt, "ss-subkey".toByteArray(), m.keyLen)
+        private val k = SecretKeySpec(raw, if (m.chacha) "ChaCha20" else "AES")
         private val nonce = ByteArray(12)
 
         private fun spec() = if (m.chacha) IvParameterSpec(nonce.copyOf()) else GCMParameterSpec(TAG * 8, nonce.copyOf())
@@ -93,14 +96,16 @@ object Shadowsocks {
         }
 
         fun seal(plain: ByteArray, off: Int = 0, len: Int = plain.size): ByteArray {
-            c.init(Cipher.ENCRYPT_MODE, k, spec())
-            val out = c.doFinal(plain, off, len)
+            val out = if (c == null) ChaCha20Poly1305.seal(raw, nonce.copyOf(), plain, off, len)
+            else { c.init(Cipher.ENCRYPT_MODE, k, spec()); c.doFinal(plain, off, len) }
             bump()
             return out
         }
 
         /* null when it does not authenticate. */
-        fun open(sealed: ByteArray, off: Int, len: Int): ByteArray? = try {
+        fun open(sealed: ByteArray, off: Int, len: Int): ByteArray? = if (c == null) {
+            ChaCha20Poly1305.open(raw, nonce.copyOf(), sealed, off, len)?.also { bump() }
+        } else try {
             c.init(Cipher.DECRYPT_MODE, k, spec())
             c.doFinal(sealed, off, len).also { bump() }
         } catch (_: GeneralSecurityException) {

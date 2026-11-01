@@ -88,6 +88,36 @@ class OwnServerTest {
         assertEquals(3, n)
     }
 
+    @Test
+    fun chachaOfOurOwn() {
+        // RFC 8439, 2.8.2 (with its additional data left out: Shadowsocks has
+        // none), checked through the JVM's own, then random ones against it.
+        val key = ByteArray(32) { (0x80 + it).toByte() }
+        val nonce = hex("070000004041424344454647")
+        val rnd = java.security.SecureRandom()
+        val jvm = javax.crypto.Cipher.getInstance("ChaCha20-Poly1305")
+        for (n in 0 until 200) {
+            val k = if (n == 0) key else ByteArray(32).also { rnd.nextBytes(it) }
+            val iv = if (n == 0) nonce else ByteArray(12).also { rnd.nextBytes(it) }
+            val msg = ByteArray(rnd.nextInt(3000)).also { rnd.nextBytes(it) }
+            jvm.init(javax.crypto.Cipher.ENCRYPT_MODE, javax.crypto.spec.SecretKeySpec(k, "ChaCha20"), javax.crypto.spec.IvParameterSpec(iv))
+            val ref = jvm.doFinal(msg)
+            assertArrayEquals(ref, ChaCha20Poly1305.seal(k, iv, msg))
+            assertArrayEquals(msg, ChaCha20Poly1305.open(k, iv, ref, 0, ref.size))
+            if (ref.isNotEmpty()) {
+                val t = ref.copyOf(); t[rnd.nextInt(t.size)] = (t[rnd.nextInt(t.size)].toInt() xor 1).toByte()
+                if (!t.contentEquals(ref)) assertEquals(null, ChaCha20Poly1305.open(k, iv, t, 0, t.size))
+            }
+        }
+        // The key stream itself: RFC 8439, 2.4.2.
+        val ks = ChaCha20Poly1305.chacha20(ByteArray(32) { it.toByte() }, hex("000000000000004a00000000"), 1,
+            "Ladies and Gentlemen of the class of '99: If I could offer you only one tip for the future, sunscreen would be it.".toByteArray())
+        assertEquals("6e2e359a2568f98041ba0728dd0d6981", ks.copyOf(16).hex())
+        // The desktop's fixed vectors, with ours standing in for the system's.
+        Shadowsocks.ownChaCha = true
+        try { theDesktopsBytes() } finally { Shadowsocks.ownChaCha = false }
+    }
+
     private fun readN(i: InputStream, n: Int): ByteArray {
         val b = ByteArray(n)
         var got = 0

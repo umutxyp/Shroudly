@@ -645,11 +645,7 @@ class SettingsActivity : Activity() {
                 val link = input.text.toString().trim()
                 val parsed = OwnServer.parse(link)
                 val l = parsed.link
-                val bad = when {
-                    l == null -> parsed.error
-                    l.kind == "ss" && !Shadowsocks.supported(l.method) -> "method"
-                    else -> null
-                }
+                val bad = if (l == null) parsed.error else null
                 if (bad != null) {
                     status.setTextColor(getColor(R.color.warn))
                     status.text = when (bad) {

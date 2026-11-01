@@ -89,6 +89,27 @@ function socksMethodWithout(port) {
         && back.equals(Buffer.concat(parts));
     });
     t.ok(same && Object.keys(V.methods).length === 3, 'with a fixed salt, every method writes the fixed vectors Android is checked against');
+    // Electron's crypto has no ChaCha20-Poly1305: the one of our own writes
+    // the same bytes, reads the native one's back, and refuses a byte changed.
+    const m = 'chacha20-ietf-poly1305';
+    const v = V.methods[m];
+    const key = SS.masterKey(V.password, 32);
+    const native = new SS.Encoder(m, key, Buffer.from(v.salt, 'hex')).encode(parts[1]);
+    SS._nativeChaCha(false);
+    const e = new SS.Encoder(m, key, Buffer.from(v.salt, 'hex'));
+    const w = parts.map((x) => e.encode(x));
+    const d = new SS.Decoder(m, key);
+    const back = d.push(Buffer.concat(w));
+    const t2 = Buffer.from(w[1]);
+    t2[5] ^= 1;
+    const d2 = new SS.Decoder(m, key);
+    d2.push(Buffer.concat([w[0], t2]));
+    SS._nativeChaCha(true);
+    const nd = new SS.Decoder(m, key);
+    const nativeBack = nd.push(Buffer.concat(w));
+    t.ok(w[0].toString('hex') === v.wire[0] && w[1].toString('hex') === v.wire[1] && crypto.createHash('sha256').update(w[2]).digest('hex') === v.wire[2].sha256
+      && back.equals(Buffer.concat(parts)) && nativeBack.equals(Buffer.concat(parts)) && d2.bad && native.length > 0,
+    'ChaCha20-Poly1305 without Node\'s (as in Electron): the same bytes, read back both ways, a byte changed refused');
   }
 
   for (const method of Object.keys(SS.METHODS)) {
@@ -143,6 +164,19 @@ function socksMethodWithout(port) {
       locked.close();
     }
     await server.close();
+  }
+
+  // Shroudly's client and server with the ChaCha20-Poly1305 Electron uses.
+  {
+    SS._nativeChaCha(false);
+    const server = await SS.startServer({ host: '127.0.0.1', method: 'chacha20-ietf-poly1305', password: 'electron', dial });
+    const client = await SS.startClient({ server: '127.0.0.1', port: server.port, method: 'chacha20-ietf-poly1305', password: 'electron' });
+    const big = 'x'.repeat(70000);
+    const out = await viaSocks(client.port, 'big.example', webPort, `POST / HTTP/1.1\r\nHost: big.example\r\n\r\n${big}`);
+    t.ok(/^HTTP\/1\.1 200 OK/.test(out), 'chacha20-ietf-poly1305 as in Electron: client and server reach the site');
+    client.close();
+    await server.close();
+    SS._nativeChaCha(true);
   }
 
   // A wrong password and a replayed connection: held in silence, never answered.

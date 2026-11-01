@@ -80,8 +80,8 @@ async function through(link, host, port) {
     && st.links[1].where === 'network' && st.links[1].address === '192.168.1.5' && upnpCalls[0] === `map ${port}`,
   `on: a link for the internet (the router opened a way in) and one for this network (${st.links.map((l) => l.where).join(', ')})`);
   const p = Own.parseLink(st.links[1].link);
-  t.ok(p.ok && p.kind === 'ss' && p.method === 'chacha20-ietf-poly1305' && p.password === mem.share.password && p.host === '192.168.1.5' && p.port === port,
-    'the link is a Shadowsocks link any app takes, with the password kept for it');
+  t.ok(p.ok && p.kind === 'ss' && p.method === 'aes-256-gcm' && p.password === mem.share.password && p.host === '192.168.1.5' && p.port === port,
+    'the link is a Shadowsocks link any app takes (AES-256-GCM, native in Electron and Android), with the password kept for it');
   const local = st.links[1].link.replace('192.168.1.5', '127.0.0.1');
   const ok = await through(local, 'blocked.example', 443);
   t.ok(/^HTTP\/1\.1 200 OK/.test(ok) && dialed[0] === '10808 blocked.example:443', `a site through the share goes through the engine, by name (${dialed[0]})`);

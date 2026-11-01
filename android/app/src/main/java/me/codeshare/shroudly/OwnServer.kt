@@ -275,10 +275,6 @@ object OwnServer {
             val key = l?.takeIf { it.kind == "ss" }?.let { "${it.host} ${it.port} ${it.method} ${it.password}" }
             if (client != null && clientKey != key) close()
             if (l == null) return null
-            if (l.kind == "ss" && !Shadowsocks.supported(l.method)) {
-                log("Your own server (${describe(l)}): ${l.method} does not work on this Android version; not used")
-                return null
-            }
             if (key != null && client == null) {
                 val a = SocksAuth.random()
                 client = Shadowsocks.Client(l.host, l.port, l.method, l.password, a.user, a.pass) { _, bad -> down(if (bad) "protocol" else "noAnswer") }

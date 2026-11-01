@@ -121,6 +121,10 @@ async function shot(locator, name) {
   const stand = socksStandIn();
   await new Promise((r) => stand.once('listening', r));
   const sp = stand.address().port;
+  // A Shadowsocks server on this computer that reaches the world.
+  const realDial = (h, port) => new Promise((res, rej) => { const s = net.connect(port, h, () => res(s)); s.once('error', rej); });
+  const ssServer = await SS.startServer({ host: '127.0.0.1', method: 'chacha20-ietf-poly1305', password: 'e2e-chacha', dial: realDial });
+  const ssPort = ssServer.port;
 
   // ── English: both sections, used ──
   let { app, page, t } = await launch('en');
@@ -150,6 +154,18 @@ async function shot(locator, name) {
     await shot(own, 'own-server-in-use');
     await own.getByRole('button', { name: t.ownServerOff, exact: true }).click();
     ok(!!(await until(async () => !(await app.evaluate(() => global.shroudlyE2E.store.get('ownServer'))), 5000)), 'stop using: gone from the settings');
+
+    // A Shadowsocks link with ChaCha20-Poly1305, which Electron's own crypto
+    // lacks: tested through Shroudly's client in the app.
+    const ssLink = Own.ssLink({ method: 'chacha20-ietf-poly1305', password: 'e2e-chacha', host: '127.0.0.1', port: ssPort, name: 'e2e' });
+    await input.fill(ssLink);
+    await use.click();
+    const ssWorked = await until(() => own.getByText(head(t.ownServerOk)).isVisible(), 30000);
+    ok(!!ssWorked && !!(await until(() => own.getByText(t.ownServerInUse.replace('{server}', `Shadowsocks 127.0.0.1:${ssPort}`)).isVisible(), 5000)),
+      'a Shadowsocks (ChaCha20-Poly1305) server: tested through the app\'s own client, and in use');
+    await shot(own, 'own-server-ss');
+    await own.getByRole('button', { name: t.ownServerOff, exact: true }).click();
+    await until(async () => !(await app.evaluate(() => global.shroudlyE2E.store.get('ownServer'))), 5000);
 
     // Share my connection.
     const share = section(page, t.share);
@@ -211,8 +227,30 @@ async function shot(locator, name) {
     await shot(section(page, t.share), 'share-on-glass');
     await section(page, t.share).getByRole('switch', { name: t.shareOn }).click();
 
-    // The main window, with protection on and the server dead (CI only).
+    // With protection on (CI only: it sets the system proxy): a site through
+    // the engine and the Shadowsocks server; then the server dead, and the
+    // main window says so.
     if (process.env.CI) {
+      await app.evaluate((_, link2) => global.shroudlyE2E.store.set('ownServer', link2), ssLink);
+      await page.evaluate(() => window.electron.startDPI());
+      ok(!!(await until(() => page.evaluate(() => window.electron.getDPIStatus().then((x) => x.active)), 20000)), 'protection on, through the Shadowsocks server');
+      const ePort = await app.evaluate(() => global.shroudlyE2E.engine.port);
+      const viaEngine = await new Promise((resolve) => {
+        const s = net.connect(ePort, '127.0.0.1', () => s.write(Buffer.from([5, 1, 0])));
+        let st = 0;
+        let got = '';
+        s.on('data', (d) => {
+          if (st === 0) { st = 1; const h = Buffer.from('example.com'); s.write(Buffer.concat([Buffer.from([5, 1, 0, 3, h.length]), h, Buffer.from([0, 80])])); return; }
+          if (st === 1) { st = 2; s.write('GET / HTTP/1.1\r\nHost: example.com\r\nConnection: close\r\n\r\n'); return; }
+          got += d;
+        });
+        s.on('close', () => resolve(got)); s.on('error', () => resolve(got));
+        setTimeout(() => { s.destroy(); resolve(got); }, 20000);
+      });
+      ok(/^HTTP\/1\.[01] \d{3}/.test(viaEngine) && ssServer.stats().total >= 1,
+        `a site through the engine, the app's Shadowsocks client and the server (${viaEngine.split('\r\n')[0]}; ${ssServer.stats().total} at the server)`);
+      await page.evaluate(() => window.electron.stopDPI());
+      await until(() => page.evaluate(() => window.electron.getDPIStatus().then((x) => !x.active)), 20000);
       const dead = await new Promise((r) => { const s = net.createServer().listen(0, '127.0.0.1', () => { const q = s.address().port; s.close(() => r(q)); }); });
       await app.evaluate((_, link2) => global.shroudlyE2E.store.set('ownServer', link2), `socks5://127.0.0.1:${dead}`);
       await page.evaluate(() => window.electron.startDPI());
@@ -252,6 +290,7 @@ async function shot(locator, name) {
     await Promise.race([app.close().catch(() => {}), sleep(30000)]);
   }
   stand.close();
+  await ssServer.close();
   console.log(`settings e2e: ${count} passed`);
   process.exit(0);
 })().catch((e) => { console.error('FAIL', e.stack || e.message); process.exit(1); });
