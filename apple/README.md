@@ -27,7 +27,7 @@ forwarder.
 | `Localization/` | `<language>.lproj/Localizable.strings` and `InfoPlist.strings`, generated from `locales/*.json` (never edit them) |
 | `Tests/` | XCTest unit tests (run on an iOS simulator and on macOS) |
 | `Config/` | Build settings (`Shroudly.xcconfig`), signing (`Signing.xcconfig`), Info.plists, entitlements |
-| `scripts/` | `fetch-hev.js`, `build-hev.sh`, `gen-strings.js`, `gen-version.js`, `gen-icons.swift`, `test.sh` |
+| `scripts/` | `fetch-hev.js`, `build-hev.sh`, `gen-strings.js`, `gen-version.js`, `test.sh` (the icon is `App/AppIcon.icon`, edited in Icon Composer) |
 | `Shroudly.xcodeproj` | The project: plain `xcodebuild`, no generator. Its folders are synchronized with the disk, so a new file in `App/`, `Tunnel/`, `Shared/` or `Tests/` (or a new `.c` in `core/src`) is part of the build without touching the project |
 
 Targets: `Shroudly` (the app), `ShroudlyTunnel` (the packet tunnel,
