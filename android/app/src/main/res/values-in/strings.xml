@@ -39,6 +39,8 @@
     <string name="androidNoInternet">Perlindungan berhenti karena Shroudly tidak dapat menjangkau internet di jaringan ini, jadi aplikasi Anda kini terhubung langsung. Buka Shroudly untuk mencoba lagi.</string>
     <string name="androidPrivacyPolicy">Kebijakan privasi</string>
     <string name="androidProtectionLost">Perlindungan berhenti karena terjadi kesalahan, jadi aplikasi Anda kini terhubung langsung. Buka Shroudly untuk memulainya lagi.</string>
+    <string name="androidProxyOnlyLost">Mode Hanya proxy berhenti karena terjadi kesalahan, jadi aplikasi yang diatur untuk memakai Shroudly tidak bisa tersambung. Buka Shroudly untuk memulainya lagi.</string>
+    <string name="androidProxyOnlyMoved">Port {taken} dipakai aplikasi lain (misalnya v2rayNG), jadi Shroudly ada di 127.0.0.1:{port}. Atur proxy Anda ke port {port}.</string>
     <string name="androidProxyOnlyOffWifi">Hanya proxy dimatikan. Jika proxy jaringan ini diatur ke {addr}, kembalikan ke Tidak ada di pengaturan Wi-Fi; jika tidak, aplikasi yang memakainya tidak bisa tersambung.</string>
     <string name="androidProxyOnlyOn">Hanya proxy: aplikasi yang diatur ke 127.0.0.1:{port} lewat Shroudly</string>
     <string name="androidQuicOff">Matikan QUIC</string>
@@ -59,6 +61,8 @@
     <string name="androidVpnRevoked">Perlindungan dimatikan oleh Android, biasanya karena aplikasi VPN lain dinyalakan.</string>
     <string name="androidWifiProxyDead">Proxy jaringan ini diatur ke {addr}, tetapi tidak ada yang berjalan di sana, sehingga aplikasi yang memakainya (termasuk Chrome) tidak bisa tersambung. Di pengaturan Wi-Fi, buka jaringan ini dan atur Proxy ke Tidak ada.</string>
     <string name="androidWifiProxyDeadTitle">Proxy tertinggal di pengaturan Wi-Fi</string>
+    <string name="androidWifiProxyOtherPort">Proxy jaringan ini diatur ke {addr}, tetapi Shroudly kini ada di 127.0.0.1:{port}, sehingga aplikasi yang memakainya tidak bisa tersambung. Di pengaturan Wi-Fi, buka jaringan ini dan atur port proxy ke {port}.</string>
+    <string name="androidWifiProxyShroudlyOff">Proxy jaringan ini diatur ke Shroudly ({addr}), tetapi Shroudly sedang mati, sehingga aplikasi yang memakainya (termasuk Chrome) tidak bisa tersambung. Mulai perlindungan, atau atur Proxy ke Tidak ada di pengaturan Wi-Fi.</string>
     <string name="androidWifiSettings">Pengaturan Wi-Fi</string>
     <string name="autoRawBlocked">Jaringan ini menghentikan koneksi {app}, dan tidak satu pun teknik Shroudly berhasil lolos. Gunakan pengaturan proxy milik {app} sendiri atau VPN.</string>
     <string name="autoRawUnreachable">{app} tidak dapat menjangkau servernya: jaringan ini memblokir alamat server tersebut, dan Shroudly tidak dapat menembusnya tanpa server di tempat lain. Gunakan pengaturan proxy milik {app} sendiri atau VPN.</string>

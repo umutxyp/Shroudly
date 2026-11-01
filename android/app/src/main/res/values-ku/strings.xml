@@ -39,6 +39,8 @@
     <string name="androidNoInternet">Parastin rawestiya ji ber ku Shroudly li ser vê torê negihişt înternetê, ji ber vê yekê sepanên te niha rasterast girêdidin. Ji bo ku tu dîsa biceribînî, Shroudly veke.</string>
     <string name="androidPrivacyPolicy">Polîtîkaya nepeniyê</string>
     <string name="androidProtectionLost">Parastin ji ber çewtiyekê rawestiya, ji ber vê yekê sepanên te niha rasterast girêdidin. Ji bo ku tu wê dîsa bidî destpêkirin, Shroudly veke.</string>
+    <string name="androidProxyOnlyLost">Tenê proksî ji ber çewtiyekê rawestiya, ji ber vê yekê sepanên ku ji bo bikaranîna Shroudly hatine mîhengkirin nikarin girê bidin. Ji bo ku tu wê dîsa bidî destpêkirin, Shroudly veke.</string>
+    <string name="androidProxyOnlyMoved">Porta {taken} ji aliyê sepaneke din ve (wek v2rayNG) tê bikaranîn, ji ber vê yekê Shroudly li ser 127.0.0.1:{port} e. Proksiya xwe li porta {port} mîheng bike.</string>
     <string name="androidProxyOnlyOffWifi">«Tenê proksî» girtî ye. Heke proksiya vê torê wekî {addr} hatibe danîn, di mîhengên Wi-Fi de wê vegerîne «Tune», wekî din sepanên ku wê bi kar tînin nikarin girê bidin.</string>
     <string name="androidProxyOnlyOn">Tenê proksî: sepanên ku li ser 127.0.0.1:{port} hatine mîhengkirin di Shroudly re derbas dibin</string>
     <string name="androidQuicOff">QUIC\'ê bigire</string>
@@ -59,6 +61,8 @@
     <string name="androidVpnRevoked">Parastin ji aliyê Android ve hate girtin, bi gelemperî ji ber ku sepaneke VPN ya din hate vekirin.</string>
     <string name="androidWifiProxyDead">Proksiya vê torê wekî {addr} hatiye danîn, lê tiştek li wir naxebite, ji ber vê yekê sepanên ku wê bi kar tînin (Chrome jî) nikarin girê bidin. Di mîhengên Wi-Fi de vê torê veke û proksiyê bike «Tune».</string>
     <string name="androidWifiProxyDeadTitle">Proksiya mayî di mîhengên Wi-Fi de</string>
+    <string name="androidWifiProxyOtherPort">Proksiya vê torê wekî {addr} hatiye danîn, lê Shroudly niha li ser 127.0.0.1:{port} e, ji ber vê yekê sepanên ku wê bi kar tînin nikarin girê bidin. Di mîhengên Wi-Fi de vê torê veke û porta proksiyê bike {port}.</string>
+    <string name="androidWifiProxyShroudlyOff">Proksiya vê torê wekî Shroudly ({addr}) hatiye danîn, lê Shroudly girtî ye, ji ber vê yekê sepanên ku wê bi kar tînin (Chrome jî) nikarin girê bidin. Parastinê dest pê bike, an di mîhengên Wi-Fi de proksiyê bike «Tune».</string>
     <string name="androidWifiSettings">Mîhengên Wi-Fi</string>
     <string name="autoRawBlocked">Ev tor girêdanên sepana {app} radiwestîne, û ti teknîkeke Shroudly nikarîbû derbas bibe. Mîhenga proksiyê ya sepana {app} bi xwe an VPN-ekê bi kar bîne.</string>
     <string name="autoRawUnreachable">Sepana {app} nikare bigihîje rajekarên xwe: ev tor navnîşanên wan asteng dike, û Shroudly bêyî rajekarekî li cihekî din nikare vê derbas bike. Mîhenga proksiyê ya sepana {app} bi xwe an VPN-ekê bi kar bîne.</string>

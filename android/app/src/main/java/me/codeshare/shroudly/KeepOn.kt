@@ -26,7 +26,10 @@ import android.content.Intent
  *     is not tried over and over;
  *   - never after the user turned protection off, or another VPN took over.
  * An update of Shroudly ends it too; that one needs no job: it comes back
- * at once (updated).
+ * at once (updated). So does Proxy only after the phone restarts (booted),
+ * or after Android ended the app while it was on (ShroudlyProxyService,
+ * START_STICKY): a network's proxy set to it reaches nothing while it is
+ * off, and apps that use it would have no connection at all.
  * A VPN app the user has allowed may start its service from the background,
  * so the job turns protection on by itself. Where Android still refuses
  * (Proxy only), a notice offers it with one tap.
@@ -133,21 +136,36 @@ object KeepOn {
      * back at once instead of staying off until the user notices. */
     fun updated(ctx: Context) {
         if (!wanted(ctx) || Protection.state != Protection.State.OFF) return
+        startAgain(ctx, "Updated to ${BuildConfig.VERSION_NAME} while protection was on: turning it on again", "after the update")
+    }
+
+    /* The phone restarted while Proxy only was on, and "Start when the
+     * phone starts" is off (BootReceiver). The VPN stays off then, as the
+     * user chose: apps connect directly without it. Proxy only does not:
+     * apps set to use it (the Wi-Fi network's proxy, an app's own proxy
+     * setting) would reach nothing until the user found out why. */
+    fun booted(ctx: Context) {
+        if (!AppSettings.proxyOnly(ctx) || !wanted(ctx) || Protection.state != Protection.State.OFF) return
+        startAgain(ctx, "The phone restarted while Proxy only was on: turning it on again, as apps set to use it reach nothing without it", "after the phone restarted")
+    }
+
+    private fun startAgain(ctx: Context, line: String, moment: String) {
         ShroudlyVpnService.attachLog(ctx)
         resumed(ctx)
-        ShroudlyVpnService.log("Updated to ${BuildConfig.VERSION_NAME} while protection was on: turning it on again")
+        ShroudlyVpnService.log(line)
         val started = try {
             Protector.start(ctx)
         } catch (e: Exception) {
-            ShroudlyVpnService.log("Android did not let protection start after the update (${e.javaClass.simpleName}); a notice offers it")
+            ShroudlyVpnService.log("Android did not let protection start $moment (${e.javaClass.simpleName}); a notice offers it")
             offer(ctx)
             return
         }
         if (!started) stoppedByUser(ctx)
     }
 
-    /* A notice that turns protection on with one tap. */
-    private fun offer(ctx: Context) {
+    /* A notice that turns protection on with one tap (also where Android
+     * refused Proxy only's own start again, ShroudlyProxyService). */
+    fun offer(ctx: Context) {
         try {
             ShroudlyVpnService.channels(ctx)
             val intent = if (AppSettings.proxyOnly(ctx)) Intent(ctx, ShroudlyProxyService::class.java).setAction(ShroudlyProxyService.ACTION_START)

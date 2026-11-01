@@ -39,6 +39,8 @@
     <string name="androidNoInternet">ساتنه ودرېده ځکه چې Shroudly په دې شبکه کې انټرنېټ ته ونه رسېد، نو ستاسو اپونه اوس مستقیم نښلي. د بیا هڅې لپاره Shroudly پرانیزئ.</string>
     <string name="androidPrivacyPolicy">د محرمیت تګلاره</string>
     <string name="androidProtectionLost">ساتنه د یوې تېروتنې له امله ودرېده، نو ستاسو اپونه اوس مستقیم نښلي. د بیا پیلولو لپاره Shroudly پرانیزئ.</string>
+    <string name="androidProxyOnlyLost">«یوازې پراکسي» د یوې تېروتنې له امله ودرېده، نو هغه اپونه چې د Shroudly کارولو ته تنظیم شوي نه شي وصل کېدای. د بیا پیلولو لپاره Shroudly پرانیزئ.</string>
+    <string name="androidProxyOnlyMoved">پورټ {taken} بل اپ (لکه v2rayNG) کاروي، نو Shroudly په ‎127.0.0.1:{port}‎ دی. خپله پراکسي پورټ {port} ته وټاکئ.</string>
     <string name="androidProxyOnlyOffWifi">«یوازې پراکسي» بند شو. که د دې شبکې پراکسي {addr} ته ټاکل شوې وي، د Wi-Fi په تنظیماتو کې یې بېرته «هېڅ» ته واړوئ، کنه هغه اپونه چې یې کاروي نه شي وصل کېدای.</string>
     <string name="androidProxyOnlyOn">یوازې پراکسي: هغه اپونه چې په ‎127.0.0.1:{port}‎ تنظیم شوي له Shroudly تېرېږي</string>
     <string name="androidQuicOff">QUIC بند کړه</string>
@@ -59,6 +61,8 @@
     <string name="androidVpnRevoked">Android ساتنه بنده کړه، معمولاً ځکه چې بل VPN اپ چالان شوی و.</string>
     <string name="androidWifiProxyDead">د دې شبکې پراکسي {addr} ته ټاکل شوې، خو هلته هېڅ نه چلېږي، نو هغه اپونه چې یې کاروي (Chrome هم) نه شي وصل کېدای. د Wi-Fi په تنظیماتو کې دا شبکه پرانیزئ او پراکسي «هېڅ» ته واړوئ.</string>
     <string name="androidWifiProxyDeadTitle">د Wi-Fi په تنظیماتو کې پاتې شوې پراکسي</string>
+    <string name="androidWifiProxyOtherPort">د دې شبکې پراکسي {addr} ته ټاکل شوې، خو Shroudly اوس په ‎127.0.0.1:{port}‎ دی، نو هغه اپونه چې یې کاروي نه شي وصل کېدای. د Wi-Fi په تنظیماتو کې دا شبکه پرانیزئ او د پراکسي پورټ {port} ته واړوئ.</string>
+    <string name="androidWifiProxyShroudlyOff">د دې شبکې پراکسي Shroudly ({addr}) ته ټاکل شوې، خو Shroudly بند دی، نو هغه اپونه چې یې کاروي (Chrome هم) نه شي وصل کېدای. ساتنه پیل کړئ، یا د Wi-Fi په تنظیماتو کې پراکسي «هېڅ» ته واړوئ.</string>
     <string name="androidWifiSettings">د Wi-Fi تنظیمات</string>
     <string name="autoRawBlocked">دا شبکه د {app} اپ اړیکې دروي، او د Shroudly هېڅ تخنیک بریالی نه شو. د {app} اپ خپل پراکسي تنظیم یا VPN وکاروئ.</string>
     <string name="autoRawUnreachable">{app} اپ خپلو سرورونو ته نه شي رسېدلی: دا شبکه د هغوی پتې بندوي، او Shroudly له بل ځای څخه د سرور پرته له دې خنډه نه شي تېرېدلی. د {app} اپ خپل پراکسي تنظیم یا VPN وکاروئ.</string>

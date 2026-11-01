@@ -12,6 +12,10 @@ import android.content.Intent
  * Always-on VPN does the same from the system's settings; this is for those
  * who have not set it.
  *
+ * Without that setting, Proxy only still comes back if it was on when the
+ * phone restarted (KeepOn.booted): apps set to use it reach nothing while
+ * it is off.
+ *
  * And after an update of Shroudly itself (from Google Play, inside the app or
  * by itself, or a new APK over it), which ends the app and protection with
  * it: protection comes back if it was on (KeepOn.updated).
@@ -20,7 +24,7 @@ class BootReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         when (intent.action) {
             Intent.ACTION_BOOT_COMPLETED -> {
-                if (!AppSettings.startAtBoot(context)) return
+                if (!AppSettings.startAtBoot(context)) { KeepOn.booted(Lang.wrap(context)); return }
                 ShroudlyVpnService.attachLog(context)
                 if (Protector.start(context)) ShroudlyVpnService.log("Started when the phone started (Settings)")
             }

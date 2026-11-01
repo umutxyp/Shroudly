@@ -39,6 +39,8 @@
     <string name="androidNoInternet">La protección se detuvo porque Shroudly no pudo llegar a internet en esta red, así que tus apps se conectan ahora directamente. Abre Shroudly para intentarlo de nuevo.</string>
     <string name="androidPrivacyPolicy">Política de privacidad</string>
     <string name="androidProtectionLost">La protección se detuvo por un error, así que tus apps se conectan ahora directamente. Abre Shroudly para volver a activarla.</string>
+    <string name="androidProxyOnlyLost">El modo Solo proxy se detuvo por un error, así que las apps configuradas para usar Shroudly no pueden conectarse. Abre Shroudly para volver a activarlo.</string>
+    <string name="androidProxyOnlyMoved">Otra app usa el puerto {taken} (v2rayNG, por ejemplo), así que Shroudly está en 127.0.0.1:{port}. Pon tu proxy en el puerto {port}.</string>
     <string name="androidProxyOnlyOffWifi">Solo proxy está apagado. Si el proxy de esta red está en {addr}, vuelve a ponerlo en Ninguno en los ajustes de Wi-Fi; si no, las apps que lo usan no pueden conectarse.</string>
     <string name="androidProxyOnlyOn">Solo proxy: las apps configuradas con 127.0.0.1:{port} pasan por Shroudly</string>
     <string name="androidQuicOff">Desactivar QUIC</string>
@@ -59,6 +61,8 @@
     <string name="androidVpnRevoked">Android desactivó la protección, normalmente porque se activó otra app de VPN.</string>
     <string name="androidWifiProxyDead">El proxy de esta red está en {addr}, pero ahí no hay nada en marcha, así que las apps que lo usan (Chrome, entre ellas) no pueden conectarse. En los ajustes de Wi-Fi, abre esta red y pon el proxy en Ninguno.</string>
     <string name="androidWifiProxyDeadTitle">Proxy abandonado en los ajustes de Wi-Fi</string>
+    <string name="androidWifiProxyOtherPort">El proxy de esta red está en {addr}, pero Shroudly está ahora en 127.0.0.1:{port}, así que las apps que lo usan no pueden conectarse. En los ajustes de Wi-Fi, abre esta red y pon el puerto del proxy en {port}.</string>
+    <string name="androidWifiProxyShroudlyOff">El proxy de esta red está en Shroudly ({addr}), pero Shroudly está apagado, así que las apps que lo usan (Chrome, entre ellas) no pueden conectarse. Inicia la protección o pon el proxy en Ninguno en los ajustes de Wi-Fi.</string>
     <string name="androidWifiSettings">Ajustes de Wi-Fi</string>
     <string name="autoRawBlocked">Esta red corta las conexiones de la app {app} y ninguna de las técnicas de Shroudly ha logrado pasar. Usa el ajuste de proxy de la propia app {app} o una VPN.</string>
     <string name="autoRawUnreachable">La app {app} no puede llegar a sus servidores: esta red bloquea sus direcciones y Shroudly no puede sortear eso sin un servidor en otro lugar. Usa el ajuste de proxy de la propia app {app} o una VPN.</string>

@@ -39,6 +39,8 @@
     <string name="androidNoInternet">Shroudly bu şəbəkədə internetə çıxa bilmədiyi üçün qoruma dayandı, ona görə tətbiqləriniz indi birbaşa qoşulur. Yenidən cəhd etmək üçün Shroudly-ni açın.</string>
     <string name="androidPrivacyPolicy">Məxfilik siyasəti</string>
     <string name="androidProtectionLost">Qoruma xəta səbəbindən dayandı, ona görə tətbiqləriniz indi birbaşa qoşulur. Yenidən başlatmaq üçün Shroudly-ni açın.</string>
+    <string name="androidProxyOnlyLost">Yalnız proksi xəta səbəbindən dayandı, ona görə Shroudly-dən istifadə etmək üçün ayarlanmış tətbiqlər qoşula bilmir. Yenidən başlatmaq üçün Shroudly-ni açın.</string>
+    <string name="androidProxyOnlyMoved">{taken} portunu başqa tətbiq (məsələn, v2rayNG) istifadə edir, ona görə Shroudly 127.0.0.1:{port} ünvanındadır. Proksinizi {port} portuna təyin edin.</string>
     <string name="androidProxyOnlyOffWifi">«Yalnız proksi» söndürüldü. Bu şəbəkənin proksisi {addr} olaraq təyin edilibsə, Wi-Fi ayarlarında onu «Yoxdur»a qaytarın, əks halda ondan istifadə edən tətbiqlər qoşula bilməz.</string>
     <string name="androidProxyOnlyOn">Yalnız proksi: 127.0.0.1:{port} ayarlanmış tətbiqlər Shroudly-dən keçir</string>
     <string name="androidQuicOff">QUIC-i söndür</string>
@@ -59,6 +61,8 @@
     <string name="androidVpnRevoked">Qoruma Android tərəfindən söndürüldü; adətən başqa VPN tətbiqi açıldığı üçün.</string>
     <string name="androidWifiProxyDead">Bu şəbəkənin proksisi {addr} olaraq təyin edilib, amma orada heç nə işləmir, buna görə ondan istifadə edən tətbiqlər (Chrome da daxil) qoşula bilmir. Wi-Fi ayarlarında bu şəbəkəni açın və proksini «Yoxdur» edin.</string>
     <string name="androidWifiProxyDeadTitle">Wi-Fi ayarlarında qalmış proksi</string>
+    <string name="androidWifiProxyOtherPort">Bu şəbəkənin proksisi {addr} olaraq təyin edilib, amma Shroudly indi 127.0.0.1:{port} ünvanındadır, buna görə ondan istifadə edən tətbiqlər qoşula bilmir. Wi-Fi ayarlarında bu şəbəkəni açın və proksi portunu {port} edin.</string>
+    <string name="androidWifiProxyShroudlyOff">Bu şəbəkənin proksisi Shroudly ({addr}) olaraq təyin edilib, amma Shroudly sönülüdür, buna görə ondan istifadə edən tətbiqlər (Chrome da daxil) qoşula bilmir. Qorumanı başladın və ya Wi-Fi ayarlarında proksini «Yoxdur» edin.</string>
     <string name="androidWifiSettings">Wi-Fi ayarları</string>
     <string name="autoRawBlocked">Bu şəbəkə {app} tətbiqinin bağlantılarını dayandırır və Shroudly-nin heç bir üsulu keçə bilmədi. {app} tətbiqinin öz proksi ayarından və ya VPN-dən istifadə et.</string>
     <string name="autoRawUnreachable">{app} tətbiqi öz serverlərinə çata bilmir: bu şəbəkə onların ünvanlarını bloklayır və Shroudly başqa yerdə yerləşən server olmadan bunu keçə bilməz. {app} tətbiqinin öz proksi ayarından və ya VPN-dən istifadə et.</string>

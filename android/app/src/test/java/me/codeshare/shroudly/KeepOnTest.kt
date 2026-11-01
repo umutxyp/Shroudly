@@ -1,5 +1,6 @@
 package me.codeshare.shroudly
 
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -40,7 +41,7 @@ class KeepOnTest {
         // Proxy only too (the mode of those with another VPN): the last network
         // gone, or the service ended by Android while on, arms it.
         assertTrue(Regex("""log\("Network: none"\)\s*\n\s*KeepOn\.networkGone\(this@ShroudlyProxyService\)""").containsMatchIn(proxy))
-        assertTrue(proxy.contains("watchNetwork()") && proxy.contains("unregisterNetworkCallback"))
+        assertTrue(proxy.contains("watchNetwork()") && proxy.contains("network?.stop(getSystemService(ConnectivityManager::class.java))"))
         assertTrue(Regex("""override fun onDestroy\(\)[\s\S]*KeepOn\.networkGone\(this\)""").containsMatchIn(proxy))
     }
 
@@ -56,10 +57,38 @@ class KeepOnTest {
         assertTrue(Regex("""android:name="\.BootReceiver"(?:(?!</receiver>)[\s\S])*android\.intent\.action\.MY_PACKAGE_REPLACED""").containsMatchIn(manifest))
         val receiver = File(src, "java/me/codeshare/shroudly/BootReceiver.kt").readText()
         assertTrue(receiver.contains("Intent.ACTION_MY_PACKAGE_REPLACED -> KeepOn.updated(Lang.wrap(context))"))
-        // "Start when the phone starts" stays its own setting; an update does not need it.
-        assertTrue(Regex("""ACTION_BOOT_COMPLETED -> \{\s*if \(!AppSettings\.startAtBoot\(context\)\) return""").containsMatchIn(receiver))
+        // "Start when the phone starts" stays its own setting; an update does
+        // not need it. Without it, only Proxy only comes back (booted).
+        assertTrue(Regex("""ACTION_BOOT_COMPLETED -> \{\s*if \(!AppSettings\.startAtBoot\(context\)\) \{ KeepOn\.booted\(Lang\.wrap\(context\)\); return \}""").containsMatchIn(receiver))
         val keepOn = File(src, "java/me/codeshare/shroudly/KeepOn.kt").readText()
         assertTrue(Regex("""fun updated\(ctx: Context\) \{\s*if \(!wanted\(ctx\) \|\| Protection\.state != Protection\.State\.OFF\) return""").containsMatchIn(keepOn))
+    }
+
+    /* Proxy only off while a network's proxy points at it is no connection
+     * at all for the apps that use it, unlike the VPN off: it comes back
+     * after the phone restarts (if it was on, and only in that mode), and
+     * after Android ended the app while it was on (START_STICKY), unless
+     * the user has turned it off since. */
+    @Test
+    fun proxyOnlyComesBackAfterARestartOrAKill() {
+        val src = File("src/main")
+        val keepOn = File(src, "java/me/codeshare/shroudly/KeepOn.kt").readText()
+        assertTrue(Regex("""fun booted\(ctx: Context\) \{\s*if \(!AppSettings\.proxyOnly\(ctx\) \|\| !wanted\(ctx\) \|\| Protection\.state != Protection\.State\.OFF\) return""").containsMatchIn(keepOn))
+        val proxy = File(src, "java/me/codeshare/shroudly/ShroudlyProxyService.kt").readText()
+        val start = proxy.substringAfter("override fun onStartCommand(").substringBefore("private fun log(")
+        // Started: Android brings it back should it end the app.
+        assertTrue(start.trimEnd().endsWith("work.execute { startAll() }\n        return START_STICKY\n    }"))
+        // Brought back by Android (no intent): only while wanted, in this mode.
+        assertTrue(start.contains("if (again && (!KeepOn.wanted(this) || !AppSettings.proxyOnly(this) || active))"))
+        // Refused from the background: a notice offers it, as KeepOn's job does.
+        assertTrue(start.contains("if (again) KeepOn.offer(this)"))
+        // A setting sent while it runs does not take START_STICKY back (the
+        // last answer counts), in either mode: the four settings commands,
+        // and Android's own restart while already on.
+        assertEquals(5, Regex("""return if \(active\) START_STICKY else START_NOT_STICKY""").findAll(start).count())
+        val vpn = File(src, "java/me/codeshare/shroudly/ShroudlyVpnService.kt").readText()
+        assertEquals(4, Regex("""return stickyWhileOn\(\)""").findAll(vpn).count())
+        assertTrue(vpn.contains("private fun stickyWhileOn() = if (active) START_STICKY else START_NOT_STICKY"))
     }
 
     /* The Quick Settings tile (issue #49): a switch the panel asks for its

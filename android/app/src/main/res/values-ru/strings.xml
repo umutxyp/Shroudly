@@ -39,6 +39,8 @@
     <string name="androidNoInternet">Защита остановилась, потому что Shroudly не смог выйти в интернет в этой сети, поэтому ваши приложения сейчас подключаются напрямую. Откройте Shroudly, чтобы попробовать снова.</string>
     <string name="androidPrivacyPolicy">Политика конфиденциальности</string>
     <string name="androidProtectionLost">Защита остановилась из-за ошибки, поэтому ваши приложения сейчас подключаются напрямую. Откройте Shroudly, чтобы снова её включить.</string>
+    <string name="androidProxyOnlyLost">Режим «Только прокси» остановился из-за ошибки, поэтому приложения, настроенные на Shroudly, не могут подключиться. Откройте Shroudly, чтобы снова его включить.</string>
+    <string name="androidProxyOnlyMoved">Порт {taken} занят другим приложением (например, v2rayNG), поэтому Shroudly работает на 127.0.0.1:{port}. Укажите в прокси порт {port}.</string>
     <string name="androidProxyOnlyOffWifi">«Только прокси» выключен. Если прокси этой сети задан как {addr}, верните его на «Нет» в настройках Wi-Fi, иначе приложения, которые его используют, не смогут подключиться.</string>
     <string name="androidProxyOnlyOn">Только прокси: приложения, настроенные на 127.0.0.1:{port}, идут через Shroudly</string>
     <string name="androidQuicOff">Отключить QUIC</string>
@@ -59,6 +61,8 @@
     <string name="androidVpnRevoked">Android отключил защиту — обычно потому, что включено другое VPN-приложение.</string>
     <string name="androidWifiProxyDead">Прокси этой сети задан как {addr}, но там ничего не запущено, поэтому приложения, которые его используют (в том числе Chrome), не могут подключиться. В настройках Wi-Fi откройте эту сеть и выберите для прокси «Нет».</string>
     <string name="androidWifiProxyDeadTitle">Оставшийся прокси в настройках Wi-Fi</string>
+    <string name="androidWifiProxyOtherPort">Прокси этой сети задан как {addr}, но Shroudly теперь работает на 127.0.0.1:{port}, поэтому приложения, которые его используют, не могут подключиться. В настройках Wi-Fi откройте эту сеть и укажите порт прокси {port}.</string>
+    <string name="androidWifiProxyShroudlyOff">Прокси этой сети задан как Shroudly ({addr}), но Shroudly выключен, поэтому приложения, которые его используют (в том числе Chrome), не могут подключиться. Включите защиту или выберите для прокси «Нет» в настройках Wi-Fi.</string>
     <string name="androidWifiSettings">Настройки Wi-Fi</string>
     <string name="autoRawBlocked">Эта сеть обрывает соединения приложения {app}, и ни одна из техник Shroudly не прошла. Используйте настройку прокси в самом приложении {app} или VPN.</string>
     <string name="autoRawUnreachable">Приложение {app} не может связаться со своими серверами: эта сеть блокирует их адреса, и без сервера в другом месте Shroudly не может это обойти. Используйте настройку прокси в самом приложении {app} или VPN.</string>

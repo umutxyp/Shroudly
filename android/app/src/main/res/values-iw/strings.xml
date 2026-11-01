@@ -39,6 +39,8 @@
     <string name="androidNoInternet">ההגנה נעצרה כי Shroudly לא הצליחה להגיע לאינטרנט ברשת הזו, ולכן האפליקציות שלך מתחברות עכשיו ישירות. אפשר לפתוח את Shroudly כדי לנסות שוב.</string>
     <string name="androidPrivacyPolicy">מדיניות פרטיות</string>
     <string name="androidProtectionLost">ההגנה נעצרה בגלל שגיאה, ולכן האפליקציות שלך מתחברות עכשיו ישירות. אפשר לפתוח את Shroudly כדי להפעיל אותה מחדש.</string>
+    <string name="androidProxyOnlyLost">מצב \'פרוקסי בלבד\' נעצר בגלל שגיאה, ולכן אפליקציות שהוגדרו להשתמש ב-Shroudly לא מצליחות להתחבר. אפשר לפתוח את Shroudly כדי להפעיל אותו מחדש.</string>
+    <string name="androidProxyOnlyMoved">פורט {taken} תפוס על ידי אפליקציה אחרת (למשל v2rayNG), ולכן Shroudly פועל על ‎127.0.0.1:{port}‎. הגדירו את ה-Proxy לפורט {port}.</string>
     <string name="androidProxyOnlyOffWifi">\'פרוקסי בלבד\' כבוי. אם ה-Proxy של הרשת הזאת מוגדר ל-{addr}, החזירו אותו ל\'ללא\' בהגדרות Wi-Fi, אחרת אפליקציות שמשתמשות בו לא יצליחו להתחבר.</string>
     <string name="androidProxyOnlyOn">פרוקסי בלבד: אפליקציות שהוגדרו ל-‎127.0.0.1:{port}‎ עוברות דרך Shroudly</string>
     <string name="androidQuicOff">כיבוי QUIC</string>
@@ -59,6 +61,8 @@
     <string name="androidVpnRevoked">Android כיבה את ההגנה, בדרך כלל כי הופעלה אפליקציית VPN אחרת.</string>
     <string name="androidWifiProxyDead">ה-Proxy של הרשת הזאת מוגדר ל-{addr}, אבל שום דבר לא פועל שם, ולכן אפליקציות שמשתמשות בו (Chrome ביניהן) לא מצליחות להתחבר. בהגדרות Wi-Fi, פתחו את הרשת הזאת והגדירו את ה-Proxy ל\'ללא\'.</string>
     <string name="androidWifiProxyDeadTitle">Proxy שנשאר בהגדרות Wi-Fi</string>
+    <string name="androidWifiProxyOtherPort">ה-Proxy של הרשת הזאת מוגדר ל-{addr}, אבל Shroudly פועל עכשיו על ‎127.0.0.1:{port}‎, ולכן אפליקציות שמשתמשות בו לא מצליחות להתחבר. בהגדרות Wi-Fi, פתחו את הרשת הזאת והגדירו את פורט ה-Proxy ל-{port}.</string>
+    <string name="androidWifiProxyShroudlyOff">ה-Proxy של הרשת הזאת מוגדר ל-Shroudly ({addr}), אבל Shroudly כבוי, ולכן אפליקציות שמשתמשות בו (Chrome ביניהן) לא מצליחות להתחבר. הפעילו את ההגנה, או הגדירו את ה-Proxy ל\'ללא\' בהגדרות Wi-Fi.</string>
     <string name="androidWifiSettings">הגדרות Wi-Fi</string>
     <string name="autoRawBlocked">הרשת הזו עוצרת את החיבורים של אפליקציית {app}, ואף אחת מהשיטות של Shroudly לא הצליחה לעבור. יש להשתמש בהגדרת ה-Proxy המובנית ב-{app} או ב-VPN.</string>
     <string name="autoRawUnreachable">אפליקציית {app} לא מצליחה להגיע לשרתים שלה: הרשת הזו חוסמת את הכתובות שלהם, ו-Shroudly לא יכול לעקוף את זה בלי שרת במקום אחר. יש להשתמש בהגדרת ה-Proxy המובנית ב-{app} או ב-VPN.</string>

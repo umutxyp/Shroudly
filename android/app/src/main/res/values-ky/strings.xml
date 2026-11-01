@@ -39,6 +39,8 @@
     <string name="androidNoInternet">Shroudly бул тармакта интернетке чыга албагандыктан коргоо токтоду, ошондуктан колдонмолоруңуз азыр түз туташып жатат. Кайра аракет кылуу үчүн Shroudly\'ди ачыңыз.</string>
     <string name="androidPrivacyPolicy">Купуялык саясаты</string>
     <string name="androidProtectionLost">Коргоо катадан улам токтоду, ошондуктан колдонмолоруңуз азыр түз туташып жатат. Кайра иштетүү үчүн Shroudly\'ди ачыңыз.</string>
+    <string name="androidProxyOnlyLost">«Прокси гана» режими катадан улам токтоду, ошондуктан Shroudly\'ди колдонууга жөндөлгөн колдонмолор туташа албайт. Кайра иштетүү үчүн Shroudly\'ди ачыңыз.</string>
+    <string name="androidProxyOnlyMoved">{taken} портун башка колдонмо (мисалы, v2rayNG) колдонуп жатат, ошондуктан Shroudly 127.0.0.1:{port} дарегинде иштейт. Проксиңизди {port} портуна коюңуз.</string>
     <string name="androidProxyOnlyOffWifi">«Прокси гана» өчүрүлдү. Бул тармактын проксиси {addr} деп коюлса, аны Wi-Fi жөндөөлөрүндө «Жок» абалына кайтарыңыз, болбосо аны колдонгон колдонмолор туташа албайт.</string>
     <string name="androidProxyOnlyOn">Прокси гана: 127.0.0.1:{port} жөндөлгөн колдонмолор Shroudly аркылуу өтөт</string>
     <string name="androidQuicOff">QUIC\'ти өчүрүү</string>
@@ -59,6 +61,8 @@
     <string name="androidVpnRevoked">Android коргоону өчүрдү, адатта башка VPN колдонмосу күйгүзүлгөндүктөн.</string>
     <string name="androidWifiProxyDead">Бул тармактын проксиси {addr} деп коюлган, бирок ал жерде эч нерсе иштебейт, ошондуктан аны колдонгон колдонмолор (анын ичинде Chrome) туташа албайт. Wi-Fi жөндөөлөрүндө ушул тармакты ачып, проксини «Жок» кылып коюңуз.</string>
     <string name="androidWifiProxyDeadTitle">Wi-Fi жөндөөлөрүндө калып калган прокси</string>
+    <string name="androidWifiProxyOtherPort">Бул тармактын проксиси {addr} деп коюлган, бирок Shroudly азыр 127.0.0.1:{port} дарегинде иштейт, ошондуктан аны колдонгон колдонмолор туташа албайт. Wi-Fi жөндөөлөрүндө ушул тармакты ачып, прокси портун {port} кылып коюңуз.</string>
+    <string name="androidWifiProxyShroudlyOff">Бул тармактын проксиси Shroudly ({addr}) деп коюлган, бирок Shroudly өчүк, ошондуктан аны колдонгон колдонмолор (анын ичинде Chrome) туташа албайт. Коргоону баштаңыз же Wi-Fi жөндөөлөрүндө проксини «Жок» кылып коюңуз.</string>
     <string name="androidWifiSettings">Wi-Fi жөндөөлөрү</string>
     <string name="autoRawBlocked">Бул тармак {app} колдонмосунун туташууларын үзөт, ал эми Shroudly колдонгон ыкмалардын бири да өткөн жок. {app} колдонмосунун өз прокси жөндөөсүн же VPN колдонуңуз.</string>
     <string name="autoRawUnreachable">{app} колдонмосу өз серверлерине туташа албайт: бул тармак алардын даректерин бөгөттөйт, ал эми башка жердеги серверсиз Shroudly муну айланып өтө албайт. {app} колдонмосунун өз прокси жөндөөсүн же VPN колдонуңуз.</string>

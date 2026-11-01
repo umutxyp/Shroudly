@@ -56,9 +56,9 @@ class AppSettingsTest {
      * other VPN app's connection). */
     @Test
     fun proxyOnlyNeverTouchesTheVpn() {
-        val a = Engine.args(ShroudlyProxyService.PORT, 5353, emptyList(), null, null)
+        val a = Engine.args(ProxyPort.DEFAULT, 5353, emptyList(), null, null)
         assertEquals("127.0.0.1", a[a.indexOf("--listen") + 1])
-        assertEquals(ShroudlyProxyService.PORT.toString(), a[a.indexOf("--port") + 1])
+        assertEquals(ProxyPort.DEFAULT.toString(), a[a.indexOf("--port") + 1])
         assertFalse("no password", a.contains(SocksAuth.OPTION))
         assertFalse("no stand-in range", a.contains(Engine.FAKE_NET_OPTION))
 

@@ -39,6 +39,8 @@
     <string name="androidNoInternet">Shroudly bu tarmoqda internetga chiqa olmagani uchun himoya to‘xtadi, shuning uchun ilovalaringiz hozir to‘g‘ridan-to‘g‘ri ulanmoqda. Qayta urinib ko‘rish uchun Shroudly’ni oching.</string>
     <string name="androidPrivacyPolicy">Maxfiylik siyosati</string>
     <string name="androidProtectionLost">Himoya xato tufayli to‘xtadi, shuning uchun ilovalaringiz hozir to‘g‘ridan-to‘g‘ri ulanmoqda. Uni qayta yoqish uchun Shroudly’ni oching.</string>
+    <string name="androidProxyOnlyLost">«Faqat proksi» xato tufayli toʻxtadi, shuning uchun Shroudly’dan foydalanishga sozlangan ilovalar ulana olmaydi. Uni qayta yoqish uchun Shroudly’ni oching.</string>
+    <string name="androidProxyOnlyMoved">{taken} portini boshqa ilova (masalan, v2rayNG) ishlatmoqda, shuning uchun Shroudly 127.0.0.1:{port} da ishlayapti. Proksingizni {port} portiga sozlang.</string>
     <string name="androidProxyOnlyOffWifi">«Faqat proksi» oʻchirildi. Bu tarmoqning proksisi {addr} qilib qoʻyilgan boʻlsa, Wi-Fi sozlamalarida uni «Yoʻq» holatiga qaytaring, aks holda undan foydalanadigan ilovalar ulana olmaydi.</string>
     <string name="androidProxyOnlyOn">Faqat proksi: 127.0.0.1:{port} ga sozlangan ilovalar Shroudly orqali oʻtadi</string>
     <string name="androidQuicOff">QUIC’ni oʻchirish</string>
@@ -59,6 +61,8 @@
     <string name="androidVpnRevoked">Himoya Android tomonidan o‘chirildi, odatda boshqa VPN ilovasi yoqilgani uchun.</string>
     <string name="androidWifiProxyDead">Bu tarmoqning proksisi {addr} qilib qoʻyilgan, lekin u yerda hech narsa ishlamayapti, shuning uchun undan foydalanadigan ilovalar (jumladan Chrome) ulana olmaydi. Wi-Fi sozlamalarida shu tarmoqni ochib, proksini «Yoʻq» qilib qoʻying.</string>
     <string name="androidWifiProxyDeadTitle">Wi-Fi sozlamalarida qolib ketgan proksi</string>
+    <string name="androidWifiProxyOtherPort">Bu tarmoqning proksisi {addr} qilib qoʻyilgan, lekin Shroudly endi 127.0.0.1:{port} da ishlayapti, shuning uchun undan foydalanadigan ilovalar ulana olmaydi. Wi-Fi sozlamalarida shu tarmoqni ochib, proksi portini {port} qilib qoʻying.</string>
+    <string name="androidWifiProxyShroudlyOff">Bu tarmoqning proksisi Shroudly ({addr}) qilib qoʻyilgan, lekin Shroudly oʻchiq, shuning uchun undan foydalanadigan ilovalar (jumladan Chrome) ulana olmaydi. Himoyani yoqing yoki Wi-Fi sozlamalarida proksini «Yoʻq» qilib qoʻying.</string>
     <string name="androidWifiSettings">Wi-Fi sozlamalari</string>
     <string name="autoRawBlocked">Bu tarmoq {app} ilovasining ulanishlarini toʻxtatadi va Shroudly usullaridan hech biri oʻta olmadi. {app} ilovasining oʻz proksi sozlamasidan yoki VPNdan foydalaning.</string>
     <string name="autoRawUnreachable">{app} ilovasi oʻz serverlariga ulana olmayapti: bu tarmoq ularning manzillarini bloklaydi, Shroudly esa boshqa joydagi serversiz buni chetlab oʻta olmaydi. {app} ilovasining oʻz proksi sozlamasidan yoki VPNdan foydalaning.</string>
