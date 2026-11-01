@@ -30,7 +30,7 @@
     <string name="androidBatteryHint">As configurações de bateria podem parar o Shroudly em segundo plano e cortar sua conexão. Deixe-o funcionar sem restrições de bateria.</string>
     <string name="androidBatterySettings">Configurações de bateria</string>
     <string name="androidBatterySteps">Na próxima tela, abra Bateria (Uso da bateria pelo app em alguns telefones) e escolha Sem restrições.</string>
-    <string name="androidBypassOff">A estratégia de contorno está desligada nas Configurações: só o DNS é criptografado.</string>
+    <string name="androidBypassOff">A estratégia de contorno está desligada nos Ajustes: só o DNS é criptografado.</string>
     <string name="androidContinue">Continuar</string>
     <string name="androidDetails">Detalhes</string>
     <string name="androidDownloadApk">Baixar a atualização</string>

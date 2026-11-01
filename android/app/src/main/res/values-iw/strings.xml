@@ -38,7 +38,7 @@
     <string name="androidIpv6Off">כיבוי IPv6</string>
     <string name="androidIpv6OffDesc">האפליקציות ו-Shroudly משתמשים ב-IPv4 בלבד, והאפליקציות יודעות מיד שאין IPv6 במקום לחכות לו. לרשתות שה-IPv6 שלהן תקול או איטי.</string>
     <string name="androidKeepOnOffer">הטלפון סגר את Shroudly. הקישו כדי להפעיל שוב את ההגנה.</string>
-    <string name="androidLockdownOffline">אין אינטרנט: Shroudly לא מצליחה לעבור ברשת הזו כרגע, ו־Android מוגדרת לחסום חיבורים בלי VPN. Shroudly ממשיכה לנסות.</string>
+    <string name="androidLockdownOffline">אין אינטרנט: Shroudly לא מצליח לעבור ברשת הזו כרגע, ו־Android מוגדרת לחסום חיבורים בלי VPN. Shroudly ממשיך לנסות.</string>
     <string name="androidLockdownStop">Android מוגדר לחסום חיבורים בלי VPN, ולכן כל עוד Shroudly כבוי, לאפליקציות אין אינטרנט.</string>
     <string name="androidModeProxy">פרוקסי בלבד (ה-VPN האחר שלך נשאר)</string>
     <string name="androidModeProxyDesc">Shroudly פועל כפרוקסי ב-‎127.0.0.1:{port}‎ ‏(SOCKS5 ו-HTTP) ומשאיר את ה-VPN לאפליקציה אחרת. רק אפליקציות שהוגדרו להשתמש בו עוברות דרך Shroudly: הפרוקסי של רשת ה-Wi-Fi (מארח 127.0.0.1, פורט {port}) או הגדרת הפרוקסי של האפליקציה עצמה.</string>
@@ -50,8 +50,8 @@
     <string name="androidMoveOpen">פתיחת Google Play</string>
     <string name="androidMoveTitle">Shroudly נמצא ב-Google Play</string>
     <string name="androidNetworkSection">רשת</string>
-    <string name="androidNoInternet">ההגנה נעצרה כי Shroudly לא הצליחה להגיע לאינטרנט ברשת הזו, ולכן האפליקציות שלך מתחברות עכשיו ישירות. אפשר לפתוח את Shroudly כדי לנסות שוב.</string>
-    <string name="androidNoInternetHere">ההגנה נעצרה כי Shroudly לא הצליחה להגיע לאינטרנט ברשת הזו, ולכן האפליקציות שלך מתחברות עכשיו ישירות.</string>
+    <string name="androidNoInternet">ההגנה נעצרה כי Shroudly לא הצליח להגיע לאינטרנט ברשת הזו, ולכן האפליקציות שלך מתחברות עכשיו ישירות. אפשר לפתוח את Shroudly כדי לנסות שוב.</string>
+    <string name="androidNoInternetHere">ההגנה נעצרה כי Shroudly לא הצליח להגיע לאינטרנט ברשת הזו, ולכן האפליקציות שלך מתחברות עכשיו ישירות.</string>
     <string name="androidNoNetwork">אין רשת: Shroudly פועל ומחכה ל-Wi-Fi או לחבילת גלישה.</string>
     <string name="androidNotificationsOff">ההתראות כבויות, ולכן Shroudly לא יכול להודיע לך כשההגנה נעצרת או צריכה הקשה כדי לחזור.</string>
     <string name="androidOffHint">הקישו על העיגול כדי לפתוח אתרים ואפליקציות חסומים.</string>
@@ -101,7 +101,7 @@
     <string name="androidWifiSettings">הגדרות Wi-Fi</string>
     <string name="androidWorkApps">אפליקציות בפרופיל העבודה שלך לא עוברות דרך Shroudly.</string>
     <string name="appSection">אפליקציה</string>
-    <string name="autoRawBlocked">הרשת הזו עוצרת את החיבורים של אפליקציית {app}, ואף אחת מהשיטות של Shroudly לא הצליחה לעבור. יש להשתמש בהגדרת ה-Proxy המובנית ב-{app} או ב-VPN.</string>
+    <string name="autoRawBlocked">הרשת הזו עוצרת את החיבורים של אפליקציית {app}, ואף אחת מהשיטות של Shroudly לא הצליח לעבור. יש להשתמש בהגדרת ה-Proxy המובנית ב-{app} או ב-VPN.</string>
     <string name="autoRawUnreachable">אפליקציית {app} לא מצליחה להגיע לשרתים שלה: הרשת הזו חוסמת את הכתובות שלהם, ו-Shroudly לא יכול לעקוף את זה בלי שרת במקום אחר. יש להשתמש בהגדרת ה-Proxy המובנית ב-{app} או ב-VPN.</string>
     <string name="connections">חיבורים</string>
     <string name="dnsErrorEmpty">הקלידו את כתובת השרת, למשל {example}.</string>

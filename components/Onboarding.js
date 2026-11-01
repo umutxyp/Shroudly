@@ -29,6 +29,16 @@ const STEPS = [
 
 export default function Onboarding({ onNavigate }) {
   const { t, isRTL } = useLanguage();
+  // Advanced mode exists on Windows and Linux only: step 4 mentions it there.
+  const [hasAdvanced, setHasAdvanced] = useState(false);
+  useEffect(() => { setHasAdvanced(['win32', 'linux'].includes(window.electron?.platform)); }, []);
+  /* The buttons and tabs a step names are the ones on screen, in this
+     language: quoted from their own labels, never retyped (they drifted:
+     "Start" for "Start protection", "Einstellungen" for "Optionen"). */
+  const stepBody = (s) => {
+    const text = t(s.body, { start: t('start'), stop: t('stop'), settings: t('navSettings'), logs: t('navLogs') });
+    return s.body === 'obBody4' && hasAdvanced ? `${text} ${t('obBody4Advanced')}` : text;
+  };
   const [open, setOpen] = useState(false);
   const [i, setI] = useState(0);
   const [rect, setRect] = useState(null);
@@ -202,7 +212,7 @@ export default function Onboarding({ onNavigate }) {
           {t(step.title)}
         </h2>
         <p className="mt-1.5 text-[12.5px] leading-relaxed wrap-anywhere" style={{ color: 'var(--text-dim)' }}>
-          {t(step.body)}
+          {stepBody(step)}
         </p>
 
         <div className="mt-4 flex items-center justify-between gap-3">

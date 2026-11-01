@@ -30,7 +30,7 @@
     <string name="androidBatteryHint">Akku-Einstellungen können Shroudly im Hintergrund beenden und damit deine Verbindung unterbrechen. Erlaube Shroudly, ohne Akku-Einschränkungen zu laufen.</string>
     <string name="androidBatterySettings">Akku-Einstellungen</string>
     <string name="androidBatterySteps">Öffne auf dem nächsten Bildschirm „Akku“ (auf manchen Telefonen „Akkunutzung der App“) und wähle „Nicht eingeschränkt“.</string>
-    <string name="androidBypassOff">Die Umgehungsstrategie ist in den Einstellungen aus: Nur DNS wird verschlüsselt.</string>
+    <string name="androidBypassOff">Die Umgehungsstrategie ist in den Optionen aus: Nur DNS wird verschlüsselt.</string>
     <string name="androidContinue">Weiter</string>
     <string name="androidDetails">Details</string>
     <string name="androidDownloadApk">Update herunterladen</string>

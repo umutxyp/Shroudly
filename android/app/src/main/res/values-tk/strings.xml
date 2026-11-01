@@ -156,7 +156,7 @@
     <string name="stratAuto">Awtomatik (maslahat berilýär)</string>
     <string name="stratDisorderSni">SNI-de tertipsiz iberiş</string>
     <string name="stratDoubleSplit">Iki gezek bölmek</string>
-    <string name="stratNone">Öçürilen (diňe şifrlenen DNS)</string>
+    <string name="stratNone">Öçük</string>
     <string name="stratSplit2">2-nji baýtda bölmek</string>
     <string name="stratSplitMid">SNI-niň ortasyndan bölmek</string>
     <string name="stratSplitSni">SNI-de bölmek</string>
