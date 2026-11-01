@@ -281,6 +281,27 @@ input::placeholder { color: var(--text-faint); opacity: 1; }
 }
 .halo { animation: halo 3.4s ease-in-out infinite; }
 
+/* One notice at a time above the content: the first that renders
+   (app/page.js puts them in order). The others keep listening, out of
+   sight, and come up when it goes. */
+.notices > :not(:first-child) { display: none; }
+
+/* The Protection panel, by the room the content area has (data-room, which
+   ControlPanel works out from these same sizes): where a notice above, the
+   smallest window, large text or a long language leaves it short, the
+   shield shrinks, then goes, and the support link after it, so the status
+   and the Start/Stop button stay on screen without scrolling. */
+.power-panel { gap: 28px; padding-block: 24px; }
+.power-shield { --shield: 150px; }
+.power-disc { width: var(--shield); height: var(--shield); }
+.power-halo { width: calc(var(--shield) * 1.2); height: calc(var(--shield) * 1.2); }
+.power-glyph { width: calc(var(--shield) * 0.43); height: calc(var(--shield) * 0.43); }
+.power-panel[data-room='compact'] { gap: 16px; padding-block: 16px; }
+.power-panel[data-room='compact'] .power-shield { --shield: 96px; }
+.power-panel:is([data-room='tight'], [data-room='min']) { gap: 12px; padding-block: 12px; }
+.power-panel:is([data-room='tight'], [data-room='min']) .power-shield { display: none; }
+.power-panel[data-room='min'] .power-support { display: none; }
+
 @keyframes spin { to { transform: rotate(360deg); } }
 .spin { animation: spin 0.9s linear infinite; }
 

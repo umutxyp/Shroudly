@@ -12,6 +12,7 @@ import Onboarding from '../components/Onboarding';
 import BlockedNotice from '../components/BlockedNotice';
 import Appearance from '../components/Appearance';
 import { SupportBanner } from '../components/Support';
+import { useUpdate } from '../components/useUpdate';
 import { ChartIcon, InfoIcon, LogsIcon, SettingsIcon, ShieldIcon } from '../components/icons';
 import { useLanguage } from '../contexts/LanguageContext';
 
@@ -44,6 +45,7 @@ export default function Home() {
   // Bumped to bring "Support Shroudly" into view (the card, the tray).
   const [supportFocus, setSupportFocus] = useState(0);
   const openSupport = () => { setActiveTab('info'); setSupportFocus((n) => n + 1); };
+  const update = useUpdate();
 
   useEffect(() => {
     const check = async () => {
@@ -95,6 +97,15 @@ export default function Home() {
   };
 
   const active = !!dpiStatus.active;
+  // On, but browsers are not going through it (main.js notRouting): amber,
+  // "Not working yet", never the green "Active".
+  const notRouting = active && !!dpiStatus.notRouting;
+  const tone = !active ? 'danger' : notRouting ? 'warn' : 'ok';
+  const statusText = !active ? t('inactive') : notRouting ? t('notWorkingYet') : t('active');
+  // A restart for an update that is counting down comes before any other
+  // notice: its "Later" must be there to press. Otherwise an update waits
+  // while the Protection panel says what is not working yet.
+  const updateFirst = !!(update && update.status === 'ready' && update.restartAt);
 
   const nav = [
     { id: 'control',  label: t('navProtection'), Icon: ShieldIcon },
@@ -116,9 +127,9 @@ export default function Home() {
             aria-hidden
             className="absolute -end-0.5 -top-0.5 h-3 w-3 rounded-full border-2"
             style={{
-              background: active ? 'var(--ok)' : 'var(--danger)',
+              background: `var(--${tone})`,
               borderColor: 'var(--bg)',
-              boxShadow: active ? '0 0 8px var(--ok)' : 'none',
+              boxShadow: tone === 'ok' ? '0 0 8px var(--ok)' : 'none',
             }}
           />
         </div>
@@ -133,15 +144,15 @@ export default function Home() {
         </div>
         <span
           role="status"
-          className="inline-flex max-w-[45%] shrink-0 items-center gap-1.5 rounded-full px-2.5 py-1 text-[11.5px] font-medium leading-tight"
+          className="inline-flex max-w-[50%] shrink-0 items-center gap-1.5 rounded-full px-2.5 py-1 text-[11.5px] font-medium leading-tight"
           style={{
-            background: active ? 'var(--ok-soft)' : 'var(--danger-soft)',
-            color: active ? 'var(--ok)' : 'var(--danger)',
+            background: `var(--${tone}-soft)`,
+            color: `var(--${tone})`,
           }}
-          title={active ? t('active') : t('inactive')}
+          title={statusText}
         >
           <span className="h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: 'currentColor' }} />
-          <span className="truncate">{active ? t('active') : t('inactive')}</span>
+          <span className="truncate">{statusText}</span>
         </span>
       </header>
 
@@ -150,11 +161,15 @@ export default function Home() {
       <Onboarding onNavigate={setActiveTab} />
 
       {/* Notices sit apart from the header above them, as from the content
-          below; with none showing, the space goes too. */}
-      <div className="pt-3 empty:hidden">
-        <BlockedNotice onNavigate={setActiveTab} active={active} />
-        <UpdateBanner />
-        <SupportBanner show={activeTab === 'control' && active} onOpen={openSupport} />
+          below; with none showing, the space goes too. One at a time, the
+          first that has something to say (.notices): stacked, a problem, an
+          update and the support card took a small window's whole height,
+          and the status and the Start/Stop button went off the screen. */}
+      <div className="notices pt-3 empty:hidden">
+        {updateFirst && <UpdateBanner />}
+        <BlockedNotice onNavigate={setActiveTab} active={active} proxyInPanel={activeTab === 'control'} />
+        {!updateFirst && !(notRouting && activeTab === 'control') && <UpdateBanner />}
+        <SupportBanner show={activeTab === 'control' && active && !notRouting} onOpen={openSupport} />
       </div>
 
       {/* Content */}

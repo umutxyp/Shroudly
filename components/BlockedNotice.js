@@ -13,7 +13,8 @@
 import { useEffect, useState } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { ShieldAlertIcon, RefreshIcon, CloseIcon, InfoIcon, CopyIcon, CheckIcon } from './icons';
-import { proxyNotice, chromiumNote } from './proxyNotice';
+import { proxyNotice, chromiumNote, PROXY_ACTIONS } from './proxyNotice';
+import ClampedText from './ClampedText';
 
 function Banner({ tone = 'warn', Icon, title, body, children, onClose, closeLabel }) {
   const c = tone === 'accent'
@@ -27,8 +28,8 @@ function Banner({ tone = 'warn', Icon, title, body, children, onClose, closeLabe
         <div className="min-w-0 flex-1">
           {title && <p className="text-[13px] font-medium leading-snug wrap-anywhere" style={{ color: 'var(--text)' }}>{title}</p>}
           {body && (
-            <p className={`${title ? 'mt-1 text-[12px]' : 'text-[12.5px]'} leading-snug wrap-anywhere`}
-               style={{ color: title ? 'var(--text-dim)' : 'var(--text)' }}>{body}</p>
+            <ClampedText text={body} className={`${title ? 'mt-1 text-[12px]' : 'text-[12.5px]'} leading-snug`}
+                         style={{ color: title ? 'var(--text-dim)' : 'var(--text)' }} />
           )}
           {children}
         </div>
@@ -94,7 +95,9 @@ function remember(key) { try { localStorage.setItem(key, '1'); } catch {} }
 // The lines about a Roblox Studio around Shroudly (shown from the apps state).
 const STUDIO_LINES = ['autoStudioReopen', 'autoStudioParent', 'autoStudioAgain'];
 
-export default function BlockedNotice({ onNavigate, active = false }) {
+/* proxyInPanel: the Protection panel is showing, and says itself, under its
+ * status, when browsers are not going through Shroudly (ControlPanel). */
+export default function BlockedNotice({ onNavigate, active = false, proxyInPanel = false }) {
   const { t, locale, language } = useLanguage();
   const [host, setHost] = useState(null);
   const [hostAsked, setHostAsked] = useState(false); // the autopilot asked for Advanced mode for it
@@ -255,21 +258,26 @@ export default function BlockedNotice({ onNavigate, active = false }) {
   }
   /* The system proxy is what routes browsers and most programs: when it is
    * not in place, nothing else here matters, so this comes first. Which
-   * banner, and its button, is decided in proxyNotice.js. */
+   * banner, and its button, is decided in proxyNotice.js. While browsers
+   * are not going through Shroudly it stays until that is fixed: closing it
+   * left a green "Protected" with nothing to say otherwise. On the
+   * Protection panel the panel itself says it, under its status, and
+   * nothing further down here is shown until it is fixed. */
   const pn = proxyNotice(proxy, { active, recovery });
-  if (pn && !hidden[pn.id]) {
-    const actions = {
-      admin: { label: 'proxyAdminButton', go: async () => { const r = await window.electron.proxyApplyAsAdmin(); if (r && r.ok) setProxy({ ...proxy, ok: true }); } },
-      reapply: { label: 'proxyReapply', go: () => window.electron.proxyReapply() },
-      recover: { label: 'proxyRecoverButton', go: async () => { const r = await window.electron.proxyRecoverAsAdmin(); if (r && r.ok) setRecovery(null); } },
+  if (pn && pn.notRouting && proxyInPanel) return null;
+  if (pn && (pn.notRouting || !hidden[pn.id])) {
+    const a = pn.action ? PROXY_ACTIONS[pn.action] : null;
+    const go = async () => {
+      const r = await a.run();
+      if (r && r.ok && pn.action === 'admin') setProxy({ ...proxy, ok: true });
+      if (r && r.ok && pn.action === 'recover') setRecovery(null);
     };
-    const a = pn.action ? actions[pn.action] : null;
     return (
       <Banner Icon={pn.icon === 'info' ? InfoIcon : ShieldAlertIcon} title={pn.title ? t(pn.title) : null} body={t(pn.body, pn.params)}
-              onClose={() => hide(pn.id)} closeLabel={closeLabel}>
+              onClose={pn.notRouting ? null : () => hide(pn.id)} closeLabel={closeLabel}>
         {a && (
           <Actions>
-            <button type="button" disabled={busy} onClick={() => run(a.go)}
+            <button type="button" disabled={busy} onClick={() => run(go)}
                     className="btn btn-primary rounded-[8px] px-3 py-1.5 text-[12.5px] font-semibold">{t(a.label)}</button>
           </Actions>
         )}

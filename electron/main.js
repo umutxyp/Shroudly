@@ -374,12 +374,19 @@ function tr() {
   return i18n.strings(i18n.resolveLanguage(store.get('language'), systemLanguages()));
 }
 
+/* Protection is on, but browsers and most programs are not going through it:
+ * the system proxy could not be set, waits for an administrator's password,
+ * or another program took it over (SystemProxy.routes). The window, the tray
+ * and the start's notification say "Not working yet" then, not "Protected":
+ * a small banner under a big green "Protected" was read as "it works". */
+function notRouting() { return !!(engine && engine.isActive() && !engine.routing()); }
+
 let trayActive = false;
 function rebuildTrayMenu(active = trayActive) {
   trayActive = active;
   if (!tray) return;
   const s = tr();
-  const state = active ? s.trayActive : engineBlocked() ? s.traySecurityBlocked : s.trayInactive;
+  const state = active ? (notRouting() ? s.notWorkingYet : s.trayActive) : engineBlocked() ? s.traySecurityBlocked : s.trayInactive;
   const menu = Menu.buildFromTemplate([
     { label: s.trayOpen, click: () => showWindow() },
     { type: 'separator' },
@@ -817,7 +824,9 @@ async function safeStart({ user = false } = {}) {
   try {
     const r = await engine.start();
     broadcastStatus(true);
-    notify('Shroudly', tr().trayStarted);
+    // Started, but browsers are not going through it yet: said so, not "on".
+    const routed = !notRouting();
+    notify('Shroudly', routed ? tr().trayStarted : tr().notifyStartedNotRouted);
     syncPresence();
     if (user) advancedProtection.started().catch(() => {});
     // Whether this network blocks what the installed apps need, before they
@@ -829,7 +838,7 @@ async function safeStart({ user = false } = {}) {
     setTimeout(() => { ensureAdblock().catch(() => {}); }, 5000);
     setTimeout(() => { if (storeApps) storeApps.survey().catch(() => {}); }, 3000);
     robloxWatch.warm();
-    return r || { success: true };
+    return { ...(r || { success: true }), routed };
   } catch (e) {
     // An antivirus block has its own line already (securityBlocked).
     if (e.code !== 'security_blocked') addLog('error', `Start failed: ${e.message}`);
@@ -1003,7 +1012,12 @@ app.whenReady().then(async () => {
     // What really happened to the system proxy (system-proxy.js): set, needs
     // an administrator (macOS standard account), not possible on this desktop,
     // refused, or taken over by another program. Shown in the window.
-    onProxyStatus: (st) => toWindow('dpi:proxy-status', st),
+    // The status in the window and the tray follows it ("Not working yet").
+    onProxyStatus: (st) => {
+      toWindow('dpi:proxy-status', st);
+      rebuildTrayMenu();
+      toWindow('dpi:status-changed', !!(engine && engine.isActive()));
+    },
     // macOS: settings from before a restart still waiting for an
     // administrator's password, after the user dismissed its dialog.
     onProxyRecovery: (r) => toWindow('dpi:proxy-recovery', r),
@@ -1318,8 +1332,9 @@ ipcMain.handle('dpi:advice', () => (engine ? engine.advice : null));
 ipcMain.handle('proxy:status', () => (engine ? engine.proxyStatus : null));
 // macOS standard account: an administrator allows it once.
 ipcMain.handle('proxy:applyAsAdmin', async () => (engine ? engine.applyProxyAsAdmin() : { ok: false, code: 'not_active' }));
-// Taken over by another program: point the system at Shroudly again. Says
-// what came of it (a password dialog dismissed is not "set again").
+// Taken over by another program, or could not be set ("Try again"): point
+// the system at Shroudly again. Says what came of it (a password dialog
+// dismissed is not "set again").
 ipcMain.handle('proxy:reapply', async () => {
   if (!engine || !engine.isActive()) return { ok: false, code: 'not_active' };
   try {
@@ -1359,6 +1374,9 @@ ipcMain.handle('dpi:status', () => ({
   stats: engine ? engine.getStats() : {},
   // An antivirus took or refused the engine: the window says so.
   blocked: engineBlocked(),
+  // On, but browsers are not going through it, and why (proxyNotice.js).
+  notRouting: notRouting(),
+  proxy: engine ? engine.proxyStatus : null,
 }));
 ipcMain.handle('dpi:probe', (e, host) => {
   if (engine && typeof host === 'string' && host) { userTests.set(host.toLowerCase(), Date.now()); engine.probe(host); }
