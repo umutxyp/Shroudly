@@ -425,6 +425,7 @@
   "notifyUpdateReady": "ورژن {version} تیار ہے۔ اسے انسٹال کرنے کے لیے Shroudly دوبارہ شروع ہوگا۔",
   "notifyUpdatePassword": "ورژن {version} انسٹال ہونے کے لیے تیار ہے۔ انسٹال کرنے کے لیے Shroudly کھولیں (آپ کا پاس ورڈ پوچھے گا)۔",
   "notifyUpdateAdmin": "ورژن {version} انسٹال ہونے کے لیے تیار ہے۔ انسٹال کرنے کے لیے Shroudly کھولیں (ایڈمنسٹریٹر کی اجازت مانگے گا)۔",
+  "updAdminPrompt": "Applications فولڈر میں ورژن {version} انسٹال کرنے کے لیے Shroudly کو ایڈمنسٹریٹر کا پاس ورڈ درکار ہے۔",
   "notifySiteBlockedTitle": "ایک سائٹ اب بھی بلاک ہے",
   "notifySiteBlockedBody": "{host} کسی بھی طریقے سے نہ کھلی۔ اس نیٹ ورک پر ایڈوانسڈ موڈ کام کر سکتا ہے۔",
   "notifySiteBlockedBodyAdvancedOn": "{host} ابھی تک نہیں کھلی۔ ایڈوانسڈ موڈ آن ہے، اور Shroudly دوسرے طریقے آزماتا جا رہا ہے۔",

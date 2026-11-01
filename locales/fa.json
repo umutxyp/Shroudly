@@ -425,6 +425,7 @@
   "notifyUpdateReady": "نسخهٔ {version} آماده است. Shroudly برای نصب آن دوباره راه‌اندازی می‌شود.",
   "notifyUpdatePassword": "نسخهٔ {version} آمادهٔ نصب است. برای نصب، Shroudly را باز کنید (رمز عبورتان را می‌پرسد).",
   "notifyUpdateAdmin": "نسخهٔ {version} آمادهٔ نصب است. برای نصب، Shroudly را باز کنید (اجازهٔ مدیر سیستم را می‌پرسد).",
+  "updAdminPrompt": "Shroudly برای نصب نسخهٔ {version} در پوشهٔ Applications به رمز عبور مدیر سیستم نیاز دارد.",
   "notifySiteBlockedTitle": "یک سایت هنوز مسدود است",
   "notifySiteBlockedBody": "{host} با هیچ روشی باز نشد. در این شبکه شاید حالت پیشرفته عبور کند.",
   "notifySiteBlockedBodyAdvancedOn": "{host} هنوز باز نشده است. حالت پیشرفته روشن است و Shroudly همچنان راه‌های دیگری را امتحان می‌کند.",

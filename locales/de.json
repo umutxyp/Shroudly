@@ -425,6 +425,7 @@
   "notifyUpdateReady": "Version {version} ist bereit. Shroudly startet neu, um sie zu installieren.",
   "notifyUpdatePassword": "Version {version} ist bereit zur Installation. Öffnen Sie Shroudly, um sie zu installieren (fragt nach Ihrem Passwort).",
   "notifyUpdateAdmin": "Version {version} ist bereit zur Installation. Öffnen Sie Shroudly, um sie zu installieren (fragt nach Administratorrechten).",
+  "updAdminPrompt": "Shroudly braucht das Passwort eines Administrators, um Version {version} im Ordner „Programme“ zu installieren.",
   "notifySiteBlockedTitle": "Eine Seite ist weiterhin gesperrt",
   "notifySiteBlockedBody": "{host} ließ sich mit keiner Methode öffnen. Der erweiterte Modus kommt in diesem Netz vielleicht durch.",
   "notifySiteBlockedBodyAdvancedOn": "{host} hat sich noch nicht geöffnet. Der erweiterte Modus ist an, und Shroudly probiert weiter andere Wege.",

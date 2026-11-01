@@ -425,6 +425,7 @@
   "notifyUpdateReady": "ስሪት {version} ዝግጁ ነው። Shroudly ለመጫን እንደገና ይጀምራል።",
   "notifyUpdatePassword": "ስሪት {version} ለመጫን ዝግጁ ነው። ለመጫን Shroudlyን ይክፈቱ (የይለፍ ቃልዎን ይጠይቃል)።",
   "notifyUpdateAdmin": "ስሪት {version} ለመጫን ዝግጁ ነው። ለመጫን Shroudlyን ይክፈቱ (የአስተዳዳሪ ፈቃድ ይጠይቃል)።",
+  "updAdminPrompt": "Shroudly ስሪት {version}ን በApplications አቃፊ ውስጥ ለመጫን የአስተዳዳሪ የይለፍ ቃል ያስፈልገዋል።",
   "notifySiteBlockedTitle": "አንድ ድረ-ገጽ አሁንም ታግዷል",
   "notifySiteBlockedBody": "{host} በየትኛውም ዘዴ ሊከፈት አልቻለም። በዚህ አውታረ መረብ ላይ የላቀ ሁነታ ሊያልፍ ይችላል።",
   "notifySiteBlockedBodyAdvancedOn": "{host} እስካሁን አልተከፈተም። የላቀ ሁነታ በርቷል፣ Shroudly ደግሞ ሌሎች መንገዶችን መሞከሩን ቀጥሏል።",

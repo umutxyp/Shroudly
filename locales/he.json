@@ -425,6 +425,7 @@
   "notifyUpdateReady": "גרסה {version} מוכנה. Shroudly יופעל מחדש כדי להתקין אותה.",
   "notifyUpdatePassword": "גרסה {version} מוכנה להתקנה. יש לפתוח את Shroudly כדי להתקין אותה (תידרש סיסמה).",
   "notifyUpdateAdmin": "גרסה {version} מוכנה להתקנה. יש לפתוח את Shroudly כדי להתקין אותה (תידרש הרשאת מנהל).",
+  "updAdminPrompt": "Shroudly צריך סיסמת מנהל כדי להתקין את גרסה {version} בתיקיית היישומים.",
   "notifySiteBlockedTitle": "אתר עדיין חסום",
   "notifySiteBlockedBody": "לא ניתן היה לפתוח את {host} בשום שיטה. ייתכן שהמצב המתקדם יצליח לעבור ברשת הזו.",
   "notifySiteBlockedBodyAdvancedOn": "{host} עדיין לא נפתח. המצב המתקדם פועל, ו-Shroudly ממשיך לנסות דרכים אחרות.",

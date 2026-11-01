@@ -425,6 +425,7 @@
   "notifyUpdateReady": "সংস্করণ {version} প্রস্তুত। এটি ইনস্টল করতে Shroudly আবার চালু হবে।",
   "notifyUpdatePassword": "সংস্করণ {version} ইনস্টলের জন্য প্রস্তুত। ইনস্টল করতে Shroudly খুলুন (আপনার পাসওয়ার্ড চাইবে)।",
   "notifyUpdateAdmin": "সংস্করণ {version} ইনস্টলের জন্য প্রস্তুত। ইনস্টল করতে Shroudly খুলুন (অ্যাডমিনিস্ট্রেটরের অনুমতি চাইবে)।",
+  "updAdminPrompt": "Applications ফোল্ডারে সংস্করণ {version} ইনস্টল করতে Shroudly-র অ্যাডমিনিস্ট্রেটরের পাসওয়ার্ড দরকার।",
   "notifySiteBlockedTitle": "একটি সাইট এখনও ব্লক",
   "notifySiteBlockedBody": "{host} কোনো পদ্ধতিতেই খোলেনি। এই নেটওয়ার্কে উন্নত মোড কাজ করতে পারে।",
   "notifySiteBlockedBodyAdvancedOn": "{host} এখনো খোলেনি। উন্নত মোড চালু আছে, আর Shroudly অন্য উপায়ে চেষ্টা চালিয়ে যাচ্ছে।",

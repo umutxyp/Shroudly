@@ -425,6 +425,7 @@
   "notifyUpdateReady": "Версия {version} готова. Shroudly перезапустится, чтобы установить её.",
   "notifyUpdatePassword": "Версия {version} готова к установке. Откройте Shroudly, чтобы установить её (потребуется ваш пароль).",
   "notifyUpdateAdmin": "Версия {version} готова к установке. Откройте Shroudly, чтобы установить её (потребуется разрешение администратора).",
+  "updAdminPrompt": "Shroudly нужен пароль администратора, чтобы установить версию {version} в папку «Программы».",
   "notifySiteBlockedTitle": "Сайт всё ещё заблокирован",
   "notifySiteBlockedBody": "{host} не открылся ни одним способом. На этой сети может помочь расширенный режим.",
   "notifySiteBlockedBodyAdvancedOn": "{host} пока не открылся. Расширенный режим включён, и Shroudly продолжает пробовать другие способы.",

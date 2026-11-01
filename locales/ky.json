@@ -425,6 +425,7 @@
   "notifyUpdateReady": "{version} версиясы даяр. Shroudly аны орнотуу үчүн кайра иштетилет.",
   "notifyUpdatePassword": "{version} версиясы орнотууга даяр. Орнотуу үчүн Shroudly'ни ачыңыз (сырсөзүңүздү сурайт).",
   "notifyUpdateAdmin": "{version} версиясы орнотууга даяр. Орнотуу үчүн Shroudly'ни ачыңыз (администратордун уруксатын сурайт).",
+  "updAdminPrompt": "{version} версиясын Applications папкасына орнотуу үчүн Shroudly'ге администратордун сырсөзү керек.",
   "notifySiteBlockedTitle": "Сайт дагы эле бөгөттөлгөн",
   "notifySiteBlockedBody": "{host} сайты эч бир ыкма менен ачылган жок. Бул тармакта Кеңейтилген режим өтүп кетиши мүмкүн.",
   "notifySiteBlockedBodyAdvancedOn": "{host} сайты азырынча ачыла элек. Кеңейтилген режим күйүк, Shroudly башка жолдорду сынаганын улантып жатат.",

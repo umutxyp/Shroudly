@@ -425,6 +425,7 @@
   "notifyUpdateReady": "الإصدار {version} جاهز. سيُعاد تشغيل Shroudly لتثبيته.",
   "notifyUpdatePassword": "الإصدار {version} جاهز للتثبيت. افتح Shroudly لتثبيته (سيطلب كلمة المرور).",
   "notifyUpdateAdmin": "الإصدار {version} جاهز للتثبيت. افتح Shroudly لتثبيته (سيطلب إذن المسؤول).",
+  "updAdminPrompt": "يحتاج Shroudly إلى كلمة مرور المسؤول لتثبيت الإصدار {version} في مجلد التطبيقات.",
   "notifySiteBlockedTitle": "لا يزال أحد المواقع محجوبًا",
   "notifySiteBlockedBody": "لم يُفتح {host} بأي أسلوب. قد ينجح الوضع المتقدم على هذه الشبكة.",
   "notifySiteBlockedBodyAdvancedOn": "لم يُفتح {host} بعد. الوضع المتقدم مفعّل، ويواصل Shroudly تجربة طرق أخرى.",

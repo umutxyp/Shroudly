@@ -425,6 +425,7 @@
   "notifyUpdateReady": "Phiên bản {version} đã sẵn sàng. Shroudly sẽ khởi động lại để cài đặt.",
   "notifyUpdatePassword": "Phiên bản {version} đã sẵn sàng để cài đặt. Hãy mở Shroudly để cài đặt (sẽ hỏi mật khẩu của bạn).",
   "notifyUpdateAdmin": "Phiên bản {version} đã sẵn sàng để cài đặt. Hãy mở Shroudly để cài đặt (sẽ hỏi quyền quản trị viên).",
+  "updAdminPrompt": "Shroudly cần mật khẩu của quản trị viên để cài đặt phiên bản {version} vào thư mục Ứng dụng.",
   "notifySiteBlockedTitle": "Một trang web vẫn bị chặn",
   "notifySiteBlockedBody": "Không thể mở {host} bằng bất kỳ cách nào. Chế độ nâng cao có thể vượt qua được trên mạng này.",
   "notifySiteBlockedBodyAdvancedOn": "{host} vẫn chưa mở được. Chế độ nâng cao đang bật, và Shroudly vẫn tiếp tục thử các cách khác.",

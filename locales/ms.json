@@ -425,6 +425,7 @@
   "notifyUpdateReady": "Versi {version} sudah sedia. Shroudly akan dimulakan semula untuk memasangnya.",
   "notifyUpdatePassword": "Versi {version} sedia untuk dipasang. Buka Shroudly untuk memasangnya (meminta kata laluan anda).",
   "notifyUpdateAdmin": "Versi {version} sedia untuk dipasang. Buka Shroudly untuk memasangnya (meminta kebenaran pentadbir).",
+  "updAdminPrompt": "Shroudly memerlukan kata laluan pentadbir untuk memasang versi {version} dalam folder Aplikasi.",
   "notifySiteBlockedTitle": "Sebuah laman masih disekat",
   "notifySiteBlockedBody": "{host} tidak dapat dibuka dengan sebarang kaedah. Mod Lanjutan mungkin dapat menembusinya pada rangkaian ini.",
   "notifySiteBlockedBodyAdvancedOn": "{host} belum dapat dibuka. Mod Lanjutan sudah aktif, dan Shroudly terus mencuba cara lain.",

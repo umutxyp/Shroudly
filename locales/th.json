@@ -425,6 +425,7 @@
   "notifyUpdateReady": "เวอร์ชัน {version} พร้อมแล้ว Shroudly จะเริ่มใหม่เพื่อติดตั้ง",
   "notifyUpdatePassword": "เวอร์ชัน {version} พร้อมติดตั้งแล้ว เปิด Shroudly เพื่อติดตั้ง (ต้องใส่รหัสผ่าน)",
   "notifyUpdateAdmin": "เวอร์ชัน {version} พร้อมติดตั้งแล้ว เปิด Shroudly เพื่อติดตั้ง (ต้องได้รับอนุญาตจากผู้ดูแลระบบ)",
+  "updAdminPrompt": "Shroudly ต้องใช้รหัสผ่านของผู้ดูแลระบบเพื่อติดตั้งเวอร์ชัน {version} ในโฟลเดอร์แอปพลิเคชัน",
   "notifySiteBlockedTitle": "ยังมีเว็บไซต์ที่ถูกบล็อกอยู่",
   "notifySiteBlockedBody": "{host} เปิดไม่ได้ด้วยวิธีใดเลย โหมดขั้นสูงอาจผ่านได้บนเครือข่ายนี้",
   "notifySiteBlockedBodyAdvancedOn": "{host} ยังเปิดไม่ได้ โหมดขั้นสูงเปิดอยู่แล้ว และ Shroudly ยังคงลองวิธีอื่นต่อไป",

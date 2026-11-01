@@ -1032,6 +1032,45 @@ const sandbox = () => fs.mkdtempSync(path.join(os.tmpdir(), 'shroudly-updtest-')
     fs.rmSync(dir, { recursive: true, force: true });
     fs.rmSync(v.dir, { recursive: true, force: true });
   }
+  // ── macOS, Applications not this account's to change (VML-3) ──
+  {
+    let before = 0;
+    let undone = 0;
+    const told = [];
+    const { u, logs, dir } = mac('Shroudly-2.5.6-macOS-arm64.zip', {
+      store: memStore(), beforeInstall: async () => { before++; }, onInstallFailed: () => { undone++; },
+      notify: (v, kind) => told.push(`${v} ${kind}`), adminPrompt: (v) => `Shroudly needs an administrator's password to install version ${v}.`, away: () => true,
+    });
+    u._macCanReplace = () => false;
+    u._macBundle = () => '/Applications/Shroudly.app';
+    inApps = true;
+    await u.download();
+    await sleep(20);
+    t.ok(u.state.status === 'ready' && u.permission === 'admin' && u.state.permission === 'admin' && !u.restartTimer && !u.waitTimer && told.join() === '2.5.6 admin',
+      'a standard account, the app in Applications: downloaded all the same, installed only from the button that says it asks for an administrator (said once)');
+    let swaps = 0;
+    u._macSwapOnExit = () => { swaps++; };
+    u.installOnQuit();
+    t.ok(swaps === 0 && !u.installing, '…never at a quit (a password dialog with nobody expecting it)');
+    const asked = [];
+    u.osascript = async (args) => { asked.push({ args, stopped: before }); throw new Error('execution error: User canceled. (-128)'); };
+    exits = 0;
+    await u.install();
+    t.ok(asked.length === 1 && asked[0].stopped === 0 && before === 0 && undone === 0 && exits === 0 && u.state.failed && !u.installing,
+      'the password asked first, while protection is still on; refused: nothing stopped, Shroudly carries on, the version noted');
+    const src = asked[0].args[1];
+    t.ok(asked[0].args[0] === '-e' && /with prompt "Shroudly needs an administrator's password to install version 2\.5\.6\." with administrator privileges$/.test(src)
+      && /^do shell script "\/bin\/sh '[^']+install\.sh' '\d+' '[^']+\.zip' /.test(src) && new RegExp(`'${process.getuid()}' </dev/null >/dev/null 2>&1 &"`).test(src),
+    '…one macOS dialog saying what it is for, running the same swap script in the background, told whose app to open afterwards');
+    u.osascript = async () => '';
+    u._set({ failed: false });
+    await u.install();
+    t.ok(before === 1 && exits === 1, 'the password given: protection stopped, Shroudly quits, the script swaps the app');
+    inApps = false;
+    fs.rmSync(dir, { recursive: true, force: true });
+    void logs;
+  }
+
   process.removeListener('uncaughtException', onUncaught);
   server.close();
 
@@ -1065,15 +1104,15 @@ const sandbox = () => fs.mkdtempSync(path.join(os.tmpdir(), 'shroudly-updtest-')
       fs.rmSync(opened, { force: true });
       const script = path.join(work, 'install.sh');
       fs.writeFileSync(script, Updater.macSwapScript({ ...tools, codesign }));
-      const r = spawnSync('/bin/sh', [script, String(dead), zip, work, app, relaunch, marker, '2.5.6']);
+      const r = spawnSync('/bin/sh', [script, String(dead), zip, work, app, relaunch, marker, '2.5.6', String(process.getuid())]);
       const read = (f) => { try { return fs.readFileSync(f, 'utf8').trim(); } catch { return null; } };
       return { code: r.status, version: read(path.join(app, 'v')), opened: read(opened), marker: read(marker), workLeft: fs.existsSync(work), oldLeft: fs.existsSync(`${app}.old`) };
     };
     const ok = swap();
-    t.ok(ok.code === 0 && ok.version === '2' && ok.opened.endsWith('--args --updated') && ok.marker === null && !ok.workLeft && !ok.oldLeft,
-      'the swap: the new app in place, opened again, its download gone');
+    t.ok(ok.code === 0 && ok.version === '2' && ok.opened === `-g ${path.join(dir, 'Applications', 'Shroudly.app')} --args --updated` && ok.marker === null && !ok.workLeft && !ok.oldLeft,
+      'the swap: the new app in place, opened again in the background (never over a full-screen game or film), its download gone');
     const missing = swap({ zip: path.join(dir, 'gone.zip') });
-    t.ok(missing.code === 1 && missing.version === '1' && missing.opened.endsWith(`--args ${Updater.UPDATE_FAILED_ARG}`) && missing.marker === '2.5.6 unpack',
+    t.ok(missing.code === 1 && missing.version === '1' && missing.opened.startsWith('-g ') && missing.opened.endsWith(`--args ${Updater.UPDATE_FAILED_ARG}`) && missing.marker === '2.5.6 unpack',
       'the zip gone (macOS empties its temporary folder after three days): the app as it was, opened again, the failure noted');
     const unsigned = swap({ codesign: badSign });
     t.ok(unsigned.code === 1 && unsigned.version === '1' && unsigned.opened.endsWith(`--args ${Updater.UPDATE_FAILED_ARG}`) && unsigned.marker === '2.5.6 signature' && !unsigned.oldLeft,

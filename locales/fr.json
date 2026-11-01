@@ -425,6 +425,7 @@
   "notifyUpdateReady": "La version {version} est prête. Shroudly va redémarrer pour l’installer.",
   "notifyUpdatePassword": "La version {version} est prête à être installée. Ouvrez Shroudly pour l’installer (votre mot de passe sera demandé).",
   "notifyUpdateAdmin": "La version {version} est prête à être installée. Ouvrez Shroudly pour l’installer (l’autorisation d’un administrateur sera demandée).",
+  "updAdminPrompt": "Shroudly a besoin du mot de passe d’un administrateur pour installer la version {version} dans le dossier Applications.",
   "notifySiteBlockedTitle": "Un site reste bloqué",
   "notifySiteBlockedBody": "{host} ne s’est ouvert par aucune méthode. Le mode Avancé peut passer sur ce réseau.",
   "notifySiteBlockedBodyAdvancedOn": "{host} ne s’est pas encore ouvert. Le mode Avancé est activé, et Shroudly continue d’essayer d’autres moyens.",

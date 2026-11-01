@@ -425,6 +425,7 @@
   "notifyUpdateReady": "バージョン {version} の準備ができました。インストールのため Shroudly を再起動します。",
   "notifyUpdatePassword": "バージョン {version} をインストールする準備ができました。Shroudly を開いてインストールしてください（パスワードが必要です）。",
   "notifyUpdateAdmin": "バージョン {version} をインストールする準備ができました。Shroudly を開いてインストールしてください（管理者の許可が必要です）。",
+  "updAdminPrompt": "バージョン {version} をアプリケーションフォルダにインストールするには、管理者のパスワードが必要です。",
   "notifySiteBlockedTitle": "まだ開けないサイトがあります",
   "notifySiteBlockedBody": "{host} はどの方法でも開けませんでした。このネットワークでは高度なモードなら通るかもしれません。",
   "notifySiteBlockedBodyAdvancedOn": "{host} はまだ開けていません。高度なモードはオンで、Shroudly は別の方法を試し続けています。",

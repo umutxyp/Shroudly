@@ -425,6 +425,7 @@
   "notifyUpdateReady": "{version} نسخه چمتو ده. Shroudly به د نصبولو لپاره بیا پیل شي.",
   "notifyUpdatePassword": "{version} نسخه د نصبولو لپاره چمتو ده. د نصبولو لپاره Shroudly پرانیزئ (ستاسو پټنوم غواړي).",
   "notifyUpdateAdmin": "{version} نسخه د نصبولو لپاره چمتو ده. د نصبولو لپاره Shroudly پرانیزئ (د مدیر اجازه غواړي).",
+  "updAdminPrompt": "Shroudly ته د Applications په فولډر کې د {version} نسخې د نصبولو لپاره د مدیر پټنوم پکار دی.",
   "notifySiteBlockedTitle": "یو سایټ لا هم بند دی",
   "notifySiteBlockedBody": "{host} په هېڅ طریقه پرانیستل نه شو. ښايي پرمختللی حالت په دې شبکه کې ترې تېر شي.",
   "notifySiteBlockedBodyAdvancedOn": "{host} لا نه دی پرانیستل شوی. پرمختللی حالت فعال دی، او Shroudly لا هم نورې لارې ازمویي.",

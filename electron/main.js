@@ -1110,6 +1110,9 @@ app.whenReady().then(async () => {
     // administrator's permission (Windows, installed for everyone), which
     // only the button starts.
     notify: (version, kind) => notify('Shroudly', (kind === 'password' ? tr().notifyUpdatePassword : kind === 'admin' ? tr().notifyUpdateAdmin : tr().notifyUpdateReady).replace('{version}', version)),
+    // macOS, Applications not this account's to change: what the password
+    // dialog says it is for.
+    adminPrompt: (version) => tr().updAdminPrompt.replace('{version}', version),
     // What a restart would interrupt: the Roblox player or Studio and
     // Discord, while their mode sends them through Shroudly and protection
     // is on.
@@ -1170,12 +1173,15 @@ app.whenReady().then(async () => {
   // macOS swap, the Windows installer refused its permission), the same
   // version still: as after an update, not as a start by hand.
   const updateFailed = process.argv.includes(Updater.UPDATE_FAILED_ARG);
+  const relaunched = Launch.isUpdateRelaunch(afterUpdate, appVersion(), Date.now(), { failed: updateFailed });
   const how = Launch.startWindow({
     autoStart: isAutoStartLaunch(), minimizeToTray: store.get('minimizeToTray', true),
-    afterUpdate: Launch.isUpdateRelaunch(afterUpdate, appVersion(), Date.now(), { failed: updateFailed }) ? afterUpdate : null, trayShown: canLeave(),
+    afterUpdate: relaunched ? afterUpdate : null, trayShown: canLeave(),
   });
   if (how === 'tray') { setDockIcon(false); addLog('info', 'Auto-started in tray'); }
-  else await createWindow({ show: true, minimised: how === 'minimised' });
+  // Back from an update with the window that was open: shown where it was,
+  // without taking the screen from a game or film in front.
+  else await createWindow({ show: true, minimised: how === 'minimised', quiet: relaunched });
   addLog('success', 'Application started');
   // Kept for the next time the settings file is found damaged.
   SettingsFile.keepCopy(app.getPath('userData'));

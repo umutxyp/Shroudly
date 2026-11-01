@@ -425,6 +425,7 @@
   "notifyUpdateReady": "{version} versiyasi tayyor. Uni oʻrnatish uchun Shroudly qayta ishga tushadi.",
   "notifyUpdatePassword": "{version} versiyasi oʻrnatishga tayyor. Oʻrnatish uchun Shroudlyni oching (parolingizni soʻraydi).",
   "notifyUpdateAdmin": "{version} versiyasi oʻrnatishga tayyor. Oʻrnatish uchun Shroudlyni oching (administrator ruxsatini soʻraydi).",
+  "updAdminPrompt": "{version} versiyasini Applications jildiga oʻrnatish uchun Shroudlyga administrator paroli kerak.",
   "notifySiteBlockedTitle": "Sayt hamon bloklangan",
   "notifySiteBlockedBody": "{host} hech qanday usul bilan ochilmadi. Bu tarmoqda Kengaytirilgan rejim yordam berishi mumkin.",
   "notifySiteBlockedBodyAdvancedOn": "{host} hali ochilmadi. Kengaytirilgan rejim yoqilgan, Shroudly boshqa yoʻllarni sinab koʻrishda davom etmoqda.",

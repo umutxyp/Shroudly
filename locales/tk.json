@@ -425,6 +425,7 @@
   "notifyUpdateReady": "{version} wersiýasy taýýar. Shroudly ony gurnamak üçin täzeden açylar.",
   "notifyUpdatePassword": "{version} wersiýasy gurnamaga taýýar. Gurnamak üçin Shroudly-ni açyň (açar sözüňizi sorar).",
   "notifyUpdateAdmin": "{version} wersiýasy gurnamaga taýýar. Gurnamak üçin Shroudly-ni açyň (administratoryň rugsadyny sorar).",
+  "updAdminPrompt": "{version} wersiýasyny Applications bukjasyna gurnamak üçin Shroudly-e administratoryň açar sözi gerek.",
   "notifySiteBlockedTitle": "Saýt henizem petikli",
   "notifySiteBlockedBody": "{host} hiç bir usul bilen açylmady. Bu torda Giňişleýin tertip geçip biler.",
   "notifySiteBlockedBodyAdvancedOn": "{host} entek açylmady. Giňişleýin tertip açyk, Shroudly başga ýollary synamagy dowam edýär.",

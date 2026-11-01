@@ -425,6 +425,7 @@
   "notifyUpdateReady": "Version {version} is ready. Shroudly will restart to install it.",
   "notifyUpdatePassword": "Version {version} is ready to install. Open Shroudly to install it (it asks for your password).",
   "notifyUpdateAdmin": "Version {version} is ready to install. Open Shroudly to install it (it asks for administrator permission).",
+  "updAdminPrompt": "Shroudly needs an administrator’s password to install version {version} in the Applications folder.",
   "notifySiteBlockedTitle": "A site is still blocked",
   "notifySiteBlockedBody": "{host} would not open with any method. Advanced mode may get through on this network.",
   "notifySiteBlockedBodyAdvancedOn": "{host} has not opened yet. Advanced mode is on, and Shroudly keeps trying other ways.",

@@ -46,7 +46,7 @@
  */
 
 const { app, net, session } = require('electron');
-const { spawn } = require('child_process');
+const { spawn, execFile } = require('child_process');
 const crypto = require('crypto');
 const fs = require('fs');
 const os = require('os');
@@ -382,8 +382,9 @@ function updateDir() {
 class Updater {
   /* onInstallFailed: undo beforeInstall (protection back on, no longer
    * quitting). onAppImageMoved(file): the AppImage now lives at file.
-   * metered(): whether the connection is paid for by the byte. */
-  constructor({ log, store, notify, beforeInstall, onInstallFailed, onAppImageMoved, busy, fullScreen, away, metered, dir }) {
+   * metered(): whether the connection is paid for by the byte.
+   * adminPrompt(version): the sentence macOS's password dialog shows. */
+  constructor({ log, store, notify, beforeInstall, onInstallFailed, onAppImageMoved, busy, fullScreen, away, metered, adminPrompt, dir }) {
     this.log = log || (() => {});
     this.store = store;
     this.notify = notify || (() => {});
@@ -391,6 +392,11 @@ class Updater {
     this.onInstallFailed = onInstallFailed || (() => {});
     this.onAppImageMoved = onAppImageMoved || (() => {});
     this.metered = metered || (() => Metered.metered());
+    this.adminPrompt = adminPrompt || (() => '');
+    // osascript, for the macOS install that needs an administrator (tests: a stand-in).
+    this.osascript = (args) => new Promise((resolve, reject) => {
+      execFile('/usr/bin/osascript', args, { timeout: 10 * 60 * 1000 }, (err, out, errOut) => (err ? reject(new Error(String(errOut || err.message).trim().split('\n')[0])) : resolve(String(out || ''))));
+    });
     this.dir = dir || updateDir();
     this.tmp = os.tmpdir();   // where versions before this one kept downloads
     // Is something running that a restart would cut off (a game, a call)?
@@ -830,7 +836,14 @@ class Updater {
     const zips = feed.files.filter((f) => f.url.endsWith('.zip'));
     const file = zips.find((f) => /arm64/i.test(f.url) === arm) || zips[0];
     if (!file) { this._fail(new Error('no macOS zip in latest-mac.yml')); return; }
-    if (!this._macCanReplace()) { this._set({ status: 'manual', reason: this._macWhy() }); return; }
+    if (!this._macCanReplace()) {
+      // In Applications, which this account cannot change (a standard
+      // account; the app put there by an administrator): downloaded all the
+      // same, and installed from the button with one administrator's
+      // password, never by itself. Anywhere else: moved to Applications first.
+      if (this._macWhy() !== 'folder') { this._set({ status: 'manual', reason: 'location' }); return; }
+      if (this.permission !== 'admin') { this.permission = 'admin'; this._set({ permission: 'admin' }); }
+    }
     try { fs.mkdirSync(this.dir, { recursive: true }); } catch {}
     // Not enough room for the zip and the app it unpacks to: nothing is
     // downloaded, and the next check (every half hour) tries again.
@@ -1133,6 +1146,16 @@ class Updater {
     this.started = null;
     this.stopped = false;
     if (this.mac) {
+      // Applications not this account's to change: the administrator's
+      // password is asked first, while protection is still on; refused,
+      // nothing has been stopped.
+      if (this.permission === 'admin') {
+        try { await this._macSwapAsAdmin(); } catch (e) { this._installFailed(e); return; }
+        await this.beforeInstall();
+        this.stopped = true;
+        app.exit(0);
+        return;
+      }
       await this.beforeInstall(); // stop the engine: puts the system proxy back first
       this.stopped = true;
       try { this._macSwapOnExit(); } catch (e) { this._installFailed(e); return; }
@@ -1205,40 +1228,63 @@ class Updater {
    * update does not unpack or its signature does not check out. Not a
    * version whose install failed before. */
   installOnQuit() {
-    if (!this.mac || !this.macDownload || this.installing || this._failedBefore(this.macDownload.version)) return;
+    if (!this.mac || !this.macDownload || this.installing || this.permission || this._failedBefore(this.macDownload.version)) return;
     try { if (fs.statSync(this.macDownload.zip).size !== this.macDownload.size) return; } catch { return; }
     this.installing = true;
     this._macSwapOnExit(false);
   }
 
-  _macSwapOnExit(relaunch = true) {
+  /* The swap script and what it is given (see macSwapScript). */
+  _macSwapArgs(relaunch) {
     const { zip, dir, version } = this.macDownload;
-    const bundle = this._macBundle();
     const script = path.join(dir, 'install.sh');
     fs.writeFileSync(script, macSwapScript());
-    const p = spawn('/bin/sh', [script, String(process.pid), zip, dir, bundle, relaunch ? '1' : '0', path.join(this.dir, 'failed'), version],
-      { detached: true, stdio: 'ignore' });
+    let uid = '';
+    try { uid = String(process.getuid()); } catch {}
+    return [script, String(process.pid), zip, dir, this._macBundle(), relaunch ? '1' : '0', path.join(this.dir, 'failed'), version, uid];
+  }
+
+  _macSwapOnExit(relaunch = true) {
+    const p = spawn('/bin/sh', this._macSwapArgs(relaunch), { detached: true, stdio: 'ignore' });
     p.unref();
+  }
+
+  /* The same script, run as root once an administrator's password is given
+   * (one macOS dialog, saying what it is for). It waits in the background
+   * for Shroudly to quit; osascript returns as soon as it is on its way, and
+   * fails when the password is refused or the dialog dismissed. */
+  async _macSwapAsAdmin() {
+    const q = (a) => `'${String(a).replace(/'/g, "'\\''")}'`;
+    const shell = `/bin/sh ${this._macSwapArgs(true).map(q).join(' ')} </dev/null >/dev/null 2>&1 &`;
+    const SystemProxy = require('./system-proxy');
+    await this.osascript(['-e', SystemProxy._appleScriptAdmin(shell, true, this.adminPrompt(this.state.version))]);
   }
 }
 
 /* The script that swaps the app bundle once Shroudly has quit:
  *   $1 Shroudly's pid  $2 the zip  $3 its folder  $4 the .app  $5 1: open it afterwards
- *   $6 where to note a failure  $7 the version
+ *   $6 where to note a failure  $7 the version  $8 the user's uid
  * Whatever fails, the app that was there stays, and is opened again when the
  * update was to open it: before, a zip that would not unpack or a signature
  * that did not check out ended the script with Shroudly closed for good, and
  * protection off. The failure is noted for the next start (_readFailedNote).
- * The tools are passed in for the tests. */
+ * The app is opened in the background (open -g), never over a full-screen
+ * game or film, and as the user even when the script runs as root (the
+ * administrator's install, _macSwapAsAdmin). The tools are passed in for the
+ * tests. */
 function macSwapScript({ ditto = '/usr/bin/ditto', codesign = '/usr/bin/codesign', xattr = '/usr/bin/xattr', open = '/usr/bin/open' } = {}) {
   return `#!/bin/sh
 # Wait for Shroudly to exit, then replace the app bundle with the verified update.
-PID="$1"; ZIP="$2"; DIR="$3"; APP="$4"; REOPEN="$5"; NOTE="$6"; VERSION="$7"
+PID="$1"; ZIP="$2"; DIR="$3"; APP="$4"; REOPEN="$5"; NOTE="$6"; VERSION="$7"; OWNER="$8"
 X="$DIR/x"
+as_user() {
+  if [ -n "$OWNER" ] && [ "$(id -u)" = 0 ] && [ "$OWNER" != 0 ]; then /bin/launchctl asuser "$OWNER" /usr/bin/sudo -u "#$OWNER" "$@"; else "$@"; fi
+}
 fail() {
   echo "$VERSION $1" > "$NOTE"
+  [ -n "$OWNER" ] && chown "$OWNER" "$NOTE" 2>/dev/null
   rm -rf "$DIR"
-  [ "$REOPEN" = 1 ] && ${open} "$APP" --args ${UPDATE_FAILED_ARG}
+  [ "$REOPEN" = 1 ] && as_user ${open} -g "$APP" --args ${UPDATE_FAILED_ARG}
   exit 1
 }
 while kill -0 "$PID" 2>/dev/null; do sleep 0.3; done
@@ -1252,7 +1298,7 @@ mv "$APP" "$APP.old" || fail replace
 if ! mv "$NEW" "$APP"; then mv "$APP.old" "$APP"; fail replace; fi
 rm -rf "$APP.old"
 ${xattr} -dr com.apple.quarantine "$APP" 2>/dev/null
-[ "$REOPEN" = 1 ] && ${open} "$APP" --args --updated
+[ "$REOPEN" = 1 ] && as_user ${open} -g "$APP" --args --updated
 rm -rf "$DIR"
 `;
 }

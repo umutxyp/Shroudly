@@ -425,6 +425,7 @@
   "notifyUpdateReady": "Версияи {version} омода аст. Shroudly барои насби он аз нав оғоз мешавад.",
   "notifyUpdatePassword": "Версияи {version} барои насб омода аст. Барои насб Shroudly-ро кушоед (пароли шуморо мепурсад).",
   "notifyUpdateAdmin": "Версияи {version} барои насб омода аст. Барои насб Shroudly-ро кушоед (иҷозати маъмурро мепурсад).",
+  "updAdminPrompt": "Барои насб кардани версияи {version} дар ҷузвдони Applications ба Shroudly пароли маъмур лозим аст.",
   "notifySiteBlockedTitle": "Сомона ҳоло ҳам баста аст",
   "notifySiteBlockedBody": "{host} бо ҳеҷ усул кушода нашуд. Шояд реҷаи пешрафта дар ин шабака гузарад.",
   "notifySiteBlockedBodyAdvancedOn": "{host} ҳоло кушода нашуд. Реҷаи пешрафта фаъол аст ва Shroudly санҷидани роҳҳои дигарро идома медиҳад.",

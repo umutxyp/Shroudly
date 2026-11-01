@@ -425,6 +425,7 @@
   "notifyUpdateReady": "Sürüm {version} hazır. Kurmak için Shroudly yeniden başlatılacak.",
   "notifyUpdatePassword": "Sürüm {version} kurulmaya hazır. Kurmak için Shroudly'yi açın (parolanızı sorar).",
   "notifyUpdateAdmin": "Sürüm {version} kurulmaya hazır. Kurmak için Shroudly'yi açın (yönetici izni ister).",
+  "updAdminPrompt": "Shroudly'nin {version} sürümünü Uygulamalar klasörüne kurmak için bir yöneticinin parolasına ihtiyacı var.",
   "notifySiteBlockedTitle": "Bir site hâlâ engelli",
   "notifySiteBlockedBody": "{host} hiçbir yöntemle açılmadı. Bu ağda Gelişmiş mod geçebilir.",
   "notifySiteBlockedBodyAdvancedOn": "{host} henüz açılmadı. Gelişmiş mod açık, Shroudly başka yollar denemeye devam ediyor.",

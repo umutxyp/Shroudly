@@ -425,6 +425,7 @@
   "notifyUpdateReady": "{version} versiyası hazırdır. Onu quraşdırmaq üçün Shroudly yenidən başladılacaq.",
   "notifyUpdatePassword": "{version} versiyası quraşdırılmağa hazırdır. Quraşdırmaq üçün Shroudly-ni aç (parolunu soruşacaq).",
   "notifyUpdateAdmin": "{version} versiyası quraşdırılmağa hazırdır. Quraşdırmaq üçün Shroudly-ni aç (administrator icazəsi soruşacaq).",
+  "updAdminPrompt": "Shroudly {version} versiyasını Applications qovluğuna quraşdırmaq üçün administrator parolu tələb edir.",
   "notifySiteBlockedTitle": "Sayt hələ də bloklanıb",
   "notifySiteBlockedBody": "{host} heç bir üsulla açılmadı. Bu şəbəkədə Təkmil rejim keçə bilər.",
   "notifySiteBlockedBodyAdvancedOn": "{host} hələ açılmayıb. Təkmil rejim aktivdir və Shroudly başqa yolları sınamağa davam edir.",

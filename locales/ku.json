@@ -425,6 +425,7 @@
   "notifyUpdateReady": "Guhertoya {version} amade ye. Shroudly dê ji bo sazkirina wê ji nû ve vebe.",
   "notifyUpdatePassword": "Guhertoya {version} ji bo sazkirinê amade ye. Ji bo sazkirinê Shroudly veke (şîfreya te dixwaze).",
   "notifyUpdateAdmin": "Guhertoya {version} ji bo sazkirinê amade ye. Ji bo sazkirinê Shroudly veke (destûra rêveberê dixwaze).",
+  "updAdminPrompt": "Ji bo sazkirina guhertoya {version} di peldanka Applications de, Shroudly şîfreya rêveberê dixwaze.",
   "notifySiteBlockedTitle": "Malperek hîn jî astengkirî ye",
   "notifySiteBlockedBody": "{host} bi tu rêbazê venebû. Dibe ku Moda pêşketî li ser vê torê derbas bibe.",
   "notifySiteBlockedBodyAdvancedOn": "{host} hîn venebûye. Moda pêşketî çalak e, û Shroudly berdewam rêyên din diceribîne.",
