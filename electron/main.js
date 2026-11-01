@@ -1489,6 +1489,9 @@ ipcMain.handle('dpi:status', () => ({
   proxy: engine ? engine.proxyStatus : null,
   // The network itself has no internet (engine-manager.js, advice.offline).
   offline: !!(engine && engine.isActive() && engine.advice && engine.advice.offline),
+  // ...because the network's own proxy, set before Shroudly's, is the only
+  // way out (system-proxy.js priorProxy).
+  ownProxy: !!(engine && engine.isActive() && engine.advice && engine.advice.offline && engine.advice.ownProxy),
 }));
 ipcMain.handle('dpi:probe', (e, host) => {
   if (engine && typeof host === 'string' && host) { userTests.set(host.toLowerCase(), Date.now()); engine.probe(host); }

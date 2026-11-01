@@ -311,7 +311,7 @@ class EngineManager {
     this.onAdvice = hooks.onAdvice || (() => {});
     // What the window should tell the user about this network. Kept here, not
     // only sent, because most of it is learned before the window has loaded.
-    this.advice = { conflicts: [], cut: null, dnsDown: false, offline: false };
+    this.advice = { conflicts: [], cut: null, dnsDown: false, offline: false, ownProxy: false };
     this.cuts = new Map();        // host -> [{ reason, t }]
     this.cutHosts = new Set();    // hosts already reported this session
     this.believedAt = new Map();  // host -> when its cut was believed
@@ -503,8 +503,14 @@ class EngineManager {
     try { up = await this.internetAnswers(); } catch {}
     this._offlineCheck = false;
     if (up || !this.active || this.receivedWithin(OFFLINE_WINDOW_MS)) return;
-    this._setAdvice({ offline: true });
-    this.log('warning', 'This network has no internet right now: nothing connects, not even directly; Shroudly carries on when it is back');
+    // A proxy of its own set before Shroudly's (a company's, a school's): the
+    // network lets nothing out any other way, and the engine cannot pass
+    // traffic on to it. Not "no internet" then: Stop puts that proxy back.
+    let own = null;
+    try { own = this.proxy && this.proxy.priorProxy ? this.proxy.priorProxy() : null; } catch {}
+    this._setAdvice({ offline: true, ownProxy: !!own });
+    if (own) this.log('warning', `This network sends everything through its own proxy (${own.what}), which Shroudly cannot pass traffic on to; Stop puts it back`);
+    else this.log('warning', 'This network has no internet right now: nothing connects, not even directly; Shroudly carries on when it is back');
     clearInterval(this._offlineTimer);
     this._offlineTimer = setInterval(() => {
       if (!this.active) { this._clearOffline({ quiet: true }); return; }
@@ -520,7 +526,7 @@ class EngineManager {
     this._offlineTimer = null;
     this._fails = [];
     if (!this.advice.offline) return;
-    this._setAdvice({ offline: false });
+    this._setAdvice({ offline: false, ownProxy: false });
     if (!quiet) this.log('info', 'The internet is back');
   }
 

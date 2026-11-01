@@ -1479,6 +1479,44 @@ ${argsXml}
     return gone;
   }
 
+  /* The proxy this computer had before Shroudly's, pointing elsewhere than
+   * this computer (a company's, a school's or a hotel's: set by hand, by a
+   * PAC file or found on the network): { kind: 'manual' | 'pac', what }, or
+   * null. The engine connects directly and cannot pass traffic on to it, so
+   * on a network that lets nothing out any other way nothing works
+   * (engine-manager.js says so then, and Stop puts it back). */
+  priorProxy(snap = this.snapshot) {
+    if (!snap || snap.form !== 'pac') return null;
+    const local = (h) => /^(127\.|localhost\b|\[?::1\]?)/i.test(String(h || '').trim().replace(/^[a-z]+=/i, ''));
+    const pac = (u) => { const k = SystemProxy._pacKind(u); return k.kind === 'pac' ? { kind: 'pac', what: k.pac } : null; };
+    const unq = (v) => String(v || '').trim().replace(/^'(.*)'$/, '$1');
+    if (this.platform === 'win32') {
+      const on = !!snap.ProxyEnable && /^(0x)?0*1$/i.test(String(snap.ProxyEnable.data).trim());
+      const server = snap.ProxyServer ? String(snap.ProxyServer.data).trim() : '';
+      if (on && server && !local(server)) return { kind: 'manual', what: server };
+      return snap.AutoConfigURL ? pac(snap.AutoConfigURL.data) : null;
+    }
+    if (this.platform === 'darwin') {
+      for (const s of snap.services || []) {
+        if (s.prevAuto && s.prevAuto.enabled) { const p = pac(s.prevAuto.url); if (p) return p; }
+        for (const v of Object.values(s.prevManual || {})) { if (v && !local(v)) return { kind: 'manual', what: v }; }
+      }
+      return null;
+    }
+    if (snap.gnome) {
+      const mode = unq(snap.gnome.mode);
+      const url = unq(snap.gnome.autourl);
+      if (mode === 'auto') { const p = url ? pac(url) : { kind: 'pac', what: 'WPAD' }; if (p) return p; }
+      if (mode === 'manual') return { kind: 'manual', what: 'manual' };
+    }
+    if (snap.kde) {
+      if (snap.kde.type === '1') return { kind: 'manual', what: 'manual' };
+      if (snap.kde.type === '2') { const p = pac(snap.kde.script); if (p) return p; }
+      if (snap.kde.type === '3') return { kind: 'pac', what: 'WPAD' };
+    }
+    return null;
+  }
+
   /* Of what several services or desktops show, the most deliberate. */
   static _mostDeliberate(found) {
     const rank = ['manual', 'pac', 'local', 'ours', 'cleared'];

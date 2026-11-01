@@ -84,6 +84,18 @@ const t = suite('engine-manager');
     for (let i = 0; i < 5; i++) em._onUnreachable(`c${i}.example`, 'connect');
     await settle();
     t.ok(!em.advice.offline && asked === 1, 'a control address answering directly: not "no internet"');
+    // A proxy of the network's own set before Shroudly's: not "no
+    // internet", but that proxy being the only way out (Stop puts it back).
+    em._clearOffline({ quiet: true });
+    direct = false;
+    const proxyWas = em.proxy;
+    em.proxy = { ...proxyWas, priorProxy: () => ({ kind: 'manual', what: 'proxy.corp:8080' }) };
+    for (let i = 0; i < 5; i++) em._onUnreachable(`d${i}.example`, 'connect');
+    await settle();
+    t.ok(em.advice.offline && em.advice.ownProxy && logs.some((l) => /its own proxy \(proxy\.corp:8080\)/.test(l)), "a company's own proxy: said so, and that Stop puts it back");
+    em._clearOffline({ quiet: true });
+    t.ok(!em.advice.offline && !em.advice.ownProxy, 'and gone with the rest');
+    em.proxy = proxyWas;
     clearInterval(em._offlineTimer);
     Object.assign(em, { active: was.active, lastDownAt: was.lastDownAt, internetAnswers: was.ia, stats: was.stats, _fails: [] });
     const main = require('fs').readFileSync(path.join(ROOT, 'electron', 'main.js'), 'utf8');

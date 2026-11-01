@@ -1151,6 +1151,30 @@ const readState = (file) => { try { return JSON.parse(fs.readFileSync(file, 'utf
   const ourPacOn = (svc) => svc.auto.enabled && /^http:\/\/127\.0\.0\.1:\d+\/proxy\.pac$/.test(svc.auto.url);
 
   {
+    // The proxy this computer had before Shroudly's, pointing elsewhere: a
+    // company's, a school's (net-desktop-02). One on this computer, ours, or
+    // none is not one.
+    const P = (platform) => new SystemProxy(() => {}, { platform });
+    const reg = (d) => ({ data: d });
+    t.ok(P('win32').priorProxy({ form: 'pac', ProxyEnable: reg('0x1'), ProxyServer: reg('proxy.corp:8080') }).what === 'proxy.corp:8080'
+      && P('win32').priorProxy({ form: 'pac', AutoConfigURL: reg('http://wpad.corp/wpad.dat') }).kind === 'pac'
+      && P('win32').priorProxy({ form: 'pac', ProxyEnable: reg('0x1'), ProxyServer: reg('127.0.0.1:7890') }) === null
+      && P('win32').priorProxy({ form: 'pac', ProxyEnable: reg('0x0'), ProxyServer: reg('proxy.corp:8080') }) === null
+      && P('win32').priorProxy({ form: 'pac', AutoConfigURL: reg('http://127.0.0.1:9/proxy.pac') }) === null,
+    'Windows: a manual proxy or a PAC elsewhere counts; one on this computer, ours or one switched off does not');
+    t.ok(P('darwin').priorProxy({ form: 'pac', services: [{ name: 'Wi-Fi', prevAuto: { enabled: false, url: '' }, prevManual: { web: 'proxy.school:3128' } }] }).what === 'proxy.school:3128'
+      && P('darwin').priorProxy({ form: 'pac', services: [{ name: 'Wi-Fi', prevAuto: { enabled: true, url: 'http://wpad.lan/p.pac' }, prevManual: {} }] }).kind === 'pac'
+      && P('darwin').priorProxy({ form: 'pac', services: [{ name: 'Wi-Fi', prevAuto: { enabled: false, url: 'http://wpad.lan/p.pac' }, prevManual: { socks: '127.0.0.1:1080' } }] }) === null,
+    'macOS: per service, the same');
+    t.ok(P('linux').priorProxy({ form: 'pac', gnome: { mode: "'auto'", autourl: "''" } }).what === 'WPAD'
+      && P('linux').priorProxy({ form: 'pac', gnome: { mode: "'manual'", autourl: "''" } }).kind === 'manual'
+      && P('linux').priorProxy({ form: 'pac', gnome: { mode: "'none'", autourl: "''" } }) === null
+      && P('linux').priorProxy({ form: 'pac', kde: { type: '2', script: 'http://pac.corp/x.pac' } }).kind === 'pac'
+      && P('linux').priorProxy(null) === null,
+    'Linux (GNOME, KDE): the same, the network\'s own (WPAD) included');
+  }
+
+  {
     // A network service added after Start (an iPhone over USB, a new
     // adapter): it gets the PAC with the next ownership check, and Stop puts
     // it back as it was (net-desktop-06).
