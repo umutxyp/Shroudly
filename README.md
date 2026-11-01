@@ -663,9 +663,11 @@ These links always download the newest version (see [Releases](https://github.co
   included, then goes through Shroudly. The app tells you when a newer version
   is out.
 
-Every package is installed and started on its own system before a release is
-published (Arch, Fedora, openSUSE, Debian, Ubuntu 22.04 and 24.04, both
-AppImages, Windows x64 and ARM, both macOS images).
+Every package is installed on its own system and its engine started before a
+release is published (Arch, Fedora, openSUSE, Debian, Ubuntu 22.04 and 24.04,
+both AppImages, Windows x64 and ARM, both macOS images); the app itself is
+started from both AppImages, both macOS images and the Windows installs.
+The release is published only once all of its files are up.
 
 After that Shroudly updates itself: it checks when it starts and every 30
 minutes and downloads in the background. It restarts to install only while

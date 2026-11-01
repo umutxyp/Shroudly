@@ -4,9 +4,12 @@
  *
  *   GITHUB_TOKEN=... node scripts/publish-release.js [notes.md]
  *
- * Creates release v<version> (from package.json) on the current commit, then
- * uploads only what users and the auto-updater need: the per-arch installers
- * and the latest*.yml update feeds. The universal Windows installer that
+ * Creates release v<version> (from package.json) on the current commit as a
+ * draft, uploads only what users and the auto-updater need (the per-arch
+ * installers and the latest*.yml update feeds), and only then publishes it
+ * as the latest release. Published first, it was "latest" for the minutes
+ * the uploads took, or for good when the job died halfway: every updater
+ * and the mirror then found a release without its feeds or files. The universal Windows installer that
  * electron-builder also produces is left out (and dropped from latest.yml):
  * the updater picks the x64 / arm64 installer, and two Windows choices are
  * enough for people downloading by hand.
@@ -36,7 +39,10 @@ const ASSETS = [
   [`Shroudly-${version}-Linux-arm64.AppImage`, 'Linux · ARM 64-bit (e.g. Raspberry Pi 4/5) · AppImage'],
   [`Shroudly-${version}-Linux-x64.pacman`, 'Linux · Intel/AMD 64-bit · Arch / Manjaro package (.pacman)'],
   [`Shroudly-${version}-Linux-x86_64.rpm`, 'Linux · Intel/AMD 64-bit · Fedora / openSUSE package (.rpm)'],
-  [`Shroudly-${version}-Android.apk`, 'Android 8+ · Phones and tablets · APK', { optional: true }],
+  // Optional only where the Android app is not built (no signing key, a
+  // fork): with the key it must be there, or phones that update from GitHub
+  // are never offered this version (ANDROID_SIGNED, release.yml).
+  [`Shroudly-${version}-Android.apk`, 'Android 8+ · Phones and tablets · APK', { optional: process.env.ANDROID_SIGNED !== 'true' }],
   ['latest.yml', `Update data · Windows ${FEED}`],
   ['latest-mac.yml', `Update data · macOS ${FEED}`],
   ['latest-linux.yml', `Update data · Linux x64 ${FEED}`],
@@ -107,11 +113,16 @@ async function api(url, opts = {}) {
   const repoNotes = path.join(root, 'release-notes', `v${version}.md`);
   const notesFile = process.argv[2] || (fs.existsSync(repoNotes) ? repoNotes : null);
 
-  // Idempotent: if this version is already released (published locally, or a
-  // re-run), reuse it and upload only the files it is missing.
+  // Idempotent: if this version is already released or drafted (published
+  // locally, or a re-run after a job that died), reuse it and upload only the
+  // files it is missing. A draft has no tag yet, so it is found in the list.
   let release = await api(`https://api.github.com/repos/${OWNER}/${REPO}/releases/tags/v${version}`).catch(() => null);
+  if (!release) {
+    const recent = await api(`https://api.github.com/repos/${OWNER}/${REPO}/releases?per_page=30`).catch(() => []);
+    release = (Array.isArray(recent) ? recent : []).find((r) => r.tag_name === `v${version}`) || null;
+  }
   if (release) {
-    console.log(`release exists ${release.html_url}`);
+    console.log(`release exists ${release.html_url}${release.draft ? ' (draft)' : ''}`);
   } else {
     release = await api(`https://api.github.com/repos/${OWNER}/${REPO}/releases`, {
       method: 'POST',
@@ -120,7 +131,7 @@ async function api(url, opts = {}) {
         target_commitish: execSync('git rev-parse HEAD', { cwd: root }).toString().trim(),
         name: `Shroudly v${version}`,
         body: notesFile ? fs.readFileSync(notesFile, 'utf8') : '',
-        make_latest: 'true',
+        draft: true,
       }),
     });
     console.log(`release ${release.html_url}`);
@@ -133,5 +144,14 @@ async function api(url, opts = {}) {
     const url = `https://uploads.github.com/repos/${OWNER}/${REPO}/releases/${release.id}/assets?name=${encodeURIComponent(name)}&label=${encodeURIComponent(label)}`;
     const a = await api(url, { method: 'POST', headers: { 'Content-Type': 'application/octet-stream' }, body: data });
     console.log(`  ${a.state}  ${name}`);
+  }
+  // Everything is there: now it is the release, and the latest. One already
+  // published (a re-run) is left as it is: a newer one may be latest by now.
+  if (release.draft) {
+    release = await api(`https://api.github.com/repos/${OWNER}/${REPO}/releases/${release.id}`, {
+      method: 'PATCH',
+      body: JSON.stringify({ draft: false, make_latest: 'true' }),
+    });
+    console.log(`published ${release.html_url}`);
   }
 })().catch((e) => { console.error(e.message); process.exit(1); });
