@@ -7,6 +7,8 @@
     <string name="adBlockAllowDesc">Nếu một trang bị lỗi, hãy ghi tên miền của nó vào đây, mỗi dòng một tên: trang đó và mọi tên bên dưới sẽ không bao giờ bị chặn.</string>
     <string name="adBlockDesc">Các tên trong một danh sách công khai về quảng cáo và trình theo dõi sẽ không nhận được phản hồi trong bất kỳ ứng dụng nào. Danh sách được tải qua Shroudly và cập nhật hằng tuần.</string>
     <string name="adsBlocked">Quảng cáo đã chặn</string>
+    <string name="androidAdvanced">Nâng cao</string>
+    <string name="androidAdvancedDesc">Chỉ thay đổi phần này khi người đang giúp bạn yêu cầu. Shroudly tự tìm ra cách hoạt động.</string>
     <string name="androidAlertsChannel">Cảnh báo bảo vệ</string>
     <string name="androidAllApps">Mọi ứng dụng trên thiết bị này đều đi qua Shroudly.</string>
     <string name="androidAppsLockdown">Android được đặt để chặn kết nối không qua VPN, nên các ứng dụng không đi qua Shroudly không có Internet.</string>
@@ -17,8 +19,10 @@
     <string name="androidAppsOnlyDesc">Mọi ứng dụng khác, kể cả ứng dụng hệ thống, đi thẳng ra ngoài, không qua Shroudly. Nếu không chọn ứng dụng nào, mọi ứng dụng đều qua Shroudly.</string>
     <string name="androidAppsSection">Ứng dụng</string>
     <string name="androidAppsSkipping">Mọi ứng dụng đều đi qua Shroudly, trừ những ứng dụng bạn chọn bỏ qua ({count}).</string>
+    <string name="androidAppsVpnOnly">Chỉ ở chế độ VPN. Ở Chỉ proxy, cài đặt proxy riêng của từng ứng dụng quyết định nó có đi qua Shroudly hay không.</string>
     <string name="androidAutomationBattery">Cài đặt pin</string>
     <string name="androidAutomationNotStarted">Bảo vệ chưa được bật</string>
+    <string name="androidAutomationSection">Tự động hóa</string>
     <string name="androidAutomationTapBattery">Một ứng dụng tự động hóa đã yêu cầu bật bảo vệ, nhưng Android chỉ cho ứng dụng khác khởi động Shroudly khi mức dùng pin của nó không bị hạn chế. Chạm để bật ngay.</string>
     <string name="androidAutomationTapVpn">Một ứng dụng tự động hóa đã yêu cầu bật bảo vệ, nhưng VPN chưa được cho phép. Chạm để cho phép và bật bảo vệ.</string>
     <string name="androidBack">Quay lại</string>
@@ -35,9 +39,9 @@
     <string name="androidKeepOnOffer">Điện thoại đã tắt Shroudly. Chạm để bật lại bảo vệ.</string>
     <string name="androidLockdownOffline">Không có Internet: Shroudly hiện chưa thể kết nối trên mạng này, và Android đang được đặt để chặn kết nối không qua VPN. Shroudly vẫn đang thử lại.</string>
     <string name="androidLockdownStop">Android được đặt để chặn kết nối không qua VPN, nên khi Shroudly tắt, các ứng dụng không có Internet.</string>
-    <string name="androidModeNextStart">Chế độ mới sẽ dùng vào lần tới bảo vệ được bật.</string>
     <string name="androidModeProxy">Chỉ proxy (giữ VPN khác của bạn)</string>
     <string name="androidModeProxyDesc">Shroudly chạy như proxy tại 127.0.0.1:{port} (SOCKS5 và HTTP) và để VPN cho ứng dụng khác. Chỉ các ứng dụng được đặt để dùng nó mới đi qua Shroudly: proxy của mạng Wi-Fi (máy chủ 127.0.0.1, cổng {port}) hoặc cài đặt proxy riêng của ứng dụng.</string>
+    <string name="androidModeSwitching">Bảo vệ đang khởi động lại ở chế độ mới.</string>
     <string name="androidModeTitle">Chế độ</string>
     <string name="androidModeVpn">VPN (mọi ứng dụng)</string>
     <string name="androidModeVpnDesc">Mọi ứng dụng đi qua Shroudly. Android chỉ cho phép một VPN mỗi lúc, nên ứng dụng VPN khác sẽ bị ngắt.</string>
@@ -68,6 +72,7 @@
     <string name="androidSomeApps">Chỉ các ứng dụng bạn chọn đi qua Shroudly ({count}).</string>
     <string name="androidStartAtBoot">Khởi động cùng điện thoại</string>
     <string name="androidStartAtBootDesc">Khi VPN đã được cho phép, bảo vệ sẽ bật sau mỗi lần điện thoại khởi động lại, kể cả khi đang tắt. Nếu đang bật, nó vẫn tự bật lại.</string>
+    <string name="androidStrategyDesc">Thử lần lượt từng kỹ thuật và giữ lại cách hiệu quả cho mỗi trang. Chỉ chọn cách khác khi người đang giúp bạn yêu cầu; Tắt chỉ mã hóa DNS.</string>
     <string name="androidTileAdd">Ô Cài đặt nhanh</string>
     <string name="androidTileAddDesc">Ô Shroudly trong bảng ở đầu màn hình bật và tắt bảo vệ chỉ bằng một lần chạm.</string>
     <string name="androidTileAdded">Ô Shroudly đã có trong Cài đặt nhanh.</string>
@@ -86,6 +91,7 @@
     <string name="androidWifiProxyShroudlyOff">Proxy của mạng này được đặt là Shroudly ({addr}), nhưng Shroudly đang tắt, nên các ứng dụng dùng nó (kể cả Chrome) không kết nối được. Hãy bật bảo vệ, hoặc đặt Proxy thành Không có trong cài đặt Wi-Fi.</string>
     <string name="androidWifiSettings">Cài đặt Wi-Fi</string>
     <string name="androidWorkApps">Các ứng dụng trong hồ sơ công việc của bạn không đi qua Shroudly.</string>
+    <string name="appSection">Ứng dụng</string>
     <string name="autoRawBlocked">Mạng này chặn các kết nối của {app}, và không kỹ thuật nào của Shroudly vượt qua được. Hãy dùng cài đặt proxy riêng của {app} hoặc VPN.</string>
     <string name="autoRawUnreachable">{app} không thể kết nối tới máy chủ của nó: mạng này chặn địa chỉ của các máy chủ đó, và Shroudly không thể vượt qua nếu không có một máy chủ ở nơi khác. Hãy dùng cài đặt proxy riêng của {app} hoặc VPN.</string>
     <string name="connections">Kết nối</string>
@@ -123,6 +129,7 @@
     <string name="navSettings">Cài đặt</string>
     <string name="navStats">Thống kê</string>
     <string name="notProtected">Chưa được bảo vệ</string>
+    <string name="onlineNow">Đang trực tuyến</string>
     <string name="openSourceDesc">Shroudly miễn phí và là mã nguồn mở theo giấy phép MIT: bất kỳ ai cũng có thể đọc, kiểm tra và tự biên dịch mã của nó.</string>
     <string name="openSourceTitle">Mã nguồn mở</string>
     <string name="protected_">Đang được bảo vệ</string>

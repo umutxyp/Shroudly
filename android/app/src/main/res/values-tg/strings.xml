@@ -7,6 +7,8 @@
     <string name="adBlockAllowDesc">Агар сомона кор накунад, домени онро дар ин ҷо нависед, дар ҳар сатр як: он ва ҳамаи номҳои зери он ҳеҷ гоҳ баста намешаванд.</string>
     <string name="adBlockDesc">Номҳои рӯйхати кушодаи реклама ва пайгирҳо дар ягон барнома ҷавоб намегиранд. Рӯйхат тавассути Shroudly боргирӣ шуда, ҳар ҳафта нав мешавад.</string>
     <string name="adsBlocked">Рекламаи басташуда</string>
+    <string name="androidAdvanced">Иловагӣ</string>
+    <string name="androidAdvancedDesc">Инҳоро танҳо вақте тағйир диҳед, ки касе, ки ба шумо кӯмак мекунад, хоҳиш кунад. Shroudly худаш он чиро, ки кор мекунад, меёбад.</string>
     <string name="androidAlertsChannel">Огоҳиҳои ҳимоя</string>
     <string name="androidAllApps">Ҳар як барномаи ин дастгоҳ тавассути Shroudly мегузарад.</string>
     <string name="androidAppsLockdown">Android барои манъ кардани пайвастҳои бе VPN танзим шудааст, бинобар ин барномаҳое, ки аз Shroudly намегузаранд, интернет надоранд.</string>
@@ -17,8 +19,10 @@
     <string name="androidAppsOnlyDesc">Ҳамаи барномаҳои дигар, ҳатто барномаҳои системавӣ, бе гузаштан аз Shroudly мустақим мебароянд. Агар ҳеҷ кадом қайд нашуда бошад, ҳамаи барномаҳо аз Shroudly мегузаранд.</string>
     <string name="androidAppsSection">Барномаҳо</string>
     <string name="androidAppsSkipping">Ҳамаи барномаҳо аз Shroudly мегузаранд, ба ҷуз онҳое, ки шумо интихоб кардед, ки аз он гузаранд ({count}).</string>
+    <string name="androidAppsVpnOnly">Танҳо дар реҷаи VPN. Дар «Танҳо прокси» танзими проксии худи ҳар барнома муайян мекунад, ки аз Shroudly мегузарад ё не.</string>
     <string name="androidAutomationBattery">Танзимоти батарея</string>
     <string name="androidAutomationNotStarted">Ҳимоя фаъол нашуд</string>
+    <string name="androidAutomationSection">Автоматикунонӣ</string>
     <string name="androidAutomationTapBattery">Барномаи автоматикунонӣ фаъол кардани ҳимояро хост, аммо Android ба барномаҳои дигар оғоз кардани Shroudly-ро танҳо вақте иҷозат медиҳад, ки истифодаи батареяи он маҳдуд нест. Барои ҳозир фаъол кардан ламс кунед.</string>
     <string name="androidAutomationTapVpn">Барномаи автоматикунонӣ фаъол кардани ҳимояро хост, аммо ба VPN ҳанӯз иҷозат дода нашудааст. Барои иҷозат додан ва фаъол кардани ҳимоя ламс кунед.</string>
     <string name="androidBack">Бозгашт</string>
@@ -35,9 +39,9 @@
     <string name="androidKeepOnOffer">Телефон Shroudly-ро пӯшид. Барои дубора фаъол кардани муҳофизат ламс кунед.</string>
     <string name="androidLockdownOffline">Интернет нест: Shroudly ҳоло дар ин шабака пайваст шуда наметавонад, ва Android барои манъ кардани пайвастҳои бе VPN танзим шудааст. Shroudly кӯшишро идома медиҳад.</string>
     <string name="androidLockdownStop">Android барои манъ кардани пайвастҳои бе VPN танзим шудааст, бинобар ин то вақте Shroudly хомӯш аст, барномаҳо интернет надоранд.</string>
-    <string name="androidModeNextStart">Реҷаи нав дафъаи дигар, ки ҳимоя оғоз мешавад, истифода мешавад.</string>
     <string name="androidModeProxy">Танҳо прокси (VPN-и дигаратон мемонад)</string>
     <string name="androidModeProxyDesc">Shroudly дар 127.0.0.1:{port} ҳамчун прокси кор мекунад (SOCKS5 ва HTTP) ва VPN-ро ба барномаи дигар мегузорад. Танҳо барномаҳое, ки барои истифодаи он танзим шудаанд, аз Shroudly мегузаранд: проксии шабакаи Wi-Fi (хост 127.0.0.1, порт {port}) ё танзими проксии худи барнома.</string>
+    <string name="androidModeSwitching">Ҳимоя дар реҷаи нав аз нав оғоз мешавад.</string>
     <string name="androidModeTitle">Реҷа</string>
     <string name="androidModeVpn">VPN (ҳамаи барномаҳо)</string>
     <string name="androidModeVpnDesc">Ҳамаи барномаҳо аз Shroudly мегузаранд. Android ҳамзамон танҳо як VPN-ро иҷозат медиҳад, бинобар ин барномаи дигари VPN ҷудо мешавад.</string>
@@ -68,6 +72,7 @@
     <string name="androidSomeApps">Танҳо барномаҳое, ки шумо интихоб кардед, аз Shroudly мегузаранд ({count}).</string>
     <string name="androidStartAtBoot">Ҳангоми фурӯзон шудани телефон оғоз кардан</string>
     <string name="androidStartAtBootDesc">Агар VPN иҷозат гирифта бошад, ҳимоя пас аз ҳар бозоғозии телефон фаъол мешавад, ҳатто агар хомӯш бошад. Агар фаъол буд, дар ҳар сурат бармегардад.</string>
+    <string name="androidStrategyDesc">Усулҳоро як-як месанҷад ва барои ҳар сомона он чиро, ки кор мекунад, нигоҳ медорад. Дигареро танҳо вақте интихоб кунед, ки ёрдамчиатон хоҳиш кунад; «Хомӯш» танҳо DNS-ро рамзгузорӣ мекунад.</string>
     <string name="androidTileAdd">Плитка дар танзимоти зуд</string>
     <string name="androidTileAddDesc">Плиткаи Shroudly дар панели болои экран муҳофизатро бо як ламс фаъол ва хомӯш мекунад.</string>
     <string name="androidTileAdded">Плиткаи Shroudly дар танзимоти зуд аст.</string>
@@ -86,6 +91,7 @@
     <string name="androidWifiProxyShroudlyOff">Проксии ин шабака Shroudly ({addr}) танзим шудааст, вале Shroudly хомӯш аст, бинобар ин барномаҳое, ки онро истифода мебаранд (аз ҷумла Chrome), пайваст шуда наметавонанд. Ҳимояро оғоз кунед ё дар танзимоти Wi-Fi проксиро «Не» гузоред.</string>
     <string name="androidWifiSettings">Танзимоти Wi-Fi</string>
     <string name="androidWorkApps">Барномаҳои профили кории шумо аз Shroudly намегузаранд.</string>
+    <string name="appSection">Барнома</string>
     <string name="autoRawBlocked">Пайвастҳои барномаи {app} дар ин шабака қатъ мешаванд ва ҳеҷ яке аз усулҳои Shroudly гузашта натавонист. Аз танзими проксии худи барномаи {app} ё VPN истифода баред.</string>
     <string name="autoRawUnreachable">Барномаи {app} ба серверҳои худ пайваст шуда наметавонад: ин шабака суроғаҳои онҳоро мебандад ва Shroudly бе сервере дар ҷои дигар инро давр зада наметавонад. Аз танзими проксии худи барномаи {app} ё VPN истифода баред.</string>
     <string name="connections">Пайвастҳо</string>
@@ -123,6 +129,7 @@
     <string name="navSettings">Танзимот</string>
     <string name="navStats">Омор</string>
     <string name="notProtected">Ҳимоя нашудааст</string>
+    <string name="onlineNow">Ҳозир онлайн</string>
     <string name="openSourceDesc">Shroudly ройгон ва бо коди кушода таҳти иҷозатномаи MIT аст: ҳар кас метавонад коди онро хонад, санҷад ва худаш созад.</string>
     <string name="openSourceTitle">Коди кушода</string>
     <string name="protected_">Ҳимоя шудааст</string>

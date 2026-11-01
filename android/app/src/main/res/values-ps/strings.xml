@@ -7,6 +7,8 @@
     <string name="adBlockAllowDesc">که کوم سایټ خراب شي، د هغه ډومېن دلته ولیکئ، په هره کرښه کې یو: هغه او د هغه لاندې ټول نومونه هېڅکله نه بندېږي.</string>
     <string name="adBlockDesc">د اعلانونو او تعقیبوونکو په یوه عامه لېست کې نومونه په هېڅ اپ کې ځواب نه ترلاسه کوي. لېست د Shroudly له لارې ښکته کېږي او هره اونۍ تازه کېږي.</string>
     <string name="adsBlocked">بند شوي اعلانونه</string>
+    <string name="androidAdvanced">پرمختللي</string>
+    <string name="androidAdvancedDesc">دا یوازې هغه وخت بدل کړئ چې څوک ستاسو سره مرسته کوي له تاسو یې وغواړي. Shroudly پخپله هغه لاره مومي چې کار کوي.</string>
     <string name="androidAlertsChannel">د ساتنې خبرتیاوې</string>
     <string name="androidAllApps">د دې وسیلې هر اپ د Shroudly له لارې تېرېږي.</string>
     <string name="androidAppsLockdown">Android داسې تنظیم شوی چې له VPN پرته اړیکې بندې کړي، نو هغه اپونه چې له Shroudly بهر پاتې دي انټرنېټ نه لري.</string>
@@ -17,8 +19,10 @@
     <string name="androidAppsOnlyDesc">نور هر اپ، د سیسټم اپونه هم، له Shroudly پرته مستقیم وځي. که هېڅ یو نښه شوی نه وي، هر اپ د Shroudly له لارې ځي.</string>
     <string name="androidAppsSection">اپونه</string>
     <string name="androidAppsSkipping">هر اپ له Shroudly تېرېږي، پرته له هغو چې تاسو غوره کړي چې ترې تېر نه شي ({count}).</string>
+    <string name="androidAppsVpnOnly">یوازې په VPN حالت کې. په «یوازې پراکسي» کې د هر اپ خپله پراکسي امستنه پرېکړه کوي چې له Shroudly تېرېږي که نه.</string>
     <string name="androidAutomationBattery">د بیټرۍ امستنې</string>
     <string name="androidAutomationNotStarted">ساتنه روښانه نه شوه</string>
+    <string name="androidAutomationSection">اتوماتیک کول</string>
     <string name="androidAutomationTapBattery">یوه اتومات کوونکي اپ وغوښتل چې ساتنه روښانه کړي، خو Android نورو اپونو ته د Shroudly د پیلولو اجازه یوازې هغه وخت ورکوي چې د بیټرۍ کارول یې محدود نه وي. اوس د روښانه کولو لپاره ټک کړئ.</string>
     <string name="androidAutomationTapVpn">یوه اتومات کوونکي اپ وغوښتل چې ساتنه روښانه کړي، خو VPN ته لا اجازه نه ده ورکړل شوې. د اجازې ورکولو او ساتنې روښانه کولو لپاره ټک کړئ.</string>
     <string name="androidBack">شاته</string>
@@ -35,9 +39,9 @@
     <string name="androidKeepOnOffer">ستاسو تلیفون Shroudly وتړلو. د ساتنې د بیا چالانولو لپاره ټک وکړئ.</string>
     <string name="androidLockdownOffline">انټرنېټ نشته: Shroudly اوس مهال په دې شبکه کې نشي نښلېدای، او Android داسې تنظیم شوی چې له VPN پرته اړیکې بندې کړي. Shroudly هڅې ته دوام ورکوي.</string>
     <string name="androidLockdownStop">Android داسې تنظیم شوی چې له VPN پرته اړیکې بندې کړي، نو تر هغه چې Shroudly بند وي، اپونه انټرنېټ نه لري.</string>
-    <string name="androidModeNextStart">نوې حالت به بل ځل چې ساتنه پیلېږي وکارول شي.</string>
     <string name="androidModeProxy">یوازې پراکسي (ستاسو بل VPN پاتې کېږي)</string>
     <string name="androidModeProxyDesc">Shroudly په ‎127.0.0.1:{port}‎ کې د پراکسي په توګه کار کوي (SOCKS5 او HTTP) او VPN بل اپ ته پرېږدي. یوازې هغه اپونه له Shroudly تېرېږي چې د دې کارولو لپاره تنظیم شوي وي: د Wi-Fi شبکې پراکسي (کوربه 127.0.0.1، پورټ {port}) یا د اپ خپله پراکسي امستنه.</string>
+    <string name="androidModeSwitching">ساتنه په نوي حالت کې بیا پیلېږي.</string>
     <string name="androidModeTitle">حالت</string>
     <string name="androidModeVpn">VPN (ټول اپونه)</string>
     <string name="androidModeVpnDesc">ټول اپونه له Shroudly تېرېږي. اندروېډ په یو وخت کې یوازې یو VPN ته اجازه ورکوي، نو د بل VPN اپ اړیکه پرې کېږي.</string>
@@ -68,6 +72,7 @@
     <string name="androidSomeApps">یوازې هغه اپونه چې تاسو غوره کړي له Shroudly تېرېږي ({count}).</string>
     <string name="androidStartAtBoot">د تلیفون د چالانېدو پر وخت پیل کړه</string>
     <string name="androidStartAtBootDesc">کله چې VPN ته اجازه ورکړل شي، ساتنه د تلیفون له هر بیا پیلېدو وروسته چالانېږي، که بنده هم وه. که چالانه وه، په هر حال بېرته چالانېږي.</string>
+    <string name="androidStrategyDesc">تخنیکونه یو په یو ازمويي او د هر سایټ لپاره هغه چې کار کوي ساتي. بل یوازې هغه وخت غوره کړئ چې ستاسو مرستندوی یې وغواړي؛ «بند» یوازې DNS کوډ کوي.</string>
     <string name="androidTileAdd">د چټکو ترتیباتو ټایل</string>
     <string name="androidTileAddDesc">د پردې په سر کې په پینل کې د Shroudly ټایل ساتنه په یوه ټک چالانوي او بندوي.</string>
     <string name="androidTileAdded">د Shroudly ټایل په چټکو ترتیباتو کې دی.</string>
@@ -86,6 +91,7 @@
     <string name="androidWifiProxyShroudlyOff">د دې شبکې پراکسي Shroudly ({addr}) ته ټاکل شوې، خو Shroudly بند دی، نو هغه اپونه چې یې کاروي (Chrome هم) نه شي وصل کېدای. ساتنه پیل کړئ، یا د Wi-Fi په تنظیماتو کې پراکسي «هېڅ» ته واړوئ.</string>
     <string name="androidWifiSettings">د Wi-Fi تنظیمات</string>
     <string name="androidWorkApps">ستاسو د کار پروفایل اپونه له Shroudly نه تېرېږي.</string>
+    <string name="appSection">اپلیکېشن</string>
     <string name="autoRawBlocked">دا شبکه د {app} اپ اړیکې دروي، او د Shroudly هېڅ تخنیک بریالی نه شو. د {app} اپ خپل پراکسي تنظیم یا VPN وکاروئ.</string>
     <string name="autoRawUnreachable">{app} اپ خپلو سرورونو ته نه شي رسېدلی: دا شبکه د هغوی پتې بندوي، او Shroudly له بل ځای څخه د سرور پرته له دې خنډه نه شي تېرېدلی. د {app} اپ خپل پراکسي تنظیم یا VPN وکاروئ.</string>
     <string name="connections">اړیکې</string>
@@ -123,6 +129,7 @@
     <string name="navSettings">امستنې</string>
     <string name="navStats">احصایې</string>
     <string name="notProtected">خوندي نه دی</string>
+    <string name="onlineNow">اوس آنلاین</string>
     <string name="openSourceDesc">Shroudly وړیا او د MIT جواز لاندې پرانیستې سرچینه ده: هر څوک کولی شي د هغه کوډ ولولي، وڅېړي او جوړ یې کړي.</string>
     <string name="openSourceTitle">پرانیستې سرچینه</string>
     <string name="protected_">خوندي</string>

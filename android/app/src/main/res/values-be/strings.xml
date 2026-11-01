@@ -7,6 +7,8 @@
     <string name="adBlockAllowDesc">Калі сайт перастаў працаваць, упішыце сюды яго дамен, па адным на радок: ён і ўсе імёны пад ім ніколі не блакуюцца.</string>
     <string name="adBlockDesc">Імёны са свабоднага спісу рэкламы і трэкераў не атрымліваюць адказу ні ў адной праграме. Спіс загружаецца праз Shroudly і абнаўляецца штотыдзень.</string>
     <string name="adsBlocked">Заблакавана рэкламы</string>
+    <string name="androidAdvanced">Дадаткова</string>
+    <string name="androidAdvancedDesc">Мяняйце гэта, толькі калі вас папросіць той, хто вам дапамагае. Shroudly сам знаходзіць тое, што працуе.</string>
     <string name="androidAlertsChannel">Апавяшчэнні абароны</string>
     <string name="androidAllApps">Усе праграмы на гэтай прыладзе ідуць праз Shroudly.</string>
     <string name="androidAppsLockdown">Android наладжаны блакаваць злучэнні без VPN, таму ў праграм, якія не ідуць праз Shroudly, няма інтэрнэту.</string>
@@ -17,8 +19,10 @@
     <string name="androidAppsOnlyDesc">Усе астатнія праграмы, у тым ліку сістэмныя, ідуць наўпрост, міма Shroudly. Калі нічога не пазначана, праз Shroudly ідуць усе праграмы.</string>
     <string name="androidAppsSection">Праграмы</string>
     <string name="androidAppsSkipping">Усе праграмы ідуць праз Shroudly, акрамя тых, якім вы выбралі абыходзіць яго ({count}).</string>
+    <string name="androidAppsVpnOnly">Толькі ў рэжыме VPN. У «Толькі проксі» ці ідзе праграма праз Shroudly, вырашае яе ўласная налада проксі.</string>
     <string name="androidAutomationBattery">Налады батарэі</string>
     <string name="androidAutomationNotStarted">Абарона не ўключана</string>
+    <string name="androidAutomationSection">Аўтаматызацыя</string>
     <string name="androidAutomationTapBattery">Праграма аўтаматызацыі папрасіла ўключыць абарону, але Android дазваляе іншым праграмам запускаць Shroudly, толькі калі яго выкарыстанне батарэі не абмежавана. Націсніце, каб уключыць зараз.</string>
     <string name="androidAutomationTapVpn">Праграма аўтаматызацыі папрасіла ўключыць абарону, але VPN яшчэ не дазволены. Націсніце, каб дазволіць яго і ўключыць абарону.</string>
     <string name="androidBack">Назад</string>
@@ -35,9 +39,9 @@
     <string name="androidKeepOnOffer">Тэлефон закрыў Shroudly. Націсніце, каб зноў уключыць абарону.</string>
     <string name="androidLockdownOffline">Няма інтэрнэту: Shroudly зараз не можа прабіцца ў гэтай сетцы, а Android наладжаны блакаваць злучэнні без VPN. Shroudly працягвае спробы.</string>
     <string name="androidLockdownStop">Android наладжаны блакаваць злучэнні без VPN, таму пакуль Shroudly выключаны, у праграм няма інтэрнэту.</string>
-    <string name="androidModeNextStart">Новы рэжым будзе выкарыстаны пры наступным запуску абароны.</string>
     <string name="androidModeProxy">Толькі проксі (ваш іншы VPN застаецца)</string>
     <string name="androidModeProxyDesc">Shroudly працуе як проксі на 127.0.0.1:{port} (SOCKS5 і HTTP) і пакідае VPN іншай праграме. Праз Shroudly ідуць толькі праграмы, настроеныя на яго: проксі сеткі Wi-Fi (хост 127.0.0.1, порт {port}) або ўласная налада проксі ў праграме.</string>
+    <string name="androidModeSwitching">Абарона перазапускаецца ў новым рэжыме.</string>
     <string name="androidModeTitle">Рэжым</string>
     <string name="androidModeVpn">VPN (усе праграмы)</string>
     <string name="androidModeVpnDesc">Усе праграмы ідуць праз Shroudly. Android дазваляе толькі адзін VPN адначасова, таму іншая VPN-праграма адключыцца.</string>
@@ -68,6 +72,7 @@
     <string name="androidSomeApps">Праз Shroudly ідуць толькі выбраныя вамі праграмы ({count}).</string>
     <string name="androidStartAtBoot">Запускаць пры ўключэнні тэлефона</string>
     <string name="androidStartAtBootDesc">Калі VPN ужо дазволены, абарона ўключаецца пасля кожнага перазапуску тэлефона, нават калі была выключаная. Калі яна была ўключаная, яна вернецца ў любым выпадку.</string>
+    <string name="androidStrategyDesc">Спрабуе спосабы па чарзе і запамінае, што працуе для кожнага сайта. Выбірайце іншы, толькі калі вас папросіць той, хто дапамагае; «Выкл.» толькі шыфруе DNS.</string>
     <string name="androidTileAdd">Пліта ў хуткіх наладах</string>
     <string name="androidTileAddDesc">Пліта Shroudly на панэлі ўверсе экрана ўключае і выключае абарону адным дотыкам.</string>
     <string name="androidTileAdded">Пліта Shroudly у хуткіх наладах.</string>
@@ -86,6 +91,7 @@
     <string name="androidWifiProxyShroudlyOff">Проксі гэтай сеткі зададзены як Shroudly ({addr}), але Shroudly выключаны, таму праграмы, якія яго выкарыстоўваюць (у тым ліку Chrome), не могуць падключыцца. Уключыце абарону або выберыце для проксі «Няма» ў наладах Wi-Fi.</string>
     <string name="androidWifiSettings">Налады Wi-Fi</string>
     <string name="androidWorkApps">Праграмы ў вашым працоўным профілі не ідуць праз Shroudly.</string>
+    <string name="appSection">Праграма</string>
     <string name="autoRawBlocked">Гэтая сетка абрывае злучэнні праграмы {app}, і ніводны з метадаў Shroudly не прайшоў. Скарыстайцеся наладай проксі ў самой праграме {app} або VPN.</string>
     <string name="autoRawUnreachable">Праграма {app} не можа звязацца са сваімі серверамі: гэтая сетка блакуе іх адрасы, і без сервера ў іншым месцы Shroudly не можа гэта абысці. Скарыстайцеся наладай проксі ў самой праграме {app} або VPN.</string>
     <string name="connections">Злучэнні</string>
@@ -123,6 +129,7 @@
     <string name="navSettings">Налады</string>
     <string name="navStats">Статыстыка</string>
     <string name="notProtected">Не абаронена</string>
+    <string name="onlineNow">Зараз анлайн</string>
     <string name="openSourceDesc">Shroudly — бясплатная праграма з адкрытым кодам пад ліцэнзіяй MIT: кожны можа чытаць, правяраць і збіраць яе код.</string>
     <string name="openSourceTitle">Адкрыты код</string>
     <string name="protected_">Абаронена</string>

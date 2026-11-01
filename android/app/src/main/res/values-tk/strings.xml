@@ -7,6 +7,8 @@
     <string name="adBlockAllowDesc">Saýt işlemese, domenini şu ýere ýaz, her setire biri: ol we onuň aşagyndaky ähli atlar hiç haçan bloklanmaýar.</string>
     <string name="adBlockDesc">Açyk mahabat we yzarlaýjy sanawyndaky atlar hiç bir programmada jogap almaýar. Sanaw Shroudly arkaly ýüklenýär we hepdede bir täzelenýär.</string>
     <string name="adsBlocked">Bloklanan mahabatlar</string>
+    <string name="androidAdvanced">Giňişleýin</string>
+    <string name="androidAdvancedDesc">Muny diňe size kömek edýän adam haýyş etse üýtgediň. Shroudly işleýän zady özi tapýar.</string>
     <string name="androidAlertsChannel">Gorag duýduryşlary</string>
     <string name="androidAllApps">Bu enjamdaky her programma Shroudly arkaly geçýär.</string>
     <string name="androidAppsLockdown">Android VPN-siz baglanyşyklary petiklemäge sazlanypdyr, şonuň üçin Shroudly-dan daşda galan programmalarda internet bolmaýar.</string>
@@ -17,8 +19,10 @@
     <string name="androidAppsOnlyDesc">Galan ähli programmalar, ulgam programmalary hem, Shroudly-dan geçmän göni çykýar. Hiç biri bellenmese, her programma Shroudly arkaly geçýär.</string>
     <string name="androidAppsSection">Programmalar</string>
     <string name="androidAppsSkipping">Shroudly-ny aýlanyp geçmegi saýlanlaryňyzdan başga ähli programmalar Shroudly arkaly geçýär ({count}).</string>
+    <string name="androidAppsVpnOnly">Diňe VPN düzgüninde. «Diňe proksi» düzgüninde programmanyň Shroudly arkaly geçip-geçmejegini onuň öz proksi sazlamasy kesgitleýär.</string>
     <string name="androidAutomationBattery">Batareýa sazlamalary</string>
     <string name="androidAutomationNotStarted">Gorag açylmady</string>
+    <string name="androidAutomationSection">Awtomatlaşdyrma</string>
     <string name="androidAutomationTapBattery">Awtomatlaşdyryş programmasy goragy açmagy sorady, ýöne Android başga programmalara Shroudly-ny diňe onuň batareýa ulanylyşy çäklendirilmedik ýagdaýynda açmaga rugsat berýär. Häzir açmak üçin basyň.</string>
     <string name="androidAutomationTapVpn">Awtomatlaşdyryş programmasy goragy açmagy sorady, ýöne VPN-e entek rugsat berilmedi. Rugsat berip, goragy açmak üçin basyň.</string>
     <string name="androidBack">Yza</string>
@@ -35,9 +39,9 @@
     <string name="androidKeepOnOffer">Telefonyňyz Shroudly-ni ýapdy. Goragy täzeden açmak üçin basyň.</string>
     <string name="androidLockdownOffline">Internet ýok: Shroudly häzir bu torda birigip bilmeýär, Android bolsa VPN-siz birikmeleri petiklemäge sazlanan. Shroudly synanyşmagyny dowam edýär.</string>
     <string name="androidLockdownStop">Android VPN-siz baglanyşyklary petiklemäge sazlanypdyr, şonuň üçin Shroudly öçük wagty programmalarda internet bolmaýar.</string>
-    <string name="androidModeNextStart">Täze režim gorag indiki gezek başlanda ulanylar.</string>
     <string name="androidModeProxy">Diňe proksi (beýleki VPN-iňiz galýar)</string>
     <string name="androidModeProxyDesc">Shroudly 127.0.0.1:{port} salgysynda proksi hökmünde işleýär (SOCKS5 we HTTP) we VPN-i başga programma galdyrýar. Diňe ony ulanmaga sazlanan programmalar Shroudly-dan geçýär: Wi-Fi toruň proksisi (host 127.0.0.1, port {port}) ýa-da programmanyň öz proksi sazlamasy.</string>
+    <string name="androidModeSwitching">Gorag täze düzgünde täzeden başlaýar.</string>
     <string name="androidModeTitle">Režim</string>
     <string name="androidModeVpn">VPN (ähli programmalar)</string>
     <string name="androidModeVpnDesc">Ähli programmalar Shroudly-dan geçýär. Android bir wagtda diňe bir VPN-e rugsat berýär, şonuň üçin başga VPN programmasy kesilýär.</string>
@@ -68,6 +72,7 @@
     <string name="androidSomeApps">Shroudly arkaly diňe saýlan programmalaryňyz geçýär ({count}).</string>
     <string name="androidStartAtBoot">Telefon açylanda başla</string>
     <string name="androidStartAtBootDesc">VPN-e rugsat berlen bolsa, gorag öçük bolsa-da, telefon her gezek täzeden açylanda açylýar. Açyk bolsa, her niçik-de yzyna gelýär.</string>
+    <string name="androidStrategyDesc">Usullary birin-birin synanyşýar we her saýt üçin işleýänini saklaýar. Başgasyny diňe size kömek edýän adam haýyş etse saýlaň; «Öçük» diňe DNS-i şifrleýär.</string>
     <string name="androidTileAdd">Çalt sazlamalar plitkasy</string>
     <string name="androidTileAddDesc">Ekranyň ýokarsyndaky paneldäki Shroudly plitkasy goragy bir basmak bilen açýar we öçürýär.</string>
     <string name="androidTileAdded">Shroudly plitkasy çalt sazlamalarda.</string>
@@ -86,6 +91,7 @@
     <string name="androidWifiProxyShroudlyOff">Bu ulgamyň proksisi Shroudly ({addr}) edilip goýlan, ýöne Shroudly öçük, şonuň üçin ony ulanýan programmalar (Chrome hem) birigip bilmeýär. Goragy işlediň ýa-da Wi-Fi sazlamalarynda proksini «Ýok» ediň.</string>
     <string name="androidWifiSettings">Wi-Fi sazlamalary</string>
     <string name="androidWorkApps">Iş profiliňizdäki programmalar Shroudly arkaly geçmeýär.</string>
+    <string name="appSection">Programma</string>
     <string name="autoRawBlocked">Bu tor {app} programmasynyň birikmelerini togtadýar we Shroudly-niň usullarynyň hiç biri geçip bilmedi. {app} programmasynyň öz proksi sazlamasyny ýa-da VPN ulanyň.</string>
     <string name="autoRawUnreachable">{app} programmasy öz serwerlerine ýetip bilmeýär: bu tor olaryň salgylaryny petikleýär, Shroudly bolsa başga ýerdäki serwersiz muny aýlanyp geçip bilmeýär. {app} programmasynyň öz proksi sazlamasyny ýa-da VPN ulanyň.</string>
     <string name="connections">Birikmeler</string>
@@ -123,6 +129,7 @@
     <string name="navSettings">Sazlamalar</string>
     <string name="navStats">Statistika</string>
     <string name="notProtected">Goragsyz</string>
+    <string name="onlineNow">Häzir onlaýn</string>
     <string name="openSourceDesc">Shroudly mugt we MIT ygtyýarnamasy boýunça açyk çeşmeli: islendik adam onuň koduny okap, barlap we ýygnap bilýär.</string>
     <string name="openSourceTitle">Açyk çeşme</string>
     <string name="protected_">Goragly</string>

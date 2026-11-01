@@ -7,6 +7,8 @@
     <string name="adBlockAllowDesc">サイトが正しく動かない場合は、そのドメインをここに 1 行に 1 つずつ書いてください。そのドメインとその下のすべての名前はブロックされません。</string>
     <string name="adBlockDesc">公開されている広告・トラッカーのリストにある名前は、どのアプリでも応答を受けません。リストは Shroudly 経由でダウンロードされ、毎週更新されます。</string>
     <string name="adsBlocked">ブロックした広告</string>
+    <string name="androidAdvanced">詳細設定</string>
+    <string name="androidAdvancedDesc">サポートしてくれている人に頼まれたときだけ変更してください。うまくいく方法は Shroudly が自分で見つけます。</string>
     <string name="androidAlertsChannel">保護に関するお知らせ</string>
     <string name="androidAllApps">このデバイスのすべてのアプリが Shroudly を経由します。</string>
     <string name="androidAppsLockdown">Android は VPN なしの接続をブロックするよう設定されているため、Shroudly を通らないアプリはインターネットに接続できません。</string>
@@ -17,8 +19,10 @@
     <string name="androidAppsOnlyDesc">ほかのアプリはシステムアプリも含め、Shroudly を通らず直接出ていきます。何もチェックしていなければ、すべてのアプリが Shroudly を通ります。</string>
     <string name="androidAppsSection">アプリ</string>
     <string name="androidAppsSkipping">Shroudly を通さないと選んだアプリを除き、すべてのアプリが Shroudly を通ります（{count}）。</string>
+    <string name="androidAppsVpnOnly">VPN モードのときだけです。「プロキシのみ」では、Shroudly を通るかどうかは各アプリのプロキシ設定で決まります。</string>
     <string name="androidAutomationBattery">電池の設定</string>
     <string name="androidAutomationNotStarted">保護はオンになりませんでした</string>
+    <string name="androidAutomationSection">自動化</string>
     <string name="androidAutomationTapBattery">自動化アプリが保護をオンにしようとしましたが、Android では Shroudly の電池の使用が制限なしの場合にのみ、ほかのアプリが起動できます。タップして今すぐオンにします。</string>
     <string name="androidAutomationTapVpn">自動化アプリが保護をオンにしようとしましたが、VPN がまだ許可されていません。タップして許可し、保護をオンにします。</string>
     <string name="androidBack">戻る</string>
@@ -35,9 +39,9 @@
     <string name="androidKeepOnOffer">スマートフォンが Shroudly を終了しました。タップして保護をもう一度オンにします。</string>
     <string name="androidLockdownOffline">インターネットに接続できません：Shroudly は現在このネットワークで通信できず、Android は VPN なしの接続をブロックするよう設定されています。Shroudly は再試行を続けています。</string>
     <string name="androidLockdownStop">Android は VPN なしの接続をブロックするよう設定されているため、Shroudly がオフの間、アプリはインターネットに接続できません。</string>
-    <string name="androidModeNextStart">新しいモードは次回保護を開始したときに使われます。</string>
     <string name="androidModeProxy">プロキシのみ（ほかの VPN はそのまま）</string>
     <string name="androidModeProxyDesc">Shroudly は 127.0.0.1:{port} でプロキシとして動作し（SOCKS5 と HTTP）、VPN はほかのアプリに任せます。Shroudly を通るのは、使うように設定したアプリだけです：Wi-Fi ネットワークのプロキシ（ホスト 127.0.0.1、ポート {port}）またはアプリ自体のプロキシ設定。</string>
+    <string name="androidModeSwitching">新しいモードで保護を再開しています。</string>
     <string name="androidModeTitle">モード</string>
     <string name="androidModeVpn">VPN（すべてのアプリ）</string>
     <string name="androidModeVpnDesc">すべてのアプリが Shroudly を通ります。Android では同時に 1 つの VPN しか使えないため、ほかの VPN アプリは切断されます。</string>
@@ -68,6 +72,7 @@
     <string name="androidSomeApps">Shroudly を通るのは、選んだアプリだけです（{count}）。</string>
     <string name="androidStartAtBoot">スマホの起動時に開始</string>
     <string name="androidStartAtBootDesc">VPN を許可していれば、保護がオフだった場合でも、スマホを再起動するたびに保護が有効になります。オンだった場合は、この設定がなくても戻ります。</string>
+    <string name="androidStrategyDesc">手法を 1 つずつ試し、サイトごとにうまくいったものを使い続けます。ほかを選ぶのは、サポートしてくれている人に頼まれたときだけにしてください。「オフ」は DNS を暗号化するだけです。</string>
     <string name="androidTileAdd">クイック設定タイル</string>
     <string name="androidTileAddDesc">画面上部のパネルにある Shroudly のタイルで、保護をワンタップでオン・オフできます。</string>
     <string name="androidTileAdded">Shroudly のタイルはクイック設定にあります。</string>
@@ -86,6 +91,7 @@
     <string name="androidWifiProxyShroudlyOff">このネットワークのプロキシが Shroudly（{addr}）に設定されていますが、Shroudly がオフのため、それを使うアプリ（Chrome など）が接続できません。保護を開始するか、Wi-Fi 設定でプロキシを「なし」にしてください。</string>
     <string name="androidWifiSettings">Wi-Fi 設定</string>
     <string name="androidWorkApps">仕事用プロファイルのアプリは Shroudly を通りません。</string>
+    <string name="appSection">アプリケーション</string>
     <string name="autoRawBlocked">このネットワークが {app} の接続を止めており、Shroudly のどの手法でも通れませんでした。{app} 自体のプロキシ設定か VPN を使ってください。</string>
     <string name="autoRawUnreachable">{app} がサーバーに接続できません。このネットワークがサーバーのアドレスをブロックしており、別の場所にあるサーバーなしでは Shroudly でも回避できません。{app} 自体のプロキシ設定か VPN を使ってください。</string>
     <string name="connections">接続</string>
@@ -123,6 +129,7 @@
     <string name="navSettings">設定</string>
     <string name="navStats">統計</string>
     <string name="notProtected">保護されていません</string>
+    <string name="onlineNow">現在オンライン</string>
     <string name="openSourceDesc">Shroudly は MIT ライセンスの無料オープンソースソフトウェアです。誰でもコードを読み、検証し、ビルドできます。</string>
     <string name="openSourceTitle">オープンソース</string>
     <string name="protected_">保護されています</string>

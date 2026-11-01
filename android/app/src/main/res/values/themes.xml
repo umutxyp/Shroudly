@@ -79,10 +79,18 @@
         <item name="android:tint">@color/text_faint</item>
     </style>
 
+    <!-- One line, the size giving way first (large text, a long
+         language): broken in two ("Connec-tions"), the label pushed its
+         value below its neighbour's. -->
     <style name="StatLabel">
         <item name="android:layout_width">0dp</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_weight">1</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:autoSizeTextType">uniform</item>
+        <item name="android:autoSizeMinTextSize">8sp</item>
+        <item name="android:autoSizeMaxTextSize">12.5sp</item>
+        <item name="android:autoSizeStepGranularity">0.5sp</item>
         <item name="android:layout_marginStart">7dp</item>
         <item name="android:textAlignment">viewStart</item>
         <item name="android:textColor">@color/text_dim</item>
@@ -179,6 +187,12 @@
         <item name="android:layout_height">1dp</item>
         <item name="android:layout_marginStart">58dp</item>
         <item name="android:background">@color/line</item>
+    </style>
+
+    <!-- The Settings bar's title, in sp like every other text: the
+         system's is in dp and stayed small with large text. -->
+    <style name="ToolbarTitle" parent="@android:style/TextAppearance.Material.Widget.Toolbar.Title">
+        <item name="android:textSize">20sp</item>
     </style>
 
     <style name="Link">

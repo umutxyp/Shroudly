@@ -7,6 +7,8 @@
     <string name="adBlockAllowDesc">ဆိုက်တစ်ခု ပျက်သွားပါက ၎င်း၏ ဒိုမိန်းကို ဤနေရာတွင် တစ်ကြောင်းလျှင် တစ်ခု ရေးပါ- ၎င်းနှင့် ၎င်းအောက်ရှိ အမည်အားလုံးကို ဘယ်တော့မှ မပိတ်ဆို့ပါ။</string>
     <string name="adBlockDesc">ကြော်ငြာနှင့် ခြေရာခံကိရိယာ အများသုံးစာရင်းပါ အမည်များသည် မည်သည့်အက်ပ်တွင်မျှ အဖြေမရပါ။ စာရင်းကို Shroudly မှတစ်ဆင့် ဒေါင်းလုဒ်လုပ်ပြီး အပတ်စဉ် အသစ်ပြုလုပ်ပါသည်။</string>
     <string name="adsBlocked">ပိတ်ဆို့ထားသော ကြော်ငြာများ</string>
+    <string name="androidAdvanced">အဆင့်မြင့်</string>
+    <string name="androidAdvancedDesc">သင့်ကို ကူညီနေသူက တောင်းဆိုမှသာ ဤအရာများကို ပြောင်းပါ။ Shroudly သည် အလုပ်ဖြစ်သည့်နည်းကို ကိုယ်တိုင် ရှာဖွေပါသည်။</string>
     <string name="androidAlertsChannel">ကာကွယ်မှု သတိပေးချက်များ</string>
     <string name="androidAllApps">ဤစက်ပေါ်ရှိ အက်ပ်တိုင်းသည် Shroudly မှတစ်ဆင့် သွားသည်။</string>
     <string name="androidAppsLockdown">Android ကို VPN မပါသော ချိတ်ဆက်မှုများကို ပိတ်ဆို့ရန် သတ်မှတ်ထားသဖြင့် Shroudly မှ ချန်ထားသော အက်ပ်များတွင် အင်တာနက် မရှိပါ။</string>
@@ -17,8 +19,10 @@
     <string name="androidAppsOnlyDesc">အခြားအက်ပ်အားလုံး၊ စနစ်အက်ပ်များပါ၊ Shroudly ကို မဖြတ်ဘဲ တိုက်ရိုက်ထွက်သည်။ ဘာမှ အမှတ်မခြစ်ထားပါက အက်ပ်တိုင်း Shroudly မှတစ်ဆင့် သွားသည်။</string>
     <string name="androidAppsSection">အက်ပ်များ</string>
     <string name="androidAppsSkipping">Shroudly ကို ကျော်ရန် သင်ရွေးထားသော အက်ပ်များမှလွဲ၍ အက်ပ်တိုင်း Shroudly မှတစ်ဆင့် သွားပါသည် ({count})။</string>
+    <string name="androidAppsVpnOnly">VPN မုဒ်တွင်သာ။ ပရောက်စီသာတွင် အက်ပ်တစ်ခုစီ၏ ကိုယ်ပိုင်ပရောက်စီဆက်တင်က Shroudly မှတစ်ဆင့် သွားမသွား ဆုံးဖြတ်ပါသည်။</string>
     <string name="androidAutomationBattery">ဘက်ထရီ ဆက်တင်များ</string>
     <string name="androidAutomationNotStarted">ကာကွယ်မှု မဖွင့်ခဲ့ပါ</string>
+    <string name="androidAutomationSection">အလိုအလျောက်လုပ်ဆောင်ခြင်း</string>
     <string name="androidAutomationTapBattery">အလိုအလျောက်လုပ်ဆောင်သည့် အက်ပ်တစ်ခုက ကာကွယ်မှုဖွင့်ရန် တောင်းဆိုခဲ့သော်လည်း Shroudly ၏ ဘက်ထရီသုံးစွဲမှု ကန့်သတ်မထားမှသာ Android က အခြားအက်ပ်များကို ၎င်းကို စတင်ခွင့်ပြုသည်။ ယခုဖွင့်ရန် တို့ပါ။</string>
     <string name="androidAutomationTapVpn">အလိုအလျောက်လုပ်ဆောင်သည့် အက်ပ်တစ်ခုက ကာကွယ်မှုဖွင့်ရန် တောင်းဆိုခဲ့သော်လည်း VPN ကို မခွင့်ပြုရသေးပါ။ ခွင့်ပြုပြီး ကာကွယ်မှုဖွင့်ရန် တို့ပါ။</string>
     <string name="androidBack">နောက်သို့</string>
@@ -35,9 +39,9 @@
     <string name="androidKeepOnOffer">သင့်ဖုန်းက Shroudly ကို ပိတ်လိုက်သည်။ ကာကွယ်မှုကို ပြန်ဖွင့်ရန် နှိပ်ပါ။</string>
     <string name="androidLockdownOffline">အင်တာနက် မရှိပါ- Shroudly သည် ယခု ဤကွန်ရက်တွင် ချိတ်ဆက်၍ မရသေးဘဲ Android ကို VPN မပါသော ချိတ်ဆက်မှုများ ပိတ်ဆို့ရန် သတ်မှတ်ထားပါသည်။ Shroudly ဆက်လက် ကြိုးစားနေပါသည်။</string>
     <string name="androidLockdownStop">Android ကို VPN မပါသော ချိတ်ဆက်မှုများကို ပိတ်ဆို့ရန် သတ်မှတ်ထားသဖြင့် Shroudly ပိတ်ထားစဉ် အက်ပ်များတွင် အင်တာနက် မရှိပါ။</string>
-    <string name="androidModeNextStart">မုဒ်အသစ်ကို ကာကွယ်မှု နောက်တစ်ကြိမ် စတင်သည့်အခါ သုံးမည်။</string>
     <string name="androidModeProxy">ပရောက်စီသာ (သင့်အခြား VPN ဆက်ရှိနေမည်)</string>
     <string name="androidModeProxyDesc">Shroudly သည် 127.0.0.1:{port} တွင် ပရောက်စီအဖြစ် လုပ်ဆောင်ပြီး (SOCKS5 နှင့် HTTP) VPN ကို အခြားအက်ပ်အတွက် ချန်ထားသည်။ ၎င်းကို သုံးရန် သတ်မှတ်ထားသော အက်ပ်များသာ Shroudly မှတစ်ဆင့် သွားသည်- Wi-Fi ကွန်ရက်၏ ပရောက်စီ (host 127.0.0.1၊ port {port}) သို့မဟုတ် အက်ပ်၏ ကိုယ်ပိုင် ပရောက်စီဆက်တင်။</string>
+    <string name="androidModeSwitching">ကာကွယ်မှုကို မုဒ်အသစ်ဖြင့် ပြန်စတင်နေပါသည်။</string>
     <string name="androidModeTitle">မုဒ်</string>
     <string name="androidModeVpn">VPN (အက်ပ်အားလုံး)</string>
     <string name="androidModeVpnDesc">အက်ပ်အားလုံး Shroudly မှတစ်ဆင့် သွားသည်။ Android သည် တစ်ကြိမ်လျှင် VPN တစ်ခုသာ ခွင့်ပြုသဖြင့် အခြား VPN အက်ပ်၏ ချိတ်ဆက်မှု ပြတ်သွားမည်။</string>
@@ -68,6 +72,7 @@
     <string name="androidSomeApps">သင်ရွေးထားသော အက်ပ်များသာ Shroudly မှတစ်ဆင့် သွားပါသည် ({count})။</string>
     <string name="androidStartAtBoot">ဖုန်းဖွင့်သည့်အခါ စတင်ရန်</string>
     <string name="androidStartAtBootDesc">VPN ကို ခွင့်ပြုပြီးပါက ကာကွယ်မှု ပိတ်ထားခဲ့လျှင်ပင် ဖုန်းကို ပြန်စတင်တိုင်း ပွင့်လာပါမည်။ ပွင့်နေခဲ့လျှင် မည်သို့ပင်ဖြစ်စေ ပြန်ပွင့်လာပါမည်။</string>
+    <string name="androidStrategyDesc">နည်းလမ်းများကို တစ်ခုချင်း စမ်းပြီး ဆိုက်တစ်ခုစီအတွက် အလုပ်ဖြစ်သည့်နည်းကို မှတ်ထားပါသည်။ ကူညီနေသူက တောင်းဆိုမှသာ အခြားတစ်ခုကို ရွေးပါ။ ပိတ်ထားခြင်းသည် DNS ကိုသာ စာဝှက်ပါသည်။</string>
     <string name="androidTileAdd">အမြန်ဆက်တင် အကွက်</string>
     <string name="androidTileAddDesc">မျက်နှာပြင်ထိပ်ရှိ panel ထဲက Shroudly အကွက်သည် ကာကွယ်မှုကို တစ်ချက်နှိပ်ရုံဖြင့် ဖွင့်ပိတ်ပေးသည်။</string>
     <string name="androidTileAdded">Shroudly အကွက် အမြန်ဆက်တင်တွင် ရှိပြီး။</string>
@@ -86,6 +91,7 @@
     <string name="androidWifiProxyShroudlyOff">ဤကွန်ရက်၏ ပရောက်စီကို Shroudly ({addr}) သို့ သတ်မှတ်ထားသော်လည်း Shroudly ပိတ်ထားသဖြင့် ၎င်းကို သုံးသော အက်ပ်များ (Chrome အပါအဝင်) ချိတ်ဆက်၍ မရပါ။ ကာကွယ်မှုကို စတင်ပါ၊ သို့မဟုတ် Wi-Fi ဆက်တင်များတွင် ပရောက်စီကို «မရှိ» သို့ သတ်မှတ်ပါ။</string>
     <string name="androidWifiSettings">Wi-Fi ဆက်တင်များ</string>
     <string name="androidWorkApps">သင့်အလုပ်ပရိုဖိုင်ရှိ အက်ပ်များသည် Shroudly မှတစ်ဆင့် မသွားပါ။</string>
+    <string name="appSection">အပလီကေးရှင်း</string>
     <string name="autoRawBlocked">ဤကွန်ရက်က {app} ၏ ချိတ်ဆက်မှုများကို တားဆီးထားပြီး Shroudly ၏ နည်းလမ်းများထဲမှ တစ်ခုမျှ မဖြတ်ကျော်နိုင်ခဲ့ပါ။ {app} ၏ ကိုယ်ပိုင် proxy ဆက်တင် သို့မဟုတ် VPN ကို သုံးပါ။</string>
     <string name="autoRawUnreachable">{app} သည် ၎င်း၏ ဆာဗာများထံ မရောက်နိုင်ပါ။ ဤကွန်ရက်က ၎င်းတို့၏ လိပ်စာများကို ပိတ်ဆို့ထားပြီး အခြားနေရာရှိ ဆာဗာတစ်ခု မရှိဘဲ Shroudly က ထိုပိတ်ဆို့မှုကို မကျော်ဖြတ်နိုင်ပါ။ {app} ၏ ကိုယ်ပိုင် proxy ဆက်တင် သို့မဟုတ် VPN ကို သုံးပါ။</string>
     <string name="connections">ချိတ်ဆက်မှုများ</string>
@@ -123,6 +129,7 @@
     <string name="navSettings">ဆက်တင်များ</string>
     <string name="navStats">စာရင်းအင်း</string>
     <string name="notProtected">ကာကွယ်မထားပါ</string>
+    <string name="onlineNow">ယခု အွန်လိုင်း</string>
     <string name="openSourceDesc">Shroudly သည် MIT လိုင်စင်ဖြင့် အခမဲ့ ပွင့်လင်းရင်းမြစ် ဆော့ဖ်ဝဲ ဖြစ်သည်: မည်သူမဆို ၎င်း၏ ကုဒ်ကို ဖတ်ရှု၊ စစ်ဆေး၊ တည်ဆောက်နိုင်သည်။</string>
     <string name="openSourceTitle">ပွင့်လင်းရင်းမြစ်</string>
     <string name="protected_">ကာကွယ်ထားသည်</string>

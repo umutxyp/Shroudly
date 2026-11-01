@@ -7,6 +7,8 @@
     <string name="adBlockAllowDesc">Ger malperek xera bibe, domaina wê li vir binivîse, her rêzê yek: ew û hemû navên di bin wê de qet nayên astengkirin.</string>
     <string name="adBlockDesc">Navên li ser lîsteyeke giştî ya reklam û şopîneran di tu sepanê de bersiv nagirin. Lîste bi rêya Shroudly tê daxistin û her hefte tê nûkirin.</string>
     <string name="adsBlocked">Reklamên astengkirî</string>
+    <string name="androidAdvanced">Pêşketî</string>
+    <string name="androidAdvancedDesc">Van tenê biguherîne heke kesê ku alîkariya te dike ji te bixwaze. Shroudly bi xwe tiştê ku dixebite dibîne.</string>
     <string name="androidAlertsChannel">Hişyariyên parastinê</string>
     <string name="androidAllApps">Her sepana li ser vê amûrê di Shroudly re derbas dibe.</string>
     <string name="androidAppsLockdown">Android ji bo astengkirina girêdanên bê VPN hatiye mîhengkirin, ji ber vê yekê sepanên ku ji Shroudly derve hatine hiştin înternet tune.</string>
@@ -17,8 +19,10 @@
     <string name="androidAppsOnlyDesc">Hemû sepanên din, sepanên pergalê jî, bê ku di Shroudly re derbas bibin rasterast derdikevin. Heke yek jî nehatibe nîşankirin, her sepan di Shroudly re derbas dibe.</string>
     <string name="androidAppsSection">Sepan</string>
     <string name="androidAppsSkipping">Her sepan di Shroudly re derbas dibe, ji bilî yên ku te hilbijartine ku jê derbas nebin ({count}).</string>
+    <string name="androidAppsVpnOnly">Tenê di moda VPN de. Di Tenê proksî de, mîhenga proksiyê ya her sepanê biryar dide ka ew di Shroudly re derbas dibe an na.</string>
     <string name="androidAutomationBattery">Mîhengên bataryayê</string>
     <string name="androidAutomationNotStarted">Parastin nehat vekirin</string>
+    <string name="androidAutomationSection">Otomasyon</string>
     <string name="androidAutomationTapBattery">Sepaneke otomasyonê xwest parastinê veke, lê Android tenê dema ku bikaranîna bataryayê ya Shroudly bê sînor be destûrê dide sepanên din ku wê dest pê bikin. Ji bo niha vekirinê bitikîne.</string>
     <string name="androidAutomationTapVpn">Sepaneke otomasyonê xwest parastinê veke, lê hîn destûr nehatiye dayîn ji VPN-ê re. Ji bo destûrdan û vekirina parastinê bitikîne.</string>
     <string name="androidBack">Paşve</string>
@@ -35,9 +39,9 @@
     <string name="androidKeepOnOffer">Telefona te Shroudly girt. Ji bo ku parastinê dîsa vekî, bitikîne.</string>
     <string name="androidLockdownOffline">Înternet tune: Shroudly niha li ser vê torê nikare derbas bibe, û Android hatiye mîhengkirin ku girêdanên bê VPN asteng bike. Shroudly hewl didomîne.</string>
     <string name="androidLockdownStop">Android ji bo astengkirina girêdanên bê VPN hatiye mîhengkirin, ji ber vê yekê heta Shroudly girtî be, sepanan înternet tune.</string>
-    <string name="androidModeNextStart">Moda nû dê gava parastin cara din dest pê bike were bikaranîn.</string>
     <string name="androidModeProxy">Tenê proksî (VPN-a te ya din dimîne)</string>
     <string name="androidModeProxyDesc">Shroudly li 127.0.0.1:{port} wek proksî dixebite (SOCKS5 û HTTP) û VPN-ê ji sepaneke din re dihêle. Tenê sepanên ku ji bo bikaranîna wê hatine mîhengkirin di Shroudly re derbas dibin: proksiya tora Wi-Fi (host 127.0.0.1, port {port}) an mîhenga proksiyê ya sepanê bi xwe.</string>
+    <string name="androidModeSwitching">Parastin bi moda nû ji nû ve dest pê dike.</string>
     <string name="androidModeTitle">Mod</string>
     <string name="androidModeVpn">VPN (hemû sepan)</string>
     <string name="androidModeVpnDesc">Hemû sepan di Shroudly re derbas dibin. Android di heman demê de tenê destûrê dide yek VPN, ji ber vê sepaneke din a VPN tê qutkirin.</string>
@@ -68,6 +72,7 @@
     <string name="androidSomeApps">Tenê sepanên ku te hilbijartine di Shroudly re derbas dibin ({count}).</string>
     <string name="androidStartAtBoot">Dema telefon vedibe dest pê bike</string>
     <string name="androidStartAtBootDesc">Piştî ku destûr ji VPN re hat dayîn, parastin piştî her destpêkirina nû ya telefonê vedibe, heta ku girtî jî bûya. Heke vekirî bû, her wiha vedigere.</string>
+    <string name="androidStrategyDesc">Teknîkan yek bi yek diceribîne û ji bo her malperê ya ku dixebite diparêze. Yeke din tenê hilbijêre heke kesê alîkariya te dike bixwaze; Girtî tenê DNS şîfre dike.</string>
     <string name="androidTileAdd">Kaşîya Mîhengên Bilez</string>
     <string name="androidTileAddDesc">Kaşîyeke Shroudly di panela jorê ekranê de parastinê bi yek tikandinê vedike û digire.</string>
     <string name="androidTileAdded">Kaşîya Shroudly di Mîhengên Bilez de ye.</string>
@@ -86,6 +91,7 @@
     <string name="androidWifiProxyShroudlyOff">Proksiya vê torê wekî Shroudly ({addr}) hatiye danîn, lê Shroudly girtî ye, ji ber vê yekê sepanên ku wê bi kar tînin (Chrome jî) nikarin girê bidin. Parastinê dest pê bike, an di mîhengên Wi-Fi de proksiyê bike «Tune».</string>
     <string name="androidWifiSettings">Mîhengên Wi-Fi</string>
     <string name="androidWorkApps">Sepanên di profîla te ya karê de di Shroudly re derbas nabin.</string>
+    <string name="appSection">Sepan</string>
     <string name="autoRawBlocked">Ev tor girêdanên sepana {app} radiwestîne, û ti teknîkeke Shroudly nikarîbû derbas bibe. Mîhenga proksiyê ya sepana {app} bi xwe an VPN-ekê bi kar bîne.</string>
     <string name="autoRawUnreachable">Sepana {app} nikare bigihîje rajekarên xwe: ev tor navnîşanên wan asteng dike, û Shroudly bêyî rajekarekî li cihekî din nikare vê derbas bike. Mîhenga proksiyê ya sepana {app} bi xwe an VPN-ekê bi kar bîne.</string>
     <string name="connections">Girêdan</string>
@@ -123,6 +129,7 @@
     <string name="navSettings">Mîheng</string>
     <string name="navStats">Amar</string>
     <string name="notProtected">Ne parastî</string>
+    <string name="onlineNow">Niha serhêl</string>
     <string name="openSourceDesc">Shroudly belaş e û bi lîsansa MIT çavkaniya vekirî ye: her kes dikare koda wê bixwîne, kontrol bike û ava bike.</string>
     <string name="openSourceTitle">Çavkaniya vekirî</string>
     <string name="protected_">Parastî</string>

@@ -30,10 +30,14 @@ import android.widget.TextView
 import android.widget.Toolbar
 
 /*
- * Settings: the technique (as the desktop's "Bypass strategy"), the DNS
- * server, the apps that skip Shroudly, starting when the phone starts, and
- * automation apps (AppSettings). A change
- * reaches a running protection at once (ShroudlyVpnService.ACTION_SETTINGS).
+ * Settings: first what anyone may want (the language, the accent, the apps
+ * that skip Shroudly, starting with the phone, the live count and the ad
+ * blocker); then, folded away under "Advanced", what only someone helping
+ * them should change: the mode, the technique (as the desktop's "Bypass
+ * strategy"), the DNS server, QUIC and IPv6, and automation apps
+ * (AppSettings). A change reaches a running protection at once
+ * (ShroudlyVpnService.ACTION_SETTINGS); a new mode starts it again in that
+ * mode.
  *
  * Under a bar with the title and a way back, as any Android screen has. A
  * setting shows its title (and its value: a language, a count); what it
@@ -44,6 +48,10 @@ class SettingsActivity : Activity() {
     private companion object {
         /* The Quick Settings tile was added (or found there) from Settings. */
         const val KEY_TILE_ADDED = "quickTileAdded"
+        // The VPN's consent, asked for before protection moves to VPN mode.
+        const val REQUEST_VPN = 1
+        // The swatches per row: ten in two rows, on any phone.
+        const val SWATCHES_PER_ROW = 5
     }
 
     // In the language chosen below (Lang; before Android 13).
@@ -89,9 +97,10 @@ class SettingsActivity : Activity() {
             group.addView(RadioButton(this).apply {
                 id = View.generateViewId()
                 tag = s.id
-                // The label, and the engine's spec under it, smaller and dimmer
-                // (with the section's explanations).
-                strategies += this to { titled(label, ifOpen(R.id.strategyTitle, s.spec), 12f) }
+                // The label; under Auto, with the section's explanations, what
+                // it does and when another one is for (never the engine's own
+                // spec: words for the user, not code).
+                strategies += this to { titled(label, if (s.auto) ifOpen(R.id.strategyTitle, getString(R.string.androidStrategyDesc)) else null, 12f) }
                 text = strategies.last().second()
                 textSize = 15f
                 setTextColor(getColor(R.color.text))
@@ -108,6 +117,7 @@ class SettingsActivity : Activity() {
             if (id == AppSettings.strategy(this).id) return@setOnCheckedChangeListener
             AppSettings.setStrategy(this, id)
             tell("strategy")
+            showAdvancedTitle()
         }
         redraw[R.id.strategyTitle] = { for ((b, t) in strategies) b.text = t() }
 
@@ -120,11 +130,11 @@ class SettingsActivity : Activity() {
         // QUIC and IPv6 off (#59): the engine again with its options.
         findViewById<Switch>(R.id.quicOff).apply {
             isChecked = AppSettings.quicOff(this@SettingsActivity)
-            setOnCheckedChangeListener { _, on -> AppSettings.setQuicOff(this@SettingsActivity, on); tell("network") }
+            setOnCheckedChangeListener { _, on -> AppSettings.setQuicOff(this@SettingsActivity, on); tell("network"); showAdvancedTitle() }
         }
         findViewById<Switch>(R.id.ipv6Off).apply {
             isChecked = AppSettings.ipv6Off(this@SettingsActivity)
-            setOnCheckedChangeListener { _, on -> AppSettings.setIpv6Off(this@SettingsActivity, on); tell("network") }
+            setOnCheckedChangeListener { _, on -> AppSettings.setIpv6Off(this@SettingsActivity, on); tell("network"); showAdvancedTitle() }
         }
         showNetwork()
         redraw[R.id.networkTitle] = { showNetwork() }
@@ -142,12 +152,119 @@ class SettingsActivity : Activity() {
             setOnCheckedChangeListener { _, on ->
                 AppSettings.setRemoteControl(this@SettingsActivity, on)
                 ShroudlyVpnService.log(if (on) "Automation apps allowed (Settings)" else "Automation apps no longer allowed (Settings)")
+                showAdvancedTitle()
             }
         }
         showApps()
         redraw[R.id.appsTitle] = { showApps() }
+        showAutomation()
+        redraw[R.id.automationTitle] = { showAutomation() }
+        setUpApplication()
+        redraw[R.id.appTitle] = { showApplication() }
         explanations()
+        setUpAdvanced()
         Fit.apply(findViewById(R.id.root))
+    }
+
+    /* Something under "Advanced" is set otherwise than a new install has it
+     * (and so is opened to be seen). */
+    private fun advancedSet(): Boolean =
+        AppSettings.proxyOnly(this) || AppSettings.strategy(this).id != AppSettings.STRATEGIES[0].id ||
+            AppSettings.customDnsTyped(this) != null || AppSettings.quicOff(this) || AppSettings.ipv6Off(this) ||
+            AppSettings.remoteControl(this)
+
+    /* "Advanced": folded away, with what it holds and who it is for under
+     * its title; open from the start when something in it is set. */
+    private fun setUpAdvanced() {
+        val box = findViewById<View>(R.id.advancedBox)
+        val row = findViewById<TextView>(R.id.advanced)
+        if (advancedSet()) box.visibility = View.VISIBLE
+        showAdvancedTitle()
+        row.setOnClickListener {
+            box.visibility = if (box.visibility == View.VISIBLE) View.GONE else View.VISIBLE
+            showAdvancedTitle()
+        }
+    }
+
+    private fun showAdvancedTitle() {
+        val row = findViewById<TextView>(R.id.advanced)
+        val shown = findViewById<View>(R.id.advancedBox).visibility == View.VISIBLE
+        row.text = titled(getString(R.string.androidAdvanced), getString(R.string.androidAdvancedDesc))
+        val chevron = getDrawable(if (shown) R.drawable.ic_chevron_down else R.drawable.chevron_end)?.mutate()
+        if (shown) chevron?.setTint(getColor(R.color.text_faint))
+        val c = row.compoundDrawablesRelative
+        val d = resources.displayMetrics.density
+        chevron?.setBounds(0, 0, (18 * d).toInt(), (18 * d).toInt())
+        row.setCompoundDrawablesRelative(c[0], c[1], chevron, c[3])
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            row.stateDescription = getString(if (shown) R.string.androidHideExplanation else R.string.androidShowExplanation)
+        }
+    }
+
+    /* The app's own switches (the desktop's "Application"): the live count
+     * and the ad blocker, which lived under About in the main window up to
+     * 2.6.44, where they were a long paragraph between the links. */
+    private fun setUpApplication() {
+        findViewById<Switch>(R.id.shareOnlineCount).apply {
+            isChecked = OnlineCount.enabled(this@SettingsActivity)
+            setOnCheckedChangeListener { _, on -> OnlineCount.setEnabled(this@SettingsActivity, on) }
+        }
+        // Only in the copy from GitHub (AdBlock.offered).
+        val adBlock = AdBlock.offered(this)
+        val allowRow = findViewById<View>(R.id.adBlockAllow)
+        findViewById<View>(R.id.adBlockDivider).visibility = if (adBlock) View.VISIBLE else View.GONE
+        findViewById<Switch>(R.id.adBlock).apply {
+            visibility = if (adBlock) View.VISIBLE else View.GONE
+            isChecked = AdBlock.enabled(this@SettingsActivity)
+            setOnCheckedChangeListener { _, on ->
+                AdBlock.setEnabled(this@SettingsActivity, on)
+                allowRow.visibility = if (on && adBlock) View.VISIBLE else View.GONE
+                Protector.tell(this@SettingsActivity, ShroudlyVpnService.ACTION_ADBLOCK)
+            }
+        }
+        allowRow.visibility = if (adBlock && AdBlock.enabled(this)) View.VISIBLE else View.GONE
+        allowRow.setOnClickListener { editAdBlockAllow() }
+        showApplication()
+    }
+
+    private fun showApplication() {
+        findViewById<Switch>(R.id.shareOnlineCount).text =
+            titled(getString(R.string.shareOnlineCount), ifOpen(R.id.appTitle, getString(R.string.shareOnlineCountDesc)))
+        findViewById<Switch>(R.id.adBlock).text =
+            titled(getString(R.string.adBlock), ifOpen(R.id.appTitle, getString(R.string.adBlockDesc)))
+    }
+
+    /* "Sites never to block": one domain per line, cleaned on save. */
+    private fun editAdBlockAllow() {
+        val pad = (20 * resources.displayMetrics.density).toInt()
+        val field = EditText(this).apply {
+            setText(AdBlock.allow(this@SettingsActivity).joinToString("\n"))
+            hint = "example.com"
+            setHintTextColor(getColor(R.color.text_faint))
+            minLines = 4
+            textDirection = View.TEXT_DIRECTION_LTR
+            typeface = android.graphics.Typeface.MONOSPACE
+        }
+        val hintText = TextView(this).apply {
+            text = getString(R.string.adBlockAllowDesc)
+            setTextColor(getColor(R.color.text_dim))
+            textSize = 13f
+        }
+        val box = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(pad, pad / 2, pad, 0)
+            addView(hintText)
+            addView(field)
+        }
+        AlertDialog.Builder(this)
+            .setTitle(R.string.adBlockAllow)
+            .setView(ScrollView(this).apply { addView(box) })
+            .setPositiveButton(android.R.string.ok) { _, _ ->
+                AdBlock.setAllow(this, field.text.toString())
+                Protector.tell(this, ShroudlyVpnService.ACTION_ADBLOCK)
+            }
+            .setNegativeButton(android.R.string.cancel, null)
+            .show()
     }
 
     /* The (i) on a section's title shows its settings' explanations, or
@@ -176,36 +293,44 @@ class SettingsActivity : Activity() {
     }
 
     /* The Apps section's settings that explain themselves: starting with the
-     * phone, automation apps, and (in showExcluded, showQuickTile) the apps
-     * that skip Shroudly and the Quick Settings tile. */
+     * phone, and (in showExcluded, showQuickTile) the apps that skip Shroudly
+     * and the Quick Settings tile. */
     private fun showApps() {
         findViewById<Switch>(R.id.startAtBoot).text =
             titled(getString(R.string.androidStartAtBoot), ifOpen(R.id.appsTitle, getString(R.string.androidStartAtBootDesc)))
-        // The names break only after a dot, never inside a word.
-        findViewById<Switch>(R.id.remoteControl).text = titled(getString(R.string.androidRemoteControl), ifOpen(R.id.appsTitle,
-            text(R.string.androidRemoteControlDesc, "package" to Fit.breakable(packageName), "action" to Fit.breakable(AutomationReceiver.ACTION_START.substringBeforeLast('.')))))
         showExcluded()
         showQuickTile()
     }
 
-    /* Appearance: the accents as round swatches, the chosen one ringed. A
-     * choice is kept and the window made again in it (the main window follows
-     * when it comes back). */
+    private fun showAutomation() {
+        // The names break only after a dot, never inside a word.
+        findViewById<Switch>(R.id.remoteControl).text = titled(getString(R.string.androidRemoteControl), ifOpen(R.id.automationTitle,
+            text(R.string.androidRemoteControlDesc, "package" to Fit.breakable(packageName), "action" to Fit.breakable(AutomationReceiver.ACTION_START.substringBeforeLast('.')))))
+    }
+
+    /* Appearance: the accents as round swatches, the chosen one ringed, in
+     * rows that fit any screen (one row that scrolled hid some swatches with
+     * nothing to say so). A choice is kept and the window made again in it
+     * (the main window follows when it comes back). TalkBack says which of
+     * how many each is, and which one is chosen. */
     private fun showAccents() {
-        val row = findViewById<LinearLayout>(R.id.accents)
+        val rows = findViewById<LinearLayout>(R.id.accents)
         val density = resources.displayMetrics.density
         val size = (34 * density).toInt()
         val gap = (10 * density).toInt()
         val chosen = Accent.id(this)
-        for (o in Accent.OPTIONS) {
-            row.addView(View(this).apply {
+        var row: LinearLayout? = null
+        for ((i, o) in Accent.OPTIONS.withIndex()) {
+            if (i % SWATCHES_PER_ROW == 0) row = LinearLayout(this).apply { orientation = LinearLayout.HORIZONTAL }.also { rows.addView(it) }
+            row!!.addView(View(this).apply {
                 layoutParams = LinearLayout.LayoutParams(size, size).apply { marginEnd = gap; topMargin = gap / 2; bottomMargin = gap / 2 }
                 background = android.graphics.drawable.GradientDrawable().apply {
                     shape = android.graphics.drawable.GradientDrawable.OVAL
                     setColor(o.swatch)
                     if (o.id == chosen) setStroke((3 * density).toInt(), getColor(R.color.text))
                 }
-                contentDescription = if (o.id == "logo") getString(R.string.app_name) else o.id
+                contentDescription = "${getString(R.string.accentColour)} ${i + 1}/${Accent.OPTIONS.size}"
+                isSelected = o.id == chosen
                 isClickable = true
                 isFocusable = true
                 setOnClickListener {
@@ -217,8 +342,13 @@ class SettingsActivity : Activity() {
         }
     }
 
-    /* VPN or proxy only, each with what it means; a change while protection
-     * is on takes effect at the next start (the window says so). */
+    /* VPN or proxy only, each with what it means. A change while protection
+     * is on starts it again in the new mode (up to 2.6.44 a toast said it
+     * would be used at the next start, and the window went on showing the
+     * old one); to VPN mode, Android's consent first where it is needed,
+     * while Proxy only goes on, and nothing changes if it is refused. */
+    private var modeGroup: RadioGroup? = null
+
     private fun showMode() {
         val group = findViewById<RadioGroup>(R.id.mode)
         val proxy = AppSettings.proxyOnly(this)
@@ -238,14 +368,52 @@ class SettingsActivity : Activity() {
         group.addView(option(false, R.string.androidModeVpn, getString(R.string.androidModeVpnDesc)))
         group.addView(option(true, R.string.androidModeProxy, text(R.string.androidModeProxyDesc, "port" to ProxyPort.shown(this))))
         redraw[R.id.modeTitle] = { for ((b, t) in options) b.text = t() }
+        modeGroup = group
         group.setOnCheckedChangeListener { g, checkedId ->
             val on = g.findViewById<RadioButton>(checkedId)?.tag as? Boolean ?: return@setOnCheckedChangeListener
             if (on == AppSettings.proxyOnly(this)) return@setOnCheckedChangeListener
-            AppSettings.setProxyOnly(this, on)
-            if (Protection.state != Protection.State.OFF) {
-                android.widget.Toast.makeText(this, R.string.androidModeNextStart, android.widget.Toast.LENGTH_LONG).show()
+            if (!on && Protection.state != Protection.State.OFF) {
+                val consent = try { android.net.VpnService.prepare(this) } catch (_: Exception) { null }
+                if (consent != null) {
+                    try {
+                        @Suppress("DEPRECATION")
+                        startActivityForResult(consent, REQUEST_VPN)
+                    } catch (_: android.content.ActivityNotFoundException) {
+                        checkMode(true)
+                    }
+                    return@setOnCheckedChangeListener
+                }
             }
+            switchMode(on)
         }
+    }
+
+    /* The radio back on what is in use (the VPN's consent refused). */
+    private fun checkMode(proxy: Boolean) {
+        val group = modeGroup ?: return
+        for (i in 0 until group.childCount) {
+            val b = group.getChildAt(i) as? RadioButton ?: continue
+            if (b.tag == proxy && !b.isChecked) b.isChecked = true
+        }
+    }
+
+    private fun switchMode(proxy: Boolean) {
+        AppSettings.setProxyOnly(this, proxy)
+        ShroudlyVpnService.log("Mode: ${if (proxy) "Proxy only" else "VPN"} (Settings)")
+        showExcluded()
+        showAdvancedTitle()
+        if (Protection.state != Protection.State.OFF) {
+            Protector.restart(this)
+            android.widget.Toast.makeText(this, R.string.androidModeSwitching, android.widget.Toast.LENGTH_LONG).show()
+        }
+    }
+
+    @Deprecated("Activity result API of the framework")
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        @Suppress("DEPRECATION")
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode != REQUEST_VPN) return
+        if (resultCode == RESULT_OK) switchMode(false) else checkMode(true)
     }
 
     /* The desktop's labels for the techniques (locales: strat*). */
@@ -311,6 +479,16 @@ class SettingsActivity : Activity() {
     /* The row says how many apps skip Shroudly, or (#60) how many are the
      * only ones that go through it; with none of those, that every app does. */
     private fun showExcluded() {
+        val row = findViewById<TextView>(R.id.excludedApps)
+        // Proxy only has no VPN to leave apps out of: each app's own proxy
+        // setting decides. Shown, but not to be changed there.
+        val vpn = !AppSettings.proxyOnly(this)
+        row.isEnabled = vpn
+        row.alpha = if (vpn) 1f else 0.5f
+        if (!vpn) {
+            row.text = titled(getString(R.string.excludedApps), getString(R.string.androidAppsVpnOnly))
+            return
+        }
         // Under "Block connections without VPN" the apps left out have no
         // internet at all (NA-2): said with the count, always.
         val lockdown = lockdownLine()
@@ -398,6 +576,8 @@ class SettingsActivity : Activity() {
             imeOptions = android.view.inputmethod.EditorInfo.IME_ACTION_DONE
             textDirection = View.TEXT_DIRECTION_LTR
             setText(typed?.second ?: "")
+            // An example, not a value: dim, as an empty field's hint is.
+            setHintTextColor(getColor(R.color.text_faint))
         }
         val status = TextView(this).apply { textSize = 13f; setTextColor(getColor(R.color.text_dim)) }
         // Through a proxy of the user's own (#58): not for UDP.
@@ -413,6 +593,7 @@ class SettingsActivity : Activity() {
             imeOptions = android.view.inputmethod.EditorInfo.IME_ACTION_DONE
             textDirection = View.TEXT_DIRECTION_LTR
             hint = "socks5://127.0.0.1:1080"
+            setHintTextColor(getColor(R.color.text_faint))
             setText(AppSettings.customDnsProxyTyped(this@SettingsActivity))
         }
         val proxyDesc = TextView(this).apply {
@@ -447,9 +628,16 @@ class SettingsActivity : Activity() {
         group.addView(option("auto", getString(R.string.dnsServerAuto)))
         for ((id, label, _) in dnsKinds) group.addView(option(id, getString(label)))
         fun example() = dnsKinds.firstOrNull { it.first == kind }?.third ?: ""
+        // What a server of one's own does: said once one is chosen.
+        val desc = TextView(this).apply {
+            text = getString(R.string.dnsServerDesc)
+            setTextColor(getColor(R.color.text_dim))
+            textSize = 12.5f
+            setPadding(0, pad / 2, 0, pad / 2)
+        }
         fun showInput() {
             val v = if (kind == "auto") View.GONE else View.VISIBLE
-            input.visibility = v; strict.visibility = v; strictDesc.visibility = v
+            input.visibility = v; strict.visibility = v; strictDesc.visibility = v; desc.visibility = v
             val p = if (kind == "auto" || kind == "udp") View.GONE else View.VISIBLE
             proxyLabel.visibility = p; proxyInput.visibility = p; proxyDesc.visibility = p
             input.hint = example()
@@ -465,12 +653,7 @@ class SettingsActivity : Activity() {
             addView(proxyLabel)
             addView(proxyInput)
             addView(proxyDesc)
-            addView(TextView(context).apply {
-                text = getString(R.string.dnsServerDesc)
-                setTextColor(getColor(R.color.text_dim))
-                textSize = 12.5f
-                setPadding(0, pad / 2, 0, pad / 2)
-            })
+            addView(desc)
             // The exception to the line above.
             addView(strict)
             addView(strictDesc)
@@ -611,6 +794,7 @@ class SettingsActivity : Activity() {
     /* The apps that can be opened (their launcher entries), by name, with a
      * search field; the ones checked skip Shroudly, or (#60) are the only ones
      * that go through it. Each way keeps its own list. */
+    @android.annotation.SuppressLint("SetTextI18n")
     private fun pickApps() {
         val pm = packageManager
         val launcher = Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_LAUNCHER)
@@ -655,13 +839,12 @@ class SettingsActivity : Activity() {
                 return row
             }
         }
-        val list = ListView(this).apply {
-            this.adapter = adapter
-            setOnItemClickListener { _, view, position, _ ->
-                val app = shown[position]
-                if (!chosen().remove(app.pkg)) chosen().add(app.pkg)
-                ((view as LinearLayout).getChildAt(2) as CheckBox).isChecked = app.pkg in chosen()
-            }
+        val list = ListView(this)
+        list.setOnItemClickListener { _, view, position, _ ->
+            // The radios and the description above the apps are the list's header.
+            val app = shown.getOrNull(position - list.headerViewsCount) ?: return@setOnItemClickListener
+            if (!chosen().remove(app.pkg)) chosen().add(app.pkg)
+            ((view as LinearLayout).getChildAt(2) as CheckBox).isChecked = app.pkg in chosen()
         }
         val search = EditText(this).apply {
             hint = getString(R.string.searchApps)
@@ -696,13 +879,22 @@ class SettingsActivity : Activity() {
                 adapter.notifyDataSetChanged()
             }
         }
+        // The search stays at the top; the radios and the description scroll
+        // away with the apps, and the list takes all the room the dialog has.
+        // Up to 2.6.44 they sat above a list of half the screen's height, and
+        // with large text, a small phone or the phone held sideways no app
+        // was left to tick.
+        list.addHeaderView(LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            addView(ways)
+            addView(desc)
+        }, null, false)
+        list.adapter = adapter
         val box = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             setPadding(pad, pad / 2, pad, 0)
-            addView(ways)
-            addView(desc)
             addView(search)
-            addView(list, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, (resources.displayMetrics.heightPixels * 0.5).toInt()))
+            addView(list, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f))
         }
         AlertDialog.Builder(this)
             .setTitle(R.string.androidAppsSection)

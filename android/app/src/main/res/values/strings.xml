@@ -7,6 +7,8 @@
     <string name="adBlockAllowDesc">If a site breaks, write its domain here, one per line: it and every name under it are never blocked.</string>
     <string name="adBlockDesc">Names on a public ad and tracker list get no answer, in every app. The list is fetched through Shroudly and refreshed weekly.</string>
     <string name="adsBlocked">Ads blocked</string>
+    <string name="androidAdvanced">Advanced</string>
+    <string name="androidAdvancedDesc">Change these only if someone helping you asks you to. Shroudly finds what works by itself.</string>
     <string name="androidAlertsChannel">Protection alerts</string>
     <string name="androidAllApps">Every app on this device goes through Shroudly.</string>
     <string name="androidAppsLockdown">Android is set to block connections without a VPN, so apps left out of Shroudly have no internet.</string>
@@ -17,8 +19,10 @@
     <string name="androidAppsOnlyDesc">Every other app, system apps too, goes straight out, past Shroudly. With none checked, every app goes through Shroudly.</string>
     <string name="androidAppsSection">Apps</string>
     <string name="androidAppsSkipping">Every app goes through Shroudly except the ones you chose to skip it ({count}).</string>
+    <string name="androidAppsVpnOnly">Only in VPN mode. In Proxy only, each app\'s own proxy setting decides whether it goes through Shroudly.</string>
     <string name="androidAutomationBattery">Battery settings</string>
     <string name="androidAutomationNotStarted">Protection was not turned on</string>
+    <string name="androidAutomationSection">Automation</string>
     <string name="androidAutomationTapBattery">An automation app asked to turn protection on, but Android lets other apps start it only when Shroudly\'s battery use is unrestricted. Tap to turn it on now.</string>
     <string name="androidAutomationTapVpn">An automation app asked to turn protection on, but the VPN has not been allowed yet. Tap to allow it and turn protection on.</string>
     <string name="androidBack">Back</string>
@@ -35,9 +39,9 @@
     <string name="androidKeepOnOffer">Your phone turned Shroudly off. Tap to turn protection back on.</string>
     <string name="androidLockdownOffline">No internet: Shroudly cannot get through on this network right now, and Android is set to block connections without a VPN. Shroudly keeps trying.</string>
     <string name="androidLockdownStop">Android is set to block connections without a VPN, so while Shroudly is off, apps have no internet.</string>
-    <string name="androidModeNextStart">The new mode is used the next time protection starts.</string>
     <string name="androidModeProxy">Proxy only (keeps your other VPN)</string>
     <string name="androidModeProxyDesc">Shroudly runs as a proxy on 127.0.0.1:{port} (SOCKS5 and HTTP) and leaves the VPN to another app. Only apps set to use it go through Shroudly: the Wi-Fi network\'s proxy (host 127.0.0.1, port {port}) or an app\'s own proxy setting.</string>
+    <string name="androidModeSwitching">Protection is starting again in the new mode.</string>
     <string name="androidModeTitle">Mode</string>
     <string name="androidModeVpn">VPN (every app)</string>
     <string name="androidModeVpnDesc">Every app goes through Shroudly. Android allows one VPN at a time, so another VPN app is disconnected.</string>
@@ -68,6 +72,7 @@
     <string name="androidSomeApps">Only the apps you chose go through Shroudly ({count}).</string>
     <string name="androidStartAtBoot">Start when the phone starts</string>
     <string name="androidStartAtBootDesc">Protection comes on after every restart of the phone, even if it was off, once the VPN has been allowed. If it was on, it comes back anyway.</string>
+    <string name="androidStrategyDesc">Tries the techniques one by one and keeps what works for each site. Choose another only if someone helping you asks you to; Off only encrypts DNS.</string>
     <string name="androidTileAdd">Quick Settings tile</string>
     <string name="androidTileAddDesc">A Shroudly tile in the panel at the top of the screen turns protection on and off with one tap.</string>
     <string name="androidTileAdded">The Shroudly tile is in Quick Settings.</string>
@@ -86,6 +91,7 @@
     <string name="androidWifiProxyShroudlyOff">This network\'s proxy is set to Shroudly ({addr}), but Shroudly is off, so apps that use it (Chrome among them) cannot connect. Start protection, or set Proxy to None in Wi-Fi settings.</string>
     <string name="androidWifiSettings">Wi-Fi settings</string>
     <string name="androidWorkApps">Apps in your work profile do not go through Shroudly.</string>
+    <string name="appSection">Application</string>
     <string name="autoRawBlocked">This network stops {app}\'s connections, and none of Shroudly\'s techniques got through. Use {app}\'s own proxy setting or a VPN.</string>
     <string name="autoRawUnreachable">{app} cannot reach its servers: this network blocks their addresses, and Shroudly cannot get around that without a server elsewhere. Use {app}\'s own proxy setting or a VPN.</string>
     <string name="connections">Connections</string>
@@ -123,6 +129,7 @@
     <string name="navSettings">Settings</string>
     <string name="navStats">Stats</string>
     <string name="notProtected">Not protected</string>
+    <string name="onlineNow">Online now</string>
     <string name="openSourceDesc">Shroudly is free and open source under the MIT license: anyone can read, audit and build its code.</string>
     <string name="openSourceTitle">Open source</string>
     <string name="protected_">Protected</string>

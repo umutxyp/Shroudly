@@ -7,6 +7,8 @@
     <string name="adBlockAllowDesc">Сайт иштебей калса, анын доменин бул жерге жазыңыз, ар сапка бирден: ал жана анын астындагы бардык аттар эч качан бөгөттөлбөйт.</string>
     <string name="adBlockDesc">Ачык жарнама жана тректер тизмесиндеги аттарга эч бир колдонмодо жооп берилбейт. Тизме Shroudly аркылуу жүктөлүп, жумасына бир жаңыланат.</string>
     <string name="adsBlocked">Бөгөттөлгөн жарнама</string>
+    <string name="androidAdvanced">Кошумча</string>
+    <string name="androidAdvancedDesc">Муну сизге жардам берип жаткан адам сураса гана өзгөртүңүз. Shroudly эмне иштээрин өзү табат.</string>
     <string name="androidAlertsChannel">Коргоо эскертүүлөрү</string>
     <string name="androidAllApps">Бул түзмөктөгү ар бир колдонмо Shroudly аркылуу өтөт.</string>
     <string name="androidAppsLockdown">Android VPN\'сиз туташууларды бөгөттөөгө жөндөлгөн, ошондуктан Shroudly\'ден сырткары калган колдонмолордо интернет болбойт.</string>
@@ -17,8 +19,10 @@
     <string name="androidAppsOnlyDesc">Калган бардык колдонмолор, тутумдук колдонмолор да, Shroudly аркылуу өтпөй түз чыгат. Эч нерсе белгиленбесе, бардык колдонмо Shroudly аркылуу өтөт.</string>
     <string name="androidAppsSection">Колдонмолор</string>
     <string name="androidAppsSkipping">Сиз Shroudly\'ни айланып өтүүгө тандагандардан башка бардык колдонмолор Shroudly аркылуу өтөт ({count}).</string>
+    <string name="androidAppsVpnOnly">VPN режиминде гана. «Прокси гана» режиминде колдонмонун Shroudly аркылуу өтөрүн анын өз прокси жөндөөсү чечет.</string>
     <string name="androidAutomationBattery">Батарея жөндөөлөрү</string>
     <string name="androidAutomationNotStarted">Коргоо күйгүзүлгөн жок</string>
+    <string name="androidAutomationSection">Автоматташтыруу</string>
     <string name="androidAutomationTapBattery">Автоматташтыруу колдонмосу коргоону күйгүзүүнү сурады, бирок Android башка колдонмолорго Shroudly\'ни анын батарея колдонуусу чектелбегенде гана иштетүүгө уруксат берет. Азыр күйгүзүү үчүн басыңыз.</string>
     <string name="androidAutomationTapVpn">Автоматташтыруу колдонмосу коргоону күйгүзүүнү сурады, бирок VPN\'ге азырынча уруксат берилген эмес. Уруксат берип, коргоону күйгүзүү үчүн басыңыз.</string>
     <string name="androidBack">Артка</string>
@@ -35,9 +39,9 @@
     <string name="androidKeepOnOffer">Телефон Shroudly\'ни жаап салды. Коргоону кайра күйгүзүү үчүн басыңыз.</string>
     <string name="androidLockdownOffline">Интернет жок: Shroudly азыр бул тармакта туташа албай жатат, ал Android VPN\'сиз туташууларды бөгөттөөгө жөндөлгөн. Shroudly аракетин улантууда.</string>
     <string name="androidLockdownStop">Android VPN\'сиз туташууларды бөгөттөөгө жөндөлгөн, ошондуктан Shroudly өчүк турганда колдонмолордо интернет болбойт.</string>
-    <string name="androidModeNextStart">Жаңы режим коргоо кийинки жолу иштегенде колдонулат.</string>
     <string name="androidModeProxy">Прокси гана (башка VPN\'иңиз калат)</string>
     <string name="androidModeProxyDesc">Shroudly 127.0.0.1:{port} дарегинде прокси катары иштейт (SOCKS5 жана HTTP) жана VPN\'ди башка колдонмого калтырат. Аны колдонууга жөндөлгөн колдонмолор гана Shroudly аркылуу өтөт: Wi-Fi тармагынын проксиси (хост 127.0.0.1, порт {port}) же колдонмонун өз прокси жөндөөсү.</string>
+    <string name="androidModeSwitching">Коргоо жаңы режимде кайра иштеп жатат.</string>
     <string name="androidModeTitle">Режим</string>
     <string name="androidModeVpn">VPN (бардык колдонмолор)</string>
     <string name="androidModeVpnDesc">Бардык колдонмолор Shroudly аркылуу өтөт. Android бир убакта бир гана VPN\'ге уруксат берет, ошондуктан башка VPN колдонмосу ажыратылат.</string>
@@ -68,6 +72,7 @@
     <string name="androidSomeApps">Shroudly аркылуу сиз тандаган колдонмолор гана өтөт ({count}).</string>
     <string name="androidStartAtBoot">Телефон күйгөндө иштетүү</string>
     <string name="androidStartAtBootDesc">VPN\'ге уруксат берилсе, коргоо өчүк болсо да, телефон ар кайра күйгөндө күйөт. Күйүк болсо, баары бир кайра күйөт.</string>
+    <string name="androidStrategyDesc">Ыкмаларды бир-бирден сынап, ар бир сайт үчүн иштегенин сактайт. Башкасын сизге жардам берген адам сураса гана тандаңыз; «Өчүк» DNS\'ти гана шифрлейт.</string>
     <string name="androidTileAdd">Тез жөндөөлөр плиткасы</string>
     <string name="androidTileAddDesc">Экрандын жогору жагындагы панелдеги Shroudly плиткасы коргоону бир басуу менен күйгүзүп-өчүрөт.</string>
     <string name="androidTileAdded">Shroudly плиткасы тез жөндөөлөрдө.</string>
@@ -86,6 +91,7 @@
     <string name="androidWifiProxyShroudlyOff">Бул тармактын проксиси Shroudly ({addr}) деп коюлган, бирок Shroudly өчүк, ошондуктан аны колдонгон колдонмолор (анын ичинде Chrome) туташа албайт. Коргоону баштаңыз же Wi-Fi жөндөөлөрүндө проксини «Жок» кылып коюңуз.</string>
     <string name="androidWifiSettings">Wi-Fi жөндөөлөрү</string>
     <string name="androidWorkApps">Жумуш профилиңиздеги колдонмолор Shroudly аркылуу өтпөйт.</string>
+    <string name="appSection">Колдонмо</string>
     <string name="autoRawBlocked">Бул тармак {app} колдонмосунун туташууларын үзөт, ал эми Shroudly колдонгон ыкмалардын бири да өткөн жок. {app} колдонмосунун өз прокси жөндөөсүн же VPN колдонуңуз.</string>
     <string name="autoRawUnreachable">{app} колдонмосу өз серверлерине туташа албайт: бул тармак алардын даректерин бөгөттөйт, ал эми башка жердеги серверсиз Shroudly муну айланып өтө албайт. {app} колдонмосунун өз прокси жөндөөсүн же VPN колдонуңуз.</string>
     <string name="connections">Туташуулар</string>
@@ -123,6 +129,7 @@
     <string name="navSettings">Жөндөөлөр</string>
     <string name="navStats">Статистика</string>
     <string name="notProtected">Корголгон эмес</string>
+    <string name="onlineNow">Азыр онлайн</string>
     <string name="openSourceDesc">Shroudly акысыз жана MIT лицензиясы боюнча ачык булактуу: анын кодун ар ким окуй, текшере жана кура алат.</string>
     <string name="openSourceTitle">Ачык булак</string>
     <string name="protected_">Корголгон</string>

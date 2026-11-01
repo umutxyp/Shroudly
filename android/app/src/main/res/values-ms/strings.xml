@@ -7,6 +7,8 @@
     <string name="adBlockAllowDesc">Jika sesebuah laman rosak, tulis domainnya di sini, satu setiap baris: ia dan semua nama di bawahnya tidak akan disekat.</string>
     <string name="adBlockDesc">Nama dalam senarai awam iklan dan penjejak tidak mendapat jawapan dalam mana-mana aplikasi. Senarai dimuat turun melalui Shroudly dan dikemas kini setiap minggu.</string>
     <string name="adsBlocked">Iklan disekat</string>
+    <string name="androidAdvanced">Lanjutan</string>
+    <string name="androidAdvancedDesc">Ubah ini hanya jika orang yang membantu anda memintanya. Shroudly mencari sendiri cara yang berkesan.</string>
     <string name="androidAlertsChannel">Amaran perlindungan</string>
     <string name="androidAllApps">Setiap aplikasi pada peranti ini melalui Shroudly.</string>
     <string name="androidAppsLockdown">Android ditetapkan untuk menyekat sambungan tanpa VPN, jadi aplikasi yang tidak melalui Shroudly tiada internet.</string>
@@ -17,8 +19,10 @@
     <string name="androidAppsOnlyDesc">Semua aplikasi lain, termasuk aplikasi sistem, keluar terus tanpa melalui Shroudly. Jika tiada yang ditanda, semua aplikasi melalui Shroudly.</string>
     <string name="androidAppsSection">Aplikasi</string>
     <string name="androidAppsSkipping">Setiap aplikasi melalui Shroudly kecuali yang anda pilih untuk melangkauinya ({count}).</string>
+    <string name="androidAppsVpnOnly">Hanya dalam mod VPN. Dalam Proksi sahaja, tetapan proksi setiap aplikasi menentukan sama ada ia melalui Shroudly.</string>
     <string name="androidAutomationBattery">Tetapan bateri</string>
     <string name="androidAutomationNotStarted">Perlindungan tidak dihidupkan</string>
+    <string name="androidAutomationSection">Automasi</string>
     <string name="androidAutomationTapBattery">Aplikasi automasi meminta perlindungan dihidupkan, tetapi Android hanya membenarkan aplikasi lain memulakan Shroudly apabila penggunaan baterinya tidak dihadkan. Ketik untuk menghidupkannya sekarang.</string>
     <string name="androidAutomationTapVpn">Aplikasi automasi meminta perlindungan dihidupkan, tetapi VPN belum dibenarkan. Ketik untuk membenarkannya dan menghidupkan perlindungan.</string>
     <string name="androidBack">Kembali</string>
@@ -35,9 +39,9 @@
     <string name="androidKeepOnOffer">Telefon anda menutup Shroudly. Ketik untuk menghidupkan perlindungan semula.</string>
     <string name="androidLockdownOffline">Tiada internet: Shroudly belum dapat bersambung pada rangkaian ini, dan Android ditetapkan untuk menyekat sambungan tanpa VPN. Shroudly terus mencuba.</string>
     <string name="androidLockdownStop">Android ditetapkan untuk menyekat sambungan tanpa VPN, jadi semasa Shroudly dimatikan, aplikasi tiada internet.</string>
-    <string name="androidModeNextStart">Mod baharu digunakan apabila perlindungan dimulakan seterusnya.</string>
     <string name="androidModeProxy">Proksi sahaja (VPN anda yang lain kekal)</string>
     <string name="androidModeProxyDesc">Shroudly berjalan sebagai proksi di 127.0.0.1:{port} (SOCKS5 dan HTTP) dan menyerahkan VPN kepada aplikasi lain. Hanya aplikasi yang ditetapkan untuk menggunakannya melalui Shroudly: proksi rangkaian Wi-Fi (hos 127.0.0.1, port {port}) atau tetapan proksi aplikasi itu sendiri.</string>
+    <string name="androidModeSwitching">Perlindungan dimulakan semula dalam mod baharu.</string>
     <string name="androidModeTitle">Mod</string>
     <string name="androidModeVpn">VPN (semua aplikasi)</string>
     <string name="androidModeVpnDesc">Semua aplikasi melalui Shroudly. Android hanya membenarkan satu VPN pada satu masa, jadi aplikasi VPN lain terputus.</string>
@@ -68,6 +72,7 @@
     <string name="androidSomeApps">Hanya aplikasi yang anda pilih melalui Shroudly ({count}).</string>
     <string name="androidStartAtBoot">Mula apabila telefon dihidupkan</string>
     <string name="androidStartAtBootDesc">Perlindungan hidup selepas setiap kali telefon dimulakan semula, walaupun ia dimatikan, setelah VPN dibenarkan. Jika ia hidup, ia tetap kembali.</string>
+    <string name="androidStrategyDesc">Mencuba teknik satu demi satu dan menyimpan yang berkesan untuk setiap laman. Pilih yang lain hanya jika orang yang membantu anda memintanya; Dimatikan hanya menyulitkan DNS.</string>
     <string name="androidTileAdd">Jubin Tetapan Pantas</string>
     <string name="androidTileAddDesc">Jubin Shroudly dalam panel di bahagian atas skrin menghidupkan dan mematikan perlindungan dengan satu ketikan.</string>
     <string name="androidTileAdded">Jubin Shroudly ada dalam Tetapan Pantas.</string>
@@ -86,6 +91,7 @@
     <string name="androidWifiProxyShroudlyOff">Proksi rangkaian ini ditetapkan kepada Shroudly ({addr}), tetapi Shroudly dimatikan, jadi aplikasi yang menggunakannya (termasuk Chrome) tidak dapat bersambung. Mulakan perlindungan, atau tetapkan Proksi kepada Tiada dalam tetapan Wi-Fi.</string>
     <string name="androidWifiSettings">Tetapan Wi-Fi</string>
     <string name="androidWorkApps">Aplikasi dalam profil kerja anda tidak melalui Shroudly.</string>
+    <string name="appSection">Aplikasi</string>
     <string name="autoRawBlocked">Rangkaian ini menghentikan sambungan {app}, dan tiada satu pun teknik Shroudly yang berjaya menembusinya. Gunakan tetapan proksi {app} sendiri atau VPN.</string>
     <string name="autoRawUnreachable">{app} tidak dapat mencapai pelayannya: rangkaian ini menyekat alamat pelayan tersebut, dan Shroudly tidak dapat memintasnya tanpa pelayan di tempat lain. Gunakan tetapan proksi {app} sendiri atau VPN.</string>
     <string name="connections">Sambungan</string>
@@ -123,6 +129,7 @@
     <string name="navSettings">Tetapan</string>
     <string name="navStats">Statistik</string>
     <string name="notProtected">Tidak dilindungi</string>
+    <string name="onlineNow">Dalam talian sekarang</string>
     <string name="openSourceDesc">Shroudly percuma dan bersumber terbuka di bawah lesen MIT: sesiapa sahaja boleh membaca, mengaudit dan membina kodnya.</string>
     <string name="openSourceTitle">Sumber terbuka</string>
     <string name="protected_">Dilindungi</string>

@@ -7,6 +7,8 @@
     <string name="adBlockAllowDesc">如果某个网站无法正常使用，请在此填写其域名，每行一个：该域名及其下的所有名称都不会被拦截。</string>
     <string name="adBlockDesc">公开的广告和跟踪器列表中的名称在任何应用中都得不到响应。列表通过 Shroudly 下载，并每周更新。</string>
     <string name="adsBlocked">已拦截的广告</string>
+    <string name="androidAdvanced">高级</string>
+    <string name="androidAdvancedDesc">只有在帮助你的人要求时才更改这些。Shroudly 会自己找到可行的方法。</string>
     <string name="androidAlertsChannel">保护提醒</string>
     <string name="androidAllApps">此设备上的所有应用都经由 Shroudly 连接。</string>
     <string name="androidAppsLockdown">Android 设置为阻止不经过 VPN 的连接，因此不经过 Shroudly 的应用无法上网。</string>
@@ -17,8 +19,10 @@
     <string name="androidAppsOnlyDesc">其他所有应用（包括系统应用）都直接出去，不经过 Shroudly。若一个都没勾选，所有应用都经过 Shroudly。</string>
     <string name="androidAppsSection">应用</string>
     <string name="androidAppsSkipping">除你选择跳过的应用外，所有应用都经过 Shroudly（{count}）。</string>
+    <string name="androidAppsVpnOnly">仅限 VPN 模式。在“仅代理”模式下，应用是否经过 Shroudly 由它自己的代理设置决定。</string>
     <string name="androidAutomationBattery">电池设置</string>
     <string name="androidAutomationNotStarted">未开启保护</string>
+    <string name="androidAutomationSection">自动化</string>
     <string name="androidAutomationTapBattery">自动化应用请求开启保护，但只有当 Shroudly 的电池使用不受限制时，Android 才允许其他应用启动它。点按即可立即开启。</string>
     <string name="androidAutomationTapVpn">自动化应用请求开启保护，但尚未允许 VPN。点按即可允许并开启保护。</string>
     <string name="androidBack">返回</string>
@@ -35,9 +39,9 @@
     <string name="androidKeepOnOffer">手机关闭了 Shroudly。点按即可重新开启保护。</string>
     <string name="androidLockdownOffline">无法上网：Shroudly 目前无法在此网络上连通，而 Android 已设置为阻止不经 VPN 的连接。Shroudly 正在继续尝试。</string>
     <string name="androidLockdownStop">Android 设置为阻止不经过 VPN 的连接，因此 Shroudly 关闭期间，应用无法上网。</string>
-    <string name="androidModeNextStart">新模式将在下次启动保护时使用。</string>
     <string name="androidModeProxy">仅代理（保留你的其他 VPN）</string>
     <string name="androidModeProxyDesc">Shroudly 作为代理运行在 127.0.0.1:{port}（SOCKS5 和 HTTP），把 VPN 留给其他应用。只有设置为使用它的应用才经过 Shroudly：Wi-Fi 网络的代理（主机 127.0.0.1，端口 {port}）或应用自己的代理设置。</string>
+    <string name="androidModeSwitching">保护正在以新模式重新启动。</string>
     <string name="androidModeTitle">模式</string>
     <string name="androidModeVpn">VPN（所有应用）</string>
     <string name="androidModeVpnDesc">所有应用都经过 Shroudly。Android 同一时间只允许一个 VPN，因此其他 VPN 应用会断开。</string>
@@ -68,6 +72,7 @@
     <string name="androidSomeApps">只有你选择的应用经过 Shroudly（{count}）。</string>
     <string name="androidStartAtBoot">手机开机时启动</string>
     <string name="androidStartAtBootDesc">允许 VPN 后，即使保护是关着的，手机每次重启后也会开启保护。如果原本是开着的，无论如何都会恢复。</string>
+    <string name="androidStrategyDesc">逐一尝试各种技术，并为每个网站保留有效的那一种。只有在帮助你的人要求时才选择其他项；“关闭”只加密 DNS。</string>
     <string name="androidTileAdd">快捷设置图块</string>
     <string name="androidTileAddDesc">屏幕顶部面板中的 Shroudly 图块可一键开启和关闭保护。</string>
     <string name="androidTileAdded">Shroudly 图块已在快捷设置中。</string>
@@ -86,6 +91,7 @@
     <string name="androidWifiProxyShroudlyOff">此网络的代理设置为 Shroudly（{addr}），但 Shroudly 已关闭，因此使用它的应用（包括 Chrome）无法连接。请启动保护，或在 Wi-Fi 设置中把代理设为“无”。</string>
     <string name="androidWifiSettings">Wi-Fi 设置</string>
     <string name="androidWorkApps">工作资料中的应用不经过 Shroudly。</string>
+    <string name="appSection">应用程序</string>
     <string name="autoRawBlocked">此网络阻断了 {app} 的连接，Shroudly 的所有技术都未能突破。请使用 {app} 自带的代理设置或 VPN。</string>
     <string name="autoRawUnreachable">{app} 无法连接到其服务器：此网络封锁了这些服务器的地址，而没有位于别处的服务器，Shroudly 无法绕过这一点。请使用 {app} 自带的代理设置或 VPN。</string>
     <string name="connections">连接</string>
@@ -123,6 +129,7 @@
     <string name="navSettings">设置</string>
     <string name="navStats">统计</string>
     <string name="notProtected">未受保护</string>
+    <string name="onlineNow">当前在线</string>
     <string name="openSourceDesc">Shroudly 免费且基于 MIT 许可证开源：任何人都可以阅读、审查和编译其代码。</string>
     <string name="openSourceTitle">开源</string>
     <string name="protected_">已受保护</string>

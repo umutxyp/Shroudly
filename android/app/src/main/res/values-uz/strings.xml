@@ -7,6 +7,8 @@
     <string name="adBlockAllowDesc">Sayt ishlamay qolsa, domenini shu yerga yozing, har qatorga bittadan: u va uning ostidagi barcha nomlar hech qachon bloklanmaydi.</string>
     <string name="adBlockDesc">Ochiq reklama va kuzatuvchilar roʻyxatidagi nomlar hech bir ilovada javob olmaydi. Roʻyxat Shroudly orqali yuklanadi va haftada bir yangilanadi.</string>
     <string name="adsBlocked">Bloklangan reklamalar</string>
+    <string name="androidAdvanced">Qo‘shimcha</string>
+    <string name="androidAdvancedDesc">Buni faqat sizga yordam berayotgan kishi so‘rasa o‘zgartiring. Shroudly ishlaydigan yo‘lni o‘zi topadi.</string>
     <string name="androidAlertsChannel">Himoya ogohlantirishlari</string>
     <string name="androidAllApps">Bu qurilmadagi har bir ilova Shroudly orqali o‘tadi.</string>
     <string name="androidAppsLockdown">Android VPN’siz ulanishlarni bloklashga sozlangan, shuning uchun Shroudly’dan tashqarida qolgan ilovalarda internet bo‘lmaydi.</string>
@@ -17,8 +19,10 @@
     <string name="androidAppsOnlyDesc">Qolgan barcha ilovalar, tizim ilovalari ham, Shroudly’dan oʻtmay toʻgʻridan-toʻgʻri chiqadi. Hech biri belgilanmasa, har bir ilova Shroudly orqali oʻtadi.</string>
     <string name="androidAppsSection">Ilovalar</string>
     <string name="androidAppsSkipping">Siz Shroudly’ni chetlab o‘tishini tanlaganlardan tashqari barcha ilovalar Shroudly orqali o‘tadi ({count}).</string>
+    <string name="androidAppsVpnOnly">Faqat VPN rejimida. «Faqat proksi»da ilova Shroudly orqali o‘tishini uning o‘z proksi sozlamasi hal qiladi.</string>
     <string name="androidAutomationBattery">Batareya sozlamalari</string>
     <string name="androidAutomationNotStarted">Himoya yoqilmadi</string>
+    <string name="androidAutomationSection">Avtomatlashtirish</string>
     <string name="androidAutomationTapBattery">Avtomatlashtirish ilovasi himoyani yoqishni soʻradi, lekin Android boshqa ilovalarga Shroudly’ni faqat uning batareya sarfi cheklanmagan boʻlsa ishga tushirishga ruxsat beradi. Hozir yoqish uchun bosing.</string>
     <string name="androidAutomationTapVpn">Avtomatlashtirish ilovasi himoyani yoqishni soʻradi, lekin VPN’ga hali ruxsat berilmagan. Ruxsat berib, himoyani yoqish uchun bosing.</string>
     <string name="androidBack">Orqaga</string>
@@ -35,9 +39,9 @@
     <string name="androidKeepOnOffer">Telefoningiz Shroudly\'ni yopdi. Himoyani qayta yoqish uchun bosing.</string>
     <string name="androidLockdownOffline">Internet yo‘q: Shroudly hozir bu tarmoqda ulana olmayapti, Android esa VPN’siz ulanishlarni bloklashga sozlangan. Shroudly urinishda davom etmoqda.</string>
     <string name="androidLockdownStop">Android VPN’siz ulanishlarni bloklashga sozlangan, shuning uchun Shroudly o‘chiq turganda ilovalarda internet bo‘lmaydi.</string>
-    <string name="androidModeNextStart">Yangi rejim himoya keyingi safar ishga tushganda qoʻllanadi.</string>
     <string name="androidModeProxy">Faqat proksi (boshqa VPN’ingiz qoladi)</string>
     <string name="androidModeProxyDesc">Shroudly 127.0.0.1:{port} da proksi sifatida ishlaydi (SOCKS5 va HTTP) va VPN’ni boshqa ilovaga qoldiradi. Faqat uni ishlatishga sozlangan ilovalar Shroudly orqali oʻtadi: Wi-Fi tarmogʻining proksisi (host 127.0.0.1, port {port}) yoki ilovaning oʻz proksi sozlamasi.</string>
+    <string name="androidModeSwitching">Himoya yangi rejimda qayta ishga tushmoqda.</string>
     <string name="androidModeTitle">Rejim</string>
     <string name="androidModeVpn">VPN (barcha ilovalar)</string>
     <string name="androidModeVpnDesc">Barcha ilovalar Shroudly orqali oʻtadi. Android bir vaqtda faqat bitta VPN’ga ruxsat beradi, shuning uchun boshqa VPN ilovasi uziladi.</string>
@@ -68,6 +72,7 @@
     <string name="androidSomeApps">Shroudly orqali faqat siz tanlagan ilovalar o‘tadi ({count}).</string>
     <string name="androidStartAtBoot">Telefon yonganda ishga tushirish</string>
     <string name="androidStartAtBootDesc">VPN’ga ruxsat berilgan boʻlsa, himoya oʻchiq boʻlsa ham, telefon har safar qayta yonganda yoqiladi. Yoqiq boʻlsa, baribir qaytib yoqiladi.</string>
+    <string name="androidStrategyDesc">Usullarni birma-bir sinab ko‘radi va har bir sayt uchun ishlaganini saqlaydi. Boshqasini faqat sizga yordam berayotgan kishi so‘rasa tanlang; «O‘chiq» faqat DNS’ni shifrlaydi.</string>
     <string name="androidTileAdd">Tezkor sozlamalar plitkasi</string>
     <string name="androidTileAddDesc">Ekran tepasidagi paneldagi Shroudly plitkasi himoyani bir bosishda yoqadi va o‘chiradi.</string>
     <string name="androidTileAdded">Shroudly plitkasi tezkor sozlamalarda.</string>
@@ -86,6 +91,7 @@
     <string name="androidWifiProxyShroudlyOff">Bu tarmoqning proksisi Shroudly ({addr}) qilib qoʻyilgan, lekin Shroudly oʻchiq, shuning uchun undan foydalanadigan ilovalar (jumladan Chrome) ulana olmaydi. Himoyani yoqing yoki Wi-Fi sozlamalarida proksini «Yoʻq» qilib qoʻying.</string>
     <string name="androidWifiSettings">Wi-Fi sozlamalari</string>
     <string name="androidWorkApps">Ish profilingizdagi ilovalar Shroudly orqali o‘tmaydi.</string>
+    <string name="appSection">Ilova</string>
     <string name="autoRawBlocked">Bu tarmoq {app} ilovasining ulanishlarini toʻxtatadi va Shroudly usullaridan hech biri oʻta olmadi. {app} ilovasining oʻz proksi sozlamasidan yoki VPNdan foydalaning.</string>
     <string name="autoRawUnreachable">{app} ilovasi oʻz serverlariga ulana olmayapti: bu tarmoq ularning manzillarini bloklaydi, Shroudly esa boshqa joydagi serversiz buni chetlab oʻta olmaydi. {app} ilovasining oʻz proksi sozlamasidan yoki VPNdan foydalaning.</string>
     <string name="connections">Ulanishlar</string>
@@ -123,6 +129,7 @@
     <string name="navSettings">Sozlamalar</string>
     <string name="navStats">Statistika</string>
     <string name="notProtected">Himoyalanmagan</string>
+    <string name="onlineNow">Hozir onlayn</string>
     <string name="openSourceDesc">Shroudly bepul va MIT litsenziyasi ostidagi ochiq manbali dastur: istalgan kishi uning kodini oʻqishi, tekshirishi va yigʻishi mumkin.</string>
     <string name="openSourceTitle">Ochiq manba</string>
     <string name="protected_">Himoyalangan</string>

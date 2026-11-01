@@ -7,6 +7,8 @@
     <string name="adBlockAllowDesc">አንድ ጣቢያ ከተበላሸ ዶሜኑን እዚህ ይጻፉ፣ በእያንዳንዱ መስመር አንድ፦ እሱና ከሥሩ ያሉ ስሞች በሙሉ ፈጽሞ አይታገዱም።</string>
     <string name="adBlockDesc">በሕዝብ የማስታወቂያና የመከታተያ ዝርዝር ላይ ያሉ ስሞች በየትኛውም መተግበሪያ ምላሽ አያገኙም። ዝርዝሩ በShroudly በኩል ይወርዳል፣ በየሳምንቱም ይታደሳል።</string>
     <string name="adsBlocked">የታገዱ ማስታወቂያዎች</string>
+    <string name="androidAdvanced">የላቀ</string>
+    <string name="androidAdvancedDesc">እነዚህን የሚረዳዎ ሰው ከጠየቀዎት ብቻ ይቀይሩ። Shroudly የሚሠራውን በራሱ ያገኛል።</string>
     <string name="androidAlertsChannel">የጥበቃ ማንቂያዎች</string>
     <string name="androidAllApps">በዚህ መሣሪያ ላይ ያለ እያንዳንዱ መተግበሪያ በShroudly በኩል ያልፋል።</string>
     <string name="androidAppsLockdown">Android ያለ VPN ግንኙነቶችን እንዲያግድ ተቀናብሯል፤ ስለዚህ ከShroudly ውጭ የተተዉ መተግበሪያዎች ኢንተርኔት የላቸውም።</string>
@@ -17,8 +19,10 @@
     <string name="androidAppsOnlyDesc">ሌሎቹ መተግበሪያዎች በሙሉ፣ የሲስተም መተግበሪያዎችም ጭምር፣ በShroudly ሳያልፉ በቀጥታ ይወጣሉ። አንዱም ካልተመረጠ ሁሉም መተግበሪያዎች በShroudly በኩል ያልፋሉ።</string>
     <string name="androidAppsSection">መተግበሪያዎች</string>
     <string name="androidAppsSkipping">እርስዎ እንዲዘሉት ከመረጧቸው በስተቀር እያንዳንዱ መተግበሪያ በShroudly በኩል ያልፋል ({count})።</string>
+    <string name="androidAppsVpnOnly">በVPN ሁነታ ብቻ። በፕሮክሲ ብቻ ውስጥ፣ እያንዳንዱ መተግበሪያ በShroudly በኩል ማለፉን የራሱ የፕሮክሲ ቅንብር ይወስናል።</string>
     <string name="androidAutomationBattery">የባትሪ ቅንብሮች</string>
     <string name="androidAutomationNotStarted">ጥበቃ አልበራም</string>
+    <string name="androidAutomationSection">ራስ-ሰር አሠራር</string>
     <string name="androidAutomationTapBattery">አንድ ራስ-ሰር መተግበሪያ ጥበቃን እንዲያበራ ጠይቋል፣ ግን Android ሌሎች መተግበሪያዎች Shroudlyን እንዲያስጀምሩ የሚፈቅደው የባትሪ አጠቃቀሙ ያልተገደበ ሲሆን ብቻ ነው። አሁን ለማብራት ይንኩ።</string>
     <string name="androidAutomationTapVpn">አንድ ራስ-ሰር መተግበሪያ ጥበቃን እንዲያበራ ጠይቋል፣ ግን VPN ገና አልተፈቀደም። ለመፍቀድ እና ጥበቃን ለማብራት ይንኩ።</string>
     <string name="androidBack">ተመለስ</string>
@@ -35,9 +39,9 @@
     <string name="androidKeepOnOffer">ስልክዎ Shroudlyን ዘጋው። ጥበቃን እንደገና ለማብራት ይንኩ።</string>
     <string name="androidLockdownOffline">ኢንተርኔት የለም፦ Shroudly አሁን በዚህ አውታረ መረብ ላይ መገናኘት አልቻለም፣ እና Android ያለ VPN ግንኙነቶችን እንዲያግድ ተቀናብሯል። Shroudly መሞከሩን ቀጥሏል።</string>
     <string name="androidLockdownStop">Android ያለ VPN ግንኙነቶችን እንዲያግድ ተቀናብሯል፤ ስለዚህ Shroudly ጠፍቶ እያለ መተግበሪያዎች ኢንተርኔት የላቸውም።</string>
-    <string name="androidModeNextStart">አዲሱ ሁነታ ጥበቃው በሚቀጥለው ጊዜ ሲጀምር ጥቅም ላይ ይውላል።</string>
     <string name="androidModeProxy">ፕሮክሲ ብቻ (ሌላው VPNዎ ይቀጥላል)</string>
     <string name="androidModeProxyDesc">Shroudly በ127.0.0.1:{port} እንደ ፕሮክሲ ይሠራል (SOCKS5 እና HTTP) እና VPNን ለሌላ መተግበሪያ ይተዋል። በShroudly የሚያልፉት እሱን እንዲጠቀሙ የተዘጋጁ መተግበሪያዎች ብቻ ናቸው፦ የWi-Fi አውታረ መረቡ ፕሮክሲ (አስተናጋጅ 127.0.0.1፣ ወደብ {port}) ወይም የመተግበሪያው የራሱ የፕሮክሲ ቅንብር።</string>
+    <string name="androidModeSwitching">ጥበቃው በአዲሱ ሁነታ እንደገና እየጀመረ ነው።</string>
     <string name="androidModeTitle">ሁነታ</string>
     <string name="androidModeVpn">VPN (ሁሉም መተግበሪያዎች)</string>
     <string name="androidModeVpnDesc">ሁሉም መተግበሪያዎች በShroudly ያልፋሉ። Android በአንድ ጊዜ አንድ VPN ብቻ ስለሚፈቅድ ሌላ የVPN መተግበሪያ ይቋረጣል።</string>
@@ -68,6 +72,7 @@
     <string name="androidSomeApps">በShroudly በኩል የሚያልፉት እርስዎ የመረጧቸው መተግበሪያዎች ብቻ ናቸው ({count})።</string>
     <string name="androidStartAtBoot">ስልኩ ሲበራ ጀምር</string>
     <string name="androidStartAtBootDesc">VPN አንዴ ፈቃድ ከተሰጠ በኋላ፣ ጥበቃው ጠፍቶ ቢሆንም እንኳ ስልኩ እንደገና በጀመረ ቁጥር ይበራል። በርቶ ከነበረ በማንኛውም ሁኔታ ተመልሶ ይበራል።</string>
+    <string name="androidStrategyDesc">ቴክኒኮቹን አንድ በአንድ ይሞክራል፣ ለእያንዳንዱ ጣቢያ የሚሠራውንም ያስቀምጣል። ሌላ የሚመርጡት የሚረዳዎ ሰው ከጠየቀ ብቻ ነው፤ «ጠፍቷል» DNSን ብቻ ይመሰጥራል።</string>
     <string name="androidTileAdd">የፈጣን ቅንብሮች ሰድር</string>
     <string name="androidTileAddDesc">በማያ ገጹ አናት ባለው ፓነል ውስጥ ያለ የShroudly ሰድር ጥበቃን በአንድ ንክኪ ያበራል ያጠፋል።</string>
     <string name="androidTileAdded">የShroudly ሰድር በፈጣን ቅንብሮች ውስጥ አለ።</string>
@@ -86,6 +91,7 @@
     <string name="androidWifiProxyShroudlyOff">የዚህ አውታረ መረብ proxy ወደ Shroudly ({addr}) ተቀናብሯል፣ ግን Shroudly ጠፍቷል፤ ስለዚህ የሚጠቀሙበት መተግበሪያዎች (Chromeን ጨምሮ) መገናኘት አይችሉም። ጥበቃ ይጀምሩ፣ ወይም በWi-Fi ቅንብሮች ውስጥ Proxyን «ምንም» ያድርጉት።</string>
     <string name="androidWifiSettings">የWi-Fi ቅንብሮች</string>
     <string name="androidWorkApps">በሥራ መገለጫዎ ውስጥ ያሉ መተግበሪያዎች በShroudly በኩል አያልፉም።</string>
+    <string name="appSection">መተግበሪያ</string>
     <string name="autoRawBlocked">ይህ አውታረ መረብ የ{app} መተግበሪያን ግንኙነቶች ያስቆማል፣ ከShroudly ዘዴዎችም አንዱም አላለፈም። በ{app} መተግበሪያ ውስጥ ያለውን የproxy ቅንብር ወይም VPN ይጠቀሙ።</string>
     <string name="autoRawUnreachable">የ{app} መተግበሪያ ወደ አገልጋዮቹ መድረስ አይችልም፤ ይህ አውታረ መረብ አድራሻዎቻቸውን ያግዳል፣ Shroudly ደግሞ ሌላ ቦታ ያለ አገልጋይ ከሌለው ይህን ማለፍ አይችልም። በ{app} መተግበሪያ ውስጥ ያለውን የproxy ቅንብር ወይም VPN ይጠቀሙ።</string>
     <string name="connections">ግንኙነቶች</string>
@@ -123,6 +129,7 @@
     <string name="navSettings">ቅንብሮች</string>
     <string name="navStats">ስታቲስቲክስ</string>
     <string name="notProtected">አልተጠበቀም</string>
+    <string name="onlineNow">አሁን በመስመር ላይ</string>
     <string name="openSourceDesc">Shroudly በMIT ፈቃድ ስር ነፃ እና ክፍት ምንጭ ነው፤ ማንኛውም ሰው ኮዱን ማንበብ፣ መመርመር እና መገንባት ይችላል።</string>
     <string name="openSourceTitle">ክፍት ምንጭ</string>
     <string name="protected_">ተጠብቋል</string>

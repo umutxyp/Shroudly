@@ -37,6 +37,22 @@ object Protector {
         if (Protection.proxyOnly) ShroudlyProxyService.stop(ctx) else ShroudlyVpnService.stop(ctx)
     }
 
+    /* Another mode chosen in Settings while protection is on: the running
+     * one stops, and once it is off the chosen one starts (the VPN only where
+     * it is allowed; Settings asks first where it is not). */
+    fun restart(ctx: Context) {
+        val app = ctx.applicationContext
+        val once = object : () -> Unit {
+            override fun invoke() {
+                if (Protection.state != Protection.State.OFF) return
+                Protection.unlisten(this)
+                try { start(app) } catch (e: Exception) { ShroudlyVpnService.log("Could not start in the new mode: $e") }
+            }
+        }
+        Protection.listen(once)
+        stop(app)
+    }
+
     /* A setting for the running protection (ShroudlyVpnService.ACTION_ADBLOCK,
      * ACTION_SETTINGS): to whichever runs it. Nothing while off. */
     fun tell(ctx: Context, action: String, what: String? = null) {

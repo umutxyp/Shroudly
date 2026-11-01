@@ -7,6 +7,8 @@
     <string name="adBlockAllowDesc">אם אתר נשבר, כתבו כאן את הדומיין שלו, אחד בכל שורה: הוא וכל שם תחתיו לעולם לא ייחסמו.</string>
     <string name="adBlockDesc">שמות שברשימה ציבורית של פרסומות ומעקב לא מקבלים תשובה באף אפליקציה. הרשימה מורדת דרך Shroudly ומתעדכנת כל שבוע.</string>
     <string name="adsBlocked">פרסומות שנחסמו</string>
+    <string name="androidAdvanced">מתקדם</string>
+    <string name="androidAdvancedDesc">שנו את אלה רק אם מי שעוזר לך מבקש זאת. Shroudly מוצא בעצמו מה עובד.</string>
     <string name="androidAlertsChannel">התראות הגנה</string>
     <string name="androidAllApps">כל האפליקציות במכשיר הזה עוברות דרך Shroudly.</string>
     <string name="androidAppsLockdown">Android מוגדר לחסום חיבורים בלי VPN, ולכן לאפליקציות שלא עוברות דרך Shroudly אין אינטרנט.</string>
@@ -17,8 +19,10 @@
     <string name="androidAppsOnlyDesc">כל אפליקציה אחרת, גם אפליקציות מערכת, יוצאת ישירות בלי לעבור דרך Shroudly. אם אף אחת לא מסומנת, כל האפליקציות עוברות דרך Shroudly.</string>
     <string name="androidAppsSection">אפליקציות</string>
     <string name="androidAppsSkipping">כל האפליקציות עוברות דרך Shroudly, חוץ מאלה שבחרת שידלגו עליו ‏({count}).</string>
+    <string name="androidAppsVpnOnly">רק במצב VPN. ב\'פרוקסי בלבד\', הגדרת הפרוקסי של כל אפליקציה קובעת אם היא עוברת דרך Shroudly.</string>
     <string name="androidAutomationBattery">הגדרות סוללה</string>
     <string name="androidAutomationNotStarted">ההגנה לא הופעלה</string>
+    <string name="androidAutomationSection">אוטומציה</string>
     <string name="androidAutomationTapBattery">אפליקציית אוטומציה ביקשה להפעיל את ההגנה, אבל Android מאפשרת לאפליקציות אחרות להפעיל את Shroudly רק כשהשימוש שלו בסוללה אינו מוגבל. מקישים כדי להפעיל עכשיו.</string>
     <string name="androidAutomationTapVpn">אפליקציית אוטומציה ביקשה להפעיל את ההגנה, אבל עדיין לא ניתן אישור ל-VPN. מקישים כדי לאשר אותו ולהפעיל את ההגנה.</string>
     <string name="androidBack">חזרה</string>
@@ -35,9 +39,9 @@
     <string name="androidKeepOnOffer">הטלפון סגר את Shroudly. הקישו כדי להפעיל שוב את ההגנה.</string>
     <string name="androidLockdownOffline">אין אינטרנט: Shroudly לא מצליחה לעבור ברשת הזו כרגע, ו־Android מוגדרת לחסום חיבורים בלי VPN. Shroudly ממשיכה לנסות.</string>
     <string name="androidLockdownStop">Android מוגדר לחסום חיבורים בלי VPN, ולכן כל עוד Shroudly כבוי, לאפליקציות אין אינטרנט.</string>
-    <string name="androidModeNextStart">המצב החדש ישמש בפעם הבאה שההגנה תופעל.</string>
     <string name="androidModeProxy">פרוקסי בלבד (ה-VPN האחר שלך נשאר)</string>
     <string name="androidModeProxyDesc">Shroudly פועל כפרוקסי ב-‎127.0.0.1:{port}‎ ‏(SOCKS5 ו-HTTP) ומשאיר את ה-VPN לאפליקציה אחרת. רק אפליקציות שהוגדרו להשתמש בו עוברות דרך Shroudly: הפרוקסי של רשת ה-Wi-Fi (מארח 127.0.0.1, פורט {port}) או הגדרת הפרוקסי של האפליקציה עצמה.</string>
+    <string name="androidModeSwitching">ההגנה מופעלת מחדש במצב החדש.</string>
     <string name="androidModeTitle">מצב</string>
     <string name="androidModeVpn">VPN (כל האפליקציות)</string>
     <string name="androidModeVpnDesc">כל האפליקציות עוברות דרך Shroudly. אנדרואיד מאפשרת VPN אחד בכל פעם, ולכן אפליקציית VPN אחרת מתנתקת.</string>
@@ -68,6 +72,7 @@
     <string name="androidSomeApps">רק האפליקציות שבחרת עוברות דרך Shroudly ‏({count}).</string>
     <string name="androidStartAtBoot">הפעלה עם הדלקת הטלפון</string>
     <string name="androidStartAtBootDesc">לאחר שה-VPN אושר, ההגנה נדלקת אחרי כל הפעלה מחדש של הטלפון, גם אם הייתה כבויה. אם הייתה פועלת, היא חוזרת בכל מקרה.</string>
+    <string name="androidStrategyDesc">מנסה את השיטות אחת אחרי השנייה ושומר את מה שעובד לכל אתר. בחרו אחרת רק אם מי שעוזר לך מבקש; \'כבוי\' רק מצפין את ה-DNS.</string>
     <string name="androidTileAdd">אריח בהגדרות המהירות</string>
     <string name="androidTileAddDesc">אריח Shroudly בלוח שבראש המסך מפעיל ומכבה את ההגנה בהקשה אחת.</string>
     <string name="androidTileAdded">אריח Shroudly נמצא בהגדרות המהירות.</string>
@@ -86,6 +91,7 @@
     <string name="androidWifiProxyShroudlyOff">ה-Proxy של הרשת הזאת מוגדר ל-Shroudly ({addr}), אבל Shroudly כבוי, ולכן אפליקציות שמשתמשות בו (Chrome ביניהן) לא מצליחות להתחבר. הפעילו את ההגנה, או הגדירו את ה-Proxy ל\'ללא\' בהגדרות Wi-Fi.</string>
     <string name="androidWifiSettings">הגדרות Wi-Fi</string>
     <string name="androidWorkApps">אפליקציות בפרופיל העבודה שלך לא עוברות דרך Shroudly.</string>
+    <string name="appSection">אפליקציה</string>
     <string name="autoRawBlocked">הרשת הזו עוצרת את החיבורים של אפליקציית {app}, ואף אחת מהשיטות של Shroudly לא הצליחה לעבור. יש להשתמש בהגדרת ה-Proxy המובנית ב-{app} או ב-VPN.</string>
     <string name="autoRawUnreachable">אפליקציית {app} לא מצליחה להגיע לשרתים שלה: הרשת הזו חוסמת את הכתובות שלהם, ו-Shroudly לא יכול לעקוף את זה בלי שרת במקום אחר. יש להשתמש בהגדרת ה-Proxy המובנית ב-{app} או ב-VPN.</string>
     <string name="connections">חיבורים</string>
@@ -123,6 +129,7 @@
     <string name="navSettings">הגדרות</string>
     <string name="navStats">נתונים</string>
     <string name="notProtected">לא מוגן</string>
+    <string name="onlineNow">מחוברים עכשיו</string>
     <string name="openSourceDesc">Shroudly הוא תוכנה חינמית בקוד פתוח ברישיון MIT: כל אחד יכול לקרוא, לבדוק ולבנות את הקוד שלו.</string>
     <string name="openSourceTitle">קוד פתוח</string>
     <string name="protected_">מוגן</string>

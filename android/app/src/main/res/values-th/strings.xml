@@ -7,6 +7,8 @@
     <string name="adBlockAllowDesc">ถ้าเว็บไซต์ใดใช้งานไม่ได้ ให้เขียนโดเมนไว้ที่นี่ บรรทัดละหนึ่งรายการ: เว็บไซต์นั้นและทุกชื่อที่อยู่ภายใต้จะไม่ถูกบล็อก</string>
     <string name="adBlockDesc">ชื่อที่อยู่ในรายการสาธารณะของโฆษณาและตัวติดตามจะไม่ได้รับคำตอบในทุกแอป รายการจะดาวน์โหลดผ่าน Shroudly และอัปเดตทุกสัปดาห์</string>
     <string name="adsBlocked">โฆษณาที่บล็อกแล้ว</string>
+    <string name="androidAdvanced">ขั้นสูง</string>
+    <string name="androidAdvancedDesc">เปลี่ยนส่วนนี้เฉพาะเมื่อคนที่ช่วยคุณขอให้เปลี่ยนเท่านั้น Shroudly หาวิธีที่ใช้ได้เอง</string>
     <string name="androidAlertsChannel">การแจ้งเตือนการป้องกัน</string>
     <string name="androidAllApps">ทุกแอปในอุปกรณ์นี้ผ่าน Shroudly</string>
     <string name="androidAppsLockdown">Android ตั้งค่าให้บล็อกการเชื่อมต่อที่ไม่ผ่าน VPN แอปที่ไม่ได้ผ่าน Shroudly จึงไม่มีอินเทอร์เน็ต</string>
@@ -17,8 +19,10 @@
     <string name="androidAppsOnlyDesc">แอปอื่นทั้งหมด รวมถึงแอประบบ ออกไปตรง ๆ โดยไม่ผ่าน Shroudly หากไม่ได้เลือกแอปใดเลย ทุกแอปจะผ่าน Shroudly</string>
     <string name="androidAppsSection">แอป</string>
     <string name="androidAppsSkipping">ทุกแอปผ่าน Shroudly ยกเว้นแอปที่คุณเลือกให้ข้าม ({count})</string>
+    <string name="androidAppsVpnOnly">เฉพาะโหมด VPN ในพร็อกซีเท่านั้น การตั้งค่าพร็อกซีของแต่ละแอปจะเป็นตัวกำหนดว่าแอปนั้นผ่าน Shroudly หรือไม่</string>
     <string name="androidAutomationBattery">การตั้งค่าแบตเตอรี่</string>
     <string name="androidAutomationNotStarted">ไม่ได้เปิดการป้องกัน</string>
+    <string name="androidAutomationSection">การทำงานอัตโนมัติ</string>
     <string name="androidAutomationTapBattery">แอปอัตโนมัติขอให้เปิดการป้องกัน แต่ Android ให้แอปอื่นเริ่ม Shroudly ได้เฉพาะเมื่อการใช้แบตเตอรี่ของ Shroudly ไม่ถูกจำกัด แตะเพื่อเปิดตอนนี้</string>
     <string name="androidAutomationTapVpn">แอปอัตโนมัติขอให้เปิดการป้องกัน แต่ยังไม่ได้อนุญาต VPN แตะเพื่ออนุญาตและเปิดการป้องกัน</string>
     <string name="androidBack">ย้อนกลับ</string>
@@ -35,9 +39,9 @@
     <string name="androidKeepOnOffer">โทรศัพท์ของคุณปิด Shroudly แตะเพื่อเปิดการป้องกันอีกครั้ง</string>
     <string name="androidLockdownOffline">ไม่มีอินเทอร์เน็ต: ขณะนี้ Shroudly เชื่อมต่อบนเครือข่ายนี้ไม่ได้ และ Android ถูกตั้งค่าให้บล็อกการเชื่อมต่อที่ไม่ผ่าน VPN Shroudly กำลังพยายามต่อไป</string>
     <string name="androidLockdownStop">Android ตั้งค่าให้บล็อกการเชื่อมต่อที่ไม่ผ่าน VPN ระหว่างที่ Shroudly ปิดอยู่ แอปจึงไม่มีอินเทอร์เน็ต</string>
-    <string name="androidModeNextStart">โหมดใหม่จะใช้ในครั้งถัดไปที่เริ่มการป้องกัน</string>
     <string name="androidModeProxy">พร็อกซีเท่านั้น (VPN อื่นของคุณยังอยู่)</string>
     <string name="androidModeProxyDesc">Shroudly ทำงานเป็นพร็อกซีที่ 127.0.0.1:{port} (SOCKS5 และ HTTP) และปล่อย VPN ให้แอปอื่น เฉพาะแอปที่ตั้งค่าให้ใช้เท่านั้นที่ผ่าน Shroudly: พร็อกซีของเครือข่าย Wi-Fi (โฮสต์ 127.0.0.1 พอร์ต {port}) หรือการตั้งค่าพร็อกซีของแอปเอง</string>
+    <string name="androidModeSwitching">การป้องกันกำลังเริ่มใหม่ในโหมดใหม่</string>
     <string name="androidModeTitle">โหมด</string>
     <string name="androidModeVpn">VPN (ทุกแอป)</string>
     <string name="androidModeVpnDesc">ทุกแอปผ่าน Shroudly Android อนุญาต VPN ได้ครั้งละหนึ่งตัว ดังนั้นแอป VPN อื่นจะถูกตัดการเชื่อมต่อ</string>
@@ -68,6 +72,7 @@
     <string name="androidSomeApps">เฉพาะแอปที่คุณเลือกเท่านั้นที่ผ่าน Shroudly ({count})</string>
     <string name="androidStartAtBoot">เริ่มเมื่อเปิดโทรศัพท์</string>
     <string name="androidStartAtBootDesc">เมื่ออนุญาต VPN แล้ว การป้องกันจะเปิดหลังรีสตาร์ตโทรศัพท์ทุกครั้ง แม้ว่าจะปิดอยู่ก็ตาม หากเปิดอยู่ ก็จะกลับมาเปิดอยู่แล้ว</string>
+    <string name="androidStrategyDesc">ลองเทคนิคทีละแบบและจำแบบที่ใช้ได้กับแต่ละเว็บไซต์ เลือกแบบอื่นเฉพาะเมื่อคนที่ช่วยคุณขอเท่านั้น ส่วน ปิด จะเข้ารหัสเฉพาะ DNS</string>
     <string name="androidTileAdd">ไทล์การตั้งค่าด่วน</string>
     <string name="androidTileAddDesc">ไทล์ Shroudly ในแผงด้านบนของหน้าจอเปิดและปิดการป้องกันได้ในแตะเดียว</string>
     <string name="androidTileAdded">ไทล์ Shroudly อยู่ในการตั้งค่าด่วนแล้ว</string>
@@ -86,6 +91,7 @@
     <string name="androidWifiProxyShroudlyOff">พร็อกซีของเครือข่ายนี้ตั้งเป็น Shroudly ({addr}) แต่ Shroudly ปิดอยู่ แอปที่ใช้พร็อกซีนี้ (รวมถึง Chrome) จึงเชื่อมต่อไม่ได้ เริ่มการป้องกัน หรือตั้งพร็อกซีเป็น ไม่มี ในการตั้งค่า Wi-Fi</string>
     <string name="androidWifiSettings">การตั้งค่า Wi-Fi</string>
     <string name="androidWorkApps">แอปในโปรไฟล์งานของคุณไม่ผ่าน Shroudly</string>
+    <string name="appSection">แอปพลิเคชัน</string>
     <string name="autoRawBlocked">เครือข่ายนี้หยุดการเชื่อมต่อของ {app} และไม่มีเทคนิคใดของ Shroudly ผ่านได้ ให้ใช้การตั้งค่าพร็อกซีของ {app} เองหรือ VPN</string>
     <string name="autoRawUnreachable">{app} เข้าถึงเซิร์ฟเวอร์ของตัวเองไม่ได้: เครือข่ายนี้บล็อกที่อยู่ของเซิร์ฟเวอร์เหล่านั้น และ Shroudly เลี่ยงสิ่งนี้ไม่ได้หากไม่มีเซิร์ฟเวอร์ที่อยู่ที่อื่น ให้ใช้การตั้งค่าพร็อกซีของ {app} เองหรือ VPN</string>
     <string name="connections">การเชื่อมต่อ</string>
@@ -123,6 +129,7 @@
     <string name="navSettings">การตั้งค่า</string>
     <string name="navStats">สถิติ</string>
     <string name="notProtected">ไม่ได้รับการป้องกัน</string>
+    <string name="onlineNow">ออนไลน์ขณะนี้</string>
     <string name="openSourceDesc">Shroudly เป็นซอฟต์แวร์ฟรีและโอเพนซอร์สภายใต้สัญญาอนุญาต MIT ทุกคนสามารถอ่าน ตรวจสอบ และสร้างจากโค้ดได้</string>
     <string name="openSourceTitle">โอเพนซอร์ส</string>
     <string name="protected_">ได้รับการป้องกัน</string>

@@ -54,6 +54,18 @@
                     android:textColor="@color/text_faint"
                     android:textSize="12.5sp" />
             </LinearLayout>
+
+            <!-- Settings, where any app puts them: at the top. -->
+            <ImageView
+                android:id="@+id/settingsTop"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="@drawable/pressable"
+                android:clickable="true"
+                android:contentDescription="@string/navSettings"
+                android:focusable="true"
+                android:padding="12dp"
+                android:src="@drawable/ic_settings_accent" />
         </LinearLayout>
 
         <!-- ── the switch: halo, running arc, the circle with the logo ── -->
@@ -499,6 +511,20 @@
             </LinearLayout>
         </LinearLayout>
 
+        <!-- The live count, as the desktop's "Online now": while protection
+             is on and "Count me in" (Settings) is on (OnlineCount). -->
+        <TextView
+            android:id="@+id/onlineNow"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:paddingStart="4dp"
+            android:paddingEnd="4dp"
+            android:textAlignment="viewStart"
+            android:textColor="@color/text_dim"
+            android:textSize="12.5sp"
+            android:visibility="gone" />
+
         <!-- ── about ──────────────────────────────────────────────────── -->
         <TextView
             style="@style/SectionTitle"
@@ -585,64 +611,7 @@
 
             <View style="@style/Divider" />
 
-            <!-- The live count (OnlineCount), as the desktop's setting: its
-                 label, and under it the description (MainActivity), are the
-                 switch's own text, so TalkBack reads them as one control. -->
-            <Switch
-                android:id="@+id/shareOnlineCount"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:minHeight="52dp"
-                android:drawableStart="@drawable/row_users"
-                android:drawablePadding="14dp"
-                android:lineSpacingMultiplier="1.1"
-                android:paddingStart="14dp"
-                android:paddingTop="10dp"
-                android:paddingEnd="12dp"
-                android:paddingBottom="10dp"
-                android:switchPadding="12dp"
-                android:text="@string/shareOnlineCount"
-                android:textAlignment="viewStart"
-                android:textColor="@color/text"
-                android:textSize="15sp" />
-
-            <View
-                android:id="@+id/adBlockDivider"
-                style="@style/Divider" />
-
-            <!-- "Block ads and trackers" (AdBlock), off by default; as the
-                 desktop's setting, label and description in the switch.
-                 Only in the copy from GitHub (AdBlock.offered). -->
-            <Switch
-                android:id="@+id/adBlock"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:minHeight="52dp"
-                android:drawableStart="@drawable/row_shield"
-                android:drawablePadding="14dp"
-                android:lineSpacingMultiplier="1.1"
-                android:paddingStart="14dp"
-                android:paddingTop="10dp"
-                android:paddingEnd="12dp"
-                android:paddingBottom="10dp"
-                android:switchPadding="12dp"
-                android:text="@string/adBlock"
-                android:textAlignment="viewStart"
-                android:textColor="@color/text"
-                android:textSize="15sp" />
-
-            <!-- Its exceptions, shown while it is on. -->
-            <TextView
-                android:id="@+id/adBlockAllow"
-                android:visibility="gone"
-                style="@style/AboutRowText"
-                android:drawableStart="@drawable/row_link"
-                android:text="@string/adBlockAllow" />
-
-            <View style="@style/Divider" />
-
-            <!-- The technique, the apps that skip Shroudly and starting with
-                 the phone (SettingsActivity). -->
+            <!-- Settings (SettingsActivity), also the gear at the top. -->
             <TextView
                 android:id="@+id/settings"
                 style="@style/AboutRowText"

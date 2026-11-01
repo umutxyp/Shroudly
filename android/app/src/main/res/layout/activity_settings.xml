@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Settings (SettingsActivity): what the desktop's Settings has that a phone
      can use, in the main window's cards, under a bar with its title and a way
-     back, as any Android screen has (issue #47). -->
+     back, as any Android screen has (issue #47). What anyone may want first
+     (the language, the look, the apps, the app's own switches); what only
+     someone helping them should change under "Advanced", folded away unless
+     something there is set. -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/frame"
     android:layout_width="match_parent"
@@ -11,11 +14,13 @@
 <Toolbar
     android:id="@+id/toolbar"
     android:layout_width="match_parent"
-    android:layout_height="?android:attr/actionBarSize"
+    android:layout_height="wrap_content"
+    android:minHeight="?android:attr/actionBarSize"
     android:background="@color/bg"
     android:navigationContentDescription="@string/androidBack"
     android:navigationIcon="@drawable/ic_arrow_back"
     android:title="@string/navSettings"
+    android:titleTextAppearance="@style/ToolbarTitle"
     android:titleTextColor="@color/text" />
 
 <ScrollView
@@ -33,47 +38,6 @@
         android:paddingStart="20dp"
         android:paddingEnd="20dp"
         android:paddingBottom="20dp">
-
-        <!-- VPN (every app) or proxy only (the VPN slot left free). -->
-        <TextView
-            android:id="@+id/modeTitle"
-            style="@style/SectionTitle.Explained"
-            android:accessibilityHeading="true"
-            android:text="@string/androidModeTitle" />
-
-        <RadioGroup
-            android:id="@+id/mode"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@drawable/card"
-            android:orientation="vertical"
-            android:paddingStart="10dp"
-            android:paddingTop="4dp"
-            android:paddingEnd="10dp"
-            android:paddingBottom="4dp" />
-
-        <!-- Appearance: the accent colour, as the desktop's. -->
-        <TextView
-            style="@style/SectionTitle"
-            android:accessibilityHeading="true"
-            android:text="@string/accentColour" />
-
-        <HorizontalScrollView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@drawable/card"
-            android:paddingStart="12dp"
-            android:paddingTop="8dp"
-            android:paddingEnd="2dp"
-            android:paddingBottom="8dp"
-            android:scrollbars="none">
-
-            <LinearLayout
-                android:id="@+id/accents"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal" />
-        </HorizontalScrollView>
 
         <!-- The app's language: the phone's, or one chosen here (issue #38). -->
         <TextView
@@ -95,98 +59,23 @@
                 android:text="@string/languageSystem" />
         </LinearLayout>
 
-        <!-- The technique, as the desktop's "Bypass strategy". -->
-        <TextView
-            android:id="@+id/strategyTitle"
-            style="@style/SectionTitle.Explained"
-            android:accessibilityHeading="true"
-            android:text="@string/strategy" />
-
-        <RadioGroup
-            android:id="@+id/strategy"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@drawable/card"
-            android:orientation="vertical"
-            android:paddingStart="10dp"
-            android:paddingTop="4dp"
-            android:paddingEnd="10dp"
-            android:paddingBottom="4dp" />
-
-        <!-- The DNS server: automatic, or one of the user's own (issue #34). -->
+        <!-- Appearance: the accent colour, as the desktop's; the swatches in
+             rows that fit the screen (SettingsActivity.showAccents). -->
         <TextView
             style="@style/SectionTitle"
             android:accessibilityHeading="true"
-            android:text="@string/dnsServer" />
+            android:text="@string/accentColour" />
 
         <LinearLayout
+            android:id="@+id/accents"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@drawable/card"
             android:orientation="vertical"
-            android:padding="1dp">
-
-            <TextView
-                android:id="@+id/dnsServer"
-                style="@style/AboutRowText"
-                android:drawableStart="@drawable/row_lock"
-                android:text="@string/dnsServer" />
-        </LinearLayout>
-
-        <!-- QUIC and IPv6 turned off, for networks that block or slow them
-             down (#59): the engine's options for them (Engine.args), and no
-             IPv6 on the VPN interface. -->
-        <TextView
-            android:id="@+id/networkTitle"
-            style="@style/SectionTitle.Explained"
-            android:accessibilityHeading="true"
-            android:text="@string/androidNetworkSection" />
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@drawable/card"
-            android:orientation="vertical"
-            android:padding="1dp">
-
-            <Switch
-                android:id="@+id/quicOff"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:minHeight="52dp"
-                android:drawableStart="@drawable/row_link"
-                android:drawablePadding="14dp"
-                android:lineSpacingMultiplier="1.1"
-                android:paddingStart="14dp"
-                android:paddingTop="10dp"
-                android:paddingEnd="12dp"
-                android:paddingBottom="10dp"
-                android:switchPadding="12dp"
-                android:text="@string/androidQuicOff"
-                android:textAlignment="viewStart"
-                android:textColor="@color/text"
-                android:textSize="15sp" />
-
-            <View style="@style/Divider" />
-
-            <Switch
-                android:id="@+id/ipv6Off"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:minHeight="52dp"
-                android:drawableStart="@drawable/row_link"
-                android:drawablePadding="14dp"
-                android:lineSpacingMultiplier="1.1"
-                android:paddingStart="14dp"
-                android:paddingTop="10dp"
-                android:paddingEnd="12dp"
-                android:paddingBottom="10dp"
-                android:switchPadding="12dp"
-                android:text="@string/androidIpv6Off"
-                android:textAlignment="viewStart"
-                android:textColor="@color/text"
-                android:textSize="15sp" />
-        </LinearLayout>
+            android:paddingStart="12dp"
+            android:paddingTop="6dp"
+            android:paddingEnd="2dp"
+            android:paddingBottom="6dp" />
 
         <TextView
             android:id="@+id/appsTitle"
@@ -203,11 +92,12 @@
             android:padding="1dp">
 
             <!-- Apps that skip Shroudly, or (#60) the only ones that go
-                 through it: the label, and how many under it. -->
+                 through it: the label, and how many under it. VPN mode's
+                 only (Proxy only: each app's own proxy setting decides). -->
             <TextView
                 android:id="@+id/excludedApps"
                 style="@style/AboutRowText"
-                android:drawableStart="@drawable/row_link"
+                android:drawableStart="@drawable/row_apps"
                 android:text="@string/excludedApps" />
 
             <View style="@style/Divider" />
@@ -217,7 +107,7 @@
             <TextView
                 android:id="@+id/quickTile"
                 style="@style/AboutRowText"
-                android:drawableStart="@drawable/row_shield"
+                android:drawableStart="@drawable/row_tile"
                 android:text="@string/androidTileAdd" />
 
             <View
@@ -229,7 +119,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:minHeight="52dp"
-                android:drawableStart="@drawable/row_shield"
+                android:drawableStart="@drawable/row_power"
                 android:drawablePadding="14dp"
                 android:lineSpacingMultiplier="1.1"
                 android:paddingStart="14dp"
@@ -241,16 +131,30 @@
                 android:textAlignment="viewStart"
                 android:textColor="@color/text"
                 android:textSize="15sp" />
+        </LinearLayout>
 
-            <View style="@style/Divider" />
+        <!-- The app's own switches, as the desktop's "Application": the live
+             count (OnlineCount), and "Block ads and trackers" (AdBlock) with
+             its exceptions, in the copy from GitHub only (AdBlock.offered). -->
+        <TextView
+            android:id="@+id/appTitle"
+            style="@style/SectionTitle.Explained"
+            android:accessibilityHeading="true"
+            android:text="@string/appSection" />
 
-            <!-- Automation apps (Tasker, MacroDroid): AutomationReceiver. -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/card"
+            android:orientation="vertical"
+            android:padding="1dp">
+
             <Switch
-                android:id="@+id/remoteControl"
+                android:id="@+id/shareOnlineCount"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:minHeight="52dp"
-                android:drawableStart="@drawable/row_link"
+                android:drawableStart="@drawable/row_users"
                 android:drawablePadding="14dp"
                 android:lineSpacingMultiplier="1.1"
                 android:paddingStart="14dp"
@@ -258,10 +162,209 @@
                 android:paddingEnd="12dp"
                 android:paddingBottom="10dp"
                 android:switchPadding="12dp"
-                android:text="@string/androidRemoteControl"
+                android:text="@string/shareOnlineCount"
                 android:textAlignment="viewStart"
                 android:textColor="@color/text"
                 android:textSize="15sp" />
+
+            <View
+                android:id="@+id/adBlockDivider"
+                style="@style/Divider" />
+
+            <Switch
+                android:id="@+id/adBlock"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="52dp"
+                android:drawableStart="@drawable/row_shield"
+                android:drawablePadding="14dp"
+                android:lineSpacingMultiplier="1.1"
+                android:paddingStart="14dp"
+                android:paddingTop="10dp"
+                android:paddingEnd="12dp"
+                android:paddingBottom="10dp"
+                android:switchPadding="12dp"
+                android:text="@string/adBlock"
+                android:textAlignment="viewStart"
+                android:textColor="@color/text"
+                android:textSize="15sp" />
+
+            <!-- Its exceptions, shown while it is on. -->
+            <TextView
+                android:id="@+id/adBlockAllow"
+                style="@style/AboutRowText"
+                android:drawableStart="@drawable/row_link"
+                android:text="@string/adBlockAllow"
+                android:visibility="gone" />
+        </LinearLayout>
+
+        <!-- Advanced: folded away (SettingsActivity.showAdvanced), and
+             open by itself when something in it is set. -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:background="@drawable/card"
+            android:orientation="vertical"
+            android:padding="1dp">
+
+            <TextView
+                android:id="@+id/advanced"
+                style="@style/AboutRowText"
+                android:drawableStart="@drawable/row_settings"
+                android:text="@string/androidAdvanced" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/advancedBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <!-- VPN (every app) or proxy only (the VPN slot left free). -->
+            <TextView
+                android:id="@+id/modeTitle"
+                style="@style/SectionTitle.Explained"
+                android:accessibilityHeading="true"
+                android:text="@string/androidModeTitle" />
+
+            <RadioGroup
+                android:id="@+id/mode"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/card"
+                android:orientation="vertical"
+                android:paddingStart="10dp"
+                android:paddingTop="4dp"
+                android:paddingEnd="10dp"
+                android:paddingBottom="4dp" />
+
+            <!-- The technique, as the desktop's "Bypass strategy". -->
+            <TextView
+                android:id="@+id/strategyTitle"
+                style="@style/SectionTitle.Explained"
+                android:accessibilityHeading="true"
+                android:text="@string/strategy" />
+
+            <RadioGroup
+                android:id="@+id/strategy"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/card"
+                android:orientation="vertical"
+                android:paddingStart="10dp"
+                android:paddingTop="4dp"
+                android:paddingEnd="10dp"
+                android:paddingBottom="4dp" />
+
+            <!-- The DNS server: automatic, or one of the user's own (issue #34). -->
+            <TextView
+                style="@style/SectionTitle"
+                android:accessibilityHeading="true"
+                android:text="@string/dnsServer" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/card"
+                android:orientation="vertical"
+                android:padding="1dp">
+
+                <TextView
+                    android:id="@+id/dnsServer"
+                    style="@style/AboutRowText"
+                    android:drawableStart="@drawable/row_lock"
+                    android:text="@string/dnsServer" />
+            </LinearLayout>
+
+            <!-- QUIC and IPv6 turned off, for networks that block or slow them
+                 down (#59): the engine's options for them (Engine.args), and no
+                 IPv6 on the VPN interface. -->
+            <TextView
+                android:id="@+id/networkTitle"
+                style="@style/SectionTitle.Explained"
+                android:accessibilityHeading="true"
+                android:text="@string/androidNetworkSection" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/card"
+                android:orientation="vertical"
+                android:padding="1dp">
+
+                <Switch
+                    android:id="@+id/quicOff"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minHeight="52dp"
+                    android:drawableStart="@drawable/row_gauge"
+                    android:drawablePadding="14dp"
+                    android:lineSpacingMultiplier="1.1"
+                    android:paddingStart="14dp"
+                    android:paddingTop="10dp"
+                    android:paddingEnd="12dp"
+                    android:paddingBottom="10dp"
+                    android:switchPadding="12dp"
+                    android:text="@string/androidQuicOff"
+                    android:textAlignment="viewStart"
+                    android:textColor="@color/text"
+                    android:textSize="15sp" />
+
+                <View style="@style/Divider" />
+
+                <Switch
+                    android:id="@+id/ipv6Off"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minHeight="52dp"
+                    android:drawableStart="@drawable/row_globe"
+                    android:drawablePadding="14dp"
+                    android:lineSpacingMultiplier="1.1"
+                    android:paddingStart="14dp"
+                    android:paddingTop="10dp"
+                    android:paddingEnd="12dp"
+                    android:paddingBottom="10dp"
+                    android:switchPadding="12dp"
+                    android:text="@string/androidIpv6Off"
+                    android:textAlignment="viewStart"
+                    android:textColor="@color/text"
+                    android:textSize="15sp" />
+            </LinearLayout>
+
+            <!-- Automation apps (Tasker, MacroDroid): AutomationReceiver. -->
+            <TextView
+                android:id="@+id/automationTitle"
+                style="@style/SectionTitle.Explained"
+                android:accessibilityHeading="true"
+                android:text="@string/androidAutomationSection" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/card"
+                android:orientation="vertical"
+                android:padding="1dp">
+
+                <Switch
+                    android:id="@+id/remoteControl"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minHeight="52dp"
+                    android:drawableStart="@drawable/row_zap"
+                    android:drawablePadding="14dp"
+                    android:lineSpacingMultiplier="1.1"
+                    android:paddingStart="14dp"
+                    android:paddingTop="10dp"
+                    android:paddingEnd="12dp"
+                    android:paddingBottom="10dp"
+                    android:switchPadding="12dp"
+                    android:text="@string/androidRemoteControl"
+                    android:textAlignment="viewStart"
+                    android:textColor="@color/text"
+                    android:textSize="15sp" />
+            </LinearLayout>
         </LinearLayout>
     </me.codeshare.shroudly.Column>
 </ScrollView>

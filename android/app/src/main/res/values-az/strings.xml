@@ -7,6 +7,8 @@
     <string name="adBlockAllowDesc">Sayt işləmirsə, domenini bura yaz, hər sətirdə bir: o və altındakı bütün adlar heç vaxt bloklanmır.</string>
     <string name="adBlockDesc">Açıq reklam və izləyici siyahısındakı adlar heç bir tətbiqdə cavab almır. Siyahı Shroudly vasitəsilə yüklənir və həftədə bir yenilənir.</string>
     <string name="adsBlocked">Bloklanan reklamlar</string>
+    <string name="androidAdvanced">Əlavə</string>
+    <string name="androidAdvancedDesc">Bunları yalnız sizə kömək edən kimsə istəsə dəyişin. Shroudly işləyəni özü tapır.</string>
     <string name="androidAlertsChannel">Qoruma xəbərdarlıqları</string>
     <string name="androidAllApps">Bu cihazdakı hər tətbiq Shroudly üzərindən keçir.</string>
     <string name="androidAppsLockdown">Android VPN olmadan bağlantıları bloklamaq üçün ayarlanıb, ona görə Shroudly-dən kənarda qalan tətbiqlərin interneti olmur.</string>
@@ -17,8 +19,10 @@
     <string name="androidAppsOnlyDesc">Qalan bütün tətbiqlər, sistem tətbiqləri də, Shroudly-yə uğramadan birbaşa çıxır. Heç biri işarələnməyibsə, hər tətbiq Shroudly-dən keçir.</string>
     <string name="androidAppsSection">Tətbiqlər</string>
     <string name="androidAppsSkipping">Shroudly-ni keçməsini seçdikləriniz istisna olmaqla, hər tətbiq Shroudly üzərindən keçir ({count}).</string>
+    <string name="androidAppsVpnOnly">Yalnız VPN rejimində. Yalnız proksi rejimində hər tətbiqin Shroudly üzərindən keçib-keçməməsini onun öz proksi ayarı həll edir.</string>
     <string name="androidAutomationBattery">Batareya ayarları</string>
     <string name="androidAutomationNotStarted">Qoruma açılmadı</string>
+    <string name="androidAutomationSection">Avtomatlaşdırma</string>
     <string name="androidAutomationTapBattery">Avtomatlaşdırma tətbiqi qorumanı açmaq istədi, amma Android başqa tətbiqlərin Shroudly-ni başlatmasına yalnız onun batareya istifadəsi məhdudlaşdırılmayanda icazə verir. İndi açmaq üçün toxun.</string>
     <string name="androidAutomationTapVpn">Avtomatlaşdırma tətbiqi qorumanı açmaq istədi, amma VPN-ə hələ icazə verilməyib. İcazə verib qorumanı açmaq üçün toxun.</string>
     <string name="androidBack">Geri</string>
@@ -35,9 +39,9 @@
     <string name="androidKeepOnOffer">Telefonun Shroudly-ni bağladı. Qorumanı yenidən açmaq üçün toxun.</string>
     <string name="androidLockdownOffline">İnternet yoxdur: Shroudly hazırda bu şəbəkədə qoşula bilmir və Android VPN olmadan bağlantıları bloklamaq üçün ayarlanıb. Shroudly cəhd etməyə davam edir.</string>
     <string name="androidLockdownStop">Android VPN olmadan bağlantıları bloklamaq üçün ayarlanıb, ona görə Shroudly söndürülü olanda tətbiqlərin interneti olmur.</string>
-    <string name="androidModeNextStart">Yeni rejim qoruma növbəti dəfə başlayanda istifadə olunacaq.</string>
     <string name="androidModeProxy">Yalnız proksi (digər VPN-iniz qalır)</string>
     <string name="androidModeProxyDesc">Shroudly 127.0.0.1:{port} ünvanında proksi kimi işləyir (SOCKS5 və HTTP) və VPN-i başqa tətbiqə buraxır. Yalnız onu istifadə etməyə ayarlanmış tətbiqlər Shroudly-dən keçir: Wi-Fi şəbəkəsinin proksisi (host 127.0.0.1, port {port}) və ya tətbiqin öz proksi ayarı.</string>
+    <string name="androidModeSwitching">Qoruma yeni rejimdə yenidən başlayır.</string>
     <string name="androidModeTitle">Rejim</string>
     <string name="androidModeVpn">VPN (bütün tətbiqlər)</string>
     <string name="androidModeVpnDesc">Bütün tətbiqlər Shroudly-dən keçir. Android eyni anda yalnız bir VPN-ə icazə verir, ona görə başqa VPN tətbiqinin bağlantısı kəsilir.</string>
@@ -68,6 +72,7 @@
     <string name="androidSomeApps">Shroudly üzərindən yalnız seçdiyiniz tətbiqlər keçir ({count}).</string>
     <string name="androidStartAtBoot">Telefon açılanda başlat</string>
     <string name="androidStartAtBootDesc">VPN-ə icazə verilibsə, qoruma söndürülmüş olsa belə, telefon hər dəfə yenidən başlayanda açılır. Açıq idisə, onsuz da geri qayıdır.</string>
+    <string name="androidStrategyDesc">Üsulları bir-bir sınayır və hər sayt üçün işləyəni saxlayır. Başqasını yalnız sizə kömək edən kimsə istəsə seçin; «Söndürülüb» yalnız DNS-i şifrələyir.</string>
     <string name="androidTileAdd">Sürətli Ayarlar plitəsi</string>
     <string name="androidTileAddDesc">Ekranın yuxarısındakı paneldə Shroudly plitəsi qorumanı bir toxunuşla açıb-bağlayır.</string>
     <string name="androidTileAdded">Shroudly plitəsi Sürətli Ayarlardadır.</string>
@@ -86,6 +91,7 @@
     <string name="androidWifiProxyShroudlyOff">Bu şəbəkənin proksisi Shroudly ({addr}) olaraq təyin edilib, amma Shroudly sönülüdür, buna görə ondan istifadə edən tətbiqlər (Chrome da daxil) qoşula bilmir. Qorumanı başladın və ya Wi-Fi ayarlarında proksini «Yoxdur» edin.</string>
     <string name="androidWifiSettings">Wi-Fi ayarları</string>
     <string name="androidWorkApps">İş profilinizdəki tətbiqlər Shroudly üzərindən keçmir.</string>
+    <string name="appSection">Tətbiq</string>
     <string name="autoRawBlocked">Bu şəbəkə {app} tətbiqinin bağlantılarını dayandırır və Shroudly-nin heç bir üsulu keçə bilmədi. {app} tətbiqinin öz proksi ayarından və ya VPN-dən istifadə et.</string>
     <string name="autoRawUnreachable">{app} tətbiqi öz serverlərinə çata bilmir: bu şəbəkə onların ünvanlarını bloklayır və Shroudly başqa yerdə yerləşən server olmadan bunu keçə bilməz. {app} tətbiqinin öz proksi ayarından və ya VPN-dən istifadə et.</string>
     <string name="connections">Bağlantılar</string>
@@ -123,6 +129,7 @@
     <string name="navSettings">Ayarlar</string>
     <string name="navStats">Statistika</string>
     <string name="notProtected">Qorunmur</string>
+    <string name="onlineNow">İndi onlayn</string>
     <string name="openSourceDesc">Shroudly pulsuzdur və MIT lisenziyası ilə açıq mənbəlidir: hər kəs onun kodunu oxuya, yoxlaya və yığa bilər.</string>
     <string name="openSourceTitle">Açıq mənbə</string>
     <string name="protected_">Qorunur</string>

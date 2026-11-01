@@ -18,17 +18,11 @@ import android.os.Looper
 import android.os.SystemClock
 import android.os.UserManager
 import android.provider.Settings
-import android.text.SpannableStringBuilder
-import android.text.Spanned
-import android.text.style.ForegroundColorSpan
-import android.text.style.RelativeSizeSpan
 import android.view.View
 import android.view.WindowInsets
 import android.widget.Button
-import android.widget.EditText
 import android.widget.ImageView
 import android.widget.ScrollView
-import android.widget.Switch
 import android.widget.TextView
 import java.text.NumberFormat
 
@@ -65,6 +59,7 @@ class MainActivity : Activity() {
     private lateinit var download: TextView
     private lateinit var uptime: TextView
     private lateinit var statsHint: View
+    private lateinit var onlineNow: TextView
     private lateinit var update: View
     private lateinit var updateText: TextView
     private lateinit var releases: View
@@ -137,6 +132,7 @@ class MainActivity : Activity() {
         download = findViewById(R.id.download)
         uptime = findViewById(R.id.uptime)
         statsHint = findViewById(R.id.statsHint)
+        onlineNow = findViewById(R.id.onlineNow)
         update = findViewById(R.id.update)
         updateText = findViewById(R.id.updateText)
         releases = findViewById(R.id.releases)
@@ -159,37 +155,10 @@ class MainActivity : Activity() {
         findViewById<View>(R.id.notices).setOnClickListener { showNotices() }
         findViewById<View>(R.id.privacy).setOnClickListener { open(UpdateCheck.PRIVACY_URL) }
         findViewById<View>(R.id.shareLogs).setOnClickListener { shareLogs() }
-        findViewById<View>(R.id.settings).setOnClickListener { startActivity(Intent(this, SettingsActivity::class.java)) }
-        findViewById<Switch>(R.id.shareOnlineCount).apply {
-            // The label, and the description under it, smaller and dimmer.
-            val desc = getString(R.string.shareOnlineCountDesc)
-            text = SpannableStringBuilder(getString(R.string.shareOnlineCount)).append('\n').apply {
-                val from = length
-                append(desc)
-                setSpan(ForegroundColorSpan(getColor(R.color.text_dim)), from, length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-                setSpan(RelativeSizeSpan(12.5f / 15f), from, length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-            }
-            isChecked = OnlineCount.enabled(this@MainActivity)
-            setOnCheckedChangeListener { _, on -> OnlineCount.setEnabled(this@MainActivity, on) }
-        }
-        val allowRow = findViewById<View>(R.id.adBlockAllow)
-        findViewById<Switch>(R.id.adBlock).apply {
-            val desc = getString(R.string.adBlockDesc)
-            text = SpannableStringBuilder(getString(R.string.adBlock)).append('\n').apply {
-                val from = length
-                append(desc)
-                setSpan(ForegroundColorSpan(getColor(R.color.text_dim)), from, length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-                setSpan(RelativeSizeSpan(12.5f / 15f), from, length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-            }
-            isChecked = AdBlock.enabled(this@MainActivity)
-            allowRow.visibility = if (isChecked) View.VISIBLE else View.GONE
-            setOnCheckedChangeListener { _, on ->
-                AdBlock.setEnabled(this@MainActivity, on)
-                allowRow.visibility = if (on) View.VISIBLE else View.GONE
-                tellAdBlock()
-            }
-        }
-        allowRow.setOnClickListener { editAdBlockAllow() }
+        // Settings: the gear at the top, and the row under About.
+        val settings = View.OnClickListener { startActivity(Intent(this, SettingsActivity::class.java)) }
+        findViewById<View>(R.id.settings).setOnClickListener(settings)
+        findViewById<View>(R.id.settingsTop).setOnClickListener(settings)
         noticeOpen.setOnClickListener {
             if (noticeShown == R.string.androidBatterySettings) openBatterySettings() else openNotificationSettings()
         }
@@ -269,10 +238,6 @@ class MainActivity : Activity() {
         val offered = Support.offered(this)
         findViewById<View>(R.id.supportRow).visibility = if (offered) View.VISIBLE else View.GONE
         findViewById<View>(R.id.supportDivider).visibility = if (offered) View.VISIBLE else View.GONE
-        val adBlock = AdBlock.offered(this)
-        findViewById<View>(R.id.adBlock).visibility = if (adBlock) View.VISIBLE else View.GONE
-        findViewById<View>(R.id.adBlockDivider).visibility = if (adBlock) View.VISIBLE else View.GONE
-        if (!adBlock) findViewById<View>(R.id.adBlockAllow).visibility = View.GONE
         supportDue = try { Support.cardDue(this) } catch (_: Exception) { false }
         // The APK from GitHub links its releases and looks for a newer one
         // there; a copy Google Play updates links the source code instead and
@@ -621,10 +586,15 @@ class MainActivity : Activity() {
             download.show(Format.bytes(s.bytesDown))
             uptime.show(Format.duration(android.os.SystemClock.elapsedRealtime() - Protection.startedAt))
             statsHint.visibility = View.GONE
+            // The live total this phone is counted in ("Count me in", Settings).
+            val online = OnlineCount.online()
+            if (online != null) onlineNow.show("${getString(R.string.onlineNow)}: ${n.format(online)}")
+            onlineNow.visibility = if (online != null) View.VISIBLE else View.GONE
         } else {
             // Set only when it changes: the window redraws every second, and a
             // text set again is announced to accessibility services again.
             for (v in listOf(connections, upload, download, uptime)) v.show("–")
+            onlineNow.visibility = View.GONE
             connectionsTotal.show(text(R.string.totalCount, "count" to "–"))
             // "Start protection to see live traffic": while it is off, not
             // while it starts or stops.
@@ -767,6 +737,7 @@ class MainActivity : Activity() {
      * notifications turned off, so that protection stopping is never said
      * (notificationsDue). Each with its one way to fix it and "Not now";
      * neither on a new install's first screen. */
+    @SuppressLint("SetTextI18n")
     private fun showNotice() {
         val now = System.currentTimeMillis()
         val ui = getSharedPreferences("ui", MODE_PRIVATE)
@@ -864,43 +835,6 @@ class MainActivity : Activity() {
             .setTitle(R.string.androidDetails)
             .setView(ScrollView(this).apply { addView(body) })
             .setPositiveButton(android.R.string.ok, null)
-            .show()
-    }
-
-    /* The service, when protection is on, puts the setting to use at once. */
-    private fun tellAdBlock() {
-        Protector.tell(this, ShroudlyVpnService.ACTION_ADBLOCK)
-    }
-
-    /* "Sites never to block": one domain per line, cleaned on save. */
-    private fun editAdBlockAllow() {
-        val pad = (20 * resources.displayMetrics.density).toInt()
-        val field = EditText(this).apply {
-            setText(AdBlock.allow(this@MainActivity).joinToString("\n"))
-            hint = "example.com"
-            minLines = 4
-            textDirection = View.TEXT_DIRECTION_LTR
-            typeface = Typeface.MONOSPACE
-        }
-        val hintText = TextView(this).apply {
-            text = getString(R.string.adBlockAllowDesc)
-            setTextColor(getColor(R.color.text_dim))
-            textSize = 13f
-        }
-        val box = android.widget.LinearLayout(this).apply {
-            orientation = android.widget.LinearLayout.VERTICAL
-            setPadding(pad, pad / 2, pad, 0)
-            addView(hintText)
-            addView(field)
-        }
-        AlertDialog.Builder(this)
-            .setTitle(R.string.adBlockAllow)
-            .setView(box)
-            .setPositiveButton(android.R.string.ok) { _, _ ->
-                AdBlock.setAllow(this, field.text.toString())
-                tellAdBlock()
-            }
-            .setNegativeButton(android.R.string.cancel, null)
             .show()
     }
 

@@ -7,6 +7,8 @@
     <string name="adBlockAllowDesc">अगर कोई साइट ठीक से न चले, तो उसका डोमेन यहाँ लिखें, हर पंक्ति में एक: वह और उसके नीचे का हर नाम कभी ब्लॉक नहीं होगा।</string>
     <string name="adBlockDesc">विज्ञापनों और ट्रैकरों की एक सार्वजनिक सूची के नामों को किसी भी ऐप में जवाब नहीं मिलता। सूची Shroudly के ज़रिए डाउनलोड होती है और हर हफ़्ते अपडेट होती है।</string>
     <string name="adsBlocked">ब्लॉक किए गए विज्ञापन</string>
+    <string name="androidAdvanced">उन्नत</string>
+    <string name="androidAdvancedDesc">इन्हें तभी बदलें जब आपकी मदद करने वाला कहे। जो काम करता है, Shroudly उसे खुद ढूँढ लेता है।</string>
     <string name="androidAlertsChannel">सुरक्षा अलर्ट</string>
     <string name="androidAllApps">इस डिवाइस का हर ऐप Shroudly से होकर जाता है।</string>
     <string name="androidAppsLockdown">Android बिना VPN के कनेक्शन ब्लॉक करने के लिए सेट है, इसलिए Shroudly से बाहर रखे गए ऐप्स को इंटरनेट नहीं मिलता।</string>
@@ -17,8 +19,10 @@
     <string name="androidAppsOnlyDesc">बाकी हर ऐप, सिस्टम ऐप्स भी, Shroudly से गुज़रे बिना सीधे बाहर जाता है। अगर कोई नहीं चुना गया, तो हर ऐप Shroudly से होकर जाता है।</string>
     <string name="androidAppsSection">ऐप्स</string>
     <string name="androidAppsSkipping">आपके चुने हुए छूट वाले ऐप्स को छोड़कर हर ऐप Shroudly से होकर जाता है ({count})।</string>
+    <string name="androidAppsVpnOnly">केवल VPN मोड में। केवल प्रॉक्सी में, हर ऐप की अपनी प्रॉक्सी सेटिंग तय करती है कि वह Shroudly से होकर जाए या नहीं।</string>
     <string name="androidAutomationBattery">बैटरी सेटिंग्स</string>
     <string name="androidAutomationNotStarted">सुरक्षा चालू नहीं हुई</string>
+    <string name="androidAutomationSection">ऑटोमेशन</string>
     <string name="androidAutomationTapBattery">एक ऑटोमेशन ऐप ने सुरक्षा चालू करने को कहा, लेकिन Android दूसरे ऐप्स को Shroudly शुरू करने की अनुमति तभी देता है जब उसका बैटरी उपयोग अप्रतिबंधित हो। अभी चालू करने के लिए टैप करें।</string>
     <string name="androidAutomationTapVpn">एक ऑटोमेशन ऐप ने सुरक्षा चालू करने को कहा, लेकिन VPN की अनुमति अभी नहीं दी गई है। अनुमति देकर सुरक्षा चालू करने के लिए टैप करें।</string>
     <string name="androidBack">वापस</string>
@@ -35,9 +39,9 @@
     <string name="androidKeepOnOffer">आपके फ़ोन ने Shroudly बंद कर दिया। सुरक्षा फिर से चालू करने के लिए टैप करें।</string>
     <string name="androidLockdownOffline">इंटरनेट नहीं: Shroudly अभी इस नेटवर्क पर कनेक्ट नहीं कर पा रहा, और Android को बिना VPN के कनेक्शन ब्लॉक करने के लिए सेट किया गया है। Shroudly कोशिश जारी रखे हुए है।</string>
     <string name="androidLockdownStop">Android बिना VPN के कनेक्शन ब्लॉक करने के लिए सेट है, इसलिए जब तक Shroudly बंद है, ऐप्स को इंटरनेट नहीं मिलता।</string>
-    <string name="androidModeNextStart">नया मोड अगली बार सुरक्षा शुरू होने पर इस्तेमाल होगा।</string>
     <string name="androidModeProxy">केवल प्रॉक्सी (आपका दूसरा VPN बना रहता है)</string>
     <string name="androidModeProxyDesc">Shroudly 127.0.0.1:{port} पर प्रॉक्सी के रूप में चलता है (SOCKS5 और HTTP) और VPN को किसी दूसरे ऐप के लिए छोड़ देता है। केवल वे ऐप्स Shroudly से गुज़रते हैं जो इसे उपयोग करने के लिए सेट हैं: Wi-Fi नेटवर्क की प्रॉक्सी (होस्ट 127.0.0.1, पोर्ट {port}) या ऐप की अपनी प्रॉक्सी सेटिंग।</string>
+    <string name="androidModeSwitching">सुरक्षा नए मोड में फिर से शुरू हो रही है।</string>
     <string name="androidModeTitle">मोड</string>
     <string name="androidModeVpn">VPN (सभी ऐप्स)</string>
     <string name="androidModeVpnDesc">सभी ऐप्स Shroudly से गुज़रते हैं। Android एक समय में केवल एक VPN की अनुमति देता है, इसलिए दूसरा VPN ऐप डिस्कनेक्ट हो जाता है।</string>
@@ -68,6 +72,7 @@
     <string name="androidSomeApps">केवल आपके चुने हुए ऐप्स Shroudly से होकर जाते हैं ({count})।</string>
     <string name="androidStartAtBoot">फ़ोन चालू होने पर शुरू करें</string>
     <string name="androidStartAtBootDesc">VPN की अनुमति मिलने के बाद, फ़ोन हर बार फिर से चालू होने पर सुरक्षा चालू हो जाती है, भले ही वह बंद रही हो। अगर वह चालू थी, तो वैसे भी वापस चालू हो जाती है।</string>
+    <string name="androidStrategyDesc">तरीकों को एक-एक करके आज़माता है और हर साइट के लिए जो काम करे उसे रखता है। दूसरा तभी चुनें जब मदद करने वाला कहे; बंद केवल DNS एन्क्रिप्ट करता है।</string>
     <string name="androidTileAdd">क्विक सेटिंग्स टाइल</string>
     <string name="androidTileAddDesc">स्क्रीन के ऊपर के पैनल में Shroudly की टाइल एक टैप में सुरक्षा चालू और बंद करती है।</string>
     <string name="androidTileAdded">Shroudly की टाइल क्विक सेटिंग्स में है।</string>
@@ -86,6 +91,7 @@
     <string name="androidWifiProxyShroudlyOff">इस नेटवर्क का प्रॉक्सी Shroudly ({addr}) पर सेट है, लेकिन Shroudly बंद है, इसलिए इसे इस्तेमाल करने वाले ऐप (Chrome समेत) नहीं जुड़ पाते। सुरक्षा शुरू करें, या Wi-Fi सेटिंग में प्रॉक्सी को «कोई नहीं» पर सेट करें।</string>
     <string name="androidWifiSettings">Wi-Fi सेटिंग</string>
     <string name="androidWorkApps">आपकी वर्क प्रोफ़ाइल के ऐप्स Shroudly से होकर नहीं जाते।</string>
+    <string name="appSection">ऐप्लिकेशन</string>
     <string name="autoRawBlocked">यह नेटवर्क {app} के कनेक्शन रोक देता है, और Shroudly की कोई भी तकनीक पार नहीं हो पाई। {app} की अपनी प्रॉक्सी सेटिंग या कोई VPN इस्तेमाल करें।</string>
     <string name="autoRawUnreachable">{app} अपने सर्वर तक नहीं पहुँच पा रहा: यह नेटवर्क उनके पते ब्लॉक करता है, और कहीं और मौजूद सर्वर के बिना Shroudly इसे पार नहीं कर सकता। {app} की अपनी प्रॉक्सी सेटिंग या कोई VPN इस्तेमाल करें।</string>
     <string name="connections">कनेक्शन</string>
@@ -123,6 +129,7 @@
     <string name="navSettings">सेटिंग्स</string>
     <string name="navStats">आँकड़े</string>
     <string name="notProtected">सुरक्षित नहीं</string>
+    <string name="onlineNow">अभी ऑनलाइन</string>
     <string name="openSourceDesc">Shroudly मुफ़्त है और MIT लाइसेंस के तहत ओपन सोर्स है: कोई भी इसका कोड पढ़, जाँच और बिल्ड कर सकता है।</string>
     <string name="openSourceTitle">ओपन सोर्स</string>
     <string name="protected_">सुरक्षित</string>
