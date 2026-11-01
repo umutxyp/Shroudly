@@ -345,6 +345,24 @@ function windowsArgv(line) {
     t.ok(as({ code: 1, stdout: '', stderr: 'Something else' }).code === 'start_failed', 'anything else: start_failed');
   }
   {
+    // Linux: pkexec's endings told apart. Only a dismissed window or a "not
+    // authorized" is the user's no (the autopilot then waits two weeks); no
+    // polkit agent in the session, or a program that could not start, is not.
+    const AdvancedMode = require(path.join(ROOT, 'electron', 'advanced-mode.js'));
+    const am = new AdvancedMode(() => {});
+    const code = (c, err) => { const e = am._pkexecEnd(c, err); return e ? e.code : null; };
+    t.ok(code(126, 'Error executing command as another user: Request dismissed') === 'declined'
+      && code(127, 'Error executing command as another user: Not authorized\n\nThis incident has been reported.') === 'declined',
+    'pkexec: the window dismissed, or not authorized: the user\'s no');
+    t.ok(code(127, 'Error executing command as another user: No authentication agent found.') === 'no_agent'
+      && code(127, '==== AUTHENTICATING FOR org.freedesktop.policykit.exec ====\nError creating textual authentication agent: Error opening current controlling terminal for the process (`/dev/tty\'): No such device or address') === 'no_agent',
+    'pkexec: no polkit agent to show the window (Sway, Hyprland, i3): not a no, said as such');
+    t.ok(code(127, 'Error executing command as another user: /tmp/shroudly-adv-x/shroudly-core-adv: Permission denied') === 'start_failed' && code(1, 'whatever') === null,
+      'pkexec: a program that could not start is a failure to start; any other exit is the engine\'s own');
+    const panel = fs.readFileSync(path.join(ROOT, 'components', 'SettingsPanel.js'), 'utf8');
+    t.ok(/no_agent: 'advErrorNoAgent'/.test(panel), 'the window has its own words for it');
+  }
+  {
     // A site no method opened: the notification offers Advanced mode only
     // where this computer has it (never on macOS).
     const main = fs.readFileSync(path.join(ROOT, 'electron', 'main.js'), 'utf8');

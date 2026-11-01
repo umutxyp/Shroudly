@@ -622,7 +622,7 @@ directly. That list maintains itself:
 |---|---|---|
 | Windows | **Windows 10** (x64 or ARM64) | The installer stops with a clear message on Windows 8.1 and earlier, which Electron no longer supports. |
 | macOS | **macOS 12 Monterey** (Intel or Apple Silicon) | Older versions are told so by macOS itself rather than failing to launch. |
-| Linux | **glibc 2.28+** — Debian 10, Ubuntu 18.04, Fedora 29 or newer | AppImage (x64, ARM64), plus native packages: .deb for Debian/Ubuntu, .pacman for Arch/Manjaro, .rpm for Fedora/openSUSE/RHEL. The bypass engine itself only needs glibc 2.17, so it is never the limiting part. |
+| Linux | **glibc 2.28+** — Debian 10, Ubuntu 20.04, Fedora 29 or newer (Ubuntu 18.04 has glibc 2.27: Shroudly starts there, but Advanced mode does not) | AppImage (x64, ARM64), plus native packages: .deb for Debian/Ubuntu, .pacman for Arch/Manjaro, .rpm for Fedora/openSUSE/RHEL. The bypass engine itself only needs glibc 2.17, so it is never the limiting part. |
 | Android | **Android 8** or newer (phones and tablets; ARM 64/32-bit, x86_64) | An APK from the releases page. It works as a VPN on the phone, so every app goes through Shroudly; no root needed. To keep another VPN app connected, Settings → Mode → Proxy only. |
 
 Advanced mode needs administrator rights, and is available on Windows and Linux only.
@@ -643,7 +643,7 @@ These links always download the newest version (see [Releases](https://github.co
 | OS | Intel / AMD (x64) | ARM |
 |----|-------------------|-----|
 | **Windows 10+** | [Installer (.exe)](https://shroudly.codeshare.me/dl/windows-x64) | [Installer (.exe)](https://shroudly.codeshare.me/dl/windows-arm64) |
-| **macOS 12+** | [Intel Macs (.dmg)](https://shroudly.codeshare.me/dl/macos-x64) | [Apple Silicon M1–M4 (.dmg)](https://shroudly.codeshare.me/dl/macos-arm64) |
+| **macOS 12+** | [Intel Macs (.dmg)](https://shroudly.codeshare.me/dl/macos-x64) | [Apple Silicon, M1 or newer (.dmg)](https://shroudly.codeshare.me/dl/macos-arm64) |
 | **Debian / Ubuntu / Mint** | [.deb](https://shroudly.codeshare.me/dl/linux-deb) | [AppImage](https://shroudly.codeshare.me/dl/linux-arm64) |
 | **Arch / Manjaro / EndeavourOS** | [.pacman](https://shroudly.codeshare.me/dl/linux-pacman) | [AppImage](https://shroudly.codeshare.me/dl/linux-arm64) |
 | **Fedora / openSUSE / RHEL** | [.rpm](https://shroudly.codeshare.me/dl/linux-rpm) | [AppImage](https://shroudly.codeshare.me/dl/linux-arm64) |

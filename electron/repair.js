@@ -57,12 +57,14 @@ function missingFiles(files) {
 
 /* The system's DNS cache emptied where no password is asked: Windows
  * (ipconfig), macOS (dscacheutil), Linux with systemd-resolved (resolvectl,
- * which some systems refuse without one: then nothing). Resolves whether
- * it was done. */
+ * which some systems refuse without one: then nothing). --no-ask-password:
+ * without it polkit opened an administrator's password window for a cache
+ * flush where the policy wants one (auth_admin_keep). Resolves whether it
+ * was done. */
 function flushDnsCache(platform = process.platform, run = execFile) {
   const cmd = platform === 'win32' ? ['ipconfig', ['/flushdns']]
     : platform === 'darwin' ? ['dscacheutil', ['-flushcache']]
-      : ['resolvectl', ['flush-caches']];
+      : ['resolvectl', ['--no-ask-password', 'flush-caches']];
   return new Promise((resolve) => {
     try {
       run(cmd[0], cmd[1], { windowsHide: true, timeout: 10000 }, (err) => resolve(!err));

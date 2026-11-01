@@ -87,7 +87,7 @@ function memStore(init = {}) {
     const calls = [];
     const run = (cmd, args, opts, cb) => { calls.push(`${cmd} ${args.join(' ')}`); cb(null); };
     t.ok(await R.flushDnsCache('win32', run) && await R.flushDnsCache('darwin', run) && await R.flushDnsCache('linux', run)
-      && calls.join('; ') === 'ipconfig /flushdns; dscacheutil -flushcache; resolvectl flush-caches', `each system's own command, no password: ${calls.join('; ')}`);
+      && calls.join('; ') === 'ipconfig /flushdns; dscacheutil -flushcache; resolvectl --no-ask-password flush-caches', `each system's own command, no password: ${calls.join('; ')}`);
     t.ok(await R.flushDnsCache('linux', (c, a, o, cb) => cb(new Error('denied'))) === false, 'refused: said as not done');
   } finally { fs.rmSync(dir, { recursive: true, force: true }); }
   console.log(`repair: ${t.count} passed`);

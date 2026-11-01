@@ -35,6 +35,8 @@ const ADV_REASON_KEYS = {
 const ADV_ERROR_KEYS = {
   declined: 'advErrorDeclined',
   elevation_unavailable: 'advErrorElevationUnavailable',
+  // Linux: no polkit agent in the session to show the password window.
+  no_agent: 'advErrorNoAgent',
   start_failed: 'advErrorStartFailed',
   timeout: 'advErrorTimeout',
   // An antivirus refused it, or took its files (main.js securityBlocked).

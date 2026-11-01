@@ -368,9 +368,13 @@ class AdvancedMode {
     const isRoot = typeof process.getuid === 'function' && process.getuid() === 0;
     const [cmd, argv] = isRoot ? [exe, args] : ['pkexec', [exe, ...args]];
     return new Promise((resolve, reject) => {
-      const child = spawn(cmd, argv, { stdio: 'ignore' });
+      // pkexec's own words tell its endings apart (_pkexecEnd).
+      const child = spawn(cmd, argv, { stdio: ['ignore', 'ignore', isRoot ? 'ignore' : 'pipe'] });
+      this.childErr = '';
+      this.viaPkexec = !isRoot;
+      if (child.stderr) child.stderr.on('data', (d) => { this.childErr = (this.childErr + d).slice(-2000); });
       child.once('error', (e) => {
-        if (e.code === 'ENOENT' && !isRoot) reject(new AdvError('elevation_unavailable', 'pkexec (polkit) was not found. Install polkit or run Shroudly as root.'));
+        if (e.code === 'ENOENT' && !isRoot) reject(new AdvError('elevation_unavailable', 'pkexec (polkit) was not found. Install the polkit package (pkexec), then try again.'));
         else reject(new AdvError('start_failed', e.message));
       });
       child.once('spawn', () => {
@@ -380,6 +384,23 @@ class AdvancedMode {
         resolve();
       });
     });
+  }
+
+  /* What pkexec's ending means. 126: the password window was dismissed, the
+   * user's no. 127: not allowed (also the user's no), or no window could be
+   * shown at all (no polkit agent in the session: Sway, Hyprland, i3, a
+   * minimal desktop), or the program could not be started (/tmp mounted
+   * noexec): those were taken for a no too, and the autopilot kept quiet
+   * for two weeks about a question nobody was asked. */
+  _pkexecEnd(code, stderr = '') {
+    const why = String(stderr || '');
+    if (code === 126) return new AdvError('declined', 'Administrator permission was not granted.');
+    if (code !== 127) return null;
+    if (/no authentication agent|textual authentication agent/i.test(why)) {
+      return new AdvError('no_agent', 'No password window could be shown: no polkit authentication agent runs in this session.');
+    }
+    if (/not authori[sz]ed|request dismissed/i.test(why) || !why.trim()) return new AdvError('declined', 'Administrator permission was not granted.');
+    return new AdvError('start_failed', `The advanced engine could not be started as administrator: ${why.trim().split('\n').pop().slice(0, 200)}`);
   }
 
   /* The time limit counts only time the computer was awake: the prompt may
@@ -395,8 +416,8 @@ class AdvancedMode {
       if (s.ready) return s.ready;
       if (s.stopped) throw this._failure(s, 'The advanced engine exited.');
       if (this.childExit !== null) {
-        // pkexec: 126 = dialog dismissed, 127 = not authorized
-        if (this.childExit === 126 || this.childExit === 127) throw new AdvError('declined', 'Administrator permission was not granted.');
+        const end = this.viaPkexec ? this._pkexecEnd(this.childExit, this.childErr) : null;
+        if (end) throw end;
         throw this._failure(s, `The advanced engine exited with code ${this.childExit}.`);
       }
       // Windows: its process is gone, and it said nothing (an engine that

@@ -983,7 +983,22 @@ function getAutoStartEnabled() {
 }
 
 /* ── app ready ───────────────────────────────────────────────────────────── */
+/* The application menu. Electron's own came with every build: View with
+ * Reload (a blank window for a moment, the panel state lost), Toggle
+ * Developer Tools, zoom and full screen, and their shortcuts (Cmd/Ctrl+R,
+ * Ctrl+Shift+I) working on Linux too. macOS keeps what every Mac app has:
+ * the app menu (About, Hide, Quit) and Edit, so copy and paste work in the
+ * window; Windows and Linux have none. */
+function setAppMenu() {
+  if (process.platform !== 'darwin') { Menu.setApplicationMenu(null); return; }
+  Menu.setApplicationMenu(Menu.buildFromTemplate([{ role: 'appMenu', submenu: [
+    { role: 'about' }, { type: 'separator' }, { role: 'hide' }, { role: 'hideOthers' }, { role: 'unhide' }, { type: 'separator' },
+    { role: 'quit' },
+  ] }, { role: 'editMenu' }]));
+}
+
 app.whenReady().then(async () => {
+  setAppMenu();
   // Before anything reads the settings: a damaged file, a new install, and
   // protection from a version that let Auto mode decide (settings-file.js).
   SettingsFile.settle(store, { ...settingsOpened, packaged: app.isPackaged, autoStartNow: getAutoStartEnabled, log: addLog });
