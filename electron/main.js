@@ -2136,7 +2136,7 @@ ipcMain.handle('apps:set', async (e, on) => {
 let autoLatest = null;
 // Lines that follow a notification of their own: in the window only (the
 // antivirus that blocked Advanced mode was told by securityBlocked).
-const WINDOW_ONLY = ['autoSecurityAdvanced'];
+const WINDOW_ONLY = ['autoSecurityAdvanced', 'autoSiteUnreachable'];
 function autoTell(id, params = {}) {
   const text = String(tr()[id] || '').replace(/\{(\w+)\}/g, (m, k) => (params[k] != null ? String(params[k]) : m));
   if (text && !WINDOW_ONLY.includes(id)) notify('Shroudly', text);
@@ -2605,11 +2605,26 @@ function createAutopilot() {
  * the user waiting on the app with only a line in the log. */
 const SERVICE_NAME = { discord: 'Discord', roblox: 'Roblox' };
 const reachTold = new Set();
+let lastSiteReach = 0;
 const reachBusy = new Set();
 async function checkServiceReach(host) {
-  const id = Autopilot.familyOf(host);
-  if (!id || !SERVICE_NAME[id] || reachTold.has(id) || reachBusy.has(id) || wake.recent(2 * 60 * 1000)) return;
+  const family = Autopilot.familyOf(host);
+  const service = family && SERVICE_NAME[family];
+  // Any other site a person opens (example.com, not the CDN and API hosts
+  // a page loads): the same check, said in the window only, and at most
+  // one such check a minute. Before, only Discord and Roblox were told
+  // that the network blocks their addresses; every other such site just
+  // failed, with a line in the log.
+  const site = !service && ServiceCheck.isMainName(host) ? String(host).toLowerCase().replace(/\.$/, '').replace(/^www\./, '') : null;
+  const id = service ? family : site;
+  const name = service || site;
+  if (!id || reachTold.has(id) || reachBusy.has(id) || wake.recent(2 * 60 * 1000)) return;
   if (!engine || !engine.isActive() || !engine.dohPort) return;
+  if (site) {
+    const now = Date.now();
+    if (now - lastSiteReach < 60000) return;
+    lastSiteReach = now;
+  }
   reachBusy.add(id);
   try {
     const [ours, theirs] = await Promise.all([AroundWatch.addrsVia(engine.dohPort)(host), Diagnostics.systemResolve(host).then((a) => a || [])]);
@@ -2624,12 +2639,13 @@ async function checkServiceReach(host) {
     // a blocked address does. Name it rather than blame the network (rivals.js).
     const rival = await Rivals.running();
     if (rival.length) {
-      addLog('warning', `${SERVICE_NAME[id]}: its servers do not answer, and ${rival.join(', ')} is running: it changes the same connections Advanced mode does, and two of them undo each other. Turn one of them off.`);
+      addLog('warning', `${name}: its servers do not answer, and ${rival.join(', ')} is running: it changes the same connections Advanced mode does, and two of them undo each other. Turn one of them off.`);
       autoTell('autoRivalTool', { rival: rival.join(', ') });
       return;
     }
-    addLog('warning', `${SERVICE_NAME[id]}: its servers (${host}: ${addrs.slice(0, 8).join(', ')}) do not answer on this network at all, while the internet does; the network blocks their addresses, and only a VPN gets around that`);
-    autoTell('autoServiceUnreachable', { app: SERVICE_NAME[id] });
+    addLog('warning', `${name}: its servers (${host}: ${addrs.slice(0, 8).join(', ')}) do not answer on this network at all, while the internet does; the network blocks their addresses, and only a VPN gets around that`);
+    if (service) autoTell('autoServiceUnreachable', { app: service });
+    else autoTell('autoSiteUnreachable', { host: site });
   } finally { reachBusy.delete(id); }
 }
 

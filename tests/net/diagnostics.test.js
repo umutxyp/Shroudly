@@ -69,6 +69,15 @@ const TAIL_UP = { ...ETH, Tailscale: [{ address: '100.64.0.5', family: 'IPv4', i
   }
   r = await D.runningTools({ details: true, probe: { processes: '/Applications/Mullvad VPN.app/Contents/Resources/mullvad-daemon', interfaces: ETH, route: 'utun6' } });
   t.ok(r.active.join() === 'Mullvad VPN', 'macOS: Mullvad carrying the default route through a utun: connected');
+  {
+    // A site a person opens whose addresses the network blocks: said in the
+    // window (not only for Discord and Roblox), without a notification, and
+    // checked at most once a minute and once per site and network.
+    const main = require('fs').readFileSync(require('path').join(ROOT, 'electron', 'main.js'), 'utf8');
+    const fn = main.slice(main.indexOf('async function checkServiceReach'), main.indexOf('async function checkServiceReach') + 3000);
+    t.ok(/ServiceCheck\.isMainName\(host\)/.test(fn) && /lastSiteReach < 60000/.test(fn) && /autoTell\('autoSiteUnreachable', \{ host: site \}\)/.test(fn)
+      && /WINDOW_ONLY = \[[^\]]*'autoSiteUnreachable'/.test(main), 'a blocked site of any kind is explained in the window, without a notification, rate-limited');
+  }
   r = await D.runningTools({ details: true, probe: { processes: '"ZSATunnel.exe","30"', interfaces: ETH, route: 'Ethernet' } });
   t.ok(r.active.join() === 'Zscaler', 'Zscaler steers traffic whenever it runs');
   r = await D.runningTools({ probe: { processes: '"AdGuard.exe","31"\n"vpnkit.exe","32"\n"MyVpnUI.exe","33"\n"pianist.exe","34"\n/usr/bin/pulseaudio', interfaces: ETH, route: 'Ethernet' } });
