@@ -49,6 +49,8 @@ const EXACT = {
   'No tray on this desktop: the window is minimised instead of closed': 'logNoTray',
   'Logs cleared': 'logCleared',
   'Starting protection, as it was left': 'logProtectionStartingAsLeft',
+  "Windows' own folders were missing from PATH or not first; Shroudly put them first for itself": 'logWinPathFixed',
+  'Games and apps: none of the Flatpak programs Shroudly covers is installed, so there was nothing to point at it': 'logAppsNoFlatpak',
   'This network has no internet right now: nothing connects, not even directly; Shroudly carries on when it is back': 'logOffline',
   'The internet is back': 'logOnlineAgain',
   'The settings file was damaged; the copy kept at the last start was used': 'logSettingsRestored',
@@ -107,6 +109,29 @@ function proxyTo(value, t) {
 }
 
 const PATTERNS = [
+  // The autopilot's checks, and why it does not turn Advanced mode on by
+  // itself (one line per reason, autopilot.js _notAsked).
+  [/^Autopilot: (\S+) could not be checked \((.+)\); tried again later$/, 'logAutoUncheckable', ['host', 'detail']],
+  [/^Autopilot: (\S+) is blocked on this network \((.+)\)$/, 'logAutoBlockedOn', ['service', 'detail']],
+  [/^Autopilot: (\S+) works without Shroudly on this network \((.+)\)$/, 'logAutoWorksDirect', ['host', 'detail']],
+  [/^Autopilot: (.+?) needs Advanced mode on this network(?: \(.+?\))?; it was turned off by hand on (.+?), so it is not turned on by itself; turn it on in Settings$/, 'logAutoNeedsAdvOff', ['what', 'date']],
+  [/^Autopilot: (.+?) needs Advanced mode on this network(?: \(.+?\))?; it was not allowed on (.+?), so it is not asked for by itself; turn it on in Settings$/, 'logAutoNeedsAdvDeclined', ['what', 'date']],
+  [/^Autopilot: (.+?) needs Advanced mode on this network(?: \(.+?\))?; Shroudly does not ask for permission by itself \(a setting\); turn it on in Settings$/, 'logAutoNeedsAdvNoAsk', ['what']],
+  [/^Autopilot: (.+?) needs Advanced mode on this network(?: \(.+?\))?; it could not be started earlier in this session; turn it on in Settings$/, 'logAutoNeedsAdvFailed', ['what']],
+  [/^(\S+): could not be reached \(DNS\)$/, 'logUnreachableDns', ['host']],
+  [/^(\S+): could not be reached \(connection\)$/, 'logUnreachableConn', ['host']],
+  // A rival tool, alone and with a service whose servers do not answer.
+  [/^(\S+): its servers do not answer, and (.+) is running: it changes the same connections Advanced mode does, and two of them undo each other\. Turn one of them off\.$/, 'logServiceRival', ['app', 'rival']],
+  [/^(.+) is running: it changes the same connections Advanced mode does, and two of them undo each other\. Turn one of them off\.$/, 'logRivalRunning', ['rival']],
+  // Games and apps (Flatpak programs), Discord app mode, the window.
+  [/^Games and apps: (\S+) already has a proxy of its own, left as it is$/, 'logFlatpakOwnProxy', ['app']],
+  [/^Games and apps: (\S+) could not be pointed at Shroudly$/, 'logFlatpakNotPointed', ['app']],
+  [/^Games and apps: (\S+) still has Shroudly's proxy set; run: (.+)$/, 'logFlatpakStillSet', ['app', 'cmd']],
+  [/^Games and apps: the local proxy could not start \((.+)\)$/, 'logAppsProxyFailed', ['detail']],
+  [/^Games and apps mode on: (.+) go through Shroudly$/, 'logAppsOnList', ['apps']],
+  [/^Discord app: the relay could not start \((.+)\)$/, 'logDiscordRelayFailed', ['detail']],
+  [/^Window process ended \((.+)\); reopening$/, 'logWindowReopen', ['reason']],
+  [/^Could not move Shroudly to Applications: (.+)$/, 'logMoveAppsFailed', ['detail']],
   // A DNS server of the user's own (issue #34).
   [/^Your DNS server is answering: (.+)$/, 'logCustomDnsRoutes', ['routes']],
   [/^Your DNS server (\S+) does not answer \((.+)\); Shroudly's built-in encrypted DNS answers until it does$/, 'logCustomDnsDown', ['server', 'reason']],

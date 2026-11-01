@@ -172,7 +172,10 @@ export default function Select({
       >
         {leadingIcon}
         {selected?.leading}
-        <span className="min-w-0 flex-1 truncate" lang={selected?.lang} title={String(selected?.label ?? '')}>
+        {/* Up to two lines, not cut at one: a long choice ("Automatic
+            (encrypted, ...)") was cut off in 17 languages at the smallest
+            window. */}
+        <span className="min-w-0 flex-1 line-clamp-2 leading-snug [overflow-wrap:anywhere]" lang={selected?.lang} title={String(selected?.label ?? '')}>
           {selected?.label}
         </span>
         <ChevronDownIcon
