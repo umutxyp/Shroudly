@@ -178,7 +178,7 @@ export default function Home() {
         {activeTab === 'stats'    && <StatsPanel active={active} />}
         {activeTab === 'settings' && <SettingsPanel active={active} />}
         {activeTab === 'logs'     && <LogsPanel />}
-        {activeTab === 'info'     && <InfoPanel dpiStatus={dpiStatus} version={version} supportFocus={supportFocus} />}
+        {activeTab === 'info'     && <InfoPanel version={version} supportFocus={supportFocus} />}
       </main>
 
       {/* Bottom navigation */}
