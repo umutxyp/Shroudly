@@ -11,7 +11,7 @@ import UpdateBanner from '../components/UpdateBanner';
 import Onboarding from '../components/Onboarding';
 import BlockedNotice from '../components/BlockedNotice';
 import Appearance from '../components/Appearance';
-import { SupportBanner } from '../components/Support';
+import { SupportBanner, useSupport } from '../components/Support';
 import { useUpdate } from '../components/useUpdate';
 import { ChartIcon, InfoIcon, LogsIcon, SettingsIcon, ShieldIcon } from '../components/icons';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -46,6 +46,7 @@ export default function Home() {
   const [supportFocus, setSupportFocus] = useState(0);
   const openSupport = () => { setActiveTab('info'); setSupportFocus((n) => n + 1); };
   const update = useUpdate();
+  const support = useSupport();
 
   useEffect(() => {
     const check = async () => {
@@ -110,6 +111,10 @@ export default function Home() {
   // notice: its "Later" must be there to press. Otherwise an update waits
   // while the Protection panel says what is not working yet.
   const updateFirst = !!(update && update.status === 'ready' && update.restartAt);
+  // The support card, and the quiet link under the main button: one at a
+  // time, and neither where no way of giving works (Support.js).
+  const supportCard = activeTab === 'control' && active && !notRouting && support.due && support.canPay;
+  const supportLink = support.canPay && !supportCard;
 
   const nav = [
     { id: 'control',  label: t('navProtection'), Icon: ShieldIcon },
@@ -165,7 +170,7 @@ export default function Home() {
         {updateFirst && <UpdateBanner />}
         <BlockedNotice onNavigate={setActiveTab} active={active} proxyInPanel={activeTab === 'control'} />
         {!updateFirst && !(notRouting && activeTab === 'control') && <UpdateBanner />}
-        <SupportBanner show={activeTab === 'control' && active && !notRouting} onOpen={openSupport} />
+        <SupportBanner show={supportCard} support={support} onOpen={openSupport} />
       </div>
 
       {/* Content */}
@@ -174,7 +179,7 @@ export default function Home() {
         id="main"
         className="scroll rise min-h-0 flex-1 overflow-y-auto overflow-x-hidden px-4 pb-4 sm:px-5"
       >
-        {activeTab === 'control'  && <ControlPanel dpiStatus={dpiStatus} onStatusChange={refresh} onSupport={openSupport} />}
+        {activeTab === 'control'  && <ControlPanel dpiStatus={dpiStatus} onStatusChange={refresh} onSupport={supportLink ? openSupport : null} />}
         {activeTab === 'stats'    && <StatsPanel active={active} />}
         {activeTab === 'settings' && <SettingsPanel active={active} />}
         {activeTab === 'logs'     && <LogsPanel />}

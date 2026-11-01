@@ -73,7 +73,12 @@ const slot = page.slice(page.indexOf('className="notices'), page.indexOf('</div>
 const order = ['{updateFirst && <UpdateBanner', '<BlockedNotice', '{!updateFirst', '<SupportBanner'].map((s) => slot.indexOf(s));
 t.ok(order.every((i, k) => i > 0 && (k === 0 || i > order[k - 1])),
   'a restart counting down first (its "Later"), then the problem, then the update, then the support card');
-t.ok(/show=\{activeTab === 'control' && active && !notRouting\}/.test(slot), 'no request for support while Shroudly is not working yet');
+t.ok(/show=\{supportCard\}/.test(slot) && /const supportCard = activeTab === 'control' && active && !notRouting && /.test(page),
+  'no request for support while Shroudly is not working yet');
+// The quiet link under the button: not beside the card, nor where no way of
+// giving works (UXD-30).
+t.ok(/const supportLink = support\.canPay && !supportCard;/.test(page) && /onSupport=\{supportLink \? openSupport : null\}/.test(page),
+  'one request for support at a time, and none where giving is impossible');
 
 console.log(`panel-room: ${t.count} passed`);
 process.exit(0);
