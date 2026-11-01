@@ -10,9 +10,10 @@ import java.net.Socket
  * A network's proxy (Wi-Fi settings, the network, Proxy: Manual) that points
  * at a proxy on this phone where nothing runs: every app that uses the
  * network's proxy (Chrome among them) reaches nothing. Left by a proxy app
- * that has gone, or by Shroudly's own Proxy only once it is off
- * (127.0.0.1:10808). No app may change a network's proxy, so the user is
- * told and taken to the Wi-Fi settings (MainActivity, ShroudlyProxyService).
+ * that has gone, or set for Shroudly's own Proxy only while it is off, or
+ * on a port it no longer listens on (ProxyPort). No app may change a
+ * network's proxy, so the user is told and taken to the Wi-Fi settings, or
+ * offered to turn Proxy only on (MainActivity, ShroudlyProxyService).
  */
 object ProxyCheck {
     private fun loopback(host: String?) = host != null && (host.startsWith("127.") || host == "localhost" || host == "::1" || host == "[::1]")

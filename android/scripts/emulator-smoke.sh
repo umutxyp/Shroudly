@@ -20,7 +20,8 @@
 # Before that, "DNS server": the user's own (DNS over TLS) answers the
 # engine's lookups, and one that does not answer leaves the built-in one
 # answering. After Stop everything works directly again. Then "Proxy only":
-# no VPN and no VPN consent, the engine on 127.0.0.1 for apps set to use it;
+# no VPN and no VPN consent, the engine on 127.0.0.1 for apps set to use it
+# (on the next free port while another app holds 10808, and it says so);
 # turned off while the phone's proxy still points at it, the user is told
 # to set it back. Last, the window: it tells about a phone proxy where
 # nothing runs; installed
@@ -558,11 +559,27 @@ via_socks() {
 listening() { grep -qi " 0100007F:$(printf '%04X' "$1") 00000000:0000 0A " <<<"$(sh_ "cat /proc/net/tcp")"; }
 wait_for 60 vpn_refused || fail "could not take back the VPN consent for proxy only"
 mode proxy
+# 10808 held by another app, as v2rayNG holds it while it runs (its own
+# default): Shroudly starts all the same, on the next free port, and says
+# which. Up to 2.6.43 every start failed then. Held by a listener left
+# running in the background, where this Android's shell keeps one.
+sh_ "nohup $NC -l -s 127.0.0.1 -p 10808 </dev/null >/dev/null 2>&1 &" >/dev/null
+held=0; wait_for 6 listening 10808 && held=1
 clear_log
 ctl start
 wait_for 30 has_log "Proxy only: Shroudly listens on 127.0.0.1:" || fail "proxy only did not start without the VPN consent ($(applog | grep -i 'proxy only' | tail -2 | tr '\n' ' '))"
 pport="$(applog | sed -n 's/.*Proxy only: Shroudly listens on 127\.0\.0\.1:\([0-9]*\).*/\1/p' | head -1)"
 [ -n "$pport" ] || fail "proxy only: no port in the log"
+if [ "$held" = 1 ]; then
+  [ "$pport" != 10808 ] || fail "proxy only: on 10808, which another listener held"
+  has_log "Port 10808 is taken by another app; Shroudly listens on 127.0.0.1:$pport instead" || fail "proxy only: the move off 10808 was not logged"
+  wait_for 15 eval 'grep -q "Port 10808 is used by another app" <<<"$(sh_ "dumpsys notification --noredact")"' ||
+    fail "proxy only: the notice does not say the port moved to $pport"
+  sh_ "pkill -f 'nc -l -s 127.0.0.1 -p 10808'" >/dev/null
+  say "proxy only: 10808 held by another listener; on $pport instead, and the notice says so"
+else
+  say "no listener could hold 10808 on this emulator: the port move is not checked here"
+fi
 vpn_up && fail "proxy only brought up a VPN interface"
 grep -q "VPN CONNECTED" <<<"$(sh_ "dumpsys connectivity")" && fail "proxy only: Android shows a VPN"
 listening "$pport" || fail "proxy only: nothing listens on 127.0.0.1:$pport"

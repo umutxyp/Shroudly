@@ -39,6 +39,8 @@
     <string name="androidNoInternet">تحفظ رک گیا کیونکہ Shroudly اس نیٹ ورک پر انٹرنیٹ تک نہیں پہنچ سکا، اس لیے آپ کی ایپس اب براہِ راست جڑ رہی ہیں۔ دوبارہ کوشش کرنے کے لیے Shroudly کھولیں۔</string>
     <string name="androidPrivacyPolicy">رازداری کی پالیسی</string>
     <string name="androidProtectionLost">ایک خرابی کی وجہ سے تحفظ رک گیا، اس لیے آپ کی ایپس اب براہِ راست جڑ رہی ہیں۔ اسے دوبارہ شروع کرنے کے لیے Shroudly کھولیں۔</string>
+    <string name="androidProxyOnlyLost">ایک خرابی کی وجہ سے صرف پراکسی رک گئی، اس لیے Shroudly استعمال کرنے کے لیے سیٹ ایپس نہیں جڑ پاتیں۔ اسے دوبارہ شروع کرنے کے لیے Shroudly کھولیں۔</string>
+    <string name="androidProxyOnlyMoved">پورٹ {taken} کوئی دوسری ایپ (مثلاً v2rayNG) استعمال کر رہی ہے، اس لیے Shroudly ‏127.0.0.1:{port} پر ہے۔ اپنی پراکسی پورٹ {port} پر سیٹ کریں۔</string>
     <string name="androidProxyOnlyOffWifi">«صرف پراکسی» بند ہے۔ اگر اس نیٹ ورک کی پراکسی {addr} پر سیٹ ہے تو Wi-Fi ترتیبات میں اسے واپس «کوئی نہیں» کر دیں، ورنہ اسے استعمال کرنے والی ایپس نہیں جڑ پائیں گی۔</string>
     <string name="androidProxyOnlyOn">صرف پراکسی: ‏127.0.0.1:{port} پر سیٹ ایپس Shroudly سے گزرتی ہیں</string>
     <string name="androidQuicOff">QUIC بند کریں</string>
@@ -59,6 +61,8 @@
     <string name="androidVpnRevoked">Android نے تحفظ بند کر دیا، عموماً اس لیے کہ کوئی دوسری VPN ایپ آن کی گئی۔</string>
     <string name="androidWifiProxyDead">اس نیٹ ورک کی پراکسی {addr} پر سیٹ ہے، لیکن وہاں کچھ نہیں چل رہا، اس لیے اسے استعمال کرنے والی ایپس (Chrome سمیت) نہیں جڑ پاتیں۔ Wi-Fi ترتیبات میں یہ نیٹ ورک کھولیں اور پراکسی کو «کوئی نہیں» پر سیٹ کریں۔</string>
     <string name="androidWifiProxyDeadTitle">Wi-Fi ترتیبات میں پیچھے رہ جانے والی پراکسی</string>
+    <string name="androidWifiProxyOtherPort">اس نیٹ ورک کی پراکسی {addr} پر سیٹ ہے، لیکن Shroudly اب ‏127.0.0.1:{port} پر ہے، اس لیے اسے استعمال کرنے والی ایپس نہیں جڑ پاتیں۔ Wi-Fi ترتیبات میں یہ نیٹ ورک کھولیں اور پراکسی پورٹ {port} پر سیٹ کریں۔</string>
+    <string name="androidWifiProxyShroudlyOff">اس نیٹ ورک کی پراکسی Shroudly ({addr}) پر سیٹ ہے، لیکن Shroudly بند ہے، اس لیے اسے استعمال کرنے والی ایپس (Chrome سمیت) نہیں جڑ پاتیں۔ تحفظ شروع کریں، یا Wi-Fi ترتیبات میں پراکسی کو «کوئی نہیں» پر سیٹ کریں۔</string>
     <string name="androidWifiSettings">Wi-Fi ترتیبات</string>
     <string name="autoRawBlocked">یہ نیٹ ورک {app} ایپ کے کنکشنز روک دیتا ہے، اور Shroudly کی کوئی بھی تکنیک کامیاب نہیں ہوئی۔ {app} ایپ کی اپنی پراکسی ترتیب یا کوئی VPN استعمال کریں۔</string>
     <string name="autoRawUnreachable">{app} ایپ اپنے سرورز تک نہیں پہنچ سکتی: یہ نیٹ ورک ان کے پتے بلاک کرتا ہے، اور Shroudly کسی دوسری جگہ کے سرور کے بغیر اس رکاوٹ کو پار نہیں کر سکتا۔ {app} ایپ کی اپنی پراکسی ترتیب یا کوئی VPN استعمال کریں۔</string>

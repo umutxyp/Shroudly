@@ -39,6 +39,8 @@
     <string name="androidNoInternet">Protection stopped because Shroudly could not reach the internet on this network, so your apps are connecting directly. Open Shroudly to try again.</string>
     <string name="androidPrivacyPolicy">Privacy policy</string>
     <string name="androidProtectionLost">Protection stopped because of an error, so your apps are connecting directly. Open Shroudly to start it again.</string>
+    <string name="androidProxyOnlyLost">Proxy only stopped because of an error, so apps set to use Shroudly cannot connect. Open Shroudly to start it again.</string>
+    <string name="androidProxyOnlyMoved">Port {taken} is used by another app (v2rayNG, for example), so Shroudly is on 127.0.0.1:{port}. Set your proxy to port {port}.</string>
     <string name="androidProxyOnlyOffWifi">Proxy only is off. If this network\'s proxy is set to {addr}, set it back to None in Wi-Fi settings, or apps that use it cannot connect.</string>
     <string name="androidProxyOnlyOn">Proxy only: apps set to use 127.0.0.1:{port} go through Shroudly</string>
     <string name="androidQuicOff">Turn QUIC off</string>
@@ -59,6 +61,8 @@
     <string name="androidVpnRevoked">Protection was switched off by Android, usually because another VPN app was turned on.</string>
     <string name="androidWifiProxyDead">This network\'s proxy is set to {addr}, but nothing is running there, so apps that use it (Chrome among them) cannot connect. In Wi-Fi settings, open this network and set Proxy to None.</string>
     <string name="androidWifiProxyDeadTitle">Leftover proxy in Wi-Fi settings</string>
+    <string name="androidWifiProxyOtherPort">This network\'s proxy is set to {addr}, but Shroudly is now on 127.0.0.1:{port}, so apps that use it cannot connect. In Wi-Fi settings, open this network and set the proxy port to {port}.</string>
+    <string name="androidWifiProxyShroudlyOff">This network\'s proxy is set to Shroudly ({addr}), but Shroudly is off, so apps that use it (Chrome among them) cannot connect. Start protection, or set Proxy to None in Wi-Fi settings.</string>
     <string name="androidWifiSettings">Wi-Fi settings</string>
     <string name="autoRawBlocked">This network stops {app}\'s connections, and none of Shroudly\'s techniques got through. Use {app}\'s own proxy setting or a VPN.</string>
     <string name="autoRawUnreachable">{app} cannot reach its servers: this network blocks their addresses, and Shroudly cannot get around that without a server elsewhere. Use {app}\'s own proxy setting or a VPN.</string>

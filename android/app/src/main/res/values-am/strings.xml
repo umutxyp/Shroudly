@@ -39,6 +39,8 @@
     <string name="androidNoInternet">Shroudly በዚህ አውታረ መረብ ላይ ኢንተርኔት ማግኘት ስላልቻለ ጥበቃው ቆሟል፤ ስለዚህ መተግበሪያዎችዎ አሁን በቀጥታ ይገናኛሉ። እንደገና ለመሞከር Shroudlyን ይክፈቱ።</string>
     <string name="androidPrivacyPolicy">የግላዊነት መመሪያ</string>
     <string name="androidProtectionLost">በስህተት ምክንያት ጥበቃው ቆሟል፤ ስለዚህ መተግበሪያዎችዎ አሁን በቀጥታ ይገናኛሉ። እንደገና ለማስጀመር Shroudlyን ይክፈቱ።</string>
+    <string name="androidProxyOnlyLost">ፕሮክሲ ብቻ በስህተት ምክንያት ቆሟል፤ ስለዚህ Shroudlyን እንዲጠቀሙ የተዘጋጁ መተግበሪያዎች መገናኘት አይችሉም። እንደገና ለማስጀመር Shroudlyን ይክፈቱ።</string>
+    <string name="androidProxyOnlyMoved">ወደብ {taken} በሌላ መተግበሪያ (ለምሳሌ v2rayNG) ተይዟል፤ ስለዚህ Shroudly በ127.0.0.1:{port} ላይ ነው። ፕሮክሲዎን ወደ ወደብ {port} ያቀናብሩ።</string>
     <string name="androidProxyOnlyOffWifi">ፕሮክሲ ብቻ ጠፍቷል። የዚህ አውታረ መረብ proxy ወደ {addr} ከተቀናበረ፣ በWi-Fi ቅንብሮች ውስጥ ወደ «ምንም» ይመልሱት፤ አለበለዚያ የሚጠቀሙበት መተግበሪያዎች መገናኘት አይችሉም።</string>
     <string name="androidProxyOnlyOn">ፕሮክሲ ብቻ፦ 127.0.0.1:{port} እንዲጠቀሙ የተዘጋጁ መተግበሪያዎች በShroudly ያልፋሉ</string>
     <string name="androidQuicOff">QUICን አጥፋ</string>
@@ -59,6 +61,8 @@
     <string name="androidVpnRevoked">Android ጥበቃውን አጥፍቶታል፤ ብዙ ጊዜ ሌላ የVPN መተግበሪያ ስለበራ ነው።</string>
     <string name="androidWifiProxyDead">የዚህ አውታረ መረብ proxy ወደ {addr} ተቀናብሯል፣ ግን እዚያ ምንም አይሰራም፤ ስለዚህ የሚጠቀሙበት መተግበሪያዎች (Chromeን ጨምሮ) መገናኘት አይችሉም። በWi-Fi ቅንብሮች ውስጥ ይህን አውታረ መረብ ከፍተው Proxyን «ምንም» ያድርጉት።</string>
     <string name="androidWifiProxyDeadTitle">በWi-Fi ቅንብሮች ውስጥ የቀረ proxy</string>
+    <string name="androidWifiProxyOtherPort">የዚህ አውታረ መረብ proxy ወደ {addr} ተቀናብሯል፣ ግን Shroudly አሁን በ127.0.0.1:{port} ላይ ነው፤ ስለዚህ የሚጠቀሙበት መተግበሪያዎች መገናኘት አይችሉም። በWi-Fi ቅንብሮች ውስጥ ይህን አውታረ መረብ ከፍተው የproxy ወደቡን {port} ያድርጉት።</string>
+    <string name="androidWifiProxyShroudlyOff">የዚህ አውታረ መረብ proxy ወደ Shroudly ({addr}) ተቀናብሯል፣ ግን Shroudly ጠፍቷል፤ ስለዚህ የሚጠቀሙበት መተግበሪያዎች (Chromeን ጨምሮ) መገናኘት አይችሉም። ጥበቃ ይጀምሩ፣ ወይም በWi-Fi ቅንብሮች ውስጥ Proxyን «ምንም» ያድርጉት።</string>
     <string name="androidWifiSettings">የWi-Fi ቅንብሮች</string>
     <string name="autoRawBlocked">ይህ አውታረ መረብ የ{app} መተግበሪያን ግንኙነቶች ያስቆማል፣ ከShroudly ዘዴዎችም አንዱም አላለፈም። በ{app} መተግበሪያ ውስጥ ያለውን የproxy ቅንብር ወይም VPN ይጠቀሙ።</string>
     <string name="autoRawUnreachable">የ{app} መተግበሪያ ወደ አገልጋዮቹ መድረስ አይችልም፤ ይህ አውታረ መረብ አድራሻዎቻቸውን ያግዳል፣ Shroudly ደግሞ ሌላ ቦታ ያለ አገልጋይ ከሌለው ይህን ማለፍ አይችልም። በ{app} መተግበሪያ ውስጥ ያለውን የproxy ቅንብር ወይም VPN ይጠቀሙ።</string>

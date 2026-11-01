@@ -12,7 +12,6 @@ import android.net.ConnectivityManager
 import android.net.LinkProperties
 import android.net.Network
 import android.net.NetworkCapabilities
-import android.net.NetworkRequest
 import android.net.VpnService
 import android.os.Build
 import android.os.ParcelFileDescriptor
@@ -89,7 +88,7 @@ class ShroudlyVpnService : VpnService() {
         private const val PATH_RETRY_WINDOW_MS = 10L * 60 * 1000
         // A network change is acted on once it has been quiet this long: IPv6
         // often arrives a moment after the network itself.
-        private const val NET_SETTLE_MS = 3000L
+        internal const val NET_SETTLE_MS = 3000L
         // The first look at the way through the engine, after a start, a restart
         // or a network change: long enough for the encrypted DNS to warm up.
         private const val FIRST_PATH_CHECK_MS = 3000L
@@ -203,7 +202,11 @@ class ShroudlyVpnService : VpnService() {
     // The network underneath as last seen (Network.toString(), its id) and
     // whether it had IPv6.
     private var underlyingId: String? = null
+    private var underlyingNet: Network? = null
     private var underlyingV6 = false
+    // Networks the phone moved on from while what apps opened over them
+    // still worked there (Handover): ended once one goes or stops working.
+    private val kept = HashSet<Network>()
     // Every network that could be underneath, as the callback reports them.
     private val networks = LinkedHashSet<Network>()
 
@@ -217,7 +220,7 @@ class ShroudlyVpnService : VpnService() {
     private var auth: SocksAuth? = null
     private var authFile: File? = null
     private var v6Routed = false
-    private var network: ConnectivityManager.NetworkCallback? = null
+    private var network: NetWatch? = null
     // Uptime of the oldest STATS not answered yet (0: none), and of the last one sent.
     private var probeSentAt = 0L
     private var lastProbeAt = 0L
@@ -285,7 +288,7 @@ class ShroudlyVpnService : VpnService() {
             ACTION_STATS -> {
                 later { logStats() }
                 if (!active && Protection.state == Protection.State.OFF) stopSelf()
-                return START_NOT_STICKY
+                return stickyWhileOn()
             }
             ACTION_SETTINGS -> {
                 if (active) when (intent.getStringExtra("what")) {
@@ -317,17 +320,17 @@ class ShroudlyVpnService : VpnService() {
                     }
                 }
                 if (!active && Protection.state == Protection.State.OFF) stopSelf()
-                return START_NOT_STICKY
+                return stickyWhileOn()
             }
             ACTION_ADBLOCK -> {
                 if (active) { applyAdblock(); refreshAdblockSoon(0) }
                 if (!active && Protection.state == Protection.State.OFF) stopSelf()
-                return START_NOT_STICKY
+                return stickyWhileOn()
             }
             ACTION_TEST -> {
                 if (BuildConfig.DEBUG) later { test(intent.getStringExtra("what")) }
                 if (!active && Protection.state == Protection.State.OFF) stopSelf()
-                return START_NOT_STICKY
+                return stickyWhileOn()
             }
             // ACTION_START, the system's always-on VPN, or a restart after the
             // process was killed (START_STICKY): all mean "be on".
@@ -335,6 +338,12 @@ class ShroudlyVpnService : VpnService() {
         }
         return START_STICKY
     }
+
+    /* Should Android end the app, it starts this service again only if the
+     * last start's answer asked for it: one for a setting while protection
+     * is on (START_NOT_STICKY up to 2.6.43) took back the START_STICKY of
+     * the start itself, and protection stayed off. */
+    private fun stickyWhileOn() = if (active) START_STICKY else START_NOT_STICKY
 
     override fun onRevoke() {
         // Another VPN app took over, or the user switched this one off in Settings.
@@ -464,6 +473,7 @@ class ShroudlyVpnService : VpnService() {
             underlyingV6 = Net.hasIpv6(under?.second)
             v6Routed = routesV6(underlyingV6)
             underlyingId = under?.first?.toString()
+            underlyingNet = under?.first
             val pfd = establish(v6Routed) ?: throw StartError("VPN permission is missing", R.string.androidVpnDenied)
             tun = pfd
             startTunnel()
@@ -928,24 +938,13 @@ class ShroudlyVpnService : VpnService() {
         return best
     }
 
-    /* Every network that could be underneath (not a VPN, with internet):
-     * any change in them is looked at once things have settled. */
+    /* Every network that could be underneath (not a VPN, with internet),
+     * and the phone's default one (NetWatch): any change in them is looked
+     * at once things have settled. */
     private fun watchNetwork(cm: ConnectivityManager) {
-        val request = NetworkRequest.Builder()
-            .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
-            .addCapability(NetworkCapabilities.NET_CAPABILITY_NOT_VPN)
-            .build()
-        val cb = object : ConnectivityManager.NetworkCallback() {
-            override fun onAvailable(net: Network) = later { networks += net; onNetwork() }
-            override fun onLinkPropertiesChanged(net: Network, lp: LinkProperties) = later { onNetwork() }
-            override fun onLost(net: Network) = later { networks -= net; onNetwork() }
-        }
-        try {
-            cm.registerNetworkCallback(request, cb)
-            network = cb
-        } catch (e: Exception) {
-            log("Cannot follow network changes: ${e.message}")
-        }
+        val w = NetWatch(::later, { networks += it }, { networks -= it }, ::onNetwork)
+        network = w
+        w.start(cm)?.let { log("Cannot follow network changes: $it") }
     }
 
     private fun onNetwork() {
@@ -963,12 +962,21 @@ class ShroudlyVpnService : VpnService() {
         val now = underlying(cm)
         val id = now?.first?.toString()
         val v6 = Net.hasIpv6(now?.second)
-        if (id == underlyingId && v6 == underlyingV6) return
+        // A network the phone moved on from, where apps' connections were
+        // kept (below), that has gone or no longer reaches the internet.
+        val keptGone = kept.filter { Handover.keptEnds(Handover.look(cm, it)) }
+        if (id == underlyingId && v6 == underlyingV6) {
+            if (keptGone.isNotEmpty()) endOldConnections("The network apps' connections were kept on has gone or no longer reaches the internet: they are ended, so they connect again")
+            return
+        }
         // Another network, or one back after none (not just its IPv6).
         val changed = id != underlyingId
+        val old = underlyingNet
         underlyingId = id
+        underlyingNet = now?.first
         underlyingV6 = v6
         if (now == null) {
+            kept.clear()
             log("Network: none")
             // A phone that turns the network off at lock may end apps then
             // too: should it end this one, it comes back with the network.
@@ -987,7 +995,14 @@ class ShroudlyVpnService : VpnService() {
             renewInterface(routesV6(v6))
             return
         }
-        if (changed) endOldConnections()
+        // What was opened over the old network is ended, unless it still
+        // works there (Handover): then it is kept until that network goes.
+        if (changed && keptGone.isEmpty() && old != null && !Handover.endsOld(Handover.look(cm, old), Handover.look(cm, now.first))) {
+            kept += old
+            log("The network before (${Net.describe(cm, old)}) still works: apps' connections over it are kept until it goes")
+            return
+        }
+        if (changed || keptGone.isNotEmpty()) endOldConnections()
     }
 
     /* Another network: apps' connections through the tunnel were carried
@@ -998,9 +1013,10 @@ class ShroudlyVpnService : VpnService() {
      * them, and nothing came until protection was turned off and on (a
      * user's report). A new tunnel ends every one of them, and the apps
      * connect again over the new network. */
-    private fun endOldConnections() {
+    private fun endOldConnections(line: String = "Network changed: apps' connections over the old one are ended, so they connect again") {
+        kept.clear()
         if (!tunnelRunning || engine == null) return
-        log("Network changed: apps' connections over the old one are ended, so they connect again")
+        log(line)
         stopTunnel()
         if (restartProcess) {
             wedged("the tunnel did not stop after the network changed")
@@ -1026,6 +1042,8 @@ class ShroudlyVpnService : VpnService() {
         }
         val old = tun
         stopTunnel()
+        // A new tunnel ends every connection apps had: none is kept anywhere.
+        kept.clear()
         tun = fresh
         v6Routed = v6
         // While the engine is being restarted, the restart starts the tunnel.
@@ -1409,10 +1427,10 @@ class ShroudlyVpnService : VpnService() {
         Protection.trouble(0)
         netCheck?.cancel(false); netCheck = null
         underlyingId = null
+        underlyingNet = null
+        kept.clear()
         networks.clear()
-        network?.let { cb ->
-            try { getSystemService(ConnectivityManager::class.java).unregisterNetworkCallback(cb) } catch (_: Exception) {}
-        }
+        network?.stop(getSystemService(ConnectivityManager::class.java))
         network = null
         stopTunnel()
         try { tun?.close() } catch (_: Exception) {}

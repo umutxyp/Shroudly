@@ -35,6 +35,9 @@ object Protection {
     /* Proxy only (ShroudlyProxyService): no VPN, apps that are set to use
      * 127.0.0.1:socksPort go through Shroudly; the VPN slot stays free. */
     @Volatile var proxyOnly = false
+    /* Proxy only, while on: the port it asked for first and found held by
+     * another app (ProxyPort), 0 when it got it. */
+    @Volatile var proxyPortTaken = 0
     /* The window is on screen (between its onStart and onStop). */
     @Volatile var windowVisible = false
 
@@ -44,7 +47,7 @@ object Protection {
     fun set(s: State) {
         state = s
         if (s == State.STARTING) { errorRes = 0; errorDetail = null }
-        if (s != State.ON) { socksPort = 0; socksAuth = null }
+        if (s != State.ON) { socksPort = 0; socksAuth = null; proxyPortTaken = 0 }
         if (s == State.OFF) { stats = null; startedAt = 0; proxyOnly = false }
         changed()
     }

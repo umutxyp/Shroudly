@@ -236,7 +236,7 @@ class SettingsActivity : Activity() {
             isChecked = on == proxy
         }
         group.addView(option(false, R.string.androidModeVpn, getString(R.string.androidModeVpnDesc)))
-        group.addView(option(true, R.string.androidModeProxy, text(R.string.androidModeProxyDesc, "port" to ShroudlyProxyService.PORT)))
+        group.addView(option(true, R.string.androidModeProxy, text(R.string.androidModeProxyDesc, "port" to ProxyPort.shown(this))))
         redraw[R.id.modeTitle] = { for ((b, t) in options) b.text = t() }
         group.setOnCheckedChangeListener { g, checkedId ->
             val on = g.findViewById<RadioButton>(checkedId)?.tag as? Boolean ?: return@setOnCheckedChangeListener

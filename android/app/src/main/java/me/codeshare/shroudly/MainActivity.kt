@@ -203,6 +203,7 @@ class MainActivity : Activity() {
         if (Accent.id(this) != accentShown || Lang.chosen(this) != langShown) { recreate(); return }
         Protection.windowVisible = true
         ShroudlyVpnService.clearAlert(this)
+        ShroudlyProxyService.clearAlert(this)
         Protection.listen(onChange)
         orb.resume()
         main.post(ticker)
@@ -286,6 +287,7 @@ class MainActivity : Activity() {
                 vpnDenied = false
                 Protection.clearError()
                 ShroudlyVpnService.clearAlert(this)
+                ShroudlyProxyService.clearAlert(this)
                 askNotificationsThenStart()
             }
             else -> {}
@@ -412,7 +414,7 @@ class MainActivity : Activity() {
                 detail.show(when {
                     !on -> getString(R.string.dpiBypassStopped)
                     // Proxy only: where apps are to be pointed.
-                    Protection.proxyOnly -> text(R.string.androidProxyOnlyOn, "port" to Protection.socksPort)
+                    Protection.proxyOnly -> ProxyPort.onText(this, Protection.socksPort)
                     else -> getString(R.string.androidAllApps)
                 })
                 detail.setTextColor(getColor(R.color.text_dim))
@@ -499,20 +501,48 @@ class MainActivity : Activity() {
      * the setting. */
     /* A network's proxy pointing at a proxy on this phone where nothing runs
      * (ProxyCheck): told once a run, with the way to the Wi-Fi settings,
-     * where only the user may change it. */
+     * where only the user may change it. Where it is Shroudly's own port in
+     * Proxy only (ProxyPort), set there for it, the proxy is no leftover:
+     * while Shroudly is off (the phone restarted, Android ended it), turning
+     * it on is what makes those apps work again; while it is on another
+     * port (the one it asked for was held), that port is the one to set. */
     private fun checkNetworkProxy() {
         Thread({
             val dead = try { ProxyCheck.deadLocal(this) } catch (_: Exception) { null } ?: return@Thread
             main.post {
                 if (isFinishing || isDestroyed || !deadProxyTold.add(dead)) return@post
-                ShroudlyVpnService.log("A network's proxy points at $dead on this phone, where nothing is running; apps that use it cannot connect")
+                val ours = AppSettings.proxyOnly(this) && ProxyPort.ours(this, dead.substringAfterLast(':').toIntOrNull() ?: 0)
+                val st = Protection.state
+                // Starting or stopping, or the VPN still on (Proxy only is
+                // chosen for the next start): looked at again next time.
+                if (ours && st != Protection.State.OFF && !(st == Protection.State.ON && Protection.proxyOnly)) { deadProxyTold.remove(dead); return@post }
                 try {
-                    AlertDialog.Builder(this)
-                        .setTitle(R.string.androidWifiProxyDeadTitle)
-                        .setMessage(text(R.string.androidWifiProxyDead, "addr" to dead))
-                        .setPositiveButton(R.string.androidWifiSettings) { _, _ -> openWifiSettings(this) }
-                        .setNegativeButton(R.string.updLater, null)
-                        .show()
+                    val d = AlertDialog.Builder(this)
+                    when {
+                        ours && st == Protection.State.OFF -> {
+                            ShroudlyVpnService.log("A network's proxy points at $dead, Shroudly's own port, while Proxy only is off; apps that use it cannot connect")
+                            d.setTitle(R.string.notProtected)
+                                .setMessage(text(R.string.androidWifiProxyShroudlyOff, "addr" to dead))
+                                .setPositiveButton(R.string.start) { _, _ -> if (Protection.state == Protection.State.OFF) onToggle() }
+                                .setNeutralButton(R.string.androidWifiSettings) { _, _ -> openWifiSettings(this) }
+                                .setNegativeButton(R.string.updLater, null)
+                        }
+                        ours -> {
+                            ShroudlyVpnService.log("A network's proxy points at $dead, where Shroudly listened before; it is on 127.0.0.1:${Protection.socksPort} now")
+                            d.setTitle(R.string.androidWifiProxyDeadTitle)
+                                .setMessage(text(R.string.androidWifiProxyOtherPort, "addr" to dead, "port" to Protection.socksPort))
+                                .setPositiveButton(R.string.androidWifiSettings) { _, _ -> openWifiSettings(this) }
+                                .setNegativeButton(R.string.updLater, null)
+                        }
+                        else -> {
+                            ShroudlyVpnService.log("A network's proxy points at $dead on this phone, where nothing is running; apps that use it cannot connect")
+                            d.setTitle(R.string.androidWifiProxyDeadTitle)
+                                .setMessage(text(R.string.androidWifiProxyDead, "addr" to dead))
+                                .setPositiveButton(R.string.androidWifiSettings) { _, _ -> openWifiSettings(this) }
+                                .setNegativeButton(R.string.updLater, null)
+                        }
+                    }
+                    d.show()
                 } catch (_: Exception) {}
             }
         }, "proxy-check").apply { isDaemon = true }.start()

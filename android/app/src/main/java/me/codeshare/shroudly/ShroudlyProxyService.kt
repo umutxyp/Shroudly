@@ -9,8 +9,6 @@ import android.content.Intent
 import android.content.pm.ServiceInfo
 import android.net.ConnectivityManager
 import android.net.Network
-import android.net.NetworkCapabilities
-import android.net.NetworkRequest
 import android.os.Build
 import android.os.IBinder
 import android.os.SystemClock
@@ -39,15 +37,14 @@ class ShroudlyProxyService : Service() {
     companion object {
         const val ACTION_START = "me.codeshare.shroudly.PROXY_START"
         const val ACTION_STOP = "me.codeshare.shroudly.PROXY_STOP"
-        /* The port shown in Settings and in the notification; another one is
-         * taken when something else holds it. */
-        const val PORT = 10808
         // Its own notice: never the VPN's (ShroudlyVpnService.NOTIFICATION_ID),
         // so taking this one away never takes that one too.
         private const val NOTIFICATION_ID = 4
         // The reminder that a network's proxy still points here (6: 5 is the
         // automation apps' notice).
         private const val WIFI_NOTICE_ID = 6
+        // Ended by itself, while no window said so (notifyStopped).
+        private const val STOPPED_NOTICE_ID = 8
 
         fun start(ctx: Context) {
             ctx.startForegroundService(Intent(ctx, ShroudlyProxyService::class.java).setAction(ACTION_START))
@@ -56,6 +53,12 @@ class ShroudlyProxyService : Service() {
         fun stop(ctx: Context) {
             if (Protection.state == Protection.State.OFF) return
             ctx.startService(Intent(ctx, ShroudlyProxyService::class.java).setAction(ACTION_STOP))
+        }
+
+        /* The window is open, or protection on again: the notice that it
+         * ended by itself has been seen to. */
+        fun clearAlert(ctx: Context) {
+            try { ctx.getSystemService(android.app.NotificationManager::class.java)?.cancel(STOPPED_NOTICE_ID) } catch (_: Exception) {}
         }
     }
 
@@ -80,9 +83,13 @@ class ShroudlyProxyService : Service() {
     @Volatile private var active = false
     // The networks underneath (with internet, not a VPN): when the last one
     // goes, KeepOn waits for one to bring protection back (issue #39), as in
-    // VPN mode.
-    private var network: ConnectivityManager.NetworkCallback? = null
+    // VPN mode. And the phone's network as last looked at, with those it
+    // moved on from while apps' connections still worked there (Handover).
+    private var network: NetWatch? = null
     private val networks = HashSet<Network>()
+    private var current: Network? = null
+    private val kept = HashSet<Network>()
+    private var netCheck: ScheduledFuture<*>? = null
 
     override fun onBind(intent: Intent?): IBinder? = null
 
@@ -101,13 +108,13 @@ class ShroudlyProxyService : Service() {
             ShroudlyVpnService.ACTION_ADBLOCK -> {
                 work.execute { if (active) { applyAdblock(); refreshAdblockSoon() } }
                 if (!active && Protection.state == Protection.State.OFF) stopSelf()
-                return START_NOT_STICKY
+                return if (active) START_STICKY else START_NOT_STICKY
             }
             // The counters in the app's log (debug control, the emulator tests).
             ShroudlyVpnService.ACTION_STATS -> {
                 work.execute { if (active) { engine?.send("STATS"); work.schedule({ logStats() }, 500, TimeUnit.MILLISECONDS) } }
                 if (!active && Protection.state == Protection.State.OFF) stopSelf()
-                return START_NOT_STICKY
+                return if (active) START_STICKY else START_NOT_STICKY
             }
             // Debug builds: the engine's run returns, as if it had crashed.
             ShroudlyVpnService.ACTION_TEST -> {
@@ -115,7 +122,7 @@ class ShroudlyProxyService : Service() {
                     if (active) { log("test: stopping the engine under the service"); engine?.send("STOP") }
                 }
                 if (!active && Protection.state == Protection.State.OFF) stopSelf()
-                return START_NOT_STICKY
+                return if (active) START_STICKY else START_NOT_STICKY
             }
             // A new technique (Settings): the engine again, on the same port.
             ShroudlyVpnService.ACTION_SETTINGS -> {
@@ -124,18 +131,32 @@ class ShroudlyProxyService : Service() {
                 // Another DNS server: from the next lookup on, nothing restarted.
                 if (intent.getStringExtra("what") == "dns") work.execute { if (active) { doh?.setCustom(AppSettings.customDns(this), AppSettings.customDnsStrict(this)); engine?.send(if (AppSettings.customDnsStrict(this)) "DNS-STRICT 1" else "DNS-STRICT 0"); engine?.send("DNS-CLEAR") } }
                 if (!active && Protection.state == Protection.State.OFF) stopSelf()
-                return START_NOT_STICKY
+                return if (active) START_STICKY else START_NOT_STICKY
             }
         }
+        // Android started it again after it ended the app (low on memory, a
+        // cleaner; START_STICKY below): on again only if the user has not
+        // turned it off, nor chosen the VPN, since. A network's proxy that
+        // points here reaches nothing while it is off, so apps that use it
+        // would have no connection at all.
+        val again = intent == null
+        if (again && (!KeepOn.wanted(this) || !AppSettings.proxyOnly(this) || active)) {
+            if (!active) stopSelf()
+            return if (active) START_STICKY else START_NOT_STICKY
+        }
+        if (again) log("Android started Proxy only again after it ended the app")
         // A start owes Android the foreground at once (a second start while
         // on keeps the notice as it is).
         if (goForeground(starting = !active) != null) {
-            Protection.fail(R.string.androidProtectionLost, "Android refused the foreground service")
+            // From the background Android may refuse it (Android 12+, unless
+            // the app's battery use is unrestricted): a notice offers it.
+            if (again) KeepOn.offer(this)
+            else Protection.fail(R.string.androidProxyOnlyLost, "Android refused the foreground service")
             stopSelf()
             return START_NOT_STICKY
         }
         work.execute { startAll() }
-        return START_NOT_STICKY
+        return START_STICKY
     }
 
     private fun log(msg: String) = ShroudlyVpnService.log(msg)
@@ -163,16 +184,20 @@ class ShroudlyProxyService : Service() {
             d.setCustom(AppSettings.customDns(this), AppSettings.customDnsStrict(this))
             dohPort = try { d.start() } catch (e: Exception) { log("Encrypted DNS unavailable: ${e.message}"); 0 }
             doh = if (dohPort > 0) d else null
-            port = spawn()
+            val wanted = ProxyPort.remembered(this)
+            port = spawn(wanted)
+            ProxyPort.remember(this, port)
             active = true
             restarts = 0
             poll = work.scheduleWithFixedDelay({ tick() }, 1, 1, TimeUnit.SECONDS)
             Protection.startedAt = SystemClock.elapsedRealtime()
             Protection.set(Protection.State.ON)
             KeepOn.on(this)
+            clearAlert(this)
             Protection.proxyOnly = true
             Protection.socksPort = port
             Protection.socksAuth = null
+            Protection.proxyPortTaken = if (port != wanted) wanted else 0
             watchNetwork()
             log("Proxy only: Shroudly listens on 127.0.0.1:$port (SOCKS5 and HTTP); the VPN slot is left free")
             OnlineCount.sync(this)
@@ -183,34 +208,38 @@ class ShroudlyProxyService : Service() {
             log("Proxy only: could not start: ${e.message}")
             cleanup()
             Protection.set(Protection.State.OFF)
-            Protection.fail(R.string.androidProtectionLost, e.message)
+            Protection.fail(R.string.androidProxyOnlyLost, e.message)
+            notifyStopped()
             stopForeground(STOP_FOREGROUND_REMOVE)
             stopSelf()
             refreshTile()
         }
     }
 
-    /* The engine on `first` (PORT, or the port it had before a restart, which
-     * apps are set to), or on another free port when that one is taken. */
-    private fun spawn(first: Int = PORT): Int {
+    /* The engine on `first` (the port apps are set to: the one used last,
+     * or the one it had before a restart), or on the next free one close by
+     * when another app holds it (ProxyPort), or any free one at last. */
+    private fun spawn(first: Int): Int {
         val blockIps = try {
             assets.open("block-ips.txt").bufferedReader().readLines().map { it.trim() }.filter { it.isNotEmpty() && !it.startsWith("#") }
         } catch (_: Exception) { emptyList() }
-        for (attempt in 0..3) {
-            val p = if (attempt == 0) first else Engine.freePort()
+        val ports = ProxyPort.candidates(first).asSequence().filter { ProxyPort.free(it) } + generateSequence { Engine.freePort() }.take(2)
+        val p = ProxyPort.listenOn(ports) { at ->
             val e = Engine(::log, ShroudlyVpnService::logSite, ::onEvent, ::onExit)
             engine = e
             // No password and no stand-in range: apps reach it by name or address.
-            if (e.start(Engine.args(p, dohPort, blockIps, null, null, AdBlock.listFile(this), AdBlock.allow(this), AppSettings.strategy(this), AppSettings.customDnsStrict(this), AppSettings.quicOff(this), AppSettings.ipv6Off(this)))) {
-                doh?.socksPort = p
+            if (e.start(Engine.args(at, dohPort, blockIps, null, null, AdBlock.listFile(this), AdBlock.allow(this), AppSettings.strategy(this), AppSettings.customDnsStrict(this), AppSettings.quicOff(this), AppSettings.ipv6Off(this)))) {
+                doh?.socksPort = at
                 doh?.socksAuth = null
-                return p
+                ProxyPort.Tried(ok = true)
+            } else {
+                engine = null
+                // A run that would not stop holds the engine's state: no other can start.
+                ProxyPort.Tried(ok = false, stillRunning = e.running || Engine.busy, error = e.lastError)
             }
-            engine = null
-            if (!e.running) throw IllegalStateException(e.lastError ?: "the engine did not start")
-            log("Port $p is taken; trying another")
         }
-        throw IllegalStateException("no port for the engine")
+        if (p != first) log("Port $first is taken by another app; Shroudly listens on 127.0.0.1:$p instead")
+        return p
     }
 
     private fun onEvent(ev: EngineEvent) {
@@ -328,7 +357,13 @@ class ShroudlyProxyService : Service() {
         try {
             port = spawn(before)
             Protection.socksPort = port
-            if (port != before) { log("Port $before could not be had back; now 127.0.0.1:$port"); goForeground(starting = false) }
+            // Taken meanwhile by another app (spawn said which port it is on now).
+            if (port != before) {
+                ProxyPort.remember(this, port)
+                Protection.proxyPortTaken = before
+                Protection.changed()
+                goForeground(starting = false)
+            }
         } catch (x: Exception) {
             log("Restart failed: ${x.message}")
             stopAll(byUser = false, why = "the engine could not start again: ${x.message}")
@@ -344,10 +379,10 @@ class ShroudlyProxyService : Service() {
         OnlineCount.stop(leave = byUser, port = port, auth = null)
         cleanup()
         Protection.set(Protection.State.OFF)
-        if (!byUser) Protection.fail(R.string.androidProtectionLost, why ?: "the engine kept stopping")
+        if (!byUser) Protection.fail(R.string.androidProxyOnlyLost, why ?: "the engine kept stopping")
         log("Proxy only: off")
         stopForeground(STOP_FOREGROUND_REMOVE)
-        if (byUser) remindNetworkProxy(was)
+        if (byUser) remindNetworkProxy(was) else notifyStopped()
         stopSelf()
         refreshTile()
     }
@@ -358,7 +393,7 @@ class ShroudlyProxyService : Service() {
      * sets it back to None, which only they can. Said in a notice that opens
      * the Wi-Fi settings. */
     private fun remindNetworkProxy(was: Int) {
-        val addr = listOf(was, PORT).filter { it > 0 }.distinct().firstNotNullOfOrNull { ProxyCheck.pointsAt(this, it) } ?: return
+        val addr = listOf(was, ProxyPort.remembered(this), ProxyPort.DEFAULT).filter { it > 0 }.distinct().firstNotNullOfOrNull { ProxyCheck.pointsAt(this, it) } ?: return
         log("Proxy only is off, and a network's proxy still points at $addr")
         try {
             ShroudlyVpnService.channels(this)
@@ -382,11 +417,39 @@ class ShroudlyProxyService : Service() {
         }
     }
 
+    /* Ended by itself (an engine that kept stopping, a start that failed):
+     * apps set to use it now reach nothing, unlike the VPN's, which then
+     * connect directly. Said in a notice, since the window may not be open;
+     * a tap opens it, where Start turns it on again. */
+    private fun notifyStopped() {
+        if (Protection.windowVisible) return
+        try {
+            ShroudlyVpnService.channels(this)
+            val body = getString(R.string.androidProxyOnlyLost)
+            val n = Notification.Builder(this, ShroudlyVpnService.ALERT_CHANNEL)
+                .setSmallIcon(R.drawable.ic_shield)
+                .setContentTitle(getString(R.string.protectionStopped))
+                .setContentText(body)
+                .setStyle(Notification.BigTextStyle().bigText(body))
+                .setContentIntent(ShroudlyVpnService.openApp(this))
+                .setAutoCancel(true)
+                .setCategory(Notification.CATEGORY_ERROR)
+                .setColor(getColor(R.color.danger))
+                .build()
+            getSystemService(android.app.NotificationManager::class.java).notify(STOPPED_NOTICE_ID, n)
+        } catch (e: Exception) {
+            log("Could not post the notice: ${e.message}")
+        }
+    }
+
     private fun cleanup() {
         active = false
-        network?.let { cb -> try { getSystemService(ConnectivityManager::class.java).unregisterNetworkCallback(cb) } catch (_: Exception) {} }
+        network?.stop(getSystemService(ConnectivityManager::class.java))
         network = null
         networks.clear()
+        current = null
+        kept.clear()
+        netCheck?.cancel(false); netCheck = null
         poll?.cancel(false); poll = null
         restartCredit?.cancel(false); restartCredit = null
         probeSentAt = 0
@@ -399,30 +462,62 @@ class ShroudlyProxyService : Service() {
 
     /* A phone that turns Wi-Fi and mobile data off at lock may end apps then
      * too: should it end this one, KeepOn's job brings it back with the
-     * network. Kept to the service's own thread. */
+     * network. And the phone moving to another network (NetWatch, Handover),
+     * looked at once things have settled. Kept to the service's own thread. */
     private fun watchNetwork() {
-        val request = NetworkRequest.Builder()
-            .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
-            .addCapability(NetworkCapabilities.NET_CAPABILITY_NOT_VPN)
-            .build()
-        val cb = object : ConnectivityManager.NetworkCallback() {
-            // Encrypted DNS opens new connections on another network (DohForwarder.networkChanged).
-            override fun onAvailable(net: Network) = later { networks += net; if (active) doh?.networkChanged() }
-            override fun onLost(net: Network) = later {
-                networks -= net
-                if (active && networks.isNotEmpty()) doh?.networkChanged()
-                if (active && networks.isEmpty()) {
-                    log("Network: none")
-                    KeepOn.networkGone(this@ShroudlyProxyService)
-                }
+        val cm = getSystemService(ConnectivityManager::class.java)
+        current = try { cm.activeNetwork } catch (_: Exception) { null }
+        val w = NetWatch(::later, { networks += it }, { net ->
+            networks -= net
+            if (active && networks.isEmpty()) {
+                log("Network: none")
+                KeepOn.networkGone(this@ShroudlyProxyService)
             }
+        }, ::onNetwork)
+        network = w
+        w.start(cm)?.let { log("Cannot follow network changes: $it") }
+    }
+
+    private fun onNetwork() {
+        if (!active) return
+        netCheck?.cancel(false)
+        netCheck = try { work.schedule({ onNetworkSettled() }, ShroudlyVpnService.NET_SETTLE_MS, TimeUnit.MILLISECONDS) } catch (_: RejectedExecutionException) { null }
+    }
+
+    /* The phone's network (this app's default one: the network itself, or
+     * another VPN app's, which then carries the engine's connections and
+     * follows the network itself). On another, encrypted DNS opens new
+     * connections (DohForwarder.networkChanged), and what apps opened
+     * through the engine over the old one is ended, as in VPN mode, unless
+     * it still works there (Handover): the engine starts again on its port,
+     * which ends them, and apps connect again. */
+    private fun onNetworkSettled() {
+        netCheck = null
+        if (!active) return
+        val cm = getSystemService(ConnectivityManager::class.java)
+        val now = try { cm.activeNetwork } catch (_: Exception) { null }
+        val keptGone = kept.any { Handover.keptEnds(Handover.look(cm, it)) }
+        if (now == current) {
+            if (keptGone) endOldConnections("The network apps' connections were kept on has gone or no longer reaches the internet")
+            return
         }
-        try {
-            getSystemService(ConnectivityManager::class.java).registerNetworkCallback(request, cb)
-            network = cb
-        } catch (e: Exception) {
-            log("Cannot follow network changes: ${e.message}")
+        val old = current
+        current = now
+        if (now == null) { kept.clear(); return }
+        log("Network: ${Net.describe(cm, now)}")
+        doh?.networkChanged()
+        if (!keptGone && old != null && !Handover.endsOld(Handover.look(cm, old), Handover.look(cm, now))) {
+            kept += old
+            log("The network before (${Net.describe(cm, old)}) still works: apps' connections over it are kept until it goes")
+            return
         }
+        endOldConnections("Network changed: apps' connections over the old one are ended, so they connect again")
+    }
+
+    private fun endOldConnections(line: String) {
+        kept.clear()
+        log(line)
+        restartEngine("restarted on its port, so apps' connections end")
     }
 
     private fun later(f: () -> Unit) {
@@ -488,7 +583,7 @@ class ShroudlyProxyService : Service() {
             this, 2, Intent(this, ShroudlyProxyService::class.java).setAction(ACTION_STOP),
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
         )
-        val text = if (starting) getString(R.string.starting) else text(R.string.androidProxyOnlyOn, "port" to (if (port > 0) port else PORT))
+        val text = if (starting) getString(R.string.starting) else ProxyPort.onText(this, if (port > 0) port else ProxyPort.remembered(this))
         val n = Notification.Builder(this, ShroudlyVpnService.CHANNEL)
             .setSmallIcon(R.drawable.ic_shield)
             .setContentTitle(getString(if (starting) R.string.starting else R.string.protected_))

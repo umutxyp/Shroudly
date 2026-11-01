@@ -39,6 +39,8 @@
     <string name="androidNoInternet">Bảo vệ đã dừng vì Shroudly không thể kết nối Internet trên mạng này, vì vậy các ứng dụng của bạn hiện đang kết nối trực tiếp. Mở Shroudly để thử lại.</string>
     <string name="androidPrivacyPolicy">Chính sách quyền riêng tư</string>
     <string name="androidProtectionLost">Bảo vệ đã dừng do lỗi, vì vậy các ứng dụng của bạn hiện đang kết nối trực tiếp. Mở Shroudly để bật lại.</string>
+    <string name="androidProxyOnlyLost">Chế độ Chỉ proxy đã dừng do lỗi, nên các ứng dụng được đặt để dùng Shroudly không kết nối được. Mở Shroudly để bật lại.</string>
+    <string name="androidProxyOnlyMoved">Cổng {taken} đang được ứng dụng khác dùng (ví dụ v2rayNG), nên Shroudly chạy ở 127.0.0.1:{port}. Hãy đặt proxy của bạn sang cổng {port}.</string>
     <string name="androidProxyOnlyOffWifi">Chỉ proxy đã tắt. Nếu proxy của mạng này được đặt là {addr}, hãy đặt lại thành Không có trong cài đặt Wi-Fi, nếu không các ứng dụng dùng nó sẽ không kết nối được.</string>
     <string name="androidProxyOnlyOn">Chỉ proxy: các ứng dụng đặt 127.0.0.1:{port} đi qua Shroudly</string>
     <string name="androidQuicOff">Tắt QUIC</string>
@@ -59,6 +61,8 @@
     <string name="androidVpnRevoked">Android đã tắt bảo vệ, thường là vì một ứng dụng VPN khác vừa được bật.</string>
     <string name="androidWifiProxyDead">Proxy của mạng này được đặt là {addr}, nhưng không có gì chạy ở đó, nên các ứng dụng dùng nó (kể cả Chrome) không kết nối được. Trong cài đặt Wi-Fi, mở mạng này và đặt Proxy thành Không có.</string>
     <string name="androidWifiProxyDeadTitle">Proxy bị bỏ lại trong cài đặt Wi-Fi</string>
+    <string name="androidWifiProxyOtherPort">Proxy của mạng này được đặt là {addr}, nhưng Shroudly hiện chạy ở 127.0.0.1:{port}, nên các ứng dụng dùng nó không kết nối được. Trong cài đặt Wi-Fi, mở mạng này và đặt cổng proxy thành {port}.</string>
+    <string name="androidWifiProxyShroudlyOff">Proxy của mạng này được đặt là Shroudly ({addr}), nhưng Shroudly đang tắt, nên các ứng dụng dùng nó (kể cả Chrome) không kết nối được. Hãy bật bảo vệ, hoặc đặt Proxy thành Không có trong cài đặt Wi-Fi.</string>
     <string name="androidWifiSettings">Cài đặt Wi-Fi</string>
     <string name="autoRawBlocked">Mạng này chặn các kết nối của {app}, và không kỹ thuật nào của Shroudly vượt qua được. Hãy dùng cài đặt proxy riêng của {app} hoặc VPN.</string>
     <string name="autoRawUnreachable">{app} không thể kết nối tới máy chủ của nó: mạng này chặn địa chỉ của các máy chủ đó, và Shroudly không thể vượt qua nếu không có một máy chủ ở nơi khác. Hãy dùng cài đặt proxy riêng của {app} hoặc VPN.</string>

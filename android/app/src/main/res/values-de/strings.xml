@@ -39,6 +39,8 @@
     <string name="androidNoInternet">Der Schutz wurde beendet, weil Shroudly in diesem Netz das Internet nicht erreicht hat. Deine Apps verbinden sich jetzt direkt. Öffne Shroudly, um es erneut zu versuchen.</string>
     <string name="androidPrivacyPolicy">Datenschutzerklärung</string>
     <string name="androidProtectionLost">Der Schutz wurde wegen eines Fehlers beendet, deine Apps verbinden sich jetzt direkt. Öffne Shroudly, um ihn wieder zu starten.</string>
+    <string name="androidProxyOnlyLost">Nur Proxy wurde wegen eines Fehlers beendet, daher kommen Apps, die Shroudly nutzen, nicht mehr durch. Öffne Shroudly, um es wieder zu starten.</string>
+    <string name="androidProxyOnlyMoved">Port {taken} wird von einer anderen App genutzt (zum Beispiel v2rayNG), daher läuft Shroudly auf 127.0.0.1:{port}. Stell deinen Proxy auf Port {port}.</string>
     <string name="androidProxyOnlyOffWifi">Nur Proxy ist aus. Wenn der Proxy dieses Netzwerks auf {addr} gesetzt ist, stelle ihn in den WLAN-Einstellungen wieder auf Keiner, sonst kommen Apps, die ihn nutzen, nicht durch.</string>
     <string name="androidProxyOnlyOn">Nur Proxy: Apps, die 127.0.0.1:{port} nutzen, gehen über Shroudly</string>
     <string name="androidQuicOff">QUIC ausschalten</string>
@@ -59,6 +61,8 @@
     <string name="androidVpnRevoked">Android hat den Schutz beendet, meist weil eine andere VPN-App eingeschaltet wurde.</string>
     <string name="androidWifiProxyDead">Der Proxy dieses Netzwerks ist auf {addr} gesetzt, aber dort läuft nichts; Apps, die ihn nutzen (darunter Chrome), kommen nicht durch. Öffne in den WLAN-Einstellungen dieses Netzwerk und setze Proxy auf Keiner.</string>
     <string name="androidWifiProxyDeadTitle">Zurückgebliebener Proxy in den WLAN-Einstellungen</string>
+    <string name="androidWifiProxyOtherPort">Der Proxy dieses Netzwerks ist auf {addr} gesetzt, aber Shroudly läuft jetzt auf 127.0.0.1:{port}; Apps, die ihn nutzen, kommen nicht durch. Öffne in den WLAN-Einstellungen dieses Netzwerk und setze den Proxy-Port auf {port}.</string>
+    <string name="androidWifiProxyShroudlyOff">Der Proxy dieses Netzwerks ist auf Shroudly ({addr}) gesetzt, aber Shroudly ist aus; Apps, die ihn nutzen (darunter Chrome), kommen nicht durch. Starte den Schutz oder setze in den WLAN-Einstellungen Proxy auf Keiner.</string>
     <string name="androidWifiSettings">WLAN-Einstellungen</string>
     <string name="autoRawBlocked">Dieses Netz unterbricht die Verbindungen der App {app}, und keine der Techniken von Shroudly ist durchgekommen. Nutze die eigene Proxy-Einstellung von {app} oder ein VPN.</string>
     <string name="autoRawUnreachable">Die App {app} erreicht ihre Server nicht: Dieses Netz sperrt ihre Adressen, und ohne einen Server woanders kommt Shroudly daran nicht vorbei. Nutze die eigene Proxy-Einstellung von {app} oder ein VPN.</string>

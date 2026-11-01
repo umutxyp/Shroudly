@@ -39,6 +39,8 @@
     <string name="androidNoInternet">Perlindungan berhenti kerana Shroudly tidak dapat mencapai internet pada rangkaian ini, jadi aplikasi anda kini bersambung secara terus. Buka Shroudly untuk mencuba lagi.</string>
     <string name="androidPrivacyPolicy">Dasar privasi</string>
     <string name="androidProtectionLost">Perlindungan berhenti kerana ralat, jadi aplikasi anda kini bersambung secara terus. Buka Shroudly untuk memulakannya semula.</string>
+    <string name="androidProxyOnlyLost">Mod Proksi sahaja berhenti kerana ralat, jadi aplikasi yang ditetapkan untuk menggunakan Shroudly tidak dapat bersambung. Buka Shroudly untuk memulakannya semula.</string>
+    <string name="androidProxyOnlyMoved">Port {taken} digunakan oleh aplikasi lain (contohnya v2rayNG), jadi Shroudly berada di 127.0.0.1:{port}. Tetapkan proksi anda kepada port {port}.</string>
     <string name="androidProxyOnlyOffWifi">Proksi sahaja dimatikan. Jika proksi rangkaian ini ditetapkan kepada {addr}, kembalikan kepada Tiada dalam tetapan Wi-Fi; jika tidak, aplikasi yang menggunakannya tidak dapat bersambung.</string>
     <string name="androidProxyOnlyOn">Proksi sahaja: aplikasi yang ditetapkan ke 127.0.0.1:{port} melalui Shroudly</string>
     <string name="androidQuicOff">Matikan QUIC</string>
@@ -59,6 +61,8 @@
     <string name="androidVpnRevoked">Perlindungan dimatikan oleh Android, biasanya kerana aplikasi VPN lain dihidupkan.</string>
     <string name="androidWifiProxyDead">Proksi rangkaian ini ditetapkan kepada {addr}, tetapi tiada apa-apa berjalan di situ, jadi aplikasi yang menggunakannya (termasuk Chrome) tidak dapat bersambung. Dalam tetapan Wi-Fi, buka rangkaian ini dan tetapkan Proksi kepada Tiada.</string>
     <string name="androidWifiProxyDeadTitle">Proksi tertinggal dalam tetapan Wi-Fi</string>
+    <string name="androidWifiProxyOtherPort">Proksi rangkaian ini ditetapkan kepada {addr}, tetapi Shroudly kini berada di 127.0.0.1:{port}, jadi aplikasi yang menggunakannya tidak dapat bersambung. Dalam tetapan Wi-Fi, buka rangkaian ini dan tetapkan port proksi kepada {port}.</string>
+    <string name="androidWifiProxyShroudlyOff">Proksi rangkaian ini ditetapkan kepada Shroudly ({addr}), tetapi Shroudly dimatikan, jadi aplikasi yang menggunakannya (termasuk Chrome) tidak dapat bersambung. Mulakan perlindungan, atau tetapkan Proksi kepada Tiada dalam tetapan Wi-Fi.</string>
     <string name="androidWifiSettings">Tetapan Wi-Fi</string>
     <string name="autoRawBlocked">Rangkaian ini menghentikan sambungan {app}, dan tiada satu pun teknik Shroudly yang berjaya menembusinya. Gunakan tetapan proksi {app} sendiri atau VPN.</string>
     <string name="autoRawUnreachable">{app} tidak dapat mencapai pelayannya: rangkaian ini menyekat alamat pelayan tersebut, dan Shroudly tidak dapat memintasnya tanpa pelayan di tempat lain. Gunakan tetapan proksi {app} sendiri atau VPN.</string>

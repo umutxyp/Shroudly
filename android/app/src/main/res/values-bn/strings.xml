@@ -39,6 +39,8 @@
     <string name="androidNoInternet">Shroudly এই নেটওয়ার্কে ইন্টারনেটে পৌঁছাতে পারেনি বলে সুরক্ষা বন্ধ হয়ে গেছে, তাই আপনার অ্যাপগুলো এখন সরাসরি সংযোগ করছে। আবার চেষ্টা করতে Shroudly খুলুন।</string>
     <string name="androidPrivacyPolicy">গোপনীয়তা নীতি</string>
     <string name="androidProtectionLost">একটি ত্রুটির কারণে সুরক্ষা বন্ধ হয়ে গেছে, তাই আপনার অ্যাপগুলো এখন সরাসরি সংযোগ করছে। আবার চালু করতে Shroudly খুলুন।</string>
+    <string name="androidProxyOnlyLost">একটি ত্রুটির কারণে শুধু প্রক্সি বন্ধ হয়ে গেছে, তাই Shroudly ব্যবহারের জন্য সেট করা অ্যাপগুলো সংযুক্ত হতে পারছে না। আবার চালু করতে Shroudly খুলুন।</string>
+    <string name="androidProxyOnlyMoved">পোর্ট {taken} অন্য একটি অ্যাপ (যেমন v2rayNG) ব্যবহার করছে, তাই Shroudly 127.0.0.1:{port}-এ চলছে। আপনার প্রক্সি পোর্ট {port}-এ সেট করুন।</string>
     <string name="androidProxyOnlyOffWifi">শুধু প্রক্সি বন্ধ হয়েছে। এই নেটওয়ার্কের প্রক্সি {addr}-এ সেট করা থাকলে Wi-Fi সেটিংসে আবার «কোনোটিই নয়» করুন, নইলে যেসব অ্যাপ এটি ব্যবহার করে সেগুলো সংযুক্ত হতে পারবে না।</string>
     <string name="androidProxyOnlyOn">শুধু প্রক্সি: 127.0.0.1:{port}-এ সেট করা অ্যাপগুলো Shroudly দিয়ে যায়</string>
     <string name="androidQuicOff">QUIC বন্ধ করুন</string>
@@ -59,6 +61,8 @@
     <string name="androidVpnRevoked">Android সুরক্ষা বন্ধ করে দিয়েছে, সাধারণত অন্য কোনো VPN অ্যাপ চালু হওয়ার কারণে।</string>
     <string name="androidWifiProxyDead">এই নেটওয়ার্কের প্রক্সি {addr}-এ সেট করা আছে, কিন্তু সেখানে কিছুই চলছে না, তাই যেসব অ্যাপ এটি ব্যবহার করে (Chrome সহ) সেগুলো সংযুক্ত হতে পারছে না। Wi-Fi সেটিংসে এই নেটওয়ার্কটি খুলে প্রক্সি «কোনোটিই নয়» করুন।</string>
     <string name="androidWifiProxyDeadTitle">Wi-Fi সেটিংসে রয়ে যাওয়া প্রক্সি</string>
+    <string name="androidWifiProxyOtherPort">এই নেটওয়ার্কের প্রক্সি {addr}-এ সেট করা আছে, কিন্তু Shroudly এখন 127.0.0.1:{port}-এ চলছে, তাই যেসব অ্যাপ এটি ব্যবহার করে সেগুলো সংযুক্ত হতে পারছে না। Wi-Fi সেটিংসে এই নেটওয়ার্কটি খুলে প্রক্সি পোর্ট {port} করুন।</string>
+    <string name="androidWifiProxyShroudlyOff">এই নেটওয়ার্কের প্রক্সি Shroudly ({addr})-এ সেট করা আছে, কিন্তু Shroudly বন্ধ, তাই যেসব অ্যাপ এটি ব্যবহার করে (Chrome সহ) সেগুলো সংযুক্ত হতে পারছে না। সুরক্ষা চালু করুন, অথবা Wi-Fi সেটিংসে প্রক্সি «কোনোটিই নয়» করুন।</string>
     <string name="androidWifiSettings">Wi-Fi সেটিংস</string>
     <string name="autoRawBlocked">এই নেটওয়ার্ক {app}-এর সংযোগ আটকে দিচ্ছে, আর Shroudly-এর কোনো কৌশলই পার হতে পারেনি। {app}-এর নিজস্ব প্রক্সি সেটিং বা একটি VPN ব্যবহার করুন।</string>
     <string name="autoRawUnreachable">{app} তার সার্ভারে পৌঁছাতে পারছে না: এই নেটওয়ার্ক সেগুলোর ঠিকানা ব্লক করে, আর অন্য কোথাও থাকা কোনো সার্ভার ছাড়া Shroudly এটি পার হতে পারে না। {app}-এর নিজস্ব প্রক্সি সেটিং বা একটি VPN ব্যবহার করুন।</string>

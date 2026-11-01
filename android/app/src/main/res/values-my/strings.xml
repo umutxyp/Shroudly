@@ -39,6 +39,8 @@
     <string name="androidNoInternet">ဤကွန်ရက်တွင် Shroudly သည် အင်တာနက်သို့ မရောက်နိုင်သဖြင့် ကာကွယ်မှု ရပ်သွားပြီး သင့်အက်ပ်များသည် ယခု တိုက်ရိုက် ချိတ်ဆက်နေပါသည်။ ထပ်မံကြိုးစားရန် Shroudly ကို ဖွင့်ပါ။</string>
     <string name="androidPrivacyPolicy">ကိုယ်ရေးအချက်အလက် မူဝါဒ</string>
     <string name="androidProtectionLost">အမှားတစ်ခုကြောင့် ကာကွယ်မှု ရပ်သွားသဖြင့် သင့်အက်ပ်များသည် ယခု တိုက်ရိုက် ချိတ်ဆက်နေပါသည်။ ပြန်စတင်ရန် Shroudly ကို ဖွင့်ပါ။</string>
+    <string name="androidProxyOnlyLost">အမှားတစ်ခုကြောင့် ပရောက်စီသာ ရပ်သွားသဖြင့် Shroudly ကို သုံးရန် သတ်မှတ်ထားသော အက်ပ်များ ချိတ်ဆက်၍ မရပါ။ ပြန်စတင်ရန် Shroudly ကို ဖွင့်ပါ။</string>
+    <string name="androidProxyOnlyMoved">port {taken} ကို အခြားအက်ပ်တစ်ခု (ဥပမာ v2rayNG) သုံးနေသဖြင့် Shroudly သည် 127.0.0.1:{port} တွင် ရှိနေပါသည်။ သင့်ပရောက်စီကို port {port} သို့ သတ်မှတ်ပါ။</string>
     <string name="androidProxyOnlyOffWifi">ပရောက်စီသာ ပိတ်လိုက်ပြီ။ ဤကွန်ရက်၏ ပရောက်စီကို {addr} သို့ သတ်မှတ်ထားပါက Wi-Fi ဆက်တင်များတွင် «မရှိ» သို့ ပြန်ထားပါ၊ မဟုတ်ပါက ၎င်းကို သုံးသော အက်ပ်များ ချိတ်ဆက်၍ မရပါ။</string>
     <string name="androidProxyOnlyOn">ပရောက်စီသာ- 127.0.0.1:{port} သုံးရန် သတ်မှတ်ထားသော အက်ပ်များ Shroudly မှတစ်ဆင့် သွားသည်</string>
     <string name="androidQuicOff">QUIC ကို ပိတ်ရန်</string>
@@ -59,6 +61,8 @@
     <string name="androidVpnRevoked">Android က ကာကွယ်မှုကို ပိတ်လိုက်သည်။ များသောအားဖြင့် အခြား VPN အက်ပ်တစ်ခု ဖွင့်လိုက်သောကြောင့် ဖြစ်သည်။</string>
     <string name="androidWifiProxyDead">ဤကွန်ရက်၏ ပရောက်စီကို {addr} သို့ သတ်မှတ်ထားသော်လည်း ထိုနေရာတွင် ဘာမှ အလုပ်မလုပ်ပါ၊ ထို့ကြောင့် ၎င်းကို သုံးသော အက်ပ်များ (Chrome အပါအဝင်) ချိတ်ဆက်၍ မရပါ။ Wi-Fi ဆက်တင်များတွင် ဤကွန်ရက်ကို ဖွင့်ပြီး ပရောက်စီကို «မရှိ» သို့ သတ်မှတ်ပါ။</string>
     <string name="androidWifiProxyDeadTitle">Wi-Fi ဆက်တင်များတွင် ကျန်ခဲ့သော ပရောက်စီ</string>
+    <string name="androidWifiProxyOtherPort">ဤကွန်ရက်၏ ပရောက်စီကို {addr} သို့ သတ်မှတ်ထားသော်လည်း Shroudly သည် ယခု 127.0.0.1:{port} တွင် ရှိနေသဖြင့် ၎င်းကို သုံးသော အက်ပ်များ ချိတ်ဆက်၍ မရပါ။ Wi-Fi ဆက်တင်များတွင် ဤကွန်ရက်ကို ဖွင့်ပြီး ပရောက်စီ port ကို {port} သို့ သတ်မှတ်ပါ။</string>
+    <string name="androidWifiProxyShroudlyOff">ဤကွန်ရက်၏ ပရောက်စီကို Shroudly ({addr}) သို့ သတ်မှတ်ထားသော်လည်း Shroudly ပိတ်ထားသဖြင့် ၎င်းကို သုံးသော အက်ပ်များ (Chrome အပါအဝင်) ချိတ်ဆက်၍ မရပါ။ ကာကွယ်မှုကို စတင်ပါ၊ သို့မဟုတ် Wi-Fi ဆက်တင်များတွင် ပရောက်စီကို «မရှိ» သို့ သတ်မှတ်ပါ။</string>
     <string name="androidWifiSettings">Wi-Fi ဆက်တင်များ</string>
     <string name="autoRawBlocked">ဤကွန်ရက်က {app} ၏ ချိတ်ဆက်မှုများကို တားဆီးထားပြီး Shroudly ၏ နည်းလမ်းများထဲမှ တစ်ခုမျှ မဖြတ်ကျော်နိုင်ခဲ့ပါ။ {app} ၏ ကိုယ်ပိုင် proxy ဆက်တင် သို့မဟုတ် VPN ကို သုံးပါ။</string>
     <string name="autoRawUnreachable">{app} သည် ၎င်း၏ ဆာဗာများထံ မရောက်နိုင်ပါ။ ဤကွန်ရက်က ၎င်းတို့၏ လိပ်စာများကို ပိတ်ဆို့ထားပြီး အခြားနေရာရှိ ဆာဗာတစ်ခု မရှိဘဲ Shroudly က ထိုပိတ်ဆို့မှုကို မကျော်ဖြတ်နိုင်ပါ။ {app} ၏ ကိုယ်ပိုင် proxy ဆက်တင် သို့မဟုတ် VPN ကို သုံးပါ။</string>

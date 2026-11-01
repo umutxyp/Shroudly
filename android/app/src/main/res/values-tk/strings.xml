@@ -39,6 +39,8 @@
     <string name="androidNoInternet">Shroudly bu torda internete çykyp bilmänligi sebäpli gorag togtady, şonuň üçin programmalaryňyz häzir göni birikýär. Täzeden synanyşmak üçin Shroudly-ny açyň.</string>
     <string name="androidPrivacyPolicy">Gizlinlik syýasaty</string>
     <string name="androidProtectionLost">Gorag ýalňyşlyk sebäpli togtady, şonuň üçin programmalaryňyz häzir göni birikýär. Ony täzeden işletmek üçin Shroudly-ny açyň.</string>
+    <string name="androidProxyOnlyLost">«Diňe proksi» ýalňyşlyk sebäpli togtady, şonuň üçin Shroudly-ny ulanmaga sazlanan programmalar birigip bilmeýär. Ony täzeden işletmek üçin Shroudly-ny açyň.</string>
+    <string name="androidProxyOnlyMoved">{taken} portuny başga programma (meselem, v2rayNG) ulanýar, şonuň üçin Shroudly 127.0.0.1:{port} salgysynda. Proksiňizi {port} portuna sazlaň.</string>
     <string name="androidProxyOnlyOffWifi">«Diňe proksi» öçürildi. Bu ulgamyň proksisi {addr} edilip goýlan bolsa, Wi-Fi sazlamalarynda ony «Ýok» ýagdaýyna gaýtaryň, ýogsa ony ulanýan programmalar birigip bilmez.</string>
     <string name="androidProxyOnlyOn">Diňe proksi: 127.0.0.1:{port} sazlanan programmalar Shroudly-dan geçýär</string>
     <string name="androidQuicOff">QUIC-i öçür</string>
@@ -59,6 +61,8 @@
     <string name="androidVpnRevoked">Gorag Android tarapyndan öçürildi, adatça başga VPN programmasy açylandygy sebäpli.</string>
     <string name="androidWifiProxyDead">Bu ulgamyň proksisi {addr} edilip goýlan, ýöne ol ýerde hiç zat işlemeýär, şonuň üçin ony ulanýan programmalar (Chrome hem) birigip bilmeýär. Wi-Fi sazlamalarynda bu ulgamy açyň we proksini «Ýok» ediň.</string>
     <string name="androidWifiProxyDeadTitle">Wi-Fi sazlamalarynda galan proksi</string>
+    <string name="androidWifiProxyOtherPort">Bu ulgamyň proksisi {addr} edilip goýlan, ýöne Shroudly indi 127.0.0.1:{port} salgysynda, şonuň üçin ony ulanýan programmalar birigip bilmeýär. Wi-Fi sazlamalarynda bu ulgamy açyň we proksi portuny {port} ediň.</string>
+    <string name="androidWifiProxyShroudlyOff">Bu ulgamyň proksisi Shroudly ({addr}) edilip goýlan, ýöne Shroudly öçük, şonuň üçin ony ulanýan programmalar (Chrome hem) birigip bilmeýär. Goragy işlediň ýa-da Wi-Fi sazlamalarynda proksini «Ýok» ediň.</string>
     <string name="androidWifiSettings">Wi-Fi sazlamalary</string>
     <string name="autoRawBlocked">Bu tor {app} programmasynyň birikmelerini togtadýar we Shroudly-niň usullarynyň hiç biri geçip bilmedi. {app} programmasynyň öz proksi sazlamasyny ýa-da VPN ulanyň.</string>
     <string name="autoRawUnreachable">{app} programmasy öz serwerlerine ýetip bilmeýär: bu tor olaryň salgylaryny petikleýär, Shroudly bolsa başga ýerdäki serwersiz muny aýlanyp geçip bilmeýär. {app} programmasynyň öz proksi sazlamasyny ýa-da VPN ulanyň.</string>
