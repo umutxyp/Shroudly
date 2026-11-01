@@ -68,7 +68,8 @@ if (want == null) {
   // required by a test: nothing written
 } else if (process.argv.includes('--check')) {
   let have = '';
-  try { have = fs.readFileSync(OUT, 'utf8'); } catch {}
+  // (A checkout that turned the line ends into CRLF reads the same.)
+  try { have = fs.readFileSync(OUT, 'utf8').replace(/\r\n/g, '\n'); } catch {}
   if (have !== want) { console.error(`[polkit] ${path.relative(ROOT, OUT)} is out of date: run node scripts/gen-polkit.js`); process.exit(1); }
   console.log('[polkit] up to date');
 } else {

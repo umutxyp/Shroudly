@@ -52,8 +52,9 @@ function keepOpen(page) {
 
 const report = [];
 let metrics = async () => [];
+let extras = async () => [];
 async function record(label, pid) {
-  const m = await measure(pid, await metrics());
+  const m = await measure(pid, await metrics(), await extras());
   report.push(describe(label, m));
   console.log(`  ..  ${describe(label, m)}`);
   return m;
@@ -84,6 +85,9 @@ async function record(label, pid) {
   });
   const pid = app.process().pid;
   metrics = () => app.evaluate(({ app: a }) => a.getAppMetrics().map((m) => ({ pid: m.pid, type: m.type, name: m.serviceName || m.name || '' }))).catch(() => []);
+  // The watchdog by its own process id: on Windows it is not Shroudly's child.
+  extras = () => app.evaluate(() => global.shroudlyE2E.require('./watchdog').pid())
+    .then((wpid) => (wpid > 0 ? [{ pid: wpid, kind: 'watchdog' }] : [])).catch(() => []);
   const windows = () => app.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows().length);
   // macOS: the Dock icon is there only while the window is (issue #9).
   const mac = process.platform === 'darwin' && !BASELINE;
@@ -340,6 +344,11 @@ async function record(label, pid) {
       const armed = ['proxy-state.json', 'app-env.json'].some((f) => fs.existsSync(path.join(ud, f)));
       console.log(`  --  system proxy applied: ${armed}`);
       if (armed) ok(!!wd, 'the watchdog is the small native one');
+      // Windows: out of Shroudly's process tree, so "End process tree" and
+      // taskkill /T cannot end it with Shroudly (W7).
+      if (armed && wd && process.platform === 'win32') {
+        ok(!(await tree(pid)).some((p) => p.pid === wd.pid), `Windows: the watchdog (${wd.pid}) runs outside Shroudly's process tree`);
+      }
       if (wd && wd.mb > 0) ok(wd.mb < 8, `watchdog memory ${wd.mb.toFixed(1)} MB`);
       ok(!bg.kinds.has('renderer'), 'no window process while protecting in the background');
 

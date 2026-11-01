@@ -376,7 +376,7 @@ function windowsArgv(line) {
   {
     const { ENGINE, render } = require(path.join(ROOT, 'scripts', 'gen-polkit.js'));
     const file = path.join(ROOT, 'scripts', 'linux', 'me.codeshare.shroudly.policy');
-    const policy = fs.readFileSync(file, 'utf8');
+    const policy = fs.readFileSync(file, 'utf8').replace(/\r\n/g, '\n');
     const pkg = require(path.join(ROOT, 'package.json'));
     const langs = fs.readdirSync(path.join(ROOT, 'locales')).filter((f) => f.endsWith('.json')).map((f) => f.slice(0, -5));
     t.ok(policy === render(), 'the polkit action is up to date with the translations (node scripts/gen-polkit.js)');

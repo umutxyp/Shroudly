@@ -90,11 +90,14 @@ function chromiumKind(m) {
 }
 
 /* { total, parts: [{ kind, mb }], kinds: Set } for rootPid and its children.
- * metrics: app.getAppMetrics() as [{ pid, type, name }], when available. */
-async function measure(rootPid, metrics = []) {
+ * metrics: app.getAppMetrics() as [{ pid, type, name }], when available.
+ * extra: [{ pid, kind }] of Shroudly's that are not its children (the
+ * watchdog on Windows runs outside its process tree on purpose). */
+async function measure(rootPid, metrics = [], extra = []) {
   const procs = await tree(rootPid);
   const known = new Map(metrics.map((m) => [m.pid, chromiumKind(m)]));
-  for (const m of metrics) if (!procs.some((p) => p.pid === m.pid)) procs.push({ pid: m.pid, cmd: '' });
+  for (const e of extra) known.set(e.pid, e.kind);
+  for (const m of [...metrics, ...extra]) if (!procs.some((p) => p.pid === m.pid)) procs.push({ pid: m.pid, cmd: '' });
   const mem = await memoryMB(procs.map((p) => p.pid));
   const parts = procs.map((p) => ({ pid: p.pid, kind: known.get(p.pid) || kindOf(p.cmd), mb: mem[p.pid] || 0 }));
   const total = parts.reduce((s, p) => s + p.mb, 0);
