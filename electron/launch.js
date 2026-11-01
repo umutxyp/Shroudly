@@ -46,12 +46,14 @@ function afterUpdateRecord(window, version, now = Date.now()) {
  * an update that never got as far as starting Shroudly again must not decide
  * how a later launch, started by hand, looks. One without a version (written
  * before 2.5.5) cannot tell, so the window is shown. main.js clears the
- * record either way. */
+ * record either way. failed: the macOS install script opened the same
+ * version again after its swap failed (updater.js), which is still the
+ * update's launch: a window closed before it must not open by itself. */
 const AFTER_UPDATE_MS = 30 * 60 * 1000;
-function isUpdateRelaunch(record, version, now = Date.now()) {
+function isUpdateRelaunch(record, version, now = Date.now(), { failed = false } = {}) {
   if (!record || typeof record !== 'object' || record.from === undefined) return false;
   const at = Number(record.at) || 0;
-  return String(record.from) !== String(version) && now - at < AFTER_UPDATE_MS && now - at > -60000;
+  return (failed || String(record.from) !== String(version)) && now - at < AFTER_UPDATE_MS && now - at > -60000;
 }
 
 /* 'tray' (no window at all), 'minimised' or 'shown'. Started at login with

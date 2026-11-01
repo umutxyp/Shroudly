@@ -75,6 +75,9 @@
     "electronLanguages": [
       "en-US"
     ],
+    "toolsets": {
+      "appimage": "1.0.3"
+    },
     "win": {
       "icon": "public/icon.ico",
       "artifactName": "${productName}-${version}-Windows-${arch}-Setup.${ext}",

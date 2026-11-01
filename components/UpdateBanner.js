@@ -4,12 +4,14 @@ import { useLanguage } from '../contexts/LanguageContext';
 import { DownloadIcon, ExternalLinkIcon, RefreshIcon } from './icons';
 import { RELEASES_URL, updateActions, useCountdown, useUpdate } from './useUpdate';
 
-/* Shown above the content while an update is available, downloading or ready. */
+/* Shown above the content while an update is available, downloading or ready,
+ * or cannot go ahead until the user does something (no room on the disk, a
+ * folder Shroudly cannot replace itself in). */
 export default function UpdateBanner() {
   const { t } = useLanguage();
   const u = useUpdate();
   const seconds = useCountdown(u?.status === 'ready' ? u.restartAt : null);
-  if (!u || !['available', 'downloading', 'ready', 'manual'].includes(u.status)) return null;
+  if (!u || !['available', 'downloading', 'ready', 'manual', 'no-space'].includes(u.status)) return null;
 
   const version = u.version;
   let text;
@@ -20,22 +22,38 @@ export default function UpdateBanner() {
     text = t('updDownloading', { version, percent: u.percent || 0 });
   } else if (u.status === 'ready') {
     text = seconds != null ? t('updRestartIn', { seconds }) : t('updReady', { version });
-    if (seconds == null) detail = t('updLaterHint');
+    // Its install failed before: said, with the download page beside the
+    // button. A Linux package installs only from the button (it asks for a
+    // password), never at a quit.
+    if (u.failed) detail = t('updInstallFailed');
+    else if (seconds == null && !u.asksPassword) detail = t('updLaterHint');
     actions = (
       <>
         <button type="button" onClick={updateActions.install} className="btn btn-primary rounded-[8px] px-3 py-1.5 text-[12.5px] font-semibold">
-          {t('updRestartNow')}
+          {u.asksPassword ? t('updInstallPassword') : t('updRestartNow')}
         </button>
         {seconds != null && (
           <button type="button" onClick={updateActions.postpone} className="btn btn-ghost rounded-[8px] px-3 py-1.5 text-[12.5px] font-medium">
             {t('updLater')}
           </button>
         )}
+        {u.failed && seconds == null && (
+          <a href={RELEASES_URL} target="_blank" rel="noreferrer" className="btn btn-ghost inline-flex items-center gap-1.5 rounded-[8px] px-3 py-1.5 text-[12.5px] font-medium">
+            <ExternalLinkIcon className="h-3.5 w-3.5" />{t('updOpenDownload')}
+          </a>
+        )}
       </>
+    );
+  } else if (u.status === 'no-space') {
+    text = t('updNoSpace', { version });
+    actions = (
+      <button type="button" onClick={updateActions.download} className="btn btn-primary inline-flex items-center gap-1.5 rounded-[8px] px-3 py-1.5 text-[12.5px] font-semibold">
+        <DownloadIcon className="h-3.5 w-3.5" />{t('updDownload')}
+      </button>
     );
   } else if (u.status === 'manual') {
     text = t('updAvailable', { version });
-    detail = t('updManual');
+    detail = u.reason === 'folder' ? t('updManualFolder') : t('updManual');
     actions = (
       <a href={RELEASES_URL} target="_blank" rel="noreferrer" className="btn btn-primary inline-flex items-center gap-1.5 rounded-[8px] px-3 py-1.5 text-[12.5px] font-semibold">
         <ExternalLinkIcon className="h-3.5 w-3.5" />{t('updOpenDownload')}

@@ -243,10 +243,18 @@ jobs:
           - { os: ubuntu-24.04-arm, file: arm64,  core: linux-arm64 }
     runs-on: ${{ matrix.os }}
     steps:
+      - uses: actions/checkout@v7
       - uses: actions/download-artifact@v8
         with:
           name: dist-linux
           path: dist
+      # The AppImage itself, not extracted, on a fresh Ubuntu 24.04 with FUSE 3
+      # and no libfuse2: an AppImage on the old FUSE 2 runtime does not start
+      # there at all, and the extraction below needs no FUSE to hide that.
+      - name: Start the ${{ matrix.file }} AppImage on Ubuntu 24.04 without libfuse2
+        run: |
+          docker run --rm --device /dev/fuse --cap-add SYS_ADMIN --security-opt apparmor:unconfined \
+            -v "$PWD:/w" -w /w ubuntu:24.04 sh scripts/ci-appimage-start-test.sh 'dist/*-Linux-${{ matrix.file }}.AppImage'
       - name: Extract and check the ${{ matrix.file }} AppImage
         shell: bash
         run: |
@@ -315,6 +323,24 @@ jobs:
           echo "$out" | grep -q '"ready"'
           hdiutil detach "$mnt" >/dev/null
           echo "ok  $dmg: ${{ matrix.lipo }} app and engine, engine starts"
+      # What a macOS update installs is the .zip, not the disk image. It is
+      # unpacked and its signature checked exactly as the install script does
+      # (electron/updater.js): a zip that failed that check would leave every
+      # Mac on the old version. Its SHA-512 must be the one latest-mac.yml gives.
+      - name: Unpack the ${{ matrix.arch }} update zip and check it as the updater does
+        shell: bash
+        run: |
+          set -euo pipefail
+          zip=$(ls dist/*-macOS-${{ matrix.arch }}.zip)
+          x=$(mktemp -d)
+          /usr/bin/ditto -x -k "$zip" "$x"
+          app=$(ls -d "$x"/*.app | head -n 1)
+          test -d "$app"
+          /usr/bin/codesign --verify --deep --strict "$app"
+          want=$(grep -F -A1 "url: $(basename "$zip")" dist/latest-mac.yml | sed -n 's/^ *sha512: *//p' | head -n 1)
+          have=$(openssl dgst -sha512 -binary "$zip" | base64 | tr -d '\n')
+          if [ -z "$want" ] || [ "$want" != "$have" ]; then echo "SHA-512 of $zip is $have, latest-mac.yml says '$want'"; exit 1; fi
+          echo "ok  $zip: unpacks, its signature checks out, SHA-512 as in latest-mac.yml"
 
   # The Android app, signed with the project's key (secrets ANDROID_*). The
   # signature is checked against the key's certificate before it is handed
