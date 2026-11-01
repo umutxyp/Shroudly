@@ -28,7 +28,7 @@
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
-const { Readable, pipeline } = require('stream');
+const { Readable, Transform, pipeline } = require('stream');
 
 const arg = (k, d) => { const i = process.argv.indexOf(k); return i > 0 ? process.argv[i + 1] : d; };
 const PORT = Number(arg('--port', process.env.PORT || 8787));
@@ -163,6 +163,10 @@ async function mirrorUrl(pathname) {
   return file ? `${REPO}/releases/download/${latest.tag}/${file}` : null;
 }
 
+/* A file from which nothing more has come for this long is cut off: GitHub
+ * stalling partway kept the updater on the other end "downloading" for good. */
+const BODY_IDLE_MS = 30000;
+
 async function mirror(req, res, url) {
   const name = url.slice(url.lastIndexOf('/') + 1);
   const ctl = new AbortController();
@@ -189,7 +193,11 @@ async function mirror(req, res, url) {
   if (up.headers.get('content-length') && !up.headers.get('content-encoding')) headers['content-length'] = up.headers.get('content-length');
   res.writeHead(200, headers);
   if (req.method === 'HEAD' || !up.body) { res.end(); return; }
-  pipeline(Readable.fromWeb(up.body), res, () => {});
+  let idle = null;
+  const alive = () => { clearTimeout(idle); idle = setTimeout(() => ctl.abort(), BODY_IDLE_MS); };
+  alive();
+  const watch = new Transform({ transform(chunk, enc, cb) { alive(); cb(null, chunk); } });
+  pipeline(Readable.fromWeb(up.body), watch, res, () => clearTimeout(idle));
 }
 
 // ── http ─────────────────────────────────────────────────────────────────────
