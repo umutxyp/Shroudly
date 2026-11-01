@@ -12,6 +12,7 @@
   "protected": "Qorunur",
   "notProtected": "Qorunmur",
   "notWorkingYet": "Hələ işləmir",
+  "accentSwatch": "Vurğu rəngi {n}/{total}",
   "moveToAppsBtn": "«Proqramlar»a köçür",
   "moveToAppsBody": "Shroudly disk şəklindən və ya «Endirmələr» qovluğundan işləyir. «Proqramlar» qovluğunda o, sistemə girişdə başlaya və özünü yeniləyə bilər.",
   "moveToAppsTitle": "Shroudly-ni «Proqramlar» qovluğuna köçürün",

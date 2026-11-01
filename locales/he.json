@@ -12,6 +12,7 @@
   "protected": "מוגן",
   "notProtected": "לא מוגן",
   "notWorkingYet": "עדיין לא פועל",
+  "accentSwatch": "צבע הדגשה {n} מתוך {total}",
   "moveToAppsBtn": "העברה ל„יישומים”",
   "moveToAppsBody": "Shroudly פועל מתוך קובץ הדיסק שלו או מהתיקייה „הורדות”. ב„יישומים” הוא יוכל להיפתח בכניסה למערכת ולהתעדכן בעצמו.",
   "moveToAppsTitle": "העברת Shroudly ל„יישומים”",

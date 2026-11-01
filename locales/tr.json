@@ -12,6 +12,7 @@
   "protected": "Korunuyor",
   "notProtected": "Korunmuyor",
   "notWorkingYet": "Henüz çalışmıyor",
+  "accentSwatch": "Vurgu rengi {n}/{total}",
   "moveToAppsBtn": "Uygulamalar'a taşı",
   "moveToAppsBody": "Shroudly disk görüntüsünden ya da İndirilenler klasöründen çalışıyor. Uygulamalar klasöründe oturum açınca kendiliğinden başlayabilir ve kendini güncelleyebilir.",
   "moveToAppsTitle": "Shroudly'yi Uygulamalar klasörüne taşıyın",

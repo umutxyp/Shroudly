@@ -12,6 +12,7 @@
   "protected": "保護されています",
   "notProtected": "保護されていません",
   "notWorkingYet": "まだ機能していません",
+  "accentSwatch": "アクセントカラー {n}/{total}",
   "moveToAppsBtn": "「アプリケーション」に移動",
   "moveToAppsBody": "Shroudly はディスクイメージか「ダウンロード」フォルダから実行されています。「アプリケーション」にあれば、ログイン時に起動し、自動でアップデートできます。",
   "moveToAppsTitle": "Shroudly を「アプリケーション」に移動",

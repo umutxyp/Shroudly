@@ -12,6 +12,7 @@
   "protected": "Абаронена",
   "notProtected": "Не абаронена",
   "notWorkingYet": "Пакуль не працуе",
+  "accentSwatch": "Колер акцэнту {n} з {total}",
   "moveToAppsBtn": "Перанесці ў «Праграмы»",
   "moveToAppsBody": "Shroudly працуе з вобраза дыска ці з папкі «Спампоўкі». У «Праграмах» ён можа запускацца пры ўваходзе ў сістэму і абнаўляцца сам.",
   "moveToAppsTitle": "Перанясіце Shroudly у «Праграмы»",

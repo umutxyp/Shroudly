@@ -180,7 +180,8 @@ export default function StatsPanel({ active }) {
       {/* throughput */}
       <div className="card flex flex-col gap-4 p-4">
         <Rate Icon={ArrowDownIcon} label={t('download')} value={fmtRate(dlRate)} color="var(--accent)" data={dlHist} />
-        <Rate Icon={ArrowUpIcon} label={t('upload')} value={fmtRate(ulRate)} color="var(--ok)" data={ulHist} />
+        {/* Upload in a colour of its own: with the emerald accent both were the same green. */}
+        <Rate Icon={ArrowUpIcon} label={t('upload')} value={fmtRate(ulRate)} color="var(--text-dim)" data={ulHist} />
       </div>
 
       {/* counters */}

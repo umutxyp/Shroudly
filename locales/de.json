@@ -12,6 +12,7 @@
   "protected": "Geschützt",
   "notProtected": "Nicht geschützt",
   "notWorkingYet": "Wirkt noch nicht",
+  "accentSwatch": "Akzentfarbe {n} von {total}",
   "moveToAppsBtn": "In „Programme“ bewegen",
   "moveToAppsBody": "Shroudly läuft aus seinem Disk-Image oder aus dem Ordner „Downloads“. In „Programme“ kann es bei der Anmeldung starten und sich selbst aktualisieren.",
   "moveToAppsTitle": "Shroudly in „Programme“ bewegen",

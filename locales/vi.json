@@ -12,6 +12,7 @@
   "protected": "Đang được bảo vệ",
   "notProtected": "Chưa được bảo vệ",
   "notWorkingYet": "Chưa hoạt động",
+  "accentSwatch": "Màu nhấn {n} trên {total}",
   "moveToAppsBtn": "Chuyển vào Ứng dụng",
   "moveToAppsBody": "Shroudly đang chạy từ ảnh đĩa hoặc thư mục Tải về. Khi ở trong Ứng dụng, Shroudly có thể tự mở khi bạn đăng nhập và tự cập nhật.",
   "moveToAppsTitle": "Chuyển Shroudly vào Ứng dụng",

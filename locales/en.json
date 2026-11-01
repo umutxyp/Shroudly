@@ -12,6 +12,7 @@
   "protected": "Protected",
   "notProtected": "Not protected",
   "notWorkingYet": "Not working yet",
+  "accentSwatch": "Accent colour {n} of {total}",
   "moveToAppsBtn": "Move to Applications",
   "moveToAppsBody": "Shroudly is running from its disk image or the Downloads folder. In Applications it can start when you log in and update itself.",
   "moveToAppsTitle": "Move Shroudly to Applications",

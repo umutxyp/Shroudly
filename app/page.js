@@ -153,7 +153,7 @@ export default function Home() {
           }}
           title={statusText}
         >
-          <span className="h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: 'currentColor' }} />
+          <span className="dot h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: 'currentColor' }} />
           <span className="truncate">{statusText}</span>
         </span>
       </header>
@@ -206,7 +206,7 @@ export default function Home() {
               className="nav-btn flex min-w-0 flex-col items-center justify-start gap-1 px-1 pb-2 pt-2.5"
             >
               <Icon className="h-[22px] w-[22px]" />
-              <span className="nav-label line-clamp-2 w-full text-center text-[10.5px] font-medium leading-[1.25] wrap-anywhere">
+              <span className="nav-label line-clamp-2 w-full text-center text-[clamp(9px,2.6vw,10.5px)] font-medium leading-[1.25]">
                 {label}
               </span>
             </button>

@@ -56,8 +56,12 @@ export function applyAppearance({ accent, surface }) {
    * rest of the window changed around it. macOS draws its buttons straight
    * over ours, so it needs nothing. */
   try {
-    const color = cssColorToHex('var(--titlebar)');
-    const symbolColor = cssColorToHex('var(--text-dim)');
+    // A Windows contrast theme: the strip and its buttons in the theme's
+    // own colours. Read through the page, both came back as the forced
+    // background, and the buttons were drawn black on black.
+    const forced = window.matchMedia?.('(forced-colors: active)').matches;
+    const color = cssColorToHex(forced ? 'Canvas' : 'var(--titlebar)');
+    const symbolColor = cssColorToHex(forced ? 'CanvasText' : 'var(--text-dim)');
     if (color && symbolColor) window.electron?.setTitleBarColors?.({ color, symbolColor });
   } catch {}
 }
@@ -67,7 +71,8 @@ export function applyAppearance({ accent, surface }) {
  * reading back one painted pixel resolves any of them. */
 export function cssColorToHex(value) {
   const probe = document.createElement('div');
-  probe.style.cssText = `position:absolute;width:1px;height:1px;left:-9px;top:-9px;background:${value}`;
+  // forced-color-adjust: a contrast theme would paint the probe its own way.
+  probe.style.cssText = `position:absolute;width:1px;height:1px;left:-9px;top:-9px;forced-color-adjust:none;background:${value}`;
   document.body.appendChild(probe);
   const resolved = getComputedStyle(probe).backgroundColor;
   probe.remove();
@@ -86,6 +91,14 @@ export function cssColorToHex(value) {
 /* Applies the saved choice as early as the app can run script, so the window
  * never shows the default colours for a frame before switching. */
 export default function Appearance() {
-  useEffect(() => { applyAppearance(readAppearance()); }, []);
+  useEffect(() => {
+    applyAppearance(readAppearance());
+    // A contrast theme or the system's light/dark turned on or off while
+    // the window is open: the caption strip follows.
+    const again = () => applyAppearance(readAppearance());
+    const queries = ['(forced-colors: active)', '(prefers-color-scheme: dark)'].map((q) => window.matchMedia?.(q)).filter(Boolean);
+    queries.forEach((m) => m.addEventListener?.('change', again));
+    return () => queries.forEach((m) => m.removeEventListener?.('change', again));
+  }, []);
   return null;
 }

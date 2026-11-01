@@ -12,6 +12,7 @@
   "protected": "已受保护",
   "notProtected": "未受保护",
   "notWorkingYet": "尚未生效",
+  "accentSwatch": "强调色 {n}/{total}",
   "moveToAppsBtn": "移到“应用程序”",
   "moveToAppsBody": "Shroudly 正在从磁盘映像或“下载”文件夹运行。放在“应用程序”中，它就能在登录时启动并自动更新。",
   "moveToAppsTitle": "将 Shroudly 移到“应用程序”",

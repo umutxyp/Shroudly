@@ -12,6 +12,7 @@
   "protected": "محمي",
   "notProtected": "غير محمي",
   "notWorkingYet": "لا يعمل بعد",
+  "accentSwatch": "لون التمييز {n} من {total}",
   "moveToAppsBtn": "نقل إلى «التطبيقات»",
   "moveToAppsBody": "يعمل Shroudly من صورة القرص أو من مجلد «التنزيلات». في «التطبيقات» يمكنه أن يبدأ عند تسجيل الدخول وأن يحدّث نفسه.",
   "moveToAppsTitle": "انقل Shroudly إلى «التطبيقات»",

@@ -12,6 +12,7 @@
   "protected": "Terlindungi",
   "notProtected": "Tidak terlindungi",
   "notWorkingYet": "Belum berfungsi",
+  "accentSwatch": "Warna aksen {n} dari {total}",
   "moveToAppsBtn": "Pindahkan ke Aplikasi",
   "moveToAppsBody": "Shroudly berjalan dari image disk atau folder Unduhan. Di folder Aplikasi, Shroudly bisa berjalan saat Anda masuk dan memperbarui dirinya sendiri.",
   "moveToAppsTitle": "Pindahkan Shroudly ke Aplikasi",

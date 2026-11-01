@@ -122,10 +122,12 @@ function Toggle({ label, desc, checked, onChange, disabled }) {
       aria-describedby={desc ? descId : undefined}
       disabled={disabled}
       onClick={() => onChange(!checked)}
-      className="row-hover my-1 flex w-full items-center justify-between gap-4 rounded-[8px] px-2 py-2 text-start disabled:opacity-55"
+      className="row-hover my-1 flex w-full items-center justify-between gap-4 rounded-[8px] px-2 py-2 text-start"
     >
       <span className="min-w-0 flex-1">
-        <span className="block text-[14px] font-medium leading-snug" style={{ color: 'var(--text)' }}>{label}</span>
+        {/* Unavailable: the label and the switch dimmed, the sentence that
+            says why kept readable (globals.css). */}
+        <span className="toggle-label block text-[14px] font-medium leading-snug" style={{ color: 'var(--text)' }}>{label}</span>
         {desc && (
           <span id={descId} className="mt-0.5 block text-[12px] leading-snug" style={{ color: 'var(--text-faint)' }}>{desc}</span>
         )}
@@ -558,16 +560,16 @@ export default function SettingsPanel({ active = false }) {
             with the window instead of spilling into a stray second line at
             narrow widths, which read as a layout accident. */}
         <div className="grid grid-cols-9 gap-1.5 sm:gap-2.5">
-          {ACCENTS.map((a) => {
+          {ACCENTS.map((a, i) => {
             const on = look.accent === a.id;
             return (
               <button
                 key={a.id}
                 type="button"
-                aria-label={a.id}
+                aria-label={t('accentSwatch', { n: i + 1, total: ACCENTS.length })}
                 aria-pressed={on}
                 onClick={() => setAppearance({ accent: a.id })}
-                className="relative aspect-square w-full rounded-full transition-transform duration-150 hover:scale-110"
+                className="swatch relative aspect-square w-full rounded-full transition-transform duration-150 hover:scale-110"
                 style={{
                   background: a.swatch,
                   boxShadow: on
@@ -969,7 +971,13 @@ export default function SettingsPanel({ active = false }) {
         <div className="mt-3 flex items-center justify-between gap-3">
           <p className="m-0 min-w-0 text-[12px] leading-snug" style={{ color: 'var(--text-faint)' }}>{t('resetSettingsDesc')}</p>
           <button type="button"
-                  onClick={() => { if (window.confirm(t('resetSettingsConfirm'))) window.electron?.resetSettings?.(); }}
+                  onClick={() => {
+                    if (!window.confirm(t('resetSettingsConfirm'))) return;
+                    // The colours and Liquid glass live in the window, not in
+                    // the settings file: back to a new install's too.
+                    setAppearance({ accent: 'sky', surface: 'solid' });
+                    window.electron?.resetSettings?.();
+                  }}
                   className="btn btn-ghost shrink-0 rounded-[8px] px-3 py-1.5 text-[12.5px] font-semibold">{t('resetSettings')}</button>
         </div>
         {/* Quitting is otherwise only in the tray menu, which some desktops

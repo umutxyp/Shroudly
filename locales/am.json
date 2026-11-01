@@ -12,6 +12,7 @@
   "protected": "ተጠብቋል",
   "notProtected": "አልተጠበቀም",
   "notWorkingYet": "ገና እየሰራ አይደለም",
+  "accentSwatch": "የማድመቂያ ቀለም {n} ከ{total}",
   "moveToAppsBtn": "ወደ «መተግበሪያዎች» አዛውር",
   "moveToAppsBody": "Shroudly ከዲስክ ምስሉ ወይም ከ«ውርዶች» አቃፊ እየሰራ ነው። በ«መተግበሪያዎች» ውስጥ ሲሆን ሲገቡ በራሱ ሊጀምር እና ራሱን ሊያዘምን ይችላል።",
   "moveToAppsTitle": "Shroudlyን ወደ «መተግበሪያዎች» ያዛውሩ",

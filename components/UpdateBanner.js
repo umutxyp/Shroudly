@@ -39,7 +39,7 @@ export default function UpdateBanner() {
         )}
         {u.failed && seconds == null && (
           <a href={RELEASES_URL} target="_blank" rel="noreferrer" className="btn btn-ghost inline-flex items-center gap-1.5 rounded-[8px] px-3 py-1.5 text-[12.5px] font-medium">
-            <ExternalLinkIcon className="h-3.5 w-3.5" />{t('updOpenDownload')}
+            <ExternalLinkIcon className="h-3.5 w-3.5 rtl:-scale-x-100" />{t('updOpenDownload')}
           </a>
         )}
       </>
@@ -56,7 +56,7 @@ export default function UpdateBanner() {
     detail = u.reason === 'folder' ? t('updManualFolder') : t('updManual');
     actions = (
       <a href={RELEASES_URL} target="_blank" rel="noreferrer" className="btn btn-primary inline-flex items-center gap-1.5 rounded-[8px] px-3 py-1.5 text-[12.5px] font-semibold">
-        <ExternalLinkIcon className="h-3.5 w-3.5" />{t('updOpenDownload')}
+        <ExternalLinkIcon className="h-3.5 w-3.5 rtl:-scale-x-100" />{t('updOpenDownload')}
       </a>
     );
   } else {
@@ -78,7 +78,7 @@ export default function UpdateBanner() {
   return (
     <div
       role="status"
-      className="no-drag relative mx-4 mb-3 overflow-hidden rounded-[var(--radius-sm)] border py-2 pl-3 pr-2 sm:mx-5"
+      className="no-drag relative mx-4 mb-3 overflow-hidden rounded-[var(--radius-sm)] border py-2 ps-3 pe-2 sm:mx-5"
       style={{ background: 'var(--accent-soft)', borderColor: 'var(--accent-line)' }}
     >
       <div className="flex flex-wrap items-center gap-x-2.5 gap-y-2">
@@ -97,7 +97,7 @@ export default function UpdateBanner() {
 
       {/* Only the cases that genuinely need a second line get one. */}
       {detail && !downloading && (
-        <p className="mt-1 pl-[26px] text-[12px] leading-snug" style={{ color: 'var(--text-dim)' }}>
+        <p className="mt-1 ps-[26px] text-[12px] leading-snug" style={{ color: 'var(--text-dim)' }}>
           {detail}
         </p>
       )}

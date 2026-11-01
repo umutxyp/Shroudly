@@ -12,6 +12,7 @@
   "protected": "Protegido",
   "notProtected": "Sem proteção",
   "notWorkingYet": "Ainda não funciona",
+  "accentSwatch": "Cor de destaque {n} de {total}",
   "moveToAppsBtn": "Mover para Aplicativos",
   "moveToAppsBody": "O Shroudly está rodando da imagem de disco ou da pasta Downloads. Em Aplicativos, ele pode abrir quando você inicia a sessão e se atualizar sozinho.",
   "moveToAppsTitle": "Mova o Shroudly para Aplicativos",

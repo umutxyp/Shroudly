@@ -80,7 +80,9 @@ export function SupportSection({ focus = 0 }) {
   // rests as after "Not now".
   useEffect(() => {
     if (!focus) return;
-    ref.current?.scrollIntoView({ block: 'start', behavior: 'smooth' });
+    // Smooth only for those who have not asked the system for less motion.
+    const calm = typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+    ref.current?.scrollIntoView({ block: 'start', behavior: calm ? 'auto' : 'smooth' });
     try { localStorage.setItem(LATER_KEY, String(Date.now())); } catch {}
   }, [focus]);
 

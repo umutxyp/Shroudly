@@ -28,7 +28,7 @@ const STEPS = [
 ];
 
 export default function Onboarding({ onNavigate }) {
-  const { t } = useLanguage();
+  const { t, isRTL } = useLanguage();
   const [open, setOpen] = useState(false);
   const [i, setI] = useState(0);
   const [rect, setRect] = useState(null);
@@ -89,12 +89,16 @@ export default function Onboarding({ onNavigate }) {
     if (!open) return undefined;
     const onKey = (e) => {
       if (e.key === 'Escape') close();
-      if (e.key === 'ArrowRight') setI((n) => Math.min(STEPS.length - 1, n + 1));
-      if (e.key === 'ArrowLeft') setI((n) => Math.max(0, n - 1));
+      // Right to left (Arabic, Persian, Hebrew, Urdu): the next step is to
+      // the left, as the cards and the buttons are.
+      const next = isRTL ? 'ArrowLeft' : 'ArrowRight';
+      const back = isRTL ? 'ArrowRight' : 'ArrowLeft';
+      if (e.key === next) setI((n) => Math.min(STEPS.length - 1, n + 1));
+      if (e.key === back) setI((n) => Math.max(0, n - 1));
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [open, close]);
+  }, [open, close, isRTL]);
 
   if (!open || !step) return null;
 

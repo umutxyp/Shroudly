@@ -12,6 +12,7 @@
   "protected": "Dilindungi",
   "notProtected": "Tidak dilindungi",
   "notWorkingYet": "Belum berfungsi",
+  "accentSwatch": "Warna aksen {n} daripada {total}",
   "moveToAppsBtn": "Alih ke Aplikasi",
   "moveToAppsBody": "Shroudly sedang berjalan daripada imej cakera atau folder Muat Turun. Dalam Aplikasi, ia boleh bermula apabila anda log masuk dan mengemas kini dirinya sendiri.",
   "moveToAppsTitle": "Alihkan Shroudly ke Aplikasi",

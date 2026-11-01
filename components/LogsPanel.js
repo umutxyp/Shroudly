@@ -105,7 +105,7 @@ export default function LogsPanel() {
             aria-pressed={filter === id}
             className="chip inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[12px] font-medium leading-snug"
           >
-            {id !== 'all' && <span className="h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: LEVEL[id] }} />}
+            {id !== 'all' && <span className="dot h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: LEVEL[id] }} />}
             {t(key)}
           </button>
         ))}
@@ -133,7 +133,7 @@ export default function LogsPanel() {
               return (
                 <li key={`${log.timestamp || ''}-${i}`} className="row-hover flex items-start gap-2 rounded-[8px] px-1.5 py-1 text-[12px] leading-relaxed">
                   <span className="num shrink-0" dir="ltr" style={{ color: 'var(--text-faint)' }}>{time}</span>
-                  <span className="mt-[0.55em] h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: LEVEL[log.level] || 'var(--text-faint)' }} />
+                  <span className="dot mt-[0.55em] h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: LEVEL[log.level] || 'var(--text-faint)' }} />
                   <span className="min-w-0 flex-1 select-text wrap-anywhere" dir="auto" style={{ color: 'var(--text)' }}>
                     {localizeLog(log.message, t)}
                   </span>

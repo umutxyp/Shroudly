@@ -12,6 +12,7 @@
   "protected": "خوندي",
   "notProtected": "خوندي نه دی",
   "notWorkingYet": "لا کار نه کوي",
+  "accentSwatch": "د ټینګار رنګ {n} له {total}",
   "moveToAppsBtn": "«اپلیکیشنونو» ته وړل",
   "moveToAppsBody": "Shroudly د خپل ډیسک انځور یا د «ښکته کړل شوي» فولډر څخه چلېږي. په «اپلیکیشنونو» کې د ننوتلو پر مهال پخپله پیلېدای او ځان تازه کولای شي.",
   "moveToAppsTitle": "Shroudly «اپلیکیشنونو» ته یوسئ",

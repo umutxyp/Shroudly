@@ -12,6 +12,7 @@
   "protected": "Himoyalangan",
   "notProtected": "Himoyalanmagan",
   "notWorkingYet": "Hali ishlamayapti",
+  "accentSwatch": "Urgʻu rangi {total} tadan {n}",
   "moveToAppsBtn": "«Ilovalar»ga koʻchirish",
   "moveToAppsBody": "Shroudly disk tasviridan yoki «Yuklanmalar» jildidan ishlamoqda. «Ilovalar» jildida u tizimga kirganingizda oʻzi ishga tushadi va oʻzini yangilay oladi.",
   "moveToAppsTitle": "Shroudlyni «Ilovalar» jildiga koʻchiring",

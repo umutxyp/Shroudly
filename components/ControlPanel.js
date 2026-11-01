@@ -96,9 +96,11 @@ export default function ControlPanel({ dpiStatus, onStatusChange, onSupport }) {
   const label = loading ? (active ? t('stopping') : t('starting')) : (active ? t('stop') : t('start'));
   // The shield and the title: the accent colour when it works, amber when it
   // is on and does not yet.
-  const ring = notRouting ? 'var(--warn-line)' : active ? 'var(--accent-line)' : 'var(--line-strong)';
-  const disc = notRouting ? 'var(--warn-soft)' : active ? 'var(--accent-soft)' : 'var(--surface)';
-  const glyph = notRouting ? 'var(--warn)' : active ? 'var(--accent)' : 'var(--text-faint)';
+  // --state: the accent, except where the accent is a warning or danger
+  // colour (globals.css).
+  const ring = notRouting ? 'var(--warn-line)' : active ? 'var(--state-line)' : 'var(--line-strong)';
+  const disc = notRouting ? 'var(--warn-soft)' : active ? 'var(--state-soft)' : 'var(--surface)';
+  const glyph = notRouting ? 'var(--warn)' : active ? 'var(--state)' : 'var(--text-faint)';
 
   return (
     <>
@@ -112,7 +114,7 @@ export default function ControlPanel({ dpiStatus, onStatusChange, onSupport }) {
           {active && !notRouting && (
             <span
               className="power-halo halo absolute rounded-full"
-              style={{ background: 'radial-gradient(circle, var(--accent-soft) 0%, transparent 70%)' }}
+              style={{ background: 'radial-gradient(circle, var(--state-soft) 0%, transparent 70%)' }}
             />
           )}
           <div
@@ -130,7 +132,7 @@ export default function ControlPanel({ dpiStatus, onStatusChange, onSupport }) {
         {/* Status text */}
         <div ref={statusRef} className="w-full max-w-sm text-center" aria-live="polite">
           <h2 className="text-2xl font-semibold leading-tight tracking-tight wrap-anywhere"
-              style={{ color: notRouting ? 'var(--warn)' : offline ? 'var(--text)' : active ? 'var(--accent)' : 'var(--text)' }}>
+              style={{ color: notRouting ? 'var(--warn)' : offline ? 'var(--text)' : active ? 'var(--state)' : 'var(--text)' }}>
             {notRouting ? t('notWorkingYet') : ownProxy ? t('ownProxyTitle') : offline ? t('noInternet') : active ? t('protected') : t('notProtected')}
           </h2>
           {notRouting ? (
@@ -167,7 +169,7 @@ export default function ControlPanel({ dpiStatus, onStatusChange, onSupport }) {
               disabled={loading}
               aria-busy={loading}
               data-tour="power"
-              className={`btn w-full max-w-xs rounded-[var(--radius)] px-5 py-3.5 text-[15px] font-semibold ${active ? 'btn-danger' : 'btn-primary'}`}
+              className={`btn w-full max-w-xs rounded-[var(--radius)] px-5 py-3.5 text-[15px] font-semibold ${active ? 'btn-danger' : 'btn-state'}`}
             >
               {loading
                 ? <SpinnerIcon className="spin h-[18px] w-[18px]" />
