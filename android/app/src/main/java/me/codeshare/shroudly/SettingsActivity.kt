@@ -196,8 +196,19 @@ class SettingsActivity : Activity() {
         val d = resources.displayMetrics.density
         chevron?.setBounds(0, 0, (18 * d).toInt(), (18 * d).toInt())
         row.setCompoundDrawablesRelative(c[0], c[1], chevron, c[3])
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            row.stateDescription = getString(if (shown) R.string.androidHideExplanation else R.string.androidShowExplanation)
+        // TalkBack says "expanded" or "collapsed", in the phone's language.
+        row.accessibilityDelegate = object : View.AccessibilityDelegate() {
+            override fun onInitializeAccessibilityNodeInfo(host: View, info: android.view.accessibility.AccessibilityNodeInfo) {
+                super.onInitializeAccessibilityNodeInfo(host, info)
+                info.addAction(if (shown) android.view.accessibility.AccessibilityNodeInfo.AccessibilityAction.ACTION_COLLAPSE
+                    else android.view.accessibility.AccessibilityNodeInfo.AccessibilityAction.ACTION_EXPAND)
+            }
+
+            override fun performAccessibilityAction(host: View, action: Int, args: Bundle?): Boolean {
+                if (action == android.view.accessibility.AccessibilityNodeInfo.ACTION_EXPAND ||
+                    action == android.view.accessibility.AccessibilityNodeInfo.ACTION_COLLAPSE) return host.performClick()
+                return super.performAccessibilityAction(host, action, args)
+            }
         }
     }
 
