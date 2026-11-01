@@ -68,6 +68,21 @@ object Handover {
      * once it is gone or no longer validated. */
     fun keptEnds(kept: Look): Boolean = !kept.there || !kept.validated
 
+    /* Whether the VPN interface is made again for IPv6 (wanted: the network
+     * has it and it is not turned off; routed: the interface carries it),
+     * which ends every connection apps have through the tunnel. IPv6 gone:
+     * at once, or apps' IPv6 would go into a tunnel that cannot carry it.
+     * IPv6 come: only when apps' connections are being ended anyway (ending),
+     * else it waits for that. It often arrives seconds after the network
+     * itself (the router's advertisement after DHCP), and up to 2.6.44 it
+     * cost a second end of everything right after a move, the connections
+     * kept on the old network included. Meanwhile apps use IPv4, which
+     * reaches every site: each name they look up through the tunnel gets an
+     * IPv4 stand-in (TunnelConfig), and the engine itself uses IPv6 where
+     * the network has it. */
+    fun renewsForV6(wanted: Boolean, routed: Boolean, ending: Boolean): Boolean =
+        wanted != routed && (!wanted || ending)
+
     /* What of a network's capabilities matters here: its kind and whether it
      * reaches the internet. Not its signal strength or speed, which the same
      * callback reports all the time: each report puts the services' look

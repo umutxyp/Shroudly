@@ -46,6 +46,24 @@ class HandoverTest {
         assertTrue(Handover.keptEnds(mobileUp.copy(there = false)))
     }
 
+    /* IPv6 that goes is taken off the interface at once; IPv6 that comes
+     * (often seconds after the network) waits until apps' connections end
+     * anyway, so a move costs at most one end of everything, and none at
+     * all where the old network still works. */
+    @Test
+    fun ipv6ThatComesWaitsForTheNextEnd() {
+        // Gone: at once, whether or not the connections end anyway.
+        assertTrue(Handover.renewsForV6(wanted = false, routed = true, ending = false))
+        assertTrue(Handover.renewsForV6(wanted = false, routed = true, ending = true))
+        // Come: along with an end anyway, never on its own.
+        assertTrue(Handover.renewsForV6(wanted = true, routed = false, ending = true))
+        assertFalse(Handover.renewsForV6(wanted = true, routed = false, ending = false))
+        // Unchanged: never.
+        for (v6 in listOf(true, false)) for (ending in listOf(true, false)) {
+            assertFalse(Handover.renewsForV6(wanted = v6, routed = v6, ending = ending))
+        }
+    }
+
     /* Wired in, in both modes: both callbacks (the default network's alone
      * hears Android move to a network that was already up), and the
      * capabilities looked at only when what matters changed, so a stream of
@@ -69,7 +87,12 @@ class HandoverTest {
         val settled = vpn.substringAfter("private fun onNetworkSettled()").substringBefore("\n    }\n")
         assertTrue(settled.contains("!Handover.endsOld(Handover.look(cm, old), Handover.look(cm, now.first))"))
         assertTrue(settled.contains("if (keptGone.isNotEmpty()) endOldConnections("))
-        assertTrue(settled.contains("if (changed || keptGone.isNotEmpty()) endOldConnections()"))
+        assertTrue(settled.contains("val ending = (changed || keptGone.isNotEmpty()) && !keepOld"))
+        assertTrue(settled.contains("if (Handover.renewsForV6(routesV6(v6), v6Routed, ending)) {"))
+        assertTrue(settled.contains("if (ending) endOldConnections()"))
+        // IPv6 that came meanwhile comes with the next end of the connections.
+        val ends = vpn.substringAfter("private fun endOldConnections(").substringBefore("\n    }\n")
+        assertTrue(ends.contains("if (routesV6(underlyingV6) != v6Routed) {\n            renewInterface(routesV6(underlyingV6))"))
 
         val proxy = File(src, "ShroudlyProxyService.kt").readText()
         assertTrue(proxy.contains("NetWatch(::later, { networks += it }"))

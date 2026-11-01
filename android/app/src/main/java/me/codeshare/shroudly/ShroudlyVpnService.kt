@@ -309,7 +309,7 @@ class ShroudlyVpnService : VpnService() {
                     "apps" -> later {
                         if (active) {
                             log("The apps that go through Shroudly changed; the VPN interface is renewed")
-                            renewInterface(v6Routed)
+                            renewInterface(routesV6(underlyingV6))
                         }
                     }
                     // QUIC or IPv6 turned off or on (#59): the engine again with
@@ -991,21 +991,26 @@ class ShroudlyVpnService : VpnService() {
         if (changed) doh?.networkChanged()
         pathWatch.oneStrike = false
         healthReset(FIRST_PATH_CHECK_MS)
+        // What was opened over the old network is ended, unless it still
+        // works there (Handover): then it is kept until that network goes.
+        val keepOld = changed && keptGone.isEmpty() && old != null && !Handover.endsOld(Handover.look(cm, old), Handover.look(cm, now.first))
+        val ending = (changed || keptGone.isNotEmpty()) && !keepOld
         // The interface carries IPv6 only where the network does. A new one
-        // starts a new tunnel, which ends the old connections too.
-        if (routesV6(v6) != v6Routed) {
+        // starts a new tunnel, which ends every connection apps have: at
+        // once for IPv6 gone, only along with an end anyway for IPv6 come
+        // (Handover.renewsForV6).
+        if (Handover.renewsForV6(routesV6(v6), v6Routed, ending)) {
             log("IPv6 ${if (v6) "available" else "gone"} on this network; renewing the VPN interface")
             renewInterface(routesV6(v6))
             return
         }
-        // What was opened over the old network is ended, unless it still
-        // works there (Handover): then it is kept until that network goes.
-        if (changed && keptGone.isEmpty() && old != null && !Handover.endsOld(Handover.look(cm, old), Handover.look(cm, now.first))) {
-            kept += old
+        if (routesV6(v6) != v6Routed) log("IPv6 available on this network; the VPN interface takes it once apps' connections end anyway, not now")
+        if (keepOld) {
+            kept += old!!
             log("The network before (${Net.describe(cm, old)}) still works: apps' connections over it are kept until it goes")
             return
         }
-        if (changed || keptGone.isNotEmpty()) endOldConnections()
+        if (ending) endOldConnections()
     }
 
     /* Another network: apps' connections through the tunnel were carried
@@ -1020,6 +1025,11 @@ class ShroudlyVpnService : VpnService() {
         kept.clear()
         if (!tunnelRunning || engine == null) return
         log(line)
+        // IPv6 the network gained meanwhile comes with it (onNetworkSettled).
+        if (routesV6(underlyingV6) != v6Routed) {
+            renewInterface(routesV6(underlyingV6))
+            return
+        }
         stopTunnel()
         if (restartProcess) {
             wedged("the tunnel did not stop after the network changed")
