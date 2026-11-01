@@ -64,7 +64,7 @@
     <string name="androidProxyOnlyLostHere">ፕሮክሲ ብቻ በስህተት ምክንያት ቆሟል፤ ስለዚህ Shroudlyን እንዲጠቀሙ የተዘጋጁ መተግበሪያዎች መገናኘት አይችሉም።</string>
     <string name="androidProxyOnlyMoved">ወደብ {taken} በሌላ መተግበሪያ (ለምሳሌ v2rayNG) ተይዟል፤ ስለዚህ Shroudly በ127.0.0.1:{port} ላይ ነው። ፕሮክሲዎን ወደ ወደብ {port} ያቀናብሩ።</string>
     <string name="androidProxyOnlyNotStarted">ፕሮክሲ ብቻ መጀመር አልቻለም፤ ስለዚህ Shroudlyን እንዲጠቀሙ የተዘጋጁ መተግበሪያዎች መገናኘት አይችሉም።</string>
-    <string name="androidProxyOnlyOffWifi">ፕሮክሲ ብቻ ጠፍቷል። የዚህ አውታረ መረብ proxy ወደ {addr} ከተቀናበረ፣ በWi-Fi ቅንብሮች ውስጥ ወደ «ምንም» ይመልሱት፤ አለበለዚያ የሚጠቀሙበት መተግበሪያዎች መገናኘት አይችሉም።</string>
+    <string name="androidProxyOnlyOffWifi">ፕሮክሲ ብቻ ጠፍቷል። የዚህ አውታረ መረብ ፕሮክሲ ወደ {addr} ከተቀናበረ፣ በWi-Fi ቅንብሮች ውስጥ ወደ «ምንም» ይመልሱት፤ አለበለዚያ የሚጠቀሙበት መተግበሪያዎች መገናኘት አይችሉም።</string>
     <string name="androidProxyOnlyOn">ፕሮክሲ ብቻ፦ 127.0.0.1:{port} እንዲጠቀሙ የተዘጋጁ መተግበሪያዎች በShroudly ያልፋሉ</string>
     <string name="androidProxyOnlyRunning">ፕሮክሲ ብቻ በርቷል</string>
     <string name="androidQuicOff">QUICን አጥፋ</string>
@@ -94,10 +94,10 @@
     <string name="androidVpnDeniedHere">Shroudly የመተግበሪያዎችዎን ግንኙነቶች ለማሳለፍ የVPN ፈቃድ ያስፈልገዋል። ክቡን ይንኩና Android ሲጠይቅ «እሺ»ን ይምረጡ።</string>
     <string name="androidVpnRevoked">Android ጥበቃውን አጥፍቶታል፤ ብዙ ጊዜ ሌላ የVPN መተግበሪያ ስለበራ ነው።</string>
     <string name="androidVpnSettings">የVPN ቅንብሮች</string>
-    <string name="androidWifiProxyDead">የዚህ አውታረ መረብ proxy ወደ {addr} ተቀናብሯል፣ ግን እዚያ ምንም አይሰራም፤ ስለዚህ የሚጠቀሙበት መተግበሪያዎች (Chromeን ጨምሮ) መገናኘት አይችሉም። በWi-Fi ቅንብሮች ውስጥ ይህን አውታረ መረብ ከፍተው Proxyን «ምንም» ያድርጉት።</string>
-    <string name="androidWifiProxyDeadTitle">በWi-Fi ቅንብሮች ውስጥ የቀረ proxy</string>
-    <string name="androidWifiProxyOtherPort">የዚህ አውታረ መረብ proxy ወደ {addr} ተቀናብሯል፣ ግን Shroudly አሁን በ127.0.0.1:{port} ላይ ነው፤ ስለዚህ የሚጠቀሙበት መተግበሪያዎች መገናኘት አይችሉም። በWi-Fi ቅንብሮች ውስጥ ይህን አውታረ መረብ ከፍተው የproxy ወደቡን {port} ያድርጉት።</string>
-    <string name="androidWifiProxyShroudlyOff">የዚህ አውታረ መረብ proxy ወደ Shroudly ({addr}) ተቀናብሯል፣ ግን Shroudly ጠፍቷል፤ ስለዚህ የሚጠቀሙበት መተግበሪያዎች (Chromeን ጨምሮ) መገናኘት አይችሉም። ጥበቃ ይጀምሩ፣ ወይም በWi-Fi ቅንብሮች ውስጥ Proxyን «ምንም» ያድርጉት።</string>
+    <string name="androidWifiProxyDead">የዚህ አውታረ መረብ ፕሮክሲ ወደ {addr} ተቀናብሯል፣ ግን እዚያ ምንም አይሰራም፤ ስለዚህ የሚጠቀሙበት መተግበሪያዎች (Chromeን ጨምሮ) መገናኘት አይችሉም። በWi-Fi ቅንብሮች ውስጥ ይህን አውታረ መረብ ከፍተው Proxyን «ምንም» ያድርጉት።</string>
+    <string name="androidWifiProxyDeadTitle">በWi-Fi ቅንብሮች ውስጥ የቀረ ፕሮክሲ</string>
+    <string name="androidWifiProxyOtherPort">የዚህ አውታረ መረብ ፕሮክሲ ወደ {addr} ተቀናብሯል፣ ግን Shroudly አሁን በ127.0.0.1:{port} ላይ ነው፤ ስለዚህ የሚጠቀሙበት መተግበሪያዎች መገናኘት አይችሉም። በWi-Fi ቅንብሮች ውስጥ ይህን አውታረ መረብ ከፍተው የproxy ወደቡን {port} ያድርጉት።</string>
+    <string name="androidWifiProxyShroudlyOff">የዚህ አውታረ መረብ ፕሮክሲ ወደ Shroudly ({addr}) ተቀናብሯል፣ ግን Shroudly ጠፍቷል፤ ስለዚህ የሚጠቀሙበት መተግበሪያዎች (Chromeን ጨምሮ) መገናኘት አይችሉም። ጥበቃ ይጀምሩ፣ ወይም በWi-Fi ቅንብሮች ውስጥ Proxyን «ምንም» ያድርጉት።</string>
     <string name="androidWifiSettings">የWi-Fi ቅንብሮች</string>
     <string name="androidWorkApps">በሥራ መገለጫዎ ውስጥ ያሉ መተግበሪያዎች በShroudly በኩል አያልፉም።</string>
     <string name="appSection">መተግበሪያ</string>
@@ -119,7 +119,7 @@
     <string name="dnsServerFails">ምላሽ የለም ({error})። ጥቅም ላይ አይደለም፤ አድራሻውን ያረጋግጡ፣ ወይም ቢሆንም ይጠቀሙበት።</string>
     <string name="dnsServerOk">በ{ms} ms ውስጥ ምላሽ ሰጥቷል (example.com: {address})። አሁን ጥቅም ላይ ነው።</string>
     <string name="dnsServerProxy">በproxy በኩል (አማራጭ)</string>
-    <string name="dnsServerProxyDesc">ወደዚህ የDNS አገልጋይ የሚደረጉ ግንኙነቶች ብቻ በእሱ በኩል ያልፋሉ፤ አድራሻው ለታገደ አገልጋይ። የSOCKS5 ወይም HTTP proxy፣ ለምሳሌ socks5://127.0.0.1:1080።</string>
+    <string name="dnsServerProxyDesc">ወደዚህ የDNS አገልጋይ የሚደረጉ ግንኙነቶች ብቻ በእሱ በኩል ያልፋሉ፤ አድራሻው ለታገደ አገልጋይ። የSOCKS5 ወይም HTTP ፕሮክሲ፣ ለምሳሌ socks5://127.0.0.1:1080።</string>
     <string name="dnsServerStrict">ይህ አገልጋይ ብቻ</string>
     <string name="dnsServerStrictDesc">ምላሽ ባይሰጥም እንኳ ሌላ አይጠየቅም፤ ያኔ ምላሽ እስኪሰጥ ድረስ የስም ፍለጋዎች አይሳኩም። አገልጋይን ለመሞከር፣ ወይም ፍለጋዎችዎን ሌላ ማንም ማየት በማይገባበት ጊዜ።</string>
     <string name="dnsServerUse">ተጠቀም</string>
