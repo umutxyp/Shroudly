@@ -5,6 +5,7 @@ import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import java.io.File
 import java.util.Locale
 
 class VersionsTest {
@@ -177,5 +178,33 @@ class FormatTest {
         assertEquals("2.0 GB", Format.bytes(2L * 1024 * 1024 * 1024, Locale.ROOT))
         assertEquals("0:05", Format.duration(5_400))
         assertEquals("1:02:03", Format.duration(3_723_000))
+    }
+}
+
+/* Each of Shroudly's notices has an ID of its own. Two with the same one
+ * replace each other, and cancelling one takes the other away too: the
+ * update from Google Play once had the Wi-Fi proxy reminder's. */
+class NoticesTest {
+    @Test
+    fun everyNoticeHasItsOwnId() {
+        val shown = Regex("""\b(?:notify|startForeground)\(\s*(\w+)""")
+        val constant = Regex("""\bval (\w+) = (\d+)$""", RegexOption.MULTILINE)
+        val ids = HashMap<Int, String>()
+        for (dir in listOf("src/main", "src/play", "src/apk", "src/debug")) {
+            File(dir).walkTopDown().filter { it.isFile && it.extension == "kt" }.forEach { file ->
+                val text = file.readText()
+                val constants = constant.findAll(text).associate { it.groupValues[1] to it.groupValues[2].toInt() }
+                for (name in shown.findAll(text).map { it.groupValues[1] }.toSet()) {
+                    val id = name.toIntOrNull() ?: constants[name]
+                        ?: throw AssertionError("${file.name}: a notice with $name, not a number or a constant of the file")
+                    val who = "${file.name} $name"
+                    val other = ids.put(id, who)
+                    assertTrue("$who and $other are both notice $id", other == null || other == who)
+                }
+            }
+        }
+        // All found: the VPN's three, the proxy's two, automation's, KeepOn's
+        // and the update's (the Play build's; src/play is read either way).
+        assertTrue(ids.keys.toString(), ids.size >= 8)
     }
 }

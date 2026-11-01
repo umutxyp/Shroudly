@@ -48,6 +48,13 @@ object PlayUpdatePolicy {
         else -> Type.NONE
     }
 
+    /* Play's dialog may come up by itself (once a day) for this flow. The
+     * full screen only for an update that is pushed: one Play allows only
+     * that way (it refuses the flexible one, for a release just out or a
+     * phone short of space) waits on the card until the user taps it. */
+    fun byItself(type: Type, pushed: Boolean): Boolean =
+        type == Type.FLEXIBLE || (type == Type.IMMEDIATE && pushed)
+
     /* Due again (a time in the future, the clock set back, counts as long ago). */
     fun due(at: Long, now: Long, every: Long): Boolean = now - at > every || at > now
 

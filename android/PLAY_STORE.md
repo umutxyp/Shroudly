@@ -216,6 +216,10 @@ Kullanıcının gördüğü:
     zaman sayılır; yalnızca masaüstü için çıkan sürümler de numara
     harcadığından eşik bilerek yüksek),
   - güncelleme 7 gündür bekliyorsa.
+- Play esnek güncellemeyi kabul etmeyip yalnızca tam ekranı sunuyorsa (sürüm
+  yeni çıkmışsa ya da telefonda yer azsa) ve güncelleme yukarıdaki
+  durumlardan biri değilse, tam ekran kendiliğinden çıkmaz: kart bekler,
+  kullanıcı düğmeye dokununca açılır.
 - Kullanıcı "hayır" derse ya da Play'in ekranını kapatırsa Shroudly normal
   çalışır; ertesi gün yeniden sorulur. Uygulama **asla kilitlenmez**.
 - İndirme bitince: pencere açıksa kart **Şimdi yeniden başlat** der. Pencere
@@ -370,10 +374,11 @@ Google'ın bu kitaplık için açıkladığı: toplanan veriler cihaz meta veril
 uygulama sürümü ve yüklü modül/varlık paketleri listesi; amaç güncelleme olup
 olmadığını ve boyutunu bulmak; aktarımda şifreli; üçüncü taraflarla
 paylaşılmaz; belirli bir saklama süresinden sonra silinir
-(https://developer.android.com/guide/playcore/in-app-updates, "Data
-safety"). Google, formdaki cevaplardan yalnızca geliştiricinin sorumlu
-olduğunu söylüyor: formu doldururken bu satırları da gözden geçir. (İleride bir çökme raporu gönderilirse "Uygulama bilgileri ve
-performans → Çökme günlükleri" olarak beyan edilmeli.)
+(https://developer.android.com/guide/playcore/in-app-updates, "Data safety").
+Google, formdaki cevaplardan yalnızca geliştiricinin sorumlu olduğunu
+söylüyor: formu doldururken bu satırları da gözden geçir. (İleride bir çökme
+raporu gönderilirse "Uygulama bilgileri ve performans → Çökme günlükleri"
+olarak beyan edilmeli.)
 
 ### 5g. VPN beyanı (VpnService declaration)
 

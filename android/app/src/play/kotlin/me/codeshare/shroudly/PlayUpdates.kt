@@ -44,9 +44,10 @@ import me.codeshare.shroudly.PlayUpdatePolicy.Stage
 object PlayUpdates {
     // UpdateCheck's file; the play* keys are this copy's.
     private const val PREFS = "update"
-    // Its own notice (ShroudlyVpnService's are 1 to 3, the proxy's 4,
-    // automation's 5).
-    private const val NOTICE_ID = 6
+    // Its own notice, so it never replaces another one, nor is cancelled with
+    // it (ShroudlyVpnService's are 1 to 3, the proxy's 4 and 6, automation's
+    // 5, KeepOn's 7302; NoticesTest).
+    private const val NOTICE_ID = 7303
     private const val NO_TYPE = -1
 
     private var manager: AppUpdateManager? = null
@@ -54,6 +55,9 @@ object PlayUpdates {
     private var app: Context? = null
     // The window's card, from resume to pause.
     private var show: ((Card?) -> Unit)? = null
+    // The card last told (tell), also while the window is away: what it
+    // shows at once when it is back while an update is on its way.
+    private var last: Card? = null
     private var listening = false
     @Volatile private var failureLogged = false
 
@@ -76,9 +80,17 @@ object PlayUpdates {
             p.edit().remove("playCode").remove("playType").remove("playPushed").apply()
             offered = 0
         }
-        // What was found last time, at once (as the APK's card does).
-        show(if (offered > 0) Card(Versions.fromCode(offered), Stage.AVAILABLE, p.getBoolean("playPushed", false)) else null)
         val onItsWay = offered > 0 && p.getInt("playType", NO_TYPE) != NO_TYPE
+        // What was found last time, at once (as the APK's card does). While
+        // an update is on its way, the card as it was (downloading, or
+        // "Restart now"), not "available" with the wrong button until Play
+        // answers; none yet in a process just started.
+        val version = Versions.fromCode(offered)
+        show(when {
+            offered <= 0 -> null
+            !onItsWay -> Card(version, Stage.AVAILABLE, p.getBoolean("playPushed", false))
+            else -> last?.takeIf { it.version == version }
+        })
         val now = System.currentTimeMillis()
         if (!onItsWay && !PlayUpdatePolicy.due(p.getLong("playCheckedAt", 0), now, PlayUpdatePolicy.CHECK_EVERY_MS)) return
         manager(activity).appUpdateInfo
@@ -91,13 +103,18 @@ object PlayUpdates {
                     failureLogged = true
                     ShroudlyVpnService.log("Google Play gave no update information (${(e as? InstallException)?.errorCode ?: e.message})")
                 }
-                this.show?.invoke(null)
+                tell(null)
             }
     }
 
     /* The window is going (MainActivity.onPause). */
     fun pause() {
         show = null
+    }
+
+    private fun tell(card: Card?) {
+        last = card
+        show?.invoke(card)
     }
 
     private fun found(activity: Activity, info: AppUpdateInfo, mayAsk: () -> Boolean) {
@@ -109,7 +126,7 @@ object PlayUpdates {
         when {
             info.installStatus() == InstallStatus.DOWNLOADED -> {
                 p.edit().putInt("playCode", code).apply()
-                show?.invoke(Card(version, Stage.READY))
+                tell(Card(version, Stage.READY))
             }
             info.updateAvailability() == UpdateAvailability.DEVELOPER_TRIGGERED_UPDATE_IN_PROGRESS &&
                 p.getInt("playType", NO_TYPE) == AppUpdateType.IMMEDIATE -> {
@@ -122,7 +139,7 @@ object PlayUpdates {
                 // A flexible download under way.
                 p.edit().putInt("playCode", code).apply()
                 listen(activity)
-                show?.invoke(Card(version, Stage.DOWNLOADING, percent = PlayUpdatePolicy.percent(info.bytesDownloaded(), info.totalBytesToDownload())))
+                tell(Card(version, Stage.DOWNLOADING, percent = PlayUpdatePolicy.percent(info.bytesDownloaded(), info.totalBytesToDownload())))
             }
             info.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE && code > BuildConfig.VERSION_CODE -> {
                 // When this copy first heard of an update (its own count of
@@ -135,14 +152,17 @@ object PlayUpdates {
                 val type = PlayUpdatePolicy.type(pushed, allowed(info, AppUpdateType.FLEXIBLE), allowed(info, AppUpdateType.IMMEDIATE))
                 if (type == PlayUpdatePolicy.Type.NONE) {
                     p.edit().remove("playCode").remove("playType").apply()
-                    show?.invoke(null)
+                    tell(null)
                     return
                 }
                 p.edit().putInt("playCode", code).putBoolean("playPushed", pushed).remove("playType").apply()
-                show?.invoke(Card(version, Stage.AVAILABLE, pushed))
-                // Play's own dialog by itself: at most once a day, and only
-                // while the window is still in front with nothing else going on.
-                if (show != null && mayAsk() && PlayUpdatePolicy.due(p.getLong("playAskedAt", 0), now, PlayUpdatePolicy.ASK_EVERY_MS)) {
+                tell(Card(version, Stage.AVAILABLE, pushed))
+                // Play's own dialog by itself: at most once a day, only while
+                // the window is still in front with nothing else going on, and
+                // the full screen only for an update that is pushed (otherwise
+                // the card's button starts it).
+                if (show != null && mayAsk() && PlayUpdatePolicy.byItself(type, pushed) &&
+                    PlayUpdatePolicy.due(p.getLong("playAskedAt", 0), now, PlayUpdatePolicy.ASK_EVERY_MS)) {
                     p.edit().putLong("playAskedAt", now).apply()
                     ShroudlyVpnService.log("Google Play has version $version${if (pushed) " (pushed: priority ${info.updatePriority()}, $stale days)" else ""}; asking")
                     start(activity, info, type.flow())
@@ -150,7 +170,7 @@ object PlayUpdates {
             }
             else -> {
                 p.edit().remove("playCode").remove("playType").remove("playPushed").apply()
-                show?.invoke(null)
+                tell(null)
             }
         }
     }
@@ -211,13 +231,13 @@ object PlayUpdates {
         val version = Versions.fromCode(p.getInt("playCode", 0))
         when (st.installStatus()) {
             InstallStatus.PENDING, InstallStatus.DOWNLOADING ->
-                show?.invoke(Card(version, Stage.DOWNLOADING, percent = PlayUpdatePolicy.percent(st.bytesDownloaded(), st.totalBytesToDownload())))
+                tell(Card(version, Stage.DOWNLOADING, percent = PlayUpdatePolicy.percent(st.bytesDownloaded(), st.totalBytesToDownload())))
             InstallStatus.DOWNLOADED -> downloaded(ctx, version)
             InstallStatus.FAILED, InstallStatus.CANCELED -> {
                 ShroudlyVpnService.log("Google Play stopped the update to $version (error ${st.installErrorCode()})")
                 p.edit().remove("playType").apply()
                 unlisten()
-                show?.invoke(Card(version, Stage.AVAILABLE, p.getBoolean("playPushed", false)))
+                tell(Card(version, Stage.AVAILABLE, p.getBoolean("playPushed", false)))
             }
             else -> {}
         }
@@ -236,8 +256,11 @@ object PlayUpdates {
     }
 
     private fun downloaded(ctx: Context, version: String) {
+        // "Restart now" on the card: now, or when the window is back.
+        val ready = Card(version, Stage.READY)
+        last = ready
         when (PlayUpdatePolicy.downloaded(Protection.windowVisible, appInFront(), Protection.state == Protection.State.OFF)) {
-            PlayUpdatePolicy.Downloaded.CARD -> show?.invoke(Card(version, Stage.READY))
+            PlayUpdatePolicy.Downloaded.CARD -> tell(ready)
             PlayUpdatePolicy.Downloaded.INSTALL -> {
                 ShroudlyVpnService.log("Version $version downloaded from Google Play; installed now (protection is off, Shroudly is not in use)")
                 unlisten()

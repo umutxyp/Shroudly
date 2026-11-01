@@ -52,8 +52,23 @@ class PlayUpdatePolicyTest {
         assertEquals(Type.IMMEDIATE, PlayUpdatePolicy.type(pushed = true, flexibleAllowed = true, immediateAllowed = true))
         // Pushed, but Play allows only the flexible one: offered, not forced.
         assertEquals(Type.FLEXIBLE, PlayUpdatePolicy.type(pushed = true, flexibleAllowed = true, immediateAllowed = false))
+        // Only the immediate one allowed: the card's button may start it...
         assertEquals(Type.IMMEDIATE, PlayUpdatePolicy.type(pushed = false, flexibleAllowed = false, immediateAllowed = true))
         assertEquals(Type.NONE, PlayUpdatePolicy.type(pushed = true, flexibleAllowed = false, immediateAllowed = false))
+    }
+
+    /* ...but the full screen never comes up by itself for an update that is
+     * not pushed: the user taps the card when it suits them. */
+    @Test
+    fun theFullScreenByItselfOnlyWhenPushed() {
+        assertTrue(PlayUpdatePolicy.byItself(Type.FLEXIBLE, pushed = false))
+        assertTrue(PlayUpdatePolicy.byItself(Type.FLEXIBLE, pushed = true))
+        assertTrue(PlayUpdatePolicy.byItself(Type.IMMEDIATE, pushed = true))
+        assertFalse(PlayUpdatePolicy.byItself(Type.IMMEDIATE, pushed = false))
+        assertFalse(PlayUpdatePolicy.byItself(Type.NONE, pushed = true))
+        // PlayUpdates asks it before Play's dialog comes up by itself.
+        val play = File("src/play/kotlin/me/codeshare/shroudly/PlayUpdates.kt").readText()
+        assertTrue(Regex("""mayAsk\(\) && PlayUpdatePolicy\.byItself\(type, pushed\) &&""").containsMatchIn(play))
     }
 
     @Test
@@ -90,6 +105,19 @@ class PlayUpdatePolicyTest {
         // Protection on: a notice, the user picks the moment.
         assertEquals(Downloaded.NOTICE, PlayUpdatePolicy.downloaded(windowVisible = false, appInFront = false, protectionOff = false))
         assertEquals(Downloaded.NOTICE, PlayUpdatePolicy.downloaded(windowVisible = false, appInFront = true, protectionOff = false))
+    }
+
+    /* Back in the window while an update is on its way: the card as it was
+     * (downloading, "Restart now"), never "available" with the wrong button
+     * until Play answers. */
+    @Test
+    fun theCardStaysAsItWasWhileAnUpdateIsOnItsWay() {
+        val play = File("src/play/kotlin/me/codeshare/shroudly/PlayUpdates.kt").readText()
+        assertTrue(play.contains("!onItsWay -> Card(version, Stage.AVAILABLE"))
+        assertTrue(play.contains("else -> last?.takeIf { it.version == version }"))
+        // Every card goes through tell, which keeps it while the window is away.
+        assertEquals(1, Regex("""show\?\.invoke\(""").findAll(play).count())
+        assertTrue(Regex("""val ready = Card\(version, Stage\.READY\)\s*last = ready""").containsMatchIn(play))
     }
 
     @Test

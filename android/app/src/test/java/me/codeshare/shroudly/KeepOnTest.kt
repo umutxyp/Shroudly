@@ -52,7 +52,8 @@ class KeepOnTest {
     fun protectionComesBackAfterAnUpdate() {
         val src = File("src/main")
         val manifest = File(src, "AndroidManifest.xml").readText()
-        assertTrue(Regex("""android:name="\.BootReceiver"[\s\S]*?android\.intent\.action\.MY_PACKAGE_REPLACED[\s\S]*?</receiver>""").containsMatchIn(manifest))
+        // In BootReceiver's own block, not a receiver after it.
+        assertTrue(Regex("""android:name="\.BootReceiver"(?:(?!</receiver>)[\s\S])*android\.intent\.action\.MY_PACKAGE_REPLACED""").containsMatchIn(manifest))
         val receiver = File(src, "java/me/codeshare/shroudly/BootReceiver.kt").readText()
         assertTrue(receiver.contains("Intent.ACTION_MY_PACKAGE_REPLACED -> KeepOn.updated(Lang.wrap(context))"))
         // "Start when the phone starts" stays its own setting; an update does not need it.

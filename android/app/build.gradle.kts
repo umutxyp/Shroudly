@@ -27,7 +27,8 @@ val abis = listOf("arm64-v8a", "armeabi-v7a", "x86_64")
 //    looks for updates on GitHub;
 //  - the bundle for Google Play (-Pshroudly.store=play, with bundleRelease):
 //    STORE_BUILD, so it never asks GitHub for updates (Google Play offers
-//    them inside the app, PlayUpdates), and signed with the upload key; Play re-signs it with the same app signing key as the APK
+//    them inside the app, PlayUpdates), and signed with the upload key;
+//    Play re-signs it with the same app signing key as the APK
 //    (android/PLAY_STORE.md), so either install updates the other.
 val playBuild = providers.gradleProperty("shroudly.store").orNull == "play"
 
@@ -113,6 +114,15 @@ android {
             useLegacyPackaging = true
             excludes += "lib/*/libshroudlycore.so"
         }
+    }
+
+    // Every language in every install from Google Play: the language is
+    // picked inside the app (Lang, 31 of them), and a bundle split by
+    // language would leave a phone only the strings of its system languages
+    // (Android 8 to 12), so a language chosen in the app would show in
+    // English. The strings are small.
+    bundle {
+        language { enableSplit = false }
     }
 
     lint {
