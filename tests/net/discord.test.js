@@ -280,12 +280,12 @@ function get(url, o = {}) {
    * wording and could do nothing with it, so the two are kept apart. */
   {
     const fsx = require('fs');
-    const main = fsx.readFileSync(path.join(ROOT, 'electron', 'main.js'), 'utf8');
+    const main = fsx.readFileSync(path.join(ROOT, 'electron', 'main.js'), 'utf8').replace(/\r\n/g, '\n');
     t.ok(/discordState\.needsPermission = r\.denied\.length > 0 && process\.platform === 'darwin'/.test(main),
       'the macOS permission state is only ever set on macOS');
     t.ok(/discordState\.locked = r\.denied\.length > 0 && process\.platform !== 'darwin'/.test(main),
       'everywhere else the same refusal is reported as the file being locked');
-    const notice = fsx.readFileSync(path.join(ROOT, 'components', 'BlockedNotice.js'), 'utf8');
+    const notice = fsx.readFileSync(path.join(ROOT, 'components', 'BlockedNotice.js'), 'utf8').replace(/\r\n/g, '\n');
     t.ok(notice.includes("discord?.locked") && notice.includes("t('discordLocked')"),
       'and the window has a line of its own for it');
     const en = JSON.parse(fsx.readFileSync(path.join(ROOT, 'locales', 'en.json'), 'utf8'));
@@ -321,10 +321,10 @@ function get(url, o = {}) {
     fs.rmSync(dir, { recursive: true, force: true });
 
     // the window is told which kind of refusal it is, with its own line
-    const main = fs.readFileSync(path.join(ROOT, 'electron', 'main.js'), 'utf8');
+    const main = fs.readFileSync(path.join(ROOT, 'electron', 'main.js'), 'utf8').replace(/\r\n/g, '\n');
     t.ok(/discordState\.lockedReason = stillOpen \? 'running' : 'protected'/.test(main),
       'the refusal is split into Discord-still-running and write-protected');
-    const notice = fs.readFileSync(path.join(ROOT, 'components', 'BlockedNotice.js'), 'utf8');
+    const notice = fs.readFileSync(path.join(ROOT, 'components', 'BlockedNotice.js'), 'utf8').replace(/\r\n/g, '\n');
     t.ok(notice.includes("discord.lockedReason === 'running'") && notice.includes("t('discordLockedRunning')"),
       'and the window shows the matching line');
     const en = JSON.parse(fs.readFileSync(path.join(ROOT, 'locales', 'en.json'), 'utf8'));
@@ -373,7 +373,7 @@ function get(url, o = {}) {
     t.ok(JSON.stringify(DA.sessionPids(csv, 'Discord.exe', 2)) === '[5300]' && DA.sessionPids(csv, 'Discord.exe', 3).length === 0,
       "another user's Discord (session 1) is not this user's (session 2): not \"running\", not restarted, nothing opened on this screen");
     t.ok(DA.sessionPids(csv, 'Discord.exe', null).length === 3, '…and when the session cannot be told, every one counts, as before');
-    const src = require('fs').readFileSync(path.join(ROOT, 'electron', 'discord-app.js'), 'utf8');
+    const src = require('fs').readFileSync(path.join(ROOT, 'electron', 'discord-app.js'), 'utf8').replace(/\r\n/g, '\n');
     t.ok(/const mine = await pids\(v\);\n    if \(!mine\.length\) return false;/.test(src) && /Where-Object \{ \$_\.SessionId -eq \$\{session\} \}/.test(src),
       "a restart ends only this user's Discord and starts one only where one was ended; its start time is this session's");
   }
