@@ -563,6 +563,16 @@ the same from here. Only a connection that leaves from another country gets
 around a real refusal, and the service may treat that as breaking its rules
 (Roblox does).
 
+Nor can it bring back a connection that is cut. When a country cuts its link
+to the rest of the world and only sites inside it still open, Shroudly says
+**"Only this country's network works"** (it checks by opening well-known
+sites inside the country with their real certificates, so a hotel's sign-in
+page is not taken for it), on the desktop and on Android. What can still help
+then is a connection that still reaches the world: a server you name under
+**Your own server**, or a friend's computer with **Share my connection** on.
+The [wiki's guide to shutdowns](https://github.com/umutxyp/Shroudly/wiki/Shutdowns-en),
+in all 31 languages, explains both and what to prepare beforehand.
+
 ---
 
 ## The automatic site list
@@ -617,6 +627,9 @@ directly. That list maintains itself:
 - **Discord app mode** — lets the Discord app (every build) update and open through Shroudly on Windows and macOS ([details](#discord-app-mode)).
 - **Games and apps mode** — Roblox, Roblox Studio, their installers and other programs that ignore the system proxy go through Shroudly too, on Windows and macOS ([details](#games-and-apps-mode-roblox)).
 - **Advanced mode** — packet-level desync for networks that follow whole connections, on Windows and Linux.
+- **Your own server** — every site through a server you name, as a `socks5://`, `http://` or Shadowsocks `ss://` link: tested before it is used, and the window says so if it stops working. For a shutdown, when a server inside the country still reaches the world; on the desktop and Android.
+- **Share my connection** — off until you turn it on: people you give its link to use your connection through Shroudly, from Shroudly's *Your own server* or any Shadowsocks app, on the same network or (where the router opens a port by UPnP) over the internet. They reach only sites, never your computer or home network; nothing is recorded of what they open. Desktop.
+- **Share Shroudly** — the Android app (the APK from GitHub) sends itself to another phone over Bluetooth or a nearby-share app, for when its download page cannot be reached.
 - **Tells you what is going on** — another VPN or bypass tool fighting it, a site the network cuts, encrypted DNS blocked, what the autopilot did: said plainly, in one line.
 - **Never breaks your connection** — your proxy settings are saved before Shroudly changes them and put back on stop, crash, forced kill, shutdown, power loss (at next sign-in) and uninstall.
 - **Routing** — everything through Shroudly (the default), or only the sites on a list, with the rest — banking, government — connecting directly. The list keeps itself current ([how](#the-automatic-site-list)); you can also write your own.
@@ -1001,6 +1014,20 @@ Shroudly does not collect personal data. These are the only things that contact 
   with it directly, as the app itself does when it starts, and, if that fails,
   once more through the protected connection. No request is sent over it, and
   nothing about you.
+- **Sites inside the country**, only when nothing outside answers while
+  protection is on, and then at most once a minute: a TLS handshake (on
+  Android, an HTTPS `HEAD` request) with a few large sites hosted inside their
+  own countries, to tell a national shutdown from no internet at all.
+- **Your own server**, only if you set one (Settings, *Your own server*):
+  every site goes through it, so it sees which sites you open (not what you
+  read on them, which stays encrypted). Its link, password included, is kept
+  in Shroudly's settings on this device and nowhere else. Testing it opens
+  `cloudflare.com` through it once.
+- **Your router**, only while *Share my connection* is on: asked over UPnP
+  (on your local network) to forward one TCP port to this computer, renewed
+  every half hour and taken away when sharing stops. The people you share
+  with connect to this computer; Shroudly keeps no record of them or of what
+  they open, only how many are connected at the moment, in memory.
 
 Games and apps mode contacts nothing of its own: it only carries what the
 programs using it were going to send anyway.
