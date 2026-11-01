@@ -1672,11 +1672,57 @@ static int attempt_send(sock_t up, int fam, uint8_t *payload, int pcap, int len,
   return 0;
 }
 
+/* An address in a plain-HTTP reply's text ("http://10.10.34.34/..."): what
+ * follows the scheme, as an IPv4 address, or 0. */
+static int http_ip_at(const char *p, uint32_t *ip) {
+  char host[16]; int k = 0;
+  while (k < 15 && (isdigit((unsigned char)p[k]) || p[k] == '.')) { host[k] = p[k]; k++; }
+  host[k] = 0;
+  if (k < 7 || (p[k] && p[k] != '/' && p[k] != ':' && p[k] != '?' && p[k] != '"' && p[k] != '\'' && p[k] != '\r' && p[k] != ' ')) return 0;
+  struct in_addr a;
+  if (inet_pton(AF_INET, host, &a) != 1) return 0;
+  *ip = ntohl(a.s_addr);
+  return 1;
+}
+
+/* A plain-HTTP reply that is a filter's, not the site's: a redirect (30x) to
+ * a block page, or a refusal (403) that frames one, where the block page is
+ * an address the block-page list knows or one no public site has (private,
+ * loopback, link-local). Iran's 10.10.34.34 frame, TTNET's 195.175.254.2
+ * and many ISPs' warning redirects look like this; taken for the site's
+ * answer, the HTTP techniques that get past them were never tried. */
+static int http_reply_blocked(const uint8_t *b, int n) {
+  if (n < 12 || memcmp(b, "HTTP/1.", 7) != 0) return 0;
+  char t[1600];
+  int m = n < (int)sizeof t - 1 ? n : (int)sizeof t - 1;
+  for (int i = 0; i < m; i++) t[i] = b[i] ? (char)tolower(b[i]) : ' ';
+  t[m] = 0;
+  int code = atoi(t + 9);
+  const char *from = NULL;
+  if (code >= 300 && code < 400) {
+    from = strstr(t, "\nlocation:");
+    if (!from) return 0;
+    const char *eol = strchr(from + 1, '\n');
+    const char *u = strstr(from, "http://");
+    if (!u || (eol && u > eol)) { u = strstr(from, "https://"); if (!u || (eol && u > eol)) return 0; }
+    uint32_t ip;
+    return http_ip_at(u + (u[4] == 's' ? 8 : 7), &ip) && doh_addr_v4_is_block(ip);
+  }
+  if (code != 403) return 0;
+  for (const char *u = strstr(t, "http://"); u; u = strstr(u + 7, "http://")) {
+    uint32_t ip;
+    if (http_ip_at(u + 7, &ip) && doh_addr_v4_is_block(ip)) return 1;
+  }
+  return 0;
+}
+
 /* Read the server's first bytes from a socket that has become readable: ATT_OK
  * with them left in `rbuf` and their length in `*rlen`, or ATT_REFUSED —
  * ATT_ALERT when (TLS) what came back was a well-formed alert: a refusal all
- * the same, but one made by something that speaks TLS. */
-static int read_reply(sock_t up, const proto_info *pi, uint8_t *rbuf, int rcap, int *rlen) {
+ * the same, but one made by something that speaks TLS. judge_http: a plain
+ * HTTP reply that is a filter's block page counts as a refusal too (a
+ * ladder's; elsewhere it is passed on as it came). */
+static int read_reply(sock_t up, const proto_info *pi, uint8_t *rbuf, int rcap, int *rlen, int judge_http) {
   *rlen = 0;
   int n = recv(up, (char *)rbuf, rcap, 0);
   if (n <= 0) return ATT_REFUSED;        /* RST or FIN injected by the filter */
@@ -1690,6 +1736,22 @@ static int read_reply(sock_t up, const proto_info *pi, uint8_t *rbuf, int rcap, 
     }
     if (!tls_reply_ok(rbuf, n))
       return (n >= 7 && rbuf[0] == 0x15 && rbuf[1] == 0x03 && rbuf[3] == 0 && rbuf[4] == 2) ? ATT_ALERT : ATT_REFUSED;
+  } else if (judge_http && pi->kind == PROTO_HTTP && n >= 12 && memcmp(rbuf, "HTTP/1.", 7) == 0) {
+    int code = atoi((const char *)rbuf + 9);
+    if ((code >= 300 && code < 400) || code == 403) {
+      /* The headers (and a 403's first lines) in full before judging. */
+      while (n < rcap && n < 1536 && sock_wait_readable(up, 300) == 1) {
+        int m = recv(up, (char *)rbuf + n, rcap - n < 1536 - n ? rcap - n : 1536 - n, 0);
+        if (m <= 0) break;
+        n += m;
+        if (code < 400 && n >= 4) {
+          int end = 0;
+          for (int i = 3; i < n; i++) if (rbuf[i] == '\n' && rbuf[i - 1] == '\r' && rbuf[i - 2] == '\n' && rbuf[i - 3] == '\r') { end = 1; break; }
+          if (end) break;
+        }
+      }
+      if (http_reply_blocked(rbuf, n)) return ATT_REFUSED;
+    }
   }
   *rlen = n;
   return ATT_OK;
@@ -1779,7 +1841,9 @@ static int read_legs(ladder_st *st, const int *ready, uint8_t *rbuf, int rcap, i
   for (int i = 0; i < n; i++) {
     gone[i] = 0;
     if (!ready[i]) continue;
-    int r = read_reply(L->l[i].s, st->pi, rbuf, rcap, rlen);
+    /* A name only the LAN knows (a router's page) may well redirect to a
+     * private address of its own: never taken for a block page. */
+    int r = read_reply(L->l[i].s, st->pi, rbuf, rcap, rlen, st->key && !doh_local_name(st->key) && !ip_literal(st->key));
     if (r == ATT_OK) { *win = i; return ATT_OK; }
     note_refused(st, &L->l[i], r == ATT_ALERT);
     gone[i] = 1;
@@ -3417,7 +3481,7 @@ static void handle(sock_t client) {
          * are not held back, and one that left early is no evidence. */
         int w = sock_wait_either(client, up, VERIFY_PLAIN_MS);
         if (w > 0 && (w & 2)) {
-          int rr = read_reply(up, &pi, rbuf, RELAY_BUF, &rlen);
+          int rr = read_reply(up, &pi, rbuf, RELAY_BUF, &rlen, 0);
           if (rr == ATT_OK) atomic_fetch_add(&g_stats.probe_success, 1);
           if (raw && raw_result(key, rq.port, c, raw_inh, rr == ATT_OK, RAW_FAIL_REFUSED, fam, peer_port(client)) && hold_ok)
             sleep_ms(RAW_HOLD_MS);

@@ -285,6 +285,12 @@ int doh_ipv4_is_blockpage(uint32_t ip /*host order*/) {
   return is_blockpage_v4(ip);
 }
 
+/* The same for an IPv4 address (host order): a plain-HTTP reply pointing
+ * there is a filter's (engine.c, http_reply_blocked). */
+int doh_addr_v4_is_block(uint32_t ip /*host order*/) {
+  return is_bogon_v4(ip) || is_blockpage_v4(ip);
+}
+
 /* True if a resolved address is a censorship answer (block page or bogon). */
 int doh_addr_is_block(const struct sockaddr_storage *sa) {
   if (sa->ss_family != AF_INET) return 0;

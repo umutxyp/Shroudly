@@ -55,6 +55,7 @@ int  doh_addr_is_block(const struct sockaddr_storage *sa);
  * or one added with doh_add_block_ip. Never 0.0.0.0 or 127.0.0.0/8, which a
  * hosts file or the user's own filtering DNS answers with on purpose. */
 int  doh_ipv4_is_blockpage(uint32_t ip);
+int  doh_addr_v4_is_block(uint32_t ip);
 
 /* A reply that may be handed to another program as it is (Advanced mode's
  * DNS gate, dnsgate.h): no error and, for A or AAAA (qtype 1, 28), a public
