@@ -7,8 +7,9 @@ import android.os.Build
  * Who updates this copy of the app. The APK from GitHub checks GitHub for a
  * newer APK; a copy that Google Play installed, or has since updated over a
  * GitHub install (same package, same signing key), is updated by Play and must
- * not offer an APK or ask GitHub anything (Play's Device and Network Abuse
- * policy). The build made for Play (STORE_BUILD) never does either.
+ * not offer an APK or ask GitHub for one (Play's Device and Network Abuse
+ * policy). The build made for Play (STORE_BUILD) never does either. (Every
+ * copy reads stores.json, a few bytes of data, never code: Stores.)
  */
 object InstallSource {
     const val PLAY_STORE = "com.android.vending"

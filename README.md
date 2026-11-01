@@ -940,8 +940,9 @@ Shroudly does not collect personal data. These are the only things that contact 
   protected connection and the way an ordinary browser makes it, to see
   whether the site turns you away itself.
 - **Whether Shroudly is on Google Play** (GitHub, Android only): at most
-  twice a day, through the protected connection while protection is on, the
-  app downloads `raw.githubusercontent.com/umutxyp/Shroudly/main/stores.json`,
+  twice a day (through the protected connection while protection is on,
+  directly otherwise), the app downloads
+  `raw.githubusercontent.com/umutxyp/Shroudly/main/stores.json`,
   a few bytes that say whether the Play Store listing is up, so the app never
   sends anyone to a store page that is gone. It sends nothing but the request
   itself.
