@@ -14,7 +14,7 @@ if (process.argv.some((a) => typeof a === 'string' && a.startsWith('--open-link=
   return;
 }
 
-const { app, BrowserWindow, ipcMain, Tray, Menu, nativeImage, shell, Notification, powerMonitor, dialog, session, clipboard } = require('electron');
+const { app, BrowserWindow, ipcMain, Tray, Menu, nativeImage, nativeTheme, shell, Notification, powerMonitor, dialog, session, clipboard } = require('electron');
 const path = require('path');
 const url = require('url');
 const fs = require('fs');
@@ -368,6 +368,15 @@ function traySaveLogs(s) {
 }
 
 /* ── tray + status ───────────────────────────────────────────────────────── */
+function trayGlyphPath() {
+  let dark = true;
+  if (process.platform === 'win32') {
+    try { dark = nativeTheme.shouldUseDarkColorsForSystemIntegratedUI !== false; } catch {}
+  }
+  const v = dark ? 'light' : 'dark';
+  return iconAssetPath(process.platform === 'win32' ? `tray-${v}.ico` : `tray-${v}.png`);
+}
+
 function trayIconPath() {
   return process.platform === 'win32' ? iconAssetPath('icon.ico')
                                       : iconAssetPath('icon-small.png');
@@ -383,7 +392,11 @@ function makeTrayIcon(active = false) {
       img.setTemplateImage(true);
       return img;
     }
-    const img = nativeImage.createFromPath(trayIconPath());
+    // The menu bar's shield and eye, not the app icon: its dark navy all
+    // but vanished on a dark taskbar (TV-1). A light line with a dark rim
+    // for dark bars, a dark line for Windows' light taskbar.
+    let img = nativeImage.createFromPath(trayGlyphPath());
+    if (img.isEmpty()) img = nativeImage.createFromPath(trayIconPath());
     if (img.isEmpty()) return nativeImage.createEmpty();
     return active ? img : grayIcon(img);
   } catch { return nativeImage.createEmpty(); }
@@ -431,6 +444,8 @@ function notRouting() { return !!(engine && engine.isActive() && !engine.routing
 
 let trayActive = false;
 let trayLook = null;
+// Windows' taskbar turned light or dark: the tray's line follows.
+app.whenReady().then(() => { nativeTheme.on('updated', () => { if (tray) { trayLook = null; rebuildTrayMenu(); } }); });
 function rebuildTrayMenu(active = trayActive) {
   trayActive = active;
   if (!tray) return;

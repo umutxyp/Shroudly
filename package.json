@@ -119,7 +119,9 @@
         "from": "public",
         "to": ".",
         "filter": [
-          "tray*Template*.png"
+          "tray*Template*.png",
+          "tray-light*",
+          "tray-dark*"
         ]
       }
     ],

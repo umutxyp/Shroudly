@@ -59,6 +59,21 @@ const t = suite('launch');
       'macOS outside Applications: no login item or restore agent pointing at a temporary path, and the move is there');
     t.ok(/moveToApplications\?\.\(\)/.test(notice) && /t\('moveToAppsBtn'\)/.test(notice), 'the window offers it with one button');
   }
+  {
+    // The tray on Windows and Linux (TV-1): the menu bar's shield in a line
+    // that shows on a dark bar (light, with a dark rim) and on Windows' light
+    // taskbar (dark), each in every size, shipped, and chosen by the bar.
+    const fs = require('fs');
+    const pub = (f) => path.join(ROOT, 'public', f);
+    const ico = (f) => { const b = fs.readFileSync(pub(f)); return b.readUInt16LE(2) === 1 ? b.readUInt16LE(4) : 0; };
+    t.ok(ico('tray-light.ico') >= 6 && ico('tray-dark.ico') >= 6 && ['tray-light.png', 'tray-light@2x.png', 'tray-dark.png', 'tray-dark@2x.png'].every((f) => fs.existsSync(pub(f))),
+      'tray icons in every size for both bars');
+    const pkg = JSON.parse(fs.readFileSync(path.join(ROOT, 'package.json'), 'utf8'));
+    const shipped = JSON.stringify(pkg.build.extraResources);
+    const main = fs.readFileSync(path.join(ROOT, 'electron', 'main.js'), 'utf8');
+    t.ok(/tray-light\*/.test(shipped) && /tray-dark\*/.test(shipped) && /shouldUseDarkColorsForSystemIntegratedUI/.test(main) && /nativeTheme\.on\('updated'/.test(main),
+      'shipped, and picked by the taskbar\'s colour, following it when it changes');
+  }
   console.log(`launch: ${t.count} passed`);
   process.exit(0);
 })().catch((e) => { console.error('FAIL', e.message); process.exit(1); });
