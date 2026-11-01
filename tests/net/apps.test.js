@@ -642,7 +642,7 @@ async function robloxInstaller(proxy, socksPort) {
     // mode, which starts the restore Shroudly itself runs with
     // --restore-proxy (here the same two calls, run by node).
     const restore = `const p=require('path'),E=${JSON.stringify(path.join(ROOT, 'electron'))};
-      try{require(p.join(E,'system-proxy.js')).recoverSync({stateFile:${JSON.stringify(path.join(dir2, 'none.json'))}})}catch{}
+      try{require(p.join(E,'system-proxy.js')).recoverSync({stateFile:${JSON.stringify(path.join(dir2, 'none.json'))},homeDir:${JSON.stringify(dir2)}})}catch{}
       try{require(p.join(E,'app-env.js')).recoverSync({stateFile:${JSON.stringify(sf)}},{onlyIfDead:true})}catch{}`;
     const wd = { core: enginePath(), restore: { exe: process.execPath, args: ['-e', restore] } };
     const code = `const AppEnv=require(${JSON.stringify(path.join(ROOT, 'electron', 'app-env.js'))});
@@ -666,7 +666,7 @@ async function robloxInstaller(proxy, socksPort) {
     if (process.env.GITHUB_ACTIONS) {
     const pf = path.join(dir2, 'proxy-state.json');
     fs.writeFileSync(pf, JSON.stringify({ v: 1, platform: 'elsewhere', port: 1, snapshot: {} }));
-    const restore2 = `require(${JSON.stringify(path.join(ROOT, 'electron', 'system-proxy.js'))}).recoverSync({stateFile:${JSON.stringify(pf)}})`;
+    const restore2 = `require(${JSON.stringify(path.join(ROOT, 'electron', 'system-proxy.js'))}).recoverSync({stateFile:${JSON.stringify(pf)},homeDir:${JSON.stringify(dir2)}})`;
     const wd2 = { core: enginePath(), restore: { exe: process.execPath, args: ['-e', restore2] } };
     const code2 = `const W=require(${JSON.stringify(path.join(ROOT, 'electron', 'watchdog.js'))});
       W.watch(${JSON.stringify(wd2)},'proxy',${JSON.stringify(pf)});

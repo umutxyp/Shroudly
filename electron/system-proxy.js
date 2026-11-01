@@ -338,6 +338,9 @@ class SystemProxy {
     this.hasIPv6 = opts.hasIPv6 || (() => hasGlobalIPv6());
     this.env = opts.env || process.env;
     this.stateFile = opts.stateFile || null;
+    // Where the login hook goes on macOS and Linux: the user's home, or a
+    // test's own folder, so a test can never touch the real one.
+    this.homeDir = opts.homeDir || os.homedir();
     this.watchdogOpts = opts.watchdog || null;
     this.restoreCommand = opts.restoreCommand || null;
     this.onOwnership = opts.onOwnership || null;
@@ -992,7 +995,7 @@ ${v6}${local}
         const line = [cmd.exe, ...cmd.args].map((a) => (/\s/.test(a) ? `"${a}"` : a)).join(' ');
         exec.runSync('reg.exe', ['add', WIN_RUNONCE_KEY, '/v', WIN_RUNONCE_VALUE, '/t', 'REG_SZ', '/d', line, '/f']);
       } else if (this.platform === 'darwin') {
-        const file = path.join(os.homedir(), 'Library', 'LaunchAgents', `${MAC_AGENT_LABEL}.plist`);
+        const file = this._loginHookFile();
         const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
         const argsXml = [cmd.exe, ...cmd.args].map((a) => `    <string>${esc(a)}</string>`).join('\n');
         fs.mkdirSync(path.dirname(file), { recursive: true });
@@ -1010,7 +1013,7 @@ ${argsXml}
 </plist>
 `);
       } else {
-        const file = path.join(os.homedir(), '.config', 'autostart', 'shroudly-proxy-restore.desktop');
+        const file = this._loginHookFile();
         const q = (a) => `"${String(a).replace(/(["`$\\])/g, '\\$1')}"`;
         fs.mkdirSync(path.dirname(file), { recursive: true });
         writeAtomic(file, `[Desktop Entry]\nType=Application\nName=Shroudly proxy restore\nExec=${[cmd.exe, ...cmd.args].map(q).join(' ')}\nNoDisplay=true\nX-GNOME-Autostart-enabled=true\n`);
@@ -1022,9 +1025,14 @@ ${argsXml}
     if (!this.restoreCommand && !this.stateFile) return;
     try {
       if (this.platform === 'win32') exec.runSync('reg.exe', ['delete', WIN_RUNONCE_KEY, '/v', WIN_RUNONCE_VALUE, '/f']);
-      else if (this.platform === 'darwin') fs.rmSync(path.join(os.homedir(), 'Library', 'LaunchAgents', `${MAC_AGENT_LABEL}.plist`), { force: true });
-      else fs.rmSync(path.join(os.homedir(), '.config', 'autostart', 'shroudly-proxy-restore.desktop'), { force: true });
+      else fs.rmSync(this._loginHookFile(), { force: true });
     } catch {}
+  }
+
+  _loginHookFile() {
+    return this.platform === 'darwin'
+      ? path.join(this.homeDir, 'Library', 'LaunchAgents', `${MAC_AGENT_LABEL}.plist`)
+      : path.join(this.homeDir, '.config', 'autostart', 'shroudly-proxy-restore.desktop');
   }
 
   // ── is it still ours? ──────────────────────────────────────────────────
