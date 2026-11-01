@@ -52,6 +52,9 @@ const i18n = require('./main-i18n');
 const Families = require('./families');
 const ServiceCheck = require('./service-check');
 const { restoreProxy } = require('./restore-proxy');
+const SystemProxy = require('./system-proxy');
+const Watchdog = require('./watchdog');
+const DiscordLine = require('./discord-line');
 const Launch = require('./launch');
 const wake = require('./wake');
 const { buildReport, buildCompact, saveReport, toClipboard } = require('./log-report');
@@ -67,8 +70,12 @@ const { ProtectionKeeper } = require('./protection-keeper');
  * after a crash: restore and exit (restore-proxy.js says how, and when it
  * may ask for a macOS administrator's password). */
 const RESTORE_PROXY_ARG = '--restore-proxy';
+// Added by the watchdog's restore: Shroudly vanished just now (killed,
+// crashed), it is not a login.
+const FROM_WATCHDOG_ARG = '--from-watchdog';
 const proxyStateFile = () => path.join(app.getPath('userData'), 'proxy-state.json');
 const appEnvStateFile = () => path.join(app.getPath('userData'), 'app-env.json');
+const discordLineFile = () => path.join(app.getPath('userData'), 'discord-line.json');
 if (process.argv.includes(RESTORE_PROXY_ARG)) {
   restoreProxy({
     stateFile: proxyStateFile(),
@@ -82,6 +89,16 @@ if (process.argv.includes(RESTORE_PROXY_ARG)) {
     // Shroudly may already be running again (it starts at login too): its own
     // value is then left alone.
     recoverOther: () => AppEnv.recoverSync({ stateFile: appEnvStateFile() }, { onlyIfDead: true }),
+    // Discord's line: left for a Shroudly that starts by itself at this login
+    // with Discord app mode on (it was kept at the logoff for it); taken out
+    // after a kill or a crash, and at a login Shroudly does not start at.
+    recoverDiscord: () => {
+      let keep = false;
+      if (!process.argv.includes(FROM_WATCHDOG_ARG)) {
+        try { const s = new Store({ clearInvalidConfig: true }); keep = s.get('autoStart', false) === true && s.get('discordMode') === true; } catch {}
+      }
+      DiscordLine.recoverSync({ stateFile: discordLineFile(), ownerAlive: (o) => SystemProxy._ownerAlive(o), keep });
+    },
   }).catch(() => {}).finally(() => app.exit(0));
   return;
 }
@@ -105,6 +122,7 @@ let advanced = null;
 const logGate = new LogGate();
 let updater = null;
 let keeper = null;
+let watchdogOpts = null;   // the watchdog's options (watchdog.js), once ready
 let presence = null;
 let systemLogs = [];
 let exitInProgress = false;
@@ -386,7 +404,9 @@ function trayIconPath() {
 
 /* macOS menu bar: monochrome template images (sources in scripts/tray-icons)
  * that macOS tints for light and dark menu bars; @2x/@3x are picked up
- * automatically. A solid pupil means protection is on. Elsewhere: app icon. */
+ * automatically. A solid pupil means protection is on. Elsewhere: the
+ * shield in a line that shows on the taskbar, in gray while protection is
+ * off (grayIcon). */
 function makeTrayIcon(active = false) {
   try {
     if (process.platform === 'darwin') {
@@ -417,13 +437,7 @@ function grayed(img) {
   const out = nativeImage.createEmpty();
   for (const scaleFactor of img.getScaleFactors()) {
     const { width, height } = img.getSize(scaleFactor);
-    const px = Buffer.from(img.toBitmap({ scaleFactor }));
-    for (let i = 0; i + 3 < px.length; i += 4) {
-      const g = Math.round(0.299 * px[i + 2] + 0.587 * px[i + 1] + 0.114 * px[i]);
-      px[i] = px[i + 1] = px[i + 2] = g;
-      px[i + 3] = Math.round(px[i + 3] * 0.7);
-    }
-    out.addRepresentation({ scaleFactor, width, height, buffer: px });
+    out.addRepresentation({ scaleFactor, width, height, buffer: Launch.grayPixels(Buffer.from(img.toBitmap({ scaleFactor }))) });
   }
   return out.isEmpty() ? img : out;
 }
@@ -713,9 +727,13 @@ async function checkDevServer() {
 async function createWindow({ show = true, minimised = false, quiet = false } = {}) {
   uiReady = false;
   if (show) await setDockIcon(true);
+  // Never taller than the screen it opens on (launch.js, windowHeights).
+  const { screen } = require('electron');
+  const workHeight = () => { try { return screen.getPrimaryDisplay().workAreaSize.height; } catch { return 0; } };
+  const fit = Launch.windowHeights(workHeight());
   const win = new BrowserWindow({
-    width: 460, height: 760,
-    minWidth: 360, minHeight: 560,
+    width: 460, height: fit.height,
+    minWidth: 360, minHeight: fit.minHeight,
     maxWidth: 720, maxHeight: 1100,
     webPreferences: {
       nodeIntegration: false,
@@ -777,6 +795,15 @@ async function createWindow({ show = true, minimised = false, quiet = false } = 
     if (visible) createWindow({ show: true, quiet: true });
   });
 
+  // Moved to another screen, or its scaling changed: the least height again.
+  const refit = () => {
+    if (win.isDestroyed()) return;
+    try { win.setMinimumSize(360, Launch.windowHeights(screen.getDisplayMatching(win.getBounds()).workAreaSize.height).minHeight); } catch {}
+  };
+  win.on('moved', refit);
+  screen.on('display-metrics-changed', refit);
+  win.once('closed', () => screen.removeListener('display-metrics-changed', refit));
+
   win.once('ready-to-show', () => {
     loading.delete(win);
     // Closed (sent to the background) before it had even appeared: it must
@@ -806,7 +833,12 @@ async function createWindow({ show = true, minimised = false, quiet = false } = 
       if (!canLeave()) { win.minimize(); return; }
       sentAway.add(win);
       win.hide();
-      notify('Shroudly', trayWanted() ? (process.platform === 'darwin' ? tr().trayMinimizedMac : tr().trayMinimized) : tr().trayHiddenRunning);
+      // Said the first time only: one at every close piled up in the
+      // notification centre. macOS has a menu bar where the others have a tray.
+      if (!store.get('closeToldInTray', false)) {
+        try { store.set('closeToldInTray', true); } catch {}
+        notify('Shroudly', trayWanted() ? (process.platform === 'darwin' ? tr().trayMinimizedMac : tr().trayMinimized) : tr().trayHiddenRunning);
+      }
     }
   });
 }
@@ -1009,7 +1041,17 @@ function getAutoStartEnabled() {
   if (process.platform === 'linux') {
     return fs.existsSync(path.join(app.getPath('home'), '.config', 'autostart', 'shroudly.desktop'));
   }
-  try { return app.getLoginItemSettings(process.platform === 'win32' ? WIN_LOGIN_ITEM : undefined).openAtLogin; } catch { return false; }
+  try { return app.getLoginItemSettings(process.platform === 'win32' ? WIN_LOGIN_ITEM : undefined).openAtLogin && !windowsStartupOff(); } catch { return false; }
+}
+
+/* Windows: start at login turned off in Task Manager or Settings (launch.js,
+ * startupTurnedOff). Re-registering the entry at every launch turned it
+ * back on behind the user's back, Shroudly's own switch still said "on",
+ * and at a logoff Discord's line was kept for a login at which Shroudly
+ * would not start. */
+function windowsStartupOff() {
+  if (process.platform !== 'win32') return false;
+  try { return Launch.startupTurnedOff(app.getLoginItemSettings(WIN_LOGIN_ITEM), WIN_LOGIN_ITEM.name); } catch { return false; }
 }
 
 /* ── app ready ───────────────────────────────────────────────────────────── */
@@ -1037,6 +1079,12 @@ app.whenReady().then(async () => {
   const unsaved = (e) => addLog('warning', `Settings cannot be saved (${(e && (e.code || e.message)) || 'unknown'}); changes last until Shroudly closes`);
   if (settingsOpened.unsaved) unsaved(settingsOpened.unsaved);
   else settingsOpened.onUnsaved = unsaved;
+  // Turned off in Windows itself: off here too, and left off (the switch in
+  // Settings turns it on again, for Windows as well).
+  if (store.get('autoStart', false) === true && windowsStartupOff()) {
+    try { store.set('autoStart', false); } catch {}
+    addLog('info', 'Start at login is turned off in Windows; Shroudly leaves it off');
+  }
   const restoreCommand = {
     exe: launcherPath(),
     args: app.isPackaged ? [RESTORE_PROXY_ARG] : [app.getAppPath(), RESTORE_PROXY_ARG],
@@ -1045,7 +1093,7 @@ app.whenReady().then(async () => {
   // Shroudly vanish with something applied (watchdog.js).
   const watchdog = {
     core: EngineManager.coreBinaryPath(),
-    restore: restoreCommand,
+    restore: { exe: restoreCommand.exe, args: [...restoreCommand.args, FROM_WATCHDOG_ARG] },
     copyDir: app.getPath('userData'),
     // Ended with its file gone: an antivirus took the engine (watchdog.js).
     onCoreGone: (core) => securityBlocked({
@@ -1053,6 +1101,7 @@ app.whenReady().then(async () => {
       folder: app.isPackaged ? SecurityBlock.installFolder() : path.dirname(core),
     }, { quiet: true }),
   };
+  watchdogOpts = watchdog;
   siteList = new SiteList({
     cacheFile: path.join(app.getPath('userData'), 'site-list.json'),
     log: addLog,
@@ -1215,9 +1264,14 @@ app.whenReady().then(async () => {
   updater = new Updater({
     log: addLog,
     store,
-    // "will restart to install it", or (a Linux package) "open Shroudly to
-    // install it": that install asks for a password, so only the button does.
-    notify: (version, kind) => notify('Shroudly', (kind === 'password' ? tr().notifyUpdatePassword : tr().notifyUpdateReady).replace('{version}', version)),
+    // "will restart to install it", or "open Shroudly to install it": an
+    // install that asks for a password (a Linux package) or an
+    // administrator's permission (Windows, installed for everyone), which
+    // only the button starts.
+    notify: (version, kind) => notify('Shroudly', (kind === 'password' ? tr().notifyUpdatePassword : kind === 'admin' ? tr().notifyUpdateAdmin : tr().notifyUpdateReady).replace('{version}', version)),
+    // macOS, Applications not this account's to change: what the password
+    // dialog says it is for.
+    adminPrompt: (version) => tr().updAdminPrompt.replace('{version}', version),
     // What a restart would interrupt: the Roblox player or Studio and
     // Discord, while their mode sends them through Shroudly and protection
     // is on.
@@ -1245,8 +1299,8 @@ app.whenReady().then(async () => {
       // comes back with their next Start, without a permission prompt now.
       try { await advancedProtection.stopped({ user: true }); } catch {}
     },
-    // The install did not happen (a password prompt dismissed, a folder it
-    // cannot write to): Shroudly carries on as before the install began,
+    // The install did not happen (a folder it cannot write to, an installer
+    // that would not start): Shroudly carries on as before the install began,
     // protection back on, the window's close button hiding it again.
     onInstallFailed: () => {
       exitInProgress = false;
@@ -1255,9 +1309,10 @@ app.whenReady().then(async () => {
       try { store.delete('afterUpdate'); } catch {}
       if (protectionWanted() && engine && !engine.isActive()) safeStart().catch(() => {});
     },
-    // An AppImage update installed at a quit put the new version under its
-    // own name and deleted this file: "Start at login" follows it at once
-    // (this runs on the way out; the next start re-registers it anyway).
+    // An AppImage update keeps this file's place and name (updater.js); should
+    // electron-updater ever put it under another name, "Start at login"
+    // follows it at once (this runs on the way out; the next start
+    // re-registers it anyway).
     onAppImageMoved: (file) => { if (store.get('autoStart', false)) setAutoStart(true, file); },
   });
   updater.onState((s) => {
@@ -1273,15 +1328,19 @@ app.whenReady().then(async () => {
   await trayChecked;
   const afterUpdate = store.get('afterUpdate');
   if (afterUpdate !== undefined) store.delete('afterUpdate');
-  // macOS: opened again by an install script whose swap failed, the same
+  // Opened again by an update that failed after this copy had quit (the
+  // macOS swap, the Windows installer refused its permission), the same
   // version still: as after an update, not as a start by hand.
   const updateFailed = process.argv.includes(Updater.UPDATE_FAILED_ARG);
+  const relaunched = Launch.isUpdateRelaunch(afterUpdate, appVersion(), Date.now(), { failed: updateFailed });
   const how = Launch.startWindow({
     autoStart: isAutoStartLaunch(), minimizeToTray: store.get('minimizeToTray', true),
-    afterUpdate: Launch.isUpdateRelaunch(afterUpdate, appVersion(), Date.now(), { failed: updateFailed }) ? afterUpdate : null, trayShown: canLeave(),
+    afterUpdate: relaunched ? afterUpdate : null, trayShown: canLeave(),
   });
   if (how === 'tray') { setDockIcon(false); addLog('info', 'Auto-started in tray'); }
-  else await createWindow({ show: true, minimised: how === 'minimised' });
+  // Back from an update with the window that was open: shown where it was,
+  // without taking the screen from a game or film in front.
+  else await createWindow({ show: true, minimised: how === 'minimised', quiet: relaunched });
   addLog('success', 'Application started');
   // Kept for the next time the settings file is found damaged.
   SettingsFile.keepCopy(app.getPath('userData'));
@@ -1374,7 +1433,7 @@ app.on('window-all-closed', () => { /* keep running in tray */ });
  * by itself at the next login, so a Discord that starts then does not race it.
  * Without that, a Discord opened next time would wait on "Checking for
  * updates" for a Shroudly that is not coming: the line goes, as on a quit. */
-function discordLineOutlivesSession() { return store.get('autoStart', false) === true; }
+function discordLineOutlivesSession() { return store.get('autoStart', false) === true && !windowsStartupOff(); }
 
 function restoreForSessionEnd() {
   keepDiscordLine = discordLineOutlivesSession();
@@ -1686,7 +1745,18 @@ function patchDiscordSync(url, files) {
       else failed.push({ v, message: e.message });
     }
   }
+  noteDiscordLine(files);
   return { changed, denied, failed, foreign };
+}
+
+/* Which settings files carry our line now, for the watchdog and the next
+ * login should Shroudly end without taking it out (discord-line.js). */
+function noteDiscordLine(files) {
+  try {
+    const carrying = DiscordApp.installed().map((v) => (files && files[v.id]) || DiscordApp.settingsFile(v)).filter((f) => DiscordApp.hasOursIn(f));
+    const file = discordLineFile();
+    if (DiscordLine.note(file, carrying, SystemProxy._owner()) && watchdogOpts) Watchdog.watch(watchdogOpts, 'discord', file);
+  } catch {}
 }
 
 /* macOS keeps other apps' data behind a permission. Picking the folder in an
@@ -2512,9 +2582,16 @@ async function checkWinHttp() {
   const gone = list ? WinHttp.goneList(list, (port) => ProcNet.listeningSync(port)) : null;
   if (!gone) return;
   winhttpTold = true;
-  winhttpGone = gone;
   addLog('warning', `Windows' WinHTTP proxy points at ${gone}, where nothing is running: Windows Update, the Microsoft Store and some programs cannot connect`);
+  // The same leftover the user already answered "Later" to: not asked again
+  // (it came back at every start, as a dialog); a different one is.
+  if (store.get('winhttpLater') === gone) return;
   autoTell('autoWinhttpDead', { addr: gone });
+  // A standard account could not clear it: Windows would ask for an
+  // administrator's password it does not have. The line says what it is,
+  // and Settings > Repair is there for an administrator; no dialog.
+  if (storeApps && (await storeApps.canConsent().catch(() => null)) === false) return;
+  winhttpGone = gone;
   if (windowAlive() && mainWindow.isVisible()) offerWinHttpReset().catch(() => {});
 }
 async function offerWinHttpReset() {
@@ -2530,7 +2607,7 @@ async function offerWinHttpReset() {
       message: s.winhttpDeadTitle, detail: fillIn(s.autoWinhttpDead, { addr: gone }),
     });
   } finally { modalOpen--; }
-  if (r.response !== 0) return;
+  if (r.response !== 0) { try { store.set('winhttpLater', gone); } catch {} return; }
   const ok = await WinHttp.reset();
   addLog(ok ? 'success' : 'warning', ok ? "Windows' WinHTTP proxy cleared" : "Windows' WinHTTP proxy could not be cleared (no administrator's permission)");
 }
@@ -2606,6 +2683,8 @@ function createAutopilot() {
     store,
     log: addLog,
     tell: autoTell,
+    // Windows: a standard account is not asked for Advanced mode by itself.
+    canConsent: process.platform === 'win32' ? () => (storeApps ? storeApps.canConsent() : null) : null,
     protectionOn: () => !!(engine && engine.isActive()),
     check: checkBlocked,
     services: [
@@ -2860,6 +2939,7 @@ ipcMain.handle('update:check', () => (updater ? updater.check(true) : null));
 ipcMain.handle('update:download', () => updater && updater.download());
 ipcMain.handle('update:install', () => updater && updater.install());
 ipcMain.handle('update:postpone', () => updater && updater.postpone());
+ipcMain.handle('update:moveToApplications', () => updater && updater.moveToApplications());
 
 /* Repair, and Reset all settings (Settings → Application, issue #46;
  * repair.js). */
@@ -2906,7 +2986,7 @@ ipcMain.handle('app:resetSettings', () => Repair.resetSettings({
   },
   // The app again, with the settings a new install has (auto-start is
   // written to the system at every start).
-  relaunch: () => { app.relaunch(); shutdownAndQuit(); },
+  relaunch: () => { app.relaunch({ args: Launch.relaunchArgs(process.argv) }); shutdownAndQuit(); },
   log: addLog,
 }));
 

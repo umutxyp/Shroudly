@@ -102,7 +102,7 @@ function respawn() {
 }
 
 /* opts: { core, restore: { exe, args }, copyDir, onCoreGone(core) };
- * kind: 'proxy' | 'env'. */
+ * kind: 'proxy' | 'env' | 'discord'. */
 function watch(opts, kind, file) {
   if (!opts || !file) return false;
   lastOpts = opts;

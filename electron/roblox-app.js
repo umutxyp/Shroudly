@@ -98,13 +98,19 @@ function installed(kind = 'player') { return installs(process.platform, kind).le
  * (Roblox installed for every user of the computer). While Games and apps
  * mode has the link go through Shroudly (link-handlers.js), the program it
  * stands for. */
-async function handler(kind = 'player') {
-  if (process.platform !== 'win32') return null;
+const REG_ROOTS = { HKCR: 'HKEY_CLASSES_ROOT', HKCU: 'HKEY_CURRENT_USER', HKLM: 'HKEY_LOCAL_MACHINE' };
+async function handler(kind = 'player', { platform = process.platform, read = (key) => LinkHandlers.realIo.read(key), found = exists } = {}) {
+  if (platform !== 'win32') return null;
   const link = kindOf(kind).link;
-  const ask = async (key, name) => {
-    const out = await run('reg', ['query', key, ...(name ? ['/v', name] : ['/ve'])]);
-    const m = /REG_(?:EXPAND_)?SZ\s+(.*)$/im.exec(out);
-    return m ? m[1].trim() : '';
+  // Read with "reg export", which writes UTF-16: "reg query" prints in the
+  // console's code page, which garbled a path such as
+  // C:\Users\Gökhan\AppData\Local\Bloxstrap\Bloxstrap.exe, so a
+  // bootstrapper in such a folder was never found and Roblox was started
+  // without it (link-handlers.js moved to it for the same reason).
+  const ask = async (key, name = '') => {
+    const full = key.replace(/^(HKCR|HKCU|HKLM)(?=\\)/, (r) => REG_ROOTS[r]);
+    const v = LinkHandlers.text(LinkHandlers.val(await read(key), full, name));
+    return v ? String(v.data).trim() : '';
   };
   let cmd = await ask(`HKCR\\${link}\\shell\\open\\command`);
   if (LinkHandlers.isOurs(cmd)) {
@@ -114,7 +120,7 @@ async function handler(kind = 'player') {
   }
   const m = /^(?:"([^"]+\.exe)"|(\S+\.exe))/i.exec(cmd);
   const exe = m ? (m[1] || m[2]) : null;
-  return exe && exists(exe) ? exe : null;
+  return exe && found(exe) ? exe : null;
 }
 
 /* A program that handles Roblox's links in place of Roblox's own: a

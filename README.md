@@ -667,19 +667,29 @@ These links always download the newest version (see [Releases](https://github.co
   included, then goes through Shroudly. The app tells you when a newer version
   is out.
 
-Every package is installed and started on its own system before a release is
-published (Arch, Fedora, openSUSE, Debian, Ubuntu 22.04 and 24.04, both
-AppImages, Windows x64 and ARM, both macOS images).
+Every package is installed on its own system and its engine started before a
+release is published (Arch, Fedora, openSUSE, Debian, Ubuntu 22.04 and 24.04,
+both AppImages, Windows x64 and ARM, both macOS images); the app itself is
+started from both AppImages, both macOS images and the Windows installs.
+The release is published only once all of its files are up.
 
 After that Shroudly updates itself: it checks when it starts and every 30
-minutes, downloads in the background and installs on restart. You can postpone
-it, or turn automatic installs off in Settings. While a Roblox game or Discord
-goes through Shroudly (Games and apps mode, Discord app mode), the restart
-waits until they are closed; after a few hours of waiting it also installs
-once the computer has been left alone for ten minutes or is locked, and on
-Windows and Linux at the next start, before protection comes on. Linux
-packages ask for your password to install an update, as any system package
-does.
+minutes and downloads in the background. It restarts to install only while
+nobody is using the computer (no keyboard or mouse for ten minutes, or the
+screen locked), when Shroudly quits, or on Windows and Linux at the next start
+before protection comes on: never in the middle of a download, a call or a
+video going through it. While a Roblox game, Discord or a full-screen game or
+film goes through Shroudly, it waits for those too, a few hours at most. You
+can postpone it, or turn automatic installs off in Settings. Nothing is
+downloaded by itself on a metered connection (a phone's hotspot, a mobile
+modem, a network set as metered), and a release only a few hours old waits a
+little when one was already downloaded that day: the button downloads it at
+once. Linux packages ask for your password, and on Windows a copy installed
+for everyone asks for an administrator's permission: those install only from
+the button that says so. An AppImage is updated in place, under the same
+name, so shortcuts and scripts that start it keep working. An update that
+cannot be installed leaves Shroudly running as it was (or starts it again),
+says why, and is not tried again by itself.
 
 > **First install on Windows or macOS:** if Windows shows *"Windows protected
 > your PC"*, click **More info → Run anyway**. If macOS will not open it, open
@@ -931,9 +941,14 @@ Shroudly does not collect personal data. These are the only things that contact 
   [`server/stats`](server/stats/server.js).
 - **Update checks** (GitHub): the app downloads the release feed from
   `github.com/umutxyp/Shroudly` (the Android app asks GitHub's API for the
-  latest release; it never downloads or installs anything by itself). The
-  Android app installed or updated by Google Play makes no update check at
-  all: Play updates it.
+  latest release; it never downloads or installs anything by itself). Where
+  GitHub cannot be reached, the desktop app asks for the same files at
+  `shroudly.codeshare.me/dl`, a copy passed through from GitHub
+  ([`server/stats`](server/stats/server.js)), and only through the protected
+  connection while protection is on, never in the clear: a request to
+  Shroudly's own site would show that the computer runs it. The Android app
+  installed or updated by Google Play makes no update check at all: Play
+  updates it.
 - **The site itself**, when you test a site in Settings, when the front page
   of a site you use keeps being cut off, and Roblox's once Roblox connects
   through Games and apps mode: one request for its front page, through the

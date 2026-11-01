@@ -222,6 +222,11 @@ const row = (pid, name, host, port = 443) => ({ pid, name, remote: { host, port 
   t.ok(nrows.map((x) => `${x.pid}:${x.remote.host}:${x.remote.port}`).join() === '4120:195.175.254.2:443,0:195.175.254.2:443,77:2606:4700::6810:84e5:443',
     'netstat: every TCP connection but a listening one, a closed one with process 0, whatever the State column\'s language');
   const names = ProcNet.parseTasklistNames('"node.exe","4120","Console","1","52,000 K"\r\n"python.exe","77","Console","1","9,000 K"\r\n');
+  {
+    // W2: another user's programs (fast user switching) are left out.
+    const two = ProcNet.parseTasklistNames('"Discord.exe","4242","Console","1","52,000 K"\r\n"node.exe","5300","RDP-Tcp#3","2","9,000 K"\r\n', 2);
+    t.ok(!two.has(4242) && two.get(5300) === 'node.exe', "only this session's programs are named (another user's Discord is theirs)");
+  }
   t.ok(names.get(4120) === 'node.exe' && names.get(77) === 'python.exe', 'tasklist: each process\'s name');
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'shroudly-aw-'));
   try {

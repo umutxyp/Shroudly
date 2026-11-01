@@ -346,11 +346,13 @@ function parseNetstatAll(out) {
   return rows;
 }
 
-function parseTasklistNames(out) {
+/* session: only that Windows session's programs (tasklist's fourth
+ * column); null, every one. */
+function parseTasklistNames(out, session = null) {
   const names = new Map();
   for (const line of String(out || '').split(/\r?\n/)) {
-    const m = /^"([^"]+)","(\d+)"/.exec(line.trim());
-    if (m) names.set(Number(m[2]), m[1]);
+    const m = /^"([^"]+)","(\d+)"(?:,"[^"]*","(\d+)")?/.exec(line.trim());
+    if (m && (session == null || m[3] === undefined || Number(m[3]) === session)) names.set(Number(m[2]), m[1]);
   }
   return names;
 }
@@ -399,8 +401,12 @@ async function outbound(want, platform = process.platform) {
   if (platform === 'win32') {
     const rows = parseNetstatAll(await run('netstat', ['-ano'])).filter((r) => want(r.remote.host));
     if (!rows.some((r) => r.pid > 0)) return rows.map((r) => ({ ...r, name: null }));
-    const names = parseTasklistNames(await run('tasklist', ['/fo', 'csv', '/nh']));
-    return rows.map((r) => ({ ...r, name: (r.pid > 0 && names.get(r.pid)) || null }));
+    const [out, session] = await Promise.all([run('tasklist', ['/fo', 'csv', '/nh']), require('./roblox-app').ownSession()]);
+    const names = parseTasklistNames(out, session);
+    // Another user's programs on the same PC (fast user switching) are not
+    // this user's to be named, told about, or asked a permission for.
+    const theirs = (r) => session != null && r.pid > 0 && !names.has(r.pid);
+    return rows.filter((r) => !theirs(r)).map((r) => ({ ...r, name: (r.pid > 0 && names.get(r.pid)) || null }));
   }
   if (platform === 'linux') return procOutbound(want);
   return [];

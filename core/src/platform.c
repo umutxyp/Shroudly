@@ -428,3 +428,29 @@ void sleep_ms(int ms) {
   nanosleep(&ts, NULL);
 #endif
 }
+
+/* ── files ──────────────────────────────────────────────────────────────── */
+#ifdef _WIN32
+static int wide_utf8(const char *s, wchar_t *w, int cap) {
+  return s && MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, s, -1, w, cap) > 0;
+}
+FILE *fopen_utf8(const char *path, const char *mode) {
+  wchar_t w[2048], m[16];
+  if (!wide_utf8(path, w, 2048) || !wide_utf8(mode, m, 16)) return NULL;
+  return _wfopen(w, m);
+}
+FILE *freopen_utf8(const char *path, const char *mode, FILE *stream) {
+  wchar_t w[2048], m[16];
+  if (!wide_utf8(path, w, 2048) || !wide_utf8(mode, m, 16)) return NULL;
+  return _wfreopen(w, m, stream);
+}
+int remove_utf8(const char *path) {
+  wchar_t w[2048];
+  if (!wide_utf8(path, w, 2048)) return -1;
+  return _wremove(w);
+}
+#else
+FILE *fopen_utf8(const char *path, const char *mode) { return fopen(path, mode); }
+FILE *freopen_utf8(const char *path, const char *mode, FILE *stream) { return freopen(path, mode, stream); }
+int remove_utf8(const char *path) { return remove(path); }
+#endif

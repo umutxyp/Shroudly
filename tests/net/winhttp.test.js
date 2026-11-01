@@ -40,5 +40,19 @@ function regOut(list) {
     const now = await W.read();
     t.ok(now === '' || typeof now === 'string', `Windows: the real setting is read (${now === '' ? 'none' : now})`);
   }
+  // M2: how the window offers to clear it (main.js).
+  {
+    const fs = require('fs');
+    const main = fs.readFileSync(path.join(ROOT, 'electron', 'main.js'), 'utf8');
+    const check = main.slice(main.indexOf('async function checkWinHttp'), main.indexOf('async function offerWinHttpReset'));
+    const offer = main.slice(main.indexOf('async function offerWinHttpReset'), main.indexOf('async function offerWinHttpReset') + 1200);
+    t.ok(/if \(store\.get\('winhttpLater'\) === gone\) return;/.test(check) && /store\.set\('winhttpLater', gone\)/.test(offer),
+      '"Later" is remembered for that leftover: not asked again at every start (a different one is)');
+    t.ok(/canConsent\(\)[^\n]*=== false\) return;/.test(check) && check.indexOf('canConsent') < check.indexOf('offerWinHttpReset'),
+      'a standard account (it could not answer the administrator prompt): no dialog, only the line');
+    const en = JSON.parse(fs.readFileSync(path.join(ROOT, 'locales', 'en.json'), 'utf8'));
+    t.ok(!/WinHTTP|\{addr\}/.test(en.autoWinhttpDead + en.winhttpDeadTitle) && /WinHTTP proxy points at \$\{gone\}/.test(check),
+      'the window says it in plain words (no "WinHTTP", no address); the log keeps both');
+  }
   console.log(`winhttp: ${t.count} passed`);
 })().catch((e) => { console.error('FAIL', e.message); process.exit(1); });

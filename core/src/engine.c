@@ -746,7 +746,7 @@ static int socks4_accept(sock_t c, int cmd, socks_req *rq) {
  * give the ones in the file; SOCKS4, which has no password, is refused.
  * Without it nothing changes. */
 int engine_load_auth(engine_config *cfg, const char *path) {
-  FILE *f = fopen(path, "rb");
+  FILE *f = fopen_utf8(path, "rb");
   if (!f) return -1;
   char line[600];
   size_t n = fread(line, 1, sizeof(line) - 1, f);

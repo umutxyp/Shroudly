@@ -66,6 +66,14 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
     for (const f of ['WinDivert.dll', 'WinDivert64.sys']) if (!fs.existsSync(path.join(path.dirname(engine), f))) fail(`${f} missing`);
     ok('Advanced mode engine and WinDivert present');
   }
+  // The installed app itself, not only its engine: its own short start (the
+  // one-off restore it does at a login), which loads every module of the
+  // packaged app and exits. A packaging fault that stops it from starting
+  // would otherwise reach every user, and a copy that cannot start cannot
+  // update itself to the fix.
+  const app = spawnSync(path.join(dir, 'Shroudly.exe'), ['--restore-proxy'], { encoding: 'utf8', timeout: 120000, windowsHide: true });
+  if (app.status !== 0) fail(`the installed app did not start and exit cleanly (exit ${app.status}${app.error ? `, ${app.error.code}` : ''}): ${String(app.stderr || app.stdout || '').trim().slice(-400)}`);
+  ok('installed app starts and exits cleanly');
 
   const uninst = fs.readdirSync(dir).find((f) => /^Uninstall .*\.exe$/i.test(f));
   if (!uninst) fail('no uninstaller');

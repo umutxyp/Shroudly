@@ -11,7 +11,12 @@
  *   - Windows 10 is told from the registry, so a compatibility setting on
  *     the installer cannot make it refuse to install
  *   - the uninstaller starts PowerShell only when there is something to
- *     clean up
+ *     clean up, and an uninstall removes the downloads only Shroudly kept
+ *   - a new install asks nothing (for this user only); a copy installed for
+ *     everyone is updated where it is
+ *   - Shroudly's own update of a copy installed for everyone asks for
+ *     permission before anything is touched, and when it is not given
+ *     starts the old Shroudly again with a note the app reads
  *   - electron-builder's template still has the hook points these rely on
  *   - and, wherever NSIS is found (the one electron-builder downloads, or
  *     one installed on Windows), both halves compile with warnings as errors,
@@ -87,6 +92,52 @@ const code = (body) => body.split('\n').map((l) => l.replace(/;.*$/, '').trim())
   t.ok(/\$\{If\} \$0 == ""\n\s*DeleteRegKey \/ifempty HKCU "Software\\Shroudly\\LoopbackExemptions"/.test(lb), '…an empty list is just removed');
 }
 
+// ── an uninstall: the downloads only Shroudly kept go, nothing of the user's ──
+{
+  const body = (nsh.match(/!macro customUnInstall\n([\s\S]*?)!macroend/) || [])[1] || '';
+  const notUpdate = body.slice(body.indexOf('${ifNot} ${isUpdated}'));
+  t.ok(/!insertmacro shroudlyCacheCleanup/.test(notUpdate), "an uninstall (not an update's) clears what only Shroudly's downloads kept");
+  const cache = code(macro('shroudlyCacheCleanup'));
+  t.ok(cache.includes('RMDir /r "$1\\shroudly-updater"') && cache.some((l) => /adblock-list\.\*/.test(l)) && cache.some((l) => /\\roblox"$/.test(l)),
+    "…electron-updater's last installer (100 MB), the ad list, Roblox's installers");
+  t.ok(!cache.some((l) => /Discord Drover|config\.json|logs|RMDir \/r "\$1\\\$\{PRODUCT_NAME\}"$/.test(l)) && cache.filter((l) => /^ReadEnvStr \$1 (LOCALAPPDATA|APPDATA)$/.test(l)).length === 2,
+    '…not the settings, the logs or the Discord files moved aside; the user\'s own folders, from the environment');
+}
+
+// ── who it is installed for ──
+{
+  const mode = code(macro('customInstallMode'));
+  t.ok(mode.join('\n') === '!ifndef BUILD_UNINSTALLER\n${If} $hasPerMachineInstallation == "1"\n${AndIf} $hasPerUserInstallation != "1"\nStrCpy $isForceMachineInstall "1"\n${Else}\nStrCpy $isForceCurrentInstall "1"\n${EndIf}\n!endif',
+    'no "Anyone who uses this computer?" page: for this user, unless the one copy there is installed for everyone (updated where it is); the uninstaller\'s choice of copy unchanged');
+  const pkg = JSON.parse(fs.readFileSync(path.join(ROOT, 'package.json'), 'utf8'));
+  t.ok(pkg.build.nsis.oneClick === false && pkg.build.nsis.perMachine === false && pkg.build.nsis.allowToChangeInstallationDirectory === false,
+    '…and no folder page: the user\'s own Programs folder, which needs no administrator (an existing copy elsewhere keeps its folder)');
+}
+
+// ── an update of a copy installed for everyone ──
+{
+  const body = macro('shroudlyElevateUpdate');
+  const lines = code(body);
+  const init = code(macro('customInit'));
+  t.ok(init[init.length - 1] === '!insertmacro shroudlyElevateUpdate', 'customInit asks last, after the proxy, the links and the environment are put back for this user');
+  t.ok(['${If} ${isUpdated}', '${AndIf} ${Silent}', '${AndIf} $hasPerMachineInstallation == "1"', '${AndIfNot} ${UAC_IsInnerInstance}', '${AndIfNot} ${UAC_IsAdmin}'].every((l) => lines.includes(l)),
+    "only Shroudly's own silent update of a copy installed for everyone, not yet elevated: what electron-builder's install section would elevate");
+  const asked = lines.indexOf('!insertmacro UAC_RunElevated');
+  t.ok(asked > 0 && lines.slice(asked).join('\n').includes('${ElseIf} $0 == 0\n${AndIf} $1 == 1\nQuit'), 'permission given: the elevated copy does the update, this one just ends');
+  const updaterSrc = read(path.join(ROOT, 'electron', 'updater.js'));
+  t.ok(/\$\{If\} \$0 == 1223\nStrCpy \$R2 "permission"/.test(lines.join('\n')) && /permission: '/.test(updaterSrc) && /elevation: '/.test(updaterSrc),
+    'refused (1223): the note says "permission"; anything else "elevation"; both steps the app knows');
+  t.ok(lines.some((l) => l === '!insertmacro shroudlyFindApp $R0') && lines.some((l) => /^Sleep \d+$/.test(l)),
+    '…the old Shroudly is let finish closing first (a second copy would just hand over to it and go)');
+  t.ok(lines.includes('FileOpen $R0 "$R1\\${PRODUCT_NAME}\\update\\failed" w') && lines.includes('FileWrite $R0 "${VERSION} $R2"') && lines.includes('ReadEnvStr $R1 APPDATA')
+    && /path\.join\(app\.getPath\('userData'\), 'update'\)/.test(updaterSrc) && /path\.join\(this\.dir, 'failed'\)/.test(updaterSrc),
+  "…the note is written where the app reads it (its own folder's update\\failed: \"<version> <step>\")");
+  t.ok(lines.includes(`Exec '"$INSTDIR\\\${APP_EXECUTABLE_FILENAME}" ${'--update-failed'}'`) && /UPDATE_FAILED_ARG = '--update-failed'/.test(updaterSrc),
+    '…and the Shroudly that was there is started again, as after an update that failed (its window as it was)');
+  t.ok(lines[lines.length - 4] === 'Quit' && !lines.some((l) => /^(MessageBox|Abort|nsExec|ExecWait)\b|powershell/i.test(l)),
+    '…then nothing is installed; no message box after Windows\' own, no PowerShell');
+}
+
 // ── electron-builder's template still works the way these hooks expect ──
 if (!fs.existsSync(TPL)) console.log('  --  electron-builder is not installed here (npm ci): its template not checked');
 else {
@@ -98,6 +149,15 @@ else {
     'template: customRemoveFiles replaces its file removal, and its two functions are there');
   t.ok(/CreateDirectory "\$PLUGINSDIR\\old-install"\n\s*\n\s*Push ""\n\s*Call un\.atomicRMDir/.test(un) && /SetOutPath \$TEMP\n[^\n]*\n\s*RMDir \/r \$INSTDIR/.test(un),
     "template: its own removal is the one customRemoveFiles repeats (moved aside on an update, then the folder removed)");
+  const nsi = read(path.join(TPL, 'installer.nsi'));
+  const onInit = nsi.slice(nsi.indexOf('Function .onInit'), nsi.indexOf('FunctionEnd', nsi.indexOf('Function .onInit')));
+  t.ok(onInit.indexOf('!insertmacro initMultiUser') > 0 && onInit.indexOf('!insertmacro initMultiUser') < onInit.indexOf('!insertmacro customInit'),
+    'template: customInit runs after the install mode is known ($hasPerMachineInstallation)');
+  t.ok(/\$\{if\} \$hasPerMachineInstallation == "1"[^\n]*\n\s*\$\{andIf\} \$\{Silent\}[\s\S]{0,200}UAC_RunElevated[\s\S]{0,200}1223[\s\S]{0,300}Quit/.test(nsi),
+    "template: its install section's own elevation is still the one asked first in customInit (refused, it just quits)");
+  const ui = read(path.join(TPL, 'multiUserUi.nsh'));
+  t.ok(/!insertmacro customInstallMode/.test(ui) && /\$isForceCurrentInstall == "1"/.test(ui) && /\$isForceMachineInstall == "1"/.test(ui),
+    'template: the install-mode page still takes customInstallMode');
 }
 
 // ── compiled, warnings as errors ──
@@ -123,8 +183,25 @@ function findMakensis() {
   return found[0] || null;
 }
 
+/* electron-builder's NSIS plugins (UAC, StdUtils), downloaded beside NSIS. */
+function findPlugins(nsisDir) {
+  const caches = [nsisDir && path.dirname(path.dirname(nsisDir)), nsisDir && path.dirname(nsisDir)].filter(Boolean);
+  for (const c of caches) {
+    let names = [];
+    try { names = fs.readdirSync(c); } catch { continue; }
+    for (const n of names.filter((x) => x.startsWith('nsis-resources'))) {
+      for (const d of [path.join(c, n, 'plugins', 'x86-unicode'), ...(() => { try { return fs.readdirSync(path.join(c, n)).map((m) => path.join(c, n, m, 'plugins', 'x86-unicode')); } catch { return []; } })()]) {
+        if (fs.existsSync(path.join(d, 'UAC.dll'))) return d;
+      }
+    }
+  }
+  return null;
+}
+
 const nsis = fs.existsSync(TPL) ? findMakensis() : null;
+const plugins = nsis ? findPlugins(nsis.dir) : null;
 if (!nsis) console.log('  --  no NSIS here (electron-builder downloads it with the first Windows build): not compiled');
+else if (!plugins) console.log("  --  electron-builder's NSIS plugins (UAC) not found beside NSIS: not compiled");
 else {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'shroudly-nsis-'));
   const un = read(path.join(TPL, 'uninstaller.nsh'));
@@ -145,13 +222,21 @@ else {
   const u = compile('uninstaller', ['!define BUILD_UNINSTALLER', ...head, inc, `OutFile "${path.join(dir, 'u.exe')}"`, 'RequestExecutionLevel user', 'SilentInstall silent',
     fn(un, 'un.atomicRMDir'), fn(un, 'un.restoreFiles'),
     'Section', `  WriteUninstaller "${path.join(dir, 'uninstall.exe')}"`, 'SectionEnd',
+    'Var isForceMachineInstall', 'Var isForceCurrentInstall', 'Function un.modePre', '  StrCpy $isForceMachineInstall "0"', '  StrCpy $isForceCurrentInstall "0"', '  !insertmacro customInstallMode', '  StrCpy $0 "$isForceMachineInstall$isForceCurrentInstall"', 'FunctionEnd',
+    'Function un.onInit', '  Call un.modePre', 'FunctionEnd',
     'Section "un.Uninstall"', '  !insertmacro customUnInstall', '  !insertmacro customRemoveFiles', 'SectionEnd']);
   t.ok(u.ok, `the uninstaller half compiles around electron-builder's own functions, warnings as errors (${u.out})`);
-  const i = compile('installer', [...head, inc, `OutFile "${path.join(dir, 'i.exe')}"`, 'RequestExecutionLevel user', 'SilentInstall silent',
+  // As electron-builder's assisted installer has them: its install-mode
+  // variables, the version, and the UAC plugin.
+  const i = compile('installer', [...head, '!define VERSION "2.6.45"', `!addincludedir "${path.join(TPL, 'include')}"`, `!addplugindir /x86-unicode "${plugins}"`, '!include UAC.nsh',
+    'Var hasPerMachineInstallation', 'Var hasPerUserInstallation', 'Var isForceMachineInstall', 'Var isForceCurrentInstall',
+    inc, `OutFile "${path.join(dir, 'i.exe')}"`, 'RequestExecutionLevel user', 'SilentInstall silent',
     'LoadLanguageFile "${NSISDIR}\\Contrib\\Language files\\English.nlf"', 'LangString uninstallFailed ${LANG_ENGLISH} "Failed to uninstall old application files."',
     fn(util, 'handleUninstallResult'),
-    'Function .onInit', '  !insertmacro customInit', '  Push "SHELL_CONTEXT"', '  Call handleUninstallResult', '  Push "HKEY_CURRENT_USER"', '  Call handleUninstallResult', 'FunctionEnd',
-    'Section', 'SectionEnd']);
+    'Function modePre', '  StrCpy $isForceMachineInstall "0"', '  StrCpy $isForceCurrentInstall "0"', '  !insertmacro customInstallMode', 'FunctionEnd',
+    'Function .onInit', '  StrCpy $hasPerMachineInstallation "0"', '  StrCpy $hasPerUserInstallation "1"', '  Call modePre', '  !insertmacro customInit',
+    '  Push "SHELL_CONTEXT"', '  Call handleUninstallResult', '  Push "HKEY_CURRENT_USER"', '  Call handleUninstallResult', 'FunctionEnd',
+    'Section', '  StrCpy $0 "$isForceMachineInstall$isForceCurrentInstall"', 'SectionEnd']);
   t.ok(i.ok, `the installer half compiles inside electron-builder's own check, warnings as errors (${i.out})`);
   fs.rmSync(dir, { recursive: true, force: true });
 }

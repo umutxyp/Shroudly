@@ -24,18 +24,22 @@
  *   languages()  the system's languages (asked once the app is ready)
  *   ready()      resolves once the app is ready (and hides its Dock icon)
  *   recoverOther()  the other leftovers to clear (Games and apps mode)
+ *   recoverDiscord()  Discord app mode's line, when its Shroudly is gone
  * Resolves to 'done', or 'asked' / 'restored' when the dialog was shown.
  */
 
 const SystemProxy = require('./system-proxy');
 const i18n = require('./main-i18n');
 
-async function restoreProxy({ stateFile, platform = process.platform, settings = () => ({}), languages = () => [], ready = async () => {}, recoverOther = () => {} } = {}) {
+async function restoreProxy({ stateFile, platform = process.platform, settings = () => ({}), languages = () => [], ready = async () => {}, recoverOther = () => {}, recoverDiscord = () => {} } = {}) {
   let kept = false;
   // HTTPS_PROXY first: a program pointed at a proxy that is gone fails
   // outright, while one whose PAC is gone mostly goes direct. And programs
   // started at login read it the moment it is fixed.
   try { recoverOther(); } catch {}
+  // Discord's line, pointing at a relay that went with Shroudly
+  // (discord-line.js).
+  try { recoverDiscord(); } catch {}
   try { kept = SystemProxy.recoverSync({ stateFile, platform, skipIfOwnerAlive: true }) === 'kept'; } catch {}
   if (!kept || platform !== 'darwin') return 'done';
   let s = {};

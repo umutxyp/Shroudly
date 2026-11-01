@@ -54,21 +54,27 @@ export function applyAppearance({ accent, surface }) {
   /* On Windows and Linux the caption buttons sit on a strip the operating
    * system paints, which would otherwise keep its original colour while the
    * rest of the window changed around it. macOS draws its buttons straight
-   * over ours, so it needs nothing. */
+   * over ours, so it needs nothing. Under a Windows Contrast theme (forced
+   * colours) the page is painted in the theme's own colours: the strip takes
+   * them too, its symbols in the theme's text colour on its background.
+   * Before, both came back as the theme's background, and the minimise,
+   * maximise and close buttons could not be seen. */
   try {
     // A Windows contrast theme: the strip and its buttons in the theme's
     // own colours. Read through the page, both came back as the forced
     // background, and the buttons were drawn black on black.
-    const forced = window.matchMedia?.('(forced-colors: active)').matches;
+    const forced = window.matchMedia?.('(forced-colors: active)')?.matches;
     const color = cssColorToHex(forced ? 'Canvas' : 'var(--titlebar)');
     const symbolColor = cssColorToHex(forced ? 'CanvasText' : 'var(--text-dim)');
-    if (color && symbolColor) window.electron?.setTitleBarColors?.({ color, symbolColor });
+    if (color && symbolColor && color !== symbolColor) window.electron?.setTitleBarColors?.({ color, symbolColor });
   } catch {}
 }
 
 /* The colour a CSS value actually paints, as #rrggbb. Tokens can be written
  * as color-mix() or oklab(), which Electron's caption strip does not accept;
- * reading back one painted pixel resolves any of them. */
+ * reading back one painted pixel resolves any of them. The probe keeps the
+ * colour it is given even under forced colours, which would paint it the
+ * theme's background whatever it asked for. */
 export function cssColorToHex(value) {
   const probe = document.createElement('div');
   // forced-color-adjust: a contrast theme would paint the probe its own way.

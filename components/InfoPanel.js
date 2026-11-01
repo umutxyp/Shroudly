@@ -37,7 +37,8 @@ function updateLine(u, t) {
     case 'downloading': return t('updDownloading', { version: u.version, percent: u.percent || 0 });
     case 'ready': return t('updReady', { version: u.version });
     case 'no-space': return t('updNoSpace', { version: u.version });
-    case 'error': return t('updError');
+    // A version found but not downloaded is said as such: not "couldn't check".
+    case 'error': return u.stage === 'download' && u.version ? t('updDownloadError', { version: u.version }) : t('updError');
     case 'unsupported': return t('updUnsupported');
     default: return null;
   }

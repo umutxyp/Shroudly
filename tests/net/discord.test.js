@@ -332,6 +332,51 @@ function get(url, o = {}) {
       'neither line mentions macOS');
   }
 
+  // ── the line left behind when Shroudly ends without taking it out (M1) ──
+  {
+    const fs = require('fs');
+    const os = require('os');
+    const DiscordLine = require(path.join(ROOT, 'electron', 'discord-line.js'));
+    const DA = require(path.join(ROOT, 'electron', 'discord-app.js'));
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'shroudly-dline-'));
+    const settings = path.join(dir, 'settings.json');
+    const other = path.join(dir, 'other.json');
+    const ours = { NEW_UPDATE_ENDPOINT: DA.endpointUrl(10809), IS_MAXIMIZED: true };
+    fs.writeFileSync(settings, JSON.stringify(ours, null, 2));
+    fs.writeFileSync(other, JSON.stringify({ NEW_UPDATE_ENDPOINT: 'https://updates.example/' }, null, 2));
+    const state = path.join(dir, 'discord-line.json');
+    const owner = { pid: 4242, exe: 'Shroudly.exe' };
+    t.ok(DA.hasOursIn(settings) && !DA.hasOursIn(other) && DiscordLine.note(state, [settings, settings], owner) && DiscordLine.readState(state).files.length === 1,
+      'while the line is there, a note says which settings files carry it and which Shroudly wrote them');
+    t.ok(DiscordLine.recoverSync({ stateFile: state, ownerAlive: () => true }) === 'running' && DA.hasOursIn(settings) && fs.existsSync(state),
+      'the Shroudly that wrote it still runs: left alone');
+    t.ok(DiscordLine.recoverSync({ stateFile: state, keep: true }) === 'kept' && DA.hasOursIn(settings), 'a login after which Shroudly starts with the mode on: kept for it');
+    DiscordLine.note(state, [settings, other], owner);
+    t.ok(DiscordLine.recoverSync({ stateFile: state }) === 1 && !DA.hasOursIn(settings) && JSON.parse(fs.readFileSync(settings, 'utf8')).IS_MAXIMIZED === true
+      && JSON.parse(fs.readFileSync(other, 'utf8')).NEW_UPDATE_ENDPOINT === 'https://updates.example/' && !fs.existsSync(state),
+    'Shroudly gone (killed, crashed, a power cut): our line taken out, Discord\'s other settings and someone else\'s endpoint left as they were');
+    t.ok(!DiscordLine.note(state, [], owner) && !fs.existsSync(state) && DiscordLine.recoverSync({ stateFile: state }) === 'none',
+      'the line taken out by Shroudly itself: no note, nothing to do');
+    fs.writeFileSync(state, '{not json');
+    t.ok(DiscordLine.recoverSync({ stateFile: state }) === 'none' && !fs.existsSync(state), 'a damaged note is dropped');
+    const main = fs.readFileSync(path.join(ROOT, 'electron', 'main.js'), 'utf8');
+    t.ok(/noteDiscordLine\(files\);\n  return \{ changed, denied, failed, foreign \};/.test(main) && /Watchdog\.watch\(watchdogOpts, 'discord', file\)/.test(main)
+      && /args: \[\.\.\.restoreCommand\.args, FROM_WATCHDOG_ARG\]/.test(main), "every write of the line notes it for the watchdog, whose restore is told it follows a kill");
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
+
+  // W2: fast user switching: another user's Discord is theirs.
+  {
+    const DA = require(path.join(ROOT, 'electron', 'discord-app.js'));
+    const csv = ['"Discord.exe","4242","Console","1","120,000 K"', '"Discord.exe","4250","Console","1","80,000 K"', '"Discord.exe","5300","RDP-Tcp#3","2","90,000 K"'].join('\r\n');
+    t.ok(JSON.stringify(DA.sessionPids(csv, 'Discord.exe', 2)) === '[5300]' && DA.sessionPids(csv, 'Discord.exe', 3).length === 0,
+      "another user's Discord (session 1) is not this user's (session 2): not \"running\", not restarted, nothing opened on this screen");
+    t.ok(DA.sessionPids(csv, 'Discord.exe', null).length === 3, '…and when the session cannot be told, every one counts, as before');
+    const src = require('fs').readFileSync(path.join(ROOT, 'electron', 'discord-app.js'), 'utf8');
+    t.ok(/const mine = await pids\(v\);\n    if \(!mine\.length\) return false;/.test(src) && /Where-Object \{ \$_\.SessionId -eq \$\{session\} \}/.test(src),
+      "a restart ends only this user's Discord and starts one only where one was ended; its start time is this session's");
+  }
+
   console.log(`discord: ${t.count} passed`);
   process.exit(0);
 })().catch((e) => { console.error('FAIL', e.message); process.exit(1); });

@@ -805,6 +805,24 @@ async function robloxInstaller(proxy, socksPort) {
   t.ok((await raw(port, 'CONNECT www.wikipedia.org:443 HTTP/1.1\r\n\r\n')).startsWith('HTTP/1.1 502'), 'engine gone: clean 502, proxy keeps running');
   proxy.stop();
   t.ok(!proxy.running && (await raw(port, 'x')) === '', 'stops cleanly');
+  // W11: the link's program read from "reg export" (UTF-16), not "reg query"
+  // (the console's code page garbled a user folder such as C:\Users\Gökhan).
+  {
+    const LH = require(path.join(ROOT, 'electron', 'link-handlers.js'));
+    const exe = 'C:\\Users\\Gökhan\\AppData\\Local\\Bloxstrap\\Bloxstrap.exe';
+    const esc = (v) => v.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
+    const reg = (key, cmd) => LH.parseReg(`Windows Registry Editor Version 5.00\r\n\r\n[${key}]\r\n@="${esc(cmd)}"\r\n`);
+    const asked = [];
+    const read = async (key) => { asked.push(key); return key.startsWith('HKCR') ? reg('HKEY_CLASSES_ROOT\\roblox-player\\shell\\open\\command', `"${exe}" %1`) : null; };
+    const seen = await RobloxApp.handler('player', { platform: 'win32', read, found: (f) => f === exe });
+    t.ok(seen === exe && asked.join() === 'HKCR\\roblox-player\\shell\\open\\command',
+      'a bootstrapper in a user folder with letters outside English (Gökhan): found, so Roblox is started through it');
+    const ours = `"C:\\Shroudly\\Shroudly.exe" --open-link=roblox-player "%1"`;
+    const read2 = async (key) => (key.startsWith('HKCR') ? reg('HKEY_CLASSES_ROOT\\roblox-player\\shell\\open\\command', ours)
+      : key.startsWith('HKCU') ? LH.parseReg(`Windows Registry Editor Version 5.00\r\n\r\n[HKEY_CURRENT_USER\\Software\\Classes\\roblox-player\\shell\\open\\command]\r\n"${LH.V.original}"="${esc(`"${exe}" %1`)}"\r\n`) : null);
+    t.ok(LH.isOurs(ours) && await RobloxApp.handler('player', { platform: 'win32', read: read2, found: (f) => f === exe }) === exe,
+      '…and while Games and apps mode has the link, the program it stands for, read the same way');
+  }
   console.log(`apps: ${t.count} passed`);
   process.exit(0);
 })().catch((e) => { console.error('FAIL', e.message); process.exit(1); });

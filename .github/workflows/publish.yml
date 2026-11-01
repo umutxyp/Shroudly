@@ -36,4 +36,6 @@ jobs:
       - name: Publish GitHub release
         env:
           GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN || secrets.GITHUB_TOKEN }}
+          # With the Android key the APK must be published too.
+          ANDROID_SIGNED: ${{ secrets.ANDROID_KEYSTORE_B64 != '' }}
         run: node scripts/publish-release.js

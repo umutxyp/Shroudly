@@ -123,4 +123,14 @@ void mutex_unlock(mutex_t *m);
 uint64_t now_ms(void);
 void     sleep_ms(int ms);
 
+/* ── files ─────────────────────────────────────────────────────────────── */
+/* A file named in UTF-8, as the app passes it whatever the user's folder is
+ * called (C:\Users\Ümit, C:\Users\Çağrı): on Windows through the wide
+ * API, since the narrow one reads the name in the system's code page;
+ * elsewhere as it is. */
+#include <stdio.h>
+FILE *fopen_utf8(const char *path, const char *mode);
+FILE *freopen_utf8(const char *path, const char *mode, FILE *stream);
+int   remove_utf8(const char *path);
+
 #endif
