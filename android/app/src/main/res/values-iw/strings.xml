@@ -50,7 +50,7 @@
     <string name="androidShareLogs">שיתוף יומנים</string>
     <string name="androidShowExplanation">הצגת ההסברים</string>
     <string name="androidStartAtBoot">הפעלה עם הדלקת הטלפון</string>
-    <string name="androidStartAtBootDesc">ההגנה נדלקת מעצמה אחרי הפעלה מחדש של הטלפון, לאחר שה-VPN אושר.</string>
+    <string name="androidStartAtBootDesc">לאחר שה-VPN אושר, ההגנה נדלקת אחרי כל הפעלה מחדש של הטלפון, גם אם הייתה כבויה. אם הייתה פועלת, היא חוזרת בכל מקרה.</string>
     <string name="androidTileAdd">אריח בהגדרות המהירות</string>
     <string name="androidTileAddDesc">אריח Shroudly בלוח שבראש המסך מפעיל ומכבה את ההגנה בהקשה אחת.</string>
     <string name="androidTileAdded">אריח Shroudly נמצא בהגדרות המהירות.</string>

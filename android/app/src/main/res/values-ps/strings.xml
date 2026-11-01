@@ -50,7 +50,7 @@
     <string name="androidShareLogs">لاګونه شریک کړئ</string>
     <string name="androidShowExplanation">توضیحات ښکاره کړئ</string>
     <string name="androidStartAtBoot">د تلیفون د چالانېدو پر وخت پیل کړه</string>
-    <string name="androidStartAtBootDesc">کله چې VPN ته اجازه ورکړل شي، د تلیفون له بیا پیلېدو وروسته ساتنه پخپله چالانېږي.</string>
+    <string name="androidStartAtBootDesc">کله چې VPN ته اجازه ورکړل شي، ساتنه د تلیفون له هر بیا پیلېدو وروسته چالانېږي، که بنده هم وه. که چالانه وه، په هر حال بېرته چالانېږي.</string>
     <string name="androidTileAdd">د چټکو ترتیباتو ټایل</string>
     <string name="androidTileAddDesc">د پردې په سر کې په پینل کې د Shroudly ټایل ساتنه په یوه ټک چالانوي او بندوي.</string>
     <string name="androidTileAdded">د Shroudly ټایل په چټکو ترتیباتو کې دی.</string>

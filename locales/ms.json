@@ -607,7 +607,7 @@
   "androidHideExplanation": "Sembunyikan penerangan",
   "androidTileAdded": "Jubin Shroudly ada dalam Tetapan Pantas.",
   "androidTileHowTo": "Tarik panel di bahagian atas skrin sepenuhnya ke bawah, ketik pensel (edit), dan seret jubin Shroudly ke antara jubin lain.",
-  "androidStartAtBootDesc": "Perlindungan hidup sendiri selepas telefon dimulakan semula, setelah VPN dibenarkan.",
+  "androidStartAtBootDesc": "Perlindungan hidup selepas setiap kali telefon dimulakan semula, walaupun ia dimatikan, setelah VPN dibenarkan. Jika ia hidup, ia tetap kembali.",
   "androidModeTitle": "Mod",
   "androidModeVpn": "VPN (semua aplikasi)",
   "androidModeVpnDesc": "Semua aplikasi melalui Shroudly. Android hanya membenarkan satu VPN pada satu masa, jadi aplikasi VPN lain terputus.",

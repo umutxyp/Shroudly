@@ -607,7 +607,7 @@
   "androidHideExplanation": "توضیحات پټ کړئ",
   "androidTileAdded": "د Shroudly ټایل په چټکو ترتیباتو کې دی.",
   "androidTileHowTo": "د پردې د سر پینل تر پایه ښکته کش کړئ، په قلم (سمون) ټک وکړئ، او د Shroudly ټایل د نورو ترمنځ کش کړئ.",
-  "androidStartAtBootDesc": "کله چې VPN ته اجازه ورکړل شي، د تلیفون له بیا پیلېدو وروسته ساتنه پخپله چالانېږي.",
+  "androidStartAtBootDesc": "کله چې VPN ته اجازه ورکړل شي، ساتنه د تلیفون له هر بیا پیلېدو وروسته چالانېږي، که بنده هم وه. که چالانه وه، په هر حال بېرته چالانېږي.",
   "androidModeTitle": "حالت",
   "androidModeVpn": "VPN (ټول اپونه)",
   "androidModeVpnDesc": "ټول اپونه له Shroudly تېرېږي. اندروېډ په یو وخت کې یوازې یو VPN ته اجازه ورکوي، نو د بل VPN اپ اړیکه پرې کېږي.",

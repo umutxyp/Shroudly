@@ -50,7 +50,7 @@
     <string name="androidShareLogs">Ýazgylary paýlaş</string>
     <string name="androidShowExplanation">Düşündirişleri görkez</string>
     <string name="androidStartAtBoot">Telefon açylanda başla</string>
-    <string name="androidStartAtBootDesc">VPN-e bir gezek rugsat berlen bolsa, telefon täzeden açylanda gorag özi açylýar.</string>
+    <string name="androidStartAtBootDesc">VPN-e rugsat berlen bolsa, gorag öçük bolsa-da, telefon her gezek täzeden açylanda açylýar. Açyk bolsa, her niçik-de yzyna gelýär.</string>
     <string name="androidTileAdd">Çalt sazlamalar plitkasy</string>
     <string name="androidTileAddDesc">Ekranyň ýokarsyndaky paneldäki Shroudly plitkasy goragy bir basmak bilen açýar we öçürýär.</string>
     <string name="androidTileAdded">Shroudly plitkasy çalt sazlamalarda.</string>

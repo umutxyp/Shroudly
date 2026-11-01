@@ -607,7 +607,7 @@
   "androidHideExplanation": "隐藏说明",
   "androidTileAdded": "Shroudly 图块已在快捷设置中。",
   "androidTileHowTo": "将屏幕顶部的面板完全下拉，点按铅笔（编辑），然后把 Shroudly 图块拖到其他图块之间。",
-  "androidStartAtBootDesc": "一旦允许了 VPN，手机重启后保护会自动开启。",
+  "androidStartAtBootDesc": "允许 VPN 后，即使保护是关着的，手机每次重启后也会开启保护。如果原本是开着的，无论如何都会恢复。",
   "androidModeTitle": "模式",
   "androidModeVpn": "VPN（所有应用）",
   "androidModeVpnDesc": "所有应用都经过 Shroudly。Android 同一时间只允许一个 VPN，因此其他 VPN 应用会断开。",

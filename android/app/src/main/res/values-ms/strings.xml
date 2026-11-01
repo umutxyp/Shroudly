@@ -50,7 +50,7 @@
     <string name="androidShareLogs">Kongsi log</string>
     <string name="androidShowExplanation">Tunjukkan penerangan</string>
     <string name="androidStartAtBoot">Mula apabila telefon dihidupkan</string>
-    <string name="androidStartAtBootDesc">Perlindungan hidup sendiri selepas telefon dimulakan semula, setelah VPN dibenarkan.</string>
+    <string name="androidStartAtBootDesc">Perlindungan hidup selepas setiap kali telefon dimulakan semula, walaupun ia dimatikan, setelah VPN dibenarkan. Jika ia hidup, ia tetap kembali.</string>
     <string name="androidTileAdd">Jubin Tetapan Pantas</string>
     <string name="androidTileAddDesc">Jubin Shroudly dalam panel di bahagian atas skrin menghidupkan dan mematikan perlindungan dengan satu ketikan.</string>
     <string name="androidTileAdded">Jubin Shroudly ada dalam Tetapan Pantas.</string>

@@ -607,7 +607,7 @@
   "androidHideExplanation": "הסתרת ההסברים",
   "androidTileAdded": "אריח Shroudly נמצא בהגדרות המהירות.",
   "androidTileHowTo": "משכו את הלוח שבראש המסך עד הסוף למטה, הקישו על העיפרון (עריכה) וגררו את אריח Shroudly אל בין האחרים.",
-  "androidStartAtBootDesc": "ההגנה נדלקת מעצמה אחרי הפעלה מחדש של הטלפון, לאחר שה-VPN אושר.",
+  "androidStartAtBootDesc": "לאחר שה-VPN אושר, ההגנה נדלקת אחרי כל הפעלה מחדש של הטלפון, גם אם הייתה כבויה. אם הייתה פועלת, היא חוזרת בכל מקרה.",
   "androidModeTitle": "מצב",
   "androidModeVpn": "VPN (כל האפליקציות)",
   "androidModeVpnDesc": "כל האפליקציות עוברות דרך Shroudly. אנדרואיד מאפשרת VPN אחד בכל פעם, ולכן אפליקציית VPN אחרת מתנתקת.",

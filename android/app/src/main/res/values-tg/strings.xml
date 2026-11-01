@@ -50,7 +50,7 @@
     <string name="androidShareLogs">Мубодилаи сабтҳо</string>
     <string name="androidShowExplanation">Нишон додани шарҳҳо</string>
     <string name="androidStartAtBoot">Ҳангоми фурӯзон шудани телефон оғоз кардан</string>
-    <string name="androidStartAtBootDesc">Агар VPN як бор иҷозат гирифта бошад, пас аз бозоғозии телефон ҳимоя худ фаъол мешавад.</string>
+    <string name="androidStartAtBootDesc">Агар VPN иҷозат гирифта бошад, ҳимоя пас аз ҳар бозоғозии телефон фаъол мешавад, ҳатто агар хомӯш бошад. Агар фаъол буд, дар ҳар сурат бармегардад.</string>
     <string name="androidTileAdd">Плитка дар танзимоти зуд</string>
     <string name="androidTileAddDesc">Плиткаи Shroudly дар панели болои экран муҳофизатро бо як ламс фаъол ва хомӯш мекунад.</string>
     <string name="androidTileAdded">Плиткаи Shroudly дар танзимоти зуд аст.</string>

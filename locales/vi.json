@@ -607,7 +607,7 @@
   "androidHideExplanation": "Ẩn phần giải thích",
   "androidTileAdded": "Ô Shroudly đã có trong Cài đặt nhanh.",
   "androidTileHowTo": "Kéo bảng ở đầu màn hình xuống hết cỡ, chạm vào bút chì (chỉnh sửa) rồi kéo ô Shroudly vào giữa các ô khác.",
-  "androidStartAtBootDesc": "Bảo vệ tự bật sau khi điện thoại khởi động lại, khi VPN đã được cho phép.",
+  "androidStartAtBootDesc": "Khi VPN đã được cho phép, bảo vệ sẽ bật sau mỗi lần điện thoại khởi động lại, kể cả khi đang tắt. Nếu đang bật, nó vẫn tự bật lại.",
   "androidModeTitle": "Chế độ",
   "androidModeVpn": "VPN (mọi ứng dụng)",
   "androidModeVpnDesc": "Mọi ứng dụng đi qua Shroudly. Android chỉ cho phép một VPN mỗi lúc, nên ứng dụng VPN khác sẽ bị ngắt.",

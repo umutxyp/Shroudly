@@ -50,7 +50,7 @@
     <string name="androidShareLogs">Qeydləri paylaş</string>
     <string name="androidShowExplanation">İzahları göstər</string>
     <string name="androidStartAtBoot">Telefon açılanda başlat</string>
-    <string name="androidStartAtBootDesc">VPN-ə bir dəfə icazə verilibsə, telefon yenidən başlayanda qoruma özü açılır.</string>
+    <string name="androidStartAtBootDesc">VPN-ə icazə verilibsə, qoruma söndürülmüş olsa belə, telefon hər dəfə yenidən başlayanda açılır. Açıq idisə, onsuz da geri qayıdır.</string>
     <string name="androidTileAdd">Sürətli Ayarlar plitəsi</string>
     <string name="androidTileAddDesc">Ekranın yuxarısındakı paneldə Shroudly plitəsi qorumanı bir toxunuşla açıb-bağlayır.</string>
     <string name="androidTileAdded">Shroudly plitəsi Sürətli Ayarlardadır.</string>

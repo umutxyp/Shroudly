@@ -607,7 +607,7 @@
   "androidHideExplanation": "Masquer les explications",
   "androidTileAdded": "La tuile Shroudly est dans les Réglages rapides.",
   "androidTileHowTo": "Tirez le panneau en haut de l'écran jusqu'en bas, touchez le crayon (modifier) et faites glisser la tuile Shroudly parmi les autres.",
-  "androidStartAtBootDesc": "La protection s’active d’elle-même après un redémarrage du téléphone, une fois le VPN autorisé.",
+  "androidStartAtBootDesc": "La protection s’active après chaque redémarrage du téléphone, même si elle était désactivée, une fois le VPN autorisé. Si elle était activée, elle revient de toute façon.",
   "androidModeTitle": "Mode",
   "androidModeVpn": "VPN (toutes les applis)",
   "androidModeVpnDesc": "Toutes les applis passent par Shroudly. Android n’autorise qu’un VPN à la fois, donc une autre appli VPN est déconnectée.",

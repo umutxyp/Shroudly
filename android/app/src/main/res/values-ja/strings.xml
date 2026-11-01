@@ -50,7 +50,7 @@
     <string name="androidShareLogs">ログを共有</string>
     <string name="androidShowExplanation">説明を表示</string>
     <string name="androidStartAtBoot">スマホの起動時に開始</string>
-    <string name="androidStartAtBootDesc">VPN を一度許可していれば、スマホの再起動後に保護が自動で有効になります。</string>
+    <string name="androidStartAtBootDesc">VPN を許可していれば、保護がオフだった場合でも、スマホを再起動するたびに保護が有効になります。オンだった場合は、この設定がなくても戻ります。</string>
     <string name="androidTileAdd">クイック設定タイル</string>
     <string name="androidTileAddDesc">画面上部のパネルにある Shroudly のタイルで、保護をワンタップでオン・オフできます。</string>
     <string name="androidTileAdded">Shroudly のタイルはクイック設定にあります。</string>

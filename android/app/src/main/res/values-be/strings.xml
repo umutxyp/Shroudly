@@ -50,7 +50,7 @@
     <string name="androidShareLogs">Падзяліцца журналам</string>
     <string name="androidShowExplanation">Паказаць тлумачэнні</string>
     <string name="androidStartAtBoot">Запускаць пры ўключэнні тэлефона</string>
-    <string name="androidStartAtBootDesc">Абарона ўключаецца сама пасля перазапуску тэлефона, калі VPN ужо дазволены.</string>
+    <string name="androidStartAtBootDesc">Калі VPN ужо дазволены, абарона ўключаецца пасля кожнага перазапуску тэлефона, нават калі была выключаная. Калі яна была ўключаная, яна вернецца ў любым выпадку.</string>
     <string name="androidTileAdd">Пліта ў хуткіх наладах</string>
     <string name="androidTileAddDesc">Пліта Shroudly на панэлі ўверсе экрана ўключае і выключае абарону адным дотыкам.</string>
     <string name="androidTileAdded">Пліта Shroudly у хуткіх наладах.</string>

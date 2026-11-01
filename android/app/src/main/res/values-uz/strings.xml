@@ -50,7 +50,7 @@
     <string name="androidShareLogs">Jurnalni ulashish</string>
     <string name="androidShowExplanation">Izohlarni ko‘rsatish</string>
     <string name="androidStartAtBoot">Telefon yonganda ishga tushirish</string>
-    <string name="androidStartAtBootDesc">VPN’ga bir marta ruxsat berilgan boʻlsa, telefon qayta yonganda himoya oʻzi yoqiladi.</string>
+    <string name="androidStartAtBootDesc">VPN’ga ruxsat berilgan boʻlsa, himoya oʻchiq boʻlsa ham, telefon har safar qayta yonganda yoqiladi. Yoqiq boʻlsa, baribir qaytib yoqiladi.</string>
     <string name="androidTileAdd">Tezkor sozlamalar plitkasi</string>
     <string name="androidTileAddDesc">Ekran tepasidagi paneldagi Shroudly plitkasi himoyani bir bosishda yoqadi va o‘chiradi.</string>
     <string name="androidTileAdded">Shroudly plitkasi tezkor sozlamalarda.</string>

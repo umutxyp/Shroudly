@@ -50,7 +50,7 @@
     <string name="androidShareLogs">Protokoll teilen</string>
     <string name="androidShowExplanation">Erklärungen anzeigen</string>
     <string name="androidStartAtBoot">Beim Start des Telefons starten</string>
-    <string name="androidStartAtBootDesc">Der Schutz schaltet sich nach einem Neustart des Telefons selbst ein, sobald das VPN erlaubt wurde.</string>
+    <string name="androidStartAtBootDesc">Der Schutz schaltet sich nach jedem Neustart des Telefons ein, auch wenn er aus war, sobald das VPN erlaubt wurde. War er an, kommt er ohnehin zurück.</string>
     <string name="androidTileAdd">Kachel in den Schnelleinstellungen</string>
     <string name="androidTileAddDesc">Eine Shroudly-Kachel im Bereich oben am Bildschirm schaltet den Schutz mit einem Tippen ein und aus.</string>
     <string name="androidTileAdded">Die Shroudly-Kachel ist in den Schnelleinstellungen.</string>

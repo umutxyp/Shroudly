@@ -50,7 +50,7 @@
     <string name="androidShareLogs">Bagikan log</string>
     <string name="androidShowExplanation">Tampilkan penjelasan</string>
     <string name="androidStartAtBoot">Mulai saat ponsel menyala</string>
-    <string name="androidStartAtBootDesc">Perlindungan menyala sendiri setelah ponsel dinyalakan ulang, setelah VPN diizinkan.</string>
+    <string name="androidStartAtBootDesc">Perlindungan menyala setiap kali ponsel dinyalakan ulang, meski sebelumnya mati, setelah VPN diizinkan. Jika sebelumnya menyala, perlindungan tetap kembali.</string>
     <string name="androidTileAdd">Ubin Setelan Cepat</string>
     <string name="androidTileAddDesc">Ubin Shroudly di panel bagian atas layar menyalakan dan mematikan perlindungan dengan satu ketukan.</string>
     <string name="androidTileAdded">Ubin Shroudly ada di Setelan Cepat.</string>

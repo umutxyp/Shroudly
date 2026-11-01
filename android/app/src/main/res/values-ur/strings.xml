@@ -50,7 +50,7 @@
     <string name="androidShareLogs">لاگز شیئر کریں</string>
     <string name="androidShowExplanation">وضاحتیں دکھائیں</string>
     <string name="androidStartAtBoot">فون آن ہونے پر شروع کریں</string>
-    <string name="androidStartAtBootDesc">VPN کی اجازت ملنے کے بعد، فون دوبارہ شروع ہونے پر تحفظ خود بخود آن ہو جاتا ہے۔</string>
+    <string name="androidStartAtBootDesc">VPN کی اجازت ملنے کے بعد، فون ہر بار دوبارہ شروع ہونے پر تحفظ آن ہو جاتا ہے، چاہے وہ بند ہی کیوں نہ ہو۔ اگر وہ آن تھا تو ویسے بھی واپس آ جاتا ہے۔</string>
     <string name="androidTileAdd">فوری ترتیبات کا ٹائل</string>
     <string name="androidTileAddDesc">اسکرین کے اوپر والے پینل میں Shroudly کا ٹائل ایک ٹیپ سے تحفظ آن اور آف کرتا ہے۔</string>
     <string name="androidTileAdded">Shroudly کا ٹائل فوری ترتیبات میں ہے۔</string>

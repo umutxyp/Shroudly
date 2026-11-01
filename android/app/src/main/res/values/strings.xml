@@ -50,7 +50,7 @@
     <string name="androidShareLogs">Share logs</string>
     <string name="androidShowExplanation">Show the explanations</string>
     <string name="androidStartAtBoot">Start when the phone starts</string>
-    <string name="androidStartAtBootDesc">Protection comes on by itself after the phone restarts, once the VPN has been allowed.</string>
+    <string name="androidStartAtBootDesc">Protection comes on after every restart of the phone, even if it was off, once the VPN has been allowed. If it was on, it comes back anyway.</string>
     <string name="androidTileAdd">Quick Settings tile</string>
     <string name="androidTileAddDesc">A Shroudly tile in the panel at the top of the screen turns protection on and off with one tap.</string>
     <string name="androidTileAdded">The Shroudly tile is in Quick Settings.</string>

@@ -50,7 +50,7 @@
     <string name="androidShareLogs">Журналды бөлүшүү</string>
     <string name="androidShowExplanation">Түшүндүрмөлөрдү көрсөтүү</string>
     <string name="androidStartAtBoot">Телефон күйгөндө иштетүү</string>
-    <string name="androidStartAtBootDesc">VPN\'ге бир жолу уруксат берилсе, телефон кайра күйгөндө коргоо өзү күйөт.</string>
+    <string name="androidStartAtBootDesc">VPN\'ге уруксат берилсе, коргоо өчүк болсо да, телефон ар кайра күйгөндө күйөт. Күйүк болсо, баары бир кайра күйөт.</string>
     <string name="androidTileAdd">Тез жөндөөлөр плиткасы</string>
     <string name="androidTileAddDesc">Экрандын жогору жагындагы панелдеги Shroudly плиткасы коргоону бир басуу менен күйгүзүп-өчүрөт.</string>
     <string name="androidTileAdded">Shroudly плиткасы тез жөндөөлөрдө.</string>

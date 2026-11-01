@@ -607,7 +607,7 @@
   "androidHideExplanation": "Izohlarni yashirish",
   "androidTileAdded": "Shroudly plitkasi tezkor sozlamalarda.",
   "androidTileHowTo": "Ekran tepasidagi panelni oxirigacha pastga torting, qalamni (tahrirlash) bosing va Shroudly plitkasini boshqalari orasiga suring.",
-  "androidStartAtBootDesc": "VPN’ga bir marta ruxsat berilgan boʻlsa, telefon qayta yonganda himoya oʻzi yoqiladi.",
+  "androidStartAtBootDesc": "VPN’ga ruxsat berilgan boʻlsa, himoya oʻchiq boʻlsa ham, telefon har safar qayta yonganda yoqiladi. Yoqiq boʻlsa, baribir qaytib yoqiladi.",
   "androidModeTitle": "Rejim",
   "androidModeVpn": "VPN (barcha ilovalar)",
   "androidModeVpnDesc": "Barcha ilovalar Shroudly orqali oʻtadi. Android bir vaqtda faqat bitta VPN’ga ruxsat beradi, shuning uchun boshqa VPN ilovasi uziladi.",

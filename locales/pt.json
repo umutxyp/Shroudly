@@ -607,7 +607,7 @@
   "androidHideExplanation": "Ocultar as explicações",
   "androidTileAdded": "O bloco do Shroudly está nas Configurações rápidas.",
   "androidTileHowTo": "Puxe o painel do topo da tela até o fim, toque no lápis (editar) e arraste o bloco do Shroudly para junto dos outros.",
-  "androidStartAtBootDesc": "A proteção liga sozinha quando o telefone reinicia, depois que a VPN for permitida.",
+  "androidStartAtBootDesc": "A proteção liga após cada reinício do telefone, mesmo se estava desligada, depois que a VPN for permitida. Se estava ligada, ela volta de qualquer forma.",
   "androidModeTitle": "Modo",
   "androidModeVpn": "VPN (todos os apps)",
   "androidModeVpnDesc": "Todos os apps passam pelo Shroudly. O Android permite uma VPN por vez, então outro app de VPN é desconectado.",

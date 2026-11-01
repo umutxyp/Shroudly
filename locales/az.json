@@ -607,7 +607,7 @@
   "androidHideExplanation": "İzahları gizlət",
   "androidTileAdded": "Shroudly plitəsi Sürətli Ayarlardadır.",
   "androidTileHowTo": "Ekranın yuxarısındakı paneli sona qədər aşağı çək, qələmə (redaktə) toxun və Shroudly plitəsini digərlərinin arasına sürüklə.",
-  "androidStartAtBootDesc": "VPN-ə bir dəfə icazə verilibsə, telefon yenidən başlayanda qoruma özü açılır.",
+  "androidStartAtBootDesc": "VPN-ə icazə verilibsə, qoruma söndürülmüş olsa belə, telefon hər dəfə yenidən başlayanda açılır. Açıq idisə, onsuz da geri qayıdır.",
   "androidModeTitle": "Rejim",
   "androidModeVpn": "VPN (bütün tətbiqlər)",
   "androidModeVpnDesc": "Bütün tətbiqlər Shroudly-dən keçir. Android eyni anda yalnız bir VPN-ə icazə verir, ona görə başqa VPN tətbiqinin bağlantısı kəsilir.",

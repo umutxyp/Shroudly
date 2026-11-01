@@ -607,7 +607,7 @@
   "androidHideExplanation": "Erklärungen ausblenden",
   "androidTileAdded": "Die Shroudly-Kachel ist in den Schnelleinstellungen.",
   "androidTileHowTo": "Ziehe den Bereich oben am Bildschirm ganz herunter, tippe auf den Stift (Bearbeiten) und ziehe die Shroudly-Kachel zu den anderen.",
-  "androidStartAtBootDesc": "Der Schutz schaltet sich nach einem Neustart des Telefons selbst ein, sobald das VPN erlaubt wurde.",
+  "androidStartAtBootDesc": "Der Schutz schaltet sich nach jedem Neustart des Telefons ein, auch wenn er aus war, sobald das VPN erlaubt wurde. War er an, kommt er ohnehin zurück.",
   "androidModeTitle": "Modus",
   "androidModeVpn": "VPN (alle Apps)",
   "androidModeVpnDesc": "Alle Apps gehen über Shroudly. Android erlaubt nur ein VPN zugleich, daher wird eine andere VPN-App getrennt.",

@@ -50,7 +50,7 @@
     <string name="androidShareLogs">Chia sẻ nhật ký</string>
     <string name="androidShowExplanation">Hiện phần giải thích</string>
     <string name="androidStartAtBoot">Khởi động cùng điện thoại</string>
-    <string name="androidStartAtBootDesc">Bảo vệ tự bật sau khi điện thoại khởi động lại, khi VPN đã được cho phép.</string>
+    <string name="androidStartAtBootDesc">Khi VPN đã được cho phép, bảo vệ sẽ bật sau mỗi lần điện thoại khởi động lại, kể cả khi đang tắt. Nếu đang bật, nó vẫn tự bật lại.</string>
     <string name="androidTileAdd">Ô Cài đặt nhanh</string>
     <string name="androidTileAddDesc">Ô Shroudly trong bảng ở đầu màn hình bật và tắt bảo vệ chỉ bằng một lần chạm.</string>
     <string name="androidTileAdded">Ô Shroudly đã có trong Cài đặt nhanh.</string>

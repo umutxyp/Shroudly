@@ -607,7 +607,7 @@
   "androidHideExplanation": "Düşündirişleri gizle",
   "androidTileAdded": "Shroudly plitkasy çalt sazlamalarda.",
   "androidTileHowTo": "Ekranyň ýokarsyndaky paneli ahyryna çenli aşak çekiň, galama (üýtgetmek) basyň we Shroudly plitkasyny beýlekileriň arasyna süýşüriň.",
-  "androidStartAtBootDesc": "VPN-e bir gezek rugsat berlen bolsa, telefon täzeden açylanda gorag özi açylýar.",
+  "androidStartAtBootDesc": "VPN-e rugsat berlen bolsa, gorag öçük bolsa-da, telefon her gezek täzeden açylanda açylýar. Açyk bolsa, her niçik-de yzyna gelýär.",
   "androidModeTitle": "Režim",
   "androidModeVpn": "VPN (ähli programmalar)",
   "androidModeVpnDesc": "Ähli programmalar Shroudly-dan geçýär. Android bir wagtda diňe bir VPN-e rugsat berýär, şonuň üçin başga VPN programmasy kesilýär.",

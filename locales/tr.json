@@ -607,7 +607,7 @@
   "androidHideExplanation": "Açıklamaları gizle",
   "androidTileAdded": "Shroudly karosu Hızlı Ayarlar'da.",
   "androidTileHowTo": "Ekranın üstündeki paneli sonuna kadar aşağı çek, kaleme (düzenle) dokun ve Shroudly karosunu diğerlerinin arasına sürükle.",
-  "androidStartAtBootDesc": "VPN'e bir kez izin verildiyse telefon yeniden başlayınca koruma kendiliğinden açılır.",
+  "androidStartAtBootDesc": "VPN'e izin verildiyse koruma, kapalı olsa bile telefon her yeniden başladığında açılır. Açıksa zaten kendiliğinden geri gelir.",
   "androidModeTitle": "Mod",
   "androidModeVpn": "VPN (tüm uygulamalar)",
   "androidModeVpnDesc": "Tüm uygulamalar Shroudly'den geçer. Android aynı anda tek VPN'e izin verir, bu yüzden başka bir VPN uygulamasının bağlantısı kesilir.",

@@ -607,7 +607,7 @@
   "androidHideExplanation": "説明を隠す",
   "androidTileAdded": "Shroudly のタイルはクイック設定にあります。",
   "androidTileHowTo": "画面上部のパネルを一番下まで引き下げ、鉛筆（編集）をタップして、Shroudly のタイルをほかのタイルの間にドラッグしてください。",
-  "androidStartAtBootDesc": "VPN を一度許可していれば、スマホの再起動後に保護が自動で有効になります。",
+  "androidStartAtBootDesc": "VPN を許可していれば、保護がオフだった場合でも、スマホを再起動するたびに保護が有効になります。オンだった場合は、この設定がなくても戻ります。",
   "androidModeTitle": "モード",
   "androidModeVpn": "VPN（すべてのアプリ）",
   "androidModeVpnDesc": "すべてのアプリが Shroudly を通ります。Android では同時に 1 つの VPN しか使えないため、ほかの VPN アプリは切断されます。",

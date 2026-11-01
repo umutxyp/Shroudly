@@ -50,7 +50,7 @@
     <string name="androidShareLogs">Tomaran parve bike</string>
     <string name="androidShowExplanation">Ravekirinan nîşan bide</string>
     <string name="androidStartAtBoot">Dema telefon vedibe dest pê bike</string>
-    <string name="androidStartAtBootDesc">Piştî ku destûr ji VPN re hat dayîn, gava telefon ji nû ve dest pê dike parastin bi xwe vedibe.</string>
+    <string name="androidStartAtBootDesc">Piştî ku destûr ji VPN re hat dayîn, parastin piştî her destpêkirina nû ya telefonê vedibe, heta ku girtî jî bûya. Heke vekirî bû, her wiha vedigere.</string>
     <string name="androidTileAdd">Kaşîya Mîhengên Bilez</string>
     <string name="androidTileAddDesc">Kaşîyeke Shroudly di panela jorê ekranê de parastinê bi yek tikandinê vedike û digire.</string>
     <string name="androidTileAdded">Kaşîya Shroudly di Mîhengên Bilez de ye.</string>

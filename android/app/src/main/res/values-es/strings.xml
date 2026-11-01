@@ -50,7 +50,7 @@
     <string name="androidShareLogs">Compartir registros</string>
     <string name="androidShowExplanation">Mostrar las explicaciones</string>
     <string name="androidStartAtBoot">Iniciar al encender el teléfono</string>
-    <string name="androidStartAtBootDesc">La protección se activa sola cuando el teléfono se reinicia, una vez permitida la VPN.</string>
+    <string name="androidStartAtBootDesc">La protección se activa tras cada reinicio del teléfono, aunque estuviera desactivada, una vez permitida la VPN. Si estaba activada, vuelve de todos modos.</string>
     <string name="androidTileAdd">Icono de Ajustes rápidos</string>
     <string name="androidTileAddDesc">Un icono de Shroudly en el panel de la parte superior de la pantalla activa y desactiva la protección con un toque.</string>
     <string name="androidTileAdded">El icono de Shroudly está en Ajustes rápidos.</string>

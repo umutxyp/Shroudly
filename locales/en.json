@@ -607,7 +607,7 @@
   "androidHideExplanation": "Hide the explanations",
   "androidTileAdded": "The Shroudly tile is in Quick Settings.",
   "androidTileHowTo": "Pull the panel at the top of the screen all the way down, tap the pencil (edit), and drag the Shroudly tile up among the others.",
-  "androidStartAtBootDesc": "Protection comes on by itself after the phone restarts, once the VPN has been allowed.",
+  "androidStartAtBootDesc": "Protection comes on after every restart of the phone, even if it was off, once the VPN has been allowed. If it was on, it comes back anyway.",
   "androidModeTitle": "Mode",
   "androidModeVpn": "VPN (every app)",
   "androidModeVpnDesc": "Every app goes through Shroudly. Android allows one VPN at a time, so another VPN app is disconnected.",

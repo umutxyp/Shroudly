@@ -50,7 +50,7 @@
     <string name="androidShareLogs">መዝገብ አጋራ</string>
     <string name="androidShowExplanation">ማብራሪያዎቹን አሳይ</string>
     <string name="androidStartAtBoot">ስልኩ ሲበራ ጀምር</string>
-    <string name="androidStartAtBootDesc">ለVPN አንዴ ፈቃድ ከተሰጠ በኋላ ስልኩ እንደገና ሲጀምር ጥበቃው በራሱ ይበራል።</string>
+    <string name="androidStartAtBootDesc">VPN አንዴ ፈቃድ ከተሰጠ በኋላ፣ ጥበቃው ጠፍቶ ቢሆንም እንኳ ስልኩ እንደገና በጀመረ ቁጥር ይበራል። በርቶ ከነበረ በማንኛውም ሁኔታ ተመልሶ ይበራል።</string>
     <string name="androidTileAdd">የፈጣን ቅንብሮች ሰድር</string>
     <string name="androidTileAddDesc">በማያ ገጹ አናት ባለው ፓነል ውስጥ ያለ የShroudly ሰድር ጥበቃን በአንድ ንክኪ ያበራል ያጠፋል።</string>
     <string name="androidTileAdded">የShroudly ሰድር በፈጣን ቅንብሮች ውስጥ አለ።</string>

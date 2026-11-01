@@ -607,7 +607,7 @@
   "androidHideExplanation": "Sembunyikan penjelasan",
   "androidTileAdded": "Ubin Shroudly ada di Setelan Cepat.",
   "androidTileHowTo": "Tarik panel di bagian atas layar sampai habis, ketuk pensil (edit), lalu seret ubin Shroudly ke antara ubin lainnya.",
-  "androidStartAtBootDesc": "Perlindungan menyala sendiri setelah ponsel dinyalakan ulang, setelah VPN diizinkan.",
+  "androidStartAtBootDesc": "Perlindungan menyala setiap kali ponsel dinyalakan ulang, meski sebelumnya mati, setelah VPN diizinkan. Jika sebelumnya menyala, perlindungan tetap kembali.",
   "androidModeTitle": "Mode",
   "androidModeVpn": "VPN (semua aplikasi)",
   "androidModeVpnDesc": "Semua aplikasi lewat Shroudly. Android hanya mengizinkan satu VPN dalam satu waktu, jadi aplikasi VPN lain terputus.",

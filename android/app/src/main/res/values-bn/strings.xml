@@ -50,7 +50,7 @@
     <string name="androidShareLogs">লগ শেয়ার করুন</string>
     <string name="androidShowExplanation">ব্যাখ্যা দেখান</string>
     <string name="androidStartAtBoot">ফোন চালু হলে শুরু করুন</string>
-    <string name="androidStartAtBootDesc">VPN-এর অনুমতি একবার দেওয়া হলে, ফোন আবার চালু হলে সুরক্ষা নিজে থেকেই চালু হয়।</string>
+    <string name="androidStartAtBootDesc">VPN-এর অনুমতি দেওয়া থাকলে, সুরক্ষা বন্ধ থাকলেও ফোন প্রতিবার আবার চালু হলে তা চালু হয়। চালু থাকলে এমনিতেও আবার চালু হয়।</string>
     <string name="androidTileAdd">কুইক সেটিংস টাইল</string>
     <string name="androidTileAddDesc">স্ক্রিনের ওপরের প্যানেলে একটি Shroudly টাইল এক ট্যাপে সুরক্ষা চালু ও বন্ধ করে।</string>
     <string name="androidTileAdded">Shroudly টাইলটি কুইক সেটিংসে আছে।</string>

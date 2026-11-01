@@ -607,7 +607,7 @@
   "androidHideExplanation": "ማብራሪያዎቹን ደብቅ",
   "androidTileAdded": "የShroudly ሰድር በፈጣን ቅንብሮች ውስጥ አለ።",
   "androidTileHowTo": "በማያ ገጹ አናት ያለውን ፓነል እስከ መጨረሻው ወደ ታች ይጎትቱ፣ እርሳሱን (አርትዕ) ይንኩ፣ የShroudly ሰድርን በሌሎቹ መካከል ይጎትቱት።",
-  "androidStartAtBootDesc": "ለVPN አንዴ ፈቃድ ከተሰጠ በኋላ ስልኩ እንደገና ሲጀምር ጥበቃው በራሱ ይበራል።",
+  "androidStartAtBootDesc": "VPN አንዴ ፈቃድ ከተሰጠ በኋላ፣ ጥበቃው ጠፍቶ ቢሆንም እንኳ ስልኩ እንደገና በጀመረ ቁጥር ይበራል። በርቶ ከነበረ በማንኛውም ሁኔታ ተመልሶ ይበራል።",
   "androidModeTitle": "ሁነታ",
   "androidModeVpn": "VPN (ሁሉም መተግበሪያዎች)",
   "androidModeVpnDesc": "ሁሉም መተግበሪያዎች በShroudly ያልፋሉ። Android በአንድ ጊዜ አንድ VPN ብቻ ስለሚፈቅድ ሌላ የVPN መተግበሪያ ይቋረጣል።",

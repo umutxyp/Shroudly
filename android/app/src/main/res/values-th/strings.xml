@@ -50,7 +50,7 @@
     <string name="androidShareLogs">แชร์บันทึก</string>
     <string name="androidShowExplanation">แสดงคำอธิบาย</string>
     <string name="androidStartAtBoot">เริ่มเมื่อเปิดโทรศัพท์</string>
-    <string name="androidStartAtBootDesc">เมื่ออนุญาต VPN แล้ว การป้องกันจะเปิดเองหลังรีสตาร์ตโทรศัพท์</string>
+    <string name="androidStartAtBootDesc">เมื่ออนุญาต VPN แล้ว การป้องกันจะเปิดหลังรีสตาร์ตโทรศัพท์ทุกครั้ง แม้ว่าจะปิดอยู่ก็ตาม หากเปิดอยู่ ก็จะกลับมาเปิดอยู่แล้ว</string>
     <string name="androidTileAdd">ไทล์การตั้งค่าด่วน</string>
     <string name="androidTileAddDesc">ไทล์ Shroudly ในแผงด้านบนของหน้าจอเปิดและปิดการป้องกันได้ในแตะเดียว</string>
     <string name="androidTileAdded">ไทล์ Shroudly อยู่ในการตั้งค่าด่วนแล้ว</string>

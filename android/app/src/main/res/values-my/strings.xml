@@ -50,7 +50,7 @@
     <string name="androidShareLogs">မှတ်တမ်းများ မျှဝေရန်</string>
     <string name="androidShowExplanation">ရှင်းလင်းချက်များကို ပြပါ</string>
     <string name="androidStartAtBoot">ဖုန်းဖွင့်သည့်အခါ စတင်ရန်</string>
-    <string name="androidStartAtBootDesc">VPN ကို ခွင့်ပြုပြီးပါက ဖုန်းကို ပြန်စတင်သည့်အခါ ကာကွယ်မှု အလိုအလျောက် ပွင့်ပါသည်။</string>
+    <string name="androidStartAtBootDesc">VPN ကို ခွင့်ပြုပြီးပါက ကာကွယ်မှု ပိတ်ထားခဲ့လျှင်ပင် ဖုန်းကို ပြန်စတင်တိုင်း ပွင့်လာပါမည်။ ပွင့်နေခဲ့လျှင် မည်သို့ပင်ဖြစ်စေ ပြန်ပွင့်လာပါမည်။</string>
     <string name="androidTileAdd">အမြန်ဆက်တင် အကွက်</string>
     <string name="androidTileAddDesc">မျက်နှာပြင်ထိပ်ရှိ panel ထဲက Shroudly အကွက်သည် ကာကွယ်မှုကို တစ်ချက်နှိပ်ရုံဖြင့် ဖွင့်ပိတ်ပေးသည်။</string>
     <string name="androidTileAdded">Shroudly အကွက် အမြန်ဆက်တင်တွင် ရှိပြီး။</string>

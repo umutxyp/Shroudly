@@ -50,7 +50,7 @@
     <string name="androidShareLogs">Поділитися журналом</string>
     <string name="androidShowExplanation">Показати пояснення</string>
     <string name="androidStartAtBoot">Запускати під час увімкнення телефона</string>
-    <string name="androidStartAtBootDesc">Захист вмикається сам після перезапуску телефона, якщо VPN уже дозволено.</string>
+    <string name="androidStartAtBootDesc">Якщо VPN уже дозволено, захист вмикається після кожного перезапуску телефона, навіть якщо був вимкнений. Якщо він був увімкнений, він повернеться в будь-якому разі.</string>
     <string name="androidTileAdd">Плитка у швидких налаштуваннях</string>
     <string name="androidTileAddDesc">Плитка Shroudly на панелі вгорі екрана вмикає й вимикає захист одним дотиком.</string>
     <string name="androidTileAdded">Плитка Shroudly у швидких налаштуваннях.</string>

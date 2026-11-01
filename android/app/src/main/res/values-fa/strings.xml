@@ -50,7 +50,7 @@
     <string name="androidShareLogs">اشتراک‌گذاری گزارش‌ها</string>
     <string name="androidShowExplanation">نمایش توضیحات</string>
     <string name="androidStartAtBoot">شروع هنگام روشن شدن گوشی</string>
-    <string name="androidStartAtBootDesc">پس از اجازه دادن به VPN، با راه‌اندازی دوبارهٔ گوشی، محافظت خودبه‌خود روشن می‌شود.</string>
+    <string name="androidStartAtBootDesc">پس از اجازه دادن به VPN، محافظت پس از هر بار راه‌اندازی دوبارهٔ گوشی روشن می‌شود، حتی اگر خاموش بوده باشد. اگر روشن بوده، در هر حال دوباره روشن می‌شود.</string>
     <string name="androidTileAdd">کاشی تنظیمات سریع</string>
     <string name="androidTileAddDesc">یک کاشی Shroudly در پنل بالای صفحه، محافظت را با یک لمس روشن و خاموش می‌کند.</string>
     <string name="androidTileAdded">کاشی Shroudly در تنظیمات سریع است.</string>

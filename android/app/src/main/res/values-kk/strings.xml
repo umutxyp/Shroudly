@@ -50,7 +50,7 @@
     <string name="androidShareLogs">Журналды бөлісу</string>
     <string name="androidShowExplanation">Түсіндірмелерді көрсету</string>
     <string name="androidStartAtBoot">Телефон қосылғанда іске қосу</string>
-    <string name="androidStartAtBootDesc">VPN-ге бір рет рұқсат берілсе, телефон қайта қосылғанда қорғаныс өзі қосылады.</string>
+    <string name="androidStartAtBootDesc">VPN-ге рұқсат берілсе, қорғаныс өшірулі болса да, телефон әр қайта қосылғанда қосылады. Қосулы болса, бәрібір қайта қосылады.</string>
     <string name="androidTileAdd">Жылдам баптаулар тақтасы</string>
     <string name="androidTileAddDesc">Экранның жоғарғы панеліндегі Shroudly тақтасы қорғауды бір түртумен қосып-өшіреді.</string>
     <string name="androidTileAdded">Shroudly тақтасы жылдам баптауларда.</string>

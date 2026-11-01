@@ -50,7 +50,7 @@
     <string name="androidShareLogs">Kayıtları paylaş</string>
     <string name="androidShowExplanation">Açıklamaları göster</string>
     <string name="androidStartAtBoot">Telefon açılınca başlat</string>
-    <string name="androidStartAtBootDesc">VPN\'e bir kez izin verildiyse telefon yeniden başlayınca koruma kendiliğinden açılır.</string>
+    <string name="androidStartAtBootDesc">VPN\'e izin verildiyse koruma, kapalı olsa bile telefon her yeniden başladığında açılır. Açıksa zaten kendiliğinden geri gelir.</string>
     <string name="androidTileAdd">Hızlı Ayarlar karosu</string>
     <string name="androidTileAddDesc">Ekranın üstündeki paneldeki bir Shroudly karosu, korumayı tek dokunuşla açıp kapatır.</string>
     <string name="androidTileAdded">Shroudly karosu Hızlı Ayarlar\'da.</string>

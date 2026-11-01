@@ -50,7 +50,7 @@
     <string name="androidShareLogs">लॉग साझा करें</string>
     <string name="androidShowExplanation">विवरण दिखाएँ</string>
     <string name="androidStartAtBoot">फ़ोन चालू होने पर शुरू करें</string>
-    <string name="androidStartAtBootDesc">VPN की अनुमति एक बार मिलने के बाद, फ़ोन फिर से चालू होने पर सुरक्षा अपने आप चालू हो जाती है।</string>
+    <string name="androidStartAtBootDesc">VPN की अनुमति मिलने के बाद, फ़ोन हर बार फिर से चालू होने पर सुरक्षा चालू हो जाती है, भले ही वह बंद रही हो। अगर वह चालू थी, तो वैसे भी वापस चालू हो जाती है।</string>
     <string name="androidTileAdd">क्विक सेटिंग्स टाइल</string>
     <string name="androidTileAddDesc">स्क्रीन के ऊपर के पैनल में Shroudly की टाइल एक टैप में सुरक्षा चालू और बंद करती है।</string>
     <string name="androidTileAdded">Shroudly की टाइल क्विक सेटिंग्स में है।</string>

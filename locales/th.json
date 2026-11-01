@@ -607,7 +607,7 @@
   "androidHideExplanation": "ซ่อนคำอธิบาย",
   "androidTileAdded": "ไทล์ Shroudly อยู่ในการตั้งค่าด่วนแล้ว",
   "androidTileHowTo": "ดึงแผงด้านบนของหน้าจอลงจนสุด แตะรูปดินสอ (แก้ไข) แล้วลากไทล์ Shroudly ไปไว้ระหว่างไทล์อื่น",
-  "androidStartAtBootDesc": "เมื่ออนุญาต VPN แล้ว การป้องกันจะเปิดเองหลังรีสตาร์ตโทรศัพท์",
+  "androidStartAtBootDesc": "เมื่ออนุญาต VPN แล้ว การป้องกันจะเปิดหลังรีสตาร์ตโทรศัพท์ทุกครั้ง แม้ว่าจะปิดอยู่ก็ตาม หากเปิดอยู่ ก็จะกลับมาเปิดอยู่แล้ว",
   "androidModeTitle": "โหมด",
   "androidModeVpn": "VPN (ทุกแอป)",
   "androidModeVpnDesc": "ทุกแอปผ่าน Shroudly Android อนุญาต VPN ได้ครั้งละหนึ่งตัว ดังนั้นแอป VPN อื่นจะถูกตัดการเชื่อมต่อ",

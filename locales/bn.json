@@ -607,7 +607,7 @@
   "androidHideExplanation": "ব্যাখ্যা লুকান",
   "androidTileAdded": "Shroudly টাইলটি কুইক সেটিংসে আছে।",
   "androidTileHowTo": "স্ক্রিনের ওপরের প্যানেলটি পুরো নিচে টানুন, পেন্সিলে (সম্পাদনা) ট্যাপ করুন, আর Shroudly টাইলটি অন্যগুলোর মধ্যে টেনে আনুন।",
-  "androidStartAtBootDesc": "VPN-এর অনুমতি একবার দেওয়া হলে, ফোন আবার চালু হলে সুরক্ষা নিজে থেকেই চালু হয়।",
+  "androidStartAtBootDesc": "VPN-এর অনুমতি দেওয়া থাকলে, সুরক্ষা বন্ধ থাকলেও ফোন প্রতিবার আবার চালু হলে তা চালু হয়। চালু থাকলে এমনিতেও আবার চালু হয়।",
   "androidModeTitle": "মোড",
   "androidModeVpn": "VPN (সব অ্যাপ)",
   "androidModeVpnDesc": "সব অ্যাপ Shroudly দিয়ে যায়। Android একসাথে একটিমাত্র VPN চালাতে দেয়, তাই অন্য VPN অ্যাপের সংযোগ বিচ্ছিন্ন হয়।",
