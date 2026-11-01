@@ -36,7 +36,7 @@
 "stratAuto" = "Awtomatik (maslahat berilýär)";
 "stratDisorderSni" = "SNI-de tertipsiz iberiş";
 "stratDoubleSplit" = "Iki gezek bölmek";
-"stratNone" = "Öçürilen (diňe şifrlenen DNS)";
+"stratNone" = "Öçük";
 "stratSplit2" = "2-nji baýtda bölmek";
 "stratSplitMid" = "SNI-niň ortasyndan bölmek";
 "stratSplitSni" = "SNI-de bölmek";

@@ -4,7 +4,7 @@
 "androidIpv6OffDesc" = "Les applis et Shroudly n'utilisent que l'IPv4, et les applis savent tout de suite qu'il n'y a pas d'IPv6 au lieu de l'attendre. Pour les réseaux dont l'IPv6 est cassé ou lent.";
 "androidNetworkSection" = "Réseau";
 "androidPrivacyPolicy" = "Politique de confidentialité";
-"androidProtectionLost" = "La protection s’est arrêtée à cause d’une erreur : vos applis se connectent maintenant directement. Ouvrez Shroudly pour la relancer.";
+"androidProtectionLost" = "La protection s’est arrêtée à cause d’une erreur : vos applis se connectent maintenant directement. Ouvrez Shroudly pour la relancer.";
 "androidQuicOff" = "Désactiver QUIC";
 "androidQuicOffDesc" = "Les applis utilisent TCP au lieu de QUIC (port UDP 443), que Shroudly fait mieux passer. Pour les réseaux qui bloquent ou ralentissent QUIC.";
 "androidShareLogs" = "Partager le journal";
@@ -13,7 +13,7 @@
 "appleKeepOnDesc" = "Si la protection s’interrompt ou si l’appareil redémarre, elle se réactive d’elle-même jusqu’à ce que vous l’arrêtiez.";
 "appleLanguageDesc" = "Shroudly utilise la langue de votre appareil. Vous pouvez choisir une autre langue pour Shroudly seul dans les réglages du système.";
 "appleLocalNetworkUsage" = "Shroudly achemine les connexions de vos applis, y compris celles vers les appareils de votre réseau local, comme votre routeur.";
-"appleNoticeBody" = "Shroudly ajoute une configuration VPN pour faire passer les connexions de vos applis par son moteur, qui fonctionne uniquement sur cet appareil. Il n’y a ni serveur Shroudly ni compte, et Shroudly ne collecte aucune donnée : les sites que vous visitez ne sont ni enregistrés ni envoyés chez nous. Les noms sont résolus par DNS chiffré auprès de résolveurs publics (Cloudflare, Google, AdGuard, OpenDNS, DNS.SB).";
+"appleNoticeBody" = "Shroudly ajoute une configuration VPN pour faire passer les connexions de vos applis par son moteur, qui fonctionne uniquement sur cet appareil. Il n’y a ni serveur Shroudly ni compte, et Shroudly ne collecte aucune donnée : les sites que vous visitez ne sont ni enregistrés ni envoyés chez nous. Les noms sont résolus par DNS chiffré auprès de résolveurs publics (Cloudflare, Google, AdGuard, OpenDNS, DNS.SB).";
 "appleNoticeContinue" = "Continuer";
 "appleNoticeTitle" = "Avant de commencer";
 "appleOpenSettings" = "Ouvrir les réglages";
@@ -25,7 +25,7 @@
 "navInfo" = "À propos";
 "navSettings" = "Réglages";
 "notProtected" = "Non protégé";
-"openSourceDesc" = "Shroudly est gratuit et open source sous licence MIT : chacun peut lire, vérifier et compiler son code.";
+"openSourceDesc" = "Shroudly est gratuit et open source sous licence MIT : chacun peut lire, vérifier et compiler son code.";
 "openSourceTitle" = "Open source";
 "protected" = "Protégé";
 "start" = "Activer la protection";
