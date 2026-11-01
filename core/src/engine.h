@@ -32,6 +32,15 @@ typedef struct {
    * be SOCKS5 and give exactly these. */
   char     auth_user[256];
   char     auth_pass[256];
+  /* --upstream-file: the user's own server (a SOCKS5 or HTTP proxy) that
+   * every connection to a name goes through; it looks the name up and
+   * connects. 0: none, 1: SOCKS5, 2: HTTP CONNECT. User and password are
+   * optional (empty: none). */
+  int      upstream_kind;
+  char     upstream_host[256];
+  uint16_t upstream_port;
+  char     upstream_user[256];
+  char     upstream_pass[256];
   /* --fake-net: address ranges that stand in for names and are no real
    * destination (a tunnel's own map of names to made-up addresses). A
    * CONNECT to one is refused at once and a datagram to one is dropped, so a
@@ -86,6 +95,9 @@ typedef struct {
  * same process (embedded, see engine_main) is a fresh engine: connections of
  * the earlier one that are still finishing do not get in its way. */
 int  engine_start(const engine_config *cfg);
+/* The user's own server from a file: one line, socks5://[user:pass@]host:port
+ * or http://[user:pass@]host:port. 0, or -1 for a file that cannot be used. */
+int  engine_load_upstream(engine_config *cfg, const char *path);
 void engine_stop(void);
 /* A technique an earlier run learned for host, age milliseconds ago (see engine.c). */
 int  engine_restore(const char *host, const char *technique, uint64_t age);

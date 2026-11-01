@@ -770,6 +770,62 @@ int engine_load_auth(engine_config *cfg, const char *path) {
   return 0;
 }
 
+/* --upstream-file: "socks5://[user:pass@]host:port" or "http://..." on one
+ * line. The user name and password may hold any character but "@" and a
+ * line end; the password is what follows the first ":". */
+int engine_load_upstream(engine_config *cfg, const char *path) {
+  FILE *f = fopen_utf8(path, "rb");
+  if (!f) return -1;
+  char line[1100];
+  size_t n = fread(line, 1, sizeof(line) - 1, f);
+  fclose(f);
+  line[n] = 0;
+  if (strlen(line) != n) return -1;
+  while (n > 0 && (line[n - 1] == '\n' || line[n - 1] == '\r')) line[--n] = 0;
+  if (strpbrk(line, "\r\n")) return -1;
+  int kind = 0;
+  const char *p = line;
+  if (!strncmp(p, "socks5://", 9)) { kind = 1; p += 9; }
+  else if (!strncmp(p, "http://", 7)) { kind = 2; p += 7; }
+  else return -1;
+  char user[256] = "", pass[256] = "";
+  const char *at = strrchr(p, '@');
+  if (at) {
+    const char *colon = memchr(p, ':', (size_t)(at - p));
+    size_t ul = colon ? (size_t)(colon - p) : (size_t)(at - p);
+    size_t pl = colon ? (size_t)(at - colon - 1) : 0;
+    if (ul < 1 || ul > 255 || pl > 255) return -1;
+    memcpy(user, p, ul); user[ul] = 0;
+    if (colon) { memcpy(pass, colon + 1, pl); pass[pl] = 0; }
+    p = at + 1;
+  }
+  char host[256];
+  const char *portp;
+  if (*p == '[') {                              /* [IPv6]:port */
+    const char *end = strchr(p, ']');
+    if (!end || end[1] != ':' || (size_t)(end - p - 1) >= sizeof(host) || end == p + 1) return -1;
+    memcpy(host, p + 1, (size_t)(end - p - 1)); host[end - p - 1] = 0;
+    portp = end + 2;
+  } else {
+    const char *colon = strrchr(p, ':');
+    if (!colon || colon == p || (size_t)(colon - p) >= sizeof(host)) return -1;
+    memcpy(host, p, (size_t)(colon - p)); host[colon - p] = 0;
+    portp = colon + 1;
+  }
+  char *endp = NULL;
+  long port = strtol(portp, &endp, 10);
+  if (!endp || *endp || port < 1 || port > 65535) return -1;
+  for (const char *c = host; *c; c++) if (*c == '/' || *c == '@' || *c == ' ') return -1;
+  cfg->upstream_kind = kind;
+  snprintf(cfg->upstream_host, sizeof(cfg->upstream_host), "%s", host);
+  cfg->upstream_port = (uint16_t)port;
+  snprintf(cfg->upstream_user, sizeof(cfg->upstream_user), "%s", user);
+  snprintf(cfg->upstream_pass, sizeof(cfg->upstream_pass), "%s", pass);
+  memset(line, 0, sizeof(line));
+  memset(pass, 0, sizeof(pass));
+  return 0;
+}
+
 /* ── stand-in addresses (--fake-net) ─────────────────────────────────────
  * A tunnel that answers names with made-up addresses from a pool of its own
  * (Android's: 198.18.0.0/15) maps them back to names before they get here.
@@ -3483,6 +3539,148 @@ static void adblock_refuse(sock_t client, socks_req *rq, uint8_t *buf, int flen)
   }
 }
 
+/* ── the user's own server (--upstream-file) ─────────────────────────────
+ * Every connection to a name goes through it: a SOCKS5 server (the name sent
+ * as a name, so it looks the name up) or an HTTP proxy (CONNECT). No
+ * technique and no lookup of ours on the way there: the server is the way
+ * out, often one inside the country whose own connection to the world still
+ * works when the country's is cut. Addresses on this computer and the local
+ * network keep going straight. */
+
+static const char B64[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+static void b64(const uint8_t *in, size_t n, char *out) {
+  size_t o = 0;
+  for (size_t i = 0; i < n; i += 3) {
+    uint32_t v = (uint32_t)in[i] << 16 | (i + 1 < n ? (uint32_t)in[i + 1] << 8 : 0) | (i + 2 < n ? in[i + 2] : 0);
+    out[o++] = B64[v >> 18 & 63]; out[o++] = B64[v >> 12 & 63];
+    out[o++] = i + 1 < n ? B64[v >> 6 & 63] : '=';
+    out[o++] = i + 2 < n ? B64[v & 63] : '=';
+  }
+  out[o] = 0;
+}
+
+/* One line said now and then, not one per connection. `why`: one of the
+ * fixed reasons below (nothing to escape). */
+static void upstream_report(const char *why) {
+  static atomic_uint_fast64_t last = 0;
+  uint64_t t = now_ms(), prev = atomic_load(&last);
+  if (prev && t - prev < 30000) return;
+  atomic_store(&last, t);
+  engine_printf("{\"type\":\"upstream\",\"ok\":0,\"why\":\"%s\"}\n", why);
+}
+
+/* Connected to host:port through the user's server, or SOCK_INVALID. */
+static sock_t upstream_open(const char *host, uint16_t port) {
+  int fam = 0;
+  dial_info di;
+  sock_t s = dial(g_cfg.upstream_host, g_cfg.upstream_port, g_cfg.prefer_ipv6, 0, 0, &fam, &di);
+  if (s == SOCK_INVALID) { upstream_report("does not answer"); return SOCK_INVALID; }
+  sock_set_timeouts(s, 15000);
+  sock_set_nodelay(s, 1);
+  size_t hl = strlen(host);
+  if (hl == 0 || hl > 255) { sock_close(s); return SOCK_INVALID; }
+  uint8_t b[600];
+  if (g_cfg.upstream_kind == 1) {
+    int auth = g_cfg.upstream_user[0] != 0;
+    uint8_t hello[4] = { 5, (uint8_t)(auth ? 2 : 1), (uint8_t)(auth ? 0 : 0), 2 };
+    if (sock_send_all(s, hello, auth ? 4 : 3, 0) != 0 || recv_exact(s, b, 2) != 0 || b[0] != 5) goto bad;
+    if (b[1] == 2 && auth) {
+      size_t ul = strlen(g_cfg.upstream_user), pl = strlen(g_cfg.upstream_pass), k = 0;
+      b[k++] = 1; b[k++] = (uint8_t)ul; memcpy(b + k, g_cfg.upstream_user, ul); k += ul;
+      b[k++] = (uint8_t)pl; memcpy(b + k, g_cfg.upstream_pass, pl); k += pl;
+      int sent = sock_send_all(s, b, k, 0);
+      memset(b, 0, sizeof(b));
+      if (sent != 0 || recv_exact(s, b, 2) != 0 || b[1] != 0) { upstream_report("refused the user name or password"); goto quiet; }
+    } else if (b[1] != 0) {
+      upstream_report(b[1] == 2 ? "asks for a user name and password" : "refused the connection");
+      goto quiet;
+    }
+    size_t k = 0;
+    b[k++] = 5; b[k++] = 1; b[k++] = 0;
+    struct in_addr a4; struct in6_addr a6;
+    if (inet_pton(AF_INET, host, &a4) == 1) { b[k++] = 1; memcpy(b + k, &a4, 4); k += 4; }
+    else if (inet_pton(AF_INET6, host, &a6) == 1) { b[k++] = 4; memcpy(b + k, &a6, 16); k += 16; }
+    else { b[k++] = 3; b[k++] = (uint8_t)hl; memcpy(b + k, host, hl); k += hl; }
+    b[k++] = (uint8_t)(port >> 8); b[k++] = (uint8_t)port;
+    if (sock_send_all(s, b, k, 0) != 0 || recv_exact(s, b, 4) != 0 || b[0] != 5) goto bad;
+    if (b[1] != 0) { sock_close(s); return SOCK_INVALID; }   /* the site, not the server */
+    int rest = b[3] == 1 ? 4 : b[3] == 4 ? 16 : -1;
+    if (rest < 0 && b[3] == 3) { if (recv_exact(s, b, 1) != 0) goto bad; rest = b[0]; }
+    if (rest < 0 || recv_exact(s, b, rest + 2) != 0) goto bad;
+  } else {
+    char req[1100];
+    int is6 = strchr(host, ':') != NULL;
+    int n = snprintf(req, sizeof(req), "CONNECT %s%s%s:%u HTTP/1.1\r\nHost: %s%s%s:%u\r\n",
+                     is6 ? "[" : "", host, is6 ? "]" : "", port, is6 ? "[" : "", host, is6 ? "]" : "", port);
+    if (g_cfg.upstream_user[0]) {
+      char cred[520], enc[700];
+      int cl = snprintf(cred, sizeof(cred), "%s:%s", g_cfg.upstream_user, g_cfg.upstream_pass);
+      b64((const uint8_t *)cred, (size_t)cl, enc);
+      n += snprintf(req + n, sizeof(req) - (size_t)n, "Proxy-Authorization: Basic %s\r\n", enc);
+      memset(cred, 0, sizeof(cred));
+      memset(enc, 0, sizeof(enc));
+    }
+    n += snprintf(req + n, sizeof(req) - (size_t)n, "\r\n");
+    int sent = sock_send_all(s, (const uint8_t *)req, (size_t)n, 0);
+    memset(req, 0, sizeof(req));
+    if (sent != 0) goto bad;
+    /* The answer's head, a byte at a time: nothing of the site's after it. */
+    size_t got = 0;
+    while (got < sizeof(b) - 1) {
+      if (recv_exact(s, b + got, 1) != 0) goto bad;
+      got++;
+      if (got >= 4 && !memcmp(b + got - 4, "\r\n\r\n", 4)) break;
+    }
+    b[got] = 0;
+    int code = 0;
+    if (sscanf((const char *)b, "HTTP/1.%*d %d", &code) != 1) goto bad;
+    if (code == 407) { upstream_report("asks for a user name and password"); goto quiet; }
+    if (code != 200) { sock_close(s); return SOCK_INVALID; }
+  }
+  sock_set_timeouts(s, 0);
+  return s;
+bad:
+  upstream_report("does not speak the protocol chosen");
+quiet:
+  sock_close(s);
+  return SOCK_INVALID;
+}
+
+/* A name, or an address that is not on this computer or its network. */
+static int upstream_carries(const char *host) {
+  struct in_addr a4; struct in6_addr a6;
+  if (inet_pton(AF_INET, host, &a4) == 1) {
+    uint32_t v = ntohl(a4.s_addr);
+    return !((v >> 24) == 10 || (v >> 24) == 127 || (v >> 16) == 0xC0A8 || (v >> 20) == 0xAC1 || (v >> 16) == 0xA9FE || v == 0);
+  }
+  if (inet_pton(AF_INET6, host, &a6) == 1) {
+    return !(IN6_IS_ADDR_LOOPBACK(&a6) || IN6_IS_ADDR_LINKLOCAL(&a6) || (a6.s6_addr[0] & 0xFE) == 0xFC);
+  }
+  return !doh_local_name(host);
+}
+
+static void via_upstream(sock_t client, socks_req *rq, uint8_t *first) {
+  const char *target = rq->host;
+  proto_info pi;
+  int flen = -1;
+  memset(&pi, 0, sizeof(pi));
+  /* The system's DNS gave a block page: the name meant is in the first
+   * payload, and the server looks it up. */
+  if (rq->blockpage) {
+    if (socks_reply(client, rq, 1) != 0) return;
+    flen = first_payload(client, SOCK_INVALID, rq, first, RELAY_BUF);
+    if (flen > 0) proto_inspect(first, (size_t)flen, &pi);
+    if (pi.host[0]) target = pi.host;
+  }
+  sock_t up = upstream_open(target, rq->port);
+  if (up == SOCK_INVALID) { if (!rq->blockpage) socks_reply(client, rq, 0); return; }
+  if (!rq->blockpage && socks_reply(client, rq, 1) != 0) { sock_close(up); return; }
+  if (flen > 0 && sock_send_all(up, first, (size_t)flen, 0) != 0) { sock_close(up); return; }
+  if (rq->head && rq->head_len > 0 && sock_send_all(up, (const uint8_t *)rq->head, (size_t)rq->head_len, 0) != 0) { sock_close(up); return; }
+  relay(client, up, NULL);
+  sock_close(up);
+}
+
 static void handle(sock_t client) {
   atomic_fetch_add(&g_stats.conns_total, 1);
   atomic_fetch_add(&g_stats.conns_active, 1);
@@ -3517,6 +3715,9 @@ static void handle(sock_t client) {
 
   /* A name on the ad and tracker list: not looked up, not connected to. */
   if (!ip_literal(rq.host) && adblock_blocked(rq.host)) { adblock_refuse(client, &rq, first, -1); goto done; }
+
+  /* The user's own server carries it (see via_upstream). */
+  if (g_cfg.upstream_kind && upstream_carries(rq.host)) { via_upstream(client, &rq, first); goto done; }
 
   if (rq.blockpage) {
     /* The client looked the name up itself and the system's DNS answered with
