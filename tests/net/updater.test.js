@@ -857,7 +857,12 @@ const sandbox = () => fs.mkdtempSync(path.join(os.tmpdir(), 'shroudly-updtest-')
     u._set({ status: 'available', version: '2.5.6' });
     const t0 = Date.now();
     await u.download();
-    t.ok(u.state.status === 'ready' && eu.cancelled === 1 && Date.now() - t0 < 2000, 'a download that goes silent: called off, and the next route downloads it');
+    // electron-updater's own cancelling needs its runtime library (installed
+    // with it); without it the download is still given up and passed on.
+    let token = false;
+    try { require.resolve('builder-util-runtime', { paths: [path.join(__dirname, '..', '..')] }); token = true; } catch {}
+    t.ok(u.state.status === 'ready' && eu.cancelled === (token ? 1 : 0) && eu.calls.includes('download engine') && Date.now() - t0 < 2000,
+      `a download that goes silent: ${token ? 'called off' : 'given up'}, and the next route downloads it`);
   }
   {
     // BR-7: in the background, a version that cannot be applied is looked at
