@@ -642,7 +642,7 @@ async function releaseWindow(reason) {
   win.destroy();
   if (reason === 'idle' && wasOnScreen && !idleNoticeShown) {
     idleNoticeShown = true;
-    notify('Shroudly', trayWanted() ? tr().trayMinimized : tr().trayHiddenRunning);
+    notify('Shroudly', trayWanted() ? (process.platform === 'darwin' ? tr().trayMinimizedMac : tr().trayMinimized) : tr().trayHiddenRunning);
   }
 }
 
@@ -789,7 +789,7 @@ async function createWindow({ show = true, minimised = false, quiet = false } = 
       if (!canLeave()) { win.minimize(); return; }
       sentAway.add(win);
       win.hide();
-      notify('Shroudly', trayWanted() ? tr().trayMinimized : tr().trayHiddenRunning);
+      notify('Shroudly', trayWanted() ? (process.platform === 'darwin' ? tr().trayMinimizedMac : tr().trayMinimized) : tr().trayHiddenRunning);
     }
   });
 }

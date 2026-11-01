@@ -306,6 +306,9 @@ export default function SettingsPanel({ active = false }) {
   const strategyLabelId = useId();
   const languageLabelId = useId();
   const [testHost, setTestHost] = useState('');
+  // macOS has a menu bar where the others have a tray: said so (ML-13).
+  const [isMac, setIsMac] = useState(false);
+  useEffect(() => { setIsMac(window.electron?.platform === 'darwin'); }, []);
   const [testing, setTesting] = useState(null);       // host being tested
   const [testNote, setTestNote] = useState(null);     // 'needsProtection' | 'noAnswer'
   const [probeResult, setProbeResult] = useState(null);
@@ -854,8 +857,10 @@ export default function SettingsPanel({ active = false }) {
         {/* Always here, not only after a site test says "still blocked": on
             networks that let the handshake through and cut the rest,
             the test says the site works, and the one mode that helps would
-            otherwise never be shown. */}
-        {!advInfo.active && (
+            otherwise never be shown. Not where this system has no Advanced
+            mode at all (macOS): a row to say it cannot be had is only one
+            more thing to read (ML-9). */}
+        {!advInfo.active && !['mac_unsupported', 'platform_unsupported'].includes(advInfo.reasonCode) && (
           <div className="mt-4 rounded-[var(--radius-sm)] p-3" style={{ background: 'var(--surface-2)', border: '1px solid var(--line)' }}>
             <p className="flex items-center gap-1.5 text-[13.5px] font-semibold" style={{ color: 'var(--text)' }}>
               <ZapIcon className="h-4 w-4" style={{ color: advInfo.available ? 'var(--warn)' : 'var(--text-faint)' }} />
@@ -918,7 +923,7 @@ export default function SettingsPanel({ active = false }) {
       <Section title={t('appSection')}>
         <div className="divide-y" style={{ borderColor: 'var(--line)' }}>
           <Toggle label={t('startOnBoot')} desc={t('startOnBootDesc')} checked={settings.autoStart} onChange={(v) => save('autoStart', v)} />
-          <Toggle label={t('minimizeToTray')} desc={t('minimizeToTrayDesc')} checked={settings.minimizeToTray} onChange={(v) => save('minimizeToTray', v)} />
+          <Toggle label={t(isMac ? 'minimizeToTrayMac' : 'minimizeToTray')} desc={t(isMac ? 'minimizeToTrayDescMac' : 'minimizeToTrayDesc')} checked={settings.minimizeToTray} onChange={(v) => save('minimizeToTray', v)} />
           <Toggle label={t('showTrayIcon')} desc={t('showTrayIconDesc')} checked={settings.showTrayIcon !== false} onChange={(v) => save('showTrayIcon', v)} />
           <Toggle
             label={t('shareOnlineCount')}
@@ -930,7 +935,9 @@ export default function SettingsPanel({ active = false }) {
           {/* Off: no permission prompt is ever brought up by Shroudly on its
               own (Advanced mode, Microsoft Store apps); it says what needs
               which mode instead (issue #55). */}
-          <Toggle label={t('askByItself')} desc={t('askByItselfDesc')} checked={settings.askByItself !== false} onChange={(v) => save('askByItself', v)} />
+          {/* macOS has neither Advanced mode nor Microsoft Store apps: nothing
+              there to ask about. */}
+          {!isMac && <Toggle label={t('askByItself')} desc={t('askByItselfDesc')} checked={settings.askByItself !== false} onChange={(v) => save('askByItself', v)} />}
           <Toggle label={t('autoUpdate')} desc={t('autoUpdateDesc')} checked={settings.autoUpdate !== false} onChange={(v) => save('autoUpdate', v)} />
         </div>
         {/* Repair: Shroudly's files checked, what it learned forgotten, its
