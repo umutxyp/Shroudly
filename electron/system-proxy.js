@@ -999,7 +999,26 @@ ${v6}${local}
         const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
         const argsXml = [cmd.exe, ...cmd.args].map((a) => `    <string>${esc(a)}</string>`).join('\n');
         fs.mkdirSync(path.dirname(file), { recursive: true });
-        writeAtomic(file, `<?xml version="1.0" encoding="UTF-8"?>
+        // macOS 13+ posts "Background Items Added" for every new or rewritten
+        // LaunchAgent: written each Start (and removed each Stop), it came
+        // with every Start. Written only when it is new or different, and
+        // kept (see _removeLoginHook).
+        const text = SystemProxy._macAgentPlist(argsXml);
+        let had = null;
+        try { had = fs.readFileSync(file, 'utf8'); } catch {}
+        if (had !== text) writeAtomic(file, text);
+      } else {
+        const file = this._loginHookFile();
+        const q = (a) => `"${String(a).replace(/(["`$\\])/g, '\\$1')}"`;
+        fs.mkdirSync(path.dirname(file), { recursive: true });
+        writeAtomic(file, `[Desktop Entry]\nType=Application\nName=Shroudly proxy restore\nExec=${[cmd.exe, ...cmd.args].map(q).join(' ')}\nNoDisplay=true\nX-GNOME-Autostart-enabled=true\n`);
+      }
+    } catch (e) { this.log('warning', `Could not install proxy restore hook: ${e.message}`); }
+  }
+
+  /* The macOS restore agent: Shroudly --restore-proxy at each login. */
+  static _macAgentPlist(argsXml) {
+    return `<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
@@ -1011,18 +1030,16 @@ ${argsXml}
   <key>RunAtLoad</key><true/>
 </dict>
 </plist>
-`);
-      } else {
-        const file = this._loginHookFile();
-        const q = (a) => `"${String(a).replace(/(["`$\\])/g, '\\$1')}"`;
-        fs.mkdirSync(path.dirname(file), { recursive: true });
-        writeAtomic(file, `[Desktop Entry]\nType=Application\nName=Shroudly proxy restore\nExec=${[cmd.exe, ...cmd.args].map(q).join(' ')}\nNoDisplay=true\nX-GNOME-Autostart-enabled=true\n`);
-      }
-    } catch (e) { this.log('warning', `Could not install proxy restore hook: ${e.message}`); }
+`;
   }
 
+  /* macOS keeps its restore agent (see _installLoginHook): with no state
+   * file, the restore it starts at a login does nothing and ends at once,
+   * while removing and writing it again made macOS say "Background Items
+   * Added" at every Start. Elsewhere it goes with the state it was for. */
   _removeLoginHook() {
     if (!this.restoreCommand && !this.stateFile) return;
+    if (this.platform === 'darwin') return;
     try {
       if (this.platform === 'win32') exec.runSync('reg.exe', ['delete', WIN_RUNONCE_KEY, '/v', WIN_RUNONCE_VALUE, '/f']);
       else fs.rmSync(this._loginHookFile(), { force: true });

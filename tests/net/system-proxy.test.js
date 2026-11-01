@@ -1151,6 +1151,30 @@ const readState = (file) => { try { return JSON.parse(fs.readFileSync(file, 'utf
   const ourPacOn = (svc) => svc.auto.enabled && /^http:\/\/127\.0\.0\.1:\d+\/proxy\.pac$/.test(svc.auto.url);
 
   {
+    // macOS: the restore agent written once and kept. Written at every Start
+    // and removed at every Stop, it had macOS 13+ say "Background Items
+    // Added" each time (VML-2). Linux's autostart entry still goes with the
+    // state it was for. In a folder of the test's own (homeDir).
+    const home = fs.mkdtempSync(path.join(TMP, 'home-'));
+    const cmd = { exe: '/Applications/Shroudly.app/Contents/MacOS/Shroudly', args: ['--restore-proxy'] };
+    const mac = new SystemProxy(() => {}, { platform: 'darwin', homeDir: home, restoreCommand: cmd, stateFile: path.join(home, 's.json') });
+    const plist = path.join(home, 'Library', 'LaunchAgents', 'me.codeshare.shroudly.proxy-restore.plist');
+    mac._installLoginHook();
+    const first = fs.statSync(plist).mtimeMs;
+    await sleep(30);
+    mac._installLoginHook();
+    mac._removeLoginHook();
+    t.ok(fs.existsSync(plist) && fs.statSync(plist).mtimeMs === first && /--restore-proxy/.test(fs.readFileSync(plist, 'utf8')),
+      'macOS: the restore agent is written once, not again at the next Start, and kept at Stop');
+    const lin = new SystemProxy(() => {}, { platform: 'linux', homeDir: home, restoreCommand: cmd, stateFile: path.join(home, 's.json'), env: { HOME: home } });
+    lin._installLoginHook();
+    const desk = path.join(home, '.config', 'autostart', 'shroudly-proxy-restore.desktop');
+    const had = fs.existsSync(desk);
+    lin._removeLoginHook();
+    t.ok(had && !fs.existsSync(desk), 'Linux: the autostart entry is written and removed with the state, as before');
+  }
+
+  {
     // The proxy this computer had before Shroudly's, pointing elsewhere: a
     // company's, a school's (net-desktop-02). One on this computer, ours, or
     // none is not one.
