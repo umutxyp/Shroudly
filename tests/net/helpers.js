@@ -209,6 +209,81 @@ function testServerOptions() {
   return { key: fixture('test-only-key.pem'), cert: fixture('test-only-cert.pem'), minVersion: 'TLSv1.3' };
 }
 
+/* Stand-ins for a user's own server (--upstream-file, own-server.js): a
+ * SOCKS5 server that takes names, with an optional user and password, and
+ * connects every name to `to` (a site on this computer). */
+function socksServer(to, { user = null, pass = null } = {}) {
+  const asked = [];
+  const srv = net.createServer((c) => {
+    c.on('error', () => {});
+    let b = Buffer.alloc(0);
+    let st = 'hello';
+    c.on('data', function on(d) {
+      b = Buffer.concat([b, d]);
+      if (st === 'hello' && b.length >= 2 && b.length >= 2 + b[1]) {
+        const methods = [...b.subarray(2, 2 + b[1])];
+        b = b.subarray(2 + b[1]);
+        if (user) { if (!methods.includes(2)) { c.end(Buffer.from([5, 0xff])); return; } c.write(Buffer.from([5, 2])); st = 'auth'; }
+        else { c.write(Buffer.from([5, 0])); st = 'req'; }
+      }
+      if (st === 'auth' && b.length >= 2 && b.length >= 3 + b[1] && b.length >= 3 + b[1] + b[2 + b[1]]) {
+        const ul = b[1];
+        const u = b.subarray(2, 2 + ul).toString();
+        const pl = b[2 + ul];
+        const p = b.subarray(3 + ul, 3 + ul + pl).toString();
+        b = b.subarray(3 + ul + pl);
+        if (u !== user || p !== pass) { c.end(Buffer.from([1, 1])); return; }
+        c.write(Buffer.from([1, 0]));
+        st = 'req';
+      }
+      if (st === 'req' && b.length >= 5) {
+        const atyp = b[3];
+        const len = atyp === 3 ? 5 + b[4] + 2 : atyp === 1 ? 10 : 22;
+        if (b.length < len) return;
+        const host = atyp === 3 ? b.subarray(5, 5 + b[4]).toString() : atyp === 1 ? [...b.subarray(4, 8)].join('.') : 'v6';
+        const port = b.readUInt16BE(len - 2);
+        asked.push({ atyp, host, port });
+        c.removeListener('data', on);
+        const rest = b.subarray(len);
+        const up = net.connect(to, '127.0.0.1', () => {
+          c.write(Buffer.from([5, 0, 0, 1, 127, 0, 0, 1, 0, 0]));
+          if (rest.length) up.write(rest);
+          c.pipe(up); up.pipe(c);
+        });
+        up.on('error', () => c.destroy());
+      }
+    });
+  }).listen(0, '127.0.0.1');
+  srv.asked = asked;
+  return srv;
+}
+
+/* An HTTP proxy that takes CONNECT, with Basic authentication. */
+function httpProxy(to, auth) {
+  const asked = [];
+  const srv = net.createServer((c) => {
+    c.on('error', () => {});
+    let head = '';
+    c.on('data', function on(d) {
+      head += d.toString('latin1');
+      const end = head.indexOf('\r\n\r\n');
+      if (end < 0) return;
+      c.removeListener('data', on);
+      const line = head.split('\r\n')[0];
+      const got = (/^Proxy-Authorization: Basic (\S+)$/mi.exec(head) || [])[1];
+      asked.push({ line, auth: got ? Buffer.from(got, 'base64').toString() : null });
+      if (auth && got !== Buffer.from(auth).toString('base64')) { c.end('HTTP/1.1 407 Proxy Authentication Required\r\n\r\n'); return; }
+      const up = net.connect(to, '127.0.0.1', () => {
+        c.write('HTTP/1.1 200 Connection established\r\n\r\n');
+        c.pipe(up); up.pipe(c);
+      });
+      up.on('error', () => c.destroy());
+    });
+  }).listen(0, '127.0.0.1');
+  srv.asked = asked;
+  return srv;
+}
+
 /* Minimal assertions with a running count, so every test prints what it proved. */
 function suite(name) {
   let n = 0;
@@ -218,4 +293,4 @@ function suite(name) {
   };
 }
 
-module.exports = { ROOT, enginePath, startEngine, sleep, freePort, socks, socks4, dnsStub, getViaEngine, fixture, requestWatcher, testServerOptions, suite };
+module.exports = { ROOT, enginePath, startEngine, sleep, freePort, socks, socks4, dnsStub, getViaEngine, fixture, requestWatcher, testServerOptions, socksServer, httpProxy, suite };

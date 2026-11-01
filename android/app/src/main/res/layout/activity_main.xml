@@ -707,6 +707,18 @@
 
             <View style="@style/Divider" />
 
+            <!-- This app's APK, to another phone (ApkShare); the APK from
+                 GitHub only. -->
+            <TextView
+                android:id="@+id/shareApp"
+                style="@style/AboutRowText"
+                android:drawableStart="@drawable/row_phone"
+                android:text="@string/shareApp" />
+
+            <View
+                android:id="@+id/shareAppDivider"
+                style="@style/Divider" />
+
             <!-- The recent log and the phone's details, to send to us. -->
             <TextView
                 android:id="@+id/shareLogs"

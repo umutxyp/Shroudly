@@ -70,6 +70,7 @@ class Engine(
             dnsStrict: Boolean = false,
             quicOff: Boolean = false,
             ipv6Off: Boolean = false,
+            upstream: File? = null,
         ): List<String> {
             // The technique chosen in Settings: automatic (the engine looks for
             // what works per site and keeps it) or one for every site.
@@ -91,6 +92,9 @@ class Engine(
                 a += listOf("--adblock", adblock.path)
                 for (d in allow) a += listOf("--allow", d)
             }
+            // "Your own server" (OwnServer): every connection to a name goes
+            // through it.
+            if (upstream != null) a += listOf("--upstream-file", upstream.path)
             return a
         }
 

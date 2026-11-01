@@ -7,9 +7,10 @@ import Toast from './Toast';
 import ClampedText from './ClampedText';
 import { proxyNotice, PROXY_ACTIONS } from './proxyNotice';
 import { pickRoom } from './panelRoom';
+import { OWN_SERVER_WHY } from './ownServerText';
 
 export default function ControlPanel({ dpiStatus, onStatusChange, onSupport }) {
-  const { t, language } = useLanguage();
+  const { t, language, isRTL } = useLanguage();
   const [loading, setLoading] = useState(false);
   const [toast, setToast] = useState(null);
   const [fixing, setFixing] = useState(false);
@@ -30,6 +31,9 @@ export default function ControlPanel({ dpiStatus, onStatusChange, onSupport }) {
   // On, but the network itself has no internet: said so, instead of a
   // "Protected" that made the browser's proxy error look like Shroudly's.
   const offline = active && !notRouting && !!dpiStatus.offline;
+  // The user's own server (Settings) is not carrying connections: said
+  // first, it is why nothing opens.
+  const ownServerDown = active && !notRouting && dpiStatus.ownServerDown ? dpiStatus.ownServerDown : null;
   const ownProxy = offline && !!dpiStatus.ownProxy;
   // Only the country's own network answers: a shutdown, not "no internet".
   const nationalOnly = offline && !ownProxy && !!dpiStatus.nationalOnly;
@@ -157,8 +161,8 @@ export default function ControlPanel({ dpiStatus, onStatusChange, onSupport }) {
         {/* Status text */}
         <div ref={statusRef} className="w-full max-w-sm text-center" aria-live="polite">
           <h2 className="text-2xl font-semibold leading-tight tracking-tight wrap-anywhere"
-              style={{ color: notRouting ? 'var(--warn)' : offline ? 'var(--text)' : active ? 'var(--state)' : 'var(--text)' }}>
-            {notRouting ? t('notWorkingYet') : ownProxy ? t('ownProxyTitle') : nationalOnly ? t('nationalOnlyTitle') : offline ? t('noInternet') : active ? t('protected') : starting ? t('starting') : t('notProtected')}
+              style={{ color: notRouting || ownServerDown ? 'var(--warn)' : offline ? 'var(--text)' : active ? 'var(--state)' : 'var(--text)' }}>
+            {notRouting ? t('notWorkingYet') : ownServerDown ? t('ownServerDown') : ownProxy ? t('ownProxyTitle') : nationalOnly ? t('nationalOnlyTitle') : offline ? t('noInternet') : active ? t('protected') : starting ? t('starting') : t('notProtected')}
           </h2>
           {notRouting ? (
             <ClampedText text={t(pn ? pn.body : 'proxyFailedBody', pn ? pn.params : undefined)} lines={5}
@@ -168,6 +172,14 @@ export default function ControlPanel({ dpiStatus, onStatusChange, onSupport }) {
               {t('repairFilesMissing', { files: repair.missing.join(', ') })}{' '}
               <a href="https://github.com/umutxyp/Shroudly/releases/latest" target="_blank" rel="noreferrer"
                  className="font-semibold underline">{t('repairDownload')}</a>
+            </p>
+          ) : ownServerDown ? (
+            <p className="mt-1.5 text-[13px] leading-snug wrap-anywhere" style={{ color: 'var(--text-dim)' }}>
+              {t('ownServerDownBody', {
+                server: ownServerDown.server,
+                why: t(OWN_SERVER_WHY[ownServerDown.why] || 'ownServerWhyProtocol'),
+                path: [t('navSettings'), t('moreSettings'), t('ownServer')].join(isRTL ? ' ← ' : ' → '),
+              })}
             </p>
           ) : nationalOnly ? (
             <p className="mt-1.5 text-[13px] leading-snug wrap-anywhere" style={{ color: 'var(--text-dim)' }}>

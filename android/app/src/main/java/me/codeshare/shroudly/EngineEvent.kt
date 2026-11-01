@@ -52,6 +52,9 @@ sealed class EngineEvent {
     }
 
     data class Error(val message: String, val code: Int?) : EngineEvent()
+    /* The user's own server would not carry a connection (--upstream-file;
+     * said at most every half minute): why, as the engine words it. */
+    data class Upstream(val ok: Boolean, val why: String) : EngineEvent()
     /* What became of the ad and tracker list (ADBLOCK, --adblock), and the
      * engine's verdict on a fetched one (ADBLOCK-CHECK). Never a path. */
     data class Adblock(val on: Boolean, val entries: Long, val error: String?) : EngineEvent()
@@ -94,6 +97,7 @@ sealed class EngineEvent {
                 "netdns" -> NetDns(str("host") ?: "", str("addr") ?: "", str("stage") ?: "")
                 "udp_full" -> UdpFull(num("max").toInt())
                 "error" -> Error(str("msg") ?: "code ${num("code")}", (m["code"] as? Number)?.toInt())
+                "upstream" -> Upstream(num("ok") != 0L, str("why") ?: "")
                 "stopped" -> Stopped
                 else -> Other(type)
             }

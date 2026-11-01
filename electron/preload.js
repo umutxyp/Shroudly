@@ -54,6 +54,10 @@ contextBridge.exposeInMainWorld('electron', {
   // Does this DNS server answer? ({ kind, server }) -> { ok, ms, address } or
   // { ok: false, error | invalid }
   testDns: (value) => ipcRenderer.invoke('dns:test', value),
+  testOwnServer: (link) => ipcRenderer.invoke('ownserver:test', link),
+  setShare: (on) => ipcRenderer.invoke('share:set', on),
+  getShareStatus: () => ipcRenderer.invoke('share:status'),
+  newShareLink: () => ipcRenderer.invoke('share:newLink'),
 
   // Logs
   getLogs: () => ipcRenderer.invoke('logs:get'),

@@ -181,6 +181,10 @@ class MainActivity : Activity() {
         findViewById<View>(R.id.notices).setOnClickListener { showNotices() }
         findViewById<View>(R.id.privacy).setOnClickListener { open(UpdateCheck.PRIVACY_URL) }
         findViewById<View>(R.id.shareLogs).setOnClickListener { shareLogs() }
+        // "Share Shroudly": the APK to another phone, where there is one file to pass on.
+        val apk = ApkShare.available(this)
+        findViewById<View>(R.id.shareApp).apply { visibility = if (apk) View.VISIBLE else View.GONE; setOnClickListener { ApkShare.share(this@MainActivity) } }
+        findViewById<View>(R.id.shareAppDivider).visibility = if (apk) View.VISIBLE else View.GONE
         // Settings: the gear at the top, and the row under About.
         val settings = View.OnClickListener { startActivity(Intent(this, SettingsActivity::class.java)) }
         findViewById<View>(R.id.settings).setOnClickListener(settings)
@@ -551,6 +555,7 @@ class MainActivity : Activity() {
         val statusText = getString(
             when (st) {
                 Protection.State.ON -> if (proxyIdle) R.string.androidProxyOnlyRunning
+                    else if (Protection.ownServerDown != null) R.string.ownServerDown
                     else if (Protection.national != null) R.string.nationalOnlyTitle else R.string.protected_
                 Protection.State.STARTING -> R.string.starting
                 Protection.State.STOPPING -> R.string.stopping
@@ -578,7 +583,10 @@ class MainActivity : Activity() {
         // Set only when it changes: status and detail are live regions, and
         // TalkBack reads every change out.
         status.show(statusText)
-        status.setTextColor(if (on && !proxyIdle) Accent.color(this, R.attr.accent) else getColor(R.color.text))
+        status.setTextColor(
+            if (on && Protection.ownServerDown != null) getColor(R.color.warn)
+            else if (on && !proxyIdle) Accent.color(this, R.attr.accent) else getColor(R.color.text),
+        )
 
         val error = Protection.errorRes
         val off = st == Protection.State.OFF
@@ -592,6 +600,16 @@ class MainActivity : Activity() {
             }
             vpnDenied && off -> {
                 detail.show(getString(R.string.androidVpnDeniedHere))
+                detail.setTextColor(getColor(R.color.warn))
+            }
+            // The user's own server (Settings, Advanced) is not carrying
+            // connections: said first, it is why nothing opens.
+            on && Protection.ownServerDown != null -> {
+                val (server, why) = Protection.ownServerDown ?: ("" to "")
+                val path = listOf(R.string.navSettings, R.string.androidAdvanced, R.string.ownServer).joinToString(
+                    if (resources.configuration.layoutDirection == View.LAYOUT_DIRECTION_RTL) " ← " else " → ",
+                ) { getString(it) }
+                detail.show(text(R.string.ownServerDownBody, "server" to server, "why" to getString(OwnServer.whyRes(why)), "path" to path))
                 detail.setTextColor(getColor(R.color.warn))
             }
             // Only the country's own network answers: a shutdown, which no

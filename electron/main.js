@@ -24,6 +24,8 @@ const Store = require('electron-store');
 const SettingsFile = require('./settings-file');
 const EngineManager = require('./engine-manager');
 const CustomDnsLib = require('./custom-dns');
+const OwnServer = require('./own-server');
+const { Share } = require('./share');
 const AdvancedMode = require('./advanced-mode');
 const AdvancedProtection = require('./advanced-protection');
 const DiscordApp = require('./discord-app');
@@ -167,6 +169,8 @@ const flatpakEnv = FlatpakEnv.availableSync() ? new FlatpakEnv({ log: (l, m) => 
  * works: the session's environment (macOS, Windows) or Flatpak (Linux). */
 const appModeSupported = () => AppEnv.supported() || !!flatpakEnv;
 let siteList = null;
+// "Share my connection" (share.js).
+let share = null;
 
 const isDev = !app.isPackaged;
 const DEV_PORT = process.env.PORT || 3000;
@@ -1166,6 +1170,8 @@ app.whenReady().then(async () => {
     onSecurityBlock: (info) => securityBlocked(info),
     // "Block ads and trackers": the list in use, once one has been fetched.
     adblockFile: () => (adblockList && adblockList.has() ? adblockList.file : null),
+    // The file naming the user's own server goes here (own-server.js).
+    dataDir: app.getPath('userData'),
     siteList: () => siteList.domains,
     // A site still blocked while Advanced mode is on: nothing to suggest.
     advancedOn: () => !!(advanced && advanced.active),
@@ -1279,6 +1285,15 @@ app.whenReady().then(async () => {
       toWindow('dpi:site-blocked', { host, asked });
     },
   });
+  // "Share my connection": what the people sharing open goes through the
+  // engine while protection is on. On again at start when the user left it on.
+  share = new Share({
+    store, log: addLog, socksPort: () => (engine && engine.isActive() ? engine.port : null),
+    // The end-to-end test: on this computer only, and the test machine's
+    // router never asked to open anything.
+    ...(process.env.SHROUDLY_E2E === '1' ? { bindHost: '127.0.0.1', lan: () => ['127.0.0.1'], own: () => [], upnp: { map: async () => ({ ok: false, why: 'not asked in tests' }), unmap: async () => {} } } : {}),
+  });
+  if (store.get('shareOn') === true) share.start().catch((e) => addLog('warning', `Sharing this connection could not start: ${e.message}`));
   advanced = new AdvancedMode(addLog);
   // The backend ended by itself: the window must not keep saying it is on.
   advanced.onExit = () => advancedState(false);
@@ -1311,7 +1326,7 @@ app.whenReady().then(async () => {
   createAutopilot();
   createStoreApps();
   // The end-to-end tests look inside (tests/e2e): never in a normal run.
-  if (process.env.SHROUDLY_E2E === '1') global.shroudlyE2E = { engine, appProxy, discordRelay, autopilot, wake, store, addLog, require, trayCopyLogs: () => trayCopyLogs(tr()), saveLogs };
+  if (process.env.SHROUDLY_E2E === '1') global.shroudlyE2E = { engine, appProxy, discordRelay, autopilot, wake, store, addLog, require, trayCopyLogs: () => trayCopyLogs(tr()), saveLogs, share };
 
   updater = new Updater({
     log: addLog,
@@ -1563,6 +1578,8 @@ app.on('before-quit', (e) => {
   try { if (appEnv && appEnv.applied) appEnv.clearSync(); } catch {}
   try { if (flatpakEnv && flatpakEnv.applied) flatpakEnv.clearSync(); } catch {}
   if (appProxy) appProxy.stop();
+  // The router's way in for the share is taken away (upnp.js).
+  if (share && share.on) share.stop().catch(() => {});
   if (presence && !presence.stopped) presence.leave();
   try { updater && updater.installOnQuit(); } catch {}
   if (exitInProgress) return;
@@ -1727,6 +1744,8 @@ ipcMain.handle('dpi:status', () => ({
   // ...or only the country's own network answers: a shutdown of the rest of
   // the world (national-net.js), which no app gets past.
   nationalOnly: !!(engine && engine.isActive() && engine.advice && engine.advice.offline && engine.advice.nationalOnly),
+  // The user's own server is not carrying connections: { server, why }.
+  ownServerDown: (engine && engine.isActive() && engine.advice && engine.advice.ownServerDown) || null,
 }));
 ipcMain.handle('dpi:probe', (e, host) => {
   if (engine && typeof host === 'string' && host) { userTests.set(host.toLowerCase(), Date.now()); engine.probe(host); }
@@ -3014,6 +3033,45 @@ async function ensureAdblock() {
 }
 setInterval(() => { ensureAdblock().catch(() => {}); }, 60 * 60 * 1000).unref();
 
+/* Settings, "Your own server" (own-server.js): a link, or null for none.
+ * Refused with the reason when it cannot be read; the engine restarts with
+ * it (or without). */
+function setOwnServer(value) {
+  const was = store.get('ownServer') || null;
+  if (value == null || value === '') {
+    if (!was) return { success: true };
+    store.delete('ownServer');
+    addLog('info', 'Your own server: off; sites go straight again');
+  } else {
+    const p = OwnServer.parseLink(value);
+    if (!p.ok) return { success: false, error: p.error };
+    const link = String(value).trim();
+    if (link === was) return { success: true };
+    store.set('ownServer', link);
+    addLog('info', `Your own server: ${OwnServer.describe(p)}; every site goes through it`);
+  }
+  scheduleEngineRestart();
+  return { success: true };
+}
+ipcMain.handle('ownserver:test', (e, link) => (engine ? engine.testOwnServer(link) : { ok: false, why: 'noAnswer' }));
+
+/* Settings, "Share my connection" (share.js): on or off, kept for the next
+ * start; its links and counts; a new link. */
+ipcMain.handle('share:set', async (e, on) => {
+  if (!share) return { on: false };
+  store.set('shareOn', on === true);
+  try {
+    if (on === true) await share.start(); else await share.stop();
+  } catch (err) {
+    store.set('shareOn', false);
+    addLog('warning', `Sharing this connection could not start: ${err.message}`);
+    return { on: false, error: err.message };
+  }
+  return share.status();
+});
+ipcMain.handle('share:status', () => (share ? share.status() : { on: false }));
+ipcMain.handle('share:newLink', () => (share ? share.newLink() : { on: false }));
+
 /* Settings, "DNS server" (issue #34): automatic (null), or the user's own
  * { kind, server }, refused with the reason when it cannot be read. Used
  * from the next lookup on; nothing restarts. */
@@ -3052,6 +3110,7 @@ ipcMain.handle('dns:test', async (e, value) => {
 
 ipcMain.handle('settings:set', (e, key, value) => {
   if (key === 'customDns') return setCustomDns(value);
+  if (key === 'ownServer') return setOwnServer(value);
   // No list of one's own: follow the automatic list again.
   if (key === 'siteList' && !Array.isArray(value)) store.delete('siteList');
   else store.set(key, value);

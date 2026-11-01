@@ -66,6 +66,8 @@ class ShroudlyProxyService : Service() {
     private val work = Executors.newSingleThreadScheduledExecutor { r -> Thread(r, "proxy-service").apply { isDaemon = true } }
     private var engine: Engine? = null
     private var doh: DohForwarder? = null
+    // "Your own server" for this session (OwnServer).
+    private val ownServer by lazy { OwnServer.Session(filesDir, ::log) }
     private var port = 0
     private var dohPort = 0
     private var restarts = 0
@@ -132,6 +134,7 @@ class ShroudlyProxyService : Service() {
             ShroudlyVpnService.ACTION_SETTINGS -> {
                 if (intent.getStringExtra("what") == "strategy") work.execute { restartEngine("restarted with the technique chosen in Settings") }
                 if (intent.getStringExtra("what") == "network") work.execute { restartEngine("restarted with the network settings chosen in Settings") }
+                if (intent.getStringExtra("what") == "ownServer") work.execute { restartEngine("restarted with the server chosen in Settings") }
                 // Another DNS server: from the next lookup on, nothing restarted.
                 if (intent.getStringExtra("what") == "dns") work.execute { if (active) { doh?.let { AppSettings.applyDns(this, it) }; engine?.send(if (AppSettings.customDnsStrict(this)) "DNS-STRICT 1" else "DNS-STRICT 0"); engine?.send("DNS-CLEAR") } }
                 if (!active && Protection.state == Protection.State.OFF) stopSelf()
@@ -234,8 +237,11 @@ class ShroudlyProxyService : Service() {
         val p = ProxyPort.listenOn(ports) { at ->
             val e = Engine(::log, ShroudlyVpnService::logSite, ::onEvent, ::onExit)
             engine = e
+            val upstream = ownServer.fileFor(AppSettings.ownServer(this))
             // No password and no stand-in range: apps reach it by name or address.
-            if (e.start(Engine.args(at, dohPort, blockIps, null, null, AdBlock.listFile(this), AdBlock.allow(this), AppSettings.strategy(this), AppSettings.customDnsStrict(this), AppSettings.quicOff(this), AppSettings.ipv6Off(this)))) {
+            val started = e.start(Engine.args(at, dohPort, blockIps, null, null, AdBlock.listFile(this), AdBlock.allow(this), AppSettings.strategy(this), AppSettings.customDnsStrict(this), AppSettings.quicOff(this), AppSettings.ipv6Off(this), upstream))
+            upstream?.delete()
+            if (started) {
                 doh?.socksPort = at
                 doh?.socksAuth = null
                 ProxyPort.Tried(ok = true)
@@ -282,6 +288,7 @@ class ShroudlyProxyService : Service() {
             }
             is EngineEvent.AdblockCheck -> adblockCheck.getAndSet(null)?.complete(ev)
             is EngineEvent.Error -> log("engine: ${ev.message}")
+            is EngineEvent.Upstream -> if (!ev.ok) ownServer.down(OwnServer.whyCode(ev.why))
             else -> {}
         }
     }
@@ -473,6 +480,7 @@ class ShroudlyProxyService : Service() {
         doh?.let { d -> d.summary().takeIf { it.isNotEmpty() }?.let { log(if (d.usingCustom()) "Your DNS server is answering: $it" else "Encrypted DNS answering via $it") } }
         engine?.let { if (!it.stop()) log("The engine did not stop in time") }
         engine = null
+        ownServer.close()
         doh?.stop(); doh = null
         port = 0
     }

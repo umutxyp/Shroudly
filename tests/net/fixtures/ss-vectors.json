@@ -1,0 +1,50 @@
+{
+ "about": "Shadowsocks AEAD with a fixed salt (bytes 0, 1, 2…): what electron/shadowsocks.js writes, checked against shadowsocks-libev in CI; Android Shadowsocks.kt must write the same. The third part, 17000 bytes of \"a\" (two chunks), is given by its SHA-256.",
+ "password": "shroudly-vectors",
+ "plaintext": [
+  "030b6578616d706c652e636f6d01bb",
+  "68656c6c6f2c20776f726c64",
+  {
+   "byte": "61",
+   "count": 17000
+  }
+ ],
+ "methods": {
+  "chacha20-ietf-poly1305": {
+   "key": "580f02384876c48dd4826d5b2765684992b3d2d14eaf5d427aa4ddbc606a3e8e",
+   "salt": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f",
+   "wire": [
+    "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f753c7f66b082b8b4595e430535e776881d1747df84adacdbbc45822ee17a2501e39b8ec1046b2ce97eac2443918d092bda",
+    "7175aa199c604d65af12232364e52e7b1706dbfeedc7028a294dd7a9dbe51e2f7c1a00748f4cc3cc6c94f9145c9b",
+    {
+     "sha256": "92e668535c0df1957b722ab2f8359caf776b91935bc1ca18bf24d2d0370e23e1",
+     "length": 17068
+    }
+   ]
+  },
+  "aes-256-gcm": {
+   "key": "580f02384876c48dd4826d5b2765684992b3d2d14eaf5d427aa4ddbc606a3e8e",
+   "salt": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f",
+   "wire": [
+    "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1ff949280caa28bf2b490d3933a9e93ec68954c980c60aa8ba6a85cb294e44a68380099efd38172059e2d079162736f9a094",
+    "deabb89ab53f6928da7ab8e291d86f720b0b50a41b9a510d9c043c35c96fa39251e9940dca9c2b410e5da0e5c10d",
+    {
+     "sha256": "39d3d6414235be2875be0b2c4dadf74a7b2cf93a6076ad1e129cbb8d1edd4465",
+     "length": 17068
+    }
+   ]
+  },
+  "aes-128-gcm": {
+   "key": "580f02384876c48dd4826d5b27656849",
+   "salt": "000102030405060708090a0b0c0d0e0f",
+   "wire": [
+    "000102030405060708090a0b0c0d0e0fdd78597185402bae9ba1d8be4aa221b5e62548eebda41ee25da7712412b5b55fb8deedf851bc91857f35bb9eb639dc8b5a",
+    "e06cf249cb3605c646ef5c15cf5a5d49361da13dcedd45d3d86eab2d55d072dc585458990b0ce15d9cbd8e39f6cf",
+    {
+     "sha256": "644e7805611c6992d8364388e34f299820c4f878a51bd526a3f31e475542d401",
+     "length": 17068
+    }
+   ]
+  }
+ }
+}

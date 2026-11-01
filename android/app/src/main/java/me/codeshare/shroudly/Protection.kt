@@ -44,6 +44,10 @@ object Protection {
      * code (IR, RU...), or null. */
     @Volatile var national: String? = null
         private set
+    /* While on: the user's own server (OwnServer) is not carrying
+     * connections: what it is and why (OwnServer.WHY codes), or null. */
+    @Volatile var ownServerDown: Pair<String, String>? = null
+        private set
 
     private val listeners = CopyOnWriteArraySet<() -> Unit>()
     private val main = Handler(Looper.getMainLooper())
@@ -52,7 +56,7 @@ object Protection {
         state = s
         if (s == State.STARTING) { errorRes = 0; errorDetail = null }
         if (s != State.ON) { socksPort = 0; socksAuth = null; proxyPortTaken = 0 }
-        if (s == State.OFF) { stats = null; startedAt = 0; proxyOnly = false; national = null }
+        if (s == State.OFF) { stats = null; startedAt = 0; proxyOnly = false; national = null; ownServerDown = null }
         changed()
     }
 
@@ -65,6 +69,12 @@ object Protection {
     fun trouble(res: Int) {
         if (troubleRes == res) return
         troubleRes = res
+        changed()
+    }
+
+    fun ownServerDown(v: Pair<String, String>?) {
+        if (ownServerDown == v) return
+        ownServerDown = v
         changed()
     }
 

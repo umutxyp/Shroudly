@@ -278,6 +278,27 @@
                     android:text="@string/dnsServer" />
             </LinearLayout>
 
+            <!-- "Your own server" (OwnServer): every site through a server the
+                 user names, as a SOCKS5, HTTP or Shadowsocks link. -->
+            <TextView
+                style="@style/SectionTitle"
+                android:accessibilityHeading="true"
+                android:text="@string/ownServer" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/card"
+                android:orientation="vertical"
+                android:padding="1dp">
+
+                <TextView
+                    android:id="@+id/ownServer"
+                    style="@style/AboutRowText"
+                    android:drawableStart="@drawable/row_server"
+                    android:text="@string/ownServer" />
+            </LinearLayout>
+
             <!-- QUIC and IPv6 turned off, for networks that block or slow them
                  down (#59): the engine's options for them (Engine.args), and no
                  IPv6 on the VPN interface. -->

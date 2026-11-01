@@ -222,6 +222,8 @@ class ShroudlyVpnService : VpnService() {
     private var restarts = 0
     private var auth: SocksAuth? = null
     private var authFile: File? = null
+    // "Your own server" for this session (OwnServer).
+    private val ownServer by lazy { OwnServer.Session(filesDir, ::log) }
     private var v6Routed = false
     private var network: NetWatch? = null
     // Uptime of the oldest STATS not answered yet (0: none), and of the last one sent.
@@ -303,6 +305,10 @@ class ShroudlyVpnService : VpnService() {
                         engine?.let { engineGone(it, "restarted with the technique chosen in Settings", countsAsCrash = false) }
                         // "Off" or not: what the notice says protection covers.
                         if (active) goForeground(starting = false)
+                    }
+                    // "Your own server" set, changed or turned off: the engine again with it.
+                    "ownServer" -> later {
+                        engine?.let { engineGone(it, "restarted with the server chosen in Settings", countsAsCrash = false) }
                     }
                     // Another DNS server: from the next lookup on, nothing restarted.
                     "dns" -> later {
@@ -565,12 +571,14 @@ class ShroudlyVpnService : VpnService() {
         for (attempt in 0..3) {
             val p = if (attempt == 0 && wanted > 0) wanted else Engine.freePort()
             authFile = File(filesDir, AUTH_FILE).also { auth!!.writeTo(it) }
+            val upstream = ownServer.fileFor(AppSettings.ownServer(this))
             val e = Engine(::log, ::logSite, ::onEngineEvent, ::onEngineExit)
             engine = e
             val ok = e.start(Engine.args(p, dohPort, blockIps, authFile, Engine.FAKE_NET, AdBlock.listFile(this), AdBlock.allow(this), AppSettings.strategy(this), AppSettings.customDnsStrict(this),
-                AppSettings.quicOff(this), AppSettings.ipv6Off(this)))
-            // Read once, at its start: the secret is not left lying in a file.
+                AppSettings.quicOff(this), AppSettings.ipv6Off(this), upstream))
+            // Read once, at its start: the secrets are not left lying in a file.
             authFile?.delete()
+            upstream?.delete()
             if (ok) {
                 doh?.socksAuth = auth
                 doh?.socksPort = p
@@ -1212,6 +1220,7 @@ class ShroudlyVpnService : VpnService() {
             is EngineEvent.NetDns -> logSite(NetDnsText.line(ev))
             is EngineEvent.UdpFull -> log(ev.line)
             is EngineEvent.Error -> log("engine: ${ev.message}")
+            is EngineEvent.Upstream -> if (!ev.ok) ownServer.down(OwnServer.whyCode(ev.why))
             is EngineEvent.Adblock -> when {
                 ev.error != null -> log("Ad blocking: the list could not be used (${ev.error})")
                 ev.on -> log("Ad blocking: a list of ${ev.entries} names in use")
@@ -1526,6 +1535,7 @@ class ShroudlyVpnService : VpnService() {
         authFile?.delete()
         authFile = null
         auth = null
+        ownServer.close()
         if (wasActive) log("Protection off${if (total != null) "; $total connections relayed" else ""}")
     }
 

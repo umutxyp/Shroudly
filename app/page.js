@@ -105,9 +105,11 @@ export default function Home() {
   const offline = active && !notRouting && !!dpiStatus.offline;
   // On its way up at launch: "Starting…", not a red "Inactive" (ControlPanel).
   const starting = !active && !!dpiStatus.starting;
-  const tone = starting ? 'accent' : !active ? 'danger' : notRouting || offline ? 'warn' : 'ok';
+  // The user's own server not carrying connections (ControlPanel).
+  const ownServerDown = active && !notRouting && !!dpiStatus.ownServerDown;
+  const tone = starting ? 'accent' : !active ? 'danger' : notRouting || offline || ownServerDown ? 'warn' : 'ok';
   const nationalOnly = offline && !dpiStatus.ownProxy && !!dpiStatus.nationalOnly;
-  const statusText = starting ? t('starting') : !active ? t('inactive') : notRouting ? t('notWorkingYet') : nationalOnly ? t('nationalOnlyShort') : offline ? t('noInternet') : t('active');
+  const statusText = starting ? t('starting') : !active ? t('inactive') : notRouting || ownServerDown ? t('notWorkingYet') : nationalOnly ? t('nationalOnlyShort') : offline ? t('noInternet') : t('active');
   // A restart for an update that is counting down comes before any other
   // notice: its "Later" must be there to press. Otherwise an update waits
   // while the Protection panel says what is not working yet.

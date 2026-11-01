@@ -126,6 +126,15 @@ jobs:
       - name: Translations
         run: npm run check:translations
 
+      # The reference Shadowsocks (shadowsocks-libev): Shroudly's own client
+      # and server are checked against it (shadowsocks.test.js), which then
+      # fails without it instead of skipping those checks.
+      - name: Reference Shadowsocks (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq --no-install-recommends shadowsocks-libev
+          echo SHROUDLY_SS_REF=1 >> "$GITHUB_ENV"
+
       - name: Network tests
         run: npm run test:net
 
@@ -205,6 +214,15 @@ jobs:
         run: |
           if [ "$RUNNER_OS" = Linux ]; then dbus-run-session -- xvfb-run -a node tests/e2e/app.test.js
           else node tests/e2e/app.test.js; fi
+
+      # Settings → More settings, used as a person would: "Your own server"
+      # and "Share my connection", with screenshots of each (English,
+      # Persian, a narrow window, the glass surface) in the artifact.
+      - name: Settings, end to end (own server, sharing)
+        shell: bash
+        run: |
+          if [ "$RUNNER_OS" = Linux ]; then dbus-run-session -- xvfb-run -a node tests/e2e/settings.test.js
+          else node tests/e2e/settings.test.js; fi
 
       # Real browsers and the system's own HTTP clients, through the PAC that
       # Shroudly puts in this machine's proxy setting.

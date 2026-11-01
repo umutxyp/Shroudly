@@ -6,6 +6,9 @@
 
 const EXACT = {
   'DNS server: automatic': 'logDnsServerAuto',
+  'Your own server: off; sites go straight again': 'logOwnServerOff',
+  'Sharing this connection: off': 'logShareOff',
+  'Sharing: a new link; the old one no longer works': 'logShareNewLink',
   'Autopilot: the network changed; services will be checked again': 'logAutoNetworkChanged',
   'Advanced mode was on when protection was stopped; turning it back on': 'logAdvancedBack',
   'Advanced mode was on when protection was stopped, but security software blocked it earlier in this session; not started by itself': 'logAdvancedNotBackSecurity',
@@ -310,6 +313,12 @@ const PATTERNS = [
   [/^This session does not read the setting Shroudly writes for Chrome and other Chromium browsers\. Apps can still use SOCKS5 (\S+) directly \(PAC: (\S+)\)\.$/, 'logProxyManualNotTaken', ['socks', 'pac']],
   [/^The administrator of this computer set the proxy for all its users \(Group Policy\), so browsers do not follow Shroudly's; Advanced mode works beneath it\. Apps can still use SOCKS5 (\S+) directly \(PAC: (\S+)\)\.$/, 'logProxyManualPolicy', ['socks', 'pac']],
   [/^Windows did not let Shroudly set the system proxy \((.+?)\)\. Apps can still use SOCKS5 (\S+) directly \(PAC: (\S+)\)\.$/, 'logProxyWinRefused', ['reason', 'socks', 'pac']],
+  [/^Your own server: (.+); every site goes through it$/, 'logOwnServerOn', ['server']],
+  [/^Sharing this connection: on \(port (\d+)\)$/, 'logShareOn', ['port']],
+  [/^Sharing: the router forwards port (\d+) \(internet address (\S+)\)$/, 'logShareUpnp', ['port', 'address']],
+  [/^Sharing: the router forwards port (\d+), but its address \((.+?)\) is not on the internet; people on this network can use it$/, 'logShareUpnpPrivate', ['port', 'address']],
+  [/^Sharing: no way in from the internet \((.+)\); people on this network can use it$/, 'logShareNoUpnp', ['why']],
+  [/^Your own server \((.+?)\) could not be used: (.+)$/, 'logOwnServerDown', ['server', 'why']],
   [/^Only this country's own network answers: the connection to the rest of the world is cut \((\S+) opens, the world's addresses do not\)\. No app can get past that; Shroudly carries on when it is back$/, 'logNationalOnly', ['host']],
   [/^Windows does not let Shroudly start reg\.exe \((\S+)\); Shroudly reads and writes these settings itself$/, 'logRegExeRefused', ['code']],
   [/^The system proxy was not set\. Apps can still use SOCKS5 (\S+) directly \(PAC: (\S+)\)\.$/, 'logProxyManualNotSet', ['socks', 'pac']],

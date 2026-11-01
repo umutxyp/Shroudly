@@ -9,6 +9,7 @@ import {
 } from './icons';
 import Select from './Select';
 import { probeView } from './probeView';
+import { OWN_SERVER_ERRORS, OWN_SERVER_WHY, serverShown } from './ownServerText';
 
 /* The technique, one choice (as on Android): Auto finds what works for each
  * site by itself (the engine's auto mode); any other is that one technique
@@ -308,6 +309,173 @@ function DnsServer({ value, onSave }) {
   );
 }
 
+/* "Your own server": every site through a server the user names, as one
+ * link (SOCKS5, HTTP or Shadowsocks; electron/own-server.js). Tested
+ * before it is used, as the DNS server is: a site's certificate has to
+ * come through it. Saved: what it is (never the password), and the way to
+ * stop using it. */
+function OwnServer({ value, onSave }) {
+  const { t } = useLanguage();
+  const descId = useId();
+  const saved = typeof value === 'string' ? value : '';
+  const [text, setText] = useState(saved);
+  const [state, setState] = useState(null);   // { testing } | { ok, ms } | { why | invalid, method, tried }
+  useEffect(() => { setText(saved); }, [saved]);
+
+  const use = async () => {
+    const v = text.trim();
+    // Tested before and it did not work: the user says use it anyway.
+    if (state && state.tried === v && !state.invalid) { if (await onSave(v)) setState(null); return; }
+    setState({ testing: true });
+    let r;
+    try { r = await window.electron.testOwnServer(v); } catch { r = { ok: false, why: 'noAnswer' }; }
+    if (r && r.ok) { setState((await onSave(v)) ? { ok: true, ms: r.ms } : { invalid: 'format', tried: v }); return; }
+    setState({ ...(r || {}), tried: v });
+  };
+  const off = async () => { if (await onSave(null)) { setText(''); setState(null); } };
+  const dirty = text.trim() !== saved;
+  const anyway = state && state.tried === text.trim() && !state.invalid;
+  const shown = serverShown(saved);
+
+  return (
+    <div>
+      <p id={descId} className="text-[12.5px] leading-snug" style={{ color: 'var(--text-dim)' }}>{t('ownServerDesc')}</p>
+      <form className="mt-2 flex flex-wrap gap-2" onSubmit={(e) => { e.preventDefault(); if (text.trim() && !(state && state.testing)) use(); }}>
+        <input
+          value={text}
+          onChange={(e) => { setText(e.target.value); if (state && !state.testing) setState(null); }}
+          placeholder="socks5://1.2.3.4:1080 · ss://…"
+          aria-label={t('ownServer')}
+          aria-describedby={descId}
+          dir="ltr"
+          spellCheck={false}
+          autoCapitalize="off"
+          autoCorrect="off"
+          inputMode="url"
+          className="field mono min-w-[150px] flex-[1_1_180px] px-3 py-2 text-[13px]"
+          style={{ textAlign: 'start' }}
+        />
+        <button
+          type="submit"
+          disabled={!text.trim() || !!(state && state.testing) || (!dirty && !anyway)}
+          className="btn btn-primary flex-[0_0_auto] rounded-[var(--radius-sm)] px-4 py-2 text-[13px] font-semibold"
+        >
+          {state && state.testing && <SpinnerIcon className="spin h-4 w-4" />}
+          <span>{state && state.testing ? t('testing') : anyway ? t('dnsServerUseAnyway') : t('dnsServerUse')}</span>
+        </button>
+      </form>
+      <div aria-live="polite">
+        {state && state.ok && (
+          <p className="mt-2 flex items-start gap-1.5 text-[12px] leading-snug" style={{ color: 'var(--ok)' }}>
+            <CheckCircleIcon className="mt-[1px] h-3.5 w-3.5 shrink-0" />
+            <span className="min-w-0">{t('ownServerOk', { ms: state.ms })}</span>
+          </p>
+        )}
+        {state && (state.invalid || state.why) && (
+          <p className="mt-2 flex items-start gap-1.5 text-[12px] leading-snug" style={{ color: 'var(--warn)' }}>
+            <AlertTriangleIcon className="mt-[1px] h-3.5 w-3.5 shrink-0" />
+            <span className="min-w-0">{state.invalid
+              ? t(OWN_SERVER_ERRORS[state.invalid] || 'ownServerErrFormat', { method: state.method || '' })
+              : t('ownServerFails', { why: t(OWN_SERVER_WHY[state.why] || 'ownServerWhyNoAnswer') })}</span>
+          </p>
+        )}
+      </div>
+      {saved && (
+        <div className="mt-2 flex flex-wrap items-center gap-2">
+          <p className="min-w-0 flex-1 text-[12.5px] leading-snug wrap-anywhere" style={{ color: 'var(--text)' }}>
+            {t('ownServerInUse', { server: shown || '…' })}
+          </p>
+          <button type="button" onClick={off} className="btn btn-ghost flex-[0_0_auto] rounded-[var(--radius-sm)] px-3 py-1.5 text-[12.5px] font-semibold">
+            {t('ownServerOff')}
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* "Share my connection" (electron/share.js): off until turned on, with
+ * what it means said first. On: a link per way in (the internet's, where
+ * the router opened one; this network's), each to copy; what the router
+ * said; who is connected now; and a new link, which ends the old one. */
+function ShareConnection({ onChange }) {
+  const { t } = useLanguage();
+  const [st, setSt] = useState(null);
+  const [busy, setBusy] = useState(false);
+  const [copied, setCopied] = useState(null);
+  useEffect(() => {
+    let alive = true;
+    const load = () => window.electron?.getShareStatus?.().then((s) => { if (alive && s) setSt((p) => (p && p.error && !s.on ? { ...s, error: p.error } : s)); }).catch(() => {});
+    load();
+    const iv = setInterval(load, 3000);
+    return () => { alive = false; clearInterval(iv); };
+  }, []);
+  const set = async (on) => {
+    setBusy(true);
+    try { const s = await window.electron.setShare(on); setSt(s); onChange(!!(s && s.on)); } catch {}
+    setBusy(false);
+  };
+  const renew = async () => {
+    setBusy(true);
+    try { setSt(await window.electron.newShareLink()); } catch {}
+    setBusy(false);
+  };
+  const copy = async (link) => {
+    let ok = false;
+    try { ok = !!(await window.electron?.copyText?.(link)); } catch {}
+    if (!ok) { try { await navigator.clipboard.writeText(link); ok = true; } catch {} }
+    if (ok) { setCopied(link); setTimeout(() => setCopied(null), 2000); }
+  };
+  const on = !!(st && st.on);
+  const upnp = on && (st.upnp === 'trying' ? t('shareUpnpTrying') : st.upnp === 'private' ? t('shareUpnpPrivate')
+    : st.upnp === 'none' ? t('shareUpnpNone', { port: st.port }) : null);
+
+  return (
+    <div>
+      <p className="mb-1 text-[12.5px] leading-snug" style={{ color: 'var(--text-dim)' }}>{t('shareDesc')}</p>
+      <Toggle label={t('shareOn')} checked={on} disabled={busy || !st} onChange={set} />
+      {st && st.error && !on && (
+        <p className="mt-1 flex items-start gap-1.5 text-[12px] leading-snug wrap-anywhere" style={{ color: 'var(--warn)' }}>
+          <AlertTriangleIcon className="mt-[1px] h-3.5 w-3.5 shrink-0" />
+          <span className="min-w-0">{t('shareFailed', { error: st.error })}</span>
+        </p>
+      )}
+      {on && (
+        <div className="mt-1 flex flex-col gap-3" aria-live="polite">
+          {st.links.map((l) => (
+            <div key={l.link}>
+              <p className="text-[12.5px] font-medium leading-snug" style={{ color: 'var(--text)' }}>
+                {t(l.where === 'internet' ? 'shareLinkInternet' : 'shareLinkNetwork', { address: l.address })}
+              </p>
+              <div className="mt-1 flex gap-2">
+                <input readOnly value={l.link} dir="ltr" aria-label={t(l.where === 'internet' ? 'shareLinkInternet' : 'shareLinkNetwork', { address: l.address })}
+                       onFocus={(e) => e.target.select()} className="field mono min-w-0 flex-1 px-3 py-2 text-[12px]" style={{ textAlign: 'start' }} />
+                <button type="button" onClick={() => copy(l.link)} className="btn btn-ghost flex-[0_0_auto] rounded-[var(--radius-sm)] px-3 py-1.5 text-[12.5px] font-semibold">
+                  {copied === l.link ? t('supportCopied') : t('supportCopy')}
+                </button>
+              </div>
+            </div>
+          ))}
+          {upnp && <p className="text-[12px] leading-snug" style={{ color: 'var(--text-faint)' }}>{upnp}</p>}
+          {!st.protected && (
+            <p className="flex items-start gap-1.5 text-[12px] leading-snug" style={{ color: 'var(--warn)' }}>
+              <AlertTriangleIcon className="mt-[1px] h-3.5 w-3.5 shrink-0" />
+              <span className="min-w-0">{t('shareUnprotected')}</span>
+            </p>
+          )}
+          <p className="text-[12px] leading-snug" style={{ color: 'var(--text-faint)' }}>{t('sharePeople', { people: st.people, open: st.open, total: st.total })}</p>
+          <div className="flex flex-wrap items-center gap-2">
+            <button type="button" onClick={renew} disabled={busy} className="btn btn-ghost flex-[0_0_auto] rounded-[var(--radius-sm)] px-3 py-1.5 text-[12.5px] font-semibold">
+              {t('shareNewLink')}
+            </button>
+            <span className="min-w-0 flex-1 text-[12px] leading-snug" style={{ color: 'var(--text-faint)' }}>{t('shareNewLinkDesc')}</span>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function SettingsPanel({ active = false }) {
   const { language, setLanguage, t, availableLanguages, locale } = useLanguage();
   const strategyLabelId = useId();
@@ -503,7 +671,7 @@ export default function SettingsPanel({ active = false }) {
    * find it. */
   const moreId = useId();
   const [more, setMore] = useState(null);
-  const moreSet = shownStrategy !== 'auto' || settings.dnsProtection === false || !!settings.customDns
+  const moreSet = shownStrategy !== 'auto' || settings.dnsProtection === false || !!settings.customDns || !!settings.ownServer || settings.shareOn === true
     || settings.preferIpv6 === true || settings.routeMode === 'listed' || settings.showTrayIcon === false
     || (!isMac && settings.askByItself === false);
   const moreOpen = more ?? moreSet;
@@ -990,6 +1158,12 @@ export default function SettingsPanel({ active = false }) {
                 <span className="min-w-0">{t('restartToApply')}</span>
               </p>
             )}
+          </Section>
+          <Section title={t('ownServer')}>
+            <OwnServer value={settings.ownServer} onSave={(v) => save('ownServer', v)} />
+          </Section>
+          <Section title={t('share')}>
+            <ShareConnection onChange={(on) => setSettings((p) => ({ ...p, shareOn: on }))} />
           </Section>
           {/* Routing: which sites go through Shroudly */}
           <Section title={t('routing')} Icon={GlobeIcon}>

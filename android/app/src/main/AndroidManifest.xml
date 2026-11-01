@@ -49,6 +49,14 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Shroudly">
 
+        <!-- "Share Shroudly": this app's APK, to the app the user picks,
+             for that once (ApkShare). -->
+        <provider
+            android:name=".ApkProvider"
+            android:authorities="${applicationId}.apk"
+            android:exported="false"
+            android:grantUriPermissions="true" />
+
         <activity
             android:name=".MainActivity"
             android:exported="true"

@@ -32,7 +32,9 @@ const sharedWake = require('./wake');
 const LogGate = require('./log-gate');
 const { cleanAllow } = require('./adblock');
 const SecurityBlock = require('./security-block');
+const OwnServer = require('./own-server');
 const net = require('net');
+const crypto = require('crypto');
 
 /* Can we listen on 127.0.0.1:port right now? */
 function portFree(port) {
@@ -225,6 +227,13 @@ class EngineManager {
     // (adblock.js keeps it): the path, or null for none yet.
     this.adblockFile = hooks.adblockFile || (() => null);
     this._adblockChecks = [];
+    // Where the file naming the user's own server goes (Settings, "Your
+    // own server"; own-server.js): this user's own folder, as it holds the
+    // server's password.
+    this.dataDir = hooks.dataDir || require('os').tmpdir();
+    this._ssClient = null;      // { key, port, close } for a Shadowsocks server
+    this._upstreamFile = null;
+    this._ownDownTimer = null;
     this.onNeedRestart = hooks.onNeedRestart || (() => {});
     this.onDnsAutoEnabled = hooks.onDnsAutoEnabled || (() => {});
     // An antivirus that quarantined, refused or keeps ending the engine
@@ -299,7 +308,8 @@ class EngineManager {
     this.onAdvice = hooks.onAdvice || (() => {});
     // What the window should tell the user about this network. Kept here, not
     // only sent, because most of it is learned before the window has loaded.
-    this.advice = { conflicts: [], cut: null, dnsDown: false, offline: false, ownProxy: false, nationalOnly: null };
+    // ownServerDown: the user's own server not working, as { server, why }.
+    this.advice = { conflicts: [], cut: null, dnsDown: false, offline: false, ownProxy: false, nationalOnly: null, ownServerDown: null };
     this.cuts = new Map();        // host -> [{ reason, t }]
     this.cutHosts = new Set();    // hosts already reported this session
     this.believedAt = new Map();  // host -> when its cut was believed
@@ -424,7 +434,75 @@ class EngineManager {
     // Block pages and sinkholes of every country we know: an answer pointing
     // at one is forged, so the engine refuses it and keeps looking.
     for (const ip of fingerprints.ALL) a.push('--block-ip', ip);
+    if (this._upstreamFile) a.push('--upstream-file', this._upstreamFile);
     return a;
+  }
+
+  /* The user's own server (Settings, "Your own server"), as stored and
+   * read (own-server.js), or null. */
+  ownServer() {
+    const p = OwnServer.parseLink(this.store.get('ownServer'));
+    return p.ok ? p : null;
+  }
+
+  /* Before each engine start: the file that names the server to the
+   * engine (--upstream-file), with Shroudly's own Shadowsocks client in
+   * between for a Shadowsocks server; or none. */
+  async _prepareUpstream() {
+    const p = this.ownServer();
+    const key = p && p.kind === 'ss' ? `${p.host} ${p.port} ${p.method} ${p.password}` : null;
+    if (this._ssClient && this._ssClient.key !== key) { this._ssClient.close(); this._ssClient = null; }
+    if (!p) { this._removeUpstream(); return; }
+    if (key && !this._ssClient) {
+      const auth = { user: crypto.randomBytes(8).toString('hex'), pass: crypto.randomBytes(16).toString('hex') };
+      const c = await require('./shadowsocks').startClient({
+        server: p.host, port: p.port, method: p.method, password: p.password, ...auth,
+        onError: (e) => this._onOwnServerDown(/authenticate/.test(e.message) ? 'protocol' : 'noAnswer'),
+      });
+      this._ssClient = { key, auth, ...c };
+    }
+    const file = path.join(this.dataDir, 'own-server.txt');
+    const line = OwnServer.engineLine(p, this._ssClient ? this._ssClient.port : 0, this._ssClient ? this._ssClient.auth : null);
+    fs.writeFileSync(file, `${line}\n`, { mode: 0o600 });
+    try { fs.chmodSync(file, 0o600); } catch {}
+    this._upstreamFile = file;
+    this._ownServerShown = OwnServer.describe(p);
+  }
+
+  _removeUpstream() {
+    if (this._upstreamFile) { try { fs.unlinkSync(this._upstreamFile); } catch {} }
+    this._upstreamFile = null;
+  }
+
+  _closeUpstream() {
+    if (this._ssClient) { try { this._ssClient.close(); } catch {} this._ssClient = null; }
+    this._removeUpstream();
+    clearTimeout(this._ownDownTimer);
+    this._setAdvice({ ownServerDown: null });
+  }
+
+  /* The server would not carry a connection (the engine's "upstream"
+   * line, or the Shadowsocks client): told in the log now and then, and in
+   * the window until a minute and a half passes without it. */
+  _onOwnServerDown(why) {
+    if (!this.active || !this._upstreamFile) return;
+    const server = this._ownServerShown || '';
+    if (this.logGate.allow('own-server-down', `${server} ${why}`)) {
+      this.log('warning', `Your own server (${server}) could not be used: ${OwnServer.WHY_TEXT[why] || why}`);
+    }
+    this._setAdvice({ ownServerDown: { server, why } });
+    clearTimeout(this._ownDownTimer);
+    this._ownDownTimer = setTimeout(() => this._setAdvice({ ownServerDown: null }), 90000);
+    if (this._ownDownTimer.unref) this._ownDownTimer.unref();
+  }
+
+  /* Does this link's server carry a site (Settings, before it is used)?
+   * { ok, ms } or { ok: false, why }, or { ok: false, invalid } for a link
+   * that cannot be read. */
+  async testOwnServer(link) {
+    const p = OwnServer.parseLink(link);
+    if (!p.ok) return { ok: false, invalid: p.error, method: p.method };
+    return OwnServer.test(p);
   }
 
   /* While another VPN or bypass tool is running, look again every half
@@ -733,6 +811,11 @@ class EngineManager {
       catch (e) { this.dohPort = 0; this.log('warning', `Encrypted DNS unavailable: ${e.message}`); }
     }
 
+    try { await this._prepareUpstream(); }
+    catch (e) {
+      await this._cleanup();
+      throw new Error(`Your own server could not be set up: ${e.message}`);
+    }
     let ready = await this._spawn(bin, this._args(cfg));
     // Something took the port between our check and the engine binding it:
     // move on to another one rather than fail.
@@ -1176,6 +1259,9 @@ class EngineManager {
         if (w) w(msg);
         break;
       }
+      case 'upstream':
+        if (!msg.ok) this._onOwnServerDown(OwnServer.whyCode(msg.why));
+        break;
       case 'error':
         this.lastError = msg.msg || `code ${msg.code}`;
         this.log('error', `engine: ${this.lastError}`);
@@ -1452,7 +1538,14 @@ class EngineManager {
       if (cfg.useDoh && !this.dohPort) {
         try { this.dohPort = await this.doh.start(this.lastDohPort); this.lastDohPort = this.dohPort; } catch { this.dohPort = 0; }
       }
-      const ready = await this._spawn(this.binPath, this._args(cfg));
+      this._setAdvice({ ownServerDown: null });
+      let ready = false;
+      try {
+        await this._prepareUpstream();
+        ready = await this._spawn(this.binPath, this._args(cfg));
+      } catch (e) {
+        this.lastError = `Your own server could not be set up: ${e.message}`;
+      }
       if (!ready) {
         await this._cleanup(); // restores the proxy
         this.store.set('runtimeActive', false);
@@ -1519,6 +1612,7 @@ class EngineManager {
     this.restarts = 0;
     this.startedAt = 0;
     this.doh.stop(); this.dohPort = 0;
+    this._closeUpstream();
     this.store.set('runtimeActive', false);
     this.onStatusChange(false);
     if (!keepProxy) {
@@ -1674,6 +1768,7 @@ class EngineManager {
     this._stopStatsPoll();
     if (this.proc) { try { this.proc.kill(); } catch {} this.proc = null; }
     this.doh.stop(); this.dohPort = 0;
+    this._closeUpstream();
     try { await this.proxy.restore(); } catch {}
     this._setProxyStatus(null);
     this.active = false;
@@ -1683,6 +1778,7 @@ class EngineManager {
   cleanupSync() {
     try { if (this.proc) this.proc.kill(); } catch {}
     try { this.doh.stop(); } catch {}
+    this._removeUpstream();
     try { this.proxy.restoreSync(); } catch {}
   }
 

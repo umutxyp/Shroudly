@@ -219,6 +219,17 @@ const LINES = [
   'Windows did not let Shroudly set the system proxy (ERROR: Access is denied.). Apps can still use SOCKS5 127.0.0.1:10808 directly (PAC: http://127.0.0.1:10840/proxy.pac).',
   'Windows does not let Shroudly start reg.exe (EPERM); Shroudly reads and writes these settings itself',
   "Only this country's own network answers: the connection to the rest of the world is cut (www.digikala.com opens, the world's addresses do not). No app can get past that; Shroudly carries on when it is back",
+  // "Your own server" (own-server.js).
+  'Your own server: Shadowsocks 5.6.7.8:8388; every site goes through it',
+  'Your own server: off; sites go straight again',
+  'Your own server (SOCKS5 1.2.3.4:1080) could not be used: does not answer',
+  // "Share my connection" (share.js).
+  'Sharing this connection: on (port 34567)',
+  'Sharing this connection: off',
+  'Sharing: the router forwards port 34567 (internet address 5.6.7.8)',
+  'Sharing: the router forwards port 34567, but its address (100.72.10.4) is not on the internet; people on this network can use it',
+  'Sharing: no way in from the internet (no router answered (UPnP off, or none on this network)); people on this network can use it',
+  'Sharing: a new link; the old one no longer works',
   'Could not update proxy routing: timeout',
   'Shroudly engine stopped',
   'Encrypted DNS unavailable: bind EADDRINUSE 127.0.0.1:53',

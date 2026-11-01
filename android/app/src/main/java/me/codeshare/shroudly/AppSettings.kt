@@ -32,6 +32,7 @@ object AppSettings {
     private const val KEY_DNS_SERVER = "customDnsServer"
     private const val KEY_DNS_STRICT = "customDnsStrict"
     private const val KEY_DNS_PROXY = "customDnsProxy"
+    private const val KEY_OWN_SERVER = "ownServer"
 
     /* The desktop's list, in its order: id, label (locale key), the
      * engine's spec, and whether the engine looks for what works by itself. */
@@ -81,6 +82,15 @@ object AppSettings {
 
     fun setIncluded(ctx: Context, packages: Set<String>) {
         prefs(ctx).edit().putStringSet(KEY_INCLUDED, packages.filter { it != ctx.packageName }.toSet()).apply()
+    }
+
+    /* "Your own server" (OwnServer): the link as typed, or "" for none. */
+    fun ownServerTyped(ctx: Context): String = prefs(ctx).getString(KEY_OWN_SERVER, null) ?: ""
+
+    fun ownServer(ctx: Context): OwnServer.Link? = OwnServer.parse(ownServerTyped(ctx)).link
+
+    fun setOwnServer(ctx: Context, link: String?) {
+        prefs(ctx).edit().apply { if (link.isNullOrBlank()) remove(KEY_OWN_SERVER) else putString(KEY_OWN_SERVER, link.trim()) }.apply()
     }
 
     /* QUIC off (#59): apps' UDP to port 443 is dropped, so they use TCP,

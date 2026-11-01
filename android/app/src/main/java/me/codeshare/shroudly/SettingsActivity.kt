@@ -126,6 +126,8 @@ class SettingsActivity : Activity() {
 
         findViewById<TextView>(R.id.dnsServer).setOnClickListener { pickDns() }
         showDns()
+        findViewById<TextView>(R.id.ownServer).setOnClickListener { pickOwnServer() }
+        showOwnServer()
 
         // QUIC and IPv6 off (#59): the engine again with its options.
         findViewById<Switch>(R.id.quicOff).apply {
@@ -171,6 +173,7 @@ class SettingsActivity : Activity() {
     private fun advancedSet(): Boolean =
         AppSettings.proxyOnly(this) || AppSettings.strategy(this).id != AppSettings.STRATEGIES[0].id ||
             AppSettings.customDnsTyped(this) != null || AppSettings.quicOff(this) || AppSettings.ipv6Off(this) ||
+            AppSettings.ownServerTyped(this).isNotEmpty() ||
             AppSettings.remoteControl(this)
 
     /* "Advanced": folded away, with what it holds and who it is for under
@@ -566,6 +569,124 @@ class SettingsActivity : Activity() {
             text = Fit.breakable(shown)
             contentDescription = "${getString(R.string.dnsServer)}: $shown"
         }
+    }
+
+    /* The row (under "Your own server"): the one in use, never its password,
+     * or that there is none. */
+    private fun showOwnServer() {
+        val l = AppSettings.ownServer(this)
+        val shown = if (l == null) getString(R.string.ownServer) else text(R.string.ownServerInUse, "server" to OwnServer.describe(l))
+        findViewById<TextView>(R.id.ownServer).apply {
+            text = Fit.breakable(shown)
+            contentDescription = if (l == null) shown else "${getString(R.string.ownServer)}: $shown"
+        }
+    }
+
+    /* "Your own server", as on the desktop: a link, tested before it is used
+     * (a site's certificate has to come through it); one that does not work
+     * is used only when "Use anyway" is pressed. "Stop using" when one is set. */
+    private fun pickOwnServer() {
+        val density = resources.displayMetrics.density
+        val pad = (16 * density).toInt()
+        val typed = AppSettings.ownServerTyped(this)
+        val desc = TextView(this).apply {
+            text = getString(R.string.ownServerDesc)
+            setTextColor(getColor(R.color.text_dim))
+            textSize = 13f
+            setPadding(0, 0, 0, pad / 2)
+        }
+        val input = EditText(this).apply {
+            setSingleLine()
+            inputType = android.text.InputType.TYPE_CLASS_TEXT or android.text.InputType.TYPE_TEXT_VARIATION_URI
+            imeOptions = android.view.inputmethod.EditorInfo.IME_ACTION_DONE
+            textDirection = View.TEXT_DIRECTION_LTR
+            setText(typed)
+            hint = "socks5://1.2.3.4:1080 · ss://…"
+            setHintTextColor(getColor(R.color.text_faint))
+        }
+        val status = TextView(this).apply { textSize = 13f; setTextColor(getColor(R.color.text_dim)) }
+        val box = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(pad, pad / 2, pad, 0)
+            addView(desc)
+            addView(input)
+            addView(status)
+        }
+        Fit.apply(box)
+        var failed: String? = null
+        val b = AlertDialog.Builder(this)
+            .setTitle(R.string.ownServer)
+            .setView(ScrollView(this).apply { addView(box) })
+            .setPositiveButton(R.string.dnsServerUse, null)
+            .setNegativeButton(android.R.string.cancel, null)
+        if (typed.isNotEmpty()) b.setNeutralButton(R.string.ownServerOff, null)
+        val dialog = b.create()
+        fun save(link: String?) {
+            AppSettings.setOwnServer(this, link)
+            val l = link?.let { OwnServer.parse(it).link }
+            ShroudlyVpnService.log(if (l == null) "Your own server: off; sites go straight again" else "Your own server: ${OwnServer.describe(l)}; every site goes through it")
+            showOwnServer()
+            showAdvancedTitle()
+            tell("ownServer")
+        }
+        dialog.setOnShowListener {
+            val use = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
+            fun reset() { failed = null; use.setText(R.string.dnsServerUse); status.text = "" }
+            dialog.getButton(AlertDialog.BUTTON_NEUTRAL)?.setOnClickListener { save(null); dialog.dismiss() }
+            input.setOnEditorActionListener { _, action, _ ->
+                if (action == android.view.inputmethod.EditorInfo.IME_ACTION_DONE && use.isEnabled) { use.performClick(); true } else false
+            }
+            input.addTextChangedListener(object : TextWatcher {
+                override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+                override fun afterTextChanged(s: Editable?) { if (failed != null) reset() else status.text = "" }
+            })
+            use.setOnClickListener {
+                val link = input.text.toString().trim()
+                val parsed = OwnServer.parse(link)
+                val l = parsed.link
+                val bad = when {
+                    l == null -> parsed.error
+                    l.kind == "ss" && !Shadowsocks.supported(l.method) -> "method"
+                    else -> null
+                }
+                if (bad != null) {
+                    status.setTextColor(getColor(R.color.warn))
+                    status.text = when (bad) {
+                        "method" -> text(R.string.ownServerErrMethod, "method" to (parsed.method ?: l?.method ?: ""))
+                        "user" -> getString(R.string.ownServerErrUser)
+                        else -> getString(R.string.ownServerErrFormat)
+                    }
+                    return@setOnClickListener
+                }
+                if (failed == link) { save(link); dialog.dismiss(); return@setOnClickListener }
+                if (link == typed) { dialog.dismiss(); return@setOnClickListener }
+                use.isEnabled = false
+                status.setTextColor(getColor(R.color.text_dim))
+                status.text = getString(R.string.testing)
+                Thread {
+                    val t0 = System.nanoTime()
+                    val why = OwnServer.test(l!!)
+                    val ms = (System.nanoTime() - t0) / 1_000_000
+                    runOnUiThread {
+                        if (isFinishing || !dialog.isShowing) return@runOnUiThread
+                        use.isEnabled = true
+                        if (input.text.toString().trim() != link) return@runOnUiThread
+                        if (why == null) {
+                            save(link)
+                            android.widget.Toast.makeText(this, text(R.string.ownServerOk, "ms" to ms), android.widget.Toast.LENGTH_LONG).show()
+                            dialog.dismiss()
+                        } else {
+                            failed = link
+                            status.setTextColor(getColor(R.color.warn))
+                            status.text = text(R.string.ownServerFails, "why" to getString(OwnServer.whyRes(why)))
+                            use.setText(R.string.dnsServerUseAnyway)
+                        }
+                    }
+                }.apply { isDaemon = true }.start()
+            }
+        }
+        dialog.show()
     }
 
     private val dnsKinds = listOf(
