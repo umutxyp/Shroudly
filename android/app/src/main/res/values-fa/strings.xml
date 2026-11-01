@@ -53,6 +53,8 @@
     <string name="androidTileAddDesc">یک کاشی Shroudly در پنل بالای صفحه، محافظت را با یک لمس روشن و خاموش می‌کند.</string>
     <string name="androidTileAdded">کاشی Shroudly در تنظیمات سریع است.</string>
     <string name="androidTileHowTo">پنل بالای صفحه را تا آخر پایین بکشید، روی مداد (ویرایش) بزنید و کاشی Shroudly را میان بقیه بکشید.</string>
+    <string name="androidUpdateImportant">نسخهٔ {version} یک به‌روزرسانی مهم است</string>
+    <string name="androidUpdateReadyTap">برای راه‌اندازی دوبارهٔ Shroudly و پایان به‌روزرسانی ضربه بزنید. محافظت خودش دوباره روشن می‌شود.</string>
     <string name="androidVpnDenied">Shroudly برای عبور دادن اتصال‌های برنامه‌هایتان به مجوز VPN نیاز دارد.</string>
     <string name="androidVpnRevoked">اندروید محافظت را خاموش کرد؛ معمولاً چون یک برنامهٔ VPN دیگر روشن شده است.</string>
     <string name="androidWifiProxyDead">پراکسی این شبکه روی {addr} تنظیم شده، اما چیزی آنجا اجرا نمی‌شود؛ برای همین برنامه‌هایی که از آن استفاده می‌کنند (از جمله Chrome) نمی‌توانند وصل شوند. در تنظیمات Wi-Fi این شبکه را باز کنید و پراکسی را روی «هیچ‌کدام» بگذارید.</string>
@@ -136,7 +138,11 @@
     <string name="testing">در حال آزمایش…</string>
     <string name="totalCount">مجموع: {count}</string>
     <string name="updAvailable">نسخهٔ {version} در دسترس است</string>
+    <string name="updDownload">دانلود و نصب</string>
+    <string name="updDownloading" formatted="false">در حال دانلود نسخهٔ {version}… {percent}%</string>
     <string name="updLater">بعداً</string>
+    <string name="updReady">نسخهٔ {version} آمادهٔ نصب است</string>
+    <string name="updRestartNow">اکنون راه‌اندازی دوباره</string>
     <string name="upload">آپلود</string>
     <string name="uptime">مدت فعالیت</string>
     <string name="versionLabel">نسخهٔ {version}</string>

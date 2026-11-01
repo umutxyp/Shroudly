@@ -12,6 +12,8 @@
 #   - Private DNS set to a name (strict, dns.google; Android 9+): names
 #     resolve, and still do after the tunnel has been restarted;
 #   - the network changes (Wi-Fi off and on, airplane mode on and off);
+#   - Shroudly is updated while on (installed over itself, as Google Play
+#     and a new APK do): protection comes back by itself;
 #   - (with root, google_apis images) the app's own network is cut, as a
 #     phone maker's per-app network switch does: protection ends by itself,
 #     with a notice, and other apps connect directly again.
@@ -509,6 +511,19 @@ say "Doze for 60 s and back: protection stayed on, nothing restarted, works afte
 ctl report
 wait_for 20 has_log "report: Protection: on for [0-9]* min; always-on VPN no, lockdown no; IPv6 " || fail "Share logs' report does not say how protection runs"
 say "Share logs: $(applog | grep -m1 'report: Protection:' | sed 's/.*report: //')"
+
+# ── updated while on ─────────────────────────────────────────────────────
+# Installing an update (Google Play's, or a new APK over the running copy)
+# ends the app and the VPN with it. Android tells the new copy
+# (MY_PACKAGE_REPLACED) and protection comes back by itself, as the user
+# left it (KeepOn.updated). The switch-off below then turns it off.
+clear_log
+adb_ install -r -g "$APK" >/dev/null || fail "install over the running copy failed"
+wait_for 60 has_log "Updated to .* turning it on again" || fail "updated while on: protection was not turned on again"
+wait_for 60 has_log "Protection on" || fail "updated while on: protection did not come back"
+wait_for 30 vpn_up || fail "updated while on: no VPN after the update"
+wait_for 60 net_up || fail "no internet through the VPN after the update"
+say "updated while on (installed over itself): $(applog | grep -m1 'Updated to' | sed 's/.*Updated to/Updated to/')"
 
 # ── switch off ───────────────────────────────────────────────────────────
 ctl stop

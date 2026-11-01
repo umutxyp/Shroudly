@@ -208,7 +208,8 @@
                 android:textSize="14sp" />
         </LinearLayout>
 
-        <!-- A newer version on GitHub (the APK from GitHub only). -->
+        <!-- A newer version: on GitHub (the APK) or on Google Play
+             (PlayUpdates, the copy Play updates). -->
         <LinearLayout
             android:id="@+id/update"
             android:layout_width="match_parent"

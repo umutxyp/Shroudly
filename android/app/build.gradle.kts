@@ -26,8 +26,9 @@ val abis = listOf("arm64-v8a", "armeabi-v7a", "x86_64")
 //  - the APK on GitHub (the default): signed with the app signing key, and
 //    looks for updates on GitHub;
 //  - the bundle for Google Play (-Pshroudly.store=play, with bundleRelease):
-//    STORE_BUILD, so it never asks GitHub for updates, and signed with the
-//    upload key; Play re-signs it with the same app signing key as the APK
+//    STORE_BUILD, so it never asks GitHub for updates (Google Play offers
+//    them inside the app, PlayUpdates), and signed with the upload key;
+//    Play re-signs it with the same app signing key as the APK
 //    (android/PLAY_STORE.md), so either install updates the other.
 val playBuild = providers.gradleProperty("shroudly.store").orNull == "play"
 
@@ -95,6 +96,13 @@ android {
 
     buildFeatures { buildConfig = true }
 
+    // Updates from Google Play inside the app (PlayUpdates): the real one,
+    // with Play's library, in the bundle for Play only; the APK gets one that
+    // does nothing, and no Google code. The same tasks and outputs for both.
+    sourceSets.named("main") {
+        kotlin.directories += if (playBuild) "src/play/kotlin" else "src/apk/kotlin"
+    }
+
     // The libraries stay compressed in the APK (a smaller download) and are
     // extracted at install, in the bundle's APKs too. Every lib*.so is linked
     // for 16 KB pages (scripts/check-16k.sh checks the APK and the bundle).
@@ -108,6 +116,15 @@ android {
         }
     }
 
+    // Every language in every install from Google Play: the language is
+    // picked inside the app (Lang, 31 of them), and a bundle split by
+    // language would leave a phone only the strings of its system languages
+    // (Android 8 to 12), so a language chosen in the app would show in
+    // English. The strings are small.
+    bundle {
+        language { enableSplit = false }
+    }
+
     lint {
         // Translations come from locales/*.json and are checked there.
         disable += listOf("MissingTranslation", "ExtraTranslation")
@@ -116,6 +133,10 @@ android {
 }
 
 dependencies {
+    // Google Play's in-app updates (Play Core SDK Terms of Service, not open
+    // source): the bundle for Play only. Not app-update-ktx, which brings
+    // coroutines and newer AndroidX for nothing this app uses.
+    if (playBuild) implementation("com.google.android.play:app-update:2.1.0")
     testImplementation("junit:junit:4.13.2")
 }
 

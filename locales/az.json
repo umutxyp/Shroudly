@@ -505,6 +505,8 @@
   "androidVpnDenied": "Tətbiqlərinizin bağlantılarını daşımaq üçün Shroudly-yə VPN icazəsi lazımdır.",
   "androidVpnRevoked": "Qoruma Android tərəfindən söndürüldü; adətən başqa VPN tətbiqi açıldığı üçün.",
   "androidKeepOnOffer": "Telefonun Shroudly-ni bağladı. Qorumanı yenidən açmaq üçün toxun.",
+  "androidUpdateImportant": "{version} versiyası vacib yeniləmədir",
+  "androidUpdateReadyTap": "Shroudly-ni yenidən başladıb yeniləməni bitirmək üçün toxun. Qoruma özü yenidən açılacaq.",
   "androidAlertsChannel": "Qoruma xəbərdarlıqları",
   "androidProtectionLost": "Qoruma xəta səbəbindən dayandı, ona görə tətbiqləriniz indi birbaşa qoşulur. Yenidən başlatmaq üçün Shroudly-ni açın.",
   "androidDetails": "Təfərrüatlar",

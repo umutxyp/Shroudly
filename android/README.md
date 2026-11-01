@@ -104,11 +104,25 @@ One source tree, one package (`me.codeshare.shroudly`), one `versionCode`:
   `BuildConfig.STORE_BUILD` is true, so it never asks GitHub, and it is signed
   with the upload key. Play re-signs what it delivers with the same app
   signing key as the APK, so a Play update installs over a GitHub APK and the
-  other way round.
+  other way round. It offers Play's updates inside the app (`PlayUpdates`,
+  Google Play's In-App Updates): the window's card, Play's own dialog at most
+  once a day, flexible by default and immediate only when a release is
+  marked urgent, the copy is far behind or an update has waited a week
+  (`PlayUpdatePolicy`); a no never locks the user out.
+
+The switch picks a source folder as well as the flag: the bundle compiles
+`src/play/kotlin` and depends on `com.google.android.play:app-update` 2.1.0,
+which is not open source (Play Core Software Development Kit Terms of
+Service) and brings Play services Basement/Tasks and a few AndroidX
+libraries with it; the APK compiles `src/apk/kotlin`, a `PlayUpdates` that
+does nothing, and still depends on nothing but the Kotlin standard library
+(CI checks its dex for Google Play classes). Either build, updated while
+protection was on, turns it back on by itself (`MY_PACKAGE_REPLACED`,
+`KeepOn.updated`).
 
 At run time `InstallSource` also asks Android who installed the app, every
 time the window opens: a copy installed or updated by Google Play
-(`com.android.vending`) makes no update check and links the source code
+(`com.android.vending`) makes no GitHub update check and links the source code
 instead of the releases, even when it began as the GitHub APK. The release
 workflow keeps the signed bundle as a workflow artifact (`play-bundle`, 90
 days), never on the release. The steps in Play Console:

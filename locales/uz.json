@@ -505,6 +505,8 @@
   "androidVpnDenied": "Ilovalaringiz ulanishlarini o‘tkazish uchun Shroudly’ga VPN ruxsati kerak.",
   "androidVpnRevoked": "Himoya Android tomonidan o‘chirildi, odatda boshqa VPN ilovasi yoqilgani uchun.",
   "androidKeepOnOffer": "Telefoningiz Shroudly'ni yopdi. Himoyani qayta yoqish uchun bosing.",
+  "androidUpdateImportant": "{version} versiyasi muhim yangilanish",
+  "androidUpdateReadyTap": "Shroudly'ni qayta ishga tushirib, yangilanishni yakunlash uchun bosing. Himoya oʻzi qayta yoqiladi.",
   "androidAlertsChannel": "Himoya ogohlantirishlari",
   "androidProtectionLost": "Himoya xato tufayli to‘xtadi, shuning uchun ilovalaringiz hozir to‘g‘ridan-to‘g‘ri ulanmoqda. Uni qayta yoqish uchun Shroudly’ni oching.",
   "androidDetails": "Batafsil",

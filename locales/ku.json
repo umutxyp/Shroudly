@@ -505,6 +505,8 @@
   "androidVpnDenied": "Shroudly ji bo hilgirtina girêdanên sepanên te destûra VPN hewce dike.",
   "androidVpnRevoked": "Parastin ji aliyê Android ve hate girtin, bi gelemperî ji ber ku sepaneke VPN ya din hate vekirin.",
   "androidKeepOnOffer": "Telefona te Shroudly girt. Ji bo ku parastinê dîsa vekî, bitikîne.",
+  "androidUpdateImportant": "Guhertoya {version} nûvekirineke girîng e",
+  "androidUpdateReadyTap": "Ji bo ku Shroudly ji nû ve vekî û nûvekirinê biqedînî, bitikîne. Parastin bi xwe dîsa vedibe.",
   "androidAlertsChannel": "Hişyariyên parastinê",
   "androidProtectionLost": "Parastin ji ber çewtiyekê rawestiya, ji ber vê yekê sepanên te niha rasterast girêdidin. Ji bo ku tu wê dîsa bidî destpêkirin, Shroudly veke.",
   "androidDetails": "Hûragahî",

@@ -505,6 +505,8 @@
   "androidVpnDenied": "Shroudly нужно разрешение VPN, чтобы пропускать соединения ваших приложений.",
   "androidVpnRevoked": "Android отключил защиту — обычно потому, что включено другое VPN-приложение.",
   "androidKeepOnOffer": "Телефон закрыл Shroudly. Нажмите, чтобы снова включить защиту.",
+  "androidUpdateImportant": "Версия {version} — важное обновление",
+  "androidUpdateReadyTap": "Нажмите, чтобы перезапустить Shroudly и завершить обновление. Защита снова включится сама.",
   "androidAlertsChannel": "Оповещения о защите",
   "androidProtectionLost": "Защита остановилась из-за ошибки, поэтому ваши приложения сейчас подключаются напрямую. Откройте Shroudly, чтобы снова её включить.",
   "androidDetails": "Подробнее",

@@ -53,6 +53,8 @@
     <string name="androidTileAddDesc">Экранның жоғарғы панеліндегі Shroudly тақтасы қорғауды бір түртумен қосып-өшіреді.</string>
     <string name="androidTileAdded">Shroudly тақтасы жылдам баптауларда.</string>
     <string name="androidTileHowTo">Экранның жоғарғы панелін соңына дейін төмен тартыңыз, қаламды (өңдеу) түртіңіз және Shroudly тақтасын басқаларының арасына сүйреңіз.</string>
+    <string name="androidUpdateImportant">{version} нұсқасы — маңызды жаңарту</string>
+    <string name="androidUpdateReadyTap">Shroudly-ді қайта қосып, жаңартуды аяқтау үшін түртіңіз. Қорғау өзі қайта қосылады.</string>
     <string name="androidVpnDenied">Қолданбаларыңыздың қосылымдарын өткізу үшін Shroudly-ге VPN рұқсаты керек.</string>
     <string name="androidVpnRevoked">Android қорғанысты өшірді, әдетте басқа VPN қолданбасы қосылғандықтан.</string>
     <string name="androidWifiProxyDead">Бұл желінің проксиі {addr} деп орнатылған, бірақ онда ештеңе іске қосылмаған, сондықтан оны қолданатын қолданбалар (соның ішінде Chrome) қосыла алмайды. Wi-Fi баптауларында осы желіні ашып, проксиді «Жоқ» етіп қойыңыз.</string>
@@ -136,7 +138,11 @@
     <string name="testing">Тексерілуде…</string>
     <string name="totalCount">Барлығы: {count}</string>
     <string name="updAvailable">{version} нұсқасы қолжетімді</string>
+    <string name="updDownload">Жүктеп алып орнату</string>
+    <string name="updDownloading" formatted="false">{version} нұсқасы жүктелуде… {percent}%</string>
     <string name="updLater">Кейінірек</string>
+    <string name="updReady">{version} нұсқасы орнатуға дайын</string>
+    <string name="updRestartNow">Қазір қайта қосу</string>
     <string name="upload">Жүктеп салу</string>
     <string name="uptime">Жұмыс уақыты</string>
     <string name="versionLabel">Нұсқа {version}</string>

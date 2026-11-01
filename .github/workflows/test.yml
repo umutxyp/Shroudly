@@ -292,9 +292,24 @@ jobs:
       - name: Unit tests, lint, debug and release builds
         working-directory: android
         run: ./gradlew --no-daemon testDebugUnitTest lintDebug assembleDebug assembleRelease
-      - name: The Google Play bundle (STORE_BUILD)
+      # Lint again with the Play build's own sources (src/play/kotlin, Google
+      # Play's in-app updates); no APK is built here, so the GitHub debug APK
+      # the emulator test installs stays the one built above.
+      - name: The Google Play bundle (STORE_BUILD), its sources linted
         working-directory: android
-        run: ./gradlew --no-daemon -Pshroudly.store=play bundleRelease
+        run: ./gradlew --no-daemon -Pshroudly.store=play lintDebug bundleRelease
+      - name: No Google Play code in the APKs for GitHub
+        run: |
+          dex="$RUNNER_TEMP/dex"
+          for apk in android/app/build/outputs/apk/debug/app-debug.apk android/app/build/outputs/apk/release/app-release-unsigned.apk; do
+            rm -rf "$dex" && mkdir -p "$dex" && unzip -q -o "$apk" 'classes*.dex' -d "$dex"
+            if LC_ALL=C grep -a -q -r 'Lcom/google/android/play/' "$dex"; then
+              echo "::error::$apk carries Google Play's library (only the bundle for Play may)"; exit 1
+            fi
+          done
+          rm -rf "$dex" && mkdir -p "$dex" && unzip -q -o android/app/build/outputs/bundle/release/app-release.aab 'base/dex/*.dex' -d "$dex"
+          LC_ALL=C grep -a -q -r 'com.google.android.play.core.appupdate' "$dex" \
+            || { echo "::error::the bundle for Play lacks Google Play's in-app updates"; exit 1; }
       - name: 16 KB page size (APKs, and the APKs Play makes from the bundle)
         run: |
           export ANDROID_NDK_HOME="$ANDROID_HOME/ndk/$NDK_VERSION"

@@ -25,6 +25,8 @@ import android.content.Intent
  *     at most MAX_RESUMES times an hour, so a network where it cannot work
  *     is not tried over and over;
  *   - never after the user turned protection off, or another VPN took over.
+ * An update of Shroudly ends it too; that one needs no job: it comes back
+ * at once (updated).
  * A VPN app the user has allowed may start its service from the background,
  * so the job turns protection on by itself. Where Android still refuses
  * (Proxy only), a notice offers it with one tap.
@@ -121,6 +123,26 @@ object KeepOn {
         }
         // The VPN is no longer allowed (another VPN app, or the user took it
         // back in Android's settings): nothing to bring back.
+        if (!started) stoppedByUser(ctx)
+    }
+
+    /* Updated while protection was on (Google Play, inside the app or by
+     * itself, or a new APK over it): installing ended the app and the VPN
+     * with it, not the user. Android lets an app start its service right
+     * after its own update (MY_PACKAGE_REPLACED, BootReceiver), so it comes
+     * back at once instead of staying off until the user notices. */
+    fun updated(ctx: Context) {
+        if (!wanted(ctx) || Protection.state != Protection.State.OFF) return
+        ShroudlyVpnService.attachLog(ctx)
+        resumed(ctx)
+        ShroudlyVpnService.log("Updated to ${BuildConfig.VERSION_NAME} while protection was on: turning it on again")
+        val started = try {
+            Protector.start(ctx)
+        } catch (e: Exception) {
+            ShroudlyVpnService.log("Android did not let protection start after the update (${e.javaClass.simpleName}); a notice offers it")
+            offer(ctx)
+            return
+        }
         if (!started) stoppedByUser(ctx)
     }
 

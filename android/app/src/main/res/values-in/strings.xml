@@ -53,6 +53,8 @@
     <string name="androidTileAddDesc">Ubin Shroudly di panel bagian atas layar menyalakan dan mematikan perlindungan dengan satu ketukan.</string>
     <string name="androidTileAdded">Ubin Shroudly ada di Setelan Cepat.</string>
     <string name="androidTileHowTo">Tarik panel di bagian atas layar sampai habis, ketuk pensil (edit), lalu seret ubin Shroudly ke antara ubin lainnya.</string>
+    <string name="androidUpdateImportant">Versi {version} adalah pembaruan penting</string>
+    <string name="androidUpdateReadyTap">Ketuk untuk memulai ulang Shroudly dan menyelesaikan pembaruan. Perlindungan akan menyala lagi dengan sendirinya.</string>
     <string name="androidVpnDenied">Shroudly memerlukan izin VPN untuk membawa koneksi aplikasi Anda.</string>
     <string name="androidVpnRevoked">Perlindungan dimatikan oleh Android, biasanya karena aplikasi VPN lain dinyalakan.</string>
     <string name="androidWifiProxyDead">Proxy jaringan ini diatur ke {addr}, tetapi tidak ada yang berjalan di sana, sehingga aplikasi yang memakainya (termasuk Chrome) tidak bisa tersambung. Di pengaturan Wi-Fi, buka jaringan ini dan atur Proxy ke Tidak ada.</string>
@@ -136,7 +138,11 @@
     <string name="testing">Menguji…</string>
     <string name="totalCount">Total: {count}</string>
     <string name="updAvailable">Versi {version} tersedia</string>
+    <string name="updDownload">Unduh dan pasang</string>
+    <string name="updDownloading" formatted="false">Mengunduh versi {version}… {percent}%</string>
     <string name="updLater">Nanti</string>
+    <string name="updReady">Versi {version} siap dipasang</string>
+    <string name="updRestartNow">Mulai ulang sekarang</string>
     <string name="upload">Unggah</string>
     <string name="uptime">Waktu aktif</string>
     <string name="versionLabel">Versi {version}</string>

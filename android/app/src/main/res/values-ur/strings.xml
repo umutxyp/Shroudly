@@ -53,6 +53,8 @@
     <string name="androidTileAddDesc">اسکرین کے اوپر والے پینل میں Shroudly کا ٹائل ایک ٹیپ سے تحفظ آن اور آف کرتا ہے۔</string>
     <string name="androidTileAdded">Shroudly کا ٹائل فوری ترتیبات میں ہے۔</string>
     <string name="androidTileHowTo">اسکرین کے اوپر والا پینل پورا نیچے کھینچیں، پنسل (ترمیم) پر ٹیپ کریں، اور Shroudly کا ٹائل باقیوں کے درمیان گھسیٹیں۔</string>
+    <string name="androidUpdateImportant">ورژن {version} ایک اہم اپ ڈیٹ ہے</string>
+    <string name="androidUpdateReadyTap">Shroudly کو دوبارہ شروع کر کے اپ ڈیٹ مکمل کرنے کے لیے تھپتھپائیں۔ تحفظ خود بخود دوبارہ آن ہو جائے گا۔</string>
     <string name="androidVpnDenied">آپ کی ایپس کے کنکشن لے جانے کے لیے Shroudly کو VPN کی اجازت درکار ہے۔</string>
     <string name="androidVpnRevoked">Android نے تحفظ بند کر دیا، عموماً اس لیے کہ کوئی دوسری VPN ایپ آن کی گئی۔</string>
     <string name="androidWifiProxyDead">اس نیٹ ورک کی پراکسی {addr} پر سیٹ ہے، لیکن وہاں کچھ نہیں چل رہا، اس لیے اسے استعمال کرنے والی ایپس (Chrome سمیت) نہیں جڑ پاتیں۔ Wi-Fi ترتیبات میں یہ نیٹ ورک کھولیں اور پراکسی کو «کوئی نہیں» پر سیٹ کریں۔</string>
@@ -136,7 +138,11 @@
     <string name="testing">جانچ ہو رہی ہے…</string>
     <string name="totalCount">کل: {count}</string>
     <string name="updAvailable">ورژن {version} دستیاب ہے</string>
+    <string name="updDownload">ڈاؤن لوڈ اور انسٹال کریں</string>
+    <string name="updDownloading" formatted="false">ورژن {version} ڈاؤن لوڈ ہو رہا ہے… {percent}%</string>
     <string name="updLater">بعد میں</string>
+    <string name="updReady">ورژن {version} انسٹال ہونے کے لیے تیار ہے</string>
+    <string name="updRestartNow">ابھی دوبارہ شروع کریں</string>
     <string name="upload">اپ لوڈ</string>
     <string name="uptime">چلنے کا دورانیہ</string>
     <string name="versionLabel">ورژن {version}</string>

@@ -53,6 +53,8 @@
     <string name="androidTileAddDesc">Ekranın yuxarısındakı paneldə Shroudly plitəsi qorumanı bir toxunuşla açıb-bağlayır.</string>
     <string name="androidTileAdded">Shroudly plitəsi Sürətli Ayarlardadır.</string>
     <string name="androidTileHowTo">Ekranın yuxarısındakı paneli sona qədər aşağı çək, qələmə (redaktə) toxun və Shroudly plitəsini digərlərinin arasına sürüklə.</string>
+    <string name="androidUpdateImportant">{version} versiyası vacib yeniləmədir</string>
+    <string name="androidUpdateReadyTap">Shroudly-ni yenidən başladıb yeniləməni bitirmək üçün toxun. Qoruma özü yenidən açılacaq.</string>
     <string name="androidVpnDenied">Tətbiqlərinizin bağlantılarını daşımaq üçün Shroudly-yə VPN icazəsi lazımdır.</string>
     <string name="androidVpnRevoked">Qoruma Android tərəfindən söndürüldü; adətən başqa VPN tətbiqi açıldığı üçün.</string>
     <string name="androidWifiProxyDead">Bu şəbəkənin proksisi {addr} olaraq təyin edilib, amma orada heç nə işləmir, buna görə ondan istifadə edən tətbiqlər (Chrome da daxil) qoşula bilmir. Wi-Fi ayarlarında bu şəbəkəni açın və proksini «Yoxdur» edin.</string>
@@ -136,7 +138,11 @@
     <string name="testing">Yoxlanılır…</string>
     <string name="totalCount">Cəmi: {count}</string>
     <string name="updAvailable">{version} versiyası mövcuddur</string>
+    <string name="updDownload">Endir və quraşdır</string>
+    <string name="updDownloading" formatted="false">{version} versiyası endirilir… {percent}%</string>
     <string name="updLater">Sonra</string>
+    <string name="updReady">{version} versiyası quraşdırılmağa hazırdır</string>
+    <string name="updRestartNow">İndi yenidən başlat</string>
     <string name="upload">Göndərmə</string>
     <string name="uptime">İş müddəti</string>
     <string name="versionLabel">Versiya {version}</string>

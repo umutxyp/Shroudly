@@ -53,6 +53,8 @@
     <string name="androidTileAddDesc">Плитка Shroudly в панели вверху экрана включает и выключает защиту одним касанием.</string>
     <string name="androidTileAdded">Плитка Shroudly в быстрых настройках.</string>
     <string name="androidTileHowTo">Опустите панель вверху экрана до конца, нажмите карандаш (изменить) и перетащите плитку Shroudly к остальным.</string>
+    <string name="androidUpdateImportant">Версия {version} — важное обновление</string>
+    <string name="androidUpdateReadyTap">Нажмите, чтобы перезапустить Shroudly и завершить обновление. Защита снова включится сама.</string>
     <string name="androidVpnDenied">Shroudly нужно разрешение VPN, чтобы пропускать соединения ваших приложений.</string>
     <string name="androidVpnRevoked">Android отключил защиту — обычно потому, что включено другое VPN-приложение.</string>
     <string name="androidWifiProxyDead">Прокси этой сети задан как {addr}, но там ничего не запущено, поэтому приложения, которые его используют (в том числе Chrome), не могут подключиться. В настройках Wi-Fi откройте эту сеть и выберите для прокси «Нет».</string>
@@ -136,7 +138,11 @@
     <string name="testing">Проверка…</string>
     <string name="totalCount">Всего: {count}</string>
     <string name="updAvailable">Доступна версия {version}</string>
+    <string name="updDownload">Скачать и установить</string>
+    <string name="updDownloading" formatted="false">Загрузка версии {version}… {percent}%</string>
     <string name="updLater">Позже</string>
+    <string name="updReady">Версия {version} готова к установке</string>
+    <string name="updRestartNow">Перезапустить сейчас</string>
     <string name="upload">Выгрузка</string>
     <string name="uptime">Время работы</string>
     <string name="versionLabel">Версия {version}</string>

@@ -48,4 +48,19 @@ object Versions {
 
     /* "v2.6.0" -> "2.6.0", for display. */
     fun display(tag: String) = tag.trim().removePrefix("v").removePrefix("V")
+
+    /* The version a versionCode stands for (app/build.gradle.kts: major*10000
+     * + minor*100 + patch): 20644 -> "2.6.44". Google Play names only the code. */
+    fun fromCode(code: Int) = "${code / 10000}.${code / 100 % 100}.${code % 100}"
+
+    /* Version numbers from installed to latest (versionCodes): the patches
+     * apart within one major.minor; into a newer minor, its patches and one
+     * for the step (how many patches the old one still had is not known); a
+     * newer major, as far as it goes. */
+    fun behind(installed: Int, latest: Int): Int = when {
+        latest <= installed -> 0
+        latest / 100 == installed / 100 -> latest - installed
+        latest / 10000 == installed / 10000 -> latest % 100 + 1
+        else -> Int.MAX_VALUE
+    }
 }

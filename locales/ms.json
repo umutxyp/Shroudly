@@ -505,6 +505,8 @@
   "androidVpnDenied": "Shroudly memerlukan kebenaran VPN untuk membawa sambungan aplikasi anda.",
   "androidVpnRevoked": "Perlindungan dimatikan oleh Android, biasanya kerana aplikasi VPN lain dihidupkan.",
   "androidKeepOnOffer": "Telefon anda menutup Shroudly. Ketik untuk menghidupkan perlindungan semula.",
+  "androidUpdateImportant": "Versi {version} ialah kemas kini penting",
+  "androidUpdateReadyTap": "Ketik untuk memulakan semula Shroudly dan menyelesaikan kemas kini. Perlindungan akan hidup semula dengan sendirinya.",
   "androidAlertsChannel": "Amaran perlindungan",
   "androidProtectionLost": "Perlindungan berhenti kerana ralat, jadi aplikasi anda kini bersambung secara terus. Buka Shroudly untuk memulakannya semula.",
   "androidDetails": "Butiran",

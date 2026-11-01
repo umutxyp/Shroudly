@@ -505,6 +505,8 @@
   "androidVpnDenied": "Shroudly a besoin de l’autorisation VPN pour faire passer les connexions de vos applis.",
   "androidVpnRevoked": "Android a coupé la protection, généralement parce qu’une autre appli VPN a été activée.",
   "androidKeepOnOffer": "Votre téléphone a arrêté Shroudly. Touchez pour réactiver la protection.",
+  "androidUpdateImportant": "La version {version} est une mise à jour importante",
+  "androidUpdateReadyTap": "Touchez pour redémarrer Shroudly et terminer la mise à jour. La protection se réactive d’elle-même.",
   "androidAlertsChannel": "Alertes de protection",
   "androidProtectionLost": "La protection s’est arrêtée à cause d’une erreur : vos applis se connectent maintenant directement. Ouvrez Shroudly pour la relancer.",
   "androidDetails": "Détails",

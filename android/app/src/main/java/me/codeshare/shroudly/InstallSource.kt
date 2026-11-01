@@ -32,4 +32,12 @@ object InstallSource {
     /* Asked again every time, never remembered: a GitHub install becomes
      * Play's once Play updates it. */
     fun githubUpdates(ctx: Context): Boolean = githubUpdates(BuildConfig.STORE_BUILD, installer(ctx))
+
+    /* Whether Google Play updates this copy inside the app (PlayUpdates):
+     * the build made for Play, installed or last updated by Play. Play
+     * answers no other copy, and the APK has no Play library. */
+    fun playUpdates(storeBuild: Boolean, installer: String?): Boolean =
+        storeBuild && installer == PLAY_STORE
+
+    fun playUpdates(ctx: Context): Boolean = playUpdates(BuildConfig.STORE_BUILD, installer(ctx))
 }

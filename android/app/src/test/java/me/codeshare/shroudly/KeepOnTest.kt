@@ -44,6 +44,24 @@ class KeepOnTest {
         assertTrue(Regex("""override fun onDestroy\(\)[\s\S]*KeepOn\.networkGone\(this\)""").containsMatchIn(proxy))
     }
 
+    /* An update of Shroudly (Google Play's, inside the app or by itself, or
+     * a new APK over it) ends the app and protection with it: Android tells
+     * the app once it is replaced, and protection comes back if the user had
+     * not turned it off. */
+    @Test
+    fun protectionComesBackAfterAnUpdate() {
+        val src = File("src/main")
+        val manifest = File(src, "AndroidManifest.xml").readText()
+        // In BootReceiver's own block, not a receiver after it.
+        assertTrue(Regex("""android:name="\.BootReceiver"(?:(?!</receiver>)[\s\S])*android\.intent\.action\.MY_PACKAGE_REPLACED""").containsMatchIn(manifest))
+        val receiver = File(src, "java/me/codeshare/shroudly/BootReceiver.kt").readText()
+        assertTrue(receiver.contains("Intent.ACTION_MY_PACKAGE_REPLACED -> KeepOn.updated(Lang.wrap(context))"))
+        // "Start when the phone starts" stays its own setting; an update does not need it.
+        assertTrue(Regex("""ACTION_BOOT_COMPLETED -> \{\s*if \(!AppSettings\.startAtBoot\(context\)\) return""").containsMatchIn(receiver))
+        val keepOn = File(src, "java/me/codeshare/shroudly/KeepOn.kt").readText()
+        assertTrue(Regex("""fun updated\(ctx: Context\) \{\s*if \(!wanted\(ctx\) \|\| Protection\.state != Protection\.State\.OFF\) return""").containsMatchIn(keepOn))
+    }
+
     /* The Quick Settings tile (issue #49): a switch the panel asks for its
      * state each time it opens (not an "active" tile, which some phones'
      * panels never ask), showing what a tap asked for while it happens. */
