@@ -365,6 +365,18 @@ function get(url, o = {}) {
     fs.rmSync(dir, { recursive: true, force: true });
   }
 
+  // W2: fast user switching: another user's Discord is theirs.
+  {
+    const DA = require(path.join(ROOT, 'electron', 'discord-app.js'));
+    const csv = ['"Discord.exe","4242","Console","1","120,000 K"', '"Discord.exe","4250","Console","1","80,000 K"', '"Discord.exe","5300","RDP-Tcp#3","2","90,000 K"'].join('\r\n');
+    t.ok(JSON.stringify(DA.sessionPids(csv, 'Discord.exe', 2)) === '[5300]' && DA.sessionPids(csv, 'Discord.exe', 3).length === 0,
+      "another user's Discord (session 1) is not this user's (session 2): not \"running\", not restarted, nothing opened on this screen");
+    t.ok(DA.sessionPids(csv, 'Discord.exe', null).length === 3, '…and when the session cannot be told, every one counts, as before');
+    const src = require('fs').readFileSync(path.join(ROOT, 'electron', 'discord-app.js'), 'utf8');
+    t.ok(/const mine = await pids\(v\);\n    if \(!mine\.length\) return false;/.test(src) && /Where-Object \{ \$_\.SessionId -eq \$\{session\} \}/.test(src),
+      "a restart ends only this user's Discord and starts one only where one was ended; its start time is this session's");
+  }
+
   console.log(`discord: ${t.count} passed`);
   process.exit(0);
 })().catch((e) => { console.error('FAIL', e.message); process.exit(1); });

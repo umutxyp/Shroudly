@@ -45,12 +45,15 @@ function run(cmd, args) {
 
 /* Process list -> [{ pid, name }]: tasklist /FO CSV /NH on Windows, ps
  * "pid comm" elsewhere (macOS gives the program's full path). */
-function parseProcesses(out, platform = process.platform) {
+/* session (Windows): only that session's processes, tasklist's fourth
+ * column; another user's browser on the same PC is not this user's to be
+ * warned about. null: every session. */
+function parseProcesses(out, platform = process.platform, session = null) {
   const rows = [];
   for (const line of String(out || '').split(/\r?\n/)) {
     if (platform === 'win32') {
-      const m = /^"([^"]+)","(\d+)"/.exec(line);
-      if (m) rows.push({ pid: Number(m[2]), name: m[1] });
+      const m = /^"([^"]+)","(\d+)","[^"]*","(\d+)"/.exec(line) || /^"([^"]+)","(\d+)"/.exec(line);
+      if (m && (session == null || m[3] === undefined || Number(m[3]) === session)) rows.push({ pid: Number(m[2]), name: m[1] });
     } else {
       const m = /^\s*(\d+)\s+(.+?)\s*$/.exec(line);
       if (m) rows.push({ pid: Number(m[1]), name: platform === 'darwin' ? path.basename(m[2]) : m[2] });
@@ -180,8 +183,11 @@ function firefoxLookout() {
 }
 
 async function runningBrowsers(platform = process.platform) {
-  const out = platform === 'win32' ? await run('tasklist', ['/FO', 'CSV', '/NH']) : await run('ps', ['-axo', 'pid=,comm=']);
-  return browsersIn(parseProcesses(out, platform), platform);
+  if (platform === 'win32') {
+    const [out, session] = await Promise.all([run('tasklist', ['/FO', 'CSV', '/NH']), require('./roblox-app').ownSession()]);
+    return browsersIn(parseProcesses(out, platform, session), platform);
+  }
+  return browsersIn(parseProcesses(await run('ps', ['-axo', 'pid=,comm=']), platform), platform);
 }
 
 /* The open browsers that go around Shroudly right now. */

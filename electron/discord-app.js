@@ -151,11 +151,19 @@ function run(cmd, args) {
   return new Promise((resolve) => execFile(cmd, args, { windowsHide: true, timeout: 10000 }, (err, out) => resolve(err ? '' : String(out))));
 }
 
+/* Windows: this session's processes only (tasklist's fourth column).
+ * Another user's Discord on the same PC (fast user switching, a terminal
+ * server) is theirs: counted as this user's, it was "restarted" (which
+ * cannot end it) and then Discord opened on this user's screen by itself.
+ * The session: Shroudly's own (roblox-app.js); null, every session. */
+const ownSession = () => require('./roblox-app').ownSession();
+function sessionPids(out, exe, session = null) {
+  return [...String(out || '').matchAll(new RegExp(`^"${reEscape(exe)}","(\\d+)","[^"]*","(\\d+)"`, 'gmi'))]
+    .filter((m) => session == null || Number(m[2]) === session).map((m) => Number(m[1]));
+}
+
 async function isRunning(v) {
-  if (process.platform === 'win32') {
-    const out = await run('tasklist', ['/FI', `IMAGENAME eq ${v.exe}`, '/NH', '/FO', 'CSV']);
-    return out.toLowerCase().includes(`"${v.exe.toLowerCase()}"`);
-  }
+  if (process.platform === 'win32') return (await pids(v)).length > 0;
   if (v.id === 'flatpak') return (await run('flatpak', ['ps', '--columns=application'])).includes('com.discordapp.Discord');
   return (await run('pgrep', ['-x', v.proc])).trim().length > 0;
 }
@@ -169,8 +177,8 @@ async function isRunning(v) {
 async function pids(v) {
   const list = (out) => String(out || '').split(/\s+/).filter((x) => /^\d+$/.test(x)).map(Number);
   if (process.platform === 'win32') {
-    const out = await run('tasklist', ['/FI', `IMAGENAME eq ${v.exe}`, '/NH', '/FO', 'CSV']);
-    return [...out.matchAll(new RegExp(`^"${reEscape(v.exe)}","(\\d+)"`, 'gmi'))].map((m) => Number(m[1]));
+    const [out, session] = await Promise.all([run('tasklist', ['/FI', `IMAGENAME eq ${v.exe}`, '/NH', '/FO', 'CSV']), ownSession()]);
+    return sessionPids(out, v.exe, session);
   }
   if (process.platform === 'darwin') return list(await run('pgrep', ['-f', `/${reEscape(v.app)}\\.app/Contents/`]));
   if (v.id === 'flatpak' || !v.proc) return [];
@@ -200,8 +208,10 @@ async function startedAt(v) {
   if (process.platform === 'win32') {
     const { envFor } = require('./win-powershell');
     const name = v.exe.replace(/\.exe$/i, '');
+    const session = await ownSession();
+    const mine = Number.isInteger(session) ? ` | Where-Object { $_.SessionId -eq ${session} }` : '';
     const out = await new Promise((resolve) => execFile('powershell.exe', ['-NoProfile', '-NonInteractive', '-Command',
-      `Get-Process -Name '${name.replace(/'/g, "''")}' -ErrorAction SilentlyContinue | ForEach-Object { try { $_.StartTime.ToUniversalTime().ToString('o') } catch {} }`],
+      `Get-Process -Name '${name.replace(/'/g, "''")}' -ErrorAction SilentlyContinue${mine} | ForEach-Object { try { $_.StartTime.ToUniversalTime().ToString('o') } catch {} }`],
     { windowsHide: true, timeout: 15000, env: envFor('powershell.exe') }, (err, o) => resolve(err ? '' : String(o))));
     return oldestStart(out, { platform: 'win32' });
   }
@@ -337,7 +347,11 @@ async function restart(v, between = null) {
     return detached('open', ['-a', v.app]);
   }
   if (process.platform === 'win32') {
-    await run('taskkill', ['/IM', v.exe, '/T', '/F']);
+    // This user's Discord only; with none of theirs running, nothing is
+    // started on their screen.
+    const mine = await pids(v);
+    if (!mine.length) return false;
+    await run('taskkill', ['/T', '/F', ...mine.flatMap((p) => ['/PID', String(p)])]);
     await waitGone(v, 5000);
     await gap();
     return fs.existsSync(v.updateExe) ? detached(v.updateExe, ['--processStart', v.exe]) : false;
@@ -375,5 +389,5 @@ function setDroverAside(d, backupDir, fsx = fs) {
   return moved;
 }
 
-module.exports = { KEY, endpointUrl, variants, present, installed, settingsFile, patchSync, writeSettings, hasOurs, hasOursIn, isRunning, anyRunning, pids, restart, healNote,
+module.exports = { sessionPids, KEY, endpointUrl, variants, present, installed, settingsFile, patchSync, writeSettings, hasOurs, hasOursIn, isRunning, anyRunning, pids, restart, healNote,
   startedAt, oldestStart, etimeSeconds, readWithoutLine, watchSince, START_CHECK_MS, drover, proxyHostPort, byAppVersion, setDroverAside };

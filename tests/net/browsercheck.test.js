@@ -84,6 +84,13 @@ const t = suite('browsercheck');
   const real = await B.runningBrowsers();
   t.ok(Array.isArray(real), `this machine's process list read (${real.map((x) => x.name).join(', ') || 'no browser open'})`);
 
+  // W2: another user's Chrome (fast user switching) is not this user's.
+  {
+    const csv = ['"chrome.exe","5100","Console","1","90,000 K"', '"msedge.exe","6100","RDP-Tcp#3","2","90,000 K"'].join('\r\n');
+    const mine = B.browsersIn(B.parseProcesses(csv, 'win32', 2), 'win32').map((b) => b.id);
+    t.ok(!mine.includes('chrome') && B.parseProcesses(csv, 'win32', 2).length === 1 && B.parseProcesses(csv, 'win32').length === 2,
+      'only this session\'s browsers are looked at: no "Chrome is not going through Shroudly" about someone else\'s Chrome');
+  }
   console.log(`browsercheck: ${t.count} passed`);
   process.exit(0);
 })().catch((e) => { console.error('FAIL', e.message); process.exit(1); });
