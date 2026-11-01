@@ -446,6 +446,17 @@ const restS = (r) => Math.max(0, Math.round((r.restUntil - Date.now()) / 1000));
   f.stop();
 
   eng.stop(); fake.close(); mitm.close();
+  {
+    // IPv6-only networks (NAT64/DNS64 without 464XLAT): routes by IPv6
+    // address too, each checked against its certificate, whose IPv6 entries
+    // come written out in full (net-desktop-07).
+    const six = F.UPSTREAMS.filter((u) => require('net').isIPv6(u.ip));
+    t.ok(six.length >= 4 && new Set(six.map((u) => u.op)).size >= 3 && six.every((u) => !u.viaEngine && u.names && u.names.length),
+      'IPv6 routes of three operators, direct, each with the names its certificate must carry');
+    const cert = { subjectaltname: 'DNS:cloudflare-dns.com, DNS:one.one.one.one, IP Address:1.1.1.1, IP Address:2606:4700:4700:0:0:0:0:1111' };
+    t.ok(F.certCoversIp(cert, '2606:4700:4700::1111') && F.certCoversIp(cert, '1.1.1.1') && !F.certCoversIp(cert, '2606:4700:4700::1001') && !F.certCoversIp(cert, '1.0.0.1'),
+      'a certificate covers an IPv6 address however it is written, and no other');
+  }
   console.log(`doh: ${t.count} passed`);
   process.exit(0);
 })().catch((e) => { console.error('FAIL', e.message); process.exit(1); });

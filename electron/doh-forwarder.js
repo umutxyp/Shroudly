@@ -68,6 +68,15 @@ const UPSTREAMS = [
   { id: 'dnssb-2', op: 'dnssb', ip: '45.11.45.11', names: ['doh.sb', 'dns.sb'] },
   { id: 'cloudflare-3', op: 'cloudflare', ip: '162.159.36.1', names: CF },
   { id: 'cloudflare-4', op: 'cloudflare', ip: '162.159.46.1', names: CF },
+  // IPv6, for networks that have only that (NAT64/DNS64 without 464XLAT):
+  // every address above is IPv4, so encrypted DNS never answered there and
+  // each new name waited for the engine's 4 s fallback. Elsewhere they fail
+  // at once and rest like any route that fails.
+  { id: 'cloudflare-6a', op: 'cloudflare', ip: '2606:4700:4700::1111', names: CF },
+  { id: 'google-6a', op: 'google', ip: '2001:4860:4860::8888', names: ['dns.google'] },
+  { id: 'quad9-6', op: 'quad9', ip: '2620:fe::fe', names: ['dns.quad9.net'] },
+  { id: 'cloudflare-6b', op: 'cloudflare', ip: '2606:4700:4700::1001', names: CF },
+  { id: 'google-6b', op: 'google', ip: '2001:4860:4860::8844', names: ['dns.google'] },
   // By name, through the engine.
   { id: 'cloudflare-front-1', op: 'cloudflare-front', ip: '104.16.248.249', sni: 'cloudflare-dns.com', viaEngine: true },
   { id: 'cloudflare-front-2', op: 'cloudflare-front', ip: '104.16.249.249', sni: 'cloudflare-dns.com', viaEngine: true },
@@ -102,11 +111,24 @@ const CACHE_MAX        = 1500;
 const TTL_MIN_S        = 20;
 const TTL_MAX_S        = 3600;
 
+/* An address as one spelling: an IPv6 one written out in full, lowercase
+ * (a certificate lists 2606:4700:4700:0:0:0:0:1111 for 2606:4700:4700::1111). */
+function ipKey(ip) {
+  const a = String(ip || '').trim().toLowerCase();
+  if (!net.isIPv6(a)) return a;
+  const [head, tail = ''] = a.split('::');
+  const h = head ? head.split(':') : [];
+  const t = a.includes('::') && tail ? tail.split(':') : [];
+  const groups = a.includes('::') ? [...h, ...Array(8 - h.length - t.length).fill('0'), ...t] : h;
+  return groups.map((g) => (parseInt(g, 16) || 0).toString(16)).join(':');
+}
+
 function certCoversIp(cert, ip) {
   // subjectaltname like "DNS:cloudflare-dns.com, IP Address:1.1.1.1"
   const san = cert && cert.subjectaltname;
   if (!san) return false;
-  return san.split(',').map((x) => x.trim()).some((e) => e === `IP Address:${ip}`);
+  const want = ipKey(ip);
+  return san.split(',').map((x) => x.trim()).some((e) => e.startsWith('IP Address:') && ipKey(e.slice(11)) === want);
 }
 
 /* The certificate has to be the resolver's: its own address, or one of the
@@ -377,7 +399,7 @@ class DohForwarder {
         sock.once('secureConnect', () => {
           clearTimeout(timer);
           if (sock.alpnProtocol !== 'h2') { sock.destroy(); reject(new Error('no HTTP/2')); return; }
-          const sess = http2.connect(`https://${r.sni || r.ip}`, { createConnection: () => sock });
+          const sess = http2.connect(`https://${r.sni || (net.isIPv6(r.ip) ? `[${r.ip}]` : r.ip)}`, { createConnection: () => sock });
           sess.on('error', () => {});
           sess.on('close', () => { if (r.session === sess) r.session = null; });
           sess.on('goaway', () => { if (r.session === sess) r.session = null; });
@@ -794,3 +816,4 @@ module.exports.failReply = failReply;
 module.exports.noRouteReply = noRouteReply;
 module.exports.NOROUTE_OPT = NOROUTE_OPT;
 module.exports.socksConnect = socksConnect;
+module.exports.certCoversIp = certCoversIp;
