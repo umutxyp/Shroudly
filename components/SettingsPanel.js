@@ -499,8 +499,8 @@ export default function SettingsPanel({ active = false }) {
     : settings.strategyId === 'auto' || !STRATEGIES.some((x) => x.id === settings.strategyId) ? 'split-sni' : settings.strategyId;
 
   /* "More settings" open by itself when something in it is not as a new
-   * install has it (the modes the autopilot turns on by itself aside): the
-   * user, or someone helping them, set it and should find it. */
+   * install has it: the user, or someone helping them, set it and should
+   * find it. */
   const moreId = useId();
   const [more, setMore] = useState(null);
   const moreSet = shownStrategy !== 'auto' || settings.dnsProtection === false || !!settings.customDns
@@ -778,6 +778,37 @@ export default function SettingsPanel({ active = false }) {
         )}
       </Section>
 
+      {/* The modes for apps that ignore the system proxy: in sight, as the
+          notices that say "turn it on in Settings" expect. Shown where at
+          least one of them exists on this system. */}
+      {(discord.installed || apps.available || storeApps.available) && (
+        <Section title={t('androidAppsSection')}>
+          <div className="divide-y" style={{ borderColor: 'var(--line)' }}>
+            {discord.installed && (
+              <Toggle label={t('discordModeLabel')} desc={t('discordModeDesc')}
+                      checked={discord.on} onChange={setDiscordMode} />
+            )}
+            {/* Shroudly turns this on by itself when Roblox is blocked
+                (autopilot.js); the switch is for whoever wants it either way. */}
+            {apps.available && (
+              <div>
+              <Toggle label={t('appModeLabel')} desc={t('appModeDesc')}
+                      checked={apps.on} onChange={setAppMode} />
+              {apps.on && apps.store && (
+                <p className="pb-3 text-[12px] leading-snug" style={{ color: 'var(--warn)' }}>{t('appStoreEdition')}</p>
+              )}
+              </div>
+            )}
+            {/* Windows: Shroudly lets Store apps reach it by itself
+                (store-apps.js); off takes its exemptions out again. */}
+            {storeApps.available && (
+              <Toggle label={t('storeAppsLabel')} desc={t('storeAppsDesc')}
+                      checked={storeApps.on} onChange={setStoreAppsMode} />
+            )}
+          </div>
+        </Section>
+      )}
+
       {/* App */}
       <Section title={t('appSection')}>
         <div className="divide-y" style={{ borderColor: 'var(--line)' }}>
@@ -951,27 +982,6 @@ export default function SettingsPanel({ active = false }) {
                       checked={settings.preferIpv6}
                       disabled={ipv6Ok === false && !settings.preferIpv6}
                       onChange={(v) => save('preferIpv6', v)} />
-              {discord.installed && (
-                <Toggle label={t('discordModeLabel')} desc={t('discordModeDesc')}
-                        checked={discord.on} onChange={setDiscordMode} />
-              )}
-              {/* Shroudly turns this on by itself when Roblox is blocked
-                  (autopilot.js); the switch is for whoever wants it either way. */}
-              {apps.available && (
-                <div>
-                <Toggle label={t('appModeLabel')} desc={t('appModeDesc')}
-                        checked={apps.on} onChange={setAppMode} />
-                {apps.on && apps.store && (
-                  <p className="pb-3 text-[12px] leading-snug" style={{ color: 'var(--warn)' }}>{t('appStoreEdition')}</p>
-                )}
-                </div>
-              )}
-              {/* Windows: Shroudly lets Store apps reach it by itself
-                  (store-apps.js); off takes its exemptions out again. */}
-              {storeApps.available && (
-                <Toggle label={t('storeAppsLabel')} desc={t('storeAppsDesc')}
-                        checked={storeApps.on} onChange={setStoreAppsMode} />
-              )}
             </div>
 
             {active && (
