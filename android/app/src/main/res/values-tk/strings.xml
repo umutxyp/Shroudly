@@ -86,8 +86,12 @@
     <string name="androidTileAddDesc">Ekranyň ýokarsyndaky paneldäki Shroudly plitkasy goragy bir basmak bilen açýar we öçürýär.</string>
     <string name="androidTileAdded">Shroudly plitkasy çalt sazlamalarda.</string>
     <string name="androidTileHowTo">Ekranyň ýokarsyndaky paneli ahyryna çenli aşak çekiň, galama (üýtgetmek) basyň we Shroudly plitkasyny beýlekileriň arasyna süýşüriň.</string>
+    <string name="androidUnknownSources">Täzelenmeleri gurnamak üçin Android-e Shroudly-nyň programma gurnamagyna siziň rugsadyňyz gerek. Indiki ekranda «Bu çeşmeden rugsat ber» düzgünini açyň, soňra şu ýere gaýdyp geliň.</string>
     <string name="androidUpdateImportant">{version} wersiýasy möhüm täzelenme</string>
+    <string name="androidUpdateInstallTap">Gurnamak üçin basyň.</string>
+    <string name="androidUpdateNotSigned">Ýüklenen täzelenme Shroudly-nyň bu nusgasy ýaly gol çekilmändir, şonuň üçin gurnalmady.</string>
     <string name="androidUpdateReadyTap">Shroudly-ni täzeden açyp, täzelenmäni tamamlamak üçin basyň. Gorag özi täzeden açylar.</string>
+    <string name="androidUpdateTap">Ýükläp, gurnamak üçin basyň.</string>
     <string name="androidUseProxyOnly">Diňe proksi ulan</string>
     <string name="androidVpnBlocked">Android VPN rugsadyny soramady: başga bir VPN programmasy hemişe açyk VPN hökmünde sazlanypdyr ýa-da bu telefon VPN üýtgetmäge rugsat bermeýär. Android-iň VPN sazlamalarynda şol programma üçin hemişe açyk ýagdaýyny öçüriň ýa-da beýleki VPN-i saklaýan «Diňe proksi» düzgünini ulanyň.</string>
     <string name="androidVpnDenied">Programmalaryňyzyň baglanyşyklaryny geçirmek üçin Shroudly-a VPN rugsady gerek.</string>
@@ -182,6 +186,7 @@
     <string name="updAvailable">{version} wersiýasy elýeterli</string>
     <string name="updDownload">Ýükläp alyň we gurnaň</string>
     <string name="updDownloading" formatted="false">{version} wersiýasy ýüklenýär… {percent}%</string>
+    <string name="updInstallFailed">Täzelenmäni gurnap bolmady. Ýene synanyşyň ýa-da ony ýükleme sahypasyndan alyň.</string>
     <string name="updLater">Soňra</string>
     <string name="updReady">{version} wersiýasy gurnamaga taýýar</string>
     <string name="updRestartNow">Häzir täzeden açyň</string>

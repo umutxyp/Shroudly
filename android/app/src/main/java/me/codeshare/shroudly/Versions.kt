@@ -27,7 +27,7 @@ object Versions {
     fun offers(tag: String, assetNames: List<String>, current: String): Boolean =
         isNewer(tag, current) && assetNames.any { it.endsWith(".apk", ignoreCase = true) }
 
-    private const val DOWNLOADS = "https://github.com/umutxyp/Shroudly/releases/download/"
+    internal const val DOWNLOADS = "https://github.com/umutxyp/Shroudly/releases/download/"
 
     /* The release's Android APK (name, browser_download_url pairs): the one
      * named -Android.apk, else any .apk; only from this project's releases. */

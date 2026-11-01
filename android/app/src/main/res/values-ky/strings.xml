@@ -86,8 +86,12 @@
     <string name="androidTileAddDesc">Экрандын жогору жагындагы панелдеги Shroudly плиткасы коргоону бир басуу менен күйгүзүп-өчүрөт.</string>
     <string name="androidTileAdded">Shroudly плиткасы тез жөндөөлөрдө.</string>
     <string name="androidTileHowTo">Экрандын жогору жагындагы панелди аягына чейин ылдый тартып, калемди (түзөтүү) басып, Shroudly плиткасын башкаларынын арасына сүйрөңүз.</string>
+    <string name="androidUnknownSources">Жаңыртууларды орнотуу үчүн Android\'ге Shroudly колдонмо орното алышы үчүн сиздин уруксатыңыз керек. Кийинки экранда «Бул булактан уруксат берүү» дегенди күйгүзүп, бул жакка кайтыңыз.</string>
     <string name="androidUpdateImportant">{version} версиясы — маанилүү жаңыртуу</string>
+    <string name="androidUpdateInstallTap">Орнотуу үчүн басыңыз.</string>
+    <string name="androidUpdateNotSigned">Жүктөлгөн жаңыртуу Shroudly\'нин бул көчүрмөсүндөй кол коюлган эмес, ошондуктан орнотулган жок.</string>
     <string name="androidUpdateReadyTap">Shroudly\'ни кайра иштетип, жаңыртууну бүтүрүү үчүн басыңыз. Коргоо өзү кайра күйөт.</string>
+    <string name="androidUpdateTap">Жүктөп алып, орнотуу үчүн басыңыз.</string>
     <string name="androidUseProxyOnly">«Прокси гана» колдонуу</string>
     <string name="androidVpnBlocked">Android VPN уруксатын сураган жок: башка VPN колдонмосу дайыма күйүк VPN катары коюлган, же бул телефон VPN өзгөртүүгө уруксат бербейт. Android\'дин VPN жөндөөлөрүндө ал колдонмо үчүн «Дайыма күйүк» дегенди өчүрүңүз, же башка VPN\'ди калтырган «Прокси гана» режимин колдонуңуз.</string>
     <string name="androidVpnDenied">Колдонмолоруңуздун туташууларын өткөрүү үчүн Shroudly\'ге VPN уруксаты керек.</string>
@@ -182,6 +186,7 @@
     <string name="updAvailable">{version} версиясы жеткиликтүү</string>
     <string name="updDownload">Жүктөп алып орнотуу</string>
     <string name="updDownloading" formatted="false">{version} версиясы жүктөлүүдө… {percent}%</string>
+    <string name="updInstallFailed">Жаңыртууну орнотуу мүмкүн болгон жок. Кайра аракет кылыңыз же аны жүктөө барагынан алыңыз.</string>
     <string name="updLater">Кийинчерээк</string>
     <string name="updReady">{version} версиясы орнотууга даяр</string>
     <string name="updRestartNow">Азыр кайра иштетүү</string>

@@ -86,8 +86,12 @@
     <string name="androidTileAddDesc">Une tuile Shroudly dans le panneau en haut de l\'écran active et désactive la protection d\'un seul geste.</string>
     <string name="androidTileAdded">La tuile Shroudly est dans les Réglages rapides.</string>
     <string name="androidTileHowTo">Tirez le panneau en haut de l\'écran jusqu\'en bas, touchez le crayon (modifier) et faites glisser la tuile Shroudly parmi les autres.</string>
+    <string name="androidUnknownSources">Pour installer les mises à jour, Android a besoin de votre autorisation pour que Shroudly installe des applis. Sur l’écran suivant, activez « Autoriser cette source », puis revenez ici.</string>
     <string name="androidUpdateImportant">La version {version} est une mise à jour importante</string>
+    <string name="androidUpdateInstallTap">Touchez pour l’installer.</string>
+    <string name="androidUpdateNotSigned">La mise à jour téléchargée n’est pas signée comme cette copie de Shroudly : elle n’a pas été installée.</string>
     <string name="androidUpdateReadyTap">Touchez pour redémarrer Shroudly et terminer la mise à jour. La protection se réactive d’elle-même.</string>
+    <string name="androidUpdateTap">Touchez pour la télécharger et l’installer.</string>
     <string name="androidUseProxyOnly">Utiliser Proxy seul</string>
     <string name="androidVpnBlocked">Android n’a pas demandé l’autorisation VPN : une autre appli VPN est définie comme VPN permanent, ou ce téléphone n’autorise pas les changements de VPN. Désactivez le VPN permanent pour cette appli dans les réglages VPN d’Android, ou utilisez Proxy seul, qui garde votre autre VPN.</string>
     <string name="androidVpnDenied">Shroudly a besoin de l’autorisation VPN pour faire passer les connexions de vos applis.</string>
@@ -182,6 +186,7 @@
     <string name="updAvailable">La version {version} est disponible</string>
     <string name="updDownload">Télécharger et installer</string>
     <string name="updDownloading" formatted="false">Téléchargement de la version {version}… {percent} %</string>
+    <string name="updInstallFailed">La mise à jour n’a pas pu être installée. Réessayez, ou téléchargez-la depuis la page de téléchargement.</string>
     <string name="updLater">Plus tard</string>
     <string name="updReady">La version {version} est prête à être installée</string>
     <string name="updRestartNow">Redémarrer maintenant</string>

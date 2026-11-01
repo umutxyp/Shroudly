@@ -324,9 +324,10 @@ class ShroudlyProxyService : Service() {
      * and then otherwise), as the VPN mode's tick does. */
     private fun tick() {
         if (!active) return
-        // Now and then: Google Play's flag, and the suggestion's notice (StoreCards).
+        // Now and then: Google Play's flag and the suggestion's notice
+        // (StoreCards), and the APK's update looked for (ApkUpdates).
         val up = SystemClock.uptimeMillis()
-        if (storeLookAt == 0L || up - storeLookAt >= StoreCards.LOOK_EVERY_MS) { storeLookAt = up; StoreCards.look(this, port, null) }
+        if (storeLookAt == 0L || up - storeLookAt >= StoreCards.LOOK_EVERY_MS) { storeLookAt = up; StoreCards.look(this, port, null); ApkUpdates.look(this, port, null) }
         val e = engine ?: return
         if (!e.running) { engineGone(e, "is no longer running"); return }
         val now = SystemClock.uptimeMillis()

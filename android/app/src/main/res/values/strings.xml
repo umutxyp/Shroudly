@@ -86,8 +86,12 @@
     <string name="androidTileAddDesc">A Shroudly tile in the panel at the top of the screen turns protection on and off with one tap.</string>
     <string name="androidTileAdded">The Shroudly tile is in Quick Settings.</string>
     <string name="androidTileHowTo">Pull the panel at the top of the screen all the way down, tap the pencil (edit), and drag the Shroudly tile up among the others.</string>
+    <string name="androidUnknownSources">To install updates, Android needs your permission for Shroudly to install apps. On the next screen, turn on \"Allow from this source\", then come back here.</string>
     <string name="androidUpdateImportant">Version {version} is an important update</string>
+    <string name="androidUpdateInstallTap">Tap to install it.</string>
+    <string name="androidUpdateNotSigned">The downloaded update is not signed like this copy of Shroudly, so it was not installed.</string>
     <string name="androidUpdateReadyTap">Tap to restart Shroudly and finish the update. Protection comes back on by itself.</string>
+    <string name="androidUpdateTap">Tap to download and install it.</string>
     <string name="androidUseProxyOnly">Use Proxy only</string>
     <string name="androidVpnBlocked">Android did not ask for the VPN permission: another VPN app is set as always-on VPN, or this phone does not allow VPN changes. Turn always-on off for that app in Android\'s VPN settings, or use Proxy only, which keeps the other VPN.</string>
     <string name="androidVpnDenied">Shroudly needs the VPN permission to carry your apps\' connections.</string>
@@ -182,6 +186,7 @@
     <string name="updAvailable">Version {version} is available</string>
     <string name="updDownload">Download and install</string>
     <string name="updDownloading" formatted="false">Downloading version {version}… {percent}%</string>
+    <string name="updInstallFailed">The update could not be installed. Try again, or get it from the download page.</string>
     <string name="updLater">Later</string>
     <string name="updReady">Version {version} is ready to install</string>
     <string name="updRestartNow">Restart now</string>

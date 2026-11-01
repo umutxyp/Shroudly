@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The APK from GitHub only (build.gradle.kts adds it to that build's
+     manifest): it installs its own updates through Android's installer,
+     which asks the user (ApkUpdates). The build for Google Play has neither
+     the permission nor the receiver: Play updates it. -->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+
+    <application>
+        <receiver
+            android:name=".UpdateInstallReceiver"
+            android:exported="false" />
+    </application>
+</manifest>

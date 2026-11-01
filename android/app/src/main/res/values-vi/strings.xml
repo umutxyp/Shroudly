@@ -86,8 +86,12 @@
     <string name="androidTileAddDesc">Ô Shroudly trong bảng ở đầu màn hình bật và tắt bảo vệ chỉ bằng một lần chạm.</string>
     <string name="androidTileAdded">Ô Shroudly đã có trong Cài đặt nhanh.</string>
     <string name="androidTileHowTo">Kéo bảng ở đầu màn hình xuống hết cỡ, chạm vào bút chì (chỉnh sửa) rồi kéo ô Shroudly vào giữa các ô khác.</string>
+    <string name="androidUnknownSources">Để cài đặt bản cập nhật, Android cần bạn cho phép Shroudly cài đặt ứng dụng. Ở màn hình tiếp theo, bật \"Cho phép từ nguồn này\", rồi quay lại đây.</string>
     <string name="androidUpdateImportant">Phiên bản {version} là bản cập nhật quan trọng</string>
+    <string name="androidUpdateInstallTap">Chạm để cài đặt.</string>
+    <string name="androidUpdateNotSigned">Bản cập nhật đã tải không được ký giống bản Shroudly này, nên không được cài đặt.</string>
     <string name="androidUpdateReadyTap">Chạm để khởi động lại Shroudly và hoàn tất cập nhật. Bảo vệ sẽ tự bật lại.</string>
+    <string name="androidUpdateTap">Chạm để tải xuống và cài đặt.</string>
     <string name="androidUseProxyOnly">Dùng Chỉ proxy</string>
     <string name="androidVpnBlocked">Android không hỏi quyền VPN: một ứng dụng VPN khác đang được đặt làm VPN luôn bật, hoặc điện thoại này không cho phép thay đổi VPN. Hãy tắt chế độ luôn bật cho ứng dụng đó trong cài đặt VPN của Android, hoặc dùng Chỉ proxy để giữ VPN khác của bạn.</string>
     <string name="androidVpnDenied">Shroudly cần quyền VPN để chuyển tải kết nối của các ứng dụng.</string>
@@ -182,6 +186,7 @@
     <string name="updAvailable">Đã có phiên bản {version}</string>
     <string name="updDownload">Tải xuống và cài đặt</string>
     <string name="updDownloading" formatted="false">Đang tải xuống phiên bản {version}… {percent}%</string>
+    <string name="updInstallFailed">Không thể cài đặt bản cập nhật. Hãy thử lại, hoặc tải về từ trang tải xuống.</string>
     <string name="updLater">Để sau</string>
     <string name="updReady">Phiên bản {version} đã sẵn sàng để cài đặt</string>
     <string name="updRestartNow">Khởi động lại ngay</string>

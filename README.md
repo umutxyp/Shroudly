@@ -931,9 +931,15 @@ Shroudly does not collect personal data. These are the only things that contact 
   [`server/stats`](server/stats/server.js).
 - **Update checks** (GitHub): the app downloads the release feed from
   `github.com/umutxyp/Shroudly` (the Android app asks GitHub's API for the
-  latest release; it never downloads or installs anything by itself). The
-  Android app installed or updated by Google Play makes no update check at
-  all: Play updates it.
+  latest release, when its window opens and now and then while protection is
+  on, and says a new version once in a notification). The APK from GitHub
+  downloads a new version only when you tap **Download and install**, from
+  GitHub or, where GitHub's file host is blocked, the same file from
+  `shroudly.codeshare.me/dl`, through the protected connection while
+  protection is on; it installs it only if it is signed with the same
+  certificate as the installed app, and Android's own installer asks you
+  first. The Android app installed or updated by Google Play makes no update
+  check at all: Play updates it.
 - **The site itself**, when you test a site in Settings, when the front page
   of a site you use keeps being cut off, and Roblox's once Roblox connects
   through Games and apps mode: one request for its front page, through the

@@ -86,8 +86,12 @@
     <string name="androidTileAddDesc">Jubin Shroudly dalam panel di bahagian atas skrin menghidupkan dan mematikan perlindungan dengan satu ketikan.</string>
     <string name="androidTileAdded">Jubin Shroudly ada dalam Tetapan Pantas.</string>
     <string name="androidTileHowTo">Tarik panel di bahagian atas skrin sepenuhnya ke bawah, ketik pensel (edit), dan seret jubin Shroudly ke antara jubin lain.</string>
+    <string name="androidUnknownSources">Untuk memasang kemas kini, Android memerlukan kebenaran anda supaya Shroudly boleh memasang apl. Pada skrin seterusnya, hidupkan \"Benarkan daripada sumber ini\", kemudian kembali ke sini.</string>
     <string name="androidUpdateImportant">Versi {version} ialah kemas kini penting</string>
+    <string name="androidUpdateInstallTap">Ketik untuk memasangnya.</string>
+    <string name="androidUpdateNotSigned">Kemas kini yang dimuat turun tidak ditandatangani seperti salinan Shroudly ini, jadi ia tidak dipasang.</string>
     <string name="androidUpdateReadyTap">Ketik untuk memulakan semula Shroudly dan menyelesaikan kemas kini. Perlindungan akan hidup semula dengan sendirinya.</string>
+    <string name="androidUpdateTap">Ketik untuk memuat turun dan memasangnya.</string>
     <string name="androidUseProxyOnly">Guna Proksi sahaja</string>
     <string name="androidVpnBlocked">Android tidak meminta kebenaran VPN: aplikasi VPN lain ditetapkan sebagai VPN sentiasa hidup, atau telefon ini tidak membenarkan perubahan VPN. Matikan sentiasa hidup untuk aplikasi itu dalam tetapan VPN Android, atau gunakan Proksi sahaja, yang mengekalkan VPN anda yang lain.</string>
     <string name="androidVpnDenied">Shroudly memerlukan kebenaran VPN untuk membawa sambungan aplikasi anda.</string>
@@ -182,6 +186,7 @@
     <string name="updAvailable">Versi {version} tersedia</string>
     <string name="updDownload">Muat turun dan pasang</string>
     <string name="updDownloading" formatted="false">Memuat turun versi {version}… {percent}%</string>
+    <string name="updInstallFailed">Kemas kini tidak dapat dipasang. Cuba lagi, atau dapatkannya dari halaman muat turun.</string>
     <string name="updLater">Kemudian</string>
     <string name="updReady">Versi {version} sedia untuk dipasang</string>
     <string name="updRestartNow">Mula semula kini</string>

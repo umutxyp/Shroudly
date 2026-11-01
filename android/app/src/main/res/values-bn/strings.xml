@@ -86,8 +86,12 @@
     <string name="androidTileAddDesc">স্ক্রিনের ওপরের প্যানেলে একটি Shroudly টাইল এক ট্যাপে সুরক্ষা চালু ও বন্ধ করে।</string>
     <string name="androidTileAdded">Shroudly টাইলটি কুইক সেটিংসে আছে।</string>
     <string name="androidTileHowTo">স্ক্রিনের ওপরের প্যানেলটি পুরো নিচে টানুন, পেন্সিলে (সম্পাদনা) ট্যাপ করুন, আর Shroudly টাইলটি অন্যগুলোর মধ্যে টেনে আনুন।</string>
+    <string name="androidUnknownSources">আপডেট ইনস্টল করতে, Shroudly যেন অ্যাপ ইনস্টল করতে পারে সেজন্য Android-এর আপনার অনুমতি দরকার। পরের স্ক্রিনে \"এই উৎস থেকে অনুমতি দিন\" চালু করে এখানে ফিরে আসুন।</string>
     <string name="androidUpdateImportant">সংস্করণ {version} একটি গুরুত্বপূর্ণ আপডেট</string>
+    <string name="androidUpdateInstallTap">ইনস্টল করতে ট্যাপ করুন।</string>
+    <string name="androidUpdateNotSigned">ডাউনলোড করা আপডেটটি Shroudly-এর এই কপির মতো স্বাক্ষরিত নয়, তাই এটি ইনস্টল করা হয়নি।</string>
     <string name="androidUpdateReadyTap">Shroudly আবার চালু করে আপডেট শেষ করতে ট্যাপ করুন। সুরক্ষা নিজে থেকেই আবার চালু হবে।</string>
+    <string name="androidUpdateTap">ডাউনলোড করে ইনস্টল করতে ট্যাপ করুন।</string>
     <string name="androidUseProxyOnly">শুধু প্রক্সি ব্যবহার করুন</string>
     <string name="androidVpnBlocked">Android VPN-এর অনুমতি চায়নি: অন্য একটি VPN অ্যাপ সর্বদা-চালু VPN হিসেবে সেট আছে, অথবা এই ফোন VPN পরিবর্তনের অনুমতি দেয় না। Android-এর VPN সেটিংসে ওই অ্যাপের সর্বদা-চালু বন্ধ করুন, অথবা শুধু প্রক্সি ব্যবহার করুন, যা অন্য VPN চালু রাখে।</string>
     <string name="androidVpnDenied">আপনার অ্যাপগুলোর সংযোগ বহন করতে Shroudly-এর VPN অনুমতি দরকার।</string>
@@ -182,6 +186,7 @@
     <string name="updAvailable">সংস্করণ {version} পাওয়া যাচ্ছে</string>
     <string name="updDownload">ডাউনলোড ও ইনস্টল করুন</string>
     <string name="updDownloading" formatted="false">সংস্করণ {version} ডাউনলোড হচ্ছে… {percent}%</string>
+    <string name="updInstallFailed">আপডেটটি ইনস্টল করা যায়নি। আবার চেষ্টা করুন, অথবা ডাউনলোড পেজ থেকে নিন।</string>
     <string name="updLater">পরে</string>
     <string name="updReady">সংস্করণ {version} ইনস্টলের জন্য প্রস্তুত</string>
     <string name="updRestartNow">এখনই আবার চালু করুন</string>

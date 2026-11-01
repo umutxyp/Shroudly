@@ -86,8 +86,12 @@
     <string name="androidTileAddDesc">Un icono de Shroudly en el panel de la parte superior de la pantalla activa y desactiva la protección con un toque.</string>
     <string name="androidTileAdded">El icono de Shroudly está en Ajustes rápidos.</string>
     <string name="androidTileHowTo">Desliza el panel de la parte superior de la pantalla del todo hacia abajo, toca el lápiz (editar) y arrastra el icono de Shroudly junto a los demás.</string>
+    <string name="androidUnknownSources">Para instalar actualizaciones, Android necesita tu permiso para que Shroudly instale aplicaciones. En la siguiente pantalla, activa «Permitir de esta fuente» y vuelve aquí.</string>
     <string name="androidUpdateImportant">La versión {version} es una actualización importante</string>
+    <string name="androidUpdateInstallTap">Toca para instalarla.</string>
+    <string name="androidUpdateNotSigned">La actualización descargada no está firmada como esta copia de Shroudly, así que no se instaló.</string>
     <string name="androidUpdateReadyTap">Toca para reiniciar Shroudly y terminar la actualización. La protección se vuelve a activar sola.</string>
+    <string name="androidUpdateTap">Toca para descargarla e instalarla.</string>
     <string name="androidUseProxyOnly">Usar Solo proxy</string>
     <string name="androidVpnBlocked">Android no pidió el permiso de VPN: otra app de VPN está configurada como VPN siempre activa, o este teléfono no permite cambiar la VPN. Desactiva «siempre activa» para esa app en los ajustes de VPN de Android, o usa Solo proxy, que mantiene tu otra VPN.</string>
     <string name="androidVpnDenied">Shroudly necesita el permiso de VPN para llevar las conexiones de tus apps.</string>
@@ -182,6 +186,7 @@
     <string name="updAvailable">La versión {version} está disponible</string>
     <string name="updDownload">Descargar e instalar</string>
     <string name="updDownloading" formatted="false">Descargando la versión {version}… {percent} %</string>
+    <string name="updInstallFailed">No se pudo instalar la actualización. Vuelve a intentarlo o descárgala desde la página de descarga.</string>
     <string name="updLater">Más tarde</string>
     <string name="updReady">La versión {version} está lista para instalarse</string>
     <string name="updRestartNow">Reiniciar ahora</string>

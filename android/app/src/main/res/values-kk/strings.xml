@@ -86,8 +86,12 @@
     <string name="androidTileAddDesc">Экранның жоғарғы панеліндегі Shroudly тақтасы қорғауды бір түртумен қосып-өшіреді.</string>
     <string name="androidTileAdded">Shroudly тақтасы жылдам баптауларда.</string>
     <string name="androidTileHowTo">Экранның жоғарғы панелін соңына дейін төмен тартыңыз, қаламды (өңдеу) түртіңіз және Shroudly тақтасын басқаларының арасына сүйреңіз.</string>
+    <string name="androidUnknownSources">Жаңартуларды орнату үшін Android-ке Shroudly-дің қолданба орнатуына сіздің рұқсатыңыз керек. Келесі экранда «Осы көзден рұқсат ету» дегенді қосып, осында оралыңыз.</string>
     <string name="androidUpdateImportant">{version} нұсқасы — маңызды жаңарту</string>
+    <string name="androidUpdateInstallTap">Орнату үшін түртіңіз.</string>
+    <string name="androidUpdateNotSigned">Жүктелген жаңарту Shroudly-дің осы көшірмесі сияқты қолтаңбаланбаған, сондықтан орнатылмады.</string>
     <string name="androidUpdateReadyTap">Shroudly-ді қайта қосып, жаңартуды аяқтау үшін түртіңіз. Қорғау өзі қайта қосылады.</string>
+    <string name="androidUpdateTap">Жүктеп алып, орнату үшін түртіңіз.</string>
     <string name="androidUseProxyOnly">«Тек прокси» қолдану</string>
     <string name="androidVpnBlocked">Android VPN рұқсатын сұрамады: басқа VPN қолданбасы әрдайым қосулы VPN ретінде орнатылған немесе бұл телефон VPN өзгертуге рұқсат бермейді. Android-тың VPN баптауларында сол қолданба үшін «Әрдайым қосулы» дегенді өшіріңіз немесе басқа VPN-ді сақтайтын «Тек прокси» режимін қолданыңыз.</string>
     <string name="androidVpnDenied">Қолданбаларыңыздың қосылымдарын өткізу үшін Shroudly-ге VPN рұқсаты керек.</string>
@@ -182,6 +186,7 @@
     <string name="updAvailable">{version} нұсқасы қолжетімді</string>
     <string name="updDownload">Жүктеп алып орнату</string>
     <string name="updDownloading" formatted="false">{version} нұсқасы жүктелуде… {percent}%</string>
+    <string name="updInstallFailed">Жаңартуды орнату мүмкін болмады. Қайталап көріңіз немесе оны жүктеу бетінен алыңыз.</string>
     <string name="updLater">Кейінірек</string>
     <string name="updReady">{version} нұсқасы орнатуға дайын</string>
     <string name="updRestartNow">Қазір қайта қосу</string>

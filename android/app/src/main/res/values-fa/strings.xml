@@ -86,8 +86,12 @@
     <string name="androidTileAddDesc">یک کاشی Shroudly در پنل بالای صفحه، محافظت را با یک لمس روشن و خاموش می‌کند.</string>
     <string name="androidTileAdded">کاشی Shroudly در تنظیمات سریع است.</string>
     <string name="androidTileHowTo">پنل بالای صفحه را تا آخر پایین بکشید، روی مداد (ویرایش) بزنید و کاشی Shroudly را میان بقیه بکشید.</string>
+    <string name="androidUnknownSources">برای نصب به‌روزرسانی‌ها، Android به اجازهٔ شما نیاز دارد تا Shroudly بتواند برنامه نصب کند. در صفحهٔ بعد «اجازه دادن از این منبع» را روشن کنید و به اینجا برگردید.</string>
     <string name="androidUpdateImportant">نسخهٔ {version} یک به‌روزرسانی مهم است</string>
+    <string name="androidUpdateInstallTap">برای نصب آن بزنید.</string>
+    <string name="androidUpdateNotSigned">به‌روزرسانی دانلودشده مانند این نسخه از Shroudly امضا نشده، پس نصب نشد.</string>
     <string name="androidUpdateReadyTap">برای راه‌اندازی دوبارهٔ Shroudly و پایان به‌روزرسانی ضربه بزنید. محافظت خودش دوباره روشن می‌شود.</string>
+    <string name="androidUpdateTap">برای دانلود و نصب آن بزنید.</string>
     <string name="androidUseProxyOnly">استفاده از «فقط پراکسی»</string>
     <string name="androidVpnBlocked">Android مجوز VPN را درخواست نکرد: یک برنامهٔ VPN دیگر به‌عنوان VPN همیشه روشن تنظیم شده، یا این گوشی اجازهٔ تغییر VPN را نمی‌دهد. در تنظیمات VPN اندروید، «همیشه روشن» را برای آن برنامه خاموش کنید، یا از «فقط پراکسی» استفاده کنید که VPN دیگرتان را نگه می‌دارد.</string>
     <string name="androidVpnDenied">Shroudly برای عبور دادن اتصال‌های برنامه‌هایتان به مجوز VPN نیاز دارد.</string>
@@ -182,6 +186,7 @@
     <string name="updAvailable">نسخهٔ {version} در دسترس است</string>
     <string name="updDownload">دانلود و نصب</string>
     <string name="updDownloading" formatted="false">در حال دانلود نسخهٔ {version}… {percent}%</string>
+    <string name="updInstallFailed">به‌روزرسانی نصب نشد. دوباره تلاش کنید، یا آن را از صفحهٔ دانلود بگیرید.</string>
     <string name="updLater">بعداً</string>
     <string name="updReady">نسخهٔ {version} آمادهٔ نصب است</string>
     <string name="updRestartNow">اکنون راه‌اندازی دوباره</string>

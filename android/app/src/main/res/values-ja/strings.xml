@@ -86,8 +86,12 @@
     <string name="androidTileAddDesc">画面上部のパネルにある Shroudly のタイルで、保護をワンタップでオン・オフできます。</string>
     <string name="androidTileAdded">Shroudly のタイルはクイック設定にあります。</string>
     <string name="androidTileHowTo">画面上部のパネルを一番下まで引き下げ、鉛筆（編集）をタップして、Shroudly のタイルをほかのタイルの間にドラッグしてください。</string>
+    <string name="androidUnknownSources">アップデートをインストールするには、Shroudly がアプリをインストールすることを Android で許可する必要があります。次の画面で［この提供元のアプリを許可］をオンにしてから、ここに戻ってください。</string>
     <string name="androidUpdateImportant">バージョン {version} は重要なアップデートです</string>
+    <string name="androidUpdateInstallTap">タップしてインストールします。</string>
+    <string name="androidUpdateNotSigned">ダウンロードしたアップデートはこの Shroudly と同じ署名ではないため、インストールしませんでした。</string>
     <string name="androidUpdateReadyTap">タップすると Shroudly を再起動してアップデートを完了します。保護は自動的にオンに戻ります。</string>
+    <string name="androidUpdateTap">タップしてダウンロードとインストールを行います。</string>
     <string name="androidUseProxyOnly">プロキシのみを使う</string>
     <string name="androidVpnBlocked">Android が VPN の許可を求めませんでした。ほかの VPN アプリが常時接続 VPN に設定されているか、このスマホでは VPN の変更が許可されていません。Android の VPN 設定でそのアプリの常時接続をオフにするか、ほかの VPN をそのまま使える「プロキシのみ」を使ってください。</string>
     <string name="androidVpnDenied">アプリの通信を中継するには、Shroudly に VPN の許可が必要です。</string>
@@ -182,6 +186,7 @@
     <string name="updAvailable">バージョン {version} が利用可能です</string>
     <string name="updDownload">ダウンロードしてインストール</string>
     <string name="updDownloading" formatted="false">バージョン {version} をダウンロード中… {percent}%</string>
+    <string name="updInstallFailed">アップデートをインストールできませんでした。もう一度試すか、ダウンロードページから入手してください。</string>
     <string name="updLater">後で</string>
     <string name="updReady">バージョン {version} をインストールする準備ができました</string>
     <string name="updRestartNow">今すぐ再起動</string>

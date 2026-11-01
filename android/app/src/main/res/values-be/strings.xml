@@ -86,8 +86,12 @@
     <string name="androidTileAddDesc">Пліта Shroudly на панэлі ўверсе экрана ўключае і выключае абарону адным дотыкам.</string>
     <string name="androidTileAdded">Пліта Shroudly у хуткіх наладах.</string>
     <string name="androidTileHowTo">Апусціце панэль уверсе экрана да канца, націсніце аловак (змяніць) і перацягніце пліту Shroudly да астатніх.</string>
+    <string name="androidUnknownSources">Каб усталёўваць абнаўленні, Android патрэбны ваш дазвол, каб Shroudly мог усталёўваць праграмы. На наступным экране ўключыце «Дазволіць з гэтай крыніцы» і вярніцеся сюды.</string>
     <string name="androidUpdateImportant">Версія {version} — важнае абнаўленне</string>
+    <string name="androidUpdateInstallTap">Націсніце, каб усталяваць.</string>
+    <string name="androidUpdateNotSigned">Спампаванае абнаўленне падпісана не так, як гэтая копія Shroudly, таму яно не ўсталявана.</string>
     <string name="androidUpdateReadyTap">Націсніце, каб перазапусціць Shroudly і завяршыць абнаўленне. Абарона ўключыцца сама.</string>
+    <string name="androidUpdateTap">Націсніце, каб спампаваць і ўсталяваць.</string>
     <string name="androidUseProxyOnly">Толькі проксі</string>
     <string name="androidVpnBlocked">Android не папрасіў дазволу VPN: іншая праграма VPN настроена як заўсёды ўключаны VPN, або гэты тэлефон не дазваляе мяняць VPN. Выключыце «Заўсёды ўключаны» для той праграмы ў наладах VPN Android або выкарыстоўвайце «Толькі проксі», які пакідае іншы VPN.</string>
     <string name="androidVpnDenied">Shroudly патрэбны дазвол VPN, каб прапускаць злучэнні вашых праграм.</string>
@@ -182,6 +186,7 @@
     <string name="updAvailable">Даступная версія {version}</string>
     <string name="updDownload">Спампаваць і ўсталяваць</string>
     <string name="updDownloading" formatted="false">Спампоўка версіі {version}… {percent} %</string>
+    <string name="updInstallFailed">Не ўдалося ўсталяваць абнаўленне. Паспрабуйце яшчэ раз або спампуйце яго са старонкі спампоўкі.</string>
     <string name="updLater">Пазней</string>
     <string name="updReady">Версія {version} гатовая да ўсталявання</string>
     <string name="updRestartNow">Перазапусціць</string>

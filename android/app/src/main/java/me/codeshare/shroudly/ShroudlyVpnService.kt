@@ -698,9 +698,10 @@ class ShroudlyVpnService : VpnService() {
 
     private fun tick() {
         if (!active) return
-        // Now and then: Google Play's flag, and the suggestion's notice (StoreCards).
+        // Now and then: Google Play's flag and the suggestion's notice
+        // (StoreCards), and the APK's update looked for (ApkUpdates).
         val up = SystemClock.uptimeMillis()
-        if (storeLookAt == 0L || up - storeLookAt >= StoreCards.LOOK_EVERY_MS) { storeLookAt = up; StoreCards.look(this, port, auth) }
+        if (storeLookAt == 0L || up - storeLookAt >= StoreCards.LOOK_EVERY_MS) { storeLookAt = up; StoreCards.look(this, port, auth); ApkUpdates.look(this, port, auth) }
         if (tunnelRunning && !Tun2Socks.TProxyIsRunning()) {
             onTunnelStopped()
             return

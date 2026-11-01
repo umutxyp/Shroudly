@@ -132,6 +132,14 @@ android {
     }
 }
 
+// The APK installs its own updates (ApkUpdates): the permission and the
+// installer's receiver are in its manifest only, never in the bundle for Play.
+androidComponents {
+    onVariants { variant ->
+        if (!playBuild) variant.sources.manifests?.addStaticManifestFile("src/apk/AndroidManifest.xml")
+    }
+}
+
 dependencies {
     // Google Play's in-app updates (Play Core SDK Terms of Service, not open
     // source): the bundle for Play only. Not app-update-ktx, which brings

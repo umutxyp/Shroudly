@@ -86,8 +86,12 @@
     <string name="androidTileAddDesc">אריח Shroudly בלוח שבראש המסך מפעיל ומכבה את ההגנה בהקשה אחת.</string>
     <string name="androidTileAdded">אריח Shroudly נמצא בהגדרות המהירות.</string>
     <string name="androidTileHowTo">משכו את הלוח שבראש המסך עד הסוף למטה, הקישו על העיפרון (עריכה) וגררו את אריח Shroudly אל בין האחרים.</string>
+    <string name="androidUnknownSources">כדי להתקין עדכונים, Android צריך את האישור שלך כדי ש-Shroudly יוכל להתקין אפליקציות. במסך הבא, הפעילו את \'אישור ממקור זה\' וחזרו לכאן.</string>
     <string name="androidUpdateImportant">גרסה {version} היא עדכון חשוב</string>
+    <string name="androidUpdateInstallTap">הקישו כדי להתקין.</string>
+    <string name="androidUpdateNotSigned">העדכון שהורד לא חתום כמו העותק הזה של Shroudly, ולכן לא הותקן.</string>
     <string name="androidUpdateReadyTap">הקישו כדי להפעיל מחדש את Shroudly ולסיים את העדכון. ההגנה תופעל שוב מעצמה.</string>
+    <string name="androidUpdateTap">הקישו כדי להוריד ולהתקין.</string>
     <string name="androidUseProxyOnly">שימוש ב\'פרוקסי בלבד\'</string>
     <string name="androidVpnBlocked">Android לא ביקש את הרשאת ה-VPN: אפליקציית VPN אחרת מוגדרת כ-VPN שפועל תמיד, או שהטלפון לא מאפשר שינויים ב-VPN. כבו את \'פועל תמיד\' לאותה אפליקציה בהגדרות ה-VPN של Android, או השתמשו ב\'פרוקסי בלבד\', ששומר על ה-VPN האחר.</string>
     <string name="androidVpnDenied">Shroudly צריך הרשאת VPN כדי להעביר את החיבורים של האפליקציות שלך.</string>
@@ -182,6 +186,7 @@
     <string name="updAvailable">גרסה {version} זמינה</string>
     <string name="updDownload">להוריד ולהתקין</string>
     <string name="updDownloading" formatted="false">מוריד את גרסה {version}… {percent}%</string>
+    <string name="updInstallFailed">לא ניתן היה להתקין את העדכון. אפשר לנסות שוב, או להוריד אותו מדף ההורדה.</string>
     <string name="updLater">אחר כך</string>
     <string name="updReady">גרסה {version} מוכנה להתקנה</string>
     <string name="updRestartNow">להפעיל מחדש עכשיו</string>

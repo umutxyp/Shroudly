@@ -86,8 +86,12 @@
     <string name="androidTileAddDesc">በማያ ገጹ አናት ባለው ፓነል ውስጥ ያለ የShroudly ሰድር ጥበቃን በአንድ ንክኪ ያበራል ያጠፋል።</string>
     <string name="androidTileAdded">የShroudly ሰድር በፈጣን ቅንብሮች ውስጥ አለ።</string>
     <string name="androidTileHowTo">በማያ ገጹ አናት ያለውን ፓነል እስከ መጨረሻው ወደ ታች ይጎትቱ፣ እርሳሱን (አርትዕ) ይንኩ፣ የShroudly ሰድርን በሌሎቹ መካከል ይጎትቱት።</string>
+    <string name="androidUnknownSources">ዝማኔዎችን ለመጫን Android፣ Shroudly መተግበሪያዎችን እንዲጭን የእርስዎን ፈቃድ ይፈልጋል። በሚቀጥለው ማያ ገጽ ላይ «ከዚህ ምንጭ ፍቀድ»ን ያብሩና ወደዚህ ይመለሱ።</string>
     <string name="androidUpdateImportant">ስሪት {version} አስፈላጊ ዝማኔ ነው</string>
+    <string name="androidUpdateInstallTap">ለመጫን ይንኩ።</string>
+    <string name="androidUpdateNotSigned">የወረደው ዝማኔ እንደዚህ የShroudly ቅጂ አልተፈረመም፤ ስለዚህ አልተጫነም።</string>
     <string name="androidUpdateReadyTap">Shroudlyን ዳግም ለማስጀመር እና ዝማኔውን ለመጨረስ ይንኩ። ጥበቃ በራሱ እንደገና ይበራል።</string>
+    <string name="androidUpdateTap">ለማውረድና ለመጫን ይንኩ።</string>
     <string name="androidUseProxyOnly">ፕሮክሲ ብቻ ተጠቀም</string>
     <string name="androidVpnBlocked">Android የVPN ፈቃድ አልጠየቀም፦ ሌላ የVPN መተግበሪያ ሁልጊዜ የበራ VPN ሆኖ ተቀናብሯል፣ ወይም ይህ ስልክ የVPN ለውጦችን አይፈቅድም። በAndroid የVPN ቅንብሮች ውስጥ ለዚያ መተግበሪያ ሁልጊዜ-በርቷልን ያጥፉ፣ ወይም ሌላውን VPN የሚያቆየውን ፕሮክሲ ብቻ ይጠቀሙ።</string>
     <string name="androidVpnDenied">Shroudly የመተግበሪያዎችዎን ግንኙነቶች ለማሳለፍ የVPN ፈቃድ ያስፈልገዋል።</string>
@@ -182,6 +186,7 @@
     <string name="updAvailable">ስሪት {version} ይገኛል</string>
     <string name="updDownload">አውርደው ይጫኑ</string>
     <string name="updDownloading" formatted="false">ስሪት {version} በማውረድ ላይ… {percent}%</string>
+    <string name="updInstallFailed">ዝማኔው ሊጫን አልቻለም። እንደገና ይሞክሩ፣ ወይም ከማውረጃ ገጹ ያግኙት።</string>
     <string name="updLater">በኋላ</string>
     <string name="updReady">ስሪት {version} ለመጫን ዝግጁ ነው</string>
     <string name="updRestartNow">አሁን ዳግም ያስጀምሩ</string>

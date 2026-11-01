@@ -86,8 +86,12 @@
     <string name="androidTileAddDesc">स्क्रीन के ऊपर के पैनल में Shroudly की टाइल एक टैप में सुरक्षा चालू और बंद करती है।</string>
     <string name="androidTileAdded">Shroudly की टाइल क्विक सेटिंग्स में है।</string>
     <string name="androidTileHowTo">स्क्रीन के ऊपर का पैनल पूरा नीचे खींचें, पेंसिल (संपादित करें) पर टैप करें, और Shroudly की टाइल को बाकी टाइलों के बीच खींचें।</string>
+    <string name="androidUnknownSources">अपडेट इंस्टॉल करने के लिए Android को आपकी अनुमति चाहिए कि Shroudly ऐप्स इंस्टॉल कर सके। अगली स्क्रीन पर \"इस स्रोत से अनुमति दें\" चालू करें, फिर यहाँ लौटें।</string>
     <string name="androidUpdateImportant">संस्करण {version} एक ज़रूरी अपडेट है</string>
+    <string name="androidUpdateInstallTap">इंस्टॉल करने के लिए टैप करें।</string>
+    <string name="androidUpdateNotSigned">डाउनलोड किया गया अपडेट Shroudly की इस कॉपी की तरह साइन नहीं है, इसलिए इसे इंस्टॉल नहीं किया गया।</string>
     <string name="androidUpdateReadyTap">Shroudly को फिर से शुरू करके अपडेट पूरा करने के लिए टैप करें। सुरक्षा अपने आप फिर से चालू हो जाएगी।</string>
+    <string name="androidUpdateTap">डाउनलोड करके इंस्टॉल करने के लिए टैप करें।</string>
     <string name="androidUseProxyOnly">केवल प्रॉक्सी इस्तेमाल करें</string>
     <string name="androidVpnBlocked">Android ने VPN अनुमति नहीं माँगी: कोई दूसरा VPN ऐप हमेशा चालू VPN के रूप में सेट है, या यह फ़ोन VPN बदलने की अनुमति नहीं देता। Android की VPN सेटिंग्स में उस ऐप के लिए हमेशा चालू बंद करें, या केवल प्रॉक्सी इस्तेमाल करें, जो दूसरा VPN बनाए रखता है।</string>
     <string name="androidVpnDenied">आपके ऐप्स के कनेक्शन संभालने के लिए Shroudly को VPN अनुमति चाहिए।</string>
@@ -182,6 +186,7 @@
     <string name="updAvailable">संस्करण {version} उपलब्ध है</string>
     <string name="updDownload">डाउनलोड करें और इंस्टॉल करें</string>
     <string name="updDownloading" formatted="false">संस्करण {version} डाउनलोड हो रहा है… {percent}%</string>
+    <string name="updInstallFailed">अपडेट इंस्टॉल नहीं हो सका। फिर कोशिश करें, या इसे डाउनलोड पेज से लें।</string>
     <string name="updLater">बाद में</string>
     <string name="updReady">संस्करण {version} इंस्टॉल होने के लिए तैयार है</string>
     <string name="updRestartNow">अभी फिर से शुरू करें</string>

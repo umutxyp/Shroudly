@@ -86,8 +86,12 @@
     <string name="androidTileAddDesc">اسکرین کے اوپر والے پینل میں Shroudly کا ٹائل ایک ٹیپ سے تحفظ آن اور آف کرتا ہے۔</string>
     <string name="androidTileAdded">Shroudly کا ٹائل فوری ترتیبات میں ہے۔</string>
     <string name="androidTileHowTo">اسکرین کے اوپر والا پینل پورا نیچے کھینچیں، پنسل (ترمیم) پر ٹیپ کریں، اور Shroudly کا ٹائل باقیوں کے درمیان گھسیٹیں۔</string>
+    <string name="androidUnknownSources">اپ ڈیٹس انسٹال کرنے کے لیے Android کو آپ کی اجازت درکار ہے کہ Shroudly ایپس انسٹال کر سکے۔ اگلی اسکرین پر \"اس ماخذ سے اجازت دیں\" آن کریں، پھر یہاں واپس آئیں۔</string>
     <string name="androidUpdateImportant">ورژن {version} ایک اہم اپ ڈیٹ ہے</string>
+    <string name="androidUpdateInstallTap">انسٹال کرنے کے لیے ٹیپ کریں۔</string>
+    <string name="androidUpdateNotSigned">ڈاؤن لوڈ کی گئی اپ ڈیٹ Shroudly کی اس کاپی کی طرح سائن نہیں، اس لیے انسٹال نہیں کی گئی۔</string>
     <string name="androidUpdateReadyTap">Shroudly کو دوبارہ شروع کر کے اپ ڈیٹ مکمل کرنے کے لیے تھپتھپائیں۔ تحفظ خود بخود دوبارہ آن ہو جائے گا۔</string>
+    <string name="androidUpdateTap">ڈاؤن لوڈ اور انسٹال کرنے کے لیے ٹیپ کریں۔</string>
     <string name="androidUseProxyOnly">صرف پراکسی استعمال کریں</string>
     <string name="androidVpnBlocked">Android نے VPN کی اجازت نہیں مانگی: کوئی دوسری VPN ایپ ہمیشہ آن VPN کے طور پر سیٹ ہے، یا یہ فون VPN بدلنے کی اجازت نہیں دیتا۔ Android کی VPN سیٹنگز میں اس ایپ کے لیے ہمیشہ آن بند کریں، یا صرف پراکسی استعمال کریں، جو دوسرا VPN برقرار رکھتی ہے۔</string>
     <string name="androidVpnDenied">آپ کی ایپس کے کنکشن لے جانے کے لیے Shroudly کو VPN کی اجازت درکار ہے۔</string>
@@ -182,6 +186,7 @@
     <string name="updAvailable">ورژن {version} دستیاب ہے</string>
     <string name="updDownload">ڈاؤن لوڈ اور انسٹال کریں</string>
     <string name="updDownloading" formatted="false">ورژن {version} ڈاؤن لوڈ ہو رہا ہے… {percent}%</string>
+    <string name="updInstallFailed">اپ ڈیٹ انسٹال نہیں ہو سکی۔ دوبارہ کوشش کریں، یا اسے ڈاؤن لوڈ صفحے سے حاصل کریں۔</string>
     <string name="updLater">بعد میں</string>
     <string name="updReady">ورژن {version} انسٹال ہونے کے لیے تیار ہے</string>
     <string name="updRestartNow">ابھی دوبارہ شروع کریں</string>

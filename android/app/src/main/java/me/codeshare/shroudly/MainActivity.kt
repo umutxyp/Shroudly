@@ -46,6 +46,9 @@ class MainActivity : Activity() {
         const val EXTRA_CONFIRM_STOP = "confirmStop"
         /* The suggestion's notification (StoreCards.look): its card, shown. */
         const val EXTRA_STORE_CARD = "storeCard"
+        /* The notification of an update found in the background (ApkUpdates):
+         * it is downloaded and installed. */
+        const val EXTRA_UPDATE = "update"
         // Networks' proxies on this phone found not running, told once a run (ProxyCheck).
         private val deadProxyTold = HashSet<String>()
     }
@@ -105,6 +108,9 @@ class MainActivity : Activity() {
         }
     }
     private var updateUrl: String? = null
+    private var updateVersion: String? = null
+    // Asked for from the update's notification: started once the card is up.
+    private var updateAsked = false
     private var vpnDenied = false
     // Android would not ask for the VPN at all (another app's always-on VPN,
     // or VPN changes not allowed on this phone): see onActivityResult.
@@ -188,7 +194,7 @@ class MainActivity : Activity() {
             noticeShown = 0
             notice.visibility = View.GONE
         }
-        findViewById<View>(R.id.updateOpen).setOnClickListener { updateUrl?.let { open(it) } }
+        findViewById<View>(R.id.updateOpen).setOnClickListener { updateApk() }
         findViewById<View>(R.id.supportRow).setOnClickListener { openSupport() }
         findViewById<View>(R.id.supportOpen).setOnClickListener { openSupport() }
         findViewById<View>(R.id.supportLater).setOnClickListener {
@@ -214,6 +220,7 @@ class MainActivity : Activity() {
             handleInstall(intent)
             handleConfirmStop(intent)
             handleStoreCard(intent)
+            handleUpdate(intent)
         }
     }
 
@@ -224,6 +231,14 @@ class MainActivity : Activity() {
         handleInstall(intent)
         handleConfirmStop(intent)
         handleStoreCard(intent)
+        handleUpdate(intent)
+    }
+
+    private fun handleUpdate(intent: Intent?) {
+        if (intent?.getBooleanExtra(EXTRA_UPDATE, false) != true) return
+        intent.removeExtra(EXTRA_UPDATE)
+        if (intent.flags and Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY != 0) return
+        updateAsked = true
     }
 
     private fun handleStoreCard(intent: Intent?) {
@@ -297,6 +312,7 @@ class MainActivity : Activity() {
         releases.setOnClickListener { open(if (github) UpdateCheck.RELEASES_URL else UpdateCheck.REPO_URL) }
         if (github) {
             showUpdate(UpdateCheck.remembered(this))
+            if (updateAsked) { updateAsked = false; updateApk() }
             if (UpdateCheck.due(this)) checkForUpdate()
         } else {
             // Google Play's own offer, if any, comes in onResume (PlayUpdates).
@@ -306,6 +322,8 @@ class MainActivity : Activity() {
 
     override fun onResume() {
         super.onResume()
+        // Back from "install unknown apps": the update goes on if allowed.
+        ApkUpdates.resume(this)
         if (installUpdate) { installUpdate = false; PlayUpdates.install(this); return }
         // A copy Google Play updates: Play's in-app update (PlayUpdates; the
         // APK's does nothing). Every time the window comes back, as Play asks,
@@ -554,6 +572,7 @@ class MainActivity : Activity() {
         orb.set(if (busy) Orb.Mode.BUSY else if (on) Orb.Mode.ON else Orb.Mode.OFF)
         support.visibility = if (supportDue && on) View.VISIBLE else View.GONE
         showStoreCard(on && !proxyIdle && Protection.troubleRes == 0)
+        if (update.visibility == View.VISIBLE && updateVersion != null && ApkUpdates.now != null) showApkUpdate()
 
         // Set only when it changes: status and detail are live regions, and
         // TalkBack reads every change out.
@@ -748,8 +767,41 @@ class MainActivity : Activity() {
             return
         }
         updateUrl = offer.url
-        updateText.text = text(R.string.updAvailable, "version" to offer.version)
+        updateVersion = offer.version
+        // Seen here: no notification for it as well (ApkUpdates.look).
+        ApkUpdates.seen(this, offer.version)
+        showApkUpdate()
         update.visibility = View.VISIBLE
+    }
+
+    /* The APK from GitHub: downloaded and installed here (ApkUpdates), or
+     * where this build cannot, its page opened. */
+    private fun updateApk() {
+        val url = updateUrl ?: return
+        val version = updateVersion ?: return
+        if (ApkUpdates.available(this) && ApkUpdates.now?.let { it.version == version && it.stage == ApkUpdates.Stage.FAILED } != true) {
+            ApkUpdates.start(this, version, url)
+        } else {
+            open(if (ApkUpdates.now?.stage == ApkUpdates.Stage.FAILED) UpdateCheck.RELEASES_URL else url)
+        }
+        showApkUpdate()
+    }
+
+    /* The card as the APK's own update stands: offered, downloading, with
+     * Android's installer, or failed (then the release page, by hand). */
+    private fun showApkUpdate() {
+        val version = updateVersion ?: return
+        val button = findViewById<Button>(R.id.updateOpen)
+        val now = ApkUpdates.now?.takeIf { it.version == version }
+        when (now?.stage) {
+            ApkUpdates.Stage.DOWNLOADING -> updateText.show(text(R.string.updDownloading, "version" to version, "percent" to now.percent))
+            ApkUpdates.Stage.WAITING -> updateText.show(text(R.string.updReady, "version" to version))
+            ApkUpdates.Stage.FAILED -> updateText.show(getString(now.failed))
+            null -> updateText.show(text(R.string.updAvailable, "version" to version))
+        }
+        val label = if (now?.stage == ApkUpdates.Stage.FAILED || !ApkUpdates.available(this)) R.string.androidDownloadApk else R.string.updDownload
+        if (button.tag != label) { button.tag = label; button.setText(label) }
+        button.visibility = if (now?.stage == ApkUpdates.Stage.DOWNLOADING || now?.stage == ApkUpdates.Stage.WAITING) View.GONE else View.VISIBLE
     }
 
     /* A copy Google Play updates: the APK's card, with Play behind its button. */
