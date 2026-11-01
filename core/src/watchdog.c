@@ -161,7 +161,8 @@ static void watch_line(char *line) {
   char *tab = strchr(line, '\t');
   if (!tab || !tab[1]) return;
   *tab = 0;
-  if (strcmp(line, "proxy") != 0 && strcmp(line, "env") != 0) return;
+  /* proxy (system-proxy.js), env (app-env.js), discord (discord-line.js) */
+  if (strcmp(line, "proxy") != 0 && strcmp(line, "env") != 0 && strcmp(line, "discord") != 0) return;
   const char *file = tab + 1;
   if (strlen(file) >= PATH_MAX_UTF8) return;
   mutex_lock(&g_lock);

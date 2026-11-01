@@ -52,6 +52,9 @@ const i18n = require('./main-i18n');
 const Families = require('./families');
 const ServiceCheck = require('./service-check');
 const { restoreProxy } = require('./restore-proxy');
+const SystemProxy = require('./system-proxy');
+const Watchdog = require('./watchdog');
+const DiscordLine = require('./discord-line');
 const Launch = require('./launch');
 const wake = require('./wake');
 const { buildReport, buildCompact, saveReport, toClipboard } = require('./log-report');
@@ -66,8 +69,12 @@ const SecurityBlock = require('./security-block');
  * after a crash: restore and exit (restore-proxy.js says how, and when it
  * may ask for a macOS administrator's password). */
 const RESTORE_PROXY_ARG = '--restore-proxy';
+// Added by the watchdog's restore: Shroudly vanished just now (killed,
+// crashed), it is not a login.
+const FROM_WATCHDOG_ARG = '--from-watchdog';
 const proxyStateFile = () => path.join(app.getPath('userData'), 'proxy-state.json');
 const appEnvStateFile = () => path.join(app.getPath('userData'), 'app-env.json');
+const discordLineFile = () => path.join(app.getPath('userData'), 'discord-line.json');
 if (process.argv.includes(RESTORE_PROXY_ARG)) {
   restoreProxy({
     stateFile: proxyStateFile(),
@@ -81,6 +88,16 @@ if (process.argv.includes(RESTORE_PROXY_ARG)) {
     // Shroudly may already be running again (it starts at login too): its own
     // value is then left alone.
     recoverOther: () => AppEnv.recoverSync({ stateFile: appEnvStateFile() }, { onlyIfDead: true }),
+    // Discord's line: left for a Shroudly that starts by itself at this login
+    // with Discord app mode on (it was kept at the logoff for it); taken out
+    // after a kill or a crash, and at a login Shroudly does not start at.
+    recoverDiscord: () => {
+      let keep = false;
+      if (!process.argv.includes(FROM_WATCHDOG_ARG)) {
+        try { const s = new Store({ clearInvalidConfig: true }); keep = s.get('autoStart', false) === true && s.get('discordMode') === true; } catch {}
+      }
+      DiscordLine.recoverSync({ stateFile: discordLineFile(), ownerAlive: (o) => SystemProxy._ownerAlive(o), keep });
+    },
   }).catch(() => {}).finally(() => app.exit(0));
   return;
 }
@@ -103,6 +120,7 @@ let advanced = null;
 // one every half hour per host and kind (log-gate.js).
 const logGate = new LogGate();
 let updater = null;
+let watchdogOpts = null;   // the watchdog's options (watchdog.js), once ready
 let presence = null;
 let systemLogs = [];
 let exitInProgress = false;
@@ -992,7 +1010,7 @@ app.whenReady().then(async () => {
   // Shroudly vanish with something applied (watchdog.js).
   const watchdog = {
     core: EngineManager.coreBinaryPath(),
-    restore: restoreCommand,
+    restore: { exe: restoreCommand.exe, args: [...restoreCommand.args, FROM_WATCHDOG_ARG] },
     copyDir: app.getPath('userData'),
     // Ended with its file gone: an antivirus took the engine (watchdog.js).
     onCoreGone: (core) => securityBlocked({
@@ -1000,6 +1018,7 @@ app.whenReady().then(async () => {
       folder: app.isPackaged ? SecurityBlock.installFolder() : path.dirname(core),
     }, { quiet: true }),
   };
+  watchdogOpts = watchdog;
   siteList = new SiteList({
     cacheFile: path.join(app.getPath('userData'), 'site-list.json'),
     log: addLog,
@@ -1600,7 +1619,18 @@ function patchDiscordSync(url, files) {
       else failed.push({ v, message: e.message });
     }
   }
+  noteDiscordLine(files);
   return { changed, denied, failed, foreign };
+}
+
+/* Which settings files carry our line now, for the watchdog and the next
+ * login should Shroudly end without taking it out (discord-line.js). */
+function noteDiscordLine(files) {
+  try {
+    const carrying = DiscordApp.installed().map((v) => (files && files[v.id]) || DiscordApp.settingsFile(v)).filter((f) => DiscordApp.hasOursIn(f));
+    const file = discordLineFile();
+    if (DiscordLine.note(file, carrying, SystemProxy._owner()) && watchdogOpts) Watchdog.watch(watchdogOpts, 'discord', file);
+  } catch {}
 }
 
 /* macOS keeps other apps' data behind a permission. Picking the folder in an

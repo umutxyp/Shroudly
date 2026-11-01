@@ -141,10 +141,11 @@ function writeSettings(file, data) {
   }
 }
 
-/* Is our line in this build's settings right now? */
-function hasOurs(v) {
-  try { return OURS.test(String(readJson(fs.readFileSync(settingsFile(v), 'utf8'), '')[KEY] || '')); } catch { return false; }
+/* Is our line in this settings file, or this build's, right now? */
+function hasOursIn(file) {
+  try { return OURS.test(String(readJson(fs.readFileSync(file, 'utf8'), '')[KEY] || '')); } catch { return false; }
 }
+function hasOurs(v) { return hasOursIn(settingsFile(v)); }
 
 function run(cmd, args) {
   return new Promise((resolve) => execFile(cmd, args, { windowsHide: true, timeout: 10000 }, (err, out) => resolve(err ? '' : String(out))));
@@ -374,5 +375,5 @@ function setDroverAside(d, backupDir, fsx = fs) {
   return moved;
 }
 
-module.exports = { KEY, endpointUrl, variants, present, installed, settingsFile, patchSync, writeSettings, hasOurs, isRunning, anyRunning, pids, restart, healNote,
+module.exports = { KEY, endpointUrl, variants, present, installed, settingsFile, patchSync, writeSettings, hasOurs, hasOursIn, isRunning, anyRunning, pids, restart, healNote,
   startedAt, oldestStart, etimeSeconds, readWithoutLine, watchSince, START_CHECK_MS, drover, proxyHostPort, byAppVersion, setDroverAside };

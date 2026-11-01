@@ -74,6 +74,21 @@ function rssKb(pid) {
     t.ok(await waitFor(() => w.exitedAt, 3000), 'the watchdog exits afterwards');
   }
 
+  // 1b. Discord app mode's line (discord-line.js): Shroudly killed with it in
+  //     Discord's settings, the restore runs, as for the proxy (M1).
+  {
+    const app = fakeApp();
+    const state = path.join(dir, 'discord-line.json');
+    const out = path.join(dir, 'restored 1b.json');
+    fs.writeFileSync(state, '{}');
+    const w = startWatchdog(app.pid, out);
+    w.stdin.write(`discord\t${state}\n`);
+    await sleep(300);
+    app.kill();
+    w.stdin.end();
+    t.ok(await waitFor(() => fs.existsSync(out), 8000), "Shroudly gone with Discord's line in place: the restore runs (it took the line out; Discord no longer waits on a relay that is gone)");
+  }
+
   // 2. A normal quit removes its state files first: nothing to do.
   {
     const app = fakeApp();
