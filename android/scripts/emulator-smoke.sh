@@ -416,15 +416,23 @@ say "tunnel restarted: example.com -> $fresh; the old $before is refused, never 
 # Wi-Fi off only where mobile data is up to take over (an emulator's radio
 # is not always up).
 mobile_up() { grep -qE 'MOBILE[^}]*CONNECTED' <<<"$(sh_ "dumpsys connectivity")"; }
+# The network Shroudly is on, as it last said ("Protection on: ... network:
+# X," or "Network: X,"): an emulator's Wi-Fi, joined but not yet validated,
+# can leave the phone on mobile data from the start.
+app_net() { applog | grep -oE '[Nn]etwork: [^,]+' | tail -1 | sed 's/^[Nn]etwork: //'; }
 if grep -q 'inet ' <<<"$(sh_ "ip addr show wlan0")" && mobile_up; then
+  was="$(app_net)"
   sh_ "svc wifi disable" >/dev/null; sleep 5
   # What was opened over Wi-Fi is let go: encrypted DNS connects anew, and a
   # new tunnel ends apps' old connections (or a new interface, when IPv6
-  # came or went with the network).
-  wait_for 30 has_log "Network changed: apps' connections over the old one are ended\|renewing the VPN interface" ||
-    fail "the network changed and the connections over the old one were kept"
+  # came or went with the network). Already on mobile data, nothing was
+  # opened over Wi-Fi and nothing needs ending.
+  if [ "$was" != "mobile data" ]; then
+    wait_for 30 has_log "Network changed: apps' connections over the old one are ended\|renewing the VPN interface" ||
+      fail "the network changed and the connections over the old one were kept"
+  fi
   wait_for 90 net_up || fail "no internet through the VPN on mobile data after Wi-Fi went off"
-  say "Wi-Fi off: through the VPN on mobile data: $(http_get)"
+  say "Wi-Fi off (Shroudly was on ${was:-an unnamed network}): through the VPN on mobile data: $(http_get)"
   sh_ "svc wifi enable" >/dev/null
   wlan_up() { grep -q 'inet ' <<<"$(sh_ "ip addr show wlan0")"; }
   # The emulator's virtual Wi-Fi does not always join its network again by

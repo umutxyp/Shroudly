@@ -300,10 +300,15 @@ const HOURS = (h) => h * 60 * 60 * 1000;
     t.ok(eu.autoInstallOnAppQuit === false && eu2.autoInstallOnAppQuit === true,
       'and not at a quit or a logout either; elsewhere a downloaded update still installs on quit');
   }
-  {
+  // electron-updater's own code, where npm installed it (not in the bare
+  // distribution containers, which test the engine and Shroudly's own code).
+  const updaterLib = path.join(ROOT, 'node_modules', 'electron-updater', 'out');
+  const haveUpdaterLib = fs.existsSync(updaterLib);
+  if (!haveUpdaterLib) console.log("  --  electron-updater is not installed here: its dpkg and AppImage installs are checked where it is");
+  if (haveUpdaterLib) {
     // electron-updater follows a failed `dpkg -i` with `apt-get install -f`,
     // each through pkexec: a dismissed prompt came straight back.
-    const { DebUpdater } = require(path.join(ROOT, 'node_modules', 'electron-updater', 'out', 'DebUpdater.js'));
+    const { DebUpdater } = require(path.join(updaterLib, 'DebUpdater.js'));
     const quiet = { warn() {}, info() {}, error() {} };
     const run = (code) => {
       const prompts = [];
@@ -411,9 +416,9 @@ const HOURS = (h) => h * 60 * 60 * 1000;
     fs.rmSync(ro, { recursive: true, force: true });
     t.ok(writable && readOnly, 'whether the folder can be written to is asked of the system, nothing written there to find out');
   }
-  if (process.platform !== 'win32') {
+  if (process.platform !== 'win32' && haveUpdaterLib) {
     // electron-updater's own AppImage install, as it runs at a quit.
-    const { AppImageUpdater } = require(path.join(ROOT, 'node_modules', 'electron-updater', 'out', 'AppImageUpdater.js'));
+    const { AppImageUpdater } = require(path.join(updaterLib, 'AppImageUpdater.js'));
     const dir = sandbox();
     const oldFile = path.join(dir, 'Shroudly-2.5.5-Linux-x86_64.AppImage');
     fs.writeFileSync(oldFile, '#!/bin/sh\nexit 0\n', { mode: 0o755 });
