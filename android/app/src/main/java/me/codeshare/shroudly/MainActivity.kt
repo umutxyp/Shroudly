@@ -15,6 +15,8 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.os.SystemClock
+import android.os.UserManager
 import android.provider.Settings
 import android.text.SpannableStringBuilder
 import android.text.Spanned
@@ -39,6 +41,8 @@ class MainActivity : Activity() {
         const val EXTRA_START = "start"
         /* Install the update Google Play has downloaded (PlayUpdates' notice). */
         const val EXTRA_INSTALL_UPDATE = "installUpdate"
+        /* The notification's Stop under lockdown: asked here first (confirmStop). */
+        const val EXTRA_CONFIRM_STOP = "confirmStop"
         // Networks' proxies on this phone found not running, told once a run (ProxyCheck).
         private val deadProxyTold = HashSet<String>()
     }
@@ -70,12 +74,27 @@ class MainActivity : Activity() {
     private val ticker = object : Runnable {
         override fun run() {
             render()
+            // Proxy only: whether a network's proxy is set to it, now and then.
+            if (++ticks % 3 == 0) checkProxyUse()
             main.postDelayed(this, 1000)
         }
     }
     private var updateUrl: String? = null
     private var vpnDenied = false
+    // Android would not ask for the VPN at all (another app's always-on VPN,
+    // or VPN changes not allowed on this phone): see onActivityResult.
+    private var vpnBlocked = false
+    // The VPN's consent asked for (uptime), and whether its dialog took the
+    // window's focus, as a dialog the user answers does.
+    private var consentAskedAt = 0L
+    private var consentSeen = false
     private var installUpdate = false
+    // What protection covers in VPN mode (Coverage), as of onStart.
+    private var coverage = ""
+    // Proxy only: a network's proxy is set to its port (null: not known).
+    private var proxySet: Boolean? = null
+    private var proxyChecking = false
+    private var ticks = 0
 
     /* The accent this window was made with; another one chosen in Settings
      * makes it again on return. */
@@ -118,8 +137,10 @@ class MainActivity : Activity() {
         findViewById<View>(R.id.about).clipToOutline = true
         Fit.apply(findViewById(R.id.root))
 
-        // The logo's circle is the switch, the one control for on and off.
+        // The logo's circle is the switch, the one control for on and off;
+        // the line under it, which reads like a link, does the same.
         toggle.setOnClickListener { onToggle() }
+        hint.setOnClickListener { onToggle() }
         findViewById<TextView>(R.id.version).text = text(R.string.versionLabel, "version" to BuildConfig.VERSION_NAME)
         findViewById<View>(R.id.notices).setOnClickListener { showNotices() }
         findViewById<View>(R.id.privacy).setOnClickListener { open(UpdateCheck.PRIVACY_URL) }
@@ -171,6 +192,7 @@ class MainActivity : Activity() {
         if (savedInstanceState == null) {
             handleStart(intent)
             handleInstall(intent)
+            handleConfirmStop(intent)
         }
     }
 
@@ -179,6 +201,15 @@ class MainActivity : Activity() {
         setIntent(intent)
         handleStart(intent)
         handleInstall(intent)
+        handleConfirmStop(intent)
+    }
+
+    /* The notification's Stop under lockdown (ShroudlyVpnService.goForeground). */
+    private fun handleConfirmStop(intent: Intent?) {
+        if (intent?.getBooleanExtra(EXTRA_CONFIRM_STOP, false) != true) return
+        intent.removeExtra(EXTRA_CONFIRM_STOP)
+        if (intent.flags and Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY != 0) return
+        if (Protection.state == Protection.State.ON) confirmStop()
     }
 
     private fun handleStart(intent: Intent?) {
@@ -206,6 +237,9 @@ class MainActivity : Activity() {
         ShroudlyProxyService.clearAlert(this)
         Protection.listen(onChange)
         orb.resume()
+        coverage = Coverage.text(this)
+        proxySet = null
+        checkProxyUse()
         main.post(ticker)
         showBatteryHint()
         checkNetworkProxy()
@@ -282,9 +316,10 @@ class MainActivity : Activity() {
 
     private fun onToggle() {
         when (Protection.state) {
-            Protection.State.ON -> Protector.stop(this)
+            Protection.State.ON -> if (Protection.lockdown && !Protection.proxyOnly) confirmStop() else Protector.stop(this)
             Protection.State.OFF -> {
                 vpnDenied = false
+                vpnBlocked = false
                 Protection.clearError()
                 ShroudlyVpnService.clearAlert(this)
                 ShroudlyProxyService.clearAlert(this)
@@ -324,15 +359,44 @@ class MainActivity : Activity() {
         }
         if (consent == null) {
             startService()
-        } else {
-            try {
-                @Suppress("DEPRECATION")
-                startActivityForResult(consent, REQUEST_VPN)
-            } catch (e: ActivityNotFoundException) {
-                vpnDenied = true
-                render()
-            }
+            return
         }
+        // Another VPN app is on: Android ends it once Shroudly's VPN is
+        // allowed, and its own dialog does not say so. Said first, with the
+        // way to keep it (NA-5).
+        if (otherVpnOn()) {
+            try {
+                AlertDialog.Builder(this)
+                    .setMessage(R.string.androidOtherVpn)
+                    .setPositiveButton(R.string.androidContinue) { _, _ -> askConsent(consent) }
+                    .setNeutralButton(R.string.androidUseProxyOnly) { _, _ -> useProxyOnly() }
+                    .setNegativeButton(android.R.string.cancel, null)
+                    .show()
+                return
+            } catch (_: Exception) {}
+        }
+        askConsent(consent)
+    }
+
+    private fun askConsent(consent: Intent) {
+        try {
+            consentAskedAt = SystemClock.elapsedRealtime()
+            consentSeen = false
+            @Suppress("DEPRECATION")
+            startActivityForResult(consent, REQUEST_VPN)
+        } catch (e: ActivityNotFoundException) {
+            // No dialog to ask with on this phone: Android's refusal too.
+            consentAskedAt = 0
+            vpnBlocked = true
+            render()
+            showVpnBlocked()
+        }
+    }
+
+    /* The VPN's dialog took the focus: the user saw it. */
+    override fun onWindowFocusChanged(hasFocus: Boolean) {
+        super.onWindowFocusChanged(hasFocus)
+        if (!hasFocus && consentAskedAt > 0) consentSeen = true
     }
 
     @Deprecated("Activity result API of the framework")
@@ -340,11 +404,71 @@ class MainActivity : Activity() {
         @Suppress("DEPRECATION")
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode != REQUEST_VPN) return
+        val ms = SystemClock.elapsedRealtime() - consentAskedAt
+        consentAskedAt = 0
         if (resultCode == RESULT_OK) {
             startService()
+            return
+        }
+        val restricted = try { getSystemService(UserManager::class.java)?.hasUserRestriction(UserManager.DISALLOW_CONFIG_VPN) == true } catch (_: Exception) { false }
+        if (Protector.refusedByAndroid(consentSeen, ms, restricted)) {
+            ShroudlyVpnService.log("Android did not ask for the VPN (${ms}ms, ${if (restricted) "VPN changes not allowed on this phone" else "another app's always-on VPN, most likely"})")
+            vpnBlocked = true
+            render()
+            showVpnBlocked()
         } else {
             vpnDenied = true
             render()
+        }
+    }
+
+    /* Android would not ask for the VPN: why, and the two ways on (NA-4). */
+    private fun showVpnBlocked() {
+        try {
+            AlertDialog.Builder(this)
+                .setMessage(R.string.androidVpnBlocked)
+                .setPositiveButton(R.string.androidVpnSettings) { _, _ -> openVpnSettings() }
+                .setNeutralButton(R.string.androidUseProxyOnly) { _, _ -> useProxyOnly() }
+                .setNegativeButton(android.R.string.cancel, null)
+                .show()
+        } catch (_: Exception) {}
+    }
+
+    /* Another VPN app's VPN is up (Shroudly's own is off here). */
+    @Suppress("DEPRECATION")
+    private fun otherVpnOn(): Boolean = try {
+        val cm = getSystemService(android.net.ConnectivityManager::class.java)
+        cm.allNetworks.any { cm.getNetworkCapabilities(it)?.hasTransport(android.net.NetworkCapabilities.TRANSPORT_VPN) == true }
+    } catch (_: Exception) {
+        false
+    }
+
+    /* Proxy only from now on, and on: the other VPN stays as it is. */
+    private fun useProxyOnly() {
+        AppSettings.setProxyOnly(this, true)
+        ShroudlyVpnService.log("Proxy only chosen in the window, so the other VPN app keeps the VPN")
+        vpnBlocked = false
+        vpnDenied = false
+        if (Protection.state == Protection.State.OFF) startService()
+    }
+
+    private fun openVpnSettings() {
+        for (action in listOf(Settings.ACTION_VPN_SETTINGS, Settings.ACTION_WIRELESS_SETTINGS, Settings.ACTION_SETTINGS)) {
+            try { startActivity(Intent(action)); return } catch (_: ActivityNotFoundException) {}
+        }
+    }
+
+    /* Under "Block connections without VPN", off means no internet at all
+     * for every app: asked once more (NA-8). */
+    private fun confirmStop() {
+        try {
+            AlertDialog.Builder(this)
+                .setMessage(R.string.androidLockdownStop)
+                .setPositiveButton(R.string.stop) { _, _ -> if (Protection.state == Protection.State.ON) Protector.stop(this) }
+                .setNegativeButton(android.R.string.cancel, null)
+                .show()
+        } catch (_: Exception) {
+            Protector.stop(this)
         }
     }
 
@@ -363,10 +487,13 @@ class MainActivity : Activity() {
         val st = Protection.state
         val on = st == Protection.State.ON
         val busy = st == Protection.State.STARTING || st == Protection.State.STOPPING
+        // Proxy only on, and no network's proxy set to it: only apps with a
+        // proxy setting of their own go through it, so not "Protected".
+        val proxyIdle = on && Protection.proxyOnly && proxySet == false
 
         val statusText = getString(
             when (st) {
-                Protection.State.ON -> R.string.protected_
+                Protection.State.ON -> if (proxyIdle) R.string.androidProxyOnlyRunning else R.string.protected_
                 Protection.State.STARTING -> R.string.starting
                 Protection.State.STOPPING -> R.string.stopping
                 Protection.State.OFF -> R.string.notProtected
@@ -391,36 +518,68 @@ class MainActivity : Activity() {
         // Set only when it changes: status and detail are live regions, and
         // TalkBack reads every change out.
         status.show(statusText)
-        status.setTextColor(if (on) Accent.color(this, R.attr.accent) else getColor(R.color.text))
+        status.setTextColor(if (on && !proxyIdle) Accent.color(this, R.attr.accent) else getColor(R.color.text))
 
         val error = Protection.errorRes
-        var more = false
+        val off = st == Protection.State.OFF
+        // The link under the line: what more there is to it.
+        var more = 0
         when {
-            vpnDenied && st == Protection.State.OFF -> {
-                detail.show(getString(R.string.androidVpnDenied))
+            vpnBlocked && off -> {
+                detail.show(getString(R.string.androidVpnBlocked))
+                detail.setTextColor(getColor(R.color.warn))
+                more = R.string.androidVpnSettings
+            }
+            vpnDenied && off -> {
+                detail.show(getString(R.string.androidVpnDeniedHere))
                 detail.setTextColor(getColor(R.color.warn))
             }
             on && Protection.troubleRes != 0 -> {
                 detail.show(getString(Protection.troubleRes))
                 detail.setTextColor(getColor(R.color.warn))
             }
-            error != 0 && st == Protection.State.OFF -> {
-                // In the user's language; the technical words behind "Details".
-                detail.show(getString(error))
+            proxyIdle -> {
+                detail.show(text(R.string.androidProxyNotSet, "port" to Protection.socksPort))
                 detail.setTextColor(getColor(R.color.warn))
-                more = Protection.errorDetail != null
+                more = R.string.androidWifiSettings
+            }
+            error != 0 && off -> {
+                // In the user's language, as the window says it (no "open
+                // Shroudly" here); the technical words behind "Details".
+                detail.show(getString(here(error)))
+                detail.setTextColor(getColor(R.color.warn))
+                if (Protection.errorDetail != null) more = R.string.androidDetails
+            }
+            // Turned off under "Block connections without VPN": no app has
+            // internet now, which is not what "off" means anywhere else.
+            off && Usage.lockdown(this) && !AppSettings.proxyOnly(this) -> {
+                detail.show(getString(R.string.androidLockdownStop))
+                detail.setTextColor(getColor(R.color.warn))
             }
             else -> {
                 detail.show(when {
-                    !on -> getString(R.string.dpiBypassStopped)
+                    // Starting or stopping: nothing that says otherwise.
+                    busy -> ""
+                    !on -> getString(R.string.androidOffHint)
                     // Proxy only: where apps are to be pointed.
                     Protection.proxyOnly -> ProxyPort.onText(this, Protection.socksPort)
-                    else -> getString(R.string.androidAllApps)
+                    else -> coverage
                 })
                 detail.setTextColor(getColor(R.color.text_dim))
             }
         }
-        detailMore.visibility = if (more) View.VISIBLE else View.GONE
+        detailMore.visibility = if (more != 0) View.VISIBLE else View.GONE
+        if (more != 0 && detailMore.tag != more) {
+            detailMore.tag = more
+            detailMore.setText(more)
+            detailMore.setOnClickListener {
+                when (more) {
+                    R.string.androidVpnSettings -> openVpnSettings()
+                    R.string.androidWifiSettings -> openWifiSettings(this)
+                    else -> showDetail()
+                }
+            }
+        }
 
         // Under the status, what a tap on the switch does; nothing while it works.
         if (!busy) hintLabel.show(getString(if (on) R.string.stop else R.string.start))
@@ -443,8 +602,39 @@ class MainActivity : Activity() {
             // text set again is announced to accessibility services again.
             for (v in listOf(connections, upload, download, uptime)) v.show("–")
             connectionsTotal.show(text(R.string.totalCount, "count" to "–"))
-            statsHint.visibility = if (on) View.GONE else View.VISIBLE
+            // "Start protection to see live traffic": while it is off, not
+            // while it starts or stops.
+            statsHint.visibility = if (off) View.VISIBLE else View.GONE
         }
+    }
+
+    /* A reason as the window says it: the notice's own words tell the user
+     * to open Shroudly, where they already are. */
+    private fun here(res: Int) = when (res) {
+        R.string.androidProtectionLost -> R.string.androidProtectionLostHere
+        R.string.androidProxyOnlyLost -> R.string.androidProxyOnlyLostHere
+        R.string.androidNoInternet -> R.string.androidNoInternetHere
+        R.string.androidVpnDenied -> R.string.androidVpnDeniedHere
+        else -> res
+    }
+
+    /* Proxy only: whether a network's proxy is set to its port, off the main
+     * thread (ProxyCheck asks Android about every network). */
+    private fun checkProxyUse() {
+        if (Protection.state != Protection.State.ON || !Protection.proxyOnly) {
+            proxySet = null
+            return
+        }
+        if (proxyChecking) return
+        val port = Protection.socksPort
+        proxyChecking = true
+        Thread({
+            val set = try { ProxyCheck.pointsAt(this, port) != null } catch (_: Exception) { null }
+            main.post {
+                proxyChecking = false
+                if (set != proxySet) { proxySet = set; render() }
+            }
+        }, "proxy-use").apply { isDaemon = true }.start()
     }
 
     /* ── about and updates ─────────────────────────────────────────────── */

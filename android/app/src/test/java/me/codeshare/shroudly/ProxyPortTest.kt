@@ -100,7 +100,9 @@ class ProxyPortTest {
         val proxy = File(src, "ShroudlyProxyService.kt").readText()
         assertFalse(proxy.contains("R.string.androidProtectionLost"))
         assertTrue(proxy.contains("if (byUser) remindNetworkProxy(was) else notifyStopped()"))
-        assertTrue(Regex("""Protection\.fail\(R\.string\.androidProxyOnlyLost, e\.message\)\s*\n\s*notifyStopped\(\)""").containsMatchIn(proxy))
+        // A start that failed: "could not start", in the window and a notice.
+        assertTrue(Regex("""Protection\.fail\(R\.string\.androidProxyOnlyNotStarted, e\.message\)\s*\n\s*notifyStopped\(R\.string\.androidProxyOnlyNotStarted, R\.string\.startFailed\)""").containsMatchIn(proxy))
+        assertTrue(proxy.contains("Protection.fail(R.string.androidProxyOnlyLost, why ?: \"the engine kept stopping\")"))
         val main = File(src, "MainActivity.kt").readText()
         assertTrue(main.contains("val ours = AppSettings.proxyOnly(this) && ProxyPort.ours(this, dead.substringAfterLast(':').toIntOrNull() ?: 0)"))
         assertTrue(main.contains(".setMessage(text(R.string.androidWifiProxyShroudlyOff, \"addr\" to dead))\n                                .setPositiveButton(R.string.start)"))

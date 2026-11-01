@@ -151,7 +151,7 @@ class ShroudlyProxyService : Service() {
             // From the background Android may refuse it (Android 12+, unless
             // the app's battery use is unrestricted): a notice offers it.
             if (again) KeepOn.offer(this)
-            else Protection.fail(R.string.androidProxyOnlyLost, "Android refused the foreground service")
+            else Protection.fail(R.string.androidProxyOnlyNotStarted, "Android refused the foreground service")
             stopSelf()
             return START_NOT_STICKY
         }
@@ -173,6 +173,7 @@ class ShroudlyProxyService : Service() {
         }
         Protection.set(Protection.State.STARTING)
         Protection.proxyOnly = true
+        Protection.trouble(0)
         try {
             EngineNative.loadError?.let { throw IllegalStateException("the engine library could not be loaded: $it") }
             if (Engine.busy) throw IllegalStateException("an earlier engine run has not stopped")
@@ -199,6 +200,7 @@ class ShroudlyProxyService : Service() {
             Protection.socksAuth = null
             Protection.proxyPortTaken = if (port != wanted) wanted else 0
             watchNetwork()
+            if (current == null) Protection.trouble(R.string.androidNoNetwork)
             log("Proxy only: Shroudly listens on 127.0.0.1:$port (SOCKS5 and HTTP); the VPN slot is left free")
             OnlineCount.sync(this)
             goForeground(starting = false)
@@ -208,8 +210,8 @@ class ShroudlyProxyService : Service() {
             log("Proxy only: could not start: ${e.message}")
             cleanup()
             Protection.set(Protection.State.OFF)
-            Protection.fail(R.string.androidProxyOnlyLost, e.message)
-            notifyStopped()
+            Protection.fail(R.string.androidProxyOnlyNotStarted, e.message)
+            notifyStopped(R.string.androidProxyOnlyNotStarted, R.string.startFailed)
             stopForeground(STOP_FOREGROUND_REMOVE)
             stopSelf()
             refreshTile()
@@ -421,14 +423,14 @@ class ShroudlyProxyService : Service() {
      * apps set to use it now reach nothing, unlike the VPN's, which then
      * connect directly. Said in a notice, since the window may not be open;
      * a tap opens it, where Start turns it on again. */
-    private fun notifyStopped() {
+    private fun notifyStopped(res: Int = R.string.androidProxyOnlyLost, title: Int = R.string.protectionStopped) {
         if (Protection.windowVisible) return
         try {
             ShroudlyVpnService.channels(this)
-            val body = getString(R.string.androidProxyOnlyLost)
+            val body = getString(res)
             val n = Notification.Builder(this, ShroudlyVpnService.ALERT_CHANNEL)
                 .setSmallIcon(R.drawable.ic_shield)
-                .setContentTitle(getString(R.string.protectionStopped))
+                .setContentTitle(getString(title))
                 .setContentText(body)
                 .setStyle(Notification.BigTextStyle().bigText(body))
                 .setContentIntent(ShroudlyVpnService.openApp(this))
@@ -444,6 +446,7 @@ class ShroudlyProxyService : Service() {
 
     private fun cleanup() {
         active = false
+        Protection.trouble(0)
         network?.stop(getSystemService(ConnectivityManager::class.java))
         network = null
         networks.clear()
@@ -467,11 +470,16 @@ class ShroudlyProxyService : Service() {
     private fun watchNetwork() {
         val cm = getSystemService(ConnectivityManager::class.java)
         current = try { cm.activeNetwork } catch (_: Exception) { null }
-        val w = NetWatch(::later, { networks += it }, { net ->
+        val w = NetWatch(::later, {
+            networks += it
+            if (Protection.troubleRes == R.string.androidNoNetwork) Protection.trouble(0)
+        }, { net ->
             networks -= net
             if (active && networks.isEmpty()) {
                 log("Network: none")
                 KeepOn.networkGone(this@ShroudlyProxyService)
+                // Said in the window, so no one takes it for Shroudly's doing.
+                if (Protection.troubleRes == 0) Protection.trouble(R.string.androidNoNetwork)
             }
         }, ::onNetwork)
         network = w

@@ -95,7 +95,7 @@ class HandoverTest {
         assertTrue(ends.contains("if (routesV6(underlyingV6) != v6Routed) {\n            renewInterface(routesV6(underlyingV6))"))
 
         val proxy = File(src, "ShroudlyProxyService.kt").readText()
-        assertTrue(proxy.contains("NetWatch(::later, { networks += it }"))
+        assertTrue(proxy.contains("NetWatch(::later, {\n            networks += it\n"))
         val proxySettled = proxy.substringAfter("private fun onNetworkSettled()").substringBefore("\n    }\n")
         assertTrue(proxySettled.contains("doh?.networkChanged()"))
         assertTrue(proxySettled.contains("Handover.endsOld(Handover.look(cm, old), Handover.look(cm, now))"))

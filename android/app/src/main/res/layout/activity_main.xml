@@ -113,15 +113,20 @@
             android:textColor="@color/text"
             android:textSize="24sp" />
 
-        <!-- What a tap on the switch does; the switch says it to TalkBack. -->
+        <!-- What a tap on the switch does, and a tap here does the same (it
+             looks like a link); the switch says it to TalkBack. -->
         <LinearLayout
             android:id="@+id/hint"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="6dp"
+            android:layout_marginTop="2dp"
+            android:background="@drawable/pressable"
             android:gravity="center"
             android:importantForAccessibility="noHideDescendants"
-            android:orientation="horizontal">
+            android:minHeight="48dp"
+            android:orientation="horizontal"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp">
 
             <ImageView
                 android:importantForAccessibility="no"
@@ -140,16 +145,15 @@
                 android:textSize="15sp" />
         </LinearLayout>
 
+        <!-- Whole, however long: a warning ends with what to do. -->
         <TextView
             android:id="@+id/detail"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="4dp"
             android:accessibilityLiveRegion="polite"
-            android:ellipsize="end"
             android:gravity="center"
             android:lineSpacingMultiplier="1.1"
-            android:maxLines="3"
             android:minLines="2"
             android:textColor="@color/text_dim"
             android:textSize="14sp" />

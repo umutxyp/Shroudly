@@ -90,7 +90,7 @@ object Diagnostics {
         val on = Protection.state == Protection.State.ON && Protection.startedAt > 0
         sb.append(protectionLine(Protection.state.name.lowercase(Locale.ROOT), Protection.errorDetail,
             if (on) android.os.SystemClock.elapsedRealtime() - Protection.startedAt else -1L,
-            Protection.alwaysOn, Protection.lockdown, Protection.ipv6, Protection.troubleRes != 0)).append('\n')
+            Protection.alwaysOn, Protection.lockdown, Protection.ipv6, Protection.troubleRes == R.string.androidLockdownOffline)).append('\n')
         sb.append("Now: ").append(SimpleDateFormat("yyyy-MM-dd HH:mm:ss Z", Locale.ROOT).format(Date())).append('\n')
         val lines = AppLog.snapshot()
         sb.append('\n').append("Log, last ").append(lines.size).append(" lines (with the names of sites Shroudly handled):\n")

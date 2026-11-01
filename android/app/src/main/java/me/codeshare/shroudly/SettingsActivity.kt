@@ -311,9 +311,12 @@ class SettingsActivity : Activity() {
     /* The row says how many apps skip Shroudly, or (#60) how many are the
      * only ones that go through it; with none of those, that every app does. */
     private fun showExcluded() {
+        // Under "Block connections without VPN" the apps left out have no
+        // internet at all (NA-2): said with the count, always.
+        val lockdown = lockdownLine()
         if (AppSettings.appsOnly(this)) {
             val n = AppSettings.included(this).size
-            val sub = if (n == 0) getString(R.string.androidAppsOnlyDesc) else text(R.string.androidAppsOnlyCount, "count" to n)
+            val sub = if (n == 0) getString(R.string.androidAppsOnlyDesc) else text(R.string.androidAppsOnlyCount, "count" to n) + lockdown
             findViewById<TextView>(R.id.excludedApps).text = titled(getString(R.string.androidAppsOnly), sub)
             return
         }
@@ -321,9 +324,14 @@ class SettingsActivity : Activity() {
         val label = getString(R.string.excludedApps)
         // How many skip it is a value, always shown; what the setting does
         // only with the section's explanations.
-        val sub = if (n == 0) ifOpen(R.id.appsTitle, getString(R.string.excludedAppsDesc)) else text(R.string.excludedAppsCount, "count" to n)
+        val sub = if (n == 0) ifOpen(R.id.appsTitle, getString(R.string.excludedAppsDesc)) else text(R.string.excludedAppsCount, "count" to n) + lockdown
         findViewById<TextView>(R.id.excludedApps).text = titled(label, sub)
     }
+
+    /* "\n" and what lockdown means for the apps left out, when the VPN last
+     * ran under it (Usage.lockdown); "" otherwise. */
+    private fun lockdownLine(): String =
+        if (Usage.lockdown(this) && !AppSettings.proxyOnly(this)) "\n" + getString(R.string.androidAppsLockdown) else ""
 
     /* The row says the app's language: the phone's, or the one chosen. */
     private fun showLanguage() {
@@ -673,7 +681,7 @@ class SettingsActivity : Activity() {
             setTextColor(getColor(R.color.text_dim))
             textSize = 13f
         }
-        fun describe() { desc.text = getString(if (only) R.string.androidAppsOnlyDesc else R.string.excludedAppsDesc) }
+        fun describe() { desc.text = getString(if (only) R.string.androidAppsOnlyDesc else R.string.excludedAppsDesc) + lockdownLine() }
         describe()
         // Which way the list works.
         val ways = RadioGroup(this).apply {

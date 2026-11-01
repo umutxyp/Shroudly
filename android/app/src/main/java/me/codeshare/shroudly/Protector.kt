@@ -22,6 +22,16 @@ object Protector {
         return ShroudlyVpnService.start(ctx)
     }
 
+    /* The VPN's consent came back refused. Android itself refuses without a
+     * word while another app is the always-on VPN, or where the phone does
+     * not allow VPN changes (restricted): its dialog finishes at once,
+     * before it is ever on screen. A user who says no saw it (it took the
+     * window's focus) and took a moment. */
+    const val REFUSED_AT_ONCE_MS = 3000L
+
+    fun refusedByAndroid(dialogSeen: Boolean, ms: Long, restricted: Boolean): Boolean =
+        restricted || (!dialogSeen && ms in 0 until REFUSED_AT_ONCE_MS)
+
     /* Stops whichever is running. */
     fun stop(ctx: Context) {
         if (Protection.proxyOnly) ShroudlyProxyService.stop(ctx) else ShroudlyVpnService.stop(ctx)
