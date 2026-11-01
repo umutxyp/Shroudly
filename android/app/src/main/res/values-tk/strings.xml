@@ -137,6 +137,9 @@
     <string name="linkReleases">Wersiýa bellikleri</string>
     <string name="linkSourceCode">GitHub-daky çeşme kody</string>
     <string name="madeBy">Codeshare Technology Ltd önümi</string>
+    <string name="nationalOnlyBody">Dünýäniň galan bölegi bilen baglanyşyk kesildi; ýurduň içindäki saýtlar entek açylýar. Muny hiç bir programma ýa-da VPN aýlanyp geçip bilmez. Baglanyşyk gaýdyp gelende Shroudly özi dowam edýär.</string>
+    <string name="nationalOnlyHelp">Ýene näme kömek edip biler</string>
+    <string name="nationalOnlyTitle">Diňe şu ýurduň tory işleýär</string>
     <string name="navInfo">Maglumat</string>
     <string name="navProtection">Gorag</string>
     <string name="navSettings">Sazlamalar</string>

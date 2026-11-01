@@ -200,6 +200,8 @@ class EngineManager {
     // Whether the internet answers straight from this computer (tests stand
     // in for it).
     this.internetAnswers = hooks.internetAnswers || (() => require('./blockcheck').internetAnswers());
+    // Sites inside the country, for a shutdown of the rest (national-net.js).
+    this.domesticAnswers = hooks.domesticAnswers || (() => require('./national-net').domesticAnswers());
     this._fails = [];
     this._offlineCheck = false;
     this._offlineTimer = null;
@@ -297,7 +299,7 @@ class EngineManager {
     this.onAdvice = hooks.onAdvice || (() => {});
     // What the window should tell the user about this network. Kept here, not
     // only sent, because most of it is learned before the window has loaded.
-    this.advice = { conflicts: [], cut: null, dnsDown: false, offline: false, ownProxy: false };
+    this.advice = { conflicts: [], cut: null, dnsDown: false, offline: false, ownProxy: false, nationalOnly: null };
     this.cuts = new Map();        // host -> [{ reason, t }]
     this.cutHosts = new Set();    // hosts already reported this session
     this.believedAt = new Map();  // host -> when its cut was believed
@@ -494,20 +496,39 @@ class EngineManager {
     this._offlineCheck = true;
     let up = true;
     try { up = await this.internetAnswers(); } catch {}
-    this._offlineCheck = false;
-    if (up || !this.active || this.receivedWithin(OFFLINE_WINDOW_MS)) return;
+    if (up || !this.active || this.receivedWithin(OFFLINE_WINDOW_MS)) { this._offlineCheck = false; return; }
     // A proxy of its own set before Shroudly's (a company's, a school's): the
     // network lets nothing out any other way, and the engine cannot pass
     // traffic on to it. Not "no internet" then: Stop puts that proxy back.
     let own = null;
     try { own = this.proxy && this.proxy.priorProxy ? this.proxy.priorProxy() : null; } catch {}
-    this._setAdvice({ offline: true, ownProxy: !!own });
+    // The rest of the world cut, the country's own network up: a shutdown,
+    // told as one (national-net.js).
+    let national = null;
+    if (!own) { try { national = await this.domesticAnswers(); } catch {} }
+    this._offlineCheck = false;
+    if (!this.active || this.receivedWithin(OFFLINE_WINDOW_MS)) return;
+    this._setAdvice({ offline: true, ownProxy: !!own, nationalOnly: national ? national.country : null });
     if (own) this.log('warning', `This network sends everything through its own proxy (${own.what}), which Shroudly cannot pass traffic on to; Stop puts it back`);
+    else if (national) this._logNational(national);
     else this.log('warning', 'This network has no internet right now: nothing connects, not even directly; Shroudly carries on when it is back');
     clearInterval(this._offlineTimer);
+    let ticks = 0;
     this._offlineTimer = setInterval(() => {
       if (!this.active) { this._clearOffline({ quiet: true }); return; }
-      Promise.resolve(this.internetAnswers()).then((ok) => { if (ok) this._clearOffline(); }).catch(() => {});
+      ticks++;
+      Promise.resolve(this.internetAnswers()).then(async (ok) => {
+        if (ok) { this._clearOffline(); return; }
+        // Still cut off: whether the country's own network came up (or went)
+        // meanwhile, once a minute, not every look.
+        if (own || ticks % 4 !== 0 || !this.advice.offline) return;
+        let now = null;
+        try { now = await this.domesticAnswers(); } catch {}
+        const cc = now ? now.country : null;
+        if (!this.advice.offline || cc === this.advice.nationalOnly) return;
+        this._setAdvice({ nationalOnly: cc });
+        if (now) this._logNational(now);
+      }).catch(() => {});
     }, OFFLINE_RECHECK_MS);
     if (this._offlineTimer.unref) this._offlineTimer.unref();
   }
@@ -519,8 +540,12 @@ class EngineManager {
     this._offlineTimer = null;
     this._fails = [];
     if (!this.advice.offline) return;
-    this._setAdvice({ offline: false, ownProxy: false });
+    this._setAdvice({ offline: false, ownProxy: false, nationalOnly: null });
     if (!quiet) this.log('info', 'The internet is back');
+  }
+
+  _logNational(n) {
+    this.log('warning', `Only this country's own network answers: the connection to the rest of the world is cut (${n.host} opens, the world's addresses do not). No app can get past that; Shroudly carries on when it is back`);
   }
 
   _setAdvice(patch) {

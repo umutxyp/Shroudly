@@ -137,6 +137,9 @@
     <string name="linkReleases">ထုတ်ဝေမှု မှတ်စုများ</string>
     <string name="linkSourceCode">GitHub ပေါ်ရှိ ရင်းမြစ်ကုဒ်</string>
     <string name="madeBy">Codeshare Technology Ltd ၏ ထုတ်ကုန်</string>
+    <string name="nationalOnlyBody">ကမ္ဘာ့ကျန်အပိုင်းနှင့် ချိတ်ဆက်မှု ပြတ်တောက်နေသည်။ နိုင်ငံတွင်းဆိုက်များ ဖွင့်၍ရဆဲဖြစ်သည်။ မည်သည့်အက်ပ် သို့မဟုတ် VPN မျှ ၎င်းကို မကျော်နိုင်ပါ။ ချိတ်ဆက်မှု ပြန်ရလာသောအခါ Shroudly ကိုယ်တိုင် ဆက်လုပ်မည်။</string>
+    <string name="nationalOnlyHelp">အခြား ဘာက ကူညီနိုင်သနည်း</string>
+    <string name="nationalOnlyTitle">ဤနိုင်ငံ၏ ကွန်ရက်သာ အလုပ်လုပ်သည်</string>
     <string name="navInfo">အကြောင်း</string>
     <string name="navProtection">ကာကွယ်မှု</string>
     <string name="navSettings">ဆက်တင်များ</string>

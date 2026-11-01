@@ -137,6 +137,9 @@
     <string name="linkReleases">Версиялардагы өзгөрүүлөр</string>
     <string name="linkSourceCode">Баштапкы код (GitHub)</string>
     <string name="madeBy">Codeshare Technology Ltd продуктусу</string>
+    <string name="nationalOnlyBody">Дүйнөнүн калган бөлүгү менен байланыш үзүлгөн; өлкө ичиндеги сайттар дагы эле ачылат. Муну эч бир колдонмо же VPN айланып өтө албайт. Байланыш кайтканда Shroudly өзү улантат.</string>
+    <string name="nationalOnlyHelp">Дагы эмне жардам берет</string>
+    <string name="nationalOnlyTitle">Бул өлкөнүн тармагы гана иштейт</string>
     <string name="navInfo">Маалымат</string>
     <string name="navProtection">Коргоо</string>
     <string name="navSettings">Жөндөөлөр</string>

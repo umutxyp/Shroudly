@@ -802,6 +802,7 @@ class ShroudlyVpnService : VpnService() {
         when (pathWatch.result(now, reached != null, networkWorks)) {
             PathWatch.Verdict.HEALTHY -> {
                 log("Path check ($why): through the engine to $reached in ${ms}ms")
+                if (Protection.national != null) { Protection.national(null); log("The rest of the world answers again") }
                 // Under lockdown, a retry of everything planned because the
                 // way through was broken: not wanted now that it works, with
                 // the tunnel running (it would reset every connection apps
@@ -815,8 +816,11 @@ class ShroudlyVpnService : VpnService() {
                     clearAlert(this)
                 }
             }
-            PathWatch.Verdict.NO_NETWORK -> log("Path check ($why): nothing reached, " +
-                (if (direct == null) "and nothing directly either: the network is down" else "and Android says the network has no internet"))
+            PathWatch.Verdict.NO_NETWORK -> {
+                log("Path check ($why): nothing reached, " +
+                    (if (direct == null) "and nothing directly either: the network is down" else "and Android says the network has no internet"))
+                checkNational()
+            }
             PathWatch.Verdict.RETRY -> log("Path check ($why): nothing reached through the engine (${ms}ms); directly: $direct; looking again")
             PathWatch.Verdict.BROKEN -> {
                 // Always once: a fresh engine and tunnel may do. Again soon
@@ -839,6 +843,30 @@ class ShroudlyVpnService : VpnService() {
                 }
             }
         }
+    }
+
+    /* Nothing reached anywhere: whether the country's own network still
+     * answers (a shutdown of the rest of the world, NationalNet), at most
+     * once a minute, off the checks' thread. */
+    @Volatile private var nationalAt = 0L
+    @Volatile private var nationalBusy = false
+    private fun checkNational() {
+        val now = SystemClock.elapsedRealtime()
+        if (nationalBusy || (nationalAt != 0L && now - nationalAt < 60_000)) return
+        nationalAt = now
+        nationalBusy = true
+        val cm = getSystemService(ConnectivityManager::class.java)
+        val net = try { underlying(cm)?.first } catch (_: Exception) { null }
+        Thread({
+            try {
+                val found = NationalNet.answers(net)
+                val cc = found?.first
+                if (cc != Protection.national) {
+                    Protection.national(cc)
+                    if (found != null) log("Only this country's own network answers: the connection to the rest of the world is cut (${found.second} opens, the world's addresses do not). No app can get past that; Shroudly carries on when it is back")
+                }
+            } finally { nationalBusy = false }
+        }, "national-check").apply { isDaemon = true }.start()
     }
 
     /* Asks Android to check the network underneath again now, and waits

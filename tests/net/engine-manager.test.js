@@ -54,10 +54,13 @@ const t = suite('engine-manager');
     // answers directly either. The window then says the network has no
     // internet (advice.offline) instead of "Protected"; the first byte back
     // or a control address answering ends it.
-    const was = { active: em.active, lastDownAt: em.lastDownAt, ia: em.internetAnswers, stats: { ...em.stats } };
+    const was = { active: em.active, lastDownAt: em.lastDownAt, ia: em.internetAnswers, da: em.domesticAnswers, stats: { ...em.stats } };
     let direct = false;
     let asked = 0;
+    let national = null;
+    let askedHome = 0;
     em.internetAnswers = async () => { asked++; return direct; };
+    em.domesticAnswers = async () => { askedHome++; return national; };
     em.active = true;
     em.lastDownAt = 0;
     const settle = () => new Promise((r) => setTimeout(r, 10));
@@ -66,7 +69,8 @@ const t = suite('engine-manager');
     t.ok(!em.advice.offline && asked === 0, 'a few failures: nothing said, nothing checked');
     em._onUnreachable('h3.example', 'connect');
     await settle();
-    t.ok(em.advice.offline === true && asked === 1 && logs.some((l) => /no internet right now/.test(l)), 'every site failing, nothing back, nothing answering directly: "no internet"');
+    t.ok(em.advice.offline === true && !em.advice.nationalOnly && asked === 1 && askedHome === 1 && logs.some((l) => /no internet right now/.test(l)),
+      'every site failing, nothing back, nothing answering directly, nothing inside the country either: "no internet"');
     em.lastDownAt = Date.now();
     em._clearOffline();
     t.ok(em.advice.offline === false && logs.some((l) => /The internet is back/.test(l)), 'the internet back: said, and the window goes back to "Protected"');
@@ -96,10 +100,33 @@ const t = suite('engine-manager');
     em._clearOffline({ quiet: true });
     t.ok(!em.advice.offline && !em.advice.ownProxy, 'and gone with the rest');
     em.proxy = proxyWas;
+    // The rest of the world cut, the country's own sites opening (Iran's
+    // shutdowns): told as that, not as "no internet" (national-net.js).
+    national = { country: 'IR', host: 'www.digikala.com' };
+    askedHome = 0;
+    for (let i = 0; i < 5; i++) em._onUnreachable(`n${i}.example`, 'connect');
+    await settle();
+    t.ok(em.advice.offline && em.advice.nationalOnly === 'IR' && askedHome === 1
+      && logs.some((l) => /Only this country's own network answers: the connection to the rest of the world is cut \(www\.digikala\.com opens, the world's addresses do not\)/.test(l)),
+    "the world cut, the country's own sites opening: \"only this country's network\", not \"no internet\"");
+    em.lastDownAt = Date.now();
+    em._clearOffline();
+    t.ok(!em.advice.offline && em.advice.nationalOnly === null, 'and over once the world answers again');
+    // With the network's own proxy in the way, the country's sites are not asked.
+    em.proxy = { ...proxyWas, priorProxy: () => ({ kind: 'manual', what: 'proxy.corp:8080' }) };
+    em.lastDownAt = 0;
+    askedHome = 0;
+    for (let i = 0; i < 5; i++) em._onUnreachable(`p${i}.example`, 'connect');
+    await settle();
+    t.ok(em.advice.ownProxy && !em.advice.nationalOnly && askedHome === 0, "the network's own proxy in the way: the country's sites are not asked");
+    em._clearOffline({ quiet: true });
+    em.proxy = proxyWas;
     clearInterval(em._offlineTimer);
-    Object.assign(em, { active: was.active, lastDownAt: was.lastDownAt, internetAnswers: was.ia, stats: was.stats, _fails: [] });
+    Object.assign(em, { active: was.active, lastDownAt: was.lastDownAt, internetAnswers: was.ia, domesticAnswers: was.da, stats: was.stats, _fails: [] });
     const main = require('fs').readFileSync(path.join(ROOT, 'electron', 'main.js'), 'utf8');
-    t.ok(/offline: !!\(engine && engine\.isActive\(\) && engine\.advice && engine\.advice\.offline\)/.test(main), 'the window is told (dpi:status)');
+    t.ok(/offline: !!\(engine && engine\.isActive\(\) && engine\.advice && engine\.advice\.offline\)/.test(main)
+      && /nationalOnly: !!\(engine && engine\.isActive\(\) && engine\.advice && engine\.advice\.offline && engine\.advice\.nationalOnly\)/.test(main),
+    'the window is told (dpi:status), the national network too');
   }
   em._starting = Promise.resolve(); t.ok(em.coming === true, 'a start under way: the engine is coming');
   em._stops = 1; t.ok(em.coming === false, '…but not while a stop is asked for');

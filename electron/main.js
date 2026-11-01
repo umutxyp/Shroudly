@@ -1724,6 +1724,9 @@ ipcMain.handle('dpi:status', () => ({
   // ...because the network's own proxy, set before Shroudly's, is the only
   // way out (system-proxy.js priorProxy).
   ownProxy: !!(engine && engine.isActive() && engine.advice && engine.advice.offline && engine.advice.ownProxy),
+  // ...or only the country's own network answers: a shutdown of the rest of
+  // the world (national-net.js), which no app gets past.
+  nationalOnly: !!(engine && engine.isActive() && engine.advice && engine.advice.offline && engine.advice.nationalOnly),
 }));
 ipcMain.handle('dpi:probe', (e, host) => {
   if (engine && typeof host === 'string' && host) { userTests.set(host.toLowerCase(), Date.now()); engine.probe(host); }

@@ -218,6 +218,7 @@ const LINES = [
   'The system proxy was not set. Apps can still use SOCKS5 127.0.0.1:10808 directly (PAC: http://127.0.0.1:10840/proxy.pac).',
   'Windows did not let Shroudly set the system proxy (ERROR: Access is denied.). Apps can still use SOCKS5 127.0.0.1:10808 directly (PAC: http://127.0.0.1:10840/proxy.pac).',
   'Windows does not let Shroudly start reg.exe (EPERM); Shroudly reads and writes these settings itself',
+  "Only this country's own network answers: the connection to the rest of the world is cut (www.digikala.com opens, the world's addresses do not). No app can get past that; Shroudly carries on when it is back",
   'Could not update proxy routing: timeout',
   'Shroudly engine stopped',
   'Encrypted DNS unavailable: bind EADDRINUSE 127.0.0.1:53',

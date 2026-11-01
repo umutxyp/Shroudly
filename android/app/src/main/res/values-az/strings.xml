@@ -137,6 +137,9 @@
     <string name="linkReleases">Buraxılış qeydləri</string>
     <string name="linkSourceCode">GitHub-da mənbə kodu</string>
     <string name="madeBy">Codeshare Technology Ltd məhsulu</string>
+    <string name="nationalOnlyBody">Dünyanın qalan hissəsi ilə bağlantı kəsilib; ölkə daxilindəki saytlar hələ açılır. Heç bir tətbiq və ya VPN bunu keçə bilməz. Bağlantı qayıdanda Shroudly özü davam edir.</string>
+    <string name="nationalOnlyHelp">Hələ nə kömək edə bilər</string>
+    <string name="nationalOnlyTitle">Yalnız bu ölkənin şəbəkəsi işləyir</string>
     <string name="navInfo">Haqqında</string>
     <string name="navProtection">Qoruma</string>
     <string name="navSettings">Ayarlar</string>

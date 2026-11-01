@@ -137,6 +137,9 @@
     <string name="linkReleases">Notên weşanê</string>
     <string name="linkSourceCode">Koda çavkaniyê li GitHubê</string>
     <string name="madeBy">Berhemeke Codeshare Technology Ltd</string>
+    <string name="nationalOnlyBody">Girêdana bi cîhana mayî re qut bûye; malperên hundirê welat hîn vedibin. Tu sepan an VPN nikare vê derbas bike. Dema girêdan vegere, Shroudly bi xwe berdewam dike.</string>
+    <string name="nationalOnlyHelp">Hîn çi dikare alîkariyê bike</string>
+    <string name="nationalOnlyTitle">Tenê tora vî welatî dixebite</string>
     <string name="navInfo">Derbarê</string>
     <string name="navProtection">Parastin</string>
     <string name="navSettings">Mîheng</string>

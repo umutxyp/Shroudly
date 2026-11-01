@@ -137,6 +137,9 @@
     <string name="linkReleases">Спіс змен</string>
     <string name="linkSourceCode">Зыходны код на GitHub</string>
     <string name="madeBy">Прадукт Codeshare Technology Ltd</string>
+    <string name="nationalOnlyBody">Сувязь з астатнім светам адрэзаная; сайты ўнутры краіны яшчэ адкрываюцца. Ніводная праграма ці VPN гэтага не абыдзе. Калі сувязь вернецца, Shroudly працягне сам.</string>
+    <string name="nationalOnlyHelp">Што яшчэ можа дапамагчы</string>
+    <string name="nationalOnlyTitle">Працуе толькі сетка гэтай краіны</string>
     <string name="navInfo">Пра праграму</string>
     <string name="navProtection">Абарона</string>
     <string name="navSettings">Налады</string>

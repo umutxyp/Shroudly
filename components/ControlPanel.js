@@ -9,7 +9,7 @@ import { proxyNotice, PROXY_ACTIONS } from './proxyNotice';
 import { pickRoom } from './panelRoom';
 
 export default function ControlPanel({ dpiStatus, onStatusChange, onSupport }) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [loading, setLoading] = useState(false);
   const [toast, setToast] = useState(null);
   const [fixing, setFixing] = useState(false);
@@ -31,6 +31,8 @@ export default function ControlPanel({ dpiStatus, onStatusChange, onSupport }) {
   // "Protected" that made the browser's proxy error look like Shroudly's.
   const offline = active && !notRouting && !!dpiStatus.offline;
   const ownProxy = offline && !!dpiStatus.ownProxy;
+  // Only the country's own network answers: a shutdown, not "no internet".
+  const nationalOnly = offline && !ownProxy && !!dpiStatus.nationalOnly;
   const pn = notRouting ? proxyNotice(dpiStatus.proxy, { active, advanced: dpiStatus.advanced }) : null;
   const fix = pn && pn.action ? PROXY_ACTIONS[pn.action] : null;
   const runFix = async () => {
@@ -156,7 +158,7 @@ export default function ControlPanel({ dpiStatus, onStatusChange, onSupport }) {
         <div ref={statusRef} className="w-full max-w-sm text-center" aria-live="polite">
           <h2 className="text-2xl font-semibold leading-tight tracking-tight wrap-anywhere"
               style={{ color: notRouting ? 'var(--warn)' : offline ? 'var(--text)' : active ? 'var(--state)' : 'var(--text)' }}>
-            {notRouting ? t('notWorkingYet') : ownProxy ? t('ownProxyTitle') : offline ? t('noInternet') : active ? t('protected') : starting ? t('starting') : t('notProtected')}
+            {notRouting ? t('notWorkingYet') : ownProxy ? t('ownProxyTitle') : nationalOnly ? t('nationalOnlyTitle') : offline ? t('noInternet') : active ? t('protected') : starting ? t('starting') : t('notProtected')}
           </h2>
           {notRouting ? (
             <ClampedText text={t(pn ? pn.body : 'proxyFailedBody', pn ? pn.params : undefined)} lines={5}
@@ -166,6 +168,12 @@ export default function ControlPanel({ dpiStatus, onStatusChange, onSupport }) {
               {t('repairFilesMissing', { files: repair.missing.join(', ') })}{' '}
               <a href="https://github.com/umutxyp/Shroudly/releases/latest" target="_blank" rel="noreferrer"
                  className="font-semibold underline">{t('repairDownload')}</a>
+            </p>
+          ) : nationalOnly ? (
+            <p className="mt-1.5 text-[13px] leading-snug wrap-anywhere" style={{ color: 'var(--text-dim)' }}>
+              {t('nationalOnlyBody')}{' '}
+              <a href={`https://github.com/umutxyp/Shroudly/wiki/Shutdowns-${language}`} target="_blank" rel="noreferrer"
+                 className="font-semibold underline">{t('nationalOnlyHelp')}</a>
             </p>
           ) : failed ? (
             <p className="mt-1.5 text-[13px] leading-snug wrap-anywhere" style={{ color: 'var(--warn)' }}>{t('startFailedBody', { repair: t('repairApp') })}</p>

@@ -137,6 +137,9 @@
     <string name="linkReleases">ملاحظات الإصدار</string>
     <string name="linkSourceCode">الشيفرة المصدرية على GitHub</string>
     <string name="madeBy">منتج من Codeshare Technology Ltd</string>
+    <string name="nationalOnlyBody">الاتصال ببقية العالم مقطوع؛ ولا تزال مواقع داخل البلد تفتح. لا يستطيع أي تطبيق أو VPN تجاوز ذلك. سيتابع Shroudly من تلقاء نفسه عند عودته.</string>
+    <string name="nationalOnlyHelp">ما الذي قد يساعد بعد</string>
+    <string name="nationalOnlyTitle">لا تعمل إلا شبكة هذا البلد</string>
     <string name="navInfo">حول</string>
     <string name="navProtection">الحماية</string>
     <string name="navSettings">الإعدادات</string>

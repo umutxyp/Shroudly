@@ -137,6 +137,9 @@
     <string name="linkReleases">ریلیز نوٹس</string>
     <string name="linkSourceCode">GitHub پر سورس کوڈ</string>
     <string name="madeBy">Codeshare Technology Ltd کی ایک پروڈکٹ</string>
+    <string name="nationalOnlyBody">باقی دنیا سے رابطہ کٹا ہوا ہے؛ ملک کے اندر کی سائٹس اب بھی کھلتی ہیں۔ کوئی ایپ یا VPN اس سے آگے نہیں جا سکتا۔ رابطہ واپس آنے پر Shroudly خود جاری رکھے گا۔</string>
+    <string name="nationalOnlyHelp">اب بھی کیا مدد کر سکتا ہے</string>
+    <string name="nationalOnlyTitle">صرف اس ملک کا نیٹ ورک چل رہا ہے</string>
     <string name="navInfo">تعارف</string>
     <string name="navProtection">تحفظ</string>
     <string name="navSettings">ترتیبات</string>

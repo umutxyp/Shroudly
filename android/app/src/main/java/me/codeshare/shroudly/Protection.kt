@@ -40,6 +40,10 @@ object Protection {
     @Volatile var proxyPortTaken = 0
     /* The window is on screen (between its onStart and onStop). */
     @Volatile var windowVisible = false
+    /* While on: only this country's own network answers (NationalNet), its
+     * code (IR, RU...), or null. */
+    @Volatile var national: String? = null
+        private set
 
     private val listeners = CopyOnWriteArraySet<() -> Unit>()
     private val main = Handler(Looper.getMainLooper())
@@ -48,7 +52,7 @@ object Protection {
         state = s
         if (s == State.STARTING) { errorRes = 0; errorDetail = null }
         if (s != State.ON) { socksPort = 0; socksAuth = null; proxyPortTaken = 0 }
-        if (s == State.OFF) { stats = null; startedAt = 0; proxyOnly = false }
+        if (s == State.OFF) { stats = null; startedAt = 0; proxyOnly = false; national = null }
         changed()
     }
 
@@ -61,6 +65,12 @@ object Protection {
     fun trouble(res: Int) {
         if (troubleRes == res) return
         troubleRes = res
+        changed()
+    }
+
+    fun national(cc: String?) {
+        if (national == cc) return
+        national = cc
         changed()
     }
 

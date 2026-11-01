@@ -137,6 +137,9 @@
     <string name="linkReleases">Nota keluaran</string>
     <string name="linkSourceCode">Kod sumber di GitHub</string>
     <string name="madeBy">Produk Codeshare Technology Ltd</string>
+    <string name="nationalOnlyBody">Sambungan ke seluruh dunia terputus; laman dalam negara masih terbuka. Tiada aplikasi atau VPN yang dapat melepasinya. Shroudly akan meneruskan sendiri apabila sambungan kembali.</string>
+    <string name="nationalOnlyHelp">Apa yang masih boleh membantu</string>
+    <string name="nationalOnlyTitle">Hanya rangkaian negara ini yang berfungsi</string>
     <string name="navInfo">Perihal</string>
     <string name="navProtection">Perlindungan</string>
     <string name="navSettings">Tetapan</string>

@@ -310,6 +310,7 @@ const PATTERNS = [
   [/^This session does not read the setting Shroudly writes for Chrome and other Chromium browsers\. Apps can still use SOCKS5 (\S+) directly \(PAC: (\S+)\)\.$/, 'logProxyManualNotTaken', ['socks', 'pac']],
   [/^The administrator of this computer set the proxy for all its users \(Group Policy\), so browsers do not follow Shroudly's; Advanced mode works beneath it\. Apps can still use SOCKS5 (\S+) directly \(PAC: (\S+)\)\.$/, 'logProxyManualPolicy', ['socks', 'pac']],
   [/^Windows did not let Shroudly set the system proxy \((.+?)\)\. Apps can still use SOCKS5 (\S+) directly \(PAC: (\S+)\)\.$/, 'logProxyWinRefused', ['reason', 'socks', 'pac']],
+  [/^Only this country's own network answers: the connection to the rest of the world is cut \((\S+) opens, the world's addresses do not\)\. No app can get past that; Shroudly carries on when it is back$/, 'logNationalOnly', ['host']],
   [/^Windows does not let Shroudly start reg\.exe \((\S+)\); Shroudly reads and writes these settings itself$/, 'logRegExeRefused', ['code']],
   [/^The system proxy was not set\. Apps can still use SOCKS5 (\S+) directly \(PAC: (\S+)\)\.$/, 'logProxyManualNotSet', ['socks', 'pac']],
 ];

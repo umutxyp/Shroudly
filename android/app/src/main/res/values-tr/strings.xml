@@ -137,6 +137,9 @@
     <string name="linkReleases">Sürüm notları</string>
     <string name="linkSourceCode">GitHub’daki kaynak kodu</string>
     <string name="madeBy">Bir Codeshare Technology Ltd ürünü</string>
+    <string name="nationalOnlyBody">Dünyanın geri kalanıyla bağlantı kesik; ülke içindeki siteler hâlâ açılıyor. Hiçbir uygulama ya da VPN bunu aşamaz. Bağlantı geri geldiğinde Shroudly kendiliğinden devam eder.</string>
+    <string name="nationalOnlyHelp">Hâlâ ne işe yarar</string>
+    <string name="nationalOnlyTitle">Sadece ülkenin kendi ağı çalışıyor</string>
     <string name="navInfo">Hakkında</string>
     <string name="navProtection">Koruma</string>
     <string name="navSettings">Ayarlar</string>

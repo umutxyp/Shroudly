@@ -137,6 +137,9 @@
     <string name="linkReleases">Release notes</string>
     <string name="linkSourceCode">Source code on GitHub</string>
     <string name="madeBy">A Codeshare Technology Ltd product</string>
+    <string name="nationalOnlyBody">The connection to the rest of the world is cut; sites inside the country still open. No app or VPN gets past that. Shroudly carries on by itself when it is back.</string>
+    <string name="nationalOnlyHelp">What can still help</string>
+    <string name="nationalOnlyTitle">Only this country\'s network works</string>
     <string name="navInfo">About</string>
     <string name="navProtection">Protection</string>
     <string name="navSettings">Settings</string>

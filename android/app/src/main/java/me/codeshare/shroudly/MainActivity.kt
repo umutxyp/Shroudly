@@ -550,7 +550,8 @@ class MainActivity : Activity() {
 
         val statusText = getString(
             when (st) {
-                Protection.State.ON -> if (proxyIdle) R.string.androidProxyOnlyRunning else R.string.protected_
+                Protection.State.ON -> if (proxyIdle) R.string.androidProxyOnlyRunning
+                    else if (Protection.national != null) R.string.nationalOnlyTitle else R.string.protected_
                 Protection.State.STARTING -> R.string.starting
                 Protection.State.STOPPING -> R.string.stopping
                 Protection.State.OFF -> R.string.notProtected
@@ -592,6 +593,13 @@ class MainActivity : Activity() {
             vpnDenied && off -> {
                 detail.show(getString(R.string.androidVpnDeniedHere))
                 detail.setTextColor(getColor(R.color.warn))
+            }
+            // Only the country's own network answers: a shutdown, which no
+            // app gets past; where to read what can still help.
+            on && Protection.national != null -> {
+                detail.show(getString(R.string.nationalOnlyBody))
+                detail.setTextColor(getColor(R.color.warn))
+                more = R.string.nationalOnlyHelp
             }
             on && Protection.troubleRes != 0 -> {
                 detail.show(getString(Protection.troubleRes))
@@ -635,6 +643,7 @@ class MainActivity : Activity() {
                 when (more) {
                     R.string.androidVpnSettings -> openVpnSettings()
                     R.string.androidWifiSettings -> openWifiSettings(this)
+                    R.string.nationalOnlyHelp -> open(NationalNet.guideUrl(resources.configuration.locales[0].language))
                     else -> showDetail()
                 }
             }

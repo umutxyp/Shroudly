@@ -137,6 +137,9 @@
     <string name="linkReleases">บันทึกประจำรุ่น</string>
     <string name="linkSourceCode">ซอร์สโค้ดบน GitHub</string>
     <string name="madeBy">ผลิตภัณฑ์ของ Codeshare Technology Ltd</string>
+    <string name="nationalOnlyBody">การเชื่อมต่อกับส่วนอื่นของโลกถูกตัด เว็บไซต์ในประเทศยังเปิดได้ ไม่มีแอปหรือ VPN ใดผ่านสิ่งนี้ได้ Shroudly จะทำงานต่อเองเมื่อการเชื่อมต่อกลับมา</string>
+    <string name="nationalOnlyHelp">อะไรยังช่วยได้บ้าง</string>
+    <string name="nationalOnlyTitle">ใช้ได้เฉพาะเครือข่ายในประเทศนี้</string>
     <string name="navInfo">เกี่ยวกับ</string>
     <string name="navProtection">การป้องกัน</string>
     <string name="navSettings">การตั้งค่า</string>

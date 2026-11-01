@@ -137,6 +137,9 @@
     <string name="linkReleases">Reliz qaydlari</string>
     <string name="linkSourceCode">GitHubdagi manba kodi</string>
     <string name="madeBy">Codeshare Technology Ltd mahsuloti</string>
+    <string name="nationalOnlyBody">Dunyoning qolgan qismi bilan aloqa uzilgan; mamlakat ichidagi saytlar hali ochilmoqda. Buni hech bir ilova yoki VPN chetlab oʻta olmaydi. Aloqa qaytganda Shroudly oʻzi davom etadi.</string>
+    <string name="nationalOnlyHelp">Yana nima yordam berishi mumkin</string>
+    <string name="nationalOnlyTitle">Faqat shu mamlakat tarmogʻi ishlayapti</string>
     <string name="navInfo">Haqida</string>
     <string name="navProtection">Himoya</string>
     <string name="navSettings">Sozlamalar</string>

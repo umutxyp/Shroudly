@@ -137,6 +137,9 @@
     <string name="linkReleases">Notas de la versión</string>
     <string name="linkSourceCode">Código fuente en GitHub</string>
     <string name="madeBy">Un producto de Codeshare Technology Ltd</string>
+    <string name="nationalOnlyBody">La conexión con el resto del mundo está cortada; los sitios del país todavía abren. Ninguna app ni VPN puede saltarse eso. Shroudly seguirá por sí mismo cuando vuelva.</string>
+    <string name="nationalOnlyHelp">Lo que todavía puede ayudar</string>
+    <string name="nationalOnlyTitle">Solo funciona la red de este país</string>
     <string name="navInfo">Acerca de</string>
     <string name="navProtection">Protección</string>
     <string name="navSettings">Ajustes</string>

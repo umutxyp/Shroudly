@@ -137,6 +137,9 @@
     <string name="linkReleases">የልቀት ማስታወሻዎች</string>
     <string name="linkSourceCode">የምንጭ ኮድ በGitHub ላይ</string>
     <string name="madeBy">የCodeshare Technology Ltd ምርት</string>
+    <string name="nationalOnlyBody">ከቀረው ዓለም ጋር ያለው ግንኙነት ተቋርጧል፤ በአገር ውስጥ ያሉ ጣቢያዎች አሁንም ይከፈታሉ። ይህን ማንኛውም መተግበሪያ ወይም VPN ሊያልፈው አይችልም። ግንኙነቱ ሲመለስ Shroudly በራሱ ይቀጥላል።</string>
+    <string name="nationalOnlyHelp">አሁንም ምን ሊረዳ ይችላል</string>
+    <string name="nationalOnlyTitle">የዚህ አገር አውታረ መረብ ብቻ ነው የሚሠራው</string>
     <string name="navInfo">መረጃ</string>
     <string name="navProtection">ጥበቃ</string>
     <string name="navSettings">ቅንብሮች</string>

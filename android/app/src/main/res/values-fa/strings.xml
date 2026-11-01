@@ -137,6 +137,9 @@
     <string name="linkReleases">یادداشت‌های انتشار</string>
     <string name="linkSourceCode">کد منبع در GitHub</string>
     <string name="madeBy">محصولی از Codeshare Technology Ltd</string>
+    <string name="nationalOnlyBody">ارتباط با بقیهٔ جهان قطع است؛ سایت‌های داخل کشور هنوز باز می‌شوند. هیچ برنامه یا VPNی از این عبور نمی‌کند. وقتی ارتباط برگردد، Shroudly خودش ادامه می‌دهد.</string>
+    <string name="nationalOnlyHelp">چه چیزی هنوز کمک می‌کند</string>
+    <string name="nationalOnlyTitle">فقط شبکهٔ داخلی این کشور کار می‌کند</string>
     <string name="navInfo">درباره</string>
     <string name="navProtection">محافظت</string>
     <string name="navSettings">تنظیمات</string>

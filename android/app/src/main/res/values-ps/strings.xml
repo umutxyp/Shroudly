@@ -137,6 +137,9 @@
     <string name="linkReleases">د خپرونو یادښتونه</string>
     <string name="linkSourceCode">په GitHub کې سرچینه کوډ</string>
     <string name="madeBy">د Codeshare Technology Ltd محصول</string>
+    <string name="nationalOnlyBody">د نړۍ له پاتې برخې سره اړیکه پرې ده؛ د هېواد دننه سایټونه لا خلاصېږي. هېڅ اپ یا VPN له دې نه شي تېرېدای. کله چې اړیکه بېرته راشي، Shroudly پخپله دوام ورکوي.</string>
+    <string name="nationalOnlyHelp">نور څه مرسته کولی شي</string>
+    <string name="nationalOnlyTitle">یوازې د دې هېواد شبکه کار کوي</string>
     <string name="navInfo">په اړه</string>
     <string name="navProtection">ساتنه</string>
     <string name="navSettings">امستنې</string>

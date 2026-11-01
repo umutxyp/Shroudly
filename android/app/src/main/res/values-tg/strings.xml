@@ -137,6 +137,9 @@
     <string name="linkReleases">Тавсифи версияҳо</string>
     <string name="linkSourceCode">Коди манбаъ дар GitHub</string>
     <string name="madeBy">Маҳсули Codeshare Technology Ltd</string>
+    <string name="nationalOnlyBody">Пайваст бо дигар ҷаҳон бурида шудааст; сайтҳои дохили кишвар ҳоло кушода мешаванд. Ягон барнома ё VPN инро гузашта наметавонад. Вақте пайваст бармегардад, Shroudly худаш идома медиҳад.</string>
+    <string name="nationalOnlyHelp">Боз чӣ кӯмак карда метавонад</string>
+    <string name="nationalOnlyTitle">Танҳо шабакаи ҳамин кишвар кор мекунад</string>
     <string name="navInfo">Маълумот</string>
     <string name="navProtection">Ҳимоя</string>
     <string name="navSettings">Танзимот</string>

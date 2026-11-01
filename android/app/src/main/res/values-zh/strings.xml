@@ -137,6 +137,9 @@
     <string name="linkReleases">版本说明</string>
     <string name="linkSourceCode">GitHub 上的源代码</string>
     <string name="madeBy">Codeshare Technology Ltd 出品</string>
+    <string name="nationalOnlyBody">与世界其他地区的连接已被切断；国内网站仍可打开。任何应用或 VPN 都无法绕过。连接恢复后，Shroudly 会自动继续。</string>
+    <string name="nationalOnlyHelp">还有什么能帮上忙</string>
+    <string name="nationalOnlyTitle">只有本国网络可用</string>
     <string name="navInfo">关于</string>
     <string name="navProtection">保护</string>
     <string name="navSettings">设置</string>
