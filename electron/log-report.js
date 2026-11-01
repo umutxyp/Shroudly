@@ -36,7 +36,9 @@ const onOff = (v) => (v ? 'on' : 'off');
 /*
  * s: { version, os, arch, protection: 'on' | 'off' | 'starting',
  *      routeMode, advanced: { on, available }, discordMode, appsMode,
- *      storeApps (Windows: true/false; elsewhere null), now,
+ *      storeApps (Windows: true/false; elsewhere null), security (an
+ *      antivirus block the window shows now, in a few words: security-
+ *      block.js summary; null for none), now,
  *      utcOffsetMin (the short version's times: this computer's offset
  *      from UTC in minutes; its own by default) }
  * logs: [{ timestamp, level, message }]
@@ -54,6 +56,8 @@ function header(s, list, { verb = 'copied', lines = `${list.length}` } = {}) {
     `System: ${s.os} (${s.arch})`,
     `Protection: ${s.protection}; route: ${s.routeMode === 'listed' ? 'listed sites only' : 'every site'}`,
     `Advanced mode: ${onOff(adv.on)}${adv.available === false ? ' (not available here)' : ''}`,
+    // An antivirus in the way is the first thing a report should say.
+    ...(s.security ? [`Security software: ${s.security}`] : []),
     `Modes: ${modes.join(', ')}`,
     `Network: ${network}`,
     `Lines: ${lines}`,

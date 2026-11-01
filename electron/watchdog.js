@@ -15,11 +15,18 @@
  * electronFuses), which antivirus programs flag as a known way to disguise a
  * program. The restore at the next login or the next start, and the
  * installer, put things back then.
+ *
+ * A watchdog that was ended while its file is gone is not started again: an
+ * antivirus quarantined the engine (and so the watchdog, the same program),
+ * and starting anything again then can only fail or give it one more reason
+ * to act. That is said once (opts.onCoreGone; the engine's own end tells
+ * the user).
  */
 
 const fs = require('fs');
 const path = require('path');
 const { spawn } = require('child_process');
+const { fileState, isGone } = require('./security-block');
 
 let child = null;
 // What it was told to look after, so that a watchdog that was stopped while
@@ -28,6 +35,7 @@ let child = null;
 let lastOpts = null;
 const watched = new Set();
 let restarts = [];
+let coreGoneTold = false;
 
 /* An AppImage runs from a mount that disappears with Shroudly, and the
  * watchdog must outlive exactly that: run a copy kept next to the settings. */
@@ -68,15 +76,24 @@ function start(opts) {
   return c;
 }
 
-/* Start it again after it was stopped, at most five times in ten minutes. */
+/* Its file gone (see the top): said once. */
+function coreGone() {
+  if (!lastOpts || !lastOpts.core || !isGone(fileState(lastOpts.core))) return false;
+  if (!coreGoneTold && typeof lastOpts.onCoreGone === 'function') { coreGoneTold = true; try { lastOpts.onCoreGone(lastOpts.core); } catch {} }
+  return true;
+}
+
+/* Start it again after it was stopped, at most five times in ten minutes,
+ * and not once its file is gone: looked at again just before, since an
+ * antivirus may end a program a moment before it moves its file away. */
 function respawn() {
-  if (!lastOpts || !watched.size) return;
+  if (!lastOpts || !watched.size || coreGone()) return;
   const now = Date.now();
   restarts = restarts.filter((t) => now - t < 10 * 60 * 1000);
   if (restarts.length >= 5) return;
   restarts.push(now);
   const t = setTimeout(() => {
-    if (child || !lastOpts) return;
+    if (child || !lastOpts || coreGone()) return;
     try { child = start(lastOpts); } catch { child = null; }
     if (!child) return;
     for (const line of watched) { try { child.stdin.write(line); } catch {} }
@@ -84,7 +101,7 @@ function respawn() {
   if (t.unref) t.unref();
 }
 
-/* opts: { core, restore: { exe, args }, copyDir };
+/* opts: { core, restore: { exe, args }, copyDir, onCoreGone(core) };
  * kind: 'proxy' | 'env'. */
 function watch(opts, kind, file) {
   if (!opts || !file) return false;

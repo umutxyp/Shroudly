@@ -23,6 +23,11 @@
  * With "Ask for permission by itself" off (Settings), it does not come back
  * after the game by itself: the user is told, and turns it on in Settings.
  *
+ * Nor does it come back by itself (at the next Start, after a game) once an
+ * antivirus has blocked it this session (opts.blocked): asking again would
+ * only meet the same block, after a permission prompt. The user turns it on
+ * again once they have allowed it.
+ *
  * Never in the middle of a full-screen game, video or presentation
  * (user-busy.js): the permission prompt takes the screen (Windows' secure
  * desktop) and throws the game back to the desktop. It is asked once the
@@ -48,6 +53,7 @@ class AdvancedProtection {
    * opts.ready()           optional: waited for before asking (another permission prompt on screen)
    * opts.notBusy(stop)     optional: resolves once no full-screen program is in front, or stop() is true
    * opts.mayAsk()          optional: a permission prompt may be brought up by itself (the setting)
+   * opts.blocked()         optional: an antivirus blocked it this session
    * opts.stop()            stop it, and tell the window
    * opts.protectionOn()    whether protection is on (or on its way back)
    * opts.antiCheat()       a game's anti-cheat running (its name), or null
@@ -61,6 +67,7 @@ class AdvancedProtection {
     this.ready = opts.ready || (async () => {});
     this.notBusy = opts.notBusy || (async () => {});
     this.mayAsk = opts.mayAsk || (() => true);
+    this.blocked = opts.blocked || (() => false);
     this.stopBackend = opts.stop;
     this.protectionOn = opts.protectionOn;
     this.antiCheat = opts.antiCheat || (async () => null);
@@ -112,6 +119,10 @@ class AdvancedProtection {
         if (game) return;
         const was = this.paused.game;
         this.paused = null;
+        if (this.blocked()) {
+          this.log('info', `${was} has closed; Advanced mode is not brought back, as security software blocked it earlier in this session`);
+          return;
+        }
         if (!this.mayAsk()) {
           this.log('info', `${was} has closed; Advanced mode is not brought back, as Shroudly does not ask for permission by itself (a setting)`);
           this.tell('autoAdvancedNoAskAfterGame', { program: was });
@@ -141,6 +152,7 @@ class AdvancedProtection {
     if (!this.resume || this.active() || !this.protectionOn()) return;
     const since = this.stops;
     this.resume = false;
+    if (this.blocked()) { this.log('info', 'Advanced mode was on when protection was stopped, but security software blocked it earlier in this session; not started by itself'); return; }
     // As for the autopilot: never loaded by itself beside a game's anti-cheat.
     let ac = null;
     try { ac = await this.antiCheat(); } catch {}

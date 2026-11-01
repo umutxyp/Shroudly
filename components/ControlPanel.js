@@ -23,6 +23,11 @@ export default function ControlPanel({ dpiStatus, onStatusChange, onSupport }) {
       if (r?.success) {
         onStatusChange();
         setToast({ message: t(okKey), type: 'success' });
+      } else if (r?.code === 'security_blocked') {
+        // An antivirus took or refused the engine: said plainly; the banner
+        // above says what to do, never the engine's technical words.
+        onStatusChange();
+        setToast({ message: t('startBlockedBySecurity'), type: 'error' });
       } else {
         setToast({ message: t(failKey), detail: r?.error, type: 'error' });
       }
@@ -75,8 +80,8 @@ export default function ControlPanel({ dpiStatus, onStatusChange, onSupport }) {
               style={{ color: active ? 'var(--accent)' : 'var(--text)' }}>
             {active ? t('protected') : t('notProtected')}
           </h2>
-          <p className="mt-1.5 text-[13px] leading-snug" style={{ color: 'var(--text-dim)' }}>
-            {active ? t('dpiBypassRunning') : t('dpiBypassStopped')}
+          <p className="mt-1.5 text-[13px] leading-snug" style={{ color: !active && dpiStatus.blocked ? 'var(--warn)' : 'var(--text-dim)' }}>
+            {active ? t('dpiBypassRunning') : dpiStatus.blocked ? t('securityStatus') : t('dpiBypassStopped')}
           </p>
         </div>
 

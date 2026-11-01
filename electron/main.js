@@ -58,6 +58,7 @@ const LogGate = require('./log-gate');
 const { AdblockList } = require('./adblock');
 const { reveal } = require('./reveal');
 const WinHttp = require('./winhttp');
+const SecurityBlock = require('./security-block');
 
 /* "Shroudly --restore-proxy" runs once at login after a run that never got to
  * restore the system proxy (power loss, forced reboot), and from the watchdog
@@ -237,6 +238,49 @@ function notify(title, body) {
   }
 }
 
+/* An antivirus that quarantined, refused or ended a part of Shroudly
+ * (security-block.js: the engine, its watchdog, Advanced mode), told from
+ * this one place:
+ *   - one line in the log, always (English, with the file and the folder);
+ *   - one notification per part per session, if notifications are on: it
+ *     never brings the window up (a click on it does);
+ *   - the window's banner, kept with the engine's advice so a window opened
+ *     later still shows it, and the tray's status line;
+ * and gone with the next start that works. Shroudly never opens the
+ * antivirus, the folder or its own window for it, and never tries to make
+ * itself an exception: what to allow is the user's to decide.
+ * quiet: no notification and, while protection runs, nothing in the window
+ * (the watchdog's: the engine's own end, if it comes, tells the user). */
+const securityTold = new Set();
+// Advanced mode was blocked this session: it is not brought back by itself
+// (after a game, at the next Start) against the blocker.
+let advancedBlocked = false;
+function securityBlocked(info, { quiet = false } = {}) {
+  if (!info || !info.part) return;
+  addLog('error', SecurityBlock.logLine(info));
+  if (info.part === 'advanced') advancedBlocked = true;
+  if (quiet && engine && engine.isActive()) return;
+  if (!quiet && !securityTold.has(info.part)) {
+    securityTold.add(info.part);
+    const s = tr();
+    const sure = info.certain !== false;
+    notify('Shroudly', info.part === 'advanced' ? (sure ? s.notifySecurityAdvanced : s.notifySecurityAdvancedMaybe)
+      : (sure ? s.notifySecurityEngine : s.notifySecurityEngineMaybe));
+  }
+  if (engine) {
+    // The engine's block outweighs Advanced mode's: protection itself is off.
+    const now = engine.advice.security;
+    if (!(now && now.part === 'engine' && info.part === 'advanced')) engine._setAdvice({ security: SecurityBlock.forWindow(info) });
+  }
+  rebuildTrayMenu();
+}
+
+/* The engine is blocked for certain (the window's and the tray's status). */
+function engineBlocked() {
+  const sec = engine && !engine.isActive() ? engine.advice.security : null;
+  return !!(sec && sec.part === 'engine' && sec.certain);
+}
+
 /* What the log's header says about this computer and Shroudly now. */
 function reportState() {
   return {
@@ -249,6 +293,8 @@ function reportState() {
     discordMode: store.get('discordMode') === true,
     appsMode: store.get('appMode') === true,
     storeApps: process.platform === 'win32' ? store.get('storeAppsMode') === true : null,
+    // An antivirus block the window shows now, in a few words.
+    security: engine ? SecurityBlock.summary(engine.advice.security) : null,
   };
 }
 
@@ -327,7 +373,7 @@ function rebuildTrayMenu(active = trayActive) {
   trayActive = active;
   if (!tray) return;
   const s = tr();
-  const state = active ? s.trayActive : s.trayInactive;
+  const state = active ? s.trayActive : engineBlocked() ? s.traySecurityBlocked : s.trayInactive;
   const menu = Menu.buildFromTemplate([
     { label: s.trayOpen, click: () => showWindow() },
     { type: 'separator' },
@@ -735,6 +781,8 @@ const advancedProtection = new AdvancedProtection({
   notBusy: (stop) => userBusy.until(stop),
   // "Ask for permission by itself" off: not brought back after a game.
   mayAsk: () => store.get('askByItself', true) !== false,
+  // An antivirus blocked it this session: not brought back by itself.
+  blocked: () => advancedBlocked,
   stop: async () => {
     try { await advanced.stop(); } catch {}
     toWindow('advanced:state', { active: false });
@@ -776,9 +824,10 @@ async function safeStart({ user = false } = {}) {
     robloxWatch.warm();
     return r || { success: true };
   } catch (e) {
-    addLog('error', `Start failed: ${e.message}`);
+    // An antivirus block has its own line already (securityBlocked).
+    if (e.code !== 'security_blocked') addLog('error', `Start failed: ${e.message}`);
     broadcastStatus(false);
-    return { success: false, error: e.message };
+    return { success: false, error: e.message, code: e.code || null };
   }
 }
 
@@ -875,6 +924,11 @@ app.whenReady().then(async () => {
     core: EngineManager.coreBinaryPath(),
     restore: restoreCommand,
     copyDir: app.getPath('userData'),
+    // Ended with its file gone: an antivirus took the engine (watchdog.js).
+    onCoreGone: (core) => securityBlocked({
+      part: 'engine', kind: 'missing', file: path.basename(core), detail: 'the watchdog was ended with it',
+      folder: app.isPackaged ? SecurityBlock.installFolder() : path.dirname(core),
+    }, { quiet: true }),
   };
   siteList = new SiteList({
     cacheFile: path.join(app.getPath('userData'), 'site-list.json'),
@@ -884,6 +938,8 @@ app.whenReady().then(async () => {
   adblockList = new AdblockList({ dir: app.getPath('userData'), connect: DiscordRelay.socksConnect });
   engine = new EngineManager(store, {
     addLog, onStatusChange: broadcastStatus,
+    // An antivirus took, refused or keeps ending the engine.
+    onSecurityBlock: (info) => securityBlocked(info),
     // "Block ads and trackers": the list in use, once one has been fetched.
     adblockFile: () => (adblockList && adblockList.has() ? adblockList.file : null),
     siteList: () => siteList.domains,
@@ -984,6 +1040,8 @@ app.whenReady().then(async () => {
   advanced = new AdvancedMode(addLog);
   // The backend ended by itself: the window must not keep saying it is on.
   advanced.onExit = () => toWindow('advanced:state', { active: false });
+  // Ended from outside while it ran, its files gone with it.
+  advanced.onSecurityBlock = (info) => securityBlocked(info);
   // Protection as the user left it (see safeStart and below). Recovery needs
   // it: with protection off, what was written for the next login goes.
   const protectionOn = protectionWanted();
@@ -1288,6 +1346,8 @@ ipcMain.handle('advanced:stop', async () => {
 ipcMain.handle('dpi:status', () => ({
   active: engine ? engine.isActive() : false,
   stats: engine ? engine.getStats() : {},
+  // An antivirus took or refused the engine: the window says so.
+  blocked: engineBlocked(),
 }));
 ipcMain.handle('dpi:probe', (e, host) => {
   if (engine && typeof host === 'string' && host) { userTests.set(host.toLowerCase(), Date.now()); engine.probe(host); }
@@ -1341,7 +1401,8 @@ function scheduleEngineRestart() {
   clearTimeout(engineRestartTimer);
   engineRestartTimer = setTimeout(() => {
     if (!engine || !engine.isActive()) return;
-    engine.restart().catch((e) => { addLog('error', `Start failed: ${e.message}`); broadcastStatus(false); });
+    // An antivirus block has its own line already (securityBlocked).
+    engine.restart().catch((e) => { if (e.code !== 'security_blocked') addLog('error', `Start failed: ${e.message}`); broadcastStatus(false); });
   }, 700);
 }
 
@@ -1934,9 +1995,12 @@ ipcMain.handle('apps:set', async (e, on) => {
 // The latest line for a window opened later. Studio's lines are not kept
 // here: they come with the apps state, for as long as that Studio runs.
 let autoLatest = null;
+// Lines that follow a notification of their own: in the window only (the
+// antivirus that blocked Advanced mode was told by securityBlocked).
+const WINDOW_ONLY = ['autoSecurityAdvanced'];
 function autoTell(id, params = {}) {
   const text = String(tr()[id] || '').replace(/\{(\w+)\}/g, (m, k) => (params[k] != null ? String(params[k]) : m));
-  if (text) notify('Shroudly', text);
+  if (text && !WINDOW_ONLY.includes(id)) notify('Shroudly', text);
   const n = { id, params, at: Date.now() };
   if (!STUDIO_LINES.includes(id)) autoLatest = n;
   toWindow('auto:notice', n);
@@ -2299,6 +2363,9 @@ async function startAdvanced() {
     opts.keepDriver = rival.length > 0;
     const r = await advanced.start(ttl, opts);
     addLog('success', 'Advanced mode enabled');
+    // Running: an antivirus block told earlier is over.
+    advancedBlocked = false;
+    if (engine && engine.advice.security && engine.advice.security.part === 'advanced') engine._setAdvice({ security: null });
     // It undoes Advanced mode without either of them failing; say so as soon
     // as it is on.
     if (rival.length) {
@@ -2308,8 +2375,15 @@ async function startAdvanced() {
     toWindow('advanced:state', { active: true });
     return r || { success: true };
   } catch (e) {
-    addLog('error', `Advanced mode failed: ${e.message}`);
-    return { success: false, error: e.message, code: e.code || 'start_failed' };
+    // An antivirus that removed its files or refused it: told as that, in
+    // its own line (securityBlocked).
+    const blocked = (e.code === 'security_blocked' || e.code === 'files_missing') && e.info;
+    if (blocked) securityBlocked(e.info);
+    else addLog('error', `Advanced mode failed: ${e.message}`);
+    return {
+      success: false, error: e.message, code: e.code || 'start_failed',
+      kind: blocked ? e.info.kind : null, win32: blocked ? e.info.win32 : null, certain: blocked ? e.info.certain !== false : null,
+    };
   }
 }
 
@@ -2573,6 +2647,8 @@ ipcMain.handle('app:repair', () => Repair.repair({
     const code = advanced ? advanced.reasonCode() : null;
     if (code === 'not_built') list.push({ name: 'shroudly-core-adv', path: '' });
     if (code === 'windivert_missing') list.push({ name: 'WinDivert', path: '' });
+    // Taken from an installed Shroudly: named one by one.
+    if (code === 'files_missing') for (const f of advanced._files()) list.push({ name: path.basename(f), path: f });
     return list;
   },
   forgetLearned: () => { store.delete('learnedTechniques'); store.delete('learnedRawTechniques'); },

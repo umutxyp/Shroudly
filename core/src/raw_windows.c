@@ -39,6 +39,11 @@
  * shroudly-core-adv.exe (scripts/fetch-windivert.js). WinDivert has no ARM64
  * build. If the driver cannot load, the backend reports an error and the app
  * falls back to the default engine.
+ *
+ * A WinDivert failure is reported as a JSON line with Windows' own error
+ * code (report_windivert_error): this engine always runs elevated, so the
+ * code is what tells a missing file from Windows or an antivirus refusing
+ * the driver (electron/security-block.js), which is what usually stops it.
  */
 #ifdef SHROUDLY_RAW
 #ifdef _WIN32
@@ -120,9 +125,18 @@ static void wr32be(uint8_t *p, uint32_t v) {
   p[0]=(uint8_t)(v>>24); p[1]=(uint8_t)(v>>16); p[2]=(uint8_t)(v>>8); p[3]=(uint8_t)v;
 }
 
+/* One error line for the app (advanced-mode.js reads the status file this
+ * goes to): code, Windows' error, and the plain words an older app shows. */
+static void report_windivert_error(const char *code, const char *what, DWORD err) {
+  fprintf(stderr, "{\"type\":\"error\",\"code\":\"%s\",\"win32\":%lu,\"msg\":\"%s failed (%lu)\"}\n",
+          code, (unsigned long)err, what, (unsigned long)err);
+  fflush(stderr);
+}
+
 static int load_windivert(void) {
   HMODULE m = LoadLibraryA("WinDivert.dll");
-  if (!m) { fprintf(stderr, "WinDivert.dll not found\n"); return -1; }
+  /* 126: not there (quarantined?); 5, 225, 226: refused. */
+  if (!m) { report_windivert_error("windivert_load", "Loading WinDivert.dll", GetLastError()); return -1; }
   p_Open     = (PFN_Open)    GetProcAddress(m, "WinDivertOpen");
   p_Recv     = (PFN_Recv)    GetProcAddress(m, "WinDivertRecv");
   p_Send     = (PFN_Send)    GetProcAddress(m, "WinDivertSend");
@@ -366,6 +380,9 @@ int raw_windows_start(const raw_config *cfg) {
    * first, then the UDP ones (the ports alone, as before). IPv6 outbound is
    * re-injected unchanged by the loop below (this backend builds IPv4 fakes). */
   char filter[2048];
+  /* Why the last open failed. A filter the driver refuses (87) is followed
+   * by a simpler one; any other error (the driver not loading) is kept. */
+  DWORD open_err = 0;
   for (int udp_how = UDP_PREFILTER_PAYLOAD; udp_how >= UDP_PREFILTER_PORTS && g_handle == INVALID_HANDLE_VALUE; udp_how--) {
     char udp[1024];
     if (udp_windivert_clause(udp, sizeof(udp), g_quic_block, g_udp_fake, udp_how) < 0) continue;
@@ -403,10 +420,14 @@ int raw_windows_start(const raw_config *cfg) {
         g_udp_match = udp[0] && udp_how == UDP_PREFILTER_PAYLOAD;
         break;
       }
+      DWORD e = GetLastError();
+      if (!open_err || e != ERROR_INVALID_PARAMETER) open_err = e;
     }
   }
   if (g_handle == INVALID_HANDLE_VALUE) {
-    fprintf(stderr, "WinDivertOpen failed (%lu). Run as Administrator.\n", (unsigned long)GetLastError());
+    /* 2: the driver file is not there; 5, 577, 1275: Windows or an
+     * antivirus refused the driver (this engine is elevated already). */
+    report_windivert_error("windivert_open", "WinDivertOpen", open_err ? open_err : GetLastError());
     return -1;
   }
 

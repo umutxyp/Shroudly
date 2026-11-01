@@ -2,12 +2,19 @@
 
 /* The command shown when Advanced mode's library is missing on Linux must be
  * the right one for the distribution: the package name and the installer
- * differ per family. (CI installs exactly these packages on each.) */
+ * differ per family. (CI installs exactly these packages on each.)
+ * And an antivirus in the way (security-block.js): the engine's WinDivert
+ * errors with Windows' code, the launcher's exits, an elevated engine ended
+ * from outside while it starts (told in about a second, not after two
+ * minutes) and while it runs, and Advanced mode's files gone from an
+ * installed Shroudly. */
 
 const path = require('path');
+const fs = require('fs');
+const os = require('os');
 const { ROOT, suite } = require('./helpers');
 
-const { buildArgs, buildAdvancedArgs, winQuoteArg } = require(path.join(ROOT, 'electron', 'advanced-mode.js'));
+const { buildArgs, buildAdvancedArgs, winQuoteArg, launcherArgs } = require(path.join(ROOT, 'electron', 'advanced-mode.js'));
 const t = suite('advanced');
 
 /* The new packet-layer flags must reach the privileged engine as argv, with the
@@ -164,5 +171,179 @@ function windowsArgv(line) {
   const e2 = await am2._waitReady().then(() => null, (e) => e);
   Date.now = realNow;
   t.ok(e2 && e2.code === 'timeout', 'awake and no answer within the limit: still a timeout');
+
+  // ── An antivirus in the way ──
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'shroudly-adv-av-'));
+  const statusOf = (am, lines) => { fs.writeFileSync(am.statusFile, lines.map((l) => (typeof l === 'string' ? l : JSON.stringify(l))).join('\n')); };
+  const fresh = (name) => {
+    const am = new AdvancedMode(() => {});
+    am.statusFile = path.join(tmp, `${name}.log`);
+    am.readyTimeoutMs = 120000;
+    am._badFile = () => null;
+    return am;
+  };
+  const failOf = async (am) => { const t0 = Date.now(); const e = await am._waitReady().then(() => null, (x) => x); return { e, ms: Date.now() - t0 }; };
+
+  // The engine's own error lines (core/src/raw_windows.c), then "stopped".
+  {
+    const am = fresh('driver');
+    statusOf(am, [{ type: 'error', code: 'windivert_open', win32: 1275, msg: 'WinDivertOpen failed (1275)' }, { type: 'stopped' }]);
+    const { e } = await failOf(am);
+    t.ok(e && e.code === 'security_blocked' && e.info && e.info.kind === 'driver' && e.info.win32 === 1275 && e.info.part === 'advanced',
+      `the driver refused (WinDivertOpen 1275): security_blocked, the driver, with Windows' code (${e && e.code})`);
+    t.ok(/WinDivertOpen: error 1275/.test(e.info.detail) && e.info.file === 'WinDivert64.sys', '…and what was refused, for the log');
+  }
+  {
+    const am = fresh('dll');
+    statusOf(am, [{ type: 'error', code: 'windivert_load', win32: 126, msg: 'Loading WinDivert.dll failed (126)' }, { type: 'stopped' }]);
+    const { e } = await failOf(am);
+    t.ok(e && e.code === 'files_missing' && e.info.file === 'WinDivert.dll', 'WinDivert.dll not there (126): files_missing, naming it');
+  }
+  {
+    const am = fresh('rival');
+    statusOf(am, [{ type: 'error', code: 'windivert_open', win32: 654, msg: 'WinDivertOpen failed (654)' }, { type: 'stopped' }]);
+    const { e } = await failOf(am);
+    t.ok(e && e.code === 'start_failed' && /different version of the WinDivert driver/.test(e.message), 'another WinDivert loaded (654): start_failed, saying so');
+  }
+  {
+    const am = fresh('old');
+    // An engine from before these lines: its plain words, as before.
+    statusOf(am, ['WinDivertOpen failed (5). Run as Administrator.', { type: 'stopped' }]);
+    const { e } = await failOf(am);
+    t.ok(e && e.code === 'start_failed' && /Run as Administrator/.test(e.message), 'an older engine\'s plain line: start_failed with its words');
+  }
+
+  // Windows: the elevated engine's process gone before it was ready, without
+  // a word: in about a second, not after two minutes.
+  {
+    const am = fresh('killed');
+    statusOf(am, []);
+    am.pid = 424242;
+    let alive = true;
+    am.alive = () => alive;
+    setTimeout(() => { alive = false; }, 300);
+    const { e, ms } = await failOf(am);
+    t.ok(e && e.code === 'security_blocked' && e.info.kind === 'killed' && e.info.certain === false && ms < 2000,
+      `ended from outside while it started: security_blocked, as "may", within ${ms} ms`);
+  }
+  {
+    const am = fresh('killed-files');
+    statusOf(am, []);
+    am.pid = 424242;
+    am.alive = () => false;
+    am._badFile = () => ({ file: path.join(tmp, 'WinDivert64.sys'), state: 'missing' });
+    const { e } = await failOf(am);
+    t.ok(e && e.code === 'security_blocked' && e.info.kind === 'missing' && e.info.certain === true && e.info.file === 'WinDivert64.sys',
+      'ended, and a file of it gone too: certain, naming the file');
+  }
+  {
+    const am = fresh('ready-then-gone');
+    am.pid = 424242;
+    am.alive = () => false;
+    statusOf(am, [{ type: 'raw_ready', ttl: 4 }]);
+    const got = await am._waitReady();
+    t.ok(got && got.ttl === 4, 'its "ready" written as it went: taken (what follows is the monitor\'s)');
+    statusOf(am, [{ type: 'error', code: 'windivert_open', win32: 5, msg: 'x' }]);
+    const { e } = await failOf(am);
+    t.ok(e && e.code === 'security_blocked' && e.info.kind === 'driver', 'gone after writing why: what it wrote counts');
+  }
+  {
+    const am = fresh('alive');
+    am.readyTimeoutMs = 700;
+    statusOf(am, []);
+    am.pid = 424242;
+    am.alive = () => true;
+    const { e } = await failOf(am);
+    t.ok(e && e.code === 'timeout', 'still there (or elevated and out of reach: EPERM), no answer: the time limit as before');
+  }
+
+  // While it runs: ended from outside is noticed, Advanced mode is off again,
+  // and a block is told only when its files went too.
+  {
+    const lines = [];
+    const am = new AdvancedMode((l, m) => lines.push(`${l}: ${m}`));
+    am.dir = fs.mkdtempSync(path.join(tmp, 'run-'));
+    am.statusFile = path.join(am.dir, 'status.log');
+    fs.writeFileSync(am.statusFile, `${JSON.stringify({ type: 'raw_ready', ttl: 4 })}\n`);
+    am.active = true;
+    am.pid = 424242;
+    am.aliveCheckMs = 0;
+    let alive = true;
+    let looks = 0;
+    am.alive = () => { looks++; return alive; };
+    const exits = [];
+    const blocks = [];
+    am.onExit = () => exits.push(1);
+    am.onSecurityBlock = (info) => blocks.push(info);
+    am._badFile = () => ({ file: path.join(tmp, 'shroudly-core-adv.exe'), state: 'missing' });
+    am._startMonitor();
+    await new Promise((r) => setTimeout(r, 1300));
+    t.ok(am.active && !exits.length, 'while it is there, it stays on');
+    alive = false;
+    await new Promise((r) => setTimeout(r, 1300));
+    clearInterval(am.monitor);
+    t.ok(!am.active && exits.length === 1 && lines.includes('warning: Advanced backend was ended from outside (no stop was asked)'),
+      'ended from outside while it ran: off, the window told, the log says so');
+    t.ok(blocks.length === 1 && blocks[0].kind === 'vanished' && blocks[0].part === 'advanced' && blocks[0].file === 'shroudly-core-adv.exe',
+      '…its file gone with it: told as the antivirus');
+    // Unless set otherwise (here for speed), looked at every few seconds, not every one.
+    const quietAm = new AdvancedMode(() => {});
+    quietAm.dir = fs.mkdtempSync(path.join(tmp, 'run-'));
+    quietAm.statusFile = path.join(quietAm.dir, 'status.log');
+    fs.writeFileSync(quietAm.statusFile, '');
+    quietAm.active = true;
+    quietAm.pid = 424242;
+    let quietLooks = 0;
+    quietAm.alive = () => { quietLooks++; return true; };
+    quietAm._startMonitor();
+    await new Promise((r) => setTimeout(r, 3200));
+    clearInterval(quietAm.monitor);
+    t.ok(quietLooks === 0 && looks >= 2, `while it runs, its process is looked at every ${quietAm.aliveCheckMs / 1000} s, not every second (${quietLooks} in 3 s)`);
+  }
+
+  // An installed Shroudly: Advanced mode's files gone is files_missing (never
+  // "this build does not include it"), and a start says so with the details.
+  {
+    const am = new AdvancedMode(() => {});
+    am.platform = 'linux';
+    am.packaged = true;
+    const f = path.join(tmp, 'shroudly-core-adv');
+    am._files = () => [f];
+    t.ok(am.reasonCode() === 'files_missing' && !am.available(), 'installed, its file gone: files_missing, not available');
+    fs.writeFileSync(f, 'a program');
+    t.ok(am.reasonCode() === null && am.available(), 'there again: available');
+    fs.writeFileSync(f, '');
+    const e = await am._start(4, {}).then(() => null, (x) => x);
+    t.ok(e && e.code === 'files_missing' && e.info && e.info.kind === 'empty' && e.info.part === 'advanced', 'a start with it emptied: files_missing, with what was found');
+    const dev = new AdvancedMode(() => {});
+    dev.platform = 'linux';
+    dev.packaged = false;
+    t.ok(['not_built', null].includes(dev.reasonCode()), 'a developer\'s run: "not built" as before');
+  }
+
+  // The launcher (Windows PowerShell, encoded so a user folder like C:\Users\Ümit
+  // survives): the elevated engine's process id, and an exit per answer.
+  {
+    const a = launcherArgs('C:\\Users\\Ümit\\AppData\\Local\\Programs\\Shroudly\\shroudly-core-adv.exe', ['--status-file', 'C:\\Users\\Ümit\\x y\\status.log']);
+    const script = Buffer.from(a[a.indexOf('-EncodedCommand') + 1], 'base64').toString('utf16le');
+    t.ok(a.includes('-EncodedCommand') && !a.includes('-Command') && script.includes('Ümit'), 'the script stays encoded, the folder intact');
+    t.ok(/-Verb RunAs -WindowStyle Hidden -PassThru -ErrorAction Stop/.test(script) && /try \{ if \(\$p\) \{ \[Console\]::Out\.WriteLine\(\$p\.Id\) \} \} catch \{\}/.test(script),
+      'the process id is written out, on its own (one that cannot be read never fails a start)');
+    t.ok(/-eq 1223\) \{ exit 2 \}/.test(script) && /\$c -eq 5 -or \$c -eq 225 -or \$c -eq 226\) \{ exit 3 \}/.test(script) && /\$c -eq 2 -or \$c -eq 3\) \{ exit 4 \}/.test(script),
+      'declined: 2; refused (5, 225, 226): 3; not there (2, 3): 4');
+    const am = new AdvancedMode(() => {});
+    am._badFile = () => null;
+    am._launched({ code: 0, stdout: '\r\n4321\r\n', stderr: '' });
+    t.ok(am.pid === 4321, 'its process id kept');
+    am._launched({ code: 0, stdout: '', stderr: '' });
+    t.ok(am.pid === null, 'none written: no check, the time limit as before');
+    const as = (r) => { try { am._launched(r); return null; } catch (e) { return e; } };
+    t.ok(as({ code: 2, stdout: '', stderr: '' }).code === 'declined', 'exit 2: declined');
+    const e3 = as({ code: 3, stdout: '', stderr: '' });
+    t.ok(e3.code === 'security_blocked' && e3.info.kind === 'denied', 'exit 3: security_blocked (refused)');
+    t.ok(as({ code: 4, stdout: '', stderr: '' }).code === 'files_missing', 'exit 4: files_missing');
+    t.ok(as({ code: 1, stdout: '', stderr: 'Something else' }).code === 'start_failed', 'anything else: start_failed');
+  }
+  fs.rmSync(tmp, { recursive: true, force: true });
   console.log(`advanced: ${t.count} passed`);
 })();

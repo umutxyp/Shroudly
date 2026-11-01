@@ -12,7 +12,7 @@
 
 import { useEffect, useState } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
-import { ShieldAlertIcon, RefreshIcon, CloseIcon, InfoIcon } from './icons';
+import { ShieldAlertIcon, RefreshIcon, CloseIcon, InfoIcon, CopyIcon, CheckIcon } from './icons';
 import { proxyNotice, chromiumNote } from './proxyNotice';
 
 function Banner({ tone = 'warn', Icon, title, body, children, onClose, closeLabel }) {
@@ -45,6 +45,46 @@ function Banner({ tone = 'warn', Icon, title, body, children, onClose, closeLabe
 
 function Actions({ children }) {
   return <div className="mt-2 flex flex-wrap items-center gap-2">{children}</div>;
+}
+
+/* An antivirus that quarantined, refused or keeps ending a part of Shroudly
+ * (advice.security, main.js securityBlocked). One sentence on what happened,
+ * one on what to do, and one action: the folder to add as an exception,
+ * copied when the button is clicked. Nothing is opened by itself, neither
+ * the antivirus nor the folder. Where it may be something else ("may"), it
+ * says so. */
+function SecurityNotice({ info, t, onClose, closeLabel }) {
+  const [copied, setCopied] = useState(false);
+  useEffect(() => {
+    if (!copied) return undefined;
+    const id = setTimeout(() => setCopied(false), 2000);
+    return () => clearTimeout(id);
+  }, [copied]);
+  const copy = async () => {
+    let ok = false;
+    try { ok = !!(await window.electron?.copyText?.(info.folder)); } catch {}
+    if (!ok) { try { await navigator.clipboard.writeText(info.folder); ok = true; } catch {} }
+    if (ok) setCopied(true);
+  };
+  const body = info.part === 'engine'
+    ? t(info.certain ? 'securityEngineBody' : 'securityEngineMaybeBody')
+    : info.kind === 'driver' ? t('securityDriverBody', { code: info.win32 ?? '?' }) : t('securityAdvancedBody');
+  // A refused driver may be Windows' own doing (a virtual machine, a policy).
+  const sure = info.certain && info.kind !== 'driver';
+  return (
+    <Banner Icon={ShieldAlertIcon} title={t(sure ? 'securityTitle' : 'securityTitleMaybe')} body={body}
+            onClose={onClose} closeLabel={closeLabel}>
+      {info.folder && (
+        <Actions>
+          <button type="button" onClick={copy}
+                  className="btn btn-warn inline-flex items-center gap-1.5 rounded-[8px] px-3 py-1.5 text-[12.5px] font-semibold">
+            {copied ? <CheckIcon className="h-3.5 w-3.5" /> : <CopyIcon className="h-3.5 w-3.5" />}
+            <span>{t(copied ? 'securityFolderCopied' : 'securityCopyFolder')}</span>
+          </button>
+        </Actions>
+      )}
+    </Banner>
+  );
 }
 
 /* Dismissals that should survive a restart. Storage can be unavailable. */
@@ -164,6 +204,13 @@ export default function BlockedNotice({ onNavigate, active = false }) {
 
   const closeLabel = t('obSkip');
 
+  /* The engine taken or refused by an antivirus: before everything else,
+   * since nothing else here works without it. */
+  const security = advice?.security;
+  if (security && security.part === 'engine' && !hidden[`security:${security.at}`]) {
+    return <SecurityNotice info={security} t={t} onClose={() => hide(`security:${security.at}`)} closeLabel={closeLabel} />;
+  }
+
   if (dnsAuto && !restartApps) {
     return <Banner tone="accent" Icon={ShieldAlertIcon} body={t('dnsAutoEnabledNotice', { host: dnsAuto })}
                    onClose={() => setDnsAuto(null)} closeLabel={closeLabel} />;
@@ -230,6 +277,12 @@ export default function BlockedNotice({ onNavigate, active = false }) {
     );
   }
 
+  /* Advanced mode blocked by an antivirus: everything else works, so after
+   * the system proxy's banner. */
+  if (security && security.part === 'advanced' && !hidden[`security:${security.at}`]) {
+    return <SecurityNotice info={security} t={t} onClose={() => hide(`security:${security.at}`)} closeLabel={closeLabel} />;
+  }
+
   /* The site itself turns this user away (by country or policy): nothing a
    * technique can change, said the same way for every site and country. */
   if (refused && !hidden[`refused:${refused.host}`]) {
@@ -255,8 +308,10 @@ export default function BlockedNotice({ onNavigate, active = false }) {
 
   /* What the autopilot just did by itself. Advanced mode that was declined
    * or could not start keeps its button, while it is still off: turning it
-   * on then is the user's call. Once it is on, that line has nothing to say. */
-  const advNotice = notice && (notice.id === 'autoAdvancedDeclined' || notice.id === 'autoAdvancedFailed');
+   * on then is the user's call. Once it is on, that line has nothing to say.
+   * One an antivirus blocked comes after its banner (above), so its button
+   * is there once the user has closed that (allowed it, most likely). */
+  const advNotice = notice && ['autoAdvancedDeclined', 'autoAdvancedFailed', 'autoSecurityAdvanced'].includes(notice.id);
   // Advanced mode needed and not asked for by itself (declined or turned off
   // earlier, failed earlier this session, a game's anti-cheat): one line
   // saying so and what to do, gone once Advanced mode is on.

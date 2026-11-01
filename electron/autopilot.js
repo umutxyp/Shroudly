@@ -596,6 +596,12 @@ class Autopilot {
       this.recordDecline();
       this.log('info', 'Advanced mode was not allowed; Shroudly will not ask by itself again for two weeks');
       this.tell('autoAdvancedDeclined', told);
+    } else if (r && (r.code === 'security_blocked' || r.code === 'files_missing') && r.certain !== false) {
+      // An antivirus stood in the way: what to do about it, not a plain
+      // failure. Not asked again this session (advancedAsked), and with its
+      // files gone, not available at all. Where it only may have (ended
+      // without a word), the plain line, and the window's banner says "may".
+      this.tell('autoSecurityAdvanced', told);
     } else {
       this.tell('autoAdvancedFailed', told);
     }

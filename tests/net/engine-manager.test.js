@@ -4,12 +4,19 @@
  * so the test never touches the machine's settings): the block-page list
  * reaches the engine, encrypted DNS routes through the engine come up, sites
  * load, the working route is remembered, and cut reports need corroboration
- * before the user is told. */
+ * before the user is told. And an antivirus in the way (security-block.js):
+ * the engine's file taken while it runs is told once and not restarted, a
+ * file gone at the start is no "npm run build:core", Windows refusing to
+ * start it is told as that, and two engines in a row ended right after their
+ * start without a word stop the restarts with a "may". */
 
 const path = require('path');
+const fs = require('fs');
+const os = require('os');
 const { ROOT, getViaEngine, sleep, freePort, suite } = require('./helpers');
 
 const EngineManager = require(path.join(ROOT, 'electron', 'engine-manager.js'));
+const SB = require(path.join(ROOT, 'electron', 'security-block.js'));
 const t = suite('engine-manager');
 
 (async () => {
@@ -278,6 +285,141 @@ const t = suite('engine-manager');
     t.ok(logs.slice(mark3).some((l) => /^error: Engine exited unexpectedly \(code /.test(l)), 'P3: …and the log says the engine exited');
     em.onProxyStatus = () => {};
   }
+
+  // ── An antivirus in the way ──
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'shroudly-av-'));
+  // An EngineManager as main.js has it, reporting through securityBlocked's
+  // stand-in: one log line and the window's advice per block.
+  const rig = async (hooks = {}) => {
+    const m = { listenPort: await freePort(), autoMode: true, dnsProtection: false };
+    const st = { get: (k, d) => (k in m ? m[k] : d), set: (k, v) => { m[k] = v; }, delete: (k) => { delete m[k]; }, get store() { return m; } };
+    const lines = [];
+    const blocks = [];
+    const e = new EngineManager(st, {
+      addLog: (l, msg) => lines.push(`${l}: ${msg}`), packaged: true, ...hooks,
+      onSecurityBlock: (info) => { blocks.push(info); lines.push(`error: ${SB.logLine(info)}`); e._setAdvice({ security: SB.forWindow(info) }); },
+    });
+    e.proxy = { apply: async () => ({ ok: true, code: 'ok' }), restore: async () => true, cleanupSync() {} };
+    e._describeEnvironment = async () => {};
+    return { e, lines, blocks };
+  };
+  const count = (lines, re) => lines.filter((l) => re.test(l)).length;
+
+  // The engine's file quarantined while it runs: an antivirus moves the file
+  // away and ends the program (a running program can be renamed on every
+  // system, never deleted on Windows).
+  {
+    const core = path.join(tmp, path.basename(EngineManager.coreBinaryPath()));
+    fs.copyFileSync(EngineManager.coreBinaryPath(), core);
+    fs.chmodSync(core, 0o755);
+    const { e, lines, blocks } = await rig({ binPath: core });
+    await e.start();
+    t.ok(e.active, 'AV: the engine runs from its copy');
+    fs.renameSync(core, `${core}.quarantined`);
+    const mark = lines.length;
+    e.proc.kill('SIGKILL');
+    await sleep(2500);
+    const after = lines.slice(mark);
+    t.ok(!e.active && !e.proc && !after.some((l) => /Starting engine|Restarting engine/.test(l)),
+      `AV: its file gone with it: not restarted (${after.join(' | ')})`);
+    t.ok(blocks.length === 1 && blocks[0].kind === 'vanished' && blocks[0].certain === true && blocks[0].part === 'engine'
+      && blocks[0].file === path.basename(core), 'AV: told once, as certain, naming the file');
+    t.ok(count(after, /^error: Security software: .*disappeared while it ran \(quarantined\?\); protection is off\. Folder: /) === 1,
+      'AV: one plain line in the log, with the folder');
+    t.ok(e.advice.security && e.advice.security.part === 'engine' && e.advice.security.certain, 'AV: the window gets it (advice.security)');
+    // Started again while it is gone: told as the antivirus, never as a build step.
+    let err = null;
+    try { await e.start(); } catch (x) { err = x; }
+    t.ok(err && err.code === 'security_blocked' && err.info.kind === 'missing' && !/npm/.test(err.message) && !lines.some((l) => /npm run build:core/.test(l)),
+      `AV: a start with the file gone: security_blocked, no "npm run build:core" (${err && err.message})`);
+    // Restored from the quarantine: the next start works, and the notice goes.
+    fs.renameSync(`${core}.quarantined`, core);
+    await e.start();
+    t.ok(e.active && e.advice.security === null, 'AV: restored, a start works and the notice is gone');
+    await e.stop();
+  }
+
+  // A developer's run without the engine built: how to build it, as before.
+  {
+    const { e } = await rig({ binPath: path.join(tmp, 'not-built'), packaged: false });
+    let err = null;
+    try { await e.start(); } catch (x) { err = x; }
+    t.ok(err && err.code !== 'security_blocked' && /npm run build:core/.test(err.message), 'not installed: "npm run build:core" still');
+  }
+
+  // Ended right after its start, by itself, without a word (Windows): one is
+  // a plain failure; two in a row are told as "may", and no more restarts.
+  {
+    const standIn = path.join(tmp, 'stand-in.exe');
+    fs.writeFileSync(standIn, 'MZ the program Windows would check');
+    const script = (body) => { const f = path.join(tmp, `engine-${Math.random().toString(36).slice(2)}.js`); fs.writeFileSync(f, body); return f; };
+    const noisy = script('console.error("listen failed: address in use"); process.exit(1);');
+    const quiet = script('process.exit(1);');
+    const { e, blocks } = await rig({ binPath: standIn, platform: 'win32' });
+    let which = noisy;
+    const spawnIt = e._spawn.bind(e);
+    e._spawn = (bin, args) => spawnIt(process.execPath, [which, ...args]);
+    const fail = async () => { try { await e.start(); return null; } catch (x) { return x; } };
+    const n1 = await fail();
+    const n2 = await fail();
+    t.ok(n1 && n2 && n2.code !== 'security_blocked' && !blocks.length && /listen failed/.test(n2.message), 'AV: an engine that says why it ended: never taken for an antivirus');
+    which = quiet;
+    const q1 = await fail();
+    t.ok(q1 && q1.code !== 'security_blocked' && q1.message === 'Engine failed to start' && !blocks.length,
+      `AV: one quiet early end: a plain failure, and no older error stands in for it (${q1 && q1.message})`);
+    const q2 = await fail();
+    t.ok(q2 && q2.code === 'security_blocked' && blocks.length === 1 && blocks[0].kind === 'early_exit' && blocks[0].certain === false,
+      'AV: two in a row: told, as "may"');
+  }
+  // The same while it runs: started, then ended a moment later, twice.
+  {
+    const standIn = path.join(tmp, 'stand-in2.exe');
+    fs.writeFileSync(standIn, 'MZ the program Windows would check');
+    const brief = path.join(tmp, 'brief-engine.js');
+    fs.writeFileSync(brief, "const a = process.argv; const port = Number(a[a.indexOf('--port') + 1]);\n"
+      + "process.stdout.write(JSON.stringify({ type: 'ready', port, techniques: 1 }) + '\\n');\nsetTimeout(() => process.exit(1), 300);\nsetInterval(() => {}, 1000);\n");
+    const { e, lines, blocks } = await rig({ binPath: standIn, platform: 'win32' });
+    const spawnIt = e._spawn.bind(e);
+    e._spawn = (bin, args) => spawnIt(process.execPath, [brief, ...args]);
+    await e.start();
+    await sleep(3500);
+    t.ok(count(lines, /Restarting engine/) === 1 && count(lines, /Starting engine/) === 2 && !e.active,
+      `AV: ended a moment after each start: restarted once, then not (${lines.filter((l) => /engine/i.test(l)).join(' | ')})`);
+    t.ok(blocks.length === 1 && blocks[0].kind === 'early_exit' && !blocks[0].certain, 'AV: …and told once, as "may"');
+  }
+  // Off Windows a program ended early is not taken for an antivirus.
+  {
+    const standIn = path.join(tmp, 'stand-in3');
+    fs.writeFileSync(standIn, 'a program');
+    const quiet = path.join(tmp, 'quiet-engine.js');
+    fs.writeFileSync(quiet, 'process.exit(1);');
+    const { e, blocks } = await rig({ binPath: standIn, platform: 'linux' });
+    const spawnIt = e._spawn.bind(e);
+    e._spawn = (bin, args) => spawnIt(process.execPath, [quiet, ...args]);
+    for (let i = 0; i < 3; i++) { try { await e.start(); } catch {} }
+    t.ok(!blocks.length, 'AV: off Windows, quiet early ends are just failures');
+    // A test's own crashes (judgeQuickExits off): never judged, on Windows either.
+    const w = await rig({ binPath: path.join(tmp, 'stand-in.exe'), platform: 'win32', judgeQuickExits: false });
+    const spawnW = w.e._spawn.bind(w.e);
+    w.e._spawn = (bin, args) => spawnW(process.execPath, [quiet, ...args]);
+    for (let i = 0; i < 3; i++) { try { await w.e.start(); } catch {} }
+    t.ok(!w.blocks.length, 'AV: early ends not judged where the caller says they are its own');
+  }
+  // Windows refusing to start a file that is there (EPERM/EACCES, UNKNOWN).
+  // A file without the right to run gives EACCES where that right exists.
+  if (process.platform !== 'win32') {
+    const refused = path.join(tmp, 'refused.exe');
+    fs.writeFileSync(refused, 'MZ a program it may not run');
+    fs.chmodSync(refused, 0o644);
+    const { e, lines, blocks } = await rig({ binPath: refused, platform: 'win32' });
+    let err = null;
+    try { await e.start(); } catch (x) { err = x; }
+    t.ok(err && err.code === 'security_blocked' && blocks.length === 1 && blocks[0].kind === 'denied' && /spawn EACCES/.test(blocks[0].detail),
+      `AV: a start refused with the file there: told as refused (${err && err.message})`);
+    t.ok(!lines.some((l) => /engine error:/.test(l)) && count(lines, /^error: Security software: starting refused\.exe was refused \(spawn EACCES\)/) === 1,
+      'AV: …in one line, not also as an engine error');
+  }
+  fs.rmSync(tmp, { recursive: true, force: true });
   console.log(`engine-manager: ${t.count} passed`);
   process.exit(0);
 })().catch((e) => { console.error('FAIL', e.message); process.exit(1); });

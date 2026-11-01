@@ -15,7 +15,6 @@
  * A stand-in engine (fixtures/fake-engine.js) runs on every OS. */
 
 const path = require('path');
-const fs = require('fs');
 const { ROOT, sleep, freePort, suite } = require('./helpers');
 
 const EngineManager = require(path.join(ROOT, 'electron', 'engine-manager.js'));
@@ -46,14 +45,17 @@ async function rig({ proxy = null, hangTimeoutMs = 1500, startTimeoutMs = 6000 }
   const em = new EngineManager(store, {
     addLog: (l, m) => logs.push(`${l}: ${m}`), wake, hangTimeoutMs, pollMs: 100, startTimeoutMs,
     onHostEvent: (kind, host) => events.push(`${kind} ${host}`),
+    // The binary check of a start and of an engine's end: the stand-in's
+    // own program, which is there.
+    binPath: process.execPath,
+    // Its ends here are crashes the test makes, never an antivirus's (on
+    // Windows two quick ones in a row would otherwise read as one).
+    judgeQuickExits: false,
   });
   em.proxy = proxy || { apply: async () => ({ ok: true, code: 'ok' }), restore: async () => true, cleanupSync() {} };
   em._describeEnvironment = async () => {};
   const spawn = em._spawn.bind(em);
   em._spawn = (bin, args) => spawn(process.execPath, [FAKE, ...args]);
-  // The binary check of a start: the stand-in is what runs.
-  const exists = fs.existsSync;
-  fs.existsSync = (p) => (p === EngineManager.coreBinaryPath() ? true : exists(p));
   return { em, logs, events, wake, mem };
 }
 const pidOf = (em) => (em.proc ? em.proc.pid : 0);

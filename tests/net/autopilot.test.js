@@ -385,6 +385,25 @@ const settle = async () => { for (let i = 0; i < 5; i++) await new Promise((r) =
     await r.ap.needAdvanced('a.example');
     t.ok(r.told.map((x) => x.id).join() === 'autoAdvancedAsk,autoAdvancedFailed', 'failed for another reason: the "allow it" line is followed by one that says it did not start (with its button)');
   }
+  // An antivirus in the way (refused, or its files taken): what to do about
+  // it, not a plain failure; and not asked again this session.
+  for (const code of ['security_blocked', 'files_missing']) {
+    let tries = 0;
+    const adv = { available: () => true, active: () => false, start: async () => { tries++; return { success: false, code }; } };
+    const r = rig({ adv });
+    await r.ap.needAdvanced('a.example');
+    t.ok(r.told.map((x) => x.id).join() === 'autoAdvancedAsk,autoSecurityAdvanced' && r.told[1].p.host === 'a.example',
+      `${code}: the line after the ask says the antivirus blocked it, and what to do`);
+    await r.ap.needAdvanced('b.example');
+    t.ok(tries === 1, `${code}: not asked again this session`);
+  }
+  {
+    // Ended without a word, its files intact: an antivirus only may have.
+    const adv = { available: () => true, active: () => false, start: async () => ({ success: false, code: 'security_blocked', certain: false }) };
+    const r = rig({ adv });
+    await r.ap.needAdvanced('a.example');
+    t.ok(r.told.map((x) => x.id).join() === 'autoAdvancedAsk,autoAdvancedFailed', 'only "may": the plain line (the window\'s banner says "may")');
+  }
   {
     let tries = 0;
     const adv = { available: () => true, active: () => false, start: async () => { tries++; return { success: true }; } };
