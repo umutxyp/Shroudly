@@ -149,6 +149,7 @@
   "dnsDownBody": "Shroudly terus mencoba rute lain dengan sendirinya. Sampai ada yang lolos, beberapa situs bisa diarahkan ke alamat palsu; alamat palsu yang dikenal Shroudly ditolak.",
   "logCut": "{host}: tersambung, lalu jaringan memutusnya ({reason} setelah {kb} KB). Shroudly mencoba teknik lain untuknya.",
   "logCutFixed": "{host}: tersambung, lalu jaringan memutusnya ({reason} setelah {kb} KB). {mode} mati, jadi hanya {strategy} yang dipakai: nyalakan {mode} di Pengaturan agar Shroudly mencoba teknik lainnya.",
+  "logCutNotMoved": "{host}: ternyata tidak diputus oleh jaringan; komputer ini pindah ke jaringan lain pada saat itu",
   "logRegion": "DNS di jaringan ini menjawab situs yang diblokir dengan halaman blokir yang sudah dikenal.",
   "logDnsFilterService": "Layanan DNS Anda menyaring situs; DNS terenkripsi Shroudly melewatinya.",
   "logDohRoutes": "DNS terenkripsi menjawab lewat {routes}",

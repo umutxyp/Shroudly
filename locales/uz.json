@@ -149,6 +149,7 @@
   "dnsDownBody": "Shroudly oʻzi boshqa yoʻllarni sinab koʻrishda davom etadi. Ulardan biri ishlamaguncha, ayrim saytlar soxta manzillarga yoʻnaltirilishi mumkin; Shroudlyga maʼlum soxta manzillar rad etiladi.",
   "logCut": "{host}: ulanadi, keyin tarmoq uni uzadi ({kb} KB dan keyin {reason}). Shroudly u uchun boshqa usullarni sinamoqda.",
   "logCutFixed": "{host}: ulanadi, keyin tarmoq uzib qo‘yadi ({kb} KB dan keyin {reason}). {mode} o‘chiq, shuning uchun faqat {strategy} ishlatiladi: Shroudly boshqa usullarini sinab ko‘rishi uchun Sozlamalarda {mode}ni yoqing.",
+  "logCutNotMoved": "{host}: aslida tarmoq uni uzmagan ekan; aynan o‘sha paytda bu kompyuter boshqa tarmoqqa o‘tgan",
   "logRegion": "Bu tarmoqdagi DNS bloklangan saytlarga maʼlum bloklash sahifasi bilan javob beradi.",
   "logDnsFilterService": "DNS xizmatingiz saytlarni filtrlaydi; Shroudly shifrlangan DNS orqali uni chetlab oʻtadi.",
   "logDohRoutes": "Shifrlangan DNS {routes} orqali javob bermoqda",

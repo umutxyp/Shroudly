@@ -149,6 +149,7 @@
   "dnsDownBody": "Shroudly özü başqa yolları sınamağa davam edir. Onlardan biri keçənə qədər bəzi saytlar saxta ünvanlara yönləndirilə bilər; Shroudly-nin tanıdığı saxta ünvanlar rədd edilir.",
   "logCut": "{host}: qoşulur, sonra şəbəkə bağlantını kəsir ({reason}, {kb} KB ötürüldükdən sonra). Shroudly onun üçün başqa üsulları sınayır.",
   "logCutFixed": "{host}: qoşulur, sonra şəbəkə kəsir ({kb} KB sonra {reason}). {mode} söndürülüb, ona görə yalnız {strategy} istifadə olunur: Shroudly digər üsulları da sınasın deyə Ayarlarda {mode} aç.",
+  "logCutNotMoved": "{host}: əslində şəbəkə onu kəsmədi; həmin anda bu kompüter başqa şəbəkəyə keçdi",
   "logRegion": "Bu şəbəkədəki DNS bloklanmış saytlara tanınmış bloklama səhifəsi ilə cavab verir.",
   "logDnsFilterService": "DNS xidmətin saytları filtrləyir; Shroudly-nin şifrələnmiş DNS-i ondan yan keçir.",
   "logDohRoutes": "Şifrələnmiş DNS bu yollarla cavab verir: {routes}",

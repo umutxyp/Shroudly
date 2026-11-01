@@ -149,6 +149,7 @@
   "dnsDownBody": "Shroudly probiert von selbst weiter andere Wege. Bis einer durchkommt, können manche Seiten auf gefälschte Adressen führen; die gefälschten Adressen, die Shroudly kennt, werden abgelehnt.",
   "logCut": "{host}: verbindet sich, dann trennt das Netz ({reason} nach {kb} KB). Shroudly probiert andere Techniken dafür.",
   "logCutFixed": "{host}: verbindet sich, dann trennt das Netz ({reason} nach {kb} KB). {mode} ist aus, daher wird nur {strategy} verwendet: Schalte {mode} in den Einstellungen ein, damit Shroudly seine anderen Techniken versucht.",
+  "logCutNotMoved": "{host}: doch nicht vom Netz getrennt; dieser Computer ist in dem Moment in ein anderes Netz gewechselt",
   "logRegion": "DNS in diesem Netz beantwortet gesperrte Seiten mit einer bekannten Sperrseite.",
   "logDnsFilterService": "Dein DNS-Dienst filtert Seiten; das verschlüsselte DNS von Shroudly umgeht ihn.",
   "logDohRoutes": "Verschlüsseltes DNS antwortet über {routes}",

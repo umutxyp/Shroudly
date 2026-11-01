@@ -4,7 +4,10 @@
  * so the test never touches the machine's settings): the block-page list
  * reaches the engine, encrypted DNS routes through the engine come up, sites
  * load, the working route is remembered, and cut reports need corroboration
- * before the user is told. And an antivirus in the way (security-block.js):
+ * before the user is told: never stalls of a link gone quiet as a whole, nor
+ * cuts around a move to another network, and the autopilot hears of a cut
+ * only once it has stood a moment. And an
+ * antivirus in the way (security-block.js):
  * the engine's file taken while it runs is told once and not restarted, a
  * file gone at the start is no "npm run build:core", Windows refusing to
  * start it is told as that, and two engines in a row ended right after their
@@ -49,6 +52,8 @@ const t = suite('engine-manager');
   t.ok(logs.some((l) => l.includes('Encrypted DNS answering via')), 'the log says which DNS routes answer');
   t.ok(!!mem.dohRoute, `working route remembered: ${mem.dohRoute}`);
 
+  // Other traffic comes back through the engine meanwhile: the network works.
+  em.lastDownAt = Date.now();
   em._onCut('a.example', 'stall', 5);
   t.ok(!em.advice.cut, 'a single cut is not reported');
   em._onCut('a.example', 'reset', 3);
@@ -66,6 +71,64 @@ const t = suite('engine-manager');
   t.ok(off.includes('Auto mode is off, so only split(sni) is used') && !off.includes('trying other techniques') && em.advice.cut.auto === false,
     `with Auto mode off: "${off.replace(/^\w+: /, '')}"`);
   mem.autoMode = true; delete mem.strategy;
+
+  // Nothing is censored, and the link goes quiet for seconds (weak Wi-Fi, a
+  // train, a satellite dish blocked, a move to a hotspot): every connection
+  // halfway through a response stalls. Not a filter: no warning, no notice,
+  // and nothing for the autopilot (no Advanced mode prompt). A filter that
+  // cuts one site while the rest of the network works still is one.
+  {
+    let print = 'wifi 192.168.1.0/24';
+    const cutLogs = []; const told = [];
+    const lm = new EngineManager(store, {
+      addLog: (l, m) => cutLogs.push(`${l}: ${m}`), onCut: (h) => told.push(h), cutSettleMs: 300,
+      networkPrint: () => print, wake: { recent: () => false, timeout: () => ({ cancel() {} }), mono: () => 0, epoch: 0 },
+    });
+    lm.active = true;
+    lm._networkMoved();
+    const said = (h) => cutLogs.some((l) => l.includes(`${h}: connects, then the network cuts it`));
+    // The link quiet as a whole: nothing came back through the engine while
+    // these two connections to one site stalled (the auditor's case).
+    lm.lastDownAt = Date.now() - 9000;
+    lm._onCut('www.site.example', 'stall', 1, true); lm._onCut('www.site.example', 'stall', 1, true);
+    for (let i = 0; i < 4; i++) lm._onCut('api.site.example', 'noreply', 0);
+    t.ok(!lm.advice.cut && !said('www.site.example') && !said('api.site.example'),
+      'stalls while nothing at all came back through the engine (the link went quiet): no warning, no notice');
+    // A reset is something the network did, quiet or not.
+    lm._onCut('rst.example', 'reset', 0); lm._onCut('rst.example', 'reset', 0);
+    t.ok(lm.advice.cut && lm.advice.cut.host === 'rst.example', '…while resets still count');
+    // The network carries other traffic and one site stalls: a filter.
+    lm.lastDownAt = Date.now();
+    lm._onCut('cut.example', 'stall', 16); lm._onCut('cut.example', 'stall', 16);
+    t.ok(lm.advice.cut && lm.advice.cut.host === 'cut.example' && said('cut.example'), 'other traffic flowing and one site stalling twice: told');
+    t.ok(!told.includes('cut.example'), '…the autopilot not yet: it waits for the cut to stand');
+    await sleep(500);
+    t.ok(told.includes('cut.example') && told.includes('rst.example'), '…and is told once it has stood a moment (Advanced mode may be asked for)');
+    // A filter that freezes every connection to one CDN stalls several
+    // sites at once while the rest of the web flows: still a filter.
+    lm._onCut('www.cdn-site.example', 'stall', 16); lm._onCut('static.cdn-site.example', 'stall', 16);
+    lm._onCut('api.cdn-site.example', 'stall', 16); lm._onCut('www.cdn-site.example', 'stall', 16);
+    t.ok(lm.advice.cut && lm.advice.cut.host === 'www.cdn-site.example', 'several sites stalling together while other traffic flows (a CDN frozen): told');
+    // A move to another network (Wi-Fi to a phone's hotspot) during a cut
+    // being believed: taken back when it is looked at, and no cut counts
+    // for a minute after.
+    lm._onCut('moved.example', 'stall', 3); lm._onCut('moved.example', 'stall', 3);
+    t.ok(lm.advice.cut && lm.advice.cut.host === 'moved.example', 'a cut believed…');
+    print = 'hotspot 172.20.10.0/28';
+    await sleep(500);
+    t.ok(!told.includes('moved.example') && !lm.cutHolds('moved.example') && cutLogs.some((l) => l.includes('moved.example: not cut by the network after all; this computer moved')),
+      '…then this computer moves to another network: taken back, and the autopilot never hears of it');
+    lm._onCut('after.example', 'reset', 0); lm._onCut('after.example', 'reset', 0);
+    t.ok(!lm.advice.cut || lm.advice.cut.host !== 'after.example', 'cuts just after the move: not counted');
+    lm.netMovedAt -= 61000;
+    lm._onCut('after.example', 'reset', 0); lm._onCut('after.example', 'reset', 0);
+    t.ok(lm.advice.cut && lm.advice.cut.host === 'after.example', 'a minute later they count again');
+    // Protection stopped before the cut stood: nothing asked.
+    lm._onCut('stopped.example', 'reset', 0); lm._onCut('stopped.example', 'reset', 0);
+    lm.active = false;
+    await sleep(500);
+    t.ok(!told.includes('stopped.example'), 'protection stopped before the cut stood: the autopilot is not told');
+  }
   // Hosts that cannot be reached at all: one plain line per host, not one per retry.
   const unreach = (h, stage) => em._onLine(JSON.stringify({ type: 'unreachable', host: h, stage, ips: stage === 'dns' ? 0 : 2 }));
   unreach('gone.example', 'connect'); unreach('gone.example', 'connect'); unreach('nxdomain.example', 'dns');
@@ -85,6 +148,14 @@ const t = suite('engine-manager');
   t.ok(mem.dnsProtection === false, 'no answer at all does not switch encrypted DNS back on');
   // Issue #43: a site a technique opened a moment ago is up; silence from it
   // now is the network's, told as a block (Advanced mode offered), DNS left.
+  // Not while nothing at all comes back through the engine: then the link
+  // went quiet, and the site with it.
+  em.lastDownAt = Date.now() - 9000;
+  em._onLine(JSON.stringify({ type: 'blocked', host: 'quiet.example', strategy: '', attempts: 6, family: 'ipv4', note: 'silent' }));
+  t.ok(!blockedNotices.length && logs.some((l) => l.startsWith('warning: quiet.example: no answer after 6 techniques')),
+    'silent right after a technique opened it, while nothing else came back either (the link went quiet): a line in the log, no notice');
+  em.blockedHosts.delete('quiet.example');
+  em.lastDownAt = Date.now();
   em._onLine(JSON.stringify({ type: 'blocked', host: 'quiet.example', strategy: '', attempts: 6, family: 'ipv4', note: 'silent' }));
   t.ok(logs.includes('warning: quiet.example: opened a moment ago, now no answer after 6 techniques (ipv4) — the site is up, so the network is stopping it; this network may need Advanced mode')
     && blockedNotices.join() === 'quiet.example' && mem.dnsProtection === false,

@@ -33,6 +33,9 @@ const LINES = [
   "Your DNS server tcp://8.8.8.8:53 does not answer (ECONNREFUSED); Shroudly's built-in encrypted DNS answers until it does",
   'Your DNS server https://dns.google/dns-query answers again',
   'www.opera.com: connects, then the network cuts it (noreply after 0 KB). Auto mode is off, so only split(sni) is used: turn Auto mode on in Settings to let Shroudly try its other techniques.',
+  // A cut believed, then taken back: this computer moved to another network
+  // at the time (engine-manager.js _withdrawCut).
+  'www.opera.com: not cut by the network after all; this computer moved to another network at that moment',
   "googlevideo.com: the addresses encrypted DNS gives get nowhere here; trying the one this network's DNS gives (5.160.12.34)",
   "googlevideo.com: opened at the address this network's DNS gives (5.160.12.34)",
   "googlevideo.com: the address this network's DNS gives (2a01:5ec0::1) gets nowhere either",

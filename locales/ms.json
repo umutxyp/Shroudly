@@ -149,6 +149,7 @@
   "dnsDownBody": "Shroudly terus mencuba laluan lain dengan sendirinya. Sehingga salah satunya berjaya, sesetengah laman mungkin dihalakan ke alamat palsu; alamat palsu yang diketahui oleh Shroudly akan ditolak.",
   "logCut": "{host}: bersambung, kemudian rangkaian memutuskannya ({reason} selepas {kb} KB). Shroudly sedang mencuba teknik lain untuknya.",
   "logCutFixed": "{host}: bersambung, kemudian rangkaian memutuskannya ({reason} selepas {kb} KB). {mode} dimatikan, jadi hanya {strategy} digunakan: hidupkan {mode} dalam Tetapan supaya Shroudly mencuba teknik lainnya.",
+  "logCutNotMoved": "{host}: sebenarnya tidak diputuskan oleh rangkaian; komputer ini bertukar ke rangkaian lain pada ketika itu",
   "logRegion": "DNS pada rangkaian ini menjawab laman yang disekat dengan halaman sekatan yang dikenali.",
   "logDnsFilterService": "Perkhidmatan DNS anda menapis laman; DNS tersulit Shroudly memintasnya.",
   "logDohRoutes": "DNS tersulit menjawab melalui {routes}",

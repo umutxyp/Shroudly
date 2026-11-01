@@ -64,6 +64,26 @@ async function pickPort(want) {
  * the same), so it needs more. */
 const CUT_WINDOW_MS = 3 * 60 * 1000;
 const CUT_NEED = { stall: 2, reset: 2, noreply: 4 };
+/* A cut by silence (a stall, no reply: nothing came for seconds) is a filter
+ * stopping that connection only while the network carried other traffic. A
+ * link that goes quiet as a whole (weak Wi-Fi, a train between cells, a
+ * satellite dish blocked for a moment, a laptop moving between Wi-Fi, a
+ * cable and a phone's hotspot) stalls every connection that was halfway
+ * through a response, and two of them on one site were enough to call it
+ * filtered: the log said so, a Mac was told a VPN was the remaining option,
+ * and Windows and Linux brought up Advanced mode's permission prompt. Such a
+ * cut counts only when something came back through the engine in the
+ * QUIET_PROOF_MS before it was told (the connection itself had been silent
+ * longer, 8 s at least: the engine's CUT_STALL_MS). Several sites stalling
+ * at once is no sign of the link by itself: a filter that freezes every
+ * connection to a CDN does that too, while the rest of the web flows. No cut
+ * counts within NET_SETTLE_MS of a move to another network, and one believed
+ * in the NET_SETTLE_MS before it is taken back. What the autopilot does about
+ * a cut waits CUT_SETTLE_MS, for a move to show (cutHolds). */
+const SILENT_CUTS = new Set(['stall', 'noreply']);
+const QUIET_PROOF_MS = 6000;
+const NET_SETTLE_MS = 60000;
+const CUT_SETTLE_MS = 10000;
 
 /* What worked where, kept across restarts: the engine forgets everything when
  * it stops, so without this every Start, reboot and update made it search
@@ -281,6 +301,17 @@ class EngineManager {
     this.advice = { conflicts: [], cut: null, dnsDown: false };
     this.cuts = new Map();        // host -> [{ reason, t }]
     this.cutHosts = new Set();    // hosts already reported this session
+    this.believedAt = new Map();  // host -> when its cut was believed
+    // A cut believed and still standing CUT_SETTLE_MS later (cutHolds), as
+    // (host): what the autopilot acts on (main.js: Advanced mode).
+    this.onCut = hooks.onCut || (() => {});
+    this.cutSettleMs = hooks.cutSettleMs != null ? hooks.cutSettleMs : CUT_SETTLE_MS;
+    // The networks this computer is on, as one string that changes when it
+    // moves to another (main.js: Autopilot.networkFingerprint); null: not
+    // known. Looked at when a cut is told, not polled.
+    this.networkPrint = hooks.networkPrint || null;
+    this._print = null;
+    this.netMovedAt = -Infinity;
     this.doh = new DohForwarder(this.log, {
       // The route that worked is remembered, so the next start goes straight to it.
       preferredId: store.get('dohRoute') || null,
@@ -485,13 +516,18 @@ class EngineManager {
    * several on the same host in a few minutes is the network doing it. Told
    * once per host per session. */
   _onCut(host, reason, kb, siteOk = false) {
-    if (!host || this.cutHosts.has(host)) return;
+    if (!host) return;
+    const now = Date.now();
+    // Just moved to another network: the move stalled these (see SILENT_CUTS).
+    if (this._movedLately(now)) return;
+    // Nothing at all came back meanwhile: the link was quiet, not this site.
+    if (SILENT_CUTS.has(reason) && !this.receivedWithin(QUIET_PROOF_MS, now)) return;
+    if (this.cutHosts.has(host)) return;
     // The rest of the site answers through Shroudly: one of its addresses
     // being cut is that address's own business (and the engine already tries
     // another technique for it), not something to put in front of the user.
     // A site's own page is always counted.
     if (siteOk && !isMainName(host)) return;
-    const now = Date.now();
     const list = (this.cuts.get(host) || []).filter((c) => now - c.t < CUT_WINDOW_MS);
     list.push({ reason, t: now });
     this.cuts.set(host, list);
@@ -500,12 +536,65 @@ class EngineManager {
     const weak = list.length - strong;
     if (strong < CUT_NEED.stall && weak < CUT_NEED.noreply) return;
     this.cutHosts.add(host);
+    this.believedAt.set(host, now);
+    if (this.believedAt.size > 400) this.believedAt.delete(this.believedAt.keys().next().value);
     // With Auto mode off the engine tries nothing else (issue #41: the log
     // said it did): say what is used, and what would help.
     const s = this._settings();
     if (s.autoProbe) this.log('warning', `${host}: connects, then the network cuts it (${reason} after ${kb} KB). This network filters whole connections; Shroudly is trying other techniques for it.`);
     else this.log('warning', `${host}: connects, then the network cuts it (${reason} after ${kb} KB). Auto mode is off, so only ${s.strategy} is used: turn Auto mode on in Settings to let Shroudly try its other techniques.`);
     this._setAdvice({ cut: { host, reason, auto: s.autoProbe } });
+    const settled = setTimeout(() => { if (this.cutHolds(host)) { try { this.onCut(host); } catch {} } }, this.cutSettleMs);
+    if (settled.unref) settled.unref();
+  }
+
+  /* Whether a cut believed for host still stands, as protection runs: not
+   * taken back since (this computer moved to another network meanwhile,
+   * which is looked at now). */
+  cutHolds(host, now = Date.now()) {
+    this._networkMoved(now);
+    return this.active && this.cutHosts.has(host) && this.believedAt.has(host);
+  }
+
+  /* A cut believed around a move to another network: the move's doing, not
+   * the network's. Forgotten, its notice gone from the window, and said in
+   * the log, which said otherwise. */
+  _withdrawCut(host) {
+    if (!this.believedAt.has(host)) return;
+    this.cutHosts.delete(host);
+    this.believedAt.delete(host);
+    this.cuts.delete(host);
+    if (this.advice.cut && this.advice.cut.host === host) this._setAdvice({ cut: null });
+    this.log('info', `${host}: not cut by the network after all; this computer moved to another network at that moment`);
+  }
+
+  /* This computer moved to another network less than NET_SETTLE_MS ago. A
+   * move "in the future" (the clock was set back since) counts as now, so
+   * cuts are never ignored for longer. */
+  _movedLately(now = Date.now()) {
+    this._networkMoved(now);
+    if (this.netMovedAt > now) this.netMovedAt = now;
+    return now - this.netMovedAt < NET_SETTLE_MS;
+  }
+
+  /* Has this computer moved to another network since this was last looked
+   * at (networkPrint)? Then the cuts of the NET_SETTLE_MS before are taken
+   * back, and none counts for NET_SETTLE_MS (_onCut). The first look only
+   * notes where it is. */
+  _networkMoved(now = Date.now()) {
+    if (!this.networkPrint) return false;
+    let p = null;
+    try { p = String(this.networkPrint()); } catch { return false; }
+    const was = this._print;
+    this._print = p;
+    if (was === null || was === p) return false;
+    this.netMovedAt = now;
+    for (const [h, list] of this.cuts) {
+      const keep = list.filter((c) => now - c.t >= NET_SETTLE_MS);
+      if (keep.length) this.cuts.set(h, keep); else this.cuts.delete(h);
+    }
+    for (const [h, t] of [...this.believedAt]) if (now - t < NET_SETTLE_MS) this._withdrawCut(h);
+    return true;
   }
 
   /* Asked again while a start is under way (the automatic start at launch
@@ -551,6 +640,7 @@ class EngineManager {
     // again with this start (log-gate.js).
     this.logGate.forgetKinds((k) => k.startsWith('unreachable-') || k.endsWith('-unreachable') || k.endsWith('-restarting'));
     this.cuts.clear();
+    this._networkMoved();
     this._setAdvice({ cut: null });
     this._describeEnvironment();
     this.expectingStop = false;
@@ -892,9 +982,12 @@ class EngineManager {
         // after a wake): the site is up, so the silence is the network's (one
         // that follows these connections, or stops an address once it has
         // seen a way through, issue #43): told as a block, below, with
-        // Advanced mode.
+        // Advanced mode. Not while the link itself is quiet (nothing came
+        // back through the engine meanwhile) or has just moved to another
+        // network: then everything is silent, this site with it (SILENT_CUTS).
         const opened = this.openedAt.get(msg.host);
-        const upNow = msg.note === 'silent' && opened != null && Date.now() - opened < OPENED_RECENTLY_MS && !this.wake.recent(WAKE_QUIET_MS);
+        const upNow = msg.note === 'silent' && opened != null && Date.now() - opened < OPENED_RECENTLY_MS && !this.wake.recent(WAKE_QUIET_MS)
+          && this.receivedWithin(QUIET_PROOF_MS) && !this._movedLately();
         if (msg.note === 'silent' && !upNow) {
           if (!this.blockedHosts.has(msg.host)) {
             if (this.blockedHosts.size > 400) this.blockedHosts.clear();

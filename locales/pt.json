@@ -149,6 +149,7 @@
   "dnsDownBody": "O Shroudly continua tentando outras rotas sozinho. Até uma passar, alguns sites podem levar a endereços falsos; os endereços falsos que o Shroudly conhece são recusados.",
   "logCut": "{host}: conecta e depois a rede corta ({reason} após {kb} KB). O Shroudly está tentando outras técnicas para ele.",
   "logCutFixed": "{host}: conecta e depois a rede corta ({reason} após {kb} KB). {mode} está desligado, então só {strategy} é usado: ligue {mode} nas Configurações para o Shroudly tentar as outras técnicas.",
+  "logCutNotMoved": "{host}: afinal não foi a rede que cortou; este computador mudou para outra rede naquele momento",
   "logRegion": "O DNS desta rede responde aos sites bloqueados com uma página de bloqueio conhecida.",
   "logDnsFilterService": "Seu serviço de DNS filtra sites; o DNS criptografado do Shroudly contorna isso.",
   "logDohRoutes": "DNS criptografado respondendo via {routes}",
