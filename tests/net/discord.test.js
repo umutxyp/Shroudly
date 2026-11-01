@@ -359,7 +359,8 @@ function get(url, o = {}) {
       'the line taken out by Shroudly itself: no note, nothing to do');
     fs.writeFileSync(state, '{not json');
     t.ok(DiscordLine.recoverSync({ stateFile: state }) === 'none' && !fs.existsSync(state), 'a damaged note is dropped');
-    const main = fs.readFileSync(path.join(ROOT, 'electron', 'main.js'), 'utf8');
+    // (Line ends as checked out: CRLF on Windows.)
+    const main = fs.readFileSync(path.join(ROOT, 'electron', 'main.js'), 'utf8').replace(/\r\n/g, '\n');
     t.ok(/noteDiscordLine\(files\);\n  return \{ changed, denied, failed, foreign \};/.test(main) && /Watchdog\.watch\(watchdogOpts, 'discord', file\)/.test(main)
       && /args: \[\.\.\.restoreCommand\.args, FROM_WATCHDOG_ARG\]/.test(main), "every write of the line notes it for the watchdog, whose restore is told it follows a kill");
     fs.rmSync(dir, { recursive: true, force: true });

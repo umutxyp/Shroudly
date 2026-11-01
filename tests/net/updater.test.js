@@ -1065,7 +1065,8 @@ const sandbox = () => fs.mkdtempSync(path.join(os.tmpdir(), 'shroudly-updtest-')
       'the password asked first, while protection is still on; refused: nothing stopped, Shroudly carries on, the version noted');
     const src = asked[0].args[1];
     t.ok(asked[0].args[0] === '-e' && /with prompt "Shroudly needs an administrator's password to install version 2\.5\.6\." with administrator privileges$/.test(src)
-      && /^do shell script "\/bin\/sh '[^']+install\.sh' '\d+' '[^']+\.zip' /.test(src) && new RegExp(`'${process.getuid()}' </dev/null >/dev/null 2>&1 &"`).test(src),
+      && /^do shell script "\/bin\/sh '[^']+install\.sh' '\d+' '[^']+\.zip' /.test(src)
+      && new RegExp(`'${typeof process.getuid === 'function' ? process.getuid() : ''}' </dev/null >/dev/null 2>&1 &"`).test(src),
     '…one macOS dialog saying what it is for, running the same swap script in the background, told whose app to open afterwards');
     u.osascript = async () => '';
     u._set({ failed: false });
