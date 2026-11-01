@@ -1,0 +1,11 @@
+// Signing. Set DEVELOPMENT_TEAM to the 10-character Team ID of CODESHARE
+// TECHNOLOGY LTD's Apple Developer account (developer.apple.com → Account →
+// Membership details), here or in Signing.local.xcconfig (not committed).
+// Xcode then makes and renews the certificates and profiles itself
+// (automatic signing). See ../APP_STORE.md.
+//
+// Builds without signing (CI, scripts/test.sh) leave it empty and pass
+// CODE_SIGNING_ALLOWED=NO.
+
+DEVELOPMENT_TEAM =
+CODE_SIGN_STYLE = Automatic

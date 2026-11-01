@@ -1,0 +1,4 @@
+module ShroudlyNative {
+    header "shroudly_native.h"
+    export *
+}

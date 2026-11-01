@@ -1,0 +1,775 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		5A000000000000000000100F /* libShroudlyEngine.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5A0000000000000000001003 /* libShroudlyEngine.a */; };
+		5A0000000000000000001010 /* HevSocks5Tunnel.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5A0000000000000000001005 /* HevSocks5Tunnel.xcframework */; };
+		5A0000000000000000001011 /* block-ips.txt in Resources */ = {isa = PBXBuildFile; fileRef = 5A0000000000000000001006 /* block-ips.txt */; };
+		5A0000000000000000001012 /* ShroudlyTunnel.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 5A0000000000000000001002 /* ShroudlyTunnel.appex */; settings = { ATTRIBUTES = ( RemoveHeadersOnCopy, ); }; };
+		5A0000000000000000001013 /* libShroudlyEngine.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5A0000000000000000001003 /* libShroudlyEngine.a */; };
+		5A0000000000000000001014 /* HevSocks5Tunnel.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5A0000000000000000001005 /* HevSocks5Tunnel.xcframework */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		5A0000000000000000001030 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 5A000000000000000000102F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 5A0000000000000000001015 /* ShroudlyEngine */;
+			remoteInfo = ShroudlyEngine;
+		};
+		5A0000000000000000001033 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 5A000000000000000000102F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 5A0000000000000000001032 /* ShroudlyTunnel */;
+			remoteInfo = ShroudlyTunnel;
+		};
+		5A0000000000000000001035 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 5A000000000000000000102F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 5A0000000000000000001015 /* ShroudlyEngine */;
+			remoteInfo = ShroudlyEngine;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		5A000000000000000000102B /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				5A0000000000000000001012 /* ShroudlyTunnel.appex in Embed Foundation Extensions */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			name = "Embed Foundation Extensions";
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		5A0000000000000000001001 /* Shroudly.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Shroudly.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		5A0000000000000000001002 /* ShroudlyTunnel.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = ShroudlyTunnel.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		5A0000000000000000001003 /* libShroudlyEngine.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libShroudlyEngine.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		5A0000000000000000001004 /* ShroudlyTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ShroudlyTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		5A0000000000000000001005 /* HevSocks5Tunnel.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = HevSocks5Tunnel.xcframework; path = third_party/HevSocks5Tunnel.xcframework; sourceTree = SOURCE_ROOT; };
+		5A0000000000000000001006 /* block-ips.txt */ = {isa = PBXFileReference; lastKnownFileType = text; name = "block-ips.txt"; path = "../android/app/src/main/assets/block-ips.txt"; sourceTree = SOURCE_ROOT; };
+		5A0000000000000000001007 /* Shroudly.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Shroudly.xcconfig; sourceTree = "<group>"; };
+		5A0000000000000000001008 /* Signing.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Signing.xcconfig; sourceTree = "<group>"; };
+		5A0000000000000000001009 /* App-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "App-Info.plist"; sourceTree = "<group>"; };
+		5A000000000000000000100A /* Tunnel-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Tunnel-Info.plist"; sourceTree = "<group>"; };
+		5A000000000000000000100B /* App-iOS.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "App-iOS.entitlements"; sourceTree = "<group>"; };
+		5A000000000000000000100C /* App-macOS.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "App-macOS.entitlements"; sourceTree = "<group>"; };
+		5A000000000000000000100D /* Tunnel-iOS.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "Tunnel-iOS.entitlements"; sourceTree = "<group>"; };
+		5A000000000000000000100E /* Tunnel-macOS.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "Tunnel-macOS.entitlements"; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		5A0000000000000000001016 /* Exceptions for "core" folder in "ShroudlyEngine" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				CAPABILITIES.md,
+			);
+			target = 5A0000000000000000001015 /* ShroudlyEngine */;
+		};
+		5A0000000000000000001017 /* Exceptions for "Native" folder in "ShroudlyEngine" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				module.modulemap,
+			);
+			target = 5A0000000000000000001015 /* ShroudlyEngine */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		5A0000000000000000001018 /* App */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = App;
+			sourceTree = "<group>";
+		};
+		5A0000000000000000001019 /* Shared */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Shared;
+			sourceTree = "<group>";
+		};
+		5A000000000000000000101A /* Tunnel */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Tunnel;
+			sourceTree = "<group>";
+		};
+		5A000000000000000000101B /* Native */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				5A0000000000000000001017 /* Exceptions for "Native" folder in "ShroudlyEngine" target */,
+			);
+			path = Native;
+			sourceTree = "<group>";
+		};
+		5A000000000000000000101C /* Localization */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Localization;
+			sourceTree = "<group>";
+		};
+		5A000000000000000000101D /* Tests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Tests;
+			sourceTree = "<group>";
+		};
+		5A000000000000000000101E /* core */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				5A0000000000000000001016 /* Exceptions for "core" folder in "ShroudlyEngine" target */,
+			);
+			path = ../core/src;
+			name = core;
+			sourceTree = "<group>";
+		};
+/* End PBXFileSystemSynchronizedRootGroup section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		5A0000000000000000001024 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		5A0000000000000000001026 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				5A000000000000000000100F /* libShroudlyEngine.a in Frameworks */,
+				5A0000000000000000001010 /* HevSocks5Tunnel.xcframework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		5A0000000000000000001029 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		5A000000000000000000102D /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				5A0000000000000000001013 /* libShroudlyEngine.a in Frameworks */,
+				5A0000000000000000001014 /* HevSocks5Tunnel.xcframework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		5A000000000000000000101F /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				5A0000000000000000001001 /* Shroudly.app */,
+				5A0000000000000000001002 /* ShroudlyTunnel.appex */,
+				5A0000000000000000001003 /* libShroudlyEngine.a */,
+				5A0000000000000000001004 /* ShroudlyTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		5A0000000000000000001020 /* Config */ = {
+			isa = PBXGroup;
+			children = (
+				5A0000000000000000001007 /* Shroudly.xcconfig */,
+				5A0000000000000000001008 /* Signing.xcconfig */,
+				5A0000000000000000001009 /* App-Info.plist */,
+				5A000000000000000000100A /* Tunnel-Info.plist */,
+				5A000000000000000000100B /* App-iOS.entitlements */,
+				5A000000000000000000100C /* App-macOS.entitlements */,
+				5A000000000000000000100D /* Tunnel-iOS.entitlements */,
+				5A000000000000000000100E /* Tunnel-macOS.entitlements */,
+			);
+			path = Config;
+			sourceTree = "<group>";
+		};
+		5A0000000000000000001021 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				5A0000000000000000001005 /* HevSocks5Tunnel.xcframework */,
+				5A0000000000000000001006 /* block-ips.txt */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		5A0000000000000000001022 = {
+			isa = PBXGroup;
+			children = (
+				5A0000000000000000001018 /* App */,
+				5A000000000000000000101A /* Tunnel */,
+				5A0000000000000000001019 /* Shared */,
+				5A000000000000000000101B /* Native */,
+				5A000000000000000000101E /* core */,
+				5A000000000000000000101C /* Localization */,
+				5A000000000000000000101D /* Tests */,
+				5A0000000000000000001020 /* Config */,
+				5A0000000000000000001021 /* Frameworks */,
+				5A000000000000000000101F /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		5A0000000000000000001015 /* ShroudlyEngine */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 5A000000000000000000103C /* Build configuration list for PBXNativeTarget "ShroudlyEngine" */;
+			buildPhases = (
+				5A0000000000000000001023 /* Sources */,
+				5A0000000000000000001024 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				5A000000000000000000101E /* core */,
+				5A000000000000000000101B /* Native */,
+			);
+			name = ShroudlyEngine;
+			packageProductDependencies = (
+			);
+			productName = ShroudlyEngine;
+			productReference = 5A0000000000000000001003 /* libShroudlyEngine.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+		5A0000000000000000001032 /* ShroudlyTunnel */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 5A000000000000000000103F /* Build configuration list for PBXNativeTarget "ShroudlyTunnel" */;
+			buildPhases = (
+				5A0000000000000000001025 /* Sources */,
+				5A0000000000000000001026 /* Frameworks */,
+				5A0000000000000000001027 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				5A0000000000000000001031 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				5A000000000000000000101A /* Tunnel */,
+				5A0000000000000000001019 /* Shared */,
+			);
+			name = ShroudlyTunnel;
+			packageProductDependencies = (
+			);
+			productName = ShroudlyTunnel;
+			productReference = 5A0000000000000000001002 /* ShroudlyTunnel.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+		5A0000000000000000001046 /* Shroudly */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 5A0000000000000000001042 /* Build configuration list for PBXNativeTarget "Shroudly" */;
+			buildPhases = (
+				5A0000000000000000001028 /* Sources */,
+				5A0000000000000000001029 /* Frameworks */,
+				5A000000000000000000102A /* Resources */,
+				5A000000000000000000102B /* Embed Foundation Extensions */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				5A0000000000000000001034 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				5A0000000000000000001018 /* App */,
+				5A0000000000000000001019 /* Shared */,
+				5A000000000000000000101C /* Localization */,
+			);
+			name = Shroudly;
+			packageProductDependencies = (
+			);
+			productName = Shroudly;
+			productReference = 5A0000000000000000001001 /* Shroudly.app */;
+			productType = "com.apple.product-type.application";
+		};
+		5A0000000000000000001047 /* ShroudlyTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 5A0000000000000000001045 /* Build configuration list for PBXNativeTarget "ShroudlyTests" */;
+			buildPhases = (
+				5A000000000000000000102C /* Sources */,
+				5A000000000000000000102D /* Frameworks */,
+				5A000000000000000000102E /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				5A0000000000000000001036 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				5A000000000000000000101D /* Tests */,
+				5A0000000000000000001019 /* Shared */,
+				5A000000000000000000101A /* Tunnel */,
+				5A000000000000000000101C /* Localization */,
+			);
+			name = ShroudlyTests;
+			packageProductDependencies = (
+			);
+			productName = ShroudlyTests;
+			productReference = 5A0000000000000000001004 /* ShroudlyTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		5A000000000000000000102F /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 2620;
+				LastUpgradeCheck = 2620;
+				TargetAttributes = {
+					5A0000000000000000001046 /* Shroudly */ = {
+						CreatedOnToolsVersion = 26.2;
+					};
+					5A0000000000000000001032 /* ShroudlyTunnel */ = {
+						CreatedOnToolsVersion = 26.2;
+					};
+					5A0000000000000000001015 /* ShroudlyEngine */ = {
+						CreatedOnToolsVersion = 26.2;
+					};
+					5A0000000000000000001047 /* ShroudlyTests */ = {
+						CreatedOnToolsVersion = 26.2;
+					};
+				};
+			};
+			buildConfigurationList = 5A0000000000000000001039 /* Build configuration list for PBXProject "Shroudly" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+				am,
+				ar,
+				az,
+				be,
+				bn,
+				de,
+				es,
+				fa,
+				fr,
+				he,
+				hi,
+				id,
+				ja,
+				kk,
+				ku,
+				ky,
+				ms,
+				my,
+				ps,
+				"pt-BR",
+				ru,
+				tg,
+				th,
+				tk,
+				tr,
+				uk,
+				ur,
+				uz,
+				vi,
+				"zh-Hans",
+			);
+			mainGroup = 5A0000000000000000001022;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 5A000000000000000000101F /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				5A0000000000000000001046 /* Shroudly */,
+				5A0000000000000000001032 /* ShroudlyTunnel */,
+				5A0000000000000000001015 /* ShroudlyEngine */,
+				5A0000000000000000001047 /* ShroudlyTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		5A0000000000000000001027 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				5A0000000000000000001011 /* block-ips.txt in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		5A000000000000000000102A /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		5A000000000000000000102E /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		5A0000000000000000001023 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		5A0000000000000000001025 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		5A0000000000000000001028 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		5A000000000000000000102C /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		5A0000000000000000001031 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 5A0000000000000000001015 /* ShroudlyEngine */;
+			targetProxy = 5A0000000000000000001030 /* PBXContainerItemProxy */;
+		};
+		5A0000000000000000001034 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 5A0000000000000000001032 /* ShroudlyTunnel */;
+			targetProxy = 5A0000000000000000001033 /* PBXContainerItemProxy */;
+		};
+		5A0000000000000000001036 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 5A0000000000000000001015 /* ShroudlyEngine */;
+			targetProxy = 5A0000000000000000001035 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		5A0000000000000000001037 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 5A0000000000000000001007 /* Shroudly.xcconfig */;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_TESTABILITY = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				ONLY_ACTIVE_ARCH = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		5A0000000000000000001038 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 5A0000000000000000001007 /* Shroudly.xcconfig */;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		5A000000000000000000103A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				GCC_OPTIMIZATION_LEVEL = 2;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SHROUDLY_NO_MAIN,
+					"$(SHROUDLY_ENGINE_LIMITS)",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = NO;
+				HEADER_SEARCH_PATHS = "$(SRCROOT)/../core/src";
+				OTHER_CFLAGS = (
+					"-fstack-protector-strong",
+				);
+				OTHER_LIBTOOLFLAGS = "-no_warning_for_no_symbols";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+				);
+			};
+			name = Debug;
+		};
+		5A000000000000000000103B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				GCC_OPTIMIZATION_LEVEL = 2;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SHROUDLY_NO_MAIN,
+					"$(SHROUDLY_ENGINE_LIMITS)",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = NO;
+				HEADER_SEARCH_PATHS = "$(SRCROOT)/../core/src";
+				OTHER_CFLAGS = (
+					"-fstack-protector-strong",
+				);
+				OTHER_LIBTOOLFLAGS = "-no_warning_for_no_symbols";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+				);
+			};
+			name = Release;
+		};
+		5A000000000000000000103D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				"CODE_SIGN_ENTITLEMENTS[sdk=iphoneos*]" = "Config/Tunnel-iOS.entitlements";
+				"CODE_SIGN_ENTITLEMENTS[sdk=iphonesimulator*]" = "Config/Tunnel-iOS.entitlements";
+				"CODE_SIGN_ENTITLEMENTS[sdk=macosx*]" = "Config/Tunnel-macOS.entitlements";
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Config/Tunnel-Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = Shroudly;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "© CODESHARE TECHNOLOGY LTD";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "$(SHROUDLY_BUNDLE_ID).tunnel";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_INCLUDE_PATHS = "$(SRCROOT)/Native";
+			};
+			name = Debug;
+		};
+		5A000000000000000000103E /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				"CODE_SIGN_ENTITLEMENTS[sdk=iphoneos*]" = "Config/Tunnel-iOS.entitlements";
+				"CODE_SIGN_ENTITLEMENTS[sdk=iphonesimulator*]" = "Config/Tunnel-iOS.entitlements";
+				"CODE_SIGN_ENTITLEMENTS[sdk=macosx*]" = "Config/Tunnel-macOS.entitlements";
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Config/Tunnel-Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = Shroudly;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "© CODESHARE TECHNOLOGY LTD";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "$(SHROUDLY_BUNDLE_ID).tunnel";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_INCLUDE_PATHS = "$(SRCROOT)/Native";
+			};
+			name = Release;
+		};
+		5A0000000000000000001040 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				"CODE_SIGN_ENTITLEMENTS[sdk=iphoneos*]" = "Config/App-iOS.entitlements";
+				"CODE_SIGN_ENTITLEMENTS[sdk=iphonesimulator*]" = "Config/App-iOS.entitlements";
+				"CODE_SIGN_ENTITLEMENTS[sdk=macosx*]" = "Config/App-macOS.entitlements";
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Config/App-Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = Shroudly;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "© CODESHARE TECHNOLOGY LTD";
+				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UIUserInterfaceStyle[sdk=iphoneos*]" = Dark;
+				"INFOPLIST_KEY_UIUserInterfaceStyle[sdk=iphonesimulator*]" = Dark;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = UIInterfaceOrientationPortrait;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "$(SHROUDLY_BUNDLE_ID)";
+				PRODUCT_NAME = Shroudly;
+			};
+			name = Debug;
+		};
+		5A0000000000000000001041 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				"CODE_SIGN_ENTITLEMENTS[sdk=iphoneos*]" = "Config/App-iOS.entitlements";
+				"CODE_SIGN_ENTITLEMENTS[sdk=iphonesimulator*]" = "Config/App-iOS.entitlements";
+				"CODE_SIGN_ENTITLEMENTS[sdk=macosx*]" = "Config/App-macOS.entitlements";
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Config/App-Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = Shroudly;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "© CODESHARE TECHNOLOGY LTD";
+				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UIUserInterfaceStyle[sdk=iphoneos*]" = Dark;
+				"INFOPLIST_KEY_UIUserInterfaceStyle[sdk=iphonesimulator*]" = Dark;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = UIInterfaceOrientationPortrait;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "$(SHROUDLY_BUNDLE_ID)";
+				PRODUCT_NAME = Shroudly;
+			};
+			name = Release;
+		};
+		5A0000000000000000001043 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "$(SHROUDLY_BUNDLE_ID).tests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_INCLUDE_PATHS = "$(SRCROOT)/Native";
+			};
+			name = Debug;
+		};
+		5A0000000000000000001044 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "$(SHROUDLY_BUNDLE_ID).tests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_INCLUDE_PATHS = "$(SRCROOT)/Native";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		5A0000000000000000001039 /* Build configuration list for PBXProject "Shroudly" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				5A0000000000000000001037 /* Debug */,
+				5A0000000000000000001038 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		5A000000000000000000103C /* Build configuration list for PBXNativeTarget "ShroudlyEngine" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				5A000000000000000000103A /* Debug */,
+				5A000000000000000000103B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		5A000000000000000000103F /* Build configuration list for PBXNativeTarget "ShroudlyTunnel" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				5A000000000000000000103D /* Debug */,
+				5A000000000000000000103E /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		5A0000000000000000001042 /* Build configuration list for PBXNativeTarget "Shroudly" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				5A0000000000000000001040 /* Debug */,
+				5A0000000000000000001041 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		5A0000000000000000001045 /* Build configuration list for PBXNativeTarget "ShroudlyTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				5A0000000000000000001043 /* Debug */,
+				5A0000000000000000001044 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 5A000000000000000000102F /* Project object */;
+}

@@ -1,0 +1,45 @@
+// Build settings every target shares (the project's base configuration).
+//
+// Signing: Signing.xcconfig (the team). The version: Version.xcconfig,
+// written from the repository's package.json by scripts/gen-version.js
+// (not committed); without it the build says 0.0.0.
+
+#include "Signing.xcconfig"
+#include? "Signing.local.xcconfig"
+
+MARKETING_VERSION = 0.0.0
+CURRENT_PROJECT_VERSION = 0
+#include? "Version.xcconfig"
+
+// One set of targets for iPhone, iPad and Mac (not Mac Catalyst, not the
+// iPad app on Apple silicon Macs: the Mac has its own build).
+SDKROOT = auto
+SUPPORTED_PLATFORMS = iphoneos iphonesimulator macosx
+SUPPORTS_MACCATALYST = NO
+SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO
+SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO
+IPHONEOS_DEPLOYMENT_TARGET = 16.0
+MACOSX_DEPLOYMENT_TARGET = 13.0
+TARGETED_DEVICE_FAMILY = 1,2
+
+SWIFT_VERSION = 5.0
+GCC_C_LANGUAGE_STANDARD = c11
+CLANG_ENABLE_MODULES = YES
+ALWAYS_SEARCH_USER_PATHS = NO
+DEAD_CODE_STRIPPING = YES
+ENABLE_USER_SCRIPT_SANDBOXING = YES
+ENABLE_STRICT_OBJC_MSGSEND = YES
+ENABLE_HARDENED_RUNTIME[sdk=macosx*] = YES
+LOCALIZATION_PREFERS_STRING_CATALOGS = NO
+
+// The bundle ids, and the app group the app and its tunnel share
+// (Shared/AppGroup.swift): the iOS kind on iPhone and iPad, the team's
+// prefix on the Mac (what the Mac App Store asks for).
+SHROUDLY_BUNDLE_ID = me.codeshare.shroudly
+SHROUDLY_APP_GROUP[sdk=iphoneos*] = group.me.codeshare.shroudly
+SHROUDLY_APP_GROUP[sdk=iphonesimulator*] = group.me.codeshare.shroudly
+SHROUDLY_APP_GROUP[sdk=macosx*] = $(DEVELOPMENT_TEAM).me.codeshare.shroudly
+
+// The engine's limits in the packet tunnel (core/src/engine.c): iOS ends a
+// tunnel that holds more than about 50 MB (Shared/TunnelConfig.swift).
+SHROUDLY_ENGINE_LIMITS = MAX_CONNS=192 UDP_ASSOC_MAX=192

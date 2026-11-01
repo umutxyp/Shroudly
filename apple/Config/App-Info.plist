@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyLists-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<!-- What Xcode does not write itself (GENERATE_INFOPLIST_FILE adds the rest). -->
+	<key>ShroudlyAppGroup</key>
+	<string>$(SHROUDLY_APP_GROUP)</string>
+	<!-- Export compliance: only the encryption the system provides (HTTPS
+	     through URLSession for encrypted DNS); see APP_STORE.md. -->
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
+	<!-- Translated in Localization/*.lproj/InfoPlist.strings. -->
+	<key>NSLocalNetworkUsageDescription</key>
+	<string>Shroudly carries your apps' connections, including those to devices on your local network, such as your router.</string>
+</dict>
+</plist>
