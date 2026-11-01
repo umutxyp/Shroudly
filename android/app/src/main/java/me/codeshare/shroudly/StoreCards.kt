@@ -4,11 +4,13 @@ import android.content.Context
 
 /*
  * The main window's cards about Google Play, only while Shroudly is on Play
- * (Stores): a rating, in the copy Play installed or updates (RATE); and in
- * any other copy (the APK from GitHub, any other install) a suggestion to
- * move to the one from Play, which Play keeps up to date by itself (MOVE).
+ * in the phone's country (Stores): a rating, in the copy Play installed or
+ * updates (RATE); and in any other copy (the APK from GitHub, any other
+ * install) a suggestion to move to the one from Play, which Play keeps up to
+ * date by itself (MOVE).
  *
- * The rating card shows in the copy Google Play installed or updates only. Never a notification, never a dialog, never more than one
+ * The rating card shows in the copy Google Play installed or updates only.
+ * Never a notification, never a dialog, never more than one
  * prompt a session, never beside a card that asks for something else
  * (MainActivity.showStoreCard), and at a good moment only: protection on and
  * working right now, the app installed for INSTALLED_DAYS and protection
@@ -54,7 +56,7 @@ object StoreCards {
     /* The suggestion to move to the copy from Google Play: at most
      * MOVE_MAX times ever, the second MOVE_AGAIN_DAYS after the first; never
      * again once "Open Google Play" was tapped. Only where the Play Store is
-     * on the phone, not while the ad blocker is on (the copy from Play has
+     * on the phone and turned on, not while the ad blocker is on (the copy from Play has
      * none: moving would lose it), while protection is on and working, the
      * app installed INSTALLED_DAYS and protection having worked on MOVE_DAYS.
      * A window not opened for NOTIFY_IDLE_DAYS when it is due gets one quiet
@@ -99,8 +101,9 @@ object StoreCards {
     // The services look this often whether the notification is due.
     const val LOOK_EVERY_MS = 6L * 60 * 60 * 1000
 
+    /* The Play Store is on the phone, and not turned off. */
     fun playStoreInstalled(ctx: Context): Boolean = try {
-        ctx.packageManager.getPackageInfo(InstallSource.PLAY_STORE, 0); true
+        ctx.packageManager.getApplicationInfo(InstallSource.PLAY_STORE, 0).enabled
     } catch (_: Exception) {
         false
     }
@@ -108,7 +111,7 @@ object StoreCards {
     /* Whether the suggestion to move is due now (protection working:
      * the caller knows). */
     fun moveDueNow(ctx: Context, working: Boolean, now: Long = System.currentTimeMillis()): Boolean =
-        moveDue(fromPlay(InstallSource.installer(ctx)), Stores.playLive(ctx, now), playStoreInstalled(ctx), working,
+        moveDue(fromPlay(InstallSource.installer(ctx)), Stores.playHere(ctx, now), playStoreInstalled(ctx), working,
             AdBlock.enabled(ctx), Usage.installedAt(ctx), Usage.days(ctx), load(ctx, MOVE, now), now)
 
     /* From the services while protection is on (now and then): the flag
