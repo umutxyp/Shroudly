@@ -29,6 +29,28 @@ t.ok(x11Active('_NET_ACTIVE_WINDOW(WINDOW): window id # 0x0') === null && x11Act
 t.ok(x11FullScreen('_NET_WM_STATE(ATOM) = _NET_WM_STATE_FULLSCREEN, _NET_WM_STATE_FOCUSED'), 'a full-screen window: busy');
 t.ok(!x11FullScreen('_NET_WM_STATE(ATOM) = _NET_WM_STATE_MAXIMIZED_VERT, _NET_WM_STATE_MAXIMIZED_HORZ') && !x11FullScreen(null), 'maximised or unknown: free');
 
+// macOS (ML-7): the app in front full screen, or keeping the display awake
+// (a video, a presentation); not another app's assertion (caffeinate), not
+// Shroudly's own window, not an answer that cannot be read.
+const { macBusy, waylandInhibited } = UserBusy;
+const PM = '   pid 2515(Brave Browser): [0x00022f8a0005971a] 00:00:52 NoDisplaySleepAssertion named: "Video Wake Lock"\n'
+  + '   pid 900(caffeinate): [0x1] 01:00:00 PreventUserIdleDisplaySleep named: "caffeinate command-line tool"\n';
+t.ok(macBusy('2515 1', '') && macBusy('2515 0', PM) && macBusy('77 0', '   pid 77(Keynote): [0x2] 00:01:00 PreventUserIdleDisplaySleep named: "Presentation"'),
+  'macOS: full screen in front, or the app in front playing a video or a presentation: busy');
+t.ok(!macBusy('2515 0', '') && !macBusy('333 0', PM) && !macBusy(`${process.pid} 1`, '') && !macBusy(null, PM) && !macBusy('garbage', PM),
+  'macOS: an ordinary window, another app keeping the display awake, Shroudly itself, or no answer: free');
+t.ok(waylandInhibited('(true,)') && waylandInhibited('b true') && !waylandInhibited('(false,)') && !waylandInhibited(null),
+  'Wayland (GNOME, KDE): an app keeping the session from going idle: busy');
+if (process.platform === 'darwin') {
+  // The look itself runs here, without a permission prompt, and says something.
+  const { execFileSync } = require('child_process');
+  let out = '';
+  try { out = execFileSync('osascript', ['-l', 'JavaScript', '-e', UserBusy.MAC_JXA], { encoding: 'utf8', timeout: 15000 }); } catch {}
+  // A CI runner may have no app in front (-1), or no window server at all.
+  if (!out.trim() && process.env.CI) console.log('  --  no window server on this runner: the look is checked on a Mac with a screen');
+  else t.ok(/^-?\d+ [01]$/.test(out.trim()), `macOS: the look at the app in front answers (${out.trim() || 'nothing'})`);
+}
+
 (async () => {
   // One look serves everyone asking at once, and for a few seconds after.
   {

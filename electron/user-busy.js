@@ -18,7 +18,13 @@
  * "borderless" or "windowed full screen" are, which that state may not
  * count. Asked of a PowerShell kept running (ps-host.js), so a look every
  * half minute through a long game costs next to nothing. Linux (X11): the
- * active window's _NET_WM_STATE_FULLSCREEN. Elsewhere (macOS, Wayland, a
+ * active window's _NET_WM_STATE_FULLSCREEN. macOS: a window of the app in
+ * front covering a whole screen (CGWindowListCopyWindowInfo through
+ * JavaScript for Automation, which needs no permission for the bounds and
+ * owners of windows), or that app keeping the display awake (a video
+ * playing, a presentation: pmset's assertions). Wayland, where no window
+ * can be looked at: an app keeping the session from going idle (GNOME's and
+ * KDE's own inhibitors, which video players and games set). Elsewhere (a
  * PowerShell in ConstrainedLanguage mode), and on any failure: not busy, so
  * nothing ever waits on a look that cannot be made.
  */
@@ -84,6 +90,33 @@ function x11Active(out) {
 }
 function x11FullScreen(out) { return /_NET_WM_STATE_FULLSCREEN/.test(String(out || '')); }
 
+/* macOS: "<pid of the app in front> <1 when one of its windows covers a
+ * whole screen, else 0>". */
+const MAC_JXA = [
+  "ObjC.import('AppKit'); ObjC.import('CoreGraphics');",
+  'var front = $.NSWorkspace.sharedWorkspace.frontmostApplication;',
+  'var pid = front ? front.processIdentifier : -1;',
+  'var wins = ObjC.deepUnwrap(ObjC.castRefToObject($.CGWindowListCopyWindowInfo($.kCGWindowListOptionOnScreenOnly | $.kCGWindowListExcludeDesktopElements, 0))) || [];',
+  'var screens = []; var ss = $.NSScreen.screens; for (var i = 0; i < ss.count; i++) { var f = ss.objectAtIndex(i).frame; screens.push([f.size.width, f.size.height]); }',
+  'var full = wins.some(function (w) { return w.kCGWindowOwnerPID === pid && w.kCGWindowLayer === 0 && w.kCGWindowBounds && screens.some(function (s) { return Math.abs(w.kCGWindowBounds.Width - s[0]) < 2 && Math.abs(w.kCGWindowBounds.Height - s[1]) < 2; }); });',
+  "pid + ' ' + (full ? 1 : 0);",
+].join(' ');
+
+/* Whether the app in front (by the answer to MAC_JXA) is full screen or,
+ * by `pmset -g assertions`, keeps the display awake. Shroudly's own window
+ * in front is never a reason to wait. */
+function macBusy(front, assertions, self = process.pid) {
+  const m = /^(\d+) ([01])$/.exec(String(front || '').trim());
+  if (!m || Number(m[1]) === self || Number(m[1]) <= 0) return false;
+  if (m[2] === '1') return true;
+  const re = new RegExp(`^\\s*pid ${m[1]}\\([^)]*\\):.*\\b(PreventUserIdleDisplaySleep|NoDisplaySleepAssertion)\\b`, 'm');
+  return re.test(String(assertions || ''));
+}
+
+/* GNOME (IsInhibited, idle = 8) and KDE (HasInhibit) answers: "(true,)",
+ * "true". */
+function waylandInhibited(out) { return /\btrue\b/i.test(String(out || '')); }
+
 const run = (cmd, args) => new Promise((resolve) => {
   execFile(cmd, args, { timeout: 3000, windowsHide: true }, (err, out) => resolve(err ? null : String(out || '')));
 });
@@ -93,8 +126,19 @@ function defaultLook(platform) {
     const host = new PsHost({ script: PS_SCRIPT });
     return async () => windowsFullScreen(await host.request('screen', '', CHECK_TIMEOUT_MS));
   }
+  if (platform === 'darwin') {
+    return async () => macBusy(await run('osascript', ['-l', 'JavaScript', '-e', MAC_JXA]), await run('pmset', ['-g', 'assertions']));
+  }
   if (platform === 'linux') {
     return async () => {
+      // Wayland: no window can be looked at; an app keeping the session
+      // from going idle is the sign (a native Wayland game or player).
+      if (process.env.WAYLAND_DISPLAY && /gnome/i.test(process.env.XDG_CURRENT_DESKTOP || '')) {
+        return waylandInhibited(await run('gdbus', ['call', '--session', '--dest', 'org.gnome.SessionManager', '--object-path', '/org/gnome/SessionManager', '--method', 'org.gnome.SessionManager.IsInhibited', '8']));
+      }
+      if (process.env.WAYLAND_DISPLAY && /kde/i.test(process.env.XDG_CURRENT_DESKTOP || '')) {
+        return waylandInhibited(await run('busctl', ['--user', 'call', 'org.freedesktop.PowerManagement', '/org/freedesktop/PowerManagement/Inhibit', 'org.freedesktop.PowerManagement.Inhibit', 'HasInhibit']));
+      }
       if (!process.env.DISPLAY) return false;
       const id = x11Active(await run('xprop', ['-root', '_NET_ACTIVE_WINDOW']));
       return !!id && x11FullScreen(await run('xprop', ['-id', id, '_NET_WM_STATE']));
@@ -149,4 +193,7 @@ module.exports = UserBusy;
 module.exports.windowsFullScreen = windowsFullScreen;
 module.exports.x11Active = x11Active;
 module.exports.x11FullScreen = x11FullScreen;
+module.exports.macBusy = macBusy;
+module.exports.waylandInhibited = waylandInhibited;
+module.exports.MAC_JXA = MAC_JXA;
 module.exports.PS_SCRIPT = PS_SCRIPT;
