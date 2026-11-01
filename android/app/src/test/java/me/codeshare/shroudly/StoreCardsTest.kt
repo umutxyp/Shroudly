@@ -93,14 +93,14 @@ class StoreCardsTest {
     }
 
     /* The file the app reads, as the repository serves it: every store with
-     * its countries and exclusions. */
+     * its countries and exclusions (the Mac App Store's with its address). */
     @Test
     fun theRepositorysFile() {
         val f = generateSequence(File("").absoluteFile) { it.parentFile }.map { File(it, "stores.json") }.first { it.exists() }
         val text = f.readText()
         assertTrue(Stores.parsePlay(text) != null)
         for (store in listOf("play", "appStore", "macAppStore")) {
-            assertTrue(store, Regex("\"$store\"\\s*:\\s*\\{\\s*\"live\"\\s*:\\s*(true|false),\\s*\"countries\"\\s*:\\s*\\[[^\\]]*\\],\\s*\"exclude\"\\s*:\\s*\\[[^\\]]*\\]\\s*\\}").containsMatchIn(text))
+            assertTrue(store, Regex("\"$store\"\\s*:\\s*\\{\\s*\"live\"\\s*:\\s*(true|false),\\s*\"countries\"\\s*:\\s*\\[[^\\]]*\\],\\s*\"exclude\"\\s*:\\s*\\[[^\\]]*\\](,\\s*\"url\"\\s*:\\s*\"[^\"]*\")?\\s*\\}").containsMatchIn(text))
         }
         assertEquals("https://raw.githubusercontent.com/umutxyp/Shroudly/main/stores.json", "https://${Stores.HOST}${Stores.PATH}")
     }
