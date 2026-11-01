@@ -282,6 +282,42 @@ yalnızca Play paketindedir; uygulamanın açık kaynak bildirimlerinde
 listelenir. GitHub APK'sının bağımlılıkları değişmedi (yalnızca Kotlin'in
 standart kitaplığı).
 
+### 4b. Mağaza bayrağı (stores.json): puanlama kartı
+
+Uygulama Play'de olduğu sürece, Play'den kurulan kopyanın ana penceresinde
+arada bir küçük bir kart puan ister ("Help others find Shroudly", düğmesi
+**Rate on Google Play**). Kart yalnızca Shroudly gerçekten Play'deyken çıkar;
+bunu uygulamanın güncellenmesine gerek kalmadan deponun kökündeki
+`stores.json` söyler:
+
+    { "play": { "live": true }, "appStore": { "live": false }, "macAppStore": { "live": false } }
+
+Android yalnızca `play` kısmını okur (diğerleri iOS ve macOS uygulamaları
+için). Uygulama dosyayı
+`https://raw.githubusercontent.com/umutxyp/Shroudly/main/stores.json`
+adresinden, koruma açıkken motor üzerinden, en fazla 12 saatte bir alır;
+alınamazsa bir saat sonra yeniden dener. Bir cevap bir hafta geçerlidir.
+Dosya yoksa, okunamıyorsa ya da bir haftadır alınamadıysa Play "yok" sayılır
+ve hiçbir kart çıkmaz.
+
+**Kapatmak için** (uygulama Play'den kalkarsa, askıya alınırsa ya da başka bir
+nedenle kimse Play'e gönderilmemeli): `main` dalında `stores.json` içinde
+`"play": { "live": false }` yap ve gönder (ya da dosyayı sil). Kurulu
+uygulamalar en geç 12 saat içinde (o sırada açık olmayan bir telefon için de
+en geç bir hafta içinde) kartı göstermeyi bırakır. Yeniden açmak için
+`true` yap.
+
+Kartın kuralları (`StoreCards.kt`, testleriyle): Play'in kurallarına uygun,
+kullanıcının fikrini sormaz ve karşılığında bir şey vaat etmez; bildirim ya da
+ekranı kapatan bir pencere değildir; uygulamanın bir çalışmasında en fazla bir
+kez, başka bir kart (pil, bildirimler, güncelleme, destek) görünürken asla
+çıkmaz. Yalnızca koruma açık ve çalışırken, uygulama en az 3 gündür kuruluyken
+ve koruma en az 3 ayrı günde gerçekten çalışmışken çıkar. "Not now" (ya da
+kartı başka bir yolla geçmek) bir "hayır" sayılır: sonraki en erken 14 gün,
+sonra 28, 56, 112 gün sonra. **Rate on Google Play** Play'deki sayfayı açar
+(uygulama içi değerlendirme arayüzü değil; onun kotası dokunuştan sonra hiçbir
+şey göstermeyebilir) ve kart bir daha çıkmaz.
+
 ## 5. Uygulama içeriği (App content) formları
 
 Play Console → **Politika → Uygulama içeriği**. Hepsi doldurulmadan yayın
@@ -337,7 +373,7 @@ masaüstüyle birebir aynıdır:
   ayıramaz.
 - **Ne zaman:** yalnızca koruma açıkken, sunucunun istediği aralıkla (şu an
   dakikada bir); motorun üzerinden, HTTPS ile. Telefon uyurken (Doze)
-  gönderilmez. Hakkında → "Count me in the live total" kapatılırsa hiç
+  gönderilmez. Ayarlar → "Count me in the live total" kapatılırsa hiç
   gönderilmez (varsayılan: açık, masaüstündeki gibi).
 - **Kimlikle ilişkilendirilmez:** hesap yok; sunucu erişim günlüğü tutmaz ve
   Cloudflare tüneli arkasında olduğu için IP adresini zaten görmez.
@@ -355,7 +391,7 @@ beyan ediyoruz):
 | Veri türü | **Cihaz veya diğer kimlikler** (Device or other IDs): yalnızca bu |
 | Toplanıyor mu / paylaşılıyor mu? | Toplanıyor: **Evet**. Paylaşılıyor: **Hayır** (üçüncü tarafa gitmez) |
 | Geçici olarak mı işleniyor (ephemeral)? | **Hayır** (sunucu sayım süresince tutuyor) |
-| Zorunlu mu? | **İsteğe bağlı**: kullanıcı Hakkında bölümünden kapatabilir |
+| Zorunlu mu? | **İsteğe bağlı**: kullanıcı Ayarlar'dan kapatabilir |
 | Amaç | **Analiz** (Analytics): kaç kopyanın çalıştığını saymak |
 | Toplanan tüm veriler aktarım sırasında şifreleniyor mu? | **Evet** (HTTPS; DNS over HTTPS) |
 | Kullanıcılar verilerinin silinmesini isteyebilir mi? | Hesap yok; kimlik Durdur'a basılınca ya da birkaç dakika içinde kendiliğinden silinir, ayarı kapatınca hiç gönderilmez; uygulama silinince telefondaki her şey silinir |
@@ -395,8 +431,8 @@ remote VPN server. No traffic is sent to any server operated by us; every
 connection goes from the device directly to the site or service the user's
 app contacts. The only request the app itself sends to us is an optional,
 anonymous online count while the tunnel is on: a random id made fresh for
-each session (never stored on the device), which the user can turn off under
-About.
+each session (never stored on the device), which the user can turn off in
+Settings.
 
 The tunnel endpoint is on the device itself, so data from the device to the
 endpoint never leaves the device. Traffic that leaves the device stays
@@ -524,7 +560,7 @@ Good to know
   blocked outright) cannot be fixed by reshaping connections.
 - While protection is on, the app joins an anonymous live count of running
   copies (a random id that changes every session, nothing else). You can
-  turn it off under About.
+  turn it off in Settings.
 
 Privacy: https://github.com/umutxyp/Shroudly#privacy
 ```
@@ -574,8 +610,8 @@ Bilmenizde yarar var
 - Bazı engeller (örneğin kapalı bir site ya da doğrudan engellenmiş bir IP
   adresi) bağlantıların biçimini değiştirerek aşılamaz.
 - Koruma açıkken uygulama, çalışan kopyaların anonim canlı sayımına katılır
-  (her oturumda değişen rastgele bir kimlik, başka hiçbir şey). Hakkında
-  bölümünden kapatabilirsiniz.
+  (her oturumda değişen rastgele bir kimlik, başka hiçbir şey). Ayarlar'dan
+  kapatabilirsiniz.
 
 Gizlilik: https://github.com/umutxyp/Shroudly#privacy
 ```

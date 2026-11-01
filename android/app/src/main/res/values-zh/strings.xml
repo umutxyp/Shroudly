@@ -65,6 +65,9 @@
     <string name="androidProxyOnlyRunning">仅代理已开启</string>
     <string name="androidQuicOff">关闭 QUIC</string>
     <string name="androidQuicOffDesc">应用改用 TCP 而不是 QUIC（UDP 端口 443），Shroudly 对 TCP 的穿透效果更好。适用于封锁或限速 QUIC 的网络。</string>
+    <string name="androidRateBody">如果 Shroudly 对你有用，在 Google Play 上评分能帮助需要它的人找到它。</string>
+    <string name="androidRateOpen">在 Google Play 上评分</string>
+    <string name="androidRateTitle">帮助更多人找到 Shroudly</string>
     <string name="androidRemoteControl">允许自动化应用</string>
     <string name="androidRemoteControlDesc">Tasker、MacroDroid 等应用可通过向软件包 {package} 发送广播（操作 {action}.START、.STOP 或 .TOGGLE）开关保护。此项关闭时，其他应用都无法这样做。</string>
     <string name="androidShareLogs">分享日志</string>

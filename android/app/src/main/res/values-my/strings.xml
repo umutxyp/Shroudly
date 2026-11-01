@@ -65,6 +65,9 @@
     <string name="androidProxyOnlyRunning">ပရောက်စီသာ ပွင့်နေသည်</string>
     <string name="androidQuicOff">QUIC ကို ပိတ်ရန်</string>
     <string name="androidQuicOffDesc">အက်ပ်များသည် QUIC (UDP ပေါက် 443) အစား TCP ကို အသုံးပြုသည်။ ၎င်းကို Shroudly က ပိုကောင်းစွာ ဖြတ်ကျော်ပေးနိုင်သည်။ QUIC ကို ပိတ်ဆို့သော သို့မဟုတ် နှေးစေသော ကွန်ရက်များအတွက်။</string>
+    <string name="androidRateBody">Shroudly က သင့်အတွက် အလုပ်ဖြစ်ပါက Google Play တွင် အဆင့်သတ်မှတ်ပေးခြင်းက လိုအပ်သူများ ၎င်းကို ရှာတွေ့စေရန် ကူညီပါသည်။</string>
+    <string name="androidRateOpen">Google Play တွင် အဆင့်သတ်မှတ်ရန်</string>
+    <string name="androidRateTitle">အခြားသူများ Shroudly ကို ရှာတွေ့စေရန် ကူညီပါ</string>
     <string name="androidRemoteControl">အလိုအလျောက်လုပ်ဆောင်သည့် အက်ပ်များကို ခွင့်ပြုရန်</string>
     <string name="androidRemoteControlDesc">Tasker၊ MacroDroid နှင့် ဆင်တူအက်ပ်များသည် {package} ပက်ကေ့ချ်သို့ broadcast ပို့၍ ကာကွယ်မှုကို ဖွင့်/ပိတ် နိုင်သည်- action {action}.START၊ .STOP သို့မဟုတ် .TOGGLE။ ဤအရာ ပိတ်ထားစဉ် အခြားအက်ပ် မည်သည့်အက်ပ်မျှ မလုပ်နိုင်ပါ။</string>
     <string name="androidShareLogs">မှတ်တမ်းများ မျှဝေရန်</string>

@@ -65,6 +65,9 @@
     <string name="androidProxyOnlyRunning">«فقط پراکسی» روشن است</string>
     <string name="androidQuicOff">خاموش کردن QUIC</string>
     <string name="androidQuicOffDesc">برنامه‌ها به‌جای QUIC (درگاه UDP 443) از TCP استفاده می‌کنند که Shroudly بهتر از آن عبور می‌دهد. برای شبکه‌هایی که QUIC را مسدود یا کند می‌کنند.</string>
+    <string name="androidRateBody">اگر Shroudly برایتان کار می‌کند، امتیاز دادن در Google Play به کسانی که به آن نیاز دارند کمک می‌کند پیدایش کنند.</string>
+    <string name="androidRateOpen">امتیاز دادن در Google Play</string>
+    <string name="androidRateTitle">به دیگران کمک کنید Shroudly را پیدا کنند</string>
     <string name="androidRemoteControl">اجازه به برنامه‌های خودکارسازی</string>
     <string name="androidRemoteControlDesc">Tasker، MacroDroid و برنامه‌های مشابه می‌توانند محافظت را با یک پخش به بستهٔ {package} روشن و خاموش کنند: کنش {action}.START، ‎.STOP یا ‎.TOGGLE. تا وقتی این خاموش است، هیچ برنامهٔ دیگری نمی‌تواند.</string>
     <string name="androidShareLogs">اشتراک‌گذاری گزارش‌ها</string>

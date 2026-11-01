@@ -65,6 +65,9 @@
     <string name="androidProxyOnlyRunning">พร็อกซีเท่านั้นเปิดอยู่</string>
     <string name="androidQuicOff">ปิด QUIC</string>
     <string name="androidQuicOffDesc">แอปจะใช้ TCP แทน QUIC (พอร์ต UDP 443) ซึ่ง Shroudly พาผ่านได้ดีกว่า สำหรับเครือข่ายที่บล็อกหรือทำให้ QUIC ช้า</string>
+    <string name="androidRateBody">หาก Shroudly ใช้งานได้ดีสำหรับคุณ การให้คะแนนบน Google Play จะช่วยให้คนที่ต้องการค้นพบมัน</string>
+    <string name="androidRateOpen">ให้คะแนนบน Google Play</string>
+    <string name="androidRateTitle">ช่วยให้คนอื่นค้นพบ Shroudly</string>
     <string name="androidRemoteControl">อนุญาตแอปอัตโนมัติ</string>
     <string name="androidRemoteControlDesc">Tasker, MacroDroid และแอปที่คล้ายกันสามารถเปิดและปิดการป้องกันได้ด้วยการส่ง broadcast ไปยังแพ็กเกจ {package} แอ็กชัน {action}.START, .STOP หรือ .TOGGLE ขณะที่ตัวเลือกนี้ปิดอยู่ ไม่มีแอปอื่นใดทำได้</string>
     <string name="androidShareLogs">แชร์บันทึก</string>

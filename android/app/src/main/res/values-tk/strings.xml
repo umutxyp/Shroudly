@@ -65,6 +65,9 @@
     <string name="androidProxyOnlyRunning">Diňe proksi açyk</string>
     <string name="androidQuicOff">QUIC-i öçür</string>
     <string name="androidQuicOffDesc">Programmalar QUIC (UDP 443 porty) ýerine TCP ulanýar, ony Shroudly has gowy geçirýär. QUIC-i petikleýän ýa-da haýalladýan torlar üçin.</string>
+    <string name="androidRateBody">Shroudly sizde işleýän bolsa, Google Play-däki bahaňyz oňa mätäç adamlara ony tapmaga kömek edýär.</string>
+    <string name="androidRateOpen">Google Play-de baha ber</string>
+    <string name="androidRateTitle">Başgalara Shroudly-ny tapmaga kömek ediň</string>
     <string name="androidRemoteControl">Awtomatlaşdyryş programmalaryna rugsat ber</string>
     <string name="androidRemoteControlDesc">Tasker, MacroDroid we meňzeş programmalar {package} paketine iberilen ýaýlym arkaly goragy açyp-öçürip bilýär: hereket {action}.START, .STOP ýa-da .TOGGLE. Bu öçük wagty başga hiç bir programma muny edip bilmeýär.</string>
     <string name="androidShareLogs">Ýazgylary paýlaş</string>

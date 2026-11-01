@@ -65,6 +65,9 @@
     <string name="androidProxyOnlyRunning">«Толькі проксі» ўключаны</string>
     <string name="androidQuicOff">Адключыць QUIC</string>
     <string name="androidQuicOffDesc">Праграмы выкарыстоўваюць TCP замест QUIC (UDP-порт 443), а TCP Shroudly праводзіць лепш. Для сетак, якія блакуюць або запавольваюць QUIC.</string>
+    <string name="androidRateBody">Калі Shroudly у вас працуе, ацэнка ў Google Play дапаможа знайсці яго тым, каму ён патрэбны.</string>
+    <string name="androidRateOpen">Ацаніць у Google Play</string>
+    <string name="androidRateTitle">Дапамажыце іншым знайсці Shroudly</string>
     <string name="androidRemoteControl">Дазволіць праграмы аўтаматызацыі</string>
     <string name="androidRemoteControlDesc">Tasker, MacroDroid і падобныя праграмы могуць уключаць і выключаць абарону шырокавяшчальным паведамленнем пакету {package}, дзеянне {action}.START, .STOP або .TOGGLE. Пакуль гэта выключана, ніводная іншая праграма не можа.</string>
     <string name="androidShareLogs">Падзяліцца журналам</string>

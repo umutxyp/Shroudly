@@ -65,6 +65,9 @@
     <string name="androidProxyOnlyRunning">Yalnızca proxy açık</string>
     <string name="androidQuicOff">QUIC\'i kapat</string>
     <string name="androidQuicOffDesc">Uygulamalar QUIC (UDP 443 portu) yerine TCP kullanır; Shroudly TCP\'yi daha iyi geçirir. QUIC\'i engelleyen ya da yavaşlatan ağlar için.</string>
+    <string name="androidRateBody">Shroudly işinize yarıyorsa, Google Play\'deki bir puan ona ihtiyacı olanların onu bulmasına yardımcı olur.</string>
+    <string name="androidRateOpen">Google Play\'de puan ver</string>
+    <string name="androidRateTitle">Başkalarının Shroudly\'yi bulmasına yardım edin</string>
     <string name="androidRemoteControl">Otomasyon uygulamalarına izin ver</string>
     <string name="androidRemoteControlDesc">Tasker, MacroDroid ve benzeri uygulamalar korumayı {package} paketine gönderilen bir yayınla açıp kapatabilir: eylem {action}.START, .STOP ya da .TOGGLE. Bu kapalıyken başka hiçbir uygulama bunu yapamaz.</string>
     <string name="androidShareLogs">Kayıtları paylaş</string>

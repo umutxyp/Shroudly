@@ -65,6 +65,9 @@
     <string name="androidProxyOnlyRunning">Proksi sahaja hidup</string>
     <string name="androidQuicOff">Matikan QUIC</string>
     <string name="androidQuicOffDesc">Aplikasi menggunakan TCP dan bukan QUIC (port UDP 443), yang lebih baik dilalukan oleh Shroudly. Untuk rangkaian yang menyekat atau melambatkan QUIC.</string>
+    <string name="androidRateBody">Jika Shroudly berkesan untuk anda, penilaian di Google Play membantu orang yang memerlukannya menemuinya.</string>
+    <string name="androidRateOpen">Nilai di Google Play</string>
+    <string name="androidRateTitle">Bantu orang lain menemui Shroudly</string>
     <string name="androidRemoteControl">Benarkan aplikasi automasi</string>
     <string name="androidRemoteControlDesc">Tasker, MacroDroid dan aplikasi serupa boleh menghidupkan dan mematikan perlindungan dengan siaran kepada pakej {package}, tindakan {action}.START, .STOP atau .TOGGLE. Selagi ini dimatikan, tiada aplikasi lain boleh berbuat demikian.</string>
     <string name="androidShareLogs">Kongsi log</string>

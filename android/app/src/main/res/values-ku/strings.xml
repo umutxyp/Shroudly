@@ -65,6 +65,9 @@
     <string name="androidProxyOnlyRunning">Tenê proksî vekirî ye</string>
     <string name="androidQuicOff">QUIC\'ê bigire</string>
     <string name="androidQuicOffDesc">Sepan li şûna QUIC (porta UDP 443) TCP bi kar tînin, ku Shroudly wê baştir derbas dike. Ji bo torên ku QUIC asteng dikin an hêdî dikin.</string>
+    <string name="androidRateBody">Heke Shroudly ji bo te dixebite, nirxandinek li ser Google Play alîkariya kesên ku hewcedarê wê ne dike ku wê bibînin.</string>
+    <string name="androidRateOpen">Li ser Google Play binirxîne</string>
+    <string name="androidRateTitle">Alîkariya kesên din bike ku Shroudly bibînin</string>
     <string name="androidRemoteControl">Destûrê bide sepanên otomasyonê</string>
     <string name="androidRemoteControlDesc">Tasker, MacroDroid û sepanên wek wan dikarin parastinê bi weşanekê ji pakêta {package} re veke û bigire: çalakî {action}.START, .STOP an .TOGGLE. Heta ku ev girtî be, ti sepaneke din nikare.</string>
     <string name="androidShareLogs">Tomaran parve bike</string>

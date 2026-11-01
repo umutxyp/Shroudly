@@ -65,6 +65,9 @@
     <string name="androidProxyOnlyRunning">Proxy only is on</string>
     <string name="androidQuicOff">Turn QUIC off</string>
     <string name="androidQuicOffDesc">Apps use TCP instead of QUIC (UDP port 443), which Shroudly gets through better. For networks that block QUIC or slow it down.</string>
+    <string name="androidRateBody">If Shroudly works for you, a rating on Google Play helps people who need it find it.</string>
+    <string name="androidRateOpen">Rate on Google Play</string>
+    <string name="androidRateTitle">Help others find Shroudly</string>
     <string name="androidRemoteControl">Allow automation apps</string>
     <string name="androidRemoteControlDesc">Tasker, MacroDroid and similar apps can turn protection on and off with a broadcast to the package {package}, action {action}.START, .STOP or .TOGGLE. While this is off, no other app can.</string>
     <string name="androidShareLogs">Share logs</string>

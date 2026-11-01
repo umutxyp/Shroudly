@@ -65,6 +65,9 @@
     <string name="androidProxyOnlyRunning">«Танҳо прокси» фаъол аст</string>
     <string name="androidQuicOff">Хомӯш кардани QUIC</string>
     <string name="androidQuicOffDesc">Барномаҳо ба ҷои QUIC (порти UDP 443) TCP-ро истифода мебаранд, ки Shroudly онро беҳтар мегузаронад. Барои шабакаҳое, ки QUIC-ро мебанданд ё суст мекунанд.</string>
+    <string name="androidRateBody">Агар Shroudly барои шумо кор кунад, баҳо дар Google Play ба онҳое, ки ба он ниёз доранд, барои ёфтанаш кӯмак мекунад.</string>
+    <string name="androidRateOpen">Дар Google Play баҳо додан</string>
+    <string name="androidRateTitle">Ба дигарон барои ёфтани Shroudly кӯмак кунед</string>
     <string name="androidRemoteControl">Иҷозат ба барномаҳои автоматикунонӣ</string>
     <string name="androidRemoteControlDesc">Tasker, MacroDroid ва барномаҳои монанд метавонанд ҳимояро бо паёми паҳнкунӣ ба бастаи {package} фаъол ва хомӯш кунанд: амал {action}.START, .STOP ё .TOGGLE. То даме ки ин хомӯш аст, ҳеҷ барномаи дигар наметавонад.</string>
     <string name="androidShareLogs">Мубодилаи сабтҳо</string>

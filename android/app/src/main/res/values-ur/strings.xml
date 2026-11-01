@@ -65,6 +65,9 @@
     <string name="androidProxyOnlyRunning">صرف پراکسی آن ہے</string>
     <string name="androidQuicOff">QUIC بند کریں</string>
     <string name="androidQuicOffDesc">ایپس QUIC (UDP پورٹ 443) کی جگہ TCP استعمال کرتی ہیں، جسے Shroudly بہتر طور پر گزارتا ہے۔ ان نیٹ ورکس کے لیے جو QUIC کو روکتے یا سست کرتے ہیں۔</string>
+    <string name="androidRateBody">اگر Shroudly آپ کے لیے کام کرتا ہے تو Google Play پر ریٹنگ ان لوگوں کو اسے ڈھونڈنے میں مدد دیتی ہے جنہیں اس کی ضرورت ہے۔</string>
+    <string name="androidRateOpen">Google Play پر ریٹنگ دیں</string>
+    <string name="androidRateTitle">دوسروں کو Shroudly ڈھونڈنے میں مدد کریں</string>
     <string name="androidRemoteControl">آٹومیشن ایپس کو اجازت دیں</string>
     <string name="androidRemoteControlDesc">Tasker، MacroDroid اور ان جیسی ایپس پیکیج {package} کو براڈکاسٹ بھیج کر تحفظ آن اور آف کر سکتی ہیں: ایکشن {action}.START، ‎.STOP یا ‎.TOGGLE۔ جب تک یہ بند ہے، کوئی دوسری ایپ ایسا نہیں کر سکتی۔</string>
     <string name="androidShareLogs">لاگز شیئر کریں</string>

@@ -110,8 +110,8 @@ object UpdateCheck {
     }
 
     /* GET (or HEAD) https://host/path: through the engine while protection is
-     * on, otherwise direct. */
-    private fun fetch(host: String, path: String, accept: String, port: Int, auth: SocksAuth?, head: Boolean = false) =
+     * on, otherwise direct (also Stores' stores.json). */
+    internal fun fetch(host: String, path: String, accept: String, port: Int, auth: SocksAuth?, head: Boolean = false) =
         if (port > 0) viaEngine(host, path, accept, port, auth, head) else direct(host, path, accept, head)
 
     private fun direct(host: String, path: String, accept: String, head: Boolean): Http1.Response {

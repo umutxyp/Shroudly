@@ -1,0 +1,5 @@
+{
+  "play": { "live": true },
+  "appStore": { "live": false },
+  "macAppStore": { "live": false }
+}

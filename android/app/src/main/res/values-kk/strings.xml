@@ -65,6 +65,9 @@
     <string name="androidProxyOnlyRunning">«Тек прокси» қосулы</string>
     <string name="androidQuicOff">QUIC-ті өшіру</string>
     <string name="androidQuicOffDesc">Қолданбалар QUIC (UDP 443 порты) орнына TCP пайдаланады, оны Shroudly жақсырақ өткізеді. QUIC-ті бұғаттайтын не баяулататын желілер үшін.</string>
+    <string name="androidRateBody">Егер Shroudly сізде жұмыс істесе, Google Play-дегі бағаңыз оны қажет ететіндерге табуға көмектеседі.</string>
+    <string name="androidRateOpen">Google Play-де бағалау</string>
+    <string name="androidRateTitle">Басқаларға Shroudly-ді табуға көмектесіңіз</string>
     <string name="androidRemoteControl">Автоматтандыру қолданбаларына рұқсат ету</string>
     <string name="androidRemoteControlDesc">Tasker, MacroDroid және ұқсас қолданбалар {package} бумасына жіберілген тарату хабарымен қорғанысты қосып-өшіре алады: әрекет {action}.START, .STOP немесе .TOGGLE. Бұл өшірулі тұрғанда басқа ешбір қолданба мұны істей алмайды.</string>
     <string name="androidShareLogs">Журналды бөлісу</string>

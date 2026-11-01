@@ -65,6 +65,9 @@
     <string name="androidProxyOnlyRunning">\'פרוקסי בלבד\' פועל</string>
     <string name="androidQuicOff">כיבוי QUIC</string>
     <string name="androidQuicOffDesc">האפליקציות משתמשות ב-TCP במקום ב-QUIC (פורט UDP 443), ש-Shroudly מעביר טוב יותר. לרשתות שחוסמות את QUIC או מאטות אותו.</string>
+    <string name="androidRateBody">אם Shroudly עובד אצלך, דירוג ב-Google Play עוזר למי שצריך אותו למצוא אותו.</string>
+    <string name="androidRateOpen">דירוג ב-Google Play</string>
+    <string name="androidRateTitle">עזרו לאחרים למצוא את Shroudly</string>
     <string name="androidRemoteControl">לאפשר אפליקציות אוטומציה</string>
     <string name="androidRemoteControlDesc">‏Tasker, ‏MacroDroid ואפליקציות דומות יכולות להפעיל ולכבות את ההגנה בשידור לחבילה {package}, פעולה {action}.START, ‎.STOP או ‎.TOGGLE. כל עוד זה כבוי, שום אפליקציה אחרת לא יכולה.</string>
     <string name="androidShareLogs">שיתוף יומנים</string>

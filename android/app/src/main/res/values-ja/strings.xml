@@ -65,6 +65,9 @@
     <string name="androidProxyOnlyRunning">プロキシのみがオン</string>
     <string name="androidQuicOff">QUIC をオフにする</string>
     <string name="androidQuicOffDesc">アプリは QUIC（UDP ポート 443）の代わりに TCP を使います。TCP のほうが Shroudly で通しやすくなります。QUIC をブロックしたり遅くしたりするネットワーク向けです。</string>
+    <string name="androidRateBody">Shroudly が役に立っているなら、Google Play での評価が、必要としている人に見つけてもらう助けになります。</string>
+    <string name="androidRateOpen">Google Play で評価する</string>
+    <string name="androidRateTitle">Shroudly をほかの人にも届けてください</string>
     <string name="androidRemoteControl">自動化アプリを許可</string>
     <string name="androidRemoteControlDesc">Tasker、MacroDroid などのアプリは、パッケージ {package} へのブロードキャスト（アクション {action}.START、.STOP、.TOGGLE）で保護をオン・オフできます。これがオフの間は、ほかのアプリは操作できません。</string>
     <string name="androidShareLogs">ログを共有</string>

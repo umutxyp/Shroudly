@@ -65,6 +65,9 @@
     <string name="androidProxyOnlyRunning">یوازې پراکسي چالان ده</string>
     <string name="androidQuicOff">QUIC بند کړه</string>
     <string name="androidQuicOffDesc">اپونه د QUIC (UDP پورټ 443) پر ځای TCP کاروي، چې Shroudly یې ښه تېروي. د هغو شبکو لپاره چې QUIC بندوي یا یې ورو کوي.</string>
+    <string name="androidRateBody">که Shroudly ستاسو لپاره کار کوي، په Google Play کې درجه ورکول له هغو خلکو سره مرسته کوي چې اړتیا ورته لري چې ویې مومي.</string>
+    <string name="androidRateOpen">په Google Play کې درجه ورکړئ</string>
+    <string name="androidRateTitle">له نورو سره مرسته وکړئ چې Shroudly ومومي</string>
     <string name="androidRemoteControl">د اتومات کولو اپونو ته اجازه ورکړئ</string>
     <string name="androidRemoteControlDesc">Tasker، MacroDroid او ورته اپونه کولی شي د {package} کڅوړې ته د خپرونې په لېږلو ساتنه روښانه او بنده کړي: کړنه {action}.START، ‎.STOP یا ‎.TOGGLE. تر هغه چې دا بند وي، هېڅ بل اپ دا نشي کولی.</string>
     <string name="androidShareLogs">لاګونه شریک کړئ</string>

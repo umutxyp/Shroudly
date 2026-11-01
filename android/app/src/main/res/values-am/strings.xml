@@ -65,6 +65,9 @@
     <string name="androidProxyOnlyRunning">ፕሮክሲ ብቻ በርቷል</string>
     <string name="androidQuicOff">QUICን አጥፋ</string>
     <string name="androidQuicOffDesc">መተግበሪያዎች ከQUIC (UDP ወደብ 443) ይልቅ TCP ይጠቀማሉ፤ Shroudly TCPን በተሻለ ያሳልፋል። QUICን ለሚያግዱ ወይም ለሚያዘገዩ አውታረ መረቦች።</string>
+    <string name="androidRateBody">Shroudly ለእርስዎ የሚሠራ ከሆነ፣ በGoogle Play ላይ የሚሰጡት ደረጃ የሚያስፈልጋቸው ሰዎች እንዲያገኙት ይረዳል።</string>
+    <string name="androidRateOpen">በGoogle Play ላይ ደረጃ ይስጡ</string>
+    <string name="androidRateTitle">ሌሎች Shroudlyን እንዲያገኙ ይርዱ</string>
     <string name="androidRemoteControl">ለራስ-ሰር መተግበሪያዎች ፍቀድ</string>
     <string name="androidRemoteControlDesc">Tasker፣ MacroDroid እና ተመሳሳይ መተግበሪያዎች ወደ {package} ጥቅል በሚላክ ስርጭት ጥበቃን ማብራት እና ማጥፋት ይችላሉ፦ ድርጊት {action}.START፣ .STOP ወይም .TOGGLE። ይህ ጠፍቶ ሳለ ሌላ ምንም መተግበሪያ ይህን ማድረግ አይችልም።</string>
     <string name="androidShareLogs">መዝገብ አጋራ</string>

@@ -36,6 +36,8 @@ class MainActivity : Activity() {
         // When "Not now" was pressed on each notice ("ui" preferences).
         private const val KEY_BATTERY_LATER = "batteryLater"
         private const val KEY_NOTIFICATIONS_LATER = "notificationsLater"
+        // How long the window has been up before a store card may show.
+        private const val STORE_CARD_AFTER_MS = 3000L
         /* Start protection as soon as the window is up (from the tile). */
         const val EXTRA_START = "start"
         /* Install the update Google Play has downloaded (PlayUpdates' notice). */
@@ -74,6 +76,15 @@ class MainActivity : Activity() {
     private var noticeShown = 0
     private lateinit var support: View
     private var supportDue = false
+    private lateinit var storeCard: View
+    // The store card on screen (StoreCards.RATE), or null; what it goes by,
+    // as of onStart; and when the window came (uptime): the other cards
+    // have their say first.
+    private var storeShown: String? = null
+    private var fromPlay = false
+    private var installedAt = 0L
+    private var workedDays = 0
+    private var startedAt = 0L
 
     private val main = Handler(Looper.getMainLooper())
     private val onChange: () -> Unit = { render() }
@@ -143,6 +154,7 @@ class MainActivity : Activity() {
         noticeText = findViewById(R.id.noticeText)
         noticeOpen = findViewById(R.id.noticeOpen)
         support = findViewById(R.id.support)
+        storeCard = findViewById(R.id.storeCard)
         // The rows' ripples stay inside the card's rounded corners.
         findViewById<View>(R.id.about).clipToOutline = true
         Fit.apply(findViewById(R.id.root))
@@ -177,6 +189,15 @@ class MainActivity : Activity() {
             support.visibility = View.GONE
         }
         detailMore.setOnClickListener { showDetail() }
+        findViewById<View>(R.id.storeOpen).setOnClickListener {
+            val key = storeShown ?: return@setOnClickListener
+            // Done: never again.
+            StoreCards.save(this, key, StoreCards.load(this, key).copy(done = true))
+            hideStoreCard()
+            Stores.openPlay(this)
+        }
+        // Counted as a "no" when it was shown; it only goes away here.
+        findViewById<View>(R.id.storeLater).setOnClickListener { hideStoreCard() }
         // The channels' names follow the language, also after a per-app
         // language change (which recreates this window).
         ShroudlyVpnService.channels(this)
@@ -234,6 +255,12 @@ class MainActivity : Activity() {
         main.post(ticker)
         Usage.windowSeen(this)
         showNotice()
+        // Is Shroudly on Google Play (stores.json): asked now and then.
+        Stores.refreshIfDue(this, Protection.socksPort, Protection.socksAuth)
+        fromPlay = StoreCards.fromPlay(InstallSource.installer(this))
+        installedAt = Usage.installedAt(this)
+        workedDays = Usage.days(this)
+        startedAt = SystemClock.uptimeMillis()
         checkNetworkProxy()
         val offered = Support.offered(this)
         findViewById<View>(R.id.supportRow).visibility = if (offered) View.VISIBLE else View.GONE
@@ -277,6 +304,8 @@ class MainActivity : Activity() {
     }
 
     override fun onStop() {
+        // Shown once in this run of the app; it does not come back with the window.
+        if (storeShown != null) hideStoreCard()
         Protection.windowVisible = false
         Protection.unlisten(onChange)
         main.removeCallbacks(ticker)
@@ -503,6 +532,7 @@ class MainActivity : Activity() {
         }
         orb.set(if (busy) Orb.Mode.BUSY else if (on) Orb.Mode.ON else Orb.Mode.OFF)
         support.visibility = if (supportDue && on) View.VISIBLE else View.GONE
+        showStoreCard(on && !proxyIdle && Protection.troubleRes == 0)
 
         // Set only when it changes: status and detail are live regions, and
         // TalkBack reads every change out.
@@ -600,6 +630,32 @@ class MainActivity : Activity() {
             // while it starts or stops.
             statsHint.visibility = if (off) View.VISIBLE else View.GONE
         }
+    }
+
+    /* The store card (StoreCards), once a run at most: only after the other
+     * cards have had their say, and never beside one of them. */
+    private fun showStoreCard(working: Boolean) {
+        if (storeShown != null || StoreCards.promptedThisRun || !working) return
+        if (SystemClock.uptimeMillis() - startedAt < STORE_CARD_AFTER_MS) return
+        if (listOf(notice, update, support).any { it.visibility == View.VISIBLE }) return
+        val now = System.currentTimeMillis()
+        val live = Stores.playLive(this, now)
+        val rate = StoreCards.load(this, StoreCards.RATE, now)
+        if (!StoreCards.rateDue(fromPlay, live, working, installedAt, workedDays, rate, now)) return
+        StoreCards.promptedThisRun = true
+        StoreCards.save(this, StoreCards.RATE, StoreCards.rateShown(rate, now))
+        ShroudlyVpnService.log("Asking for a rating on Google Play (${rate.shown + 1}. time)")
+        storeShown = StoreCards.RATE
+        findViewById<ImageView>(R.id.storeIcon).setImageResource(R.drawable.ic_star)
+        findViewById<TextView>(R.id.storeTitle).setText(R.string.androidRateTitle)
+        findViewById<TextView>(R.id.storeText).setText(R.string.androidRateBody)
+        findViewById<Button>(R.id.storeOpen).setText(R.string.androidRateOpen)
+        storeCard.visibility = View.VISIBLE
+    }
+
+    private fun hideStoreCard() {
+        storeShown = null
+        storeCard.visibility = View.GONE
     }
 
     /* A reason as the window says it: the notice's own words tell the user

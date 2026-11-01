@@ -65,6 +65,9 @@
     <string name="androidProxyOnlyRunning">وضع «وكيل فقط» يعمل</string>
     <string name="androidQuicOff">إيقاف QUIC</string>
     <string name="androidQuicOffDesc">تستخدم التطبيقات TCP بدل QUIC (منفذ UDP 443)، وهو ما يمرّره Shroudly بشكل أفضل. للشبكات التي تحظر QUIC أو تبطئه.</string>
+    <string name="androidRateBody">إن كان Shroudly يعمل لديك، فإن تقييمه على Google Play يساعد من يحتاجون إليه على إيجاده.</string>
+    <string name="androidRateOpen">قيّمه على Google Play</string>
+    <string name="androidRateTitle">ساعد الآخرين على إيجاد Shroudly</string>
     <string name="androidRemoteControl">السماح لتطبيقات الأتمتة</string>
     <string name="androidRemoteControlDesc">يمكن لـ Tasker وMacroDroid والتطبيقات المشابهة تشغيل الحماية وإيقافها ببث إلى الحزمة {package}، والإجراء {action}.START أو ‎.STOP أو ‎.TOGGLE. ما دام هذا متوقفًا، لا يستطيع أي تطبيق آخر ذلك.</string>
     <string name="androidShareLogs">مشاركة السجلات</string>
