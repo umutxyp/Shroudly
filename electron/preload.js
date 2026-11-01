@@ -34,6 +34,7 @@ contextBridge.exposeInMainWorld('electron', {
   downloadUpdate: () => ipcRenderer.invoke('update:download'),
   installUpdate: () => ipcRenderer.invoke('update:install'),
   postponeUpdate: () => ipcRenderer.invoke('update:postpone'),
+  moveToApplications: () => ipcRenderer.invoke('update:moveToApplications'),
   onUpdateState: (cb) => ipcRenderer.on('update:state', (e, s) => cb(s)),
   removeUpdateListener: () => ipcRenderer.removeAllListeners('update:state'),
 

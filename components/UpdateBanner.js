@@ -6,7 +6,9 @@ import { RELEASES_URL, updateActions, useCountdown, useUpdate } from './useUpdat
 
 /* Shown above the content while an update is available, downloading or ready,
  * or cannot go ahead until the user does something (no room on the disk, a
- * folder Shroudly cannot replace itself in). */
+ * folder Shroudly cannot replace itself in). The download page is this copy's
+ * own file, from Shroudly's mirror (downloadUrl), where GitHub's page lists
+ * every file and may be blocked. */
 export default function UpdateBanner() {
   const { t } = useLanguage();
   const u = useUpdate();
@@ -14,6 +16,7 @@ export default function UpdateBanner() {
   if (!u || !['available', 'downloading', 'ready', 'manual', 'no-space'].includes(u.status)) return null;
 
   const version = u.version;
+  const page = u.downloadUrl || RELEASES_URL;
   let text;
   let detail = null;
   let actions = null;
@@ -23,14 +26,17 @@ export default function UpdateBanner() {
   } else if (u.status === 'ready') {
     text = seconds != null ? t('updRestartIn', { seconds }) : t('updReady', { version });
     // Its install failed before: said, with the download page beside the
-    // button. A Linux package installs only from the button (it asks for a
-    // password), never at a quit.
+    // button. An install that asks for permission (a Linux package's
+    // password, a Windows administrator's) happens only from the button.
+    // Otherwise it installs by itself while nobody is at the computer, or,
+    // with automatic installs off, at the next quit.
     if (u.failed) detail = t('updInstallFailed');
-    else if (seconds == null && !u.asksPassword) detail = t('updLaterHint');
+    else if (seconds == null && !u.permission) detail = u.byItself ? t('updAwayHint') : t('updLaterHint');
+    const label = u.permission === 'password' ? t('updInstallPassword') : u.permission === 'admin' ? t('updInstallAdmin') : t('updRestartNow');
     actions = (
       <>
         <button type="button" onClick={updateActions.install} className="btn btn-primary rounded-[8px] px-3 py-1.5 text-[12.5px] font-semibold">
-          {u.asksPassword ? t('updInstallPassword') : t('updRestartNow')}
+          {label}
         </button>
         {seconds != null && (
           <button type="button" onClick={updateActions.postpone} className="btn btn-ghost rounded-[8px] px-3 py-1.5 text-[12.5px] font-medium">
@@ -38,7 +44,7 @@ export default function UpdateBanner() {
           </button>
         )}
         {u.failed && seconds == null && (
-          <a href={RELEASES_URL} target="_blank" rel="noreferrer" className="btn btn-ghost inline-flex items-center gap-1.5 rounded-[8px] px-3 py-1.5 text-[12.5px] font-medium">
+          <a href={page} target="_blank" rel="noreferrer" className="btn btn-ghost inline-flex items-center gap-1.5 rounded-[8px] px-3 py-1.5 text-[12.5px] font-medium">
             <ExternalLinkIcon className="h-3.5 w-3.5" />{t('updOpenDownload')}
           </a>
         )}
@@ -54,10 +60,20 @@ export default function UpdateBanner() {
   } else if (u.status === 'manual') {
     text = t('updAvailable', { version });
     detail = u.reason === 'folder' ? t('updManualFolder') : t('updManual');
+    // macOS run from its disk image or Downloads: moved to Applications, it
+    // can update itself from then on.
+    const move = u.reason === 'location';
     actions = (
-      <a href={RELEASES_URL} target="_blank" rel="noreferrer" className="btn btn-primary inline-flex items-center gap-1.5 rounded-[8px] px-3 py-1.5 text-[12.5px] font-semibold">
-        <ExternalLinkIcon className="h-3.5 w-3.5" />{t('updOpenDownload')}
-      </a>
+      <>
+        {move && (
+          <button type="button" onClick={updateActions.moveToApplications} className="btn btn-primary rounded-[8px] px-3 py-1.5 text-[12.5px] font-semibold">
+            {t('updMoveToApps')}
+          </button>
+        )}
+        <a href={page} target="_blank" rel="noreferrer" className={`btn ${move ? 'btn-ghost font-medium' : 'btn-primary font-semibold'} inline-flex items-center gap-1.5 rounded-[8px] px-3 py-1.5 text-[12.5px]`}>
+          <ExternalLinkIcon className="h-3.5 w-3.5" />{t('updOpenDownload')}
+        </a>
+      </>
     );
   } else {
     text = t('updAvailable', { version });

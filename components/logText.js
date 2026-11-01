@@ -247,6 +247,8 @@ const PATTERNS = [
   [/^Update (\S+) needs (\d+) MB of free disk space; Shroudly tries again at the next check$/, 'logUpdateNoSpace', ['version', 'size']],
   [/^The downloaded update (\S+) is missing or damaged; downloading it again$/, 'logUpdateRedownload', ['version']],
   [/^Update (\S+): Shroudly cannot replace itself in (.+); download it from the download page$/, 'logUpdateManualFolder', ['version', 'folder']],
+  [/^Update (\S+) is not downloaded by itself on a metered connection$/, 'logUpdateMetered', ['version']],
+  [/^Shroudly could not be moved to the Applications folder \((.+)\)$/, 'logUpdateMoveFailed', ['detail']],
   [/^Settings applied \(strategy: (.+)\)$/, 'logSettingsApplied', ['strategy']],
   [/^Site list updated: (\d+) sites \((\d+) added, (-?\d+) removed\)$/, 'logSiteListUpdated', ['count', 'added', 'removed']],
   [/^Site list: the downloaded list was refused \((.+)\)$/, 'logSiteListRefused', ['detail']],

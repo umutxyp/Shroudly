@@ -52,6 +52,7 @@ export const updateActions = {
   download: () => api()?.downloadUpdate?.(),
   install: () => api()?.installUpdate?.(),
   postpone: () => api()?.postponeUpdate?.(),
+  moveToApplications: () => api()?.moveToApplications?.(),
 };
 
 export const RELEASES_URL = 'https://github.com/umutxyp/Shroudly/releases/latest';

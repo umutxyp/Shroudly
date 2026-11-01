@@ -1105,9 +1105,11 @@ app.whenReady().then(async () => {
   updater = new Updater({
     log: addLog,
     store,
-    // "will restart to install it", or (a Linux package) "open Shroudly to
-    // install it": that install asks for a password, so only the button does.
-    notify: (version, kind) => notify('Shroudly', (kind === 'password' ? tr().notifyUpdatePassword : tr().notifyUpdateReady).replace('{version}', version)),
+    // "will restart to install it", or "open Shroudly to install it": an
+    // install that asks for a password (a Linux package) or an
+    // administrator's permission (Windows, installed for everyone), which
+    // only the button starts.
+    notify: (version, kind) => notify('Shroudly', (kind === 'password' ? tr().notifyUpdatePassword : kind === 'admin' ? tr().notifyUpdateAdmin : tr().notifyUpdateReady).replace('{version}', version)),
     // What a restart would interrupt: the Roblox player or Studio and
     // Discord, while their mode sends them through Shroudly and protection
     // is on.
@@ -1135,8 +1137,8 @@ app.whenReady().then(async () => {
       // comes back with their next Start, without a permission prompt now.
       try { await advancedProtection.stopped({ user: true }); } catch {}
     },
-    // The install did not happen (a password prompt dismissed, a folder it
-    // cannot write to): Shroudly carries on as before the install began,
+    // The install did not happen (a folder it cannot write to, an installer
+    // that would not start): Shroudly carries on as before the install began,
     // protection back on, the window's close button hiding it again.
     onInstallFailed: () => {
       exitInProgress = false;
@@ -1145,9 +1147,10 @@ app.whenReady().then(async () => {
       try { store.delete('afterUpdate'); } catch {}
       if (protectionWanted() && engine && !engine.isActive()) safeStart().catch(() => {});
     },
-    // An AppImage update installed at a quit put the new version under its
-    // own name and deleted this file: "Start at login" follows it at once
-    // (this runs on the way out; the next start re-registers it anyway).
+    // An AppImage update keeps this file's place and name (updater.js); should
+    // electron-updater ever put it under another name, "Start at login"
+    // follows it at once (this runs on the way out; the next start
+    // re-registers it anyway).
     onAppImageMoved: (file) => { if (store.get('autoStart', false)) setAutoStart(true, file); },
   });
   updater.onState((s) => {
@@ -1163,7 +1166,8 @@ app.whenReady().then(async () => {
   await trayChecked;
   const afterUpdate = store.get('afterUpdate');
   if (afterUpdate !== undefined) store.delete('afterUpdate');
-  // macOS: opened again by an install script whose swap failed, the same
+  // Opened again by an update that failed after this copy had quit (the
+  // macOS swap, the Windows installer refused its permission), the same
   // version still: as after an update, not as a start by hand.
   const updateFailed = process.argv.includes(Updater.UPDATE_FAILED_ARG);
   const how = Launch.startWindow({
@@ -2697,6 +2701,7 @@ ipcMain.handle('update:check', () => (updater ? updater.check(true) : null));
 ipcMain.handle('update:download', () => updater && updater.download());
 ipcMain.handle('update:install', () => updater && updater.install());
 ipcMain.handle('update:postpone', () => updater && updater.postpone());
+ipcMain.handle('update:moveToApplications', () => updater && updater.moveToApplications());
 
 /* Repair, and Reset all settings (Settings → Application, issue #46;
  * repair.js). */
