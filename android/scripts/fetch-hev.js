@@ -14,7 +14,8 @@
  *
  * Output: android/third_party/hev-socks5-tunnel (not committed). Run again
  * any time; it does nothing when the pinned tree is already there, and
- * fetches it again when what is there differs.
+ * fetches it again when what is there differs. SHROUDLY_HEV_DIR puts it
+ * elsewhere: the Apple app's copy, at the same pin (apple/scripts/fetch-hev.js).
  *
  *   node android/scripts/fetch-hev.js           fetch (or confirm) the pinned tree
  *   node android/scripts/fetch-hev.js --verify  exit 1 unless what is there is the pinned tree
@@ -41,7 +42,7 @@ const COMMIT = 'd9dca26c7ad0e494492244f0309e80ee583e739e';
 const TREE_SHA256 = '39010fa8d3ea1bced85ba57075328669da220854416b58300a32d98e7af4d220';
 
 const root = path.join(__dirname, '..');
-const dest = path.join(root, 'third_party', 'hev-socks5-tunnel');
+const dest = process.env.SHROUDLY_HEV_DIR || path.join(root, 'third_party', 'hev-socks5-tunnel');
 const stamp = path.join(dest, '.shroudly-pin');
 
 function git(args, cwd) {
