@@ -62,6 +62,9 @@ contextBridge.exposeInMainWorld('electron', {
   // A short text the user asked to copy (an account number).
   copyText: (text) => ipcRenderer.invoke('clipboard:write', text),
   saveLogs: () => ipcRenderer.invoke('logs:save'),
+  // Windows: the leftover WinHTTP proxy cleared (Windows asks for an
+  // administrator).
+  clearWinHttp: () => ipcRenderer.invoke('winhttp:clear'),
   // The background process asks for a panel to be shown (e.g. 'logs').
   onNavigate: (cb) => { const h = (e, tab) => cb(tab); ipcRenderer.on('ui:navigate', h); return () => ipcRenderer.removeListener('ui:navigate', h); },
   onNewLog: (cb) => ipcRenderer.on('log:new', (e, log) => cb(log)),

@@ -1767,7 +1767,7 @@ function patchDiscordSync(url, files) {
       if (r === 'foreign') foreign = true;
     } catch (e) {
       if (e.code === 'EPERM' || e.code === 'EACCES') denied.push(v);
-      else failed.push({ v, message: e.message });
+      else failed.push({ v, file, message: e.message });
     }
   }
   noteDiscordLine(files);
@@ -1848,7 +1848,11 @@ async function applyDiscordMode(on, { interactive = true } = {}) {
     discordState.lockedReason = null;
   }
   discordState.foreign = r.foreign;
-  discordState.editFailed = r.failed.length ? `"${DiscordApp.KEY}": "${url || ''}"` : null;
+  // What to do by hand, in which file: add our line when turning on, take
+  // it out when turning off (it said "add" with an empty address then).
+  discordState.editFailed = r.failed.length
+    ? { on: !!url, line: `"${DiscordApp.KEY}": "${url || ''}"`, key: DiscordApp.KEY, files: r.failed.map((f) => f.file) }
+    : null;
   discordState.pendingOn = (r.denied.length || r.failed.length) ? on : null;
   if (r.denied.length || r.failed.length) {
     // Turning off must not leave Discord pointed at a relay that is gone, so
@@ -2601,8 +2605,11 @@ if (process.platform === 'win32') {
 let winhttpGone = null;   // the proxy list found gone, until it is asked about
 let winhttpTold = false;
 const fillIn = (text, params) => String(text || '').replace(/\{(\w+)\}/g, (m, k) => (params[k] != null ? String(params[k]) : m));
-async function checkWinHttp() {
-  if (process.platform !== 'win32' || winhttpTold) return;
+// again: Settings → Repair, which looks again even after "Later".
+async function checkWinHttp({ again = false } = {}) {
+  if (process.platform !== 'win32') return;
+  if (again) { winhttpTold = false; try { store.delete('winhttpLater'); } catch {} }
+  if (winhttpTold) return;
   const list = await WinHttp.read();
   const gone = list ? WinHttp.goneList(list, (port) => ProcNet.listeningSync(port)) : null;
   if (!gone) return;
@@ -2633,9 +2640,21 @@ async function offerWinHttpReset() {
     });
   } finally { modalOpen--; }
   if (r.response !== 0) { try { store.set('winhttpLater', gone); } catch {} return; }
+  await clearWinHttp();
+}
+async function clearWinHttp() {
   const ok = await WinHttp.reset();
   addLog(ok ? 'success' : 'warning', ok ? "Windows' WinHTTP proxy cleared" : "Windows' WinHTTP proxy could not be cleared (no administrator's permission)");
+  return ok;
 }
+// The window's line about it has the button its words promise ("Shroudly
+// can clear it"): after "Later", or where no dialog was shown, it was the
+// only thing left, and it had none.
+ipcMain.handle('winhttp:clear', async () => {
+  if (process.platform !== 'win32') return { ok: false };
+  winhttpGone = null;
+  return { ok: await clearWinHttp() };
+});
 if (process.platform === 'win32') {
   app.whenReady().then(() => {
     setTimeout(() => { checkWinHttp().catch(() => {}); }, 20000);
@@ -2994,7 +3013,7 @@ ipcMain.handle('app:repair', () => Repair.repair({
     adblockList.lastTry = -Infinity;
     await ensureAdblock();
   },
-  winHttp: () => (process.platform === 'win32' ? checkWinHttp() : null),
+  winHttp: () => (process.platform === 'win32' ? checkWinHttp({ again: true }) : null),
   log: addLog,
 }));
 ipcMain.handle('app:resetSettings', () => Repair.resetSettings({
