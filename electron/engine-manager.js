@@ -326,6 +326,9 @@ class EngineManager {
 
   isActive() { return this.active; }
 
+  /* Protection is on and browsers go through it (SystemProxy.routes). */
+  routing() { return this.active && SystemProxy.routes(this.proxyStatus); }
+
   /* A stop has been asked for and is not done yet. */
   get stopping() { return this._stops > 0; }
 

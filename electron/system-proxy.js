@@ -1217,6 +1217,20 @@ ${argsXml}
     return [...new Set(by.filter((n) => typeof n === 'string' && n.trim()).map((n) => n.trim()))].slice(0, 3);
   }
 
+  /* Do browsers and most programs go through Shroudly with this status (what
+   * apply and the checks report)? Not when the proxy could not be set, waits
+   * for an administrator's password (macOS) or was taken over by another
+   * program: the window, the tray and the start's notification then say
+   * "Not working yet" instead of "Protected", with what to do. A desktop
+   * with no proxy setting of its own (no_system_proxy, partial_env) is told
+   * what to set by hand, and whether that was done cannot be seen from
+   * here: it is not called broken. The window's words
+   * (components/proxyNotice.js) agree; tests/net/proxy-notice.test.js
+   * checks both. */
+  static routes(status) {
+    return !status || status.ok !== false || status.code === 'no_system_proxy' || status.code === 'partial_env';
+  }
+
   /* What another program put in Shroudly's place, in words that carry
    * nothing private: a PAC or a proxy on this computer by its port at most;
    * a PAC or a proxy anywhere else only as "on another computer", never its
