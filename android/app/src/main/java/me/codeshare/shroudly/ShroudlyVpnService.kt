@@ -298,7 +298,7 @@ class ShroudlyVpnService : VpnService() {
                     // Another DNS server: from the next lookup on, nothing restarted.
                     "dns" -> later {
                         if (active) {
-                            doh?.setCustom(AppSettings.customDns(this), AppSettings.customDnsStrict(this), AppSettings.customDnsProxy(this))
+                            doh?.let { AppSettings.applyDns(this, it) }
                             engine?.send(if (AppSettings.customDnsStrict(this)) "DNS-STRICT 1" else "DNS-STRICT 0")
                             engine?.send("DNS-CLEAR")
                         }
@@ -459,7 +459,7 @@ class ShroudlyVpnService : VpnService() {
             val d = DohForwarder(::log, prefs.getString("dohRoute", null)) { id ->
                 prefs.edit().putString("dohRoute", id).apply()
             }
-            d.setCustom(AppSettings.customDns(this), AppSettings.customDnsStrict(this), AppSettings.customDnsProxy(this))
+            AppSettings.applyDns(this, d)
             dohPort = try { d.start() } catch (e: Exception) { log("Encrypted DNS unavailable: ${e.message}"); 0 }
             doh = if (dohPort > 0) d else null
 

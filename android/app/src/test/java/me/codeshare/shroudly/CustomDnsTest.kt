@@ -310,4 +310,19 @@ class CustomDnsTest {
             f.stop()
         }
     }
+
+    /* Both modes take the user's server from one place (AppSettings.applyDns),
+     * its proxy included (#58): Proxy only once left the proxy out, and a
+     * server reached only through it failed every lookup there. */
+    @Test
+    fun bothModesUseTheServersProxy() {
+        val src = java.io.File("src/main/java/me/codeshare/shroudly")
+        assertTrue(java.io.File(src, "AppSettings.kt").readText()
+            .contains("d.setCustom(customDns(ctx), customDnsStrict(ctx), customDnsProxy(ctx))"))
+        for (name in listOf("ShroudlyVpnService.kt", "ShroudlyProxyService.kt")) {
+            val service = java.io.File(src, name).readText()
+            assertFalse(name, service.contains(".setCustom("))
+            assertEquals(name, 2, Regex("""AppSettings\.applyDns\(this, """).findAll(service).count())
+        }
+    }
 }

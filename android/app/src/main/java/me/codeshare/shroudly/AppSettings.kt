@@ -139,6 +139,12 @@ object AppSettings {
         return if (spec.kind == "udp") null else CustomDns.parseProxy(customDnsProxyTyped(ctx)).first
     }
 
+    /* The user's DNS server, as set here, for a running encrypted DNS: the
+     * server, "Only this server", and the proxy it is reached through (#58).
+     * One place for both modes, so neither leaves a part out (Proxy only up
+     * to 2.6.44 dialled the server directly, past the user's proxy). */
+    fun applyDns(ctx: Context, d: DohForwarder) = d.setCustom(customDns(ctx), customDnsStrict(ctx), customDnsProxy(ctx))
+
     /* null: automatic. */
     fun setCustomDns(ctx: Context, kind: String?, text: String?, strict: Boolean = false, proxy: String? = null) {
         val e = prefs(ctx).edit()
