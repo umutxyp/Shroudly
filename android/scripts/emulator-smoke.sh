@@ -841,14 +841,25 @@ wait_for 20 has_log "Updates: Google Play" || fail "installed by Google Play, th
 wait_for 40 ui_seek 'text="Source code on GitHub"' || fail "installed by Google Play, the window still links the GitHub releases"
 ui_has 'text="Release notes"' && fail "installed by Google Play, the window still links the GitHub releases"
 say "installed by Google Play: no GitHub update check, links the source code instead"
-# "Share logs": the row is there and opens Android's share sheet.
+# "Share logs": the row is there; it says first who to send the log to and
+# that it names the sites (with the choice to leave them out), then opens
+# Android's share sheet.
+# The middle of the first node in the last dump whose attributes match $1.
+ui_center() {
+  local bounds
+  bounds="$(grep -o "$1"'[^>]*bounds="\[[0-9]*,[0-9]*\]\[[0-9]*,[0-9]*\]"' <<<"$(sh_ "cat /sdcard/ui.xml")" | grep -o '\[[0-9]*,[0-9]*\]\[[0-9]*,[0-9]*\]' | head -1)"
+  sed 's/\[\([0-9]*\),\([0-9]*\)\]\[\([0-9]*\),\([0-9]*\)\]/\1 \2 \3 \4/' <<<"$bounds" | awk '{ print int(($1+$3)/2), int(($2+$4)/2) }'
+}
 wait_for 40 ui_seek 'text="Share logs"' || fail "no Share logs row"
-bounds="$(grep -o 'text="Share logs"[^>]*bounds="\[[0-9]*,[0-9]*\]\[[0-9]*,[0-9]*\]"' <<<"$(sh_ "cat /sdcard/ui.xml")" | grep -o '\[[0-9]*,[0-9]*\]\[[0-9]*,[0-9]*\]' | head -1)"
-xy="$(sed 's/\[\([0-9]*\),\([0-9]*\)\]\[\([0-9]*\),\([0-9]*\)\]/\1 \2 \3 \4/' <<<"$bounds" | awk '{ print int(($1+$3)/2), int(($2+$4)/2) }')"
-sh_ "input tap $xy" >/dev/null
+sh_ "input tap $(ui_center 'text="Share logs"')" >/dev/null
+# The dialog: its message, and the button that leaves the sites out (by id:
+# a theme may show button text in capitals).
+dialog_up() { ui_has 'resource-id="android:id/message"' && ui_has 'resource-id="android:id/button3"'; }
+wait_for 20 dialog_up || fail "Share logs did not say who to send the log to first"
+sh_ "input tap $(ui_center 'resource-id="android:id/button1"')" >/dev/null
 chooser() { grep -qi 'chooser\|intentresolver\|ResolverActivity' <<<"$(sh_ "dumpsys window" | grep -i 'mCurrentFocus\|mFocusedApp')"; }
 wait_for 20 chooser || fail "Share logs did not open the share sheet"
-say "Share logs opens the share sheet"
+say "Share logs says who to send it to, then opens the share sheet"
 sh_ "input keyevent KEYCODE_BACK" >/dev/null
 sh_ "am force-stop $PKG" >/dev/null
 # A long press on the Quick Settings tile (issue #35): Android opens the
