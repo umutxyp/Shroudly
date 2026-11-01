@@ -234,6 +234,7 @@
   "logProxyFailed": "Tizim proksisini oʻrnatib boʻlmadi: {detail}",
   "logProxyRestoreIssue": "Proksi sozlamalarini tiklashda muammo: {detail}",
   "logStartFailed": "Ishga tushirib boʻlmadi: {detail}",
+  "logMacServiceAdopted": "macOS: Shroudly sozlamasi ishga tushirilgandan keyin qoʻshilgan {names} tarmoq ulanishiga oʻrnatildi",
   "logOnlineAgain": "Internet qaytdi",
   "logOffline": "Bu tarmoqda hozir internet yoʻq: hech narsa ulanmayapti, hatto toʻgʻridan-toʻgʻri ham; internet qaytganda Shroudly davom etadi",
   "logRecoveryFailed": "Ishga tushishda tiklab boʻlmadi: {detail}",

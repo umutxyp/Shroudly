@@ -234,6 +234,7 @@
   "logProxyFailed": "የሲስተም proxyን ማዘጋጀት አልተቻለም: {detail}",
   "logProxyRestoreIssue": "የproxy ቅንብሮችን በመመለስ ላይ ችግር ተፈጥሯል: {detail}",
   "logStartFailed": "መጀመር አልተሳካም: {detail}",
+  "logMacServiceAdopted": "macOS፦ የShroudly ቅንብር ከጅምር በኋላ በተጨመረው የአውታረ መረብ ግንኙነት {names} ላይ ተደርጓል",
   "logOnlineAgain": "ኢንተርኔቱ ተመልሷል",
   "logOffline": "ይህ አውታረ መረብ አሁን ኢንተርኔት የለውም፤ በቀጥታም ቢሆን ምንም አይገናኝም፤ ሲመለስ Shroudly ይቀጥላል",
   "logRecoveryFailed": "በጅምር ላይ መመለስ አልተሳካም፦ {detail}",

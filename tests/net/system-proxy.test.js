@@ -1151,6 +1151,30 @@ const readState = (file) => { try { return JSON.parse(fs.readFileSync(file, 'utf
   const ourPacOn = (svc) => svc.auto.enabled && /^http:\/\/127\.0\.0\.1:\d+\/proxy\.pac$/.test(svc.auto.url);
 
   {
+    // A network service added after Start (an iPhone over USB, a new
+    // adapter): it gets the PAC with the next ownership check, and Stop puts
+    // it back as it was (net-desktop-06).
+    nsInit();
+    SystemProxy._setExec(macExec());
+    const file = stateFile('mac-new');
+    const log = logs();
+    const sp = new SystemProxy(log, { platform: 'darwin', stateFile: file });
+    t.ok((await sp.apply(10808, 'all', [])).ok, 'macOS: applied before the new service came');
+    const s1 = nsState();
+    s1.services['iPhone USB'] = { socks: { enabled: false, server: '', port: '' }, auto: { enabled: true, url: 'http://wpad.phone/p.pac' } };
+    FakeNS.save(nsFile, s1);
+    await sp.checkOwnership();
+    const now = nsState().services['iPhone USB'];
+    t.ok(ourPacOn(now) && now.auto.url === sp.pacUrl && log.lines.some((l) => /setting put on iPhone USB, a network connection added since Start/.test(l)),
+      'macOS: a service added after Start gets Shroudly\'s setting, and it is logged');
+    await sp.checkOwnership();
+    t.ok(log.lines.filter((l) => /added since Start/.test(l)).length === 1, 'macOS: and only once');
+    await sp.restore();
+    const back = nsState().services['iPhone USB'];
+    t.ok(back.auto.enabled && back.auto.url === 'http://wpad.phone/p.pac' && !fs.existsSync(file), 'macOS: Stop puts the new service back as it was');
+  }
+
+  {
     nsInit();
     const before = nsState().services;
     const fx = macExec();

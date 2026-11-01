@@ -234,6 +234,7 @@
   "logProxyFailed": "تعذّر تعيين وكيل النظام: {detail}",
   "logProxyRestoreIssue": "حدثت مشكلة أثناء استعادة إعدادات الوكيل: {detail}",
   "logStartFailed": "فشل البدء: {detail}",
+  "logMacServiceAdopted": "macOS: طُبِّق إعداد Shroudly على {names}، وهو اتصال شبكة أُضيف بعد البدء",
   "logOnlineAgain": "عاد الإنترنت",
   "logOffline": "لا يتوفر إنترنت على هذه الشبكة الآن: لا شيء يتصل، ولا حتى مباشرةً؛ سيتابع Shroudly عند عودته",
   "logRecoveryFailed": "فشلت الاستعادة عند البدء: {detail}",

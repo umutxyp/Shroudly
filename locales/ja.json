@@ -234,6 +234,7 @@
   "logProxyFailed": "システムプロキシを設定できませんでした：{detail}",
   "logProxyRestoreIssue": "プロキシ設定の復元中に問題が発生しました：{detail}",
   "logStartFailed": "開始に失敗しました：{detail}",
+  "logMacServiceAdopted": "macOS：開始後に追加されたネットワーク接続 {names} に Shroudly の設定を適用しました",
   "logOnlineAgain": "インターネットが戻りました",
   "logOffline": "このネットワークは現在インターネットにつながっていません：直接でも何もつながりません。戻れば Shroudly は続けます",
   "logRecoveryFailed": "起動時の復元に失敗しました：{detail}",

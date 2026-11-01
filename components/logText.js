@@ -242,6 +242,7 @@ const PATTERNS = [
   [/^Settings cannot be saved \((.+)\); changes last until Shroudly closes$/, 'logSettingsUnsaved', ['detail']],
   [/^Unexpected error, Shroudly keeps running: (.+)$/, 'logUnexpected', ['detail']],
   [/^Recovery at start failed: (.+)$/, 'logRecoveryFailed', ['detail']],
+  [/^macOS: Shroudly's setting put on (.+), a network connection added since Start$/, 'logMacServiceAdopted', ['names']],
   [/^Stop failed: (.+)$/, 'logStopFailed', ['detail']],
   [/^Advanced mode failed: (.+)$/, 'logAdvancedFailed', ['detail']],
   [/^Advanced backend active \(fake TTL (\d+)\)$/, 'logAdvancedBackendActive', ['ttl']],

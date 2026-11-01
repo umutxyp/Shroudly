@@ -234,6 +234,7 @@
   "logProxyFailed": "Sistem proxy ayarı yapılamadı: {detail}",
   "logProxyRestoreIssue": "Proxy ayarları geri yüklenirken sorun oluştu: {detail}",
   "logStartFailed": "Başlatma başarısız: {detail}",
+  "logMacServiceAdopted": "macOS: Başlat'tan sonra eklenen ağ bağlantısına ({names}) Shroudly ayarı uygulandı",
   "logOnlineAgain": "İnternet geri geldi",
   "logOffline": "Bu ağda şu anda internet yok: hiçbir şey bağlanmıyor, doğrudan bile; geri geldiğinde Shroudly devam eder",
   "logRecoveryFailed": "Başlangıçta geri yükleme başarısız: {detail}",

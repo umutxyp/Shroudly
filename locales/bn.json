@@ -234,6 +234,7 @@
   "logProxyFailed": "সিস্টেম প্রক্সি সেট করা যায়নি: {detail}",
   "logProxyRestoreIssue": "প্রক্সি সেটিংস পুনরুদ্ধারে সমস্যা: {detail}",
   "logStartFailed": "চালু করা ব্যর্থ: {detail}",
+  "logMacServiceAdopted": "macOS: শুরু করার পরে যোগ হওয়া নেটওয়ার্ক সংযোগ {names}-এ Shroudly-এর সেটিং দেওয়া হয়েছে",
   "logOnlineAgain": "ইন্টারনেট ফিরে এসেছে",
   "logOffline": "এই নেটওয়ার্কে এখন ইন্টারনেট নেই: কিছুই সংযুক্ত হচ্ছে না, সরাসরিও না; ফিরে এলে Shroudly চলতে থাকবে",
   "logRecoveryFailed": "শুরুর সময় পুনরুদ্ধার ব্যর্থ হয়েছে: {detail}",

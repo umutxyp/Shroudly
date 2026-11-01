@@ -1121,6 +1121,7 @@ ${argsXml}
   async checkOwnership() {
     if (!this.applied || this._checking || this._restoring) return null;
     this._checking = true;
+    try { await this._macAdoptNew(); } catch {}
     // What this check compares against: a re-apply while it reads (a new
     // snapshot, maybe a new address) makes its answer half old, half new.
     const snap = this.snapshot;
@@ -2065,6 +2066,40 @@ $t = Add-Type -MemberDefinition $sig -Name WinINet -Namespace Net -PassThru
       ok: false, code: 'needs_admin', system: 'macos',
       detail: 'This macOS account may not change the network settings without an administrator\'s password.',
     };
+  }
+
+  /* macOS: a network service added after Start (an iPhone over USB, a new
+   * USB or Thunderbolt Ethernet adapter) had none of Shroudly's setting, so
+   * whatever went through it went around Shroudly while the window said
+   * "Protected". Looked for with every ownership check: a service not in
+   * the snapshot gets the PAC, with what it had kept so Stop puts it back.
+   * Only as apply does it, without a password prompt. */
+  async _macAdoptNew() {
+    const snap = this.snapshot;
+    if (this.platform !== 'darwin' || !this.applied || !snap || snap.mode !== 'system' || snap.form !== 'pac' || !this.pacUrl) return [];
+    const names = await this._macServices();
+    const known = new Set((snap.services || []).map((x) => x.name));
+    const fresh = names.filter((n) => !known.has(n));
+    if (!fresh.length) return [];
+    const sudoOk = await this._macSudoNonInteractive();
+    const added = [];
+    for (const s of this._macSnapshotServices(fresh)) {
+      if (this.snapshot !== snap || !this.applied || this._restoring) return added;
+      s.prevManual = await this._macManual(s.name);
+      try {
+        for (const args of SystemProxy._macApplyArgs(s.name, this.pacUrl)) {
+          await (sudoOk ? exec.run('sudo', ['-n', 'networksetup', ...args], 6000) : exec.run('networksetup', args, 6000));
+        }
+        s.applied = true;
+      } catch { /* kept in the snapshot unapplied: not tried again every check */ }
+      snap.services.push(s);
+      if (s.applied) added.push(s.name);
+    }
+    if (added.length) {
+      this._saveState();
+      this.log('info', `macOS: Shroudly's setting put on ${added.join(', ')}, a network connection added since Start`);
+    }
+    return added;
   }
 
   /* A PAC address read back from the state file, to hand back to

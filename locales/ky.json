@@ -234,6 +234,7 @@
   "logProxyFailed": "Системалык проксини орнотуу мүмкүн болгон жок: {detail}",
   "logProxyRestoreIssue": "Прокси жөндөөлөрүн калыбына келтирүүдө көйгөй: {detail}",
   "logStartFailed": "Баштоо ишке ашкан жок: {detail}",
+  "logMacServiceAdopted": "macOS: Shroudly жөндөөсү иштетилгенден кийин кошулган {names} тармак туташуусуна коюлду",
   "logOnlineAgain": "Интернет кайра келди",
   "logOffline": "Бул тармакта азыр интернет жок: эч нерсе туташпайт, түз да; интернет кайтканда Shroudly улантат",
   "logRecoveryFailed": "Ишке киргизүүдө калыбына келтирүү ишке ашкан жок: {detail}",

@@ -234,6 +234,7 @@
   "logProxyFailed": "Não foi possível definir o proxy do sistema: {detail}",
   "logProxyRestoreIssue": "Problema ao restaurar as configurações de proxy: {detail}",
   "logStartFailed": "Falha ao iniciar: {detail}",
+  "logMacServiceAdopted": "macOS: a configuração do Shroudly foi aplicada a {names}, uma conexão de rede adicionada depois de iniciar",
   "logOnlineAgain": "A internet voltou",
   "logOffline": "Esta rede está sem internet agora: nada conecta, nem mesmo direto; o Shroudly continua quando ela voltar",
   "logRecoveryFailed": "A recuperação ao iniciar falhou: {detail}",

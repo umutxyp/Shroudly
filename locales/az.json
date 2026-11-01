@@ -234,6 +234,7 @@
   "logProxyFailed": "Sistem proksisini təyin etmək mümkün olmadı: {detail}",
   "logProxyRestoreIssue": "Proksi ayarlarını bərpa edərkən problem yarandı: {detail}",
   "logStartFailed": "Başlatma uğursuz oldu: {detail}",
+  "logMacServiceAdopted": "macOS: Shroudly ayarı Başlatdan sonra əlavə olunan şəbəkə bağlantısına ({names}) tətbiq edildi",
   "logOnlineAgain": "İnternet qayıtdı",
   "logOffline": "Bu şəbəkədə hazırda internet yoxdur: heç nə qoşulmur, hətta birbaşa da; internet qayıdanda Shroudly davam edir",
   "logRecoveryFailed": "Başlanğıcda bərpa alınmadı: {detail}",

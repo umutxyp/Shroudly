@@ -234,6 +234,7 @@
   "logProxyFailed": "Ulgam proksisini sazlap bolmady: {detail}",
   "logProxyRestoreIssue": "Proksi sazlamalaryny dikeltmekde mesele: {detail}",
   "logStartFailed": "Işledip bolmady: {detail}",
+  "logMacServiceAdopted": "macOS: Shroudly sazlamasy başlanandan soň goşulan {names} tor birikmesine goýuldy",
   "logOnlineAgain": "Internet gaýdyp geldi",
   "logOffline": "Bu torda häzir internet ýok: hiç zat birikmeýär, hatda göni hem; internet gaýdyp gelende Shroudly dowam eder",
   "logRecoveryFailed": "Başlanda dikeltmek başa barmady: {detail}",

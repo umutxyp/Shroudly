@@ -234,6 +234,7 @@
   "logProxyFailed": "Không thể đặt proxy hệ thống: {detail}",
   "logProxyRestoreIssue": "Có vấn đề khi khôi phục cài đặt proxy: {detail}",
   "logStartFailed": "Không bật được: {detail}",
+  "logMacServiceAdopted": "macOS: đã áp dụng cài đặt của Shroudly cho {names}, một kết nối mạng được thêm sau khi bật",
   "logOnlineAgain": "Đã có Internet trở lại",
   "logOffline": "Mạng này hiện không có Internet: không gì kết nối được, kể cả trực tiếp; Shroudly sẽ tiếp tục khi có lại",
   "logRecoveryFailed": "Khôi phục khi khởi động thất bại: {detail}",

@@ -234,6 +234,7 @@
   "logProxyFailed": "تنظیم پراکسی سیستم ممکن نشد: {detail}",
   "logProxyRestoreIssue": "مشکل در بازگرداندن تنظیمات پراکسی: {detail}",
   "logStartFailed": "شروع ناموفق بود: {detail}",
+  "logMacServiceAdopted": "macOS: تنظیم Shroudly روی {names} گذاشته شد؛ اتصال شبکه‌ای که پس از شروع اضافه شده است",
   "logOnlineAgain": "اینترنت برگشت",
   "logOffline": "این شبکه الان اینترنت ندارد: هیچ‌چیز وصل نمی‌شود، حتی مستقیم؛ وقتی برگردد Shroudly ادامه می‌دهد",
   "logRecoveryFailed": "بازیابی هنگام شروع ناموفق بود: {detail}",

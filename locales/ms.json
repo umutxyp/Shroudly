@@ -234,6 +234,7 @@
   "logProxyFailed": "Tidak dapat menetapkan proksi sistem: {detail}",
   "logProxyRestoreIssue": "Masalah semasa memulihkan tetapan proksi: {detail}",
   "logStartFailed": "Gagal dimulakan: {detail}",
+  "logMacServiceAdopted": "macOS: tetapan Shroudly dipasang pada {names}, sambungan rangkaian yang ditambah selepas Mula",
   "logOnlineAgain": "Internet sudah kembali",
   "logOffline": "Rangkaian ini tiada internet sekarang: tiada apa-apa yang bersambung, walaupun secara terus; Shroudly teruskan apabila ia kembali",
   "logRecoveryFailed": "Pemulihan semasa mula gagal: {detail}",

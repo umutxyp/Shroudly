@@ -234,6 +234,7 @@
   "logProxyFailed": "לא ניתן היה להגדיר את שרת ה-Proxy של המערכת: {detail}",
   "logProxyRestoreIssue": "בעיה בשחזור הגדרות ה-Proxy: {detail}",
   "logStartFailed": "ההפעלה נכשלה: {detail}",
+  "logMacServiceAdopted": "macOS: ההגדרה של Shroudly הוחלה על {names}, חיבור רשת שנוסף אחרי ההפעלה",
   "logOnlineAgain": "האינטרנט חזר",
   "logOffline": "ברשת הזו אין כרגע אינטרנט: שום דבר לא מתחבר, אפילו לא ישירות; Shroudly ימשיך כשהוא יחזור",
   "logRecoveryFailed": "השחזור בהפעלה נכשל: {detail}",

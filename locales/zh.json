@@ -234,6 +234,7 @@
   "logProxyFailed": "无法设置系统代理：{detail}",
   "logProxyRestoreIssue": "恢复代理设置时出现问题：{detail}",
   "logStartFailed": "启动失败：{detail}",
+  "logMacServiceAdopted": "macOS：已将 Shroudly 的设置应用到启动后新增的网络连接 {names}",
   "logOnlineAgain": "网络已恢复",
   "logOffline": "此网络目前无法连接互联网：任何连接都失败，直接连接也不行；恢复后 Shroudly 会继续",
   "logRecoveryFailed": "启动时恢复失败：{detail}",

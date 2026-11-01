@@ -234,6 +234,7 @@
   "logProxyFailed": "Не удалось настроить системный прокси: {detail}",
   "logProxyRestoreIssue": "Проблема при восстановлении настроек прокси: {detail}",
   "logStartFailed": "Ошибка запуска: {detail}",
+  "logMacServiceAdopted": "macOS: настройка Shroudly установлена на {names} — сетевое подключение, появившееся после запуска",
   "logOnlineAgain": "Интернет вернулся",
   "logOffline": "В этой сети сейчас нет интернета: ничего не подключается, даже напрямую; Shroudly продолжит, когда он вернётся",
   "logRecoveryFailed": "Не удалось восстановить при запуске: {detail}",

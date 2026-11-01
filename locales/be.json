@@ -234,6 +234,7 @@
   "logProxyFailed": "Не ўдалося задаць сістэмны проксі: {detail}",
   "logProxyRestoreIssue": "Праблема пры аднаўленні налад проксі: {detail}",
   "logStartFailed": "Памылка запуску: {detail}",
+  "logMacServiceAdopted": "macOS: налада Shroudly дададзена да {names} — сеткавага злучэння, з’яўленага пасля запуску",
   "logOnlineAgain": "Інтэрнэт вярнуўся",
   "logOffline": "У гэтай сетцы зараз няма інтэрнэту: нішто не падключаецца, нават напрамую; Shroudly працягне, калі ён вернецца",
   "logRecoveryFailed": "Не ўдалося аднавіць пры запуску: {detail}",

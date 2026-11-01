@@ -234,6 +234,7 @@
   "logProxyFailed": "सिस्टम प्रॉक्सी सेट नहीं की जा सकी: {detail}",
   "logProxyRestoreIssue": "प्रॉक्सी सेटिंग्स पुनर्स्थापित करने में समस्या: {detail}",
   "logStartFailed": "शुरू करना विफल रहा: {detail}",
+  "logMacServiceAdopted": "macOS: शुरू करने के बाद जुड़े नेटवर्क कनेक्शन {names} पर Shroudly की सेटिंग लगाई गई",
   "logOnlineAgain": "इंटरनेट वापस आ गया",
   "logOffline": "इस नेटवर्क पर अभी इंटरनेट नहीं है: कुछ भी नहीं जुड़ रहा, सीधे भी नहीं; लौटने पर Shroudly चलता रहेगा",
   "logRecoveryFailed": "शुरुआत में पुनर्प्राप्ति विफल रही: {detail}",

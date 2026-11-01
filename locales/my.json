@@ -234,6 +234,7 @@
   "logProxyFailed": "စနစ်ပရောက်စီကို သတ်မှတ်၍ မရပါ: {detail}",
   "logProxyRestoreIssue": "ပရောက်စီဆက်တင်များ ပြန်ထားရာတွင် ပြဿနာ: {detail}",
   "logStartFailed": "စတင်၍ မရပါ: {detail}",
+  "logMacServiceAdopted": "macOS: စတင်ပြီးနောက် ထပ်ထည့်ထားသော ကွန်ရက်ချိတ်ဆက်မှု {names} တွင် Shroudly ၏ ဆက်တင်ကို ထည့်ပြီးပါပြီ",
   "logOnlineAgain": "အင်တာနက် ပြန်ရပါပြီ",
   "logOffline": "ဤကွန်ရက်တွင် ယခု အင်တာနက် မရှိပါ: တိုက်ရိုက်ပင် ဘာမှ မချိတ်ဆက်နိုင်ပါ၊ ပြန်ရလာလျှင် Shroudly ဆက်လုပ်ပါမည်",
   "logRecoveryFailed": "စတင်ချိန်တွင် ပြန်လည်ရယူခြင်း မအောင်မြင်ပါ: {detail}",

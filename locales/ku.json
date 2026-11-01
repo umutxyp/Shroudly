@@ -234,6 +234,7 @@
   "logProxyFailed": "Proksiya pergalê nehat danîn: {detail}",
   "logProxyRestoreIssue": "Pirsgirêk di vegerandina mîhengên proksiyê de: {detail}",
   "logStartFailed": "Destpêkirin bi ser neket: {detail}",
+  "logMacServiceAdopted": "macOS: mîhenga Shroudly li {names} hate danîn, girêdaneke torê ya piştî destpêkê hatî zêdekirin",
   "logOnlineAgain": "Înternet vegeriya",
   "logOffline": "Li ser vê torê niha înternet tune: tiştek girê nabe, ne jî rasterast; dema vegere Shroudly berdewam dike",
   "logRecoveryFailed": "Vegerandin di destpêkê de bi ser neket: {detail}",
