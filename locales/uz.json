@@ -66,6 +66,7 @@
   "moreSettings": "Boshqa sozlamalar",
   "startOnBoot": "Tizimga kirishda ishga tushirish",
   "startOnBootDesc": "Kompyuteringizga kirganingizda Shroudlyni avtomatik ishga tushirish",
+  "startOnBootRefused": "Tizimingiz Shroudlyʼga kirishda ishga tushishga ruxsat bermadi. Sababi «{logs}» boʻlimida.",
   "minimizeToTray": "Treyga yigʻish",
   "minimizeToTrayDesc": "Oyna yopilganda tizim treyida ishlashda davom etish",
   "minimizeToTrayDescMac": "Oyna yopilganda menyu satrida (ekranning yuqori oʻng tomonida) ishlashda davom etsin",

@@ -66,6 +66,7 @@
   "moreSettings": "আরও সেটিংস",
   "startOnBoot": "সাইন-ইনের সময় চালু করুন",
   "startOnBootDesc": "কম্পিউটারে সাইন ইন করলে Shroudly স্বয়ংক্রিয়ভাবে চালু করুন",
+  "startOnBootRefused": "আপনার সিস্টেম Shroudly-কে সাইন-ইনের সময় চালু হতে দেয়নি। কেন, তা «{logs}» ট্যাবে আছে।",
   "minimizeToTray": "ট্রেতে ছোট করুন",
   "minimizeToTrayDesc": "উইন্ডো বন্ধ করলেও সিস্টেম ট্রেতে চালু রাখুন",
   "minimizeToTrayDescMac": "উইন্ডো বন্ধ করলে মেনু বারে (স্ক্রিনের ওপরে ডান দিকে) চালু রাখুন",

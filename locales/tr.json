@@ -66,6 +66,7 @@
   "moreSettings": "Diğer ayarlar",
   "startOnBoot": "Oturum açılınca başlat",
   "startOnBootDesc": "Bilgisayarında oturum açtığında Shroudly otomatik olarak başlasın",
+  "startOnBootRefused": "Sistemin, Shroudly'nin oturum açılınca başlamasına izin vermedi. Nedeni “{logs}” sekmesinde.",
   "minimizeToTray": "Sistem tepsisine küçült",
   "minimizeToTrayDesc": "Pencere kapatıldığında sistem tepsisinde çalışmaya devam et",
   "minimizeToTrayDescMac": "Pencere kapatılınca menü çubuğunda (ekranın sağ üstünde) çalışmaya devam et",

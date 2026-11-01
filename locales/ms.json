@@ -66,6 +66,7 @@
   "moreSettings": "Tetapan lain",
   "startOnBoot": "Mulakan semasa log masuk",
   "startOnBootDesc": "Lancarkan Shroudly secara automatik apabila anda log masuk ke komputer anda",
+  "startOnBootRefused": "Sistem anda tidak membenarkan Shroudly bermula semasa log masuk. Tab “{logs}” menyatakan sebabnya.",
   "minimizeToTray": "Minimumkan ke dulang",
   "minimizeToTrayDesc": "Terus berjalan dalam dulang sistem apabila tetingkap ditutup",
   "minimizeToTrayDescMac": "Terus berjalan dalam bar menu (kanan atas skrin) apabila tetingkap ditutup",

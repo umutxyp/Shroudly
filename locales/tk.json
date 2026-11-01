@@ -66,6 +66,7 @@
   "moreSettings": "Başga sazlamalar",
   "startOnBoot": "Ulgama girende işletmek",
   "startOnBootDesc": "Kompýuteriňize girende Shroudly-ni awtomatik işletmek",
+  "startOnBootRefused": "Ulgamyňyz Shroudly-niň girende işlemegine rugsat bermedi. Sebäbi «{logs}» bölümünde ýazylgy.",
   "minimizeToTray": "Bildiriş meýdançasyna kiçeltmek",
   "minimizeToTrayDesc": "Penjire ýapylanda bildiriş meýdançasynda işlemegini dowam etmek",
   "minimizeToTrayDescMac": "Penjire ýapylanda menýu setirinde (ekranyň ýokarky sagynda) işlemegini dowam et",

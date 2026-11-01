@@ -66,6 +66,7 @@
   "moreSettings": "More settings",
   "startOnBoot": "Start at sign-in",
   "startOnBootDesc": "Launch Shroudly automatically when you sign in to your computer",
+  "startOnBootRefused": "Your system did not let Shroudly start at sign-in. The “{logs}” tab says why.",
   "minimizeToTray": "Minimize to tray",
   "minimizeToTrayDesc": "Keep running in the system tray when the window is closed",
   "minimizeToTrayDescMac": "Keep running in the menu bar (top right of the screen) when the window is closed",

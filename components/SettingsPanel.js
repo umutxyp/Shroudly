@@ -460,16 +460,26 @@ export default function SettingsPanel({ active = false }) {
     };
   }, []);
 
+  // Resolves false when the change was refused (and put back).
   async function save(key, value) {
     const before = settings[key];
     setSettings((p) => ({ ...p, [key]: value }));
     if (typeof window !== 'undefined' && window.electron?.setSetting) {
       try {
         const r = await window.electron.setSetting(key, value);
-        if (r && r.success === false) setSettings((p) => ({ ...p, [key]: before }));
-      } catch { setSettings((p) => ({ ...p, [key]: before })); }
+        if (r && r.success === false) { setSettings((p) => ({ ...p, [key]: before })); return false; }
+      } catch { setSettings((p) => ({ ...p, [key]: before })); return false; }
     }
+    return true;
   }
+  // Start at sign-in that the system would not take (a folder that cannot
+  // be written, a policy): said under the switch, which went back off with
+  // nothing said.
+  const [autoStartRefused, setAutoStartRefused] = useState(false);
+  const setAutoStartSetting = async (v) => {
+    setAutoStartRefused(false);
+    if (!(await save('autoStart', v)) && v) setAutoStartRefused(true);
+  };
 
   async function onStrategyChange(id) {
     const s = STRATEGIES.find((x) => x.id === id) || STRATEGIES[0];
@@ -771,7 +781,12 @@ export default function SettingsPanel({ active = false }) {
       {/* App */}
       <Section title={t('appSection')}>
         <div className="divide-y" style={{ borderColor: 'var(--line)' }}>
-          <Toggle label={t('startOnBoot')} desc={t('startOnBootDesc')} checked={settings.autoStart} onChange={(v) => save('autoStart', v)} />
+          <div>
+            <Toggle label={t('startOnBoot')} desc={t('startOnBootDesc')} checked={settings.autoStart} onChange={setAutoStartSetting} />
+            {autoStartRefused && (
+              <p role="status" className="pb-3 text-[12px] leading-snug" style={{ color: 'var(--warn)' }}>{t('startOnBootRefused', { logs: t('navLogs') })}</p>
+            )}
+          </div>
           <Toggle label={t(isMac ? 'minimizeToTrayMac' : 'minimizeToTray')} desc={t(isMac ? 'minimizeToTrayDescMac' : 'minimizeToTrayDesc')} checked={settings.minimizeToTray} onChange={(v) => save('minimizeToTray', v)} />
           <Toggle label={t('adBlock')} desc={t('adBlockDesc')} checked={settings.adBlock === true} onChange={(v) => save('adBlock', v)} />
           {settings.adBlock === true && (

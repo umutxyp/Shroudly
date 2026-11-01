@@ -66,6 +66,7 @@
   "moreSettings": "Autres réglages",
   "startOnBoot": "Lancer à l’ouverture de session",
   "startOnBootDesc": "Lancer Shroudly automatiquement à l’ouverture de votre session",
+  "startOnBootRefused": "Votre système n’a pas permis à Shroudly de se lancer à l’ouverture de session. L’onglet « {logs} » indique pourquoi.",
   "minimizeToTray": "Réduire dans la barre système",
   "minimizeToTrayDesc": "Continuer à s’exécuter dans la barre système une fois la fenêtre fermée",
   "minimizeToTrayDescMac": "Continuer de fonctionner dans la barre des menus (en haut à droite de l’écran) quand la fenêtre est fermée",

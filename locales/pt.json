@@ -66,6 +66,7 @@
   "moreSettings": "Mais ajustes",
   "startOnBoot": "Abrir ao iniciar sessão",
   "startOnBootDesc": "Abrir o Shroudly automaticamente quando você iniciar sessão no computador",
+  "startOnBootRefused": "Seu sistema não deixou o Shroudly abrir ao iniciar sessão. A aba “{logs}” diz por quê.",
   "minimizeToTray": "Minimizar para a bandeja",
   "minimizeToTrayDesc": "Continuar em execução na bandeja do sistema quando a janela for fechada",
   "minimizeToTrayDescMac": "Continuar funcionando na barra de menus (no canto superior direito da tela) ao fechar a janela",

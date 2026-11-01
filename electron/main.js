@@ -827,7 +827,13 @@ async function createWindow({ show = true, minimised = false, quiet = false } = 
     if (!windowAlive()) setDockIcon(false);
   });
 
+  /* Closing the window (its X, Cmd+W) by the user. "Keep running in the
+   * tray" on: the window goes, Shroudly stays. Off: Shroudly quits, as the
+   * switch says; it used to stay all the same, the switch changing nothing
+   * but the window at login. The window Shroudly closes by itself when
+   * unused (releaseWindow) is destroyed, which never comes here. */
   win.on('close', (e) => {
+    if (!app.isQuitting && !store.get('minimizeToTray', true)) { shutdownAndQuit(); return; }
     if (!app.isQuitting && store.get('minimizeToTray', true)) {
       e.preventDefault();
       if (!canLeave()) { win.minimize(); return; }

@@ -66,6 +66,7 @@
   "moreSettings": "Cài đặt khác",
   "startOnBoot": "Mở khi đăng nhập",
   "startOnBootDesc": "Tự động mở Shroudly khi bạn đăng nhập vào máy tính",
+  "startOnBootRefused": "Hệ thống của bạn không cho Shroudly mở khi đăng nhập. Thẻ “{logs}” cho biết lý do.",
   "minimizeToTray": "Thu nhỏ xuống khay",
   "minimizeToTrayDesc": "Tiếp tục chạy trong khay hệ thống khi đóng cửa sổ",
   "minimizeToTrayDescMac": "Tiếp tục chạy trên thanh menu (góc trên bên phải màn hình) khi đóng cửa sổ",

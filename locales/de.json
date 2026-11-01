@@ -66,6 +66,7 @@
   "moreSettings": "Weitere Optionen",
   "startOnBoot": "Bei Anmeldung starten",
   "startOnBootDesc": "Shroudly bei der Anmeldung am Computer automatisch starten",
+  "startOnBootRefused": "Dein System hat Shroudly nicht erlaubt, bei der Anmeldung zu starten. Den Grund findest du im Tab „{logs}“.",
   "minimizeToTray": "In den Infobereich minimieren",
   "minimizeToTrayDesc": "Nach dem Schließen des Fensters im Infobereich weiterlaufen",
   "minimizeToTrayDescMac": "Beim Schließen des Fensters in der Menüleiste (oben rechts auf dem Bildschirm) weiterlaufen",

@@ -66,6 +66,7 @@
   "moreSettings": "更多设置",
   "startOnBoot": "登录时启动",
   "startOnBootDesc": "登录计算机时自动启动 Shroudly",
+  "startOnBootRefused": "你的系统不允许 Shroudly 在登录时启动。原因请见“{logs}”选项卡。",
   "minimizeToTray": "最小化到托盘",
   "minimizeToTrayDesc": "关闭窗口后继续在系统托盘中运行",
   "minimizeToTrayDescMac": "关闭窗口后在菜单栏（屏幕右上角）中继续运行",

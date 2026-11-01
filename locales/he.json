@@ -66,6 +66,7 @@
   "moreSettings": "הגדרות נוספות",
   "startOnBoot": "הפעלה בכניסה למערכת",
   "startOnBootDesc": "הפעלה אוטומטית של Shroudly בכל כניסה למחשב",
+  "startOnBootRefused": "המערכת לא אפשרה ל-Shroudly לפעול בכניסה למערכת. הסיבה מופיעה בכרטיסייה „{logs}”.",
   "minimizeToTray": "מזעור למגש המערכת",
   "minimizeToTrayDesc": "המשך פעולה במגש המערכת אחרי סגירת החלון",
   "minimizeToTrayDescMac": "להמשיך לפעול בשורת התפריטים (בפינה הימנית העליונה של המסך) כשהחלון נסגר",

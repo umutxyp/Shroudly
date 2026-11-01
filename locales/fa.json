@@ -66,6 +66,7 @@
   "moreSettings": "تنظیمات بیشتر",
   "startOnBoot": "اجرا هنگام ورود به سیستم",
   "startOnBootDesc": "اجرای خودکار Shroudly هنگام ورود به حساب رایانه",
+  "startOnBootRefused": "سیستم شما اجازه نداد Shroudly هنگام ورود اجرا شود. دلیلش در زبانهٔ «{logs}» آمده است.",
   "minimizeToTray": "کوچک کردن به سینی سیستم",
   "minimizeToTrayDesc": "ادامهٔ اجرا در سینی سیستم پس از بستن پنجره",
   "minimizeToTrayDescMac": "ادامهٔ کار در نوار منو (بالا سمت راست صفحه) هنگام بستن پنجره",

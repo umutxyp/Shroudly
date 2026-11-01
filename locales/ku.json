@@ -66,6 +66,7 @@
   "moreSettings": "Mîhengên din",
   "startOnBoot": "Bi têketinê re veke",
   "startOnBootDesc": "Dema tu têkevî komputera xwe, Shroudly bi xweber veke",
+  "startOnBootRefused": "Pergala te nehişt ku Shroudly bi têketinê re vebe. Sedem di beşa «{logs}» de ye.",
   "minimizeToTray": "Biçûk bike nav sîniyê",
   "minimizeToTrayDesc": "Dema pencere tê girtin, di sîniya pergalê de bixebite",
   "minimizeToTrayDescMac": "Dema pencere tê girtin di darika pêşekê de (li jor-rastê ekranê) berdewam bike",

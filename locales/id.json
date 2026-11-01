@@ -66,6 +66,7 @@
   "moreSettings": "Pengaturan lainnya",
   "startOnBoot": "Mulai saat masuk",
   "startOnBootDesc": "Jalankan Shroudly secara otomatis saat Anda masuk ke komputer",
+  "startOnBootRefused": "Sistem Anda tidak mengizinkan Shroudly dimulai saat masuk. Tab “{logs}” menjelaskan alasannya.",
   "minimizeToTray": "Perkecil ke baki",
   "minimizeToTrayDesc": "Tetap berjalan di baki sistem saat jendela ditutup",
   "minimizeToTrayDescMac": "Tetap berjalan di bar menu (kanan atas layar) saat jendela ditutup",

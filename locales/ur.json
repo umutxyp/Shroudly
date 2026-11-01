@@ -66,6 +66,7 @@
   "moreSettings": "مزید ترتیبات",
   "startOnBoot": "سائن اِن پر شروع کریں",
   "startOnBootDesc": "کمپیوٹر میں سائن اِن کرنے پر Shroudly خود بخود چلائیں",
+  "startOnBootRefused": "آپ کے سسٹم نے Shroudly کو سائن اِن پر شروع ہونے نہیں دیا۔ وجہ «{logs}» ٹیب میں ہے۔",
   "minimizeToTray": "ٹرے میں چھوٹا کریں",
   "minimizeToTrayDesc": "ونڈو بند ہونے پر سسٹم ٹرے میں چلتا رہے",
   "minimizeToTrayDescMac": "ونڈو بند ہونے پر مینو بار میں (اسکرین کے اوپر دائیں) چلتا رہے",

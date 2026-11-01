@@ -66,6 +66,7 @@
   "moreSettings": "その他の設定",
   "startOnBoot": "サインイン時に起動",
   "startOnBootDesc": "コンピューターにサインインしたときに Shroudly を自動的に起動します",
+  "startOnBootRefused": "システムが、サインイン時の Shroudly の起動を許可しませんでした。理由は「{logs}」タブに表示されています。",
   "minimizeToTray": "トレイに最小化",
   "minimizeToTrayDesc": "ウィンドウを閉じてもシステムトレイで実行を続けます",
   "minimizeToTrayDescMac": "ウインドウを閉じてもメニューバー（画面の右上）で動作を続ける",

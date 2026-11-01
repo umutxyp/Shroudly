@@ -66,6 +66,7 @@
   "moreSettings": "Digər ayarlar",
   "startOnBoot": "Girişdə başlat",
   "startOnBootDesc": "Kompüterdə hesabına daxil olanda Shroudly-ni avtomatik başlat",
+  "startOnBootRefused": "Sisteminiz Shroudly-nin girişdə başlamasına icazə vermədi. Səbəbi “{logs}” bölməsində yazılıb.",
   "minimizeToTray": "Treyə kiçilt",
   "minimizeToTrayDesc": "Pəncərə bağlananda sistem treyində işləməyə davam et",
   "minimizeToTrayDescMac": "Pəncərə bağlananda menyu sətrində (ekranın yuxarı sağında) işləməyə davam et",

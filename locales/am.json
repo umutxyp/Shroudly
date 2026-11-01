@@ -66,6 +66,7 @@
   "moreSettings": "ተጨማሪ ቅንብሮች",
   "startOnBoot": "በመግቢያ ጊዜ መጀመር",
   "startOnBootDesc": "ወደ ኮምፒውተርዎ ሲገቡ Shroudly በራስ-ሰር ይጀምራል",
+  "startOnBootRefused": "ሲስተምዎ Shroudly በመግቢያ ጊዜ እንዲጀምር አልፈቀደም። ምክንያቱን የ«{logs}» ትሩ ይነግርዎታል።",
   "minimizeToTray": "ወደ ትሪ ማሳነስ",
   "minimizeToTrayDesc": "መስኮቱ ሲዘጋ በሲስተም ትሪ ውስጥ መስራቱን ይቀጥላል",
   "minimizeToTrayDescMac": "መስኮቱ ሲዘጋ በምናሌ አሞሌው ውስጥ (በማያ ገጹ ላይኛው ቀኝ) መስራቱን ቀጥል",
