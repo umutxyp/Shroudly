@@ -100,8 +100,10 @@ export default function Home() {
   // On, but browsers are not going through it (main.js notRouting): amber,
   // "Not working yet", never the green "Active".
   const notRouting = active && !!dpiStatus.notRouting;
-  const tone = !active ? 'danger' : notRouting ? 'warn' : 'ok';
-  const statusText = !active ? t('inactive') : notRouting ? t('notWorkingYet') : t('active');
+  // The network itself without internet: amber, and said so (ControlPanel).
+  const offline = active && !notRouting && !!dpiStatus.offline;
+  const tone = !active ? 'danger' : notRouting || offline ? 'warn' : 'ok';
+  const statusText = !active ? t('inactive') : notRouting ? t('notWorkingYet') : offline ? t('noInternet') : t('active');
   // A restart for an update that is counting down comes before any other
   // notice: its "Later" must be there to press. Otherwise an update waits
   // while the Protection panel says what is not working yet.

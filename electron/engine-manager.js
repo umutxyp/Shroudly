@@ -82,6 +82,13 @@ const CUT_NEED = { stall: 2, reset: 2, noreply: 4 };
  * a cut waits CUT_SETTLE_MS, for a move to show (cutHolds). */
 const SILENT_CUTS = new Set(['stall', 'noreply']);
 const QUIET_PROOF_MS = 6000;
+// No internet at all (a provider down, a router without its uplink, a hotel
+// Wi-Fi not logged in yet): this many failed connections within the window,
+// nothing back through the engine in it, and no control address answering
+// directly. Looked at again this often while it lasts.
+const OFFLINE_FAILS = 4;
+const OFFLINE_WINDOW_MS = 20000;
+const OFFLINE_RECHECK_MS = 15000;
 const NET_SETTLE_MS = 60000;
 const CUT_SETTLE_MS = 10000;
 
@@ -204,6 +211,12 @@ class EngineManager {
     // Is Advanced mode on? A site still blocked is then not one for which to
     // suggest it (main.js; false without it).
     this.advancedOn = hooks.advancedOn || (() => false);
+    // Whether the internet answers straight from this computer (tests stand
+    // in for it).
+    this.internetAnswers = hooks.internetAnswers || (() => require('./blockcheck').internetAnswers());
+    this._fails = [];
+    this._offlineCheck = false;
+    this._offlineTimer = null;
     // The same line about the same host, at most every half hour; shared
     // with Games and apps and the Discord relay (main.js).
     this.logGate = hooks.logGate || new LogGate();
@@ -298,7 +311,7 @@ class EngineManager {
     this.onAdvice = hooks.onAdvice || (() => {});
     // What the window should tell the user about this network. Kept here, not
     // only sent, because most of it is learned before the window has loaded.
-    this.advice = { conflicts: [], cut: null, dnsDown: false };
+    this.advice = { conflicts: [], cut: null, dnsDown: false, offline: false };
     this.cuts = new Map();        // host -> [{ reason, t }]
     this.cutHosts = new Set();    // hosts already reported this session
     this.believedAt = new Map();  // host -> when its cut was believed
@@ -466,9 +479,49 @@ class EngineManager {
    * load. Once per host every few minutes. */
   _onUnreachable(host, stage) {
     if (!host) return;
+    this._noteFailure();
     const what = stage === 'dns' ? 'DNS' : 'connection';
     if (!this.logGate.allow(`unreachable-${what}`, host)) return;
     this.log('warning', `${host}: could not be reached (${what})`);
+  }
+
+  /* A connection that got nowhere. With no internet at all every site
+   * fails, the browser shows a proxy error that blames Shroudly, and the
+   * window kept saying "Protected": once enough fail with nothing back and
+   * nothing answers directly either, the window says the network has no
+   * internet instead (advice.offline). */
+  _noteFailure(now = Date.now()) {
+    this._fails = this._fails.filter((t) => now - t < OFFLINE_WINDOW_MS);
+    this._fails.push(now);
+    if (this.advice.offline || this._offlineCheck || !this.active || this._fails.length < OFFLINE_FAILS || this.receivedWithin(OFFLINE_WINDOW_MS, now)) return;
+    this._checkOffline().catch(() => {});
+  }
+
+  async _checkOffline() {
+    this._offlineCheck = true;
+    let up = true;
+    try { up = await this.internetAnswers(); } catch {}
+    this._offlineCheck = false;
+    if (up || !this.active || this.receivedWithin(OFFLINE_WINDOW_MS)) return;
+    this._setAdvice({ offline: true });
+    this.log('warning', 'This network has no internet right now: nothing connects, not even directly; Shroudly carries on when it is back');
+    clearInterval(this._offlineTimer);
+    this._offlineTimer = setInterval(() => {
+      if (!this.active) { this._clearOffline({ quiet: true }); return; }
+      Promise.resolve(this.internetAnswers()).then((ok) => { if (ok) this._clearOffline(); }).catch(() => {});
+    }, OFFLINE_RECHECK_MS);
+    if (this._offlineTimer.unref) this._offlineTimer.unref();
+  }
+
+  /* The internet back: the first byte through the engine, or a control
+   * address answering. */
+  _clearOffline({ quiet = false } = {}) {
+    clearInterval(this._offlineTimer);
+    this._offlineTimer = null;
+    this._fails = [];
+    if (!this.advice.offline) return;
+    this._setAdvice({ offline: false });
+    if (!quiet) this.log('info', 'The internet is back');
   }
 
   _setAdvice(patch) {
@@ -645,6 +698,7 @@ class EngineManager {
     this.cuts.clear();
     this._networkMoved();
     this._setAdvice({ cut: null });
+    this._clearOffline({ quiet: true });
     this._describeEnvironment();
     this.expectingStop = false;
 
@@ -921,7 +975,10 @@ class EngineManager {
         this.stats.connsTotal = msg.conns_total;
         this.stats.connsActive = msg.conns_active;
         this.stats.bytesUp = msg.bytes_up;
-        if (Number(msg.bytes_down) > Number(this.stats.bytesDown || 0)) this.lastDownAt = Date.now();
+        if (Number(msg.bytes_down) > Number(this.stats.bytesDown || 0)) {
+          this.lastDownAt = Date.now();
+          if (this.advice.offline) this._clearOffline();
+        }
         this.stats.bytesDown = msg.bytes_down;
         this.stats.desync = msg.desync;
         this.stats.tlsSeen = msg.tls;

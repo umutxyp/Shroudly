@@ -140,4 +140,11 @@ async function addressesAnswer(addrs, { port = 443, ms = 5000, control = CONTROL
   return ctl ? false : null;
 }
 
-module.exports = { check, handshake, addressesAnswer, LOCAL_ERRORS, CONTROL };
+/* Is there internet at all, straight from this computer (not through the
+ * engine)? One of the control addresses taking a connection says so. */
+async function internetAnswers({ ms = 4000, control = CONTROL, connect = tcpConnect } = {}) {
+  const r = await Promise.all(control.map((ip) => Promise.resolve(connect(ip, 443, ms)).catch(() => false)));
+  return r.some(Boolean);
+}
+
+module.exports = { check, handshake, addressesAnswer, internetAnswers, LOCAL_ERRORS, CONTROL };

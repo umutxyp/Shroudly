@@ -1487,6 +1487,8 @@ ipcMain.handle('dpi:status', () => ({
   // On, but browsers are not going through it, and why (proxyNotice.js).
   notRouting: notRouting(),
   proxy: engine ? engine.proxyStatus : null,
+  // The network itself has no internet (engine-manager.js, advice.offline).
+  offline: !!(engine && engine.isActive() && engine.advice && engine.advice.offline),
 }));
 ipcMain.handle('dpi:probe', (e, host) => {
   if (engine && typeof host === 'string' && host) { userTests.set(host.toLowerCase(), Date.now()); engine.probe(host); }

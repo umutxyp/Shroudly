@@ -34,6 +34,8 @@ const LINES = [
   'Settings cannot be saved (ENOSPC); changes last until Shroudly closes',
   'Unexpected error, Shroudly keeps running: TypeError: x is not a function',
   'Recovery at start failed: EACCES',
+  'This network has no internet right now: nothing connects, not even directly; Shroudly carries on when it is back',
+  'The internet is back',
   'rutracker.org: its servers (rutracker.org: 104.21.32.39, 172.67.182.196) do not answer on this network at all, while the internet does; the network blocks their addresses, and only a VPN gets around that',
   // A DNS server of the user's own (issue #34), and proxies left behind.
   'Your DNS server is answering: tls://1.1.1.1:853 23ms',

@@ -27,6 +27,9 @@ export default function ControlPanel({ dpiStatus, onStatusChange, onSupport }) {
    * looks; the banner that used to say it could be closed and was easy to
    * read past. */
   const notRouting = active && !!dpiStatus.notRouting;
+  // On, but the network itself has no internet: said so, instead of a
+  // "Protected" that made the browser's proxy error look like Shroudly's.
+  const offline = active && !notRouting && !!dpiStatus.offline;
   const pn = notRouting ? proxyNotice(dpiStatus.proxy, { active }) : null;
   const fix = pn && pn.action ? PROXY_ACTIONS[pn.action] : null;
   const runFix = async () => {
@@ -126,15 +129,15 @@ export default function ControlPanel({ dpiStatus, onStatusChange, onSupport }) {
         {/* Status text */}
         <div ref={statusRef} className="w-full max-w-sm text-center" aria-live="polite">
           <h2 className="text-2xl font-semibold leading-tight tracking-tight wrap-anywhere"
-              style={{ color: notRouting ? 'var(--warn)' : active ? 'var(--accent)' : 'var(--text)' }}>
-            {notRouting ? t('notWorkingYet') : active ? t('protected') : t('notProtected')}
+              style={{ color: notRouting ? 'var(--warn)' : offline ? 'var(--text)' : active ? 'var(--accent)' : 'var(--text)' }}>
+            {notRouting ? t('notWorkingYet') : offline ? t('noInternet') : active ? t('protected') : t('notProtected')}
           </h2>
           {notRouting ? (
             <ClampedText text={t(pn ? pn.body : 'proxyFailedBody', pn ? pn.params : undefined)} lines={5}
                          className="mt-1.5 text-[13px] leading-snug" style={{ color: 'var(--text-dim)' }} />
           ) : (
             <p className="mt-1.5 text-[13px] leading-snug" style={{ color: !active && dpiStatus.blocked ? 'var(--warn)' : 'var(--text-dim)' }}>
-              {active ? t('dpiBypassRunning') : dpiStatus.blocked ? t('securityStatus') : t('dpiBypassStopped')}
+              {offline ? t('noInternetBody') : active ? t('dpiBypassRunning') : dpiStatus.blocked ? t('securityStatus') : t('dpiBypassStopped')}
             </p>
           )}
         </div>

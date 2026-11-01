@@ -49,6 +49,8 @@ const EXACT = {
   'No tray on this desktop: the window is minimised instead of closed': 'logNoTray',
   'Logs cleared': 'logCleared',
   'Starting protection, as it was left': 'logProtectionStartingAsLeft',
+  'This network has no internet right now: nothing connects, not even directly; Shroudly carries on when it is back': 'logOffline',
+  'The internet is back': 'logOnlineAgain',
   'The settings file was damaged; the copy kept at the last start was used': 'logSettingsRestored',
   "The settings file was damaged; Shroudly started with a new install's settings": 'logSettingsReset',
   'First start: "Start at sign-in" turned on (Settings)': 'logFirstRunAutoStart',

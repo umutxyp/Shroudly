@@ -49,6 +49,46 @@ const t = suite('engine-manager');
     t.ok(/now !== networkPrint && engine\) engine\.networkChanged\(\)/.test(main) && /function onWake[\s\S]{0,900}engine\.networkChanged\(\)/.test(main),
       'main.js asks for it at a network change and at a wake');
   }
+  {
+    // No internet at all: every site fails, nothing comes back, and nothing
+    // answers directly either. The window then says the network has no
+    // internet (advice.offline) instead of "Protected"; the first byte back
+    // or a control address answering ends it.
+    const was = { active: em.active, lastDownAt: em.lastDownAt, ia: em.internetAnswers, stats: { ...em.stats } };
+    let direct = false;
+    let asked = 0;
+    em.internetAnswers = async () => { asked++; return direct; };
+    em.active = true;
+    em.lastDownAt = 0;
+    const settle = () => new Promise((r) => setTimeout(r, 10));
+    for (let i = 0; i < 3; i++) em._onUnreachable(`h${i}.example`, 'dns');
+    await settle();
+    t.ok(!em.advice.offline && asked === 0, 'a few failures: nothing said, nothing checked');
+    em._onUnreachable('h3.example', 'connect');
+    await settle();
+    t.ok(em.advice.offline === true && asked === 1 && logs.some((l) => /no internet right now/.test(l)), 'every site failing, nothing back, nothing answering directly: "no internet"');
+    em.lastDownAt = Date.now();
+    em._clearOffline();
+    t.ok(em.advice.offline === false && logs.some((l) => /The internet is back/.test(l)), 'the internet back: said, and the window goes back to "Protected"');
+    // Failures while something still comes back: a few blocked sites, not
+    // a network without internet.
+    em.lastDownAt = Date.now();
+    asked = 0;
+    for (let i = 0; i < 6; i++) em._onUnreachable(`b${i}.example`, 'connect');
+    await settle();
+    t.ok(!em.advice.offline && asked === 0, 'sites failing while others answer: not "no internet"');
+    // Direct connections working: the problem is not the network's internet.
+    em.lastDownAt = 0;
+    em._fails = [];
+    direct = true;
+    for (let i = 0; i < 5; i++) em._onUnreachable(`c${i}.example`, 'connect');
+    await settle();
+    t.ok(!em.advice.offline && asked === 1, 'a control address answering directly: not "no internet"');
+    clearInterval(em._offlineTimer);
+    Object.assign(em, { active: was.active, lastDownAt: was.lastDownAt, internetAnswers: was.ia, stats: was.stats, _fails: [] });
+    const main = require('fs').readFileSync(path.join(ROOT, 'electron', 'main.js'), 'utf8');
+    t.ok(/offline: !!\(engine && engine\.isActive\(\) && engine\.advice && engine\.advice\.offline\)/.test(main), 'the window is told (dpi:status)');
+  }
   em._starting = Promise.resolve(); t.ok(em.coming === true, 'a start under way: the engine is coming');
   em._stops = 1; t.ok(em.coming === false, '…but not while a stop is asked for');
   em._stops = 0; em._starting = null;
