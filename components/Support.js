@@ -147,11 +147,11 @@ export function SupportSection({ focus = 0 }) {
   );
 }
 
-/* A quiet card on the Protection panel while protection is on: never in a
- * window of its own, never as a notification, and not from countries where
- * no way of giving works. */
-export function SupportBanner({ show, onOpen }) {
-  const { t } = useLanguage();
+/* Whether the card below is due, whether the user's country can give at
+ * all (canPay; false until the country is known), and rest() for "Not now".
+ * Shared with the Protection panel's quiet link, which is not shown beside
+ * the card, nor where no way of giving works (app/page.js). */
+export function useSupport() {
   const country = useCountry();
   const [due, setDue] = useState(false);
 
@@ -165,13 +165,22 @@ export function SupportBanner({ show, onOpen }) {
     } catch {}
   }, []);
 
-  if (!show || !due || country == null || !canPayFrom(country)) return null;
   const rest = () => {
     try { localStorage.setItem(LATER_KEY, String(Date.now())); } catch {}
     setDue(false);
   };
+  return { due, rest, canPay: country != null && canPayFrom(country) };
+}
+
+/* A quiet card on the Protection panel while protection is on: never in a
+ * window of its own, never as a notification, and not from countries where
+ * no way of giving works. */
+export function SupportBanner({ show, support, onOpen }) {
+  const { t } = useLanguage();
+  if (!show || !support.due || !support.canPay) return null;
+  const { rest } = support;
   return (
-    <div role="note" className="no-drag mx-4 mb-3 rounded-[var(--radius-sm)] border py-2 pl-3 pr-2 sm:mx-5"
+    <div role="note" className="no-drag mx-4 mb-3 rounded-[var(--radius-sm)] border py-2 pe-2 ps-3 sm:mx-5"
          style={{ background: 'var(--surface)', borderColor: 'var(--line)' }}>
       <div className="flex flex-wrap items-center gap-x-2.5 gap-y-2">
         <HeartIcon className="h-4 w-4 shrink-0" style={{ color: 'var(--accent)' }} />

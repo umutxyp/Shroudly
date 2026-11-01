@@ -39,6 +39,25 @@ export default function ControlPanel({ dpiStatus, onStatusChange, onSupport }) {
     setFixing(false);
     onStatusChange();
   };
+  /* On its way up (at launch, after an update): "Starting…", not a red
+   * "Not protected" inviting a press on Start. Meant to be on and the last
+   * start failed: said under the status, with Repair, for as long as it
+   * lasts; the system's error is in the log. */
+  const starting = !active && !!dpiStatus.starting;
+  const failed = !active && !starting && !!dpiStatus.failed;
+  const [repair, setRepair] = useState(null);   // 'busy' | { missing }
+  const runRepair = async () => {
+    setRepair('busy');
+    let r = null;
+    try { r = await window.electron.repairApp(); } catch {}
+    // Files missing: nothing starts until Shroudly is installed again.
+    if (r && Array.isArray(r.missing) && r.missing.length) { setRepair({ missing: r.missing }); return; }
+    try { await window.electron.startDPI(); } catch {}
+    setRepair(null);
+    onStatusChange();
+  };
+  // What Repair found stays said until protection runs.
+  useEffect(() => { if (active) setRepair(null); }, [active]);
   const support = !!onSupport && !notRouting;
 
   /* The room the content area has, worked out again whenever it or the
@@ -79,10 +98,14 @@ export default function ControlPanel({ dpiStatus, onStatusChange, onSupport }) {
         onStatusChange();
         setToast({ message: t('startBlockedBySecurity'), type: 'error' });
       } else {
-        setToast({ message: t(failKey), detail: r?.error, type: 'error' });
+        onStatusChange();
+        // A failed start stays said under the status (failed, above); the
+        // system's own words ("listen EADDRINUSE") are in the log.
+        if (fn !== 'startDPI') setToast({ message: t(failKey), type: 'error' });
       }
-    } catch (e) {
-      setToast({ message: t(failKey), detail: e?.message, type: 'error' });
+    } catch {
+      onStatusChange();
+      if (fn !== 'startDPI') setToast({ message: t(failKey), type: 'error' });
     } finally {
       setLoading(false);
     }
@@ -93,7 +116,7 @@ export default function ControlPanel({ dpiStatus, onStatusChange, onSupport }) {
     : act('startDPI', 'protectionStarted', 'startFailed'));
 
   const ShieldGlyph = notRouting ? ShieldAlertIcon : active ? ShieldCheckIcon : ShieldIcon;
-  const label = loading ? (active ? t('stopping') : t('starting')) : (active ? t('stop') : t('start'));
+  const label = loading ? (active ? t('stopping') : t('starting')) : starting ? t('starting') : (active ? t('stop') : t('start'));
   // The shield and the title: the accent colour when it works, amber when it
   // is on and does not yet.
   // --state: the accent, except where the accent is a warning or danger
@@ -133,11 +156,19 @@ export default function ControlPanel({ dpiStatus, onStatusChange, onSupport }) {
         <div ref={statusRef} className="w-full max-w-sm text-center" aria-live="polite">
           <h2 className="text-2xl font-semibold leading-tight tracking-tight wrap-anywhere"
               style={{ color: notRouting ? 'var(--warn)' : offline ? 'var(--text)' : active ? 'var(--state)' : 'var(--text)' }}>
-            {notRouting ? t('notWorkingYet') : ownProxy ? t('ownProxyTitle') : offline ? t('noInternet') : active ? t('protected') : t('notProtected')}
+            {notRouting ? t('notWorkingYet') : ownProxy ? t('ownProxyTitle') : offline ? t('noInternet') : active ? t('protected') : starting ? t('starting') : t('notProtected')}
           </h2>
           {notRouting ? (
             <ClampedText text={t(pn ? pn.body : 'proxyFailedBody', pn ? pn.params : undefined)} lines={5}
                          className="mt-1.5 text-[13px] leading-snug" style={{ color: 'var(--text-dim)' }} />
+          ) : starting ? null : repair && repair.missing ? (
+            <p className="mt-1.5 text-[13px] leading-snug wrap-anywhere" style={{ color: 'var(--warn)' }}>
+              {t('repairFilesMissing', { files: repair.missing.join(', ') })}{' '}
+              <a href="https://github.com/umutxyp/Shroudly/releases/latest" target="_blank" rel="noreferrer"
+                 className="font-semibold underline">{t('repairDownload')}</a>
+            </p>
+          ) : failed ? (
+            <p className="mt-1.5 text-[13px] leading-snug wrap-anywhere" style={{ color: 'var(--warn)' }}>{t('startFailedBody', { repair: t('repairApp') })}</p>
           ) : (
             <p className="mt-1.5 text-[13px] leading-snug" style={{ color: !active && dpiStatus.blocked ? 'var(--warn)' : 'var(--text-dim)' }}>
               {ownProxy ? t('ownProxyBody') : offline ? t('noInternetBody') : active ? t('dpiBypassRunning') : dpiStatus.blocked ? t('securityStatus') : t('dpiBypassStopped')}
@@ -150,6 +181,18 @@ export default function ControlPanel({ dpiStatus, onStatusChange, onSupport }) {
             main screen. Not working yet: the button that fixes it first. */}
         <div className="flex w-full flex-col items-center gap-3">
           <div ref={buttonsRef} className="flex w-full flex-col items-center gap-3">
+            {failed && !(repair && repair.missing) && (
+              <button
+                type="button"
+                onClick={runRepair}
+                disabled={repair === 'busy'}
+                aria-busy={repair === 'busy'}
+                className="btn btn-warn w-full max-w-xs rounded-[var(--radius)] px-5 py-3 text-[14px] font-semibold"
+              >
+                {repair === 'busy' && <SpinnerIcon className="spin h-[16px] w-[16px]" />}
+                <span className="min-w-0 wrap-anywhere">{t('repairApp')}</span>
+              </button>
+            )}
             {fix && (
               <button
                 type="button"
@@ -166,12 +209,14 @@ export default function ControlPanel({ dpiStatus, onStatusChange, onSupport }) {
             <button
               type="button"
               onClick={onClick}
-              disabled={loading}
-              aria-busy={loading}
+              disabled={loading || starting || repair === 'busy'}
+              aria-busy={loading || starting}
               data-tour="power"
-              className={`btn w-full max-w-xs rounded-[var(--radius)] px-5 py-3.5 text-[15px] font-semibold ${active ? 'btn-danger' : 'btn-state'}`}
+              // Stop is an everyday choice, not an alarm: a red button while
+              // everything worked read as an error.
+              className={`btn w-full max-w-xs rounded-[var(--radius)] px-5 py-3.5 text-[15px] font-semibold ${active ? 'btn-ghost' : 'btn-state'}`}
             >
-              {loading
+              {loading || starting
                 ? <SpinnerIcon className="spin h-[18px] w-[18px]" />
                 : <PowerIcon className="h-[18px] w-[18px]" />}
               <span className="min-w-0 wrap-anywhere">{label}</span>

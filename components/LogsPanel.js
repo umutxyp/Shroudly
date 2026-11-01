@@ -2,7 +2,7 @@
 
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
-import { CheckIcon, CopyIcon, DownloadIcon, LogsIcon, TrashIcon } from './icons';
+import { CheckIcon, CopyIcon, DownloadIcon, LogsIcon } from './icons';
 import { localizeLog } from './logText';
 
 const LEVEL = {
@@ -51,14 +51,6 @@ export default function LogsPanel() {
     const el = listRef.current;
     if (el && stickToBottom.current) el.scrollTop = el.scrollHeight;
   }, [logs, filter]);
-
-  const clear = async () => {
-    if (typeof window === 'undefined' || !window.electron?.clearLogs) return;
-    try {
-      await window.electron.clearLogs();
-      setLogs(await window.electron.getLogs());
-    } catch { setLogs([]); }
-  };
 
   // A short version of the log as the background process wrote it (English,
   // with times and levels) and a header: what a report needs, whatever
@@ -169,15 +161,6 @@ export default function LogsPanel() {
           >
             {saved === 'saved' ? <CheckIcon className="h-3.5 w-3.5" /> : <DownloadIcon className="h-3.5 w-3.5" />}
             <span aria-live="polite">{saved === 'saved' ? t('logsSaved') : saved === 'failed' ? t('logsSaveFailed') : t('saveLogs')}</span>
-          </button>
-          <button
-            type="button"
-            onClick={clear}
-            disabled={logs.length === 0}
-            className="btn btn-ghost rounded-full px-3 py-1.5 text-[12px] font-medium"
-          >
-            <TrashIcon className="h-3.5 w-3.5" />
-            <span>{t('clearLogs')}</span>
           </button>
         </div>
       </div>

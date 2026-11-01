@@ -12,17 +12,18 @@
 
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
-import { PowerIcon, GlobeIcon, SearchIcon, ShieldCheckIcon, LogsIcon, CloseIcon } from './icons';
+import { PowerIcon, SearchIcon, ShieldCheckIcon, LogsIcon, CloseIcon } from './icons';
 
 const SEEN_KEY = 'shroudly_onboarded';
 const PAD = 10;         // breathing room around the highlighted control
 const GAP = 22;         // between the highlight and the card, arrow included
 const ARROW = 9;        // half-width of the pointer
 
+/* Which sites go through Shroudly is no longer a step: every site does, and
+ * the choice lives under Settings → "More settings", for someone helping. */
 const STEPS = [
   { tab: 'control',  target: null,              icon: ShieldCheckIcon, title: 'obTitle1', body: 'obBody1' },
   { tab: 'control',  target: '[data-tour="power"]',    icon: PowerIcon,  title: 'obTitle2', body: 'obBody2' },
-  { tab: 'settings', target: '[data-tour="routing"]',  icon: GlobeIcon,  title: 'obTitle3', body: 'obBody3' },
   { tab: 'settings', target: '[data-tour="sitetest"]', icon: SearchIcon, title: 'obTitle4', body: 'obBody4' },
   { tab: 'logs',     target: '[data-tour="nav-logs"]', icon: LogsIcon,   title: 'obTitle5', body: 'obBody5' },
 ];
@@ -43,16 +44,21 @@ export default function Onboarding({ onNavigate }) {
   const [i, setI] = useState(0);
   const [rect, setRect] = useState(null);
   const cardRef = useRef(null);
+  const bodyRef = useRef(null);
   const [cardH, setCardH] = useState(180);
+  const [frameH, setFrameH] = useState(120);   // the card without its text
 
   useEffect(() => {
     try { if (!localStorage.getItem(SEEN_KEY)) setOpen(true); } catch {}
   }, []);
 
+  // Done, or closed at any step: back on the Protection screen, at its
+  // button, not left on Logs or halfway down Settings.
   const close = useCallback(() => {
     setOpen(false);
     try { localStorage.setItem(SEEN_KEY, '1'); } catch {}
-  }, []);
+    if (typeof onNavigate === 'function') onNavigate('control');
+  }, [onNavigate]);
 
   const step = STEPS[i];
 
@@ -91,8 +97,15 @@ export default function Onboarding({ onNavigate }) {
     return () => { clearInterval(id); window.removeEventListener('resize', onResize); };
   }, [open, i, step]);
 
+  // The card's whole height, also while its text is held shorter (below):
+  // everything around the text, plus all of the text.
   useLayoutEffect(() => {
-    if (cardRef.current) setCardH(cardRef.current.offsetHeight);
+    const card = cardRef.current;
+    const body = bodyRef.current;
+    if (!card || !body) return;
+    const frame = card.offsetHeight - body.clientHeight;
+    setFrameH(frame);
+    setCardH(frame + body.scrollHeight);
   }, [i, open, rect]);
 
   useEffect(() => {
@@ -129,14 +142,21 @@ export default function Onboarding({ onNavigate }) {
 
   // Sit clear of the highlight, on whichever side has room, and point at it.
   let cardTop = 0;
+  let cardMax = null;           // a height the card's body scrolls within
   let centred = false;
   let arrowUp = false;          // the pointer sits on the card's top edge
   let arrowX = null;            // where along that edge, in px from the card's left
   if (hole) {
     const cardW = Math.min(352, vw - 32);
     const below = hole.top + hole.height + GAP;
-    if (below + cardH + 16 <= vh) { cardTop = below; arrowUp = true; }
-    else { cardTop = Math.max(16, hole.top - GAP - cardH); arrowUp = false; }
+    const roomBelow = vh - 16 - below;
+    const roomAbove = hole.top - GAP - 16;
+    if (cardH <= roomBelow) { cardTop = below; arrowUp = true; }
+    else if (cardH <= roomAbove) { cardTop = hole.top - GAP - cardH; }
+    // Room on neither side (a small window, large text): the side with more,
+    // the card's text scrolling, and never over the control it points at.
+    else if (roomBelow >= roomAbove) { cardTop = below; arrowUp = true; cardMax = roomBelow; }
+    else { cardTop = 16; cardMax = roomAbove; }
     const cardLeft = (vw - cardW) / 2;
     const targetCx = hole.left + hole.width / 2;
     arrowX = Math.max(18, Math.min(cardW - 18, targetCx - cardLeft));
@@ -211,7 +231,8 @@ export default function Onboarding({ onNavigate }) {
         <h2 className="mt-2.5 text-[16px] font-semibold leading-snug wrap-anywhere" style={{ color: 'var(--text)' }}>
           {t(step.title)}
         </h2>
-        <p className="mt-1.5 text-[12.5px] leading-relaxed wrap-anywhere" style={{ color: 'var(--text-dim)' }}>
+        <p ref={bodyRef} className="mt-1.5 overflow-y-auto text-[12.5px] leading-relaxed wrap-anywhere"
+           style={{ color: 'var(--text-dim)', maxHeight: cardMax != null ? Math.max(40, cardMax - frameH) : undefined }}>
           {stepBody(step)}
         </p>
 

@@ -779,8 +779,21 @@ async function createWindow({ show = true, minimised = false, quiet = false } = 
   } else {
     const indexPath = path.join(__dirname, '..', 'out', 'index.html');
     if (!fs.existsSync(indexPath)) {
-      const { dialog } = require('electron');
-      dialog.showErrorBox('Build Required', 'Build files not found.\n\nRun: npm run build');
+      if (isDev) {
+        dialog.showErrorBox('Build Required', 'Build files not found.\n\nRun: npm run build');
+      } else {
+        // An installed copy with its window's files gone (an update cut
+        // short, an antivirus): said in the user's language, with the way
+        // out, as Settings → Repair says it. It told users to "Run: npm run
+        // build", in English.
+        const s = tr();
+        const r = await dialog.showMessageBox({
+          type: 'error', noLink: true, defaultId: 0, cancelId: 1,
+          message: fillIn(s.repairFilesMissing, { files: 'index.html' }),
+          buttons: [s.repairDownload, s.trayQuit],
+        }).catch(() => ({ response: 1 }));
+        if (r.response === 0) await shell.openExternal('https://github.com/umutxyp/Shroudly/releases/latest').catch(() => {});
+      }
       app.quit();
       return;
     }
@@ -839,7 +852,13 @@ async function createWindow({ show = true, minimised = false, quiet = false } = 
     if (!windowAlive()) setDockIcon(false);
   });
 
+  /* Closing the window (its X, Cmd+W) by the user. "Keep running in the
+   * tray" on: the window goes, Shroudly stays. Off: Shroudly quits, as the
+   * switch says; it used to stay all the same, the switch changing nothing
+   * but the window at login. The window Shroudly closes by itself when
+   * unused (releaseWindow) is destroyed, which never comes here. */
   win.on('close', (e) => {
+    if (!app.isQuitting && !store.get('minimizeToTray', true)) { shutdownAndQuit(); return; }
     if (!app.isQuitting && store.get('minimizeToTray', true)) {
       e.preventDefault();
       if (!canLeave()) { win.minimize(); return; }
@@ -933,10 +952,16 @@ if (process.platform === 'win32') {
   }, 5000).unref();
 }
 
+/* The last start, by the user or by itself, failed (not an antivirus's
+ * doing: that has its own state): the window says so, with Repair, until a
+ * start works or the user stops protection (dpi:status failed). */
+let lastStartFailed = false;
+
 async function safeStart({ user = false } = {}) {
   if (user) store.set(PROTECTION_KEY, true);
   try {
     const r = await engine.start();
+    lastStartFailed = false;
     broadcastStatus(true);
     // Started, but browsers are not going through it yet: said so, not "on".
     const routed = !notRouting();
@@ -956,13 +981,14 @@ async function safeStart({ user = false } = {}) {
   } catch (e) {
     // An antivirus block has its own line already (securityBlocked).
     if (e.code !== 'security_blocked') addLog('error', `Start failed: ${e.message}`);
+    lastStartFailed = e.code !== 'security_blocked';
     broadcastStatus(false);
     return { success: false, error: e.message, code: e.code || null };
   }
 }
 
 async function safeStop({ user = false } = {}) {
-  if (user) store.set(PROTECTION_KEY, false);
+  if (user) { store.set(PROTECTION_KEY, false); lastStartFailed = false; }
   // Nothing of Roblox's is stopped or started once protection is going off.
   robloxWatch.halt();
   // A settings change still waiting to be applied belongs to the session
@@ -1597,6 +1623,16 @@ ipcMain.handle('advanced:available', () => ({
   active: advanced ? advanced.active : false,
 }));
 ipcMain.handle('advanced:start', async () => {
+  // Advanced mode is part of protection. Asked for with protection off (a
+  // notice left from before a Stop), protection starts first, as wanted from
+  // now on; it ran alone while the window said "Not protected". Not the
+  // user's Start itself: that could bring Advanced mode back on its own
+  // while it is being started here.
+  if (engine && !engine.isActive()) {
+    store.set(PROTECTION_KEY, true);
+    const s = await safeStart();
+    if (!s.success) return { success: false, code: s.code === 'security_blocked' ? 'security_blocked' : 'start_failed' };
+  }
   const r = await startAdvanced();
   if (autopilot && r && r.success) autopilot.userSet('advancedMode', true);
   // Declined at a prompt the user started: the autopilot does not ask again.
@@ -1662,6 +1698,14 @@ ipcMain.handle('app:moveToApplications', () => {
 });
 ipcMain.handle('dpi:status', () => ({
   active: engine ? engine.isActive() : false,
+  // On its way up (the start at launch, after an update, a start under way,
+  // a restart): "Starting…", not a red "Not protected" with a Start button.
+  starting: !!engine && !engine.isActive() && engineComing(),
+  // Meant to be on, and the last start failed: said, with Repair, in place
+  // of a toast with the system's error that was gone in six seconds, and
+  // of nothing at all for a start at login (protection-keeper.js tries
+  // again meanwhile).
+  failed: lastStartFailed && !!engine && !engine.isActive() && !engineComing() && protectionWanted(),
   stats: engine ? engine.getStats() : {},
   // An antivirus took or refused the engine: the window says so.
   blocked: engineBlocked(),
@@ -1807,7 +1851,7 @@ function patchDiscordSync(url, files) {
       if (r === 'foreign') foreign = true;
     } catch (e) {
       if (e.code === 'EPERM' || e.code === 'EACCES') denied.push(v);
-      else failed.push({ v, message: e.message });
+      else failed.push({ v, file, message: e.message });
     }
   }
   noteDiscordLine(files);
@@ -1888,7 +1932,11 @@ async function applyDiscordMode(on, { interactive = true } = {}) {
     discordState.lockedReason = null;
   }
   discordState.foreign = r.foreign;
-  discordState.editFailed = r.failed.length ? `"${DiscordApp.KEY}": "${url || ''}"` : null;
+  // What to do by hand, in which file: add our line when turning on, take
+  // it out when turning off (it said "add" with an empty address then).
+  discordState.editFailed = r.failed.length
+    ? { on: !!url, line: `"${DiscordApp.KEY}": "${url || ''}"`, key: DiscordApp.KEY, files: r.failed.map((f) => f.file) }
+    : null;
   discordState.pendingOn = (r.denied.length || r.failed.length) ? on : null;
   if (r.denied.length || r.failed.length) {
     // Turning off must not leave Discord pointed at a relay that is gone, so
@@ -2644,8 +2692,11 @@ if (process.platform === 'win32') {
 let winhttpGone = null;   // the proxy list found gone, until it is asked about
 let winhttpTold = false;
 const fillIn = (text, params) => String(text || '').replace(/\{(\w+)\}/g, (m, k) => (params[k] != null ? String(params[k]) : m));
-async function checkWinHttp() {
-  if (process.platform !== 'win32' || winhttpTold) return;
+// again: Settings → Repair, which looks again even after "Later".
+async function checkWinHttp({ again = false } = {}) {
+  if (process.platform !== 'win32') return;
+  if (again) { winhttpTold = false; try { store.delete('winhttpLater'); } catch {} }
+  if (winhttpTold) return;
   const list = await WinHttp.read();
   const gone = list ? WinHttp.goneList(list, (port) => ProcNet.listeningSync(port)) : null;
   if (!gone) return;
@@ -2676,9 +2727,21 @@ async function offerWinHttpReset() {
     });
   } finally { modalOpen--; }
   if (r.response !== 0) { try { store.set('winhttpLater', gone); } catch {} return; }
+  await clearWinHttp();
+}
+async function clearWinHttp() {
   const ok = await WinHttp.reset();
   addLog(ok ? 'success' : 'warning', ok ? "Windows' WinHTTP proxy cleared" : "Windows' WinHTTP proxy could not be cleared (no administrator's permission)");
+  return ok;
 }
+// The window's line about it has the button its words promise ("Shroudly
+// can clear it"): after "Later", or where no dialog was shown, it was the
+// only thing left, and it had none.
+ipcMain.handle('winhttp:clear', async () => {
+  if (process.platform !== 'win32') return { ok: false };
+  winhttpGone = null;
+  return { ok: await clearWinHttp() };
+});
 if (process.platform === 'win32') {
   app.whenReady().then(() => {
     setTimeout(() => { checkWinHttp().catch(() => {}); }, 20000);
@@ -3037,7 +3100,7 @@ ipcMain.handle('app:repair', () => Repair.repair({
     adblockList.lastTry = -Infinity;
     await ensureAdblock();
   },
-  winHttp: () => (process.platform === 'win32' ? checkWinHttp() : null),
+  winHttp: () => (process.platform === 'win32' ? checkWinHttp({ again: true }) : null),
   log: addLog,
 }));
 ipcMain.handle('app:resetSettings', () => Repair.resetSettings({
@@ -3064,7 +3127,6 @@ ipcMain.handle('logs:get', () => systemLogs);
 ipcMain.handle('logs:copy', () => copyLogs());
 ipcMain.handle('clipboard:write', (e, text) => typeof text === 'string' && text.length <= 300 && toClipboard(text, clipboard));
 ipcMain.handle('logs:save', () => saveLogs());
-ipcMain.handle('logs:clear', () => { systemLogs = []; addLog('info', 'Logs cleared'); return true; });
 
 ipcMain.handle('net:stats', async () => {
   const s = engine ? engine.getStats() : {};
@@ -3074,7 +3136,9 @@ ipcMain.handle('net:stats', async () => {
     bytesUp: s.bytesUp || 0,
     bytesDown: s.bytesDown || 0,
     desync: s.desync || 0,
-    tlsSeen: s.tlsSeen || 0,
+    // The ad blocker's count (engine-manager.js): the Stats tab shows it
+    // once there is one; it was left out here, so the tile never came.
+    adsBlocked: s.adsBlocked || 0,
     uptime: s.uptime || 0,
     sampledAt: s.sampledAt || 0,
   };

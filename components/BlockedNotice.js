@@ -55,18 +55,6 @@ function Actions({ children }) {
  * the antivirus nor the folder. Where it may be something else ("may"), it
  * says so. */
 function SecurityNotice({ info, t, onClose, closeLabel }) {
-  const [copied, setCopied] = useState(false);
-  useEffect(() => {
-    if (!copied) return undefined;
-    const id = setTimeout(() => setCopied(false), 2000);
-    return () => clearTimeout(id);
-  }, [copied]);
-  const copy = async () => {
-    let ok = false;
-    try { ok = !!(await window.electron?.copyText?.(info.folder)); } catch {}
-    if (!ok) { try { await navigator.clipboard.writeText(info.folder); ok = true; } catch {} }
-    if (ok) setCopied(true);
-  };
   const body = info.part === 'engine'
     ? t(info.certain ? 'securityEngineBody' : 'securityEngineMaybeBody')
     : info.kind === 'driver' ? t('securityDriverBody', { code: info.win32 ?? '?' }) : t('securityAdvancedBody');
@@ -77,20 +65,42 @@ function SecurityNotice({ info, t, onClose, closeLabel }) {
             onClose={onClose} closeLabel={closeLabel}>
       {info.folder && (
         <Actions>
-          <button type="button" onClick={copy}
-                  className="btn btn-warn inline-flex items-center gap-1.5 rounded-[8px] px-3 py-1.5 text-[12.5px] font-semibold">
-            {copied ? <CheckIcon className="h-3.5 w-3.5" /> : <CopyIcon className="h-3.5 w-3.5" />}
-            <span>{t(copied ? 'securityFolderCopied' : 'securityCopyFolder')}</span>
-          </button>
+          <CopyButton text={info.folder} label={t('securityCopyFolder')} doneLabel={t('securityFolderCopied')} tone="btn-warn" />
         </Actions>
       )}
     </Banner>
   );
 }
 
+/* Copies a short text (a folder, an address) when pressed, and says so for
+ * a moment. */
+function CopyButton({ text, label, doneLabel, tone = 'btn-ghost' }) {
+  const [copied, setCopied] = useState(false);
+  useEffect(() => {
+    if (!copied) return undefined;
+    const id = setTimeout(() => setCopied(false), 2000);
+    return () => clearTimeout(id);
+  }, [copied]);
+  const copy = async () => {
+    let ok = false;
+    try { ok = !!(await window.electron?.copyText?.(text)); } catch {}
+    if (!ok) { try { await navigator.clipboard.writeText(text); ok = true; } catch {} }
+    if (ok) setCopied(true);
+  };
+  return (
+    <button type="button" onClick={copy}
+            className={`btn ${tone} inline-flex items-center gap-1.5 rounded-[8px] px-3 py-1.5 text-[12.5px] font-semibold`}>
+      {copied ? <CheckIcon className="h-3.5 w-3.5" /> : <CopyIcon className="h-3.5 w-3.5" />}
+      <span>{copied ? doneLabel : label}</span>
+    </button>
+  );
+}
+
 /* Dismissals that should survive a restart. Storage can be unavailable. */
 function remembered(key) { try { return localStorage.getItem(key) === '1'; } catch { return false; } }
 function remember(key) { try { localStorage.setItem(key, '1'); } catch {} }
+
+const ISSUES_URL = 'https://github.com/umutxyp/Shroudly/issues/new';
 
 // The lines about a Roblox Studio around Shroudly (shown from the apps state).
 const STUDIO_LINES = ['autoStudioReopen', 'autoStudioParent', 'autoStudioAgain'];
@@ -120,6 +130,7 @@ export default function BlockedNotice({ onNavigate, active = false, proxyInPanel
   const [advice, setAdvice] = useState(null);
   const [adv, setAdv] = useState({ available: false, active: false });
   const [hidden, setHidden] = useState({});   // banners closed this session
+  const [logSaved, setLogSaved] = useState(false);
   const hide = (k) => setHidden((h) => ({ ...h, [k]: true }));
   // A line of the autopilot's the user closed stays closed in the next
   // window too (the window is closed for real when it goes to the tray).
@@ -172,7 +183,7 @@ export default function BlockedNotice({ onNavigate, active = false, proxyInPanel
 
   useEffect(() => {
     if (typeof window === 'undefined' || !window.electron?.onSiteBlocked) return undefined;
-    window.electron.onSiteBlocked(({ host: h, asked }) => { setHost(h); setHostAsked(!!asked); setHostAt(Date.now()); refreshAdv(); });
+    window.electron.onSiteBlocked(({ host: h, asked }) => { setHost(h); setLogSaved(false); setHostAsked(!!asked); setHostAt(Date.now()); refreshAdv(); });
     const offAdv = window.electron.onAdvancedState?.(() => refreshAdv());
     window.electron.onNeedRestart?.(({ apps }) => { setRestartApps(apps); refreshDiscord(); });
     window.electron.onDnsAutoEnabled?.(({ host: h }) => setDnsAuto(h));
@@ -228,6 +239,41 @@ export default function BlockedNotice({ onNavigate, active = false, proxyInPanel
     return <SecurityNotice info={security} t={t} onClose={() => hide(`security:${security.at}`)} closeLabel={closeLabel} />;
   }
 
+  /* The system proxy is what routes browsers and most programs: when it is
+   * not in place, nothing else here matters, so this comes first (after the
+   * engine taken by an antivirus only): Discord's and the apps' banners
+   * hid it. Which banner, and its button, is decided in proxyNotice.js.
+   * While browsers are not going through Shroudly it stays until that is
+   * fixed: closing it left a green "Protected" with nothing to say
+   * otherwise. On the Protection panel the panel itself says it, under its
+   * status, and nothing further down here is shown until it is fixed. An
+   * address to set by hand (Linux desktops without a proxy setting) is one
+   * press from the clipboard. */
+  const pn = proxyNotice(proxy, { active, recovery, advanced: adv });
+  if (pn && pn.notRouting && proxyInPanel) return null;
+  if (pn && (pn.notRouting || !hidden[pn.id])) {
+    const a = pn.action ? PROXY_ACTIONS[pn.action] : null;
+    const go = async () => {
+      const r = await a.run(pn);
+      if (r && r.ok && pn.action === 'admin') setProxy({ ...proxy, ok: true });
+      if (r && r.ok && pn.action === 'recover') setRecovery(null);
+    };
+    return (
+      <Banner Icon={pn.icon === 'info' ? InfoIcon : ShieldAlertIcon} title={pn.title ? t(pn.title) : null} body={t(pn.body, pn.params)}
+              onClose={pn.notRouting ? null : () => hide(pn.id)} closeLabel={closeLabel}>
+        {(a || pn.params?.pac) && (
+          <Actions>
+            {a && (
+              <button type="button" disabled={busy} onClick={() => run(go)}
+                      className="btn btn-primary rounded-[8px] px-3 py-1.5 text-[12.5px] font-semibold">{t(a.label)}</button>
+            )}
+            {pn.params?.pac && pn.action !== 'copyPac' && <CopyButton text={pn.params.pac} label={t('copyAddress')} doneLabel={t('supportCopied')} />}
+          </Actions>
+        )}
+      </Banner>
+    );
+  }
+
   /* macOS, run from its disk image or Downloads: starting at login and
    * updates need it in Applications. One button moves it there, and it
    * starts again from there by itself. */
@@ -254,9 +300,9 @@ export default function BlockedNotice({ onNavigate, active = false, proxyInPanel
 
   /* Discord app mode, most urgent first: the change could not be made, then
    * the change is made but the open Discord has not picked it up. */
-  if (discord?.needsPermission) {
+  if (discord?.needsPermission && !hidden.discordPermission) {
     return (
-      <Banner Icon={ShieldAlertIcon} body={t('discordPermission')}>
+      <Banner Icon={ShieldAlertIcon} body={t('discordPermission')} onClose={() => hide('discordPermission')} closeLabel={closeLabel}>
         <Actions>
           <button type="button" onClick={discordRetry} disabled={busy}
                   className="btn btn-warn rounded-[8px] px-3 py-1.5 text-[12.5px] font-semibold">{t('discordPermissionBtn')}</button>
@@ -264,12 +310,12 @@ export default function BlockedNotice({ onNavigate, active = false, proxyInPanel
       </Banner>
     );
   }
-  if (discord?.locked) {
+  if (discord?.locked && !hidden.discordLocked) {
     const body = discord.lockedReason === 'running' ? t('discordLockedRunning')
       : discord.lockedReason === 'protected' ? t('discordLockedProtected')
         : t('discordLocked');
     return (
-      <Banner Icon={ShieldAlertIcon} body={body}>
+      <Banner Icon={ShieldAlertIcon} body={body} onClose={() => hide('discordLocked')} closeLabel={closeLabel}>
         <Actions>
           {/* The messages say "click Try again": the button says so too. */}
           <button type="button" onClick={discordRetry} disabled={busy}
@@ -278,8 +324,22 @@ export default function BlockedNotice({ onNavigate, active = false, proxyInPanel
       </Banner>
     );
   }
-  if (discord?.editFailed) {
-    return <Banner Icon={ShieldAlertIcon} body={t('discordEditFailed', { line: discord.editFailed })} />;
+  /* Discord's settings file could not be written (damaged, in use, a full
+   * disk): which file, and what to do in it by hand, the right way round
+   * (turning off, the line is taken out), and Try again. */
+  const edit = discord?.editFailed;
+  if (edit && typeof edit === 'object' && !hidden.discordEdit) {
+    const file = (edit.files || []).join(', ');
+    return (
+      <Banner Icon={ShieldAlertIcon}
+              body={edit.on ? t('discordEditFailed', { line: edit.line, file }) : t('discordEditFailedOff', { key: edit.key, file })}
+              onClose={() => hide('discordEdit')} closeLabel={closeLabel}>
+        <Actions>
+          <button type="button" onClick={discordRetry} disabled={busy}
+                  className="btn btn-warn rounded-[8px] px-3 py-1.5 text-[12.5px] font-semibold">{t('discordTryAgain')}</button>
+        </Actions>
+      </Banner>
+    );
   }
 
   /* Games and apps mode: a proxy of the user's own in the way, a change that
@@ -290,35 +350,6 @@ export default function BlockedNotice({ onNavigate, active = false, proxyInPanel
   if (apps?.failed && !hidden.appsFailed) {
     return <Banner Icon={ShieldAlertIcon} body={t('appFailed')} onClose={() => hide('appsFailed')} closeLabel={closeLabel} />;
   }
-  /* The system proxy is what routes browsers and most programs: when it is
-   * not in place, nothing else here matters, so this comes first. Which
-   * banner, and its button, is decided in proxyNotice.js. While browsers
-   * are not going through Shroudly it stays until that is fixed: closing it
-   * left a green "Protected" with nothing to say otherwise. On the
-   * Protection panel the panel itself says it, under its status, and
-   * nothing further down here is shown until it is fixed. */
-  const pn = proxyNotice(proxy, { active, recovery, advanced: adv });
-  if (pn && pn.notRouting && proxyInPanel) return null;
-  if (pn && (pn.notRouting || !hidden[pn.id])) {
-    const a = pn.action ? PROXY_ACTIONS[pn.action] : null;
-    const go = async () => {
-      const r = await a.run(pn);
-      if (r && r.ok && pn.action === 'admin') setProxy({ ...proxy, ok: true });
-      if (r && r.ok && pn.action === 'recover') setRecovery(null);
-    };
-    return (
-      <Banner Icon={pn.icon === 'info' ? InfoIcon : ShieldAlertIcon} title={pn.title ? t(pn.title) : null} body={t(pn.body, pn.params)}
-              onClose={pn.notRouting ? null : () => hide(pn.id)} closeLabel={closeLabel}>
-        {a && (
-          <Actions>
-            <button type="button" disabled={busy} onClick={() => run(go)}
-                    className="btn btn-primary rounded-[8px] px-3 py-1.5 text-[12.5px] font-semibold">{t(a.label)}</button>
-          </Actions>
-        )}
-      </Banner>
-    );
-  }
-
   /* Advanced mode blocked by an antivirus: everything else works, so after
    * the system proxy's banner. */
   if (security && security.part === 'advanced' && !hidden[`security:${security.at}`]) {
@@ -366,13 +397,20 @@ export default function BlockedNotice({ onNavigate, active = false, proxyInPanel
     && !(['autoAdvancedOn', 'autoAroundOn', 'autoAroundOnAny'].includes(notice.id) && !adv.active) && !hostNewer;
   if (noticeShown) {
     const offer = advNotice && adv.available && !adv.active;
+    // Windows' leftover proxy: "Shroudly can clear it" (Windows asks for an
+    // administrator), also after "Later" in its dialog.
+    const winhttp = notice.id === 'autoWinhttpDead';
+    const clearWinHttp = () => run(async () => {
+      const r = await window.electron?.clearWinHttp?.();
+      if (r && r.ok) hideNotice(notice);
+    });
     return (
-      <Banner tone="accent" Icon={offer ? ShieldAlertIcon : InfoIcon} body={t(notice.id, notice.params || {})}
+      <Banner tone="accent" Icon={offer || winhttp ? ShieldAlertIcon : InfoIcon} body={t(notice.id, notice.params || {})}
               onClose={() => hideNotice(notice)} closeLabel={closeLabel}>
-        {offer && (
+        {(offer || winhttp) && (
           <Actions>
-            <button type="button" onClick={startAdvanced} disabled={busy}
-                    className="btn btn-primary rounded-[8px] px-3 py-1.5 text-[12.5px] font-semibold">{t('tryAdvanced')}</button>
+            <button type="button" onClick={offer ? startAdvanced : clearWinHttp} disabled={busy}
+                    className="btn btn-primary rounded-[8px] px-3 py-1.5 text-[12.5px] font-semibold">{t(offer ? 'tryAdvanced' : 'winhttpReset')}</button>
           </Actions>
         )}
       </Banner>
@@ -409,6 +447,11 @@ export default function BlockedNotice({ onNavigate, active = false, proxyInPanel
    * one click away where it can still be turned on, else what is left. */
   if (host && !hostAsked) {
     const offer = advanced && !adv.active;
+    // The whole log to a file, shown in the file manager (main.js saveLogs).
+    const saveLog = () => run(async () => {
+      const r = await window.electron?.saveLogs?.();
+      if (r && r.ok) setLogSaved(true);
+    });
     return (
       <Banner Icon={ShieldAlertIcon} title={t('blockedNoticeTitle', { host })}
               body={advanced ? null : t('blockedNoticeNoAdvanced')}
@@ -418,11 +461,14 @@ export default function BlockedNotice({ onNavigate, active = false, proxyInPanel
             <button type="button" onClick={startAdvanced} disabled={busy}
                     className="btn btn-primary rounded-[8px] px-3 py-1.5 text-[12.5px] font-semibold">{t('tryAdvanced')}</button>
           ) : (
-            <button type="button"
-                    onClick={() => { if (typeof onNavigate === 'function') onNavigate('logs'); setHost(null); }}
-                    className="btn btn-primary rounded-[8px] px-3 py-1.5 text-[12.5px] font-semibold">
-              {t('blockedNoticeOpenLogs')}
-            </button>
+            <>
+              <button type="button" onClick={saveLog} disabled={busy}
+                      className="btn btn-primary rounded-[8px] px-3 py-1.5 text-[12.5px] font-semibold">
+                {t(logSaved ? 'logsSaved' : 'saveLogs')}
+              </button>
+              <a href={ISSUES_URL} target="_blank" rel="noreferrer"
+                 className="btn btn-ghost rounded-[8px] px-3 py-1.5 text-[12.5px] font-semibold">{t('linkIssues')}</a>
+            </>
           )}
         </Actions>
       </Banner>

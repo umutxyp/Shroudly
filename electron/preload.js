@@ -57,7 +57,6 @@ contextBridge.exposeInMainWorld('electron', {
 
   // Logs
   getLogs: () => ipcRenderer.invoke('logs:get'),
-  clearLogs: () => ipcRenderer.invoke('logs:clear'),
   // A short version of the log with its header, to the clipboard; the whole
   // log to a .txt file in Downloads, shown in the file manager (nothing is
   // sent).
@@ -65,6 +64,9 @@ contextBridge.exposeInMainWorld('electron', {
   // A short text the user asked to copy (an account number).
   copyText: (text) => ipcRenderer.invoke('clipboard:write', text),
   saveLogs: () => ipcRenderer.invoke('logs:save'),
+  // Windows: the leftover WinHTTP proxy cleared (Windows asks for an
+  // administrator).
+  clearWinHttp: () => ipcRenderer.invoke('winhttp:clear'),
   // The background process asks for a panel to be shown (e.g. 'logs').
   onNavigate: (cb) => { const h = (e, tab) => cb(tab); ipcRenderer.on('ui:navigate', h); return () => ipcRenderer.removeListener('ui:navigate', h); },
   onNewLog: (cb) => ipcRenderer.on('log:new', (e, log) => cb(log)),

@@ -88,7 +88,7 @@ export const PROXY_ACTIONS = {
   retry: { label: 'proxyTryAgain', run: () => window.electron.proxyReapply() },
   recover: { label: 'proxyRecoverButton', run: () => window.electron.proxyRecoverAsAdmin() },
   advanced: { label: 'advancedTurnOn', run: async () => { const r = await window.electron.startAdvanced(); return { ok: !!(r && r.success) }; } },
-  copyPac: { label: 'proxyCopyAddress', run: async (n) => ({ ok: !!(await window.electron.copyText(n.params.pac)) }) },
+  copyPac: { label: 'copyAddress', run: async (n) => ({ ok: !!(await window.electron.copyText(n.params.pac)) }) },
 };
 
 /* Further down, once nothing more urgent is showing: on XFCE, LXQt and

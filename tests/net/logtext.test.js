@@ -28,6 +28,13 @@ for (const f of fs.readdirSync(path.join(ROOT, 'locales')).filter((x) => x.endsW
 const { localizeLog } = load('components/logText.js');
 
 const LINES = [
+  // Lines that stayed English in the Logs tab (UXD-17), and start at
+  // sign-in that the system refused (UXD-M6).
+  'Autopilot: the network changed; services will be checked again',
+  'Advanced mode was on when protection was stopped; turning it back on',
+  'Advanced mode was on when protection was stopped, but security software blocked it earlier in this session; not started by itself',
+  "Advanced mode was on when protection was stopped, but a game's anti-cheat is running (vgc.exe); not started by itself",
+  "Auto-start: EACCES: permission denied, mkdir '/home/a/.config/autostart'",
   // Protection put back by itself, settings that cannot be written, an
   // error that no longer ends Shroudly, a recovery at start that failed.
   'Protection is meant to be on but is not running: starting it again (try 2)',
