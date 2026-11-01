@@ -399,9 +399,47 @@ static int broadcast_env(void) {
 #endif
 }
 
+#ifdef _WIN32
+/* The arguments in UTF-8, from the wide command line. The C runtime hands
+ * main() its argv in the system's code page (cp1254 for Turkish, cp1252
+ * for English...), which the engine then read as UTF-8: for a user named
+ * Ümit the ad list in C:\Users\Ümit\AppData\... "could not be read" after
+ * every start, and a letter outside that code page (Çağrı on an English
+ * Windows) was lost on the way, so Advanced mode's status file could not be
+ * opened and it did not start. Every file the engine opens from an
+ * argument goes through fopen_utf8 (platform.c). shell32 is loaded only
+ * for this and let go at once, so the engine never links it. NULL: keep
+ * the runtime's argv. */
+static char **utf8_argv(int *argc) {
+  typedef LPWSTR *(WINAPI *argv_fn)(LPCWSTR, int *);
+  HMODULE sh = LoadLibraryW(L"shell32.dll");
+  argv_fn to_argv = sh ? (argv_fn)(void *)GetProcAddress(sh, "CommandLineToArgvW") : NULL;
+  int n = 0;
+  LPWSTR *w = to_argv ? to_argv(GetCommandLineW(), &n) : NULL;
+  char **out = (w && n > 0) ? calloc((size_t)n + 1, sizeof(char *)) : NULL;
+  for (int i = 0; out && i < n; i++) {
+    int len = WideCharToMultiByte(CP_UTF8, 0, w[i], -1, NULL, 0, NULL, NULL);
+    out[i] = len > 0 ? malloc((size_t)len) : NULL;
+    if (!out[i] || !WideCharToMultiByte(CP_UTF8, 0, w[i], -1, out[i], len, NULL, NULL)) {
+      for (int j = 0; j <= i; j++) free(out[j]);
+      free(out);
+      out = NULL;
+    }
+  }
+  if (w) LocalFree(w);
+  if (sh) FreeLibrary(sh);
+  if (out) *argc = n;
+  return out;
+}
+#endif
+
 int main(int argc, char **argv) {
   if (argc > 1 && !strcmp(argv[1], "--watchdog")) return watchdog_main(argc, argv);
   if (argc > 1 && !strcmp(argv[1], "--broadcast-env")) return broadcast_env();
+#ifdef _WIN32
+  char **u = utf8_argv(&argc);
+  if (u) argv = u;
+#endif
   return engine_main(argc, argv, stdin, stdout, 0);
 }
 #endif

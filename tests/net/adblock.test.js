@@ -15,7 +15,11 @@ const { startEngine, sleep, freePort, socks, testServerOptions, suite } = requir
 const { AdblockList, cleanAllow, dechunk } = require('../../electron/adblock');
 
 const t = suite('adblock');
-const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'shroudly-adblock-'));
+// A folder named as a user's may be (W1): letters of the system's code page
+// (Ü, Ç on a Turkish or English Windows) and one outside it (ğ on an English
+// one). The engine is given the list's path as an argument, which Windows'
+// C runtime hands over in that code page: the list "could not be read".
+const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'shroudly-adblock-Ümit Çağrı-'));
 
 /* A hosts list like the real one: enough names for ADBLOCK-CHECK, the ones
  * every ad list lists, and a site that must never be taken. */

@@ -25,7 +25,7 @@ static volatile sig_atomic_t g_signalled = 0;
 
 int sup_redirect_output(const char *status_file) {
 #ifdef _WIN32
-  if (!freopen(status_file, "w", stdout)) return -1;
+  if (!freopen_utf8(status_file, "w", stdout)) return -1;
   if (_dup2(_fileno(stdout), _fileno(stderr)) != 0) return -1;
 #else
   /* The engine runs as root but the path comes from the unprivileged app:
@@ -41,7 +41,7 @@ int sup_redirect_output(const char *status_file) {
 }
 
 static int file_exists(const char *p) {
-  FILE *f = fopen(p, "rb");
+  FILE *f = fopen_utf8(p, "rb");
   if (!f) return 0;
   fclose(f);
   return 1;
@@ -78,7 +78,7 @@ static void *watchdog(void *arg) {
   }
   if (g_teardown) g_teardown();
   if (g_report) g_report();
-  if (g_stop_path[0]) remove(g_stop_path);
+  if (g_stop_path[0]) remove_utf8(g_stop_path);
   printf("{\"type\":\"stopped\"}\n");
   fflush(stdout);
 #ifdef _WIN32

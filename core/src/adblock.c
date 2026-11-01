@@ -333,17 +333,9 @@ void adb_free(adb_list *l) {
   free(l);
 }
 
-static FILE *open_utf8(const char *path) {
-#ifdef _WIN32
-  /* The path as written (UTF-8), not in the system's code page, which has
-   * no letters for most user names. */
-  wchar_t w[2048];
-  if (!MultiByteToWideChar(CP_UTF8, 0, path, -1, w, (int)(sizeof(w) / sizeof(w[0])))) return NULL;
-  return _wfopen(w, L"rb");
-#else
-  return fopen(path, "rb");
-#endif
-}
+/* The path as written (UTF-8), not in the system's code page, which has
+ * no letters for most user names. */
+static FILE *open_utf8(const char *path) { return fopen_utf8(path, "rb"); }
 
 adb_list *adb_load(const char *path, adb_stats *st, const char **why) {
   const char *dummy;
