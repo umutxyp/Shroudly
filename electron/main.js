@@ -1574,6 +1574,16 @@ ipcMain.handle('advanced:available', () => ({
   active: advanced ? advanced.active : false,
 }));
 ipcMain.handle('advanced:start', async () => {
+  // Advanced mode is part of protection. Asked for with protection off (a
+  // notice left from before a Stop), protection starts first, as wanted from
+  // now on; it ran alone while the window said "Not protected". Not the
+  // user's Start itself: that could bring Advanced mode back on its own
+  // while it is being started here.
+  if (engine && !engine.isActive()) {
+    store.set(PROTECTION_KEY, true);
+    const s = await safeStart();
+    if (!s.success) return { success: false, code: s.code === 'security_blocked' ? 'security_blocked' : 'start_failed' };
+  }
   const r = await startAdvanced();
   if (autopilot && r && r.success) autopilot.userSet('advancedMode', true);
   // Declined at a prompt the user started: the autopilot does not ask again.

@@ -56,27 +56,27 @@ function advReasonText(info, t) {
   return info?.reason || t('advancedUnavailable');
 }
 
+/* What went wrong, in words. The system's own error ("WinDivertOpen failed:
+ * error 577") is in the log, for a report, not here. */
 function advErrorMessage(r, t) {
   // The WinDivert driver refused: said with Windows' error code, for a report.
   if (r && r.code === 'security_blocked' && r.kind === 'driver') {
-    return { text: t('securityDriverBody', { code: r.win32 ?? '?' }), detail: null, tone: 'warn' };
+    return { text: t('securityDriverBody', { code: r.win32 ?? '?' }), tone: 'warn' };
   }
   // Ended from outside without a word: an antivirus only may have; what to
   // do, without saying it did.
   if (r && r.code === 'security_blocked' && r.certain === false) {
-    return { text: t('securityAdvancedBody'), detail: null, tone: 'warn' };
+    return { text: t('securityAdvancedBody'), tone: 'warn' };
   }
   const key = r && ADV_ERROR_KEYS[r.code];
-  if (key) {
-    return {
-      text: t(key),
-      detail: r.code === 'start_failed' ? r.error : null,
-      tone: ['declined', 'security_blocked', 'files_missing'].includes(r.code) ? 'warn' : 'danger',
-    };
-  }
-  if (r?.error) return { text: t('advErrorGeneric'), detail: r.error, tone: 'danger' };
-  return { text: t('advErrorGeneric'), detail: null, tone: 'danger' };
+  if (key) return { text: t(key), tone: ['declined', 'security_blocked', 'files_missing'].includes(r.code) ? 'warn' : 'danger' };
+  return { text: t('advErrorGeneric'), tone: 'danger' };
 }
+
+/* No Advanced mode on this system at all (macOS, an unsupported processor
+ * or system): nothing to offer and nothing to say about it. Its files
+ * missing or not built in is said, with what to do. */
+const NO_ADVANCED_HERE = ['mac_unsupported', 'platform_unsupported', 'arch_unsupported'];
 
 function normalizeHost(input) {
   let h = String(input || '').trim();
@@ -318,6 +318,7 @@ export default function SettingsPanel({ active = false }) {
   useEffect(() => { setIsMac(window.electron?.platform === 'darwin'); }, []);
   const [testing, setTesting] = useState(null);       // host being tested
   const [testNote, setTestNote] = useState(null);     // 'needsProtection' | 'noAnswer'
+  const [startingTest, setStartingTest] = useState(false);
   const [probeResult, setProbeResult] = useState(null);
   const [advInfo, setAdvInfo] = useState({ available: false, active: false, reason: null, reasonCode: null });
   const [repairState, setRepairState] = useState(null);   // 'busy' | { missing, flushed, restarted }
@@ -497,13 +498,15 @@ export default function SettingsPanel({ active = false }) {
     || (!isMac && settings.askByItself === false);
   const moreOpen = more ?? moreSet;
 
-  async function runTest() {
+  // started: protection was just started for this test (the window's own
+  // status may not have caught up yet).
+  async function runTest(started = false) {
     const host = normalizeHost(testHost);
     if (!host || testing) return;
     setProbeResult(null);
     setAdvError(null);
     setTestNote(null);
-    if (!active) { setTestNote('needsProtection'); return; }
+    if (!active && !started) { setTestNote('needsProtection'); return; }
     if (typeof window === 'undefined' || !window.electron?.probeHost) return;
     testingRef.current = host;
     setTesting(host);
@@ -515,6 +518,16 @@ export default function SettingsPanel({ active = false }) {
       setTestNote('noAnswer');
     }, PROBE_TIMEOUT_MS);
     try { await window.electron.probeHost(host); } catch {}
+  }
+
+  // Protection off: started from here, and the test then runs by itself.
+  async function startAndTest() {
+    if (!window.electron?.startDPI) return;
+    setStartingTest(true);
+    let ok = false;
+    try { ok = !!(await window.electron.startDPI())?.success; } catch {}
+    setStartingTest(false);
+    if (ok) runTest(true);
   }
 
   async function refreshAdv() {
@@ -606,7 +619,16 @@ export default function SettingsPanel({ active = false }) {
         </form>
 
         {testNote === 'needsProtection' && (
-          <div className="mt-3"><Notice tone="info" Icon={InfoIcon}><p style={{ color: 'var(--text-dim)' }}>{t('testNeedsProtection')}</p></Notice></div>
+          <div className="mt-3">
+            <Notice tone="info" Icon={InfoIcon}>
+              <p style={{ color: 'var(--text-dim)' }}>{t('testNeedsProtection')}</p>
+              <button type="button" onClick={startAndTest} disabled={startingTest}
+                      className="btn btn-primary mt-2.5 rounded-[9px] px-3.5 py-2 text-[13px] font-semibold">
+                {startingTest && <SpinnerIcon className="spin h-4 w-4" />}
+                <span>{startingTest ? t('starting') : t('start')}</span>
+              </button>
+            </Notice>
+          </div>
         )}
         {testNote === 'noAnswer' && (
           <div className="mt-3"><Notice tone="warn" Icon={AlertTriangleIcon}><p style={{ color: 'var(--text-dim)' }}>{t('probeNoAnswer')}</p></Notice></div>
@@ -632,7 +654,7 @@ export default function SettingsPanel({ active = false }) {
             {probeShown.works && probeResult.strategy !== 'none' && (
               <Notice tone="ok" Icon={CheckCircleIcon}>
                 <p style={{ color: 'var(--ok)' }}>
-                  {t('probeWorks', { host: probeResult.host, strategy: probeResult.strategy || '—' })}
+                  {t('probeWorks', { host: probeResult.host })}
                 </p>
               </Notice>
             )}
@@ -669,7 +691,7 @@ export default function SettingsPanel({ active = false }) {
                       </p>
                     </div>
                   )
-                ) : (
+                ) : !NO_ADVANCED_HERE.includes(advInfo.reasonCode) && (
                   <p className="flex items-start gap-1.5 text-[12.5px]" style={{ color: 'var(--text-dim)' }}>
                     <InfoIcon className="mt-[1px] h-3.5 w-3.5" style={{ color: 'var(--text-faint)' }} />
                     <span className="min-w-0">{advReasonText(advInfo, t)}</span>
@@ -685,8 +707,12 @@ export default function SettingsPanel({ active = false }) {
             the test says the site works, and the one mode that helps would
             otherwise never be shown. Not where this system has no Advanced
             mode at all (macOS): a row to say it cannot be had is only one
-            more thing to read (ML-9). */}
-        {!advInfo.active && !['mac_unsupported', 'platform_unsupported'].includes(advInfo.reasonCode) && (
+            more thing to read (ML-9). Not while a result above offers it
+            already (two of the same button) or says the site itself refuses
+            (no mode changes that), nor with protection off: it is part of
+            protection, and the screen would say "Not protected" while it
+            ran. */}
+        {active && !advInfo.active && !probeBlocked && !probeShown.refused && !NO_ADVANCED_HERE.includes(advInfo.reasonCode) && (
           <div className="mt-4 rounded-[var(--radius-sm)] p-3" style={{ background: 'var(--surface-2)', border: '1px solid var(--line)' }}>
             <p className="flex items-center gap-1.5 text-[13.5px] font-semibold" style={{ color: 'var(--text)' }}>
               <ZapIcon className="h-4 w-4" style={{ color: advInfo.available ? 'var(--warn)' : 'var(--text-faint)' }} />
@@ -718,9 +744,6 @@ export default function SettingsPanel({ active = false }) {
           <div className="mt-3">
             <Notice tone={advError.tone} Icon={advError.tone === 'warn' ? AlertTriangleIcon : XCircleIcon}>
               <p style={{ color: advError.tone === 'warn' ? 'var(--warn)' : 'var(--danger)' }}>{advError.text}</p>
-              {advError.detail && (
-                <p className="mono mt-1 text-[11.5px]" dir="auto" style={{ color: 'var(--text-dim)' }}>{advError.detail}</p>
-              )}
             </Notice>
           </div>
         )}

@@ -131,7 +131,7 @@ const CLOUDFLARE_1009 = '<!DOCTYPE html><html><head><title>Access denied | examp
   const { probeView } = require(path.join(dir, 'm.js'));
   fs.rmSync(dir, { recursive: true, force: true });
   const v = (p) => JSON.stringify(probeView(p));
-  t.ok(v({ host: 'a.example', ok: true, strategy: 'tlsrec', service: 'region' }) === '{"refused":true,"works":true,"blocked":false}', 'site test: a refusal page and a network that was got through are both shown');
+  t.ok(v({ host: 'a.example', ok: true, strategy: 'tlsrec', service: 'region' }) === '{"refused":true,"works":false,"blocked":false}', 'site test: a refusal page is shown alone, not beside a green "opens"');
   t.ok(v({ host: 'a.example', ok: true, strategy: 'none', service: 'stall' }) === '{"refused":true,"works":false,"blocked":false}', 'site test: silence after connecting is not shown as working');
   t.ok(v({ host: 'a.example', ok: true, strategy: 'none' }) === '{"refused":false,"works":true,"blocked":false}'
     && v({ host: 'a.example', ok: false }) === '{"refused":false,"works":false,"blocked":true}' && v(null) === '{"refused":false,"works":false,"blocked":false}', 'site test: the plain outcomes as before');
