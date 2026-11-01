@@ -54,7 +54,6 @@ contextBridge.exposeInMainWorld('electron', {
 
   // Logs
   getLogs: () => ipcRenderer.invoke('logs:get'),
-  clearLogs: () => ipcRenderer.invoke('logs:clear'),
   // A short version of the log with its header, to the clipboard; the whole
   // log to a .txt file in Downloads, shown in the file manager (nothing is
   // sent).

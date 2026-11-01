@@ -6,6 +6,9 @@
 
 const EXACT = {
   'DNS server: automatic': 'logDnsServerAuto',
+  'Autopilot: the network changed; services will be checked again': 'logAutoNetworkChanged',
+  'Advanced mode was on when protection was stopped; turning it back on': 'logAdvancedBack',
+  'Advanced mode was on when protection was stopped, but security software blocked it earlier in this session; not started by itself': 'logAdvancedNotBackSecurity',
   "Windows' WinHTTP proxy cleared": 'logWinhttpCleared',
   "Windows' WinHTTP proxy could not be cleared (no administrator's permission)": 'logWinhttpNotCleared',
   'Proxy routing updated': 'logProxyRoutingUpdated',
@@ -47,7 +50,6 @@ const EXACT = {
   'The downloaded Roblox installer was not signed by Roblox, so it was deleted and not started': 'logRobloxUnsigned',
   'Update ready: it waits while Roblox or Discord goes through Shroudly, and installs once they are closed or the computer has not been used for a while': 'logUpdateWaiting',
   'No tray on this desktop: the window is minimised instead of closed': 'logNoTray',
-  'Logs cleared': 'logCleared',
   'Starting protection, as it was left': 'logProtectionStartingAsLeft',
   "Windows' own folders were missing from PATH or not first; Shroudly put them first for itself": 'logWinPathFixed',
   'Games and apps: none of the Flatpak programs Shroudly covers is installed, so there was nothing to point at it': 'logAppsNoFlatpak',
@@ -113,6 +115,8 @@ const PATTERNS = [
   // itself (one line per reason, autopilot.js _notAsked).
   [/^Autopilot: (\S+) could not be checked \((.+)\); tried again later$/, 'logAutoUncheckable', ['host', 'detail']],
   [/^Autopilot: (\S+) is blocked on this network \((.+)\)$/, 'logAutoBlockedOn', ['service', 'detail']],
+  [/^Advanced mode was on when protection was stopped, but a game's anti-cheat is running \((.+)\); not started by itself$/, 'logAdvancedNotBackAntiCheat', ['program']],
+  [/^Auto-start: (.+)$/, 'logAutoStartFailed', ['detail']],
   [/^Autopilot: (\S+) works without Shroudly on this network \((.+)\)$/, 'logAutoWorksDirect', ['host', 'detail']],
   [/^Autopilot: (.+?) needs Advanced mode on this network(?: \(.+?\))?; it was turned off by hand on (.+?), so it is not turned on by itself; turn it on in Settings$/, 'logAutoNeedsAdvOff', ['what', 'date']],
   [/^Autopilot: (.+?) needs Advanced mode on this network(?: \(.+?\))?; it was not allowed on (.+?), so it is not asked for by itself; turn it on in Settings$/, 'logAutoNeedsAdvDeclined', ['what', 'date']],

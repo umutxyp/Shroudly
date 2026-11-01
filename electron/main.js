@@ -3046,7 +3046,6 @@ ipcMain.handle('logs:get', () => systemLogs);
 ipcMain.handle('logs:copy', () => copyLogs());
 ipcMain.handle('clipboard:write', (e, text) => typeof text === 'string' && text.length <= 300 && toClipboard(text, clipboard));
 ipcMain.handle('logs:save', () => saveLogs());
-ipcMain.handle('logs:clear', () => { systemLogs = []; addLog('info', 'Logs cleared'); return true; });
 
 ipcMain.handle('net:stats', async () => {
   const s = engine ? engine.getStats() : {};
