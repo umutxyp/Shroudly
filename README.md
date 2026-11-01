@@ -136,8 +136,8 @@ strategy**:
 | **Decoy (Linux)** | A first segment the server is guaranteed to discard (TCP signature option), so only the filter reads it. No privileges needed. |
 | **HTTP Host scramble** | Rewrites `Host:` casing for plain HTTP. |
 | **Encrypted DNS** | DNS-over-HTTPS over [17 routes from 6 operators](#encrypted-dns-routes); answers pointing at ~180 known block pages are refused. On by default. |
-| **Your own DNS server** | Optional (desktop Settings → DNS server, Android About → Settings → DNS server; [#34](https://github.com/umutxyp/Shroudly/issues/34)): DNS over HTTPS, DNS over TLS, DNS over TCP (for networks that block or forge UDP port 53 but leave TCP alone) or plain DNS, by address or by name. It is asked once before it is used and the answer shown. DoH and DoT go through the engine like any site; a server's name is looked up over the built-in encrypted DNS, never the network's. If it stops answering, the built-in encrypted DNS answers until it is back, and the log says so; with **Only this server** ticked nothing else is ever asked, and lookups fail until it answers. A "server failure" (SERVFAIL) answer, which a validating resolver gives for a name whose DNSSEC signatures are wrong, is taken as the answer and never asked of anyone else. On Android DoH speaks HTTP/1.1 (as the built-in routes there), so a server that accepts only HTTP/2 answers on the desktop only. |
-| **Block ads and trackers** | Optional, off by default (desktop Settings, Android About; not in the Google Play copy, whose policy does not allow blocking other apps' ads). Names on Shroudly's ad and tracker list get 0.0.0.0 / `::` or have their connection ended inside the engine, in every app; nothing is fetched for them. The list is combined every week from [AdGuard DNS filter](https://github.com/AdguardTeam/AdGuardSDNSFilter), [HaGeZi's Multi PRO](https://github.com/hagezi/dns-blocklists), [EasyList and EasyPrivacy](https://easylist.to) and [StevenBlack/hosts](https://github.com/StevenBlack/hosts) ([`scripts/adblock-list/build.js`](scripts/adblock-list/build.js), published as `adblock.txt` on the `site-list` branch, GPL-3.0): about 345 000 names, which cover over 99% of the domains uBlock Origin Lite's lists block, plus the trackers of phones and TVs. A week whose sources fail, or whose result would block a site everyone needs, publishes nothing. It blocks by name, as AdGuard DNS or NextDNS do: what a browser extension does inside a page (hiding empty ad boxes, ads served from the site's own name, such as YouTube's) is out of its reach. The list is downloaded through the engine, checked before use, refreshed weekly; sites can be exempted. Nothing about blocked names is logged or sent. |
+| **Your own DNS server** | Optional (desktop Settings → DNS server, Android Settings → Advanced → DNS server; [#34](https://github.com/umutxyp/Shroudly/issues/34)): DNS over HTTPS, DNS over TLS, DNS over TCP (for networks that block or forge UDP port 53 but leave TCP alone) or plain DNS, by address or by name. It is asked once before it is used and the answer shown. DoH and DoT go through the engine like any site; a server's name is looked up over the built-in encrypted DNS, never the network's. If it stops answering, the built-in encrypted DNS answers until it is back, and the log says so; with **Only this server** ticked nothing else is ever asked, and lookups fail until it answers. A "server failure" (SERVFAIL) answer, which a validating resolver gives for a name whose DNSSEC signatures are wrong, is taken as the answer and never asked of anyone else. On Android DoH speaks HTTP/1.1 (as the built-in routes there), so a server that accepts only HTTP/2 answers on the desktop only. |
+| **Block ads and trackers** | Optional, off by default (desktop Settings, Android Settings; not in the Google Play copy, whose policy does not allow blocking other apps' ads). Names on Shroudly's ad and tracker list get 0.0.0.0 / `::` or have their connection ended inside the engine, in every app; nothing is fetched for them. The list is combined every week from [AdGuard DNS filter](https://github.com/AdguardTeam/AdGuardSDNSFilter), [HaGeZi's Multi PRO](https://github.com/hagezi/dns-blocklists), [EasyList and EasyPrivacy](https://easylist.to) and [StevenBlack/hosts](https://github.com/StevenBlack/hosts) ([`scripts/adblock-list/build.js`](scripts/adblock-list/build.js), published as `adblock.txt` on the `site-list` branch, GPL-3.0): about 345 000 names, which cover over 99% of the domains uBlock Origin Lite's lists block, plus the trackers of phones and TVs. A week whose sources fail, or whose result would block a site everyone needs, publishes nothing. It blocks by name, as AdGuard DNS or NextDNS do: what a browser extension does inside a page (hiding empty ad boxes, ads served from the site's own name, such as YouTube's) is out of its reach. The list is downloaded through the engine, checked before use, refreshed weekly; sites can be exempted. Nothing about blocked names is logged or sent. |
 | **Android settings** | Under About → Settings: the app's language (the phone's, or any of the 31; on Android 13+ the system's per-app language), the accent colour (the desktop's nine, or the logo's blue), the bypass technique (the desktop's list; automatic by default), apps that skip Shroudly (their traffic goes straight out, e.g. a game), or the other way round, only the apps chosen go through Shroudly ([#60](https://github.com/umutxyp/Shroudly/issues/60)); **QUIC off** (apps use TCP, which the techniques get through) and **IPv6 off** (IPv4 only, apps told at once there is no IPv6) for networks that block or slow those down ([#59](https://github.com/umutxyp/Shroudly/issues/59)); starting when the phone starts, and **automation apps** (Tasker, MacroDroid; off by default): a broadcast to `me.codeshare.shroudly` with the action `me.codeshare.shroudly.action.START`, `STOP` or `TOGGLE` turns protection on and off. The screen has a bar with its title and a way back; a setting shows its title (and its value), and what it does is explained once its section's ⓘ is tapped ([#47](https://github.com/umutxyp/Shroudly/issues/47)). |
 | **Android proxy only** | Settings → Mode: instead of the VPN, Shroudly runs as a proxy on `127.0.0.1:10808` (SOCKS5 and HTTP) and leaves Android's one VPN slot to another VPN app. Apps set to use it go through Shroudly (the Wi-Fi network's proxy: host `127.0.0.1`, port `10808`, or an app's own proxy setting); the rest connect as they would without it. No VPN permission is asked for. |
 | **Repair, and Reset all settings** | Desktop Settings → Application ([#46](https://github.com/umutxyp/Shroudly/issues/46)). **Repair** checks Shroudly's own files (the engine, and Advanced mode's where the system has it; one missing or damaged is named, with the way to get it back: installing Shroudly again over itself keeps every setting), forgets the techniques it learned, starts the engine anew and sets the system proxy again, empties the system's DNS cache where that needs no password, fetches the ad and tracker list again and looks at Windows' WinHTTP proxy; your settings stay. **Reset all settings** turns the modes off the way their own switches do (Discord's settings, `HTTPS_PROXY`, the links, the Store apps' exemptions, Advanced mode), puts every setting back to a new install's (the language stays) and restarts the app. ([`electron/repair.js`](electron/repair.js)) |
@@ -164,8 +164,8 @@ phone's own connections.
 - Every app goes through it: browsers, Discord, Roblox and other games, with
   no separate Discord or Games and apps mode needed.
 - A Quick Settings tile turns it on and off (Settings → Quick Settings tile
-  puts it in the panel; on Android 13 and later with one tap); Android's
-  "Always-on VPN" brings it back after a restart.
+  puts it in the panel; on Android 13 and later with one tap). On when the
+  phone restarted or Shroudly was updated, it comes back on by itself.
 - Connections that stay quiet for a long time are kept open: a chat app
   waiting for the next message (Instagram, WhatsApp, Telegram) and push
   notifications keep their connection for up to an hour of silence, where
@@ -185,7 +185,11 @@ phone's own connections.
   on together.
 - It is counted in the live user count exactly like the desktop app: the same
   request, only while protection is on, through the engine, and it can be
-  switched off under About ([Privacy](#privacy)).
+  switched off in Settings ([Privacy](#privacy)).
+- Devices on the phone's hotspot are not covered: Android never sends
+  tethered traffic through a VPN, and Proxy only listens on the phone
+  itself. A computer on the hotspot needs Shroudly of its own (the desktop
+  app).
 
 Building and testing it: [android/README.md](android/README.md).
 
@@ -887,8 +891,7 @@ certificate by [SignPath Foundation](https://signpath.org/).
 - **Privacy:** see [Privacy](#privacy), which also links the privacy policies
   of the services Shroudly talks to. Shroudly sends nothing about you to any
   server; the only things it contacts are listed there, and the one optional
-  report, the anonymous live count, can be turned off in Settings (on Android,
-  under About).
+  report, the anonymous live count, can be turned off in Settings.
 
 The Android app (`Shroudly-<version>-Android.apk`) is signed with the project's
 own key, the same for every version, so an update installs over the previous
@@ -911,7 +914,7 @@ Shroudly does not collect personal data. These are the only things that contact 
 
 - **Live user count** (`shroudly.codeshare.me`): only while protection is on,
   and only if *Count me in the live total* is left on (in Settings on the
-  desktop, under About on Android), it sends a random id that is created fresh
+  desktop and on Android), it sends a random id that is created fresh
   each time protection starts and never stored on the device: the request's
   body is `{"id":"<random id>"}` and nothing else. It travels through the
   protected connection like everything else. The Android app sends the same
@@ -979,7 +982,7 @@ reshaped (their contents are not read or changed), and stay encrypted by the
 apps themselves. The Android app downloads no site list. It contacts only:
 the live user count above, exactly as the desktop does (only while protection
 is on, through the engine, and not at all with *Count me in the live total*
-switched off under About); the encrypted DNS resolvers above (or the DNS
+switched off in Settings); the encrypted DNS resolvers above (or the DNS
 server you chose in Settings), while protection is on; GitHub for update checks, only in the APK from GitHub (not when Google
 Play installed or updates it); and, to find what opens a blocked site, that
 same site (a few TLS handshakes, nothing about you). What worked for which
