@@ -620,7 +620,9 @@ else
 fi
 vpn_up && fail "proxy only brought up a VPN interface"
 grep -q "VPN CONNECTED" <<<"$(sh_ "dumpsys connectivity")" && fail "proxy only: Android shows a VPN"
-listening "$pport" || fail "proxy only: nothing listens on 127.0.0.1:$pport"
+# Looked at for a few seconds: one read of /proc/net/tcp right after the
+# notice check once missed a listener that was there (2.6.48's CI).
+wait_for 10 listening "$pport" || fail "proxy only: nothing listens on 127.0.0.1:$pport (listening now: $(sh_ "cat /proc/net/tcp" | awk '$4 == "0A" {print $2}' | tr '\n' ' '))"
 say "proxy only: on 127.0.0.1:$pport with the VPN consent taken back; no VPN on the phone"
 pc="$(via_connect example.com)"
 # The tunnel is established and the engine delivered a response (a second
