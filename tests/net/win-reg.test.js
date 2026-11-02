@@ -117,6 +117,15 @@ const exitErr = (status) => Object.assign(new Error('Command failed'), { status 
       const all = eng(['query', key, '/s']);
       t.ok(/\\Sub\r?\n\s+List\s+REG_MULTI_SZ\s+a\\0b/.test(all) && /AutoConfigURL\s+REG_SZ/.test(all) && line(reg(['query', `${key}\\Sub`, '/v', 'List']), 'List') === 'REG_MULTI_SZ a\\0b',
         'a key with its subkeys (/s), a list as reg.exe shows one');
+      // Every line ends in "\r\n", as from reg.exe (a text-mode stdout gave
+      // "\r\r\n", which the app's line readers do not match), and a key
+      // reads as the same lines from both.
+      const crlf = (s) => s.length > 0 && !/\r\r|[^\r]\n|^\n|\r(?!\n)/.test(s);
+      const rows = (s) => s.split('\r\n').filter((l) => l.trim());
+      const added = eng(['add', `${key}\\Sub`, '/v', 'Two', '/t', 'REG_SZ', '/d', 'x', '/f']);
+      t.ok(crlf(all) && crlf(eng(['query', key, '/v', 'ByReg'])) && crlf(added)
+        && JSON.stringify(rows(eng(['query', `${key}\\Sub`, '/s']))) === JSON.stringify(rows(reg(['query', `${key}\\Sub`, '/s']))),
+      'lines end in "\\r\\n" as reg.exe\'s do, and a key reads as the same lines from both');
       eng(['delete', key, '/v', 'ByReg', '/f']);
       t.ok(status1(() => eng(['query', key, '/v', 'ByReg'])) === 1 && status1(() => reg(['query', key, '/v', 'ByReg'])) === 1,
         'a value deleted; "not there" is exit 1, as from reg.exe');

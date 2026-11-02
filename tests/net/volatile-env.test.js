@@ -27,6 +27,7 @@ const { ROOT, sleep, suite } = require('./helpers');
 
 const t = suite('volatile-env');
 const APP_ENV = path.join(ROOT, 'electron', 'app-env.js');
+const WIN_REG = path.join(ROOT, 'electron', 'win-reg.js');
 const AppEnv = require(APP_ENV);
 const { MARK, NO_PROXY_VALUE, BROADCAST_NAME } = AppEnv;
 const VOL = 'HKCU\\Volatile Environment';
@@ -76,15 +77,20 @@ function fakeWindows() {
   return { keys, log, spawned, children, exec, spawn, val: (key, name) => { const m = keys.get(key); const n = m && find(m, name); return n ? m.get(n) : null; } };
 }
 
-/* app-env.js loaded afresh with reg.exe and PowerShell replaced by `w`. */
+/* app-env.js loaded afresh with reg.exe and PowerShell replaced by `w`.
+ * win-reg.js too: on Windows app-env.js runs reg.exe through it, and the
+ * one already loaded would run the real reg.exe on this machine. */
 function loadWith(w) {
   const real = { execFileSync: cp.execFileSync, spawn: cp.spawn };
+  const kept = require.cache[WIN_REG];
   cp.execFileSync = (cmd, args) => w.exec(cmd, args);
   cp.spawn = (cmd, args) => w.spawn(cmd, args);
   delete require.cache[APP_ENV];
+  delete require.cache[WIN_REG];
   try { return require(APP_ENV); } finally {
     Object.assign(cp, real);
     delete require.cache[APP_ENV];   // the next require gets the real one
+    if (kept) require.cache[WIN_REG] = kept; else delete require.cache[WIN_REG];
   }
 }
 

@@ -32,6 +32,8 @@ int winreg_main(int argc, char **argv) {
 
 #else
 
+#include <fcntl.h>
+#include <io.h>
 #include <wchar.h>
 
 static wchar_t **g_argv = NULL;
@@ -269,7 +271,7 @@ static int do_add(HKEY root, const wchar_t *sub) {
   LONG rc = p_create(root, sub, 0, NULL, 0, KEY_READ | KEY_WRITE | KEY_WOW64_64KEY, NULL, &k, NULL);
   if (rc != ERROR_SUCCESS) return fail_code(rc);
   int named = has(L"/v"), dflt = has(L"/ve");
-  if (!named && !dflt) { p_close(k); puts("The operation completed successfully."); return 0; }
+  if (!named && !dflt) { p_close(k); out_w(L"The operation completed successfully.\r\n"); return 0; }
   const wchar_t *name = dflt ? L"" : opt(L"/v", NULL);
   const wchar_t *tname = opt(L"/t", NULL);
   const wchar_t *d = opt(L"/d", NULL);
@@ -322,7 +324,7 @@ static int do_add(HKEY root, const wchar_t *sub) {
   }
   p_close(k);
   if (rc != ERROR_SUCCESS) return fail_code(rc);
-  puts("The operation completed successfully.");
+  out_w(L"The operation completed successfully.\r\n");
   return 0;
 }
 
@@ -348,7 +350,7 @@ static int do_delete(HKEY root, const wchar_t *sub) {
     if (rc == ERROR_SUCCESS) rc = p_delkey(root, sub, KEY_WOW64_64KEY, 0);
   }
   if (rc != ERROR_SUCCESS) return fail_code(rc);
-  puts("The operation completed successfully.");
+  out_w(L"The operation completed successfully.\r\n");
   return 0;
 }
 
@@ -372,6 +374,10 @@ int winreg_main(int argc, char **argv) {
   argv_fn to_argv = sh ? (argv_fn)(void *)GetProcAddress(sh, "CommandLineToArgvW") : NULL;
   if (to_argv) g_argv = to_argv(GetCommandLineW(), &g_argc);
   if (!g_argv || g_argc < 4) return fail("Invalid syntax.");
+  /* Byte for byte what reg.exe prints: "\r\n" stays "\r\n" (a text-mode
+   * stdout would make it "\r\r\n", and the app's readers of reg.exe's
+   * lines would not match them). */
+  _setmode(_fileno(stdout), _O_BINARY);
   if (!load_api()) return fail("The registry functions are not available.");
   SetErrorMode(SEM_FAILCRITICALERRORS | SEM_NOGPFAULTERRORBOX);
   const wchar_t *op = g_argv[2], *key = g_argv[3], *sub = NULL, *longname = NULL;
