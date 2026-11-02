@@ -247,23 +247,23 @@ class CustomDnsTest {
             ServerSocket(0, 5, lo).use { s5 ->
                 val asked = java.util.Collections.synchronizedList(ArrayList<String>())
                 socksProxy(s5, asked)
-                val d = CustomDns(DnsSpec("tcp", "test.local", dnsSrv.localPort), { 0 }, { null }, DnsProxy("socks5", "127.0.0.1", s5.localPort), noBoot)
+                val d = CustomDns(DnsSpec("tcp", "test.local", dnsSrv.localPort), { 0 }, { null }, DnsProxy("socks5", "127.0.0.1", s5.localPort), bootstrap = noBoot)
                 assertEquals("93.184.215.30", Dns.firstA(d.query(Dns.buildQuery("example.com", Dns.TYPE_A, 1))))
                 assertTrue(asked.contains("test.local:${dnsSrv.localPort}"))
                 d.close()
             }
             ServerSocket(0, 5, lo).use { locked ->
                 socksProxy(locked, java.util.Collections.synchronizedList(ArrayList<String>()), "me" to "s3cret")
-                val ok = CustomDns(DnsSpec("tcp", "127.0.0.1", dnsSrv.localPort), { 0 }, { null }, DnsProxy("socks5", "127.0.0.1", locked.localPort, "me", "s3cret"), noBoot)
+                val ok = CustomDns(DnsSpec("tcp", "127.0.0.1", dnsSrv.localPort), { 0 }, { null }, DnsProxy("socks5", "127.0.0.1", locked.localPort, "me", "s3cret"), bootstrap = noBoot)
                 assertEquals("93.184.215.30", Dns.firstA(ok.query(Dns.buildQuery("example.com", Dns.TYPE_A, 2))))
-                val wrong = CustomDns(DnsSpec("tcp", "127.0.0.1", dnsSrv.localPort), { 0 }, { null }, DnsProxy("socks5", "127.0.0.1", locked.localPort, "me", "nope"), noBoot)
+                val wrong = CustomDns(DnsSpec("tcp", "127.0.0.1", dnsSrv.localPort), { 0 }, { null }, DnsProxy("socks5", "127.0.0.1", locked.localPort, "me", "nope"), bootstrap = noBoot)
                 assertTrue(runCatching { wrong.query(Dns.buildQuery("example.com", Dns.TYPE_A, 3)) }.isFailure)
                 ok.close(); wrong.close()
             }
             ServerSocket(0, 5, lo).use { hp ->
                 val asked = java.util.Collections.synchronizedList(ArrayList<String>())
                 httpProxy(hp, asked)
-                val d = CustomDns(DnsSpec("tcp", "test.local", dnsSrv.localPort), { 0 }, { null }, DnsProxy("http", "127.0.0.1", hp.localPort), noBoot)
+                val d = CustomDns(DnsSpec("tcp", "test.local", dnsSrv.localPort), { 0 }, { null }, DnsProxy("http", "127.0.0.1", hp.localPort), bootstrap = noBoot)
                 assertEquals("93.184.215.30", Dns.firstA(d.query(Dns.buildQuery("example.com", Dns.TYPE_A, 4))))
                 assertTrue(asked.contains("test.local:${dnsSrv.localPort}"))
                 d.close()

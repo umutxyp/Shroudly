@@ -468,6 +468,9 @@ class EngineManager {
    * between for a Shadowsocks server; or none. */
   async _prepareUpstream() {
     const p = this.ownServer();
+    // DNS goes where everything else goes: through the engine and the
+    // server, never straight out to a resolver (issue #67).
+    if (this.doh && this.doh.setThroughEngine) this.doh.setThroughEngine(!!p);
     const key = p && p.kind === 'ss' ? `${p.host} ${p.port} ${p.method} ${p.password}` : null;
     if (this._ssClient && this._ssClient.key !== key) { this._ssClient.close(); this._ssClient = null; }
     if (!p) { this._removeUpstream(); return; }

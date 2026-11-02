@@ -224,7 +224,7 @@
     <string name="upload">መስቀል</string>
     <string name="uptime">የሰራበት ጊዜ</string>
     <string name="versionLabel">ስሪት {version}</string>
-    <string name="whatsNewAndroid">በራስዎ አገልጋይ፣ ዋናው ማያ ገጽ ድረ-ገጾች የሚያዩትን አድራሻ ያሳያል።\nShroudly አልፎ አልፎ ሳንሱር ባለባቸው አገሮች ያሉ ሰዎችን መርዳት ይፈልጉ እንደሆነ ይጠይቃል፤ አሁን አይደለም ባሉ ቁጥር እጥፍ ጊዜ ይጠብቃል።\nከእያንዳንዱ ዝማኔ በኋላ፣ እንደዚህ ያለ አጭር ማስታወሻ ምን እንደተለወጠ ይነግርዎታል።</string>
+    <string name="whatsNewAndroid">በራስዎ አገልጋይ DNS ም በእሱ በኩል ያልፋል፦ resolver ዎች የሚያዩት የአገልጋዩን አድራሻ ብቻ ነው፣ የእርስዎን ፈጽሞ አያዩም።\nበራስዎ አገልጋይ፣ ዋናው ማያ ገጽ ድረ-ገጾች የሚያዩትን አድራሻ ያሳያል።\nShroudly አልፎ አልፎ ሳንሱር ባለባቸው አገሮች ያሉ ሰዎችን መርዳት ይፈልጉ እንደሆነ ይጠይቃል፤ አሁን አይደለም ባሉ ቁጥር እጥፍ ጊዜ ይጠብቃል።\nከእያንዳንዱ ዝማኔ በኋላ፣ እንደዚህ ያለ አጭር ማስታወሻ ምን እንደተለወጠ ይነግርዎታል።</string>
     <string name="whatsNewOk">ገባኝ</string>
     <string name="whatsNewTitle">በ{version} ውስጥ አዲስ ነገሮች</string>
 </resources>

@@ -702,7 +702,7 @@ directly. That list maintains itself:
 - **Discord app mode** — lets the Discord app (every build) update and open through Shroudly on Windows and macOS ([details](#discord-app-mode)).
 - **Games and apps mode** — Roblox, Roblox Studio, their installers and other programs that ignore the system proxy go through Shroudly too, on Windows and macOS ([details](#games-and-apps-mode-roblox)).
 - **Advanced mode** — packet-level desync for networks that follow whole connections, on Windows and Linux.
-- **Your own server** — every site through a server you name, as a `socks5://`, `http://` or Shadowsocks `ss://` link: tested before it is used, and the window says so if it stops working; while it works, the main window says which address sites see ([#66](https://github.com/umutxyp/Shroudly/issues/66)). For a shutdown, when a server inside the country still reaches the world; on the desktop, Android, iPhone and iPad.
+- **Your own server** — every site through a server you name, as a `socks5://`, `http://` or Shadowsocks `ss://` link: tested before it is used, and the window says so if it stops working; while it works, the main window says which address sites see ([#66](https://github.com/umutxyp/Shroudly/issues/66)), and DNS goes through it too, so nothing leaks to your provider or the resolvers ([#67](https://github.com/umutxyp/Shroudly/issues/67)). For a shutdown, when a server inside the country still reaches the world; on the desktop, Android, iPhone and iPad.
 - **Share my connection** — off until you turn it on: people you give its link to use your connection through Shroudly, from Shroudly's *Your own server* or any Shadowsocks app, on the same network or (where the router opens a port by UPnP) over the internet. They reach only sites, never your computer or home network; nothing is recorded of what they open. Desktop.
 - **Help people in censored countries** — off until you turn it on: on a computer, a Snowflake proxy for the Tor network, so people where Tor is blocked reach it through your connection (strangers using Tor: what they open stays encrypted, they cannot reach your computer or network, and nothing is recorded); on Android and iPhone, the apps made for it (Psiphon's Conduit, Orbot's Kindness Mode). Now and then, while protection works, the main window asks whether you would like to; each "Not now" doubles the wait, from a week, and it is never asked where Tor itself is blocked. A server can help too ([details](#on-a-server)).
 - **Decoys a whitelist lets through** — where a shutdown lets only a list of allowed sites through, Shroudly's decoys carry the names of large sites of your own country, so the real connection behind them gets through ([what it cannot fix](#what-shroudly-cannot-fix)).
@@ -1113,7 +1113,12 @@ Shroudly does not collect personal data. These are the only things that contact 
   own countries, to tell a national shutdown from no internet at all.
 - **Your own server**, only if you set one (Settings, *Your own server*):
   every site goes through it, so it sees which sites you open (not what you
-  read on them, which stays encrypted). Its link, password included, is kept
+  read on them, which stays encrypted). So do the DNS questions (since
+  2.6.49, [#67](https://github.com/umutxyp/Shroudly/issues/67)): the
+  encrypted DNS resolvers above, or your own DNS server (plain DNS then over
+  TCP), are asked through it, so they see the server's address, never
+  yours; while it is down, DNS waits for it rather than going out
+  directly. Its link, password included, is kept
   in Shroudly's settings on this device and nowhere else. Testing it opens
   `cloudflare.com` through it once. While protection is on with a server set,
   Cloudflare's trace page (`cloudflare.com/cdn-cgi/trace`) is asked through

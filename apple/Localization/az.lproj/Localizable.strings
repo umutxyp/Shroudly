@@ -73,6 +73,6 @@
 "supportBannerLater" = "İndi yox";
 "tagline" = "Görünməz. Dayandırılmaz.";
 "versionLabel" = "Versiya {version}";
-"whatsNewApple" = "Apple-ın VPN icazəsi olmadan imzalanmış nüsxə indi bunu və necə düzgün quraşdırılacağını deyir.\nÖz serverinizlə əsas ekran saytların gördüyü ünvanı göstərir.\nShroudly arabir senzuralı ölkələrdəki insanlara kömək etmək istəyib-istəmədiyinizi soruşur; hər dəfə \"indi yox\" deyəndə iki dəfə uzun gözləyir.\nHər yeniləmədən sonra bunun kimi qısa bir qeyd nəyin dəyişdiyini deyir.";
+"whatsNewApple" = "Öz serverinizlə DNS də onun üzərindən gedir: resolverlər yalnız serverin ünvanını görür, sizinkini heç vaxt.\nApple-ın VPN icazəsi olmadan imzalanmış nüsxə indi bunu və necə düzgün quraşdırılacağını deyir.\nÖz serverinizlə əsas ekran saytların gördüyü ünvanı göstərir.\nShroudly arabir senzuralı ölkələrdəki insanlara kömək etmək istəyib-istəmədiyinizi soruşur; hər dəfə \"indi yox\" deyəndə iki dəfə uzun gözləyir.\nHər yeniləmədən sonra bunun kimi qısa bir qeyd nəyin dəyişdiyini deyir.";
 "whatsNewOk" = "Aydındır";
 "whatsNewTitle" = "{version} versiyasında yeniliklər";

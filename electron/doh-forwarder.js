@@ -298,6 +298,9 @@ class DohForwarder {
     this.lastDowngradeWarn = 0;
     this.preferredId = opts.preferredId || null;
     this.custom = null;         // the user's own server (setCustom), else null
+    // Every question through the engine, so through the user's own server
+    // when one is set (setThroughEngine, issue #67), never straight out.
+    this.throughEngine = false;
     // fails: failures since it last answered; failAt: when the last one was
     // counted; okAt: when it last answered.
     this.routes = UPSTREAMS.map((u) => ({ ...u, fails: 0, failAt: 0, okAt: 0, restUntil: 0, ewma: 0, session: null, opening: null }));
@@ -305,6 +308,20 @@ class DohForwarder {
 
   /* The engine's port, once it is up: routes that go through it wait for it. */
   setSocksPort(port) { this.socksPort = Number(port) || 0; }
+
+  /* With the user's own server, DNS goes where everything else goes: every
+   * question through the engine and on through that server, so resolvers
+   * see the server's address, never this connection's (issue #67). Not a
+   * route straight out even while the engine is not up yet: then nothing
+   * answers until it is. Connections opened before are dropped. */
+  setThroughEngine(on) {
+    const v = !!on;
+    if (v === this.throughEngine) return;
+    this.throughEngine = v;
+    for (const r of this.routes) this.dropSession(r);
+    if (this.custom) this.custom.drop();
+    this.cache.clear();
+  }
 
   /* A DNS server of the user's own (custom-dns.js; null: the built-in
    * routes): asked alone while it answers. Its name, if it has one, is
@@ -319,6 +336,7 @@ class DohForwarder {
     const { CustomDns } = require('./custom-dns');
     this.custom = new CustomDns(spec, {
       socksPort: () => this.socksPort,
+      throughEngine: () => this.throughEngine,
       bootstrap: async (name) => require('./custom-dns').firstA(await this.resolveRoutes(buildQuery(name, 1))),
       ...opts,
     });
@@ -360,7 +378,11 @@ class DohForwarder {
     c.fails = 0; c.restUntil = 0; c.toldAt = 0;
   }
 
-  usable(r) { return !r.viaEngine || this.socksPort > 0; }
+  usable(r) {
+    // Through the engine: its SOCKS port takes IPv4 addresses here.
+    if (this.throughEngine) return this.socksPort > 0 && net.isIP(r.ip) === 4;
+    return !r.viaEngine || this.socksPort > 0;
+  }
 
   /* Best first: the remembered route, then measured speed (untried routes
    * count as average), resting routes last. */
@@ -386,7 +408,7 @@ class DohForwarder {
     if (r.session && !r.session.closed && !r.session.destroyed) return Promise.resolve(r.session);
     if (r.opening) return r.opening;
     r.opening = (async () => {
-      const raw = r.viaEngine ? await socksConnect(this.socksPort, r.ip, 443) : null;
+      const raw = r.viaEngine || this.throughEngine ? await socksConnect(this.socksPort, r.ip, 443) : null;
       return new Promise((resolve, reject) => {
         const sock = tls.connect({
           ...(raw ? { socket: raw } : { host: r.ip, port: 443 }),

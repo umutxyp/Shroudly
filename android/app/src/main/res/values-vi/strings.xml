@@ -224,7 +224,7 @@
     <string name="upload">Tải lên</string>
     <string name="uptime">Thời gian chạy</string>
     <string name="versionLabel">Phiên bản {version}</string>
-    <string name="whatsNewAndroid">Với máy chủ riêng, màn hình chính hiển thị địa chỉ mà các trang web thấy.\nThỉnh thoảng Shroudly hỏi bạn có muốn giúp người ở các nước bị kiểm duyệt không; mỗi lần bạn nói để sau, nó chờ lâu gấp đôi.\nSau mỗi lần cập nhật, một ghi chú ngắn như thế này cho biết những gì đã thay đổi.</string>
+    <string name="whatsNewAndroid">Với máy chủ riêng, DNS cũng đi qua nó: máy chủ phân giải chỉ thấy địa chỉ của máy chủ, không bao giờ thấy địa chỉ của bạn.\nVới máy chủ riêng, màn hình chính hiển thị địa chỉ mà các trang web thấy.\nThỉnh thoảng Shroudly hỏi bạn có muốn giúp người ở các nước bị kiểm duyệt không; mỗi lần bạn nói để sau, nó chờ lâu gấp đôi.\nSau mỗi lần cập nhật, một ghi chú ngắn như thế này cho biết những gì đã thay đổi.</string>
     <string name="whatsNewOk">Đã hiểu</string>
     <string name="whatsNewTitle">Có gì mới trong {version}</string>
 </resources>

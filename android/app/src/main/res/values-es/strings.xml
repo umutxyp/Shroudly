@@ -224,7 +224,7 @@
     <string name="upload">Subida</string>
     <string name="uptime">Tiempo activo</string>
     <string name="versionLabel">Versión {version}</string>
-    <string name="whatsNewAndroid">Con tu propio servidor, la pantalla principal muestra la dirección que ven los sitios.\nDe vez en cuando Shroudly pregunta si quieres ayudar a personas en países con censura; cada vez que dices ahora no, espera el doble.\nDespués de cada actualización, una nota breve como esta dice qué ha cambiado.</string>
+    <string name="whatsNewAndroid">Con tu propio servidor, el DNS también pasa por él: los resolvedores solo ven la dirección del servidor, nunca la tuya.\nCon tu propio servidor, la pantalla principal muestra la dirección que ven los sitios.\nDe vez en cuando Shroudly pregunta si quieres ayudar a personas en países con censura; cada vez que dices ahora no, espera el doble.\nDespués de cada actualización, una nota breve como esta dice qué ha cambiado.</string>
     <string name="whatsNewOk">Entendido</string>
     <string name="whatsNewTitle">Novedades de la {version}</string>
 </resources>

@@ -244,7 +244,9 @@ class ShroudlyProxyService : Service() {
             if (started) {
                 doh?.socksPort = at
                 doh?.socksAuth = null
-                // Working through the user's own server: the address sites see.
+                // Working through the user's own server: the address sites
+                // see, and DNS through it too, never straight out (#67).
+                doh?.throughEngine = upstream != null
                 if (upstream != null) ownServer.watchExit(at, null) else ownServer.stopExit()
                 ProxyPort.Tried(ok = true)
             } else {

@@ -170,12 +170,14 @@ class DohForwarder(
          * the other kind and the best of another operator move up to the
          * second wave: a network that blocks one kind of route usually blocks
          * all of that kind. */
-        fun plan(all: List<DohRoute>, preferredId: String?, now: Long, engineReady: Boolean): List<DohRoute> {
+        /* throughEngine: every route through the engine (the user's own
+         * server, issue #67): none at all until it is up, IPv4 only. */
+        fun plan(all: List<DohRoute>, preferredId: String?, now: Long, engineReady: Boolean, throughEngine: Boolean = false): List<DohRoute> {
             // The clock set back since a route failed: it rests at most the
             // longest rest from now, not until the clock catches up.
             for (r in all) if (r.restUntil > now + REST_MAX_MS) r.restUntil = now + REST_MAX_MS
             fun score(r: DohRoute) = if (r.restUntil > now) 1_000_000_000L + r.restUntil - now else if (r.ewma > 0) r.ewma else 400L
-            val ordered = all.filter { !it.viaEngine || engineReady }.sortedWith { a, b ->
+            val ordered = all.filter { if (throughEngine) engineReady && !it.v6 else !it.viaEngine || engineReady }.sortedWith { a, b ->
                 val pa = a.id == preferredId && a.restUntil <= now
                 val pb = b.id == preferredId && b.restUntil <= now
                 when {
@@ -208,6 +210,12 @@ class DohForwarder(
     @Volatile var socksPort = 0
     /* The engine's SOCKS5 password for this session, if it takes one. */
     @Volatile var socksAuth: SocksAuth? = null
+    /* With the user's own server, DNS goes where everything else goes:
+     * every question through the engine and on through that server, so
+     * resolvers see the server's address, never this phone's connection
+     * (issue #67); and nothing straight out while the engine is not up. As
+     * the desktop's (electron/doh-forwarder.js setThroughEngine). */
+    @Volatile var throughEngine = false
     @Volatile private var running = false
     private var sock: DatagramSocket? = null
     private val failuresInARow = AtomicInteger(0)
@@ -271,7 +279,7 @@ class DohForwarder(
         // The answers kept from before: the user wants this server's.
         answers.clear()
         custom = spec?.let { s ->
-            CustomDns(s, { socksPort }, { socksAuth }, proxy) { name ->
+            CustomDns(s, { socksPort }, { socksAuth }, proxy, throughEngine = { throughEngine }) { name ->
                 Dns.firstA(resolveRoutes(Dns.buildQuery(name, Dns.TYPE_A, (Math.random() * 65535).toInt()), System.nanoTime() / 1_000_000 + ANSWER_BY_MS))
             }.also { it.strict = strict }
         }
@@ -399,7 +407,7 @@ class DohForwarder(
 
     /* Through the built-in routes, raced (a server failure as FailureVote says). */
     fun resolveRoutes(msg: ByteArray, answerBy: Long = Long.MAX_VALUE): ByteArray? {
-        val plan = plan(all, preferredId, System.currentTimeMillis(), socksPort > 0)
+        val plan = plan(all, preferredId, System.currentTimeMillis(), socksPort > 0, throughEngine)
         val vote = FailureVote()
         val won = race(plan, queries, answerBy = answerBy) { r -> vote.take(r, query(r, msg)) } ?: return vote.held
         if (Dns.serverFailed(won.second)) return won.second
@@ -431,7 +439,7 @@ class DohForwarder(
         val c = custom
         if (c != null && usingCustom()) return if (c.ewma > 0) "${CustomDns.shown(c.spec)} ${c.ewma}ms" else ""
         val now = System.currentTimeMillis()
-        return all.filter { (!it.viaEngine || socksPort > 0) && it.ewma > 0 && it.restUntil <= now }
+        return all.filter { (if (throughEngine) socksPort > 0 && !it.v6 else !it.viaEngine || socksPort > 0) && it.ewma > 0 && it.restUntil <= now }
             .sortedBy { it.ewma }.take(3).joinToString(", ") { "${it.id} ${it.ewma}ms" }
     }
 
@@ -453,7 +461,7 @@ class DohForwarder(
             if (using) return
         }
         val now = System.currentTimeMillis()
-        val order = plan(all, preferredId, now, socksPort > 0)
+        val order = plan(all, preferredId, now, socksPort > 0, throughEngine)
         val due = all.filter { it.restUntil > now && it.restUntil - now < WARM_INTERVAL_MS }.take(2)
         for (r in order.filter { it.restUntil <= now }.take(3) + due) {
             try {
@@ -469,7 +477,7 @@ class DohForwarder(
         // How long it took, on a clock no change of the date moves.
         val t0 = System.nanoTime()
         try {
-            val body = if (r.viaEngine) viaEngine(r, msg) else direct(r, msg)
+            val body = if (r.viaEngine || throughEngine) viaEngine(r, msg) else direct(r, msg)
             val answer = Dns.matchAnswer(msg, body) ?: throw IOException("not an answer to the query")
             r.succeeded((System.nanoTime() - t0) / 1_000_000)
             return answer
@@ -510,8 +518,9 @@ class DohForwarder(
     }
 
     /* Through the engine's SOCKS5 port to an address, with the name in the
-     * handshake, so the engine can split it like any other. One request per
-     * connection. */
+     * handshake, so the engine can split it like any other; a route by
+     * address alone (with the user's own server) with no name, its
+     * certificate checked as straight. One request per connection. */
     private fun viaEngine(r: DohRoute, msg: ByteArray): ByteArray {
         val port = socksPort
         if (port <= 0) throw IOException("engine not ready")
@@ -520,11 +529,13 @@ class DohForwarder(
             raw.connect(InetSocketAddress(InetAddress.getByName("127.0.0.1"), port), QUERY_TIMEOUT_MS)
             raw.soTimeout = QUERY_TIMEOUT_MS
             Socks5.connect(raw, r.ip, 443, socksAuth)
-            val ssl = (SSLSocketFactory.getDefault() as SSLSocketFactory).createSocket(raw, r.sni, 443, true) as SSLSocket
-            ssl.sslParameters = ssl.sslParameters.apply { serverNames = listOf(SNIHostName(r.sni)) }
+            val sni = r.sni
+            val ssl = (SSLSocketFactory.getDefault() as SSLSocketFactory).createSocket(raw, sni ?: r.ip, 443, true) as SSLSocket
+            if (sni != null) ssl.sslParameters = ssl.sslParameters.apply { serverNames = listOf(SNIHostName(sni)) }
             ssl.startHandshake()
-            if (!defaultVerifier.verify(r.sni, ssl.session)) throw IOException("certificate does not belong to ${r.sni}")
-            val head = "POST /dns-query HTTP/1.1\r\nHost: ${r.sni}\r\n" +
+            val ok = if (sni != null) defaultVerifier.verify(sni, ssl.session) else r.verifier.verify(r.ip, ssl.session)
+            if (!ok) throw IOException("certificate does not belong to ${sni ?: r.ip}")
+            val head = "POST /dns-query HTTP/1.1\r\nHost: ${sni ?: r.urlHost}\r\n" +
                 "Content-Type: application/dns-message\r\nAccept: application/dns-message\r\n" +
                 "Content-Length: ${msg.size}\r\nConnection: close\r\n\r\n"
             val out = ssl.outputStream

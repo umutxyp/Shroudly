@@ -91,7 +91,7 @@ function load(rel) {
     // One line each, in every language, for each platform.
     const en = JSON.parse(src('locales/en.json'));
     const lines = (k) => en[k].split('\n').filter(Boolean).length;
-    t.ok(lines('whatsNewDesktop') === 5 && lines('whatsNewAndroid') === 3 && lines('whatsNewApple') === 4, 'the notes, a line each');
+    t.ok(lines('whatsNewDesktop') === 6 && lines('whatsNewAndroid') === 4 && lines('whatsNewApple') === 5, 'the notes, a line each');
     for (const f of fs.readdirSync(path.join(ROOT, 'locales'))) {
       const j = JSON.parse(src(`locales/${f}`));
       if (['whatsNewDesktop', 'whatsNewAndroid', 'whatsNewApple'].some((k) => j[k].split('\n').filter(Boolean).length !== lines(k))) t.ok(false, `${f}: as many lines as English`);

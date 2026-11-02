@@ -224,7 +224,7 @@
     <string name="upload">העלאה</string>
     <string name="uptime">זמן פעילות</string>
     <string name="versionLabel">גרסה {version}</string>
-    <string name="whatsNewAndroid">עם שרת משלכם, המסך הראשי מראה את הכתובת שהאתרים רואים.\nמדי פעם Shroudly שואל אם תרצו לעזור לאנשים במדינות עם צנזורה; בכל פעם שתגידו לא עכשיו, הוא מחכה פי שניים.\nאחרי כל עדכון, הערה קצרה כמו זו מספרת מה השתנה.</string>
+    <string name="whatsNewAndroid">עם שרת משלכם, גם ה-DNS עובר דרכו: שרתי ה-DNS רואים רק את כתובת השרת, אף פעם לא את שלכם.\nעם שרת משלכם, המסך הראשי מראה את הכתובת שהאתרים רואים.\nמדי פעם Shroudly שואל אם תרצו לעזור לאנשים במדינות עם צנזורה; בכל פעם שתגידו לא עכשיו, הוא מחכה פי שניים.\nאחרי כל עדכון, הערה קצרה כמו זו מספרת מה השתנה.</string>
     <string name="whatsNewOk">הבנתי</string>
     <string name="whatsNewTitle">מה חדש בגרסה {version}</string>
 </resources>

@@ -94,6 +94,9 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
         try prepareOwnServer()
 
         let forwarder = DohForwarder(log: { [weak self] in self?.log($0) })
+        // With the user's own server, DNS through it too, never straight
+        // out, from the first question (issue #67).
+        forwarder.throughEngine(settings.ownServerLink != nil, nil)
         doh = forwarder
         dohPort = try forwarder.start()
 
@@ -165,6 +168,9 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
             if let upstreamPath { unlink(upstreamPath) }
             if ok {
                 engine = e
+                if settings.ownServerLink != nil, let a = auth {
+                    doh?.throughEngine(true, DohForwarder.EnginePath(port: p, user: a.user, pass: a.pass))
+                }
                 return p
             }
             let err = e.lastError ?? "engine failed to start"

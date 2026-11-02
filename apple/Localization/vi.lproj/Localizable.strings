@@ -73,6 +73,6 @@
 "supportBannerLater" = "Để sau";
 "tagline" = "Vô hình. Không thể ngăn cản.";
 "versionLabel" = "Phiên bản {version}";
-"whatsNewApple" = "Bản được ký mà không có quyền VPN của Apple giờ sẽ báo điều đó, kèm cách cài đặt đúng.\nVới máy chủ riêng, màn hình chính hiển thị địa chỉ mà các trang web thấy.\nThỉnh thoảng Shroudly hỏi bạn có muốn giúp người ở các nước bị kiểm duyệt không; mỗi lần bạn nói để sau, nó chờ lâu gấp đôi.\nSau mỗi lần cập nhật, một ghi chú ngắn như thế này cho biết những gì đã thay đổi.";
+"whatsNewApple" = "Với máy chủ riêng, DNS cũng đi qua nó: máy chủ phân giải chỉ thấy địa chỉ của máy chủ, không bao giờ thấy địa chỉ của bạn.\nBản được ký mà không có quyền VPN của Apple giờ sẽ báo điều đó, kèm cách cài đặt đúng.\nVới máy chủ riêng, màn hình chính hiển thị địa chỉ mà các trang web thấy.\nThỉnh thoảng Shroudly hỏi bạn có muốn giúp người ở các nước bị kiểm duyệt không; mỗi lần bạn nói để sau, nó chờ lâu gấp đôi.\nSau mỗi lần cập nhật, một ghi chú ngắn như thế này cho biết những gì đã thay đổi.";
 "whatsNewOk" = "Đã hiểu";
 "whatsNewTitle" = "Có gì mới trong {version}";

@@ -224,7 +224,7 @@
     <string name="upload">Barkirin</string>
     <string name="uptime">Dema xebatê</string>
     <string name="versionLabel">Guherto {version}</string>
-    <string name="whatsNewAndroid">Bi pêşkêşkara te ya xwe, ekrana sereke navnîşana ku malper dibînin nîşan dide.\nCarinan Shroudly dipirse gelo tu dixwazî alîkariya mirovên li welatên bi sansûr bikî; her carê ku tu dibêjî ne niha, ew du qat dirêjtir li bendê dimîne.\nPiştî her nûkirinê, notek kurt wek vê dibêje çi guherî.</string>
+    <string name="whatsNewAndroid">Bi pêşkêşkara te ya xwe, DNS jî di ser wê re diçe: çareserker tenê navnîşana pêşkêşkarê dibînin, qet ya te nabînin.\nBi pêşkêşkara te ya xwe, ekrana sereke navnîşana ku malper dibînin nîşan dide.\nCarinan Shroudly dipirse gelo tu dixwazî alîkariya mirovên li welatên bi sansûr bikî; her carê ku tu dibêjî ne niha, ew du qat dirêjtir li bendê dimîne.\nPiştî her nûkirinê, notek kurt wek vê dibêje çi guherî.</string>
     <string name="whatsNewOk">Baş e</string>
     <string name="whatsNewTitle">Tiştên nû di {version} de</string>
 </resources>

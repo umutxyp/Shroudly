@@ -73,6 +73,6 @@
 "supportBannerLater" = "Not now";
 "tagline" = "Unseen. Unstoppable.";
 "versionLabel" = "Version {version}";
-"whatsNewApple" = "A copy signed without Apple's VPN permission now says so, and how to install it properly.\nWith your own server, the main screen shows the address sites see.\nNow and then Shroudly asks whether you would like to help people in censored countries; each time you say not now, it waits twice as long.\nAfter each update, a short note like this one says what changed.";
+"whatsNewApple" = "With your own server, DNS goes through it too: resolvers see only the server's address, never yours.\nA copy signed without Apple's VPN permission now says so, and how to install it properly.\nWith your own server, the main screen shows the address sites see.\nNow and then Shroudly asks whether you would like to help people in censored countries; each time you say not now, it waits twice as long.\nAfter each update, a short note like this one says what changed.";
 "whatsNewOk" = "Got it";
 "whatsNewTitle" = "What's new in {version}";

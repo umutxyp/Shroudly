@@ -224,7 +224,7 @@
     <string name="upload">アップロード</string>
     <string name="uptime">稼働時間</string>
     <string name="versionLabel">バージョン {version}</string>
-    <string name="whatsNewAndroid">自分のサーバーを使っているとき、メイン画面にサイトから見えるアドレスが表示されます。\nShroudly はときどき、検閲のある国の人々を助けたいかを尋ねます。「今はしない」と答えるたびに、次までの間隔が2倍になります。\n更新のたびに、このような短いお知らせで変更点をお伝えします。</string>
+    <string name="whatsNewAndroid">自分のサーバーを使うと、DNS もそのサーバーを通るようになりました。リゾルバーに見えるのはサーバーのアドレスだけで、あなたのアドレスは見えません。\n自分のサーバーを使っているとき、メイン画面にサイトから見えるアドレスが表示されます。\nShroudly はときどき、検閲のある国の人々を助けたいかを尋ねます。「今はしない」と答えるたびに、次までの間隔が2倍になります。\n更新のたびに、このような短いお知らせで変更点をお伝えします。</string>
     <string name="whatsNewOk">OK</string>
     <string name="whatsNewTitle">{version} の新機能</string>
 </resources>

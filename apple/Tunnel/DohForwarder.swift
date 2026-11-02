@@ -20,6 +20,12 @@ import Security
  * The engine waits engineWait for an answer and then asks plain DNS itself,
  * so a lookup is answered by answerBy or gets "no route" (Dns.noRouteReply),
  * which sends the engine on at once. No lookup is logged or stored.
+ *
+ * With the user's own server, DNS goes where everything else goes (issue
+ * #67): every question through the engine's SOCKS5 port (this session's
+ * user and password) and on through that server, TLS started on that
+ * stream, so resolvers see the server's address, never this device's
+ * connection; and nothing straight out while the engine is not up.
  */
 final class DohForwarder: NSObject, URLSessionDelegate, @unchecked Sendable {
     struct Route {
@@ -115,6 +121,30 @@ final class DohForwarder: NSObject, URLSessionDelegate, @unchecked Sendable {
     private var fd: Int32 = -1
     private var stopped = false
     private var session: URLSession!
+    /* The engine's port and this session's password, for throughEngine. */
+    struct EnginePath: Equatable {
+        let port: Int
+        let user: String
+        let pass: String
+    }
+    private var carried = false
+    private var engine: EnginePath?
+    private let trust = EngineTrust()
+    private lazy var streamSession: URLSession = {
+        let config = URLSessionConfiguration.ephemeral
+        config.urlCache = nil
+        config.httpCookieStorage = nil
+        config.urlCredentialStorage = nil
+        config.connectionProxyDictionary = [:]
+        return URLSession(configuration: config, delegate: trust, delegateQueue: nil)
+    }()
+
+    /* on: a server of the user's own is set; path: the engine, once up. */
+    func throughEngine(_ on: Bool, _ path: EnginePath?) {
+        lock.lock(); defer { lock.unlock() }
+        carried = on
+        engine = on ? path : nil
+    }
 
     init(log: @escaping (String) -> Void, defaults: UserDefaults = AppGroup.defaults) {
         self.log = log
@@ -199,12 +229,20 @@ final class DohForwarder: NSObject, URLSessionDelegate, @unchecked Sendable {
 
     private func currentPlan() -> [Route] {
         lock.lock(); defer { lock.unlock() }
-        return DohForwarder.plan(routes, preferred: preferred, now: Date())
+        let plan = DohForwarder.plan(routes, preferred: preferred, now: Date())
+        // Through the engine: the IPv4 routes, which its SOCKS5 port takes.
+        return carried ? plan.filter { !$0.ip.contains(":") } : plan
     }
 
     /* The answer to one query, or "no route". */
     func resolve(_ query: [UInt8]) async -> [UInt8] {
         let noRoute = Dns.noRouteReply(query) ?? query
+        // A server of the user's own, the engine not up yet: "no route" at
+        // once, so the engine does not wait; nothing straight out.
+        lock.lock()
+        let waiting = carried && engine == nil
+        lock.unlock()
+        if waiting { return noRoute }
         let plan = currentPlan()
         // RFC 8484: ID 0, so caches along the way can share the answer.
         var wire = query
@@ -246,6 +284,15 @@ final class DohForwarder: NSObject, URLSessionDelegate, @unchecked Sendable {
     }
 
     private func ask(_ r: Route, _ wire: [UInt8], _ query: [UInt8]) async -> Outcome {
+        lock.lock()
+        let carried = self.carried, path = engine
+        lock.unlock()
+        if carried {
+            // Not up yet, or an IPv6 route (its SOCKS5 port takes IPv4
+            // here): nothing, and the route is not held against it.
+            guard let path, !r.ip.contains(":") else { return .failed }
+            return await viaEngine(r, wire, query, path)
+        }
         var req = URLRequest(url: r.url, cachePolicy: .reloadIgnoringLocalCacheData, timeoutInterval: DohForwarder.queryTimeout)
         req.httpMethod = "POST"
         req.setValue("application/dns-message", forHTTPHeaderField: "Content-Type")
@@ -265,6 +312,92 @@ final class DohForwarder: NSObject, URLSessionDelegate, @unchecked Sendable {
             if !Task.isCancelled { failed(r.id) }
             return .failed
         }
+    }
+
+    /* One question through the engine: SOCKS5 with this session's
+     * password to the resolver's address, TLS on that stream (checked
+     * against the resolver's address or names, EngineTrust), HTTP/1.1. */
+    private func viaEngine(_ r: Route, _ wire: [UInt8], _ query: [UInt8], _ e: EnginePath) async -> Outcome {
+        let began = Date()
+        let t = DohForwarder.queryTimeout
+        let task = streamSession.streamTask(withHostName: "127.0.0.1", port: e.port)
+        trust.expect(task.taskIdentifier, ip: r.ip, names: r.names)
+        task.resume()
+        defer { trust.forget(task.taskIdentifier); task.cancel() }
+        do {
+            let user = Array(e.user.utf8), pass = Array(e.pass.utf8)
+            let addr = r.ip.split(separator: ".").compactMap { UInt8($0) }
+            guard addr.count == 4, user.count < 256, pass.count < 256 else { return .failed }
+            try await task.write(Data([5, 1, 2]), timeout: t)
+            guard try await DohForwarder.read(task, 2, t) == [5, 2] else { throw URLError(.cannotConnectToHost) }
+            try await task.write(Data([1, UInt8(user.count)] + user + [UInt8(pass.count)] + pass), timeout: t)
+            guard try await DohForwarder.read(task, 2, t) == [1, 0] else { throw URLError(.userAuthenticationRequired) }
+            try await task.write(Data([5, 1, 0, 1] + addr + [1, 187]), timeout: t)
+            let head = try await DohForwarder.read(task, 5, t)
+            guard head.count == 5, head[1] == 0 else { throw URLError(.cannotConnectToHost) }
+            _ = try await DohForwarder.read(task, head[3] == 1 ? 5 : head[3] == 4 ? 17 : Int(head[4]) + 2, t)
+            task.startSecureConnection()
+            let req = "POST /dns-query HTTP/1.1\r\nHost: \(r.ip)\r\nContent-Type: application/dns-message\r\n" +
+                "Accept: application/dns-message\r\nContent-Length: \(wire.count)\r\nConnection: close\r\n\r\n"
+            try await task.write(Data(Array(req.utf8) + wire), timeout: t)
+            var got = [UInt8]()
+            var body: [UInt8]?
+            while body == nil && got.count < 70_000 {
+                let (d, eof) = try await task.readData(ofMinLength: 1, maxLength: 16_384, timeout: t)
+                if let d { got += d }
+                body = DohForwarder.http1Body(got, ended: eof)
+                if eof { break }
+            }
+            guard let body, let answer = Dns.matchAnswer(query: query, answer: body) else {
+                failed(r.id)
+                return .failed
+            }
+            succeeded(r.id, Date().timeIntervalSince(began))
+            return .answer(answer, r.id)
+        } catch {
+            if !Task.isCancelled { failed(r.id) }
+            return .failed
+        }
+    }
+
+    /* Exactly n bytes from the stream, or fewer if it ended. */
+    static func read(_ task: URLSessionStreamTask, _ n: Int, _ t: TimeInterval) async throws -> [UInt8] {
+        var got = [UInt8]()
+        while got.count < n {
+            let (d, eof) = try await task.readData(ofMinLength: 1, maxLength: n - got.count, timeout: t)
+            if let d { got += d }
+            if eof { break }
+        }
+        return got
+    }
+
+    /* An HTTP/1.1 response's body once it is all there (a 200; by
+     * Content-Length, chunks, or the connection's end), else nil. */
+    static func http1Body(_ b: [UInt8], ended: Bool) -> [UInt8]? {
+        guard let end = (0..<max(0, b.count - 3)).first(where: { b[$0] == 13 && b[$0 + 1] == 10 && b[$0 + 2] == 13 && b[$0 + 3] == 10 }) else { return nil }
+        let head = String(decoding: b[..<end], as: UTF8.self)
+        let lines = head.components(separatedBy: "\r\n")
+        guard let status = lines.first, status.hasPrefix("HTTP/1."), status.split(separator: " ").dropFirst().first == "200" else { return nil }
+        var fields: [String: String] = [:]
+        for l in lines.dropFirst() {
+            guard let c = l.firstIndex(of: ":") else { continue }
+            fields[l[..<c].lowercased()] = l[l.index(after: c)...].trimmingCharacters(in: .whitespaces)
+        }
+        let rest = Array(b[(end + 4)...])
+        if let n = fields["content-length"].flatMap({ Int($0) }) { return rest.count >= n ? Array(rest.prefix(n)) : nil }
+        if fields["transfer-encoding"]?.lowercased().contains("chunked") == true {
+            var out = [UInt8](), i = 0
+            while true {
+                guard let e = (i..<max(i, rest.count - 1)).first(where: { rest[$0] == 13 && rest[$0 + 1] == 10 }),
+                      let size = Int(String(decoding: rest[i..<e], as: UTF8.self).split(separator: ";").first ?? "", radix: 16) else { return nil }
+                if size == 0 { return out }
+                let start = e + 2
+                guard rest.count >= start + size + 2 else { return nil }
+                out += rest[start..<(start + size)]
+                i = start + size + 2
+            }
+        }
+        return ended ? rest : nil
     }
 
     private func succeeded(_ id: String, _ took: TimeInterval) {
@@ -308,6 +441,45 @@ final class DohForwarder: NSObject, URLSessionDelegate, @unchecked Sendable {
         let names = routes.first { $0.ip == host }?.names ?? []
         lock.unlock()
         for name in [host] + names {
+            SecTrustSetPolicies(trust, SecPolicyCreateSSL(true, name as CFString))
+            if SecTrustEvaluateWithError(trust, nil) {
+                completionHandler(.useCredential, URLCredential(trust: trust))
+                return
+            }
+        }
+        completionHandler(.cancelAuthenticationChallenge, nil)
+    }
+}
+
+/* The resolver's certificate on a stream through the engine: the stream's
+ * host is 127.0.0.1, so it is checked against the address or the names of
+ * the resolver this stream was opened for. Server trust reaches a task's
+ * delegate here, as no session-level method takes it. */
+final class EngineTrust: NSObject, URLSessionTaskDelegate, @unchecked Sendable {
+    private let lock = NSLock()
+    private var expected: [Int: [String]] = [:]
+
+    func expect(_ id: Int, ip: String, names: [String]) {
+        lock.lock(); defer { lock.unlock() }
+        expected[id] = [ip] + names
+    }
+
+    func forget(_ id: Int) {
+        lock.lock(); defer { lock.unlock() }
+        expected[id] = nil
+    }
+
+    func urlSession(_ session: URLSession, task: URLSessionTask, didReceive challenge: URLAuthenticationChallenge,
+                    completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
+        guard challenge.protectionSpace.authenticationMethod == NSURLAuthenticationMethodServerTrust,
+              let trust = challenge.protectionSpace.serverTrust else {
+            completionHandler(.performDefaultHandling, nil)
+            return
+        }
+        lock.lock()
+        let names = expected[task.taskIdentifier] ?? []
+        lock.unlock()
+        for name in names {
             SecTrustSetPolicies(trust, SecPolicyCreateSSL(true, name as CFString))
             if SecTrustEvaluateWithError(trust, nil) {
                 completionHandler(.useCredential, URLCredential(trust: trust))

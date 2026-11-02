@@ -583,7 +583,9 @@ class ShroudlyVpnService : VpnService() {
                 doh?.socksAuth = auth
                 doh?.socksPort = p
                 probeSentAt = 0
-                // Working through the user's own server: the address sites see.
+                // Working through the user's own server: the address sites
+                // see, and DNS through it too, never straight out (#67).
+                doh?.throughEngine = upstream != null
                 if (upstream != null) ownServer.watchExit(p, auth) else ownServer.stopExit()
                 return p
             }

@@ -336,10 +336,23 @@ class CustomDns {
     });
   }
 
+  /* The proxy this server is reached through, or null for straight (or
+   * through the engine by address): the user's own for it (#58); else,
+   * with the user's own server, the engine, so that server carries it on
+   * (issue #67). The engine not up yet: nothing, rather than straight. */
+  through() {
+    if (this.opts.proxy && !this.opts.proxy.error) return this.opts.proxy;
+    if (!(this.opts.throughEngine && this.opts.throughEngine())) return null;
+    const port = this.opts.socksPort ? this.opts.socksPort() : 0;
+    if (!port) throw new Error('waiting for the engine, to go through your own server');
+    return { type: 'socks5', host: '127.0.0.1', port, user: '', pass: '' };
+  }
+
   async open() {
-    const { kind, port } = this.spec;
-    // Through the user's proxy, by name: nothing is looked up here (#58).
-    const proxy = this.opts.proxy && !this.opts.proxy.error ? this.opts.proxy : null;
+    const { port } = this.spec;
+    const proxy = this.through();
+    // Plain DNS through a proxy: over TCP, which a proxy carries.
+    const kind = this.spec.kind === 'udp' && proxy ? 'tcp' : this.spec.kind;
     const connect = proxy ? () => viaProxy(proxy, this.spec.host, port)
       : async (viaEngine) => this.raw(await this.address(), port, viaEngine);
     if (kind === 'tcp') return new Framed(await connect(false));
@@ -433,7 +446,7 @@ class CustomDns {
     const t0 = Date.now();
     let answer;
     try {
-      if (this.spec.kind === 'udp') answer = await this.udp(msg);
+      if (this.spec.kind === 'udp' && !this.through()) answer = await this.udp(msg);
       else {
         let c = await this.connection();
         // HTTP/1.1: each question on a connection of its own (the first ones

@@ -54,6 +54,9 @@ class CustomDns(
     private val socksAuth: () -> SocksAuth?,
     /* The user's proxy for this server (#58), or null. */
     private val proxy: DnsProxy? = null,
+    /* With the user's own server: through the engine, and so through that
+     * server, by name; plain DNS over TCP (issue #67). */
+    private val throughEngine: () -> Boolean = { false },
     /* The server's IPv4 address through the built-in routes, or null. */
     private val bootstrap: (String) -> String?,
 ) {
@@ -221,11 +224,21 @@ class CustomDns(
     private fun open(): Conn {
         // Through the user's proxy, by name: nothing is looked up here (#58).
         val via = proxy?.takeIf { spec.kind != "udp" }
-        val addr = if (via != null) spec.host.removePrefix("[").removeSuffix("]") else address()
+        // With the user's own server: through the engine by name, never
+        // straight, not even before the engine is up (issue #67).
+        val carried = via == null && throughEngine()
+        val carriedPort = if (carried) socksPort() else 0
+        if (carried && carriedPort <= 0) throw IOException("waiting for the engine, to go through your own server")
+        val addr = if (via != null || carried) spec.host.removePrefix("[").removeSuffix("]") else address()
         val engine = if (spec.kind == "tcp") 0 else socksPort()
         val raw = Socket(Proxy.NO_PROXY)
         try {
-            if (via != null) {
+            if (carried) {
+                raw.connect(InetSocketAddress(InetAddress.getByName("127.0.0.1"), carriedPort), TIMEOUT_MS)
+                raw.soTimeout = TIMEOUT_MS * 2
+                Socks5.connect(raw, addr, spec.port, socksAuth())
+                raw.soTimeout = TIMEOUT_MS
+            } else if (via != null) {
                 raw.connect(InetSocketAddress(via.host, via.port), TIMEOUT_MS)
                 raw.soTimeout = TIMEOUT_MS * 2
                 if (via.type == "http") httpConnect(raw, addr, spec.port, via)
@@ -239,7 +252,8 @@ class CustomDns(
                 raw.connect(InetSocketAddress(InetAddress.getByName(addr), spec.port), TIMEOUT_MS)
                 raw.soTimeout = TIMEOUT_MS
             }
-            if (spec.kind == "tcp") return Conn(raw, raw.getInputStream().buffered(), raw.getOutputStream())
+            // Plain DNS through the engine: over TCP, which it carries.
+            if (spec.kind == "tcp" || spec.kind == "udp") return Conn(raw, raw.getInputStream().buffered(), raw.getOutputStream())
             val ssl = (SSLSocketFactory.getDefault() as SSLSocketFactory).createSocket(raw, name ?: addr, spec.port, true) as SSLSocket
             if (name != null) ssl.sslParameters = ssl.sslParameters.apply { serverNames = listOf(SNIHostName(name)) }
             ssl.soTimeout = TIMEOUT_MS
@@ -314,7 +328,7 @@ class CustomDns(
     fun query(msg: ByteArray): ByteArray {
         if (closed) throw IOException("closed")
         val t0 = System.nanoTime()
-        val answer = if (spec.kind == "udp") udp(msg) else {
+        val answer = if (spec.kind == "udp" && !throughEngine()) udp(msg) else {
             val kept = idle.pollFirst()
             try {
                 once(kept ?: open(), msg)
