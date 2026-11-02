@@ -19,6 +19,7 @@
 const fs = require('fs');
 const path = require('path');
 const tls = require('tls');
+const Fronting = require('./fronting');
 
 const SOURCE = { host: 'raw.githubusercontent.com', path: '/umutxyp/Shroudly/site-list/adblock.txt' };
 const MAX_BYTES = 16 * 1024 * 1024;            // as the engine's ADB_MAX_FILE
@@ -107,9 +108,27 @@ class AdblockList {
 
   async _fetch(socksPort) {
     fs.mkdirSync(this.dir, { recursive: true });
-    const raw = await this.connect(socksPort, this.source.host, 443);
+    let body;
+    try {
+      body = await this._get(socksPort, null);
+    } catch (e) {
+      // GitHub blocked: the same file through a site on the same CDN
+      // (fronting.js); the engine still checks what comes.
+      const f = await Fronting.viaFronts(this.source.host, (front) => this._get(socksPort, front));
+      if (!f) throw e;
+      body = f.value;
+    }
+    return this._keep(body);
+  }
+
+  /* The raw answer for the list: from its own host, or through `front`, a
+   * site on the same CDN (the connection and certificate are the front's,
+   * the Host asked for is the list's). Rejects on anything but a full 200. */
+  async _get(socksPort, front) {
+    const dial = front || this.source.host;
+    const raw = await this.connect(socksPort, dial, 443);
     const body = await new Promise((resolve, reject) => {
-      const s = tls.connect({ ...this.tls, socket: raw, servername: this.source.host, ALPNProtocols: ['http/1.1'] });
+      const s = tls.connect({ ...this.tls, socket: raw, servername: dial, ALPNProtocols: ['http/1.1'] });
       const chunks = [];
       let size = 0;
       const timer = setTimeout(() => { s.destroy(); reject(new Error('timed out')); }, TIMEOUT_MS);
@@ -137,6 +156,10 @@ class AdblockList {
       if (Number.isFinite(len) && content.length < len) throw new Error('cut off');
     }
     if (content.length === 0 || content.length > MAX_BYTES) throw new Error('not a list');
+    return content;
+  }
+
+  _keep(content) {
     const tmp = path.join(this.dir, 'adblock-list.new');
     fs.writeFileSync(tmp, content);
     return tmp;

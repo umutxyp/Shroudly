@@ -24,6 +24,7 @@ const http = require('http');
 const zlib = require('zlib');
 const { socksConnect } = require('./discord-relay');
 const SystemProxy = require('./system-proxy');
+const Fronting = require('./fronting');
 
 const LIST_URL = 'https://raw.githubusercontent.com/umutxyp/Shroudly/site-list/sites.json';
 const BUNDLED = path.join(__dirname, 'data', 'sites.json');
@@ -57,9 +58,12 @@ function readJson(file) { try { return JSON.parse(fs.readFileSync(file, 'utf8'))
 
 /* GET url through the engine (SOCKS on socksPort). Resolves
  * { status, body, etag }: 304 (unchanged since etag) has no body. */
-function fetchThrough(socksPort, url, { ca, etag, timeoutMs = 30000 } = {}) {
+function fetchThrough(socksPort, url, { ca, etag, timeoutMs = 30000, front = null } = {}) {
   const u = new URL(url);
   const port = Number(u.port) || 443;
+  // Through a CDN front (fronting.js): the connection, its ClientHello and the
+  // certificate checked are the front's; the Host asked for is the list's.
+  const dial = front || u.hostname;
   return new Promise((resolve, reject) => {
     let done = false; let raw = null; let sock = null;
     const finish = (err, val) => {
@@ -71,10 +75,10 @@ function fetchThrough(socksPort, url, { ca, etag, timeoutMs = 30000 } = {}) {
       if (err) reject(err); else resolve(val);
     };
     const timer = setTimeout(() => finish(new Error('timed out')), timeoutMs);
-    socksConnect(socksPort, u.hostname, port).then((r) => {
+    socksConnect(socksPort, dial, port).then((r) => {
       raw = r;
       if (done) { r.destroy(); return; }
-      sock = tls.connect({ socket: r, servername: u.hostname, ALPNProtocols: ['http/1.1'], ...(ca ? { ca } : {}) });
+      sock = tls.connect({ socket: r, servername: dial, ALPNProtocols: ['http/1.1'], ...(ca ? { ca } : {}) });
       sock.on('error', (e) => finish(e));
       const headers = { host: u.host, 'user-agent': 'Shroudly', accept: 'application/json', 'accept-encoding': 'gzip' };
       if (etag) headers['if-none-match'] = etag;
@@ -158,8 +162,14 @@ class SiteList {
     try {
       res = await fetchThrough(socksPort, this.url, { ca: this.opts.ca, etag: this.etag });
     } catch (e) {
-      this.log('info', `Site list: could not check for a newer list (${e.message})`);
-      return false;
+      // GitHub blocked: the same file through a site on the same CDN.
+      const f = await Fronting.viaFronts(new URL(this.url).hostname,
+        (front) => fetchThrough(socksPort, this.url, { ca: this.opts.ca, etag: this.etag, front }));
+      if (!f) {
+        this.log('info', `Site list: could not check for a newer list (${e.message})`);
+        return false;
+      }
+      res = f.value;
     }
     this.checkedAt = Date.now();
     if (res.status === 304) { this._save(); return false; }
