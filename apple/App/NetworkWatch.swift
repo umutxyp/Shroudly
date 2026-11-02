@@ -18,8 +18,22 @@ final class NetworkWatch: ObservableObject {
     @Published private(set) var ownServerDown: Down?
     @Published private(set) var national: String?
     private var nationalAt = Date.distantPast
+    /* Debug builds: a warning shown as if protection were on, for
+     * screenshots (-ShroudlyScreen warn-server | warn-national). */
+    private(set) var preview = false
+
+    init() {
+        #if DEBUG
+        switch UserDefaults.standard.string(forKey: "ShroudlyScreen") {
+        case "warn-server": ownServerDown = Down(server: "SOCKS5 203.0.113.5:1080", why: "noAnswer"); preview = true
+        case "warn-national": national = "IR"; preview = true
+        default: break
+        }
+        #endif
+    }
 
     func refresh(protected: Bool) async {
+        if preview { return }
         guard protected else {
             ownServerDown = nil
             national = nil

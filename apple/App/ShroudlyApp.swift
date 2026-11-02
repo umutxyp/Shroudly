@@ -15,6 +15,16 @@ struct ShroudlyApp: App {
 
     init() {
         RatingStore().noteLaunch()
+        #if DEBUG
+        // Screenshots of the screens (a debug build only): an own server as
+        // if saved (-ShroudlyOwnServer <link>).
+        if let link = UserDefaults.standard.string(forKey: "ShroudlyOwnServer") {
+            let store = SettingsStore()
+            var s = store.load()
+            s.ownServer = link
+            store.save(s)
+        }
+        #endif
     }
 
     var body: some Scene {
@@ -31,10 +41,24 @@ struct ShroudlyApp: App {
     }
 
     private var root: some View {
-        ContentView()
+        screen
             .environmentObject(controller)
             .preferredColorScheme(.dark)
             .tint(Theme.accent)
             .task { await controller.load() }
+    }
+
+    /* The main screen; in a debug build, -ShroudlyScreen settings|about opens
+     * that one instead, for screenshots. */
+    @ViewBuilder private var screen: some View {
+        #if DEBUG
+        switch UserDefaults.standard.string(forKey: "ShroudlyScreen") {
+        case "settings": NavigationStack { SettingsView() }
+        case "about": NavigationStack { AboutView() }
+        default: ContentView()
+        }
+        #else
+        ContentView()
+        #endif
     }
 }

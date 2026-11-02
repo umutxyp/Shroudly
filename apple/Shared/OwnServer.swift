@@ -202,4 +202,27 @@ enum OwnServer {
         default: return "ownServerErrFormat"
         }
     }
+
+    /* The texts themselves. Each key is named here as tr("…") so that
+     * scripts/gen-strings.js, which collects the keys the sources name,
+     * puts every one of them into the app. */
+    static func whyText(_ code: String?) -> String {
+        switch whyKey(code) {
+        case "ownServerWhyNoAnswer": return tr("ownServerWhyNoAnswer")
+        case "ownServerWhyAuth": return tr("ownServerWhyAuth")
+        case "ownServerWhyAsks": return tr("ownServerWhyAsks")
+        case "ownServerWhyRefused": return tr("ownServerWhyRefused")
+        case "ownServerWhySilent": return tr("ownServerWhySilent")
+        case "ownServerWhyTls": return tr("ownServerWhyTls")
+        default: return tr("ownServerWhyProtocol")
+        }
+    }
+
+    static func errorText(_ error: String?, method: String?) -> String {
+        switch errorKey(error) {
+        case "ownServerErrMethod": return tr("ownServerErrMethod", ["method": method ?? ""])
+        case "ownServerErrUser": return tr("ownServerErrUser")
+        default: return tr("ownServerErrFormat")
+        }
+    }
 }

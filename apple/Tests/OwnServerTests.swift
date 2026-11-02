@@ -37,6 +37,21 @@ final class OwnServerTests: XCTestCase {
         XCTAssertEqual(OwnServer.errorKey("empty"), "ownServerErrFormat")
     }
 
+    /* Every reason and every refusal the screen can show is in the app's
+     * strings (a key chosen at run time is not one scripts/gen-strings.js
+     * would find by itself). */
+    func testEveryReasonIsInTheAppsStrings() throws {
+        let file = URL(fileURLWithPath: #filePath).deletingLastPathComponent()
+            .appendingPathComponent("../Localization/en.lproj/Localizable.strings").standardized
+        let strings = try String(contentsOf: file, encoding: .utf8)
+        let keys = ["noAnswer", "auth", "asks", "refused", "protocol", "silent", "tls", "x"].map(OwnServer.whyKey)
+            + ["method", "user", "format", "empty"].map(OwnServer.errorKey)
+            + ["ownServerDown", "ownServerDownBody", "nationalOnlyTitle", "nationalOnlyBody", "nationalOnlyHelp", "helpOthers", "helpOthersBodyConduit", "helpOthersConduit"]
+        for k in Set(keys) {
+            XCTAssertTrue(strings.contains("\"\(k)\" = "), "\(k) is in the app's strings")
+        }
+    }
+
     func testNeverThePassword() {
         let l = OwnServer.parse("socks5://alice:secret@10.0.0.2:1080").link!
         XCTAssertEqual(OwnServer.describe(l), "SOCKS5 10.0.0.2:1080")

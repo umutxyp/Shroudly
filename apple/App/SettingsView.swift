@@ -105,7 +105,7 @@ extension SettingsView {
         let typed = draft.trimmingCharacters(in: .whitespacesAndNewlines)
         let p = OwnServer.parse(typed)
         if let error = p.error {
-            serverError = tr(OwnServer.errorKey(error), ["method": p.method ?? ""])
+            serverError = OwnServer.errorText(error, method: p.method)
             return
         }
         serverError = nil

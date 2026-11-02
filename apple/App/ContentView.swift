@@ -17,7 +17,7 @@ struct ContentView: View {
                 Theme.background.ignoresSafeArea()
                 VStack(spacing: 28) {
                     Spacer()
-                    Orb(phase: controller.phase, warn: watch.ownServerDown != nil || watch.national != nil) { toggle() }
+                    Orb(phase: phase, warn: watch.ownServerDown != nil || watch.national != nil) { toggle() }
                     VStack(spacing: 8) {
                         Text(title)
                             .font(.title2.weight(.semibold))
@@ -28,11 +28,11 @@ struct ContentView: View {
                             .multilineTextAlignment(.center)
                             .padding(.horizontal, 24)
                     }
-                    if controller.phase == .on, let down = watch.ownServerDown {
+                    if phase == .on, let down = watch.ownServerDown {
                         Warning(title: tr("ownServerDown"),
-                                text: tr("ownServerDownBody", ["server": down.server, "why": tr(OwnServer.whyKey(down.why)),
+                                text: tr("ownServerDownBody", ["server": down.server, "why": OwnServer.whyText(down.why),
                                                                "path": "\(tr("navSettings")) \(direction == .rightToLeft ? "←" : "→") \(tr("ownServer"))"]))
-                    } else if controller.phase == .on, watch.national != nil {
+                    } else if phase == .on, watch.national != nil {
                         Warning(title: tr("nationalOnlyTitle"), text: tr("nationalOnlyBody"),
                                 link: (tr("nationalOnlyHelp"), NationalNet.guideURL(language: Bundle.main.preferredLocalizations.first ?? "en")))
                     }
@@ -76,8 +76,11 @@ struct ContentView: View {
         }
     }
 
+    /* The tunnel's phase; "on" for a debug build's warning screenshots. */
+    private var phase: TunnelController.Phase { watch.preview ? .on : controller.phase }
+
     private var title: String {
-        switch controller.phase {
+        switch phase {
         case .off: return tr("notProtected")
         case .starting: return tr("starting")
         case .on: return tr("protected")
