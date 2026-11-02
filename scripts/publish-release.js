@@ -43,6 +43,9 @@ const ASSETS = [
   // fork): with the key it must be there, or phones that update from GitHub
   // are never offered this version (ANDROID_SIGNED, release.yml).
   [`Shroudly-${version}-Android.apk`, 'Android 8+ · Phones and tablets · APK', { optional: process.env.ANDROID_SIGNED !== 'true' }],
+  // Until the App Store has it: for TrollStore, or signed again with one's
+  // own Apple developer account (apple/scripts/make-ipa.sh).
+  [`Shroudly-${version}-iOS.ipa`, 'iPhone and iPad · iOS 16+ · for TrollStore or your own developer account (App Store soon)'],
   ['latest.yml', `Update data · Windows ${FEED}`],
   ['latest-mac.yml', `Update data · macOS ${FEED}`],
   ['latest-linux.yml', `Update data · Linux x64 ${FEED}`],

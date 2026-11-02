@@ -135,16 +135,23 @@ function get(front, host, p) {
   // ── for real: the fronts hand GitHub's raw files over today ──
   // Real CDNs, so one moment of the runner not reaching one says nothing:
   // each is tried a few times before it counts.
+  // The app goes through the fronts in turn, so one turning a request away
+  // for a moment changes nothing; all but one must work, each said.
   const FILE = '/umutxyp/Shroudly/main/package.json';
-  for (const front of Fronting.frontsFor('raw.githubusercontent.com')) {
+  const fronts = Fronting.frontsFor('raw.githubusercontent.com');
+  const worked = [];
+  for (const front of fronts) {
     let r = null;
     for (let i = 0; i < 3; i++) {
       r = await get(front, 'raw.githubusercontent.com', FILE);
       if (r.status === 200 && /"name":\s*"shroudly"/.test(r.body)) break;
       await new Promise((x) => setTimeout(x, 2000));
     }
-    t.ok(r.status === 200 && /"name":\s*"shroudly"/.test(r.body), `${front} hands GitHub's raw file over (HTTP ${r.status})`);
+    const ok = r.status === 200 && /"name":\s*"shroudly"/.test(r.body);
+    if (ok) worked.push(front);
+    console.log(`  ${ok ? 'ok' : '--'}  ${front} hands GitHub's raw file over (HTTP ${r.status})`);
   }
+  t.ok(worked.length >= fronts.length - 1, `the fronts hand GitHub's raw files over today (${worked.length} of ${fronts.length})`);
   // And through the engine, the way the app fetches.
   const P = await freePort();
   const eng = await startEngine(P, ['--auto', '--doh']);

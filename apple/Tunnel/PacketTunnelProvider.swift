@@ -55,6 +55,9 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
     private var paths: NWPathMonitor?
     private var pathChange: DispatchWorkItem?
     private var stopping = false
+    // "Your own server": the line the engine gets, and the Shadowsocks client.
+    private var upstreamLine: String?
+    private var ssClient: ShadowsocksClient?
 
     // MARK: start and stop
 
@@ -87,6 +90,8 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
         stopping = false
         settings = SettingsStore().load()
         log("Starting: technique \(settings.strategy.id)\(settings.quicOff ? ", QUIC off" : "")\(settings.ipv6Off ? ", IPv6 off" : "")")
+        clearOwnServerDown()
+        try prepareOwnServer()
 
         let forwarder = DohForwarder(log: { [weak self] in self?.log($0) })
         doh = forwarder
@@ -122,6 +127,9 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
         }
         engine = nil
         doh?.stop(); doh = nil
+        ssClient?.stop(); ssClient = nil
+        upstreamLine = nil
+        clearOwnServerDown()
         return clean
     }
 
@@ -143,10 +151,18 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
             let e = Engine(log: { [weak self] in self?.log($0) },
                            logSite: { [weak self] in self?.logSite($0) },
                            onExit: { [weak self] code in self?.queue.async { self?.engineExited(code) } })
-            let args = EngineArgs.make(port: p, dohPort: dohPort, settings: settings, authFile: authPath, blockIps: blockIps)
+            var upstreamPath: String?
+            if let line = upstreamLine {
+                let path = FileManager.default.temporaryDirectory.appendingPathComponent("engine-upstream").path
+                try OwnServer.writeFile(line, to: path)
+                upstreamPath = path
+            }
+            e.onUpstreamDown = { [weak self] why in self?.queue.async { self?.ownServerDown(why) } }
+            let args = EngineArgs.make(port: p, dohPort: dohPort, settings: settings, authFile: authPath, blockIps: blockIps, upstreamFile: upstreamPath)
             let ok = e.start(args: args)
-            // Read once, at its start: the secret is not left lying in a file.
+            // Read once, at its start: the secrets are not left lying in a file.
             unlink(authPath)
+            if let upstreamPath { unlink(upstreamPath) }
             if ok {
                 engine = e
                 return p
@@ -162,6 +178,39 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
             }
         }
         throw StartError(message: "engine failed to start")
+    }
+
+    // MARK: your own server
+
+    /* The user's own server, when one is set: Shadowsocks through this
+     * tunnel's own client (a SOCKS5 server on 127.0.0.1 with this session's
+     * user and password), the others as they are. */
+    private func prepareOwnServer() throws {
+        ssClient?.stop(); ssClient = nil
+        upstreamLine = nil
+        guard let link = settings.ownServerLink else { return }
+        if link.kind == "ss" {
+            let a = SocksAuth.random()
+            let c = ShadowsocksClient(link: link, auth: a, log: { [weak self] in self?.log($0) })
+            let p = try c.start()
+            ssClient = c
+            upstreamLine = OwnServer.engineLine(link, localPort: p, auth: a)
+        } else {
+            upstreamLine = OwnServer.engineLine(link)
+        }
+        log("Your own server: \(OwnServer.describe(link)); every site goes through it")
+    }
+
+    private func ownServerDown(_ why: String?) {
+        let d = AppGroup.defaults
+        d.set(OwnServer.whyCode(why), forKey: OwnServer.Down.why)
+        d.set(Date().timeIntervalSince1970, forKey: OwnServer.Down.at)
+        d.set(settings.ownServerLink.map(OwnServer.describe) ?? "", forKey: OwnServer.Down.server)
+    }
+
+    private func clearOwnServerDown() {
+        let d = AppGroup.defaults
+        for k in [OwnServer.Down.why, OwnServer.Down.at, OwnServer.Down.server] { d.removeObject(forKey: k) }
     }
 
     private func engineExited(_ code: Int32) {

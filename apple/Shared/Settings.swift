@@ -9,7 +9,9 @@ import Foundation
  *    what works per site and keeps it, or one technique for every site;
  *  - QUIC off and IPv6 off (#59), for networks where those are blocked or slow;
  *  - keep protection on: the system starts it again by itself (on demand)
- *    after a restart or when it dropped, until the user stops it.
+ *    after a restart or when it dropped, until the user stops it;
+ *  - your own server (Shared/OwnServer.swift): every site through it, the
+ *    link as the user typed it ("" for none).
  */
 struct Strategy: Equatable {
     let id: String
@@ -45,14 +47,18 @@ struct AppSettings: Equatable {
     var quicOff = false
     var ipv6Off = false
     var keepOn = false
+    var ownServer = ""
 
     var strategy: Strategy { Strategies.byId(strategyId) }
 
     /* What the engine and the tunnel are started with; keepOn is the
      * system's business (on demand), not theirs. */
     func sameTunnel(as other: AppSettings) -> Bool {
-        strategy == other.strategy && quicOff == other.quicOff && ipv6Off == other.ipv6Off
+        strategy == other.strategy && quicOff == other.quicOff && ipv6Off == other.ipv6Off && ownServer == other.ownServer
     }
+
+    /* The own server in use, or nil (none, or a link that cannot be used). */
+    var ownServerLink: OwnServerLink? { ownServer.isEmpty ? nil : OwnServer.parse(ownServer).link }
 }
 
 final class SettingsStore {
@@ -61,6 +67,7 @@ final class SettingsStore {
         static let quicOff = "quicOff"
         static let ipv6Off = "ipv6Off"
         static let keepOn = "keepOn"
+        static let ownServer = "ownServer"
     }
 
     private let defaults: UserDefaults
@@ -75,6 +82,7 @@ final class SettingsStore {
         s.quicOff = defaults.bool(forKey: Key.quicOff)
         s.ipv6Off = defaults.bool(forKey: Key.ipv6Off)
         s.keepOn = defaults.bool(forKey: Key.keepOn)
+        s.ownServer = defaults.string(forKey: Key.ownServer) ?? ""
         return s
     }
 
@@ -83,5 +91,6 @@ final class SettingsStore {
         defaults.set(s.quicOff, forKey: Key.quicOff)
         defaults.set(s.ipv6Off, forKey: Key.ipv6Off)
         defaults.set(s.keepOn, forKey: Key.keepOn)
+        defaults.set(s.ownServer, forKey: Key.ownServer)
     }
 }

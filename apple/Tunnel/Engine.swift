@@ -34,6 +34,8 @@ final class Engine {
     private let ready = DispatchSemaphore(value: 0)
     private let finished = DispatchSemaphore(value: 0)
     private var started = false
+    /* The user's own server failed (the engine says so now and then). */
+    var onUpstreamDown: ((String?) -> Void)?
     private(set) var lastError: String?
     /* What the run returned; nil while it runs. */
     private(set) var exitCode: Int32?
@@ -187,6 +189,11 @@ final class Engine {
             lock.lock(); lastStats = obj; lock.unlock()
         case "stopped":
             log("engine: stopped")
+        case "upstream":
+            // The user's own server could not be used ("why": the engine's words).
+            let why = obj["why"] as? String
+            log("engine: own server: \(why ?? "?")")
+            onUpstreamDown?(why)
         default:
             // Events about one site (bypass, blocked, seen...) name it.
             logSite("engine: \(line)")

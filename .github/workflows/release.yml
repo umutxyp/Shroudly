@@ -425,6 +425,32 @@ jobs:
           done
           rm -f "$RUNNER_TEMP/AuthKey.p8"
 
+  # The iPhone and iPad app as an .ipa, on the release beside the others, for
+  # installing it outside the App Store until the App Store has it (TrollStore,
+  # or signed again with one's own Apple developer account). Built and checked
+  # by apple/scripts/make-ipa.sh: version, packet tunnel, arm64, entitlements.
+  ios-ipa:
+    runs-on: macos-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+      - name: Build and check the .ipa
+        shell: bash
+        run: |
+          set -euo pipefail
+          v="$(node -p "require('./package.json').version")"
+          mkdir -p dist
+          bash apple/scripts/make-ipa.sh "dist/Shroudly-$v-iOS.ipa"
+      - uses: actions/upload-artifact@v7
+        with:
+          name: dist-ios
+          path: dist/*.ipa
+          if-no-files-found: error
+          retention-days: 3
+
   # The Android app, signed with the project's key (secrets ANDROID_*). The
   # signature is checked against the key's certificate before it is handed
   # on; without the secrets nothing is published for Android and the desktop
@@ -535,7 +561,7 @@ jobs:
           if-no-files-found: error
 
   release:
-    needs: [build, sign-windows, linux-packages, appimage, windows-install, macos-dmg, android]
+    needs: [build, sign-windows, linux-packages, appimage, windows-install, macos-dmg, android, ios-ipa]
     runs-on: ubuntu-latest
     # sign-windows is skipped while signing is off; anything failed stops it.
     if: ${{ startsWith(github.ref, 'refs/tags/') && !cancelled() && !failure() }}

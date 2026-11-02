@@ -8,6 +8,8 @@ struct ContentView: View {
     @Environment(\.requestReview) private var requestReview
     @AppStorage("noticeSeen") private var noticeSeen = false
     @State private var showNotice = false
+    @StateObject private var watch = NetworkWatch()
+    @Environment(\.layoutDirection) private var direction
 
     var body: some View {
         NavigationStack {
@@ -15,7 +17,7 @@ struct ContentView: View {
                 Theme.background.ignoresSafeArea()
                 VStack(spacing: 28) {
                     Spacer()
-                    Orb(phase: controller.phase) { toggle() }
+                    Orb(phase: controller.phase, warn: watch.ownServerDown != nil || watch.national != nil) { toggle() }
                     VStack(spacing: 8) {
                         Text(title)
                             .font(.title2.weight(.semibold))
@@ -25,6 +27,14 @@ struct ContentView: View {
                             .foregroundStyle(controller.notice == nil ? Theme.secondaryText : .orange)
                             .multilineTextAlignment(.center)
                             .padding(.horizontal, 24)
+                    }
+                    if controller.phase == .on, let down = watch.ownServerDown {
+                        Warning(title: tr("ownServerDown"),
+                                text: tr("ownServerDownBody", ["server": down.server, "why": tr(OwnServer.whyKey(down.why)),
+                                                               "path": "\(tr("navSettings")) \(direction == .rightToLeft ? "←" : "→") \(tr("ownServer"))"]))
+                    } else if controller.phase == .on, watch.national != nil {
+                        Warning(title: tr("nationalOnlyTitle"), text: tr("nationalOnlyBody"),
+                                link: (tr("nationalOnlyHelp"), NationalNet.guideURL(language: Bundle.main.preferredLocalizations.first ?? "en")))
                     }
                     Spacer()
                     HStack(spacing: 12) {
@@ -51,6 +61,14 @@ struct ContentView: View {
                 noticeSeen = true
                 showNotice = false
                 Task { await controller.start() }
+            }
+        }
+        // Looked at while the screen is open and protection is on.
+        .task(id: controller.phase == .on && scenePhase == .active) {
+            while !Task.isCancelled {
+                await watch.refresh(protected: controller.phase == .on && scenePhase == .active)
+                guard controller.phase == .on && scenePhase == .active else { return }
+                try? await Task.sleep(nanoseconds: 5_000_000_000)
             }
         }
         .task(id: RatingPrompt.Moment(phase: controller.phase, active: scenePhase == .active)) {
@@ -82,29 +100,33 @@ struct ContentView: View {
     }
 }
 
-/* The big round button: blue and glowing when protected, grey when not. */
+/* The big round button: blue and glowing when protected, grey when not,
+ * amber when protected but your own server or the world does not answer. */
 private struct Orb: View {
     let phase: TunnelController.Phase
+    var warn = false
     let action: () -> Void
+
+    private var tint: Color { on ? (warn ? .orange : Theme.accent) : Theme.off }
 
     var body: some View {
         Button(action: action) {
             ZStack {
                 Circle()
-                    .fill(on ? Theme.accent.opacity(0.18) : Theme.card)
+                    .fill(on ? tint.opacity(0.18) : Theme.card)
                     .frame(width: 210, height: 210)
                 Circle()
-                    .stroke(on ? Theme.accent : Theme.off, lineWidth: 4)
+                    .stroke(tint, lineWidth: 4)
                     .frame(width: 180, height: 180)
                 if phase == .starting || phase == .stopping {
                     ProgressView().controlSize(.large).tint(.white)
                 } else {
                     Image(systemName: "power")
                         .font(.system(size: 64, weight: .medium))
-                        .foregroundStyle(on ? Theme.accent : Theme.secondaryText)
+                        .foregroundStyle(on ? tint : Theme.secondaryText)
                 }
             }
-            .shadow(color: on ? Theme.accent.opacity(0.45) : .clear, radius: 30)
+            .shadow(color: on ? tint.opacity(0.45) : .clear, radius: 30)
             .contentShape(Circle())
         }
         .buttonStyle(.plain)
@@ -113,6 +135,33 @@ private struct Orb: View {
     }
 
     private var on: Bool { phase == .on }
+}
+
+/* A notice under the status: what is wrong, and where to read more. */
+private struct Warning: View {
+    let title: String
+    let text: String
+    var link: (String, URL)?
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Label(title, systemImage: "exclamationmark.triangle.fill")
+                .font(.callout.weight(.semibold))
+                .foregroundStyle(.orange)
+            Text(text)
+                .font(.footnote)
+                .foregroundStyle(Theme.secondaryText)
+                .fixedSize(horizontal: false, vertical: true)
+            if let link {
+                Link(link.0, destination: link.1).font(.footnote.weight(.semibold))
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(14)
+        .background(Theme.card, in: RoundedRectangle(cornerRadius: 14))
+        .padding(.horizontal, 16)
+        .accessibilityElement(children: .combine)
+    }
 }
 
 private struct Tab: View {

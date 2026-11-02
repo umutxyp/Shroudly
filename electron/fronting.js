@@ -21,9 +21,10 @@
  * Shroudly never opens anyone's encrypted connections to change that.
  */
 
-/* Large sites on Fastly, unlikely to be blocked where GitHub is. */
+/* Large sites on Fastly, unlikely to be blocked where GitHub is, and with
+ * no bot wall in front (PayPal's turned a request away now and then). */
 const FRONTS = {
-  'raw.githubusercontent.com': ['www.python.org', 'pypi.org', 'www.fastly.com', 'www.paypal.com'],
+  'raw.githubusercontent.com': ['www.python.org', 'pypi.org', 'www.fastly.com', 'www.ted.com'],
 };
 
 function frontsFor(host) {

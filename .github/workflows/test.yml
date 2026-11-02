@@ -399,3 +399,8 @@ jobs:
         run: xcodebuild -version
       - name: Build and unit tests
         run: bash apple/scripts/test.sh
+      # The iPhone and iPad app as the .ipa a release puts beside the others
+      # (for TrollStore, or one's own developer account), built and checked
+      # the same way: version, packet tunnel, arm64, entitlements, engine.
+      - name: The .ipa
+        run: bash apple/scripts/make-ipa.sh "$RUNNER_TEMP/Shroudly-iOS.ipa"

@@ -109,7 +109,7 @@ enum EngineArgs {
      * known block page, this session's SOCKS5 password file and the stand-in
      * range. No ad blocking: store copies leave it out, as on Google Play. */
     static func make(port: Int, dohPort: Int, settings: AppSettings, authFile: String?,
-                     blockIps: [String], fakeNet: String? = TunnelConfig.fakeNet) -> [String] {
+                     blockIps: [String], fakeNet: String? = TunnelConfig.fakeNet, upstreamFile: String? = nil) -> [String] {
         let strategy = settings.strategy
         var a = ["--listen", "127.0.0.1", "--port", String(port), "--strategy", strategy.spec]
         if strategy.auto { a.append("--auto") }
@@ -120,6 +120,8 @@ enum EngineArgs {
         for ip in blockIps { a += ["--block-ip", ip] }
         if settings.quicOff { a.append("--drop-quic") }
         if settings.ipv6Off { a.append("--ipv4-only") }
+        // "Your own server": every connection to a name goes through it.
+        if let upstreamFile { a += ["--upstream-file", upstreamFile] }
         return a
     }
 
