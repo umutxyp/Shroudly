@@ -57,7 +57,17 @@ if [ "$MODE" = remove ]; then
          elif command -v zypper >/dev/null 2>&1; then zypper --non-interactive remove shroudly >/dev/null 2>&1 || true; fi ;;
   esac
   rm -rf "$UNPACKED"
-  if id "$NAME" >/dev/null 2>&1; then userdel "$NAME" >/dev/null 2>&1 || true; fi
+  # Its user, once nothing runs as it any more: Chromium's helpers can
+  # outlive the service by a moment, and userdel refuses a user in use.
+  if id "$NAME" >/dev/null 2>&1; then
+    pkill -u "$NAME" >/dev/null 2>&1 || true
+    i=0
+    while pgrep -u "$NAME" >/dev/null 2>&1 && [ $i -lt 20 ]; do sleep 1; i=$((i + 1)); done
+    pkill -9 -u "$NAME" >/dev/null 2>&1 || true
+    sleep 1
+    userdel "$NAME" >/dev/null 2>&1 || userdel -f "$NAME" >/dev/null 2>&1 || say "could not remove the user $NAME"
+  fi
+  if getent group "$NAME" >/dev/null 2>&1; then groupdel "$NAME" >/dev/null 2>&1 || true; fi
   rm -rf "$HOME_DIR"
   say "removed"
   exit 0

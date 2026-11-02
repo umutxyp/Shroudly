@@ -311,7 +311,9 @@ jobs:
           sudo journalctl -u shroudly-helper -n 30 --no-pager | tee /tmp/helper.log
           grep -q "helping people in censored countries" /tmp/helper.log
           sudo /usr/local/sbin/shroudly-helper-install --remove
-          if id shroudly-helper 2>/dev/null || [ -e /opt/Shroudly ] || [ -e /etc/systemd/system/shroudly-helper.service ]; then echo "FAIL: --remove left something"; exit 1; fi
+          if id shroudly-helper 2>/dev/null || [ -e /opt/Shroudly ] || [ -e /etc/systemd/system/shroudly-helper.service ]; then
+            echo "FAIL: --remove left something"; pgrep -a -u shroudly-helper || true; ls -d /opt/Shroudly /etc/systemd/system/shroudly-helper.service 2>/dev/null || true; exit 1
+          fi
           echo "ok  the server helper set up, running as its own user, and removed"
 
   windows-install:
