@@ -71,6 +71,7 @@ class Engine(
             quicOff: Boolean = false,
             ipv6Off: Boolean = false,
             upstream: File? = null,
+            decoyNames: List<String> = emptyList(),
         ): List<String> {
             // The technique chosen in Settings: automatic (the engine looks for
             // what works per site and keeps it) or one for every site.
@@ -95,6 +96,10 @@ class Engine(
             // "Your own server" (OwnServer): every connection to a name goes
             // through it.
             if (upstream != null) a += listOf("--upstream-file", upstream.path)
+            // Decoys carry the names of large sites in the user's country, which
+            // a network that lets only allowed sites through keeps open
+            // (NationalNet.decoyNames); host names only, at most eight.
+            for (n in decoyNames.take(8)) if (Regex("^[A-Za-z0-9.-]{4,253}$").matches(n)) a += listOf("--decoy-name", n)
             return a
         }
 

@@ -33,6 +33,7 @@ object AppSettings {
     private const val KEY_DNS_STRICT = "customDnsStrict"
     private const val KEY_DNS_PROXY = "customDnsProxy"
     private const val KEY_OWN_SERVER = "ownServer"
+    private const val KEY_HOME_COUNTRY = "homeCountry"
 
     /* The desktop's list, in its order: id, label (locale key), the
      * engine's spec, and whether the engine looks for what works by itself. */
@@ -85,6 +86,13 @@ object AppSettings {
     }
 
     /* "Your own server" (OwnServer): the link as typed, or "" for none. */
+    /* The country whose own network answered in a shutdown (NationalNet):
+     * decoys carry its sites' names. */
+    fun homeCountry(ctx: Context): String? = prefs(ctx).getString(KEY_HOME_COUNTRY, null)
+    fun setHomeCountry(ctx: Context, cc: String) { if (homeCountry(ctx) != cc) prefs(ctx).edit().putString(KEY_HOME_COUNTRY, cc).apply() }
+    fun decoyNames(ctx: Context): List<String> =
+        NationalNet.decoyNames(NationalNet.homeCountry(homeCountry(ctx), java.util.TimeZone.getDefault().id))
+
     fun ownServerTyped(ctx: Context): String = prefs(ctx).getString(KEY_OWN_SERVER, null) ?: ""
 
     fun ownServer(ctx: Context): OwnServer.Link? = OwnServer.parse(ownServerTyped(ctx)).link

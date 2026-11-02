@@ -33,6 +33,35 @@ object NationalNet {
         "MM" to listOf("www.mpt.com.mm"),
     )
 
+    /* The system's time zones of those countries (electron/national-net.js ZONES). */
+    val ZONES: Map<String, List<String>> = linkedMapOf(
+        "IR" to listOf("Asia/Tehran"),
+        "RU" to listOf("Europe/Moscow", "Europe/Kaliningrad", "Europe/Samara", "Europe/Volgograd", "Europe/Saratov", "Europe/Ulyanovsk", "Europe/Astrakhan", "Europe/Kirov", "Asia/Yekaterinburg", "Asia/Omsk", "Asia/Novosibirsk", "Asia/Barnaul", "Asia/Tomsk", "Asia/Novokuznetsk", "Asia/Krasnoyarsk", "Asia/Irkutsk", "Asia/Chita", "Asia/Yakutsk", "Asia/Khandyga", "Asia/Vladivostok", "Asia/Ust-Nera", "Asia/Magadan", "Asia/Sakhalin", "Asia/Srednekolymsk", "Asia/Kamchatka", "Asia/Anadyr"),
+        "BY" to listOf("Europe/Minsk"),
+        "KZ" to listOf("Asia/Almaty", "Asia/Qostanay", "Asia/Aqtobe", "Asia/Aqtau", "Asia/Atyrau", "Asia/Oral", "Asia/Qyzylorda"),
+        "UZ" to listOf("Asia/Tashkent", "Asia/Samarkand"),
+        "TM" to listOf("Asia/Ashgabat"),
+        "AZ" to listOf("Asia/Baku"),
+        "CN" to listOf("Asia/Shanghai", "Asia/Urumqi", "Asia/Chongqing", "Asia/Harbin"),
+        "TR" to listOf("Europe/Istanbul", "Asia/Istanbul"),
+        "PK" to listOf("Asia/Karachi"),
+        "IQ" to listOf("Asia/Baghdad"),
+        "ET" to listOf("Africa/Addis_Ababa"),
+        "MM" to listOf("Asia/Yangon", "Asia/Rangoon"),
+    )
+
+    /* The country the user is in, as well as it is known: the one whose own
+     * network answered in a shutdown (remembered), else the one the time
+     * zone is in, else null. */
+    fun homeCountry(remembered: String?, timeZone: String): String? {
+        if (remembered != null && DOMESTIC.containsKey(remembered)) return remembered
+        return ZONES.entries.firstOrNull { timeZone in it.value }?.key
+    }
+
+    /* The names the engine's decoys carry there (--decoy-name): its large
+     * sites, which a network that lets only allowed sites through keeps open. */
+    fun decoyNames(country: String?): List<String> = DOMESTIC[country]?.take(8) ?: emptyList()
+
     private const val TIMEOUT_MS = 5000
 
     /* (country, host) of the first site that answers, or null. `reach`

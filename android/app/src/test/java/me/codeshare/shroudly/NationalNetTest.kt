@@ -35,4 +35,21 @@ class NationalNetTest {
         assertEquals("https://github.com/umutxyp/Shroudly/wiki/Shutdowns-id", NationalNet.guideUrl("in"))
         assertEquals("https://github.com/umutxyp/Shroudly/wiki/Shutdowns-en", NationalNet.guideUrl("sw"))
     }
+
+    @Test
+    fun decoyNames() {
+        // The country a shutdown showed first, else the time zone's.
+        assertEquals("IR", NationalNet.homeCountry(null, "Asia/Tehran"))
+        assertEquals("RU", NationalNet.homeCountry(null, "Asia/Vladivostok"))
+        assertEquals("IR", NationalNet.homeCountry("IR", "Europe/Berlin"))
+        assertEquals("AZ", NationalNet.homeCountry("ZZ", "Asia/Baku"))
+        assertNull(NationalNet.homeCountry(null, "Europe/Berlin"))
+        assertEquals(NationalNet.DOMESTIC.getValue("IR"), NationalNet.decoyNames("IR"))
+        assertTrue(NationalNet.decoyNames(null).isEmpty() && NationalNet.decoyNames("ZZ").isEmpty())
+        assertEquals(NationalNet.DOMESTIC.keys, NationalNet.ZONES.keys)
+        // The engine gets them as --decoy-name, host names only; none, none.
+        val a = Engine.args(1080, 0, emptyList(), decoyNames = listOf("divar.ir", "not a name", "www.aparat.com"))
+        assertEquals(listOf("divar.ir", "www.aparat.com"), a.indices.filter { a[it] == "--decoy-name" }.map { a[it + 1] })
+        assertTrue("--decoy-name" !in Engine.args(1080, 0, emptyList()))
+    }
 }

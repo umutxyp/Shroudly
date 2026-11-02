@@ -59,8 +59,11 @@ const t = suite('national-net');
 
   // The Android app asks the same sites (NationalNet.kt).
   const kt = fs.readFileSync(path.join(ROOT, 'android', 'app', 'src', 'main', 'java', 'me', 'codeshare', 'shroudly', 'NationalNet.kt'), 'utf8');
-  const ktList = Object.fromEntries([...kt.matchAll(/"([A-Z]{2})" to listOf\(([^)]*)\)/g)].map((m) => [m[1], [...m[2].matchAll(/"([^"]+)"/g)].map((x) => x[1])]));
+  const ktList = Object.fromEntries([...kt.slice(kt.indexOf('val DOMESTIC'), kt.indexOf('val ZONES')).matchAll(/"([A-Z]{2})" to listOf\(([^)]*)\)/g)].map((m) => [m[1], [...m[2].matchAll(/"([^"]+)"/g)].map((x) => x[1])]));
   t.ok(JSON.stringify(ktList) === JSON.stringify(DOMESTIC), 'the Android app asks the same sites as the desktop');
+  const ktZonesSrc = kt.slice(kt.indexOf('val ZONES'), kt.indexOf('fun homeCountry'));
+  const ktZones = Object.fromEntries([...ktZonesSrc.matchAll(/"([A-Z]{2})" to listOf\(([^)]*)\)/g)].map((m) => [m[1], [...m[2].matchAll(/"([^"]+)"/g)].map((x) => x[1])]));
+  t.ok(JSON.stringify(ktZones) === JSON.stringify(require(path.join(ROOT, 'electron', 'national-net.js')).ZONES), 'and knows the same time zones');
 
   // Decoys carry the names of the user's country's large sites (core/src/
   // proto.h, --decoy-name): the country a shutdown showed, else the time

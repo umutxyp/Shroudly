@@ -239,7 +239,7 @@ class ShroudlyProxyService : Service() {
             engine = e
             val upstream = ownServer.fileFor(AppSettings.ownServer(this))
             // No password and no stand-in range: apps reach it by name or address.
-            val started = e.start(Engine.args(at, dohPort, blockIps, null, null, AdBlock.listFile(this), AdBlock.allow(this), AppSettings.strategy(this), AppSettings.customDnsStrict(this), AppSettings.quicOff(this), AppSettings.ipv6Off(this), upstream))
+            val started = e.start(Engine.args(at, dohPort, blockIps, null, null, AdBlock.listFile(this), AdBlock.allow(this), AppSettings.strategy(this), AppSettings.customDnsStrict(this), AppSettings.quicOff(this), AppSettings.ipv6Off(this), upstream, AppSettings.decoyNames(this)))
             upstream?.delete()
             if (started) {
                 doh?.socksPort = at

@@ -575,7 +575,7 @@ class ShroudlyVpnService : VpnService() {
             val e = Engine(::log, ::logSite, ::onEngineEvent, ::onEngineExit)
             engine = e
             val ok = e.start(Engine.args(p, dohPort, blockIps, authFile, Engine.FAKE_NET, AdBlock.listFile(this), AdBlock.allow(this), AppSettings.strategy(this), AppSettings.customDnsStrict(this),
-                AppSettings.quicOff(this), AppSettings.ipv6Off(this), upstream))
+                AppSettings.quicOff(this), AppSettings.ipv6Off(this), upstream, AppSettings.decoyNames(this)))
             // Read once, at its start: the secrets are not left lying in a file.
             authFile?.delete()
             upstream?.delete()
@@ -869,6 +869,7 @@ class ShroudlyVpnService : VpnService() {
             try {
                 val found = NationalNet.answers(net)
                 val cc = found?.first
+                if (cc != null) AppSettings.setHomeCountry(this, cc)
                 if (cc != Protection.national) {
                     Protection.national(cc)
                     if (found != null) log("Only this country's own network answers: the connection to the rest of the world is cut (${found.second} opens, the world's addresses do not). No app can get past that; Shroudly carries on when it is back")
