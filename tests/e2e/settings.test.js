@@ -104,8 +104,13 @@ async function openMore(page, t) {
   await page.getByText(t.navSettings, { exact: true }).first().click();
   const more = page.getByRole('button', { name: new RegExp(t.moreSettings.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')) });
   await more.waitFor({ timeout: 10000 });
-  if ((await more.getAttribute('aria-expanded')) !== 'true') await more.click();
-  await page.getByText(t.ownServer, { exact: true }).first().waitFor({ timeout: 10000 });
+  // A setting left on opens the section by itself once the settings are
+  // read, which can be just after the button is looked at: looked at again.
+  for (let i = 0; i < 4; i++) {
+    if ((await more.getAttribute('aria-expanded')) !== 'true') await more.click();
+    if (await until(() => page.getByText(t.ownServer, { exact: true }).first().isVisible(), 3000)) return;
+  }
+  throw new Error('More settings did not open');
 }
 
 const section = (page, title) => page.locator('section.card').filter({ has: page.getByRole('heading', { name: title, exact: true }) });
