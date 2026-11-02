@@ -63,6 +63,9 @@ test-asan: test/test_proto.c test/test_udpdpi.c test/test_desync.c test/test_bog
 		test/test_desync.c $(LDLIBS)
 	ASAN_OPTIONS=halt_on_error=0 /tmp/shroudly_test_asan
 	$(CC) -std=c11 -O1 -g -fsanitize=address,undefined -Wall -Wextra \
+		-o /tmp/shroudly_test_proto_asan src/proto.c src/strategy.c test/test_proto.c
+	ASAN_OPTIONS=halt_on_error=1 UBSAN_OPTIONS=halt_on_error=1 /tmp/shroudly_test_proto_asan
+	$(CC) -std=c11 -O1 -g -fsanitize=address,undefined -Wall -Wextra \
 		-o /tmp/shroudly_test_udpdpi_asan src/udpdpi.c test/test_udpdpi.c
 	ASAN_OPTIONS=halt_on_error=0 /tmp/shroudly_test_udpdpi_asan
 	$(CC) -std=c11 -O1 -g -fsanitize=address,undefined \

@@ -2796,6 +2796,9 @@ async function startAdvanced() {
       // stays off unless the user turns it on for direct-connection cases
       // (Serein and the like).
       tlsrec: store.get('advancedTlsRec', false) === true,
+      // Decoys carry the names of large sites in the user's country (a network
+      // that lets only allowed sites through keeps those open).
+      decoyNames: engine ? engine.decoyNames() : [],
     };
     // Another program that changes the same packets (rivals.js) may use the
     // same WinDivert driver: then the engine leaves it loaded at stop (#56).

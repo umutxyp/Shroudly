@@ -68,4 +68,45 @@ function domesticAnswers({ ms = 5000, lookup = lookup4, hs = handshake, sites = 
   });
 }
 
-module.exports = { domesticAnswers, DOMESTIC };
+/* The system's time zones of the countries above. */
+const ZONES = {
+  IR: ['Asia/Tehran'],
+  RU: ['Europe/Moscow', 'Europe/Kaliningrad', 'Europe/Samara', 'Europe/Volgograd', 'Europe/Saratov', 'Europe/Ulyanovsk',
+    'Europe/Astrakhan', 'Europe/Kirov', 'Asia/Yekaterinburg', 'Asia/Omsk', 'Asia/Novosibirsk', 'Asia/Barnaul', 'Asia/Tomsk',
+    'Asia/Novokuznetsk', 'Asia/Krasnoyarsk', 'Asia/Irkutsk', 'Asia/Chita', 'Asia/Yakutsk', 'Asia/Khandyga', 'Asia/Vladivostok',
+    'Asia/Ust-Nera', 'Asia/Magadan', 'Asia/Sakhalin', 'Asia/Srednekolymsk', 'Asia/Kamchatka', 'Asia/Anadyr'],
+  BY: ['Europe/Minsk'],
+  KZ: ['Asia/Almaty', 'Asia/Qostanay', 'Asia/Aqtobe', 'Asia/Aqtau', 'Asia/Atyrau', 'Asia/Oral', 'Asia/Qyzylorda'],
+  UZ: ['Asia/Tashkent', 'Asia/Samarkand'],
+  TM: ['Asia/Ashgabat'],
+  AZ: ['Asia/Baku'],
+  CN: ['Asia/Shanghai', 'Asia/Urumqi', 'Asia/Chongqing', 'Asia/Harbin'],
+  TR: ['Europe/Istanbul', 'Asia/Istanbul'],
+  PK: ['Asia/Karachi'],
+  IQ: ['Asia/Baghdad'],
+  ET: ['Africa/Addis_Ababa'],
+  MM: ['Asia/Yangon', 'Asia/Rangoon'],
+};
+
+function systemZone() {
+  try { return Intl.DateTimeFormat().resolvedOptions().timeZone || ''; } catch { return ''; }
+}
+
+/* The country the user is in, as well as it is known: the one whose own
+ * network answered in a shutdown (remembered), else the one the system's
+ * time zone is in, else null. */
+function homeCountry({ remembered, tz = systemZone() } = {}) {
+  if (remembered && DOMESTIC[remembered]) return remembered;
+  for (const [cc, zones] of Object.entries(ZONES)) if (zones.includes(tz)) return cc;
+  return null;
+}
+
+/* The names a decoy carries in that country (core/src/proto.h, --decoy-name):
+ * its large sites, the ones a network that lets only allowed sites through
+ * keeps open. A real name, as zapret's and GoodbyeDPI's decoys carry, does as
+ * well as a scrambled one against a filter that blocks a list. */
+function decoyNames(country) {
+  return country && DOMESTIC[country] ? DOMESTIC[country].slice(0, 8) : [];
+}
+
+module.exports = { domesticAnswers, DOMESTIC, ZONES, homeCountry, decoyNames };

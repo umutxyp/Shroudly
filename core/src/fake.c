@@ -30,6 +30,9 @@ static int build_decoy(uint8_t *dst, const uint8_t *real, int n,
   memcpy(dst, real, (size_t)n);
   int off = pi->host_off, len = pi->host_len;
   if (off <= 0 || len < 6 || off + len > n) return 0;
+  /* A name the network allows (--decoy-name) where one fits this length:
+   * the bytes must stay as long as the real ones, which TCP resends here. */
+  if (proto_decoy_fill(dst, n, off, len)) return 1;
   /* Letters, with a dot every so often so no label exceeds the 63 the DNS
    * grammar allows, and a plausible suffix. */
   for (int i = 0; i < len - 4; i++)

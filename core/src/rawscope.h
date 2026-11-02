@@ -127,6 +127,7 @@ enum {
   RAWSCOPE_DNS_ANSWERED, /* other programs' DNS questions answered from encrypted DNS (dnsgate.h) */
   RAWSCOPE_DNS_PASSED,   /* ... and sent on to their own server unchanged */
   RAWSCOPE_GROWN,        /* ClientHellos whose TLS record was split (tlsrec, #48) */
+  RAWSCOPE_DECOY_NAMED,  /* decoys that carried a name the network allows (--decoy-name) */
   RAWSCOPE_NCOUNTERS
 };
 void          rawscope_count(int which);

@@ -44,6 +44,9 @@
 #     network's DNS itself gets the forwarder's address for that name, and
 #     the network's own answer for a name the forwarder does not know;
 #     without it, the forged one;
+#   - a network that lets only allowed names through (core/test/allow_dpi.c):
+#     the scrambled decoy is stopped like the real name, a decoy carrying an
+#     allowed name (--decoy-name) gets the real one through;
 #   - when the engine stops, none of its firewall rules are left.
 #
 #   sudo env "PATH=$PATH" bash tests/lab/advanced-lab.sh <shroudly-core-adv>
@@ -370,6 +373,48 @@ else
   fi
   kill "$DPI_PID" 2>/dev/null; wait "$DPI_PID" 2>/dev/null; DPI_PID=""
   ip netns exec shlab-r iptables -D FORWARD -p tcp --dport 443 -j NFQUEUE --queue-num 201 --queue-bypass 2>/dev/null
+fi
+
+# ── 10. a network that lets only allowed names through (a whitelist) ───────
+# During a shutdown that keeps a few allowed sites, the first request of each
+# connection decides it: an allowed name lets the connection go, any other
+# stops it. A scrambled decoy is stopped like the real name; a decoy carrying
+# an allowed name (--decoy-name, which the app fills with the country's own
+# sites) lets the real ClientHello behind it through. The censor sits in the
+# router's PREROUTING, where the decoy (TTL running out at the router) is
+# still seen, and parses with the engine's own proto.c.
+CORE="$(cd "$HERE/../../core" && pwd)"
+if ! cc -O2 -o "$WORK/allow_dpi" "$CORE/test/allow_dpi.c" "$CORE/src/nfq.c" "$CORE/src/proto.c" 2>"$WORK/allow_build.log"; then
+  bad "whitelist DPI: could not build ($(tail -1 "$WORK/allow_build.log"))"
+else
+  for port in 443 80; do ip netns exec shlab-r iptables -D FORWARD -p tcp --dport $port -m string --algo bm --string "blocked.lab" -j DROP 2>/dev/null; done
+  ip netns exec shlab-r iptables -t mangle -I PREROUTING 1 -d $PUB -p tcp --dport 443 -j NFQUEUE --queue-num 202 --queue-bypass
+  ip netns exec shlab-r "$WORK/allow_dpi" 202 allowed.lab > "$WORK/allow.log" 2>&1 &
+  DPI_PID=$!
+  for _ in $(seq 50); do grep -q "allow_dpi ready" "$WORK/allow.log" 2>/dev/null && break; sleep 0.1; done
+  if ! grep -q "allow_dpi ready" "$WORK/allow.log" 2>/dev/null; then
+    bad "whitelist DPI: did not start ($(tail -2 "$WORK/allow.log" 2>/dev/null))"
+  else
+    ok "whitelist DPI up: $(grep -m1 ready "$WORK/allow.log")"
+    AT=$PUB
+    LABEL="whitelist, no engine: an allowed name loads";      expect_load www.allowed.lab tls
+    LABEL="whitelist, no engine: any other name is stopped";  expect_fail www.blocked.lab tls 5000
+    # The usual decoy carries a scrambled name: not on the list either.
+    start_engine on
+    LABEL="whitelist, scrambled decoy: still stopped";        expect_fail www.blocked.lab tls 6000
+    stop_engine
+    # A decoy that carries an allowed name.
+    start_engine on --decoy-name www.allowed.lab
+    if grep -m1 '"raw_ready"' "$WORK/status.log" | grep -q '"decoy_names":1'; then ok "one decoy name taken"; else bad "decoy name not taken: $(grep -m1 '"raw_ready"' "$WORK/status.log")"; fi
+    LABEL="whitelist, decoy with an allowed name: the name loads in full"; expect_load www.blocked.lab tls
+    LABEL="whitelist, decoy with an allowed name: an allowed name still loads"; expect_load www.allowed.lab tls
+    stop_engine
+    named=$(stat_of decoy_named)
+    if [ "${named:-0}" -ge 1 ]; then ok "decoys carried the allowed name ($named)"; else bad "no decoy carried the name (decoy_named ${named:-none})"; fi
+    echo "    (allow_dpi said: $(grep -c 'allowed (first' "$WORK/allow.log") allowed, $(grep -c 'stopped (first' "$WORK/allow.log") stopped; last: $(grep 'first request' "$WORK/allow.log" | tail -1))"
+  fi
+  kill "$DPI_PID" 2>/dev/null; wait "$DPI_PID" 2>/dev/null; DPI_PID=""
+  ip netns exec shlab-r iptables -t mangle -D PREROUTING -d $PUB -p tcp --dport 443 -j NFQUEUE --queue-num 202 --queue-bypass 2>/dev/null
 fi
 
 # ── 8. nothing left behind ──────────────────────────────────────────────────

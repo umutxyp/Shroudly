@@ -195,6 +195,12 @@ function buildArgs(o) {
   // (core/src/dnsgate.h), when there is one.
   const gate = Math.floor(Number(o.dnsGate));
   if (gate > 0 && gate < 65536) args.push('--dns-gate', String(gate));
+  // The names the decoys carry: large sites of the user's country, which a
+  // network that lets only allowed sites through keeps open (national-net.js).
+  // Host names only, at most eight (the engine leaves out any other).
+  for (const n of (Array.isArray(o.decoyNames) ? o.decoyNames : []).slice(0, 8)) {
+    if (/^[a-z0-9.-]{4,253}$/i.test(String(n))) args.push('--decoy-name', String(n));
+  }
   return args;
 }
 
@@ -495,7 +501,7 @@ class AdvancedMode {
     this.statusFile = path.join(this.dir, 'status.log');
     const args = buildArgs({
       ttl, statusFile: this.statusFile, parentPid: process.pid, platform: this.platform,
-      queueNum: QUEUE_NUM, quicBlock: o.quicBlock, udpFake: o.udpFake, fakeRepeats: o.fakeRepeats, dnsGate: o.dnsGate, opts: o,
+      queueNum: QUEUE_NUM, quicBlock: o.quicBlock, udpFake: o.udpFake, fakeRepeats: o.fakeRepeats, dnsGate: o.dnsGate, decoyNames: o.decoyNames, opts: o,
     });
 
     this.log('info', 'Advanced mode: asking for administrator permission');

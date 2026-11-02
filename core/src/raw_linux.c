@@ -385,19 +385,27 @@ static void send_fake(const struct iphdr *oip, const struct tcphdr *otcp,
   int iphl = oip->ihl * 4, tcphl = otcp->doff * 4;
 
   uint8_t pay[1600];
-  memcpy(pay, payload, (size_t)plen);
-  /* scramble the SNI/host bytes so the DPI reassembles garbage */
-  if (pi->host_off >= 0 && pi->host_off + pi->host_len <= plen) {
-    for (int i = pi->host_off; i < pi->host_off + pi->host_len; i++) pay[i] ^= 0x5a;
+  /* A name the network allows (--decoy-name), where one is given and fits;
+   * else the SNI/host bytes scrambled so the DPI reassembles garbage. */
+  int dlen = proto_decoy_rename(pay, (int)sizeof pay, payload, plen, pi->kind == PROTO_TLS,
+                                 pi->host_off, pi->host_len, decoy_room(plen, iphl, tcphl));
+  if (dlen > 0) {
+    rawscope_count(RAWSCOPE_DECOY_NAMED);
   } else {
-    for (int i = plen / 3; i < plen; i++) pay[i] ^= 0x5a;
+    dlen = plen;
+    memcpy(pay, payload, (size_t)plen);
+    if (pi->host_off >= 0 && pi->host_off + pi->host_len <= plen) {
+      for (int i = pi->host_off; i < pi->host_off + pi->host_len; i++) pay[i] ^= 0x5a;
+    } else {
+      for (int i = plen / 3; i < plen; i++) pay[i] ^= 0x5a;
+    }
   }
 
   uint8_t out[1600];
   int eff = ttl > 0 ? ttl : g_cfg.fake_ttl;
   int n = tcpdpi_build_segment4(out, sizeof out, (const uint8_t *)oip, iphl,
                                 (const uint8_t *)otcp, tcphl, g_ipid++, ntohl(otcp->seq),
-                                eff, pay, plen, 1 /* bad checksum: server drops it */);
+                                eff, pay, dlen, 1 /* bad checksum: server drops it */);
   if (n > 0) raw_send(out, n, oip->daddr, otcp->dest);
 }
 
@@ -764,8 +772,8 @@ int raw_linux_start(int queue_num, const raw_config *cfg) {
   int fd = g_nfq;
   /* A whole packet (up to the 64 KB copied) and its headers, at once. */
   static uint8_t buf[65536 + 4096] __attribute__((aligned));
-  printf("{\"type\":\"raw_ready\",\"queue\":%d,\"ttl\":%d,\"drop_rst\":%d,\"autottl\":%d,\"seqovl\":%d,\"split\":%d,\"mode\":%d,\"quic_block\":%d,\"udp_fake\":%d,\"alert_watch\":%d,\"udp_match\":%d,\"dns_gate\":%d,\"dns_flushed\":%d,\"tlsrec\":%d}\n",
-         queue_num, g_cfg.fake_ttl, g_cfg.drop_rst, g_cfg.autottl, g_cfg.seqovl, g_cfg.split, g_cfg.desync_mode, g_quic_block, g_udp_fake, g_alert_watch, g_udp_match, g_gate, flushed, g_cfg.tlsrec);
+  printf("{\"type\":\"raw_ready\",\"queue\":%d,\"ttl\":%d,\"drop_rst\":%d,\"autottl\":%d,\"seqovl\":%d,\"split\":%d,\"mode\":%d,\"quic_block\":%d,\"udp_fake\":%d,\"alert_watch\":%d,\"udp_match\":%d,\"dns_gate\":%d,\"dns_flushed\":%d,\"tlsrec\":%d,\"decoy_names\":%d}\n",
+         queue_num, g_cfg.fake_ttl, g_cfg.drop_rst, g_cfg.autottl, g_cfg.seqovl, g_cfg.split, g_cfg.desync_mode, g_quic_block, g_udp_fake, g_alert_watch, g_udp_match, g_gate, flushed, g_cfg.tlsrec, proto_decoy_name_count());
   fflush(stdout);
   while (g_run) {
     int rv = recv(fd, buf, sizeof(buf), 0);

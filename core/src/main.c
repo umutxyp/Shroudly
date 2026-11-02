@@ -27,6 +27,7 @@
  * watchdog.h.
  */
 #include "engine.h"
+#include "proto.h"
 #include "probe.h"
 #include "platform.h"
 #include "strategy.h"
@@ -119,6 +120,7 @@ static void defaults(void) {
   /* No list and no exceptions from an earlier run (embedded). */
   adblock_init();
   adblock_reset();
+  proto_decoy_names_reset();
 #if defined(SHROUDLY_RAW)
   g_drop_rst = RAW_DEF_DROP_RST;
   g_autottl  = RAW_DEF_AUTOTTL;
@@ -141,6 +143,7 @@ static void usage(void) {
     "  --dns-strict          only the --doh-port forwarder answers: no plaintext or system fallback\n"
     "  --auth-file <path>    SOCKS5 username/password: the file holds \"user:pass\";\n"
     "                        every client must give them, SOCKS4 is refused\n"
+    "  --decoy-name <host>    a name the network allows, for decoys (repeat, up to 8)\n"
     "  --upstream-file <path> the user's own server, every name through it: the file\n"
     "                        holds socks5://[user:pass@]host:port or http://...\n"
     "  --fake-net <cidr>     stand-in address range (repeatable, or comma-joined):\n"
@@ -237,6 +240,7 @@ int engine_main(int argc, char **argv, FILE *in, FILE *out, int embedded) {
     else if (!strcmp(argv[i], "--seqovl-pattern") && i+1<argc) g_seqovl_pat = (int)strtol(argv[++i], NULL, 16) & 0xff;
     else if (!strcmp(argv[i], "--fake-pattern") && i+1<argc) g_fake_pat = (int)strtol(argv[++i], NULL, 16) & 0xff;
 #endif
+    else if (!strcmp(argv[i], "--decoy-name") && i+1<argc) proto_decoy_name_add(argv[++i]);  /* a bad one is left out */
     else if (!strcmp(argv[i], "--fake-net") && i+1<argc) { if (engine_add_fake_net(&g_cfg, argv[++i]) != 0) bad_fake_net = 1; }
     else if (!strcmp(argv[i], "--watch") && i+1<argc) engine_add_watch(&g_cfg, argv[++i]);  /* a bad one is left out */
     else if (!strcmp(argv[i], "--adblock") && i+1<argc) strncpy(g_adblock_file, argv[++i], sizeof(g_adblock_file)-1);

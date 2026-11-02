@@ -435,7 +435,20 @@ class EngineManager {
     // at one is forged, so the engine refuses it and keeps looking.
     for (const ip of fingerprints.ALL) a.push('--block-ip', ip);
     if (this._upstreamFile) a.push('--upstream-file', this._upstreamFile);
+    // Decoys (where this engine sends them) carry the names of large sites in
+    // the user's country, which a network that lets only allowed sites
+    // through keeps open (national-net.js).
+    for (const n of this.decoyNames()) a.push('--decoy-name', n);
     return a;
+  }
+
+  /* The names decoys carry here: the country a shutdown showed, else the
+   * system's time zone's (national-net.js). */
+  decoyNames() {
+    let remembered = null;
+    try { remembered = this.store && this.store.get ? this.store.get('homeCountry') : null; } catch {}
+    const NationalNet = require('./national-net');
+    return NationalNet.decoyNames(NationalNet.homeCountry({ remembered }));
   }
 
   /* The user's own server (Settings, "Your own server"), as stored and
@@ -588,7 +601,7 @@ class EngineManager {
     if (!this.active || this.receivedWithin(OFFLINE_WINDOW_MS)) return;
     this._setAdvice({ offline: true, ownProxy: !!own, nationalOnly: national ? national.country : null });
     if (own) this.log('warning', `This network sends everything through its own proxy (${own.what}), which Shroudly cannot pass traffic on to; Stop puts it back`);
-    else if (national) this._logNational(national);
+    else if (national) { this._logNational(national); this._rememberCountry(national.country); }
     else this.log('warning', 'This network has no internet right now: nothing connects, not even directly; Shroudly carries on when it is back');
     clearInterval(this._offlineTimer);
     let ticks = 0;
@@ -605,7 +618,7 @@ class EngineManager {
         const cc = now ? now.country : null;
         if (!this.advice.offline || cc === this.advice.nationalOnly) return;
         this._setAdvice({ nationalOnly: cc });
-        if (now) this._logNational(now);
+        if (now) { this._logNational(now); this._rememberCountry(now.country); }
       }).catch(() => {});
     }, OFFLINE_RECHECK_MS);
     if (this._offlineTimer.unref) this._offlineTimer.unref();
@@ -620,6 +633,12 @@ class EngineManager {
     if (!this.advice.offline) return;
     this._setAdvice({ offline: false, ownProxy: false, nationalOnly: null });
     if (!quiet) this.log('info', 'The internet is back');
+  }
+
+  /* The country whose own network answered: decoys carry its sites' names
+   * from the next start of the engines (decoyNames). */
+  _rememberCountry(cc) {
+    try { if (cc && this.store && this.store.set && this.store.get('homeCountry') !== cc) this.store.set('homeCountry', cc); } catch {}
   }
 
   _logNational(n) {

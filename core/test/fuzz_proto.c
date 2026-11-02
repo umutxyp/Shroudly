@@ -15,6 +15,24 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
   if (pi.host_off >= 0) {
     if (pi.host_off + pi.host_len > (int)size) __builtin_trap();
   }
+  /* The decoy with another name (packet layer: any length; stream: the
+   * same length), from whatever the parser found: never out of bounds, and
+   * a rewritten ClientHello still parses to the name put in. */
+  if (pi.host_off > 0 && size <= 1500) {
+    static int names;
+    if (!names) { proto_decoy_name_add("divar.ir"); proto_decoy_name_add("www.digikala.com"); names = 1; }
+    static uint8_t out[1600], copy[1500];
+    int m = proto_decoy_rename(out, (int)sizeof out, data, (int)size, pi.kind == PROTO_TLS,
+                               pi.host_off, pi.host_len, 1500);
+    if (m < 0 || m > 1500) __builtin_trap();
+    if (m > 0 && pi.kind == PROTO_TLS) {
+      proto_info po;
+      proto_inspect(out, (size_t)m, &po);
+      if (po.kind != PROTO_TLS || (strcmp(po.host, "divar.ir") && strcmp(po.host, "www.digikala.com"))) __builtin_trap();
+    }
+    memcpy(copy, data, size);
+    proto_decoy_fill(copy, (int)size, pi.host_off, pi.host_len);
+  }
   return 0;
 }
 

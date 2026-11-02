@@ -63,6 +63,15 @@ typedef struct {
 #define RAW_DEF_SEQOVL_PATTERN 0x00
 #define RAW_DEF_FAKE_PATTERN   0x00
 
+/* Room for a decoy that carries another name (proto_decoy_rename): never
+ * more than the real segment where that one is already large (it fills the
+ * path), and otherwise no more than 1200 bytes of payload, which fits every
+ * path a real first segment of that size crosses. */
+static inline int decoy_room(int plen, int iphl, int tcphl) {
+  int wire = 1500 - iphl - tcphl, room = wire < 1200 ? wire : 1200;
+  return plen > room ? plen : room;
+}
+
 static inline void raw_config_defaults(raw_config *c, int fake_ttl) {
   c->fake_ttl = fake_ttl > 0 ? fake_ttl : 4;
   c->drop_rst = RAW_DEF_DROP_RST;
