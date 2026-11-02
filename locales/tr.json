@@ -862,5 +862,10 @@
   "logSnowflakeOff": "Sansürlü ülkelerdeki insanlara yardım: kapalı",
   "logSnowflakeUnreachable": "Sansürlü ülkelerdeki insanlara yardım: Tor'un Snowflake aracısı bu ağdan yanıt vermiyor",
   "logSnowflakeHelped": "Sansürlü ülkelerdeki insanlara yardım: biri bu bilgisayar üzerinden Tor'a ulaştı (açıldığından beri {total})",
-  "logSnowflakeFailed": "Sansürlü ülkelerdeki insanlara yardım başlatılamadı: {error}"
+  "logSnowflakeFailed": "Sansürlü ülkelerdeki insanlara yardım başlatılamadı: {error}",
+  "helpOthers": "Sansürlü ülkelerdeki insanlara yardım et",
+  "helpOthersBody": "Bu telefon, interneti engelleyen ülkelerdeki insanların engeli aşmasına bunun için yapılmış bir uygulamayla yardım edebilir: Psiphon'un Conduit'i ya da Orbot'un Tor için Gönüllü Modu (Kindness Mode). Kendi başlarına çalışırlar; biri yardım alırken bağlantınızın bir kısmını kullanırlar ve yardım edilen kişiler telefonunuza ya da ağınıza asla ulaşamaz.",
+  "helpOthersBodyConduit": "Bu cihaz, interneti engelleyen ülkelerdeki insanların engeli aşmasına, bunun için yapılmış bir uygulama olan Psiphon'un Conduit'iyle yardım edebilir. Kendi başına çalışır; biri yardım alırken bağlantınızın bir kısmını kullanır ve yardım edilen kişiler cihazınıza ya da ağınıza asla ulaşamaz.",
+  "helpOthersConduit": "Conduit (Psiphon)",
+  "helpOthersOrbot": "Orbot (Tor)"
 }

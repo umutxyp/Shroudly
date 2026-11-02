@@ -132,6 +132,10 @@
     <string name="excludedApps">Shroudly を通さないアプリ</string>
     <string name="excludedAppsCount">Shroudly を通さないアプリ：{count}</string>
     <string name="excludedAppsDesc">これらのアプリの通信は Shroudly を通らず直接出ていきます（例: 不要なゲームなど）。</string>
+    <string name="helpOthers">検閲のある国の人々を助ける</string>
+    <string name="helpOthersBody">この電話は、インターネットを遮断する国の人々が遮断を越えるのを、そのために作られたアプリで手助けできます。Psiphon の Conduit、または Orbot の Tor 向け Kindness Mode です。アプリは自動で動き、誰かを助けている間は接続の一部を使います。助けられる人があなたの電話やネットワークに入ることはありません。</string>
+    <string name="helpOthersConduit">Conduit（Psiphon）</string>
+    <string name="helpOthersOrbot">Orbot（Tor）</string>
     <string name="language">言語</string>
     <string name="languageSystem">システムの既定</string>
     <string name="linkReleases">リリースノート</string>

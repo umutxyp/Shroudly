@@ -132,6 +132,10 @@
     <string name="excludedApps">Aplikasi yang memintas Shroudly</string>
     <string name="excludedAppsCount">Aplikasi yang memintas Shroudly: {count}</string>
     <string name="excludedAppsDesc">Trafiknya keluar terus tanpa melalui Shroudly: contohnya permainan yang tidak memerlukannya.</string>
+    <string name="helpOthers">Bantu orang di negara yang ditapis</string>
+    <string name="helpOthersBody">Telefon ini boleh membantu orang di negara yang menyekat internet melepasi sekatan, dengan aplikasi yang dibuat untuknya: Conduit daripada Psiphon, atau Kindness Mode dalam Orbot untuk Tor. Ia berjalan sendiri; semasa seseorang dibantu, sebahagian sambungan anda digunakan, dan orang yang dibantu tidak pernah mencapai telefon atau rangkaian anda.</string>
+    <string name="helpOthersConduit">Conduit (Psiphon)</string>
+    <string name="helpOthersOrbot">Orbot (Tor)</string>
     <string name="language">Bahasa</string>
     <string name="languageSystem">Lalai sistem</string>
     <string name="linkReleases">Nota keluaran</string>

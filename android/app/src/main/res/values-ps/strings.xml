@@ -132,6 +132,10 @@
     <string name="excludedApps">هغه اپونه چې له Shroudly څخه نه تېرېږي</string>
     <string name="excludedAppsCount">هغه اپونه چې له Shroudly څخه نه تېرېږي: {count}</string>
     <string name="excludedAppsDesc">د هغوی ټرافیک له Shroudly پرته مستقیم وځي: د بېلګې په توګه یوه لوبه چې ورته اړتیا نه لري.</string>
+    <string name="helpOthers">په سانسور شویو هېوادونو کې خلکو سره مرسته</string>
+    <string name="helpOthersBody">دا تلیفون کولی شي له هغو هېوادونو خلکو سره چې انټرنېټ بندوي د بندیز څخه په تېرېدو کې د هغه اپ په مرسته مرسته وکړي چې د همدې لپاره جوړ شوی: د Psiphon Conduit، یا د Tor لپاره د Orbot Kindness Mode. دوی پخپله کار کوي؛ کله چې له چا سره مرسته کېږي ستاسو د اتصال یوه برخه کاروي، او هغه خلک چې مرسته ترلاسه کوي هېڅکله ستاسو تلیفون یا شبکې ته نه رسېږي.</string>
+    <string name="helpOthersConduit">Conduit (Psiphon)</string>
+    <string name="helpOthersOrbot">Orbot (Tor)</string>
     <string name="language">ژبه</string>
     <string name="languageSystem">د سیسټم ژبه</string>
     <string name="linkReleases">د خپرونو یادښتونه</string>

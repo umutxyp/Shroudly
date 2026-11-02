@@ -862,5 +862,10 @@
   "logSnowflakeOff": "Senzuralı ölkələrdəki insanlara kömək: bağlı",
   "logSnowflakeUnreachable": "Senzuralı ölkələrdəki insanlara kömək: Tor-un Snowflake vasitəçisi bu şəbəkədən cavab vermir",
   "logSnowflakeHelped": "Senzuralı ölkələrdəki insanlara kömək: kimsə bu kompüter vasitəsilə Tor-a çatdı (açılandan bəri {total})",
-  "logSnowflakeFailed": "Senzuralı ölkələrdəki insanlara kömək başlamadı: {error}"
+  "logSnowflakeFailed": "Senzuralı ölkələrdəki insanlara kömək başlamadı: {error}",
+  "helpOthers": "Senzuralı ölkələrdəki insanlara kömək et",
+  "helpOthersBody": "Bu telefon interneti bloklayan ölkələrdəki insanlara maneəni keçməyə bunun üçün hazırlanmış tətbiqlə kömək edə bilər: Psiphon-un Conduit-i və ya Orbot-un Tor üçün Xeyirxahlıq rejimi (Kindness Mode). Onlar özbaşına işləyir; kiməsə kömək edilərkən bağlantınızın bir hissəsindən istifadə edir, kömək alan insanlar isə telefonunuza və ya şəbəkənizə heç vaxt çata bilmir.",
+  "helpOthersBodyConduit": "Bu cihaz interneti bloklayan ölkələrdəki insanlara maneəni keçməyə bunun üçün hazırlanmış tətbiq olan Psiphon-un Conduit-i ilə kömək edə bilər. O, özbaşına işləyir; kiməsə kömək edilərkən bağlantınızın bir hissəsindən istifadə edir, kömək alan insanlar isə cihazınıza və ya şəbəkənizə heç vaxt çata bilmir.",
+  "helpOthersConduit": "Conduit (Psiphon)",
+  "helpOthersOrbot": "Orbot (Tor)"
 }

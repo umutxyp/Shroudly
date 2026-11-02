@@ -132,6 +132,10 @@
     <string name="excludedApps">Праграмы ў абыход Shroudly</string>
     <string name="excludedAppsCount">Праграмы ў абыход Shroudly: {count}</string>
     <string name="excludedAppsDesc">Іх трафік ідзе наўпрост, міма Shroudly: напрыклад, гульня, якой ён не патрэбны.</string>
+    <string name="helpOthers">Дапамагаць людзям у краінах з цэнзурай</string>
+    <string name="helpOthersBody">Гэты тэлефон можа дапамагчы людзям у краінах, дзе блакуюць інтэрнэт, абыходзіць блакаванні — праз праграму, створаную для гэтага: Conduit ад Psiphon або рэжым Kindness Mode у Orbot для Tor. Яны працуюць самі; пакуль камусьці дапамагаюць, выкарыстоўваецца частка вашага злучэння, а тыя, каму дапамагаюць, ніколі не дабіраюцца да вашага тэлефона ці сеткі.</string>
+    <string name="helpOthersConduit">Conduit (Psiphon)</string>
+    <string name="helpOthersOrbot">Orbot (Tor)</string>
     <string name="language">Мова</string>
     <string name="languageSystem">Як у сістэме</string>
     <string name="linkReleases">Спіс змен</string>

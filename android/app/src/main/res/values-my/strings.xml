@@ -132,6 +132,10 @@
     <string name="excludedApps">Shroudly ကို ကျော်သွားသော အက်ပ်များ</string>
     <string name="excludedAppsCount">Shroudly ကို ကျော်သွားသော အက်ပ်များ: {count}</string>
     <string name="excludedAppsDesc">၎င်းတို့၏ ဒေတာသွားလာမှုသည် Shroudly ကို မဖြတ်ဘဲ တိုက်ရိုက်ထွက်သည်- ဥပမာ မလိုအပ်သော ဂိမ်းတစ်ခု။</string>
+    <string name="helpOthers">ဆင်ဆာရှိသော နိုင်ငံများရှိ လူများကို ကူညီရန်</string>
+    <string name="helpOthersBody">ဤဖုန်းသည် အင်တာနက်ကို ပိတ်ဆို့သော နိုင်ငံများရှိ လူများအား ပိတ်ဆို့မှုကို ကျော်ဖြတ်ရန် ထိုအတွက် ပြုလုပ်ထားသော အက်ပ်ဖြင့် ကူညီနိုင်သည်- Psiphon ၏ Conduit သို့မဟုတ် Tor အတွက် Orbot ၏ Kindness Mode။ ၎င်းတို့သည် ကိုယ်တိုင်လည်ပတ်ပြီး တစ်စုံတစ်ယောက်ကို ကူညီနေစဉ် သင့်ချိတ်ဆက်မှု၏ တစ်စိတ်တစ်ပိုင်းကို အသုံးပြုသည်။ အကူအညီရသူများသည် သင့်ဖုန်း သို့မဟုတ် ကွန်ရက်သို့ ဘယ်တော့မှ မရောက်နိုင်ပါ။</string>
+    <string name="helpOthersConduit">Conduit (Psiphon)</string>
+    <string name="helpOthersOrbot">Orbot (Tor)</string>
     <string name="language">ဘာသာစကား</string>
     <string name="languageSystem">စနစ်မူလ</string>
     <string name="linkReleases">ထုတ်ဝေမှု မှတ်စုများ</string>

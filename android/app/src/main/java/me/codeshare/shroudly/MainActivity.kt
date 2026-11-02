@@ -181,6 +181,7 @@ class MainActivity : Activity() {
         findViewById<View>(R.id.notices).setOnClickListener { showNotices() }
         findViewById<View>(R.id.privacy).setOnClickListener { open(UpdateCheck.PRIVACY_URL) }
         findViewById<View>(R.id.shareLogs).setOnClickListener { shareLogs() }
+        findViewById<View>(R.id.helpOthers).setOnClickListener { showHelpOthers() }
         // "Share Shroudly": the APK to another phone, where there is one file to pass on.
         val apk = ApkShare.available(this)
         findViewById<View>(R.id.shareApp).apply { visibility = if (apk) View.VISIBLE else View.GONE; setOnClickListener { ApkShare.share(this@MainActivity) } }
@@ -481,6 +482,19 @@ class MainActivity : Activity() {
             vpnDenied = true
             render()
         }
+    }
+
+    /* "Help people in censored countries": the apps made for it (HelpOthers). */
+    private fun showHelpOthers() {
+        try {
+            AlertDialog.Builder(this)
+                .setTitle(R.string.helpOthers)
+                .setMessage(R.string.helpOthersBody)
+                .setPositiveButton(R.string.helpOthersConduit) { _, _ -> open(HelpOthers.conduitUrl(resources.configuration.locales[0].language)) }
+                .setNeutralButton(R.string.helpOthersOrbot) { _, _ -> open(HelpOthers.orbotUrl()) }
+                .setNegativeButton(android.R.string.cancel, null)
+                .show()
+        } catch (_: Exception) {}
     }
 
     /* Android would not ask for the VPN: why, and the two ways on (NA-4). */

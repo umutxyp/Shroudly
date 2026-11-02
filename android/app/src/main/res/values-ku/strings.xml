@@ -132,6 +132,10 @@
     <string name="excludedApps">Sepanên ku di Shroudly re derbas nabin</string>
     <string name="excludedAppsCount">Sepanên ku di Shroudly re derbas nabin: {count}</string>
     <string name="excludedAppsDesc">Seyrûsefera wan rasterast derdikeve, bê ku di Shroudly re derbas bibe: mînak lîstikek ku hewcedariya wê pê tune.</string>
+    <string name="helpOthers">Alîkariya mirovên li welatên bi sansûr bike</string>
+    <string name="helpOthersBody">Ev telefon dikare bi sepanekê ku ji bo vê hatiye çêkirin alîkariya mirovên li welatên ku înternetê asteng dikin bike da ku astengiyê derbas bikin: Conduit ya Psiphon, an Kindness Mode ya Orbot ji bo Tor. Ew bi serê xwe dixebitin; dema alîkariya kesekî tê kirin beşek ji girêdana te bi kar tînin, û kesên ku alîkarî digirin qet nagihîjin telefon an tora te.</string>
+    <string name="helpOthersConduit">Conduit (Psiphon)</string>
+    <string name="helpOthersOrbot">Orbot (Tor)</string>
     <string name="language">Ziman</string>
     <string name="languageSystem">Zimanê pergalê</string>
     <string name="linkReleases">Notên weşanê</string>

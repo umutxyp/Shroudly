@@ -132,6 +132,10 @@
     <string name="excludedApps">Shroudly\'yi atlayan uygulamalar</string>
     <string name="excludedAppsCount">Shroudly\'yi atlayan uygulamalar: {count}</string>
     <string name="excludedAppsDesc">Trafikleri Shroudly\'ye uğramadan doğrudan çıkar: örneğin buna ihtiyacı olmayan bir oyun.</string>
+    <string name="helpOthers">Sansürlü ülkelerdeki insanlara yardım et</string>
+    <string name="helpOthersBody">Bu telefon, interneti engelleyen ülkelerdeki insanların engeli aşmasına bunun için yapılmış bir uygulamayla yardım edebilir: Psiphon\'un Conduit\'i ya da Orbot\'un Tor için Gönüllü Modu (Kindness Mode). Kendi başlarına çalışırlar; biri yardım alırken bağlantınızın bir kısmını kullanırlar ve yardım edilen kişiler telefonunuza ya da ağınıza asla ulaşamaz.</string>
+    <string name="helpOthersConduit">Conduit (Psiphon)</string>
+    <string name="helpOthersOrbot">Orbot (Tor)</string>
     <string name="language">Dil</string>
     <string name="languageSystem">Sistem varsayılanı</string>
     <string name="linkReleases">Sürüm notları</string>

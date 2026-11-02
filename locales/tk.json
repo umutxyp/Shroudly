@@ -862,5 +862,10 @@
   "logSnowflakeOff": "Senzuraly ýurtlardaky adamlara kömek: ýapyk",
   "logSnowflakeUnreachable": "Senzuraly ýurtlardaky adamlara kömek: Tor-yň Snowflake araçysy bu ulgamdan jogap bermeýär",
   "logSnowflakeHelped": "Senzuraly ýurtlardaky adamlara kömek: kimdir biri şu kompýuter arkaly Tor-a birikdi (açylaly bäri {total})",
-  "logSnowflakeFailed": "Senzuraly ýurtlardaky adamlara kömek başlap bilmedi: {error}"
+  "logSnowflakeFailed": "Senzuraly ýurtlardaky adamlara kömek başlap bilmedi: {error}",
+  "helpOthers": "Senzuraly ýurtlardaky adamlara kömek et",
+  "helpOthersBody": "Bu telefon interneti petikleýän ýurtlardaky adamlara petikden geçmäge şol maksat bilen döredilen programma arkaly kömek edip biler: Psiphon-yň Conduit programmasy ýa-da Tor üçin Orbot-yň Kindness Mode tertibi. Olar özbaşdak işleýär; kimdir birine kömek edilýärkä birikmäňiziň bir bölegini ulanýar, kömek alýanlar bolsa telefonyňyza ýa-da ulgamyňyza hiç haçan baryp bilmeýär.",
+  "helpOthersBodyConduit": "Bu enjam interneti petikleýän ýurtlardaky adamlara petikden geçmäge şol maksat bilen döredilen Psiphon-yň Conduit programmasy arkaly kömek edip biler. Ol özbaşdak işleýär; kimdir birine kömek edilýärkä birikmäňiziň bir bölegini ulanýar, kömek alýanlar bolsa enjamyňyza ýa-da ulgamyňyza hiç haçan baryp bilmeýär.",
+  "helpOthersConduit": "Conduit (Psiphon)",
+  "helpOthersOrbot": "Orbot (Tor)"
 }

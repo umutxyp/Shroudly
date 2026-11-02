@@ -862,5 +862,10 @@
   "logSnowflakeOff": "Helping people in censored countries: off",
   "logSnowflakeUnreachable": "Helping people in censored countries: Tor's Snowflake broker does not answer from this network",
   "logSnowflakeHelped": "Helping people in censored countries: someone reached Tor through this computer ({total} since it was turned on)",
-  "logSnowflakeFailed": "Helping people in censored countries could not start: {error}"
+  "logSnowflakeFailed": "Helping people in censored countries could not start: {error}",
+  "helpOthers": "Help people in censored countries",
+  "helpOthersBody": "This phone can help people in countries that block the internet get through, with an app made for it: Psiphon's Conduit, or Orbot's Kindness Mode for Tor. They run on their own; while someone is helped they use some of your connection, and the people helped never reach your phone or your network.",
+  "helpOthersBodyConduit": "This device can help people in countries that block the internet get through, with Psiphon's Conduit, an app made for it. It runs on its own; while someone is helped it uses some of your connection, and the people helped never reach your device or your network.",
+  "helpOthersConduit": "Conduit (Psiphon)",
+  "helpOthersOrbot": "Orbot (Tor)"
 }

@@ -132,6 +132,10 @@
     <string name="excludedApps">Shroudlyን የሚያልፉ መተግበሪያዎች</string>
     <string name="excludedAppsCount">Shroudlyን የሚያልፉ መተግበሪያዎች: {count}</string>
     <string name="excludedAppsDesc">ትራፊካቸው በShroudly ሳያልፍ በቀጥታ ይወጣል፦ ለምሳሌ የማያስፈልገው ጨዋታ።</string>
+    <string name="helpOthers">ሳንሱር ባለባቸው አገሮች ያሉ ሰዎችን እርዳ</string>
+    <string name="helpOthersBody">ይህ ስልክ በይነመረብን በሚያግዱ አገሮች ያሉ ሰዎች እገዳውን እንዲያልፉ ለዚህ በተሰራ መተግበሪያ መርዳት ይችላል፦ የPsiphon Conduit ወይም የOrbot Kindness Mode ለTor። በራሳቸው ይሰራሉ፤ አንድ ሰው በሚረዳበት ጊዜ የግንኙነትዎን የተወሰነ ክፍል ይጠቀማሉ፣ የሚረዱት ሰዎች ደግሞ ስልክዎን ወይም አውታረ መረብዎን በፍጹም አይደርሱም።</string>
+    <string name="helpOthersConduit">Conduit (Psiphon)</string>
+    <string name="helpOthersOrbot">Orbot (Tor)</string>
     <string name="language">ቋንቋ</string>
     <string name="languageSystem">የሥርዓቱ ነባሪ</string>
     <string name="linkReleases">የልቀት ማስታወሻዎች</string>

@@ -132,6 +132,10 @@
     <string name="excludedApps">Ứng dụng không đi qua Shroudly</string>
     <string name="excludedAppsCount">Ứng dụng không đi qua Shroudly: {count}</string>
     <string name="excludedAppsDesc">Lưu lượng của chúng đi thẳng ra ngoài, không qua Shroudly: ví dụ một trò chơi không cần đến nó.</string>
+    <string name="helpOthers">Giúp người ở các nước bị kiểm duyệt</string>
+    <string name="helpOthersBody">Điện thoại này có thể giúp người ở những nước chặn internet vượt qua bằng một ứng dụng làm cho việc đó: Conduit của Psiphon, hoặc Kindness Mode của Orbot cho Tor. Chúng tự chạy; khi có người được giúp, chúng dùng một phần kết nối của bạn, và người được giúp không bao giờ truy cập được điện thoại hay mạng của bạn.</string>
+    <string name="helpOthersConduit">Conduit (Psiphon)</string>
+    <string name="helpOthersOrbot">Orbot (Tor)</string>
     <string name="language">Ngôn ngữ</string>
     <string name="languageSystem">Mặc định của hệ thống</string>
     <string name="linkReleases">Ghi chú phát hành</string>

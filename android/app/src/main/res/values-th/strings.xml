@@ -132,6 +132,10 @@
     <string name="excludedApps">แอปที่ไม่ผ่าน Shroudly</string>
     <string name="excludedAppsCount">แอปที่ไม่ผ่าน Shroudly: {count}</string>
     <string name="excludedAppsDesc">ทราฟฟิกของแอปเหล่านี้ออกไปตรง ๆ โดยไม่ผ่าน Shroudly เช่น เกมที่ไม่จำเป็นต้องใช้</string>
+    <string name="helpOthers">ช่วยผู้คนในประเทศที่มีการเซ็นเซอร์</string>
+    <string name="helpOthersBody">โทรศัพท์เครื่องนี้ช่วยผู้คนในประเทศที่บล็อกอินเทอร์เน็ตให้ผ่านการบล็อกได้ ด้วยแอปที่ทำมาเพื่อสิ่งนี้: Conduit ของ Psiphon หรือ Kindness Mode ของ Orbot สำหรับ Tor แอปเหล่านี้ทำงานเอง ระหว่างที่ช่วยใครอยู่จะใช้การเชื่อมต่อของคุณบางส่วน และคนที่ได้รับความช่วยเหลือจะเข้าถึงโทรศัพท์หรือเครือข่ายของคุณไม่ได้เลย</string>
+    <string name="helpOthersConduit">Conduit (Psiphon)</string>
+    <string name="helpOthersOrbot">Orbot (Tor)</string>
     <string name="language">ภาษา</string>
     <string name="languageSystem">ค่าเริ่มต้นของระบบ</string>
     <string name="linkReleases">บันทึกประจำรุ่น</string>

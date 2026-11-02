@@ -862,5 +862,10 @@
   "logSnowflakeOff": "Bantu orang di negara yang disensor: nonaktif",
   "logSnowflakeUnreachable": "Bantu orang di negara yang disensor: perantara Snowflake milik Tor tidak menjawab dari jaringan ini",
   "logSnowflakeHelped": "Bantu orang di negara yang disensor: seseorang menjangkau Tor melalui komputer ini ({total} sejak diaktifkan)",
-  "logSnowflakeFailed": "Bantu orang di negara yang disensor tidak bisa dimulai: {error}"
+  "logSnowflakeFailed": "Bantu orang di negara yang disensor tidak bisa dimulai: {error}",
+  "helpOthers": "Bantu orang di negara yang disensor",
+  "helpOthersBody": "Ponsel ini bisa membantu orang di negara yang memblokir internet menembus blokir, dengan aplikasi yang dibuat untuk itu: Conduit dari Psiphon, atau Kindness Mode di Orbot untuk Tor. Aplikasi itu berjalan sendiri; selama seseorang dibantu, sebagian koneksi Anda terpakai, dan orang yang dibantu tidak pernah menjangkau ponsel atau jaringan Anda.",
+  "helpOthersBodyConduit": "Perangkat ini bisa membantu orang di negara yang memblokir internet menembus blokir, dengan Conduit dari Psiphon, aplikasi yang dibuat untuk itu. Aplikasi itu berjalan sendiri; selama seseorang dibantu, sebagian koneksi Anda terpakai, dan orang yang dibantu tidak pernah menjangkau perangkat atau jaringan Anda.",
+  "helpOthersConduit": "Conduit (Psiphon)",
+  "helpOthersOrbot": "Orbot (Tor)"
 }

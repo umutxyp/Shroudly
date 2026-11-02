@@ -862,5 +862,10 @@
   "logSnowflakeOff": "Menschen in zensierten Ländern helfen: aus",
   "logSnowflakeUnreachable": "Menschen in zensierten Ländern helfen: Der Snowflake-Vermittler von Tor antwortet in diesem Netzwerk nicht",
   "logSnowflakeHelped": "Menschen in zensierten Ländern helfen: Jemand hat Tor über diesen Computer erreicht ({total} seit dem Einschalten)",
-  "logSnowflakeFailed": "Menschen in zensierten Ländern helfen konnte nicht starten: {error}"
+  "logSnowflakeFailed": "Menschen in zensierten Ländern helfen konnte nicht starten: {error}",
+  "helpOthers": "Menschen in zensierten Ländern helfen",
+  "helpOthersBody": "Dieses Telefon kann Menschen in Ländern, die das Internet sperren, mit einer eigens dafür gemachten App helfen durchzukommen: Conduit von Psiphon oder dem Kindness Mode von Orbot für Tor. Sie laufen von selbst; solange jemandem geholfen wird, nutzen sie einen Teil deiner Verbindung, und die Menschen, denen geholfen wird, erreichen nie dein Telefon oder dein Netzwerk.",
+  "helpOthersBodyConduit": "Dieses Gerät kann Menschen in Ländern, die das Internet sperren, mit Conduit von Psiphon helfen durchzukommen, einer eigens dafür gemachten App. Sie läuft von selbst; solange jemandem geholfen wird, nutzt sie einen Teil deiner Verbindung, und die Menschen, denen geholfen wird, erreichen nie dein Gerät oder dein Netzwerk.",
+  "helpOthersConduit": "Conduit (Psiphon)",
+  "helpOthersOrbot": "Orbot (Tor)"
 }

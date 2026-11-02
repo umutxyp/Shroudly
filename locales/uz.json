@@ -862,5 +862,10 @@
   "logSnowflakeOff": "Senzura bor mamlakatlardagi odamlarga yordam: o'chirilgan",
   "logSnowflakeUnreachable": "Senzura bor mamlakatlardagi odamlarga yordam: Tor'ning Snowflake vositachisi bu tarmoqdan javob bermayapti",
   "logSnowflakeHelped": "Senzura bor mamlakatlardagi odamlarga yordam: kimdir shu kompyuter orqali Tor'ga ulandi (yoqilgandan beri {total})",
-  "logSnowflakeFailed": "Senzura bor mamlakatlardagi odamlarga yordam ishga tushmadi: {error}"
+  "logSnowflakeFailed": "Senzura bor mamlakatlardagi odamlarga yordam ishga tushmadi: {error}",
+  "helpOthers": "Senzura bor mamlakatlardagi odamlarga yordam berish",
+  "helpOthersBody": "Bu telefon internetni bloklaydigan mamlakatlardagi odamlarga blokdan o'tishga shu maqsadda yaratilgan ilova bilan yordam bera oladi: Psiphon'ning Conduit ilovasi yoki Tor uchun Orbot'ning Kindness Mode rejimi. Ular o'zi ishlaydi; kimgadir yordam berilayotganda ulanishingizning bir qismidan foydalanadi, yordam olganlar esa telefoningiz yoki tarmog'ingizga hech qachon yeta olmaydi.",
+  "helpOthersBodyConduit": "Bu qurilma internetni bloklaydigan mamlakatlardagi odamlarga blokdan o'tishga shu maqsadda yaratilgan Psiphon'ning Conduit ilovasi bilan yordam bera oladi. U o'zi ishlaydi; kimgadir yordam berilayotganda ulanishingizning bir qismidan foydalanadi, yordam olganlar esa qurilmangiz yoki tarmog'ingizga hech qachon yeta olmaydi.",
+  "helpOthersConduit": "Conduit (Psiphon)",
+  "helpOthersOrbot": "Orbot (Tor)"
 }

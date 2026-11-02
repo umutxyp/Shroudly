@@ -132,6 +132,10 @@
     <string name="excludedApps">Applis qui contournent Shroudly</string>
     <string name="excludedAppsCount">Applis qui contournent Shroudly : {count}</string>
     <string name="excludedAppsDesc">Leur trafic sort directement, sans passer par Shroudly : par exemple un jeu qui n’en a pas besoin.</string>
+    <string name="helpOthers">Aider les personnes des pays censurés</string>
+    <string name="helpOthersBody">Ce téléphone peut aider des personnes de pays qui bloquent Internet à passer, avec une app conçue pour cela : Conduit de Psiphon, ou le Kindness Mode d\'Orbot pour Tor. Elles fonctionnent seules ; pendant qu\'une personne est aidée, elles utilisent une partie de votre connexion, et les personnes aidées n\'atteignent jamais votre téléphone ni votre réseau.</string>
+    <string name="helpOthersConduit">Conduit (Psiphon)</string>
+    <string name="helpOthersOrbot">Orbot (Tor)</string>
     <string name="language">Langue</string>
     <string name="languageSystem">Langue du système</string>
     <string name="linkReleases">Notes de version</string>

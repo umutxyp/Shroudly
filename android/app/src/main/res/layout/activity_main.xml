@@ -719,6 +719,16 @@
                 android:id="@+id/shareAppDivider"
                 style="@style/Divider" />
 
+            <!-- Help people in censored countries: the apps made for it
+                 (HelpOthers). -->
+            <TextView
+                android:id="@+id/helpOthers"
+                style="@style/AboutRowText"
+                android:drawableStart="@drawable/row_users"
+                android:text="@string/helpOthers" />
+
+            <View style="@style/Divider" />
+
             <!-- The recent log and the phone's details, to send to us. -->
             <TextView
                 android:id="@+id/shareLogs"

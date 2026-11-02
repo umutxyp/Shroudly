@@ -132,6 +132,10 @@
     <string name="excludedApps">Shroudly-dan aýlanyp geçýän programmalar</string>
     <string name="excludedAppsCount">Shroudly-dan aýlanyp geçýän programmalar: {count}</string>
     <string name="excludedAppsDesc">Olaryň trafigi Shroudly-dan geçmän göni çykýar: meselem, oňa mätäç däl oýun.</string>
+    <string name="helpOthers">Senzuraly ýurtlardaky adamlara kömek et</string>
+    <string name="helpOthersBody">Bu telefon interneti petikleýän ýurtlardaky adamlara petikden geçmäge şol maksat bilen döredilen programma arkaly kömek edip biler: Psiphon-yň Conduit programmasy ýa-da Tor üçin Orbot-yň Kindness Mode tertibi. Olar özbaşdak işleýär; kimdir birine kömek edilýärkä birikmäňiziň bir bölegini ulanýar, kömek alýanlar bolsa telefonyňyza ýa-da ulgamyňyza hiç haçan baryp bilmeýär.</string>
+    <string name="helpOthersConduit">Conduit (Psiphon)</string>
+    <string name="helpOthersOrbot">Orbot (Tor)</string>
     <string name="language">Dil</string>
     <string name="languageSystem">Ulgamdaky ýaly</string>
     <string name="linkReleases">Wersiýa bellikleri</string>

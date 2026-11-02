@@ -132,6 +132,10 @@
     <string name="excludedApps">Барномаҳое, ки Shroudly-ро давр мезананд</string>
     <string name="excludedAppsCount">Барномаҳое, ки Shroudly-ро давр мезананд: {count}</string>
     <string name="excludedAppsDesc">Трафики онҳо бе гузаштан аз Shroudly мустақим мебарояд: масалан, бозие, ки ба он ниёз надорад.</string>
+    <string name="helpOthers">Ба одамон дар кишварҳои сензурадор кӯмак кардан</string>
+    <string name="helpOthersBody">Ин телефон метавонад ба одамон дар кишварҳое, ки интернетро манъ мекунанд, бо барномае, ки барои ҳамин сохта шудааст, кӯмак кунад, то аз манъ гузаранд: Conduit-и Psiphon ё реҷаи Kindness Mode-и Orbot барои Tor. Онҳо худ кор мекунанд; ҳангоми кӯмак ба касе як қисми пайвасти шуморо истифода мебаранд ва онҳое, ки кӯмак мегиранд, ҳеҷ гоҳ ба телефон ё шабакаи шумо намерасанд.</string>
+    <string name="helpOthersConduit">Conduit (Psiphon)</string>
+    <string name="helpOthersOrbot">Orbot (Tor)</string>
     <string name="language">Забон</string>
     <string name="languageSystem">Мисли система</string>
     <string name="linkReleases">Тавсифи версияҳо</string>

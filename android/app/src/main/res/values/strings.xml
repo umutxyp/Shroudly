@@ -132,6 +132,10 @@
     <string name="excludedApps">Apps that skip Shroudly</string>
     <string name="excludedAppsCount">Apps that skip Shroudly: {count}</string>
     <string name="excludedAppsDesc">Their traffic goes straight out, past Shroudly: for example a game that does not need it.</string>
+    <string name="helpOthers">Help people in censored countries</string>
+    <string name="helpOthersBody">This phone can help people in countries that block the internet get through, with an app made for it: Psiphon\'s Conduit, or Orbot\'s Kindness Mode for Tor. They run on their own; while someone is helped they use some of your connection, and the people helped never reach your phone or your network.</string>
+    <string name="helpOthersConduit">Conduit (Psiphon)</string>
+    <string name="helpOthersOrbot">Orbot (Tor)</string>
     <string name="language">Language</string>
     <string name="languageSystem">System default</string>
     <string name="linkReleases">Release notes</string>

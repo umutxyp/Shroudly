@@ -132,6 +132,10 @@
     <string name="excludedApps">যে অ্যাপগুলো Shroudly এড়িয়ে চলে</string>
     <string name="excludedAppsCount">যে অ্যাপগুলো Shroudly এড়িয়ে চলে: {count}</string>
     <string name="excludedAppsDesc">এদের ট্রাফিক Shroudly দিয়ে না গিয়ে সরাসরি বাইরে যায়: যেমন এমন একটি গেম যার এটির দরকার নেই।</string>
+    <string name="helpOthers">সেন্সরশিপ থাকা দেশের মানুষদের সাহায্য করুন</string>
+    <string name="helpOthersBody">এই ফোন ইন্টারনেট বন্ধ করা দেশের মানুষদের বাধা পেরোতে এই কাজের জন্য তৈরি একটি অ্যাপ দিয়ে সাহায্য করতে পারে: Psiphon-এর Conduit, অথবা Tor-এর জন্য Orbot-এর Kindness Mode। এগুলো নিজে নিজে চলে; কাউকে সাহায্য করার সময় আপনার সংযোগের কিছু অংশ ব্যবহার করে, এবং যাঁরা সাহায্য পান তাঁরা কখনো আপনার ফোন বা নেটওয়ার্কে পৌঁছান না।</string>
+    <string name="helpOthersConduit">Conduit (Psiphon)</string>
+    <string name="helpOthersOrbot">Orbot (Tor)</string>
     <string name="language">ভাষা</string>
     <string name="languageSystem">সিস্টেম ডিফল্ট</string>
     <string name="linkReleases">রিলিজ নোট</string>

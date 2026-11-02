@@ -862,5 +862,10 @@
   "logSnowflakeOff": "Bantu orang di negara yang ditapis: mati",
   "logSnowflakeUnreachable": "Bantu orang di negara yang ditapis: perantara Snowflake Tor tidak menjawab dari rangkaian ini",
   "logSnowflakeHelped": "Bantu orang di negara yang ditapis: seseorang mencapai Tor melalui komputer ini ({total} sejak dihidupkan)",
-  "logSnowflakeFailed": "Bantu orang di negara yang ditapis tidak dapat bermula: {error}"
+  "logSnowflakeFailed": "Bantu orang di negara yang ditapis tidak dapat bermula: {error}",
+  "helpOthers": "Bantu orang di negara yang ditapis",
+  "helpOthersBody": "Telefon ini boleh membantu orang di negara yang menyekat internet melepasi sekatan, dengan aplikasi yang dibuat untuknya: Conduit daripada Psiphon, atau Kindness Mode dalam Orbot untuk Tor. Ia berjalan sendiri; semasa seseorang dibantu, sebahagian sambungan anda digunakan, dan orang yang dibantu tidak pernah mencapai telefon atau rangkaian anda.",
+  "helpOthersBodyConduit": "Peranti ini boleh membantu orang di negara yang menyekat internet melepasi sekatan, dengan Conduit daripada Psiphon, aplikasi yang dibuat untuknya. Ia berjalan sendiri; semasa seseorang dibantu, sebahagian sambungan anda digunakan, dan orang yang dibantu tidak pernah mencapai peranti atau rangkaian anda.",
+  "helpOthersConduit": "Conduit (Psiphon)",
+  "helpOthersOrbot": "Orbot (Tor)"
 }

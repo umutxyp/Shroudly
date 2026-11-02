@@ -132,6 +132,10 @@
     <string name="excludedApps">Shroudly\'ди айланып өткөн колдонмолор</string>
     <string name="excludedAppsCount">Shroudly\'ди айланып өткөн колдонмолор: {count}</string>
     <string name="excludedAppsDesc">Алардын трафиги Shroudly аркылуу өтпөй, түз чыгат: мисалы, ага муктаж эмес оюн.</string>
+    <string name="helpOthers">Цензура бар өлкөлөрдөгү адамдарга жардам берүү</string>
+    <string name="helpOthersBody">Бул телефон интернетти бөгөттөгөн өлкөлөрдөгү адамдарга бөгөттөн өтүүгө ушул үчүн жасалган колдонмо менен жардам бере алат: Psiphon\'дун Conduit колдонмосу же Tor үчүн Orbot\'тун Kindness Mode режими. Алар өз алдынча иштешет; кимдир бирөөгө жардам берилип жатканда туташууңуздун бир бөлүгүн колдонушат, ал эми жардам алгандар телефонуңузга же тармагыңызга эч качан жете алышпайт.</string>
+    <string name="helpOthersConduit">Conduit (Psiphon)</string>
+    <string name="helpOthersOrbot">Orbot (Tor)</string>
     <string name="language">Тил</string>
     <string name="languageSystem">Системадагыдай</string>
     <string name="linkReleases">Версиялардагы өзгөрүүлөр</string>

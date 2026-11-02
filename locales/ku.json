@@ -862,5 +862,10 @@
   "logSnowflakeOff": "Alîkariya mirovên li welatên bi sansûr: girtî",
   "logSnowflakeUnreachable": "Alîkariya mirovên li welatên bi sansûr: navbeynkarê Snowflake yê Tor ji vê torê bersiv nade",
   "logSnowflakeHelped": "Alîkariya mirovên li welatên bi sansûr: kesek bi rêya vê komputerê gihîşt Tor ({total} ji dema vekirinê ve)",
-  "logSnowflakeFailed": "Alîkariya mirovên li welatên bi sansûr dest pê nekir: {error}"
+  "logSnowflakeFailed": "Alîkariya mirovên li welatên bi sansûr dest pê nekir: {error}",
+  "helpOthers": "Alîkariya mirovên li welatên bi sansûr bike",
+  "helpOthersBody": "Ev telefon dikare bi sepanekê ku ji bo vê hatiye çêkirin alîkariya mirovên li welatên ku înternetê asteng dikin bike da ku astengiyê derbas bikin: Conduit ya Psiphon, an Kindness Mode ya Orbot ji bo Tor. Ew bi serê xwe dixebitin; dema alîkariya kesekî tê kirin beşek ji girêdana te bi kar tînin, û kesên ku alîkarî digirin qet nagihîjin telefon an tora te.",
+  "helpOthersBodyConduit": "Ev amûr dikare bi Conduit ya Psiphon, sepanekê ku ji bo vê hatiye çêkirin, alîkariya mirovên li welatên ku înternetê asteng dikin bike da ku astengiyê derbas bikin. Ew bi serê xwe dixebite; dema alîkariya kesekî tê kirin beşek ji girêdana te bi kar tîne, û kesên ku alîkarî digirin qet nagihîjin amûr an tora te.",
+  "helpOthersConduit": "Conduit (Psiphon)",
+  "helpOthersOrbot": "Orbot (Tor)"
 }

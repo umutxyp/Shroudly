@@ -132,6 +132,10 @@
     <string name="excludedApps">Shroudlyʼni chetlab oʻtadigan ilovalar</string>
     <string name="excludedAppsCount">Shroudlyʼni chetlab oʻtadigan ilovalar: {count}</string>
     <string name="excludedAppsDesc">Ularning trafigi Shroudlyʼdan oʻtmay toʻgʻridan-toʻgʻri chiqadi: masalan, unga muhtoj boʻlmagan oʻyin.</string>
+    <string name="helpOthers">Senzura bor mamlakatlardagi odamlarga yordam berish</string>
+    <string name="helpOthersBody">Bu telefon internetni bloklaydigan mamlakatlardagi odamlarga blokdan o\'tishga shu maqsadda yaratilgan ilova bilan yordam bera oladi: Psiphon\'ning Conduit ilovasi yoki Tor uchun Orbot\'ning Kindness Mode rejimi. Ular o\'zi ishlaydi; kimgadir yordam berilayotganda ulanishingizning bir qismidan foydalanadi, yordam olganlar esa telefoningiz yoki tarmog\'ingizga hech qachon yeta olmaydi.</string>
+    <string name="helpOthersConduit">Conduit (Psiphon)</string>
+    <string name="helpOthersOrbot">Orbot (Tor)</string>
     <string name="language">Til</string>
     <string name="languageSystem">Tizimdagidek</string>
     <string name="linkReleases">Reliz qaydlari</string>

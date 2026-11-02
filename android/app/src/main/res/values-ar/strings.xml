@@ -132,6 +132,10 @@
     <string name="excludedApps">تطبيقات تتجاوز Shroudly</string>
     <string name="excludedAppsCount">تطبيقات تتجاوز Shroudly: {count}</string>
     <string name="excludedAppsDesc">يخرج اتصالها مباشرةً دون المرور عبر Shroudly: مثل لعبة لا تحتاج إليه.</string>
+    <string name="helpOthers">مساعدة الناس في البلدان الخاضعة للرقابة</string>
+    <string name="helpOthersBody">يمكن لهذا الهاتف أن يساعد أشخاصًا في بلدان تحجب الإنترنت على تجاوز الحجب، بتطبيق مصنوع لذلك: Conduit من Psiphon، أو وضع Kindness Mode في Orbot لشبكة Tor. تعمل هذه التطبيقات وحدها؛ وأثناء مساعدة أحدهم تستخدم جزءًا من اتصالك، ولا يصل من تتم مساعدتهم أبدًا إلى هاتفك أو شبكتك.</string>
+    <string name="helpOthersConduit">Conduit (Psiphon)</string>
+    <string name="helpOthersOrbot">Orbot (Tor)</string>
     <string name="language">اللغة</string>
     <string name="languageSystem">لغة النظام</string>
     <string name="linkReleases">ملاحظات الإصدار</string>

@@ -862,5 +862,10 @@
   "logSnowflakeOff": "検閲のある国の人々を助ける：オフ",
   "logSnowflakeUnreachable": "検閲のある国の人々を助ける：このネットワークからは Tor の Snowflake 仲介サーバーが応答しません",
   "logSnowflakeHelped": "検閲のある国の人々を助ける：誰かがこのコンピューターを通して Tor に接続しました（オンにしてから {total}）",
-  "logSnowflakeFailed": "検閲のある国の人々を助ける機能を起動できませんでした：{error}"
+  "logSnowflakeFailed": "検閲のある国の人々を助ける機能を起動できませんでした：{error}",
+  "helpOthers": "検閲のある国の人々を助ける",
+  "helpOthersBody": "この電話は、インターネットを遮断する国の人々が遮断を越えるのを、そのために作られたアプリで手助けできます。Psiphon の Conduit、または Orbot の Tor 向け Kindness Mode です。アプリは自動で動き、誰かを助けている間は接続の一部を使います。助けられる人があなたの電話やネットワークに入ることはありません。",
+  "helpOthersBodyConduit": "このデバイスは、インターネットを遮断する国の人々が遮断を越えるのを、そのために作られた Psiphon の Conduit で手助けできます。アプリは自動で動き、誰かを助けている間は接続の一部を使います。助けられる人があなたのデバイスやネットワークに入ることはありません。",
+  "helpOthersConduit": "Conduit（Psiphon）",
+  "helpOthersOrbot": "Orbot（Tor）"
 }

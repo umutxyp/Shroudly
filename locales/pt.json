@@ -862,5 +862,10 @@
   "logSnowflakeOff": "Ajudar pessoas em países com censura: desligado",
   "logSnowflakeUnreachable": "Ajudar pessoas em países com censura: o intermediário Snowflake do Tor não responde a partir desta rede",
   "logSnowflakeHelped": "Ajudar pessoas em países com censura: alguém chegou ao Tor por este computador ({total} desde que foi ligado)",
-  "logSnowflakeFailed": "Ajudar pessoas em países com censura não pôde iniciar: {error}"
+  "logSnowflakeFailed": "Ajudar pessoas em países com censura não pôde iniciar: {error}",
+  "helpOthers": "Ajudar pessoas em países com censura",
+  "helpOthersBody": "Este celular pode ajudar pessoas em países que bloqueiam a internet a passar pelo bloqueio, com um app feito para isso: o Conduit, da Psiphon, ou o Kindness Mode do Orbot para o Tor. Eles funcionam sozinhos; enquanto alguém é ajudado, usam parte da sua conexão, e as pessoas ajudadas nunca alcançam seu celular nem sua rede.",
+  "helpOthersBodyConduit": "Este dispositivo pode ajudar pessoas em países que bloqueiam a internet a passar pelo bloqueio, com o Conduit, da Psiphon, um app feito para isso. Ele funciona sozinho; enquanto alguém é ajudado, usa parte da sua conexão, e as pessoas ajudadas nunca alcançam seu dispositivo nem sua rede.",
+  "helpOthersConduit": "Conduit (Psiphon)",
+  "helpOthersOrbot": "Orbot (Tor)"
 }

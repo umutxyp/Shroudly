@@ -132,6 +132,10 @@
     <string name="excludedApps">برنامه‌هایی که از Shroudly عبور نمی‌کنند</string>
     <string name="excludedAppsCount">برنامه‌هایی که از Shroudly عبور نمی‌کنند: {count}</string>
     <string name="excludedAppsDesc">ترافیک آن‌ها مستقیم و بدون گذر از Shroudly بیرون می‌رود: مثلاً بازی‌ای که به آن نیازی ندارد.</string>
+    <string name="helpOthers">کمک به مردم کشورهای سانسورشده</string>
+    <string name="helpOthersBody">این گوشی می‌تواند با برنامه‌ای که برای همین ساخته شده به مردم کشورهایی که اینترنت را مسدود می‌کنند کمک کند از مسدودسازی عبور کنند: Conduit از Psiphon، یا حالت Kindness Mode در Orbot برای Tor. این برنامه‌ها خودشان کار می‌کنند؛ هنگام کمک به کسی بخشی از اتصال شما را استفاده می‌کنند و کسانی که کمک می‌گیرند هرگز به گوشی یا شبکهٔ شما دسترسی ندارند.</string>
+    <string name="helpOthersConduit">Conduit (Psiphon)</string>
+    <string name="helpOthersOrbot">Orbot (Tor)</string>
     <string name="language">زبان</string>
     <string name="languageSystem">پیش‌فرض سیستم</string>
     <string name="linkReleases">یادداشت‌های انتشار</string>

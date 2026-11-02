@@ -862,5 +862,10 @@
   "logSnowflakeOff": "帮助受审查国家的人们：已关闭",
   "logSnowflakeUnreachable": "帮助受审查国家的人们：从这个网络连不上 Tor 的 Snowflake 中介服务器",
   "logSnowflakeHelped": "帮助受审查国家的人们：有人通过这台电脑连上了 Tor（开启以来 {total}）",
-  "logSnowflakeFailed": "无法启动帮助受审查国家的人们：{error}"
+  "logSnowflakeFailed": "无法启动帮助受审查国家的人们：{error}",
+  "helpOthers": "帮助受审查国家的人们",
+  "helpOthersBody": "这部手机可以用专门为此打造的应用，帮助身处封锁互联网国家的人们突破封锁：Psiphon 的 Conduit，或 Orbot 面向 Tor 的 Kindness Mode。它们会自行运行；在帮助他人时会占用你的一部分连接，被帮助的人永远无法访问你的手机或网络。",
+  "helpOthersBodyConduit": "这台设备可以用专门为此打造的 Psiphon Conduit，帮助身处封锁互联网国家的人们突破封锁。它会自行运行；在帮助他人时会占用你的一部分连接，被帮助的人永远无法访问你的设备或网络。",
+  "helpOthersConduit": "Conduit（Psiphon）",
+  "helpOthersOrbot": "Orbot（Tor）"
 }

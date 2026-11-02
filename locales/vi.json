@@ -862,5 +862,10 @@
   "logSnowflakeOff": "Giúp người ở các nước bị kiểm duyệt: tắt",
   "logSnowflakeUnreachable": "Giúp người ở các nước bị kiểm duyệt: bên trung gian Snowflake của Tor không trả lời từ mạng này",
   "logSnowflakeHelped": "Giúp người ở các nước bị kiểm duyệt: có người đã truy cập Tor qua máy tính này ({total} từ khi bật)",
-  "logSnowflakeFailed": "Không thể khởi động việc giúp người ở các nước bị kiểm duyệt: {error}"
+  "logSnowflakeFailed": "Không thể khởi động việc giúp người ở các nước bị kiểm duyệt: {error}",
+  "helpOthers": "Giúp người ở các nước bị kiểm duyệt",
+  "helpOthersBody": "Điện thoại này có thể giúp người ở những nước chặn internet vượt qua bằng một ứng dụng làm cho việc đó: Conduit của Psiphon, hoặc Kindness Mode của Orbot cho Tor. Chúng tự chạy; khi có người được giúp, chúng dùng một phần kết nối của bạn, và người được giúp không bao giờ truy cập được điện thoại hay mạng của bạn.",
+  "helpOthersBodyConduit": "Thiết bị này có thể giúp người ở những nước chặn internet vượt qua bằng Conduit của Psiphon, một ứng dụng làm cho việc đó. Nó tự chạy; khi có người được giúp, nó dùng một phần kết nối của bạn, và người được giúp không bao giờ truy cập được thiết bị hay mạng của bạn.",
+  "helpOthersConduit": "Conduit (Psiphon)",
+  "helpOthersOrbot": "Orbot (Tor)"
 }

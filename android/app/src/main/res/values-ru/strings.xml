@@ -132,6 +132,10 @@
     <string name="excludedApps">Приложения в обход Shroudly</string>
     <string name="excludedAppsCount">Приложения в обход Shroudly: {count}</string>
     <string name="excludedAppsDesc">Их трафик идёт напрямую, мимо Shroudly: например, игра, которой он не нужен.</string>
+    <string name="helpOthers">Помогать людям в странах с цензурой</string>
+    <string name="helpOthersBody">Этот телефон может помочь людям в странах, где блокируют интернет, обходить блокировки — с помощью приложения, созданного для этого: Conduit от Psiphon или режима Kindness Mode в Orbot для Tor. Они работают сами; пока кому-то помогают, используется часть вашего подключения, а те, кому помогают, никогда не получают доступа к вашему телефону или сети.</string>
+    <string name="helpOthersConduit">Conduit (Psiphon)</string>
+    <string name="helpOthersOrbot">Orbot (Tor)</string>
     <string name="language">Язык</string>
     <string name="languageSystem">Как в системе</string>
     <string name="linkReleases">Примечания к выпуску</string>

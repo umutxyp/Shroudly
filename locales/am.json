@@ -862,5 +862,10 @@
   "logSnowflakeOff": "ሳንሱር ባለባቸው አገሮች ያሉ ሰዎችን መርዳት፦ ጠፍቷል",
   "logSnowflakeUnreachable": "ሳንሱር ባለባቸው አገሮች ያሉ ሰዎችን መርዳት፦ የTor Snowflake አገናኝ ከዚህ አውታረ መረብ ምላሽ አይሰጥም",
   "logSnowflakeHelped": "ሳንሱር ባለባቸው አገሮች ያሉ ሰዎችን መርዳት፦ አንድ ሰው በዚህ ኮምፒውተር በኩል Tor ደረሰ (ከተከፈተ ጀምሮ {total})",
-  "logSnowflakeFailed": "ሳንሱር ባለባቸው አገሮች ያሉ ሰዎችን መርዳት መጀመር አልተቻለም፦ {error}"
+  "logSnowflakeFailed": "ሳንሱር ባለባቸው አገሮች ያሉ ሰዎችን መርዳት መጀመር አልተቻለም፦ {error}",
+  "helpOthers": "ሳንሱር ባለባቸው አገሮች ያሉ ሰዎችን እርዳ",
+  "helpOthersBody": "ይህ ስልክ በይነመረብን በሚያግዱ አገሮች ያሉ ሰዎች እገዳውን እንዲያልፉ ለዚህ በተሰራ መተግበሪያ መርዳት ይችላል፦ የPsiphon Conduit ወይም የOrbot Kindness Mode ለTor። በራሳቸው ይሰራሉ፤ አንድ ሰው በሚረዳበት ጊዜ የግንኙነትዎን የተወሰነ ክፍል ይጠቀማሉ፣ የሚረዱት ሰዎች ደግሞ ስልክዎን ወይም አውታረ መረብዎን በፍጹም አይደርሱም።",
+  "helpOthersBodyConduit": "ይህ መሣሪያ በይነመረብን በሚያግዱ አገሮች ያሉ ሰዎች እገዳውን እንዲያልፉ ለዚህ በተሰራው የPsiphon Conduit መተግበሪያ መርዳት ይችላል። በራሱ ይሰራል፤ አንድ ሰው በሚረዳበት ጊዜ የግንኙነትዎን የተወሰነ ክፍል ይጠቀማል፣ የሚረዱት ሰዎች ደግሞ መሣሪያዎን ወይም አውታረ መረብዎን በፍጹም አይደርሱም።",
+  "helpOthersConduit": "Conduit (Psiphon)",
+  "helpOthersOrbot": "Orbot (Tor)"
 }
