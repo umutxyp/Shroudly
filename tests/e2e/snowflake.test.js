@@ -261,7 +261,13 @@ const hiddenWindow = (app) => app.evaluate(async ({ BrowserWindow }) => {
     ok(ans.length === 1 && ans[0].Sid === broker.matchedSid() && ans[0].Version === '1.0' && /"type":"answer"/.test(ans[0].Answer),
       'the answer goes back under the poll\'s session id');
     const helping = fill(t.snowflakeCounts, { now: 1, total: 1 });
-    ok(!!(await until(() => sf.getByText(helping).isVisible(), 10000)), `the window counts them: "${helping}"`);
+    const counted = !!(await until(() => sf.getByText(helping).isVisible(), 20000));
+    if (!counted) {
+      // What the app had, and what the window showed, to tell a slow machine from a wrong count.
+      const st = await app.evaluate(() => global.shroudlyE2E.snowflake.status()).catch((e) => ({ error: e.message }));
+      console.log(`    (status: ${JSON.stringify(st)}; the section says: ${JSON.stringify(await sf.innerText().catch(() => ''))})`);
+    }
+    ok(counted, `the window counts them: "${helping}"`);
     await shot(sf, 'snowflake-helping');
 
     // The person leaves: the pair is closed, the count stays.

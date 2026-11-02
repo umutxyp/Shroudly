@@ -139,7 +139,9 @@ async function reach(P, name, port) {
     const names = ['example.com', 'example.net', 'example.org', 'www.example.com', 'www.example.net', 'www.example.org'];
     const took = [];
     for (const n of names) took.push(await reach(P2, n, 80));
-    t.ok(took.every((x) => x.ok) && took[0].ms < 3000 && took.slice(1).every((x) => x.ms < 1500),
+    // What this guards against is a wait for encrypted DNS (4 s); the rest is
+    // the real network's own time, which on a busy runner reached 1.5 s.
+    t.ok(took.every((x) => x.ok) && took[0].ms < 3000 && took.slice(1).every((x) => x.ms < 2500),
       `encrypted DNS refused everywhere: each new name connects through the fallback without waiting for it (${took.map((x) => `${x.ms} ms`).join(', ')})`);
     eng2.stop(); blocked.stop();
   } else {
