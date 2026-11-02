@@ -132,8 +132,11 @@
     <string name="excludedApps">แอปที่ไม่ผ่าน Shroudly</string>
     <string name="excludedAppsCount">แอปที่ไม่ผ่าน Shroudly: {count}</string>
     <string name="excludedAppsDesc">ทราฟฟิกของแอปเหล่านี้ออกไปตรง ๆ โดยไม่ผ่าน Shroudly เช่น เกมที่ไม่จำเป็นต้องใช้</string>
+    <string name="helpNudgeBodyPhone">แอปฟรีช่วยให้ผู้คนในประเทศที่เซ็นเซอร์อินเทอร์เน็ตใช้การเชื่อมต่อของโทรศัพท์เครื่องนี้เพียงเล็กน้อยเพื่อผ่านการบล็อก ปลอดภัยสำหรับคุณ: พวกเขาเข้าถึงโทรศัพท์หรือเครือข่ายของคุณไม่ได้ และเว็บไซต์ที่พวกเขาเปิดจะไม่มีวันเห็นที่อยู่ของคุณ</string>
+    <string name="helpNudgeShow">ดูวิธี</string>
+    <string name="helpNudgeTitle">ช่วยผู้คนในประเทศที่มีการเซ็นเซอร์ไหม?</string>
     <string name="helpOthers">ช่วยผู้คนในประเทศที่มีการเซ็นเซอร์</string>
-    <string name="helpOthersBody">โทรศัพท์เครื่องนี้ช่วยผู้คนในประเทศที่บล็อกอินเทอร์เน็ตให้ผ่านการบล็อกได้ ด้วยแอปที่ทำมาเพื่อสิ่งนี้: Conduit ของ Psiphon หรือ Kindness Mode ของ Orbot สำหรับ Tor แอปเหล่านี้ทำงานเอง ระหว่างที่ช่วยใครอยู่จะใช้การเชื่อมต่อของคุณบางส่วน และคนที่ได้รับความช่วยเหลือจะเข้าถึงโทรศัพท์หรือเครือข่ายของคุณไม่ได้เลย</string>
+    <string name="helpOthersBody">ผู้คนในประเทศที่เซ็นเซอร์อินเทอร์เน็ตสามารถใช้การเชื่อมต่อของโทรศัพท์เครื่องนี้เพียงเล็กน้อยเพื่อผ่านการบล็อก บนโทรศัพท์ แอปฟรีที่สร้างมาเพื่อสิ่งนี้จะทำหน้าที่นี้ และคุณเปิดปิดได้ในแอปนั้น: Conduit ของ Psiphon หรือ Kindness Mode ของ Orbot ปลอดภัยสำหรับคุณ: พวกเขาเข้าถึงโทรศัพท์หรือเครือข่ายของคุณไม่ได้ และเว็บไซต์ที่พวกเขาเปิดจะไม่มีวันเห็นที่อยู่ของคุณ</string>
     <string name="helpOthersConduit">Conduit (Psiphon)</string>
     <string name="helpOthersOrbot">Orbot (Tor)</string>
     <string name="language">ภาษา</string>
@@ -159,6 +162,7 @@
     <string name="ownServerErrFormat">ลิงก์นี้ Shroudly ใช้ไม่ได้ ลิงก์ที่ใช้ได้มีลักษณะแบบนี้: socks5://1.2.3.4:1080, http://user:pass@host:3128 หรือ ss://…</string>
     <string name="ownServerErrMethod">ไม่รองรับวิธี Shadowsocks นี้ ({method}) ให้ใช้ chacha20-ietf-poly1305, aes-256-gcm หรือ aes-128-gcm</string>
     <string name="ownServerErrUser">ชื่อผู้ใช้ต้องไม่มี “:” หรือ “@”</string>
+    <string name="ownServerExit">ผ่านเซิร์ฟเวอร์ของคุณเอง เว็บไซต์เห็น: {ip}</string>
     <string name="ownServerFails">ไม่สำเร็จ: {why} ยังไม่ได้ใช้ ตรวจสอบลิงก์ หรือใช้ต่อไป</string>
     <string name="ownServerInUse">กำลังใช้: {server}</string>
     <string name="ownServerOff">เลิกใช้</string>
@@ -220,4 +224,7 @@
     <string name="upload">อัปโหลด</string>
     <string name="uptime">เวลาทำงาน</string>
     <string name="versionLabel">เวอร์ชัน {version}</string>
+    <string name="whatsNewAndroid">เมื่อใช้เซิร์ฟเวอร์ของคุณเอง หน้าจอหลักจะแสดงที่อยู่ที่เว็บไซต์เห็น\nบางครั้ง Shroudly จะถามว่าคุณอยากช่วยผู้คนในประเทศที่มีการเซ็นเซอร์ไหม ทุกครั้งที่คุณตอบว่าไว้ทีหลัง มันจะรอนานขึ้นเป็นสองเท่า\nหลังการอัปเดตทุกครั้ง จะมีโน้ตสั้น ๆ แบบนี้บอกว่ามีอะไรเปลี่ยนไป</string>
+    <string name="whatsNewOk">เข้าใจแล้ว</string>
+    <string name="whatsNewTitle">มีอะไรใหม่ใน {version}</string>
 </resources>

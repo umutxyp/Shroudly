@@ -81,6 +81,11 @@ class MainActivity : Activity() {
     private var noticeShown = 0
     private lateinit var support: View
     private var supportDue = false
+    // The card asking whether the user would like to help (HelpNudge).
+    private lateinit var helpCard: View
+    private var helpDue = false
+    // What changed in this version, shown once after an update (WhatsNew).
+    private var whatsNewOpen = false
     private lateinit var storeCard: View
     // The store card on screen (StoreCards.RATE), or null; what it goes by,
     // as of onStart; and when the window came (uptime): the other cards
@@ -168,6 +173,7 @@ class MainActivity : Activity() {
         noticeText = findViewById(R.id.noticeText)
         noticeOpen = findViewById(R.id.noticeOpen)
         support = findViewById(R.id.support)
+        helpCard = findViewById(R.id.helpCard)
         storeCard = findViewById(R.id.storeCard)
         // The rows' ripples stay inside the card's rounded corners.
         findViewById<View>(R.id.about).clipToOutline = true
@@ -206,6 +212,17 @@ class MainActivity : Activity() {
             Support.rest(this)
             supportDue = false
             support.visibility = View.GONE
+        }
+        findViewById<View>(R.id.helpLater).setOnClickListener {
+            HelpNudge.refused(this)
+            helpDue = false
+            helpCard.visibility = View.GONE
+        }
+        findViewById<View>(R.id.helpShow).setOnClickListener {
+            HelpNudge.accepted(this)
+            helpDue = false
+            helpCard.visibility = View.GONE
+            showHelpOthers()
         }
         detailMore.setOnClickListener { showDetail() }
         findViewById<View>(R.id.storeOpen).setOnClickListener {
@@ -307,6 +324,9 @@ class MainActivity : Activity() {
         findViewById<View>(R.id.supportRow).visibility = if (offered) View.VISIBLE else View.GONE
         findViewById<View>(R.id.supportDivider).visibility = if (offered) View.VISIBLE else View.GONE
         supportDue = try { Support.cardDue(this) } catch (_: Exception) { false }
+        helpDue = try { HelpNudge.due(this) } catch (_: Exception) { false }
+        val news = try { WhatsNew.pending(this) } catch (_: Exception) { null }
+        if (news != null) showWhatsNew(news)
         // The APK from GitHub links its releases and looks for a newer one
         // there; a copy Google Play updates links the source code instead and
         // asks GitHub nothing (InstallSource).
@@ -484,6 +504,20 @@ class MainActivity : Activity() {
         }
     }
 
+    /* After an update, once: what changed, in the user's language. */
+    private fun showWhatsNew(version: String) {
+        if (whatsNewOpen) return
+        try {
+            AlertDialog.Builder(this)
+                .setTitle(text(R.string.whatsNewTitle, "version" to version))
+                .setMessage(WhatsNew.lines(getString(R.string.whatsNewAndroid)))
+                .setPositiveButton(R.string.whatsNewOk, null)
+                .setOnDismissListener { whatsNewOpen = false; WhatsNew.seen(this) }
+                .show()
+            whatsNewOpen = true
+        } catch (_: Exception) {}
+    }
+
     /* "Help people in censored countries": the apps made for it (HelpOthers). */
     private fun showHelpOthers() {
         try {
@@ -591,6 +625,9 @@ class MainActivity : Activity() {
         }
         orb.set(if (busy) Orb.Mode.BUSY else if (on) Orb.Mode.ON else Orb.Mode.OFF)
         support.visibility = if (supportDue && on) View.VISIBLE else View.GONE
+        // Only while protection works, and never beside another card.
+        val working = on && !proxyIdle && Protection.troubleRes == 0 && Protection.ownServerDown == null && Protection.national == null
+        helpCard.visibility = if (helpDue && working && storeShown == null && listOf(notice, update, support).none { it.visibility == View.VISIBLE }) View.VISIBLE else View.GONE
         showStoreCard(on && !proxyIdle && Protection.troubleRes == 0)
         if (update.visibility == View.VISIBLE && updateVersion != null && ApkUpdates.now != null) showApkUpdate()
 
@@ -654,6 +691,12 @@ class MainActivity : Activity() {
             off && Usage.lockdown(this) && !AppSettings.proxyOnly(this) -> {
                 detail.show(getString(R.string.androidLockdownStop))
                 detail.setTextColor(getColor(R.color.warn))
+            }
+            // Working through the user's own server: the address sites see
+            // (issue #66), so no site has to be opened to check.
+            on && !proxyIdle && Protection.ownServerExit != null -> {
+                detail.show(text(R.string.ownServerExit, "ip" to (Protection.ownServerExit ?: "")))
+                detail.setTextColor(getColor(R.color.text_dim))
             }
             else -> {
                 detail.show(when {
@@ -721,7 +764,7 @@ class MainActivity : Activity() {
         storeAsked?.let { storeAsked = null; putStoreCard(it); return }
         if (StoreCards.promptedThisRun || !working) return
         if (SystemClock.uptimeMillis() - startedAt < STORE_CARD_AFTER_MS) return
-        if (listOf(notice, update, support).any { it.visibility == View.VISIBLE }) return
+        if (listOf(notice, update, support, helpCard).any { it.visibility == View.VISIBLE }) return
         val now = System.currentTimeMillis()
         val live = Stores.playHere(this, now, country)
         val rate = StoreCards.load(this, StoreCards.RATE, now)

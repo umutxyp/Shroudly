@@ -132,8 +132,11 @@
     <string name="excludedApps">Shroudly\'yi atlayan uygulamalar</string>
     <string name="excludedAppsCount">Shroudly\'yi atlayan uygulamalar: {count}</string>
     <string name="excludedAppsDesc">Trafikleri Shroudly\'ye uğramadan doğrudan çıkar: örneğin buna ihtiyacı olmayan bir oyun.</string>
+    <string name="helpNudgeBodyPhone">Ücretsiz bir uygulama, interneti sansürlenen ülkelerdeki insanların engelleri aşmak için bu telefonun bağlantısının küçük bir kısmını kullanmasını sağlar. Senin için güvenli: telefonuna ya da ağına ulaşamazlar, açtıkları siteler senin adresini hiçbir zaman görmez.</string>
+    <string name="helpNudgeShow">Göster</string>
+    <string name="helpNudgeTitle">Sansürlü ülkelerdeki insanlara yardım etmek ister misin?</string>
     <string name="helpOthers">Sansürlü ülkelerdeki insanlara yardım et</string>
-    <string name="helpOthersBody">Bu telefon, interneti engelleyen ülkelerdeki insanların engeli aşmasına bunun için yapılmış bir uygulamayla yardım edebilir: Psiphon\'un Conduit\'i ya da Orbot\'un Tor için Gönüllü Modu (Kindness Mode). Kendi başlarına çalışırlar; biri yardım alırken bağlantınızın bir kısmını kullanırlar ve yardım edilen kişiler telefonunuza ya da ağınıza asla ulaşamaz.</string>
+    <string name="helpOthersBody">İnterneti sansürlenen ülkelerdeki insanlar engelleri aşmak için bu telefonun bağlantısının küçük bir kısmını kullanabilir. Telefonda bunu, bunun için yapılmış ücretsiz bir uygulama yapar; açıp kapatması da orada: Psiphon\'un Conduit\'i ya da Orbot\'un Kindness Mode\'u. Senin için güvenli: telefonuna ya da ağına ulaşamazlar, açtıkları siteler senin adresini hiçbir zaman görmez.</string>
     <string name="helpOthersConduit">Conduit (Psiphon)</string>
     <string name="helpOthersOrbot">Orbot (Tor)</string>
     <string name="language">Dil</string>
@@ -159,6 +162,7 @@
     <string name="ownServerErrFormat">Shroudly\'nin kullanabileceği bir bağlantı değil. Şuna benzer: socks5://1.2.3.4:1080, http://user:pass@host:3128 ya da ss://…</string>
     <string name="ownServerErrMethod">Bu Shadowsocks yöntemi ({method}) desteklenmiyor; chacha20-ietf-poly1305, aes-256-gcm ya da aes-128-gcm kullan.</string>
     <string name="ownServerErrUser">Kullanıcı adında “:” ya da “@” olamaz.</string>
+    <string name="ownServerExit">Kendi sunucun üzerinden. Sitelerin gördüğü adres: {ip}</string>
     <string name="ownServerFails">Çalışmadı: {why}. Kullanılmıyor; bağlantıyı kontrol et ya da yine de kullan.</string>
     <string name="ownServerInUse">Kullanımda: {server}</string>
     <string name="ownServerOff">Kullanmayı bırak</string>
@@ -220,4 +224,7 @@
     <string name="upload">Yükleme</string>
     <string name="uptime">Çalışma süresi</string>
     <string name="versionLabel">Sürüm {version}</string>
+    <string name="whatsNewAndroid">Kendi sunucunla, ana ekran sitelerin gördüğü adresi gösteriyor.\nShroudly arada bir, sansürlü ülkelerdeki insanlara yardım etmek isteyip istemediğini soruyor; her \"şimdi değil\" dediğinde iki kat daha uzun bekliyor.\nHer güncellemeden sonra bunun gibi kısa bir not neyin değiştiğini söylüyor.</string>
+    <string name="whatsNewOk">Tamam</string>
+    <string name="whatsNewTitle">{version} sürümünde yenilikler</string>
 </resources>

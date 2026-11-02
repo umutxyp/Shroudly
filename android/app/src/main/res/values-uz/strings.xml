@@ -132,8 +132,11 @@
     <string name="excludedApps">Shroudlyʼni chetlab oʻtadigan ilovalar</string>
     <string name="excludedAppsCount">Shroudlyʼni chetlab oʻtadigan ilovalar: {count}</string>
     <string name="excludedAppsDesc">Ularning trafigi Shroudlyʼdan oʻtmay toʻgʻridan-toʻgʻri chiqadi: masalan, unga muhtoj boʻlmagan oʻyin.</string>
+    <string name="helpNudgeBodyPhone">Bepul ilova internetni senzura qiladigan mamlakatlardagi odamlarga bloklarni chetlab oʻtish uchun bu telefon ulanishining kichik bir qismidan foydalanish imkonini beradi. Siz uchun xavfsiz: ular telefoningizga ham, tarmogʻingizga ham yeta olmaydi, ochgan saytlari esa hech qachon manzilingizni koʻrmaydi.</string>
+    <string name="helpNudgeShow">Koʻrsatish</string>
+    <string name="helpNudgeTitle">Senzura bor mamlakatlardagi odamlarga yordam berasizmi?</string>
     <string name="helpOthers">Senzura bor mamlakatlardagi odamlarga yordam berish</string>
-    <string name="helpOthersBody">Bu telefon internetni bloklaydigan mamlakatlardagi odamlarga blokdan o\'tishga shu maqsadda yaratilgan ilova bilan yordam bera oladi: Psiphon\'ning Conduit ilovasi yoki Tor uchun Orbot\'ning Kindness Mode rejimi. Ular o\'zi ishlaydi; kimgadir yordam berilayotganda ulanishingizning bir qismidan foydalanadi, yordam olganlar esa telefoningiz yoki tarmog\'ingizga hech qachon yeta olmaydi.</string>
+    <string name="helpOthersBody">Internetni senzura qiladigan mamlakatlardagi odamlar bloklarni chetlab oʻtish uchun bu telefon ulanishining kichik bir qismidan foydalana oladi. Telefonda buni aynan shu maqsadda yaratilgan bepul ilova qiladi, yoqish-oʻchirish ham oʻsha yerda: Psiphon’ning Conduit ilovasi yoki Orbot’ning Kindness Mode rejimi. Siz uchun xavfsiz: ular telefoningizga ham, tarmogʻingizga ham yeta olmaydi, ochgan saytlari esa hech qachon manzilingizni koʻrmaydi.</string>
     <string name="helpOthersConduit">Conduit (Psiphon)</string>
     <string name="helpOthersOrbot">Orbot (Tor)</string>
     <string name="language">Til</string>
@@ -159,6 +162,7 @@
     <string name="ownServerErrFormat">Bu Shroudly foydalana oladigan havola emas. U shunday koʻrinadi: socks5://1.2.3.4:1080, http://user:pass@host:3128 yoki ss://…</string>
     <string name="ownServerErrMethod">Bu Shadowsocks usuli ({method}) qoʻllab-quvvatlanmaydi; chacha20-ietf-poly1305, aes-256-gcm yoki aes-128-gcm dan foydalaning.</string>
     <string name="ownServerErrUser">Foydalanuvchi nomida “:” yoki “@” boʻlishi mumkin emas.</string>
+    <string name="ownServerExit">Oʻz serveringiz orqali. Saytlar koʻradigan manzil: {ip}</string>
     <string name="ownServerFails">Ishlamadi: {why}. Foydalanilmayapti; havolani tekshiring yoki baribir foydalaning.</string>
     <string name="ownServerInUse">Foydalanilmoqda: {server}</string>
     <string name="ownServerOff">Foydalanishni toʻxtatish</string>
@@ -220,4 +224,7 @@
     <string name="upload">Yuklash</string>
     <string name="uptime">Ish vaqti</string>
     <string name="versionLabel">Versiya {version}</string>
+    <string name="whatsNewAndroid">Oʻz serveringiz bilan asosiy ekran saytlar koʻradigan manzilni koʻrsatadi.\nShroudly vaqti-vaqti bilan senzura bor mamlakatlardagi odamlarga yordam berishni xohlaysizmi deb soʻraydi; har safar \"hozir emas\" desangiz, ikki barobar uzoq kutadi.\nHar bir yangilanishdan keyin shunga oʻxshash qisqa eslatma nima oʻzgarganini aytadi.</string>
+    <string name="whatsNewOk">Tushunarli</string>
+    <string name="whatsNewTitle">{version} versiyasida yangiliklar</string>
 </resources>

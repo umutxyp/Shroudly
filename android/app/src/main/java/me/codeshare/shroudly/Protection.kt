@@ -48,6 +48,10 @@ object Protection {
      * connections: what it is and why (OwnServer.WHY codes), or null. */
     @Volatile var ownServerDown: Pair<String, String>? = null
         private set
+    /* While on and working through the user's own server: the address sites
+     * see through it (OwnServer.exitAddress, issue #66), or null. */
+    @Volatile var ownServerExit: String? = null
+        private set
 
     private val listeners = CopyOnWriteArraySet<() -> Unit>()
     private val main = Handler(Looper.getMainLooper())
@@ -56,7 +60,7 @@ object Protection {
         state = s
         if (s == State.STARTING) { errorRes = 0; errorDetail = null }
         if (s != State.ON) { socksPort = 0; socksAuth = null; proxyPortTaken = 0 }
-        if (s == State.OFF) { stats = null; startedAt = 0; proxyOnly = false; national = null; ownServerDown = null }
+        if (s == State.OFF) { stats = null; startedAt = 0; proxyOnly = false; national = null; ownServerDown = null; ownServerExit = null }
         changed()
     }
 
@@ -75,6 +79,12 @@ object Protection {
     fun ownServerDown(v: Pair<String, String>?) {
         if (ownServerDown == v) return
         ownServerDown = v
+        changed()
+    }
+
+    fun ownServerExit(v: String?) {
+        if (ownServerExit == v) return
+        ownServerExit = v
         changed()
     }
 

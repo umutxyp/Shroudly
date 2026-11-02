@@ -132,8 +132,11 @@
     <string name="excludedApps">Shroudly-ді айналып өтетін қолданбалар</string>
     <string name="excludedAppsCount">Shroudly-ді айналып өтетін қолданбалар: {count}</string>
     <string name="excludedAppsDesc">Олардың трафигі Shroudly арқылы өтпей, тікелей шығады: мысалы, оған мұқтаж емес ойын.</string>
+    <string name="helpNudgeBodyPhone">Тегін қолданба интернетке цензура қоятын елдердегі адамдарға бұғаттаулардан өту үшін осы телефон қосылымының аз ғана бөлігін пайдалануға мүмкіндік береді. Бұл сіз үшін қауіпсіз: олар телефоныңызға да, желіңізге де жете алмайды, ал олар ашатын сайттар сіздің мекенжайыңызды ешқашан көрмейді.</string>
+    <string name="helpNudgeShow">Көрсету</string>
+    <string name="helpNudgeTitle">Цензурасы бар елдердегі адамдарға көмектесесіз бе?</string>
     <string name="helpOthers">Цензурасы бар елдердегі адамдарға көмектесу</string>
-    <string name="helpOthersBody">Бұл телефон интернетті бұғаттайтын елдердегі адамдарға бұғаттан өтуге осы үшін жасалған қолданбамен көмектесе алады: Psiphon-ның Conduit қолданбасы немесе Tor үшін Orbot-тың Kindness Mode режимі. Олар өз бетінше жұмыс істейді; біреуге көмектесіп жатқанда қосылымыңыздың бір бөлігін пайдаланады, ал көмек алатындар телефоныңызға немесе желіңізге ешқашан қол жеткізбейді.</string>
+    <string name="helpOthersBody">Интернетке цензура қоятын елдердегі адамдар бұғаттаулардан өту үшін осы телефон қосылымының аз ғана бөлігін пайдалана алады. Телефонда мұны осы мақсатқа арналған тегін қолданба жасайды, қосу мен өшіру де сонда: Psiphon-ның Conduit-і немесе Orbot-тың Kindness Mode-ы. Бұл сіз үшін қауіпсіз: олар телефоныңызға да, желіңізге де жете алмайды, ал олар ашатын сайттар сіздің мекенжайыңызды ешқашан көрмейді.</string>
     <string name="helpOthersConduit">Conduit (Psiphon)</string>
     <string name="helpOthersOrbot">Orbot (Tor)</string>
     <string name="language">Тіл</string>
@@ -159,6 +162,7 @@
     <string name="ownServerErrFormat">Бұл Shroudly қолдана алатын сілтеме емес. Ол былай көрінеді: socks5://1.2.3.4:1080, http://user:pass@host:3128 немесе ss://…</string>
     <string name="ownServerErrMethod">Бұл Shadowsocks әдісіне ({method}) қолдау жоқ; chacha20-ietf-poly1305, aes-256-gcm немесе aes-128-gcm қолданыңыз.</string>
     <string name="ownServerErrUser">Пайдаланушы атында «:» немесе «@» болмауы керек.</string>
+    <string name="ownServerExit">Өз серверіңіз арқылы. Сайттар көретін мекенжай: {ip}</string>
     <string name="ownServerFails">Жұмыс істемеді: {why}. Қолданылмайды; сілтемені тексеріңіз немесе бәрібір қолданыңыз.</string>
     <string name="ownServerInUse">Қолданылуда: {server}</string>
     <string name="ownServerOff">Қолдануды тоқтату</string>
@@ -220,4 +224,7 @@
     <string name="upload">Жүктеп салу</string>
     <string name="uptime">Жұмыс уақыты</string>
     <string name="versionLabel">Нұсқа {version}</string>
+    <string name="whatsNewAndroid">Өз серверіңізбен негізгі экран сайттар көретін мекенжайды көрсетеді.\nShroudly анда-санда цензурасы бар елдердегі адамдарға көмектескіңіз келе ме деп сұрайды; әр жолы «қазір емес» десеңіз, екі есе ұзақ күтеді.\nӘр жаңартудан кейін осындай қысқа жазба не өзгергенін айтады.</string>
+    <string name="whatsNewOk">Түсінікті</string>
+    <string name="whatsNewTitle">{version} нұсқасындағы жаңалықтар</string>
 </resources>

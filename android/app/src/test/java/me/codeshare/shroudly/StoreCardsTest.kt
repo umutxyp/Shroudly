@@ -229,7 +229,9 @@ class StoreCardsTest {
         assertTrue(show.contains("if (StoreCards.promptedThisRun || !working) return"))
         // One a run: shown, it is the run's prompt.
         assertTrue(show.trimEnd().endsWith("StoreCards.promptedThisRun = true"))
-        assertTrue(show.contains("if (listOf(notice, update, support).any { it.visibility == View.VISIBLE }) return"))
+        assertTrue(show.contains("if (listOf(notice, update, support, helpCard).any { it.visibility == View.VISIBLE }) return"))
+        // The card asking for help, the other way round: never beside a store card.
+        assertTrue(main.contains("helpCard.visibility = if (helpDue && working && storeShown == null && listOf(notice, update, support).none { it.visibility == View.VISIBLE })"))
         assertTrue(main.contains("StoreCards.save(this, key, StoreCards.load(this, key).copy(done = true))"))
         assertTrue(main.contains("Stores.openPlay(this)"))
         // Live in the phone's own country only; the Play Store there and on.

@@ -9,6 +9,7 @@
 "androidQuicOffDesc" = "መተግበሪያዎች ከQUIC (UDP ወደብ 443) ይልቅ TCP ይጠቀማሉ፤ Shroudly TCPን በተሻለ ያሳልፋል። QUICን ለሚያግዱ ወይም ለሚያዘገዩ አውታረ መረቦች።";
 "androidShareLogs" = "መዝገብ አጋራ";
 "androidVpnDenied" = "Shroudly የመተግበሪያዎችዎን ግንኙነቶች ለማሳለፍ የVPN ፈቃድ ያስፈልገዋል።";
+"appleInstallHelp" = "እንዴት እንደሚጫን";
 "appleKeepOn" = "ጥበቃውን እንደበራ አቆይ";
 "appleKeepOnDesc" = "ጥበቃው ቢቋረጥ ወይም መሣሪያው እንደገና ቢጀምር፣ እስኪያቆሙት ድረስ በራሱ ተመልሶ ይበራል።";
 "appleLanguageDesc" = "Shroudly የመሣሪያዎን ቋንቋ ይጠቀማል። ለShroudly ብቻ ሌላ ቋንቋ በሥርዓቱ ቅንብሮች ውስጥ መምረጥ ይችላሉ።";
@@ -17,10 +18,14 @@
 "appleNoticeContinue" = "ቀጥል";
 "appleNoticeTitle" = "ከመጀመርዎ በፊት";
 "appleOpenSettings" = "ቅንብሮችን ክፈት";
+"appleVpnNotSigned" = "ይህ የShroudly ቅጂ ለVPN የApple ፈቃድ ሳይኖረው ተፈርሟል፣ ስለዚህ iOS VPN እንዲጀምር አይፈቅድለትም፣ ፈጽሞም አይጠይቅም። በነጻ Apple ID የተፈረሙ ቅጂዎች (AltStore፣ SideStore፣ Sideloadly እና መሰሎቻቸው) ይህ ፈቃድ ፈጽሞ የላቸውም። በTrollStore ይጫኑት፣ ወይም በሚከፈልበት የApple ገንቢ መለያ ይፈርሙት።";
 "appleVpnRevoked" = "ሥርዓቱ ጥበቃውን አጥፍቶታል፤ ብዙ ጊዜ ሌላ የVPN መተግበሪያ ስለበራ ነው።";
 "dnsServerUse" = "ተጠቀም";
+"helpNudgeBodyPhone" = "ነጻ መተግበሪያ ኢንተርኔትን ሳንሱር በሚያደርጉ አገሮች ያሉ ሰዎች እገዳዎችን ለማለፍ የዚህን ስልክ ግንኙነት ትንሽ ክፍል እንዲጠቀሙ ያስችላል። ለእርስዎ ደህንነቱ የተጠበቀ ነው፦ ወደ ስልክዎ ወይም ወደ አውታረ መረብዎ መድረስ አይችሉም፣ የሚከፍቷቸው ድረ-ገጾችም አድራሻዎን ፈጽሞ አያዩም።";
+"helpNudgeShow" = "አሳየኝ";
+"helpNudgeTitle" = "ሳንሱር ባለባቸው አገሮች ያሉ ሰዎችን መርዳት ይፈልጋሉ?";
 "helpOthers" = "ሳንሱር ባለባቸው አገሮች ያሉ ሰዎችን እርዳ";
-"helpOthersBodyConduit" = "ይህ መሣሪያ በይነመረብን በሚያግዱ አገሮች ያሉ ሰዎች እገዳውን እንዲያልፉ ለዚህ በተሰራው የPsiphon Conduit መተግበሪያ መርዳት ይችላል። በራሱ ይሰራል፤ አንድ ሰው በሚረዳበት ጊዜ የግንኙነትዎን የተወሰነ ክፍል ይጠቀማል፣ የሚረዱት ሰዎች ደግሞ መሣሪያዎን ወይም አውታረ መረብዎን በፍጹም አይደርሱም።";
+"helpOthersBodyConduit" = "ኢንተርኔትን ሳንሱር በሚያደርጉ አገሮች ያሉ ሰዎች እገዳዎችን ለማለፍ የዚህን መሣሪያ ግንኙነት ትንሽ ክፍል መጠቀም ይችላሉ። በiPhone እና iPad ላይ ይህን የሚሰራው የPsiphon ነጻ መተግበሪያ Conduit ነው፣ ማብራትና ማጥፋትም እዚያው ነው። ለእርስዎ ደህንነቱ የተጠበቀ ነው፦ ወደ መሣሪያዎ ወይም ወደ አውታረ መረብዎ መድረስ አይችሉም፣ የሚከፍቷቸው ድረ-ገጾችም አድራሻዎን ፈጽሞ አያዩም።";
 "helpOthersConduit" = "Conduit (Psiphon)";
 "language" = "ቋንቋ";
 "languageSystem" = "የሥርዓቱ ነባሪ";
@@ -41,6 +46,7 @@
 "ownServerErrFormat" = "Shroudly ሊጠቀምበት የሚችል ማገናኛ አይደለም። እንዲህ ይመስላል፦ socks5://1.2.3.4:1080፣ http://user:pass@host:3128 ወይም ss://…";
 "ownServerErrMethod" = "ይህ የShadowsocks ዘዴ ({method}) አይደገፍም፤ chacha20-ietf-poly1305፣ aes-256-gcm ወይም aes-128-gcm ይጠቀሙ።";
 "ownServerErrUser" = "የተጠቃሚ ስም “:” ወይም “@” ሊይዝ አይችልም።";
+"ownServerExit" = "በራስዎ አገልጋይ በኩል። ድረ-ገጾች የሚያዩት አድራሻ፦ {ip}";
 "ownServerInUse" = "ጥቅም ላይ ነው፦ {server}";
 "ownServerOff" = "መጠቀም አቁም";
 "ownServerWhyAsks" = "የተጠቃሚ ስም እና የይለፍ ቃል ይጠይቃል";
@@ -64,5 +70,9 @@
 "stratSplitMid" = "በSNI መሃል ላይ መክፈል";
 "stratSplitSni" = "በSNI ላይ መክፈል";
 "strategy" = "የማለፊያ ስልት";
+"supportBannerLater" = "አሁን አይደለም";
 "tagline" = "የማይታይ። የማይቆም።";
 "versionLabel" = "ስሪት {version}";
+"whatsNewApple" = "ያለ Apple የVPN ፈቃድ የተፈረመ ቅጂ አሁን ይህንን ይናገራል፣ በትክክል እንዴት እንደሚጫንም ያሳያል።\nበራስዎ አገልጋይ፣ ዋናው ማያ ገጽ ድረ-ገጾች የሚያዩትን አድራሻ ያሳያል።\nShroudly አልፎ አልፎ ሳንሱር ባለባቸው አገሮች ያሉ ሰዎችን መርዳት ይፈልጉ እንደሆነ ይጠይቃል፤ አሁን አይደለም ባሉ ቁጥር እጥፍ ጊዜ ይጠብቃል።\nከእያንዳንዱ ዝማኔ በኋላ፣ እንደዚህ ያለ አጭር ማስታወሻ ምን እንደተለወጠ ይነግርዎታል።";
+"whatsNewOk" = "ገባኝ";
+"whatsNewTitle" = "በ{version} ውስጥ አዲስ ነገሮች";

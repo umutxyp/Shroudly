@@ -229,6 +229,11 @@ input.field, textarea.field { border-color: var(--line-strong); background: colo
 .chip:hover { background: var(--surface-hover); color: var(--text); }
 .chip[aria-pressed='true'] { background: var(--accent-soft); color: var(--accent); border-color: var(--accent-line); }
 
+/* Settings' tabs (SettingsPanel.js): quiet until chosen, then the chips' accent. */
+.tab { background: transparent; color: var(--text-dim); border: 1px solid transparent; transition: background-color 0.15s, color 0.15s, border-color 0.15s; }
+.tab:hover { background: var(--surface-hover); color: var(--text); }
+.tab[aria-selected='true'] { background: var(--accent-soft); color: var(--accent); border-color: var(--accent-line); }
+
 .row-hover { transition: background-color 0.15s; }
 .row-hover:hover { background: var(--surface-hover); }
 

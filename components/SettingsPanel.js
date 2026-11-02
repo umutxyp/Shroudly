@@ -4,7 +4,7 @@ import { useEffect, useId, useRef, useState } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { ACCENTS, applyAppearance, readAppearance } from './Appearance';
 import {
-  AlertTriangleIcon, CheckCircleIcon, CheckIcon, ChevronDownIcon, GlobeIcon, PaletteIcon, InfoIcon, LanguagesIcon, SearchIcon, ShieldAlertIcon,
+  AlertTriangleIcon, CheckCircleIcon, CheckIcon, GlobeIcon, PaletteIcon, InfoIcon, LanguagesIcon, SearchIcon, ShieldAlertIcon,
   SpinnerIcon, XCircleIcon, ZapIcon,
 } from './icons';
 import Select from './Select';
@@ -332,7 +332,7 @@ function OwnServer({ value, onSave }) {
     setState({ testing: true });
     let r;
     try { r = await window.electron.testOwnServer(v); } catch { r = { ok: false, why: 'noAnswer' }; }
-    if (r && r.ok) { setState((await onSave(v)) ? { ok: true, ms: r.ms } : { invalid: 'format', tried: v }); return; }
+    if (r && r.ok) { setState((await onSave(v)) ? { ok: true, ms: r.ms, ip: r.ip || null } : { invalid: 'format', tried: v }); return; }
     setState({ ...(r || {}), tried: v });
   };
   const off = async () => { if (await onSave(null)) { setText(''); setState(null); } };
@@ -373,7 +373,7 @@ function OwnServer({ value, onSave }) {
         {state && state.ok && (
           <p className="mt-2 flex items-start gap-1.5 text-[12px] leading-snug" style={{ color: 'var(--ok)' }}>
             <CheckCircleIcon className="mt-[1px] h-3.5 w-3.5 shrink-0" />
-            <span className="min-w-0">{t('ownServerOk', { ms: state.ms })}</span>
+            <span className="min-w-0">{state.ip ? t('ownServerOkExit', { ms: state.ms, ip: state.ip }) : t('ownServerOk', { ms: state.ms })}</span>
           </p>
         )}
         {state && (state.invalid || state.why) && (
@@ -531,9 +531,20 @@ function SnowflakeHelp({ onChange }) {
         <p className="mt-1 text-[12px] leading-snug" aria-live="polite"
            style={{ color: st.state === 'unreachable' ? 'var(--warn)' : 'var(--text-faint)' }}>{line}</p>
       )}
+      {/* How, for whoever wants to know: Tor's Snowflake, and where what they
+          open leaves from. */}
+      <p className="mt-2 text-[11.5px] leading-snug" style={{ color: 'var(--text-faint)' }}>{t('snowflakeHow')}</p>
     </div>
   );
 }
+
+/* Settings' tabs, in order: their id and the locale key of their name. */
+const SETTINGS_TABS = [
+  { id: 'general', key: 'tabGeneral' },
+  { id: 'connection', key: 'tabConnection' },
+  { id: 'sharing', key: 'tabSharing' },
+  { id: 'app', key: 'tabApp' },
+];
 
 export default function SettingsPanel({ active = false }) {
   const { language, setLanguage, t, availableLanguages, locale } = useLanguage();
@@ -725,15 +736,10 @@ export default function SettingsPanel({ active = false }) {
   const shownStrategy = settings.autoMode !== false ? 'auto'
     : settings.strategyId === 'auto' || !STRATEGIES.some((x) => x.id === settings.strategyId) ? 'split-sni' : settings.strategyId;
 
-  /* "More settings" open by itself when something in it is not as a new
-   * install has it: the user, or someone helping them, set it and should
-   * find it. */
-  const moreId = useId();
-  const [more, setMore] = useState(null);
-  const moreSet = shownStrategy !== 'auto' || settings.dnsProtection === false || !!settings.customDns || !!settings.ownServer || settings.shareOn === true || settings.snowflakeOn === true
-    || settings.preferIpv6 === true || settings.routeMode === 'listed' || settings.showTrayIcon === false
-    || (!isMac && settings.askByItself === false);
-  const moreOpen = more ?? moreSet;
+  // The tab shown: the first each time Settings opens, which is also where
+  // the tour points at the site test (Onboarding.js).
+  const tabsId = useId();
+  const [tab, setTab] = useState('general');
 
   // started: protection was just started for this test (the window's own
   // status may not have caught up yet).
@@ -812,513 +818,519 @@ export default function SettingsPanel({ active = false }) {
 
   return (
     <div className="flex flex-col gap-3 py-4">
-      {/* Language */}
-      <Section title={t('language')} Icon={LanguagesIcon} titleId={languageLabelId}>
-        <Select
-          value={language}
-          options={languageOptions}
-          onChange={setLanguage}
-          ariaLabelledBy={languageLabelId}
-        />
-      </Section>
-
-      {/* Test a site */}
-      <Section title={t('testSite')} Icon={SearchIcon}>
-        <p className="mb-3 text-[12px] leading-snug" style={{ color: 'var(--text-faint)' }}>{t('testSiteDesc')}</p>
-        {/* The tour points at the field itself: the whole section, with a
-            result in it, could be taller than the room its card has. */}
-        <form
-          data-tour="sitetest"
-          className="flex flex-wrap gap-2"
-          onSubmit={(e) => { e.preventDefault(); runTest(); }}
-        >
-          <input
-            value={testHost}
-            onChange={(e) => setTestHost(e.target.value)}
-            placeholder={t('testPlaceholder')}
-            aria-label={t('testSite')}
-            dir="ltr"
-            spellCheck={false}
-            autoCapitalize="off"
-            autoCorrect="off"
-            inputMode="url"
-            className="field min-w-[150px] flex-[1_1_180px] px-3.5 py-2.5 text-[14px]"
-            style={{ textAlign: 'start' }}
-          />
-          <button
-            type="submit"
-            disabled={!testHost.trim() || !!testing}
-            className="btn btn-primary flex-[0_0_auto] rounded-[var(--radius-sm)] px-4 py-2.5 text-[14px] font-semibold"
-          >
-            {testing && <SpinnerIcon className="spin h-4 w-4" />}
-            <span>{testing ? t('testing') : t('test')}</span>
+      {/* Four tabs instead of one long page (2.6.48): what most people
+          look for first, the connection's details, a server and sharing,
+          and the app itself. One row in the default window, two in a
+          narrow one or a long language. */}
+      <div role="tablist" aria-label={t('navSettings')}
+           className="card grid grid-cols-2 gap-1 p-1 min-[420px]:grid-cols-4">
+        {SETTINGS_TABS.map(({ id, key }) => (
+          <button key={id} type="button" role="tab" id={`${tabsId}-${id}`} aria-selected={tab === id}
+                  aria-controls={`${tabsId}-panel`} data-settings-tab={id} onClick={() => setTab(id)}
+                  className="tab min-w-0 rounded-[8px] px-2 py-1.5 text-center text-[12.5px] font-semibold leading-tight wrap-anywhere">
+            {t(key)}
           </button>
-        </form>
-
-        {testNote === 'needsProtection' && (
-          <div className="mt-3">
-            <Notice tone="info" Icon={InfoIcon}>
-              <p style={{ color: 'var(--text-dim)' }}>{t('testNeedsProtection')}</p>
-              <button type="button" onClick={startAndTest} disabled={startingTest}
-                      className="btn btn-primary mt-2.5 rounded-[9px] px-3.5 py-2 text-[13px] font-semibold">
-                {startingTest && <SpinnerIcon className="spin h-4 w-4" />}
-                <span>{startingTest ? t('starting') : t('start')}</span>
-              </button>
-            </Notice>
-          </div>
-        )}
-        {testNote === 'noAnswer' && (
-          <div className="mt-3"><Notice tone="warn" Icon={AlertTriangleIcon}><p style={{ color: 'var(--text-dim)' }}>{t('probeNoAnswer')}</p></Notice></div>
-        )}
-
-        {probeResult && (
-          <div className="mt-3 flex flex-col gap-2" aria-live="polite">
-            {probeShown.refused && (
-              <Notice tone="warn" Icon={AlertTriangleIcon}>
-                <p className="mb-1 font-semibold" style={{ color: 'var(--warn)' }}>{t(probeResult.service === 'stall' ? 'probeStallTitle' : 'probeServiceTitle', { host: probeResult.host })}</p>
-                <p className="text-[12.5px]" style={{ color: 'var(--text-dim)' }}>{t(probeResult.service === 'stall' ? 'probeStallBody' : 'probeServiceBody', { host: probeResult.host })}</p>
-              </Notice>
-            )}
-            {probeShown.works && probeResult.strategy === 'none' && (
-              <Notice tone={probeResult.dns_blocked ? 'ok' : 'info'} Icon={probeResult.dns_blocked ? CheckCircleIcon : InfoIcon}>
-                <p style={{ color: probeResult.dns_blocked ? 'var(--ok)' : 'var(--text-dim)' }}>
-                  {probeResult.dns_blocked
-                    ? t('probeDnsBlocked', { host: probeResult.host })
-                    : t('probeNotBlocked', { host: probeResult.host })}
-                </p>
-              </Notice>
-            )}
-            {probeShown.works && probeResult.strategy !== 'none' && (
-              <Notice tone="ok" Icon={CheckCircleIcon}>
-                <p style={{ color: 'var(--ok)' }}>
-                  {t('probeWorks', { host: probeResult.host })}
-                </p>
-              </Notice>
-            )}
-            {probeBlocked && (
-              <Notice tone="warn" Icon={AlertTriangleIcon}>
-                <p className="mb-1 font-semibold" style={{ color: 'var(--warn)' }}>{t('probeBlockedTitle', { host: probeResult.host })}</p>
-                {/* This test exercises the normal mode only. With Advanced mode on,
-                    "still blocked" here says nothing about what the packet-level
-                    engine is doing, and telling the user to try a mode that is
-                    already running reads as the app contradicting itself. */}
-                <p className="mb-3 text-[12.5px]" style={{ color: 'var(--text-dim)' }}>
-                  {advInfo.active ? t('probeBlockedAdvancedOn', { host: probeResult.host }) : t('probeBlockedDesc')}
-                </p>
-                {advInfo.available ? (
-                  advInfo.active ? (
-                    <p className="flex items-center gap-1.5 font-medium" style={{ color: 'var(--ok)' }}>
-                      <CheckCircleIcon className="h-4 w-4" />
-                      <span>{t('advancedOn')}</span>
-                    </p>
-                  ) : (
-                    <div className="flex flex-col items-start gap-1.5">
-                      <button
-                        type="button"
-                        onClick={enableAdvanced}
-                        disabled={advBusy}
-                        className="btn btn-warn rounded-[9px] px-3.5 py-2 text-[13px] font-semibold"
-                      >
-                        {advBusy ? <SpinnerIcon className="spin h-4 w-4" /> : <ZapIcon className="h-4 w-4" />}
-                        <span>{advBusy ? t('starting') : t('tryAdvanced')}</span>
-                      </button>
-                      <p className="flex items-start gap-1.5 text-[12px]" style={{ color: 'var(--text-faint)' }}>
-                        <ShieldAlertIcon className="mt-[1px] h-3.5 w-3.5" />
-                        <span className="min-w-0">{t('advancedAdminHint')}</span>
-                      </p>
-                    </div>
-                  )
-                ) : !NO_ADVANCED_HERE.includes(advInfo.reasonCode) && (
-                  <p className="flex items-start gap-1.5 text-[12.5px]" style={{ color: 'var(--text-dim)' }}>
-                    <InfoIcon className="mt-[1px] h-3.5 w-3.5" style={{ color: 'var(--text-faint)' }} />
-                    <span className="min-w-0">{advReasonText(advInfo, t)}</span>
-                  </p>
-                )}
-              </Notice>
-            )}
-          </div>
-        )}
-
-        {/* Always here, not only after a site test says "still blocked": on
-            networks that let the handshake through and cut the rest,
-            the test says the site works, and the one mode that helps would
-            otherwise never be shown. Not where this system has no Advanced
-            mode at all (macOS): a row to say it cannot be had is only one
-            more thing to read (ML-9). Not while a result above offers it
-            already (two of the same button) or says the site itself refuses
-            (no mode changes that), nor with protection off: it is part of
-            protection, and the screen would say "Not protected" while it
-            ran. */}
-        {active && !advInfo.active && !probeBlocked && !probeShown.refused && !NO_ADVANCED_HERE.includes(advInfo.reasonCode) && (
-          <div className="mt-4 rounded-[var(--radius-sm)] p-3" style={{ background: 'var(--surface-2)', border: '1px solid var(--line)' }}>
-            <p className="flex items-center gap-1.5 text-[13.5px] font-semibold" style={{ color: 'var(--text)' }}>
-              <ZapIcon className="h-4 w-4" style={{ color: advInfo.available ? 'var(--warn)' : 'var(--text-faint)' }} />
-              <span>{t('advancedRowTitle')}</span>
-            </p>
-            <p className="mt-1 text-[12.5px] leading-snug" style={{ color: 'var(--text-dim)' }}>{t('advancedRowDesc')}</p>
-            {advInfo.available ? (
-              <div className="mt-2.5 flex flex-wrap items-center gap-x-3 gap-y-1.5">
-                <button type="button" onClick={enableAdvanced} disabled={advBusy}
-                        className="btn btn-warn rounded-[9px] px-3.5 py-2 text-[13px] font-semibold">
-                  {advBusy ? <SpinnerIcon className="spin h-4 w-4" /> : <ZapIcon className="h-4 w-4" />}
-                  <span>{advBusy ? t('starting') : t('advancedTurnOn')}</span>
-                </button>
-                <span className="flex items-start gap-1.5 text-[12px]" style={{ color: 'var(--text-faint)' }}>
-                  <ShieldAlertIcon className="mt-[1px] h-3.5 w-3.5" />
-                  <span className="min-w-0">{t('advancedAdminHint')}</span>
-                </span>
-              </div>
-            ) : (
-              <p className="mt-2 flex items-start gap-1.5 text-[12px]" style={{ color: 'var(--text-faint)' }}>
-                <InfoIcon className="mt-[1px] h-3.5 w-3.5" />
-                <span className="min-w-0">{advReasonText(advInfo, t)}</span>
-              </p>
-            )}
-          </div>
-        )}
-
-        {advError && (
-          <div className="mt-3">
-            <Notice tone={advError.tone} Icon={advError.tone === 'warn' ? AlertTriangleIcon : XCircleIcon}>
-              <p style={{ color: advError.tone === 'warn' ? 'var(--warn)' : 'var(--danger)' }}>{advError.text}</p>
-            </Notice>
-          </div>
-        )}
-
-        {advInfo.active && (
-          <div className="mt-3 flex flex-wrap items-center justify-between gap-x-3 gap-y-2 rounded-[var(--radius-sm)] p-3"
-               style={{ background: 'var(--ok-soft)', border: '1px solid var(--ok-line)' }}>
-            <span className="flex min-w-0 flex-1 items-start gap-2 text-[12.5px] leading-snug" style={{ color: 'var(--ok)' }}>
-              <ZapIcon className="mt-[1px] h-4 w-4" />
-              <span className="min-w-0">{t('advancedActive')}</span>
-            </span>
-            <button
-              type="button"
-              onClick={disableAdvanced}
-              disabled={advBusy}
-              className="btn btn-ghost rounded-full px-3 py-1.5 text-[12px] font-medium"
-            >
-              {advBusy && <SpinnerIcon className="spin h-3.5 w-3.5" />}
-              <span>{t('advancedTurnOff')}</span>
-            </button>
-          </div>
-        )}
-      </Section>
-
-      {/* The modes for apps that ignore the system proxy: in sight, as the
-          notices that say "turn it on in Settings" expect. Shown where at
-          least one of them exists on this system. */}
-      {(discord.installed || apps.available || storeApps.available) && (
-        <Section title={t('androidAppsSection')}>
-          <div className="divide-y" style={{ borderColor: 'var(--line)' }}>
-            {discord.installed && (
-              <Toggle label={t('discordModeLabel')} desc={t('discordModeDesc')}
-                      checked={discord.on} onChange={setDiscordMode} />
-            )}
-            {/* Shroudly turns this on by itself when Roblox is blocked
-                (autopilot.js); the switch is for whoever wants it either way. */}
-            {apps.available && (
-              <div>
-              <Toggle label={t('appModeLabel')} desc={t('appModeDesc')}
-                      checked={apps.on} onChange={setAppMode} />
-              {apps.on && apps.store && (
-                <p className="pb-3 text-[12px] leading-snug" style={{ color: 'var(--warn)' }}>{t('appStoreEdition')}</p>
-              )}
-              </div>
-            )}
-            {/* Windows: Shroudly lets Store apps reach it by itself
-                (store-apps.js); off takes its exemptions out again. */}
-            {storeApps.available && (
-              <Toggle label={t('storeAppsLabel')} desc={t('storeAppsDesc')}
-                      checked={storeApps.on} onChange={setStoreAppsMode} />
-            )}
-          </div>
+        ))}
+      </div>
+      <div id={`${tabsId}-panel`} role="tabpanel" aria-labelledby={`${tabsId}-${tab}`} className="flex flex-col gap-3">
+      {tab === 'general' && (
+        <>
+        {/* Language */}
+        <Section title={t('language')} Icon={LanguagesIcon} titleId={languageLabelId}>
+          <Select
+            value={language}
+            options={languageOptions}
+            onChange={setLanguage}
+            ariaLabelledBy={languageLabelId}
+          />
         </Section>
-      )}
 
-      {/* App */}
-      <Section title={t('appSection')}>
-        <div className="divide-y" style={{ borderColor: 'var(--line)' }}>
-          <div>
-            <Toggle label={t('startOnBoot')} desc={t('startOnBootDesc')} checked={settings.autoStart} onChange={setAutoStartSetting} />
-            {autoStartRefused && (
-              <p role="status" className="pb-3 text-[12px] leading-snug" style={{ color: 'var(--warn)' }}>{t('startOnBootRefused', { logs: t('navLogs') })}</p>
-            )}
+        {/* Test a site */}
+        <Section title={t('testSite')} Icon={SearchIcon}>
+          <p className="mb-3 text-[12px] leading-snug" style={{ color: 'var(--text-faint)' }}>{t('testSiteDesc')}</p>
+          {/* The tour points at the field itself: the whole section, with a
+              result in it, could be taller than the room its card has. */}
+          <form
+            data-tour="sitetest"
+            className="flex flex-wrap gap-2"
+            onSubmit={(e) => { e.preventDefault(); runTest(); }}
+          >
+            <input
+              value={testHost}
+              onChange={(e) => setTestHost(e.target.value)}
+              placeholder={t('testPlaceholder')}
+              aria-label={t('testSite')}
+              dir="ltr"
+              spellCheck={false}
+              autoCapitalize="off"
+              autoCorrect="off"
+              inputMode="url"
+              className="field min-w-[150px] flex-[1_1_180px] px-3.5 py-2.5 text-[14px]"
+              style={{ textAlign: 'start' }}
+            />
+            <button
+              type="submit"
+              disabled={!testHost.trim() || !!testing}
+              className="btn btn-primary flex-[0_0_auto] rounded-[var(--radius-sm)] px-4 py-2.5 text-[14px] font-semibold"
+            >
+              {testing && <SpinnerIcon className="spin h-4 w-4" />}
+              <span>{testing ? t('testing') : t('test')}</span>
+            </button>
+          </form>
+
+          {testNote === 'needsProtection' && (
+            <div className="mt-3">
+              <Notice tone="info" Icon={InfoIcon}>
+                <p style={{ color: 'var(--text-dim)' }}>{t('testNeedsProtection')}</p>
+                <button type="button" onClick={startAndTest} disabled={startingTest}
+                        className="btn btn-primary mt-2.5 rounded-[9px] px-3.5 py-2 text-[13px] font-semibold">
+                  {startingTest && <SpinnerIcon className="spin h-4 w-4" />}
+                  <span>{startingTest ? t('starting') : t('start')}</span>
+                </button>
+              </Notice>
+            </div>
+          )}
+          {testNote === 'noAnswer' && (
+            <div className="mt-3"><Notice tone="warn" Icon={AlertTriangleIcon}><p style={{ color: 'var(--text-dim)' }}>{t('probeNoAnswer')}</p></Notice></div>
+          )}
+
+          {probeResult && (
+            <div className="mt-3 flex flex-col gap-2" aria-live="polite">
+              {probeShown.refused && (
+                <Notice tone="warn" Icon={AlertTriangleIcon}>
+                  <p className="mb-1 font-semibold" style={{ color: 'var(--warn)' }}>{t(probeResult.service === 'stall' ? 'probeStallTitle' : 'probeServiceTitle', { host: probeResult.host })}</p>
+                  <p className="text-[12.5px]" style={{ color: 'var(--text-dim)' }}>{t(probeResult.service === 'stall' ? 'probeStallBody' : 'probeServiceBody', { host: probeResult.host })}</p>
+                </Notice>
+              )}
+              {probeShown.works && probeResult.strategy === 'none' && (
+                <Notice tone={probeResult.dns_blocked ? 'ok' : 'info'} Icon={probeResult.dns_blocked ? CheckCircleIcon : InfoIcon}>
+                  <p style={{ color: probeResult.dns_blocked ? 'var(--ok)' : 'var(--text-dim)' }}>
+                    {probeResult.dns_blocked
+                      ? t('probeDnsBlocked', { host: probeResult.host })
+                      : t('probeNotBlocked', { host: probeResult.host })}
+                  </p>
+                </Notice>
+              )}
+              {probeShown.works && probeResult.strategy !== 'none' && (
+                <Notice tone="ok" Icon={CheckCircleIcon}>
+                  <p style={{ color: 'var(--ok)' }}>
+                    {t('probeWorks', { host: probeResult.host })}
+                  </p>
+                </Notice>
+              )}
+              {probeBlocked && (
+                <Notice tone="warn" Icon={AlertTriangleIcon}>
+                  <p className="mb-1 font-semibold" style={{ color: 'var(--warn)' }}>{t('probeBlockedTitle', { host: probeResult.host })}</p>
+                  {/* This test exercises the normal mode only. With Advanced mode on,
+                      "still blocked" here says nothing about what the packet-level
+                      engine is doing, and telling the user to try a mode that is
+                      already running reads as the app contradicting itself. */}
+                  <p className="mb-3 text-[12.5px]" style={{ color: 'var(--text-dim)' }}>
+                    {advInfo.active ? t('probeBlockedAdvancedOn', { host: probeResult.host }) : t('probeBlockedDesc')}
+                  </p>
+                  {advInfo.available ? (
+                    advInfo.active ? (
+                      <p className="flex items-center gap-1.5 font-medium" style={{ color: 'var(--ok)' }}>
+                        <CheckCircleIcon className="h-4 w-4" />
+                        <span>{t('advancedOn')}</span>
+                      </p>
+                    ) : (
+                      <div className="flex flex-col items-start gap-1.5">
+                        <button
+                          type="button"
+                          onClick={enableAdvanced}
+                          disabled={advBusy}
+                          className="btn btn-warn rounded-[9px] px-3.5 py-2 text-[13px] font-semibold"
+                        >
+                          {advBusy ? <SpinnerIcon className="spin h-4 w-4" /> : <ZapIcon className="h-4 w-4" />}
+                          <span>{advBusy ? t('starting') : t('tryAdvanced')}</span>
+                        </button>
+                        <p className="flex items-start gap-1.5 text-[12px]" style={{ color: 'var(--text-faint)' }}>
+                          <ShieldAlertIcon className="mt-[1px] h-3.5 w-3.5" />
+                          <span className="min-w-0">{t('advancedAdminHint')}</span>
+                        </p>
+                      </div>
+                    )
+                  ) : !NO_ADVANCED_HERE.includes(advInfo.reasonCode) && (
+                    <p className="flex items-start gap-1.5 text-[12.5px]" style={{ color: 'var(--text-dim)' }}>
+                      <InfoIcon className="mt-[1px] h-3.5 w-3.5" style={{ color: 'var(--text-faint)' }} />
+                      <span className="min-w-0">{advReasonText(advInfo, t)}</span>
+                    </p>
+                  )}
+                </Notice>
+              )}
+            </div>
+          )}
+
+          {/* Always here, not only after a site test says "still blocked": on
+              networks that let the handshake through and cut the rest,
+              the test says the site works, and the one mode that helps would
+              otherwise never be shown. Not where this system has no Advanced
+              mode at all (macOS): a row to say it cannot be had is only one
+              more thing to read (ML-9). Not while a result above offers it
+              already (two of the same button) or says the site itself refuses
+              (no mode changes that), nor with protection off: it is part of
+              protection, and the screen would say "Not protected" while it
+              ran. */}
+          {active && !advInfo.active && !probeBlocked && !probeShown.refused && !NO_ADVANCED_HERE.includes(advInfo.reasonCode) && (
+            <div className="mt-4 rounded-[var(--radius-sm)] p-3" style={{ background: 'var(--surface-2)', border: '1px solid var(--line)' }}>
+              <p className="flex items-center gap-1.5 text-[13.5px] font-semibold" style={{ color: 'var(--text)' }}>
+                <ZapIcon className="h-4 w-4" style={{ color: advInfo.available ? 'var(--warn)' : 'var(--text-faint)' }} />
+                <span>{t('advancedRowTitle')}</span>
+              </p>
+              <p className="mt-1 text-[12.5px] leading-snug" style={{ color: 'var(--text-dim)' }}>{t('advancedRowDesc')}</p>
+              {advInfo.available ? (
+                <div className="mt-2.5 flex flex-wrap items-center gap-x-3 gap-y-1.5">
+                  <button type="button" onClick={enableAdvanced} disabled={advBusy}
+                          className="btn btn-warn rounded-[9px] px-3.5 py-2 text-[13px] font-semibold">
+                    {advBusy ? <SpinnerIcon className="spin h-4 w-4" /> : <ZapIcon className="h-4 w-4" />}
+                    <span>{advBusy ? t('starting') : t('advancedTurnOn')}</span>
+                  </button>
+                  <span className="flex items-start gap-1.5 text-[12px]" style={{ color: 'var(--text-faint)' }}>
+                    <ShieldAlertIcon className="mt-[1px] h-3.5 w-3.5" />
+                    <span className="min-w-0">{t('advancedAdminHint')}</span>
+                  </span>
+                </div>
+              ) : (
+                <p className="mt-2 flex items-start gap-1.5 text-[12px]" style={{ color: 'var(--text-faint)' }}>
+                  <InfoIcon className="mt-[1px] h-3.5 w-3.5" />
+                  <span className="min-w-0">{advReasonText(advInfo, t)}</span>
+                </p>
+              )}
+            </div>
+          )}
+
+          {advError && (
+            <div className="mt-3">
+              <Notice tone={advError.tone} Icon={advError.tone === 'warn' ? AlertTriangleIcon : XCircleIcon}>
+                <p style={{ color: advError.tone === 'warn' ? 'var(--warn)' : 'var(--danger)' }}>{advError.text}</p>
+              </Notice>
+            </div>
+          )}
+
+          {advInfo.active && (
+            <div className="mt-3 flex flex-wrap items-center justify-between gap-x-3 gap-y-2 rounded-[var(--radius-sm)] p-3"
+                 style={{ background: 'var(--ok-soft)', border: '1px solid var(--ok-line)' }}>
+              <span className="flex min-w-0 flex-1 items-start gap-2 text-[12.5px] leading-snug" style={{ color: 'var(--ok)' }}>
+                <ZapIcon className="mt-[1px] h-4 w-4" />
+                <span className="min-w-0">{t('advancedActive')}</span>
+              </span>
+              <button
+                type="button"
+                onClick={disableAdvanced}
+                disabled={advBusy}
+                className="btn btn-ghost rounded-full px-3 py-1.5 text-[12px] font-medium"
+              >
+                {advBusy && <SpinnerIcon className="spin h-3.5 w-3.5" />}
+                <span>{t('advancedTurnOff')}</span>
+              </button>
+            </div>
+          )}
+        </Section>
+
+        {/* The modes for apps that ignore the system proxy: in sight, as the
+            notices that say "turn it on in Settings" expect. Shown where at
+            least one of them exists on this system. */}
+        {(discord.installed || apps.available || storeApps.available) && (
+          <Section title={t('androidAppsSection')}>
+            <div className="divide-y" style={{ borderColor: 'var(--line)' }}>
+              {discord.installed && (
+                <Toggle label={t('discordModeLabel')} desc={t('discordModeDesc')}
+                        checked={discord.on} onChange={setDiscordMode} />
+              )}
+              {/* Shroudly turns this on by itself when Roblox is blocked
+                  (autopilot.js); the switch is for whoever wants it either way. */}
+              {apps.available && (
+                <div>
+                <Toggle label={t('appModeLabel')} desc={t('appModeDesc')}
+                        checked={apps.on} onChange={setAppMode} />
+                {apps.on && apps.store && (
+                  <p className="pb-3 text-[12px] leading-snug" style={{ color: 'var(--warn)' }}>{t('appStoreEdition')}</p>
+                )}
+                </div>
+              )}
+              {/* Windows: Shroudly lets Store apps reach it by itself
+                  (store-apps.js); off takes its exemptions out again. */}
+              {storeApps.available && (
+                <Toggle label={t('storeAppsLabel')} desc={t('storeAppsDesc')}
+                        checked={storeApps.on} onChange={setStoreAppsMode} />
+              )}
+            </div>
+          </Section>
+        )}
+        </>
+      )}
+      {tab === 'connection' && (
+        <>
+        <Section title={t('dpiBypassTechniques')}>
+          <p id={strategyLabelId} className="mb-1.5 text-[12px] font-medium" style={{ color: 'var(--text-faint)' }}>{t('strategy')}</p>
+          <div className="mb-2">
+            <Select
+              value={shownStrategy}
+              options={strategyOptions}
+              onChange={onStrategyChange}
+              ariaLabelledBy={strategyLabelId}
+            />
           </div>
-          <Toggle label={t(isMac ? 'minimizeToTrayMac' : 'minimizeToTray')} desc={t(isMac ? 'minimizeToTrayDescMac' : 'minimizeToTrayDesc')} checked={settings.minimizeToTray} onChange={(v) => save('minimizeToTray', v)} />
-          <Toggle label={t('adBlock')} desc={t('adBlockDesc')} checked={settings.adBlock === true} onChange={(v) => save('adBlock', v)} />
-          {settings.adBlock === true && (
-            <div className="py-2.5">
-              <p className="mb-1.5 text-[12px] leading-snug" style={{ color: 'var(--text-faint)' }}>{t('adBlockAllowDesc')}</p>
+
+          <div className="divide-y" style={{ borderColor: 'var(--line)' }}>
+            <Toggle label={t('dnsProtection')} desc={t('dnsProtectionDesc')} checked={settings.dnsProtection !== false} onChange={(v) => save('dnsProtection', v)} />
+            {settings.dnsProtection !== false && (
+              <DnsServer value={settings.customDns} onSave={(v) => save('customDns', v)} />
+            )}
+            <Toggle label={t('preferIpv6')}
+                    desc={ipv6Ok === false ? t('ipv6Unavailable') : t('preferIpv6Desc')}
+                    checked={settings.preferIpv6}
+                    disabled={ipv6Ok === false && !settings.preferIpv6}
+                    onChange={(v) => save('preferIpv6', v)} />
+          </div>
+
+          {active && (
+            <p className="mt-2 flex items-start gap-2 text-[12px] leading-snug" style={{ color: 'var(--text-faint)' }}>
+              <InfoIcon className="mt-[1px] h-3.5 w-3.5" />
+              <span className="min-w-0">{t('restartToApply')}</span>
+            </p>
+          )}
+        </Section>
+        {/* Routing: which sites go through Shroudly */}
+        <Section title={t('routing')} Icon={GlobeIcon}>
+          <Select
+            value={settings.routeMode === 'listed' ? 'listed' : 'all'}
+            options={[
+              { value: 'listed', label: t('routeListed') },
+              { value: 'all', label: t('routeAll') },
+            ]}
+            onChange={(v) => save('routeMode', v)}
+          />
+          <p className="mt-2 text-[12px] leading-snug" style={{ color: 'var(--text-faint)' }}>
+            {settings.routeMode === 'listed' ? t('routeListedDesc') : t('routeAllDesc')}
+          </p>
+
+          {settings.routeMode === 'listed' && (
+            <div className="mt-3">
+              <div className="mb-1.5 flex items-center justify-between gap-2">
+                <span className="text-[12px] font-medium" style={{ color: 'var(--text-faint)' }}>{t('siteListLabel')}</span>
+                {Array.isArray(settings.siteList) && (
+                  <button type="button"
+                          onClick={() => { setSiteText(null); setBadEntries([]); save('siteList', null); setListInfo((i) => i && { ...i, custom: false }); }}
+                          className="text-[12px] underline" style={{ color: 'var(--text-dim)' }}>
+                    {t('siteListUseAuto')}
+                  </button>
+                )}
+              </div>
+              <p className="mb-1.5 text-[12px] leading-snug" style={{ color: 'var(--text-faint)' }}>
+                {Array.isArray(settings.siteList)
+                  ? t('siteListCustom')
+                  : t('siteListAuto', {
+                    count: (listInfo?.count || defaultList.length).toLocaleString(locale || undefined),
+                    date: listInfo?.generated ? new Date(listInfo.generated).toLocaleDateString(locale || undefined) : '—',
+                  })}
+              </p>
               <textarea
-                aria-label={t('adBlockAllow')}
-                value={allowText == null ? (Array.isArray(settings.adBlockAllow) ? settings.adBlockAllow : []).join('\n') : allowText}
-                onChange={(e) => setAllowText(e.target.value)}
+                value={siteText == null ? (settings.siteList || defaultList).join('\n') : siteText}
+                onChange={(e) => setSiteText(e.target.value)}
                 onBlur={() => {
-                  if (allowText == null) return;
-                  const list = [...new Set(allowText
+                  // Nothing typed: the box shows the list in use, and leaving it
+                  // must not save anything (an empty draft is not an empty list).
+                  if (siteText == null) return;
+                  const entries = siteText
                     .split(/[\s,]+/)
                     .map((d) => d.trim().toLowerCase().replace(/^https?:\/\//, '').replace(/^\*?\./, '').replace(/\/.*$/, ''))
-                    .filter(isHostname))];
-                  setAllowText(null);
-                  save('adBlockAllow', list);
+                    .filter(Boolean);
+                  const list = [...new Set(entries.filter(isHostname))];
+                  const dropped = [...new Set(entries.filter((d) => !isHostname(d)))];
+                  setBadEntries(dropped);
+                  // Only an actual edit makes the list the user's own: merely
+                  // clicking into the box must not stop it updating itself.
+                  const current = Array.isArray(settings.siteList) ? settings.siteList : defaultList;
+                  if (list.length === current.length && list.every((d, i) => d === current[i])) { setSiteText(null); return; }
+                  setSiteText(list.join('\n'));   // show the cleaned list back
+                  save('siteList', list);
                 }}
-                rows={3}
-                spellCheck={false}
-                placeholder="example.com"
+                spellCheck={false} rows={6} dir="ltr"
+                placeholder={'discord.com\nroblox.com'}
                 className="mono w-full resize-y rounded-[var(--radius-sm)] p-2.5 text-[12.5px] leading-relaxed outline-none"
                 style={{ background: 'var(--surface-2)', border: '1px solid var(--line)', color: 'var(--text)' }}
               />
+              {badEntries.length > 0 && (
+                <p className="mt-1.5 flex items-start gap-2 text-[12px] leading-snug" style={{ color: 'var(--warn)' }}>
+                  <AlertTriangleIcon className="mt-[1px] h-3.5 w-3.5 shrink-0" />
+                  <span className="min-w-0 wrap-anywhere">
+                    {t('siteListDropped', { entries: badEntries.slice(0, 4).join(', ') + (badEntries.length > 4 ? '…' : '') })}
+                  </span>
+                </p>
+              )}
+              <p className="mt-1.5 text-[12px] leading-snug" style={{ color: 'var(--text-faint)' }}>{t('siteListHint')}</p>
             </div>
           )}
-          <Toggle
-            label={t('shareOnlineCount')}
-            desc={t('shareOnlineCountDesc')}
-            checked={settings.shareOnlineCount !== false}
-            onChange={(v) => save('shareOnlineCount', v)}
-          />
-          <Toggle label={t('showNotifications')} desc={t('showNotificationsDesc')} checked={settings.showNotifications} onChange={(v) => save('showNotifications', v)} />
-          <Toggle label={t('autoUpdate')} desc={t('autoUpdateDesc')} checked={settings.autoUpdate !== false} onChange={(v) => save('autoUpdate', v)} />
-        </div>
-        {/* Repair: Shroudly's files checked, what it learned forgotten, its
-            network settings set again (issue #46). */}
-        <div className="mt-3 flex items-center justify-between gap-3">
-          <p className="m-0 min-w-0 text-[12px] leading-snug" style={{ color: 'var(--text-faint)' }}>{t('repairAppDesc')}</p>
-          <button type="button" disabled={repairState === 'busy'}
-                  onClick={async () => {
-                    setRepairState('busy');
-                    try { setRepairState(await window.electron?.repairApp?.() || null); } catch { setRepairState(null); }
-                  }}
-                  className="btn btn-ghost inline-flex shrink-0 items-center gap-1.5 rounded-[8px] px-3 py-1.5 text-[12.5px] font-semibold">
-            {repairState === 'busy' && <SpinnerIcon className="spin h-3.5 w-3.5" />}
-            <span>{t('repairApp')}</span>
-          </button>
-        </div>
-        {repairState && repairState !== 'busy' && (
-          <p className="m-0 mt-2 text-[12px] leading-snug" role="status"
-             style={{ color: repairState.missing && repairState.missing.length ? 'var(--warn)' : 'var(--text-dim)' }}>
-            {repairState.missing && repairState.missing.length
-              ? (<>{t('repairFilesMissing', { files: repairState.missing.join(', ') })}{' '}
-                  <a href="https://github.com/umutxyp/Shroudly/releases/latest" target="_blank" rel="noreferrer"
-                     className="font-semibold underline">{t('repairDownload')}</a></>)
-              : t('repairDone')}
-          </p>
-        )}
-        {/* Every setting back to how a new install has it; the modes turned
-            off properly first, then the app starts again. */}
-        <div className="mt-3 flex items-center justify-between gap-3">
-          <p className="m-0 min-w-0 text-[12px] leading-snug" style={{ color: 'var(--text-faint)' }}>{t('resetSettingsDesc')}</p>
-          <button type="button"
-                  onClick={() => {
-                    if (!window.confirm(t('resetSettingsConfirm'))) return;
-                    // The colours and Liquid glass live in the window, not in
-                    // the settings file: back to a new install's too.
-                    setAppearance({ accent: 'sky', surface: 'solid' });
-                    window.electron?.resetSettings?.();
-                  }}
-                  className="btn btn-ghost shrink-0 rounded-[8px] px-3 py-1.5 text-[12.5px] font-semibold">{t('resetSettings')}</button>
-        </div>
-        {/* Quitting is otherwise only in the tray menu, which some desktops
-            (stock GNOME) never show. Quitting restores every setting. */}
-        <div className="mt-3 flex items-center justify-between gap-3">
-          <p className="m-0 min-w-0 text-[12px] leading-snug" style={{ color: 'var(--text-faint)' }}>{t('quitAppDesc')}</p>
-          <button type="button" onClick={() => window.electron?.quitApp?.()}
-                  className="btn btn-ghost shrink-0 rounded-[8px] px-3 py-1.5 text-[12.5px] font-semibold">{t('quitApp')}</button>
-        </div>
-      </Section>
-      {/* Appearance: after what Shroudly does, not before it */}
-      <Section title={t('appearance')} Icon={PaletteIcon}>
-        <p className="mb-3 text-[12px] leading-snug" style={{ color: 'var(--text-faint)' }}>{t('accentColour')}</p>
-        {/* A nine-column grid rather than a wrapping row: the swatches scale
-            with the window instead of spilling into a stray second line at
-            narrow widths, which read as a layout accident. */}
-        <div className="grid grid-cols-9 gap-1.5 sm:gap-2.5">
-          {ACCENTS.map((a, i) => {
-            const on = look.accent === a.id;
-            return (
-              <button
-                key={a.id}
-                type="button"
-                aria-label={t('accentSwatch', { n: i + 1, total: ACCENTS.length })}
-                aria-pressed={on}
-                onClick={() => setAppearance({ accent: a.id })}
-                className="swatch relative aspect-square w-full rounded-full transition-transform duration-150 hover:scale-110"
-                style={{
-                  background: a.swatch,
-                  boxShadow: on
-                    ? `0 0 0 2px var(--surface), 0 0 0 4px ${a.swatch}`
-                    : 'inset 0 1px 0 rgba(255,255,255,.25)',
-                }}
-              >
-                {on && <CheckIcon className="absolute inset-0 m-auto h-[14px] w-[14px]" style={{ color: 'rgba(0,0,0,.7)' }} />}
-              </button>
-            );
-          })}
-        </div>
 
-        <div className="mt-4 border-t pt-3" style={{ borderColor: 'var(--line)' }}>
-          <Toggle
-            label={t('glassSurface')}
-            desc={t('glassSurfaceDesc')}
-            checked={look.surface === 'glass'}
-            onChange={(v) => setAppearance({ surface: v ? 'glass' : 'solid' })}
-          />
-        </div>
-      </Section>
-
-      {/* "More settings": what only someone helping the user should
-          change, folded away as on Android ("Advanced", a name the desktop
-          keeps for its packet-level mode). Open from the start when
-          something in it is set otherwise than a new install has it. */}
-      <section className="card">
-        <button
-          type="button"
-          onClick={() => setMore(!moreOpen)}
-          aria-expanded={moreOpen}
-          aria-controls={moreId}
-          className="row-hover flex w-full items-center gap-3 rounded-[var(--radius)] p-4 text-start"
-        >
-          <span className="min-w-0 flex-1">
-            <span className="block text-[13px] font-semibold leading-snug" style={{ color: 'var(--text-dim)' }}>{t('moreSettings')}</span>
-            <span className="mt-0.5 block text-[12px] leading-snug" style={{ color: 'var(--text-faint)' }}>{t('androidAdvancedDesc')}</span>
-          </span>
-          <ChevronDownIcon className="h-4 w-4 shrink-0 transition-transform duration-150"
-                           style={{ color: 'var(--text-faint)', transform: moreOpen ? 'rotate(180deg)' : 'none' }} />
-        </button>
-      </section>
-      {moreOpen && (
-        <div id={moreId} className="flex flex-col gap-3">
-          <Section title={t('dpiBypassTechniques')}>
-            <p id={strategyLabelId} className="mb-1.5 text-[12px] font-medium" style={{ color: 'var(--text-faint)' }}>{t('strategy')}</p>
-            <div className="mb-2">
-              <Select
-                value={shownStrategy}
-                options={strategyOptions}
-                onChange={onStrategyChange}
-                ariaLabelledBy={strategyLabelId}
-              />
-            </div>
-
-            <div className="divide-y" style={{ borderColor: 'var(--line)' }}>
-              <Toggle label={t('dnsProtection')} desc={t('dnsProtectionDesc')} checked={settings.dnsProtection !== false} onChange={(v) => save('dnsProtection', v)} />
-              {settings.dnsProtection !== false && (
-                <DnsServer value={settings.customDns} onSave={(v) => save('customDns', v)} />
-              )}
-              <Toggle label={t('preferIpv6')}
-                      desc={ipv6Ok === false ? t('ipv6Unavailable') : t('preferIpv6Desc')}
-                      checked={settings.preferIpv6}
-                      disabled={ipv6Ok === false && !settings.preferIpv6}
-                      onChange={(v) => save('preferIpv6', v)} />
-            </div>
-
-            {active && (
-              <p className="mt-2 flex items-start gap-2 text-[12px] leading-snug" style={{ color: 'var(--text-faint)' }}>
-                <InfoIcon className="mt-[1px] h-3.5 w-3.5" />
-                <span className="min-w-0">{t('restartToApply')}</span>
-              </p>
-            )}
-          </Section>
-          <Section title={t('ownServer')}>
-            <OwnServer value={settings.ownServer} onSave={(v) => save('ownServer', v)} />
-          </Section>
-          <Section title={t('share')}>
-            <ShareConnection onChange={(on) => setSettings((p) => ({ ...p, shareOn: on }))} />
-          </Section>
-          <Section title={t('snowflake')}>
-            <SnowflakeHelp onChange={(on) => setSettings((p) => ({ ...p, snowflakeOn: on }))} />
-          </Section>
-          {/* Routing: which sites go through Shroudly */}
-          <Section title={t('routing')} Icon={GlobeIcon}>
-            <Select
-              value={settings.routeMode === 'listed' ? 'listed' : 'all'}
-              options={[
-                { value: 'listed', label: t('routeListed') },
-                { value: 'all', label: t('routeAll') },
-              ]}
-              onChange={(v) => save('routeMode', v)}
-            />
-            <p className="mt-2 text-[12px] leading-snug" style={{ color: 'var(--text-faint)' }}>
-              {settings.routeMode === 'listed' ? t('routeListedDesc') : t('routeAllDesc')}
+          {active && (
+            <p className="mt-2 flex items-start gap-2 text-[12px] leading-snug" style={{ color: 'var(--text-faint)' }}>
+              <InfoIcon className="mt-[1px] h-3.5 w-3.5" />
+              <span className="min-w-0">{t('routeAppliesNow')}</span>
             </p>
-
-            {settings.routeMode === 'listed' && (
-              <div className="mt-3">
-                <div className="mb-1.5 flex items-center justify-between gap-2">
-                  <span className="text-[12px] font-medium" style={{ color: 'var(--text-faint)' }}>{t('siteListLabel')}</span>
-                  {Array.isArray(settings.siteList) && (
-                    <button type="button"
-                            onClick={() => { setSiteText(null); setBadEntries([]); save('siteList', null); setListInfo((i) => i && { ...i, custom: false }); }}
-                            className="text-[12px] underline" style={{ color: 'var(--text-dim)' }}>
-                      {t('siteListUseAuto')}
-                    </button>
-                  )}
-                </div>
-                <p className="mb-1.5 text-[12px] leading-snug" style={{ color: 'var(--text-faint)' }}>
-                  {Array.isArray(settings.siteList)
-                    ? t('siteListCustom')
-                    : t('siteListAuto', {
-                      count: (listInfo?.count || defaultList.length).toLocaleString(locale || undefined),
-                      date: listInfo?.generated ? new Date(listInfo.generated).toLocaleDateString(locale || undefined) : '—',
-                    })}
-                </p>
+          )}
+        </Section>
+        <Section title={t('adBlockSection')}>
+          <div className="divide-y" style={{ borderColor: 'var(--line)' }}>
+            <Toggle label={t('adBlock')} desc={t('adBlockDesc')} checked={settings.adBlock === true} onChange={(v) => save('adBlock', v)} />
+            {settings.adBlock === true && (
+              <div className="py-2.5">
+                <p className="mb-1.5 text-[12px] leading-snug" style={{ color: 'var(--text-faint)' }}>{t('adBlockAllowDesc')}</p>
                 <textarea
-                  value={siteText == null ? (settings.siteList || defaultList).join('\n') : siteText}
-                  onChange={(e) => setSiteText(e.target.value)}
+                  aria-label={t('adBlockAllow')}
+                  value={allowText == null ? (Array.isArray(settings.adBlockAllow) ? settings.adBlockAllow : []).join('\n') : allowText}
+                  onChange={(e) => setAllowText(e.target.value)}
                   onBlur={() => {
-                    // Nothing typed: the box shows the list in use, and leaving it
-                    // must not save anything (an empty draft is not an empty list).
-                    if (siteText == null) return;
-                    const entries = siteText
+                    if (allowText == null) return;
+                    const list = [...new Set(allowText
                       .split(/[\s,]+/)
                       .map((d) => d.trim().toLowerCase().replace(/^https?:\/\//, '').replace(/^\*?\./, '').replace(/\/.*$/, ''))
-                      .filter(Boolean);
-                    const list = [...new Set(entries.filter(isHostname))];
-                    const dropped = [...new Set(entries.filter((d) => !isHostname(d)))];
-                    setBadEntries(dropped);
-                    // Only an actual edit makes the list the user's own: merely
-                    // clicking into the box must not stop it updating itself.
-                    const current = Array.isArray(settings.siteList) ? settings.siteList : defaultList;
-                    if (list.length === current.length && list.every((d, i) => d === current[i])) { setSiteText(null); return; }
-                    setSiteText(list.join('\n'));   // show the cleaned list back
-                    save('siteList', list);
+                      .filter(isHostname))];
+                    setAllowText(null);
+                    save('adBlockAllow', list);
                   }}
-                  spellCheck={false} rows={6} dir="ltr"
-                  placeholder={'discord.com\nroblox.com'}
+                  rows={3}
+                  spellCheck={false}
+                  placeholder="example.com"
                   className="mono w-full resize-y rounded-[var(--radius-sm)] p-2.5 text-[12.5px] leading-relaxed outline-none"
                   style={{ background: 'var(--surface-2)', border: '1px solid var(--line)', color: 'var(--text)' }}
                 />
-                {badEntries.length > 0 && (
-                  <p className="mt-1.5 flex items-start gap-2 text-[12px] leading-snug" style={{ color: 'var(--warn)' }}>
-                    <AlertTriangleIcon className="mt-[1px] h-3.5 w-3.5 shrink-0" />
-                    <span className="min-w-0 wrap-anywhere">
-                      {t('siteListDropped', { entries: badEntries.slice(0, 4).join(', ') + (badEntries.length > 4 ? '…' : '') })}
-                    </span>
-                  </p>
-                )}
-                <p className="mt-1.5 text-[12px] leading-snug" style={{ color: 'var(--text-faint)' }}>{t('siteListHint')}</p>
               </div>
             )}
-
-            {active && (
-              <p className="mt-2 flex items-start gap-2 text-[12px] leading-snug" style={{ color: 'var(--text-faint)' }}>
-                <InfoIcon className="mt-[1px] h-3.5 w-3.5" />
-                <span className="min-w-0">{t('routeAppliesNow')}</span>
-              </p>
-            )}
-          </Section>
-          <Section>
-            <div className="divide-y" style={{ borderColor: 'var(--line)' }}>
-              <Toggle label={t(isMac ? 'showTrayIconMac' : 'showTrayIcon')} desc={t('showTrayIconDesc')} checked={settings.showTrayIcon !== false} onChange={(v) => save('showTrayIcon', v)} />
-              {/* Off: no permission prompt is ever brought up by Shroudly on its
-                  own (Advanced mode, Microsoft Store apps); it says what needs
-                  which mode instead (issue #55). */}
-              {/* macOS has neither Advanced mode nor Microsoft Store apps: nothing
-                  there to ask about. */}
-              {!isMac && <Toggle label={t('askByItself')} desc={t('askByItselfDesc')} checked={settings.askByItself !== false} onChange={(v) => save('askByItself', v)} />}
-            </div>
-          </Section>
-        </div>
+          </div>
+        </Section>
+        </>
       )}
+      {tab === 'sharing' && (
+        <>
+        <Section title={t('ownServer')}>
+          <OwnServer value={settings.ownServer} onSave={(v) => save('ownServer', v)} />
+        </Section>
+        <Section title={t('share')}>
+          <ShareConnection onChange={(on) => setSettings((p) => ({ ...p, shareOn: on }))} />
+        </Section>
+        <Section title={t('snowflake')}>
+          <SnowflakeHelp onChange={(on) => setSettings((p) => ({ ...p, snowflakeOn: on }))} />
+        </Section>
+        </>
+      )}
+      {tab === 'app' && (
+        <>
+        {/* App */}
+        <Section title={t('appSection')}>
+          <div className="divide-y" style={{ borderColor: 'var(--line)' }}>
+            <div>
+              <Toggle label={t('startOnBoot')} desc={t('startOnBootDesc')} checked={settings.autoStart} onChange={setAutoStartSetting} />
+              {autoStartRefused && (
+                <p role="status" className="pb-3 text-[12px] leading-snug" style={{ color: 'var(--warn)' }}>{t('startOnBootRefused', { logs: t('navLogs') })}</p>
+              )}
+            </div>
+            <Toggle label={t(isMac ? 'minimizeToTrayMac' : 'minimizeToTray')} desc={t(isMac ? 'minimizeToTrayDescMac' : 'minimizeToTrayDesc')} checked={settings.minimizeToTray} onChange={(v) => save('minimizeToTray', v)} />
+            <Toggle label={t(isMac ? 'showTrayIconMac' : 'showTrayIcon')} desc={t('showTrayIconDesc')} checked={settings.showTrayIcon !== false} onChange={(v) => save('showTrayIcon', v)} />
+            <Toggle
+              label={t('shareOnlineCount')}
+              desc={t('shareOnlineCountDesc')}
+              checked={settings.shareOnlineCount !== false}
+              onChange={(v) => save('shareOnlineCount', v)}
+            />
+            <Toggle label={t('showNotifications')} desc={t('showNotificationsDesc')} checked={settings.showNotifications} onChange={(v) => save('showNotifications', v)} />
+            <Toggle label={t('autoUpdate')} desc={t('autoUpdateDesc')} checked={settings.autoUpdate !== false} onChange={(v) => save('autoUpdate', v)} />
+            {/* Off: no permission prompt is ever brought up by Shroudly on its
+                own (Advanced mode, Microsoft Store apps); it says what needs
+                which mode instead (issue #55). */}
+            {/* macOS has neither Advanced mode nor Microsoft Store apps: nothing
+                there to ask about. */}
+            {!isMac && <Toggle label={t('askByItself')} desc={t('askByItselfDesc')} checked={settings.askByItself !== false} onChange={(v) => save('askByItself', v)} />}
+          </div>
+          {/* Repair: Shroudly's files checked, what it learned forgotten, its
+              network settings set again (issue #46). */}
+          <div className="mt-3 flex items-center justify-between gap-3">
+            <p className="m-0 min-w-0 text-[12px] leading-snug" style={{ color: 'var(--text-faint)' }}>{t('repairAppDesc')}</p>
+            <button type="button" disabled={repairState === 'busy'}
+                    onClick={async () => {
+                      setRepairState('busy');
+                      try { setRepairState(await window.electron?.repairApp?.() || null); } catch { setRepairState(null); }
+                    }}
+                    className="btn btn-ghost inline-flex shrink-0 items-center gap-1.5 rounded-[8px] px-3 py-1.5 text-[12.5px] font-semibold">
+              {repairState === 'busy' && <SpinnerIcon className="spin h-3.5 w-3.5" />}
+              <span>{t('repairApp')}</span>
+            </button>
+          </div>
+          {repairState && repairState !== 'busy' && (
+            <p className="m-0 mt-2 text-[12px] leading-snug" role="status"
+               style={{ color: repairState.missing && repairState.missing.length ? 'var(--warn)' : 'var(--text-dim)' }}>
+              {repairState.missing && repairState.missing.length
+                ? (<>{t('repairFilesMissing', { files: repairState.missing.join(', ') })}{' '}
+                    <a href="https://github.com/umutxyp/Shroudly/releases/latest" target="_blank" rel="noreferrer"
+                       className="font-semibold underline">{t('repairDownload')}</a></>)
+                : t('repairDone')}
+            </p>
+          )}
+          {/* Every setting back to how a new install has it; the modes turned
+              off properly first, then the app starts again. */}
+          <div className="mt-3 flex items-center justify-between gap-3">
+            <p className="m-0 min-w-0 text-[12px] leading-snug" style={{ color: 'var(--text-faint)' }}>{t('resetSettingsDesc')}</p>
+            <button type="button"
+                    onClick={() => {
+                      if (!window.confirm(t('resetSettingsConfirm'))) return;
+                      // The colours and Liquid glass live in the window, not in
+                      // the settings file: back to a new install's too.
+                      setAppearance({ accent: 'sky', surface: 'solid' });
+                      window.electron?.resetSettings?.();
+                    }}
+                    className="btn btn-ghost shrink-0 rounded-[8px] px-3 py-1.5 text-[12.5px] font-semibold">{t('resetSettings')}</button>
+          </div>
+          {/* Quitting is otherwise only in the tray menu, which some desktops
+              (stock GNOME) never show. Quitting restores every setting. */}
+          <div className="mt-3 flex items-center justify-between gap-3">
+            <p className="m-0 min-w-0 text-[12px] leading-snug" style={{ color: 'var(--text-faint)' }}>{t('quitAppDesc')}</p>
+            <button type="button" onClick={() => window.electron?.quitApp?.()}
+                    className="btn btn-ghost shrink-0 rounded-[8px] px-3 py-1.5 text-[12.5px] font-semibold">{t('quitApp')}</button>
+          </div>
+        </Section>
+        {/* Appearance: after what Shroudly does, not before it */}
+        <Section title={t('appearance')} Icon={PaletteIcon}>
+          <p className="mb-3 text-[12px] leading-snug" style={{ color: 'var(--text-faint)' }}>{t('accentColour')}</p>
+          {/* A nine-column grid rather than a wrapping row: the swatches scale
+              with the window instead of spilling into a stray second line at
+              narrow widths, which read as a layout accident. */}
+          <div className="grid grid-cols-9 gap-1.5 sm:gap-2.5">
+            {ACCENTS.map((a, i) => {
+              const on = look.accent === a.id;
+              return (
+                <button
+                  key={a.id}
+                  type="button"
+                  aria-label={t('accentSwatch', { n: i + 1, total: ACCENTS.length })}
+                  aria-pressed={on}
+                  onClick={() => setAppearance({ accent: a.id })}
+                  className="swatch relative aspect-square w-full rounded-full transition-transform duration-150 hover:scale-110"
+                  style={{
+                    background: a.swatch,
+                    boxShadow: on
+                      ? `0 0 0 2px var(--surface), 0 0 0 4px ${a.swatch}`
+                      : 'inset 0 1px 0 rgba(255,255,255,.25)',
+                  }}
+                >
+                  {on && <CheckIcon className="absolute inset-0 m-auto h-[14px] w-[14px]" style={{ color: 'rgba(0,0,0,.7)' }} />}
+                </button>
+              );
+            })}
+          </div>
+
+          <div className="mt-4 border-t pt-3" style={{ borderColor: 'var(--line)' }}>
+            <Toggle
+              label={t('glassSurface')}
+              desc={t('glassSurfaceDesc')}
+              checked={look.surface === 'glass'}
+              onChange={(v) => setAppearance({ surface: v ? 'glass' : 'solid' })}
+            />
+          </div>
+        </Section>
+        </>
+      )}
+      </div>
     </div>
   );
 }

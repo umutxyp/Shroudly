@@ -132,8 +132,11 @@
     <string name="excludedApps">Aplikasi yang memintas Shroudly</string>
     <string name="excludedAppsCount">Aplikasi yang memintas Shroudly: {count}</string>
     <string name="excludedAppsDesc">Trafiknya keluar terus tanpa melalui Shroudly: contohnya permainan yang tidak memerlukannya.</string>
+    <string name="helpNudgeBodyPhone">Sebuah aplikasi percuma membolehkan orang di negara yang menapis internet menggunakan sedikit sambungan telefon ini untuk melepasi sekatan. Ia selamat untuk anda: mereka tidak boleh sampai ke telefon atau rangkaian anda, dan laman web yang mereka buka tidak pernah melihat alamat anda.</string>
+    <string name="helpNudgeShow">Tunjukkan</string>
+    <string name="helpNudgeTitle">Bantu orang di negara yang ditapis?</string>
     <string name="helpOthers">Bantu orang di negara yang ditapis</string>
-    <string name="helpOthersBody">Telefon ini boleh membantu orang di negara yang menyekat internet melepasi sekatan, dengan aplikasi yang dibuat untuknya: Conduit daripada Psiphon, atau Kindness Mode dalam Orbot untuk Tor. Ia berjalan sendiri; semasa seseorang dibantu, sebahagian sambungan anda digunakan, dan orang yang dibantu tidak pernah mencapai telefon atau rangkaian anda.</string>
+    <string name="helpOthersBody">Orang di negara yang menapis internet boleh menggunakan sedikit sambungan telefon ini untuk melepasi sekatan. Di telefon, ini dilakukan oleh aplikasi percuma yang dibuat untuknya, dan anda menghidupkan serta mematikannya di sana: Conduit daripada Psiphon, atau Kindness Mode dalam Orbot. Ia selamat untuk anda: mereka tidak boleh sampai ke telefon atau rangkaian anda, dan laman web yang mereka buka tidak pernah melihat alamat anda.</string>
     <string name="helpOthersConduit">Conduit (Psiphon)</string>
     <string name="helpOthersOrbot">Orbot (Tor)</string>
     <string name="language">Bahasa</string>
@@ -159,6 +162,7 @@
     <string name="ownServerErrFormat">Ini bukan pautan yang boleh digunakan Shroudly. Rupanya seperti: socks5://1.2.3.4:1080, http://user:pass@host:3128 atau ss://…</string>
     <string name="ownServerErrMethod">Kaedah Shadowsocks ini ({method}) tidak disokong; guna chacha20-ietf-poly1305, aes-256-gcm atau aes-128-gcm.</string>
     <string name="ownServerErrUser">Nama pengguna tidak boleh mengandungi “:” atau “@”.</string>
+    <string name="ownServerExit">Melalui pelayan sendiri. Laman web melihat: {ip}</string>
     <string name="ownServerFails">Tidak berjaya: {why}. Tidak digunakan; semak pautannya, atau guna juga.</string>
     <string name="ownServerInUse">Sedang digunakan: {server}</string>
     <string name="ownServerOff">Berhenti guna</string>
@@ -220,4 +224,7 @@
     <string name="upload">Muat naik</string>
     <string name="uptime">Masa aktif</string>
     <string name="versionLabel">Versi {version}</string>
+    <string name="whatsNewAndroid">Dengan pelayan sendiri, skrin utama menunjukkan alamat yang dilihat laman web.\nSekali-sekala Shroudly bertanya sama ada anda mahu membantu orang di negara yang ditapis; setiap kali anda berkata bukan sekarang, ia menunggu dua kali lebih lama.\nSelepas setiap kemas kini, nota ringkas seperti ini memberitahu apa yang berubah.</string>
+    <string name="whatsNewOk">Faham</string>
+    <string name="whatsNewTitle">Apa yang baharu dalam {version}</string>
 </resources>

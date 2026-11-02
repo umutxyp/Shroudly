@@ -1,7 +1,7 @@
 'use strict';
 
 /*
- * "Share my connection" (Settings, More settings; off until the user turns
+ * "Share my connection" (Settings → Server and sharing; off until the user turns
  * it on): this computer as a Shadowsocks server for the people the user
  * gives its link to. For someone in a shutdown, a friend whose connection
  * still reaches the world is a way out; the link works in any Shadowsocks

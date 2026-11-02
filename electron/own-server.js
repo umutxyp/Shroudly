@@ -208,16 +208,27 @@ async function connectHttp(s, p, host, port) {
   if (code !== 200) throw new Why('refused');
 }
 
+/* The address in Cloudflare's trace page (/cdn-cgi/trace: "ip=1.2.3.4"
+ * on a line of its own), or null. */
+function traceIp(text) {
+  const m = /(?:^|\n)ip=([0-9A-Fa-f.:]{2,45})\r?(?:\n|$)/.exec(String(text || ''));
+  return m && net.isIP(m[1]) ? m[1] : null;
+}
+
 /* Does the server carry a connection to a site? Opens one through it to
  * `host` and checks the site's certificate (a server that only answers,
  * or a network that hands back something else, is not taken for one):
  * { ok: true, ms } or { ok: false, why } (WHY codes, plus 'silent' and
- * 'tls'). */
-async function test(p, { host = 'cloudflare.com', port = 443, ca, timeout = 12000 } = {}) {
+ * 'tls'). With `trace`, the same connection then asks the site's trace
+ * page which address it sees, the server's way out (issue #66): { ok:
+ * true, ms, ip }, ip null when the page did not say. */
+async function test(p, { host = 'cloudflare.com', port = 443, ca, timeout = 12000, trace = false } = {}) {
   const t0 = Date.now();
   let s = null;
   let client = null;
   let clientError = null;
+  let ms = 0;
+  let ip = null;
   const deadline = new Promise((_, reject) => { setTimeout(() => reject(new Why(s ? 'silent' : 'noAnswer')), timeout).unref(); });
   try {
     await Promise.race([deadline, (async () => {
@@ -230,14 +241,37 @@ async function test(p, { host = 'cloudflare.com', port = 443, ca, timeout = 1200
         if (p.kind === 'http') await connectHttp(s, p, host, port);
         else await socks5(s, p, host, port);
       }
-      await new Promise((resolve, reject) => {
+      ip = await new Promise((resolve, reject) => {
         const t = tls.connect({ socket: s, servername: host, ALPNProtocols: ['http/1.1'], ...(ca ? { ca } : {}) });
-        t.once('secureConnect', () => { t.destroy(); resolve(); });
-        t.once('error', () => reject(new Why(p.kind === 'ss' ? (clientError ? 'noAnswer' : 'silent') : 'tls')));
+        let up = false;
+        t.once('secureConnect', () => {
+          up = true;
+          ms = Date.now() - t0;
+          if (!trace) { t.destroy(); resolve(null); return; }
+          // The server worked: what the trace page says is a bonus, and its
+          // failing (a reset, a page without the line) is not the server's.
+          let body = '';
+          const done = () => { t.destroy(); resolve(traceIp(body.slice(body.indexOf('\r\n\r\n') + 4))); };
+          t.setEncoding('latin1');
+          t.on('data', (d) => {
+            body += d;
+            const head = body.indexOf('\r\n\r\n');
+            if ((head >= 0 && traceIp(body.slice(head + 4))) || body.length > 16384) done();
+          });
+          t.once('end', done);
+          t.once('close', done);
+          t.write(`GET /cdn-cgi/trace HTTP/1.1\r\nHost: ${host}\r\nUser-Agent: Mozilla/5.0\r\nAccept: */*\r\nConnection: close\r\n\r\n`);
+        });
+        t.on('error', () => {
+          if (up) { t.destroy(); resolve(null); return; }
+          reject(new Why(p.kind === 'ss' ? (clientError ? 'noAnswer' : 'silent') : 'tls'));
+        });
       });
     })()]);
-    return { ok: true, ms: Date.now() - t0 };
+    return trace ? { ok: true, ms, ip } : { ok: true, ms };
   } catch (e) {
+    // Through, and only the trace page ran out of time: the server works.
+    if (ms) return trace ? { ok: true, ms, ip: null } : { ok: true, ms };
     return { ok: false, why: e instanceof Why ? e.why : 'noAnswer' };
   } finally {
     if (s) s.destroy();
@@ -245,4 +279,4 @@ async function test(p, { host = 'cloudflare.com', port = 443, ca, timeout = 1200
   }
 }
 
-module.exports = { parseLink, describe, engineLine, ssLink, test, whyCode, WHY_TEXT };
+module.exports = { parseLink, describe, engineLine, ssLink, test, traceIp, whyCode, WHY_TEXT };

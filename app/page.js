@@ -12,6 +12,8 @@ import Onboarding from '../components/Onboarding';
 import BlockedNotice from '../components/BlockedNotice';
 import Appearance from '../components/Appearance';
 import { SupportBanner, useSupport } from '../components/Support';
+import { HelpBanner, useHelpNudge } from '../components/HelpBanner';
+import { WhatsNewBanner, useWhatsNew } from '../components/WhatsNew';
 import { useUpdate } from '../components/useUpdate';
 import { ChartIcon, InfoIcon, LogsIcon, SettingsIcon, ShieldIcon } from '../components/icons';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -47,6 +49,8 @@ export default function Home() {
   const openSupport = () => { setActiveTab('info'); setSupportFocus((n) => n + 1); };
   const update = useUpdate();
   const support = useSupport();
+  const help = useHelpNudge();
+  const news = useWhatsNew();
 
   useEffect(() => {
     const check = async () => {
@@ -118,6 +122,10 @@ export default function Home() {
   // time, and neither where no way of giving works (Support.js).
   const supportCard = activeTab === 'control' && active && !notRouting && support.due && support.canPay;
   const supportLink = support.canPay && !supportCard;
+  // Whether the user would like to help people in censored countries: only
+  // while protection works, so the card never stands between a problem and
+  // its fix (HelpBanner.js).
+  const helpCard = activeTab === 'control' && active && !notRouting && !offline && !ownServerDown;
 
   const nav = [
     { id: 'control',  label: t('navProtection'), Icon: ShieldIcon },
@@ -173,7 +181,9 @@ export default function Home() {
         {updateFirst && <UpdateBanner />}
         <BlockedNotice onNavigate={setActiveTab} active={active} proxyInPanel={activeTab === 'control'} />
         {!updateFirst && !(notRouting && activeTab === 'control') && <UpdateBanner />}
+        <WhatsNewBanner show={activeTab === 'control'} news={news} />
         <SupportBanner show={supportCard} support={support} onOpen={openSupport} />
+        <HelpBanner show={helpCard} help={help} />
       </div>
 
       {/* Content */}

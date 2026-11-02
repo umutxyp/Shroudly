@@ -132,8 +132,11 @@
     <string name="excludedApps">Ứng dụng không đi qua Shroudly</string>
     <string name="excludedAppsCount">Ứng dụng không đi qua Shroudly: {count}</string>
     <string name="excludedAppsDesc">Lưu lượng của chúng đi thẳng ra ngoài, không qua Shroudly: ví dụ một trò chơi không cần đến nó.</string>
+    <string name="helpNudgeBodyPhone">Một ứng dụng miễn phí cho phép người ở các nước kiểm duyệt internet dùng một chút kết nối của điện thoại này để vượt qua chặn. Điều này an toàn với bạn: họ không thể vào điện thoại hay mạng của bạn, và các trang web họ mở không bao giờ thấy địa chỉ của bạn.</string>
+    <string name="helpNudgeShow">Xem</string>
+    <string name="helpNudgeTitle">Giúp người ở các nước bị kiểm duyệt?</string>
     <string name="helpOthers">Giúp người ở các nước bị kiểm duyệt</string>
-    <string name="helpOthersBody">Điện thoại này có thể giúp người ở những nước chặn internet vượt qua bằng một ứng dụng làm cho việc đó: Conduit của Psiphon, hoặc Kindness Mode của Orbot cho Tor. Chúng tự chạy; khi có người được giúp, chúng dùng một phần kết nối của bạn, và người được giúp không bao giờ truy cập được điện thoại hay mạng của bạn.</string>
+    <string name="helpOthersBody">Người ở các nước kiểm duyệt internet có thể dùng một chút kết nối của điện thoại này để vượt qua chặn. Trên điện thoại, việc này do một ứng dụng miễn phí làm riêng cho mục đích đó đảm nhận, và bạn bật tắt nó ngay trong ứng dụng: Conduit của Psiphon, hoặc Kindness Mode của Orbot. Điều này an toàn với bạn: họ không thể vào điện thoại hay mạng của bạn, và các trang web họ mở không bao giờ thấy địa chỉ của bạn.</string>
     <string name="helpOthersConduit">Conduit (Psiphon)</string>
     <string name="helpOthersOrbot">Orbot (Tor)</string>
     <string name="language">Ngôn ngữ</string>
@@ -159,6 +162,7 @@
     <string name="ownServerErrFormat">Đây không phải liên kết Shroudly dùng được. Nó trông như: socks5://1.2.3.4:1080, http://user:pass@host:3128 hoặc ss://…</string>
     <string name="ownServerErrMethod">Phương thức Shadowsocks này ({method}) không được hỗ trợ; hãy dùng chacha20-ietf-poly1305, aes-256-gcm hoặc aes-128-gcm.</string>
     <string name="ownServerErrUser">Tên người dùng không được chứa “:” hoặc “@”.</string>
+    <string name="ownServerExit">Qua máy chủ riêng của bạn. Các trang web thấy: {ip}</string>
     <string name="ownServerFails">Không thành công: {why}. Chưa được dùng; hãy kiểm tra liên kết, hoặc vẫn dùng nó.</string>
     <string name="ownServerInUse">Đang dùng: {server}</string>
     <string name="ownServerOff">Ngừng dùng</string>
@@ -220,4 +224,7 @@
     <string name="upload">Tải lên</string>
     <string name="uptime">Thời gian chạy</string>
     <string name="versionLabel">Phiên bản {version}</string>
+    <string name="whatsNewAndroid">Với máy chủ riêng, màn hình chính hiển thị địa chỉ mà các trang web thấy.\nThỉnh thoảng Shroudly hỏi bạn có muốn giúp người ở các nước bị kiểm duyệt không; mỗi lần bạn nói để sau, nó chờ lâu gấp đôi.\nSau mỗi lần cập nhật, một ghi chú ngắn như thế này cho biết những gì đã thay đổi.</string>
+    <string name="whatsNewOk">Đã hiểu</string>
+    <string name="whatsNewTitle">Có gì mới trong {version}</string>
 </resources>

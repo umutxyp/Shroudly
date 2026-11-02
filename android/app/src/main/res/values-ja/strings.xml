@@ -132,8 +132,11 @@
     <string name="excludedApps">Shroudly を通さないアプリ</string>
     <string name="excludedAppsCount">Shroudly を通さないアプリ：{count}</string>
     <string name="excludedAppsDesc">これらのアプリの通信は Shroudly を通らず直接出ていきます（例: 不要なゲームなど）。</string>
+    <string name="helpNudgeBodyPhone">無料のアプリを使うと、インターネットが検閲されている国の人々が、この電話の接続をほんの少し使ってブロックを回避できます。あなたにとって安全です：相手はあなたの電話やネットワークに入れず、相手が開くサイトにあなたのアドレスが見えることもありません。</string>
+    <string name="helpNudgeShow">見る</string>
+    <string name="helpNudgeTitle">検閲のある国の人々を助けませんか？</string>
     <string name="helpOthers">検閲のある国の人々を助ける</string>
-    <string name="helpOthersBody">この電話は、インターネットを遮断する国の人々が遮断を越えるのを、そのために作られたアプリで手助けできます。Psiphon の Conduit、または Orbot の Tor 向け Kindness Mode です。アプリは自動で動き、誰かを助けている間は接続の一部を使います。助けられる人があなたの電話やネットワークに入ることはありません。</string>
+    <string name="helpOthersBody">インターネットが検閲されている国の人々は、この電話の接続をほんの少し使ってブロックを回避できます。電話では、そのために作られた無料アプリがこれを行い、オンとオフもそのアプリで切り替えます：Psiphon の Conduit、または Orbot の Kindness Mode。あなたにとって安全です：相手はあなたの電話やネットワークに入れず、相手が開くサイトにあなたのアドレスが見えることもありません。</string>
     <string name="helpOthersConduit">Conduit（Psiphon）</string>
     <string name="helpOthersOrbot">Orbot（Tor）</string>
     <string name="language">言語</string>
@@ -159,6 +162,7 @@
     <string name="ownServerErrFormat">Shroudly が使えるリンクではありません。次のような形です：socks5://1.2.3.4:1080、http://user:pass@host:3128、または ss://…</string>
     <string name="ownServerErrMethod">この Shadowsocks の方式（{method}）には対応していません。chacha20-ietf-poly1305、aes-256-gcm、aes-128-gcm のいずれかを使ってください。</string>
     <string name="ownServerErrUser">ユーザー名に「:」や「@」は使えません。</string>
+    <string name="ownServerExit">自分のサーバー経由。サイトに見えるアドレス：{ip}</string>
     <string name="ownServerFails">うまくいきませんでした：{why}。使用していません。リンクを確認するか、それでも使ってください。</string>
     <string name="ownServerInUse">使用中：{server}</string>
     <string name="ownServerOff">使用をやめる</string>
@@ -220,4 +224,7 @@
     <string name="upload">アップロード</string>
     <string name="uptime">稼働時間</string>
     <string name="versionLabel">バージョン {version}</string>
+    <string name="whatsNewAndroid">自分のサーバーを使っているとき、メイン画面にサイトから見えるアドレスが表示されます。\nShroudly はときどき、検閲のある国の人々を助けたいかを尋ねます。「今はしない」と答えるたびに、次までの間隔が2倍になります。\n更新のたびに、このような短いお知らせで変更点をお伝えします。</string>
+    <string name="whatsNewOk">OK</string>
+    <string name="whatsNewTitle">{version} の新機能</string>
 </resources>

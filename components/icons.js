@@ -6,8 +6,8 @@
 
 import {
   ArrowDown, ArrowUp, Bug, ChartColumn, Check, ChevronDown, CircleCheck, CircleX, Clock, Code, Copy, Database,
-  Download, ExternalLink, FileText, Globe, Heart, Info, Languages, Link, LoaderCircle, Lock, Minus, Power, RefreshCw,
-  Palette, ScrollText, Scissors, Search, Settings, Shield, ShieldAlert, ShieldCheck, Shuffle, Square, Trash2,
+  Download, ExternalLink, FileText, Globe, HandHeart, Heart, Info, Languages, Link, LoaderCircle, Lock, Minus, Power, RefreshCw,
+  Palette, ScrollText, Scissors, Search, Settings, Shield, ShieldAlert, ShieldCheck, Shuffle, Sparkles, Square, Trash2,
   TriangleAlert, Type, Users, X, Zap,
 } from 'lucide-react';
 
@@ -60,3 +60,5 @@ export const BugIcon = wrap(Bug);
 export const FileTextIcon = wrap(FileText);
 export const UsersIcon = wrap(Users);
 export const HeartIcon = wrap(Heart);
+export const HandHeartIcon = wrap(HandHeart);
+export const SparklesIcon = wrap(Sparkles);

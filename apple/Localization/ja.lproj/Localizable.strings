@@ -9,6 +9,7 @@
 "androidQuicOffDesc" = "アプリは QUIC（UDP ポート 443）の代わりに TCP を使います。TCP のほうが Shroudly で通しやすくなります。QUIC をブロックしたり遅くしたりするネットワーク向けです。";
 "androidShareLogs" = "ログを共有";
 "androidVpnDenied" = "アプリの通信を中継するには、Shroudly に VPN の許可が必要です。";
+"appleInstallHelp" = "インストール方法";
 "appleKeepOn" = "保護をオンのままにする";
 "appleKeepOnDesc" = "保護が切れたりデバイスが再起動したりしても、停止するまで自動でオンに戻ります。";
 "appleLanguageDesc" = "Shroudly はデバイスの言語を使います。Shroudly だけ別の言語にするには、システムの設定で選べます。";
@@ -17,10 +18,14 @@
 "appleNoticeContinue" = "続ける";
 "appleNoticeTitle" = "はじめる前に";
 "appleOpenSettings" = "設定を開く";
+"appleVpnNotSigned" = "この Shroudly のコピーは Apple の VPN 権限なしで署名されているため、iOS は VPN の開始を許可せず、確認もしません。無料の Apple ID で署名したコピー（AltStore、SideStore、Sideloadly など）にはこの権限が付きません。TrollStore でインストールするか、有料の Apple デベロッパーアカウントで署名してください。";
 "appleVpnRevoked" = "システムが保護をオフにしました。通常は別の VPN アプリがオンになったためです。";
 "dnsServerUse" = "使う";
+"helpNudgeBodyPhone" = "無料のアプリを使うと、インターネットが検閲されている国の人々が、この電話の接続をほんの少し使ってブロックを回避できます。あなたにとって安全です：相手はあなたの電話やネットワークに入れず、相手が開くサイトにあなたのアドレスが見えることもありません。";
+"helpNudgeShow" = "見る";
+"helpNudgeTitle" = "検閲のある国の人々を助けませんか？";
 "helpOthers" = "検閲のある国の人々を助ける";
-"helpOthersBodyConduit" = "このデバイスは、インターネットを遮断する国の人々が遮断を越えるのを、そのために作られた Psiphon の Conduit で手助けできます。アプリは自動で動き、誰かを助けている間は接続の一部を使います。助けられる人があなたのデバイスやネットワークに入ることはありません。";
+"helpOthersBodyConduit" = "インターネットが検閲されている国の人々は、このデバイスの接続をほんの少し使ってブロックを回避できます。iPhone と iPad では Psiphon の無料アプリ Conduit がこれを行い、オンとオフもそのアプリで切り替えます。あなたにとって安全です：相手はあなたのデバイスやネットワークに入れず、相手が開くサイトにあなたのアドレスが見えることもありません。";
 "helpOthersConduit" = "Conduit（Psiphon）";
 "language" = "言語";
 "languageSystem" = "システムの既定";
@@ -41,6 +46,7 @@
 "ownServerErrFormat" = "Shroudly が使えるリンクではありません。次のような形です：socks5://1.2.3.4:1080、http://user:pass@host:3128、または ss://…";
 "ownServerErrMethod" = "この Shadowsocks の方式（{method}）には対応していません。chacha20-ietf-poly1305、aes-256-gcm、aes-128-gcm のいずれかを使ってください。";
 "ownServerErrUser" = "ユーザー名に「:」や「@」は使えません。";
+"ownServerExit" = "自分のサーバー経由。サイトに見えるアドレス：{ip}";
 "ownServerInUse" = "使用中：{server}";
 "ownServerOff" = "使用をやめる";
 "ownServerWhyAsks" = "ユーザー名とパスワードを求めています";
@@ -64,5 +70,9 @@
 "stratSplitMid" = "SNI の中央で分割";
 "stratSplitSni" = "SNI で分割";
 "strategy" = "バイパス方式";
+"supportBannerLater" = "今はしない";
 "tagline" = "見えない。止められない。";
 "versionLabel" = "バージョン {version}";
+"whatsNewApple" = "Apple の VPN 権限なしで署名されたコピーは、そのことと正しいインストール方法を表示するようになりました。\n自分のサーバーを使っているとき、メイン画面にサイトから見えるアドレスが表示されます。\nShroudly はときどき、検閲のある国の人々を助けたいかを尋ねます。「今はしない」と答えるたびに、次までの間隔が2倍になります。\n更新のたびに、このような短いお知らせで変更点をお伝えします。";
+"whatsNewOk" = "OK";
+"whatsNewTitle" = "{version} の新機能";

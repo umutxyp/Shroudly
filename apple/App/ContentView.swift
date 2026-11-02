@@ -10,6 +10,12 @@ struct ContentView: View {
     @State private var showNotice = false
     @StateObject private var watch = NetworkWatch()
     @Environment(\.layoutDirection) private var direction
+    @Environment(\.openURL) private var openURL
+    // The card asking whether the user would like to help (HelpNudge).
+    @State private var helpDue = false
+    // What changed in this version, once after an update (WhatsNew).
+    @State private var newsVersion: String?
+    @State private var showNews = false
 
     var body: some View {
         NavigationStack {
@@ -22,11 +28,16 @@ struct ContentView: View {
                         Text(title)
                             .font(.title2.weight(.semibold))
                             .foregroundStyle(.white)
-                        Text(controller.notice ?? tr("tagline"))
+                        Text(controller.notice ?? subtitle)
                             .font(.callout)
                             .foregroundStyle(controller.notice == nil ? Theme.secondaryText : .orange)
                             .multilineTextAlignment(.center)
                             .padding(.horizontal, 24)
+                        // A copy that may not make a VPN: how to install one that can.
+                        if controller.vpnNotAllowed {
+                            Link(tr("appleInstallHelp"), destination: VpnErrors.installHelp)
+                                .font(.callout.weight(.semibold))
+                        }
                     }
                     if phase == .on, let down = watch.ownServerDown {
                         Warning(title: tr("ownServerDown"),
@@ -35,6 +46,15 @@ struct ContentView: View {
                     } else if phase == .on, watch.national != nil {
                         Warning(title: tr("nationalOnlyTitle"), text: tr("nationalOnlyBody"),
                                 link: (tr("nationalOnlyHelp"), NationalNet.guideURL(language: Bundle.main.preferredLocalizations.first ?? "en")))
+                    } else if phase == .on, helpDue, controller.notice == nil {
+                        HelpCard(later: {
+                            HelpNudge.refused()
+                            helpDue = false
+                        }, show: {
+                            HelpNudge.accepted()
+                            helpDue = false
+                            openURL(HelpOthers.conduitURL(language: Bundle.main.preferredLocalizations.first ?? "en"))
+                        })
                     }
                     Spacer()
                     HStack(spacing: 12) {
@@ -74,6 +94,38 @@ struct ContentView: View {
         .task(id: RatingPrompt.Moment(phase: controller.phase, active: scenePhase == .active)) {
             await RatingPrompt.maybeAsk(controller: controller, active: scenePhase == .active) { requestReview() }
         }
+        // Each time the app comes to the front: the help card's turn, and,
+        // after an update, what changed.
+        .task(id: scenePhase == .active) {
+            guard scenePhase == .active else { return }
+            helpDue = HelpNudge.due()
+            let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? ""
+            #if DEBUG
+            switch UserDefaults.standard.string(forKey: "ShroudlyScreen") {
+            case "help": helpDue = true
+            case "whatsnew": newsVersion = version; showNews = true; return
+            default: break
+            }
+            #endif
+            if !version.isEmpty, let v = WhatsNew.pending(current: version, usedBefore: noticeSeen) {
+                newsVersion = v
+                showNews = true
+            }
+        }
+        .alert(tr("whatsNewTitle", ["version": newsVersion ?? ""]), isPresented: $showNews) {
+            Button(tr("whatsNewOk")) { WhatsNew.seen() }
+        } message: {
+            Text(WhatsNew.lines(tr("whatsNewApple")))
+        }
+    }
+
+    /* Under the status: the address sites see while it works through your
+     * own server (issue #66), else the tagline. */
+    private var subtitle: String {
+        if phase == .on, let ip = watch.exit, watch.ownServerDown == nil, watch.national == nil {
+            return tr("ownServerExit", ["ip": ip])
+        }
+        return tr("tagline")
     }
 
     /* The tunnel's phase; "on" for a debug build's warning screenshots. */
@@ -164,6 +216,37 @@ private struct Warning: View {
         .background(Theme.card, in: RoundedRectangle(cornerRadius: 14))
         .padding(.horizontal, 16)
         .accessibilityElement(children: .combine)
+    }
+}
+
+/* Whether the user would like to help people in censored countries: said
+ * plainly, with "Not now" and the way to the app made for it (Conduit). */
+private struct HelpCard: View {
+    let later: () -> Void
+    let show: () -> Void
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Label(tr("helpNudgeTitle"), systemImage: "person.2.wave.2")
+                .font(.callout.weight(.semibold))
+                .foregroundStyle(.white)
+            Text(tr("helpNudgeBodyPhone"))
+                .font(.footnote)
+                .foregroundStyle(Theme.secondaryText)
+                .fixedSize(horizontal: false, vertical: true)
+            HStack(spacing: 12) {
+                Spacer()
+                Button(tr("supportBannerLater"), action: later)
+                    .foregroundStyle(Theme.secondaryText)
+                Button(tr("helpNudgeShow"), action: show)
+                    .buttonStyle(.borderedProminent)
+            }
+            .font(.footnote.weight(.semibold))
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(14)
+        .background(Theme.card, in: RoundedRectangle(cornerRadius: 14))
+        .padding(.horizontal, 16)
     }
 }
 

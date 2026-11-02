@@ -9,6 +9,7 @@
 "androidQuicOffDesc" = "Les applis utilisent TCP au lieu de QUIC (port UDP 443), que Shroudly fait mieux passer. Pour les réseaux qui bloquent ou ralentissent QUIC.";
 "androidShareLogs" = "Partager le journal";
 "androidVpnDenied" = "Shroudly a besoin de l’autorisation VPN pour faire passer les connexions de vos applis.";
+"appleInstallHelp" = "Comment l’installer";
 "appleKeepOn" = "Garder la protection active";
 "appleKeepOnDesc" = "Si la protection s’interrompt ou si l’appareil redémarre, elle se réactive d’elle-même jusqu’à ce que vous l’arrêtiez.";
 "appleLanguageDesc" = "Shroudly utilise la langue de votre appareil. Vous pouvez choisir une autre langue pour Shroudly seul dans les réglages du système.";
@@ -17,10 +18,14 @@
 "appleNoticeContinue" = "Continuer";
 "appleNoticeTitle" = "Avant de commencer";
 "appleOpenSettings" = "Ouvrir les réglages";
+"appleVpnNotSigned" = "Cette copie de Shroudly est signée sans l’autorisation d’Apple pour les VPN : iOS ne la laisse donc pas en démarrer un et ne pose jamais la question. Les copies signées avec un identifiant Apple gratuit (AltStore, SideStore, Sideloadly et autres) ne l’ont jamais. Installez-la avec TrollStore, ou signez-la avec un compte développeur Apple payant.";
 "appleVpnRevoked" = "Le système a coupé la protection, généralement parce qu’une autre appli VPN a été activée.";
 "dnsServerUse" = "Utiliser";
+"helpNudgeBodyPhone" = "Une application gratuite permet aux personnes des pays qui censurent internet d’utiliser un peu de la connexion de ce téléphone pour passer les blocages. C’est sans risque pour vous : elles ne peuvent atteindre ni votre téléphone ni votre réseau, et les sites qu’elles ouvrent ne voient jamais votre adresse.";
+"helpNudgeShow" = "Voir";
+"helpNudgeTitle" = "Aider les personnes des pays censurés ?";
 "helpOthers" = "Aider les personnes des pays censurés";
-"helpOthersBodyConduit" = "Cet appareil peut aider des personnes de pays qui bloquent Internet à passer, avec Conduit de Psiphon, une app conçue pour cela. Elle fonctionne seule ; pendant qu'une personne est aidée, elle utilise une partie de votre connexion, et les personnes aidées n'atteignent jamais votre appareil ni votre réseau.";
+"helpOthersBodyConduit" = "Les personnes des pays qui censurent internet peuvent utiliser un peu de la connexion de cet appareil pour passer les blocages. Sur iPhone et iPad, c’est l’application gratuite Conduit de Psiphon qui s’en charge, et c’est là qu’on l’active ou la désactive. C’est sans risque pour vous : elles ne peuvent atteindre ni votre appareil ni votre réseau, et les sites qu’elles ouvrent ne voient jamais votre adresse.";
 "helpOthersConduit" = "Conduit (Psiphon)";
 "language" = "Langue";
 "languageSystem" = "Langue du système";
@@ -41,6 +46,7 @@
 "ownServerErrFormat" = "Ce n’est pas un lien que Shroudly peut utiliser. Il ressemble à : socks5://1.2.3.4:1080, http://user:pass@host:3128 ou ss://…";
 "ownServerErrMethod" = "Cette méthode Shadowsocks ({method}) n’est pas prise en charge ; utilisez chacha20-ietf-poly1305, aes-256-gcm ou aes-128-gcm.";
 "ownServerErrUser" = "Un nom d’utilisateur ne peut pas contenir « : » ni « @ ».";
+"ownServerExit" = "Par votre propre serveur. Les sites voient : {ip}";
 "ownServerInUse" = "Utilisé : {server}";
 "ownServerOff" = "Ne plus l’utiliser";
 "ownServerWhyAsks" = "il demande un nom d’utilisateur et un mot de passe";
@@ -64,5 +70,9 @@
 "stratSplitMid" = "Découpage au milieu du SNI";
 "stratSplitSni" = "Découpage au SNI";
 "strategy" = "Stratégie de contournement";
+"supportBannerLater" = "Pas maintenant";
 "tagline" = "Invisible. Imparable.";
 "versionLabel" = "Version {version}";
+"whatsNewApple" = "Une copie signée sans l’autorisation VPN d’Apple le dit maintenant, avec la façon de l’installer correctement.\nAvec votre propre serveur, l’écran principal indique l’adresse que voient les sites.\nDe temps en temps, Shroudly demande si vous voulez aider les personnes des pays censurés ; chaque fois que vous répondez pas maintenant, il attend deux fois plus longtemps.\nAprès chaque mise à jour, une courte note comme celle-ci dit ce qui a changé.";
+"whatsNewOk" = "Compris";
+"whatsNewTitle" = "Nouveautés de la {version}";

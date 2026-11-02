@@ -132,8 +132,11 @@
     <string name="excludedApps">هغه اپونه چې له Shroudly څخه نه تېرېږي</string>
     <string name="excludedAppsCount">هغه اپونه چې له Shroudly څخه نه تېرېږي: {count}</string>
     <string name="excludedAppsDesc">د هغوی ټرافیک له Shroudly پرته مستقیم وځي: د بېلګې په توګه یوه لوبه چې ورته اړتیا نه لري.</string>
+    <string name="helpNudgeBodyPhone">یو وړیا اپ د هغو هېوادونو خلکو ته چې انټرنېټ سانسوروي اجازه ورکوي چې د بندیزونو د تېرولو لپاره د دې ټیلیفون د اړیکې یوه کوچنۍ برخه وکاروي. ستاسو لپاره خوندي ده: دوی ستاسو ټیلیفون یا شبکې ته نه شي رسېدای، او هغه سایټونه چې دوی یې پرانیزي هېڅکله ستاسو پته نه ګوري.</string>
+    <string name="helpNudgeShow">وښیه</string>
+    <string name="helpNudgeTitle">غواړئ په سانسور شویو هېوادونو کې له خلکو سره مرسته وکړئ؟</string>
     <string name="helpOthers">په سانسور شویو هېوادونو کې خلکو سره مرسته</string>
-    <string name="helpOthersBody">دا تلیفون کولی شي له هغو هېوادونو خلکو سره چې انټرنېټ بندوي د بندیز څخه په تېرېدو کې د هغه اپ په مرسته مرسته وکړي چې د همدې لپاره جوړ شوی: د Psiphon Conduit، یا د Tor لپاره د Orbot Kindness Mode. دوی پخپله کار کوي؛ کله چې له چا سره مرسته کېږي ستاسو د اتصال یوه برخه کاروي، او هغه خلک چې مرسته ترلاسه کوي هېڅکله ستاسو تلیفون یا شبکې ته نه رسېږي.</string>
+    <string name="helpOthersBody">د هغو هېوادونو خلک چې انټرنېټ سانسوروي کولای شي د بندیزونو د تېرولو لپاره د دې ټیلیفون د اړیکې یوه کوچنۍ برخه وکاروي. په ټیلیفون کې دا کار یو وړیا اپ کوي چې د همدې لپاره جوړ شوی، او هلته یې روښانه او بندوئ: د Psiphon Conduit، یا د Orbot Kindness Mode. ستاسو لپاره خوندي ده: دوی ستاسو ټیلیفون یا شبکې ته نه شي رسېدای، او هغه سایټونه چې دوی یې پرانیزي هېڅکله ستاسو پته نه ګوري.</string>
     <string name="helpOthersConduit">Conduit (Psiphon)</string>
     <string name="helpOthersOrbot">Orbot (Tor)</string>
     <string name="language">ژبه</string>
@@ -159,6 +162,7 @@
     <string name="ownServerErrFormat">دا داسې لینک نه دی چې Shroudly یې وکاروي. داسې ښکاري: socks5://1.2.3.4:1080، http://user:pass@host:3128 یا ss://…</string>
     <string name="ownServerErrMethod">د Shadowsocks دا طریقه ({method}) نه ملاتړ کېږي؛ chacha20-ietf-poly1305، aes-256-gcm یا aes-128-gcm وکاروئ.</string>
     <string name="ownServerErrUser">د کارن نوم کې «:» یا «@» نه شي راتلای.</string>
+    <string name="ownServerExit">ستاسو د خپل سرور له لارې. سایټونه دا ګوري: {ip}</string>
     <string name="ownServerFails">کار یې ونکړ: {why}. نه کارول کېږي؛ لینک وګورئ، یا یې بیا هم وکاروئ.</string>
     <string name="ownServerInUse">په کار کې: {server}</string>
     <string name="ownServerOff">کارول بند کړئ</string>
@@ -220,4 +224,7 @@
     <string name="upload">اپلوډ</string>
     <string name="uptime">د کار موده</string>
     <string name="versionLabel">نسخه {version}</string>
+    <string name="whatsNewAndroid">د خپل سرور سره، اصلي سکرین هغه پته ښيي چې سایټونه یې ګوري.\nShroudly کله ناکله پوښتي چې ایا غواړئ په سانسور شویو هېوادونو کې له خلکو سره مرسته وکړئ؛ هر ځل چې ووایئ اوس نه، دوه چنده انتظار کوي.\nد هر تازه کولو وروسته، د دې په څېر یو لنډ یادښت وايي چې څه بدل شوي.</string>
+    <string name="whatsNewOk">پوه شوم</string>
+    <string name="whatsNewTitle">په {version} کې نوي څه</string>
 </resources>

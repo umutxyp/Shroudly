@@ -132,8 +132,11 @@
     <string name="excludedApps">Apps, die Shroudly umgehen</string>
     <string name="excludedAppsCount">Apps, die Shroudly umgehen: {count}</string>
     <string name="excludedAppsDesc">Ihr Verkehr geht direkt hinaus, an Shroudly vorbei: zum Beispiel ein Spiel, das es nicht braucht.</string>
+    <string name="helpNudgeBodyPhone">Eine kostenlose App lässt Menschen in Ländern, die das Internet zensieren, ein wenig der Verbindung dieses Telefons nutzen, um die Sperren zu umgehen. Für dich ist es sicher: Sie erreichen weder dein Telefon noch dein Netzwerk, und die Websites, die sie öffnen, sehen nie deine Adresse.</string>
+    <string name="helpNudgeShow">Zeigen</string>
+    <string name="helpNudgeTitle">Menschen in zensierten Ländern helfen?</string>
     <string name="helpOthers">Menschen in zensierten Ländern helfen</string>
-    <string name="helpOthersBody">Dieses Telefon kann Menschen in Ländern, die das Internet sperren, mit einer eigens dafür gemachten App helfen durchzukommen: Conduit von Psiphon oder dem Kindness Mode von Orbot für Tor. Sie laufen von selbst; solange jemandem geholfen wird, nutzen sie einen Teil deiner Verbindung, und die Menschen, denen geholfen wird, erreichen nie dein Telefon oder dein Netzwerk.</string>
+    <string name="helpOthersBody">Menschen in Ländern, die das Internet zensieren, können ein wenig der Verbindung dieses Telefons nutzen, um die Sperren zu umgehen. Auf einem Telefon macht das eine kostenlose App, die dafür gemacht ist, und dort schaltest du es ein und aus: Psiphons Conduit oder Orbots Kindness Mode. Für dich ist es sicher: Sie erreichen weder dein Telefon noch dein Netzwerk, und die Websites, die sie öffnen, sehen nie deine Adresse.</string>
     <string name="helpOthersConduit">Conduit (Psiphon)</string>
     <string name="helpOthersOrbot">Orbot (Tor)</string>
     <string name="language">Sprache</string>
@@ -159,6 +162,7 @@
     <string name="ownServerErrFormat">Kein Link, den Shroudly verwenden kann. So sieht einer aus: socks5://1.2.3.4:1080, http://user:pass@host:3128 oder ss://…</string>
     <string name="ownServerErrMethod">Diese Shadowsocks-Methode ({method}) wird nicht unterstützt; verwende chacha20-ietf-poly1305, aes-256-gcm oder aes-128-gcm.</string>
     <string name="ownServerErrUser">Ein Benutzername darf kein „:“ oder „@“ enthalten.</string>
+    <string name="ownServerExit">Über deinen eigenen Server. Websites sehen: {ip}</string>
     <string name="ownServerFails">Hat nicht funktioniert: {why}. Nicht in Gebrauch; prüfe den Link oder verwende ihn trotzdem.</string>
     <string name="ownServerInUse">In Gebrauch: {server}</string>
     <string name="ownServerOff">Nicht mehr verwenden</string>
@@ -220,4 +224,7 @@
     <string name="upload">Gesendet</string>
     <string name="uptime">Laufzeit</string>
     <string name="versionLabel">Version {version}</string>
+    <string name="whatsNewAndroid">Mit deinem eigenen Server zeigt der Hauptbildschirm die Adresse, die Websites sehen.\nAb und zu fragt Shroudly, ob du Menschen in zensierten Ländern helfen möchtest; jedes Mal, wenn du nicht jetzt sagst, wartet es doppelt so lange.\nNach jedem Update sagt eine kurze Notiz wie diese, was sich geändert hat.</string>
+    <string name="whatsNewOk">Verstanden</string>
+    <string name="whatsNewTitle">Neu in {version}</string>
 </resources>

@@ -152,6 +152,8 @@ const SAME_AS_ENGLISH = {
   helpOthersConduit: '*',
   helpOthersOrbot: '*',
   supportBankName: 'az de id ku ms tk uz',
+  // "General" is the Spanish word too.
+  tabGeneral: 'es',
   trayStatus: 'de id ms',
   androidAppsSection: 'de es pt',
   totalCount: 'es id pt',

@@ -132,8 +132,11 @@
     <string name="excludedApps">Applis qui contournent Shroudly</string>
     <string name="excludedAppsCount">Applis qui contournent Shroudly : {count}</string>
     <string name="excludedAppsDesc">Leur trafic sort directement, sans passer par Shroudly : par exemple un jeu qui n’en a pas besoin.</string>
+    <string name="helpNudgeBodyPhone">Une application gratuite permet aux personnes des pays qui censurent internet d’utiliser un peu de la connexion de ce téléphone pour passer les blocages. C’est sans risque pour vous : elles ne peuvent atteindre ni votre téléphone ni votre réseau, et les sites qu’elles ouvrent ne voient jamais votre adresse.</string>
+    <string name="helpNudgeShow">Voir</string>
+    <string name="helpNudgeTitle">Aider les personnes des pays censurés ?</string>
     <string name="helpOthers">Aider les personnes des pays censurés</string>
-    <string name="helpOthersBody">Ce téléphone peut aider des personnes de pays qui bloquent Internet à passer, avec une app conçue pour cela : Conduit de Psiphon, ou le Kindness Mode d\'Orbot pour Tor. Elles fonctionnent seules ; pendant qu\'une personne est aidée, elles utilisent une partie de votre connexion, et les personnes aidées n\'atteignent jamais votre téléphone ni votre réseau.</string>
+    <string name="helpOthersBody">Les personnes des pays qui censurent internet peuvent utiliser un peu de la connexion de ce téléphone pour passer les blocages. Sur un téléphone, c’est une application gratuite faite pour cela qui s’en charge, et c’est là qu’on l’active ou la désactive : Conduit de Psiphon, ou le Kindness Mode d’Orbot. C’est sans risque pour vous : elles ne peuvent atteindre ni votre téléphone ni votre réseau, et les sites qu’elles ouvrent ne voient jamais votre adresse.</string>
     <string name="helpOthersConduit">Conduit (Psiphon)</string>
     <string name="helpOthersOrbot">Orbot (Tor)</string>
     <string name="language">Langue</string>
@@ -159,6 +162,7 @@
     <string name="ownServerErrFormat">Ce n’est pas un lien que Shroudly peut utiliser. Il ressemble à : socks5://1.2.3.4:1080, http://user:pass@host:3128 ou ss://…</string>
     <string name="ownServerErrMethod">Cette méthode Shadowsocks ({method}) n’est pas prise en charge ; utilisez chacha20-ietf-poly1305, aes-256-gcm ou aes-128-gcm.</string>
     <string name="ownServerErrUser">Un nom d’utilisateur ne peut pas contenir « : » ni « @ ».</string>
+    <string name="ownServerExit">Par votre propre serveur. Les sites voient : {ip}</string>
     <string name="ownServerFails">N’a pas fonctionné : {why}. Non utilisé ; vérifiez le lien ou utilisez-le quand même.</string>
     <string name="ownServerInUse">Utilisé : {server}</string>
     <string name="ownServerOff">Ne plus l’utiliser</string>
@@ -220,4 +224,7 @@
     <string name="upload">Envoi</string>
     <string name="uptime">Durée d’activité</string>
     <string name="versionLabel">Version {version}</string>
+    <string name="whatsNewAndroid">Avec votre propre serveur, l’écran principal indique l’adresse que voient les sites.\nDe temps en temps, Shroudly demande si vous voulez aider les personnes des pays censurés ; chaque fois que vous répondez pas maintenant, il attend deux fois plus longtemps.\nAprès chaque mise à jour, une courte note comme celle-ci dit ce qui a changé.</string>
+    <string name="whatsNewOk">Compris</string>
+    <string name="whatsNewTitle">Nouveautés de la {version}</string>
 </resources>

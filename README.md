@@ -137,11 +137,12 @@ strategy**:
 | **Decoy (Linux)** | A first segment the server is guaranteed to discard (TCP signature option), so only the filter reads it. No privileges needed. |
 | **HTTP Host scramble** | Rewrites `Host:` casing for plain HTTP. |
 | **Encrypted DNS** | DNS-over-HTTPS over [17 routes from 6 operators](#encrypted-dns-routes); answers pointing at ~180 known block pages are refused. On by default. |
-| **Your own DNS server** | Optional (desktop Settings → More settings → DNS server, Android Settings → Advanced → DNS server; [#34](https://github.com/umutxyp/Shroudly/issues/34)): DNS over HTTPS, DNS over TLS, DNS over TCP (for networks that block or forge UDP port 53 but leave TCP alone) or plain DNS, by address or by name. It is asked once before it is used and the answer shown. DoH and DoT go through the engine like any site; a server's name is looked up over the built-in encrypted DNS, never the network's. If it stops answering, the built-in encrypted DNS answers until it is back, and the log says so; with **Only this server** ticked nothing else is ever asked, and lookups fail until it answers. A "server failure" (SERVFAIL) answer, which a validating resolver gives for a name whose DNSSEC signatures are wrong, is taken as the answer and never asked of anyone else. On Android DoH speaks HTTP/1.1 (as the built-in routes there), so a server that accepts only HTTP/2 answers on the desktop only. |
+| **Your own DNS server** | Optional (desktop Settings → Connection → DNS server, Android Settings → Advanced → DNS server; [#34](https://github.com/umutxyp/Shroudly/issues/34)): DNS over HTTPS, DNS over TLS, DNS over TCP (for networks that block or forge UDP port 53 but leave TCP alone) or plain DNS, by address or by name. It is asked once before it is used and the answer shown. DoH and DoT go through the engine like any site; a server's name is looked up over the built-in encrypted DNS, never the network's. If it stops answering, the built-in encrypted DNS answers until it is back, and the log says so; with **Only this server** ticked nothing else is ever asked, and lookups fail until it answers. A "server failure" (SERVFAIL) answer, which a validating resolver gives for a name whose DNSSEC signatures are wrong, is taken as the answer and never asked of anyone else. On Android DoH speaks HTTP/1.1 (as the built-in routes there), so a server that accepts only HTTP/2 answers on the desktop only. |
 | **Block ads and trackers** | Optional, off by default (desktop Settings, Android Settings; not in the Google Play copy, whose policy does not allow blocking other apps' ads). Names on Shroudly's ad and tracker list get 0.0.0.0 / `::` or have their connection ended inside the engine, in every app; nothing is fetched for them. The list is combined every week from [AdGuard DNS filter](https://github.com/AdguardTeam/AdGuardSDNSFilter), [HaGeZi's Multi PRO](https://github.com/hagezi/dns-blocklists), [EasyList and EasyPrivacy](https://easylist.to) and [StevenBlack/hosts](https://github.com/StevenBlack/hosts) ([`scripts/adblock-list/build.js`](scripts/adblock-list/build.js), published as `adblock.txt` on the `site-list` branch, GPL-3.0): about 345 000 names, which cover over 99% of the domains uBlock Origin Lite's lists block, plus the trackers of phones and TVs. A week whose sources fail, or whose result would block a site everyone needs, publishes nothing. It blocks by name, as AdGuard DNS or NextDNS do: what a browser extension does inside a page (hiding empty ad boxes, ads served from the site's own name, such as YouTube's) is out of its reach. The list is downloaded through the engine, checked before use, refreshed weekly; sites can be exempted. Nothing about blocked names is logged or sent. |
+| **Desktop settings** | Four tabs (2.6.48): **General** (the language, testing a site, Advanced mode, the modes for Discord, games and Microsoft Store apps), **Connection** (the technique, encrypted DNS and your own DNS server, IPv6, which sites go through Shroudly, ads and trackers), **Server and sharing** (your own server, sharing your connection, helping people in censored countries) and **Application** (starting with the computer, the tray, notifications, updates, Repair, Reset all settings, Quit, the colours). Settings opens on General. |
 | **Android settings** | The gear at the top of the main window (the mode, the technique, the DNS server, QUIC, IPv6 and automation apps are under **Advanced**): the app's language (the phone's, or any of the 31; on Android 13+ the system's per-app language), the accent colour (the desktop's nine, or the logo's blue), the bypass technique (the desktop's list; automatic by default), apps that skip Shroudly (their traffic goes straight out, e.g. a game), or the other way round, only the apps chosen go through Shroudly ([#60](https://github.com/umutxyp/Shroudly/issues/60)); **QUIC off** (apps use TCP, which the techniques get through) and **IPv6 off** (IPv4 only, apps told at once there is no IPv6) for networks that block or slow those down ([#59](https://github.com/umutxyp/Shroudly/issues/59)); starting when the phone starts, and **automation apps** (Tasker, MacroDroid; off by default): a broadcast to `me.codeshare.shroudly` with the action `me.codeshare.shroudly.action.START`, `STOP` or `TOGGLE` turns protection on and off. The screen has a bar with its title and a way back; a setting shows its title (and its value), and what it does is explained once its section's ⓘ is tapped ([#47](https://github.com/umutxyp/Shroudly/issues/47)). |
 | **Android proxy only** | Settings → Advanced → Mode: instead of the VPN, Shroudly runs as a proxy on `127.0.0.1:10808` (SOCKS5 and HTTP) and leaves Android's one VPN slot to another VPN app. Apps set to use it go through Shroudly (the Wi-Fi network's proxy: host `127.0.0.1`, port `10808`, or an app's own proxy setting); the rest connect as they would without it. No VPN permission is asked for. |
-| **Repair, and Reset all settings** | Desktop Settings → Application ([#46](https://github.com/umutxyp/Shroudly/issues/46)). **Repair** checks Shroudly's own files (the engine, and Advanced mode's where the system has it; one missing or damaged is named, with the way to get it back: installing Shroudly again over itself keeps every setting), forgets the techniques it learned, starts the engine anew and sets the system proxy again, empties the system's DNS cache where that needs no password, fetches the ad and tracker list again and looks at Windows' WinHTTP proxy; your settings stay. **Reset all settings** turns the modes off the way their own switches do (Discord's settings, `HTTPS_PROXY`, the links, the Store apps' exemptions, Advanced mode), puts every setting back to a new install's (the language stays) and restarts the app. ([`electron/repair.js`](electron/repair.js)) |
+| **Repair, and Reset all settings** | Desktop Settings → Application tab ([#46](https://github.com/umutxyp/Shroudly/issues/46)). **Repair** checks Shroudly's own files (the engine, and Advanced mode's where the system has it; one missing or damaged is named, with the way to get it back: installing Shroudly again over itself keeps every setting), forgets the techniques it learned, starts the engine anew and sets the system proxy again, empties the system's DNS cache where that needs no password, fetches the ad and tracker list again and looks at Windows' WinHTTP proxy; your settings stay. **Reset all settings** turns the modes off the way their own switches do (Discord's settings, `HTTPS_PROXY`, the links, the Store apps' exemptions, Advanced mode), puts every setting back to a new install's (the language stays) and restarts the app. ([`electron/repair.js`](electron/repair.js)) |
 | **Programs that ignore the system proxy** | On a network that forges DNS answers, the autopilot turns on Games and apps mode by itself (Windows, macOS): new programs get `HTTPS_PROXY` (and `NODE_USE_ENV_PROXY=1` for Node.js) pointing at Shroudly, so command-line tools, bots and games that never read the system proxy go through it too; restart the ones already open. Only Shroudly's own values are ever removed. |
 | **Off (encrypted DNS only)** | The last choice among the bypass strategies (desktop and Android): every connection goes out exactly as the app sent it, and only name lookups go through the encrypted DNS (or your own server). For networks where DNS is the only block, or to tell whether a technique is in the way. |
 | **Auto-probe** | Opens each blocked site with a real handshake, trying combinations of the above, and remembers the one that works per site. If a site connects and is then cut, the next connection tries the next technique. |
@@ -203,16 +204,27 @@ device (a packet tunnel), for iPhone and iPad on iOS 16 or newer, and Mac from
 the same build.
 
 - **Until the App Store has it**, each release carries it as
-  `Shroudly-…-iOS.ipa`: install it with **TrollStore**, or sign it with your
-  own Apple developer account (AltStore, SideStore, Sideloadly…). It is signed
-  ad hoc with its entitlements (the VPN extension, its app group), which
-  TrollStore keeps and re-signing tools replace with the account's; a free
-  Apple ID cannot sign a VPN. The App Store copy, signed by Apple, follows once
-  the developer account is approved ([apple/APP_STORE.md](apple/APP_STORE.md)).
+  `Shroudly-…-iOS.ipa`. It is signed ad hoc with its entitlements (the VPN
+  extension, its app group), so it installs two ways:
+  - with **TrollStore**, which keeps them, on the iOS versions TrollStore
+    supports (16.0 to 16.6.1, 16.7 RC and 17.0);
+  - signed with a **paid** Apple developer account that has the Network
+    Extension capability (the bundle IDs and the app group changed to the
+    account's).
+
+  Signing it with a **free** Apple ID (AltStore, SideStore, Sideloadly, ESign
+  and the like) removes the VPN permission: iOS then never shows its *Add VPN
+  Configurations* question, and the app cannot start. Since 2.6.48 such a copy
+  says so on its main screen, with a link here, instead of asking for a
+  permission iOS will not give it
+  ([#65](https://github.com/umutxyp/Shroudly/issues/65)). The App Store copy,
+  signed by Apple, follows once the developer account is approved
+  ([apple/APP_STORE.md](apple/APP_STORE.md)).
 - **Settings:** the technique, QUIC and IPv6 off, keeping protection on, and
   **Your own server** (`socks5://`, `http://` or Shadowsocks `ss://`, through
   the tunnel's own Shadowsocks client; the link's password is not shown). If
-  the server stops working, the main screen says so and why.
+  the server stops working, the main screen says so and why; while it works,
+  it shows the address sites see.
 - **In a shutdown** the main screen says *Only this country's network works*,
   with the guide in your language.
 - **About → Help people in censored countries:** Psiphon's Conduit.
@@ -221,6 +233,35 @@ the same build.
   through Shroudly (iOS allows that only on managed devices).
 
 Building and testing it: [apple/README.md](apple/README.md).
+
+## On a server
+
+A VPS or any always-on Linux machine can help people in censored countries
+too: `shroudly --help-others` runs only *Help people in censored countries*
+(a Snowflake proxy for Tor), with no window, no protection, and nothing of the
+system touched. It is safe for the machine for the same reasons as on a
+desktop: the people helped reach only Tor's relays through it, never the
+machine or its network, and the sites they open see a Tor exit's address,
+never the server's. It is not an open proxy, so nothing anyone does through
+it is tied to the server's address. (*Share my connection* is the opposite:
+what its users open leaves from your address, which is why it is only for
+people you trust, never for strangers.)
+
+One line sets it up as a service, as a user of its own:
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/umutxyp/Shroudly/main/scripts/server/install-helper.sh | sudo sh
+```
+
+On Debian, Ubuntu, Fedora, RHEL and openSUSE (x86_64) it installs the newest
+release's own package, so its dependencies come with it; on arm64 the
+AppImage, unpacked. The download is checked against GitHub's SHA-256, a timer
+updates it once a week, and Chromium's sandbox stays on. What it does:
+`journalctl -u shroudly-helper -f` (a line when someone is helped, a summary
+every hour); to take it all away: `sudo shroudly-helper-install --remove`.
+The script is [`scripts/server/install-helper.sh`](scripts/server/install-helper.sh);
+each release runs it on a real Ubuntu machine with systemd before it is
+published.
 
 ## Advanced mode (stateful DPI)
 
@@ -594,7 +635,7 @@ Nor can it bring back a connection that is cut. When a country cuts its link
 to the rest of the world and only sites inside it still open, Shroudly says
 **"Only this country's network works"** (it checks by opening well-known
 sites inside the country with their real certificates, so a hotel's sign-in
-page is not taken for it), on the desktop and on Android. What can still help
+page is not taken for it), on the desktop, Android, iPhone and iPad. What can still help
 then is a connection that still reaches the world: a server you name under
 **Your own server**, or a friend's computer with **Share my connection** on.
 The [wiki's guide to shutdowns](https://github.com/umutxyp/Shroudly/wiki/Shutdowns-en),
@@ -644,7 +685,7 @@ directly. That list maintains itself:
   branch, so main's history stays readable. The app fetches it about once a
   day, only while protection is on and through the engine (see
   [Privacy](#privacy)).
-- **Yours if you want it.** Edit the list in Settings (More settings → Routing)
+- **Yours if you want it.** Edit the list in Settings (Connection → Routing)
   and it becomes your own:
   it stops updating, until you choose *Use the automatic list* again.
 
@@ -661,13 +702,14 @@ directly. That list maintains itself:
 - **Discord app mode** — lets the Discord app (every build) update and open through Shroudly on Windows and macOS ([details](#discord-app-mode)).
 - **Games and apps mode** — Roblox, Roblox Studio, their installers and other programs that ignore the system proxy go through Shroudly too, on Windows and macOS ([details](#games-and-apps-mode-roblox)).
 - **Advanced mode** — packet-level desync for networks that follow whole connections, on Windows and Linux.
-- **Your own server** — every site through a server you name, as a `socks5://`, `http://` or Shadowsocks `ss://` link: tested before it is used, and the window says so if it stops working. For a shutdown, when a server inside the country still reaches the world; on the desktop, Android, iPhone and iPad.
+- **Your own server** — every site through a server you name, as a `socks5://`, `http://` or Shadowsocks `ss://` link: tested before it is used, and the window says so if it stops working; while it works, the main window says which address sites see ([#66](https://github.com/umutxyp/Shroudly/issues/66)). For a shutdown, when a server inside the country still reaches the world; on the desktop, Android, iPhone and iPad.
 - **Share my connection** — off until you turn it on: people you give its link to use your connection through Shroudly, from Shroudly's *Your own server* or any Shadowsocks app, on the same network or (where the router opens a port by UPnP) over the internet. They reach only sites, never your computer or home network; nothing is recorded of what they open. Desktop.
-- **Help people in censored countries** — off until you turn it on: on a computer, a Snowflake proxy for the Tor network, so people where Tor is blocked reach it through your connection (strangers using Tor: what they open stays encrypted, they cannot reach your computer or network, and nothing is recorded); on Android and iPhone, the apps made for it (Psiphon's Conduit, Orbot's Kindness Mode).
+- **Help people in censored countries** — off until you turn it on: on a computer, a Snowflake proxy for the Tor network, so people where Tor is blocked reach it through your connection (strangers using Tor: what they open stays encrypted, they cannot reach your computer or network, and nothing is recorded); on Android and iPhone, the apps made for it (Psiphon's Conduit, Orbot's Kindness Mode). Now and then, while protection works, the main window asks whether you would like to; each "Not now" doubles the wait, from a week, and it is never asked where Tor itself is blocked. A server can help too ([details](#on-a-server)).
 - **Decoys a whitelist lets through** — where a shutdown lets only a list of allowed sites through, Shroudly's decoys carry the names of large sites of your own country, so the real connection behind them gets through ([what it cannot fix](#what-shroudly-cannot-fix)).
 - **Its own lists where GitHub is blocked** — the site list and the ad list come through a CDN front (another site on GitHub's CDN) when GitHub does not answer.
 - **iPhone and iPad** — the same engine as a VPN on the device, with your own server ([details](#iphone-and-ipad)).
 - **Share Shroudly** — the Android app (the APK from GitHub) sends itself to another phone over Bluetooth or a nearby-share app, for when its download page cannot be reached.
+- **What changed, after each update** — once, in your language: on the desktop, Android, iPhone and iPad.
 - **Tells you what is going on** — another VPN or bypass tool fighting it, a site the network cuts, encrypted DNS blocked, what the autopilot did: said plainly, in one line.
 - **Never breaks your connection** — your proxy settings are saved before Shroudly changes them and put back on stop, crash, forced kill, shutdown, power loss (at next sign-in) and uninstall.
 - **Routing** — everything through Shroudly (the default), or only the sites on a list, with the rest — banking, government — connecting directly. The list keeps itself current ([how](#the-automatic-site-list)); you can also write your own.
@@ -683,7 +725,7 @@ directly. That list maintains itself:
 | Windows | **Windows 10** (x64 or ARM64) | The installer stops with a clear message on Windows 8.1 and earlier, which Electron no longer supports. |
 | macOS | **macOS 12 Monterey** (Intel or Apple Silicon) | Older versions are told so by macOS itself rather than failing to launch. |
 | Linux | **glibc 2.28+** — Debian 10, Ubuntu 20.04, Fedora 29 or newer (Ubuntu 18.04 has glibc 2.27: Shroudly starts there, but Advanced mode does not) | AppImage (x64, ARM64), plus native packages: .deb for Debian/Ubuntu, .pacman for Arch/Manjaro, .rpm for Fedora/openSUSE/RHEL. The bypass engine itself only needs glibc 2.17, so it is never the limiting part. |
-| iPhone, iPad | **iOS 16** or newer | An `.ipa` on the releases page for TrollStore or your own developer account, until the App Store has it ([iPhone and iPad](#iphone-and-ipad)). |
+| iPhone, iPad | **iOS 16** or newer | An `.ipa` on the releases page for TrollStore or a paid developer account (not a free Apple ID), until the App Store has it ([iPhone and iPad](#iphone-and-ipad)). |
 | Android | **Android 8** or newer (phones and tablets; ARM 64/32-bit, x86_64) | An APK from the releases page. It works as a VPN on the phone, so every app goes through Shroudly; no root needed. To keep another VPN app connected, Settings → Advanced → Mode → Proxy only. |
 
 Advanced mode needs administrator rights, and is available on Windows and Linux only.
@@ -693,7 +735,7 @@ Advanced mode needs administrator rights, and is available on Windows and Linux 
 
 English, 中文, हिन्दी, Español, العربية, Русский, Português, Français, فارسی, Türkçe, বাংলা, اردو, Bahasa Indonesia, 日本語, Deutsch, Azərbaycanca, עברית, Tiếng Việt, Українська, Беларуская, Oʻzbekcha, Қазақша, Кыргызча, Türkmençe, Тоҷикӣ, پښتو, Kurdî (Kurmancî), မြန်မာ, ไทย, አማርኛ, Bahasa Melayu
 
-The app opens in your system's language when it is one of these, and you can change it in Settings. Arabic, Persian, Urdu, Hebrew and Pashto are shown right to left. The Android app follows the phone's language, and from Android 13 on its own language can be chosen in the phone's settings.
+The app opens in your system's language when it is one of these, and you can change it in Settings. Arabic, Persian, Urdu, Hebrew and Pashto are shown right to left. The Android app follows the phone's language, and from Android 13 on its own language can be chosen in the phone's settings. The iPhone and iPad app follows the device's language, and its own can be chosen in the system's settings for Shroudly.
 
 ---
 
@@ -710,7 +752,7 @@ These links always download the newest version (see [Releases](https://github.co
 | **Fedora / openSUSE / RHEL** | [.rpm](https://shroudly.codeshare.me/dl/linux-rpm) | [AppImage](https://shroudly.codeshare.me/dl/linux-arm64) |
 | **Any Linux** | [AppImage](https://shroudly.codeshare.me/dl/linux-x64) | [AppImage](https://shroudly.codeshare.me/dl/linux-arm64) |
 | **Android 8+** | [APK](https://shroudly.codeshare.me/dl/android) | [APK](https://shroudly.codeshare.me/dl/android) (one APK for every phone) |
-| **iPhone / iPad (iOS 16+)** | | [.ipa on the releases page](https://github.com/umutxyp/Shroudly/releases/latest) (TrollStore, or your own developer account; App Store soon) |
+| **iPhone / iPad (iOS 16+)** | | [.ipa on the releases page](https://github.com/umutxyp/Shroudly/releases/latest) (TrollStore, or a paid developer account; App Store soon) |
 
 - **Windows** — run the installer.
 - **macOS** — open the `.dmg` and drag `Shroudly.app` into Applications.
@@ -725,9 +767,10 @@ These links always download the newest version (see [Releases](https://github.co
   included, then goes through Shroudly. The app tells you when a newer version
   is out.
 - **iPhone / iPad** — until the App Store has it: install
-  `Shroudly-…-iOS.ipa` with TrollStore, or sign it with your own Apple
-  developer account (AltStore, SideStore, Sideloadly). Then tap the big
-  button and allow the VPN.
+  `Shroudly-…-iOS.ipa` with TrollStore (iOS 16.0–16.6.1, 16.7 RC, 17.0), or
+  sign it with a paid Apple developer account. A free Apple ID's signing
+  (AltStore, SideStore, Sideloadly) removes the VPN permission, and the app
+  then says so. Then tap the big button and allow the VPN.
 
 Every package is installed on its own system and its engine started before a
 release is published (Arch, Fedora, openSUSE, Debian, Ubuntu 22.04 and 24.04,
@@ -983,8 +1026,8 @@ macOS builds are not covered: Apple requires its own Developer ID for those.
 
 ## Privacy
 
-This is Shroudly's privacy policy, for the desktop app and the Android app
-(the Android app links it under About). Shroudly is made by Codeshare
+This is Shroudly's privacy policy, for the desktop app, the Android app and
+the iPhone and iPad app (the phone apps link it under About). Shroudly is made by Codeshare
 Technology Ltd; questions about privacy go to
 [contact@codeshare.me](mailto:contact@codeshare.me).
 
@@ -1072,7 +1115,10 @@ Shroudly does not collect personal data. These are the only things that contact 
   every site goes through it, so it sees which sites you open (not what you
   read on them, which stays encrypted). Its link, password included, is kept
   in Shroudly's settings on this device and nowhere else. Testing it opens
-  `cloudflare.com` through it once.
+  `cloudflare.com` through it once. While protection is on with a server set,
+  Cloudflare's trace page (`cloudflare.com/cdn-cgi/trace`) is asked through
+  it a few seconds after a start and then every ten minutes, to show which
+  address sites see; the answer is shown, never logged or sent anywhere.
 - **Your router**, only while *Share my connection* is on: asked over UPnP
   (on your local network) to forward one TCP port to this computer, renewed
   every half hour and taken away when sharing stops. The people you share
@@ -1089,9 +1135,6 @@ Shroudly does not collect personal data. These are the only things that contact 
 - **A site on GitHub's CDN** (`www.python.org`, `pypi.org`, `www.fastly.com`
   or `www.ted.com`), only when GitHub does not answer for the site list or the
   ad list: the same request, through that site's connection. Nothing about you.
-- **On iPhone and iPad**, while the app is open and protection is on: an
-  HTTPS request to 1.1.1.1, 8.8.8.8 and 9.9.9.9 at most once a minute, and
-  only when none answers, the same sites inside the country as above.
 
 Games and apps mode contacts nothing of its own: it only carries what the
 programs using it were going to send anyway.
@@ -1115,6 +1158,27 @@ site is kept in the app's private storage on the phone for 30 days at most,
 is never backed up or copied to another device, and is deleted with the app.
 There are no accounts, no analytics beyond the anonymous live count, no ads
 and no crash reports.
+
+**On iPhone and iPad** the app is a VPN on the device (a packet tunnel): the
+tunnel ends in the app's own engine on the device, and no traffic goes
+through a server of ours. It is not counted in the live total and checks for
+no updates. It contacts only: the encrypted DNS resolvers above, while
+protection is on; to find what opens a blocked site, that same site (a few
+TLS handshakes, nothing about you); while the app is open and protection is
+on, an HTTPS request to 1.1.1.1, 8.8.8.8 and 9.9.9.9 at most once a minute,
+and only when none answers, the same sites inside the country as above;
+`raw.githubusercontent.com/umutxyp/Shroudly/main/stores.json` at most twice
+a day, only to know whether its App Store page is up before it asks for a
+rating (nothing but the request); and your own server if you set one,
+through which it asks Cloudflare's trace page which address sites see, as
+above. What worked for which site stays on the device. The settings, the
+card asking for help and the version last seen are kept in the app's own
+storage on the device.
+
+**On a server** (`shroudly --help-others`, [On a server](#on-a-server)):
+Tor's Snowflake broker, its NAT probe and its relays, as for *Help people in
+censored countries* above, and nothing else; the install script asks GitHub
+for the newest release once a week.
 
 The privacy policies of the services involved:
 [GitHub](https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement)

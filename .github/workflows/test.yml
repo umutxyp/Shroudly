@@ -65,6 +65,13 @@ jobs:
         run: |
           if [ "$RUNNER_OS" = Windows ]; then node scripts/build-core-advanced.js --target win32-x64; else bash scripts/ci-linux-advanced.sh amd64; fi
 
+      # The script that sets Shroudly up on a server to help people in
+      # censored countries (scripts/server/install-helper.sh): POSIX sh, as
+      # it runs under "curl | sudo sh" on any distribution.
+      - name: Server helper script (shellcheck)
+        if: matrix.os == 'ubuntu-latest'
+        run: shellcheck -s sh scripts/server/install-helper.sh scripts/ci-helper-test.sh
+
       # The Linux Advanced engine on a real packet path: network namespaces, a
       # router with a per-packet filter, NFQUEUE (tests/lab/advanced-lab.sh).
       - name: Advanced mode lab (Linux, real packets)

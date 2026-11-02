@@ -1,16 +1,23 @@
 'use strict';
 
-/* "Your own server" and "Share my connection" in the real app, on whatever
- * OS this runs on, driven as a person would (Settings → More settings):
+/* Settings' tabs, "Your own server" and "Share my connection" in the real
+ * app, on whatever OS this runs on, driven as a person would (Settings →
+ * Server and sharing):
+ *   - four tabs, each with its own sections and none of the others', in a
+ *     narrow window too
  *   - a link that cannot be used: the reason, in the window's language
  *   - a SOCKS5 server on this computer that reaches the world: tested (a
- *     site's certificate through it), saved, shown without its password,
- *     and stopped
+ *     site's certificate through it), the address sites see said, saved,
+ *     shown without its password, and stopped
  *   - sharing turned on: a Shadowsocks link shown and copied, a site opened
  *     through it with Shroudly's own client, counted; a new link ends the
  *     old one; off closes the port
- *   - with protection on and the server dead (CI machines only, as it sets
- *     the system proxy): the main window says the server is not working
+ *   - with protection on (CI machines only, as it sets the system proxy):
+ *     the main window says which address sites see through the server; with
+ *     the server dead, that it is not working
+ *   - after an update, what changed is said once on the Protection panel;
+ *     with protection on, the card asking for help: "Not now" waits a week,
+ *     the next "Turn on" turns the help on and doubles the wait
  *   - screenshots of each (test-results/): English, Persian (right to
  *     left), a narrow window, another accent and the glass surface
  *
@@ -70,13 +77,13 @@ function socksStandIn() {
   return srv;
 }
 
-async function launch(language, extra = {}) {
+async function launch(language, extra = {}, moreEnv = {}) {
   const ud = fs.mkdtempSync(path.join(os.tmpdir(), 'shroudly-e2e-settings-'));
   fs.writeFileSync(path.join(ud, 'config.json'), JSON.stringify({
     autoMode: false, showNotifications: false, minimizeToTray: true, autoStart: false, language, shareOnlineCount: false,
     storeAppsModeOffAt: Date.now(), ...extra,
   }));
-  const env = { ...process.env, SHROUDLY_TRAY: 'present', SHROUDLY_E2E: '1', SHROUDLY_IDLE_RELEASE_MS: String(10 * 60 * 1000) };
+  const env = { ...process.env, SHROUDLY_TRAY: 'present', SHROUDLY_E2E: '1', SHROUDLY_IDLE_RELEASE_MS: String(10 * 60 * 1000), ...moreEnv };
   delete env.ELECTRON_RUN_AS_NODE;
   const app = await _electron.launch({
     executablePath: require(path.join(ROOT, 'node_modules', 'electron')),
@@ -100,18 +107,21 @@ async function launch(language, extra = {}) {
   return { app, page, t, ud };
 }
 
-async function openMore(page, t) {
+/* Settings, and one of its tabs (data-settings-tab), with `expect` seen. */
+async function openTab(page, t, id, expect) {
   await page.getByText(t.navSettings, { exact: true }).first().click();
-  const more = page.getByRole('button', { name: new RegExp(t.moreSettings.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')) });
-  await more.waitFor({ timeout: 10000 });
-  // A setting left on opens the section by itself once the settings are
-  // read, which can be just after the button is looked at: looked at again.
-  for (let i = 0; i < 4; i++) {
-    if ((await more.getAttribute('aria-expanded')) !== 'true') await more.click();
-    if (await until(() => page.getByText(t.ownServer, { exact: true }).first().isVisible(), 3000)) return;
+  const tab = page.locator(`[data-settings-tab="${id}"]`);
+  await tab.waitFor({ timeout: 10000 });
+  for (let i = 0; i < 3; i++) {
+    await tab.click();
+    if (await until(() => page.getByText(expect, { exact: true }).first().isVisible(), 3000)) return;
   }
-  throw new Error('More settings did not open');
+  throw new Error(`the ${id} tab did not open`);
 }
+const openMore = (page, t) => openTab(page, t, 'sharing', t.ownServer);
+const escape = (x) => x.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+// A sentence with {placeholders} as a pattern: numbers and addresses where they go.
+const pattern = (x) => new RegExp(escape(x).replace(/\\\{(\w+)\\\}/g, (m, k) => (k === 'ip' ? '[0-9A-Fa-f.:]{3,45}' : '[0-9]+')));
 
 const section = (page, title) => page.locator('section.card').filter({ has: page.getByRole('heading', { name: title, exact: true }) });
 
@@ -134,6 +144,26 @@ async function shot(locator, name) {
   // ── English: both sections, used ──
   let { app, page, t } = await launch('en');
   try {
+    // The tabs: each with its own sections, none of the others'.
+    const TABS = {
+      general: [t.language, t.testSite],
+      connection: [t.dpiBypassTechniques, t.routing, t.adBlockSection],
+      sharing: [t.ownServer, t.share, t.snowflake],
+      app: [t.appSection, t.appearance],
+    };
+    const heads = async () => page.locator('section.card h2, section.card h3').allInnerTexts();
+    for (const [id, want] of Object.entries(TABS)) {
+      await openTab(page, t, id, want[0]);
+      const seen = (await heads()).map((x) => x.trim());
+      const others = Object.entries(TABS).filter(([k]) => k !== id).flatMap(([, v]) => v);
+      ok(want.every((w) => seen.includes(w)) && !others.some((o) => seen.includes(o)) && (await page.locator(`[data-settings-tab="${id}"]`).getAttribute('aria-selected')) === 'true',
+        `the ${id} tab: ${want.join(', ')}, and nothing of the others (${seen.join(' | ')})`);
+      await page.screenshot({ path: path.join(SHOTS, `settings-tab-${id}-${tag}.png`) });
+    }
+    await page.getByText(t.navProtection, { exact: true }).first().click();
+    await page.getByText(t.navSettings, { exact: true }).first().click();
+    ok((await page.locator('[data-settings-tab="general"]').getAttribute('aria-selected')) === 'true' && await page.getByText(t.testSite, { exact: true }).first().isVisible(),
+      'Settings opens on its first tab, where the tour points at the site test');
     await openMore(page, t);
     const own = section(page, t.ownServer);
     const input = own.locator('input');
@@ -151,6 +181,8 @@ async function shot(locator, name) {
     const worked = await until(() => own.getByText(head(t.ownServerOk)).isVisible(), 30000);
     const failed = !worked && await own.getByText(head(t.ownServerFails)).isVisible().catch(() => false);
     ok(!!worked, `a server that reaches the world: tested and in use${failed ? ' (it said it did not work)' : ''}`);
+    const said = (await own.locator('p').allInnerTexts()).join(' | ');
+    ok(pattern(t.ownServerOkExit).test(said), `the test says which address sites see through it (${said})`);
     const saved = await app.evaluate(() => global.shroudlyE2E.store.get('ownServer'));
     ok(saved === `socks5://e2e:secret@127.0.0.1:${sp}`, 'saved as typed');
     const inUse = t.ownServerInUse.replace('{server}', `SOCKS5 127.0.0.1:${sp}`);
@@ -224,6 +256,10 @@ async function shot(locator, name) {
     await sleep(500);
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
     ok(overflow <= 0, `a narrow window (360 px): nothing wider than it (${overflow} px over)`);
+    const tabsBox = await page.locator('[role="tablist"]').boundingBox();
+    const pageWidth = await page.evaluate(() => document.documentElement.clientWidth);
+    ok(tabsBox && tabsBox.x >= 0 && tabsBox.x + tabsBox.width <= pageWidth + 0.5, `the tabs fit a narrow window (${tabsBox && Math.round(tabsBox.width)} of ${pageWidth} px)`);
+    await page.screenshot({ path: path.join(SHOTS, `settings-tabs-narrow-${tag}.png`) });
     await shot(share, 'share-on-narrow');
     await shot(own, 'own-server-narrow');
     await page.evaluate(() => { localStorage.setItem('shroudly_accent', 'emerald'); localStorage.setItem('shroudly_surface', 'glass'); });
@@ -254,6 +290,13 @@ async function shot(locator, name) {
       });
       ok(/^HTTP\/1\.[01] \d{3}/.test(viaEngine) && ssServer.stats().total >= 1,
         `a site through the engine, the app's Shadowsocks client and the server (${viaEngine.split('\r\n')[0]}; ${ssServer.stats().total} at the server)`);
+      await page.getByText(t.navProtection, { exact: true }).first().click();
+      const exitShown = await until(async () => {
+        const txt = await page.locator('[aria-live="polite"]').first().innerText().catch(() => '');
+        return pattern(t.ownServerExit).test(txt) ? txt : null;
+      }, 30000);
+      ok(!!exitShown, `the main window says which address sites see through the server (${exitShown})`);
+      await page.screenshot({ path: path.join(SHOTS, `own-server-exit-${tag}.png`) });
       await page.evaluate(() => window.electron.stopDPI());
       await until(() => page.evaluate(() => window.electron.getDPIStatus().then((x) => !x.active)), 20000);
       const dead = await new Promise((r) => { const s = net.createServer().listen(0, '127.0.0.1', () => { const q = s.address().port; s.close(() => r(q)); }); });
@@ -272,6 +315,67 @@ async function shot(locator, name) {
       await page.evaluate(() => window.electron.stopDPI());
       ok(!!(await until(() => page.evaluate(() => window.electron.getDPIStatus().then((x) => !x.active)), 20000)), 'protection off again, the system proxy put back');
       await app.evaluate(() => global.shroudlyE2E.store.delete('ownServer'));
+    }
+  } finally {
+    await Promise.race([app.close().catch(() => {}), sleep(30000)]);
+  }
+
+  // ── After an update: what changed, once; the card asking for help ──
+  ({ app, page, t } = await launch('en', { lastVersionSeen: '2.6.47', helpNudge: { first: 1, next: 1, refusals: 0 } },
+    { SHROUDLY_E2E_WHATS_NEW: '1', SHROUDLY_SNOWFLAKE_TEST: JSON.stringify({ broker: 'http://127.0.0.1:9/', relay: 'ws://127.0.0.1:9/', relayPattern: '^127.0.0.1', pollMs: 500 }) }));
+  try {
+    const version = require(path.join(ROOT, 'package.json')).version;
+    await page.getByText(t.navProtection, { exact: true }).first().click();
+    const news = page.locator('[data-testid="whats-new"]');
+    ok(!!(await until(() => news.isVisible(), 10000)), 'after an update: the card says what changed');
+    const newsText = await news.innerText();
+    const lines = t.whatsNewDesktop.split('\n').filter(Boolean);
+    ok(newsText.includes(t.whatsNewTitle.replace('{version}', version)) && lines.every((l) => newsText.includes(l.trim())),
+      `in the window's language, every line of it (${lines.length})`);
+    await page.screenshot({ path: path.join(SHOTS, `whats-new-${tag}.png`) });
+    ok(!(await page.locator('[data-testid="help-banner"]').isVisible()), 'one card at a time: the help card waits');
+    await news.getByRole('button', { name: t.whatsNewOk, exact: true }).click();
+    ok(!!(await until(async () => !(await news.isVisible()), 5000)) && (await app.evaluate(() => global.shroudlyE2E.store.get('whatsNew'))) == null
+      && (await app.evaluate(() => global.shroudlyE2E.store.get('lastVersionSeen'))) === version, 'closed: gone, and kept as seen');
+    await page.reload();
+    await page.waitForLoadState('domcontentloaded');
+    await page.getByText(t.navProtection, { exact: true }).first().click();
+    await sleep(1500);
+    ok(!(await news.isVisible()), 'and not shown again');
+
+    if (process.env.CI) {
+      await page.evaluate(() => window.electron.startDPI());
+      ok(!!(await until(() => page.evaluate(() => window.electron.getDPIStatus().then((x) => x.active)), 20000)), 'protection on');
+      const help = page.locator('[data-testid="help-banner"]');
+      ok(!!(await until(() => help.isVisible(), 10000)), 'protection working: the card asks whether the user would like to help');
+      const helpText = await help.innerText();
+      ok(helpText.includes(t.helpNudgeTitle) && helpText.includes(t.helpNudgeBody), 'said plainly: what it is, and that it is safe');
+      await page.screenshot({ path: path.join(SHOTS, `help-banner-${tag}.png`) });
+      const t0 = Date.now();
+      await help.getByRole('button', { name: t.supportBannerLater, exact: true }).click();
+      ok(!!(await until(async () => !(await help.isVisible()), 5000)), '"Not now": the card goes');
+      const n1 = await app.evaluate(() => global.shroudlyE2E.store.get('helpNudge'));
+      const DAY = 24 * 60 * 60 * 1000;
+      ok(n1.refusals === 1 && n1.next >= t0 + 7 * DAY - 60000 && n1.next <= Date.now() + 7 * DAY + 60000, `and comes back in a week (${((n1.next - t0) / DAY).toFixed(2)} days)`);
+      // A week on.
+      await app.evaluate((_, x) => global.shroudlyE2E.store.set('helpNudge', x), { ...n1, next: 1 });
+      await page.reload();
+      await page.waitForLoadState('domcontentloaded');
+      await page.getByText(t.navProtection, { exact: true }).first().click();
+      ok(!!(await until(() => help.isVisible(), 10000)), 'a week on: asked again');
+      const t1 = Date.now();
+      await help.getByRole('button', { name: t.helpNudgeYes, exact: true }).click();
+      ok(!!(await until(async () => (await app.evaluate(() => global.shroudlyE2E.snowflake.status().on)) === true, 10000)), '"Turn on": the help is on');
+      ok(!!(await until(async () => (await help.innerText()).includes(head(t.helpNudgeThanks)), 5000)), 'and the card says thank you, and where to turn it off');
+      const n2 = await app.evaluate(() => global.shroudlyE2E.store.get('helpNudge'));
+      ok(n2.refusals === 1 && n2.next >= t1 + 14 * DAY - 60000 && n2.next <= Date.now() + 14 * DAY + 60000 && n2.accepted >= t1 - 1000,
+        `the next look waits twice as long (${((n2.next - t1) / DAY).toFixed(2)} days)`);
+      ok((await app.evaluate(() => global.shroudlyE2E.store.get('snowflakeOn'))) === true, 'kept on in the settings');
+      await help.getByRole('button', { name: t.whatsNewOk, exact: true }).click();
+      ok(!!(await until(async () => !(await help.isVisible()), 5000)), 'closed');
+      await page.evaluate(() => window.electron.setSnowflake(false));
+      await page.evaluate(() => window.electron.stopDPI());
+      ok(!!(await until(() => page.evaluate(() => window.electron.getDPIStatus().then((x) => !x.active)), 20000)), 'protection off again');
     }
   } finally {
     await Promise.race([app.close().catch(() => {}), sleep(30000)]);

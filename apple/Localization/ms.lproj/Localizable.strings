@@ -9,6 +9,7 @@
 "androidQuicOffDesc" = "Aplikasi menggunakan TCP dan bukan QUIC (port UDP 443), yang lebih baik dilalukan oleh Shroudly. Untuk rangkaian yang menyekat atau melambatkan QUIC.";
 "androidShareLogs" = "Kongsi log";
 "androidVpnDenied" = "Shroudly memerlukan kebenaran VPN untuk membawa sambungan aplikasi anda.";
+"appleInstallHelp" = "Cara memasangnya";
 "appleKeepOn" = "Kekalkan perlindungan hidup";
 "appleKeepOnDesc" = "Jika perlindungan terputus atau peranti dimulakan semula, ia hidup semula sendiri sehingga anda menghentikannya.";
 "appleLanguageDesc" = "Shroudly menggunakan bahasa peranti anda. Anda boleh memilih bahasa lain untuk Shroudly sahaja dalam tetapan sistem.";
@@ -17,10 +18,14 @@
 "appleNoticeContinue" = "Teruskan";
 "appleNoticeTitle" = "Sebelum bermula";
 "appleOpenSettings" = "Buka Tetapan";
+"appleVpnNotSigned" = "Salinan Shroudly ini ditandatangani tanpa kebenaran Apple untuk VPN, jadi iOS tidak membenarkannya memulakan VPN dan tidak pernah bertanya. Salinan yang ditandatangani dengan Apple ID percuma (AltStore, SideStore, Sideloadly dan seumpamanya) tidak pernah mempunyainya. Pasangnya dengan TrollStore, atau tandatanganinya dengan akaun pembangun Apple berbayar.";
 "appleVpnRevoked" = "Perlindungan dimatikan oleh sistem, biasanya kerana aplikasi VPN lain dihidupkan.";
 "dnsServerUse" = "Guna";
+"helpNudgeBodyPhone" = "Sebuah aplikasi percuma membolehkan orang di negara yang menapis internet menggunakan sedikit sambungan telefon ini untuk melepasi sekatan. Ia selamat untuk anda: mereka tidak boleh sampai ke telefon atau rangkaian anda, dan laman web yang mereka buka tidak pernah melihat alamat anda.";
+"helpNudgeShow" = "Tunjukkan";
+"helpNudgeTitle" = "Bantu orang di negara yang ditapis?";
 "helpOthers" = "Bantu orang di negara yang ditapis";
-"helpOthersBodyConduit" = "Peranti ini boleh membantu orang di negara yang menyekat internet melepasi sekatan, dengan Conduit daripada Psiphon, aplikasi yang dibuat untuknya. Ia berjalan sendiri; semasa seseorang dibantu, sebahagian sambungan anda digunakan, dan orang yang dibantu tidak pernah mencapai peranti atau rangkaian anda.";
+"helpOthersBodyConduit" = "Orang di negara yang menapis internet boleh menggunakan sedikit sambungan peranti ini untuk melepasi sekatan. Di iPhone dan iPad, ini dilakukan oleh aplikasi percuma Conduit daripada Psiphon, dan anda menghidupkan serta mematikannya di sana. Ia selamat untuk anda: mereka tidak boleh sampai ke peranti atau rangkaian anda, dan laman web yang mereka buka tidak pernah melihat alamat anda.";
 "helpOthersConduit" = "Conduit (Psiphon)";
 "language" = "Bahasa";
 "languageSystem" = "Lalai sistem";
@@ -41,6 +46,7 @@
 "ownServerErrFormat" = "Ini bukan pautan yang boleh digunakan Shroudly. Rupanya seperti: socks5://1.2.3.4:1080, http://user:pass@host:3128 atau ss://…";
 "ownServerErrMethod" = "Kaedah Shadowsocks ini ({method}) tidak disokong; guna chacha20-ietf-poly1305, aes-256-gcm atau aes-128-gcm.";
 "ownServerErrUser" = "Nama pengguna tidak boleh mengandungi “:” atau “@”.";
+"ownServerExit" = "Melalui pelayan sendiri. Laman web melihat: {ip}";
 "ownServerInUse" = "Sedang digunakan: {server}";
 "ownServerOff" = "Berhenti guna";
 "ownServerWhyAsks" = "ia meminta nama pengguna dan kata laluan";
@@ -64,5 +70,9 @@
 "stratSplitMid" = "Pisah di tengah SNI";
 "stratSplitSni" = "Pisah pada SNI";
 "strategy" = "Strategi pintasan";
+"supportBannerLater" = "Bukan sekarang";
 "tagline" = "Tidak kelihatan. Tidak terhalang.";
 "versionLabel" = "Versi {version}";
+"whatsNewApple" = "Salinan yang ditandatangani tanpa kebenaran VPN Apple kini memberitahunya, serta cara memasangnya dengan betul.\nDengan pelayan sendiri, skrin utama menunjukkan alamat yang dilihat laman web.\nSekali-sekala Shroudly bertanya sama ada anda mahu membantu orang di negara yang ditapis; setiap kali anda berkata bukan sekarang, ia menunggu dua kali lebih lama.\nSelepas setiap kemas kini, nota ringkas seperti ini memberitahu apa yang berubah.";
+"whatsNewOk" = "Faham";
+"whatsNewTitle" = "Apa yang baharu dalam {version}";

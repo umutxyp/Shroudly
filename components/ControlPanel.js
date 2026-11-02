@@ -34,6 +34,9 @@ export default function ControlPanel({ dpiStatus, onStatusChange, onSupport }) {
   // The user's own server (Settings) is not carrying connections: said
   // first, it is why nothing opens.
   const ownServerDown = active && !notRouting && dpiStatus.ownServerDown ? dpiStatus.ownServerDown : null;
+  // Working through it: the address sites see, said under "Protected"
+  // (issue #66), so no site has to be opened to check.
+  const ownServerExit = active && !notRouting && !offline && !ownServerDown && dpiStatus.ownServerExit ? dpiStatus.ownServerExit : null;
   const ownProxy = offline && !!dpiStatus.ownProxy;
   // Only the country's own network answers: a shutdown, not "no internet".
   const nationalOnly = offline && !ownProxy && !!dpiStatus.nationalOnly;
@@ -181,7 +184,7 @@ export default function ControlPanel({ dpiStatus, onStatusChange, onSupport }) {
               {t('ownServerDownBody', {
                 server: ownServerDown.server,
                 why: t(OWN_SERVER_WHY[ownServerDown.why] || 'ownServerWhyProtocol'),
-                path: [t('navSettings'), t('moreSettings'), t('ownServer')].join(isRTL ? ' ← ' : ' → '),
+                path: [t('navSettings'), t('tabSharing'), t('ownServer')].join(isRTL ? ' ← ' : ' → '),
               })}
             </p>
           ) : nationalOnly ? (
@@ -194,7 +197,8 @@ export default function ControlPanel({ dpiStatus, onStatusChange, onSupport }) {
             <p className="mt-1.5 text-[13px] leading-snug wrap-anywhere" style={{ color: 'var(--warn)' }}>{t('startFailedBody', { repair: t('repairApp') })}</p>
           ) : (
             <p className="mt-1.5 text-[13px] leading-snug" style={{ color: !active && dpiStatus.blocked ? 'var(--warn)' : 'var(--text-dim)' }}>
-              {ownProxy ? t('ownProxyBody') : offline ? t('noInternetBody') : active ? t('dpiBypassRunning') : dpiStatus.blocked ? t('securityStatus') : t('dpiBypassStopped')}
+              {ownProxy ? t('ownProxyBody') : offline ? t('noInternetBody') : ownServerExit ? t('ownServerExit', { ip: ownServerExit.ip })
+                : active ? t('dpiBypassRunning') : dpiStatus.blocked ? t('securityStatus') : t('dpiBypassStopped')}
             </p>
           )}
         </div>

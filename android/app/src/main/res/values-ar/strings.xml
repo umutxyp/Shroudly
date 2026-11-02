@@ -132,8 +132,11 @@
     <string name="excludedApps">تطبيقات تتجاوز Shroudly</string>
     <string name="excludedAppsCount">تطبيقات تتجاوز Shroudly: {count}</string>
     <string name="excludedAppsDesc">يخرج اتصالها مباشرةً دون المرور عبر Shroudly: مثل لعبة لا تحتاج إليه.</string>
+    <string name="helpNudgeBodyPhone">يتيح تطبيق مجاني للناس في البلدان التي تراقب الإنترنت استخدام جزء صغير من اتصال هذا الهاتف لتجاوز الحجب. هذا آمن لك: لا يستطيعون الوصول إلى هاتفك ولا إلى شبكتك، والمواقع التي يفتحونها لا ترى عنوانك أبدًا.</string>
+    <string name="helpNudgeShow">أرني</string>
+    <string name="helpNudgeTitle">هل تودّ مساعدة الناس في البلدان الخاضعة للرقابة؟</string>
     <string name="helpOthers">مساعدة الناس في البلدان الخاضعة للرقابة</string>
-    <string name="helpOthersBody">يمكن لهذا الهاتف أن يساعد أشخاصًا في بلدان تحجب الإنترنت على تجاوز الحجب، بتطبيق مصنوع لذلك: Conduit من Psiphon، أو وضع Kindness Mode في Orbot لشبكة Tor. تعمل هذه التطبيقات وحدها؛ وأثناء مساعدة أحدهم تستخدم جزءًا من اتصالك، ولا يصل من تتم مساعدتهم أبدًا إلى هاتفك أو شبكتك.</string>
+    <string name="helpOthersBody">يستطيع الناس في البلدان التي تراقب الإنترنت استخدام جزء صغير من اتصال هذا الهاتف لتجاوز الحجب. على الهاتف يتولى ذلك تطبيق مجاني صُنع لهذا الغرض، ومنه تشغّله وتوقفه: Conduit من Psiphon، أو Kindness Mode في Orbot. هذا آمن لك: لا يستطيعون الوصول إلى هاتفك ولا إلى شبكتك، والمواقع التي يفتحونها لا ترى عنوانك أبدًا.</string>
     <string name="helpOthersConduit">Conduit (Psiphon)</string>
     <string name="helpOthersOrbot">Orbot (Tor)</string>
     <string name="language">اللغة</string>
@@ -159,6 +162,7 @@
     <string name="ownServerErrFormat">ليس رابطًا يستطيع Shroudly استخدامه. يبدو هكذا: socks5://1.2.3.4:1080 أو http://user:pass@host:3128 أو ss://…</string>
     <string name="ownServerErrMethod">طريقة Shadowsocks هذه ({method}) غير مدعومة؛ استخدم chacha20-ietf-poly1305 أو aes-256-gcm أو aes-128-gcm.</string>
     <string name="ownServerErrUser">لا يمكن أن يحتوي اسم المستخدم على «:» أو «@».</string>
+    <string name="ownServerExit">عبر خادمك الخاص. ترى المواقع: {ip}</string>
     <string name="ownServerFails">لم ينجح: {why}. غير مستخدم؛ تحقّق من الرابط أو استخدمه على أي حال.</string>
     <string name="ownServerInUse">قيد الاستخدام: {server}</string>
     <string name="ownServerOff">إيقاف الاستخدام</string>
@@ -220,4 +224,7 @@
     <string name="upload">الرفع</string>
     <string name="uptime">مدة التشغيل</string>
     <string name="versionLabel">الإصدار {version}</string>
+    <string name="whatsNewAndroid">مع خادمك الخاص، تعرض الشاشة الرئيسية العنوان الذي تراه المواقع.\nبين حين وآخر يسألك Shroudly إن كنت تودّ مساعدة الناس في البلدان الخاضعة للرقابة؛ وفي كل مرة تقول ليس الآن ينتظر ضعف المدة.\nبعد كل تحديث، تخبرك ملاحظة قصيرة كهذه بما تغيّر.</string>
+    <string name="whatsNewOk">حسنًا</string>
+    <string name="whatsNewTitle">الجديد في {version}</string>
 </resources>

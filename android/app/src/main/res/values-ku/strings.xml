@@ -132,8 +132,11 @@
     <string name="excludedApps">Sepanên ku di Shroudly re derbas nabin</string>
     <string name="excludedAppsCount">Sepanên ku di Shroudly re derbas nabin: {count}</string>
     <string name="excludedAppsDesc">Seyrûsefera wan rasterast derdikeve, bê ku di Shroudly re derbas bibe: mînak lîstikek ku hewcedariya wê pê tune.</string>
+    <string name="helpNudgeBodyPhone">Sepaneke belaş dihêle ku mirovên li welatên ku înternetê sansûr dikin beşek piçûk ji girêdana vê telefonê bi kar bînin da ku astengan derbas bikin. Ji bo te ewle ye: ew nagihîjin telefon an tora te, û malperên ku ew vedikin qet navnîşana te nabînin.</string>
+    <string name="helpNudgeShow">Nîşan bide</string>
+    <string name="helpNudgeTitle">Tu dixwazî alîkariya mirovên li welatên bi sansûr bikî?</string>
     <string name="helpOthers">Alîkariya mirovên li welatên bi sansûr bike</string>
-    <string name="helpOthersBody">Ev telefon dikare bi sepanekê ku ji bo vê hatiye çêkirin alîkariya mirovên li welatên ku înternetê asteng dikin bike da ku astengiyê derbas bikin: Conduit ya Psiphon, an Kindness Mode ya Orbot ji bo Tor. Ew bi serê xwe dixebitin; dema alîkariya kesekî tê kirin beşek ji girêdana te bi kar tînin, û kesên ku alîkarî digirin qet nagihîjin telefon an tora te.</string>
+    <string name="helpOthersBody">Mirovên li welatên ku înternetê sansûr dikin dikarin beşek piçûk ji girêdana vê telefonê bi kar bînin da ku astengan derbas bikin. Li ser telefonê sepaneke belaş a ji bo vê hatî çêkirin vî karî dike, û tu wê li wir vedikî û digirî: Conduit ya Psiphon, an Kindness Mode ya Orbot. Ji bo te ewle ye: ew nagihîjin telefon an tora te, û malperên ku ew vedikin qet navnîşana te nabînin.</string>
     <string name="helpOthersConduit">Conduit (Psiphon)</string>
     <string name="helpOthersOrbot">Orbot (Tor)</string>
     <string name="language">Ziman</string>
@@ -159,6 +162,7 @@
     <string name="ownServerErrFormat">Ev ne girêdaneke ku Shroudly dikare bi kar bîne ye. Wiha xuya dike: socks5://1.2.3.4:1080, http://user:pass@host:3128 an ss://…</string>
     <string name="ownServerErrMethod">Ev rêbaza Shadowsocks ({method}) nayê piştgirîkirin; chacha20-ietf-poly1305, aes-256-gcm an aes-128-gcm bi kar bîne.</string>
     <string name="ownServerErrUser">Navê bikarhêner nikare “:” an “@” tê de hebe.</string>
+    <string name="ownServerExit">Bi riya pêşkêşkara te ya xwe. Malper vê dibînin: {ip}</string>
     <string name="ownServerFails">Nexebitî: {why}. Nayê bikaranîn; girêdanê kontrol bike, an jî dîsa jî bi kar bîne.</string>
     <string name="ownServerInUse">Tê bikaranîn: {server}</string>
     <string name="ownServerOff">Bikaranînê rawestîne</string>
@@ -220,4 +224,7 @@
     <string name="upload">Barkirin</string>
     <string name="uptime">Dema xebatê</string>
     <string name="versionLabel">Guherto {version}</string>
+    <string name="whatsNewAndroid">Bi pêşkêşkara te ya xwe, ekrana sereke navnîşana ku malper dibînin nîşan dide.\nCarinan Shroudly dipirse gelo tu dixwazî alîkariya mirovên li welatên bi sansûr bikî; her carê ku tu dibêjî ne niha, ew du qat dirêjtir li bendê dimîne.\nPiştî her nûkirinê, notek kurt wek vê dibêje çi guherî.</string>
+    <string name="whatsNewOk">Baş e</string>
+    <string name="whatsNewTitle">Tiştên nû di {version} de</string>
 </resources>

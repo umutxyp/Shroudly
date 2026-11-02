@@ -132,8 +132,11 @@
     <string name="excludedApps">Apps that skip Shroudly</string>
     <string name="excludedAppsCount">Apps that skip Shroudly: {count}</string>
     <string name="excludedAppsDesc">Their traffic goes straight out, past Shroudly: for example a game that does not need it.</string>
+    <string name="helpNudgeBodyPhone">A free app lets people in countries that censor the internet use a little of this phone\'s connection to get past the blocks. It is safe for you: they cannot reach your phone or your network, and the sites they open never see your address.</string>
+    <string name="helpNudgeShow">Show me</string>
+    <string name="helpNudgeTitle">Help people in censored countries?</string>
     <string name="helpOthers">Help people in censored countries</string>
-    <string name="helpOthersBody">This phone can help people in countries that block the internet get through, with an app made for it: Psiphon\'s Conduit, or Orbot\'s Kindness Mode for Tor. They run on their own; while someone is helped they use some of your connection, and the people helped never reach your phone or your network.</string>
+    <string name="helpOthersBody">People in countries that censor the internet can use a little of this phone\'s connection to get past the blocks. On a phone, a free app made for it does this, and you turn it on and off there: Psiphon\'s Conduit, or Orbot\'s Kindness Mode. It is safe for you: they cannot reach your phone or your network, and the sites they open never see your address.</string>
     <string name="helpOthersConduit">Conduit (Psiphon)</string>
     <string name="helpOthersOrbot">Orbot (Tor)</string>
     <string name="language">Language</string>
@@ -159,6 +162,7 @@
     <string name="ownServerErrFormat">Not a link Shroudly can use. It looks like socks5://1.2.3.4:1080, http://user:pass@host:3128 or ss://…</string>
     <string name="ownServerErrMethod">This Shadowsocks method ({method}) is not supported; use chacha20-ietf-poly1305, aes-256-gcm or aes-128-gcm.</string>
     <string name="ownServerErrUser">A user name cannot contain “:” or “@”.</string>
+    <string name="ownServerExit">Through your own server. Sites see: {ip}</string>
     <string name="ownServerFails">Did not work: {why}. Not in use; check the link, or use it anyway.</string>
     <string name="ownServerInUse">In use: {server}</string>
     <string name="ownServerOff">Stop using</string>
@@ -220,4 +224,7 @@
     <string name="upload">Upload</string>
     <string name="uptime">Uptime</string>
     <string name="versionLabel">Version {version}</string>
+    <string name="whatsNewAndroid">With your own server, the main screen shows the address sites see.\nNow and then Shroudly asks whether you would like to help people in censored countries; each time you say not now, it waits twice as long.\nAfter each update, a short note like this one says what changed.</string>
+    <string name="whatsNewOk">Got it</string>
+    <string name="whatsNewTitle">What\'s new in {version}</string>
 </resources>

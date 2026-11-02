@@ -23,6 +23,10 @@ final class TunnelController: ObservableObject {
     @Published private(set) var phase: Phase = .off
     @Published private(set) var connectedSince: Date?
     @Published var notice: String?
+    /* This copy may not make a VPN at all: signed without Apple's VPN
+     * permission (VpnErrors, issue #65). The notice says so, with how to
+     * install it properly. */
+    @Published private(set) var vpnNotAllowed = false
 
     private var manager: NETunnelProviderManager?
     private var observer: NSObjectProtocol?
@@ -37,6 +41,11 @@ final class TunnelController: ObservableObject {
             manager = all.first { ($0.protocolConfiguration as? NETunnelProviderProtocol)?.providerBundleIdentifier == Ids.tunnel }
         } catch {
             log.write("Reading the VPN configuration: \(error.localizedDescription)")
+            if VpnErrors.missingPermission(error, reading: true) {
+                vpnNotAllowed = true
+                notice = tr("appleVpnNotSigned")
+                log.write("This copy is signed without the VPN permission (Network Extension): iOS will not ask for it")
+            }
         }
         observe()
         lastStatus = manager?.connection.status ?? .invalid
@@ -51,7 +60,12 @@ final class TunnelController: ObservableObject {
             m = try await prepared(keepOn: store.load().keepOn)
         } catch {
             log.write("Saving the VPN configuration: \(error.localizedDescription)")
-            notice = tr("androidVpnDenied")
+            if vpnNotAllowed || VpnErrors.missingPermission(error, reading: false) {
+                vpnNotAllowed = true
+                notice = tr("appleVpnNotSigned")
+            } else {
+                notice = tr("androidVpnDenied")
+            }
             return
         }
         do {

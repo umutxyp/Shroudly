@@ -1,7 +1,7 @@
 'use strict';
 
 /*
- * "Help people in censored countries" (Settings → More settings; off until
+ * "Help people in censored countries" (Settings → Server and sharing; off until
  * the user turns it on): a Snowflake proxy for the Tor network, so that
  * people where Tor is blocked reach it through this computer
  * (electron/snowflake/proxy.js has how). It runs in a hidden window of its

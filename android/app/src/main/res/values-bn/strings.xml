@@ -132,8 +132,11 @@
     <string name="excludedApps">যে অ্যাপগুলো Shroudly এড়িয়ে চলে</string>
     <string name="excludedAppsCount">যে অ্যাপগুলো Shroudly এড়িয়ে চলে: {count}</string>
     <string name="excludedAppsDesc">এদের ট্রাফিক Shroudly দিয়ে না গিয়ে সরাসরি বাইরে যায়: যেমন এমন একটি গেম যার এটির দরকার নেই।</string>
+    <string name="helpNudgeBodyPhone">একটি বিনামূল্যের অ্যাপ সেন্সরশিপ থাকা দেশের মানুষদের বাধা পেরোতে এই ফোনের সংযোগের সামান্য অংশ ব্যবহার করতে দেয়। এটি আপনার জন্য নিরাপদ: তাঁরা আপনার ফোন বা নেটওয়ার্কে পৌঁছাতে পারেন না, আর তাঁরা যে সাইট খোলেন সেগুলো কখনো আপনার ঠিকানা দেখে না।</string>
+    <string name="helpNudgeShow">দেখান</string>
+    <string name="helpNudgeTitle">সেন্সরশিপ থাকা দেশের মানুষদের সাহায্য করবেন?</string>
     <string name="helpOthers">সেন্সরশিপ থাকা দেশের মানুষদের সাহায্য করুন</string>
-    <string name="helpOthersBody">এই ফোন ইন্টারনেট বন্ধ করা দেশের মানুষদের বাধা পেরোতে এই কাজের জন্য তৈরি একটি অ্যাপ দিয়ে সাহায্য করতে পারে: Psiphon-এর Conduit, অথবা Tor-এর জন্য Orbot-এর Kindness Mode। এগুলো নিজে নিজে চলে; কাউকে সাহায্য করার সময় আপনার সংযোগের কিছু অংশ ব্যবহার করে, এবং যাঁরা সাহায্য পান তাঁরা কখনো আপনার ফোন বা নেটওয়ার্কে পৌঁছান না।</string>
+    <string name="helpOthersBody">যেসব দেশে ইন্টারনেট সেন্সর করা হয় সেখানকার মানুষ বাধা পেরোতে এই ফোনের সংযোগের সামান্য অংশ ব্যবহার করতে পারেন। ফোনে এই কাজটি করে এর জন্যই তৈরি একটি বিনামূল্যের অ্যাপ, আর সেখানেই এটি চালু ও বন্ধ করা হয়: Psiphon-এর Conduit, অথবা Orbot-এর Kindness Mode। এটি আপনার জন্য নিরাপদ: তাঁরা আপনার ফোন বা নেটওয়ার্কে পৌঁছাতে পারেন না, আর তাঁরা যে সাইট খোলেন সেগুলো কখনো আপনার ঠিকানা দেখে না।</string>
     <string name="helpOthersConduit">Conduit (Psiphon)</string>
     <string name="helpOthersOrbot">Orbot (Tor)</string>
     <string name="language">ভাষা</string>
@@ -159,6 +162,7 @@
     <string name="ownServerErrFormat">এটি এমন লিংক নয় যা Shroudly ব্যবহার করতে পারে। এটি দেখতে এমন: socks5://1.2.3.4:1080, http://user:pass@host:3128 বা ss://…</string>
     <string name="ownServerErrMethod">Shadowsocks-এর এই পদ্ধতি ({method}) সমর্থিত নয়; chacha20-ietf-poly1305, aes-256-gcm বা aes-128-gcm ব্যবহার করুন।</string>
     <string name="ownServerErrUser">ব্যবহারকারীর নামে “:” বা “@” থাকতে পারে না।</string>
+    <string name="ownServerExit">আপনার নিজের সার্ভারের মাধ্যমে। সাইটগুলো দেখে: {ip}</string>
     <string name="ownServerFails">কাজ করেনি: {why}। ব্যবহার হচ্ছে না; লিংকটি দেখে নিন, বা তবুও ব্যবহার করুন।</string>
     <string name="ownServerInUse">ব্যবহার হচ্ছে: {server}</string>
     <string name="ownServerOff">ব্যবহার বন্ধ করুন</string>
@@ -220,4 +224,7 @@
     <string name="upload">আপলোড</string>
     <string name="uptime">চালু থাকার সময়</string>
     <string name="versionLabel">সংস্করণ {version}</string>
+    <string name="whatsNewAndroid">নিজের সার্ভার ব্যবহার করলে, মূল স্ক্রিন দেখায় সাইটগুলো কোন ঠিকানা দেখে।\nShroudly মাঝে মাঝে জিজ্ঞেস করে আপনি সেন্সরশিপ থাকা দেশের মানুষদের সাহায্য করতে চান কি না; প্রতিবার এখন নয় বললে এটি দ্বিগুণ সময় অপেক্ষা করে।\nপ্রতিটি আপডেটের পরে, এর মতো একটি ছোট নোট জানায় কী বদলেছে।</string>
+    <string name="whatsNewOk">বুঝেছি</string>
+    <string name="whatsNewTitle">{version}-এ নতুন যা আছে</string>
 </resources>

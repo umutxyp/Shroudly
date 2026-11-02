@@ -2,7 +2,7 @@
 
 /* "Help people in censored countries" (electron/snowflake.js) in the real
  * app, on whatever OS this runs on, driven as a person would (Settings →
- * More settings), against stand-ins for Tor's broker and relay on this
+ * Server and sharing), against stand-ins for Tor's broker and relay on this
  * computer (main.js, SHROUDLY_E2E with SHROUDLY_SNOWFLAKE_TEST):
  *   - off until turned on; on, it asks the broker for someone to help, as
  *     Tor's own proxy does (version 1.3, its NAT type, Tor's relays only)
@@ -17,13 +17,18 @@
  *   - off closes the hidden window and the relay connection; left on, it is
  *     on again at the next start
  *   - screenshots (test-results/): off, waiting, helping, a narrow window,
- *     Persian (right to left) */
+ *     Persian (right to left)
+ *   - on a server ("shroudly --help-others", electron/helper-server.js): no
+ *     window at all (on Linux no display either, Chromium's headless
+ *     platform), a person helped through it as above, said on its output,
+ *     and it stops when told to */
 
 const fs = require('fs');
 const os = require('os');
 const http = require('http');
 const path = require('path');
 const crypto = require('crypto');
+const { spawn } = require('child_process');
 const { _electron } = require('playwright-core');
 
 const ROOT = path.resolve(__dirname, '..', '..');
@@ -182,18 +187,33 @@ async function launch(language, snowflakeTest, extra = {}) {
   return { app, page, t, ud };
 }
 
+/* Settings → Server and sharing, where the help is. */
 async function openMore(page, t) {
   await page.getByText(t.navSettings, { exact: true }).first().click();
-  const more = page.getByRole('button', { name: new RegExp(t.moreSettings.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')) });
-  await more.waitFor({ timeout: 10000 });
-  // A setting left on opens the section by itself once the settings are
-  // read, which can be just after the button is looked at: looked at again.
-  for (let i = 0; i < 4; i++) {
-    if ((await more.getAttribute('aria-expanded')) !== 'true') await more.click();
+  const tab = page.locator('[data-settings-tab="sharing"]');
+  await tab.waitFor({ timeout: 10000 });
+  for (let i = 0; i < 3; i++) {
+    await tab.click();
     if (await until(() => page.getByText(t.snowflake, { exact: true }).first().isVisible(), 3000)) return;
   }
   await page.screenshot({ path: path.join(SHOTS, `snowflake-openmore-failed-${tag}.png`) });
-  throw new Error('More settings did not open');
+  throw new Error('Server and sharing did not open');
+}
+
+/* A person using Tor, in a hidden window of `app`; its page's title once
+ * it has an outcome. */
+async function person(app, brokerUrl) {
+  await app.evaluate(async ({ BrowserWindow, session }, html) => {
+    const ses = session.fromPartition('e2e-snowflake-person');
+    await ses.setProxy({ mode: 'direct' });
+    const w = new BrowserWindow({ show: false, webPreferences: { session: ses, sandbox: true, contextIsolation: true } });
+    global.__sfPerson = w;
+    await w.loadURL(`data:text/html;charset=utf-8,${encodeURIComponent(html)}`);
+  }, personPage(brokerUrl));
+  return until(async () => {
+    const ti = await app.evaluate(() => global.__sfPerson.getTitle());
+    return /^(GOT:|ERR:|NOANSWER)/.test(ti) ? ti : null;
+  }, 30000, 300);
 }
 
 const section = (page, title) => page.locator('section.card').filter({ has: page.getByRole('heading', { name: title, exact: true }) });
@@ -243,17 +263,7 @@ const hiddenWindow = (app) => app.evaluate(async ({ BrowserWindow }) => {
     await shot(sf, 'snowflake-waiting');
 
     // A person using Tor, in another window of the app.
-    await app.evaluate(async ({ BrowserWindow, session }, html) => {
-      const ses = session.fromPartition('e2e-snowflake-person');
-      await ses.setProxy({ mode: 'direct' });
-      const w = new BrowserWindow({ show: false, webPreferences: { session: ses, sandbox: true, contextIsolation: true } });
-      global.__sfPerson = w;
-      await w.loadURL(`data:text/html;charset=utf-8,${encodeURIComponent(html)}`);
-    }, personPage(brokerUrl));
-    const title = await until(async () => {
-      const ti = await app.evaluate(() => global.__sfPerson.getTitle());
-      return /^(GOT:|ERR:|NOANSWER)/.test(ti) ? ti : null;
-    }, 30000, 300);
+    const title = await person(app, brokerUrl);
     ok(title === 'GOT:relay:hello-from-tor-client', `the person's bytes reach Tor's relay over WebRTC and its answer comes back (${title})`);
     ok(relay.conns.length === 1 && relay.conns[0].got.includes('hello-from-tor-client'), 'the relay got what the person sent');
     ok(!/client_ip=/.test(relay.conns[0].url), `a local address is not passed on to the relay (${relay.conns[0].url})`);
@@ -307,6 +317,51 @@ const hiddenWindow = (app) => app.evaluate(async ({ BrowserWindow }) => {
   } finally {
     await Promise.race([app.close().catch(() => {}), sleep(30000)]);
   }
+  // On a server: "--help-others", no window at all; on Linux no display
+  // either. A person helped through it, from another Shroudly's window.
+  {
+    const hd = fs.mkdtempSync(path.join(os.tmpdir(), 'shroudly-e2e-helper-'));
+    const env = { ...process.env, SHROUDLY_E2E: '1', SHROUDLY_SNOWFLAKE_TEST: JSON.stringify(sfTest) };
+    delete env.ELECTRON_RUN_AS_NODE;
+    const args = [ROOT, '--help-others', `--data-dir=${hd}`];
+    if (process.platform === 'linux') {
+      args.push('--ozone-platform=headless', '--no-sandbox');
+      delete env.DISPLAY; delete env.WAYLAND_DISPLAY;
+    }
+    const child = spawn(require(path.join(ROOT, 'node_modules', 'electron')), args, { env, stdio: ['ignore', 'pipe', 'pipe'] });
+    let out = '';
+    child.stdout.on('data', (d) => { out += d; });
+    child.stderr.on('data', (d) => { out += d; });
+    const exited = new Promise((r) => child.once('exit', (code, signal) => r({ code, signal })));
+    try {
+      ok(!!(await until(() => /helping people in censored countries \(a Snowflake proxy for Tor\)/.test(out), 40000)),
+        `server: it starts with no window${process.platform === 'linux' ? ' and no display' : ''}`);
+      const before = broker.polls.length;
+      ok(!!(await until(() => broker.polls.length > before, 15000)), 'server: it asks the broker for someone to help');
+      ({ app, page, t } = await launch('en', sfTest));
+      try {
+        ok(!(await hiddenWindow(app)), 'the other Shroudly helps no one itself: only the server is asked');
+        const conns = relay.conns.length;
+        const title2 = await person(app, brokerUrl);
+        ok(title2 === 'GOT:relay:hello-from-tor-client', `server: a person's bytes reach Tor's relay through it and the answer comes back (${title2})`);
+        ok(relay.conns.length === conns + 1 && relay.conns[conns].got.includes('hello-from-tor-client'), 'server: the relay got what the person sent');
+        ok(!!(await until(() => /someone reached Tor through this computer \(1 since/.test(out), 20000)), 'server: says so on its output');
+        await app.evaluate(() => { global.__sfPerson.destroy(); });
+      } finally {
+        await Promise.race([app.close().catch(() => {}), sleep(30000)]);
+      }
+      child.kill('SIGTERM');
+      const end = await Promise.race([exited, sleep(20000).then(() => null)]);
+      ok(!!end, `server: it stops when told to (${JSON.stringify(end)})`);
+      if (process.platform !== 'win32') ok(/Stopping\./.test(out) && end.code === 0, 'server: on SIGTERM it stops the help and exits cleanly');
+    } catch (e) {
+      console.log(`    (the server's output:\n${out})`);
+      throw e;
+    } finally {
+      try { child.kill('SIGKILL'); } catch {}
+    }
+  }
+
   relay.close(); broker.close();
   console.log(`snowflake e2e: ${count} passed`);
   process.exit(0);

@@ -132,8 +132,11 @@
     <string name="excludedApps">Барномаҳое, ки Shroudly-ро давр мезананд</string>
     <string name="excludedAppsCount">Барномаҳое, ки Shroudly-ро давр мезананд: {count}</string>
     <string name="excludedAppsDesc">Трафики онҳо бе гузаштан аз Shroudly мустақим мебарояд: масалан, бозие, ки ба он ниёз надорад.</string>
+    <string name="helpNudgeBodyPhone">Барномаи ройгон ба одамон дар кишварҳое, ки интернетро сензура мекунанд, имкон медиҳад барои гузаштан аз манъҳо қисми хурди пайвасти ин телефонро истифода баранд. Барои шумо бехатар аст: онҳо ба телефон ё шабакаи шумо дастрасӣ надоранд ва сайтҳое, ки мекушоянд, ҳеҷ гоҳ суроғаи шуморо намебинанд.</string>
+    <string name="helpNudgeShow">Нишон додан</string>
+    <string name="helpNudgeTitle">Ба одамон дар кишварҳои сензурадор кӯмак мекунед?</string>
     <string name="helpOthers">Ба одамон дар кишварҳои сензурадор кӯмак кардан</string>
-    <string name="helpOthersBody">Ин телефон метавонад ба одамон дар кишварҳое, ки интернетро манъ мекунанд, бо барномае, ки барои ҳамин сохта шудааст, кӯмак кунад, то аз манъ гузаранд: Conduit-и Psiphon ё реҷаи Kindness Mode-и Orbot барои Tor. Онҳо худ кор мекунанд; ҳангоми кӯмак ба касе як қисми пайвасти шуморо истифода мебаранд ва онҳое, ки кӯмак мегиранд, ҳеҷ гоҳ ба телефон ё шабакаи шумо намерасанд.</string>
+    <string name="helpOthersBody">Одамон дар кишварҳое, ки интернетро сензура мекунанд, метавонанд барои гузаштан аз манъҳо қисми хурди пайвасти ин телефонро истифода баранд. Дар телефон ин корро барномаи ройгоне мекунад, ки маҳз барои ҳамин сохта шудааст, ва фаъол ва хомӯш кардан ҳам дар ҳамон ҷост: Conduit аз Psiphon ё Kindness Mode дар Orbot. Барои шумо бехатар аст: онҳо ба телефон ё шабакаи шумо дастрасӣ надоранд ва сайтҳое, ки мекушоянд, ҳеҷ гоҳ суроғаи шуморо намебинанд.</string>
     <string name="helpOthersConduit">Conduit (Psiphon)</string>
     <string name="helpOthersOrbot">Orbot (Tor)</string>
     <string name="language">Забон</string>
@@ -159,6 +162,7 @@
     <string name="ownServerErrFormat">Ин пайвандест, ки Shroudly истифода бурда наметавонад. Чунин менамояд: socks5://1.2.3.4:1080, http://user:pass@host:3128 ё ss://…</string>
     <string name="ownServerErrMethod">Ин усули Shadowsocks ({method}) дастгирӣ намешавад; chacha20-ietf-poly1305, aes-256-gcm ё aes-128-gcm-ро истифода баред.</string>
     <string name="ownServerErrUser">Номи корбар наметавонад «:» ё «@» дошта бошад.</string>
+    <string name="ownServerExit">Тавассути сервери худи шумо. Сайтҳо ин суроғаро мебинанд: {ip}</string>
     <string name="ownServerFails">Кор накард: {why}. Истифода намешавад; пайвандро санҷед ё бо вуҷуди ин истифода баред.</string>
     <string name="ownServerInUse">Дар истифода: {server}</string>
     <string name="ownServerOff">Қатъ кардани истифода</string>
@@ -220,4 +224,7 @@
     <string name="upload">Ирсол</string>
     <string name="uptime">Вақти кор</string>
     <string name="versionLabel">Версияи {version}</string>
+    <string name="whatsNewAndroid">Бо сервери худ экрани асосӣ суроғаеро нишон медиҳад, ки сайтҳо мебинанд.\nShroudly гоҳ-гоҳ мепурсад, ки оё мехоҳед ба одамон дар кишварҳои сензурадор кӯмак кунед; ҳар дафъа ки «ҳоло не» гӯед, ду баробар дарозтар интизор мешавад.\nПас аз ҳар навсозӣ қайди кӯтоҳе ба монанди ин мегӯяд, ки чӣ тағйир ёфт.</string>
+    <string name="whatsNewOk">Фаҳмо</string>
+    <string name="whatsNewTitle">Навигариҳои {version}</string>
 </resources>

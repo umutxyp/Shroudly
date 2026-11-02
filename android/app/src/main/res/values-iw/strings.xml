@@ -132,8 +132,11 @@
     <string name="excludedApps">אפליקציות שעוקפות את Shroudly</string>
     <string name="excludedAppsCount">אפליקציות שעוקפות את Shroudly: {count}</string>
     <string name="excludedAppsDesc">התעבורה שלהן יוצאת ישירות, בלי לעבור דרך Shroudly: למשל משחק שלא צריך אותו.</string>
+    <string name="helpNudgeBodyPhone">אפליקציה חינמית מאפשרת לאנשים במדינות שמצנזרות את האינטרנט להשתמש במעט מהחיבור של הטלפון הזה כדי לעקוף את החסימות. זה בטוח בשבילכם: הם לא יכולים להגיע לטלפון או לרשת שלכם, והאתרים שהם פותחים אף פעם לא רואים את הכתובת שלכם.</string>
+    <string name="helpNudgeShow">הראו לי</string>
+    <string name="helpNudgeTitle">לעזור לאנשים במדינות עם צנזורה?</string>
     <string name="helpOthers">לעזור לאנשים במדינות עם צנזורה</string>
-    <string name="helpOthersBody">הטלפון הזה יכול לעזור לאנשים במדינות שחוסמות את האינטרנט לעבור את החסימה, עם אפליקציה שנועדה לכך: Conduit של Psiphon, או מצב Kindness Mode של Orbot עבור Tor. הן פועלות לבד; בזמן שמישהו נעזר הן משתמשות בחלק מהחיבור שלך, והאנשים שנעזרים לעולם לא מגיעים לטלפון או לרשת שלך.</string>
+    <string name="helpOthersBody">אנשים במדינות שמצנזרות את האינטרנט יכולים להשתמש במעט מהחיבור של הטלפון הזה כדי לעקוף את החסימות. בטלפון עושה את זה אפליקציה חינמית שנבנתה לשם כך, ושם גם מפעילים ומכבים אותה: Conduit של Psiphon, או Kindness Mode של Orbot. זה בטוח בשבילכם: הם לא יכולים להגיע לטלפון או לרשת שלכם, והאתרים שהם פותחים אף פעם לא רואים את הכתובת שלכם.</string>
     <string name="helpOthersConduit">Conduit (Psiphon)</string>
     <string name="helpOthersOrbot">Orbot (Tor)</string>
     <string name="language">שפה</string>
@@ -159,6 +162,7 @@
     <string name="ownServerErrFormat">זה לא קישור ש-Shroudly יכול להשתמש בו. הוא נראה כך: socks5://1.2.3.4:1080, http://user:pass@host:3128 או ss://…</string>
     <string name="ownServerErrMethod">שיטת Shadowsocks הזו ({method}) אינה נתמכת; השתמשו ב-chacha20-ietf-poly1305, ב-aes-256-gcm או ב-aes-128-gcm.</string>
     <string name="ownServerErrUser">שם משתמש לא יכול להכיל “:” או “@”.</string>
+    <string name="ownServerExit">דרך השרת שלכם. האתרים רואים: {ip}</string>
     <string name="ownServerFails">לא עבד: {why}. לא בשימוש; בדקו את הקישור, או השתמשו בו בכל זאת.</string>
     <string name="ownServerInUse">בשימוש: {server}</string>
     <string name="ownServerOff">הפסקת השימוש</string>
@@ -220,4 +224,7 @@
     <string name="upload">העלאה</string>
     <string name="uptime">זמן פעילות</string>
     <string name="versionLabel">גרסה {version}</string>
+    <string name="whatsNewAndroid">עם שרת משלכם, המסך הראשי מראה את הכתובת שהאתרים רואים.\nמדי פעם Shroudly שואל אם תרצו לעזור לאנשים במדינות עם צנזורה; בכל פעם שתגידו לא עכשיו, הוא מחכה פי שניים.\nאחרי כל עדכון, הערה קצרה כמו זו מספרת מה השתנה.</string>
+    <string name="whatsNewOk">הבנתי</string>
+    <string name="whatsNewTitle">מה חדש בגרסה {version}</string>
 </resources>

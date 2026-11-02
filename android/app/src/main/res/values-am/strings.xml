@@ -132,8 +132,11 @@
     <string name="excludedApps">Shroudlyን የሚያልፉ መተግበሪያዎች</string>
     <string name="excludedAppsCount">Shroudlyን የሚያልፉ መተግበሪያዎች: {count}</string>
     <string name="excludedAppsDesc">ትራፊካቸው በShroudly ሳያልፍ በቀጥታ ይወጣል፦ ለምሳሌ የማያስፈልገው ጨዋታ።</string>
+    <string name="helpNudgeBodyPhone">ነጻ መተግበሪያ ኢንተርኔትን ሳንሱር በሚያደርጉ አገሮች ያሉ ሰዎች እገዳዎችን ለማለፍ የዚህን ስልክ ግንኙነት ትንሽ ክፍል እንዲጠቀሙ ያስችላል። ለእርስዎ ደህንነቱ የተጠበቀ ነው፦ ወደ ስልክዎ ወይም ወደ አውታረ መረብዎ መድረስ አይችሉም፣ የሚከፍቷቸው ድረ-ገጾችም አድራሻዎን ፈጽሞ አያዩም።</string>
+    <string name="helpNudgeShow">አሳየኝ</string>
+    <string name="helpNudgeTitle">ሳንሱር ባለባቸው አገሮች ያሉ ሰዎችን መርዳት ይፈልጋሉ?</string>
     <string name="helpOthers">ሳንሱር ባለባቸው አገሮች ያሉ ሰዎችን እርዳ</string>
-    <string name="helpOthersBody">ይህ ስልክ በይነመረብን በሚያግዱ አገሮች ያሉ ሰዎች እገዳውን እንዲያልፉ ለዚህ በተሰራ መተግበሪያ መርዳት ይችላል፦ የPsiphon Conduit ወይም የOrbot Kindness Mode ለTor። በራሳቸው ይሰራሉ፤ አንድ ሰው በሚረዳበት ጊዜ የግንኙነትዎን የተወሰነ ክፍል ይጠቀማሉ፣ የሚረዱት ሰዎች ደግሞ ስልክዎን ወይም አውታረ መረብዎን በፍጹም አይደርሱም።</string>
+    <string name="helpOthersBody">ኢንተርኔትን ሳንሱር በሚያደርጉ አገሮች ያሉ ሰዎች እገዳዎችን ለማለፍ የዚህን ስልክ ግንኙነት ትንሽ ክፍል መጠቀም ይችላሉ። በስልክ ላይ ይህን የሚሰራው ለዚሁ የተሰራ ነጻ መተግበሪያ ነው፣ ማብራትና ማጥፋትም እዚያው ነው፦ የPsiphon Conduit፣ ወይም የOrbot Kindness Mode። ለእርስዎ ደህንነቱ የተጠበቀ ነው፦ ወደ ስልክዎ ወይም ወደ አውታረ መረብዎ መድረስ አይችሉም፣ የሚከፍቷቸው ድረ-ገጾችም አድራሻዎን ፈጽሞ አያዩም።</string>
     <string name="helpOthersConduit">Conduit (Psiphon)</string>
     <string name="helpOthersOrbot">Orbot (Tor)</string>
     <string name="language">ቋንቋ</string>
@@ -159,6 +162,7 @@
     <string name="ownServerErrFormat">Shroudly ሊጠቀምበት የሚችል ማገናኛ አይደለም። እንዲህ ይመስላል፦ socks5://1.2.3.4:1080፣ http://user:pass@host:3128 ወይም ss://…</string>
     <string name="ownServerErrMethod">ይህ የShadowsocks ዘዴ ({method}) አይደገፍም፤ chacha20-ietf-poly1305፣ aes-256-gcm ወይም aes-128-gcm ይጠቀሙ።</string>
     <string name="ownServerErrUser">የተጠቃሚ ስም “:” ወይም “@” ሊይዝ አይችልም።</string>
+    <string name="ownServerExit">በራስዎ አገልጋይ በኩል። ድረ-ገጾች የሚያዩት አድራሻ፦ {ip}</string>
     <string name="ownServerFails">አልሠራም፦ {why}። ጥቅም ላይ አይደለም፤ ማገናኛውን ያረጋግጡ፣ ወይም ቢሆንም ይጠቀሙበት።</string>
     <string name="ownServerInUse">ጥቅም ላይ ነው፦ {server}</string>
     <string name="ownServerOff">መጠቀም አቁም</string>
@@ -220,4 +224,7 @@
     <string name="upload">መስቀል</string>
     <string name="uptime">የሰራበት ጊዜ</string>
     <string name="versionLabel">ስሪት {version}</string>
+    <string name="whatsNewAndroid">በራስዎ አገልጋይ፣ ዋናው ማያ ገጽ ድረ-ገጾች የሚያዩትን አድራሻ ያሳያል።\nShroudly አልፎ አልፎ ሳንሱር ባለባቸው አገሮች ያሉ ሰዎችን መርዳት ይፈልጉ እንደሆነ ይጠይቃል፤ አሁን አይደለም ባሉ ቁጥር እጥፍ ጊዜ ይጠብቃል።\nከእያንዳንዱ ዝማኔ በኋላ፣ እንደዚህ ያለ አጭር ማስታወሻ ምን እንደተለወጠ ይነግርዎታል።</string>
+    <string name="whatsNewOk">ገባኝ</string>
+    <string name="whatsNewTitle">በ{version} ውስጥ አዲስ ነገሮች</string>
 </resources>

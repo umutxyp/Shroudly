@@ -91,6 +91,11 @@ const QUIET_PROOF_MS = 6000;
 const OFFLINE_FAILS = 4;
 const OFFLINE_WINDOW_MS = 20000;
 const OFFLINE_RECHECK_MS = 15000;
+// The address sites see through the user's own server (_watchExit): first
+// looked at this long after a start, then this often, sooner after a miss.
+const EXIT_FIRST_MS = 3000;
+const EXIT_EVERY_MS = 10 * 60 * 1000;
+const EXIT_RETRY_MS = 60 * 1000;
 const NET_SETTLE_MS = 60000;
 const CUT_SETTLE_MS = 10000;
 
@@ -491,7 +496,32 @@ class EngineManager {
     if (this._ssClient) { try { this._ssClient.close(); } catch {} this._ssClient = null; }
     this._removeUpstream();
     clearTimeout(this._ownDownTimer);
-    this._setAdvice({ ownServerDown: null });
+    clearTimeout(this._exitTimer);
+    this._setAdvice({ ownServerDown: null, ownServerExit: null });
+  }
+
+  /* Which address sites see while the user's own server carries them
+   * (issue #66): Cloudflare's trace page, asked through the engine the way
+   * every app's connection goes, a few seconds after a start and then every
+   * ten minutes (sooner again after a look that got nothing); said under
+   * the status (advice.ownServerExit). Not written to the log, which people
+   * attach to public issues. */
+  _watchExit() {
+    clearTimeout(this._exitTimer);
+    this._setAdvice({ ownServerExit: null });
+    if (!this._upstreamFile) return;
+    const look = async () => {
+      if (!this.active || !this._upstreamFile) return;
+      let r = null;
+      try { r = await OwnServer.test({ kind: 'socks5', host: '127.0.0.1', port: this.port, user: '' }, { trace: true, timeout: 15000 }); } catch {}
+      if (!this.active || !this._upstreamFile) return;
+      const ip = r && r.ok ? r.ip : null;
+      this._setAdvice({ ownServerExit: ip ? { server: this._ownServerShown || '', ip } : null });
+      this._exitTimer = setTimeout(look, ip ? EXIT_EVERY_MS : EXIT_RETRY_MS);
+      if (this._exitTimer.unref) this._exitTimer.unref();
+    };
+    this._exitTimer = setTimeout(look, EXIT_FIRST_MS);
+    if (this._exitTimer.unref) this._exitTimer.unref();
   }
 
   /* The server would not carry a connection (the engine's "upstream"
@@ -515,7 +545,7 @@ class EngineManager {
   async testOwnServer(link) {
     const p = OwnServer.parseLink(link);
     if (!p.ok) return { ok: false, invalid: p.error, method: p.method };
-    return OwnServer.test(p);
+    return OwnServer.test(p, { trace: true });
   }
 
   /* While another VPN or bypass tool is running, look again every half
@@ -881,6 +911,7 @@ class EngineManager {
     this.onStatusChange(true);
     this.stats.strategy = this._strategyLabel(cfg);
     this.log('success', `Shroudly engine active (strategy: ${this.stats.strategy})`);
+    this._watchExit();
     return { success: true };
   }
 
@@ -1574,6 +1605,7 @@ class EngineManager {
       this._startStatsPoll();
       this.stats.strategy = this._strategyLabel(cfg);
       this.log('success', `Settings applied (strategy: ${this.stats.strategy})`);
+      this._watchExit();
       return { success: true };
     } finally {
       this.restarting = false;

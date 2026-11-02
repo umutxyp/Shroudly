@@ -9,6 +9,7 @@
 "androidQuicOffDesc" = "应用改用 TCP 而不是 QUIC（UDP 端口 443），Shroudly 对 TCP 的穿透效果更好。适用于封锁或限速 QUIC 的网络。";
 "androidShareLogs" = "分享日志";
 "androidVpnDenied" = "Shroudly 需要 VPN 权限才能承载你的应用的连接。";
+"appleInstallHelp" = "安装方法";
 "appleKeepOn" = "保持保护开启";
 "appleKeepOnDesc" = "如果保护中断或设备重启，它会自动重新开启，直到你停止它。";
 "appleLanguageDesc" = "Shroudly 使用设备的语言。你可以在系统设置中为 Shroudly 单独选择其他语言。";
@@ -17,10 +18,14 @@
 "appleNoticeContinue" = "继续";
 "appleNoticeTitle" = "开始之前";
 "appleOpenSettings" = "打开设置";
+"appleVpnNotSigned" = "此 Shroudly 副本的签名没有 Apple 的 VPN 权限，因此 iOS 不允许它启动 VPN，也从不询问。用免费 Apple ID 签名的副本（AltStore、SideStore、Sideloadly 等）永远没有这项权限。请用 TrollStore 安装，或用付费的 Apple 开发者账号签名。";
 "appleVpnRevoked" = "保护已被系统关闭，通常是因为开启了另一个 VPN 应用。";
 "dnsServerUse" = "使用";
+"helpNudgeBodyPhone" = "一个免费应用可以让互联网受审查国家的人们借用这部手机的一小部分网络连接来绕过封锁。这对你是安全的：他们无法访问你的手机或网络，他们打开的网站也永远看不到你的地址。";
+"helpNudgeShow" = "查看";
+"helpNudgeTitle" = "愿意帮助受审查国家的人们吗？";
 "helpOthers" = "帮助受审查国家的人们";
-"helpOthersBodyConduit" = "这台设备可以用专门为此打造的 Psiphon Conduit，帮助身处封锁互联网国家的人们突破封锁。它会自行运行；在帮助他人时会占用你的一部分连接，被帮助的人永远无法访问你的设备或网络。";
+"helpOthersBodyConduit" = "互联网受审查国家的人们可以借用这台设备的一小部分网络连接来绕过封锁。在 iPhone 和 iPad 上，这由 Psiphon 的免费应用 Conduit 完成，开关也在应用里。这对你是安全的：他们无法访问你的设备或网络，他们打开的网站也永远看不到你的地址。";
 "helpOthersConduit" = "Conduit（Psiphon）";
 "language" = "语言";
 "languageSystem" = "跟随系统";
@@ -41,6 +46,7 @@
 "ownServerErrFormat" = "这不是 Shroudly 能使用的链接。它的形式类似：socks5://1.2.3.4:1080、http://user:pass@host:3128 或 ss://…";
 "ownServerErrMethod" = "不支持此 Shadowsocks 加密方式（{method}）；请使用 chacha20-ietf-poly1305、aes-256-gcm 或 aes-128-gcm。";
 "ownServerErrUser" = "用户名不能包含“:”或“@”。";
+"ownServerExit" = "经由你自己的服务器。网站看到的地址：{ip}";
 "ownServerInUse" = "使用中：{server}";
 "ownServerOff" = "停止使用";
 "ownServerWhyAsks" = "它要求提供用户名和密码";
@@ -64,5 +70,9 @@
 "stratSplitMid" = "在 SNI 中间拆分";
 "stratSplitSni" = "在 SNI 处拆分";
 "strategy" = "绕过策略";
+"supportBannerLater" = "以后再说";
 "tagline" = "隐形。不可阻挡。";
 "versionLabel" = "版本 {version}";
+"whatsNewApple" = "没有 Apple VPN 权限签名的副本现在会说明这一点，并告诉你如何正确安装。\n使用你自己的服务器时，主屏幕会显示网站看到的地址。\nShroudly 会不时询问你是否愿意帮助受审查国家的人们；每次你选择以后再说，它都会多等一倍的时间。\n每次更新后，都会有一条像这样的简短说明告诉你有哪些变化。";
+"whatsNewOk" = "知道了";
+"whatsNewTitle" = "{version} 的新内容";

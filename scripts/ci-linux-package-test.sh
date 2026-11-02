@@ -52,4 +52,9 @@ ls /usr/share/applications | grep -qi shroudly || fail "no desktop entry"
 echo "ok  desktop entry installed"
 [ -f /usr/share/icons/hicolor/256x256/apps/shroudly.png ] || ls /usr/share/icons/hicolor/*/apps/ | grep -qi shroudly || fail "no icon"
 echo "ok  icon installed"
+# On a server: "--help-others" with no display at all (helper-server.js,
+# scripts/ci-helper-test.sh); root in this container, so without Chromium's
+# sandbox, which the service keeps (scripts/server/install-helper.sh).
+sh "$(dirname "$0")/ci-helper-test.sh" "$APP/shroudly" --no-sandbox
+
 echo "== $PKG passed"

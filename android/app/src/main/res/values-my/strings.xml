@@ -132,8 +132,11 @@
     <string name="excludedApps">Shroudly ကို ကျော်သွားသော အက်ပ်များ</string>
     <string name="excludedAppsCount">Shroudly ကို ကျော်သွားသော အက်ပ်များ: {count}</string>
     <string name="excludedAppsDesc">၎င်းတို့၏ ဒေတာသွားလာမှုသည် Shroudly ကို မဖြတ်ဘဲ တိုက်ရိုက်ထွက်သည်- ဥပမာ မလိုအပ်သော ဂိမ်းတစ်ခု။</string>
+    <string name="helpNudgeBodyPhone">အခမဲ့ အက်ပ်တစ်ခုက အင်တာနက်ကို ဆင်ဆာလုပ်သော နိုင်ငံများရှိ လူများအား ပိတ်ဆို့မှုများကို ကျော်ဖြတ်ရန် ဤဖုန်း၏ ချိတ်ဆက်မှု အနည်းငယ်ကို အသုံးပြုခွင့်ပေးသည်။ သင့်အတွက် ဘေးကင်းသည်- ၎င်းတို့သည် သင့်ဖုန်း သို့မဟုတ် ကွန်ရက်ထဲသို့ မရောက်နိုင်ဘဲ ၎င်းတို့ဖွင့်သော ဝဘ်ဆိုက်များသည် သင့်လိပ်စာကို ဘယ်တော့မှ မမြင်ရပါ။</string>
+    <string name="helpNudgeShow">ပြပါ</string>
+    <string name="helpNudgeTitle">ဆင်ဆာရှိသော နိုင်ငံများရှိ လူများကို ကူညီမလား။</string>
     <string name="helpOthers">ဆင်ဆာရှိသော နိုင်ငံများရှိ လူများကို ကူညီရန်</string>
-    <string name="helpOthersBody">ဤဖုန်းသည် အင်တာနက်ကို ပိတ်ဆို့သော နိုင်ငံများရှိ လူများအား ပိတ်ဆို့မှုကို ကျော်ဖြတ်ရန် ထိုအတွက် ပြုလုပ်ထားသော အက်ပ်ဖြင့် ကူညီနိုင်သည်- Psiphon ၏ Conduit သို့မဟုတ် Tor အတွက် Orbot ၏ Kindness Mode။ ၎င်းတို့သည် ကိုယ်တိုင်လည်ပတ်ပြီး တစ်စုံတစ်ယောက်ကို ကူညီနေစဉ် သင့်ချိတ်ဆက်မှု၏ တစ်စိတ်တစ်ပိုင်းကို အသုံးပြုသည်။ အကူအညီရသူများသည် သင့်ဖုန်း သို့မဟုတ် ကွန်ရက်သို့ ဘယ်တော့မှ မရောက်နိုင်ပါ။</string>
+    <string name="helpOthersBody">အင်တာနက်ကို ဆင်ဆာလုပ်သော နိုင်ငံများရှိ လူများသည် ပိတ်ဆို့မှုများကို ကျော်ဖြတ်ရန် ဤဖုန်း၏ ချိတ်ဆက်မှု အနည်းငယ်ကို အသုံးပြုနိုင်သည်။ ဖုန်းပေါ်တွင် ဤအလုပ်ကို ယင်းအတွက် ပြုလုပ်ထားသော အခမဲ့ အက်ပ်က လုပ်ဆောင်ပြီး ဖွင့်ပိတ်ကိုလည်း ထိုနေရာတွင် လုပ်ရသည်- Psiphon ၏ Conduit သို့မဟုတ် Orbot ၏ Kindness Mode။ သင့်အတွက် ဘေးကင်းသည်- ၎င်းတို့သည် သင့်ဖုန်း သို့မဟုတ် ကွန်ရက်ထဲသို့ မရောက်နိုင်ဘဲ ၎င်းတို့ဖွင့်သော ဝဘ်ဆိုက်များသည် သင့်လိပ်စာကို ဘယ်တော့မှ မမြင်ရပါ။</string>
     <string name="helpOthersConduit">Conduit (Psiphon)</string>
     <string name="helpOthersOrbot">Orbot (Tor)</string>
     <string name="language">ဘာသာစကား</string>
@@ -159,6 +162,7 @@
     <string name="ownServerErrFormat">ဤလင့်ခ်ကို Shroudly အသုံးမပြုနိုင်ပါ။ ဤကဲ့သို့ ဖြစ်ရမည်- socks5://1.2.3.4:1080၊ http://user:pass@host:3128 သို့မဟုတ် ss://…</string>
     <string name="ownServerErrMethod">ဤ Shadowsocks နည်းလမ်း ({method}) ကို မပံ့ပိုးပါ။ chacha20-ietf-poly1305၊ aes-256-gcm သို့မဟုတ် aes-128-gcm ကို အသုံးပြုပါ။</string>
     <string name="ownServerErrUser">အသုံးပြုသူအမည်တွင် “:” သို့မဟုတ် “@” မပါရပါ။</string>
+    <string name="ownServerExit">ကိုယ်ပိုင် ဆာဗာမှတစ်ဆင့်။ ဝဘ်ဆိုက်များ မြင်ရသည့်လိပ်စာ- {ip}</string>
     <string name="ownServerFails">မအောင်မြင်ပါ- {why}။ အသုံးမပြုပါ။ လင့်ခ်ကို စစ်ဆေးပါ သို့မဟုတ် မည်သို့ပင်ဖြစ်စေ အသုံးပြုပါ။</string>
     <string name="ownServerInUse">အသုံးပြုနေသည်- {server}</string>
     <string name="ownServerOff">အသုံးပြုခြင်း ရပ်ရန်</string>
@@ -220,4 +224,7 @@
     <string name="upload">အပ်လုဒ်</string>
     <string name="uptime">လုပ်ဆောင်ချိန်</string>
     <string name="versionLabel">ဗားရှင်း {version}</string>
+    <string name="whatsNewAndroid">ကိုယ်ပိုင် ဆာဗာဖြင့် ပင်မ မျက်နှာပြင်တွင် ဝဘ်ဆိုက်များ မြင်ရသည့်လိပ်စာကို ပြသည်။\nShroudly သည် ဆင်ဆာရှိသော နိုင်ငံများရှိ လူများကို ကူညီလိုသလား တစ်ခါတစ်ရံ မေးသည်။ ယခု မလုပ်ပါဟု ပြောတိုင်း နှစ်ဆ ပိုကြာအောင် စောင့်သည်။\nအပ်ဒိတ်တစ်ခုစီပြီးနောက် ဤကဲ့သို့ မှတ်စု တိုတစ်ခုက ဘာပြောင်းလဲသွားသည်ကို ပြောပြသည်။</string>
+    <string name="whatsNewOk">နားလည်ပါပြီ</string>
+    <string name="whatsNewTitle">{version} တွင် အသစ်များ</string>
 </resources>

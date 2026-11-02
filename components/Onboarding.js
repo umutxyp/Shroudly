@@ -20,7 +20,7 @@ const GAP = 22;         // between the highlight and the card, arrow included
 const ARROW = 9;        // half-width of the pointer
 
 /* Which sites go through Shroudly is no longer a step: every site does, and
- * the choice lives under Settings → "More settings", for someone helping. */
+ * the choice lives under Settings → Connection, for someone helping. */
 const STEPS = [
   { tab: 'control',  target: null,              icon: ShieldCheckIcon, title: 'obTitle1', body: 'obBody1' },
   { tab: 'control',  target: '[data-tour="power"]',    icon: PowerIcon,  title: 'obTitle2', body: 'obBody2' },

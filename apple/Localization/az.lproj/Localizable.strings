@@ -9,6 +9,7 @@
 "androidQuicOffDesc" = "Tətbiqlər QUIC (UDP 443 portu) əvəzinə TCP istifadə edir; Shroudly TCP-ni daha yaxşı keçirir. QUIC-i bloklayan və ya yavaşladan şəbəkələr üçün.";
 "androidShareLogs" = "Qeydləri paylaş";
 "androidVpnDenied" = "Tətbiqlərinizin bağlantılarını daşımaq üçün Shroudly-yə VPN icazəsi lazımdır.";
+"appleInstallHelp" = "Necə quraşdırılır";
 "appleKeepOn" = "Qorumanı açıq saxla";
 "appleKeepOnDesc" = "Qoruma kəsilsə və ya cihaz yenidən başlasa, siz dayandırana qədər özü yenidən açılır.";
 "appleLanguageDesc" = "Shroudly cihazınızın dilindən istifadə edir. Yalnız Shroudly üçün başqa dili sistem ayarlarında seçə bilərsiniz.";
@@ -17,10 +18,14 @@
 "appleNoticeContinue" = "Davam et";
 "appleNoticeTitle" = "Başlamazdan əvvəl";
 "appleOpenSettings" = "Ayarları aç";
+"appleVpnNotSigned" = "Shroudly-nin bu nüsxəsi Apple-ın VPN icazəsi olmadan imzalanıb, buna görə iOS ona VPN başlatmağa icazə vermir və heç soruşmur. Pulsuz Apple ID ilə imzalanan nüsxələrdə (AltStore, SideStore, Sideloadly və bənzərləri) bu icazə heç vaxt olmur. Onu TrollStore ilə quraşdırın və ya ödənişli Apple developer hesabı ilə imzalayın.";
 "appleVpnRevoked" = "Qoruma sistem tərəfindən söndürüldü; adətən başqa VPN tətbiqi açıldığı üçün.";
 "dnsServerUse" = "İstifadə et";
+"helpNudgeBodyPhone" = "Pulsuz bir tətbiq interneti senzura edən ölkələrdəki insanlara blokları keçmək üçün bu telefonun bağlantısının kiçik bir hissəsindən istifadə etməyə imkan verir. Sizin üçün təhlükəsizdir: onlar telefonunuza və ya şəbəkənizə çata bilmir, açdıqları saytlar isə heç vaxt sizin ünvanınızı görmür.";
+"helpNudgeShow" = "Göstər";
+"helpNudgeTitle" = "Senzuralı ölkələrdəki insanlara kömək etmək istəyirsiniz?";
 "helpOthers" = "Senzuralı ölkələrdəki insanlara kömək et";
-"helpOthersBodyConduit" = "Bu cihaz interneti bloklayan ölkələrdəki insanlara maneəni keçməyə bunun üçün hazırlanmış tətbiq olan Psiphon-un Conduit-i ilə kömək edə bilər. O, özbaşına işləyir; kiməsə kömək edilərkən bağlantınızın bir hissəsindən istifadə edir, kömək alan insanlar isə cihazınıza və ya şəbəkənizə heç vaxt çata bilmir.";
+"helpOthersBodyConduit" = "İnterneti senzura edən ölkələrdəki insanlar blokları keçmək üçün bu cihazın bağlantısının kiçik bir hissəsindən istifadə edə bilər. iPhone və iPad-də bunu Psiphon-un pulsuz Conduit tətbiqi edir, açıb-söndürmək də oradadır. Sizin üçün təhlükəsizdir: onlar cihazınıza və ya şəbəkənizə çata bilmir, açdıqları saytlar isə heç vaxt sizin ünvanınızı görmür.";
 "helpOthersConduit" = "Conduit (Psiphon)";
 "language" = "Dil";
 "languageSystem" = "Sistem dili";
@@ -41,6 +46,7 @@
 "ownServerErrFormat" = "Bu, Shroudly-nin istifadə edə biləcəyi link deyil. Belə görünür: socks5://1.2.3.4:1080, http://user:pass@host:3128 və ya ss://…";
 "ownServerErrMethod" = "Bu Shadowsocks metodu ({method}) dəstəklənmir; chacha20-ietf-poly1305, aes-256-gcm və ya aes-128-gcm istifadə edin.";
 "ownServerErrUser" = "İstifadəçi adında “:” və ya “@” ola bilməz.";
+"ownServerExit" = "Öz serveriniz üzərindən. Saytların gördüyü ünvan: {ip}";
 "ownServerInUse" = "İstifadədədir: {server}";
 "ownServerOff" = "İstifadəni dayandır";
 "ownServerWhyAsks" = "istifadəçi adı və şifrə istəyir";
@@ -64,5 +70,9 @@
 "stratSplitMid" = "SNI-ın ortasından böl";
 "stratSplitSni" = "SNI nöqtəsində böl";
 "strategy" = "Yan keçmə strategiyası";
+"supportBannerLater" = "İndi yox";
 "tagline" = "Görünməz. Dayandırılmaz.";
 "versionLabel" = "Versiya {version}";
+"whatsNewApple" = "Apple-ın VPN icazəsi olmadan imzalanmış nüsxə indi bunu və necə düzgün quraşdırılacağını deyir.\nÖz serverinizlə əsas ekran saytların gördüyü ünvanı göstərir.\nShroudly arabir senzuralı ölkələrdəki insanlara kömək etmək istəyib-istəmədiyinizi soruşur; hər dəfə \"indi yox\" deyəndə iki dəfə uzun gözləyir.\nHər yeniləmədən sonra bunun kimi qısa bir qeyd nəyin dəyişdiyini deyir.";
+"whatsNewOk" = "Aydındır";
+"whatsNewTitle" = "{version} versiyasında yeniliklər";

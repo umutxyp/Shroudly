@@ -288,6 +288,31 @@ jobs:
           out=$( (sleep 2; echo STOP) | "$eng" --listen 127.0.0.1 --port 18765 --strategy 'split(sni)' 2>&1 | head -n 1 )
           echo "$out" | grep -q '"ready"'
           echo "ok  $f: app present, engine starts ($out)"
+      # On a server with no display, as scripts/server/install-helper.sh sets
+      # up an AppImage: Chromium's sandbox helper owned by root, setuid, and
+      # Shroudly started with --help-others (helper-server.js).
+      - name: The ${{ matrix.file }} AppImage helping from a server, no display
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo chown root:root dist/squashfs-root/chrome-sandbox
+          sudo chmod 4755 dist/squashfs-root/chrome-sandbox
+          sh scripts/ci-helper-test.sh dist/squashfs-root/shroudly
+      # The whole server set-up on a real machine with systemd, from the .deb:
+      # its own user, the service up with Chromium's sandbox, then removed.
+      - name: Set up the server helper from the .deb, then remove it (x86_64)
+        if: matrix.file == 'x86_64'
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo sh scripts/server/install-helper.sh --package "$(ls dist/*-Linux-amd64.deb)"
+          systemctl is-active shroudly-helper
+          id shroudly-helper
+          sudo journalctl -u shroudly-helper -n 30 --no-pager | tee /tmp/helper.log
+          grep -q "helping people in censored countries" /tmp/helper.log
+          sudo /usr/local/sbin/shroudly-helper-install --remove
+          if id shroudly-helper 2>/dev/null || [ -e /opt/Shroudly ] || [ -e /etc/systemd/system/shroudly-helper.service ]; then echo "FAIL: --remove left something"; exit 1; fi
+          echo "ok  the server helper set up, running as its own user, and removed"
 
   windows-install:
     # The signed installers when signing is on; the build's otherwise.

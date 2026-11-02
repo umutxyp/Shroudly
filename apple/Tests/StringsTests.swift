@@ -45,7 +45,11 @@ final class StringsTests: XCTestCase {
                     "androidVpnDenied", "androidProtectionLost", "appleVpnRevoked", "navSettings", "navInfo", "strategy",
                     "androidQuicOff", "androidIpv6Off", "appleKeepOn", "appleKeepOnDesc", "language", "languageSystem",
                     "appleLanguageDesc", "appleOpenSettings", "versionLabel", "madeBy", "androidPrivacyPolicy", "androidShareLogs",
-                    "appleNoticeTitle", "appleNoticeBody", "appleNoticeContinue"]
+                    "appleNoticeTitle", "appleNoticeBody", "appleNoticeContinue",
+                    // 2.6.48: a copy without the VPN permission, the address sites see,
+                    // the card asking for help, what changed.
+                    "appleVpnNotSigned", "appleInstallHelp", "ownServerExit", "helpNudgeTitle", "helpNudgeBodyPhone",
+                    "helpNudgeShow", "supportBannerLater", "whatsNewTitle", "whatsNewOk", "whatsNewApple"]
         used += Strategies.all.map(\.labelKey)
         for k in used { XCTAssertNotNil(en[k], k) }
     }

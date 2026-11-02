@@ -9,6 +9,7 @@
 "androidQuicOffDesc" = "Programmalar QUIC (UDP 443 porty) ýerine TCP ulanýar, ony Shroudly has gowy geçirýär. QUIC-i petikleýän ýa-da haýalladýan torlar üçin.";
 "androidShareLogs" = "Ýazgylary paýlaş";
 "androidVpnDenied" = "Programmalaryňyzyň baglanyşyklaryny geçirmek üçin Shroudly-a VPN rugsady gerek.";
+"appleInstallHelp" = "Nädip gurnamaly";
 "appleKeepOn" = "Goragy açyk sakla";
 "appleKeepOnDesc" = "Gorag kesilse ýa-da enjam täzeden açylsa, siz ony duruzýançaňyz özi gaýtadan açylýar.";
 "appleLanguageDesc" = "Shroudly enjamyňyzyň dilini ulanýar. Diňe Shroudly üçin başga dili ulgam sazlamalarynda saýlap bilersiňiz.";
@@ -17,10 +18,14 @@
 "appleNoticeContinue" = "Dowam et";
 "appleNoticeTitle" = "Başlamazdan öň";
 "appleOpenSettings" = "Sazlamalary aç";
+"appleVpnNotSigned" = "Shroudly-nyň bu nusgasyna Apple-yň VPN rugsady bolmazdan gol çekilipdir, şonuň üçin iOS oňa VPN başlatmaga rugsat bermeýär we hiç haçan soramaýar. Mugt Apple ID bilen gol çekilen nusgalarda (AltStore, SideStore, Sideloadly we meňzeşleri) bu rugsat hiç haçan bolmaýar. Ony TrollStore bilen guruň ýa-da tölegli Apple işläp düzüji hasaby bilen gol çekiň.";
 "appleVpnRevoked" = "Gorag ulgam tarapyndan öçürildi, adatça başga VPN programmasy açylandygy sebäpli.";
 "dnsServerUse" = "Ulanmak";
+"helpNudgeBodyPhone" = "Mugt programma interneti senzura edýän ýurtlardaky adamlara petikleri geçmek üçin bu telefonyň baglanyşygynyň az bölegini ulanmaga mümkinçilik berýär. Siziň üçin howpsuz: olar telefonyňyza ýa-da ulgamyňyza ýetip bilmeýär, açýan saýtlary bolsa siziň salgyňyzy hiç haçan görmeýär.";
+"helpNudgeShow" = "Görkez";
+"helpNudgeTitle" = "Senzuraly ýurtlardaky adamlara kömek etmek isleýärsiňizmi?";
 "helpOthers" = "Senzuraly ýurtlardaky adamlara kömek et";
-"helpOthersBodyConduit" = "Bu enjam interneti petikleýän ýurtlardaky adamlara petikden geçmäge şol maksat bilen döredilen Psiphon-yň Conduit programmasy arkaly kömek edip biler. Ol özbaşdak işleýär; kimdir birine kömek edilýärkä birikmäňiziň bir bölegini ulanýar, kömek alýanlar bolsa enjamyňyza ýa-da ulgamyňyza hiç haçan baryp bilmeýär.";
+"helpOthersBodyConduit" = "Interneti senzura edýän ýurtlardaky adamlar petikleri geçmek üçin bu enjamyň baglanyşygynyň az bölegini ulanyp bilerler. iPhone we iPad-de muny Psiphon-yň mugt Conduit programmasy edýär, açmak-öçürmek hem şol ýerde. Siziň üçin howpsuz: olar enjamyňyza ýa-da ulgamyňyza ýetip bilmeýär, açýan saýtlary bolsa siziň salgyňyzy hiç haçan görmeýär.";
 "helpOthersConduit" = "Conduit (Psiphon)";
 "language" = "Dil";
 "languageSystem" = "Ulgamdaky ýaly";
@@ -41,6 +46,7 @@
 "ownServerErrFormat" = "Bu Shroudly-niň ulanyp biljek baglanyşygy däl. Ol şeýle görünýär: socks5://1.2.3.4:1080, http://user:pass@host:3128 ýa-da ss://…";
 "ownServerErrMethod" = "Bu Shadowsocks usuly ({method}) goldanmaýar; chacha20-ietf-poly1305, aes-256-gcm ýa-da aes-128-gcm ulanyň.";
 "ownServerErrUser" = "Ulanyjy adynda “:” ýa-da “@” bolup bilmez.";
+"ownServerExit" = "Öz serweriňiz arkaly. Saýtlaryň görýän salgysy: {ip}";
 "ownServerInUse" = "Ulanylýar: {server}";
 "ownServerOff" = "Ulanmagy bes et";
 "ownServerWhyAsks" = "ol ulanyjy adyny we paroly soraýar";
@@ -64,5 +70,9 @@
 "stratSplitMid" = "SNI-niň ortasyndan bölmek";
 "stratSplitSni" = "SNI-de bölmek";
 "strategy" = "Aýlanyp geçiş strategiýasy";
+"supportBannerLater" = "Häzir däl";
 "tagline" = "Görünmez. Saklanmaz.";
 "versionLabel" = "Wersiýa {version}";
+"whatsNewApple" = "Apple-yň VPN rugsady bolmazdan gol çekilen nusga indi muny we ony nädip dogry gurnamalydygyny aýdýar.\nÖz serweriňiz bilen esasy ekran saýtlaryň görýän salgysyny görkezýär.\nShroudly wagtal-wagtal senzuraly ýurtlardaky adamlara kömek etmek isleýändigiňizi soraýar; her gezek \"häzir däl\" diýseňiz, iki esse uzak garaşýar.\nHer täzelenmeden soň şunuň ýaly gysga bellik näme üýtgändigini aýdýar.";
+"whatsNewOk" = "Düşnükli";
+"whatsNewTitle" = "{version} wersiýasynda täzelikler";

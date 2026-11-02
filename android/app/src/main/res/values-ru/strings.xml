@@ -132,8 +132,11 @@
     <string name="excludedApps">Приложения в обход Shroudly</string>
     <string name="excludedAppsCount">Приложения в обход Shroudly: {count}</string>
     <string name="excludedAppsDesc">Их трафик идёт напрямую, мимо Shroudly: например, игра, которой он не нужен.</string>
+    <string name="helpNudgeBodyPhone">Бесплатное приложение позволяет людям в странах, где цензурируют интернет, использовать немного подключения этого телефона, чтобы обходить блокировки. Для вас это безопасно: они не могут попасть ни на ваш телефон, ни в вашу сеть, а сайты, которые они открывают, никогда не видят ваш адрес.</string>
+    <string name="helpNudgeShow">Показать</string>
+    <string name="helpNudgeTitle">Помогать людям в странах с цензурой?</string>
     <string name="helpOthers">Помогать людям в странах с цензурой</string>
-    <string name="helpOthersBody">Этот телефон может помочь людям в странах, где блокируют интернет, обходить блокировки — с помощью приложения, созданного для этого: Conduit от Psiphon или режима Kindness Mode в Orbot для Tor. Они работают сами; пока кому-то помогают, используется часть вашего подключения, а те, кому помогают, никогда не получают доступа к вашему телефону или сети.</string>
+    <string name="helpOthersBody">Люди в странах, где цензурируют интернет, могут использовать немного подключения этого телефона, чтобы обходить блокировки. На телефоне этим занимается бесплатное приложение, сделанное для этого, и включается оно там же: Conduit от Psiphon или Kindness Mode в Orbot. Для вас это безопасно: они не могут попасть ни на ваш телефон, ни в вашу сеть, а сайты, которые они открывают, никогда не видят ваш адрес.</string>
     <string name="helpOthersConduit">Conduit (Psiphon)</string>
     <string name="helpOthersOrbot">Orbot (Tor)</string>
     <string name="language">Язык</string>
@@ -159,6 +162,7 @@
     <string name="ownServerErrFormat">Shroudly не может использовать эту ссылку. Она выглядит так: socks5://1.2.3.4:1080, http://user:pass@host:3128 или ss://…</string>
     <string name="ownServerErrMethod">Этот метод Shadowsocks ({method}) не поддерживается; используйте chacha20-ietf-poly1305, aes-256-gcm или aes-128-gcm.</string>
     <string name="ownServerErrUser">Имя пользователя не может содержать «:» или «@».</string>
+    <string name="ownServerExit">Через ваш собственный сервер. Сайты видят: {ip}</string>
     <string name="ownServerFails">Не сработало: {why}. Не используется; проверьте ссылку или всё равно используйте его.</string>
     <string name="ownServerInUse">Используется: {server}</string>
     <string name="ownServerOff">Не использовать</string>
@@ -220,4 +224,7 @@
     <string name="upload">Выгрузка</string>
     <string name="uptime">Время работы</string>
     <string name="versionLabel">Версия {version}</string>
+    <string name="whatsNewAndroid">С собственным сервером главный экран показывает адрес, который видят сайты.\nИногда Shroudly спрашивает, не хотите ли вы помогать людям в странах с цензурой; каждый раз, когда вы отвечаете «не сейчас», он ждёт вдвое дольше.\nПосле каждого обновления короткая заметка вроде этой рассказывает, что изменилось.</string>
+    <string name="whatsNewOk">Понятно</string>
+    <string name="whatsNewTitle">Что нового в {version}</string>
 </resources>

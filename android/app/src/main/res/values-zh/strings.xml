@@ -132,8 +132,11 @@
     <string name="excludedApps">绕过 Shroudly 的应用</string>
     <string name="excludedAppsCount">绕过 Shroudly 的应用：{count}</string>
     <string name="excludedAppsDesc">它们的流量直接出去，不经过 Shroudly：例如不需要它的游戏。</string>
+    <string name="helpNudgeBodyPhone">一个免费应用可以让互联网受审查国家的人们借用这部手机的一小部分网络连接来绕过封锁。这对你是安全的：他们无法访问你的手机或网络，他们打开的网站也永远看不到你的地址。</string>
+    <string name="helpNudgeShow">查看</string>
+    <string name="helpNudgeTitle">愿意帮助受审查国家的人们吗？</string>
     <string name="helpOthers">帮助受审查国家的人们</string>
-    <string name="helpOthersBody">这部手机可以用专门为此打造的应用，帮助身处封锁互联网国家的人们突破封锁：Psiphon 的 Conduit，或 Orbot 面向 Tor 的 Kindness Mode。它们会自行运行；在帮助他人时会占用你的一部分连接，被帮助的人永远无法访问你的手机或网络。</string>
+    <string name="helpOthersBody">互联网受审查国家的人们可以借用这部手机的一小部分网络连接来绕过封锁。在手机上，这由专门为此打造的免费应用完成，开关也在应用里：Psiphon 的 Conduit，或 Orbot 的 Kindness Mode。这对你是安全的：他们无法访问你的手机或网络，他们打开的网站也永远看不到你的地址。</string>
     <string name="helpOthersConduit">Conduit（Psiphon）</string>
     <string name="helpOthersOrbot">Orbot（Tor）</string>
     <string name="language">语言</string>
@@ -159,6 +162,7 @@
     <string name="ownServerErrFormat">这不是 Shroudly 能使用的链接。它的形式类似：socks5://1.2.3.4:1080、http://user:pass@host:3128 或 ss://…</string>
     <string name="ownServerErrMethod">不支持此 Shadowsocks 加密方式（{method}）；请使用 chacha20-ietf-poly1305、aes-256-gcm 或 aes-128-gcm。</string>
     <string name="ownServerErrUser">用户名不能包含“:”或“@”。</string>
+    <string name="ownServerExit">经由你自己的服务器。网站看到的地址：{ip}</string>
     <string name="ownServerFails">未成功：{why}。未使用；请检查链接，或仍然使用它。</string>
     <string name="ownServerInUse">使用中：{server}</string>
     <string name="ownServerOff">停止使用</string>
@@ -220,4 +224,7 @@
     <string name="upload">上传</string>
     <string name="uptime">运行时长</string>
     <string name="versionLabel">版本 {version}</string>
+    <string name="whatsNewAndroid">使用你自己的服务器时，主屏幕会显示网站看到的地址。\nShroudly 会不时询问你是否愿意帮助受审查国家的人们；每次你选择以后再说，它都会多等一倍的时间。\n每次更新后，都会有一条像这样的简短说明告诉你有哪些变化。</string>
+    <string name="whatsNewOk">知道了</string>
+    <string name="whatsNewTitle">{version} 的新内容</string>
 </resources>

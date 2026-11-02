@@ -27,6 +27,9 @@ const CustomDnsLib = require('./custom-dns');
 const OwnServer = require('./own-server');
 const { Share } = require('./share');
 const Snowflake = require('./snowflake');
+const WhatsNew = require('./whats-new');
+const HelperServer = require('./helper-server');
+const NationalNet = require('./national-net');
 const AdvancedMode = require('./advanced-mode');
 const AdvancedProtection = require('./advanced-protection');
 const DiscordApp = require('./discord-app');
@@ -105,6 +108,14 @@ if (process.argv.includes(RESTORE_PROXY_ARG)) {
       DiscordLine.recoverSync({ stateFile: discordLineFile(), ownerAlive: (o) => SystemProxy._ownerAlive(o), keep });
     },
   }).catch(() => {}).finally(() => app.exit(0));
+  return;
+}
+
+/* "Shroudly --help-others": on a server, only "Help people in censored
+ * countries", with no window, no protection and nothing of the system
+ * touched (helper-server.js; scripts/server/ installs it as a service). */
+if (process.argv.includes(HelperServer.ARG)) {
+  HelperServer.run({ app, Store, Snowflake, version: appVersion() });
   return;
 }
 
@@ -1137,6 +1148,11 @@ app.whenReady().then(async () => {
   // Before anything reads the settings: a damaged file, a new install, and
   // protection from a version that let Auto mode decide (settings-file.js).
   SettingsFile.settle(store, { ...settingsOpened, packaged: app.isPackaged, autoStartNow: getAutoStartEnabled, log: addLog });
+  // Started with another version than last time: the main window says once
+  // what changed (whats-new.js). Tests see the card only when they ask.
+  if (process.env.SHROUDLY_E2E !== '1' || process.env.SHROUDLY_E2E_WHATS_NEW === '1') {
+    WhatsNew.note(store, { current: appVersion(), firstRun: !!settingsOpened.firstRun });
+  }
   // Settings that cannot be written (a full disk, a folder not writable):
   // kept for this run instead of ending it (settings-file.js), said once.
   const unsaved = (e) => addLog('warning', `Settings cannot be saved (${(e && (e.code || e.message)) || 'unknown'}); changes last until Shroudly closes`);
@@ -1760,6 +1776,8 @@ ipcMain.handle('dpi:status', () => ({
   nationalOnly: !!(engine && engine.isActive() && engine.advice && engine.advice.offline && engine.advice.nationalOnly),
   // The user's own server is not carrying connections: { server, why }.
   ownServerDown: (engine && engine.isActive() && engine.advice && engine.advice.ownServerDown) || null,
+  // ...and while it does, the address sites see through it: { server, ip }.
+  ownServerExit: (engine && engine.isActive() && engine.advice && engine.advice.ownServerExit) || null,
 }));
 ipcMain.handle('dpi:probe', (e, host) => {
   if (engine && typeof host === 'string' && host) { userTests.set(host.toLowerCase(), Date.now()); engine.probe(host); }
@@ -1798,6 +1816,10 @@ ipcMain.handle('app:getInfo', async () => ({
   isAdmin: false,
   // The system's region, for the bank account shown under Support Shroudly.
   country: (() => { try { return app.getLocaleCountryCode() || ''; } catch { return ''; } })(),
+  // Where Shroudly takes the user to be (a shutdown seen there, else the time
+  // zone; national-net.js): the card asking for help is not shown where Tor
+  // itself is blocked (components/helpNudge.js).
+  homeCountry: (() => { try { return NationalNet.homeCountry({ remembered: store.get('homeCountry') }) || ''; } catch { return ''; } })(),
 }));
 
 ipcMain.handle('settings:get', (e, key) => store.get(key));

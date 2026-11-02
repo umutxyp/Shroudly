@@ -9,6 +9,7 @@
 "androidQuicOffDesc" = "Ứng dụng dùng TCP thay cho QUIC (cổng UDP 443), loại mà Shroudly đưa qua tốt hơn. Dành cho mạng chặn hoặc làm chậm QUIC.";
 "androidShareLogs" = "Chia sẻ nhật ký";
 "androidVpnDenied" = "Shroudly cần quyền VPN để chuyển tải kết nối của các ứng dụng.";
+"appleInstallHelp" = "Cách cài đặt";
 "appleKeepOn" = "Luôn giữ bảo vệ bật";
 "appleKeepOnDesc" = "Nếu bảo vệ bị ngắt hoặc thiết bị khởi động lại, nó sẽ tự bật lại cho đến khi bạn dừng.";
 "appleLanguageDesc" = "Shroudly dùng ngôn ngữ của thiết bị. Bạn có thể chọn ngôn ngữ khác chỉ cho Shroudly trong cài đặt hệ thống.";
@@ -17,10 +18,14 @@
 "appleNoticeContinue" = "Tiếp tục";
 "appleNoticeTitle" = "Trước khi bắt đầu";
 "appleOpenSettings" = "Mở Cài đặt";
+"appleVpnNotSigned" = "Bản Shroudly này được ký mà không có quyền VPN của Apple, nên iOS không cho nó khởi động VPN và cũng không bao giờ hỏi. Các bản ký bằng Apple ID miễn phí (AltStore, SideStore, Sideloadly và tương tự) không bao giờ có quyền này. Hãy cài bằng TrollStore, hoặc ký bằng tài khoản nhà phát triển Apple trả phí.";
 "appleVpnRevoked" = "Hệ thống đã tắt bảo vệ, thường là vì một ứng dụng VPN khác vừa được bật.";
 "dnsServerUse" = "Dùng";
+"helpNudgeBodyPhone" = "Một ứng dụng miễn phí cho phép người ở các nước kiểm duyệt internet dùng một chút kết nối của điện thoại này để vượt qua chặn. Điều này an toàn với bạn: họ không thể vào điện thoại hay mạng của bạn, và các trang web họ mở không bao giờ thấy địa chỉ của bạn.";
+"helpNudgeShow" = "Xem";
+"helpNudgeTitle" = "Giúp người ở các nước bị kiểm duyệt?";
 "helpOthers" = "Giúp người ở các nước bị kiểm duyệt";
-"helpOthersBodyConduit" = "Thiết bị này có thể giúp người ở những nước chặn internet vượt qua bằng Conduit của Psiphon, một ứng dụng làm cho việc đó. Nó tự chạy; khi có người được giúp, nó dùng một phần kết nối của bạn, và người được giúp không bao giờ truy cập được thiết bị hay mạng của bạn.";
+"helpOthersBodyConduit" = "Người ở các nước kiểm duyệt internet có thể dùng một chút kết nối của thiết bị này để vượt qua chặn. Trên iPhone và iPad, việc này do ứng dụng miễn phí Conduit của Psiphon đảm nhận, và bạn bật tắt nó ngay trong ứng dụng. Điều này an toàn với bạn: họ không thể vào thiết bị hay mạng của bạn, và các trang web họ mở không bao giờ thấy địa chỉ của bạn.";
 "helpOthersConduit" = "Conduit (Psiphon)";
 "language" = "Ngôn ngữ";
 "languageSystem" = "Mặc định của hệ thống";
@@ -41,6 +46,7 @@
 "ownServerErrFormat" = "Đây không phải liên kết Shroudly dùng được. Nó trông như: socks5://1.2.3.4:1080, http://user:pass@host:3128 hoặc ss://…";
 "ownServerErrMethod" = "Phương thức Shadowsocks này ({method}) không được hỗ trợ; hãy dùng chacha20-ietf-poly1305, aes-256-gcm hoặc aes-128-gcm.";
 "ownServerErrUser" = "Tên người dùng không được chứa “:” hoặc “@”.";
+"ownServerExit" = "Qua máy chủ riêng của bạn. Các trang web thấy: {ip}";
 "ownServerInUse" = "Đang dùng: {server}";
 "ownServerOff" = "Ngừng dùng";
 "ownServerWhyAsks" = "nó yêu cầu tên người dùng và mật khẩu";
@@ -64,5 +70,9 @@
 "stratSplitMid" = "Tách ở giữa SNI";
 "stratSplitSni" = "Tách tại SNI";
 "strategy" = "Chiến lược vượt chặn";
+"supportBannerLater" = "Để sau";
 "tagline" = "Vô hình. Không thể ngăn cản.";
 "versionLabel" = "Phiên bản {version}";
+"whatsNewApple" = "Bản được ký mà không có quyền VPN của Apple giờ sẽ báo điều đó, kèm cách cài đặt đúng.\nVới máy chủ riêng, màn hình chính hiển thị địa chỉ mà các trang web thấy.\nThỉnh thoảng Shroudly hỏi bạn có muốn giúp người ở các nước bị kiểm duyệt không; mỗi lần bạn nói để sau, nó chờ lâu gấp đôi.\nSau mỗi lần cập nhật, một ghi chú ngắn như thế này cho biết những gì đã thay đổi.";
+"whatsNewOk" = "Đã hiểu";
+"whatsNewTitle" = "Có gì mới trong {version}";

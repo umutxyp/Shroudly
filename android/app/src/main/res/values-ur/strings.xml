@@ -132,8 +132,11 @@
     <string name="excludedApps">وہ ایپس جو Shroudly سے نہیں گزرتیں</string>
     <string name="excludedAppsCount">وہ ایپس جو Shroudly سے نہیں گزرتیں: {count}</string>
     <string name="excludedAppsDesc">ان کی ٹریفک Shroudly سے گزرے بغیر سیدھی باہر جاتی ہے: مثلاً کوئی گیم جسے اس کی ضرورت نہیں۔</string>
+    <string name="helpNudgeBodyPhone">ایک مفت ایپ سنسر والے ملکوں کے لوگوں کو پابندیوں سے گزرنے کے لیے اس فون کے کنکشن کا تھوڑا سا حصہ استعمال کرنے دیتی ہے۔ یہ آپ کے لیے محفوظ ہے: وہ آپ کے فون یا نیٹ ورک تک نہیں پہنچ سکتے، اور جو سائٹس وہ کھولتے ہیں وہ کبھی آپ کا پتہ نہیں دیکھتیں۔</string>
+    <string name="helpNudgeShow">دکھائیں</string>
+    <string name="helpNudgeTitle">سنسر والے ملکوں کے لوگوں کی مدد کریں؟</string>
     <string name="helpOthers">سنسر والے ملکوں کے لوگوں کی مدد کریں</string>
-    <string name="helpOthersBody">یہ فون انٹرنیٹ بند کرنے والے ملکوں کے لوگوں کو رکاوٹ سے گزرنے میں اس کام کے لیے بنی ایپ سے مدد دے سکتا ہے: Psiphon کی Conduit، یا Tor کے لیے Orbot کا Kindness Mode۔ یہ خود چلتی ہیں؛ کسی کی مدد کے دوران آپ کے کنکشن کا کچھ حصہ استعمال کرتی ہیں، اور جن کی مدد ہوتی ہے وہ کبھی آپ کے فون یا نیٹ ورک تک نہیں پہنچتے۔</string>
+    <string name="helpOthersBody">جن ملکوں میں انٹرنیٹ سنسر ہوتا ہے وہاں کے لوگ پابندیوں سے گزرنے کے لیے اس فون کے کنکشن کا تھوڑا سا حصہ استعمال کر سکتے ہیں۔ فون پر یہ کام اسی مقصد کے لیے بنی ایک مفت ایپ کرتی ہے، اور اسے وہیں آن اور بند کیا جاتا ہے: Psiphon کی Conduit، یا Orbot کا Kindness Mode۔ یہ آپ کے لیے محفوظ ہے: وہ آپ کے فون یا نیٹ ورک تک نہیں پہنچ سکتے، اور جو سائٹس وہ کھولتے ہیں وہ کبھی آپ کا پتہ نہیں دیکھتیں۔</string>
     <string name="helpOthersConduit">Conduit (Psiphon)</string>
     <string name="helpOthersOrbot">Orbot (Tor)</string>
     <string name="language">زبان</string>
@@ -159,6 +162,7 @@
     <string name="ownServerErrFormat">یہ ایسا لنک نہیں جو Shroudly استعمال کر سکے۔ یہ ایسا دکھتا ہے: socks5://1.2.3.4:1080، http://user:pass@host:3128 یا ss://…</string>
     <string name="ownServerErrMethod">Shadowsocks کا یہ طریقہ ({method}) سپورٹ نہیں ہوتا؛ chacha20-ietf-poly1305، aes-256-gcm یا aes-128-gcm استعمال کریں۔</string>
     <string name="ownServerErrUser">یوزر نیم میں “:” یا “@” نہیں ہو سکتا۔</string>
+    <string name="ownServerExit">آپ کے اپنے سرور کے ذریعے۔ سائٹس یہ دیکھتی ہیں: {ip}</string>
     <string name="ownServerFails">کام نہیں کیا: {why}۔ استعمال نہیں ہو رہا؛ لنک چیک کریں، یا پھر بھی استعمال کریں۔</string>
     <string name="ownServerInUse">استعمال میں: {server}</string>
     <string name="ownServerOff">استعمال بند کریں</string>
@@ -220,4 +224,7 @@
     <string name="upload">اپ لوڈ</string>
     <string name="uptime">چلنے کا دورانیہ</string>
     <string name="versionLabel">ورژن {version}</string>
+    <string name="whatsNewAndroid">اپنے سرور کے ساتھ، مرکزی اسکرین وہ پتہ دکھاتی ہے جو سائٹس دیکھتی ہیں۔\nکبھی کبھار Shroudly پوچھتا ہے کہ کیا آپ سنسر والے ملکوں کے لوگوں کی مدد کرنا چاہیں گے؛ ہر بار جب آپ ابھی نہیں کہتے ہیں، وہ دگنا انتظار کرتا ہے۔\nہر اپ ڈیٹ کے بعد، اس جیسا ایک مختصر نوٹ بتاتا ہے کہ کیا بدلا۔</string>
+    <string name="whatsNewOk">سمجھ گیا</string>
+    <string name="whatsNewTitle">{version} میں نیا کیا ہے</string>
 </resources>

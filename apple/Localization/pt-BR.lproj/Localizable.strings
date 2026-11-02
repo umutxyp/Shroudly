@@ -9,6 +9,7 @@
 "androidQuicOffDesc" = "Os apps usam TCP em vez de QUIC (porta UDP 443), que o Shroudly faz passar melhor. Para redes que bloqueiam o QUIC ou o deixam lento.";
 "androidShareLogs" = "Compartilhar registros";
 "androidVpnDenied" = "O Shroudly precisa da permissão de VPN para levar as conexões dos seus apps.";
+"appleInstallHelp" = "Como instalar";
 "appleKeepOn" = "Manter a proteção ligada";
 "appleKeepOnDesc" = "Se a proteção cair ou o dispositivo reiniciar, ela liga sozinha de novo até você parar.";
 "appleLanguageDesc" = "O Shroudly usa o idioma do seu dispositivo. Você pode escolher outro idioma só para o Shroudly nos ajustes do sistema.";
@@ -17,10 +18,14 @@
 "appleNoticeContinue" = "Continuar";
 "appleNoticeTitle" = "Antes de começar";
 "appleOpenSettings" = "Abrir Ajustes";
+"appleVpnNotSigned" = "Esta cópia do Shroudly foi assinada sem a permissão da Apple para VPNs, então o iOS não a deixa iniciar uma e nunca pergunta. Cópias assinadas com um Apple ID gratuito (AltStore, SideStore, Sideloadly e parecidos) nunca têm essa permissão. Instale com o TrollStore ou assine com uma conta de desenvolvedor da Apple paga.";
 "appleVpnRevoked" = "O sistema desligou a proteção, geralmente porque outro app de VPN foi ativado.";
 "dnsServerUse" = "Usar";
+"helpNudgeBodyPhone" = "Um app gratuito permite que pessoas em países que censuram a internet usem um pouco da conexão deste celular para passar pelos bloqueios. É seguro para você: elas não conseguem chegar ao seu celular nem à sua rede, e os sites que abrem nunca veem o seu endereço.";
+"helpNudgeShow" = "Mostrar";
+"helpNudgeTitle" = "Ajudar pessoas em países com censura?";
 "helpOthers" = "Ajudar pessoas em países com censura";
-"helpOthersBodyConduit" = "Este dispositivo pode ajudar pessoas em países que bloqueiam a internet a passar pelo bloqueio, com o Conduit, da Psiphon, um app feito para isso. Ele funciona sozinho; enquanto alguém é ajudado, usa parte da sua conexão, e as pessoas ajudadas nunca alcançam seu dispositivo nem sua rede.";
+"helpOthersBodyConduit" = "Pessoas em países que censuram a internet podem usar um pouco da conexão deste aparelho para passar pelos bloqueios. No iPhone e no iPad, quem faz isso é o app gratuito Conduit, do Psiphon, e é lá que você liga e desliga. É seguro para você: elas não conseguem chegar ao seu aparelho nem à sua rede, e os sites que abrem nunca veem o seu endereço.";
 "helpOthersConduit" = "Conduit (Psiphon)";
 "language" = "Idioma";
 "languageSystem" = "Padrão do sistema";
@@ -41,6 +46,7 @@
 "ownServerErrFormat" = "Não é um link que o Shroudly possa usar. Ele se parece com: socks5://1.2.3.4:1080, http://user:pass@host:3128 ou ss://…";
 "ownServerErrMethod" = "Este método do Shadowsocks ({method}) não é compatível; use chacha20-ietf-poly1305, aes-256-gcm ou aes-128-gcm.";
 "ownServerErrUser" = "Um nome de usuário não pode conter “:” nem “@”.";
+"ownServerExit" = "Pelo seu próprio servidor. Os sites veem: {ip}";
 "ownServerInUse" = "Em uso: {server}";
 "ownServerOff" = "Parar de usar";
 "ownServerWhyAsks" = "ele pede nome de usuário e senha";
@@ -64,5 +70,9 @@
 "stratSplitMid" = "Dividir no meio do SNI";
 "stratSplitSni" = "Dividir no SNI";
 "strategy" = "Estratégia de evasão";
+"supportBannerLater" = "Agora não";
 "tagline" = "Invisível. Imparável.";
 "versionLabel" = "Versão {version}";
+"whatsNewApple" = "Uma cópia assinada sem a permissão de VPN da Apple agora diz isso, e como instalá-la direito.\nCom o seu próprio servidor, a tela principal mostra o endereço que os sites veem.\nDe vez em quando o Shroudly pergunta se você quer ajudar pessoas em países com censura; cada vez que você diz agora não, ele espera o dobro.\nDepois de cada atualização, uma nota curta como esta diz o que mudou.";
+"whatsNewOk" = "Entendi";
+"whatsNewTitle" = "Novidades da {version}";

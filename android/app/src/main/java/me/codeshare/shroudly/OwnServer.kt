@@ -11,6 +11,9 @@ import java.net.InetSocketAddress
 import java.net.Socket
 import java.net.URLDecoder
 import java.util.Base64
+import java.util.concurrent.Executors
+import java.util.concurrent.ScheduledExecutorService
+import java.util.concurrent.TimeUnit
 import javax.net.ssl.HttpsURLConnection
 import javax.net.ssl.SSLSession
 import javax.net.ssl.SSLSocket
@@ -250,7 +253,60 @@ object OwnServer {
         }
     }
 
+    /* The address in Cloudflare's trace page (/cdn-cgi/trace: "ip=1.2.3.4"
+     * on a line of its own), or null. */
+    fun traceIp(body: String): String? {
+        val ip = Regex("(?:^|\n)ip=([0-9A-Fa-f.:]{2,45})\r?(?:\n|$)").find(body)?.groupValues?.get(1) ?: return null
+        val v4 = Regex("^(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})$").find(ip)
+        if (v4 != null) return if (v4.groupValues.drop(1).all { it.toInt() <= 255 }) ip else null
+        return if (ip.contains(':') && Regex("^[0-9A-Fa-f:.]+$").matches(ip)) ip else null
+    }
+
+    /* Which address sites see through the engine's own port (issue #66):
+     * cloudflare.com's trace page asked through it, the way every app's
+     * connection goes, its certificate and name checked; null when it could
+     * not tell. Off the main thread. */
+    fun exitAddress(
+        port: Int, auth: SocksAuth?, host: String = "cloudflare.com", timeoutMs: Int = 15_000,
+        tls: SSLSocketFactory = SSLSocketFactory.getDefault() as SSLSocketFactory,
+        nameOk: (String, SSLSession) -> Boolean = { h, session -> HttpsURLConnection.getDefaultHostnameVerifier().verify(h, session) },
+    ): String? {
+        val s = Socket()
+        try {
+            s.soTimeout = timeoutMs
+            s.connect(InetSocketAddress("127.0.0.1", port), timeoutMs)
+            Socks5.connect(s, host, 443, auth)
+            val t = tls.createSocket(s, host, 443, true) as SSLSocket
+            t.use {
+                it.startHandshake()
+                if (!nameOk(host, it.session)) return null
+                it.outputStream.write("GET /cdn-cgi/trace HTTP/1.1\r\nHost: $host\r\nUser-Agent: Mozilla/5.0\r\nAccept: */*\r\nConnection: close\r\n\r\n".toByteArray())
+                it.outputStream.flush()
+                val got = StringBuilder()
+                val buf = ByteArray(4096)
+                while (got.length < 16_384) {
+                    val n = try { it.inputStream.read(buf) } catch (_: IOException) { -1 }
+                    if (n < 0) break
+                    got.append(String(buf, 0, n, Charsets.ISO_8859_1))
+                    val head = got.indexOf("\r\n\r\n")
+                    if (head >= 0) traceIp(got.substring(head + 4))?.let { ip -> return ip }
+                }
+                val head = got.indexOf("\r\n\r\n")
+                return if (head >= 0) traceIp(got.substring(head + 4)) else null
+            }
+        } catch (_: Exception) {
+            return null
+        } finally {
+            try { s.close() } catch (_: IOException) {}
+        }
+    }
+
     const val FILE = "own-server"
+    // The address sites see (Session.watchExit): first looked at this long
+    // after an engine start, then this often, sooner after a miss.
+    private const val EXIT_FIRST_MS = 3_000L
+    private const val EXIT_EVERY_MS = 10 * 60_000L
+    private const val EXIT_RETRY_MS = 60_000L
 
     /*
      * For one protection session (either service): the file naming the
@@ -307,7 +363,39 @@ object OwnServer {
             client = null
             clientKey = null
             auth = null
+            stopExit()
             Protection.ownServerDown(null)
+        }
+
+        private var exitWork: ScheduledExecutorService? = null
+
+        /* After each engine start with a server: which address sites see
+         * through it (exitAddress), a few seconds on and then every ten
+         * minutes, a minute after a look that got nothing; on the main
+         * screen (Protection.ownServerExit), never in the log, which people
+         * attach to public issues. */
+        @Synchronized
+        fun watchExit(port: Int, socks: SocksAuth?) {
+            stopExit()
+            val ex = Executors.newSingleThreadScheduledExecutor { r -> Thread(r, "own-server-exit").apply { isDaemon = true } }
+            exitWork = ex
+            lateinit var look: Runnable
+            look = Runnable {
+                val ip = exitAddress(port, socks)
+                synchronized(this) {
+                    if (exitWork !== ex) return@Runnable
+                    Protection.ownServerExit(ip)
+                    try { ex.schedule(look, if (ip != null) EXIT_EVERY_MS else EXIT_RETRY_MS, TimeUnit.MILLISECONDS) } catch (_: Exception) {}
+                }
+            }
+            ex.schedule(look, EXIT_FIRST_MS, TimeUnit.MILLISECONDS)
+        }
+
+        @Synchronized
+        fun stopExit() {
+            exitWork?.shutdownNow()
+            exitWork = null
+            Protection.ownServerExit(null)
         }
     }
 }

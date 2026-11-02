@@ -149,6 +149,31 @@ enum OwnServer {
         return t
     }
 
+    /* The address in Cloudflare's trace page (/cdn-cgi/trace: "ip=1.2.3.4"
+     * on a line of its own), or nil: which address sites see through the
+     * user's own server (issue #66). */
+    static func traceIp(_ body: String) -> String? {
+        for raw in body.split(whereSeparator: { $0 == "\n" || $0 == "\r\n" }) {
+            let line = raw.trimmingCharacters(in: .whitespacesAndNewlines)
+            guard line.hasPrefix("ip=") else { continue }
+            let ip = String(line.dropFirst(3))
+            var v4 = in_addr()
+            var v6 = in6_addr()
+            if inet_pton(AF_INET, ip, &v4) == 1 || inet_pton(AF_INET6, ip, &v6) == 1 { return ip }
+            return nil
+        }
+        return nil
+    }
+
+    /* The address sites see now, asked of Cloudflare's trace page the way any
+     * app's connection goes (through the tunnel, the engine and the server). */
+    static func exitAddress(session: URLSession = .shared, timeout: TimeInterval = 10) async -> String? {
+        var req = URLRequest(url: URL(string: "https://cloudflare.com/cdn-cgi/trace")!, cachePolicy: .reloadIgnoringLocalAndRemoteCacheData, timeoutInterval: timeout)
+        req.httpMethod = "GET"
+        guard let (data, resp) = try? await session.data(for: req), (resp as? HTTPURLResponse)?.statusCode == 200 else { return nil }
+        return traceIp(String(decoding: data, as: UTF8.self))
+    }
+
     /* The engine's --upstream-file, readable by this process alone (0600
      * from the start); read once at the engine's start, then deleted. */
     static func writeFile(_ line: String, to path: String) throws {

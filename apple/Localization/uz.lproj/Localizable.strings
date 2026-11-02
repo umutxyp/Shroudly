@@ -9,6 +9,7 @@
 "androidQuicOffDesc" = "Ilovalar QUIC (UDP 443-port) oʻrniga TCP ishlatadi, uni Shroudly yaxshiroq oʻtkazadi. QUICʼni bloklaydigan yoki sekinlashtiradigan tarmoqlar uchun.";
 "androidShareLogs" = "Jurnalni ulashish";
 "androidVpnDenied" = "Ilovalaringiz ulanishlarini oʻtkazish uchun Shroudlyʼga VPN ruxsati kerak.";
+"appleInstallHelp" = "Qanday oʻrnatiladi";
 "appleKeepOn" = "Himoyani yoqilgan holda saqlash";
 "appleKeepOnDesc" = "Himoya uzilsa yoki qurilma qayta ishga tushsa, siz toʻxtatmaguningizcha u oʻzi qayta yoqiladi.";
 "appleLanguageDesc" = "Shroudly qurilmangiz tilidan foydalanadi. Faqat Shroudly uchun boshqa tilni tizim sozlamalarida tanlashingiz mumkin.";
@@ -17,10 +18,14 @@
 "appleNoticeContinue" = "Davom etish";
 "appleNoticeTitle" = "Boshlashdan oldin";
 "appleOpenSettings" = "Sozlamalarni ochish";
+"appleVpnNotSigned" = "Shroudly’ning bu nusxasi Apple’ning VPN uchun ruxsatisiz imzolangan, shuning uchun iOS unga VPN ishga tushirishga ruxsat bermaydi va umuman soʻramaydi. Bepul Apple ID bilan imzolangan nusxalarda (AltStore, SideStore, Sideloadly va shunga oʻxshashlar) bu ruxsat hech qachon boʻlmaydi. Uni TrollStore bilan oʻrnating yoki pullik Apple dasturchi hisobi bilan imzolang.";
 "appleVpnRevoked" = "Himoya tizim tomonidan oʻchirildi, odatda boshqa VPN ilovasi yoqilgani uchun.";
 "dnsServerUse" = "Foydalanish";
+"helpNudgeBodyPhone" = "Bepul ilova internetni senzura qiladigan mamlakatlardagi odamlarga bloklarni chetlab oʻtish uchun bu telefon ulanishining kichik bir qismidan foydalanish imkonini beradi. Siz uchun xavfsiz: ular telefoningizga ham, tarmogʻingizga ham yeta olmaydi, ochgan saytlari esa hech qachon manzilingizni koʻrmaydi.";
+"helpNudgeShow" = "Koʻrsatish";
+"helpNudgeTitle" = "Senzura bor mamlakatlardagi odamlarga yordam berasizmi?";
 "helpOthers" = "Senzura bor mamlakatlardagi odamlarga yordam berish";
-"helpOthersBodyConduit" = "Bu qurilma internetni bloklaydigan mamlakatlardagi odamlarga blokdan o'tishga shu maqsadda yaratilgan Psiphon'ning Conduit ilovasi bilan yordam bera oladi. U o'zi ishlaydi; kimgadir yordam berilayotganda ulanishingizning bir qismidan foydalanadi, yordam olganlar esa qurilmangiz yoki tarmog'ingizga hech qachon yeta olmaydi.";
+"helpOthersBodyConduit" = "Internetni senzura qiladigan mamlakatlardagi odamlar bloklarni chetlab oʻtish uchun bu qurilma ulanishining kichik bir qismidan foydalana oladi. iPhone va iPad’da buni Psiphon’ning bepul Conduit ilovasi qiladi, yoqish-oʻchirish ham oʻsha yerda. Siz uchun xavfsiz: ular qurilmangizga ham, tarmogʻingizga ham yeta olmaydi, ochgan saytlari esa hech qachon manzilingizni koʻrmaydi.";
 "helpOthersConduit" = "Conduit (Psiphon)";
 "language" = "Til";
 "languageSystem" = "Tizimdagidek";
@@ -41,6 +46,7 @@
 "ownServerErrFormat" = "Bu Shroudly foydalana oladigan havola emas. U shunday koʻrinadi: socks5://1.2.3.4:1080, http://user:pass@host:3128 yoki ss://…";
 "ownServerErrMethod" = "Bu Shadowsocks usuli ({method}) qoʻllab-quvvatlanmaydi; chacha20-ietf-poly1305, aes-256-gcm yoki aes-128-gcm dan foydalaning.";
 "ownServerErrUser" = "Foydalanuvchi nomida “:” yoki “@” boʻlishi mumkin emas.";
+"ownServerExit" = "Oʻz serveringiz orqali. Saytlar koʻradigan manzil: {ip}";
 "ownServerInUse" = "Foydalanilmoqda: {server}";
 "ownServerOff" = "Foydalanishni toʻxtatish";
 "ownServerWhyAsks" = "u foydalanuvchi nomi va parol soʻrayapti";
@@ -64,5 +70,9 @@
 "stratSplitMid" = "SNI oʻrtasidan boʻlish";
 "stratSplitSni" = "SNI joyidan boʻlish";
 "strategy" = "Chetlab oʻtish strategiyasi";
+"supportBannerLater" = "Hozir emas";
 "tagline" = "Koʻrinmas. Toʻxtatib boʻlmas.";
 "versionLabel" = "Versiya {version}";
+"whatsNewApple" = "Apple VPN ruxsatisiz imzolangan nusxa endi buni va uni qanday toʻgʻri oʻrnatishni aytadi.\nOʻz serveringiz bilan asosiy ekran saytlar koʻradigan manzilni koʻrsatadi.\nShroudly vaqti-vaqti bilan senzura bor mamlakatlardagi odamlarga yordam berishni xohlaysizmi deb soʻraydi; har safar \"hozir emas\" desangiz, ikki barobar uzoq kutadi.\nHar bir yangilanishdan keyin shunga oʻxshash qisqa eslatma nima oʻzgarganini aytadi.";
+"whatsNewOk" = "Tushunarli";
+"whatsNewTitle" = "{version} versiyasida yangiliklar";
