@@ -37,7 +37,9 @@ export function serverShown(link) {
   if (m) return `${/^http$/i.test(m[1]) ? 'HTTP' : 'SOCKS5'} ${m[2]}`;
   m = /^ss:\/\/([^#]+)/i.exec(text);
   if (m) {
-    const body = m[1].replace(/\/?\?.*$/, '').replace(/\/$/, '');
+    // Cut at the first "?" (plugin options), no backtracking pattern.
+    let body = m[1].includes('?') ? m[1].slice(0, m[1].indexOf('?')) : m[1];
+    while (body.endsWith('/')) body = body.slice(0, -1);
     const at = body.lastIndexOf('@');
     const where = at > 0 ? body.slice(at + 1) : (/@([^@]+)$/.exec(b64(body)) || [])[1];
     return where ? `Shadowsocks ${where}` : '';

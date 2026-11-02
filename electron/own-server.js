@@ -58,7 +58,10 @@ function parseLink(input) {
   if (m) {
     let name = '';
     try { name = m[2] ? decodeURIComponent(m[2]) : ''; } catch {}
-    let body = m[1].replace(/\/?\?.*$/, '').replace(/\/$/, '');
+    // Plugin options and the like ("/?plugin=…") are not used. Cut at the
+    // first "?" without a pattern that backtracks on a run of them.
+    let body = m[1].includes('?') ? m[1].slice(0, m[1].indexOf('?')) : m[1];
+    while (body.endsWith('/')) body = body.slice(0, -1);
     let method;
     let password;
     let hp;
