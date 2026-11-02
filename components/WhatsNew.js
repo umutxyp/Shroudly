@@ -41,7 +41,14 @@ export function WhatsNewBanner({ show, news }) {
             {t('whatsNewTitle', { version: news.version })}
           </p>
           <ul className="mt-1 list-disc space-y-0.5 ps-4 text-[12.5px] leading-snug" style={{ color: 'var(--text-dim)' }}>
-            {lines.map((line) => <li key={line} className="wrap-anywhere">{line}</li>)}
+            {lines.map((line) => (
+              <li key={line} className="wrap-anywhere">
+                {/* A command is never broken across lines. */}
+                {line.split(/(shroudly --[\w-]+)/).map((part, i) => (i % 2
+                  ? <span key={part} dir="ltr" className="mono whitespace-nowrap">{part}</span>
+                  : part))}
+              </li>
+            ))}
           </ul>
         </div>
       </div>

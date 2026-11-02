@@ -821,9 +821,10 @@ export default function SettingsPanel({ active = false }) {
       {/* Four tabs instead of one long page (2.6.48): what most people
           look for first, the connection's details, a server and sharing,
           and the app itself. One row in the default window, two in a
-          narrow one or a long language. */}
+          narrow one or a long language; kept in sight while a long tab
+          scrolls under them. */}
       <div role="tablist" aria-label={t('navSettings')}
-           className="card grid grid-cols-2 gap-1 p-1 min-[420px]:grid-cols-4">
+           className="card sticky top-0 z-10 grid grid-cols-2 gap-1 p-1 shadow-[0_8px_18px_-12px_rgba(0,0,0,0.7)] min-[420px]:grid-cols-4">
         {SETTINGS_TABS.map(({ id, key }) => (
           <button key={id} type="button" role="tab" id={`${tabsId}-${id}`} aria-selected={tab === id}
                   aria-controls={`${tabsId}-panel`} data-settings-tab={id} onClick={() => setTab(id)}
