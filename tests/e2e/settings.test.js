@@ -119,6 +119,20 @@ async function openTab(page, t, id, expect) {
   throw new Error(`the ${id} tab did not open`);
 }
 const openMore = (page, t) => openTab(page, t, 'sharing', t.ownServer);
+
+/* One card at a time: a note that came first (on a Linux desktop without
+ * proxy settings, the one about browsers going through Shroudly) is closed
+ * as a person would, and the card asking for help comes after it. */
+async function closeNoteAhead(page, help) {
+  await sleep(2500);
+  const first = page.locator('.notices > *').first();
+  if (!(await first.isVisible().catch(() => false)) || await help.isVisible()) return;
+  const shut = first.locator('button[aria-label]').last();
+  const said = (await first.innerText().catch(() => '')).slice(0, 80);
+  if (!(await shut.count())) return;
+  await shut.click();
+  ok(true, `another note came first and the card waited behind it ("${said}"); closed`);
+}
 const escape = (x) => x.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 // A sentence with {placeholders} as a pattern: numbers and addresses where they go.
 const pattern = (x) => new RegExp(escape(x).replace(/\\\{(\w+)\\\}/g, (m, k) => (k === 'ip' ? '[0-9A-Fa-f.:]{3,45}' : '[0-9]+')));
@@ -358,19 +372,7 @@ async function shot(locator, name) {
     }
     if (process.env.CI && !(await page.evaluate(() => window.electron.getDPIStatus().then((x) => x.notRouting)))) {
       const help = page.locator('[data-testid="help-banner"]');
-      // One card at a time: a note that came first (on a Linux desktop
-      // without proxy settings, the one about reopening Chromium apps) is
-      // closed as a person would, and the card comes after it.
-      await sleep(2500);
-      const first = page.locator('.notices > *').first();
-      if (await first.isVisible().catch(() => false) && !(await help.isVisible())) {
-        const shut = first.locator('button[aria-label]').last();
-        const said = (await first.innerText().catch(() => '')).slice(0, 80);
-        if (await shut.count()) {
-          await shut.click();
-          ok(true, `another note came first and the card waited behind it ("${said}"); closed`);
-        }
-      }
+      await closeNoteAhead(page, help);
       const asked = await until(() => help.isVisible(), 15000);
       if (!asked) {
         // What the window had: to tell a rule that hid it from a fault.
@@ -399,6 +401,7 @@ async function shot(locator, name) {
       await page.reload();
       await page.waitForLoadState('domcontentloaded');
       await page.getByText(t.navProtection, { exact: true }).first().click();
+      await closeNoteAhead(page, help);
       ok(!!(await until(() => help.isVisible(), 10000)), 'a week on: asked again');
       const t1 = Date.now();
       await help.getByRole('button', { name: t.helpNudgeYes, exact: true }).click();
