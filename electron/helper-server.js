@@ -59,6 +59,13 @@ function run({ app, Store, Snowflake, version = '', argv = process.argv, env = p
   };
   process.on('SIGTERM', () => end(0));
   process.on('SIGINT', () => end(0));
+  // Electron quits by itself on a signal on some systems (macOS): the help
+  // is stopped and said so all the same.
+  app.on('will-quit', (e) => {
+    if (ending) return;
+    e.preventDefault();
+    end(0);
+  });
 
   app.whenReady().then(async () => {
     try { if (app.dock) app.dock.hide(); } catch {}

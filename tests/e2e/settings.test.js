@@ -347,7 +347,44 @@ async function shot(locator, name) {
       await page.evaluate(() => window.electron.startDPI());
       ok(!!(await until(() => page.evaluate(() => window.electron.getDPIStatus().then((x) => x.active)), 20000)), 'protection on');
       const help = page.locator('[data-testid="help-banner"]');
-      ok(!!(await until(() => help.isVisible(), 10000)), 'protection working: the card asks whether the user would like to help');
+      // Where this machine's system proxy could not be set (a Linux runner
+      // without a desktop's proxy settings), protection is on but not
+      // working yet: then the card must stay out of the way of the fix.
+      const st = await page.evaluate(() => window.electron.getDPIStatus());
+      if (st.notRouting) {
+        await sleep(3000);
+        ok(!(await help.isVisible()), 'on, but not working yet (the system proxy not set here): the card stays out of the way');
+      }
+    }
+    if (process.env.CI && !(await page.evaluate(() => window.electron.getDPIStatus().then((x) => x.notRouting)))) {
+      const help = page.locator('[data-testid="help-banner"]');
+      // One card at a time: a note that came first (on a Linux desktop
+      // without proxy settings, the one about reopening Chromium apps) is
+      // closed as a person would, and the card comes after it.
+      await sleep(2500);
+      const first = page.locator('.notices > *').first();
+      if (await first.isVisible().catch(() => false) && !(await help.isVisible())) {
+        const shut = first.locator('button[aria-label]').last();
+        const said = (await first.innerText().catch(() => '')).slice(0, 80);
+        if (await shut.count()) {
+          await shut.click();
+          ok(true, `another note came first and the card waited behind it ("${said}"); closed`);
+        }
+      }
+      const asked = await until(() => help.isVisible(), 15000);
+      if (!asked) {
+        // What the window had: to tell a rule that hid it from a fault.
+        const why = await page.evaluate(async () => ({
+          status: await window.electron.getDPIStatus().then((x) => ({ active: x.active, notRouting: x.notRouting, offline: x.offline, ownServerDown: x.ownServerDown })),
+          nudge: await window.electron.getSetting('helpNudge'),
+          snowflake: await window.electron.getSnowflakeStatus(),
+          home: (await window.electron.getAppInfo()).homeCountry,
+          notices: [...(document.querySelector('.notices')?.children || [])].map((c) => `${c.tagName}.${c.className}:${(c.textContent || '').slice(0, 60)}`),
+        })).catch((e) => ({ error: e.message }));
+        console.log(`    (the window: ${JSON.stringify(why)})`);
+        await page.screenshot({ path: path.join(SHOTS, `help-banner-missing-${tag}.png`) });
+      }
+      ok(!!asked, 'protection working: the card asks whether the user would like to help');
       const helpText = await help.innerText();
       ok(helpText.includes(t.helpNudgeTitle) && helpText.includes(t.helpNudgeBody), 'said plainly: what it is, and that it is safe');
       await page.screenshot({ path: path.join(SHOTS, `help-banner-${tag}.png`) });
@@ -374,6 +411,8 @@ async function shot(locator, name) {
       await help.getByRole('button', { name: t.whatsNewOk, exact: true }).click();
       ok(!!(await until(async () => !(await help.isVisible()), 5000)), 'closed');
       await page.evaluate(() => window.electron.setSnowflake(false));
+    }
+    if (process.env.CI) {
       await page.evaluate(() => window.electron.stopDPI());
       ok(!!(await until(() => page.evaluate(() => window.electron.getDPIStatus().then((x) => !x.active)), 20000)), 'protection off again');
     }

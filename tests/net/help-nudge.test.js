@@ -23,7 +23,8 @@ const { execFileSync } = require('child_process');
 const { ROOT, suite } = require('./helpers');
 
 const t = suite('help-nudge');
-const src = (rel) => fs.readFileSync(path.join(ROOT, rel), 'utf8');
+// Read as checked out: Windows checks text out with CRLF.
+const src = (rel) => fs.readFileSync(path.join(ROOT, rel), 'utf8').replace(/\r\n/g, '\n');
 
 // helpNudge.js is an ES module for the web UI; load it as CommonJS here.
 function load(rel) {

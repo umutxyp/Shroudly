@@ -132,7 +132,9 @@
       ch.binaryType = 'arraybuffer';
       ch.onopen = () => {
         pair.open = true;
-        total++;
+        // One person, however many channels their side opens (macOS's
+        // WebRTC was seen to open a second one): counted once.
+        if (!pair.counted) { pair.counted = true; total++; }
         natFailures = 0;
         if (nat === 'unrestricted') maxClients = 2;
         refreshStale();
