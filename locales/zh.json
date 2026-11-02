@@ -849,5 +849,18 @@
   "logShareNoUpnp": "共享：没有来自互联网的入口（{why}）；这个网络中的人可以使用",
   "logShareNewLink": "共享：新链接；旧链接已失效",
   "shareApp": "分享 Shroudly",
-  "shareAppText": "Shroudly {version} Android 版，用于打开被封锁的网站和应用。安装时打开此文件；如果手机询问，请允许安装来自此来源的应用。"
+  "shareAppText": "Shroudly {version} Android 版，用于打开被封锁的网站和应用。安装时打开此文件；如果手机询问，请允许安装来自此来源的应用。",
+  "snowflake": "帮助受审查国家的人们",
+  "snowflakeDesc": "让身处封锁 Tor 的国家的人们通过这台电脑连上 Tor（Tor 项目的 Snowflake 代理）。他们是使用 Tor 的陌生人：他们打开的内容始终是加密的，也无法访问你的电脑或网络。在帮助他人时会占用你的一部分连接，并且不保留任何记录。",
+  "snowflakeOn": "通过这台电脑帮助",
+  "snowflakeStarting": "正在启动…",
+  "snowflakeWaiting": "已就绪：正在等待需要帮助的人",
+  "snowflakeCounts": "正在帮助：{now} · 开启以来：{total}",
+  "snowflakeUnreachable": "从这个网络连不上 Tor 的中介服务器，所以现在无法从这里帮助任何人。",
+  "snowflakeFailed": "无法启动：{error}",
+  "logSnowflakeOn": "帮助受审查国家的人们：已开启（Tor 的 Snowflake 代理）",
+  "logSnowflakeOff": "帮助受审查国家的人们：已关闭",
+  "logSnowflakeUnreachable": "帮助受审查国家的人们：从这个网络连不上 Tor 的 Snowflake 中介服务器",
+  "logSnowflakeHelped": "帮助受审查国家的人们：有人通过这台电脑连上了 Tor（开启以来 {total}）",
+  "logSnowflakeFailed": "无法启动帮助受审查国家的人们：{error}"
 }

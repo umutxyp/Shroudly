@@ -849,5 +849,18 @@
   "logShareNoUpnp": "Teilen: kein Weg herein aus dem Internet ({why}); Leute in diesem Netz können es nutzen",
   "logShareNewLink": "Teilen: ein neuer Link; der alte funktioniert nicht mehr",
   "shareApp": "Shroudly teilen",
-  "shareAppText": "Shroudly {version} für Android, um gesperrte Seiten und Apps zu öffnen. Zum Installieren diese Datei öffnen; fragt das Telefon, die Installation von Apps aus dieser Quelle erlauben."
+  "shareAppText": "Shroudly {version} für Android, um gesperrte Seiten und Apps zu öffnen. Zum Installieren diese Datei öffnen; fragt das Telefon, die Installation von Apps aus dieser Quelle erlauben.",
+  "snowflake": "Menschen in zensierten Ländern helfen",
+  "snowflakeDesc": "Lässt Menschen in Ländern, die Tor sperren, Tor über diesen Computer erreichen (ein Snowflake-Proxy des Tor-Projekts). Es sind Fremde, die Tor nutzen: Was sie öffnen, bleibt verschlüsselt, und sie erreichen weder deinen Computer noch dein Netzwerk. Solange jemandem geholfen wird, nutzt es einen Teil deiner Verbindung; es wird nichts aufgezeichnet.",
+  "snowflakeOn": "Über diesen Computer helfen",
+  "snowflakeStarting": "Startet…",
+  "snowflakeWaiting": "Bereit: wartet auf jemanden, dem geholfen werden kann",
+  "snowflakeCounts": "Gerade geholfen: {now} · Seit dem Einschalten: {total}",
+  "snowflakeUnreachable": "Der Vermittler von Tor antwortet in diesem Netzwerk nicht, daher kann von hier gerade niemandem geholfen werden.",
+  "snowflakeFailed": "Konnte nicht starten: {error}",
+  "logSnowflakeOn": "Menschen in zensierten Ländern helfen: an (ein Snowflake-Proxy für Tor)",
+  "logSnowflakeOff": "Menschen in zensierten Ländern helfen: aus",
+  "logSnowflakeUnreachable": "Menschen in zensierten Ländern helfen: Der Snowflake-Vermittler von Tor antwortet in diesem Netzwerk nicht",
+  "logSnowflakeHelped": "Menschen in zensierten Ländern helfen: Jemand hat Tor über diesen Computer erreicht ({total} seit dem Einschalten)",
+  "logSnowflakeFailed": "Menschen in zensierten Ländern helfen konnte nicht starten: {error}"
 }

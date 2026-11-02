@@ -58,6 +58,8 @@ contextBridge.exposeInMainWorld('electron', {
   setShare: (on) => ipcRenderer.invoke('share:set', on),
   getShareStatus: () => ipcRenderer.invoke('share:status'),
   newShareLink: () => ipcRenderer.invoke('share:newLink'),
+  setSnowflake: (on) => ipcRenderer.invoke('snowflake:set', on),
+  getSnowflakeStatus: () => ipcRenderer.invoke('snowflake:status'),
 
   // Logs
   getLogs: () => ipcRenderer.invoke('logs:get'),

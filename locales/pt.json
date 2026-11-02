@@ -849,5 +849,18 @@
   "logShareNoUpnp": "Compartilhamento: sem entrada pela internet ({why}); as pessoas desta rede podem usar",
   "logShareNewLink": "Compartilhamento: um link novo; o antigo não funciona mais",
   "shareApp": "Compartilhar o Shroudly",
-  "shareAppText": "Shroudly {version} para Android, para abrir sites e apps bloqueados. Para instalar, abra este arquivo; se o celular pedir, permita instalar apps desta fonte."
+  "shareAppText": "Shroudly {version} para Android, para abrir sites e apps bloqueados. Para instalar, abra este arquivo; se o celular pedir, permita instalar apps desta fonte.",
+  "snowflake": "Ajudar pessoas em países com censura",
+  "snowflakeDesc": "Permite que pessoas em países que bloqueiam o Tor cheguem a ele por este computador (um proxy Snowflake do Projeto Tor). São desconhecidos usando o Tor: o que abrem continua criptografado, e eles não alcançam seu computador nem sua rede. Usa parte da sua conexão enquanto alguém é ajudado e não guarda nenhum registro.",
+  "snowflakeOn": "Ajudar por este computador",
+  "snowflakeStarting": "Iniciando…",
+  "snowflakeWaiting": "Pronto: esperando alguém para ajudar",
+  "snowflakeCounts": "Ajudando agora: {now} · Desde que foi ligado: {total}",
+  "snowflakeUnreachable": "O intermediário do Tor não responde a partir desta rede, então ninguém pode ser ajudado daqui agora.",
+  "snowflakeFailed": "Não foi possível iniciar: {error}",
+  "logSnowflakeOn": "Ajudar pessoas em países com censura: ligado (um proxy Snowflake para o Tor)",
+  "logSnowflakeOff": "Ajudar pessoas em países com censura: desligado",
+  "logSnowflakeUnreachable": "Ajudar pessoas em países com censura: o intermediário Snowflake do Tor não responde a partir desta rede",
+  "logSnowflakeHelped": "Ajudar pessoas em países com censura: alguém chegou ao Tor por este computador ({total} desde que foi ligado)",
+  "logSnowflakeFailed": "Ajudar pessoas em países com censura não pôde iniciar: {error}"
 }

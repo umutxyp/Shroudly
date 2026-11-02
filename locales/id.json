@@ -849,5 +849,18 @@
   "logShareNoUpnp": "Berbagi: tidak ada jalan masuk dari internet ({why}); orang di jaringan ini bisa memakainya",
   "logShareNewLink": "Berbagi: tautan baru; yang lama tidak berfungsi lagi",
   "shareApp": "Bagikan Shroudly",
-  "shareAppText": "Shroudly {version} untuk Android, untuk membuka situs dan aplikasi yang diblokir. Untuk memasangnya, buka berkas ini; jika ponsel bertanya, izinkan pemasangan aplikasi dari sumber ini."
+  "shareAppText": "Shroudly {version} untuk Android, untuk membuka situs dan aplikasi yang diblokir. Untuk memasangnya, buka berkas ini; jika ponsel bertanya, izinkan pemasangan aplikasi dari sumber ini.",
+  "snowflake": "Bantu orang di negara yang disensor",
+  "snowflakeDesc": "Memungkinkan orang di negara yang memblokir Tor menjangkaunya melalui komputer ini (proxy Snowflake dari Tor Project). Mereka orang asing yang memakai Tor: yang mereka buka tetap terenkripsi, dan mereka tidak bisa menjangkau komputer atau jaringan Anda. Selama seseorang dibantu, sebagian koneksi Anda terpakai, dan tidak ada yang dicatat.",
+  "snowflakeOn": "Bantu melalui komputer ini",
+  "snowflakeStarting": "Memulai…",
+  "snowflakeWaiting": "Siap: menunggu seseorang untuk dibantu",
+  "snowflakeCounts": "Sedang dibantu: {now} · Sejak diaktifkan: {total}",
+  "snowflakeUnreachable": "Perantara Tor tidak menjawab dari jaringan ini, jadi saat ini tidak ada yang bisa dibantu dari sini.",
+  "snowflakeFailed": "Tidak bisa dimulai: {error}",
+  "logSnowflakeOn": "Bantu orang di negara yang disensor: aktif (proxy Snowflake untuk Tor)",
+  "logSnowflakeOff": "Bantu orang di negara yang disensor: nonaktif",
+  "logSnowflakeUnreachable": "Bantu orang di negara yang disensor: perantara Snowflake milik Tor tidak menjawab dari jaringan ini",
+  "logSnowflakeHelped": "Bantu orang di negara yang disensor: seseorang menjangkau Tor melalui komputer ini ({total} sejak diaktifkan)",
+  "logSnowflakeFailed": "Bantu orang di negara yang disensor tidak bisa dimulai: {error}"
 }

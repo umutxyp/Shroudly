@@ -849,5 +849,18 @@
   "logShareNoUpnp": "共有：インターネットからの入口がありません（{why}）。このネットワークの人は使えます",
   "logShareNewLink": "共有：新しいリンク。古いリンクはもう使えません",
   "shareApp": "Shroudly を共有",
-  "shareAppText": "ブロックされたサイトやアプリを開くための Android 版 Shroudly {version}。インストールするにはこのファイルを開き、スマートフォンに尋ねられたらこの提供元からのアプリのインストールを許可してください。"
+  "shareAppText": "ブロックされたサイトやアプリを開くための Android 版 Shroudly {version}。インストールするにはこのファイルを開き、スマートフォンに尋ねられたらこの提供元からのアプリのインストールを許可してください。",
+  "snowflake": "検閲のある国の人々を助ける",
+  "snowflakeDesc": "Tor が遮断されている国の人々が、このコンピューターを通して Tor に接続できるようにします（Tor Project の Snowflake プロキシ）。相手は Tor を使う見知らぬ人で、開くものは暗号化されたまま、あなたのコンピューターやネットワークには届きません。誰かを助けている間は接続の一部を使い、記録は一切残しません。",
+  "snowflakeOn": "このコンピューターで助ける",
+  "snowflakeStarting": "起動中…",
+  "snowflakeWaiting": "準備完了：助けを待つ人を待っています",
+  "snowflakeCounts": "いま助けている人：{now} · オンにしてから：{total}",
+  "snowflakeUnreachable": "このネットワークからは Tor の仲介サーバーが応答しないため、いまはここから誰も助けられません。",
+  "snowflakeFailed": "起動できませんでした：{error}",
+  "logSnowflakeOn": "検閲のある国の人々を助ける：オン（Tor の Snowflake プロキシ）",
+  "logSnowflakeOff": "検閲のある国の人々を助ける：オフ",
+  "logSnowflakeUnreachable": "検閲のある国の人々を助ける：このネットワークからは Tor の Snowflake 仲介サーバーが応答しません",
+  "logSnowflakeHelped": "検閲のある国の人々を助ける：誰かがこのコンピューターを通して Tor に接続しました（オンにしてから {total}）",
+  "logSnowflakeFailed": "検閲のある国の人々を助ける機能を起動できませんでした：{error}"
 }

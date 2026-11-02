@@ -849,5 +849,18 @@
   "logShareNoUpnp": "Paýlaşmak: internetden giriş ýoly ýok ({why}); şu tordaky adamlar ulanyp biler",
   "logShareNewLink": "Paýlaşmak: täze salgy; könesi indi işlemeýär",
   "shareApp": "Shroudly-ni paýlaş",
-  "shareAppText": "Petiklenen saýtlary we programmalary açmak üçin Android üçin Shroudly {version}. Gurmak üçin şu faýly açyň; telefon sorasa, şu çeşmeden programma gurmaga rugsat beriň."
+  "shareAppText": "Petiklenen saýtlary we programmalary açmak üçin Android üçin Shroudly {version}. Gurmak üçin şu faýly açyň; telefon sorasa, şu çeşmeden programma gurmaga rugsat beriň.",
+  "snowflake": "Senzuraly ýurtlardaky adamlara kömek et",
+  "snowflakeDesc": "Tor petiklenen ýurtlardaky adamlara Tor-a şu kompýuter arkaly birikmäge mümkinçilik berýär (Tor taslamasynyň Snowflake proksisi). Olar Tor ulanýan nätanyş adamlar: olaryň açýan zatlary şifrlenen bolup galýar, siziň kompýuteriňize we ulgamyňyza baryp bilmeýärler. Kimdir birine kömek edilýärkä birikmäňiziň bir bölegini ulanýar we hiç hili ýazgy saklamaýar.",
+  "snowflakeOn": "Şu kompýuter arkaly kömek et",
+  "snowflakeStarting": "Başlaýar…",
+  "snowflakeWaiting": "Taýýar: kömek ediljek birini garaşýar",
+  "snowflakeCounts": "Häzir kömek edilýän: {now} · Açylaly bäri: {total}",
+  "snowflakeUnreachable": "Tor-yň araçysy bu ulgamdan jogap bermeýär, şonuň üçin häzir şu ýerden hiç kime kömek edip bolmaýar.",
+  "snowflakeFailed": "Başlap bolmady: {error}",
+  "logSnowflakeOn": "Senzuraly ýurtlardaky adamlara kömek: açyk (Tor üçin Snowflake proksisi)",
+  "logSnowflakeOff": "Senzuraly ýurtlardaky adamlara kömek: ýapyk",
+  "logSnowflakeUnreachable": "Senzuraly ýurtlardaky adamlara kömek: Tor-yň Snowflake araçysy bu ulgamdan jogap bermeýär",
+  "logSnowflakeHelped": "Senzuraly ýurtlardaky adamlara kömek: kimdir biri şu kompýuter arkaly Tor-a birikdi (açylaly bäri {total})",
+  "logSnowflakeFailed": "Senzuraly ýurtlardaky adamlara kömek başlap bilmedi: {error}"
 }

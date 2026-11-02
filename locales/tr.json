@@ -849,5 +849,18 @@
   "logShareNoUpnp": "Paylaşım: internetten giriş yolu yok ({why}); bu ağdaki kişiler kullanabilir",
   "logShareNewLink": "Paylaşım: yeni bağlantı; eskisi artık çalışmıyor",
   "shareApp": "Shroudly'yi paylaş",
-  "shareAppText": "Engelli siteleri ve uygulamaları açmak için Android'e Shroudly {version}. Kurmak için bu dosyayı aç; telefon sorarsa bu kaynaktan uygulama yüklemeye izin ver."
+  "shareAppText": "Engelli siteleri ve uygulamaları açmak için Android'e Shroudly {version}. Kurmak için bu dosyayı aç; telefon sorarsa bu kaynaktan uygulama yüklemeye izin ver.",
+  "snowflake": "Sansürlü ülkelerdeki insanlara yardım et",
+  "snowflakeDesc": "Tor'u engelleyen ülkelerdeki insanların Tor'a bu bilgisayar üzerinden ulaşmasını sağlar (Tor Projesi'nin bir Snowflake vekili). Bunlar Tor kullanan tanımadığınız kişilerdir: açtıkları şeyler şifreli kalır, bilgisayarınıza ve ağınıza ulaşamazlar. Biri yardım alırken bağlantınızın bir kısmını kullanır ve hiçbir kayıt tutmaz.",
+  "snowflakeOn": "Bu bilgisayar üzerinden yardım et",
+  "snowflakeStarting": "Başlıyor…",
+  "snowflakeWaiting": "Hazır: yardım edilecek birini bekliyor",
+  "snowflakeCounts": "Şu an yardım edilen: {now} · Açıldığından beri: {total}",
+  "snowflakeUnreachable": "Tor'un aracısı bu ağdan yanıt vermiyor; bu yüzden şu an buradan kimseye yardım edilemiyor.",
+  "snowflakeFailed": "Başlatılamadı: {error}",
+  "logSnowflakeOn": "Sansürlü ülkelerdeki insanlara yardım: açık (Tor için bir Snowflake vekili)",
+  "logSnowflakeOff": "Sansürlü ülkelerdeki insanlara yardım: kapalı",
+  "logSnowflakeUnreachable": "Sansürlü ülkelerdeki insanlara yardım: Tor'un Snowflake aracısı bu ağdan yanıt vermiyor",
+  "logSnowflakeHelped": "Sansürlü ülkelerdeki insanlara yardım: biri bu bilgisayar üzerinden Tor'a ulaştı (açıldığından beri {total})",
+  "logSnowflakeFailed": "Sansürlü ülkelerdeki insanlara yardım başlatılamadı: {error}"
 }

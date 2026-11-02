@@ -849,5 +849,18 @@
   "logShareNoUpnp": "Chia sẻ: không có đường vào từ internet ({why}); người trong mạng này dùng được",
   "logShareNewLink": "Chia sẻ: liên kết mới; liên kết cũ không còn hoạt động",
   "shareApp": "Chia sẻ Shroudly",
-  "shareAppText": "Shroudly {version} cho Android, để mở các trang và ứng dụng bị chặn. Để cài đặt, hãy mở tệp này; nếu điện thoại hỏi, hãy cho phép cài ứng dụng từ nguồn này."
+  "shareAppText": "Shroudly {version} cho Android, để mở các trang và ứng dụng bị chặn. Để cài đặt, hãy mở tệp này; nếu điện thoại hỏi, hãy cho phép cài ứng dụng từ nguồn này.",
+  "snowflake": "Giúp người ở các nước bị kiểm duyệt",
+  "snowflakeDesc": "Cho phép người ở những nước chặn Tor truy cập Tor qua máy tính này (một proxy Snowflake của Dự án Tor). Họ là người lạ dùng Tor: những gì họ mở vẫn được mã hóa, và họ không thể truy cập máy tính hay mạng của bạn. Khi có người được giúp, một phần kết nối của bạn được dùng, và không có gì được ghi lại.",
+  "snowflakeOn": "Giúp qua máy tính này",
+  "snowflakeStarting": "Đang khởi động…",
+  "snowflakeWaiting": "Sẵn sàng: đang chờ người cần giúp",
+  "snowflakeCounts": "Đang giúp: {now} · Từ khi bật: {total}",
+  "snowflakeUnreachable": "Bên trung gian của Tor không trả lời từ mạng này, nên hiện không thể giúp ai từ đây.",
+  "snowflakeFailed": "Không thể khởi động: {error}",
+  "logSnowflakeOn": "Giúp người ở các nước bị kiểm duyệt: bật (một proxy Snowflake cho Tor)",
+  "logSnowflakeOff": "Giúp người ở các nước bị kiểm duyệt: tắt",
+  "logSnowflakeUnreachable": "Giúp người ở các nước bị kiểm duyệt: bên trung gian Snowflake của Tor không trả lời từ mạng này",
+  "logSnowflakeHelped": "Giúp người ở các nước bị kiểm duyệt: có người đã truy cập Tor qua máy tính này ({total} từ khi bật)",
+  "logSnowflakeFailed": "Không thể khởi động việc giúp người ở các nước bị kiểm duyệt: {error}"
 }

@@ -849,5 +849,18 @@
   "logShareNoUpnp": "ማጋራት፦ ከኢንተርኔት የመግቢያ መንገድ የለም ({why})፤ በዚህ አውታረ መረብ ያሉ ሰዎች ሊጠቀሙበት ይችላሉ",
   "logShareNewLink": "ማጋራት፦ አዲስ ማገናኛ፤ አሮጌው ከእንግዲህ አይሠራም",
   "shareApp": "Shroudlyን አጋራ",
-  "shareAppText": "የታገዱ ጣቢያዎችን እና መተግበሪያዎችን ለመክፈት Shroudly {version} ለAndroid። ለመጫን ይህን ፋይል ይክፈቱ፤ ስልኩ ከጠየቀ ከዚህ ምንጭ መተግበሪያዎችን መጫን ይፍቀዱ።"
+  "shareAppText": "የታገዱ ጣቢያዎችን እና መተግበሪያዎችን ለመክፈት Shroudly {version} ለAndroid። ለመጫን ይህን ፋይል ይክፈቱ፤ ስልኩ ከጠየቀ ከዚህ ምንጭ መተግበሪያዎችን መጫን ይፍቀዱ።",
+  "snowflake": "ሳንሱር ባለባቸው አገሮች ያሉ ሰዎችን እርዳ",
+  "snowflakeDesc": "Tor በታገደባቸው አገሮች ያሉ ሰዎች በዚህ ኮምፒውተር በኩል Tor እንዲደርሱ ያስችላል (የTor ፕሮጀክት Snowflake ፕሮክሲ)። Torን የሚጠቀሙ የማያውቋቸው ሰዎች ናቸው፦ የሚከፍቱት ነገር እንደተመሰጠረ ይቆያል፣ ኮምፒውተርዎን ወይም አውታረ መረብዎን መድረስ አይችሉም። አንድ ሰው በሚረዳበት ጊዜ የግንኙነትዎን የተወሰነ ክፍል ይጠቀማል፣ ምንም መዝገብ አይይዝም።",
+  "snowflakeOn": "በዚህ ኮምፒውተር በኩል እርዳ",
+  "snowflakeStarting": "በመጀመር ላይ…",
+  "snowflakeWaiting": "ዝግጁ፦ የሚረዳ ሰው በመጠበቅ ላይ",
+  "snowflakeCounts": "አሁን እየተረዱ ያሉ፦ {now} · ከተከፈተ ጀምሮ፦ {total}",
+  "snowflakeUnreachable": "የTor አገናኝ ከዚህ አውታረ መረብ ምላሽ አይሰጥም፣ ስለዚህ አሁን ከዚህ ማንንም መርዳት አይቻልም።",
+  "snowflakeFailed": "መጀመር አልተቻለም፦ {error}",
+  "logSnowflakeOn": "ሳንሱር ባለባቸው አገሮች ያሉ ሰዎችን መርዳት፦ በርቷል (ለTor የSnowflake ፕሮክሲ)",
+  "logSnowflakeOff": "ሳንሱር ባለባቸው አገሮች ያሉ ሰዎችን መርዳት፦ ጠፍቷል",
+  "logSnowflakeUnreachable": "ሳንሱር ባለባቸው አገሮች ያሉ ሰዎችን መርዳት፦ የTor Snowflake አገናኝ ከዚህ አውታረ መረብ ምላሽ አይሰጥም",
+  "logSnowflakeHelped": "ሳንሱር ባለባቸው አገሮች ያሉ ሰዎችን መርዳት፦ አንድ ሰው በዚህ ኮምፒውተር በኩል Tor ደረሰ (ከተከፈተ ጀምሮ {total})",
+  "logSnowflakeFailed": "ሳንሱር ባለባቸው አገሮች ያሉ ሰዎችን መርዳት መጀመር አልተቻለም፦ {error}"
 }

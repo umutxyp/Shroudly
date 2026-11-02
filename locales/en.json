@@ -849,5 +849,18 @@
   "logShareNoUpnp": "Sharing: no way in from the internet ({why}); people on this network can use it",
   "logShareNewLink": "Sharing: a new link; the old one no longer works",
   "shareApp": "Share Shroudly",
-  "shareAppText": "Shroudly {version} for Android, to open blocked sites and apps. To install it, open this file; if the phone asks, allow installing apps from this source."
+  "shareAppText": "Shroudly {version} for Android, to open blocked sites and apps. To install it, open this file; if the phone asks, allow installing apps from this source.",
+  "snowflake": "Help people in censored countries",
+  "snowflakeDesc": "Lets people in countries that block Tor reach it through this computer (a Snowflake proxy of the Tor Project). They are strangers using Tor: what they open stays encrypted, and they cannot reach your computer or your network. It uses some of your connection while someone is helped, and keeps no record.",
+  "snowflakeOn": "Help through this computer",
+  "snowflakeStarting": "Starting…",
+  "snowflakeWaiting": "Ready: waiting for someone to help",
+  "snowflakeCounts": "Helping now: {now} · Since it was turned on: {total}",
+  "snowflakeUnreachable": "Tor's broker does not answer from this network, so no one can be helped from here right now.",
+  "snowflakeFailed": "It could not start: {error}",
+  "logSnowflakeOn": "Helping people in censored countries: on (a Snowflake proxy for Tor)",
+  "logSnowflakeOff": "Helping people in censored countries: off",
+  "logSnowflakeUnreachable": "Helping people in censored countries: Tor's Snowflake broker does not answer from this network",
+  "logSnowflakeHelped": "Helping people in censored countries: someone reached Tor through this computer ({total} since it was turned on)",
+  "logSnowflakeFailed": "Helping people in censored countries could not start: {error}"
 }

@@ -486,6 +486,55 @@ function ShareConnection({ onChange }) {
   );
 }
 
+/* "Help people in censored countries" (electron/snowflake.js): a Snowflake
+ * proxy for Tor, off until turned on; how many are helped now and since. */
+function SnowflakeHelp({ onChange }) {
+  const { t } = useLanguage();
+  const [st, setSt] = useState(null);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState(null);
+  useEffect(() => {
+    let alive = true;
+    const load = () => window.electron?.getSnowflakeStatus?.().then((s) => { if (alive && s) setSt(s); }).catch(() => {});
+    load();
+    const iv = setInterval(load, 3000);
+    return () => { alive = false; clearInterval(iv); };
+  }, []);
+  const set = async (on) => {
+    setBusy(true);
+    setError(null);
+    try {
+      const s = await window.electron.setSnowflake(on);
+      setSt(s);
+      if (s && s.error) setError(s.error);
+      onChange(!!(s && s.on));
+    } catch {}
+    setBusy(false);
+  };
+  const on = !!(st && st.on);
+  const line = !on ? null
+    : st.state === 'unreachable' ? t('snowflakeUnreachable')
+      : st.state === 'serving' || st.total > 0 ? t('snowflakeCounts', { now: st.now, total: st.total })
+        : st.state === 'waiting' ? t('snowflakeWaiting')
+          : t('snowflakeStarting');
+  return (
+    <div>
+      <p className="mb-1 text-[12.5px] leading-snug" style={{ color: 'var(--text-dim)' }}>{t('snowflakeDesc')}</p>
+      <Toggle label={t('snowflakeOn')} checked={on} disabled={busy || !st} onChange={set} />
+      {error && !on && (
+        <p className="mt-1 flex items-start gap-1.5 text-[12px] leading-snug wrap-anywhere" style={{ color: 'var(--warn)' }}>
+          <AlertTriangleIcon className="mt-[1px] h-3.5 w-3.5 shrink-0" />
+          <span className="min-w-0">{t('snowflakeFailed', { error })}</span>
+        </p>
+      )}
+      {line && (
+        <p className="mt-1 text-[12px] leading-snug" aria-live="polite"
+           style={{ color: st.state === 'unreachable' ? 'var(--warn)' : 'var(--text-faint)' }}>{line}</p>
+      )}
+    </div>
+  );
+}
+
 export default function SettingsPanel({ active = false }) {
   const { language, setLanguage, t, availableLanguages, locale } = useLanguage();
   const strategyLabelId = useId();
@@ -681,7 +730,7 @@ export default function SettingsPanel({ active = false }) {
    * find it. */
   const moreId = useId();
   const [more, setMore] = useState(null);
-  const moreSet = shownStrategy !== 'auto' || settings.dnsProtection === false || !!settings.customDns || !!settings.ownServer || settings.shareOn === true
+  const moreSet = shownStrategy !== 'auto' || settings.dnsProtection === false || !!settings.customDns || !!settings.ownServer || settings.shareOn === true || settings.snowflakeOn === true
     || settings.preferIpv6 === true || settings.routeMode === 'listed' || settings.showTrayIcon === false
     || (!isMac && settings.askByItself === false);
   const moreOpen = more ?? moreSet;
@@ -1174,6 +1223,9 @@ export default function SettingsPanel({ active = false }) {
           </Section>
           <Section title={t('share')}>
             <ShareConnection onChange={(on) => setSettings((p) => ({ ...p, shareOn: on }))} />
+          </Section>
+          <Section title={t('snowflake')}>
+            <SnowflakeHelp onChange={(on) => setSettings((p) => ({ ...p, snowflakeOn: on }))} />
           </Section>
           {/* Routing: which sites go through Shroudly */}
           <Section title={t('routing')} Icon={GlobeIcon}>

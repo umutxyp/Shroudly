@@ -849,5 +849,18 @@
   "logShareNoUpnp": "Parvekirin: ji înternetê rêya ketinê tune ({why}); kesên li vê torê dikarin bi kar bînin",
   "logShareNewLink": "Parvekirin: girêdaneke nû; ya kevn êdî naxebite",
   "shareApp": "Shroudly parve bike",
-  "shareAppText": "Shroudly {version} ji bo Android, ji bo vekirina malper û sepanên astengkirî. Ji bo sazkirinê vê pelê veke; heke telefon bipirse, destûrê bide sazkirina sepanan ji vê çavkaniyê."
+  "shareAppText": "Shroudly {version} ji bo Android, ji bo vekirina malper û sepanên astengkirî. Ji bo sazkirinê vê pelê veke; heke telefon bipirse, destûrê bide sazkirina sepanan ji vê çavkaniyê.",
+  "snowflake": "Alîkariya mirovên li welatên bi sansûr bike",
+  "snowflakeDesc": "Dihêle mirovên li welatên ku Tor asteng dikin bi rêya vê komputerê bigihîjin Tor (proksiyek Snowflake ya Projeya Tor). Ew kesên nenas in ku Tor bi kar tînin: tiştên ku vedikin şîfrekirî dimînin, û nikarin bigihîjin komputer an tora te. Dema alîkariya kesekî tê kirin beşek ji girêdana te bi kar tîne û ti tomar nahêle.",
+  "snowflakeOn": "Bi rêya vê komputerê alîkarî bike",
+  "snowflakeStarting": "Dest pê dike…",
+  "snowflakeWaiting": "Amade ye: li benda kesekî ye ku alîkarî jê re bê kirin",
+  "snowflakeCounts": "Niha alîkarî tê kirin: {now} · Ji dema vekirinê ve: {total}",
+  "snowflakeUnreachable": "Navbeynkarê Tor ji vê torê bersiv nade, ji ber vê yekê niha ji vir alîkariya kesî nayê kirin.",
+  "snowflakeFailed": "Dest pê nekir: {error}",
+  "logSnowflakeOn": "Alîkariya mirovên li welatên bi sansûr: vekirî (proksiyek Snowflake ji bo Tor)",
+  "logSnowflakeOff": "Alîkariya mirovên li welatên bi sansûr: girtî",
+  "logSnowflakeUnreachable": "Alîkariya mirovên li welatên bi sansûr: navbeynkarê Snowflake yê Tor ji vê torê bersiv nade",
+  "logSnowflakeHelped": "Alîkariya mirovên li welatên bi sansûr: kesek bi rêya vê komputerê gihîşt Tor ({total} ji dema vekirinê ve)",
+  "logSnowflakeFailed": "Alîkariya mirovên li welatên bi sansûr dest pê nekir: {error}"
 }

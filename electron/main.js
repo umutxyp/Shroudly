@@ -26,6 +26,7 @@ const EngineManager = require('./engine-manager');
 const CustomDnsLib = require('./custom-dns');
 const OwnServer = require('./own-server');
 const { Share } = require('./share');
+const Snowflake = require('./snowflake');
 const AdvancedMode = require('./advanced-mode');
 const AdvancedProtection = require('./advanced-protection');
 const DiscordApp = require('./discord-app');
@@ -171,6 +172,7 @@ const appModeSupported = () => AppEnv.supported() || !!flatpakEnv;
 let siteList = null;
 // "Share my connection" (share.js).
 let share = null;
+let snowflake = null;
 
 const isDev = !app.isPackaged;
 const DEV_PORT = process.env.PORT || 3000;
@@ -1125,6 +1127,11 @@ function setAppMenu() {
   ] }]));
 }
 
+// The end-to-end test connects two windows of the app over WebRTC on a CI
+// machine that may have no mDNS responder: local addresses shown as they are
+// there (the app itself keeps Chromium's default, which hides them).
+if (process.env.SHROUDLY_E2E === '1') app.commandLine.appendSwitch('disable-features', 'WebRtcHideLocalIpsWithMdns');
+
 app.whenReady().then(async () => {
   setAppMenu();
   // Before anything reads the settings: a damaged file, a new install, and
@@ -1294,6 +1301,12 @@ app.whenReady().then(async () => {
     ...(process.env.SHROUDLY_E2E === '1' ? { bindHost: '127.0.0.1', lan: () => ['127.0.0.1'], own: () => [], upnp: { map: async () => ({ ok: false, why: 'not asked in tests' }), unmap: async () => {} } } : {}),
   });
   if (store.get('shareOn') === true) share.start().catch((e) => addLog('warning', `Sharing this connection could not start: ${e.message}`));
+  // "Help people in censored countries" (snowflake.js): a Snowflake proxy for
+  // Tor, on again at start when the user left it on.
+  let snowflakeTest = null;
+  if (process.env.SHROUDLY_E2E === '1' && process.env.SHROUDLY_SNOWFLAKE_TEST) { try { snowflakeTest = JSON.parse(process.env.SHROUDLY_SNOWFLAKE_TEST); } catch {} }
+  snowflake = new Snowflake({ store, log: addLog, test: snowflakeTest });
+  if (store.get('snowflakeOn') === true) snowflake.start().catch((e) => addLog('warning', `Helping people in censored countries could not start: ${e.message}`));
   advanced = new AdvancedMode(addLog);
   // The backend ended by itself: the window must not keep saying it is on.
   advanced.onExit = () => advancedState(false);
@@ -1326,7 +1339,7 @@ app.whenReady().then(async () => {
   createAutopilot();
   createStoreApps();
   // The end-to-end tests look inside (tests/e2e): never in a normal run.
-  if (process.env.SHROUDLY_E2E === '1') global.shroudlyE2E = { engine, appProxy, discordRelay, autopilot, wake, store, addLog, require, trayCopyLogs: () => trayCopyLogs(tr()), saveLogs, share };
+  if (process.env.SHROUDLY_E2E === '1') global.shroudlyE2E = { engine, appProxy, discordRelay, autopilot, wake, store, addLog, require, trayCopyLogs: () => trayCopyLogs(tr()), saveLogs, share, snowflake };
 
   updater = new Updater({
     log: addLog,
@@ -1580,6 +1593,7 @@ app.on('before-quit', (e) => {
   if (appProxy) appProxy.stop();
   // The router's way in for the share is taken away (upnp.js).
   if (share && share.on) share.stop().catch(() => {});
+  if (snowflake && snowflake.on) snowflake.stop().catch(() => {});
   if (presence && !presence.stopped) presence.leave();
   try { updater && updater.installOnQuit(); } catch {}
   if (exitInProgress) return;
@@ -3074,6 +3088,23 @@ ipcMain.handle('share:set', async (e, on) => {
 });
 ipcMain.handle('share:status', () => (share ? share.status() : { on: false }));
 ipcMain.handle('share:newLink', () => (share ? share.newLink() : { on: false }));
+
+/* Settings, "Help people in censored countries" (snowflake.js): on or off,
+ * kept for the next start; how many are helped. */
+ipcMain.handle('snowflake:set', async (e, on) => {
+  if (!snowflake) return { on: false, state: 'off', now: 0, total: 0 };
+  store.set('snowflakeOn', on === true);
+  try {
+    if (on === true) return await snowflake.start();
+    return await snowflake.stop();
+  } catch (err) {
+    store.set('snowflakeOn', false);
+    addLog('warning', `Helping people in censored countries could not start: ${err.message}`);
+    try { await snowflake.stop(); } catch {}
+    return { on: false, state: 'off', now: 0, total: 0, error: err.message };
+  }
+});
+ipcMain.handle('snowflake:status', () => (snowflake ? snowflake.status() : { on: false, state: 'off', now: 0, total: 0 }));
 
 /* Settings, "DNS server" (issue #34): automatic (null), or the user's own
  * { kind, server }, refused with the reason when it cannot be read. Used

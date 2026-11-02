@@ -849,5 +849,18 @@
   "logShareNoUpnp": "Ulashish: internetdan kirish yoʻli yoʻq ({why}); shu tarmoqdagi odamlar foydalana oladi",
   "logShareNewLink": "Ulashish: yangi havola; eskisi endi ishlamaydi",
   "shareApp": "Shroudly’ni ulashish",
-  "shareAppText": "Bloklangan saytlar va ilovalarni ochish uchun Android uchun Shroudly {version}. Oʻrnatish uchun shu faylni oching; telefon soʻrasa, shu manbadan ilova oʻrnatishga ruxsat bering."
+  "shareAppText": "Bloklangan saytlar va ilovalarni ochish uchun Android uchun Shroudly {version}. Oʻrnatish uchun shu faylni oching; telefon soʻrasa, shu manbadan ilova oʻrnatishga ruxsat bering.",
+  "snowflake": "Senzura bor mamlakatlardagi odamlarga yordam berish",
+  "snowflakeDesc": "Tor bloklangan mamlakatlardagi odamlarga Tor'ga shu kompyuter orqali ulanish imkonini beradi (Tor loyihasining Snowflake proksisi). Ular Tor'dan foydalanadigan notanish odamlar: ular ochgan narsalar shifrlangan holda qoladi, kompyuteringiz va tarmog'ingizga esa yeta olmaydi. Kimgadir yordam berilayotganda ulanishingizning bir qismidan foydalanadi va hech qanday yozuv saqlamaydi.",
+  "snowflakeOn": "Shu kompyuter orqali yordam berish",
+  "snowflakeStarting": "Ishga tushmoqda…",
+  "snowflakeWaiting": "Tayyor: yordam beriladigan odamni kutmoqda",
+  "snowflakeCounts": "Hozir yordam berilmoqda: {now} · Yoqilgandan beri: {total}",
+  "snowflakeUnreachable": "Tor vositachisi bu tarmoqdan javob bermayapti, shuning uchun hozir bu yerdan hech kimga yordam berib bo'lmaydi.",
+  "snowflakeFailed": "Ishga tushmadi: {error}",
+  "logSnowflakeOn": "Senzura bor mamlakatlardagi odamlarga yordam: yoqilgan (Tor uchun Snowflake proksisi)",
+  "logSnowflakeOff": "Senzura bor mamlakatlardagi odamlarga yordam: o'chirilgan",
+  "logSnowflakeUnreachable": "Senzura bor mamlakatlardagi odamlarga yordam: Tor'ning Snowflake vositachisi bu tarmoqdan javob bermayapti",
+  "logSnowflakeHelped": "Senzura bor mamlakatlardagi odamlarga yordam: kimdir shu kompyuter orqali Tor'ga ulandi (yoqilgandan beri {total})",
+  "logSnowflakeFailed": "Senzura bor mamlakatlardagi odamlarga yordam ishga tushmadi: {error}"
 }

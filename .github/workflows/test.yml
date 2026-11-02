@@ -47,7 +47,13 @@ jobs:
           version: 0.14.1
 
       - name: Install dependencies
-        run: npm ci
+        shell: bash
+        run: |
+          npm ci
+          # Electron downloads its binary on first use; a moment when the
+          # runner cannot reach GitHub's CDN once turned a run red (2.6.46):
+          # fetched here, tried a few times, a little apart.
+          for i in 1 2 3 4; do node node_modules/electron/install.js && break; echo "Electron's binary: try $i failed"; sleep $((i * 15)); done
 
       - name: Build engine (this machine)
         run: node scripts/build-core.js
@@ -215,6 +221,10 @@ jobs:
       - name: Install, build the engine and the interface
         run: |
           npm ci
+          # Electron downloads its binary on first use; a moment when the
+          # runner cannot reach GitHub's CDN once turned a run red (2.6.46):
+          # fetched here, tried a few times, a little apart.
+          for i in 1 2 3 4; do node node_modules/electron/install.js && break; echo "Electron's binary: try $i failed"; sleep $((i * 15)); done
           node scripts/build-core.js
           npm run build
 
@@ -232,6 +242,15 @@ jobs:
         run: |
           if [ "$RUNNER_OS" = Linux ]; then dbus-run-session -- xvfb-run -a node tests/e2e/settings.test.js
           else node tests/e2e/settings.test.js; fi
+
+      # Settings → More settings, "Help people in censored countries": the
+      # Snowflake proxy against stand-ins for Tor's broker and relay, a person
+      # using Tor reaching the relay over real WebRTC, with screenshots.
+      - name: Snowflake, end to end
+        shell: bash
+        run: |
+          if [ "$RUNNER_OS" = Linux ]; then dbus-run-session -- xvfb-run -a node tests/e2e/snowflake.test.js
+          else node tests/e2e/snowflake.test.js; fi
 
       # Real browsers and the system's own HTTP clients, through the PAC that
       # Shroudly puts in this machine's proxy setting.

@@ -849,5 +849,18 @@
   "logShareNoUpnp": "Partage : aucun accès depuis internet ({why}) ; les personnes de ce réseau peuvent l’utiliser",
   "logShareNewLink": "Partage : un nouveau lien ; l’ancien ne fonctionne plus",
   "shareApp": "Partager Shroudly",
-  "shareAppText": "Shroudly {version} pour Android, pour ouvrir les sites et applis bloqués. Pour l’installer, ouvrez ce fichier ; si le téléphone le demande, autorisez l’installation d’applis depuis cette source."
+  "shareAppText": "Shroudly {version} pour Android, pour ouvrir les sites et applis bloqués. Pour l’installer, ouvrez ce fichier ; si le téléphone le demande, autorisez l’installation d’applis depuis cette source.",
+  "snowflake": "Aider les personnes des pays censurés",
+  "snowflakeDesc": "Permet à des personnes de pays qui bloquent Tor d'y accéder par cet ordinateur (un proxy Snowflake du projet Tor). Ce sont des inconnus qui utilisent Tor : ce qu'ils ouvrent reste chiffré, et ils ne peuvent atteindre ni votre ordinateur ni votre réseau. Une partie de votre connexion est utilisée pendant qu'une personne est aidée, et rien n'est enregistré.",
+  "snowflakeOn": "Aider par cet ordinateur",
+  "snowflakeStarting": "Démarrage…",
+  "snowflakeWaiting": "Prêt : en attente d'une personne à aider",
+  "snowflakeCounts": "Aidées en ce moment : {now} · Depuis l'activation : {total}",
+  "snowflakeUnreachable": "L'intermédiaire de Tor ne répond pas depuis ce réseau : personne ne peut être aidé d'ici pour le moment.",
+  "snowflakeFailed": "Impossible de démarrer : {error}",
+  "logSnowflakeOn": "Aider les personnes des pays censurés : activé (un proxy Snowflake pour Tor)",
+  "logSnowflakeOff": "Aider les personnes des pays censurés : désactivé",
+  "logSnowflakeUnreachable": "Aider les personnes des pays censurés : l'intermédiaire Snowflake de Tor ne répond pas depuis ce réseau",
+  "logSnowflakeHelped": "Aider les personnes des pays censurés : quelqu'un a atteint Tor par cet ordinateur ({total} depuis l'activation)",
+  "logSnowflakeFailed": "Aider les personnes des pays censurés n'a pas pu démarrer : {error}"
 }

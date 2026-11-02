@@ -849,5 +849,18 @@
   "logShareNoUpnp": "Paylaşım: internetdən giriş yolu yoxdur ({why}); bu şəbəkədəki insanlar istifadə edə bilər",
   "logShareNewLink": "Paylaşım: yeni link; köhnəsi artıq işləmir",
   "shareApp": "Shroudly-ni paylaş",
-  "shareAppText": "Bloklanmış saytları və tətbiqləri açmaq üçün Android üçün Shroudly {version}. Quraşdırmaq üçün bu faylı açın; telefon soruşsa, bu mənbədən tətbiq quraşdırmağa icazə verin."
+  "shareAppText": "Bloklanmış saytları və tətbiqləri açmaq üçün Android üçün Shroudly {version}. Quraşdırmaq üçün bu faylı açın; telefon soruşsa, bu mənbədən tətbiq quraşdırmağa icazə verin.",
+  "snowflake": "Senzuralı ölkələrdəki insanlara kömək et",
+  "snowflakeDesc": "Tor-u bloklayan ölkələrdəki insanların Tor-a bu kompüter vasitəsilə çatmasına imkan verir (Tor Layihəsinin Snowflake proksisi). Onlar Tor istifadə edən tanımadığınız insanlardır: açdıqları şeylər şifrəli qalır, kompüterinizə və şəbəkənizə çata bilmirlər. Kiməsə kömək edilərkən bağlantınızın bir hissəsindən istifadə edir və heç bir qeyd saxlamır.",
+  "snowflakeOn": "Bu kompüter vasitəsilə kömək et",
+  "snowflakeStarting": "Başlayır…",
+  "snowflakeWaiting": "Hazırdır: kömək ediləcək birini gözləyir",
+  "snowflakeCounts": "İndi kömək edilən: {now} · Açılandan bəri: {total}",
+  "snowflakeUnreachable": "Tor-un vasitəçisi bu şəbəkədən cavab vermir, ona görə də hazırda buradan heç kimə kömək etmək mümkün deyil.",
+  "snowflakeFailed": "Başlamaq mümkün olmadı: {error}",
+  "logSnowflakeOn": "Senzuralı ölkələrdəki insanlara kömək: açıq (Tor üçün Snowflake proksisi)",
+  "logSnowflakeOff": "Senzuralı ölkələrdəki insanlara kömək: bağlı",
+  "logSnowflakeUnreachable": "Senzuralı ölkələrdəki insanlara kömək: Tor-un Snowflake vasitəçisi bu şəbəkədən cavab vermir",
+  "logSnowflakeHelped": "Senzuralı ölkələrdəki insanlara kömək: kimsə bu kompüter vasitəsilə Tor-a çatdı (açılandan bəri {total})",
+  "logSnowflakeFailed": "Senzuralı ölkələrdəki insanlara kömək başlamadı: {error}"
 }
