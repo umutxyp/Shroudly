@@ -148,6 +148,9 @@ for (const language of languages) {
 // where a language writes them so (German "Status", French "Mode").
 const SAME_AS_ENGLISH = {
   testPlaceholder: '*',
+  // Apps' own names: Conduit (Psiphon), Orbot (Tor).
+  helpOthersConduit: '*',
+  helpOthersOrbot: '*',
   supportBankName: 'az de id ku ms tk uz',
   trayStatus: 'de id ms',
   androidAppsSection: 'de es pt',

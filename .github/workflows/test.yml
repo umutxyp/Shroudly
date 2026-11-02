@@ -219,6 +219,7 @@ jobs:
         run: sudo apt-get update -qq && sudo apt-get install -y xvfb dbus-x11 libnss3 libgbm1 libasound2t64 libgtk-3-0t64
 
       - name: Install, build the engine and the interface
+        shell: bash
         run: |
           npm ci
           # Electron downloads its binary on first use; a moment when the
