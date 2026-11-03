@@ -13,10 +13,11 @@
   [![macOS](https://img.shields.io/badge/macOS-000000?logo=apple)](#)
   [![Linux](https://img.shields.io/badge/Linux-FCC624?logo=linux&logoColor=black)](#)
   [![Android](https://img.shields.io/badge/Android-3DDC84?logo=android&logoColor=white)](#android)
+  [![Android TV](https://img.shields.io/badge/Android%20TV-3DDC84?logo=android&logoColor=white)](#android-tv-and-google-tv)
   [![iOS](https://img.shields.io/badge/iPhone%20%26%20iPad-000000?logo=apple)](#iphone-and-ipad)
   [![Donate](https://img.shields.io/badge/Donate-PayPal-00457C?logo=paypal&logoColor=white)](https://www.paypal.com/donate?campaign_id=BV7WTVT9VJQQ6)
 
-  > Break through internet censorship on **Windows, macOS, Linux, Android, iPhone and iPad**. No VPN, no drivers by default, no third-party tools, and nothing that permanently changes your network settings.
+  > Break through internet censorship on **Windows, macOS, Linux, Android, Android TV, iPhone and iPad**. No VPN, no drivers by default, no third-party tools, and nothing that permanently changes your network settings.
 
   **A [Codeshare](https://codeshare.me) product**
 
@@ -64,7 +65,9 @@ line.
 
 On **Android** the same engine runs inside the app, which works as a local
 VPN: every app on the phone goes through Shroudly, games and voice calls
-included, with nothing to turn on ([details](#android)).
+included, with nothing to turn on ([details](#android)). The same APK runs
+on **Android TV and Google TV**, used with the remote
+([details](#android-tv-and-google-tv)).
 
 While Shroudly is active it points the system (or your browser) at its local
 proxy, and it always restores the previous setting on stop, crash, or logout —
@@ -190,16 +193,28 @@ phone's own connections.
 - It is counted in the live user count exactly like the desktop app: the same
   request, only while protection is on, through the engine, and it can be
   switched off in Settings ([Privacy](#privacy)).
-- **Android TV and Google TV** (Android 8 or newer): the same APK. It is in
-  the TV's own row of apps, works with the remote, and covers every app on
-  the TV (YouTube, browsers, streaming apps). Install it with a file manager
-  or "Send files to TV"; Android TV asks to allow the VPN once, like a phone.
 - Devices on the phone's hotspot are not covered: Android never sends
   tethered traffic through a VPN, and Proxy only listens on the phone
   itself. A computer on the hotspot needs Shroudly of its own (the desktop
   app).
 
 Building and testing it: [android/README.md](android/README.md).
+
+### Android TV and Google TV
+
+The same APK runs on Android TV and Google TV (Android 8 or newer, from
+2.6.50) and covers every app on the TV: YouTube, browsers, streaming apps.
+
+1. Put the APK ([download](https://shroudly.codeshare.me/dl/android)) on the
+   TV with a file manager app or "Send files to TV", open it there and allow
+   the install.
+2. Open Shroudly from the TV's row of apps. The remote's arrows move a ring
+   in the accent colour between the controls; OK on the round switch turns
+   protection on.
+3. The TV asks once to allow the VPN: press down, then move to **OK**.
+
+Everything else is as on a phone. The Quick Settings tile row is left out,
+since a TV has no such panel.
 
 ## iPhone and iPad
 
@@ -697,8 +712,9 @@ directly. That list maintains itself:
 
 - **One button** — start and stop protection; it can start with your computer, from the tray.
 - **Light in the background** — the window is closed for real, not hidden, when it goes to the tray or sits unused for three minutes; protection keeps running without it, with nothing in the taskbar or the Dock, only the tray / menu bar icon (or not even that: Settings can hide it, and starting Shroudly again opens the window). Protecting in the background, Shroudly 2.5.3 uses about 30–75 MB depending on the OS, about half of what 2.5.2 did ([measured](tests/e2e/app.test.js) by every [Tests](.github/workflows/test.yml) run).
-- **Cross-platform** — native builds for Windows, macOS and Linux, x64 and ARM, an Android app, and an iPhone and iPad app.
+- **Cross-platform** — native builds for Windows, macOS and Linux, x64 and ARM, an Android app for phones, tablets and TVs, and an iPhone and iPad app.
 - **Android** — one small APK for every phone: a local VPN that sends every app through the same engine, UDP (games, voice) and apps' own DNS included, with a Quick Settings tile and Always-on VPN ([details](#android)).
+- **Android TV and Google TV** — the same APK in the TV's row of apps, used with the remote; every app on the TV (YouTube, browsers, streaming apps) goes through it ([details](#android-tv-and-google-tv)).
 - **No admin rights, no driver** in the default mode — it runs as a normal program.
 - **Learns what works** — tests each blocked site and remembers the technique that opens it; switches technique by itself if a network starts cutting a site.
 - **Encrypted DNS** — on by default, over routes that are hard to block, refusing known forged answers.
@@ -755,7 +771,7 @@ These links always download the newest version (see [Releases](https://github.co
 | **Arch / Manjaro / EndeavourOS** | [.pacman](https://shroudly.codeshare.me/dl/linux-pacman) | [AppImage](https://shroudly.codeshare.me/dl/linux-arm64) |
 | **Fedora / openSUSE / RHEL** | [.rpm](https://shroudly.codeshare.me/dl/linux-rpm) | [AppImage](https://shroudly.codeshare.me/dl/linux-arm64) |
 | **Any Linux** | [AppImage](https://shroudly.codeshare.me/dl/linux-x64) | [AppImage](https://shroudly.codeshare.me/dl/linux-arm64) |
-| **Android 8+** | [APK](https://shroudly.codeshare.me/dl/android) | [APK](https://shroudly.codeshare.me/dl/android) (one APK for every phone) |
+| **Android 8+, Android TV, Google TV** | [APK](https://shroudly.codeshare.me/dl/android) | [APK](https://shroudly.codeshare.me/dl/android) (one APK for every phone, tablet and TV) |
 | **iPhone / iPad (iOS 16+)** | | [.ipa on the releases page](https://github.com/umutxyp/Shroudly/releases/latest) (TrollStore, or a paid developer account; App Store soon) |
 
 - **Windows** — run the installer.
