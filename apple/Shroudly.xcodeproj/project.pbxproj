@@ -557,6 +557,9 @@
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				"CODE_SIGN_ENTITLEMENTS[sdk=iphoneos*]" = "Config/Tunnel-iOS.entitlements";
 				"CODE_SIGN_ENTITLEMENTS[sdk=iphonesimulator*]" = "Config/Tunnel-iOS.entitlements";
+				"CODE_SIGN_ENTITLEMENTS[sdk=appletvos*]" = "Config/Tunnel-iOS.entitlements";
+				"CODE_SIGN_ENTITLEMENTS[sdk=appletvsimulator*]" = "Config/Tunnel-iOS.entitlements";
+				"INFOPLIST_KEY_UIRequiredDeviceCapabilities[sdk=appletv*]" = arm64;
 				"CODE_SIGN_ENTITLEMENTS[sdk=macosx*]" = "Config/Tunnel-macOS.entitlements";
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "Config/Tunnel-Info.plist";
@@ -585,6 +588,9 @@
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				"CODE_SIGN_ENTITLEMENTS[sdk=iphoneos*]" = "Config/Tunnel-iOS.entitlements";
 				"CODE_SIGN_ENTITLEMENTS[sdk=iphonesimulator*]" = "Config/Tunnel-iOS.entitlements";
+				"CODE_SIGN_ENTITLEMENTS[sdk=appletvos*]" = "Config/Tunnel-iOS.entitlements";
+				"CODE_SIGN_ENTITLEMENTS[sdk=appletvsimulator*]" = "Config/Tunnel-iOS.entitlements";
+				"INFOPLIST_KEY_UIRequiredDeviceCapabilities[sdk=appletv*]" = arm64;
 				"CODE_SIGN_ENTITLEMENTS[sdk=macosx*]" = "Config/Tunnel-macOS.entitlements";
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "Config/Tunnel-Info.plist";
@@ -600,6 +606,9 @@
 					"@executable_path/../Frameworks",
 					"@executable_path/../../../../Frameworks",
 				);
+				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "Apple Distribution";
+				"CODE_SIGN_STYLE[sdk=appletvos*]" = Manual;
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=appletvos*]" = "Shroudly tvOS App Store tunnel";
 				PRODUCT_BUNDLE_IDENTIFIER = "$(SHROUDLY_BUNDLE_ID).tunnel";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -615,6 +624,8 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				"CODE_SIGN_ENTITLEMENTS[sdk=iphoneos*]" = "Config/App-iOS.entitlements";
 				"CODE_SIGN_ENTITLEMENTS[sdk=iphonesimulator*]" = "Config/App-iOS.entitlements";
+				"CODE_SIGN_ENTITLEMENTS[sdk=appletvos*]" = "Config/App-iOS.entitlements";
+				"CODE_SIGN_ENTITLEMENTS[sdk=appletvsimulator*]" = "Config/App-iOS.entitlements";
 				"CODE_SIGN_ENTITLEMENTS[sdk=macosx*]" = "Config/App-macOS.entitlements";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -628,6 +639,7 @@
 				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIUserInterfaceStyle[sdk=iphoneos*]" = Dark;
 				"INFOPLIST_KEY_UIUserInterfaceStyle[sdk=iphonesimulator*]" = Dark;
+				"INFOPLIST_KEY_UIUserInterfaceStyle[sdk=appletv*]" = Dark;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = UIInterfaceOrientationPortrait;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -651,6 +663,8 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				"CODE_SIGN_ENTITLEMENTS[sdk=iphoneos*]" = "Config/App-iOS.entitlements";
 				"CODE_SIGN_ENTITLEMENTS[sdk=iphonesimulator*]" = "Config/App-iOS.entitlements";
+				"CODE_SIGN_ENTITLEMENTS[sdk=appletvos*]" = "Config/App-iOS.entitlements";
+				"CODE_SIGN_ENTITLEMENTS[sdk=appletvsimulator*]" = "Config/App-iOS.entitlements";
 				"CODE_SIGN_ENTITLEMENTS[sdk=macosx*]" = "Config/App-macOS.entitlements";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -664,6 +678,7 @@
 				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIUserInterfaceStyle[sdk=iphoneos*]" = Dark;
 				"INFOPLIST_KEY_UIUserInterfaceStyle[sdk=iphonesimulator*]" = Dark;
+				"INFOPLIST_KEY_UIUserInterfaceStyle[sdk=appletv*]" = Dark;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = UIInterfaceOrientationPortrait;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -674,6 +689,9 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
+				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "Apple Distribution";
+				"CODE_SIGN_STYLE[sdk=appletvos*]" = Manual;
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=appletvos*]" = "Shroudly tvOS App Store app";
 				PRODUCT_BUNDLE_IDENTIFIER = "$(SHROUDLY_BUNDLE_ID)";
 				PRODUCT_NAME = Shroudly;
 			};
