@@ -20,11 +20,12 @@ const { startEngine, sleep, freePort, socks, suite } = require('./helpers');
 
 const t = suite('engine-refused');
 
-/* The ClientHello Node's TLS sends for `name`. */
+/* The ClientHello Node's TLS sends for `name`: only its first flight is
+ * taken, so no handshake ever completes and nothing is verified or trusted. */
 function clientHello(name) {
   return new Promise((resolve) => {
     const d = new Duplex({ read() {}, write(chunk, enc, cb) { resolve(Buffer.from(chunk)); cb(); } });
-    const s = tls.connect({ socket: d, servername: name, rejectUnauthorized: false });
+    const s = tls.connect({ socket: d, servername: name });
     s.on('error', () => {});
     setTimeout(() => s.destroy(), 100);
   });
