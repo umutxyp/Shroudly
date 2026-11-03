@@ -88,10 +88,12 @@ function load(rel) {
       'Android and iPhone decide the same way');
   }
   {
-    // One line each, in every language, for each platform.
+    // One line each, in every language, for each platform. How many lines
+    // changes with every release; that each platform has some does not.
     const en = JSON.parse(src('locales/en.json'));
     const lines = (k) => en[k].split('\n').filter(Boolean).length;
-    t.ok(lines('whatsNewDesktop') === 6 && lines('whatsNewAndroid') === 4 && lines('whatsNewApple') === 5, 'the notes, a line each');
+    t.ok(['whatsNewDesktop', 'whatsNewAndroid', 'whatsNewApple'].every((k) => lines(k) >= 1 && en[k].split('\n').every((l) => l.trim() && l.length <= 200)),
+      'the notes, a short line each, for every platform');
     for (const f of fs.readdirSync(path.join(ROOT, 'locales'))) {
       const j = JSON.parse(src(`locales/${f}`));
       if (['whatsNewDesktop', 'whatsNewAndroid', 'whatsNewApple'].some((k) => j[k].split('\n').filter(Boolean).length !== lines(k))) t.ok(false, `${f}: as many lines as English`);
