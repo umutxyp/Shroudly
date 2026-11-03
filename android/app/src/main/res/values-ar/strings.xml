@@ -224,7 +224,7 @@
     <string name="upload">الرفع</string>
     <string name="uptime">مدة التشغيل</string>
     <string name="versionLabel">الإصدار {version}</string>
-    <string name="whatsNewAndroid">مع خادمك الخاص، يمر DNS عبره أيضًا: لا ترى خوادم الحلّ إلا عنوان الخادم، لا عنوانك أبدًا.\nمع خادمك الخاص، تعرض الشاشة الرئيسية العنوان الذي تراه المواقع.\nبين حين وآخر يسألك Shroudly إن كنت تودّ مساعدة الناس في البلدان الخاضعة للرقابة؛ وفي كل مرة تقول ليس الآن ينتظر ضعف المدة.\nبعد كل تحديث، تخبرك ملاحظة قصيرة كهذه بما تغيّر.</string>
+    <string name="whatsNewAndroid">يعمل Shroudly الآن على Android TV وGoogle TV، باستخدام جهاز التحكم عن بُعد.\nإذا ردّ خادم موقع بشهادة ليست للموقع، ينتقل Shroudly من تلقاء نفسه إلى تقنية أخرى لهذا الموقع.</string>
     <string name="whatsNewOk">حسنًا</string>
     <string name="whatsNewTitle">الجديد في {version}</string>
 </resources>

@@ -598,13 +598,17 @@ static int usable_presets(void) {
  * cut. This is what keeps working when a filter changes what it looks at.
  * Only techniques that can do something here are cycled onto: one that cannot
  * would send the request untouched, and be remembered as what works. */
+static unsigned av_get(const char *h);
+static int preset_fits(int i, unsigned avoid);
+
 static void hs_on_cut(const char *h) {
   int np = strategy_preset_count();
   if (np <= 0 || !g_cfg.auto_probe) return;
   int cur = hs_get(h, NULL);
+  unsigned avoid = av_get(h);
   for (int k = 1; k <= np; k++) {
     int next = (cur + k) % np;             /* cur is -1 when nothing is learned */
-    if (!preset_usable(strategy_preset(next))) continue;
+    if (!preset_fits(next, avoid)) continue;
     /* For this name only: a cut is one connection's word, a guess to try next
      * rather than something learned, and not enough to move the whole site.
      * Nor to end a silent search: a resume point stays where it is. */
@@ -613,6 +617,89 @@ static void hs_on_cut(const char *h) {
     mutex_unlock(&g_hs_mx);
     return;
   }
+}
+
+/* ── what a host's server cannot take ───────────────────────────────────
+ * A few servers mishandle what some techniques send though it is all legal:
+ * DDoS-Guard, given a ClientHello in two TLS records, answers with its own
+ * certificate instead of the site's (#68), and a decoy that reaches a server
+ * close by is taken for the request. The handshake still completes, so the
+ * ladder takes it for success; only the browser, refusing the certificate,
+ * says otherwise (client_refused). Such a technique's kind is then left out
+ * for that name for a while: every record split behaves alike there, and
+ * trying them one by one would cost the user one certificate error each. */
+#define TRAIT_TLSREC 1u
+#define TRAIT_FAKE   2u
+#define AV_SIZE      64
+#define AV_TTL_MS    (6 * 60 * 60 * 1000)
+typedef struct { char host[256]; unsigned mask; uint64_t t; int used; } hostavoid;
+static hostavoid g_av[AV_SIZE];
+
+static unsigned preset_traits(const strategy *st) {
+  unsigned m = 0;
+  for (int i = 0; i < st->n_ops; i++) {
+    if (st->ops[i].kind == OP_TLSREC) m |= TRAIT_TLSREC;
+    if (st->ops[i].kind == OP_FAKE) m |= TRAIT_FAKE;
+  }
+  return m;
+}
+
+/* The kinds left out for this name (0: none). */
+static unsigned av_get(const char *h) {
+  unsigned m = 0;
+  uint64_t now = now_ms();
+  mutex_lock(&g_hs_mx);
+  for (int i = 0; i < AV_SIZE; i++) {
+    if (!g_av[i].used || strcmp(g_av[i].host, h) != 0) continue;
+    if (age_ms(now, g_av[i].t) < AV_TTL_MS) m = g_av[i].mask;
+    else g_av[i].used = 0;
+    break;
+  }
+  mutex_unlock(&g_hs_mx);
+  return m;
+}
+
+/* Caller holds g_hs_mx. */
+static void av_add(const char *h, unsigned mask) {
+  int slot = -1, oldest = 0;
+  for (int i = 0; i < AV_SIZE; i++) {
+    if (g_av[i].used && strcmp(g_av[i].host, h) == 0) { slot = i; break; }
+    if (!g_av[i].used) { if (slot < 0) slot = i; continue; }
+    if (g_av[i].t < g_av[oldest].t) oldest = i;
+  }
+  if (slot < 0) slot = oldest;
+  if (!(g_av[slot].used && strcmp(g_av[slot].host, h) == 0)) {
+    memset(&g_av[slot], 0, sizeof(g_av[slot]));
+    strncpy(g_av[slot].host, h, sizeof(g_av[slot].host) - 1);
+    g_av[slot].used = 1;
+  }
+  g_av[slot].mask |= mask;
+  g_av[slot].t = now_ms();
+}
+
+/* A technique the ladder may use for a name that cannot take `avoid`. */
+static int preset_fits(int i, unsigned avoid) {
+  const strategy *st = strategy_preset(i);
+  return preset_usable(st) && !(preset_traits(st) & avoid);
+}
+
+/* The browser turned down the handshake a technique produced (client_refused):
+ * that technique's kind is left out for this name, and its next connection
+ * opens with the next technique of another kind. Returns that one, or -1. */
+static int hs_on_refused(const char *h, int cand) {
+  int np = strategy_preset_count();
+  if (np <= 0 || cand < 0 || cand >= np || !g_cfg.auto_probe) return -1;
+  unsigned mask = preset_traits(strategy_preset(cand));
+  unsigned avoid = mask | av_get(h);
+  int next = -1;
+  for (int k = 1; k < np && next < 0; k++)
+    if (preset_fits((cand + k) % np, avoid)) next = (cand + k) % np;
+  mutex_lock(&g_hs_mx);
+  if (mask) av_add(h, mask);
+  if (next >= 0) hs_store(h, next);
+  else { int i = hs_find(h); if (i >= 0) g_hs[i].used = 0; }
+  mutex_unlock(&g_hs_mx);
+  return next;
 }
 
 const engine_stats *engine_get_stats(void) { return &g_stats; }
@@ -1627,7 +1714,9 @@ static sock_t dial(const char *host, uint16_t port, int prefer6, int use_doh,
 #define CUT_STALL_MS   8000
 #define CUT_NOREPLY_MS 15000
 
-typedef struct { int have; uint8_t hdr[5]; uint32_t left; int lost; uint32_t apps; } tls_track;
+/* apps: application-data records; alerts: plaintext alert records; app1: the
+ * length of the first application-data record (see client_refused). */
+typedef struct { int have; uint8_t hdr[5]; uint32_t left; int lost; uint32_t apps; uint32_t alerts; uint32_t app1; } tls_track;
 
 /* Follow the server's TLS record boundaries. */
 static void tls_follow(tls_track *t, const uint8_t *p, int n) {
@@ -1639,8 +1728,12 @@ static void tls_follow(tls_track *t, const uint8_t *p, int n) {
       if (t->have == 5) {
         t->have = 0;
         if (t->hdr[0] < 20 || t->hdr[0] > 24 || t->hdr[1] != 3) { t->lost = 1; return; }
-        if (t->hdr[0] == 23) t->apps++;          /* application data */
         t->left = ((uint32_t)t->hdr[3] << 8) | t->hdr[4];
+        if (t->hdr[0] == 23) {                   /* application data */
+          if (t->apps == 0) t->app1 = t->left;
+          t->apps++;
+        }
+        if (t->hdr[0] == 21) t->alerts++;
       }
     } else {
       uint32_t take = t->left < (uint32_t)n ? t->left : (uint32_t)n;
@@ -1670,7 +1763,21 @@ typedef struct {
   int answered;       /* the server has answered a request after the handshake */
   int site_marked;    /* ok_put done for it */
   int ended;          /* who ended the relay: 1 the server (closed or reset), 2 the client */
+  int cand;           /* the technique the request went out with (a preset), or ATT_PLAIN */
 } cut_watch;
+
+/* The client turned the server's handshake down: the server answered, and
+ * before any request the client's only word was an alert. In TLS 1.2 that is
+ * a plaintext alert record; in TLS 1.3 an encrypted one, a single record of
+ * 19 bytes (two bytes of alert, its type, a 16-byte tag), where a client that
+ * goes on sends its Finished (53 bytes or more) first. A browser does this
+ * when the certificate is not the site's (#68: DDoS-Guard, given a
+ * ClientHello in two records, answered with its own certificate). */
+static int client_refused(const cut_watch *cw) {
+  if (cw->down == 0 || cw->answered || cw->ct.lost) return 0;
+  if (cw->ct.alerts > 0 && cw->ct.apps == 0) return 1;
+  return cw->ct.alerts == 0 && cw->ct.apps == 1 && cw->ct.app1 == 19;
+}
 
 static void report(const char *ev, const char *host, const char *strat, int attempts, int fam,
                    const char *note);
@@ -3812,6 +3919,7 @@ static void handle(sock_t client) {
   /* A stream that is neither TLS nor HTTP: the technique it went out with
    * (raw_cand), and when, for raw_result once its fate is known. */
   int raw_cand = 0, raw_inh = 0, raw_done = 1;
+  int used_cand = ATT_PLAIN;   /* the technique the relayed connection went out with */
   uint64_t raw_at = 0;
   int told = 0;      /* the connection's fate is already in the log */
   int gave_up = 0;   /* the ladder ended with nothing answered: blocked, or unreachable */
@@ -3877,6 +3985,10 @@ static void handle(sock_t client) {
       int from = -1, learned = -1, inherited = 0, stale = 0, site_from = 0;
       ladder_start(key, watch_tls, &from, &learned, &inherited, &stale, &site_from);
       if (learned >= np) learned = -1;
+      /* Kinds of technique this name's server turned out not to take (see
+       * hs_on_refused): left out of the ladder altogether. */
+      unsigned avoid = watch_tls ? av_get(key) : 0;
+      if (learned >= 0 && !preset_fits(learned, avoid)) learned = -1;
       int resumed = from >= 0 && from < np;
       ladder_st st;
       memset(&st, 0, sizeof(st));
@@ -3899,12 +4011,12 @@ static void handle(sock_t client) {
         if (resumed) {
           for (int k = 0; k < np && ncand < ATT_MAX; k++) {
             int i = (from + k) % np;
-            if (preset_usable(strategy_preset(i))) cand[ncand++] = i;
+            if (preset_fits(i, avoid)) cand[ncand++] = i;
           }
         } else {
           cand[ncand++] = learned;
           for (int i = 0; i < np && ncand < ATT_MAX; i++)
-            if (i != learned && preset_usable(strategy_preset(i))) cand[ncand++] = i;
+            if (i != learned && preset_fits(i, avoid)) cand[ncand++] = i;
         }
         /* The last connection was dropped from start to end: the techniques
          * get the shorter wait from the start (not known for another name). */
@@ -3914,7 +4026,7 @@ static void handle(sock_t client) {
         if (learned >= 0) cand[ncand++] = learned;           /* known to work */
         else              cand[ncand++] = ATT_PLAIN;         /* untouched first */
         for (int i = 0; i < np && ncand < ATT_MAX; i++) {
-          if (i == learned || !preset_usable(strategy_preset(i))) continue;
+          if (i == learned || !preset_fits(i, avoid)) continue;
           cand[ncand++] = i;
         }
         /* If a strategy was learned, still allow an untouched attempt last: the
@@ -4072,7 +4184,7 @@ static void handle(sock_t client) {
         nd_failed(rq.host);
       }
       leg cur = { SOCK_INVALID, fam, 0, 0, ATT_PLAIN, 0, 0 };
-      if (pick >= 0) cur = legs_take(&st.L, pick);
+      if (pick >= 0) { cur = legs_take(&st.L, pick); used_cand = cur.cand; }
       legs_close(&st.L);
       /* A connection that went out before the client sent more has not been
        * given those bytes yet. */
@@ -4100,8 +4212,16 @@ static void handle(sock_t client) {
     cw.down = (uint64_t)rlen;
     cw.waiting = waiting;
     cw.gave_up = gave_up;
+    cw.cand = used_cand;
     if (rlen > 0) tls_follow(&cw.tt, rbuf, rlen);
     relay(client, up, &cw);
+    if (cw.host && used_cand >= 0 && used_cand < strategy_preset_count() && client_refused(&cw)) {
+      int next = hs_on_refused(cw.host, used_cand);
+      char h[256];
+      json_host(h, sizeof(h), cw.host);
+      engine_printf("{\"type\":\"refused\",\"host\":\"%s\",\"strategy\":\"%s\",\"next\":\"%s\"}\n",
+                    h, strategy_preset(used_cand)->name, next >= 0 ? strategy_preset(next)->name : "");
+    }
     if (!raw_done) {
       /* Any answer at all: it got through. Nothing, and the server ended it:
        * refused. Nothing, and the app gave up after a while: unanswered. An

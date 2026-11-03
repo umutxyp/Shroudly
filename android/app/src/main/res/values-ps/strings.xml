@@ -224,7 +224,7 @@
     <string name="upload">اپلوډ</string>
     <string name="uptime">د کار موده</string>
     <string name="versionLabel">نسخه {version}</string>
-    <string name="whatsNewAndroid">د خپل سرور سره DNS هم له هغه تېرېږي: DNS سرورونه یوازې د سرور پته ګوري، ستاسو پته هېڅکله نه.\nد خپل سرور سره، اصلي سکرین هغه پته ښيي چې سایټونه یې ګوري.\nShroudly کله ناکله پوښتي چې ایا غواړئ په سانسور شویو هېوادونو کې له خلکو سره مرسته وکړئ؛ هر ځل چې ووایئ اوس نه، دوه چنده انتظار کوي.\nد هر تازه کولو وروسته، د دې په څېر یو لنډ یادښت وايي چې څه بدل شوي.</string>
+    <string name="whatsNewAndroid">Shroudly اوس په Android TV او Google TV هم کار کوي، د لرې کنټرول سره.\nکه د یوې سایټ سرور داسې سند راولېږي چې د هغې سایټ نه وي، Shroudly پخپله د هغې سایټ لپاره بلې طریقې ته اوړي.</string>
     <string name="whatsNewOk">پوه شوم</string>
     <string name="whatsNewTitle">په {version} کې نوي څه</string>
 </resources>

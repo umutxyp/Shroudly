@@ -197,9 +197,24 @@ function windowsArgv(line) {
   }
   {
     const am = fresh('dll');
+    am._badFile = () => ({ file: path.join(tmp, 'WinDivert.dll'), state: 'missing' });
     statusOf(am, [{ type: 'error', code: 'windivert_load', win32: 126, msg: 'Loading WinDivert.dll failed (126)' }, { type: 'stopped' }]);
     const { e } = await failOf(am);
     t.ok(e && e.code === 'files_missing' && e.info.file === 'WinDivert.dll', 'WinDivert.dll not there (126): files_missing, naming it');
+  }
+  {
+    // Every file in place, Windows still says "not found" (#69: no antivirus
+    // running, the folder an exception): neither a missing file nor an
+    // antivirus is claimed, and Windows' own code is said.
+    const shown = fresh('there');
+    statusOf(shown, [{ type: 'error', code: 'windivert_open', win32: 2, msg: 'WinDivertOpen failed (2)' }, { type: 'stopped' }]);
+    const { e } = await failOf(shown);
+    t.ok(e && e.code === 'start_failed' && !e.info && /start the WinDivert driver \(error 2\) although Advanced mode's files are all in place/.test(e.message),
+      `files in place, WinDivertOpen 2: start_failed, not files_missing (${e && e.code})`);
+    const dll = fresh('there-dll');
+    statusOf(dll, [{ type: 'error', code: 'windivert_load', win32: 126, msg: 'Loading WinDivert.dll failed (126)' }, { type: 'stopped' }]);
+    const r = await failOf(dll);
+    t.ok(r.e && r.e.code === 'start_failed' && /load WinDivert\.dll \(error 126\)/.test(r.e.message), 'files in place, loading WinDivert.dll 126: start_failed, with the code');
   }
   {
     const am = fresh('rival');
@@ -343,7 +358,11 @@ function windowsArgv(line) {
     t.ok(as({ code: 2, stdout: '', stderr: '' }).code === 'declined', 'exit 2: declined');
     const e3 = as({ code: 3, stdout: '', stderr: '' });
     t.ok(e3.code === 'security_blocked' && e3.info.kind === 'denied', 'exit 3: security_blocked (refused)');
-    t.ok(as({ code: 4, stdout: '', stderr: '' }).code === 'files_missing', 'exit 4: files_missing');
+    const e4 = as({ code: 4, stdout: '', stderr: '' });
+    t.ok(e4.code === 'start_failed' && !e4.info && /could not find the advanced engine/.test(e4.message), 'exit 4 with every file in place: start_failed, no antivirus named (#69)');
+    am._badFile = () => ({ file: 'C:\\x\\shroudly-core-adv.exe', state: 'missing' });
+    t.ok(as({ code: 4, stdout: '', stderr: '' }).code === 'files_missing', 'exit 4 with the engine gone: files_missing');
+    am._badFile = () => null;
     t.ok(as({ code: 1, stdout: '', stderr: 'Something else' }).code === 'start_failed', 'anything else: start_failed');
   }
   {

@@ -224,7 +224,7 @@
     <string name="upload">Iberiş</string>
     <string name="uptime">Işlän wagty</string>
     <string name="versionLabel">Wersiýa {version}</string>
-    <string name="whatsNewAndroid">Öz serweriňiz bilen DNS hem onuň üsti bilen gidýär: rezolwerler diňe serweriň salgysyny görýär, siziňkini hiç haçan.\nÖz serweriňiz bilen esasy ekran saýtlaryň görýän salgysyny görkezýär.\nShroudly wagtal-wagtal senzuraly ýurtlardaky adamlara kömek etmek isleýändigiňizi soraýar; her gezek \"häzir däl\" diýseňiz, iki esse uzak garaşýar.\nHer täzelenmeden soň şunuň ýaly gysga bellik näme üýtgändigini aýdýar.</string>
+    <string name="whatsNewAndroid">Shroudly indi Android TV we Google TV-de hem işleýär, pult bilen dolandyrylýar.\nSaýtyň serweri saýta degişli bolmadyk şahadatnama bilen jogap berse, Shroudly şol saýt üçin özbaşdak başga usula geçýär.</string>
     <string name="whatsNewOk">Düşnükli</string>
     <string name="whatsNewTitle">{version} wersiýasynda täzelikler</string>
 </resources>

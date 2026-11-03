@@ -190,6 +190,10 @@ phone's own connections.
 - It is counted in the live user count exactly like the desktop app: the same
   request, only while protection is on, through the engine, and it can be
   switched off in Settings ([Privacy](#privacy)).
+- **Android TV and Google TV** (Android 8 or newer): the same APK. It is in
+  the TV's own row of apps, works with the remote, and covers every app on
+  the TV (YouTube, browsers, streaming apps). Install it with a file manager
+  or "Send files to TV"; Android TV asks to allow the VPN once, like a phone.
 - Devices on the phone's hotspot are not covered: Android never sends
   tethered traffic through a VPN, and Proxy only listens on the phone
   itself. A computer on the hotspot needs Shroudly of its own (the desktop
@@ -726,7 +730,7 @@ directly. That list maintains itself:
 | macOS | **macOS 12 Monterey** (Intel or Apple Silicon) | Older versions are told so by macOS itself rather than failing to launch. |
 | Linux | **glibc 2.28+** — Debian 10, Ubuntu 20.04, Fedora 29 or newer (Ubuntu 18.04 has glibc 2.27: Shroudly starts there, but Advanced mode does not) | AppImage (x64, ARM64), plus native packages: .deb for Debian/Ubuntu, .pacman for Arch/Manjaro, .rpm for Fedora/openSUSE/RHEL. The bypass engine itself only needs glibc 2.17, so it is never the limiting part. |
 | iPhone, iPad | **iOS 16** or newer | An `.ipa` on the releases page for TrollStore or a paid developer account (not a free Apple ID), until the App Store has it ([iPhone and iPad](#iphone-and-ipad)). |
-| Android | **Android 8** or newer (phones and tablets; ARM 64/32-bit, x86_64) | An APK from the releases page. It works as a VPN on the phone, so every app goes through Shroudly; no root needed. To keep another VPN app connected, Settings → Advanced → Mode → Proxy only. |
+| Android | **Android 8** or newer (phones, tablets, Android TV and Google TV; ARM 64/32-bit, x86_64) | An APK from the releases page. It works as a VPN on the phone, so every app goes through Shroudly; no root needed. To keep another VPN app connected, Settings → Advanced → Mode → Proxy only. |
 
 Advanced mode needs administrator rights, and is available on Windows and Linux only.
 

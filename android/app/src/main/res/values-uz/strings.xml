@@ -224,7 +224,7 @@
     <string name="upload">Yuklash</string>
     <string name="uptime">Ish vaqti</string>
     <string name="versionLabel">Versiya {version}</string>
-    <string name="whatsNewAndroid">Oʻz serveringiz bilan DNS ham u orqali oʻtadi: rezolverlar faqat server manzilini koʻradi, sizniki hech qachon emas.\nOʻz serveringiz bilan asosiy ekran saytlar koʻradigan manzilni koʻrsatadi.\nShroudly vaqti-vaqti bilan senzura bor mamlakatlardagi odamlarga yordam berishni xohlaysizmi deb soʻraydi; har safar \"hozir emas\" desangiz, ikki barobar uzoq kutadi.\nHar bir yangilanishdan keyin shunga oʻxshash qisqa eslatma nima oʻzgarganini aytadi.</string>
+    <string name="whatsNewAndroid">Shroudly endi Android TV va Google TV’da ham ishlaydi, pult bilan boshqariladi.\nAgar sayt serveri saytga tegishli boʻlmagan sertifikat bilan javob bersa, Shroudly oʻsha sayt uchun oʻzi boshqa usulga oʻtadi.</string>
     <string name="whatsNewOk">Tushunarli</string>
     <string name="whatsNewTitle">{version} versiyasida yangiliklar</string>
 </resources>

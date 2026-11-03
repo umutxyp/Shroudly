@@ -148,6 +148,7 @@ class MainActivity : Activity() {
         ShroudlyVpnService.attachLog(this)
         setContentView(R.layout.activity_main)
         edgeToEdge()
+        Tv.rings(window)
 
         toggle = findViewById(R.id.toggle)
         orb = Orb(findViewById(R.id.halo), findViewById(R.id.ring), findViewById(R.id.toggleIcon))

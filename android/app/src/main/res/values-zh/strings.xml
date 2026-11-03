@@ -224,7 +224,7 @@
     <string name="upload">上传</string>
     <string name="uptime">运行时长</string>
     <string name="versionLabel">版本 {version}</string>
-    <string name="whatsNewAndroid">使用你自己的服务器时，DNS 也经由它：解析服务器只能看到服务器的地址，永远看不到你的。\n使用你自己的服务器时，主屏幕会显示网站看到的地址。\nShroudly 会不时询问你是否愿意帮助受审查国家的人们；每次你选择以后再说，它都会多等一倍的时间。\n每次更新后，都会有一条像这样的简短说明告诉你有哪些变化。</string>
+    <string name="whatsNewAndroid">Shroudly 现在可以在 Android TV 和 Google TV 上运行，用遥控器操作。\n如果网站的服务器返回的证书不属于该网站，Shroudly 会自动为该网站换用另一种技术。</string>
     <string name="whatsNewOk">知道了</string>
     <string name="whatsNewTitle">{version} 的新内容</string>
 </resources>

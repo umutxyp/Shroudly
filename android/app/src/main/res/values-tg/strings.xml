@@ -224,7 +224,7 @@
     <string name="upload">Ирсол</string>
     <string name="uptime">Вақти кор</string>
     <string name="versionLabel">Версияи {version}</string>
-    <string name="whatsNewAndroid">Бо сервери худ DNS низ аз он мегузарад: резолверҳо танҳо суроғаи серверро мебинанд, на суроғаи шуморо.\nБо сервери худ экрани асосӣ суроғаеро нишон медиҳад, ки сайтҳо мебинанд.\nShroudly гоҳ-гоҳ мепурсад, ки оё мехоҳед ба одамон дар кишварҳои сензурадор кӯмак кунед; ҳар дафъа ки «ҳоло не» гӯед, ду баробар дарозтар интизор мешавад.\nПас аз ҳар навсозӣ қайди кӯтоҳе ба монанди ин мегӯяд, ки чӣ тағйир ёфт.</string>
+    <string name="whatsNewAndroid">Shroudly акнун дар Android TV ва Google TV низ кор мекунад, бо пулт идора мешавад.\nАгар сервери сайт бо сертификате ҷавоб диҳад, ки аз они сайт нест, Shroudly худаш барои он сайт ба усули дигар мегузарад.</string>
     <string name="whatsNewOk">Фаҳмо</string>
     <string name="whatsNewTitle">Навигариҳои {version}</string>
 </resources>

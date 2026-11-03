@@ -224,7 +224,7 @@
     <string name="upload">Upload</string>
     <string name="uptime">Uptime</string>
     <string name="versionLabel">Version {version}</string>
-    <string name="whatsNewAndroid">With your own server, DNS goes through it too: resolvers see only the server\'s address, never yours.\nWith your own server, the main screen shows the address sites see.\nNow and then Shroudly asks whether you would like to help people in censored countries; each time you say not now, it waits twice as long.\nAfter each update, a short note like this one says what changed.</string>
+    <string name="whatsNewAndroid">Shroudly now runs on Android TV and Google TV, with the remote.\nWhen a site\'s server answers with a certificate that is not the site\'s, Shroudly switches that site to another technique by itself.</string>
     <string name="whatsNewOk">Got it</string>
     <string name="whatsNewTitle">What\'s new in {version}</string>
 </resources>

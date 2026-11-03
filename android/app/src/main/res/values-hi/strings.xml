@@ -224,7 +224,7 @@
     <string name="upload">अपलोड</string>
     <string name="uptime">सक्रिय समय</string>
     <string name="versionLabel">संस्करण {version}</string>
-    <string name="whatsNewAndroid">अपने सर्वर के साथ DNS भी उसी से होकर जाता है: रिज़ॉल्वर सिर्फ़ सर्वर का पता देखते हैं, आपका कभी नहीं।\nअपने सर्वर के साथ, मुख्य स्क्रीन वह पता दिखाती है जो साइटें देखती हैं।\nShroudly कभी-कभी पूछता है कि क्या आप सेंसरशिप वाले देशों के लोगों की मदद करना चाहेंगे; हर बार जब आप अभी नहीं कहते हैं, वह दोगुना इंतज़ार करता है।\nहर अपडेट के बाद, इस जैसा एक छोटा नोट बताता है कि क्या बदला।</string>
+    <string name="whatsNewAndroid">Shroudly अब Android TV और Google TV पर भी चलता है, रिमोट से।\nअगर किसी साइट का सर्वर ऐसे प्रमाणपत्र से जवाब दे जो उस साइट का नहीं है, तो Shroudly उस साइट के लिए अपने आप दूसरी तकनीक पर चला जाता है।</string>
     <string name="whatsNewOk">समझ गया</string>
     <string name="whatsNewTitle">{version} में नया क्या है</string>
 </resources>

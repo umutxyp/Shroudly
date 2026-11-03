@@ -224,7 +224,7 @@
     <string name="upload">Muat naik</string>
     <string name="uptime">Masa aktif</string>
     <string name="versionLabel">Versi {version}</string>
-    <string name="whatsNewAndroid">Dengan pelayan sendiri, DNS juga melaluinya: penyelesai hanya melihat alamat pelayan, tidak pernah alamat anda.\nDengan pelayan sendiri, skrin utama menunjukkan alamat yang dilihat laman web.\nSekali-sekala Shroudly bertanya sama ada anda mahu membantu orang di negara yang ditapis; setiap kali anda berkata bukan sekarang, ia menunggu dua kali lebih lama.\nSelepas setiap kemas kini, nota ringkas seperti ini memberitahu apa yang berubah.</string>
+    <string name="whatsNewAndroid">Shroudly kini berjalan pada Android TV dan Google TV, dengan alat kawalan jauh.\nJika pelayan sesebuah laman menjawab dengan sijil yang bukan milik laman itu, Shroudly beralih sendiri kepada teknik lain untuk laman tersebut.</string>
     <string name="whatsNewOk">Faham</string>
     <string name="whatsNewTitle">Apa yang baharu dalam {version}</string>
 </resources>

@@ -224,7 +224,7 @@
     <string name="upload">Yükleme</string>
     <string name="uptime">Çalışma süresi</string>
     <string name="versionLabel">Sürüm {version}</string>
-    <string name="whatsNewAndroid">Kendi sunucunla DNS de artık onun üzerinden gidiyor: resolver\'lar senin adresini değil, yalnızca sunucunun adresini görüyor.\nKendi sunucunla, ana ekran sitelerin gördüğü adresi gösteriyor.\nShroudly arada bir, sansürlü ülkelerdeki insanlara yardım etmek isteyip istemediğini soruyor; her \"şimdi değil\" dediğinde iki kat daha uzun bekliyor.\nHer güncellemeden sonra bunun gibi kısa bir not neyin değiştiğini söylüyor.</string>
+    <string name="whatsNewAndroid">Shroudly artık Android TV ve Google TV\'de de çalışıyor, kumandayla kullanılıyor.\nBir sitenin sunucusu siteye ait olmayan bir sertifikayla cevap verirse Shroudly o site için kendiliğinden başka bir tekniğe geçiyor.</string>
     <string name="whatsNewOk">Tamam</string>
     <string name="whatsNewTitle">{version} sürümünde yenilikler</string>
 </resources>

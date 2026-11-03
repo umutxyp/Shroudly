@@ -73,6 +73,6 @@
 "supportBannerLater" = "Hozir emas";
 "tagline" = "Koʻrinmas. Toʻxtatib boʻlmas.";
 "versionLabel" = "Versiya {version}";
-"whatsNewApple" = "Oʻz serveringiz bilan DNS ham u orqali oʻtadi: rezolverlar faqat server manzilini koʻradi, sizniki hech qachon emas.\nApple VPN ruxsatisiz imzolangan nusxa endi buni va uni qanday toʻgʻri oʻrnatishni aytadi.\nOʻz serveringiz bilan asosiy ekran saytlar koʻradigan manzilni koʻrsatadi.\nShroudly vaqti-vaqti bilan senzura bor mamlakatlardagi odamlarga yordam berishni xohlaysizmi deb soʻraydi; har safar \"hozir emas\" desangiz, ikki barobar uzoq kutadi.\nHar bir yangilanishdan keyin shunga oʻxshash qisqa eslatma nima oʻzgarganini aytadi.";
+"whatsNewApple" = "Agar sayt serveri saytga tegishli boʻlmagan sertifikat bilan javob bersa, Shroudly oʻsha sayt uchun oʻzi boshqa usulga oʻtadi.";
 "whatsNewOk" = "Tushunarli";
 "whatsNewTitle" = "{version} versiyasida yangiliklar";

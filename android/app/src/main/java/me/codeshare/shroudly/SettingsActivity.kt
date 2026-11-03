@@ -81,6 +81,7 @@ class SettingsActivity : Activity() {
         Accent.apply(this)
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_settings)
+        Tv.rings(window)
         findViewById<Toolbar>(R.id.toolbar).apply {
             navigationIcon?.mutate()?.setTint(getColor(R.color.text))
             setNavigationOnClickListener { finish() }
@@ -450,10 +451,11 @@ class SettingsActivity : Activity() {
      * protection on and off. It is there from the start, but a phone shows a
      * tile only once the user puts it in the panel, which few find on their
      * own. Android 13 and later let the app ask (the system shows the tile
-     * with Add and Don't add); before, the row says how. Gone once added. */
+     * with Add and Don't add); before, the row says how. Gone once added,
+     * and on a TV, which has no Quick Settings panel. */
     private fun showQuickTile() {
         val row = findViewById<TextView>(R.id.quickTile)
-        val added = getSharedPreferences("settings", MODE_PRIVATE).getBoolean(KEY_TILE_ADDED, false)
+        val added = Tv.isTv(this) || getSharedPreferences("settings", MODE_PRIVATE).getBoolean(KEY_TILE_ADDED, false)
         row.visibility = if (added) View.GONE else View.VISIBLE
         findViewById<View>(R.id.quickTileDivider).visibility = row.visibility
         if (added) return
@@ -930,9 +932,12 @@ class SettingsActivity : Activity() {
     @android.annotation.SuppressLint("SetTextI18n")
     private fun pickApps() {
         val pm = packageManager
-        val launcher = Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_LAUNCHER)
-        val infos = if (Build.VERSION.SDK_INT >= 33) pm.queryIntentActivities(launcher, PackageManager.ResolveInfoFlags.of(0))
-        else @Suppress("DEPRECATION") pm.queryIntentActivities(launcher, 0)
+        // A TV's apps are in its own launcher (LEANBACK_LAUNCHER); some have no other entry.
+        val infos = listOf(Intent.CATEGORY_LAUNCHER, Intent.CATEGORY_LEANBACK_LAUNCHER).flatMap { category ->
+            val launcher = Intent(Intent.ACTION_MAIN).addCategory(category)
+            if (Build.VERSION.SDK_INT >= 33) pm.queryIntentActivities(launcher, PackageManager.ResolveInfoFlags.of(0))
+            else @Suppress("DEPRECATION") pm.queryIntentActivities(launcher, 0)
+        }
         val all = infos.map { it.activityInfo.packageName }.distinct().filter { it != packageName }.map { pkg ->
             val ai = try { pm.getApplicationInfo(pkg, 0) } catch (_: PackageManager.NameNotFoundException) { null }
             App(pkg, ai?.let { pm.getApplicationLabel(it).toString() } ?: pkg, ai?.let { pm.getApplicationIcon(it) })

@@ -73,6 +73,6 @@
 "supportBannerLater" = "Bukan sekarang";
 "tagline" = "Tidak kelihatan. Tidak terhalang.";
 "versionLabel" = "Versi {version}";
-"whatsNewApple" = "Dengan pelayan sendiri, DNS juga melaluinya: penyelesai hanya melihat alamat pelayan, tidak pernah alamat anda.\nSalinan yang ditandatangani tanpa kebenaran VPN Apple kini memberitahunya, serta cara memasangnya dengan betul.\nDengan pelayan sendiri, skrin utama menunjukkan alamat yang dilihat laman web.\nSekali-sekala Shroudly bertanya sama ada anda mahu membantu orang di negara yang ditapis; setiap kali anda berkata bukan sekarang, ia menunggu dua kali lebih lama.\nSelepas setiap kemas kini, nota ringkas seperti ini memberitahu apa yang berubah.";
+"whatsNewApple" = "Jika pelayan sesebuah laman menjawab dengan sijil yang bukan milik laman itu, Shroudly beralih sendiri kepada teknik lain untuk laman tersebut.";
 "whatsNewOk" = "Faham";
 "whatsNewTitle" = "Apa yang baharu dalam {version}";

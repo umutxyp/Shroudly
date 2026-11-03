@@ -224,7 +224,7 @@
     <string name="upload">Жөнөтүү</string>
     <string name="uptime">Иштөө убактысы</string>
     <string name="versionLabel">Версия {version}</string>
-    <string name="whatsNewAndroid">Өз сервериңиз менен DNS да ал аркылуу өтөт: резолверлер сервердин дарегин гана көрөт, сиздикин эч качан.\nӨз сервериңиз менен негизги экран сайттар көргөн даректи көрсөтөт.\nShroudly анда-санда цензура бар өлкөлөрдөгү адамдарга жардам бергиңиз келеби деп сурайт; ар жолу «азыр эмес» десеңиз, эки эсе узак күтөт.\nАр бир жаңыртуудан кийин ушундай кыска жазуу эмне өзгөргөнүн айтат.</string>
+    <string name="whatsNewAndroid">Shroudly эми Android TV жана Google TV\'де да иштейт, пульт менен башкарылат.\nСайттын сервери сайтка таандык эмес сертификат менен жооп берсе, Shroudly ошол сайт үчүн өзү башка ыкмага өтөт.</string>
     <string name="whatsNewOk">Түшүнүктүү</string>
     <string name="whatsNewTitle">{version} версиясындагы жаңылыктар</string>
 </resources>

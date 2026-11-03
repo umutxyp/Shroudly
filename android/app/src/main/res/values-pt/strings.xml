@@ -224,7 +224,7 @@
     <string name="upload">Enviado</string>
     <string name="uptime">Tempo ativo</string>
     <string name="versionLabel">Versão {version}</string>
-    <string name="whatsNewAndroid">Com o seu próprio servidor, o DNS também passa por ele: os resolvedores só veem o endereço do servidor, nunca o seu.\nCom o seu próprio servidor, a tela principal mostra o endereço que os sites veem.\nDe vez em quando o Shroudly pergunta se você quer ajudar pessoas em países com censura; cada vez que você diz agora não, ele espera o dobro.\nDepois de cada atualização, uma nota curta como esta diz o que mudou.</string>
+    <string name="whatsNewAndroid">O Shroudly agora funciona na Android TV e na Google TV, com o controlo remoto.\nSe o servidor de um site responder com um certificado que não é do site, o Shroudly passa sozinho para outra técnica nesse site.</string>
     <string name="whatsNewOk">Entendi</string>
     <string name="whatsNewTitle">Novidades da {version}</string>
 </resources>

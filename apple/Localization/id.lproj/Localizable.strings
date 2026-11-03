@@ -73,6 +73,6 @@
 "supportBannerLater" = "Nanti saja";
 "tagline" = "Tak terlihat. Tak terhentikan.";
 "versionLabel" = "Versi {version}";
-"whatsNewApple" = "Dengan server sendiri, DNS juga lewat server itu: resolver hanya melihat alamat server, tidak pernah alamat Anda.\nSalinan yang ditandatangani tanpa izin VPN dari Apple kini mengatakannya, beserta cara memasangnya dengan benar.\nDengan server sendiri, layar utama menampilkan alamat yang dilihat situs.\nSesekali Shroudly bertanya apakah Anda mau membantu orang di negara yang disensor; setiap kali Anda menjawab nanti saja, ia menunggu dua kali lebih lama.\nSetelah setiap pembaruan, catatan singkat seperti ini memberi tahu apa yang berubah.";
+"whatsNewApple" = "Jika server sebuah situs menjawab dengan sertifikat yang bukan milik situs itu, Shroudly beralih sendiri ke teknik lain untuk situs tersebut.";
 "whatsNewOk" = "Mengerti";
 "whatsNewTitle" = "Yang baru di {version}";

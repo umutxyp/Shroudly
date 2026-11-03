@@ -87,8 +87,13 @@ const CONFLICTS = [
   { re: /psiphon/i,                 name: 'Psiphon', setsProxy: true },
   { re: /(^|["\\/])lantern(\.exe)?("|$)/im, name: 'Lantern', setsProxy: true },
   // At the start of a name, so a game called "Clash of Clans" or a tool that
-  // merely contains "xray" is not taken for one.
-  { re: /(^|["\\/])(v2ray|xray|clash(?! ?of ?clans| ?royale)|flclash|mihomo|verge-mihomo|sing-box|hiddify|nekoray|nekobox)/im, name: 'V2Ray / Clash', setsProxy: true },
+  // merely contains "xray" is not taken for one. Counted like a VPN: only
+  // while its tunnel is up. Running is not enough: Clash Verge's service
+  // and a core v2rayN left behind run with the window closed, steering
+  // nothing (#69); one that takes the system proxy instead is named by
+  // proxyTools when it does.
+  { re: /(^|["\\/])(v2ray|xray|clash(?! ?of ?clans| ?royale)|flclash|mihomo|verge-mihomo|sing-box|hiddify|nekoray|nekobox)/im, name: 'V2Ray / Clash', setsProxy: true,
+    tunnel: /^(meta|mihomo|clash|flclash|sing-?box|singbox|xray|v2ray|hiddify|nekoray|nekobox)/i },
 ];
 // setsProxy: the tool points the system proxy at itself while it runs (most
 // do it by default), so it is the first suspect when Shroudly's setting is

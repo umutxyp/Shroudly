@@ -224,7 +224,7 @@
     <string name="upload">Запампоўка</string>
     <string name="uptime">Час працы</string>
     <string name="versionLabel">Версія {version}</string>
-    <string name="whatsNewAndroid">З уласным серверам праз яго ідзе і DNS: рэзолверы бачаць толькі адрас сервера, а не ваш.\nЗ уласным серверам галоўны экран паказвае адрас, які бачаць сайты.\nЧас ад часу Shroudly пытаецца, ці не хочаце вы дапамагаць людзям у краінах з цэнзурай; кожны раз, калі вы кажаце «не зараз», ён чакае ўдвая даўжэй.\nПасля кожнага абнаўлення кароткая нататка, як гэтая, расказвае, што змянілася.</string>
+    <string name="whatsNewAndroid">Shroudly цяпер працуе на Android TV і Google TV, кіраванне пультам.\nКалі сервер сайта адказвае чужым сертыфікатам, Shroudly сам пераключае гэты сайт на іншую тэхніку.</string>
     <string name="whatsNewOk">Зразумела</string>
     <string name="whatsNewTitle">Што новага ў {version}</string>
 </resources>

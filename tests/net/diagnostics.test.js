@@ -40,8 +40,16 @@ const TAIL_UP = { ...ETH, Tailscale: [{ address: '100.64.0.5', family: 'IPv4', i
   r = await D.runningTools({ probe: { processes: '"Clash of Clans.exe","1"\n"ClashRoyale.exe","2"\n"NVXRayHelper.exe","3"', interfaces: ETH, route: 'Ethernet' } });
   t.ok(r.length === 0, 'games and tools that only contain "clash" or "xray" are not proxy clients');
   for (const p of ['"v2rayN.exe","5"', '"Clash Verge.exe","6"', '"verge-mihomo.exe","7"', '/Applications/ClashX Pro.app/Contents/MacOS/ClashX Pro', 'sing-box', '"Hiddify.exe","8"', '"xray.exe","9"']) {
-    r = await D.runningTools({ probe: { processes: `"chrome.exe","1"\n${p}`, interfaces: ETH, route: 'Ethernet' } });
-    t.ok(r.join() === 'V2Ray / Clash', `proxy clients are still recognised (${p})`);
+    r = await D.runningTools({ probe: { processes: `"chrome.exe","1"\n${p}`, interfaces: ETH, route: 'utun3' } });
+    t.ok(r.join() === 'V2Ray / Clash', `proxy clients are still recognised, with their tunnel up (${p})`);
+  }
+  // #69: Clash Verge's service, or a core left behind, with no tunnel up:
+  // running, steering nothing. Not a conflict, noted as idle.
+  r = await D.runningTools({ details: true, probe: { processes: '"clash-verge-service.exe","4"\n"xray.exe","9"', interfaces: ETH, route: 'Ethernet' } });
+  t.ok(r.active.length === 0 && r.idle.join() === 'V2Ray / Clash', 'a proxy client with no tunnel up: not a conflict, idle (#69)');
+  for (const adapter of ['Mihomo', 'Meta', 'singbox_tun', 'FlClash', 'nekoray-tun']) {
+    r = await D.runningTools({ probe: { processes: '"verge-mihomo.exe","7"', interfaces: { ...ETH, [adapter]: [{ address: '198.18.0.1', family: 'IPv4', internal: false }] }, route: 'Ethernet' } });
+    t.ok(r.join() === 'V2Ray / Clash', `its tunnel adapter up (${adapter}): a conflict`);
   }
   r = await D.runningTools({ probe: { processes: '"chrome.exe","1"', interfaces: ETH, route: 'Ethernet' } });
   t.ok(Array.isArray(r) && r.length === 0, 'nothing running: nothing reported (plain list form)');

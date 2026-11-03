@@ -364,6 +364,9 @@ class AdvancedMode {
   _failure(s, fallback) {
     const said = (s.errors || []).slice(-3).join(' | ');
     const c = SecurityBlock.classifyWinDivert(s.fault);
+    // "Not found" from Windows while every file is there is no antivirus
+    // taking them (#69): said as what it is, with Windows' code.
+    if (c && c.code === 'files_missing' && !this._badFile()) return this._notFound(s.fault);
     if (c && (c.code === 'security_blocked' || c.code === 'files_missing')) {
       const load = s.fault.code === 'windivert_load';
       return this._blockError(c.code, c.kind, {
@@ -374,6 +377,14 @@ class AdvancedMode {
     if (c && c.code === 'rival') return new AdvError('start_failed', 'Another program has a different version of the WinDivert driver loaded (error 654). Close it (GoodbyeDPI, zapret and the like), or restart Windows.');
     if (c && c.code === 'bfe_off') return new AdvError('start_failed', "Windows' Base Filtering Engine service is off (error 1753); Advanced mode needs it.");
     return new AdvError('start_failed', said || fallback);
+  }
+
+  /* Windows said "not found" (2, 3, 126) or "not a program" (193) about
+   * WinDivert while its files are all in place and readable. */
+  _notFound(fault) {
+    const load = fault.code === 'windivert_load';
+    const what = load ? 'load WinDivert.dll' : 'start the WinDivert driver';
+    return new AdvError('start_failed', `Windows could not ${what} (error ${fault.win32}) although Advanced mode's files are all in place. Restart Windows, then try again; if it stays so, please send the log (Logs → Save logs).`);
   }
 
   async _launchWindows(bin, args) {
@@ -387,7 +398,10 @@ class AdvancedMode {
     if (r.code === 3) throw this._blockError('security_blocked', 'denied', { detail: 'elevated start' });
     if (r.code === 4) {
       const bad = this._badFile();
-      throw this._blockError('files_missing', bad ? bad.state : 'missing', { file: bad ? path.basename(bad.file) : null });
+      if (bad) throw this._blockError('files_missing', bad.state, { file: path.basename(bad.file) });
+      // Windows found nothing to start while the file is there and readable
+      // (#69): no antivirus at work, so none is named.
+      throw new AdvError('start_failed', `Windows could not find the advanced engine to start it (error 2) although it is in place: ${advBinaryPath()}. Please send the log (Logs → Save logs).`);
     }
     if (r.code !== 0) throw new AdvError('start_failed', r.stderr.trim() || `PowerShell exited with ${r.code}`);
     const pid = Number(String(r.stdout || '').trim().split(/\s+/).pop());

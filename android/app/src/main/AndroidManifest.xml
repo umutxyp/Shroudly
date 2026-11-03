@@ -2,6 +2,11 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <!-- Android TV and Google TV: no touchscreen, a remote instead; the
+         same app, with a banner in the TV's launcher. -->
+    <uses-feature android:name="android.software.leanback" android:required="false" />
+    <uses-feature android:name="android.hardware.touchscreen" android:required="false" />
+
     <uses-permission android:name="android.permission.INTERNET" />
     <!-- To follow the real network under the VPN (IPv6 or not). -->
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -29,6 +34,11 @@
             <action android:name="android.intent.action.MAIN" />
             <category android:name="android.intent.category.LAUNCHER" />
         </intent>
+        <!-- On a TV, apps are opened from the TV's launcher. -->
+        <intent>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
+        </intent>
         <package android:name="com.android.vending" />
     </queries>
 
@@ -40,6 +50,7 @@
          Play makes from the bundle. -->
     <application
         android:allowBackup="false"
+        android:banner="@drawable/tv_banner"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="false"
         android:extractNativeLibs="true"
@@ -64,6 +75,7 @@
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
             </intent-filter>
             <!-- A long press on the Quick Settings tile opens Shroudly, not
                  Android's App info (issue #35). -->

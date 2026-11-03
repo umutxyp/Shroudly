@@ -1251,6 +1251,14 @@ class EngineManager {
           if (typeof this.onSiteBlocked === 'function') this.onSiteBlocked(msg.host);
         }
         break;
+      // The browser turned down the handshake a technique produced: the
+      // server answered it with another certificate (#68, DDoS-Guard and a
+      // ClientHello in two records). The engine opens the next connection
+      // with a technique of another kind, and that is what is kept.
+      case 'refused':
+        if (msg.next) this._rememberTechnique(msg.host, msg.next);
+        this.log('warning', `${msg.host}: the browser refused the certificate the server sent after ${msg.strategy}; the next connection uses ${msg.next || 'no technique'} instead (reload the page)`);
+        break;
       case 'cut':
         // Just after a wake: connections the sleep stalled, whatever the
         // network does (the engine's stall timers count the sleep on Windows

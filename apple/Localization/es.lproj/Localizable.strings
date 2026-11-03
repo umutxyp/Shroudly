@@ -73,6 +73,6 @@
 "supportBannerLater" = "Ahora no";
 "tagline" = "Invisible. Imparable.";
 "versionLabel" = "Versión {version}";
-"whatsNewApple" = "Con tu propio servidor, el DNS también pasa por él: los resolvedores solo ven la dirección del servidor, nunca la tuya.\nUna copia firmada sin el permiso de VPN de Apple ahora lo dice, y explica cómo instalarla bien.\nCon tu propio servidor, la pantalla principal muestra la dirección que ven los sitios.\nDe vez en cuando Shroudly pregunta si quieres ayudar a personas en países con censura; cada vez que dices ahora no, espera el doble.\nDespués de cada actualización, una nota breve como esta dice qué ha cambiado.";
+"whatsNewApple" = "Si el servidor de un sitio responde con un certificado que no es del sitio, Shroudly cambia por sí solo a otra técnica para ese sitio.";
 "whatsNewOk" = "Entendido";
 "whatsNewTitle" = "Novedades de la {version}";
