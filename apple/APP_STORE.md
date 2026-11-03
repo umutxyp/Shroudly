@@ -173,6 +173,21 @@ masaüstü ve Android sürümü etkilenmez.
    - `MAC_CERT_PASSWORD`: o .p12'nin parolası
 
    Bu ikisi yokken DMG eskisi gibi imzasız (ad-hoc) çıkar.
+4. **Apple TV elle imzalanır.** Otomatik imza, geliştirme profili için
+   kayıtlı bir Apple TV ister; ekipte yok. Bu yüzden tvOS Release yapısı bir
+   **Apple Distribution** sertifikası ve iki **tvOS App Store** profiliyle
+   ("Shroudly tvOS App Store app" / "… tunnel") imzalanır
+   (`Config/ExportOptions-tvOS.plist`):
+   - `APPLE_DIST_KEY`: sertifikanın özel anahtarı (PEM), base64
+   - `APPLE_DIST_CERT`: sertifika (.cer), base64
+   - `TVOS_PROFILE_APP`, `TVOS_PROFILE_TUNNEL`: iki profil, base64
+
+   **Kendiliğinden yenilenmezler; üçü de 2027-11-03'te biter.** Son 45 günde
+   yayın iş akışı uyarı verir. Yenilemek: yeni anahtar + CSR → App Store
+   Connect API `POST /v1/certificates` (DISTRIBUTION) → iki `TVOS_APP_STORE`
+   profili → dört secret'ı güncelle. Süre dolarsa yalnızca yeni Apple TV
+   yüklemeleri durur; mağazadaki uygulama çalışmaya devam eder. iPhone, iPad
+   ve Mac otomatik imzalanır, onlarda yenilenecek bir şey yok.
 
 ### Elle (Xcode ile)
 

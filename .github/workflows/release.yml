@@ -456,6 +456,10 @@ jobs:
           security unlock-keychain -p "$kp" "$kc"
           printf '%s' "$APPLE_DIST_KEY" | base64 --decode > "$RUNNER_TEMP/dist.key"
           printf '%s' "$APPLE_DIST_CERT" | base64 --decode > "$RUNNER_TEMP/dist.cer"
+          # It does not renew itself: a release in its last 45 days says so (apple/APP_STORE.md).
+          if ! openssl x509 -inform der -in "$RUNNER_TEMP/dist.cer" -noout -checkend $((45*86400)) >/dev/null; then
+            echo "::warning title=Apple TV signing::the distribution certificate and tvOS profiles expire $(openssl x509 -inform der -in "$RUNNER_TEMP/dist.cer" -noout -enddate | cut -d= -f2); make new ones and update APPLE_DIST_KEY, APPLE_DIST_CERT, TVOS_PROFILE_APP, TVOS_PROFILE_TUNNEL"
+          fi
           curl -fsSL -o "$RUNNER_TEMP/wwdr.cer" https://www.apple.com/certificateauthority/AppleWWDRCAG3.cer
           security import "$RUNNER_TEMP/dist.key" -k "$kc" -T /usr/bin/codesign -T /usr/bin/security >/dev/null
           security import "$RUNNER_TEMP/dist.cer" -k "$kc" >/dev/null
