@@ -73,6 +73,6 @@
 "supportBannerLater" = "Nicht jetzt";
 "tagline" = "Unsichtbar. Unaufhaltsam.";
 "versionLabel" = "Version {version}";
-"whatsNewApple" = "Antwortet der Server einer Website mit einem Zertifikat, das nicht zur Website gehört, wechselt Shroudly für diese Website von selbst zu einer anderen Technik.";
+"whatsNewApple" = "Shroudly läuft jetzt auch auf Apple TV, bedient mit der Fernbedienung.\nAntwortet der Server einer Website mit einem Zertifikat, das nicht zur Website gehört, wechselt Shroudly für diese Website von selbst zu einer anderen Technik.";
 "whatsNewOk" = "Verstanden";
 "whatsNewTitle" = "Neu in {version}";

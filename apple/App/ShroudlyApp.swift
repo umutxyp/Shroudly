@@ -29,10 +29,12 @@ struct ShroudlyApp: App {
 
     var body: some Scene {
         #if os(macOS)
+        // A small Mac window the size of the desktop app's own width (480 by 680),
+        // never the whole height of the screen.
         Window("Shroudly", id: "main") {
-            root
+            root.frame(width: 480, height: 680)
         }
-        .defaultSize(width: 420, height: 620)
+        .windowResizability(.contentSize)
         #else
         WindowGroup {
             root

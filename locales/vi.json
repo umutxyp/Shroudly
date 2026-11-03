@@ -884,7 +884,7 @@
   "whatsNewOk": "Đã hiểu",
   "whatsNewDesktop": "Nếu máy chủ của một trang trả lời bằng chứng chỉ không phải của trang đó, Shroudly tự chuyển sang kỹ thuật khác cho trang đó.\nWindows: Chế độ nâng cao nói rõ điều gì thực sự hỏng thay vì đổ lỗi cho phần mềm diệt virus, và V2Ray / Clash chỉ được nhắc đến khi đường hầm của nó đang bật.",
   "whatsNewAndroid": "Shroudly giờ chạy được trên Android TV và Google TV, điều khiển bằng remote.\nNếu máy chủ của một trang trả lời bằng chứng chỉ không phải của trang đó, Shroudly tự chuyển sang kỹ thuật khác cho trang đó.",
-  "whatsNewApple": "Nếu máy chủ của một trang trả lời bằng chứng chỉ không phải của trang đó, Shroudly tự chuyển sang kỹ thuật khác cho trang đó.",
+  "whatsNewApple": "Shroudly giờ chạy được trên Apple TV, điều khiển bằng remote.\nNếu máy chủ của một trang trả lời bằng chứng chỉ không phải của trang đó, Shroudly tự chuyển sang kỹ thuật khác cho trang đó.",
   "appleVpnNotSigned": "Bản Shroudly này được ký mà không có quyền VPN của Apple, nên iOS không cho nó khởi động VPN và cũng không bao giờ hỏi. Các bản ký bằng Apple ID miễn phí (AltStore, SideStore, Sideloadly và tương tự) không bao giờ có quyền này. Hãy cài bằng TrollStore, hoặc ký bằng tài khoản nhà phát triển Apple trả phí.",
   "appleInstallHelp": "Cách cài đặt",
   "snowflakeHow": "Cách hoạt động: họ đến qua Snowflake của mạng Tor, nên những gì họ mở đi ra từ máy chủ của Tor, không phải từ bạn."

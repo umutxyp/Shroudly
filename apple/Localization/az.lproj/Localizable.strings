@@ -73,6 +73,6 @@
 "supportBannerLater" = "İndi yox";
 "tagline" = "Görünməz. Dayandırılmaz.";
 "versionLabel" = "Versiya {version}";
-"whatsNewApple" = "Saytın serveri sayta aid olmayan sertifikatla cavab verərsə, Shroudly həmin sayt üçün özü başqa texnikaya keçir.";
+"whatsNewApple" = "Shroudly artıq Apple TV-də də işləyir, pultla idarə olunur.\nSaytın serveri sayta aid olmayan sertifikatla cavab verərsə, Shroudly həmin sayt üçün özü başqa texnikaya keçir.";
 "whatsNewOk" = "Aydındır";
 "whatsNewTitle" = "{version} versiyasında yeniliklər";

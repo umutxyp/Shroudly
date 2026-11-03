@@ -435,14 +435,14 @@ jobs:
           bash apple/scripts/build-hev.sh
           node apple/scripts/gen-strings.js --check
           node apple/scripts/gen-version.js
-      - name: Archive and upload (iOS, then macOS)
+      - name: Archive and upload (iOS, macOS, then tvOS)
         if: steps.ready.outputs.ok == '1'
         shell: bash
         run: |
           set -euo pipefail
           printf '%s' "$ASC_KEY_P8" | base64 --decode > "$RUNNER_TEMP/AuthKey.p8"
           auth=(-allowProvisioningUpdates -authenticationKeyPath "$RUNNER_TEMP/AuthKey.p8" -authenticationKeyID "$ASC_KEY_ID" -authenticationKeyIssuerID "$ASC_ISSUER_ID")
-          for platform in iOS macOS; do
+          for platform in iOS macOS tvOS; do
             xcodebuild -project apple/Shroudly.xcodeproj -scheme Shroudly -configuration Release \
               -destination "generic/platform=$platform" -archivePath "$RUNNER_TEMP/Shroudly-$platform.xcarchive" \
               DEVELOPMENT_TEAM="$APPLE_TEAM_ID" "${auth[@]}" archive

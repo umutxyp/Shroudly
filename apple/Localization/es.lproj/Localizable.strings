@@ -73,6 +73,6 @@
 "supportBannerLater" = "Ahora no";
 "tagline" = "Invisible. Imparable.";
 "versionLabel" = "Versión {version}";
-"whatsNewApple" = "Si el servidor de un sitio responde con un certificado que no es del sitio, Shroudly cambia por sí solo a otra técnica para ese sitio.";
+"whatsNewApple" = "Shroudly ya funciona en Apple TV, con el mando a distancia.\nSi el servidor de un sitio responde con un certificado que no es del sitio, Shroudly cambia por sí solo a otra técnica para ese sitio.";
 "whatsNewOk" = "Entendido";
 "whatsNewTitle" = "Novedades de la {version}";

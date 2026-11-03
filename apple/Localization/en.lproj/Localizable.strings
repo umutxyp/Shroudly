@@ -73,6 +73,6 @@
 "supportBannerLater" = "Not now";
 "tagline" = "Unseen. Unstoppable.";
 "versionLabel" = "Version {version}";
-"whatsNewApple" = "When a site's server answers with a certificate that is not the site's, Shroudly switches that site to another technique by itself.";
+"whatsNewApple" = "Shroudly now runs on Apple TV, with the remote.\nWhen a site's server answers with a certificate that is not the site's, Shroudly switches that site to another technique by itself.";
 "whatsNewOk" = "Got it";
 "whatsNewTitle" = "What's new in {version}";

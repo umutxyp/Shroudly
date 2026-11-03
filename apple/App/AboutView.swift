@@ -24,25 +24,27 @@ struct AboutView: View {
             }
             Section(tr("openSourceTitle")) {
                 Text(tr("openSourceDesc")).font(.footnote).foregroundStyle(Theme.secondaryText)
-                Link(destination: Ids.repoURL) { Label(tr("linkSourceCode"), systemImage: "chevron.left.forwardslash.chevron.right") }
-                Link(destination: Ids.privacyURL) { Label(tr("androidPrivacyPolicy"), systemImage: "hand.raised") }
+                WebLink(url: Ids.repoURL) { Label(tr("linkSourceCode"), systemImage: "chevron.left.forwardslash.chevron.right") }
+                WebLink(url: Ids.privacyURL) { Label(tr("androidPrivacyPolicy"), systemImage: "hand.raised") }
             }
             // Help people in censored countries: an app made for it, which
             // keeps running on its own (Psiphon's Conduit).
             Section(tr("helpOthers")) {
                 Text(tr("helpOthersBodyConduit")).font(.footnote).foregroundStyle(Theme.secondaryText)
-                Link(destination: HelpOthers.conduitURL(language: Bundle.main.preferredLocalizations.first ?? "en")) {
+                WebLink(url: HelpOthers.conduitURL(language: Bundle.main.preferredLocalizations.first ?? "en")) {
                     Label(tr("helpOthersConduit"), systemImage: "person.2.wave.2")
                 }
             }
+            #if !os(tvOS)
             Section {
                 ShareLink(item: logs.isEmpty ? Diagnostics.header() : logs) {
                     Label(tr("androidShareLogs"), systemImage: "square.and.arrow.up")
                 }
             }
+            #endif
         }
         .formStyle(.grouped)
-        .scrollContentBackground(.hidden)
+        .listBackgroundHidden()
         .background(Theme.background)
         .navigationTitle(tr("navInfo"))
         .task { logs = await Diagnostics.text(sites: controller.siteLog()) }

@@ -73,6 +73,6 @@
 "supportBannerLater" = "以后再说";
 "tagline" = "隐形。不可阻挡。";
 "versionLabel" = "版本 {version}";
-"whatsNewApple" = "如果网站的服务器返回的证书不属于该网站，Shroudly 会自动为该网站换用另一种技术。";
+"whatsNewApple" = "Shroudly 现在可以在 Apple TV 上运行，用遥控器操作。\n如果网站的服务器返回的证书不属于该网站，Shroudly 会自动为该网站换用另一种技术。";
 "whatsNewOk" = "知道了";
 "whatsNewTitle" = "{version} 的新内容";

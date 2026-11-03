@@ -73,6 +73,6 @@
 "supportBannerLater" = "Nanti saja";
 "tagline" = "Tak terlihat. Tak terhentikan.";
 "versionLabel" = "Versi {version}";
-"whatsNewApple" = "Jika server sebuah situs menjawab dengan sertifikat yang bukan milik situs itu, Shroudly beralih sendiri ke teknik lain untuk situs tersebut.";
+"whatsNewApple" = "Shroudly kini berjalan di Apple TV, dengan remote.\nJika server sebuah situs menjawab dengan sertifikat yang bukan milik situs itu, Shroudly beralih sendiri ke teknik lain untuk situs tersebut.";
 "whatsNewOk" = "Mengerti";
 "whatsNewTitle" = "Yang baru di {version}";

@@ -73,6 +73,6 @@
 "supportBannerLater" = "לא עכשיו";
 "tagline" = "בלתי נראה. בלתי ניתן לעצירה.";
 "versionLabel" = "גרסה {version}";
-"whatsNewApple" = "אם השרת של אתר עונה בתעודה שאינה של האתר, Shroudly עובר מעצמו לטכניקה אחרת עבור אותו אתר.";
+"whatsNewApple" = "Shroudly פועל עכשיו גם ב־Apple TV, עם השלט.\nאם השרת של אתר עונה בתעודה שאינה של האתר, Shroudly עובר מעצמו לטכניקה אחרת עבור אותו אתר.";
 "whatsNewOk" = "הבנתי";
 "whatsNewTitle" = "מה חדש בגרסה {version}";

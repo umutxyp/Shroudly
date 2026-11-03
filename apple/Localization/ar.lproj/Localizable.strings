@@ -73,6 +73,6 @@
 "supportBannerLater" = "ليس الآن";
 "tagline" = "غير مرئي. لا يُقهر.";
 "versionLabel" = "الإصدار {version}";
-"whatsNewApple" = "إذا ردّ خادم موقع بشهادة ليست للموقع، ينتقل Shroudly من تلقاء نفسه إلى تقنية أخرى لهذا الموقع.";
+"whatsNewApple" = "يعمل Shroudly الآن على Apple TV، باستخدام جهاز التحكم عن بُعد.\nإذا ردّ خادم موقع بشهادة ليست للموقع، ينتقل Shroudly من تلقاء نفسه إلى تقنية أخرى لهذا الموقع.";
 "whatsNewOk" = "حسنًا";
 "whatsNewTitle" = "الجديد في {version}";

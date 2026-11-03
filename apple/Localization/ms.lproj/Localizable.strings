@@ -73,6 +73,6 @@
 "supportBannerLater" = "Bukan sekarang";
 "tagline" = "Tidak kelihatan. Tidak terhalang.";
 "versionLabel" = "Versi {version}";
-"whatsNewApple" = "Jika pelayan sesebuah laman menjawab dengan sijil yang bukan milik laman itu, Shroudly beralih sendiri kepada teknik lain untuk laman tersebut.";
+"whatsNewApple" = "Shroudly kini berjalan pada Apple TV, dengan alat kawalan jauh.\nJika pelayan sesebuah laman menjawab dengan sijil yang bukan milik laman itu, Shroudly beralih sendiri kepada teknik lain untuk laman tersebut.";
 "whatsNewOk" = "Faham";
 "whatsNewTitle" = "Apa yang baharu dalam {version}";

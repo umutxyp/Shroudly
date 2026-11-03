@@ -3,7 +3,8 @@
 # Builds hev-socks5-tunnel, the tun2socks the packet tunnel runs, into
 # apple/third_party/HevSocks5Tunnel.xcframework: iPhone and iPad (arm64), the
 # iOS simulator (arm64, x86_64) and macOS (arm64, x86_64), each a static
-# library with hev's own header and module map (import HevSocks5Tunnel).
+# library with hev's own header and module map (import HevSocks5Tunnel); and
+# Apple TV (arm64) and its simulator (arm64).
 #
 # The source is apple/third_party/hev-socks5-tunnel at the pinned release
 # (scripts/fetch-hev.js fetches it; it is checked file by file here first).
@@ -26,6 +27,7 @@ work="$third/build/hev"
 # The deployment targets of the app (Config/Shroudly.xcconfig).
 IOS_MIN=16.0
 MACOS_MIN=13.0
+TVOS_MIN=17.0
 
 node "$here/fetch-hev.js" --verify
 pin="$(cat "$src/.shroudly-pin") $(shasum -a 256 "$0" | cut -d' ' -f1)"
@@ -59,6 +61,8 @@ build iphonesimulator arm64 "-mios-simulator-version-min=$IOS_MIN"
 build iphonesimulator x86_64 "-mios-simulator-version-min=$IOS_MIN"
 build macosx arm64 "-mmacosx-version-min=$MACOS_MIN"
 build macosx x86_64 "-mmacosx-version-min=$MACOS_MIN"
+build appletvos arm64 "-mappletvos-version-min=$TVOS_MIN"
+build appletvsimulator arm64 "-mappletvsimulator-version-min=$TVOS_MIN"
 
 mkdir -p "$work/sim" "$work/mac" "$work/include/HevSocks5Tunnel"
 lipo -create "$work/iphonesimulator-arm64/libhev-socks5-tunnel.a" "$work/iphonesimulator-x86_64/libhev-socks5-tunnel.a" \
@@ -71,6 +75,8 @@ xcodebuild -create-xcframework \
   -library "$work/iphoneos-arm64/libhev-socks5-tunnel.a" -headers "$work/include" \
   -library "$work/sim/libhev-socks5-tunnel.a" -headers "$work/include" \
   -library "$work/mac/libhev-socks5-tunnel.a" -headers "$work/include" \
+  -library "$work/appletvos-arm64/libhev-socks5-tunnel.a" -headers "$work/include" \
+  -library "$work/appletvsimulator-arm64/libhev-socks5-tunnel.a" -headers "$work/include" \
   -output "$out" >/dev/null
 echo "$pin" > "$out/.shroudly-pin"
 rm -rf "$work"

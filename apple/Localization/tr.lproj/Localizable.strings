@@ -73,6 +73,6 @@
 "supportBannerLater" = "Şimdi değil";
 "tagline" = "Görünmez. Durdurulamaz.";
 "versionLabel" = "Sürüm {version}";
-"whatsNewApple" = "Bir sitenin sunucusu siteye ait olmayan bir sertifikayla cevap verirse Shroudly o site için kendiliğinden başka bir tekniğe geçiyor.";
+"whatsNewApple" = "Shroudly artık Apple TV'de de çalışıyor, kumandayla kullanılıyor.\nBir sitenin sunucusu siteye ait olmayan bir sertifikayla cevap verirse Shroudly o site için kendiliğinden başka bir tekniğe geçiyor.";
 "whatsNewOk" = "Tamam";
 "whatsNewTitle" = "{version} sürümünde yenilikler";

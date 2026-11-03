@@ -49,4 +49,6 @@ xcb -destination "platform=macOS,arch=$(uname -m)" test
 echo "[apple] release builds for iPhone and iPad, and for the Mac"
 xcb -configuration Release -destination 'generic/platform=iOS' build
 xcb -configuration Release -destination 'generic/platform=macOS' build
+# Apple TV (tvOS 17+): the same app and packet tunnel, built for the device.
+xcb -configuration Release -destination 'generic/platform=tvOS' build
 echo "[apple] all passed"

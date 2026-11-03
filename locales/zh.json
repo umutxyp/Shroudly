@@ -884,7 +884,7 @@
   "whatsNewOk": "知道了",
   "whatsNewDesktop": "如果网站的服务器返回的证书不属于该网站，Shroudly 会自动为该网站换用另一种技术。\nWindows：高级模式会说明真正出了什么问题，而不再归咎于杀毒软件；只有在 V2Ray / Clash 的隧道开启时才会提到它。",
   "whatsNewAndroid": "Shroudly 现在可以在 Android TV 和 Google TV 上运行，用遥控器操作。\n如果网站的服务器返回的证书不属于该网站，Shroudly 会自动为该网站换用另一种技术。",
-  "whatsNewApple": "如果网站的服务器返回的证书不属于该网站，Shroudly 会自动为该网站换用另一种技术。",
+  "whatsNewApple": "Shroudly 现在可以在 Apple TV 上运行，用遥控器操作。\n如果网站的服务器返回的证书不属于该网站，Shroudly 会自动为该网站换用另一种技术。",
   "appleVpnNotSigned": "此 Shroudly 副本的签名没有 Apple 的 VPN 权限，因此 iOS 不允许它启动 VPN，也从不询问。用免费 Apple ID 签名的副本（AltStore、SideStore、Sideloadly 等）永远没有这项权限。请用 TrollStore 安装，或用付费的 Apple 开发者账号签名。",
   "appleInstallHelp": "安装方法",
   "snowflakeHow": "原理：他们通过 Tor 网络的 Snowflake 接入，所以他们打开的内容从 Tor 的服务器出去，而不是从你这里。"

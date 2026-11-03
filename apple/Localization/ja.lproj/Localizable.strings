@@ -73,6 +73,6 @@
 "supportBannerLater" = "今はしない";
 "tagline" = "見えない。止められない。";
 "versionLabel" = "バージョン {version}";
-"whatsNewApple" = "サイトのサーバーがそのサイトのものではない証明書で応答した場合、Shroudly はそのサイトで自動的に別の手法に切り替えます。";
+"whatsNewApple" = "Shroudly が Apple TV でも動くようになりました。リモコンで操作できます。\nサイトのサーバーがそのサイトのものではない証明書で応答した場合、Shroudly はそのサイトで自動的に別の手法に切り替えます。";
 "whatsNewOk" = "OK";
 "whatsNewTitle" = "{version} の新機能";

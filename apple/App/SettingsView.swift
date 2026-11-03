@@ -86,7 +86,7 @@ struct SettingsView: View {
             }
         }
         .formStyle(.grouped)
-        .scrollContentBackground(.hidden)
+        .listBackgroundHidden()
         .background(Theme.background)
         .navigationTitle(tr("navSettings"))
         .onChange(of: settings) { new in

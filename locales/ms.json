@@ -884,7 +884,7 @@
   "whatsNewOk": "Faham",
   "whatsNewDesktop": "Jika pelayan sesebuah laman menjawab dengan sijil yang bukan milik laman itu, Shroudly beralih sendiri kepada teknik lain untuk laman tersebut.\nWindows: mod Lanjutan memberitahu apa yang sebenarnya tidak kena dan bukan lagi menyalahkan antivirus, dan V2Ray / Clash hanya disebut ketika terowongnya aktif.",
   "whatsNewAndroid": "Shroudly kini berjalan pada Android TV dan Google TV, dengan alat kawalan jauh.\nJika pelayan sesebuah laman menjawab dengan sijil yang bukan milik laman itu, Shroudly beralih sendiri kepada teknik lain untuk laman tersebut.",
-  "whatsNewApple": "Jika pelayan sesebuah laman menjawab dengan sijil yang bukan milik laman itu, Shroudly beralih sendiri kepada teknik lain untuk laman tersebut.",
+  "whatsNewApple": "Shroudly kini berjalan pada Apple TV, dengan alat kawalan jauh.\nJika pelayan sesebuah laman menjawab dengan sijil yang bukan milik laman itu, Shroudly beralih sendiri kepada teknik lain untuk laman tersebut.",
   "appleVpnNotSigned": "Salinan Shroudly ini ditandatangani tanpa kebenaran Apple untuk VPN, jadi iOS tidak membenarkannya memulakan VPN dan tidak pernah bertanya. Salinan yang ditandatangani dengan Apple ID percuma (AltStore, SideStore, Sideloadly dan seumpamanya) tidak pernah mempunyainya. Pasangnya dengan TrollStore, atau tandatanganinya dengan akaun pembangun Apple berbayar.",
   "appleInstallHelp": "Cara memasangnya",
   "snowflakeHow": "Cara ia berfungsi: mereka datang melalui Snowflake rangkaian Tor, jadi apa yang mereka buka keluar dari pelayan Tor, bukan dari pelayan anda."

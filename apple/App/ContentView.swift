@@ -5,7 +5,9 @@ import SwiftUI
 struct ContentView: View {
     @EnvironmentObject private var controller: TunnelController
     @Environment(\.scenePhase) private var scenePhase
+    #if !os(tvOS)
     @Environment(\.requestReview) private var requestReview
+    #endif
     @AppStorage("noticeSeen") private var noticeSeen = false
     @State private var showNotice = false
     @StateObject private var watch = NetworkWatch()
@@ -21,6 +23,10 @@ struct ContentView: View {
         NavigationStack {
             ZStack {
                 Theme.background.ignoresSafeArea()
+                // Scrolls only when it does not fit: a small iPhone (SE) with
+                // a notice and a long language; otherwise it fills the screen.
+                GeometryReader { screen in
+                ScrollView {
                 VStack(spacing: 28) {
                     Spacer()
                     Orb(phase: phase, warn: watch.ownServerDown != nil || watch.national != nil) { toggle() }
@@ -46,7 +52,7 @@ struct ContentView: View {
                     } else if phase == .on, watch.national != nil {
                         Warning(title: tr("nationalOnlyTitle"), text: tr("nationalOnlyBody"),
                                 link: (tr("nationalOnlyHelp"), NationalNet.guideURL(language: Bundle.main.preferredLocalizations.first ?? "en")))
-                    } else if phase == .on, helpDue, controller.notice == nil {
+                    } else if phase == .on, helpDue, controller.notice == nil, !Theme.isTV {
                         HelpCard(later: {
                             HelpNudge.refused()
                             helpDue = false
@@ -70,6 +76,11 @@ struct ContentView: View {
                     .padding(.bottom, 12)
                 }
                 .frame(maxWidth: 520)
+                .frame(minHeight: screen.size.height)
+                .frame(maxWidth: .infinity)
+                }
+                .macScrollBarHidden()
+                }
             }
             .navigationTitle("Shroudly")
             #if os(iOS)
@@ -92,7 +103,9 @@ struct ContentView: View {
             }
         }
         .task(id: RatingPrompt.Moment(phase: controller.phase, active: scenePhase == .active)) {
+            #if !os(tvOS)
             await RatingPrompt.maybeAsk(controller: controller, active: scenePhase == .active) { requestReview() }
+            #endif
         }
         // Each time the app comes to the front: the help card's turn, and,
         // after an update, what changed.
@@ -184,13 +197,37 @@ private struct Orb: View {
             .shadow(color: on ? tint.opacity(0.45) : .clear, radius: 30)
             .contentShape(Circle())
         }
+        #if os(tvOS)
+        .buttonStyle(OrbFocus())
+        #else
         .buttonStyle(.plain)
+        #endif
         .disabled(phase == .stopping)
         .accessibilityLabel(on || phase == .starting ? tr("stop") : tr("start"))
     }
 
     private var on: Bool { phase == .on }
 }
+
+#if os(tvOS)
+/* Apple TV: the remote's focus on the round switch, as a ring round it and a
+ * little growth, instead of the system's square platter behind it. */
+private struct OrbFocus: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View { Ring(configuration: configuration) }
+
+    private struct Ring: View {
+        let configuration: ButtonStyle.Configuration
+        @Environment(\.isFocused) private var focused
+
+        var body: some View {
+            configuration.label
+                .overlay(Circle().stroke(Theme.accent, lineWidth: 6).frame(width: 232, height: 232).opacity(focused ? 1 : 0))
+                .scaleEffect(configuration.isPressed ? 0.97 : (focused ? 1.08 : 1))
+                .animation(.easeOut(duration: 0.15), value: focused)
+        }
+    }
+}
+#endif
 
 /* A notice under the status: what is wrong, and where to read more. */
 private struct Warning: View {
@@ -203,12 +240,13 @@ private struct Warning: View {
             Label(title, systemImage: "exclamationmark.triangle.fill")
                 .font(.callout.weight(.semibold))
                 .foregroundStyle(.orange)
+                .fixedSize(horizontal: false, vertical: true)
             Text(text)
                 .font(.footnote)
                 .foregroundStyle(Theme.secondaryText)
                 .fixedSize(horizontal: false, vertical: true)
             if let link {
-                Link(link.0, destination: link.1).font(.footnote.weight(.semibold))
+                WebLink(url: link.1) { Text(link.0) }.font(.footnote.weight(.semibold))
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)

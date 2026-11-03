@@ -14,13 +14,17 @@ CURRENT_PROJECT_VERSION = 0
 // One set of targets for iPhone, iPad and Mac (not Mac Catalyst, not the
 // iPad app on Apple silicon Macs: the Mac has its own build).
 SDKROOT = auto
-SUPPORTED_PLATFORMS = iphoneos iphonesimulator macosx
+SUPPORTED_PLATFORMS = iphoneos iphonesimulator macosx appletvos appletvsimulator
 SUPPORTS_MACCATALYST = NO
 SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO
 SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO
 IPHONEOS_DEPLOYMENT_TARGET = 16.0
 MACOSX_DEPLOYMENT_TARGET = 13.0
-TARGETED_DEVICE_FAMILY = 1,2
+// Apple TV: the packet tunnel is there since tvOS 17.
+TVOS_DEPLOYMENT_TARGET = 17.0
+// No Intel Apple TV simulator: hev is built for arm64 there (scripts/build-hev.sh).
+EXCLUDED_ARCHS[sdk=appletvsimulator*] = x86_64
+TARGETED_DEVICE_FAMILY = 1,2,3
 
 SWIFT_VERSION = 5.0
 GCC_C_LANGUAGE_STANDARD = c11
@@ -38,6 +42,8 @@ LOCALIZATION_PREFERS_STRING_CATALOGS = NO
 SHROUDLY_BUNDLE_ID = me.codeshare.shroudly
 SHROUDLY_APP_GROUP[sdk=iphoneos*] = group.me.codeshare.shroudly
 SHROUDLY_APP_GROUP[sdk=iphonesimulator*] = group.me.codeshare.shroudly
+SHROUDLY_APP_GROUP[sdk=appletvos*] = group.me.codeshare.shroudly
+SHROUDLY_APP_GROUP[sdk=appletvsimulator*] = group.me.codeshare.shroudly
 SHROUDLY_APP_GROUP[sdk=macosx*] = $(DEVELOPMENT_TEAM).me.codeshare.shroudly
 
 // The engine's limits in the packet tunnel (core/src/engine.c): iOS ends a

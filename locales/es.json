@@ -884,7 +884,7 @@
   "whatsNewOk": "Entendido",
   "whatsNewDesktop": "Si el servidor de un sitio responde con un certificado que no es del sitio, Shroudly cambia por sí solo a otra técnica para ese sitio.\nWindows: el modo avanzado dice qué falló de verdad en lugar de culpar a un antivirus, y V2Ray / Clash solo se menciona mientras su túnel está activo.",
   "whatsNewAndroid": "Shroudly ya funciona en Android TV y Google TV, con el mando a distancia.\nSi el servidor de un sitio responde con un certificado que no es del sitio, Shroudly cambia por sí solo a otra técnica para ese sitio.",
-  "whatsNewApple": "Si el servidor de un sitio responde con un certificado que no es del sitio, Shroudly cambia por sí solo a otra técnica para ese sitio.",
+  "whatsNewApple": "Shroudly ya funciona en Apple TV, con el mando a distancia.\nSi el servidor de un sitio responde con un certificado que no es del sitio, Shroudly cambia por sí solo a otra técnica para ese sitio.",
   "appleVpnNotSigned": "Esta copia de Shroudly está firmada sin el permiso de Apple para VPN, así que iOS no le deja iniciar una y nunca lo pregunta. Las copias firmadas con un Apple ID gratuito (AltStore, SideStore, Sideloadly y similares) nunca lo tienen. Instálala con TrollStore o fírmala con una cuenta de desarrollador de Apple de pago.",
   "appleInstallHelp": "Cómo instalarla",
   "snowflakeHow": "Cómo funciona: llegan a través de Snowflake, de la red Tor, así que lo que abren sale por los servidores de Tor, no por los tuyos."

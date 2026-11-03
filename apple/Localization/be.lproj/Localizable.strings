@@ -73,6 +73,6 @@
 "supportBannerLater" = "Не зараз";
 "tagline" = "Незаўважны. Нястрымны.";
 "versionLabel" = "Версія {version}";
-"whatsNewApple" = "Калі сервер сайта адказвае чужым сертыфікатам, Shroudly сам пераключае гэты сайт на іншую тэхніку.";
+"whatsNewApple" = "Shroudly цяпер працуе на Apple TV, кіраванне пультам.\nКалі сервер сайта адказвае чужым сертыфікатам, Shroudly сам пераключае гэты сайт на іншую тэхніку.";
 "whatsNewOk" = "Зразумела";
 "whatsNewTitle" = "Што новага ў {version}";

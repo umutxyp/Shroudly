@@ -9,6 +9,9 @@
  * "--restore-proxy" start, which this only launches: the logic that restores
  * after a power cut is the logic that restores after a kill.
  */
+#ifdef __APPLE__
+#include <TargetConditionals.h>
+#endif
 #include "platform.h"
 #include "watchdog.h"
 
@@ -116,6 +119,10 @@ static void launch_restore(void) {
     CloseHandle(pi.hThread);
     CloseHandle(pi.hProcess);
   }
+#elif defined(__APPLE__) && TARGET_OS_TV
+  /* Apple TV runs the engine inside its packet tunnel only: no desktop
+   * settings to restore, and tvOS has no fork. */
+  return;
 #else
   if (!g_argv || !g_argv[0]) return;
   pid_t pid = fork();
