@@ -31,7 +31,7 @@ import javax.net.ssl.SSLSocketFactory
 object UpdateCheck {
     const val REPO_URL = "https://github.com/umutxyp/Shroudly"
     const val RELEASES_URL = "$REPO_URL/releases"
-    const val PRIVACY_URL = "$REPO_URL#privacy"
+    const val PRIVACY_URL = "https://codeshare.me/projects/shroudly/privacy"
     private const val API_HOST = "api.github.com"
     private const val API_PATH = "/repos/umutxyp/Shroudly/releases/latest"
     // Shroudly's download server serves the latest release's files by name

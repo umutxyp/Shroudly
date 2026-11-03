@@ -1047,7 +1047,9 @@ macOS builds are not covered: Apple requires its own Developer ID for those.
 ## Privacy
 
 This is Shroudly's privacy policy, for the desktop app, the Android app and
-the iPhone and iPad app (the phone apps link it under About). Shroudly is made by Codeshare
+the app on the App Store. It is also published on the company's site, at
+[codeshare.me/projects/shroudly/privacy](https://codeshare.me/projects/shroudly/privacy),
+which the apps link under About and the App Store and Google Play link to. Shroudly is made by Codeshare
 Technology Ltd; questions about privacy go to
 [contact@codeshare.me](mailto:contact@codeshare.me).
 
