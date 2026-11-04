@@ -182,6 +182,8 @@
     <string name="shareOnlineCount">मुझे लाइव गिनती में शामिल करें</string>
     <string name="shareOnlineCountDesc">हर बार खुलने पर बदलने वाला एक यादृच्छिक नंबर भेजता है, ताकि ऐप दिखा सके कि कितनी प्रतियाँ चल रही हैं। यह केवल सुरक्षा चालू रहने पर भेजा जाता है, इसलिए यह आपके बाकी ट्रैफ़िक वाले सुरक्षित रास्ते से ही जाता है। यदि आप चाहते हैं कि आपके नेटवर्क को Shroudly से कुछ भी न दिखे, तो इसे बंद कर दें।</string>
     <string name="showNotifications">सूचनाएँ दिखाएँ</string>
+    <string name="snowflakeDevice">इस डिवाइस से मदद करें</string>
+    <string name="snowflakeWhenAndroid">Shroudly तब मदद करता है जब सुरक्षा चालू हो और फ़ोन Wi-Fi पर चार्ज हो रहा हो, इसलिए न बैटरी खर्च होती है न मोबाइल डेटा। आपके चालू करने तक बंद रहता है।</string>
     <string name="start">सुरक्षा शुरू करें</string>
     <string name="startFailed">सुरक्षा शुरू नहीं की जा सकी</string>
     <string name="starting">शुरू हो रहा है…</string>

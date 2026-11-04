@@ -182,6 +182,8 @@
     <string name="shareOnlineCount">Tính tôi vào tổng số trực tuyến</string>
     <string name="shareOnlineCountDesc">Gửi một số ngẫu nhiên thay đổi sau mỗi lần mở ứng dụng, để ứng dụng có thể hiển thị số bản đang chạy. Số này chỉ được gửi khi đang bật bảo vệ, nên nó đi qua cùng đường truyền được bảo vệ như phần còn lại trong lưu lượng của bạn. Hãy tắt tùy chọn này nếu bạn không muốn mạng của mình thấy bất cứ thứ gì từ Shroudly.</string>
     <string name="showNotifications">Hiện thông báo</string>
+    <string name="snowflakeDevice">Giúp qua thiết bị này</string>
+    <string name="snowflakeWhenAndroid">Shroudly giúp khi bảo vệ đang bật và điện thoại đang sạc qua Wi-Fi, nên không tốn pin hay dữ liệu di động. Tắt cho đến khi bạn bật.</string>
     <string name="start">Bật bảo vệ</string>
     <string name="startFailed">Không thể bật bảo vệ</string>
     <string name="starting">Đang bật…</string>

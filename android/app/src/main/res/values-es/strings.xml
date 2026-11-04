@@ -182,6 +182,8 @@
     <string name="shareOnlineCount">Contarme en el total en vivo</string>
     <string name="shareOnlineCountDesc">Envía un número aleatorio que cambia en cada inicio, para que la app pueda mostrar cuántas copias están en marcha. Solo se envía con la protección activa, así que viaja por el mismo camino protegido que el resto de tu tráfico. Desactívalo si prefieres que tu red no vea nada de Shroudly.</string>
     <string name="showNotifications">Mostrar notificaciones</string>
+    <string name="snowflakeDevice">Ayudar desde este dispositivo</string>
+    <string name="snowflakeWhenAndroid">Shroudly ayuda mientras la protección está activa y el teléfono se carga con Wi-Fi, así no gasta batería ni datos móviles. Desactivado hasta que lo actives.</string>
     <string name="start">Iniciar protección</string>
     <string name="startFailed">No se pudo iniciar la protección</string>
     <string name="starting">Iniciando…</string>

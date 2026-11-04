@@ -182,6 +182,8 @@
     <string name="shareOnlineCount">من را در شمار زندهٔ کاربران حساب کن</string>
     <string name="shareOnlineCountDesc">شماره‌ای تصادفی می‌فرستد که در هر اجرا عوض می‌شود تا برنامه بتواند نشان دهد چند نسخه در حال کار است. فقط وقتی محافظت روشن است فرستاده می‌شود، پس از همان مسیر محافظت‌شدهٔ بقیهٔ ترافیک شما می‌رود. اگر ترجیح می‌دهید شبکه‌تان هیچ چیزی از Shroudly نبیند، خاموشش کنید.</string>
     <string name="showNotifications">نمایش اعلان‌ها</string>
+    <string name="snowflakeDevice">کمک از راه این دستگاه</string>
+    <string name="snowflakeWhenAndroid">Shroudly تا وقتی محافظت روشن است و گوشی با Wi-Fi شارژ می‌شود کمک می‌کند؛ پس نه باتری مصرف می‌کند نه اینترنت همراه. تا وقتی روشنش نکنید خاموش است.</string>
     <string name="start">شروع محافظت</string>
     <string name="startFailed">شروع محافظت ممکن نشد</string>
     <string name="starting">در حال شروع…</string>

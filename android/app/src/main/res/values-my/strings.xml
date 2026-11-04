@@ -182,6 +182,8 @@
     <string name="shareOnlineCount">တိုက်ရိုက်စုစုပေါင်းတွင် ကျွန်ုပ်ကို ထည့်ရေတွက်ရန်</string>
     <string name="shareOnlineCountDesc">အက်ပ် မည်မျှ လုပ်ဆောင်နေသည်ကို ပြနိုင်ရန် ဖွင့်တိုင်း ပြောင်းလဲသော ကျပန်းနံပါတ်တစ်ခုကို ပို့သည်။ ကာကွယ်မှု ဖွင့်ထားစဉ်သာ ပို့သဖြင့် သင့်အခြား ဒေတာအသွားအလာနှင့် အတူတူ ကာကွယ်ထားသော လမ်းကြောင်းဖြင့် သွားသည်။ Shroudly ထံမှ မည်သည့်အရာကိုမျှ သင့်ကွန်ရက်က မမြင်စေလိုပါက ပိတ်ထားပါ။</string>
     <string name="showNotifications">အသိပေးချက်များ ပြရန်</string>
+    <string name="snowflakeDevice">ဤစက်ပစ္စည်းမှတစ်ဆင့် ကူညီပါ</string>
+    <string name="snowflakeWhenAndroid">ကာကွယ်မှုဖွင့်ထားပြီး ဖုန်းကို Wi-Fi ဖြင့် အားသွင်းနေစဉ် Shroudly ကူညီပေးသည်၊ ထို့ကြောင့် ဘက်ထရီနှင့် မိုဘိုင်းဒေတာ မကုန်ပါ။ သင်ဖွင့်သည်အထိ ပိတ်ထားသည်။</string>
     <string name="start">ကာကွယ်မှု စတင်ရန်</string>
     <string name="startFailed">ကာကွယ်မှု စတင်၍ မရပါ</string>
     <string name="starting">စတင်နေသည်…</string>

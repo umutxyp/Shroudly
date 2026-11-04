@@ -182,6 +182,8 @@
     <string name="shareOnlineCount">احسبني ضمن العدد المباشر</string>
     <string name="shareOnlineCountDesc">يرسل رقمًا عشوائيًا يتغير مع كل تشغيل، ليتمكن التطبيق من عرض عدد النسخ العاملة. ولا يُرسل إلا والحماية مفعّلة، فيسلك المسار المحمي نفسه الذي تسلكه بقية بياناتك. أوقفه إن كنت تفضّل ألا ترى شبكتك شيئًا من Shroudly إطلاقًا.</string>
     <string name="showNotifications">إظهار الإشعارات</string>
+    <string name="snowflakeDevice">المساعدة عبر هذا الجهاز</string>
+    <string name="snowflakeWhenAndroid">يساعد Shroudly ما دامت الحماية مفعّلة والهاتف يُشحن على شبكة Wi-Fi، فلا يستهلك البطارية ولا بيانات الجوال. يبقى متوقفًا حتى تشغّله.</string>
     <string name="start">بدء الحماية</string>
     <string name="startFailed">تعذّر بدء الحماية</string>
     <string name="starting">جارٍ البدء…</string>

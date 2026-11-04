@@ -58,6 +58,8 @@ class ShroudlyVpnService : VpnService() {
         const val ACTION_TEST = "me.codeshare.shroudly.TEST"
         /* "Block ads and trackers" or its exceptions changed (MainActivity). */
         const val ACTION_ADBLOCK = "me.codeshare.shroudly.ADBLOCK"
+        /* "Help people in censored countries" switched (Snowflake). */
+        const val ACTION_SNOWFLAKE = "me.codeshare.shroudly.SNOWFLAKE"
         /* A setting of the Settings window changed (extra "what": "strategy"
          * restarts the engine with it, "apps" renews the VPN interface with
          * the apps that skip Shroudly). Nothing while protection is off. */
@@ -338,8 +340,10 @@ class ShroudlyVpnService : VpnService() {
                 if (!active && Protection.state == Protection.State.OFF) stopSelf()
                 return stickyWhileOn()
             }
-            ACTION_ADBLOCK -> {
-                if (active) { applyAdblock(); refreshAdblockSoon(0) }
+            ACTION_ADBLOCK, ACTION_SNOWFLAKE -> {
+                if (active) {
+                    if (intent.action == ACTION_SNOWFLAKE) snowflake.changed() else { applyAdblock(); refreshAdblockSoon(0) }
+                }
                 if (!active && Protection.state == Protection.State.OFF) stopSelf()
                 return stickyWhileOn()
             }
@@ -513,6 +517,7 @@ class ShroudlyVpnService : VpnService() {
             Usage.setLockdown(this, Protection.lockdown)
             Protection.ipv6 = v6Routed
             Protection.set(Protection.State.ON)
+            snowflake.start()
             Protection.socksPort = port
             Protection.socksAuth = auth
             // On until the user turns it off (KeepOn).
@@ -1508,9 +1513,13 @@ class ShroudlyVpnService : VpnService() {
 
     /* Undoes whatever startAll did, in reverse: the tunnel first so apps stop
      * sending into it, then the interface, so traffic goes direct again. */
+    // "Help people in censored countries" while on, charging, on Wi-Fi.
+    private val snowflake by lazy { Snowflake(this) { log(it) } }
+
     private fun teardown() {
         val wasActive = active
         active = false
+        snowflake.stop()
         OnlineCount.stop(leave = false)
         healthEpoch++
         poll?.cancel(false); poll = null

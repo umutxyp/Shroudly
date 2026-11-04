@@ -182,6 +182,8 @@
     <string name="shareOnlineCount">Mich bei der Live-Zahl mitzählen</string>
     <string name="shareOnlineCountDesc">Sendet eine Zufallszahl, die sich bei jedem Start ändert, damit die App zeigen kann, wie viele Kopien laufen. Sie wird nur bei aktivem Schutz gesendet und nimmt damit denselben geschützten Weg wie dein übriger Verkehr. Schalte sie ab, wenn dein Netz lieber gar nichts von Shroudly sehen soll.</string>
     <string name="showNotifications">Benachrichtigungen anzeigen</string>
+    <string name="snowflakeDevice">Über dieses Gerät helfen</string>
+    <string name="snowflakeWhenAndroid">Shroudly hilft, solange der Schutz an ist und das Telefon im WLAN lädt: Das kostet weder Akku noch mobile Daten. Aus, bis du es einschaltest.</string>
     <string name="start">Schutz starten</string>
     <string name="startFailed">Schutz konnte nicht gestartet werden</string>
     <string name="starting">Wird gestartet…</string>

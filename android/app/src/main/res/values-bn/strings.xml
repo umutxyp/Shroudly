@@ -182,6 +182,8 @@
     <string name="shareOnlineCount">লাইভ গণনায় আমাকে ধরুন</string>
     <string name="shareOnlineCountDesc">প্রতিবার চালু হলে বদলে যাওয়া একটি এলোমেলো সংখ্যা পাঠায়, যাতে অ্যাপ দেখাতে পারে কতগুলো কপি চলছে। কেবল সুরক্ষা চালু থাকলেই পাঠানো হয়, তাই এটি আপনার বাকি ট্রাফিকের মতো একই সুরক্ষিত পথে যায়। আপনার নেটওয়ার্ক Shroudly থেকে কিছুই না দেখুক চাইলে বন্ধ করুন।</string>
     <string name="showNotifications">বিজ্ঞপ্তি দেখান</string>
+    <string name="snowflakeDevice">এই ডিভাইসের মাধ্যমে সাহায্য করুন</string>
+    <string name="snowflakeWhenAndroid">সুরক্ষা চালু থাকলে এবং ফোন Wi-Fi-তে চার্জ হলে Shroudly সাহায্য করে, তাই ব্যাটারি বা মোবাইল ডেটা খরচ হয় না। আপনি চালু না করা পর্যন্ত বন্ধ থাকে।</string>
     <string name="start">সুরক্ষা চালু করুন</string>
     <string name="startFailed">সুরক্ষা চালু করা যায়নি</string>
     <string name="starting">চালু হচ্ছে…</string>

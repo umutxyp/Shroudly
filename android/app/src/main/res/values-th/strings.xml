@@ -182,6 +182,8 @@
     <string name="shareOnlineCount">นับรวมฉันในยอดผู้ใช้ขณะนี้</string>
     <string name="shareOnlineCountDesc">ส่งตัวเลขสุ่มที่เปลี่ยนใหม่ทุกครั้งที่เปิดแอป เพื่อให้แอปแสดงได้ว่ามี Shroudly ทำงานอยู่กี่ชุด ตัวเลขนี้จะถูกส่งเฉพาะตอนที่เปิดการป้องกันอยู่ จึงผ่านเส้นทางที่ได้รับการป้องกันเดียวกับการรับส่งข้อมูลอื่น ๆ ของคุณ ปิดตัวเลือกนี้หากคุณไม่ต้องการให้เครือข่ายเห็นข้อมูลใด ๆ จาก Shroudly เลย</string>
     <string name="showNotifications">แสดงการแจ้งเตือน</string>
+    <string name="snowflakeDevice">ช่วยผ่านอุปกรณ์นี้</string>
+    <string name="snowflakeWhenAndroid">Shroudly ช่วยขณะที่การป้องกันเปิดอยู่และโทรศัพท์กำลังชาร์จผ่าน Wi-Fi จึงไม่เปลืองแบตเตอรี่หรือเน็ตมือถือ ปิดอยู่จนกว่าคุณจะเปิด</string>
     <string name="start">เริ่มการป้องกัน</string>
     <string name="startFailed">ไม่สามารถเริ่มการป้องกันได้</string>
     <string name="starting">กำลังเริ่ม…</string>

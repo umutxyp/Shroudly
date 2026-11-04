@@ -182,6 +182,8 @@
     <string name="shareOnlineCount">Meni jonli hisobga qoʻshish</string>
     <string name="shareOnlineCountDesc">Har safar ishga tushganda oʻzgaradigan tasodifiy raqam yuboriladi, shunda ilova nechta nusxa ishlayotganini koʻrsata oladi. U faqat himoya yoqilganida yuboriladi, shuning uchun trafikingizning qolgan qismi bilan bir xil himoyalangan yoʻldan oʻtadi. Agar tarmogʻingiz Shroudlydan umuman hech narsa koʻrmasligini istasangiz, buni oʻchiring.</string>
     <string name="showNotifications">Bildirishnomalarni koʻrsatish</string>
+    <string name="snowflakeDevice">Shu qurilma orqali yordam berish</string>
+    <string name="snowflakeWhenAndroid">Shroudly himoya yoqilgan va telefon Wi-Fi orqali quvvatlanayotganda yordam beradi, shuning uchun batareya va mobil internetni sarflamaydi. Siz yoqmaguningizcha o‘chiq.</string>
     <string name="start">Himoyani yoqish</string>
     <string name="startFailed">Himoyani yoqib boʻlmadi</string>
     <string name="starting">Yoqilmoqda…</string>

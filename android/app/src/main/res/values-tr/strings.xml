@@ -182,6 +182,8 @@
     <string name="shareOnlineCount">Canlı sayıma beni de kat</string>
     <string name="shareOnlineCountDesc">Her açılışta değişen rastgele bir numara gönderir; uygulama böylece kaç kopyanın çalıştığını gösterebilir. Yalnızca koruma açıkken gönderilir, yani diğer trafiğinle aynı korumalı yoldan gider. Ağının Shroudly’den hiçbir şey görmesini istemiyorsan kapat.</string>
     <string name="showNotifications">Bildirimleri göster</string>
+    <string name="snowflakeDevice">Bu cihaz üzerinden yardım et</string>
+    <string name="snowflakeWhenAndroid">Shroudly, koruma açıkken ve telefon Wi-Fi\'de şarj olurken yardım eder; böylece pil ve mobil veri harcamaz. Sen açana kadar kapalıdır.</string>
     <string name="start">Korumayı başlat</string>
     <string name="startFailed">Koruma başlatılamadı</string>
     <string name="starting">Başlatılıyor…</string>

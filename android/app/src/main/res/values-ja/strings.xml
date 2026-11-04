@@ -182,6 +182,8 @@
     <string name="shareOnlineCount">オンライン人数に自分を含める</string>
     <string name="shareOnlineCountDesc">起動ごとに変わるランダムな番号を送り、何台が動いているかを表示できるようにします。保護がオンのときだけ送られるので、ほかの通信と同じ保護された経路を通ります。ネットワークに Shroudly の通信を一切見せたくない場合はオフにしてください。</string>
     <string name="showNotifications">通知を表示</string>
+    <string name="snowflakeDevice">このデバイスで手伝う</string>
+    <string name="snowflakeWhenAndroid">Shroudly は保護がオンで、スマートフォンが Wi-Fi 接続で充電中のときだけ手伝うので、バッテリーもモバイルデータも使いません。オンにするまではオフです。</string>
     <string name="start">保護を開始</string>
     <string name="startFailed">保護を開始できませんでした</string>
     <string name="starting">開始しています…</string>

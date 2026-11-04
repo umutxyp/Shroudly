@@ -224,6 +224,14 @@ class SettingsActivity : Activity() {
             isChecked = OnlineCount.enabled(this@SettingsActivity)
             setOnCheckedChangeListener { _, on -> OnlineCount.setEnabled(this@SettingsActivity, on) }
         }
+        // Inside Shroudly while on, charging, on Wi-Fi (Snowflake).
+        findViewById<Switch>(R.id.snowflake).apply {
+            isChecked = Snowflake.enabled(this@SettingsActivity)
+            setOnCheckedChangeListener { _, on ->
+                Snowflake.setEnabled(this@SettingsActivity, on)
+                Protector.tell(this@SettingsActivity, ShroudlyVpnService.ACTION_SNOWFLAKE)
+            }
+        }
         // Only in the copy from GitHub (AdBlock.offered).
         val adBlock = AdBlock.offered(this)
         val allowRow = findViewById<View>(R.id.adBlockAllow)
@@ -247,6 +255,8 @@ class SettingsActivity : Activity() {
             titled(getString(R.string.shareOnlineCount), ifOpen(R.id.appTitle, getString(R.string.shareOnlineCountDesc)))
         findViewById<Switch>(R.id.adBlock).text =
             titled(getString(R.string.adBlock), ifOpen(R.id.appTitle, getString(R.string.adBlockDesc)))
+        findViewById<Switch>(R.id.snowflake).text =
+            titled(getString(R.string.snowflakeDevice), ifOpen(R.id.appTitle, getString(R.string.snowflakeWhenAndroid)))
     }
 
     /* "Sites never to block": one domain per line, cleaned on save. */

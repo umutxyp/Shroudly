@@ -182,6 +182,8 @@
     <string name="shareOnlineCount">Учитывать меня в счётчике реального времени</string>
     <string name="shareOnlineCountDesc">Отправляет случайный номер, который меняется при каждом запуске, чтобы приложение могло показать, сколько копий работает. Отправляется только при включённой защите, поэтому идёт тем же защищённым путём, что и остальной трафик. Выключите, если не хотите, чтобы сеть вообще видела что-либо от Shroudly.</string>
     <string name="showNotifications">Показывать уведомления</string>
+    <string name="snowflakeDevice">Помогать через это устройство</string>
+    <string name="snowflakeWhenAndroid">Shroudly помогает, пока защита включена и телефон заряжается в сети Wi-Fi, поэтому не тратит ни заряд, ни мобильный трафик. Выключено, пока вы не включите.</string>
     <string name="start">Включить защиту</string>
     <string name="startFailed">Не удалось включить защиту</string>
     <string name="starting">Запуск…</string>

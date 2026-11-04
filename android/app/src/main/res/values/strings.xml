@@ -182,6 +182,8 @@
     <string name="shareOnlineCount">Count me in the live total</string>
     <string name="shareOnlineCountDesc">Sends a random number that changes every launch, so the app can show how many copies are running. It is only sent while protection is on, so it travels the same protected path as the rest of your traffic. Turn it off if you would rather your network saw nothing from Shroudly at all.</string>
     <string name="showNotifications">Show notifications</string>
+    <string name="snowflakeDevice">Help through this device</string>
+    <string name="snowflakeWhenAndroid">Shroudly helps while protection is on and the phone is charging on Wi-Fi, so it costs no battery and no mobile data. Off until you turn it on.</string>
     <string name="start">Start protection</string>
     <string name="startFailed">Could not start protection</string>
     <string name="starting">Starting…</string>

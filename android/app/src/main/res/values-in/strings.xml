@@ -182,6 +182,8 @@
     <string name="shareOnlineCount">Hitung saya dalam jumlah pengguna online</string>
     <string name="shareOnlineCountDesc">Mengirim angka acak yang berubah setiap kali dibuka, agar aplikasi bisa menampilkan berapa salinan yang sedang berjalan. Hanya dikirim saat perlindungan aktif, jadi melewati jalur terlindungi yang sama dengan lalu lintas Anda. Matikan jika Anda lebih suka jaringan Anda tidak melihat apa pun dari Shroudly.</string>
     <string name="showNotifications">Tampilkan notifikasi</string>
+    <string name="snowflakeDevice">Bantu lewat perangkat ini</string>
+    <string name="snowflakeWhenAndroid">Shroudly membantu selama perlindungan menyala dan ponsel mengisi daya di Wi-Fi, jadi tidak memakai baterai maupun data seluler. Mati sampai kamu menyalakannya.</string>
     <string name="start">Mulai perlindungan</string>
     <string name="startFailed">Tidak dapat memulai perlindungan</string>
     <string name="starting">Memulai…</string>

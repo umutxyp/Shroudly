@@ -182,6 +182,8 @@
     <string name="shareOnlineCount">እኔንም በቀጥታ ድምሩ ውስጥ መቁጠር</string>
     <string name="shareOnlineCountDesc">መተግበሪያው ምን ያህል ቅጂዎች እየሰሩ እንደሆነ ማሳየት እንዲችል በእያንዳንዱ ጅምር የሚቀየር የዘፈቀደ ቁጥር ይልካል። የሚላከው ጥበቃ በርቶ እያለ ብቻ ነው፤ ስለዚህ እንደ ሌላው ትራፊክዎ በዚያው በተጠበቀ መንገድ ይጓዛል። አውታረ መረብዎ ከShroudly ምንም ነገር እንዳያይ ከመረጡ ይህን ያጥፉት።</string>
     <string name="showNotifications">ማሳወቂያዎችን ማሳየት</string>
+    <string name="snowflakeDevice">በዚህ መሣሪያ በኩል እርዱ</string>
+    <string name="snowflakeWhenAndroid">Shroudly ጥበቃው በርቶ ስልኩ በWi-Fi ላይ ሲሞላ ይረዳል፤ ስለዚህ ባትሪም የሞባይል ዳታም አያባክንም። እስኪያበሩት ድረስ ጠፍቷል።</string>
     <string name="start">ጥበቃ ይጀምሩ</string>
     <string name="startFailed">ጥበቃን መጀመር አልተቻለም</string>
     <string name="starting">በመጀመር ላይ…</string>
