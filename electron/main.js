@@ -29,6 +29,7 @@ const { Share } = require('./share');
 const Snowflake = require('./snowflake');
 const WhatsNew = require('./whats-new');
 const HelperServer = require('./helper-server');
+const DataDir = require('./data-dir');
 const NationalNet = require('./national-net');
 const AdvancedMode = require('./advanced-mode');
 const AdvancedProtection = require('./advanced-protection');
@@ -82,9 +83,22 @@ const RESTORE_PROXY_ARG = '--restore-proxy';
 // Added by the watchdog's restore: Shroudly vanished just now (killed,
 // crashed), it is not a login.
 const FROM_WATCHDOG_ARG = '--from-watchdog';
-const proxyStateFile = () => path.join(app.getPath('userData'), 'proxy-state.json');
-const appEnvStateFile = () => path.join(app.getPath('userData'), 'app-env.json');
-const discordLineFile = () => path.join(app.getPath('userData'), 'discord-line.json');
+/* Where this run keeps its data (data-dir.js, issue #72): the default
+ * folder, a portable "Shroudly Data" next to the program, or a folder chosen
+ * in Settings; decided before anything is read or written. The server
+ * helper (--help-others) has a folder of its own. What belongs to this
+ * computer (the system proxy as it was, and the like) stays in the default
+ * folder, where a login restore finds it whatever happened to the other. */
+const defaultUserData = app.getPath('userData');
+const dataPlace = process.argv.includes(HelperServer.ARG)
+  ? { dir: defaultUserData, how: 'default', problem: null }
+  : DataDir.resolve({ defaultDir: defaultUserData });
+if (dataPlace.dir !== defaultUserData) {
+  try { app.setPath('userData', dataPlace.dir); app.setPath('sessionData', dataPlace.dir); } catch {}
+}
+const proxyStateFile = () => path.join(defaultUserData, 'proxy-state.json');
+const appEnvStateFile = () => path.join(defaultUserData, 'app-env.json');
+const discordLineFile = () => path.join(defaultUserData, 'discord-line.json');
 if (process.argv.includes(RESTORE_PROXY_ARG)) {
   restoreProxy({
     stateFile: proxyStateFile(),
@@ -1159,6 +1173,9 @@ app.whenReady().then(async () => {
   const unsaved = (e) => addLog('warning', `Settings cannot be saved (${(e && (e.code || e.message)) || 'unknown'}); changes last until Shroudly closes`);
   if (settingsOpened.unsaved) unsaved(settingsOpened.unsaved);
   else settingsOpened.onUnsaved = unsaved;
+  // A data folder chosen earlier that cannot be used this run (data-dir.js).
+  if (dataPlace.problem) addLog('warning', DataDir.problemLine(dataPlace.problem));
+  else if (dataPlace.how !== 'default') addLog('info', `Data folder: ${dataPlace.how === 'portable' ? 'portable, next to the program' : 'chosen in Settings'} (${dataPlace.dir})`);
   // Turned off in Windows itself: off here too, and left off (the switch in
   // Settings turns it on again, for Windows as well).
   if (store.get('autoStart', false) === true && windowsStartupOff()) {
@@ -3191,6 +3208,30 @@ ipcMain.handle('settings:set', (e, key, value) => {
     if (!ok) { store.set('autoStart', false); return { success: false, error: 'Could not set auto-start' }; }
   }
   return { success: true };
+});
+
+/* Settings → Application, where Shroudly keeps its data (data-dir.js,
+ * issue #72): the folder now and the other places; a folder picked; a
+ * change, after which Shroudly restarts from there (protection stopped and
+ * the system's settings put back first, as on any quit). */
+ipcMain.handle('datadir:get', () => DataDir.choices({ current: dataPlace, defaultDir: defaultUserData }));
+ipcMain.handle('datadir:pick', async () => {
+  modalOpen++;
+  try {
+    const r = await dialog.showOpenDialog(mainWindow && !mainWindow.isDestroyed() ? mainWindow : undefined, { properties: ['openDirectory', 'createDirectory'] });
+    return r.canceled || !r.filePaths[0] ? null : r.filePaths[0];
+  } catch { return null; } finally { modalOpen--; }
+});
+ipcMain.handle('datadir:set', (e, target) => {
+  const r = DataDir.choose(target, { current: dataPlace, defaultDir: defaultUserData });
+  if (!r.ok) {
+    addLog('warning', `Data folder: could not change to ${target === 'default' || target === 'portable' ? target : `"${target}"`} (${r.error}${r.detail ? `: ${r.detail}` : ''})`);
+    return r;
+  }
+  if (r.same) return r;
+  addLog('info', `Data folder: everything copied to "${r.dir}"; Shroudly restarts from there (the old folder is left as it was)`);
+  setTimeout(() => { app.relaunch(); app.quit(); }, 300);
+  return r;
 });
 
 ipcMain.handle('update:getState', () => (updater ? updater.state : { status: 'unsupported' }));

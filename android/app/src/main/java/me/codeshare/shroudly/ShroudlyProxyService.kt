@@ -135,6 +135,7 @@ class ShroudlyProxyService : Service() {
                 if (intent.getStringExtra("what") == "strategy") work.execute { restartEngine("restarted with the technique chosen in Settings") }
                 if (intent.getStringExtra("what") == "network") work.execute { restartEngine("restarted with the network settings chosen in Settings") }
                 if (intent.getStringExtra("what") == "ownServer") work.execute { restartEngine("restarted with the server chosen in Settings") }
+                if (intent.getStringExtra("what") == "torLastResort") work.execute { restartEngine("restarted with the last way out ${if (TorRoute.enabled(this)) "on" else "off"}") }
                 // Another DNS server: from the next lookup on, nothing restarted.
                 if (intent.getStringExtra("what") == "dns") work.execute { if (active) { doh?.let { AppSettings.applyDns(this, it) }; engine?.send(if (AppSettings.customDnsStrict(this)) "DNS-STRICT 1" else "DNS-STRICT 0"); engine?.send("DNS-CLEAR") } }
                 if (!active && Protection.state == Protection.State.OFF) stopSelf()
@@ -238,8 +239,10 @@ class ShroudlyProxyService : Service() {
             val e = Engine(::log, ShroudlyVpnService::logSite, ::onEvent, ::onExit)
             engine = e
             val upstream = ownServer.fileFor(AppSettings.ownServer(this))
+            // The last way out (TorRoute), as with the VPN.
+            val fallback = if (upstream == null && TorRoute.enabled(this)) torRoute.prepare() else { torRoute.stop(); null }
             // No password and no stand-in range: apps reach it by name or address.
-            val started = e.start(Engine.args(at, dohPort, blockIps, null, null, AdBlock.listFile(this), AdBlock.allow(this), AppSettings.strategy(this), AppSettings.customDnsStrict(this), AppSettings.quicOff(this), AppSettings.ipv6Off(this), upstream, AppSettings.decoyNames(this)))
+            val started = e.start(Engine.args(at, dohPort, blockIps, null, null, AdBlock.listFile(this), AdBlock.allow(this), AppSettings.strategy(this), AppSettings.customDnsStrict(this), AppSettings.quicOff(this), AppSettings.ipv6Off(this), upstream, AppSettings.decoyNames(this), fallback))
             upstream?.delete()
             if (started) {
                 doh?.socksPort = at
@@ -283,6 +286,7 @@ class ShroudlyProxyService : Service() {
             is EngineEvent.Stats -> {
                 // Carried traffic: a day protection worked (Usage), once a session.
                 if (ev.bytesDown > 0 && !workedToday && active && Protection.troubleRes == 0) { workedToday = true; Usage.worked(this) }
+                torRoute.noteUse(ev.fallback)
                 Protection.stats = ev
                 Protection.changed()
             }
@@ -293,6 +297,8 @@ class ShroudlyProxyService : Service() {
             is EngineEvent.AdblockCheck -> adblockCheck.getAndSet(null)?.complete(ev)
             is EngineEvent.Error -> log("engine: ${ev.message}")
             is EngineEvent.Upstream -> if (!ev.ok) ownServer.down(OwnServer.whyCode(ev.why))
+            is EngineEvent.Fallback -> if (!ev.ok) { if (ev.why != "file unusable") torRoute.need() }
+                else ShroudlyVpnService.logSite("${ev.host}: no technique got through; opened through the last way out (Tor)")
             else -> {}
         }
     }
@@ -469,8 +475,12 @@ class ShroudlyProxyService : Service() {
         }
     }
 
+    // The last way out (TorRoute): Tor, for sites nothing else opened.
+    private val torRoute by lazy { TorRoute(this, { log(it) }) { Protection.changed() } }
+
     private fun cleanup() {
         active = false
+        torRoute.stop()
         Protection.trouble(0)
         network?.stop(getSystemService(ConnectivityManager::class.java))
         network = null

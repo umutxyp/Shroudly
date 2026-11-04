@@ -11,6 +11,10 @@ contextBridge.exposeInMainWorld('electron', {
   // Settings → Application (issue #46): put right what went wrong over time,
   // or every setting back to a new install's (the app restarts).
   repairApp: () => ipcRenderer.invoke('app:repair'),
+  // Where Shroudly keeps its data (data-dir.js, issue #72).
+  getDataDir: () => ipcRenderer.invoke('datadir:get'),
+  pickDataDir: () => ipcRenderer.invoke('datadir:pick'),
+  setDataDir: (target) => ipcRenderer.invoke('datadir:set', target),
   // macOS: run from the disk image or Downloads, and the move to Applications.
   appPlacement: () => ipcRenderer.invoke('app:placement'),
   moveToApplications: () => ipcRenderer.invoke('app:moveToApplications'),

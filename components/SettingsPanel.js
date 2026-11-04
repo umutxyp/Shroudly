@@ -546,6 +546,53 @@ const SETTINGS_TABS = [
   { id: 'app', key: 'tabApp' },
 ];
 
+/* Where Shroudly keeps what it saves (electron/data-dir.js, issue #72): the
+ * folder now, and the other places it can be. A change copies everything
+ * there and restarts Shroudly; the old folder is left as it was. */
+function DataFolder({ t }) {
+  const [info, setInfo] = useState(null);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState(null);
+  useEffect(() => {
+    let alive = true;
+    window.electron?.getDataDir?.().then((d) => { if (alive && d) setInfo(d); }).catch(() => {});
+    return () => { alive = false; };
+  }, []);
+  if (!info) return null;
+  const go = async (target) => {
+    setBusy(true); setError(null);
+    let r = null;
+    try { r = await window.electron.setDataDir(target); } catch {}
+    // Done: Shroudly restarts from the new folder.
+    if (!r || !r.ok) { setError(t(r && r.error === 'unwritable' ? 'dataFolderUnwritable' : r && r.error === 'installed' ? 'dataFolderInstalled' : 'dataFolderFailed')); setBusy(false); }
+  };
+  const pick = async () => {
+    let d = null;
+    try { d = await window.electron.pickDataDir(); } catch {}
+    if (d) go(d);
+  };
+  const btn = 'btn btn-ghost shrink-0 rounded-[8px] px-3 py-1.5 text-[12.5px] font-semibold';
+  return (
+    <div className="mt-3">
+      <p className="m-0 text-[12px] leading-snug" style={{ color: 'var(--text-faint)' }}>{t('dataFolderDesc')}</p>
+      <p className="m-0 mt-1.5 text-[12px] leading-snug wrap-anywhere" style={{ color: 'var(--text-dim)' }} dir="ltr">
+        {info.current}
+      </p>
+      <div className="mt-2 flex flex-wrap items-center gap-2">
+        <button type="button" disabled={busy} onClick={pick} className={btn}>{t('dataFolderChoose')}</button>
+        {info.portable && info.how !== 'portable' && (
+          <button type="button" disabled={busy} onClick={() => go('portable')} className={btn}>{t('dataFolderPortable')}</button>
+        )}
+        {info.how !== 'default' && (
+          <button type="button" disabled={busy} onClick={() => go('default')} className={btn}>{t('dataFolderDefault')}</button>
+        )}
+        {busy && <SpinnerIcon className="spin h-3.5 w-3.5" />}
+      </div>
+      {error && <p role="status" className="m-0 mt-2 text-[12px] leading-snug" style={{ color: 'var(--warn)' }}>{error}</p>}
+    </div>
+  );
+}
+
 export default function SettingsPanel({ active = false }) {
   const { language, setLanguage, t, availableLanguages, locale, isRTL } = useLanguage();
   const strategyLabelId = useId();
@@ -1291,6 +1338,7 @@ export default function SettingsPanel({ active = false }) {
                     }}
                     className="btn btn-ghost shrink-0 rounded-[8px] px-3 py-1.5 text-[12.5px] font-semibold">{t('resetSettings')}</button>
           </div>
+          <DataFolder t={t} />
           {/* Quitting is otherwise only in the tray menu, which some desktops
               (stock GNOME) never show. Quitting restores every setting. */}
           <div className="mt-3 flex items-center justify-between gap-3">
