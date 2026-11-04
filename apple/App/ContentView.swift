@@ -147,7 +147,7 @@ struct ContentView: View {
 
     /* Debug builds' screenshots: believable numbers instead of dashes. */
     private static let previewSince = Date().addingTimeInterval(-(42 * 60 + 17))
-    private static let previewStats = EngineStats(["conns_active": 14, "conns_total": 386, "bytes_down": 248_000_000, "bytes_up": 19_400_000])
+    private static let previewStats = EngineStats(["conns_active": 14, "conns_total": 386, "bytes_down": 248_000_000, "bytes_up": 19_400_000, "online": 1_204])
 
     private var hasCard: Bool {
         phase == .on && (watch.ownServerDown != nil || watch.national != nil || (helpDue && controller.notice == nil && !Theme.isTV))

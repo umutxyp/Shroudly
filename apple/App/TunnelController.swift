@@ -133,6 +133,12 @@ final class TunnelController: ObservableObject {
         try? session.sendProviderMessage(Data(ProviderMessage.adblock.rawValue.utf8)) { _ in }
     }
 
+    /* "Count me in the live total" changed: the running tunnel is told. */
+    func countChanged() {
+        guard phase == .on, let session = manager?.connection as? NETunnelProviderSession else { return }
+        try? session.sendProviderMessage(Data(ProviderMessage.count.rawValue.utf8)) { _ in }
+    }
+
     /* The engine's counters, while protection is on. */
     func stats() async -> EngineStats? {
         guard phase == .on, let session = manager?.connection as? NETunnelProviderSession else { return nil }

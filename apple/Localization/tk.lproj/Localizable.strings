@@ -47,6 +47,7 @@
 "navSettings" = "Sazlamalar";
 "navStats" = "Statistika";
 "notProtected" = "Goragsyz";
+"onlineNow" = "Häzir onlaýn";
 "openSourceDesc" = "Shroudly mugt we MIT ygtyýarnamasy boýunça açyk çeşmeli: islendik adam onuň koduny okap, barlap we ýygnap bilýär.";
 "openSourceTitle" = "Açyk çeşme";
 "ownServer" = "Öz serweriňiz";
@@ -67,6 +68,8 @@
 "ownServerWhySilent" = "hiç zat gaýdyp gelmedi; parol ýa-da usul nädogry bolup biler";
 "ownServerWhyTls" = "ol jogap berýär, ýöne onuň üsti bilen hiç bir saýt gelmedi";
 "protected" = "Goragly";
+"shareOnlineCount" = "Meni onlaýn sana goşmak";
+"shareOnlineCountDesc" = "Her işledilende üýtgeýän tötänleýin san iberilýär, şonuň üçin programma özüniň näçe nusgasynyň işleýändigini görkezip bilýär. Ol diňe gorag açyk wagty iberilýär, şonuň üçin beýleki trafigiňiz ýaly şol goralýan ýol bilen geçýär. Toruňyzyň Shroudly-den asla hiç zat görmezligini isleseňiz, muny öçüriň.";
 "start" = "Goragy işlediň";
 "startFailed" = "Goragy işledip bolmady";
 "starting" = "Işledilýär…";

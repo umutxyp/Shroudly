@@ -47,6 +47,7 @@
 "navSettings" = "Pengaturan";
 "navStats" = "Statistik";
 "notProtected" = "Tidak terlindungi";
+"onlineNow" = "Online sekarang";
 "openSourceDesc" = "Shroudly gratis dan bersumber terbuka di bawah lisensi MIT: siapa pun dapat membaca, memeriksa, dan membangun kodenya.";
 "openSourceTitle" = "Sumber terbuka";
 "ownServer" = "Server sendiri";
@@ -67,6 +68,8 @@
 "ownServerWhySilent" = "tidak ada yang kembali; kata sandi atau metodenya mungkin salah";
 "ownServerWhyTls" = "server menjawab, tetapi tidak ada situs yang lewat";
 "protected" = "Terlindungi";
+"shareOnlineCount" = "Hitung saya dalam jumlah pengguna online";
+"shareOnlineCountDesc" = "Mengirim angka acak yang berubah setiap kali dibuka, agar aplikasi bisa menampilkan berapa salinan yang sedang berjalan. Hanya dikirim saat perlindungan aktif, jadi melewati jalur terlindungi yang sama dengan lalu lintas Anda. Matikan jika Anda lebih suka jaringan Anda tidak melihat apa pun dari Shroudly.";
 "start" = "Mulai perlindungan";
 "startFailed" = "Tidak dapat memulai perlindungan";
 "starting" = "Memulai…";

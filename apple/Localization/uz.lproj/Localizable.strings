@@ -47,6 +47,7 @@
 "navSettings" = "Sozlamalar";
 "navStats" = "Statistika";
 "notProtected" = "Himoyalanmagan";
+"onlineNow" = "Hozir onlayn";
 "openSourceDesc" = "Shroudly bepul va MIT litsenziyasi ostidagi ochiq manbali dastur: istalgan kishi uning kodini oʻqishi, tekshirishi va yigʻishi mumkin.";
 "openSourceTitle" = "Ochiq manba";
 "ownServer" = "Oʻz serveringiz";
@@ -67,6 +68,8 @@
 "ownServerWhySilent" = "hech narsa qaytmadi; parol yoki usul notoʻgʻri boʻlishi mumkin";
 "ownServerWhyTls" = "u javob beradi, lekin u orqali hech bir sayt ochilmadi";
 "protected" = "Himoyalangan";
+"shareOnlineCount" = "Meni jonli hisobga qoʻshish";
+"shareOnlineCountDesc" = "Har safar ishga tushganda oʻzgaradigan tasodifiy raqam yuboriladi, shunda ilova nechta nusxa ishlayotganini koʻrsata oladi. U faqat himoya yoqilganida yuboriladi, shuning uchun trafikingizning qolgan qismi bilan bir xil himoyalangan yoʻldan oʻtadi. Agar tarmogʻingiz Shroudlydan umuman hech narsa koʻrmasligini istasangiz, buni oʻchiring.";
 "start" = "Himoyani yoqish";
 "startFailed" = "Himoyani yoqib boʻlmadi";
 "starting" = "Yoqilmoqda…";

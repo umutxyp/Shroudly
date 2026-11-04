@@ -17,6 +17,8 @@ struct SettingsView: View {
     // the running engine at once, no restart.
     @AppStorage(AdBlock.Key.on, store: AppGroup.defaults) private var adBlock = false
     @State private var allowText = AdBlock.allow().joined(separator: "\n")
+    // "Count me in the live total" (Shared/OnlineCount.swift): on by default.
+    @AppStorage(OnlineCount.key, store: AppGroup.defaults) private var countMe = true
 
     var body: some View {
         Form {
@@ -42,6 +44,12 @@ struct SettingsView: View {
                 Toggle(isOn: $settings.keepOn) {
                     Labelled(title: tr("appleKeepOn"), detail: tr("appleKeepOnDesc"))
                 }
+            }
+            Section {
+                Toggle(isOn: $countMe) {
+                    Labelled(title: tr("shareOnlineCount"), detail: tr("shareOnlineCountDesc"))
+                }
+                .onChange(of: countMe) { _ in controller.countChanged() }
             }
             Section {
                 Toggle(isOn: $adBlock) {

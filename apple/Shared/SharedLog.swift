@@ -70,4 +70,7 @@ enum ProviderMessage: String {
     /* {}: "Block ads and trackers" or its exceptions changed: the running
      * engine is told, and the list fetched if it is due. */
     case adblock
+    /* {}: "Count me in the live total" changed: counting starts, or stops
+     * with a leave. */
+    case count
 }

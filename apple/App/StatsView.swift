@@ -7,11 +7,14 @@ struct EngineStats: Equatable {
     var up: Int64 = 0
     var down: Int64 = 0
     var blocked: Int64 = 0
+    /* How many apps are online now (the live count), when counted. */
+    var online: Int64?
 
     init(_ d: [String: Any]) {
         func n(_ k: String) -> Int64 { (d[k] as? NSNumber)?.int64Value ?? 0 }
         active = n("conns_active"); total = n("conns_total")
         up = n("bytes_up"); down = n("bytes_down"); blocked = n("blocked")
+        online = (d["online"] as? NSNumber)?.int64Value
     }
 }
 
@@ -41,6 +44,12 @@ struct StatsView: View {
                 Cell(icon: "clock", title: tr("uptime"), value: nil, sub: nil, since: on ? since : nil)
                 Cell(icon: "arrow.down", title: tr("download"), value: on ? bytes(stats?.down) : "–", sub: nil)
                 Cell(icon: "arrow.up", title: tr("upload"), value: on ? bytes(stats?.up) : "–", sub: nil)
+            }
+            if on, let n = stats?.online {
+                Text("\(tr("onlineNow")): \(n.formatted(.number))")
+                    .font(.footnote)
+                    .foregroundStyle(Theme.secondaryText)
+                    .padding(.horizontal, 4)
             }
         }
         .padding(.horizontal, 16)

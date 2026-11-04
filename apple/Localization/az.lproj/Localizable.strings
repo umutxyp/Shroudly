@@ -47,6 +47,7 @@
 "navSettings" = "Ayarlar";
 "navStats" = "Statistika";
 "notProtected" = "Qorunmur";
+"onlineNow" = "İndi onlayn";
 "openSourceDesc" = "Shroudly pulsuzdur və MIT lisenziyası ilə açıq mənbəlidir: hər kəs onun kodunu oxuya, yoxlaya və yığa bilər.";
 "openSourceTitle" = "Açıq mənbə";
 "ownServer" = "Öz serveriniz";
@@ -67,6 +68,8 @@
 "ownServerWhySilent" = "heç nə geri gəlmədi; şifrə və ya metod səhv ola bilər";
 "ownServerWhyTls" = "cavab verir, amma onun üzərindən heç bir sayt gəlmədi";
 "protected" = "Qorunur";
+"shareOnlineCount" = "Məni də canlı saya əlavə et";
+"shareOnlineCountDesc" = "Hər açılışda dəyişən təsadüfi bir nömrə göndərir ki, tətbiq neçə nüsxənin işlədiyini göstərə bilsin. O, yalnız qoruma aktiv olanda göndərilir, yəni trafikinin qalan hissəsi ilə eyni qorunan yolla gedir. Şəbəkənin Shroudly-dən ümumiyyətlə heç nə görməməsini istəyirsənsə, bunu söndür.";
 "start" = "Qorumanı başlat";
 "startFailed" = "Qorumanı başlatmaq mümkün olmadı";
 "starting" = "Başladılır…";

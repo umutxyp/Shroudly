@@ -63,6 +63,10 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
     private var adblockTried: Date?
     private var adblockFetching = false
     private var adblockVerdict: CheckedContinuation<(Bool, String?), Never>?
+    // The live count (Pinger.swift): pings while on and counted.
+    private lazy var pinger = Pinger(queue: queue,
+                                     version: Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "0",
+                                     path: { [weak self] in self?.enginePath })
 
     // MARK: start and stop
 
@@ -83,6 +87,13 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
     override func stopTunnel(with reason: NEProviderStopReason, completionHandler: @escaping () -> Void) {
         queue.async { [self] in
             log("Stopping (reason \(reason.rawValue))")
+            // The user's Stop: out of the live count at once (the desktop's
+            // leave); an end of any other kind lets the id expire.
+            if reason == .userInitiated, let p = enginePath, let id = pinger.stop() {
+                let done = DispatchSemaphore(value: 0)
+                Task { await pinger.leave(id, via: p); done.signal() }
+                _ = done.wait(timeout: .now() + OnlineCount.leaveTimeout + 0.2)
+            }
             let clean = tearDown()
             completionHandler()
             // A run that would not return holds the engine's state in this
@@ -123,6 +134,7 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
     @discardableResult
     private func tearDown() -> Bool {
         stopping = true
+        _ = pinger.stop()
         watch?.cancel(); watch = nil
         paths?.cancel(); paths = nil
         pathChange?.cancel(); pathChange = nil
@@ -174,7 +186,10 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
             if ok {
                 engine = e
                 e.onAdblockCheck = { [weak self] ok, why in self?.queue.async { self?.adblockChecked(ok, why) } }
-                queue.async { [weak self] in self?.applyAdblock(fetchAfter: 8) }
+                queue.async { [weak self] in
+                    self?.applyAdblock(fetchAfter: 8)
+                    self?.pinger.sync(share: OnlineCount.enabled(), on: true)
+                }
                 if settings.ownServerLink != nil, let a = auth {
                     doh?.throughEngine(true, DohForwarder.EnginePath(port: p, user: a.user, pass: a.pass))
                 }
@@ -191,6 +206,12 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
             }
         }
         throw StartError(message: "engine failed to start")
+    }
+
+    /* The engine's SOCKS5 port and this session's password, while it runs. */
+    private var enginePath: EngineHTTPS.Path? {
+        guard engine != nil, !stopping, port > 0, let a = auth else { return nil }
+        return EngineHTTPS.Path(port: port, user: a.user, pass: a.pass)
     }
 
     // MARK: block ads and trackers
@@ -214,7 +235,7 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
         queue.sync { adblockTried = Date() }
         log("Ad blocking: fetching the list")
         do {
-            try await AdBlockFetch.fetch(port: snapshot.0, user: a.user, pass: a.pass)
+            try await AdBlockFetch.fetch(via: EngineHTTPS.Path(port: snapshot.0, user: a.user, pass: a.pass))
         } catch {
             log("Ad blocking: the list could not be fetched (\(error.localizedDescription)); Shroudly tries again later")
             return
@@ -460,12 +481,18 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
                 siteLock.lock(); reply["lines"] = sites; siteLock.unlock()
             case .adblock:
                 applyAdblock(fetchAfter: 0)
+            case .count:
+                let path = enginePath
+                if let id = pinger.sync(share: OnlineCount.enabled(), on: engine != nil && !stopping), let path {
+                    Task { await pinger.leave(id, via: path) }
+                }
             case .stats:
                 // Asked fresh; the engine answers within a few milliseconds.
                 engine?.send("STATS")
                 queue.asyncAfter(deadline: .now() + 0.3) { [self] in
-                    let s = engine?.lastStats ?? [:]
-                    completionHandler?(try? JSONSerialization.data(withJSONObject: ["stats": s.filter { $0.value is NSNumber }]))
+                    var s = (engine?.lastStats ?? [:]).filter { $0.value is NSNumber }
+                    if let n = pinger.online { s["online"] = n }
+                    completionHandler?(try? JSONSerialization.data(withJSONObject: ["stats": s]))
                 }
                 return
             case nil:

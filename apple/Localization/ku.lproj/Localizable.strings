@@ -47,6 +47,7 @@
 "navSettings" = "Mîheng";
 "navStats" = "Amar";
 "notProtected" = "Ne parastî";
+"onlineNow" = "Niha serhêl";
 "openSourceDesc" = "Shroudly belaş e û bi lîsansa MIT çavkaniya vekirî ye: her kes dikare koda wê bixwîne, kontrol bike û ava bike.";
 "openSourceTitle" = "Çavkaniya vekirî";
 "ownServer" = "Pêşkêşkara te ya xwe";
@@ -67,6 +68,8 @@
 "ownServerWhySilent" = "tiştek venegeriya; dibe ku şîfre an rêbaz şaş be";
 "ownServerWhyTls" = "ew bersiv dide, lê tu malper di ser wê re nehat";
 "protected" = "Parastî";
+"shareOnlineCount" = "Min jî têxe hejmara zindî";
+"shareOnlineCountDesc" = "Hejmareke rasthatî ya ku her carê sepan vedibe diguhere dişîne, da ku sepan nîşan bide çend kopî dixebitin. Ew tenê dema parastin çalak e tê şandin, ji ber vê yekê ew jî wekî trafîka te ya din di heman rêya parastî de diçe. Heke tu dixwazî tora te qet tiştekî ji Shroudly nebîne, vê neçalak bike.";
 "start" = "Parastinê dest pê bike";
 "startFailed" = "Parastin nehat destpêkirin";
 "starting" = "Dest pê dike…";

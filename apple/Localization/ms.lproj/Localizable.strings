@@ -47,6 +47,7 @@
 "navSettings" = "Tetapan";
 "navStats" = "Statistik";
 "notProtected" = "Tidak dilindungi";
+"onlineNow" = "Dalam talian sekarang";
 "openSourceDesc" = "Shroudly percuma dan bersumber terbuka di bawah lesen MIT: sesiapa sahaja boleh membaca, mengaudit dan membina kodnya.";
 "openSourceTitle" = "Sumber terbuka";
 "ownServer" = "Pelayan sendiri";
@@ -67,6 +68,8 @@
 "ownServerWhySilent" = "tiada apa yang kembali; kata laluan atau kaedahnya mungkin salah";
 "ownServerWhyTls" = "ia menjawab, tetapi tiada laman yang melaluinya";
 "protected" = "Dilindungi";
+"shareOnlineCount" = "Kira saya dalam jumlah pengguna dalam talian";
+"shareOnlineCountDesc" = "Menghantar nombor rawak yang berubah setiap kali aplikasi dilancarkan, supaya aplikasi dapat menunjukkan berapa banyak salinan yang sedang berjalan. Nombor ini hanya dihantar semasa perlindungan dihidupkan, jadi ia melalui laluan dilindungi yang sama seperti trafik anda yang lain. Matikan pilihan ini jika anda lebih suka rangkaian anda tidak melihat apa-apa langsung daripada Shroudly.";
 "start" = "Mulakan perlindungan";
 "startFailed" = "Tidak dapat memulakan perlindungan";
 "starting" = "Memulakan…";

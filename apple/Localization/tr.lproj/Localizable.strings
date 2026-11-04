@@ -47,6 +47,7 @@
 "navSettings" = "Ayarlar";
 "navStats" = "İstatistik";
 "notProtected" = "Korunmuyor";
+"onlineNow" = "Şu anda çevrimiçi";
 "openSourceDesc" = "Shroudly, MIT lisansıyla ücretsiz ve açık kaynaklıdır: kodunu herkes okuyabilir, denetleyebilir ve derleyebilir.";
 "openSourceTitle" = "Açık kaynak";
 "ownServer" = "Kendi sunucun";
@@ -67,6 +68,8 @@
 "ownServerWhySilent" = "hiçbir şey geri gelmedi; şifre ya da yöntem yanlış olabilir";
 "ownServerWhyTls" = "cevap veriyor ama üzerinden hiçbir site gelmedi";
 "protected" = "Korunuyor";
+"shareOnlineCount" = "Canlı sayıma beni de kat";
+"shareOnlineCountDesc" = "Her açılışta değişen rastgele bir numara gönderir; uygulama böylece kaç kopyanın çalıştığını gösterebilir. Yalnızca koruma açıkken gönderilir, yani diğer trafiğinle aynı korumalı yoldan gider. Ağının Shroudly’den hiçbir şey görmesini istemiyorsan kapat.";
 "start" = "Korumayı başlat";
 "startFailed" = "Koruma başlatılamadı";
 "starting" = "Başlatılıyor…";

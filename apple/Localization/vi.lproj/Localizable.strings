@@ -47,6 +47,7 @@
 "navSettings" = "Cài đặt";
 "navStats" = "Thống kê";
 "notProtected" = "Chưa được bảo vệ";
+"onlineNow" = "Đang trực tuyến";
 "openSourceDesc" = "Shroudly miễn phí và là mã nguồn mở theo giấy phép MIT: bất kỳ ai cũng có thể đọc, kiểm tra và tự biên dịch mã của nó.";
 "openSourceTitle" = "Mã nguồn mở";
 "ownServer" = "Máy chủ riêng";
@@ -67,6 +68,8 @@
 "ownServerWhySilent" = "không có gì trả về; có thể mật khẩu hoặc phương thức bị sai";
 "ownServerWhyTls" = "nó trả lời, nhưng không trang nào đi qua được";
 "protected" = "Đang được bảo vệ";
+"shareOnlineCount" = "Tính tôi vào tổng số trực tuyến";
+"shareOnlineCountDesc" = "Gửi một số ngẫu nhiên thay đổi sau mỗi lần mở ứng dụng, để ứng dụng có thể hiển thị số bản đang chạy. Số này chỉ được gửi khi đang bật bảo vệ, nên nó đi qua cùng đường truyền được bảo vệ như phần còn lại trong lưu lượng của bạn. Hãy tắt tùy chọn này nếu bạn không muốn mạng của mình thấy bất cứ thứ gì từ Shroudly.";
 "start" = "Bật bảo vệ";
 "startFailed" = "Không thể bật bảo vệ";
 "starting" = "Đang bật…";

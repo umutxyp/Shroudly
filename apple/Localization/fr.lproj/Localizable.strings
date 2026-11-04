@@ -47,6 +47,7 @@
 "navSettings" = "Réglages";
 "navStats" = "Stats";
 "notProtected" = "Non protégé";
+"onlineNow" = "En ligne maintenant";
 "openSourceDesc" = "Shroudly est gratuit et open source sous licence MIT : chacun peut lire, vérifier et compiler son code.";
 "openSourceTitle" = "Open source";
 "ownServer" = "Votre propre serveur";
@@ -67,6 +68,8 @@
 "ownServerWhySilent" = "rien n’est revenu ; le mot de passe ou la méthode est peut-être faux";
 "ownServerWhyTls" = "il répond, mais aucun site n’est passé par lui";
 "protected" = "Protégé";
+"shareOnlineCount" = "Me compter dans le total en direct";
+"shareOnlineCountDesc" = "Envoie un nombre aléatoire, différent à chaque lancement, pour que l’app puisse indiquer combien d’exemplaires tournent. Il n’est envoyé que lorsque la protection est active, et emprunte donc le même chemin protégé que le reste de votre trafic. Désactivez-le si vous préférez que votre réseau ne voie rien de Shroudly.";
 "start" = "Activer la protection";
 "startFailed" = "Impossible d’activer la protection";
 "starting" = "Activation…";
