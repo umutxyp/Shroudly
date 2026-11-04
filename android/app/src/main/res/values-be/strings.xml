@@ -141,6 +141,12 @@
     <string name="helpOthersOrbot">Orbot (Tor)</string>
     <string name="language">Мова</string>
     <string name="languageSystem">Як у сістэме</string>
+    <string name="lastResort">Калі нічога іншае не дапамагае: сетка Tor</string>
+    <string name="lastResortDesc">Сайт, які не адкрыла ніводная тэхніка, ідзе праз Tor, а да Tor — праз Snowflake: злучэнні валанцёраў, сярод іх усіх, хто ўключыў «Дапамагаць людзям у краінах з цэнзурай». Павольней, і некаторыя сайты просяць у наведвальнікаў з Tor прайсці капчу. Tor запускаецца толькі тады, калі ён патрэбны сайту.</string>
+    <string name="lastResortFailed">Не ўдалося падключыцца да сеткі Tor; новая спроба, калі яна спатрэбіцца сайту</string>
+    <string name="lastResortOwnServer">Не выкарыстоўваецца, пакуль зададзены ваш уласны сервер: праз яго ідуць усе сайты.</string>
+    <string name="lastResortReady">Сайты, што не адкрыліся інакш, ідуць праз сетку Tor</string>
+    <string name="lastResortStarting" formatted="false">Падключэнне да сеткі Tor для сайтаў, што не адкрыліся інакш… {progress}%</string>
     <string name="linkReleases">Спіс змен</string>
     <string name="linkSourceCode">Зыходны код на GitHub</string>
     <string name="madeBy">Прадукт Codeshare Technology Ltd</string>
@@ -226,7 +232,7 @@
     <string name="upload">Запампоўка</string>
     <string name="uptime">Час працы</string>
     <string name="versionLabel">Версія {version}</string>
-    <string name="whatsNewAndroid">Віджэт на галоўным экране, які паказвае і пераключае абарону.\nДапамагайце людзям у краінах з цэнзурай проста з Shroudly, пакуль тэлефон зараджаецца праз Wi-Fi.</string>
+    <string name="whatsNewAndroid">Калі ніводная тэхніка не адкрывае сайт, Shroudly цяпер адкрывае яго праз сетку Tor, да якой падключаецца праз валанцёраў Snowflake (сярод іх і тыя, хто дапамагае праз Shroudly). Павольней, але праходзіць; можна выключыць у наладах.</string>
     <string name="whatsNewOk">Зразумела</string>
     <string name="whatsNewTitle">Што новага ў {version}</string>
 </resources>

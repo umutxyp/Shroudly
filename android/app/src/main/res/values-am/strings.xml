@@ -141,6 +141,12 @@
     <string name="helpOthersOrbot">Orbot (Tor)</string>
     <string name="language">ቋንቋ</string>
     <string name="languageSystem">የሥርዓቱ ነባሪ</string>
+    <string name="lastResort">ሌላ ምንም ካልሰራ፦ የTor አውታረ መረብ</string>
+    <string name="lastResortDesc">ምንም ዘዴ ሊከፍተው ያልቻለ ድር ጣቢያ በTor በኩል ይከፈታል፤ ወደ Tor የሚደረሰው በSnowflake፣ ማለትም በበጎ ፈቃደኞች ግንኙነቶች ነው (“ሳንሱር በሚደረግባቸው አገሮች ያሉ ሰዎችን እርዳ”ን ያበሩ ሁሉ ከነሱ መካከል ናቸው)። ቀርፋፋ ነው፤ አንዳንድ ጣቢያዎችም ከTor ለሚመጡ ጎብኚዎች captcha ይጠይቃሉ። Tor የሚጀምረው አንድ ጣቢያ ሲፈልገው ብቻ ነው።</string>
+    <string name="lastResortFailed">ወደ Tor አውታረ መረብ መድረስ አልተቻለም፤ አንድ ጣቢያ ሲፈልገው እንደገና ይሞከራል</string>
+    <string name="lastResortOwnServer">የራስዎ አገልጋይ ተቀናብሮ እያለ ጥቅም ላይ አይውልም፤ ሁሉም ጣቢያዎች በዚያ አገልጋይ ያልፋሉ።</string>
+    <string name="lastResortReady">በሌላ መንገድ ያልተከፈቱ ጣቢያዎች በTor አውታረ መረብ በኩል እያለፉ ነው</string>
+    <string name="lastResortStarting" formatted="false">በሌላ መንገድ ለማይከፈቱ ጣቢያዎች ከTor አውታረ መረብ ጋር በመገናኘት ላይ… {progress}%</string>
     <string name="linkReleases">የልቀት ማስታወሻዎች</string>
     <string name="linkSourceCode">የምንጭ ኮድ በGitHub ላይ</string>
     <string name="madeBy">የCodeshare Technology Ltd ምርት</string>
@@ -226,7 +232,7 @@
     <string name="upload">መስቀል</string>
     <string name="uptime">የሰራበት ጊዜ</string>
     <string name="versionLabel">ስሪት {version}</string>
-    <string name="whatsNewAndroid">ጥበቃውን የሚያሳይና የሚያበራ/የሚያጠፋ የመነሻ ገጽ ዊጀት።\nስልኩ በWi-Fi ላይ ሲሞላ ሳንሱር ባለባቸው አገሮች ያሉ ሰዎችን ከShroudly ውስጥ ሆነው ይርዱ።</string>
+    <string name="whatsNewAndroid">ምንም ዘዴ አንድን ጣቢያ ካልከፈተው Shroudly አሁን በTor አውታረ መረብ በኩል ይከፍተዋል፤ ወደ Tor የሚደረሰው በSnowflake በጎ ፈቃደኞች ነው (በShroudly የሚረዱትም ከነሱ መካከል ናቸው)። ቀርፋፋ ቢሆንም ያልፋል፤ በቅንብሮች ውስጥ ማጥፋት ይችላሉ።</string>
     <string name="whatsNewOk">ገባኝ</string>
     <string name="whatsNewTitle">በ{version} ውስጥ አዲስ ነገሮች</string>
 </resources>

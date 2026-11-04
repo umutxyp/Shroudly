@@ -72,6 +72,7 @@ class Engine(
             ipv6Off: Boolean = false,
             upstream: File? = null,
             decoyNames: List<String> = emptyList(),
+            fallback: File? = null,
         ): List<String> {
             // The technique chosen in Settings: automatic (the engine looks for
             // what works per site and keeps it) or one for every site.
@@ -96,6 +97,9 @@ class Engine(
             // "Your own server" (OwnServer): every connection to a name goes
             // through it.
             if (upstream != null) a += listOf("--upstream-file", upstream.path)
+            // The last way out (TorRoute): Tor, for a connection nothing else
+            // got through; never with the user's own server.
+            else if (fallback != null) a += listOf("--fallback-file", fallback.path)
             // Decoys carry the names of large sites in the user's country, which
             // a network that lets only allowed sites through keeps open
             // (NationalNet.decoyNames); host names only, at most eight.

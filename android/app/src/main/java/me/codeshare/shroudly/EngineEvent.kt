@@ -21,6 +21,8 @@ sealed class EngineEvent {
         val probeFail: Long,
         /* Connections and lookups ended by "Block ads and trackers". */
         val blocked: Long = 0,
+        /* Connections the last way out (Tor, TorRoute) carried. */
+        val fallback: Long = 0,
     ) : EngineEvent()
 
     /* bypass, blocked, cut, unreachable, send_failed: something about one site. */
@@ -55,6 +57,10 @@ sealed class EngineEvent {
     /* The user's own server would not carry a connection (--upstream-file;
      * said at most every half minute): why, as the engine words it. */
     data class Upstream(val ok: Boolean, val why: String) : EngineEvent()
+    /* The last way out (--fallback-file, TorRoute): a name it carried (ok,
+     * once while it keeps carrying it), or nothing listening there (not ok:
+     * Tor is started for the next connection). */
+    data class Fallback(val ok: Boolean, val host: String, val why: String) : EngineEvent()
     /* What became of the ad and tracker list (ADBLOCK, --adblock), and the
      * engine's verdict on a fetched one (ADBLOCK-CHECK). Never a path. */
     data class Adblock(val on: Boolean, val entries: Long, val error: String?) : EngineEvent()
@@ -77,7 +83,7 @@ sealed class EngineEvent {
                 "stats" -> Stats(
                     num("conns_total"), num("conns_active"), num("bytes_up"), num("bytes_down"),
                     num("desync"), num("tls"), num("http"), num("probe_ok"), num("probe_fail"),
-                    num("blocked"),
+                    num("blocked"), num("fallback"),
                 )
                 "adblock" -> Adblock(bool("on"), num("entries"), str("error"))
                 "adblock_check" -> AdblockCheck(bool("ok"), num("entries"), str("error"))
@@ -98,6 +104,7 @@ sealed class EngineEvent {
                 "udp_full" -> UdpFull(num("max").toInt())
                 "error" -> Error(str("msg") ?: "code ${num("code")}", (m["code"] as? Number)?.toInt())
                 "upstream" -> Upstream(num("ok") != 0L, str("why") ?: "")
+                "fallback" -> Fallback(num("ok") != 0L, str("host") ?: "", str("why") ?: "")
                 "stopped" -> Stopped
                 else -> Other(type)
             }

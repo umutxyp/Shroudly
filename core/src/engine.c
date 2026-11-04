@@ -76,6 +76,9 @@
 /* After the ladder is over with nothing answered, its connections are still
  * listened to for this long; then the oldest is simply relayed. */
 #define RACE_MAX_MS 30000
+/* The same wait where the last way out (--fallback-file) is there and has
+ * carried something lately: the better bet by then. */
+#define RACE_FB_MS  3000
 /* How many re-dialled connections all ladders together may hold open at once.
  * A ladder's first connection is the client's own and is not counted. Many
  * computers behind one small router (an internet cafe, a school) share its
@@ -363,6 +366,50 @@ static int cool_is(const char *h) {
     if (g_cool[i].host[0] && strcmp(g_cool[i].host, h) == 0) { yes = age_ms(now, g_cool[i].t) < COOL_MS; break; }
   mutex_unlock(&g_cool_mx);
   return yes;
+}
+
+/* ── names the last way out carries ──────────────────────────────────────
+ * A name that nothing but the last way out (--fallback-file) got through to,
+ * and when it last did: its next connections go straight there instead of
+ * paying the whole ladder again, until FB_MS pass without one. Keyed by the
+ * name itself, never its site: one name of a site needing it says nothing
+ * about the others (an API that turns this client away, say). */
+#define FB_SLOTS 128
+#define FB_MS    (30 * 60 * 1000)
+static struct { char host[256]; uint64_t t; } g_fb[FB_SLOTS];
+static mutex_t g_fb_mx;
+
+/* Kept, or its time renewed. 1 if it was not kept before. */
+static int fb_put(const char *h) {
+  if (!h[0] || strlen(h) >= sizeof(g_fb[0].host)) return 0;
+  mutex_lock(&g_fb_mx);
+  uint64_t now = now_ms();
+  int slot = 0, had = 0;
+  for (int i = 0; i < FB_SLOTS; i++) {
+    if (g_fb[i].host[0] && strcmp(g_fb[i].host, h) == 0) { slot = i; had = age_ms(now, g_fb[i].t) < FB_MS; break; }
+    if (g_fb[i].t < g_fb[slot].t) slot = i;   /* else the oldest (or an empty one) */
+  }
+  snprintf(g_fb[slot].host, sizeof(g_fb[slot].host), "%s", h);
+  g_fb[slot].t = now;
+  mutex_unlock(&g_fb_mx);
+  return !had;
+}
+
+static int fb_is(const char *h) {
+  int yes = 0;
+  mutex_lock(&g_fb_mx);
+  uint64_t now = now_ms();
+  for (int i = 0; i < FB_SLOTS; i++)
+    if (g_fb[i].host[0] && strcmp(g_fb[i].host, h) == 0) { yes = age_ms(now, g_fb[i].t) < FB_MS; break; }
+  mutex_unlock(&g_fb_mx);
+  return yes;
+}
+
+static void fb_drop(const char *h) {
+  mutex_lock(&g_fb_mx);
+  for (int i = 0; i < FB_SLOTS; i++)
+    if (g_fb[i].host[0] && strcmp(g_fb[i].host, h) == 0) { g_fb[i].host[0] = 0; g_fb[i].t = 0; }
+  mutex_unlock(&g_fb_mx);
 }
 
 /* Something answered for the host. */
@@ -708,7 +755,7 @@ int engine_is_running(void) { return atomic_load(&g_running); }
 void engine_emit_stats(void) {
   engine_printf("{\"type\":\"stats\",\"conns_total\":%llu,\"conns_active\":%llu,"
          "\"bytes_up\":%llu,\"bytes_down\":%llu,\"desync\":%llu,"
-         "\"tls\":%llu,\"http\":%llu,\"probe_ok\":%llu,\"probe_fail\":%llu,\"blocked\":%llu}\n",
+         "\"tls\":%llu,\"http\":%llu,\"probe_ok\":%llu,\"probe_fail\":%llu,\"blocked\":%llu,\"fallback\":%llu}\n",
          (unsigned long long)atomic_load(&g_stats.conns_total),
          (unsigned long long)atomic_load(&g_stats.conns_active),
          (unsigned long long)atomic_load(&g_stats.bytes_up),
@@ -718,7 +765,8 @@ void engine_emit_stats(void) {
          (unsigned long long)atomic_load(&g_stats.http_seen),
          (unsigned long long)atomic_load(&g_stats.probe_success),
          (unsigned long long)atomic_load(&g_stats.probe_fail),
-         (unsigned long long)adblock_total());
+         (unsigned long long)adblock_total(),
+         (unsigned long long)atomic_load(&g_stats.fallback));
 }
 
 /* ── SOCKS handshake (client side) ──────────────────────────────────────── */
@@ -860,7 +908,8 @@ int engine_load_auth(engine_config *cfg, const char *path) {
 /* --upstream-file: "socks5://[user:pass@]host:port" or "http://..." on one
  * line. The user name and password may hold any character but "@" and a
  * line end; the password is what follows the first ":". */
-int engine_load_upstream(engine_config *cfg, const char *path) {
+static int load_proxy_line(const char *path, int *kind_out, char *host_out, uint16_t *port_out,
+                           char *user_out, char *pass_out) {
   FILE *f = fopen_utf8(path, "rb");
   if (!f) return -1;
   char line[1100];
@@ -903,14 +952,25 @@ int engine_load_upstream(engine_config *cfg, const char *path) {
   long port = strtol(portp, &endp, 10);
   if (!endp || *endp || port < 1 || port > 65535) return -1;
   for (const char *c = host; *c; c++) if (*c == '/' || *c == '@' || *c == ' ') return -1;
-  cfg->upstream_kind = kind;
-  snprintf(cfg->upstream_host, sizeof(cfg->upstream_host), "%s", host);
-  cfg->upstream_port = (uint16_t)port;
-  snprintf(cfg->upstream_user, sizeof(cfg->upstream_user), "%s", user);
-  snprintf(cfg->upstream_pass, sizeof(cfg->upstream_pass), "%s", pass);
+  *kind_out = kind;
+  snprintf(host_out, 256, "%s", host);
+  *port_out = (uint16_t)port;
+  snprintf(user_out, 256, "%s", user);
+  snprintf(pass_out, 256, "%s", pass);
   memset(line, 0, sizeof(line));
   memset(pass, 0, sizeof(pass));
   return 0;
+}
+
+int engine_load_upstream(engine_config *cfg, const char *path) {
+  return load_proxy_line(path, &cfg->upstream_kind, cfg->upstream_host, &cfg->upstream_port,
+                         cfg->upstream_user, cfg->upstream_pass);
+}
+
+/* --fallback-file: the same line, for the last way out. */
+int engine_load_fallback(engine_config *cfg, const char *path) {
+  return load_proxy_line(path, &cfg->fallback_kind, cfg->fallback_host, &cfg->fallback_port,
+                         cfg->fallback_user, cfg->fallback_pass);
 }
 
 /* ── stand-in addresses (--fake-net) ─────────────────────────────────────
@@ -2243,11 +2303,12 @@ static int wait_room(ladder_st *st, uint64_t deadline, uint8_t *rbuf, int rcap, 
  * longer than the ladder waited. Go on listening to all of them, and to the
  * client, until one answers (1, *win set), all are gone or the client has
  * left (0), or (2) the oldest should simply be relayed: the client has sent
- * more than can be held meanwhile, or RACE_MAX_MS went by. */
+ * more than can be held meanwhile, or max_ms (RACE_MAX_MS, or RACE_FB_MS)
+ * went by. */
 static int race_legs(ladder_st *st, sock_t client, uint8_t *rbuf, int rcap, int *rlen, int *win,
-                     uint8_t *first, int *flen) {
+                     uint8_t *first, int *flen, uint64_t max_ms) {
   legset *L = &st->L;
-  uint64_t end = now_ms() + RACE_MAX_MS;
+  uint64_t end = now_ms() + max_ms;
   *rlen = 0;
   for (;;) {
     if (L->n == 0) return 0;
@@ -3668,38 +3729,65 @@ static void b64(const uint8_t *in, size_t n, char *out) {
 
 /* One line said now and then, not one per connection. `why`: one of the
  * fixed reasons below (nothing to escape). */
-static void upstream_report(const char *why) {
-  static atomic_uint_fast64_t last = 0;
-  uint64_t t = now_ms(), prev = atomic_load(&last);
-  if (prev && t - prev < 30000) return;
-  atomic_store(&last, t);
-  engine_printf("{\"type\":\"upstream\",\"ok\":0,\"why\":\"%s\"}\n", why);
+/* A server to go through: the user's own (--upstream-file) or the last way
+ * out (--fallback-file), each with its own line in the log. */
+typedef struct {
+  int kind;               /* 1: SOCKS5, 2: HTTP CONNECT */
+  const char *host;
+  uint16_t port;
+  const char *user, *pass;
+  int fallback;
+} proxy_ref;
+
+static proxy_ref upstream_ref(void) {
+  proxy_ref r = { g_cfg.upstream_kind, g_cfg.upstream_host, g_cfg.upstream_port, g_cfg.upstream_user, g_cfg.upstream_pass, 0 };
+  return r;
+}
+static proxy_ref fallback_ref(void) {
+  proxy_ref r = { g_cfg.fallback_kind, g_cfg.fallback_host, g_cfg.fallback_port, g_cfg.fallback_user, g_cfg.fallback_pass, 1 };
+  return r;
 }
 
-/* Connected to host:port through the user's server, or SOCK_INVALID. */
-static sock_t upstream_open(const char *host, uint16_t port) {
+/* When the last way out last carried a connection (0: not yet). */
+static atomic_uint_fast64_t g_fb_ok_at = 0;
+static int fallback_alive(void) {
+  uint64_t t = atomic_load(&g_fb_ok_at);
+  return t && age_ms(now_ms(), t) < 10 * 60 * 1000;
+}
+
+static void proxy_report(const proxy_ref *x, const char *why) {
+  static atomic_uint_fast64_t last[2] = { 0, 0 };
+  int i = x->fallback ? 1 : 0;
+  uint64_t t = now_ms(), prev = atomic_load(&last[i]);
+  if (prev && t - prev < 30000) return;
+  atomic_store(&last[i], t);
+  engine_printf("{\"type\":\"%s\",\"ok\":0,\"why\":\"%s\"}\n", x->fallback ? "fallback" : "upstream", why);
+}
+
+/* Connected to host:port through server x, or SOCK_INVALID. */
+static sock_t proxy_open(const proxy_ref *x, const char *host, uint16_t port) {
   int fam = 0;
   dial_info di;
-  sock_t s = dial(g_cfg.upstream_host, g_cfg.upstream_port, g_cfg.prefer_ipv6, 0, 0, &fam, &di);
-  if (s == SOCK_INVALID) { upstream_report("does not answer"); return SOCK_INVALID; }
+  sock_t s = dial(x->host, x->port, g_cfg.prefer_ipv6, 0, 0, &fam, &di);
+  if (s == SOCK_INVALID) { proxy_report(x, "does not answer"); return SOCK_INVALID; }
   sock_set_timeouts(s, 15000);
   sock_set_nodelay(s, 1);
   size_t hl = strlen(host);
   if (hl == 0 || hl > 255) { sock_close(s); return SOCK_INVALID; }
   uint8_t b[600];
-  if (g_cfg.upstream_kind == 1) {
-    int auth = g_cfg.upstream_user[0] != 0;
+  if (x->kind == 1) {
+    int auth = x->user[0] != 0;
     uint8_t hello[4] = { 5, (uint8_t)(auth ? 2 : 1), (uint8_t)(auth ? 0 : 0), 2 };
     if (sock_send_all(s, hello, auth ? 4 : 3, 0) != 0 || recv_exact(s, b, 2) != 0 || b[0] != 5) goto bad;
     if (b[1] == 2 && auth) {
-      size_t ul = strlen(g_cfg.upstream_user), pl = strlen(g_cfg.upstream_pass), k = 0;
-      b[k++] = 1; b[k++] = (uint8_t)ul; memcpy(b + k, g_cfg.upstream_user, ul); k += ul;
-      b[k++] = (uint8_t)pl; memcpy(b + k, g_cfg.upstream_pass, pl); k += pl;
+      size_t ul = strlen(x->user), pl = strlen(x->pass), k = 0;
+      b[k++] = 1; b[k++] = (uint8_t)ul; memcpy(b + k, x->user, ul); k += ul;
+      b[k++] = (uint8_t)pl; memcpy(b + k, x->pass, pl); k += pl;
       int sent = sock_send_all(s, b, k, 0);
       memset(b, 0, sizeof(b));
-      if (sent != 0 || recv_exact(s, b, 2) != 0 || b[1] != 0) { upstream_report("refused the user name or password"); goto quiet; }
+      if (sent != 0 || recv_exact(s, b, 2) != 0 || b[1] != 0) { proxy_report(x, "refused the user name or password"); goto quiet; }
     } else if (b[1] != 0) {
-      upstream_report(b[1] == 2 ? "asks for a user name and password" : "refused the connection");
+      proxy_report(x, b[1] == 2 ? "asks for a user name and password" : "refused the connection");
       goto quiet;
     }
     size_t k = 0;
@@ -3719,9 +3807,9 @@ static sock_t upstream_open(const char *host, uint16_t port) {
     int is6 = strchr(host, ':') != NULL;
     int n = snprintf(req, sizeof(req), "CONNECT %s%s%s:%u HTTP/1.1\r\nHost: %s%s%s:%u\r\n",
                      is6 ? "[" : "", host, is6 ? "]" : "", port, is6 ? "[" : "", host, is6 ? "]" : "", port);
-    if (g_cfg.upstream_user[0]) {
+    if (x->user[0]) {
       char cred[520], enc[700];
-      int cl = snprintf(cred, sizeof(cred), "%s:%s", g_cfg.upstream_user, g_cfg.upstream_pass);
+      int cl = snprintf(cred, sizeof(cred), "%s:%s", x->user, x->pass);
       b64((const uint8_t *)cred, (size_t)cl, enc);
       n += snprintf(req + n, sizeof(req) - (size_t)n, "Proxy-Authorization: Basic %s\r\n", enc);
       memset(cred, 0, sizeof(cred));
@@ -3741,16 +3829,22 @@ static sock_t upstream_open(const char *host, uint16_t port) {
     b[got] = 0;
     int code = 0;
     if (sscanf((const char *)b, "HTTP/1.%*d %d", &code) != 1) goto bad;
-    if (code == 407) { upstream_report("asks for a user name and password"); goto quiet; }
+    if (code == 407) { proxy_report(x, "asks for a user name and password"); goto quiet; }
     if (code != 200) { sock_close(s); return SOCK_INVALID; }
   }
   sock_set_timeouts(s, 0);
+  if (x->fallback) atomic_store(&g_fb_ok_at, now_ms());
   return s;
 bad:
-  upstream_report("does not speak the protocol chosen");
+  proxy_report(x, "does not speak the protocol chosen");
 quiet:
   sock_close(s);
   return SOCK_INVALID;
+}
+
+static sock_t upstream_open(const char *host, uint16_t port) {
+  proxy_ref x = upstream_ref();
+  return proxy_open(&x, host, port);
 }
 
 /* A name, or an address that is not on this computer or its network. */
@@ -3786,6 +3880,38 @@ static void via_upstream(sock_t client, socks_req *rq, uint8_t *first) {
   if (rq->head && rq->head_len > 0 && sock_send_all(up, (const uint8_t *)rq->head, (size_t)rq->head_len, 0) != 0) { sock_close(up); return; }
   relay(client, up, NULL);
   sock_close(up);
+}
+
+/* ── the last way out (--fallback-file) ──────────────────────────────────
+ * Only where it may be used: set, the user's own server not (that one
+ * carries everything already), and a destination off this computer and its
+ * network. */
+static int fallback_ok(const char *host) {
+  return g_cfg.fallback_kind && !g_cfg.upstream_kind && host[0] && upstream_carries(host);
+}
+
+/* A name it carried, said once while it keeps carrying it (fb_put). */
+static void fallback_tell(const char *host) {
+  char h[256];
+  json_host(h, sizeof(h), host);
+  engine_printf("{\"type\":\"fallback\",\"ok\":1,\"host\":\"%s\"}\n", h);
+}
+
+/* A name it carries already: straight through it, as via_upstream does.
+ * 0: carried (or the client gone); -1: it would not carry it, nothing has
+ * been said to the client, and the usual way is still open. A name it had
+ * not been carrying is said (fallback_tell). */
+static int via_fallback(sock_t client, socks_req *rq) {
+  proxy_ref x = fallback_ref();
+  sock_t up = proxy_open(&x, rq->host, rq->port);
+  if (up == SOCK_INVALID) { fb_drop(rq->host); return -1; }
+  if (socks_reply(client, rq, 1) != 0) { sock_close(up); return 0; }
+  if (rq->head && rq->head_len > 0 && sock_send_all(up, (const uint8_t *)rq->head, (size_t)rq->head_len, 0) != 0) { sock_close(up); return 0; }
+  if (fb_put(rq->host)) fallback_tell(rq->host);
+  atomic_fetch_add(&g_stats.fallback, 1);
+  relay(client, up, NULL);
+  sock_close(up);
+  return 0;
 }
 
 static void handle(sock_t client) {
@@ -3825,6 +3951,9 @@ static void handle(sock_t client) {
 
   /* The user's own server carries it (see via_upstream). */
   if (g_cfg.upstream_kind && upstream_carries(rq.host)) { via_upstream(client, &rq, first); goto done; }
+
+  /* The last way out carries this name already (see fb_put). */
+  if (!rq.blockpage && fallback_ok(rq.host) && fb_is(rq.host) && via_fallback(client, &rq) == 0) goto done;
 
   if (rq.blockpage) {
     /* The client looked the name up itself and the system's DNS answered with
@@ -3898,6 +4027,9 @@ static void handle(sock_t client) {
       }
       /* No answer in time: still ND_TRY, so the next connection asks again. */
     }
+    /* No address of it reachable at all (a site blocked by its addresses):
+     * the last way out, where there is one. */
+    if (up == SOCK_INVALID && !rq.blockpage && fallback_ok(rq.host) && via_fallback(client, &rq) == 0) goto done;
     if (up == SOCK_INVALID) {
       /* Told while the app is still connected to us (see RAW_HOLD_MS); not
        * where nobody could look (--auth-file: the tunnel on Android). */
@@ -4164,7 +4296,9 @@ static void handle(sock_t client) {
 
       int pick = win;   /* the connection to relay */
       if (win < 0 && st.L.n > 0) {
-        int rr = race_legs(&st, client, rbuf, RELAY_BUF, &rlen, &win, first, &flen);
+        const char *fbt = (ip_literal(rq.host) && cut_key[0]) ? cut_key : rq.host;
+        uint64_t race_ms = gave_up && fallback_ok(rq.host) && fallback_ok(fbt) && fallback_alive() ? RACE_FB_MS : RACE_MAX_MS;
+        int rr = race_legs(&st, client, rbuf, RELAY_BUF, &rlen, &win, first, &flen, race_ms);
         if (rr == 1) pick = win;
         else if (rr == 2) pick = 0;   /* the oldest: on a fresh ladder, the untouched request */
       }
@@ -4196,6 +4330,29 @@ static void handle(sock_t client) {
       /* Still unanswered, and nothing has been said about it yet: let the relay
        * report it if it stays that way. */
       if (rlen == 0 && !told) waiting = cur.at;
+    }
+  }
+
+  /* Every technique tried and nothing answered: the same request through
+   * the last way out, where there is one; the name then goes straight there
+   * for a while (see fb_put). The connection kept in case the site answers
+   * late is let go: the last way out is the better bet by now. */
+  if (gave_up && rlen == 0 && flen > 0) {
+    const char *target = (ip_literal(rq.host) && cut_key[0]) ? cut_key : rq.host;
+    if (fallback_ok(rq.host) && fallback_ok(target)) {
+      proxy_ref x = fallback_ref();
+      sock_t fb = proxy_open(&x, target, rq.port);
+      if (fb != SOCK_INVALID && sock_send_all(fb, first, (size_t)flen, 0) == 0) {
+        if (up != SOCK_INVALID) sock_close(up);
+        up = fb; fam = 0;
+        if (fb_put(target)) fallback_tell(target);
+        atomic_fetch_add(&g_stats.fallback, 1);
+        /* Not this engine's techniques at work: nothing to learn from it. */
+        cut_key[0] = 0; watch_tls = 0; raw_done = 1; waiting = 0; gave_up = 0;
+        atomic_fetch_add(&g_stats.bytes_up, (uint64_t)flen);
+      } else if (fb != SOCK_INVALID) {
+        sock_close(fb);
+      }
     }
   }
 
@@ -4301,6 +4458,7 @@ static void engine_init_once(void) {
   mutex_init(&g_ok_mx);
   mutex_init(&g_win_mx);
   mutex_init(&g_cool_mx);
+  mutex_init(&g_fb_mx);
   mutex_init(&g_seen_mx);
   mutex_init(&g_raw_mx);
   mutex_init(&g_osdns_mx);
@@ -4325,6 +4483,10 @@ static void engine_forget(void) {
   mutex_lock(&g_cool_mx);
   memset(g_cool, 0, sizeof(g_cool));
   mutex_unlock(&g_cool_mx);
+  mutex_lock(&g_fb_mx);
+  memset(g_fb, 0, sizeof(g_fb));
+  mutex_unlock(&g_fb_mx);
+  atomic_store(&g_fb_ok_at, 0);
   mutex_lock(&g_win_mx);
   memset(g_win, 0, sizeof(g_win));
   mutex_unlock(&g_win_mx);
@@ -4371,6 +4533,7 @@ int engine_start(const engine_config *cfg) {
   atomic_store(&g_stats.http_seen, 0);
   atomic_store(&g_stats.probe_success, 0);
   atomic_store(&g_stats.probe_fail, 0);
+  atomic_store(&g_stats.fallback, 0);
   doh_init(cfg->doh_host, cfg->doh_ip);
   engine_forget();
 

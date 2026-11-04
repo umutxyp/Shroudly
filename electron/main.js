@@ -72,6 +72,7 @@ const WinHttp = require('./winhttp');
 const SecurityBlock = require('./security-block');
 const { ProtectionKeeper } = require('./protection-keeper');
 const { StoreSuggest } = require('./store-suggest');
+const TorRoute = require('./tor-route');
 
 /* "Shroudly --restore-proxy" runs once at login after a run that never got to
  * restore the system proxy (power loss, forced reboot), and from the watchdog
@@ -1187,8 +1188,11 @@ app.whenReady().then(async () => {
     getSocksPort: () => (engine && engine.isActive() ? engine.port : null),
   });
   adblockList = new AdblockList({ dir: app.getPath('userData'), connect: DiscordRelay.socksConnect });
+  // The last way out (tor-route.js): Tor through Snowflake, for a site
+  // nothing else opened; started by the engine's need of it.
+  const torRoute = new TorRoute({ dataDir: app.getPath('userData'), log: addLog, onChange: () => toWindow('dpi:status-changed', !!(engine && engine.isActive())) });
   engine = new EngineManager(store, {
-    addLog, onStatusChange: broadcastStatus,
+    addLog, onStatusChange: broadcastStatus, torRoute,
     // An antivirus took, refused or keeps ending the engine.
     onSecurityBlock: (info) => securityBlocked(info),
     // "Block ads and trackers": the list in use, once one has been fetched.
@@ -1774,6 +1778,9 @@ ipcMain.handle('dpi:status', () => ({
   // ...or only the country's own network answers: a shutdown of the rest of
   // the world (national-net.js), which no app gets past.
   nationalOnly: !!(engine && engine.isActive() && engine.advice && engine.advice.offline && engine.advice.nationalOnly),
+  // The last way out (tor-route.js): { state, progress, used } while it
+  // runs or has failed, else null.
+  lastResort: (engine && engine.isActive() && engine.tor && engine.tor.status().state !== 'off') ? engine.tor.status() : null,
   // The user's own server is not carrying connections: { server, why }.
   ownServerDown: (engine && engine.isActive() && engine.advice && engine.advice.ownServerDown) || null,
   // ...and while it does, the address sites see through it: { server, ip }.
@@ -1829,7 +1836,7 @@ ipcMain.handle('app:systemLanguages', () => systemLanguages());
 ipcMain.handle('settings:getAll', () => store.store);
 /* Settings the engine reads at start: while protection is on, changing one
  * restarts the engine (debounced, since a strategy pick sets several keys). */
-const ENGINE_SETTINGS = new Set(['strategy', 'strategyId', 'autoMode', 'dnsProtection', 'preferIpv6', 'listenPort']);
+const ENGINE_SETTINGS = new Set(['strategy', 'strategyId', 'autoMode', 'dnsProtection', 'preferIpv6', 'listenPort', 'torLastResort']);
 let engineRestartTimer = null;
 function scheduleEngineRestart() {
   clearTimeout(engineRestartTimer);

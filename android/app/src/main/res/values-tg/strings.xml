@@ -141,6 +141,12 @@
     <string name="helpOthersOrbot">Orbot (Tor)</string>
     <string name="language">Забон</string>
     <string name="languageSystem">Мисли система</string>
+    <string name="lastResort">Вақте ки чизи дигар кор намекунад: шабакаи Tor</string>
+    <string name="lastResortDesc">Сайте, ки ҳеҷ як усул кушода натавонист, тавассути Tor кушода мешавад, ва ба Tor тавассути Snowflake, яъне пайвастҳои ихтиёриён мерасад (дар байни онҳо ҳамаи онҳое, ки «Ба мардуми кишварҳои сензурашуда кӯмак кардан»-ро фаъол кардаанд). Сусттар аст ва баъзе сайтҳо аз меҳмонони Tor капча мепурсанд. Tor танҳо вақте оғоз мешавад, ки сайт ба он ниёз дорад.</string>
+    <string name="lastResortFailed">Ба шабакаи Tor расидан нашуд; вақте ки сайт ниёз дорад, дубора кӯшиш мешавад</string>
+    <string name="lastResortOwnServer">Ҳангоме ки сервери худатон танзим шудааст, истифода намешавад: ҳамаи сайтҳо аз он сервер мегузаранд.</string>
+    <string name="lastResortReady">Сайтҳое, ки бо роҳи дигар кушода нашуданд, тавассути шабакаи Tor мегузаранд</string>
+    <string name="lastResortStarting" formatted="false">Барои сайтҳое, ки бо роҳи дигар кушода намешаванд, ба шабакаи Tor пайваст шуда истодааст… {progress}%</string>
     <string name="linkReleases">Тавсифи версияҳо</string>
     <string name="linkSourceCode">Коди манбаъ дар GitHub</string>
     <string name="madeBy">Маҳсули Codeshare Technology Ltd</string>
@@ -226,7 +232,7 @@
     <string name="upload">Ирсол</string>
     <string name="uptime">Вақти кор</string>
     <string name="versionLabel">Версияи {version}</string>
-    <string name="whatsNewAndroid">Виҷети экрани асосӣ, ки муҳофизатро нишон медиҳад ва фаъол/хомӯш мекунад.\nВақте ки телефон тавассути Wi-Fi пур мешавад, ба одамони кишварҳои дорои сензура аз дохили Shroudly кӯмак кунед.</string>
+    <string name="whatsNewAndroid">Агар ҳеҷ як усул сайтро кушода натавонад, Shroudly акнун онро тавассути шабакаи Tor мекушояд; ба Tor тавассути ихтиёриёни Snowflake мерасад (дар байни онҳо касоне ҳастанд, ки бо Shroudly кӯмак мекунанд). Сусттар, вале мегузарад; дар Танзимот хомӯш кардан мумкин аст.</string>
     <string name="whatsNewOk">Фаҳмо</string>
     <string name="whatsNewTitle">Навигариҳои {version}</string>
 </resources>

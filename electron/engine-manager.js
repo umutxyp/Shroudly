@@ -128,6 +128,9 @@ function withDiscord(list) {
 }
 
 const DEFAULT_PORT = 10808;
+// A site no technique opened is told after this long where Tor is ready to
+// carry it (the engine tries Tor right after; see _tellBlocked).
+const BLOCKED_HOLD_MS = 8000;
 
 // Domains routed through the proxy in "listed" mode: the list built by
 // scripts/site-list/update.js from OONI measurements and curated service
@@ -238,6 +241,11 @@ class EngineManager {
     this.dataDir = hooks.dataDir || require('os').tmpdir();
     this._ssClient = null;      // { key, port, close } for a Shadowsocks server
     this._upstreamFile = null;
+    // The last way out (tor-route.js): Tor, for a connection nothing else
+    // got through; main.js brings it (none in the tests unless they do).
+    this.tor = hooks.torRoute || null;
+    this._torFile = null;
+    this._blockedHold = new Map();
     this._ownDownTimer = null;
     this.onNeedRestart = hooks.onNeedRestart || (() => {});
     this.onDnsAutoEnabled = hooks.onDnsAutoEnabled || (() => {});
@@ -440,6 +448,7 @@ class EngineManager {
     // at one is forged, so the engine refuses it and keeps looking.
     for (const ip of fingerprints.ALL) a.push('--block-ip', ip);
     if (this._upstreamFile) a.push('--upstream-file', this._upstreamFile);
+    if (this._torFile) a.push('--fallback-file', this._torFile);
     // Decoys (where this engine sends them) carry the names of large sites in
     // the user's country, which a network that lets only allowed sites
     // through keeps open (national-net.js).
@@ -471,6 +480,7 @@ class EngineManager {
     // DNS goes where everything else goes: through the engine and the
     // server, never straight out to a resolver (issue #67).
     if (this.doh && this.doh.setThroughEngine) this.doh.setThroughEngine(!!p);
+    await this._prepareTor(!!p);
     const key = p && p.kind === 'ss' ? `${p.host} ${p.port} ${p.method} ${p.password}` : null;
     if (this._ssClient && this._ssClient.key !== key) { this._ssClient.close(); this._ssClient = null; }
     if (!p) { this._removeUpstream(); return; }
@@ -490,6 +500,28 @@ class EngineManager {
     this._ownServerShown = OwnServer.describe(p);
     // Sites see the server's address, not the user's (BlockedNotice).
     this._setAdvice({ ownServerOn: true });
+  }
+
+  /* A site no technique opened, told to the app (a notification); held a
+   * moment where the last way out may carry it instead (its "fallback"
+   * line cancels it). */
+  _tellBlocked(host) {
+    if (!this._torFile || !this.tor || this.tor.status().state !== 'ready') { this.onSiteBlocked(host); return; }
+    if (this._blockedHold.has(host)) return;
+    const t = setTimeout(() => { this._blockedHold.delete(host); if (this.active) this.onSiteBlocked(host); }, BLOCKED_HOLD_MS);
+    if (t.unref) t.unref();
+    this._blockedHold.set(host, t);
+  }
+
+  /* The last way out, named to the engine (--fallback-file) unless the
+   * user turned it off or their own server carries everything (Settings);
+   * Tor itself starts only when the engine first needs it. */
+  async _prepareTor(ownServer) {
+    this._torFile = null;
+    if (!this.tor) return;
+    if (ownServer || this.store.get('torLastResort', true) === false) { this.tor.stop(); return; }
+    try { this._torFile = await this.tor.prepare(); }
+    catch (e) { this.log('warning', `The last way out could not be set up: ${e.message}`); }
   }
 
   _removeUpstream() {
@@ -1135,6 +1167,7 @@ class EngineManager {
         if (finishStart) finishStart(true);
         break;
       case 'stats':
+        if (msg.fallback != null) { this.stats.fallback = Number(msg.fallback) || 0; if (this.tor) this.tor.noteUse(this.stats.fallback); }
         this.stats.connsTotal = msg.conns_total;
         this.stats.connsActive = msg.conns_active;
         this.stats.bytesUp = msg.bytes_up;
@@ -1251,7 +1284,9 @@ class EngineManager {
           // Nobody reads a log unprompted. A site that could not be opened at
           // all is the one moment the user needs telling, because otherwise
           // they conclude the app simply does not work.
-          if (typeof this.onSiteBlocked === 'function') this.onSiteBlocked(msg.host);
+          // With the last way out there, the engine sends this connection
+          // through Tor next: told only if Tor does not carry it.
+          if (typeof this.onSiteBlocked === 'function') this._tellBlocked(msg.host);
         }
         break;
       // The browser turned down the handshake a technique produced: the
@@ -1325,6 +1360,15 @@ class EngineManager {
       }
       case 'upstream':
         if (!msg.ok) this._onOwnServerDown(OwnServer.whyCode(msg.why));
+        break;
+      case 'fallback':
+        // Nothing was listening: Tor is started for the next connection.
+        if (!msg.ok) { if (this.tor && this._torFile && msg.why !== 'file unusable') this.tor.need(); break; }
+        if (msg.host && this.logGate.allow('fallback', msg.host)) {
+          this.log('info', `${msg.host}: no technique got through; opened through the last way out (Tor)`);
+        }
+        if (msg.host && this._blockedHold.has(msg.host)) { clearTimeout(this._blockedHold.get(msg.host)); this._blockedHold.delete(msg.host); }
+        try { this.onHostEvent('fallback', msg.host || '', ''); } catch {}
         break;
       case 'error':
         this.lastError = msg.msg || `code ${msg.code}`;
@@ -1678,6 +1722,8 @@ class EngineManager {
     this.startedAt = 0;
     this.doh.stop(); this.dohPort = 0;
     this._closeUpstream();
+    if (this.tor) this.tor.stop();
+    this._torFile = null;
     this.store.set('runtimeActive', false);
     this.onStatusChange(false);
     if (!keepProxy) {

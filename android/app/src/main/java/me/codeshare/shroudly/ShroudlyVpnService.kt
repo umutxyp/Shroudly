@@ -312,6 +312,10 @@ class ShroudlyVpnService : VpnService() {
                     "ownServer" -> later {
                         engine?.let { engineGone(it, "restarted with the server chosen in Settings", countsAsCrash = false) }
                     }
+                    // The last way out turned on or off: the engine again with or without it.
+                    "torLastResort" -> later {
+                        engine?.let { engineGone(it, "restarted with the last way out ${if (TorRoute.enabled(this)) "on" else "off"}", countsAsCrash = false) }
+                    }
                     // Another DNS server: from the next lookup on, nothing restarted.
                     "dns" -> later {
                         if (active) {
@@ -577,10 +581,13 @@ class ShroudlyVpnService : VpnService() {
             val p = if (attempt == 0 && wanted > 0) wanted else Engine.freePort()
             authFile = File(filesDir, AUTH_FILE).also { auth!!.writeTo(it) }
             val upstream = ownServer.fileFor(AppSettings.ownServer(this))
+            // The last way out, unless turned off or the user's own server
+            // carries everything; Tor itself starts when first needed.
+            val fallback = if (upstream == null && TorRoute.enabled(this)) torRoute.prepare() else { torRoute.stop(); null }
             val e = Engine(::log, ::logSite, ::onEngineEvent, ::onEngineExit)
             engine = e
             val ok = e.start(Engine.args(p, dohPort, blockIps, authFile, Engine.FAKE_NET, AdBlock.listFile(this), AdBlock.allow(this), AppSettings.strategy(this), AppSettings.customDnsStrict(this),
-                AppSettings.quicOff(this), AppSettings.ipv6Off(this), upstream, AppSettings.decoyNames(this)))
+                AppSettings.quicOff(this), AppSettings.ipv6Off(this), upstream, AppSettings.decoyNames(this), fallback))
             // Read once, at its start: the secrets are not left lying in a file.
             authFile?.delete()
             upstream?.delete()
@@ -1223,6 +1230,7 @@ class ShroudlyVpnService : VpnService() {
                 // Carried traffic: a day protection worked (Usage), once a session.
                 if (ev.bytesDown > 0 && !workedToday && active && Protection.troubleRes == 0) { workedToday = true; Usage.worked(this) }
                 lastBytesDown = ev.bytesDown
+                torRoute.noteUse(ev.fallback)
                 Protection.stats = ev
                 Protection.changed()
             }
@@ -1231,6 +1239,9 @@ class ShroudlyVpnService : VpnService() {
             is EngineEvent.UdpFull -> log(ev.line)
             is EngineEvent.Error -> log("engine: ${ev.message}")
             is EngineEvent.Upstream -> if (!ev.ok) ownServer.down(OwnServer.whyCode(ev.why))
+            // Nothing was listening: Tor is started for the next connection.
+            is EngineEvent.Fallback -> if (!ev.ok) { if (ev.why != "file unusable") torRoute.need() }
+                else logSite("${ev.host}: no technique got through; opened through the last way out (Tor)")
             is EngineEvent.Adblock -> when {
                 ev.error != null -> log("Ad blocking: the list could not be used (${ev.error})")
                 ev.on -> log("Ad blocking: a list of ${ev.entries} names in use")
@@ -1515,11 +1526,14 @@ class ShroudlyVpnService : VpnService() {
      * sending into it, then the interface, so traffic goes direct again. */
     // "Help people in censored countries" while on, charging, on Wi-Fi.
     private val snowflake by lazy { Snowflake(this) { log(it) } }
+    // The last way out (TorRoute): Tor, for sites nothing else opened.
+    private val torRoute by lazy { TorRoute(this, { log(it) }) { Protection.changed() } }
 
     private fun teardown() {
         val wasActive = active
         active = false
         snowflake.stop()
+        torRoute.stop()
         OnlineCount.stop(leave = false)
         healthEpoch++
         poll?.cancel(false); poll = null

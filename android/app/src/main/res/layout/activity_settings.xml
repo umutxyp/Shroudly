@@ -187,6 +187,28 @@
                 android:textColor="@color/text"
                 android:textSize="15sp" />
 
+            <View style="@style/Divider" />
+
+            <!-- The last way out (TorRoute): Tor through Snowflake for a site
+                 nothing else opened. -->
+            <Switch
+                android:id="@+id/torLastResort"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="52dp"
+                android:drawableStart="@drawable/row_route"
+                android:drawablePadding="14dp"
+                android:lineSpacingMultiplier="1.1"
+                android:paddingStart="14dp"
+                android:paddingTop="10dp"
+                android:paddingEnd="12dp"
+                android:paddingBottom="10dp"
+                android:switchPadding="12dp"
+                android:text="@string/lastResort"
+                android:textAlignment="viewStart"
+                android:textColor="@color/text"
+                android:textSize="15sp" />
+
             <View
                 android:id="@+id/adBlockDivider"
                 style="@style/Divider" />

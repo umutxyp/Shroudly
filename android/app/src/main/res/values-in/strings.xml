@@ -141,6 +141,12 @@
     <string name="helpOthersOrbot">Orbot (Tor)</string>
     <string name="language">Bahasa</string>
     <string name="languageSystem">Bawaan sistem</string>
+    <string name="lastResort">Saat tidak ada lagi yang berhasil: jaringan Tor</string>
+    <string name="lastResortDesc">Situs yang tidak bisa dibuka teknik apa pun lewat Tor, yang dicapai melalui Snowflake: koneksi para relawan, termasuk semua orang yang menyalakan “Bantu orang di negara yang disensor”. Lebih lambat, dan beberapa situs meminta captcha kepada pengunjung dari Tor. Tor hanya berjalan saat ada situs yang membutuhkannya.</string>
+    <string name="lastResortFailed">Jaringan Tor tidak dapat dijangkau; dicoba lagi saat ada situs yang membutuhkannya</string>
+    <string name="lastResortOwnServer">Tidak dipakai selama server Anda sendiri diatur: server itu membawa semua situs.</string>
+    <string name="lastResortReady">Situs yang tidak terbuka dengan cara lain lewat jaringan Tor</string>
+    <string name="lastResortStarting" formatted="false">Menghubungkan ke jaringan Tor untuk situs yang tidak terbuka dengan cara lain… {progress}%</string>
     <string name="linkReleases">Catatan rilis</string>
     <string name="linkSourceCode">Kode sumber di GitHub</string>
     <string name="madeBy">Produk dari Codeshare Technology Ltd</string>
@@ -226,7 +232,7 @@
     <string name="upload">Unggah</string>
     <string name="uptime">Waktu aktif</string>
     <string name="versionLabel">Versi {version}</string>
-    <string name="whatsNewAndroid">Widget layar utama yang menampilkan dan mengalihkan perlindungan.\nBantu orang di negara yang disensor dari dalam Shroudly saat ponsel mengisi daya di Wi-Fi.</string>
+    <string name="whatsNewAndroid">Saat tidak ada teknik yang bisa membuka sebuah situs, Shroudly kini membukanya lewat jaringan Tor, yang dicapai melalui relawan Snowflake (termasuk orang yang membantu lewat Shroudly). Lebih lambat, tapi tembus; bisa dimatikan di Pengaturan.</string>
     <string name="whatsNewOk">Mengerti</string>
     <string name="whatsNewTitle">Yang baru di {version}</string>
 </resources>

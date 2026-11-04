@@ -141,6 +141,12 @@
     <string name="helpOthersOrbot">Orbot (Tor)</string>
     <string name="language">Тіл</string>
     <string name="languageSystem">Жүйедегідей</string>
+    <string name="lastResort">Басқа ештеңе көмектеспесе: Tor желісі</string>
+    <string name="lastResortDesc">Ешбір әдіс аша алмаған сайт Tor арқылы ашылады, ал Tor-ға Snowflake арқылы, яғни еріктілердің қосылымдары арқылы жетеді (олардың арасында «Цензура бар елдердегі адамдарға көмектесу» функциясын қосқандардың бәрі бар). Баяуырақ, кейбір сайттар Tor-дан келгендерден капча сұрайды. Tor тек сайтқа керек болғанда іске қосылады.</string>
+    <string name="lastResortFailed">Tor желісіне қосылу мүмкін болмады; сайтқа керек болғанда қайта байқап көреді</string>
+    <string name="lastResortOwnServer">Өз серверіңіз орнатылып тұрғанда қолданылмайды: барлық сайт сол сервер арқылы өтеді.</string>
+    <string name="lastResortReady">Басқаша ашылмаған сайттар Tor желісі арқылы өтеді</string>
+    <string name="lastResortStarting" formatted="false">Басқаша ашылмайтын сайттар үшін Tor желісіне қосылуда… {progress}%</string>
     <string name="linkReleases">Нұсқа өзгерістері</string>
     <string name="linkSourceCode">GitHub-тағы бастапқы код</string>
     <string name="madeBy">Codeshare Technology Ltd өнімі</string>
@@ -226,7 +232,7 @@
     <string name="upload">Жүктеп салу</string>
     <string name="uptime">Жұмыс уақыты</string>
     <string name="versionLabel">Нұсқа {version}</string>
-    <string name="whatsNewAndroid">Қорғанысты көрсетіп, қосып-өшіретін басты экран виджеті.\nТелефон Wi-Fi арқылы зарядталып тұрғанда цензура бар елдердегі адамдарға Shroudly ішінен көмектесіңіз.</string>
+    <string name="whatsNewAndroid">Ешбір әдіс сайтты аша алмаса, Shroudly енді оны Tor желісі арқылы ашады; Tor-ға Snowflake еріктілері арқылы жетеді (олардың арасында Shroudly арқылы көмектесетіндер де бар). Баяуырақ, бірақ өтеді; баптаулардан өшіруге болады.</string>
     <string name="whatsNewOk">Түсінікті</string>
     <string name="whatsNewTitle">{version} нұсқасындағы жаңалықтар</string>
 </resources>

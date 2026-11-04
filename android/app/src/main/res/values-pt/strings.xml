@@ -141,6 +141,12 @@
     <string name="helpOthersOrbot">Orbot (Tor)</string>
     <string name="language">Idioma</string>
     <string name="languageSystem">Padrão do sistema</string>
+    <string name="lastResort">Quando nada mais funciona: a rede Tor</string>
+    <string name="lastResortDesc">Um site que nenhuma técnica abre passa pelo Tor, alcançado pelo Snowflake: as conexões de voluntários, entre eles todos que ativaram “Ajudar pessoas em países censurados”. É mais lento, e alguns sites pedem captcha a quem chega pelo Tor. O Tor só inicia quando um site precisa dele.</string>
+    <string name="lastResortFailed">Não foi possível alcançar a rede Tor; nova tentativa quando um site precisar</string>
+    <string name="lastResortOwnServer">Não é usado enquanto o seu próprio servidor estiver definido: esse servidor leva todos os sites.</string>
+    <string name="lastResortReady">Os sites que nada mais abriu passam pela rede Tor</string>
+    <string name="lastResortStarting" formatted="false">Conectando à rede Tor para os sites que nada mais abre… {progress}%</string>
     <string name="linkReleases">Notas da versão</string>
     <string name="linkSourceCode">Código-fonte no GitHub</string>
     <string name="madeBy">Um produto da Codeshare Technology Ltd</string>
@@ -226,7 +232,7 @@
     <string name="upload">Enviado</string>
     <string name="uptime">Tempo ativo</string>
     <string name="versionLabel">Versão {version}</string>
-    <string name="whatsNewAndroid">Um widget de tela inicial que mostra e alterna a proteção.\nAjude pessoas em países censurados de dentro do Shroudly enquanto o telefone carrega no Wi-Fi.</string>
+    <string name="whatsNewAndroid">Quando nenhuma técnica abre um site, o Shroudly agora o abre pela rede Tor, alcançada por voluntários do Snowflake (entre eles quem ajuda pelo Shroudly). Mais lento, mas passa; você pode desativar nas Configurações.</string>
     <string name="whatsNewOk">Entendi</string>
     <string name="whatsNewTitle">Novidades da {version}</string>
 </resources>

@@ -41,6 +41,17 @@ typedef struct {
   uint16_t upstream_port;
   char     upstream_user[256];
   char     upstream_pass[256];
+  /* --fallback-file: the last way out (a SOCKS5 or HTTP proxy, in practice
+   * Tor on this device), the same line as --upstream-file. Used only for a
+   * connection that nothing else got through: every technique tried and
+   * nothing answered, or no address of the site reachable at all. A site
+   * carried that way goes straight to it for a while after (see fb_put).
+   * The user's own server, when set, is used instead and this is not. */
+  int      fallback_kind;
+  char     fallback_host[256];
+  uint16_t fallback_port;
+  char     fallback_user[256];
+  char     fallback_pass[256];
   /* --fake-net: address ranges that stand in for names and are no real
    * destination (a tunnel's own map of names to made-up addresses). A
    * CONNECT to one is refused at once and a datagram to one is dropped, so a
@@ -87,6 +98,7 @@ typedef struct {
   _Atomic uint64_t http_seen;
   _Atomic uint64_t probe_success;
   _Atomic uint64_t probe_fail;
+  _Atomic uint64_t fallback;      /* connections the last way out carried */
 } engine_stats;
 
 /* Lifecycle. start() returns 0 on success and runs the accept loop on its own
@@ -98,6 +110,7 @@ int  engine_start(const engine_config *cfg);
 /* The user's own server from a file: one line, socks5://[user:pass@]host:port
  * or http://[user:pass@]host:port. 0, or -1 for a file that cannot be used. */
 int  engine_load_upstream(engine_config *cfg, const char *path);
+int  engine_load_fallback(engine_config *cfg, const char *path);
 void engine_stop(void);
 /* A technique an earlier run learned for host, age milliseconds ago (see engine.c). */
 int  engine_restore(const char *host, const char *technique, uint64_t age);

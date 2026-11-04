@@ -141,6 +141,12 @@
     <string name="helpOthersOrbot">Orbot (Tor)</string>
     <string name="language">زبان</string>
     <string name="languageSystem">سسٹم کی ڈیفالٹ</string>
+    <string name="lastResort">جب کچھ اور کام نہ کرے: ٹور نیٹ ورک</string>
+    <string name="lastResortDesc">جو سائٹ کوئی تکنیک نہیں کھول پاتی وہ ٹور کے ذریعے کھلتی ہے، اور ٹور تک اسنو فلیک کے ذریعے پہنچا جاتا ہے: رضاکاروں کے کنکشن، جن میں وہ سب شامل ہیں جنہوں نے «سنسر شدہ ممالک کے لوگوں کی مدد کریں» آن کیا ہے۔ یہ سست ہے، اور کچھ سائٹیں ٹور سے آنے والوں سے کیپچا مانگتی ہیں۔ ٹور صرف تب شروع ہوتا ہے جب کسی سائٹ کو اس کی ضرورت ہو۔</string>
+    <string name="lastResortFailed">ٹور نیٹ ورک تک نہیں پہنچ سکے؛ جب کسی سائٹ کو ضرورت ہوگی تو دوبارہ کوشش ہوگی</string>
+    <string name="lastResortOwnServer">جب تک آپ کا اپنا سرور سیٹ ہے، یہ استعمال نہیں ہوتا: ہر سائٹ اسی سرور سے گزرتی ہے۔</string>
+    <string name="lastResortReady">جو سائٹیں کسی اور طرح نہیں کھلیں وہ ٹور نیٹ ورک سے گزر رہی ہیں</string>
+    <string name="lastResortStarting" formatted="false">جو سائٹیں کسی اور طرح نہیں کھلتیں ان کے لیے ٹور نیٹ ورک سے جڑ رہا ہے… ‎{progress}%</string>
     <string name="linkReleases">ریلیز نوٹس</string>
     <string name="linkSourceCode">GitHub پر سورس کوڈ</string>
     <string name="madeBy">Codeshare Technology Ltd کی ایک پروڈکٹ</string>
@@ -226,7 +232,7 @@
     <string name="upload">اپ لوڈ</string>
     <string name="uptime">چلنے کا دورانیہ</string>
     <string name="versionLabel">ورژن {version}</string>
-    <string name="whatsNewAndroid">ہوم اسکرین ویجٹ جو تحفظ دکھاتا ہے اور اسے آن آف کرتا ہے۔\nجب فون Wi-Fi پر چارج ہو رہا ہو تو سنسر شدہ ممالک کے لوگوں کی Shroudly کے اندر سے مدد کریں۔</string>
+    <string name="whatsNewAndroid">جب کوئی تکنیک کسی سائٹ کو نہیں کھولتی تو Shroudly اب اسے ٹور نیٹ ورک کے ذریعے کھولتا ہے، جس تک اسنو فلیک کے رضاکاروں کے ذریعے پہنچا جاتا ہے (ان میں Shroudly کے ذریعے مدد کرنے والے بھی ہیں)۔ سست ہے مگر گزر جاتا ہے؛ آپ اسے ترتیبات میں بند کر سکتے ہیں۔</string>
     <string name="whatsNewOk">سمجھ گیا</string>
     <string name="whatsNewTitle">{version} میں نیا کیا ہے</string>
 </resources>

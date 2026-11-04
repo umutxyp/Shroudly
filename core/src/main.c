@@ -69,6 +69,7 @@ static int g_fake_repeats = 6;  /* how many decoy datagrams per voice flow */
 static char g_status_file[1024] = "";
 static char g_auth_file[1024] = "";
 static char g_upstream_file[1024] = "";
+static char g_fallback_file[1024] = "";
 static long g_parent_pid = 0;
 static char g_adblock_file[1024] = "";
 #if defined(SHROUDLY_RAW)
@@ -115,6 +116,7 @@ static void defaults(void) {
   g_status_file[0] = 0;
   g_auth_file[0] = 0;
   g_upstream_file[0] = 0;
+  g_fallback_file[0] = 0;
   g_parent_pid = 0;
   g_adblock_file[0] = 0;
   /* No list and no exceptions from an earlier run (embedded). */
@@ -146,6 +148,8 @@ static void usage(void) {
     "  --decoy-name <host>    a name the network allows, for decoys (repeat, up to 8)\n"
     "  --upstream-file <path> the user's own server, every name through it: the file\n"
     "                        holds socks5://[user:pass@]host:port or http://...\n"
+    "  --fallback-file <path> the last way out (Tor on this device, say), the same line:\n"
+    "                        only for a connection nothing else got through\n"
     "  --fake-net <cidr>     stand-in address range (repeatable, or comma-joined):\n"
     "                        CONNECT to it is refused at once, datagrams dropped\n"
     "  --watch <domain>      tell connections to it or a name under it as\n"
@@ -247,6 +251,7 @@ int engine_main(int argc, char **argv, FILE *in, FILE *out, int embedded) {
     else if (!strcmp(argv[i], "--allow") && i+1<argc) adblock_allow(argv[++i]);   /* a bad one is left out */
     else if (!strcmp(argv[i], "--auth-file") && i+1<argc) strncpy(g_auth_file, argv[++i], sizeof(g_auth_file)-1);
     else if (!strcmp(argv[i], "--upstream-file") && i+1<argc) strncpy(g_upstream_file, argv[++i], sizeof(g_upstream_file)-1);
+    else if (!strcmp(argv[i], "--fallback-file") && i+1<argc) strncpy(g_fallback_file, argv[++i], sizeof(g_fallback_file)-1);
     else if (!strcmp(argv[i], "--status-file") && i+1<argc) strncpy(g_status_file, argv[++i], sizeof(g_status_file)-1);
     else if (!strcmp(argv[i], "--parent-pid") && i+1<argc) g_parent_pid = atol(argv[++i]);
     else if (!strcmp(argv[i], "--help")) { usage(); return 0; }
@@ -273,6 +278,12 @@ int engine_main(int argc, char **argv, FILE *in, FILE *out, int embedded) {
     engine_printf("{\"type\":\"error\",\"msg\":\"upstream file unusable\"}\n");
     plat_cleanup();
     return 2;
+  }
+  /* The last way out: unusable, it is only left out (it is never needed to
+   * start, and protection without it is what there was before). */
+  if (g_fallback_file[0] && engine_load_fallback(&g_cfg, g_fallback_file) != 0) {
+    g_cfg.fallback_kind = 0;
+    engine_printf("{\"type\":\"fallback\",\"ok\":0,\"why\":\"file unusable\"}\n");
   }
 
 #if defined(SHROUDLY_RAW)

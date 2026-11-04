@@ -141,6 +141,12 @@
     <string name="helpOthersOrbot">Orbot (Tor)</string>
     <string name="language">ভাষা</string>
     <string name="languageSystem">সিস্টেম ডিফল্ট</string>
+    <string name="lastResort">অন্য কিছু কাজ না করলে: Tor নেটওয়ার্ক</string>
+    <string name="lastResortDesc">যে সাইট কোনো কৌশলে খোলে না, সেটি Tor দিয়ে খোলে, আর Tor-এ পৌঁছানো হয় Snowflake দিয়ে: স্বেচ্ছাসেবকদের সংযোগ, যাঁদের মধ্যে আছেন সবাই যাঁরা “সেন্সর করা দেশের মানুষদের সাহায্য করুন” চালু করেছেন। এটি ধীর, আর কিছু সাইট Tor থেকে আসা দর্শকদের কাছে ক্যাপচা চায়। কোনো সাইটের দরকার হলেই কেবল Tor চালু হয়।</string>
+    <string name="lastResortFailed">Tor নেটওয়ার্কে পৌঁছানো যায়নি; কোনো সাইটের দরকার হলে আবার চেষ্টা করা হবে</string>
+    <string name="lastResortOwnServer">আপনার নিজের সার্ভার সেট থাকলে এটি ব্যবহার হয় না: সব সাইট সেই সার্ভার দিয়ে যায়।</string>
+    <string name="lastResortReady">যে সাইটগুলো অন্যভাবে খোলেনি, সেগুলো Tor নেটওয়ার্ক দিয়ে যাচ্ছে</string>
+    <string name="lastResortStarting" formatted="false">যে সাইটগুলো অন্যভাবে খোলে না, তাদের জন্য Tor নেটওয়ার্কে যুক্ত হচ্ছে… {progress}%</string>
     <string name="linkReleases">রিলিজ নোট</string>
     <string name="linkSourceCode">GitHub-এ সোর্স কোড</string>
     <string name="madeBy">Codeshare Technology Ltd-এর একটি পণ্য</string>
@@ -226,7 +232,7 @@
     <string name="upload">আপলোড</string>
     <string name="uptime">চালু থাকার সময়</string>
     <string name="versionLabel">সংস্করণ {version}</string>
-    <string name="whatsNewAndroid">হোম-স্ক্রিন উইজেট যা সুরক্ষা দেখায় ও চালু-বন্ধ করে।\nফোন Wi-Fi-তে চার্জ হওয়ার সময় সেন্সরশিপের দেশের মানুষদের Shroudly-র ভেতর থেকে সাহায্য করুন।</string>
+    <string name="whatsNewAndroid">কোনো কৌশল কোনো সাইট খুলতে না পারলে Shroudly এখন সেটি Tor নেটওয়ার্ক দিয়ে খোলে, যেখানে পৌঁছানো হয় Snowflake স্বেচ্ছাসেবকদের মাধ্যমে (তাঁদের মধ্যে Shroudly দিয়ে সাহায্যকারীরাও আছেন)। ধীর, তবে পৌঁছায়; সেটিংসে বন্ধ করতে পারেন।</string>
     <string name="whatsNewOk">বুঝেছি</string>
     <string name="whatsNewTitle">{version}-এ নতুন যা আছে</string>
 </resources>

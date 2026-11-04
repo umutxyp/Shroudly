@@ -232,6 +232,14 @@ class SettingsActivity : Activity() {
                 Protector.tell(this@SettingsActivity, ShroudlyVpnService.ACTION_SNOWFLAKE)
             }
         }
+        // The last way out (TorRoute): on unless turned off.
+        findViewById<Switch>(R.id.torLastResort).apply {
+            isChecked = TorRoute.enabled(this@SettingsActivity)
+            setOnCheckedChangeListener { _, on ->
+                TorRoute.setEnabled(this@SettingsActivity, on)
+                tell("torLastResort")
+            }
+        }
         // Only in the copy from GitHub (AdBlock.offered).
         val adBlock = AdBlock.offered(this)
         val allowRow = findViewById<View>(R.id.adBlockAllow)
@@ -257,6 +265,9 @@ class SettingsActivity : Activity() {
             titled(getString(R.string.adBlock), ifOpen(R.id.appTitle, getString(R.string.adBlockDesc)))
         findViewById<Switch>(R.id.snowflake).text =
             titled(getString(R.string.snowflakeDevice), ifOpen(R.id.appTitle, getString(R.string.snowflakeWhenAndroid)))
+        findViewById<Switch>(R.id.torLastResort).text =
+            titled(getString(R.string.lastResort), ifOpen(R.id.appTitle, getString(
+                if (AppSettings.ownServer(this) != null) R.string.lastResortOwnServer else R.string.lastResortDesc)))
     }
 
     /* "Sites never to block": one domain per line, cleaned on save. */

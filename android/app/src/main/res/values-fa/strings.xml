@@ -141,6 +141,12 @@
     <string name="helpOthersOrbot">Orbot (Tor)</string>
     <string name="language">زبان</string>
     <string name="languageSystem">پیش‌فرض سیستم</string>
+    <string name="lastResort">وقتی هیچ راه دیگری جواب نمی‌دهد: شبکهٔ تور</string>
+    <string name="lastResortDesc">سایتی که هیچ روشی بازش نمی‌کند از راه تور باز می‌شود؛ تور از راه اسنوفلیک در دسترس است، یعنی اتصال داوطلبان، از جمله همهٔ کسانی که «کمک به مردم کشورهای سانسورشده» را روشن کرده‌اند. کندتر است و بعضی سایت‌ها از کسانی که از تور می‌آیند کپچا می‌خواهند. تور فقط وقتی شروع می‌شود که سایتی به آن نیاز داشته باشد.</string>
+    <string name="lastResortFailed">به شبکهٔ تور نرسیدیم؛ وقتی سایتی به آن نیاز داشته باشد دوباره امتحان می‌شود</string>
+    <string name="lastResortOwnServer">تا وقتی سرور خودت تنظیم شده است استفاده نمی‌شود: همهٔ سایت‌ها از آن سرور می‌گذرند.</string>
+    <string name="lastResortReady">سایت‌هایی که با هیچ راه دیگری باز نشدند از شبکهٔ تور می‌گذرند</string>
+    <string name="lastResortStarting">در حال اتصال به شبکهٔ تور برای سایت‌هایی که با هیچ راه دیگری باز نمی‌شوند… {progress}٪</string>
     <string name="linkReleases">یادداشت‌های انتشار</string>
     <string name="linkSourceCode">کد منبع در GitHub</string>
     <string name="madeBy">محصولی از Codeshare Technology Ltd</string>
@@ -226,7 +232,7 @@
     <string name="upload">آپلود</string>
     <string name="uptime">مدت فعالیت</string>
     <string name="versionLabel">نسخهٔ {version}</string>
-    <string name="whatsNewAndroid">ویجت صفحه اصلی که محافظت را نشان می‌دهد و روشن و خاموش می‌کند.\nوقتی گوشی با Wi-Fi شارژ می‌شود، از داخل Shroudly به مردم کشورهای سانسورشده کمک کنید.</string>
+    <string name="whatsNewAndroid">وقتی هیچ روشی سایتی را باز نمی‌کند، Shroudly حالا آن را از راه شبکهٔ تور باز می‌کند؛ تور از راه داوطلبان اسنوفلیک در دسترس است (از جمله کسانی که با Shroudly کمک می‌کنند). کندتر است ولی رد می‌شود؛ می‌توانی در تنظیمات خاموشش کنی.</string>
     <string name="whatsNewOk">متوجه شدم</string>
     <string name="whatsNewTitle">تازه‌های نسخهٔ {version}</string>
 </resources>

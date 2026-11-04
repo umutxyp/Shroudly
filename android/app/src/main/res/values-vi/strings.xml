@@ -141,6 +141,12 @@
     <string name="helpOthersOrbot">Orbot (Tor)</string>
     <string name="language">Ngôn ngữ</string>
     <string name="languageSystem">Mặc định của hệ thống</string>
+    <string name="lastResort">Khi không cách nào khác hiệu quả: mạng Tor</string>
+    <string name="lastResortDesc">Trang mà không kỹ thuật nào mở được sẽ đi qua Tor, được kết nối thông qua Snowflake: kết nối của các tình nguyện viên, trong đó có mọi người đã bật “Giúp người ở các nước bị kiểm duyệt”. Chậm hơn, và một số trang yêu cầu captcha với người đến từ Tor. Tor chỉ khởi động khi có trang cần đến.</string>
+    <string name="lastResortFailed">Không kết nối được mạng Tor; sẽ thử lại khi có trang cần đến</string>
+    <string name="lastResortOwnServer">Không dùng khi bạn đã đặt máy chủ riêng: máy chủ đó mang mọi trang.</string>
+    <string name="lastResortReady">Các trang không mở được bằng cách khác đang đi qua mạng Tor</string>
+    <string name="lastResortStarting" formatted="false">Đang kết nối mạng Tor cho các trang không mở được bằng cách khác… {progress}%</string>
     <string name="linkReleases">Ghi chú phát hành</string>
     <string name="linkSourceCode">Mã nguồn trên GitHub</string>
     <string name="madeBy">Một sản phẩm của Codeshare Technology Ltd</string>
@@ -226,7 +232,7 @@
     <string name="upload">Tải lên</string>
     <string name="uptime">Thời gian chạy</string>
     <string name="versionLabel">Phiên bản {version}</string>
-    <string name="whatsNewAndroid">Tiện ích màn hình chính hiển thị và bật tắt bảo vệ.\nGiúp người dân ở các nước bị kiểm duyệt ngay trong Shroudly khi điện thoại sạc qua Wi-Fi.</string>
+    <string name="whatsNewAndroid">Khi không kỹ thuật nào mở được một trang, Shroudly giờ mở trang đó qua mạng Tor, được kết nối nhờ các tình nguyện viên Snowflake (trong đó có những người giúp qua Shroudly). Chậm hơn nhưng vẫn qua được; bạn có thể tắt trong Cài đặt.</string>
     <string name="whatsNewOk">Đã hiểu</string>
     <string name="whatsNewTitle">Có gì mới trong {version}</string>
 </resources>

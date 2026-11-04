@@ -141,6 +141,12 @@
     <string name="helpOthersOrbot">Orbot（Tor）</string>
     <string name="language">言語</string>
     <string name="languageSystem">システムの既定</string>
+    <string name="lastResort">ほかに何も効かないとき: Tor ネットワーク</string>
+    <string name="lastResortDesc">どの手法でも開けないサイトは Tor を通ります。Tor には Snowflake、つまりボランティアの接続を通じてつながります(「検閲されている国の人を助ける」をオンにした人たちもその一部です)。速度は遅く、Tor から来た訪問者に CAPTCHA を求めるサイトもあります。Tor はサイトが必要としたときだけ起動します。</string>
+    <string name="lastResortFailed">Tor ネットワークに接続できませんでした。サイトが必要としたときに再試行します</string>
+    <string name="lastResortOwnServer">自分のサーバーを設定している間は使いません。すべてのサイトがそのサーバーを通ります。</string>
+    <string name="lastResortReady">ほかの方法で開かなかったサイトは Tor ネットワークを通っています</string>
+    <string name="lastResortStarting" formatted="false">ほかの方法で開かないサイトのために Tor ネットワークに接続中… {progress}%</string>
     <string name="linkReleases">リリースノート</string>
     <string name="linkSourceCode">GitHub のソースコード</string>
     <string name="madeBy">Codeshare Technology Ltd の製品</string>
@@ -226,7 +232,7 @@
     <string name="upload">アップロード</string>
     <string name="uptime">稼働時間</string>
     <string name="versionLabel">バージョン {version}</string>
-    <string name="whatsNewAndroid">保護の状態を表示して切り替えるホーム画面ウィジェット。\nスマートフォンが Wi-Fi 接続で充電中に、検閲のある国の人々を Shroudly の中から手伝えます。</string>
+    <string name="whatsNewAndroid">どの手法でも開けないサイトを、Shroudly は Tor ネットワーク経由で開くようになりました。Tor には Snowflake のボランティア(Shroudly で手助けしている人たちも含む)を通じてつながります。遅くはなりますが届きます。設定でオフにできます。</string>
     <string name="whatsNewOk">OK</string>
     <string name="whatsNewTitle">{version} の新機能</string>
 </resources>

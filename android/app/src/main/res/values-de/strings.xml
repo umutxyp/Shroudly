@@ -141,6 +141,12 @@
     <string name="helpOthersOrbot">Orbot (Tor)</string>
     <string name="language">Sprache</string>
     <string name="languageSystem">Systemstandard</string>
+    <string name="lastResort">Wenn nichts anderes hilft: das Tor-Netzwerk</string>
+    <string name="lastResortDesc">Eine Seite, die keine Technik öffnet, läuft über Tor, erreicht über Snowflake: die Verbindungen von Freiwilligen, darunter alle, die „Menschen in zensierten Ländern helfen“ eingeschaltet haben. Langsamer, und manche Seiten verlangen von Tor-Besuchern ein Captcha. Tor startet nur, wenn eine Seite es braucht.</string>
+    <string name="lastResortFailed">Das Tor-Netzwerk war nicht erreichbar; neuer Versuch, wenn eine Seite es braucht</string>
+    <string name="lastResortOwnServer">Nicht genutzt, solange dein eigener Server eingestellt ist: Er trägt jede Seite.</string>
+    <string name="lastResortReady">Seiten, die sonst nicht aufgingen, laufen über das Tor-Netzwerk</string>
+    <string name="lastResortStarting" formatted="false">Verbindung zum Tor-Netzwerk für Seiten, die sonst nicht aufgehen… {progress} %</string>
     <string name="linkReleases">Versionshinweise</string>
     <string name="linkSourceCode">Quellcode auf GitHub</string>
     <string name="madeBy">Ein Produkt von Codeshare Technology Ltd</string>
@@ -226,7 +232,7 @@
     <string name="upload">Gesendet</string>
     <string name="uptime">Laufzeit</string>
     <string name="versionLabel">Version {version}</string>
-    <string name="whatsNewAndroid">Ein Startbildschirm-Widget, das den Schutz zeigt und schaltet.\nHilf Menschen in zensierten Ländern direkt aus Shroudly, während das Telefon im WLAN lädt.</string>
+    <string name="whatsNewAndroid">Öffnet keine Technik eine Seite, öffnet Shroudly sie jetzt über das Tor-Netzwerk, erreicht über Snowflake-Freiwillige (darunter Menschen, die mit Shroudly helfen). Langsamer, aber es kommt durch; abschaltbar in den Einstellungen.</string>
     <string name="whatsNewOk">Verstanden</string>
     <string name="whatsNewTitle">Neu in {version}</string>
 </resources>

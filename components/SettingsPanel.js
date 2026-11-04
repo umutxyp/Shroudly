@@ -1087,6 +1087,12 @@ export default function SettingsPanel({ active = false }) {
                     checked={settings.preferIpv6}
                     disabled={ipv6Ok === false && !settings.preferIpv6}
                     onChange={(v) => save('preferIpv6', v)} />
+            {/* The last way out (electron/tor-route.js): on unless turned
+                off; the user's own server, when set, carries everything. */}
+            <Toggle label={t('lastResort')}
+                    desc={settings.ownServer ? t('lastResortOwnServer') : t('lastResortDesc')}
+                    checked={settings.torLastResort !== false}
+                    onChange={(v) => save('torLastResort', v)} />
           </div>
 
           {active && (

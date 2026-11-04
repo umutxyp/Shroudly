@@ -141,6 +141,12 @@
     <string name="helpOthersOrbot">Orbot（Tor）</string>
     <string name="language">语言</string>
     <string name="languageSystem">跟随系统</string>
+    <string name="lastResort">其他方法都无效时:Tor 网络</string>
+    <string name="lastResortDesc">任何技术都打不开的网站会经由 Tor 打开,而 Tor 通过 Snowflake 连接:也就是志愿者的连接,其中包括所有开启了“帮助受审查国家的人”的用户。速度较慢,有些网站会要求来自 Tor 的访客完成验证码。只有当某个网站需要时,Tor 才会启动。</string>
+    <string name="lastResortFailed">无法连接 Tor 网络;等有网站需要时会再试</string>
+    <string name="lastResortOwnServer">设置了你自己的服务器时不使用:所有网站都经由该服务器。</string>
+    <string name="lastResortReady">其他方法打不开的网站正经由 Tor 网络打开</string>
+    <string name="lastResortStarting" formatted="false">正在为其他方法打不开的网站连接 Tor 网络… {progress}%</string>
     <string name="linkReleases">版本说明</string>
     <string name="linkSourceCode">GitHub 上的源代码</string>
     <string name="madeBy">Codeshare Technology Ltd 出品</string>
@@ -226,7 +232,7 @@
     <string name="upload">上传</string>
     <string name="uptime">运行时长</string>
     <string name="versionLabel">版本 {version}</string>
-    <string name="whatsNewAndroid">显示并切换保护状态的主屏幕小组件。\n在手机连着 Wi-Fi 充电时，在 Shroudly 中帮助受审查国家的人们。</string>
+    <string name="whatsNewAndroid">当任何技术都打不开某个网站时,Shroudly 现在会经由 Tor 网络打开它,Tor 通过 Snowflake 志愿者连接(其中包括通过 Shroudly 提供帮助的人)。速度较慢,但能连通;可在设置中关闭。</string>
     <string name="whatsNewOk">知道了</string>
     <string name="whatsNewTitle">{version} 的新内容</string>
 </resources>

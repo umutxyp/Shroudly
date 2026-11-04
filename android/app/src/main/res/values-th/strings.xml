@@ -141,6 +141,12 @@
     <string name="helpOthersOrbot">Orbot (Tor)</string>
     <string name="language">ภาษา</string>
     <string name="languageSystem">ค่าเริ่มต้นของระบบ</string>
+    <string name="lastResort">เมื่อวิธีอื่นใช้ไม่ได้: เครือข่าย Tor</string>
+    <string name="lastResortDesc">เว็บไซต์ที่ไม่มีเทคนิคใดเปิดได้จะผ่าน Tor ซึ่งเข้าถึงผ่าน Snowflake: การเชื่อมต่อของอาสาสมัคร รวมถึงทุกคนที่เปิด “ช่วยผู้คนในประเทศที่ถูกเซ็นเซอร์” ช้ากว่า และบางเว็บไซต์ขอแคปต์ชาจากผู้ที่มาจาก Tor โดย Tor จะเริ่มทำงานเมื่อมีเว็บไซต์ต้องการเท่านั้น</string>
+    <string name="lastResortFailed">เข้าถึงเครือข่าย Tor ไม่ได้ จะลองใหม่เมื่อมีเว็บไซต์ต้องการ</string>
+    <string name="lastResortOwnServer">ไม่ใช้ขณะที่ตั้งเซิร์ฟเวอร์ของคุณเองไว้: เซิร์ฟเวอร์นั้นพาทุกเว็บไซต์ไป</string>
+    <string name="lastResortReady">เว็บไซต์ที่เปิดด้วยวิธีอื่นไม่ได้กำลังผ่านเครือข่าย Tor</string>
+    <string name="lastResortStarting" formatted="false">กำลังเชื่อมต่อเครือข่าย Tor สำหรับเว็บไซต์ที่เปิดด้วยวิธีอื่นไม่ได้… {progress}%</string>
     <string name="linkReleases">บันทึกประจำรุ่น</string>
     <string name="linkSourceCode">ซอร์สโค้ดบน GitHub</string>
     <string name="madeBy">ผลิตภัณฑ์ของ Codeshare Technology Ltd</string>
@@ -226,7 +232,7 @@
     <string name="upload">อัปโหลด</string>
     <string name="uptime">เวลาทำงาน</string>
     <string name="versionLabel">เวอร์ชัน {version}</string>
-    <string name="whatsNewAndroid">วิดเจ็ตหน้าจอหลักที่แสดงและสลับการป้องกัน\nช่วยผู้คนในประเทศที่ถูกเซ็นเซอร์ได้จากใน Shroudly ขณะโทรศัพท์ชาร์จผ่าน Wi-Fi</string>
+    <string name="whatsNewAndroid">เมื่อไม่มีเทคนิคใดเปิดเว็บไซต์ได้ ตอนนี้ Shroudly จะเปิดผ่านเครือข่าย Tor ซึ่งเข้าถึงผ่านอาสาสมัคร Snowflake (รวมถึงผู้ที่ช่วยผ่าน Shroudly) ช้ากว่าแต่ผ่านได้ ปิดได้ในการตั้งค่า</string>
     <string name="whatsNewOk">เข้าใจแล้ว</string>
     <string name="whatsNewTitle">มีอะไรใหม่ใน {version}</string>
 </resources>

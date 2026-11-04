@@ -58,6 +58,7 @@ jobs:
       - name: hev source, generated files
         run: |
           node android/scripts/fetch-hev.js
+          node scripts/fetch-tor.js --android
           node android/scripts/gen-strings.js --check
           node android/scripts/gen-block-ips.js --check
           node android/scripts/gen-raw-apps.js --check

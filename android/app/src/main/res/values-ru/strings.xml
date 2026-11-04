@@ -141,6 +141,12 @@
     <string name="helpOthersOrbot">Orbot (Tor)</string>
     <string name="language">Язык</string>
     <string name="languageSystem">Как в системе</string>
+    <string name="lastResort">Когда ничего не помогает: сеть Tor</string>
+    <string name="lastResortDesc">Сайт, который не открыла ни одна техника, идёт через Tor, а к Tor — через Snowflake: соединения добровольцев, в том числе всех, кто включил «Помогать людям в странах с цензурой». Медленнее, и некоторые сайты просят у посетителей из Tor пройти капчу. Tor запускается, только когда он нужен сайту.</string>
+    <string name="lastResortFailed">Не удалось подключиться к сети Tor; новая попытка, когда она понадобится сайту</string>
+    <string name="lastResortOwnServer">Не используется, пока задан ваш собственный сервер: через него идут все сайты.</string>
+    <string name="lastResortReady">Сайты, которые не открылись иначе, идут через сеть Tor</string>
+    <string name="lastResortStarting" formatted="false">Подключение к сети Tor для сайтов, которые не открылись иначе… {progress}%</string>
     <string name="linkReleases">Примечания к выпуску</string>
     <string name="linkSourceCode">Исходный код на GitHub</string>
     <string name="madeBy">Продукт Codeshare Technology Ltd</string>
@@ -226,7 +232,7 @@
     <string name="upload">Выгрузка</string>
     <string name="uptime">Время работы</string>
     <string name="versionLabel">Версия {version}</string>
-    <string name="whatsNewAndroid">Виджет на главном экране, который показывает и переключает защиту.\nПомогайте людям в странах с цензурой прямо из Shroudly, пока телефон заряжается в сети Wi-Fi.</string>
+    <string name="whatsNewAndroid">Если ни одна техника не открывает сайт, Shroudly теперь открывает его через сеть Tor, к которой подключается через добровольцев Snowflake (среди них и те, кто помогает через Shroudly). Медленнее, но проходит; можно выключить в настройках.</string>
     <string name="whatsNewOk">Понятно</string>
     <string name="whatsNewTitle">Что нового в {version}</string>
 </resources>

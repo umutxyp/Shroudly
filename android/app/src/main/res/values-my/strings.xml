@@ -141,6 +141,12 @@
     <string name="helpOthersOrbot">Orbot (Tor)</string>
     <string name="language">ဘာသာစကား</string>
     <string name="languageSystem">စနစ်မူလ</string>
+    <string name="lastResort">အခြားနည်းလမ်း မရတော့သည့်အခါ - Tor ကွန်ရက်</string>
+    <string name="lastResortDesc">မည်သည့်နည်းလမ်းဖြင့်မျှ မဖွင့်နိုင်သော ဝဘ်ဆိုက်ကို Tor မှတစ်ဆင့် ဖွင့်ပါသည်။ Tor သို့ Snowflake ဖြင့် ရောက်ပါသည် - စေတနာ့ဝန်ထမ်းများ၏ ချိတ်ဆက်မှုများဖြစ်ပြီး “ဆင်ဆာဖြတ်ခံရသော နိုင်ငံများမှ လူများကို ကူညီပါ” ကို ဖွင့်ထားသူအားလုံး ပါဝင်ပါသည်။ ပိုနှေးပြီး အချို့ဝဘ်ဆိုက်များက Tor မှလာသူများကို captcha တောင်းပါသည်။ ဝဘ်ဆိုက်တစ်ခု လိုအပ်မှသာ Tor စတင်ပါသည်။</string>
+    <string name="lastResortFailed">Tor ကွန်ရက်သို့ မရောက်နိုင်ပါ။ ဝဘ်ဆိုက်တစ်ခု လိုအပ်သည့်အခါ ထပ်ကြိုးစားပါမည်</string>
+    <string name="lastResortOwnServer">သင့်ကိုယ်ပိုင်ဆာဗာ သတ်မှတ်ထားစဉ် မသုံးပါ - ဝဘ်ဆိုက်အားလုံး ထိုဆာဗာမှ ဖြတ်သွားပါသည်။</string>
+    <string name="lastResortReady">အခြားနည်းဖြင့် မပွင့်ခဲ့သော ဝဘ်ဆိုက်များ Tor ကွန်ရက်မှ ဖြတ်သွားနေသည်</string>
+    <string name="lastResortStarting" formatted="false">အခြားနည်းဖြင့် မပွင့်သော ဝဘ်ဆိုက်များအတွက် Tor ကွန်ရက်သို့ ချိတ်ဆက်နေသည်… {progress}%</string>
     <string name="linkReleases">ထုတ်ဝေမှု မှတ်စုများ</string>
     <string name="linkSourceCode">GitHub ပေါ်ရှိ ရင်းမြစ်ကုဒ်</string>
     <string name="madeBy">Codeshare Technology Ltd ၏ ထုတ်ကုန်</string>
@@ -226,7 +232,7 @@
     <string name="upload">အပ်လုဒ်</string>
     <string name="uptime">လုပ်ဆောင်ချိန်</string>
     <string name="versionLabel">ဗားရှင်း {version}</string>
-    <string name="whatsNewAndroid">ကာကွယ်မှုကို ပြပြီး ဖွင့်/ပိတ်ပေးသော ပင်မစခရင် ဝစ်ဂျက်။\nဖုန်းကို Wi-Fi ဖြင့် အားသွင်းနေစဉ် ဆင်ဆာဖြတ်ထားသော နိုင်ငံများရှိ လူများကို Shroudly အတွင်းမှ ကူညီပါ။</string>
+    <string name="whatsNewAndroid">မည်သည့်နည်းလမ်းကမျှ ဝဘ်ဆိုက်ကို မဖွင့်နိုင်သည့်အခါ Shroudly က ယခု Tor ကွန်ရက်မှတစ်ဆင့် ဖွင့်ပေးပါသည်။ Tor သို့ Snowflake စေတနာ့ဝန်ထမ်းများမှတစ်ဆင့် ရောက်ပါသည် (Shroudly ဖြင့် ကူညီသူများလည်း ပါဝင်သည်)။ ပိုနှေးသော်လည်း ဖြတ်နိုင်ပါသည်။ ဆက်တင်တွင် ပိတ်နိုင်ပါသည်။</string>
     <string name="whatsNewOk">နားလည်ပါပြီ</string>
     <string name="whatsNewTitle">{version} တွင် အသစ်များ</string>
 </resources>

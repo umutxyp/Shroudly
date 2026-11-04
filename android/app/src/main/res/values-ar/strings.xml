@@ -141,6 +141,12 @@
     <string name="helpOthersOrbot">Orbot (Tor)</string>
     <string name="language">اللغة</string>
     <string name="languageSystem">لغة النظام</string>
+    <string name="lastResort">عندما لا ينجح شيء آخر: شبكة تور</string>
+    <string name="lastResortDesc">الموقع الذي لا تفتحه أي تقنية يمرّ عبر تور، ويُوصَل إلى تور عبر سنوفليك: اتصالات متطوعين، ومنهم كل من فعّل «مساعدة الناس في البلدان الخاضعة للرقابة». أبطأ، وبعض المواقع تطلب من القادمين عبر تور اختبار كابتشا. لا يبدأ تور إلا عندما يحتاجه موقع.</string>
+    <string name="lastResortFailed">تعذّر الوصول إلى شبكة تور؛ ستُعاد المحاولة عندما يحتاجها موقع</string>
+    <string name="lastResortOwnServer">لا يُستخدم ما دام خادمك الخاص مضبوطًا: ذلك الخادم يحمل كل المواقع.</string>
+    <string name="lastResortReady">المواقع التي لم يفتحها شيء آخر تمرّ عبر شبكة تور</string>
+    <string name="lastResortStarting" formatted="false">جارٍ الاتصال بشبكة تور للمواقع التي لا يفتحها شيء آخر… ‎{progress}%</string>
     <string name="linkReleases">ملاحظات الإصدار</string>
     <string name="linkSourceCode">الشيفرة المصدرية على GitHub</string>
     <string name="madeBy">منتج من Codeshare Technology Ltd</string>
@@ -226,7 +232,7 @@
     <string name="upload">الرفع</string>
     <string name="uptime">مدة التشغيل</string>
     <string name="versionLabel">الإصدار {version}</string>
-    <string name="whatsNewAndroid">أداة للشاشة الرئيسية تعرض الحماية وتشغّلها وتوقفها.\nساعد الناس في البلدان الخاضعة للرقابة من داخل Shroudly بينما يُشحن الهاتف على Wi-Fi.</string>
+    <string name="whatsNewAndroid">عندما لا تفتح أي تقنية موقعًا، صار Shroudly يفتحه عبر شبكة تور، التي يصل إليها عبر متطوعي سنوفليك (ومنهم من يساعدون عبر Shroudly). أبطأ، لكنه يمرّ؛ ويمكنك إيقافه من الإعدادات.</string>
     <string name="whatsNewOk">حسنًا</string>
     <string name="whatsNewTitle">الجديد في {version}</string>
 </resources>

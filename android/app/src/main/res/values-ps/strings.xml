@@ -141,6 +141,12 @@
     <string name="helpOthersOrbot">Orbot (Tor)</string>
     <string name="language">ژبه</string>
     <string name="languageSystem">د سیسټم ژبه</string>
+    <string name="lastResort">کله چې بل هېڅ شی کار ونکړي: د ټور شبکه</string>
+    <string name="lastResortDesc">هغه سایټ چې هېڅ تخنیک یې نشي پرانیستلی د ټور له لارې پرانیستل کېږي، او ټور ته د سنوفلېک له لارې رسېږي: د رضاکارانو اتصالونه، په دوی کې ټول هغه کسان چې «د سانسور شويو هېوادونو له خلکو سره مرسته» یې فعاله کړې. ورو دی، او ځینې سایټونه له هغو کسانو چې له ټور څخه راځي کېپچا غواړي. ټور یوازې هغه وخت پیلېږي چې سایټ ورته اړتیا ولري.</string>
+    <string name="lastResortFailed">د ټور شبکې ته ونه رسېدو؛ کله چې سایټ ورته اړتیا ولري بیا هڅه کېږي</string>
+    <string name="lastResortOwnServer">تر هغه چې ستاسو خپل سرور ټاکل شوی وي نه کارول کېږي: ټول سایټونه له هماغه سرور څخه تېرېږي.</string>
+    <string name="lastResortReady">هغه سایټونه چې په بله لاره ونه پرانیستل شول د ټور شبکې له لارې تېرېږي</string>
+    <string name="lastResortStarting" formatted="false">د هغو سایټونو لپاره چې په بله لاره نه پرانیستل کېږي د ټور شبکې سره نښلول کېږي… ‎{progress}%</string>
     <string name="linkReleases">د خپرونو یادښتونه</string>
     <string name="linkSourceCode">په GitHub کې سرچینه کوډ</string>
     <string name="madeBy">د Codeshare Technology Ltd محصول</string>
@@ -226,7 +232,7 @@
     <string name="upload">اپلوډ</string>
     <string name="uptime">د کار موده</string>
     <string name="versionLabel">نسخه {version}</string>
-    <string name="whatsNewAndroid">د کور پردې ویجټ چې ساتنه ښيي او چالانوي یا بندوي یې.\nکله چې تلیفون په Wi-Fi کې چارج کېږي، د سانسور شویو هېوادونو خلکو سره د Shroudly له دننه مرسته وکړئ.</string>
+    <string name="whatsNewAndroid">کله چې هېڅ تخنیک یو سایټ نه پرانیزي، Shroudly اوس هغه د ټور شبکې له لارې پرانیزي، چې د سنوفلېک د رضاکارانو له لارې ورته رسېږي (په دوی کې هغه کسان هم شته چې د Shroudly له لارې مرسته کوي). ورو دی خو تېرېږي؛ په ترتیباتو کې یې بندولی شئ.</string>
     <string name="whatsNewOk">پوه شوم</string>
     <string name="whatsNewTitle">په {version} کې نوي څه</string>
 </resources>

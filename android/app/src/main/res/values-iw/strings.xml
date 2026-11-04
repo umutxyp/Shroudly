@@ -141,6 +141,12 @@
     <string name="helpOthersOrbot">Orbot (Tor)</string>
     <string name="language">שפה</string>
     <string name="languageSystem">ברירת המחדל של המערכת</string>
+    <string name="lastResort">כשום דבר אחר לא עובד: רשת Tor</string>
+    <string name="lastResortDesc">אתר ששום טכניקה לא פותחת עובר דרך Tor, שאליו מגיעים דרך Snowflake: החיבורים של מתנדבים, ובהם כל מי שהפעיל את „לעזור לאנשים במדינות עם צנזורה”. איטי יותר, וחלק מהאתרים מבקשים ממבקרים שמגיעים מ-Tor לפתור קפצ\'ה. Tor מופעל רק כשאתר צריך אותו.</string>
+    <string name="lastResortFailed">לא ניתן היה להגיע לרשת Tor; ניסיון חוזר כשאתר יצטרך אותה</string>
+    <string name="lastResortOwnServer">לא בשימוש כל עוד השרת שלך מוגדר: השרת הזה מעביר את כל האתרים.</string>
+    <string name="lastResortReady">אתרים ששום דבר אחר לא פתח עוברים דרך רשת Tor</string>
+    <string name="lastResortStarting" formatted="false">מתחבר לרשת Tor בשביל אתרים ששום דבר אחר לא פותח… ‎{progress}%</string>
     <string name="linkReleases">הערות גרסה</string>
     <string name="linkSourceCode">קוד המקור ב-GitHub</string>
     <string name="madeBy">מוצר של Codeshare Technology Ltd</string>
@@ -226,7 +232,7 @@
     <string name="upload">העלאה</string>
     <string name="uptime">זמן פעילות</string>
     <string name="versionLabel">גרסה {version}</string>
-    <string name="whatsNewAndroid">ווידג\'ט למסך הבית שמציג את ההגנה ומדליק או מכבה אותה.\nעזרו לאנשים במדינות עם צנזורה מתוך Shroudly בזמן שהטלפון נטען ב-Wi-Fi.</string>
+    <string name="whatsNewAndroid">כששום טכניקה לא פותחת אתר, Shroudly פותח אותו עכשיו דרך רשת Tor, שאליה מגיעים דרך מתנדבי Snowflake (ובהם מי שעוזרים דרך Shroudly). איטי יותר, אבל עובר; אפשר לכבות בהגדרות.</string>
     <string name="whatsNewOk">הבנתי</string>
     <string name="whatsNewTitle">מה חדש בגרסה {version}</string>
 </resources>

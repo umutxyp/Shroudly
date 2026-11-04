@@ -699,6 +699,16 @@ class MainActivity : Activity() {
                 detail.show(text(R.string.ownServerExit, "ip" to (Protection.ownServerExit ?: "")))
                 detail.setTextColor(getColor(R.color.text_dim))
             }
+            // The last way out (TorRoute) at work: connecting, carrying sites
+            // nothing else opened, or not getting through.
+            on && !proxyIdle && !Protection.proxyOnly && TorRoute.state != "off" -> {
+                detail.show(when (TorRoute.state) {
+                    "ready" -> getString(R.string.lastResortReady)
+                    "failed" -> getString(R.string.lastResortFailed)
+                    else -> text(R.string.lastResortStarting, "progress" to TorRoute.progress)
+                })
+                detail.setTextColor(getColor(if (TorRoute.state == "failed") R.color.warn else R.color.text_dim))
+            }
             else -> {
                 detail.show(when {
                     // Starting or stopping: nothing that says otherwise.

@@ -141,6 +141,12 @@
     <string name="helpOthersOrbot">Orbot (Tor)</string>
     <string name="language">Idioma</string>
     <string name="languageSystem">Predeterminado del sistema</string>
+    <string name="lastResort">Cuando nada más funciona: la red Tor</string>
+    <string name="lastResortDesc">Un sitio que ninguna técnica abre pasa por Tor, al que se llega a través de Snowflake: las conexiones de voluntarios, entre ellos todos los que activaron «Ayudar a personas en países censurados». Es más lento y algunos sitios piden un captcha a quienes llegan por Tor. Tor solo se inicia cuando un sitio lo necesita.</string>
+    <string name="lastResortFailed">No se pudo llegar a la red Tor; se intentará de nuevo cuando un sitio lo necesite</string>
+    <string name="lastResortOwnServer">No se usa mientras tengas tu propio servidor: ese servidor lleva todos los sitios.</string>
+    <string name="lastResortReady">Los sitios que nada más abrió pasan por la red Tor</string>
+    <string name="lastResortStarting" formatted="false">Conectando a la red Tor para los sitios que nada más abre… {progress} %</string>
     <string name="linkReleases">Notas de la versión</string>
     <string name="linkSourceCode">Código fuente en GitHub</string>
     <string name="madeBy">Un producto de Codeshare Technology Ltd</string>
@@ -226,7 +232,7 @@
     <string name="upload">Subida</string>
     <string name="uptime">Tiempo activo</string>
     <string name="versionLabel">Versión {version}</string>
-    <string name="whatsNewAndroid">Un widget de pantalla de inicio que muestra y cambia la protección.\nAyuda a personas en países censurados desde Shroudly mientras el teléfono se carga con Wi-Fi.</string>
+    <string name="whatsNewAndroid">Cuando ninguna técnica abre un sitio, Shroudly ahora lo abre a través de la red Tor, a la que llega mediante voluntarios de Snowflake (entre ellos quienes ayudan con Shroudly). Más lento, pero pasa; puedes desactivarlo en Ajustes.</string>
     <string name="whatsNewOk">Entendido</string>
     <string name="whatsNewTitle">Novedades de la {version}</string>
 </resources>

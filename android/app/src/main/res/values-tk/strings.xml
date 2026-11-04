@@ -141,6 +141,12 @@
     <string name="helpOthersOrbot">Orbot (Tor)</string>
     <string name="language">Dil</string>
     <string name="languageSystem">Ulgamdaky ýaly</string>
+    <string name="lastResort">Başga hiç zat işlemese: Tor ulgamy</string>
+    <string name="lastResortDesc">Hiç bir usulyň açyp bilmedik saýty Tor arkaly açylýar, Tor-a bolsa Snowflake arkaly, ýagny meýletinçileriň birikmeleri arkaly ýetilýär (olaryň arasynda «Senzuraly ýurtlardaky adamlara kömek et» funksiýasyny açanlaryň hemmesi bar). Haýalrak, käbir saýtlar Tor-dan gelenlerden kapça soraýar. Tor diňe bir saýta gerek bolanda işe başlaýar.</string>
+    <string name="lastResortFailed">Tor ulgamyna ýetip bolmady; bir saýta gerek bolanda täzeden synanyşar</string>
+    <string name="lastResortOwnServer">Öz serweriňiz goýlan wagty ulanylmaýar: ähli saýtlar şol serwer arkaly geçýär.</string>
+    <string name="lastResortReady">Başga ýol bilen açylmadyk saýtlar Tor ulgamy arkaly geçýär</string>
+    <string name="lastResortStarting" formatted="false">Başga ýol bilen açylmaýan saýtlar üçin Tor ulgamyna birikýär… {progress}%</string>
     <string name="linkReleases">Wersiýa bellikleri</string>
     <string name="linkSourceCode">GitHub-daky çeşme kody</string>
     <string name="madeBy">Codeshare Technology Ltd önümi</string>
@@ -226,7 +232,7 @@
     <string name="upload">Iberiş</string>
     <string name="uptime">Işlän wagty</string>
     <string name="versionLabel">Wersiýa {version}</string>
-    <string name="whatsNewAndroid">Goragy görkezýän we açyp-ýapýan esasy ekran widjeti.\nTelefon Wi-Fi arkaly zarýad alýarka senzuraly ýurtlardaky adamlara Shroudly-nyň içinden kömek ediň.</string>
+    <string name="whatsNewAndroid">Hiç bir usul saýty açyp bilmese, Shroudly indi ony Tor ulgamy arkaly açýar; Tor-a Snowflake meýletinçileri arkaly ýetýär (olaryň arasynda Shroudly arkaly kömek edýänler hem bar). Haýalrak, ýöne geçýär; sazlamalardan öçürip bilersiňiz.</string>
     <string name="whatsNewOk">Düşnükli</string>
     <string name="whatsNewTitle">{version} wersiýasynda täzelikler</string>
 </resources>

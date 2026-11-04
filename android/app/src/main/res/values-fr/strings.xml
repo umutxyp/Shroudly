@@ -141,6 +141,12 @@
     <string name="helpOthersOrbot">Orbot (Tor)</string>
     <string name="language">Langue</string>
     <string name="languageSystem">Langue du système</string>
+    <string name="lastResort">Quand rien d\'autre ne marche : le réseau Tor</string>
+    <string name="lastResortDesc">Un site qu\'aucune technique n\'ouvre passe par Tor, joint via Snowflake : les connexions de bénévoles, dont tous ceux qui ont activé « Aider les personnes des pays censurés ». C\'est plus lent, et certains sites demandent un captcha aux visiteurs venant de Tor. Tor ne démarre que lorsqu\'un site en a besoin.</string>
+    <string name="lastResortFailed">Le réseau Tor n\'a pas pu être joint ; nouvel essai quand un site en aura besoin</string>
+    <string name="lastResortOwnServer">Pas utilisé tant que ton propre serveur est réglé : ce serveur transporte tous les sites.</string>
+    <string name="lastResortReady">Les sites que rien d\'autre n\'ouvrait passent par le réseau Tor</string>
+    <string name="lastResortStarting" formatted="false">Connexion au réseau Tor pour les sites que rien d\'autre n\'ouvre… {progress} %</string>
     <string name="linkReleases">Notes de version</string>
     <string name="linkSourceCode">Code source sur GitHub</string>
     <string name="madeBy">Un produit Codeshare Technology Ltd</string>
@@ -226,7 +232,7 @@
     <string name="upload">Envoi</string>
     <string name="uptime">Durée d’activité</string>
     <string name="versionLabel">Version {version}</string>
-    <string name="whatsNewAndroid">Un widget d\'écran d\'accueil qui montre et bascule la protection.\nAidez les personnes des pays censurés depuis Shroudly pendant que le téléphone charge en Wi-Fi.</string>
+    <string name="whatsNewAndroid">Quand aucune technique n\'ouvre un site, Shroudly l\'ouvre désormais via le réseau Tor, joint grâce aux bénévoles de Snowflake (dont ceux qui aident avec Shroudly). Plus lent, mais ça passe ; désactivable dans les Réglages.</string>
     <string name="whatsNewOk">Compris</string>
     <string name="whatsNewTitle">Nouveautés de la {version}</string>
 </resources>

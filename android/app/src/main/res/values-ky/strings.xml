@@ -141,6 +141,12 @@
     <string name="helpOthersOrbot">Orbot (Tor)</string>
     <string name="language">Тил</string>
     <string name="languageSystem">Системадагыдай</string>
+    <string name="lastResort">Башка эч нерсе жардам бербесе: Tor тармагы</string>
+    <string name="lastResortDesc">Эч бир ыкма ача албаган сайт Tor аркылуу ачылат, ал эми Tor\'го Snowflake аркылуу, башкача айтканда ыктыярчылардын туташуулары аркылуу жетет (алардын арасында «Цензура бар өлкөлөрдөгү адамдарга жардам берүү» функциясын күйгүзгөндөрдүн баары бар). Жайыраак, айрым сайттар Tor\'дон келгендерден капча сурайт. Tor сайтка керек болгондо гана иштей баштайт.</string>
+    <string name="lastResortFailed">Tor тармагына туташуу мүмкүн болбоду; сайтка керек болгондо кайра аракет кылат</string>
+    <string name="lastResortOwnServer">Өз сервериңиз коюлуп турганда колдонулбайт: бардык сайт ошол сервер аркылуу өтөт.</string>
+    <string name="lastResortReady">Башкача ачылбаган сайттар Tor тармагы аркылуу өтүүдө</string>
+    <string name="lastResortStarting" formatted="false">Башкача ачылбаган сайттар үчүн Tor тармагына туташууда… {progress}%</string>
     <string name="linkReleases">Версиялардагы өзгөрүүлөр</string>
     <string name="linkSourceCode">Баштапкы код (GitHub)</string>
     <string name="madeBy">Codeshare Technology Ltd продуктусу</string>
@@ -226,7 +232,7 @@
     <string name="upload">Жөнөтүү</string>
     <string name="uptime">Иштөө убактысы</string>
     <string name="versionLabel">Версия {version}</string>
-    <string name="whatsNewAndroid">Коргоону көрсөтүп, күйгүзүп-өчүргөн башкы экран виджети.\nТелефон Wi-Fi аркылуу кубатталып жатканда цензура бар өлкөлөрдөгү адамдарга Shroudly\'дин ичинен жардам бериңиз.</string>
+    <string name="whatsNewAndroid">Эч бир ыкма сайтты ача албаса, Shroudly эми аны Tor тармагы аркылуу ачат; Tor\'го Snowflake ыктыярчылары аркылуу жетет (алардын арасында Shroudly аркылуу жардам бергендер да бар). Жайыраак, бирок өтөт; жөндөөлөрдөн өчүрсөңүз болот.</string>
     <string name="whatsNewOk">Түшүнүктүү</string>
     <string name="whatsNewTitle">{version} версиясындагы жаңылыктар</string>
 </resources>

@@ -38,6 +38,9 @@ export default function ControlPanel({ dpiStatus, onStatusChange, onSupport }) {
   // (issue #66), so no site has to be opened to check.
   const ownServerExit = active && !notRouting && !offline && !ownServerDown && dpiStatus.ownServerExit ? dpiStatus.ownServerExit : null;
   const ownProxy = offline && !!dpiStatus.ownProxy;
+  // The last way out (tor-route.js) at work: a line of its own under the
+  // status, while it connects, carries sites, or could not get through.
+  const lastResort = active && !notRouting && !offline && !ownServerDown && dpiStatus.lastResort ? dpiStatus.lastResort : null;
   // Only the country's own network answers: a shutdown, not "no internet".
   const nationalOnly = offline && !ownProxy && !!dpiStatus.nationalOnly;
   const pn = notRouting ? proxyNotice(dpiStatus.proxy, { active, advanced: dpiStatus.advanced }) : null;
@@ -199,6 +202,13 @@ export default function ControlPanel({ dpiStatus, onStatusChange, onSupport }) {
             <p className="mt-1.5 text-[13px] leading-snug" style={{ color: !active && dpiStatus.blocked ? 'var(--warn)' : 'var(--text-dim)' }}>
               {ownProxy ? t('ownProxyBody') : offline ? t('noInternetBody') : ownServerExit ? t('ownServerExit', { ip: ownServerExit.ip })
                 : active ? t('dpiBypassRunning') : dpiStatus.blocked ? t('securityStatus') : t('dpiBypassStopped')}
+            </p>
+          )}
+          {lastResort && (
+            <p className="mt-1 text-[12px] leading-snug wrap-anywhere" style={{ color: lastResort.state === 'failed' ? 'var(--warn)' : 'var(--text-faint)' }}>
+              {lastResort.state === 'ready' ? t('lastResortReady')
+                : lastResort.state === 'failed' ? t('lastResortFailed')
+                : t('lastResortStarting', { progress: lastResort.progress || 0 })}
             </p>
           )}
         </div>

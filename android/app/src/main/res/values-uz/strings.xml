@@ -141,6 +141,12 @@
     <string name="helpOthersOrbot">Orbot (Tor)</string>
     <string name="language">Til</string>
     <string name="languageSystem">Tizimdagidek</string>
+    <string name="lastResort">Boshqa hech narsa ishlamasa: Tor tarmog\'i</string>
+    <string name="lastResortDesc">Hech bir usul ocha olmagan sayt Tor orqali ochiladi, Tor\'ga esa Snowflake orqali, ya\'ni ko\'ngillilarning ulanishlari orqali yetiladi (ular orasida «Senzura bor mamlakatlardagi odamlarga yordam berish»ni yoqqanlarning barchasi bor). Sekinroq, ba\'zi saytlar Tor\'dan kelganlardan kapcha so\'raydi. Tor faqat sayt unga muhtoj bo\'lganda ishga tushadi.</string>
+    <string name="lastResortFailed">Tor tarmog\'iga ulanib bo\'lmadi; sayt muhtoj bo\'lganda yana uriniladi</string>
+    <string name="lastResortOwnServer">O\'z serveringiz o\'rnatilganda ishlatilmaydi: barcha saytlar o\'sha server orqali o\'tadi.</string>
+    <string name="lastResortReady">Boshqa yo\'l bilan ochilmagan saytlar Tor tarmog\'i orqali o\'tmoqda</string>
+    <string name="lastResortStarting" formatted="false">Boshqa yo\'l bilan ochilmaydigan saytlar uchun Tor tarmog\'iga ulanmoqda… {progress}%</string>
     <string name="linkReleases">Reliz qaydlari</string>
     <string name="linkSourceCode">GitHubdagi manba kodi</string>
     <string name="madeBy">Codeshare Technology Ltd mahsuloti</string>
@@ -226,7 +232,7 @@
     <string name="upload">Yuklash</string>
     <string name="uptime">Ish vaqti</string>
     <string name="versionLabel">Versiya {version}</string>
-    <string name="whatsNewAndroid">Himoyani ko‘rsatib, yoqib-o‘chiradigan bosh ekran vidjeti.\nTelefon Wi-Fi orqali quvvatlanayotganda tsenzura bor mamlakatlardagi odamlarga Shroudly ichidan yordam bering.</string>
+    <string name="whatsNewAndroid">Hech bir usul saytni ocha olmasa, Shroudly endi uni Tor tarmog\'i orqali ochadi; Tor\'ga Snowflake ko\'ngillilari orqali yetadi (ular orasida Shroudly orqali yordam beradiganlar ham bor). Sekinroq, lekin o\'tadi; sozlamalardan o\'chirish mumkin.</string>
     <string name="whatsNewOk">Tushunarli</string>
     <string name="whatsNewTitle">{version} versiyasida yangiliklar</string>
 </resources>

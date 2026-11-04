@@ -60,6 +60,13 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
   });
   if (!ready) fail('installed engine did not start');
   ok('installed engine starts');
+  // The last way out: Tor and lyrebird (x64 builds, emulated on ARM64), and
+  // the bridge list; Tor runs.
+  const torDir = path.join(dir, 'resources', 'app.asar.unpacked', 'electron', 'tools', 'tor', `win32-${arch}`);
+  for (const f of ['tor.exe', 'lyrebird.exe', 'pt_config.json']) if (!fs.existsSync(path.join(torDir, f))) fail(`Tor's ${f} missing`);
+  const tv = spawnSync(path.join(torDir, 'tor.exe'), ['--version'], { encoding: 'utf8', timeout: 30000, windowsHide: true });
+  if (!/^Tor version/m.test(String(tv.stdout || ''))) fail(`installed Tor does not run: ${String(tv.stderr || tv.stdout || tv.error || '').slice(0, 300)}`);
+  ok('Tor and lyrebird present, Tor runs');
   if (arch === 'x64') {
     const adv = path.join(path.dirname(engine), 'shroudly-core-adv.exe');
     if (!fs.existsSync(adv)) fail('Advanced mode engine missing');

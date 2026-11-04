@@ -1,6 +1,6 @@
 {
   "name": "shroudly",
-  "version": "2.6.53",
+  "version": "2.6.54",
   "description": "Shroudly - Unseen. Unstoppable. | Cross-platform DPI bypass (self-contained engine)",
   "main": "electron/main.js",
   "private": true,
@@ -34,10 +34,11 @@
     "dist:win": "npm run verify && electron-builder --win nsis --publish never",
     "dist:mac": "npm run verify && electron-builder --mac --publish never",
     "dist:linux": "npm run verify && electron-builder --linux AppImage deb --publish never",
-    "dist:all": "npm run build:core:all && npm run build:core:advanced:all && npm run fetch:windivert && npm run check:translations && npm run build && electron-builder -mwl --publish never",
+    "dist:all": "npm run build:core:all && npm run build:core:advanced:all && npm run fetch:windivert && node scripts/fetch-tor.js --desktop && npm run check:translations && npm run build && electron-builder -mwl --publish never",
     "build:core:advanced": "node scripts/build-core-advanced.js",
     "build:core:advanced:all": "node scripts/build-core-advanced.js --cross",
     "fetch:windivert": "node scripts/fetch-windivert.js",
+    "fetch:tor": "node scripts/fetch-tor.js",
     "publish:release": "node scripts/publish-release.js",
     "test:net": "node tests/net/run.js"
   },
@@ -54,6 +55,7 @@
       "electron/**/*",
       "locales/*.json",
       "!electron/tools/core/**",
+      "!electron/tools/tor/**",
       "package.json",
       "!**/*.map",
       "!**/*.pdb",
@@ -63,7 +65,8 @@
       "!**/*.test.*"
     ],
     "asarUnpack": [
-      "electron/tools/core/**"
+      "electron/tools/core/**",
+      "electron/tools/tor/**"
     ],
     "afterPack": "scripts/after-pack.js",
     "electronFuses": {
@@ -92,7 +95,8 @@
       ],
       "signAndEditExecutable": false,
       "files": [
-        "electron/tools/core/win32-${arch}/**"
+        "electron/tools/core/win32-${arch}/**",
+        "electron/tools/tor/win32-${arch}/**"
       ]
     },
     "nsis": {
@@ -148,7 +152,8 @@
         }
       ],
       "files": [
-        "electron/tools/core/darwin-${arch}/**"
+        "electron/tools/core/darwin-${arch}/**",
+        "electron/tools/tor/darwin-${arch}/**"
       ],
       "artifactName": "${productName}-${version}-macOS-${arch}.${ext}"
     },
@@ -184,7 +189,8 @@
       ],
       "maintainer": "Codeshare Technology Ltd <contact@codeshare.me>",
       "files": [
-        "electron/tools/core/linux-${arch}/**"
+        "electron/tools/core/linux-${arch}/**",
+        "electron/tools/tor/linux-${arch}/**"
       ],
       "artifactName": "${productName}-${version}-Linux-${arch}.${ext}"
     },
