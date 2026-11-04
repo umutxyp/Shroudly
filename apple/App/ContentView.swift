@@ -18,6 +18,8 @@ struct ContentView: View {
     // What changed in this version, once after an update (WhatsNew).
     @State private var newsVersion: String?
     @State private var showNews = false
+    // The engine's counters, asked every two seconds while on and in front.
+    @State private var stats: EngineStats?
 
     var body: some View {
         NavigationStack {
@@ -33,14 +35,19 @@ struct ContentView: View {
                 VStack(spacing: wide ? 20 : 28) {
                     Spacer(minLength: wide ? 8 : 0)
                     if wide {
-                        HStack(alignment: .center, spacing: 48) {
+                        HStack(alignment: .center, spacing: 40) {
                             status
-                            if hasCard { card.frame(maxWidth: 420) }
+                            VStack(spacing: 14) {
+                                card
+                                statsView
+                            }
+                            .frame(maxWidth: 460)
                         }
                         .padding(.horizontal, 24)
                     } else {
                         status
                         card
+                        statsView.frame(maxWidth: 520)
                     }
                     Spacer(minLength: wide ? 8 : 0)
                     tabs
@@ -70,6 +77,13 @@ struct ContentView: View {
                 await watch.refresh(protected: controller.phase == .on && scenePhase == .active)
                 guard controller.phase == .on && scenePhase == .active else { return }
                 try? await Task.sleep(nanoseconds: 5_000_000_000)
+            }
+        }
+        .task(id: controller.phase == .on && scenePhase == .active) {
+            guard controller.phase == .on, scenePhase == .active else { stats = nil; return }
+            while !Task.isCancelled {
+                if let s = await controller.stats() { stats = s }
+                try? await Task.sleep(nanoseconds: 2_000_000_000)
             }
         }
         .task(id: RatingPrompt.Moment(phase: controller.phase, active: scenePhase == .active)) {
@@ -123,6 +137,15 @@ struct ContentView: View {
             }
         }
     }
+
+    private var statsView: some View {
+        StatsView(on: phase == .on, since: watch.preview ? Self.previewSince : controller.connectedSince,
+                  stats: watch.preview ? Self.previewStats : stats)
+    }
+
+    /* Debug builds' screenshots: believable numbers instead of dashes. */
+    private static let previewSince = Date().addingTimeInterval(-(42 * 60 + 17))
+    private static let previewStats = EngineStats(["conns_active": 14, "conns_total": 386, "bytes_down": 248_000_000, "bytes_up": 19_400_000])
 
     private var hasCard: Bool {
         phase == .on && (watch.ownServerDown != nil || watch.national != nil || (helpDue && controller.notice == nil && !Theme.isTV))

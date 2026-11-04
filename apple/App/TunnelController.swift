@@ -126,6 +126,21 @@ final class TunnelController: ObservableObject {
         return obj["engine"] as? Bool == true && obj["tunnel"] as? Bool == true
     }
 
+    /* The engine's counters, while protection is on. */
+    func stats() async -> EngineStats? {
+        guard phase == .on, let session = manager?.connection as? NETunnelProviderSession else { return nil }
+        let data: Data? = await withCheckedContinuation { done in
+            do {
+                try session.sendProviderMessage(Data(ProviderMessage.stats.rawValue.utf8)) { done.resume(returning: $0) }
+            } catch {
+                done.resume(returning: nil)
+            }
+        }
+        guard let data, let obj = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+              let s = obj["stats"] as? [String: Any], !s.isEmpty else { return nil }
+        return EngineStats(s)
+    }
+
     /* The site lines the tunnel keeps in memory, for "Share logs". */
     func siteLog() async -> [String] {
         guard phase == .on, let session = manager?.connection as? NETunnelProviderSession else { return [] }

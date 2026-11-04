@@ -64,4 +64,7 @@ enum ProviderMessage: String {
     case health
     /* {"lines": [String]}: the site lines kept in memory. */
     case siteLog
+    /* {"stats": {...}}: the engine's counters a moment ago (its STATS line:
+     * conns_active, conns_total, bytes_up, bytes_down, blocked). */
+    case stats
 }

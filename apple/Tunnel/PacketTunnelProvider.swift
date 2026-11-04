@@ -395,6 +395,14 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
                 reply["tunnel"] = hev?.running == true
             case .siteLog:
                 siteLock.lock(); reply["lines"] = sites; siteLock.unlock()
+            case .stats:
+                // Asked fresh; the engine answers within a few milliseconds.
+                engine?.send("STATS")
+                queue.asyncAfter(deadline: .now() + 0.3) { [self] in
+                    let s = engine?.lastStats ?? [:]
+                    completionHandler?(try? JSONSerialization.data(withJSONObject: ["stats": s.filter { $0.value is NSNumber }]))
+                }
+                return
             case nil:
                 break
             }
