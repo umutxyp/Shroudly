@@ -1620,5 +1620,6 @@ class ShroudlyVpnService : VpnService() {
 
     private fun refreshTile() {
         try { TileService.requestListeningState(this, ComponentName(this, ShroudlyTileService::class.java)) } catch (_: Exception) {}
+        ShroudlyWidget.updateAll(this)
     }
 }

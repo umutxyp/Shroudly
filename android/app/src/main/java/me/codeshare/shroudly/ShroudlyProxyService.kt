@@ -647,6 +647,7 @@ class ShroudlyProxyService : Service() {
 
     private fun refreshTile() {
         try { TileService.requestListeningState(this, ComponentName(this, ShroudlyTileService::class.java)) } catch (_: Exception) {}
+        ShroudlyWidget.updateAll(this)
     }
 
     /* Android ended the service: the engine with it, and the window and the

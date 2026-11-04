@@ -145,6 +145,18 @@
             </intent-filter>
         </receiver>
 
+        <!-- The home-screen widget (ShroudlyWidget): its own taps only. -->
+        <receiver
+            android:name=".ShroudlyWidget"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_info" />
+        </receiver>
+
         <!-- Renames the notification channels when the system language changes. -->
         <receiver
             android:name=".LocaleReceiver"
