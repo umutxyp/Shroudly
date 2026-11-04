@@ -232,7 +232,7 @@
     <string name="upload">Жүктеп салу</string>
     <string name="uptime">Жұмыс уақыты</string>
     <string name="versionLabel">Нұсқа {version}</string>
-    <string name="whatsNewAndroid">Ешбір әдіс сайтты аша алмаса, Shroudly енді оны Tor желісі арқылы ашады; Tor-ға Snowflake еріктілері арқылы жетеді (олардың арасында Shroudly арқылы көмектесетіндер де бар). Баяуырақ, бірақ өтеді; баптаулардан өшіруге болады.</string>
+    <string name="whatsNewAndroid">Ешбір әдіс сайтты аша алмаса, Shroudly енді оны Tor желісі арқылы ашады; Tor-ға Snowflake еріктілері арқылы жетеді (олардың арасында Shroudly арқылы көмектесетіндер де бар).\nБаяуырақ, бірақ өтеді; баптаулардан өшіруге болады.</string>
     <string name="whatsNewOk">Түсінікті</string>
     <string name="whatsNewTitle">{version} нұсқасындағы жаңалықтар</string>
 </resources>

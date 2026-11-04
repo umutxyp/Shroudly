@@ -232,7 +232,7 @@
     <string name="upload">अपलोड</string>
     <string name="uptime">सक्रिय समय</string>
     <string name="versionLabel">संस्करण {version}</string>
-    <string name="whatsNewAndroid">जब कोई तकनीक किसी साइट को नहीं खोल पाती, तो Shroudly अब उसे Tor नेटवर्क से खोलता है, जिस तक Snowflake स्वयंसेवकों के ज़रिए पहुँचा जाता है (इनमें Shroudly से मदद करने वाले भी हैं)। धीमा है, पर निकल जाता है; आप इसे सेटिंग्स में बंद कर सकते हैं।</string>
+    <string name="whatsNewAndroid">जब कोई तकनीक किसी साइट को नहीं खोल पाती, तो Shroudly अब उसे Tor नेटवर्क से खोलता है, जिस तक Snowflake स्वयंसेवकों के ज़रिए पहुँचा जाता है (इनमें Shroudly से मदद करने वाले भी हैं)।\nधीमा है, पर निकल जाता है; आप इसे सेटिंग्स में बंद कर सकते हैं।</string>
     <string name="whatsNewOk">समझ गया</string>
     <string name="whatsNewTitle">{version} में नया क्या है</string>
 </resources>

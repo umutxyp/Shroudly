@@ -232,7 +232,7 @@
     <string name="upload">အပ်လုဒ်</string>
     <string name="uptime">လုပ်ဆောင်ချိန်</string>
     <string name="versionLabel">ဗားရှင်း {version}</string>
-    <string name="whatsNewAndroid">မည်သည့်နည်းလမ်းကမျှ ဝဘ်ဆိုက်ကို မဖွင့်နိုင်သည့်အခါ Shroudly က ယခု Tor ကွန်ရက်မှတစ်ဆင့် ဖွင့်ပေးပါသည်။ Tor သို့ Snowflake စေတနာ့ဝန်ထမ်းများမှတစ်ဆင့် ရောက်ပါသည် (Shroudly ဖြင့် ကူညီသူများလည်း ပါဝင်သည်)။ ပိုနှေးသော်လည်း ဖြတ်နိုင်ပါသည်။ ဆက်တင်တွင် ပိတ်နိုင်ပါသည်။</string>
+    <string name="whatsNewAndroid">မည်သည့်နည်းလမ်းကမျှ ဝဘ်ဆိုက်ကို မဖွင့်နိုင်သည့်အခါ Shroudly က ယခု Tor ကွန်ရက်မှတစ်ဆင့် ဖွင့်ပေးပါသည်။\nTor သို့ Snowflake စေတနာ့ဝန်ထမ်းများမှတစ်ဆင့် ရောက်ပါသည် (Shroudly ဖြင့် ကူညီသူများလည်း ပါဝင်သည်)။ ပိုနှေးသော်လည်း ဖြတ်နိုင်ပါသည်။ ဆက်တင်တွင် ပိတ်နိုင်ပါသည်။</string>
     <string name="whatsNewOk">နားလည်ပါပြီ</string>
     <string name="whatsNewTitle">{version} တွင် အသစ်များ</string>
 </resources>

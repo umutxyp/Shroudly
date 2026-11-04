@@ -232,7 +232,7 @@
     <string name="upload">Iberiş</string>
     <string name="uptime">Işlän wagty</string>
     <string name="versionLabel">Wersiýa {version}</string>
-    <string name="whatsNewAndroid">Hiç bir usul saýty açyp bilmese, Shroudly indi ony Tor ulgamy arkaly açýar; Tor-a Snowflake meýletinçileri arkaly ýetýär (olaryň arasynda Shroudly arkaly kömek edýänler hem bar). Haýalrak, ýöne geçýär; sazlamalardan öçürip bilersiňiz.</string>
+    <string name="whatsNewAndroid">Hiç bir usul saýty açyp bilmese, Shroudly indi ony Tor ulgamy arkaly açýar; Tor-a Snowflake meýletinçileri arkaly ýetýär (olaryň arasynda Shroudly arkaly kömek edýänler hem bar).\nHaýalrak, ýöne geçýär; sazlamalardan öçürip bilersiňiz.</string>
     <string name="whatsNewOk">Düşnükli</string>
     <string name="whatsNewTitle">{version} wersiýasynda täzelikler</string>
 </resources>

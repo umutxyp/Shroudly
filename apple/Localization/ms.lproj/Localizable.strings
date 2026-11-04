@@ -116,6 +116,6 @@
 "upload" = "Muat naik";
 "uptime" = "Masa aktif";
 "versionLabel" = "Versi {version}";
-"whatsNewApple" = "Mac: Apabila tiada teknik dapat membuka sesebuah laman, Shroudly kini membukanya melalui rangkaian Tor, yang dicapai melalui sukarelawan Snowflake (termasuk mereka yang membantu melalui Shroudly). Lebih perlahan, tetapi berjaya; boleh dimatikan dalam Tetapan.";
+"whatsNewApple" = "Mac: Apabila tiada teknik dapat membuka sesebuah laman, Shroudly kini membukanya melalui rangkaian Tor, yang dicapai melalui sukarelawan Snowflake (termasuk mereka yang membantu melalui Shroudly).\nLebih perlahan, tetapi berjaya; boleh dimatikan dalam Tetapan.";
 "whatsNewOk" = "Faham";
 "whatsNewTitle" = "Apa yang baharu dalam {version}";

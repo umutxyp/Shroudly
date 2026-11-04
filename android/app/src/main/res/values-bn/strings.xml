@@ -232,7 +232,7 @@
     <string name="upload">আপলোড</string>
     <string name="uptime">চালু থাকার সময়</string>
     <string name="versionLabel">সংস্করণ {version}</string>
-    <string name="whatsNewAndroid">কোনো কৌশল কোনো সাইট খুলতে না পারলে Shroudly এখন সেটি Tor নেটওয়ার্ক দিয়ে খোলে, যেখানে পৌঁছানো হয় Snowflake স্বেচ্ছাসেবকদের মাধ্যমে (তাঁদের মধ্যে Shroudly দিয়ে সাহায্যকারীরাও আছেন)। ধীর, তবে পৌঁছায়; সেটিংসে বন্ধ করতে পারেন।</string>
+    <string name="whatsNewAndroid">কোনো কৌশল কোনো সাইট খুলতে না পারলে Shroudly এখন সেটি Tor নেটওয়ার্ক দিয়ে খোলে, যেখানে পৌঁছানো হয় Snowflake স্বেচ্ছাসেবকদের মাধ্যমে (তাঁদের মধ্যে Shroudly দিয়ে সাহায্যকারীরাও আছেন)।\nধীর, তবে পৌঁছায়; সেটিংসে বন্ধ করতে পারেন।</string>
     <string name="whatsNewOk">বুঝেছি</string>
     <string name="whatsNewTitle">{version}-এ নতুন যা আছে</string>
 </resources>

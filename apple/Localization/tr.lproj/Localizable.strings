@@ -116,6 +116,6 @@
 "upload" = "Yükleme";
 "uptime" = "Çalışma süresi";
 "versionLabel" = "Sürüm {version}";
-"whatsNewApple" = "Mac: Hiçbir tekniğin açamadığı bir siteyi Shroudly artık Tor ağı üzerinden açıyor; Tor'a Snowflake gönüllüleriyle ulaşılıyor (Shroudly ile yardım edenler de bunlardan). Daha yavaş ama geçiyor; Ayarlar'dan kapatabilirsin.";
+"whatsNewApple" = "Mac: Hiçbir tekniğin açamadığı bir siteyi Shroudly artık Tor ağı üzerinden açıyor; Tor'a Snowflake gönüllüleriyle ulaşılıyor (Shroudly ile yardım edenler de bunlardan).\nDaha yavaş ama geçiyor; Ayarlar'dan kapatabilirsin.";
 "whatsNewOk" = "Tamam";
 "whatsNewTitle" = "{version} sürümünde yenilikler";

@@ -232,7 +232,7 @@
     <string name="upload">Yükleme</string>
     <string name="uptime">Çalışma süresi</string>
     <string name="versionLabel">Sürüm {version}</string>
-    <string name="whatsNewAndroid">Hiçbir tekniğin açamadığı bir siteyi Shroudly artık Tor ağı üzerinden açıyor; Tor\'a Snowflake gönüllüleriyle ulaşılıyor (Shroudly ile yardım edenler de bunlardan). Daha yavaş ama geçiyor; Ayarlar\'dan kapatabilirsin.</string>
+    <string name="whatsNewAndroid">Hiçbir tekniğin açamadığı bir siteyi Shroudly artık Tor ağı üzerinden açıyor; Tor\'a Snowflake gönüllüleriyle ulaşılıyor (Shroudly ile yardım edenler de bunlardan).\nDaha yavaş ama geçiyor; Ayarlar\'dan kapatabilirsin.</string>
     <string name="whatsNewOk">Tamam</string>
     <string name="whatsNewTitle">{version} sürümünde yenilikler</string>
 </resources>

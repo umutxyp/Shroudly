@@ -232,7 +232,7 @@
     <string name="upload">Muat naik</string>
     <string name="uptime">Masa aktif</string>
     <string name="versionLabel">Versi {version}</string>
-    <string name="whatsNewAndroid">Apabila tiada teknik dapat membuka sesebuah laman, Shroudly kini membukanya melalui rangkaian Tor, yang dicapai melalui sukarelawan Snowflake (termasuk mereka yang membantu melalui Shroudly). Lebih perlahan, tetapi berjaya; boleh dimatikan dalam Tetapan.</string>
+    <string name="whatsNewAndroid">Apabila tiada teknik dapat membuka sesebuah laman, Shroudly kini membukanya melalui rangkaian Tor, yang dicapai melalui sukarelawan Snowflake (termasuk mereka yang membantu melalui Shroudly).\nLebih perlahan, tetapi berjaya; boleh dimatikan dalam Tetapan.</string>
     <string name="whatsNewOk">Faham</string>
     <string name="whatsNewTitle">Apa yang baharu dalam {version}</string>
 </resources>

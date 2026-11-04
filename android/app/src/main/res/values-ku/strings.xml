@@ -232,7 +232,7 @@
     <string name="upload">Barkirin</string>
     <string name="uptime">Dema xebatê</string>
     <string name="versionLabel">Guherto {version}</string>
-    <string name="whatsNewAndroid">Gava tu teknîk malperekê venake, Shroudly niha wê bi tora Tor vedike; Tor bi dilxwazên Snowflake tê gihîştin (di nav wan de yên ku bi Shroudly alîkarî dikin jî hene). Hêdîtir e, lê derbas dibe; tu dikarî di Mîhengan de bigirî.</string>
+    <string name="whatsNewAndroid">Gava tu teknîk malperekê venake, Shroudly niha wê bi tora Tor vedike; Tor bi dilxwazên Snowflake tê gihîştin (di nav wan de yên ku bi Shroudly alîkarî dikin jî hene).\nHêdîtir e, lê derbas dibe; tu dikarî di Mîhengan de bigirî.</string>
     <string name="whatsNewOk">Baş e</string>
     <string name="whatsNewTitle">Tiştên nû di {version} de</string>
 </resources>

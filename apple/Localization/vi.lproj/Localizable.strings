@@ -116,6 +116,6 @@
 "upload" = "Tải lên";
 "uptime" = "Thời gian chạy";
 "versionLabel" = "Phiên bản {version}";
-"whatsNewApple" = "Mac: Khi không kỹ thuật nào mở được một trang, Shroudly giờ mở trang đó qua mạng Tor, được kết nối nhờ các tình nguyện viên Snowflake (trong đó có những người giúp qua Shroudly). Chậm hơn nhưng vẫn qua được; bạn có thể tắt trong Cài đặt.";
+"whatsNewApple" = "Mac: Khi không kỹ thuật nào mở được một trang, Shroudly giờ mở trang đó qua mạng Tor, được kết nối nhờ các tình nguyện viên Snowflake (trong đó có những người giúp qua Shroudly).\nChậm hơn nhưng vẫn qua được; bạn có thể tắt trong Cài đặt.";
 "whatsNewOk" = "Đã hiểu";
 "whatsNewTitle" = "Có gì mới trong {version}";

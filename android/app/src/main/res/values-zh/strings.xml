@@ -232,7 +232,7 @@
     <string name="upload">上传</string>
     <string name="uptime">运行时长</string>
     <string name="versionLabel">版本 {version}</string>
-    <string name="whatsNewAndroid">当任何技术都打不开某个网站时,Shroudly 现在会经由 Tor 网络打开它,Tor 通过 Snowflake 志愿者连接(其中包括通过 Shroudly 提供帮助的人)。速度较慢,但能连通;可在设置中关闭。</string>
+    <string name="whatsNewAndroid">当任何技术都打不开某个网站时,Shroudly 现在会经由 Tor 网络打开它,Tor 通过 Snowflake 志愿者连接(其中包括通过 Shroudly 提供帮助的人)。\n速度较慢,但能连通;可在设置中关闭。</string>
     <string name="whatsNewOk">知道了</string>
     <string name="whatsNewTitle">{version} 的新内容</string>
 </resources>

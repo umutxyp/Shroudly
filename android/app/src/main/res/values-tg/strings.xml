@@ -232,7 +232,7 @@
     <string name="upload">Ирсол</string>
     <string name="uptime">Вақти кор</string>
     <string name="versionLabel">Версияи {version}</string>
-    <string name="whatsNewAndroid">Агар ҳеҷ як усул сайтро кушода натавонад, Shroudly акнун онро тавассути шабакаи Tor мекушояд; ба Tor тавассути ихтиёриёни Snowflake мерасад (дар байни онҳо касоне ҳастанд, ки бо Shroudly кӯмак мекунанд). Сусттар, вале мегузарад; дар Танзимот хомӯш кардан мумкин аст.</string>
+    <string name="whatsNewAndroid">Агар ҳеҷ як усул сайтро кушода натавонад, Shroudly акнун онро тавассути шабакаи Tor мекушояд; ба Tor тавассути ихтиёриёни Snowflake\nмерасад (дар байни онҳо касоне ҳастанд, ки бо Shroudly кӯмак мекунанд). Сусттар, вале мегузарад; дар Танзимот хомӯш кардан мумкин аст.</string>
     <string name="whatsNewOk">Фаҳмо</string>
     <string name="whatsNewTitle">Навигариҳои {version}</string>
 </resources>

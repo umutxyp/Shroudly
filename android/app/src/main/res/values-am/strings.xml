@@ -232,7 +232,7 @@
     <string name="upload">መስቀል</string>
     <string name="uptime">የሰራበት ጊዜ</string>
     <string name="versionLabel">ስሪት {version}</string>
-    <string name="whatsNewAndroid">ምንም ዘዴ አንድን ጣቢያ ካልከፈተው Shroudly አሁን በTor አውታረ መረብ በኩል ይከፍተዋል፤ ወደ Tor የሚደረሰው በSnowflake በጎ ፈቃደኞች ነው (በShroudly የሚረዱትም ከነሱ መካከል ናቸው)። ቀርፋፋ ቢሆንም ያልፋል፤ በቅንብሮች ውስጥ ማጥፋት ይችላሉ።</string>
+    <string name="whatsNewAndroid">ምንም ዘዴ አንድን ጣቢያ ካልከፈተው Shroudly አሁን በTor አውታረ መረብ በኩል ይከፍተዋል፤ ወደ Tor የሚደረሰው በSnowflake በጎ ፈቃደኞች ነው (በShroudly የሚረዱትም ከነሱ መካከል ናቸው)።\nቀርፋፋ ቢሆንም ያልፋል፤ በቅንብሮች ውስጥ ማጥፋት ይችላሉ።</string>
     <string name="whatsNewOk">ገባኝ</string>
     <string name="whatsNewTitle">በ{version} ውስጥ አዲስ ነገሮች</string>
 </resources>

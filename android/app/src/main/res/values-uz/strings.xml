@@ -232,7 +232,7 @@
     <string name="upload">Yuklash</string>
     <string name="uptime">Ish vaqti</string>
     <string name="versionLabel">Versiya {version}</string>
-    <string name="whatsNewAndroid">Hech bir usul saytni ocha olmasa, Shroudly endi uni Tor tarmog\'i orqali ochadi; Tor\'ga Snowflake ko\'ngillilari orqali yetadi (ular orasida Shroudly orqali yordam beradiganlar ham bor). Sekinroq, lekin o\'tadi; sozlamalardan o\'chirish mumkin.</string>
+    <string name="whatsNewAndroid">Hech bir usul saytni ocha olmasa, Shroudly endi uni Tor tarmog\'i orqali ochadi; Tor\'ga Snowflake ko\'ngillilari orqali yetadi (ular orasida Shroudly orqali yordam beradiganlar ham bor).\nSekinroq, lekin o\'tadi; sozlamalardan o\'chirish mumkin.</string>
     <string name="whatsNewOk">Tushunarli</string>
     <string name="whatsNewTitle">{version} versiyasida yangiliklar</string>
 </resources>

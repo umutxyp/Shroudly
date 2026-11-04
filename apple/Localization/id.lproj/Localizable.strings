@@ -116,6 +116,6 @@
 "upload" = "Unggah";
 "uptime" = "Waktu aktif";
 "versionLabel" = "Versi {version}";
-"whatsNewApple" = "Mac: Saat tidak ada teknik yang bisa membuka sebuah situs, Shroudly kini membukanya lewat jaringan Tor, yang dicapai melalui relawan Snowflake (termasuk orang yang membantu lewat Shroudly). Lebih lambat, tapi tembus; bisa dimatikan di Pengaturan.";
+"whatsNewApple" = "Mac: Saat tidak ada teknik yang bisa membuka sebuah situs, Shroudly kini membukanya lewat jaringan Tor, yang dicapai melalui relawan Snowflake (termasuk orang yang membantu lewat Shroudly).\nLebih lambat, tapi tembus; bisa dimatikan di Pengaturan.";
 "whatsNewOk" = "Mengerti";
 "whatsNewTitle" = "Yang baru di {version}";

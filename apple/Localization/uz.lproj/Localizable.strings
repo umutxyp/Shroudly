@@ -116,6 +116,6 @@
 "upload" = "Yuklash";
 "uptime" = "Ish vaqti";
 "versionLabel" = "Versiya {version}";
-"whatsNewApple" = "Mac: Hech bir usul saytni ocha olmasa, Shroudly endi uni Tor tarmog'i orqali ochadi; Tor'ga Snowflake ko'ngillilari orqali yetadi (ular orasida Shroudly orqali yordam beradiganlar ham bor). Sekinroq, lekin o'tadi; sozlamalardan o'chirish mumkin.";
+"whatsNewApple" = "Mac: Hech bir usul saytni ocha olmasa, Shroudly endi uni Tor tarmog'i orqali ochadi; Tor'ga Snowflake ko'ngillilari orqali yetadi (ular orasida Shroudly orqali yordam beradiganlar ham bor).\nSekinroq, lekin o'tadi; sozlamalardan o'chirish mumkin.";
 "whatsNewOk" = "Tushunarli";
 "whatsNewTitle" = "{version} versiyasida yangiliklar";

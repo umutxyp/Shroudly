@@ -116,6 +116,6 @@
 "upload" = "Upload";
 "uptime" = "Uptime";
 "versionLabel" = "Version {version}";
-"whatsNewApple" = "Mac: When no technique opens a site, Shroudly now opens it through the Tor network, reached through Snowflake volunteers (people who help through Shroudly among them). Slower, but it gets through; you can turn it off in Settings.";
+"whatsNewApple" = "Mac: When no technique opens a site, Shroudly now opens it through the Tor network, reached through Snowflake volunteers (people who help through Shroudly among them).\nSlower, but it gets through; you can turn it off in Settings.";
 "whatsNewOk" = "Got it";
 "whatsNewTitle" = "What's new in {version}";

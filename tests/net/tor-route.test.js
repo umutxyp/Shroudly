@@ -63,7 +63,8 @@ function fakeSpawn(runs) {
   const file = await r.prepare();
   const port = Number((fs.readFileSync(file, 'utf8').match(/^socks5:\/\/127\.0\.0\.1:(\d+)\n$/) || [])[1]);
   t.ok(port > 0 && runs.length === 0 && r.status().state === 'off', 'prepare names a port for the engine and starts nothing');
-  t.ok((fs.statSync(file).mode & 0o777) === 0o600, 'the file is this user\'s alone');
+  // Windows keeps no such bits: the user's own folder is what keeps it theirs.
+  t.ok(process.platform === 'win32' || (fs.statSync(file).mode & 0o777) === 0o600, 'the file is this user\'s alone');
 
   r.need();
   const a = runs[0];
@@ -121,7 +122,8 @@ function fakeSpawn(runs) {
   // Linux: Tor's own libraries next to it.
   const lr = new TorRoute({ dataDir: data, dir: bin, platform: 'linux', spawn: fakeSpawn(runs), ownerPid: 1 });
   await lr.prepare(); lr.need();
-  t.ok(runs[5].opts.env.LD_LIBRARY_PATH.split(':')[0] === bin, 'Linux: Tor\'s own libraries are found next to it');
+  const ld = runs[5].opts.env.LD_LIBRARY_PATH;
+  t.ok(ld === bin || ld.startsWith(`${bin}:`), 'Linux: Tor\'s own libraries are found next to it');
   lr.stop();
 
   // Not in this build: nothing named to the engine.

@@ -232,7 +232,7 @@
     <string name="upload">اپلوډ</string>
     <string name="uptime">د کار موده</string>
     <string name="versionLabel">نسخه {version}</string>
-    <string name="whatsNewAndroid">کله چې هېڅ تخنیک یو سایټ نه پرانیزي، Shroudly اوس هغه د ټور شبکې له لارې پرانیزي، چې د سنوفلېک د رضاکارانو له لارې ورته رسېږي (په دوی کې هغه کسان هم شته چې د Shroudly له لارې مرسته کوي). ورو دی خو تېرېږي؛ په ترتیباتو کې یې بندولی شئ.</string>
+    <string name="whatsNewAndroid">کله چې هېڅ تخنیک یو سایټ نه پرانیزي، Shroudly اوس هغه د ټور شبکې له لارې پرانیزي، چې د سنوفلېک د رضاکارانو له لارې ورته رسېږي (په دوی کې هغه کسان هم شته چې د Shroudly له لارې مرسته کوي).\nورو دی خو تېرېږي؛ په ترتیباتو کې یې بندولی شئ.</string>
     <string name="whatsNewOk">پوه شوم</string>
     <string name="whatsNewTitle">په {version} کې نوي څه</string>
 </resources>

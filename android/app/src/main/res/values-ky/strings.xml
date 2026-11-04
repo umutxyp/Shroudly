@@ -232,7 +232,7 @@
     <string name="upload">Жөнөтүү</string>
     <string name="uptime">Иштөө убактысы</string>
     <string name="versionLabel">Версия {version}</string>
-    <string name="whatsNewAndroid">Эч бир ыкма сайтты ача албаса, Shroudly эми аны Tor тармагы аркылуу ачат; Tor\'го Snowflake ыктыярчылары аркылуу жетет (алардын арасында Shroudly аркылуу жардам бергендер да бар). Жайыраак, бирок өтөт; жөндөөлөрдөн өчүрсөңүз болот.</string>
+    <string name="whatsNewAndroid">Эч бир ыкма сайтты ача албаса, Shroudly эми аны Tor тармагы аркылуу ачат; Tor\'го Snowflake ыктыярчылары аркылуу жетет (алардын арасында Shroudly аркылуу жардам бергендер да бар).\nЖайыраак, бирок өтөт; жөндөөлөрдөн өчүрсөңүз болот.</string>
     <string name="whatsNewOk">Түшүнүктүү</string>
     <string name="whatsNewTitle">{version} версиясындагы жаңылыктар</string>
 </resources>

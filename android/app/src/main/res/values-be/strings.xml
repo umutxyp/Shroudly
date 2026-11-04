@@ -232,7 +232,7 @@
     <string name="upload">Запампоўка</string>
     <string name="uptime">Час працы</string>
     <string name="versionLabel">Версія {version}</string>
-    <string name="whatsNewAndroid">Калі ніводная тэхніка не адкрывае сайт, Shroudly цяпер адкрывае яго праз сетку Tor, да якой падключаецца праз валанцёраў Snowflake (сярод іх і тыя, хто дапамагае праз Shroudly). Павольней, але праходзіць; можна выключыць у наладах.</string>
+    <string name="whatsNewAndroid">Калі ніводная тэхніка не адкрывае сайт, Shroudly цяпер адкрывае яго праз сетку Tor, да якой падключаецца праз валанцёраў Snowflake (сярод іх і тыя, хто дапамагае праз Shroudly).\nПавольней, але праходзіць; можна выключыць у наладах.</string>
     <string name="whatsNewOk">Зразумела</string>
     <string name="whatsNewTitle">Што новага ў {version}</string>
 </resources>

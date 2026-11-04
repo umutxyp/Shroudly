@@ -116,6 +116,6 @@
 "upload" = "アップロード";
 "uptime" = "稼働時間";
 "versionLabel" = "バージョン {version}";
-"whatsNewApple" = "Mac: どの手法でも開けないサイトを、Shroudly は Tor ネットワーク経由で開くようになりました。Tor には Snowflake のボランティア(Shroudly で手助けしている人たちも含む)を通じてつながります。遅くはなりますが届きます。設定でオフにできます。";
+"whatsNewApple" = "Mac: どの手法でも開けないサイトを、Shroudly は Tor ネットワーク経由で開くようになりました。Tor には Snowflake のボランティア(Shroudly で手助けしている人たちも含む)を通じてつながります。遅くはなりますが届きます。\n設定でオフにできます。";
 "whatsNewOk" = "OK";
 "whatsNewTitle" = "{version} の新機能";

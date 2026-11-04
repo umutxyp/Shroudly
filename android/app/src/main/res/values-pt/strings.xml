@@ -232,7 +232,7 @@
     <string name="upload">Enviado</string>
     <string name="uptime">Tempo ativo</string>
     <string name="versionLabel">Versão {version}</string>
-    <string name="whatsNewAndroid">Quando nenhuma técnica abre um site, o Shroudly agora o abre pela rede Tor, alcançada por voluntários do Snowflake (entre eles quem ajuda pelo Shroudly). Mais lento, mas passa; você pode desativar nas Configurações.</string>
+    <string name="whatsNewAndroid">Quando nenhuma técnica abre um site, o Shroudly agora o abre pela rede Tor, alcançada por voluntários do Snowflake (entre eles quem ajuda pelo Shroudly).\nMais lento, mas passa; você pode desativar nas Configurações.</string>
     <string name="whatsNewOk">Entendi</string>
     <string name="whatsNewTitle">Novidades da {version}</string>
 </resources>

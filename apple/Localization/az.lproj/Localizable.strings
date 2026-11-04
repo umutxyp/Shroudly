@@ -116,6 +116,6 @@
 "upload" = "Göndərmə";
 "uptime" = "İş müddəti";
 "versionLabel" = "Versiya {version}";
-"whatsNewApple" = "Mac: Heç bir texnikanın aça bilmədiyi saytı Shroudly artıq Tor şəbəkəsi üzərindən açır; Tor-a Snowflake könüllüləri ilə çatılır (Shroudly ilə kömək edənlər də onların arasındadır). Daha yavaşdır, amma keçir; Ayarlardan söndürə bilərsən.";
+"whatsNewApple" = "Mac: Heç bir texnikanın aça bilmədiyi saytı Shroudly artıq Tor şəbəkəsi üzərindən açır; Tor-a Snowflake könüllüləri ilə çatılır (Shroudly ilə kömək edənlər də onların arasındadır).\nDaha yavaşdır, amma keçir; Ayarlardan söndürə bilərsən.";
 "whatsNewOk" = "Aydındır";
 "whatsNewTitle" = "{version} versiyasında yeniliklər";
