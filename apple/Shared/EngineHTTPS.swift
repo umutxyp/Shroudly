@@ -24,13 +24,20 @@ enum EngineHTTPS {
     struct Unsupported: Error {}
 
     /* A stream to host:port, through the engine when `via` is given (else
-     * straight out); TLS with the host's name. */
-    static func open(_ host: String, port: Int = 443, via e: Path?, timeout t: TimeInterval) async throws -> Stream {
-        let tls = NWProtocolTLS.Options()
-        sec_protocol_options_set_tls_server_name(tls.securityProtocolOptions, host)
+     * straight out); TLS with `name` (the host's own by default), or none
+     * when `tls` is false (plain DNS over TCP). */
+    static func open(_ host: String, port: Int = 443, via e: Path?, timeout t: TimeInterval,
+                     name: String? = nil, tls useTLS: Bool = true) async throws -> Stream {
         let tcp = NWProtocolTCP.Options()
         tcp.connectionTimeout = Int(t.rounded(.up))
-        let params = NWParameters(tls: tls, tcp: tcp)
+        let params: NWParameters
+        if useTLS {
+            let tls = NWProtocolTLS.Options()
+            sec_protocol_options_set_tls_server_name(tls.securityProtocolOptions, name ?? host)
+            params = NWParameters(tls: tls, tcp: tcp)
+        } else {
+            params = NWParameters(tls: nil, tcp: tcp)
+        }
         if let e {
             guard #available(iOS 17.0, macOS 14.0, tvOS 17.0, *) else { throw Unsupported() }
             var proxy = ProxyConfiguration(socksv5Proxy: .hostPort(host: "127.0.0.1", port: NWEndpoint.Port(rawValue: UInt16(e.port))!))

@@ -48,6 +48,10 @@ struct AppSettings: Equatable {
     var ipv6Off = false
     var keepOn = false
     var ownServer = ""
+    // "DNS server" (CustomDns.swift): "auto" or a kind, what was typed, alone.
+    var dnsKind = "auto"
+    var dnsServer = ""
+    var dnsStrict = false
 
     var strategy: Strategy { Strategies.byId(strategyId) }
 
@@ -55,6 +59,7 @@ struct AppSettings: Equatable {
      * system's business (on demand), not theirs. */
     func sameTunnel(as other: AppSettings) -> Bool {
         strategy == other.strategy && quicOff == other.quicOff && ipv6Off == other.ipv6Off && ownServer == other.ownServer
+            && dnsKind == other.dnsKind && dnsServer == other.dnsServer && dnsStrict == other.dnsStrict
     }
 
     /* The own server in use, or nil (none, or a link that cannot be used). */
@@ -83,6 +88,9 @@ final class SettingsStore {
         s.ipv6Off = defaults.bool(forKey: Key.ipv6Off)
         s.keepOn = defaults.bool(forKey: Key.keepOn)
         s.ownServer = defaults.string(forKey: Key.ownServer) ?? ""
+        s.dnsKind = defaults.string(forKey: CustomDns.Key.kind) ?? "auto"
+        s.dnsServer = defaults.string(forKey: CustomDns.Key.server) ?? ""
+        s.dnsStrict = defaults.bool(forKey: CustomDns.Key.strict)
         return s
     }
 
@@ -92,5 +100,12 @@ final class SettingsStore {
         defaults.set(s.ipv6Off, forKey: Key.ipv6Off)
         defaults.set(s.keepOn, forKey: Key.keepOn)
         defaults.set(s.ownServer, forKey: Key.ownServer)
+        if s.dnsKind == "auto" || s.dnsServer.isEmpty {
+            for k in [CustomDns.Key.kind, CustomDns.Key.server, CustomDns.Key.strict] { defaults.removeObject(forKey: k) }
+        } else {
+            defaults.set(s.dnsKind, forKey: CustomDns.Key.kind)
+            defaults.set(s.dnsServer, forKey: CustomDns.Key.server)
+            defaults.set(s.dnsStrict, forKey: CustomDns.Key.strict)
+        }
     }
 }

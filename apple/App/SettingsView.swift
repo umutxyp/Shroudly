@@ -19,6 +19,12 @@ struct SettingsView: View {
     @State private var allowText = AdBlock.allow().joined(separator: "\n")
     // "Count me in the live total" (Shared/OnlineCount.swift): on by default.
     @AppStorage(OnlineCount.key, store: AppGroup.defaults) private var countMe = true
+    // "DNS server": the kind and address being typed, and the test's result.
+    @State private var dnsKind = SettingsStore().load().dnsKind
+    @State private var dnsText = SettingsStore().load().dnsServer
+    @State private var dnsStrict = SettingsStore().load().dnsStrict
+    @State private var dnsResult: (ok: Bool, text: String)?
+    @State private var dnsTesting = false
 
     var body: some View {
         Form {
@@ -81,6 +87,57 @@ struct SettingsView: View {
                         .disabled(AdBlock.clean(allowText.components(separatedBy: CharacterSet(charactersIn: " \t\n\r,"))) == AdBlock.allow())
                     #endif
                 }
+            }
+            Section {
+                Text(tr("dnsServerDesc"))
+                    .font(.footnote)
+                    .foregroundStyle(Theme.secondaryText)
+                    .fixedSize(horizontal: false, vertical: true)
+                Picker(tr("dnsServer"), selection: $dnsKind) {
+                    Text(tr("dnsServerAuto")).tag("auto")
+                    Text(tr("dnsKindDoh")).tag("doh")
+                    Text(tr("dnsKindDot")).tag("dot")
+                    Text(tr("dnsKindTcp")).tag("tcp")
+                    Text(tr("dnsKindUdp")).tag("udp")
+                }
+                .onChange(of: dnsKind) { k in
+                    dnsResult = nil
+                    if k == "auto" { settings.dnsKind = "auto"; settings.dnsServer = ""; dnsText = "" }
+                }
+                if dnsKind != "auto" {
+                    TextField(CustomDns.examples[dnsKind] ?? "", text: $dnsText)
+                        .font(.callout.monospaced())
+                        .autocorrectionDisabled()
+                        #if os(iOS)
+                        .textInputAutocapitalization(.never)
+                        .keyboardType(.URL)
+                        #endif
+                        .onSubmit { Task { await useDns(anyway: false) } }
+                    Toggle(isOn: $dnsStrict) {
+                        Labelled(title: tr("dnsServerStrict"), detail: tr("dnsServerStrictDesc"))
+                    }
+                    .onChange(of: dnsStrict) { on in
+                        // The server in use: alone or not, at once.
+                        if settings.dnsKind == dnsKind && !settings.dnsServer.isEmpty { settings.dnsStrict = on }
+                    }
+                    HStack {
+                        Button(tr("dnsServerUse")) { Task { await useDns(anyway: false) } }
+                            .disabled(dnsTesting || dnsText.trimmingCharacters(in: .whitespaces).isEmpty)
+                        if dnsTesting { ProgressView().controlSize(.small) }
+                        if dnsResult?.ok == false {
+                            Spacer()
+                            Button(tr("dnsServerUseAnyway")) { Task { await useDns(anyway: true) } }
+                        }
+                    }
+                    if let r = dnsResult {
+                        Text(r.text)
+                            .font(.footnote)
+                            .foregroundStyle(r.ok ? Theme.secondaryText : .orange)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                }
+            } header: {
+                Text(tr("dnsServer"))
             }
             Section {
                 Text(tr("ownServerDesc"))
@@ -148,6 +205,50 @@ struct SettingsView: View {
 }
 
 extension SettingsView {
+    /* The server typed, asked for example.com (by the system's lookup for
+     * its name: the app is not the tunnel); used when it answers, or anyway. */
+    private func useDns(anyway: Bool) async {
+        let p = CustomDns.parse(dnsKind, dnsText)
+        guard let spec = p.spec else {
+            dnsResult = (false, tr(CustomDns.errorKey(p.error ?? "url"), ["example": CustomDns.examples[dnsKind] ?? ""]))
+            return
+        }
+        if !anyway {
+            dnsTesting = true
+            defer { dnsTesting = false }
+            let c = CustomDnsClient(spec, bootstrap: { name in await Self.systemLookup(name) })
+            let began = Date()
+            do {
+                let a = try await c.query(Dns.query("example.com", type: 1, id: UInt16.random(in: 1...0xfffe)))
+                let ms = Int(Date().timeIntervalSince(began) * 1000)
+                dnsResult = (true, tr("dnsServerOk", ["ms": String(ms), "address": Dns.addressesV4(a).first ?? "–"]))
+            } catch {
+                dnsResult = (false, tr("dnsServerFails", ["error": error.localizedDescription]))
+                return
+            }
+        }
+        settings.dnsKind = dnsKind
+        settings.dnsServer = dnsText.trimmingCharacters(in: .whitespacesAndNewlines)
+        settings.dnsStrict = dnsStrict
+    }
+
+    private static func systemLookup(_ name: String) async -> String? {
+        await withCheckedContinuation { k in
+            DispatchQueue.global().async {
+                var hints = addrinfo(ai_flags: 0, ai_family: AF_INET, ai_socktype: SOCK_STREAM, ai_protocol: 0, ai_addrlen: 0, ai_canonname: nil, ai_addr: nil, ai_next: nil)
+                var res: UnsafeMutablePointer<addrinfo>?
+                guard getaddrinfo(name, nil, &hints, &res) == 0, let r = res else { return k.resume(returning: nil) }
+                defer { freeaddrinfo(res) }
+                var buf = [CChar](repeating: 0, count: Int(INET_ADDRSTRLEN))
+                let ok = r.pointee.ai_addr.withMemoryRebound(to: sockaddr_in.self, capacity: 1) { sin in
+                    var a = sin.pointee.sin_addr
+                    return inet_ntop(AF_INET, &a, &buf, socklen_t(INET_ADDRSTRLEN)) != nil
+                }
+                k.resume(returning: ok ? String(cString: buf) : nil)
+            }
+        }
+    }
+
     /* The exceptions as typed, cleaned, kept and told to the engine. */
     private func saveAllow() {
         allowText = AdBlock.setAllow(allowText).joined(separator: "\n")

@@ -113,6 +113,10 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
         // With the user's own server, DNS through it too, never straight
         // out, from the first question (issue #67).
         forwarder.throughEngine(settings.ownServerLink != nil, nil)
+        forwarder.useCustom(CustomDns.current(), strict: CustomDns.strict())
+        if let c = CustomDns.current() {
+            log("DNS server: \(c.kind) \(CustomDns.isIp(c.host) ? "by address" : "by name")\(CustomDns.strict() ? ", only this server" : "")")
+        }
         doh = forwarder
         dohPort = try forwarder.start()
 
@@ -185,6 +189,7 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
             if let upstreamPath { unlink(upstreamPath) }
             if ok {
                 engine = e
+                if let a = auth { doh?.engineUp(DohForwarder.EnginePath(port: p, user: a.user, pass: a.pass)) }
                 e.onAdblockCheck = { [weak self] ok, why in self?.queue.async { self?.adblockChecked(ok, why) } }
                 queue.async { [weak self] in
                     self?.applyAdblock(fetchAfter: 8)

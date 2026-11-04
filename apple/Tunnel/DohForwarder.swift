@@ -139,6 +139,41 @@ final class DohForwarder: NSObject, URLSessionDelegate, @unchecked Sendable {
         return URLSession(configuration: config, delegate: trust, delegateQueue: nil)
     }()
 
+    // "DNS server" (Shared/CustomDns.swift): asked first when set; the
+    // engine's path for it whenever the engine runs, own server or not.
+    private var custom: CustomDnsClient?
+    private var customStrict = false
+    private var running: EnginePath?
+
+    func useCustom(_ spec: DnsSpec?, strict: Bool) {
+        let c = spec.map { spec in
+            CustomDnsClient(spec, bootstrap: { [weak self] name in await self?.lookupBuiltIn(name) },
+                            engine: { [weak self] in
+                                guard let self else { return nil }
+                                self.lock.lock(); defer { self.lock.unlock() }
+                                return self.running.map { EngineHTTPS.Path(port: $0.port, user: $0.user, pass: $0.pass) }
+                            },
+                            carried: { [weak self] in
+                                guard let self else { return false }
+                                self.lock.lock(); defer { self.lock.unlock() }
+                                return self.carried
+                            })
+        }
+        lock.lock(); custom = c; customStrict = strict && c != nil; lock.unlock()
+    }
+
+    /* The engine's port and password while it runs (nil when it stops). */
+    func engineUp(_ path: EnginePath?) {
+        lock.lock(); running = path; lock.unlock()
+    }
+
+    /* A name's IPv4 address through the built-in routes only (the user's
+     * server's own name: never the network's DNS, never itself). */
+    func lookupBuiltIn(_ name: String) async -> String? {
+        let q = Dns.query(name, type: 1, id: UInt16.random(in: 1...0xfffe))
+        return Dns.addressesV4(await resolveBuiltIn(q)).first
+    }
+
     /* on: a server of the user's own is set; path: the engine, once up. */
     func throughEngine(_ on: Bool, _ path: EnginePath?) {
         lock.lock(); defer { lock.unlock() }
@@ -234,8 +269,21 @@ final class DohForwarder: NSObject, URLSessionDelegate, @unchecked Sendable {
         return carried ? plan.filter { !$0.ip.contains(":") } : plan
     }
 
-    /* The answer to one query, or "no route". */
+    /* The answer to one query, or "no route": the user's DNS server first
+     * when one is set (alone with "Only this server"), else the built-in
+     * routes. */
     func resolve(_ query: [UInt8]) async -> [UInt8] {
+        lock.lock()
+        let c = custom, strict = customStrict
+        lock.unlock()
+        if let c, strict || !c.resting {
+            if let a = try? await c.query(query) { return a }
+            if strict { return Dns.noRouteReply(query) ?? query }
+        }
+        return await resolveBuiltIn(query)
+    }
+
+    private func resolveBuiltIn(_ query: [UInt8]) async -> [UInt8] {
         let noRoute = Dns.noRouteReply(query) ?? query
         // A server of the user's own, the engine not up yet: "no route" at
         // once, so the engine does not wait; nothing straight out.
@@ -371,34 +419,8 @@ final class DohForwarder: NSObject, URLSessionDelegate, @unchecked Sendable {
         return got
     }
 
-    /* An HTTP/1.1 response's body once it is all there (a 200; by
-     * Content-Length, chunks, or the connection's end), else nil. */
-    static func http1Body(_ b: [UInt8], ended: Bool) -> [UInt8]? {
-        guard let end = (0..<max(0, b.count - 3)).first(where: { b[$0] == 13 && b[$0 + 1] == 10 && b[$0 + 2] == 13 && b[$0 + 3] == 10 }) else { return nil }
-        let head = String(decoding: b[..<end], as: UTF8.self)
-        let lines = head.components(separatedBy: "\r\n")
-        guard let status = lines.first, status.hasPrefix("HTTP/1."), status.split(separator: " ").dropFirst().first == "200" else { return nil }
-        var fields: [String: String] = [:]
-        for l in lines.dropFirst() {
-            guard let c = l.firstIndex(of: ":") else { continue }
-            fields[l[..<c].lowercased()] = l[l.index(after: c)...].trimmingCharacters(in: .whitespaces)
-        }
-        let rest = Array(b[(end + 4)...])
-        if let n = fields["content-length"].flatMap({ Int($0) }) { return rest.count >= n ? Array(rest.prefix(n)) : nil }
-        if fields["transfer-encoding"]?.lowercased().contains("chunked") == true {
-            var out = [UInt8](), i = 0
-            while true {
-                guard let e = (i..<max(i, rest.count - 1)).first(where: { rest[$0] == 13 && rest[$0 + 1] == 10 }),
-                      let size = Int(String(decoding: rest[i..<e], as: UTF8.self).split(separator: ";").first ?? "", radix: 16) else { return nil }
-                if size == 0 { return out }
-                let start = e + 2
-                guard rest.count >= start + size + 2 else { return nil }
-                out += rest[start..<(start + size)]
-                i = start + size + 2
-            }
-        }
-        return ended ? rest : nil
-    }
+    /* An HTTP/1.1 response's body once it is all there (Shared/Http1.swift). */
+    static func http1Body(_ b: [UInt8], ended: Bool) -> [UInt8]? { Http1.body(b, ended: ended) }
 
     private func succeeded(_ id: String, _ took: TimeInterval) {
         lock.lock(); defer { lock.unlock() }
