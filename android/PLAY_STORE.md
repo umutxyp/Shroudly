@@ -28,7 +28,7 @@ benzer adlı menüye bak.
 
 1. **İmza sertifikası asla değişmez.** GitHub APK'sı ve Play sürümü aynı
    "uygulama imzalama anahtarıyla" imzalanır:
-   `~/Documents/Shroudly-Android-Imza/shroudly-release.jks`, alias `shroudly`.
+   `~/Desktop/Shroudly/android-imza/shroudly-release.jks`, alias `shroudly`.
    Sertifikanın SHA-256 değeri:
 
        23:AC:01:4B:72:26:34:3B:74:C7:C9:C0:A4:FD:6F:1D:ED:97:51:8A:3B:FD:35:BC:DE:65:B6:C1:EC:A8:BD:76
@@ -86,7 +86,7 @@ seçeneğini **seçme**.
 Terminalde (şifreyi `keytool` kendisi sorar, komuta yazma):
 
     keytool -list -v \
-      -keystore "$HOME/Documents/Shroudly-Android-Imza/shroudly-release.jks" \
+      -keystore "$HOME/Desktop/Shroudly/android-imza/shroudly-release.jks" \
       -alias shroudly | grep "SHA256:"
 
 Çıkan değer yukarıdaki `23:AC:01:4B:...:BD:76` ile aynı olmalı. Değilse dur:
@@ -104,7 +104,7 @@ Play Console'daki aynı sayfadan iki dosyayı indir: **`pepk.jar`** ve
 indirdiğin klasörde şunu çalıştır:
 
     java -jar pepk.jar \
-      --keystore="$HOME/Documents/Shroudly-Android-Imza/shroudly-release.jks" \
+      --keystore="$HOME/Desktop/Shroudly/android-imza/shroudly-release.jks" \
       --alias=shroudly \
       --output=shroudly-play-signing-key.zip \
       --include-cert \
@@ -133,13 +133,13 @@ destek üzerinden sıfırlanabilir; uygulama imzalama anahtarı sıfırlanamaz.
 1. Yeni yükleme anahtarını üret (şifreleri `keytool` sorar):
 
        keytool -genkeypair -v \
-         -keystore "$HOME/Documents/Shroudly-Android-Imza/shroudly-upload.jks" \
+         -keystore "$HOME/Desktop/Shroudly/android-imza/shroudly-upload.jks" \
          -alias upload -keyalg RSA -keysize 4096 -validity 10950
 
 2. Sertifikasını dışa aktar:
 
        keytool -export -rfc \
-         -keystore "$HOME/Documents/Shroudly-Android-Imza/shroudly-upload.jks" \
+         -keystore "$HOME/Desktop/Shroudly/android-imza/shroudly-upload.jks" \
          -alias upload -file upload_certificate.pem
 
 3. Play Console'da imzalama sayfasında yükleme anahtarı sertifikası olarak
@@ -148,7 +148,7 @@ destek üzerinden sıfırlanabilir; uygulama imzalama anahtarı sıfırlanamaz.
 
 4. GitHub secret'larını ekle. `gh` şifreleri ekranda göstermeden sorar:
 
-       base64 -i "$HOME/Documents/Shroudly-Android-Imza/shroudly-upload.jks" \
+       base64 -i "$HOME/Desktop/Shroudly/android-imza/shroudly-upload.jks" \
          | gh secret set ANDROID_UPLOAD_KEYSTORE_B64 -R umutxyp/Shroudly
        gh secret set ANDROID_UPLOAD_KEYSTORE_PASSWORD -R umutxyp/Shroudly
        gh secret set ANDROID_UPLOAD_KEY_ALIAS -R umutxyp/Shroudly --body upload
