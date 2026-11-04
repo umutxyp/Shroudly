@@ -226,7 +226,7 @@
     <string name="upload">Barkirin</string>
     <string name="uptime">Dema xebatê</string>
     <string name="versionLabel">Guherto {version}</string>
-    <string name="whatsNewAndroid">Shroudly êdî li ser Android TV û Google TV jî dixebite, bi kontrola dûr.\nGer pêşkêşkarê malperekê bi sertîfîkayeke ku ne ya malperê ye bersiv bide, Shroudly bi xwe ji bo wê malperê derbasî teknîkeke din dibe.</string>
+    <string name="whatsNewAndroid">Wîdgeteke ekrana sereke ku parastinê nîşan dide û vedike-digire.\nDema ku telefon bi Wi-Fi tê şarjkirin, alîkariya mirovên li welatên sansûrkirî ji hundirê Shroudly bike.</string>
     <string name="whatsNewOk">Baş e</string>
     <string name="whatsNewTitle">Tiştên nû di {version} de</string>
 </resources>

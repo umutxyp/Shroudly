@@ -226,7 +226,7 @@
     <string name="upload">আপলোড</string>
     <string name="uptime">চালু থাকার সময়</string>
     <string name="versionLabel">সংস্করণ {version}</string>
-    <string name="whatsNewAndroid">Shroudly এখন Android TV ও Google TV-তেও চলে, রিমোট দিয়ে।\nকোনো সাইটের সার্ভার যদি এমন সার্টিফিকেট দিয়ে উত্তর দেয় যা সেই সাইটের নয়, Shroudly নিজে থেকেই সেই সাইটের জন্য অন্য কৌশলে চলে যায়।</string>
+    <string name="whatsNewAndroid">হোম-স্ক্রিন উইজেট যা সুরক্ষা দেখায় ও চালু-বন্ধ করে।\nফোন Wi-Fi-তে চার্জ হওয়ার সময় সেন্সরশিপের দেশের মানুষদের Shroudly-র ভেতর থেকে সাহায্য করুন।</string>
     <string name="whatsNewOk">বুঝেছি</string>
     <string name="whatsNewTitle">{version}-এ নতুন যা আছে</string>
 </resources>

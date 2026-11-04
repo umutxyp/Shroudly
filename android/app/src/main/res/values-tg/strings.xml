@@ -226,7 +226,7 @@
     <string name="upload">Ирсол</string>
     <string name="uptime">Вақти кор</string>
     <string name="versionLabel">Версияи {version}</string>
-    <string name="whatsNewAndroid">Shroudly акнун дар Android TV ва Google TV низ кор мекунад, бо пулт идора мешавад.\nАгар сервери сайт бо сертификате ҷавоб диҳад, ки аз они сайт нест, Shroudly худаш барои он сайт ба усули дигар мегузарад.</string>
+    <string name="whatsNewAndroid">Виҷети экрани асосӣ, ки муҳофизатро нишон медиҳад ва фаъол/хомӯш мекунад.\nВақте ки телефон тавассути Wi-Fi пур мешавад, ба одамони кишварҳои дорои сензура аз дохили Shroudly кӯмак кунед.</string>
     <string name="whatsNewOk">Фаҳмо</string>
     <string name="whatsNewTitle">Навигариҳои {version}</string>
 </resources>

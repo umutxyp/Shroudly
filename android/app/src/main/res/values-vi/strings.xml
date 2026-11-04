@@ -226,7 +226,7 @@
     <string name="upload">Tải lên</string>
     <string name="uptime">Thời gian chạy</string>
     <string name="versionLabel">Phiên bản {version}</string>
-    <string name="whatsNewAndroid">Shroudly giờ chạy được trên Android TV và Google TV, điều khiển bằng remote.\nNếu máy chủ của một trang trả lời bằng chứng chỉ không phải của trang đó, Shroudly tự chuyển sang kỹ thuật khác cho trang đó.</string>
+    <string name="whatsNewAndroid">Tiện ích màn hình chính hiển thị và bật tắt bảo vệ.\nGiúp người dân ở các nước bị kiểm duyệt ngay trong Shroudly khi điện thoại sạc qua Wi-Fi.</string>
     <string name="whatsNewOk">Đã hiểu</string>
     <string name="whatsNewTitle">Có gì mới trong {version}</string>
 </resources>

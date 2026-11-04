@@ -226,7 +226,7 @@
     <string name="upload">အပ်လုဒ်</string>
     <string name="uptime">လုပ်ဆောင်ချိန်</string>
     <string name="versionLabel">ဗားရှင်း {version}</string>
-    <string name="whatsNewAndroid">Shroudly သည် ယခု Android TV နှင့် Google TV တွင်လည်း ရီမုတ်ဖြင့် အသုံးပြုနိုင်ပါပြီ။\nဝဘ်ဆိုက်တစ်ခု၏ ဆာဗာက ထိုဆိုက်နှင့် မသက်ဆိုင်သော လက်မှတ်ဖြင့် တုံ့ပြန်ပါက Shroudly သည် ထိုဆိုက်အတွက် အခြားနည်းလမ်းသို့ အလိုအလျောက် ပြောင်းပါသည်။</string>
+    <string name="whatsNewAndroid">ကာကွယ်မှုကို ပြပြီး ဖွင့်/ပိတ်ပေးသော ပင်မစခရင် ဝစ်ဂျက်။\nဖုန်းကို Wi-Fi ဖြင့် အားသွင်းနေစဉ် ဆင်ဆာဖြတ်ထားသော နိုင်ငံများရှိ လူများကို Shroudly အတွင်းမှ ကူညီပါ။</string>
     <string name="whatsNewOk">နားလည်ပါပြီ</string>
     <string name="whatsNewTitle">{version} တွင် အသစ်များ</string>
 </resources>

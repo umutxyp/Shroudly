@@ -110,6 +110,6 @@
 "upload" = "Yükleme";
 "uptime" = "Çalışma süresi";
 "versionLabel" = "Sürüm {version}";
-"whatsNewApple" = "Shroudly artık Apple TV'de de çalışıyor, kumandayla kullanılıyor.\nBir sitenin sunucusu siteye ait olmayan bir sertifikayla cevap verirse Shroudly o site için kendiliğinden başka bir tekniğe geçiyor.";
+"whatsNewApple" = "Canlı istatistikler, vurgu renkleri, reklam ve izleyici engelleme ve kendi DNS sunucun, Android'deki gibi.\nWidget'lar, Denetim Merkezi düğmesi ve başlatıp durdurmak için Kısayollar.\nSansürlü ülkelerdeki insanlara Shroudly'nin içinden yardım et.";
 "whatsNewOk" = "Tamam";
 "whatsNewTitle" = "{version} sürümünde yenilikler";

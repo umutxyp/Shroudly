@@ -110,6 +110,6 @@
 "upload" = "Unggah";
 "uptime" = "Waktu aktif";
 "versionLabel" = "Versi {version}";
-"whatsNewApple" = "Shroudly kini berjalan di Apple TV, dengan remote.\nJika server sebuah situs menjawab dengan sertifikat yang bukan milik situs itu, Shroudly beralih sendiri ke teknik lain untuk situs tersebut.";
+"whatsNewApple" = "Statistik langsung, warna aksen, blokir iklan dan pelacak, serta server DNS milikmu sendiri, seperti di Android.\nWidget, tombol di Pusat Kontrol, dan Pintasan untuk memulai dan menghentikan.\nBantu orang di negara yang disensor dari dalam Shroudly.";
 "whatsNewOk" = "Mengerti";
 "whatsNewTitle" = "Yang baru di {version}";

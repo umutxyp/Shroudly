@@ -110,6 +110,6 @@
 "upload" = "上传";
 "uptime" = "运行时长";
 "versionLabel" = "版本 {version}";
-"whatsNewApple" = "Shroudly 现在可以在 Apple TV 上运行，用遥控器操作。\n如果网站的服务器返回的证书不属于该网站，Shroudly 会自动为该网站换用另一种技术。";
+"whatsNewApple" = "实时统计、强调色、拦截广告和跟踪器，以及你自己的 DNS 服务器，与 Android 一样。\n小组件、控制中心开关，以及用于开始和停止的快捷指令。\n在 Shroudly 中帮助受审查国家的人们。";
 "whatsNewOk" = "知道了";
 "whatsNewTitle" = "{version} 的新内容";

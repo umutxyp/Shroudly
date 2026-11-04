@@ -110,6 +110,6 @@
 "upload" = "Gesendet";
 "uptime" = "Laufzeit";
 "versionLabel" = "Version {version}";
-"whatsNewApple" = "Shroudly läuft jetzt auch auf Apple TV, bedient mit der Fernbedienung.\nAntwortet der Server einer Website mit einem Zertifikat, das nicht zur Website gehört, wechselt Shroudly für diese Website von selbst zu einer anderen Technik.";
+"whatsNewApple" = "Live-Statistiken, Akzentfarben, Werbung und Tracker blockieren und ein eigener DNS-Server, wie auf Android.\nWidgets, ein Schalter im Kontrollzentrum und Kurzbefehle zum Starten und Stoppen.\nHilf Menschen in zensierten Ländern direkt aus Shroudly.";
 "whatsNewOk" = "Verstanden";
 "whatsNewTitle" = "Neu in {version}";

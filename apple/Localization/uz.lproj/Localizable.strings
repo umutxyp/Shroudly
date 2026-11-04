@@ -110,6 +110,6 @@
 "upload" = "Yuklash";
 "uptime" = "Ish vaqti";
 "versionLabel" = "Versiya {version}";
-"whatsNewApple" = "Shroudly endi Apple TV’da ham ishlaydi, pult bilan boshqariladi.\nAgar sayt serveri saytga tegishli boʻlmagan sertifikat bilan javob bersa, Shroudly oʻsha sayt uchun oʻzi boshqa usulga oʻtadi.";
+"whatsNewApple" = "Jonli statistika, urg‘u ranglari, reklama va kuzatuvchilarni bloklash hamda o‘z DNS serveringiz, Android’dagidek.\nVidjetlar, Boshqaruv markazidagi tugma va ishga tushirish-to‘xtatish uchun Tezkor buyruqlar.\nTsenzura bor mamlakatlardagi odamlarga Shroudly ichidan yordam bering.";
 "whatsNewOk" = "Tushunarli";
 "whatsNewTitle" = "{version} versiyasida yangiliklar";

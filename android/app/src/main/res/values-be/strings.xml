@@ -226,7 +226,7 @@
     <string name="upload">Запампоўка</string>
     <string name="uptime">Час працы</string>
     <string name="versionLabel">Версія {version}</string>
-    <string name="whatsNewAndroid">Shroudly цяпер працуе на Android TV і Google TV, кіраванне пультам.\nКалі сервер сайта адказвае чужым сертыфікатам, Shroudly сам пераключае гэты сайт на іншую тэхніку.</string>
+    <string name="whatsNewAndroid">Віджэт на галоўным экране, які паказвае і пераключае абарону.\nДапамагайце людзям у краінах з цэнзурай проста з Shroudly, пакуль тэлефон зараджаецца праз Wi-Fi.</string>
     <string name="whatsNewOk">Зразумела</string>
     <string name="whatsNewTitle">Што новага ў {version}</string>
 </resources>

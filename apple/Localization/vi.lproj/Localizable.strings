@@ -110,6 +110,6 @@
 "upload" = "Tải lên";
 "uptime" = "Thời gian chạy";
 "versionLabel" = "Phiên bản {version}";
-"whatsNewApple" = "Shroudly giờ chạy được trên Apple TV, điều khiển bằng remote.\nNếu máy chủ của một trang trả lời bằng chứng chỉ không phải của trang đó, Shroudly tự chuyển sang kỹ thuật khác cho trang đó.";
+"whatsNewApple" = "Thống kê trực tiếp, màu nhấn, chặn quảng cáo và trình theo dõi, cùng máy chủ DNS của riêng bạn, như trên Android.\nTiện ích, công tắc trong Trung tâm điều khiển và Phím tắt để bật tắt.\nGiúp người dân ở các nước bị kiểm duyệt ngay trong Shroudly.";
 "whatsNewOk" = "Đã hiểu";
 "whatsNewTitle" = "Có gì mới trong {version}";

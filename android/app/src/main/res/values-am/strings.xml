@@ -226,7 +226,7 @@
     <string name="upload">መስቀል</string>
     <string name="uptime">የሰራበት ጊዜ</string>
     <string name="versionLabel">ስሪት {version}</string>
-    <string name="whatsNewAndroid">Shroudly አሁን በAndroid TV እና Google TV ላይም ይሰራል፣ በሪሞት።\nየአንድ ድረ-ገጽ አገልጋይ የድረ-ገጹ ባልሆነ ሰርቲፊኬት ቢመልስ፣ Shroudly ለዚያ ድረ-ገጽ በራሱ ወደ ሌላ ዘዴ ይቀየራል።</string>
+    <string name="whatsNewAndroid">ጥበቃውን የሚያሳይና የሚያበራ/የሚያጠፋ የመነሻ ገጽ ዊጀት።\nስልኩ በWi-Fi ላይ ሲሞላ ሳንሱር ባለባቸው አገሮች ያሉ ሰዎችን ከShroudly ውስጥ ሆነው ይርዱ።</string>
     <string name="whatsNewOk">ገባኝ</string>
     <string name="whatsNewTitle">በ{version} ውስጥ አዲስ ነገሮች</string>
 </resources>

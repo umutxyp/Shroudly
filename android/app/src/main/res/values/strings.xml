@@ -226,7 +226,7 @@
     <string name="upload">Upload</string>
     <string name="uptime">Uptime</string>
     <string name="versionLabel">Version {version}</string>
-    <string name="whatsNewAndroid">Shroudly now runs on Android TV and Google TV, with the remote.\nWhen a site\'s server answers with a certificate that is not the site\'s, Shroudly switches that site to another technique by itself.</string>
+    <string name="whatsNewAndroid">A home-screen widget that shows and switches protection.\nHelp people in censored countries from inside Shroudly while the phone charges on Wi-Fi.</string>
     <string name="whatsNewOk">Got it</string>
     <string name="whatsNewTitle">What\'s new in {version}</string>
 </resources>

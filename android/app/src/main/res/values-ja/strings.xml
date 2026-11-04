@@ -226,7 +226,7 @@
     <string name="upload">アップロード</string>
     <string name="uptime">稼働時間</string>
     <string name="versionLabel">バージョン {version}</string>
-    <string name="whatsNewAndroid">Shroudly が Android TV と Google TV でも動くようになりました。リモコンで操作できます。\nサイトのサーバーがそのサイトのものではない証明書で応答した場合、Shroudly はそのサイトで自動的に別の手法に切り替えます。</string>
+    <string name="whatsNewAndroid">保護の状態を表示して切り替えるホーム画面ウィジェット。\nスマートフォンが Wi-Fi 接続で充電中に、検閲のある国の人々を Shroudly の中から手伝えます。</string>
     <string name="whatsNewOk">OK</string>
     <string name="whatsNewTitle">{version} の新機能</string>
 </resources>

@@ -110,6 +110,6 @@
 "upload" = "መስቀል";
 "uptime" = "የሰራበት ጊዜ";
 "versionLabel" = "ስሪት {version}";
-"whatsNewApple" = "Shroudly አሁን በApple TV ላይም ይሰራል፣ በሪሞት።\nየአንድ ድረ-ገጽ አገልጋይ የድረ-ገጹ ባልሆነ ሰርቲፊኬት ቢመልስ፣ Shroudly ለዚያ ድረ-ገጽ በራሱ ወደ ሌላ ዘዴ ይቀየራል።";
+"whatsNewApple" = "የቀጥታ ስታቲስቲክስ፣ የአጽንዖት ቀለሞች፣ ማስታወቂያዎችንና መከታተያዎችን ማገድ እና የራስዎ DNS አገልጋይ፣ እንደ Android።\nዊጀቶች፣ በመቆጣጠሪያ ማዕከል ውስጥ መቀየሪያ እና ለማስጀመርና ለማቆም አቋራጮች።\nሳንሱር ባለባቸው አገሮች ያሉ ሰዎችን ከShroudly ውስጥ ሆነው ይርዱ።";
 "whatsNewOk" = "ገባኝ";
 "whatsNewTitle" = "በ{version} ውስጥ አዲስ ነገሮች";
