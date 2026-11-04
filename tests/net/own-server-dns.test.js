@@ -89,11 +89,8 @@ function answer(q) {
   // ── A DNS server of one's own ──
   {
     const udpHits = [];
-    const udp = dgram.createSocket('udp4');
-    udp.on('message', (m, rinfo) => { udpHits.push(m); udp.send(answer(m), rinfo.port, rinfo.address); });
-    await new Promise((r) => udp.bind(0, '127.0.0.1', r));
     const tcpHits = [];
-    const tcpSrv = net.createServer((c) => {
+    const onTcp = (c) => {
       let buf = Buffer.alloc(0);
       c.on('error', () => {});
       c.on('data', (d) => {
@@ -105,8 +102,20 @@ function answer(q) {
           c.write(Buffer.concat([l, a]));
         }
       });
-    }).listen(udp.address().port, '127.0.0.1');
-    await new Promise((r) => tcpSrv.once('listening', r));
+    };
+    // UDP and TCP on the same port: one the system gave for UDP may be one
+    // Windows keeps back for TCP (EACCES, its excluded port ranges): another.
+    let udp, tcpSrv;
+    for (let tries = 0; ; tries++) {
+      udp = dgram.createSocket('udp4');
+      udp.on('message', (m, rinfo) => { udpHits.push(m); udp.send(answer(m), rinfo.port, rinfo.address); });
+      await new Promise((r) => udp.bind(0, '127.0.0.1', r));
+      tcpSrv = net.createServer(onTcp);
+      const ok = await new Promise((r) => { tcpSrv.once('listening', () => r(true)); tcpSrv.once('error', () => r(false)); tcpSrv.listen(udp.address().port, '127.0.0.1'); });
+      if (ok) break;
+      udp.close();
+      if (tries === 20) throw new Error('no port free for both UDP and TCP');
+    }
     const port = udp.address().port;
     // The name is sent to the engine, which hands it to the server; here
     // the stand-in sends it to this computer's DNS stand-ins.
