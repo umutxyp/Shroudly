@@ -37,6 +37,7 @@
 "helpOthersConduit" = "Conduit (Psiphon)";
 "language" = "ژبه";
 "languageSystem" = "د سیسټم ژبه";
+"linkReleases" = "د خپرونو یادښتونه";
 "linkSourceCode" = "په GitHub کې سرچینه کوډ";
 "madeBy" = "د Codeshare Technology Ltd محصول";
 "nationalOnlyBody" = "د نړۍ له پاتې برخې سره اړیکه پرې ده؛ د هېواد دننه سایټونه لا خلاصېږي. هېڅ اپ یا VPN له دې نه شي تېرېدای. کله چې اړیکه بېرته راشي، Shroudly پخپله دوام ورکوي.";

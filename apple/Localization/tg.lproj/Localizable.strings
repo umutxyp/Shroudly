@@ -37,6 +37,7 @@
 "helpOthersConduit" = "Conduit (Psiphon)";
 "language" = "Забон";
 "languageSystem" = "Мисли система";
+"linkReleases" = "Тавсифи версияҳо";
 "linkSourceCode" = "Коди манбаъ дар GitHub";
 "madeBy" = "Маҳсули Codeshare Technology Ltd";
 "nationalOnlyBody" = "Пайваст бо дигар ҷаҳон бурида шудааст; сайтҳои дохили кишвар ҳоло кушода мешаванд. Ягон барнома ё VPN инро гузашта наметавонад. Вақте пайваст бармегардад, Shroudly худаш идома медиҳад.";

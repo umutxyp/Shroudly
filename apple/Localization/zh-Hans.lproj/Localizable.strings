@@ -37,6 +37,7 @@
 "helpOthersConduit" = "Conduit（Psiphon）";
 "language" = "语言";
 "languageSystem" = "跟随系统";
+"linkReleases" = "版本说明";
 "linkSourceCode" = "GitHub 上的源代码";
 "madeBy" = "Codeshare Technology Ltd 出品";
 "nationalOnlyBody" = "与世界其他地区的连接已被切断；国内网站仍可打开。任何应用或 VPN 都无法绕过。连接恢复后，Shroudly 会自动继续。";

@@ -37,5 +37,6 @@ enum Ids {
     static let app = "me.codeshare.shroudly"
     static let tunnel = "me.codeshare.shroudly.tunnel"
     static let repoURL = URL(string: "https://github.com/umutxyp/Shroudly")!
+    static let releasesURL = URL(string: "https://github.com/umutxyp/Shroudly/releases")!
     static let privacyURL = URL(string: "https://codeshare.me/projects/shroudly/privacy")!
 }

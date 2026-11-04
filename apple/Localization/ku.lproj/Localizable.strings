@@ -37,6 +37,7 @@
 "helpOthersConduit" = "Conduit (Psiphon)";
 "language" = "Ziman";
 "languageSystem" = "Zimanê pergalê";
+"linkReleases" = "Notên weşanê";
 "linkSourceCode" = "Koda çavkaniyê li GitHubê";
 "madeBy" = "Berhemeke Codeshare Technology Ltd";
 "nationalOnlyBody" = "Girêdana bi cîhana mayî re qut bûye; malperên hundirê welat hîn vedibin. Tu sepan an VPN nikare vê derbas bike. Dema girêdan vegere, Shroudly bi xwe berdewam dike.";

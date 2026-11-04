@@ -37,6 +37,7 @@
 "helpOthersConduit" = "Conduit (Psiphon)";
 "language" = "Язык";
 "languageSystem" = "Как в системе";
+"linkReleases" = "Примечания к выпуску";
 "linkSourceCode" = "Исходный код на GitHub";
 "madeBy" = "Продукт Codeshare Technology Ltd";
 "nationalOnlyBody" = "Связь с остальным миром отрезана; сайты внутри страны ещё открываются. Это не обойти ни одному приложению или VPN. Когда связь вернётся, Shroudly продолжит сам.";

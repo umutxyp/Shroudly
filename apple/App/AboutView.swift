@@ -4,6 +4,9 @@ import SwiftUI
  * "Share logs". As in the Google Play copy, the source code is linked, not
  * the downloads of other platforms. */
 struct AboutView: View {
+    static let notices = Bundle.main.url(forResource: "Notices", withExtension: "txt")
+        .flatMap { try? String(contentsOf: $0, encoding: .utf8) } ?? ""
+
     @EnvironmentObject private var controller: TunnelController
     @State private var logs = ""
 
@@ -26,6 +29,24 @@ struct AboutView: View {
                 Text(tr("openSourceDesc")).font(.footnote).foregroundStyle(Theme.secondaryText)
                 WebLink(url: Ids.repoURL) { Label(tr("linkSourceCode"), systemImage: "chevron.left.forwardslash.chevron.right") }
                 WebLink(url: Ids.privacyURL) { Label(tr("androidPrivacyPolicy"), systemImage: "hand.raised") }
+                WebLink(url: Ids.releasesURL) { Label(tr("linkReleases"), systemImage: "doc.text") }
+                // The licences of what is built in (Notices.txt, as Android's res/raw/notices.txt).
+                NavigationLink {
+                    ScrollView {
+                        Text(Self.notices)
+                            .font(.caption.monospaced())
+                            .foregroundStyle(Theme.secondaryText)
+                            #if !os(tvOS)
+                            .textSelection(.enabled)
+                            #endif
+                            .padding()
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                    }
+                    .background(Theme.background)
+                    .navigationTitle(tr("openSourceTitle"))
+                } label: {
+                    Label(tr("openSourceTitle"), systemImage: "doc.plaintext")
+                }
             }
             // Help people in censored countries: an app made for it, which
             // keeps running on its own (Psiphon's Conduit).

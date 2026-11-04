@@ -37,6 +37,7 @@
 "helpOthersConduit" = "Conduit (Psiphon)";
 "language" = "Bahasa";
 "languageSystem" = "Lalai sistem";
+"linkReleases" = "Nota keluaran";
 "linkSourceCode" = "Kod sumber di GitHub";
 "madeBy" = "Produk Codeshare Technology Ltd";
 "nationalOnlyBody" = "Sambungan ke seluruh dunia terputus; laman dalam negara masih terbuka. Tiada aplikasi atau VPN yang dapat melepasinya. Shroudly akan meneruskan sendiri apabila sambungan kembali.";

@@ -37,6 +37,7 @@
 "helpOthersConduit" = "Conduit (Psiphon)";
 "language" = "ቋንቋ";
 "languageSystem" = "የሥርዓቱ ነባሪ";
+"linkReleases" = "የልቀት ማስታወሻዎች";
 "linkSourceCode" = "የምንጭ ኮድ በGitHub ላይ";
 "madeBy" = "የCodeshare Technology Ltd ምርት";
 "nationalOnlyBody" = "ከቀረው ዓለም ጋር ያለው ግንኙነት ተቋርጧል፤ በአገር ውስጥ ያሉ ጣቢያዎች አሁንም ይከፈታሉ። ይህን ማንኛውም መተግበሪያ ወይም VPN ሊያልፈው አይችልም። ግንኙነቱ ሲመለስ Shroudly በራሱ ይቀጥላል።";

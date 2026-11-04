@@ -37,6 +37,7 @@
 "helpOthersConduit" = "Conduit (Psiphon)";
 "language" = "Bahasa";
 "languageSystem" = "Bawaan sistem";
+"linkReleases" = "Catatan rilis";
 "linkSourceCode" = "Kode sumber di GitHub";
 "madeBy" = "Produk dari Codeshare Technology Ltd";
 "nationalOnlyBody" = "Koneksi ke seluruh dunia terputus; situs di dalam negeri masih terbuka. Tidak ada aplikasi atau VPN yang bisa melewatinya. Shroudly melanjutkan sendiri saat koneksi kembali.";

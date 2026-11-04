@@ -37,6 +37,7 @@
 "helpOthersConduit" = "Conduit (Psiphon)";
 "language" = "Dil";
 "languageSystem" = "Ulgamdaky ýaly";
+"linkReleases" = "Wersiýa bellikleri";
 "linkSourceCode" = "GitHub-daky çeşme kody";
 "madeBy" = "Codeshare Technology Ltd önümi";
 "nationalOnlyBody" = "Dünýäniň galan bölegi bilen baglanyşyk kesildi; ýurduň içindäki saýtlar entek açylýar. Muny hiç bir programma ýa-da VPN aýlanyp geçip bilmez. Baglanyşyk gaýdyp gelende Shroudly özi dowam edýär.";

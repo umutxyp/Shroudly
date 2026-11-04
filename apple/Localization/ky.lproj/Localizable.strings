@@ -37,6 +37,7 @@
 "helpOthersConduit" = "Conduit (Psiphon)";
 "language" = "Тил";
 "languageSystem" = "Системадагыдай";
+"linkReleases" = "Версиялардагы өзгөрүүлөр";
 "linkSourceCode" = "Баштапкы код (GitHub)";
 "madeBy" = "Codeshare Technology Ltd продуктусу";
 "nationalOnlyBody" = "Дүйнөнүн калган бөлүгү менен байланыш үзүлгөн; өлкө ичиндеги сайттар дагы эле ачылат. Муну эч бир колдонмо же VPN айланып өтө албайт. Байланыш кайтканда Shroudly өзү улантат.";

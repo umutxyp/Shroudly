@@ -37,6 +37,7 @@
 "helpOthersConduit" = "Conduit (Psiphon)";
 "language" = "Til";
 "languageSystem" = "Tizimdagidek";
+"linkReleases" = "Reliz qaydlari";
 "linkSourceCode" = "GitHubdagi manba kodi";
 "madeBy" = "Codeshare Technology Ltd mahsuloti";
 "nationalOnlyBody" = "Dunyoning qolgan qismi bilan aloqa uzilgan; mamlakat ichidagi saytlar hali ochilmoqda. Buni hech bir ilova yoki VPN chetlab oʻta olmaydi. Aloqa qaytganda Shroudly oʻzi davom etadi.";
