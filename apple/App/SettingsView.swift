@@ -23,6 +23,11 @@ struct SettingsView: View {
                     }
                 }
             }
+            #if !os(tvOS)
+            Section(tr("accentColour")) {
+                AccentPicker()
+            }
+            #endif
             Section(tr("androidNetworkSection")) {
                 Toggle(isOn: $settings.quicOff) {
                     Labelled(title: tr("androidQuicOff"), detail: tr("androidQuicOffDesc"))

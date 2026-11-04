@@ -27,6 +27,9 @@ struct ShroudlyApp: App {
         #endif
     }
 
+    // The accent chosen in Settings: the whole app follows it at once.
+    @AppStorage(Accent.key) private var accent = "logo"
+
     var body: some Scene {
         #if os(macOS)
         // A small Mac window the size of the desktop app's own width (480 by 680),
@@ -46,7 +49,7 @@ struct ShroudlyApp: App {
         screen
             .environmentObject(controller)
             .preferredColorScheme(.dark)
-            .tint(Theme.accent)
+            .tint(Accent.color(accent))
             .task { await controller.load() }
     }
 

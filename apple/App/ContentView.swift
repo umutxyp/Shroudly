@@ -20,6 +20,8 @@ struct ContentView: View {
     @State private var showNews = false
     // The engine's counters, asked every two seconds while on and in front.
     @State private var stats: EngineStats?
+    // Read so the switch takes a new accent at once.
+    @AppStorage(Accent.key) private var accentId = "logo"
 
     var body: some View {
         NavigationStack {
