@@ -887,5 +887,8 @@
   "whatsNewApple": "Shroudly が Apple TV でも動くようになりました。リモコンで操作できます。\nサイトのサーバーがそのサイトのものではない証明書で応答した場合、Shroudly はそのサイトで自動的に別の手法に切り替えます。",
   "appleVpnNotSigned": "この Shroudly のコピーは Apple の VPN 権限なしで署名されているため、iOS は VPN の開始を許可せず、確認もしません。無料の Apple ID で署名したコピー（AltStore、SideStore、Sideloadly など）にはこの権限が付きません。TrollStore でインストールするか、有料の Apple デベロッパーアカウントで署名してください。",
   "appleInstallHelp": "インストール方法",
-  "snowflakeHow": "仕組み：相手は Tor ネットワークの Snowflake を通って来るため、開いた内容はあなたではなく Tor のサーバーから出ていきます。"
+  "snowflakeHow": "仕組み：相手は Tor ネットワークの Snowflake を通って来るため、開いた内容はあなたではなく Tor のサーバーから出ていきます。",
+  "snowflakeDevice": "このデバイスで手伝う",
+  "snowflakeWhenApple": "Shroudly は iPhone と iPad では開いている間、Mac では起動している間だけ手伝います。オンにするまではオフです。",
+  "snowflakeWhenAndroid": "Shroudly は保護がオンで、スマートフォンが Wi-Fi 接続で充電中のときだけ手伝うので、バッテリーもモバイルデータも使いません。オンにするまではオフです。"
 }

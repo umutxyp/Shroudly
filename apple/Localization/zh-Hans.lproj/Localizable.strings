@@ -82,6 +82,14 @@
 "protected" = "已受保护";
 "shareOnlineCount" = "将我计入在线人数";
 "shareOnlineCountDesc" = "发送一个每次启动都会变化的随机编号，以便应用显示有多少副本正在运行。它只在保护开启时发送，因此与你的其他流量走同一条受保护的路径。如果你不希望网络看到来自 Shroudly 的任何内容，请关闭。";
+"snowflakeCounts" = "正在帮助：{now} · 开启以来：{total}";
+"snowflakeDevice" = "通过此设备帮助";
+"snowflakeFailed" = "无法启动：{error}";
+"snowflakeHow" = "原理：他们通过 Tor 网络的 Snowflake 接入，所以他们打开的内容从 Tor 的服务器出去，而不是从你这里。";
+"snowflakeStarting" = "正在启动…";
+"snowflakeUnreachable" = "目前无法从这个网络帮助任何人：它封锁了接入的通道。Shroudly 会继续尝试。";
+"snowflakeWaiting" = "已就绪：正在等待需要帮助的人";
+"snowflakeWhenApple" = "Shroudly 在 iPhone 和 iPad 上打开时、在 Mac 上运行时提供帮助。在你打开之前一直关闭。";
 "start" = "启动保护";
 "startFailed" = "无法启动保护";
 "starting" = "正在启动…";

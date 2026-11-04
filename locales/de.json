@@ -887,5 +887,8 @@
   "whatsNewApple": "Shroudly läuft jetzt auch auf Apple TV, bedient mit der Fernbedienung.\nAntwortet der Server einer Website mit einem Zertifikat, das nicht zur Website gehört, wechselt Shroudly für diese Website von selbst zu einer anderen Technik.",
   "appleVpnNotSigned": "Diese Kopie von Shroudly ist ohne Apples Berechtigung für VPNs signiert, deshalb lässt iOS sie kein VPN starten und fragt auch nie. Kopien, die mit einer kostenlosen Apple-ID signiert sind (AltStore, SideStore, Sideloadly und ähnliche), haben sie nie. Installiere sie mit TrollStore oder signiere sie mit einem kostenpflichtigen Apple-Entwicklerkonto.",
   "appleInstallHelp": "So wird es installiert",
-  "snowflakeHow": "So funktioniert es: Sie kommen über Snowflake des Tor-Netzwerks, deshalb verlässt das, was sie öffnen, das Netz über Tors Server, nicht über deine."
+  "snowflakeHow": "So funktioniert es: Sie kommen über Snowflake des Tor-Netzwerks, deshalb verlässt das, was sie öffnen, das Netz über Tors Server, nicht über deine.",
+  "snowflakeDevice": "Über dieses Gerät helfen",
+  "snowflakeWhenApple": "Shroudly hilft, solange es auf iPhone und iPad geöffnet ist und solange es auf dem Mac läuft. Aus, bis du es einschaltest.",
+  "snowflakeWhenAndroid": "Shroudly hilft, solange der Schutz an ist und das Telefon im WLAN lädt: Das kostet weder Akku noch mobile Daten. Aus, bis du es einschaltest."
 }

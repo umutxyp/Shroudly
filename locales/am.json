@@ -887,5 +887,8 @@
   "whatsNewApple": "Shroudly አሁን በApple TV ላይም ይሰራል፣ በሪሞት።\nየአንድ ድረ-ገጽ አገልጋይ የድረ-ገጹ ባልሆነ ሰርቲፊኬት ቢመልስ፣ Shroudly ለዚያ ድረ-ገጽ በራሱ ወደ ሌላ ዘዴ ይቀየራል።",
   "appleVpnNotSigned": "ይህ የShroudly ቅጂ ለVPN የApple ፈቃድ ሳይኖረው ተፈርሟል፣ ስለዚህ iOS VPN እንዲጀምር አይፈቅድለትም፣ ፈጽሞም አይጠይቅም። በነጻ Apple ID የተፈረሙ ቅጂዎች (AltStore፣ SideStore፣ Sideloadly እና መሰሎቻቸው) ይህ ፈቃድ ፈጽሞ የላቸውም። በTrollStore ይጫኑት፣ ወይም በሚከፈልበት የApple ገንቢ መለያ ይፈርሙት።",
   "appleInstallHelp": "እንዴት እንደሚጫን",
-  "snowflakeHow": "እንዴት እንደሚሰራ፦ በTor አውታረ መረብ Snowflake በኩል ይመጣሉ፤ ስለዚህ የሚከፍቱት ነገር ከእርስዎ ሳይሆን ከTor አገልጋዮች ይወጣል።"
+  "snowflakeHow": "እንዴት እንደሚሰራ፦ በTor አውታረ መረብ Snowflake በኩል ይመጣሉ፤ ስለዚህ የሚከፍቱት ነገር ከእርስዎ ሳይሆን ከTor አገልጋዮች ይወጣል።",
+  "snowflakeDevice": "በዚህ መሣሪያ በኩል እርዱ",
+  "snowflakeWhenApple": "Shroudly በiPhone እና iPad ላይ ክፍት እስከሆነ ድረስ፣ በMac ላይም እስከሚሠራ ድረስ ይረዳል። እስኪያበሩት ድረስ ጠፍቷል።",
+  "snowflakeWhenAndroid": "Shroudly ጥበቃው በርቶ ስልኩ በWi-Fi ላይ ሲሞላ ይረዳል፤ ስለዚህ ባትሪም የሞባይል ዳታም አያባክንም። እስኪያበሩት ድረስ ጠፍቷል።"
 }

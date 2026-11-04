@@ -887,5 +887,8 @@
   "whatsNewApple": "Shroudly indi Apple TV-de hem işleýär, pult bilen dolandyrylýar.\nSaýtyň serweri saýta degişli bolmadyk şahadatnama bilen jogap berse, Shroudly şol saýt üçin özbaşdak başga usula geçýär.",
   "appleVpnNotSigned": "Shroudly-nyň bu nusgasyna Apple-yň VPN rugsady bolmazdan gol çekilipdir, şonuň üçin iOS oňa VPN başlatmaga rugsat bermeýär we hiç haçan soramaýar. Mugt Apple ID bilen gol çekilen nusgalarda (AltStore, SideStore, Sideloadly we meňzeşleri) bu rugsat hiç haçan bolmaýar. Ony TrollStore bilen guruň ýa-da tölegli Apple işläp düzüji hasaby bilen gol çekiň.",
   "appleInstallHelp": "Nädip gurnamaly",
-  "snowflakeHow": "Nädip işleýär: olar Tor ulgamynyň Snowflake-i arkaly gelýärler, şonuň üçin açýan zatlary siziň däl-de, Tor-uň serwerlerinden çykýar."
+  "snowflakeHow": "Nädip işleýär: olar Tor ulgamynyň Snowflake-i arkaly gelýärler, şonuň üçin açýan zatlary siziň däl-de, Tor-uň serwerlerinden çykýar.",
+  "snowflakeDevice": "Şu enjam arkaly kömek et",
+  "snowflakeWhenApple": "Shroudly iPhone we iPad-da açyk durka, Mac-da bolsa işläp durka kömek edýär. Siz açýançaňyz öçük.",
+  "snowflakeWhenAndroid": "Shroudly gorag açyk we telefon Wi-Fi arkaly zarýad alýarka kömek edýär, şonuň üçin batareýany-da, mobil traffigi-de harçlamaýar. Siz açýançaňyz öçük."
 }

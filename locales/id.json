@@ -887,5 +887,8 @@
   "whatsNewApple": "Shroudly kini berjalan di Apple TV, dengan remote.\nJika server sebuah situs menjawab dengan sertifikat yang bukan milik situs itu, Shroudly beralih sendiri ke teknik lain untuk situs tersebut.",
   "appleVpnNotSigned": "Salinan Shroudly ini ditandatangani tanpa izin Apple untuk VPN, jadi iOS tidak mengizinkannya memulai VPN dan tidak pernah bertanya. Salinan yang ditandatangani dengan Apple ID gratis (AltStore, SideStore, Sideloadly, dan sejenisnya) tidak pernah memilikinya. Pasang dengan TrollStore, atau tandatangani dengan akun pengembang Apple berbayar.",
   "appleInstallHelp": "Cara memasangnya",
-  "snowflakeHow": "Cara kerjanya: mereka datang lewat Snowflake milik jaringan Tor, jadi yang mereka buka keluar dari server Tor, bukan dari server Anda."
+  "snowflakeHow": "Cara kerjanya: mereka datang lewat Snowflake milik jaringan Tor, jadi yang mereka buka keluar dari server Tor, bukan dari server Anda.",
+  "snowflakeDevice": "Bantu lewat perangkat ini",
+  "snowflakeWhenApple": "Shroudly membantu selama terbuka di iPhone dan iPad, dan selama berjalan di Mac. Mati sampai kamu menyalakannya.",
+  "snowflakeWhenAndroid": "Shroudly membantu selama perlindungan menyala dan ponsel mengisi daya di Wi-Fi, jadi tidak memakai baterai maupun data seluler. Mati sampai kamu menyalakannya."
 }

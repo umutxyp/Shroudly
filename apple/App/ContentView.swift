@@ -96,6 +96,12 @@ struct ContentView: View {
         // Each time the app comes to the front: the help card's turn, and,
         // after an update, what changed.
         .task(id: scenePhase == .active) {
+            #if os(iOS)
+            // Helping censored people runs while the app is in front.
+            Snowflake.shared.sync(active: scenePhase == .active)
+            #elseif os(macOS)
+            Snowflake.shared.sync(active: true)
+            #endif
             guard scenePhase == .active else { return }
             helpDue = HelpNudge.due()
             let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? ""

@@ -887,5 +887,8 @@
   "whatsNewApple": "Shroudly פועל עכשיו גם ב־Apple TV, עם השלט.\nאם השרת של אתר עונה בתעודה שאינה של האתר, Shroudly עובר מעצמו לטכניקה אחרת עבור אותו אתר.",
   "appleVpnNotSigned": "העותק הזה של Shroudly נחתם בלי ההרשאה של Apple ל-VPN, ולכן iOS לא מאפשר לו להפעיל VPN ואף פעם לא שואל. לעותקים שנחתמו עם Apple ID חינמי (AltStore, SideStore, Sideloadly וכדומה) אין אותה אף פעם. התקינו אותו עם TrollStore, או חתמו עליו עם חשבון מפתחים בתשלום של Apple.",
   "appleInstallHelp": "איך להתקין",
-  "snowflakeHow": "איך זה עובד: הם מגיעים דרך Snowflake של רשת Tor, ולכן מה שהם פותחים יוצא מהשרתים של Tor, לא משלכם."
+  "snowflakeHow": "איך זה עובד: הם מגיעים דרך Snowflake של רשת Tor, ולכן מה שהם פותחים יוצא מהשרתים של Tor, לא משלכם.",
+  "snowflakeDevice": "לעזור דרך המכשיר הזה",
+  "snowflakeWhenApple": "Shroudly עוזר כל עוד הוא פתוח ב-iPhone וב-iPad, וכל עוד הוא פועל ב-Mac. כבוי עד שתפעילו אותו.",
+  "snowflakeWhenAndroid": "Shroudly עוזר כל עוד ההגנה פועלת והטלפון נטען ברשת Wi-Fi, כך שאין צריכת סוללה או גלישה סלולרית. כבוי עד שתפעילו אותו."
 }

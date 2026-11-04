@@ -82,6 +82,14 @@
 "protected" = "Protégé";
 "shareOnlineCount" = "Me compter dans le total en direct";
 "shareOnlineCountDesc" = "Envoie un nombre aléatoire, différent à chaque lancement, pour que l’app puisse indiquer combien d’exemplaires tournent. Il n’est envoyé que lorsque la protection est active, et emprunte donc le même chemin protégé que le reste de votre trafic. Désactivez-le si vous préférez que votre réseau ne voie rien de Shroudly.";
+"snowflakeCounts" = "Aidées en ce moment : {now} · Depuis l'activation : {total}";
+"snowflakeDevice" = "Aider depuis cet appareil";
+"snowflakeFailed" = "Impossible de démarrer : {error}";
+"snowflakeHow" = "Comment ça marche : elles passent par Snowflake, du réseau Tor ; ce qu’elles ouvrent sort donc par les serveurs de Tor, pas par les vôtres.";
+"snowflakeStarting" = "Démarrage…";
+"snowflakeUnreachable" = "Personne ne peut être aidé depuis ce réseau pour l’instant : il bloque l’accès. Shroudly continue d’essayer.";
+"snowflakeWaiting" = "Prêt : en attente d'une personne à aider";
+"snowflakeWhenApple" = "Shroudly aide tant qu'il est ouvert sur iPhone et iPad, et tant qu'il tourne sur un Mac. Désactivé jusqu'à ce que vous l'activiez.";
 "start" = "Activer la protection";
 "startFailed" = "Impossible d’activer la protection";
 "starting" = "Activation…";

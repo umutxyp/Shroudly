@@ -887,5 +887,8 @@
   "whatsNewApple": "Shroudly artık Apple TV'de de çalışıyor, kumandayla kullanılıyor.\nBir sitenin sunucusu siteye ait olmayan bir sertifikayla cevap verirse Shroudly o site için kendiliğinden başka bir tekniğe geçiyor.",
   "appleVpnNotSigned": "Bu Shroudly kopyası Apple'ın VPN izni olmadan imzalanmış; bu yüzden iOS onun VPN başlatmasına izin vermiyor ve hiç sormuyor. Ücretsiz bir Apple kimliğiyle imzalanan kopyalarda (AltStore, SideStore, Sideloadly ve benzerleri) bu izin hiç olmaz. TrollStore ile kur ya da ücretli bir Apple geliştirici hesabıyla imzala.",
   "appleInstallHelp": "Nasıl kurulur",
-  "snowflakeHow": "Nasıl çalışır: Tor ağının Snowflake'i üzerinden gelirler; açtıkları şeyler senin değil, Tor'un sunucularından çıkar."
+  "snowflakeHow": "Nasıl çalışır: Tor ağının Snowflake'i üzerinden gelirler; açtıkları şeyler senin değil, Tor'un sunucularından çıkar.",
+  "snowflakeDevice": "Bu cihaz üzerinden yardım et",
+  "snowflakeWhenApple": "Shroudly, iPhone ve iPad'de açıkken, Mac'te ise çalıştığı sürece yardım eder. Sen açana kadar kapalıdır.",
+  "snowflakeWhenAndroid": "Shroudly, koruma açıkken ve telefon Wi-Fi'de şarj olurken yardım eder; böylece pil ve mobil veri harcamaz. Sen açana kadar kapalıdır."
 }

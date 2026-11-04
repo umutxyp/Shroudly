@@ -82,6 +82,14 @@
 "protected" = "מוגן";
 "shareOnlineCount" = "לכלול אותי בספירה החיה";
 "shareOnlineCountDesc" = "נשלח מספר אקראי שמשתנה בכל הפעלה, כדי שהאפליקציה תוכל להציג כמה עותקים פועלים. הוא נשלח רק כשההגנה פועלת, ולכן עובר באותו נתיב מוגן כמו שאר התעבורה שלך. אפשר לכבות את האפשרות אם עדיף שהרשת לא תראה שום דבר מ-Shroudly.";
+"snowflakeCounts" = "נעזרים עכשיו: {now} · מאז ההפעלה: {total}";
+"snowflakeDevice" = "לעזור דרך המכשיר הזה";
+"snowflakeFailed" = "לא הצליח להתחיל: {error}";
+"snowflakeHow" = "איך זה עובד: הם מגיעים דרך Snowflake של רשת Tor, ולכן מה שהם פותחים יוצא מהשרתים של Tor, לא משלכם.";
+"snowflakeStarting" = "מתחיל…";
+"snowflakeUnreachable" = "כרגע אי אפשר לעזור לאף אחד מהרשת הזו: היא חוסמת את הדרך פנימה. Shroudly ממשיך לנסות.";
+"snowflakeWaiting" = "מוכן: ממתין למישהו לעזור לו";
+"snowflakeWhenApple" = "Shroudly עוזר כל עוד הוא פתוח ב-iPhone וב-iPad, וכל עוד הוא פועל ב-Mac. כבוי עד שתפעילו אותו.";
 "start" = "להפעיל הגנה";
 "startFailed" = "לא ניתן היה להפעיל את ההגנה";
 "starting" = "מפעיל…";

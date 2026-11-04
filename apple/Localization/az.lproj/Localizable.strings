@@ -82,6 +82,14 @@
 "protected" = "Qorunur";
 "shareOnlineCount" = "Məni də canlı saya əlavə et";
 "shareOnlineCountDesc" = "Hər açılışda dəyişən təsadüfi bir nömrə göndərir ki, tətbiq neçə nüsxənin işlədiyini göstərə bilsin. O, yalnız qoruma aktiv olanda göndərilir, yəni trafikinin qalan hissəsi ilə eyni qorunan yolla gedir. Şəbəkənin Shroudly-dən ümumiyyətlə heç nə görməməsini istəyirsənsə, bunu söndür.";
+"snowflakeCounts" = "İndi kömək edilən: {now} · Açılandan bəri: {total}";
+"snowflakeDevice" = "Bu cihaz vasitəsilə kömək et";
+"snowflakeFailed" = "Başlamaq mümkün olmadı: {error}";
+"snowflakeHow" = "Necə işləyir: onlar Tor şəbəkəsinin Snowflake-i vasitəsilə gəlir, buna görə açdıqları sizin deyil, Tor-un serverlərindən çıxır.";
+"snowflakeStarting" = "Başlayır…";
+"snowflakeUnreachable" = "Hazırda bu şəbəkədən heç kimə kömək etmək olmur: o, giriş yolunu bağlayır. Shroudly cəhd etməyə davam edir.";
+"snowflakeWaiting" = "Hazırdır: kömək ediləcək birini gözləyir";
+"snowflakeWhenApple" = "Shroudly iPhone və iPad-də açıq olduqca, Mac-da isə işlədikcə kömək edir. Siz açana qədər söndürülüdür.";
 "start" = "Qorumanı başlat";
 "startFailed" = "Qorumanı başlatmaq mümkün olmadı";
 "starting" = "Başladılır…";

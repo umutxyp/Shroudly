@@ -82,6 +82,14 @@
 "protected" = "Himoyalangan";
 "shareOnlineCount" = "Meni jonli hisobga qoʻshish";
 "shareOnlineCountDesc" = "Har safar ishga tushganda oʻzgaradigan tasodifiy raqam yuboriladi, shunda ilova nechta nusxa ishlayotganini koʻrsata oladi. U faqat himoya yoqilganida yuboriladi, shuning uchun trafikingizning qolgan qismi bilan bir xil himoyalangan yoʻldan oʻtadi. Agar tarmogʻingiz Shroudlydan umuman hech narsa koʻrmasligini istasangiz, buni oʻchiring.";
+"snowflakeCounts" = "Hozir yordam berilmoqda: {now} · Yoqilgandan beri: {total}";
+"snowflakeDevice" = "Shu qurilma orqali yordam berish";
+"snowflakeFailed" = "Ishga tushmadi: {error}";
+"snowflakeHow" = "Qanday ishlaydi: ular Tor tarmogʻining Snowflake’i orqali keladi, shuning uchun ochganlari sizning emas, Tor serverlaridan chiqadi.";
+"snowflakeStarting" = "Ishga tushmoqda…";
+"snowflakeUnreachable" = "Hozir bu tarmoqdan hech kimga yordam berib boʻlmaydi: u kirish yoʻlini toʻsadi. Shroudly urinishda davom etadi.";
+"snowflakeWaiting" = "Tayyor: yordam beriladigan odamni kutmoqda";
+"snowflakeWhenApple" = "Shroudly iPhone va iPad’da ochiq turganda hamda Mac’da ishlab turganda yordam beradi. Siz yoqmaguningizcha o‘chiq.";
 "start" = "Himoyani yoqish";
 "startFailed" = "Himoyani yoqib boʻlmadi";
 "starting" = "Yoqilmoqda…";

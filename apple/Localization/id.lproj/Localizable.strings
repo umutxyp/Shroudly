@@ -82,6 +82,14 @@
 "protected" = "Terlindungi";
 "shareOnlineCount" = "Hitung saya dalam jumlah pengguna online";
 "shareOnlineCountDesc" = "Mengirim angka acak yang berubah setiap kali dibuka, agar aplikasi bisa menampilkan berapa salinan yang sedang berjalan. Hanya dikirim saat perlindungan aktif, jadi melewati jalur terlindungi yang sama dengan lalu lintas Anda. Matikan jika Anda lebih suka jaringan Anda tidak melihat apa pun dari Shroudly.";
+"snowflakeCounts" = "Sedang dibantu: {now} · Sejak diaktifkan: {total}";
+"snowflakeDevice" = "Bantu lewat perangkat ini";
+"snowflakeFailed" = "Tidak bisa dimulai: {error}";
+"snowflakeHow" = "Cara kerjanya: mereka datang lewat Snowflake milik jaringan Tor, jadi yang mereka buka keluar dari server Tor, bukan dari server Anda.";
+"snowflakeStarting" = "Memulai…";
+"snowflakeUnreachable" = "Saat ini tidak ada yang bisa dibantu dari jaringan ini: jalan masuknya diblokir. Shroudly terus mencoba.";
+"snowflakeWaiting" = "Siap: menunggu seseorang untuk dibantu";
+"snowflakeWhenApple" = "Shroudly membantu selama terbuka di iPhone dan iPad, dan selama berjalan di Mac. Mati sampai kamu menyalakannya.";
 "start" = "Mulai perlindungan";
 "startFailed" = "Tidak dapat memulai perlindungan";
 "starting" = "Memulai…";

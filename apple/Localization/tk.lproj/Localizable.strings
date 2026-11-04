@@ -82,6 +82,14 @@
 "protected" = "Goragly";
 "shareOnlineCount" = "Meni onlaýn sana goşmak";
 "shareOnlineCountDesc" = "Her işledilende üýtgeýän tötänleýin san iberilýär, şonuň üçin programma özüniň näçe nusgasynyň işleýändigini görkezip bilýär. Ol diňe gorag açyk wagty iberilýär, şonuň üçin beýleki trafigiňiz ýaly şol goralýan ýol bilen geçýär. Toruňyzyň Shroudly-den asla hiç zat görmezligini isleseňiz, muny öçüriň.";
+"snowflakeCounts" = "Häzir kömek edilýän: {now} · Açylaly bäri: {total}";
+"snowflakeDevice" = "Şu enjam arkaly kömek et";
+"snowflakeFailed" = "Başlap bolmady: {error}";
+"snowflakeHow" = "Nädip işleýär: olar Tor ulgamynyň Snowflake-i arkaly gelýärler, şonuň üçin açýan zatlary siziň däl-de, Tor-uň serwerlerinden çykýar.";
+"snowflakeStarting" = "Başlaýar…";
+"snowflakeUnreachable" = "Häzir bu ulgamdan hiç kime kömek edip bolmaýar: ol giriş ýoluny ýapýar. Shroudly synanyşmagyny dowam etdirýär.";
+"snowflakeWaiting" = "Taýýar: kömek ediljek birini garaşýar";
+"snowflakeWhenApple" = "Shroudly iPhone we iPad-da açyk durka, Mac-da bolsa işläp durka kömek edýär. Siz açýançaňyz öçük.";
 "start" = "Goragy işlediň";
 "startFailed" = "Goragy işledip bolmady";
 "starting" = "Işledilýär…";

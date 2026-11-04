@@ -82,6 +82,14 @@
 "protected" = "Parastî";
 "shareOnlineCount" = "Min jî têxe hejmara zindî";
 "shareOnlineCountDesc" = "Hejmareke rasthatî ya ku her carê sepan vedibe diguhere dişîne, da ku sepan nîşan bide çend kopî dixebitin. Ew tenê dema parastin çalak e tê şandin, ji ber vê yekê ew jî wekî trafîka te ya din di heman rêya parastî de diçe. Heke tu dixwazî tora te qet tiştekî ji Shroudly nebîne, vê neçalak bike.";
+"snowflakeCounts" = "Niha alîkarî tê kirin: {now} · Ji dema vekirinê ve: {total}";
+"snowflakeDevice" = "Bi rêya vê amûrê alîkarî bike";
+"snowflakeFailed" = "Dest pê nekir: {error}";
+"snowflakeHow" = "Çawa dixebite: ew bi riya Snowflake ya tora Tor tên, ji ber vê tiştên ku ew vedikin ji pêşkêşkarên Tor derdikevin, ne ji yên te.";
+"snowflakeStarting" = "Dest pê dike…";
+"snowflakeUnreachable" = "Niha ji vê torê alîkariya kesî nayê kirin: ew rêya ketinê asteng dike. Shroudly hewl didomîne.";
+"snowflakeWaiting" = "Amade ye: li benda kesekî ye ku alîkarî jê re bê kirin";
+"snowflakeWhenApple" = "Shroudly heta ku li ser iPhone û iPad vekirî be, û li ser Mac dixebite, alîkarî dike. Heta ku tu vê vekî, girtî ye.";
 "start" = "Parastinê dest pê bike";
 "startFailed" = "Parastin nehat destpêkirin";
 "starting" = "Dest pê dike…";

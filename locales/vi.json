@@ -887,5 +887,8 @@
   "whatsNewApple": "Shroudly giờ chạy được trên Apple TV, điều khiển bằng remote.\nNếu máy chủ của một trang trả lời bằng chứng chỉ không phải của trang đó, Shroudly tự chuyển sang kỹ thuật khác cho trang đó.",
   "appleVpnNotSigned": "Bản Shroudly này được ký mà không có quyền VPN của Apple, nên iOS không cho nó khởi động VPN và cũng không bao giờ hỏi. Các bản ký bằng Apple ID miễn phí (AltStore, SideStore, Sideloadly và tương tự) không bao giờ có quyền này. Hãy cài bằng TrollStore, hoặc ký bằng tài khoản nhà phát triển Apple trả phí.",
   "appleInstallHelp": "Cách cài đặt",
-  "snowflakeHow": "Cách hoạt động: họ đến qua Snowflake của mạng Tor, nên những gì họ mở đi ra từ máy chủ của Tor, không phải từ bạn."
+  "snowflakeHow": "Cách hoạt động: họ đến qua Snowflake của mạng Tor, nên những gì họ mở đi ra từ máy chủ của Tor, không phải từ bạn.",
+  "snowflakeDevice": "Giúp qua thiết bị này",
+  "snowflakeWhenApple": "Shroudly giúp khi đang mở trên iPhone và iPad, và khi đang chạy trên Mac. Tắt cho đến khi bạn bật.",
+  "snowflakeWhenAndroid": "Shroudly giúp khi bảo vệ đang bật và điện thoại đang sạc qua Wi-Fi, nên không tốn pin hay dữ liệu di động. Tắt cho đến khi bạn bật."
 }

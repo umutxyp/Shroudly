@@ -82,6 +82,14 @@
 "protected" = "ተጠብቋል";
 "shareOnlineCount" = "እኔንም በቀጥታ ድምሩ ውስጥ መቁጠር";
 "shareOnlineCountDesc" = "መተግበሪያው ምን ያህል ቅጂዎች እየሰሩ እንደሆነ ማሳየት እንዲችል በእያንዳንዱ ጅምር የሚቀየር የዘፈቀደ ቁጥር ይልካል። የሚላከው ጥበቃ በርቶ እያለ ብቻ ነው፤ ስለዚህ እንደ ሌላው ትራፊክዎ በዚያው በተጠበቀ መንገድ ይጓዛል። አውታረ መረብዎ ከShroudly ምንም ነገር እንዳያይ ከመረጡ ይህን ያጥፉት።";
+"snowflakeCounts" = "አሁን እየተረዱ ያሉ፦ {now} · ከተከፈተ ጀምሮ፦ {total}";
+"snowflakeDevice" = "በዚህ መሣሪያ በኩል እርዱ";
+"snowflakeFailed" = "መጀመር አልተቻለም፦ {error}";
+"snowflakeHow" = "እንዴት እንደሚሰራ፦ በTor አውታረ መረብ Snowflake በኩል ይመጣሉ፤ ስለዚህ የሚከፍቱት ነገር ከእርስዎ ሳይሆን ከTor አገልጋዮች ይወጣል።";
+"snowflakeStarting" = "በመጀመር ላይ…";
+"snowflakeUnreachable" = "አሁን ከዚህ አውታረ መረብ ማንንም መርዳት አይቻልም፦ የመግቢያ መንገዱን ይዘጋል። Shroudly መሞከሩን ይቀጥላል።";
+"snowflakeWaiting" = "ዝግጁ፦ የሚረዳ ሰው በመጠበቅ ላይ";
+"snowflakeWhenApple" = "Shroudly በiPhone እና iPad ላይ ክፍት እስከሆነ ድረስ፣ በMac ላይም እስከሚሠራ ድረስ ይረዳል። እስኪያበሩት ድረስ ጠፍቷል።";
 "start" = "ጥበቃ ይጀምሩ";
 "startFailed" = "ጥበቃን መጀመር አልተቻለም";
 "starting" = "በመጀመር ላይ…";

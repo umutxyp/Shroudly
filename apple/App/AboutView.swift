@@ -9,6 +9,10 @@ struct AboutView: View {
 
     @EnvironmentObject private var controller: TunnelController
     @State private var logs = ""
+    #if !os(tvOS)
+    @ObservedObject private var snowflake = Snowflake.shared
+    @AppStorage(Snowflake.key) private var snowflakeOn = false
+    #endif
 
     var body: some View {
         Form {
@@ -51,6 +55,19 @@ struct AboutView: View {
             // Help people in censored countries: an app made for it, which
             // keeps running on its own (Psiphon's Conduit).
             Section(tr("helpOthers")) {
+                #if !os(tvOS)
+                // Shroudly itself (Snowflake.swift), while it runs.
+                Toggle(isOn: Binding(get: { snowflakeOn }, set: { on in
+                    snowflakeOn = on
+                    snowflake.sync(active: on)
+                })) {
+                    Labelled(title: tr("snowflakeDevice"), detail: tr("snowflakeWhenApple"))
+                }
+                if let line = snowflake.line {
+                    Text(line).font(.footnote).foregroundStyle(snowflake.state == .unreachable ? .orange : Theme.secondaryText)
+                }
+                Text(tr("snowflakeHow")).font(.footnote).foregroundStyle(Theme.secondaryText)
+                #endif
                 Text(tr("helpOthersBodyConduit")).font(.footnote).foregroundStyle(Theme.secondaryText)
                 WebLink(url: HelpOthers.conduitURL(language: Bundle.main.preferredLocalizations.first ?? "en")) {
                     Label(tr("helpOthersConduit"), systemImage: "person.2.wave.2")
@@ -69,5 +86,8 @@ struct AboutView: View {
         .background(Theme.background)
         .navigationTitle(tr("navInfo"))
         .task { logs = await Diagnostics.text(sites: controller.siteLog()) }
+        #if !os(tvOS)
+        .onAppear { snowflake.sync(active: snowflakeOn) }
+        #endif
     }
 }
