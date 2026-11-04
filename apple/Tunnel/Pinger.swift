@@ -102,15 +102,15 @@ final class Pinger {
      * encoding that cannot be read here (Brotli, Zstandard). */
     static func post(_ path: String, _ body: String, via p: EngineHTTPS.Path, version: String,
                      acceptLanguage: String, timeout t: TimeInterval) async throws -> String? {
-        let task = try await EngineHTTPS.open(OnlineCount.host, via: p, timeout: t)
-        defer { EngineHTTPS.done(task) }
-        try await task.write(OnlineCount.request(path, body: body, version: version, acceptLanguage: acceptLanguage), timeout: t)
+        // Through the engine only, never straight out (OnlineCount.swift).
+        let stream = try await EngineHTTPS.open(OnlineCount.host, via: p, timeout: t)
+        defer { stream.close() }
+        try await stream.write(OnlineCount.request(path, body: body, version: version, acceptLanguage: acceptLanguage), timeout: t)
         var got = [UInt8]()
         while true {
-            let (d, eof) = try await task.readData(ofMinLength: 1, maxLength: 16_384, timeout: t)
+            let (d, eof) = try await stream.read(max: 16_384, timeout: t)
             if let d { got += d }
             if let r = response(got, ended: eof) { return r.text }
-
             guard got.count < OnlineCount.maxBody * 4, !eof else { throw URLError(.badServerResponse) }
         }
     }

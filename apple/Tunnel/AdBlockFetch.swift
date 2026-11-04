@@ -2,23 +2,28 @@ import Foundation
 
 /*
  * The ad and tracker list, fetched through the engine (AdBlock.fetch on
- * Android): SOCKS5 with this session's password to raw.githubusercontent.com
- * by name, so the engine resolves it over encrypted DNS and opens it with a
- * technique where GitHub is blocked; TLS on that stream, checked against
- * that name; HTTP/1.1. Written to AdBlock.newFile for the engine to check.
+ * Android): through the engine by name (EngineHTTPS), so the engine resolves
+ * it over encrypted DNS and opens it with a technique where GitHub is
+ * blocked; TLS with that name; HTTP/1.1. Written to AdBlock.newFile for the engine to check.
  */
 enum AdBlockFetch {
     static let timeout: TimeInterval = 60
 
     static func fetch(via e: EngineHTTPS.Path) async throws {
-        let task = try await EngineHTTPS.open(AdBlock.host, via: e, timeout: timeout)
-        defer { EngineHTTPS.done(task) }
+        let stream: EngineHTTPS.Stream
+        do {
+            stream = try await EngineHTTPS.open(AdBlock.host, via: e, timeout: timeout)
+        } catch is EngineHTTPS.Unsupported {
+            // iOS 16 / macOS 13: no proxy configurations; the list straight.
+            stream = try await EngineHTTPS.open(AdBlock.host, via: nil, timeout: timeout)
+        }
+        defer { stream.close() }
         let req = "GET \(AdBlock.path) HTTP/1.1\r\nHost: \(AdBlock.host)\r\nUser-Agent: Shroudly\r\n" +
             "Accept-Encoding: identity\r\nConnection: close\r\n\r\n"
-        try await task.write(Data(req.utf8), timeout: timeout)
+        try await stream.write(Data(req.utf8), timeout: timeout)
         // "Connection: close": the server ends the stream after the body, so
         // the response is read whole and taken apart once.
-        let got = try await EngineHTTPS.readAll(task, max: AdBlock.maxBytes + 16_384, timeout: timeout)
+        let got = try await stream.readAll(max: AdBlock.maxBytes + 16_384, timeout: timeout)
         try body(of: got).write(to: AdBlock.newFile, options: .atomic)
     }
 
