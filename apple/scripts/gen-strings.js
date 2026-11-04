@@ -47,7 +47,8 @@ function usedKeys() {
         if (e.isDirectory()) { walk(full); continue; }
         if (!e.name.endsWith('.swift')) continue;
         const src = fs.readFileSync(full, 'utf8');
-        for (const m of src.matchAll(/\btr\(\s*"(\w+)"|\blabelKey:\s*"(\w+)"/g)) keys.add(m[1] || m[2]);
+        // tr("key"), labelKey: "key", and the App Intents' titles (Intents.swift).
+        for (const m of src.matchAll(/\btr\(\s*"(\w+)"|\blabelKey:\s*"(\w+)"|LocalizedStringResource\s*=\s*"(\w+)"|\bshortTitle:\s*"(\w+)"/g)) keys.add(m[1] || m[2] || m[3] || m[4]);
       }
     })(path.join(apple, dir));
   }
