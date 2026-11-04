@@ -38,6 +38,7 @@ jobs:
           mkdir -p "$RUNNER_TEMP/out"
           if git fetch --depth=1 origin site-list 2>/dev/null && git cat-file -e FETCH_HEAD:adblock.txt 2>/dev/null; then
             git show FETCH_HEAD:adblock.txt > "$RUNNER_TEMP/previous.txt"
+            git show FETCH_HEAD:adblock-compact.txt > "$RUNNER_TEMP/previous-compact.txt" 2>/dev/null || true
           fi
 
       - name: Build
@@ -45,6 +46,7 @@ jobs:
         run: |
           prev=()
           if [ -s "$RUNNER_TEMP/previous.txt" ]; then prev=(--previous "$RUNNER_TEMP/previous.txt"); fi
+          if [ -s "$RUNNER_TEMP/previous-compact.txt" ]; then prev+=(--previous-compact "$RUNNER_TEMP/previous-compact.txt"); fi
           node scripts/adblock-list/build.js --out "$RUNNER_TEMP/out" "${prev[@]}" | tee "$RUNNER_TEMP/summary.txt"
 
       - name: Publish on the site-list branch
@@ -64,13 +66,13 @@ jobs:
           # --mixed: the branch's other files (the site list) stay in the index
           # and so in the commit.
           if git fetch -q --depth=1 origin site-list 2>/dev/null; then git reset -q --mixed FETCH_HEAD; fi
-          cp "$OUT/adblock.txt" .
-          # Only the header's date changed: nothing to publish.
-          if git cat-file -e HEAD:adblock.txt 2>/dev/null \
-            && cmp -s <(git show HEAD:adblock.txt | grep -v '^! Built: ') <(grep -v '^! Built: ' adblock.txt); then
+          cp "$OUT/adblock.txt" "$OUT/adblock-compact.txt" .
+          # Only the headers' dates changed: nothing to publish.
+          same() { git cat-file -e "HEAD:$1" 2>/dev/null && cmp -s <(git show "HEAD:$1" | grep -v '^! Built: ') <(grep -v '^! Built: ' "$1"); }
+          if same adblock.txt && same adblock-compact.txt; then
             echo "No change."; exit 0
           fi
-          git add adblock.txt
+          git add adblock.txt adblock-compact.txt
           git commit -q -m "ad block list: $(head -1 "$RUNNER_TEMP/summary.txt")"
           git push -q origin HEAD:site-list
           git log -1 --format='%h %s'

@@ -69,6 +69,12 @@ const lines = (r) => new Set([...r.blocks, ...r.allows.map((h) => `@@${h}`)]);
   fs.writeFileSync(file, text);
   t.ok(B.entriesOf(file) === r.blocks.length && /^! Combined from/m.test(text) && /GPL-3\.0/.test(text) && /StevenBlack\/hosts \(unified\) \(MIT\)/.test(text),
     'the file says what it holds, where it comes from and under which licences');
+  // The compact list (the App Store app's): the AdGuard DNS filter alone,
+  // its own choice of names (MUST is the full list's), and it says so.
+  const c = B.combine(texts({ 'adguard-dns': `${many}\n||blocked.example.org^`, easylist: '||only-easylist.example.com^' }), { min: false, only: B.COMPACT });
+  const ctext = B.render(c, '2026-11-04', B.COMPACT);
+  t.ok(c.blocks.includes('blocked.example.org') && !c.blocks.includes('only-easylist.example.com') && /\(compact\)/.test(ctext) && !/StevenBlack/.test(ctext),
+    'the compact list takes the AdGuard DNS filter alone and says so');
   const P = await freePort();
   const eng = await startEngine(P, []);
   try {

@@ -26,7 +26,10 @@
  *
  *   node scripts/adblock-list/build.js --out <dir> [--previous <file>] [--from <dir>]
  *
- * Writes <dir>/adblock.txt. --from reads the sources from files named by
+ * Writes <dir>/adblock.txt, and <dir>/adblock-compact.txt: the AdGuard DNS
+ * filter alone (COMPACT), for the App Store app, whose packet tunnel iOS ends
+ * past about 50 MB (the full list takes some 25 MB while it is read in).
+ * --from reads the sources from files named by
  * their id (tests, or a run without the network). Runs weekly in
  * .github/workflows/adblock-list.yml; the result is published on the
  * site-list branch, beside the site list.
@@ -150,11 +153,11 @@ async function fetchText(url) {
 
 /* The combined list from the sources' texts ({ id: text }). Throws when a
  * check fails. */
-function combine(texts, { previous = 0, min = true } = {}) {
+function combine(texts, { previous = 0, min = true, only = null } = {}) {
   const blocks = new Set();
   const allows = new Set();
   const counts = {};
-  for (const s of SOURCES) {
+  for (const s of SOURCES.filter((x) => !only || only.includes(x.id))) {
     if (texts[s.id] == null) throw new Error(`${s.name}: missing`);
     const { block, allow } = parse(texts[s.id], s.kind);
     if (min && block.size < s.min) throw new Error(`${s.name}: ${block.size} entries, fewer than ${s.min}: not the list asked for`);
@@ -173,20 +176,24 @@ function combine(texts, { previous = 0, min = true } = {}) {
   for (const h of blocks) if (strictlyUnder(h, parents)) blocks.delete(h);
   const wrong = NEVER.filter((h) => blocked(h, blocks, allows));
   if (wrong.length) throw new Error(`would block ${wrong.join(', ')}`);
-  const missing = MUST.filter((h) => !blocked(h, blocks, allows));
+  // The compact list is one source's own choice of names: MUST is the full one's.
+  const missing = only ? [] : MUST.filter((h) => !blocked(h, blocks, allows));
   if (missing.length) throw new Error(`does not block ${missing.join(', ')}`);
   if (previous && blocks.size * 2 < previous) throw new Error(`${blocks.size} entries, less than half of the ${previous} before`);
   return { blocks: [...blocks].sort(), allows: [...allows].sort(), counts };
 }
 
-function render({ blocks, allows }, date) {
+/* The sources of the compact list (adblock-compact.txt). */
+const COMPACT = ['adguard-dns'];
+
+function render({ blocks, allows }, date, only = null) {
   return [
-    '! Title: Shroudly ad and tracker list',
+    only ? '! Title: Shroudly ad and tracker list (compact)' : '! Title: Shroudly ad and tracker list',
     `! Built: ${date} by .github/workflows/adblock-list.yml (github.com/umutxyp/Shroudly)`,
     '! Read by Shroudly\'s "Block ads and trackers" (core/src/adblock.c): one name per line',
     '! blocks it and every name under it; @@||name^ takes a name and every name under it back.',
     '! Combined from these lists, under their licences; the whole is distributed under GPL-3.0:',
-    ...SOURCES.map((s) => `!   ${s.name} (${s.licence}) ${s.home}`),
+    ...SOURCES.filter((s) => !only || only.includes(s.id)).map((s) => `!   ${s.name} (${s.licence}) ${s.home}`),
     `! Entries: ${blocks.length}, exceptions: ${allows.length}`,
     ...allows.map((h) => `@@||${h}^`),
     ...blocks,
@@ -219,8 +226,14 @@ async function main(argv) {
   console.log(`${r.blocks.length} entries, ${r.allows.length} exceptions, ${(text.length / 1048576).toFixed(1)} MB`
     + `${previous ? ` (was ${previous})` : ''}`);
   for (const s of SOURCES) console.log(`  ${s.name}: ${r.counts[s.id].block} entries, ${r.counts[s.id].allow} exceptions`);
+  const prevCompact = arg('--previous-compact') ? entriesOf(arg('--previous-compact')) : 0;
+  const c = combine(texts, { previous: prevCompact, only: COMPACT });
+  const ctext = render(c, new Date().toISOString().slice(0, 10), COMPACT);
+  fs.writeFileSync(path.join(out, 'adblock-compact.txt'), ctext);
+  console.log(`compact: ${c.blocks.length} entries, ${c.allows.length} exceptions, ${(ctext.length / 1048576).toFixed(1)} MB`
+    + `${prevCompact ? ` (was ${prevCompact})` : ''}`);
 }
 
 if (require.main === module) main(process.argv.slice(2)).catch((e) => { console.error(`adblock list: ${e.message}`); process.exit(1); });
 
-module.exports = { SOURCES, NEVER, MUST, parse, combine, render, blocked, entriesOf, engineSkips };
+module.exports = { SOURCES, COMPACT, NEVER, MUST, parse, combine, render, blocked, entriesOf, engineSkips };
