@@ -45,9 +45,15 @@ class TorRoute(private val ctx: Context, private val log: (String) -> Unit, priv
             return out
         }
 
+        /* One Snowflake volunteer kept ready beside the one in use (max=2,
+         * issue #73), as on the desktop (electron/tor-route.js withPeers). */
+        const val SNOWFLAKE_PEERS = 2
+        fun withPeers(line: String): String =
+            if (line.startsWith("snowflake ") && !Regex(" max=\\d+").containsMatchIn(line)) "$line max=$SNOWFLAKE_PEERS" else line
+
         fun torrc(port: Int, dataDir: String, lyrebird: String, bridges: Map<String, List<String>>, stage: String, ownerPid: Int): String {
             val kinds = if (stage == "snowflake") listOf("snowflake") else TRANSPORTS
-            val lines = kinds.flatMap { bridges[it] ?: emptyList() }
+            val lines = kinds.flatMap { bridges[it] ?: emptyList() }.map(::withPeers)
             val transports = lines.map { it.substringBefore(' ') }.distinct()
             return (listOf(
                 "SocksPort 127.0.0.1:$port",

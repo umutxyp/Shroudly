@@ -71,9 +71,19 @@ function bridgesOf(configText) {
 
 /* The torrc for a stage: 'snowflake' alone first, then 'all' (Snowflake,
  * meek and obfs4 together: Tor uses whichever gets through). */
+/* A Snowflake bridge line with one volunteer kept ready beside the one in
+ * use (max=2, issue #73): when that volunteer goes away, which they do (a
+ * browser tab closed, a laptop asleep), the connection moves to the ready
+ * one at once instead of waiting for the broker to pair it again. Not more:
+ * every volunteer held ready is a place someone else cannot have. */
+const SNOWFLAKE_PEERS = 2;
+function withPeers(line) {
+  return /^snowflake /.test(line) && !/ max=\d+/.test(line) ? `${line} max=${SNOWFLAKE_PEERS}` : line;
+}
+
 function torrc({ port, dataDir, lyrebird, bridges, stage, ownerPid }) {
   const kinds = stage === 'snowflake' ? ['snowflake'] : ['snowflake', 'meek', 'obfs4', 'webtunnel'];
-  const lines = bridges ? kinds.flatMap((k) => bridges[k] || []) : [];
+  const lines = bridges ? kinds.flatMap((k) => bridges[k] || []).map(withPeers) : [];
   const transports = [...new Set(lines.map((l) => l.split(' ')[0]))];
   const q = (p) => `"${String(p).replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"`;
   const out = [
@@ -309,3 +319,5 @@ module.exports.torDir = torDir;
 module.exports.files = files;
 module.exports.bridgesOf = bridgesOf;
 module.exports.torrc = torrc;
+module.exports.withPeers = withPeers;
+module.exports.SNOWFLAKE_PEERS = SNOWFLAKE_PEERS;

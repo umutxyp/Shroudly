@@ -125,6 +125,9 @@ final class TorRoute {
             if let f = Self.param(sf, "fronts") ?? Self.param(sf, "front") { c.snowflakeFrontDomains = f }
             if let i = Self.param(sf, "ice") { c.snowflakeIceServers = i }
         }
+        // One volunteer kept ready beside the one in use (issue #73), as on
+        // the desktop and Android.
+        c.snowflakeMaxPeers = 2
         var plugins: [String] = []
         for (name, kinds) in [(IPtProxySnowflake, ["snowflake"]), (IPtProxyObfs4, ["obfs4"]), (IPtProxyMeekLite, ["meek_lite"]), (IPtProxyWebtunnel, ["webtunnel"])] {
             do { try c.start(name, proxy: nil) } catch { log("The last way out: \(name) could not start (\(error.localizedDescription))"); continue }

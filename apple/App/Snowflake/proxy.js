@@ -25,11 +25,24 @@
   const STALE_MS = 30000;                    // no message from them: closed
   const RELAY_MS = 5000;                     // Tor's relay connects within this
   const NAT_CHECK_MS = 2 * 24 * 3600 * 1000; // NAT type looked at again after two days
+  const MAX_CLIENTS = 8;                      // people helped at once, at most
+  const BACKLOG_MS = 2000;                    // waiting this long: the connection is full
+  const GROW_MS = 2 * 60 * 1000;              // full and keeping up this long: one more
+  const QUIET_MS = 10 * 60 * 1000;            // no growing this long after it was full
 
   let cfg = null;
   let nat = 'unknown';
   let natAt = 0;
   let maxClients = 1;
+  // How many more people a fast connection takes at once (issue #73): one
+  // more each time every place has been in use for GROW_MS with nothing
+  // waiting to go out, one fewer as soon as something waits longer than
+  // BACKLOG_MS. Measured on the traffic itself: no speed test, nothing of
+  // the user's data spent on one. Never past MAX_CLIENTS, and back to none
+  // when the NAT has to be looked at again.
+  let extra = 0;
+  let lastGrow = 0;
+  let lastBacklog = 0;
   let total = 0;
   let natFailures = 0;
   let unreachable = 0;
@@ -124,7 +137,13 @@
       while (c2r.length && ws && ws.readyState === WebSocket.OPEN && ws.bufferedAmount < MAX_BUFFER) ws.send(c2r.shift());
       while (r2c.length && channel && channel.readyState === 'open' && channel.bufferedAmount < MAX_BUFFER) channel.send(r2c.shift());
       clearTimeout(flushTimer);
-      if (c2r.length || r2c.length) flushTimer = setTimeout(flush, 50);
+      if (c2r.length || r2c.length) {
+        // Data waiting to go out: since when (see adjust).
+        if (!pair.backlogSince) pair.backlogSince = Date.now();
+        flushTimer = setTimeout(flush, 50);
+      } else {
+        pair.backlogSince = 0;
+      }
     };
 
     pc.ondatachannel = ({ channel: ch }) => {
@@ -163,7 +182,7 @@
     setTimeout(() => {
       if (pair.open || pair.closed) return;
       close();
-      if (clientNat === 'restricted' && ++natFailures >= 5) { natFailures = 0; maxClients = 1; natAt = 0; }
+      if (clientNat === 'restricted' && ++natFailures >= 5) { natFailures = 0; maxClients = 1; extra = 0; natAt = 0; }
     }, DATACHANNEL_MS);
 
     return new Promise((resolve) => {
@@ -209,11 +228,31 @@
     }
   }
 
+  /* The number of people this connection carries well at once (see extra). */
+  function limit() { return Math.min(MAX_CLIENTS, maxClients + extra); }
+
+  function adjust() {
+    if (stopped) return;
+    const now = Date.now();
+    const open = [...pairs].filter((p) => p.open);
+    if (open.some((p) => p.backlogSince && now - p.backlogSince > BACKLOG_MS)) {
+      // Full: one fewer from now on (the people being helped stay).
+      if (extra > 0) extra--;
+      lastBacklog = now;
+      lastGrow = now;
+      return;
+    }
+    if (open.length >= limit() && limit() < MAX_CLIENTS && now - lastGrow > GROW_MS && now - lastBacklog > QUIET_MS) {
+      extra++;
+      lastGrow = now;
+    }
+  }
+
   async function poll() {
     timer = null;
     let next = cfg.pollMs;
     if (!natAt || Date.now() - natAt > NAT_CHECK_MS) { await checkNat(); report(); }
-    if (pairs.size < maxClients) {
+    if (pairs.size < limit()) {
       // The broker pairs the person with this poll's session id; the answer
       // goes back under the same one.
       const id = sid();
@@ -242,8 +281,11 @@
     if (timer === null && !stopped) timer = setTimeout(poll, next);
   }
 
+  const adjuster = setInterval(adjust, 5000);
+
   host.onStop(() => {
     stopped = true;
+    clearInterval(adjuster);
     clearTimeout(timer);
     for (const p of [...pairs]) p.closed = true;
   });

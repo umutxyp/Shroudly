@@ -73,6 +73,9 @@ function fakeSpawn(runs) {
     'the torrc: the engine\'s port, tied to Shroudly');
   t.ok(/ClientTransportPlugin snowflake exec \.\/lyrebird\n/.test(a.torrc) && a.opts.cwd === bin && a.torrc.includes('Bridge snowflake 192.0.2.3:80') && !a.torrc.includes('obfs4') && !a.torrc.includes('meek'),
     'Snowflake alone at first; lyrebird by its name, run from its own folder (a path with a space would break Tor\'s line)');
+  t.ok(/Bridge snowflake 192\.0\.2\.3:80 .* max=2\n/.test(a.torrc), 'one volunteer kept ready beside the one in use (max=2, #73)');
+  t.ok(TorRoute.withPeers('snowflake 1.2.3.4:1 X max=1') === 'snowflake 1.2.3.4:1 X max=1' && TorRoute.withPeers('obfs4 1.2.3.4:1 X') === 'obfs4 1.2.3.4:1 X',
+    'a line that says max already, and other transports, are left as they are');
   t.ok(a.args.includes('--defaults-torrc') && !a.torrc.includes('injected'), 'nothing of an installed Tor; a malformed bridge line is left out');
   r.need();
   t.ok(runs.length === 1, 'asked again while starting: still one Tor');
