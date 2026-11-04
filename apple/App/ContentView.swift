@@ -27,55 +27,25 @@ struct ContentView: View {
                 // a notice and a long language; otherwise it fills the screen.
                 GeometryReader { screen in
                 ScrollView {
-                VStack(spacing: 28) {
-                    Spacer()
-                    Orb(phase: phase, warn: watch.ownServerDown != nil || watch.national != nil) { toggle() }
-                    VStack(spacing: 8) {
-                        Text(title)
-                            .font(.title2.weight(.semibold))
-                            .foregroundStyle(.white)
-                        Text(controller.notice ?? subtitle)
-                            .font(.callout)
-                            .foregroundStyle(controller.notice == nil ? Theme.secondaryText : .orange)
-                            .multilineTextAlignment(.center)
-                            .padding(.horizontal, 24)
-                        // A copy that may not make a VPN: how to install one that can.
-                        if controller.vpnNotAllowed {
-                            Link(tr("appleInstallHelp"), destination: VpnErrors.installHelp)
-                                .font(.callout.weight(.semibold))
+                // A wide, low screen (an unfolded iPhone Duo, Apple TV): the
+                // status and its card side by side, so it all fits at once.
+                let wide = screen.size.width > screen.size.height * 1.2 && (screen.size.height < 800 || Theme.isTV)
+                VStack(spacing: wide ? 20 : 28) {
+                    Spacer(minLength: wide ? 8 : 0)
+                    if wide {
+                        HStack(alignment: .center, spacing: 48) {
+                            status
+                            if hasCard { card.frame(maxWidth: 420) }
                         }
+                        .padding(.horizontal, 24)
+                    } else {
+                        status
+                        card
                     }
-                    if phase == .on, let down = watch.ownServerDown {
-                        Warning(title: tr("ownServerDown"),
-                                text: tr("ownServerDownBody", ["server": down.server, "why": OwnServer.whyText(down.why),
-                                                               "path": "\(tr("navSettings")) \(direction == .rightToLeft ? "←" : "→") \(tr("ownServer"))"]))
-                    } else if phase == .on, watch.national != nil {
-                        Warning(title: tr("nationalOnlyTitle"), text: tr("nationalOnlyBody"),
-                                link: (tr("nationalOnlyHelp"), NationalNet.guideURL(language: Bundle.main.preferredLocalizations.first ?? "en")))
-                    } else if phase == .on, helpDue, controller.notice == nil, !Theme.isTV {
-                        HelpCard(later: {
-                            HelpNudge.refused()
-                            helpDue = false
-                        }, show: {
-                            HelpNudge.accepted()
-                            helpDue = false
-                            openURL(HelpOthers.conduitURL(language: Bundle.main.preferredLocalizations.first ?? "en"))
-                        })
-                    }
-                    Spacer()
-                    HStack(spacing: 12) {
-                        NavigationLink { SettingsView() } label: {
-                            Tab(icon: "gearshape", text: tr("navSettings"))
-                        }
-                        NavigationLink { AboutView() } label: {
-                            Tab(icon: "info.circle", text: tr("navInfo"))
-                        }
-                    }
-                    .buttonStyle(.plain)
-                    .padding(.horizontal, 16)
-                    .padding(.bottom, 12)
+                    Spacer(minLength: wide ? 8 : 0)
+                    tabs
                 }
-                .frame(maxWidth: 520)
+                .frame(maxWidth: wide ? .infinity : 520)
                 .frame(minHeight: screen.size.height)
                 .frame(maxWidth: .infinity)
                 }
@@ -130,6 +100,68 @@ struct ContentView: View {
         } message: {
             Text(WhatsNew.lines(tr("whatsNewApple")))
         }
+    }
+
+    /* The button and what it says. */
+    private var status: some View {
+        VStack(spacing: 28) {
+            Orb(phase: phase, warn: watch.ownServerDown != nil || watch.national != nil) { toggle() }
+            VStack(spacing: 8) {
+                Text(title)
+                    .font(.title2.weight(.semibold))
+                    .foregroundStyle(.white)
+                Text(controller.notice ?? subtitle)
+                    .font(.callout)
+                    .foregroundStyle(controller.notice == nil ? Theme.secondaryText : .orange)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 24)
+                // A copy that may not make a VPN: how to install one that can.
+                if controller.vpnNotAllowed {
+                    Link(tr("appleInstallHelp"), destination: VpnErrors.installHelp)
+                        .font(.callout.weight(.semibold))
+                }
+            }
+        }
+    }
+
+    private var hasCard: Bool {
+        phase == .on && (watch.ownServerDown != nil || watch.national != nil || (helpDue && controller.notice == nil && !Theme.isTV))
+    }
+
+    /* The one card under the status, when there is one. */
+    @ViewBuilder private var card: some View {
+        if phase == .on, let down = watch.ownServerDown {
+            Warning(title: tr("ownServerDown"),
+                    text: tr("ownServerDownBody", ["server": down.server, "why": OwnServer.whyText(down.why),
+                                                   "path": "\(tr("navSettings")) \(direction == .rightToLeft ? "←" : "→") \(tr("ownServer"))"]))
+        } else if phase == .on, watch.national != nil {
+            Warning(title: tr("nationalOnlyTitle"), text: tr("nationalOnlyBody"),
+                    link: (tr("nationalOnlyHelp"), NationalNet.guideURL(language: Bundle.main.preferredLocalizations.first ?? "en")))
+        } else if phase == .on, helpDue, controller.notice == nil, !Theme.isTV {
+            HelpCard(later: {
+                HelpNudge.refused()
+                helpDue = false
+            }, show: {
+                HelpNudge.accepted()
+                helpDue = false
+                openURL(HelpOthers.conduitURL(language: Bundle.main.preferredLocalizations.first ?? "en"))
+            })
+        }
+    }
+
+    private var tabs: some View {
+        HStack(spacing: 12) {
+            NavigationLink { SettingsView() } label: {
+                Tab(icon: "gearshape", text: tr("navSettings"))
+            }
+            NavigationLink { AboutView() } label: {
+                Tab(icon: "info.circle", text: tr("navInfo"))
+            }
+        }
+        .buttonStyle(.plain)
+        .frame(maxWidth: 520)
+        .padding(.horizontal, 16)
+        .padding(.bottom, 12)
     }
 
     /* Under the status: the address sites see while it works through your
