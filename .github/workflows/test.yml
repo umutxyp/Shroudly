@@ -407,7 +407,24 @@ jobs:
       - name: Xcode
         run: xcodebuild -version
       - name: Build and unit tests
-        run: bash apple/scripts/test.sh
+        shell: bash
+        run: |
+          set -o pipefail
+          bash apple/scripts/test.sh 2>&1 | tee "$RUNNER_TEMP/apple-test.log"
+      # What failed, readable without the job's log: the output's errors and
+      # the test results.
+      - name: Keep what failed
+        if: failure()
+        shell: bash
+        run: |
+          grep -E "error:|failed|Test Case|XCTAssert|\*\* " "$RUNNER_TEMP/apple-test.log" | grep -v "warning:" | tail -300 > "$RUNNER_TEMP/apple-failed.txt" || true
+          mkdir -p "$RUNNER_TEMP/apple-results" && cp "$RUNNER_TEMP/apple-failed.txt" "$RUNNER_TEMP/apple-results/" && cp -R apple/build/Logs/Test/*.xcresult "$RUNNER_TEMP/apple-results/" 2>/dev/null || true
+      - uses: actions/upload-artifact@v7
+        if: failure()
+        with:
+          name: apple-test-results
+          path: ${{ runner.temp }}/apple-results
+          retention-days: 7
       # The iPhone and iPad app as the .ipa a release puts beside the others
       # (for TrollStore, or one's own developer account), built and checked
       # the same way: version, packet tunnel, arm64, entitlements, engine.
