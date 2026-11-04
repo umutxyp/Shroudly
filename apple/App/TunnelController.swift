@@ -215,11 +215,13 @@ final class TunnelController: ObservableObject {
             phase = .on
             connectedSince = manager?.connection.connectedDate ?? connectedSince ?? Date()
             notice = nil
+            WidgetState.set(on: true, since: connectedSince)
         case .disconnecting:
             phase = .stopping
         default:
             phase = .off
             connectedSince = nil
+            WidgetState.set(on: false)
             if before != .invalid && before != .disconnected && !userStopped { explainStop(after: before) }
             userStopped = false
         }

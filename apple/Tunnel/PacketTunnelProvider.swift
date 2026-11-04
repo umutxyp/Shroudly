@@ -75,6 +75,7 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
             do {
                 try bringUp()
                 log("Protection on")
+                WidgetState.set(on: true)
                 completionHandler(nil)
             } catch {
                 log("Start failed: \(error.localizedDescription)")
@@ -138,6 +139,7 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
     @discardableResult
     private func tearDown() -> Bool {
         stopping = true
+        WidgetState.set(on: false)
         _ = pinger.stop()
         watch?.cancel(); watch = nil
         paths?.cancel(); paths = nil

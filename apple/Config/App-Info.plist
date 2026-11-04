@@ -3,6 +3,8 @@
 <plist version="1.0">
 <dict>
 	<!-- What Xcode does not write itself (GENERATE_INFOPLIST_FILE adds the rest). -->
+	<key>ShroudlyKeychainGroup</key>
+	<string>$(AppIdentifierPrefix)me.codeshare.shroudly.shared</string>
 	<key>ShroudlyAppGroup</key>
 	<string>$(SHROUDLY_APP_GROUP)</string>
 	<!-- Export compliance: only the encryption the system provides (HTTPS

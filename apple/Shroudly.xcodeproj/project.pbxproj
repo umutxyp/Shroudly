@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		5A0000000000000000002001 /* ShroudlyWidgets.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 5A0000000000000000002002 /* ShroudlyWidgets.appex */; platformFilters = (ios, macos, ); settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		5A000000000000000000100F /* libShroudlyEngine.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5A0000000000000000001003 /* libShroudlyEngine.a */; };
 		5A0000000000000000001010 /* HevSocks5Tunnel.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5A0000000000000000001005 /* HevSocks5Tunnel.xcframework */; };
 		5A0000000000000000001011 /* block-ips.txt in Resources */ = {isa = PBXBuildFile; fileRef = 5A0000000000000000001006 /* block-ips.txt */; };
@@ -16,6 +17,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		5A0000000000000000002003 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 5A000000000000000000102F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 5A0000000000000000002004 /* ShroudlyWidgets */;
+			remoteInfo = ShroudlyWidgets;
+		};
 		5A0000000000000000001030 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 5A000000000000000000102F /* Project object */;
@@ -45,6 +53,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				5A0000000000000000001012 /* ShroudlyTunnel.appex in Embed Foundation Extensions */,
+				5A0000000000000000002001 /* ShroudlyWidgets.appex in Embed Foundation Extensions */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			dstPath = "";
@@ -54,6 +63,10 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		5A0000000000000000002002 /* ShroudlyWidgets.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = ShroudlyWidgets.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		5A0000000000000000002005 /* Widgets-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Widgets-Info.plist"; sourceTree = "<group>"; };
+		5A0000000000000000002006 /* Widgets-iOS.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "Widgets-iOS.entitlements"; sourceTree = "<group>"; };
+		5A0000000000000000002007 /* Widgets-macOS.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "Widgets-macOS.entitlements"; sourceTree = "<group>"; };
 		5A0000000000000000001001 /* Shroudly.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Shroudly.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		5A0000000000000000001002 /* ShroudlyTunnel.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = ShroudlyTunnel.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		5A0000000000000000001003 /* libShroudlyEngine.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libShroudlyEngine.a; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -88,6 +101,11 @@
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
+		5A0000000000000000002008 /* Widgets */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Widgets;
+			sourceTree = "<group>";
+		};
 		5A0000000000000000001018 /* App */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = App;
@@ -133,6 +151,13 @@
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		5A0000000000000000002009 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		5A0000000000000000001024 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -173,6 +198,7 @@
 			children = (
 				5A0000000000000000001001 /* Shroudly.app */,
 				5A0000000000000000001002 /* ShroudlyTunnel.appex */,
+				5A0000000000000000002002 /* ShroudlyWidgets.appex */,
 				5A0000000000000000001003 /* libShroudlyEngine.a */,
 				5A0000000000000000001004 /* ShroudlyTests.xctest */,
 			);
@@ -190,6 +216,9 @@
 				5A000000000000000000100C /* App-macOS.entitlements */,
 				5A000000000000000000100D /* Tunnel-iOS.entitlements */,
 				5A000000000000000000100E /* Tunnel-macOS.entitlements */,
+				5A0000000000000000002005 /* Widgets-Info.plist */,
+				5A0000000000000000002006 /* Widgets-iOS.entitlements */,
+				5A0000000000000000002007 /* Widgets-macOS.entitlements */,
 			);
 			path = Config;
 			sourceTree = "<group>";
@@ -208,6 +237,7 @@
 			children = (
 				5A0000000000000000001018 /* App */,
 				5A000000000000000000101A /* Tunnel */,
+				5A0000000000000000002008 /* Widgets */,
 				5A0000000000000000001019 /* Shared */,
 				5A000000000000000000101B /* Native */,
 				5A000000000000000000101E /* core */,
@@ -222,6 +252,30 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		5A0000000000000000002004 /* ShroudlyWidgets */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 5A000000000000000000200C /* Build configuration list for PBXNativeTarget "ShroudlyWidgets" */;
+			buildPhases = (
+				5A000000000000000000200B /* Sources */,
+				5A0000000000000000002009 /* Frameworks */,
+				5A000000000000000000200A /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				5A0000000000000000002008 /* Widgets */,
+				5A0000000000000000001019 /* Shared */,
+				5A000000000000000000101C /* Localization */,
+			);
+			name = ShroudlyWidgets;
+			packageProductDependencies = (
+			);
+			productName = ShroudlyWidgets;
+			productReference = 5A0000000000000000002002 /* ShroudlyWidgets.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 		5A0000000000000000001015 /* ShroudlyEngine */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 5A000000000000000000103C /* Build configuration list for PBXNativeTarget "ShroudlyEngine" */;
@@ -281,6 +335,7 @@
 			);
 			dependencies = (
 				5A0000000000000000001034 /* PBXTargetDependency */,
+				5A000000000000000000200D /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				5A0000000000000000001018 /* App */,
@@ -339,6 +394,9 @@
 					5A0000000000000000001015 /* ShroudlyEngine */ = {
 						CreatedOnToolsVersion = 26.2;
 					};
+					5A0000000000000000002004 /* ShroudlyWidgets */ = {
+						CreatedOnToolsVersion = 26.2;
+					};
 					5A0000000000000000001047 /* ShroudlyTests */ = {
 						CreatedOnToolsVersion = 26.2;
 					};
@@ -390,6 +448,7 @@
 			targets = (
 				5A0000000000000000001046 /* Shroudly */,
 				5A0000000000000000001032 /* ShroudlyTunnel */,
+				5A0000000000000000002004 /* ShroudlyWidgets */,
 				5A0000000000000000001015 /* ShroudlyEngine */,
 				5A0000000000000000001047 /* ShroudlyTests */,
 			);
@@ -397,6 +456,13 @@
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		5A000000000000000000200A /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		5A0000000000000000001027 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -422,6 +488,13 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		5A000000000000000000200B /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		5A0000000000000000001023 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -453,6 +526,12 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		5A000000000000000000200D /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			platformFilters = (ios, macos, );
+			target = 5A0000000000000000002004 /* ShroudlyWidgets */;
+			targetProxy = 5A0000000000000000002003 /* PBXContainerItemProxy */;
+		};
 		5A0000000000000000001031 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 5A0000000000000000001015 /* ShroudlyEngine */;
@@ -471,6 +550,66 @@
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
+		5A000000000000000000200E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				"CODE_SIGN_ENTITLEMENTS[sdk=iphoneos*]" = "Config/Widgets-iOS.entitlements";
+				"CODE_SIGN_ENTITLEMENTS[sdk=iphonesimulator*]" = "Config/Widgets-iOS.entitlements";
+				"CODE_SIGN_ENTITLEMENTS[sdk=macosx*]" = "Config/Widgets-macOS.entitlements";
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Config/Widgets-Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = Shroudly;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "© CODESHARE TECHNOLOGY LTD";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "$(SHROUDLY_BUNDLE_ID).widgets";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+			};
+			name = Debug;
+		};
+		5A000000000000000000200F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				"CODE_SIGN_ENTITLEMENTS[sdk=iphoneos*]" = "Config/Widgets-iOS.entitlements";
+				"CODE_SIGN_ENTITLEMENTS[sdk=iphonesimulator*]" = "Config/Widgets-iOS.entitlements";
+				"CODE_SIGN_ENTITLEMENTS[sdk=macosx*]" = "Config/Widgets-macOS.entitlements";
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Config/Widgets-Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = Shroudly;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "© CODESHARE TECHNOLOGY LTD";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "$(SHROUDLY_BUNDLE_ID).widgets";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+			};
+			name = Release;
+		};
 		5A0000000000000000001037 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 5A0000000000000000001007 /* Shroudly.xcconfig */;
@@ -744,6 +883,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		5A000000000000000000200C /* Build configuration list for PBXNativeTarget "ShroudlyWidgets" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				5A000000000000000000200E /* Debug */,
+				5A000000000000000000200F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		5A0000000000000000001039 /* Build configuration list for PBXProject "Shroudly" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

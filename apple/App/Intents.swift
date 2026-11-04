@@ -13,7 +13,7 @@ struct StartProtection: AppIntent {
     static var openAppWhenRun = false
 
     func perform() async throws -> some IntentResult {
-        let m = try await Shortcut.manager()
+        let m = try await ProtectionSwitch.manager()
         // "Keep protection on", as the app's own start sets it.
         if SettingsStore().load().keepOn && !m.isOnDemandEnabled {
             m.isOnDemandEnabled = true
@@ -32,7 +32,7 @@ struct StopProtection: AppIntent {
     static var openAppWhenRun = false
 
     func perform() async throws -> some IntentResult {
-        let m = try await Shortcut.manager()
+        let m = try await ProtectionSwitch.manager()
         // "Keep protection on" would start it again at once: a stop asked for
         // is a stop, as the app's own button does it.
         if m.isOnDemandEnabled {
@@ -51,20 +51,5 @@ struct ShroudlyShortcuts: AppShortcutsProvider {
                     shortTitle: "start", systemImageName: "power")
         AppShortcut(intent: StopProtection(), phrases: ["\(.applicationName) stop", "Stop \(.applicationName)"],
                     shortTitle: "stop", systemImageName: "power.dotted")
-    }
-}
-
-enum Shortcut {
-    struct NotSetUp: LocalizedError {
-        var errorDescription: String? { tr("startFailed") }
-    }
-
-    /* The app's own VPN configuration. */
-    static func manager() async throws -> NETunnelProviderManager {
-        let all = try await NETunnelProviderManager.loadAllFromPreferences()
-        guard let m = all.first(where: { ($0.protocolConfiguration as? NETunnelProviderProtocol)?.providerBundleIdentifier == Ids.tunnel }) else {
-            throw NotSetUp()
-        }
-        return m
     }
 }

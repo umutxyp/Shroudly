@@ -40,11 +40,16 @@ group="$(xcodebuild -project Shroudly.xcodeproj -target Shroudly -configuration 
 [ -n "$group" ] || { echo "[ipa] no app group in the build settings" >&2; exit 1; }
 work="$(mktemp -d)"
 trap 'rm -rf "$work"' EXIT
-sed "s/\$(SHROUDLY_APP_GROUP)/$group/" Config/Tunnel-iOS.entitlements > "$work/tunnel.entitlements"
-sed "s/\$(SHROUDLY_APP_GROUP)/$group/" Config/App-iOS.entitlements > "$work/app.entitlements"
+# The keychain group the widgets share has no team prefix here (ad hoc).
+fill() { sed -e "s/\$(SHROUDLY_APP_GROUP)/$group/" -e 's/\$(AppIdentifierPrefix)//' "$1"; }
+fill Config/Tunnel-iOS.entitlements > "$work/tunnel.entitlements"
+fill Config/App-iOS.entitlements > "$work/app.entitlements"
+fill Config/Widgets-iOS.entitlements > "$work/widgets.entitlements"
 
-# Ad hoc signatures, the extension first (the app's seals it).
+# Ad hoc signatures, the extensions first (the app's seals them).
 codesign --force --sign - --timestamp=none --entitlements "$work/tunnel.entitlements" "$ext"
+widgets="$app/PlugIns/ShroudlyWidgets.appex"
+if [ -d "$widgets" ]; then codesign --force --sign - --timestamp=none --entitlements "$work/widgets.entitlements" "$widgets"; fi
 codesign --force --sign - --timestamp=none --entitlements "$work/app.entitlements" "$app"
 
 mkdir "$work/Payload"

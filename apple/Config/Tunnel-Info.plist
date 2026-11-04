@@ -9,6 +9,8 @@
 		<key>NSExtensionPrincipalClass</key>
 		<string>$(PRODUCT_MODULE_NAME).PacketTunnelProvider</string>
 	</dict>
+	<key>ShroudlyKeychainGroup</key>
+	<string>$(AppIdentifierPrefix)me.codeshare.shroudly.shared</string>
 	<key>ShroudlyAppGroup</key>
 	<string>$(SHROUDLY_APP_GROUP)</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
