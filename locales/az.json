@@ -883,7 +883,7 @@
   "helpNudgeThanks": "Təşəkkürlər: indi kömək edirsiniz. Söndürmək üçün: {path}.",
   "whatsNewTitle": "{version} versiyasında yeniliklər",
   "whatsNewOk": "Aydındır",
-  "whatsNewDesktop": "Reklam və izləyiciləri bloklama siyahısını əvvəlkindən iki dəfə az yaddaşla oxuyur.",
+  "whatsNewDesktop": "Sayt səni olduğun ölkəyə görə qəbul etmədikdə, Shroudly indi bunu nəyin dəyişdiyini deyir: xaricdə etibar etdiyin biri öz bağlantısını səninlə paylaşır.",
   "whatsNewAndroid": "Qorumanı göstərən və açıb-söndürən ana ekran vidceti.\nTelefon Wi-Fi-da şarj olarkən senzura olan ölkələrdəki insanlara Shroudly-nin içindən kömək edin.",
   "whatsNewApple": "Canlı statistika, vurğu rəngləri, reklam və izləyiciləri bloklama və öz DNS serveriniz, Android-dəki kimi.\nVidcetlər, İdarəetmə Mərkəzində düymə və başlatmaq-dayandırmaq üçün Qısayollar.\nSenzura olan ölkələrdəki insanlara Shroudly-nin içindən kömək edin.",
   "appleVpnNotSigned": "Shroudly-nin bu nüsxəsi Apple-ın VPN icazəsi olmadan imzalanıb, buna görə iOS ona VPN başlatmağa icazə vermir və heç soruşmur. Pulsuz Apple ID ilə imzalanan nüsxələrdə (AltStore, SideStore, Sideloadly və bənzərləri) bu icazə heç vaxt olmur. Onu TrollStore ilə quraşdırın və ya ödənişli Apple developer hesabı ilə imzalayın.",

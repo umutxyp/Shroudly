@@ -883,7 +883,7 @@
   "helpNudgeThanks": "谢谢：你现在正在帮助别人。关闭方法：{path}。",
   "whatsNewTitle": "{version} 的新内容",
   "whatsNewOk": "知道了",
-  "whatsNewDesktop": "拦截广告和跟踪器读取列表时只用以前一半的内存。",
+  "whatsNewDesktop": "当某个网站因为你所在的国家而拒绝你时，Shroudly 现在会告诉你什么能改变这一点：你信任的、身在国外的人与你共享他的连接。",
   "whatsNewAndroid": "显示并切换保护状态的主屏幕小组件。\n在手机连着 Wi-Fi 充电时，在 Shroudly 中帮助受审查国家的人们。",
   "whatsNewApple": "实时统计、强调色、拦截广告和跟踪器，以及你自己的 DNS 服务器，与 Android 一样。\n小组件、控制中心开关，以及用于开始和停止的快捷指令。\n在 Shroudly 中帮助受审查国家的人们。",
   "appleVpnNotSigned": "此 Shroudly 副本的签名没有 Apple 的 VPN 权限，因此 iOS 不允许它启动 VPN，也从不询问。用免费 Apple ID 签名的副本（AltStore、SideStore、Sideloadly 等）永远没有这项权限。请用 TrollStore 安装，或用付费的 Apple 开发者账号签名。",

@@ -883,7 +883,7 @@
   "helpNudgeThanks": "ありがとうございます：いま人を助けています。オフにするには：{path}。",
   "whatsNewTitle": "{version} の新機能",
   "whatsNewOk": "OK",
-  "whatsNewDesktop": "広告とトラッカーのブロックは、リストを以前の半分のメモリで読み込みます。",
+  "whatsNewDesktop": "いる国を理由にサイトから断られたとき、Shroudly はそれを変える方法を伝えるようになりました。海外にいる信頼できる人が、自分の接続をあなたと共有することです。",
   "whatsNewAndroid": "保護の状態を表示して切り替えるホーム画面ウィジェット。\nスマートフォンが Wi-Fi 接続で充電中に、検閲のある国の人々を Shroudly の中から手伝えます。",
   "whatsNewApple": "ライブ統計、アクセントカラー、広告とトラッカーのブロック、独自の DNS サーバーを Android と同じように。\nウィジェット、コントロールセンターのスイッチ、開始と停止のショートカット。\n検閲のある国の人々を Shroudly の中から手伝えます。",
   "appleVpnNotSigned": "この Shroudly のコピーは Apple の VPN 権限なしで署名されているため、iOS は VPN の開始を許可せず、確認もしません。無料の Apple ID で署名したコピー（AltStore、SideStore、Sideloadly など）にはこの権限が付きません。TrollStore でインストールするか、有料の Apple デベロッパーアカウントで署名してください。",

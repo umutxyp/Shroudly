@@ -883,7 +883,7 @@
   "helpNudgeThanks": "Terima kasih: anda sedang membantu. Untuk mematikannya: {path}.",
   "whatsNewTitle": "Apa yang baharu dalam {version}",
   "whatsNewOk": "Faham",
-  "whatsNewDesktop": "Sekat iklan dan penjejak membaca senarainya dengan separuh memori berbanding dahulu.",
+  "whatsNewDesktop": "Apabila sesebuah laman menolak anda kerana negara tempat anda berada, Shroudly kini memberitahu apa yang boleh mengubahnya: seseorang yang anda percayai di luar negara berkongsi sambungannya dengan anda.",
   "whatsNewAndroid": "Widget skrin utama yang menunjukkan dan menukar perlindungan.\nBantu orang di negara yang ditapis dari dalam Shroudly semasa telefon dicas melalui Wi-Fi.",
   "whatsNewApple": "Statistik langsung, warna aksen, sekat iklan dan penjejak, serta pelayan DNS anda sendiri, seperti di Android.\nWidget, suis di Pusat Kawalan dan Pintasan untuk mula dan henti.\nBantu orang di negara yang ditapis dari dalam Shroudly.",
   "appleVpnNotSigned": "Salinan Shroudly ini ditandatangani tanpa kebenaran Apple untuk VPN, jadi iOS tidak membenarkannya memulakan VPN dan tidak pernah bertanya. Salinan yang ditandatangani dengan Apple ID percuma (AltStore, SideStore, Sideloadly dan seumpamanya) tidak pernah mempunyainya. Pasangnya dengan TrollStore, atau tandatanganinya dengan akaun pembangun Apple berbayar.",

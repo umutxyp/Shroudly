@@ -883,7 +883,7 @@
   "helpNudgeThanks": "Obrigado: você já está ajudando. Para desativar: {path}.",
   "whatsNewTitle": "Novidades da {version}",
   "whatsNewOk": "Entendi",
-  "whatsNewDesktop": "O bloqueio de anúncios e rastreadores lê a lista com metade da memória de antes.",
+  "whatsNewDesktop": "Quando um site recusa você por causa do país onde você está, o Shroudly agora diz o que muda isso: alguém de confiança no exterior compartilha a conexão dele com você.",
   "whatsNewAndroid": "Um widget de tela inicial que mostra e alterna a proteção.\nAjude pessoas em países censurados de dentro do Shroudly enquanto o telefone carrega no Wi-Fi.",
   "whatsNewApple": "Estatísticas ao vivo, cores de destaque, bloqueio de anúncios e rastreadores, e seu próprio servidor DNS, como no Android.\nWidgets, um botão na Central de Controle e Atalhos para iniciar e parar.\nAjude pessoas em países censurados de dentro do Shroudly.",
   "appleVpnNotSigned": "Esta cópia do Shroudly foi assinada sem a permissão da Apple para VPNs, então o iOS não a deixa iniciar uma e nunca pergunta. Cópias assinadas com um Apple ID gratuito (AltStore, SideStore, Sideloadly e parecidos) nunca têm essa permissão. Instale com o TrollStore ou assine com uma conta de desenvolvedor da Apple paga.",

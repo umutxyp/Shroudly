@@ -883,7 +883,7 @@
   "helpNudgeThanks": "Cảm ơn bạn: bạn đang giúp đỡ. Để tắt: {path}.",
   "whatsNewTitle": "Có gì mới trong {version}",
   "whatsNewOk": "Đã hiểu",
-  "whatsNewDesktop": "Chặn quảng cáo và trình theo dõi đọc danh sách chỉ với một nửa bộ nhớ so với trước.",
+  "whatsNewDesktop": "Khi một trang web từ chối bạn vì quốc gia bạn đang ở, giờ Shroudly cho biết điều gì thay đổi được việc đó: một người bạn tin tưởng ở nước ngoài chia sẻ kết nối của họ với bạn.",
   "whatsNewAndroid": "Tiện ích màn hình chính hiển thị và bật tắt bảo vệ.\nGiúp người dân ở các nước bị kiểm duyệt ngay trong Shroudly khi điện thoại sạc qua Wi-Fi.",
   "whatsNewApple": "Thống kê trực tiếp, màu nhấn, chặn quảng cáo và trình theo dõi, cùng máy chủ DNS của riêng bạn, như trên Android.\nTiện ích, công tắc trong Trung tâm điều khiển và Phím tắt để bật tắt.\nGiúp người dân ở các nước bị kiểm duyệt ngay trong Shroudly.",
   "appleVpnNotSigned": "Bản Shroudly này được ký mà không có quyền VPN của Apple, nên iOS không cho nó khởi động VPN và cũng không bao giờ hỏi. Các bản ký bằng Apple ID miễn phí (AltStore, SideStore, Sideloadly và tương tự) không bao giờ có quyền này. Hãy cài bằng TrollStore, hoặc ký bằng tài khoản nhà phát triển Apple trả phí.",
