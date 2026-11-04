@@ -14,10 +14,11 @@
   [![Linux](https://img.shields.io/badge/Linux-FCC624?logo=linux&logoColor=black)](#)
   [![Android](https://img.shields.io/badge/Android-3DDC84?logo=android&logoColor=white)](#android)
   [![Android TV](https://img.shields.io/badge/Android%20TV-3DDC84?logo=android&logoColor=white)](#android-tv-and-google-tv)
-  [![iOS](https://img.shields.io/badge/iPhone%20%26%20iPad-000000?logo=apple)](#iphone-and-ipad)
+  [![iOS](https://img.shields.io/badge/iPhone%20%26%20iPad-000000?logo=apple)](#iphone-ipad-mac-and-apple-tv)
+  [![Apple TV](https://img.shields.io/badge/Apple%20TV-000000?logo=apple)](#iphone-ipad-mac-and-apple-tv)
   [![Donate](https://img.shields.io/badge/Donate-PayPal-00457C?logo=paypal&logoColor=white)](https://www.paypal.com/donate?campaign_id=BV7WTVT9VJQQ6)
 
-  > Break through internet censorship on **Windows, macOS, Linux, Android, Android TV, iPhone and iPad**. No VPN, no drivers by default, no third-party tools, and nothing that permanently changes your network settings.
+  > Break through internet censorship on **Windows, macOS, Linux, Android, Android TV, iPhone, iPad and Apple TV**. No VPN, no drivers by default, no third-party tools, and nothing that permanently changes your network settings.
 
   **A [Codeshare](https://codeshare.me) product**
 
@@ -197,6 +198,12 @@ phone's own connections.
   tethered traffic through a VPN, and Proxy only listens on the phone
   itself. A computer on the hotspot needs Shroudly of its own (the desktop
   app).
+- A **home-screen widget** shows whether protection is on and switches it
+  with a tap (from 2.6.52).
+- **Help through this device** (Settings, off until you turn it on, from
+  2.6.52): Shroudly itself runs a Snowflake proxy for the Tor network, the
+  computer's own, while protection is on and the phone is charging on Wi-Fi,
+  so it costs no battery and no mobile data.
 
 Building and testing it: [android/README.md](android/README.md).
 
@@ -216,15 +223,16 @@ The same APK runs on Android TV and Google TV (Android 8 or newer, from
 Everything else is as on a phone. The Quick Settings tile row is left out,
 since a TV has no such panel.
 
-## iPhone and iPad
+## iPhone, iPad, Mac and Apple TV
 
 The same engine and encrypted DNS as the desktop and Android, as a VPN on the
-device (a packet tunnel), for iPhone and iPad on iOS 16 or newer, and Mac from
-the same build.
+device (a packet tunnel): iPhone and iPad on iOS 16 or newer, the Mac from
+the same build (macOS 13 or newer), and Apple TV on tvOS 17 or newer. On the
+**App Store** (in review); until it is there, each release also carries
+`Shroudly-…-iOS.ipa` for TrollStore.
 
-- **Until the App Store has it**, each release carries it as
-  `Shroudly-…-iOS.ipa`. It is signed ad hoc with its entitlements (the VPN
-  extension, its app group), so it installs two ways:
+- **The `.ipa`** is signed ad hoc with its entitlements (the VPN extension,
+  its app group), so it installs two ways:
   - with **TrollStore**, which keeps them, on the iOS versions TrollStore
     supports (16.0 to 16.6.1, 16.7 RC and 17.0);
   - signed with a **paid** Apple developer account that has the Network
@@ -234,22 +242,32 @@ the same build.
   Signing it with a **free** Apple ID (AltStore, SideStore, Sideloadly, ESign
   and the like) removes the VPN permission: iOS then never shows its *Add VPN
   Configurations* question, and the app cannot start. Since 2.6.48 such a copy
-  says so on its main screen, with a link here, instead of asking for a
-  permission iOS will not give it
-  ([#65](https://github.com/umutxyp/Shroudly/issues/65)). The App Store copy,
-  signed by Apple, follows once the developer account is approved
-  ([apple/APP_STORE.md](apple/APP_STORE.md)).
-- **Settings:** the technique, QUIC and IPv6 off, keeping protection on, and
-  **Your own server** (`socks5://`, `http://` or Shadowsocks `ss://`, through
-  the tunnel's own Shadowsocks client; the link's password is not shown). If
-  the server stops working, the main screen says so and why; while it works,
-  it shows the address sites see.
+  says so on its main screen, with a link here
+  ([#65](https://github.com/umutxyp/Shroudly/issues/65)).
+- **Main screen:** live stats (connections, how long it has been on, down,
+  up, online now), and on a wide screen (an unfolded iPhone Duo, Apple TV)
+  the switch and its notice side by side.
+- **Settings:** the technique, the accent colour, QUIC and IPv6 off, keeping
+  protection on, *Count me in the live total*, **Block ads and trackers**
+  with exceptions (a compact list, the AdGuard DNS filter and StevenBlack's
+  hosts, so the VPN stays inside the memory iOS allows), a **DNS server** of
+  your own (DoH, DoT, TCP, UDP; *Only this server*), and **Your own server**
+  (`socks5://`, `http://` or Shadowsocks `ss://`; the link's password is not
+  shown). If your server stops working, the main screen says so and why;
+  while it works, it shows the address sites see.
+- **Widgets** for the Home Screen, the Lock Screen and the Mac desktop, a
+  **Control Center** switch on iOS 18, and **Shortcuts / Siri** to start and
+  stop protection.
 - **In a shutdown** the main screen says *Only this country's network works*,
   with the guide in your language.
-- **About → Help people in censored countries:** Psiphon's Conduit.
-- Not on iPhone and iPad: Advanced mode (it would need what iOS gives no app),
-  ad blocking and donation links (App Store rules), and sending only some apps
-  through Shroudly (iOS allows that only on managed devices).
+- **About → Help people in censored countries:** *Help through this device*
+  runs the computer's own Snowflake proxy for Tor while the app is open on
+  iPhone and iPad, and while it runs on a Mac; Psiphon's Conduit for those who
+  want to help all day.
+- Not on Apple devices: Advanced mode (it would need what iOS gives no app),
+  donation links (App Store rules), and sending only some apps through
+  Shroudly (iOS allows that only on managed devices). Apple TV has no widgets
+  and no browser, so web addresses are shown as text there.
 
 Building and testing it: [apple/README.md](apple/README.md).
 
@@ -724,10 +742,10 @@ directly. That list maintains itself:
 - **Advanced mode** — packet-level desync for networks that follow whole connections, on Windows and Linux.
 - **Your own server** — every site through a server you name, as a `socks5://`, `http://` or Shadowsocks `ss://` link: tested before it is used, and the window says so if it stops working; while it works, the main window says which address sites see ([#66](https://github.com/umutxyp/Shroudly/issues/66)), and DNS goes through it too, so nothing leaks to your provider or the resolvers ([#67](https://github.com/umutxyp/Shroudly/issues/67)). For a shutdown, when a server inside the country still reaches the world; on the desktop, Android, iPhone and iPad.
 - **Share my connection** — off until you turn it on: people you give its link to use your connection through Shroudly, from Shroudly's *Your own server* or any Shadowsocks app, on the same network or (where the router opens a port by UPnP) over the internet. They reach only sites, never your computer or home network; nothing is recorded of what they open. Desktop.
-- **Help people in censored countries** — off until you turn it on: on a computer, a Snowflake proxy for the Tor network, so people where Tor is blocked reach it through your connection (strangers using Tor: what they open stays encrypted, they cannot reach your computer or network, and nothing is recorded); on Android and iPhone, the apps made for it (Psiphon's Conduit, Orbot's Kindness Mode). Now and then, while protection works, the main window asks whether you would like to; each "Not now" doubles the wait, from a week, and it is never asked where Tor itself is blocked. A server can help too ([details](#on-a-server)).
+- **Help people in censored countries** — off until you turn it on: on a computer, a Snowflake proxy for the Tor network, so people where Tor is blocked reach it through your connection (strangers using Tor: what they open stays encrypted, they cannot reach your computer or network, and nothing is recorded); on Android while protection is on and the phone charges on Wi-Fi, and on iPhone, iPad and the Mac while the app is open or running, the same proxy inside Shroudly (or the apps made for it, Psiphon's Conduit and Orbot's Kindness Mode). Now and then, while protection works, the main window asks whether you would like to; each "Not now" doubles the wait, from a week, and it is never asked where Tor itself is blocked. A server can help too ([details](#on-a-server)).
 - **Decoys a whitelist lets through** — where a shutdown lets only a list of allowed sites through, Shroudly's decoys carry the names of large sites of your own country, so the real connection behind them gets through ([what it cannot fix](#what-shroudly-cannot-fix)).
 - **Its own lists where GitHub is blocked** — the site list and the ad list come through a CDN front (another site on GitHub's CDN) when GitHub does not answer.
-- **iPhone and iPad** — the same engine as a VPN on the device, with your own server ([details](#iphone-and-ipad)).
+- **iPhone, iPad, Mac and Apple TV** — the same engine as a VPN on the device: live stats, ad blocking, a DNS server and a server of your own, widgets and Control Center ([details](#iphone-ipad-mac-and-apple-tv)).
 - **Share Shroudly** — the Android app (the APK from GitHub) sends itself to another phone over Bluetooth or a nearby-share app, for when its download page cannot be reached.
 - **What changed, after each update** — once, in your language: on the desktop, Android, iPhone and iPad.
 - **Tells you what is going on** — another VPN or bypass tool fighting it, a site the network cuts, encrypted DNS blocked, what the autopilot did: said plainly, in one line.
@@ -745,7 +763,7 @@ directly. That list maintains itself:
 | Windows | **Windows 10** (x64 or ARM64) | The installer stops with a clear message on Windows 8.1 and earlier, which Electron no longer supports. |
 | macOS | **macOS 12 Monterey** (Intel or Apple Silicon) | Older versions are told so by macOS itself rather than failing to launch. |
 | Linux | **glibc 2.28+** — Debian 10, Ubuntu 20.04, Fedora 29 or newer (Ubuntu 18.04 has glibc 2.27: Shroudly starts there, but Advanced mode does not) | AppImage (x64, ARM64), plus native packages: .deb for Debian/Ubuntu, .pacman for Arch/Manjaro, .rpm for Fedora/openSUSE/RHEL. The bypass engine itself only needs glibc 2.17, so it is never the limiting part. |
-| iPhone, iPad | **iOS 16** or newer | An `.ipa` on the releases page for TrollStore or a paid developer account (not a free Apple ID), until the App Store has it ([iPhone and iPad](#iphone-and-ipad)). |
+| iPhone, iPad, Mac, Apple TV | **iOS 16**, **macOS 13**, **tvOS 17** or newer | The App Store (in review); an `.ipa` on the releases page for TrollStore or a paid developer account (not a free Apple ID) meanwhile ([details](#iphone-ipad-mac-and-apple-tv)). |
 | Android | **Android 8** or newer (phones, tablets, Android TV and Google TV; ARM 64/32-bit, x86_64) | An APK from the releases page. It works as a VPN on the phone, so every app goes through Shroudly; no root needed. To keep another VPN app connected, Settings → Advanced → Mode → Proxy only. |
 
 Advanced mode needs administrator rights, and is available on Windows and Linux only.
@@ -1153,7 +1171,8 @@ Shroudly does not collect personal data. These are the only things that contact 
   they open, only how many are connected at the moment, in memory.
 
 - **Tor's Snowflake servers**, only while *Help people in censored
-  countries* is on (a computer): its broker (`snowflake-broker.torproject.net`)
+  countries* is on (on a computer; on phones and the Mac App Store app,
+  *Help through this device*, below): its broker (`snowflake-broker.torproject.net`)
   is asked for someone to help about once a minute, its NAT probe once every
   two days, and its relays (`snowflake.torproject.net`) carry what the people
   helped send. Those people connect to this computer over WebRTC, so they see
@@ -1179,28 +1198,40 @@ the live user count above, exactly as the desktop does (only while protection
 is on, through the engine, and not at all with *Count me in the live total*
 switched off in Settings); the encrypted DNS resolvers above (or the DNS
 server you chose in Settings), while protection is on; GitHub for update checks, only in the APK from GitHub (not when Google
-Play installed or updates it); and, to find what opens a blocked site, that
-same site (a few TLS handshakes, nothing about you). What worked for which
+Play installed or updates it); the ad list above, only in the APK from GitHub
+and only with *Block ads and trackers* on; Tor's Snowflake servers as above,
+only with *Help through this device* on (Settings), and only while protection
+is on and the phone is charging on Wi-Fi; and, to find what opens a blocked
+site, that same site (a few TLS handshakes, nothing about you). What worked for which
 site is kept in the app's private storage on the phone for 30 days at most,
 is never backed up or copied to another device, and is deleted with the app.
 There are no accounts, no analytics beyond the anonymous live count, no ads
 and no crash reports.
 
-**On iPhone and iPad** the app is a VPN on the device (a packet tunnel): the
-tunnel ends in the app's own engine on the device, and no traffic goes
-through a server of ours. It is not counted in the live total and checks for
-no updates. It contacts only: the encrypted DNS resolvers above, while
-protection is on; to find what opens a blocked site, that same site (a few
-TLS handshakes, nothing about you); while the app is open and protection is
-on, an HTTPS request to 1.1.1.1, 8.8.8.8 and 9.9.9.9 at most once a minute,
-and only when none answers, the same sites inside the country as above;
+**On iPhone, iPad, Mac and Apple TV** (the App Store app) the app is a VPN
+on the device (a packet tunnel): the tunnel ends in the app's own engine on
+the device, and no traffic goes through a server of ours. It checks for no
+updates (the App Store updates it). It contacts only: the live user count
+above, exactly as the desktop does (only while protection is on, through the
+engine, and not at all with *Count me in the live total* switched off in
+Settings; never on iOS 16 or macOS 13, which cannot send it through the
+engine); the encrypted DNS resolvers above, or the DNS server you chose in
+Settings, while protection is on; the ad list
+(`raw.githubusercontent.com/umutxyp/Shroudly/site-list/adblock-compact.txt`),
+about once a week through the engine, only with *Block ads and trackers* on;
+Tor's Snowflake servers as above, only with *Help through this device* on
+(About), and only while the app is open on iPhone and iPad or running on a
+Mac; to find what opens a blocked site, that same site (a few TLS
+handshakes, nothing about you); while the app is open and protection is on,
+an HTTPS request to 1.1.1.1, 8.8.8.8 and 9.9.9.9 at most once a minute, and
+only when none answers, the same sites inside the country as above;
 `raw.githubusercontent.com/umutxyp/Shroudly/main/stores.json` at most twice
 a day, only to know whether its App Store page is up before it asks for a
 rating (nothing but the request); and your own server if you set one,
 through which it asks Cloudflare's trace page which address sites see, as
 above. What worked for which site stays on the device. The settings, the
-card asking for help and the version last seen are kept in the app's own
-storage on the device.
+widgets' on or off, the card asking for help and the version last seen are
+kept in the app's own storage on the device.
 
 **On a server** (`shroudly --help-others`, [On a server](#on-a-server)):
 Tor's Snowflake broker, its NAT probe and its relays, as for *Help people in
