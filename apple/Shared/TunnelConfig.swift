@@ -107,7 +107,8 @@ enum EngineArgs {
     /* The desktop's and Android's arguments (Engine.args): auto mode or the
      * chosen technique, encrypted DNS through the tunnel's forwarder, every
      * known block page, this session's SOCKS5 password file and the stand-in
-     * range. No ad blocking: store copies leave it out, as on Google Play. */
+     * range. Ad blocking is told to the running engine (AdBlock.commands),
+     * so a change needs no restart. */
     static func make(port: Int, dohPort: Int, settings: AppSettings, authFile: String?,
                      blockIps: [String], fakeNet: String? = TunnelConfig.fakeNet, upstreamFile: String? = nil) -> [String] {
         let strategy = settings.strategy

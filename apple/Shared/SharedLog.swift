@@ -67,4 +67,7 @@ enum ProviderMessage: String {
     /* {"stats": {...}}: the engine's counters a moment ago (its STATS line:
      * conns_active, conns_total, bytes_up, bytes_down, blocked). */
     case stats
+    /* {}: "Block ads and trackers" or its exceptions changed: the running
+     * engine is told, and the list fetched if it is due. */
+    case adblock
 }

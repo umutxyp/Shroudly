@@ -342,7 +342,15 @@ adb_list *adb_load(const char *path, adb_stats *st, const char **why) {
   if (!why) why = &dummy;
   FILE *f = path && path[0] ? open_utf8(path) : NULL;
   if (!f) { *why = "cannot be read"; return NULL; }
+  /* As much as the file holds, and a byte more to see its end: doubling a
+   * 1 MB buffer took 8 MB for a 4.4 MB list, too much beside an iOS packet
+   * tunnel's other memory. A file that grows meanwhile still grows the buffer. */
   size_t cap = 1 << 20, len = 0;
+  if (fseek(f, 0, SEEK_END) == 0) {
+    long sz = ftell(f);
+    if (sz >= 0 && (unsigned long)sz < ADB_MAX_FILE) cap = (size_t)sz + 1 > (1 << 16) ? (size_t)sz + 1 : (1 << 16);
+    rewind(f);
+  }
   char *buf = (char *)malloc(cap);
   if (!buf) { fclose(f); *why = "out of memory"; return NULL; }
   for (;;) {

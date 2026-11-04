@@ -36,6 +36,8 @@ final class Engine {
     private var started = false
     /* The user's own server failed (the engine says so now and then). */
     var onUpstreamDown: ((String?) -> Void)?
+    /* The engine's verdict on a fetched ad list (ADBLOCK-CHECK): ok, error. */
+    var onAdblockCheck: ((Bool, String?) -> Void)?
     private(set) var lastError: String?
     /* What the run returned; nil while it runs. */
     private(set) var exitCode: Int32?
@@ -189,6 +191,11 @@ final class Engine {
             lock.lock(); lastStats = obj; lock.unlock()
         case "stopped":
             log("engine: stopped")
+        case "adblock_check":
+            onAdblockCheck?(obj["ok"] as? Bool == true, obj["error"] as? String)
+        case "adblock":
+            // Counts and an error word, never a name.
+            log("engine: \(line)")
         case "upstream":
             // The user's own server could not be used ("why": the engine's words).
             let why = obj["why"] as? String

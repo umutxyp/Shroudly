@@ -58,6 +58,11 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
     // "Your own server": the line the engine gets, and the Shadowsocks client.
     private var upstreamLine: String?
     private var ssClient: ShadowsocksClient?
+    // "Block ads and trackers": when the list was last fetched or tried,
+    // whether a fetch runs, and the engine's verdict being waited for.
+    private var adblockTried: Date?
+    private var adblockFetching = false
+    private var adblockVerdict: CheckedContinuation<(Bool, String?), Never>?
 
     // MARK: start and stop
 
@@ -168,6 +173,8 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
             if let upstreamPath { unlink(upstreamPath) }
             if ok {
                 engine = e
+                e.onAdblockCheck = { [weak self] ok, why in self?.queue.async { self?.adblockChecked(ok, why) } }
+                queue.async { [weak self] in self?.applyAdblock(fetchAfter: 8) }
                 if settings.ownServerLink != nil, let a = auth {
                     doh?.throughEngine(true, DohForwarder.EnginePath(port: p, user: a.user, pass: a.pass))
                 }
@@ -184,6 +191,62 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
             }
         }
         throw StartError(message: "engine failed to start")
+    }
+
+    // MARK: block ads and trackers
+
+    /* The setting as it is now, into the running engine (no restart), and the
+     * list fetched after `fetchAfter` seconds if it is due. */
+    private func applyAdblock(fetchAfter: TimeInterval) {
+        guard !stopping, let e = engine else { return }
+        e.send(AdBlock.commands().joined(separator: "\n"))
+        guard AdBlock.enabled(), !adblockFetching, AdBlock.due(lastTry: adblockTried) else { return }
+        adblockFetching = true
+        queue.asyncAfter(deadline: .now() + fetchAfter) { [weak self] in
+            Task { await self?.fetchAdblock() }
+        }
+    }
+
+    private func fetchAdblock() async {
+        let snapshot: (Int, SocksAuth?, Bool) = queue.sync { (port, auth, engine != nil && !stopping) }
+        defer { queue.async { self.adblockFetching = false } }
+        guard snapshot.2, let a = snapshot.1, AdBlock.enabled() else { return }
+        queue.sync { adblockTried = Date() }
+        log("Ad blocking: fetching the list")
+        do {
+            try await AdBlockFetch.fetch(port: snapshot.0, user: a.user, pass: a.pass)
+        } catch {
+            log("Ad blocking: the list could not be fetched (\(error.localizedDescription)); Shroudly tries again later")
+            return
+        }
+        let (ok, why) = await withCheckedContinuation { (c: CheckedContinuation<(Bool, String?), Never>) in
+            queue.async { [self] in
+                guard let e = engine else { return c.resume(returning: (false, "no engine")) }
+                adblockVerdict = c
+                e.send("ADBLOCK-CHECK \(AdBlock.newFile.path)")
+                queue.asyncAfter(deadline: .now() + 30) { [self] in adblockChecked(false, "no answer") }
+            }
+        }
+        guard ok else {
+            AdBlock.discard()
+            log("Ad blocking: the list fetched is not one to use (\(why ?? "?"))")
+            return
+        }
+        do { try AdBlock.adopt() } catch {
+            log("Ad blocking: the list could not be kept (\(error.localizedDescription))")
+            return
+        }
+        queue.async { [self] in
+            guard !stopping, let e = engine else { return }
+            e.send(AdBlock.commands().joined(separator: "\n"))
+        }
+    }
+
+    /* On the queue: the engine's verdict, to whoever waits for it (once). */
+    private func adblockChecked(_ ok: Bool, _ why: String?) {
+        guard let c = adblockVerdict else { return }
+        adblockVerdict = nil
+        c.resume(returning: (ok, why))
     }
 
     // MARK: your own server
@@ -395,6 +458,8 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
                 reply["tunnel"] = hev?.running == true
             case .siteLog:
                 siteLock.lock(); reply["lines"] = sites; siteLock.unlock()
+            case .adblock:
+                applyAdblock(fetchAfter: 0)
             case .stats:
                 // Asked fresh; the engine answers within a few milliseconds.
                 engine?.send("STATS")

@@ -27,7 +27,7 @@
  *   node scripts/adblock-list/build.js --out <dir> [--previous <file>] [--from <dir>]
  *
  * Writes <dir>/adblock.txt, and <dir>/adblock-compact.txt: the AdGuard DNS
- * filter alone (COMPACT), for the App Store app, whose packet tunnel iOS ends
+ * filter and StevenBlack's hosts (COMPACT; together they have every name MUST asks for), for the App Store app, whose packet tunnel iOS ends
  * past about 50 MB (the full list takes some 25 MB while it is read in).
  * --from reads the sources from files named by
  * their id (tests, or a run without the network). Runs weekly in
@@ -176,15 +176,14 @@ function combine(texts, { previous = 0, min = true, only = null } = {}) {
   for (const h of blocks) if (strictlyUnder(h, parents)) blocks.delete(h);
   const wrong = NEVER.filter((h) => blocked(h, blocks, allows));
   if (wrong.length) throw new Error(`would block ${wrong.join(', ')}`);
-  // The compact list is one source's own choice of names: MUST is the full one's.
-  const missing = only ? [] : MUST.filter((h) => !blocked(h, blocks, allows));
+  const missing = MUST.filter((h) => !blocked(h, blocks, allows));
   if (missing.length) throw new Error(`does not block ${missing.join(', ')}`);
   if (previous && blocks.size * 2 < previous) throw new Error(`${blocks.size} entries, less than half of the ${previous} before`);
   return { blocks: [...blocks].sort(), allows: [...allows].sort(), counts };
 }
 
 /* The sources of the compact list (adblock-compact.txt). */
-const COMPACT = ['adguard-dns'];
+const COMPACT = ['adguard-dns', 'stevenblack'];
 
 function render({ blocks, allows }, date, only = null) {
   return [

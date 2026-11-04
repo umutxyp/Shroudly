@@ -13,6 +13,10 @@ struct SettingsView: View {
     @State private var draft = ""
     @State private var serverError: String?
     @FocusState private var editingServer: Bool
+    // "Block ads and trackers" and its exceptions (AdBlock.swift): told to
+    // the running engine at once, no restart.
+    @AppStorage(AdBlock.Key.on, store: AppGroup.defaults) private var adBlock = false
+    @State private var allowText = AdBlock.allow().joined(separator: "\n")
 
     var body: some View {
         Form {
@@ -37,6 +41,37 @@ struct SettingsView: View {
                 }
                 Toggle(isOn: $settings.keepOn) {
                     Labelled(title: tr("appleKeepOn"), detail: tr("appleKeepOnDesc"))
+                }
+            }
+            Section {
+                Toggle(isOn: $adBlock) {
+                    Labelled(title: tr("adBlock"), detail: tr("adBlockDesc"))
+                }
+                .onChange(of: adBlock) { _ in controller.adblockChanged() }
+                if adBlock {
+                    #if os(tvOS)
+                    TextField(tr("adBlockAllow"), text: $allowText)
+                        .onSubmit { saveAllow() }
+                    #else
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text(tr("adBlockAllow"))
+                        Text(tr("adBlockAllowDesc"))
+                            .font(.footnote)
+                            .foregroundStyle(Theme.secondaryText)
+                            .fixedSize(horizontal: false, vertical: true)
+                        TextEditor(text: $allowText)
+                            .font(.callout.monospaced())
+                            .frame(minHeight: 70)
+                            .scrollContentBackground(.hidden)
+                            .autocorrectionDisabled()
+                            #if os(iOS)
+                            .textInputAutocapitalization(.never)
+                            .keyboardType(.URL)
+                            #endif
+                    }
+                    Button(tr("dnsServerUse")) { saveAllow() }
+                        .disabled(AdBlock.clean(allowText.components(separatedBy: CharacterSet(charactersIn: " \t\n\r,"))) == AdBlock.allow())
+                    #endif
                 }
             }
             Section {
@@ -105,6 +140,12 @@ struct SettingsView: View {
 }
 
 extension SettingsView {
+    /* The exceptions as typed, cleaned, kept and told to the engine. */
+    private func saveAllow() {
+        allowText = AdBlock.setAllow(allowText).joined(separator: "\n")
+        controller.adblockChanged()
+    }
+
     /* The link typed, used when it is one Shroudly can use; else why not. */
     private func useServer() {
         let typed = draft.trimmingCharacters(in: .whitespacesAndNewlines)
