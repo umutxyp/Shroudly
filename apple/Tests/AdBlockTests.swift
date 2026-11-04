@@ -52,13 +52,19 @@ final class AdBlockTests: XCTestCase {
         try list.write(to: AdBlock.newFile, atomically: true, encoding: .utf8)
         let e = try TestEngine()
         defer { e.engine.stop() }
+        // A CI simulator can be slow to start the engine and read 12,000
+        // names: a generous wait, and a failure that says which it was.
         let verdict = expectation(description: "the engine's verdict")
+        var accepted = false
+        var reason: String?
         e.engine.onAdblockCheck = { ok, why in
-            XCTAssertTrue(ok, why ?? "")
+            accepted = ok
+            reason = why
             verdict.fulfill()
         }
         e.engine.send("ADBLOCK-CHECK \(AdBlock.newFile.path)")
-        wait(for: [verdict], timeout: 10)
+        XCTAssertEqual(XCTWaiter().wait(for: [verdict], timeout: 30), .completed, "no verdict from the engine within 30 s")
+        XCTAssertTrue(accepted, "the engine refused the list: \(reason ?? "no reason given")")
 
         try AdBlock.adopt()
         defaults.set(true, forKey: AdBlock.Key.on)
