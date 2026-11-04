@@ -394,6 +394,7 @@
   "logResetModeFailed": "Atur ulang: satu mode tidak bisa dimatikan ({error})",
   "probeServiceTitle": "{host} sendiri menolak koneksi ini",
   "probeServiceBody": "Jaringan tidak lagi menghalangi: {host} menjawab, tetapi menyatakan tidak melayani pengunjung dari lokasi Anda. Itu keputusan situs itu sendiri berdasarkan alamat Anda, yang tidak pernah diubah oleh Shroudly, jadi Shroudly tidak bisa mengubah hal ini.",
+  "probeServiceAbroad": "Yang bisa mengubahnya: seseorang yang Anda percaya di negara lain menyalakan {share} di Shroudly pada komputernya dan mengirimkan tautannya kepada Anda, lalu Anda menempelkannya di {ownServer}. Situs kemudian melihat negaranya, bukan negara Anda.",
   "probeStallTitle": "{host} menerima koneksi, lalu diam",
   "probeStallBody": "Entah situs ini menolak pengunjung dari lokasi Anda, atau jaringan ini memutus koneksi ke situs itu setelah tersambung. Shroudly tidak bisa membedakan keduanya; jika situs lain yang diblokir bisa dibuka, kemungkinan besar penyebabnya adalah situs itu sendiri.",
   "logAppsFirst": "Game dan aplikasi: program pertama tersambung lewat Shroudly ({host})",

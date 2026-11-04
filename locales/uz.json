@@ -394,6 +394,7 @@
   "logResetModeFailed": "Tiklash: rejimni oʻchirib boʻlmadi ({error})",
   "probeServiceTitle": "{host} bu ulanishni oʻzi rad etmoqda",
   "probeServiceBody": "Endi tarmoq toʻsqinlik qilmayapti: {host} javob beradi, lekin siz turgan joydan kiruvchilarga xizmat koʻrsatmasligini aytadi. Bu saytning oʻz qarori, u IP manzilingizga qarab qabul qilinadi. Shroudly IP manzilingizni hech qachon oʻzgartirmaydi, shuning uchun bu borada hech narsa qila olmaydi.",
+  "probeServiceAbroad": "Buni o'zgartiradigan narsa: boshqa davlatdagi ishonchli odamingiz o'z kompyuteridagi Shroudly'da {share} ni yoqib, sizga havolani yuboradi, siz esa uni {ownServer} ga joylaysiz. Shunda saytlar sizning davlatingizni emas, uning davlatini ko'radi.",
   "probeStallTitle": "{host} ulanishni qabul qiladi, keyin jim boʻlib qoladi",
   "probeStallBody": "Yo sayt siz turgan joydan kiruvchilarni qabul qilmaydi, yo bu tarmoq unga ulanishlarni oʻrnatilgandan keyin uzib qoʻyadi. Shroudly bu ikkisini farqlay olmaydi; agar boshqa bloklangan saytlar ochilsa, sabab, ehtimol, saytning oʻzida.",
   "logAppsFirst": "Oʻyinlar va ilovalar: birinchi dastur Shroudly orqali ulandi ({host})",

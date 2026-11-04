@@ -394,6 +394,7 @@
   "logResetModeFailed": "Ji nû ve sazkirin: modek nehat girtin ({error})",
   "probeServiceTitle": "{host} bi xwe vê girêdanê red dike",
   "probeServiceBody": "Êdî ne tor e ya ku asteng dike: {host} bersiv dide, lê dibêje ku ew xizmetê nade serdanvanên ji cihê ku tu lê yî. Ev biryara malperê bi xwe ye, li gorî navnîşana te hatiye dayîn; Shroudly tu carî navnîşana te naguherîne, ji ber vê yekê nikare vê biguherîne.",
+  "probeServiceAbroad": "Tiştê ku vê diguherîne: kesekî ku tu pê bawer dikî li welatekî din, di Shroudly ya komputera xwe de {share} vedike û girêdanê ji te re dişîne, tu jî wê di {ownServer} de dizeliqînî. Wê demê malper li şûna welatê te welatê wî dibînin.",
   "probeStallTitle": "{host} girêdanê qebûl dike, paşê bêdeng dimîne",
   "probeStallBody": "An malper serdanvanên ji cihê ku tu lê yî vedigerîne, an jî ev tor girêdanên bi wê re piştî ku tên çêkirin qut dike. Shroudly nikare van her duyan ji hev cuda bike; heke malperên din ên astengkirî vebin, îhtîmal mezintir e ku sedem malper bi xwe be.",
   "logAppsFirst": "Lîstik û sepan: bernameya yekem di ser Shroudly re girê da ({host})",

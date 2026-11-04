@@ -394,6 +394,7 @@
   "logResetModeFailed": "Réinitialisation : un mode n’a pas pu être désactivé ({error})",
   "probeServiceTitle": "{host} refuse lui-même cette connexion",
   "probeServiceBody": "Le réseau n’est plus en cause : {host} répond, mais indique qu’il ne sert pas les visiteurs qui se trouvent là où vous êtes. C’est la décision du site lui-même, prise d’après votre adresse IP, que Shroudly ne change jamais : il ne peut donc rien y faire.",
+  "probeServiceAbroad": "Ce qui le change : une personne de confiance dans un autre pays active {share} dans Shroudly sur son ordinateur et vous envoie le lien, et vous le collez dans {ownServer}. Les sites voient alors son pays au lieu du vôtre.",
   "probeStallTitle": "{host} accepte la connexion, puis ne répond plus",
   "probeStallBody": "Soit le site refuse les visiteurs qui se trouvent là où vous êtes, soit ce réseau coupe les connexions vers lui une fois qu’elles sont établies. Shroudly ne peut pas distinguer ces deux cas ; si d’autres sites bloqués s’ouvrent, la cause la plus probable est le site lui-même.",
   "logAppsFirst": "Jeux et applis : premier programme connecté via Shroudly ({host})",

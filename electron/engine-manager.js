@@ -488,11 +488,14 @@ class EngineManager {
     try { fs.chmodSync(file, 0o600); } catch {}
     this._upstreamFile = file;
     this._ownServerShown = OwnServer.describe(p);
+    // Sites see the server's address, not the user's (BlockedNotice).
+    this._setAdvice({ ownServerOn: true });
   }
 
   _removeUpstream() {
     if (this._upstreamFile) { try { fs.unlinkSync(this._upstreamFile); } catch {} }
     this._upstreamFile = null;
+    this._setAdvice({ ownServerOn: null });
   }
 
   _closeUpstream() {

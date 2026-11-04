@@ -394,6 +394,7 @@
   "logResetModeFailed": "Başlangyja getirmek: bir tertibi öçürip bolmady ({error})",
   "probeServiceTitle": "{host} bu birikmäni özi ret edýär",
   "probeServiceBody": "Indi tor päsgel bermeýär: {host} jogap berýär, ýöne siziň ýerleşýän ýeriňizden girýänlere hyzmat etmeýändigini aýdýar. Bu saýtyň öz karary, ol IP salgyňyza görä kabul edilýär. Shroudly IP salgyňyzy hiç haçan üýtgetmeýär, şonuň üçin bu babatda hiç zat edip bilmeýär.",
+  "probeServiceAbroad": "Muny üýtgedýän zat: başga ýurtdaky ynanýan adamyňyz öz kompýuterindäki Shroudly-de {share} sazlamasyny açýar we size baglanyşygy iberýär, siz bolsa ony {ownServer} bölümine goýýarsyňyz. Şonda saýtlar siziň ýurduňyzy däl-de, onuň ýurduny görýär.",
   "probeStallTitle": "{host} birikmäni kabul edýär, soňra dymýar",
   "probeStallBody": "Ýa saýt siziň ýerleşýän ýeriňizden girýänleri kabul etmeýär, ýa-da bu tor oňa birikmeleri gurlandan soň kesýär. Shroudly bu iki ýagdaýy biri-birinden tapawutlandyryp bilmeýär; eger beýleki petikli saýtlar açylýan bolsa, sebäbiň saýtyň özünde bolmagy has ähtimal.",
   "logAppsFirst": "Oýunlar we programmalar: ilkinji programma Shroudly arkaly birikdi ({host})",

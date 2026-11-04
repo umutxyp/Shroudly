@@ -394,6 +394,7 @@
   "logResetModeFailed": "Redefinir: não foi possível desligar um modo ({error})",
   "probeServiceTitle": "O próprio {host} recusa esta conexão",
   "probeServiceBody": "A rede não é mais o obstáculo: {host} responde, mas diz que não atende visitantes de onde você está. É uma decisão do próprio site, tomada com base no seu endereço, que o Shroudly nunca altera; por isso ele não tem como mudar isso.",
+  "probeServiceAbroad": "O que muda isso: alguém de confiança em outro país ativa {share} no Shroudly do computador dele e envia o link para você, e você cola em {ownServer}. Assim os sites veem o país dele em vez do seu.",
   "probeStallTitle": "{host} aceita a conexão e depois fica em silêncio",
   "probeStallBody": "Ou o site recusa visitantes de onde você está, ou esta rede corta as conexões com ele depois que elas são estabelecidas. O Shroudly não consegue diferenciar os dois casos; se outros sites bloqueados abrirem, o mais provável é que a causa seja o próprio site.",
   "logAppsFirst": "Jogos e apps: primeiro programa conectado pelo Shroudly ({host})",

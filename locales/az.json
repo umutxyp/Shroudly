@@ -394,6 +394,7 @@
   "logResetModeFailed": "Sıfırlama: bir rejim söndürülə bilmədi ({error})",
   "probeServiceTitle": "{host} bu bağlantını özü rədd edir",
   "probeServiceBody": "Artıq şəbəkə mane olmur: {host} cavab verir, amma olduğun yerdən gələn ziyarətçilərə xidmət göstərmədiyini bildirir. Bu, saytın sənin ünvanına əsasən verdiyi öz qərarıdır; Shroudly ünvanını heç vaxt dəyişmir, ona görə bunu dəyişə bilməz.",
+  "probeServiceAbroad": "Bunu dəyişən budur: başqa ölkədə etibar etdiyin biri kompüterindəki Shroudly-də {share} seçimini açıb sənə linki göndərir, sən də onu {ownServer} bölməsinə yapışdırırsan. Saytlar o zaman sənin ölkəni yox, onun ölkəsini görür.",
   "probeStallTitle": "{host} bağlantını qəbul edir, sonra susur",
   "probeStallBody": "Ya sayt olduğun yerdən gələn ziyarətçiləri geri çevirir, ya da bu şəbəkə sayta qurulan bağlantıları qurulandan sonra kəsir. Shroudly bu ikisini bir-birindən ayıra bilmir; başqa bloklanmış saytlar açılırsa, səbəbin saytın özü olması ehtimalı daha böyükdür.",
   "logAppsFirst": "Oyunlar və tətbiqlər: ilk proqram Shroudly üzərindən qoşuldu ({host})",

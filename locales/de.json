@@ -394,6 +394,7 @@
   "logResetModeFailed": "Zurücksetzen: Ein Modus konnte nicht ausgeschaltet werden ({error})",
   "probeServiceTitle": "{host} lehnt diese Verbindung selbst ab",
   "probeServiceBody": "Das Netz steht nicht mehr im Weg: {host} antwortet, sagt aber, dass es Besucher von deinem Standort aus nicht bedient. Das entscheidet die Seite selbst anhand deiner IP-Adresse, und die ändert Shroudly nie — deshalb kann es daran nichts ändern.",
+  "probeServiceAbroad": "Was es ändert: Jemand, dem du vertraust, schaltet in einem anderen Land in Shroudly auf seinem Computer {share} ein und schickt dir den Link, und du fügst ihn unter {ownServer} ein. Die Seiten sehen dann sein Land statt deines.",
   "probeStallTitle": "{host} nimmt die Verbindung an und verstummt dann",
   "probeStallBody": "Entweder weist die Seite Besucher von deinem Standort aus ab, oder dieses Netz unterbricht Verbindungen zu ihr, sobald sie aufgebaut sind. Shroudly kann diese beiden Fälle nicht unterscheiden; wenn sich andere gesperrte Seiten öffnen lassen, liegt es eher an der Seite selbst.",
   "logAppsFirst": "Spiele und Apps: erstes Programm über Shroudly verbunden ({host})",

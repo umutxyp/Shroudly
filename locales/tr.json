@@ -394,6 +394,7 @@
   "logResetModeFailed": "Sıfırlama: bir mod kapatılamadı ({error})",
   "probeServiceTitle": "{host} bu bağlantıyı kendisi reddediyor",
   "probeServiceBody": "Ağdaki engel aşıldı: {host} cevap veriyor ama bulunduğun yerden gelen ziyaretçilere hizmet vermediğini söylüyor. Bu, sitenin senin internet adresine bakarak verdiği kendi kararı; Shroudly bu adresi hiçbir zaman değiştirmez, bu yüzden bunu değiştiremez.",
+  "probeServiceAbroad": "Bunu değiştiren şey şu: başka bir ülkede güvendiğin biri bilgisayarındaki Shroudly'de {share} seçeneğini açıp sana bağlantıyı gönderir, sen de onu {ownServer} alanına yapıştırırsın. Siteler o zaman senin ülkeni değil onun ülkesini görür.",
   "probeStallTitle": "{host} bağlantıyı kabul ediyor, sonra sessiz kalıyor",
   "probeStallBody": "Ya site bulunduğun yerden gelen ziyaretçileri geri çeviriyor ya da bu ağ, siteye kurulan bağlantıları kurulduktan sonra kesiyor. Shroudly bu ikisini birbirinden ayıramaz; engelli başka siteler açılıyorsa sebep büyük ihtimalle sitenin kendisidir.",
   "logAppsFirst": "Oyunlar ve uygulamalar: ilk program Shroudly üzerinden bağlandı ({host})",

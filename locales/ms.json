@@ -394,6 +394,7 @@
   "logResetModeFailed": "Set semula: satu mod tidak dapat dimatikan ({error})",
   "probeServiceTitle": "{host} sendiri menolak sambungan ini",
   "probeServiceBody": "Rangkaian tidak lagi menghalang: {host} menjawab, tetapi menyatakan bahawa ia tidak melayan pelawat dari tempat anda berada. Itu keputusan laman itu sendiri, berdasarkan alamat internet anda, yang tidak pernah diubah oleh Shroudly, jadi Shroudly tidak dapat mengubah perkara ini.",
+  "probeServiceAbroad": "Yang boleh mengubahnya: seseorang yang anda percayai di negara lain menghidupkan {share} dalam Shroudly pada komputernya dan menghantar pautan kepada anda, lalu anda menampalnya dalam {ownServer}. Laman web kemudian melihat negaranya, bukan negara anda.",
   "probeStallTitle": "{host} menerima sambungan, kemudian senyap",
   "probeStallBody": "Sama ada laman itu menolak pelawat dari tempat anda berada, atau rangkaian ini memutuskan sambungan kepadanya sebaik sahaja sambungan dibuat. Shroudly tidak dapat membezakan kedua-duanya; jika laman lain yang disekat dapat dibuka, punca yang lebih mungkin ialah laman itu sendiri.",
   "logAppsFirst": "Permainan dan aplikasi: program pertama bersambung melalui Shroudly ({host})",

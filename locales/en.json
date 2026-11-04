@@ -394,6 +394,7 @@
   "logResetModeFailed": "Reset: a mode could not be turned off ({error})",
   "probeServiceTitle": "{host} refuses this connection itself",
   "probeServiceBody": "The network is no longer in the way: {host} answers, but says it does not serve visitors from where you are. That is the site's own decision, made from your address, which Shroudly never changes, so it cannot change this.",
+  "probeServiceAbroad": "What does change it: someone you trust in another country turns on {share} in Shroudly on their computer and sends you the link, and you paste it in {ownServer}. Sites then see their country instead of yours.",
   "probeStallTitle": "{host} accepts the connection, then goes silent",
   "probeStallBody": "Either the site turns away visitors from where you are, or this network stops connections to it once they are made. Shroudly cannot tell these two apart; if other blocked sites open, the site itself is the more likely cause.",
   "logAppsFirst": "Games and apps: the first program connected through Shroudly ({host})",

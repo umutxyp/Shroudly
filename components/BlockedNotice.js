@@ -15,6 +15,7 @@ import { useLanguage } from '../contexts/LanguageContext';
 import { ShieldAlertIcon, RefreshIcon, CloseIcon, InfoIcon, CopyIcon, CheckIcon } from './icons';
 import { proxyNotice, chromiumNote, PROXY_ACTIONS } from './proxyNotice';
 import ClampedText from './ClampedText';
+import { abroadHint } from './ownServerText';
 
 function Banner({ tone = 'warn', Icon, title, body, children, onClose, closeLabel }) {
   const c = tone === 'accent'
@@ -108,7 +109,7 @@ const STUDIO_LINES = ['autoStudioReopen', 'autoStudioParent', 'autoStudioAgain']
 /* proxyInPanel: the Protection panel is showing, and says itself, under its
  * status, when browsers are not going through Shroudly (ControlPanel). */
 export default function BlockedNotice({ onNavigate, active = false, proxyInPanel = false }) {
-  const { t, locale, language } = useLanguage();
+  const { t, locale, language, isRTL } = useLanguage();
   const [host, setHost] = useState(null);
   const [hostAsked, setHostAsked] = useState(false); // the autopilot asked for Advanced mode for it
   const [hostAt, setHostAt] = useState(0);
@@ -362,7 +363,8 @@ export default function BlockedNotice({ onNavigate, active = false, proxyInPanel
     return (
       <Banner Icon={ShieldAlertIcon}
               title={t(refused.service === 'stall' ? 'probeStallTitle' : 'probeServiceTitle', { host: refused.host })}
-              body={t(refused.service === 'stall' ? 'probeStallBody' : 'probeServiceBody', { host: refused.host })}
+              body={refused.service === 'stall' ? t('probeStallBody', { host: refused.host })
+                : `${t('probeServiceBody', { host: refused.host })}${advice?.ownServerOn ? '' : ` ${abroadHint(t, isRTL)}`}`}
               onClose={() => hide(`refused:${refused.host}`)} closeLabel={closeLabel} />
     );
   }

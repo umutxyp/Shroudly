@@ -9,7 +9,7 @@ import {
 } from './icons';
 import Select from './Select';
 import { probeView } from './probeView';
-import { OWN_SERVER_ERRORS, OWN_SERVER_WHY, maskLink, serverShown } from './ownServerText';
+import { OWN_SERVER_ERRORS, OWN_SERVER_WHY, maskLink, serverShown, abroadHint } from './ownServerText';
 
 /* The technique, one choice (as on Android): Auto finds what works for each
  * site by itself (the engine's auto mode); any other is that one technique
@@ -547,7 +547,7 @@ const SETTINGS_TABS = [
 ];
 
 export default function SettingsPanel({ active = false }) {
-  const { language, setLanguage, t, availableLanguages, locale } = useLanguage();
+  const { language, setLanguage, t, availableLanguages, locale, isRTL } = useLanguage();
   const strategyLabelId = useId();
   const languageLabelId = useId();
   const [testHost, setTestHost] = useState('');
@@ -901,6 +901,9 @@ export default function SettingsPanel({ active = false }) {
                 <Notice tone="warn" Icon={AlertTriangleIcon}>
                   <p className="mb-1 font-semibold" style={{ color: 'var(--warn)' }}>{t(probeResult.service === 'stall' ? 'probeStallTitle' : 'probeServiceTitle', { host: probeResult.host })}</p>
                   <p className="text-[12.5px]" style={{ color: 'var(--text-dim)' }}>{t(probeResult.service === 'stall' ? 'probeStallBody' : 'probeServiceBody', { host: probeResult.host })}</p>
+                  {probeResult.service !== 'stall' && !settings.ownServer && (
+                    <p className="mt-1 text-[12.5px]" style={{ color: 'var(--text-dim)' }}>{abroadHint(t, isRTL)}</p>
+                  )}
                 </Notice>
               )}
               {probeShown.works && probeResult.strategy === 'none' && (

@@ -394,6 +394,7 @@
   "logResetModeFailed": "重置：无法关闭某个模式（{error}）",
   "probeServiceTitle": "{host} 自己拒绝了这个连接",
   "probeServiceBody": "网络已经不再阻挡：{host} 有响应，但表示不为你所在地区的访客提供服务。这是该网站根据你的网络地址自行做出的决定；Shroudly 从不更改你的地址，因此无法改变这一点。",
+  "probeServiceAbroad": "能改变这一点的办法：你信任的、身在其他国家的人在自己电脑上的 Shroudly 中开启 {share}，把链接发给你，你再把它粘贴到 {ownServer}。这样网站看到的就是对方的国家，而不是你的。",
   "probeStallTitle": "{host} 接受了连接，随后不再响应",
   "probeStallBody": "可能是该网站拒绝你所在地区的访客，也可能是此网络在连接建立后将其切断。Shroudly 无法区分这两种情况；如果其他被封锁的网站能打开，原因更可能在网站本身。",
   "logAppsFirst": "游戏和应用：第一个程序已通过 Shroudly 连接（{host}）",

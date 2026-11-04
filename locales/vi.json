@@ -394,6 +394,7 @@
   "logResetModeFailed": "Đặt lại: không tắt được một chế độ ({error})",
   "probeServiceTitle": "Chính {host} từ chối kết nối này",
   "probeServiceBody": "Mạng không còn cản trở nữa: {host} có phản hồi, nhưng cho biết không phục vụ người truy cập từ nơi bạn đang ở. Đó là quyết định của chính trang web, dựa trên địa chỉ mạng của bạn, mà Shroudly không bao giờ thay đổi, nên Shroudly không thể thay đổi điều này.",
+  "probeServiceAbroad": "Điều có thể thay đổi việc này: một người bạn tin tưởng ở nước khác bật {share} trong Shroudly trên máy tính của họ và gửi liên kết cho bạn, rồi bạn dán nó vào {ownServer}. Khi đó các trang web thấy quốc gia của họ thay vì của bạn.",
   "probeStallTitle": "{host} chấp nhận kết nối, rồi im lặng",
   "probeStallBody": "Hoặc trang web từ chối người truy cập từ nơi bạn đang ở, hoặc mạng này chặn các kết nối tới trang ngay sau khi chúng được thiết lập. Shroudly không thể phân biệt hai trường hợp này; nếu các trang bị chặn khác mở được, thì nhiều khả năng nguyên nhân nằm ở chính trang web.",
   "logAppsFirst": "Trò chơi và ứng dụng: chương trình đầu tiên đã kết nối qua Shroudly ({host})",

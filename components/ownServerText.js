@@ -15,6 +15,15 @@ export const OWN_SERVER_WHY = {
   tls: 'ownServerWhyTls',
 };
 
+/* Under "the site itself refuses you": what does change it, a trusted
+ * person's connection in another country (their Share my connection, the
+ * user's Your own server), with both settings named as the window names
+ * them. */
+export function abroadHint(t, isRTL = false) {
+  const path = (...k) => [t('navSettings'), t('tabSharing'), ...k.map((x) => t(x))].join(isRTL ? ' ← ' : ' → ');
+  return t('probeServiceAbroad', { share: path('share'), ownServer: path('ownServer') });
+}
+
 export const OWN_SERVER_ERRORS = { empty: 'ownServerErrFormat', format: 'ownServerErrFormat', method: 'ownServerErrMethod', user: 'ownServerErrUser' };
 
 const b64 = (s) => {
