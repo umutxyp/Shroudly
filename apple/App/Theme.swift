@@ -31,7 +31,7 @@ extension View {
         #elseif os(macOS)
         // The Mac's scroll bar, drawn wide beside a narrow window, hidden:
         // the trackpad and the wheel scroll as before.
-        self.scrollContentBackground(.hidden).scrollIndicators(.hidden)
+        self.scrollContentBackground(.hidden).scrollIndicators(.never)
         #else
         self.scrollContentBackground(.hidden)
         #endif
@@ -41,7 +41,8 @@ extension View {
      * no scroll bar on the Mac. */
     @ViewBuilder func macScrollBarHidden() -> some View {
         #if os(macOS)
-        self.scrollIndicators(.hidden)
+        // .never: hidden even with "Show scroll bars: Always" in System Settings.
+        self.scrollIndicators(.never)
         #else
         self
         #endif

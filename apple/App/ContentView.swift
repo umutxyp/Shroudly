@@ -34,7 +34,7 @@ struct ContentView: View {
                 // A wide, low screen (an unfolded iPhone Duo, Apple TV): the
                 // status and its card side by side, so it all fits at once.
                 let wide = screen.size.width > screen.size.height * 1.2 && (screen.size.height < 800 || Theme.isTV)
-                VStack(spacing: wide ? 20 : 28) {
+                VStack(spacing: wide || Self.compact ? 20 : 28) {
                     Spacer(minLength: wide ? 8 : 0)
                     if wide {
                         HStack(alignment: .center, spacing: 40) {
@@ -124,9 +124,16 @@ struct ContentView: View {
         }
     }
 
+    /* The Mac's small window: tighter spacing (Orb.size too). */
+    #if os(macOS)
+    static let compact = true
+    #else
+    static let compact = false
+    #endif
+
     /* The button and what it says. */
     private var status: some View {
-        VStack(spacing: 28) {
+        VStack(spacing: Self.compact ? 18 : 28) {
             Orb(phase: phase, warn: watch.ownServerDown != nil || watch.national != nil) { toggle() }
             VStack(spacing: 8) {
                 Text(title)
@@ -234,6 +241,14 @@ struct ContentView: View {
 /* The big round button: blue and glowing when protected, grey when not,
  * amber when protected but your own server or the world does not answer. */
 private struct Orb: View {
+    /* The Mac's window is small (480 by 680): a smaller switch, so the
+     * stats fit under it without a scroll bar. */
+    #if os(macOS)
+    static let size: CGFloat = 160
+    #else
+    static let size: CGFloat = 210
+    #endif
+
     let phase: TunnelController.Phase
     var warn = false
     let action: () -> Void
@@ -245,15 +260,15 @@ private struct Orb: View {
             ZStack {
                 Circle()
                     .fill(on ? tint.opacity(0.18) : Theme.card)
-                    .frame(width: 210, height: 210)
+                    .frame(width: Orb.size, height: Orb.size)
                 Circle()
                     .stroke(tint, lineWidth: 4)
-                    .frame(width: 180, height: 180)
+                    .frame(width: Orb.size * 6 / 7, height: Orb.size * 6 / 7)
                 if phase == .starting || phase == .stopping {
                     ProgressView().controlSize(.large).tint(.white)
                 } else {
                     Image(systemName: "power")
-                        .font(.system(size: 64, weight: .medium))
+                        .font(.system(size: Orb.size * 0.3, weight: .medium))
                         .foregroundStyle(on ? tint : Theme.secondaryText)
                 }
             }
@@ -284,7 +299,7 @@ private struct OrbFocus: ButtonStyle {
 
         var body: some View {
             configuration.label
-                .overlay(Circle().stroke(Theme.accent, lineWidth: 6).frame(width: 232, height: 232).opacity(focused ? 1 : 0))
+                .overlay(Circle().stroke(Theme.accent, lineWidth: 6).frame(width: Orb.size + 22, height: Orb.size + 22).opacity(focused ? 1 : 0))
                 .scaleEffect(configuration.isPressed ? 0.97 : (focused ? 1.08 : 1))
                 .animation(.easeOut(duration: 0.15), value: focused)
         }

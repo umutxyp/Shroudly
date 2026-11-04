@@ -21,6 +21,12 @@ struct EngineStats: Equatable {
 /* Under the switch: connections, how long it has been on, what went down
  * and up. Before protection starts, a line saying where the numbers come from. */
 struct StatsView: View {
+    #if os(macOS)
+    static let oneRow = true
+    #else
+    static let oneRow = false
+    #endif
+
     let on: Bool
     let since: Date?
     let stats: EngineStats?
@@ -39,7 +45,8 @@ struct StatsView: View {
                     .padding(12)
                     .background(Theme.card, in: RoundedRectangle(cornerRadius: 14))
             }
-            LazyVGrid(columns: [GridItem(.flexible(), spacing: 10), GridItem(.flexible(), spacing: 10)], spacing: 10) {
+            // The Mac's small window: the four in one row, so a notice fits too.
+            LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 10), count: Self.oneRow ? 4 : 2), spacing: 10) {
                 Cell(icon: "link", title: tr("connections"), value: on ? number(stats?.active) : "–", sub: on ? totalLine : nil)
                 Cell(icon: "clock", title: tr("uptime"), value: nil, sub: nil, since: on ? since : nil)
                 Cell(icon: "arrow.down", title: tr("download"), value: on ? bytes(stats?.down) : "–", sub: nil)
@@ -81,9 +88,10 @@ struct StatsView: View {
         var body: some View {
             VStack(alignment: .leading, spacing: 6) {
                 Label(title, systemImage: icon)
-                    .font(.footnote)
+                    .font(StatsView.oneRow ? .caption2 : .footnote)
                     .foregroundStyle(Theme.secondaryText)
-                    .lineLimit(1)
+                    .lineLimit(StatsView.oneRow ? 2 : 1)
+                    .fixedSize(horizontal: false, vertical: StatsView.oneRow)
                 Group {
                     if let value {
                         Text(value)
@@ -96,7 +104,7 @@ struct StatsView: View {
                         Text("–")
                     }
                 }
-                .font(.title3.weight(.semibold).monospacedDigit())
+                .font((StatsView.oneRow ? Font.callout : Font.title3).weight(.semibold).monospacedDigit())
                 .foregroundStyle(.white)
                 .lineLimit(1)
                 .minimumScaleFactor(0.6)
@@ -107,8 +115,8 @@ struct StatsView: View {
                         .lineLimit(2)
                 }
             }
-            .frame(maxWidth: .infinity, minHeight: 64, alignment: .topLeading)
-            .padding(12)
+            .frame(maxWidth: .infinity, minHeight: StatsView.oneRow ? 44 : 64, alignment: .topLeading)
+            .padding(StatsView.oneRow ? 9 : 12)
             .background(Theme.card, in: RoundedRectangle(cornerRadius: 14))
             .accessibilityElement(children: .combine)
         }
