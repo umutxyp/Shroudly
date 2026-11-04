@@ -208,6 +208,14 @@ struct ContentView: View {
         if phase == .on, let ip = watch.exit, watch.ownServerDown == nil, watch.national == nil {
             return tr("ownServerExit", ["ip": ip])
         }
+        // The last way out (Tunnel/TorRoute.swift) at work.
+        if phase == .on, let lr = controller.lastResort, watch.ownServerDown == nil, watch.national == nil {
+            switch lr.state {
+            case "ready": return tr("lastResortReady")
+            case "failed": return tr("lastResortFailed")
+            default: return tr("lastResortStarting", ["progress": String(lr.progress)])
+            }
+        }
         return tr("tagline")
     }
 

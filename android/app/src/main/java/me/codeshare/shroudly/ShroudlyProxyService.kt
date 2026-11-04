@@ -240,7 +240,7 @@ class ShroudlyProxyService : Service() {
             engine = e
             val upstream = ownServer.fileFor(AppSettings.ownServer(this))
             // The last way out (TorRoute), as with the VPN.
-            val fallback = if (upstream == null && TorRoute.enabled(this)) torRoute.prepare() else { torRoute.stop(); null }
+            val fallback = if (upstream == null && TorRoute.enabled(this)) torRoute.portFile() else { torRoute.stop(); null }
             // No password and no stand-in range: apps reach it by name or address.
             val started = e.start(Engine.args(at, dohPort, blockIps, null, null, AdBlock.listFile(this), AdBlock.allow(this), AppSettings.strategy(this), AppSettings.customDnsStrict(this), AppSettings.quicOff(this), AppSettings.ipv6Off(this), upstream, AppSettings.decoyNames(this), fallback))
             upstream?.delete()

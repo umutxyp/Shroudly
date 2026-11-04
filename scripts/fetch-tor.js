@@ -139,7 +139,7 @@ async function android(abi, work) {
   console.log(`[tor] android ${abi} -> ${path.relative(ROOT, out)}`);
 }
 
-(async () => {
+async function main() {
   const args = process.argv.slice(2);
   const here = `${process.platform}-${process.arch === 'arm64' ? 'arm64' : 'x64'}`;
   let desk = args.filter((a) => DESKTOP[a]);
@@ -154,6 +154,9 @@ async function android(abi, work) {
   } finally {
     fs.rmSync(work, { recursive: true, force: true });
   }
-})().catch((e) => { console.error('[tor]', e.message); process.exit(1); });
+}
 
-module.exports = { SHA256, DESKTOP, ANDROID, VERSION };
+if (require.main === module) main().catch((e) => { console.error('[tor]', e.message); process.exit(1); });
+
+// For apple/scripts/fetch-tor.js: the bundle's bridge list, checked the same way.
+module.exports = { SHA256, DESKTOP, ANDROID, VERSION, bundle, download, PT };

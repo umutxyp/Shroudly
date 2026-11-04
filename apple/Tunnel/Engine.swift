@@ -36,6 +36,9 @@ final class Engine {
     private var started = false
     /* The user's own server failed (the engine says so now and then). */
     var onUpstreamDown: ((String?) -> Void)?
+    /* The last way out (--fallback-file, TorRoute): a name it carried (true,
+     * the name), or nothing listening there (false, the engine's why). */
+    var onFallback: ((Bool, String) -> Void)?
     /* The engine's verdict on a fetched ad list (ADBLOCK-CHECK): ok, error. */
     var onAdblockCheck: ((Bool, String?) -> Void)?
     private(set) var lastError: String?
@@ -201,6 +204,10 @@ final class Engine {
             let why = obj["why"] as? String
             log("engine: own server: \(why ?? "?")")
             onUpstreamDown?(why)
+        case "fallback":
+            let ok = (obj["ok"] as? NSNumber)?.intValue == 1
+            if ok { logSite("engine: \(line)") } else { log("engine: last way out: \(obj["why"] as? String ?? "?")") }
+            onFallback?(ok, ok ? (obj["host"] as? String ?? "") : (obj["why"] as? String ?? ""))
         default:
             // Events about one site (bypass, blocked, seen...) name it.
             logSite("engine: \(line)")

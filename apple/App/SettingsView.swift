@@ -50,6 +50,13 @@ struct SettingsView: View {
                 Toggle(isOn: $settings.keepOn) {
                     Labelled(title: tr("appleKeepOn"), detail: tr("appleKeepOnDesc"))
                 }
+                // The last way out (Tunnel/TorRoute.swift): the Mac only
+                // (iOS ends a tunnel that big; Apple TV has no Tor).
+                #if os(macOS)
+                Toggle(isOn: $settings.torLastResort) {
+                    Labelled(title: tr("lastResort"), detail: settings.ownServer.isEmpty ? tr("lastResortDesc") : tr("lastResortOwnServer"))
+                }
+                #endif
             }
             Section {
                 Toggle(isOn: $countMe) {

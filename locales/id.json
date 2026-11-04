@@ -898,7 +898,7 @@
   "whatsNewOk": "Mengerti",
   "whatsNewDesktop": "Saat tidak ada teknik yang bisa membuka sebuah situs, Shroudly kini membukanya lewat jaringan Tor, yang dicapai melalui relawan Snowflake (termasuk orang yang membantu lewat Shroudly). Lebih lambat, tapi tembus; bisa dimatikan di Pengaturan.",
   "whatsNewAndroid": "Saat tidak ada teknik yang bisa membuka sebuah situs, Shroudly kini membukanya lewat jaringan Tor, yang dicapai melalui relawan Snowflake (termasuk orang yang membantu lewat Shroudly). Lebih lambat, tapi tembus; bisa dimatikan di Pengaturan.",
-  "whatsNewApple": "Statistik langsung, warna aksen, blokir iklan dan pelacak, serta server DNS milikmu sendiri, seperti di Android.\nWidget, tombol di Pusat Kontrol, dan Pintasan untuk memulai dan menghentikan.\nBantu orang di negara yang disensor dari dalam Shroudly.",
+  "whatsNewApple": "Mac: Saat tidak ada teknik yang bisa membuka sebuah situs, Shroudly kini membukanya lewat jaringan Tor, yang dicapai melalui relawan Snowflake (termasuk orang yang membantu lewat Shroudly). Lebih lambat, tapi tembus; bisa dimatikan di Pengaturan.",
   "appleVpnNotSigned": "Salinan Shroudly ini ditandatangani tanpa izin Apple untuk VPN, jadi iOS tidak mengizinkannya memulai VPN dan tidak pernah bertanya. Salinan yang ditandatangani dengan Apple ID gratis (AltStore, SideStore, Sideloadly, dan sejenisnya) tidak pernah memilikinya. Pasang dengan TrollStore, atau tandatangani dengan akun pengembang Apple berbayar.",
   "appleInstallHelp": "Cara memasangnya",
   "snowflakeHow": "Cara kerjanya: mereka datang lewat Snowflake milik jaringan Tor, jadi yang mereka buka keluar dari server Tor, bukan dari server Anda.",

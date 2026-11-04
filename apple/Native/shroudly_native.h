@@ -23,4 +23,15 @@ int shroudly_engine_run(const char *const *args, int nargs, int cmd_fd, int even
  * none (no tunnel set up yet). */
 int shroudly_tun_fd(void);
 
+/* Codes shroudly_tor_start() returns instead of a descriptor. */
+#define SHROUDLY_TOR_ONCE      (-200)
+#define SHROUDLY_TOR_NO_MEMORY (-201)
+
+/* Tor with these command-line options (args[0] is the first option) on a
+ * thread of its own (tor_glue.c): the descriptor of a control connection it
+ * owns and trusts, or one of the codes above. Once per process: Tor cannot
+ * be started a second time in it. Needs Tor.xcframework linked (the Mac's
+ * tunnel). */
+int shroudly_tor_start(const char *const *args, int nargs);
+
 #endif

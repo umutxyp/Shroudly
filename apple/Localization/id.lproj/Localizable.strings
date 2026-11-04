@@ -49,6 +49,12 @@
 "helpOthersConduit" = "Conduit (Psiphon)";
 "language" = "Bahasa";
 "languageSystem" = "Bawaan sistem";
+"lastResort" = "Saat tidak ada lagi yang berhasil: jaringan Tor";
+"lastResortDesc" = "Situs yang tidak bisa dibuka teknik apa pun lewat Tor, yang dicapai melalui Snowflake: koneksi para relawan, termasuk semua orang yang menyalakan “Bantu orang di negara yang disensor”. Lebih lambat, dan beberapa situs meminta captcha kepada pengunjung dari Tor. Tor hanya berjalan saat ada situs yang membutuhkannya.";
+"lastResortFailed" = "Jaringan Tor tidak dapat dijangkau; dicoba lagi saat ada situs yang membutuhkannya";
+"lastResortOwnServer" = "Tidak dipakai selama server Anda sendiri diatur: server itu membawa semua situs.";
+"lastResortReady" = "Situs yang tidak terbuka dengan cara lain lewat jaringan Tor";
+"lastResortStarting" = "Menghubungkan ke jaringan Tor untuk situs yang tidak terbuka dengan cara lain… {progress}%";
 "linkReleases" = "Catatan rilis";
 "linkSourceCode" = "Kode sumber di GitHub";
 "madeBy" = "Produk dari Codeshare Technology Ltd";
@@ -110,6 +116,6 @@
 "upload" = "Unggah";
 "uptime" = "Waktu aktif";
 "versionLabel" = "Versi {version}";
-"whatsNewApple" = "Statistik langsung, warna aksen, blokir iklan dan pelacak, serta server DNS milikmu sendiri, seperti di Android.\nWidget, tombol di Pusat Kontrol, dan Pintasan untuk memulai dan menghentikan.\nBantu orang di negara yang disensor dari dalam Shroudly.";
+"whatsNewApple" = "Mac: Saat tidak ada teknik yang bisa membuka sebuah situs, Shroudly kini membukanya lewat jaringan Tor, yang dicapai melalui relawan Snowflake (termasuk orang yang membantu lewat Shroudly). Lebih lambat, tapi tembus; bisa dimatikan di Pengaturan.";
 "whatsNewOk" = "Mengerti";
 "whatsNewTitle" = "Yang baru di {version}";

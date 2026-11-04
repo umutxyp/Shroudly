@@ -49,6 +49,12 @@
 "helpOthersConduit" = "Conduit (Psiphon)";
 "language" = "ቋንቋ";
 "languageSystem" = "የሥርዓቱ ነባሪ";
+"lastResort" = "ሌላ ምንም ካልሰራ፦ የTor አውታረ መረብ";
+"lastResortDesc" = "ምንም ዘዴ ሊከፍተው ያልቻለ ድር ጣቢያ በTor በኩል ይከፈታል፤ ወደ Tor የሚደረሰው በSnowflake፣ ማለትም በበጎ ፈቃደኞች ግንኙነቶች ነው (“ሳንሱር በሚደረግባቸው አገሮች ያሉ ሰዎችን እርዳ”ን ያበሩ ሁሉ ከነሱ መካከል ናቸው)። ቀርፋፋ ነው፤ አንዳንድ ጣቢያዎችም ከTor ለሚመጡ ጎብኚዎች captcha ይጠይቃሉ። Tor የሚጀምረው አንድ ጣቢያ ሲፈልገው ብቻ ነው።";
+"lastResortFailed" = "ወደ Tor አውታረ መረብ መድረስ አልተቻለም፤ አንድ ጣቢያ ሲፈልገው እንደገና ይሞከራል";
+"lastResortOwnServer" = "የራስዎ አገልጋይ ተቀናብሮ እያለ ጥቅም ላይ አይውልም፤ ሁሉም ጣቢያዎች በዚያ አገልጋይ ያልፋሉ።";
+"lastResortReady" = "በሌላ መንገድ ያልተከፈቱ ጣቢያዎች በTor አውታረ መረብ በኩል እያለፉ ነው";
+"lastResortStarting" = "በሌላ መንገድ ለማይከፈቱ ጣቢያዎች ከTor አውታረ መረብ ጋር በመገናኘት ላይ… {progress}%";
 "linkReleases" = "የልቀት ማስታወሻዎች";
 "linkSourceCode" = "የምንጭ ኮድ በGitHub ላይ";
 "madeBy" = "የCodeshare Technology Ltd ምርት";
@@ -110,6 +116,6 @@
 "upload" = "መስቀል";
 "uptime" = "የሰራበት ጊዜ";
 "versionLabel" = "ስሪት {version}";
-"whatsNewApple" = "የቀጥታ ስታቲስቲክስ፣ የአጽንዖት ቀለሞች፣ ማስታወቂያዎችንና መከታተያዎችን ማገድ እና የራስዎ DNS አገልጋይ፣ እንደ Android።\nዊጀቶች፣ በመቆጣጠሪያ ማዕከል ውስጥ መቀየሪያ እና ለማስጀመርና ለማቆም አቋራጮች።\nሳንሱር ባለባቸው አገሮች ያሉ ሰዎችን ከShroudly ውስጥ ሆነው ይርዱ።";
+"whatsNewApple" = "Mac: ምንም ዘዴ አንድን ጣቢያ ካልከፈተው Shroudly አሁን በTor አውታረ መረብ በኩል ይከፍተዋል፤ ወደ Tor የሚደረሰው በSnowflake በጎ ፈቃደኞች ነው (በShroudly የሚረዱትም ከነሱ መካከል ናቸው)። ቀርፋፋ ቢሆንም ያልፋል፤ በቅንብሮች ውስጥ ማጥፋት ይችላሉ።";
 "whatsNewOk" = "ገባኝ";
 "whatsNewTitle" = "በ{version} ውስጥ አዲስ ነገሮች";

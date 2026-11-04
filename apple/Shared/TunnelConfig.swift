@@ -110,7 +110,8 @@ enum EngineArgs {
      * range. Ad blocking is told to the running engine (AdBlock.commands),
      * so a change needs no restart. */
     static func make(port: Int, dohPort: Int, settings: AppSettings, authFile: String?,
-                     blockIps: [String], fakeNet: String? = TunnelConfig.fakeNet, upstreamFile: String? = nil) -> [String] {
+                     blockIps: [String], fakeNet: String? = TunnelConfig.fakeNet, upstreamFile: String? = nil,
+                     fallbackFile: String? = nil) -> [String] {
         let strategy = settings.strategy
         var a = ["--listen", "127.0.0.1", "--port", String(port), "--strategy", strategy.spec]
         if strategy.auto { a.append("--auto") }
@@ -123,6 +124,9 @@ enum EngineArgs {
         if settings.ipv6Off { a.append("--ipv4-only") }
         // "Your own server": every connection to a name goes through it.
         if let upstreamFile { a += ["--upstream-file", upstreamFile] }
+        // The last way out (TorRoute): Tor, for a connection nothing else got
+        // through; never with the user's own server, which carries everything.
+        else if let fallbackFile { a += ["--fallback-file", fallbackFile] }
         return a
     }
 

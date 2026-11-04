@@ -23,6 +23,7 @@ out="$out_dir/$(basename "$1")"
 cd "$(dirname "$0")/../.."
 version="$(node -p "require('./package.json').version")"
 node apple/scripts/fetch-hev.js
+node apple/scripts/fetch-tor.js
 apple/scripts/build-hev.sh
 node apple/scripts/gen-strings.js --check
 node apple/scripts/gen-version.js

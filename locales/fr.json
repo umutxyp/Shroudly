@@ -898,7 +898,7 @@
   "whatsNewOk": "Compris",
   "whatsNewDesktop": "Quand aucune technique n'ouvre un site, Shroudly l'ouvre désormais via le réseau Tor, joint grâce aux bénévoles de Snowflake (dont ceux qui aident avec Shroudly). Plus lent, mais ça passe ; désactivable dans les Réglages.",
   "whatsNewAndroid": "Quand aucune technique n'ouvre un site, Shroudly l'ouvre désormais via le réseau Tor, joint grâce aux bénévoles de Snowflake (dont ceux qui aident avec Shroudly). Plus lent, mais ça passe ; désactivable dans les Réglages.",
-  "whatsNewApple": "Statistiques en direct, couleurs d'accent, blocage des pubs et traqueurs, et votre propre serveur DNS, comme sur Android.\nDes widgets, un bouton dans le Centre de contrôle et des Raccourcis pour démarrer et arrêter.\nAidez les personnes des pays censurés depuis Shroudly.",
+  "whatsNewApple": "Mac: Quand aucune technique n'ouvre un site, Shroudly l'ouvre désormais via le réseau Tor, joint grâce aux bénévoles de Snowflake (dont ceux qui aident avec Shroudly). Plus lent, mais ça passe ; désactivable dans les Réglages.",
   "appleVpnNotSigned": "Cette copie de Shroudly est signée sans l’autorisation d’Apple pour les VPN : iOS ne la laisse donc pas en démarrer un et ne pose jamais la question. Les copies signées avec un identifiant Apple gratuit (AltStore, SideStore, Sideloadly et autres) ne l’ont jamais. Installez-la avec TrollStore, ou signez-la avec un compte développeur Apple payant.",
   "appleInstallHelp": "Comment l’installer",
   "snowflakeHow": "Comment ça marche : elles passent par Snowflake, du réseau Tor ; ce qu’elles ouvrent sort donc par les serveurs de Tor, pas par les vôtres.",

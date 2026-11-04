@@ -15,6 +15,7 @@ set -euo pipefail
 
 cd "$(dirname "$0")/../.."
 node apple/scripts/fetch-hev.js
+node apple/scripts/fetch-tor.js
 apple/scripts/build-hev.sh
 node apple/scripts/gen-strings.js --check
 node apple/scripts/gen-version.js

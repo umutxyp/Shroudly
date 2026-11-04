@@ -10,6 +10,8 @@
 		5A0000000000000000002001 /* ShroudlyWidgets.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 5A0000000000000000002002 /* ShroudlyWidgets.appex */; platformFilters = (ios, macos, ); settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		5A000000000000000000100F /* libShroudlyEngine.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5A0000000000000000001003 /* libShroudlyEngine.a */; };
 		5A0000000000000000001010 /* HevSocks5Tunnel.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5A0000000000000000001005 /* HevSocks5Tunnel.xcframework */; };
+		5A00000000000000000010A3 /* Tor.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5A00000000000000000010A1 /* Tor.xcframework */; platformFilters = (macos, ); };
+		5A00000000000000000010A4 /* IPtProxy.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5A00000000000000000010A2 /* IPtProxy.xcframework */; platformFilters = (macos, ); };
 		5A0000000000000000001011 /* block-ips.txt in Resources */ = {isa = PBXBuildFile; fileRef = 5A0000000000000000001006 /* block-ips.txt */; };
 		5A0000000000000000001012 /* ShroudlyTunnel.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 5A0000000000000000001002 /* ShroudlyTunnel.appex */; settings = { ATTRIBUTES = ( RemoveHeadersOnCopy, ); }; };
 		5A0000000000000000001013 /* libShroudlyEngine.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5A0000000000000000001003 /* libShroudlyEngine.a */; };
@@ -72,6 +74,8 @@
 		5A0000000000000000001003 /* libShroudlyEngine.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libShroudlyEngine.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		5A0000000000000000001004 /* ShroudlyTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ShroudlyTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		5A0000000000000000001005 /* HevSocks5Tunnel.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = HevSocks5Tunnel.xcframework; path = third_party/HevSocks5Tunnel.xcframework; sourceTree = SOURCE_ROOT; };
+		5A00000000000000000010A1 /* Tor.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = Tor.xcframework; path = third_party/Tor.xcframework; sourceTree = SOURCE_ROOT; };
+		5A00000000000000000010A2 /* IPtProxy.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = IPtProxy.xcframework; path = third_party/IPtProxy.xcframework; sourceTree = SOURCE_ROOT; };
 		5A0000000000000000001006 /* block-ips.txt */ = {isa = PBXFileReference; lastKnownFileType = text; name = "block-ips.txt"; path = "../android/app/src/main/assets/block-ips.txt"; sourceTree = SOURCE_ROOT; };
 		5A0000000000000000001007 /* Shroudly.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Shroudly.xcconfig; sourceTree = "<group>"; };
 		5A0000000000000000001008 /* Signing.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Signing.xcconfig; sourceTree = "<group>"; };
@@ -171,6 +175,8 @@
 			files = (
 				5A000000000000000000100F /* libShroudlyEngine.a in Frameworks */,
 				5A0000000000000000001010 /* HevSocks5Tunnel.xcframework in Frameworks */,
+				5A00000000000000000010A3 /* Tor.xcframework in Frameworks */,
+				5A00000000000000000010A4 /* IPtProxy.xcframework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -227,6 +233,8 @@
 			isa = PBXGroup;
 			children = (
 				5A0000000000000000001005 /* HevSocks5Tunnel.xcframework */,
+				5A00000000000000000010A1 /* Tor.xcframework */,
+				5A00000000000000000010A2 /* IPtProxy.xcframework */,
 				5A0000000000000000001006 /* block-ips.txt */,
 			);
 			name = Frameworks;
@@ -702,6 +710,12 @@
 				"CODE_SIGN_ENTITLEMENTS[sdk=macosx*]" = "Config/Tunnel-macOS.entitlements";
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "Config/Tunnel-Info.plist";
+				"SWIFT_ACTIVE_COMPILATION_CONDITIONS[sdk=macosx*]" = "$(inherited) SHROUDLY_TOR";
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-lz",
+					"-lresolv",
+				);
 				INFOPLIST_KEY_CFBundleDisplayName = Shroudly;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "© CODESHARE TECHNOLOGY LTD";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -733,6 +747,12 @@
 				"CODE_SIGN_ENTITLEMENTS[sdk=macosx*]" = "Config/Tunnel-macOS.entitlements";
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "Config/Tunnel-Info.plist";
+				"SWIFT_ACTIVE_COMPILATION_CONDITIONS[sdk=macosx*]" = "$(inherited) SHROUDLY_TOR";
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-lz",
+					"-lresolv",
+				);
 				INFOPLIST_KEY_CFBundleDisplayName = Shroudly;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "© CODESHARE TECHNOLOGY LTD";
 				LD_RUNPATH_SEARCH_PATHS = (

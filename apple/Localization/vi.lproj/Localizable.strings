@@ -49,6 +49,12 @@
 "helpOthersConduit" = "Conduit (Psiphon)";
 "language" = "Ngôn ngữ";
 "languageSystem" = "Mặc định của hệ thống";
+"lastResort" = "Khi không cách nào khác hiệu quả: mạng Tor";
+"lastResortDesc" = "Trang mà không kỹ thuật nào mở được sẽ đi qua Tor, được kết nối thông qua Snowflake: kết nối của các tình nguyện viên, trong đó có mọi người đã bật “Giúp người ở các nước bị kiểm duyệt”. Chậm hơn, và một số trang yêu cầu captcha với người đến từ Tor. Tor chỉ khởi động khi có trang cần đến.";
+"lastResortFailed" = "Không kết nối được mạng Tor; sẽ thử lại khi có trang cần đến";
+"lastResortOwnServer" = "Không dùng khi bạn đã đặt máy chủ riêng: máy chủ đó mang mọi trang.";
+"lastResortReady" = "Các trang không mở được bằng cách khác đang đi qua mạng Tor";
+"lastResortStarting" = "Đang kết nối mạng Tor cho các trang không mở được bằng cách khác… {progress}%";
 "linkReleases" = "Ghi chú phát hành";
 "linkSourceCode" = "Mã nguồn trên GitHub";
 "madeBy" = "Một sản phẩm của Codeshare Technology Ltd";
@@ -110,6 +116,6 @@
 "upload" = "Tải lên";
 "uptime" = "Thời gian chạy";
 "versionLabel" = "Phiên bản {version}";
-"whatsNewApple" = "Thống kê trực tiếp, màu nhấn, chặn quảng cáo và trình theo dõi, cùng máy chủ DNS của riêng bạn, như trên Android.\nTiện ích, công tắc trong Trung tâm điều khiển và Phím tắt để bật tắt.\nGiúp người dân ở các nước bị kiểm duyệt ngay trong Shroudly.";
+"whatsNewApple" = "Mac: Khi không kỹ thuật nào mở được một trang, Shroudly giờ mở trang đó qua mạng Tor, được kết nối nhờ các tình nguyện viên Snowflake (trong đó có những người giúp qua Shroudly). Chậm hơn nhưng vẫn qua được; bạn có thể tắt trong Cài đặt.";
 "whatsNewOk" = "Đã hiểu";
 "whatsNewTitle" = "Có gì mới trong {version}";

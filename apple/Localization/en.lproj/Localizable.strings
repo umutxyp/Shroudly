@@ -49,6 +49,12 @@
 "helpOthersConduit" = "Conduit (Psiphon)";
 "language" = "Language";
 "languageSystem" = "System default";
+"lastResort" = "When nothing else works: the Tor network";
+"lastResortDesc" = "A site that no technique opens goes through Tor, reached through Snowflake: the connections of volunteers, among them everyone who turned on “Help people in censored countries”. Slower, and some sites ask Tor's visitors for a captcha. Tor starts only when a site needs it.";
+"lastResortFailed" = "The Tor network could not be reached; tried again when a site needs it";
+"lastResortOwnServer" = "Not used while your own server is set: that server carries every site.";
+"lastResortReady" = "Sites nothing else opened go through the Tor network";
+"lastResortStarting" = "Connecting to the Tor network for sites nothing else opens… {progress}%";
 "linkReleases" = "Release notes";
 "linkSourceCode" = "Source code on GitHub";
 "madeBy" = "A Codeshare Technology Ltd product";
@@ -110,6 +116,6 @@
 "upload" = "Upload";
 "uptime" = "Uptime";
 "versionLabel" = "Version {version}";
-"whatsNewApple" = "Live stats, accent colours, Block ads and trackers, and a DNS server of your own, as on Android.\nWidgets, a Control Center switch, and Shortcuts to start and stop.\nHelp people in censored countries from inside Shroudly.";
+"whatsNewApple" = "Mac: When no technique opens a site, Shroudly now opens it through the Tor network, reached through Snowflake volunteers (people who help through Shroudly among them). Slower, but it gets through; you can turn it off in Settings.";
 "whatsNewOk" = "Got it";
 "whatsNewTitle" = "What's new in {version}";

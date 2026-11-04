@@ -49,6 +49,12 @@
 "helpOthersConduit" = "Conduit (Psiphon)";
 "language" = "Idioma";
 "languageSystem" = "Predeterminado del sistema";
+"lastResort" = "Cuando nada más funciona: la red Tor";
+"lastResortDesc" = "Un sitio que ninguna técnica abre pasa por Tor, al que se llega a través de Snowflake: las conexiones de voluntarios, entre ellos todos los que activaron «Ayudar a personas en países censurados». Es más lento y algunos sitios piden un captcha a quienes llegan por Tor. Tor solo se inicia cuando un sitio lo necesita.";
+"lastResortFailed" = "No se pudo llegar a la red Tor; se intentará de nuevo cuando un sitio lo necesite";
+"lastResortOwnServer" = "No se usa mientras tengas tu propio servidor: ese servidor lleva todos los sitios.";
+"lastResortReady" = "Los sitios que nada más abrió pasan por la red Tor";
+"lastResortStarting" = "Conectando a la red Tor para los sitios que nada más abre… {progress} %";
 "linkReleases" = "Notas de la versión";
 "linkSourceCode" = "Código fuente en GitHub";
 "madeBy" = "Un producto de Codeshare Technology Ltd";
@@ -110,6 +116,6 @@
 "upload" = "Subida";
 "uptime" = "Tiempo activo";
 "versionLabel" = "Versión {version}";
-"whatsNewApple" = "Estadísticas en vivo, colores de acento, bloqueo de anuncios y rastreadores, y tu propio servidor DNS, como en Android.\nWidgets, un interruptor en el Centro de control y Atajos para iniciar y detener.\nAyuda a personas en países censurados desde Shroudly.";
+"whatsNewApple" = "Mac: Cuando ninguna técnica abre un sitio, Shroudly ahora lo abre a través de la red Tor, a la que llega mediante voluntarios de Snowflake (entre ellos quienes ayudan con Shroudly). Más lento, pero pasa; puedes desactivarlo en Ajustes.";
 "whatsNewOk" = "Entendido";
 "whatsNewTitle" = "Novedades de la {version}";

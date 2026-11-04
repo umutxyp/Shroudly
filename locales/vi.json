@@ -898,7 +898,7 @@
   "whatsNewOk": "Đã hiểu",
   "whatsNewDesktop": "Khi không kỹ thuật nào mở được một trang, Shroudly giờ mở trang đó qua mạng Tor, được kết nối nhờ các tình nguyện viên Snowflake (trong đó có những người giúp qua Shroudly). Chậm hơn nhưng vẫn qua được; bạn có thể tắt trong Cài đặt.",
   "whatsNewAndroid": "Khi không kỹ thuật nào mở được một trang, Shroudly giờ mở trang đó qua mạng Tor, được kết nối nhờ các tình nguyện viên Snowflake (trong đó có những người giúp qua Shroudly). Chậm hơn nhưng vẫn qua được; bạn có thể tắt trong Cài đặt.",
-  "whatsNewApple": "Thống kê trực tiếp, màu nhấn, chặn quảng cáo và trình theo dõi, cùng máy chủ DNS của riêng bạn, như trên Android.\nTiện ích, công tắc trong Trung tâm điều khiển và Phím tắt để bật tắt.\nGiúp người dân ở các nước bị kiểm duyệt ngay trong Shroudly.",
+  "whatsNewApple": "Mac: Khi không kỹ thuật nào mở được một trang, Shroudly giờ mở trang đó qua mạng Tor, được kết nối nhờ các tình nguyện viên Snowflake (trong đó có những người giúp qua Shroudly). Chậm hơn nhưng vẫn qua được; bạn có thể tắt trong Cài đặt.",
   "appleVpnNotSigned": "Bản Shroudly này được ký mà không có quyền VPN của Apple, nên iOS không cho nó khởi động VPN và cũng không bao giờ hỏi. Các bản ký bằng Apple ID miễn phí (AltStore, SideStore, Sideloadly và tương tự) không bao giờ có quyền này. Hãy cài bằng TrollStore, hoặc ký bằng tài khoản nhà phát triển Apple trả phí.",
   "appleInstallHelp": "Cách cài đặt",
   "snowflakeHow": "Cách hoạt động: họ đến qua Snowflake của mạng Tor, nên những gì họ mở đi ra từ máy chủ của Tor, không phải từ bạn.",

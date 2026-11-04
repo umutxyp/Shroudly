@@ -583,7 +583,7 @@ class ShroudlyVpnService : VpnService() {
             val upstream = ownServer.fileFor(AppSettings.ownServer(this))
             // The last way out, unless turned off or the user's own server
             // carries everything; Tor itself starts when first needed.
-            val fallback = if (upstream == null && TorRoute.enabled(this)) torRoute.prepare() else { torRoute.stop(); null }
+            val fallback = if (upstream == null && TorRoute.enabled(this)) torRoute.portFile() else { torRoute.stop(); null }
             val e = Engine(::log, ::logSite, ::onEngineEvent, ::onEngineExit)
             engine = e
             val ok = e.start(Engine.args(p, dohPort, blockIps, authFile, Engine.FAKE_NET, AdBlock.listFile(this), AdBlock.allow(this), AppSettings.strategy(this), AppSettings.customDnsStrict(this),

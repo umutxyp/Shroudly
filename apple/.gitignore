@@ -8,3 +8,4 @@ xcuserdata/
 # The owner's own team, if not set in Signing.xcconfig; the version, from package.json (scripts/gen-version.js)
 Config/Signing.local.xcconfig
 Config/Version.xcconfig
+Tunnel/tor-bridges.json

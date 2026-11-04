@@ -898,7 +898,7 @@
   "whatsNewOk": "知道了",
   "whatsNewDesktop": "当任何技术都打不开某个网站时,Shroudly 现在会经由 Tor 网络打开它,Tor 通过 Snowflake 志愿者连接(其中包括通过 Shroudly 提供帮助的人)。速度较慢,但能连通;可在设置中关闭。",
   "whatsNewAndroid": "当任何技术都打不开某个网站时,Shroudly 现在会经由 Tor 网络打开它,Tor 通过 Snowflake 志愿者连接(其中包括通过 Shroudly 提供帮助的人)。速度较慢,但能连通;可在设置中关闭。",
-  "whatsNewApple": "实时统计、强调色、拦截广告和跟踪器，以及你自己的 DNS 服务器，与 Android 一样。\n小组件、控制中心开关，以及用于开始和停止的快捷指令。\n在 Shroudly 中帮助受审查国家的人们。",
+  "whatsNewApple": "Mac: 当任何技术都打不开某个网站时,Shroudly 现在会经由 Tor 网络打开它,Tor 通过 Snowflake 志愿者连接(其中包括通过 Shroudly 提供帮助的人)。速度较慢,但能连通;可在设置中关闭。",
   "appleVpnNotSigned": "此 Shroudly 副本的签名没有 Apple 的 VPN 权限，因此 iOS 不允许它启动 VPN，也从不询问。用免费 Apple ID 签名的副本（AltStore、SideStore、Sideloadly 等）永远没有这项权限。请用 TrollStore 安装，或用付费的 Apple 开发者账号签名。",
   "appleInstallHelp": "安装方法",
   "snowflakeHow": "原理：他们通过 Tor 网络的 Snowflake 接入，所以他们打开的内容从 Tor 的服务器出去，而不是从你这里。",

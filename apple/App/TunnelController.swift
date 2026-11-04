@@ -23,6 +23,9 @@ final class TunnelController: ObservableObject {
     @Published private(set) var phase: Phase = .off
     @Published private(set) var connectedSince: Date?
     @Published var notice: String?
+    // The last way out (Tunnel/TorRoute.swift) while it is not off: its state
+    // ("starting", "ready", "failed") and progress, from the stats answer.
+    @Published private(set) var lastResort: (state: String, progress: Int)?
     /* This copy may not make a VPN at all: signed without Apple's VPN
      * permission (VpnErrors, issue #65). The notice says so, with how to
      * install it properly. */
@@ -149,8 +152,13 @@ final class TunnelController: ObservableObject {
                 done.resume(returning: nil)
             }
         }
-        guard let data, let obj = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
-              let s = obj["stats"] as? [String: Any], !s.isEmpty else { return nil }
+        guard let data, let obj = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else { lastResort = nil; return nil }
+        if let t = obj["lastResort"] as? [String: Any], let st = t["state"] as? String {
+            lastResort = (st, (t["progress"] as? NSNumber)?.intValue ?? 0)
+        } else {
+            lastResort = nil
+        }
+        guard let s = obj["stats"] as? [String: Any], !s.isEmpty else { return nil }
         return EngineStats(s)
     }
 

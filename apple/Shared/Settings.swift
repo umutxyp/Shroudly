@@ -52,6 +52,9 @@ struct AppSettings: Equatable {
     var dnsKind = "auto"
     var dnsServer = ""
     var dnsStrict = false
+    // "When nothing else works: the Tor network" (Tunnel/TorRoute.swift): on
+    // unless turned off; nothing to do on Apple TV, which has no Tor.
+    var torLastResort = true
 
     var strategy: Strategy { Strategies.byId(strategyId) }
 
@@ -60,6 +63,7 @@ struct AppSettings: Equatable {
     func sameTunnel(as other: AppSettings) -> Bool {
         strategy == other.strategy && quicOff == other.quicOff && ipv6Off == other.ipv6Off && ownServer == other.ownServer
             && dnsKind == other.dnsKind && dnsServer == other.dnsServer && dnsStrict == other.dnsStrict
+            && torLastResort == other.torLastResort
     }
 
     /* The own server in use, or nil (none, or a link that cannot be used). */
@@ -73,6 +77,7 @@ final class SettingsStore {
         static let ipv6Off = "ipv6Off"
         static let keepOn = "keepOn"
         static let ownServer = "ownServer"
+        static let torLastResort = "torLastResort"
     }
 
     private let defaults: UserDefaults
@@ -88,6 +93,7 @@ final class SettingsStore {
         s.ipv6Off = defaults.bool(forKey: Key.ipv6Off)
         s.keepOn = defaults.bool(forKey: Key.keepOn)
         s.ownServer = defaults.string(forKey: Key.ownServer) ?? ""
+        s.torLastResort = defaults.object(forKey: Key.torLastResort) as? Bool ?? true
         s.dnsKind = defaults.string(forKey: CustomDns.Key.kind) ?? "auto"
         s.dnsServer = defaults.string(forKey: CustomDns.Key.server) ?? ""
         s.dnsStrict = defaults.bool(forKey: CustomDns.Key.strict)
@@ -100,6 +106,7 @@ final class SettingsStore {
         defaults.set(s.ipv6Off, forKey: Key.ipv6Off)
         defaults.set(s.keepOn, forKey: Key.keepOn)
         defaults.set(s.ownServer, forKey: Key.ownServer)
+        defaults.set(s.torLastResort, forKey: Key.torLastResort)
         if s.dnsKind == "auto" || s.dnsServer.isEmpty {
             for k in [CustomDns.Key.kind, CustomDns.Key.server, CustomDns.Key.strict] { defaults.removeObject(forKey: k) }
         } else {

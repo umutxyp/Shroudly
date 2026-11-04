@@ -49,6 +49,12 @@
 "helpOthersConduit" = "Conduit (Psiphon)";
 "language" = "Ziman";
 "languageSystem" = "Zimanê pergalê";
+"lastResort" = "Gava tiştekî din bi kar neyê: tora Tor";
+"lastResortDesc" = "Malperek ku tu teknîk venake bi riya Tor vedibe; Tor bi Snowflake tê gihîştin, ango girêdanên dilxwazan (di nav wan de her kesê ku “Alîkariya mirovên li welatên sansûrkirî bike” vekiriye). Hêdîtir e, û hin malper ji kesên ku ji Tor tên captcha dixwazin. Tor tenê dema ku malperek hewcedarê wê be dest pê dike.";
+"lastResortFailed" = "Negihîşt tora Tor; dema ku malperek hewcedar be dê dîsa were ceribandin";
+"lastResortOwnServer" = "Heta ku servera te ya xwe hatibe danîn nayê bikaranîn: hemû malper di wê serverê re derbas dibin.";
+"lastResortReady" = "Malperên ku bi riyeke din venebûn bi tora Tor derbas dibin";
+"lastResortStarting" = "Ji bo malperên ku bi riyeke din venabin bi tora Tor ve tê girêdan… %{progress}";
 "linkReleases" = "Notên weşanê";
 "linkSourceCode" = "Koda çavkaniyê li GitHubê";
 "madeBy" = "Berhemeke Codeshare Technology Ltd";
@@ -110,6 +116,6 @@
 "upload" = "Barkirin";
 "uptime" = "Dema xebatê";
 "versionLabel" = "Guherto {version}";
-"whatsNewApple" = "Statîstîkên zindî, rengên balkêş, astengkirina reklam û şopîneran, û servera DNS a te ya xwe, wek li ser Android.\nWîdget, bişkokek di Navenda Kontrolê de û Kurterê ji bo destpêkirin û rawestandinê.\nAlîkariya mirovên li welatên sansûrkirî ji hundirê Shroudly bike.";
+"whatsNewApple" = "Mac: Gava tu teknîk malperekê venake, Shroudly niha wê bi tora Tor vedike; Tor bi dilxwazên Snowflake tê gihîştin (di nav wan de yên ku bi Shroudly alîkarî dikin jî hene). Hêdîtir e, lê derbas dibe; tu dikarî di Mîhengan de bigirî.";
 "whatsNewOk" = "Baş e";
 "whatsNewTitle" = "Tiştên nû di {version} de";

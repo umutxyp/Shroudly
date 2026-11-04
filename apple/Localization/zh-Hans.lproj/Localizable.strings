@@ -49,6 +49,12 @@
 "helpOthersConduit" = "Conduit（Psiphon）";
 "language" = "语言";
 "languageSystem" = "跟随系统";
+"lastResort" = "其他方法都无效时:Tor 网络";
+"lastResortDesc" = "任何技术都打不开的网站会经由 Tor 打开,而 Tor 通过 Snowflake 连接:也就是志愿者的连接,其中包括所有开启了“帮助受审查国家的人”的用户。速度较慢,有些网站会要求来自 Tor 的访客完成验证码。只有当某个网站需要时,Tor 才会启动。";
+"lastResortFailed" = "无法连接 Tor 网络;等有网站需要时会再试";
+"lastResortOwnServer" = "设置了你自己的服务器时不使用:所有网站都经由该服务器。";
+"lastResortReady" = "其他方法打不开的网站正经由 Tor 网络打开";
+"lastResortStarting" = "正在为其他方法打不开的网站连接 Tor 网络… {progress}%";
 "linkReleases" = "版本说明";
 "linkSourceCode" = "GitHub 上的源代码";
 "madeBy" = "Codeshare Technology Ltd 出品";
@@ -110,6 +116,6 @@
 "upload" = "上传";
 "uptime" = "运行时长";
 "versionLabel" = "版本 {version}";
-"whatsNewApple" = "实时统计、强调色、拦截广告和跟踪器，以及你自己的 DNS 服务器，与 Android 一样。\n小组件、控制中心开关，以及用于开始和停止的快捷指令。\n在 Shroudly 中帮助受审查国家的人们。";
+"whatsNewApple" = "Mac: 当任何技术都打不开某个网站时,Shroudly 现在会经由 Tor 网络打开它,Tor 通过 Snowflake 志愿者连接(其中包括通过 Shroudly 提供帮助的人)。速度较慢,但能连通;可在设置中关闭。";
 "whatsNewOk" = "知道了";
 "whatsNewTitle" = "{version} 的新内容";

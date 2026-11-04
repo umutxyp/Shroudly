@@ -37,6 +37,12 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
     }
 
     private let queue = DispatchQueue(label: "me.codeshare.shroudly.tunnel")
+    // The last way out (TorRoute): Tor, for sites nothing else opened.
+    private lazy var torRoute: TorRoute = {
+        let t = TorRoute(log: { [weak self] in self?.log($0) })
+        t.usedCount = { [weak self] in ((self?.engine?.lastStats?["fallback"]) as? NSNumber)?.int64Value ?? 0 }
+        return t
+    }()
     private let fileLog = SharedLog(name: "tunnel.log")
     private let siteLock = NSLock()
     private var sites: [String] = []
@@ -154,6 +160,7 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
         engine = nil
         doh?.stop(); doh = nil
         ssClient?.stop(); ssClient = nil
+        torRoute.stop()
         upstreamLine = nil
         clearOwnServerDown()
         return clean
@@ -184,11 +191,25 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
                 upstreamPath = path
             }
             e.onUpstreamDown = { [weak self] why in self?.queue.async { self?.ownServerDown(why) } }
-            let args = EngineArgs.make(port: p, dohPort: dohPort, settings: settings, authFile: authPath, blockIps: blockIps, upstreamFile: upstreamPath)
+            // The last way out (TorRoute), unless turned off or the user's own
+            // server carries everything; Tor itself starts when first needed.
+            var fallbackPath: String?
+            if upstreamPath == nil && settings.torLastResort {
+                let path = FileManager.default.temporaryDirectory.appendingPathComponent("engine-fallback").path
+                if torRoute.prepare(file: path) { fallbackPath = path }
+            }
+            e.onFallback = { [weak self] ok, what in
+                guard let self else { return }
+                if ok { self.logSite("\(what): no technique got through; opened through the last way out (Tor)") }
+                else if what != "file unusable" { self.torRoute.need() }
+            }
+            let args = EngineArgs.make(port: p, dohPort: dohPort, settings: settings, authFile: authPath, blockIps: blockIps, upstreamFile: upstreamPath,
+                                       fallbackFile: fallbackPath)
             let ok = e.start(args: args)
             // Read once, at its start: the secrets are not left lying in a file.
             unlink(authPath)
             if let upstreamPath { unlink(upstreamPath) }
+            if let fallbackPath { unlink(fallbackPath) }
             if ok {
                 engine = e
                 if let a = auth { doh?.engineUp(DohForwarder.EnginePath(port: p, user: a.user, pass: a.pass)) }
@@ -499,7 +520,10 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
                 queue.asyncAfter(deadline: .now() + 0.3) { [self] in
                     var s = (engine?.lastStats ?? [:]).filter { $0.value is NSNumber }
                     if let n = pinger.online { s["online"] = n }
-                    completionHandler?(try? JSONSerialization.data(withJSONObject: ["stats": s]))
+                    var out: [String: Any] = ["stats": s]
+                    // The last way out at work, for a line under the status.
+                    if let t = torRoute.status { out["lastResort"] = t }
+                    completionHandler?(try? JSONSerialization.data(withJSONObject: out))
                 }
                 return
             case nil:

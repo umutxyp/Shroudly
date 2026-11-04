@@ -49,6 +49,12 @@
 "helpOthersConduit" = "Conduit (Psiphon)";
 "language" = "Til";
 "languageSystem" = "Tizimdagidek";
+"lastResort" = "Boshqa hech narsa ishlamasa: Tor tarmog'i";
+"lastResortDesc" = "Hech bir usul ocha olmagan sayt Tor orqali ochiladi, Tor'ga esa Snowflake orqali, ya'ni ko'ngillilarning ulanishlari orqali yetiladi (ular orasida «Senzura bor mamlakatlardagi odamlarga yordam berish»ni yoqqanlarning barchasi bor). Sekinroq, ba'zi saytlar Tor'dan kelganlardan kapcha so'raydi. Tor faqat sayt unga muhtoj bo'lganda ishga tushadi.";
+"lastResortFailed" = "Tor tarmog'iga ulanib bo'lmadi; sayt muhtoj bo'lganda yana uriniladi";
+"lastResortOwnServer" = "O'z serveringiz o'rnatilganda ishlatilmaydi: barcha saytlar o'sha server orqali o'tadi.";
+"lastResortReady" = "Boshqa yo'l bilan ochilmagan saytlar Tor tarmog'i orqali o'tmoqda";
+"lastResortStarting" = "Boshqa yo'l bilan ochilmaydigan saytlar uchun Tor tarmog'iga ulanmoqda… {progress}%";
 "linkReleases" = "Reliz qaydlari";
 "linkSourceCode" = "GitHubdagi manba kodi";
 "madeBy" = "Codeshare Technology Ltd mahsuloti";
@@ -110,6 +116,6 @@
 "upload" = "Yuklash";
 "uptime" = "Ish vaqti";
 "versionLabel" = "Versiya {version}";
-"whatsNewApple" = "Jonli statistika, urg‘u ranglari, reklama va kuzatuvchilarni bloklash hamda o‘z DNS serveringiz, Android’dagidek.\nVidjetlar, Boshqaruv markazidagi tugma va ishga tushirish-to‘xtatish uchun Tezkor buyruqlar.\nTsenzura bor mamlakatlardagi odamlarga Shroudly ichidan yordam bering.";
+"whatsNewApple" = "Mac: Hech bir usul saytni ocha olmasa, Shroudly endi uni Tor tarmog'i orqali ochadi; Tor'ga Snowflake ko'ngillilari orqali yetadi (ular orasida Shroudly orqali yordam beradiganlar ham bor). Sekinroq, lekin o'tadi; sozlamalardan o'chirish mumkin.";
 "whatsNewOk" = "Tushunarli";
 "whatsNewTitle" = "{version} versiyasida yangiliklar";

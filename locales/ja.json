@@ -898,7 +898,7 @@
   "whatsNewOk": "OK",
   "whatsNewDesktop": "どの手法でも開けないサイトを、Shroudly は Tor ネットワーク経由で開くようになりました。Tor には Snowflake のボランティア(Shroudly で手助けしている人たちも含む)を通じてつながります。遅くはなりますが届きます。設定でオフにできます。",
   "whatsNewAndroid": "どの手法でも開けないサイトを、Shroudly は Tor ネットワーク経由で開くようになりました。Tor には Snowflake のボランティア(Shroudly で手助けしている人たちも含む)を通じてつながります。遅くはなりますが届きます。設定でオフにできます。",
-  "whatsNewApple": "ライブ統計、アクセントカラー、広告とトラッカーのブロック、独自の DNS サーバーを Android と同じように。\nウィジェット、コントロールセンターのスイッチ、開始と停止のショートカット。\n検閲のある国の人々を Shroudly の中から手伝えます。",
+  "whatsNewApple": "Mac: どの手法でも開けないサイトを、Shroudly は Tor ネットワーク経由で開くようになりました。Tor には Snowflake のボランティア(Shroudly で手助けしている人たちも含む)を通じてつながります。遅くはなりますが届きます。設定でオフにできます。",
   "appleVpnNotSigned": "この Shroudly のコピーは Apple の VPN 権限なしで署名されているため、iOS は VPN の開始を許可せず、確認もしません。無料の Apple ID で署名したコピー（AltStore、SideStore、Sideloadly など）にはこの権限が付きません。TrollStore でインストールするか、有料の Apple デベロッパーアカウントで署名してください。",
   "appleInstallHelp": "インストール方法",
   "snowflakeHow": "仕組み：相手は Tor ネットワークの Snowflake を通って来るため、開いた内容はあなたではなく Tor のサーバーから出ていきます。",

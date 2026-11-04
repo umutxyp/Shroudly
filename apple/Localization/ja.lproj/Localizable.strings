@@ -49,6 +49,12 @@
 "helpOthersConduit" = "Conduit（Psiphon）";
 "language" = "言語";
 "languageSystem" = "システムの既定";
+"lastResort" = "ほかに何も効かないとき: Tor ネットワーク";
+"lastResortDesc" = "どの手法でも開けないサイトは Tor を通ります。Tor には Snowflake、つまりボランティアの接続を通じてつながります(「検閲されている国の人を助ける」をオンにした人たちもその一部です)。速度は遅く、Tor から来た訪問者に CAPTCHA を求めるサイトもあります。Tor はサイトが必要としたときだけ起動します。";
+"lastResortFailed" = "Tor ネットワークに接続できませんでした。サイトが必要としたときに再試行します";
+"lastResortOwnServer" = "自分のサーバーを設定している間は使いません。すべてのサイトがそのサーバーを通ります。";
+"lastResortReady" = "ほかの方法で開かなかったサイトは Tor ネットワークを通っています";
+"lastResortStarting" = "ほかの方法で開かないサイトのために Tor ネットワークに接続中… {progress}%";
 "linkReleases" = "リリースノート";
 "linkSourceCode" = "GitHub のソースコード";
 "madeBy" = "Codeshare Technology Ltd の製品";
@@ -110,6 +116,6 @@
 "upload" = "アップロード";
 "uptime" = "稼働時間";
 "versionLabel" = "バージョン {version}";
-"whatsNewApple" = "ライブ統計、アクセントカラー、広告とトラッカーのブロック、独自の DNS サーバーを Android と同じように。\nウィジェット、コントロールセンターのスイッチ、開始と停止のショートカット。\n検閲のある国の人々を Shroudly の中から手伝えます。";
+"whatsNewApple" = "Mac: どの手法でも開けないサイトを、Shroudly は Tor ネットワーク経由で開くようになりました。Tor には Snowflake のボランティア(Shroudly で手助けしている人たちも含む)を通じてつながります。遅くはなりますが届きます。設定でオフにできます。";
 "whatsNewOk" = "OK";
 "whatsNewTitle" = "{version} の新機能";

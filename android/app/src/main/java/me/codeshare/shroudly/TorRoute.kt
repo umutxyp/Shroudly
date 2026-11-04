@@ -91,7 +91,7 @@ class TorRoute(private val ctx: Context, private val log: (String) -> Unit, priv
 
     /* Before each engine start: the file naming Tor's port to the engine;
      * Tor starts later, when first needed. null where this build has none. */
-    fun prepare(): File? {
+    fun portFile(): File? {
         if (!available()) return null
         synchronized(lock) { if (port == 0) port = Engine.freePort() }
         return File(ctx.filesDir, FILE).also { it.writeText("socks5://127.0.0.1:$port\n") }

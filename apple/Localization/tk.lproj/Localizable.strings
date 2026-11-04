@@ -49,6 +49,12 @@
 "helpOthersConduit" = "Conduit (Psiphon)";
 "language" = "Dil";
 "languageSystem" = "Ulgamdaky ýaly";
+"lastResort" = "Başga hiç zat işlemese: Tor ulgamy";
+"lastResortDesc" = "Hiç bir usulyň açyp bilmedik saýty Tor arkaly açylýar, Tor-a bolsa Snowflake arkaly, ýagny meýletinçileriň birikmeleri arkaly ýetilýär (olaryň arasynda «Senzuraly ýurtlardaky adamlara kömek et» funksiýasyny açanlaryň hemmesi bar). Haýalrak, käbir saýtlar Tor-dan gelenlerden kapça soraýar. Tor diňe bir saýta gerek bolanda işe başlaýar.";
+"lastResortFailed" = "Tor ulgamyna ýetip bolmady; bir saýta gerek bolanda täzeden synanyşar";
+"lastResortOwnServer" = "Öz serweriňiz goýlan wagty ulanylmaýar: ähli saýtlar şol serwer arkaly geçýär.";
+"lastResortReady" = "Başga ýol bilen açylmadyk saýtlar Tor ulgamy arkaly geçýär";
+"lastResortStarting" = "Başga ýol bilen açylmaýan saýtlar üçin Tor ulgamyna birikýär… {progress}%";
 "linkReleases" = "Wersiýa bellikleri";
 "linkSourceCode" = "GitHub-daky çeşme kody";
 "madeBy" = "Codeshare Technology Ltd önümi";
@@ -110,6 +116,6 @@
 "upload" = "Iberiş";
 "uptime" = "Işlän wagty";
 "versionLabel" = "Wersiýa {version}";
-"whatsNewApple" = "Göni statistika, ünsi reňkleri, mahabaty we yzarlaýjylary bloklamak hem-de öz DNS serweriňiz, Android-dakydan.\nWidjetler, Dolandyryş merkezindäki düwme we başlatmak-togtatmak üçin Gysga ýollar.\nSenzuraly ýurtlardaky adamlara Shroudly-nyň içinden kömek ediň.";
+"whatsNewApple" = "Mac: Hiç bir usul saýty açyp bilmese, Shroudly indi ony Tor ulgamy arkaly açýar; Tor-a Snowflake meýletinçileri arkaly ýetýär (olaryň arasynda Shroudly arkaly kömek edýänler hem bar). Haýalrak, ýöne geçýär; sazlamalardan öçürip bilersiňiz.";
 "whatsNewOk" = "Düşnükli";
 "whatsNewTitle" = "{version} wersiýasynda täzelikler";

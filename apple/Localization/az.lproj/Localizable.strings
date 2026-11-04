@@ -49,6 +49,12 @@
 "helpOthersConduit" = "Conduit (Psiphon)";
 "language" = "Dil";
 "languageSystem" = "Sistem dili";
+"lastResort" = "Başqa heç nə işləməsə: Tor şəbəkəsi";
+"lastResortDesc" = "Heç bir texnikanın aça bilmədiyi sayt Tor üzərindən açılır; Tor-a Snowflake ilə, yəni könüllülərin bağlantıları ilə çatılır (“Senzuralı ölkələrdəki insanlara kömək et”i açan hər kəs də onların arasındadır). Daha yavaşdır və bəzi saytlar Tor-dan gələnlərdən captcha istəyir. Tor yalnız bir sayta lazım olanda başlayır.";
+"lastResortFailed" = "Tor şəbəkəsinə qoşulmaq mümkün olmadı; bir sayta lazım olanda yenidən cəhd ediləcək";
+"lastResortOwnServer" = "Öz serveriniz qurulu olanda istifadə olunmur: bütün saytlar o serverdən keçir.";
+"lastResortReady" = "Başqa yolla açılmayan saytlar Tor şəbəkəsi üzərindən açılır";
+"lastResortStarting" = "Başqa yolla açılmayan saytlar üçün Tor şəbəkəsinə qoşulur… {progress}%";
 "linkReleases" = "Buraxılış qeydləri";
 "linkSourceCode" = "GitHub-da mənbə kodu";
 "madeBy" = "Codeshare Technology Ltd məhsulu";
@@ -110,6 +116,6 @@
 "upload" = "Göndərmə";
 "uptime" = "İş müddəti";
 "versionLabel" = "Versiya {version}";
-"whatsNewApple" = "Canlı statistika, vurğu rəngləri, reklam və izləyiciləri bloklama və öz DNS serveriniz, Android-dəki kimi.\nVidcetlər, İdarəetmə Mərkəzində düymə və başlatmaq-dayandırmaq üçün Qısayollar.\nSenzura olan ölkələrdəki insanlara Shroudly-nin içindən kömək edin.";
+"whatsNewApple" = "Mac: Heç bir texnikanın aça bilmədiyi saytı Shroudly artıq Tor şəbəkəsi üzərindən açır; Tor-a Snowflake könüllüləri ilə çatılır (Shroudly ilə kömək edənlər də onların arasındadır). Daha yavaşdır, amma keçir; Ayarlardan söndürə bilərsən.";
 "whatsNewOk" = "Aydındır";
 "whatsNewTitle" = "{version} versiyasında yeniliklər";
