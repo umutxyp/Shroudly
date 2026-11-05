@@ -116,7 +116,7 @@ function match(names, tools = PACKET_TOOLS) {
 async function running(platform = process.platform, deps = {}) {
   const exec = deps.run || run;
   try {
-    if (platform === 'win32') return match(namesFromTasklist(await exec('tasklist', ['/fo', 'csv', '/nh'])));
+    if (platform === 'win32') return match(namesFromTasklist(deps.run ? await exec('tasklist', ['/fo', 'csv', '/nh']) : await require('./procnet').tasklistText()));
     if (platform === 'linux') return match(deps.procNames ? deps.procNames() : namesFromProc(deps.procRoot || '/proc'));
     if (platform === 'darwin') return match(namesFromPs(await exec('ps', ['-axo', 'comm='])));
   } catch {}

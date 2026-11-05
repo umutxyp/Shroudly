@@ -17,6 +17,8 @@
  *              ADBLOCK-CHECK <path> -> is the list in path fit to use?
  *              ALLOW <name>     -> never block name, nor any name under it
  *              ALLOW-CLEAR      -> forget the names allowed
+ *              PROCS, TCP       -> the running programs, their TCP
+ *                                  connections (winprocs.h, Windows)
  *              STOP             -> shut down
  *
  * The same run is engine_main() (engine.h), which the Android app calls on a
@@ -36,6 +38,9 @@
 #include "watchdog.h"
 #include "winreg.h"
 #include "adblock.h"
+#ifdef _WIN32
+#include "winprocs.h"
+#endif
 #if defined(SHROUDLY_RAW) && defined(__linux__)
 #include "raw_linux.h"
 #endif
@@ -391,6 +396,15 @@ int engine_main(int argc, char **argv, FILE *in, FILE *out, int embedded) {
     /* The Connections list (conns.h, issue #74): what went through, by
      * name; the names the user blocked there. */
     else if (!strcmp(line, "CONNS")) conns_emit();
+    /* The programs running and their TCP connections, as tasklist and
+     * netstat give them, without starting either (winprocs.h; Windows). */
+#ifdef _WIN32
+    else if (!strcmp(line, "PROCS")) winprocs_emit();
+    else if (!strcmp(line, "TCP")) wintcp_emit();
+#else
+    else if (!strcmp(line, "PROCS")) engine_printf("{\"type\":\"procs_end\",\"n\":-1}\n");
+    else if (!strcmp(line, "TCP")) engine_printf("{\"type\":\"tcp_end\",\"n\":-1}\n");
+#endif
     /* Something better than the last way out is there now (Advanced mode):
      * the names it carried try every technique again first. */
     else if (!strcmp(line, "FALLBACK-FORGET")) engine_fallback_forget();

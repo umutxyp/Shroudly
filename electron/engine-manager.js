@@ -1368,6 +1368,20 @@ class EngineManager {
         break;
       case 'block':
         break;
+      // The programs and TCP connections (PROCS, TCP; core/src/winprocs.h).
+      case 'proc':
+      case 'tcp': {
+        const w = this._native && this._native[msg.type === 'proc' ? 'PROCS' : 'TCP'];
+        if (w && w.rows.length < 20000) w.rows.push(msg);
+        break;
+      }
+      case 'procs_end':
+      case 'tcp_end': {
+        const key = msg.type === 'procs_end' ? 'PROCS' : 'TCP';
+        const w = this._native && this._native[key];
+        if (w) { this._native[key] = null; w.done(Number(msg.n) >= 0 ? w.rows : null); }
+        break;
+      }
       case 'adblock_check': {
         const w = this._adblockChecks.shift();
         if (w) w(msg);
@@ -1565,6 +1579,25 @@ class EngineManager {
       if (!this._command('CONNS')) { clearTimeout(timer); this._connsDone = null; this._connsRows = null; resolve([]); }
     }).finally(() => { this._connsWait = null; });
     return this._connsWait;
+  }
+
+  /* What tasklist (PROCS) or netstat (TCP) would list, read by the engine
+   * itself (core/src/winprocs.h, Windows): no program started for it, which
+   * on a slow PC costs real CPU every few seconds. Rows, or null when the
+   * engine is not running, cannot say (not Windows), or does not answer in
+   * time: the caller then uses tasklist or netstat (procnet.js). */
+  nativeList(what, timeoutMs = 2000) {
+    if (what !== 'PROCS' && what !== 'TCP') return Promise.resolve(null);
+    if (!this.proc || !this.proc.stdin.writable || !this.active) return Promise.resolve(null);
+    if (!this._native) this._native = {};
+    if (!this._nativeWait) this._nativeWait = {};
+    if (this._nativeWait[what]) return this._nativeWait[what];
+    this._nativeWait[what] = new Promise((resolve) => {
+      const timer = setTimeout(() => { this._native[what] = null; resolve(null); }, timeoutMs);
+      this._native[what] = { rows: [], done: (rows) => { clearTimeout(timer); resolve(rows); } };
+      if (!this._command(what)) { clearTimeout(timer); this._native[what] = null; resolve(null); }
+    }).finally(() => { this._nativeWait[what] = null; });
+    return this._nativeWait[what];
   }
 
   /* The user's blocks (Settings key userBlocked), into a running engine. */

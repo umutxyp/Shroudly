@@ -1430,6 +1430,14 @@ app.whenReady().then(async () => {
       toWindow('dpi:site-blocked', { host, asked });
     },
   });
+  // Windows: the running programs and their connections from the engine
+  // while it runs, instead of tasklist.exe and netstat.exe (procnet.js).
+  if (process.platform === 'win32') {
+    ProcNet.setNative({
+      procs: () => (engine ? engine.nativeList('PROCS') : Promise.resolve(null)),
+      tcp: () => (engine ? engine.nativeList('TCP') : Promise.resolve(null)),
+    });
+  }
   // "Share my connection": what the people sharing open goes through the
   // engine while protection is on. On again at start when the user left it on.
   share = new Share({
@@ -2830,9 +2838,10 @@ function tellHeld(app, addr) {
  * again a minute later, and the port still refusing. Discord is looked
  * after on its own (its Drover is set aside), Shroudly is never named. */
 const heldSeen = new Map();   // "pid port" -> when first seen
-function netstatTcp() {
-  return new Promise((resolve) => require('child_process').execFile('netstat', ['-ano', '-p', 'TCP'], { windowsHide: true, timeout: 8000, maxBuffer: 8 * 1024 * 1024 },
-    (err, out) => resolve(err && !out ? '' : String(out || ''))));
+/* netstat -ano's TCP lines (procnet.js netstatText: the engine's table
+ * where it runs); fresh: not one another look took a moment ago. */
+function netstatTcp(fresh = false) {
+  return ProcNet.netstatText(fresh ? 0 : 4000);
 }
 function processName(pid) {
   return new Promise((resolve) => require('child_process').execFile('tasklist', ['/FI', `PID eq ${pid}`, '/FO', 'CSV', '/NH'], { windowsHide: true, timeout: 8000 },
@@ -2841,10 +2850,14 @@ function processName(pid) {
 async function checkHeldPrograms() {
   if (process.platform !== 'win32') return;
   const ours = [engine && engine.port, discordRelay && discordRelay.port, appProxy && appProxy.port].filter(Boolean);
-  const rows = [];
-  for (let i = 0; i < 3; i++) {
-    rows.push(...ProcNet.parseNetstat(await netstatTcp()));
-    if (i < 2) await new Promise((r) => setTimeout(r, 700));
+  // One look first: almost always nothing waits on a proxy port here, and
+  // netstat on a busy Windows is not free. Only then two more, 0.7 s apart,
+  // so a program reaching anywhere else in any of them is not taken as held.
+  const rows = ProcNet.parseNetstat(await netstatTcp());
+  if (!ProcNet.heldLocally(rows, { ours }).size) { heldSeen.clear(); return; }
+  for (let i = 0; i < 2; i++) {
+    await new Promise((r) => setTimeout(r, 700));
+    rows.push(...ProcNet.parseNetstat(await netstatTcp(true)));
   }
   const now = Date.now();
   const live = new Set();

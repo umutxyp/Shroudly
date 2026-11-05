@@ -678,8 +678,9 @@ function antiCheatIn(out) {
 
 function antiCheatRunning(platform = process.platform) {
   if (platform !== 'win32') return Promise.resolve(null);
-  return new Promise((resolve) => require('child_process').execFile('tasklist', ['/NH', '/FO', 'CSV'],
-    { windowsHide: true, timeout: 10000 }, (err, out) => resolve(err ? null : antiCheatIn(out))));
+  // Every 5 s while Advanced mode runs: the engine's list, not tasklist.exe
+  // (procnet.js tasklistText), where it can.
+  return require('./procnet').tasklistText(3000).then((out) => (out ? antiCheatIn(out) : null), () => null);
 }
 
 module.exports = Autopilot;

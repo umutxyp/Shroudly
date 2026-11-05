@@ -184,7 +184,7 @@ function firefoxLookout() {
 
 async function runningBrowsers(platform = process.platform) {
   if (platform === 'win32') {
-    const [out, session] = await Promise.all([run('tasklist', ['/FO', 'CSV', '/NH']), require('./roblox-app').ownSession()]);
+    const [out, session] = await Promise.all([ProcNet.tasklistText(), require('./roblox-app').ownSession()]);
     return browsersIn(parseProcesses(out, platform, session), platform);
   }
   return browsersIn(parseProcesses(await run('ps', ['-axo', 'pid=,comm=']), platform), platform);

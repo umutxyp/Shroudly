@@ -22,6 +22,50 @@ function run(cmd, args, timeout = 8000) {
     (err, out) => resolve(err && !out ? '' : String(out || ''))));
 }
 
+/* Windows: the running programs (tasklist /FO CSV /NH) and the TCP
+ * connections (netstat -ano), shared by everything that looks at them and
+ * kept for a few seconds, read by the engine when it runs (setNative;
+ * core/src/winprocs.h) and by tasklist and netstat only when it does not.
+ * Several features look every 15 to 60 seconds; each look starting
+ * tasklist.exe or netstat.exe costs a slow PC real CPU time. */
+let native = null;
+function setNative(n) { native = n || null; }
+const lists = { tasklist: null, netstat: null };
+
+function procsCsv(rows) {
+  return rows.map((r) => `"${String(r.n).replace(/"/g, '')}","${Number(r.p)}","","${Number(r.s) >= 0 ? Number(r.s) : 0}","0 K"`).join('\r\n');
+}
+function tcpText(rows) {
+  return rows.map((r) => `  TCP    ${r.l}    ${r.r}    ${r.st || ''}    ${Number(r.p)}`).join('\r\n');
+}
+
+function shared(kind, maxAgeMs, read) {
+  const now = Date.now();
+  const c = lists[kind];
+  if (c && maxAgeMs > 0 && now - c.at < maxAgeMs) return c.out;
+  const out = read().then((o) => { if (!o && lists[kind] && lists[kind].out === out) lists[kind] = null; return o; });
+  lists[kind] = { at: now, out };
+  return out;
+}
+
+/* tasklist /FO CSV /NH's text (Windows), at most maxAgeMs old. */
+function tasklistText(maxAgeMs = 4000) {
+  return shared('tasklist', maxAgeMs, async () => {
+    const rows = native && native.procs ? await native.procs().catch(() => null) : null;
+    if (rows && rows.length) return procsCsv(rows);
+    return run('tasklist', ['/FO', 'CSV', '/NH'], 10000);
+  });
+}
+
+/* netstat -ano's text (Windows; TCP lines), at most maxAgeMs old. */
+function netstatText(maxAgeMs = 4000) {
+  return shared('netstat', maxAgeMs, async () => {
+    const rows = native && native.tcp ? await native.tcp().catch(() => null) : null;
+    if (rows) return tcpText(rows);
+    return run('netstat', ['-ano'], 8000);
+  });
+}
+
 const LOOPBACK = /^(127\.\d+\.\d+\.\d+|\[?::1\]?|\[?::ffff:127\.\d+\.\d+\.\d+\]?)$/i;
 function hostPort(s) {
   const m = /^(.*):(\d+)$/.exec(String(s || '').trim());
@@ -115,7 +159,7 @@ async function connections(pids, platform = process.platform) {
   const list = [...new Set((pids || []).map(Number).filter((p) => p > 0))];
   if (!list.length) return [];
   let rows = [];
-  if (platform === 'win32') rows = parseNetstat(await run('netstat', ['-ano', '-p', 'TCP']));
+  if (platform === 'win32') rows = parseNetstat(await netstatText());
   else if (platform === 'darwin') rows = parseLsof(await run('lsof', ['-nP', '-a', '-iTCP', '-sTCP:ESTABLISHED', '-Fn', '-p', list.join(',')]));
   else rows = procConnections(list);
   return rows.filter((r) => list.includes(r.pid));
@@ -399,9 +443,9 @@ function procOutbound(want, root = '/proc') {
 
 async function outbound(want, platform = process.platform) {
   if (platform === 'win32') {
-    const rows = parseNetstatAll(await run('netstat', ['-ano'])).filter((r) => want(r.remote.host));
+    const rows = parseNetstatAll(await netstatText()).filter((r) => want(r.remote.host));
     if (!rows.some((r) => r.pid > 0)) return rows.map((r) => ({ ...r, name: null }));
-    const [out, session] = await Promise.all([run('tasklist', ['/fo', 'csv', '/nh']), require('./roblox-app').ownSession()]);
+    const [out, session] = await Promise.all([tasklistText(), require('./roblox-app').ownSession()]);
     const names = parseTasklistNames(out, session);
     // Another user's programs on the same PC (fast user switching) are not
     // this user's to be named, told about, or asked a permission for.
@@ -477,4 +521,4 @@ function heldLocally(rows, { ours = [], proxyPorts = PROXY_PORTS } = {}) {
   return out;
 }
 
-module.exports = { LOOPBACK, PROXY_PORTS, heldLocally, owner, outbound, procOutbound, parseNetstatAll, parseTasklistNames, dnsCache, parseDisplayDns, parseNetstatOwner, parseLsofOwner, procOwner, connectsTo, connections, listener, listeningSync, parseNetstat, parseNetstatListeners, parseTasklistName, parseLsofListener, parseBsdListening, procListener, procListening, parseLsof, parseSs, parseProcNet, procConnections };
+module.exports = { setNative, tasklistText, netstatText, procsCsv, tcpText, LOOPBACK, PROXY_PORTS, heldLocally, owner, outbound, procOutbound, parseNetstatAll, parseTasklistNames, dnsCache, parseDisplayDns, parseNetstatOwner, parseLsofOwner, procOwner, connectsTo, connections, listener, listeningSync, parseNetstat, parseNetstatListeners, parseTasklistName, parseLsofListener, parseBsdListening, procListener, procListening, parseLsof, parseSs, parseProcNet, procConnections };
