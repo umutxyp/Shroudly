@@ -389,6 +389,18 @@ function windowsArgv(line) {
     const main = fs.readFileSync(path.join(ROOT, 'electron', 'main.js'), 'utf8');
     t.ok(/advanced\.available\(\)[\s\S]{0,300}notifySiteBlockedBodyNoAdvanced/.test(main), 'a blocked site: Advanced mode is not suggested where it is not available');
   }
+  {
+    // Windows "not found" (2, 3) with every file in place: a "WinDivert"
+    // service another program left behind, pointing at a deleted folder
+    // (Akbar, 2.6.55). It is deleted, only when stopped and its file gone,
+    // and the driver opened once more from our folder.
+    const c = fs.readFileSync(path.join(ROOT, 'core', 'src', 'raw_windows.c'), 'utf8');
+    const fn = c.slice(c.indexOf('static int repair_stale_service'), c.indexOf('/* Inject one of our crafted'));
+    t.ok(/SERVICE_STOPPED/.test(fn) && /GetFileAttributesW\(full\) == INVALID_FILE_ATTRIBUTES/.test(fn) && /DeleteService\(svc\)/.test(fn),
+      'a stale WinDivert service is deleted only when stopped and its driver file is gone');
+    t.ok(/round < 2[\s\S]{0,200}ERROR_FILE_NOT_FOUND && open_err != ERROR_PATH_NOT_FOUND\) \|\| !repair_stale_service\(\)\) break/.test(c),
+      'and the driver is opened once more after it, only for "not found"');
+  }
   fs.rmSync(tmp, { recursive: true, force: true });
 
   // VML-4: the polkit action the deb, rpm and pacman packages install.

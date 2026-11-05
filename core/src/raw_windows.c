@@ -149,6 +149,54 @@ static int load_windivert(void) {
   return 0;
 }
 
+/* Another program that used WinDivert (GoodbyeDPI, zapret and the like) can
+ * leave its "WinDivert" service behind, pointing at a driver file in a folder
+ * since deleted. WinDivertOpen then starts that service rather than make its
+ * own, and Windows says "not found" (2, 3) although our files are all here.
+ * Such a service, stopped and with its file gone, is deleted, so the next
+ * open installs the driver from our folder. A service whose file is there,
+ * or that runs, is someone else's in use and stays. 1 if one was deleted. */
+static int repair_stale_service(void) {
+  int fixed = 0;
+  SC_HANDLE scm = OpenSCManagerW(NULL, NULL, SC_MANAGER_CONNECT);
+  if (!scm) return 0;
+  SC_HANDLE svc = OpenServiceW(scm, L"WinDivert", SERVICE_QUERY_CONFIG | SERVICE_QUERY_STATUS | DELETE);
+  if (svc) {
+    SERVICE_STATUS st;
+    union { QUERY_SERVICE_CONFIGW c; BYTE b[8192]; } cfg;
+    DWORD need = 0;
+    if (QueryServiceStatus(svc, &st) && st.dwCurrentState == SERVICE_STOPPED &&
+        QueryServiceConfigW(svc, &cfg.c, sizeof(cfg), &need) && cfg.c.lpBinaryPathName) {
+      const wchar_t *img = cfg.c.lpBinaryPathName;
+      wchar_t full[1024];
+      full[0] = 0;
+      if (!wcsncmp(img, L"\\??\\", 4) || !wcsncmp(img, L"\\\\?\\", 4)) img += 4;
+      if (!_wcsnicmp(img, L"\\SystemRoot\\", 12)) {
+        UINT n = GetWindowsDirectoryW(full, 512);
+        if (n > 0 && n < 512) _snwprintf(full + n, 1024 - n, L"\\%ls", img + 12);
+        else full[0] = 0;
+      } else if (img[0] && img[1] == L':') {
+        _snwprintf(full, 1024, L"%ls", img);
+      } else if (img[0]) {
+        UINT n = GetWindowsDirectoryW(full, 512);
+        if (n > 0 && n < 512) _snwprintf(full + n, 1024 - n, L"\\%ls", img);
+        else full[0] = 0;
+      }
+      full[1023] = 0;
+      if (full[0] && GetFileAttributesW(full) == INVALID_FILE_ATTRIBUTES) {
+        DWORD e = GetLastError();
+        if ((e == ERROR_FILE_NOT_FOUND || e == ERROR_PATH_NOT_FOUND) && DeleteService(svc)) fixed = 1;
+      }
+    }
+    CloseServiceHandle(svc);
+  }
+  CloseServiceHandle(scm);
+  printf("{\"type\":\"driver\",\"stale\":%d}\n", fixed);
+  fflush(stdout);
+  if (fixed) Sleep(300);
+  return fixed;
+}
+
 /* Inject one of our crafted IPv4 segments (checksums already computed). Mirror
  * the captured outbound address but mark the checksums present so the stack
  * does not recompute (and overwrite a deliberately bad one). */
@@ -392,6 +440,13 @@ int raw_windows_start(const raw_config *cfg) {
   /* Why the last open failed. A filter the driver refuses (87) is followed
    * by a simpler one; any other error (the driver not loading) is kept. */
   DWORD open_err = 0;
+  /* A second round only after a stale WinDivert service was taken away
+   * (repair_stale_service). */
+  for (int round = 0; round < 2 && g_handle == INVALID_HANDLE_VALUE; round++) {
+  if (round) {
+    if ((open_err != ERROR_FILE_NOT_FOUND && open_err != ERROR_PATH_NOT_FOUND) || !repair_stale_service()) break;
+    open_err = 0;
+  }
   for (int udp_how = UDP_PREFILTER_PAYLOAD; udp_how >= UDP_PREFILTER_PORTS && g_handle == INVALID_HANDLE_VALUE; udp_how--) {
     char udp[1024];
     if (udp_windivert_clause(udp, sizeof(udp), g_quic_block, g_udp_fake, udp_how) < 0) continue;
@@ -432,6 +487,7 @@ int raw_windows_start(const raw_config *cfg) {
       DWORD e = GetLastError();
       if (!open_err || e != ERROR_INVALID_PARAMETER) open_err = e;
     }
+  }
   }
   if (g_handle == INVALID_HANDLE_VALUE) {
     /* 2: the driver file is not there; 5, 577, 1275: Windows or an
