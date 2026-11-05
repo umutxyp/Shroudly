@@ -147,6 +147,11 @@
     <string name="excludedApps">Shroudlyʼni chetlab oʻtadigan ilovalar</string>
     <string name="excludedAppsCount">Shroudlyʼni chetlab oʻtadigan ilovalar: {count}</string>
     <string name="excludedAppsDesc">Ularning trafigi Shroudlyʼdan oʻtmay toʻgʻridan-toʻgʻri chiqadi: masalan, unga muhtoj boʻlmagan oʻyin.</string>
+    <string name="followCodeshare">Shroudly’ni yaratuvchi Codeshare</string>
+    <string name="followDesc">Bloklar, yangi versiyalar va aylanib oʻtish yoʻllari haqidagi yangiliklar birinchi boʻlib shu yerda. Kuzatish va ulashish Shroudly’ga unga muhtoj odamlarga yetib borishga yordam beradi va bepul.</string>
+    <string name="followDeveloper">Shroudly dasturchisi Umut Bayraktar</string>
+    <string name="followTitle">Shroudly’ni kuzating</string>
+    <string name="followTv">Bularni telefon yoki kompyuteringizda oching:</string>
     <string name="helpNudgeBodyPhone">Bepul ilova internetni senzura qiladigan mamlakatlardagi odamlarga bloklarni chetlab oʻtish uchun bu telefon ulanishining kichik bir qismidan foydalanish imkonini beradi. Siz uchun xavfsiz: ular telefoningizga ham, tarmogʻingizga ham yeta olmaydi, ochgan saytlari esa hech qachon manzilingizni koʻrmaydi.</string>
     <string name="helpNudgeShow">Koʻrsatish</string>
     <string name="helpNudgeTitle">Senzura bor mamlakatlardagi odamlarga yordam berasizmi?</string>
@@ -236,6 +241,8 @@
     <string name="supportTitle">Shroudlyʼni qoʻllab-quvvatlash</string>
     <string name="tagline">Koʻrinmas. Toʻxtatib boʻlmas.</string>
     <string name="testing">Tekshirilmoqda…</string>
+    <string name="torUsedPhone">{host} faqat Tor tarmogʻi orqali ochildi — bu Shroudly’ning soʻnggi yoʻli: bu tarmoqda boshqa hech narsa oʻtmadi. Bu sekinroq va ayrim saytlar kapcha soʻraydi; boshqa ilovalar va saytlar avvalgidek ishlaydi.</string>
+    <string name="torUsedTv">{host} faqat Tor tarmogʻi orqali ochildi — bu Shroudly’ning soʻnggi yoʻli. Undagi videolar sekin yoki pastroq sifatda yuklanishi mumkin; boshqa ilovalar avvalgidek ishlaydi.</string>
     <string name="totalCount">Jami: {count}</string>
     <string name="updAvailable">{version} versiyasi mavjud</string>
     <string name="updDownload">Yuklab olish va oʻrnatish</string>
@@ -247,7 +254,7 @@
     <string name="upload">Yuklash</string>
     <string name="uptime">Ish vaqti</string>
     <string name="versionLabel">Versiya {version}</string>
-    <string name="whatsNewAndroid">Saytlar bo\'yicha ulanishlar: Shroudly orqali nima o\'tayotganini ikki tomonlama ma\'lumoti bilan ko\'ring va istalgan saytni bloklang (#74).\nBloklash saytning ulanishlarini darhol uzadi; ro\'yxat qurilmangizda qoladi.</string>
+    <string name="whatsNewAndroid">Sayt faqat soʻnggi yoʻl — Tor orqali ochilsa, Shroudly endi buni aytadi, chunki u sekinroq.\nYangi: Dastur haqida → Shroudly’ni kuzating.</string>
     <string name="whatsNewOk">Tushunarli</string>
     <string name="whatsNewTitle">{version} versiyasida yangiliklar</string>
 </resources>

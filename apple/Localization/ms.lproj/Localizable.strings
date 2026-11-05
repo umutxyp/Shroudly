@@ -56,6 +56,11 @@
 "dnsServerUse" = "Guna";
 "dnsServerUseAnyway" = "Guna juga";
 "download" = "Muat turun";
+"followCodeshare" = "Codeshare, pembuat Shroudly";
+"followDesc" = "Berita tentang sekatan, versi baharu dan cara melepasinya, lebih awal. Mengikuti dan berkongsi ialah cara Shroudly sampai kepada orang yang memerlukannya, dan ia percuma.";
+"followDeveloper" = "Umut Bayraktar, pembangun Shroudly";
+"followTitle" = "Ikuti Shroudly";
+"followTv" = "Buka ini pada telefon atau komputer anda:";
 "helpNudgeBodyPhone" = "Sebuah aplikasi percuma membolehkan orang di negara yang menapis internet menggunakan sedikit sambungan telefon ini untuk melepasi sekatan. Ia selamat untuk anda: mereka tidak boleh sampai ke telefon atau rangkaian anda, dan laman web yang mereka buka tidak pernah melihat alamat anda.";
 "helpNudgeShow" = "Tunjukkan";
 "helpNudgeTitle" = "Bantu orang di negara yang ditapis?";
@@ -127,6 +132,7 @@
 "strategy" = "Strategi pintasan";
 "supportBannerLater" = "Bukan sekarang";
 "tagline" = "Tidak kelihatan. Tidak terhalang.";
+"torUsedDesktop" = "{host} hanya dibuka melalui rangkaian Tor, jalan terakhir Shroudly: tiada cara lain yang berjaya pada rangkaian ini. Ia lebih perlahan dan sesetengah laman meminta captcha; laman lain pada komputer ini kekal seperti biasa.";
 "totalCount" = "Jumlah: {count}";
 "upload" = "Muat naik";
 "uptime" = "Masa aktif";

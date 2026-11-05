@@ -161,6 +161,7 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
         doh?.stop(); doh = nil
         ssClient?.stop(); ssClient = nil
         torRoute.stop()
+        TorNotice.reset()
         upstreamLine = nil
         clearOwnServerDown()
         return clean
@@ -200,7 +201,7 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
             }
             e.onFallback = { [weak self] ok, what in
                 guard let self else { return }
-                if ok { self.logSite("\(what): no technique got through; opened through the last way out (Tor)") }
+                if ok { self.logSite("\(what): no technique got through; opened through the last way out (Tor)"); TorNotice.used(what) }
                 else if what != "file unusable" { self.torRoute.need() }
             }
             let args = EngineArgs.make(port: p, dohPort: dohPort, settings: settings, authFile: authPath, blockIps: blockIps, upstreamFile: upstreamPath,

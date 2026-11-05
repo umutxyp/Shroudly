@@ -920,12 +920,20 @@
   "whatsNewTitle": "Nouveautés de la {version}",
   "whatsNewOk": "Compris",
   "whatsNewDesktop": "Là où Riot Games est bloqué, League of Legends, VALORANT et leur installateur passent désormais d’eux-mêmes par Shroudly (#76).\nMode avancé sous Windows : un pilote laissé par un autre programme ne l’empêche plus de démarrer.",
-  "whatsNewAndroid": "Connexions par site : vois ce qui passe par Shroudly, avec les données dans chaque sens, et bloque le site de ton choix (#74).\nBloquer un site coupe ses connexions aussitôt ; la liste reste sur ton appareil.",
+  "whatsNewAndroid": "Quand un site ne s’ouvre que par Tor, le dernier recours, Shroudly vous le dit, car c’est plus lent.\nNouveau : À propos → Suivre Shroudly, avec nos comptes.",
   "whatsNewApple": "Connexions par site : vois ce qui passe par Shroudly, avec les données dans chaque sens, et bloque le site de ton choix (#74).\nBloquer un site coupe ses connexions aussitôt ; la liste reste sur ton appareil.",
   "appleVpnNotSigned": "Cette copie de Shroudly est signée sans l’autorisation d’Apple pour les VPN : iOS ne la laisse donc pas en démarrer un et ne pose jamais la question. Les copies signées avec un identifiant Apple gratuit (AltStore, SideStore, Sideloadly et autres) ne l’ont jamais. Installez-la avec TrollStore, ou signez-la avec un compte développeur Apple payant.",
   "appleInstallHelp": "Comment l’installer",
   "snowflakeHow": "Comment ça marche : elles passent par Snowflake, du réseau Tor ; ce qu’elles ouvrent sort donc par les serveurs de Tor, pas par les vôtres.",
   "snowflakeDevice": "Aider depuis cet appareil",
   "snowflakeWhenApple": "Shroudly aide tant qu'il est ouvert sur iPhone et iPad, et tant qu'il tourne sur un Mac. Désactivé jusqu'à ce que vous l'activiez.",
-  "snowflakeWhenAndroid": "Shroudly aide tant que la protection est active et que le téléphone charge en Wi-Fi : cela ne coûte ni batterie ni données mobiles. Désactivé jusqu'à ce que vous l'activiez."
+  "snowflakeWhenAndroid": "Shroudly aide tant que la protection est active et que le téléphone charge en Wi-Fi : cela ne coûte ni batterie ni données mobiles. Désactivé jusqu'à ce que vous l'activiez.",
+  "torUsedDesktop": "{host} ne s’est ouvert que par le réseau Tor, le dernier recours de Shroudly : rien d’autre ne passait sur ce réseau. C’est plus lent et certains sites demandent un captcha ; tous les autres sites de cet ordinateur fonctionnent comme avant.",
+  "torUsedPhone": "{host} ne s’est ouvert que par le réseau Tor, le dernier recours de Shroudly : rien d’autre ne passait sur ce réseau. C’est plus lent et certains sites demandent un captcha ; vos autres applis et sites fonctionnent comme avant.",
+  "torUsedTv": "{host} ne s’est ouvert que par le réseau Tor, le dernier recours de Shroudly. Ses vidéos peuvent se charger lentement ou en qualité réduite ; vos autres applis fonctionnent comme avant.",
+  "followTitle": "Suivre Shroudly",
+  "followDesc": "Les nouvelles sur les blocages, les nouvelles versions et les moyens de passer, en premier. Suivre et partager, c’est ainsi que Shroudly atteint ceux qui en ont besoin, et cela ne coûte rien.",
+  "followCodeshare": "Codeshare, qui fait Shroudly",
+  "followDeveloper": "Umut Bayraktar, le développeur de Shroudly",
+  "followTv": "Ouvrez-les sur votre téléphone ou votre ordinateur :"
 }

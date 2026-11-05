@@ -147,6 +147,11 @@
     <string name="excludedApps">แอปที่ไม่ผ่าน Shroudly</string>
     <string name="excludedAppsCount">แอปที่ไม่ผ่าน Shroudly: {count}</string>
     <string name="excludedAppsDesc">ทราฟฟิกของแอปเหล่านี้ออกไปตรง ๆ โดยไม่ผ่าน Shroudly เช่น เกมที่ไม่จำเป็นต้องใช้</string>
+    <string name="followCodeshare">Codeshare ผู้สร้าง Shroudly</string>
+    <string name="followDesc">ข่าวเรื่องการบล็อก เวอร์ชันใหม่ และวิธีผ่าน ก่อนใคร การติดตามและแชร์คือทางที่ Shroudly จะไปถึงคนที่ต้องการ และไม่มีค่าใช้จ่าย</string>
+    <string name="followDeveloper">Umut Bayraktar ผู้พัฒนา Shroudly</string>
+    <string name="followTitle">ติดตาม Shroudly</string>
+    <string name="followTv">เปิดสิ่งเหล่านี้บนโทรศัพท์หรือคอมพิวเตอร์ของคุณ:</string>
     <string name="helpNudgeBodyPhone">แอปฟรีช่วยให้ผู้คนในประเทศที่เซ็นเซอร์อินเทอร์เน็ตใช้การเชื่อมต่อของโทรศัพท์เครื่องนี้เพียงเล็กน้อยเพื่อผ่านการบล็อก ปลอดภัยสำหรับคุณ: พวกเขาเข้าถึงโทรศัพท์หรือเครือข่ายของคุณไม่ได้ และเว็บไซต์ที่พวกเขาเปิดจะไม่มีวันเห็นที่อยู่ของคุณ</string>
     <string name="helpNudgeShow">ดูวิธี</string>
     <string name="helpNudgeTitle">ช่วยผู้คนในประเทศที่มีการเซ็นเซอร์ไหม?</string>
@@ -236,6 +241,8 @@
     <string name="supportTitle">สนับสนุน Shroudly</string>
     <string name="tagline">มองไม่เห็น ไม่มีใครหยุดได้</string>
     <string name="testing">กำลังทดสอบ…</string>
+    <string name="torUsedPhone">{host} เปิดได้ผ่านเครือข่าย Tor เท่านั้น ซึ่งเป็นทางสุดท้ายของ Shroudly: บนเครือข่ายนี้ไม่มีวิธีอื่นใช้ได้ ช้ากว่าปกติและบางเว็บไซต์จะขอ captcha ส่วนแอปและเว็บไซต์อื่นของคุณใช้งานได้ตามเดิม</string>
+    <string name="torUsedTv">{host} เปิดได้ผ่านเครือข่าย Tor เท่านั้น ซึ่งเป็นทางสุดท้ายของ Shroudly วิดีโอจากที่นั่นอาจโหลดช้าหรือคุณภาพต่ำลง ส่วนแอปอื่นของคุณใช้งานได้ตามเดิม</string>
     <string name="totalCount">ทั้งหมด: {count}</string>
     <string name="updAvailable">มีเวอร์ชัน {version} ให้ใช้งานแล้ว</string>
     <string name="updDownload">ดาวน์โหลดและติดตั้ง</string>
@@ -247,7 +254,7 @@
     <string name="upload">อัปโหลด</string>
     <string name="uptime">เวลาทำงาน</string>
     <string name="versionLabel">เวอร์ชัน {version}</string>
-    <string name="whatsNewAndroid">การเชื่อมต่อตามเว็บไซต์: ดูว่าอะไรผ่าน Shroudly พร้อมข้อมูลทั้งสองทิศ และบล็อกเว็บไซต์ใดก็ได้ (#74)\nการบล็อกจะตัดการเชื่อมต่อของเว็บนั้นทันที รายการอยู่บนอุปกรณ์ของคุณ</string>
+    <string name="whatsNewAndroid">เมื่อเว็บไซต์เปิดได้ผ่าน Tor ซึ่งเป็นทางสุดท้ายเท่านั้น ตอนนี้ Shroudly จะบอกคุณ เพราะช้ากว่า\nใหม่: เกี่ยวกับ → ติดตาม Shroudly</string>
     <string name="whatsNewOk">เข้าใจแล้ว</string>
     <string name="whatsNewTitle">มีอะไรใหม่ใน {version}</string>
 </resources>

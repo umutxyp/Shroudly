@@ -920,12 +920,20 @@
   "whatsNewTitle": "Yang baru di {version}",
   "whatsNewOk": "Mengerti",
   "whatsNewDesktop": "Di jaringan yang memblokir Riot Games, League of Legends, VALORANT, dan penginstalnya kini otomatis lewat Shroudly (#76).\nMode lanjutan di Windows: driver yang ditinggalkan program lain tidak lagi menghalanginya berjalan.",
-  "whatsNewAndroid": "Koneksi per situs: lihat apa yang lewat Shroudly, dengan data di kedua arah, dan blokir situs mana pun (#74).\nMemblokir langsung memutus koneksi situs itu; daftarnya tetap di perangkat Anda.",
+  "whatsNewAndroid": "Saat sebuah situs hanya terbuka lewat Tor, jalan terakhir, Shroudly kini memberi tahu Anda karena lebih lambat.\nBaru: Tentang → Ikuti Shroudly.",
   "whatsNewApple": "Koneksi per situs: lihat apa yang lewat Shroudly, dengan data di kedua arah, dan blokir situs mana pun (#74).\nMemblokir langsung memutus koneksi situs itu; daftarnya tetap di perangkat Anda.",
   "appleVpnNotSigned": "Salinan Shroudly ini ditandatangani tanpa izin Apple untuk VPN, jadi iOS tidak mengizinkannya memulai VPN dan tidak pernah bertanya. Salinan yang ditandatangani dengan Apple ID gratis (AltStore, SideStore, Sideloadly, dan sejenisnya) tidak pernah memilikinya. Pasang dengan TrollStore, atau tandatangani dengan akun pengembang Apple berbayar.",
   "appleInstallHelp": "Cara memasangnya",
   "snowflakeHow": "Cara kerjanya: mereka datang lewat Snowflake milik jaringan Tor, jadi yang mereka buka keluar dari server Tor, bukan dari server Anda.",
   "snowflakeDevice": "Bantu lewat perangkat ini",
   "snowflakeWhenApple": "Shroudly membantu selama terbuka di iPhone dan iPad, dan selama berjalan di Mac. Mati sampai kamu menyalakannya.",
-  "snowflakeWhenAndroid": "Shroudly membantu selama perlindungan menyala dan ponsel mengisi daya di Wi-Fi, jadi tidak memakai baterai maupun data seluler. Mati sampai kamu menyalakannya."
+  "snowflakeWhenAndroid": "Shroudly membantu selama perlindungan menyala dan ponsel mengisi daya di Wi-Fi, jadi tidak memakai baterai maupun data seluler. Mati sampai kamu menyalakannya.",
+  "torUsedDesktop": "{host} hanya terbuka lewat jaringan Tor, jalan terakhir Shroudly: tidak ada cara lain yang tembus di jaringan ini. Lebih lambat, dan beberapa situs meminta captcha; situs lain di komputer ini tetap seperti biasa.",
+  "torUsedPhone": "{host} hanya terbuka lewat jaringan Tor, jalan terakhir Shroudly: tidak ada cara lain yang tembus di jaringan ini. Lebih lambat, dan beberapa situs meminta captcha; aplikasi dan situs Anda yang lain tetap seperti biasa.",
+  "torUsedTv": "{host} hanya terbuka lewat jaringan Tor, jalan terakhir Shroudly. Videonya bisa dimuat lambat atau dengan kualitas lebih rendah; aplikasi Anda yang lain tetap seperti biasa.",
+  "followTitle": "Ikuti Shroudly",
+  "followDesc": "Kabar soal pemblokiran, versi baru, dan cara menembusnya, lebih dulu. Mengikuti dan membagikan adalah cara Shroudly menjangkau orang yang membutuhkannya, dan itu gratis.",
+  "followCodeshare": "Codeshare, pembuat Shroudly",
+  "followDeveloper": "Umut Bayraktar, pengembang Shroudly",
+  "followTv": "Buka ini di ponsel atau komputer Anda:"
 }

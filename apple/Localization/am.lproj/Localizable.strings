@@ -56,6 +56,11 @@
 "dnsServerUse" = "ተጠቀም";
 "dnsServerUseAnyway" = "ቢሆንም ተጠቀም";
 "download" = "ማውረድ";
+"followCodeshare" = "Shroudlyን የሚሰራው Codeshare";
+"followDesc" = "ስለ እገዳዎች፣ አዳዲስ ስሪቶች እና ማለፊያ መንገዶች ዜናዎች በቅድሚያ። መከተልና ማጋራት Shroudly የሚያስፈልጋቸው ሰዎች ጋር የሚደርስበት መንገድ ነው፣ ምንም አያስከፍልም።";
+"followDeveloper" = "የShroudly ገንቢ ኡሙት ባይራክታር";
+"followTitle" = "Shroudlyን ይከተሉ";
+"followTv" = "እነዚህን በስልክዎ ወይም በኮምፒውተርዎ ይክፈቱ፦";
 "helpNudgeBodyPhone" = "ነጻ መተግበሪያ ኢንተርኔትን ሳንሱር በሚያደርጉ አገሮች ያሉ ሰዎች እገዳዎችን ለማለፍ የዚህን ስልክ ግንኙነት ትንሽ ክፍል እንዲጠቀሙ ያስችላል። ለእርስዎ ደህንነቱ የተጠበቀ ነው፦ ወደ ስልክዎ ወይም ወደ አውታረ መረብዎ መድረስ አይችሉም፣ የሚከፍቷቸው ድረ-ገጾችም አድራሻዎን ፈጽሞ አያዩም።";
 "helpNudgeShow" = "አሳየኝ";
 "helpNudgeTitle" = "ሳንሱር ባለባቸው አገሮች ያሉ ሰዎችን መርዳት ይፈልጋሉ?";
@@ -127,6 +132,7 @@
 "strategy" = "የማለፊያ ስልት";
 "supportBannerLater" = "አሁን አይደለም";
 "tagline" = "የማይታይ። የማይቆም።";
+"torUsedDesktop" = "{host} የተከፈተው በ Shroudly የመጨረሻ መንገድ፣ በ Tor አውታረ መረብ ብቻ ነው፦ በዚህ አውታረ መረብ ሌላ ምንም አልሰራም። ይህ ቀርፋፋ ነው፣ አንዳንድ ድረ-ገጾችም captcha ይጠይቃሉ፤ በዚህ ኮምፒውተር ላይ ያሉ ሌሎች ድረ-ገጾች እንደቀድሞው ይሰራሉ።";
 "totalCount" = "ጠቅላላ: {count}";
 "upload" = "መስቀል";
 "uptime" = "የሰራበት ጊዜ";

@@ -56,6 +56,11 @@
 "dnsServerUse" = "Foydalanish";
 "dnsServerUseAnyway" = "Baribir foydalanish";
 "download" = "Yuklab olish";
+"followCodeshare" = "Shroudly’ni yaratuvchi Codeshare";
+"followDesc" = "Bloklar, yangi versiyalar va aylanib oʻtish yoʻllari haqidagi yangiliklar birinchi boʻlib shu yerda. Kuzatish va ulashish Shroudly’ga unga muhtoj odamlarga yetib borishga yordam beradi va bepul.";
+"followDeveloper" = "Shroudly dasturchisi Umut Bayraktar";
+"followTitle" = "Shroudly’ni kuzating";
+"followTv" = "Bularni telefon yoki kompyuteringizda oching:";
 "helpNudgeBodyPhone" = "Bepul ilova internetni senzura qiladigan mamlakatlardagi odamlarga bloklarni chetlab oʻtish uchun bu telefon ulanishining kichik bir qismidan foydalanish imkonini beradi. Siz uchun xavfsiz: ular telefoningizga ham, tarmogʻingizga ham yeta olmaydi, ochgan saytlari esa hech qachon manzilingizni koʻrmaydi.";
 "helpNudgeShow" = "Koʻrsatish";
 "helpNudgeTitle" = "Senzura bor mamlakatlardagi odamlarga yordam berasizmi?";
@@ -127,6 +132,7 @@
 "strategy" = "Chetlab oʻtish strategiyasi";
 "supportBannerLater" = "Hozir emas";
 "tagline" = "Koʻrinmas. Toʻxtatib boʻlmas.";
+"torUsedDesktop" = "{host} faqat Tor tarmogʻi orqali ochildi — bu Shroudly’ning soʻnggi yoʻli: bu tarmoqda boshqa hech narsa oʻtmadi. Bu sekinroq va ayrim saytlar kapcha soʻraydi; bu kompyuterdagi boshqa saytlar avvalgidek ishlaydi.";
 "totalCount" = "Jami: {count}";
 "upload" = "Yuklash";
 "uptime" = "Ish vaqti";

@@ -147,6 +147,11 @@
     <string name="excludedApps">Shroudly-dən yan keçən tətbiqlər</string>
     <string name="excludedAppsCount">Shroudly-dən yan keçən tətbiqlər: {count}</string>
     <string name="excludedAppsDesc">Onların trafiki Shroudly-yə uğramadan birbaşa çıxır: məsələn, buna ehtiyacı olmayan bir oyun.</string>
+    <string name="followCodeshare">Shroudly-ni hazırlayan Codeshare</string>
+    <string name="followDesc">Bloklar, yeni versiyalar və keçid yolları haqqında xəbərlər ilk olaraq burada. İzləmək və paylaşmaq Shroudly-nin ona ehtiyacı olan insanlara çatmasının yoludur və pulsuzdur.</string>
+    <string name="followDeveloper">Shroudly-nin tərtibatçısı Umut Bayraktar</string>
+    <string name="followTitle">Shroudly-ni izlə</string>
+    <string name="followTv">Bunları telefonunuzda və ya kompüterinizdə açın:</string>
     <string name="helpNudgeBodyPhone">Pulsuz bir tətbiq interneti senzura edən ölkələrdəki insanlara blokları keçmək üçün bu telefonun bağlantısının kiçik bir hissəsindən istifadə etməyə imkan verir. Sizin üçün təhlükəsizdir: onlar telefonunuza və ya şəbəkənizə çata bilmir, açdıqları saytlar isə heç vaxt sizin ünvanınızı görmür.</string>
     <string name="helpNudgeShow">Göstər</string>
     <string name="helpNudgeTitle">Senzuralı ölkələrdəki insanlara kömək etmək istəyirsiniz?</string>
@@ -236,6 +241,8 @@
     <string name="supportTitle">Shroudly-ni dəstəkləyin</string>
     <string name="tagline">Görünməz. Dayandırılmaz.</string>
     <string name="testing">Yoxlanılır…</string>
+    <string name="torUsedPhone">{host} yalnız Tor şəbəkəsi ilə açıldı — Shroudly-nin son yolu: bu şəbəkədə başqa heç nə keçmədi. Bu daha yavaşdır və bəzi saytlar captcha istəyir; digər tətbiqləriniz və saytlar əvvəlki kimi işləyir.</string>
+    <string name="torUsedTv">{host} yalnız Tor şəbəkəsi ilə açıldı — Shroudly-nin son yolu. Oradakı videolar yavaş və ya aşağı keyfiyyətdə yüklənə bilər; digər tətbiqləriniz əvvəlki kimi işləyir.</string>
     <string name="totalCount">Cəmi: {count}</string>
     <string name="updAvailable">{version} versiyası mövcuddur</string>
     <string name="updDownload">Endir və quraşdır</string>
@@ -247,7 +254,7 @@
     <string name="upload">Göndərmə</string>
     <string name="uptime">İş müddəti</string>
     <string name="versionLabel">Versiya {version}</string>
-    <string name="whatsNewAndroid">Saytlara görə bağlantılar: Shroudly-dən nəyin keçdiyini hər iki istiqamətdəki məlumatı ilə gör və istədiyin saytı blokla (#74).\nBloklamaq saytın bağlantılarını dərhal kəsir; siyahı sənin cihazında qalır.</string>
+    <string name="whatsNewAndroid">Sayt yalnız son yol olan Tor ilə açılanda Shroudly artıq bunu deyir, çünki bu daha yavaşdır.\nYeni: Haqqında → Shroudly-ni izlə.</string>
     <string name="whatsNewOk">Aydındır</string>
     <string name="whatsNewTitle">{version} versiyasında yeniliklər</string>
 </resources>

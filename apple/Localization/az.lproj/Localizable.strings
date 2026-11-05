@@ -56,6 +56,11 @@
 "dnsServerUse" = "İstifadə et";
 "dnsServerUseAnyway" = "Yenə də istifadə et";
 "download" = "Endirmə";
+"followCodeshare" = "Shroudly-ni hazırlayan Codeshare";
+"followDesc" = "Bloklar, yeni versiyalar və keçid yolları haqqında xəbərlər ilk olaraq burada. İzləmək və paylaşmaq Shroudly-nin ona ehtiyacı olan insanlara çatmasının yoludur və pulsuzdur.";
+"followDeveloper" = "Shroudly-nin tərtibatçısı Umut Bayraktar";
+"followTitle" = "Shroudly-ni izlə";
+"followTv" = "Bunları telefonunuzda və ya kompüterinizdə açın:";
 "helpNudgeBodyPhone" = "Pulsuz bir tətbiq interneti senzura edən ölkələrdəki insanlara blokları keçmək üçün bu telefonun bağlantısının kiçik bir hissəsindən istifadə etməyə imkan verir. Sizin üçün təhlükəsizdir: onlar telefonunuza və ya şəbəkənizə çata bilmir, açdıqları saytlar isə heç vaxt sizin ünvanınızı görmür.";
 "helpNudgeShow" = "Göstər";
 "helpNudgeTitle" = "Senzuralı ölkələrdəki insanlara kömək etmək istəyirsiniz?";
@@ -127,6 +132,7 @@
 "strategy" = "Yan keçmə strategiyası";
 "supportBannerLater" = "İndi yox";
 "tagline" = "Görünməz. Dayandırılmaz.";
+"torUsedDesktop" = "{host} yalnız Tor şəbəkəsi ilə açıldı — Shroudly-nin son yolu: bu şəbəkədə başqa heç nə keçmədi. Bu daha yavaşdır və bəzi saytlar captcha istəyir; bu kompüterdəki digər saytlar əvvəlki kimi işləyir.";
 "totalCount" = "Cəmi: {count}";
 "upload" = "Göndərmə";
 "uptime" = "İş müddəti";

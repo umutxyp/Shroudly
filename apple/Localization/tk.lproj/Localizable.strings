@@ -56,6 +56,11 @@
 "dnsServerUse" = "Ulanmak";
 "dnsServerUseAnyway" = "Şonda-da ulanmak";
 "download" = "Ýükläp alyş";
+"followCodeshare" = "Shroudly-ni döredýän Codeshare";
+"followDesc" = "Petiklemeler, täze wersiýalar we aýlanyp geçmegiň ýollary barada habarlar ilki şu ýerde. Yzarlamak we paýlaşmak Shroudly-niň oňa mätäç adamlara ýetmegine kömek edýär we mugt.";
+"followDeveloper" = "Shroudly-niň işläp düzüjisi Umut Baýraktar";
+"followTitle" = "Shroudly-ni yzarla";
+"followTv" = "Bulary telefonyňyzda ýa-da kompýuteriňizde açyň:";
 "helpNudgeBodyPhone" = "Mugt programma interneti senzura edýän ýurtlardaky adamlara petikleri geçmek üçin bu telefonyň baglanyşygynyň az bölegini ulanmaga mümkinçilik berýär. Siziň üçin howpsuz: olar telefonyňyza ýa-da ulgamyňyza ýetip bilmeýär, açýan saýtlary bolsa siziň salgyňyzy hiç haçan görmeýär.";
 "helpNudgeShow" = "Görkez";
 "helpNudgeTitle" = "Senzuraly ýurtlardaky adamlara kömek etmek isleýärsiňizmi?";
@@ -127,6 +132,7 @@
 "strategy" = "Aýlanyp geçiş strategiýasy";
 "supportBannerLater" = "Häzir däl";
 "tagline" = "Görünmez. Saklanmaz.";
+"torUsedDesktop" = "{host} diňe Tor tory arkaly açyldy — bu Shroudly-niň iň soňky ýoly: bu torda başga hiç zat geçmedi. Bu haýalrak, käbir saýtlar kapça soraýar; bu kompýuterdäki beýleki saýtlar öňküsi ýaly işleýär.";
 "totalCount" = "Jemi: {count}";
 "upload" = "Iberiş";
 "uptime" = "Işlän wagty";

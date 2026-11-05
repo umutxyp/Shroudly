@@ -147,6 +147,11 @@
     <string name="excludedApps">Застосунки в обхід Shroudly</string>
     <string name="excludedAppsCount">Застосунки в обхід Shroudly: {count}</string>
     <string name="excludedAppsDesc">Їхній трафік іде напряму, повз Shroudly: наприклад, гра, якій він не потрібен.</string>
+    <string name="followCodeshare">Codeshare, творці Shroudly</string>
+    <string name="followDesc">Новини про блокування, нові версії та способи обходу — першими. Підписки й поширення допомагають Shroudly дістатися до тих, кому він потрібен, і нічого не коштують.</string>
+    <string name="followDeveloper">Умут Байрактар, розробник Shroudly</string>
+    <string name="followTitle">Стежити за Shroudly</string>
+    <string name="followTv">Відкрийте їх на телефоні чи комп’ютері:</string>
     <string name="helpNudgeBodyPhone">Безкоштовна програма дає людям у країнах, де цензурують інтернет, використовувати трохи підключення цього телефона, щоб обходити блокування. Для вас це безпечно: вони не можуть дістатися ні вашого телефона, ні вашої мережі, а сайти, які вони відкривають, ніколи не бачать вашої адреси.</string>
     <string name="helpNudgeShow">Показати</string>
     <string name="helpNudgeTitle">Допомагати людям у країнах із цензурою?</string>
@@ -236,6 +241,8 @@
     <string name="supportTitle">Підтримати Shroudly</string>
     <string name="tagline">Непомітний. Нестримний.</string>
     <string name="testing">Перевірка…</string>
+    <string name="torUsedPhone">{host} відкрився лише через мережу Tor — останній спосіб Shroudly: у цій мережі більше нічого не спрацювало. Це повільніше, і деякі сайти просять капчу; інші застосунки й сайти працюють як раніше.</string>
+    <string name="torUsedTv">{host} відкрився лише через мережу Tor — останній спосіб Shroudly. Відео звідти можуть вантажитися повільно або в гіршій якості; інші застосунки працюють як раніше.</string>
     <string name="totalCount">Усього: {count}</string>
     <string name="updAvailable">Доступна версія {version}</string>
     <string name="updDownload">Завантажити та встановити</string>
@@ -247,7 +254,7 @@
     <string name="upload">Вивантаження</string>
     <string name="uptime">Час роботи</string>
     <string name="versionLabel">Версія {version}</string>
-    <string name="whatsNewAndroid">З\'єднання за сайтами: що проходить через Shroudly, з даними в обидва боки, і блокування будь-якого сайту (#74).\nБлокування одразу обриває з\'єднання сайту; список зберігається на вашому пристрої.</string>
+    <string name="whatsNewAndroid">Якщо сайт відкривається лише через Tor, останній спосіб, Shroudly тепер про це каже: так повільніше.\nНове: Про програму → Стежити за Shroudly.</string>
     <string name="whatsNewOk">Зрозуміло</string>
     <string name="whatsNewTitle">Що нового у {version}</string>
 </resources>

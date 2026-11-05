@@ -716,6 +716,26 @@
             android:orientation="vertical"
             android:padding="1dp">
 
+            <!-- Follow Shroudly: Codeshare's and its developer's accounts (FollowActivity). -->
+            <LinearLayout
+                android:id="@+id/followRow"
+                style="@style/AboutRow">
+
+                <ImageView
+                    android:importantForAccessibility="no"
+                    style="@style/RowIcon"
+                    android:src="@drawable/ic_users" />
+
+                <TextView
+                    style="@style/RowLabel"
+                    android:text="@string/followTitle" />
+
+                <ImageView
+                    android:importantForAccessibility="no" style="@style/Chevron" />
+            </LinearLayout>
+
+            <View style="@style/Divider" />
+
             <!-- PayPal and bank transfer (Support; the APK from GitHub only). -->
             <LinearLayout
                 android:id="@+id/supportRow"

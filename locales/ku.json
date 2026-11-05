@@ -920,12 +920,20 @@
   "whatsNewTitle": "Tiştên nû di {version} de",
   "whatsNewOk": "Baş e",
   "whatsNewDesktop": "Li torên ku Riot Games lê astengkirî ye, League of Legends, VALORANT û sazkera wan niha bi xwe di ser Shroudly re diçin (#76).\nModa pêşketî li Windows: ajokarekî ku bernameyeke din li pey xwe hiştiye êdî rê li destpêkirina wê nagire.",
-  "whatsNewAndroid": "Girêdan li gorî malperê: bibîne çi di Shroudly re derbas dibe, bi daneyên her du alî, û her malperê asteng bike (#74).\nAstengkirin girêdanên malperê yekser qut dike; lîste li ser amûra te dimîne.",
+  "whatsNewAndroid": "Gava malperek tenê bi Tor, riya dawî, vebe, Shroudly niha vê dibêje, ji ber ku hêdîtir e.\nNû: Derbarê → Shroudly bişopîne.",
   "whatsNewApple": "Girêdan li gorî malperê: bibîne çi di Shroudly re derbas dibe, bi daneyên her du alî, û her malperê asteng bike (#74).\nAstengkirin girêdanên malperê yekser qut dike; lîste li ser amûra te dimîne.",
   "appleVpnNotSigned": "Ev kopiya Shroudly bê destûra Apple ya ji bo VPN hatiye îmzekirin, ji ber vê iOS nahêle ku ew VPN-ekê dest pê bike û qet jî napirse. Kopiyên ku bi Apple ID-ya belaş hatine îmzekirin (AltStore, SideStore, Sideloadly û yên wek wan) qet vê destûrê nînin. Wê bi TrollStore saz bike, an bi hesabekî pêşdebiran ê Apple yê bi pere îmze bike.",
   "appleInstallHelp": "Çawa tê sazkirin",
   "snowflakeHow": "Çawa dixebite: ew bi riya Snowflake ya tora Tor tên, ji ber vê tiştên ku ew vedikin ji pêşkêşkarên Tor derdikevin, ne ji yên te.",
   "snowflakeDevice": "Bi rêya vê amûrê alîkarî bike",
   "snowflakeWhenApple": "Shroudly heta ku li ser iPhone û iPad vekirî be, û li ser Mac dixebite, alîkarî dike. Heta ku tu vê vekî, girtî ye.",
-  "snowflakeWhenAndroid": "Shroudly dema ku parastin vekirî ye û telefon bi Wi-Fi tê şarjkirin alîkarî dike, ji ber vê yekê ne bataryayê ne jî daneyên mobîl xerc dike. Heta ku tu vê vekî, girtî ye."
+  "snowflakeWhenAndroid": "Shroudly dema ku parastin vekirî ye û telefon bi Wi-Fi tê şarjkirin alîkarî dike, ji ber vê yekê ne bataryayê ne jî daneyên mobîl xerc dike. Heta ku tu vê vekî, girtî ye.",
+  "torUsedDesktop": "{host} tenê bi tora Tor vebû — riya dawî ya Shroudly: li ser vê torê tiştekî din derbas nebû. Ev hêdîtir e û hin malper captcha dixwazin; malperên din ên vê komputerê wek berê dixebitin.",
+  "torUsedPhone": "{host} tenê bi tora Tor vebû — riya dawî ya Shroudly: li ser vê torê tiştekî din derbas nebû. Ev hêdîtir e û hin malper captcha dixwazin; sepan û malperên te yên din wek berê dixebitin.",
+  "torUsedTv": "{host} tenê bi tora Tor vebû — riya dawî ya Shroudly. Vîdyoyên wê dibe ku hêdî an bi kalîteya kêmtir bar bibin; sepanên te yên din wek berê dixebitin.",
+  "followTitle": "Shroudly bişopîne",
+  "followDesc": "Nûçeyên li ser astengkirinan, guhertoyên nû û rêyên derbasbûnê pêşî li vir. Şopandin û parvekirin rêya gihîştina Shroudly ya bi kesên ku hewcedarê wê ne ye, û bêpere ye.",
+  "followCodeshare": "Codeshare, ku Shroudly çêdike",
+  "followDeveloper": "Umut Bayraktar, pêşvebirê Shroudly",
+  "followTv": "Van li ser telefon an komputera xwe veke:"
 }

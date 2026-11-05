@@ -147,6 +147,11 @@
     <string name="excludedApps">Aplikasi yang tidak lewat Shroudly</string>
     <string name="excludedAppsCount">Aplikasi yang tidak lewat Shroudly: {count}</string>
     <string name="excludedAppsDesc">Lalu lintasnya langsung keluar tanpa lewat Shroudly: misalnya game yang tidak membutuhkannya.</string>
+    <string name="followCodeshare">Codeshare, pembuat Shroudly</string>
+    <string name="followDesc">Kabar soal pemblokiran, versi baru, dan cara menembusnya, lebih dulu. Mengikuti dan membagikan adalah cara Shroudly menjangkau orang yang membutuhkannya, dan itu gratis.</string>
+    <string name="followDeveloper">Umut Bayraktar, pengembang Shroudly</string>
+    <string name="followTitle">Ikuti Shroudly</string>
+    <string name="followTv">Buka ini di ponsel atau komputer Anda:</string>
     <string name="helpNudgeBodyPhone">Aplikasi gratis memungkinkan orang di negara yang menyensor internet memakai sedikit koneksi ponsel ini untuk menembus blokir. Ini aman bagi Anda: mereka tidak bisa menjangkau ponsel atau jaringan Anda, dan situs yang mereka buka tidak pernah melihat alamat Anda.</string>
     <string name="helpNudgeShow">Lihat</string>
     <string name="helpNudgeTitle">Bantu orang di negara yang disensor?</string>
@@ -236,6 +241,8 @@
     <string name="supportTitle">Dukung Shroudly</string>
     <string name="tagline">Tak terlihat. Tak terhentikan.</string>
     <string name="testing">Menguji…</string>
+    <string name="torUsedPhone">{host} hanya terbuka lewat jaringan Tor, jalan terakhir Shroudly: tidak ada cara lain yang tembus di jaringan ini. Lebih lambat, dan beberapa situs meminta captcha; aplikasi dan situs Anda yang lain tetap seperti biasa.</string>
+    <string name="torUsedTv">{host} hanya terbuka lewat jaringan Tor, jalan terakhir Shroudly. Videonya bisa dimuat lambat atau dengan kualitas lebih rendah; aplikasi Anda yang lain tetap seperti biasa.</string>
     <string name="totalCount">Total: {count}</string>
     <string name="updAvailable">Versi {version} tersedia</string>
     <string name="updDownload">Unduh dan pasang</string>
@@ -247,7 +254,7 @@
     <string name="upload">Unggah</string>
     <string name="uptime">Waktu aktif</string>
     <string name="versionLabel">Versi {version}</string>
-    <string name="whatsNewAndroid">Koneksi per situs: lihat apa yang lewat Shroudly, dengan data di kedua arah, dan blokir situs mana pun (#74).\nMemblokir langsung memutus koneksi situs itu; daftarnya tetap di perangkat Anda.</string>
+    <string name="whatsNewAndroid">Saat sebuah situs hanya terbuka lewat Tor, jalan terakhir, Shroudly kini memberi tahu Anda karena lebih lambat.\nBaru: Tentang → Ikuti Shroudly.</string>
     <string name="whatsNewOk">Mengerti</string>
     <string name="whatsNewTitle">Yang baru di {version}</string>
 </resources>

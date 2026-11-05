@@ -3,10 +3,11 @@
 import { useEffect, useState } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
 import {
-  BugIcon, CodeIcon, ExternalLinkIcon, FileTextIcon, GlobeIcon, InfoIcon, LockIcon, RefreshIcon, SpinnerIcon,
+  BugIcon, CodeIcon, ExternalLinkIcon, FileTextIcon, GlobeIcon, HeartIcon, InfoIcon, LockIcon, RefreshIcon, SpinnerIcon,
 } from './icons';
 import { SupportSection } from './Support';
 import { updateActions, useUpdate } from './useUpdate';
+import FOLLOW from './follow.json';
 
 const REPO_URL = 'https://github.com/umutxyp/Shroudly';
 
@@ -23,6 +24,41 @@ function LinkRow({ href, Icon, label }) {
       <ExternalLinkIcon className="h-4 w-4 rtl:-scale-x-100" style={{ color: 'var(--text-faint)' }} />
     </a>
     </div>
+  );
+}
+
+/* Follow Shroudly: Codeshare's accounts, then its developer's
+ * (components/follow.json; the Android and Apple apps carry the same list,
+ * tests/net/follow.test.js). Each opens in the browser. */
+function FollowGroup({ title, links }) {
+  return (
+    <div className="mt-2.5">
+      <p className="mb-1.5 text-[12px] font-semibold leading-snug" style={{ color: 'var(--text-faint)' }}>{title}</p>
+      <div className="grid grid-cols-2 gap-1.5">
+        {links.map((l) => (
+          <a key={l.url} href={l.url} target="_blank" rel="noreferrer"
+             className="row-hover flex min-w-0 items-center gap-2 rounded-[8px] border px-2.5 py-1.5"
+             style={{ borderColor: 'var(--line)' }}>
+            <span className="min-w-0 flex-1">
+              <span className="block truncate text-[12.5px] font-medium" style={{ color: 'var(--text)' }}>{l.name}</span>
+              <span className="block truncate text-[11.5px]" dir="ltr" style={{ color: 'var(--text-faint)' }}>{l.handle}</span>
+            </span>
+            <ExternalLinkIcon className="h-3.5 w-3.5 shrink-0 rtl:-scale-x-100" style={{ color: 'var(--text-faint)' }} />
+          </a>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+export function FollowSection() {
+  const { t } = useLanguage();
+  return (
+    <Section title={t('followTitle')} Icon={HeartIcon}>
+      <p className="text-[12.5px] leading-relaxed" style={{ color: 'var(--text-dim)' }}>{t('followDesc')}</p>
+      <FollowGroup title={t('followCodeshare')} links={FOLLOW.codeshare} />
+      <FollowGroup title={t('followDeveloper')} links={FOLLOW.developer} />
+    </Section>
   );
 }
 
@@ -103,6 +139,8 @@ export default function InfoPanel({ version: versionProp, supportFocus = 0 }) {
       <Section title={t('howItWorks')} Icon={InfoIcon}>
         <p className="text-[12.5px] leading-relaxed" style={{ color: 'var(--text-dim)' }}>{t('obBody1')}</p>
       </Section>
+
+      <FollowSection />
 
       <UpdatesSection version={version} />
 

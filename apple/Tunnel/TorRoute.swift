@@ -1,4 +1,46 @@
 import Foundation
+#if os(macOS)
+import UserNotifications
+#endif
+
+/* A site that only the last way out (Tor) opened, said to the user: it is
+ * slower, and some sites ask Tor's visitors for a captcha. A notification on
+ * the Mac (the only Apple system with Tor), in the words the app left in
+ * the shared settings (TunnelController, TorNotice.textKey). Once per site
+ * while protection is on, and at most once every 15 minutes. */
+enum TorNotice {
+    static let textKey = "torUsedText"
+    static let every: TimeInterval = 15 * 60
+    private static let lock = NSLock()
+    private static var told = Set<String>()
+    private static var lastAt: Date?
+
+    /* Whether `host` is to be said now. */
+    static func due(_ host: String, now: Date = Date()) -> Bool {
+        lock.lock(); defer { lock.unlock() }
+        let h = host.lowercased()
+        guard !h.isEmpty, told.insert(h).inserted else { return false }
+        if let l = lastAt, now.timeIntervalSince(l) < every { return false }
+        lastAt = now
+        return true
+    }
+
+    static func reset() {
+        lock.lock(); told.removeAll(); lastAt = nil; lock.unlock()
+    }
+
+    static func used(_ host: String) {
+        guard due(host) else { return }
+        #if os(macOS)
+        guard let text = AppGroup.defaults.string(forKey: textKey), !text.isEmpty else { return }
+        let c = UNMutableNotificationContent()
+        c.title = "Shroudly"
+        c.body = text.replacingOccurrences(of: "{host}", with: host.lowercased())
+        UNUserNotificationCenter.current().add(UNNotificationRequest(identifier: "tor-used", content: c, trigger: nil)) { _ in }
+        #endif
+    }
+}
+
 #if SHROUDLY_TOR
 import IPtProxy
 import ShroudlyNative

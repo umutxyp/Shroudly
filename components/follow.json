@@ -1,0 +1,21 @@
+{
+  "codeshare": [
+    { "name": "Instagram", "handle": "@codeshareme", "url": "https://instagram.com/codeshareme" },
+    { "name": "X", "handle": "@codeshareme", "url": "https://x.com/codeshareme" },
+    { "name": "Discord", "handle": "Codeshare", "url": "https://discord.gg/BhdgVfsFVC" },
+    { "name": "LinkedIn", "handle": "codeshareme", "url": "https://www.linkedin.com/company/codeshareme" },
+    { "name": "Facebook", "handle": "codeshareme", "url": "https://www.facebook.com/codeshareme" },
+    { "name": "GitHub", "handle": "codeshareme", "url": "https://github.com/codeshareme" },
+    { "name": "codeshare.me", "handle": "codeshare.me", "url": "https://codeshare.me" }
+  ],
+  "developer": [
+    { "name": "Instagram", "handle": "@umutxyp", "url": "https://instagram.com/umutxyp" },
+    { "name": "YouTube", "handle": "@umutxyp", "url": "https://youtube.com/@umutxyp" },
+    { "name": "TikTok", "handle": "@umutxyp", "url": "https://tiktok.com/@umutxyp" },
+    { "name": "X", "handle": "@devbayraktar", "url": "https://x.com/devbayraktar" },
+    { "name": "Telegram", "handle": "@umutxyp", "url": "https://t.me/umutxyp" },
+    { "name": "GitHub", "handle": "umutxyp", "url": "https://github.com/umutxyp" },
+    { "name": "LinkedIn", "handle": "umutxyp", "url": "https://linkedin.com/in/umutxyp" },
+    { "name": "Facebook", "handle": "umutxyp", "url": "https://facebook.com/umutxyp" }
+  ]
+}

@@ -147,6 +147,11 @@
     <string name="excludedApps">Apps que não passam pelo Shroudly</string>
     <string name="excludedAppsCount">Apps que não passam pelo Shroudly: {count}</string>
     <string name="excludedAppsDesc">O tráfego delas sai direto, sem passar pelo Shroudly: por exemplo, um jogo que não precisa dele.</string>
+    <string name="followCodeshare">Codeshare, quem faz o Shroudly</string>
+    <string name="followDesc">Notícias sobre bloqueios, novas versões e formas de passar, em primeira mão. Seguir e compartilhar é como o Shroudly chega a quem precisa, e não custa nada.</string>
+    <string name="followDeveloper">Umut Bayraktar, o desenvolvedor do Shroudly</string>
+    <string name="followTitle">Siga o Shroudly</string>
+    <string name="followTv">Abra-os no seu celular ou computador:</string>
     <string name="helpNudgeBodyPhone">Um app gratuito permite que pessoas em países que censuram a internet usem um pouco da conexão deste celular para passar pelos bloqueios. É seguro para você: elas não conseguem chegar ao seu celular nem à sua rede, e os sites que abrem nunca veem o seu endereço.</string>
     <string name="helpNudgeShow">Mostrar</string>
     <string name="helpNudgeTitle">Ajudar pessoas em países com censura?</string>
@@ -236,6 +241,8 @@
     <string name="supportTitle">Apoie o Shroudly</string>
     <string name="tagline">Invisível. Imparável.</string>
     <string name="testing">Testando…</string>
+    <string name="torUsedPhone">{host} só abriu pela rede Tor, o último recurso do Shroudly: nada mais funcionou nesta rede. É mais lento e alguns sites pedem um captcha; seus outros apps e sites continuam como antes.</string>
+    <string name="torUsedTv">{host} só abriu pela rede Tor, o último recurso do Shroudly. Os vídeos dele podem carregar devagar ou com qualidade menor; seus outros apps continuam como antes.</string>
     <string name="totalCount">Total: {count}</string>
     <string name="updAvailable">A versão {version} está disponível</string>
     <string name="updDownload">Baixar e instalar</string>
@@ -247,7 +254,7 @@
     <string name="upload">Enviado</string>
     <string name="uptime">Tempo ativo</string>
     <string name="versionLabel">Versão {version}</string>
-    <string name="whatsNewAndroid">Conexões por site: veja o que passa pelo Shroudly, com os dados em cada sentido, e bloqueie o site que quiser (#74).\nBloquear um site encerra as conexões dele na hora; a lista fica no seu dispositivo.</string>
+    <string name="whatsNewAndroid">Quando um site só abre pelo Tor, o último recurso, o Shroudly agora avisa, porque é mais lento.\nNovo: Sobre → Siga o Shroudly, com nossas contas.</string>
     <string name="whatsNewOk">Entendi</string>
     <string name="whatsNewTitle">Novidades da {version}</string>
 </resources>

@@ -1252,7 +1252,7 @@ class ShroudlyVpnService : VpnService() {
             is EngineEvent.Error -> log("engine: ${ev.message}")
             is EngineEvent.Upstream -> if (!ev.ok) ownServer.down(OwnServer.whyCode(ev.why))
             // Nothing was listening: Tor is started for the next connection.
-            is EngineEvent.Fallback -> if (!ev.ok) { if (ev.why != "file unusable") torRoute.need() }
+            is EngineEvent.Fallback -> if (!ev.ok) { if (ev.why != "file unusable") torRoute.need() } else if (ev.host.isNotEmpty()) TorNotice.used(this, ev.host)
                 else logSite("${ev.host}: no technique got through; opened through the last way out (Tor)")
             is EngineEvent.Adblock -> when {
                 ev.error != null -> log("Ad blocking: the list could not be used (${ev.error})")
@@ -1547,6 +1547,7 @@ class ShroudlyVpnService : VpnService() {
         active = false
         snowflake.stop()
         torRoute.stop()
+        TorNotice.reset()
         OnlineCount.stop(leave = false)
         healthEpoch++
         poll?.cancel(false); poll = null

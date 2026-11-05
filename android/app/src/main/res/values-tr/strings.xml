@@ -147,6 +147,11 @@
     <string name="excludedApps">Shroudly\'yi atlayan uygulamalar</string>
     <string name="excludedAppsCount">Shroudly\'yi atlayan uygulamalar: {count}</string>
     <string name="excludedAppsDesc">Trafikleri Shroudly\'ye uğramadan doğrudan çıkar: örneğin buna ihtiyacı olmayan bir oyun.</string>
+    <string name="followCodeshare">Shroudly\'yi yapan Codeshare</string>
+    <string name="followDesc">Engeller, yeni sürümler ve aşma yolları hakkındaki haberler önce burada. Takip etmek ve paylaşmak, Shroudly\'nin ona ihtiyacı olan insanlara ulaşmasının yolu ve hiçbir şeye mal olmaz.</string>
+    <string name="followDeveloper">Shroudly\'nin geliştiricisi Umut Bayraktar</string>
+    <string name="followTitle">Shroudly\'yi takip et</string>
+    <string name="followTv">Bunları telefonunda ya da bilgisayarında aç:</string>
     <string name="helpNudgeBodyPhone">Ücretsiz bir uygulama, interneti sansürlenen ülkelerdeki insanların engelleri aşmak için bu telefonun bağlantısının küçük bir kısmını kullanmasını sağlar. Senin için güvenli: telefonuna ya da ağına ulaşamazlar, açtıkları siteler senin adresini hiçbir zaman görmez.</string>
     <string name="helpNudgeShow">Göster</string>
     <string name="helpNudgeTitle">Sansürlü ülkelerdeki insanlara yardım etmek ister misin?</string>
@@ -236,6 +241,8 @@
     <string name="supportTitle">Shroudly\'yi destekle</string>
     <string name="tagline">Görünmez. Durdurulamaz.</string>
     <string name="testing">Test ediliyor…</string>
+    <string name="torUsedPhone">{host} yalnızca Shroudly\'nin son çaresi olan Tor ağı üzerinden açıldı: bu ağda başka hiçbir yol işe yaramadı. Daha yavaştır ve bazı siteler doğrulama (captcha) ister; diğer uygulamaların ve sitelerin eskisi gibi çalışır.</string>
+    <string name="torUsedTv">{host} yalnızca Shroudly\'nin son çaresi olan Tor ağı üzerinden açıldı. Oradaki videolar yavaş ya da düşük kalitede yüklenebilir; diğer uygulamaların eskisi gibi çalışır.</string>
     <string name="totalCount">Toplam: {count}</string>
     <string name="updAvailable">Sürüm {version} kullanılabilir</string>
     <string name="updDownload">İndir ve kur</string>
@@ -247,7 +254,7 @@
     <string name="upload">Yükleme</string>
     <string name="uptime">Çalışma süresi</string>
     <string name="versionLabel">Sürüm {version}</string>
-    <string name="whatsNewAndroid">Siteye göre bağlantılar: Shroudly\'den neyin geçtiğini, iki yöndeki verisiyle gör ve istediğin siteyi engelle (#74).\nEngellemek o sitenin bağlantılarını hemen keser; liste senin cihazında kalır.</string>
+    <string name="whatsNewAndroid">Bir site yalnızca son çare olan Tor üzerinden açılırsa Shroudly artık bunu söylüyor, çünkü daha yavaş.\nYeni: Hakkında → Shroudly\'yi takip et, hesaplarımızla.</string>
     <string name="whatsNewOk">Tamam</string>
     <string name="whatsNewTitle">{version} sürümünde yenilikler</string>
 </resources>

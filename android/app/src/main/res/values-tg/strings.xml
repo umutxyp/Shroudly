@@ -147,6 +147,11 @@
     <string name="excludedApps">Барномаҳое, ки Shroudly-ро давр мезананд</string>
     <string name="excludedAppsCount">Барномаҳое, ки Shroudly-ро давр мезананд: {count}</string>
     <string name="excludedAppsDesc">Трафики онҳо бе гузаштан аз Shroudly мустақим мебарояд: масалан, бозие, ки ба он ниёз надорад.</string>
+    <string name="followCodeshare">Codeshare, ки Shroudly-ро месозад</string>
+    <string name="followDesc">Хабарҳо дар бораи бандишҳо, версияҳои нав ва роҳҳои гузаштан аввал дар ин ҷо. Пайгирӣ ва мубодила ба Shroudly кӯмак мекунад, ки ба онҳое, ки ба он ниёз доранд, бирасад ва ройгон аст.</string>
+    <string name="followDeveloper">Умут Байрақтар, таҳиягари Shroudly</string>
+    <string name="followTitle">Shroudly-ро пайгирӣ кунед</string>
+    <string name="followTv">Инҳоро дар телефон ё компютери худ кушоед:</string>
     <string name="helpNudgeBodyPhone">Барномаи ройгон ба одамон дар кишварҳое, ки интернетро сензура мекунанд, имкон медиҳад барои гузаштан аз манъҳо қисми хурди пайвасти ин телефонро истифода баранд. Барои шумо бехатар аст: онҳо ба телефон ё шабакаи шумо дастрасӣ надоранд ва сайтҳое, ки мекушоянд, ҳеҷ гоҳ суроғаи шуморо намебинанд.</string>
     <string name="helpNudgeShow">Нишон додан</string>
     <string name="helpNudgeTitle">Ба одамон дар кишварҳои сензурадор кӯмак мекунед?</string>
@@ -236,6 +241,8 @@
     <string name="supportTitle">Дастгирии Shroudly</string>
     <string name="tagline">Ноаён. Боздоштнашаванда.</string>
     <string name="testing">Санҷиш…</string>
+    <string name="torUsedPhone">{host} танҳо тавассути шабакаи Tor кушода шуд — роҳи охирини Shroudly: дар ин шабака чизи дигар кор накард. Ин сусттар аст ва баъзе сайтҳо капча мепурсанд; дигар барномаҳо ва сайтҳо мисли пештара кор мекунанд.</string>
+    <string name="torUsedTv">{host} танҳо тавассути шабакаи Tor кушода шуд — роҳи охирини Shroudly. Видеоҳои он метавонанд суст ё бо сифати пасттар бор шаванд; дигар барномаҳо мисли пештара кор мекунанд.</string>
     <string name="totalCount">Ҳамагӣ: {count}</string>
     <string name="updAvailable">Версияи {version} дастрас аст</string>
     <string name="updDownload">Боргирӣ ва насб</string>
@@ -247,7 +254,7 @@
     <string name="upload">Ирсол</string>
     <string name="uptime">Вақти кор</string>
     <string name="versionLabel">Версияи {version}</string>
-    <string name="whatsNewAndroid">Пайвастҳо аз рӯи сайт: бинед, ки чӣ тавассути Shroudly мегузарад, бо маълумоти ҳарду самт, ва ҳар сайтро манъ кунед (#74).\nМанъ кардан пайвастҳои сайтро фавран мебурад; рӯйхат дар дастгоҳи шумо мемонад.</string>
+    <string name="whatsNewAndroid">Агар сайт танҳо тавассути Tor, роҳи охирин, кушода шавад, Shroudly акнун инро мегӯяд, зеро он сусттар аст.\nНав: Дар бораи барнома → Shroudly-ро пайгирӣ кунед.</string>
     <string name="whatsNewOk">Фаҳмо</string>
     <string name="whatsNewTitle">Навигариҳои {version}</string>
 </resources>

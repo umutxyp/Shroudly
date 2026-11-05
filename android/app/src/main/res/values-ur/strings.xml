@@ -147,6 +147,11 @@
     <string name="excludedApps">وہ ایپس جو Shroudly سے نہیں گزرتیں</string>
     <string name="excludedAppsCount">وہ ایپس جو Shroudly سے نہیں گزرتیں: {count}</string>
     <string name="excludedAppsDesc">ان کی ٹریفک Shroudly سے گزرے بغیر سیدھی باہر جاتی ہے: مثلاً کوئی گیم جسے اس کی ضرورت نہیں۔</string>
+    <string name="followCodeshare">Codeshare، جو Shroudly بناتے ہیں</string>
+    <string name="followDesc">پابندیوں، نئے ورژنز اور گزرنے کے طریقوں کی خبریں سب سے پہلے۔ فالو اور شیئر کرنا ہی Shroudly کو ضرورت مندوں تک پہنچاتا ہے، اور اس پر کچھ خرچ نہیں ہوتا۔</string>
+    <string name="followDeveloper">اُمت بیرقدار، Shroudly کے ڈویلپر</string>
+    <string name="followTitle">Shroudly کو فالو کریں</string>
+    <string name="followTv">انہیں اپنے فون یا کمپیوٹر پر کھولیں:</string>
     <string name="helpNudgeBodyPhone">ایک مفت ایپ سنسر والے ملکوں کے لوگوں کو پابندیوں سے گزرنے کے لیے اس فون کے کنکشن کا تھوڑا سا حصہ استعمال کرنے دیتی ہے۔ یہ آپ کے لیے محفوظ ہے: وہ آپ کے فون یا نیٹ ورک تک نہیں پہنچ سکتے، اور جو سائٹس وہ کھولتے ہیں وہ کبھی آپ کا پتہ نہیں دیکھتیں۔</string>
     <string name="helpNudgeShow">دکھائیں</string>
     <string name="helpNudgeTitle">سنسر والے ملکوں کے لوگوں کی مدد کریں؟</string>
@@ -236,6 +241,8 @@
     <string name="supportTitle">Shroudly کی مدد کریں</string>
     <string name="tagline">غیر مرئی۔ ناقابلِ تسخیر۔</string>
     <string name="testing">جانچ ہو رہی ہے…</string>
+    <string name="torUsedPhone">{host} صرف Tor نیٹ ورک کے ذریعے کھلا، جو Shroudly کا آخری راستہ ہے: اس نیٹ ورک پر اور کچھ کام نہیں آیا۔ یہ سست ہے اور کچھ سائٹس کیپچا مانگتی ہیں؛ آپ کی باقی ایپس اور سائٹس پہلے کی طرح چلتی ہیں۔</string>
+    <string name="torUsedTv">{host} صرف Tor نیٹ ورک کے ذریعے کھلا، جو Shroudly کا آخری راستہ ہے۔ اس کی ویڈیوز آہستہ یا کم معیار میں لوڈ ہو سکتی ہیں؛ آپ کی باقی ایپس پہلے کی طرح چلتی ہیں۔</string>
     <string name="totalCount">کل: {count}</string>
     <string name="updAvailable">ورژن {version} دستیاب ہے</string>
     <string name="updDownload">ڈاؤن لوڈ اور انسٹال کریں</string>
@@ -247,7 +254,7 @@
     <string name="upload">اپ لوڈ</string>
     <string name="uptime">چلنے کا دورانیہ</string>
     <string name="versionLabel">ورژن {version}</string>
-    <string name="whatsNewAndroid">سائٹ کے لحاظ سے کنکشن: دیکھیں Shroudly سے کیا گزر رہا ہے، دونوں سمتوں کے ڈیٹا کے ساتھ، اور کوئی بھی سائٹ بلاک کریں (#74)۔\nبلاک کرنے سے سائٹ کے کنکشن فوراً ختم ہو جاتے ہیں؛ فہرست آپ کی ڈیوائس پر رہتی ہے۔</string>
+    <string name="whatsNewAndroid">جب کوئی سائٹ صرف Tor، آخری راستے، سے کھلے تو Shroudly اب یہ بتاتا ہے، کیونکہ یہ سست ہے۔\nنیا: تعارف → Shroudly کو فالو کریں۔</string>
     <string name="whatsNewOk">سمجھ گیا</string>
     <string name="whatsNewTitle">{version} میں نیا کیا ہے</string>
 </resources>

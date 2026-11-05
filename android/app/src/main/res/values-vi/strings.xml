@@ -147,6 +147,11 @@
     <string name="excludedApps">Ứng dụng không đi qua Shroudly</string>
     <string name="excludedAppsCount">Ứng dụng không đi qua Shroudly: {count}</string>
     <string name="excludedAppsDesc">Lưu lượng của chúng đi thẳng ra ngoài, không qua Shroudly: ví dụ một trò chơi không cần đến nó.</string>
+    <string name="followCodeshare">Codeshare, đội làm ra Shroudly</string>
+    <string name="followDesc">Tin về chặn mạng, phiên bản mới và cách vượt qua, sớm nhất. Theo dõi và chia sẻ là cách Shroudly đến được với những người cần nó, và hoàn toàn miễn phí.</string>
+    <string name="followDeveloper">Umut Bayraktar, nhà phát triển Shroudly</string>
+    <string name="followTitle">Theo dõi Shroudly</string>
+    <string name="followTv">Hãy mở chúng trên điện thoại hoặc máy tính:</string>
     <string name="helpNudgeBodyPhone">Một ứng dụng miễn phí cho phép người ở các nước kiểm duyệt internet dùng một chút kết nối của điện thoại này để vượt qua chặn. Điều này an toàn với bạn: họ không thể vào điện thoại hay mạng của bạn, và các trang web họ mở không bao giờ thấy địa chỉ của bạn.</string>
     <string name="helpNudgeShow">Xem</string>
     <string name="helpNudgeTitle">Giúp người ở các nước bị kiểm duyệt?</string>
@@ -236,6 +241,8 @@
     <string name="supportTitle">Ủng hộ Shroudly</string>
     <string name="tagline">Vô hình. Không thể ngăn cản.</string>
     <string name="testing">Đang kiểm tra…</string>
+    <string name="torUsedPhone">{host} chỉ mở được qua mạng Tor, đường cuối cùng của Shroudly: trên mạng này không cách nào khác vượt qua được. Tốc độ chậm hơn và một số trang yêu cầu captcha; các ứng dụng và trang khác của bạn vẫn như cũ.</string>
+    <string name="torUsedTv">{host} chỉ mở được qua mạng Tor, đường cuối cùng của Shroudly. Video từ đó có thể tải chậm hoặc chất lượng thấp hơn; các ứng dụng khác của bạn vẫn như cũ.</string>
     <string name="totalCount">Tổng: {count}</string>
     <string name="updAvailable">Đã có phiên bản {version}</string>
     <string name="updDownload">Tải xuống và cài đặt</string>
@@ -247,7 +254,7 @@
     <string name="upload">Tải lên</string>
     <string name="uptime">Thời gian chạy</string>
     <string name="versionLabel">Phiên bản {version}</string>
-    <string name="whatsNewAndroid">Kết nối theo trang: xem những gì đi qua Shroudly, kèm dữ liệu hai chiều, và chặn bất kỳ trang nào (#74).\nChặn sẽ cắt ngay các kết nối của trang; danh sách nằm trên thiết bị của bạn.</string>
+    <string name="whatsNewAndroid">Khi một trang chỉ mở được qua Tor, đường cuối cùng, Shroudly giờ sẽ báo cho bạn vì nó chậm hơn.\nMới: Giới thiệu → Theo dõi Shroudly.</string>
     <string name="whatsNewOk">Đã hiểu</string>
     <string name="whatsNewTitle">Có gì mới trong {version}</string>
 </resources>

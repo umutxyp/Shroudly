@@ -1,4 +1,7 @@
 import Foundation
+#if os(macOS)
+import UserNotifications
+#endif
 import NetworkExtension
 
 /*
@@ -71,6 +74,14 @@ final class TunnelController: ObservableObject {
             }
             return
         }
+        #if os(macOS)
+        // The last way out tells when it carried a site (Tunnel/TorRoute.swift,
+        // TorNotice): in these words, with the system's permission.
+        if store.load().torLastResort {
+            AppGroup.defaults.set(tr("torUsedDesktop"), forKey: "torUsedText")
+            UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound]) { _, _ in }
+        }
+        #endif
         do {
             try m.connection.startVPNTunnel()
             log.write("Start asked")

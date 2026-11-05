@@ -920,12 +920,20 @@
   "whatsNewTitle": "Có gì mới trong {version}",
   "whatsNewOk": "Đã hiểu",
   "whatsNewDesktop": "Ở nơi Riot Games bị chặn, League of Legends, VALORANT và trình cài đặt của chúng giờ tự đi qua Shroudly (#76).\nChế độ nâng cao trên Windows: trình điều khiển do chương trình khác để lại không còn ngăn nó khởi động.",
-  "whatsNewAndroid": "Kết nối theo trang: xem những gì đi qua Shroudly, kèm dữ liệu hai chiều, và chặn bất kỳ trang nào (#74).\nChặn sẽ cắt ngay các kết nối của trang; danh sách nằm trên thiết bị của bạn.",
+  "whatsNewAndroid": "Khi một trang chỉ mở được qua Tor, đường cuối cùng, Shroudly giờ sẽ báo cho bạn vì nó chậm hơn.\nMới: Giới thiệu → Theo dõi Shroudly.",
   "whatsNewApple": "Kết nối theo trang: xem những gì đi qua Shroudly, kèm dữ liệu hai chiều, và chặn bất kỳ trang nào (#74).\nChặn sẽ cắt ngay các kết nối của trang; danh sách nằm trên thiết bị của bạn.",
   "appleVpnNotSigned": "Bản Shroudly này được ký mà không có quyền VPN của Apple, nên iOS không cho nó khởi động VPN và cũng không bao giờ hỏi. Các bản ký bằng Apple ID miễn phí (AltStore, SideStore, Sideloadly và tương tự) không bao giờ có quyền này. Hãy cài bằng TrollStore, hoặc ký bằng tài khoản nhà phát triển Apple trả phí.",
   "appleInstallHelp": "Cách cài đặt",
   "snowflakeHow": "Cách hoạt động: họ đến qua Snowflake của mạng Tor, nên những gì họ mở đi ra từ máy chủ của Tor, không phải từ bạn.",
   "snowflakeDevice": "Giúp qua thiết bị này",
   "snowflakeWhenApple": "Shroudly giúp khi đang mở trên iPhone và iPad, và khi đang chạy trên Mac. Tắt cho đến khi bạn bật.",
-  "snowflakeWhenAndroid": "Shroudly giúp khi bảo vệ đang bật và điện thoại đang sạc qua Wi-Fi, nên không tốn pin hay dữ liệu di động. Tắt cho đến khi bạn bật."
+  "snowflakeWhenAndroid": "Shroudly giúp khi bảo vệ đang bật và điện thoại đang sạc qua Wi-Fi, nên không tốn pin hay dữ liệu di động. Tắt cho đến khi bạn bật.",
+  "torUsedDesktop": "{host} chỉ mở được qua mạng Tor, đường cuối cùng của Shroudly: trên mạng này không cách nào khác vượt qua được. Tốc độ chậm hơn và một số trang yêu cầu captcha; các trang khác trên máy tính này vẫn như cũ.",
+  "torUsedPhone": "{host} chỉ mở được qua mạng Tor, đường cuối cùng của Shroudly: trên mạng này không cách nào khác vượt qua được. Tốc độ chậm hơn và một số trang yêu cầu captcha; các ứng dụng và trang khác của bạn vẫn như cũ.",
+  "torUsedTv": "{host} chỉ mở được qua mạng Tor, đường cuối cùng của Shroudly. Video từ đó có thể tải chậm hoặc chất lượng thấp hơn; các ứng dụng khác của bạn vẫn như cũ.",
+  "followTitle": "Theo dõi Shroudly",
+  "followDesc": "Tin về chặn mạng, phiên bản mới và cách vượt qua, sớm nhất. Theo dõi và chia sẻ là cách Shroudly đến được với những người cần nó, và hoàn toàn miễn phí.",
+  "followCodeshare": "Codeshare, đội làm ra Shroudly",
+  "followDeveloper": "Umut Bayraktar, nhà phát triển Shroudly",
+  "followTv": "Hãy mở chúng trên điện thoại hoặc máy tính:"
 }

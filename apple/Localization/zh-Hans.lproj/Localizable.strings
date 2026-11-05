@@ -56,6 +56,11 @@
 "dnsServerUse" = "使用";
 "dnsServerUseAnyway" = "仍然使用";
 "download" = "下载";
+"followCodeshare" = "Codeshare，Shroudly 的开发团队";
+"followDesc" = "封锁消息、新版本和绕过的方法，第一时间知道。关注和分享能让 Shroudly 找到需要它的人，而且不花一分钱。";
+"followDeveloper" = "Umut Bayraktar，Shroudly 的开发者";
+"followTitle" = "关注 Shroudly";
+"followTv" = "请在手机或电脑上打开：";
 "helpNudgeBodyPhone" = "一个免费应用可以让互联网受审查国家的人们借用这部手机的一小部分网络连接来绕过封锁。这对你是安全的：他们无法访问你的手机或网络，他们打开的网站也永远看不到你的地址。";
 "helpNudgeShow" = "查看";
 "helpNudgeTitle" = "愿意帮助受审查国家的人们吗？";
@@ -127,6 +132,7 @@
 "strategy" = "绕过策略";
 "supportBannerLater" = "以后再说";
 "tagline" = "隐形。不可阻挡。";
+"torUsedDesktop" = "{host} 只能通过 Tor 网络打开，这是 Shroudly 的最后一招：在这个网络上其他方法都不行。速度较慢，有些网站会要求验证码；这台电脑上的其他网站照常。";
 "totalCount" = "总计：{count}";
 "upload" = "上传";
 "uptime" = "运行时长";

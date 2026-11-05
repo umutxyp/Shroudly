@@ -114,6 +114,12 @@
             android:exported="false"
             android:label="@string/navSettings" />
 
+        <!-- Follow Shroudly (FollowActivity). -->
+        <activity
+            android:name=".FollowActivity"
+            android:exported="false"
+            android:label="@string/followTitle" />
+
         <!-- Connections by site, with blocking (issue #74; ConnectionsActivity). -->
         <activity
             android:name=".ConnectionsActivity"

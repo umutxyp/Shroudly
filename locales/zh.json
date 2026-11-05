@@ -920,12 +920,20 @@
   "whatsNewTitle": "{version} 的新内容",
   "whatsNewOk": "知道了",
   "whatsNewDesktop": "在封锁 Riot Games 的网络上，League of Legends、VALORANT 及其安装程序现在会自动经由 Shroudly 连接 (#76)。\nWindows 高级模式：其他程序遗留的驱动不再阻止它启动。",
-  "whatsNewAndroid": "按网站的连接:查看经过 Shroudly 的内容及双向数据量,并屏蔽任意网站 (#74)。\n屏蔽会立即断开该网站的连接;列表保存在你的设备上。",
+  "whatsNewAndroid": "当网站只能通过最后一招 Tor 打开时，Shroudly 现在会告诉你，因为速度较慢。\n新增：关于 → 关注 Shroudly。",
   "whatsNewApple": "按网站的连接:查看经过 Shroudly 的内容及双向数据量,并屏蔽任意网站 (#74)。\n屏蔽会立即断开该网站的连接;列表保存在你的设备上。",
   "appleVpnNotSigned": "此 Shroudly 副本的签名没有 Apple 的 VPN 权限，因此 iOS 不允许它启动 VPN，也从不询问。用免费 Apple ID 签名的副本（AltStore、SideStore、Sideloadly 等）永远没有这项权限。请用 TrollStore 安装，或用付费的 Apple 开发者账号签名。",
   "appleInstallHelp": "安装方法",
   "snowflakeHow": "原理：他们通过 Tor 网络的 Snowflake 接入，所以他们打开的内容从 Tor 的服务器出去，而不是从你这里。",
   "snowflakeDevice": "通过此设备帮助",
   "snowflakeWhenApple": "Shroudly 在 iPhone 和 iPad 上打开时、在 Mac 上运行时提供帮助。在你打开之前一直关闭。",
-  "snowflakeWhenAndroid": "Shroudly 在保护开启且手机连着 Wi-Fi 充电时提供帮助，因此不耗电，也不用移动数据。在你打开之前一直关闭。"
+  "snowflakeWhenAndroid": "Shroudly 在保护开启且手机连着 Wi-Fi 充电时提供帮助，因此不耗电，也不用移动数据。在你打开之前一直关闭。",
+  "torUsedDesktop": "{host} 只能通过 Tor 网络打开，这是 Shroudly 的最后一招：在这个网络上其他方法都不行。速度较慢，有些网站会要求验证码；这台电脑上的其他网站照常。",
+  "torUsedPhone": "{host} 只能通过 Tor 网络打开，这是 Shroudly 的最后一招：在这个网络上其他方法都不行。速度较慢，有些网站会要求验证码；你的其他应用和网站照常。",
+  "torUsedTv": "{host} 只能通过 Tor 网络打开，这是 Shroudly 的最后一招。它的视频可能加载较慢或画质较低；你的其他应用照常。",
+  "followTitle": "关注 Shroudly",
+  "followDesc": "封锁消息、新版本和绕过的方法，第一时间知道。关注和分享能让 Shroudly 找到需要它的人，而且不花一分钱。",
+  "followCodeshare": "Codeshare，Shroudly 的开发团队",
+  "followDeveloper": "Umut Bayraktar，Shroudly 的开发者",
+  "followTv": "请在手机或电脑上打开："
 }

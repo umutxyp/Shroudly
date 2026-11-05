@@ -91,10 +91,20 @@ async function get(P, host, port, timeoutMs = 40000) {
     await H.sleep(200);
     t.ok((eng.out.match(/"type":"fallback","ok":1,"host":"dropped\.example"/g) || []).length === 1, 'said once, not per connection');
 
+    // FALLBACK-FORGET (Advanced mode came on): Tor is never a name's habit;
+    // the next connection walks every technique again before it.
+    eng.proc.stdin.write('FALLBACK-FORGET\n');
+    await H.sleep(100);
+    const blockedBefore = (eng.out.match(/"type":"blocked","host":"dropped\.example"/g) || []).length;
+    const e2 = await get(P, 'dropped.example', silentPort, 60000);
+    const blockedAfter = (eng.out.match(/"type":"blocked","host":"dropped\.example"/g) || []).length;
+    t.ok(e2 === 'HTTP/1.1 200 OK' && tor.asked.length === 4 && blockedAfter === blockedBefore + 1,
+      `after FALLBACK-FORGET the techniques are tried again first, Tor only after them (${blockedBefore} -> ${blockedAfter} ladders)`);
+
     // This computer: never through it.
     const dead = await H.freePort();
     const d = await get(P, '127.0.0.1', dead, 8000);
-    t.ok(d !== 'HTTP/1.1 200 OK' && tor.asked.length === 3, `an address on this computer never goes through the last way out (${d})`);
+    t.ok(d !== 'HTTP/1.1 200 OK' && tor.asked.length === 4, `an address on this computer never goes through the last way out (${d})`);
     eng.stop();
   }
 

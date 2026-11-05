@@ -147,6 +147,11 @@
     <string name="excludedApps">Sepanên ku di Shroudly re derbas nabin</string>
     <string name="excludedAppsCount">Sepanên ku di Shroudly re derbas nabin: {count}</string>
     <string name="excludedAppsDesc">Seyrûsefera wan rasterast derdikeve, bê ku di Shroudly re derbas bibe: mînak lîstikek ku hewcedariya wê pê tune.</string>
+    <string name="followCodeshare">Codeshare, ku Shroudly çêdike</string>
+    <string name="followDesc">Nûçeyên li ser astengkirinan, guhertoyên nû û rêyên derbasbûnê pêşî li vir. Şopandin û parvekirin rêya gihîştina Shroudly ya bi kesên ku hewcedarê wê ne ye, û bêpere ye.</string>
+    <string name="followDeveloper">Umut Bayraktar, pêşvebirê Shroudly</string>
+    <string name="followTitle">Shroudly bişopîne</string>
+    <string name="followTv">Van li ser telefon an komputera xwe veke:</string>
     <string name="helpNudgeBodyPhone">Sepaneke belaş dihêle ku mirovên li welatên ku înternetê sansûr dikin beşek piçûk ji girêdana vê telefonê bi kar bînin da ku astengan derbas bikin. Ji bo te ewle ye: ew nagihîjin telefon an tora te, û malperên ku ew vedikin qet navnîşana te nabînin.</string>
     <string name="helpNudgeShow">Nîşan bide</string>
     <string name="helpNudgeTitle">Tu dixwazî alîkariya mirovên li welatên bi sansûr bikî?</string>
@@ -236,6 +241,8 @@
     <string name="supportTitle">Piştgiriyê bide Shroudly</string>
     <string name="tagline">Nayê dîtin. Nayê rawestandin.</string>
     <string name="testing">Tê ceribandin…</string>
+    <string name="torUsedPhone">{host} tenê bi tora Tor vebû — riya dawî ya Shroudly: li ser vê torê tiştekî din derbas nebû. Ev hêdîtir e û hin malper captcha dixwazin; sepan û malperên te yên din wek berê dixebitin.</string>
+    <string name="torUsedTv">{host} tenê bi tora Tor vebû — riya dawî ya Shroudly. Vîdyoyên wê dibe ku hêdî an bi kalîteya kêmtir bar bibin; sepanên te yên din wek berê dixebitin.</string>
     <string name="totalCount">Bi giştî: {count}</string>
     <string name="updAvailable">Guhertoya {version} heye</string>
     <string name="updDownload">Daxe û saz bike</string>
@@ -247,7 +254,7 @@
     <string name="upload">Barkirin</string>
     <string name="uptime">Dema xebatê</string>
     <string name="versionLabel">Guherto {version}</string>
-    <string name="whatsNewAndroid">Girêdan li gorî malperê: bibîne çi di Shroudly re derbas dibe, bi daneyên her du alî, û her malperê asteng bike (#74).\nAstengkirin girêdanên malperê yekser qut dike; lîste li ser amûra te dimîne.</string>
+    <string name="whatsNewAndroid">Gava malperek tenê bi Tor, riya dawî, vebe, Shroudly niha vê dibêje, ji ber ku hêdîtir e.\nNû: Derbarê → Shroudly bişopîne.</string>
     <string name="whatsNewOk">Baş e</string>
     <string name="whatsNewTitle">Tiştên nû di {version} de</string>
 </resources>

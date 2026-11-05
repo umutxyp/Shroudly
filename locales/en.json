@@ -920,12 +920,20 @@
   "whatsNewTitle": "What's new in {version}",
   "whatsNewOk": "Got it",
   "whatsNewDesktop": "Where Riot Games is blocked, League of Legends, VALORANT and their installer now go through Shroudly by themselves (#76).\nAdvanced mode on Windows: a driver another program left behind no longer stops it from starting.",
-  "whatsNewAndroid": "Connections by site: see what goes through Shroudly, with the data each way, and block any site (#74).\nBlocking a site ends its connections at once; the list stays on your device.",
+  "whatsNewAndroid": "When a site opens only through Tor, the last way out, Shroudly now tells you, since it is slower.\nNew: About → Follow Shroudly, with our accounts.",
   "whatsNewApple": "Connections by site: see what goes through Shroudly, with the data each way, and block any site (#74).\nBlocking a site ends its connections at once; the list stays on your device.",
   "appleVpnNotSigned": "This copy of Shroudly is signed without Apple's permission for VPNs, so iOS does not let it start one, and never asks. Copies signed with a free Apple ID (AltStore, SideStore, Sideloadly and the like) never have it. Install it with TrollStore, or sign it with a paid Apple developer account.",
   "appleInstallHelp": "How to install it",
   "snowflakeHow": "How it works: they come through the Tor network's Snowflake, so what they open leaves from Tor's servers, not from yours.",
   "snowflakeDevice": "Help through this device",
   "snowflakeWhenApple": "Shroudly helps while it is open on iPhone and iPad, and while it runs on a Mac. Off until you turn it on.",
-  "snowflakeWhenAndroid": "Shroudly helps while protection is on and the phone is charging on Wi-Fi, so it costs no battery and no mobile data. Off until you turn it on."
+  "snowflakeWhenAndroid": "Shroudly helps while protection is on and the phone is charging on Wi-Fi, so it costs no battery and no mobile data. Off until you turn it on.",
+  "torUsedDesktop": "{host} opened only through the Tor network, Shroudly's last way out: nothing else got through on this network. It is slower, and some sites ask for a captcha; every other site on this computer goes as before.",
+  "torUsedPhone": "{host} opened only through the Tor network, Shroudly's last way out: nothing else got through on this network. It is slower, and some sites ask for a captcha; your other apps and sites go as before.",
+  "torUsedTv": "{host} opened only through the Tor network, Shroudly's last way out. Videos from it can load slowly or in lower quality; your other apps go as before.",
+  "followTitle": "Follow Shroudly",
+  "followDesc": "News about blocks, new versions and ways through, first. Following and sharing is how Shroudly reaches the people who need it, and it costs nothing.",
+  "followCodeshare": "Codeshare, who make Shroudly",
+  "followDeveloper": "Umut Bayraktar, Shroudly's developer",
+  "followTv": "Open these on your phone or computer:"
 }

@@ -147,6 +147,11 @@
     <string name="excludedApps">Shroudlyን የሚያልፉ መተግበሪያዎች</string>
     <string name="excludedAppsCount">Shroudlyን የሚያልፉ መተግበሪያዎች: {count}</string>
     <string name="excludedAppsDesc">ትራፊካቸው በShroudly ሳያልፍ በቀጥታ ይወጣል፦ ለምሳሌ የማያስፈልገው ጨዋታ።</string>
+    <string name="followCodeshare">Shroudlyን የሚሰራው Codeshare</string>
+    <string name="followDesc">ስለ እገዳዎች፣ አዳዲስ ስሪቶች እና ማለፊያ መንገዶች ዜናዎች በቅድሚያ። መከተልና ማጋራት Shroudly የሚያስፈልጋቸው ሰዎች ጋር የሚደርስበት መንገድ ነው፣ ምንም አያስከፍልም።</string>
+    <string name="followDeveloper">የShroudly ገንቢ ኡሙት ባይራክታር</string>
+    <string name="followTitle">Shroudlyን ይከተሉ</string>
+    <string name="followTv">እነዚህን በስልክዎ ወይም በኮምፒውተርዎ ይክፈቱ፦</string>
     <string name="helpNudgeBodyPhone">ነጻ መተግበሪያ ኢንተርኔትን ሳንሱር በሚያደርጉ አገሮች ያሉ ሰዎች እገዳዎችን ለማለፍ የዚህን ስልክ ግንኙነት ትንሽ ክፍል እንዲጠቀሙ ያስችላል። ለእርስዎ ደህንነቱ የተጠበቀ ነው፦ ወደ ስልክዎ ወይም ወደ አውታረ መረብዎ መድረስ አይችሉም፣ የሚከፍቷቸው ድረ-ገጾችም አድራሻዎን ፈጽሞ አያዩም።</string>
     <string name="helpNudgeShow">አሳየኝ</string>
     <string name="helpNudgeTitle">ሳንሱር ባለባቸው አገሮች ያሉ ሰዎችን መርዳት ይፈልጋሉ?</string>
@@ -236,6 +241,8 @@
     <string name="supportTitle">Shroudlyን መደገፍ</string>
     <string name="tagline">የማይታይ። የማይቆም።</string>
     <string name="testing">በመሞከር ላይ…</string>
+    <string name="torUsedPhone">{host} የተከፈተው በ Shroudly የመጨረሻ መንገድ፣ በ Tor አውታረ መረብ ብቻ ነው፦ በዚህ አውታረ መረብ ሌላ ምንም አልሰራም። ይህ ቀርፋፋ ነው፣ አንዳንድ ድረ-ገጾችም captcha ይጠይቃሉ፤ ሌሎች መተግበሪያዎችዎና ድረ-ገጾች እንደቀድሞው ይሰራሉ።</string>
+    <string name="torUsedTv">{host} የተከፈተው በ Shroudly የመጨረሻ መንገድ፣ በ Tor አውታረ መረብ ብቻ ነው። ከዚያ የሚመጡ ቪዲዮዎች በዝግታ ወይም በዝቅተኛ ጥራት ሊጫኑ ይችላሉ፤ ሌሎች መተግበሪያዎችዎ እንደቀድሞው ይሰራሉ።</string>
     <string name="totalCount">ጠቅላላ: {count}</string>
     <string name="updAvailable">ስሪት {version} ይገኛል</string>
     <string name="updDownload">አውርደው ይጫኑ</string>
@@ -247,7 +254,7 @@
     <string name="upload">መስቀል</string>
     <string name="uptime">የሰራበት ጊዜ</string>
     <string name="versionLabel">ስሪት {version}</string>
-    <string name="whatsNewAndroid">በድረ ገጽ የተከፋፈሉ ግንኙነቶች፦ በShroudly ምን እንደሚያልፍ ከሁለቱም አቅጣጫ ውሂቡ ጋር ይመልከቱ፣ ማንኛውንም ድረ ገጽ ያግዱ (#74)።\nማገድ የገጹን ግንኙነቶች ወዲያውኑ ያቋርጣል፤ ዝርዝሩ በመሣሪያዎ ላይ ይቆያል።</string>
+    <string name="whatsNewAndroid">አንድ ድረ-ገጽ በመጨረሻው መንገድ በ Tor ብቻ ሲከፈት Shroudly አሁን ይነግርዎታል፣ ምክንያቱም ቀርፋፋ ነው።\nአዲስ፦ ስለ → Shroudlyን ይከተሉ።</string>
     <string name="whatsNewOk">ገባኝ</string>
     <string name="whatsNewTitle">በ{version} ውስጥ አዲስ ነገሮች</string>
 </resources>

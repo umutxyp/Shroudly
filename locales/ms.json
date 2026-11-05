@@ -920,12 +920,20 @@
   "whatsNewTitle": "Apa yang baharu dalam {version}",
   "whatsNewOk": "Faham",
   "whatsNewDesktop": "Pada rangkaian yang menyekat Riot Games, League of Legends, VALORANT dan pemasangnya kini melalui Shroudly dengan sendirinya (#76).\nMod lanjutan pada Windows: pemacu yang ditinggalkan program lain tidak lagi menghalangnya daripada bermula.",
-  "whatsNewAndroid": "Sambungan mengikut laman: lihat apa yang melalui Shroudly, dengan data kedua-dua arah, dan sekat mana-mana laman (#74).\nMenyekat terus memutuskan sambungan laman itu; senarainya kekal pada peranti anda.",
+  "whatsNewAndroid": "Apabila laman hanya dibuka melalui Tor, jalan terakhir, Shroudly kini memberitahu anda kerana ia lebih perlahan.\nBaharu: Perihal → Ikuti Shroudly.",
   "whatsNewApple": "Sambungan mengikut laman: lihat apa yang melalui Shroudly, dengan data kedua-dua arah, dan sekat mana-mana laman (#74).\nMenyekat terus memutuskan sambungan laman itu; senarainya kekal pada peranti anda.",
   "appleVpnNotSigned": "Salinan Shroudly ini ditandatangani tanpa kebenaran Apple untuk VPN, jadi iOS tidak membenarkannya memulakan VPN dan tidak pernah bertanya. Salinan yang ditandatangani dengan Apple ID percuma (AltStore, SideStore, Sideloadly dan seumpamanya) tidak pernah mempunyainya. Pasangnya dengan TrollStore, atau tandatanganinya dengan akaun pembangun Apple berbayar.",
   "appleInstallHelp": "Cara memasangnya",
   "snowflakeHow": "Cara ia berfungsi: mereka datang melalui Snowflake rangkaian Tor, jadi apa yang mereka buka keluar dari pelayan Tor, bukan dari pelayan anda.",
   "snowflakeDevice": "Bantu melalui peranti ini",
   "snowflakeWhenApple": "Shroudly membantu selagi ia dibuka pada iPhone dan iPad, dan selagi ia berjalan pada Mac. Dimatikan sehingga anda menghidupkannya.",
-  "snowflakeWhenAndroid": "Shroudly membantu selagi perlindungan hidup dan telefon dicas melalui Wi-Fi, jadi ia tidak menggunakan bateri atau data mudah alih. Dimatikan sehingga anda menghidupkannya."
+  "snowflakeWhenAndroid": "Shroudly membantu selagi perlindungan hidup dan telefon dicas melalui Wi-Fi, jadi ia tidak menggunakan bateri atau data mudah alih. Dimatikan sehingga anda menghidupkannya.",
+  "torUsedDesktop": "{host} hanya dibuka melalui rangkaian Tor, jalan terakhir Shroudly: tiada cara lain yang berjaya pada rangkaian ini. Ia lebih perlahan dan sesetengah laman meminta captcha; laman lain pada komputer ini kekal seperti biasa.",
+  "torUsedPhone": "{host} hanya dibuka melalui rangkaian Tor, jalan terakhir Shroudly: tiada cara lain yang berjaya pada rangkaian ini. Ia lebih perlahan dan sesetengah laman meminta captcha; aplikasi dan laman anda yang lain kekal seperti biasa.",
+  "torUsedTv": "{host} hanya dibuka melalui rangkaian Tor, jalan terakhir Shroudly. Videonya mungkin dimuatkan perlahan atau dengan kualiti lebih rendah; aplikasi anda yang lain kekal seperti biasa.",
+  "followTitle": "Ikuti Shroudly",
+  "followDesc": "Berita tentang sekatan, versi baharu dan cara melepasinya, lebih awal. Mengikuti dan berkongsi ialah cara Shroudly sampai kepada orang yang memerlukannya, dan ia percuma.",
+  "followCodeshare": "Codeshare, pembuat Shroudly",
+  "followDeveloper": "Umut Bayraktar, pembangun Shroudly",
+  "followTv": "Buka ini pada telefon atau komputer anda:"
 }

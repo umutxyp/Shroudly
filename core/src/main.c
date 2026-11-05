@@ -391,6 +391,9 @@ int engine_main(int argc, char **argv, FILE *in, FILE *out, int embedded) {
     /* The Connections list (conns.h, issue #74): what went through, by
      * name; the names the user blocked there. */
     else if (!strcmp(line, "CONNS")) conns_emit();
+    /* Something better than the last way out is there now (Advanced mode):
+     * the names it carried try every technique again first. */
+    else if (!strcmp(line, "FALLBACK-FORGET")) engine_fallback_forget();
     else if (!strcmp(line, "BLOCK-CLEAR")) conns_block_clear();
     else if (!strncmp(line, "BLOCK ", 6)) {
       int ended = conns_block(line + 6);

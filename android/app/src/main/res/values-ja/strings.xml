@@ -147,6 +147,11 @@
     <string name="excludedApps">Shroudly を通さないアプリ</string>
     <string name="excludedAppsCount">Shroudly を通さないアプリ：{count}</string>
     <string name="excludedAppsDesc">これらのアプリの通信は Shroudly を通らず直接出ていきます（例: 不要なゲームなど）。</string>
+    <string name="followCodeshare">Shroudly を作っている Codeshare</string>
+    <string name="followDesc">ブロック、新しいバージョン、通り抜ける方法のニュースをいち早く。フォローとシェアが、Shroudly を必要としている人に届ける方法で、費用は一切かかりません。</string>
+    <string name="followDeveloper">Shroudly の開発者 Umut Bayraktar</string>
+    <string name="followTitle">Shroudly をフォロー</string>
+    <string name="followTv">スマートフォンやパソコンで開いてください：</string>
     <string name="helpNudgeBodyPhone">無料のアプリを使うと、インターネットが検閲されている国の人々が、この電話の接続をほんの少し使ってブロックを回避できます。あなたにとって安全です：相手はあなたの電話やネットワークに入れず、相手が開くサイトにあなたのアドレスが見えることもありません。</string>
     <string name="helpNudgeShow">見る</string>
     <string name="helpNudgeTitle">検閲のある国の人々を助けませんか？</string>
@@ -236,6 +241,8 @@
     <string name="supportTitle">Shroudly を支援</string>
     <string name="tagline">見えない。止められない。</string>
     <string name="testing">テスト中…</string>
+    <string name="torUsedPhone">{host} は Shroudly の最後の手段である Tor ネットワーク経由でしか開けませんでした。このネットワークでは他の方法が通りませんでした。速度が遅くなり、一部のサイトでは CAPTCHA が求められます。他のアプリやサイトはこれまでどおりです。</string>
+    <string name="torUsedTv">{host} は Shroudly の最後の手段である Tor ネットワーク経由でしか開けませんでした。そこからの動画は読み込みが遅くなったり画質が下がったりすることがあります。他のアプリはこれまでどおりです。</string>
     <string name="totalCount">合計：{count}</string>
     <string name="updAvailable">バージョン {version} が利用可能です</string>
     <string name="updDownload">ダウンロードしてインストール</string>
@@ -247,7 +254,7 @@
     <string name="upload">アップロード</string>
     <string name="uptime">稼働時間</string>
     <string name="versionLabel">バージョン {version}</string>
-    <string name="whatsNewAndroid">サイト別の接続: Shroudly を通るものを双方向のデータ量とともに表示し、どのサイトでもブロックできます (#74)。\nブロックするとそのサイトの接続はすぐに切れます。一覧は端末に保存されます。</string>
+    <string name="whatsNewAndroid">サイトが最後の手段の Tor 経由でしか開けないとき、遅くなるため Shroudly がお知らせするようになりました。\n新機能：情報 → Shroudly をフォロー。</string>
     <string name="whatsNewOk">OK</string>
     <string name="whatsNewTitle">{version} の新機能</string>
 </resources>

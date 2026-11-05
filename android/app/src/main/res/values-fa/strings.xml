@@ -147,6 +147,11 @@
     <string name="excludedApps">برنامه‌هایی که از Shroudly عبور نمی‌کنند</string>
     <string name="excludedAppsCount">برنامه‌هایی که از Shroudly عبور نمی‌کنند: {count}</string>
     <string name="excludedAppsDesc">ترافیک آن‌ها مستقیم و بدون گذر از Shroudly بیرون می‌رود: مثلاً بازی‌ای که به آن نیازی ندارد.</string>
+    <string name="followCodeshare">Codeshare، سازندهٔ Shroudly</string>
+    <string name="followDesc">خبرهای مربوط به فیلترها، نسخه‌های تازه و راه‌های عبور، پیش از همه. دنبال کردن و هم‌رسانی راهی است که Shroudly به کسانی که به آن نیاز دارند برسد، و هزینه‌ای ندارد.</string>
+    <string name="followDeveloper">اوموت بایراکتار، توسعه‌دهندهٔ Shroudly</string>
+    <string name="followTitle">Shroudly را دنبال کنید</string>
+    <string name="followTv">این‌ها را روی تلفن یا رایانهٔ خود باز کنید:</string>
     <string name="helpNudgeBodyPhone">یک برنامهٔ رایگان به مردم کشورهایی که اینترنت را سانسور می‌کنند امکان می‌دهد از بخش کوچکی از اتصال این گوشی برای عبور از فیلترها استفاده کنند. برای شما امن است: آن‌ها به گوشی یا شبکه‌تان دسترسی ندارند و سایت‌هایی که باز می‌کنند هرگز نشانی شما را نمی‌بینند.</string>
     <string name="helpNudgeShow">نشانم بده</string>
     <string name="helpNudgeTitle">می‌خواهید به مردم کشورهای سانسورشده کمک کنید؟</string>
@@ -236,6 +241,8 @@
     <string name="supportTitle">حمایت از Shroudly</string>
     <string name="tagline">نامرئی. توقف‌ناپذیر.</string>
     <string name="testing">در حال آزمایش…</string>
+    <string name="torUsedPhone">{host} فقط از راه شبکهٔ Tor، آخرین راه Shroudly، باز شد: هیچ راه دیگری در این شبکه جواب نداد. کندتر است و بعضی سایت‌ها کپچا می‌خواهند؛ بقیهٔ برنامه‌ها و سایت‌هایتان مثل قبل کار می‌کنند.</string>
+    <string name="torUsedTv">{host} فقط از راه شبکهٔ Tor، آخرین راه Shroudly، باز شد. ویدیوهایش ممکن است کند یا با کیفیت پایین‌تر بارگذاری شوند؛ بقیهٔ برنامه‌هایتان مثل قبل کار می‌کنند.</string>
     <string name="totalCount">مجموع: {count}</string>
     <string name="updAvailable">نسخهٔ {version} در دسترس است</string>
     <string name="updDownload">دانلود و نصب</string>
@@ -247,7 +254,7 @@
     <string name="upload">آپلود</string>
     <string name="uptime">مدت فعالیت</string>
     <string name="versionLabel">نسخهٔ {version}</string>
-    <string name="whatsNewAndroid">اتصال‌ها بر اساس سایت: ببین چه چیزی از Shroudly می‌گذرد، با داده‌ی هر دو جهت، و هر سایتی را خواستی مسدود کن (#74).\nمسدود کردن، اتصال‌های آن سایت را همان لحظه قطع می‌کند؛ فهرست روی دستگاه خودت می‌ماند.</string>
+    <string name="whatsNewAndroid">وقتی سایتی فقط از راه Tor، آخرین راه، باز شود، Shroudly حالا آن را می‌گوید، چون کندتر است.\nتازه: درباره → Shroudly را دنبال کنید.</string>
     <string name="whatsNewOk">متوجه شدم</string>
     <string name="whatsNewTitle">تازه‌های نسخهٔ {version}</string>
 </resources>

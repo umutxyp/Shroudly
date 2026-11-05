@@ -920,12 +920,20 @@
   "whatsNewTitle": "{version} versiyasında yeniliklər",
   "whatsNewOk": "Aydındır",
   "whatsNewDesktop": "Riot Games bloklanan şəbəkələrdə League of Legends, VALORANT və onların quraşdırıcısı indi özbaşına Shroudly üzərindən keçir (#76).\nWindows-da Genişləndirilmiş rejim: başqa proqramın qoyub getdiyi drayver artıq onun işə düşməsinə mane olmur.",
-  "whatsNewAndroid": "Saytlara görə bağlantılar: Shroudly-dən nəyin keçdiyini hər iki istiqamətdəki məlumatı ilə gör və istədiyin saytı blokla (#74).\nBloklamaq saytın bağlantılarını dərhal kəsir; siyahı sənin cihazında qalır.",
+  "whatsNewAndroid": "Sayt yalnız son yol olan Tor ilə açılanda Shroudly artıq bunu deyir, çünki bu daha yavaşdır.\nYeni: Haqqında → Shroudly-ni izlə.",
   "whatsNewApple": "Saytlara görə bağlantılar: Shroudly-dən nəyin keçdiyini hər iki istiqamətdəki məlumatı ilə gör və istədiyin saytı blokla (#74).\nBloklamaq saytın bağlantılarını dərhal kəsir; siyahı sənin cihazında qalır.",
   "appleVpnNotSigned": "Shroudly-nin bu nüsxəsi Apple-ın VPN icazəsi olmadan imzalanıb, buna görə iOS ona VPN başlatmağa icazə vermir və heç soruşmur. Pulsuz Apple ID ilə imzalanan nüsxələrdə (AltStore, SideStore, Sideloadly və bənzərləri) bu icazə heç vaxt olmur. Onu TrollStore ilə quraşdırın və ya ödənişli Apple developer hesabı ilə imzalayın.",
   "appleInstallHelp": "Necə quraşdırılır",
   "snowflakeHow": "Necə işləyir: onlar Tor şəbəkəsinin Snowflake-i vasitəsilə gəlir, buna görə açdıqları sizin deyil, Tor-un serverlərindən çıxır.",
   "snowflakeDevice": "Bu cihaz vasitəsilə kömək et",
   "snowflakeWhenApple": "Shroudly iPhone və iPad-də açıq olduqca, Mac-da isə işlədikcə kömək edir. Siz açana qədər söndürülüdür.",
-  "snowflakeWhenAndroid": "Shroudly qoruma açıq olanda və telefon Wi-Fi-da şarj olanda kömək edir, buna görə nə batareya, nə də mobil internet sərf edir. Siz açana qədər söndürülüdür."
+  "snowflakeWhenAndroid": "Shroudly qoruma açıq olanda və telefon Wi-Fi-da şarj olanda kömək edir, buna görə nə batareya, nə də mobil internet sərf edir. Siz açana qədər söndürülüdür.",
+  "torUsedDesktop": "{host} yalnız Tor şəbəkəsi ilə açıldı — Shroudly-nin son yolu: bu şəbəkədə başqa heç nə keçmədi. Bu daha yavaşdır və bəzi saytlar captcha istəyir; bu kompüterdəki digər saytlar əvvəlki kimi işləyir.",
+  "torUsedPhone": "{host} yalnız Tor şəbəkəsi ilə açıldı — Shroudly-nin son yolu: bu şəbəkədə başqa heç nə keçmədi. Bu daha yavaşdır və bəzi saytlar captcha istəyir; digər tətbiqləriniz və saytlar əvvəlki kimi işləyir.",
+  "torUsedTv": "{host} yalnız Tor şəbəkəsi ilə açıldı — Shroudly-nin son yolu. Oradakı videolar yavaş və ya aşağı keyfiyyətdə yüklənə bilər; digər tətbiqləriniz əvvəlki kimi işləyir.",
+  "followTitle": "Shroudly-ni izlə",
+  "followDesc": "Bloklar, yeni versiyalar və keçid yolları haqqında xəbərlər ilk olaraq burada. İzləmək və paylaşmaq Shroudly-nin ona ehtiyacı olan insanlara çatmasının yoludur və pulsuzdur.",
+  "followCodeshare": "Shroudly-ni hazırlayan Codeshare",
+  "followDeveloper": "Shroudly-nin tərtibatçısı Umut Bayraktar",
+  "followTv": "Bunları telefonunuzda və ya kompüterinizdə açın:"
 }

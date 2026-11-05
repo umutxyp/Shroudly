@@ -497,11 +497,31 @@ function tr() {
  * a small banner under a big green "Protected" was read as "it works". */
 function notRouting() { return !!(engine && engine.isActive() && !engine.routing()); }
 
+/* A site that only the last way out (Tor) opened: said to the user, since
+ * it is slower and some sites ask Tor's visitors for a captcha. Once per
+ * site a session, and at most once every TOR_TELL_MS, so a page of blocked
+ * resources cannot turn into a stream of notifications. */
+const TOR_TELL_MS = 15 * 60 * 1000;
+const torTold = new Set();
+let torToldAt = 0;
+function torUsed(host) {
+  const h = String(host || '').toLowerCase();
+  if (!h || torTold.has(h)) return;
+  torTold.add(h);
+  const now = Date.now();
+  if (now - torToldAt < TOR_TELL_MS) return;
+  torToldAt = now;
+  autoTell('torUsedDesktop', { host: h });
+}
+
 /* Advanced mode on or off, told to the window. Where the system proxy is
  * set by the computer's administrator (system-proxy.js, machine_policy) it
  * is what carries browsers, so the tray and the status follow it too. */
 function advancedState(active) {
   toWindow('advanced:state', { active });
+  // Tor is the last of all ways: the sites it carried until now try Advanced
+  // mode first.
+  if (active && engine) { try { engine.forgetFallback(); } catch {} }
   if (engine && engine.proxyStatus && engine.proxyStatus.code === 'machine_policy') {
     rebuildTrayMenu();
     toWindow('dpi:status-changed', engine.isActive());
@@ -1310,6 +1330,7 @@ app.whenReady().then(async () => {
     // it believes them (one means little), and only for a site's own page:
     // a CDN, API or storage host answers / with an error page of its own.
     onHostEvent: (kind, host, detail, info) => {
+      if (kind === 'fallback') torUsed(host);
       if (autopilot) autopilot.noteHost(kind, host, info || { note: detail });
       if (aroundWatch) aroundWatch.note(kind, host, info || { note: detail });
       if (kind === 'unreachable' && detail === 'connect') checkServiceReach(host).catch(() => {});

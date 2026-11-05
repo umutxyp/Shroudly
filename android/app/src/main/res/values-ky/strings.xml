@@ -147,6 +147,11 @@
     <string name="excludedApps">Shroudly\'ди айланып өткөн колдонмолор</string>
     <string name="excludedAppsCount">Shroudly\'ди айланып өткөн колдонмолор: {count}</string>
     <string name="excludedAppsDesc">Алардын трафиги Shroudly аркылуу өтпөй, түз чыгат: мисалы, ага муктаж эмес оюн.</string>
+    <string name="followCodeshare">Shroudly\'ни жасаган Codeshare</string>
+    <string name="followDesc">Бөгөттөр, жаңы версиялар жана айланып өтүү жолдору тууралуу жаңылыктар биринчи болуп ушул жерде. Жазылуу жана бөлүшүү Shroudly\'ге аны керектегендерге жетүүгө жардам берет жана акысыз.</string>
+    <string name="followDeveloper">Shroudly\'нин иштеп чыгуучусу Умут Байрактар</string>
+    <string name="followTitle">Shroudly\'ге жазылуу</string>
+    <string name="followTv">Буларды телефонуңуздан же компьютериңизден ачыңыз:</string>
     <string name="helpNudgeBodyPhone">Акысыз колдонмо интернетке цензура койгон өлкөлөрдөгү адамдарга бөгөттөрдөн өтүү үчүн бул телефондун туташуусунун бир аз бөлүгүн колдонууга мүмкүндүк берет. Бул сиз үчүн коопсуз: алар телефонуңузга да, тармагыңызга да жете алышпайт, ал эми алар ачкан сайттар сиздин дарегиңизди эч качан көрбөйт.</string>
     <string name="helpNudgeShow">Көрсөтүү</string>
     <string name="helpNudgeTitle">Цензура бар өлкөлөрдөгү адамдарга жардам бересизби?</string>
@@ -236,6 +241,8 @@
     <string name="supportTitle">Shroudly\'ни колдоо</string>
     <string name="tagline">Көрүнбөйт. Токтобойт.</string>
     <string name="testing">Текшерилүүдө…</string>
+    <string name="torUsedPhone">{host} Tor тармагы аркылуу гана ачылды — бул Shroudly\'нин акыркы жолу: бул тармакта башка эч нерсе өткөн жок. Бул жайыраак, кээ бир сайттар капча сурайт; башка колдонмолор жана сайттар мурдагыдай иштейт.</string>
+    <string name="torUsedTv">{host} Tor тармагы аркылуу гана ачылды — бул Shroudly\'нин акыркы жолу. Андагы видеолор жай же төмөн сапатта жүктөлүшү мүмкүн; башка колдонмолор мурдагыдай иштейт.</string>
     <string name="totalCount">Бардыгы: {count}</string>
     <string name="updAvailable">{version} версиясы жеткиликтүү</string>
     <string name="updDownload">Жүктөп алып орнотуу</string>
@@ -247,7 +254,7 @@
     <string name="upload">Жөнөтүү</string>
     <string name="uptime">Иштөө убактысы</string>
     <string name="versionLabel">Версия {version}</string>
-    <string name="whatsNewAndroid">Сайттар боюнча туташуулар: Shroudly аркылуу эмне өтөрүн эки багыттагы маалыматы менен көрүп, каалаган сайтты бөгөттөңүз (#74).\nБөгөттөө сайттын туташууларын дароо үзөт; тизме түзмөгүңүздө калат.</string>
+    <string name="whatsNewAndroid">Сайт акыркы жол — Tor аркылуу гана ачылса, Shroudly эми муну айтат, анткени ал жайыраак.\nЖаңы: Программа жөнүндө → Shroudly\'ге жазылуу.</string>
     <string name="whatsNewOk">Түшүнүктүү</string>
     <string name="whatsNewTitle">{version} версиясындагы жаңылыктар</string>
 </resources>

@@ -210,6 +210,7 @@ class MainActivity : Activity() {
         }
         findViewById<View>(R.id.updateOpen).setOnClickListener { updateApk() }
         findViewById<View>(R.id.supportRow).setOnClickListener { openSupport() }
+        findViewById<View>(R.id.followRow).setOnClickListener { startActivity(android.content.Intent(this, FollowActivity::class.java)) }
         findViewById<View>(R.id.supportOpen).setOnClickListener { openSupport() }
         findViewById<View>(R.id.supportLater).setOnClickListener {
             Support.rest(this)

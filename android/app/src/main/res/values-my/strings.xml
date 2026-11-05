@@ -147,6 +147,11 @@
     <string name="excludedApps">Shroudly ကို ကျော်သွားသော အက်ပ်များ</string>
     <string name="excludedAppsCount">Shroudly ကို ကျော်သွားသော အက်ပ်များ: {count}</string>
     <string name="excludedAppsDesc">၎င်းတို့၏ ဒေတာသွားလာမှုသည် Shroudly ကို မဖြတ်ဘဲ တိုက်ရိုက်ထွက်သည်- ဥပမာ မလိုအပ်သော ဂိမ်းတစ်ခု။</string>
+    <string name="followCodeshare">Shroudly ကို ဖန်တီးသော Codeshare</string>
+    <string name="followDesc">ပိတ်ဆို့မှုများ၊ ဗားရှင်းအသစ်များနှင့် ကျော်ဖြတ်နည်းများအကြောင်း သတင်းများကို ဦးစွာ ရယူပါ။ ဖော်လိုလုပ်ခြင်းနှင့် မျှဝေခြင်းသည် Shroudly ကို လိုအပ်သူများထံ ရောက်စေပြီး ကုန်ကျစရိတ် မရှိပါ။</string>
+    <string name="followDeveloper">Shroudly ၏ ဖန်တီးသူ Umut Bayraktar</string>
+    <string name="followTitle">Shroudly ကို ဖော်လိုလုပ်ပါ</string>
+    <string name="followTv">ယင်းတို့ကို သင့်ဖုန်း သို့မဟုတ် ကွန်ပျူတာတွင် ဖွင့်ပါ-</string>
     <string name="helpNudgeBodyPhone">အခမဲ့ အက်ပ်တစ်ခုက အင်တာနက်ကို ဆင်ဆာလုပ်သော နိုင်ငံများရှိ လူများအား ပိတ်ဆို့မှုများကို ကျော်ဖြတ်ရန် ဤဖုန်း၏ ချိတ်ဆက်မှု အနည်းငယ်ကို အသုံးပြုခွင့်ပေးသည်။ သင့်အတွက် ဘေးကင်းသည်- ၎င်းတို့သည် သင့်ဖုန်း သို့မဟုတ် ကွန်ရက်ထဲသို့ မရောက်နိုင်ဘဲ ၎င်းတို့ဖွင့်သော ဝဘ်ဆိုက်များသည် သင့်လိပ်စာကို ဘယ်တော့မှ မမြင်ရပါ။</string>
     <string name="helpNudgeShow">ပြပါ</string>
     <string name="helpNudgeTitle">ဆင်ဆာရှိသော နိုင်ငံများရှိ လူများကို ကူညီမလား။</string>
@@ -236,6 +241,8 @@
     <string name="supportTitle">Shroudly ကို ပံ့ပိုးရန်</string>
     <string name="tagline">မမြင်ရ။ မတားဆီးနိုင်။</string>
     <string name="testing">စမ်းသပ်နေသည်…</string>
+    <string name="torUsedPhone">{host} ကို Shroudly ၏ နောက်ဆုံးနည်းလမ်းဖြစ်သော Tor ကွန်ရက်မှတစ်ဆင့်သာ ဖွင့်နိုင်ခဲ့သည်- ဤကွန်ရက်တွင် အခြားဘာမျှ မအောင်မြင်ခဲ့ပါ။ ပိုနှေးပြီး ဆိုက်အချို့က captcha တောင်းသည်။ သင်၏ အခြားအက်ပ်နှင့် ဆိုက်များ ယခင်အတိုင်း အလုပ်လုပ်သည်။</string>
+    <string name="torUsedTv">{host} ကို Shroudly ၏ နောက်ဆုံးနည်းလမ်းဖြစ်သော Tor ကွန်ရက်မှတစ်ဆင့်သာ ဖွင့်နိုင်ခဲ့သည်။ ၎င်းမှ ဗီဒီယိုများ နှေးကွေးစွာ သို့မဟုတ် အရည်အသွေးနိမ့်စွာ ဖွင့်နိုင်သည်။ သင်၏ အခြားအက်ပ်များ ယခင်အတိုင်း အလုပ်လုပ်သည်။</string>
     <string name="totalCount">စုစုပေါင်း: {count}</string>
     <string name="updAvailable">ဗားရှင်း {version} ရနိုင်ပါပြီ</string>
     <string name="updDownload">ဒေါင်းလုဒ်လုပ်ပြီး ထည့်သွင်းရန်</string>
@@ -247,7 +254,7 @@
     <string name="upload">အပ်လုဒ်</string>
     <string name="uptime">လုပ်ဆောင်ချိန်</string>
     <string name="versionLabel">ဗားရှင်း {version}</string>
-    <string name="whatsNewAndroid">ဝဘ်ဆိုက်အလိုက် ချိတ်ဆက်မှုများ - Shroudly မှ ဘာဖြတ်သွားသည်ကို အသွားအပြန် ဒေတာနှင့်တကွ ကြည့်ပြီး မည်သည့်ဆိုက်ကိုမဆို ပိတ်နိုင်သည် (#74)။\nပိတ်လိုက်သည်နှင့် ဆိုက်၏ ချိတ်ဆက်မှုများ ချက်ချင်းပြတ်ပြီး စာရင်းသည် သင့်စက်ပေါ်တွင် ရှိနေသည်။</string>
+    <string name="whatsNewAndroid">ဆိုက်တစ်ခုကို နောက်ဆုံးနည်းလမ်း Tor မှတစ်ဆင့်သာ ဖွင့်နိုင်သောအခါ Shroudly က ယခု ပြောပြသည်၊ ပိုနှေးသောကြောင့်ဖြစ်သည်။\nအသစ်- အကြောင်း → Shroudly ကို ဖော်လိုလုပ်ပါ။</string>
     <string name="whatsNewOk">နားလည်ပါပြီ</string>
     <string name="whatsNewTitle">{version} တွင် အသစ်များ</string>
 </resources>

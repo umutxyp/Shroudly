@@ -920,12 +920,20 @@
   "whatsNewTitle": "{version} wersiýasynda täzelikler",
   "whatsNewOk": "Düşnükli",
   "whatsNewDesktop": "Riot Games petiklenen torlarda League of Legends, VALORANT we olaryň gurnaýjysy indi özbaşdak Shroudly arkaly geçýär (#76).\nWindows-da giňeldilen tertip: başga programmanyň galdyran draýweri indi onuň işe başlamagyna päsgel bermeýär.",
-  "whatsNewAndroid": "Saýtlar boýunça birikmeler: Shroudly arkaly näme geçýändigini iki ugurdaky maglumaty bilen görüň we islän saýtyňyzy bloklaň (#74).\nBloklamak saýtyň birikmelerini derrew kesýär; sanaw enjamyňyzda galýar.",
+  "whatsNewAndroid": "Saýt diňe iň soňky ýol — Tor arkaly açylsa, Shroudly indi muny aýdýar, sebäbi ol haýalrak.\nTäze: Programma barada → Shroudly-ni yzarla.",
   "whatsNewApple": "Saýtlar boýunça birikmeler: Shroudly arkaly näme geçýändigini iki ugurdaky maglumaty bilen görüň we islän saýtyňyzy bloklaň (#74).\nBloklamak saýtyň birikmelerini derrew kesýär; sanaw enjamyňyzda galýar.",
   "appleVpnNotSigned": "Shroudly-nyň bu nusgasyna Apple-yň VPN rugsady bolmazdan gol çekilipdir, şonuň üçin iOS oňa VPN başlatmaga rugsat bermeýär we hiç haçan soramaýar. Mugt Apple ID bilen gol çekilen nusgalarda (AltStore, SideStore, Sideloadly we meňzeşleri) bu rugsat hiç haçan bolmaýar. Ony TrollStore bilen guruň ýa-da tölegli Apple işläp düzüji hasaby bilen gol çekiň.",
   "appleInstallHelp": "Nädip gurnamaly",
   "snowflakeHow": "Nädip işleýär: olar Tor ulgamynyň Snowflake-i arkaly gelýärler, şonuň üçin açýan zatlary siziň däl-de, Tor-uň serwerlerinden çykýar.",
   "snowflakeDevice": "Şu enjam arkaly kömek et",
   "snowflakeWhenApple": "Shroudly iPhone we iPad-da açyk durka, Mac-da bolsa işläp durka kömek edýär. Siz açýançaňyz öçük.",
-  "snowflakeWhenAndroid": "Shroudly gorag açyk we telefon Wi-Fi arkaly zarýad alýarka kömek edýär, şonuň üçin batareýany-da, mobil traffigi-de harçlamaýar. Siz açýançaňyz öçük."
+  "snowflakeWhenAndroid": "Shroudly gorag açyk we telefon Wi-Fi arkaly zarýad alýarka kömek edýär, şonuň üçin batareýany-da, mobil traffigi-de harçlamaýar. Siz açýançaňyz öçük.",
+  "torUsedDesktop": "{host} diňe Tor tory arkaly açyldy — bu Shroudly-niň iň soňky ýoly: bu torda başga hiç zat geçmedi. Bu haýalrak, käbir saýtlar kapça soraýar; bu kompýuterdäki beýleki saýtlar öňküsi ýaly işleýär.",
+  "torUsedPhone": "{host} diňe Tor tory arkaly açyldy — bu Shroudly-niň iň soňky ýoly: bu torda başga hiç zat geçmedi. Bu haýalrak, käbir saýtlar kapça soraýar; beýleki programmalaryňyz we saýtlar öňküsi ýaly işleýär.",
+  "torUsedTv": "{host} diňe Tor tory arkaly açyldy — bu Shroudly-niň iň soňky ýoly. Ondaky wideolar haýal ýa-da pes hilde ýüklenip biler; beýleki programmalaryňyz öňküsi ýaly işleýär.",
+  "followTitle": "Shroudly-ni yzarla",
+  "followDesc": "Petiklemeler, täze wersiýalar we aýlanyp geçmegiň ýollary barada habarlar ilki şu ýerde. Yzarlamak we paýlaşmak Shroudly-niň oňa mätäç adamlara ýetmegine kömek edýär we mugt.",
+  "followCodeshare": "Shroudly-ni döredýän Codeshare",
+  "followDeveloper": "Shroudly-niň işläp düzüjisi Umut Baýraktar",
+  "followTv": "Bulary telefonyňyzda ýa-da kompýuteriňizde açyň:"
 }

@@ -29,6 +29,13 @@ struct AboutView: View {
                     }
                 }
             }
+            Section {
+                NavigationLink {
+                    FollowView()
+                } label: {
+                    Label(tr("followTitle"), systemImage: "person.2")
+                }
+            }
             Section(tr("openSourceTitle")) {
                 Text(tr("openSourceDesc")).font(.footnote).foregroundStyle(Theme.secondaryText)
                 WebLink(url: Ids.repoURL) { Label(tr("linkSourceCode"), systemImage: "chevron.left.forwardslash.chevron.right") }
@@ -89,5 +96,67 @@ struct AboutView: View {
         #if !os(tvOS)
         .onAppear { snowflake.sync(active: snowflakeOn) }
         #endif
+    }
+}
+
+/* Follow Shroudly: Codeshare's accounts, then its developer's. The same list
+ * as the desktop's (components/follow.json, tests/net/follow.test.js) and
+ * Android's (FollowActivity). On Apple TV, which opens no links, each shows
+ * its address to open on a phone or computer (WebLink). */
+struct FollowView: View {
+    struct Account: Identifiable {
+        let name: String
+        let handle: String
+        let url: String
+        var id: String { url }
+    }
+
+    static let codeshare: [Account] = [
+        Account(name: "Instagram", handle: "@codeshareme", url: "https://instagram.com/codeshareme"),
+        Account(name: "X", handle: "@codeshareme", url: "https://x.com/codeshareme"),
+        Account(name: "Discord", handle: "Codeshare", url: "https://discord.gg/BhdgVfsFVC"),
+        Account(name: "LinkedIn", handle: "codeshareme", url: "https://www.linkedin.com/company/codeshareme"),
+        Account(name: "Facebook", handle: "codeshareme", url: "https://www.facebook.com/codeshareme"),
+        Account(name: "GitHub", handle: "codeshareme", url: "https://github.com/codeshareme"),
+        Account(name: "codeshare.me", handle: "codeshare.me", url: "https://codeshare.me"),
+    ]
+    static let developer: [Account] = [
+        Account(name: "Instagram", handle: "@umutxyp", url: "https://instagram.com/umutxyp"),
+        Account(name: "YouTube", handle: "@umutxyp", url: "https://youtube.com/@umutxyp"),
+        Account(name: "TikTok", handle: "@umutxyp", url: "https://tiktok.com/@umutxyp"),
+        Account(name: "X", handle: "@devbayraktar", url: "https://x.com/devbayraktar"),
+        Account(name: "Telegram", handle: "@umutxyp", url: "https://t.me/umutxyp"),
+        Account(name: "GitHub", handle: "umutxyp", url: "https://github.com/umutxyp"),
+        Account(name: "LinkedIn", handle: "umutxyp", url: "https://linkedin.com/in/umutxyp"),
+        Account(name: "Facebook", handle: "umutxyp", url: "https://facebook.com/umutxyp"),
+    ]
+
+    var body: some View {
+        Form {
+            Section {
+                Text(tr("followDesc")).font(.footnote).foregroundStyle(Theme.secondaryText)
+                #if os(tvOS)
+                Text(tr("followTv")).font(.footnote).foregroundStyle(Theme.secondaryText)
+                #endif
+            }
+            Section(tr("followCodeshare")) { rows(Self.codeshare) }
+            Section(tr("followDeveloper")) { rows(Self.developer) }
+        }
+        .navigationTitle(tr("followTitle"))
+    }
+
+    @ViewBuilder private func rows(_ list: [Account]) -> some View {
+        ForEach(list) { a in
+            if let u = URL(string: a.url) {
+                WebLink(url: u) {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(a.name)
+                        #if !os(tvOS)
+                        Text(a.handle).font(.caption).foregroundStyle(Theme.secondaryText)
+                        #endif
+                    }
+                }
+            }
+        }
     }
 }

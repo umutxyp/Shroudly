@@ -56,6 +56,11 @@
 "dnsServerUse" = "Dùng";
 "dnsServerUseAnyway" = "Vẫn dùng";
 "download" = "Tải xuống";
+"followCodeshare" = "Codeshare, đội làm ra Shroudly";
+"followDesc" = "Tin về chặn mạng, phiên bản mới và cách vượt qua, sớm nhất. Theo dõi và chia sẻ là cách Shroudly đến được với những người cần nó, và hoàn toàn miễn phí.";
+"followDeveloper" = "Umut Bayraktar, nhà phát triển Shroudly";
+"followTitle" = "Theo dõi Shroudly";
+"followTv" = "Hãy mở chúng trên điện thoại hoặc máy tính:";
 "helpNudgeBodyPhone" = "Một ứng dụng miễn phí cho phép người ở các nước kiểm duyệt internet dùng một chút kết nối của điện thoại này để vượt qua chặn. Điều này an toàn với bạn: họ không thể vào điện thoại hay mạng của bạn, và các trang web họ mở không bao giờ thấy địa chỉ của bạn.";
 "helpNudgeShow" = "Xem";
 "helpNudgeTitle" = "Giúp người ở các nước bị kiểm duyệt?";
@@ -127,6 +132,7 @@
 "strategy" = "Chiến lược vượt chặn";
 "supportBannerLater" = "Để sau";
 "tagline" = "Vô hình. Không thể ngăn cản.";
+"torUsedDesktop" = "{host} chỉ mở được qua mạng Tor, đường cuối cùng của Shroudly: trên mạng này không cách nào khác vượt qua được. Tốc độ chậm hơn và một số trang yêu cầu captcha; các trang khác trên máy tính này vẫn như cũ.";
 "totalCount" = "Tổng: {count}";
 "upload" = "Tải lên";
 "uptime" = "Thời gian chạy";

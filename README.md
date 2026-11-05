@@ -18,7 +18,7 @@
   [![Apple TV](https://img.shields.io/badge/Apple%20TV-000000?logo=apple)](#iphone-ipad-mac-and-apple-tv)
   [![Donate](https://img.shields.io/badge/Donate-PayPal-00457C?logo=paypal&logoColor=white)](https://www.paypal.com/donate?campaign_id=BV7WTVT9VJQQ6)
 
-  > Break through internet censorship on **Windows, macOS, Linux, Android, Android TV, iPhone, iPad and Apple TV**. No VPN, no drivers by default, no third-party tools, and nothing that permanently changes your network settings.
+  > Open blocked websites and apps — **YouTube, Instagram, X (Twitter), Facebook, WhatsApp, Telegram, Discord, Reddit, Wikipedia, Twitch, Roblox, League of Legends, news sites** and more — on **Windows, macOS, Linux, Android, Android TV, iPhone, iPad and Apple TV**. No VPN server, no account, no drivers by default, and nothing that permanently changes your network settings.
 
   **A [Codeshare](https://codeshare.me) product**
 
@@ -30,10 +30,29 @@
 
   ▶ **[Watch the 2-minute launch video](https://www.youtube.com/watch?v=Mb4Zkq1din8)**
 
+  ★ **[Follow Shroudly](#follow-shroudly)**: [Instagram](https://instagram.com/codeshareme) · [X](https://x.com/codeshareme) · [YouTube](https://youtube.com/@umutxyp) · [TikTok](https://tiktok.com/@umutxyp) · [Discord](https://discord.gg/BhdgVfsFVC) · [Telegram](https://t.me/umutxyp)
+
   ♥ **[Support Shroudly](#support-shroudly)**: PayPal, or a bank transfer from your own country
 </div>
 
 ---
+
+## What it opens
+
+Shroudly is not made for one site. It gets past the filter itself, so whatever that filter blocks by name opens again: in a browser, in apps, and on Android, iPhone, iPad and TVs in every app at once.
+
+| | Examples |
+|---|---|
+| **Video and streaming** | YouTube, Twitch, Vimeo, Dailymotion, SoundCloud |
+| **Social networks** | Instagram, X (Twitter), Facebook, TikTok, Reddit, Pinterest, Threads, Bluesky, Tumblr, LinkedIn |
+| **Messaging** | Telegram, WhatsApp, Discord (text, voice and the app's own updater), Signal's website |
+| **Games** | Roblox (the app and its installer too), League of Legends, VALORANT, Steam's community and store pages |
+| **Knowledge and news** | Wikipedia, Medium, Wattpad, Archive.org, BBC, Deutsche Welle, VOA, Radio Free Europe, independent and exiled media |
+| **Work and tools** | GitHub, Pastebin, Google services where they are filtered, cloud storage, developer tools that ignore the system proxy |
+
+Where it is used: on networks that filter by **name** — the site's name in the first packet (SNI or HTTP `Host`) or forged DNS answers — such as those in **Turkey, Iran, Russia, Pakistan, Egypt, Indonesia, Vietnam, Belarus, Kazakhstan, Uzbekistan, Turkmenistan, Azerbaijan, Iraq, Bangladesh, Myanmar** and many schools, offices and public Wi-Fi networks. Where a whole country is cut off or a service's server addresses themselves are blocked, Shroudly says so plainly and offers what still helps — the last way out through Tor and Snowflake, your own server, a connection shared by someone abroad ([what Shroudly cannot fix](#what-shroudly-cannot-fix), [internet shutdowns](https://github.com/umutxyp/Shroudly/wiki/Shutdowns-en)).
+
+Shroudly does not change your address: a service that refuses your country on its own (by its own rules or sanctions, not your network's filter) still refuses it, and Shroudly tells you so instead of trying forever.
 
 ## What is Shroudly?
 
@@ -1263,6 +1282,13 @@ apply to you. Do not use it to attack systems or to access things you are not
 entitled to.
 
 ---
+
+## Follow Shroudly
+
+News about blocks, new versions and ways through, first. Following and sharing is how Shroudly reaches the people who need it, and it costs nothing. The app has the same links under **About → Follow Shroudly**.
+
+- **Codeshare**, who make Shroudly: [Instagram](https://instagram.com/codeshareme) · [X](https://x.com/codeshareme) · [Discord](https://discord.gg/BhdgVfsFVC) · [LinkedIn](https://www.linkedin.com/company/codeshareme) · [Facebook](https://www.facebook.com/codeshareme) · [GitHub](https://github.com/codeshareme) · [codeshare.me](https://codeshare.me)
+- **Umut Bayraktar**, Shroudly's developer: [Instagram](https://instagram.com/umutxyp) · [YouTube](https://youtube.com/@umutxyp) · [TikTok](https://tiktok.com/@umutxyp) · [X](https://x.com/devbayraktar) · [Telegram](https://t.me/umutxyp) · [GitHub](https://github.com/umutxyp) · [LinkedIn](https://linkedin.com/in/umutxyp) · [Facebook](https://facebook.com/umutxyp)
 
 ## Support Shroudly
 

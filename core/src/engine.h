@@ -111,6 +111,9 @@ int  engine_start(const engine_config *cfg);
  * or http://[user:pass@]host:port. 0, or -1 for a file that cannot be used. */
 int  engine_load_upstream(engine_config *cfg, const char *path);
 int  engine_load_fallback(engine_config *cfg, const char *path);
+/* The names the last way out carried, forgotten: their next connections try
+ * every technique again first (FALLBACK-FORGET). */
+void engine_fallback_forget(void);
 void engine_stop(void);
 /* A technique an earlier run learned for host, age milliseconds ago (see engine.c). */
 int  engine_restore(const char *host, const char *technique, uint64_t age);

@@ -147,6 +147,11 @@
     <string name="excludedApps">تطبيقات تتجاوز Shroudly</string>
     <string name="excludedAppsCount">تطبيقات تتجاوز Shroudly: {count}</string>
     <string name="excludedAppsDesc">يخرج اتصالها مباشرةً دون المرور عبر Shroudly: مثل لعبة لا تحتاج إليه.</string>
+    <string name="followCodeshare">Codeshare، صانعو Shroudly</string>
+    <string name="followDesc">أخبار الحجب والإصدارات الجديدة وطرق التجاوز، أولًا بأول. المتابعة والمشاركة هما ما يوصل Shroudly إلى من يحتاجه، ولا تكلّفان شيئًا.</string>
+    <string name="followDeveloper">أوموت بيرقدار، مطوّر Shroudly</string>
+    <string name="followTitle">تابع Shroudly</string>
+    <string name="followTv">افتحها على هاتفك أو حاسوبك:</string>
     <string name="helpNudgeBodyPhone">يتيح تطبيق مجاني للناس في البلدان التي تراقب الإنترنت استخدام جزء صغير من اتصال هذا الهاتف لتجاوز الحجب. هذا آمن لك: لا يستطيعون الوصول إلى هاتفك ولا إلى شبكتك، والمواقع التي يفتحونها لا ترى عنوانك أبدًا.</string>
     <string name="helpNudgeShow">أرني</string>
     <string name="helpNudgeTitle">هل تودّ مساعدة الناس في البلدان الخاضعة للرقابة؟</string>
@@ -236,6 +241,8 @@
     <string name="supportTitle">ادعم Shroudly</string>
     <string name="tagline">غير مرئي. لا يُقهر.</string>
     <string name="testing">جارٍ الاختبار…</string>
+    <string name="torUsedPhone">لم يُفتح {host} إلا عبر شبكة Tor، آخر طريق لدى Shroudly: لم ينجح شيء آخر على هذه الشبكة. الاتصال أبطأ وبعض المواقع تطلب اختبار captcha؛ وبقية تطبيقاتك ومواقعك تعمل كما كانت.</string>
+    <string name="torUsedTv">لم يُفتح {host} إلا عبر شبكة Tor، آخر طريق لدى Shroudly. قد تُحمَّل مقاطع الفيديو منه ببطء أو بجودة أقل؛ وبقية تطبيقاتك تعمل كما كانت.</string>
     <string name="totalCount">الإجمالي: {count}</string>
     <string name="updAvailable">الإصدار {version} متاح</string>
     <string name="updDownload">تنزيل وتثبيت</string>
@@ -247,7 +254,7 @@
     <string name="upload">الرفع</string>
     <string name="uptime">مدة التشغيل</string>
     <string name="versionLabel">الإصدار {version}</string>
-    <string name="whatsNewAndroid">الاتصالات حسب الموقع: شاهد ما يمرّ عبر Shroudly مع البيانات في الاتجاهين، واحظر أي موقع تريده (#74).\nالحظر يقطع اتصالات الموقع فورًا؛ وتبقى القائمة على جهازك.</string>
+    <string name="whatsNewAndroid">عندما لا يُفتح موقع إلا عبر Tor، الطريق الأخير، يخبرك Shroudly الآن بذلك لأنه أبطأ.\nجديد: حول → تابع Shroudly.</string>
     <string name="whatsNewOk">حسنًا</string>
     <string name="whatsNewTitle">الجديد في {version}</string>
 </resources>

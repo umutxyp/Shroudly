@@ -1449,6 +1449,10 @@ class EngineManager {
   }
 
   // Ask the engine to probe a host (used by UI "test site").
+  /* Something better than Tor is there now (Advanced mode came on): the
+   * names the last way out carried go back to the techniques first. */
+  forgetFallback() { return this._command('FALLBACK-FORGET'); }
+
   /* A line to the engine; false when it is not running. */
   _command(line) {
     if (!this.proc || !this.proc.stdin.writable) return false;

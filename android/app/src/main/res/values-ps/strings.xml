@@ -147,6 +147,11 @@
     <string name="excludedApps">هغه اپونه چې له Shroudly څخه نه تېرېږي</string>
     <string name="excludedAppsCount">هغه اپونه چې له Shroudly څخه نه تېرېږي: {count}</string>
     <string name="excludedAppsDesc">د هغوی ټرافیک له Shroudly پرته مستقیم وځي: د بېلګې په توګه یوه لوبه چې ورته اړتیا نه لري.</string>
+    <string name="followCodeshare">Codeshare، چې Shroudly جوړوي</string>
+    <string name="followDesc">د بندیزونو، نویو نسخو او د تېرېدو د لارو خبرونه تر ټولو مخکې. تعقیبول او شریکول هغه لار ده چې Shroudly اړو خلکو ته رسوي، او هېڅ لګښت نه لري.</string>
+    <string name="followDeveloper">اوموت بیرقدار، د Shroudly جوړونکی</string>
+    <string name="followTitle">Shroudly تعقیب کړئ</string>
+    <string name="followTv">دا په خپل تلیفون یا کمپیوټر کې پرانیزئ:</string>
     <string name="helpNudgeBodyPhone">یو وړیا اپ د هغو هېوادونو خلکو ته چې انټرنېټ سانسوروي اجازه ورکوي چې د بندیزونو د تېرولو لپاره د دې ټیلیفون د اړیکې یوه کوچنۍ برخه وکاروي. ستاسو لپاره خوندي ده: دوی ستاسو ټیلیفون یا شبکې ته نه شي رسېدای، او هغه سایټونه چې دوی یې پرانیزي هېڅکله ستاسو پته نه ګوري.</string>
     <string name="helpNudgeShow">وښیه</string>
     <string name="helpNudgeTitle">غواړئ په سانسور شویو هېوادونو کې له خلکو سره مرسته وکړئ؟</string>
@@ -236,6 +241,8 @@
     <string name="supportTitle">د Shroudly ملاتړ وکړئ</string>
     <string name="tagline">نالیدلی. نه درېدونکی.</string>
     <string name="testing">ازمویل کېږي…</string>
+    <string name="torUsedPhone">{host} یوازې د Tor شبکې له لارې پرانیستل شو، چې د Shroudly وروستۍ لار ده: په دې شبکه کې بل هېڅ شی کار ونه کړ. دا ورو ده او ځینې سایټونه کیپچا غواړي؛ ستاسو نور اپونه او سایټونه لکه پخوا کار کوي.</string>
+    <string name="torUsedTv">{host} یوازې د Tor شبکې له لارې پرانیستل شو، چې د Shroudly وروستۍ لار ده. د هغه ویډیوګانې ښايي ورو یا په ټیټ کیفیت پورته شي؛ ستاسو نور اپونه لکه پخوا کار کوي.</string>
     <string name="totalCount">ټول: {count}</string>
     <string name="updAvailable">{version} نسخه شته</string>
     <string name="updDownload">ډاونلوډ او نصب کړئ</string>
@@ -247,7 +254,7 @@
     <string name="upload">اپلوډ</string>
     <string name="uptime">د کار موده</string>
     <string name="versionLabel">نسخه {version}</string>
-    <string name="whatsNewAndroid">د سایټ له مخې اتصالونه: وګورئ چې له Shroudly څه تېرېږي، د دواړو لورو ډیټا سره، او هر سایټ چې غواړئ بند یې کړئ (#74).\nبندول د سایټ اتصالونه سمدستي پرې کوي؛ لېست ستاسو په وسیله پاتې کېږي.</string>
+    <string name="whatsNewAndroid">کله چې یو سایټ یوازې د Tor، وروستۍ لارې، له لارې پرانیستل شي، Shroudly اوس دا وايي، ځکه چې ورو دی.\nنوی: په اړه → Shroudly تعقیب کړئ.</string>
     <string name="whatsNewOk">پوه شوم</string>
     <string name="whatsNewTitle">په {version} کې نوي څه</string>
 </resources>

@@ -147,6 +147,11 @@
     <string name="excludedApps">אפליקציות שעוקפות את Shroudly</string>
     <string name="excludedAppsCount">אפליקציות שעוקפות את Shroudly: {count}</string>
     <string name="excludedAppsDesc">התעבורה שלהן יוצאת ישירות, בלי לעבור דרך Shroudly: למשל משחק שלא צריך אותו.</string>
+    <string name="followCodeshare">Codeshare, שיוצרים את Shroudly</string>
+    <string name="followDesc">חדשות על חסימות, גרסאות חדשות ודרכים לעקוף, ראשונים. מעקב ושיתוף הם הדרך של Shroudly להגיע למי שצריך אותה, וזה לא עולה כלום.</string>
+    <string name="followDeveloper">אומוט ביירקטר, המפתח של Shroudly</string>
+    <string name="followTitle">עקבו אחרי Shroudly</string>
+    <string name="followTv">פתחו אותם בטלפון או במחשב:</string>
     <string name="helpNudgeBodyPhone">אפליקציה חינמית מאפשרת לאנשים במדינות שמצנזרות את האינטרנט להשתמש במעט מהחיבור של הטלפון הזה כדי לעקוף את החסימות. זה בטוח בשבילכם: הם לא יכולים להגיע לטלפון או לרשת שלכם, והאתרים שהם פותחים אף פעם לא רואים את הכתובת שלכם.</string>
     <string name="helpNudgeShow">הראו לי</string>
     <string name="helpNudgeTitle">לעזור לאנשים במדינות עם צנזורה?</string>
@@ -236,6 +241,8 @@
     <string name="supportTitle">תמיכה ב-Shroudly</string>
     <string name="tagline">בלתי נראה. בלתי ניתן לעצירה.</string>
     <string name="testing">בודק…</string>
+    <string name="torUsedPhone">{host} נפתח רק דרך רשת Tor, הדרך האחרונה של Shroudly: שום דבר אחר לא עבר ברשת הזו. זה איטי יותר, ויש אתרים שמבקשים captcha; שאר האפליקציות והאתרים שלך ממשיכים כרגיל.</string>
+    <string name="torUsedTv">{host} נפתח רק דרך רשת Tor, הדרך האחרונה של Shroudly. סרטונים ממנו עלולים להיטען לאט או באיכות נמוכה יותר; שאר האפליקציות שלך ממשיכות כרגיל.</string>
     <string name="totalCount">סה״כ: {count}</string>
     <string name="updAvailable">גרסה {version} זמינה</string>
     <string name="updDownload">להוריד ולהתקין</string>
@@ -247,7 +254,7 @@
     <string name="upload">העלאה</string>
     <string name="uptime">זמן פעילות</string>
     <string name="versionLabel">גרסה {version}</string>
-    <string name="whatsNewAndroid">חיבורים לפי אתר: רואים מה עובר דרך Shroudly, עם הנתונים בשני הכיוונים, וחוסמים כל אתר (#74).\nחסימה מנתקת מיד את החיבורים של האתר; הרשימה נשארת במכשיר שלך.</string>
+    <string name="whatsNewAndroid">כשאתר נפתח רק דרך Tor, הדרך האחרונה, Shroudly אומרת לך את זה עכשיו, כי זה איטי יותר.\nחדש: אודות → עקבו אחרי Shroudly.</string>
     <string name="whatsNewOk">הבנתי</string>
     <string name="whatsNewTitle">מה חדש בגרסה {version}</string>
 </resources>

@@ -4499,6 +4499,16 @@ static void engine_init_once(void) {
   g_out_mx_ready = 1;
 }
 
+/* The names the last way out carried, forgotten (FALLBACK-FORGET): the app
+ * says so when something better than Tor is there now (Advanced mode came
+ * on), so their next connections walk the ladder again before Tor. Tor is
+ * the last of all ways, never the habit of a name. */
+void engine_fallback_forget(void) {
+  mutex_lock(&g_fb_mx);
+  memset(g_fb, 0, sizeof(g_fb));
+  mutex_unlock(&g_fb_mx);
+}
+
 /* Everything an engine has learned about hosts and resolvers: a start is a
  * fresh engine, as a new process was (the app sends back what it keeps
  * itself, see LEARN). In a process that has just started it is all empty

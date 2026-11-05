@@ -56,6 +56,11 @@
 "dnsServerUse" = "Usar";
 "dnsServerUseAnyway" = "Usar de todos modos";
 "download" = "Descarga";
+"followCodeshare" = "Codeshare, quienes hacen Shroudly";
+"followDesc" = "Noticias sobre bloqueos, nuevas versiones y formas de pasar, antes que nadie. Seguir y compartir es como Shroudly llega a quien lo necesita, y no cuesta nada.";
+"followDeveloper" = "Umut Bayraktar, el desarrollador de Shroudly";
+"followTitle" = "Sigue a Shroudly";
+"followTv" = "Ábrelos en tu teléfono o computadora:";
 "helpNudgeBodyPhone" = "Una app gratuita permite que las personas de países que censuran internet usen un poco de la conexión de este teléfono para saltarse los bloqueos. Es seguro para ti: no pueden llegar a tu teléfono ni a tu red, y los sitios que abren nunca ven tu dirección.";
 "helpNudgeShow" = "Mostrar";
 "helpNudgeTitle" = "¿Ayudar a personas en países con censura?";
@@ -127,6 +132,7 @@
 "strategy" = "Estrategia de evasión";
 "supportBannerLater" = "Ahora no";
 "tagline" = "Invisible. Imparable.";
+"torUsedDesktop" = "{host} solo se abrió a través de la red Tor, el último recurso de Shroudly: nada más funcionó en esta red. Es más lento y algunos sitios piden un captcha; los demás sitios de este ordenador siguen como antes.";
 "totalCount" = "Total: {count}";
 "upload" = "Subida";
 "uptime" = "Tiempo activo";

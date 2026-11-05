@@ -920,12 +920,20 @@
   "whatsNewTitle": "በ{version} ውስጥ አዲስ ነገሮች",
   "whatsNewOk": "ገባኝ",
   "whatsNewDesktop": "Riot Games በታገደባቸው አውታረ መረቦች ላይ League of Legends፣ VALORANT እና ጫኚያቸው አሁን በራሳቸው በ Shroudly በኩል ያልፋሉ (#76)።\nበ Windows ላይ የላቀ ሁነታ፦ ሌላ ፕሮግራም ትቶት የሄደ ሾፌር ከእንግዲህ እንዳይጀምር አያግደውም።",
-  "whatsNewAndroid": "በድረ ገጽ የተከፋፈሉ ግንኙነቶች፦ በShroudly ምን እንደሚያልፍ ከሁለቱም አቅጣጫ ውሂቡ ጋር ይመልከቱ፣ ማንኛውንም ድረ ገጽ ያግዱ (#74)።\nማገድ የገጹን ግንኙነቶች ወዲያውኑ ያቋርጣል፤ ዝርዝሩ በመሣሪያዎ ላይ ይቆያል።",
+  "whatsNewAndroid": "አንድ ድረ-ገጽ በመጨረሻው መንገድ በ Tor ብቻ ሲከፈት Shroudly አሁን ይነግርዎታል፣ ምክንያቱም ቀርፋፋ ነው።\nአዲስ፦ ስለ → Shroudlyን ይከተሉ።",
   "whatsNewApple": "በድረ ገጽ የተከፋፈሉ ግንኙነቶች፦ በShroudly ምን እንደሚያልፍ ከሁለቱም አቅጣጫ ውሂቡ ጋር ይመልከቱ፣ ማንኛውንም ድረ ገጽ ያግዱ (#74)።\nማገድ የገጹን ግንኙነቶች ወዲያውኑ ያቋርጣል፤ ዝርዝሩ በመሣሪያዎ ላይ ይቆያል።",
   "appleVpnNotSigned": "ይህ የShroudly ቅጂ ለVPN የApple ፈቃድ ሳይኖረው ተፈርሟል፣ ስለዚህ iOS VPN እንዲጀምር አይፈቅድለትም፣ ፈጽሞም አይጠይቅም። በነጻ Apple ID የተፈረሙ ቅጂዎች (AltStore፣ SideStore፣ Sideloadly እና መሰሎቻቸው) ይህ ፈቃድ ፈጽሞ የላቸውም። በTrollStore ይጫኑት፣ ወይም በሚከፈልበት የApple ገንቢ መለያ ይፈርሙት።",
   "appleInstallHelp": "እንዴት እንደሚጫን",
   "snowflakeHow": "እንዴት እንደሚሰራ፦ በTor አውታረ መረብ Snowflake በኩል ይመጣሉ፤ ስለዚህ የሚከፍቱት ነገር ከእርስዎ ሳይሆን ከTor አገልጋዮች ይወጣል።",
   "snowflakeDevice": "በዚህ መሣሪያ በኩል እርዱ",
   "snowflakeWhenApple": "Shroudly በiPhone እና iPad ላይ ክፍት እስከሆነ ድረስ፣ በMac ላይም እስከሚሠራ ድረስ ይረዳል። እስኪያበሩት ድረስ ጠፍቷል።",
-  "snowflakeWhenAndroid": "Shroudly ጥበቃው በርቶ ስልኩ በWi-Fi ላይ ሲሞላ ይረዳል፤ ስለዚህ ባትሪም የሞባይል ዳታም አያባክንም። እስኪያበሩት ድረስ ጠፍቷል።"
+  "snowflakeWhenAndroid": "Shroudly ጥበቃው በርቶ ስልኩ በWi-Fi ላይ ሲሞላ ይረዳል፤ ስለዚህ ባትሪም የሞባይል ዳታም አያባክንም። እስኪያበሩት ድረስ ጠፍቷል።",
+  "torUsedDesktop": "{host} የተከፈተው በ Shroudly የመጨረሻ መንገድ፣ በ Tor አውታረ መረብ ብቻ ነው፦ በዚህ አውታረ መረብ ሌላ ምንም አልሰራም። ይህ ቀርፋፋ ነው፣ አንዳንድ ድረ-ገጾችም captcha ይጠይቃሉ፤ በዚህ ኮምፒውተር ላይ ያሉ ሌሎች ድረ-ገጾች እንደቀድሞው ይሰራሉ።",
+  "torUsedPhone": "{host} የተከፈተው በ Shroudly የመጨረሻ መንገድ፣ በ Tor አውታረ መረብ ብቻ ነው፦ በዚህ አውታረ መረብ ሌላ ምንም አልሰራም። ይህ ቀርፋፋ ነው፣ አንዳንድ ድረ-ገጾችም captcha ይጠይቃሉ፤ ሌሎች መተግበሪያዎችዎና ድረ-ገጾች እንደቀድሞው ይሰራሉ።",
+  "torUsedTv": "{host} የተከፈተው በ Shroudly የመጨረሻ መንገድ፣ በ Tor አውታረ መረብ ብቻ ነው። ከዚያ የሚመጡ ቪዲዮዎች በዝግታ ወይም በዝቅተኛ ጥራት ሊጫኑ ይችላሉ፤ ሌሎች መተግበሪያዎችዎ እንደቀድሞው ይሰራሉ።",
+  "followTitle": "Shroudlyን ይከተሉ",
+  "followDesc": "ስለ እገዳዎች፣ አዳዲስ ስሪቶች እና ማለፊያ መንገዶች ዜናዎች በቅድሚያ። መከተልና ማጋራት Shroudly የሚያስፈልጋቸው ሰዎች ጋር የሚደርስበት መንገድ ነው፣ ምንም አያስከፍልም።",
+  "followCodeshare": "Shroudlyን የሚሰራው Codeshare",
+  "followDeveloper": "የShroudly ገንቢ ኡሙት ባይራክታር",
+  "followTv": "እነዚህን በስልክዎ ወይም በኮምፒውተርዎ ይክፈቱ፦"
 }

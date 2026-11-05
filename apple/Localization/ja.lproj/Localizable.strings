@@ -56,6 +56,11 @@
 "dnsServerUse" = "使う";
 "dnsServerUseAnyway" = "それでも使う";
 "download" = "ダウンロード";
+"followCodeshare" = "Shroudly を作っている Codeshare";
+"followDesc" = "ブロック、新しいバージョン、通り抜ける方法のニュースをいち早く。フォローとシェアが、Shroudly を必要としている人に届ける方法で、費用は一切かかりません。";
+"followDeveloper" = "Shroudly の開発者 Umut Bayraktar";
+"followTitle" = "Shroudly をフォロー";
+"followTv" = "スマートフォンやパソコンで開いてください：";
 "helpNudgeBodyPhone" = "無料のアプリを使うと、インターネットが検閲されている国の人々が、この電話の接続をほんの少し使ってブロックを回避できます。あなたにとって安全です：相手はあなたの電話やネットワークに入れず、相手が開くサイトにあなたのアドレスが見えることもありません。";
 "helpNudgeShow" = "見る";
 "helpNudgeTitle" = "検閲のある国の人々を助けませんか？";
@@ -127,6 +132,7 @@
 "strategy" = "バイパス方式";
 "supportBannerLater" = "今はしない";
 "tagline" = "見えない。止められない。";
+"torUsedDesktop" = "{host} は Shroudly の最後の手段である Tor ネットワーク経由でしか開けませんでした。このネットワークでは他の方法が通りませんでした。速度が遅くなり、一部のサイトでは CAPTCHA が求められます。このコンピュータの他のサイトはこれまでどおりです。";
 "totalCount" = "合計：{count}";
 "upload" = "アップロード";
 "uptime" = "稼働時間";

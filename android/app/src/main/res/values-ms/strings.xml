@@ -147,6 +147,11 @@
     <string name="excludedApps">Aplikasi yang memintas Shroudly</string>
     <string name="excludedAppsCount">Aplikasi yang memintas Shroudly: {count}</string>
     <string name="excludedAppsDesc">Trafiknya keluar terus tanpa melalui Shroudly: contohnya permainan yang tidak memerlukannya.</string>
+    <string name="followCodeshare">Codeshare, pembuat Shroudly</string>
+    <string name="followDesc">Berita tentang sekatan, versi baharu dan cara melepasinya, lebih awal. Mengikuti dan berkongsi ialah cara Shroudly sampai kepada orang yang memerlukannya, dan ia percuma.</string>
+    <string name="followDeveloper">Umut Bayraktar, pembangun Shroudly</string>
+    <string name="followTitle">Ikuti Shroudly</string>
+    <string name="followTv">Buka ini pada telefon atau komputer anda:</string>
     <string name="helpNudgeBodyPhone">Sebuah aplikasi percuma membolehkan orang di negara yang menapis internet menggunakan sedikit sambungan telefon ini untuk melepasi sekatan. Ia selamat untuk anda: mereka tidak boleh sampai ke telefon atau rangkaian anda, dan laman web yang mereka buka tidak pernah melihat alamat anda.</string>
     <string name="helpNudgeShow">Tunjukkan</string>
     <string name="helpNudgeTitle">Bantu orang di negara yang ditapis?</string>
@@ -236,6 +241,8 @@
     <string name="supportTitle">Sokong Shroudly</string>
     <string name="tagline">Tidak kelihatan. Tidak terhalang.</string>
     <string name="testing">Menguji…</string>
+    <string name="torUsedPhone">{host} hanya dibuka melalui rangkaian Tor, jalan terakhir Shroudly: tiada cara lain yang berjaya pada rangkaian ini. Ia lebih perlahan dan sesetengah laman meminta captcha; aplikasi dan laman anda yang lain kekal seperti biasa.</string>
+    <string name="torUsedTv">{host} hanya dibuka melalui rangkaian Tor, jalan terakhir Shroudly. Videonya mungkin dimuatkan perlahan atau dengan kualiti lebih rendah; aplikasi anda yang lain kekal seperti biasa.</string>
     <string name="totalCount">Jumlah: {count}</string>
     <string name="updAvailable">Versi {version} tersedia</string>
     <string name="updDownload">Muat turun dan pasang</string>
@@ -247,7 +254,7 @@
     <string name="upload">Muat naik</string>
     <string name="uptime">Masa aktif</string>
     <string name="versionLabel">Versi {version}</string>
-    <string name="whatsNewAndroid">Sambungan mengikut laman: lihat apa yang melalui Shroudly, dengan data kedua-dua arah, dan sekat mana-mana laman (#74).\nMenyekat terus memutuskan sambungan laman itu; senarainya kekal pada peranti anda.</string>
+    <string name="whatsNewAndroid">Apabila laman hanya dibuka melalui Tor, jalan terakhir, Shroudly kini memberitahu anda kerana ia lebih perlahan.\nBaharu: Perihal → Ikuti Shroudly.</string>
     <string name="whatsNewOk">Faham</string>
     <string name="whatsNewTitle">Apa yang baharu dalam {version}</string>
 </resources>

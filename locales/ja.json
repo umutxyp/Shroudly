@@ -920,12 +920,20 @@
   "whatsNewTitle": "{version} の新機能",
   "whatsNewOk": "OK",
   "whatsNewDesktop": "Riot Games がブロックされているネットワークでは、League of Legends、VALORANT とそのインストーラーが自動で Shroudly を経由するようになりました (#76)。\nWindows の高度なモード：他のプログラムが残したドライバーがあっても起動できるようになりました。",
-  "whatsNewAndroid": "サイト別の接続: Shroudly を通るものを双方向のデータ量とともに表示し、どのサイトでもブロックできます (#74)。\nブロックするとそのサイトの接続はすぐに切れます。一覧は端末に保存されます。",
+  "whatsNewAndroid": "サイトが最後の手段の Tor 経由でしか開けないとき、遅くなるため Shroudly がお知らせするようになりました。\n新機能：情報 → Shroudly をフォロー。",
   "whatsNewApple": "サイト別の接続: Shroudly を通るものを双方向のデータ量とともに表示し、どのサイトでもブロックできます (#74)。\nブロックするとそのサイトの接続はすぐに切れます。一覧は端末に保存されます。",
   "appleVpnNotSigned": "この Shroudly のコピーは Apple の VPN 権限なしで署名されているため、iOS は VPN の開始を許可せず、確認もしません。無料の Apple ID で署名したコピー（AltStore、SideStore、Sideloadly など）にはこの権限が付きません。TrollStore でインストールするか、有料の Apple デベロッパーアカウントで署名してください。",
   "appleInstallHelp": "インストール方法",
   "snowflakeHow": "仕組み：相手は Tor ネットワークの Snowflake を通って来るため、開いた内容はあなたではなく Tor のサーバーから出ていきます。",
   "snowflakeDevice": "このデバイスで手伝う",
   "snowflakeWhenApple": "Shroudly は iPhone と iPad では開いている間、Mac では起動している間だけ手伝います。オンにするまではオフです。",
-  "snowflakeWhenAndroid": "Shroudly は保護がオンで、スマートフォンが Wi-Fi 接続で充電中のときだけ手伝うので、バッテリーもモバイルデータも使いません。オンにするまではオフです。"
+  "snowflakeWhenAndroid": "Shroudly は保護がオンで、スマートフォンが Wi-Fi 接続で充電中のときだけ手伝うので、バッテリーもモバイルデータも使いません。オンにするまではオフです。",
+  "torUsedDesktop": "{host} は Shroudly の最後の手段である Tor ネットワーク経由でしか開けませんでした。このネットワークでは他の方法が通りませんでした。速度が遅くなり、一部のサイトでは CAPTCHA が求められます。このコンピュータの他のサイトはこれまでどおりです。",
+  "torUsedPhone": "{host} は Shroudly の最後の手段である Tor ネットワーク経由でしか開けませんでした。このネットワークでは他の方法が通りませんでした。速度が遅くなり、一部のサイトでは CAPTCHA が求められます。他のアプリやサイトはこれまでどおりです。",
+  "torUsedTv": "{host} は Shroudly の最後の手段である Tor ネットワーク経由でしか開けませんでした。そこからの動画は読み込みが遅くなったり画質が下がったりすることがあります。他のアプリはこれまでどおりです。",
+  "followTitle": "Shroudly をフォロー",
+  "followDesc": "ブロック、新しいバージョン、通り抜ける方法のニュースをいち早く。フォローとシェアが、Shroudly を必要としている人に届ける方法で、費用は一切かかりません。",
+  "followCodeshare": "Shroudly を作っている Codeshare",
+  "followDeveloper": "Shroudly の開発者 Umut Bayraktar",
+  "followTv": "スマートフォンやパソコンで開いてください："
 }
