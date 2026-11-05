@@ -404,7 +404,10 @@ jobs:
   # the API key lets xcodebuild make the certificates and profiles.
   apple:
     # Only a release tag uploads: a manual run tries the build, never the store.
-    if: startsWith(github.ref, 'refs/tags/v')
+    # A GitHub-only release (while the stores are reviewing the last one) sets
+    # the repository variable APPLE_UPLOAD to off: nothing goes to App Store
+    # Connect then. Play is never uploaded from here (a bundle by hand, below).
+    if: startsWith(github.ref, 'refs/tags/v') && vars.APPLE_UPLOAD != 'off'
     runs-on: macos-latest
     timeout-minutes: 60
     env:
