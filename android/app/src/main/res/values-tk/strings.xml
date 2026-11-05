@@ -108,6 +108,21 @@
     <string name="autoRawBlocked">Bu tor {app} programmasynyň birikmelerini togtadýar we Shroudly-niň usullarynyň hiç biri geçip bilmedi. {app} programmasynyň öz proksi sazlamasyny ýa-da VPN ulanyň.</string>
     <string name="autoRawUnreachable">{app} programmasy öz serwerlerine ýetip bilmeýär: bu tor olaryň salgylaryny petikleýär, Shroudly bolsa başga ýerdäki serwersiz muny aýlanyp geçip bilmeýär. {app} programmasynyň öz proksi sazlamasyny ýa-da VPN ulanyň.</string>
     <string name="connections">Birikmeler</string>
+    <string name="connsAllow">Rugsat ber</string>
+    <string name="connsBlock">Blokla</string>
+    <string name="connsBlockName">{host} blokla</string>
+    <string name="connsBlocked">Bloklandy</string>
+    <string name="connsDesc">Gorag açylandan bäri Shroudly arkaly geçenler, saýtlar boýunça. Saýty bloklamak onuň birikmelerini kesýär we täzelerini kabul etmeýär; blok sanawyňyz şu enjamda galýar.</string>
+    <string name="connsEmpty">Häzirlikçe hiç zat ýok. Bir saýt açyň, ol şu ýerde peýda bolar.</string>
+    <string name="connsOpen">{count} açyk</string>
+    <string name="connsRefused">{count} gezek ret edildi</string>
+    <string name="connsRouteServer">öz serweriňiz</string>
+    <string name="connsRouteTechnique">usul</string>
+    <string name="connsRouteTor">Tor</string>
+    <string name="connsSearch">Gözläň ýa-da bloklamak üçin saýt ýazyň</string>
+    <string name="connsSystem">Shroudly ulanýar</string>
+    <string name="connsSystemConfirm">Shroudly {host} salgysyny özi ulanýar. Bloklamak şifrlenen DNS-i, täzelenmeleri ýa-da soňky ýoly bozup biler, saýtlar açylmazlygy mümkin. Şonda-da bloklansynmy?</string>
+    <string name="connsTitle">Saýtlar boýunça birikmeler</string>
     <string name="dnsErrorEmpty">Serweriň salgysyny ýazyň, meselem {example}.</string>
     <string name="dnsErrorHost">Bu ne IP salgy, ne-de serweriň ady; ony {example} ýaly ýazyň.</string>
     <string name="dnsErrorPort">Port 1-den 65535-e çenli san bolmaly.</string>
@@ -232,7 +247,7 @@
     <string name="upload">Iberiş</string>
     <string name="uptime">Işlän wagty</string>
     <string name="versionLabel">Wersiýa {version}</string>
-    <string name="whatsNewAndroid">Hiç bir usul saýty açyp bilmese, Shroudly indi ony Tor ulgamy arkaly açýar; Tor-a Snowflake meýletinçileri arkaly ýetýär (olaryň arasynda Shroudly arkaly kömek edýänler hem bar).\nHaýalrak, ýöne geçýär; sazlamalardan öçürip bilersiňiz.</string>
+    <string name="whatsNewAndroid">Saýtlar boýunça birikmeler: Shroudly arkaly näme geçýändigini iki ugurdaky maglumaty bilen görüň we islän saýtyňyzy bloklaň (#74).\nBloklamak saýtyň birikmelerini derrew kesýär; sanaw enjamyňyzda galýar.</string>
     <string name="whatsNewOk">Düşnükli</string>
     <string name="whatsNewTitle">{version} wersiýasynda täzelikler</string>
 </resources>

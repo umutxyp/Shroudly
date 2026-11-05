@@ -108,6 +108,21 @@
     <string name="autoRawBlocked">このネットワークが {app} の接続を止めており、Shroudly のどの手法でも通れませんでした。{app} 自体のプロキシ設定か VPN を使ってください。</string>
     <string name="autoRawUnreachable">{app} がサーバーに接続できません。このネットワークがサーバーのアドレスをブロックしており、別の場所にあるサーバーなしでは Shroudly でも回避できません。{app} 自体のプロキシ設定か VPN を使ってください。</string>
     <string name="connections">接続</string>
+    <string name="connsAllow">許可</string>
+    <string name="connsBlock">ブロック</string>
+    <string name="connsBlockName">{host} をブロック</string>
+    <string name="connsBlocked">ブロック中</string>
+    <string name="connsDesc">保護を始めてから Shroudly を通ったものをサイト別に表示します。サイトをブロックすると接続が切れ、新しい接続も拒否されます。ブロックの一覧はこの端末に保存されます。</string>
+    <string name="connsEmpty">まだありません。サイトを開くとここに表示されます。</string>
+    <string name="connsOpen">{count} 件接続中</string>
+    <string name="connsRefused">{count} 回拒否</string>
+    <string name="connsRouteServer">自分のサーバー</string>
+    <string name="connsRouteTechnique">手法</string>
+    <string name="connsRouteTor">Tor</string>
+    <string name="connsSearch">検索、またはブロックするサイトを入力</string>
+    <string name="connsSystem">Shroudly が使用</string>
+    <string name="connsSystemConfirm">{host} は Shroudly 自身が使っています。ブロックすると暗号化 DNS、更新、最後の手段が使えなくなり、サイトが開かなくなるおそれがあります。それでもブロックしますか?</string>
+    <string name="connsTitle">サイト別の接続</string>
     <string name="dnsErrorEmpty">サーバーのアドレスを入力してください（例: {example}）。</string>
     <string name="dnsErrorHost">IP アドレスでもサーバー名でもありません。{example} のように入力してください。</string>
     <string name="dnsErrorPort">ポートは 1 から 65535 までの数字にしてください。</string>
@@ -232,7 +247,7 @@
     <string name="upload">アップロード</string>
     <string name="uptime">稼働時間</string>
     <string name="versionLabel">バージョン {version}</string>
-    <string name="whatsNewAndroid">どの手法でも開けないサイトを、Shroudly は Tor ネットワーク経由で開くようになりました。Tor には Snowflake のボランティア(Shroudly で手助けしている人たちも含む)を通じてつながります。遅くはなりますが届きます。\n設定でオフにできます。</string>
+    <string name="whatsNewAndroid">サイト別の接続: Shroudly を通るものを双方向のデータ量とともに表示し、どのサイトでもブロックできます (#74)。\nブロックするとそのサイトの接続はすぐに切れます。一覧は端末に保存されます。</string>
     <string name="whatsNewOk">OK</string>
     <string name="whatsNewTitle">{version} の新機能</string>
 </resources>

@@ -108,6 +108,21 @@
     <string name="autoRawBlocked">این شبکه اتصال‌های برنامهٔ {app} را متوقف می‌کند و هیچ‌یک از روش‌های Shroudly از آن عبور نکرد. از تنظیم پراکسی خودِ برنامهٔ {app} یا یک VPN استفاده کنید.</string>
     <string name="autoRawUnreachable">برنامهٔ {app} نمی‌تواند به سرورهایش برسد: این شبکه نشانی‌های آن‌ها را مسدود کرده و Shroudly بدون سروری در جای دیگر نمی‌تواند از این مانع بگذرد. از تنظیم پراکسی خودِ برنامهٔ {app} یا یک VPN استفاده کنید.</string>
     <string name="connections">اتصال‌ها</string>
+    <string name="connsAllow">اجازه بده</string>
+    <string name="connsBlock">مسدود کن</string>
+    <string name="connsBlockName">مسدود کردن {host}</string>
+    <string name="connsBlocked">مسدود شده</string>
+    <string name="connsDesc">آنچه از وقتی محافظت روشن شده از Shroudly می‌گذرد، بر اساس سایت. مسدود کردن یک سایت اتصال‌هایش را قطع می‌کند و اتصال‌های تازه را رد می‌کند؛ فهرست مسدودی‌هایت روی همین دستگاه می‌ماند.</string>
+    <string name="connsEmpty">هنوز چیزی نیست. سایتی باز کن تا اینجا دیده شود.</string>
+    <string name="connsOpen">{count} باز</string>
+    <string name="connsRefused">{count} بار رد شد</string>
+    <string name="connsRouteServer">سرور خودت</string>
+    <string name="connsRouteTechnique">روش</string>
+    <string name="connsRouteTor">تور</string>
+    <string name="connsSearch">جست‌وجو کن یا نام سایتی را برای مسدود کردن بنویس</string>
+    <string name="connsSystem">مورد استفادهٔ Shroudly</string>
+    <string name="connsSystemConfirm">خود Shroudly از {host} استفاده می‌کند. مسدود کردنش ممکن است DNS رمزگذاری‌شده، به‌روزرسانی‌ها یا راه آخر را از کار بیندازد و سایت‌ها باز نشوند. باز هم مسدود شود؟</string>
+    <string name="connsTitle">اتصال‌ها بر اساس سایت</string>
     <string name="dnsErrorEmpty">نشانی سرور را بنویسید، مثل {example}.</string>
     <string name="dnsErrorHost">این نه نشانی IP است و نه نام سرور؛ آن را مثل {example} بنویسید.</string>
     <string name="dnsErrorPort">درگاه باید عددی از 1 تا 65535 باشد.</string>
@@ -232,7 +247,7 @@
     <string name="upload">آپلود</string>
     <string name="uptime">مدت فعالیت</string>
     <string name="versionLabel">نسخهٔ {version}</string>
-    <string name="whatsNewAndroid">وقتی هیچ روشی سایتی را باز نمی‌کند، Shroudly حالا آن را از راه شبکهٔ تور باز می‌کند؛ تور از راه داوطلبان اسنوفلیک در دسترس است (از جمله کسانی که با Shroudly کمک می‌کنند).\nکندتر است ولی رد می‌شود؛ می‌توانی در تنظیمات خاموشش کنی.</string>
+    <string name="whatsNewAndroid">اتصال‌ها بر اساس سایت: ببین چه چیزی از Shroudly می‌گذرد، با داده‌ی هر دو جهت، و هر سایتی را خواستی مسدود کن (#74).\nمسدود کردن، اتصال‌های آن سایت را همان لحظه قطع می‌کند؛ فهرست روی دستگاه خودت می‌ماند.</string>
     <string name="whatsNewOk">متوجه شدم</string>
     <string name="whatsNewTitle">تازه‌های نسخهٔ {version}</string>
 </resources>

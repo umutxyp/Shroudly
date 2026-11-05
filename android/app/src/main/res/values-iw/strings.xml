@@ -108,6 +108,21 @@
     <string name="autoRawBlocked">הרשת הזו עוצרת את החיבורים של אפליקציית {app}, ואף אחת מהשיטות של Shroudly לא הצליח לעבור. יש להשתמש בהגדרת ה-Proxy המובנית ב-{app} או ב-VPN.</string>
     <string name="autoRawUnreachable">אפליקציית {app} לא מצליחה להגיע לשרתים שלה: הרשת הזו חוסמת את הכתובות שלהם, ו-Shroudly לא יכול לעקוף את זה בלי שרת במקום אחר. יש להשתמש בהגדרת ה-Proxy המובנית ב-{app} או ב-VPN.</string>
     <string name="connections">חיבורים</string>
+    <string name="connsAllow">אישור</string>
+    <string name="connsBlock">חסימה</string>
+    <string name="connsBlockName">חסימת {host}</string>
+    <string name="connsBlocked">חסום</string>
+    <string name="connsDesc">מה שעובר דרך Shroudly, לפי אתר, מאז שההגנה הופעלה. חסימת אתר מנתקת את החיבורים שלו ודוחה חיבורים חדשים; רשימת החסימות נשארת במכשיר הזה.</string>
+    <string name="connsEmpty">אין כלום עדיין. פתחו אתר והוא יופיע כאן.</string>
+    <string name="connsOpen">{count} פתוחים</string>
+    <string name="connsRefused">נדחה {count} פעמים</string>
+    <string name="connsRouteServer">השרת שלך</string>
+    <string name="connsRouteTechnique">טכניקה</string>
+    <string name="connsRouteTor">Tor</string>
+    <string name="connsSearch">חיפוש או הקלדת אתר לחסימה</string>
+    <string name="connsSystem">בשימוש Shroudly</string>
+    <string name="connsSystemConfirm">Shroudly עצמו משתמש ב-{host}. חסימה עלולה לשבש את ה-DNS המוצפן, העדכונים או הדרך האחרונה, ואתרים עלולים להפסיק להיפתח. לחסום בכל זאת?</string>
+    <string name="connsTitle">חיבורים לפי אתר</string>
     <string name="dnsErrorEmpty">הקלידו את כתובת השרת, למשל {example}.</string>
     <string name="dnsErrorHost">זו לא כתובת IP וגם לא שם שרת; הקלידו אותה כמו {example}.</string>
     <string name="dnsErrorPort">הפורט חייב להיות מספר בין 1 ל-65535.</string>
@@ -232,7 +247,7 @@
     <string name="upload">העלאה</string>
     <string name="uptime">זמן פעילות</string>
     <string name="versionLabel">גרסה {version}</string>
-    <string name="whatsNewAndroid">כששום טכניקה לא פותחת אתר, Shroudly פותח אותו עכשיו דרך רשת Tor, שאליה מגיעים דרך מתנדבי Snowflake (ובהם מי שעוזרים דרך Shroudly).\nאיטי יותר, אבל עובר; אפשר לכבות בהגדרות.</string>
+    <string name="whatsNewAndroid">חיבורים לפי אתר: רואים מה עובר דרך Shroudly, עם הנתונים בשני הכיוונים, וחוסמים כל אתר (#74).\nחסימה מנתקת מיד את החיבורים של האתר; הרשימה נשארת במכשיר שלך.</string>
     <string name="whatsNewOk">הבנתי</string>
     <string name="whatsNewTitle">מה חדש בגרסה {version}</string>
 </resources>

@@ -73,4 +73,10 @@ enum ProviderMessage: String {
     /* {}: "Count me in the live total" changed: counting starts, or stops
      * with a leave. */
     case count
+    /* {"rows": [{...}]}: the Connections list (Shared/Conns.swift), as the
+     * engine counts it. */
+    case conns
+    /* {}: the names blocked in the Connections list changed: the running
+     * engine is given them again. */
+    case blocks
 }

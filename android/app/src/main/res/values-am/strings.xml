@@ -108,6 +108,21 @@
     <string name="autoRawBlocked">ይህ አውታረ መረብ የ{app} መተግበሪያን ግንኙነቶች ያስቆማል፣ ከShroudly ዘዴዎችም አንዱም አላለፈም። በ{app} መተግበሪያ ውስጥ ያለውን የፕሮክሲ ቅንብር ወይም VPN ይጠቀሙ።</string>
     <string name="autoRawUnreachable">የ{app} መተግበሪያ ወደ አገልጋዮቹ መድረስ አይችልም፤ ይህ አውታረ መረብ አድራሻዎቻቸውን ያግዳል፣ Shroudly ደግሞ ሌላ ቦታ ያለ አገልጋይ ከሌለው ይህን ማለፍ አይችልም። በ{app} መተግበሪያ ውስጥ ያለውን የፕሮክሲ ቅንብር ወይም VPN ይጠቀሙ።</string>
     <string name="connections">ግንኙነቶች</string>
+    <string name="connsAllow">ፍቀድ</string>
+    <string name="connsBlock">አግድ</string>
+    <string name="connsBlockName">{host}ን አግድ</string>
+    <string name="connsBlocked">ታግዷል</string>
+    <string name="connsDesc">ጥበቃው ከጀመረ ጀምሮ በShroudly ያለፈው፣ በድረ ገጽ። አንድን ድረ ገጽ ማገድ ግንኙነቶቹን ያቋርጣል አዳዲሶቹንም ይከለክላል፤ የእገዳ ዝርዝርዎ በዚህ መሣሪያ ላይ ይቆያል።</string>
+    <string name="connsEmpty">ገና ምንም የለም። ድረ ገጽ ይክፈቱ እዚህ ይታያል።</string>
+    <string name="connsOpen">{count} ክፍት</string>
+    <string name="connsRefused">{count} ጊዜ ተከልክሏል</string>
+    <string name="connsRouteServer">የራስዎ አገልጋይ</string>
+    <string name="connsRouteTechnique">ዘዴ</string>
+    <string name="connsRouteTor">Tor</string>
+    <string name="connsSearch">ይፈልጉ ወይም ለማገድ ድረ ገጽ ይጻፉ</string>
+    <string name="connsSystem">Shroudly ይጠቀማል</string>
+    <string name="connsSystemConfirm">Shroudly ራሱ {host}ን ይጠቀማል። ማገዱ የተመሰጠረ DNSን፣ ዝማኔዎችን ወይም የመጨረሻውን መውጫ ሊያበላሽ እና ድረ ገጾች መከፈት ሊያቆሙ ይችላሉ። ቢሆንም ይታገድ?</string>
+    <string name="connsTitle">በድረ ገጽ የተከፋፈሉ ግንኙነቶች</string>
     <string name="dnsErrorEmpty">የአገልጋዩን አድራሻ ይጻፉ፣ ለምሳሌ {example}።</string>
     <string name="dnsErrorHost">ይህ የIP አድራሻም የአገልጋይ ስምም አይደለም፤ እንደ {example} ይጻፉት።</string>
     <string name="dnsErrorPort">ፖርቱ ከ1 እስከ 65535 ያለ ቁጥር መሆን አለበት።</string>
@@ -232,7 +247,7 @@
     <string name="upload">መስቀል</string>
     <string name="uptime">የሰራበት ጊዜ</string>
     <string name="versionLabel">ስሪት {version}</string>
-    <string name="whatsNewAndroid">ምንም ዘዴ አንድን ጣቢያ ካልከፈተው Shroudly አሁን በTor አውታረ መረብ በኩል ይከፍተዋል፤ ወደ Tor የሚደረሰው በSnowflake በጎ ፈቃደኞች ነው (በShroudly የሚረዱትም ከነሱ መካከል ናቸው)።\nቀርፋፋ ቢሆንም ያልፋል፤ በቅንብሮች ውስጥ ማጥፋት ይችላሉ።</string>
+    <string name="whatsNewAndroid">በድረ ገጽ የተከፋፈሉ ግንኙነቶች፦ በShroudly ምን እንደሚያልፍ ከሁለቱም አቅጣጫ ውሂቡ ጋር ይመልከቱ፣ ማንኛውንም ድረ ገጽ ያግዱ (#74)።\nማገድ የገጹን ግንኙነቶች ወዲያውኑ ያቋርጣል፤ ዝርዝሩ በመሣሪያዎ ላይ ይቆያል።</string>
     <string name="whatsNewOk">ገባኝ</string>
     <string name="whatsNewTitle">በ{version} ውስጥ አዲስ ነገሮች</string>
 </resources>

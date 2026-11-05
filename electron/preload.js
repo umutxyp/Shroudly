@@ -11,6 +11,9 @@ contextBridge.exposeInMainWorld('electron', {
   // Settings → Application (issue #46): put right what went wrong over time,
   // or every setting back to a new install's (the app restarts).
   repairApp: () => ipcRenderer.invoke('app:repair'),
+  // The Connections list (issue #74).
+  getConnections: () => ipcRenderer.invoke('conns:list'),
+  setBlocked: (host, on) => ipcRenderer.invoke('conns:block', host, on),
   // Where Shroudly keeps its data (data-dir.js, issue #72).
   getDataDir: () => ipcRenderer.invoke('datadir:get'),
   pickDataDir: () => ipcRenderer.invoke('datadir:pick'),

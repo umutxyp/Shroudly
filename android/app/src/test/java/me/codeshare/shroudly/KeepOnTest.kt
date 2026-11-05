@@ -88,10 +88,11 @@ class KeepOnTest {
         assertTrue(start.contains("if (again) KeepOn.offer(this)"))
         // A setting sent while it runs does not take START_STICKY back (the
         // last answer counts), in either mode: the four settings commands,
-        // and Android's own restart while already on.
-        assertEquals(5, Regex("""return if \(active\) START_STICKY else START_NOT_STICKY""").findAll(start).count())
+        // the Connections list's (issue #74), and Android's own restart
+        // while already on.
+        assertEquals(6, Regex("""return if \(active\) START_STICKY else START_NOT_STICKY""").findAll(start).count())
         val vpn = File(src, "java/me/codeshare/shroudly/ShroudlyVpnService.kt").readText()
-        assertEquals(4, Regex("""return stickyWhileOn\(\)""").findAll(vpn).count())
+        assertEquals(5, Regex("""return stickyWhileOn\(\)""").findAll(vpn).count())
         assertTrue(vpn.contains("private fun stickyWhileOn() = if (active) START_STICKY else START_NOT_STICKY"))
     }
 

@@ -158,6 +158,8 @@ class MainActivity : Activity() {
         hint = findViewById(R.id.hint)
         hintLabel = findViewById(R.id.hintLabel)
         connections = findViewById(R.id.connections)
+        // Connections by site, with blocking (issue #74).
+        findViewById<View>(R.id.connectionsTile).setOnClickListener { startActivity(android.content.Intent(this, ConnectionsActivity::class.java)) }
         connectionsTotal = findViewById(R.id.connectionsTotal)
         upload = findViewById(R.id.upload)
         download = findViewById(R.id.download)

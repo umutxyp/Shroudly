@@ -162,6 +162,28 @@ final class TunnelController: ObservableObject {
         return EngineStats(s)
     }
 
+    /* The Connections list (issue #74), while protection is on. */
+    func conns() async -> [ConnRow] {
+        guard phase == .on, let session = manager?.connection as? NETunnelProviderSession else { return [] }
+        let data: Data? = await withCheckedContinuation { done in
+            do {
+                try session.sendProviderMessage(Data(ProviderMessage.conns.rawValue.utf8)) { done.resume(returning: $0) }
+            } catch {
+                done.resume(returning: nil)
+            }
+        }
+        guard let data, let obj = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+              let rows = obj["rows"] as? [[String: Any]] else { return [] }
+        return rows.compactMap(ConnRow.init)
+    }
+
+    /* The blocked names changed (Shared/Conns.swift): the running tunnel
+     * gives them to the engine again. */
+    func blocksChanged() {
+        guard phase == .on, let session = manager?.connection as? NETunnelProviderSession else { return }
+        try? session.sendProviderMessage(Data(ProviderMessage.blocks.rawValue.utf8)) { _ in }
+    }
+
     /* The site lines the tunnel keeps in memory, for "Share logs". */
     func siteLog() async -> [String] {
         guard phase == .on, let session = manager?.connection as? NETunnelProviderSession else { return [] }

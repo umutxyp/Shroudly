@@ -108,6 +108,21 @@
     <string name="autoRawBlocked">Ce réseau interrompt les connexions de l’application {app}, et aucune des techniques de Shroudly n’est passée. Utilisez le réglage proxy intégré à {app} ou un VPN.</string>
     <string name="autoRawUnreachable">L’application {app} ne parvient pas à joindre ses serveurs : ce réseau bloque leurs adresses, et Shroudly ne peut pas contourner cela sans un serveur situé ailleurs. Utilisez le réglage proxy intégré à {app} ou un VPN.</string>
     <string name="connections">Connexions</string>
+    <string name="connsAllow">Autoriser</string>
+    <string name="connsBlock">Bloquer</string>
+    <string name="connsBlockName">Bloquer {host}</string>
+    <string name="connsBlocked">Bloqué</string>
+    <string name="connsDesc">Ce qui passe par Shroudly, par site, depuis le début de la protection. Bloquer un site coupe ses connexions et refuse les nouvelles ; ta liste de blocages reste sur cet appareil.</string>
+    <string name="connsEmpty">Rien pour l\'instant. Ouvre un site et il apparaîtra ici.</string>
+    <string name="connsOpen">{count} ouvertes</string>
+    <string name="connsRefused">{count} refusées</string>
+    <string name="connsRouteServer">ton serveur</string>
+    <string name="connsRouteTechnique">méthode</string>
+    <string name="connsRouteTor">Tor</string>
+    <string name="connsSearch">Rechercher ou saisir un site à bloquer</string>
+    <string name="connsSystem">utilisé par Shroudly</string>
+    <string name="connsSystemConfirm">Shroudly utilise lui-même {host}. Le bloquer peut casser le DNS chiffré, les mises à jour ou la dernière issue, et des sites peuvent ne plus s\'ouvrir. Bloquer quand même ?</string>
+    <string name="connsTitle">Connexions par site</string>
     <string name="dnsErrorEmpty">Saisissez l\'adresse du serveur, par exemple {example}.</string>
     <string name="dnsErrorHost">Ce n\'est ni une adresse IP ni un nom de serveur ; saisissez-la comme {example}.</string>
     <string name="dnsErrorPort">Le port doit être un nombre de 1 à 65535.</string>
@@ -232,7 +247,7 @@
     <string name="upload">Envoi</string>
     <string name="uptime">Durée d’activité</string>
     <string name="versionLabel">Version {version}</string>
-    <string name="whatsNewAndroid">Quand aucune technique n\'ouvre un site, Shroudly l\'ouvre désormais via le réseau Tor, joint grâce aux bénévoles de Snowflake (dont ceux qui aident avec Shroudly).\nPlus lent, mais ça passe ; désactivable dans les Réglages.</string>
+    <string name="whatsNewAndroid">Connexions par site : vois ce qui passe par Shroudly, avec les données dans chaque sens, et bloque le site de ton choix (#74).\nBloquer un site coupe ses connexions aussitôt ; la liste reste sur ton appareil.</string>
     <string name="whatsNewOk">Compris</string>
     <string name="whatsNewTitle">Nouveautés de la {version}</string>
 </resources>

@@ -27,6 +27,7 @@
  * watchdog.h.
  */
 #include "engine.h"
+#include "conns.h"
 #include "proto.h"
 #include "probe.h"
 #include "platform.h"
@@ -387,6 +388,15 @@ int engine_main(int argc, char **argv, FILE *in, FILE *out, int embedded) {
     else if (!strcmp(line, "DNS-STRICT 1")) doh_set_strict(1);
     else if (!strcmp(line, "DNS-STRICT 0")) doh_set_strict(0);
     else if (!strncmp(line, "ALLOW ", 6)) adblock_allow(line + 6);
+    /* The Connections list (conns.h, issue #74): what went through, by
+     * name; the names the user blocked there. */
+    else if (!strcmp(line, "CONNS")) conns_emit();
+    else if (!strcmp(line, "BLOCK-CLEAR")) conns_block_clear();
+    else if (!strncmp(line, "BLOCK ", 6)) {
+      int ended = conns_block(line + 6);
+      if (ended >= 0) engine_printf("{\"type\":\"block\",\"ok\":1,\"ended\":%d}\n", ended);
+    }
+    else if (!strncmp(line, "UNBLOCK ", 8)) conns_unblock(line + 8);
     else if (!strncmp(line, "LEARN ", 6)) {
       /* LEARN <host> <technique> <seconds ago>: what an earlier run learned. */
       char host[256], tech[64]; unsigned long long secs = 0;

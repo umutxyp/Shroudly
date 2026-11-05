@@ -108,6 +108,21 @@
     <string name="autoRawBlocked">Bu tarmoq {app} ilovasining ulanishlarini toʻxtatadi va Shroudly usullaridan hech biri oʻta olmadi. {app} ilovasining oʻz proksi sozlamasidan yoki VPNdan foydalaning.</string>
     <string name="autoRawUnreachable">{app} ilovasi oʻz serverlariga ulana olmayapti: bu tarmoq ularning manzillarini bloklaydi, Shroudly esa boshqa joydagi serversiz buni chetlab oʻta olmaydi. {app} ilovasining oʻz proksi sozlamasidan yoki VPNdan foydalaning.</string>
     <string name="connections">Ulanishlar</string>
+    <string name="connsAllow">Ruxsat berish</string>
+    <string name="connsBlock">Bloklash</string>
+    <string name="connsBlockName">{host} bloklash</string>
+    <string name="connsBlocked">Bloklangan</string>
+    <string name="connsDesc">Himoya yoqilgandan beri Shroudly orqali o\'tganlar, saytlar bo\'yicha. Saytni bloklash uning ulanishlarini uzadi va yangilarini rad etadi; bloklar ro\'yxatingiz shu qurilmada qoladi.</string>
+    <string name="connsEmpty">Hozircha hech narsa yo\'q. Sayt oching, u shu yerda chiqadi.</string>
+    <string name="connsOpen">{count} ochiq</string>
+    <string name="connsRefused">{count} marta rad etildi</string>
+    <string name="connsRouteServer">o\'z serveringiz</string>
+    <string name="connsRouteTechnique">usul</string>
+    <string name="connsRouteTor">Tor</string>
+    <string name="connsSearch">Qidiring yoki bloklash uchun sayt yozing</string>
+    <string name="connsSystem">Shroudly ishlatadi</string>
+    <string name="connsSystemConfirm">Shroudly {host} manzilidan o\'zi foydalanadi. Bloklash shifrlangan DNS, yangilanishlar yoki so\'nggi yo\'lni buzishi, saytlar ochilmay qolishi mumkin. Baribir bloklansinmi?</string>
+    <string name="connsTitle">Saytlar bo\'yicha ulanishlar</string>
     <string name="dnsErrorEmpty">Server manzilini yozing, masalan {example}.</string>
     <string name="dnsErrorHost">Bu na IP manzil, na server nomi; uni {example} kabi yozing.</string>
     <string name="dnsErrorPort">Port 1 dan 65535 gacha boʻlgan son boʻlishi kerak.</string>
@@ -232,7 +247,7 @@
     <string name="upload">Yuklash</string>
     <string name="uptime">Ish vaqti</string>
     <string name="versionLabel">Versiya {version}</string>
-    <string name="whatsNewAndroid">Hech bir usul saytni ocha olmasa, Shroudly endi uni Tor tarmog\'i orqali ochadi; Tor\'ga Snowflake ko\'ngillilari orqali yetadi (ular orasida Shroudly orqali yordam beradiganlar ham bor).\nSekinroq, lekin o\'tadi; sozlamalardan o\'chirish mumkin.</string>
+    <string name="whatsNewAndroid">Saytlar bo\'yicha ulanishlar: Shroudly orqali nima o\'tayotganini ikki tomonlama ma\'lumoti bilan ko\'ring va istalgan saytni bloklang (#74).\nBloklash saytning ulanishlarini darhol uzadi; ro\'yxat qurilmangizda qoladi.</string>
     <string name="whatsNewOk">Tushunarli</string>
     <string name="whatsNewTitle">{version} versiyasida yangiliklar</string>
 </resources>

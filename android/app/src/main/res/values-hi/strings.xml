@@ -108,6 +108,21 @@
     <string name="autoRawBlocked">यह नेटवर्क {app} के कनेक्शन रोक देता है, और Shroudly की कोई भी तकनीक पार नहीं हो पाई। {app} की अपनी प्रॉक्सी सेटिंग या कोई VPN इस्तेमाल करें।</string>
     <string name="autoRawUnreachable">{app} अपने सर्वर तक नहीं पहुँच पा रहा: यह नेटवर्क उनके पते ब्लॉक करता है, और कहीं और मौजूद सर्वर के बिना Shroudly इसे पार नहीं कर सकता। {app} की अपनी प्रॉक्सी सेटिंग या कोई VPN इस्तेमाल करें।</string>
     <string name="connections">कनेक्शन</string>
+    <string name="connsAllow">अनुमति दें</string>
+    <string name="connsBlock">ब्लॉक करें</string>
+    <string name="connsBlockName">{host} ब्लॉक करें</string>
+    <string name="connsBlocked">ब्लॉक किया गया</string>
+    <string name="connsDesc">सुरक्षा शुरू होने के बाद से Shroudly से जो गुज़रा, साइट के अनुसार। किसी साइट को ब्लॉक करने पर उसके कनेक्शन कट जाते हैं और नए अस्वीकार होते हैं; आपकी ब्लॉक सूची इसी डिवाइस पर रहती है।</string>
+    <string name="connsEmpty">अभी कुछ नहीं। कोई साइट खोलें, वह यहाँ दिखेगी।</string>
+    <string name="connsOpen">{count} खुले</string>
+    <string name="connsRefused">{count} बार अस्वीकार</string>
+    <string name="connsRouteServer">आपका अपना सर्वर</string>
+    <string name="connsRouteTechnique">तकनीक</string>
+    <string name="connsRouteTor">Tor</string>
+    <string name="connsSearch">खोजें या ब्लॉक करने के लिए साइट लिखें</string>
+    <string name="connsSystem">Shroudly इस्तेमाल करता है</string>
+    <string name="connsSystemConfirm">Shroudly ख़ुद {host} का उपयोग करता है। इसे ब्लॉक करने से एन्क्रिप्टेड DNS, अपडेट या आख़िरी रास्ता टूट सकता है और साइटें खुलना बंद हो सकती हैं। फिर भी ब्लॉक करें?</string>
+    <string name="connsTitle">साइट के अनुसार कनेक्शन</string>
     <string name="dnsErrorEmpty">सर्वर का पता लिखें, जैसे {example}।</string>
     <string name="dnsErrorHost">यह न IP पता है न सर्वर का नाम; इसे {example} की तरह लिखें।</string>
     <string name="dnsErrorPort">पोर्ट 1 से 65535 के बीच की कोई संख्या होनी चाहिए।</string>
@@ -232,7 +247,7 @@
     <string name="upload">अपलोड</string>
     <string name="uptime">सक्रिय समय</string>
     <string name="versionLabel">संस्करण {version}</string>
-    <string name="whatsNewAndroid">जब कोई तकनीक किसी साइट को नहीं खोल पाती, तो Shroudly अब उसे Tor नेटवर्क से खोलता है, जिस तक Snowflake स्वयंसेवकों के ज़रिए पहुँचा जाता है (इनमें Shroudly से मदद करने वाले भी हैं)।\nधीमा है, पर निकल जाता है; आप इसे सेटिंग्स में बंद कर सकते हैं।</string>
+    <string name="whatsNewAndroid">साइट के अनुसार कनेक्शन: देखें Shroudly से क्या गुज़र रहा है, दोनों दिशाओं के डेटा के साथ, और कोई भी साइट ब्लॉक करें (#74)।\nब्लॉक करते ही साइट के कनेक्शन कट जाते हैं; सूची आपके डिवाइस पर रहती है।</string>
     <string name="whatsNewOk">समझ गया</string>
     <string name="whatsNewTitle">{version} में नया क्या है</string>
 </resources>

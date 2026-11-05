@@ -7,6 +7,7 @@
 #include "fake.h"
 #include "socksudp.h"
 #include "adblock.h"
+#include "conns.h"
 #include <ctype.h>
 #include <string.h>
 #include <stdlib.h>
@@ -1843,9 +1844,13 @@ static void report(const char *ev, const char *host, const char *strat, int atte
                    const char *note);
 
 /* Bidirectional relay until either side closes. a = client, b = server. */
+/* This thread's connection in the list by name (conns.h), or -1. */
+static _Thread_local int t_conn = -1;
+
 static void relay(sock_t a, sock_t b, cut_watch *cw) {
   uint8_t *buf = (uint8_t *)malloc(RELAY_BUF);
   if (!buf) return;
+  conns_sockets(t_conn, a, b);
   int reported = 0;
   uint64_t t = now_ms(), last_down = t;
   uint64_t waiting_since = cw ? cw->waiting : 0;   /* client sent something the server has not answered */
@@ -1867,6 +1872,7 @@ static void relay(sock_t a, sock_t b, cut_watch *cw) {
       if (n <= 0) { if (cw) cw->ended = 2; break; }
       if (sock_send_all(b, buf, (size_t)n, 0) != 0) break;
       atomic_fetch_add(&g_stats.bytes_up, (uint64_t)n);
+      conns_bytes(t_conn, (uint64_t)n, 0);
       if (!waiting_since) waiting_since = t;   /* oldest request still unanswered */
       if (cw) tls_follow(&cw->ct, buf, n);
     }
@@ -1888,6 +1894,7 @@ static void relay(sock_t a, sock_t b, cut_watch *cw) {
       }
       if (sock_send_all(a, buf, (size_t)n, 0) != 0) break;
       atomic_fetch_add(&g_stats.bytes_down, (uint64_t)n);
+      conns_bytes(t_conn, 0, (uint64_t)n);
       last_down = t;
       waiting_since = 0;
       if (cw) {
@@ -3692,8 +3699,10 @@ static int nd_lookup(const char *host, char *out, size_t cap, int wait_ms) {
  * the network for it: no lookup, no connection. buf holds the client's first
  * payload (flen bytes), or flen < 0 when the proxy step is still to be
  * answered and nothing has been read. */
-static void adblock_refuse(sock_t client, socks_req *rq, uint8_t *buf, int flen) {
-  adblock_count();
+/* A connection refused by name: by the ad and tracker list (counted
+ * there), or by the user's own blocks (conns.h, counted in its list). */
+static void refuse_named(sock_t client, socks_req *rq, uint8_t *buf, int flen, int ad) {
+  if (ad) adblock_count();
   if (flen < 0) {
     if (socks_reply(client, rq, 1) != 0) return;
     flen = first_payload(client, SOCK_INVALID, rq, buf, RELAY_BUF);
@@ -3706,6 +3715,8 @@ static void adblock_refuse(sock_t client, socks_req *rq, uint8_t *buf, int flen)
     send_str(client, "HTTP/1.1 403 Forbidden\r\nContent-Length: 0\r\nConnection: close\r\n\r\n");
   }
 }
+static void adblock_refuse(sock_t client, socks_req *rq, uint8_t *buf, int flen) { refuse_named(client, rq, buf, flen, 1); }
+static void user_refuse(sock_t client, socks_req *rq, uint8_t *buf, int flen) { refuse_named(client, rq, buf, flen, 0); }
 
 /* ── the user's own server (--upstream-file) ─────────────────────────────
  * Every connection to a name goes through it: a SOCKS5 server (the name sent
@@ -3862,6 +3873,7 @@ static int upstream_carries(const char *host) {
 
 static void via_upstream(sock_t client, socks_req *rq, uint8_t *first) {
   const char *target = rq->host;
+  conns_route(t_conn, CONN_SERVER);
   proto_info pi;
   int flen = -1;
   memset(&pi, 0, sizeof(pi));
@@ -3909,6 +3921,7 @@ static int via_fallback(sock_t client, socks_req *rq) {
   if (rq->head && rq->head_len > 0 && sock_send_all(up, (const uint8_t *)rq->head, (size_t)rq->head_len, 0) != 0) { sock_close(up); return 0; }
   if (fb_put(rq->host)) fallback_tell(rq->host);
   atomic_fetch_add(&g_stats.fallback, 1);
+  conns_route(t_conn, CONN_TOR);
   relay(client, up, NULL);
   sock_close(up);
   return 0;
@@ -3934,6 +3947,8 @@ static void handle(sock_t client) {
 
   if (socks_accept(client, &rq) != 0) goto done;
   if (rq.cmd == 0x03) { udp_associate(client, &rq); goto done; }
+  /* Listed by name from here on (conns.h). */
+  t_conn = conns_begin(rq.host);
   /* A stand-in address that outlived its mapping: "not allowed", at once. */
   if (host_in_fake_net(rq.host)) {
     if (rq.ver == 4) socks4_reply(client, 0x5B); else if (rq.ver == 1 || rq.ver == 2) socks_reply(client, &rq, 0); else socks5_reply(client, 0x02);
@@ -3948,6 +3963,8 @@ static void handle(sock_t client) {
 
   /* A name on the ad and tracker list: not looked up, not connected to. */
   if (!ip_literal(rq.host) && adblock_blocked(rq.host)) { adblock_refuse(client, &rq, first, -1); goto done; }
+  /* A name the user blocked in the Connections list. */
+  if (!ip_literal(rq.host) && conns_blocked(rq.host)) { user_refuse(client, &rq, first, -1); goto done; }
 
   /* The user's own server carries it (see via_upstream). */
   if (g_cfg.upstream_kind && upstream_carries(rq.host)) { via_upstream(client, &rq, first); goto done; }
@@ -3967,6 +3984,8 @@ static void handle(sock_t client) {
     memset(&pi0, 0, sizeof(pi0));
     if (flen > 0) proto_inspect(first, (size_t)flen, &pi0);
     if (pi0.host[0] && adblock_blocked(pi0.host)) { adblock_refuse(client, &rq, first, flen); goto done; }
+    if (pi0.host[0]) conns_name(t_conn, pi0.host);
+    if (pi0.host[0] && conns_blocked(pi0.host)) { user_refuse(client, &rq, first, flen); goto done; }
     if (pi0.host[0] && !doh_local_name(pi0.host)) {
       up = dial(pi0.host, rq.port, g_cfg.prefer_ipv6, 1, 0, &fam, &di);
       if (up != SOCK_INVALID) { snprintf(dial_host, sizeof(dial_host), "%s", pi0.host); dial_doh = 1; }
@@ -4066,10 +4085,15 @@ static void handle(sock_t client) {
       adblock_refuse(client, &rq, first, flen);
       goto done;
     }
+    if (ip_literal(rq.host) && pi.host[0] && conns_blocked(pi.host)) {
+      user_refuse(client, &rq, first, flen);
+      goto done;
+    }
     if (pi.kind == PROTO_TLS)  atomic_fetch_add(&g_stats.tls_seen, 1);
     if (pi.kind == PROTO_HTTP) atomic_fetch_add(&g_stats.http_seen, 1);
 
     const char *key = pi.host[0] ? pi.host : rq.host;
+    conns_name(t_conn, key);
     watch_note(key);
     watch_tls = pi.kind == PROTO_TLS;
     strncpy(cut_key, key, sizeof(cut_key) - 1); cut_key[sizeof(cut_key) - 1] = 0;
@@ -4347,6 +4371,8 @@ static void handle(sock_t client) {
         up = fb; fam = 0;
         if (fb_put(target)) fallback_tell(target);
         atomic_fetch_add(&g_stats.fallback, 1);
+        conns_route(t_conn, CONN_TOR);
+        used_cand = ATT_PLAIN;
         /* Not this engine's techniques at work: nothing to learn from it. */
         cut_key[0] = 0; watch_tls = 0; raw_done = 1; waiting = 0; gave_up = 0;
         atomic_fetch_add(&g_stats.bytes_up, (uint64_t)flen);
@@ -4357,6 +4383,8 @@ static void handle(sock_t client) {
   }
 
   if (up == SOCK_INVALID) goto done;
+  /* How it went out, for the Connections list (Tor is said where it is used). */
+  if (used_cand != ATT_PLAIN && used_cand >= 0) conns_route(t_conn, CONN_TECHNIQUE);
   if (rlen > 0) {
     if (sock_send_all(client, rbuf, (size_t)rlen, 0) != 0) goto done;
     atomic_fetch_add(&g_stats.bytes_down, (uint64_t)rlen);
@@ -4396,6 +4424,8 @@ static void handle(sock_t client) {
   }
 
 done:
+  conns_end(t_conn);
+  t_conn = -1;
   if (up != SOCK_INVALID) sock_close(up);
   free(first); free(work); free(rbuf); free(rq.head);
   atomic_fetch_sub(&g_stats.conns_active, 1);
@@ -4459,6 +4489,7 @@ static void engine_init_once(void) {
   mutex_init(&g_win_mx);
   mutex_init(&g_cool_mx);
   mutex_init(&g_fb_mx);
+  conns_init();
   mutex_init(&g_seen_mx);
   mutex_init(&g_raw_mx);
   mutex_init(&g_osdns_mx);
@@ -4486,6 +4517,10 @@ static void engine_forget(void) {
   mutex_lock(&g_fb_mx);
   memset(g_fb, 0, sizeof(g_fb));
   mutex_unlock(&g_fb_mx);
+  /* The list by name and the user's blocks: the app gives its blocks again
+   * after every start. */
+  conns_forget();
+  conns_block_clear();
   atomic_store(&g_fb_ok_at, 0);
   mutex_lock(&g_win_mx);
   memset(g_win, 0, sizeof(g_win));

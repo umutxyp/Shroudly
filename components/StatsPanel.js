@@ -3,7 +3,7 @@
 import { useEffect, useId, useRef, useState } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
 import {
-  ArrowDownIcon, ArrowUpIcon, ClockIcon, DatabaseIcon, InfoIcon, LinkIcon, ShieldCheckIcon, UsersIcon,
+  ArrowDownIcon, ArrowUpIcon, ClockIcon, DatabaseIcon, InfoIcon, LinkIcon, SearchIcon, ShieldCheckIcon, UsersIcon,
 } from './icons';
 
 const HISTORY = 40;
@@ -91,6 +91,97 @@ function Stat({ Icon, label, value, sub, wide = false }) {
         {value}
       </div>
       {sub != null && <div className="num mt-1 truncate text-[11.5px]" style={{ color: 'var(--text-faint)' }} title={sub}>{sub}</div>}
+    </div>
+  );
+}
+
+
+/* A name as typed into the search box, if it could be a site's name. */
+const NAME = /^(?=.{3,253}$)[a-z0-9-]+(\.[a-z0-9-]+)+$/;
+
+/* What went through Shroudly, by site (issue #74): open now, the data each
+ * way, how it went out; a site blocked here has its connections ended and
+ * new ones refused (electron/engine-manager.js setBlocked). Names Shroudly
+ * itself uses are marked, and blocking one asks first. */
+function Connections({ active }) {
+  const { t } = useLanguage();
+  const [data, setData] = useState({ rows: [], blocked: [] });
+  const [q, setQ] = useState('');
+  useEffect(() => {
+    const e = typeof window !== 'undefined' ? window.electron : null;
+    if (!e?.getConnections) return undefined;
+    let alive = true;
+    const load = () => { if (document.visibilityState === 'visible') e.getConnections().then((d) => { if (alive && d) setData(d); }).catch(() => {}); };
+    load();
+    const timer = setInterval(load, 2000);
+    return () => { alive = false; clearInterval(timer); };
+  }, [active]);
+  const block = async (host, on, system) => {
+    if (on && system && !window.confirm(t('connsSystemConfirm', { host }))) return;
+    try {
+      const r = await window.electron.setBlocked(host, on);
+      if (r && r.ok) setData((d) => ({ ...d, blocked: r.blocked, rows: d.rows.map((x) => (x.host === host || x.host.endsWith(`.${host}`) ? { ...x, blocked: on ? 1 : 0, active: on ? 0 : x.active } : x)) }));
+    } catch {}
+  };
+  const needle = q.trim().toLowerCase();
+  const rows = data.rows.filter((r) => !needle || r.host.includes(needle)).slice(0, 100);
+  const blockedOnly = (data.blocked || []).filter((h) => !data.rows.some((r) => r.host === h) && (!needle || h.includes(needle)));
+  const canBlockTyped = NAME.test(needle) && !(data.blocked || []).includes(needle) && !data.rows.some((r) => r.host === needle);
+  const route = (r) => (r.route === 'tor' ? t('connsRouteTor') : r.route === 'server' ? t('connsRouteServer') : r.route === 'technique' ? t('connsRouteTechnique') : null);
+  const badge = (text, color) => (
+    <span className="shrink-0 rounded-full px-1.5 py-[1px] text-[10.5px] font-semibold" style={{ background: 'var(--surface-2)', color }}>{text}</span>
+  );
+  const btn = 'btn btn-ghost shrink-0 rounded-[7px] px-2.5 py-1 text-[11.5px] font-semibold';
+  return (
+    <div className="card flex flex-col gap-2.5 p-4">
+      <div>
+        <p className="text-[13px] font-semibold" style={{ color: 'var(--text)' }}>{t('connsTitle')}</p>
+        <p className="mt-0.5 text-[11.5px] leading-snug" style={{ color: 'var(--text-faint)' }}>{t('connsDesc')}</p>
+      </div>
+      <label className="flex items-center gap-2 rounded-[8px] px-2.5 py-1.5" style={{ background: 'var(--surface-2)', border: '1px solid var(--line)' }}>
+        <SearchIcon className="h-3.5 w-3.5" style={{ color: 'var(--text-faint)' }} />
+        <input value={q} onChange={(e) => setQ(e.target.value)} placeholder={t('connsSearch')} dir="ltr" spellCheck={false}
+               className="min-w-0 flex-1 bg-transparent text-[12.5px] outline-none" style={{ color: 'var(--text)' }} />
+      </label>
+      {canBlockTyped && (
+        <button type="button" onClick={() => { block(needle, true, false); setQ(''); }} className={`${btn} self-start`}>{t('connsBlockName', { host: needle })}</button>
+      )}
+      {!rows.length && !blockedOnly.length && !canBlockTyped && (
+        <p className="py-2 text-[12px]" style={{ color: 'var(--text-faint)' }}>{active ? t('connsEmpty') : t('statsInactiveHint')}</p>
+      )}
+      <div className="flex flex-col divide-y" style={{ borderColor: 'var(--line)' }}>
+        {rows.map((r) => (
+          <div key={r.host} className="flex min-w-0 items-center gap-2 py-2">
+            <span aria-hidden className="h-2 w-2 shrink-0 rounded-full" style={{ background: r.blocked ? 'var(--warn)' : r.active > 0 ? 'var(--ok)' : 'var(--line)' }} />
+            <div className="min-w-0 flex-1">
+              <div className="flex min-w-0 items-center gap-1.5">
+                <span className="truncate text-[12.5px] font-medium" dir="ltr" style={{ color: 'var(--text)' }} title={r.host}>{r.host}</span>
+                {r.system && badge(t('connsSystem'), 'var(--accent)')}
+                {route(r) && badge(route(r), 'var(--text-dim)')}
+              </div>
+              <div className="num mt-0.5 flex flex-wrap gap-x-2.5 text-[11px]" dir="ltr" style={{ color: 'var(--text-faint)', justifyContent: 'flex-start' }}>
+                {r.blocked
+                  ? <span style={{ color: 'var(--warn)' }}>{t('connsBlocked')}{r.refused > 0 ? ` · ${t('connsRefused', { count: r.refused })}` : ''}</span>
+                  : <>
+                      <span>↓ {fmtBytes(r.down)}</span><span>↑ {fmtBytes(r.up)}</span>
+                      {r.active > 0 && <span>{t('connsOpen', { count: r.active })}</span>}
+                    </>}
+              </div>
+            </div>
+            {r.blocked
+              ? <button type="button" onClick={() => block(r.host, false, false)} className={btn}>{t('connsAllow')}</button>
+              : <button type="button" onClick={() => block(r.host, true, r.system)} className={btn}>{t('connsBlock')}</button>}
+          </div>
+        ))}
+        {blockedOnly.map((h) => (
+          <div key={`b-${h}`} className="flex min-w-0 items-center gap-2 py-2">
+            <span aria-hidden className="h-2 w-2 shrink-0 rounded-full" style={{ background: 'var(--warn)' }} />
+            <span className="min-w-0 flex-1 truncate text-[12.5px] font-medium" dir="ltr" style={{ color: 'var(--text)' }}>{h}</span>
+            <span className="text-[11px]" style={{ color: 'var(--warn)' }}>{t('connsBlocked')}</span>
+            <button type="button" onClick={() => block(h, false, false)} className={btn}>{t('connsAllow')}</button>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
@@ -197,6 +288,8 @@ export default function StatsPanel({ active }) {
             own row, the counters above staying two by two. */}
         {s.adsBlocked > 0 && <Stat Icon={ShieldCheckIcon} label={t('adsBlocked')} value={s.adsBlocked} wide />}
       </div>
+
+      <Connections active={active} />
     </div>
   );
 }

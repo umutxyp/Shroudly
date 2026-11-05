@@ -60,6 +60,9 @@ class ShroudlyVpnService : VpnService() {
         const val ACTION_ADBLOCK = "me.codeshare.shroudly.ADBLOCK"
         /* "Help people in censored countries" switched (Snowflake). */
         const val ACTION_SNOWFLAKE = "me.codeshare.shroudly.SNOWFLAKE"
+        /* The Connections list (Conns): extra "what" is CONNS to ask for it,
+         * or BLOCK/UNBLOCK <name>. */
+        const val ACTION_CONNS = "me.codeshare.shroudly.CONNS"
         /* A setting of the Settings window changed (extra "what": "strategy"
          * restarts the engine with it, "apps" renews the VPN interface with
          * the apps that skip Shroudly). Nothing while protection is off. */
@@ -341,6 +344,12 @@ class ShroudlyVpnService : VpnService() {
                         }
                     }
                 }
+                if (!active && Protection.state == Protection.State.OFF) stopSelf()
+                return stickyWhileOn()
+            }
+            ACTION_CONNS -> {
+                val what = intent.getStringExtra("what") ?: "CONNS"
+                if (active && Regex("^(CONNS|BLOCK [a-z0-9._:-]{1,253}|UNBLOCK [a-z0-9._:-]{1,253})$").matches(what)) later { engine?.send(what) }
                 if (!active && Protection.state == Protection.State.OFF) stopSelf()
                 return stickyWhileOn()
             }
@@ -1214,6 +1223,8 @@ class ShroudlyVpnService : VpnService() {
         when (ev) {
             is EngineEvent.Ready -> {
                 log("Engine listening on 127.0.0.1:${ev.port} (${ev.techniques} techniques)")
+                // The names the user blocked in the Connections list.
+                Conns.commands(this).takeIf { it.isNotEmpty() }?.let { engine?.send(it.joinToString("\n")); log("Connections: ${it.size - 1} names you blocked are refused") }
                 val cmds = learnedRaw.commands(System.currentTimeMillis()) + learned.commands(System.currentTimeMillis())
                 if (cmds.isNotEmpty()) {
                     engine?.send(cmds.joinToString("\n"))
@@ -1234,6 +1245,7 @@ class ShroudlyVpnService : VpnService() {
                 Protection.stats = ev
                 Protection.changed()
             }
+            is EngineEvent.Conn, is EngineEvent.ConnsEnd -> connsCollector.take(ev)
             is EngineEvent.Host -> onHost(ev)
             is EngineEvent.NetDns -> logSite(NetDnsText.line(ev))
             is EngineEvent.UdpFull -> log(ev.line)
@@ -1528,6 +1540,7 @@ class ShroudlyVpnService : VpnService() {
     private val snowflake by lazy { Snowflake(this) { log(it) } }
     // The last way out (TorRoute): Tor, for sites nothing else opened.
     private val torRoute by lazy { TorRoute(this, { log(it) }) { Protection.changed() } }
+    private val connsCollector = Conns.Collector()
 
     private fun teardown() {
         val wasActive = active

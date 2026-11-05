@@ -582,7 +582,12 @@
             android:baselineAligned="false"
             android:orientation="horizontal">
 
-            <LinearLayout style="@style/StatTile">
+            <LinearLayout
+                android:id="@+id/connectionsTile"
+                style="@style/StatTile"
+                android:foreground="?android:attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true">
 
                 <LinearLayout style="@style/StatHead">
 

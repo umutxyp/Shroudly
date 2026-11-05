@@ -65,6 +65,9 @@ sealed class EngineEvent {
      * engine's verdict on a fetched one (ADBLOCK-CHECK). Never a path. */
     data class Adblock(val on: Boolean, val entries: Long, val error: String?) : EngineEvent()
     data class AdblockCheck(val ok: Boolean, val entries: Long, val error: String?) : EngineEvent()
+    /* The Connections list (CONNS, core/src/conns.c): one row per name, then the end. */
+    data class Conn(val row: Conns.Row) : EngineEvent()
+    data class ConnsEnd(val n: Int) : EngineEvent()
     object Stopped : EngineEvent()
     data class Other(val type: String) : EngineEvent()
     data class Text(val line: String) : EngineEvent()
@@ -105,6 +108,9 @@ sealed class EngineEvent {
                 "error" -> Error(str("msg") ?: "code ${num("code")}", (m["code"] as? Number)?.toInt())
                 "upstream" -> Upstream(num("ok") != 0L, str("why") ?: "")
                 "fallback" -> Fallback(num("ok") != 0L, str("host") ?: "", str("why") ?: "")
+                "conn" -> Conn(Conns.Row(str("host") ?: "", num("active").toInt(), num("conns"), num("up"), num("down"),
+                    str("route") ?: "direct", num("blocked") != 0L, num("refused")))
+                "conns_end" -> ConnsEnd(num("n").toInt())
                 "stopped" -> Stopped
                 else -> Other(type)
             }

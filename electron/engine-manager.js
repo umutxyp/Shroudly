@@ -1150,6 +1150,8 @@ class EngineManager {
         this.techniques = Number(msg.techniques) || 0;
         this.log('success', `Engine listening on 127.0.0.1:${msg.port}`);
         this._restoreTechniques();
+        // The names the user blocked in the Connections list (issue #74).
+        this._applyBlocks();
         // Encrypted DNS routes that go through the engine can start now.
         this.doh.setSocksPort(msg.port);
         clearTimeout(this._dohReport);
@@ -1353,6 +1355,16 @@ class EngineManager {
         if (msg.error) this.log('warning', `Ad blocking: the list could not be used (${msg.error})`);
         else if (msg.on) this.log('info', `Ad blocking: a list of ${msg.entries} names in use`);
         break;
+      // The Connections list (CONNS, core/src/conns.c): rows, then the end.
+      case 'conn':
+        if (this._connsRows) this._connsRows.push(msg);
+        break;
+      case 'conns_end':
+        if (this._connsDone) { const done = this._connsDone; this._connsDone = null; done(this._connsRows || []); }
+        this._connsRows = null;
+        break;
+      case 'block':
+        break;
       case 'adblock_check': {
         const w = this._adblockChecks.shift();
         if (w) w(msg);
@@ -1525,6 +1537,42 @@ class EngineManager {
     this._command('ALLOW-CLEAR');
     for (const d of cfg.adBlockAllow) this._command(`ALLOW ${d}`);
     return this._command(`ADBLOCK ${list}`);
+  }
+
+  /* The Connections list (issue #74): what went through, by name, as the
+   * engine counts it; [] while it is not running. */
+  connsList(timeoutMs = 1500) {
+    if (!this.proc || !this.proc.stdin.writable) return Promise.resolve([]);
+    if (this._connsWait) return this._connsWait;
+    this._connsWait = new Promise((resolve) => {
+      const timer = setTimeout(() => { this._connsDone = null; this._connsRows = null; resolve([]); }, timeoutMs);
+      this._connsRows = [];
+      this._connsDone = (rows) => { clearTimeout(timer); resolve(rows); };
+      if (!this._command('CONNS')) { clearTimeout(timer); this._connsDone = null; this._connsRows = null; resolve([]); }
+    }).finally(() => { this._connsWait = null; });
+    return this._connsWait;
+  }
+
+  /* The user's blocks (Settings key userBlocked), into a running engine. */
+  _applyBlocks() {
+    const list = this.store.get('userBlocked', []);
+    if (!Array.isArray(list) || !list.length) return;
+    this._command('BLOCK-CLEAR');
+    for (const h of list) this._command(`BLOCK ${h}`);
+    this.log('info', `Connections: ${list.length} name${list.length === 1 ? '' : 's'} you blocked are refused`);
+  }
+
+  /* A name blocked or allowed again in the Connections list: kept, and into
+   * the running engine at once (its open connections end). */
+  setBlocked(host, on) {
+    const h = String(host || '').trim().toLowerCase().replace(/\.$/, '');
+    if (!/^[a-z0-9._:-]{1,253}$/.test(h)) return { ok: false };
+    const now = new Set(this.store.get('userBlocked', []));
+    if (on) now.add(h); else now.delete(h);
+    this.store.set('userBlocked', [...now].sort());
+    this._command(on ? `BLOCK ${h}` : `UNBLOCK ${h}`);
+    this.log('info', on ? `Connections: ${h} blocked` : `Connections: ${h} allowed again`);
+    return { ok: true, blocked: [...now] };
   }
 
   probe(host) {

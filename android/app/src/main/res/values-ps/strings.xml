@@ -108,6 +108,21 @@
     <string name="autoRawBlocked">دا شبکه د {app} اپ اړیکې دروي، او د Shroudly هېڅ تخنیک بریالی نه شو. د {app} اپ خپل پراکسي تنظیم یا VPN وکاروئ.</string>
     <string name="autoRawUnreachable">{app} اپ خپلو سرورونو ته نه شي رسېدلی: دا شبکه د هغوی پتې بندوي، او Shroudly له بل ځای څخه د سرور پرته له دې خنډه نه شي تېرېدلی. د {app} اپ خپل پراکسي تنظیم یا VPN وکاروئ.</string>
     <string name="connections">اړیکې</string>
+    <string name="connsAllow">اجازه</string>
+    <string name="connsBlock">بندول</string>
+    <string name="connsBlockName">{host} بندول</string>
+    <string name="connsBlocked">بند شوی</string>
+    <string name="connsDesc">هغه څه چې د ساتنې له پیل راهیسې له Shroudly تېرېږي، د سایټ له مخې. د یوه سایټ بندول یې اتصالونه پرې کوي او نوي ردوي؛ ستاسو د بندیزونو لېست په همدې وسیله پاتې کېږي.</string>
+    <string name="connsEmpty">تر اوسه هېڅ نشته. یو سایټ پرانیزئ، دلته به ښکاره شي.</string>
+    <string name="connsOpen">{count} پرانیستي</string>
+    <string name="connsRefused">{count} ځله رد شو</string>
+    <string name="connsRouteServer">ستاسو خپل سرور</string>
+    <string name="connsRouteTechnique">تخنیک</string>
+    <string name="connsRouteTor">ټور</string>
+    <string name="connsSearch">ولټوئ یا د بندولو لپاره سایټ ولیکئ</string>
+    <string name="connsSystem">Shroudly یې کاروي</string>
+    <string name="connsSystemConfirm">Shroudly پخپله {host} کاروي. بندول یې کېدای شي کوډ شوی DNS، تازه کول یا وروستۍ لاره خرابه کړي او سایټونه پرانیستل ونشي. بیا هم بند شي؟</string>
+    <string name="connsTitle">د سایټ له مخې اتصالونه</string>
     <string name="dnsErrorEmpty">د سرور پته ولیکئ، لکه {example}.</string>
     <string name="dnsErrorHost">دا نه IP پته ده او نه د سرور نوم؛ داسې یې ولیکئ لکه {example}.</string>
     <string name="dnsErrorPort">پورټ باید له 1 څخه تر 65535 پورې یو شمېر وي.</string>
@@ -232,7 +247,7 @@
     <string name="upload">اپلوډ</string>
     <string name="uptime">د کار موده</string>
     <string name="versionLabel">نسخه {version}</string>
-    <string name="whatsNewAndroid">کله چې هېڅ تخنیک یو سایټ نه پرانیزي، Shroudly اوس هغه د ټور شبکې له لارې پرانیزي، چې د سنوفلېک د رضاکارانو له لارې ورته رسېږي (په دوی کې هغه کسان هم شته چې د Shroudly له لارې مرسته کوي).\nورو دی خو تېرېږي؛ په ترتیباتو کې یې بندولی شئ.</string>
+    <string name="whatsNewAndroid">د سایټ له مخې اتصالونه: وګورئ چې له Shroudly څه تېرېږي، د دواړو لورو ډیټا سره، او هر سایټ چې غواړئ بند یې کړئ (#74).\nبندول د سایټ اتصالونه سمدستي پرې کوي؛ لېست ستاسو په وسیله پاتې کېږي.</string>
     <string name="whatsNewOk">پوه شوم</string>
     <string name="whatsNewTitle">په {version} کې نوي څه</string>
 </resources>

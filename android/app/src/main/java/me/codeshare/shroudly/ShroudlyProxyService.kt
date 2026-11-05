@@ -116,6 +116,12 @@ class ShroudlyProxyService : Service() {
                 if (!active && Protection.state == Protection.State.OFF) stopSelf()
                 return if (active) START_STICKY else START_NOT_STICKY
             }
+            ShroudlyVpnService.ACTION_CONNS -> {
+                val what = intent.getStringExtra("what") ?: "CONNS"
+                if (Regex("^(CONNS|BLOCK [a-z0-9._:-]{1,253}|UNBLOCK [a-z0-9._:-]{1,253})$").matches(what)) work.execute { if (active) engine?.send(what) }
+                if (!active && Protection.state == Protection.State.OFF) stopSelf()
+                return if (active) START_STICKY else START_NOT_STICKY
+            }
             // The counters in the app's log (debug control, the emulator tests).
             ShroudlyVpnService.ACTION_STATS -> {
                 work.execute { if (active) { engine?.send("STATS"); work.schedule({ logStats() }, 500, TimeUnit.MILLISECONDS) } }
@@ -264,6 +270,7 @@ class ShroudlyProxyService : Service() {
 
     private fun onEvent(ev: EngineEvent) {
         when (ev) {
+            is EngineEvent.Conn, is EngineEvent.ConnsEnd -> connsCollector.take(ev)
             is EngineEvent.Ready -> {
                 // What worked on sites before, as the VPN mode restores it.
                 val now = System.currentTimeMillis()
@@ -272,6 +279,7 @@ class ShroudlyProxyService : Service() {
                     engine?.send(cmds.joinToString("\n"))
                     log("Techniques remembered for ${cmds.size} sites restored")
                 }
+                Conns.commands(this).takeIf { it.isNotEmpty() }?.let { engine?.send(it.joinToString("\n")); log("Connections: ${it.size - 1} names you blocked are refused") }
                 // A session that has been up a while has earned a fresh restart budget.
                 try {
                     work.execute {
@@ -477,6 +485,7 @@ class ShroudlyProxyService : Service() {
 
     // The last way out (TorRoute): Tor, for sites nothing else opened.
     private val torRoute by lazy { TorRoute(this, { log(it) }) { Protection.changed() } }
+    private val connsCollector = Conns.Collector()
 
     private fun cleanup() {
         active = false

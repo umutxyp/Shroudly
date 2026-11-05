@@ -30,6 +30,7 @@ const Snowflake = require('./snowflake');
 const WhatsNew = require('./whats-new');
 const HelperServer = require('./helper-server');
 const DataDir = require('./data-dir');
+const SystemHosts = require('./system-hosts');
 const NationalNet = require('./national-net');
 const AdvancedMode = require('./advanced-mode');
 const AdvancedProtection = require('./advanced-protection');
@@ -3232,6 +3233,22 @@ ipcMain.handle('datadir:set', (e, target) => {
   addLog('info', `Data folder: everything copied to "${r.dir}"; Shroudly restarts from there (the old folder is left as it was)`);
   setTimeout(() => { app.relaunch(); app.quit(); }, 300);
   return r;
+});
+
+/* The Connections list (Stats; issue #74): what went through Shroudly, by
+ * name, with the names Shroudly itself uses marked, and the user's blocks. */
+ipcMain.handle('conns:list', async () => {
+  const rows = engine ? await engine.connsList() : [];
+  let own = null;
+  try { const p = OwnServer.parseLink(store.get('ownServer')); if (p.ok) own = p.host; } catch {}
+  return {
+    rows: rows.map((r) => ({ ...r, system: SystemHosts.isSystemHost(r.host, [own]) })),
+    blocked: store.get('userBlocked', []),
+  };
+});
+ipcMain.handle('conns:block', (e, host, on) => {
+  if (!engine) return { ok: false };
+  return engine.setBlocked(host, on === true);
 });
 
 ipcMain.handle('update:getState', () => (updater ? updater.state : { status: 'unsupported' }));

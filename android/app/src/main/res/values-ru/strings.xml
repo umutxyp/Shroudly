@@ -108,6 +108,21 @@
     <string name="autoRawBlocked">Эта сеть обрывает соединения приложения {app}, и ни одна из техник Shroudly не прошла. Используйте настройку прокси в самом приложении {app} или VPN.</string>
     <string name="autoRawUnreachable">Приложение {app} не может связаться со своими серверами: эта сеть блокирует их адреса, и без сервера в другом месте Shroudly не может это обойти. Используйте настройку прокси в самом приложении {app} или VPN.</string>
     <string name="connections">Подключения</string>
+    <string name="connsAllow">Разрешить</string>
+    <string name="connsBlock">Заблокировать</string>
+    <string name="connsBlockName">Заблокировать {host}</string>
+    <string name="connsBlocked">Заблокирован</string>
+    <string name="connsDesc">Что проходит через Shroudly, по сайтам, с момента включения защиты. Блокировка сайта обрывает его соединения и отклоняет новые; ваш список блокировок хранится на этом устройстве.</string>
+    <string name="connsEmpty">Пока ничего. Откройте сайт, и он появится здесь.</string>
+    <string name="connsOpen">открыто: {count}</string>
+    <string name="connsRefused">отклонено: {count}</string>
+    <string name="connsRouteServer">свой сервер</string>
+    <string name="connsRouteTechnique">техника</string>
+    <string name="connsRouteTor">Tor</string>
+    <string name="connsSearch">Поиск или сайт для блокировки</string>
+    <string name="connsSystem">использует Shroudly</string>
+    <string name="connsSystemConfirm">Shroudly сам использует {host}. Блокировка может нарушить шифрованный DNS, обновления или последний выход, и сайты могут перестать открываться. Всё равно заблокировать?</string>
+    <string name="connsTitle">Соединения по сайтам</string>
     <string name="dnsErrorEmpty">Введите адрес сервера, например {example}.</string>
     <string name="dnsErrorHost">Это не IP-адрес и не имя сервера; введите его как {example}.</string>
     <string name="dnsErrorPort">Порт должен быть числом от 1 до 65535.</string>
@@ -232,7 +247,7 @@
     <string name="upload">Выгрузка</string>
     <string name="uptime">Время работы</string>
     <string name="versionLabel">Версия {version}</string>
-    <string name="whatsNewAndroid">Если ни одна техника не открывает сайт, Shroudly теперь открывает его через сеть Tor, к которой подключается через добровольцев Snowflake (среди них и те, кто помогает через Shroudly).\nМедленнее, но проходит; можно выключить в настройках.</string>
+    <string name="whatsNewAndroid">Соединения по сайтам: что проходит через Shroudly, с данными в обе стороны, и блокировка любого сайта (#74).\nБлокировка сразу обрывает соединения сайта; список хранится на вашем устройстве.</string>
     <string name="whatsNewOk">Понятно</string>
     <string name="whatsNewTitle">Что нового в {version}</string>
 </resources>

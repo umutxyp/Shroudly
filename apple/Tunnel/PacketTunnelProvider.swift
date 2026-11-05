@@ -215,6 +215,7 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
                 if let a = auth { doh?.engineUp(DohForwarder.EnginePath(port: p, user: a.user, pass: a.pass)) }
                 e.onAdblockCheck = { [weak self] ok, why in self?.queue.async { self?.adblockChecked(ok, why) } }
                 queue.async { [weak self] in
+                    self?.applyBlocks()
                     self?.applyAdblock(fetchAfter: 8)
                     self?.pinger.sync(share: OnlineCount.enabled(), on: true)
                 }
@@ -240,6 +241,17 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
     private var enginePath: EngineHTTPS.Path? {
         guard engine != nil, !stopping, port > 0, let a = auth else { return nil }
         return EngineHTTPS.Path(port: port, user: a.user, pass: a.pass)
+    }
+
+    // MARK: the Connections list
+
+    /* The names the user blocked (Shared/Conns.swift), into the running
+     * engine: their open connections end, new ones are refused. */
+    private func applyBlocks() {
+        guard !stopping, let e = engine else { return }
+        let cmds = Conns.commands()
+        e.send(cmds.joined(separator: "\n"))
+        if cmds.count > 1 { log("Connections: \(cmds.count - 1) names you blocked are refused") }
     }
 
     // MARK: block ads and trackers
@@ -507,6 +519,15 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
                 reply["tunnel"] = hev?.running == true
             case .siteLog:
                 siteLock.lock(); reply["lines"] = sites; siteLock.unlock()
+            case .conns:
+                // Asked fresh, as the stats are.
+                engine?.send("CONNS")
+                queue.asyncAfter(deadline: .now() + 0.3) { [self] in
+                    completionHandler?(try? JSONSerialization.data(withJSONObject: ["rows": engine?.lastConns ?? []]))
+                }
+                return
+            case .blocks:
+                applyBlocks()
             case .adblock:
                 applyAdblock(fetchAfter: 0)
             case .count:

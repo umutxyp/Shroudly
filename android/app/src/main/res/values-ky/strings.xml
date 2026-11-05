@@ -108,6 +108,21 @@
     <string name="autoRawBlocked">Бул тармак {app} колдонмосунун туташууларын үзөт, ал эми Shroudly колдонгон ыкмалардын бири да өткөн жок. {app} колдонмосунун өз прокси жөндөөсүн же VPN колдонуңуз.</string>
     <string name="autoRawUnreachable">{app} колдонмосу өз серверлерине туташа албайт: бул тармак алардын даректерин бөгөттөйт, ал эми башка жердеги серверсиз Shroudly муну айланып өтө албайт. {app} колдонмосунун өз прокси жөндөөсүн же VPN колдонуңуз.</string>
     <string name="connections">Туташуулар</string>
+    <string name="connsAllow">Уруксат берүү</string>
+    <string name="connsBlock">Бөгөттөө</string>
+    <string name="connsBlockName">{host} бөгөттөө</string>
+    <string name="connsBlocked">Бөгөттөлгөн</string>
+    <string name="connsDesc">Коргоо күйгүзүлгөндөн бери Shroudly аркылуу өткөндөр, сайттар боюнча. Сайтты бөгөттөө анын туташууларын үзөт жана жаңыларын кабыл албайт; бөгөттөө тизмеңиз ушул түзмөктө калат.</string>
+    <string name="connsEmpty">Азырынча эч нерсе жок. Сайт ачыңыз, ал бул жерде чыгат.</string>
+    <string name="connsOpen">{count} ачык</string>
+    <string name="connsRefused">{count} жолу четке кагылды</string>
+    <string name="connsRouteServer">өз сервериңиз</string>
+    <string name="connsRouteTechnique">ыкма</string>
+    <string name="connsRouteTor">Tor</string>
+    <string name="connsSearch">Издөө же бөгөттөө үчүн сайт жазыңыз</string>
+    <string name="connsSystem">Shroudly колдонот</string>
+    <string name="connsSystemConfirm">Shroudly {host} дарегин өзү колдонот. Бөгөттөө шифрленген DNS\'ти, жаңыртууларды же акыркы жолду бузушу мүмкүн, сайттар ачылбай калышы мүмкүн. Баары бир бөгөттөлсүнбү?</string>
+    <string name="connsTitle">Сайттар боюнча туташуулар</string>
     <string name="dnsErrorEmpty">Сервердин дарегин жазыңыз, мисалы {example}.</string>
     <string name="dnsErrorHost">Бул IP дарек да, сервердин аты да эмес; аны {example} сыяктуу жазыңыз.</string>
     <string name="dnsErrorPort">Порт 1ден 65535ке чейинки сан болушу керек.</string>
@@ -232,7 +247,7 @@
     <string name="upload">Жөнөтүү</string>
     <string name="uptime">Иштөө убактысы</string>
     <string name="versionLabel">Версия {version}</string>
-    <string name="whatsNewAndroid">Эч бир ыкма сайтты ача албаса, Shroudly эми аны Tor тармагы аркылуу ачат; Tor\'го Snowflake ыктыярчылары аркылуу жетет (алардын арасында Shroudly аркылуу жардам бергендер да бар).\nЖайыраак, бирок өтөт; жөндөөлөрдөн өчүрсөңүз болот.</string>
+    <string name="whatsNewAndroid">Сайттар боюнча туташуулар: Shroudly аркылуу эмне өтөрүн эки багыттагы маалыматы менен көрүп, каалаган сайтты бөгөттөңүз (#74).\nБөгөттөө сайттын туташууларын дароо үзөт; тизме түзмөгүңүздө калат.</string>
     <string name="whatsNewOk">Түшүнүктүү</string>
     <string name="whatsNewTitle">{version} версиясындагы жаңылыктар</string>
 </resources>

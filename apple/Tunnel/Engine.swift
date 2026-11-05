@@ -46,6 +46,9 @@ final class Engine {
     private(set) var exitCode: Int32?
     /* The last STATS line, as it came. */
     private(set) var lastStats: [String: Any]?
+    /* The last Connections list (CONNS: rows, then conns_end). */
+    private(set) var lastConns: [[String: Any]] = []
+    private var pendingConns: [[String: Any]] = []
     /* When it last wrote anything. */
     private(set) var lastOutputAt = Date()
 
@@ -192,6 +195,12 @@ final class Engine {
             log("engine: \(line)")
         case "stats":
             lock.lock(); lastStats = obj; lock.unlock()
+        case "conn":
+            lock.lock(); pendingConns.append(obj); lock.unlock()
+        case "conns_end":
+            lock.lock(); lastConns = pendingConns; pendingConns = []; lock.unlock()
+        case "block":
+            break
         case "stopped":
             log("engine: stopped")
         case "adblock_check":

@@ -47,7 +47,11 @@ struct StatsView: View {
             }
             // The Mac's small window: the four in one row, so a notice fits too.
             LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 10), count: Self.oneRow ? 4 : 2), spacing: 10) {
-                Cell(icon: "link", title: tr("connections"), value: on ? number(stats?.active) : "–", sub: on ? totalLine : nil)
+                // Opens Connections by site, with blocking (issue #74).
+                NavigationLink { ConnectionsView() } label: {
+                    Cell(icon: "link", title: tr("connections"), value: on ? number(stats?.active) : "–", sub: on ? totalLine : nil)
+                }
+                .buttonStyle(.plain)
                 Cell(icon: "clock", title: tr("uptime"), value: nil, sub: nil, since: on ? since : nil)
                 Cell(icon: "arrow.down", title: tr("download"), value: on ? bytes(stats?.down) : "–", sub: nil)
                 Cell(icon: "arrow.up", title: tr("upload"), value: on ? bytes(stats?.up) : "–", sub: nil)

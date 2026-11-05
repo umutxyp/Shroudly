@@ -108,6 +108,21 @@
     <string name="autoRawBlocked">Dieses Netz unterbricht die Verbindungen der App {app}, und keine der Techniken von Shroudly ist durchgekommen. Nutze die eigene Proxy-Einstellung von {app} oder ein VPN.</string>
     <string name="autoRawUnreachable">Die App {app} erreicht ihre Server nicht: Dieses Netz sperrt ihre Adressen, und ohne einen Server woanders kommt Shroudly daran nicht vorbei. Nutze die eigene Proxy-Einstellung von {app} oder ein VPN.</string>
     <string name="connections">Verbindungen</string>
+    <string name="connsAllow">Zulassen</string>
+    <string name="connsBlock">Sperren</string>
+    <string name="connsBlockName">{host} sperren</string>
+    <string name="connsBlocked">Gesperrt</string>
+    <string name="connsDesc">Was seit dem Start des Schutzes durch Shroudly läuft, nach Seite. Eine Seite zu sperren beendet ihre Verbindungen und lehnt neue ab; deine Sperrliste bleibt auf diesem Gerät.</string>
+    <string name="connsEmpty">Noch nichts. Öffne eine Seite, dann erscheint sie hier.</string>
+    <string name="connsOpen">{count} offen</string>
+    <string name="connsRefused">{count} abgelehnt</string>
+    <string name="connsRouteServer">eigener Server</string>
+    <string name="connsRouteTechnique">Technik</string>
+    <string name="connsRouteTor">Tor</string>
+    <string name="connsSearch">Suchen oder eine Seite zum Sperren eingeben</string>
+    <string name="connsSystem">von Shroudly genutzt</string>
+    <string name="connsSystemConfirm">Shroudly nutzt {host} selbst. Eine Sperre kann verschlüsseltes DNS, Updates oder den letzten Ausweg stören, und Seiten öffnen sich womöglich nicht mehr. Trotzdem sperren?</string>
+    <string name="connsTitle">Verbindungen nach Seite</string>
     <string name="dnsErrorEmpty">Gib die Adresse des Servers ein, etwa {example}.</string>
     <string name="dnsErrorHost">Das ist keine IP-Adresse und kein Servername; gib sie wie {example} ein.</string>
     <string name="dnsErrorPort">Der Port muss eine Zahl von 1 bis 65535 sein.</string>
@@ -232,7 +247,7 @@
     <string name="upload">Gesendet</string>
     <string name="uptime">Laufzeit</string>
     <string name="versionLabel">Version {version}</string>
-    <string name="whatsNewAndroid">Öffnet keine Technik eine Seite, öffnet Shroudly sie jetzt über das Tor-Netzwerk, erreicht über Snowflake-Freiwillige (darunter Menschen, die mit Shroudly helfen).\nLangsamer, aber es kommt durch; abschaltbar in den Einstellungen.</string>
+    <string name="whatsNewAndroid">Verbindungen nach Seite: sieh, was durch Shroudly läuft, mit den Daten in beide Richtungen, und sperre jede Seite (#74).\nEine Sperre beendet die Verbindungen der Seite sofort; die Liste bleibt auf deinem Gerät.</string>
     <string name="whatsNewOk">Verstanden</string>
     <string name="whatsNewTitle">Neu in {version}</string>
 </resources>

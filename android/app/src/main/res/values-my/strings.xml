@@ -108,6 +108,21 @@
     <string name="autoRawBlocked">ဤကွန်ရက်က {app} ၏ ချိတ်ဆက်မှုများကို တားဆီးထားပြီး Shroudly ၏ နည်းလမ်းများထဲမှ တစ်ခုမျှ မဖြတ်ကျော်နိုင်ခဲ့ပါ။ {app} ၏ ကိုယ်ပိုင် proxy ဆက်တင် သို့မဟုတ် VPN ကို သုံးပါ။</string>
     <string name="autoRawUnreachable">{app} သည် ၎င်း၏ ဆာဗာများထံ မရောက်နိုင်ပါ။ ဤကွန်ရက်က ၎င်းတို့၏ လိပ်စာများကို ပိတ်ဆို့ထားပြီး အခြားနေရာရှိ ဆာဗာတစ်ခု မရှိဘဲ Shroudly က ထိုပိတ်ဆို့မှုကို မကျော်ဖြတ်နိုင်ပါ။ {app} ၏ ကိုယ်ပိုင် proxy ဆက်တင် သို့မဟုတ် VPN ကို သုံးပါ။</string>
     <string name="connections">ချိတ်ဆက်မှုများ</string>
+    <string name="connsAllow">ခွင့်ပြုရန်</string>
+    <string name="connsBlock">ပိတ်ရန်</string>
+    <string name="connsBlockName">{host} ကို ပိတ်ရန်</string>
+    <string name="connsBlocked">ပိတ်ထားသည်</string>
+    <string name="connsDesc">ကာကွယ်မှု စတင်ကတည်းက Shroudly မှ ဖြတ်သွားသည်များ၊ ဝဘ်ဆိုက်အလိုက်။ ဝဘ်ဆိုက်တစ်ခုကို ပိတ်ပါက ၎င်း၏ ချိတ်ဆက်မှုများကို ဖြတ်ပြီး အသစ်များကို ငြင်းပါသည်။ သင့်ပိတ်စာရင်းသည် ဤစက်ပေါ်တွင် ရှိနေပါသည်။</string>
+    <string name="connsEmpty">မရှိသေးပါ။ ဝဘ်ဆိုက်တစ်ခုဖွင့်ပါက ဤနေရာတွင် ပေါ်ပါမည်။</string>
+    <string name="connsOpen">{count} ဖွင့်ထားသည်</string>
+    <string name="connsRefused">{count} ကြိမ် ငြင်းထားသည်</string>
+    <string name="connsRouteServer">ကိုယ်ပိုင်ဆာဗာ</string>
+    <string name="connsRouteTechnique">နည်းလမ်း</string>
+    <string name="connsRouteTor">Tor</string>
+    <string name="connsSearch">ရှာပါ သို့မဟုတ် ပိတ်ရန် ဝဘ်ဆိုက်ကို ရိုက်ပါ</string>
+    <string name="connsSystem">Shroudly အသုံးပြုသည်</string>
+    <string name="connsSystemConfirm">Shroudly ကိုယ်တိုင် {host} ကို အသုံးပြုပါသည်။ ပိတ်ပါက ကုဒ်ဝှက်ထားသော DNS၊ အပ်ဒိတ်များ သို့မဟုတ် နောက်ဆုံးလမ်းကြောင်း ပျက်နိုင်ပြီး ဝဘ်ဆိုက်များ မပွင့်နိုင်ပါ။ မည်သို့ပင်ဖြစ်စေ ပိတ်မလား။</string>
+    <string name="connsTitle">ဝဘ်ဆိုက်အလိုက် ချိတ်ဆက်မှုများ</string>
     <string name="dnsErrorEmpty">ဆာဗာ၏ လိပ်စာကို ရိုက်ထည့်ပါ၊ ဥပမာ {example}။</string>
     <string name="dnsErrorHost">၎င်းသည် IP လိပ်စာ သို့မဟုတ် ဆာဗာအမည် မဟုတ်ပါ။ {example} ကဲ့သို့ ရိုက်ထည့်ပါ။</string>
     <string name="dnsErrorPort">ပေါ့တ်သည် 1 မှ 65535 အတွင်း နံပါတ် ဖြစ်ရမည်။</string>
@@ -232,7 +247,7 @@
     <string name="upload">အပ်လုဒ်</string>
     <string name="uptime">လုပ်ဆောင်ချိန်</string>
     <string name="versionLabel">ဗားရှင်း {version}</string>
-    <string name="whatsNewAndroid">မည်သည့်နည်းလမ်းကမျှ ဝဘ်ဆိုက်ကို မဖွင့်နိုင်သည့်အခါ Shroudly က ယခု Tor ကွန်ရက်မှတစ်ဆင့် ဖွင့်ပေးပါသည်။\nTor သို့ Snowflake စေတနာ့ဝန်ထမ်းများမှတစ်ဆင့် ရောက်ပါသည် (Shroudly ဖြင့် ကူညီသူများလည်း ပါဝင်သည်)။ ပိုနှေးသော်လည်း ဖြတ်နိုင်ပါသည်။ ဆက်တင်တွင် ပိတ်နိုင်ပါသည်။</string>
+    <string name="whatsNewAndroid">ဝဘ်ဆိုက်အလိုက် ချိတ်ဆက်မှုများ - Shroudly မှ ဘာဖြတ်သွားသည်ကို အသွားအပြန် ဒေတာနှင့်တကွ ကြည့်ပြီး မည်သည့်ဆိုက်ကိုမဆို ပိတ်နိုင်သည် (#74)။\nပိတ်လိုက်သည်နှင့် ဆိုက်၏ ချိတ်ဆက်မှုများ ချက်ချင်းပြတ်ပြီး စာရင်းသည် သင့်စက်ပေါ်တွင် ရှိနေသည်။</string>
     <string name="whatsNewOk">နားလည်ပါပြီ</string>
     <string name="whatsNewTitle">{version} တွင် အသစ်များ</string>
 </resources>

@@ -108,6 +108,21 @@
     <string name="autoRawBlocked">Bu ağ {app} bağlantılarını durduruyor ve Shroudly\'nin tekniklerinden hiçbiri geçemedi. {app} uygulamasının kendi proxy ayarını ya da bir VPN kullan.</string>
     <string name="autoRawUnreachable">{app} sunucularına ulaşamıyor: bu ağ o adresleri engelliyor ve Shroudly başka bir yerde sunucu olmadan bunu aşamaz. {app} uygulamasının kendi proxy ayarını ya da bir VPN kullan.</string>
     <string name="connections">Bağlantılar</string>
+    <string name="connsAllow">İzin ver</string>
+    <string name="connsBlock">Engelle</string>
+    <string name="connsBlockName">{host} engelle</string>
+    <string name="connsBlocked">Engellendi</string>
+    <string name="connsDesc">Koruma başladığından beri Shroudly\'den geçenler, siteye göre. Bir siteyi engellemek açık bağlantılarını keser ve yenilerini reddeder; engel listen bu cihazda kalır.</string>
+    <string name="connsEmpty">Henüz bir şey yok. Bir site aç, burada görünür.</string>
+    <string name="connsOpen">{count} açık</string>
+    <string name="connsRefused">{count} kez reddedildi</string>
+    <string name="connsRouteServer">kendi sunucun</string>
+    <string name="connsRouteTechnique">teknik</string>
+    <string name="connsRouteTor">Tor</string>
+    <string name="connsSearch">Ara ya da engellemek için bir site yaz</string>
+    <string name="connsSystem">Shroudly kullanıyor</string>
+    <string name="connsSystemConfirm">Shroudly {host} adresini kendisi kullanıyor. Engellemek şifreli DNS\'i, güncellemeleri ya da son çare yolunu bozabilir, siteler açılmayabilir. Yine de engellensin mi?</string>
+    <string name="connsTitle">Siteye göre bağlantılar</string>
     <string name="dnsErrorEmpty">Sunucunun adresini yaz, örneğin {example}.</string>
     <string name="dnsErrorHost">Bu bir IP adresi ya da sunucu adı değil; {example} gibi yaz.</string>
     <string name="dnsErrorPort">Port 1 ile 65535 arasında bir sayı olmalı.</string>
@@ -232,7 +247,7 @@
     <string name="upload">Yükleme</string>
     <string name="uptime">Çalışma süresi</string>
     <string name="versionLabel">Sürüm {version}</string>
-    <string name="whatsNewAndroid">Hiçbir tekniğin açamadığı bir siteyi Shroudly artık Tor ağı üzerinden açıyor; Tor\'a Snowflake gönüllüleriyle ulaşılıyor (Shroudly ile yardım edenler de bunlardan).\nDaha yavaş ama geçiyor; Ayarlar\'dan kapatabilirsin.</string>
+    <string name="whatsNewAndroid">Siteye göre bağlantılar: Shroudly\'den neyin geçtiğini, iki yöndeki verisiyle gör ve istediğin siteyi engelle (#74).\nEngellemek o sitenin bağlantılarını hemen keser; liste senin cihazında kalır.</string>
     <string name="whatsNewOk">Tamam</string>
     <string name="whatsNewTitle">{version} sürümünde yenilikler</string>
 </resources>

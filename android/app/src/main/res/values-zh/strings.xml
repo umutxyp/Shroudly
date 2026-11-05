@@ -108,6 +108,21 @@
     <string name="autoRawBlocked">此网络阻断了 {app} 的连接，Shroudly 的所有技术都未能突破。请使用 {app} 自带的代理设置或 VPN。</string>
     <string name="autoRawUnreachable">{app} 无法连接到其服务器：此网络封锁了这些服务器的地址，而没有位于别处的服务器，Shroudly 无法绕过这一点。请使用 {app} 自带的代理设置或 VPN。</string>
     <string name="connections">连接</string>
+    <string name="connsAllow">允许</string>
+    <string name="connsBlock">屏蔽</string>
+    <string name="connsBlockName">屏蔽 {host}</string>
+    <string name="connsBlocked">已屏蔽</string>
+    <string name="connsDesc">自开启保护以来经过 Shroudly 的内容,按网站列出。屏蔽一个网站会断开它的连接并拒绝新连接;你的屏蔽列表保存在本设备上。</string>
+    <string name="connsEmpty">还没有内容。打开一个网站,它就会出现在这里。</string>
+    <string name="connsOpen">{count} 个打开</string>
+    <string name="connsRefused">已拒绝 {count} 次</string>
+    <string name="connsRouteServer">你自己的服务器</string>
+    <string name="connsRouteTechnique">技术</string>
+    <string name="connsRouteTor">Tor</string>
+    <string name="connsSearch">搜索,或输入要屏蔽的网站</string>
+    <string name="connsSystem">Shroudly 使用</string>
+    <string name="connsSystemConfirm">Shroudly 本身在使用 {host}。屏蔽它可能导致加密 DNS、更新或最后的通道失效,网站可能打不开。仍要屏蔽吗?</string>
+    <string name="connsTitle">按网站的连接</string>
     <string name="dnsErrorEmpty">请输入服务器地址，例如 {example}。</string>
     <string name="dnsErrorHost">这既不是 IP 地址也不是服务器名称；请按 {example} 的格式输入。</string>
     <string name="dnsErrorPort">端口必须是 1 到 65535 之间的数字。</string>
@@ -232,7 +247,7 @@
     <string name="upload">上传</string>
     <string name="uptime">运行时长</string>
     <string name="versionLabel">版本 {version}</string>
-    <string name="whatsNewAndroid">当任何技术都打不开某个网站时,Shroudly 现在会经由 Tor 网络打开它,Tor 通过 Snowflake 志愿者连接(其中包括通过 Shroudly 提供帮助的人)。\n速度较慢,但能连通;可在设置中关闭。</string>
+    <string name="whatsNewAndroid">按网站的连接:查看经过 Shroudly 的内容及双向数据量,并屏蔽任意网站 (#74)。\n屏蔽会立即断开该网站的连接;列表保存在你的设备上。</string>
     <string name="whatsNewOk">知道了</string>
     <string name="whatsNewTitle">{version} 的新内容</string>
 </resources>

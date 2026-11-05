@@ -20,7 +20,7 @@ $(BIN): $(SRC)
 	$(CC) $(CFLAGS) -o $@ $(SRC) $(LDLIBS)
 
 # The sources engine.c needs besides itself, for tests that include it.
-ENGINE_DEPS = src/platform.c src/proto.c src/strategy.c src/desync.c src/fake.c src/doh.c src/socksudp.c src/adblock.c
+ENGINE_DEPS = src/platform.c src/proto.c src/strategy.c src/desync.c src/fake.c src/doh.c src/socksudp.c src/adblock.c src/conns.c
 
 # The engine run inside another program's process (the Android app): main.c
 # without its main(), and what it needs.

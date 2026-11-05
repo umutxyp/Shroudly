@@ -108,6 +108,21 @@
     <string name="autoRawBlocked">Rangkaian ini menghentikan sambungan {app}, dan tiada satu pun teknik Shroudly yang berjaya menembusinya. Gunakan tetapan proksi {app} sendiri atau VPN.</string>
     <string name="autoRawUnreachable">{app} tidak dapat mencapai pelayannya: rangkaian ini menyekat alamat pelayan tersebut, dan Shroudly tidak dapat memintasnya tanpa pelayan di tempat lain. Gunakan tetapan proksi {app} sendiri atau VPN.</string>
     <string name="connections">Sambungan</string>
+    <string name="connsAllow">Benarkan</string>
+    <string name="connsBlock">Sekat</string>
+    <string name="connsBlockName">Sekat {host}</string>
+    <string name="connsBlocked">Disekat</string>
+    <string name="connsDesc">Apa yang melalui Shroudly, mengikut laman, sejak perlindungan bermula. Menyekat laman memutuskan sambungannya dan menolak yang baharu; senarai sekatan anda kekal pada peranti ini.</string>
+    <string name="connsEmpty">Belum ada apa-apa. Buka laman dan ia muncul di sini.</string>
+    <string name="connsOpen">{count} terbuka</string>
+    <string name="connsRefused">{count} ditolak</string>
+    <string name="connsRouteServer">pelayan sendiri</string>
+    <string name="connsRouteTechnique">teknik</string>
+    <string name="connsRouteTor">Tor</string>
+    <string name="connsSearch">Cari atau taip laman untuk disekat</string>
+    <string name="connsSystem">digunakan Shroudly</string>
+    <string name="connsSystemConfirm">Shroudly sendiri menggunakan {host}. Menyekatnya boleh merosakkan DNS tersulit, kemas kini atau jalan terakhir, dan laman mungkin berhenti dibuka. Sekat juga?</string>
+    <string name="connsTitle">Sambungan mengikut laman</string>
     <string name="dnsErrorEmpty">Taip alamat pelayan, contohnya {example}.</string>
     <string name="dnsErrorHost">Itu bukan alamat IP atau nama pelayan; taip seperti {example}.</string>
     <string name="dnsErrorPort">Port mesti nombor dari 1 hingga 65535.</string>
@@ -232,7 +247,7 @@
     <string name="upload">Muat naik</string>
     <string name="uptime">Masa aktif</string>
     <string name="versionLabel">Versi {version}</string>
-    <string name="whatsNewAndroid">Apabila tiada teknik dapat membuka sesebuah laman, Shroudly kini membukanya melalui rangkaian Tor, yang dicapai melalui sukarelawan Snowflake (termasuk mereka yang membantu melalui Shroudly).\nLebih perlahan, tetapi berjaya; boleh dimatikan dalam Tetapan.</string>
+    <string name="whatsNewAndroid">Sambungan mengikut laman: lihat apa yang melalui Shroudly, dengan data kedua-dua arah, dan sekat mana-mana laman (#74).\nMenyekat terus memutuskan sambungan laman itu; senarainya kekal pada peranti anda.</string>
     <string name="whatsNewOk">Faham</string>
     <string name="whatsNewTitle">Apa yang baharu dalam {version}</string>
 </resources>

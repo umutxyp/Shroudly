@@ -108,6 +108,21 @@
     <string name="autoRawBlocked">เครือข่ายนี้หยุดการเชื่อมต่อของ {app} และไม่มีเทคนิคใดของ Shroudly ผ่านได้ ให้ใช้การตั้งค่าพร็อกซีของ {app} เองหรือ VPN</string>
     <string name="autoRawUnreachable">{app} เข้าถึงเซิร์ฟเวอร์ของตัวเองไม่ได้: เครือข่ายนี้บล็อกที่อยู่ของเซิร์ฟเวอร์เหล่านั้น และ Shroudly เลี่ยงสิ่งนี้ไม่ได้หากไม่มีเซิร์ฟเวอร์ที่อยู่ที่อื่น ให้ใช้การตั้งค่าพร็อกซีของ {app} เองหรือ VPN</string>
     <string name="connections">การเชื่อมต่อ</string>
+    <string name="connsAllow">อนุญาต</string>
+    <string name="connsBlock">บล็อก</string>
+    <string name="connsBlockName">บล็อก {host}</string>
+    <string name="connsBlocked">ถูกบล็อก</string>
+    <string name="connsDesc">สิ่งที่ผ่าน Shroudly แยกตามเว็บไซต์ ตั้งแต่เริ่มการป้องกัน การบล็อกเว็บไซต์จะตัดการเชื่อมต่อของเว็บนั้นและปฏิเสธการเชื่อมต่อใหม่ รายการบล็อกของคุณอยู่บนอุปกรณ์นี้</string>
+    <string name="connsEmpty">ยังไม่มีอะไร เปิดเว็บไซต์แล้วจะแสดงที่นี่</string>
+    <string name="connsOpen">เปิดอยู่ {count}</string>
+    <string name="connsRefused">ปฏิเสธ {count} ครั้ง</string>
+    <string name="connsRouteServer">เซิร์ฟเวอร์ของคุณ</string>
+    <string name="connsRouteTechnique">เทคนิค</string>
+    <string name="connsRouteTor">Tor</string>
+    <string name="connsSearch">ค้นหาหรือพิมพ์เว็บไซต์ที่จะบล็อก</string>
+    <string name="connsSystem">Shroudly ใช้</string>
+    <string name="connsSystemConfirm">Shroudly ใช้ {host} เอง การบล็อกอาจทำให้ DNS แบบเข้ารหัส การอัปเดต หรือทางออกสุดท้ายใช้ไม่ได้ และเว็บไซต์อาจเปิดไม่ได้ บล็อกต่อหรือไม่</string>
+    <string name="connsTitle">การเชื่อมต่อตามเว็บไซต์</string>
     <string name="dnsErrorEmpty">พิมพ์ที่อยู่ของเซิร์ฟเวอร์ เช่น {example}</string>
     <string name="dnsErrorHost">นี่ไม่ใช่ที่อยู่ IP หรือชื่อเซิร์ฟเวอร์ พิมพ์แบบ {example}</string>
     <string name="dnsErrorPort">พอร์ตต้องเป็นตัวเลขตั้งแต่ 1 ถึง 65535</string>
@@ -232,7 +247,7 @@
     <string name="upload">อัปโหลด</string>
     <string name="uptime">เวลาทำงาน</string>
     <string name="versionLabel">เวอร์ชัน {version}</string>
-    <string name="whatsNewAndroid">เมื่อไม่มีเทคนิคใดเปิดเว็บไซต์ได้ ตอนนี้ Shroudly จะเปิดผ่านเครือข่าย Tor ซึ่งเข้าถึงผ่านอาสาสมัคร Snowflake (รวมถึงผู้ที่ช่วยผ่าน Shroudly)\nช้ากว่าแต่ผ่านได้ ปิดได้ในการตั้งค่า</string>
+    <string name="whatsNewAndroid">การเชื่อมต่อตามเว็บไซต์: ดูว่าอะไรผ่าน Shroudly พร้อมข้อมูลทั้งสองทิศ และบล็อกเว็บไซต์ใดก็ได้ (#74)\nการบล็อกจะตัดการเชื่อมต่อของเว็บนั้นทันที รายการอยู่บนอุปกรณ์ของคุณ</string>
     <string name="whatsNewOk">เข้าใจแล้ว</string>
     <string name="whatsNewTitle">มีอะไรใหม่ใน {version}</string>
 </resources>

@@ -108,6 +108,21 @@
     <string name="autoRawBlocked">Гэтая сетка абрывае злучэнні праграмы {app}, і ніводны з метадаў Shroudly не прайшоў. Скарыстайцеся наладай проксі ў самой праграме {app} або VPN.</string>
     <string name="autoRawUnreachable">Праграма {app} не можа звязацца са сваімі серверамі: гэтая сетка блакуе іх адрасы, і без сервера ў іншым месцы Shroudly не можа гэта абысці. Скарыстайцеся наладай проксі ў самой праграме {app} або VPN.</string>
     <string name="connections">Злучэнні</string>
+    <string name="connsAllow">Дазволіць</string>
+    <string name="connsBlock">Заблакіраваць</string>
+    <string name="connsBlockName">Заблакіраваць {host}</string>
+    <string name="connsBlocked">Заблакіравана</string>
+    <string name="connsDesc">Што праходзіць праз Shroudly, па сайтах, з моманту ўключэння абароны. Блакіроўка сайта абрывае яго злучэнні і адхіляе новыя; ваш спіс блакіровак захоўваецца на гэтай прыладзе.</string>
+    <string name="connsEmpty">Пакуль нічога. Адкрыйце сайт, і ён з\'явіцца тут.</string>
+    <string name="connsOpen">адкрыта: {count}</string>
+    <string name="connsRefused">адхілена: {count}</string>
+    <string name="connsRouteServer">свой сервер</string>
+    <string name="connsRouteTechnique">тэхніка</string>
+    <string name="connsRouteTor">Tor</string>
+    <string name="connsSearch">Пошук або сайт для блакіроўкі</string>
+    <string name="connsSystem">выкарыстоўвае Shroudly</string>
+    <string name="connsSystemConfirm">Shroudly сам выкарыстоўвае {host}. Блакіроўка можа парушыць шыфраваны DNS, абнаўленні або апошні выхад, і сайты могуць перастаць адкрывацца. Усё роўна заблакіраваць?</string>
+    <string name="connsTitle">Злучэнні па сайтах</string>
     <string name="dnsErrorEmpty">Увядзіце адрас сервера, напрыклад {example}.</string>
     <string name="dnsErrorHost">Гэта не IP-адрас і не імя сервера; увядзіце яго як {example}.</string>
     <string name="dnsErrorPort">Порт мусіць быць лікам ад 1 да 65535.</string>
@@ -232,7 +247,7 @@
     <string name="upload">Запампоўка</string>
     <string name="uptime">Час працы</string>
     <string name="versionLabel">Версія {version}</string>
-    <string name="whatsNewAndroid">Калі ніводная тэхніка не адкрывае сайт, Shroudly цяпер адкрывае яго праз сетку Tor, да якой падключаецца праз валанцёраў Snowflake (сярод іх і тыя, хто дапамагае праз Shroudly).\nПавольней, але праходзіць; можна выключыць у наладах.</string>
+    <string name="whatsNewAndroid">Злучэнні па сайтах: што праходзіць праз Shroudly, з данымі ў абодва бакі, і блакіроўка любога сайта (#74).\nБлакіроўка адразу абрывае злучэнні сайта; спіс захоўваецца на вашай прыладзе.</string>
     <string name="whatsNewOk">Зразумела</string>
     <string name="whatsNewTitle">Што новага ў {version}</string>
 </resources>

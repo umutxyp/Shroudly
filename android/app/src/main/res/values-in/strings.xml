@@ -108,6 +108,21 @@
     <string name="autoRawBlocked">Jaringan ini menghentikan koneksi {app}, dan tidak satu pun teknik Shroudly berhasil lolos. Gunakan pengaturan proxy milik {app} sendiri atau VPN.</string>
     <string name="autoRawUnreachable">{app} tidak dapat menjangkau servernya: jaringan ini memblokir alamat server tersebut, dan Shroudly tidak dapat menembusnya tanpa server di tempat lain. Gunakan pengaturan proxy milik {app} sendiri atau VPN.</string>
     <string name="connections">Koneksi</string>
+    <string name="connsAllow">Izinkan</string>
+    <string name="connsBlock">Blokir</string>
+    <string name="connsBlockName">Blokir {host}</string>
+    <string name="connsBlocked">Diblokir</string>
+    <string name="connsDesc">Apa yang lewat Shroudly, per situs, sejak perlindungan dimulai. Memblokir situs memutus koneksinya dan menolak yang baru; daftar blokir Anda tetap di perangkat ini.</string>
+    <string name="connsEmpty">Belum ada. Buka sebuah situs dan ia muncul di sini.</string>
+    <string name="connsOpen">{count} terbuka</string>
+    <string name="connsRefused">{count} ditolak</string>
+    <string name="connsRouteServer">server sendiri</string>
+    <string name="connsRouteTechnique">teknik</string>
+    <string name="connsRouteTor">Tor</string>
+    <string name="connsSearch">Cari atau ketik situs untuk diblokir</string>
+    <string name="connsSystem">dipakai Shroudly</string>
+    <string name="connsSystemConfirm">Shroudly sendiri memakai {host}. Memblokirnya bisa merusak DNS terenkripsi, pembaruan, atau jalan terakhir, dan situs bisa berhenti terbuka. Tetap blokir?</string>
+    <string name="connsTitle">Koneksi per situs</string>
     <string name="dnsErrorEmpty">Ketik alamat server, misalnya {example}.</string>
     <string name="dnsErrorHost">Itu bukan alamat IP atau nama server; ketik seperti {example}.</string>
     <string name="dnsErrorPort">Port harus angka dari 1 sampai 65535.</string>
@@ -232,7 +247,7 @@
     <string name="upload">Unggah</string>
     <string name="uptime">Waktu aktif</string>
     <string name="versionLabel">Versi {version}</string>
-    <string name="whatsNewAndroid">Saat tidak ada teknik yang bisa membuka sebuah situs, Shroudly kini membukanya lewat jaringan Tor, yang dicapai melalui relawan Snowflake (termasuk orang yang membantu lewat Shroudly).\nLebih lambat, tapi tembus; bisa dimatikan di Pengaturan.</string>
+    <string name="whatsNewAndroid">Koneksi per situs: lihat apa yang lewat Shroudly, dengan data di kedua arah, dan blokir situs mana pun (#74).\nMemblokir langsung memutus koneksi situs itu; daftarnya tetap di perangkat Anda.</string>
     <string name="whatsNewOk">Mengerti</string>
     <string name="whatsNewTitle">Yang baru di {version}</string>
 </resources>
