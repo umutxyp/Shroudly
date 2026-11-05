@@ -123,6 +123,7 @@
     <string name="connsSystem">Shroudly istifadə edir</string>
     <string name="connsSystemConfirm">Shroudly {host} ünvanını özü istifadə edir. Bloklamaq şifrəli DNS-i, yeniləmələri və ya son çıxış yolunu poza bilər, saytlar açılmaya bilər. Yenə də bloklansın?</string>
     <string name="connsTitle">Saytlara görə bağlantılar</string>
+    <string name="dnsAroundAndroid">Bu cihazda tətbiqlərin ad sorğularına başqa bir şey cavab verir (Şəxsi DNS və ya DNS tətbiqi), ona görə bloklanmış tətbiqlər açılmaya bilər. Ayarlar → Şəbəkə → Şəxsi DNS bölməsində «Söndürülü» və ya «Avtomatik» seçin, DNS tətbiqlərini bağlayın, sonra Shroudly-ni yenidən başladın.</string>
     <string name="dnsErrorEmpty">Serverin ünvanını yazın, məsələn {example}.</string>
     <string name="dnsErrorHost">Bu nə IP ünvanı, nə də server adıdır; onu {example} kimi yazın.</string>
     <string name="dnsErrorPort">Port 1 ilə 65535 arasında rəqəm olmalıdır.</string>
@@ -169,10 +170,12 @@
     <string name="lastResortStarting" formatted="false">Başqa yolla açılmayan saytlar üçün Tor şəbəkəsinə qoşulur… {progress}%</string>
     <string name="linkReleases">Buraxılış qeydləri</string>
     <string name="linkSourceCode">GitHub-da mənbə kodu</string>
+    <string name="linkWebsite">Codeshare saytı</string>
     <string name="madeBy">Codeshare Technology Ltd məhsulu</string>
     <string name="nationalOnlyBody">Dünyanın qalan hissəsi ilə bağlantı kəsilib; ölkə daxilindəki saytlar hələ açılır. Heç bir tətbiq və ya VPN bunu keçə bilməz. Bağlantı qayıdanda Shroudly özü davam edir.</string>
     <string name="nationalOnlyHelp">Hələ nə kömək edə bilər</string>
     <string name="nationalOnlyTitle">Yalnız bu ölkənin şəbəkəsi işləyir</string>
+    <string name="navFollow">İzlə</string>
     <string name="navInfo">Haqqında</string>
     <string name="navProtection">Qoruma</string>
     <string name="navSettings">Ayarlar</string>
@@ -202,6 +205,7 @@
     <string name="ownServerWhyTls">cavab verir, amma onun üzərindən heç bir sayt gəlmədi</string>
     <string name="protected_">Qorunur</string>
     <string name="protectionStopped">Qoruma dayandırıldı</string>
+    <string name="reopenAppsHint">Əvvəlcədən açıq olan tətbiqlər: biri qoşulmasa, onu bağlayıb bir dəfə yenidən açın.</string>
     <string name="searchApps">Tətbiq axtar</string>
     <string name="shareApp">Shroudly-ni paylaş</string>
     <string name="shareAppText">Bloklanmış saytları və tətbiqləri açmaq üçün Android üçün Shroudly {version}. Quraşdırmaq üçün bu faylı açın; telefon soruşsa, bu mənbədən tətbiq quraşdırmağa icazə verin.</string>

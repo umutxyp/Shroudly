@@ -42,6 +42,8 @@
 "connsSystem" = "utilisé par Shroudly";
 "connsSystemConfirm" = "Shroudly utilise lui-même {host}. Le bloquer peut casser le DNS chiffré, les mises à jour ou la dernière issue, et des sites peuvent ne plus s'ouvrir. Bloquer quand même ?";
 "connsTitle" = "Connexions par site";
+"dnsAroundApple" = "Un profil ou une appli DNS sur cet appareil (AdGuard, NextDNS, 1.1.1.1, un profil d’école ou de travail) répond aux recherches de noms avant Shroudly : les applis bloquées peuvent ne pas s’ouvrir. Désactivez-le dans Réglages → Général → VPN et gestion de l’appareil (Mac : Réglages Système → Réseau → VPN et filtres), puis relancez Shroudly.";
+"dnsAroundTitle" = "Quelque chose contourne Shroudly";
 "dnsKindDoh" = "DNS sur HTTPS (DoH)";
 "dnsKindDot" = "DNS sur TLS (DoT)";
 "dnsKindTcp" = "DNS sur TCP";
@@ -77,10 +79,12 @@
 "lastResortStarting" = "Connexion au réseau Tor pour les sites que rien d'autre n'ouvre… {progress} %";
 "linkReleases" = "Notes de version";
 "linkSourceCode" = "Code source sur GitHub";
+"linkWebsite" = "Site web de Codeshare";
 "madeBy" = "Un produit Codeshare Technology Ltd";
 "nationalOnlyBody" = "La connexion avec le reste du monde est coupée ; les sites du pays s’ouvrent encore. Aucune appli ni aucun VPN ne passe outre. Shroudly reprendra tout seul quand elle reviendra.";
 "nationalOnlyHelp" = "Ce qui peut encore aider";
 "nationalOnlyTitle" = "Seul le réseau de ce pays fonctionne";
+"navFollow" = "Suivre";
 "navInfo" = "À propos";
 "navSettings" = "Réglages";
 "navStats" = "Stats";
@@ -106,6 +110,7 @@
 "ownServerWhySilent" = "rien n’est revenu ; le mot de passe ou la méthode est peut-être faux";
 "ownServerWhyTls" = "il répond, mais aucun site n’est passé par lui";
 "protected" = "Protégé";
+"reopenAppsHint" = "Applis déjà ouvertes : si l’une ne se connecte pas, fermez-la et rouvrez-la une fois.";
 "shareOnlineCount" = "Me compter dans le total en direct";
 "shareOnlineCountDesc" = "Envoie un nombre aléatoire, différent à chaque lancement, pour que l’app puisse indiquer combien d’exemplaires tournent. Il n’est envoyé que lorsque la protection est active, et emprunte donc le même chemin protégé que le reste de votre trafic. Désactivez-le si vous préférez que votre réseau ne voie rien de Shroudly.";
 "snowflakeCounts" = "Aidées en ce moment : {now} · Depuis l'activation : {total}";

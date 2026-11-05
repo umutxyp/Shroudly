@@ -50,3 +50,4 @@ Thumbs.db
 
 # End-to-end screenshots and memory reports
 test-results/
+dist-legacy/

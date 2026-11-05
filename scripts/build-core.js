@@ -19,10 +19,15 @@ const sources = fs.readdirSync(srcDir).filter(f => f.endsWith('.c')).map(f => pa
 const outRoot = path.join(root, 'electron', 'tools', 'core');
 
 const TARGETS = {
-  'win32-x64':  { zig: 'x86_64-windows-gnu',   bin: 'shroudly-core.exe', libs: ['-lws2_32', '-liphlpapi'] },
+  // Windows 7 and later (.win7): the same engine runs in the Windows 7 and 8
+  // build too, which adds 32-bit Windows (ia32).
+  'win32-x64':  { zig: 'x86_64-windows.win7-gnu', bin: 'shroudly-core.exe', libs: ['-lws2_32', '-liphlpapi'] },
+  'win32-ia32': { zig: 'x86-windows.win7-gnu',    bin: 'shroudly-core.exe', libs: ['-lws2_32', '-liphlpapi'] },
   'win32-arm64':{ zig: 'aarch64-windows-gnu',  bin: 'shroudly-core.exe', libs: ['-lws2_32', '-liphlpapi'] },
   'linux-x64':  { zig: 'x86_64-linux-gnu.2.17',     bin: 'shroudly-core',     libs: ['-lpthread'] },
   'linux-arm64':{ zig: 'aarch64-linux-gnu.2.17',    bin: 'shroudly-core',     libs: ['-lpthread'] },
+  // 32-bit ARM (Raspberry Pi OS 32-bit and other armhf systems).
+  'linux-armv7l':{ zig: 'arm-linux-gnueabihf.2.17', bin: 'shroudly-core',     libs: ['-lpthread'] },
   'darwin-x64': { zig: 'x86_64-macos-none',    bin: 'shroudly-core',     libs: [] },
   'darwin-arm64':{ zig: 'aarch64-macos-none',  bin: 'shroudly-core',     libs: [] },
 };

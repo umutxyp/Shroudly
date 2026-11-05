@@ -19,7 +19,8 @@ const { execFileSync } = require('child_process');
 const T = require('./tor-files');
 
 function target(platform = process.platform, arch = process.arch) {
-  return `${platform}-${arch === 'arm64' ? 'arm64' : 'x64'}`;
+  const a = arch === 'arm64' ? 'arm64' : arch === 'ia32' ? 'ia32' : arch === 'arm' ? 'armv7l' : 'x64';
+  return `${platform}-${a}`;
 }
 
 /* GET url through the engine (SOCKS on 127.0.0.1:socksPort), following up

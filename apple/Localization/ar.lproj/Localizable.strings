@@ -42,6 +42,8 @@
 "connsSystem" = "يستخدمه Shroudly";
 "connsSystemConfirm" = "يستخدم Shroudly نفسه {host}. قد يؤدي حظره إلى تعطيل DNS المشفّر أو التحديثات أو المخرج الأخير، وقد تتوقف المواقع عن الفتح. هل تريد حظره رغم ذلك؟";
 "connsTitle" = "الاتصالات حسب الموقع";
+"dnsAroundApple" = "ملف تعريف أو تطبيق DNS على هذا الجهاز (AdGuard أو NextDNS أو 1.1.1.1 أو ملف مدرسة أو عمل) يجيب عن استعلامات الأسماء قبل Shroudly، لذلك قد لا تفتح التطبيقات المحجوبة. أوقفه من الإعدادات ← عام ← VPN وإدارة الجهاز (على Mac: إعدادات النظام ← الشبكة ← VPN والفلاتر)، ثم شغّل Shroudly من جديد.";
+"dnsAroundTitle" = "شيء ما يتجاوز Shroudly";
 "dnsKindDoh" = "DNS عبر HTTPS (DoH)";
 "dnsKindDot" = "DNS عبر TLS (DoT)";
 "dnsKindTcp" = "DNS عبر TCP";
@@ -77,10 +79,12 @@
 "lastResortStarting" = "جارٍ الاتصال بشبكة تور للمواقع التي لا يفتحها شيء آخر… ‎{progress}%";
 "linkReleases" = "ملاحظات الإصدار";
 "linkSourceCode" = "الشيفرة المصدرية على GitHub";
+"linkWebsite" = "موقع Codeshare";
 "madeBy" = "منتج من Codeshare Technology Ltd";
 "nationalOnlyBody" = "الاتصال ببقية العالم مقطوع؛ ولا تزال مواقع داخل البلد تفتح. لا يستطيع أي تطبيق أو VPN تجاوز ذلك. سيتابع Shroudly من تلقاء نفسه عند عودته.";
 "nationalOnlyHelp" = "ما الذي قد يساعد بعد";
 "nationalOnlyTitle" = "لا تعمل إلا شبكة هذا البلد";
+"navFollow" = "تابعنا";
 "navInfo" = "حول";
 "navSettings" = "الإعدادات";
 "navStats" = "إحصاءات";
@@ -106,6 +110,7 @@
 "ownServerWhySilent" = "لم يعد شيء؛ ربما كلمة المرور أو الطريقة خاطئة";
 "ownServerWhyTls" = "يجيب، لكن لم يمرّ عبره أي موقع";
 "protected" = "محمي";
+"reopenAppsHint" = "التطبيقات التي كانت مفتوحة من قبل: إن لم يتصل أحدها فأغلقه وافتحه مرة أخرى.";
 "shareOnlineCount" = "احسبني ضمن العدد المباشر";
 "shareOnlineCountDesc" = "يرسل رقمًا عشوائيًا يتغير مع كل تشغيل، ليتمكن التطبيق من عرض عدد النسخ العاملة. ولا يُرسل إلا والحماية مفعّلة، فيسلك المسار المحمي نفسه الذي تسلكه بقية بياناتك. أوقفه إن كنت تفضّل ألا ترى شبكتك شيئًا من Shroudly إطلاقًا.";
 "snowflakeCounts" = "تتم المساعدة الآن: {now} · منذ التشغيل: {total}";

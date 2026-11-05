@@ -567,3 +567,27 @@ input.field, textarea.field { border-color: var(--line-strong); background: colo
   .swatch, .dot { forced-color-adjust: none; border: 1px solid CanvasText; }
   .swatch[aria-pressed='true'] { outline: 2px solid Highlight; outline-offset: 2px; }
 }
+
+/* ── Windows 7 and 8 (the legacy build, Electron 22 = Chromium 108) ──
+   color-mix() came in Chromium 111. Where it is missing, a declaration that
+   uses it with var() still parses, then turns into nothing when computed: a
+   button without its fill, a field without its inside. Plain colours stand in
+   there; where color-mix() is known this whole block is skipped, so the
+   current build looks exactly as above. */
+@supports not (color: color-mix(in srgb, red, blue)) {
+  * { scrollbar-color: var(--text-faint) transparent; }
+  input.field, textarea.field { background: var(--surface-2); }
+  .tour-dim { background: rgba(8, 11, 18, 0.78); }
+  :root[data-surface="glass"] { --surface-pop: #121a2c; }
+  :root[data-surface="glass"] .shell {
+    background: linear-gradient(170deg, #0d1220 0%, #080b12 58%) !important;
+  }
+  :root[data-surface="glass"] .btn-primary {
+    background: linear-gradient(180deg, var(--accent-hover), var(--accent));
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.32);
+  }
+  :root[data-surface="glass"] .btn-state {
+    background: linear-gradient(180deg, var(--state-hover), var(--state));
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.32);
+  }
+}

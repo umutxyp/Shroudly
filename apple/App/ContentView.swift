@@ -163,7 +163,7 @@ struct ContentView: View {
     private static let previewStats = EngineStats(["conns_active": 14, "conns_total": 386, "bytes_down": 248_000_000, "bytes_up": 19_400_000, "online": 1_204])
 
     private var hasCard: Bool {
-        phase == .on && (watch.ownServerDown != nil || watch.national != nil || (helpDue && controller.notice == nil && !Theme.isTV))
+        phase == .on && (watch.ownServerDown != nil || watch.national != nil || controller.dnsAround || (helpDue && controller.notice == nil && !Theme.isTV))
     }
 
     /* The one card under the status, when there is one. */
@@ -172,6 +172,9 @@ struct ContentView: View {
             Warning(title: tr("ownServerDown"),
                     text: tr("ownServerDownBody", ["server": down.server, "why": OwnServer.whyText(down.why),
                                                    "path": "\(tr("navSettings")) \(direction == .rightToLeft ? "←" : "→") \(tr("ownServer"))"]))
+        } else if phase == .on, controller.dnsAround {
+            // A DNS profile or app answers apps' lookups before the tunnel.
+            Warning(title: tr("dnsAroundTitle"), text: tr("dnsAroundApple"))
         } else if phase == .on, watch.national != nil {
             Warning(title: tr("nationalOnlyTitle"), text: tr("nationalOnlyBody"),
                     link: (tr("nationalOnlyHelp"), NationalNet.guideURL(language: Bundle.main.preferredLocalizations.first ?? "en")))
@@ -191,6 +194,10 @@ struct ContentView: View {
         HStack(spacing: 12) {
             NavigationLink { SettingsView() } label: {
                 Tab(icon: "gearshape", text: tr("navSettings"))
+            }
+            // Follow Shroudly: a tab of its own, beside About (AboutView.swift).
+            NavigationLink { FollowView() } label: {
+                Tab(icon: "person.2", text: tr("navFollow"))
             }
             NavigationLink { AboutView() } label: {
                 Tab(icon: "info.circle", text: tr("navInfo"))
@@ -215,6 +222,12 @@ struct ContentView: View {
             case "failed": return tr("lastResortFailed")
             default: return tr("lastResortStarting", ["progress": String(lr.progress)])
             }
+        }
+        // Just started: an app that was open before may hold its old
+        // connections; said for the first two minutes.
+        if phase == .on, let since = controller.connectedSince, Date().timeIntervalSince(since) < 120,
+           watch.ownServerDown == nil, watch.national == nil {
+            return tr("reopenAppsHint")
         }
         return tr("tagline")
     }

@@ -64,6 +64,9 @@ const RELEASES_URL = `https://github.com/${OWNER}/${REPO}/releases/latest`;
 // (latest.yml / latest-linux.yml / latest-mac.yml) at this path, not redirect
 // to GitHub. A less-known host than github.com is a smaller target to block.
 const MIRROR_URL = 'https://shroudly.codeshare.me/dl';
+/* The Windows 7 and 8 build (Electron 22, electron-builder-legacy.js) reads
+ * its own feed, legacy.yml: the Windows 10 build would not start there. */
+const CHANNEL = Number(String(process.versions.electron || '99').split('.')[0]) < 23 ? 'legacy' : 'latest';
 /* The mirror's copy of a github.com/<owner>/<repo>/releases/... URL. Both
  * .../releases/download/<tag>/<file> and .../releases/latest/download/<file>
  * map to a flat <MIRROR>/<file> — the layout electron-updater's generic
@@ -672,8 +675,8 @@ class Updater {
     // Direct and through-the-engine read the GitHub release feed; the mirror
     // reads the same feed files served on our own host (generic provider).
     try {
-      if (route === 'mirror') this.eu.setFeedURL({ provider: 'generic', url: MIRROR_URL, channel: 'latest' });
-      else this.eu.setFeedURL({ provider: 'github', owner: OWNER, repo: REPO });
+      if (route === 'mirror') this.eu.setFeedURL({ provider: 'generic', url: MIRROR_URL, channel: CHANNEL });
+      else this.eu.setFeedURL({ provider: 'github', owner: OWNER, repo: REPO, ...(CHANNEL === 'legacy' ? { channel: CHANNEL } : {}) });
     } catch {}
   }
 

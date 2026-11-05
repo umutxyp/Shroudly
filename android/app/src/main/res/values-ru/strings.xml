@@ -123,6 +123,7 @@
     <string name="connsSystem">использует Shroudly</string>
     <string name="connsSystemConfirm">Shroudly сам использует {host}. Блокировка может нарушить шифрованный DNS, обновления или последний выход, и сайты могут перестать открываться. Всё равно заблокировать?</string>
     <string name="connsTitle">Соединения по сайтам</string>
+    <string name="dnsAroundAndroid">На этом устройстве запросы имён у приложений обрабатывает что-то другое (частный DNS или DNS-приложение), поэтому заблокированные приложения могут не открываться. В Настройках → Сеть → Частный DNS выберите «Отключено» или «Автоматически», закройте DNS-приложения и снова запустите Shroudly.</string>
     <string name="dnsErrorEmpty">Введите адрес сервера, например {example}.</string>
     <string name="dnsErrorHost">Это не IP-адрес и не имя сервера; введите его как {example}.</string>
     <string name="dnsErrorPort">Порт должен быть числом от 1 до 65535.</string>
@@ -169,10 +170,12 @@
     <string name="lastResortStarting" formatted="false">Подключение к сети Tor для сайтов, которые не открылись иначе… {progress}%</string>
     <string name="linkReleases">Примечания к выпуску</string>
     <string name="linkSourceCode">Исходный код на GitHub</string>
+    <string name="linkWebsite">Сайт Codeshare</string>
     <string name="madeBy">Продукт Codeshare Technology Ltd</string>
     <string name="nationalOnlyBody">Связь с остальным миром отрезана; сайты внутри страны ещё открываются. Это не обойти ни одному приложению или VPN. Когда связь вернётся, Shroudly продолжит сам.</string>
     <string name="nationalOnlyHelp">Что ещё может помочь</string>
     <string name="nationalOnlyTitle">Работает только сеть этой страны</string>
+    <string name="navFollow">Подписка</string>
     <string name="navInfo">Сведения</string>
     <string name="navProtection">Защита</string>
     <string name="navSettings">Настройки</string>
@@ -202,6 +205,7 @@
     <string name="ownServerWhyTls">он отвечает, но ни один сайт через него не открылся</string>
     <string name="protected_">Защищено</string>
     <string name="protectionStopped">Защита выключена</string>
+    <string name="reopenAppsHint">Приложения, открытые раньше: если какое-то не подключается, закройте его и откройте снова.</string>
     <string name="searchApps">Поиск приложений</string>
     <string name="shareApp">Поделиться Shroudly</string>
     <string name="shareAppText">Shroudly {version} для Android — открывает заблокированные сайты и приложения. Чтобы установить, откройте этот файл; если телефон спросит, разрешите установку приложений из этого источника.</string>

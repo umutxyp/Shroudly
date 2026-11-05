@@ -42,6 +42,8 @@
 "connsSystem" = "Shroudly ይጠቀማል";
 "connsSystemConfirm" = "Shroudly ራሱ {host}ን ይጠቀማል። ማገዱ የተመሰጠረ DNSን፣ ዝማኔዎችን ወይም የመጨረሻውን መውጫ ሊያበላሽ እና ድረ ገጾች መከፈት ሊያቆሙ ይችላሉ። ቢሆንም ይታገድ?";
 "connsTitle" = "በድረ ገጽ የተከፋፈሉ ግንኙነቶች";
+"dnsAroundApple" = "በዚህ መሣሪያ ላይ ያለ የDNS መገለጫ ወይም መተግበሪያ (AdGuard፣ NextDNS፣ 1.1.1.1፣ የትምህርት ቤት ወይም የሥራ መገለጫ) ከShroudly በፊት የስም ፍለጋን ይመልሳል፣ ስለዚህ የታገዱ መተግበሪያዎች ላይከፈቱ ይችላሉ። በቅንብሮች → አጠቃላይ → VPN እና የመሣሪያ አስተዳደር ውስጥ ያጥፉት (Mac: የስርዓት ቅንብሮች → አውታረ መረብ → VPN እና ማጣሪያዎች)፣ ከዚያ Shroudlyን እንደገና ያስጀምሩ።";
+"dnsAroundTitle" = "አንድ ነገር Shroudlyን እያለፈ ነው";
 "dnsKindDoh" = "DNS በHTTPS (DoH)";
 "dnsKindDot" = "DNS በTLS (DoT)";
 "dnsKindTcp" = "DNS በTCP";
@@ -77,10 +79,12 @@
 "lastResortStarting" = "በሌላ መንገድ ለማይከፈቱ ጣቢያዎች ከTor አውታረ መረብ ጋር በመገናኘት ላይ… {progress}%";
 "linkReleases" = "የልቀት ማስታወሻዎች";
 "linkSourceCode" = "የምንጭ ኮድ በGitHub ላይ";
+"linkWebsite" = "የCodeshare ድረ-ገጽ";
 "madeBy" = "የCodeshare Technology Ltd ምርት";
 "nationalOnlyBody" = "ከቀረው ዓለም ጋር ያለው ግንኙነት ተቋርጧል፤ በአገር ውስጥ ያሉ ጣቢያዎች አሁንም ይከፈታሉ። ይህን ማንኛውም መተግበሪያ ወይም VPN ሊያልፈው አይችልም። ግንኙነቱ ሲመለስ Shroudly በራሱ ይቀጥላል።";
 "nationalOnlyHelp" = "አሁንም ምን ሊረዳ ይችላል";
 "nationalOnlyTitle" = "የዚህ አገር አውታረ መረብ ብቻ ነው የሚሠራው";
+"navFollow" = "ይከተሉ";
 "navInfo" = "መረጃ";
 "navSettings" = "ቅንብሮች";
 "navStats" = "ስታቲስቲክስ";
@@ -106,6 +110,7 @@
 "ownServerWhySilent" = "ምንም አልተመለሰም፤ የይለፍ ቃሉ ወይም ዘዴው የተሳሳተ ሊሆን ይችላል";
 "ownServerWhyTls" = "ምላሽ ይሰጣል፣ ግን በእሱ በኩል ምንም ጣቢያ አልመጣም";
 "protected" = "ተጠብቋል";
+"reopenAppsHint" = "ቀድሞ ክፍት የነበሩ መተግበሪያዎች፦ አንዱ ካልተገናኘ ዝጉትና አንድ ጊዜ እንደገና ይክፈቱት።";
 "shareOnlineCount" = "እኔንም በቀጥታ ድምሩ ውስጥ መቁጠር";
 "shareOnlineCountDesc" = "መተግበሪያው ምን ያህል ቅጂዎች እየሰሩ እንደሆነ ማሳየት እንዲችል በእያንዳንዱ ጅምር የሚቀየር የዘፈቀደ ቁጥር ይልካል። የሚላከው ጥበቃ በርቶ እያለ ብቻ ነው፤ ስለዚህ እንደ ሌላው ትራፊክዎ በዚያው በተጠበቀ መንገድ ይጓዛል። አውታረ መረብዎ ከShroudly ምንም ነገር እንዳያይ ከመረጡ ይህን ያጥፉት።";
 "snowflakeCounts" = "አሁን እየተረዱ ያሉ፦ {now} · ከተከፈተ ጀምሮ፦ {total}";

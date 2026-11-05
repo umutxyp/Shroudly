@@ -42,6 +42,8 @@
 "connsSystem" = "von Shroudly genutzt";
 "connsSystemConfirm" = "Shroudly nutzt {host} selbst. Eine Sperre kann verschlüsseltes DNS, Updates oder den letzten Ausweg stören, und Seiten öffnen sich womöglich nicht mehr. Trotzdem sperren?";
 "connsTitle" = "Verbindungen nach Seite";
+"dnsAroundApple" = "Ein DNS-Profil oder eine App auf diesem Gerät (AdGuard, NextDNS, 1.1.1.1, ein Schul- oder Arbeitsprofil) beantwortet die Namensabfragen der Apps vor Shroudly, deshalb öffnen sich gesperrte Apps womöglich nicht. Schalte es unter Einstellungen → Allgemein → VPN und Geräteverwaltung aus (Mac: Systemeinstellungen → Netzwerk → VPN und Filter) und starte Shroudly neu.";
+"dnsAroundTitle" = "Etwas umgeht Shroudly";
 "dnsKindDoh" = "DNS über HTTPS (DoH)";
 "dnsKindDot" = "DNS über TLS (DoT)";
 "dnsKindTcp" = "DNS über TCP";
@@ -77,10 +79,12 @@
 "lastResortStarting" = "Verbindung zum Tor-Netzwerk für Seiten, die sonst nicht aufgehen… {progress} %";
 "linkReleases" = "Versionshinweise";
 "linkSourceCode" = "Quellcode auf GitHub";
+"linkWebsite" = "Codeshare-Website";
 "madeBy" = "Ein Produkt von Codeshare Technology Ltd";
 "nationalOnlyBody" = "Die Verbindung zum Rest der Welt ist gekappt; Seiten im eigenen Land öffnen sich noch. Keine App und kein VPN kommt daran vorbei. Shroudly macht von selbst weiter, sobald sie wieder da ist.";
 "nationalOnlyHelp" = "Was noch helfen kann";
 "nationalOnlyTitle" = "Nur das Netz dieses Landes funktioniert";
+"navFollow" = "Folgen";
 "navInfo" = "Info";
 "navSettings" = "Optionen";
 "navStats" = "Statistik";
@@ -106,6 +110,7 @@
 "ownServerWhySilent" = "es kam nichts zurück; Passwort oder Methode sind vielleicht falsch";
 "ownServerWhyTls" = "er antwortet, aber keine Seite kam darüber";
 "protected" = "Geschützt";
+"reopenAppsHint" = "Apps, die schon offen waren: Verbindet sich eine nicht, schließe sie und öffne sie einmal neu.";
 "shareOnlineCount" = "Mich bei der Live-Zahl mitzählen";
 "shareOnlineCountDesc" = "Sendet eine Zufallszahl, die sich bei jedem Start ändert, damit die App zeigen kann, wie viele Kopien laufen. Sie wird nur bei aktivem Schutz gesendet und nimmt damit denselben geschützten Weg wie dein übriger Verkehr. Schalte sie ab, wenn dein Netz lieber gar nichts von Shroudly sehen soll.";
 "snowflakeCounts" = "Gerade geholfen: {now} · Seit dem Einschalten: {total}";

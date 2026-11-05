@@ -42,6 +42,8 @@
 "connsSystem" = "Shroudly kullanıyor";
 "connsSystemConfirm" = "Shroudly {host} adresini kendisi kullanıyor. Engellemek şifreli DNS'i, güncellemeleri ya da son çare yolunu bozabilir, siteler açılmayabilir. Yine de engellensin mi?";
 "connsTitle" = "Siteye göre bağlantılar";
+"dnsAroundApple" = "Bu cihazdaki bir DNS profili ya da uygulaması (AdGuard, NextDNS, 1.1.1.1, okul ya da iş profili) uygulamaların ad sorgularını Shroudly'den önce cevaplıyor, bu yüzden engelli uygulamalar açılmayabilir. Ayarlar → Genel → VPN ve Aygıt Yönetimi'nden kapat (Mac: Sistem Ayarları → Ağ → VPN ve Filtreler), sonra Shroudly'yi yeniden başlat.";
+"dnsAroundTitle" = "Bir şey Shroudly'nin etrafından dolaşıyor";
 "dnsKindDoh" = "HTTPS üzerinden DNS (DoH)";
 "dnsKindDot" = "TLS üzerinden DNS (DoT)";
 "dnsKindTcp" = "TCP üzerinden DNS";
@@ -77,10 +79,12 @@
 "lastResortStarting" = "Başka yolla açılmayan siteler için Tor ağına bağlanılıyor… %{progress}";
 "linkReleases" = "Sürüm notları";
 "linkSourceCode" = "GitHub’daki kaynak kodu";
+"linkWebsite" = "Codeshare web sitesi";
 "madeBy" = "Bir Codeshare Technology Ltd ürünü";
 "nationalOnlyBody" = "Dünyanın geri kalanıyla bağlantı kesik; ülke içindeki siteler hâlâ açılıyor. Hiçbir uygulama ya da VPN bunu aşamaz. Bağlantı geri geldiğinde Shroudly kendiliğinden devam eder.";
 "nationalOnlyHelp" = "Hâlâ ne işe yarar";
 "nationalOnlyTitle" = "Sadece ülkenin kendi ağı çalışıyor";
+"navFollow" = "Takip et";
 "navInfo" = "Hakkında";
 "navSettings" = "Ayarlar";
 "navStats" = "İstatistik";
@@ -106,6 +110,7 @@
 "ownServerWhySilent" = "hiçbir şey geri gelmedi; şifre ya da yöntem yanlış olabilir";
 "ownServerWhyTls" = "cevap veriyor ama üzerinden hiçbir site gelmedi";
 "protected" = "Korunuyor";
+"reopenAppsHint" = "Önceden açık olan uygulamalar: biri bağlanmazsa onu kapatıp bir kez yeniden aç.";
 "shareOnlineCount" = "Canlı sayıma beni de kat";
 "shareOnlineCountDesc" = "Her açılışta değişen rastgele bir numara gönderir; uygulama böylece kaç kopyanın çalıştığını gösterebilir. Yalnızca koruma açıkken gönderilir, yani diğer trafiğinle aynı korumalı yoldan gider. Ağının Shroudly’den hiçbir şey görmesini istemiyorsan kapat.";
 "snowflakeCounts" = "Şu an yardım edilen: {now} · Açıldığından beri: {total}";

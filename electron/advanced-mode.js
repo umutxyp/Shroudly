@@ -47,7 +47,7 @@ const STOP_TIMEOUT_MS = 4000;
 // see one every second for hours.
 const ALIVE_CHECK_MS = 5000;
 
-function archKey() { return process.arch === 'arm64' ? 'arm64' : 'x64'; }
+function archKey() { return process.arch === 'arm64' ? 'arm64' : process.arch === 'ia32' ? 'ia32' : process.arch === 'arm' ? 'armv7l' : 'x64'; }
 
 /* The machine's own processor, not this build's: the x64 build runs on
  * Windows on ARM too (emulated), where process.arch says x64 but the WinDivert
@@ -114,7 +114,7 @@ function noexec(dir, mounts = null) {
 
 const REASONS = {
   mac_unsupported: 'Advanced mode is not available on macOS: the system offers no packet-divert interface without a signed Network Extension. The default engine still works.',
-  arch_unsupported: 'Advanced mode is not available on this processor architecture (the WinDivert driver has no ARM64 build).',
+  arch_unsupported: 'Advanced mode is not available on this processor (Windows: the WinDivert driver is 64-bit Intel/AMD only; Linux: 64-bit processors only).',
   platform_unsupported: `Advanced mode is not available on ${process.platform}.`,
   not_built: 'The advanced engine is not included in this build. Run: npm run build:core:advanced',
   windivert_missing: 'WinDivert.dll / WinDivert64.sys are missing next to the advanced engine. Reinstall Shroudly.',
@@ -314,6 +314,8 @@ class AdvancedMode {
     if (this.platform === 'darwin') return 'mac_unsupported';
     if (this.platform !== 'win32' && this.platform !== 'linux') return 'platform_unsupported';
     if (this.platform === 'win32' && (archKey() !== 'x64' || windowsHostIsArm())) return 'arch_unsupported';
+    // Linux: its packet engine is built for 64-bit processors (x64, ARM64).
+    if (this.platform === 'linux' && archKey() !== 'x64' && archKey() !== 'arm64') return 'arch_unsupported';
     if (this.packaged) return this._badFile() ? 'files_missing' : null;
     if (!fs.existsSync(advBinaryPath())) return 'not_built';
     if (this.platform === 'win32') {

@@ -123,6 +123,7 @@
     <string name="connsSystem">dipakai Shroudly</string>
     <string name="connsSystemConfirm">Shroudly sendiri memakai {host}. Memblokirnya bisa merusak DNS terenkripsi, pembaruan, atau jalan terakhir, dan situs bisa berhenti terbuka. Tetap blokir?</string>
     <string name="connsTitle">Koneksi per situs</string>
+    <string name="dnsAroundAndroid">Ada hal lain di perangkat ini yang menjawab pencarian nama aplikasi (DNS Pribadi atau aplikasi DNS), jadi aplikasi yang diblokir mungkin tidak terbuka. Di Setelan → Jaringan → DNS Pribadi pilih Nonaktif atau Otomatis, tutup aplikasi DNS, lalu mulai Shroudly lagi.</string>
     <string name="dnsErrorEmpty">Ketik alamat server, misalnya {example}.</string>
     <string name="dnsErrorHost">Itu bukan alamat IP atau nama server; ketik seperti {example}.</string>
     <string name="dnsErrorPort">Port harus angka dari 1 sampai 65535.</string>
@@ -169,10 +170,12 @@
     <string name="lastResortStarting" formatted="false">Menghubungkan ke jaringan Tor untuk situs yang tidak terbuka dengan cara lain… {progress}%</string>
     <string name="linkReleases">Catatan rilis</string>
     <string name="linkSourceCode">Kode sumber di GitHub</string>
+    <string name="linkWebsite">Situs web Codeshare</string>
     <string name="madeBy">Produk dari Codeshare Technology Ltd</string>
     <string name="nationalOnlyBody">Koneksi ke seluruh dunia terputus; situs di dalam negeri masih terbuka. Tidak ada aplikasi atau VPN yang bisa melewatinya. Shroudly melanjutkan sendiri saat koneksi kembali.</string>
     <string name="nationalOnlyHelp">Yang masih bisa membantu</string>
     <string name="nationalOnlyTitle">Hanya jaringan negara ini yang berfungsi</string>
+    <string name="navFollow">Ikuti</string>
     <string name="navInfo">Tentang</string>
     <string name="navProtection">Perlindungan</string>
     <string name="navSettings">Pengaturan</string>
@@ -202,6 +205,7 @@
     <string name="ownServerWhyTls">server menjawab, tetapi tidak ada situs yang lewat</string>
     <string name="protected_">Terlindungi</string>
     <string name="protectionStopped">Perlindungan dihentikan</string>
+    <string name="reopenAppsHint">Aplikasi yang sudah terbuka sebelumnya: jika ada yang tidak tersambung, tutup lalu buka lagi sekali.</string>
     <string name="searchApps">Cari aplikasi</string>
     <string name="shareApp">Bagikan Shroudly</string>
     <string name="shareAppText">Shroudly {version} untuk Android, untuk membuka situs dan aplikasi yang diblokir. Untuk memasangnya, buka berkas ini; jika ponsel bertanya, izinkan pemasangan aplikasi dari sumber ini.</string>

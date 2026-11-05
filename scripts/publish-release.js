@@ -30,6 +30,10 @@ const FEED = '(for automatic updates, no need to download)';
 const ASSETS = [
   [`Shroudly-${version}-Windows-x64-Setup.exe`, 'Windows · Intel/AMD 64-bit (most PCs) · Installer'],
   [`Shroudly-${version}-Windows-arm64-Setup.exe`, 'Windows · ARM (Snapdragon / Copilot+ PCs) · Installer'],
+  [`Shroudly-${version}-Windows-ia32-Setup.exe`, 'Windows 10/11 · 32-bit PCs · Installer'],
+  // Electron 22, the last that runs there (electron-builder-legacy.js): one
+  // installer for 32- and 64-bit, updating from its own feed (legacy.yml).
+  [`Shroudly-${version}-Windows7-8-Setup.exe`, 'Windows 7, 8 and 8.1 · 32- and 64-bit · Installer'],
   [`Shroudly-${version}-macOS-arm64.dmg`, 'macOS · Apple Silicon (M1/M2/M3/M4) · Disk image (recommended)'],
   [`Shroudly-${version}-macOS-x64.dmg`, 'macOS · Intel Macs · Disk image (recommended)'],
   [`Shroudly-${version}-macOS-arm64.zip`, 'macOS · Apple Silicon (M1/M2/M3/M4) · Zip'],
@@ -37,6 +41,8 @@ const ASSETS = [
   [`Shroudly-${version}-Linux-x86_64.AppImage`, 'Linux · Intel/AMD 64-bit · AppImage (any distro)'],
   [`Shroudly-${version}-Linux-amd64.deb`, 'Linux · Intel/AMD 64-bit · Debian / Ubuntu package (.deb)'],
   [`Shroudly-${version}-Linux-arm64.AppImage`, 'Linux · ARM 64-bit (e.g. Raspberry Pi 4/5) · AppImage'],
+  [`Shroudly-${version}-Linux-armv7l.AppImage`, 'Linux · ARM 32-bit (Raspberry Pi OS 32-bit, armhf) · AppImage'],
+  [`Shroudly-${version}-Linux-armhf.deb`, 'Linux · ARM 32-bit (Raspberry Pi OS 32-bit, armhf) · Debian package (.deb)'],
   [`Shroudly-${version}-Linux-x64.pacman`, 'Linux · Intel/AMD 64-bit · Arch / Manjaro package (.pacman)'],
   [`Shroudly-${version}-Linux-x86_64.rpm`, 'Linux · Intel/AMD 64-bit · Fedora / openSUSE package (.rpm)'],
   // Optional only where the Android app is not built (no signing key, a
@@ -44,7 +50,7 @@ const ASSETS = [
   // are never offered this version (ANDROID_SIGNED, release.yml).
   [`Shroudly-${version}-Android.apk`, 'Android 8+ · Phones and tablets · APK', { optional: process.env.ANDROID_SIGNED !== 'true' }],
   // The same app for 64-bit ARM phones only (most), and without Tor (issue #75).
-  [`Shroudly-${version}-Android-arm64.apk`, 'Android 8+ · 64-bit ARM phones (most) · smaller APK', { optional: process.env.ANDROID_SIGNED !== 'true' }],
+  [`Shroudly-${version}-Android-arm64.apk`, 'Android 8+ · 64-bit ARM phones only (most; not 32-bit ones, which take the APK above) · smaller APK', { optional: process.env.ANDROID_SIGNED !== 'true' }],
   [`Shroudly-${version}-Android-lite.apk`, 'Android 8+ · Lite: without Tor (the last way out) · smallest APK', { optional: process.env.ANDROID_SIGNED !== 'true' }],
   // Until the App Store has it: for TrollStore, or signed again with one's
   // own Apple developer account (apple/scripts/make-ipa.sh).
@@ -53,6 +59,8 @@ const ASSETS = [
   ['latest-mac.yml', `Update data · macOS ${FEED}`],
   ['latest-linux.yml', `Update data · Linux x64 ${FEED}`],
   ['latest-linux-arm64.yml', `Update data · Linux ARM ${FEED}`],
+  ['latest-linux-armv7l.yml', `Update data · Linux ARM 32-bit ${FEED}`],
+  ['legacy.yml', `Update data · Windows 7 and 8 ${FEED}`],
 ];
 
 /* electron-builder lists the AppImage, .deb and .rpm in latest-linux.yml but
@@ -97,6 +105,27 @@ function cleanWindowsFeed() {
   fs.writeFileSync(file, s);
 }
 
+/* The Windows 7 and 8 feed (legacy.yml) offers the one installer for both
+ * 32- and 64-bit only: the per-architecture ones electron-builder also makes
+ * are not published. */
+function cleanLegacyFeed() {
+  const file = path.join(dist, 'legacy.yml');
+  const lines = fs.readFileSync(file, 'utf8').replace(/\r\n/g, '\n').split('\n');
+  const out = [];
+  let skip = false;
+  for (const line of lines) {
+    if (/^\s*- url: /.test(line)) skip = !/-Windows7-8-Setup\.exe\s*$/.test(line);
+    else if (!/^\s{4,}\S/.test(line)) skip = false;
+    if (!skip) out.push(line);
+  }
+  let s = out.join('\n');
+  const one = s.match(/- url: (\S+-Windows7-8-Setup\.exe)\n\s+sha512: (\S+)/);
+  if (!one) throw new Error('legacy.yml has no Windows 7 and 8 installer');
+  s = s.replace(/^path: .*$/m, `path: ${one[1]}`).replace(/^sha512: .*$/m, `sha512: ${one[2]}`);
+  if (/-Windows7-8-(x64|ia32)-Setup\.exe/.test(s)) throw new Error('legacy.yml still lists a per-architecture installer, which is not published');
+  fs.writeFileSync(file, s);
+}
+
 async function api(url, opts = {}) {
   const res = await fetch(url, { ...opts, headers: { Authorization: `Bearer ${token}`, Accept: 'application/vnd.github+json', ...(opts.headers || {}) } });
   const body = await res.json().catch(() => ({}));
@@ -113,6 +142,7 @@ async function api(url, opts = {}) {
     throw new Error(`missing from dist:\n  ${absent.join('\n  ')}\n\ndist contains:\n  ${have.join('\n  ')}`);
   }
   cleanWindowsFeed();
+  cleanLegacyFeed();
   addPacmanToLinuxFeed();
   // Notes: an explicit file argument, else release-notes/v<version>.md if the
   // repo has one (that is what the CI release job uses).

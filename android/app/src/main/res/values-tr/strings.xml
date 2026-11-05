@@ -123,6 +123,7 @@
     <string name="connsSystem">Shroudly kullanıyor</string>
     <string name="connsSystemConfirm">Shroudly {host} adresini kendisi kullanıyor. Engellemek şifreli DNS\'i, güncellemeleri ya da son çare yolunu bozabilir, siteler açılmayabilir. Yine de engellensin mi?</string>
     <string name="connsTitle">Siteye göre bağlantılar</string>
+    <string name="dnsAroundAndroid">Bu cihazda uygulamaların ad sorgularını başka bir şey cevaplıyor (Özel DNS ya da bir DNS uygulaması), bu yüzden engelli uygulamalar açılmayabilir. Ayarlar → Ağ → Özel DNS\'te Kapalı ya da Otomatik\'i seç, varsa DNS uygulamasını kapat, sonra Shroudly\'yi yeniden başlat.</string>
     <string name="dnsErrorEmpty">Sunucunun adresini yaz, örneğin {example}.</string>
     <string name="dnsErrorHost">Bu bir IP adresi ya da sunucu adı değil; {example} gibi yaz.</string>
     <string name="dnsErrorPort">Port 1 ile 65535 arasında bir sayı olmalı.</string>
@@ -169,10 +170,12 @@
     <string name="lastResortStarting" formatted="false">Başka yolla açılmayan siteler için Tor ağına bağlanılıyor… %{progress}</string>
     <string name="linkReleases">Sürüm notları</string>
     <string name="linkSourceCode">GitHub’daki kaynak kodu</string>
+    <string name="linkWebsite">Codeshare web sitesi</string>
     <string name="madeBy">Bir Codeshare Technology Ltd ürünü</string>
     <string name="nationalOnlyBody">Dünyanın geri kalanıyla bağlantı kesik; ülke içindeki siteler hâlâ açılıyor. Hiçbir uygulama ya da VPN bunu aşamaz. Bağlantı geri geldiğinde Shroudly kendiliğinden devam eder.</string>
     <string name="nationalOnlyHelp">Hâlâ ne işe yarar</string>
     <string name="nationalOnlyTitle">Sadece ülkenin kendi ağı çalışıyor</string>
+    <string name="navFollow">Takip et</string>
     <string name="navInfo">Hakkında</string>
     <string name="navProtection">Koruma</string>
     <string name="navSettings">Ayarlar</string>
@@ -202,6 +205,7 @@
     <string name="ownServerWhyTls">cevap veriyor ama üzerinden hiçbir site gelmedi</string>
     <string name="protected_">Korunuyor</string>
     <string name="protectionStopped">Koruma durduruldu</string>
+    <string name="reopenAppsHint">Önceden açık olan uygulamalar: biri bağlanmazsa onu kapatıp bir kez yeniden aç.</string>
     <string name="searchApps">Uygulama ara</string>
     <string name="shareApp">Shroudly\'yi paylaş</string>
     <string name="shareAppText">Engelli siteleri ve uygulamaları açmak için Android\'e Shroudly {version}. Kurmak için bu dosyayı aç; telefon sorarsa bu kaynaktan uygulama yüklemeye izin ver.</string>

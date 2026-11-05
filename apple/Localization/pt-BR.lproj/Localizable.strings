@@ -42,6 +42,8 @@
 "connsSystem" = "usado pelo Shroudly";
 "connsSystemConfirm" = "O próprio Shroudly usa {host}. Bloquear pode quebrar o DNS criptografado, as atualizações ou a última saída, e os sites podem parar de abrir. Bloquear mesmo assim?";
 "connsTitle" = "Conexões por site";
+"dnsAroundApple" = "Um perfil ou app de DNS neste aparelho (AdGuard, NextDNS, 1.1.1.1, um perfil de escola ou trabalho) responde às buscas de nomes antes do Shroudly, então apps bloqueados podem não abrir. Desative em Ajustes → Geral → VPN e Gerenciamento de Dispositivos (Mac: Ajustes do Sistema → Rede → VPN e Filtros) e inicie o Shroudly de novo.";
+"dnsAroundTitle" = "Algo contorna o Shroudly";
 "dnsKindDoh" = "DNS sobre HTTPS (DoH)";
 "dnsKindDot" = "DNS sobre TLS (DoT)";
 "dnsKindTcp" = "DNS sobre TCP";
@@ -77,10 +79,12 @@
 "lastResortStarting" = "Conectando à rede Tor para os sites que nada mais abre… {progress}%";
 "linkReleases" = "Notas da versão";
 "linkSourceCode" = "Código-fonte no GitHub";
+"linkWebsite" = "Site da Codeshare";
 "madeBy" = "Um produto da Codeshare Technology Ltd";
 "nationalOnlyBody" = "A conexão com o resto do mundo está cortada; os sites do país ainda abrem. Nenhum app nem VPN passa por isso. O Shroudly continua sozinho quando ela voltar.";
 "nationalOnlyHelp" = "O que ainda pode ajudar";
 "nationalOnlyTitle" = "Só a rede deste país funciona";
+"navFollow" = "Seguir";
 "navInfo" = "Sobre";
 "navSettings" = "Ajustes";
 "navStats" = "Métricas";
@@ -106,6 +110,7 @@
 "ownServerWhySilent" = "nada voltou; a senha ou o método podem estar errados";
 "ownServerWhyTls" = "ele responde, mas nenhum site passou por ele";
 "protected" = "Protegido";
+"reopenAppsHint" = "Apps que já estavam abertos: se um não conectar, feche e abra de novo uma vez.";
 "shareOnlineCount" = "Me incluir na contagem ao vivo";
 "shareOnlineCountDesc" = "Envia um número aleatório que muda a cada abertura, para o app poder mostrar quantas cópias estão em execução. Só é enviado com a proteção ligada, então percorre o mesmo caminho protegido do resto do seu tráfego. Desligue se preferir que sua rede não veja nada do Shroudly.";
 "snowflakeCounts" = "Ajudando agora: {now} · Desde que foi ligado: {total}";

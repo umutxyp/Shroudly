@@ -61,6 +61,10 @@ sealed class EngineEvent {
      * once while it keeps carrying it), or nothing listening there (not ok:
      * Tor is started for the next connection). */
     data class Fallback(val ok: Boolean, val host: String, val why: String) : EngineEvent()
+    /* Apps' lookups go around the tunnel (a Private DNS server, a DNS app):
+     * their connections keep coming by address, none by name (dns_way in
+     * core/src/engine.c). Once a run. */
+    data class DnsAround(val host: String) : EngineEvent()
     /* What became of the ad and tracker list (ADBLOCK, --adblock), and the
      * engine's verdict on a fetched one (ADBLOCK-CHECK). Never a path. */
     data class Adblock(val on: Boolean, val entries: Long, val error: String?) : EngineEvent()
@@ -108,6 +112,7 @@ sealed class EngineEvent {
                 "error" -> Error(str("msg") ?: "code ${num("code")}", (m["code"] as? Number)?.toInt())
                 "upstream" -> Upstream(num("ok") != 0L, str("why") ?: "")
                 "fallback" -> Fallback(num("ok") != 0L, str("host") ?: "", str("why") ?: "")
+                "dns_around" -> DnsAround(str("host") ?: "")
                 "conn" -> Conn(Conns.Row(str("host") ?: "", num("active").toInt(), num("conns"), num("up"), num("down"),
                     str("route") ?: "direct", num("blocked") != 0L, num("refused")))
                 "conns_end" -> ConnsEnd(num("n").toInt())

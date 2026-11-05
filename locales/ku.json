@@ -8,6 +8,7 @@
   "navStats": "Amar",
   "navSettings": "Mîheng",
   "navLogs": "Tomar",
+  "navFollow": "Bişopîne",
   "navInfo": "Derbarê",
   "protected": "Parastî",
   "notProtected": "Ne parastî",
@@ -935,5 +936,11 @@
   "followDesc": "Nûçeyên li ser astengkirinan, guhertoyên nû û rêyên derbasbûnê pêşî li vir. Şopandin û parvekirin rêya gihîştina Shroudly ya bi kesên ku hewcedarê wê ne ye, û bêpere ye.",
   "followCodeshare": "Codeshare, ku Shroudly çêdike",
   "followDeveloper": "Umut Bayraktar, pêşvebirê Shroudly",
-  "followTv": "Van li ser telefon an komputera xwe veke:"
+  "followTv": "Van li ser telefon an komputera xwe veke:",
+  "lastResortOldWindows": "Tor êdî li Windows 7 û 8 naxebite, ji ber vê yekê li vir nayê bikaranîn; her tiştê din dixebite. Li Windows 10 û nûtir tê bikaranîn.",
+  "lastResortNoTor": "Projeya Tor ji bo vê pêvajoyê Tor çênake, ji ber vê yekê li vir nayê bikaranîn; her tiştê din dixebite.",
+  "dnsAroundAndroid": "Li ser vê amûrê tiştekî din bersiva lêgerînên navan ên sepanan dide (DNS-a taybet an sepaneke DNS), ji ber vê yekê dibe ku sepanên astengkirî venebin. Di Mîheng → Tor → DNS-a taybet de Girtî an Xweber hilbijêre, sepanên DNS bigire, paşê Shroudly dîsa bide destpêkirin.",
+  "dnsAroundApple": "Profîl an sepaneke DNS li ser vê amûrê (AdGuard, NextDNS, 1.1.1.1, profîlek dibistanê an karê) berî Shroudly bersiva lêgerînên navan dide, ji ber vê yekê dibe ku sepanên astengkirî venebin. Wê di Mîheng → Giştî → VPN û Rêveberiya Amûrê de bigire (Mac: Mîhengên Pergalê → Tor → VPN û Parzûn), paşê Shroudly dîsa bide destpêkirin.",
+  "dnsAroundTitle": "Tiştek li dora Shroudly diçe",
+  "reopenAppsHint": "Sepanên ku berê vekirî bûn: heke yek girê nede, wê bigire û carekê dîsa veke."
 }

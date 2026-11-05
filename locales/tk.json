@@ -8,6 +8,7 @@
   "navStats": "Statistika",
   "navSettings": "Sazlamalar",
   "navLogs": "Ýazgylar",
+  "navFollow": "Yzarla",
   "navInfo": "Maglumat",
   "protected": "Goragly",
   "notProtected": "Goragsyz",
@@ -935,5 +936,11 @@
   "followDesc": "Petiklemeler, täze wersiýalar we aýlanyp geçmegiň ýollary barada habarlar ilki şu ýerde. Yzarlamak we paýlaşmak Shroudly-niň oňa mätäç adamlara ýetmegine kömek edýär we mugt.",
   "followCodeshare": "Shroudly-ni döredýän Codeshare",
   "followDeveloper": "Shroudly-niň işläp düzüjisi Umut Baýraktar",
-  "followTv": "Bulary telefonyňyzda ýa-da kompýuteriňizde açyň:"
+  "followTv": "Bulary telefonyňyzda ýa-da kompýuteriňizde açyň:",
+  "lastResortOldWindows": "Tor indi Windows 7 we 8-de işlemeýär, şonuň üçin bu ýerde ulanylmaýar; beýleki zatlaryň hemmesi işleýär. Windows 10 we ondan täzesinde ulanylýar.",
+  "lastResortNoTor": "Tor taslamasy bu prosessor üçin Tor çykarmaýar, şonuň üçin bu ýerde ulanylmaýar; beýleki zatlaryň hemmesi işleýär.",
+  "dnsAroundAndroid": "Bu enjamda programmalaryň at soraglaryna başga bir zat jogap berýär (Hususy DNS ýa-da DNS programmasy), şonuň üçin petiklenen programmalar açylman biler. Sazlamalar → Tor → Hususy DNS bölüminde «Öçük» ýa-da «Awtomatik» saýlaň, DNS programmalaryny ýapyň, soňra Shroudly-ni täzeden başladyň.",
+  "dnsAroundApple": "Bu enjamdaky DNS profili ýa-da programmasy (AdGuard, NextDNS, 1.1.1.1, mekdep ýa-da iş profili) at soraglaryna Shroudly-den öň jogap berýär, şonuň üçin petiklenen programmalar açylman biler. Ony Sazlamalar → Umumy → VPN we enjamy dolandyrmak bölüminde öçüriň (Mac: Ulgam sazlamalary → Tor → VPN we süzgüçler), soňra Shroudly-ni täzeden başladyň.",
+  "dnsAroundTitle": "Bir zat Shroudly-ni aýlanyp geçýär",
+  "reopenAppsHint": "Öň açyk duran programmalar: biri birikmese, ony ýapyp, bir gezek täzeden açyň."
 }

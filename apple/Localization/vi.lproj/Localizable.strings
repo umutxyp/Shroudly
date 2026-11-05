@@ -42,6 +42,8 @@
 "connsSystem" = "Shroudly dùng";
 "connsSystemConfirm" = "Chính Shroudly dùng {host}. Chặn nó có thể làm hỏng DNS mã hoá, cập nhật hoặc lối thoát cuối cùng, và các trang có thể không mở được. Vẫn chặn?";
 "connsTitle" = "Kết nối theo trang";
+"dnsAroundApple" = "Một hồ sơ hoặc ứng dụng DNS trên thiết bị này (AdGuard, NextDNS, 1.1.1.1, hồ sơ trường học hoặc công ty) trả lời việc tra cứu tên trước Shroudly, nên ứng dụng bị chặn có thể không mở được. Hãy tắt nó trong Cài đặt → Cài đặt chung → VPN & Quản lý thiết bị (Mac: Cài đặt hệ thống → Mạng → VPN & Bộ lọc), rồi khởi động lại Shroudly.";
+"dnsAroundTitle" = "Có thứ đang đi vòng qua Shroudly";
 "dnsKindDoh" = "DNS qua HTTPS (DoH)";
 "dnsKindDot" = "DNS qua TLS (DoT)";
 "dnsKindTcp" = "DNS qua TCP";
@@ -77,10 +79,12 @@
 "lastResortStarting" = "Đang kết nối mạng Tor cho các trang không mở được bằng cách khác… {progress}%";
 "linkReleases" = "Ghi chú phát hành";
 "linkSourceCode" = "Mã nguồn trên GitHub";
+"linkWebsite" = "Trang web Codeshare";
 "madeBy" = "Một sản phẩm của Codeshare Technology Ltd";
 "nationalOnlyBody" = "Kết nối với phần còn lại của thế giới đã bị cắt; các trang trong nước vẫn mở được. Không ứng dụng hay VPN nào vượt qua được điều này. Shroudly sẽ tự tiếp tục khi kết nối trở lại.";
 "nationalOnlyHelp" = "Điều gì vẫn có thể giúp";
 "nationalOnlyTitle" = "Chỉ mạng trong nước hoạt động";
+"navFollow" = "Theo dõi";
 "navInfo" = "Giới thiệu";
 "navSettings" = "Cài đặt";
 "navStats" = "Thống kê";
@@ -106,6 +110,7 @@
 "ownServerWhySilent" = "không có gì trả về; có thể mật khẩu hoặc phương thức bị sai";
 "ownServerWhyTls" = "nó trả lời, nhưng không trang nào đi qua được";
 "protected" = "Đang được bảo vệ";
+"reopenAppsHint" = "Ứng dụng đã mở từ trước: nếu một ứng dụng không kết nối được, hãy đóng rồi mở lại một lần.";
 "shareOnlineCount" = "Tính tôi vào tổng số trực tuyến";
 "shareOnlineCountDesc" = "Gửi một số ngẫu nhiên thay đổi sau mỗi lần mở ứng dụng, để ứng dụng có thể hiển thị số bản đang chạy. Số này chỉ được gửi khi đang bật bảo vệ, nên nó đi qua cùng đường truyền được bảo vệ như phần còn lại trong lưu lượng của bạn. Hãy tắt tùy chọn này nếu bạn không muốn mạng của mình thấy bất cứ thứ gì từ Shroudly.";
 "snowflakeCounts" = "Đang giúp: {now} · Từ khi bật: {total}";

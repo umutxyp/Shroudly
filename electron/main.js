@@ -77,6 +77,7 @@ const { ProtectionKeeper } = require('./protection-keeper');
 const { StoreSuggest } = require('./store-suggest');
 const TorRoute = require('./tor-route');
 const TorDownload = require('./tor-download');
+const TorFiles = require('./tor-files');
 
 /* "Shroudly --restore-proxy" runs once at login after a run that never got to
  * restore the system proxy (power loss, forced reboot), and from the watchdog
@@ -514,6 +515,22 @@ function torUsed(host) {
   autoTell('torUsedDesktop', { host: h });
 }
 
+/* A small JSON document over HTTPS. Node's https rather than fetch(): the
+ * Windows 7 and 8 build runs Electron 22, whose Node (16) has no fetch. */
+function getJson(url, timeout) {
+  return new Promise((resolve, reject) => {
+    const req = require('https').get(url, { headers: { 'cache-control': 'no-store' } }, (res) => {
+      if (res.statusCode !== 200) { res.resume(); reject(new Error(`HTTP ${res.statusCode}`)); return; }
+      let body = '';
+      res.setEncoding('utf8');
+      res.on('data', (d) => { body += d; if (body.length > 1 << 20) req.destroy(new Error('too large')); });
+      res.on('end', () => { try { resolve(JSON.parse(body)); } catch (e) { reject(e); } });
+    });
+    req.setTimeout(timeout, () => req.destroy(new Error('timed out')));
+    req.on('error', reject);
+  });
+}
+
 /* Advanced mode on or off, told to the window. Where the system proxy is
  * set by the computer's administrator (system-proxy.js, machine_policy) it
  * is what carries browsers, so the tray and the status follow it too. */
@@ -777,8 +794,11 @@ let sessionWatch = null;
 function watchSessionEnd() {
   if (process.platform !== 'win32' || sessionWatch) return;
   try {
-    const { BaseWindow } = require('electron');
-    sessionWatch = new BaseWindow({ show: false, width: 1, height: 1, frame: false, skipTaskbar: true, focusable: false });
+    // BaseWindow (no web content) came in Electron 30; the Windows 7 and 8
+    // build (Electron 22) keeps an empty, hidden BrowserWindow instead.
+    const { BaseWindow, BrowserWindow: Plain } = require('electron');
+    const Watch = BaseWindow || Plain;
+    sessionWatch = new Watch({ show: false, width: 1, height: 1, frame: false, skipTaskbar: true, focusable: false });
     sessionWatch.on('query-session-end', () => { keepDiscordLine = discordLineOutlivesSession(); });
     sessionWatch.on('session-end', restoreForSessionEnd);
   } catch (e) { addLog('warning', `Logoff watch not available: ${e.message}`); }
@@ -1235,7 +1255,9 @@ app.whenReady().then(async () => {
     onChange: () => toWindow('dpi:status-changed', !!(engine && engine.isActive())),
     // Fetched the first time it is needed (issue #75), through the engine
     // while it runs, so a network that blocks torproject.org does not stop it.
-    fetch: (dir, onProgress) => TorDownload.ensure(dir, {
+    // Not on Windows 7 and 8: the Tor Project's Tor no longer runs there
+    // (torOldWindows), so there is nothing to fetch.
+    fetch: torUnsupported() ? null : (dir, onProgress) => TorDownload.ensure(dir, {
       socksPort: engine && engine.isActive() ? engine.port : 0,
       connect: (port, host, p) => (port ? DiscordRelay.socksConnect(port, host, p) : new Promise((resolve, reject) => {
         const sock = require('net').connect(p, host, () => resolve(sock)); sock.once('error', reject);
@@ -1766,11 +1788,7 @@ function macStoreSuggest() {
       packaged: app.isPackaged,
       mas: !!process.mas,
       country: () => app.getLocaleCountryCode(),
-      fetchJson: async (url) => {
-        const res = await fetch(url, { signal: AbortSignal.timeout(8000), cache: 'no-store' });
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        return res.json();
-      },
+      fetchJson: (url) => getJson(url, 8000),
     });
   }
   return storeSuggest;
@@ -3296,7 +3314,17 @@ ipcMain.handle('conns:list', async () => {
 });
 /* Settings, the last way out: whether Tor is on this computer yet, and
  * fetching it ahead of time ("Prepare it now", issue #75). */
+/* Windows 7, 8 and 8.1 (the legacy build): Tor 16 needs Windows 10. */
+function torOldWindows() {
+  return process.platform === 'win32' && Number(String(require('os').release()).split('.')[0]) < 10;
+}
+/* No Tor for this system: Windows 7 and 8, or a processor the Tor Project
+ * builds no Tor for (32-bit ARM Linux). */
+function torUnsupported() {
+  return torOldWindows() || !TorFiles.DESKTOP[TorDownload.target()];
+}
 ipcMain.handle('tor:status', () => {
+  if (torUnsupported()) return { present: false, state: 'off', progress: 0, unsupported: torOldWindows() ? 'windows' : 'arch' };
   const t = engine && engine.tor;
   return t ? { present: t.present(), state: t.status().state, progress: t.status().progress } : { present: false, state: 'off', progress: 0 };
 });

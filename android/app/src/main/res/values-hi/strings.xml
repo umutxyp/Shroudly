@@ -123,6 +123,7 @@
     <string name="connsSystem">Shroudly इस्तेमाल करता है</string>
     <string name="connsSystemConfirm">Shroudly ख़ुद {host} का उपयोग करता है। इसे ब्लॉक करने से एन्क्रिप्टेड DNS, अपडेट या आख़िरी रास्ता टूट सकता है और साइटें खुलना बंद हो सकती हैं। फिर भी ब्लॉक करें?</string>
     <string name="connsTitle">साइट के अनुसार कनेक्शन</string>
+    <string name="dnsAroundAndroid">इस डिवाइस पर ऐप्स के नाम-लुकअप का जवाब कुछ और दे रहा है (प्राइवेट DNS या कोई DNS ऐप), इसलिए ब्लॉक ऐप्स शायद न खुलें। सेटिंग्स → नेटवर्क → प्राइवेट DNS में बंद या ऑटोमैटिक चुनें, DNS ऐप्स बंद करें, फिर Shroudly दोबारा शुरू करें।</string>
     <string name="dnsErrorEmpty">सर्वर का पता लिखें, जैसे {example}।</string>
     <string name="dnsErrorHost">यह न IP पता है न सर्वर का नाम; इसे {example} की तरह लिखें।</string>
     <string name="dnsErrorPort">पोर्ट 1 से 65535 के बीच की कोई संख्या होनी चाहिए।</string>
@@ -169,10 +170,12 @@
     <string name="lastResortStarting" formatted="false">जो साइटें किसी और तरह नहीं खुलतीं, उनके लिए Tor नेटवर्क से जुड़ रहा है… {progress}%</string>
     <string name="linkReleases">रिलीज़ नोट्स</string>
     <string name="linkSourceCode">GitHub पर सोर्स कोड</string>
+    <string name="linkWebsite">Codeshare वेबसाइट</string>
     <string name="madeBy">Codeshare Technology Ltd का एक उत्पाद</string>
     <string name="nationalOnlyBody">बाकी दुनिया से कनेक्शन कटा हुआ है; देश के अंदर की साइटें अब भी खुलती हैं। कोई ऐप या VPN इसे पार नहीं कर सकता। कनेक्शन लौटने पर Shroudly अपने-आप जारी रखेगा।</string>
     <string name="nationalOnlyHelp">अब भी क्या मदद कर सकता है</string>
     <string name="nationalOnlyTitle">केवल इस देश का नेटवर्क चल रहा है</string>
+    <string name="navFollow">फ़ॉलो</string>
     <string name="navInfo">परिचय</string>
     <string name="navProtection">सुरक्षा</string>
     <string name="navSettings">सेटिंग्स</string>
@@ -202,6 +205,7 @@
     <string name="ownServerWhyTls">यह जवाब देता है, पर इसके ज़रिए कोई साइट नहीं खुली</string>
     <string name="protected_">सुरक्षित</string>
     <string name="protectionStopped">सुरक्षा बंद हो गई</string>
+    <string name="reopenAppsHint">जो ऐप पहले से खुले थे: अगर कोई कनेक्ट न हो, तो उसे बंद करके एक बार फिर खोलें।</string>
     <string name="searchApps">ऐप खोजें</string>
     <string name="shareApp">Shroudly साझा करें</string>
     <string name="shareAppText">ब्लॉक की गई साइटें और ऐप खोलने के लिए Android के लिए Shroudly {version}। इंस्टॉल करने के लिए यह फ़ाइल खोलें; फ़ोन पूछे तो इस स्रोत से ऐप इंस्टॉल करने की अनुमति दें।</string>

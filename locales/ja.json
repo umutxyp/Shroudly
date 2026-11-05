@@ -8,6 +8,7 @@
   "navStats": "統計",
   "navSettings": "設定",
   "navLogs": "ログ",
+  "navFollow": "フォロー",
   "navInfo": "情報",
   "protected": "保護されています",
   "notProtected": "保護されていません",
@@ -935,5 +936,11 @@
   "followDesc": "ブロック、新しいバージョン、通り抜ける方法のニュースをいち早く。フォローとシェアが、Shroudly を必要としている人に届ける方法で、費用は一切かかりません。",
   "followCodeshare": "Shroudly を作っている Codeshare",
   "followDeveloper": "Shroudly の開発者 Umut Bayraktar",
-  "followTv": "スマートフォンやパソコンで開いてください："
+  "followTv": "スマートフォンやパソコンで開いてください：",
+  "lastResortOldWindows": "Tor は Windows 7 と 8 では動作しなくなったため、ここでは使われません。それ以外はすべて動作します。Windows 10 以降では使えます。",
+  "lastResortNoTor": "Tor プロジェクトはこのプロセッサ向けの Tor を出していないため、ここでは使われません。それ以外はすべて動作します。",
+  "dnsAroundAndroid": "このデバイスでは、アプリの名前の問い合わせに別のもの（プライベート DNS や DNS アプリ）が答えているため、ブロックされたアプリが開かないことがあります。設定 → ネットワーク → プライベート DNS で「オフ」か「自動」を選び、DNS アプリを閉じてから Shroudly を起動し直してください。",
+  "dnsAroundApple": "このデバイスの DNS プロファイルやアプリ（AdGuard、NextDNS、1.1.1.1、学校や職場のプロファイル）が Shroudly より先に名前の問い合わせに答えているため、ブロックされたアプリが開かないことがあります。設定 → 一般 → VPN とデバイス管理 でオフにし（Mac：システム設定 → ネットワーク → VPN とフィルタ）、Shroudly を起動し直してください。",
+  "dnsAroundTitle": "何かが Shroudly を迂回しています",
+  "reopenAppsHint": "すでに開いていたアプリ：つながらないものがあれば、一度閉じて開き直してください。"
 }

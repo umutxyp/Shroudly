@@ -123,6 +123,7 @@
     <string name="connsSystem">Shroudly 使用</string>
     <string name="connsSystemConfirm">Shroudly 本身在使用 {host}。屏蔽它可能导致加密 DNS、更新或最后的通道失效,网站可能打不开。仍要屏蔽吗?</string>
     <string name="connsTitle">按网站的连接</string>
+    <string name="dnsAroundAndroid">此设备上有其他东西在回答应用的域名查询（私人 DNS 或 DNS 应用），因此被封锁的应用可能打不开。请在 设置 → 网络 → 私人 DNS 中选择“关闭”或“自动”，关闭 DNS 应用，然后重新启动 Shroudly。</string>
     <string name="dnsErrorEmpty">请输入服务器地址，例如 {example}。</string>
     <string name="dnsErrorHost">这既不是 IP 地址也不是服务器名称；请按 {example} 的格式输入。</string>
     <string name="dnsErrorPort">端口必须是 1 到 65535 之间的数字。</string>
@@ -169,10 +170,12 @@
     <string name="lastResortStarting" formatted="false">正在为其他方法打不开的网站连接 Tor 网络… {progress}%</string>
     <string name="linkReleases">版本说明</string>
     <string name="linkSourceCode">GitHub 上的源代码</string>
+    <string name="linkWebsite">Codeshare 网站</string>
     <string name="madeBy">Codeshare Technology Ltd 出品</string>
     <string name="nationalOnlyBody">与世界其他地区的连接已被切断；国内网站仍可打开。任何应用或 VPN 都无法绕过。连接恢复后，Shroudly 会自动继续。</string>
     <string name="nationalOnlyHelp">还有什么能帮上忙</string>
     <string name="nationalOnlyTitle">只有本国网络可用</string>
+    <string name="navFollow">关注</string>
     <string name="navInfo">关于</string>
     <string name="navProtection">保护</string>
     <string name="navSettings">设置</string>
@@ -202,6 +205,7 @@
     <string name="ownServerWhyTls">它有响应，但没有网站能通过它打开</string>
     <string name="protected_">已受保护</string>
     <string name="protectionStopped">保护已停止</string>
+    <string name="reopenAppsHint">之前已经打开的应用：如果有一个连不上，请关闭后重新打开一次。</string>
     <string name="searchApps">搜索应用</string>
     <string name="shareApp">分享 Shroudly</string>
     <string name="shareAppText">Shroudly {version} Android 版，用于打开被封锁的网站和应用。安装时打开此文件；如果手机询问，请允许安装来自此来源的应用。</string>

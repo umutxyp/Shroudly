@@ -42,6 +42,8 @@
 "connsSystem" = "Shroudly bi kar tîne";
 "connsSystemConfirm" = "Shroudly bi xwe {host} bi kar tîne. Astengkirina wê dikare DNS-a şîfrekirî, nûvekirin an riya dawî xera bike û dibe ku malper venebin. Dîsa jî were astengkirin?";
 "connsTitle" = "Girêdan li gorî malperê";
+"dnsAroundApple" = "Profîl an sepaneke DNS li ser vê amûrê (AdGuard, NextDNS, 1.1.1.1, profîlek dibistanê an karê) berî Shroudly bersiva lêgerînên navan dide, ji ber vê yekê dibe ku sepanên astengkirî venebin. Wê di Mîheng → Giştî → VPN û Rêveberiya Amûrê de bigire (Mac: Mîhengên Pergalê → Tor → VPN û Parzûn), paşê Shroudly dîsa bide destpêkirin.";
+"dnsAroundTitle" = "Tiştek li dora Shroudly diçe";
 "dnsKindDoh" = "DNS li ser HTTPS (DoH)";
 "dnsKindDot" = "DNS li ser TLS (DoT)";
 "dnsKindTcp" = "DNS li ser TCP";
@@ -77,10 +79,12 @@
 "lastResortStarting" = "Ji bo malperên ku bi riyeke din venabin bi tora Tor ve tê girêdan… %{progress}";
 "linkReleases" = "Notên weşanê";
 "linkSourceCode" = "Koda çavkaniyê li GitHubê";
+"linkWebsite" = "Malpera Codeshare";
 "madeBy" = "Berhemeke Codeshare Technology Ltd";
 "nationalOnlyBody" = "Girêdana bi cîhana mayî re qut bûye; malperên hundirê welat hîn vedibin. Tu sepan an VPN nikare vê derbas bike. Dema girêdan vegere, Shroudly bi xwe berdewam dike.";
 "nationalOnlyHelp" = "Hîn çi dikare alîkariyê bike";
 "nationalOnlyTitle" = "Tenê tora vî welatî dixebite";
+"navFollow" = "Bişopîne";
 "navInfo" = "Derbarê";
 "navSettings" = "Mîheng";
 "navStats" = "Amar";
@@ -106,6 +110,7 @@
 "ownServerWhySilent" = "tiştek venegeriya; dibe ku şîfre an rêbaz şaş be";
 "ownServerWhyTls" = "ew bersiv dide, lê tu malper di ser wê re nehat";
 "protected" = "Parastî";
+"reopenAppsHint" = "Sepanên ku berê vekirî bûn: heke yek girê nede, wê bigire û carekê dîsa veke.";
 "shareOnlineCount" = "Min jî têxe hejmara zindî";
 "shareOnlineCountDesc" = "Hejmareke rasthatî ya ku her carê sepan vedibe diguhere dişîne, da ku sepan nîşan bide çend kopî dixebitin. Ew tenê dema parastin çalak e tê şandin, ji ber vê yekê ew jî wekî trafîka te ya din di heman rêya parastî de diçe. Heke tu dixwazî tora te qet tiştekî ji Shroudly nebîne, vê neçalak bike.";
 "snowflakeCounts" = "Niha alîkarî tê kirin: {now} · Ji dema vekirinê ve: {total}";

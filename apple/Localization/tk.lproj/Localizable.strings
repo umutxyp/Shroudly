@@ -42,6 +42,8 @@
 "connsSystem" = "Shroudly ulanýar";
 "connsSystemConfirm" = "Shroudly {host} salgysyny özi ulanýar. Bloklamak şifrlenen DNS-i, täzelenmeleri ýa-da soňky ýoly bozup biler, saýtlar açylmazlygy mümkin. Şonda-da bloklansynmy?";
 "connsTitle" = "Saýtlar boýunça birikmeler";
+"dnsAroundApple" = "Bu enjamdaky DNS profili ýa-da programmasy (AdGuard, NextDNS, 1.1.1.1, mekdep ýa-da iş profili) at soraglaryna Shroudly-den öň jogap berýär, şonuň üçin petiklenen programmalar açylman biler. Ony Sazlamalar → Umumy → VPN we enjamy dolandyrmak bölüminde öçüriň (Mac: Ulgam sazlamalary → Tor → VPN we süzgüçler), soňra Shroudly-ni täzeden başladyň.";
+"dnsAroundTitle" = "Bir zat Shroudly-ni aýlanyp geçýär";
 "dnsKindDoh" = "HTTPS arkaly DNS (DoH)";
 "dnsKindDot" = "TLS arkaly DNS (DoT)";
 "dnsKindTcp" = "TCP arkaly DNS";
@@ -77,10 +79,12 @@
 "lastResortStarting" = "Başga ýol bilen açylmaýan saýtlar üçin Tor ulgamyna birikýär… {progress}%";
 "linkReleases" = "Wersiýa bellikleri";
 "linkSourceCode" = "GitHub-daky çeşme kody";
+"linkWebsite" = "Codeshare web sahypasy";
 "madeBy" = "Codeshare Technology Ltd önümi";
 "nationalOnlyBody" = "Dünýäniň galan bölegi bilen baglanyşyk kesildi; ýurduň içindäki saýtlar entek açylýar. Muny hiç bir programma ýa-da VPN aýlanyp geçip bilmez. Baglanyşyk gaýdyp gelende Shroudly özi dowam edýär.";
 "nationalOnlyHelp" = "Ýene näme kömek edip biler";
 "nationalOnlyTitle" = "Diňe şu ýurduň tory işleýär";
+"navFollow" = "Yzarla";
 "navInfo" = "Maglumat";
 "navSettings" = "Sazlamalar";
 "navStats" = "Statistika";
@@ -106,6 +110,7 @@
 "ownServerWhySilent" = "hiç zat gaýdyp gelmedi; parol ýa-da usul nädogry bolup biler";
 "ownServerWhyTls" = "ol jogap berýär, ýöne onuň üsti bilen hiç bir saýt gelmedi";
 "protected" = "Goragly";
+"reopenAppsHint" = "Öň açyk duran programmalar: biri birikmese, ony ýapyp, bir gezek täzeden açyň.";
 "shareOnlineCount" = "Meni onlaýn sana goşmak";
 "shareOnlineCountDesc" = "Her işledilende üýtgeýän tötänleýin san iberilýär, şonuň üçin programma özüniň näçe nusgasynyň işleýändigini görkezip bilýär. Ol diňe gorag açyk wagty iberilýär, şonuň üçin beýleki trafigiňiz ýaly şol goralýan ýol bilen geçýär. Toruňyzyň Shroudly-den asla hiç zat görmezligini isleseňiz, muny öçüriň.";
 "snowflakeCounts" = "Häzir kömek edilýän: {now} · Açylaly bäri: {total}";

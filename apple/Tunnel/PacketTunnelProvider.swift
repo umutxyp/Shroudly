@@ -38,6 +38,8 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
 
     private let queue = DispatchQueue(label: "me.codeshare.shroudly.tunnel")
     // The last way out (TorRoute): Tor, for sites nothing else opened.
+    /* Apps' lookups go around the tunnel (Engine.onDnsAround); reset at stop. */
+    private var dnsAround = false
     private lazy var torRoute: TorRoute = {
         let t = TorRoute(log: { [weak self] in self?.log($0) })
         t.usedCount = { [weak self] in ((self?.engine?.lastStats?["fallback"]) as? NSNumber)?.int64Value ?? 0 }
@@ -162,6 +164,7 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
         ssClient?.stop(); ssClient = nil
         torRoute.stop()
         TorNotice.reset()
+        dnsAround = false
         upstreamLine = nil
         clearOwnServerDown()
         return clean
@@ -198,6 +201,11 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
             if upstreamPath == nil && settings.torLastResort {
                 let path = FileManager.default.temporaryDirectory.appendingPathComponent("engine-fallback").path
                 if torRoute.prepare(file: path) { fallbackPath = path }
+            }
+            e.onDnsAround = { [weak self] _ in
+                guard let self else { return }
+                self.queue.async { self.dnsAround = true }
+                TorNotice.post(key: TorNotice.dnsTextKey, id: "dns-around")
             }
             e.onFallback = { [weak self] ok, what in
                 guard let self else { return }
@@ -545,6 +553,8 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
                     var out: [String: Any] = ["stats": s]
                     // The last way out at work, for a line under the status.
                     if let t = torRoute.status { out["lastResort"] = t }
+                    // A DNS profile or app goes around the tunnel (ContentView's card).
+                    if dnsAround { out["dnsAround"] = true }
                     completionHandler?(try? JSONSerialization.data(withJSONObject: out))
                 }
                 return

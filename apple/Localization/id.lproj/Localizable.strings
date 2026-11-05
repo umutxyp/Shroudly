@@ -42,6 +42,8 @@
 "connsSystem" = "dipakai Shroudly";
 "connsSystemConfirm" = "Shroudly sendiri memakai {host}. Memblokirnya bisa merusak DNS terenkripsi, pembaruan, atau jalan terakhir, dan situs bisa berhenti terbuka. Tetap blokir?";
 "connsTitle" = "Koneksi per situs";
+"dnsAroundApple" = "Profil atau aplikasi DNS di perangkat ini (AdGuard, NextDNS, 1.1.1.1, profil sekolah atau kantor) menjawab pencarian nama sebelum Shroudly, jadi aplikasi yang diblokir mungkin tidak terbuka. Matikan di Pengaturan → Umum → VPN & Manajemen Perangkat (Mac: Pengaturan Sistem → Jaringan → VPN & Filter), lalu mulai Shroudly lagi.";
+"dnsAroundTitle" = "Ada yang melewati Shroudly";
 "dnsKindDoh" = "DNS lewat HTTPS (DoH)";
 "dnsKindDot" = "DNS lewat TLS (DoT)";
 "dnsKindTcp" = "DNS lewat TCP";
@@ -77,10 +79,12 @@
 "lastResortStarting" = "Menghubungkan ke jaringan Tor untuk situs yang tidak terbuka dengan cara lain… {progress}%";
 "linkReleases" = "Catatan rilis";
 "linkSourceCode" = "Kode sumber di GitHub";
+"linkWebsite" = "Situs web Codeshare";
 "madeBy" = "Produk dari Codeshare Technology Ltd";
 "nationalOnlyBody" = "Koneksi ke seluruh dunia terputus; situs di dalam negeri masih terbuka. Tidak ada aplikasi atau VPN yang bisa melewatinya. Shroudly melanjutkan sendiri saat koneksi kembali.";
 "nationalOnlyHelp" = "Yang masih bisa membantu";
 "nationalOnlyTitle" = "Hanya jaringan negara ini yang berfungsi";
+"navFollow" = "Ikuti";
 "navInfo" = "Tentang";
 "navSettings" = "Pengaturan";
 "navStats" = "Statistik";
@@ -106,6 +110,7 @@
 "ownServerWhySilent" = "tidak ada yang kembali; kata sandi atau metodenya mungkin salah";
 "ownServerWhyTls" = "server menjawab, tetapi tidak ada situs yang lewat";
 "protected" = "Terlindungi";
+"reopenAppsHint" = "Aplikasi yang sudah terbuka sebelumnya: jika ada yang tidak tersambung, tutup lalu buka lagi sekali.";
 "shareOnlineCount" = "Hitung saya dalam jumlah pengguna online";
 "shareOnlineCountDesc" = "Mengirim angka acak yang berubah setiap kali dibuka, agar aplikasi bisa menampilkan berapa salinan yang sedang berjalan. Hanya dikirim saat perlindungan aktif, jadi melewati jalur terlindungi yang sama dengan lalu lintas Anda. Matikan jika Anda lebih suka jaringan Anda tidak melihat apa pun dari Shroudly.";
 "snowflakeCounts" = "Sedang dibantu: {now} · Sejak diaktifkan: {total}";

@@ -8,6 +8,7 @@
   "navStats": "统计",
   "navSettings": "设置",
   "navLogs": "日志",
+  "navFollow": "关注",
   "navInfo": "关于",
   "protected": "已受保护",
   "notProtected": "未受保护",
@@ -935,5 +936,11 @@
   "followDesc": "封锁消息、新版本和绕过的方法，第一时间知道。关注和分享能让 Shroudly 找到需要它的人，而且不花一分钱。",
   "followCodeshare": "Codeshare，Shroudly 的开发团队",
   "followDeveloper": "Umut Bayraktar，Shroudly 的开发者",
-  "followTv": "请在手机或电脑上打开："
+  "followTv": "请在手机或电脑上打开：",
+  "lastResortOldWindows": "Tor 已不再支持 Windows 7 和 8，因此这里不使用此功能；其他一切照常。Windows 10 及更高版本可以使用。",
+  "lastResortNoTor": "Tor 项目没有为这种处理器提供 Tor，因此这里不使用此功能；其他一切照常。",
+  "dnsAroundAndroid": "此设备上有其他东西在回答应用的域名查询（私人 DNS 或 DNS 应用），因此被封锁的应用可能打不开。请在 设置 → 网络 → 私人 DNS 中选择“关闭”或“自动”，关闭 DNS 应用，然后重新启动 Shroudly。",
+  "dnsAroundApple": "此设备上的 DNS 描述文件或应用（AdGuard、NextDNS、1.1.1.1、学校或工作描述文件）先于 Shroudly 回答域名查询，因此被封锁的应用可能打不开。请在 设置 → 通用 → VPN 与设备管理 中关闭它（Mac：系统设置 → 网络 → VPN 与过滤器），然后重新启动 Shroudly。",
+  "dnsAroundTitle": "有东西绕过了 Shroudly",
+  "reopenAppsHint": "之前已经打开的应用：如果有一个连不上，请关闭后重新打开一次。"
 }

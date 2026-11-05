@@ -123,6 +123,7 @@
     <string name="connsSystem">Shroudly bi kar tîne</string>
     <string name="connsSystemConfirm">Shroudly bi xwe {host} bi kar tîne. Astengkirina wê dikare DNS-a şîfrekirî, nûvekirin an riya dawî xera bike û dibe ku malper venebin. Dîsa jî were astengkirin?</string>
     <string name="connsTitle">Girêdan li gorî malperê</string>
+    <string name="dnsAroundAndroid">Li ser vê amûrê tiştekî din bersiva lêgerînên navan ên sepanan dide (DNS-a taybet an sepaneke DNS), ji ber vê yekê dibe ku sepanên astengkirî venebin. Di Mîheng → Tor → DNS-a taybet de Girtî an Xweber hilbijêre, sepanên DNS bigire, paşê Shroudly dîsa bide destpêkirin.</string>
     <string name="dnsErrorEmpty">Navnîşana pêşkêşkarê binivîse, wekî {example}.</string>
     <string name="dnsErrorHost">Ev ne navnîşana IP ye û ne navê pêşkêşkarê ye; wê wekî {example} binivîse.</string>
     <string name="dnsErrorPort">Port divê hejmarek ji 1 heta 65535 be.</string>
@@ -169,10 +170,12 @@
     <string name="lastResortStarting" formatted="false">Ji bo malperên ku bi riyeke din venabin bi tora Tor ve tê girêdan… %{progress}</string>
     <string name="linkReleases">Notên weşanê</string>
     <string name="linkSourceCode">Koda çavkaniyê li GitHubê</string>
+    <string name="linkWebsite">Malpera Codeshare</string>
     <string name="madeBy">Berhemeke Codeshare Technology Ltd</string>
     <string name="nationalOnlyBody">Girêdana bi cîhana mayî re qut bûye; malperên hundirê welat hîn vedibin. Tu sepan an VPN nikare vê derbas bike. Dema girêdan vegere, Shroudly bi xwe berdewam dike.</string>
     <string name="nationalOnlyHelp">Hîn çi dikare alîkariyê bike</string>
     <string name="nationalOnlyTitle">Tenê tora vî welatî dixebite</string>
+    <string name="navFollow">Bişopîne</string>
     <string name="navInfo">Derbarê</string>
     <string name="navProtection">Parastin</string>
     <string name="navSettings">Mîheng</string>
@@ -202,6 +205,7 @@
     <string name="ownServerWhyTls">ew bersiv dide, lê tu malper di ser wê re nehat</string>
     <string name="protected_">Parastî</string>
     <string name="protectionStopped">Parastin rawestiya</string>
+    <string name="reopenAppsHint">Sepanên ku berê vekirî bûn: heke yek girê nede, wê bigire û carekê dîsa veke.</string>
     <string name="searchApps">Li sepanan bigere</string>
     <string name="shareApp">Shroudly parve bike</string>
     <string name="shareAppText">Shroudly {version} ji bo Android, ji bo vekirina malper û sepanên astengkirî. Ji bo sazkirinê vê pelê veke; heke telefon bipirse, destûrê bide sazkirina sepanan ji vê çavkaniyê.</string>

@@ -4,7 +4,11 @@
  * user), checks the app and its engine, then uninstalls it and checks that
  * the uninstaller cleaned up after Discord app mode: our line gone from
  * Discord's settings.json, everything else in it kept, no byte-order mark.
- *   node scripts/ci-windows-install-test.js x64|arm64 */
+ *   node scripts/ci-windows-install-test.js x64|arm64|ia32|legacy
+ * ia32: the 32-bit installer, on a 64-bit Windows (as 32-bit programs run
+ * there). legacy: the Windows 7 and 8 one (electron-builder-legacy.js), one
+ * installer for both, which puts the 64-bit app on a 64-bit Windows; its
+ * engine carries Windows' Universal C runtime beside it (fetch-ucrt.js). */
 
 const fs = require('fs');
 const os = require('os');
@@ -18,7 +22,8 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 (async () => {
   const dist = path.resolve('dist');
-  const setup = fs.readdirSync(dist).find((f) => f.endsWith(`-Windows-${arch}-Setup.exe`));
+  const legacy = arch === 'legacy';
+  const setup = fs.readdirSync(dist).find((f) => f.endsWith(legacy ? '-Windows7-8-Setup.exe' : `-Windows-${arch}-Setup.exe`));
   if (!setup) fail(`no ${arch} installer in dist/ (${fs.readdirSync(dist).join(', ')})`);
 
   // Discord app mode was on before the user uninstalls.
@@ -49,8 +54,16 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
   }
   ok(`installed to ${dir}`);
 
-  const engine = path.join(dir, 'resources', 'app.asar.unpacked', 'electron', 'tools', 'core', `win32-${arch}`, 'shroudly-core.exe');
+  const engineArch = legacy ? 'x64' : arch;
+  const engine = path.join(dir, 'resources', 'app.asar.unpacked', 'electron', 'tools', 'core', `win32-${engineArch}`, 'shroudly-core.exe');
   if (!fs.existsSync(engine)) fail(`engine missing: ${engine}`);
+  if (legacy) {
+    const crt = fs.readdirSync(path.dirname(engine)).filter((f) => /^(ucrtbase|api-ms-win-crt-[a-z0-9-]+)\.dll$/i.test(f));
+    if (!crt.includes('ucrtbase.dll') || crt.length < 10) fail(`Windows 7 and 8 build: the Universal C runtime is not beside the engine (${crt.join(', ')})`);
+    ok(`the Universal C runtime is beside the engine (${crt.length} files) for Windows 7 and 8`);
+    const ia32 = path.join(dir, 'resources', 'app.asar.unpacked', 'electron', 'tools', 'core', 'win32-ia32', 'shroudly-core.exe');
+    if (fs.existsSync(ia32)) fail('the 64-bit install carries the 32-bit engine too');
+  }
   const ready = await new Promise((resolve) => {
     const p = spawn(engine, ['--listen', '127.0.0.1', '--port', '18765', '--strategy', 'split(sni)'], { stdio: ['pipe', 'pipe', 'pipe'] });
     let out = '';
@@ -60,7 +73,7 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
   });
   if (!ready) fail('installed engine did not start');
   ok('installed engine starts');
-  if (arch === 'x64') {
+  if (engineArch === 'x64') {
     const adv = path.join(path.dirname(engine), 'shroudly-core-adv.exe');
     if (!fs.existsSync(adv)) fail('Advanced mode engine missing');
     for (const f of ['WinDivert.dll', 'WinDivert64.sys']) if (!fs.existsSync(path.join(path.dirname(engine), f))) fail(`${f} missing`);

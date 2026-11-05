@@ -123,6 +123,7 @@
     <string name="connsSystem">Shroudly колдонот</string>
     <string name="connsSystemConfirm">Shroudly {host} дарегин өзү колдонот. Бөгөттөө шифрленген DNS\'ти, жаңыртууларды же акыркы жолду бузушу мүмкүн, сайттар ачылбай калышы мүмкүн. Баары бир бөгөттөлсүнбү?</string>
     <string name="connsTitle">Сайттар боюнча туташуулар</string>
+    <string name="dnsAroundAndroid">Бул түзмөктө колдонмолордун аталыш сурамдарына башка бир нерсе жооп берет (Жеке DNS же DNS колдонмосу), ошондуктан бөгөттөлгөн колдонмолор ачылбашы мүмкүн. Жөндөөлөр → Тармак → Жеке DNS бөлүмүндө «Өчүк» же «Автоматтык» тандаңыз, DNS колдонмолорун жабыңыз, анан Shroudly\'ни кайра иштетиңиз.</string>
     <string name="dnsErrorEmpty">Сервердин дарегин жазыңыз, мисалы {example}.</string>
     <string name="dnsErrorHost">Бул IP дарек да, сервердин аты да эмес; аны {example} сыяктуу жазыңыз.</string>
     <string name="dnsErrorPort">Порт 1ден 65535ке чейинки сан болушу керек.</string>
@@ -169,10 +170,12 @@
     <string name="lastResortStarting" formatted="false">Башкача ачылбаган сайттар үчүн Tor тармагына туташууда… {progress}%</string>
     <string name="linkReleases">Версиялардагы өзгөрүүлөр</string>
     <string name="linkSourceCode">Баштапкы код (GitHub)</string>
+    <string name="linkWebsite">Codeshare сайты</string>
     <string name="madeBy">Codeshare Technology Ltd продуктусу</string>
     <string name="nationalOnlyBody">Дүйнөнүн калган бөлүгү менен байланыш үзүлгөн; өлкө ичиндеги сайттар дагы эле ачылат. Муну эч бир колдонмо же VPN айланып өтө албайт. Байланыш кайтканда Shroudly өзү улантат.</string>
     <string name="nationalOnlyHelp">Дагы эмне жардам берет</string>
     <string name="nationalOnlyTitle">Бул өлкөнүн тармагы гана иштейт</string>
+    <string name="navFollow">Жазылуу</string>
     <string name="navInfo">Маалымат</string>
     <string name="navProtection">Коргоо</string>
     <string name="navSettings">Жөндөөлөр</string>
@@ -202,6 +205,7 @@
     <string name="ownServerWhyTls">ал жооп берет, бирок ал аркылуу бир да сайт ачылган жок</string>
     <string name="protected_">Корголгон</string>
     <string name="protectionStopped">Коргоо токтотулду</string>
+    <string name="reopenAppsHint">Мурун ачык турган колдонмолор: бирөө туташпаса, аны жаап, бир жолу кайра ачыңыз.</string>
     <string name="searchApps">Колдонмо издөө</string>
     <string name="shareApp">Shroudly\'ни бөлүшүү</string>
     <string name="shareAppText">Бөгөттөлгөн сайттарды жана колдонмолорду ачуу үчүн Android\'ге Shroudly {version}. Орнотуу үчүн ушул файлды ачыңыз; телефон сураса, ушул булактан колдонмо орнотууга уруксат бериңиз.</string>

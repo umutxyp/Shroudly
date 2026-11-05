@@ -123,6 +123,7 @@
     <string name="connsSystem">Shroudly ይጠቀማል</string>
     <string name="connsSystemConfirm">Shroudly ራሱ {host}ን ይጠቀማል። ማገዱ የተመሰጠረ DNSን፣ ዝማኔዎችን ወይም የመጨረሻውን መውጫ ሊያበላሽ እና ድረ ገጾች መከፈት ሊያቆሙ ይችላሉ። ቢሆንም ይታገድ?</string>
     <string name="connsTitle">በድረ ገጽ የተከፋፈሉ ግንኙነቶች</string>
+    <string name="dnsAroundAndroid">በዚህ መሣሪያ ላይ ሌላ ነገር የመተግበሪያዎችን የስም ፍለጋ እየመለሰ ነው (Private DNS ወይም የDNS መተግበሪያ)፣ ስለዚህ የታገዱ መተግበሪያዎች ላይከፈቱ ይችላሉ። በቅንብሮች → አውታረ መረብ → Private DNS ውስጥ ጠፍቷል ወይም ራስ-ሰር ይምረጡ፣ የDNS መተግበሪያዎችን ይዝጉ፣ ከዚያ Shroudlyን እንደገና ያስጀምሩ።</string>
     <string name="dnsErrorEmpty">የአገልጋዩን አድራሻ ይጻፉ፣ ለምሳሌ {example}።</string>
     <string name="dnsErrorHost">ይህ የIP አድራሻም የአገልጋይ ስምም አይደለም፤ እንደ {example} ይጻፉት።</string>
     <string name="dnsErrorPort">ፖርቱ ከ1 እስከ 65535 ያለ ቁጥር መሆን አለበት።</string>
@@ -169,10 +170,12 @@
     <string name="lastResortStarting" formatted="false">በሌላ መንገድ ለማይከፈቱ ጣቢያዎች ከTor አውታረ መረብ ጋር በመገናኘት ላይ… {progress}%</string>
     <string name="linkReleases">የልቀት ማስታወሻዎች</string>
     <string name="linkSourceCode">የምንጭ ኮድ በGitHub ላይ</string>
+    <string name="linkWebsite">የCodeshare ድረ-ገጽ</string>
     <string name="madeBy">የCodeshare Technology Ltd ምርት</string>
     <string name="nationalOnlyBody">ከቀረው ዓለም ጋር ያለው ግንኙነት ተቋርጧል፤ በአገር ውስጥ ያሉ ጣቢያዎች አሁንም ይከፈታሉ። ይህን ማንኛውም መተግበሪያ ወይም VPN ሊያልፈው አይችልም። ግንኙነቱ ሲመለስ Shroudly በራሱ ይቀጥላል።</string>
     <string name="nationalOnlyHelp">አሁንም ምን ሊረዳ ይችላል</string>
     <string name="nationalOnlyTitle">የዚህ አገር አውታረ መረብ ብቻ ነው የሚሠራው</string>
+    <string name="navFollow">ይከተሉ</string>
     <string name="navInfo">መረጃ</string>
     <string name="navProtection">ጥበቃ</string>
     <string name="navSettings">ቅንብሮች</string>
@@ -202,6 +205,7 @@
     <string name="ownServerWhyTls">ምላሽ ይሰጣል፣ ግን በእሱ በኩል ምንም ጣቢያ አልመጣም</string>
     <string name="protected_">ተጠብቋል</string>
     <string name="protectionStopped">ጥበቃ ቆሟል</string>
+    <string name="reopenAppsHint">ቀድሞ ክፍት የነበሩ መተግበሪያዎች፦ አንዱ ካልተገናኘ ዝጉትና አንድ ጊዜ እንደገና ይክፈቱት።</string>
     <string name="searchApps">መተግበሪያ ፈልግ</string>
     <string name="shareApp">Shroudlyን አጋራ</string>
     <string name="shareAppText">የታገዱ ጣቢያዎችን እና መተግበሪያዎችን ለመክፈት Shroudly {version} ለAndroid። ለመጫን ይህን ፋይል ይክፈቱ፤ ስልኩ ከጠየቀ ከዚህ ምንጭ መተግበሪያዎችን መጫን ይፍቀዱ።</string>

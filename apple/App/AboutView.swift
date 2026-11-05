@@ -29,18 +29,15 @@ struct AboutView: View {
                     }
                 }
             }
-            Section {
-                NavigationLink {
-                    FollowView()
-                } label: {
-                    Label(tr("followTitle"), systemImage: "person.2")
-                }
-            }
             Section(tr("openSourceTitle")) {
                 Text(tr("openSourceDesc")).font(.footnote).foregroundStyle(Theme.secondaryText)
                 WebLink(url: Ids.repoURL) { Label(tr("linkSourceCode"), systemImage: "chevron.left.forwardslash.chevron.right") }
                 WebLink(url: Ids.privacyURL) { Label(tr("androidPrivacyPolicy"), systemImage: "hand.raised") }
                 WebLink(url: Ids.releasesURL) { Label(tr("linkReleases"), systemImage: "doc.text") }
+                // Who makes it: Codeshare's own site.
+                if let site = URL(string: "https://codeshare.me") {
+                    WebLink(url: site) { Label(tr("linkWebsite"), systemImage: "globe") }
+                }
                 // The licences of what is built in (Notices.txt, as Android's res/raw/notices.txt).
                 NavigationLink {
                     ScrollView {

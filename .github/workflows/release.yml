@@ -86,6 +86,20 @@ jobs:
         if: matrix.platform == 'win'
         run: npx electron-builder --win --publish never
 
+      # Windows 7, 8 and 8.1: the same app on Electron 22, the last that runs
+      # there (electron-builder-legacy.js), with Windows' Universal C runtime
+      # beside the engine (fetch-ucrt.js; after the Windows 10 build, which
+      # does not carry it). One installer for 32- and 64-bit, and its own
+      # update feed (legacy.yml).
+      - name: Package (Windows 7 and 8)
+        if: matrix.platform == 'win'
+        shell: bash
+        run: |
+          set -euo pipefail
+          node scripts/fetch-ucrt.js
+          npx electron-builder --win --publish never -c electron-builder-legacy.js
+          cp dist-legacy/*-Windows7-8-Setup.exe dist-legacy/legacy.yml dist/
+
       # Signed with the Developer ID and notarized by Apple once those secrets
       # are set (apple/APP_STORE.md, step 6): no "unidentified developer" on
       # the first start. Until then ad-hoc signed, as before.
@@ -316,6 +330,24 @@ jobs:
           fi
           echo "ok  the server helper set up, running as its own user, and removed"
 
+  # 32-bit ARM Linux (armhf: Raspberry Pi OS 32-bit and the like). GitHub has
+  # no such machine, so a 32-bit ARM Debian runs under QEMU: the AppImage is
+  # unpacked there by its own runtime, its engine starts, and the .deb says
+  # armhf.
+  appimage-armv7l:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/download-artifact@v8
+        with:
+          name: dist-linux
+          path: dist
+      - name: 32-bit ARM in QEMU
+        run: docker run --privileged --rm tonistiigi/binfmt --install arm
+      - name: The armv7l AppImage and .deb on 32-bit ARM Debian
+        run: docker run --rm --platform linux/arm/v7 -v "$PWD:/w" -w /w debian:12-slim sh scripts/ci-armv7l-test.sh
+
   windows-install:
     # The signed installers when signing is on; the build's otherwise.
     needs: [build, sign-windows]
@@ -326,6 +358,10 @@ jobs:
         include:
           - { os: windows-latest, arch: x64 }
           - { os: windows-11-arm, arch: arm64 }
+          # 32-bit Windows 10/11 (as 32-bit programs run on 64-bit Windows),
+          # and the Windows 7 and 8 installer (Electron 22).
+          - { os: windows-latest, arch: ia32 }
+          - { os: windows-latest, arch: legacy }
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v7
@@ -631,7 +667,7 @@ jobs:
           if-no-files-found: error
 
   release:
-    needs: [build, sign-windows, linux-packages, appimage, windows-install, macos-dmg, android, ios-ipa]
+    needs: [build, sign-windows, linux-packages, appimage, appimage-armv7l, windows-install, macos-dmg, android, ios-ipa]
     runs-on: ubuntu-latest
     # sign-windows is skipped while signing is off; anything failed stops it.
     if: ${{ startsWith(github.ref, 'refs/tags/') && !cancelled() && !failure() }}

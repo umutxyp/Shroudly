@@ -123,6 +123,7 @@
     <string name="connsSystem">Shroudly ulanýar</string>
     <string name="connsSystemConfirm">Shroudly {host} salgysyny özi ulanýar. Bloklamak şifrlenen DNS-i, täzelenmeleri ýa-da soňky ýoly bozup biler, saýtlar açylmazlygy mümkin. Şonda-da bloklansynmy?</string>
     <string name="connsTitle">Saýtlar boýunça birikmeler</string>
+    <string name="dnsAroundAndroid">Bu enjamda programmalaryň at soraglaryna başga bir zat jogap berýär (Hususy DNS ýa-da DNS programmasy), şonuň üçin petiklenen programmalar açylman biler. Sazlamalar → Tor → Hususy DNS bölüminde «Öçük» ýa-da «Awtomatik» saýlaň, DNS programmalaryny ýapyň, soňra Shroudly-ni täzeden başladyň.</string>
     <string name="dnsErrorEmpty">Serweriň salgysyny ýazyň, meselem {example}.</string>
     <string name="dnsErrorHost">Bu ne IP salgy, ne-de serweriň ady; ony {example} ýaly ýazyň.</string>
     <string name="dnsErrorPort">Port 1-den 65535-e çenli san bolmaly.</string>
@@ -169,10 +170,12 @@
     <string name="lastResortStarting" formatted="false">Başga ýol bilen açylmaýan saýtlar üçin Tor ulgamyna birikýär… {progress}%</string>
     <string name="linkReleases">Wersiýa bellikleri</string>
     <string name="linkSourceCode">GitHub-daky çeşme kody</string>
+    <string name="linkWebsite">Codeshare web sahypasy</string>
     <string name="madeBy">Codeshare Technology Ltd önümi</string>
     <string name="nationalOnlyBody">Dünýäniň galan bölegi bilen baglanyşyk kesildi; ýurduň içindäki saýtlar entek açylýar. Muny hiç bir programma ýa-da VPN aýlanyp geçip bilmez. Baglanyşyk gaýdyp gelende Shroudly özi dowam edýär.</string>
     <string name="nationalOnlyHelp">Ýene näme kömek edip biler</string>
     <string name="nationalOnlyTitle">Diňe şu ýurduň tory işleýär</string>
+    <string name="navFollow">Yzarla</string>
     <string name="navInfo">Maglumat</string>
     <string name="navProtection">Gorag</string>
     <string name="navSettings">Sazlamalar</string>
@@ -202,6 +205,7 @@
     <string name="ownServerWhyTls">ol jogap berýär, ýöne onuň üsti bilen hiç bir saýt gelmedi</string>
     <string name="protected_">Goragly</string>
     <string name="protectionStopped">Gorag togtadyldy</string>
+    <string name="reopenAppsHint">Öň açyk duran programmalar: biri birikmese, ony ýapyp, bir gezek täzeden açyň.</string>
     <string name="searchApps">Programma gözle</string>
     <string name="shareApp">Shroudly-ni paýlaş</string>
     <string name="shareAppText">Petiklenen saýtlary we programmalary açmak üçin Android üçin Shroudly {version}. Gurmak üçin şu faýly açyň; telefon sorasa, şu çeşmeden programma gurmaga rugsat beriň.</string>

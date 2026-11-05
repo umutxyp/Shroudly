@@ -16,7 +16,8 @@ import android.widget.Toast
  * EVERY_MS, so a page of blocked resources cannot become a stream of them.
  */
 object TorNotice {
-    private const val ID = 10
+    // 10 and 11 are the APK's update notices (ApkUpdates.kt).
+    private const val ID = 12
     const val EVERY_MS = 15 * 60 * 1000L
     private val told = HashSet<String>()
     private var lastAt = 0L

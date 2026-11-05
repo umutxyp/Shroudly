@@ -1080,6 +1080,7 @@ static int watch_due(const char *host, uint64_t now) {
 }
 
 static void json_host(char *out, size_t cap, const char *in);
+static void dns_way(int by_address, const char *name);
 
 static void watch_note(const char *host) {
   if (!watch_due(host, now_ms())) return;
@@ -4093,6 +4094,9 @@ static void handle(sock_t client) {
     if (pi.kind == PROTO_HTTP) atomic_fetch_add(&g_stats.http_seen, 1);
 
     const char *key = pi.host[0] ? pi.host : rq.host;
+    /* By name (the tunnel's stand-in address) or by an address the app got
+     * elsewhere (see dns_way): only on a device's tunnel. */
+    if (g_cfg.fake_net_n && pi.host[0] && pi.kind == PROTO_TLS) dns_way(ip_literal(rq.host), pi.host);
     conns_name(t_conn, key);
     watch_note(key);
     watch_tls = pi.kind == PROTO_TLS;
@@ -4499,6 +4503,41 @@ static void engine_init_once(void) {
   g_out_mx_ready = 1;
 }
 
+/* ── DNS that goes around the device's tunnel (--fake-net) ───────────────
+ * On a phone or tablet the tunnel answers apps' lookups with stand-in
+ * addresses, and their connections come here by name. Connections that keep
+ * coming by a real address, carrying a site's name, while none at all come
+ * by name, mean something else answers the apps' lookups: a DNS profile
+ * (AdGuard, NextDNS, 1.1.1.1, a school's or employer's), or Android's
+ * Private DNS. Shroudly still reads the name in each connection, but the
+ * apps get that other service's answers, a block page's address among them.
+ * Said once a run ({"type":"dns_around"}); the app tells the user where to
+ * turn it off. */
+#define DNS_AROUND_MIN   12
+#define DNS_AROUND_AFTER (20 * 1000)
+static atomic_int g_dns_named, g_dns_around, g_dns_said;
+static _Atomic uint64_t g_dns_first;
+
+static void dns_way(int by_address, const char *name) {
+  uint64_t now = now_ms();
+  uint64_t zero = 0;
+  atomic_compare_exchange_strong(&g_dns_first, &zero, now);
+  if (!by_address) { atomic_fetch_add(&g_dns_named, 1); return; }
+  int n = atomic_fetch_add(&g_dns_around, 1) + 1;
+  if (n < DNS_AROUND_MIN || atomic_load(&g_dns_named) > 0) return;
+  if (now - atomic_load(&g_dns_first) < DNS_AROUND_AFTER) return;
+  int expected = 0;
+  if (!atomic_compare_exchange_strong(&g_dns_said, &expected, 1)) return;
+  char h[256];
+  json_host(h, sizeof(h), name);
+  engine_printf("{\"type\":\"dns_around\",\"n\":%d,\"host\":\"%s\"}\n", n, h);
+}
+
+static void dns_way_forget(void) {
+  atomic_store(&g_dns_named, 0); atomic_store(&g_dns_around, 0);
+  atomic_store(&g_dns_said, 0); atomic_store(&g_dns_first, 0);
+}
+
 /* The names the last way out carried, forgotten (FALLBACK-FORGET): the app
  * says so when something better than Tor is there now (Advanced mode came
  * on), so their next connections walk the ladder again before Tor. Tor is
@@ -4527,6 +4566,7 @@ static void engine_forget(void) {
   mutex_lock(&g_fb_mx);
   memset(g_fb, 0, sizeof(g_fb));
   mutex_unlock(&g_fb_mx);
+  dns_way_forget();
   /* The list by name and the user's blocks: the app gives its blocks again
    * after every start. */
   conns_forget();

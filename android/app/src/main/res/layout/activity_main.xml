@@ -702,21 +702,21 @@
             android:textSize="12.5sp"
             android:visibility="gone" />
 
-        <!-- ── about ──────────────────────────────────────────────────── -->
+        <!-- ── follow ───────────────────────────────────────────────────
+             Follow Shroudly, a section of its own (not a row deep in About):
+             Codeshare's and its developer's accounts (FollowActivity). -->
         <TextView
             style="@style/SectionTitle"
             android:accessibilityHeading="true"
-            android:text="@string/navInfo" />
+            android:text="@string/navFollow" />
 
         <LinearLayout
-            android:id="@+id/about"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@drawable/card"
             android:orientation="vertical"
             android:padding="1dp">
 
-            <!-- Follow Shroudly: Codeshare's and its developer's accounts (FollowActivity). -->
             <LinearLayout
                 android:id="@+id/followRow"
                 style="@style/AboutRow">
@@ -733,8 +733,21 @@
                 <ImageView
                     android:importantForAccessibility="no" style="@style/Chevron" />
             </LinearLayout>
+        </LinearLayout>
 
-            <View style="@style/Divider" />
+        <!-- ── about ──────────────────────────────────────────────────── -->
+        <TextView
+            style="@style/SectionTitle"
+            android:accessibilityHeading="true"
+            android:text="@string/navInfo" />
+
+        <LinearLayout
+            android:id="@+id/about"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/card"
+            android:orientation="vertical"
+            android:padding="1dp">
 
             <!-- PayPal and bank transfer (Support; the APK from GitHub only). -->
             <LinearLayout
@@ -805,6 +818,27 @@
                 style="@style/AboutRowText"
                 android:drawableStart="@drawable/row_lock"
                 android:text="@string/androidPrivacyPolicy" />
+
+            <View style="@style/Divider" />
+
+            <!-- Who makes Shroudly: Codeshare's site, in every build (Google
+                 Play's too: a company's own site, not a store or a payment). -->
+            <LinearLayout
+                android:id="@+id/website"
+                style="@style/AboutRow">
+
+                <ImageView
+                    android:importantForAccessibility="no"
+                    style="@style/RowIcon"
+                    android:src="@drawable/ic_globe_accent" />
+
+                <TextView
+                    style="@style/RowLabel"
+                    android:text="@string/linkWebsite" />
+
+                <ImageView
+                    android:importantForAccessibility="no" style="@style/Chevron" />
+            </LinearLayout>
 
             <View style="@style/Divider" />
 

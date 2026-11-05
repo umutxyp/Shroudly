@@ -81,12 +81,19 @@ function save() {
 const DL_FILES = {
   'windows-x64':     (v) => `Shroudly-${v}-Windows-x64-Setup.exe`,
   'windows-arm64':   (v) => `Shroudly-${v}-Windows-arm64-Setup.exe`,
+  // 32-bit Windows 10/11; Windows 7, 8 and 8.1 (one installer for 32- and
+  // 64-bit, Electron 22).
+  'windows-ia32':    (v) => `Shroudly-${v}-Windows-ia32-Setup.exe`,
+  'windows7':        (v) => `Shroudly-${v}-Windows7-8-Setup.exe`,
   'macos-arm64':     (v) => `Shroudly-${v}-macOS-arm64.dmg`,
   'macos-x64':       (v) => `Shroudly-${v}-macOS-x64.dmg`,
   'macos-arm64-zip': (v) => `Shroudly-${v}-macOS-arm64.zip`,
   'macos-x64-zip':   (v) => `Shroudly-${v}-macOS-x64.zip`,
   'linux-x64':       (v) => `Shroudly-${v}-Linux-x86_64.AppImage`,
   'linux-arm64':     (v) => `Shroudly-${v}-Linux-arm64.AppImage`,
+  // 32-bit ARM (armhf): Raspberry Pi OS 32-bit and the like.
+  'linux-armv7l':    (v) => `Shroudly-${v}-Linux-armv7l.AppImage`,
+  'linux-armhf-deb': (v) => `Shroudly-${v}-Linux-armhf.deb`,
   'linux-deb':       (v) => `Shroudly-${v}-Linux-amd64.deb`,
   // electron-builder names these two differently from each other: x64 for the
   // Arch package, x86_64 for the RPM. Copied from what it actually produces.
@@ -155,7 +162,7 @@ async function download(pathname) {
  * feeds and the installers from one release, and the URL is built from this
  * list, never from what was asked. Cloudflare may keep the installers (a
  * versioned file never changes); the feeds are never kept. */
-const FEEDS = ['latest.yml', 'latest-linux.yml', 'latest-linux-arm64.yml', 'latest-mac.yml'];
+const FEEDS = ['latest.yml', 'legacy.yml', 'latest-linux.yml', 'latest-linux-arm64.yml', 'latest-linux-armv7l.yml', 'latest-mac.yml'];
 
 async function mirrorUrl(pathname) {
   const name = pathname.replace(/^\/dl\//, '');

@@ -8,6 +8,7 @@
   "navStats": "Thống kê",
   "navSettings": "Cài đặt",
   "navLogs": "Nhật ký",
+  "navFollow": "Theo dõi",
   "navInfo": "Giới thiệu",
   "protected": "Đang được bảo vệ",
   "notProtected": "Chưa được bảo vệ",
@@ -935,5 +936,11 @@
   "followDesc": "Tin về chặn mạng, phiên bản mới và cách vượt qua, sớm nhất. Theo dõi và chia sẻ là cách Shroudly đến được với những người cần nó, và hoàn toàn miễn phí.",
   "followCodeshare": "Codeshare, đội làm ra Shroudly",
   "followDeveloper": "Umut Bayraktar, nhà phát triển Shroudly",
-  "followTv": "Hãy mở chúng trên điện thoại hoặc máy tính:"
+  "followTv": "Hãy mở chúng trên điện thoại hoặc máy tính:",
+  "lastResortOldWindows": "Tor không còn chạy trên Windows 7 và 8, nên tính năng này không dùng ở đây; mọi thứ khác vẫn hoạt động. Trên Windows 10 trở lên thì có.",
+  "lastResortNoTor": "Dự án Tor không phát hành Tor cho bộ xử lý này, nên tính năng này không dùng ở đây; mọi thứ khác vẫn hoạt động.",
+  "dnsAroundAndroid": "Có thứ khác trên thiết bị này đang trả lời việc tra cứu tên của ứng dụng (DNS riêng hoặc ứng dụng DNS), nên ứng dụng bị chặn có thể không mở được. Vào Cài đặt → Mạng → DNS riêng chọn Tắt hoặc Tự động, đóng ứng dụng DNS, rồi khởi động lại Shroudly.",
+  "dnsAroundApple": "Một hồ sơ hoặc ứng dụng DNS trên thiết bị này (AdGuard, NextDNS, 1.1.1.1, hồ sơ trường học hoặc công ty) trả lời việc tra cứu tên trước Shroudly, nên ứng dụng bị chặn có thể không mở được. Hãy tắt nó trong Cài đặt → Cài đặt chung → VPN & Quản lý thiết bị (Mac: Cài đặt hệ thống → Mạng → VPN & Bộ lọc), rồi khởi động lại Shroudly.",
+  "dnsAroundTitle": "Có thứ đang đi vòng qua Shroudly",
+  "reopenAppsHint": "Ứng dụng đã mở từ trước: nếu một ứng dụng không kết nối được, hãy đóng rồi mở lại một lần."
 }

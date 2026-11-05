@@ -8,6 +8,7 @@
   "navStats": "Statistik",
   "navSettings": "Tetapan",
   "navLogs": "Log",
+  "navFollow": "Ikuti",
   "navInfo": "Perihal",
   "protected": "Dilindungi",
   "notProtected": "Tidak dilindungi",
@@ -935,5 +936,11 @@
   "followDesc": "Berita tentang sekatan, versi baharu dan cara melepasinya, lebih awal. Mengikuti dan berkongsi ialah cara Shroudly sampai kepada orang yang memerlukannya, dan ia percuma.",
   "followCodeshare": "Codeshare, pembuat Shroudly",
   "followDeveloper": "Umut Bayraktar, pembangun Shroudly",
-  "followTv": "Buka ini pada telefon atau komputer anda:"
+  "followTv": "Buka ini pada telefon atau komputer anda:",
+  "lastResortOldWindows": "Tor tidak lagi berjalan pada Windows 7 dan 8, jadi ini tidak digunakan di sini; semua yang lain berfungsi. Pada Windows 10 atau lebih baharu, ia digunakan.",
+  "lastResortNoTor": "Projek Tor tidak membina Tor untuk pemproses ini, jadi ini tidak digunakan di sini; semua yang lain berfungsi.",
+  "dnsAroundAndroid": "Ada perkara lain pada peranti ini yang menjawab carian nama aplikasi (DNS Peribadi atau aplikasi DNS), jadi aplikasi yang disekat mungkin tidak dibuka. Dalam Tetapan → Rangkaian → DNS Peribadi pilih Mati atau Automatik, tutup aplikasi DNS, kemudian mulakan semula Shroudly.",
+  "dnsAroundApple": "Profil atau aplikasi DNS pada peranti ini (AdGuard, NextDNS, 1.1.1.1, profil sekolah atau kerja) menjawab carian nama sebelum Shroudly, jadi aplikasi yang disekat mungkin tidak dibuka. Matikannya dalam Tetapan → Umum → VPN & Pengurusan Peranti (Mac: Tetapan Sistem → Rangkaian → VPN & Penapis), kemudian mulakan semula Shroudly.",
+  "dnsAroundTitle": "Ada sesuatu yang memintas Shroudly",
+  "reopenAppsHint": "Aplikasi yang sudah dibuka: jika satu tidak bersambung, tutup dan buka semula sekali."
 }

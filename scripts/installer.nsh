@@ -448,14 +448,20 @@
   ; older Windows, and the installer would then stop here on every run. The
   ; value is there on Windows 10 and 11 and missing on 8.1 and older, which
   ; reads as 0.
+  ; The Windows 7 and 8 build (installer-legacy.nsh) skips this, and is
+  ; what this one offers to download instead.
+  !ifndef SHROUDLY_LEGACY
   ReadRegDWORD $0 HKLM "SOFTWARE\Microsoft\Windows NT\CurrentVersion" "CurrentMajorVersionNumber"
   ClearErrors
   ${If} $0 < 10
-    MessageBox MB_OK|MB_ICONSTOP \
-      "Shroudly needs Windows 10 or later.$\r$\n$\r$\n\
-Shroudly, Windows 10 veya daha yenisini gerektirir."
+    MessageBox MB_YESNO|MB_ICONINFORMATION \
+      "This Shroudly is for Windows 10 and 11. Download the one for Windows 7 and 8 now?$\r$\n$\r$\n\
+Bu Shroudly Windows 10 ve 11 içindir. Windows 7 ve 8 için olanı şimdi indirmek ister misin?" IDNO shroudlyOldNo
+    ExecShell "open" "https://shroudly.codeshare.me/dl/windows7"
+    shroudlyOldNo:
     Abort
   ${EndIf}
+  !endif
   !insertmacro shroudlyResetProxy
   !insertmacro shroudlyLinkCleanup "i"
   !insertmacro shroudlyAppEnvCleanup

@@ -123,6 +123,7 @@
     <string name="connsSystem">von Shroudly genutzt</string>
     <string name="connsSystemConfirm">Shroudly nutzt {host} selbst. Eine Sperre kann verschlüsseltes DNS, Updates oder den letzten Ausweg stören, und Seiten öffnen sich womöglich nicht mehr. Trotzdem sperren?</string>
     <string name="connsTitle">Verbindungen nach Seite</string>
+    <string name="dnsAroundAndroid">Etwas anderes auf diesem Gerät beantwortet die Namensabfragen der Apps (Privates DNS oder eine DNS-App), deshalb öffnen sich gesperrte Apps womöglich nicht. Wähle unter Einstellungen → Netzwerk → Privates DNS „Aus“ oder „Automatisch“, schließe DNS-Apps und starte Shroudly neu.</string>
     <string name="dnsErrorEmpty">Gib die Adresse des Servers ein, etwa {example}.</string>
     <string name="dnsErrorHost">Das ist keine IP-Adresse und kein Servername; gib sie wie {example} ein.</string>
     <string name="dnsErrorPort">Der Port muss eine Zahl von 1 bis 65535 sein.</string>
@@ -169,10 +170,12 @@
     <string name="lastResortStarting" formatted="false">Verbindung zum Tor-Netzwerk für Seiten, die sonst nicht aufgehen… {progress} %</string>
     <string name="linkReleases">Versionshinweise</string>
     <string name="linkSourceCode">Quellcode auf GitHub</string>
+    <string name="linkWebsite">Codeshare-Website</string>
     <string name="madeBy">Ein Produkt von Codeshare Technology Ltd</string>
     <string name="nationalOnlyBody">Die Verbindung zum Rest der Welt ist gekappt; Seiten im eigenen Land öffnen sich noch. Keine App und kein VPN kommt daran vorbei. Shroudly macht von selbst weiter, sobald sie wieder da ist.</string>
     <string name="nationalOnlyHelp">Was noch helfen kann</string>
     <string name="nationalOnlyTitle">Nur das Netz dieses Landes funktioniert</string>
+    <string name="navFollow">Folgen</string>
     <string name="navInfo">Info</string>
     <string name="navProtection">Schutz</string>
     <string name="navSettings">Optionen</string>
@@ -202,6 +205,7 @@
     <string name="ownServerWhyTls">er antwortet, aber keine Seite kam darüber</string>
     <string name="protected_">Geschützt</string>
     <string name="protectionStopped">Schutz beendet</string>
+    <string name="reopenAppsHint">Apps, die schon offen waren: Verbindet sich eine nicht, schließe sie und öffne sie einmal neu.</string>
     <string name="searchApps">Apps suchen</string>
     <string name="shareApp">Shroudly teilen</string>
     <string name="shareAppText">Shroudly {version} für Android, um gesperrte Seiten und Apps zu öffnen. Zum Installieren diese Datei öffnen; fragt das Telefon, die Installation von Apps aus dieser Quelle erlauben.</string>

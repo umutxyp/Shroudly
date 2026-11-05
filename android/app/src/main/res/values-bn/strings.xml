@@ -123,6 +123,7 @@
     <string name="connsSystem">Shroudly ব্যবহার করে</string>
     <string name="connsSystemConfirm">Shroudly নিজেই {host} ব্যবহার করে। এটি ব্লক করলে এনক্রিপ্টেড DNS, আপডেট বা শেষ পথ ভেঙে যেতে পারে এবং সাইট খোলা বন্ধ হতে পারে। তবুও ব্লক করবেন?</string>
     <string name="connsTitle">সাইট অনুযায়ী সংযোগ</string>
+    <string name="dnsAroundAndroid">এই ডিভাইসে অ্যাপের নাম খোঁজার উত্তর অন্য কিছু দিচ্ছে (প্রাইভেট DNS বা কোনো DNS অ্যাপ), তাই ব্লক করা অ্যাপ নাও খুলতে পারে। সেটিংস → নেটওয়ার্ক → প্রাইভেট DNS-এ বন্ধ বা স্বয়ংক্রিয় বেছে নিন, DNS অ্যাপ বন্ধ করুন, তারপর Shroudly আবার চালু করুন।</string>
     <string name="dnsErrorEmpty">সার্ভারের ঠিকানা লিখুন, যেমন {example}।</string>
     <string name="dnsErrorHost">এটি IP ঠিকানা বা সার্ভারের নাম নয়; {example}-এর মতো লিখুন।</string>
     <string name="dnsErrorPort">পোর্ট 1 থেকে 65535-এর মধ্যে একটি সংখ্যা হতে হবে।</string>
@@ -169,10 +170,12 @@
     <string name="lastResortStarting" formatted="false">যে সাইটগুলো অন্যভাবে খোলে না, তাদের জন্য Tor নেটওয়ার্কে যুক্ত হচ্ছে… {progress}%</string>
     <string name="linkReleases">রিলিজ নোট</string>
     <string name="linkSourceCode">GitHub-এ সোর্স কোড</string>
+    <string name="linkWebsite">Codeshare ওয়েবসাইট</string>
     <string name="madeBy">Codeshare Technology Ltd-এর একটি পণ্য</string>
     <string name="nationalOnlyBody">বাকি বিশ্বের সাথে সংযোগ বিচ্ছিন্ন; দেশের ভেতরের সাইটগুলো এখনও খোলে। কোনো অ্যাপ বা VPN এটি পার হতে পারে না। সংযোগ ফিরলে Shroudly নিজে থেকেই চালিয়ে যাবে।</string>
     <string name="nationalOnlyHelp">এখনও কী সাহায্য করতে পারে</string>
     <string name="nationalOnlyTitle">শুধু এই দেশের নেটওয়ার্ক চলছে</string>
+    <string name="navFollow">ফলো</string>
     <string name="navInfo">সম্পর্কে</string>
     <string name="navProtection">সুরক্ষা</string>
     <string name="navSettings">সেটিংস</string>
@@ -202,6 +205,7 @@
     <string name="ownServerWhyTls">এটি সাড়া দেয়, কিন্তু এর মাধ্যমে কোনো সাইট আসেনি</string>
     <string name="protected_">সুরক্ষিত</string>
     <string name="protectionStopped">সুরক্ষা বন্ধ হয়েছে</string>
+    <string name="reopenAppsHint">যেসব অ্যাপ আগে থেকেই খোলা ছিল: কোনোটি সংযোগ না পেলে সেটি বন্ধ করে একবার আবার খুলুন।</string>
     <string name="searchApps">অ্যাপ খুঁজুন</string>
     <string name="shareApp">Shroudly শেয়ার করুন</string>
     <string name="shareAppText">ব্লক করা সাইট ও অ্যাপ খোলার জন্য Android-এর Shroudly {version}। ইনস্টল করতে এই ফাইলটি খুলুন; ফোন জিজ্ঞেস করলে এই উৎস থেকে অ্যাপ ইনস্টলের অনুমতি দিন।</string>

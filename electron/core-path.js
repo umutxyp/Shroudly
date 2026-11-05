@@ -8,7 +8,9 @@ const path = require('path');
 
 function coreBinaryPath() {
   const plat = process.platform;              // win32 | darwin | linux
-  const arch = process.arch === 'arm64' ? 'arm64' : 'x64';
+  // ia32: the Windows 7 and 8 build's 32-bit copy.
+  // arm: 32-bit ARM Linux (the armv7l builds).
+  const arch = process.arch === 'arm64' ? 'arm64' : process.arch === 'ia32' ? 'ia32' : process.arch === 'arm' ? 'armv7l' : 'x64';
   const dir = `${plat}-${arch}`;
   const bin = plat === 'win32' ? 'shroudly-core.exe' : 'shroudly-core';
 

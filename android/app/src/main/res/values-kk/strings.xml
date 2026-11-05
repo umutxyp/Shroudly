@@ -123,6 +123,7 @@
     <string name="connsSystem">Shroudly пайдаланады</string>
     <string name="connsSystemConfirm">Shroudly {host} адресін өзі пайдаланады. Бұғаттау шифрланған DNS-ті, жаңартуларды немесе соңғы жолды бұзуы мүмкін, сайттар ашылмай қалуы мүмкін. Бәрібір бұғаттау керек пе?</string>
     <string name="connsTitle">Сайттар бойынша қосылымдар</string>
+    <string name="dnsAroundAndroid">Бұл құрылғыда қолданбалардың атау сұрауларына басқа бірдеңе жауап береді (Жеке DNS немесе DNS қолданбасы), сондықтан бұғатталған қолданбалар ашылмауы мүмкін. Баптаулар → Желі → Жеке DNS ішінде «Өшірулі» не «Автоматты» таңдаңыз, DNS қолданбаларын жабыңыз, сосын Shroudly-ді қайта іске қосыңыз.</string>
     <string name="dnsErrorEmpty">Сервер мекенжайын енгізіңіз, мысалы {example}.</string>
     <string name="dnsErrorHost">Бұл IP мекенжай да, сервер аты да емес; оны {example} сияқты енгізіңіз.</string>
     <string name="dnsErrorPort">Порт 1-ден 65535-ке дейінгі сан болуы керек.</string>
@@ -169,10 +170,12 @@
     <string name="lastResortStarting" formatted="false">Басқаша ашылмайтын сайттар үшін Tor желісіне қосылуда… {progress}%</string>
     <string name="linkReleases">Нұсқа өзгерістері</string>
     <string name="linkSourceCode">GitHub-тағы бастапқы код</string>
+    <string name="linkWebsite">Codeshare сайты</string>
     <string name="madeBy">Codeshare Technology Ltd өнімі</string>
     <string name="nationalOnlyBody">Әлемнің қалған бөлігімен байланыс үзілген; ел ішіндегі сайттар әлі ашылады. Мұны ешбір қолданба не VPN айналып өте алмайды. Байланыс қайтқанда Shroudly өздігінен жалғастырады.</string>
     <string name="nationalOnlyHelp">Тағы не көмектесе алады</string>
     <string name="nationalOnlyTitle">Тек осы елдің желісі жұмыс істейді</string>
+    <string name="navFollow">Жазылу</string>
     <string name="navInfo">Ақпарат</string>
     <string name="navProtection">Қорғаныс</string>
     <string name="navSettings">Баптаулар</string>
@@ -202,6 +205,7 @@
     <string name="ownServerWhyTls">ол жауап береді, бірақ ол арқылы ешбір сайт ашылмады</string>
     <string name="protected_">Қорғалған</string>
     <string name="protectionStopped">Қорғаныс тоқтатылды</string>
+    <string name="reopenAppsHint">Бұрын ашық тұрған қолданбалар: біреуі қосылмаса, оны жауып, бір рет қайта ашыңыз.</string>
     <string name="searchApps">Қолданба іздеу</string>
     <string name="shareApp">Shroudly-мен бөлісу</string>
     <string name="shareAppText">Бұғатталған сайттар мен қолданбаларды ашуға арналған Android-қа Shroudly {version}. Орнату үшін осы файлды ашыңыз; телефон сұраса, осы көзден қолданба орнатуға рұқсат беріңіз.</string>

@@ -8,6 +8,7 @@
   "navStats": "Stats",
   "navSettings": "Réglages",
   "navLogs": "Journal",
+  "navFollow": "Suivre",
   "navInfo": "À propos",
   "protected": "Protégé",
   "notProtected": "Non protégé",
@@ -935,5 +936,11 @@
   "followDesc": "Les nouvelles sur les blocages, les nouvelles versions et les moyens de passer, en premier. Suivre et partager, c’est ainsi que Shroudly atteint ceux qui en ont besoin, et cela ne coûte rien.",
   "followCodeshare": "Codeshare, qui fait Shroudly",
   "followDeveloper": "Umut Bayraktar, le développeur de Shroudly",
-  "followTv": "Ouvrez-les sur votre téléphone ou votre ordinateur :"
+  "followTv": "Ouvrez-les sur votre téléphone ou votre ordinateur :",
+  "lastResortOldWindows": "Tor ne fonctionne plus sous Windows 7 et 8, donc ceci n’est pas utilisé ici ; tout le reste fonctionne. À partir de Windows 10, si.",
+  "lastResortNoTor": "Le projet Tor ne fournit pas Tor pour ce processeur, donc ceci n’est pas utilisé ici ; tout le reste fonctionne.",
+  "dnsAroundAndroid": "Autre chose sur cet appareil répond aux recherches de noms des applis (DNS privé ou une appli DNS) : les applis bloquées peuvent ne pas s’ouvrir. Dans Paramètres → Réseau → DNS privé, choisissez Désactivé ou Automatique, fermez toute appli DNS, puis relancez Shroudly.",
+  "dnsAroundApple": "Un profil ou une appli DNS sur cet appareil (AdGuard, NextDNS, 1.1.1.1, un profil d’école ou de travail) répond aux recherches de noms avant Shroudly : les applis bloquées peuvent ne pas s’ouvrir. Désactivez-le dans Réglages → Général → VPN et gestion de l’appareil (Mac : Réglages Système → Réseau → VPN et filtres), puis relancez Shroudly.",
+  "dnsAroundTitle": "Quelque chose contourne Shroudly",
+  "reopenAppsHint": "Applis déjà ouvertes : si l’une ne se connecte pas, fermez-la et rouvrez-la une fois."
 }

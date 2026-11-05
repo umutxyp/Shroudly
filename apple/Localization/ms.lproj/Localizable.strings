@@ -42,6 +42,8 @@
 "connsSystem" = "digunakan Shroudly";
 "connsSystemConfirm" = "Shroudly sendiri menggunakan {host}. Menyekatnya boleh merosakkan DNS tersulit, kemas kini atau jalan terakhir, dan laman mungkin berhenti dibuka. Sekat juga?";
 "connsTitle" = "Sambungan mengikut laman";
+"dnsAroundApple" = "Profil atau aplikasi DNS pada peranti ini (AdGuard, NextDNS, 1.1.1.1, profil sekolah atau kerja) menjawab carian nama sebelum Shroudly, jadi aplikasi yang disekat mungkin tidak dibuka. Matikannya dalam Tetapan → Umum → VPN & Pengurusan Peranti (Mac: Tetapan Sistem → Rangkaian → VPN & Penapis), kemudian mulakan semula Shroudly.";
+"dnsAroundTitle" = "Ada sesuatu yang memintas Shroudly";
 "dnsKindDoh" = "DNS melalui HTTPS (DoH)";
 "dnsKindDot" = "DNS melalui TLS (DoT)";
 "dnsKindTcp" = "DNS melalui TCP";
@@ -77,10 +79,12 @@
 "lastResortStarting" = "Menyambung ke rangkaian Tor untuk laman yang tidak terbuka dengan cara lain… {progress}%";
 "linkReleases" = "Nota keluaran";
 "linkSourceCode" = "Kod sumber di GitHub";
+"linkWebsite" = "Laman web Codeshare";
 "madeBy" = "Produk Codeshare Technology Ltd";
 "nationalOnlyBody" = "Sambungan ke seluruh dunia terputus; laman dalam negara masih terbuka. Tiada aplikasi atau VPN yang dapat melepasinya. Shroudly akan meneruskan sendiri apabila sambungan kembali.";
 "nationalOnlyHelp" = "Apa yang masih boleh membantu";
 "nationalOnlyTitle" = "Hanya rangkaian negara ini yang berfungsi";
+"navFollow" = "Ikuti";
 "navInfo" = "Perihal";
 "navSettings" = "Tetapan";
 "navStats" = "Statistik";
@@ -106,6 +110,7 @@
 "ownServerWhySilent" = "tiada apa yang kembali; kata laluan atau kaedahnya mungkin salah";
 "ownServerWhyTls" = "ia menjawab, tetapi tiada laman yang melaluinya";
 "protected" = "Dilindungi";
+"reopenAppsHint" = "Aplikasi yang sudah dibuka: jika satu tidak bersambung, tutup dan buka semula sekali.";
 "shareOnlineCount" = "Kira saya dalam jumlah pengguna dalam talian";
 "shareOnlineCountDesc" = "Menghantar nombor rawak yang berubah setiap kali aplikasi dilancarkan, supaya aplikasi dapat menunjukkan berapa banyak salinan yang sedang berjalan. Nombor ini hanya dihantar semasa perlindungan dihidupkan, jadi ia melalui laluan dilindungi yang sama seperti trafik anda yang lain. Matikan pilihan ini jika anda lebih suka rangkaian anda tidak melihat apa-apa langsung daripada Shroudly.";
 "snowflakeCounts" = "Sedang dibantu: {now} · Sejak dihidupkan: {total}";

@@ -749,7 +749,7 @@ directly. That list maintains itself:
 
 - **One button** — start and stop protection; it can start with your computer, from the tray.
 - **Light in the background** — the window is closed for real, not hidden, when it goes to the tray or sits unused for three minutes; protection keeps running without it, with nothing in the taskbar or the Dock, only the tray / menu bar icon (or not even that: Settings can hide it, and starting Shroudly again opens the window). Protecting in the background, Shroudly 2.5.3 uses about 30–75 MB depending on the OS, about half of what 2.5.2 did ([measured](tests/e2e/app.test.js) by every [Tests](.github/workflows/test.yml) run).
-- **Cross-platform** — native builds for Windows, macOS and Linux, x64 and ARM, an Android app for phones, tablets and TVs, and an iPhone and iPad app.
+- **Cross-platform** — native builds for Windows (10 and 11: 64-bit, ARM64 and 32-bit; 7, 8 and 8.1: one installer for 32- and 64-bit), macOS and Linux (x64, ARM64 and 32-bit ARM), an Android app for phones, tablets and TVs, and an iPhone, iPad, Mac and Apple TV app.
 - **Android** — one small APK for every phone: a local VPN that sends every app through the same engine, UDP (games, voice) and apps' own DNS included, with a Quick Settings tile and Always-on VPN ([details](#android)).
 - **Android TV and Google TV** — the same APK in the TV's row of apps, used with the remote; every app on the TV (YouTube, browsers, streaming apps) goes through it ([details](#android-tv-and-google-tv)).
 - **No admin rights, no driver** in the default mode — it runs as a normal program.
@@ -757,15 +757,18 @@ directly. That list maintains itself:
 - **Encrypted DNS** — on by default, over routes that are hard to block, refusing known forged answers.
 - **Autopilot** — notices what is in the way and fixes it by itself: turns on the mode an app needs where its service is blocked, restarts a program stuck around Shroudly, turns on Advanced mode when a site needs it; then says what it did, in one line ([details](#autopilot)).
 - **Discord app mode** — lets the Discord app (every build) update and open through Shroudly on Windows and macOS ([details](#discord-app-mode)).
-- **Games and apps mode** — Roblox, Roblox Studio, their installers and other programs that ignore the system proxy go through Shroudly too, on Windows and macOS ([details](#games-and-apps-mode-roblox)).
-- **Advanced mode** — packet-level desync for networks that follow whole connections, on Windows and Linux.
+- **Games and apps mode** — Roblox, Roblox Studio, League of Legends, VALORANT, their installers and other programs that ignore the system proxy go through Shroudly too, on Windows and macOS; turned on by itself where Roblox or Riot Games is blocked ([details](#games-and-apps-mode-roblox)).
+- **Advanced mode** — packet-level desync for networks that follow whole connections, on Windows and Linux. On Windows it repairs a driver another program left behind, or a folder Windows cannot load the driver from, by itself.
 - **Your own server** — every site through a server you name, as a `socks5://`, `http://` or Shadowsocks `ss://` link: tested before it is used, and the window says so if it stops working; while it works, the main window says which address sites see ([#66](https://github.com/umutxyp/Shroudly/issues/66)), and DNS goes through it too, so nothing leaks to your provider or the resolvers ([#67](https://github.com/umutxyp/Shroudly/issues/67)). For a shutdown, when a server inside the country still reaches the world; on the desktop, Android, iPhone and iPad.
 - **Share my connection** — off until you turn it on: people you give its link to use your connection through Shroudly, from Shroudly's *Your own server* or any Shadowsocks app, on the same network or (where the router opens a port by UPnP) over the internet. They reach only sites, never your computer or home network; nothing is recorded of what they open. Desktop.
 - **Help people in censored countries** — off until you turn it on: on a computer, a Snowflake proxy for the Tor network, so people where Tor is blocked reach it through your connection (strangers using Tor: what they open stays encrypted, they cannot reach your computer or network, and nothing is recorded); on Android while protection is on and the phone charges on Wi-Fi, and on iPhone, iPad and the Mac while the app is open or running, the same proxy inside Shroudly (or the apps made for it, Psiphon's Conduit and Orbot's Kindness Mode). Now and then, while protection works, the main window asks whether you would like to; each "Not now" doubles the wait, from a week, and it is never asked where Tor itself is blocked. A server can help too ([details](#on-a-server)).
 - **Decoys a whitelist lets through** — where a shutdown lets only a list of allowed sites through, Shroudly's decoys carry the names of large sites of your own country, so the real connection behind them gets through ([what it cannot fix](#what-shroudly-cannot-fix)).
+- **Tor, only as the very last way** — a site that every technique failed to open goes through the Tor network (via Snowflake), and Shroudly tells you when that happens, in words for the device (slower; videos on a TV may load slowly); when Advanced mode comes on, those sites try it first.
+- **Says what is in the way on phones** — a DNS profile or app (AdGuard, NextDNS, 1.1.1.1, Android's Private DNS) that answers apps' lookups before Shroudly is noticed and named, with where to turn it off; right after a start it reminds that an app already open may need to be reopened once.
 - **Its own lists where GitHub is blocked** — the site list and the ad list come through a CDN front (another site on GitHub's CDN) when GitHub does not answer.
 - **iPhone, iPad, Mac and Apple TV** — the same engine as a VPN on the device: live stats, ad blocking, a DNS server and a server of your own, widgets and Control Center ([details](#iphone-ipad-mac-and-apple-tv)).
 - **Share Shroudly** — the Android app (the APK from GitHub) sends itself to another phone over Bluetooth or a nearby-share app, for when its download page cannot be reached.
+- **Follow Shroudly** — a tab of its own in every app (computers, Android phones and TVs, iPhone, iPad, Mac, Apple TV) with Codeshare's and its developer's accounts ([links](#follow-shroudly)).
 - **What changed, after each update** — once, in your language: on the desktop, Android, iPhone and iPad.
 - **Tells you what is going on** — another VPN or bypass tool fighting it, a site the network cuts, encrypted DNS blocked, what the autopilot did: said plainly, in one line.
 - **Never breaks your connection** — your proxy settings are saved before Shroudly changes them and put back on stop, crash, forced kill, shutdown, power loss (at next sign-in) and uninstall.
@@ -779,11 +782,12 @@ directly. That list maintains itself:
 
 | | Minimum | Notes |
 |---|---|---|
-| Windows | **Windows 10** (x64 or ARM64) | The installer stops with a clear message on Windows 8.1 and earlier, which Electron no longer supports. |
+| Windows 10 and 11 | **Windows 10** (64-bit Intel/AMD, ARM64, or 32-bit) | The installer for Windows 10 and 11 offers the Windows 7 and 8 one when it is run on an older Windows. |
+| Windows 7, 8 and 8.1 | **Windows 7 SP1** (64- or 32-bit, one installer for both) | The same app and engine on Electron 22, the last that runs there, with Windows' Universal C runtime beside the engine; it updates from its own feed. Not there: the last way out through Tor (the Tor Project's Tor needs Windows 10) and Advanced mode on 32-bit Windows. |
 | macOS | **macOS 12 Monterey** (Intel or Apple Silicon) | Older versions are told so by macOS itself rather than failing to launch. |
-| Linux | **glibc 2.28+** — Debian 10, Ubuntu 20.04, Fedora 29 or newer (Ubuntu 18.04 has glibc 2.27: Shroudly starts there, but Advanced mode does not) | AppImage (x64, ARM64), plus native packages: .deb for Debian/Ubuntu, .pacman for Arch/Manjaro, .rpm for Fedora/openSUSE/RHEL. The bypass engine itself only needs glibc 2.17, so it is never the limiting part. |
+| Linux | **glibc 2.28+** — Debian 10, Ubuntu 20.04, Fedora 29 or newer (Ubuntu 18.04 has glibc 2.27: Shroudly starts there, but Advanced mode does not) | AppImage (x64, ARM64, 32-bit ARM), plus native packages: .deb for Debian/Ubuntu (x64 and 32-bit ARM, armhf), .pacman for Arch/Manjaro, .rpm for Fedora/openSUSE/RHEL. 32-bit ARM (Raspberry Pi OS 32-bit) has everything but Advanced mode and Tor. The bypass engine itself only needs glibc 2.17, so it is never the limiting part. |
 | iPhone, iPad, Mac, Apple TV | **iOS 16**, **macOS 13**, **tvOS 17** or newer | The App Store (in review); an `.ipa` on the releases page for TrollStore or a paid developer account (not a free Apple ID) meanwhile ([details](#iphone-ipad-mac-and-apple-tv)). |
-| Android | **Android 8** or newer (phones, tablets, Android TV and Google TV; ARM 64/32-bit, x86_64) | An APK from the releases page. It works as a VPN on the phone, so every app goes through Shroudly; no root needed. To keep another VPN app connected, Settings → Advanced → Mode → Proxy only. |
+| Android | **Android 8** or newer (phones, tablets, Android TV and Google TV; ARM 64/32-bit, x86_64) | Google Play (in review), or an APK from the releases page: the main APK runs on every device, 32-bit ARM phones included; the smaller *arm64* APK on 64-bit ARM phones only. It works as a VPN on the phone, so every app goes through Shroudly; no root needed. To keep another VPN app connected, Settings → Advanced → Mode → Proxy only. |
 
 Advanced mode needs administrator rights, and is available on Windows and Linux only.
 
@@ -802,16 +806,18 @@ These links always download the newest version (see [Releases](https://github.co
 
 | OS | Intel / AMD (x64) | ARM |
 |----|-------------------|-----|
-| **Windows 10+** | [Installer (.exe)](https://shroudly.codeshare.me/dl/windows-x64) | [Installer (.exe)](https://shroudly.codeshare.me/dl/windows-arm64) |
+| **Windows 10 / 11** | [Installer (.exe)](https://shroudly.codeshare.me/dl/windows-x64) · 32-bit: [Installer (.exe)](https://shroudly.codeshare.me/dl/windows-ia32) | [Installer (.exe)](https://shroudly.codeshare.me/dl/windows-arm64) |
+| **Windows 7 / 8 / 8.1** | [Installer for 32- and 64-bit (.exe)](https://shroudly.codeshare.me/dl/windows7) | |
 | **macOS 12+** | [Intel Macs (.dmg)](https://shroudly.codeshare.me/dl/macos-x64) | [Apple Silicon, M1 or newer (.dmg)](https://shroudly.codeshare.me/dl/macos-arm64) |
 | **Debian / Ubuntu / Mint** | [.deb](https://shroudly.codeshare.me/dl/linux-deb) | [AppImage](https://shroudly.codeshare.me/dl/linux-arm64) |
 | **Arch / Manjaro / EndeavourOS** | [.pacman](https://shroudly.codeshare.me/dl/linux-pacman) | [AppImage](https://shroudly.codeshare.me/dl/linux-arm64) |
 | **Fedora / openSUSE / RHEL** | [.rpm](https://shroudly.codeshare.me/dl/linux-rpm) | [AppImage](https://shroudly.codeshare.me/dl/linux-arm64) |
 | **Any Linux** | [AppImage](https://shroudly.codeshare.me/dl/linux-x64) | [AppImage](https://shroudly.codeshare.me/dl/linux-arm64) |
+| **32-bit ARM Linux** (Raspberry Pi OS 32-bit, armhf) | | [AppImage](https://shroudly.codeshare.me/dl/linux-armv7l) · [.deb](https://shroudly.codeshare.me/dl/linux-armhf-deb) |
 | **Android 8+, Android TV, Google TV** | [APK](https://shroudly.codeshare.me/dl/android) | [APK](https://shroudly.codeshare.me/dl/android) (one APK for every phone, tablet and TV) |
 | **iPhone / iPad (iOS 16+)** | | [.ipa on the releases page](https://github.com/umutxyp/Shroudly/releases/latest) (TrollStore, or a paid developer account; App Store soon) |
 
-- **Windows** — run the installer.
+- **Windows** — run the installer. On Windows 7, 8 or 8.1, use the Windows 7 and 8 installer (the Windows 10 one offers to download it).
 - **macOS** — open the `.dmg` and drag `Shroudly.app` into Applications.
 - **Debian / Ubuntu** — `sudo apt install ./Shroudly-*-Linux-amd64.deb`
 - **Arch** — `sudo pacman -U Shroudly-*-Linux-x64.pacman`
@@ -831,8 +837,10 @@ These links always download the newest version (see [Releases](https://github.co
 
 Every package is installed on its own system and its engine started before a
 release is published (Arch, Fedora, openSUSE, Debian, Ubuntu 22.04 and 24.04,
-both AppImages, Windows x64 and ARM, both macOS images); the app itself is
-started from both AppImages, both macOS images and the Windows installs.
+the AppImages, Windows x64, ARM and 32-bit, the Windows 7 and 8 installer,
+both macOS images, and the 32-bit ARM AppImage and .deb in a 32-bit ARM
+Debian under QEMU); the app itself is started from the AppImages, both macOS
+images and every Windows install.
 The release is published only once all of its files are up.
 
 After that Shroudly updates itself: it checks when it starts and every 30
@@ -1285,7 +1293,7 @@ entitled to.
 
 ## Follow Shroudly
 
-News about blocks, new versions and ways through, first. Following and sharing is how Shroudly reaches the people who need it, and it costs nothing. The app has the same links under **About → Follow Shroudly**.
+News about blocks, new versions and ways through, first. Following and sharing is how Shroudly reaches the people who need it, and it costs nothing. The app has the same links in its own **Follow** tab, on computers, phones, tablets and TVs.
 
 - **Codeshare**, who make Shroudly: [Instagram](https://instagram.com/codeshareme) · [X](https://x.com/codeshareme) · [Discord](https://discord.gg/BhdgVfsFVC) · [LinkedIn](https://www.linkedin.com/company/codeshareme) · [Facebook](https://www.facebook.com/codeshareme) · [GitHub](https://github.com/codeshareme) · [codeshare.me](https://codeshare.me)
 - **Umut Bayraktar**, Shroudly's developer: [Instagram](https://instagram.com/umutxyp) · [YouTube](https://youtube.com/@umutxyp) · [TikTok](https://tiktok.com/@umutxyp) · [X](https://x.com/devbayraktar) · [Telegram](https://t.me/umutxyp) · [GitHub](https://github.com/umutxyp) · [LinkedIn](https://linkedin.com/in/umutxyp) · [Facebook](https://facebook.com/umutxyp)

@@ -562,6 +562,8 @@ function TorPrepare({ t }) {
     return () => { alive = false; clearInterval(timer); };
   }, []);
   if (!st || !window.electron?.prepareTor) return null;
+  // Windows 7 and 8: Tor no longer runs there; said instead of a button.
+  if (st.unsupported) return <p className="m-0 pb-3 text-[12px] leading-snug" style={{ color: 'var(--text-faint)' }}>{t(st.unsupported === 'windows' ? 'lastResortOldWindows' : 'lastResortNoTor')}</p>;
   const busy = st.state === 'downloading';
   return (
     <div className="flex flex-wrap items-center justify-between gap-2 pb-3">

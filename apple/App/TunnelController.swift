@@ -29,6 +29,8 @@ final class TunnelController: ObservableObject {
     // The last way out (Tunnel/TorRoute.swift) while it is not off: its state
     // ("starting", "ready", "failed") and progress, from the stats answer.
     @Published private(set) var lastResort: (state: String, progress: Int)?
+    /* A DNS profile or app goes around the tunnel (the engine's dns_around). */
+    @Published private(set) var dnsAround = false
     /* This copy may not make a VPN at all: signed without Apple's VPN
      * permission (VpnErrors, issue #65). The notice says so, with how to
      * install it properly. */
@@ -74,9 +76,10 @@ final class TunnelController: ObservableObject {
             }
             return
         }
+        // The tunnel's notices (Tunnel/TorRoute.swift, TorNotice) in the app's
+        // words: a DNS profile or app in the way, and (Mac) the last way out.
+        AppGroup.defaults.set(tr("dnsAroundApple"), forKey: "dnsAroundText")
         #if os(macOS)
-        // The last way out tells when it carried a site (Tunnel/TorRoute.swift,
-        // TorNotice): in these words, with the system's permission.
         if store.load().torLastResort {
             AppGroup.defaults.set(tr("torUsedDesktop"), forKey: "torUsedText")
             UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound]) { _, _ in }
@@ -163,7 +166,8 @@ final class TunnelController: ObservableObject {
                 done.resume(returning: nil)
             }
         }
-        guard let data, let obj = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else { lastResort = nil; return nil }
+        guard let data, let obj = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else { lastResort = nil; dnsAround = false; return nil }
+        dnsAround = (obj["dnsAround"] as? Bool) == true
         if let t = obj["lastResort"] as? [String: Any], let st = t["state"] as? String {
             lastResort = (st, (t["progress"] as? NSNumber)?.intValue ?? 0)
         } else {

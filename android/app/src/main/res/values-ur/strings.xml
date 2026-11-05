@@ -123,6 +123,7 @@
     <string name="connsSystem">Shroudly استعمال کرتا ہے</string>
     <string name="connsSystemConfirm">Shroudly خود {host} استعمال کرتا ہے۔ اسے بلاک کرنے سے خفیہ کردہ DNS، اپ ڈیٹس یا آخری راستہ خراب ہو سکتا ہے اور سائٹیں کھلنا بند ہو سکتی ہیں۔ پھر بھی بلاک کریں؟</string>
     <string name="connsTitle">سائٹ کے لحاظ سے کنکشن</string>
+    <string name="dnsAroundAndroid">اس ڈیوائس پر ایپس کی نام کی تلاش کا جواب کوئی اور دے رہا ہے (پرائیویٹ DNS یا کوئی DNS ایپ)، اس لیے بلاک ایپس شاید نہ کھلیں۔ سیٹنگز ← نیٹ ورک ← پرائیویٹ DNS میں «آف» یا «خودکار» چنیں، DNS ایپس بند کریں، پھر Shroudly دوبارہ شروع کریں۔</string>
     <string name="dnsErrorEmpty">سرور کا پتا لکھیں، جیسے {example}۔</string>
     <string name="dnsErrorHost">یہ نہ IP پتا ہے نہ سرور کا نام؛ اسے {example} کی طرح لکھیں۔</string>
     <string name="dnsErrorPort">پورٹ 1 سے 65535 تک کا کوئی عدد ہونا چاہیے۔</string>
@@ -169,10 +170,12 @@
     <string name="lastResortStarting" formatted="false">جو سائٹیں کسی اور طرح نہیں کھلتیں ان کے لیے ٹور نیٹ ورک سے جڑ رہا ہے… ‎{progress}%</string>
     <string name="linkReleases">ریلیز نوٹس</string>
     <string name="linkSourceCode">GitHub پر سورس کوڈ</string>
+    <string name="linkWebsite">Codeshare ویب سائٹ</string>
     <string name="madeBy">Codeshare Technology Ltd کی ایک پروڈکٹ</string>
     <string name="nationalOnlyBody">باقی دنیا سے رابطہ کٹا ہوا ہے؛ ملک کے اندر کی سائٹس اب بھی کھلتی ہیں۔ کوئی ایپ یا VPN اس سے آگے نہیں جا سکتا۔ رابطہ واپس آنے پر Shroudly خود جاری رکھے گا۔</string>
     <string name="nationalOnlyHelp">اب بھی کیا مدد کر سکتا ہے</string>
     <string name="nationalOnlyTitle">صرف اس ملک کا نیٹ ورک چل رہا ہے</string>
+    <string name="navFollow">فالو</string>
     <string name="navInfo">تعارف</string>
     <string name="navProtection">تحفظ</string>
     <string name="navSettings">ترتیبات</string>
@@ -202,6 +205,7 @@
     <string name="ownServerWhyTls">یہ جواب دیتا ہے، لیکن اس کے ذریعے کوئی سائٹ نہیں کھلی</string>
     <string name="protected_">محفوظ</string>
     <string name="protectionStopped">تحفظ بند ہو گیا</string>
+    <string name="reopenAppsHint">جو ایپس پہلے سے کھلی تھیں: اگر کوئی کنیکٹ نہ ہو تو اسے بند کر کے ایک بار دوبارہ کھولیں۔</string>
     <string name="searchApps">ایپس تلاش کریں</string>
     <string name="shareApp">Shroudly شیئر کریں</string>
     <string name="shareAppText">بلاک شدہ سائٹیں اور ایپس کھولنے کے لیے Android کے لیے Shroudly {version}۔ انسٹال کرنے کے لیے یہ فائل کھولیں؛ اگر فون پوچھے تو اس ذریعے سے ایپس انسٹال کرنے کی اجازت دیں۔</string>

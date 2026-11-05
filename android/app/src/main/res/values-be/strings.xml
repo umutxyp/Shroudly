@@ -123,6 +123,7 @@
     <string name="connsSystem">выкарыстоўвае Shroudly</string>
     <string name="connsSystemConfirm">Shroudly сам выкарыстоўвае {host}. Блакіроўка можа парушыць шыфраваны DNS, абнаўленні або апошні выхад, і сайты могуць перастаць адкрывацца. Усё роўна заблакіраваць?</string>
     <string name="connsTitle">Злучэнні па сайтах</string>
+    <string name="dnsAroundAndroid">На гэтай прыладзе запыты імёнаў у праграм апрацоўвае нешта іншае (прыватны DNS або DNS-праграма), таму заблакаваныя праграмы могуць не адкрывацца. У Наладах → Сетка → Прыватны DNS выберыце «Выключана» або «Аўтаматычна», закрыйце DNS-праграмы і зноў запусціце Shroudly.</string>
     <string name="dnsErrorEmpty">Увядзіце адрас сервера, напрыклад {example}.</string>
     <string name="dnsErrorHost">Гэта не IP-адрас і не імя сервера; увядзіце яго як {example}.</string>
     <string name="dnsErrorPort">Порт мусіць быць лікам ад 1 да 65535.</string>
@@ -169,10 +170,12 @@
     <string name="lastResortStarting" formatted="false">Падключэнне да сеткі Tor для сайтаў, што не адкрыліся інакш… {progress}%</string>
     <string name="linkReleases">Спіс змен</string>
     <string name="linkSourceCode">Зыходны код на GitHub</string>
+    <string name="linkWebsite">Сайт Codeshare</string>
     <string name="madeBy">Прадукт Codeshare Technology Ltd</string>
     <string name="nationalOnlyBody">Сувязь з астатнім светам адрэзаная; сайты ўнутры краіны яшчэ адкрываюцца. Ніводная праграма ці VPN гэтага не абыдзе. Калі сувязь вернецца, Shroudly працягне сам.</string>
     <string name="nationalOnlyHelp">Што яшчэ можа дапамагчы</string>
     <string name="nationalOnlyTitle">Працуе толькі сетка гэтай краіны</string>
+    <string name="navFollow">Сачыць</string>
     <string name="navInfo">Пра праграму</string>
     <string name="navProtection">Абарона</string>
     <string name="navSettings">Налады</string>
@@ -202,6 +205,7 @@
     <string name="ownServerWhyTls">ён адказвае, але ніводны сайт праз яго не адкрыўся</string>
     <string name="protected_">Абаронена</string>
     <string name="protectionStopped">Абарона выключана</string>
+    <string name="reopenAppsHint">Праграмы, адкрытыя раней: калі нейкая не падключаецца, закрыйце яе і адкрыйце зноў.</string>
     <string name="searchApps">Пошук праграм</string>
     <string name="shareApp">Падзяліцца Shroudly</string>
     <string name="shareAppText">Shroudly {version} для Android — адкрывае заблакаваныя сайты і праграмы. Каб усталяваць, адкрыйце гэты файл; калі тэлефон спытае, дазвольце ўсталёўку праграм з гэтай крыніцы.</string>

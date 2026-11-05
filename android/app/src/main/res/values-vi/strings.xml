@@ -123,6 +123,7 @@
     <string name="connsSystem">Shroudly dùng</string>
     <string name="connsSystemConfirm">Chính Shroudly dùng {host}. Chặn nó có thể làm hỏng DNS mã hoá, cập nhật hoặc lối thoát cuối cùng, và các trang có thể không mở được. Vẫn chặn?</string>
     <string name="connsTitle">Kết nối theo trang</string>
+    <string name="dnsAroundAndroid">Có thứ khác trên thiết bị này đang trả lời việc tra cứu tên của ứng dụng (DNS riêng hoặc ứng dụng DNS), nên ứng dụng bị chặn có thể không mở được. Vào Cài đặt → Mạng → DNS riêng chọn Tắt hoặc Tự động, đóng ứng dụng DNS, rồi khởi động lại Shroudly.</string>
     <string name="dnsErrorEmpty">Nhập địa chỉ máy chủ, ví dụ {example}.</string>
     <string name="dnsErrorHost">Đó không phải địa chỉ IP hay tên máy chủ; hãy nhập như {example}.</string>
     <string name="dnsErrorPort">Cổng phải là số từ 1 đến 65535.</string>
@@ -169,10 +170,12 @@
     <string name="lastResortStarting" formatted="false">Đang kết nối mạng Tor cho các trang không mở được bằng cách khác… {progress}%</string>
     <string name="linkReleases">Ghi chú phát hành</string>
     <string name="linkSourceCode">Mã nguồn trên GitHub</string>
+    <string name="linkWebsite">Trang web Codeshare</string>
     <string name="madeBy">Một sản phẩm của Codeshare Technology Ltd</string>
     <string name="nationalOnlyBody">Kết nối với phần còn lại của thế giới đã bị cắt; các trang trong nước vẫn mở được. Không ứng dụng hay VPN nào vượt qua được điều này. Shroudly sẽ tự tiếp tục khi kết nối trở lại.</string>
     <string name="nationalOnlyHelp">Điều gì vẫn có thể giúp</string>
     <string name="nationalOnlyTitle">Chỉ mạng trong nước hoạt động</string>
+    <string name="navFollow">Theo dõi</string>
     <string name="navInfo">Giới thiệu</string>
     <string name="navProtection">Bảo vệ</string>
     <string name="navSettings">Cài đặt</string>
@@ -202,6 +205,7 @@
     <string name="ownServerWhyTls">nó trả lời, nhưng không trang nào đi qua được</string>
     <string name="protected_">Đang được bảo vệ</string>
     <string name="protectionStopped">Đã tắt bảo vệ</string>
+    <string name="reopenAppsHint">Ứng dụng đã mở từ trước: nếu một ứng dụng không kết nối được, hãy đóng rồi mở lại một lần.</string>
     <string name="searchApps">Tìm ứng dụng</string>
     <string name="shareApp">Chia sẻ Shroudly</string>
     <string name="shareAppText">Shroudly {version} cho Android, để mở các trang và ứng dụng bị chặn. Để cài đặt, hãy mở tệp này; nếu điện thoại hỏi, hãy cho phép cài ứng dụng từ nguồn này.</string>

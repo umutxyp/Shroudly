@@ -123,6 +123,7 @@
     <string name="connsSystem">Shroudly یې کاروي</string>
     <string name="connsSystemConfirm">Shroudly پخپله {host} کاروي. بندول یې کېدای شي کوډ شوی DNS، تازه کول یا وروستۍ لاره خرابه کړي او سایټونه پرانیستل ونشي. بیا هم بند شي؟</string>
     <string name="connsTitle">د سایټ له مخې اتصالونه</string>
+    <string name="dnsAroundAndroid">په دې وسیله کې د اپونو د نوم پوښتنو ته بل شی ځواب ورکوي (خصوصي DNS یا د DNS اپ)، نو ښايي بند اپونه پرانیستل نشي. په امستنو ← شبکه ← خصوصي DNS کې «بند» یا «اتومات» وټاکئ، د DNS اپونه وتړئ، بیا Shroudly له سره پیل کړئ.</string>
     <string name="dnsErrorEmpty">د سرور پته ولیکئ، لکه {example}.</string>
     <string name="dnsErrorHost">دا نه IP پته ده او نه د سرور نوم؛ داسې یې ولیکئ لکه {example}.</string>
     <string name="dnsErrorPort">پورټ باید له 1 څخه تر 65535 پورې یو شمېر وي.</string>
@@ -169,10 +170,12 @@
     <string name="lastResortStarting" formatted="false">د هغو سایټونو لپاره چې په بله لاره نه پرانیستل کېږي د ټور شبکې سره نښلول کېږي… ‎{progress}%</string>
     <string name="linkReleases">د خپرونو یادښتونه</string>
     <string name="linkSourceCode">په GitHub کې سرچینه کوډ</string>
+    <string name="linkWebsite">د Codeshare وېبسایټ</string>
     <string name="madeBy">د Codeshare Technology Ltd محصول</string>
     <string name="nationalOnlyBody">د نړۍ له پاتې برخې سره اړیکه پرې ده؛ د هېواد دننه سایټونه لا خلاصېږي. هېڅ اپ یا VPN له دې نه شي تېرېدای. کله چې اړیکه بېرته راشي، Shroudly پخپله دوام ورکوي.</string>
     <string name="nationalOnlyHelp">نور څه مرسته کولی شي</string>
     <string name="nationalOnlyTitle">یوازې د دې هېواد شبکه کار کوي</string>
+    <string name="navFollow">تعقیب</string>
     <string name="navInfo">په اړه</string>
     <string name="navProtection">ساتنه</string>
     <string name="navSettings">امستنې</string>
@@ -202,6 +205,7 @@
     <string name="ownServerWhyTls">ځواب ورکوي، خو د هغه له لارې هېڅ سایټ پرانیستل نه شو</string>
     <string name="protected_">خوندي</string>
     <string name="protectionStopped">ساتنه ودرول شوه</string>
+    <string name="reopenAppsHint">هغه اپونه چې مخکې پرانیستي وو: که یو نښلي نه، وې تړئ او یو ځل بیا یې پرانیزئ.</string>
     <string name="searchApps">اپ ولټوئ</string>
     <string name="shareApp">Shroudly شریکول</string>
     <string name="shareAppText">د اندروید لپاره Shroudly {version}، د بندو سایټونو او اپونو د پرانیستلو لپاره. د نصبولو لپاره دا فایل پرانیزئ؛ که تلیفون وپوښتل، له دې سرچینې د اپونو نصبولو ته اجازه ورکړئ.</string>

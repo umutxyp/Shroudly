@@ -1,5 +1,5 @@
 import Foundation
-#if os(macOS)
+#if os(macOS) || os(iOS)
 import UserNotifications
 #endif
 
@@ -10,6 +10,8 @@ import UserNotifications
  * while protection is on, and at most once every 15 minutes. */
 enum TorNotice {
     static let textKey = "torUsedText"
+    /* The words for a DNS profile or app in the way (TunnelController). */
+    static let dnsTextKey = "dnsAroundText"
     static let every: TimeInterval = 15 * 60
     private static let lock = NSLock()
     private static var told = Set<String>()
@@ -27,6 +29,19 @@ enum TorNotice {
 
     static func reset() {
         lock.lock(); told.removeAll(); lastAt = nil; lock.unlock()
+    }
+
+    /* A notification in the app's words (left under `key`), where the
+     * system allows the app's notifications; on iPhone, iPad and Apple TV
+     * the app's own card says it too (ContentView). */
+    static func post(key: String, id: String) {
+        #if os(macOS) || os(iOS)
+        guard let text = AppGroup.defaults.string(forKey: key), !text.isEmpty else { return }
+        let c = UNMutableNotificationContent()
+        c.title = "Shroudly"
+        c.body = text
+        UNUserNotificationCenter.current().add(UNNotificationRequest(identifier: id, content: c, trigger: nil)) { _ in }
+        #endif
     }
 
     static func used(_ host: String) {

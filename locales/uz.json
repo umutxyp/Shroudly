@@ -8,6 +8,7 @@
   "navStats": "Statistika",
   "navSettings": "Sozlamalar",
   "navLogs": "Jurnal",
+  "navFollow": "Kuzatish",
   "navInfo": "Haqida",
   "protected": "Himoyalangan",
   "notProtected": "Himoyalanmagan",
@@ -935,5 +936,11 @@
   "followDesc": "Bloklar, yangi versiyalar va aylanib oʻtish yoʻllari haqidagi yangiliklar birinchi boʻlib shu yerda. Kuzatish va ulashish Shroudly’ga unga muhtoj odamlarga yetib borishga yordam beradi va bepul.",
   "followCodeshare": "Shroudly’ni yaratuvchi Codeshare",
   "followDeveloper": "Shroudly dasturchisi Umut Bayraktar",
-  "followTv": "Bularni telefon yoki kompyuteringizda oching:"
+  "followTv": "Bularni telefon yoki kompyuteringizda oching:",
+  "lastResortOldWindows": "Tor endi Windows 7 va 8 da ishlamaydi, shuning uchun bu yerda ishlatilmaydi; qolgan hammasi ishlaydi. Windows 10 va undan keyingisida ishlatiladi.",
+  "lastResortNoTor": "Tor loyihasi bu protsessor uchun Tor chiqarmaydi, shuning uchun bu yerda ishlatilmaydi; qolgan hammasi ishlaydi.",
+  "dnsAroundAndroid": "Bu qurilmada ilovalarning nom soʻrovlariga boshqa narsa javob beradi (Shaxsiy DNS yoki DNS ilovasi), shuning uchun bloklangan ilovalar ochilmasligi mumkin. Sozlamalar → Tarmoq → Shaxsiy DNS boʻlimida “Oʻchiq” yoki “Avtomatik”ni tanlang, DNS ilovalarini yoping, soʻng Shroudly’ni qayta ishga tushiring.",
+  "dnsAroundApple": "Bu qurilmadagi DNS profili yoki ilovasi (AdGuard, NextDNS, 1.1.1.1, maktab yoki ish profili) nom soʻrovlariga Shroudly’dan oldin javob beradi, shuning uchun bloklangan ilovalar ochilmasligi mumkin. Uni Sozlamalar → Umumiy → VPN va qurilma boshqaruvi boʻlimida oʻchiring (Mac: Tizim sozlamalari → Tarmoq → VPN va filtrlar), soʻng Shroudly’ni qayta ishga tushiring.",
+  "dnsAroundTitle": "Nimadir Shroudly’ni chetlab oʻtmoqda",
+  "reopenAppsHint": "Oldin ochiq boʻlgan ilovalar: biri ulanmasa, uni yopib, bir marta qayta oching."
 }

@@ -189,6 +189,7 @@ class MainActivity : Activity() {
         findViewById<TextView>(R.id.version).text = text(R.string.versionLabel, "version" to BuildConfig.VERSION_NAME)
         findViewById<View>(R.id.notices).setOnClickListener { showNotices() }
         findViewById<View>(R.id.privacy).setOnClickListener { open(UpdateCheck.PRIVACY_URL) }
+        findViewById<View>(R.id.website).setOnClickListener { open("https://codeshare.me") }
         findViewById<View>(R.id.shareLogs).setOnClickListener { shareLogs() }
         findViewById<View>(R.id.helpOthers).setOnClickListener { showHelpOthers() }
         // "Share Shroudly": the APK to another phone, where there is one file to pass on.
@@ -700,6 +701,18 @@ class MainActivity : Activity() {
             // (issue #66), so no site has to be opened to check.
             on && !proxyIdle && Protection.ownServerExit != null -> {
                 detail.show(text(R.string.ownServerExit, "ip" to (Protection.ownServerExit ?: "")))
+                detail.setTextColor(getColor(R.color.text_dim))
+            }
+            // Apps' lookups go around the tunnel (DnsNotice): what to turn off.
+            on && !proxyIdle && !Protection.proxyOnly && Protection.dnsAround -> {
+                detail.show(getString(R.string.dnsAroundAndroid))
+                detail.setTextColor(getColor(R.color.warn))
+            }
+            // Just started: an app that was open before may hold its old
+            // connections; said for the first two minutes.
+            on && !proxyIdle && !Protection.proxyOnly && Protection.startedAt > 0 &&
+                android.os.SystemClock.elapsedRealtime() - Protection.startedAt < 120_000 -> {
+                detail.show(getString(R.string.reopenAppsHint))
                 detail.setTextColor(getColor(R.color.text_dim))
             }
             // The last way out (TorRoute) at work: connecting, carrying sites

@@ -16,6 +16,7 @@ const SOURCES = [
 ];
 const SHA256 = {
   'macos-aarch64': 'b8da251eccbe9e82f3681ee3af3c97fb4291c4a4e153e5b824bde48a1117cd6a',
+  'windows-i686': '24036933df360e6581e26653eccb9f3d069ab1f5e0aa5b80e716cbf6030f84dc',
   'macos-x86_64': '5b1860215c26f2d408392d1d79e798a2f81d65eb939510bb94c11f237bd0bfc3',
   'linux-x86_64': 'cc950ebe9acb80188325c3a2cd8817def7dd7237d6fdcd861bb87b234a0cb2fd',
   'linux-aarch64': 'bed98744e093a0dc3a22be0eecfdce7a33cb36866d3f15fcf011a35bf3513d0d',
@@ -36,6 +37,8 @@ const DESKTOP = {
   'linux-arm64': { bundle: 'linux-aarch64', files: LINUX },
   'win32-x64': { bundle: 'windows-x86_64', files: WIN },
   'win32-arm64': { bundle: 'windows-x86_64', files: WIN },
+  // 32-bit Windows 10 and 11. 32-bit ARM Linux: Tor ships no build for it.
+  'win32-ia32': { bundle: 'windows-i686', files: WIN },
 };
 const ANDROID = { 'arm64-v8a': 'android-aarch64', 'armeabi-v7a': 'android-armv7', 'x86_64': 'android-x86_64' };
 const COMMON = { [`${PT}/pt_config.json`]: 'pt_config.json', 'docs/tor.txt': 'LICENSE-tor.txt', 'docs/lyrebird.txt': 'LICENSE-lyrebird.txt' };

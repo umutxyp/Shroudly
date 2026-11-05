@@ -42,6 +42,8 @@
 "connsSystem" = "בשימוש Shroudly";
 "connsSystemConfirm" = "Shroudly עצמו משתמש ב-{host}. חסימה עלולה לשבש את ה-DNS המוצפן, העדכונים או הדרך האחרונה, ואתרים עלולים להפסיק להיפתח. לחסום בכל זאת?";
 "connsTitle" = "חיבורים לפי אתר";
+"dnsAroundApple" = "פרופיל או אפליקציית DNS במכשיר הזה (AdGuard‏, NextDNS‏, 1.1.1.1, פרופיל של בית ספר או עבודה) עונים לבדיקות השמות לפני Shroudly, ולכן אפליקציות חסומות עלולות לא להיפתח. כבו אותו בהגדרות ← כללי ← VPN וניהול המכשיר (Mac: הגדרות המערכת ← רשת ← VPN ומסננים) והפעילו את Shroudly מחדש.";
+"dnsAroundTitle" = "משהו עוקף את Shroudly";
 "dnsKindDoh" = "DNS על גבי HTTPS (DoH)";
 "dnsKindDot" = "DNS על גבי TLS (DoT)";
 "dnsKindTcp" = "DNS על גבי TCP";
@@ -77,10 +79,12 @@
 "lastResortStarting" = "מתחבר לרשת Tor בשביל אתרים ששום דבר אחר לא פותח… ‎{progress}%";
 "linkReleases" = "הערות גרסה";
 "linkSourceCode" = "קוד המקור ב-GitHub";
+"linkWebsite" = "האתר של Codeshare";
 "madeBy" = "מוצר של Codeshare Technology Ltd";
 "nationalOnlyBody" = "החיבור לשאר העולם מנותק; אתרים בתוך המדינה עדיין נפתחים. אף אפליקציה או VPN לא יכולים לעקוף את זה. Shroudly ימשיך מעצמו כשהחיבור יחזור.";
 "nationalOnlyHelp" = "מה עוד יכול לעזור";
 "nationalOnlyTitle" = "רק הרשת של המדינה הזו עובדת";
+"navFollow" = "עקבו";
 "navInfo" = "אודות";
 "navSettings" = "הגדרות";
 "navStats" = "נתונים";
@@ -106,6 +110,7 @@
 "ownServerWhySilent" = "שום דבר לא חזר; ייתכן שהסיסמה או השיטה שגויות";
 "ownServerWhyTls" = "הוא עונה, אבל שום אתר לא עבר דרכו";
 "protected" = "מוגן";
+"reopenAppsHint" = "אפליקציות שכבר היו פתוחות: אם אחת לא מתחברת, סגרו אותה ופתחו אותה שוב פעם אחת.";
 "shareOnlineCount" = "לכלול אותי בספירה החיה";
 "shareOnlineCountDesc" = "נשלח מספר אקראי שמשתנה בכל הפעלה, כדי שהאפליקציה תוכל להציג כמה עותקים פועלים. הוא נשלח רק כשההגנה פועלת, ולכן עובר באותו נתיב מוגן כמו שאר התעבורה שלך. אפשר לכבות את האפשרות אם עדיף שהרשת לא תראה שום דבר מ-Shroudly.";
 "snowflakeCounts" = "נעזרים עכשיו: {now} · מאז ההפעלה: {total}";

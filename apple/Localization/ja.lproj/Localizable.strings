@@ -42,6 +42,8 @@
 "connsSystem" = "Shroudly が使用";
 "connsSystemConfirm" = "{host} は Shroudly 自身が使っています。ブロックすると暗号化 DNS、更新、最後の手段が使えなくなり、サイトが開かなくなるおそれがあります。それでもブロックしますか?";
 "connsTitle" = "サイト別の接続";
+"dnsAroundApple" = "このデバイスの DNS プロファイルやアプリ（AdGuard、NextDNS、1.1.1.1、学校や職場のプロファイル）が Shroudly より先に名前の問い合わせに答えているため、ブロックされたアプリが開かないことがあります。設定 → 一般 → VPN とデバイス管理 でオフにし（Mac：システム設定 → ネットワーク → VPN とフィルタ）、Shroudly を起動し直してください。";
+"dnsAroundTitle" = "何かが Shroudly を迂回しています";
 "dnsKindDoh" = "DNS over HTTPS（DoH）";
 "dnsKindDot" = "DNS over TLS（DoT）";
 "dnsKindTcp" = "DNS over TCP";
@@ -77,10 +79,12 @@
 "lastResortStarting" = "ほかの方法で開かないサイトのために Tor ネットワークに接続中… {progress}%";
 "linkReleases" = "リリースノート";
 "linkSourceCode" = "GitHub のソースコード";
+"linkWebsite" = "Codeshare のウェブサイト";
 "madeBy" = "Codeshare Technology Ltd の製品";
 "nationalOnlyBody" = "世界のほかの地域との接続が切断されています。国内のサイトはまだ開けます。アプリや VPN でもこれは回避できません。接続が戻れば Shroudly は自動で続けます。";
 "nationalOnlyHelp" = "まだ役立つこと";
 "nationalOnlyTitle" = "この国のネットワークしか使えません";
+"navFollow" = "フォロー";
 "navInfo" = "情報";
 "navSettings" = "設定";
 "navStats" = "統計";
@@ -106,6 +110,7 @@
 "ownServerWhySilent" = "何も返ってきません。パスワードか方式が違う可能性があります";
 "ownServerWhyTls" = "応答はありますが、経由してサイトが開きません";
 "protected" = "保護されています";
+"reopenAppsHint" = "すでに開いていたアプリ：つながらないものがあれば、一度閉じて開き直してください。";
 "shareOnlineCount" = "オンライン人数に自分を含める";
 "shareOnlineCountDesc" = "起動ごとに変わるランダムな番号を送り、何台が動いているかを表示できるようにします。保護がオンのときだけ送られるので、ほかの通信と同じ保護された経路を通ります。ネットワークに Shroudly の通信を一切見せたくない場合はオフにしてください。";
 "snowflakeCounts" = "いま助けている人：{now} · オンにしてから：{total}";

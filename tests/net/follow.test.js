@@ -34,17 +34,22 @@ const F = JSON.parse(read('components', 'follow.json'));
   t.ok(same(swList('codeshare'), F.codeshare) && same(swList('developer'), F.developer), 'the Apple apps carry the same list, in the same order');
 
   const info = read('components', 'InfoPanel.js');
-  t.ok(/import FOLLOW from '\.\/follow\.json'/.test(info) && /<FollowSection \/>/.test(info), 'desktop: About shows it');
+  const page = read('app', 'page.js');
+  t.ok(/import FOLLOW from '\.\/follow\.json'/.test(info) && /\{ id: 'follow', +label: t\('navFollow'\)/.test(page) && /activeTab === 'follow' +&& <div[^>]*><FollowSection \/><\/div>/.test(page) && /grid-cols-6/.test(page),
+    'desktop: a tab of its own');
   const layout = read('android', 'app', 'src', 'main', 'res', 'layout', 'activity_main.xml');
   const main = read('android', 'app', 'src', 'main', 'java', 'me', 'codeshare', 'shroudly', 'MainActivity.kt');
   const manifest = read('android', 'app', 'src', 'main', 'AndroidManifest.xml');
-  t.ok(/@\+id\/followRow/.test(layout) && /R\.id\.followRow\)\.setOnClickListener \{ startActivity\(android\.content\.Intent\(this, FollowActivity::class\.java\)\) \}/.test(main)
-    && /android:name="\.FollowActivity"/.test(manifest), 'Android: a row in About opens the page');
+  t.ok(/@string\/navFollow" \/>\s*<LinearLayout[\s\S]{0,400}@\+id\/followRow/.test(layout) && !/@\+id\/about"[\s\S]{0,300}followRow/.test(layout)
+    && /@\+id\/followRow/.test(layout) && /R\.id\.followRow\)\.setOnClickListener \{ startActivity\(android\.content\.Intent\(this, FollowActivity::class\.java\)\) \}/.test(main)
+    && /android:name="\.FollowActivity"/.test(manifest), 'Android: a section of its own on the main screen opens the page');
   t.ok(/if \(tv\) root\.addView\(label\(13f, R\.color\.text_dim\)\.apply \{ setText\(R\.string\.followTv\)/.test(kt) && /ActivityNotFoundException/.test(kt),
     'Android TV: the addresses shown in full, and a tap with nothing to open it says the address');
-  t.ok(/NavigationLink \{\s*FollowView\(\)/.test(sw) && /#if os\(tvOS\)\s*Text\(tr\("followTv"\)\)/.test(sw), 'Apple: About opens it; Apple TV says to open them elsewhere');
+  const cv = read('apple', 'App', 'ContentView.swift');
+  t.ok(/NavigationLink \{ FollowView\(\) \} label: \{\s*Tab\(icon: "person\.2", text: tr\("navFollow"\)\)/.test(cv) && /#if os\(tvOS\)\s*Text\(tr\("followTv"\)\)/.test(sw),
+    'Apple: a tab of its own beside About; Apple TV says to open them elsewhere');
 
-  const keys = ['followTitle', 'followDesc', 'followCodeshare', 'followDeveloper', 'followTv'];
+  const keys = ['navFollow', 'followTitle', 'followDesc', 'followCodeshare', 'followDeveloper', 'followTv'];
   const langs = fs.readdirSync(path.join(ROOT, 'locales')).filter((f) => f.endsWith('.json'));
   const missing = langs.filter((f) => { const d = JSON.parse(read('locales', f)); return keys.some((k) => !d[k] || !String(d[k]).trim()); });
   t.ok(!missing.length && langs.length === 31, `its words in all ${langs.length} languages${missing.length ? ` (missing: ${missing.join(', ')})` : ''}`);

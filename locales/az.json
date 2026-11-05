@@ -8,6 +8,7 @@
   "navStats": "Statistika",
   "navSettings": "Ayarlar",
   "navLogs": "Qeydlər",
+  "navFollow": "İzlə",
   "navInfo": "Haqqında",
   "protected": "Qorunur",
   "notProtected": "Qorunmur",
@@ -935,5 +936,11 @@
   "followDesc": "Bloklar, yeni versiyalar və keçid yolları haqqında xəbərlər ilk olaraq burada. İzləmək və paylaşmaq Shroudly-nin ona ehtiyacı olan insanlara çatmasının yoludur və pulsuzdur.",
   "followCodeshare": "Shroudly-ni hazırlayan Codeshare",
   "followDeveloper": "Shroudly-nin tərtibatçısı Umut Bayraktar",
-  "followTv": "Bunları telefonunuzda və ya kompüterinizdə açın:"
+  "followTv": "Bunları telefonunuzda və ya kompüterinizdə açın:",
+  "lastResortOldWindows": "Tor artıq Windows 7 və 8-də işləmir, ona görə burada istifadə olunmur; qalan hər şey işləyir. Windows 10 və sonrakılarda istifadə olunur.",
+  "lastResortNoTor": "Tor Layihəsi bu prosessor üçün Tor hazırlamır, ona görə burada istifadə olunmur; qalan hər şey işləyir.",
+  "dnsAroundAndroid": "Bu cihazda tətbiqlərin ad sorğularına başqa bir şey cavab verir (Şəxsi DNS və ya DNS tətbiqi), ona görə bloklanmış tətbiqlər açılmaya bilər. Ayarlar → Şəbəkə → Şəxsi DNS bölməsində «Söndürülü» və ya «Avtomatik» seçin, DNS tətbiqlərini bağlayın, sonra Shroudly-ni yenidən başladın.",
+  "dnsAroundApple": "Bu cihazdakı DNS profili və ya tətbiqi (AdGuard, NextDNS, 1.1.1.1, məktəb və ya iş profili) ad sorğularına Shroudly-dən əvvəl cavab verir, ona görə bloklanmış tətbiqlər açılmaya bilər. Onu Ayarlar → Ümumi → VPN və Cihaz İdarəetməsi bölməsində söndürün (Mac: Sistem Ayarları → Şəbəkə → VPN və Filtrlər), sonra Shroudly-ni yenidən başladın.",
+  "dnsAroundTitle": "Nəsə Shroudly-ni yan keçir",
+  "reopenAppsHint": "Əvvəlcədən açıq olan tətbiqlər: biri qoşulmasa, onu bağlayıb bir dəfə yenidən açın."
 }

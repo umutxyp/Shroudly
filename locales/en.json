@@ -8,6 +8,7 @@
   "navStats": "Stats",
   "navSettings": "Settings",
   "navLogs": "Logs",
+  "navFollow": "Follow",
   "navInfo": "About",
   "protected": "Protected",
   "notProtected": "Not protected",
@@ -935,5 +936,11 @@
   "followDesc": "News about blocks, new versions and ways through, first. Following and sharing is how Shroudly reaches the people who need it, and it costs nothing.",
   "followCodeshare": "Codeshare, who make Shroudly",
   "followDeveloper": "Umut Bayraktar, Shroudly's developer",
-  "followTv": "Open these on your phone or computer:"
+  "followTv": "Open these on your phone or computer:",
+  "lastResortOldWindows": "Tor no longer runs on Windows 7 and 8, so this is not used here; everything else works. On Windows 10 or later it does.",
+  "lastResortNoTor": "The Tor Project makes no Tor for this processor, so this is not used here; everything else works.",
+  "dnsAroundAndroid": "Something else on this device answers apps' name lookups (Private DNS or a DNS app), so blocked apps may not open. In Settings → Network → Private DNS choose Off or Automatic, close any DNS app, then start Shroudly again.",
+  "dnsAroundApple": "A DNS profile or app on this device (AdGuard, NextDNS, 1.1.1.1, a school or work profile) answers apps' name lookups before Shroudly, so blocked apps may not open. Turn it off in Settings → General → VPN & Device Management (Mac: System Settings → Network → VPN & Filters), then start Shroudly again.",
+  "dnsAroundTitle": "Something goes around Shroudly",
+  "reopenAppsHint": "Apps that were already open: if one does not connect, close it and open it again once."
 }

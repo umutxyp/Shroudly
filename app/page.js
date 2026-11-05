@@ -6,7 +6,7 @@ import ControlPanel from '../components/ControlPanel';
 import SettingsPanel from '../components/SettingsPanel';
 import LogsPanel from '../components/LogsPanel';
 import StatsPanel from '../components/StatsPanel';
-import InfoPanel from '../components/InfoPanel';
+import InfoPanel, { FollowSection } from '../components/InfoPanel';
 import UpdateBanner from '../components/UpdateBanner';
 import Onboarding from '../components/Onboarding';
 import BlockedNotice from '../components/BlockedNotice';
@@ -15,7 +15,7 @@ import { SupportBanner, useSupport } from '../components/Support';
 import { HelpBanner, useHelpNudge } from '../components/HelpBanner';
 import { WhatsNewBanner, useWhatsNew } from '../components/WhatsNew';
 import { useUpdate } from '../components/useUpdate';
-import { ChartIcon, InfoIcon, LogsIcon, SettingsIcon, ShieldIcon } from '../components/icons';
+import { ChartIcon, InfoIcon, LogsIcon, SettingsIcon, ShieldIcon, UsersIcon } from '../components/icons';
 import { useLanguage } from '../contexts/LanguageContext';
 
 /* Relative path: the exported app is loaded from file://, where "/logo.png"
@@ -132,6 +132,8 @@ export default function Home() {
     { id: 'stats',    label: t('navStats'),      Icon: ChartIcon },
     { id: 'settings', label: t('navSettings'),   Icon: SettingsIcon },
     { id: 'logs',     label: t('navLogs'),       Icon: LogsIcon },
+    // Follow Shroudly: a tab of its own, not a card deep in About.
+    { id: 'follow',   label: t('navFollow'),     Icon: UsersIcon },
     { id: 'info',     label: t('navInfo'),       Icon: InfoIcon },
   ];
 
@@ -196,12 +198,13 @@ export default function Home() {
         {activeTab === 'stats'    && <StatsPanel active={active} />}
         {activeTab === 'settings' && <SettingsPanel active={active} />}
         {activeTab === 'logs'     && <LogsPanel />}
+        {activeTab === 'follow'   && <div className="flex flex-col gap-3 py-4"><FollowSection /></div>}
         {activeTab === 'info'     && <InfoPanel version={version} supportFocus={supportFocus} />}
       </main>
 
       {/* Bottom navigation */}
       <nav
-        className="no-drag grid shrink-0 grid-cols-5 border-t"
+        className="no-drag grid shrink-0 grid-cols-6 border-t"
         style={{ borderColor: 'var(--line)', background: 'var(--bg-sunk)',
                  paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
       >

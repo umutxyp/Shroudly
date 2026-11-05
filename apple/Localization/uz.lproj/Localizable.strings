@@ -42,6 +42,8 @@
 "connsSystem" = "Shroudly ishlatadi";
 "connsSystemConfirm" = "Shroudly {host} manzilidan o'zi foydalanadi. Bloklash shifrlangan DNS, yangilanishlar yoki so'nggi yo'lni buzishi, saytlar ochilmay qolishi mumkin. Baribir bloklansinmi?";
 "connsTitle" = "Saytlar bo'yicha ulanishlar";
+"dnsAroundApple" = "Bu qurilmadagi DNS profili yoki ilovasi (AdGuard, NextDNS, 1.1.1.1, maktab yoki ish profili) nom soʻrovlariga Shroudly’dan oldin javob beradi, shuning uchun bloklangan ilovalar ochilmasligi mumkin. Uni Sozlamalar → Umumiy → VPN va qurilma boshqaruvi boʻlimida oʻchiring (Mac: Tizim sozlamalari → Tarmoq → VPN va filtrlar), soʻng Shroudly’ni qayta ishga tushiring.";
+"dnsAroundTitle" = "Nimadir Shroudly’ni chetlab oʻtmoqda";
 "dnsKindDoh" = "HTTPS orqali DNS (DoH)";
 "dnsKindDot" = "TLS orqali DNS (DoT)";
 "dnsKindTcp" = "TCP orqali DNS";
@@ -77,10 +79,12 @@
 "lastResortStarting" = "Boshqa yo'l bilan ochilmaydigan saytlar uchun Tor tarmog'iga ulanmoqda… {progress}%";
 "linkReleases" = "Reliz qaydlari";
 "linkSourceCode" = "GitHubdagi manba kodi";
+"linkWebsite" = "Codeshare sayti";
 "madeBy" = "Codeshare Technology Ltd mahsuloti";
 "nationalOnlyBody" = "Dunyoning qolgan qismi bilan aloqa uzilgan; mamlakat ichidagi saytlar hali ochilmoqda. Buni hech bir ilova yoki VPN chetlab oʻta olmaydi. Aloqa qaytganda Shroudly oʻzi davom etadi.";
 "nationalOnlyHelp" = "Yana nima yordam berishi mumkin";
 "nationalOnlyTitle" = "Faqat shu mamlakat tarmogʻi ishlayapti";
+"navFollow" = "Kuzatish";
 "navInfo" = "Haqida";
 "navSettings" = "Sozlamalar";
 "navStats" = "Statistika";
@@ -106,6 +110,7 @@
 "ownServerWhySilent" = "hech narsa qaytmadi; parol yoki usul notoʻgʻri boʻlishi mumkin";
 "ownServerWhyTls" = "u javob beradi, lekin u orqali hech bir sayt ochilmadi";
 "protected" = "Himoyalangan";
+"reopenAppsHint" = "Oldin ochiq boʻlgan ilovalar: biri ulanmasa, uni yopib, bir marta qayta oching.";
 "shareOnlineCount" = "Meni jonli hisobga qoʻshish";
 "shareOnlineCountDesc" = "Har safar ishga tushganda oʻzgaradigan tasodifiy raqam yuboriladi, shunda ilova nechta nusxa ishlayotganini koʻrsata oladi. U faqat himoya yoqilganida yuboriladi, shuning uchun trafikingizning qolgan qismi bilan bir xil himoyalangan yoʻldan oʻtadi. Agar tarmogʻingiz Shroudlydan umuman hech narsa koʻrmasligini istasangiz, buni oʻchiring.";
 "snowflakeCounts" = "Hozir yordam berilmoqda: {now} · Yoqilgandan beri: {total}";

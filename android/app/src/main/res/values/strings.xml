@@ -123,6 +123,7 @@
     <string name="connsSystem">used by Shroudly</string>
     <string name="connsSystemConfirm">Shroudly itself uses {host}. Blocking it can break encrypted DNS, updates or the last way out, and sites may stop opening. Block it anyway?</string>
     <string name="connsTitle">Connections by site</string>
+    <string name="dnsAroundAndroid">Something else on this device answers apps\' name lookups (Private DNS or a DNS app), so blocked apps may not open. In Settings → Network → Private DNS choose Off or Automatic, close any DNS app, then start Shroudly again.</string>
     <string name="dnsErrorEmpty">Type the server\'s address, like {example}.</string>
     <string name="dnsErrorHost">That is not an IP address or a server name; type it like {example}.</string>
     <string name="dnsErrorPort">The port must be a number from 1 to 65535.</string>
@@ -169,10 +170,12 @@
     <string name="lastResortStarting" formatted="false">Connecting to the Tor network for sites nothing else opens… {progress}%</string>
     <string name="linkReleases">Release notes</string>
     <string name="linkSourceCode">Source code on GitHub</string>
+    <string name="linkWebsite">Codeshare website</string>
     <string name="madeBy">A Codeshare Technology Ltd product</string>
     <string name="nationalOnlyBody">The connection to the rest of the world is cut; sites inside the country still open. No app or VPN gets past that. Shroudly carries on by itself when it is back.</string>
     <string name="nationalOnlyHelp">What can still help</string>
     <string name="nationalOnlyTitle">Only this country\'s network works</string>
+    <string name="navFollow">Follow</string>
     <string name="navInfo">About</string>
     <string name="navProtection">Protection</string>
     <string name="navSettings">Settings</string>
@@ -202,6 +205,7 @@
     <string name="ownServerWhyTls">it answers, but no site came through it</string>
     <string name="protected_">Protected</string>
     <string name="protectionStopped">Protection stopped</string>
+    <string name="reopenAppsHint">Apps that were already open: if one does not connect, close it and open it again once.</string>
     <string name="searchApps">Search apps</string>
     <string name="shareApp">Share Shroudly</string>
     <string name="shareAppText">Shroudly {version} for Android, to open blocked sites and apps. To install it, open this file; if the phone asks, allow installing apps from this source.</string>

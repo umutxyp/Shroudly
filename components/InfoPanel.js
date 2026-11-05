@@ -140,8 +140,6 @@ export default function InfoPanel({ version: versionProp, supportFocus = 0 }) {
         <p className="text-[12.5px] leading-relaxed" style={{ color: 'var(--text-dim)' }}>{t('obBody1')}</p>
       </Section>
 
-      <FollowSection />
-
       <UpdatesSection version={version} />
 
       <SupportSection focus={supportFocus} />

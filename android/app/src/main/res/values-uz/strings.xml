@@ -123,6 +123,7 @@
     <string name="connsSystem">Shroudly ishlatadi</string>
     <string name="connsSystemConfirm">Shroudly {host} manzilidan o\'zi foydalanadi. Bloklash shifrlangan DNS, yangilanishlar yoki so\'nggi yo\'lni buzishi, saytlar ochilmay qolishi mumkin. Baribir bloklansinmi?</string>
     <string name="connsTitle">Saytlar bo\'yicha ulanishlar</string>
+    <string name="dnsAroundAndroid">Bu qurilmada ilovalarning nom soʻrovlariga boshqa narsa javob beradi (Shaxsiy DNS yoki DNS ilovasi), shuning uchun bloklangan ilovalar ochilmasligi mumkin. Sozlamalar → Tarmoq → Shaxsiy DNS boʻlimida “Oʻchiq” yoki “Avtomatik”ni tanlang, DNS ilovalarini yoping, soʻng Shroudly’ni qayta ishga tushiring.</string>
     <string name="dnsErrorEmpty">Server manzilini yozing, masalan {example}.</string>
     <string name="dnsErrorHost">Bu na IP manzil, na server nomi; uni {example} kabi yozing.</string>
     <string name="dnsErrorPort">Port 1 dan 65535 gacha boʻlgan son boʻlishi kerak.</string>
@@ -169,10 +170,12 @@
     <string name="lastResortStarting" formatted="false">Boshqa yo\'l bilan ochilmaydigan saytlar uchun Tor tarmog\'iga ulanmoqda… {progress}%</string>
     <string name="linkReleases">Reliz qaydlari</string>
     <string name="linkSourceCode">GitHubdagi manba kodi</string>
+    <string name="linkWebsite">Codeshare sayti</string>
     <string name="madeBy">Codeshare Technology Ltd mahsuloti</string>
     <string name="nationalOnlyBody">Dunyoning qolgan qismi bilan aloqa uzilgan; mamlakat ichidagi saytlar hali ochilmoqda. Buni hech bir ilova yoki VPN chetlab oʻta olmaydi. Aloqa qaytganda Shroudly oʻzi davom etadi.</string>
     <string name="nationalOnlyHelp">Yana nima yordam berishi mumkin</string>
     <string name="nationalOnlyTitle">Faqat shu mamlakat tarmogʻi ishlayapti</string>
+    <string name="navFollow">Kuzatish</string>
     <string name="navInfo">Haqida</string>
     <string name="navProtection">Himoya</string>
     <string name="navSettings">Sozlamalar</string>
@@ -202,6 +205,7 @@
     <string name="ownServerWhyTls">u javob beradi, lekin u orqali hech bir sayt ochilmadi</string>
     <string name="protected_">Himoyalangan</string>
     <string name="protectionStopped">Himoya oʻchirildi</string>
+    <string name="reopenAppsHint">Oldin ochiq boʻlgan ilovalar: biri ulanmasa, uni yopib, bir marta qayta oching.</string>
     <string name="searchApps">Ilova qidirish</string>
     <string name="shareApp">Shroudly’ni ulashish</string>
     <string name="shareAppText">Bloklangan saytlar va ilovalarni ochish uchun Android uchun Shroudly {version}. Oʻrnatish uchun shu faylni oching; telefon soʻrasa, shu manbadan ilova oʻrnatishga ruxsat bering.</string>

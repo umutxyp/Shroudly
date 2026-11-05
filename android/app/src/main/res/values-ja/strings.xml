@@ -123,6 +123,7 @@
     <string name="connsSystem">Shroudly が使用</string>
     <string name="connsSystemConfirm">{host} は Shroudly 自身が使っています。ブロックすると暗号化 DNS、更新、最後の手段が使えなくなり、サイトが開かなくなるおそれがあります。それでもブロックしますか?</string>
     <string name="connsTitle">サイト別の接続</string>
+    <string name="dnsAroundAndroid">このデバイスでは、アプリの名前の問い合わせに別のもの（プライベート DNS や DNS アプリ）が答えているため、ブロックされたアプリが開かないことがあります。設定 → ネットワーク → プライベート DNS で「オフ」か「自動」を選び、DNS アプリを閉じてから Shroudly を起動し直してください。</string>
     <string name="dnsErrorEmpty">サーバーのアドレスを入力してください（例: {example}）。</string>
     <string name="dnsErrorHost">IP アドレスでもサーバー名でもありません。{example} のように入力してください。</string>
     <string name="dnsErrorPort">ポートは 1 から 65535 までの数字にしてください。</string>
@@ -169,10 +170,12 @@
     <string name="lastResortStarting" formatted="false">ほかの方法で開かないサイトのために Tor ネットワークに接続中… {progress}%</string>
     <string name="linkReleases">リリースノート</string>
     <string name="linkSourceCode">GitHub のソースコード</string>
+    <string name="linkWebsite">Codeshare のウェブサイト</string>
     <string name="madeBy">Codeshare Technology Ltd の製品</string>
     <string name="nationalOnlyBody">世界のほかの地域との接続が切断されています。国内のサイトはまだ開けます。アプリや VPN でもこれは回避できません。接続が戻れば Shroudly は自動で続けます。</string>
     <string name="nationalOnlyHelp">まだ役立つこと</string>
     <string name="nationalOnlyTitle">この国のネットワークしか使えません</string>
+    <string name="navFollow">フォロー</string>
     <string name="navInfo">情報</string>
     <string name="navProtection">保護</string>
     <string name="navSettings">設定</string>
@@ -202,6 +205,7 @@
     <string name="ownServerWhyTls">応答はありますが、経由してサイトが開きません</string>
     <string name="protected_">保護されています</string>
     <string name="protectionStopped">保護を停止しました</string>
+    <string name="reopenAppsHint">すでに開いていたアプリ：つながらないものがあれば、一度閉じて開き直してください。</string>
     <string name="searchApps">アプリを検索</string>
     <string name="shareApp">Shroudly を共有</string>
     <string name="shareAppText">ブロックされたサイトやアプリを開くための Android 版 Shroudly {version}。インストールするにはこのファイルを開き、スマートフォンに尋ねられたらこの提供元からのアプリのインストールを許可してください。</string>

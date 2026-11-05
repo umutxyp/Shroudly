@@ -123,6 +123,7 @@
     <string name="connsSystem">Shroudly အသုံးပြုသည်</string>
     <string name="connsSystemConfirm">Shroudly ကိုယ်တိုင် {host} ကို အသုံးပြုပါသည်။ ပိတ်ပါက ကုဒ်ဝှက်ထားသော DNS၊ အပ်ဒိတ်များ သို့မဟုတ် နောက်ဆုံးလမ်းကြောင်း ပျက်နိုင်ပြီး ဝဘ်ဆိုက်များ မပွင့်နိုင်ပါ။ မည်သို့ပင်ဖြစ်စေ ပိတ်မလား။</string>
     <string name="connsTitle">ဝဘ်ဆိုက်အလိုက် ချိတ်ဆက်မှုများ</string>
+    <string name="dnsAroundAndroid">ဤစက်တွင် အက်ပ်များ၏ အမည်ရှာဖွေမှုကို အခြားတစ်ခုက ဖြေနေသည် (Private DNS သို့မဟုတ် DNS အက်ပ်)၊ ထို့ကြောင့် ပိတ်ဆို့ထားသော အက်ပ်များ မပွင့်နိုင်ပါ။ ဆက်တင်များ → ကွန်ရက် → Private DNS တွင် ပိတ် သို့မဟုတ် အလိုအလျောက် ကိုရွေးပြီး DNS အက်ပ်များကို ပိတ်ကာ Shroudly ကို ပြန်စပါ။</string>
     <string name="dnsErrorEmpty">ဆာဗာ၏ လိပ်စာကို ရိုက်ထည့်ပါ၊ ဥပမာ {example}။</string>
     <string name="dnsErrorHost">၎င်းသည် IP လိပ်စာ သို့မဟုတ် ဆာဗာအမည် မဟုတ်ပါ။ {example} ကဲ့သို့ ရိုက်ထည့်ပါ။</string>
     <string name="dnsErrorPort">ပေါ့တ်သည် 1 မှ 65535 အတွင်း နံပါတ် ဖြစ်ရမည်။</string>
@@ -169,10 +170,12 @@
     <string name="lastResortStarting" formatted="false">အခြားနည်းဖြင့် မပွင့်သော ဝဘ်ဆိုက်များအတွက် Tor ကွန်ရက်သို့ ချိတ်ဆက်နေသည်… {progress}%</string>
     <string name="linkReleases">ထုတ်ဝေမှု မှတ်စုများ</string>
     <string name="linkSourceCode">GitHub ပေါ်ရှိ ရင်းမြစ်ကုဒ်</string>
+    <string name="linkWebsite">Codeshare ဝဘ်ဆိုက်</string>
     <string name="madeBy">Codeshare Technology Ltd ၏ ထုတ်ကုန်</string>
     <string name="nationalOnlyBody">ကမ္ဘာ့ကျန်အပိုင်းနှင့် ချိတ်ဆက်မှု ပြတ်တောက်နေသည်။ နိုင်ငံတွင်းဆိုက်များ ဖွင့်၍ရဆဲဖြစ်သည်။ မည်သည့်အက်ပ် သို့မဟုတ် VPN မျှ ၎င်းကို မကျော်နိုင်ပါ။ ချိတ်ဆက်မှု ပြန်ရလာသောအခါ Shroudly ကိုယ်တိုင် ဆက်လုပ်မည်။</string>
     <string name="nationalOnlyHelp">အခြား ဘာက ကူညီနိုင်သနည်း</string>
     <string name="nationalOnlyTitle">ဤနိုင်ငံ၏ ကွန်ရက်သာ အလုပ်လုပ်သည်</string>
+    <string name="navFollow">ဖော်လို</string>
     <string name="navInfo">အကြောင်း</string>
     <string name="navProtection">ကာကွယ်မှု</string>
     <string name="navSettings">ဆက်တင်များ</string>
@@ -202,6 +205,7 @@
     <string name="ownServerWhyTls">၎င်း ဖြေကြားသော်လည်း ၎င်းမှတစ်ဆင့် ဆိုက်တစ်ခုမျှ မရောက်ပါ</string>
     <string name="protected_">ကာကွယ်ထားသည်</string>
     <string name="protectionStopped">ကာကွယ်မှု ရပ်ပြီးပါပြီ</string>
+    <string name="reopenAppsHint">ယခင်ကတည်းက ဖွင့်ထားသော အက်ပ်များ- တစ်ခုခု မချိတ်ဆက်နိုင်ပါက ပိတ်ပြီး တစ်ကြိမ် ပြန်ဖွင့်ပါ။</string>
     <string name="searchApps">အက်ပ် ရှာရန်</string>
     <string name="shareApp">Shroudly ကို မျှဝေရန်</string>
     <string name="shareAppText">ပိတ်ဆို့ထားသော ဆိုက်များနှင့် အက်ပ်များကို ဖွင့်ရန် Android အတွက် Shroudly {version}။ ထည့်သွင်းရန် ဤဖိုင်ကို ဖွင့်ပါ။ ဖုန်းက မေးလျှင် ဤရင်းမြစ်မှ အက်ပ်များ ထည့်သွင်းခွင့်ပြုပါ။</string>

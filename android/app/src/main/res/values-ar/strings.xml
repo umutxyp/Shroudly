@@ -123,6 +123,7 @@
     <string name="connsSystem">يستخدمه Shroudly</string>
     <string name="connsSystemConfirm">يستخدم Shroudly نفسه {host}. قد يؤدي حظره إلى تعطيل DNS المشفّر أو التحديثات أو المخرج الأخير، وقد تتوقف المواقع عن الفتح. هل تريد حظره رغم ذلك؟</string>
     <string name="connsTitle">الاتصالات حسب الموقع</string>
+    <string name="dnsAroundAndroid">شيء آخر على هذا الجهاز يجيب عن استعلامات الأسماء للتطبيقات (DNS خاص أو تطبيق DNS)، لذلك قد لا تفتح التطبيقات المحجوبة. من الإعدادات ← الشبكة ← DNS الخاص اختر «إيقاف» أو «تلقائي»، وأغلق أي تطبيق DNS، ثم شغّل Shroudly من جديد.</string>
     <string name="dnsErrorEmpty">اكتب عنوان الخادم، مثل {example}.</string>
     <string name="dnsErrorHost">هذا ليس عنوان IP ولا اسم خادم؛ اكتبه مثل {example}.</string>
     <string name="dnsErrorPort">يجب أن يكون المنفذ رقمًا من 1 إلى 65535.</string>
@@ -169,10 +170,12 @@
     <string name="lastResortStarting" formatted="false">جارٍ الاتصال بشبكة تور للمواقع التي لا يفتحها شيء آخر… ‎{progress}%</string>
     <string name="linkReleases">ملاحظات الإصدار</string>
     <string name="linkSourceCode">الشيفرة المصدرية على GitHub</string>
+    <string name="linkWebsite">موقع Codeshare</string>
     <string name="madeBy">منتج من Codeshare Technology Ltd</string>
     <string name="nationalOnlyBody">الاتصال ببقية العالم مقطوع؛ ولا تزال مواقع داخل البلد تفتح. لا يستطيع أي تطبيق أو VPN تجاوز ذلك. سيتابع Shroudly من تلقاء نفسه عند عودته.</string>
     <string name="nationalOnlyHelp">ما الذي قد يساعد بعد</string>
     <string name="nationalOnlyTitle">لا تعمل إلا شبكة هذا البلد</string>
+    <string name="navFollow">تابعنا</string>
     <string name="navInfo">حول</string>
     <string name="navProtection">الحماية</string>
     <string name="navSettings">الإعدادات</string>
@@ -202,6 +205,7 @@
     <string name="ownServerWhyTls">يجيب، لكن لم يمرّ عبره أي موقع</string>
     <string name="protected_">محمي</string>
     <string name="protectionStopped">توقفت الحماية</string>
+    <string name="reopenAppsHint">التطبيقات التي كانت مفتوحة من قبل: إن لم يتصل أحدها فأغلقه وافتحه مرة أخرى.</string>
     <string name="searchApps">ابحث عن تطبيق</string>
     <string name="shareApp">مشاركة Shroudly</string>
     <string name="shareAppText">Shroudly {version} لأندرويد، لفتح المواقع والتطبيقات المحجوبة. لتثبيته افتح هذا الملف، وإن سأل الهاتف فاسمح بتثبيت التطبيقات من هذا المصدر.</string>
