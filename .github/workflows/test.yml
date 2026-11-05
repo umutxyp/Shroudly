@@ -109,6 +109,14 @@ jobs:
           node scripts/fetch-windivert.js
           node tests/lab/advanced-windows.js electron/tools/core/win32-x64/shroudly-core-adv.exe
 
+      # Windows says "not found" about the driver with every file in place
+      # (Akbar, 2.6.55): a service another program left behind, and a folder
+      # the service manager cannot see; the engine repairs both by itself.
+      - name: Advanced mode repair lab (Windows, real driver)
+        if: matrix.os == 'windows-latest'
+        shell: bash
+        run: node tests/lab/advanced-windows-repair.js electron/tools/core/win32-x64/shroudly-core-adv.exe
+
       # Microsoft Store apps and the loopback proxy (issue #26): a process in
       # an app container of our own reaches the internet but not 127.0.0.1
       # nor the engine's SOCKS port until it has a loopback exemption, and

@@ -11,7 +11,7 @@
  * user turns off by hand stays off for two weeks, after which the autopilot
  * may turn it on again if the same problem comes back.
  *
- * Services an app needs (Discord, Roblox): whether this network blocks one is
+ * Services an app needs (Discord, Roblox, Riot Games): whether this network blocks one is
  * decided by a check of its own (blockcheck.js: the system's DNS and a direct
  * handshake fail where the same name works through Shroudly), made when
  * protection is on and the app is installed, so the mode is on before the app
@@ -60,6 +60,7 @@ const OWN = {
     'discord.co', 'discord.app', 'discordstatus.com'],
   roblox: ['roblox.com', 'rbxcdn.com', 'rbxinfra.net', 'rbx.com', 'rblx.org', 'blox.com', 'rbxcdn.net', 'robloxcdn.com',
     'robloxlabs.com', 'rbxtrk.com'],
+  riot: ['riotgames.com', 'leagueoflegends.com', 'playvalorant.com', 'riotcdn.net', 'rgpub.io', 'pvp.net', 'lolstatic.com'],
 };
 
 const under = (h, d) => h === d || h.endsWith(`.${d}`);

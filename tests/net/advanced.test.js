@@ -211,6 +211,19 @@ function windowsArgv(line) {
     const { e } = await failOf(shown);
     t.ok(e && e.code === 'start_failed' && !e.info && /start the WinDivert driver \(error 2\) although Advanced mode's files are all in place/.test(e.message),
       `files in place, WinDivertOpen 2: start_failed, not files_missing (${e && e.code})`);
+    const st0 = fresh('stale0');
+    statusOf(st0, [{ type: 'driver', stale: 0 }, { type: 'error', code: 'windivert_open', win32: 3, msg: 'WinDivertOpen failed (3)' }, { type: 'stopped' }]);
+    const z = await failOf(st0);
+    t.ok(z.e && /\(error 3\)[^.]*no WinDivert service left behind was found/.test(z.e.message),
+      'error 3 after the engine looked for a service left behind and found none: said in the log');
+    const st1 = fresh('stale1');
+    statusOf(st1, [{ type: 'driver', stale: 1 }, { type: 'error', code: 'windivert_open', win32: 3, msg: 'WinDivertOpen failed (3)' }, { type: 'stopped' }]);
+    const o = await failOf(st1);
+    t.ok(o.e && /a WinDivert service left behind was removed/.test(o.e.message), '…and one it removed, too');
+    const st2 = fresh('copy0');
+    statusOf(st2, [{ type: 'driver', stale: 1, file_gone: 0 }, { type: 'driver', copy: 0 }, { type: 'error', code: 'windivert_open', win32: 3, msg: 'WinDivertOpen failed (3)' }, { type: 'stopped' }]);
+    const q = await failOf(st2);
+    t.ok(q.e && /could not be copied to Common Files\\Shroudly/.test(q.e.message), '…and a copy it could not make');
     const dll = fresh('there-dll');
     statusOf(dll, [{ type: 'error', code: 'windivert_load', win32: 126, msg: 'Loading WinDivert.dll failed (126)' }, { type: 'stopped' }]);
     const r = await failOf(dll);
@@ -390,16 +403,23 @@ function windowsArgv(line) {
     t.ok(/advanced\.available\(\)[\s\S]{0,300}notifySiteBlockedBodyNoAdvanced/.test(main), 'a blocked site: Advanced mode is not suggested where it is not available');
   }
   {
-    // Windows "not found" (2, 3) with every file in place: a "WinDivert"
-    // service another program left behind, pointing at a deleted folder
-    // (Akbar, 2.6.55). It is deleted, only when stopped and its file gone,
-    // and the driver opened once more from our folder.
+    // Windows "not found" (2, 3) with every file in place (Akbar, 2.6.55):
+    // a stopped "WinDivert" service is deleted (another program's left
+    // behind, or the one the failed open made), then the driver is started
+    // from a copy where the kernel can read it and only an administrator
+    // can write. The real driver: tests/lab/advanced-windows-repair.js.
     const c = fs.readFileSync(path.join(ROOT, 'core', 'src', 'raw_windows.c'), 'utf8');
-    const fn = c.slice(c.indexOf('static int repair_stale_service'), c.indexOf('/* Inject one of our crafted'));
-    t.ok(/SERVICE_STOPPED/.test(fn) && /GetFileAttributesW\(full\) == INVALID_FILE_ATTRIBUTES/.test(fn) && /DeleteService\(svc\)/.test(fn),
-      'a stale WinDivert service is deleted only when stopped and its driver file is gone');
-    t.ok(/round < 2[\s\S]{0,200}ERROR_FILE_NOT_FOUND && open_err != ERROR_PATH_NOT_FOUND\) \|\| !repair_stale_service\(\)\) break/.test(c),
-      'and the driver is opened once more after it, only for "not found"');
+    const fn = c.slice(c.indexOf('static int repair_stale_service'), c.indexOf('static int same_file'));
+    t.ok(/SERVICE_STOPPED\) \{[\s\S]*DeleteService\(svc\)/.test(fn) && !/SERVICE_RUNNING/.test(fn),
+      'only a stopped WinDivert service is deleted; a running one is someone\'s in use');
+    const cp = c.slice(c.indexOf('static int use_system_copy'), c.indexOf('static int load_windivert'));
+    t.ok(/RegGetValueW\(HKEY_LOCAL_MACHINE[^)]*CommonFilesDir/.test(cp) && !/getenv|GetEnvironmentVariable/.test(cp),
+      'the copy goes to Common Files as the registry has it, never a folder the environment names');
+    t.ok(/FILE_ATTRIBUTE_REPARSE_POINT/.test(cp) && /same_file\(from, to\)/.test(cp), 'not through a link, and used only when byte for byte the same');
+    t.ok(/round < 3[\s\S]{0,400}ERROR_PATH_NOT_FOUND\) break;[\s\S]{0,120}round == 1 && !repair_stale_service\(\)[\s\S]{0,120}round == 2[\s\S]{0,80}use_system_copy\(\)/.test(c),
+      'tried in that order, only for "not found"');
+    const wf = fs.readFileSync(path.join(ROOT, '.github', 'workflows', 'test.yml'), 'utf8');
+    t.ok(/node tests\/lab\/advanced-windows-repair\.js/.test(wf), 'and tried on the real driver in CI');
   }
   fs.rmSync(tmp, { recursive: true, force: true });
 

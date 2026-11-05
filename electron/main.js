@@ -42,6 +42,7 @@ const Rivals = require('./rivals');
 const FlatpakEnv = require('./flatpak-env');
 const LinkHandlers = require('./link-handlers');
 const RobloxApp = require('./roblox-app');
+const RiotApp = require('./riot-app');
 const { RobloxWatch } = require('./roblox-watch');
 const Autopilot = require('./autopilot');
 const AroundWatch = require('./around-watch');
@@ -2942,6 +2943,19 @@ function createAutopilot() {
         told: 'autoRobloxOn',
         toldOff: 'autoRobloxOffByHand',
         toldFailed: 'autoRobloxFailed',
+      },
+      {
+        // League of Legends, VALORANT and their installer (#76): the same
+        // mode as Roblox, for the same reason (they never use the system
+        // proxy). Its app is not needed: someone on the website, about to
+        // run the installer, needs it most.
+        id: 'riot', name: 'Riot Games', probe: 'www.leagueoflegends.com', mode: 'appMode', needsApp: false,
+        present: () => appModeSupported() && RiotApp.installed(),
+        enable: () => (appModeSupported() ? applyAppMode(true) : Promise.resolve({ success: false, code: 'unsupported' })),
+        logOn: 'Autopilot: Riot Games is blocked on this network; Games and apps mode turned on',
+        told: 'autoRiotOn',
+        toldOff: 'autoRiotOffByHand',
+        toldFailed: 'autoRiotFailed',
       },
     ],
     // Roblox found blocked: its programs that go around Shroudly are seen

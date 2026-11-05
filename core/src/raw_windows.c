@@ -133,31 +133,35 @@ static void report_windivert_error(const char *code, const char *what, DWORD err
   fflush(stderr);
 }
 
-static int load_windivert(void) {
-  HMODULE m = LoadLibraryA("WinDivert.dll");
-  /* 126: not there (quarantined?); 5, 225, 226: refused. */
-  if (!m) { report_windivert_error("windivert_load", "Loading WinDivert.dll", GetLastError()); return -1; }
+/* Windows said "not found" (2, 3) about the driver although our files are
+ * here. WinDivertOpen starts any service named "WinDivert" it finds, and
+ * leaves the one it made behind when that one does not start. Two ways that
+ * happens:
+ *   - another program that used WinDivert (GoodbyeDPI, zapret, a VPN) left
+ *     its service pointing at a folder since deleted;
+ *   - the kernel cannot read the folder Shroudly runs from (a network or
+ *     substituted drive, a folder only this user can see).
+ * repair_stale_service deletes a stopped "WinDivert" service: stopped, no
+ * one uses it, and the next open makes a fresh one. One that runs is
+ * someone's in use and stays. use_system_copy then puts the driver where
+ * the kernel can always read it and only an administrator can write
+ * (Common Files\Shroudly, from the registry, never from the environment)
+ * and loads it from there. Each says what it did in a "driver" line. */
+static HMODULE g_wd_mod;
+
+static int bind_windivert(HMODULE m) {
+  if (!m) return -1;
   p_Open     = (PFN_Open)    GetProcAddress(m, "WinDivertOpen");
   p_Recv     = (PFN_Recv)    GetProcAddress(m, "WinDivertRecv");
   p_Send     = (PFN_Send)    GetProcAddress(m, "WinDivertSend");
   p_Close    = (PFN_Close)   GetProcAddress(m, "WinDivertClose");
   p_Shutdown = (PFN_Shutdown)GetProcAddress(m, "WinDivertShutdown");
   p_CalcCsum = (PFN_CalcCsum)GetProcAddress(m, "WinDivertHelperCalcChecksums");
-  if (!p_Open || !p_Recv || !p_Send || !p_Close || !p_CalcCsum) {
-    fprintf(stderr, "WinDivert.dll missing exports\n"); return -1;
-  }
-  return 0;
+  return (p_Open && p_Recv && p_Send && p_Close && p_CalcCsum) ? 0 : -1;
 }
 
-/* Another program that used WinDivert (GoodbyeDPI, zapret and the like) can
- * leave its "WinDivert" service behind, pointing at a driver file in a folder
- * since deleted. WinDivertOpen then starts that service rather than make its
- * own, and Windows says "not found" (2, 3) although our files are all here.
- * Such a service, stopped and with its file gone, is deleted, so the next
- * open installs the driver from our folder. A service whose file is there,
- * or that runs, is someone else's in use and stays. 1 if one was deleted. */
 static int repair_stale_service(void) {
-  int fixed = 0;
+  int fixed = 0, gone = 0;
   SC_HANDLE scm = OpenSCManagerW(NULL, NULL, SC_MANAGER_CONNECT);
   if (!scm) return 0;
   SC_HANDLE svc = OpenServiceW(scm, L"WinDivert", SERVICE_QUERY_CONFIG | SERVICE_QUERY_STATUS | DELETE);
@@ -165,36 +169,101 @@ static int repair_stale_service(void) {
     SERVICE_STATUS st;
     union { QUERY_SERVICE_CONFIGW c; BYTE b[8192]; } cfg;
     DWORD need = 0;
-    if (QueryServiceStatus(svc, &st) && st.dwCurrentState == SERVICE_STOPPED &&
-        QueryServiceConfigW(svc, &cfg.c, sizeof(cfg), &need) && cfg.c.lpBinaryPathName) {
-      const wchar_t *img = cfg.c.lpBinaryPathName;
-      wchar_t full[1024];
-      full[0] = 0;
-      if (!wcsncmp(img, L"\\??\\", 4) || !wcsncmp(img, L"\\\\?\\", 4)) img += 4;
-      if (!_wcsnicmp(img, L"\\SystemRoot\\", 12)) {
-        UINT n = GetWindowsDirectoryW(full, 512);
-        if (n > 0 && n < 512) _snwprintf(full + n, 1024 - n, L"\\%ls", img + 12);
-        else full[0] = 0;
-      } else if (img[0] && img[1] == L':') {
-        _snwprintf(full, 1024, L"%ls", img);
-      } else if (img[0]) {
-        UINT n = GetWindowsDirectoryW(full, 512);
-        if (n > 0 && n < 512) _snwprintf(full + n, 1024 - n, L"\\%ls", img);
-        else full[0] = 0;
+    if (QueryServiceStatus(svc, &st) && st.dwCurrentState == SERVICE_STOPPED) {
+      /* Whether its driver file is gone, for the log. */
+      if (QueryServiceConfigW(svc, &cfg.c, sizeof(cfg), &need) && cfg.c.lpBinaryPathName) {
+        const wchar_t *img = cfg.c.lpBinaryPathName;
+        wchar_t full[1024];
+        full[0] = 0;
+        if (!wcsncmp(img, L"\\??\\", 4) || !wcsncmp(img, L"\\\\?\\", 4)) img += 4;
+        if (!_wcsnicmp(img, L"\\SystemRoot\\", 12)) {
+          UINT n = GetWindowsDirectoryW(full, 512);
+          if (n > 0 && n < 512) _snwprintf(full + n, 1024 - n, L"\\%ls", img + 12); else full[0] = 0;
+        } else if (img[0] && img[1] == L':') {
+          _snwprintf(full, 1024, L"%ls", img);
+        } else if (img[0]) {
+          UINT n = GetWindowsDirectoryW(full, 512);
+          if (n > 0 && n < 512) _snwprintf(full + n, 1024 - n, L"\\%ls", img); else full[0] = 0;
+        }
+        full[1023] = 0;
+        gone = full[0] && GetFileAttributesW(full) == INVALID_FILE_ATTRIBUTES;
       }
-      full[1023] = 0;
-      if (full[0] && GetFileAttributesW(full) == INVALID_FILE_ATTRIBUTES) {
-        DWORD e = GetLastError();
-        if ((e == ERROR_FILE_NOT_FOUND || e == ERROR_PATH_NOT_FOUND) && DeleteService(svc)) fixed = 1;
-      }
+      if (DeleteService(svc) || GetLastError() == ERROR_SERVICE_MARKED_FOR_DELETE) fixed = 1;
     }
     CloseServiceHandle(svc);
   }
   CloseServiceHandle(scm);
-  printf("{\"type\":\"driver\",\"stale\":%d}\n", fixed);
+  printf("{\"type\":\"driver\",\"stale\":%d,\"file_gone\":%d}\n", fixed, gone);
   fflush(stdout);
   if (fixed) Sleep(300);
   return fixed;
+}
+
+/* 1 if the two files hold the same bytes. */
+static int same_file(const wchar_t *a, const wchar_t *b) {
+  HANDLE fa = CreateFileW(a, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_DELETE, NULL, OPEN_EXISTING, 0, NULL);
+  HANDLE fb = CreateFileW(b, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_DELETE, NULL, OPEN_EXISTING, 0, NULL);
+  int same = fa != INVALID_HANDLE_VALUE && fb != INVALID_HANDLE_VALUE;
+  static BYTE ba[65536], bb[65536];
+  while (same) {
+    DWORD na = 0, nb = 0;
+    if (!ReadFile(fa, ba, sizeof(ba), &na, NULL) || !ReadFile(fb, bb, sizeof(bb), &nb, NULL) || na != nb) { same = 0; break; }
+    if (na == 0) break;
+    if (memcmp(ba, bb, na) != 0) same = 0;
+  }
+  if (fa != INVALID_HANDLE_VALUE) CloseHandle(fa);
+  if (fb != INVALID_HANDLE_VALUE) CloseHandle(fb);
+  return same;
+}
+
+static int use_system_copy(void) {
+  wchar_t dst[MAX_PATH], src[MAX_PATH], from[MAX_PATH], to[MAX_PATH];
+  DWORD sz = sizeof(dst);
+  int ok = 0;
+  /* Common Files, as Windows keeps it (not %CommonProgramFiles%, which the
+   * user who started this could have set anywhere). */
+  if (RegGetValueW(HKEY_LOCAL_MACHINE, L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion", L"CommonFilesDir",
+                   RRF_RT_REG_SZ, NULL, dst, &sz) != ERROR_SUCCESS) goto out;
+  dst[MAX_PATH - 1] = 0;
+  size_t dl = wcslen(dst);
+  if (dl < 3 || dst[1] != L':' || dl + 40 >= MAX_PATH) goto out;
+  wcscat(dst, L"\\Shroudly");
+  if (!CreateDirectoryW(dst, NULL) && GetLastError() != ERROR_ALREADY_EXISTS) goto out;
+  DWORD at = GetFileAttributesW(dst);
+  if (at == INVALID_FILE_ATTRIBUTES || !(at & FILE_ATTRIBUTE_DIRECTORY) || (at & FILE_ATTRIBUTE_REPARSE_POINT)) goto out;
+  DWORD n = GetModuleFileNameW(NULL, src, MAX_PATH);
+  if (n == 0 || n >= MAX_PATH) goto out;
+  wchar_t *slash = wcsrchr(src, L'\\');
+  if (!slash) goto out;
+  *slash = 0;
+  if (wcslen(src) + 20 >= MAX_PATH) goto out;
+  static const wchar_t *files[] = { L"WinDivert64.sys", L"WinDivert.dll" };
+  for (int i = 0; i < 2; i++) {
+    _snwprintf(from, MAX_PATH, L"%ls\\%ls", src, files[i]); from[MAX_PATH - 1] = 0;
+    _snwprintf(to, MAX_PATH, L"%ls\\%ls", dst, files[i]); to[MAX_PATH - 1] = 0;
+    /* A copy in use (the driver loaded from it) cannot be replaced: the
+     * same bytes there are as good; anything else is not used. */
+    CopyFileW(from, to, FALSE);
+    if (!same_file(from, to)) goto out;
+  }
+  HMODULE m = LoadLibraryExW(to, NULL, LOAD_WITH_ALTERED_SEARCH_PATH);
+  if (!m) goto out;
+  if (bind_windivert(m) != 0) { bind_windivert(g_wd_mod); FreeLibrary(m); goto out; }
+  g_wd_mod = m;
+  ok = 1;
+out:
+  printf("{\"type\":\"driver\",\"copy\":%d}\n", ok);
+  fflush(stdout);
+  return ok;
+}
+
+static int load_windivert(void) {
+  HMODULE m = LoadLibraryA("WinDivert.dll");
+  /* 126: not there (quarantined?); 5, 225, 226: refused. */
+  if (!m) { report_windivert_error("windivert_load", "Loading WinDivert.dll", GetLastError()); return -1; }
+  g_wd_mod = m;
+  if (bind_windivert(m) != 0) { fprintf(stderr, "WinDivert.dll missing exports\n"); return -1; }
+  return 0;
 }
 
 /* Inject one of our crafted IPv4 segments (checksums already computed). Mirror
@@ -440,11 +509,18 @@ int raw_windows_start(const raw_config *cfg) {
   /* Why the last open failed. A filter the driver refuses (87) is followed
    * by a simpler one; any other error (the driver not loading) is kept. */
   DWORD open_err = 0;
-  /* A second round only after a stale WinDivert service was taken away
-   * (repair_stale_service). */
-  for (int round = 0; round < 2 && g_handle == INVALID_HANDLE_VALUE; round++) {
+  /* "Not found" (2, 3) with our files here: once more after a stopped
+   * "WinDivert" service is deleted, then from the system's own copy
+   * (repair_stale_service, use_system_copy). */
+  for (int round = 0; round < 3 && g_handle == INVALID_HANDLE_VALUE; round++) {
   if (round) {
-    if ((open_err != ERROR_FILE_NOT_FOUND && open_err != ERROR_PATH_NOT_FOUND) || !repair_stale_service()) break;
+    if (open_err != ERROR_FILE_NOT_FOUND && open_err != ERROR_PATH_NOT_FOUND) break;
+    if (round == 1 && !repair_stale_service()) continue;
+    if (round == 2) {
+      if (!use_system_copy()) break;
+      /* The service the last open made from our folder, which did not start. */
+      repair_stale_service();
+    }
     open_err = 0;
   }
   for (int udp_how = UDP_PREFILTER_PAYLOAD; udp_how >= UDP_PREFILTER_PORTS && g_handle == INVALID_HANDLE_VALUE; udp_how--) {
