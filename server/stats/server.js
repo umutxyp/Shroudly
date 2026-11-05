@@ -162,7 +162,7 @@ async function download(pathname) {
  * feeds and the installers from one release, and the URL is built from this
  * list, never from what was asked. Cloudflare may keep the installers (a
  * versioned file never changes); the feeds are never kept. */
-const FEEDS = ['latest.yml', 'legacy.yml', 'latest-linux.yml', 'latest-linux-arm64.yml', 'latest-linux-armv7l.yml', 'latest-mac.yml'];
+const FEEDS = ['latest.yml', 'legacy.yml', 'latest-linux.yml', 'latest-linux-arm64.yml', 'latest-linux-arm.yml', 'latest-mac.yml'];
 
 async function mirrorUrl(pathname) {
   const name = pathname.replace(/^\/dl\//, '');

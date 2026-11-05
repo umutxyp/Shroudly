@@ -59,7 +59,7 @@ const ASSETS = [
   ['latest-mac.yml', `Update data · macOS ${FEED}`],
   ['latest-linux.yml', `Update data · Linux x64 ${FEED}`],
   ['latest-linux-arm64.yml', `Update data · Linux ARM ${FEED}`],
-  ['latest-linux-armv7l.yml', `Update data · Linux ARM 32-bit ${FEED}`],
+  ['latest-linux-arm.yml', `Update data · Linux ARM 32-bit ${FEED}`],
   ['legacy.yml', `Update data · Windows 7 and 8 ${FEED}`],
 ];
 
