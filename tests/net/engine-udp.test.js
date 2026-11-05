@@ -139,6 +139,15 @@ function dnsQuery(name) {
 }
 function dnsAnswers(m, id) { return m && m.length >= 12 && m.readUInt16BE(0) === id && (m[3] & 0x0f) === 0 ? m.readUInt16BE(6) : -1; }
 
+/* A check that needs a public DNS server: when it fails and the server no
+ * longer answers a direct query either, the server is down for now, not the
+ * engine wrong: said and not counted. */
+async function publicCheck(t, ok, server, msg) {
+  if (ok) { t.ok(true, msg); return; }
+  if ((await directDns(server)) <= 0 && (await directDns(server)) <= 0) { console.log(`  --  ${server} stopped answering direct queries too: not the engine's doing, skipped (${msg})`); return; }
+  t.ok(false, msg);
+}
+
 async function directDns(server) {
   const s = dgram.createSocket('udp4');
   const q = dnsQuery('example.com');
@@ -399,7 +408,9 @@ const LAN6 = (ifaces.find((i) => (i.family === 'IPv6' || i.family === 6) && !/^f
 
   // The forwarder does not answer: after about 2.5 s the query goes where
   // the app sent it, in plaintext, and that answer comes back.
-  const servers = ['1.1.1.1', '8.8.8.8', '9.9.9.9'];
+  // The steadiest first: 1.1.1.1 was seen answering a direct query and then
+  // nothing for minutes (2026-11-05), which is the server's, not the engine's.
+  const servers = ['8.8.8.8', '9.9.9.9', '1.1.1.1'];
   let server = null;
   for (const s of servers) if ((await directDns(s)) > 0) { server = s; break; }
   if (server) {
@@ -410,7 +421,7 @@ const LAN6 = (ifaces.find((i) => (i.family === 'IPv6' || i.family === 6) && !/^f
     r = await roundTrip(cd, d.port, server, 53, q.buf, 8000);
     const took = Date.now() - t0;
     t.ok((dns.asked['example.com/A'] || 0) >= 1, 'the forwarder was asked first');
-    t.ok(r && dnsAnswers(r.data, q.id) > 0 && r.host === server && r.port === 53 && took >= 2000,
+    await publicCheck(t, r && dnsAnswers(r.data, q.id) > 0 && r.host === server && r.port === 53 && took >= 2000, server,
       `it did not answer: after ${took} ms the query went to ${server}:53 as sent and that answer came back`);
     // Its "no route" is no answer for the app: the query goes where it was
     // sent at once, and the app never hears "refused".
@@ -418,7 +429,7 @@ const LAN6 = (ifaces.find((i) => (i.family === 'IPv6' || i.family === 6) && !/^f
     const t1 = Date.now();
     r = await roundTrip(cd, d.port, server, 53, qn.buf, 8000);
     const tookN = Date.now() - t1;
-    t.ok((dns.asked['example.net/A'] || 0) >= 1 && r && dnsAnswers(r.data, qn.id) > 0 && r.host === server && tookN < 1500,
+    await publicCheck(t, (dns.asked['example.net/A'] || 0) >= 1 && r && dnsAnswers(r.data, qn.id) > 0 && r.host === server && tookN < 1500, server,
       `it has no route: after ${tookN} ms (not 2.5 s) the query went to ${server}:53 as sent and that answer came back, not "refused"`);
     d.ctl.destroy(); cd.close();
   } else {
@@ -489,7 +500,7 @@ const LAN6 = (ifaces.find((i) => (i.family === 'IPv6' || i.family === 6) && !/^f
       r = await roundTrip(cd, d.port, server, 53, q.buf, 3000);
       n = r ? dnsAnswers(r.data, q.id) : -1;
     }
-    t.ok(n > 0 && r.host === server && r.port === 53, `with no forwarder, a DNS query to ${server}:53 goes out as sent and is answered (${n} answers)`);
+    await publicCheck(t, n > 0 && r.host === server && r.port === 53, server, `with no forwarder, a DNS query to ${server}:53 goes out as sent and is answered (${n} answers)`);
     d.ctl.destroy(); cd.close();
   } else {
     console.log('  --  no public DNS reachable from here (offline?): the real DNS check is skipped');
