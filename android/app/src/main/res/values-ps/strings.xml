@@ -163,6 +163,7 @@
     <string name="language">ژبه</string>
     <string name="languageSystem">د سیسټم ژبه</string>
     <string name="lastResort">کله چې بل هېڅ شی کار ونکړي: د ټور شبکه</string>
+    <string name="lastResortAsks">Shroudly د لومړي ځل کارولو مخکې له تاسو پوښتنه کوي.</string>
     <string name="lastResortDesc">هغه سایټ چې هېڅ تخنیک یې نشي پرانیستلی د ټور له لارې پرانیستل کېږي، او ټور ته د سنوفلېک له لارې رسېږي: د رضاکارانو اتصالونه، په دوی کې ټول هغه کسان چې «د سانسور شويو هېوادونو له خلکو سره مرسته» یې فعاله کړې. ورو دی، او ځینې سایټونه له هغو کسانو چې له ټور څخه راځي کېپچا غواړي. ټور یوازې هغه وخت پیلېږي چې سایټ ورته اړتیا ولري.</string>
     <string name="lastResortFailed">د ټور شبکې ته ونه رسېدو؛ کله چې سایټ ورته اړتیا ولري بیا هڅه کېږي</string>
     <string name="lastResortOwnServer">تر هغه چې ستاسو خپل سرور ټاکل شوی وي نه کارول کېږي: ټول سایټونه له هماغه سرور څخه تېرېږي.</string>
@@ -245,6 +246,11 @@
     <string name="supportTitle">د Shroudly ملاتړ وکړئ</string>
     <string name="tagline">نالیدلی. نه درېدونکی.</string>
     <string name="testing">ازمویل کېږي…</string>
+    <string name="torAskCard">په دې شبکه کې هېڅ تخنیک {host} پرانیستی نه شو. Shroudly کولی شي هغه د Tor شبکې له لارې پرانیزي: ډېر ورو (پاڼې او ویډیوګانې ورو پورته کېږي)، او ځینې سایټونه captcha غواړي. ستاسو ځواب ساتل کېږي؛ په ترتیباتو کې یې بدلولی شئ.</string>
+    <string name="torAskNo">نه</string>
+    <string name="torAskNotice">په دې شبکه کې هېڅ تخنیک {host} پرانیستی نه شو. Shroudly کولی شي هغه د Tor شبکې له لارې، چې وروستۍ لاره یې ده، پرانیزي، خو ډېر ورو. د اجازې یا انکار لپاره Shroudly پرانیزئ.</string>
+    <string name="torAskTitle">آیا {host} د Tor له لارې پرانیستل شي؟</string>
+    <string name="torAskYes">Tor وکاروئ</string>
     <string name="torUsedPhone">{host} یوازې د Tor شبکې له لارې پرانیستل شو، چې د Shroudly وروستۍ لار ده: په دې شبکه کې بل هېڅ شی کار ونه کړ. دا ورو ده او ځینې سایټونه کیپچا غواړي؛ ستاسو نور اپونه او سایټونه لکه پخوا کار کوي.</string>
     <string name="torUsedTv">{host} یوازې د Tor شبکې له لارې پرانیستل شو، چې د Shroudly وروستۍ لار ده. د هغه ویډیوګانې ښايي ورو یا په ټیټ کیفیت پورته شي؛ ستاسو نور اپونه لکه پخوا کار کوي.</string>
     <string name="totalCount">ټول: {count}</string>
@@ -258,7 +264,7 @@
     <string name="upload">اپلوډ</string>
     <string name="uptime">د کار موده</string>
     <string name="versionLabel">نسخه {version}</string>
-    <string name="whatsNewAndroid">کله چې یو سایټ یوازې د Tor، وروستۍ لارې، له لارې پرانیستل شي، Shroudly اوس دا وايي، ځکه چې ورو دی.\nنوی: په اړه → Shroudly تعقیب کړئ.</string>
+    <string name="whatsNewAndroid">کله چې یو سایټ یوازې د Tor، وروستۍ لارې، له لارې پرانیستل شي، Shroudly اوس دا وايي، ځکه چې ورو دی.\nنوی: په اړه → Shroudly تعقیب کړئ.\nTor، وروستۍ لاره، اوس د لومړي ځل کارولو مخکې پوښتنه کوي او سایټونو ته ژر رسېږي (#77).</string>
     <string name="whatsNewOk">پوه شوم</string>
     <string name="whatsNewTitle">په {version} کې نوي څه</string>
 </resources>

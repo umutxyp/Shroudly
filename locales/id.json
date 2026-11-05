@@ -920,8 +920,8 @@
   "helpNudgeThanks": "Terima kasih: Anda sedang membantu. Untuk mematikannya: {path}.",
   "whatsNewTitle": "Yang baru di {version}",
   "whatsNewOk": "Mengerti",
-  "whatsNewDesktop": "Di jaringan yang memblokir Riot Games, League of Legends, VALORANT, dan penginstalnya kini otomatis lewat Shroudly (#76).\nMode lanjutan di Windows: driver yang ditinggalkan program lain tidak lagi menghalanginya berjalan.",
-  "whatsNewAndroid": "Saat sebuah situs hanya terbuka lewat Tor, jalan terakhir, Shroudly kini memberi tahu Anda karena lebih lambat.\nBaru: Tentang → Ikuti Shroudly.",
+  "whatsNewDesktop": "Di jaringan yang memblokir Riot Games, League of Legends, VALORANT, dan penginstalnya kini otomatis lewat Shroudly (#76).\nMode lanjutan di Windows: driver yang ditinggalkan program lain tidak lagi menghalanginya berjalan.\nTor, jalan terakhir, kini bertanya dulu sebelum dipakai pertama kali dan lebih cepat mencapai situs (#77).",
+  "whatsNewAndroid": "Saat sebuah situs hanya terbuka lewat Tor, jalan terakhir, Shroudly kini memberi tahu Anda karena lebih lambat.\nBaru: Tentang → Ikuti Shroudly.\nTor, jalan terakhir, kini bertanya dulu sebelum dipakai pertama kali dan lebih cepat mencapai situs (#77).",
   "whatsNewApple": "Koneksi per situs: lihat apa yang lewat Shroudly, dengan data di kedua arah, dan blokir situs mana pun (#74).\nMemblokir langsung memutus koneksi situs itu; daftarnya tetap di perangkat Anda.",
   "appleVpnNotSigned": "Salinan Shroudly ini ditandatangani tanpa izin Apple untuk VPN, jadi iOS tidak mengizinkannya memulai VPN dan tidak pernah bertanya. Salinan yang ditandatangani dengan Apple ID gratis (AltStore, SideStore, Sideloadly, dan sejenisnya) tidak pernah memilikinya. Pasang dengan TrollStore, atau tandatangani dengan akun pengembang Apple berbayar.",
   "appleInstallHelp": "Cara memasangnya",
@@ -942,5 +942,11 @@
   "dnsAroundAndroid": "Ada hal lain di perangkat ini yang menjawab pencarian nama aplikasi (DNS Pribadi atau aplikasi DNS), jadi aplikasi yang diblokir mungkin tidak terbuka. Di Setelan → Jaringan → DNS Pribadi pilih Nonaktif atau Otomatis, tutup aplikasi DNS, lalu mulai Shroudly lagi.",
   "dnsAroundApple": "Profil atau aplikasi DNS di perangkat ini (AdGuard, NextDNS, 1.1.1.1, profil sekolah atau kantor) menjawab pencarian nama sebelum Shroudly, jadi aplikasi yang diblokir mungkin tidak terbuka. Matikan di Pengaturan → Umum → VPN & Manajemen Perangkat (Mac: Pengaturan Sistem → Jaringan → VPN & Filter), lalu mulai Shroudly lagi.",
   "dnsAroundTitle": "Ada yang melewati Shroudly",
-  "reopenAppsHint": "Aplikasi yang sudah terbuka sebelumnya: jika ada yang tidak tersambung, tutup lalu buka lagi sekali."
+  "reopenAppsHint": "Aplikasi yang sudah terbuka sebelumnya: jika ada yang tidak tersambung, tutup lalu buka lagi sekali.",
+  "torAskTitle": "Buka {host} lewat Tor?",
+  "torAskNotice": "Tidak ada teknik yang membuka {host} di jaringan ini. Shroudly bisa membukanya lewat jaringan Tor, jalan terakhirnya, tetapi jauh lebih lambat. Buka Shroudly untuk mengizinkan atau menolak.",
+  "torAskCard": "Tidak ada teknik yang membuka {host} di jaringan ini. Shroudly bisa membukanya lewat jaringan Tor: jauh lebih lambat (halaman dan video dimuat pelan), dan beberapa situs meminta captcha. Jawabanmu disimpan; kamu bisa mengubahnya di Pengaturan.",
+  "torAskYes": "Pakai Tor",
+  "torAskNo": "Tidak",
+  "lastResortAsks": "Shroudly bertanya dulu sebelum memakainya pertama kali."
 }

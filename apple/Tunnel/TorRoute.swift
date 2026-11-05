@@ -28,7 +28,7 @@ enum TorNotice {
     }
 
     static func reset() {
-        lock.lock(); told.removeAll(); lastAt = nil; lock.unlock()
+        lock.lock(); told.removeAll(); lastAt = nil; askedAt = nil; lock.unlock()
     }
 
     /* A notification in the app's words (left under `key`), where the
@@ -41,6 +41,36 @@ enum TorNotice {
         c.title = "Shroudly"
         c.body = text
         UNUserNotificationCenter.current().add(UNNotificationRequest(identifier: id, content: c, trigger: nil)) { _ in }
+        #endif
+    }
+
+    /* Tor is slow: before it first starts the user says yes (issue #77).
+     * Until then a site that needs it is asked about: the app's card
+     * (ContentView) and, so the user knows to look there, a notification,
+     * at most every `askEvery`. The answer is kept in the app group. */
+    static let askTextKey = "torAskText"
+    static let approvedKey = "torApproved"
+    static let askEvery: TimeInterval = 30 * 60
+    private static var askedAt: Date?
+
+    static func approved() -> Bool { AppGroup.defaults.bool(forKey: approvedKey) }
+
+    /* Whether to say it now (pure but for the clock, for the tests). */
+    static func askDue(now: Date = Date()) -> Bool {
+        lock.lock(); defer { lock.unlock() }
+        if let a = askedAt, now.timeIntervalSince(a) < askEvery { return false }
+        askedAt = now
+        return true
+    }
+
+    static func ask(_ host: String) {
+        guard askDue() else { return }
+        #if os(macOS) || os(iOS)
+        guard let text = AppGroup.defaults.string(forKey: askTextKey), !text.isEmpty else { return }
+        let c = UNMutableNotificationContent()
+        c.title = "Shroudly"
+        c.body = text.replacingOccurrences(of: "{host}", with: host.lowercased())
+        UNUserNotificationCenter.current().add(UNNotificationRequest(identifier: "tor-ask", content: c, trigger: nil)) { _ in }
         #endif
     }
 

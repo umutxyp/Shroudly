@@ -163,6 +163,7 @@
     <string name="language">Bahasa</string>
     <string name="languageSystem">Lalai sistem</string>
     <string name="lastResort">Apabila tiada yang lain berjaya: rangkaian Tor</string>
+    <string name="lastResortAsks">Shroudly bertanya dahulu sebelum menggunakannya kali pertama.</string>
     <string name="lastResortDesc">Laman yang tidak dapat dibuka oleh sebarang teknik melalui Tor, yang dicapai melalui Snowflake: sambungan sukarelawan, termasuk semua yang menghidupkan “Bantu orang di negara yang ditapis”. Lebih perlahan, dan sesetengah laman meminta captcha daripada pelawat dari Tor. Tor hanya bermula apabila sesebuah laman memerlukannya.</string>
     <string name="lastResortFailed">Rangkaian Tor tidak dapat dicapai; akan dicuba lagi apabila sesebuah laman memerlukannya</string>
     <string name="lastResortOwnServer">Tidak digunakan selagi pelayan anda sendiri ditetapkan: pelayan itu membawa semua laman.</string>
@@ -245,6 +246,11 @@
     <string name="supportTitle">Sokong Shroudly</string>
     <string name="tagline">Tidak kelihatan. Tidak terhalang.</string>
     <string name="testing">Menguji…</string>
+    <string name="torAskCard">Tiada teknik yang membuka {host} di rangkaian ini. Shroudly boleh membukanya melalui rangkaian Tor: jauh lebih perlahan (halaman dan video dimuatkan dengan perlahan), dan sesetengah laman meminta captcha. Jawapan anda disimpan; anda boleh mengubahnya dalam Tetapan.</string>
+    <string name="torAskNo">Tidak</string>
+    <string name="torAskNotice">Tiada teknik yang membuka {host} di rangkaian ini. Shroudly boleh membukanya melalui rangkaian Tor, jalan terakhirnya, tetapi jauh lebih perlahan. Buka Shroudly untuk membenarkan atau menolak.</string>
+    <string name="torAskTitle">Buka {host} melalui Tor?</string>
+    <string name="torAskYes">Guna Tor</string>
     <string name="torUsedPhone">{host} hanya dibuka melalui rangkaian Tor, jalan terakhir Shroudly: tiada cara lain yang berjaya pada rangkaian ini. Ia lebih perlahan dan sesetengah laman meminta captcha; aplikasi dan laman anda yang lain kekal seperti biasa.</string>
     <string name="torUsedTv">{host} hanya dibuka melalui rangkaian Tor, jalan terakhir Shroudly. Videonya mungkin dimuatkan perlahan atau dengan kualiti lebih rendah; aplikasi anda yang lain kekal seperti biasa.</string>
     <string name="totalCount">Jumlah: {count}</string>
@@ -258,7 +264,7 @@
     <string name="upload">Muat naik</string>
     <string name="uptime">Masa aktif</string>
     <string name="versionLabel">Versi {version}</string>
-    <string name="whatsNewAndroid">Apabila laman hanya dibuka melalui Tor, jalan terakhir, Shroudly kini memberitahu anda kerana ia lebih perlahan.\nBaharu: Perihal → Ikuti Shroudly.</string>
+    <string name="whatsNewAndroid">Apabila laman hanya dibuka melalui Tor, jalan terakhir, Shroudly kini memberitahu anda kerana ia lebih perlahan.\nBaharu: Perihal → Ikuti Shroudly.\nTor, jalan terakhir, kini bertanya dahulu sebelum digunakan kali pertama dan sampai ke laman lebih cepat (#77).</string>
     <string name="whatsNewOk">Faham</string>
     <string name="whatsNewTitle">Apa yang baharu dalam {version}</string>
 </resources>

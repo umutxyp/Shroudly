@@ -163,6 +163,7 @@
     <string name="language">Idioma</string>
     <string name="languageSystem">Predeterminado del sistema</string>
     <string name="lastResort">Cuando nada más funciona: la red Tor</string>
+    <string name="lastResortAsks">Shroudly te pregunta antes de usarla por primera vez.</string>
     <string name="lastResortDesc">Un sitio que ninguna técnica abre pasa por Tor, al que se llega a través de Snowflake: las conexiones de voluntarios, entre ellos todos los que activaron «Ayudar a personas en países censurados». Es más lento y algunos sitios piden un captcha a quienes llegan por Tor. Tor solo se inicia cuando un sitio lo necesita.</string>
     <string name="lastResortFailed">No se pudo llegar a la red Tor; se intentará de nuevo cuando un sitio lo necesite</string>
     <string name="lastResortOwnServer">No se usa mientras tengas tu propio servidor: ese servidor lleva todos los sitios.</string>
@@ -245,6 +246,11 @@
     <string name="supportTitle">Apoya a Shroudly</string>
     <string name="tagline">Invisible. Imparable.</string>
     <string name="testing">Probando…</string>
+    <string name="torAskCard">Ninguna técnica abrió {host} en esta red. Shroudly puede abrirlo a través de la red Tor: mucho más lento (las páginas y los vídeos cargan despacio) y algunos sitios piden un captcha. Tu respuesta se guarda; puedes cambiarla en Ajustes.</string>
+    <string name="torAskNo">No</string>
+    <string name="torAskNotice">Ninguna técnica abrió {host} en esta red. Shroudly puede abrirlo a través de la red Tor, su último recurso, pero mucho más despacio. Abre Shroudly para permitirlo o rechazarlo.</string>
+    <string name="torAskTitle">¿Abrir {host} a través de Tor?</string>
+    <string name="torAskYes">Usar Tor</string>
     <string name="torUsedPhone">{host} solo se abrió a través de la red Tor, el último recurso de Shroudly: nada más funcionó en esta red. Es más lento y algunos sitios piden un captcha; tus demás apps y sitios siguen como antes.</string>
     <string name="torUsedTv">{host} solo se abrió a través de la red Tor, el último recurso de Shroudly. Sus vídeos pueden cargar lento o en menor calidad; tus demás apps siguen como antes.</string>
     <string name="totalCount">Total: {count}</string>
@@ -258,7 +264,7 @@
     <string name="upload">Subida</string>
     <string name="uptime">Tiempo activo</string>
     <string name="versionLabel">Versión {version}</string>
-    <string name="whatsNewAndroid">Cuando un sitio solo se abre por Tor, el último recurso, Shroudly ahora te lo dice, porque es más lento.\nNuevo: Acerca de → Sigue a Shroudly, con nuestras cuentas.</string>
+    <string name="whatsNewAndroid">Cuando un sitio solo se abre por Tor, el último recurso, Shroudly ahora te lo dice, porque es más lento.\nNuevo: Acerca de → Sigue a Shroudly, con nuestras cuentas.\nTor, el último recurso, ahora te pregunta antes de usarse por primera vez y llega antes a los sitios (#77).</string>
     <string name="whatsNewOk">Entendido</string>
     <string name="whatsNewTitle">Novedades de la {version}</string>
 </resources>

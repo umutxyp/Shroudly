@@ -72,6 +72,7 @@
 "language" = "Sprache";
 "languageSystem" = "Systemstandard";
 "lastResort" = "Wenn nichts anderes hilft: das Tor-Netzwerk";
+"lastResortAsks" = "Shroudly fragt dich, bevor es Tor zum ersten Mal nutzt.";
 "lastResortDesc" = "Eine Seite, die keine Technik öffnet, läuft über Tor, erreicht über Snowflake: die Verbindungen von Freiwilligen, darunter alle, die „Menschen in zensierten Ländern helfen“ eingeschaltet haben. Langsamer, und manche Seiten verlangen von Tor-Besuchern ein Captcha. Tor startet nur, wenn eine Seite es braucht.";
 "lastResortFailed" = "Das Tor-Netzwerk war nicht erreichbar; neuer Versuch, wenn eine Seite es braucht";
 "lastResortOwnServer" = "Nicht genutzt, solange dein eigener Server eingestellt ist: Er trägt jede Seite.";
@@ -137,6 +138,11 @@
 "strategy" = "Umgehungsstrategie";
 "supportBannerLater" = "Nicht jetzt";
 "tagline" = "Unsichtbar. Unaufhaltsam.";
+"torAskCard" = "Keine Technik hat {host} in diesem Netz geöffnet. Shroudly kann die Seite über das Tor-Netzwerk öffnen: deutlich langsamer (Seiten und Videos laden langsam), und manche Seiten verlangen ein Captcha. Deine Antwort wird gespeichert; du kannst sie in den Einstellungen ändern.";
+"torAskNo" = "Nein";
+"torAskNotice" = "Keine Technik hat {host} in diesem Netz geöffnet. Shroudly kann die Seite über das Tor-Netzwerk öffnen, seinen letzten Ausweg, aber deutlich langsamer. Öffne Shroudly, um es zu erlauben oder abzulehnen.";
+"torAskTitle" = "{host} über Tor öffnen?";
+"torAskYes" = "Tor nutzen";
 "torUsedDesktop" = "{host} ließ sich nur über das Tor-Netz öffnen, Shroudlys letzten Ausweg: Sonst kam in diesem Netz nichts durch. Das ist langsamer, und manche Seiten verlangen ein Captcha; alle anderen Seiten auf diesem Computer laufen wie bisher.";
 "totalCount" = "Gesamt: {count}";
 "upload" = "Gesendet";

@@ -163,6 +163,7 @@
     <string name="language">ภาษา</string>
     <string name="languageSystem">ค่าเริ่มต้นของระบบ</string>
     <string name="lastResort">เมื่อวิธีอื่นใช้ไม่ได้: เครือข่าย Tor</string>
+    <string name="lastResortAsks">Shroudly จะถามคุณก่อนใช้ครั้งแรก</string>
     <string name="lastResortDesc">เว็บไซต์ที่ไม่มีเทคนิคใดเปิดได้จะผ่าน Tor ซึ่งเข้าถึงผ่าน Snowflake: การเชื่อมต่อของอาสาสมัคร รวมถึงทุกคนที่เปิด “ช่วยผู้คนในประเทศที่ถูกเซ็นเซอร์” ช้ากว่า และบางเว็บไซต์ขอแคปต์ชาจากผู้ที่มาจาก Tor โดย Tor จะเริ่มทำงานเมื่อมีเว็บไซต์ต้องการเท่านั้น</string>
     <string name="lastResortFailed">เข้าถึงเครือข่าย Tor ไม่ได้ จะลองใหม่เมื่อมีเว็บไซต์ต้องการ</string>
     <string name="lastResortOwnServer">ไม่ใช้ขณะที่ตั้งเซิร์ฟเวอร์ของคุณเองไว้: เซิร์ฟเวอร์นั้นพาทุกเว็บไซต์ไป</string>
@@ -245,6 +246,11 @@
     <string name="supportTitle">สนับสนุน Shroudly</string>
     <string name="tagline">มองไม่เห็น ไม่มีใครหยุดได้</string>
     <string name="testing">กำลังทดสอบ…</string>
+    <string name="torAskCard">ไม่มีวิธีใดเปิด {host} ได้บนเครือข่ายนี้ Shroudly เปิดได้ผ่านเครือข่าย Tor: ช้ากว่ามาก (หน้าเว็บและวิดีโอโหลดช้า) และบางเว็บไซต์ขอ captcha ระบบจะจำคำตอบของคุณไว้ เปลี่ยนได้ในการตั้งค่า</string>
+    <string name="torAskNo">ไม่</string>
+    <string name="torAskNotice">ไม่มีวิธีใดเปิด {host} ได้บนเครือข่ายนี้ Shroudly เปิดได้ผ่านเครือข่าย Tor ซึ่งเป็นทางสุดท้าย แต่ช้ากว่ามาก เปิด Shroudly เพื่ออนุญาตหรือปฏิเสธ</string>
+    <string name="torAskTitle">เปิด {host} ผ่าน Tor ไหม?</string>
+    <string name="torAskYes">ใช้ Tor</string>
     <string name="torUsedPhone">{host} เปิดได้ผ่านเครือข่าย Tor เท่านั้น ซึ่งเป็นทางสุดท้ายของ Shroudly: บนเครือข่ายนี้ไม่มีวิธีอื่นใช้ได้ ช้ากว่าปกติและบางเว็บไซต์จะขอ captcha ส่วนแอปและเว็บไซต์อื่นของคุณใช้งานได้ตามเดิม</string>
     <string name="torUsedTv">{host} เปิดได้ผ่านเครือข่าย Tor เท่านั้น ซึ่งเป็นทางสุดท้ายของ Shroudly วิดีโอจากที่นั่นอาจโหลดช้าหรือคุณภาพต่ำลง ส่วนแอปอื่นของคุณใช้งานได้ตามเดิม</string>
     <string name="totalCount">ทั้งหมด: {count}</string>
@@ -258,7 +264,7 @@
     <string name="upload">อัปโหลด</string>
     <string name="uptime">เวลาทำงาน</string>
     <string name="versionLabel">เวอร์ชัน {version}</string>
-    <string name="whatsNewAndroid">เมื่อเว็บไซต์เปิดได้ผ่าน Tor ซึ่งเป็นทางสุดท้ายเท่านั้น ตอนนี้ Shroudly จะบอกคุณ เพราะช้ากว่า\nใหม่: เกี่ยวกับ → ติดตาม Shroudly</string>
+    <string name="whatsNewAndroid">เมื่อเว็บไซต์เปิดได้ผ่าน Tor ซึ่งเป็นทางสุดท้ายเท่านั้น ตอนนี้ Shroudly จะบอกคุณ เพราะช้ากว่า\nใหม่: เกี่ยวกับ → ติดตาม Shroudly\nTor ทางสุดท้าย ตอนนี้จะถามคุณก่อนใช้ครั้งแรก และเข้าถึงเว็บไซต์ได้เร็วขึ้น (#77)</string>
     <string name="whatsNewOk">เข้าใจแล้ว</string>
     <string name="whatsNewTitle">มีอะไรใหม่ใน {version}</string>
 </resources>

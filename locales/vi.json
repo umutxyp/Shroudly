@@ -920,8 +920,8 @@
   "helpNudgeThanks": "Cảm ơn bạn: bạn đang giúp đỡ. Để tắt: {path}.",
   "whatsNewTitle": "Có gì mới trong {version}",
   "whatsNewOk": "Đã hiểu",
-  "whatsNewDesktop": "Ở nơi Riot Games bị chặn, League of Legends, VALORANT và trình cài đặt của chúng giờ tự đi qua Shroudly (#76).\nChế độ nâng cao trên Windows: trình điều khiển do chương trình khác để lại không còn ngăn nó khởi động.",
-  "whatsNewAndroid": "Khi một trang chỉ mở được qua Tor, đường cuối cùng, Shroudly giờ sẽ báo cho bạn vì nó chậm hơn.\nMới: Giới thiệu → Theo dõi Shroudly.",
+  "whatsNewDesktop": "Ở nơi Riot Games bị chặn, League of Legends, VALORANT và trình cài đặt của chúng giờ tự đi qua Shroudly (#76).\nChế độ nâng cao trên Windows: trình điều khiển do chương trình khác để lại không còn ngăn nó khởi động.\nTor, lối thoát cuối cùng, giờ hỏi bạn trước lần dùng đầu tiên và tới các trang nhanh hơn (#77).",
+  "whatsNewAndroid": "Khi một trang chỉ mở được qua Tor, đường cuối cùng, Shroudly giờ sẽ báo cho bạn vì nó chậm hơn.\nMới: Giới thiệu → Theo dõi Shroudly.\nTor, lối thoát cuối cùng, giờ hỏi bạn trước lần dùng đầu tiên và tới các trang nhanh hơn (#77).",
   "whatsNewApple": "Kết nối theo trang: xem những gì đi qua Shroudly, kèm dữ liệu hai chiều, và chặn bất kỳ trang nào (#74).\nChặn sẽ cắt ngay các kết nối của trang; danh sách nằm trên thiết bị của bạn.",
   "appleVpnNotSigned": "Bản Shroudly này được ký mà không có quyền VPN của Apple, nên iOS không cho nó khởi động VPN và cũng không bao giờ hỏi. Các bản ký bằng Apple ID miễn phí (AltStore, SideStore, Sideloadly và tương tự) không bao giờ có quyền này. Hãy cài bằng TrollStore, hoặc ký bằng tài khoản nhà phát triển Apple trả phí.",
   "appleInstallHelp": "Cách cài đặt",
@@ -942,5 +942,11 @@
   "dnsAroundAndroid": "Có thứ khác trên thiết bị này đang trả lời việc tra cứu tên của ứng dụng (DNS riêng hoặc ứng dụng DNS), nên ứng dụng bị chặn có thể không mở được. Vào Cài đặt → Mạng → DNS riêng chọn Tắt hoặc Tự động, đóng ứng dụng DNS, rồi khởi động lại Shroudly.",
   "dnsAroundApple": "Một hồ sơ hoặc ứng dụng DNS trên thiết bị này (AdGuard, NextDNS, 1.1.1.1, hồ sơ trường học hoặc công ty) trả lời việc tra cứu tên trước Shroudly, nên ứng dụng bị chặn có thể không mở được. Hãy tắt nó trong Cài đặt → Cài đặt chung → VPN & Quản lý thiết bị (Mac: Cài đặt hệ thống → Mạng → VPN & Bộ lọc), rồi khởi động lại Shroudly.",
   "dnsAroundTitle": "Có thứ đang đi vòng qua Shroudly",
-  "reopenAppsHint": "Ứng dụng đã mở từ trước: nếu một ứng dụng không kết nối được, hãy đóng rồi mở lại một lần."
+  "reopenAppsHint": "Ứng dụng đã mở từ trước: nếu một ứng dụng không kết nối được, hãy đóng rồi mở lại một lần.",
+  "torAskTitle": "Mở {host} qua Tor?",
+  "torAskNotice": "Không kỹ thuật nào mở được {host} trên mạng này. Shroudly có thể mở nó qua mạng Tor, lối thoát cuối cùng, nhưng chậm hơn nhiều. Mở Shroudly để cho phép hoặc từ chối.",
+  "torAskCard": "Không kỹ thuật nào mở được {host} trên mạng này. Shroudly có thể mở nó qua mạng Tor: chậm hơn nhiều (trang và video tải chậm), và một số trang yêu cầu captcha. Câu trả lời của bạn được lưu; bạn có thể đổi trong Cài đặt.",
+  "torAskYes": "Dùng Tor",
+  "torAskNo": "Không",
+  "lastResortAsks": "Shroudly hỏi bạn trước khi dùng lần đầu."
 }

@@ -48,6 +48,8 @@
  * budget, not this count, is what bounds a connection. */
 #define ATT_MAX         (STRATEGY_MAX_PRESETS + 2)
 #define ATT_BUDGET_MS   15000
+/* The same for another name of a site the last way out carries (fb_site_is). */
+#define ATT_BUDGET_FB_MS 6000
 /* An attempt given less than this to be answered is not an attempt: it is not
  * started, and not counted. */
 #define ATT_MIN_WAIT_MS  500
@@ -377,7 +379,7 @@ static int cool_is(const char *h) {
  * about the others (an API that turns this client away, say). */
 #define FB_SLOTS 128
 #define FB_MS    (30 * 60 * 1000)
-static struct { char host[256]; uint64_t t; } g_fb[FB_SLOTS];
+static struct { char host[256]; char site[256]; uint64_t t; } g_fb[FB_SLOTS];
 static mutex_t g_fb_mx;
 
 /* Kept, or its time renewed. 1 if it was not kept before. */
@@ -391,9 +393,26 @@ static int fb_put(const char *h) {
     if (g_fb[i].t < g_fb[slot].t) slot = i;   /* else the oldest (or an empty one) */
   }
   snprintf(g_fb[slot].host, sizeof(g_fb[slot].host), "%s", h);
+  if (!site_of(h, g_fb[slot].site, sizeof(g_fb[slot].site))) g_fb[slot].site[0] = 0;
   g_fb[slot].t = now;
   mutex_unlock(&g_fb_mx);
   return !had;
+}
+
+/* Another name of a site the last way out carries now (issue #77): its
+ * ladder is kept short (ATT_BUDGET_FB_MS) where the last way out is up, so
+ * a page's images and API names do not each wait out every technique before
+ * reaching it. Each still tries the techniques first: never straight to it. */
+static int fb_site_is(const char *h) {
+  char site[256];
+  if (!site_of(h, site, sizeof(site))) return 0;
+  int yes = 0;
+  mutex_lock(&g_fb_mx);
+  uint64_t now = now_ms();
+  for (int i = 0; i < FB_SLOTS && !yes; i++)
+    if (g_fb[i].host[0] && g_fb[i].site[0] && strcmp(g_fb[i].site, site) == 0) yes = age_ms(now, g_fb[i].t) < FB_MS;
+  mutex_unlock(&g_fb_mx);
+  return yes;
 }
 
 static int fb_is(const char *h) {
@@ -3762,18 +3781,47 @@ static proxy_ref fallback_ref(void) {
 
 /* When the last way out last carried a connection (0: not yet). */
 static atomic_uint_fast64_t g_fb_ok_at = 0;
+/* Whether the last way out listens on this computer (Tor started and kept
+ * running by the app), looked at most once every two seconds. */
+static atomic_uint_fast64_t g_fb_seen_at = 0;
+static atomic_int g_fb_seen = 0;
+static int fallback_listening(void) {
+  if (!g_cfg.fallback_kind) return 0;
+  uint64_t now = now_ms(), t = atomic_load(&g_fb_seen_at);
+  if (t && age_ms(now, t) < 2000) return atomic_load(&g_fb_seen);
+  atomic_store(&g_fb_seen_at, now);
+  int fam = 0;
+  dial_info di;
+  sock_t s = dial(g_cfg.fallback_host, g_cfg.fallback_port, 0, 0, 0, &fam, &di);
+  int yes = s != SOCK_INVALID;
+  if (yes) sock_close(s);
+  atomic_store(&g_fb_seen, yes);
+  return yes;
+}
+/* Worth going to rather than waiting out a silent ladder's late answer
+ * (RACE_FB_MS): it carried something lately, or it is there now (issue
+ * #77: Tor ready, nothing carried yet, used to mean a 30 s wait). */
 static int fallback_alive(void) {
   uint64_t t = atomic_load(&g_fb_ok_at);
-  return t && age_ms(now_ms(), t) < 10 * 60 * 1000;
+  if (t && age_ms(now_ms(), t) < 10 * 60 * 1000) return 1;
+  return fallback_listening();
 }
 
-static void proxy_report(const proxy_ref *x, const char *why) {
+static void proxy_report(const proxy_ref *x, const char *why, const char *host) {
   static atomic_uint_fast64_t last[2] = { 0, 0 };
   int i = x->fallback ? 1 : 0;
   uint64_t t = now_ms(), prev = atomic_load(&last[i]);
   if (prev && t - prev < 30000) return;
   atomic_store(&last[i], t);
-  engine_printf("{\"type\":\"%s\",\"ok\":0,\"why\":\"%s\"}\n", x->fallback ? "fallback" : "upstream", why);
+  /* The last way out: the name that needed it too, so the app can say which
+   * site asks for it (it asks the user before Tor first starts). */
+  if (x->fallback && host && host[0]) {
+    char h[256];
+    json_host(h, sizeof(h), host);
+    engine_printf("{\"type\":\"fallback\",\"ok\":0,\"why\":\"%s\",\"host\":\"%s\"}\n", why, h);
+  } else {
+    engine_printf("{\"type\":\"%s\",\"ok\":0,\"why\":\"%s\"}\n", x->fallback ? "fallback" : "upstream", why);
+  }
 }
 
 /* Connected to host:port through server x, or SOCK_INVALID. */
@@ -3781,7 +3829,7 @@ static sock_t proxy_open(const proxy_ref *x, const char *host, uint16_t port) {
   int fam = 0;
   dial_info di;
   sock_t s = dial(x->host, x->port, g_cfg.prefer_ipv6, 0, 0, &fam, &di);
-  if (s == SOCK_INVALID) { proxy_report(x, "does not answer"); return SOCK_INVALID; }
+  if (s == SOCK_INVALID) { proxy_report(x, "does not answer", host); return SOCK_INVALID; }
   sock_set_timeouts(s, 15000);
   sock_set_nodelay(s, 1);
   size_t hl = strlen(host);
@@ -3797,9 +3845,9 @@ static sock_t proxy_open(const proxy_ref *x, const char *host, uint16_t port) {
       b[k++] = (uint8_t)pl; memcpy(b + k, x->pass, pl); k += pl;
       int sent = sock_send_all(s, b, k, 0);
       memset(b, 0, sizeof(b));
-      if (sent != 0 || recv_exact(s, b, 2) != 0 || b[1] != 0) { proxy_report(x, "refused the user name or password"); goto quiet; }
+      if (sent != 0 || recv_exact(s, b, 2) != 0 || b[1] != 0) { proxy_report(x, "refused the user name or password", host); goto quiet; }
     } else if (b[1] != 0) {
-      proxy_report(x, b[1] == 2 ? "asks for a user name and password" : "refused the connection");
+      proxy_report(x, b[1] == 2 ? "asks for a user name and password" : "refused the connection", host);
       goto quiet;
     }
     size_t k = 0;
@@ -3841,14 +3889,14 @@ static sock_t proxy_open(const proxy_ref *x, const char *host, uint16_t port) {
     b[got] = 0;
     int code = 0;
     if (sscanf((const char *)b, "HTTP/1.%*d %d", &code) != 1) goto bad;
-    if (code == 407) { proxy_report(x, "asks for a user name and password"); goto quiet; }
+    if (code == 407) { proxy_report(x, "asks for a user name and password", host); goto quiet; }
     if (code != 200) { sock_close(s); return SOCK_INVALID; }
   }
   sock_set_timeouts(s, 0);
   if (x->fallback) atomic_store(&g_fb_ok_at, now_ms());
   return s;
 bad:
-  proxy_report(x, "does not speak the protocol chosen");
+  proxy_report(x, "does not speak the protocol chosen", host);
 quiet:
   sock_close(s);
   return SOCK_INVALID;
@@ -4194,7 +4242,7 @@ static void handle(sock_t client) {
         if (learned >= 0 && ncand < ATT_MAX) cand[ncand++] = ATT_PLAIN;
       }
 
-      uint64_t deadline = now_ms() + ATT_BUDGET_MS;
+      uint64_t deadline = now_ms() + (fallback_ok(rq.host) && fb_site_is(key) && fallback_alive() ? ATT_BUDGET_FB_MS : ATT_BUDGET_MS);
       int last_preset = -1;     /* the last technique that actually went out */
       int local_fails = 0;      /* attempts our own send failed for a reason of ours */
       int win = -1, rep_fam = fam;

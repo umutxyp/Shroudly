@@ -163,6 +163,7 @@
     <string name="language">اللغة</string>
     <string name="languageSystem">لغة النظام</string>
     <string name="lastResort">عندما لا ينجح شيء آخر: شبكة تور</string>
+    <string name="lastResortAsks">يسألك Shroudly قبل استخدامها لأول مرة.</string>
     <string name="lastResortDesc">الموقع الذي لا تفتحه أي تقنية يمرّ عبر تور، ويُوصَل إلى تور عبر سنوفليك: اتصالات متطوعين، ومنهم كل من فعّل «مساعدة الناس في البلدان الخاضعة للرقابة». أبطأ، وبعض المواقع تطلب من القادمين عبر تور اختبار كابتشا. لا يبدأ تور إلا عندما يحتاجه موقع.</string>
     <string name="lastResortFailed">تعذّر الوصول إلى شبكة تور؛ ستُعاد المحاولة عندما يحتاجها موقع</string>
     <string name="lastResortOwnServer">لا يُستخدم ما دام خادمك الخاص مضبوطًا: ذلك الخادم يحمل كل المواقع.</string>
@@ -245,6 +246,11 @@
     <string name="supportTitle">ادعم Shroudly</string>
     <string name="tagline">غير مرئي. لا يُقهر.</string>
     <string name="testing">جارٍ الاختبار…</string>
+    <string name="torAskCard">لم تفتح أي تقنية {host} على هذه الشبكة. يمكن لـ Shroudly فتحه عبر شبكة Tor: أبطأ بكثير (تُحمَّل الصفحات ومقاطع الفيديو ببطء)، وبعض المواقع تطلب اختبار captcha. يُحفظ جوابك؛ ويمكنك تغييره من الإعدادات.</string>
+    <string name="torAskNo">لا</string>
+    <string name="torAskNotice">لم تفتح أي تقنية {host} على هذه الشبكة. يمكن لـ Shroudly فتحه عبر شبكة Tor، الملاذ الأخير، لكن بشكل أبطأ بكثير. افتح Shroudly للسماح أو الرفض.</string>
+    <string name="torAskTitle">هل تريد فتح {host} عبر Tor؟</string>
+    <string name="torAskYes">استخدام Tor</string>
     <string name="torUsedPhone">لم يُفتح {host} إلا عبر شبكة Tor، آخر طريق لدى Shroudly: لم ينجح شيء آخر على هذه الشبكة. الاتصال أبطأ وبعض المواقع تطلب اختبار captcha؛ وبقية تطبيقاتك ومواقعك تعمل كما كانت.</string>
     <string name="torUsedTv">لم يُفتح {host} إلا عبر شبكة Tor، آخر طريق لدى Shroudly. قد تُحمَّل مقاطع الفيديو منه ببطء أو بجودة أقل؛ وبقية تطبيقاتك تعمل كما كانت.</string>
     <string name="totalCount">الإجمالي: {count}</string>
@@ -258,7 +264,7 @@
     <string name="upload">الرفع</string>
     <string name="uptime">مدة التشغيل</string>
     <string name="versionLabel">الإصدار {version}</string>
-    <string name="whatsNewAndroid">عندما لا يُفتح موقع إلا عبر Tor، الطريق الأخير، يخبرك Shroudly الآن بذلك لأنه أبطأ.\nجديد: حول → تابع Shroudly.</string>
+    <string name="whatsNewAndroid">عندما لا يُفتح موقع إلا عبر Tor، الطريق الأخير، يخبرك Shroudly الآن بذلك لأنه أبطأ.\nجديد: حول → تابع Shroudly.\nيسألك Tor، الملاذ الأخير، الآن قبل استخدامه لأول مرة، ويصل إلى المواقع أسرع (#77).</string>
     <string name="whatsNewOk">حسنًا</string>
     <string name="whatsNewTitle">الجديد في {version}</string>
 </resources>

@@ -163,6 +163,7 @@
     <string name="language">Мова</string>
     <string name="languageSystem">Як у системі</string>
     <string name="lastResort">Коли ніщо інше не допомагає: мережа Tor</string>
+    <string name="lastResortAsks">Shroudly запитає вас перед першим використанням.</string>
     <string name="lastResortDesc">Сайт, який не відкрила жодна техніка, іде через Tor, а до Tor — через Snowflake: з\'єднання волонтерів, серед них усіх, хто ввімкнув «Допомагати людям у країнах із цензурою». Повільніше, і деякі сайти просять у відвідувачів із Tor пройти капчу. Tor запускається лише тоді, коли він потрібен сайту.</string>
     <string name="lastResortFailed">Не вдалося підключитися до мережі Tor; нова спроба, коли вона знадобиться сайту</string>
     <string name="lastResortOwnServer">Не використовується, поки задано ваш власний сервер: через нього йдуть усі сайти.</string>
@@ -245,6 +246,11 @@
     <string name="supportTitle">Підтримати Shroudly</string>
     <string name="tagline">Непомітний. Нестримний.</string>
     <string name="testing">Перевірка…</string>
+    <string name="torAskCard">Жоден спосіб не відкрив {host} у цій мережі. Shroudly може відкрити його через мережу Tor: набагато повільніше (сторінки й відео вантажаться повільно), а деякі сайти просять пройти капчу. Вашу відповідь запам\'ятовано; її можна змінити в Налаштуваннях.</string>
+    <string name="torAskNo">Ні</string>
+    <string name="torAskNotice">Жоден спосіб не відкрив {host} у цій мережі. Shroudly може відкрити його через мережу Tor, свій останній вихід, але набагато повільніше. Відкрийте Shroudly, щоб дозволити або відмовитися.</string>
+    <string name="torAskTitle">Відкрити {host} через Tor?</string>
+    <string name="torAskYes">Використати Tor</string>
     <string name="torUsedPhone">{host} відкрився лише через мережу Tor — останній спосіб Shroudly: у цій мережі більше нічого не спрацювало. Це повільніше, і деякі сайти просять капчу; інші застосунки й сайти працюють як раніше.</string>
     <string name="torUsedTv">{host} відкрився лише через мережу Tor — останній спосіб Shroudly. Відео звідти можуть вантажитися повільно або в гіршій якості; інші застосунки працюють як раніше.</string>
     <string name="totalCount">Усього: {count}</string>
@@ -258,7 +264,7 @@
     <string name="upload">Вивантаження</string>
     <string name="uptime">Час роботи</string>
     <string name="versionLabel">Версія {version}</string>
-    <string name="whatsNewAndroid">Якщо сайт відкривається лише через Tor, останній спосіб, Shroudly тепер про це каже: так повільніше.\nНове: Про програму → Стежити за Shroudly.</string>
+    <string name="whatsNewAndroid">Якщо сайт відкривається лише через Tor, останній спосіб, Shroudly тепер про це каже: так повільніше.\nНове: Про програму → Стежити за Shroudly.\nTor, останній вихід, тепер питає вас перед першим використанням і швидше відкриває сайти (#77).</string>
     <string name="whatsNewOk">Зрозуміло</string>
     <string name="whatsNewTitle">Що нового у {version}</string>
 </resources>

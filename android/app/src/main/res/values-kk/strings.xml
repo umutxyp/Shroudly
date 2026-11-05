@@ -163,6 +163,7 @@
     <string name="language">Тіл</string>
     <string name="languageSystem">Жүйедегідей</string>
     <string name="lastResort">Басқа ештеңе көмектеспесе: Tor желісі</string>
+    <string name="lastResortAsks">Shroudly оны алғаш қолданар алдында сізден сұрайды.</string>
     <string name="lastResortDesc">Ешбір әдіс аша алмаған сайт Tor арқылы ашылады, ал Tor-ға Snowflake арқылы, яғни еріктілердің қосылымдары арқылы жетеді (олардың арасында «Цензура бар елдердегі адамдарға көмектесу» функциясын қосқандардың бәрі бар). Баяуырақ, кейбір сайттар Tor-дан келгендерден капча сұрайды. Tor тек сайтқа керек болғанда іске қосылады.</string>
     <string name="lastResortFailed">Tor желісіне қосылу мүмкін болмады; сайтқа керек болғанда қайта байқап көреді</string>
     <string name="lastResortOwnServer">Өз серверіңіз орнатылып тұрғанда қолданылмайды: барлық сайт сол сервер арқылы өтеді.</string>
@@ -245,6 +246,11 @@
     <string name="supportTitle">Shroudly-ді қолдау</string>
     <string name="tagline">Көрінбес. Тоқтатылмас.</string>
     <string name="testing">Тексерілуде…</string>
+    <string name="torAskCard">Бұл желіде ешбір тәсіл {host} сайтын ашпады. Shroudly оны Tor желісі арқылы аша алады: әлдеқайда баяу (беттер мен бейнелер баяу жүктеледі), ал кейбір сайттар captcha сұрайды. Жауабыңыз сақталады; оны Баптауларда өзгертуге болады.</string>
+    <string name="torAskNo">Жоқ</string>
+    <string name="torAskNotice">Бұл желіде ешбір тәсіл {host} сайтын ашпады. Shroudly оны соңғы амалы — Tor желісі арқылы аша алады, бірақ әлдеқайда баяу. Рұқсат беру немесе бас тарту үшін Shroudly-ді ашыңыз.</string>
+    <string name="torAskTitle">{host} Tor арқылы ашылсын ба?</string>
+    <string name="torAskYes">Tor қолдану</string>
     <string name="torUsedPhone">{host} тек Tor желісі арқылы ашылды — бұл Shroudly-дің соңғы жолы: бұл желіде басқа ештеңе өтпеді. Бұл баяуырақ, кейбір сайттар капча сұрайды; басқа қолданбалар мен сайттар бұрынғыдай жұмыс істейді.</string>
     <string name="torUsedTv">{host} тек Tor желісі арқылы ашылды — бұл Shroudly-дің соңғы жолы. Ондағы бейнелер баяу немесе төмен сапада жүктелуі мүмкін; басқа қолданбалар бұрынғыдай жұмыс істейді.</string>
     <string name="totalCount">Барлығы: {count}</string>
@@ -258,7 +264,7 @@
     <string name="upload">Жүктеп салу</string>
     <string name="uptime">Жұмыс уақыты</string>
     <string name="versionLabel">Нұсқа {version}</string>
-    <string name="whatsNewAndroid">Сайт тек соңғы жол — Tor арқылы ашылса, Shroudly енді мұны айтады, себебі ол баяуырақ.\nЖаңа: Бағдарлама туралы → Shroudly-ге жазылу.</string>
+    <string name="whatsNewAndroid">Сайт тек соңғы жол — Tor арқылы ашылса, Shroudly енді мұны айтады, себебі ол баяуырақ.\nЖаңа: Бағдарлама туралы → Shroudly-ге жазылу.\nСоңғы амал — Tor енді алғаш қолданар алдында сізден сұрайды және сайттарға тезірек жетеді (#77).</string>
     <string name="whatsNewOk">Түсінікті</string>
     <string name="whatsNewTitle">{version} нұсқасындағы жаңалықтар</string>
 </resources>

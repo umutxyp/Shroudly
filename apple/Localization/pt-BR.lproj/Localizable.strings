@@ -72,6 +72,7 @@
 "language" = "Idioma";
 "languageSystem" = "Padrão do sistema";
 "lastResort" = "Quando nada mais funciona: a rede Tor";
+"lastResortAsks" = "O Shroudly pergunta antes de usá-la pela primeira vez.";
 "lastResortDesc" = "Um site que nenhuma técnica abre passa pelo Tor, alcançado pelo Snowflake: as conexões de voluntários, entre eles todos que ativaram “Ajudar pessoas em países censurados”. É mais lento, e alguns sites pedem captcha a quem chega pelo Tor. O Tor só inicia quando um site precisa dele.";
 "lastResortFailed" = "Não foi possível alcançar a rede Tor; nova tentativa quando um site precisar";
 "lastResortOwnServer" = "Não é usado enquanto o seu próprio servidor estiver definido: esse servidor leva todos os sites.";
@@ -137,6 +138,11 @@
 "strategy" = "Estratégia de evasão";
 "supportBannerLater" = "Agora não";
 "tagline" = "Invisível. Imparável.";
+"torAskCard" = "Nenhuma técnica abriu {host} nesta rede. O Shroudly pode abri-lo pela rede Tor: bem mais lento (páginas e vídeos carregam devagar), e alguns sites pedem um captcha. Sua resposta fica guardada; você pode mudá-la nos Ajustes.";
+"torAskNo" = "Não";
+"torAskNotice" = "Nenhuma técnica abriu {host} nesta rede. O Shroudly pode abri-lo pela rede Tor, seu último recurso, mas bem mais devagar. Abra o Shroudly para permitir ou recusar.";
+"torAskTitle" = "Abrir {host} pelo Tor?";
+"torAskYes" = "Usar o Tor";
 "torUsedDesktop" = "{host} só abriu pela rede Tor, o último recurso do Shroudly: nada mais funcionou nesta rede. É mais lento e alguns sites pedem um captcha; os outros sites deste computador continuam como antes.";
 "totalCount" = "Total: {count}";
 "upload" = "Enviado";

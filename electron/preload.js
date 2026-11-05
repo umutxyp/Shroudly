@@ -16,6 +16,8 @@ contextBridge.exposeInMainWorld('electron', {
   // The last way out: Tor here yet, and fetching it now (issue #75).
   getTorStatus: () => ipcRenderer.invoke('tor:status'),
   prepareTor: () => ipcRenderer.invoke('tor:prepare'),
+  // A site needs Tor: the user's yes (true) or no (false) (issue #77).
+  answerTor: (yes) => ipcRenderer.invoke('tor:answer', yes === true),
   setBlocked: (host, on) => ipcRenderer.invoke('conns:block', host, on),
   // Where Shroudly keeps its data (data-dir.js, issue #72).
   getDataDir: () => ipcRenderer.invoke('datadir:get'),

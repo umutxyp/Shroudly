@@ -163,6 +163,7 @@
     <string name="language">语言</string>
     <string name="languageSystem">跟随系统</string>
     <string name="lastResort">其他方法都无效时:Tor 网络</string>
+    <string name="lastResortAsks">Shroudly 首次使用它之前会先问你。</string>
     <string name="lastResortDesc">任何技术都打不开的网站会经由 Tor 打开,而 Tor 通过 Snowflake 连接:也就是志愿者的连接,其中包括所有开启了“帮助受审查国家的人”的用户。速度较慢,有些网站会要求来自 Tor 的访客完成验证码。只有当某个网站需要时,Tor 才会启动。</string>
     <string name="lastResortFailed">无法连接 Tor 网络;等有网站需要时会再试</string>
     <string name="lastResortOwnServer">设置了你自己的服务器时不使用:所有网站都经由该服务器。</string>
@@ -245,6 +246,11 @@
     <string name="supportTitle">支持 Shroudly</string>
     <string name="tagline">隐形。不可阻挡。</string>
     <string name="testing">正在测试…</string>
+    <string name="torAskCard">在此网络上，没有任何技术能打开 {host}。Shroudly 可以通过 Tor 网络打开它：慢很多（网页和视频加载缓慢），部分网站会要求验证码。你的回答会被记住；可在设置中更改。</string>
+    <string name="torAskNo">不</string>
+    <string name="torAskNotice">在此网络上，没有任何技术能打开 {host}。Shroudly 可以通过 Tor 网络（它的最后手段）打开它，但会慢很多。打开 Shroudly 以允许或拒绝。</string>
+    <string name="torAskTitle">通过 Tor 打开 {host}？</string>
+    <string name="torAskYes">使用 Tor</string>
     <string name="torUsedPhone">{host} 只能通过 Tor 网络打开，这是 Shroudly 的最后一招：在这个网络上其他方法都不行。速度较慢，有些网站会要求验证码；你的其他应用和网站照常。</string>
     <string name="torUsedTv">{host} 只能通过 Tor 网络打开，这是 Shroudly 的最后一招。它的视频可能加载较慢或画质较低；你的其他应用照常。</string>
     <string name="totalCount">总计：{count}</string>
@@ -258,7 +264,7 @@
     <string name="upload">上传</string>
     <string name="uptime">运行时长</string>
     <string name="versionLabel">版本 {version}</string>
-    <string name="whatsNewAndroid">当网站只能通过最后一招 Tor 打开时，Shroudly 现在会告诉你，因为速度较慢。\n新增：关于 → 关注 Shroudly。</string>
+    <string name="whatsNewAndroid">当网站只能通过最后一招 Tor 打开时，Shroudly 现在会告诉你，因为速度较慢。\n新增：关于 → 关注 Shroudly。\n最后手段 Tor 现在会在首次使用前先问你，并能更快打开网站 (#77)。</string>
     <string name="whatsNewOk">知道了</string>
     <string name="whatsNewTitle">{version} 的新内容</string>
 </resources>

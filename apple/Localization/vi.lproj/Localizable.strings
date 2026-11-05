@@ -72,6 +72,7 @@
 "language" = "Ngôn ngữ";
 "languageSystem" = "Mặc định của hệ thống";
 "lastResort" = "Khi không cách nào khác hiệu quả: mạng Tor";
+"lastResortAsks" = "Shroudly hỏi bạn trước khi dùng lần đầu.";
 "lastResortDesc" = "Trang mà không kỹ thuật nào mở được sẽ đi qua Tor, được kết nối thông qua Snowflake: kết nối của các tình nguyện viên, trong đó có mọi người đã bật “Giúp người ở các nước bị kiểm duyệt”. Chậm hơn, và một số trang yêu cầu captcha với người đến từ Tor. Tor chỉ khởi động khi có trang cần đến.";
 "lastResortFailed" = "Không kết nối được mạng Tor; sẽ thử lại khi có trang cần đến";
 "lastResortOwnServer" = "Không dùng khi bạn đã đặt máy chủ riêng: máy chủ đó mang mọi trang.";
@@ -137,6 +138,11 @@
 "strategy" = "Chiến lược vượt chặn";
 "supportBannerLater" = "Để sau";
 "tagline" = "Vô hình. Không thể ngăn cản.";
+"torAskCard" = "Không kỹ thuật nào mở được {host} trên mạng này. Shroudly có thể mở nó qua mạng Tor: chậm hơn nhiều (trang và video tải chậm), và một số trang yêu cầu captcha. Câu trả lời của bạn được lưu; bạn có thể đổi trong Cài đặt.";
+"torAskNo" = "Không";
+"torAskNotice" = "Không kỹ thuật nào mở được {host} trên mạng này. Shroudly có thể mở nó qua mạng Tor, lối thoát cuối cùng, nhưng chậm hơn nhiều. Mở Shroudly để cho phép hoặc từ chối.";
+"torAskTitle" = "Mở {host} qua Tor?";
+"torAskYes" = "Dùng Tor";
 "torUsedDesktop" = "{host} chỉ mở được qua mạng Tor, đường cuối cùng của Shroudly: trên mạng này không cách nào khác vượt qua được. Tốc độ chậm hơn và một số trang yêu cầu captcha; các trang khác trên máy tính này vẫn như cũ.";
 "totalCount" = "Tổng: {count}";
 "upload" = "Tải lên";

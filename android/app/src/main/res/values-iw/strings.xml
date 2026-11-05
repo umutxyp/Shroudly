@@ -163,6 +163,7 @@
     <string name="language">שפה</string>
     <string name="languageSystem">ברירת המחדל של המערכת</string>
     <string name="lastResort">כשום דבר אחר לא עובד: רשת Tor</string>
+    <string name="lastResortAsks">Shroudly שואל אתכם לפני השימוש הראשון.</string>
     <string name="lastResortDesc">אתר ששום טכניקה לא פותחת עובר דרך Tor, שאליו מגיעים דרך Snowflake: החיבורים של מתנדבים, ובהם כל מי שהפעיל את „לעזור לאנשים במדינות עם צנזורה”. איטי יותר, וחלק מהאתרים מבקשים ממבקרים שמגיעים מ-Tor לפתור קפצ\'ה. Tor מופעל רק כשאתר צריך אותו.</string>
     <string name="lastResortFailed">לא ניתן היה להגיע לרשת Tor; ניסיון חוזר כשאתר יצטרך אותה</string>
     <string name="lastResortOwnServer">לא בשימוש כל עוד השרת שלך מוגדר: השרת הזה מעביר את כל האתרים.</string>
@@ -245,6 +246,11 @@
     <string name="supportTitle">תמיכה ב-Shroudly</string>
     <string name="tagline">בלתי נראה. בלתי ניתן לעצירה.</string>
     <string name="testing">בודק…</string>
+    <string name="torAskCard">אף שיטה לא פתחה את {host} ברשת הזו. Shroudly יכול לפתוח אותו דרך רשת Tor: איטי הרבה יותר (דפים וסרטונים נטענים לאט), ויש אתרים שמבקשים captcha. התשובה שלכם נשמרת; אפשר לשנות אותה בהגדרות.</string>
+    <string name="torAskNo">לא</string>
+    <string name="torAskNotice">אף שיטה לא פתחה את {host} ברשת הזו. Shroudly יכול לפתוח אותו דרך רשת Tor, המוצא האחרון שלו, אבל לאט הרבה יותר. פתחו את Shroudly כדי לאשר או לסרב.</string>
+    <string name="torAskTitle">לפתוח את {host} דרך Tor?</string>
+    <string name="torAskYes">להשתמש ב-Tor</string>
     <string name="torUsedPhone">{host} נפתח רק דרך רשת Tor, הדרך האחרונה של Shroudly: שום דבר אחר לא עבר ברשת הזו. זה איטי יותר, ויש אתרים שמבקשים captcha; שאר האפליקציות והאתרים שלך ממשיכים כרגיל.</string>
     <string name="torUsedTv">{host} נפתח רק דרך רשת Tor, הדרך האחרונה של Shroudly. סרטונים ממנו עלולים להיטען לאט או באיכות נמוכה יותר; שאר האפליקציות שלך ממשיכות כרגיל.</string>
     <string name="totalCount">סה״כ: {count}</string>
@@ -258,7 +264,7 @@
     <string name="upload">העלאה</string>
     <string name="uptime">זמן פעילות</string>
     <string name="versionLabel">גרסה {version}</string>
-    <string name="whatsNewAndroid">כשאתר נפתח רק דרך Tor, הדרך האחרונה, Shroudly אומרת לך את זה עכשיו, כי זה איטי יותר.\nחדש: אודות → עקבו אחרי Shroudly.</string>
+    <string name="whatsNewAndroid">כשאתר נפתח רק דרך Tor, הדרך האחרונה, Shroudly אומרת לך את זה עכשיו, כי זה איטי יותר.\nחדש: אודות → עקבו אחרי Shroudly.\nTor, המוצא האחרון, שואל אתכם עכשיו לפני השימוש הראשון ומגיע לאתרים מהר יותר (#77).</string>
     <string name="whatsNewOk">הבנתי</string>
     <string name="whatsNewTitle">מה חדש בגרסה {version}</string>
 </resources>

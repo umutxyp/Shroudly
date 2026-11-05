@@ -163,7 +163,7 @@ struct ContentView: View {
     private static let previewStats = EngineStats(["conns_active": 14, "conns_total": 386, "bytes_down": 248_000_000, "bytes_up": 19_400_000, "online": 1_204])
 
     private var hasCard: Bool {
-        phase == .on && (watch.ownServerDown != nil || watch.national != nil || controller.dnsAround || (helpDue && controller.notice == nil && !Theme.isTV))
+        phase == .on && (watch.ownServerDown != nil || watch.national != nil || controller.dnsAround || controller.torAsk != nil || (helpDue && controller.notice == nil && !Theme.isTV))
     }
 
     /* The one card under the status, when there is one. */
@@ -172,6 +172,11 @@ struct ContentView: View {
             Warning(title: tr("ownServerDown"),
                     text: tr("ownServerDownBody", ["server": down.server, "why": OwnServer.whyText(down.why),
                                                    "path": "\(tr("navSettings")) \(direction == .rightToLeft ? "←" : "→") \(tr("ownServer"))"]))
+        } else if phase == .on, let host = controller.torAsk {
+            // A site needs Tor; asked here, never in a window of its own (issue #77).
+            TorAskCard(host: host.isEmpty ? "…" : host,
+                       yes: { Task { await controller.answerTor(true) } },
+                       no: { Task { await controller.answerTor(false) } })
         } else if phase == .on, controller.dnsAround {
             // A DNS profile or app answers apps' lookups before the tunnel.
             Warning(title: tr("dnsAroundTitle"), text: tr("dnsAroundApple"))
@@ -376,6 +381,39 @@ private struct HelpCard: View {
                 Button(tr("supportBannerLater"), action: later)
                     .foregroundStyle(Theme.secondaryText)
                 Button(tr("helpNudgeShow"), action: show)
+                    .buttonStyle(.borderedProminent)
+            }
+            .font(.footnote.weight(.semibold))
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(14)
+        .background(Theme.card, in: RoundedRectangle(cornerRadius: 14))
+        .padding(.horizontal, 16)
+    }
+}
+
+/* A site no technique opened can go through Tor, much more slowly: asked,
+ * with "No" and "Use Tor" (issue #77). */
+private struct TorAskCard: View {
+    let host: String
+    let yes: () -> Void
+    let no: () -> Void
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Label(tr("torAskTitle", ["host": host]), systemImage: "network")
+                .font(.callout.weight(.semibold))
+                .foregroundStyle(.white)
+                .fixedSize(horizontal: false, vertical: true)
+            Text(tr("torAskCard", ["host": host]))
+                .font(.footnote)
+                .foregroundStyle(Theme.secondaryText)
+                .fixedSize(horizontal: false, vertical: true)
+            HStack(spacing: 12) {
+                Spacer()
+                Button(tr("torAskNo"), action: no)
+                    .foregroundStyle(Theme.secondaryText)
+                Button(tr("torAskYes"), action: yes)
                     .buttonStyle(.borderedProminent)
             }
             .font(.footnote.weight(.semibold))

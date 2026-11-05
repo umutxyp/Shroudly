@@ -163,6 +163,7 @@
     <string name="language">زبان</string>
     <string name="languageSystem">پیش‌فرض سیستم</string>
     <string name="lastResort">وقتی هیچ راه دیگری جواب نمی‌دهد: شبکهٔ تور</string>
+    <string name="lastResortAsks">Shroudly پیش از نخستین استفاده از شما می‌پرسد.</string>
     <string name="lastResortDesc">سایتی که هیچ روشی بازش نمی‌کند از راه تور باز می‌شود؛ تور از راه اسنوفلیک در دسترس است، یعنی اتصال داوطلبان، از جمله همهٔ کسانی که «کمک به مردم کشورهای سانسورشده» را روشن کرده‌اند. کندتر است و بعضی سایت‌ها از کسانی که از تور می‌آیند کپچا می‌خواهند. تور فقط وقتی شروع می‌شود که سایتی به آن نیاز داشته باشد.</string>
     <string name="lastResortFailed">به شبکهٔ تور نرسیدیم؛ وقتی سایتی به آن نیاز داشته باشد دوباره امتحان می‌شود</string>
     <string name="lastResortOwnServer">تا وقتی سرور خودت تنظیم شده است استفاده نمی‌شود: همهٔ سایت‌ها از آن سرور می‌گذرند.</string>
@@ -245,6 +246,11 @@
     <string name="supportTitle">حمایت از Shroudly</string>
     <string name="tagline">نامرئی. توقف‌ناپذیر.</string>
     <string name="testing">در حال آزمایش…</string>
+    <string name="torAskCard">هیچ روشی {host} را در این شبکه باز نکرد. Shroudly می‌تواند آن را از طریق شبکه Tor باز کند: بسیار کندتر (صفحه‌ها و ویدیوها کند بارگذاری می‌شوند) و برخی سایت‌ها captcha می‌خواهند. پاسخ شما نگه داشته می‌شود؛ می‌توانید آن را در تنظیمات تغییر دهید.</string>
+    <string name="torAskNo">نه</string>
+    <string name="torAskNotice">هیچ روشی {host} را در این شبکه باز نکرد. Shroudly می‌تواند آن را از طریق شبکه Tor، آخرین راه چاره‌اش، باز کند، اما بسیار کندتر. برای اجازه دادن یا رد کردن، Shroudly را باز کنید.</string>
+    <string name="torAskTitle">{host} از طریق Tor باز شود؟</string>
+    <string name="torAskYes">استفاده از Tor</string>
     <string name="torUsedPhone">{host} فقط از راه شبکهٔ Tor، آخرین راه Shroudly، باز شد: هیچ راه دیگری در این شبکه جواب نداد. کندتر است و بعضی سایت‌ها کپچا می‌خواهند؛ بقیهٔ برنامه‌ها و سایت‌هایتان مثل قبل کار می‌کنند.</string>
     <string name="torUsedTv">{host} فقط از راه شبکهٔ Tor، آخرین راه Shroudly، باز شد. ویدیوهایش ممکن است کند یا با کیفیت پایین‌تر بارگذاری شوند؛ بقیهٔ برنامه‌هایتان مثل قبل کار می‌کنند.</string>
     <string name="totalCount">مجموع: {count}</string>
@@ -258,7 +264,7 @@
     <string name="upload">آپلود</string>
     <string name="uptime">مدت فعالیت</string>
     <string name="versionLabel">نسخهٔ {version}</string>
-    <string name="whatsNewAndroid">وقتی سایتی فقط از راه Tor، آخرین راه، باز شود، Shroudly حالا آن را می‌گوید، چون کندتر است.\nتازه: درباره → Shroudly را دنبال کنید.</string>
+    <string name="whatsNewAndroid">وقتی سایتی فقط از راه Tor، آخرین راه، باز شود، Shroudly حالا آن را می‌گوید، چون کندتر است.\nتازه: درباره → Shroudly را دنبال کنید.\nTor، آخرین راه چاره، اکنون پیش از نخستین استفاده از شما می‌پرسد و سریع‌تر به سایت‌ها می‌رسد (#77).</string>
     <string name="whatsNewOk">متوجه شدم</string>
     <string name="whatsNewTitle">تازه‌های نسخهٔ {version}</string>
 </resources>

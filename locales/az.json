@@ -920,8 +920,8 @@
   "helpNudgeThanks": "Təşəkkürlər: indi kömək edirsiniz. Söndürmək üçün: {path}.",
   "whatsNewTitle": "{version} versiyasında yeniliklər",
   "whatsNewOk": "Aydındır",
-  "whatsNewDesktop": "Riot Games bloklanan şəbəkələrdə League of Legends, VALORANT və onların quraşdırıcısı indi özbaşına Shroudly üzərindən keçir (#76).\nWindows-da Genişləndirilmiş rejim: başqa proqramın qoyub getdiyi drayver artıq onun işə düşməsinə mane olmur.",
-  "whatsNewAndroid": "Sayt yalnız son yol olan Tor ilə açılanda Shroudly artıq bunu deyir, çünki bu daha yavaşdır.\nYeni: Haqqında → Shroudly-ni izlə.",
+  "whatsNewDesktop": "Riot Games bloklanan şəbəkələrdə League of Legends, VALORANT və onların quraşdırıcısı indi özbaşına Shroudly üzərindən keçir (#76).\nWindows-da Genişləndirilmiş rejim: başqa proqramın qoyub getdiyi drayver artıq onun işə düşməsinə mane olmur.\nSon çarə olan Tor indi ilk istifadədən əvvəl səndən soruşur və saytlara daha tez çatır (#77).",
+  "whatsNewAndroid": "Sayt yalnız son yol olan Tor ilə açılanda Shroudly artıq bunu deyir, çünki bu daha yavaşdır.\nYeni: Haqqında → Shroudly-ni izlə.\nSon çarə olan Tor indi ilk istifadədən əvvəl səndən soruşur və saytlara daha tez çatır (#77).",
   "whatsNewApple": "Saytlara görə bağlantılar: Shroudly-dən nəyin keçdiyini hər iki istiqamətdəki məlumatı ilə gör və istədiyin saytı blokla (#74).\nBloklamaq saytın bağlantılarını dərhal kəsir; siyahı sənin cihazında qalır.",
   "appleVpnNotSigned": "Shroudly-nin bu nüsxəsi Apple-ın VPN icazəsi olmadan imzalanıb, buna görə iOS ona VPN başlatmağa icazə vermir və heç soruşmur. Pulsuz Apple ID ilə imzalanan nüsxələrdə (AltStore, SideStore, Sideloadly və bənzərləri) bu icazə heç vaxt olmur. Onu TrollStore ilə quraşdırın və ya ödənişli Apple developer hesabı ilə imzalayın.",
   "appleInstallHelp": "Necə quraşdırılır",
@@ -942,5 +942,11 @@
   "dnsAroundAndroid": "Bu cihazda tətbiqlərin ad sorğularına başqa bir şey cavab verir (Şəxsi DNS və ya DNS tətbiqi), ona görə bloklanmış tətbiqlər açılmaya bilər. Ayarlar → Şəbəkə → Şəxsi DNS bölməsində «Söndürülü» və ya «Avtomatik» seçin, DNS tətbiqlərini bağlayın, sonra Shroudly-ni yenidən başladın.",
   "dnsAroundApple": "Bu cihazdakı DNS profili və ya tətbiqi (AdGuard, NextDNS, 1.1.1.1, məktəb və ya iş profili) ad sorğularına Shroudly-dən əvvəl cavab verir, ona görə bloklanmış tətbiqlər açılmaya bilər. Onu Ayarlar → Ümumi → VPN və Cihaz İdarəetməsi bölməsində söndürün (Mac: Sistem Ayarları → Şəbəkə → VPN və Filtrlər), sonra Shroudly-ni yenidən başladın.",
   "dnsAroundTitle": "Nəsə Shroudly-ni yan keçir",
-  "reopenAppsHint": "Əvvəlcədən açıq olan tətbiqlər: biri qoşulmasa, onu bağlayıb bir dəfə yenidən açın."
+  "reopenAppsHint": "Əvvəlcədən açıq olan tətbiqlər: biri qoşulmasa, onu bağlayıb bir dəfə yenidən açın.",
+  "torAskTitle": "{host} Tor vasitəsilə açılsın?",
+  "torAskNotice": "Bu şəbəkədə heç bir texnika {host} saytını açmadı. Shroudly onu son çarəsi olan Tor şəbəkəsi ilə aça bilər, amma çox daha yavaş. İcazə vermək və ya imtina etmək üçün Shroudly-ni aç.",
+  "torAskCard": "Bu şəbəkədə heç bir texnika {host} saytını açmadı. Shroudly onu Tor şəbəkəsi ilə aça bilər: çox daha yavaşdır (səhifələr və videolar yavaş yüklənir) və bəzi saytlar captcha istəyir. Cavabın yadda saxlanılır; Ayarlarda dəyişə bilərsən.",
+  "torAskYes": "Tor-dan istifadə et",
+  "torAskNo": "Xeyr",
+  "lastResortAsks": "Shroudly ilk dəfə istifadə etməzdən əvvəl səndən soruşur."
 }

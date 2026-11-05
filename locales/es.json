@@ -920,8 +920,8 @@
   "helpNudgeThanks": "Gracias: ya estás ayudando. Para desactivarlo: {path}.",
   "whatsNewTitle": "Novedades de la {version}",
   "whatsNewOk": "Entendido",
-  "whatsNewDesktop": "Donde Riot Games está bloqueado, League of Legends, VALORANT y su instalador ahora pasan solos por Shroudly (#76).\nModo avanzado en Windows: un controlador que dejó otro programa ya no impide que se inicie.",
-  "whatsNewAndroid": "Cuando un sitio solo se abre por Tor, el último recurso, Shroudly ahora te lo dice, porque es más lento.\nNuevo: Acerca de → Sigue a Shroudly, con nuestras cuentas.",
+  "whatsNewDesktop": "Donde Riot Games está bloqueado, League of Legends, VALORANT y su instalador ahora pasan solos por Shroudly (#76).\nModo avanzado en Windows: un controlador que dejó otro programa ya no impide que se inicie.\nTor, el último recurso, ahora te pregunta antes de usarse por primera vez y llega antes a los sitios (#77).",
+  "whatsNewAndroid": "Cuando un sitio solo se abre por Tor, el último recurso, Shroudly ahora te lo dice, porque es más lento.\nNuevo: Acerca de → Sigue a Shroudly, con nuestras cuentas.\nTor, el último recurso, ahora te pregunta antes de usarse por primera vez y llega antes a los sitios (#77).",
   "whatsNewApple": "Conexiones por sitio: mira lo que pasa por Shroudly, con los datos en cada sentido, y bloquea el sitio que quieras (#74).\nBloquear un sitio corta sus conexiones al momento; la lista se queda en tu dispositivo.",
   "appleVpnNotSigned": "Esta copia de Shroudly está firmada sin el permiso de Apple para VPN, así que iOS no le deja iniciar una y nunca lo pregunta. Las copias firmadas con un Apple ID gratuito (AltStore, SideStore, Sideloadly y similares) nunca lo tienen. Instálala con TrollStore o fírmala con una cuenta de desarrollador de Apple de pago.",
   "appleInstallHelp": "Cómo instalarla",
@@ -942,5 +942,11 @@
   "dnsAroundAndroid": "Otra cosa en este dispositivo responde las búsquedas de nombres de las apps (DNS privado o una app de DNS), así que las apps bloqueadas pueden no abrirse. En Ajustes → Red → DNS privado elige Desactivado o Automático, cierra cualquier app de DNS y vuelve a iniciar Shroudly.",
   "dnsAroundApple": "Un perfil o app de DNS en este dispositivo (AdGuard, NextDNS, 1.1.1.1, un perfil escolar o de trabajo) responde las búsquedas de nombres antes que Shroudly, así que las apps bloqueadas pueden no abrirse. Desactívalo en Ajustes → General → VPN y gestión de dispositivos (Mac: Ajustes del Sistema → Red → VPN y filtros) y vuelve a iniciar Shroudly.",
   "dnsAroundTitle": "Algo esquiva a Shroudly",
-  "reopenAppsHint": "Apps que ya estaban abiertas: si una no se conecta, ciérrala y vuelve a abrirla una vez."
+  "reopenAppsHint": "Apps que ya estaban abiertas: si una no se conecta, ciérrala y vuelve a abrirla una vez.",
+  "torAskTitle": "¿Abrir {host} a través de Tor?",
+  "torAskNotice": "Ninguna técnica abrió {host} en esta red. Shroudly puede abrirlo a través de la red Tor, su último recurso, pero mucho más despacio. Abre Shroudly para permitirlo o rechazarlo.",
+  "torAskCard": "Ninguna técnica abrió {host} en esta red. Shroudly puede abrirlo a través de la red Tor: mucho más lento (las páginas y los vídeos cargan despacio) y algunos sitios piden un captcha. Tu respuesta se guarda; puedes cambiarla en Ajustes.",
+  "torAskYes": "Usar Tor",
+  "torAskNo": "No",
+  "lastResortAsks": "Shroudly te pregunta antes de usarla por primera vez."
 }

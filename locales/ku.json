@@ -920,8 +920,8 @@
   "helpNudgeThanks": "Spas: tu niha alîkariyê dikî. Ji bo girtinê: {path}.",
   "whatsNewTitle": "Tiştên nû di {version} de",
   "whatsNewOk": "Baş e",
-  "whatsNewDesktop": "Li torên ku Riot Games lê astengkirî ye, League of Legends, VALORANT û sazkera wan niha bi xwe di ser Shroudly re diçin (#76).\nModa pêşketî li Windows: ajokarekî ku bernameyeke din li pey xwe hiştiye êdî rê li destpêkirina wê nagire.",
-  "whatsNewAndroid": "Gava malperek tenê bi Tor, riya dawî, vebe, Shroudly niha vê dibêje, ji ber ku hêdîtir e.\nNû: Derbarê → Shroudly bişopîne.",
+  "whatsNewDesktop": "Li torên ku Riot Games lê astengkirî ye, League of Legends, VALORANT û sazkera wan niha bi xwe di ser Shroudly re diçin (#76).\nModa pêşketî li Windows: ajokarekî ku bernameyeke din li pey xwe hiştiye êdî rê li destpêkirina wê nagire.\nTor, çareya dawî, êdî berî bikaranîna yekem ji te dipirse û zûtir digihîje malperan (#77).",
+  "whatsNewAndroid": "Gava malperek tenê bi Tor, riya dawî, vebe, Shroudly niha vê dibêje, ji ber ku hêdîtir e.\nNû: Derbarê → Shroudly bişopîne.\nTor, çareya dawî, êdî berî bikaranîna yekem ji te dipirse û zûtir digihîje malperan (#77).",
   "whatsNewApple": "Girêdan li gorî malperê: bibîne çi di Shroudly re derbas dibe, bi daneyên her du alî, û her malperê asteng bike (#74).\nAstengkirin girêdanên malperê yekser qut dike; lîste li ser amûra te dimîne.",
   "appleVpnNotSigned": "Ev kopiya Shroudly bê destûra Apple ya ji bo VPN hatiye îmzekirin, ji ber vê iOS nahêle ku ew VPN-ekê dest pê bike û qet jî napirse. Kopiyên ku bi Apple ID-ya belaş hatine îmzekirin (AltStore, SideStore, Sideloadly û yên wek wan) qet vê destûrê nînin. Wê bi TrollStore saz bike, an bi hesabekî pêşdebiran ê Apple yê bi pere îmze bike.",
   "appleInstallHelp": "Çawa tê sazkirin",
@@ -942,5 +942,11 @@
   "dnsAroundAndroid": "Li ser vê amûrê tiştekî din bersiva lêgerînên navan ên sepanan dide (DNS-a taybet an sepaneke DNS), ji ber vê yekê dibe ku sepanên astengkirî venebin. Di Mîheng → Tor → DNS-a taybet de Girtî an Xweber hilbijêre, sepanên DNS bigire, paşê Shroudly dîsa bide destpêkirin.",
   "dnsAroundApple": "Profîl an sepaneke DNS li ser vê amûrê (AdGuard, NextDNS, 1.1.1.1, profîlek dibistanê an karê) berî Shroudly bersiva lêgerînên navan dide, ji ber vê yekê dibe ku sepanên astengkirî venebin. Wê di Mîheng → Giştî → VPN û Rêveberiya Amûrê de bigire (Mac: Mîhengên Pergalê → Tor → VPN û Parzûn), paşê Shroudly dîsa bide destpêkirin.",
   "dnsAroundTitle": "Tiştek li dora Shroudly diçe",
-  "reopenAppsHint": "Sepanên ku berê vekirî bûn: heke yek girê nede, wê bigire û carekê dîsa veke."
+  "reopenAppsHint": "Sepanên ku berê vekirî bûn: heke yek girê nede, wê bigire û carekê dîsa veke.",
+  "torAskTitle": "{host} bi rêya Tor vebe?",
+  "torAskNotice": "Li ser vê torê tu teknîkê {host} venekir. Shroudly dikare wê bi rêya tora Tor, çareya xwe ya dawî, veke, lê pir hêdîtir. Ji bo destûrê an redkirinê Shroudly veke.",
+  "torAskCard": "Li ser vê torê tu teknîkê {host} venekir. Shroudly dikare wê bi rêya tora Tor veke: pir hêdîtir (rûpel û vîdyo hêdî bar dibin), û hin malper captcha dixwazin. Bersiva te tê parastin; tu dikarî di Mîhengan de biguherînî.",
+  "torAskYes": "Tor bi kar bîne",
+  "torAskNo": "Na",
+  "lastResortAsks": "Shroudly berî ku cara yekem bi kar bîne ji te dipirse."
 }

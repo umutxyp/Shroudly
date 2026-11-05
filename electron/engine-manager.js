@@ -244,6 +244,9 @@ class EngineManager {
     // The last way out (tor-route.js): Tor, for a connection nothing else
     // got through; main.js brings it (none in the tests unless they do).
     this.tor = hooks.torRoute || null;
+    // Tor is slow: the user says yes before it first starts (issue #77).
+    // (host) => the window and a notification ask; main.js answers.
+    this.onTorAsk = hooks.onTorAsk || (() => {});
     this._torFile = null;
     this._blockedHold = new Map();
     this._ownDownTimer = null;
@@ -1374,8 +1377,15 @@ class EngineManager {
         if (!msg.ok) this._onOwnServerDown(OwnServer.whyCode(msg.why));
         break;
       case 'fallback':
-        // Nothing was listening: Tor is started for the next connection.
-        if (!msg.ok) { if (this.tor && this._torFile && msg.why !== 'file unusable') this.tor.need(); break; }
+        // Nothing was listening: Tor is started for the next connection,
+        // once the user has said yes to it (issue #77); until then they are
+        // asked (a notification and a card in the window), never Tor by itself.
+        if (!msg.ok) {
+          if (!this.tor || !this._torFile || msg.why === 'file unusable' || this.store.get('torLastResort', true) === false) break;
+          if (this.store.get('torApproved', false) === true) this.tor.need();
+          else { try { this.onTorAsk(msg.host || ''); } catch {} }
+          break;
+        }
         if (msg.host && this.logGate.allow('fallback', msg.host)) {
           this.log('info', `${msg.host}: no technique got through; opened through the last way out (Tor)`);
         }

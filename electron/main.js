@@ -505,6 +505,45 @@ function notRouting() { return !!(engine && engine.isActive() && !engine.routing
 const TOR_TELL_MS = 15 * 60 * 1000;
 const torTold = new Set();
 let torToldAt = 0;
+/* Tor asked for, not yet allowed (issue #77): a site no technique opened.
+ * The user decides in the window (ControlPanel's card): a notification says
+ * so, at most every TOR_ASK_MS; no window of its own, never the screen
+ * taken. The answer is kept (torApproved, or the last way out turned off);
+ * Settings → the Tor toggle changes it. */
+const TOR_ASK_MS = 30 * 60 * 1000;
+let torAsk = null;
+let torAskedAt = 0;
+function askTor(host) {
+  const h = String(host || '').toLowerCase();
+  const had = torAsk;
+  torAsk = { host: h || (had && had.host) || '' };
+  if (!had) addLog('info', `The last way out: ${torAsk.host || 'a site'} needs Tor; asking before it starts`);
+  const now = Date.now();
+  if (now - torAskedAt >= TOR_ASK_MS) {
+    torAskedAt = now;
+    const text = String(tr().torAskNotice || '').replace(/\{host\}/g, torAsk.host || '');
+    if (text) notify('Shroudly', text);
+  }
+  toWindow('dpi:status-changed', !!(engine && engine.isActive()));
+}
+function answerTor(yes) {
+  const host = torAsk ? torAsk.host : '';
+  torAsk = null;
+  if (yes) {
+    store.set('torApproved', true);
+    addLog('info', `The last way out: allowed by the user${host ? ` (for ${host})` : ''}; Tor starts and stays allowed`);
+    if (engine && engine.isActive() && engine.tor) engine.tor.need();
+  } else {
+    store.set('torApproved', false);
+    store.set('torLastResort', false);
+    addLog('info', 'The last way out: the user said no; Tor stays off (Settings → Connection turns it on)');
+    scheduleEngineRestart();
+  }
+  toWindow('dpi:status-changed', !!(engine && engine.isActive()));
+  return { success: true };
+}
+ipcMain.handle('tor:answer', (e, yes) => answerTor(yes === true));
+
 function torUsed(host) {
   const h = String(host || '').toLowerCase();
   if (!h || torTold.has(h)) return;
@@ -1069,6 +1108,8 @@ async function safeStop({ user = false } = {}) {
   if (user) { store.set(PROTECTION_KEY, false); lastStartFailed = false; }
   // Nothing of Roblox's is stopped or started once protection is going off.
   robloxWatch.halt();
+  // A question about Tor belongs to this session: a new one asks again.
+  torAsk = null;
   // A settings change still waiting to be applied belongs to the session
   // being stopped (EngineManager ignores one that slips through anyway).
   clearTimeout(engineRestartTimer); engineRestartTimer = null;
@@ -1267,6 +1308,8 @@ app.whenReady().then(async () => {
   });
   engine = new EngineManager(store, {
     addLog, onStatusChange: broadcastStatus, torRoute,
+    // Tor needed, not yet allowed: the user is asked (askTor).
+    onTorAsk: (host) => askTor(host),
     // An antivirus took, refused or keeps ending the engine.
     onSecurityBlock: (info) => securityBlocked(info),
     // "Block ads and trackers": the list in use, once one has been fetched.
@@ -1852,6 +1895,8 @@ ipcMain.handle('dpi:status', () => ({
   // The last way out (tor-route.js): { state, progress, used } while it
   // runs or has failed, else null.
   lastResort: (engine && engine.isActive() && engine.tor && engine.tor.status().state !== 'off') ? engine.tor.status() : null,
+  // A site needs Tor and the user has not said yes yet (askTor): its name.
+  torAsk: (engine && engine.isActive() && torAsk && store.get('torLastResort', true) !== false) ? (torAsk.host || '') : null,
   // The user's own server is not carrying connections: { server, why }.
   ownServerDown: (engine && engine.isActive() && engine.advice && engine.advice.ownServerDown) || null,
   // ...and while it does, the address sites see through it: { server, ip }.
@@ -3261,6 +3306,9 @@ ipcMain.handle('settings:set', (e, key, value) => {
   // No list of one's own: follow the automatic list again.
   if (key === 'siteList' && !Array.isArray(value)) store.delete('siteList');
   else store.set(key, value);
+  // The Tor toggle turned on by hand is the user's yes to it (issue #77);
+  // off, it asks again the next time it is turned on.
+  if (key === 'torLastResort') { store.set('torApproved', value === true); torAsk = null; }
   if (ENGINE_SETTINGS.has(key)) scheduleEngineRestart();
   if (PROXY_SETTINGS.has(key)) { routing = null; scheduleProxyReapply(); scheduleSiteListCheck(5000); }
   if (key === 'adBlock' || key === 'adBlockAllow') {

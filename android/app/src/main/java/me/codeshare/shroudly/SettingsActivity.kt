@@ -268,8 +268,9 @@ class SettingsActivity : Activity() {
         findViewById<Switch>(R.id.snowflake).text =
             titled(getString(R.string.snowflakeDevice), ifOpen(R.id.appTitle, getString(R.string.snowflakeWhenAndroid)))
         findViewById<Switch>(R.id.torLastResort).text =
-            titled(getString(R.string.lastResort), ifOpen(R.id.appTitle, getString(
-                if (AppSettings.ownServer(this) != null) R.string.lastResortOwnServer else R.string.lastResortDesc)))
+            titled(getString(R.string.lastResort), ifOpen(R.id.appTitle,
+                if (AppSettings.ownServer(this) != null) getString(R.string.lastResortOwnServer)
+                else getString(R.string.lastResortDesc) + " " + getString(R.string.lastResortAsks)))
     }
 
     /* "Sites never to block": one domain per line, cleaned on save. */

@@ -319,6 +319,11 @@ class ShroudlyVpnService : VpnService() {
                     "torLastResort" -> later {
                         engine?.let { engineGone(it, "restarted with the last way out ${if (TorRoute.enabled(this)) "on" else "off"}", countsAsCrash = false) }
                     }
+                    // The user said yes to Tor (TorAsk's card): it starts now.
+                    "torYes" -> later {
+                        log("The last way out: allowed by the user; Tor starts and stays allowed")
+                        if (active) torRoute.need()
+                    }
                     // Another DNS server: from the next lookup on, nothing restarted.
                     "dns" -> later {
                         if (active) {
@@ -1252,7 +1257,8 @@ class ShroudlyVpnService : VpnService() {
             is EngineEvent.Error -> log("engine: ${ev.message}")
             is EngineEvent.Upstream -> if (!ev.ok) ownServer.down(OwnServer.whyCode(ev.why))
             // Nothing was listening: Tor is started for the next connection.
-            is EngineEvent.Fallback -> if (!ev.ok) { if (ev.why != "file unusable") torRoute.need() } else {
+            // Tor only once the user said yes (issue #77); until then asked.
+            is EngineEvent.Fallback -> if (!ev.ok) { if (ev.why != "file unusable") { if (TorRoute.approved(this)) torRoute.need() else TorAsk.ask(this, ev.host) } } else {
                 logSite("${ev.host}: no technique got through; opened through the last way out (Tor)")
                 if (ev.host.isNotEmpty()) TorNotice.used(this, ev.host)
             }
@@ -1551,6 +1557,7 @@ class ShroudlyVpnService : VpnService() {
         snowflake.stop()
         torRoute.stop()
         TorNotice.reset()
+        TorAsk.reset()
         OnlineCount.stop(leave = false)
         healthEpoch++
         poll?.cancel(false); poll = null

@@ -37,7 +37,7 @@ const read = (...p) => fs.readFileSync(path.join(ROOT, ...p), 'utf8');
     'Android: a message on the screen on a TV, a notification on a phone');
   for (const svc of ['ShroudlyVpnService.kt', 'ShroudlyProxyService.kt']) {
     const s = read(...dir, svc);
-    t.ok(/else if \(ev\.host\.isNotEmpty\(\)\) TorNotice\.used\(this, ev\.host\)/.test(s) && /torRoute\.stop\(\)\r?\n\s+TorNotice\.reset\(\)/.test(s), `Android ${svc}: told, and again after a new start`);
+    t.ok(/if \(ev\.host\.isNotEmpty\(\)\) TorNotice\.used\(this, ev\.host\)/.test(s) && /torRoute\.stop\(\)\r?\n\s+TorNotice\.reset\(\)/.test(s), `Android ${svc}: told, and again after a new start`);
   }
 
   const tr = read('apple', 'Tunnel', 'TorRoute.swift');

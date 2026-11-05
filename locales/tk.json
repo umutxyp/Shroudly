@@ -920,8 +920,8 @@
   "helpNudgeThanks": "Sag boluň: häzir kömek edýärsiňiz. Öçürmek üçin: {path}.",
   "whatsNewTitle": "{version} wersiýasynda täzelikler",
   "whatsNewOk": "Düşnükli",
-  "whatsNewDesktop": "Riot Games petiklenen torlarda League of Legends, VALORANT we olaryň gurnaýjysy indi özbaşdak Shroudly arkaly geçýär (#76).\nWindows-da giňeldilen tertip: başga programmanyň galdyran draýweri indi onuň işe başlamagyna päsgel bermeýär.",
-  "whatsNewAndroid": "Saýt diňe iň soňky ýol — Tor arkaly açylsa, Shroudly indi muny aýdýar, sebäbi ol haýalrak.\nTäze: Programma barada → Shroudly-ni yzarla.",
+  "whatsNewDesktop": "Riot Games petiklenen torlarda League of Legends, VALORANT we olaryň gurnaýjysy indi özbaşdak Shroudly arkaly geçýär (#76).\nWindows-da giňeldilen tertip: başga programmanyň galdyran draýweri indi onuň işe başlamagyna päsgel bermeýär.\nIň soňky ýol bolan Tor indi ilkinji gezek ulanylmazdan öň sizden soraýar we saýtlara has çalt ýetýär (#77).",
+  "whatsNewAndroid": "Saýt diňe iň soňky ýol — Tor arkaly açylsa, Shroudly indi muny aýdýar, sebäbi ol haýalrak.\nTäze: Programma barada → Shroudly-ni yzarla.\nIň soňky ýol bolan Tor indi ilkinji gezek ulanylmazdan öň sizden soraýar we saýtlara has çalt ýetýär (#77).",
   "whatsNewApple": "Saýtlar boýunça birikmeler: Shroudly arkaly näme geçýändigini iki ugurdaky maglumaty bilen görüň we islän saýtyňyzy bloklaň (#74).\nBloklamak saýtyň birikmelerini derrew kesýär; sanaw enjamyňyzda galýar.",
   "appleVpnNotSigned": "Shroudly-nyň bu nusgasyna Apple-yň VPN rugsady bolmazdan gol çekilipdir, şonuň üçin iOS oňa VPN başlatmaga rugsat bermeýär we hiç haçan soramaýar. Mugt Apple ID bilen gol çekilen nusgalarda (AltStore, SideStore, Sideloadly we meňzeşleri) bu rugsat hiç haçan bolmaýar. Ony TrollStore bilen guruň ýa-da tölegli Apple işläp düzüji hasaby bilen gol çekiň.",
   "appleInstallHelp": "Nädip gurnamaly",
@@ -942,5 +942,11 @@
   "dnsAroundAndroid": "Bu enjamda programmalaryň at soraglaryna başga bir zat jogap berýär (Hususy DNS ýa-da DNS programmasy), şonuň üçin petiklenen programmalar açylman biler. Sazlamalar → Tor → Hususy DNS bölüminde «Öçük» ýa-da «Awtomatik» saýlaň, DNS programmalaryny ýapyň, soňra Shroudly-ni täzeden başladyň.",
   "dnsAroundApple": "Bu enjamdaky DNS profili ýa-da programmasy (AdGuard, NextDNS, 1.1.1.1, mekdep ýa-da iş profili) at soraglaryna Shroudly-den öň jogap berýär, şonuň üçin petiklenen programmalar açylman biler. Ony Sazlamalar → Umumy → VPN we enjamy dolandyrmak bölüminde öçüriň (Mac: Ulgam sazlamalary → Tor → VPN we süzgüçler), soňra Shroudly-ni täzeden başladyň.",
   "dnsAroundTitle": "Bir zat Shroudly-ni aýlanyp geçýär",
-  "reopenAppsHint": "Öň açyk duran programmalar: biri birikmese, ony ýapyp, bir gezek täzeden açyň."
+  "reopenAppsHint": "Öň açyk duran programmalar: biri birikmese, ony ýapyp, bir gezek täzeden açyň.",
+  "torAskTitle": "{host} Tor arkaly açylsynmy?",
+  "torAskNotice": "Bu ulgamda hiç bir usul {host} saýtyny açmady. Shroudly ony iň soňky ýoly bolan Tor ulgamy arkaly açyp biler, ýöne has haýal. Rugsat bermek ýa-da ret etmek üçin Shroudly-ni açyň.",
+  "torAskCard": "Bu ulgamda hiç bir usul {host} saýtyny açmady. Shroudly ony Tor ulgamy arkaly açyp biler: has haýal (sahypalar we wideolar haýal ýüklenýär), käbir saýtlar captcha soraýar. Jogabyňyz ýatda saklanýar; ony Sazlamalarda üýtgedip bilersiňiz.",
+  "torAskYes": "Tor ulan",
+  "torAskNo": "Ýok",
+  "lastResortAsks": "Shroudly ony ilkinji gezek ulanmazdan öň sizden soraýar."
 }

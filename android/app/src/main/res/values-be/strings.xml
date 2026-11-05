@@ -163,6 +163,7 @@
     <string name="language">Мова</string>
     <string name="languageSystem">Як у сістэме</string>
     <string name="lastResort">Калі нічога іншае не дапамагае: сетка Tor</string>
+    <string name="lastResortAsks">Shroudly спытае вас перад першым выкарыстаннем.</string>
     <string name="lastResortDesc">Сайт, які не адкрыла ніводная тэхніка, ідзе праз Tor, а да Tor — праз Snowflake: злучэнні валанцёраў, сярод іх усіх, хто ўключыў «Дапамагаць людзям у краінах з цэнзурай». Павольней, і некаторыя сайты просяць у наведвальнікаў з Tor прайсці капчу. Tor запускаецца толькі тады, калі ён патрэбны сайту.</string>
     <string name="lastResortFailed">Не ўдалося падключыцца да сеткі Tor; новая спроба, калі яна спатрэбіцца сайту</string>
     <string name="lastResortOwnServer">Не выкарыстоўваецца, пакуль зададзены ваш уласны сервер: праз яго ідуць усе сайты.</string>
@@ -245,6 +246,11 @@
     <string name="supportTitle">Падтрымаць Shroudly</string>
     <string name="tagline">Незаўважны. Нястрымны.</string>
     <string name="testing">Праверка…</string>
+    <string name="torAskCard">Ніводны спосаб не адкрыў {host} у гэтай сетцы. Shroudly можа адкрыць яго праз сетку Tor: значна павольней (старонкі і відэа грузяцца павольна), а некаторыя сайты просяць прайсці капчу. Ваш адказ запамінаецца; яго можна змяніць у Наладах.</string>
+    <string name="torAskNo">Не</string>
+    <string name="torAskNotice">Ніводны спосаб не адкрыў {host} у гэтай сетцы. Shroudly можа адкрыць яго праз сетку Tor, свой апошні выхад, але значна павольней. Адкрыйце Shroudly, каб дазволіць або адмовіцца.</string>
+    <string name="torAskTitle">Адкрыць {host} праз Tor?</string>
+    <string name="torAskYes">Выкарыстаць Tor</string>
     <string name="torUsedPhone">{host} адкрыўся толькі праз сетку Tor — апошні спосаб Shroudly: у гэтай сетцы больш нічога не спрацавала. Гэта павольней, і некаторыя сайты просяць капчу; іншыя праграмы і сайты працуюць як раней.</string>
     <string name="torUsedTv">{host} адкрыўся толькі праз сетку Tor — апошні спосаб Shroudly. Відэа адтуль могуць грузіцца павольна або ў горшай якасці; іншыя праграмы працуюць як раней.</string>
     <string name="totalCount">Усяго: {count}</string>
@@ -258,7 +264,7 @@
     <string name="upload">Запампоўка</string>
     <string name="uptime">Час працы</string>
     <string name="versionLabel">Версія {version}</string>
-    <string name="whatsNewAndroid">Калі сайт адкрываецца толькі праз Tor, апошні спосаб, Shroudly цяпер пра гэта кажа: так павольней.\nНовае: Пра праграму → Сачыць за Shroudly.</string>
+    <string name="whatsNewAndroid">Калі сайт адкрываецца толькі праз Tor, апошні спосаб, Shroudly цяпер пра гэта кажа: так павольней.\nНовае: Пра праграму → Сачыць за Shroudly.\nTor, апошні выхад, цяпер пытаецца ў вас перад першым выкарыстаннем і хутчэй адкрывае сайты (#77).</string>
     <string name="whatsNewOk">Зразумела</string>
     <string name="whatsNewTitle">Што новага ў {version}</string>
 </resources>

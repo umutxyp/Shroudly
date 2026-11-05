@@ -72,6 +72,7 @@
 "language" = "言語";
 "languageSystem" = "システムの既定";
 "lastResort" = "ほかに何も効かないとき: Tor ネットワーク";
+"lastResortAsks" = "初めて使う前に Shroudly が確認します。";
 "lastResortDesc" = "どの手法でも開けないサイトは Tor を通ります。Tor には Snowflake、つまりボランティアの接続を通じてつながります(「検閲されている国の人を助ける」をオンにした人たちもその一部です)。速度は遅く、Tor から来た訪問者に CAPTCHA を求めるサイトもあります。Tor はサイトが必要としたときだけ起動します。";
 "lastResortFailed" = "Tor ネットワークに接続できませんでした。サイトが必要としたときに再試行します";
 "lastResortOwnServer" = "自分のサーバーを設定している間は使いません。すべてのサイトがそのサーバーを通ります。";
@@ -137,6 +138,11 @@
 "strategy" = "バイパス方式";
 "supportBannerLater" = "今はしない";
 "tagline" = "見えない。止められない。";
+"torAskCard" = "このネットワークでは、どの手法でも {host} を開けませんでした。Shroudly は Tor ネットワーク経由で開けます。かなり遅く（ページや動画の読み込みが遅くなります）、captcha を求めるサイトもあります。回答は保存され、設定で変更できます。";
+"torAskNo" = "いいえ";
+"torAskNotice" = "このネットワークでは、どの手法でも {host} を開けませんでした。Shroudly は最後の手段である Tor ネットワーク経由で開けますが、かなり遅くなります。許可するか断るには Shroudly を開いてください。";
+"torAskTitle" = "{host} を Tor 経由で開きますか？";
+"torAskYes" = "Tor を使う";
 "torUsedDesktop" = "{host} は Shroudly の最後の手段である Tor ネットワーク経由でしか開けませんでした。このネットワークでは他の方法が通りませんでした。速度が遅くなり、一部のサイトでは CAPTCHA が求められます。このコンピュータの他のサイトはこれまでどおりです。";
 "totalCount" = "合計：{count}";
 "upload" = "アップロード";

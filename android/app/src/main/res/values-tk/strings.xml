@@ -163,6 +163,7 @@
     <string name="language">Dil</string>
     <string name="languageSystem">Ulgamdaky ýaly</string>
     <string name="lastResort">Başga hiç zat işlemese: Tor ulgamy</string>
+    <string name="lastResortAsks">Shroudly ony ilkinji gezek ulanmazdan öň sizden soraýar.</string>
     <string name="lastResortDesc">Hiç bir usulyň açyp bilmedik saýty Tor arkaly açylýar, Tor-a bolsa Snowflake arkaly, ýagny meýletinçileriň birikmeleri arkaly ýetilýär (olaryň arasynda «Senzuraly ýurtlardaky adamlara kömek et» funksiýasyny açanlaryň hemmesi bar). Haýalrak, käbir saýtlar Tor-dan gelenlerden kapça soraýar. Tor diňe bir saýta gerek bolanda işe başlaýar.</string>
     <string name="lastResortFailed">Tor ulgamyna ýetip bolmady; bir saýta gerek bolanda täzeden synanyşar</string>
     <string name="lastResortOwnServer">Öz serweriňiz goýlan wagty ulanylmaýar: ähli saýtlar şol serwer arkaly geçýär.</string>
@@ -245,6 +246,11 @@
     <string name="supportTitle">Shroudly-ni goldamak</string>
     <string name="tagline">Görünmez. Saklanmaz.</string>
     <string name="testing">Barlanýar…</string>
+    <string name="torAskCard">Bu ulgamda hiç bir usul {host} saýtyny açmady. Shroudly ony Tor ulgamy arkaly açyp biler: has haýal (sahypalar we wideolar haýal ýüklenýär), käbir saýtlar captcha soraýar. Jogabyňyz ýatda saklanýar; ony Sazlamalarda üýtgedip bilersiňiz.</string>
+    <string name="torAskNo">Ýok</string>
+    <string name="torAskNotice">Bu ulgamda hiç bir usul {host} saýtyny açmady. Shroudly ony iň soňky ýoly bolan Tor ulgamy arkaly açyp biler, ýöne has haýal. Rugsat bermek ýa-da ret etmek üçin Shroudly-ni açyň.</string>
+    <string name="torAskTitle">{host} Tor arkaly açylsynmy?</string>
+    <string name="torAskYes">Tor ulan</string>
     <string name="torUsedPhone">{host} diňe Tor tory arkaly açyldy — bu Shroudly-niň iň soňky ýoly: bu torda başga hiç zat geçmedi. Bu haýalrak, käbir saýtlar kapça soraýar; beýleki programmalaryňyz we saýtlar öňküsi ýaly işleýär.</string>
     <string name="torUsedTv">{host} diňe Tor tory arkaly açyldy — bu Shroudly-niň iň soňky ýoly. Ondaky wideolar haýal ýa-da pes hilde ýüklenip biler; beýleki programmalaryňyz öňküsi ýaly işleýär.</string>
     <string name="totalCount">Jemi: {count}</string>
@@ -258,7 +264,7 @@
     <string name="upload">Iberiş</string>
     <string name="uptime">Işlän wagty</string>
     <string name="versionLabel">Wersiýa {version}</string>
-    <string name="whatsNewAndroid">Saýt diňe iň soňky ýol — Tor arkaly açylsa, Shroudly indi muny aýdýar, sebäbi ol haýalrak.\nTäze: Programma barada → Shroudly-ni yzarla.</string>
+    <string name="whatsNewAndroid">Saýt diňe iň soňky ýol — Tor arkaly açylsa, Shroudly indi muny aýdýar, sebäbi ol haýalrak.\nTäze: Programma barada → Shroudly-ni yzarla.\nIň soňky ýol bolan Tor indi ilkinji gezek ulanylmazdan öň sizden soraýar we saýtlara has çalt ýetýär (#77).</string>
     <string name="whatsNewOk">Düşnükli</string>
     <string name="whatsNewTitle">{version} wersiýasynda täzelikler</string>
 </resources>

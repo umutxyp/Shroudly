@@ -920,8 +920,8 @@
   "helpNudgeThanks": "Rahmat: hozir yordam beryapsiz. Oʻchirish uchun: {path}.",
   "whatsNewTitle": "{version} versiyasida yangiliklar",
   "whatsNewOk": "Tushunarli",
-  "whatsNewDesktop": "Riot Games bloklangan tarmoqlarda League of Legends, VALORANT va ularning oʻrnatuvchisi endi oʻzi Shroudly orqali oʻtadi (#76).\nWindows’dagi kengaytirilgan rejim: boshqa dastur qoldirgan drayver endi uning ishga tushishiga xalaqit bermaydi.",
-  "whatsNewAndroid": "Sayt faqat soʻnggi yoʻl — Tor orqali ochilsa, Shroudly endi buni aytadi, chunki u sekinroq.\nYangi: Dastur haqida → Shroudly’ni kuzating.",
+  "whatsNewDesktop": "Riot Games bloklangan tarmoqlarda League of Legends, VALORANT va ularning oʻrnatuvchisi endi oʻzi Shroudly orqali oʻtadi (#76).\nWindows’dagi kengaytirilgan rejim: boshqa dastur qoldirgan drayver endi uning ishga tushishiga xalaqit bermaydi.\nSo'nggi chora — Tor endi birinchi ishlatishdan oldin sizdan so'raydi va saytlarga tezroq yetadi (#77).",
+  "whatsNewAndroid": "Sayt faqat soʻnggi yoʻl — Tor orqali ochilsa, Shroudly endi buni aytadi, chunki u sekinroq.\nYangi: Dastur haqida → Shroudly’ni kuzating.\nSo'nggi chora — Tor endi birinchi ishlatishdan oldin sizdan so'raydi va saytlarga tezroq yetadi (#77).",
   "whatsNewApple": "Saytlar bo'yicha ulanishlar: Shroudly orqali nima o'tayotganini ikki tomonlama ma'lumoti bilan ko'ring va istalgan saytni bloklang (#74).\nBloklash saytning ulanishlarini darhol uzadi; ro'yxat qurilmangizda qoladi.",
   "appleVpnNotSigned": "Shroudly’ning bu nusxasi Apple’ning VPN uchun ruxsatisiz imzolangan, shuning uchun iOS unga VPN ishga tushirishga ruxsat bermaydi va umuman soʻramaydi. Bepul Apple ID bilan imzolangan nusxalarda (AltStore, SideStore, Sideloadly va shunga oʻxshashlar) bu ruxsat hech qachon boʻlmaydi. Uni TrollStore bilan oʻrnating yoki pullik Apple dasturchi hisobi bilan imzolang.",
   "appleInstallHelp": "Qanday oʻrnatiladi",
@@ -942,5 +942,11 @@
   "dnsAroundAndroid": "Bu qurilmada ilovalarning nom soʻrovlariga boshqa narsa javob beradi (Shaxsiy DNS yoki DNS ilovasi), shuning uchun bloklangan ilovalar ochilmasligi mumkin. Sozlamalar → Tarmoq → Shaxsiy DNS boʻlimida “Oʻchiq” yoki “Avtomatik”ni tanlang, DNS ilovalarini yoping, soʻng Shroudly’ni qayta ishga tushiring.",
   "dnsAroundApple": "Bu qurilmadagi DNS profili yoki ilovasi (AdGuard, NextDNS, 1.1.1.1, maktab yoki ish profili) nom soʻrovlariga Shroudly’dan oldin javob beradi, shuning uchun bloklangan ilovalar ochilmasligi mumkin. Uni Sozlamalar → Umumiy → VPN va qurilma boshqaruvi boʻlimida oʻchiring (Mac: Tizim sozlamalari → Tarmoq → VPN va filtrlar), soʻng Shroudly’ni qayta ishga tushiring.",
   "dnsAroundTitle": "Nimadir Shroudly’ni chetlab oʻtmoqda",
-  "reopenAppsHint": "Oldin ochiq boʻlgan ilovalar: biri ulanmasa, uni yopib, bir marta qayta oching."
+  "reopenAppsHint": "Oldin ochiq boʻlgan ilovalar: biri ulanmasa, uni yopib, bir marta qayta oching.",
+  "torAskTitle": "{host} Tor orqali ochilsinmi?",
+  "torAskNotice": "Bu tarmoqda hech bir usul {host} saytini ocha olmadi. Shroudly uni so'nggi chorasi — Tor tarmog'i orqali ochishi mumkin, lekin ancha sekinroq. Ruxsat berish yoki rad etish uchun Shroudly'ni oching.",
+  "torAskCard": "Bu tarmoqda hech bir usul {host} saytini ocha olmadi. Shroudly uni Tor tarmog'i orqali ochishi mumkin: ancha sekin (sahifalar va videolar sekin yuklanadi), ba'zi saytlar captcha so'raydi. Javobingiz saqlanadi; uni Sozlamalarda o'zgartirishingiz mumkin.",
+  "torAskYes": "Tor'dan foydalanish",
+  "torAskNo": "Yo'q",
+  "lastResortAsks": "Shroudly undan birinchi marta foydalanishdan oldin sizdan so'raydi."
 }

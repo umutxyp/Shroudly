@@ -72,6 +72,7 @@
 "language" = "Til";
 "languageSystem" = "Tizimdagidek";
 "lastResort" = "Boshqa hech narsa ishlamasa: Tor tarmog'i";
+"lastResortAsks" = "Shroudly undan birinchi marta foydalanishdan oldin sizdan so'raydi.";
 "lastResortDesc" = "Hech bir usul ocha olmagan sayt Tor orqali ochiladi, Tor'ga esa Snowflake orqali, ya'ni ko'ngillilarning ulanishlari orqali yetiladi (ular orasida «Senzura bor mamlakatlardagi odamlarga yordam berish»ni yoqqanlarning barchasi bor). Sekinroq, ba'zi saytlar Tor'dan kelganlardan kapcha so'raydi. Tor faqat sayt unga muhtoj bo'lganda ishga tushadi.";
 "lastResortFailed" = "Tor tarmog'iga ulanib bo'lmadi; sayt muhtoj bo'lganda yana uriniladi";
 "lastResortOwnServer" = "O'z serveringiz o'rnatilganda ishlatilmaydi: barcha saytlar o'sha server orqali o'tadi.";
@@ -137,6 +138,11 @@
 "strategy" = "Chetlab oʻtish strategiyasi";
 "supportBannerLater" = "Hozir emas";
 "tagline" = "Koʻrinmas. Toʻxtatib boʻlmas.";
+"torAskCard" = "Bu tarmoqda hech bir usul {host} saytini ocha olmadi. Shroudly uni Tor tarmog'i orqali ochishi mumkin: ancha sekin (sahifalar va videolar sekin yuklanadi), ba'zi saytlar captcha so'raydi. Javobingiz saqlanadi; uni Sozlamalarda o'zgartirishingiz mumkin.";
+"torAskNo" = "Yo'q";
+"torAskNotice" = "Bu tarmoqda hech bir usul {host} saytini ocha olmadi. Shroudly uni so'nggi chorasi — Tor tarmog'i orqali ochishi mumkin, lekin ancha sekinroq. Ruxsat berish yoki rad etish uchun Shroudly'ni oching.";
+"torAskTitle" = "{host} Tor orqali ochilsinmi?";
+"torAskYes" = "Tor'dan foydalanish";
 "torUsedDesktop" = "{host} faqat Tor tarmogʻi orqali ochildi — bu Shroudly’ning soʻnggi yoʻli: bu tarmoqda boshqa hech narsa oʻtmadi. Bu sekinroq va ayrim saytlar kapcha soʻraydi; bu kompyuterdagi boshqa saytlar avvalgidek ishlaydi.";
 "totalCount" = "Jami: {count}";
 "upload" = "Yuklash";

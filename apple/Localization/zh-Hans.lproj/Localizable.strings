@@ -72,6 +72,7 @@
 "language" = "语言";
 "languageSystem" = "跟随系统";
 "lastResort" = "其他方法都无效时:Tor 网络";
+"lastResortAsks" = "Shroudly 首次使用它之前会先问你。";
 "lastResortDesc" = "任何技术都打不开的网站会经由 Tor 打开,而 Tor 通过 Snowflake 连接:也就是志愿者的连接,其中包括所有开启了“帮助受审查国家的人”的用户。速度较慢,有些网站会要求来自 Tor 的访客完成验证码。只有当某个网站需要时,Tor 才会启动。";
 "lastResortFailed" = "无法连接 Tor 网络;等有网站需要时会再试";
 "lastResortOwnServer" = "设置了你自己的服务器时不使用:所有网站都经由该服务器。";
@@ -137,6 +138,11 @@
 "strategy" = "绕过策略";
 "supportBannerLater" = "以后再说";
 "tagline" = "隐形。不可阻挡。";
+"torAskCard" = "在此网络上，没有任何技术能打开 {host}。Shroudly 可以通过 Tor 网络打开它：慢很多（网页和视频加载缓慢），部分网站会要求验证码。你的回答会被记住；可在设置中更改。";
+"torAskNo" = "不";
+"torAskNotice" = "在此网络上，没有任何技术能打开 {host}。Shroudly 可以通过 Tor 网络（它的最后手段）打开它，但会慢很多。打开 Shroudly 以允许或拒绝。";
+"torAskTitle" = "通过 Tor 打开 {host}？";
+"torAskYes" = "使用 Tor";
 "torUsedDesktop" = "{host} 只能通过 Tor 网络打开，这是 Shroudly 的最后一招：在这个网络上其他方法都不行。速度较慢，有些网站会要求验证码；这台电脑上的其他网站照常。";
 "totalCount" = "总计：{count}";
 "upload" = "上传";

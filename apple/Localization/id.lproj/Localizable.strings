@@ -72,6 +72,7 @@
 "language" = "Bahasa";
 "languageSystem" = "Bawaan sistem";
 "lastResort" = "Saat tidak ada lagi yang berhasil: jaringan Tor";
+"lastResortAsks" = "Shroudly bertanya dulu sebelum memakainya pertama kali.";
 "lastResortDesc" = "Situs yang tidak bisa dibuka teknik apa pun lewat Tor, yang dicapai melalui Snowflake: koneksi para relawan, termasuk semua orang yang menyalakan “Bantu orang di negara yang disensor”. Lebih lambat, dan beberapa situs meminta captcha kepada pengunjung dari Tor. Tor hanya berjalan saat ada situs yang membutuhkannya.";
 "lastResortFailed" = "Jaringan Tor tidak dapat dijangkau; dicoba lagi saat ada situs yang membutuhkannya";
 "lastResortOwnServer" = "Tidak dipakai selama server Anda sendiri diatur: server itu membawa semua situs.";
@@ -137,6 +138,11 @@
 "strategy" = "Strategi penembusan";
 "supportBannerLater" = "Nanti saja";
 "tagline" = "Tak terlihat. Tak terhentikan.";
+"torAskCard" = "Tidak ada teknik yang membuka {host} di jaringan ini. Shroudly bisa membukanya lewat jaringan Tor: jauh lebih lambat (halaman dan video dimuat pelan), dan beberapa situs meminta captcha. Jawabanmu disimpan; kamu bisa mengubahnya di Pengaturan.";
+"torAskNo" = "Tidak";
+"torAskNotice" = "Tidak ada teknik yang membuka {host} di jaringan ini. Shroudly bisa membukanya lewat jaringan Tor, jalan terakhirnya, tetapi jauh lebih lambat. Buka Shroudly untuk mengizinkan atau menolak.";
+"torAskTitle" = "Buka {host} lewat Tor?";
+"torAskYes" = "Pakai Tor";
 "torUsedDesktop" = "{host} hanya terbuka lewat jaringan Tor, jalan terakhir Shroudly: tidak ada cara lain yang tembus di jaringan ini. Lebih lambat, dan beberapa situs meminta captcha; situs lain di komputer ini tetap seperti biasa.";
 "totalCount" = "Total: {count}";
 "upload" = "Unggah";

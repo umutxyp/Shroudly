@@ -163,6 +163,7 @@
     <string name="language">言語</string>
     <string name="languageSystem">システムの既定</string>
     <string name="lastResort">ほかに何も効かないとき: Tor ネットワーク</string>
+    <string name="lastResortAsks">初めて使う前に Shroudly が確認します。</string>
     <string name="lastResortDesc">どの手法でも開けないサイトは Tor を通ります。Tor には Snowflake、つまりボランティアの接続を通じてつながります(「検閲されている国の人を助ける」をオンにした人たちもその一部です)。速度は遅く、Tor から来た訪問者に CAPTCHA を求めるサイトもあります。Tor はサイトが必要としたときだけ起動します。</string>
     <string name="lastResortFailed">Tor ネットワークに接続できませんでした。サイトが必要としたときに再試行します</string>
     <string name="lastResortOwnServer">自分のサーバーを設定している間は使いません。すべてのサイトがそのサーバーを通ります。</string>
@@ -245,6 +246,11 @@
     <string name="supportTitle">Shroudly を支援</string>
     <string name="tagline">見えない。止められない。</string>
     <string name="testing">テスト中…</string>
+    <string name="torAskCard">このネットワークでは、どの手法でも {host} を開けませんでした。Shroudly は Tor ネットワーク経由で開けます。かなり遅く（ページや動画の読み込みが遅くなります）、captcha を求めるサイトもあります。回答は保存され、設定で変更できます。</string>
+    <string name="torAskNo">いいえ</string>
+    <string name="torAskNotice">このネットワークでは、どの手法でも {host} を開けませんでした。Shroudly は最後の手段である Tor ネットワーク経由で開けますが、かなり遅くなります。許可するか断るには Shroudly を開いてください。</string>
+    <string name="torAskTitle">{host} を Tor 経由で開きますか？</string>
+    <string name="torAskYes">Tor を使う</string>
     <string name="torUsedPhone">{host} は Shroudly の最後の手段である Tor ネットワーク経由でしか開けませんでした。このネットワークでは他の方法が通りませんでした。速度が遅くなり、一部のサイトでは CAPTCHA が求められます。他のアプリやサイトはこれまでどおりです。</string>
     <string name="torUsedTv">{host} は Shroudly の最後の手段である Tor ネットワーク経由でしか開けませんでした。そこからの動画は読み込みが遅くなったり画質が下がったりすることがあります。他のアプリはこれまでどおりです。</string>
     <string name="totalCount">合計：{count}</string>
@@ -258,7 +264,7 @@
     <string name="upload">アップロード</string>
     <string name="uptime">稼働時間</string>
     <string name="versionLabel">バージョン {version}</string>
-    <string name="whatsNewAndroid">サイトが最後の手段の Tor 経由でしか開けないとき、遅くなるため Shroudly がお知らせするようになりました。\n新機能：情報 → Shroudly をフォロー。</string>
+    <string name="whatsNewAndroid">サイトが最後の手段の Tor 経由でしか開けないとき、遅くなるため Shroudly がお知らせするようになりました。\n新機能：情報 → Shroudly をフォロー。\n最後の手段である Tor は、初めて使う前に確認するようになり、サイトにより早く届くようになりました (#77)。</string>
     <string name="whatsNewOk">OK</string>
     <string name="whatsNewTitle">{version} の新機能</string>
 </resources>

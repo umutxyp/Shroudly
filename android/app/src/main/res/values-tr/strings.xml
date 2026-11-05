@@ -163,6 +163,7 @@
     <string name="language">Dil</string>
     <string name="languageSystem">Sistem varsayılanı</string>
     <string name="lastResort">Hiçbir şey işe yaramazsa: Tor ağı</string>
+    <string name="lastResortAsks">Shroudly ilk kez kullanmadan önce sana sorar.</string>
     <string name="lastResortDesc">Hiçbir tekniğin açamadığı bir site Tor üzerinden açılır; Tor\'a Snowflake ile, yani gönüllülerin bağlantılarıyla ulaşılır (“Sansürlü ülkelerdeki insanlara yardım et”i açan herkes de bunlardan). Daha yavaştır ve bazı siteler Tor\'dan gelenlere captcha gösterir. Tor yalnızca bir site gerektirdiğinde başlar.</string>
     <string name="lastResortFailed">Tor ağına ulaşılamadı; bir site gerektirdiğinde yeniden denenecek</string>
     <string name="lastResortOwnServer">Kendi sunucun ayarlıyken kullanılmaz: her site o sunucudan geçer.</string>
@@ -245,6 +246,11 @@
     <string name="supportTitle">Shroudly\'yi destekle</string>
     <string name="tagline">Görünmez. Durdurulamaz.</string>
     <string name="testing">Test ediliyor…</string>
+    <string name="torAskCard">Bu ağda hiçbir teknik {host} sitesini açamadı. Shroudly onu Tor ağı üzerinden açabilir: çok daha yavaştır (sayfalar ve videolar yavaş yüklenir) ve bazı siteler captcha ister. Cevabın hatırlanır; Ayarlar\'dan değiştirebilirsin.</string>
+    <string name="torAskNo">Hayır</string>
+    <string name="torAskNotice">Bu ağda hiçbir teknik {host} sitesini açamadı. Shroudly onu son çaresi olan Tor ağı üzerinden açabilir, ama çok daha yavaş. İzin vermek ya da reddetmek için Shroudly\'yi aç.</string>
+    <string name="torAskTitle">{host} Tor üzerinden açılsın mı?</string>
+    <string name="torAskYes">Tor\'u kullan</string>
     <string name="torUsedPhone">{host} yalnızca Shroudly\'nin son çaresi olan Tor ağı üzerinden açıldı: bu ağda başka hiçbir yol işe yaramadı. Daha yavaştır ve bazı siteler doğrulama (captcha) ister; diğer uygulamaların ve sitelerin eskisi gibi çalışır.</string>
     <string name="torUsedTv">{host} yalnızca Shroudly\'nin son çaresi olan Tor ağı üzerinden açıldı. Oradaki videolar yavaş ya da düşük kalitede yüklenebilir; diğer uygulamaların eskisi gibi çalışır.</string>
     <string name="totalCount">Toplam: {count}</string>
@@ -258,7 +264,7 @@
     <string name="upload">Yükleme</string>
     <string name="uptime">Çalışma süresi</string>
     <string name="versionLabel">Sürüm {version}</string>
-    <string name="whatsNewAndroid">Bir site yalnızca son çare olan Tor üzerinden açılırsa Shroudly artık bunu söylüyor, çünkü daha yavaş.\nYeni: Hakkında → Shroudly\'yi takip et, hesaplarımızla.</string>
+    <string name="whatsNewAndroid">Bir site yalnızca son çare olan Tor üzerinden açılırsa Shroudly artık bunu söylüyor, çünkü daha yavaş.\nYeni: Hakkında → Shroudly\'yi takip et, hesaplarımızla.\nSon çare olan Tor artık ilk kullanılmadan önce sana soruyor ve sitelere daha çabuk ulaşıyor (#77).</string>
     <string name="whatsNewOk">Tamam</string>
     <string name="whatsNewTitle">{version} sürümünde yenilikler</string>
 </resources>

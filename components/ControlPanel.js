@@ -41,6 +41,16 @@ export default function ControlPanel({ dpiStatus, onStatusChange, onSupport }) {
   // The last way out (tor-route.js) at work: a line of its own under the
   // status, while it connects, carries sites, or could not get through.
   const lastResort = active && !notRouting && !offline && !ownServerDown && dpiStatus.lastResort ? dpiStatus.lastResort : null;
+  // A site needs Tor and the user has not said yes yet (issue #77): asked
+  // here, in the window, never in a dialog of its own.
+  const torAsk = active && !notRouting && !offline && !ownServerDown && dpiStatus.torAsk != null ? dpiStatus.torAsk : null;
+  const [torAnswering, setTorAnswering] = useState(false);
+  const answerTor = async (yes) => {
+    setTorAnswering(true);
+    try { await window.electron.answerTor(yes); } catch {}
+    setTorAnswering(false);
+    onStatusChange();
+  };
   // Only the country's own network answers: a shutdown, not "no internet".
   const nationalOnly = offline && !ownProxy && !!dpiStatus.nationalOnly;
   const pn = notRouting ? proxyNotice(dpiStatus.proxy, { active, advanced: dpiStatus.advanced }) : null;
@@ -211,6 +221,27 @@ export default function ControlPanel({ dpiStatus, onStatusChange, onSupport }) {
                 : lastResort.state === 'downloading' ? t('lastResortDownloading', { progress: lastResort.progress || 0 })
                 : t('lastResortStarting', { progress: lastResort.progress || 0 })}
             </p>
+          )}
+          {torAsk != null && (
+            <div data-tor-ask className="mt-2.5 rounded-[var(--radius)] p-3 text-left"
+                 style={{ background: 'var(--surface-2)', border: '1px solid var(--line)' }}>
+              <p className="m-0 text-[13px] font-semibold leading-snug wrap-anywhere" style={{ color: 'var(--text)' }}>
+                {t('torAskTitle', { host: torAsk || '…' })}
+              </p>
+              <p className="mt-1 mb-0 text-[12px] leading-snug wrap-anywhere" style={{ color: 'var(--text-dim)' }}>
+                {t('torAskCard', { host: torAsk || '…' })}
+              </p>
+              <div className="mt-2.5 flex flex-wrap gap-2">
+                <button type="button" disabled={torAnswering} onClick={() => answerTor(true)}
+                        className="btn btn-primary rounded-[var(--radius)] px-4 py-2 text-[13px] font-semibold">
+                  <span className="min-w-0 wrap-anywhere">{t('torAskYes')}</span>
+                </button>
+                <button type="button" disabled={torAnswering} onClick={() => answerTor(false)}
+                        className="btn btn-ghost rounded-[var(--radius)] px-4 py-2 text-[13px] font-semibold">
+                  <span className="min-w-0 wrap-anywhere">{t('torAskNo')}</span>
+                </button>
+              </div>
+            </div>
           )}
         </div>
 

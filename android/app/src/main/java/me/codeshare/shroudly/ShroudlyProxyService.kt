@@ -142,6 +142,8 @@ class ShroudlyProxyService : Service() {
                 if (intent.getStringExtra("what") == "network") work.execute { restartEngine("restarted with the network settings chosen in Settings") }
                 if (intent.getStringExtra("what") == "ownServer") work.execute { restartEngine("restarted with the server chosen in Settings") }
                 if (intent.getStringExtra("what") == "torLastResort") work.execute { restartEngine("restarted with the last way out ${if (TorRoute.enabled(this)) "on" else "off"}") }
+                // The user said yes to Tor (TorAsk's card): it starts now.
+                if (intent.getStringExtra("what") == "torYes") work.execute { log("The last way out: allowed by the user; Tor starts and stays allowed"); if (active) torRoute.need() }
                 // Another DNS server: from the next lookup on, nothing restarted.
                 if (intent.getStringExtra("what") == "dns") work.execute { if (active) { doh?.let { AppSettings.applyDns(this, it) }; engine?.send(if (AppSettings.customDnsStrict(this)) "DNS-STRICT 1" else "DNS-STRICT 0"); engine?.send("DNS-CLEAR") } }
                 if (!active && Protection.state == Protection.State.OFF) stopSelf()
@@ -305,7 +307,8 @@ class ShroudlyProxyService : Service() {
             is EngineEvent.AdblockCheck -> adblockCheck.getAndSet(null)?.complete(ev)
             is EngineEvent.Error -> log("engine: ${ev.message}")
             is EngineEvent.Upstream -> if (!ev.ok) ownServer.down(OwnServer.whyCode(ev.why))
-            is EngineEvent.Fallback -> if (!ev.ok) { if (ev.why != "file unusable") torRoute.need() } else {
+            // Tor only once the user said yes (issue #77); until then asked.
+            is EngineEvent.Fallback -> if (!ev.ok) { if (ev.why != "file unusable") { if (TorRoute.approved(this)) torRoute.need() else TorAsk.ask(this, ev.host) } } else {
                 ShroudlyVpnService.logSite("${ev.host}: no technique got through; opened through the last way out (Tor)")
                 if (ev.host.isNotEmpty()) TorNotice.used(this, ev.host)
             }
@@ -494,6 +497,7 @@ class ShroudlyProxyService : Service() {
         active = false
         torRoute.stop()
         TorNotice.reset()
+        TorAsk.reset()
         Protection.trouble(0)
         network?.stop(getSystemService(ConnectivityManager::class.java))
         network = null

@@ -163,6 +163,7 @@
     <string name="language">भाषा</string>
     <string name="languageSystem">सिस्टम डिफ़ॉल्ट</string>
     <string name="lastResort">जब कुछ और काम न करे: Tor नेटवर्क</string>
+    <string name="lastResortAsks">पहली बार इस्तेमाल से पहले Shroudly आपसे पूछता है।</string>
     <string name="lastResortDesc">जिस साइट को कोई तकनीक नहीं खोल पाती, वह Tor से होकर खुलती है, और Tor तक Snowflake से पहुँचा जाता है: स्वयंसेवकों के कनेक्शन, जिनमें वे सब शामिल हैं जिन्होंने “सेंसर वाले देशों के लोगों की मदद करें” चालू किया है। यह धीमा है, और कुछ साइटें Tor से आने वालों से कैप्चा माँगती हैं। Tor तभी शुरू होता है जब किसी साइट को उसकी ज़रूरत हो।</string>
     <string name="lastResortFailed">Tor नेटवर्क तक नहीं पहुँच सके; किसी साइट को ज़रूरत होने पर फिर कोशिश होगी</string>
     <string name="lastResortOwnServer">जब तक आपका अपना सर्वर सेट है, इसका उपयोग नहीं होता: हर साइट उसी सर्वर से जाती है।</string>
@@ -245,6 +246,11 @@
     <string name="supportTitle">Shroudly का साथ दें</string>
     <string name="tagline">अदृश्य। अजेय।</string>
     <string name="testing">परीक्षण हो रहा है…</string>
+    <string name="torAskCard">इस नेटवर्क पर कोई भी तरीका {host} को नहीं खोल पाया। Shroudly इसे Tor नेटवर्क से खोल सकता है: बहुत धीमा (पेज और वीडियो धीरे लोड होते हैं), और कुछ साइटें captcha माँगती हैं। आपका जवाब याद रखा जाता है; आप इसे सेटिंग्स में बदल सकते हैं।</string>
+    <string name="torAskNo">नहीं</string>
+    <string name="torAskNotice">इस नेटवर्क पर कोई भी तरीका {host} को नहीं खोल पाया। Shroudly इसे Tor नेटवर्क से खोल सकता है, जो उसका आख़िरी रास्ता है, पर बहुत धीमे। अनुमति देने या मना करने के लिए Shroudly खोलें।</string>
+    <string name="torAskTitle">क्या {host} को Tor से खोलें?</string>
+    <string name="torAskYes">Tor इस्तेमाल करें</string>
     <string name="torUsedPhone">{host} सिर्फ़ Tor नेटवर्क से खुला, जो Shroudly का आख़िरी रास्ता है: इस नेटवर्क पर और कुछ काम नहीं आया। यह धीमा है और कुछ साइटें कैप्चा माँगती हैं; आपके बाकी ऐप और साइटें पहले की तरह चलते हैं।</string>
     <string name="torUsedTv">{host} सिर्फ़ Tor नेटवर्क से खुला, जो Shroudly का आख़िरी रास्ता है। इसके वीडियो धीमे या कम क्वालिटी में लोड हो सकते हैं; आपके बाकी ऐप पहले की तरह चलते हैं।</string>
     <string name="totalCount">कुल: {count}</string>
@@ -258,7 +264,7 @@
     <string name="upload">अपलोड</string>
     <string name="uptime">सक्रिय समय</string>
     <string name="versionLabel">संस्करण {version}</string>
-    <string name="whatsNewAndroid">जब कोई साइट सिर्फ़ Tor, आख़िरी रास्ते, से खुलती है, तो Shroudly अब यह बताता है, क्योंकि यह धीमा है।\nनया: जानकारी → Shroudly को फ़ॉलो करें।</string>
+    <string name="whatsNewAndroid">जब कोई साइट सिर्फ़ Tor, आख़िरी रास्ते, से खुलती है, तो Shroudly अब यह बताता है, क्योंकि यह धीमा है।\nनया: जानकारी → Shroudly को फ़ॉलो करें।\nआख़िरी रास्ता Tor अब पहली बार इस्तेमाल से पहले आपसे पूछता है और साइटों तक जल्दी पहुँचता है (#77)।</string>
     <string name="whatsNewOk">समझ गया</string>
     <string name="whatsNewTitle">{version} में नया क्या है</string>
 </resources>

@@ -163,6 +163,7 @@
     <string name="language">ቋንቋ</string>
     <string name="languageSystem">የሥርዓቱ ነባሪ</string>
     <string name="lastResort">ሌላ ምንም ካልሰራ፦ የTor አውታረ መረብ</string>
+    <string name="lastResortAsks">Shroudly ለመጀመሪያ ጊዜ ከመጠቀሙ በፊት ይጠይቅዎታል።</string>
     <string name="lastResortDesc">ምንም ዘዴ ሊከፍተው ያልቻለ ድር ጣቢያ በTor በኩል ይከፈታል፤ ወደ Tor የሚደረሰው በSnowflake፣ ማለትም በበጎ ፈቃደኞች ግንኙነቶች ነው (“ሳንሱር በሚደረግባቸው አገሮች ያሉ ሰዎችን እርዳ”ን ያበሩ ሁሉ ከነሱ መካከል ናቸው)። ቀርፋፋ ነው፤ አንዳንድ ጣቢያዎችም ከTor ለሚመጡ ጎብኚዎች captcha ይጠይቃሉ። Tor የሚጀምረው አንድ ጣቢያ ሲፈልገው ብቻ ነው።</string>
     <string name="lastResortFailed">ወደ Tor አውታረ መረብ መድረስ አልተቻለም፤ አንድ ጣቢያ ሲፈልገው እንደገና ይሞከራል</string>
     <string name="lastResortOwnServer">የራስዎ አገልጋይ ተቀናብሮ እያለ ጥቅም ላይ አይውልም፤ ሁሉም ጣቢያዎች በዚያ አገልጋይ ያልፋሉ።</string>
@@ -245,6 +246,11 @@
     <string name="supportTitle">Shroudlyን መደገፍ</string>
     <string name="tagline">የማይታይ። የማይቆም።</string>
     <string name="testing">በመሞከር ላይ…</string>
+    <string name="torAskCard">በዚህ አውታረ መረብ ላይ ምንም ዘዴ {host}ን አልከፈተም። Shroudly በTor አውታረ መረብ በኩል ሊከፍተው ይችላል፦ በጣም ዝግ ያለ ነው (ገጾችና ቪዲዮዎች በዝግታ ይጫናሉ)፣ አንዳንድ ጣቢያዎችም captcha ይጠይቃሉ። መልስዎ ይቀመጣል፤ በቅንብሮች ውስጥ መቀየር ይችላሉ።</string>
+    <string name="torAskNo">አይ</string>
+    <string name="torAskNotice">በዚህ አውታረ መረብ ላይ ምንም ዘዴ {host}ን አልከፈተም። Shroudly የመጨረሻ አማራጩ በሆነው በTor አውታረ መረብ በኩል ሊከፍተው ይችላል፣ ግን በጣም በዝግታ። ለመፍቀድ ወይም ለመከልከል Shroudlyን ይክፈቱ።</string>
+    <string name="torAskTitle">{host} በTor በኩል ይከፈት?</string>
+    <string name="torAskYes">Torን ተጠቀም</string>
     <string name="torUsedPhone">{host} የተከፈተው በ Shroudly የመጨረሻ መንገድ፣ በ Tor አውታረ መረብ ብቻ ነው፦ በዚህ አውታረ መረብ ሌላ ምንም አልሰራም። ይህ ቀርፋፋ ነው፣ አንዳንድ ድረ-ገጾችም captcha ይጠይቃሉ፤ ሌሎች መተግበሪያዎችዎና ድረ-ገጾች እንደቀድሞው ይሰራሉ።</string>
     <string name="torUsedTv">{host} የተከፈተው በ Shroudly የመጨረሻ መንገድ፣ በ Tor አውታረ መረብ ብቻ ነው። ከዚያ የሚመጡ ቪዲዮዎች በዝግታ ወይም በዝቅተኛ ጥራት ሊጫኑ ይችላሉ፤ ሌሎች መተግበሪያዎችዎ እንደቀድሞው ይሰራሉ።</string>
     <string name="totalCount">ጠቅላላ: {count}</string>
@@ -258,7 +264,7 @@
     <string name="upload">መስቀል</string>
     <string name="uptime">የሰራበት ጊዜ</string>
     <string name="versionLabel">ስሪት {version}</string>
-    <string name="whatsNewAndroid">አንድ ድረ-ገጽ በመጨረሻው መንገድ በ Tor ብቻ ሲከፈት Shroudly አሁን ይነግርዎታል፣ ምክንያቱም ቀርፋፋ ነው።\nአዲስ፦ ስለ → Shroudlyን ይከተሉ።</string>
+    <string name="whatsNewAndroid">አንድ ድረ-ገጽ በመጨረሻው መንገድ በ Tor ብቻ ሲከፈት Shroudly አሁን ይነግርዎታል፣ ምክንያቱም ቀርፋፋ ነው።\nአዲስ፦ ስለ → Shroudlyን ይከተሉ።\nየመጨረሻው አማራጭ Tor አሁን ለመጀመሪያ ጊዜ ከመጠቀሙ በፊት ይጠይቅዎታል፣ ጣቢያዎችንም በፍጥነት ይደርሳል (#77)።</string>
     <string name="whatsNewOk">ገባኝ</string>
     <string name="whatsNewTitle">በ{version} ውስጥ አዲስ ነገሮች</string>
 </resources>

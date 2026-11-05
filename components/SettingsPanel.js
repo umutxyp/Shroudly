@@ -1169,7 +1169,7 @@ export default function SettingsPanel({ active = false }) {
             {/* The last way out (electron/tor-route.js): on unless turned
                 off; the user's own server, when set, carries everything. */}
             <Toggle label={t('lastResort')}
-                    desc={settings.ownServer ? t('lastResortOwnServer') : t('lastResortDesc')}
+                    desc={settings.ownServer ? t('lastResortOwnServer') : `${t('lastResortDesc')} ${t('lastResortAsks')}`}
                     checked={settings.torLastResort !== false}
                     onChange={(v) => save('torLastResort', v)} />
             {settings.torLastResort !== false && !settings.ownServer && <TorPrepare t={t} />}

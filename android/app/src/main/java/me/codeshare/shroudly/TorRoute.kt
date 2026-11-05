@@ -68,8 +68,16 @@ class TorRoute(private val ctx: Context, private val log: (String) -> Unit, priv
         }
 
         fun enabled(ctx: Context) = ctx.getSharedPreferences("settings", Context.MODE_PRIVATE).getBoolean("torLastResort", true)
+        /* Turned on by hand in Settings: the user's yes to it too (issue
+         * #77); off, it asks again once turned on. */
         fun setEnabled(ctx: Context, on: Boolean) =
-            ctx.getSharedPreferences("settings", Context.MODE_PRIVATE).edit().putBoolean("torLastResort", on).apply()
+            ctx.getSharedPreferences("settings", Context.MODE_PRIVATE).edit().putBoolean("torLastResort", on).putBoolean("torApproved", on).apply()
+
+        /* The user said yes to Tor (TorAsk's card, or the toggle by hand):
+         * until then a site that needs it asks instead of starting it. */
+        fun approved(ctx: Context) = ctx.getSharedPreferences("settings", Context.MODE_PRIVATE).getBoolean("torApproved", false)
+        fun setApproved(ctx: Context, yes: Boolean) =
+            ctx.getSharedPreferences("settings", Context.MODE_PRIVATE).edit().putBoolean("torApproved", yes).apply()
 
         /* What the window shows: off, starting, ready, failed. */
         @Volatile var state = "off"

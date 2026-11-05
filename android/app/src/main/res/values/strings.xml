@@ -163,6 +163,7 @@
     <string name="language">Language</string>
     <string name="languageSystem">System default</string>
     <string name="lastResort">When nothing else works: the Tor network</string>
+    <string name="lastResortAsks">Shroudly asks you before it first uses it.</string>
     <string name="lastResortDesc">A site that no technique opens goes through Tor, reached through Snowflake: the connections of volunteers, among them everyone who turned on “Help people in censored countries”. Slower, and some sites ask Tor\'s visitors for a captcha. Tor starts only when a site needs it.</string>
     <string name="lastResortFailed">The Tor network could not be reached; tried again when a site needs it</string>
     <string name="lastResortOwnServer">Not used while your own server is set: that server carries every site.</string>
@@ -245,6 +246,11 @@
     <string name="supportTitle">Support Shroudly</string>
     <string name="tagline">Unseen. Unstoppable.</string>
     <string name="testing">Testing…</string>
+    <string name="torAskCard">No technique opened {host} on this network. Shroudly can open it through the Tor network: much slower (pages and videos load slowly), and some sites ask for a captcha. Your answer is kept; you can change it in Settings.</string>
+    <string name="torAskNo">No</string>
+    <string name="torAskNotice">No technique opened {host} on this network. Shroudly can open it through the Tor network, its last way out, but much more slowly. Open Shroudly to allow it or say no.</string>
+    <string name="torAskTitle">Open {host} through Tor?</string>
+    <string name="torAskYes">Use Tor</string>
     <string name="torUsedPhone">{host} opened only through the Tor network, Shroudly\'s last way out: nothing else got through on this network. It is slower, and some sites ask for a captcha; your other apps and sites go as before.</string>
     <string name="torUsedTv">{host} opened only through the Tor network, Shroudly\'s last way out. Videos from it can load slowly or in lower quality; your other apps go as before.</string>
     <string name="totalCount">Total: {count}</string>
@@ -258,7 +264,7 @@
     <string name="upload">Upload</string>
     <string name="uptime">Uptime</string>
     <string name="versionLabel">Version {version}</string>
-    <string name="whatsNewAndroid">When a site opens only through Tor, the last way out, Shroudly now tells you, since it is slower.\nNew: About → Follow Shroudly, with our accounts.</string>
+    <string name="whatsNewAndroid">When a site opens only through Tor, the last way out, Shroudly now tells you, since it is slower.\nNew: About → Follow Shroudly, with our accounts.\nTor, the last way out, now asks you before it is first used, and reaches sites sooner (#77).</string>
     <string name="whatsNewOk">Got it</string>
     <string name="whatsNewTitle">What\'s new in {version}</string>
 </resources>

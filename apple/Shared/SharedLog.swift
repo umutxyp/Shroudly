@@ -79,4 +79,7 @@ enum ProviderMessage: String {
     /* {}: the names blocked in the Connections list changed: the running
      * engine is given them again. */
     case blocks
+    /* {}: the user said yes to Tor (ContentView's card, issue #77): the
+     * last way out starts now, and is kept allowed (TorAsk.approvedKey). */
+    case torYes
 }

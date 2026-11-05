@@ -72,6 +72,7 @@
 "language" = "Dil";
 "languageSystem" = "Sistem dili";
 "lastResort" = "Başqa heç nə işləməsə: Tor şəbəkəsi";
+"lastResortAsks" = "Shroudly ilk dəfə istifadə etməzdən əvvəl səndən soruşur.";
 "lastResortDesc" = "Heç bir texnikanın aça bilmədiyi sayt Tor üzərindən açılır; Tor-a Snowflake ilə, yəni könüllülərin bağlantıları ilə çatılır (“Senzuralı ölkələrdəki insanlara kömək et”i açan hər kəs də onların arasındadır). Daha yavaşdır və bəzi saytlar Tor-dan gələnlərdən captcha istəyir. Tor yalnız bir sayta lazım olanda başlayır.";
 "lastResortFailed" = "Tor şəbəkəsinə qoşulmaq mümkün olmadı; bir sayta lazım olanda yenidən cəhd ediləcək";
 "lastResortOwnServer" = "Öz serveriniz qurulu olanda istifadə olunmur: bütün saytlar o serverdən keçir.";
@@ -137,6 +138,11 @@
 "strategy" = "Yan keçmə strategiyası";
 "supportBannerLater" = "İndi yox";
 "tagline" = "Görünməz. Dayandırılmaz.";
+"torAskCard" = "Bu şəbəkədə heç bir texnika {host} saytını açmadı. Shroudly onu Tor şəbəkəsi ilə aça bilər: çox daha yavaşdır (səhifələr və videolar yavaş yüklənir) və bəzi saytlar captcha istəyir. Cavabın yadda saxlanılır; Ayarlarda dəyişə bilərsən.";
+"torAskNo" = "Xeyr";
+"torAskNotice" = "Bu şəbəkədə heç bir texnika {host} saytını açmadı. Shroudly onu son çarəsi olan Tor şəbəkəsi ilə aça bilər, amma çox daha yavaş. İcazə vermək və ya imtina etmək üçün Shroudly-ni aç.";
+"torAskTitle" = "{host} Tor vasitəsilə açılsın?";
+"torAskYes" = "Tor-dan istifadə et";
 "torUsedDesktop" = "{host} yalnız Tor şəbəkəsi ilə açıldı — Shroudly-nin son yolu: bu şəbəkədə başqa heç nə keçmədi. Bu daha yavaşdır və bəzi saytlar captcha istəyir; bu kompüterdəki digər saytlar əvvəlki kimi işləyir.";
 "totalCount" = "Cəmi: {count}";
 "upload" = "Göndərmə";

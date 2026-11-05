@@ -163,6 +163,7 @@
     <string name="language">زبان</string>
     <string name="languageSystem">سسٹم کی ڈیفالٹ</string>
     <string name="lastResort">جب کچھ اور کام نہ کرے: ٹور نیٹ ورک</string>
+    <string name="lastResortAsks">Shroudly پہلی بار استعمال کرنے سے پہلے آپ سے پوچھتا ہے۔</string>
     <string name="lastResortDesc">جو سائٹ کوئی تکنیک نہیں کھول پاتی وہ ٹور کے ذریعے کھلتی ہے، اور ٹور تک اسنو فلیک کے ذریعے پہنچا جاتا ہے: رضاکاروں کے کنکشن، جن میں وہ سب شامل ہیں جنہوں نے «سنسر شدہ ممالک کے لوگوں کی مدد کریں» آن کیا ہے۔ یہ سست ہے، اور کچھ سائٹیں ٹور سے آنے والوں سے کیپچا مانگتی ہیں۔ ٹور صرف تب شروع ہوتا ہے جب کسی سائٹ کو اس کی ضرورت ہو۔</string>
     <string name="lastResortFailed">ٹور نیٹ ورک تک نہیں پہنچ سکے؛ جب کسی سائٹ کو ضرورت ہوگی تو دوبارہ کوشش ہوگی</string>
     <string name="lastResortOwnServer">جب تک آپ کا اپنا سرور سیٹ ہے، یہ استعمال نہیں ہوتا: ہر سائٹ اسی سرور سے گزرتی ہے۔</string>
@@ -245,6 +246,11 @@
     <string name="supportTitle">Shroudly کی مدد کریں</string>
     <string name="tagline">غیر مرئی۔ ناقابلِ تسخیر۔</string>
     <string name="testing">جانچ ہو رہی ہے…</string>
+    <string name="torAskCard">اس نیٹ ورک پر کسی بھی تکنیک نے {host} نہیں کھولا۔ Shroudly اسے Tor نیٹ ورک کے ذریعے کھول سکتا ہے: بہت آہستہ (صفحات اور ویڈیوز آہستہ لوڈ ہوتے ہیں)، اور کچھ سائٹس captcha مانگتی ہیں۔ آپ کا جواب محفوظ رہتا ہے؛ آپ اسے ترتیبات میں بدل سکتے ہیں۔</string>
+    <string name="torAskNo">نہیں</string>
+    <string name="torAskNotice">اس نیٹ ورک پر کسی بھی تکنیک نے {host} نہیں کھولا۔ Shroudly اسے Tor نیٹ ورک کے ذریعے کھول سکتا ہے، جو اس کا آخری راستہ ہے، مگر بہت آہستہ۔ اجازت دینے یا انکار کرنے کے لیے Shroudly کھولیں۔</string>
+    <string name="torAskTitle">کیا {host} کو Tor کے ذریعے کھولا جائے؟</string>
+    <string name="torAskYes">Tor استعمال کریں</string>
     <string name="torUsedPhone">{host} صرف Tor نیٹ ورک کے ذریعے کھلا، جو Shroudly کا آخری راستہ ہے: اس نیٹ ورک پر اور کچھ کام نہیں آیا۔ یہ سست ہے اور کچھ سائٹس کیپچا مانگتی ہیں؛ آپ کی باقی ایپس اور سائٹس پہلے کی طرح چلتی ہیں۔</string>
     <string name="torUsedTv">{host} صرف Tor نیٹ ورک کے ذریعے کھلا، جو Shroudly کا آخری راستہ ہے۔ اس کی ویڈیوز آہستہ یا کم معیار میں لوڈ ہو سکتی ہیں؛ آپ کی باقی ایپس پہلے کی طرح چلتی ہیں۔</string>
     <string name="totalCount">کل: {count}</string>
@@ -258,7 +264,7 @@
     <string name="upload">اپ لوڈ</string>
     <string name="uptime">چلنے کا دورانیہ</string>
     <string name="versionLabel">ورژن {version}</string>
-    <string name="whatsNewAndroid">جب کوئی سائٹ صرف Tor، آخری راستے، سے کھلے تو Shroudly اب یہ بتاتا ہے، کیونکہ یہ سست ہے۔\nنیا: تعارف → Shroudly کو فالو کریں۔</string>
+    <string name="whatsNewAndroid">جب کوئی سائٹ صرف Tor، آخری راستے، سے کھلے تو Shroudly اب یہ بتاتا ہے، کیونکہ یہ سست ہے۔\nنیا: تعارف → Shroudly کو فالو کریں۔\nآخری راستہ Tor اب پہلی بار استعمال سے پہلے آپ سے پوچھتا ہے اور سائٹس تک جلدی پہنچتا ہے (#77)۔</string>
     <string name="whatsNewOk">سمجھ گیا</string>
     <string name="whatsNewTitle">{version} میں نیا کیا ہے</string>
 </resources>

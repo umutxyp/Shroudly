@@ -72,6 +72,7 @@
 "language" = "Dil";
 "languageSystem" = "Ulgamdaky ýaly";
 "lastResort" = "Başga hiç zat işlemese: Tor ulgamy";
+"lastResortAsks" = "Shroudly ony ilkinji gezek ulanmazdan öň sizden soraýar.";
 "lastResortDesc" = "Hiç bir usulyň açyp bilmedik saýty Tor arkaly açylýar, Tor-a bolsa Snowflake arkaly, ýagny meýletinçileriň birikmeleri arkaly ýetilýär (olaryň arasynda «Senzuraly ýurtlardaky adamlara kömek et» funksiýasyny açanlaryň hemmesi bar). Haýalrak, käbir saýtlar Tor-dan gelenlerden kapça soraýar. Tor diňe bir saýta gerek bolanda işe başlaýar.";
 "lastResortFailed" = "Tor ulgamyna ýetip bolmady; bir saýta gerek bolanda täzeden synanyşar";
 "lastResortOwnServer" = "Öz serweriňiz goýlan wagty ulanylmaýar: ähli saýtlar şol serwer arkaly geçýär.";
@@ -137,6 +138,11 @@
 "strategy" = "Aýlanyp geçiş strategiýasy";
 "supportBannerLater" = "Häzir däl";
 "tagline" = "Görünmez. Saklanmaz.";
+"torAskCard" = "Bu ulgamda hiç bir usul {host} saýtyny açmady. Shroudly ony Tor ulgamy arkaly açyp biler: has haýal (sahypalar we wideolar haýal ýüklenýär), käbir saýtlar captcha soraýar. Jogabyňyz ýatda saklanýar; ony Sazlamalarda üýtgedip bilersiňiz.";
+"torAskNo" = "Ýok";
+"torAskNotice" = "Bu ulgamda hiç bir usul {host} saýtyny açmady. Shroudly ony iň soňky ýoly bolan Tor ulgamy arkaly açyp biler, ýöne has haýal. Rugsat bermek ýa-da ret etmek üçin Shroudly-ni açyň.";
+"torAskTitle" = "{host} Tor arkaly açylsynmy?";
+"torAskYes" = "Tor ulan";
 "torUsedDesktop" = "{host} diňe Tor tory arkaly açyldy — bu Shroudly-niň iň soňky ýoly: bu torda başga hiç zat geçmedi. Bu haýalrak, käbir saýtlar kapça soraýar; bu kompýuterdäki beýleki saýtlar öňküsi ýaly işleýär.";
 "totalCount" = "Jemi: {count}";
 "upload" = "Iberiş";

@@ -163,6 +163,7 @@
     <string name="language">Тил</string>
     <string name="languageSystem">Системадагыдай</string>
     <string name="lastResort">Башка эч нерсе жардам бербесе: Tor тармагы</string>
+    <string name="lastResortAsks">Shroudly аны биринчи жолу колдонуудан мурун сизден сурайт.</string>
     <string name="lastResortDesc">Эч бир ыкма ача албаган сайт Tor аркылуу ачылат, ал эми Tor\'го Snowflake аркылуу, башкача айтканда ыктыярчылардын туташуулары аркылуу жетет (алардын арасында «Цензура бар өлкөлөрдөгү адамдарга жардам берүү» функциясын күйгүзгөндөрдүн баары бар). Жайыраак, айрым сайттар Tor\'дон келгендерден капча сурайт. Tor сайтка керек болгондо гана иштей баштайт.</string>
     <string name="lastResortFailed">Tor тармагына туташуу мүмкүн болбоду; сайтка керек болгондо кайра аракет кылат</string>
     <string name="lastResortOwnServer">Өз сервериңиз коюлуп турганда колдонулбайт: бардык сайт ошол сервер аркылуу өтөт.</string>
@@ -245,6 +246,11 @@
     <string name="supportTitle">Shroudly\'ни колдоо</string>
     <string name="tagline">Көрүнбөйт. Токтобойт.</string>
     <string name="testing">Текшерилүүдө…</string>
+    <string name="torAskCard">Бул тармакта эч бир ыкма {host} сайтын ачкан жок. Shroudly аны Tor тармагы аркылуу ача алат: бир топ жайыраак (барактар жана видеолор жай жүктөлөт), айрым сайттар captcha сурайт. Жообуңуз сакталат; аны Жөндөөлөрдөн өзгөртө аласыз.</string>
+    <string name="torAskNo">Жок</string>
+    <string name="torAskNotice">Бул тармакта эч бир ыкма {host} сайтын ачкан жок. Shroudly аны акыркы жолу — Tor тармагы аркылуу ача алат, бирок бир топ жайыраак. Уруксат берүү же баш тартуу үчүн Shroudly\'ди ачыңыз.</string>
+    <string name="torAskTitle">{host} Tor аркылуу ачылсынбы?</string>
+    <string name="torAskYes">Tor колдонуу</string>
     <string name="torUsedPhone">{host} Tor тармагы аркылуу гана ачылды — бул Shroudly\'нин акыркы жолу: бул тармакта башка эч нерсе өткөн жок. Бул жайыраак, кээ бир сайттар капча сурайт; башка колдонмолор жана сайттар мурдагыдай иштейт.</string>
     <string name="torUsedTv">{host} Tor тармагы аркылуу гана ачылды — бул Shroudly\'нин акыркы жолу. Андагы видеолор жай же төмөн сапатта жүктөлүшү мүмкүн; башка колдонмолор мурдагыдай иштейт.</string>
     <string name="totalCount">Бардыгы: {count}</string>
@@ -258,7 +264,7 @@
     <string name="upload">Жөнөтүү</string>
     <string name="uptime">Иштөө убактысы</string>
     <string name="versionLabel">Версия {version}</string>
-    <string name="whatsNewAndroid">Сайт акыркы жол — Tor аркылуу гана ачылса, Shroudly эми муну айтат, анткени ал жайыраак.\nЖаңы: Программа жөнүндө → Shroudly\'ге жазылуу.</string>
+    <string name="whatsNewAndroid">Сайт акыркы жол — Tor аркылуу гана ачылса, Shroudly эми муну айтат, анткени ал жайыраак.\nЖаңы: Программа жөнүндө → Shroudly\'ге жазылуу.\nАкыркы жол — Tor эми биринчи колдонуудан мурун сизден сурайт жана сайттарга тезирээк жетет (#77).</string>
     <string name="whatsNewOk">Түшүнүктүү</string>
     <string name="whatsNewTitle">{version} версиясындагы жаңылыктар</string>
 </resources>

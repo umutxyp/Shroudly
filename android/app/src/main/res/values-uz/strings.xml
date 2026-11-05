@@ -163,6 +163,7 @@
     <string name="language">Til</string>
     <string name="languageSystem">Tizimdagidek</string>
     <string name="lastResort">Boshqa hech narsa ishlamasa: Tor tarmog\'i</string>
+    <string name="lastResortAsks">Shroudly undan birinchi marta foydalanishdan oldin sizdan so\'raydi.</string>
     <string name="lastResortDesc">Hech bir usul ocha olmagan sayt Tor orqali ochiladi, Tor\'ga esa Snowflake orqali, ya\'ni ko\'ngillilarning ulanishlari orqali yetiladi (ular orasida «Senzura bor mamlakatlardagi odamlarga yordam berish»ni yoqqanlarning barchasi bor). Sekinroq, ba\'zi saytlar Tor\'dan kelganlardan kapcha so\'raydi. Tor faqat sayt unga muhtoj bo\'lganda ishga tushadi.</string>
     <string name="lastResortFailed">Tor tarmog\'iga ulanib bo\'lmadi; sayt muhtoj bo\'lganda yana uriniladi</string>
     <string name="lastResortOwnServer">O\'z serveringiz o\'rnatilganda ishlatilmaydi: barcha saytlar o\'sha server orqali o\'tadi.</string>
@@ -245,6 +246,11 @@
     <string name="supportTitle">Shroudlyʼni qoʻllab-quvvatlash</string>
     <string name="tagline">Koʻrinmas. Toʻxtatib boʻlmas.</string>
     <string name="testing">Tekshirilmoqda…</string>
+    <string name="torAskCard">Bu tarmoqda hech bir usul {host} saytini ocha olmadi. Shroudly uni Tor tarmog\'i orqali ochishi mumkin: ancha sekin (sahifalar va videolar sekin yuklanadi), ba\'zi saytlar captcha so\'raydi. Javobingiz saqlanadi; uni Sozlamalarda o\'zgartirishingiz mumkin.</string>
+    <string name="torAskNo">Yo\'q</string>
+    <string name="torAskNotice">Bu tarmoqda hech bir usul {host} saytini ocha olmadi. Shroudly uni so\'nggi chorasi — Tor tarmog\'i orqali ochishi mumkin, lekin ancha sekinroq. Ruxsat berish yoki rad etish uchun Shroudly\'ni oching.</string>
+    <string name="torAskTitle">{host} Tor orqali ochilsinmi?</string>
+    <string name="torAskYes">Tor\'dan foydalanish</string>
     <string name="torUsedPhone">{host} faqat Tor tarmogʻi orqali ochildi — bu Shroudly’ning soʻnggi yoʻli: bu tarmoqda boshqa hech narsa oʻtmadi. Bu sekinroq va ayrim saytlar kapcha soʻraydi; boshqa ilovalar va saytlar avvalgidek ishlaydi.</string>
     <string name="torUsedTv">{host} faqat Tor tarmogʻi orqali ochildi — bu Shroudly’ning soʻnggi yoʻli. Undagi videolar sekin yoki pastroq sifatda yuklanishi mumkin; boshqa ilovalar avvalgidek ishlaydi.</string>
     <string name="totalCount">Jami: {count}</string>
@@ -258,7 +264,7 @@
     <string name="upload">Yuklash</string>
     <string name="uptime">Ish vaqti</string>
     <string name="versionLabel">Versiya {version}</string>
-    <string name="whatsNewAndroid">Sayt faqat soʻnggi yoʻl — Tor orqali ochilsa, Shroudly endi buni aytadi, chunki u sekinroq.\nYangi: Dastur haqida → Shroudly’ni kuzating.</string>
+    <string name="whatsNewAndroid">Sayt faqat soʻnggi yoʻl — Tor orqali ochilsa, Shroudly endi buni aytadi, chunki u sekinroq.\nYangi: Dastur haqida → Shroudly’ni kuzating.\nSo\'nggi chora — Tor endi birinchi ishlatishdan oldin sizdan so\'raydi va saytlarga tezroq yetadi (#77).</string>
     <string name="whatsNewOk">Tushunarli</string>
     <string name="whatsNewTitle">{version} versiyasida yangiliklar</string>
 </resources>

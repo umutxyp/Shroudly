@@ -163,6 +163,7 @@
     <string name="language">Idioma</string>
     <string name="languageSystem">Padrão do sistema</string>
     <string name="lastResort">Quando nada mais funciona: a rede Tor</string>
+    <string name="lastResortAsks">O Shroudly pergunta antes de usá-la pela primeira vez.</string>
     <string name="lastResortDesc">Um site que nenhuma técnica abre passa pelo Tor, alcançado pelo Snowflake: as conexões de voluntários, entre eles todos que ativaram “Ajudar pessoas em países censurados”. É mais lento, e alguns sites pedem captcha a quem chega pelo Tor. O Tor só inicia quando um site precisa dele.</string>
     <string name="lastResortFailed">Não foi possível alcançar a rede Tor; nova tentativa quando um site precisar</string>
     <string name="lastResortOwnServer">Não é usado enquanto o seu próprio servidor estiver definido: esse servidor leva todos os sites.</string>
@@ -245,6 +246,11 @@
     <string name="supportTitle">Apoie o Shroudly</string>
     <string name="tagline">Invisível. Imparável.</string>
     <string name="testing">Testando…</string>
+    <string name="torAskCard">Nenhuma técnica abriu {host} nesta rede. O Shroudly pode abri-lo pela rede Tor: bem mais lento (páginas e vídeos carregam devagar), e alguns sites pedem um captcha. Sua resposta fica guardada; você pode mudá-la nos Ajustes.</string>
+    <string name="torAskNo">Não</string>
+    <string name="torAskNotice">Nenhuma técnica abriu {host} nesta rede. O Shroudly pode abri-lo pela rede Tor, seu último recurso, mas bem mais devagar. Abra o Shroudly para permitir ou recusar.</string>
+    <string name="torAskTitle">Abrir {host} pelo Tor?</string>
+    <string name="torAskYes">Usar o Tor</string>
     <string name="torUsedPhone">{host} só abriu pela rede Tor, o último recurso do Shroudly: nada mais funcionou nesta rede. É mais lento e alguns sites pedem um captcha; seus outros apps e sites continuam como antes.</string>
     <string name="torUsedTv">{host} só abriu pela rede Tor, o último recurso do Shroudly. Os vídeos dele podem carregar devagar ou com qualidade menor; seus outros apps continuam como antes.</string>
     <string name="totalCount">Total: {count}</string>
@@ -258,7 +264,7 @@
     <string name="upload">Enviado</string>
     <string name="uptime">Tempo ativo</string>
     <string name="versionLabel">Versão {version}</string>
-    <string name="whatsNewAndroid">Quando um site só abre pelo Tor, o último recurso, o Shroudly agora avisa, porque é mais lento.\nNovo: Sobre → Siga o Shroudly, com nossas contas.</string>
+    <string name="whatsNewAndroid">Quando um site só abre pelo Tor, o último recurso, o Shroudly agora avisa, porque é mais lento.\nNovo: Sobre → Siga o Shroudly, com nossas contas.\nO Tor, último recurso, agora pergunta antes do primeiro uso e chega aos sites mais rápido (#77).</string>
     <string name="whatsNewOk">Entendi</string>
     <string name="whatsNewTitle">Novidades da {version}</string>
 </resources>

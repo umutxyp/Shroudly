@@ -163,6 +163,7 @@
     <string name="language">Ziman</string>
     <string name="languageSystem">Zimanê pergalê</string>
     <string name="lastResort">Gava tiştekî din bi kar neyê: tora Tor</string>
+    <string name="lastResortAsks">Shroudly berî ku cara yekem bi kar bîne ji te dipirse.</string>
     <string name="lastResortDesc">Malperek ku tu teknîk venake bi riya Tor vedibe; Tor bi Snowflake tê gihîştin, ango girêdanên dilxwazan (di nav wan de her kesê ku “Alîkariya mirovên li welatên sansûrkirî bike” vekiriye). Hêdîtir e, û hin malper ji kesên ku ji Tor tên captcha dixwazin. Tor tenê dema ku malperek hewcedarê wê be dest pê dike.</string>
     <string name="lastResortFailed">Negihîşt tora Tor; dema ku malperek hewcedar be dê dîsa were ceribandin</string>
     <string name="lastResortOwnServer">Heta ku servera te ya xwe hatibe danîn nayê bikaranîn: hemû malper di wê serverê re derbas dibin.</string>
@@ -245,6 +246,11 @@
     <string name="supportTitle">Piştgiriyê bide Shroudly</string>
     <string name="tagline">Nayê dîtin. Nayê rawestandin.</string>
     <string name="testing">Tê ceribandin…</string>
+    <string name="torAskCard">Li ser vê torê tu teknîkê {host} venekir. Shroudly dikare wê bi rêya tora Tor veke: pir hêdîtir (rûpel û vîdyo hêdî bar dibin), û hin malper captcha dixwazin. Bersiva te tê parastin; tu dikarî di Mîhengan de biguherînî.</string>
+    <string name="torAskNo">Na</string>
+    <string name="torAskNotice">Li ser vê torê tu teknîkê {host} venekir. Shroudly dikare wê bi rêya tora Tor, çareya xwe ya dawî, veke, lê pir hêdîtir. Ji bo destûrê an redkirinê Shroudly veke.</string>
+    <string name="torAskTitle">{host} bi rêya Tor vebe?</string>
+    <string name="torAskYes">Tor bi kar bîne</string>
     <string name="torUsedPhone">{host} tenê bi tora Tor vebû — riya dawî ya Shroudly: li ser vê torê tiştekî din derbas nebû. Ev hêdîtir e û hin malper captcha dixwazin; sepan û malperên te yên din wek berê dixebitin.</string>
     <string name="torUsedTv">{host} tenê bi tora Tor vebû — riya dawî ya Shroudly. Vîdyoyên wê dibe ku hêdî an bi kalîteya kêmtir bar bibin; sepanên te yên din wek berê dixebitin.</string>
     <string name="totalCount">Bi giştî: {count}</string>
@@ -258,7 +264,7 @@
     <string name="upload">Barkirin</string>
     <string name="uptime">Dema xebatê</string>
     <string name="versionLabel">Guherto {version}</string>
-    <string name="whatsNewAndroid">Gava malperek tenê bi Tor, riya dawî, vebe, Shroudly niha vê dibêje, ji ber ku hêdîtir e.\nNû: Derbarê → Shroudly bişopîne.</string>
+    <string name="whatsNewAndroid">Gava malperek tenê bi Tor, riya dawî, vebe, Shroudly niha vê dibêje, ji ber ku hêdîtir e.\nNû: Derbarê → Shroudly bişopîne.\nTor, çareya dawî, êdî berî bikaranîna yekem ji te dipirse û zûtir digihîje malperan (#77).</string>
     <string name="whatsNewOk">Baş e</string>
     <string name="whatsNewTitle">Tiştên nû di {version} de</string>
 </resources>

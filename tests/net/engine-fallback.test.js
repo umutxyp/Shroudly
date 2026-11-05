@@ -13,7 +13,11 @@
  *   - an address on this computer or its network: never through it
  *   - the user's own server set: that one carries everything, this is not used
  *   - not running (Tor not started yet): the connection fails as before, and
- *     the engine says so ({"type":"fallback","ok":0}), which is what starts it */
+ *     the engine says so ({"type":"fallback","ok":0}) with the name that
+ *     needed it, which is what asks the user (issue #77) or starts it
+ *   - Tor up but nothing carried yet (issue #77): a silent site reaches it
+ *     without waiting 30 s more for a late answer, and another name of a
+ *     site it carries walks a short ladder before it */
 
 const fs = require('fs');
 const os = require('os');
@@ -59,7 +63,7 @@ async function get(P, host, port, timeoutMs = 40000) {
   await new Promise((r) => silent.listen({ port: 0, host: '::1', ipv6Only: true }, r));
   const silentPort = silent.address().port;
 
-  const dns = await H.dnsStub({ 'dropped.example': { AAAA: ['::1'] } });
+  const dns = await H.dnsStub({ 'dropped.example': { AAAA: ['::1'] }, 'cdn.dropped.example': { AAAA: ['::1'] } });
   const base = ['--auto', '--doh', '--doh-port', String(dns.port), '--ipv6'];
 
   {
@@ -108,6 +112,25 @@ async function get(P, host, port, timeoutMs = 40000) {
     eng.stop();
   }
 
+  // Tor up, nothing carried yet by this engine (issue #77).
+  {
+    const P = await H.freePort();
+    const eng = await H.startEngine(P, [...base, '--fallback-file', torFile]);
+    const n0 = tor.asked.length;
+    const t0 = Date.now();
+    const a = await get(P, 'dropped.example', silentPort, 60000);
+    const first = Date.now() - t0;
+    t.ok(a === 'HTTP/1.1 200 OK' && tor.asked.length === n0 + 1 && first < 25000,
+      `Tor up, nothing carried yet: a silent site reaches it without the 30 s wait for a late answer (${first} ms)`);
+    const t1 = Date.now();
+    const b = await get(P, 'cdn.dropped.example', silentPort, 60000);
+    const sib = Date.now() - t1;
+    const sibLadder = /"type":"blocked","host":"cdn\.dropped\.example"/.test(eng.out);
+    t.ok(b === 'HTTP/1.1 200 OK' && tor.asked.length === n0 + 2 && sibLadder && sib < 12000 && sib < first,
+      `another name of that site: the techniques first, briefly, then Tor (${sib} ms against ${first} ms)`);
+    eng.stop();
+  }
+
   // The user's own server set: it carries everything, the last way out is not used.
   {
     const own = H.socksServer(world.address().port);
@@ -127,7 +150,7 @@ async function get(P, host, port, timeoutMs = 40000) {
     const eng = await H.startEngine(P, [...base, '--fallback-file', file('dead.txt', `socks5://127.0.0.1:${deadPort}`)]);
     const r = await get(P, 'gone.example', 443, 15000);
     await H.sleep(300);
-    t.ok(r !== 'HTTP/1.1 200 OK' && /"type":"fallback","ok":0,"why":"does not answer"/.test(eng.out),
+    t.ok(r !== 'HTTP/1.1 200 OK' && /"type":"fallback","ok":0,"why":"does not answer","host":"gone\.example"/.test(eng.out),
       `not running: the connection fails as before (${r}), and the engine says so, which starts it`);
     eng.stop();
   }

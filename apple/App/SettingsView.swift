@@ -54,7 +54,7 @@ struct SettingsView: View {
                 // (iOS ends a tunnel that big; Apple TV has no Tor).
                 #if os(macOS)
                 Toggle(isOn: $settings.torLastResort) {
-                    Labelled(title: tr("lastResort"), detail: settings.ownServer.isEmpty ? tr("lastResortDesc") : tr("lastResortOwnServer"))
+                    Labelled(title: tr("lastResort"), detail: settings.ownServer.isEmpty ? "\(tr("lastResortDesc")) \(tr("lastResortAsks"))" : tr("lastResortOwnServer"))
                 }
                 #endif
             }
@@ -205,6 +205,8 @@ struct SettingsView: View {
             let store = SettingsStore()
             let old = store.load()
             guard old != new else { return }
+            // The Tor toggle turned on by hand is the user's yes to it (issue #77).
+            if old.torLastResort != new.torLastResort { AppGroup.defaults.set(new.torLastResort, forKey: "torApproved") }
             store.save(new)
             Task { await controller.settingsChanged(from: old, to: new) }
         }
