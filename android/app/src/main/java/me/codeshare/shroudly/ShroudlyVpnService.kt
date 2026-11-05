@@ -503,7 +503,7 @@ class ShroudlyVpnService : VpnService() {
 
             // Encrypted DNS first, so the engine's first lookups have it. If it
             // cannot start, the engine falls back to plain DNS.
-            val d = DohForwarder(::log, prefs.getString("dohRoute", null)) { id ->
+            val d = DohForwarder(::log, prefs.getString("dohRoute", null), awake = { screenOn() }) { id ->
                 prefs.edit().putString("dohRoute", id).apply()
             }
             AppSettings.applyDns(this, d)
@@ -733,6 +733,10 @@ class ShroudlyVpnService : VpnService() {
     }
 
     /* ── running ───────────────────────────────────────────────────────── */
+
+    /* The screen is on (DohForwarder keeps its routes warm only then). */
+    private fun screenOn(): Boolean =
+        try { getSystemService(android.os.PowerManager::class.java)?.isInteractive != false } catch (_: Exception) { true }
 
     private fun tick() {
         if (!active) return

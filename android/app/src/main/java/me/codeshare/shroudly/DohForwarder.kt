@@ -115,6 +115,12 @@ class DohRoute(
 class DohForwarder(
     private val log: (String) -> Unit,
     preferred: String?,
+    /* Whether the screen is on (PowerManager.isInteractive): with it off,
+     * the routes are not kept warm. Every 2 minutes, 3 to 5 lookups would
+     * wake a phone's mobile radio for many seconds each time, for lookups
+     * nobody is waiting on; the first one after the screen comes on opens
+     * its connection then. */
+    private val awake: () -> Boolean = { true },
     private val onPreferred: (String) -> Unit,
 ) {
     companion object {
@@ -446,7 +452,7 @@ class DohForwarder(
     /* Keep the best routes' connections open before anyone browses, and look
      * in on resting routes now and then. */
     private fun warm() {
-        if (!running) return
+        if (!running || !awake()) return
         // The user's server is asked even while it rests, so one that comes
         // back is used again by itself; while it answers, nothing else needs
         // warming.

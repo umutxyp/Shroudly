@@ -302,7 +302,7 @@ final class TorRoute {
     private func armIdle() {
         idleTimer?.cancel()
         let t = DispatchSource.makeTimerSource(queue: queue)
-        t.schedule(deadline: .now() + 60, repeating: 60)
+        t.schedule(deadline: .now() + 60, repeating: 60, leeway: .seconds(10))
         t.setEventHandler { [weak self] in
             guard let self, self.state == .ready else { return }
             let n = self.usedCount()

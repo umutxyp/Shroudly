@@ -469,7 +469,10 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
         engineRestarts = 0
         hevRestarts = 0
         let t = DispatchSource.makeTimerSource(queue: queue)
-        t.schedule(deadline: .now() + Self.watchEvery, repeating: Self.watchEvery)
+        // A few seconds of leeway: the system wakes for it together with
+        // other work instead of on its own (battery), and a hung engine is
+        // still found within half a minute.
+        t.schedule(deadline: .now() + Self.watchEvery, repeating: Self.watchEvery, leeway: .seconds(5))
         t.setEventHandler { [weak self] in self?.check() }
         t.resume()
         watch = t

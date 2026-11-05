@@ -198,7 +198,7 @@ class ShroudlyProxyService : Service() {
             learnedRaw = Learned(prefs.getString("learnedRaw", null), ShroudlyVpnService.LEARNED_RAW_MAX)
             synchronized(told) { told.clear() }
             workedToday = false
-            val d = DohForwarder(::log, prefs.getString("dohRoute", null)) { id -> prefs.edit().putString("dohRoute", id).apply() }
+            val d = DohForwarder(::log, prefs.getString("dohRoute", null), awake = { screenOn() }) { id -> prefs.edit().putString("dohRoute", id).apply() }
             AppSettings.applyDns(this, d)
             dohPort = try { d.start() } catch (e: Exception) { log("Encrypted DNS unavailable: ${e.message}"); 0 }
             doh = if (dohPort > 0) d else null
@@ -353,6 +353,10 @@ class ShroudlyProxyService : Service() {
     /* Every second: the engine still runs and answers, encrypted DNS still
      * serves, and the counters while the window or the tile is looking (now
      * and then otherwise), as the VPN mode's tick does. */
+    /* The screen is on (DohForwarder keeps its routes warm only then). */
+    private fun screenOn(): Boolean =
+        try { getSystemService(android.os.PowerManager::class.java)?.isInteractive != false } catch (_: Exception) { true }
+
     private fun tick() {
         if (!active) return
         // Now and then: Google Play's flag and the suggestion's notice
