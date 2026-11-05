@@ -79,17 +79,6 @@ jobs:
           bash scripts/ci-linux-advanced.sh arm64
           bash scripts/ci-check-glibc.sh
 
-      # The last way out (electron/tor-route.js): the Tor Project's own Tor
-      # and lyrebird for this OS's two arches, checked against pinned hashes.
-      - name: Fetch Tor (Tor Expert Bundle)
-        shell: bash
-        run: |
-          case "${{ matrix.platform }}" in
-            win) node scripts/fetch-tor.js win32-x64 win32-arm64 ;;
-            mac) node scripts/fetch-tor.js darwin-x64 darwin-arm64 ;;
-            linux) node scripts/fetch-tor.js linux-x64 linux-arm64 ;;
-          esac
-
       - name: Build web UI
         run: npm run build
 
@@ -298,11 +287,7 @@ jobs:
           if ldd "$eng" | grep 'not found'; then exit 1; fi
           out=$( (sleep 2; echo STOP) | "$eng" --listen 127.0.0.1 --port 18765 --strategy 'split(sni)' 2>&1 | head -n 1 )
           echo "$out" | grep -q '"ready"'
-          # Tor and lyrebird run, with Tor's own libraries next to them.
-          tor=squashfs-root/resources/app.asar.unpacked/electron/tools/tor/${{ matrix.core }}
-          LD_LIBRARY_PATH="$tor" "$tor/tor" --version | grep -q '^Tor version'
-          test -x "$tor/lyrebird" && test -s "$tor/pt_config.json"
-          echo "ok  $f: app present, engine starts ($out), Tor runs"
+          echo "ok  $f: app present, engine starts ($out)"
       # On a server with no display, as scripts/server/install-helper.sh sets
       # up an AppImage: Chromium's sandbox helper owned by root, setuid, and
       # Shroudly started with --help-others (helper-server.js).
@@ -382,11 +367,6 @@ jobs:
           lipo -archs "$eng" | grep -q ${{ matrix.lipo }}
           out=$( (sleep 2; echo STOP) | "$eng" --listen 127.0.0.1 --port 18765 --strategy 'split(sni)' 2>&1 | head -n 1 )
           echo "$out" | grep -q '"ready"'
-          # Tor, signed with the app: it starts (an invalid signature is
-          # killed at once on Apple silicon), and lyrebird is there.
-          tor="$app/Contents/Resources/app.asar.unpacked/electron/tools/tor/darwin-${{ matrix.arch }}"
-          "$tor/tor" --version | grep -q '^Tor version'
-          codesign --verify --strict "$tor/lyrebird"
           # The app itself, from the disk image: its one-off restore start
           # loads every module of the packaged app and exits (as the AppImage
           # job does). One that cannot start could not update itself either.
@@ -594,6 +574,14 @@ jobs:
           bt="$ANDROID_HOME/build-tools/36.0.0"
           "$bt/apksigner" verify --print-certs "dist/Shroudly-$ver-Android.apk" | tee "$RUNNER_TEMP/certs.txt"
           grep -qi "Signer #1 certificate SHA-256 digest: $CERT_SHA256" "$RUNNER_TEMP/certs.txt"
+          # The same app for 64-bit ARM phones only, and without Tor (issue #75):
+          # each looks for updates of its own kind (Versions.apkUrl).
+          for v in arm64 lite; do
+            (cd android && ANDROID_KEYSTORE="$ks" ./gradlew --no-daemon -Pshroudly.variant=$v assembleRelease)
+            cp android/app/build/outputs/apk/release/app-release.apk "dist/Shroudly-$ver-Android-$v.apk"
+            "$bt/apksigner" verify --print-certs "dist/Shroudly-$ver-Android-$v.apk" | grep -qi "Signer #1 certificate SHA-256 digest: $CERT_SHA256"
+          done
+          ls -la dist/*-Android*.apk
 
           # The bundle for Google Play: same version and version code, no
           # GitHub update check, the upload key. Play re-signs what it
@@ -620,12 +608,12 @@ jobs:
         if: steps.apk.outputs.built == '1'
         run: |
           export ANDROID_NDK_HOME="$ANDROID_HOME/ndk/$NDK_VERSION"
-          bash android/scripts/check-16k.sh dist/*-Android.apk play/*.aab
+          bash android/scripts/check-16k.sh dist/*-Android*.apk play/*.aab
       - uses: actions/upload-artifact@v7
         if: steps.apk.outputs.built == '1'
         with:
           name: dist-android
-          path: dist/*-Android.apk
+          path: dist/*-Android*.apk
           # As long as the desktop sets: publish.yml re-publishes a run within
           # those three days, and without the APK phones were offered nothing.
           retention-days: 3

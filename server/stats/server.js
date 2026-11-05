@@ -94,6 +94,9 @@ const DL_FILES = {
   'linux-rpm':       (v) => `Shroudly-${v}-Linux-x86_64.rpm`,
   // One APK for every Android phone (ARM 64/32-bit, x86_64).
   'android':         (v) => `Shroudly-${v}-Android.apk`,
+  // 64-bit ARM phones only, and without Tor (issue #75).
+  'android-arm64':   (v) => `Shroudly-${v}-Android-arm64.apk`,
+  'android-lite':    (v) => `Shroudly-${v}-Android-lite.apk`,
 };
 const REPO = 'https://github.com/umutxyp/Shroudly';
 const RELEASES_LATEST = `${REPO}/releases/latest`;

@@ -549,6 +549,36 @@ const SETTINGS_TABS = [
 /* Where Shroudly keeps what it saves (electron/data-dir.js, issue #72): the
  * folder now, and the other places it can be. A change copies everything
  * there and restarts Shroudly; the old folder is left as it was. */
+/* The last way out's Tor on this computer (issue #75): fetched the first
+ * time a site needs it, or now, for someone who expects their connection
+ * to the world to be cut before then. */
+function TorPrepare({ t }) {
+  const [st, setSt] = useState(null);
+  useEffect(() => {
+    let alive = true;
+    const load = () => window.electron?.getTorStatus?.().then((x) => { if (alive && x) setSt(x); }).catch(() => {});
+    load();
+    const timer = setInterval(load, 1500);
+    return () => { alive = false; clearInterval(timer); };
+  }, []);
+  if (!st || !window.electron?.prepareTor) return null;
+  const busy = st.state === 'downloading';
+  return (
+    <div className="flex flex-wrap items-center justify-between gap-2 pb-3">
+      <p className="m-0 min-w-0 text-[12px] leading-snug" style={{ color: st.present ? 'var(--text-dim)' : 'var(--text-faint)' }}>
+        {st.present ? t('lastResortPrepared') : busy ? t('lastResortDownloading', { progress: st.progress || 0 }) : t('lastResortNotYet')}
+      </p>
+      {!st.present && (
+        <button type="button" disabled={busy} onClick={() => window.electron.prepareTor().catch(() => {})}
+                className="btn btn-ghost inline-flex shrink-0 items-center gap-1.5 rounded-[8px] px-3 py-1.5 text-[12.5px] font-semibold">
+          {busy && <SpinnerIcon className="spin h-3.5 w-3.5" />}
+          <span>{t('lastResortPrepare')}</span>
+        </button>
+      )}
+    </div>
+  );
+}
+
 function DataFolder({ t }) {
   const [info, setInfo] = useState(null);
   const [busy, setBusy] = useState(false);
@@ -1140,6 +1170,7 @@ export default function SettingsPanel({ active = false }) {
                     desc={settings.ownServer ? t('lastResortOwnServer') : t('lastResortDesc')}
                     checked={settings.torLastResort !== false}
                     onChange={(v) => save('torLastResort', v)} />
+            {settings.torLastResort !== false && !settings.ownServer && <TorPrepare t={t} />}
           </div>
 
           {active && (

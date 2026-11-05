@@ -234,6 +234,8 @@ class SettingsActivity : Activity() {
         }
         // The last way out (TorRoute): on unless turned off.
         findViewById<Switch>(R.id.torLastResort).apply {
+            // The lite APK has no Tor (issue #75): nothing to turn on.
+            visibility = if (BuildConfig.APK_VARIANT == "lite") View.GONE else View.VISIBLE
             isChecked = TorRoute.enabled(this@SettingsActivity)
             setOnCheckedChangeListener { _, on ->
                 TorRoute.setEnabled(this@SettingsActivity, on)

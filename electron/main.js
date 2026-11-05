@@ -75,6 +75,7 @@ const SecurityBlock = require('./security-block');
 const { ProtectionKeeper } = require('./protection-keeper');
 const { StoreSuggest } = require('./store-suggest');
 const TorRoute = require('./tor-route');
+const TorDownload = require('./tor-download');
 
 /* "Shroudly --restore-proxy" runs once at login after a run that never got to
  * restore the system proxy (power loss, forced reboot), and from the watchdog
@@ -1208,7 +1209,19 @@ app.whenReady().then(async () => {
   adblockList = new AdblockList({ dir: app.getPath('userData'), connect: DiscordRelay.socksConnect });
   // The last way out (tor-route.js): Tor through Snowflake, for a site
   // nothing else opened; started by the engine's need of it.
-  const torRoute = new TorRoute({ dataDir: app.getPath('userData'), log: addLog, onChange: () => toWindow('dpi:status-changed', !!(engine && engine.isActive())) });
+  const torRoute = new TorRoute({
+    dataDir: app.getPath('userData'), log: addLog,
+    onChange: () => toWindow('dpi:status-changed', !!(engine && engine.isActive())),
+    // Fetched the first time it is needed (issue #75), through the engine
+    // while it runs, so a network that blocks torproject.org does not stop it.
+    fetch: (dir, onProgress) => TorDownload.ensure(dir, {
+      socksPort: engine && engine.isActive() ? engine.port : 0,
+      connect: (port, host, p) => (port ? DiscordRelay.socksConnect(port, host, p) : new Promise((resolve, reject) => {
+        const sock = require('net').connect(p, host, () => resolve(sock)); sock.once('error', reject);
+      })),
+      onProgress, log: addLog,
+    }),
+  });
   engine = new EngineManager(store, {
     addLog, onStatusChange: broadcastStatus, torRoute,
     // An antivirus took, refused or keeps ending the engine.
@@ -3245,6 +3258,16 @@ ipcMain.handle('conns:list', async () => {
     rows: rows.map((r) => ({ ...r, system: SystemHosts.isSystemHost(r.host, [own]) })),
     blocked: store.get('userBlocked', []),
   };
+});
+/* Settings, the last way out: whether Tor is on this computer yet, and
+ * fetching it ahead of time ("Prepare it now", issue #75). */
+ipcMain.handle('tor:status', () => {
+  const t = engine && engine.tor;
+  return t ? { present: t.present(), state: t.status().state, progress: t.status().progress } : { present: false, state: 'off', progress: 0 };
+});
+ipcMain.handle('tor:prepare', async () => {
+  const t = engine && engine.tor;
+  return t ? { ok: await t.getReady() } : { ok: false };
 });
 ipcMain.handle('conns:block', (e, host, on) => {
   if (!engine) return { ok: false };

@@ -94,7 +94,7 @@ object UpdateCheck {
         }
         if (!Versions.offers(tag, files.map { it.first }, BuildConfig.VERSION_NAME)) return null
         // The APK itself, so the phone does not land on a page of desktop installers.
-        return tag to (Versions.apkUrl(files) ?: page)
+        return tag to (Versions.apkUrl(files, BuildConfig.APK_VARIANT) ?: page)
     }
 
     /* The download server's update feed names the latest version; its APK is
@@ -105,7 +105,7 @@ object UpdateCheck {
         if (feed.status != 200) throw IOException("$MIRROR_HOST: HTTP ${feed.status}")
         val version = Versions.feedVersion(feed.body.toString(Charsets.UTF_8)) ?: throw IOException("$MIRROR_HOST: no version")
         if (!Versions.isNewer(version, BuildConfig.VERSION_NAME)) return null
-        val apk = Versions.mirrorApkPath(version)
+        val apk = Versions.mirrorApkPath(version, BuildConfig.APK_VARIANT)
         if (fetch(MIRROR_HOST, apk, "*/*", port, auth, head = true).status != 200) return null
         return version to "https://$MIRROR_HOST$apk"
     }

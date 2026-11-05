@@ -20,7 +20,13 @@ if (!File(hevDir, "Android.mk").isFile) {
     throw GradleException("hev-socks5-tunnel is missing: run `node android/scripts/fetch-hev.js` first")
 }
 
-val abis = listOf("arm64-v8a", "armeabi-v7a", "x86_64")
+val allAbis = listOf("arm64-v8a", "armeabi-v7a", "x86_64")
+// Which APK this is (issue #75): "" the one for every phone, "arm64" only
+// for 64-bit ARM phones (most of them, a third of the size), "lite" for every
+// phone without Tor (the last way out), at the size Shroudly was before it.
+// Each looks for updates of its own kind (Versions.apkUrl).
+val apkVariant = providers.gradleProperty("shroudly.variant").orNull ?: ""
+val abis = if (apkVariant == "arm64") listOf("arm64-v8a") else allAbis
 
 // Two channels from one source, one package and one version code:
 //  - the APK on GitHub (the default): signed with the app signing key, and
@@ -50,6 +56,7 @@ android {
         versionCode = versionParts[0] * 10000 + versionParts[1] * 100 + versionParts[2]
         versionName = appVersion
         buildConfigField("boolean", "STORE_BUILD", playBuild.toString())
+        buildConfigField("String", "APK_VARIANT", "\"$apkVariant\"")
 
         ndk { abiFilters += abis }
         externalNativeBuild {
@@ -113,6 +120,8 @@ android {
         jniLibs {
             useLegacyPackaging = true
             excludes += "lib/*/libshroudlycore.so"
+            // The lite APK: no Tor (TorRoute is then not available).
+            if (apkVariant == "lite") excludes += listOf("lib/*/libtor.so", "lib/*/liblyrebird.so")
         }
     }
 

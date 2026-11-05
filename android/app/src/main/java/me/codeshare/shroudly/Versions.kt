@@ -31,8 +31,10 @@ object Versions {
 
     /* The release's Android APK (name, browser_download_url pairs): the one
      * named -Android.apk, else any .apk; only from this project's releases. */
-    fun apkUrl(assets: List<Pair<String, String>>): String? {
+    fun apkUrl(assets: List<Pair<String, String>>, variant: String = ""): String? {
         val ours = assets.filter { (_, url) -> url.startsWith(DOWNLOADS) && !url.contains("..") }
+        // The same kind as this copy (issue #75: -arm64, -lite), else the one for every phone.
+        if (variant.isNotEmpty()) ours.firstOrNull { it.first.endsWith("-Android-$variant.apk", ignoreCase = true) }?.let { return it.second }
         return (ours.firstOrNull { it.first.endsWith("-Android.apk", ignoreCase = true) }
             ?: ours.firstOrNull { it.first.endsWith(".apk", ignoreCase = true) })?.second
     }
@@ -44,7 +46,8 @@ object Versions {
 
     /* That release's APK on Shroudly's download server, which serves the
      * latest release's files by name. */
-    fun mirrorApkPath(version: String) = "/dl/Shroudly-${display(version)}-Android.apk"
+    fun mirrorApkPath(version: String, variant: String = "") =
+        "/dl/Shroudly-${display(version)}-Android${if (variant.isEmpty()) "" else "-$variant"}.apk"
 
     /* "v2.6.0" -> "2.6.0", for display. */
     fun display(tag: String) = tag.trim().removePrefix("v").removePrefix("V")

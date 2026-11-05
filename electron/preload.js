@@ -13,6 +13,9 @@ contextBridge.exposeInMainWorld('electron', {
   repairApp: () => ipcRenderer.invoke('app:repair'),
   // The Connections list (issue #74).
   getConnections: () => ipcRenderer.invoke('conns:list'),
+  // The last way out: Tor here yet, and fetching it now (issue #75).
+  getTorStatus: () => ipcRenderer.invoke('tor:status'),
+  prepareTor: () => ipcRenderer.invoke('tor:prepare'),
   setBlocked: (host, on) => ipcRenderer.invoke('conns:block', host, on),
   // Where Shroudly keeps its data (data-dir.js, issue #72).
   getDataDir: () => ipcRenderer.invoke('datadir:get'),

@@ -25,7 +25,7 @@ object ApkUpdatePolicy {
      * addresses are blocked (server/stats, as the desktop's updater uses
      * it). A link from anywhere else is not followed. */
     fun sources(url: String?, version: String): List<String> {
-        val mirror = "https://${OnlineHttp.HOST}${Versions.mirrorApkPath(version)}"
+        val mirror = "https://${OnlineHttp.HOST}${Versions.mirrorApkPath(version, BuildConfig.APK_VARIANT)}"
         val own = url?.takeIf { it.startsWith(Versions.DOWNLOADS) || it.startsWith("https://${OnlineHttp.HOST}/dl/") }
         return listOfNotNull(own, mirror).distinct()
     }

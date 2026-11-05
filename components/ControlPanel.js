@@ -208,6 +208,7 @@ export default function ControlPanel({ dpiStatus, onStatusChange, onSupport }) {
             <p className="mt-1 text-[12px] leading-snug wrap-anywhere" style={{ color: lastResort.state === 'failed' ? 'var(--warn)' : 'var(--text-faint)' }}>
               {lastResort.state === 'ready' ? t('lastResortReady')
                 : lastResort.state === 'failed' ? t('lastResortFailed')
+                : lastResort.state === 'downloading' ? t('lastResortDownloading', { progress: lastResort.progress || 0 })
                 : t('lastResortStarting', { progress: lastResort.progress || 0 })}
             </p>
           )}

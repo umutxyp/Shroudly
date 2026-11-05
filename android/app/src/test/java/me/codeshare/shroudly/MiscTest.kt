@@ -40,6 +40,14 @@ class VersionsTest {
                 "Shroudly-2.6.0-Android.apk" to "${dl}Shroudly-2.6.0-Android.apk")),
         )
         assertEquals("${dl}x.apk", Versions.apkUrl(listOf("x.apk" to "${dl}x.apk")))
+        // Each kind of APK updates to its own kind (issue #75), else to the one for every phone.
+        val three = listOf("Shroudly-2.6.55-Android.apk" to "${dl}a.apk", "Shroudly-2.6.55-Android-arm64.apk" to "${dl}b.apk", "Shroudly-2.6.55-Android-lite.apk" to "${dl}c.apk")
+        assertEquals("${dl}a.apk", Versions.apkUrl(three))
+        assertEquals("${dl}b.apk", Versions.apkUrl(three, "arm64"))
+        assertEquals("${dl}c.apk", Versions.apkUrl(three, "lite"))
+        assertEquals("${dl}a.apk", Versions.apkUrl(three.take(1), "lite"))
+        assertEquals("/dl/Shroudly-2.6.55-Android-lite.apk", Versions.mirrorApkPath("v2.6.55", "lite"))
+        assertEquals("/dl/Shroudly-2.6.55-Android.apk", Versions.mirrorApkPath("2.6.55"))
         assertNull(Versions.apkUrl(listOf("x-Android.apk" to "https://example.com/x-Android.apk")))
         assertNull(Versions.apkUrl(listOf("x.dmg" to "${dl}x.dmg")))
         assertNull(Versions.apkUrl(emptyList()))

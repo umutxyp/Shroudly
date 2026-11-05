@@ -22,7 +22,9 @@
  * line), never by itself, and stops after IDLE_MS without carrying
  * anything: an idle Tor keeps a volunteer's proxy busy for nothing. Tor and
  * lyrebird are the Tor Project's own builds (Tor Expert Bundle), checked
- * against the hashes their signed list gives (scripts/fetch-tor.js).
+ * against the hashes their signed list gives (tor-files.js); on computers
+ * they are fetched the first time a site needs them (tor-download.js, issue
+ * #75), not shipped with the installer.
  *
  * What the user gives up there: speed (Tor is slow), and sites see a Tor
  * exit's address (some ask for a captcha). Tor's exit sees the name of the
@@ -120,13 +122,23 @@ class TorRoute {
    * opts.onChange  (status) whenever the state or the progress changes
    * opts.dir, opts.platform, opts.spawn, opts.ownerPid   (tests)
    */
+  /*
+   * opts.fetch     async (dir, onProgress) => dir: puts Tor in dir (computers
+   *                fetch it the first time it is needed, tor-download.js);
+   *                without it, only a Tor already in place is used
+   */
   constructor({ dataDir, log, onChange, dir = null, platform = process.platform, spawn: sp = spawn, ownerPid = process.pid,
-    stallMs = STALL_MS, idleMs = IDLE_MS, retryMs = RETRY_MS } = {}) {
+    stallMs = STALL_MS, idleMs = IDLE_MS, retryMs = RETRY_MS, fetch = null } = {}) {
     this.dataDir = dataDir;
     this.log = log || (() => {});
     this.onChange = onChange || (() => {});
     this.platform = platform;
-    this.dir = dir || torDir(platform);
+    // Tor that came with the app (a run from source, or a build that ships
+    // it), else the one fetched into this user's folder (issue #75).
+    this.fetch = fetch;
+    const shipped = dir || torDir(platform);
+    this.dir = fs.existsSync(files(shipped, platform).tor) || !fetch ? shipped : path.join(dataDir || '.', 'tor-bin', require('./tor-files').VERSION);
+    this._fetching = null;
     this.spawn = sp;
     this.ownerPid = ownerPid;
     this.stallMs = stallMs; this.idleMs = idleMs; this.retryMs = retryMs;
@@ -142,9 +154,39 @@ class TorRoute {
     this._gen = 0;
   }
 
-  available() {
+  /* Tor is here. */
+  present() {
     const f = files(this.dir, this.platform);
     return fs.existsSync(f.tor) && fs.existsSync(f.lyrebird) && fs.existsSync(f.config);
+  }
+
+  /* Tor is here, or can be fetched when needed. */
+  available() {
+    return this.present() || !!this.fetch;
+  }
+
+  /* Fetched now (Settings, "Prepare it now"; or a site needs it): true once
+   * Tor is here. Said in the window while it downloads. */
+  async getReady() {
+    if (this.present()) return true;
+    if (!this.fetch) return false;
+    if (!this._fetching) {
+      this._fetching = (async () => {
+        const was = this.state;
+        this.state = 'downloading'; this.progress = 0; this._changed();
+        this.log('info', 'The last way out: fetching Tor (about 20 MB, once) from the Tor Project');
+        try {
+          await this.fetch(this.dir, (pct) => { if (pct > this.progress) { this.progress = pct; this._changed(); } });
+          this.log('info', 'The last way out: Tor fetched and checked');
+          this.state = was === 'downloading' ? 'off' : was; this.progress = 0; this._changed();
+          return true;
+        } catch (e) {
+          this._fail(`Tor could not be fetched (${e.message})`);
+          return false;
+        } finally { this._fetching = null; }
+      })();
+    }
+    return this._fetching;
   }
 
   /* Before each engine start: the file that names Tor to the engine
@@ -160,9 +202,10 @@ class TorRoute {
 
   /* The engine had a connection for it and found nothing listening. */
   need() {
-    if (this.proc || !this.port || !this.available()) return;
+    if (this.proc || !this.port || !this.available() || this._fetching) return;
     if (this.state === 'failed' && Date.now() - this.failedAt < this.retryMs) return;
-    this._start('snowflake');
+    if (this.present()) { this._start('snowflake'); return; }
+    this.getReady().then((ok) => { if (ok && !this.proc && this.port) this._start('snowflake'); });
   }
 
   _start(stage) {
