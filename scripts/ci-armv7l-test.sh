@@ -8,8 +8,13 @@ cd dist
 f=$(ls ./*-Linux-armv7l.AppImage)
 d=$(ls ./*-Linux-armv7l.deb)
 uname -m
-chmod +x "$f"
-"$f" --appimage-extract >/dev/null
+# An AppImage marks its ELF header with "AI\2" in bytes 8-10, which QEMU's
+# binfmt entry (bytes 8-15 zero) does not take for an ARM program: a copy
+# with them zeroed runs under QEMU (a real ARM computer runs it as it is).
+cp "$f" /tmp/run.AppImage
+printf '\000\000\000' | dd of=/tmp/run.AppImage bs=1 seek=8 count=3 conv=notrunc 2>/dev/null
+chmod +x /tmp/run.AppImage
+/tmp/run.AppImage --appimage-extract >/dev/null
 test -x squashfs-root/shroudly
 eng=squashfs-root/resources/app.asar.unpacked/electron/tools/core/linux-armv7l/shroudly-core
 test -x "$eng"
