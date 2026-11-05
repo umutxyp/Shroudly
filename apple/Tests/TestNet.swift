@@ -135,19 +135,38 @@ final class TestEngine {
     let engine: Engine
     let port: Int
     let auth = SocksAuth.random()
-    var lines: [String] = []
+    /* What the engine said (its log), as it comes, from any thread. */
+    private let said: Said
+    var lines: [String] { said.all }
 
     init(settings: AppSettings = AppSettings(strategyId: "none")) throws {
         let path = FileManager.default.temporaryDirectory.appendingPathComponent("auth-\(UUID().uuidString)").path
         try auth.write(to: path)
         defer { unlink(path) }
         port = Engine.freePort()
-        var lines: [String] = []
-        engine = Engine(log: { lines.append($0) }, logSite: { _ in }, onExit: { _ in })
+        let said = Said()
+        self.said = said
+        engine = Engine(log: { said.add($0) }, logSite: { _ in }, onExit: { _ in })
         let args = EngineArgs.make(port: port, dohPort: 0, settings: settings, authFile: path, blockIps: [])
         guard engine.start(args: args) else {
             throw NSError(domain: "TestEngine", code: 1, userInfo: [NSLocalizedDescriptionKey: engine.lastError ?? "no start"])
         }
-        self.lines = lines
     }
+
+    /* Waits up to `timeout` for a line of the engine's log that contains `text`. */
+    func waitFor(_ text: String, timeout: TimeInterval) -> String? {
+        let deadline = Date().addingTimeInterval(timeout)
+        repeat {
+            if let l = lines.last(where: { $0.contains(text) }) { return l }
+            usleep(50_000)
+        } while Date() < deadline
+        return nil
+    }
+}
+
+private final class Said: @unchecked Sendable {
+    private let lock = NSLock()
+    private var lines: [String] = []
+    func add(_ l: String) { lock.lock(); lines.append(l); lock.unlock() }
+    var all: [String] { lock.lock(); defer { lock.unlock() }; return lines }
 }

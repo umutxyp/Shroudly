@@ -42,7 +42,7 @@ const ASSETS = [
   [`Shroudly-${version}-Linux-amd64.deb`, 'Linux · Intel/AMD 64-bit · Debian / Ubuntu package (.deb)'],
   [`Shroudly-${version}-Linux-arm64.AppImage`, 'Linux · ARM 64-bit (e.g. Raspberry Pi 4/5) · AppImage'],
   [`Shroudly-${version}-Linux-armv7l.AppImage`, 'Linux · ARM 32-bit (Raspberry Pi OS 32-bit, armhf) · AppImage'],
-  [`Shroudly-${version}-Linux-armhf.deb`, 'Linux · ARM 32-bit (Raspberry Pi OS 32-bit, armhf) · Debian package (.deb)'],
+  [`Shroudly-${version}-Linux-armv7l.deb`, 'Linux · ARM 32-bit (Raspberry Pi OS 32-bit, armhf) · Debian package (.deb)'],
   [`Shroudly-${version}-Linux-x64.pacman`, 'Linux · Intel/AMD 64-bit · Arch / Manjaro package (.pacman)'],
   [`Shroudly-${version}-Linux-x86_64.rpm`, 'Linux · Intel/AMD 64-bit · Fedora / openSUSE package (.rpm)'],
   // Optional only where the Android app is not built (no signing key, a

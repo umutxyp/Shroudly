@@ -52,7 +52,15 @@ function zig() {
     const out = path.join(dir, 'shroudly-core.exe');
     fs.writeFileSync(src, 'int main(void) { return 0; }\n');
     const rc = versionRcFile('shroudly-core.exe');
-    const r = spawnSync(z[0], [...z.slice(1), 'cc', '-target', 'x86_64-windows-gnu', '-std=c11', '-O2', '-o', out, src, rc.file], { encoding: 'utf8', timeout: 240000 });
+    // A cache of its own: the repository's .zig-cache is shared with the
+    // engine builds (build-core.js, other targets), and zig on Windows
+    // sometimes finds an archive there it cannot read ("failed to parse
+    // archive: FileNotFound", compiler_rt.lib). Once more with a fresh
+    // global cache too when that happens.
+    const build = (env) => spawnSync(z[0], [...z.slice(1), 'cc', '-target', 'x86_64-windows-gnu', '-std=c11', '-O2', '-o', out, src, rc.file],
+      { encoding: 'utf8', timeout: 240000, env: { ...process.env, ZIG_LOCAL_CACHE_DIR: path.join(dir, 'zig-local'), ...env } });
+    let r = build({});
+    if (r.status && /failed to parse archive/.test(r.stderr)) r = build({ ZIG_GLOBAL_CACHE_DIR: path.join(dir, 'zig-global') });
     rc.remove();
     t.ok(!fs.existsSync(path.dirname(rc.file)), 'the resource script is not left behind');
     // zig 0.14.1's resource compiler does not link on macOS (undefined

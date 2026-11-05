@@ -93,7 +93,7 @@ const DL_FILES = {
   'linux-arm64':     (v) => `Shroudly-${v}-Linux-arm64.AppImage`,
   // 32-bit ARM (armhf): Raspberry Pi OS 32-bit and the like.
   'linux-armv7l':    (v) => `Shroudly-${v}-Linux-armv7l.AppImage`,
-  'linux-armhf-deb': (v) => `Shroudly-${v}-Linux-armhf.deb`,
+  'linux-armhf-deb': (v) => `Shroudly-${v}-Linux-armv7l.deb`,
   'linux-deb':       (v) => `Shroudly-${v}-Linux-amd64.deb`,
   // electron-builder names these two differently from each other: x64 for the
   // Arch package, x86_64 for the RPM. Copied from what it actually produces.

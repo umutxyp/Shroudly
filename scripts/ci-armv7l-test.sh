@@ -6,7 +6,7 @@
 set -eu
 cd dist
 f=$(ls ./*-Linux-armv7l.AppImage)
-d=$(ls ./*-Linux-armhf.deb)
+d=$(ls ./*-Linux-armv7l.deb)
 uname -m
 chmod +x "$f"
 "$f" --appimage-extract >/dev/null

@@ -69,16 +69,23 @@ final class AdBlockTests: XCTestCase {
         try AdBlock.adopt()
         defaults.set(true, forKey: AdBlock.Key.on)
         e.engine.send(AdBlock.commands(defaults).joined(separator: "\n"))
-        // A listed name is refused through the engine; another is not.
-        let deadline = Date().addingTimeInterval(5)
-        var code = 0
-        while Date() < deadline {
-            let (fd, c) = TestNet.socks(e.port, user: e.auth.user, pass: e.auth.pass, to: .name("ads7.example.com"), 443)
-            close(fd)
-            code = c
-            if c != 0 { break }
-            usleep(100_000)
-        }
-        XCTAssertNotEqual(code, 0, "a listed name is not reached")
+        // The engine reads the list in, and says so, before it blocks by it:
+        // on a busy CI simulator that can take more than a moment.
+        let inUse = e.waitFor("\"type\":\"adblock\"", timeout: 30)
+        XCTAssertNotNil(inUse, "the engine did not say the list is in use within 30 s: \(e.lines.suffix(5))")
+        XCTAssertTrue(inUse?.contains("\"on\":true") ?? false, "the engine did not take the list: \(inUse ?? "-")")
+        // A listed name is refused through the engine, the way a browser
+        // takes it (core/src/engine.c refuse_named): the proxy step succeeds,
+        // then a TLS client gets an unrecognized_name alert and nothing goes
+        // to the network. A name that is not listed is looked up as usual
+        // (.invalid never resolves, so it fails).
+        let (fd, code) = TestNet.socks(e.port, user: e.auth.user, pass: e.auth.pass, to: .name("ads7.example.com"), 443)
+        defer { close(fd) }
+        XCTAssertEqual(code, 0, "the proxy step for a listed name")
+        TestNet.send(fd, [0x16, 0x03, 0x01, 0x00, 0x05, 0x01, 0x00, 0x00, 0x01, 0x00])
+        XCTAssertEqual(TestNet.recv(fd, 7), [0x15, 0x03, 0x01, 0x00, 0x02, 0x02, 0x70], "a listed name ends in a TLS unrecognized_name alert")
+        let (other, otherCode) = TestNet.socks(e.port, user: e.auth.user, pass: e.auth.pass, to: .name("not-listed.invalid"), 443)
+        close(other)
+        XCTAssertNotEqual(otherCode, 0, "a name not on the list is looked up as usual")
     }
 }

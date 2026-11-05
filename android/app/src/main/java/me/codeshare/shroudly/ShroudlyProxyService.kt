@@ -305,9 +305,11 @@ class ShroudlyProxyService : Service() {
             is EngineEvent.AdblockCheck -> adblockCheck.getAndSet(null)?.complete(ev)
             is EngineEvent.Error -> log("engine: ${ev.message}")
             is EngineEvent.Upstream -> if (!ev.ok) ownServer.down(OwnServer.whyCode(ev.why))
-            is EngineEvent.Fallback -> if (!ev.ok) { if (ev.why != "file unusable") torRoute.need() } else if (ev.host.isNotEmpty()) TorNotice.used(this, ev.host)
+            is EngineEvent.Fallback -> if (!ev.ok) { if (ev.why != "file unusable") torRoute.need() } else {
+                ShroudlyVpnService.logSite("${ev.host}: no technique got through; opened through the last way out (Tor)")
+                if (ev.host.isNotEmpty()) TorNotice.used(this, ev.host)
+            }
             is EngineEvent.DnsAround -> DnsNotice.around(this)
-                else ShroudlyVpnService.logSite("${ev.host}: no technique got through; opened through the last way out (Tor)")
             else -> {}
         }
     }
