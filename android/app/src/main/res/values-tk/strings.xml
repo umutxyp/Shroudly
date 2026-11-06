@@ -263,7 +263,7 @@
     <string name="upload">Iberiş</string>
     <string name="uptime">Işlän wagty</string>
     <string name="versionLabel">Wersiýa {version}</string>
-    <string name="whatsNewAndroid">Shroudly saklananda VPN indi derrew aýrylýar, şonuň üçin başga VPN programmasy derrew işläp başlap biler.\nAwtomatlaşdyryş programmalary (Tasker, MacroDroid): Shroudly heniz saklanýarka iberilen «Başlat» indi ýitmeýär.\nBaglanyşyklar: Shroudly-niň özüne gerek atlar (DNS-i, Tor, öz saýtlary) indi ýalňyşlykda petiklenmeýär.</string>
+    <string name="whatsNewAndroid">Discord we birnäçe domenli beýleki hyzmatlar (YouTube, X, Instagram, Telegram we ş.m.) has çalt açylýar: bir domeninde işlän ýol beýlekilerinde derrew ulanylýar.\nShroudly saklananda VPN indi derrew aýrylýar, şonuň üçin başga VPN programmasy derrew işläp başlap biler.\nAwtomatlaşdyryş programmalary (Tasker, MacroDroid): Shroudly heniz saklanýarka iberilen «Başlat» indi ýitmeýär.</string>
     <string name="whatsNewOk">Düşnükli</string>
     <string name="whatsNewTitle">{version} wersiýasynda täzelikler</string>
 </resources>

@@ -162,7 +162,29 @@ class DiscordRelay {
     });
   }
 
+  /* Connections to Discord kept open between the updater's requests, per
+   * host. Discord asks for a manifest and then a dozen modules and packages
+   * one after another while its loading screen waits; a new connection, and
+   * a TLS handshake through the engine, for each of them was a wait other
+   * tools do not have. A new pool when the way out changes (protection on or
+   * off, the engine restarted on another port): a kept connection never
+   * carries on past it. */
+  _agent() {
+    let port = null;
+    try { port = this.getSocksPort() || null; } catch {}
+    if (this.pool && this.poolPort === port) return this.pool;
+    if (this.pool) { try { this.pool.destroy(); } catch {} }
+    const agent = new http.Agent({ keepAlive: true, maxSockets: 6, maxFreeSockets: 4, timeout: IDLE_MS, scheduling: 'lifo' });
+    agent.createConnection = (opts, cb) => {
+      this._connect(opts.host).then((sock) => cb(null, sock), (e) => cb(e));
+    };
+    this.pool = agent;
+    this.poolPort = port;
+    return agent;
+  }
+
   stop() {
+    if (this.pool) { try { this.pool.destroy(); } catch {} this.pool = null; }
     if (!this.server) return;
     try { this.server.close(); } catch {}
     try { this.server.closeAllConnections?.(); } catch {}
@@ -227,23 +249,30 @@ class DiscordRelay {
     const base = `http://${self}`;
 
     // One more try on a new connection when the first fails before any answer
-    // (cut during the handshake, a way through that stopped working): the
-    // engine picks another way, and Discord's updater, which shows "Update
-    // failed" at the first error, need not see it.
+    // (cut during the handshake, a way through that stopped working, a kept
+    // connection Discord had closed meanwhile): the engine picks another way,
+    // and Discord's updater, which shows "Update failed" at the first error,
+    // need not see it.
     const attempt = async (n) => {
-      let sock;
-      try {
-        sock = await this._connect(host);
-      } catch (e) {
-        if (n < 2 && !res.writableEnded && !res.destroyed) { attempt(n + 1); return; }
-        // "Shroudly is restarting": one line per restart, not one per host.
-        this._warn(e && e.later ? 'discord-restarting' : 'discord-unreachable', e && e.later ? '*' : host, `Discord app: could not reach ${host} (${e.message})`);
+      // Protection on its way up, or the engine restarting: not even a kept
+      // connection goes out directly meanwhile (as in _connect).
+      let socksPort = null;
+      try { socksPort = this.getSocksPort(); } catch {}
+      if (!socksPort && this.waitForEngine) {
+        try { await this.waitForEngine(); } catch {}
+        try { socksPort = this.getSocksPort(); } catch {}
+      }
+      let due = false;
+      try { due = !socksPort && !!this.engineDue(); } catch {}
+      if (due) {
+        this._warn('discord-restarting', '*', `Discord app: could not reach ${host} (Shroudly is restarting; try again in a moment)`);
         if (!res.headersSent) res.writeHead(502);
         res.end();
         return;
       }
+      if (res.destroyed) return;
       let answered = false;
-      const up = http.request({ createConnection: () => sock, method: req.method, path, headers }, (ur) => {
+      const up = http.request({ agent: this._agent(), host, port: 443, method: req.method, path, headers }, (ur) => {
         answered = true;
         const h = { ...ur.headers };
         for (const k of HOP) delete h[k];
@@ -275,15 +304,18 @@ class DiscordRelay {
         ur.pipe(res);
       });
       up.on('error', (e) => {
-        if (!answered && n < 2 && !res.headersSent && !res.destroyed) { attempt(n + 1); return; }
-        this._warn('discord-failed', host, `Discord app: ${host}${path.split('?')[0]} failed (${e.message})`);
+        if (!answered && n < 3 && !res.headersSent && !res.destroyed) { attempt(n + 1).catch(() => {}); return; }
+        // "Shroudly is restarting": one line per restart, not one per host.
+        if (e && e.later) this._warn('discord-restarting', '*', `Discord app: could not reach ${host} (${e.message})`);
+        else this._warn(answered ? 'discord-failed' : 'discord-unreachable', host,
+          answered ? `Discord app: ${host}${path.split('?')[0]} failed (${e.message})` : `Discord app: could not reach ${host} (${e.message})`);
         if (!res.headersSent) { res.writeHead(502); res.end(); } else res.destroy();
       });
       // The updater hung up: drop the upstream request with it.
       res.on('close', () => { if (!res.writableFinished) up.destroy(); });
       up.end();
     };
-    attempt(1);
+    attempt(1).catch(() => { if (!res.headersSent) { res.writeHead(502); res.end(); } });
   }
 }
 

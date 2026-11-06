@@ -263,7 +263,7 @@
     <string name="upload">መስቀል</string>
     <string name="uptime">የሰራበት ጊዜ</string>
     <string name="versionLabel">ስሪት {version}</string>
-    <string name="whatsNewAndroid">Shroudlyን ሲያቆሙ VPN አሁን ወዲያውኑ ይነሳል፣ ስለዚህ ሌላ የVPN መተግበሪያ ወዲያው ሊረከብ ይችላል።\nየራስ-ሰር መተግበሪያዎች (Tasker፣ MacroDroid)፦ Shroudly እየቆመ ሳለ የተላከ ጀምር ከእንግዲህ አይጠፋም።\nግንኙነቶች፦ Shroudly ራሱ የሚፈልጋቸው ስሞች (DNS፣ Tor፣ የራሱ ድረ-ገጾች) ከእንግዲህ በስህተት ሊታገዱ አይችሉም።</string>
+    <string name="whatsNewAndroid">Discord እና ብዙ ጎራዎች ያሏቸው ሌሎች አገልግሎቶች (YouTube፣ X፣ Instagram፣ Telegram እና ሌሎች) በፍጥነት ይከፈታሉ፦ በአንዱ ጎራቸው የሠራው መንገድ በሌሎቹ ወዲያውኑ ጥቅም ላይ ይውላል።\nShroudlyን ሲያቆሙ VPN አሁን ወዲያውኑ ይነሳል፣ ስለዚህ ሌላ የVPN መተግበሪያ ወዲያው ሊረከብ ይችላል።\nየራስ-ሰር መተግበሪያዎች (Tasker፣ MacroDroid)፦ Shroudly እየቆመ ሳለ የተላከ ጀምር ከእንግዲህ አይጠፋም።</string>
     <string name="whatsNewOk">ገባኝ</string>
     <string name="whatsNewTitle">በ{version} ውስጥ አዲስ ነገሮች</string>
 </resources>

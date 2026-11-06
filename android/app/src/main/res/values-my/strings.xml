@@ -263,7 +263,7 @@
     <string name="upload">အပ်လုဒ်</string>
     <string name="uptime">လုပ်ဆောင်ချိန်</string>
     <string name="versionLabel">ဗားရှင်း {version}</string>
-    <string name="whatsNewAndroid">Shroudly ကို ရပ်လိုက်သည်နှင့် VPN ကို ချက်ချင်းဖယ်ရှားသဖြင့် အခြား VPN အက်ပ်က ချက်ချင်း ဆက်လုပ်နိုင်သည်။\nအလိုအလျောက်အက်ပ်များ (Tasker၊ MacroDroid)- Shroudly ရပ်နေစဉ် ပို့သော Start သည် မပျောက်တော့ပါ။\nချိတ်ဆက်မှုများ- Shroudly ကိုယ်တိုင်လိုအပ်သော အမည်များ (DNS၊ Tor၊ ကိုယ်ပိုင်ဆိုက်များ) ကို မှားယွင်း၍ ပိတ်၍မရတော့ပါ။</string>
+    <string name="whatsNewAndroid">Discord နှင့် ဒိုမိန်းအများအပြား သုံးသော အခြားဝန်ဆောင်မှုများ (YouTube၊ X၊ Instagram၊ Telegram စသည်) ပိုမြန်စွာ ပွင့်သည်- ဒိုမိန်းတစ်ခုတွင် အလုပ်ဖြစ်သောနည်းကို ကျန်ဒိုမိန်းများတွင် ချက်ချင်း သုံးသည်။\nShroudly ကို ရပ်လိုက်သည်နှင့် VPN ကို ချက်ချင်းဖယ်ရှားသဖြင့် အခြား VPN အက်ပ်က ချက်ချင်း ဆက်လုပ်နိုင်သည်။\nအလိုအလျောက်အက်ပ်များ (Tasker၊ MacroDroid)- Shroudly ရပ်နေစဉ် ပို့သော Start သည် မပျောက်တော့ပါ။</string>
     <string name="whatsNewOk">နားလည်ပါပြီ</string>
     <string name="whatsNewTitle">{version} တွင် အသစ်များ</string>
 </resources>

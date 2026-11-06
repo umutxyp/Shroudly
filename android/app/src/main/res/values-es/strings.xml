@@ -263,7 +263,7 @@
     <string name="upload">Subida</string>
     <string name="uptime">Tiempo activo</string>
     <string name="versionLabel">Versión {version}</string>
-    <string name="whatsNewAndroid">Al detener Shroudly, la VPN se quita al instante, así otra app de VPN puede tomar el relevo enseguida.\nApps de automatización (Tasker, MacroDroid): un Iniciar enviado mientras Shroudly aún se detiene ya no se pierde.\nConexiones: los nombres que Shroudly necesita (su DNS, Tor, sus propios sitios) ya no se pueden bloquear por error.</string>
+    <string name="whatsNewAndroid">Discord y otros servicios con varios dominios (YouTube, X, Instagram, Telegram y más) abren más rápido: lo que funciona en uno de sus dominios se usa en los demás al instante.\nAl detener Shroudly, la VPN se quita al instante, así otra app de VPN puede tomar el relevo enseguida.\nApps de automatización (Tasker, MacroDroid): un Iniciar enviado mientras Shroudly aún se detiene ya no se pierde.</string>
     <string name="whatsNewOk">Entendido</string>
     <string name="whatsNewTitle">Novedades de la {version}</string>
 </resources>

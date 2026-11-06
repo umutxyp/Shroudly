@@ -263,7 +263,7 @@
     <string name="upload">Tải lên</string>
     <string name="uptime">Thời gian chạy</string>
     <string name="versionLabel">Phiên bản {version}</string>
-    <string name="whatsNewAndroid">Khi dừng Shroudly, VPN giờ được gỡ ngay, nên ứng dụng VPN khác có thể tiếp quản tức thì.\nỨng dụng tự động hóa (Tasker, MacroDroid): lệnh Bắt đầu gửi khi Shroudly đang dừng không còn bị mất.\nKết nối: những tên mà chính Shroudly cần (DNS, Tor, các trang của nó) không còn bị chặn nhầm.</string>
+    <string name="whatsNewAndroid">Discord và các dịch vụ khác dùng nhiều tên miền (YouTube, X, Instagram, Telegram…) mở nhanh hơn: cách hoạt động với một tên miền được dùng ngay cho các tên miền còn lại.\nKhi dừng Shroudly, VPN giờ được gỡ ngay, nên ứng dụng VPN khác có thể tiếp quản tức thì.\nỨng dụng tự động hóa (Tasker, MacroDroid): lệnh Bắt đầu gửi khi Shroudly đang dừng không còn bị mất.</string>
     <string name="whatsNewOk">Đã hiểu</string>
     <string name="whatsNewTitle">Có gì mới trong {version}</string>
 </resources>

@@ -263,7 +263,7 @@
     <string name="upload">آپلود</string>
     <string name="uptime">مدت فعالیت</string>
     <string name="versionLabel">نسخهٔ {version}</string>
-    <string name="whatsNewAndroid">با توقف Shroudly اکنون VPN فوراً برداشته می‌شود و برنامهٔ VPN دیگری می‌تواند بی‌درنگ وصل شود.\nبرنامه‌های خودکارسازی (Tasker، MacroDroid): فرمان «شروع» که هنگام توقف Shroudly فرستاده شود دیگر گم نمی‌شود.\nاتصال‌ها: نشانی‌هایی که خود Shroudly لازم دارد (DNS، Tor و سایت‌های خودش) دیگر به اشتباه مسدود نمی‌شوند.</string>
+    <string name="whatsNewAndroid">Discord و سرویس‌های دیگری که چند دامنه دارند (YouTube، X، Instagram، Telegram و غیره) سریع‌تر باز می‌شوند: راهی که برای یکی از دامنه‌هایشان کار کند فوراً برای بقیه هم به کار می‌رود.\nبا توقف Shroudly اکنون VPN فوراً برداشته می‌شود و برنامهٔ VPN دیگری می‌تواند بی‌درنگ وصل شود.\nبرنامه‌های خودکارسازی (Tasker، MacroDroid): فرمان «شروع» که هنگام توقف Shroudly فرستاده شود دیگر گم نمی‌شود.</string>
     <string name="whatsNewOk">متوجه شدم</string>
     <string name="whatsNewTitle">تازه‌های نسخهٔ {version}</string>
 </resources>

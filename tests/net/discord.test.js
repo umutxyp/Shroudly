@@ -210,6 +210,21 @@ function get(url, o = {}) {
     }
   }
   {
+    // The updater's requests one after another reuse kept connections: no
+    // new connection and TLS handshake through the engine for each of them.
+    engineOn = true;
+    let opened = 0;
+    const real = relay._connect.bind(relay);
+    relay._connect = (h) => { opened++; return real(h); };
+    const url = `${base}/distributions/app/manifests/latest?channel=stable&platform=${plat}&arch=${arch}`;
+    for (let i = 0; i < 4; i++) {
+      const r = await get(url, { headers: { 'user-agent': 'Discord-Updater/1' } });
+      if (r.status !== 200) t.ok(false, `kept connections: request ${i + 1} answered ${r.status}`);
+    }
+    relay._connect = real;
+    t.ok(opened === 1, `four requests in a row, one connection to Discord (${opened})`);
+  }
+  {
     // The engine restarting after a crash and not back within the wait: the
     // updater gets an error it retries, never a direct connection (which a
     // network that blocks Discord fails, or answers falsely).

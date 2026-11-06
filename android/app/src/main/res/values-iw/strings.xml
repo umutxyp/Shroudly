@@ -263,7 +263,7 @@
     <string name="upload">העלאה</string>
     <string name="uptime">זמן פעילות</string>
     <string name="versionLabel">גרסה {version}</string>
-    <string name="whatsNewAndroid">עצירת Shroudly מסירה עכשיו את ה-VPN מיד, כך שאפליקציית VPN אחרת יכולה להיכנס מייד.\nאפליקציות אוטומציה (Tasker,‏ MacroDroid): פקודת הפעלה שנשלחת בזמן ש-Shroudly עדיין נעצר כבר לא הולכת לאיבוד.\nחיבורים: את השמות ש-Shroudly עצמו צריך (ה-DNS שלו, Tor, האתרים שלו) כבר אי אפשר לחסום בטעות.</string>
+    <string name="whatsNewAndroid">Discord ושירותים אחרים עם כמה דומיינים (YouTube,‏ X,‏ Instagram,‏ Telegram ועוד) נפתחים מהר יותר: מה שעובד באחד הדומיינים שלהם משמש מיד גם לשאר.\nעצירת Shroudly מסירה עכשיו את ה-VPN מיד, כך שאפליקציית VPN אחרת יכולה להיכנס מייד.\nאפליקציות אוטומציה (Tasker,‏ MacroDroid): פקודת הפעלה שנשלחת בזמן ש-Shroudly עדיין נעצר כבר לא הולכת לאיבוד.</string>
     <string name="whatsNewOk">הבנתי</string>
     <string name="whatsNewTitle">מה חדש בגרסה {version}</string>
 </resources>

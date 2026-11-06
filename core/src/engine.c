@@ -241,6 +241,39 @@ static const char *const PUBLIC_2LD[] = {
   NULL
 };
 
+/* One service under several registrable domains: what its first name
+ * teaches is kept for all of them, under the first domain listed. Discord
+ * opens discord.com, gateway.discord.gg, cdn.discordapp.com,
+ * media.discordapp.net and discord.media one after another, and each paid a
+ * ladder of its own on first contact while the app's loading screen waited.
+ * Only one owner's domains for one product, filtered alike; a name's own
+ * entry still wins, and a technique that fails there is let go
+ * (hs_unlearn). */
+static const char *const SITE_FAMILY[][8] = {
+  { "discord.com", "discord.gg", "discordapp.com", "discordapp.net", "discord.media", "discordcdn.com", "discord.co", NULL },
+  { "youtube.com", "youtu.be", "ytimg.com", "googlevideo.com", "ggpht.com", "youtube-nocookie.com", NULL },
+  { "x.com", "twitter.com", "twimg.com", "t.co", NULL },
+  { "instagram.com", "cdninstagram.com", NULL },
+  { "facebook.com", "fbcdn.net", "fb.com", "fbsbx.com", "messenger.com", NULL },
+  { "whatsapp.com", "whatsapp.net", NULL },
+  { "telegram.org", "t.me", "telegram.me", "telesco.pe", "tdesktop.com", "telegra.ph", NULL },
+  { "roblox.com", "rbxcdn.com", "rbx.com", NULL },
+  { "twitch.tv", "ttvnw.net", "jtvnw.net", NULL },
+  { "spotify.com", "scdn.co", "spotifycdn.com", NULL },
+  { "reddit.com", "redd.it", "redditmedia.com", "redditstatic.com", NULL },
+  { "tiktok.com", "tiktokcdn.com", "tiktokv.com", NULL },
+  { "signal.org", "whispersystems.org", NULL },
+  { NULL }
+};
+
+/* The family's first domain for site, or site itself. */
+static const char *site_family(const char *site) {
+  for (int f = 0; SITE_FAMILY[f][0]; f++)
+    for (int i = 0; SITE_FAMILY[f][i]; i++)
+      if (strcmp(site, SITE_FAMILY[f][i]) == 0) return SITE_FAMILY[f][0];
+  return site;
+}
+
 /* h (n characters) is suf, or ends in "." + suf. */
 static int under(const char *h, size_t n, const char *suf) {
   size_t m = strlen(suf);
@@ -283,6 +316,11 @@ static int site_of(const char *h, char *out, size_t cap) {
   if (n - (size_t)start + 1 > cap) return 0;
   memcpy(out, low + start, n - (size_t)start);
   out[n - (size_t)start] = 0;
+  const char *fam = site_family(out);
+  if (fam != out) {
+    if (strlen(fam) + 1 > cap) return 0;
+    memmove(out, fam, strlen(fam) + 1);
+  }
   return 1;
 }
 

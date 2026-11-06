@@ -34,7 +34,7 @@ const RESET_KEYS = [
   // Settings
   'autoMode', 'strategy', 'strategyId', 'dnsProtection', 'customDns', 'routeMode', 'siteList',
   'adBlock', 'adBlockAllow', 'autoStart', 'minimizeToTray', 'showTrayIcon', 'showNotifications', 'askByItself',
-  'shareOnlineCount', 'autoUpdate', 'fakeTtl', 'advancedQuicBlock', 'advancedUdpFake', 'preferIpv6',
+  'shareOnlineCount', 'autoUpdate', 'fakeTtl', 'advancedQuicBlock', 'advancedUdpFake', 'advancedAtLaunch', 'preferIpv6',
   // what the autopilot respects: a switch turned off by hand, a prompt declined
   'discordModeOffAt', 'appModeOffAt', 'advancedModeOffAt', 'advancedDeclinedAt', 'storeAppsModeOffAt',
   'storeAppsDeclinedAt', 'discordOfferDeclinedAt', 'appOfferDeclinedAt',

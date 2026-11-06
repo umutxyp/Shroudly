@@ -1069,6 +1069,19 @@ if (process.platform === 'win32') {
   }, 5000).unref();
 }
 
+/* Settings: "Start Advanced mode with Shroudly". Once protection is up at
+ * launch (at sign-in too), Advanced mode comes on as after the user's own
+ * Start: one permission prompt, never beside a game's anti-cheat, never over
+ * a full-screen program, not after an antivirus blocked it
+ * (advanced-protection.js comeBack). */
+function advancedAtLaunch(r) {
+  if (!r || r.success === false || store.get('advancedAtLaunch', false) !== true) return;
+  if (!advanced || advanced.active || !advanced.available()) return;
+  addLog('info', 'Advanced mode starts with Shroudly (Settings)');
+  advancedProtection.resume = true;
+  advancedProtection.started().catch(() => {});
+}
+
 /* The last start, by the user or by itself, failed (not an antivirus's
  * doing: that has its own state): the window says so, with Repair, until a
  * start works or the user stops protection (dpi:status failed). */
@@ -1618,7 +1631,7 @@ app.whenReady().then(async () => {
     const installing = await updater.installBeforeProtection().catch(() => false);
     setTimeout(() => {
       const started = protectionWanted() && !engine.isActive() ? safeStart() : null;
-      Promise.resolve(started).catch(() => {}).finally(() => { launchStartPending = false; });
+      Promise.resolve(started).then(advancedAtLaunch).catch(() => {}).finally(() => { launchStartPending = false; });
     }, installing ? 60000 : 1200);
   } else {
     // macOS: a proxy set with an administrator's password that the previous

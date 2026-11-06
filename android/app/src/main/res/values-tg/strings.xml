@@ -263,7 +263,7 @@
     <string name="upload">Ирсол</string>
     <string name="uptime">Вақти кор</string>
     <string name="versionLabel">Версияи {version}</string>
-    <string name="whatsNewAndroid">Ҳангоми қатъ кардани Shroudly акнун VPN фавран хориҷ мешавад, то барномаи дигари VPN фавран ба кор дарояд.\nБарномаҳои худкор (Tasker, MacroDroid): фармони «Оғоз», ки ҳангоми қатъ шудани Shroudly фиристода мешавад, дигар гум намешавад.\nПайвастҳо: номҳое, ки ба худи Shroudly лозиманд (DNS, Tor, сомонаҳои худаш), дигар иштибоҳан баста намешаванд.</string>
+    <string name="whatsNewAndroid">Discord ва дигар хидматҳое, ки якчанд домен доранд (YouTube, X, Instagram, Telegram ва ғ.), тезтар кушода мешаванд: роҳе, ки дар як домен кор мекунад, фавран дар дигарон истифода мешавад.\nҲангоми қатъ кардани Shroudly акнун VPN фавран хориҷ мешавад, то барномаи дигари VPN фавран ба кор дарояд.\nБарномаҳои худкор (Tasker, MacroDroid): фармони «Оғоз», ки ҳангоми қатъ шудани Shroudly фиристода мешавад, дигар гум намешавад.</string>
     <string name="whatsNewOk">Фаҳмо</string>
     <string name="whatsNewTitle">Навигариҳои {version}</string>
 </resources>

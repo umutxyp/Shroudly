@@ -1109,6 +1109,16 @@ export default function SettingsPanel({ active = false }) {
               </button>
             </div>
           )}
+
+          {/* Advanced mode with every start of Shroudly, the one at sign-in
+              too (not only within this run, advanced-protection.js): one
+              permission prompt each time, never over a full-screen game. */}
+          {(advInfo.available || advInfo.active) && (
+            <div className="mt-3">
+              <Toggle label={t('advancedAtLaunch')} desc={t('advancedAtLaunchDesc')}
+                      checked={settings.advancedAtLaunch === true} onChange={(v) => save('advancedAtLaunch', v)} />
+            </div>
+          )}
         </Section>
 
         {/* The modes for apps that ignore the system proxy: in sight, as the

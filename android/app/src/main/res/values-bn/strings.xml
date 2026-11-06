@@ -263,7 +263,7 @@
     <string name="upload">আপলোড</string>
     <string name="uptime">চালু থাকার সময়</string>
     <string name="versionLabel">সংস্করণ {version}</string>
-    <string name="whatsNewAndroid">Shroudly থামালে এখন VPN সঙ্গে সঙ্গে সরে যায়, তাই অন্য VPN অ্যাপ সরাসরি দায়িত্ব নিতে পারে।\nঅটোমেশন অ্যাপ (Tasker, MacroDroid): Shroudly বন্ধ হওয়ার সময় পাঠানো Start আর হারিয়ে যায় না।\nসংযোগ: Shroudly-র নিজের প্রয়োজনীয় নামগুলো (তার DNS, Tor, নিজের সাইট) আর ভুল করে ব্লক করা যায় না।</string>
+    <string name="whatsNewAndroid">Discord ও একাধিক ডোমেইনের অন্যান্য সেবা (YouTube, X, Instagram, Telegram ইত্যাদি) দ্রুত খোলে: একটি ডোমেইনে যা কাজ করে তা বাকিগুলোতে সঙ্গে সঙ্গে ব্যবহার হয়।\nShroudly থামালে এখন VPN সঙ্গে সঙ্গে সরে যায়, তাই অন্য VPN অ্যাপ সরাসরি দায়িত্ব নিতে পারে।\nঅটোমেশন অ্যাপ (Tasker, MacroDroid): Shroudly বন্ধ হওয়ার সময় পাঠানো Start আর হারিয়ে যায় না।</string>
     <string name="whatsNewOk">বুঝেছি</string>
     <string name="whatsNewTitle">{version}-এ নতুন যা আছে</string>
 </resources>

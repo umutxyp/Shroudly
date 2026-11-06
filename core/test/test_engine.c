@@ -45,9 +45,14 @@ int main(void) {
 
   /* 1. what a site is */
   CHECK(site_is("a.blocked.example", "blocked.example"));
-  CHECK(site_is("gateway-us-east1-b.discord.gg", "discord.gg"));
-  CHECK(site_is("cdn.discordapp.com", "discordapp.com"));
+  /* one service, several domains: one site (SITE_FAMILY) */
+  CHECK(site_is("gateway-us-east1-b.discord.gg", "discord.com"));
+  CHECK(site_is("cdn.discordapp.com", "discord.com") && site_is("media.discordapp.net", "discord.com"));
+  CHECK(site_is("a.discord.media", "discord.com") && site_is("discord.gg", "discord.com"));
   CHECK(site_is("discord.com", "discord.com"));
+  CHECK(site_is("rr3---sn-abc.googlevideo.com", "youtube.com") && site_is("i.ytimg.com", "youtube.com"));
+  CHECK(site_is("pbs.twimg.com", "x.com") && site_is("scontent.cdninstagram.com", "instagram.com"));
+  CHECK(site_is("evildiscord.gg", "evildiscord.gg"));      /* only a whole domain is family */
   CHECK(site_is("WWW.Example.COM.", "example.com"));
   CHECK(site_is("www.example.co.uk", "example.co.uk"));
   CHECK(site_is("x.y.example.com.tr", "example.com.tr"));
@@ -86,6 +91,17 @@ int main(void) {
   /* and real sites that only look like those stay sites */
   CHECK(site_is("mail.web.de", "web.de") && site_is("www.ad.nl", "ad.nl"));
   CHECK(site_is("cdn.wixstatic.com", "wixstatic.com"));
+  /* what one Discord domain learns, the others start from */
+  hs_put("discord.com", 4);
+  {
+    int inh = 0;
+    CHECK(hs_get("gateway.discord.gg", &inh) == 4 && inh == 1);
+    CHECK(hs_get("media.discordapp.net", &inh) == 4 && inh == 1);
+    CHECK(hs_get("discord.gg", &inh) == 4 && inh == 1);
+    CHECK(hs_get("discord.com", &inh) == 4 && inh == 0);
+    hs_unlearn("discord.gg", 1);                     /* failed there: the family's entry goes */
+    CHECK(hs_get("cdn.discordapp.com", &inh) == -1);
+  }
   printf("  site of a name: OK\n");
 
   /* 2. learned: a name with nothing of its own takes its site's; its own wins */

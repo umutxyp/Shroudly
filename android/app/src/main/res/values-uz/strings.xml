@@ -263,7 +263,7 @@
     <string name="upload">Yuklash</string>
     <string name="uptime">Ish vaqti</string>
     <string name="versionLabel">Versiya {version}</string>
-    <string name="whatsNewAndroid">Shroudly to‘xtatilganda VPN endi darhol olib tashlanadi, shuning uchun boshqa VPN ilovasi darhol ishga tusha oladi.\nAvtomatlashtirish ilovalari (Tasker, MacroDroid): Shroudly hali to‘xtayotganda yuborilgan «Boshlash» endi yo‘qolmaydi.\nUlanishlar: Shroudly\'ning o\'ziga kerakli nomlar (DNS, Tor, o\'z saytlari) endi xato bilan bloklanmaydi.</string>
+    <string name="whatsNewAndroid">Discord va bir nechta domenli boshqa xizmatlar (YouTube, X, Instagram, Telegram va boshqalar) tezroq ochiladi: bitta domenida ishlagan yo‘l boshqalarida darhol ishlatiladi.\nShroudly to‘xtatilganda VPN endi darhol olib tashlanadi, shuning uchun boshqa VPN ilovasi darhol ishga tusha oladi.\nAvtomatlashtirish ilovalari (Tasker, MacroDroid): Shroudly hali to‘xtayotganda yuborilgan «Boshlash» endi yo‘qolmaydi.</string>
     <string name="whatsNewOk">Tushunarli</string>
     <string name="whatsNewTitle">{version} versiyasida yangiliklar</string>
 </resources>

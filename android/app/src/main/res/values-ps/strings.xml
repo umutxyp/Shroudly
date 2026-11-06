@@ -263,7 +263,7 @@
     <string name="upload">اپلوډ</string>
     <string name="uptime">د کار موده</string>
     <string name="versionLabel">نسخه {version}</string>
-    <string name="whatsNewAndroid">د Shroudly په درولو اوس VPN سمدستي لرې کېږي، نو بل VPN اپ سمدستي کار پیلولی شي.\nد اتومات کولو اپونه (Tasker، MacroDroid): هغه «پیل» چې د Shroudly د درېدو پر مهال لېږل کېږي نور نه ورکېږي.\nاړیکې: هغه نومونه چې پخپله Shroudly ته اړین دي (د هغه DNS، Tor، خپل سایټونه) نور په تېروتنه نه بندېږي.</string>
+    <string name="whatsNewAndroid">Discord او نور هغه خدمتونه چې څو ډومېنونه لري (YouTube، X، Instagram، Telegram او نور) ژر پرانیستل کېږي: هغه لار چې په یوه ډومېن کار کوي سمدستي په نورو هم کارول کېږي.\nد Shroudly په درولو اوس VPN سمدستي لرې کېږي، نو بل VPN اپ سمدستي کار پیلولی شي.\nد اتومات کولو اپونه (Tasker، MacroDroid): هغه «پیل» چې د Shroudly د درېدو پر مهال لېږل کېږي نور نه ورکېږي.</string>
     <string name="whatsNewOk">پوه شوم</string>
     <string name="whatsNewTitle">په {version} کې نوي څه</string>
 </resources>
