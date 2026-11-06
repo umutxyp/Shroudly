@@ -41,6 +41,7 @@ static int next_usable(int i) {
 int main(void) {
   plat_init();
   mutex_init(&g_hs_mx);
+  mutex_init(&g_ok_mx);
   g_cfg.auto_probe = 1;
 
   /* 1. what a site is */
@@ -103,6 +104,10 @@ int main(void) {
     hs_unlearn("discord.gg", 1);                     /* failed there: the family's entry goes */
     CHECK(hs_get("cdn.discordapp.com", &inh) == -1);
   }
+  /* "the rest of the site works" is the registrable domain's (issue #79):
+   * youtube.com working says nothing about i.ytimg.com's addresses */
+  ok_put("www.youtube.com");
+  CHECK(ok_recent("m.youtube.com") && !ok_recent("i.ytimg.com") && !ok_recent("rr1---sn-x.googlevideo.com"));
   printf("  site of a name: OK\n");
 
   /* 2. learned: a name with nothing of its own takes its site's; its own wins */

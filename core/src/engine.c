@@ -281,7 +281,8 @@ static int under(const char *h, size_t n, const char *suf) {
   return n >= m && strcmp(h + n - m, suf) == 0 && (n == m || h[n - m - 1] == '.');
 }
 
-static int site_of(const char *h, char *out, size_t cap) {
+/* The registrable domain alone, without SITE_FAMILY (see site_of). */
+static int site_reg(const char *h, char *out, size_t cap) {
   char low[256];
   size_t n = 0;
   out[0] = 0;
@@ -317,6 +318,13 @@ static int site_of(const char *h, char *out, size_t cap) {
   if (n - (size_t)start + 1 > cap) return 0;
   memcpy(out, low + start, n - (size_t)start);
   out[n - (size_t)start] = 0;
+  return 1;
+}
+
+/* The site a technique is shared across: the registrable domain, or its
+ * service's first domain (SITE_FAMILY). */
+static int site_of(const char *h, char *out, size_t cap) {
+  if (!site_reg(h, out, cap)) return 0;
   const char *fam = site_family(out);
   if (fam != out) {
     if (strlen(fam) + 1 > cap) return 0;
@@ -346,8 +354,12 @@ static uint64_t age_ms(uint64_t now, uint64_t t);
 static struct { char site[256]; uint64_t t; } g_ok[OK_SLOTS];
 static mutex_t g_ok_mx;
 
+/* By the registrable domain, never SITE_FAMILY: a service's other domains
+ * are often other addresses (i.ytimg.com, googlevideo.com beside
+ * youtube.com), which a network blocks on their own (issue #79). Their
+ * failing while youtube.com works is still a block, told as one. */
 static void ok_key(const char *h, char *out, size_t cap) {
-  if (!site_of(h, out, cap)) { strncpy(out, h, cap - 1); out[cap - 1] = 0; }
+  if (!site_reg(h, out, cap)) { strncpy(out, h, cap - 1); out[cap - 1] = 0; }
 }
 
 static void ok_put(const char *h) {
