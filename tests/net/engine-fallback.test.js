@@ -36,7 +36,7 @@ async function get(P, host, port, timeoutMs = 40000) {
   let raw;
   try { raw = await H.socks(P, host, port); } catch { return 'refused'; }
   return new Promise((resolve) => {
-    const s = tls.connect({ socket: raw, servername: host, rejectUnauthorized: false, ALPNProtocols: ['http/1.1'] });
+    const s = tls.connect({ socket: raw, servername: host, ...H.testClientOptions(), ALPNProtocols: ['http/1.1'] });
     let out = '';
     const done = (v) => { s.destroy(); resolve(v); };
     s.on('secureConnect', () => s.write(`GET / HTTP/1.1\r\nHost: ${host}\r\nConnection: close\r\n\r\n`));

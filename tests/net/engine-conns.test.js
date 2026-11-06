@@ -33,7 +33,7 @@ async function conns(eng) {
 async function open(P, port, name) {
   const raw = await H.socks(P, '127.0.0.1', port);
   return new Promise((resolve) => {
-    const s = tls.connect({ socket: raw, servername: name, rejectUnauthorized: false });
+    const s = tls.connect({ socket: raw, servername: name, ...H.testClientOptions() });
     let got = '';
     s.on('secureConnect', () => s.write('ping'));
     s.on('data', (d) => { got += d; if (got.includes('pong')) resolve({ s, ok: true }); });

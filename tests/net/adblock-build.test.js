@@ -73,7 +73,8 @@ const lines = (r) => new Set([...r.blocks, ...r.allows.map((h) => `@@${h}`)]);
   // StevenBlack's hosts only, the names every list has among them, and it says so.
   const c = B.combine(texts({ 'adguard-dns': `${many}\n||blocked.example.org^`, easylist: '||only-easylist.example.com^', stevenblack: '0.0.0.0 malware.example.biz' }), { min: false, only: B.COMPACT });
   const ctext = B.render(c, '2026-11-04', B.COMPACT);
-  t.ok(c.blocks.includes('blocked.example.org') && c.blocks.includes('malware.example.biz') && !c.blocks.includes('only-easylist.example.com')
+  const kept = new Set(c.blocks);
+  t.ok(kept.has('blocked.example.org') && kept.has('malware.example.biz') && !kept.has('only-easylist.example.com')
     && /\(compact\)/.test(ctext) && !/EasyList/.test(ctext), 'the compact list takes the AdGuard DNS filter and the hosts list only, and says so');
   const P = await freePort();
   const eng = await startEngine(P, []);

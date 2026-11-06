@@ -19,7 +19,7 @@ const listening = (srv) => new Promise((r) => (srv.listening ? r() : srv.once('l
 async function hello(P, host, port, name) {
   const raw = await H.socks(P, host, port);
   return new Promise((resolve) => {
-    const s = tls.connect({ socket: raw, servername: name, rejectUnauthorized: false });
+    const s = tls.connect({ socket: raw, servername: name, ...H.testClientOptions() });
     const end = (ok) => { s.destroy(); resolve(ok); };
     s.on('secureConnect', () => end(true));
     s.on('error', () => end(false));

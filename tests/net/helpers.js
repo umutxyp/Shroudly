@@ -209,6 +209,14 @@ function testServerOptions() {
   return { key: fixture('test-only-key.pem'), cert: fixture('test-only-cert.pem'), minVersion: 'TLSv1.3' };
 }
 
+/* A TLS client of those servers: their certificate is the one trusted, so
+ * the chain is checked (never turned off) and a connection that reached
+ * anything else fails. The names are stand-ins the certificate does not
+ * carry, so only the name check is the test's own. */
+function testClientOptions() {
+  return { ca: fixture('test-only-cert.pem'), checkServerIdentity: () => undefined };
+}
+
 /* Stand-ins for a user's own server (--upstream-file, own-server.js): a
  * SOCKS5 server that takes names, with an optional user and password, and
  * connects every name to `to` (a site on this computer). */
@@ -293,4 +301,4 @@ function suite(name) {
   };
 }
 
-module.exports = { ROOT, enginePath, startEngine, sleep, freePort, socks, socks4, dnsStub, getViaEngine, fixture, requestWatcher, testServerOptions, socksServer, httpProxy, suite };
+module.exports = { ROOT, enginePath, startEngine, sleep, freePort, socks, socks4, dnsStub, getViaEngine, fixture, requestWatcher, testServerOptions, testClientOptions, socksServer, httpProxy, suite };
