@@ -46,6 +46,8 @@ import android.widget.Toolbar
  */
 class SettingsActivity : Activity() {
     private companion object {
+        // How long Advanced takes to unfold or fold.
+        const val ADVANCED_ANIM_MS = 220L
         /* The Quick Settings tile was added (or found there) from Settings. */
         const val KEY_TILE_ADDED = "quickTileAdded"
         // The VPN's consent, asked for before protection moves to VPN mode.
@@ -185,9 +187,29 @@ class SettingsActivity : Activity() {
         if (advancedSet()) box.visibility = View.VISIBLE
         showAdvancedTitle()
         row.setOnClickListener {
-            box.visibility = if (box.visibility == View.VISIBLE) View.GONE else View.VISIBLE
+            val opening = box.visibility != View.VISIBLE
+            // It opens below the fold, at the end of the page: up to 2.6.59 it
+            // appeared there at once, unseen, and a tap looked like it did
+            // nothing ("is it open or closed?"). Now it unfolds, and the page
+            // moves up to it.
+            (box.parent as? ViewGroup)?.let {
+                android.transition.TransitionManager.beginDelayedTransition(it, android.transition.AutoTransition().setDuration(ADVANCED_ANIM_MS))
+            }
+            box.visibility = if (opening) View.VISIBLE else View.GONE
             showAdvancedTitle()
+            if (opening) row.postDelayed({ scrollToAdvanced(row) }, ADVANCED_ANIM_MS / 2)
         }
+    }
+
+    /* The Advanced row at the top of the page, what it holds below it. */
+    private fun scrollToAdvanced(row: View) {
+        var p = row.parent
+        while (p != null && p !is ScrollView) p = p.parent
+        val scroll = p as? ScrollView ?: return
+        val r = android.graphics.Rect()
+        row.getDrawingRect(r)
+        scroll.offsetDescendantRectToMyCoords(row, r)
+        scroll.smoothScrollTo(0, (r.top - (12 * resources.displayMetrics.density).toInt()).coerceAtLeast(0))
     }
 
     private fun showAdvancedTitle() {
