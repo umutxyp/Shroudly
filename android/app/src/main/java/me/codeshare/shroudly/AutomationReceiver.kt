@@ -7,6 +7,9 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.os.Handler
+import android.os.Looper
+import android.os.SystemClock
 import android.provider.Settings
 
 /*
@@ -32,6 +35,8 @@ class AutomationReceiver : BroadcastReceiver() {
         const val ACTION_START = "me.codeshare.shroudly.action.START"
         const val ACTION_STOP = "me.codeshare.shroudly.action.STOP"
         const val ACTION_TOGGLE = "me.codeshare.shroudly.action.TOGGLE"
+        // How long an "on" waits for a stop that is still finishing.
+        private const val STOP_WAIT_MS = 9_000L
         // Its own notice (ShroudlyVpnService's are 1 to 3, the proxy's 4).
         private const val NOTICE_ID = 5
     }
@@ -48,7 +53,8 @@ class AutomationReceiver : BroadcastReceiver() {
         val on = when (action) {
             ACTION_START -> true
             ACTION_STOP -> false
-            else -> Protection.state == Protection.State.OFF
+            // Still stopping counts as off: a toggle then means "on".
+            else -> Protection.state == Protection.State.OFF || Protection.state == Protection.State.STOPPING
         }
         if (!on) {
             if (Protection.state == Protection.State.OFF) return
@@ -56,7 +62,28 @@ class AutomationReceiver : BroadcastReceiver() {
             ShroudlyVpnService.log("Automation: protection off, asked by another app")
             return
         }
+        // "On" while a stop is still finishing (a macro sending STOP then
+        // START, or TOGGLE twice): up to 2.6.57 it was dropped. Now it waits
+        // for the stop, then starts.
+        if (Protection.state == Protection.State.STOPPING) {
+            val pending = goAsync()
+            val app = context.applicationContext
+            Thread({
+                val until = SystemClock.uptimeMillis() + STOP_WAIT_MS
+                while (Protection.state == Protection.State.STOPPING && SystemClock.uptimeMillis() < until) {
+                    try { Thread.sleep(100) } catch (_: InterruptedException) { break }
+                }
+                Handler(Looper.getMainLooper()).post {
+                    try { if (Protection.state == Protection.State.OFF) start(app) } finally { pending.finish() }
+                }
+            }, "automation-after-stop").apply { isDaemon = true }.start()
+            return
+        }
         if (Protection.state != Protection.State.OFF) return
+        start(context)
+    }
+
+    private fun start(context: Context) {
         val started = try {
             Protector.start(context)
         } catch (e: Exception) {
