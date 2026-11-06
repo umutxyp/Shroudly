@@ -37,15 +37,17 @@ struct ContentView: View {
                 VStack(spacing: wide || Self.compact ? 20 : 28) {
                     Spacer(minLength: wide ? 8 : 0)
                     if wide {
-                        HStack(alignment: .center, spacing: 40) {
+                        // Apple TV: a wider column for its larger type, so the
+                        // cards' words are not cut off.
+                        HStack(alignment: .center, spacing: Theme.isTV ? 80 : 40) {
                             status
                             VStack(spacing: 14) {
                                 card
                                 statsView
                             }
-                            .frame(maxWidth: 460)
+                            .frame(maxWidth: Theme.isTV ? 820 : 460)
                         }
-                        .padding(.horizontal, 24)
+                        .padding(.horizontal, Theme.isTV ? 80 : 24)
                     } else {
                         status
                         card
@@ -196,7 +198,7 @@ struct ContentView: View {
     }
 
     private var tabs: some View {
-        HStack(spacing: 12) {
+        HStack(spacing: Theme.isTV ? 40 : 12) {
             NavigationLink { SettingsView() } label: {
                 Tab(icon: "gearshape", text: tr("navSettings"))
             }
@@ -209,7 +211,7 @@ struct ContentView: View {
             }
         }
         .buttonStyle(.plain)
-        .frame(maxWidth: 520)
+        .frame(maxWidth: Theme.isTV ? 1100 : 520)
         .padding(.horizontal, 16)
         .padding(.bottom, 12)
     }
