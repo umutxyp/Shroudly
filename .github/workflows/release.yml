@@ -248,6 +248,9 @@ jobs:
   linux-packages:
     needs: build
     runs-on: ubuntu-latest
+    # Tumbleweed rolls, and its mirrors are now and then caught mid-sync: its
+    # check failing does not hold the release (Fedora installs the same .rpm).
+    continue-on-error: ${{ matrix.image == 'opensuse/tumbleweed' }}
     strategy:
       fail-fast: false
       matrix:

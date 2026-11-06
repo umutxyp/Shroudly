@@ -7,9 +7,26 @@
 set -eu
 PKG=$(ls $1 | head -n 1)
 echo "== installing $PKG on $(. /etc/os-release && echo "$PRETTY_NAME")"
+# Tumbleweed's mirrors are now and then caught mid-sync ("Failed to retrieve
+# new repository metadata", a repodata file "not found on medium"; 2.6.59's
+# release): a few tries, then one mirror named outright.
+zypper_refresh() {
+  for n in 1 2 3; do
+    zypper --non-interactive refresh >/dev/null && return 0
+    sleep 20
+  done
+  echo "zypper: the default mirrors failed; trying ftp.fau.de"
+  for r in $(zypper --non-interactive lr -u | awk -F'|' '/download.opensuse.org/ {gsub(/ /,"",$2); print $2}'); do
+    u=$(zypper --non-interactive lr -u | awk -F'|' -v a="$r" '{gsub(/ /,"",$2)} $2==a {gsub(/ /,"",$NF); print $NF}')
+    zypper --non-interactive mr -e "$r" >/dev/null 2>&1
+    zypper --non-interactive mr --url "$(echo "$u" | sed 's#https\?://download.opensuse.org#https://ftp.fau.de/opensuse#')" "$r" >/dev/null 2>&1 || true
+  done
+  zypper --non-interactive refresh >/dev/null
+}
+
 case "$PKG" in
   *.pacman) pacman -Syu --noconfirm >/dev/null && pacman -U --noconfirm "$PKG" ;;
-  *.rpm)    if command -v zypper >/dev/null; then zypper --non-interactive refresh >/dev/null && zypper --non-interactive --no-gpg-checks install "$PKG"; else dnf install -y "$PKG"; fi ;;
+  *.rpm)    if command -v zypper >/dev/null; then zypper_refresh && zypper --non-interactive --no-gpg-checks install "$PKG"; else dnf install -y "$PKG"; fi ;;
   *.deb)    apt-get update -qq && DEBIAN_FRONTEND=noninteractive apt-get install -y "./$PKG" ;;
   *) echo "unknown package type: $PKG"; exit 2 ;;
 esac
