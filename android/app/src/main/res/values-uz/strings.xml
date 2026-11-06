@@ -263,7 +263,7 @@
     <string name="upload">Yuklash</string>
     <string name="uptime">Ish vaqti</string>
     <string name="versionLabel">Versiya {version}</string>
-    <string name="whatsNewAndroid">Sayt faqat soʻnggi yoʻl — Tor orqali ochilsa, Shroudly endi buni aytadi, chunki u sekinroq.\nYangi: Dastur haqida → Shroudly’ni kuzating.\nSo\'nggi chora — Tor endi birinchi ishlatishdan oldin sizdan so\'raydi va saytlarga tezroq yetadi (#77).</string>
+    <string name="whatsNewAndroid">Ulanishlar: Shroudly\'ning o\'ziga kerakli nomlar (DNS, Tor, o\'z saytlari) endi xato bilan bloklanmaydi.\nShroudly\'ni kuzating: avval dasturchining akkauntlari — yangiliklar va shoshilinch xabarlar o\'sha yerda.</string>
     <string name="whatsNewOk">Tushunarli</string>
     <string name="whatsNewTitle">{version} versiyasida yangiliklar</string>
 </resources>

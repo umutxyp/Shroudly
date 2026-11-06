@@ -147,6 +147,6 @@
 "upload" = "アップロード";
 "uptime" = "稼働時間";
 "versionLabel" = "バージョン {version}";
-"whatsNewApple" = "サイト別の接続: Shroudly を通るものを双方向のデータ量とともに表示し、どのサイトでもブロックできます (#74)。\nブロックするとそのサイトの接続はすぐに切れます。一覧は端末に保存されます。";
+"whatsNewApple" = "統計カードが iPhone、iPad、Mac でそろって並び、Apple TV では全体が表示されます。\n接続：Shroudly 自身が必要とする名前（DNS、Tor、自社サイト）を誤ってブロックできなくなりました。\nShroudly より先に応答する DNS プロファイルやアプリを名前で示し、無効にする場所も案内します。";
 "whatsNewOk" = "OK";
 "whatsNewTitle" = "{version} の新機能";

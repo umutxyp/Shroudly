@@ -263,7 +263,7 @@
     <string name="upload">Yükleme</string>
     <string name="uptime">Çalışma süresi</string>
     <string name="versionLabel">Sürüm {version}</string>
-    <string name="whatsNewAndroid">Bir site yalnızca son çare olan Tor üzerinden açılırsa Shroudly artık bunu söylüyor, çünkü daha yavaş.\nYeni: Hakkında → Shroudly\'yi takip et, hesaplarımızla.\nSon çare olan Tor artık ilk kullanılmadan önce sana soruyor ve sitelere daha çabuk ulaşıyor (#77).</string>
+    <string name="whatsNewAndroid">Bağlantılar: Shroudly\'nin kendi ihtiyaç duyduğu adresler (DNS\'i, Tor, kendi siteleri) artık yanlışlıkla engellenemiyor.\nShroudly\'yi takip et: önce geliştiricinin hesapları geliyor; haberler ve acil duyurular orada paylaşılıyor.</string>
     <string name="whatsNewOk">Tamam</string>
     <string name="whatsNewTitle">{version} sürümünde yenilikler</string>
 </resources>

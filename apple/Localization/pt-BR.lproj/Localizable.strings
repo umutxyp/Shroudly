@@ -147,6 +147,6 @@
 "upload" = "Enviado";
 "uptime" = "Tempo ativo";
 "versionLabel" = "Versão {version}";
-"whatsNewApple" = "Conexões por site: veja o que passa pelo Shroudly, com os dados em cada sentido, e bloqueie o site que quiser (#74).\nBloquear um site encerra as conexões dele na hora; a lista fica no seu dispositivo.";
+"whatsNewApple" = "Os cartões de estatísticas ficam alinhados no iPhone, iPad e Mac, e a Apple TV os mostra por inteiro.\nConexões: os nomes de que o Shroudly precisa (seu DNS, o Tor, seus próprios sites) não podem mais ser bloqueados por engano.\nUm perfil ou app de DNS que responde antes do Shroudly agora é indicado, com onde desligá-lo.";
 "whatsNewOk" = "Entendi";
 "whatsNewTitle" = "Novidades da {version}";

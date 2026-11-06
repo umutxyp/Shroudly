@@ -147,6 +147,6 @@
 "upload" = "Unggah";
 "uptime" = "Waktu aktif";
 "versionLabel" = "Versi {version}";
-"whatsNewApple" = "Koneksi per situs: lihat apa yang lewat Shroudly, dengan data di kedua arah, dan blokir situs mana pun (#74).\nMemblokir langsung memutus koneksi situs itu; daftarnya tetap di perangkat Anda.";
+"whatsNewApple" = "Kartu statistik sejajar di iPhone, iPad, dan Mac, dan Apple TV menampilkannya utuh.\nKoneksi: nama yang dibutuhkan Shroudly sendiri (DNS-nya, Tor, situsnya sendiri) tidak bisa lagi diblokir secara tidak sengaja.\nProfil atau aplikasi DNS yang menjawab lebih dulu dari Shroudly kini disebutkan, beserta tempat mematikannya.";
 "whatsNewOk" = "Mengerti";
 "whatsNewTitle" = "Yang baru di {version}";

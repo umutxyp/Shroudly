@@ -263,7 +263,7 @@
     <string name="upload">アップロード</string>
     <string name="uptime">稼働時間</string>
     <string name="versionLabel">バージョン {version}</string>
-    <string name="whatsNewAndroid">サイトが最後の手段の Tor 経由でしか開けないとき、遅くなるため Shroudly がお知らせするようになりました。\n新機能：情報 → Shroudly をフォロー。\n最後の手段である Tor は、初めて使う前に確認するようになり、サイトにより早く届くようになりました (#77)。</string>
+    <string name="whatsNewAndroid">接続：Shroudly 自身が必要とする名前（DNS、Tor、自社サイト）を誤ってブロックできなくなりました。\nShroudly をフォロー：開発者のアカウントを先頭に。ニュースや緊急のお知らせはそちらで発信します。</string>
     <string name="whatsNewOk">OK</string>
     <string name="whatsNewTitle">{version} の新機能</string>
 </resources>

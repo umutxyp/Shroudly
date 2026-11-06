@@ -147,6 +147,6 @@
 "upload" = "Gesendet";
 "uptime" = "Laufzeit";
 "versionLabel" = "Version {version}";
-"whatsNewApple" = "Verbindungen nach Seite: sieh, was durch Shroudly läuft, mit den Daten in beide Richtungen, und sperre jede Seite (#74).\nEine Sperre beendet die Verbindungen der Seite sofort; die Liste bleibt auf deinem Gerät.";
+"whatsNewApple" = "Die Statistikkarten stehen auf iPhone, iPad und Mac bündig, und Apple TV zeigt sie vollständig.\nVerbindungen: Namen, die Shroudly selbst braucht (sein DNS, Tor, eigene Seiten), lassen sich nicht mehr versehentlich sperren.\nEin DNS-Profil oder eine App, die vor Shroudly antwortet, wird jetzt genannt, samt der Stelle zum Ausschalten.";
 "whatsNewOk" = "Verstanden";
 "whatsNewTitle" = "Neu in {version}";

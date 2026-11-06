@@ -263,7 +263,7 @@
     <string name="upload">Iberiş</string>
     <string name="uptime">Işlän wagty</string>
     <string name="versionLabel">Wersiýa {version}</string>
-    <string name="whatsNewAndroid">Saýt diňe iň soňky ýol — Tor arkaly açylsa, Shroudly indi muny aýdýar, sebäbi ol haýalrak.\nTäze: Programma barada → Shroudly-ni yzarla.\nIň soňky ýol bolan Tor indi ilkinji gezek ulanylmazdan öň sizden soraýar we saýtlara has çalt ýetýär (#77).</string>
+    <string name="whatsNewAndroid">Baglanyşyklar: Shroudly-niň özüne gerek atlar (DNS-i, Tor, öz saýtlary) indi ýalňyşlykda petiklenmeýär.\nShroudly-ni yzarlaň: ilki öndürijiniň hasaplary — habarlar we gyssagly bildirişler şol ýerde paýlaşylýar.</string>
     <string name="whatsNewOk">Düşnükli</string>
     <string name="whatsNewTitle">{version} wersiýasynda täzelikler</string>
 </resources>

@@ -263,7 +263,7 @@
     <string name="upload">အပ်လုဒ်</string>
     <string name="uptime">လုပ်ဆောင်ချိန်</string>
     <string name="versionLabel">ဗားရှင်း {version}</string>
-    <string name="whatsNewAndroid">ဆိုက်တစ်ခုကို နောက်ဆုံးနည်းလမ်း Tor မှတစ်ဆင့်သာ ဖွင့်နိုင်သောအခါ Shroudly က ယခု ပြောပြသည်၊ ပိုနှေးသောကြောင့်ဖြစ်သည်။\nအသစ်- အကြောင်း → Shroudly ကို ဖော်လိုလုပ်ပါ။\nနောက်ဆုံးနည်းလမ်း Tor သည် ယခု ပထမဆုံးအသုံးမပြုမီ သင့်ကို မေးပြီး ဆိုက်များသို့ ပိုမြန်စွာ ရောက်ပါသည် (#77)။</string>
+    <string name="whatsNewAndroid">ချိတ်ဆက်မှုများ- Shroudly ကိုယ်တိုင်လိုအပ်သော အမည်များ (DNS၊ Tor၊ ကိုယ်ပိုင်ဆိုက်များ) ကို မှားယွင်း၍ ပိတ်၍မရတော့ပါ။\nShroudly ကို Follow လုပ်ပါ- ပထမ ဖန်တီးသူ၏အကောင့်များ၊ သတင်းနှင့် အရေးပေါ်အသိပေးချက်များကို ထိုနေရာတွင် တင်သည်။</string>
     <string name="whatsNewOk">နားလည်ပါပြီ</string>
     <string name="whatsNewTitle">{version} တွင် အသစ်များ</string>
 </resources>

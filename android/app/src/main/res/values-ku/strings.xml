@@ -263,7 +263,7 @@
     <string name="upload">Barkirin</string>
     <string name="uptime">Dema xebatê</string>
     <string name="versionLabel">Guherto {version}</string>
-    <string name="whatsNewAndroid">Gava malperek tenê bi Tor, riya dawî, vebe, Shroudly niha vê dibêje, ji ber ku hêdîtir e.\nNû: Derbarê → Shroudly bişopîne.\nTor, çareya dawî, êdî berî bikaranîna yekem ji te dipirse û zûtir digihîje malperan (#77).</string>
+    <string name="whatsNewAndroid">Girêdan: navên ku Shroudly bi xwe hewce dike (DNS-a wê, Tor, malperên wê) êdî bi şaşî nayên astengkirin.\nShroudly bişopîne: pêşî hesabên pêşdebir; nûçe û agahdariyên lezgîn li wir têne parvekirin.</string>
     <string name="whatsNewOk">Baş e</string>
     <string name="whatsNewTitle">Tiştên nû di {version} de</string>
 </resources>

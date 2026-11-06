@@ -147,6 +147,6 @@
 "upload" = "Yuklash";
 "uptime" = "Ish vaqti";
 "versionLabel" = "Versiya {version}";
-"whatsNewApple" = "Saytlar bo'yicha ulanishlar: Shroudly orqali nima o'tayotganini ikki tomonlama ma'lumoti bilan ko'ring va istalgan saytni bloklang (#74).\nBloklash saytning ulanishlarini darhol uzadi; ro'yxat qurilmangizda qoladi.";
+"whatsNewApple" = "Statistika kartalari iPhone, iPad va Mac'da tekislandi, Apple TV esa ularni to'liq ko'rsatadi.\nUlanishlar: Shroudly'ning o'ziga kerakli nomlar (DNS, Tor, o'z saytlari) endi xato bilan bloklanmaydi.\nShroudly'dan oldin javob beradigan DNS profili yoki ilova endi nomi bilan, uni qayerda o'chirish bilan aytiladi.";
 "whatsNewOk" = "Tushunarli";
 "whatsNewTitle" = "{version} versiyasida yangiliklar";

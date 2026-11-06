@@ -263,7 +263,7 @@
     <string name="upload">اپ لوڈ</string>
     <string name="uptime">چلنے کا دورانیہ</string>
     <string name="versionLabel">ورژن {version}</string>
-    <string name="whatsNewAndroid">جب کوئی سائٹ صرف Tor، آخری راستے، سے کھلے تو Shroudly اب یہ بتاتا ہے، کیونکہ یہ سست ہے۔\nنیا: تعارف → Shroudly کو فالو کریں۔\nآخری راستہ Tor اب پہلی بار استعمال سے پہلے آپ سے پوچھتا ہے اور سائٹس تک جلدی پہنچتا ہے (#77)۔</string>
+    <string name="whatsNewAndroid">کنکشنز: وہ نام جن کی Shroudly کو خود ضرورت ہے (اس کا DNS، Tor، اس کی اپنی سائٹس) اب غلطی سے بلاک نہیں ہو سکتے۔\nShroudly کو فالو کریں: پہلے ڈیولپر کے اکاؤنٹس؛ خبریں اور فوری اطلاعات وہیں شائع ہوتی ہیں۔</string>
     <string name="whatsNewOk">سمجھ گیا</string>
     <string name="whatsNewTitle">{version} میں نیا کیا ہے</string>
 </resources>

@@ -147,6 +147,6 @@
 "upload" = "Upload";
 "uptime" = "Uptime";
 "versionLabel" = "Version {version}";
-"whatsNewApple" = "Connections by site: see what goes through Shroudly, with the data each way, and block any site (#74).\nBlocking a site ends its connections at once; the list stays on your device.";
+"whatsNewApple" = "The statistics cards line up on iPhone, iPad and Mac, and Apple TV shows them in full.\nConnections: the names Shroudly itself needs (its DNS, Tor, its own sites) can no longer be blocked by mistake.\nA DNS profile or app that answers before Shroudly is now named, with where to turn it off.";
 "whatsNewOk" = "Got it";
 "whatsNewTitle" = "What's new in {version}";

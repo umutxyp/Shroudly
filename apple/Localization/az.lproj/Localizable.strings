@@ -147,6 +147,6 @@
 "upload" = "Göndərmə";
 "uptime" = "İş müddəti";
 "versionLabel" = "Versiya {version}";
-"whatsNewApple" = "Saytlara görə bağlantılar: Shroudly-dən nəyin keçdiyini hər iki istiqamətdəki məlumatı ilə gör və istədiyin saytı blokla (#74).\nBloklamaq saytın bağlantılarını dərhal kəsir; siyahı sənin cihazında qalır.";
+"whatsNewApple" = "Statistika kartları iPhone, iPad və Mac-də bir xətt üzrə düzülür, Apple TV isə onları tam göstərir.\nBağlantılar: Shroudly-nin özünə lazım olan ünvanlar (DNS-i, Tor, öz saytları) artıq səhvən bloklana bilməz.\nShroudly-dən əvvəl cavab verən DNS profili və ya tətbiqi artıq adı ilə və harada söndürüləcəyi ilə deyilir.";
 "whatsNewOk" = "Aydındır";
 "whatsNewTitle" = "{version} versiyasında yeniliklər";

@@ -147,6 +147,6 @@
 "upload" = "Muat naik";
 "uptime" = "Masa aktif";
 "versionLabel" = "Versi {version}";
-"whatsNewApple" = "Sambungan mengikut laman: lihat apa yang melalui Shroudly, dengan data kedua-dua arah, dan sekat mana-mana laman (#74).\nMenyekat terus memutuskan sambungan laman itu; senarainya kekal pada peranti anda.";
+"whatsNewApple" = "Kad statistik sejajar pada iPhone, iPad dan Mac, dan Apple TV memaparkannya sepenuhnya.\nSambungan: nama yang diperlukan Shroudly sendiri (DNS, Tor, lamannya sendiri) tidak lagi boleh disekat secara tidak sengaja.\nProfil atau apl DNS yang menjawab sebelum Shroudly kini dinamakan, bersama tempat untuk mematikannya.";
 "whatsNewOk" = "Faham";
 "whatsNewTitle" = "Apa yang baharu dalam {version}";

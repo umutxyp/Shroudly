@@ -263,7 +263,7 @@
     <string name="upload">Tải lên</string>
     <string name="uptime">Thời gian chạy</string>
     <string name="versionLabel">Phiên bản {version}</string>
-    <string name="whatsNewAndroid">Khi một trang chỉ mở được qua Tor, đường cuối cùng, Shroudly giờ sẽ báo cho bạn vì nó chậm hơn.\nMới: Giới thiệu → Theo dõi Shroudly.\nTor, lối thoát cuối cùng, giờ hỏi bạn trước lần dùng đầu tiên và tới các trang nhanh hơn (#77).</string>
+    <string name="whatsNewAndroid">Kết nối: những tên mà chính Shroudly cần (DNS, Tor, các trang của nó) không còn bị chặn nhầm.\nTheo dõi Shroudly: tài khoản của nhà phát triển ở trước; tin tức và thông báo khẩn được đăng ở đó.</string>
     <string name="whatsNewOk">Đã hiểu</string>
     <string name="whatsNewTitle">Có gì mới trong {version}</string>
 </resources>

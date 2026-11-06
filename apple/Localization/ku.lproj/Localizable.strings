@@ -147,6 +147,6 @@
 "upload" = "Barkirin";
 "uptime" = "Dema xebatê";
 "versionLabel" = "Guherto {version}";
-"whatsNewApple" = "Girêdan li gorî malperê: bibîne çi di Shroudly re derbas dibe, bi daneyên her du alî, û her malperê asteng bike (#74).\nAstengkirin girêdanên malperê yekser qut dike; lîste li ser amûra te dimîne.";
+"whatsNewApple" = "Kartên statîstîkê li ser iPhone, iPad û Mac rêz bûne, û Apple TV wan bi tevahî nîşan dide.\nGirêdan: navên ku Shroudly bi xwe hewce dike (DNS-a wê, Tor, malperên wê) êdî bi şaşî nayên astengkirin.\nProfîlek an sepanek DNS ku berî Shroudly bersiv dide êdî bi navê xwe tê gotin, bi cihê girtina wê re.";
 "whatsNewOk" = "Baş e";
 "whatsNewTitle" = "Tiştên nû di {version} de";

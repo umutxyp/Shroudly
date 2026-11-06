@@ -263,7 +263,7 @@
     <string name="upload">Запампоўка</string>
     <string name="uptime">Час працы</string>
     <string name="versionLabel">Версія {version}</string>
-    <string name="whatsNewAndroid">Калі сайт адкрываецца толькі праз Tor, апошні спосаб, Shroudly цяпер пра гэта кажа: так павольней.\nНовае: Пра праграму → Сачыць за Shroudly.\nTor, апошні выхад, цяпер пытаецца ў вас перад першым выкарыстаннем і хутчэй адкрывае сайты (#77).</string>
+    <string name="whatsNewAndroid">Падключэнні: адрасы, патрэбныя самому Shroudly (яго DNS, Tor, яго сайты), больш нельга заблакаваць памылкова.\nСачыць за Shroudly: спачатку акаўнты распрацоўшчыка — там публікуюцца навіны і тэрміновыя паведамленні.</string>
     <string name="whatsNewOk">Зразумела</string>
     <string name="whatsNewTitle">Што новага ў {version}</string>
 </resources>

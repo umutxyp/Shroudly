@@ -263,7 +263,7 @@
     <string name="upload">Жүктеп салу</string>
     <string name="uptime">Жұмыс уақыты</string>
     <string name="versionLabel">Нұсқа {version}</string>
-    <string name="whatsNewAndroid">Сайт тек соңғы жол — Tor арқылы ашылса, Shroudly енді мұны айтады, себебі ол баяуырақ.\nЖаңа: Бағдарлама туралы → Shroudly-ге жазылу.\nСоңғы амал — Tor енді алғаш қолданар алдында сізден сұрайды және сайттарға тезірек жетеді (#77).</string>
+    <string name="whatsNewAndroid">Қосылымдар: Shroudly-дің өзіне керек атаулар (оның DNS-і, Tor, өз сайттары) енді қателесіп бұғатталмайды.\nShroudly-ге жазылыңыз: алдымен әзірлеушінің аккаунттары — жаңалықтар мен шұғыл хабарламалар сонда.</string>
     <string name="whatsNewOk">Түсінікті</string>
     <string name="whatsNewTitle">{version} нұсқасындағы жаңалықтар</string>
 </resources>

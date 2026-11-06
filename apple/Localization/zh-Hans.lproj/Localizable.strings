@@ -147,6 +147,6 @@
 "upload" = "上传";
 "uptime" = "运行时长";
 "versionLabel" = "版本 {version}";
-"whatsNewApple" = "按网站的连接:查看经过 Shroudly 的内容及双向数据量,并屏蔽任意网站 (#74)。\n屏蔽会立即断开该网站的连接;列表保存在你的设备上。";
+"whatsNewApple" = "统计卡片在 iPhone、iPad 和 Mac 上已对齐，Apple TV 上显示完整。\n连接：Shroudly 自身需要的地址（它的 DNS、Tor、自己的网站）不会再被误封。\n抢在 Shroudly 之前应答的 DNS 描述文件或应用现在会被点名，并说明在哪里关闭。";
 "whatsNewOk" = "知道了";
 "whatsNewTitle" = "{version} 的新内容";

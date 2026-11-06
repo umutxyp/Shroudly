@@ -147,6 +147,6 @@
 "upload" = "Tải lên";
 "uptime" = "Thời gian chạy";
 "versionLabel" = "Phiên bản {version}";
-"whatsNewApple" = "Kết nối theo trang: xem những gì đi qua Shroudly, kèm dữ liệu hai chiều, và chặn bất kỳ trang nào (#74).\nChặn sẽ cắt ngay các kết nối của trang; danh sách nằm trên thiết bị của bạn.";
+"whatsNewApple" = "Các thẻ thống kê thẳng hàng trên iPhone, iPad và Mac, và Apple TV hiển thị đầy đủ.\nKết nối: những tên mà chính Shroudly cần (DNS, Tor, các trang của nó) không còn bị chặn nhầm.\nHồ sơ hoặc ứng dụng DNS trả lời trước Shroudly giờ được nêu tên, kèm chỗ để tắt.";
 "whatsNewOk" = "Đã hiểu";
 "whatsNewTitle" = "Có gì mới trong {version}";

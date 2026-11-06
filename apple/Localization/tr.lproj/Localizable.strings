@@ -147,6 +147,6 @@
 "upload" = "Yükleme";
 "uptime" = "Çalışma süresi";
 "versionLabel" = "Sürüm {version}";
-"whatsNewApple" = "Siteye göre bağlantılar: Shroudly'den neyin geçtiğini, iki yöndeki verisiyle gör ve istediğin siteyi engelle (#74).\nEngellemek o sitenin bağlantılarını hemen keser; liste senin cihazında kalır.";
+"whatsNewApple" = "İstatistik kutuları iPhone, iPad ve Mac'te hizalı duruyor; Apple TV onları tam gösteriyor.\nBağlantılar: Shroudly'nin kendi ihtiyaç duyduğu adresler (DNS'i, Tor, kendi siteleri) artık yanlışlıkla engellenemiyor.\nShroudly'den önce cevap veren bir DNS profili ya da uygulaması artık adıyla ve nereden kapatılacağıyla söyleniyor.";
 "whatsNewOk" = "Tamam";
 "whatsNewTitle" = "{version} sürümünde yenilikler";

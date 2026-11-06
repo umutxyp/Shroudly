@@ -263,7 +263,7 @@
     <string name="upload">Gesendet</string>
     <string name="uptime">Laufzeit</string>
     <string name="versionLabel">Version {version}</string>
-    <string name="whatsNewAndroid">Öffnet sich eine Seite nur über Tor, den letzten Ausweg, sagt Shroudly es jetzt, denn das ist langsamer.\nNeu: Über → Shroudly folgen, mit unseren Konten.\nTor, der letzte Ausweg, fragt dich jetzt vor der ersten Nutzung und erreicht Seiten schneller (#77).</string>
+    <string name="whatsNewAndroid">Verbindungen: Namen, die Shroudly selbst braucht (sein DNS, Tor, eigene Seiten), lassen sich nicht mehr versehentlich sperren.\nShroudly folgen: zuerst die Konten des Entwicklers; dort erscheinen Neuigkeiten und dringende Hinweise.</string>
     <string name="whatsNewOk">Verstanden</string>
     <string name="whatsNewTitle">Neu in {version}</string>
 </resources>

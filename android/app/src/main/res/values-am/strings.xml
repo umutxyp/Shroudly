@@ -263,7 +263,7 @@
     <string name="upload">መስቀል</string>
     <string name="uptime">የሰራበት ጊዜ</string>
     <string name="versionLabel">ስሪት {version}</string>
-    <string name="whatsNewAndroid">አንድ ድረ-ገጽ በመጨረሻው መንገድ በ Tor ብቻ ሲከፈት Shroudly አሁን ይነግርዎታል፣ ምክንያቱም ቀርፋፋ ነው።\nአዲስ፦ ስለ → Shroudlyን ይከተሉ።\nየመጨረሻው አማራጭ Tor አሁን ለመጀመሪያ ጊዜ ከመጠቀሙ በፊት ይጠይቅዎታል፣ ጣቢያዎችንም በፍጥነት ይደርሳል (#77)።</string>
+    <string name="whatsNewAndroid">ግንኙነቶች፦ Shroudly ራሱ የሚፈልጋቸው ስሞች (DNS፣ Tor፣ የራሱ ድረ-ገጾች) ከእንግዲህ በስህተት ሊታገዱ አይችሉም።\nShroudlyን ይከተሉ፦ መጀመሪያ የገንቢው መለያዎች፤ ዜናና አስቸኳይ ማሳወቂያዎች እዚያ ይለጠፋሉ።</string>
     <string name="whatsNewOk">ገባኝ</string>
     <string name="whatsNewTitle">በ{version} ውስጥ አዲስ ነገሮች</string>
 </resources>

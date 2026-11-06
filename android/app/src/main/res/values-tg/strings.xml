@@ -263,7 +263,7 @@
     <string name="upload">Ирсол</string>
     <string name="uptime">Вақти кор</string>
     <string name="versionLabel">Версияи {version}</string>
-    <string name="whatsNewAndroid">Агар сайт танҳо тавассути Tor, роҳи охирин, кушода шавад, Shroudly акнун инро мегӯяд, зеро он сусттар аст.\nНав: Дар бораи барнома → Shroudly-ро пайгирӣ кунед.\nTor, роҳи охирин, акнун пеш аз истифодаи нахустин аз шумо мепурсад ва зудтар ба сомонаҳо мерасад (#77).</string>
+    <string name="whatsNewAndroid">Пайвастҳо: номҳое, ки ба худи Shroudly лозиманд (DNS, Tor, сомонаҳои худаш), дигар иштибоҳан баста намешаванд.\nShroudly-ро пайгирӣ кунед: аввал ҳисобҳои таҳиягар — хабарҳо ва огоҳиҳои фаврӣ он ҷо нашр мешаванд.</string>
     <string name="whatsNewOk">Фаҳмо</string>
     <string name="whatsNewTitle">Навигариҳои {version}</string>
 </resources>

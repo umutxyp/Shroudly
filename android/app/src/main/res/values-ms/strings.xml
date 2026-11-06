@@ -263,7 +263,7 @@
     <string name="upload">Muat naik</string>
     <string name="uptime">Masa aktif</string>
     <string name="versionLabel">Versi {version}</string>
-    <string name="whatsNewAndroid">Apabila laman hanya dibuka melalui Tor, jalan terakhir, Shroudly kini memberitahu anda kerana ia lebih perlahan.\nBaharu: Perihal → Ikuti Shroudly.\nTor, jalan terakhir, kini bertanya dahulu sebelum digunakan kali pertama dan sampai ke laman lebih cepat (#77).</string>
+    <string name="whatsNewAndroid">Sambungan: nama yang diperlukan Shroudly sendiri (DNS, Tor, lamannya sendiri) tidak lagi boleh disekat secara tidak sengaja.\nIkuti Shroudly: akaun pembangun dahulu; berita dan notis segera disiarkan di sana.</string>
     <string name="whatsNewOk">Faham</string>
     <string name="whatsNewTitle">Apa yang baharu dalam {version}</string>
 </resources>

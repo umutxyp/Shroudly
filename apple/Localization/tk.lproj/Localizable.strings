@@ -147,6 +147,6 @@
 "upload" = "Iberiş";
 "uptime" = "Işlän wagty";
 "versionLabel" = "Wersiýa {version}";
-"whatsNewApple" = "Saýtlar boýunça birikmeler: Shroudly arkaly näme geçýändigini iki ugurdaky maglumaty bilen görüň we islän saýtyňyzy bloklaň (#74).\nBloklamak saýtyň birikmelerini derrew kesýär; sanaw enjamyňyzda galýar.";
+"whatsNewApple" = "Statistika kartlary iPhone, iPad we Mac-da deňleşdirildi, Apple TV bolsa olary doly görkezýär.\nBaglanyşyklar: Shroudly-niň özüne gerek atlar (DNS-i, Tor, öz saýtlary) indi ýalňyşlykda petiklenmeýär.\nShroudly-den öň jogap berýän DNS profili ýa-da programma indi ady we nirede öçürilýändigi bilen aýdylýar.";
 "whatsNewOk" = "Düşnükli";
 "whatsNewTitle" = "{version} wersiýasynda täzelikler";

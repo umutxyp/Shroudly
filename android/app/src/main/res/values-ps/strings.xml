@@ -263,7 +263,7 @@
     <string name="upload">اپلوډ</string>
     <string name="uptime">د کار موده</string>
     <string name="versionLabel">نسخه {version}</string>
-    <string name="whatsNewAndroid">کله چې یو سایټ یوازې د Tor، وروستۍ لارې، له لارې پرانیستل شي، Shroudly اوس دا وايي، ځکه چې ورو دی.\nنوی: په اړه → Shroudly تعقیب کړئ.\nTor، وروستۍ لاره، اوس د لومړي ځل کارولو مخکې پوښتنه کوي او سایټونو ته ژر رسېږي (#77).</string>
+    <string name="whatsNewAndroid">اړیکې: هغه نومونه چې پخپله Shroudly ته اړین دي (د هغه DNS، Tor، خپل سایټونه) نور په تېروتنه نه بندېږي.\nShroudly تعقیب کړئ: لومړی د جوړونکي حسابونه؛ خبرونه او بیړني خبرتیاوې هلته خپرېږي.</string>
     <string name="whatsNewOk">پوه شوم</string>
     <string name="whatsNewTitle">په {version} کې نوي څه</string>
 </resources>
