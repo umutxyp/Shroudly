@@ -147,8 +147,8 @@ const statusHandler = main.slice(main.indexOf("ipcMain.handle('dpi:status'"), ma
 t.ok(/notRouting: notRouting\(\)/.test(statusHandler) && /proxy: engine \? engine\.proxyStatus/.test(statusHandler)
   && /function notRouting\(\) \{ return !!\(engine && engine\.isActive\(\) && !engine\.routing\(\)\); \}/.test(main),
 'the window is told when browsers are not going through Shroudly, and why');
-t.ok(/routed \? tr\(\)\.trayStarted : tr\(\)\.notifyStartedNotRouted/.test(main) && /notRouting\(\) \? s\.notWorkingYet : s\.trayActive/.test(main),
-  'the tray and the start\'s notification say "not working yet" too, never "Protection is on" alone');
+t.ok(/if \(!routed\) notify\('Shroudly', tr\(\)\.notifyStartedNotRouted\)/.test(main) && !/tr\(\)\.trayStarted/.test(main) && /notRouting\(\) \? s\.notWorkingYet : s\.trayActive/.test(main),
+  'the tray says "not working yet" too, and a start is notified only when browsers do not go through it yet (no "Protection is on" at every start)');
 for (const a of Object.values(PROXY_ACTIONS)) used.push(a.label);
 used.push('notWorkingYet', 'notifyStartedNotRouted', 'bannerMore');
 

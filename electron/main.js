@@ -328,6 +328,51 @@ function notify(title, body) {
   }
 }
 
+/* What Shroudly does or finds by itself (the autopilot turning a mode on,
+ * restarting an app, Advanced mode, a blocked site, Tor) is told by
+ * notifyAuto, never in a stream: up to 2.6.59 one app's start (Roblox:
+ * Games and apps mode, the app restarted, Advanced mode, the site) brought
+ * three or four notifications at once, and the same ones at every start.
+ *   - what comes within AUTO_GATHER_MS goes in one notification;
+ *   - after one, AUTO_QUIET_MS without another (each still has its line in
+ *     the window, and the log says it was held back);
+ *   - the same words at most once in AUTO_SAME_MS.
+ * What the user asked for (logs saved, Start, Stop, an update) and what
+ * stops Shroudly working (an antivirus, protection failing) still go at
+ * once, through notify. */
+const AUTO_GATHER_MS = 3000;
+const AUTO_QUIET_MS = 5 * 60 * 1000;
+const AUTO_SAME_MS = 6 * 60 * 60 * 1000;
+const autoSaid = new Map();     // text -> when it was last told
+let autoPending = [];
+let autoGather = null;
+let autoShownAt = 0;
+function notifyAuto(body, title = 'Shroudly') {
+  const text = String(body || '').trim();
+  if (!text) return;
+  const now = Date.now();
+  const said = autoSaid.get(text);
+  if (said && now - said < AUTO_SAME_MS) return;
+  autoSaid.set(text, now);
+  if (autoSaid.size > 200) autoSaid.delete(autoSaid.keys().next().value);
+  if (!autoGather && now - autoShownAt < AUTO_QUIET_MS) {
+    addLog('info', `Notification held back (another came ${Math.round((now - autoShownAt) / 1000)} s ago; the window has it): ${text}`);
+    return;
+  }
+  if (!autoPending.some((p) => p.text === text)) autoPending.push({ title, text });
+  if (autoGather) return;
+  autoGather = setTimeout(() => {
+    autoGather = null;
+    const items = autoPending.splice(0);
+    if (!items.length) return;
+    autoShownAt = Date.now();
+    // One: as it is. Several: one notification, a line each, under one title.
+    if (items.length === 1) notify(items[0].title, items[0].text);
+    else notify('Shroudly', items.slice(0, 4).map((i) => i.text).join('\n'));
+  }, AUTO_GATHER_MS);
+  if (autoGather.unref) autoGather.unref();
+}
+
 /* An antivirus that quarantined, refused or ended a part of Shroudly
  * (security-block.js: the engine, its watchdog, Advanced mode), told from
  * this one place:
@@ -523,7 +568,7 @@ function askTor(host) {
   if (now - torAskedAt >= TOR_ASK_MS) {
     torAskedAt = now;
     const text = String(tr().torAskNotice || '').replace(/\{host\}/g, torAsk.host || '');
-    if (text) notify('Shroudly', text);
+    if (text) notifyAuto(text);
   }
   toWindow('dpi:status-changed', !!(engine && engine.isActive()));
 }
@@ -1095,8 +1140,10 @@ async function safeStart({ user = false } = {}) {
     lastStartFailed = false;
     broadcastStatus(true);
     // Started, but browsers are not going through it yet: said so, not "on".
+    // Said only when something is left to do: "Protection is on" at every
+    // start (at sign-in too) said what the tray icon and the window show.
     const routed = !notRouting();
-    notify('Shroudly', routed ? tr().trayStarted : tr().notifyStartedNotRouted);
+    if (!routed) notify('Shroudly', tr().notifyStartedNotRouted);
     syncPresence();
     if (user) advancedProtection.started().catch(() => {});
     // Whether this network blocks what the installed apps need, before they
@@ -1141,7 +1188,6 @@ async function safeStop({ user = false } = {}) {
     await advancedProtection.stopped({ user });
     await engine.stop({ user });
     broadcastStatus(false);
-    notify('Shroudly', tr().trayStopped);
     syncPresence();
     return { success: true };
   } catch (e) {
@@ -1438,7 +1484,7 @@ app.whenReady().then(async () => {
       const advOn = !!(advanced && advanced.active);
       const advCan = !!(advanced && advanced.available());
       const body = advOn ? tr().notifySiteBlockedBodyAdvancedOn : advCan ? tr().notifySiteBlockedBody : tr().notifySiteBlockedBodyNoAdvanced;
-      notify(tr().notifySiteBlockedTitle, body.replace('{host}', host));
+      notifyAuto(body.replace('{host}', host), tr().notifySiteBlockedTitle);
       // Waits in the window for the next time it is opened (a click on the
       // notification opens it); it never takes the screen from a game.
       toWindow('dpi:site-blocked', { host, asked });
@@ -1508,7 +1554,10 @@ app.whenReady().then(async () => {
     // install that asks for a password (a Linux package) or an
     // administrator's permission (Windows, installed for everyone), which
     // only the button starts.
-    notify: (version, kind) => notify('Shroudly', (kind === 'password' ? tr().notifyUpdatePassword : kind === 'admin' ? tr().notifyUpdateAdmin : tr().notifyUpdateReady).replace('{version}', version)),
+    // Only when installing it needs the user (a password, an administrator):
+    // an update that installs itself at the next restart is the window's
+    // banner, not a notification.
+    notify: (version, kind) => { if (kind === 'password' || kind === 'admin') notify('Shroudly', (kind === 'password' ? tr().notifyUpdatePassword : tr().notifyUpdateAdmin).replace('{version}', version)); },
     // macOS, Applications not this account's to change: what the password
     // dialog says it is for.
     adminPrompt: (version) => tr().updAdminPrompt.replace('{version}', version),
@@ -2589,12 +2638,29 @@ ipcMain.handle('apps:set', async (e, on) => {
 // The latest line for a window opened later. Studio's lines are not kept
 // here: they come with the apps state, for as long as that Studio runs.
 let autoLatest = null;
-// Lines that follow a notification of their own: in the window only (the
-// antivirus that blocked Advanced mode was told by securityBlocked).
-const WINDOW_ONLY = ['autoSecurityAdvanced', 'autoSiteUnreachable'];
+// In the window only, never a notification:
+//  - lines that follow a notification of their own (the antivirus that
+//    blocked Advanced mode was told by securityBlocked);
+//  - what was done and needs nothing from the user: a mode turned on that
+//    just works, a setting put back, a site opened through Tor;
+//  - Advanced mode paused while a game runs (never over a game);
+//  - a reminder of a choice the user made (turned off, declined, no asking):
+//    the window says it, a notification at every block did not help.
+// What a notification is still for: something the user sees happen (an app
+// restarted or closed), a prompt about to come up, or something only the
+// user can fix.
+const WINDOW_ONLY = [
+  'autoSecurityAdvanced', 'autoSiteUnreachable',
+  'autoDiscordOn', 'autoRobloxOn', 'autoRiotOn', 'autoAdvancedOn', 'autoAroundOn', 'autoAroundOnAny',
+  'autoStoreAppsOn', 'autoFirefoxFixed', 'autoForgedDnsOn', 'autoInstallerRestarted', 'torUsedDesktop',
+  'autoAdvancedPausedForGame',
+  'autoDiscordOffByHand', 'autoRobloxOffByHand', 'autoRiotOffByHand', 'autoForgedDnsOffByHand',
+  'autoAdvancedOffBefore', 'autoAdvancedDeclinedBefore', 'autoAdvancedFailedBefore', 'autoAdvancedNoAsk',
+  'autoAdvancedNoAskAfterGame', 'autoStoreAppsOffBefore', 'autoStoreAppsNoAsk', 'autoStoreAppsDeclinedBefore',
+];
 function autoTell(id, params = {}) {
   const text = String(tr()[id] || '').replace(/\{(\w+)\}/g, (m, k) => (params[k] != null ? String(params[k]) : m));
-  if (text && !WINDOW_ONLY.includes(id)) notify('Shroudly', text);
+  if (text && !WINDOW_ONLY.includes(id)) notifyAuto(text);
   const n = { id, params, at: Date.now() };
   if (!STUDIO_LINES.includes(id)) autoLatest = n;
   toWindow('auto:notice', n);
