@@ -444,8 +444,13 @@ class ShroudlyVpnService : VpnService() {
         if (errorRes == 0 || errorRes == R.string.androidVpnRevoked) KeepOn.stoppedByUser(this)
         else if (KeepOn.endedByItself(this)) log("Protection comes back by itself once a network is there, in ${KeepOn.RETRY_MS / 60000} minutes at the earliest")
         later {
-            // Out of the live count first, through the engine while it still
-            // runs; at the user's stop only (OnlineCount.stop).
+            // The VPN interface goes first: the phone's traffic leaves
+            // straight, or through the next VPN app, the moment protection
+            // stops (#78), not after the goodbye below.
+            dropInterface()
+            // Out of the live count, through the engine while it still runs
+            // (this app is outside its own VPN); at the user's stop only
+            // (OnlineCount.stop).
             OnlineCount.stop(leave = errorRes == 0, port = port, auth = auth)
             teardown()
             Protection.set(Protection.State.OFF)
@@ -1555,6 +1560,14 @@ class ShroudlyVpnService : VpnService() {
     private val torRoute by lazy { TorRoute(this, { log(it) }) { Protection.changed() } }
     private val connsCollector = Conns.Collector()
 
+    /* hev stopped and its thread waited for, then the VPN interface closed:
+     * Android takes its address, routes and DNS away with it. Safe twice. */
+    private fun dropInterface() {
+        stopTunnel()
+        try { tun?.close() } catch (_: Exception) {}
+        tun = null
+    }
+
     private fun teardown() {
         val wasActive = active
         active = false
@@ -1575,9 +1588,7 @@ class ShroudlyVpnService : VpnService() {
         networks.clear()
         network?.stop(getSystemService(ConnectivityManager::class.java))
         network = null
-        stopTunnel()
-        try { tun?.close() } catch (_: Exception) {}
-        tun = null
+        dropInterface()
         val total = Protection.stats?.connsTotal
         engine?.let { e ->
             if (!e.stop()) {

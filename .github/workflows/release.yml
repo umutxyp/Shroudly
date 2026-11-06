@@ -484,6 +484,18 @@ jobs:
           bash apple/scripts/build-hev.sh
           node apple/scripts/gen-strings.js --check
           node apple/scripts/gen-version.js
+      # Each run's automatic signing gets a new development certificate from
+      # Apple; ten of them fill the account and the next archive fails. Those
+      # made during this run are revoked at the end (apple/scripts/ci-dev-certs.js).
+      - name: Development certificates before the archive
+        if: steps.ready.outputs.ok == '1'
+        shell: bash
+        run: |
+          printf '%s' "$ASC_KEY_P8" | base64 --decode > "$RUNNER_TEMP/certs.p8"
+          ASC_KEY_PATH="$RUNNER_TEMP/certs.p8" node apple/scripts/ci-dev-certs.js list > "$RUNNER_TEMP/dev-certs.tmp" \
+            && mv "$RUNNER_TEMP/dev-certs.tmp" "$RUNNER_TEMP/dev-certs-before.txt"
+          rm -f "$RUNNER_TEMP/certs.p8"
+          [ -f "$RUNNER_TEMP/dev-certs-before.txt" ] || echo "::warning::could not list development certificates: none will be revoked"
       - name: Archive and upload (iOS, macOS, then tvOS)
         if: steps.ready.outputs.ok == '1'
         shell: bash
@@ -523,6 +535,14 @@ jobs:
               -exportOptionsPlist "$options" -exportPath "$RUNNER_TEMP/export-$platform" "${auth[@]}"
             echo "ok  $platform build uploaded to App Store Connect"
           done
+      - name: Revoke this run's development certificates
+        if: always() && steps.ready.outputs.ok == '1'
+        shell: bash
+        run: |
+          [ -f "$RUNNER_TEMP/dev-certs-before.txt" ] || { echo "no list from before the archive: nothing revoked"; exit 0; }
+          printf '%s' "$ASC_KEY_P8" | base64 --decode > "$RUNNER_TEMP/certs.p8"
+          trap 'rm -f "$RUNNER_TEMP/certs.p8"' EXIT
+          ASC_KEY_PATH="$RUNNER_TEMP/certs.p8" node apple/scripts/ci-dev-certs.js revoke-new "$RUNNER_TEMP/dev-certs-before.txt"
 
   # The iPhone and iPad app as an .ipa, on the release beside the others, for
   # installing it outside the App Store until the App Store has it (TrollStore,
