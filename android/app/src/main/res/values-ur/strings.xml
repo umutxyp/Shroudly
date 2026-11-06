@@ -263,7 +263,7 @@
     <string name="upload">اپ لوڈ</string>
     <string name="uptime">چلنے کا دورانیہ</string>
     <string name="versionLabel">ورژن {version}</string>
-    <string name="whatsNewAndroid">کنکشنز: وہ نام جن کی Shroudly کو خود ضرورت ہے (اس کا DNS، Tor، اس کی اپنی سائٹس) اب غلطی سے بلاک نہیں ہو سکتے۔\nShroudly کو فالو کریں: پہلے ڈیولپر کے اکاؤنٹس؛ خبریں اور فوری اطلاعات وہیں شائع ہوتی ہیں۔</string>
+    <string name="whatsNewAndroid">Shroudly روکنے پر اب VPN فوراً ہٹ جاتا ہے، تاکہ کوئی دوسری VPN ایپ فوراً سنبھال سکے۔\nآٹومیشن ایپس (Tasker، MacroDroid): Shroudly کے بند ہوتے وقت بھیجا گیا Start اب ضائع نہیں ہوتا۔\nکنکشنز: وہ نام جن کی Shroudly کو خود ضرورت ہے (اس کا DNS، Tor، اس کی اپنی سائٹس) اب غلطی سے بلاک نہیں ہو سکتے۔</string>
     <string name="whatsNewOk">سمجھ گیا</string>
     <string name="whatsNewTitle">{version} میں نیا کیا ہے</string>
 </resources>

@@ -920,7 +920,7 @@
   "whatsNewTitle": "{version} wersiýasynda täzelikler",
   "whatsNewOk": "Düşnükli",
   "whatsNewDesktop": "Statistika kartlary deňleşdirildi, ulaldylan penjire bolsa okamaga amatly ini saklaýar.\nBaglanyşyklar: Shroudly-niň özüne gerek atlar (DNS-i, Tor, öz saýtlary) indi ýalňyşlykda petiklenmeýär.",
-  "whatsNewAndroid": "Baglanyşyklar: Shroudly-niň özüne gerek atlar (DNS-i, Tor, öz saýtlary) indi ýalňyşlykda petiklenmeýär.\nShroudly-ni yzarlaň: ilki öndürijiniň hasaplary — habarlar we gyssagly bildirişler şol ýerde paýlaşylýar.",
+  "whatsNewAndroid": "Shroudly saklananda VPN indi derrew aýrylýar, şonuň üçin başga VPN programmasy derrew işläp başlap biler.\nAwtomatlaşdyryş programmalary (Tasker, MacroDroid): Shroudly heniz saklanýarka iberilen «Başlat» indi ýitmeýär.\nBaglanyşyklar: Shroudly-niň özüne gerek atlar (DNS-i, Tor, öz saýtlary) indi ýalňyşlykda petiklenmeýär.",
   "whatsNewApple": "Statistika kartlary iPhone, iPad we Mac-da deňleşdirildi, Apple TV bolsa olary doly görkezýär.\nBaglanyşyklar: Shroudly-niň özüne gerek atlar (DNS-i, Tor, öz saýtlary) indi ýalňyşlykda petiklenmeýär.\nShroudly-den öň jogap berýän DNS profili ýa-da programma indi ady we nirede öçürilýändigi bilen aýdylýar.",
   "appleVpnNotSigned": "Shroudly-nyň bu nusgasyna Apple-yň VPN rugsady bolmazdan gol çekilipdir, şonuň üçin iOS oňa VPN başlatmaga rugsat bermeýär we hiç haçan soramaýar. Mugt Apple ID bilen gol çekilen nusgalarda (AltStore, SideStore, Sideloadly we meňzeşleri) bu rugsat hiç haçan bolmaýar. Ony TrollStore bilen guruň ýa-da tölegli Apple işläp düzüji hasaby bilen gol çekiň.",
   "appleInstallHelp": "Nädip gurnamaly",

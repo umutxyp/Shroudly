@@ -263,7 +263,7 @@
     <string name="upload">上传</string>
     <string name="uptime">运行时长</string>
     <string name="versionLabel">版本 {version}</string>
-    <string name="whatsNewAndroid">连接：Shroudly 自身需要的地址（它的 DNS、Tor、自己的网站）不会再被误封。\n关注 Shroudly：开发者的账号排在前面，新闻和紧急通知都在那里发布。</string>
+    <string name="whatsNewAndroid">停止 Shroudly 时 VPN 现在会立即撤下，其他 VPN 应用可以马上接手。\n自动化应用（Tasker、MacroDroid）：在 Shroudly 停止过程中发送的“启动”不再丢失。\n连接：Shroudly 自身需要的地址（它的 DNS、Tor、自己的网站）不会再被误封。</string>
     <string name="whatsNewOk">知道了</string>
     <string name="whatsNewTitle">{version} 的新内容</string>
 </resources>

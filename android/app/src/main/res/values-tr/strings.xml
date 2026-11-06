@@ -263,7 +263,7 @@
     <string name="upload">Yükleme</string>
     <string name="uptime">Çalışma süresi</string>
     <string name="versionLabel">Sürüm {version}</string>
-    <string name="whatsNewAndroid">Bağlantılar: Shroudly\'nin kendi ihtiyaç duyduğu adresler (DNS\'i, Tor, kendi siteleri) artık yanlışlıkla engellenemiyor.\nShroudly\'yi takip et: önce geliştiricinin hesapları geliyor; haberler ve acil duyurular orada paylaşılıyor.</string>
+    <string name="whatsNewAndroid">Shroudly\'yi durdurunca VPN artık anında kalkıyor; başka bir VPN uygulaması hemen devralabiliyor.\nOtomasyon uygulamaları (Tasker, MacroDroid): Shroudly kapanırken gönderilen \"Başlat\" artık kaybolmuyor.\nBağlantılar: Shroudly\'nin kendi ihtiyaç duyduğu adresler (DNS\'i, Tor, kendi siteleri) artık yanlışlıkla engellenemiyor.</string>
     <string name="whatsNewOk">Tamam</string>
     <string name="whatsNewTitle">{version} sürümünde yenilikler</string>
 </resources>

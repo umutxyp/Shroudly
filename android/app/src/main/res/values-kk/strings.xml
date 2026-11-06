@@ -263,7 +263,7 @@
     <string name="upload">Жүктеп салу</string>
     <string name="uptime">Жұмыс уақыты</string>
     <string name="versionLabel">Нұсқа {version}</string>
-    <string name="whatsNewAndroid">Қосылымдар: Shroudly-дің өзіне керек атаулар (оның DNS-і, Tor, өз сайттары) енді қателесіп бұғатталмайды.\nShroudly-ге жазылыңыз: алдымен әзірлеушінің аккаунттары — жаңалықтар мен шұғыл хабарламалар сонда.</string>
+    <string name="whatsNewAndroid">Shroudly тоқтатылғанда VPN енді бірден алынады, сондықтан басқа VPN қолданбасы бірден іске қосыла алады.\nАвтоматтандыру қолданбалары (Tasker, MacroDroid): Shroudly тоқтап жатқанда жіберілген «Іске қосу» енді жоғалмайды.\nҚосылымдар: Shroudly-дің өзіне керек атаулар (оның DNS-і, Tor, өз сайттары) енді қателесіп бұғатталмайды.</string>
     <string name="whatsNewOk">Түсінікті</string>
     <string name="whatsNewTitle">{version} нұсқасындағы жаңалықтар</string>
 </resources>

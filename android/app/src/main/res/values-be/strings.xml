@@ -263,7 +263,7 @@
     <string name="upload">Запампоўка</string>
     <string name="uptime">Час працы</string>
     <string name="versionLabel">Версія {version}</string>
-    <string name="whatsNewAndroid">Падключэнні: адрасы, патрэбныя самому Shroudly (яго DNS, Tor, яго сайты), больш нельга заблакаваць памылкова.\nСачыць за Shroudly: спачатку акаўнты распрацоўшчыка — там публікуюцца навіны і тэрміновыя паведамленні.</string>
+    <string name="whatsNewAndroid">Пры спыненні Shroudly VPN цяпер здымаецца адразу, і іншая VPN-праграма можа падключыцца неадкладна.\nПраграмы аўтаматызацыі (Tasker, MacroDroid): каманда «Запуск», адпраўленая падчас спынення Shroudly, больш не губляецца.\nПадключэнні: адрасы, патрэбныя самому Shroudly (яго DNS, Tor, яго сайты), больш нельга заблакаваць памылкова.</string>
     <string name="whatsNewOk">Зразумела</string>
     <string name="whatsNewTitle">Што новага ў {version}</string>
 </resources>

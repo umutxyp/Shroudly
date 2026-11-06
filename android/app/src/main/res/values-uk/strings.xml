@@ -263,7 +263,7 @@
     <string name="upload">Вивантаження</string>
     <string name="uptime">Час роботи</string>
     <string name="versionLabel">Версія {version}</string>
-    <string name="whatsNewAndroid">Підключення: адреси, потрібні самому Shroudly (його DNS, Tor, його сайти), більше не можна заблокувати помилково.\nСтежити за Shroudly: спершу акаунти розробника — там публікуються новини й термінові повідомлення.</string>
+    <string name="whatsNewAndroid">Під час зупинки Shroudly VPN тепер знімається одразу, і інший VPN-застосунок може підключитися негайно.\nЗастосунки автоматизації (Tasker, MacroDroid): команда «Запуск», надіслана під час зупинки Shroudly, більше не губиться.\nПідключення: адреси, потрібні самому Shroudly (його DNS, Tor, його сайти), більше не можна заблокувати помилково.</string>
     <string name="whatsNewOk">Зрозуміло</string>
     <string name="whatsNewTitle">Що нового у {version}</string>
 </resources>

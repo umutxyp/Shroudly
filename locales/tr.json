@@ -920,7 +920,7 @@
   "whatsNewTitle": "{version} sürümünde yenilikler",
   "whatsNewOk": "Tamam",
   "whatsNewDesktop": "İstatistik kutuları hizalı duruyor; tam ekran pencerede ekranlar okunur genişlikte kalıyor.\nBağlantılar: Shroudly'nin kendi ihtiyaç duyduğu adresler (DNS'i, Tor, kendi siteleri) artık yanlışlıkla engellenemiyor.",
-  "whatsNewAndroid": "Bağlantılar: Shroudly'nin kendi ihtiyaç duyduğu adresler (DNS'i, Tor, kendi siteleri) artık yanlışlıkla engellenemiyor.\nShroudly'yi takip et: önce geliştiricinin hesapları geliyor; haberler ve acil duyurular orada paylaşılıyor.",
+  "whatsNewAndroid": "Shroudly'yi durdurunca VPN artık anında kalkıyor; başka bir VPN uygulaması hemen devralabiliyor.\nOtomasyon uygulamaları (Tasker, MacroDroid): Shroudly kapanırken gönderilen \"Başlat\" artık kaybolmuyor.\nBağlantılar: Shroudly'nin kendi ihtiyaç duyduğu adresler (DNS'i, Tor, kendi siteleri) artık yanlışlıkla engellenemiyor.",
   "whatsNewApple": "İstatistik kutuları iPhone, iPad ve Mac'te hizalı duruyor; Apple TV onları tam gösteriyor.\nBağlantılar: Shroudly'nin kendi ihtiyaç duyduğu adresler (DNS'i, Tor, kendi siteleri) artık yanlışlıkla engellenemiyor.\nShroudly'den önce cevap veren bir DNS profili ya da uygulaması artık adıyla ve nereden kapatılacağıyla söyleniyor.",
   "appleVpnNotSigned": "Bu Shroudly kopyası Apple'ın VPN izni olmadan imzalanmış; bu yüzden iOS onun VPN başlatmasına izin vermiyor ve hiç sormuyor. Ücretsiz bir Apple kimliğiyle imzalanan kopyalarda (AltStore, SideStore, Sideloadly ve benzerleri) bu izin hiç olmaz. TrollStore ile kur ya da ücretli bir Apple geliştirici hesabıyla imzala.",
   "appleInstallHelp": "Nasıl kurulur",

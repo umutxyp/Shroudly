@@ -920,7 +920,7 @@
   "whatsNewTitle": "{version} 的新内容",
   "whatsNewOk": "知道了",
   "whatsNewDesktop": "统计卡片已对齐，最大化窗口时页面保持易读的宽度。\n连接：Shroudly 自身需要的地址（它的 DNS、Tor、自己的网站）不会再被误封。",
-  "whatsNewAndroid": "连接：Shroudly 自身需要的地址（它的 DNS、Tor、自己的网站）不会再被误封。\n关注 Shroudly：开发者的账号排在前面，新闻和紧急通知都在那里发布。",
+  "whatsNewAndroid": "停止 Shroudly 时 VPN 现在会立即撤下，其他 VPN 应用可以马上接手。\n自动化应用（Tasker、MacroDroid）：在 Shroudly 停止过程中发送的“启动”不再丢失。\n连接：Shroudly 自身需要的地址（它的 DNS、Tor、自己的网站）不会再被误封。",
   "whatsNewApple": "统计卡片在 iPhone、iPad 和 Mac 上已对齐，Apple TV 上显示完整。\n连接：Shroudly 自身需要的地址（它的 DNS、Tor、自己的网站）不会再被误封。\n抢在 Shroudly 之前应答的 DNS 描述文件或应用现在会被点名，并说明在哪里关闭。",
   "appleVpnNotSigned": "此 Shroudly 副本的签名没有 Apple 的 VPN 权限，因此 iOS 不允许它启动 VPN，也从不询问。用免费 Apple ID 签名的副本（AltStore、SideStore、Sideloadly 等）永远没有这项权限。请用 TrollStore 安装，或用付费的 Apple 开发者账号签名。",
   "appleInstallHelp": "安装方法",

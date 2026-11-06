@@ -263,7 +263,7 @@
     <string name="upload">העלאה</string>
     <string name="uptime">זמן פעילות</string>
     <string name="versionLabel">גרסה {version}</string>
-    <string name="whatsNewAndroid">חיבורים: את השמות ש-Shroudly עצמו צריך (ה-DNS שלו, Tor, האתרים שלו) כבר אי אפשר לחסום בטעות.\nעקבו אחרי Shroudly: קודם החשבונות של המפתח – שם מתפרסמים חדשות והודעות דחופות.</string>
+    <string name="whatsNewAndroid">עצירת Shroudly מסירה עכשיו את ה-VPN מיד, כך שאפליקציית VPN אחרת יכולה להיכנס מייד.\nאפליקציות אוטומציה (Tasker,‏ MacroDroid): פקודת הפעלה שנשלחת בזמן ש-Shroudly עדיין נעצר כבר לא הולכת לאיבוד.\nחיבורים: את השמות ש-Shroudly עצמו צריך (ה-DNS שלו, Tor, האתרים שלו) כבר אי אפשר לחסום בטעות.</string>
     <string name="whatsNewOk">הבנתי</string>
     <string name="whatsNewTitle">מה חדש בגרסה {version}</string>
 </resources>

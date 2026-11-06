@@ -263,7 +263,7 @@
     <string name="upload">Enviado</string>
     <string name="uptime">Tempo ativo</string>
     <string name="versionLabel">Versão {version}</string>
-    <string name="whatsNewAndroid">Conexões: os nomes de que o Shroudly precisa (seu DNS, o Tor, seus próprios sites) não podem mais ser bloqueados por engano.\nSiga o Shroudly: primeiro as contas do desenvolvedor; lá saem as novidades e os avisos urgentes.</string>
+    <string name="whatsNewAndroid">Ao parar o Shroudly, a VPN sai na hora, e outro app de VPN pode assumir logo em seguida.\nApps de automação (Tasker, MacroDroid): um Iniciar enviado enquanto o Shroudly ainda está parando não se perde mais.\nConexões: os nomes de que o Shroudly precisa (seu DNS, o Tor, seus próprios sites) não podem mais ser bloqueados por engano.</string>
     <string name="whatsNewOk">Entendi</string>
     <string name="whatsNewTitle">Novidades da {version}</string>
 </resources>

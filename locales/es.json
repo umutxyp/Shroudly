@@ -920,7 +920,7 @@
   "whatsNewTitle": "Novedades de la {version}",
   "whatsNewOk": "Entendido",
   "whatsNewDesktop": "Las tarjetas de estadísticas quedan alineadas y una ventana maximizada mantiene un ancho legible.\nConexiones: los nombres que Shroudly necesita (su DNS, Tor, sus propios sitios) ya no se pueden bloquear por error.",
-  "whatsNewAndroid": "Conexiones: los nombres que Shroudly necesita (su DNS, Tor, sus propios sitios) ya no se pueden bloquear por error.\nSigue a Shroudly: primero las cuentas del desarrollador; ahí se publican novedades y avisos urgentes.",
+  "whatsNewAndroid": "Al detener Shroudly, la VPN se quita al instante, así otra app de VPN puede tomar el relevo enseguida.\nApps de automatización (Tasker, MacroDroid): un Iniciar enviado mientras Shroudly aún se detiene ya no se pierde.\nConexiones: los nombres que Shroudly necesita (su DNS, Tor, sus propios sitios) ya no se pueden bloquear por error.",
   "whatsNewApple": "Las tarjetas de estadísticas quedan alineadas en iPhone, iPad y Mac, y Apple TV las muestra completas.\nConexiones: los nombres que Shroudly necesita (su DNS, Tor, sus propios sitios) ya no se pueden bloquear por error.\nUn perfil o app de DNS que responde antes que Shroudly ahora se nombra, con dónde desactivarlo.",
   "appleVpnNotSigned": "Esta copia de Shroudly está firmada sin el permiso de Apple para VPN, así que iOS no le deja iniciar una y nunca lo pregunta. Las copias firmadas con un Apple ID gratuito (AltStore, SideStore, Sideloadly y similares) nunca lo tienen. Instálala con TrollStore o fírmala con una cuenta de desarrollador de Apple de pago.",
   "appleInstallHelp": "Cómo instalarla",

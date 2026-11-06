@@ -920,7 +920,7 @@
   "whatsNewTitle": "በ{version} ውስጥ አዲስ ነገሮች",
   "whatsNewOk": "ገባኝ",
   "whatsNewDesktop": "የስታቲስቲክስ ካርዶች ተሰልፈዋል፣ የተስፋፋ መስኮትም ለንባብ የሚመች ስፋት ይይዛል።\nግንኙነቶች፦ Shroudly ራሱ የሚፈልጋቸው ስሞች (DNS፣ Tor፣ የራሱ ድረ-ገጾች) ከእንግዲህ በስህተት ሊታገዱ አይችሉም።",
-  "whatsNewAndroid": "ግንኙነቶች፦ Shroudly ራሱ የሚፈልጋቸው ስሞች (DNS፣ Tor፣ የራሱ ድረ-ገጾች) ከእንግዲህ በስህተት ሊታገዱ አይችሉም።\nShroudlyን ይከተሉ፦ መጀመሪያ የገንቢው መለያዎች፤ ዜናና አስቸኳይ ማሳወቂያዎች እዚያ ይለጠፋሉ።",
+  "whatsNewAndroid": "Shroudlyን ሲያቆሙ VPN አሁን ወዲያውኑ ይነሳል፣ ስለዚህ ሌላ የVPN መተግበሪያ ወዲያው ሊረከብ ይችላል።\nየራስ-ሰር መተግበሪያዎች (Tasker፣ MacroDroid)፦ Shroudly እየቆመ ሳለ የተላከ ጀምር ከእንግዲህ አይጠፋም።\nግንኙነቶች፦ Shroudly ራሱ የሚፈልጋቸው ስሞች (DNS፣ Tor፣ የራሱ ድረ-ገጾች) ከእንግዲህ በስህተት ሊታገዱ አይችሉም።",
   "whatsNewApple": "የስታቲስቲክስ ካርዶች በiPhone፣ iPad እና Mac ላይ ተሰልፈዋል፣ Apple TVም ሙሉ በሙሉ ያሳያቸዋል።\nግንኙነቶች፦ Shroudly ራሱ የሚፈልጋቸው ስሞች (DNS፣ Tor፣ የራሱ ድረ-ገጾች) ከእንግዲህ በስህተት ሊታገዱ አይችሉም።\nከShroudly በፊት የሚመልስ የDNS መገለጫ ወይም መተግበሪያ አሁን በስሙ ይጠቀሳል፣ የሚያጠፉበት ቦታም ይነገራል።",
   "appleVpnNotSigned": "ይህ የShroudly ቅጂ ለVPN የApple ፈቃድ ሳይኖረው ተፈርሟል፣ ስለዚህ iOS VPN እንዲጀምር አይፈቅድለትም፣ ፈጽሞም አይጠይቅም። በነጻ Apple ID የተፈረሙ ቅጂዎች (AltStore፣ SideStore፣ Sideloadly እና መሰሎቻቸው) ይህ ፈቃድ ፈጽሞ የላቸውም። በTrollStore ይጫኑት፣ ወይም በሚከፈልበት የApple ገንቢ መለያ ይፈርሙት።",
   "appleInstallHelp": "እንዴት እንደሚጫን",

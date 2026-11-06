@@ -920,7 +920,7 @@
   "whatsNewTitle": "{version} versiyasida yangiliklar",
   "whatsNewOk": "Tushunarli",
   "whatsNewDesktop": "Statistika kartalari tekislandi, kattalashtirilgan oyna esa o'qishga qulay kenglikni saqlaydi.\nUlanishlar: Shroudly'ning o'ziga kerakli nomlar (DNS, Tor, o'z saytlari) endi xato bilan bloklanmaydi.",
-  "whatsNewAndroid": "Ulanishlar: Shroudly'ning o'ziga kerakli nomlar (DNS, Tor, o'z saytlari) endi xato bilan bloklanmaydi.\nShroudly'ni kuzating: avval dasturchining akkauntlari — yangiliklar va shoshilinch xabarlar o'sha yerda.",
+  "whatsNewAndroid": "Shroudly to‘xtatilganda VPN endi darhol olib tashlanadi, shuning uchun boshqa VPN ilovasi darhol ishga tusha oladi.\nAvtomatlashtirish ilovalari (Tasker, MacroDroid): Shroudly hali to‘xtayotganda yuborilgan «Boshlash» endi yo‘qolmaydi.\nUlanishlar: Shroudly'ning o'ziga kerakli nomlar (DNS, Tor, o'z saytlari) endi xato bilan bloklanmaydi.",
   "whatsNewApple": "Statistika kartalari iPhone, iPad va Mac'da tekislandi, Apple TV esa ularni to'liq ko'rsatadi.\nUlanishlar: Shroudly'ning o'ziga kerakli nomlar (DNS, Tor, o'z saytlari) endi xato bilan bloklanmaydi.\nShroudly'dan oldin javob beradigan DNS profili yoki ilova endi nomi bilan, uni qayerda o'chirish bilan aytiladi.",
   "appleVpnNotSigned": "Shroudly’ning bu nusxasi Apple’ning VPN uchun ruxsatisiz imzolangan, shuning uchun iOS unga VPN ishga tushirishga ruxsat bermaydi va umuman soʻramaydi. Bepul Apple ID bilan imzolangan nusxalarda (AltStore, SideStore, Sideloadly va shunga oʻxshashlar) bu ruxsat hech qachon boʻlmaydi. Uni TrollStore bilan oʻrnating yoki pullik Apple dasturchi hisobi bilan imzolang.",
   "appleInstallHelp": "Qanday oʻrnatiladi",

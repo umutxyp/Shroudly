@@ -263,7 +263,7 @@
     <string name="upload">Upload</string>
     <string name="uptime">Uptime</string>
     <string name="versionLabel">Version {version}</string>
-    <string name="whatsNewAndroid">Connections: the names Shroudly itself needs (its DNS, Tor, its own sites) can no longer be blocked by mistake.\nFollow Shroudly: the developer\'s accounts come first; news and urgent notices are posted there.</string>
+    <string name="whatsNewAndroid">Stopping Shroudly now takes the VPN away at once, so another VPN app can take over straight away.\nAutomation apps (Tasker, MacroDroid): a Start sent while Shroudly is still stopping is no longer lost.\nConnections: the names Shroudly itself needs (its DNS, Tor, its own sites) can no longer be blocked by mistake.</string>
     <string name="whatsNewOk">Got it</string>
     <string name="whatsNewTitle">What\'s new in {version}</string>
 </resources>

@@ -920,7 +920,7 @@
   "whatsNewTitle": "Có gì mới trong {version}",
   "whatsNewOk": "Đã hiểu",
   "whatsNewDesktop": "Các thẻ thống kê giờ thẳng hàng, và cửa sổ phóng to giữ độ rộng dễ đọc.\nKết nối: những tên mà chính Shroudly cần (DNS, Tor, các trang của nó) không còn bị chặn nhầm.",
-  "whatsNewAndroid": "Kết nối: những tên mà chính Shroudly cần (DNS, Tor, các trang của nó) không còn bị chặn nhầm.\nTheo dõi Shroudly: tài khoản của nhà phát triển ở trước; tin tức và thông báo khẩn được đăng ở đó.",
+  "whatsNewAndroid": "Khi dừng Shroudly, VPN giờ được gỡ ngay, nên ứng dụng VPN khác có thể tiếp quản tức thì.\nỨng dụng tự động hóa (Tasker, MacroDroid): lệnh Bắt đầu gửi khi Shroudly đang dừng không còn bị mất.\nKết nối: những tên mà chính Shroudly cần (DNS, Tor, các trang của nó) không còn bị chặn nhầm.",
   "whatsNewApple": "Các thẻ thống kê thẳng hàng trên iPhone, iPad và Mac, và Apple TV hiển thị đầy đủ.\nKết nối: những tên mà chính Shroudly cần (DNS, Tor, các trang của nó) không còn bị chặn nhầm.\nHồ sơ hoặc ứng dụng DNS trả lời trước Shroudly giờ được nêu tên, kèm chỗ để tắt.",
   "appleVpnNotSigned": "Bản Shroudly này được ký mà không có quyền VPN của Apple, nên iOS không cho nó khởi động VPN và cũng không bao giờ hỏi. Các bản ký bằng Apple ID miễn phí (AltStore, SideStore, Sideloadly và tương tự) không bao giờ có quyền này. Hãy cài bằng TrollStore, hoặc ký bằng tài khoản nhà phát triển Apple trả phí.",
   "appleInstallHelp": "Cách cài đặt",

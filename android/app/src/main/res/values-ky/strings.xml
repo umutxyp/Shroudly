@@ -263,7 +263,7 @@
     <string name="upload">Жөнөтүү</string>
     <string name="uptime">Иштөө убактысы</string>
     <string name="versionLabel">Версия {version}</string>
-    <string name="whatsNewAndroid">Туташуулар: Shroudly\'нин өзүнө керек аталыштар (анын DNS\'и, Tor, өз сайттары) эми жаңылыштык менен бөгөттөлбөйт.\nShroudly\'ге жазылыңыз: адегенде иштеп чыгуучунун аккаунттары — жаңылыктар жана шашылыш кабарлар ошол жерде.</string>
+    <string name="whatsNewAndroid">Shroudly токтотулганда VPN эми дароо алынат, ошондуктан башка VPN колдонмосу дароо ишке кирише алат.\nАвтоматташтыруу колдонмолору (Tasker, MacroDroid): Shroudly токтоп жатканда жөнөтүлгөн «Баштоо» эми жоголбойт.\nТуташуулар: Shroudly\'нин өзүнө керек аталыштар (анын DNS\'и, Tor, өз сайттары) эми жаңылыштык менен бөгөттөлбөйт.</string>
     <string name="whatsNewOk">Түшүнүктүү</string>
     <string name="whatsNewTitle">{version} версиясындагы жаңылыктар</string>
 </resources>

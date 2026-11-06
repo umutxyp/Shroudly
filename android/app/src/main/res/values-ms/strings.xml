@@ -263,7 +263,7 @@
     <string name="upload">Muat naik</string>
     <string name="uptime">Masa aktif</string>
     <string name="versionLabel">Versi {version}</string>
-    <string name="whatsNewAndroid">Sambungan: nama yang diperlukan Shroudly sendiri (DNS, Tor, lamannya sendiri) tidak lagi boleh disekat secara tidak sengaja.\nIkuti Shroudly: akaun pembangun dahulu; berita dan notis segera disiarkan di sana.</string>
+    <string name="whatsNewAndroid">Menghentikan Shroudly kini terus menanggalkan VPN, jadi apl VPN lain boleh mengambil alih serta-merta.\nApl automasi (Tasker, MacroDroid): arahan Mula yang dihantar semasa Shroudly masih berhenti tidak lagi hilang.\nSambungan: nama yang diperlukan Shroudly sendiri (DNS, Tor, lamannya sendiri) tidak lagi boleh disekat secara tidak sengaja.</string>
     <string name="whatsNewOk">Faham</string>
     <string name="whatsNewTitle">Apa yang baharu dalam {version}</string>
 </resources>

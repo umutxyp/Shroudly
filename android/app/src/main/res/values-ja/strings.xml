@@ -263,7 +263,7 @@
     <string name="upload">アップロード</string>
     <string name="uptime">稼働時間</string>
     <string name="versionLabel">バージョン {version}</string>
-    <string name="whatsNewAndroid">接続：Shroudly 自身が必要とする名前（DNS、Tor、自社サイト）を誤ってブロックできなくなりました。\nShroudly をフォロー：開発者のアカウントを先頭に。ニュースや緊急のお知らせはそちらで発信します。</string>
+    <string name="whatsNewAndroid">Shroudly を停止すると VPN がすぐに外れ、ほかの VPN アプリがすぐに引き継げるようになりました。\n自動化アプリ（Tasker、MacroDroid）：Shroudly の停止中に送られた開始が失われなくなりました。\n接続：Shroudly 自身が必要とする名前（DNS、Tor、自社サイト）を誤ってブロックできなくなりました。</string>
     <string name="whatsNewOk">OK</string>
     <string name="whatsNewTitle">{version} の新機能</string>
 </resources>
