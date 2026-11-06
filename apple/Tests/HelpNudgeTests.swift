@@ -84,6 +84,11 @@ final class HelpNudgeTests: XCTestCase {
         XCTAssertEqual(OwnServer.traceIp("fl=1\nh=cloudflare.com\nip=203.0.113.7\nts=1\n"), "203.0.113.7")
         XCTAssertEqual(OwnServer.traceIp("ip=2001:db8::1\r\nts=1"), "2001:db8::1")
         XCTAssertNil(OwnServer.traceIp("h=x\nvisit_scheme=https\n"))
+        // Its country (issue #60): the flag and the name in the app's language.
+        XCTAssertEqual(OwnServer.traceLoc("ip=1.2.3.4\nloc=IT\ntls=TLSv1.3\n"), "IT")
+        XCTAssertNil(OwnServer.traceLoc("loc=XX\n"))
+        XCTAssertEqual(OwnServer.withPlace("80.174.118.60", "IT", language: "en"), "80.174.118.60 · \u{1F1EE}\u{1F1F9} Italy")
+        XCTAssertEqual(OwnServer.withPlace("1.2.3.4", nil, language: "en"), "1.2.3.4")
         XCTAssertNil(OwnServer.traceIp("ip=999.1.1.1\n"))
         XCTAssertNil(OwnServer.traceIp("ip=<script>\n"))
         XCTAssertNil(OwnServer.traceIp("xip=1.2.3.4\n"))

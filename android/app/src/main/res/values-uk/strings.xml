@@ -263,7 +263,7 @@
     <string name="upload">Вивантаження</string>
     <string name="uptime">Час роботи</string>
     <string name="versionLabel">Версія {version}</string>
-    <string name="whatsNewAndroid">Discord та інші сервіси з кількома доменами (YouTube, X, Instagram, Telegram тощо) відкриваються швидше: те, що спрацювало для одного їхнього домену, одразу застосовується до інших.\nПід час зупинки Shroudly VPN тепер знімається одразу, і інший VPN-застосунок може підключитися негайно.\nЗастосунки автоматизації (Tasker, MacroDroid): команда «Запуск», надіслана під час зупинки Shroudly, більше не губиться.</string>
+    <string name="whatsNewAndroid">Власний сервер: DNS і QUIC більше не йдуть через ваше власне підключення, а біля адреси, яку бачать сайти, тепер видно країну й прапор.\nDiscord та інші сервіси з кількома доменами (YouTube, X, Instagram, Telegram тощо) відкриваються швидше: те, що спрацювало для одного їхнього домену, одразу застосовується до інших.\nПід час зупинки Shroudly VPN тепер знімається одразу, і інший VPN-застосунок може підключитися негайно.</string>
     <string name="whatsNewOk">Зрозуміло</string>
     <string name="whatsNewTitle">Що нового у {version}</string>
 </resources>

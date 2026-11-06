@@ -42,7 +42,9 @@ class Snowflake(private val ctx: Context, private val log: (String) -> Unit) {
         private const val CHECK_MS = 60_000L
         private const val BASE = "https://snowflake.shroudly.invalid/"
 
-        fun enabled(ctx: Context) = ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getBoolean(KEY, false)
+        // Never in the lite APK (issue #75), whatever an earlier copy kept.
+        fun enabled(ctx: Context) = BuildConfig.APK_VARIANT != "lite" &&
+            ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getBoolean(KEY, false)
         fun setEnabled(ctx: Context, on: Boolean) =
             ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit().putBoolean(KEY, on).apply()
 

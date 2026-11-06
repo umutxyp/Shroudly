@@ -262,6 +262,25 @@ object OwnServer {
         return if (ip.contains(':') && Regex("^[0-9A-Fa-f:.]+$").matches(ip)) ip else null
     }
 
+    /* The country Cloudflare places that address in ("loc=IT"), or null
+     * (issue #60). XX and T1 (Tor) are no country. */
+    fun traceLoc(body: String): String? {
+        val cc = Regex("(?:^|\n)loc=([A-Z]{2})\r?(?:\n|$)").find(body)?.groupValues?.get(1) ?: return null
+        return if (cc == "XX" || cc == "T1") null else cc
+    }
+
+    /* "80.174.118.60 · 🇮🇹 Italy": the address with its country's flag and
+     * name in the app's language; the address alone without a country. */
+    fun withPlace(ip: String, cc: String?, locale: java.util.Locale): String {
+        if (cc == null || !Regex("^[A-Z]{2}$").matches(cc)) return ip
+        val flag = cc.map { String(Character.toChars(0x1F1E6 + (it - 'A'))) }.joinToString("")
+        val name = java.util.Locale("", cc).getDisplayCountry(locale).ifBlank { cc }
+        return "$ip · $flag $name"
+    }
+
+    /* The address sites see, and its country (issue #60). */
+    data class Exit(val ip: String, val cc: String?)
+
     /* Which address sites see through the engine's own port (issue #66):
      * cloudflare.com's trace page asked through it, the way every app's
      * connection goes, its certificate and name checked; null when it could
@@ -270,7 +289,7 @@ object OwnServer {
         port: Int, auth: SocksAuth?, host: String = "cloudflare.com", timeoutMs: Int = 15_000,
         tls: SSLSocketFactory = SSLSocketFactory.getDefault() as SSLSocketFactory,
         nameOk: (String, SSLSession) -> Boolean = { h, session -> HttpsURLConnection.getDefaultHostnameVerifier().verify(h, session) },
-    ): String? {
+    ): Exit? {
         val s = Socket()
         try {
             s.soTimeout = timeoutMs
@@ -289,10 +308,18 @@ object OwnServer {
                     if (n < 0) break
                     got.append(String(buf, 0, n, Charsets.ISO_8859_1))
                     val head = got.indexOf("\r\n\r\n")
-                    if (head >= 0) traceIp(got.substring(head + 4))?.let { ip -> return ip }
+                    // "loc=" comes a few lines after "ip=": waited for too.
+                    if (head >= 0) {
+                        val page = got.substring(head + 4)
+                        val ip = traceIp(page)
+                        val cc = traceLoc(page)
+                        if (ip != null && cc != null) return Exit(ip, cc)
+                    }
                 }
                 val head = got.indexOf("\r\n\r\n")
-                return if (head >= 0) traceIp(got.substring(head + 4)) else null
+                if (head < 0) return null
+                val page = got.substring(head + 4)
+                return traceIp(page)?.let { Exit(it, traceLoc(page)) }
             }
         } catch (_: Exception) {
             return null
@@ -384,7 +411,7 @@ object OwnServer {
                 val ip = exitAddress(port, socks)
                 synchronized(this) {
                     if (exitWork !== ex) return@Runnable
-                    Protection.ownServerExit(ip)
+                    Protection.ownServerExit(ip?.ip, ip?.cc)
                     try { ex.schedule(look, if (ip != null) EXIT_EVERY_MS else EXIT_RETRY_MS, TimeUnit.MILLISECONDS) } catch (_: Exception) {}
                 }
             }

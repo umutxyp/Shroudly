@@ -53,6 +53,7 @@ int main(void) {
   CHECK(site_is("rr3---sn-abc.googlevideo.com", "youtube.com") && site_is("i.ytimg.com", "youtube.com"));
   CHECK(site_is("pbs.twimg.com", "x.com") && site_is("scontent.cdninstagram.com", "instagram.com"));
   CHECK(site_is("evildiscord.gg", "evildiscord.gg"));      /* only a whole domain is family */
+  CHECK(site_is("xsso.leagueoflegends.com", "riotgames.com") && site_is("telemetry.sgp.pvp.net", "riotgames.com"));
   CHECK(site_is("WWW.Example.COM.", "example.com"));
   CHECK(site_is("www.example.co.uk", "example.co.uk"));
   CHECK(site_is("x.y.example.com.tr", "example.com.tr"));

@@ -258,6 +258,7 @@ static const char *const SITE_FAMILY[][8] = {
   { "whatsapp.com", "whatsapp.net", NULL },
   { "telegram.org", "t.me", "telegram.me", "telesco.pe", "tdesktop.com", "telegra.ph", NULL },
   { "roblox.com", "rbxcdn.com", "rbx.com", NULL },
+  { "riotgames.com", "leagueoflegends.com", "pvp.net", "riotcdn.net", "playvalorant.com", "lolstatic.com", NULL },
   { "twitch.tv", "ttvnw.net", "jtvnw.net", NULL },
   { "spotify.com", "scdn.co", "spotifycdn.com", NULL },
   { "reddit.com", "redd.it", "redditmedia.com", "redditstatic.com", NULL },
@@ -2782,6 +2783,15 @@ static uint16_t udp_dns_fid(udp_assoc *u) {
   }
 }
 
+/* A query about a name only the LAN knows, to a resolver on the LAN. */
+static int udp_dns_lan_only(const sudp_dst *d, const uint8_t *q, size_t ql) {
+  struct sockaddr_storage to; socklen_t tl;
+  if (sudp_dst_addr(d, &to, &tl) != 0 || !udp_dst_private(&to)) return 0;
+  char name[256]; size_t qend; int edns;
+  if (dns_query_parse(q, ql, name, sizeof(name), &qend, &edns) != 0) return 0;
+  return doh_local_name(name);
+}
+
 /* Plain DNS from the client, sent to the forwarder instead of where it was
  * headed. 1 when it went (it is done with), 0 when it should go out as any
  * other datagram: the engine has no forwarder, the datagram is not a
@@ -2797,7 +2807,10 @@ static int udp_dns_redirect(udp_assoc *u, const sudp_dst *d, const uint8_t *hdr,
   if (dns_query_parse(q, ql, name, sizeof(name), &qend, &edns) != 0) return 0;
   if (doh_local_name(name)) return 0;
   struct sockaddr_storage to; socklen_t tl;
-  if (sudp_dst_addr(d, &to, &tl) == 0) { if (udp_dst_private(&to)) return 0; }
+  /* A resolver on the LAN (the router) asks the provider in turn: with the
+   * user's own server set, a public name goes to the forwarder (and on
+   * through the server) wherever the app sent it (issue #67). */
+  if (sudp_dst_addr(d, &to, &tl) == 0) { if (udp_dst_private(&to) && !g_cfg.upstream_kind) return 0; }
   else if (doh_local_name(d->host)) return 0;
   if (!u->dq) {
     u->dq = (udp_dns_q *)calloc(UDP_DNS_SLOTS, sizeof(udp_dns_q));
@@ -2857,6 +2870,9 @@ static int udp_dns_tick(udp_assoc *u, int max) {
     uint64_t age = age_ms(t, e->t);
     if (age >= UDP_DNS_WAIT_MS) { e->used = 0; continue; }
     if (e->plain) continue;
+    /* With the user's own server, DNS never goes out past it: the forwarder
+     * answers through the server, or the app asks again (issue #67). */
+    if (g_cfg.upstream_kind) continue;
     if (age < UDP_DNS_PLAIN_MS) {
       int left = (int)(UDP_DNS_PLAIN_MS - age);
       if (left < next) next = left;
@@ -2891,7 +2907,7 @@ static void udp_dns_answers(udp_assoc *u) {
      * now rather than after UDP_DNS_PLAIN_MS, and an answer the forwarder
      * may still find is passed on too. */
     if (doh_reply_noroute(a, n)) {
-      if (!e->plain) {
+      if (!e->plain && !g_cfg.upstream_kind) {
         e->plain = 1;
         sudp_dst d;
         if (sudp_parse(e->hdr, e->hl, &d) == SUDP_OK) udp_send_out(u, &d, e->q, e->ql);
@@ -2972,12 +2988,19 @@ static void udp_from_client(udp_assoc *u) {
     if (d.atyp == 3 && adblock_blocked(d.host)) continue;
     /* QUIC turned off (--drop-quic): the app falls back to TCP. An
      * association that only ever carried it ends like a DNS one. */
-    if (g_cfg.drop_quic && d.port == 443) continue;
+    /* With the user's own server every site goes through it over TCP; QUIC
+     * would leave from this device's own address (issue #67), so it is
+     * dropped and browsers and apps use TCP. */
+    if ((g_cfg.drop_quic || g_cfg.upstream_kind) && d.port == 443) continue;
     if (g_cfg.ipv4_only && d.atyp == 4) continue;
     if (d.port != 53) u->other = 1;
     if (d.port == 53 && udp_dns_blocked(u, &d, u->buf, payload, plen)) continue;
     /* Plain DNS: to the encrypted forwarder, when it is a query for it. */
     if (d.port == 53 && udp_dns_redirect(u, &d, u->buf, payload, plen)) continue;
+    /* DNS the forwarder could not take, with the user's own server set: only
+     * a LAN name to a LAN resolver goes; anything else would tell the
+     * provider which sites are visited (issue #67). */
+    if (d.port == 53 && g_cfg.upstream_kind && !udp_dns_lan_only(&d, payload, plen)) continue;
     udp_send_out(u, &d, payload, plen);
   }
 }

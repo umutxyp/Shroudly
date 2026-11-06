@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
+import { exitWithPlace } from './exitPlace';
 import { HeartIcon, PowerIcon, ShieldAlertIcon, ShieldCheckIcon, ShieldIcon, SpinnerIcon } from './icons';
 import Toast from './Toast';
 import ClampedText from './ClampedText';
@@ -210,7 +211,7 @@ export default function ControlPanel({ dpiStatus, onStatusChange, onSupport }) {
             <p className="mt-1.5 text-[13px] leading-snug wrap-anywhere" style={{ color: 'var(--warn)' }}>{t('startFailedBody', { repair: t('repairApp') })}</p>
           ) : (
             <p className="mt-1.5 text-[13px] leading-snug" style={{ color: !active && dpiStatus.blocked ? 'var(--warn)' : 'var(--text-dim)' }}>
-              {ownProxy ? t('ownProxyBody') : offline ? t('noInternetBody') : ownServerExit ? t('ownServerExit', { ip: ownServerExit.ip })
+              {ownProxy ? t('ownProxyBody') : offline ? t('noInternetBody') : ownServerExit ? t('ownServerExit', { ip: exitWithPlace(ownServerExit.ip, ownServerExit.loc, language) })
                 : active ? t('dpiBypassRunning') : dpiStatus.blocked ? t('securityStatus') : t('dpiBypassStopped')}
             </p>
           )}

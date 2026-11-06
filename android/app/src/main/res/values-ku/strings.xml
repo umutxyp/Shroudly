@@ -263,7 +263,7 @@
     <string name="upload">Barkirin</string>
     <string name="uptime">Dema xebatê</string>
     <string name="versionLabel">Guherto {version}</string>
-    <string name="whatsNewAndroid">Discord û xizmetên din ên bi çend domainan (YouTube, X, Instagram, Telegram û yên din) zûtir vedibin: tiştê ku ji bo yek ji domainên wan dixebite yekser ji bo yên din jî tê bikaranîn.\nDema Shroudly tê rawestandin, VPN êdî yekser radibe, ji ber vê yekê sepaneke VPN ya din dikare tavilê dest pê bike.\nSepanên otomasyonê (Tasker, MacroDroid): fermana Destpêkê ya dema Shroudly hîn radiweste tê şandin êdî winda nabe.</string>
+    <string name="whatsNewAndroid">Servera te bi xwe: DNS û QUIC êdî ji girêdana te ya xwe dernakevin, û li kêleka navnîşana ku malper dibînin niha welat û ala wê jî xuya dibe.\nDiscord û xizmetên din ên bi çend domainan (YouTube, X, Instagram, Telegram û yên din) zûtir vedibin: tiştê ku ji bo yek ji domainên wan dixebite yekser ji bo yên din jî tê bikaranîn.\nDema Shroudly tê rawestandin, VPN êdî yekser radibe, ji ber vê yekê sepaneke VPN ya din dikare tavilê dest pê bike.</string>
     <string name="whatsNewOk">Baş e</string>
     <string name="whatsNewTitle">Tiştên nû di {version} de</string>
 </resources>

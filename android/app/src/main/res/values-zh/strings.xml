@@ -263,7 +263,7 @@
     <string name="upload">上传</string>
     <string name="uptime">运行时长</string>
     <string name="versionLabel">版本 {version}</string>
-    <string name="whatsNewAndroid">Discord 以及其他使用多个域名的服务（YouTube、X、Instagram、Telegram 等）打开更快：在其中一个域名上有效的方式会立即用于其他域名。\n停止 Shroudly 时 VPN 现在会立即撤下，其他 VPN 应用可以马上接手。\n自动化应用（Tasker、MacroDroid）：在 Shroudly 停止过程中发送的“启动”不再丢失。</string>
+    <string name="whatsNewAndroid">自己的服务器：DNS 和 QUIC 不再从你自己的网络连接直接发出，网站看到的地址旁现在还会显示国家和国旗。\nDiscord 以及其他使用多个域名的服务（YouTube、X、Instagram、Telegram 等）打开更快：在其中一个域名上有效的方式会立即用于其他域名。\n停止 Shroudly 时 VPN 现在会立即撤下，其他 VPN 应用可以马上接手。</string>
     <string name="whatsNewOk">知道了</string>
     <string name="whatsNewTitle">{version} 的新内容</string>
 </resources>

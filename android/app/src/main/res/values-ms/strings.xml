@@ -263,7 +263,7 @@
     <string name="upload">Muat naik</string>
     <string name="uptime">Masa aktif</string>
     <string name="versionLabel">Versi {version}</string>
-    <string name="whatsNewAndroid">Discord dan perkhidmatan lain dengan beberapa domain (YouTube, X, Instagram, Telegram dan lain-lain) dibuka lebih pantas: apa yang berjaya pada satu domainnya terus digunakan pada yang lain.\nMenghentikan Shroudly kini terus menanggalkan VPN, jadi apl VPN lain boleh mengambil alih serta-merta.\nApl automasi (Tasker, MacroDroid): arahan Mula yang dihantar semasa Shroudly masih berhenti tidak lagi hilang.</string>
+    <string name="whatsNewAndroid">Pelayan anda sendiri: DNS dan QUIC tidak lagi keluar melalui sambungan anda sendiri, dan alamat yang dilihat laman kini menunjukkan negara dan benderanya.\nDiscord dan perkhidmatan lain dengan beberapa domain (YouTube, X, Instagram, Telegram dan lain-lain) dibuka lebih pantas: apa yang berjaya pada satu domainnya terus digunakan pada yang lain.\nMenghentikan Shroudly kini terus menanggalkan VPN, jadi apl VPN lain boleh mengambil alih serta-merta.</string>
     <string name="whatsNewOk">Faham</string>
     <string name="whatsNewTitle">Apa yang baharu dalam {version}</string>
 </resources>

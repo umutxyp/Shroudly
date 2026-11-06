@@ -548,6 +548,48 @@ const LAN6 = (ifaces.find((i) => (i.family === 'IPv6' || i.family === 6) && !/^f
     g.ctl.destroy(); cg.close(); eng3.stop();
   }
 
+  // ── with the user's own server (issue #67): nothing on UDP that tells the
+  // provider which sites are visited, or leaves from this device's address
+  // in place of the server's
+  {
+    const os = require('os');
+    const fs = require('fs');
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'shroudly-up-'));
+    const upFile = path.join(dir, 'up.txt');
+    fs.writeFileSync(upFile, 'socks5://127.0.0.1:9\n', { mode: 0o600 });
+    const P4 = await freePort();
+    const eng4 = await startEngine(P4, ['--auto', '--doh', '--doh-port', String(dns.port), '--upstream-file', upFile]);
+    const g = await associate(P4);
+    const cg = await client();
+    r = await roundTrip(cg, g.port, LAN4, e4.port, Buffer.from('game'));
+    t.ok(r && r.data.toString() === 'game', 'own server: UDP that is not DNS or QUIC still goes (games, calls)');
+    let before = (await eng4.stats()).bytes_up;
+    for (let i = 0; i < 10; i++) cg.s.send(Buffer.concat([header('192.0.2.1', 443), Buffer.alloc(1000, 0xc3)]), g.port, '127.0.0.1');
+    await sleep(600);
+    let after = (await eng4.stats()).bytes_up;
+    t.ok(after - before < 1000, `own server: QUIC is dropped, so it goes over TCP through the server (${after - before} of 10000 bytes)`);
+    // The forwarder never answers example.com, and has no route for
+    // example.net: without a server of one's own the query would then go
+    // where the app sent it; with one, never.
+    for (const name of ['example.com', 'example.net']) {
+      const q = dnsQuery(name);
+      before = (await eng4.stats()).bytes_up;
+      cg.s.send(Buffer.concat([header('192.0.2.53', 53), q.buf]), g.port, '127.0.0.1');
+      await sleep(3500);
+      after = (await eng4.stats()).bytes_up;
+      t.ok(after - before === q.buf.length, `own server: ${name} unanswered by encrypted DNS is not sent out in plaintext (${after - before} bytes: the forwarder's copy only)`);
+    }
+    // A public name asked of a LAN resolver (the router asks the provider in
+    // turn) goes to the encrypted forwarder too.
+    const asked = dns.asked['udp-echo.example/A'] || 0;
+    const lq = dnsQuery('udp-echo.example');
+    r = await roundTrip(cg, g.port, '10.255.255.53', 53, lq.buf, 3000);
+    t.ok((dns.asked['udp-echo.example/A'] || 0) === asked + 1 && r && dnsAnswers(r.data, lq.id) === 1,
+      'own server: a public name asked of a LAN resolver is answered by the encrypted forwarder');
+    g.ctl.destroy(); cg.close(); eng4.stop();
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
+
   const st = await eng.stats();
   t.ok(st && st.bytes_up > 60000 && st.bytes_down > 60000, `datagram bytes are counted (up ${st && st.bytes_up}, down ${st && st.bytes_down})`);
   await sleep(300);

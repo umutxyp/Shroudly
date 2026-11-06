@@ -263,7 +263,7 @@
     <string name="upload">Жүктеп салу</string>
     <string name="uptime">Жұмыс уақыты</string>
     <string name="versionLabel">Нұсқа {version}</string>
-    <string name="whatsNewAndroid">Discord және бірнеше доменді басқа қызметтер (YouTube, X, Instagram, Telegram және т.б.) жылдамырақ ашылады: бір доменінде істеген жол қалғандарында бірден қолданылады.\nShroudly тоқтатылғанда VPN енді бірден алынады, сондықтан басқа VPN қолданбасы бірден іске қосыла алады.\nАвтоматтандыру қолданбалары (Tasker, MacroDroid): Shroudly тоқтап жатқанда жіберілген «Іске қосу» енді жоғалмайды.</string>
+    <string name="whatsNewAndroid">Өз серверіңіз: DNS пен QUIC енді өз қосылымыңыз арқылы шықпайды, ал сайттар көретін мекенжайдың жанында енді елі мен туы көрсетіледі.\nDiscord және бірнеше доменді басқа қызметтер (YouTube, X, Instagram, Telegram және т.б.) жылдамырақ ашылады: бір доменінде істеген жол қалғандарында бірден қолданылады.\nShroudly тоқтатылғанда VPN енді бірден алынады, сондықтан басқа VPN қолданбасы бірден іске қосыла алады.</string>
     <string name="whatsNewOk">Түсінікті</string>
     <string name="whatsNewTitle">{version} нұсқасындағы жаңалықтар</string>
 </resources>

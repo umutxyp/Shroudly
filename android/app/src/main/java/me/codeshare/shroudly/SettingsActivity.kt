@@ -224,8 +224,14 @@ class SettingsActivity : Activity() {
             isChecked = OnlineCount.enabled(this@SettingsActivity)
             setOnCheckedChangeListener { _, on -> OnlineCount.setEnabled(this@SettingsActivity, on) }
         }
+        // The lite APK has no Tor, and nothing of Tor's is offered there
+        // either: helping others is a Snowflake proxy for the Tor network
+        // (issue #75). Its divider and the Tor toggle's go with them.
+        val lite = BuildConfig.APK_VARIANT == "lite"
+        for (id in intArrayOf(R.id.snowflakeDivider, R.id.torDivider)) findViewById<View>(id).visibility = if (lite) View.GONE else View.VISIBLE
         // Inside Shroudly while on, charging, on Wi-Fi (Snowflake).
         findViewById<Switch>(R.id.snowflake).apply {
+            visibility = if (lite) View.GONE else View.VISIBLE
             isChecked = Snowflake.enabled(this@SettingsActivity)
             setOnCheckedChangeListener { _, on ->
                 Snowflake.setEnabled(this@SettingsActivity, on)

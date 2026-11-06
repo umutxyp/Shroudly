@@ -540,13 +540,15 @@ class MainActivity : Activity() {
     /* "Help people in censored countries": the apps made for it (HelpOthers). */
     private fun showHelpOthers() {
         try {
-            AlertDialog.Builder(this)
+            val b = AlertDialog.Builder(this)
                 .setTitle(R.string.helpOthers)
                 .setMessage(R.string.helpOthersBody)
                 .setPositiveButton(R.string.helpOthersConduit) { _, _ -> open(HelpOthers.conduitUrl(resources.configuration.locales[0].language)) }
-                .setNeutralButton(R.string.helpOthersOrbot) { _, _ -> open(HelpOthers.orbotUrl()) }
                 .setNegativeButton(android.R.string.cancel, null)
-                .show()
+            // Orbot is Tor's: not offered in the lite APK, which has nothing
+            // of Tor's (issue #75); Psiphon's Conduit stays.
+            if (BuildConfig.APK_VARIANT != "lite") b.setNeutralButton(R.string.helpOthersOrbot) { _, _ -> open(HelpOthers.orbotUrl()) }
+            b.show()
         } catch (_: Exception) {}
     }
 
@@ -723,7 +725,7 @@ class MainActivity : Activity() {
             // Working through the user's own server: the address sites see
             // (issue #66), so no site has to be opened to check.
             on && !proxyIdle && Protection.ownServerExit != null -> {
-                detail.show(text(R.string.ownServerExit, "ip" to (Protection.ownServerExit ?: "")))
+                detail.show(text(R.string.ownServerExit, "ip" to OwnServer.withPlace(Protection.ownServerExit ?: "", Protection.ownServerExitCc, resources.configuration.locales[0])))
                 detail.setTextColor(getColor(R.color.text_dim))
             }
             // Apps' lookups go around the tunnel (DnsNotice): what to turn off.

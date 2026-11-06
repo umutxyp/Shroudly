@@ -165,13 +165,38 @@ enum OwnServer {
         return nil
     }
 
+    /* The country Cloudflare places that address in ("loc=IT"), or nil
+     * (issue #60). XX and T1 (Tor) are no country. */
+    static func traceLoc(_ body: String) -> String? {
+        for raw in body.split(whereSeparator: { $0 == "\n" || $0 == "\r\n" }) {
+            let line = raw.trimmingCharacters(in: .whitespacesAndNewlines)
+            guard line.hasPrefix("loc=") else { continue }
+            let cc = String(line.dropFirst(4))
+            guard cc.count == 2, cc.unicodeScalars.allSatisfy({ $0.value >= 65 && $0.value <= 90 }), cc != "XX", cc != "T1" else { return nil }
+            return cc
+        }
+        return nil
+    }
+
+    /* "80.174.118.60 · 🇮🇹 Italy": the address with its country's flag and
+     * name in the app's language; the address alone without a country. */
+    static func withPlace(_ ip: String, _ cc: String?, language: String = Bundle.main.preferredLocalizations.first ?? "en") -> String {
+        guard let cc, cc.count == 2, cc.unicodeScalars.allSatisfy({ $0.value >= 65 && $0.value <= 90 }) else { return ip }
+        var flag = ""
+        for s in cc.unicodeScalars { if let u = UnicodeScalar(0x1F1E6 + s.value - 65) { flag.unicodeScalars.append(u) } }
+        let name = Locale(identifier: language).localizedString(forRegionCode: cc) ?? cc
+        return "\(ip) · \(flag) \(name)"
+    }
+
     /* The address sites see now, asked of Cloudflare's trace page the way any
      * app's connection goes (through the tunnel, the engine and the server). */
     static func exitAddress(session: URLSession = .shared, timeout: TimeInterval = 10) async -> String? {
         var req = URLRequest(url: URL(string: "https://cloudflare.com/cdn-cgi/trace")!, cachePolicy: .reloadIgnoringLocalAndRemoteCacheData, timeoutInterval: timeout)
         req.httpMethod = "GET"
         guard let (data, resp) = try? await session.data(for: req), (resp as? HTTPURLResponse)?.statusCode == 200 else { return nil }
-        return traceIp(String(decoding: data, as: UTF8.self))
+        let page = String(decoding: data, as: UTF8.self)
+        guard let ip = traceIp(page) else { return nil }
+        return withPlace(ip, traceLoc(page))
     }
 
     /* The engine's --upstream-file, readable by this process alone (0600

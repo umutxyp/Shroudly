@@ -183,8 +183,8 @@ function load(rel) {
     t.ok(/<WhatsNewBanner show=\{activeTab === 'control'\} news=\{news\} \/>\s*<SupportBanner/.test(page) && /<SupportBanner[^\n]*\/>\s*<HelpBanner show=\{helpCard\} help=\{help\} \/>/.test(page)
       && /const helpCard = activeTab === 'control' && active && !notRouting && !offline && !ownServerDown;/.test(page),
     'the main window: what changed, then the support card, then the card asking for help, one at a time and only while protection works');
-    t.ok(/ownServerExit \? t\('ownServerExit', \{ ip: ownServerExit\.ip \}\)/.test(control) && /path: \[t\('navSettings'\), t\('tabSharing'\), t\('ownServer'\)\]/.test(control),
-      'the panel: the address sites see under "Protected"; the way to the server by its tab');
+    t.ok(/ownServerExit \? t\('ownServerExit', \{ ip: exitWithPlace\(ownServerExit\.ip, ownServerExit\.loc, language\) \}\)/.test(control) && /path: \[t\('navSettings'\), t\('tabSharing'\), t\('ownServer'\)\]/.test(control),
+      'the panel: the address sites see under "Protected", with its country (#60); the way to the server by its tab');
     t.ok(/ownServerExit: \(engine && engine\.isActive\(\) && engine\.advice && engine\.advice\.ownServerExit\) \|\| null/.test(src('electron/main.js'))
       && /this\._watchExit\(\);\n    return \{ success: true \};/.test(src('electron/engine-manager.js')), 'main.js and the engine: the address watched after each start, and passed on');
   }

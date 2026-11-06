@@ -263,7 +263,7 @@
     <string name="upload">Iberiş</string>
     <string name="uptime">Işlän wagty</string>
     <string name="versionLabel">Wersiýa {version}</string>
-    <string name="whatsNewAndroid">Discord we birnäçe domenli beýleki hyzmatlar (YouTube, X, Instagram, Telegram we ş.m.) has çalt açylýar: bir domeninde işlän ýol beýlekilerinde derrew ulanylýar.\nShroudly saklananda VPN indi derrew aýrylýar, şonuň üçin başga VPN programmasy derrew işläp başlap biler.\nAwtomatlaşdyryş programmalary (Tasker, MacroDroid): Shroudly heniz saklanýarka iberilen «Başlat» indi ýitmeýär.</string>
+    <string name="whatsNewAndroid">Öz serweriňiz: DNS we QUIC indi öz birikmäňizden çykmaýar, saýtlaryň görýän salgysynyň ýanynda indi ýurdy we baýdagy görünýär.\nDiscord we birnäçe domenli beýleki hyzmatlar (YouTube, X, Instagram, Telegram we ş.m.) has çalt açylýar: bir domeninde işlän ýol beýlekilerinde derrew ulanylýar.\nShroudly saklananda VPN indi derrew aýrylýar, şonuň üçin başga VPN programmasy derrew işläp başlap biler.</string>
     <string name="whatsNewOk">Düşnükli</string>
     <string name="whatsNewTitle">{version} wersiýasynda täzelikler</string>
 </resources>

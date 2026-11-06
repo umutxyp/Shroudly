@@ -263,7 +263,7 @@
     <string name="upload">Gesendet</string>
     <string name="uptime">Laufzeit</string>
     <string name="versionLabel">Version {version}</string>
-    <string name="whatsNewAndroid">Discord und andere Dienste mit mehreren Domains (YouTube, X, Instagram, Telegram und mehr) öffnen schneller: Was für eine ihrer Domains funktioniert, gilt sofort auch für die anderen.\nBeim Stoppen von Shroudly verschwindet das VPN jetzt sofort, sodass eine andere VPN-App gleich übernehmen kann.\nAutomatisierungs-Apps (Tasker, MacroDroid): Ein Start, während Shroudly noch stoppt, geht nicht mehr verloren.</string>
+    <string name="whatsNewAndroid">Eigener Server: DNS und QUIC verlassen nicht mehr deine eigene Verbindung, und die Adresse, die Websites sehen, zeigt jetzt Land und Flagge.\nDiscord und andere Dienste mit mehreren Domains (YouTube, X, Instagram, Telegram und mehr) öffnen schneller: Was für eine ihrer Domains funktioniert, gilt sofort auch für die anderen.\nBeim Stoppen von Shroudly verschwindet das VPN jetzt sofort, sodass eine andere VPN-App gleich übernehmen kann.</string>
     <string name="whatsNewOk">Verstanden</string>
     <string name="whatsNewTitle">Neu in {version}</string>
 </resources>

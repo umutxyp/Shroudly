@@ -2,6 +2,7 @@
 
 import { useEffect, useId, useRef, useState } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
+import { exitWithPlace } from './exitPlace';
 import { ACCENTS, applyAppearance, readAppearance } from './Appearance';
 import {
   AlertTriangleIcon, CheckCircleIcon, CheckIcon, GlobeIcon, PaletteIcon, InfoIcon, LanguagesIcon, SearchIcon, ShieldAlertIcon,
@@ -315,7 +316,7 @@ function DnsServer({ value, onSave }) {
  * come through it. Saved: what it is (never the password), and the way to
  * stop using it. */
 function OwnServer({ value, onSave }) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const descId = useId();
   const saved = typeof value === 'string' ? value : '';
   const [text, setText] = useState(saved);
@@ -332,7 +333,7 @@ function OwnServer({ value, onSave }) {
     setState({ testing: true });
     let r;
     try { r = await window.electron.testOwnServer(v); } catch { r = { ok: false, why: 'noAnswer' }; }
-    if (r && r.ok) { setState((await onSave(v)) ? { ok: true, ms: r.ms, ip: r.ip || null } : { invalid: 'format', tried: v }); return; }
+    if (r && r.ok) { setState((await onSave(v)) ? { ok: true, ms: r.ms, ip: r.ip || null, loc: r.loc || null } : { invalid: 'format', tried: v }); return; }
     setState({ ...(r || {}), tried: v });
   };
   const off = async () => { if (await onSave(null)) { setText(''); setState(null); } };
@@ -373,7 +374,7 @@ function OwnServer({ value, onSave }) {
         {state && state.ok && (
           <p className="mt-2 flex items-start gap-1.5 text-[12px] leading-snug" style={{ color: 'var(--ok)' }}>
             <CheckCircleIcon className="mt-[1px] h-3.5 w-3.5 shrink-0" />
-            <span className="min-w-0">{state.ip ? t('ownServerOkExit', { ms: state.ms, ip: state.ip }) : t('ownServerOk', { ms: state.ms })}</span>
+            <span className="min-w-0">{state.ip ? t('ownServerOkExit', { ms: state.ms, ip: exitWithPlace(state.ip, state.loc, language) }) : t('ownServerOk', { ms: state.ms })}</span>
           </p>
         )}
         {state && (state.invalid || state.why) && (

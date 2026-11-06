@@ -167,7 +167,9 @@
                 android:textColor="@color/text"
                 android:textSize="15sp" />
 
-            <View style="@style/Divider" />
+            <View
+                android:id="@+id/snowflakeDivider"
+                style="@style/Divider" />
 
             <Switch
                 android:id="@+id/snowflake"
@@ -187,7 +189,9 @@
                 android:textColor="@color/text"
                 android:textSize="15sp" />
 
-            <View style="@style/Divider" />
+            <View
+                android:id="@+id/torDivider"
+                style="@style/Divider" />
 
             <!-- The last way out (TorRoute): Tor through Snowflake for a site
                  nothing else opened. -->

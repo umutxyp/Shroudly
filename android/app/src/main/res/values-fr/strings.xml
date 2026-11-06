@@ -263,7 +263,7 @@
     <string name="upload">Envoi</string>
     <string name="uptime">Durée d’activité</string>
     <string name="versionLabel">Version {version}</string>
-    <string name="whatsNewAndroid">Discord et d\'autres services à plusieurs domaines (YouTube, X, Instagram, Telegram, etc.) s\'ouvrent plus vite : ce qui marche pour l\'un de leurs domaines sert aussitôt aux autres.\nArrêter Shroudly retire maintenant le VPN tout de suite : une autre app VPN peut prendre le relais aussitôt.\nApps d\'automatisation (Tasker, MacroDroid) : un Démarrer envoyé pendant que Shroudly s\'arrête n\'est plus perdu.</string>
+    <string name="whatsNewAndroid">Votre propre serveur : le DNS et QUIC ne sortent plus par votre propre connexion, et l\'adresse que voient les sites affiche son pays et son drapeau.\nDiscord et d\'autres services à plusieurs domaines (YouTube, X, Instagram, Telegram, etc.) s\'ouvrent plus vite : ce qui marche pour l\'un de leurs domaines sert aussitôt aux autres.\nArrêter Shroudly retire maintenant le VPN tout de suite : une autre app VPN peut prendre le relais aussitôt.</string>
     <string name="whatsNewOk">Compris</string>
     <string name="whatsNewTitle">Nouveautés de la {version}</string>
 </resources>

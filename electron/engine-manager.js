@@ -557,7 +557,7 @@ class EngineManager {
       try { r = await OwnServer.test({ kind: 'socks5', host: '127.0.0.1', port: this.port, user: '' }, { trace: true, timeout: 15000 }); } catch {}
       if (!this.active || !this._upstreamFile) return;
       const ip = r && r.ok ? r.ip : null;
-      this._setAdvice({ ownServerExit: ip ? { server: this._ownServerShown || '', ip } : null });
+      this._setAdvice({ ownServerExit: ip ? { server: this._ownServerShown || '', ip, loc: (r && r.loc) || null } : null });
       this._exitTimer = setTimeout(look, ip ? EXIT_EVERY_MS : EXIT_RETRY_MS);
       if (this._exitTimer.unref) this._exitTimer.unref();
     };

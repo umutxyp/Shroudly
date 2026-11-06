@@ -56,6 +56,8 @@ object Protection {
     /* While on and working through the user's own server: the address sites
      * see through it (OwnServer.exitAddress, issue #66), or null. */
     @Volatile var ownServerExit: String? = null
+    /* Its country (Cloudflare's "loc=", issue #60), or null. */
+    @Volatile var ownServerExitCc: String? = null
         private set
 
     private val listeners = CopyOnWriteArraySet<() -> Unit>()
@@ -65,7 +67,7 @@ object Protection {
         state = s
         if (s == State.STARTING) { errorRes = 0; errorDetail = null }
         if (s != State.ON) { socksPort = 0; socksAuth = null; proxyPortTaken = 0 }
-        if (s == State.OFF) { stats = null; startedAt = 0; dnsAround = false; torAsk = null; proxyOnly = false; national = null; ownServerDown = null; ownServerExit = null }
+        if (s == State.OFF) { stats = null; startedAt = 0; dnsAround = false; torAsk = null; proxyOnly = false; national = null; ownServerDown = null; ownServerExit = null; ownServerExitCc = null }
         changed()
     }
 
@@ -87,9 +89,10 @@ object Protection {
         changed()
     }
 
-    fun ownServerExit(v: String?) {
-        if (ownServerExit == v) return
+    fun ownServerExit(v: String?, cc: String? = null) {
+        if (ownServerExit == v && ownServerExitCc == cc) return
         ownServerExit = v
+        ownServerExitCc = cc
         changed()
     }
 

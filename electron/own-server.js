@@ -215,20 +215,27 @@ function traceIp(text) {
   return m && net.isIP(m[1]) ? m[1] : null;
 }
 
+/* The country Cloudflare places that address in ("loc=IT"), or null
+ * (issue #60). XX and T1 (Tor) are no country. */
+function traceLoc(text) {
+  const m = /(?:^|\n)loc=([A-Z]{2})\r?(?:\n|$)/.exec(String(text || ''));
+  return m && m[1] !== 'XX' && m[1] !== 'T1' ? m[1] : null;
+}
+
 /* Does the server carry a connection to a site? Opens one through it to
  * `host` and checks the site's certificate (a server that only answers,
  * or a network that hands back something else, is not taken for one):
  * { ok: true, ms } or { ok: false, why } (WHY codes, plus 'silent' and
  * 'tls'). With `trace`, the same connection then asks the site's trace
  * page which address it sees, the server's way out (issue #66): { ok:
- * true, ms, ip }, ip null when the page did not say. */
+ * true, ms, ip, loc }, each null when the page did not say. */
 async function test(p, { host = 'cloudflare.com', port = 443, ca, timeout = 12000, trace = false } = {}) {
   const t0 = Date.now();
   let s = null;
   let client = null;
   let clientError = null;
   let ms = 0;
-  let ip = null;
+  let seen = null;
   const deadline = new Promise((_, reject) => { setTimeout(() => reject(new Why(s ? 'silent' : 'noAnswer')), timeout).unref(); });
   try {
     await Promise.race([deadline, (async () => {
@@ -241,7 +248,7 @@ async function test(p, { host = 'cloudflare.com', port = 443, ca, timeout = 1200
         if (p.kind === 'http') await connectHttp(s, p, host, port);
         else await socks5(s, p, host, port);
       }
-      ip = await new Promise((resolve, reject) => {
+      seen = await new Promise((resolve, reject) => {
         const t = tls.connect({ socket: s, servername: host, ALPNProtocols: ['http/1.1'], ...(ca ? { ca } : {}) });
         let up = false;
         t.once('secureConnect', () => {
@@ -251,12 +258,14 @@ async function test(p, { host = 'cloudflare.com', port = 443, ca, timeout = 1200
           // The server worked: what the trace page says is a bonus, and its
           // failing (a reset, a page without the line) is not the server's.
           let body = '';
-          const done = () => { t.destroy(); resolve(traceIp(body.slice(body.indexOf('\r\n\r\n') + 4))); };
+          const page = () => body.slice(body.indexOf('\r\n\r\n') + 4);
+          const done = () => { t.destroy(); resolve({ ip: traceIp(page()), loc: traceLoc(page()) }); };
           t.setEncoding('latin1');
           t.on('data', (d) => {
             body += d;
             const head = body.indexOf('\r\n\r\n');
-            if ((head >= 0 && traceIp(body.slice(head + 4))) || body.length > 16384) done();
+            // "loc=" comes a few lines after "ip=": waited for too.
+            if ((head >= 0 && traceIp(body.slice(head + 4)) && traceLoc(body.slice(head + 4))) || body.length > 16384) done();
           });
           t.once('end', done);
           t.once('close', done);
@@ -268,10 +277,10 @@ async function test(p, { host = 'cloudflare.com', port = 443, ca, timeout = 1200
         });
       });
     })()]);
-    return trace ? { ok: true, ms, ip } : { ok: true, ms };
+    return trace ? { ok: true, ms, ip: (seen && seen.ip) || null, loc: (seen && seen.loc) || null } : { ok: true, ms };
   } catch (e) {
     // Through, and only the trace page ran out of time: the server works.
-    if (ms) return trace ? { ok: true, ms, ip: null } : { ok: true, ms };
+    if (ms) return trace ? { ok: true, ms, ip: null, loc: null } : { ok: true, ms };
     return { ok: false, why: e instanceof Why ? e.why : 'noAnswer' };
   } finally {
     if (s) s.destroy();
@@ -279,4 +288,4 @@ async function test(p, { host = 'cloudflare.com', port = 443, ca, timeout = 1200
   }
 }
 
-module.exports = { parseLink, describe, engineLine, ssLink, test, traceIp, whyCode, WHY_TEXT };
+module.exports = { parseLink, describe, engineLine, ssLink, test, traceIp, traceLoc, whyCode, WHY_TEXT };

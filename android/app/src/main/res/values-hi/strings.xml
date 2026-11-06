@@ -263,7 +263,7 @@
     <string name="upload">अपलोड</string>
     <string name="uptime">सक्रिय समय</string>
     <string name="versionLabel">संस्करण {version}</string>
-    <string name="whatsNewAndroid">Discord और कई डोमेन वाली दूसरी सेवाएँ (YouTube, X, Instagram, Telegram आदि) तेज़ी से खुलती हैं: उनके एक डोमेन पर जो काम करता है, वह बाकियों पर तुरंत इस्तेमाल होता है।\nShroudly रोकने पर अब VPN तुरंत हट जाता है, ताकि कोई दूसरा VPN ऐप तुरंत संभाल सके।\nऑटोमेशन ऐप (Tasker, MacroDroid): Shroudly के बंद होते समय भेजा गया Start अब खोता नहीं।</string>
+    <string name="whatsNewAndroid">आपका अपना सर्वर: DNS और QUIC अब आपके अपने कनेक्शन से बाहर नहीं जाते, और साइटें जो पता देखती हैं उसके साथ अब देश और झंडा दिखता है।\nDiscord और कई डोमेन वाली दूसरी सेवाएँ (YouTube, X, Instagram, Telegram आदि) तेज़ी से खुलती हैं: उनके एक डोमेन पर जो काम करता है, वह बाकियों पर तुरंत इस्तेमाल होता है।\nShroudly रोकने पर अब VPN तुरंत हट जाता है, ताकि कोई दूसरा VPN ऐप तुरंत संभाल सके।</string>
     <string name="whatsNewOk">समझ गया</string>
     <string name="whatsNewTitle">{version} में नया क्या है</string>
 </resources>

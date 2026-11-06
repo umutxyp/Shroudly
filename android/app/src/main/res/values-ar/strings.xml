@@ -263,7 +263,7 @@
     <string name="upload">الرفع</string>
     <string name="uptime">مدة التشغيل</string>
     <string name="versionLabel">الإصدار {version}</string>
-    <string name="whatsNewAndroid">يفتح Discord والخدمات الأخرى ذات النطاقات المتعددة (YouTube وX وInstagram وTelegram وغيرها) أسرع: ما ينجح مع أحد نطاقاتها يُستخدم فورًا مع البقية.\nإيقاف Shroudly يزيل الآن الـVPN فورًا، فيستطيع تطبيق VPN آخر أن يتولّى مباشرة.\nتطبيقات الأتمتة (Tasker وMacroDroid): أمر التشغيل المُرسل أثناء توقّف Shroudly لم يعد يضيع.</string>
+    <string name="whatsNewAndroid">خادمك الخاص: لم يعد DNS وQUIC يخرجان من اتصالك أنت، والعنوان الذي تراه المواقع يظهر الآن مع بلده وعلمه.\nيفتح Discord والخدمات الأخرى ذات النطاقات المتعددة (YouTube وX وInstagram وTelegram وغيرها) أسرع: ما ينجح مع أحد نطاقاتها يُستخدم فورًا مع البقية.\nإيقاف Shroudly يزيل الآن الـVPN فورًا، فيستطيع تطبيق VPN آخر أن يتولّى مباشرة.</string>
     <string name="whatsNewOk">حسنًا</string>
     <string name="whatsNewTitle">الجديد في {version}</string>
 </resources>
