@@ -288,7 +288,12 @@ class ShroudlyVpnService : VpnService() {
         attachLog(this)
     }
 
+    // The newest start's id: a stop finishing as another start comes in
+    // leaves the service to that start (finish, stopSelfResult).
+    @Volatile private var lastStartId = 0
+
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        lastStartId = startId
         when (intent?.action) {
             ACTION_STOP -> {
                 // Asked to stop before it ever started: still owe startForeground.
@@ -463,8 +468,22 @@ class ShroudlyVpnService : VpnService() {
     }
 
     private fun finish() {
+        // The newest start when this stop is decided: one after it keeps the
+        // service (stopSelfResult below).
+        val id = lastStartId
+        // Started again while this stop finished (an automation app's Stop
+        // then Start, or Toggle twice): that start has the service now, its
+        // notice included. Up to 2.6.58 the stop ended the service under it,
+        // and the start failed ("rejected from" the executor).
+        if (Protection.state != Protection.State.OFF) { refreshTile(); return }
         stopForeground(STOP_FOREGROUND_REMOVE)
-        stopSelf()
+        // Only if no start came in since: one that did keeps the service,
+        // and its notice, which the line above may have just taken away.
+        if (!stopSelfResult(id)) {
+            if (Protection.state != Protection.State.OFF) goForeground(starting = Protection.state != Protection.State.ON)
+            refreshTile()
+            return
+        }
         refreshTile()
         if (restartProcess || Engine.busy) endProcess()
     }
