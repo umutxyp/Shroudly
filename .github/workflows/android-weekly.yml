@@ -13,7 +13,12 @@ on:
     # Mondays, 04:17 UTC (away from the top of the hour, when GitHub's
     # schedules are busiest).
     - cron: '17 4 * * 1'
-  workflow_dispatch: {}
+  workflow_dispatch:
+    inputs:
+      shots:
+        description: 'Also take screenshots of the main screens at three sizes and in four languages, for a layout review'
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -67,7 +72,16 @@ jobs:
         working-directory: android
         run: ./gradlew --no-daemon assembleDebug
       - name: The app on an Android emulator (x86_64, API ${{ matrix.api }})
+        env:
+          SHROUDLY_SHOTS: ${{ inputs.shots && '1' || '0' }}
         run: bash android/scripts/emulator-smoke.sh --abi x86_64 --api ${{ matrix.api }}
+      - name: The screenshots
+        if: always() && inputs.shots
+        uses: actions/upload-artifact@v7
+        with:
+          name: shots-api-${{ matrix.api }}
+          path: android/smoke-out/shots
+          if-no-files-found: ignore
       - name: The emulator's and the app's logs
         if: failure()
         uses: actions/upload-artifact@v7

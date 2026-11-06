@@ -899,4 +899,37 @@ wait_for 20 has_log "Updates: " || fail "the tile's long press did not open Shro
 sh_ "am force-stop $PKG" >/dev/null
 say "a long press on the Quick Settings tile opens Shroudly's window"
 
+# ── Screenshots for a layout review (SHROUDLY_SHOTS=1) ─────────────────────
+# Protection on, then the main screen (top and scrolled), Settings,
+# Connections and Follow on a small phone, a usual phone and a tablet, in
+# English, Turkish, Persian (right to left) and German, and with large text.
+# Pictures only: nothing is checked here (android/smoke-out/shots).
+if [ "${SHROUDLY_SHOTS:-0}" = 1 ]; then
+  out="$(dirname "$0")/../smoke-out/shots"; mkdir -p "$out"
+  ctl start; sleep 8
+  shot() { sleep 2; adb_ exec-out screencap -p > "$out/$1.png" 2>/dev/null || true; }
+  tap_id() { ui_has "resource-id=\"$PKG:id/$1\"" || return 1; sh_ "input tap $(ui_center "resource-id=\"$PKG:id/$1\"")" >/dev/null; sleep 2; }
+  scroll_down() { sh_ "input swipe 540 1500 540 400 400" >/dev/null; }
+  for size in "720x1280:320" "1080x2400:420" "1600x2560:320"; do
+    sh_ "wm size ${size%%:*}; wm density ${size##*:}" >/dev/null
+    for lang in en tr fa de; do
+      sh_ "cmd locale set-app-locales $PKG --locales $lang" >/dev/null 2>&1
+      sh_ "am force-stop $PKG" >/dev/null; ctl start; sleep 4
+      sh_ "am start -W -n $PKG/.MainActivity" >/dev/null; tag="${size%%:*}-$lang"
+      shot "$tag-main"; scroll_down; shot "$tag-main-scrolled"
+      # The other screens are not exported: opened from the window, as a person would.
+      tap_id "connectionsTile" && shot "$tag-connections"; sh_ "input keyevent KEYCODE_BACK" >/dev/null; sleep 1
+      ui_seek "resource-id=\"$PKG:id/followRow\"" && tap_id "followRow" && shot "$tag-follow"; sh_ "input keyevent KEYCODE_BACK" >/dev/null; sleep 1
+      for _ in 1 2 3; do sh_ "input swipe 160 150 160 900 200" >/dev/null; done
+      tap_id "settingsTop" && shot "$tag-settings"; sh_ "input keyevent KEYCODE_BACK" >/dev/null; sleep 1
+    done
+  done
+  sh_ "wm size 1080x2400; wm density 420; settings put system font_scale 1.3" >/dev/null
+  sh_ "cmd locale set-app-locales $PKG --locales en" >/dev/null 2>&1
+  sh_ "am force-stop $PKG" >/dev/null; ctl start; sleep 4
+  sh_ "am start -W -n $PKG/.MainActivity" >/dev/null; shot "large-text-main"; scroll_down; shot "large-text-main-scrolled"
+  sh_ "settings put system font_scale 1.0; wm size reset; wm density reset" >/dev/null
+  say "screenshots in $out: $(ls "$out" | wc -l | tr -d ' ')"
+fi
+
 say "PASSED ($ABI, API $API)"
