@@ -1,0 +1,269 @@
+package me.codeshare.shroudly
+
+import android.content.Context
+import org.json.JSONArray
+import org.json.JSONObject
+import java.io.ByteArrayOutputStream
+import java.io.IOException
+import java.net.HttpURLConnection
+import java.net.InetAddress
+import java.net.InetSocketAddress
+import java.net.Proxy
+import java.net.Socket
+import java.net.URL
+import java.security.MessageDigest
+import java.util.Base64
+import java.util.zip.GZIPOutputStream
+import javax.net.ssl.HttpsURLConnection
+import javax.net.ssl.SNIHostName
+import javax.net.ssl.SSLSocket
+import javax.net.ssl.SSLSocketFactory
+
+/*
+ * "Something not working?" (ReportActivity): what the user wrote, a few facts
+ * about the device and the log (Diagnostics.report), sent to codeshare.me
+ * (POST /api/shroudly/report, on Codeshare's own server), which mails it to
+ * the developer and keeps nothing. Only when the user taps Send, after
+ * reading what goes. The same as the desktop's (electron/report.js) and the
+ * Apple app's: the same body, limits and reference numbers.
+ *
+ * On the device: the references of the reports sent, with when, for
+ * HISTORY_MS (then they go by themselves), so the user can quote one; and so
+ * no more than one goes an hour and three a day (the server holds its own
+ * limits too). Nothing else is kept.
+ *
+ * While protection is on the request goes through the engine (by name, as
+ * the live count's does); otherwise straight over the network. Every report
+ * carries the app's header and a proof of work bound to its body: the server
+ * takes nothing else (server/shroudly/report.ts).
+ */
+object Report {
+    const val HOST = "codeshare.me"
+    const val PATH = "/api/shroudly/report"
+    const val HOUR = 3600_000L
+    const val DAY = 24 * HOUR
+    const val HISTORY_MS = 60 * DAY
+    const val PER_HOUR = 1
+    const val PER_DAY = 3
+    const val LOG_MAX_CHARS = 2 * 1024 * 1024
+    // What went wrong, in characters (code points, as the server counts).
+    const val WHAT_MIN = 50
+    const val WHAT_MAX = 1000
+    const val POW_BITS = 18
+    private const val POW_PREFIX = "shroudly-report-v1"
+    val REF = Regex("^SR-[0-9A-HJKMNP-TV-Z]{4}-[0-9A-HJKMNP-TV-Z]{4}-[0-9A-HJKMNP-TV-Z]{4}$")
+    private const val PREFS = "reports"
+    private const val KEY = "sent"
+
+    data class Sent(val ref: String, val at: Long)
+
+    /* "hour" or "day" when one may not go yet, and for how long. */
+    data class Wait(val ms: Long, val limit: String?)
+
+    data class Fields(val what: String, val site: String = "", val isp: String = "", val country: String = "", val contact: String = "")
+
+    /* ok with the reference, or the error: rate, bad, off, mail, network. */
+    data class Result(val ok: Boolean, val ref: String? = null, val error: String? = null, val limit: String? = null)
+
+    /* Newest first, without those older than HISTORY_MS or not real ones. */
+    fun history(list: List<Sent>, now: Long): List<Sent> =
+        list.filter { REF.matches(it.ref) && it.at <= now + 60_000 && now - it.at < HISTORY_MS }
+            .sortedByDescending { it.at }.take(50)
+
+    fun wait(list: List<Sent>, now: Long): Wait {
+        val h = history(list, now)
+        val day = h.filter { now - it.at < DAY }
+        val hour = h.filter { now - it.at < HOUR }
+        if (day.size >= PER_DAY) return Wait(day[PER_DAY - 1].at + DAY - now, "day")
+        if (hour.size >= PER_HOUR) return Wait(hour[PER_HOUR - 1].at + HOUR - now, "hour")
+        return Wait(0, null)
+    }
+
+    fun parseSent(json: String?): List<Sent> = try {
+        val a = JSONArray(json ?: "[]")
+        (0 until a.length()).mapNotNull { i ->
+            val o = a.optJSONObject(i) ?: return@mapNotNull null
+            Sent(o.optString("ref"), o.optLong("at", -1))
+        }
+    } catch (_: Exception) {
+        emptyList()
+    }
+
+    fun sentJson(list: List<Sent>): String =
+        JSONArray().apply { list.forEach { put(JSONObject().put("ref", it.ref).put("at", it.at)) } }.toString()
+
+    fun load(ctx: Context): List<Sent> {
+        val now = System.currentTimeMillis()
+        val h = history(parseSent(ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getString(KEY, null)), now)
+        save(ctx, h)
+        return h
+    }
+
+    private fun save(ctx: Context, list: List<Sent>) {
+        ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit().putString(KEY, sentJson(list)).apply()
+    }
+
+    fun record(ctx: Context, ref: String) {
+        val now = System.currentTimeMillis()
+        save(ctx, history(listOf(Sent(ref, now)) + load(ctx), now))
+    }
+
+    fun chars(s: String): Int = s.trim().let { it.codePointCount(0, it.length) }
+
+    private fun cut(s: String, max: Int): String {
+        val t = s.trim()
+        val n = t.codePointCount(0, t.length)
+        return if (n > max) t.substring(0, t.offsetByCodePoints(0, max)) else t
+    }
+
+    private fun hex(b: ByteArray) = b.joinToString("") { "%02x".format(it) }
+
+    private fun zeroBits(b: ByteArray): Int {
+        var n = 0
+        for (x in b) {
+            val v = x.toInt() and 0xff
+            if (v == 0) { n += 8; continue }
+            return n + Integer.numberOfLeadingZeros(v) - 24
+        }
+        return n
+    }
+
+    /* The proof of work the server asks of every report (codeshare.me,
+     * server/shroudly/report.ts powOk): "<unix seconds>.<nonce>" such that
+     * SHA-256 of "shroudly-report-v1\n<seconds>\n<SHA-256 of the body, hex>\n
+     * <nonce>" starts with POW_BITS zero bits. About a second on a slow TV;
+     * run off the main thread. The same as electron/report.js. */
+    fun proofOfWork(body: String, bits: Int = POW_BITS, nowMs: Long = System.currentTimeMillis()): String {
+        val at = nowMs / 1000
+        val md = MessageDigest.getInstance("SHA-256")
+        val bh = hex(md.digest(body.toByteArray(Charsets.UTF_8)))
+        val head = "$POW_PREFIX\n$at\n$bh\n".toByteArray(Charsets.UTF_8)
+        var n = 0L
+        while (true) {
+            val nonce = java.lang.Long.toHexString(n)
+            md.reset()
+            md.update(head)
+            if (zeroBits(md.digest(nonce.toByteArray(Charsets.US_ASCII))) >= bits) return "$at.$nonce"
+            n++
+        }
+    }
+
+    /* The request's body; a long log keeps its end, which is what matters. */
+    fun body(f: Fields, version: String, platform: String, os: String, device: String, lang: String, log: String): String {
+        val l = if (log.length > LOG_MAX_CHARS) "[… the start was cut]\n" + log.substring(log.length - LOG_MAX_CHARS) else log
+        val gz = ByteArrayOutputStream().also { out -> GZIPOutputStream(out).use { it.write(l.toByteArray(Charsets.UTF_8)) } }.toByteArray()
+        return JSONObject()
+            .put("v", 1)
+            .put("app", JSONObject().put("platform", platform).put("version", version).put("os", cut(os, 100)).put("device", cut(device, 100)))
+            .put("lang", cut(lang, 20))
+            .put("what", cut(f.what, 3000))
+            .put("site", cut(f.site, 300))
+            .put("isp", cut(f.isp, 120))
+            .put("country", cut(f.country, 80))
+            .put("contact", cut(f.contact, 200))
+            .put("log", Base64.getEncoder().encodeToString(gz))
+            .toString()
+    }
+
+    private val PRIVATE = Regex("server|pass|token|auth|key|secret|link|url|dns|proxy|host|ip|addr|path|dir|file|id$|ids$|reports", RegexOption.IGNORE_CASE)
+
+    /* What the report adds after the log, so the problem can be seen at
+     * once: the mobile network and SIM (operator and country, as Android
+     * names them), whether the device is a TV, the engine's counters, and the
+     * settings: switches, numbers and short choices only. Nothing that can
+     * hold an address, a password, a server's link or the user's own lists
+     * (those only by how many entries they have). The same as the desktop's
+     * (main.js reportSituation). */
+    fun situation(ctx: Context): String {
+        val o = JSONObject()
+        try {
+            val tm = ctx.getSystemService(android.telephony.TelephonyManager::class.java)
+            if (tm != null) o.put("mobile", JSONObject()
+                .put("operator", tm.networkOperatorName ?: "").put("operatorCountry", tm.networkCountryIso ?: "")
+                .put("sim", tm.simOperatorName ?: "").put("simCountry", tm.simCountryIso ?: ""))
+        } catch (_: Exception) {}
+        o.put("tv", try { Tv.isTv(ctx) } catch (_: Exception) { false })
+        o.put("locale", java.util.Locale.getDefault().toLanguageTag())
+        Protection.stats?.let { st ->
+            o.put("stats", JSONObject().put("connsTotal", st.connsTotal).put("connsActive", st.connsActive)
+                .put("bytesUp", st.bytesUp).put("bytesDown", st.bytesDown).put("desync", st.desync)
+                .put("probeOk", st.probeOk).put("probeFail", st.probeFail).put("blocked", st.blocked).put("fallback", st.fallback))
+        }
+        val settings = JSONObject()
+        for (file in listOf("settings", "ui")) {
+            try {
+                for ((k, v) in ctx.getSharedPreferences(file, Context.MODE_PRIVATE).all) {
+                    when (v) {
+                        is Boolean, is Int, is Long, is Float -> settings.put(k, v)
+                        is Set<*> -> settings.put(k, "[${v.size}]")
+                        is String -> if (v.length <= 24 && !PRIVATE.containsMatchIn(k) && !Regex("[/@:]").containsMatchIn(v)) settings.put(k, v)
+                    }
+                }
+            } catch (_: Exception) {}
+        }
+        o.put("settings", settings)
+        return o.toString(1)
+    }
+
+    /* What the server's answer means. */
+    fun answer(status: Int, text: String?): Result {
+        val j = try { JSONObject(text ?: "") } catch (_: Exception) { null }
+        val ref = j?.optString("ref")
+        if (status == 200 && j?.optBoolean("ok") == true && ref != null && REF.matches(ref)) return Result(true, ref)
+        val e = j?.optString("error")?.takeIf { it in setOf("rate", "bad", "off", "mail") } ?: "network"
+        return Result(false, error = e, limit = if (e == "rate") "hour" else null)
+    }
+
+    /* POST it, with the app's header and the proof of work: through the
+     * engine while protection is on, else directly. `app` is
+     * "<platform>/<version>", as in the body. */
+    fun send(body: String, app: String, port: Int, auth: SocksAuth?, timeoutMs: Int = 45_000): Result = try {
+        val pow = proofOfWork(body)
+        if (port > 0) viaEngine(body, app, pow, port, auth, timeoutMs) else direct(body, app, pow, timeoutMs)
+    } catch (_: Exception) {
+        Result(false, error = "network")
+    }
+
+    private fun direct(body: String, app: String, pow: String, timeoutMs: Int): Result {
+        val c = URL("https://$HOST$PATH").openConnection(Proxy.NO_PROXY) as HttpURLConnection
+        try {
+            c.requestMethod = "POST"
+            c.connectTimeout = timeoutMs
+            c.readTimeout = timeoutMs
+            c.doOutput = true
+            c.setRequestProperty("content-type", "application/json")
+            c.setRequestProperty("x-shroudly-app", app)
+            c.setRequestProperty("x-shroudly-pow", pow)
+            c.setRequestProperty("user-agent", "Shroudly/${BuildConfig.VERSION_NAME} (Android)")
+            c.outputStream.use { it.write(body.toByteArray(Charsets.UTF_8)) }
+            val status = c.responseCode
+            val stream = if (status in 200..299) c.inputStream else c.errorStream
+            val text = stream?.use { s -> s.readBytes().take(4096).toByteArray().toString(Charsets.UTF_8) }
+            return answer(status, text)
+        } finally {
+            c.disconnect()
+        }
+    }
+
+    private fun viaEngine(body: String, app: String, pow: String, port: Int, auth: SocksAuth?, timeoutMs: Int): Result {
+        val raw = Socket(Proxy.NO_PROXY)
+        try {
+            raw.connect(InetSocketAddress(InetAddress.getByName("127.0.0.1"), port), timeoutMs)
+            raw.soTimeout = timeoutMs
+            Socks5.connect(raw, HOST, 443, auth)
+            val ssl = (SSLSocketFactory.getDefault() as SSLSocketFactory).createSocket(raw, HOST, 443, true) as SSLSocket
+            ssl.sslParameters = ssl.sslParameters.apply { serverNames = listOf(SNIHostName(HOST)) }
+            ssl.startHandshake()
+            if (!HttpsURLConnection.getDefaultHostnameVerifier().verify(HOST, ssl.session)) throw IOException("certificate does not belong to $HOST")
+            val b = body.toByteArray(Charsets.UTF_8)
+            val head = "POST $PATH HTTP/1.1\r\nHost: $HOST\r\nConnection: close\r\nContent-Length: ${b.size}\r\n" +
+                "content-type: application/json\r\nx-shroudly-app: $app\r\nx-shroudly-pow: $pow\r\nUser-Agent: Shroudly/${BuildConfig.VERSION_NAME} (Android)\r\nAccept-Encoding: identity\r\n\r\n"
+            ssl.outputStream.apply { write(head.toByteArray(Charsets.ISO_8859_1) + b); flush() }
+            val resp = Http1.read(ssl.inputStream.buffered(), 4096)
+            ssl.close()
+            return answer(resp.status, resp.body.toString(Charsets.UTF_8))
+        } finally {
+            try { raw.close() } catch (_: IOException) {}
+        }
+    }
+}

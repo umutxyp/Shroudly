@@ -176,6 +176,13 @@
             android:text="@string/androidDetails"
             android:visibility="gone" />
 
+        <!-- "Something not working?": always here, under the switch
+             (ReportActivity). -->
+        <TextView
+            android:id="@+id/reportLink"
+            style="@style/Link"
+            android:text="@string/reportLink" />
+
         <!-- Something that keeps Shroudly from working or from saying so,
              with the one thing to do about it and "Not now": battery
              settings that may stop it in the background, or notifications

@@ -151,6 +151,14 @@ struct ContentView: View {
                     Link(tr("appleInstallHelp"), destination: VpnErrors.installHelp)
                         .font(.callout.weight(.semibold))
                 }
+                // "Something not working?": always here, under the status
+                // (ReportView).
+                NavigationLink { ReportView() } label: {
+                    Label(tr("reportLink"), systemImage: "exclamationmark.bubble")
+                        .font(.callout.weight(.medium))
+                        .foregroundStyle(Theme.accent)
+                }
+                .buttonStyle(.plain)
             }
         }
     }

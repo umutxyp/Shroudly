@@ -114,6 +114,13 @@
             android:exported="false"
             android:label="@string/navSettings" />
 
+        <!-- "Something not working?" (ReportActivity). -->
+        <activity
+            android:name=".ReportActivity"
+            android:exported="false"
+            android:label="@string/reportTitle"
+            android:windowSoftInputMode="adjustResize" />
+
         <!-- Follow Shroudly (FollowActivity). -->
         <activity
             android:name=".FollowActivity"

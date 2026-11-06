@@ -1098,7 +1098,7 @@ which the apps link under About and the App Store and Google Play link to. Shrou
 Technology Ltd; questions about privacy go to
 [contact@codeshare.me](mailto:contact@codeshare.me).
 
-Shroudly does not collect personal data. These are the only things that contact servers:
+Shroudly does not collect personal data; the only personal data that ever reaches us is a report you choose to send (below). These are the only things that contact servers:
 
 - **Live user count** (`shroudly.codeshare.me`): only while protection is on,
   and only if *Count me in the live total* is left on (in Settings on the
@@ -1212,6 +1212,36 @@ Shroudly does not collect personal data. These are the only things that contact 
 Games and apps mode contacts nothing of its own: it only carries what the
 programs using it were going to send anyway.
 
+**Reports you send** (*Something not working?*, under the main button, on
+every Shroudly: computer, Android phone and TV, iPhone, iPad, Mac, Apple TV).
+Only when you press **Send**, after the app shows what goes and you agree to
+send it, log included; nothing is ever sent by itself. A report holds what
+you write (50 to 1000 characters on what does not work; if you want, the site
+or app, your internet provider, your country and an email or Telegram name
+for an answer), the app's version, the system and its version, the device
+model and the app's language, and the app's log with what the app shows
+right now: the sites and apps Shroudly handled and how, whether protection
+is on and working, the engine's counters and the settings (switches and
+choices only; never a server's link, an address, a password, messages or
+what you read or type on a site). It goes to `codeshare.me` (Codeshare's
+server), through the protected connection while protection is on, which
+checks it and hands it to our own mail server, which emails it to Shroudly's
+developer and nothing else. It is never written to disk or a database on our
+servers and is not logged; only its reference number is. Cloudflare, which
+carries the site, says which country the request came from, and the internet
+provider the address belongs to (its network number and name) is looked up
+through Team Cymru's public IP-to-ASN service; both go into the email, the
+address itself does not. The email stays in the developer's mailbox until the
+developer deletes it, and is used only to fix what you reported or add what
+is missing. Each report gets a random reference number
+(`SR-XXXX-XXXX-XXXX`) to quote if you write to us; the app keeps the numbers
+you sent, with their dates, on your device only, for 60 days. One report an
+hour and three a day from a device; to stop floods, the server keeps, in
+memory only and for a day at most, a keyed hash of the address requests came
+from and when (never the address, and nothing survives a restart). To have a
+report deleted, write to [contact@codeshare.me](mailto:contact@codeshare.me)
+with its reference number.
+
 Which technique opened which blocked site is remembered on this computer
 only (in Shroudly's settings file, for 30 days at most), so the next start
 does not have to search again. Nothing of it is sent anywhere.
@@ -1270,7 +1300,10 @@ The privacy policies of the services involved:
 (updates, the site list),
 [Discord](https://discord.com/privacy) (Discord app mode, the autopilot's check),
 [Roblox](https://www.roblox.com/info/privacy) (the autopilot's check),
-[Cloudflare](https://www.cloudflare.com/privacypolicy/) (the live count's tunnel),
+[Cloudflare](https://www.cloudflare.com/privacypolicy/) (the live count's tunnel, and codeshare.me, which takes reports),
+[Amazon SES](https://aws.amazon.com/privacy/) (which carries our mail, a report's email included),
+[Google](https://policies.google.com/privacy) (Gmail, where the developer's mailbox is),
+[Team Cymru](https://www.team-cymru.com/privacy-policy) (which internet provider a report came from),
 and the encrypted DNS resolvers:
 [Cloudflare 1.1.1.1](https://developers.cloudflare.com/1.1.1.1/privacy/public-dns-resolver/),
 [Google Public DNS](https://developers.google.com/speed/public-dns/privacy),

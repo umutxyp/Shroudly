@@ -57,6 +57,7 @@ const SiteList = require('./site-list');
 const Updater = require('./updater');
 const UserBusy = require('./user-busy');
 const Presence = require('./presence');
+const Report = require('./report');
 const i18n = require('./main-i18n');
 const Families = require('./families');
 const ServiceCheck = require('./service-check');
@@ -3482,6 +3483,87 @@ ipcMain.handle('logs:get', () => systemLogs);
 ipcMain.handle('logs:copy', () => copyLogs());
 ipcMain.handle('clipboard:write', (e, text) => typeof text === 'string' && text.length <= 300 && toClipboard(text, clipboard));
 ipcMain.handle('logs:save', () => saveLogs());
+
+/* "Something not working?" (electron/report.js): the reports sent from this
+ * computer (references kept 60 days) and whether one may go now; sending
+ * one, only from the dialog, after the user read what goes. One at a time. */
+let reportSending = false;
+
+/* What the report adds after the log, so the problem can be seen at once:
+ * the state the window shows (what is wrong now, in the app's own terms),
+ * the engine's counters, and the settings: switches, numbers and short
+ * choices only. Nothing that can hold an address, a password, a server's
+ * link or the user's own lists (those only by how many entries they have). */
+const REPORT_PRIVATE = /server|pass|token|auth|key|secret|link|url|dns|proxy|host|ip|addr|path|dir|file|id$|ids$|reports/i;
+function reportSituation() {
+  const settings = {};
+  let all = {};
+  try { all = { ...store.store }; } catch {}
+  for (const [k, v] of Object.entries(all)) {
+    if (typeof v === 'boolean' || (typeof v === 'number' && Number.isFinite(v))) settings[k] = v;
+    else if (Array.isArray(v)) settings[k] = `[${v.length}]`;
+    else if (typeof v === 'string' && v.length <= 24 && !REPORT_PRIVATE.test(k) && !/[/@:]/.test(v)) settings[k] = v;
+  }
+  const a = engine && engine.advice ? engine.advice : {};
+  let tor = null;
+  try { tor = engine && engine.tor ? engine.tor.status().state : null; } catch {}
+  return {
+    now: new Date().toISOString(),
+    utcOffsetMin: -new Date().getTimezoneOffset(),
+    uptimeMin: Math.round(process.uptime() / 60),
+    state: {
+      active: !!(engine && engine.isActive()),
+      starting: !!engine && !engine.isActive() && engineComing(),
+      lastStartFailed: !!lastStartFailed,
+      blocked: engineBlocked(),
+      notRouting: (() => { try { return notRouting(); } catch { return null; } })(),
+      proxy: engine && engine.proxyStatus ? engine.proxyStatus.code || null : null,
+      offline: !!a.offline, ownProxy: !!a.ownProxy, nationalOnly: !!a.nationalOnly,
+      ownServerDown: a.ownServerDown ? String(a.ownServerDown.why || 'yes') : null,
+      ownServerExitCountry: a.ownServerExit ? a.ownServerExit.loc || null : null,
+      lastResort: tor,
+    },
+    stats: engine ? engine.getStats() : null,
+    settings,
+  };
+}
+ipcMain.handle('report:info', () => {
+  const past = Report.history(store.get('reports'));
+  store.set('reports', past);
+  return { past, wait: Report.wait(past) };
+});
+ipcMain.handle('report:send', async (_e, fields) => {
+  if (reportSending) return { ok: false, error: 'busy' };
+  if (!fields || typeof fields !== 'object' || typeof fields.what !== 'string') return { ok: false, error: 'bad' };
+  const n = Report.chars(fields.what);
+  if (n < Report.WHAT_MIN || n > Report.WHAT_MAX) return { ok: false, error: 'bad' };
+  const past = Report.history(store.get('reports'));
+  const w = Report.wait(past);
+  if (w.ms > 0) return { ok: false, error: 'rate', limit: w.limit, retryAfter: Math.ceil(w.ms / 1000) };
+  reportSending = true;
+  try {
+    const st = reportState();
+    const body = Report.payload({
+      fields,
+      version: appVersion(),
+      platform: { win32: 'windows', darwin: 'macos', linux: 'linux' }[process.platform] || 'linux',
+      os: st.os,
+      device: process.arch,
+      lang: i18n.resolveLanguage(store.get('language'), systemLanguages()),
+      log: `${buildReport({ ...st, verb: 'sent' }, systemLogs)}\n== Situation now ==\n${(() => { try { return JSON.stringify(reportSituation(), null, 1); } catch (e) { return `(not available: ${e.message})`; } })()}\n`,
+    });
+    const r = await Report.send((o) => require('electron').net.request(o), body);
+    if (r.ok) {
+      store.set('reports', Report.history([{ ref: r.ref, at: Date.now() }, ...past]));
+      addLog('info', `Report sent to the developer: ${r.ref}`);
+    } else {
+      addLog('warning', `Report not sent (${r.error})`);
+    }
+    return r.error === 'rate' ? { ...r, limit: 'hour' } : r;
+  } finally {
+    reportSending = false;
+  }
+});
 
 ipcMain.handle('net:stats', async () => {
   const s = engine ? engine.getStats() : {};

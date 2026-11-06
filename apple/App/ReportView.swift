@@ -1,0 +1,201 @@
+import SwiftUI
+#if canImport(UIKit)
+import UIKit
+#endif
+#if canImport(AppKit)
+import AppKit
+#endif
+
+/*
+ * "Something not working?" (under the status, ContentView): the user says
+ * what went wrong, in 50 to 1000 characters, and it goes to the developer
+ * with the app's log (Report). What is sent, where it goes and that our
+ * server keeps none of it are said above Send, which waits for the user to
+ * agree to send it, log included. One report an hour, three a day; the
+ * references sent stay listed for 60 days. On iPhone, iPad, Mac and Apple TV
+ * (with the remote alone). The same as the desktop's dialog and Android's.
+ */
+struct ReportView: View {
+    @EnvironmentObject private var controller: TunnelController
+    @State private var fields = Report.Fields()
+    @State private var agree = false
+    @State private var sending = false
+    @State private var sentRef: String?
+    @State private var failure: String?
+    @State private var past: [Report.Sent] = Report.load()
+    @State private var copied: String?
+
+    private static let privacy = URL(string: "https://codeshare.me/projects/shroudly/privacy")!
+
+    private var count: Int { Report.chars(fields.what) }
+    private var wait: Report.Wait { Report.wait(past) }
+    private var canSend: Bool {
+        agree && !sending && wait.seconds <= 0 && (Report.whatMin...Report.whatMax).contains(count)
+    }
+
+    private func rateText(_ limit: String?) -> String { tr(limit == "day" ? "reportRateDay" : "reportRateHour") }
+
+    var body: some View {
+        Form {
+            Section {
+                Text(tr("reportIntro"))
+                Text(tr("reportSendDesc")).font(.footnote).foregroundStyle(Theme.secondaryText)
+            }
+            if let ref = sentRef {
+                Section {
+                    Text(tr("reportSent")).font(.headline).foregroundStyle(Theme.accent)
+                    Text(ref).font(.title3.monospaced().weight(.semibold)).selectableText()
+                    #if !os(tvOS)
+                    Button { copy(ref) } label: {
+                        Label(copied == ref ? tr("reportCopied") : tr("reportCopy"), systemImage: copied == ref ? "checkmark" : "doc.on.doc")
+                    }
+                    #endif
+                    Text(tr("reportSentHint")).font(.footnote).foregroundStyle(Theme.secondaryText)
+                }
+            } else {
+                Section {
+                    TextField(tr("reportWhat"), text: Binding(get: { fields.what }, set: { v in
+                        var u = String.UnicodeScalarView()
+                        u.append(contentsOf: v.unicodeScalars.prefix(Report.whatMax))
+                        fields.what = String(u)
+                    }), axis: .vertical)
+                    .lineLimit(5...12)
+                    Text(tr("reportWhatHint")).font(.footnote).foregroundStyle(Theme.secondaryText)
+                    Text("\(count) / \(Report.whatMax)")
+                        .font(.caption.monospacedDigit())
+                        .foregroundStyle(count > 0 && count < Report.whatMin ? .orange : Theme.secondaryText)
+                        .frame(maxWidth: .infinity, alignment: .trailing)
+                } header: {
+                    Text(tr("reportWhat"))
+                }
+                Section {
+                    TextField(tr("reportSite"), text: $fields.site)
+                    TextField(tr("reportIsp"), text: $fields.isp)
+                    TextField(tr("reportCountry"), text: $fields.country)
+                    TextField(tr("reportContact"), text: $fields.contact)
+                }
+                Section {
+                    Text("\(tr("reportPrivacy")) \(tr("reportPrivacyProvider"))")
+                        .font(.footnote).foregroundStyle(Theme.secondaryText)
+                    WebLink(url: Self.privacy) { Text(tr("androidPrivacyPolicy")) }
+                    Toggle(tr("reportAgree"), isOn: $agree)
+                }
+                Section {
+                    if wait.seconds > 0 {
+                        Text(rateText(wait.limit)).foregroundStyle(.orange)
+                    } else if let f = failure {
+                        Text(f).foregroundStyle(.orange)
+                    }
+                    Button {
+                        Task { await submit() }
+                    } label: {
+                        HStack {
+                            if sending { ProgressView() }
+                            Text(sending ? tr("reportSending") : tr("reportSend")).fontWeight(.semibold)
+                        }
+                        .frame(maxWidth: .infinity)
+                    }
+                    .disabled(!canSend)
+                }
+            }
+            if !past.isEmpty {
+                Section {
+                    ForEach(past, id: \.ref) { s in
+                        HStack {
+                            Text(s.ref).font(.callout.monospaced()).selectableText()
+                            Spacer()
+                            Text(s.at, style: .date).font(.caption).foregroundStyle(Theme.secondaryText)
+                        }
+                        #if !os(tvOS)
+                        .contentShape(Rectangle())
+                        .onTapGesture { copy(s.ref) }
+                        #else
+                        .focusable()
+                        #endif
+                    }
+                } header: {
+                    Text(tr("reportPast"))
+                } footer: {
+                    Text(tr("reportPastHint"))
+                }
+            }
+        }
+        .formStyle(.grouped)
+        .listBackgroundHidden()
+        .background(Theme.background)
+        .navigationTitle(tr("reportTitle"))
+    }
+
+    private var platform: String {
+        #if os(tvOS)
+        return "tvos"
+        #elseif os(macOS)
+        return "mac-store"
+        #else
+        return UIDevice.current.userInterfaceIdiom == .pad ? "ipados" : "ios"
+        #endif
+    }
+
+    /* After the log, what the screen shows now and the settings, so the
+     * problem can be seen at once (as on the desktop and Android): no
+     * server link or address, only whether one is set. */
+    private func situation() async -> String {
+        let s = SettingsStore().load()
+        var lines = [
+            "== Situation now ==",
+            "Protection: \(controller.phase)\(controller.notice.map { "; notice: \($0)" } ?? "")",
+            "VPN allowed: \(!controller.vpnNotAllowed)",
+            "Last way out: \(controller.lastResort.map { "\($0.state) \($0.progress)%" } ?? "off")",
+            "Settings: technique \(s.strategy.id), QUIC off \(s.quicOff), IPv6 off \(s.ipv6Off), keep on \(s.keepOn), DNS \(s.dnsKind)\(s.dnsStrict ? " (only this server)" : ""), own server \(s.ownServer.isEmpty ? "no" : "yes"), Tor last resort \(s.torLastResort)",
+            "Locale: \(Locale.current.identifier), languages \(Locale.preferredLanguages.prefix(3).joined(separator: ","))",
+        ]
+        if let st = await controller.stats() {
+            lines.append("Stats: active \(st.active), total \(st.total), up \(st.up), down \(st.down), blocked \(st.blocked)")
+        }
+        return lines.joined(separator: "\n")
+    }
+
+    private func submit() async {
+        guard canSend else { return }
+        sending = true
+        failure = nil
+        let log = await Diagnostics.text(sites: controller.siteLog()) + "\n\n" + (await situation()) + "\n"
+        let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "0.0.0"
+        let os = ProcessInfo.processInfo.operatingSystemVersionString
+        guard let body = Report.body(fields, version: version, platform: platform, os: os, device: Diagnostics.model,
+                                     lang: Bundle.main.preferredLocalizations.first ?? "en", log: log) else {
+            failure = tr("reportFailed"); sending = false; return
+        }
+        let outcome = await Report.send(body, app: "\(platform)/\(version)")
+        sending = false
+        switch outcome {
+        case .sent(let ref):
+            Report.record(ref)
+            sentRef = ref
+        case .failed(let e, let limit):
+            failure = e == "rate" ? rateText(limit) : tr("reportFailed")
+        }
+        past = Report.load()
+    }
+
+    private func copy(_ ref: String) {
+        #if os(iOS)
+        UIPasteboard.general.string = ref
+        #elseif os(macOS)
+        NSPasteboard.general.clearContents()
+        NSPasteboard.general.setString(ref, forType: .string)
+        #endif
+        copied = ref
+    }
+}
+
+private extension View {
+    /* Selectable where the system has selection (not on Apple TV). */
+    @ViewBuilder func selectableText() -> some View {
+        #if os(tvOS)
+        self
+        #else
+        self.textSelection(.enabled)
+        #endif
+    }
+}

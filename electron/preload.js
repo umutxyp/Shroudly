@@ -82,6 +82,10 @@ contextBridge.exposeInMainWorld('electron', {
   // A short text the user asked to copy (an account number).
   copyText: (text) => ipcRenderer.invoke('clipboard:write', text),
   saveLogs: () => ipcRenderer.invoke('logs:save'),
+  // "Something not working?" (ReportDialog): past references and whether
+  // one may go now; send one (what the user wrote; the log is added there).
+  reportInfo: () => ipcRenderer.invoke('report:info'),
+  sendReport: (fields) => ipcRenderer.invoke('report:send', fields),
   // Windows: the leftover WinHTTP proxy cleared (Windows asks for an
   // administrator).
   clearWinHttp: () => ipcRenderer.invoke('winhttp:clear'),

@@ -191,6 +191,7 @@ class MainActivity : Activity() {
         findViewById<View>(R.id.privacy).setOnClickListener { open(UpdateCheck.PRIVACY_URL) }
         findViewById<View>(R.id.website).setOnClickListener { open("https://codeshare.me") }
         findViewById<View>(R.id.shareLogs).setOnClickListener { shareLogs() }
+        findViewById<View>(R.id.reportLink).setOnClickListener { startActivity(Intent(this, ReportActivity::class.java)) }
         findViewById<View>(R.id.helpOthers).setOnClickListener { showHelpOthers() }
         // "Share Shroudly": the APK to another phone, where there is one file to pass on.
         val apk = ApkShare.available(this)
