@@ -536,11 +536,16 @@ const LAN6 = (ifaces.find((i) => (i.family === 'IPv6' || i.family === 6) && !/^f
     const cg = await client();
     r = await roundTrip(cg, g.port, LAN4, e4.port, Buffer.from('still udp'));
     t.ok(r && r.data.toString() === 'still udp', 'with QUIC and IPv6 off, other UDP still goes through');
-    const before = (await eng3.stats()).bytes_up;
+    const s0 = await eng3.stats();
+    const before = s0.bytes_up;
     for (let i = 0; i < 10; i++) cg.s.send(Buffer.concat([header('192.0.2.1', 443), Buffer.alloc(1000, 0xc3)]), g.port, '127.0.0.1');
     await sleep(600);
-    const after = (await eng3.stats()).bytes_up;
+    const s1 = await eng3.stats();
+    const after = s1.bytes_up;
     t.ok(after - before < 1000, `QUIC off: datagrams to port 443 are dropped (${after - before} bytes went out of 10000)`);
+    // Dropped, but counted as received: Android's tunnel check takes them as
+    // the tunnel working (HevWatch), not as packets that vanished.
+    t.ok(s1.udp_in - s0.udp_in === 10, `datagrams the relay got are counted, dropped ones too (${s1.udp_in - s0.udp_in} of 10)`);
     if (e6) {
       r = await roundTrip(cg, g.port, LAN6, e6.port, Buffer.from('six'), 1500);
       t.ok(!r, 'IPv6 off: a datagram to an IPv6 address is dropped');

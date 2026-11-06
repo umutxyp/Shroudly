@@ -347,9 +347,16 @@ class Liveness(private val everyMs: Long = LIVENESS_MS, private val failuresToGi
 /*
  * hev itself. The path check goes from this app to the engine, past the VPN
  * interface and hev, so it cannot see hev stuck while its thread runs.
- * hev answers every packet apps send it at once by itself: a TCP handshake,
- * a reset, a DNS answer. So packets going in (hev's tx count) with nothing
- * at all coming out (its rx count) for WINDOW_MS means hev is stuck. And
+ * hev answers a TCP handshake, a reset and a DNS question at once by itself.
+ * So packets going in (hev's tx count) with nothing at all coming out (its
+ * rx count) for WINDOW_MS means hev is stuck, unless they were UDP that hev
+ * handed the engine: an answer to those comes only from the far end, and on
+ * a network that lets no UDP out (Iran's, many others) none ever does. Up to
+ * 2.6.59 a TV whose app sent only that (QUIC, a call, a game) for ten
+ * seconds, twice in ten minutes, lost its protection: "the tunnel keeps
+ * failing: it takes apps' packets and gives nothing back". So datagrams
+ * reaching the engine (`handedOn`, EngineNative.udpIn) count as hev
+ * working, as packets coming out do. And
  * with the engine holding nearly as many connections as hev may open, for
  * CAP_MS, new connections are refused: the tunnel is full.
  */
@@ -367,14 +374,18 @@ class HevWatch(
     }
 
     private var lastRx = -1L
+    private var lastHandedOn = -1L
     private var rxMovedAt = 0L
     private var txAtRxMove = 0L
     private var fullSince = -1L
 
-    /* hev's counters now; true when hev takes packets and gives none back. */
-    fun stuck(now: Long, tx: Long, rx: Long): Boolean {
+    /* hev's counters now, and the datagrams the engine got from it (-1 when
+     * not known); true when hev takes packets and does nothing with them. */
+    fun stuck(now: Long, tx: Long, rx: Long, handedOn: Long = -1): Boolean {
         if (tx < 0 || rx < 0) return false
-        if (rx != lastRx || lastRx < 0) {
+        val handed = handedOn >= 0 && handedOn != lastHandedOn
+        if (handedOn >= 0) lastHandedOn = handedOn
+        if (rx != lastRx || lastRx < 0 || handed) {
             lastRx = rx
             rxMovedAt = now
             txAtRxMove = tx
@@ -396,6 +407,7 @@ class HevWatch(
 
     fun reset() {
         lastRx = -1
+        lastHandedOn = -1
         fullSince = -1
     }
 }

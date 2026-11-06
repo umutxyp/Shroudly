@@ -31,4 +31,11 @@ object EngineNative {
      * result is the program's exit code, or BUSY when another run has not
      * returned yet. */
     @JvmStatic external fun run(args: Array<String>, commandFd: Int, eventFd: Int): Int
+
+    /* Datagrams apps sent through the tunnel that reached the engine's UDP
+     * relay this run, or -1 when it cannot be read. Read directly, not from
+     * STATS, which comes only every 10 seconds while nothing looks. */
+    @JvmStatic private external fun udpIn(): Long
+
+    fun udpInOrNone(): Long = try { udpIn() } catch (_: Throwable) { -1L }
 }

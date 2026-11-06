@@ -88,3 +88,13 @@ Java_me_codeshare_shroudly_EngineNative_run(JNIEnv *env, jclass cls, jobjectArra
   atomic_store(&g_busy, 0);
   return rc;
 }
+
+/* udpIn(): datagrams apps sent through the tunnel that reached the engine's
+ * UDP relay, this run (HevWatch: hev is working while this moves, even when
+ * nothing comes back to the apps). */
+JNIEXPORT jlong JNICALL
+Java_me_codeshare_shroudly_EngineNative_udpIn(JNIEnv *env, jclass cls) {
+  (void)env;
+  (void)cls;
+  return (jlong)atomic_load(&engine_get_stats()->udp_in);
+}

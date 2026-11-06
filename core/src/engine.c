@@ -826,7 +826,8 @@ int engine_is_running(void) { return atomic_load(&g_running); }
 void engine_emit_stats(void) {
   engine_printf("{\"type\":\"stats\",\"conns_total\":%llu,\"conns_active\":%llu,"
          "\"bytes_up\":%llu,\"bytes_down\":%llu,\"desync\":%llu,"
-         "\"tls\":%llu,\"http\":%llu,\"probe_ok\":%llu,\"probe_fail\":%llu,\"blocked\":%llu,\"fallback\":%llu}\n",
+         "\"tls\":%llu,\"http\":%llu,\"probe_ok\":%llu,\"probe_fail\":%llu,\"blocked\":%llu,\"fallback\":%llu,"
+         "\"udp_in\":%llu}\n",
          (unsigned long long)atomic_load(&g_stats.conns_total),
          (unsigned long long)atomic_load(&g_stats.conns_active),
          (unsigned long long)atomic_load(&g_stats.bytes_up),
@@ -837,7 +838,8 @@ void engine_emit_stats(void) {
          (unsigned long long)atomic_load(&g_stats.probe_success),
          (unsigned long long)atomic_load(&g_stats.probe_fail),
          (unsigned long long)adblock_total(),
-         (unsigned long long)atomic_load(&g_stats.fallback));
+         (unsigned long long)atomic_load(&g_stats.fallback),
+         (unsigned long long)atomic_load(&g_stats.udp_in));
 }
 
 /* ── SOCKS handshake (client side) ──────────────────────────────────────── */
@@ -2974,6 +2976,9 @@ static void udp_from_client(udp_assoc *u) {
     struct sockaddr_storage from; socklen_t fl = sizeof(from);
     int n = (int)recvfrom(u->relay, (char *)u->buf, 65536, 0, (struct sockaddr *)&from, &fl);
     if (n < 0) break;   /* nothing more (or an error report): back to waiting */
+    /* Counted before anything is let go: Android's tunnel check (HevWatch)
+     * takes any datagram here as hev working, whatever becomes of it. */
+    atomic_fetch_add(&g_stats.udp_in, 1);
     /* Only the client: its address, over IPv4 loopback, and once known its
      * port. */
     const struct sockaddr_in *f4 = (const struct sockaddr_in *)&from;
@@ -4740,6 +4745,7 @@ int engine_start(const engine_config *cfg) {
   atomic_store(&g_stats.probe_success, 0);
   atomic_store(&g_stats.probe_fail, 0);
   atomic_store(&g_stats.fallback, 0);
+  atomic_store(&g_stats.udp_in, 0);
   doh_init(cfg->doh_host, cfg->doh_ip);
   engine_forget();
 

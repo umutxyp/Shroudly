@@ -99,6 +99,8 @@ typedef struct {
   _Atomic uint64_t probe_success;
   _Atomic uint64_t probe_fail;
   _Atomic uint64_t fallback;      /* connections the last way out carried */
+  _Atomic uint64_t udp_in;        /* datagrams clients handed the UDP relay,
+                                     sent on or not (Android's tunnel check) */
 } engine_stats;
 
 /* Lifecycle. start() returns 0 on success and runs the accept loop on its own

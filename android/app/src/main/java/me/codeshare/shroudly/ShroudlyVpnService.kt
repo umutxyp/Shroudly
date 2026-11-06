@@ -825,7 +825,7 @@ class ShroudlyVpnService : VpnService() {
         val hev = try { Tun2Socks.TProxyGetStats() } catch (_: Throwable) { null }
         val tx = hev?.getOrNull(0) ?: -1L
         val rx = hev?.getOrNull(2) ?: -1L
-        if (hevWatch.stuck(now, tx, rx)) {
+        if (hevWatch.stuck(now, tx, rx, EngineNative.udpInOrNone())) {
             tunnelTrouble("takes apps' packets and gives nothing back")
             return
         }

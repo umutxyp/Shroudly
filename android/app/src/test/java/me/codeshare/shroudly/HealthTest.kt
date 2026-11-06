@@ -228,6 +228,26 @@ class HevWatchTest {
     }
 
     @Test
+    fun udpTheEngineGotIsNotStuck() {
+        val h = HevWatch(windowMs = 10_000, minPackets = 20, capMs = 60_000)
+        h.stuck(0, 100, 50, 0)
+        // Only UDP for a minute, on a network that lets none out: nothing
+        // comes back, but hev hands every datagram on.
+        for (t in 1..60) assertFalse(h.stuck(t * 1_000L, 100L + t * 5, 50, t * 5L))
+        // The engine gets nothing more either: now it is stuck.
+        var t = 60_000L
+        var tx = 400L
+        var stuck = false
+        while (t < 90_000 && !stuck) { t += 1_000; tx += 5; stuck = h.stuck(t, tx, 50, 300) }
+        assertTrue(stuck)
+        assertEquals(70_000, t)
+        // Not known (-1): as before, rx alone.
+        val g = HevWatch(windowMs = 10_000, minPackets = 20, capMs = 60_000)
+        g.stuck(0, 100, 50, -1)
+        assertTrue(g.stuck(10_000, 200, 50, -1))
+    }
+
+    @Test
     fun fullForAMinute() {
         val h = HevWatch(windowMs = 10_000, minPackets = 20, capMs = 60_000)
         assertFalse(h.full(0, 1_790, 1_800))
