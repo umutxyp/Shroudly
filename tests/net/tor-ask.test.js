@@ -48,7 +48,7 @@ const read = (...p) => fs.readFileSync(path.join(ROOT, ...p), 'utf8');
 
   const main = read('electron', 'main.js');
   const ask = main.slice(main.indexOf('function askTor('), main.indexOf('function torUsed('));
-  t.ok(/const TOR_ASK_MS = 30 \* 60 \* 1000/.test(main) && /now - torAskedAt >= TOR_ASK_MS/.test(ask) && /notify\('Shroudly', text\)/.test(ask) && !/showWindow\(|new BrowserWindow|dialog\./.test(ask),
+  t.ok(/const TOR_ASK_MS = 30 \* 60 \* 1000/.test(main) && /now - torAskedAt >= TOR_ASK_MS/.test(ask) && /notifyAuto\(text\)/.test(ask) && !/showWindow\(|new BrowserWindow|dialog\./.test(ask),
     'desktop: a notification at most every 30 minutes, no window of its own');
   t.ok(/store\.set\('torApproved', true\)[\s\S]{0,200}engine\.tor\.need\(\)/.test(ask) && /store\.set\('torLastResort', false\)[\s\S]{0,200}scheduleEngineRestart\(\)/.test(ask),
     'yes starts Tor and is kept; no turns the last way out off');
