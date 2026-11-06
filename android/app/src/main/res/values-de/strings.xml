@@ -121,7 +121,6 @@
     <string name="connsRouteTor">Tor</string>
     <string name="connsSearch">Suchen oder eine Seite zum Sperren eingeben</string>
     <string name="connsSystem">von Shroudly genutzt</string>
-    <string name="connsSystemConfirm">Shroudly nutzt {host} selbst. Eine Sperre kann verschlüsseltes DNS, Updates oder den letzten Ausweg stören, und Seiten öffnen sich womöglich nicht mehr. Trotzdem sperren?</string>
     <string name="connsTitle">Verbindungen nach Seite</string>
     <string name="dnsAroundAndroid">Etwas anderes auf diesem Gerät beantwortet die Namensabfragen der Apps (Privates DNS oder eine DNS-App), deshalb öffnen sich gesperrte Apps womöglich nicht. Wähle unter Einstellungen → Netzwerk → Privates DNS „Aus“ oder „Automatisch“, schließe DNS-Apps und starte Shroudly neu.</string>
     <string name="dnsErrorEmpty">Gib die Adresse des Servers ein, etwa {example}.</string>

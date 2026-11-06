@@ -3371,6 +3371,8 @@ ipcMain.handle('conns:list', async () => {
   return {
     rows: rows.map((r) => ({ ...r, system: SystemHosts.isSystemHost(r.host, [own]) })),
     blocked: store.get('userBlocked', []),
+    // The names Shroudly needs: never offered for blocking (typed ones neither).
+    ownNames: [...SystemHosts.SYSTEM_HOSTS, ...(own ? [own] : [])],
   };
 });
 /* Settings, the last way out: whether Tor is on this computer yet, and
@@ -3395,6 +3397,13 @@ ipcMain.handle('tor:prepare', async () => {
 });
 ipcMain.handle('conns:block', (e, host, on) => {
   if (!engine) return { ok: false };
+  // A name Shroudly itself needs is never blocked (the window offers no
+  // button for it); unblocking one blocked before stays possible.
+  if (on === true) {
+    let own = null;
+    try { const p = OwnServer.parseLink(store.get('ownServer')); if (p.ok) own = p.host; } catch {}
+    if (SystemHosts.isSystemHost(host, [own])) return { ok: false, why: 'system' };
+  }
   return engine.setBlocked(host, on === true);
 });
 

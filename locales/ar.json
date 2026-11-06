@@ -689,7 +689,6 @@
   "connsRefused": "رُفض {count} مرة",
   "connsOpen": "{count} مفتوح",
   "connsSystem": "يستخدمه Shroudly",
-  "connsSystemConfirm": "يستخدم Shroudly نفسه {host}. قد يؤدي حظره إلى تعطيل DNS المشفّر أو التحديثات أو المخرج الأخير، وقد تتوقف المواقع عن الفتح. هل تريد حظره رغم ذلك؟",
   "connsRouteTechnique": "تقنية",
   "connsRouteServer": "خادمك الخاص",
   "connsRouteTor": "تور",

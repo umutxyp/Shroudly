@@ -79,7 +79,9 @@ function Rate({ Icon, label, value, color, data }) {
   );
 }
 
-function Stat({ Icon, label, value, sub, wide = false }) {
+/* subSlot: a line kept under the value even without a sub, so the values of
+ * a row's cards stand at the same height (Connections carries its total). */
+function Stat({ Icon, label, value, sub, wide = false, subSlot = false }) {
   return (
     <div className={`card-2 flex min-w-0 flex-col p-3.5 ${wide ? 'col-span-2' : ''}`}>
       <div className="flex min-w-0 items-start gap-1.5 text-[12px] font-medium leading-snug" style={{ color: 'var(--text-dim)' }}>
@@ -90,7 +92,8 @@ function Stat({ Icon, label, value, sub, wide = false }) {
            style={{ color: 'var(--text)', textAlign: 'start' }} title={String(value)}>
         {value}
       </div>
-      {sub != null && <div className="num mt-1 truncate text-[11.5px]" style={{ color: 'var(--text-faint)' }} title={sub}>{sub}</div>}
+      {sub != null ? <div className="num mt-1 truncate text-[11.5px]" style={{ color: 'var(--text-faint)' }} title={sub}>{sub}</div>
+        : subSlot && <div className="mt-1 text-[11.5px]" aria-hidden="true">{'\u00a0'}</div>}
     </div>
   );
 }
@@ -116,8 +119,9 @@ function Connections({ active }) {
     const timer = setInterval(load, 2000);
     return () => { alive = false; clearInterval(timer); };
   }, [active]);
-  const block = async (host, on, system) => {
-    if (on && system && !window.confirm(t('connsSystemConfirm', { host }))) return;
+  // A name Shroudly itself needs (its DNS, Tor, codeshare.me, the user's own
+  // server) has no Block: blocking it would only break Shroudly.
+  const block = async (host, on) => {
     try {
       const r = await window.electron.setBlocked(host, on);
       if (r && r.ok) setData((d) => ({ ...d, blocked: r.blocked, rows: d.rows.map((x) => (x.host === host || x.host.endsWith(`.${host}`) ? { ...x, blocked: on ? 1 : 0, active: on ? 0 : x.active } : x)) }));
@@ -126,7 +130,8 @@ function Connections({ active }) {
   const needle = q.trim().toLowerCase();
   const rows = data.rows.filter((r) => !needle || r.host.includes(needle)).slice(0, 100);
   const blockedOnly = (data.blocked || []).filter((h) => !data.rows.some((r) => r.host === h) && (!needle || h.includes(needle)));
-  const canBlockTyped = NAME.test(needle) && !(data.blocked || []).includes(needle) && !data.rows.some((r) => r.host === needle);
+  const canBlockTyped = NAME.test(needle) && !(data.blocked || []).includes(needle) && !data.rows.some((r) => r.host === needle)
+    && !(data.ownNames || []).some((n) => needle === n || needle.endsWith(`.${n}`));
   const route = (r) => (r.route === 'tor' ? t('connsRouteTor') : r.route === 'server' ? t('connsRouteServer') : r.route === 'technique' ? t('connsRouteTechnique') : null);
   const badge = (text, color) => (
     <span className="shrink-0 rounded-full px-1.5 py-[1px] text-[10.5px] font-semibold" style={{ background: 'var(--surface-2)', color }}>{text}</span>
@@ -144,7 +149,7 @@ function Connections({ active }) {
                className="min-w-0 flex-1 bg-transparent text-[12.5px] outline-none" style={{ color: 'var(--text)' }} />
       </label>
       {canBlockTyped && (
-        <button type="button" onClick={() => { block(needle, true, false); setQ(''); }} className={`${btn} self-start`}>{t('connsBlockName', { host: needle })}</button>
+        <button type="button" onClick={() => { block(needle, true); setQ(''); }} className={`${btn} self-start`}>{t('connsBlockName', { host: needle })}</button>
       )}
       {!rows.length && !blockedOnly.length && !canBlockTyped && (
         <p className="py-2 text-[12px]" style={{ color: 'var(--text-faint)' }}>{active ? t('connsEmpty') : t('statsInactiveHint')}</p>
@@ -169,8 +174,8 @@ function Connections({ active }) {
               </div>
             </div>
             {r.blocked
-              ? <button type="button" onClick={() => block(r.host, false, false)} className={btn}>{t('connsAllow')}</button>
-              : <button type="button" onClick={() => block(r.host, true, r.system)} className={btn}>{t('connsBlock')}</button>}
+              ? <button type="button" onClick={() => block(r.host, false)} className={btn}>{t('connsAllow')}</button>
+              : !r.system && <button type="button" onClick={() => block(r.host, true)} className={btn}>{t('connsBlock')}</button>}
           </div>
         ))}
         {blockedOnly.map((h) => (
@@ -178,7 +183,7 @@ function Connections({ active }) {
             <span aria-hidden className="h-2 w-2 shrink-0 rounded-full" style={{ background: 'var(--warn)' }} />
             <span className="min-w-0 flex-1 truncate text-[12.5px] font-medium" dir="ltr" style={{ color: 'var(--text)' }}>{h}</span>
             <span className="text-[11px]" style={{ color: 'var(--warn)' }}>{t('connsBlocked')}</span>
-            <button type="button" onClick={() => block(h, false, false)} className={btn}>{t('connsAllow')}</button>
+            <button type="button" onClick={() => block(h, false)} className={btn}>{t('connsAllow')}</button>
           </div>
         ))}
       </div>
@@ -281,7 +286,7 @@ export default function StatsPanel({ active }) {
               sub={t('totalCount', { count: s.connsTotal ?? 0 })} />
         {/* Connections a technique got through; how many were TLS ("TLS
             1650" under it) meant nothing to anyone reading it. */}
-        <Stat Icon={ShieldCheckIcon} label={t('bypassed')} value={s.desync ?? 0} />
+        <Stat Icon={ShieldCheckIcon} label={t('bypassed')} value={s.desync ?? 0} subSlot />
         <Stat Icon={DatabaseIcon} label={t('dataTransferred')} value={fmtBytes((s.bytesUp || 0) + (s.bytesDown || 0))} />
         <Stat Icon={ClockIcon} label={t('uptime')} value={s.uptime ? fmtUptime(s.uptime) : '—'} />
         {/* The ad blocker at work, once it has blocked something; on its

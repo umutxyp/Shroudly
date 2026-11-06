@@ -189,10 +189,13 @@ export default function Home() {
       </div>
 
       {/* Content */}
+      {/* A maximised window: each screen keeps a readable width, centred,
+          instead of rows stretched from edge to edge (on its own children,
+          so the screens' heights still follow the window's). */}
       <main
         key={activeTab}
         id="main"
-        className="scroll rise min-h-0 flex-1 overflow-y-auto overflow-x-hidden px-4 pb-4 sm:px-5"
+        className="scroll rise min-h-0 flex-1 overflow-y-auto overflow-x-hidden px-4 pb-4 sm:px-5 [&>*]:mx-auto [&>*]:w-full [&>*]:max-w-[760px]"
       >
         {activeTab === 'control'  && <ControlPanel dpiStatus={dpiStatus} onStatusChange={refresh} onSupport={supportLink ? openSupport : null} />}
         {activeTab === 'stats'    && <StatsPanel active={active} />}

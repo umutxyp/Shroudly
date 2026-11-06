@@ -121,7 +121,6 @@
     <string name="connsRouteTor">ټور</string>
     <string name="connsSearch">ولټوئ یا د بندولو لپاره سایټ ولیکئ</string>
     <string name="connsSystem">Shroudly یې کاروي</string>
-    <string name="connsSystemConfirm">Shroudly پخپله {host} کاروي. بندول یې کېدای شي کوډ شوی DNS، تازه کول یا وروستۍ لاره خرابه کړي او سایټونه پرانیستل ونشي. بیا هم بند شي؟</string>
     <string name="connsTitle">د سایټ له مخې اتصالونه</string>
     <string name="dnsAroundAndroid">په دې وسیله کې د اپونو د نوم پوښتنو ته بل شی ځواب ورکوي (خصوصي DNS یا د DNS اپ)، نو ښايي بند اپونه پرانیستل نشي. په امستنو ← شبکه ← خصوصي DNS کې «بند» یا «اتومات» وټاکئ، د DNS اپونه وتړئ، بیا Shroudly له سره پیل کړئ.</string>
     <string name="dnsErrorEmpty">د سرور پته ولیکئ، لکه {example}.</string>

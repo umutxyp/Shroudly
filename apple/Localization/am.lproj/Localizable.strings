@@ -40,7 +40,6 @@
 "connsRouteTor" = "Tor";
 "connsSearch" = "ይፈልጉ ወይም ለማገድ ድረ ገጽ ይጻፉ";
 "connsSystem" = "Shroudly ይጠቀማል";
-"connsSystemConfirm" = "Shroudly ራሱ {host}ን ይጠቀማል። ማገዱ የተመሰጠረ DNSን፣ ዝማኔዎችን ወይም የመጨረሻውን መውጫ ሊያበላሽ እና ድረ ገጾች መከፈት ሊያቆሙ ይችላሉ። ቢሆንም ይታገድ?";
 "connsTitle" = "በድረ ገጽ የተከፋፈሉ ግንኙነቶች";
 "dnsAroundApple" = "በዚህ መሣሪያ ላይ ያለ የDNS መገለጫ ወይም መተግበሪያ (AdGuard፣ NextDNS፣ 1.1.1.1፣ የትምህርት ቤት ወይም የሥራ መገለጫ) ከShroudly በፊት የስም ፍለጋን ይመልሳል፣ ስለዚህ የታገዱ መተግበሪያዎች ላይከፈቱ ይችላሉ። በቅንብሮች → አጠቃላይ → VPN እና የመሣሪያ አስተዳደር ውስጥ ያጥፉት (Mac: የስርዓት ቅንብሮች → አውታረ መረብ → VPN እና ማጣሪያዎች)፣ ከዚያ Shroudlyን እንደገና ያስጀምሩ።";
 "dnsAroundTitle" = "አንድ ነገር Shroudlyን እያለፈ ነው";

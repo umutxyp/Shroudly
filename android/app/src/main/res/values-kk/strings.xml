@@ -121,7 +121,6 @@
     <string name="connsRouteTor">Tor</string>
     <string name="connsSearch">Іздеу немесе бұғаттау үшін сайт жазыңыз</string>
     <string name="connsSystem">Shroudly пайдаланады</string>
-    <string name="connsSystemConfirm">Shroudly {host} адресін өзі пайдаланады. Бұғаттау шифрланған DNS-ті, жаңартуларды немесе соңғы жолды бұзуы мүмкін, сайттар ашылмай қалуы мүмкін. Бәрібір бұғаттау керек пе?</string>
     <string name="connsTitle">Сайттар бойынша қосылымдар</string>
     <string name="dnsAroundAndroid">Бұл құрылғыда қолданбалардың атау сұрауларына басқа бірдеңе жауап береді (Жеке DNS немесе DNS қолданбасы), сондықтан бұғатталған қолданбалар ашылмауы мүмкін. Баптаулар → Желі → Жеке DNS ішінде «Өшірулі» не «Автоматты» таңдаңыз, DNS қолданбаларын жабыңыз, сосын Shroudly-ді қайта іске қосыңыз.</string>
     <string name="dnsErrorEmpty">Сервер мекенжайын енгізіңіз, мысалы {example}.</string>

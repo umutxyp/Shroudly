@@ -689,7 +689,6 @@
   "connsRefused": "{count} marta rad etildi",
   "connsOpen": "{count} ochiq",
   "connsSystem": "Shroudly ishlatadi",
-  "connsSystemConfirm": "Shroudly {host} manzilidan o'zi foydalanadi. Bloklash shifrlangan DNS, yangilanishlar yoki so'nggi yo'lni buzishi, saytlar ochilmay qolishi mumkin. Baribir bloklansinmi?",
   "connsRouteTechnique": "usul",
   "connsRouteServer": "o'z serveringiz",
   "connsRouteTor": "Tor",

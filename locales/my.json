@@ -689,7 +689,6 @@
   "connsRefused": "{count} ကြိမ် ငြင်းထားသည်",
   "connsOpen": "{count} ဖွင့်ထားသည်",
   "connsSystem": "Shroudly အသုံးပြုသည်",
-  "connsSystemConfirm": "Shroudly ကိုယ်တိုင် {host} ကို အသုံးပြုပါသည်။ ပိတ်ပါက ကုဒ်ဝှက်ထားသော DNS၊ အပ်ဒိတ်များ သို့မဟုတ် နောက်ဆုံးလမ်းကြောင်း ပျက်နိုင်ပြီး ဝဘ်ဆိုက်များ မပွင့်နိုင်ပါ။ မည်သို့ပင်ဖြစ်စေ ပိတ်မလား။",
   "connsRouteTechnique": "နည်းလမ်း",
   "connsRouteServer": "ကိုယ်ပိုင်ဆာဗာ",
   "connsRouteTor": "Tor",

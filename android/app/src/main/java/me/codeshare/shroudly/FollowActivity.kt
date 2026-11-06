@@ -72,8 +72,9 @@ class FollowActivity : Activity() {
         root.addView(label(20f, R.color.text, true).apply { setText(R.string.followTitle) })
         root.addView(label(13f, R.color.text_dim).apply { setText(R.string.followDesc); setPadding(0, dp(4f), 0, dp(8f)) })
         if (tv) root.addView(label(13f, R.color.text_dim).apply { setText(R.string.followTv); setPadding(0, 0, 0, dp(8f)) })
-        group(root, getString(R.string.followCodeshare), CODESHARE, tv)
+        // The developer's first: news, new versions and urgent notices go there.
         group(root, getString(R.string.followDeveloper), DEVELOPER, tv)
+        group(root, getString(R.string.followCodeshare), CODESHARE, tv)
         val scroll = ScrollView(this).apply { id = View.generateViewId(); addView(root); setBackgroundColor(getColor(R.color.bg)) }
         setContentView(scroll)
         Tv.rings(window)

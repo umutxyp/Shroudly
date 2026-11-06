@@ -121,7 +121,6 @@
     <string name="connsRouteTor">Tor</string>
     <string name="connsSearch">Пошук або сайт для блокування</string>
     <string name="connsSystem">використовує Shroudly</string>
-    <string name="connsSystemConfirm">Shroudly сам використовує {host}. Блокування може зламати шифрований DNS, оновлення або останній вихід, і сайти можуть перестати відкриватися. Усе одно заблокувати?</string>
     <string name="connsTitle">З\'єднання за сайтами</string>
     <string name="dnsAroundAndroid">На цьому пристрої запити імен у застосунків обробляє щось інше (приватний DNS або DNS-застосунок), тож заблоковані застосунки можуть не відкриватися. У Налаштуваннях → Мережа → Приватний DNS виберіть «Вимкнено» або «Автоматично», закрийте DNS-застосунки й знову запустіть Shroudly.</string>
     <string name="dnsErrorEmpty">Введіть адресу сервера, наприклад {example}.</string>

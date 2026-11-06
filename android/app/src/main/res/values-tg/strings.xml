@@ -121,7 +121,6 @@
     <string name="connsRouteTor">Tor</string>
     <string name="connsSearch">Ҷустуҷӯ ё сайтро барои манъ нависед</string>
     <string name="connsSystem">Shroudly истифода мебарад</string>
-    <string name="connsSystemConfirm">Shroudly {host}-ро худаш истифода мебарад. Манъ кардан метавонад DNS-и рамзгузоришуда, навсозиҳо ё роҳи охиринро вайрон кунад ва сайтҳо кушода нашаванд. Бо вуҷуди ин манъ шавад?</string>
     <string name="connsTitle">Пайвастҳо аз рӯи сайт</string>
     <string name="dnsAroundAndroid">Дар ин дастгоҳ ба дархостҳои номи барномаҳо чизи дигар ҷавоб медиҳад (DNS-и хусусӣ ё барномаи DNS), бинобар ин барномаҳои басташуда шояд кушода нашаванд. Дар Танзимот → Шабака → DNS-и хусусӣ «Хомӯш» ё «Худкор»-ро интихоб кунед, барномаҳои DNS-ро пӯшед ва Shroudly-ро аз нав оғоз кунед.</string>
     <string name="dnsErrorEmpty">Суроғаи серверро нависед, масалан {example}.</string>

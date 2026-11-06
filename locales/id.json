@@ -689,7 +689,6 @@
   "connsRefused": "{count} ditolak",
   "connsOpen": "{count} terbuka",
   "connsSystem": "dipakai Shroudly",
-  "connsSystemConfirm": "Shroudly sendiri memakai {host}. Memblokirnya bisa merusak DNS terenkripsi, pembaruan, atau jalan terakhir, dan situs bisa berhenti terbuka. Tetap blokir?",
   "connsRouteTechnique": "teknik",
   "connsRouteServer": "server sendiri",
   "connsRouteTor": "Tor",

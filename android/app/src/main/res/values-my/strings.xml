@@ -121,7 +121,6 @@
     <string name="connsRouteTor">Tor</string>
     <string name="connsSearch">ရှာပါ သို့မဟုတ် ပိတ်ရန် ဝဘ်ဆိုက်ကို ရိုက်ပါ</string>
     <string name="connsSystem">Shroudly အသုံးပြုသည်</string>
-    <string name="connsSystemConfirm">Shroudly ကိုယ်တိုင် {host} ကို အသုံးပြုပါသည်။ ပိတ်ပါက ကုဒ်ဝှက်ထားသော DNS၊ အပ်ဒိတ်များ သို့မဟုတ် နောက်ဆုံးလမ်းကြောင်း ပျက်နိုင်ပြီး ဝဘ်ဆိုက်များ မပွင့်နိုင်ပါ။ မည်သို့ပင်ဖြစ်စေ ပိတ်မလား။</string>
     <string name="connsTitle">ဝဘ်ဆိုက်အလိုက် ချိတ်ဆက်မှုများ</string>
     <string name="dnsAroundAndroid">ဤစက်တွင် အက်ပ်များ၏ အမည်ရှာဖွေမှုကို အခြားတစ်ခုက ဖြေနေသည် (Private DNS သို့မဟုတ် DNS အက်ပ်)၊ ထို့ကြောင့် ပိတ်ဆို့ထားသော အက်ပ်များ မပွင့်နိုင်ပါ။ ဆက်တင်များ → ကွန်ရက် → Private DNS တွင် ပိတ် သို့မဟုတ် အလိုအလျောက် ကိုရွေးပြီး DNS အက်ပ်များကို ပိတ်ကာ Shroudly ကို ပြန်စပါ။</string>
     <string name="dnsErrorEmpty">ဆာဗာ၏ လိပ်စာကို ရိုက်ထည့်ပါ၊ ဥပမာ {example}။</string>

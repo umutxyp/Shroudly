@@ -121,7 +121,6 @@
     <string name="connsRouteTor">Tor</string>
     <string name="connsSearch">Ara ya da engellemek için bir site yaz</string>
     <string name="connsSystem">Shroudly kullanıyor</string>
-    <string name="connsSystemConfirm">Shroudly {host} adresini kendisi kullanıyor. Engellemek şifreli DNS\'i, güncellemeleri ya da son çare yolunu bozabilir, siteler açılmayabilir. Yine de engellensin mi?</string>
     <string name="connsTitle">Siteye göre bağlantılar</string>
     <string name="dnsAroundAndroid">Bu cihazda uygulamaların ad sorgularını başka bir şey cevaplıyor (Özel DNS ya da bir DNS uygulaması), bu yüzden engelli uygulamalar açılmayabilir. Ayarlar → Ağ → Özel DNS\'te Kapalı ya da Otomatik\'i seç, varsa DNS uygulamasını kapat, sonra Shroudly\'yi yeniden başlat.</string>
     <string name="dnsErrorEmpty">Sunucunun adresini yaz, örneğin {example}.</string>

@@ -40,7 +40,6 @@
 "connsRouteTor" = "Tor";
 "connsSearch" = "Tìm hoặc nhập trang để chặn";
 "connsSystem" = "Shroudly dùng";
-"connsSystemConfirm" = "Chính Shroudly dùng {host}. Chặn nó có thể làm hỏng DNS mã hoá, cập nhật hoặc lối thoát cuối cùng, và các trang có thể không mở được. Vẫn chặn?";
 "connsTitle" = "Kết nối theo trang";
 "dnsAroundApple" = "Một hồ sơ hoặc ứng dụng DNS trên thiết bị này (AdGuard, NextDNS, 1.1.1.1, hồ sơ trường học hoặc công ty) trả lời việc tra cứu tên trước Shroudly, nên ứng dụng bị chặn có thể không mở được. Hãy tắt nó trong Cài đặt → Cài đặt chung → VPN & Quản lý thiết bị (Mac: Cài đặt hệ thống → Mạng → VPN & Bộ lọc), rồi khởi động lại Shroudly.";
 "dnsAroundTitle" = "Có thứ đang đi vòng qua Shroudly";

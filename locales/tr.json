@@ -689,7 +689,6 @@
   "connsRefused": "{count} kez reddedildi",
   "connsOpen": "{count} açık",
   "connsSystem": "Shroudly kullanıyor",
-  "connsSystemConfirm": "Shroudly {host} adresini kendisi kullanıyor. Engellemek şifreli DNS'i, güncellemeleri ya da son çare yolunu bozabilir, siteler açılmayabilir. Yine de engellensin mi?",
   "connsRouteTechnique": "teknik",
   "connsRouteServer": "kendi sunucun",
   "connsRouteTor": "Tor",

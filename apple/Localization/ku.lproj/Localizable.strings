@@ -40,7 +40,6 @@
 "connsRouteTor" = "Tor";
 "connsSearch" = "Bigere an ji bo astengkirinê malperekê binivîse";
 "connsSystem" = "Shroudly bi kar tîne";
-"connsSystemConfirm" = "Shroudly bi xwe {host} bi kar tîne. Astengkirina wê dikare DNS-a şîfrekirî, nûvekirin an riya dawî xera bike û dibe ku malper venebin. Dîsa jî were astengkirin?";
 "connsTitle" = "Girêdan li gorî malperê";
 "dnsAroundApple" = "Profîl an sepaneke DNS li ser vê amûrê (AdGuard, NextDNS, 1.1.1.1, profîlek dibistanê an karê) berî Shroudly bersiva lêgerînên navan dide, ji ber vê yekê dibe ku sepanên astengkirî venebin. Wê di Mîheng → Giştî → VPN û Rêveberiya Amûrê de bigire (Mac: Mîhengên Pergalê → Tor → VPN û Parzûn), paşê Shroudly dîsa bide destpêkirin.";
 "dnsAroundTitle" = "Tiştek li dora Shroudly diçe";

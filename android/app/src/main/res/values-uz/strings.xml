@@ -121,7 +121,6 @@
     <string name="connsRouteTor">Tor</string>
     <string name="connsSearch">Qidiring yoki bloklash uchun sayt yozing</string>
     <string name="connsSystem">Shroudly ishlatadi</string>
-    <string name="connsSystemConfirm">Shroudly {host} manzilidan o\'zi foydalanadi. Bloklash shifrlangan DNS, yangilanishlar yoki so\'nggi yo\'lni buzishi, saytlar ochilmay qolishi mumkin. Baribir bloklansinmi?</string>
     <string name="connsTitle">Saytlar bo\'yicha ulanishlar</string>
     <string name="dnsAroundAndroid">Bu qurilmada ilovalarning nom soʻrovlariga boshqa narsa javob beradi (Shaxsiy DNS yoki DNS ilovasi), shuning uchun bloklangan ilovalar ochilmasligi mumkin. Sozlamalar → Tarmoq → Shaxsiy DNS boʻlimida “Oʻchiq” yoki “Avtomatik”ni tanlang, DNS ilovalarini yoping, soʻng Shroudly’ni qayta ishga tushiring.</string>
     <string name="dnsErrorEmpty">Server manzilini yozing, masalan {example}.</string>

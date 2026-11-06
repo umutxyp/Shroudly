@@ -40,7 +40,6 @@
 "connsRouteTor" = "Tor";
 "connsSearch" = "搜索,或输入要屏蔽的网站";
 "connsSystem" = "Shroudly 使用";
-"connsSystemConfirm" = "Shroudly 本身在使用 {host}。屏蔽它可能导致加密 DNS、更新或最后的通道失效,网站可能打不开。仍要屏蔽吗?";
 "connsTitle" = "按网站的连接";
 "dnsAroundApple" = "此设备上的 DNS 描述文件或应用（AdGuard、NextDNS、1.1.1.1、学校或工作描述文件）先于 Shroudly 回答域名查询，因此被封锁的应用可能打不开。请在 设置 → 通用 → VPN 与设备管理 中关闭它（Mac：系统设置 → 网络 → VPN 与过滤器），然后重新启动 Shroudly。";
 "dnsAroundTitle" = "有东西绕过了 Shroudly";

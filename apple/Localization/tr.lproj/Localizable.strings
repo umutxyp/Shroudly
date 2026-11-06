@@ -40,7 +40,6 @@
 "connsRouteTor" = "Tor";
 "connsSearch" = "Ara ya da engellemek için bir site yaz";
 "connsSystem" = "Shroudly kullanıyor";
-"connsSystemConfirm" = "Shroudly {host} adresini kendisi kullanıyor. Engellemek şifreli DNS'i, güncellemeleri ya da son çare yolunu bozabilir, siteler açılmayabilir. Yine de engellensin mi?";
 "connsTitle" = "Siteye göre bağlantılar";
 "dnsAroundApple" = "Bu cihazdaki bir DNS profili ya da uygulaması (AdGuard, NextDNS, 1.1.1.1, okul ya da iş profili) uygulamaların ad sorgularını Shroudly'den önce cevaplıyor, bu yüzden engelli uygulamalar açılmayabilir. Ayarlar → Genel → VPN ve Aygıt Yönetimi'nden kapat (Mac: Sistem Ayarları → Ağ → VPN ve Filtreler), sonra Shroudly'yi yeniden başlat.";
 "dnsAroundTitle" = "Bir şey Shroudly'nin etrafından dolaşıyor";

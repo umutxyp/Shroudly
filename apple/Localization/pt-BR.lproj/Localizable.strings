@@ -40,7 +40,6 @@
 "connsRouteTor" = "Tor";
 "connsSearch" = "Pesquise ou digite um site para bloquear";
 "connsSystem" = "usado pelo Shroudly";
-"connsSystemConfirm" = "O próprio Shroudly usa {host}. Bloquear pode quebrar o DNS criptografado, as atualizações ou a última saída, e os sites podem parar de abrir. Bloquear mesmo assim?";
 "connsTitle" = "Conexões por site";
 "dnsAroundApple" = "Um perfil ou app de DNS neste aparelho (AdGuard, NextDNS, 1.1.1.1, um perfil de escola ou trabalho) responde às buscas de nomes antes do Shroudly, então apps bloqueados podem não abrir. Desative em Ajustes → Geral → VPN e Gerenciamento de Dispositivos (Mac: Ajustes do Sistema → Rede → VPN e Filtros) e inicie o Shroudly de novo.";
 "dnsAroundTitle" = "Algo contorna o Shroudly";

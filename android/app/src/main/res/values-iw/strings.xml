@@ -121,7 +121,6 @@
     <string name="connsRouteTor">Tor</string>
     <string name="connsSearch">חיפוש או הקלדת אתר לחסימה</string>
     <string name="connsSystem">בשימוש Shroudly</string>
-    <string name="connsSystemConfirm">Shroudly עצמו משתמש ב-{host}. חסימה עלולה לשבש את ה-DNS המוצפן, העדכונים או הדרך האחרונה, ואתרים עלולים להפסיק להיפתח. לחסום בכל זאת?</string>
     <string name="connsTitle">חיבורים לפי אתר</string>
     <string name="dnsAroundAndroid">משהו אחר במכשיר הזה עונה לבדיקות השמות של האפליקציות (DNS פרטי או אפליקציית DNS), ולכן אפליקציות חסומות עלולות לא להיפתח. בהגדרות ← רשת ← DNS פרטי בחרו כבוי או אוטומטי, סגרו אפליקציות DNS והפעילו את Shroudly מחדש.</string>
     <string name="dnsErrorEmpty">הקלידו את כתובת השרת, למשל {example}.</string>

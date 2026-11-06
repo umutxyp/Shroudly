@@ -40,7 +40,6 @@
 "connsRouteTor" = "Tor";
 "connsSearch" = "Cari atau taip laman untuk disekat";
 "connsSystem" = "digunakan Shroudly";
-"connsSystemConfirm" = "Shroudly sendiri menggunakan {host}. Menyekatnya boleh merosakkan DNS tersulit, kemas kini atau jalan terakhir, dan laman mungkin berhenti dibuka. Sekat juga?";
 "connsTitle" = "Sambungan mengikut laman";
 "dnsAroundApple" = "Profil atau aplikasi DNS pada peranti ini (AdGuard, NextDNS, 1.1.1.1, profil sekolah atau kerja) menjawab carian nama sebelum Shroudly, jadi aplikasi yang disekat mungkin tidak dibuka. Matikannya dalam Tetapan → Umum → VPN & Pengurusan Peranti (Mac: Tetapan Sistem → Rangkaian → VPN & Penapis), kemudian mulakan semula Shroudly.";
 "dnsAroundTitle" = "Ada sesuatu yang memintas Shroudly";

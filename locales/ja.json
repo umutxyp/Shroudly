@@ -689,7 +689,6 @@
   "connsRefused": "{count} 回拒否",
   "connsOpen": "{count} 件接続中",
   "connsSystem": "Shroudly が使用",
-  "connsSystemConfirm": "{host} は Shroudly 自身が使っています。ブロックすると暗号化 DNS、更新、最後の手段が使えなくなり、サイトが開かなくなるおそれがあります。それでもブロックしますか?",
   "connsRouteTechnique": "手法",
   "connsRouteServer": "自分のサーバー",
   "connsRouteTor": "Tor",

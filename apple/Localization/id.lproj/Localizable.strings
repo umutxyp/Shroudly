@@ -40,7 +40,6 @@
 "connsRouteTor" = "Tor";
 "connsSearch" = "Cari atau ketik situs untuk diblokir";
 "connsSystem" = "dipakai Shroudly";
-"connsSystemConfirm" = "Shroudly sendiri memakai {host}. Memblokirnya bisa merusak DNS terenkripsi, pembaruan, atau jalan terakhir, dan situs bisa berhenti terbuka. Tetap blokir?";
 "connsTitle" = "Koneksi per situs";
 "dnsAroundApple" = "Profil atau aplikasi DNS di perangkat ini (AdGuard, NextDNS, 1.1.1.1, profil sekolah atau kantor) menjawab pencarian nama sebelum Shroudly, jadi aplikasi yang diblokir mungkin tidak terbuka. Matikan di Pengaturan → Umum → VPN & Manajemen Perangkat (Mac: Pengaturan Sistem → Jaringan → VPN & Filter), lalu mulai Shroudly lagi.";
 "dnsAroundTitle" = "Ada yang melewati Shroudly";

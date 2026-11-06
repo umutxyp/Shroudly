@@ -30,7 +30,7 @@
 
   ▶ **[Watch the 2-minute launch video](https://www.youtube.com/watch?v=Mb4Zkq1din8)**
 
-  ★ **[Follow Shroudly](#follow-shroudly)**: [Instagram](https://instagram.com/codeshareme) · [X](https://x.com/codeshareme) · [YouTube](https://youtube.com/@umutxyp) · [TikTok](https://tiktok.com/@umutxyp) · [Discord](https://discord.gg/BhdgVfsFVC) · [Telegram](https://t.me/umutxyp)
+  ★ **[Follow Shroudly](#follow-shroudly)**: [Instagram](https://instagram.com/umutxyp) · [YouTube](https://youtube.com/@umutxyp) · [TikTok](https://tiktok.com/@umutxyp) · [X](https://x.com/devbayraktar) · [Telegram](https://t.me/umutxyp) · [Discord](https://discord.gg/BhdgVfsFVC)
 
   ♥ **[Support Shroudly](#support-shroudly)**: PayPal, or a bank transfer from your own country
 </div>
@@ -768,7 +768,7 @@ directly. That list maintains itself:
 - **Its own lists where GitHub is blocked** — the site list and the ad list come through a CDN front (another site on GitHub's CDN) when GitHub does not answer.
 - **iPhone, iPad, Mac and Apple TV** — the same engine as a VPN on the device: live stats, ad blocking, a DNS server and a server of your own, widgets and Control Center ([details](#iphone-ipad-mac-and-apple-tv)).
 - **Share Shroudly** — the Android app (the APK from GitHub) sends itself to another phone over Bluetooth or a nearby-share app, for when its download page cannot be reached.
-- **Follow Shroudly** — a tab of its own in every app (computers, Android phones and TVs, iPhone, iPad, Mac, Apple TV) with Codeshare's and its developer's accounts ([links](#follow-shroudly)).
+- **Follow Shroudly** — a tab of its own in every app (computers, Android phones and TVs, iPhone, iPad, Mac, Apple TV) with its developer's accounts, where news and urgent notices are posted first, and Codeshare's ([links](#follow-shroudly)).
 - **What changed, after each update** — once, in your language: on the desktop, Android, iPhone and iPad.
 - **Tells you what is going on** — another VPN or bypass tool fighting it, a site the network cuts, encrypted DNS blocked, what the autopilot did: said plainly, in one line.
 - **Never breaks your connection** — your proxy settings are saved before Shroudly changes them and put back on stop, crash, forced kill, shutdown, power loss (at next sign-in) and uninstall.
@@ -1295,8 +1295,8 @@ entitled to.
 
 News about blocks, new versions and ways through, first. Following and sharing is how Shroudly reaches the people who need it, and it costs nothing. The app has the same links in its own **Follow** tab, on computers, phones, tablets and TVs.
 
+- **Umut Bayraktar**, Shroudly's developer, where news, new versions and urgent notices are posted first: [Instagram](https://instagram.com/umutxyp) · [YouTube](https://youtube.com/@umutxyp) · [TikTok](https://tiktok.com/@umutxyp) · [X](https://x.com/devbayraktar) · [Telegram](https://t.me/umutxyp) · [GitHub](https://github.com/umutxyp) · [LinkedIn](https://linkedin.com/in/umutxyp) · [Facebook](https://facebook.com/umutxyp)
 - **Codeshare**, who make Shroudly: [Instagram](https://instagram.com/codeshareme) · [X](https://x.com/codeshareme) · [Discord](https://discord.gg/BhdgVfsFVC) · [LinkedIn](https://www.linkedin.com/company/codeshareme) · [Facebook](https://www.facebook.com/codeshareme) · [GitHub](https://github.com/codeshareme) · [codeshare.me](https://codeshare.me)
-- **Umut Bayraktar**, Shroudly's developer: [Instagram](https://instagram.com/umutxyp) · [YouTube](https://youtube.com/@umutxyp) · [TikTok](https://tiktok.com/@umutxyp) · [X](https://x.com/devbayraktar) · [Telegram](https://t.me/umutxyp) · [GitHub](https://github.com/umutxyp) · [LinkedIn](https://linkedin.com/in/umutxyp) · [Facebook](https://facebook.com/umutxyp)
 
 ## Support Shroudly
 

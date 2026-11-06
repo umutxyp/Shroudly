@@ -121,7 +121,6 @@
     <string name="connsRouteTor">Tor</string>
     <string name="connsSearch">ይፈልጉ ወይም ለማገድ ድረ ገጽ ይጻፉ</string>
     <string name="connsSystem">Shroudly ይጠቀማል</string>
-    <string name="connsSystemConfirm">Shroudly ራሱ {host}ን ይጠቀማል። ማገዱ የተመሰጠረ DNSን፣ ዝማኔዎችን ወይም የመጨረሻውን መውጫ ሊያበላሽ እና ድረ ገጾች መከፈት ሊያቆሙ ይችላሉ። ቢሆንም ይታገድ?</string>
     <string name="connsTitle">በድረ ገጽ የተከፋፈሉ ግንኙነቶች</string>
     <string name="dnsAroundAndroid">በዚህ መሣሪያ ላይ ሌላ ነገር የመተግበሪያዎችን የስም ፍለጋ እየመለሰ ነው (Private DNS ወይም የDNS መተግበሪያ)፣ ስለዚህ የታገዱ መተግበሪያዎች ላይከፈቱ ይችላሉ። በቅንብሮች → አውታረ መረብ → Private DNS ውስጥ ጠፍቷል ወይም ራስ-ሰር ይምረጡ፣ የDNS መተግበሪያዎችን ይዝጉ፣ ከዚያ Shroudlyን እንደገና ያስጀምሩ።</string>
     <string name="dnsErrorEmpty">የአገልጋዩን አድራሻ ይጻፉ፣ ለምሳሌ {example}።</string>

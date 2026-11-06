@@ -689,7 +689,6 @@
   "connsRefused": "{count} бор рад шуд",
   "connsOpen": "{count} кушода",
   "connsSystem": "Shroudly истифода мебарад",
-  "connsSystemConfirm": "Shroudly {host}-ро худаш истифода мебарад. Манъ кардан метавонад DNS-и рамзгузоришуда, навсозиҳо ё роҳи охиринро вайрон кунад ва сайтҳо кушода нашаванд. Бо вуҷуди ин манъ шавад?",
   "connsRouteTechnique": "усул",
   "connsRouteServer": "сервери худ",
   "connsRouteTor": "Tor",

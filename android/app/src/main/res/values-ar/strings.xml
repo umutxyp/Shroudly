@@ -121,7 +121,6 @@
     <string name="connsRouteTor">تور</string>
     <string name="connsSearch">ابحث أو اكتب موقعًا لحظره</string>
     <string name="connsSystem">يستخدمه Shroudly</string>
-    <string name="connsSystemConfirm">يستخدم Shroudly نفسه {host}. قد يؤدي حظره إلى تعطيل DNS المشفّر أو التحديثات أو المخرج الأخير، وقد تتوقف المواقع عن الفتح. هل تريد حظره رغم ذلك؟</string>
     <string name="connsTitle">الاتصالات حسب الموقع</string>
     <string name="dnsAroundAndroid">شيء آخر على هذا الجهاز يجيب عن استعلامات الأسماء للتطبيقات (DNS خاص أو تطبيق DNS)، لذلك قد لا تفتح التطبيقات المحجوبة. من الإعدادات ← الشبكة ← DNS الخاص اختر «إيقاف» أو «تلقائي»، وأغلق أي تطبيق DNS، ثم شغّل Shroudly من جديد.</string>
     <string name="dnsErrorEmpty">اكتب عنوان الخادم، مثل {example}.</string>

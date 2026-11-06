@@ -689,7 +689,6 @@
   "connsRefused": "{count} рет қабылданбады",
   "connsOpen": "{count} ашық",
   "connsSystem": "Shroudly пайдаланады",
-  "connsSystemConfirm": "Shroudly {host} адресін өзі пайдаланады. Бұғаттау шифрланған DNS-ті, жаңартуларды немесе соңғы жолды бұзуы мүмкін, сайттар ашылмай қалуы мүмкін. Бәрібір бұғаттау керек пе?",
   "connsRouteTechnique": "әдіс",
   "connsRouteServer": "өз серверіңіз",
   "connsRouteTor": "Tor",

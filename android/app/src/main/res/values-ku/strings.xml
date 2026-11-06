@@ -121,7 +121,6 @@
     <string name="connsRouteTor">Tor</string>
     <string name="connsSearch">Bigere an ji bo astengkirinê malperekê binivîse</string>
     <string name="connsSystem">Shroudly bi kar tîne</string>
-    <string name="connsSystemConfirm">Shroudly bi xwe {host} bi kar tîne. Astengkirina wê dikare DNS-a şîfrekirî, nûvekirin an riya dawî xera bike û dibe ku malper venebin. Dîsa jî were astengkirin?</string>
     <string name="connsTitle">Girêdan li gorî malperê</string>
     <string name="dnsAroundAndroid">Li ser vê amûrê tiştekî din bersiva lêgerînên navan ên sepanan dide (DNS-a taybet an sepaneke DNS), ji ber vê yekê dibe ku sepanên astengkirî venebin. Di Mîheng → Tor → DNS-a taybet de Girtî an Xweber hilbijêre, sepanên DNS bigire, paşê Shroudly dîsa bide destpêkirin.</string>
     <string name="dnsErrorEmpty">Navnîşana pêşkêşkarê binivîse, wekî {example}.</string>

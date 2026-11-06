@@ -121,7 +121,6 @@
     <string name="connsRouteTor">Tor</string>
     <string name="connsSearch">ค้นหาหรือพิมพ์เว็บไซต์ที่จะบล็อก</string>
     <string name="connsSystem">Shroudly ใช้</string>
-    <string name="connsSystemConfirm">Shroudly ใช้ {host} เอง การบล็อกอาจทำให้ DNS แบบเข้ารหัส การอัปเดต หรือทางออกสุดท้ายใช้ไม่ได้ และเว็บไซต์อาจเปิดไม่ได้ บล็อกต่อหรือไม่</string>
     <string name="connsTitle">การเชื่อมต่อตามเว็บไซต์</string>
     <string name="dnsAroundAndroid">มีสิ่งอื่นในอุปกรณ์นี้ตอบการค้นหาชื่อของแอป (DNS ส่วนตัวหรือแอป DNS) แอปที่ถูกบล็อกจึงอาจเปิดไม่ได้ ไปที่ การตั้งค่า → เครือข่าย → DNS ส่วนตัว แล้วเลือกปิดหรืออัตโนมัติ ปิดแอป DNS แล้วเริ่ม Shroudly ใหม่</string>
     <string name="dnsErrorEmpty">พิมพ์ที่อยู่ของเซิร์ฟเวอร์ เช่น {example}</string>

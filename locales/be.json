@@ -689,7 +689,6 @@
   "connsRefused": "адхілена: {count}",
   "connsOpen": "адкрыта: {count}",
   "connsSystem": "выкарыстоўвае Shroudly",
-  "connsSystemConfirm": "Shroudly сам выкарыстоўвае {host}. Блакіроўка можа парушыць шыфраваны DNS, абнаўленні або апошні выхад, і сайты могуць перастаць адкрывацца. Усё роўна заблакіраваць?",
   "connsRouteTechnique": "тэхніка",
   "connsRouteServer": "свой сервер",
   "connsRouteTor": "Tor",

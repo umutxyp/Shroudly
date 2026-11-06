@@ -121,7 +121,6 @@
     <string name="connsRouteTor">Tor</string>
     <string name="connsSearch">Tìm hoặc nhập trang để chặn</string>
     <string name="connsSystem">Shroudly dùng</string>
-    <string name="connsSystemConfirm">Chính Shroudly dùng {host}. Chặn nó có thể làm hỏng DNS mã hoá, cập nhật hoặc lối thoát cuối cùng, và các trang có thể không mở được. Vẫn chặn?</string>
     <string name="connsTitle">Kết nối theo trang</string>
     <string name="dnsAroundAndroid">Có thứ khác trên thiết bị này đang trả lời việc tra cứu tên của ứng dụng (DNS riêng hoặc ứng dụng DNS), nên ứng dụng bị chặn có thể không mở được. Vào Cài đặt → Mạng → DNS riêng chọn Tắt hoặc Tự động, đóng ứng dụng DNS, rồi khởi động lại Shroudly.</string>
     <string name="dnsErrorEmpty">Nhập địa chỉ máy chủ, ví dụ {example}.</string>

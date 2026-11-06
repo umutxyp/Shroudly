@@ -121,7 +121,6 @@
     <string name="connsRouteTor">تور</string>
     <string name="connsSearch">جست‌وجو کن یا نام سایتی را برای مسدود کردن بنویس</string>
     <string name="connsSystem">مورد استفادهٔ Shroudly</string>
-    <string name="connsSystemConfirm">خود Shroudly از {host} استفاده می‌کند. مسدود کردنش ممکن است DNS رمزگذاری‌شده، به‌روزرسانی‌ها یا راه آخر را از کار بیندازد و سایت‌ها باز نشوند. باز هم مسدود شود؟</string>
     <string name="connsTitle">اتصال‌ها بر اساس سایت</string>
     <string name="dnsAroundAndroid">چیز دیگری روی این دستگاه به پرس‌وجوهای نام برنامه‌ها جواب می‌دهد (DNS خصوصی یا یک برنامهٔ DNS)، پس ممکن است برنامه‌های مسدود باز نشوند. در تنظیمات ← شبکه ← DNS خصوصی، «خاموش» یا «خودکار» را انتخاب کنید، برنامه‌های DNS را ببندید و Shroudly را دوباره روشن کنید.</string>
     <string name="dnsErrorEmpty">نشانی سرور را بنویسید، مثل {example}.</string>

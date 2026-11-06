@@ -689,7 +689,6 @@
   "connsRefused": "đã từ chối {count}",
   "connsOpen": "{count} đang mở",
   "connsSystem": "Shroudly dùng",
-  "connsSystemConfirm": "Chính Shroudly dùng {host}. Chặn nó có thể làm hỏng DNS mã hoá, cập nhật hoặc lối thoát cuối cùng, và các trang có thể không mở được. Vẫn chặn?",
   "connsRouteTechnique": "kỹ thuật",
   "connsRouteServer": "máy chủ riêng",
   "connsRouteTor": "Tor",

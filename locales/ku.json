@@ -689,7 +689,6 @@
   "connsRefused": "{count} car hat redkirin",
   "connsOpen": "{count} vekirî",
   "connsSystem": "Shroudly bi kar tîne",
-  "connsSystemConfirm": "Shroudly bi xwe {host} bi kar tîne. Astengkirina wê dikare DNS-a şîfrekirî, nûvekirin an riya dawî xera bike û dibe ku malper venebin. Dîsa jî were astengkirin?",
   "connsRouteTechnique": "teknîk",
   "connsRouteServer": "servera te",
   "connsRouteTor": "Tor",

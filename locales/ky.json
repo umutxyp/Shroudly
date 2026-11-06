@@ -689,7 +689,6 @@
   "connsRefused": "{count} жолу четке кагылды",
   "connsOpen": "{count} ачык",
   "connsSystem": "Shroudly колдонот",
-  "connsSystemConfirm": "Shroudly {host} дарегин өзү колдонот. Бөгөттөө шифрленген DNS'ти, жаңыртууларды же акыркы жолду бузушу мүмкүн, сайттар ачылбай калышы мүмкүн. Баары бир бөгөттөлсүнбү?",
   "connsRouteTechnique": "ыкма",
   "connsRouteServer": "өз сервериңиз",
   "connsRouteTor": "Tor",

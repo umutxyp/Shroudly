@@ -689,7 +689,6 @@
   "connsRefused": "{count} recusadas",
   "connsOpen": "{count} abertas",
   "connsSystem": "usado pelo Shroudly",
-  "connsSystemConfirm": "O próprio Shroudly usa {host}. Bloquear pode quebrar o DNS criptografado, as atualizações ou a última saída, e os sites podem parar de abrir. Bloquear mesmo assim?",
   "connsRouteTechnique": "técnica",
   "connsRouteServer": "servidor próprio",
   "connsRouteTor": "Tor",

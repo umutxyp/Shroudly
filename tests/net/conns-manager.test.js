@@ -53,6 +53,21 @@ const store = { get: (k, d) => (k in mem ? mem[k] : d), set: (k, v) => { mem[k] 
     && SystemHosts.isSystemHost('my.server.example', ['server.example']) && !SystemHosts.isSystemHost('google.com') && !SystemHosts.isSystemHost('notgithub.com'),
     'Shroudly\'s own names are known (DNS, Tor, codeshare.me, the user\'s own server), and only those');
 
+  // ...have no Block anywhere: blocking one would only break Shroudly.
+  const fs = require('fs');
+  const read = (...p) => fs.readFileSync(require('path').join(H.ROOT, ...p), 'utf8');
+  const sp = read('components', 'StatsPanel.js');
+  const main = read('electron', 'main.js');
+  t.ok(/: !r\.system && <button[\s\S]{0,80}block\(r\.host, true\)/.test(sp) && /ownNames/.test(sp) && !/connsSystemConfirm/.test(sp)
+    && /if \(SystemHosts\.isSystemHost\(host, \[own\]\)\) return \{ ok: false, why: 'system' \}/.test(main),
+    'desktop: no Block button for Shroudly\'s own names, none offered when typed, and refused if asked anyway');
+  const ca = read('android', 'app', 'src', 'main', 'java', 'me', 'codeshare', 'shroudly', 'ConnectionsActivity.kt');
+  t.ok(/if \(blocked \|\| !system\) r\.addView\(Button/.test(ca) && /if \(on && Conns\.isSystem\(host/.test(ca) && /!Conns\.isSystem\(typed, own\)/.test(ca),
+    'Android: the same');
+  const cv = read('apple', 'App', 'ConnectionsView.swift');
+  t.ok(/if isBlocked \|\| !Conns\.isSystem\(host, own: own\)/.test(cv) && /if on && Conns\.isSystem\(host, own: own\) \{ return \}/.test(cv) && /!Conns\.isSystem\(typed, own: own\)/.test(cv),
+    'Apple: the same');
+
   console.log(`conns-manager: ${t.count} passed`);
   process.exit(0);
 })().catch((e) => { console.error('FAIL', e.message); process.exit(1); });

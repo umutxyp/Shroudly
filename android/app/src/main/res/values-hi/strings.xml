@@ -121,7 +121,6 @@
     <string name="connsRouteTor">Tor</string>
     <string name="connsSearch">खोजें या ब्लॉक करने के लिए साइट लिखें</string>
     <string name="connsSystem">Shroudly इस्तेमाल करता है</string>
-    <string name="connsSystemConfirm">Shroudly ख़ुद {host} का उपयोग करता है। इसे ब्लॉक करने से एन्क्रिप्टेड DNS, अपडेट या आख़िरी रास्ता टूट सकता है और साइटें खुलना बंद हो सकती हैं। फिर भी ब्लॉक करें?</string>
     <string name="connsTitle">साइट के अनुसार कनेक्शन</string>
     <string name="dnsAroundAndroid">इस डिवाइस पर ऐप्स के नाम-लुकअप का जवाब कुछ और दे रहा है (प्राइवेट DNS या कोई DNS ऐप), इसलिए ब्लॉक ऐप्स शायद न खुलें। सेटिंग्स → नेटवर्क → प्राइवेट DNS में बंद या ऑटोमैटिक चुनें, DNS ऐप्स बंद करें, फिर Shroudly दोबारा शुरू करें।</string>
     <string name="dnsErrorEmpty">सर्वर का पता लिखें, जैसे {example}।</string>

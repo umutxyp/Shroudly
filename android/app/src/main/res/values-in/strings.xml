@@ -121,7 +121,6 @@
     <string name="connsRouteTor">Tor</string>
     <string name="connsSearch">Cari atau ketik situs untuk diblokir</string>
     <string name="connsSystem">dipakai Shroudly</string>
-    <string name="connsSystemConfirm">Shroudly sendiri memakai {host}. Memblokirnya bisa merusak DNS terenkripsi, pembaruan, atau jalan terakhir, dan situs bisa berhenti terbuka. Tetap blokir?</string>
     <string name="connsTitle">Koneksi per situs</string>
     <string name="dnsAroundAndroid">Ada hal lain di perangkat ini yang menjawab pencarian nama aplikasi (DNS Pribadi atau aplikasi DNS), jadi aplikasi yang diblokir mungkin tidak terbuka. Di Setelan → Jaringan → DNS Pribadi pilih Nonaktif atau Otomatis, tutup aplikasi DNS, lalu mulai Shroudly lagi.</string>
     <string name="dnsErrorEmpty">Ketik alamat server, misalnya {example}.</string>

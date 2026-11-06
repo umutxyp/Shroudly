@@ -27,7 +27,8 @@ function LinkRow({ href, Icon, label }) {
   );
 }
 
-/* Follow Shroudly: Codeshare's accounts, then its developer's
+/* Follow Shroudly: its developer's accounts first (news, new versions and
+ * urgent notices are posted there), then Codeshare's
  * (components/follow.json; the Android and Apple apps carry the same list,
  * tests/net/follow.test.js). Each opens in the browser. */
 function FollowGroup({ title, links }) {
@@ -56,8 +57,8 @@ export function FollowSection() {
   return (
     <Section title={t('followTitle')} Icon={HeartIcon}>
       <p className="text-[12.5px] leading-relaxed" style={{ color: 'var(--text-dim)' }}>{t('followDesc')}</p>
-      <FollowGroup title={t('followCodeshare')} links={FOLLOW.codeshare} />
       <FollowGroup title={t('followDeveloper')} links={FOLLOW.developer} />
+      <FollowGroup title={t('followCodeshare')} links={FOLLOW.codeshare} />
     </Section>
   );
 }

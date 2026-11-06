@@ -121,7 +121,6 @@
     <string name="connsRouteTor">Tor</string>
     <string name="connsSearch">Пошук або сайт для блакіроўкі</string>
     <string name="connsSystem">выкарыстоўвае Shroudly</string>
-    <string name="connsSystemConfirm">Shroudly сам выкарыстоўвае {host}. Блакіроўка можа парушыць шыфраваны DNS, абнаўленні або апошні выхад, і сайты могуць перастаць адкрывацца. Усё роўна заблакіраваць?</string>
     <string name="connsTitle">Злучэнні па сайтах</string>
     <string name="dnsAroundAndroid">На гэтай прыладзе запыты імёнаў у праграм апрацоўвае нешта іншае (прыватны DNS або DNS-праграма), таму заблакаваныя праграмы могуць не адкрывацца. У Наладах → Сетка → Прыватны DNS выберыце «Выключана» або «Аўтаматычна», закрыйце DNS-праграмы і зноў запусціце Shroudly.</string>
     <string name="dnsErrorEmpty">Увядзіце адрас сервера, напрыклад {example}.</string>

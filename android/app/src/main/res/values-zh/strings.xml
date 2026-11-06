@@ -121,7 +121,6 @@
     <string name="connsRouteTor">Tor</string>
     <string name="connsSearch">搜索,或输入要屏蔽的网站</string>
     <string name="connsSystem">Shroudly 使用</string>
-    <string name="connsSystemConfirm">Shroudly 本身在使用 {host}。屏蔽它可能导致加密 DNS、更新或最后的通道失效,网站可能打不开。仍要屏蔽吗?</string>
     <string name="connsTitle">按网站的连接</string>
     <string name="dnsAroundAndroid">此设备上有其他东西在回答应用的域名查询（私人 DNS 或 DNS 应用），因此被封锁的应用可能打不开。请在 设置 → 网络 → 私人 DNS 中选择“关闭”或“自动”，关闭 DNS 应用，然后重新启动 Shroudly。</string>
     <string name="dnsErrorEmpty">请输入服务器地址，例如 {example}。</string>

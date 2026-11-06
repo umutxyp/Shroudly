@@ -689,7 +689,6 @@
   "connsRefused": "{count} ditolak",
   "connsOpen": "{count} terbuka",
   "connsSystem": "digunakan Shroudly",
-  "connsSystemConfirm": "Shroudly sendiri menggunakan {host}. Menyekatnya boleh merosakkan DNS tersulit, kemas kini atau jalan terakhir, dan laman mungkin berhenti dibuka. Sekat juga?",
   "connsRouteTechnique": "teknik",
   "connsRouteServer": "pelayan sendiri",
   "connsRouteTor": "Tor",

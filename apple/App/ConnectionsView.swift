@@ -4,15 +4,15 @@ import SwiftUI
  * Connections (issue #74; the Connections cell under the switch opens it):
  * what went through Shroudly, by site, with the data each way, how many are
  * open now and how each went out; blocking a site ends its connections and
- * refuses new ones. Shroudly's own names are marked, and blocking one asks
- * first. Asked again every two seconds while on screen.
+ * refuses new ones. Shroudly's own names (its DNS, Tor, codeshare.me, the
+ * user's own server) are marked and have no Block: blocking one would only
+ * break Shroudly. Asked again every two seconds while on screen.
  */
 struct ConnectionsView: View {
     @EnvironmentObject private var controller: TunnelController
     @State private var rows: [ConnRow] = []
     @State private var blocked: [String] = Conns.blocked()
     @State private var query = ""
-    @State private var confirm: String?
 
     private var needle: String { query.trimmingCharacters(in: .whitespaces).lowercased() }
     private var own: String? { SettingsStore().load().ownServerLink?.host }
@@ -22,7 +22,7 @@ struct ConnectionsView: View {
             Section {
                 Text(tr("connsDesc")).font(.footnote).foregroundStyle(Theme.secondaryText)
             }
-            if let typed = Conns.clean(needle), typed.contains("."), !blocked.contains(typed), !rows.contains(where: { $0.host == typed }) {
+            if let typed = Conns.clean(needle), typed.contains("."), !blocked.contains(typed), !rows.contains(where: { $0.host == typed }), !Conns.isSystem(typed, own: own) {
                 Button(tr("connsBlockName", ["host": typed])) { block(typed, true); query = "" }
             }
             let shown = rows.filter { needle.isEmpty || $0.host.contains(needle) }.prefix(100)
@@ -41,11 +41,6 @@ struct ConnectionsView: View {
         #if !os(tvOS)
         .searchable(text: $query, prompt: tr("connsSearch"))
         #endif
-        // The system adds its own Cancel, in the system's language.
-        .confirmationDialog(confirm.map { tr("connsSystemConfirm", ["host": $0]) } ?? "",
-                            isPresented: Binding(get: { confirm != nil }, set: { if !$0 { confirm = nil } }), titleVisibility: .visible) {
-            Button(tr("connsBlock"), role: .destructive) { if let h = confirm { block(h, true, asked: true) } }
-        }
         .task {
             while !Task.isCancelled {
                 rows = await controller.conns()
@@ -62,8 +57,11 @@ struct ConnectionsView: View {
                 Text(sub).font(.caption).foregroundStyle(isBlocked ? Color.orange : Theme.secondaryText)
             }
             Spacer(minLength: 8)
-            Button(isBlocked ? tr("connsAllow") : tr("connsBlock")) { block(host, !isBlocked) }
-                .buttonStyle(.bordered)
+            // Shroudly's own names: Allow if one was blocked before, never Block.
+            if isBlocked || !Conns.isSystem(host, own: own) {
+                Button(isBlocked ? tr("connsAllow") : tr("connsBlock")) { block(host, !isBlocked) }
+                    .buttonStyle(.bordered)
+            }
         }
     }
 
@@ -82,8 +80,8 @@ struct ConnectionsView: View {
         return parts.joined(separator: " · ")
     }
 
-    private func block(_ host: String, _ on: Bool, asked: Bool = false) {
-        if on && !asked && Conns.isSystem(host, own: own) { confirm = host; return }
+    private func block(_ host: String, _ on: Bool) {
+        if on && Conns.isSystem(host, own: own) { return }
         guard let now = Conns.set(host, blocked: on) else { return }
         blocked = now
         rows = rows.map { r in

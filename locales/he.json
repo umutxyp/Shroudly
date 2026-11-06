@@ -689,7 +689,6 @@
   "connsRefused": "נדחה {count} פעמים",
   "connsOpen": "{count} פתוחים",
   "connsSystem": "בשימוש Shroudly",
-  "connsSystemConfirm": "Shroudly עצמו משתמש ב-{host}. חסימה עלולה לשבש את ה-DNS המוצפן, העדכונים או הדרך האחרונה, ואתרים עלולים להפסיק להיפתח. לחסום בכל זאת?",
   "connsRouteTechnique": "טכניקה",
   "connsRouteServer": "השרת שלך",
   "connsRouteTor": "Tor",

@@ -121,7 +121,6 @@
     <string name="connsRouteTor">Tor</string>
     <string name="connsSearch">Издөө же бөгөттөө үчүн сайт жазыңыз</string>
     <string name="connsSystem">Shroudly колдонот</string>
-    <string name="connsSystemConfirm">Shroudly {host} дарегин өзү колдонот. Бөгөттөө шифрленген DNS\'ти, жаңыртууларды же акыркы жолду бузушу мүмкүн, сайттар ачылбай калышы мүмкүн. Баары бир бөгөттөлсүнбү?</string>
     <string name="connsTitle">Сайттар боюнча туташуулар</string>
     <string name="dnsAroundAndroid">Бул түзмөктө колдонмолордун аталыш сурамдарына башка бир нерсе жооп берет (Жеке DNS же DNS колдонмосу), ошондуктан бөгөттөлгөн колдонмолор ачылбашы мүмкүн. Жөндөөлөр → Тармак → Жеке DNS бөлүмүндө «Өчүк» же «Автоматтык» тандаңыз, DNS колдонмолорун жабыңыз, анан Shroudly\'ни кайра иштетиңиз.</string>
     <string name="dnsErrorEmpty">Сервердин дарегин жазыңыз, мисалы {example}.</string>

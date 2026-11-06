@@ -121,7 +121,6 @@
     <string name="connsRouteTor">Tor</string>
     <string name="connsSearch">Axtar və ya bloklamaq üçün sayt yaz</string>
     <string name="connsSystem">Shroudly istifadə edir</string>
-    <string name="connsSystemConfirm">Shroudly {host} ünvanını özü istifadə edir. Bloklamaq şifrəli DNS-i, yeniləmələri və ya son çıxış yolunu poza bilər, saytlar açılmaya bilər. Yenə də bloklansın?</string>
     <string name="connsTitle">Saytlara görə bağlantılar</string>
     <string name="dnsAroundAndroid">Bu cihazda tətbiqlərin ad sorğularına başqa bir şey cavab verir (Şəxsi DNS və ya DNS tətbiqi), ona görə bloklanmış tətbiqlər açılmaya bilər. Ayarlar → Şəbəkə → Şəxsi DNS bölməsində «Söndürülü» və ya «Avtomatik» seçin, DNS tətbiqlərini bağlayın, sonra Shroudly-ni yenidən başladın.</string>
     <string name="dnsErrorEmpty">Serverin ünvanını yazın, məsələn {example}.</string>

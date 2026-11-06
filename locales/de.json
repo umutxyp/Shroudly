@@ -689,7 +689,6 @@
   "connsRefused": "{count} abgelehnt",
   "connsOpen": "{count} offen",
   "connsSystem": "von Shroudly genutzt",
-  "connsSystemConfirm": "Shroudly nutzt {host} selbst. Eine Sperre kann verschlüsseltes DNS, Updates oder den letzten Ausweg stören, und Seiten öffnen sich womöglich nicht mehr. Trotzdem sperren?",
   "connsRouteTechnique": "Technik",
   "connsRouteServer": "eigener Server",
   "connsRouteTor": "Tor",

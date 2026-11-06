@@ -689,7 +689,6 @@
   "connsRefused": "已拒绝 {count} 次",
   "connsOpen": "{count} 个打开",
   "connsSystem": "Shroudly 使用",
-  "connsSystemConfirm": "Shroudly 本身在使用 {host}。屏蔽它可能导致加密 DNS、更新或最后的通道失效,网站可能打不开。仍要屏蔽吗?",
   "connsRouteTechnique": "技术",
   "connsRouteServer": "你自己的服务器",
   "connsRouteTor": "Tor",

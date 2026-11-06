@@ -121,7 +121,6 @@
     <string name="connsRouteTor">Tor</string>
     <string name="connsSearch">Gözläň ýa-da bloklamak üçin saýt ýazyň</string>
     <string name="connsSystem">Shroudly ulanýar</string>
-    <string name="connsSystemConfirm">Shroudly {host} salgysyny özi ulanýar. Bloklamak şifrlenen DNS-i, täzelenmeleri ýa-da soňky ýoly bozup biler, saýtlar açylmazlygy mümkin. Şonda-da bloklansynmy?</string>
     <string name="connsTitle">Saýtlar boýunça birikmeler</string>
     <string name="dnsAroundAndroid">Bu enjamda programmalaryň at soraglaryna başga bir zat jogap berýär (Hususy DNS ýa-da DNS programmasy), şonuň üçin petiklenen programmalar açylman biler. Sazlamalar → Tor → Hususy DNS bölüminde «Öçük» ýa-da «Awtomatik» saýlaň, DNS programmalaryny ýapyň, soňra Shroudly-ni täzeden başladyň.</string>
     <string name="dnsErrorEmpty">Serweriň salgysyny ýazyň, meselem {example}.</string>

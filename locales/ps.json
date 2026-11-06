@@ -689,7 +689,6 @@
   "connsRefused": "{count} ځله رد شو",
   "connsOpen": "{count} پرانیستي",
   "connsSystem": "Shroudly یې کاروي",
-  "connsSystemConfirm": "Shroudly پخپله {host} کاروي. بندول یې کېدای شي کوډ شوی DNS، تازه کول یا وروستۍ لاره خرابه کړي او سایټونه پرانیستل ونشي. بیا هم بند شي؟",
   "connsRouteTechnique": "تخنیک",
   "connsRouteServer": "ستاسو خپل سرور",
   "connsRouteTor": "ټور",

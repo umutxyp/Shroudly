@@ -40,7 +40,6 @@
 "connsRouteTor" = "Tor";
 "connsSearch" = "Gözläň ýa-da bloklamak üçin saýt ýazyň";
 "connsSystem" = "Shroudly ulanýar";
-"connsSystemConfirm" = "Shroudly {host} salgysyny özi ulanýar. Bloklamak şifrlenen DNS-i, täzelenmeleri ýa-da soňky ýoly bozup biler, saýtlar açylmazlygy mümkin. Şonda-da bloklansynmy?";
 "connsTitle" = "Saýtlar boýunça birikmeler";
 "dnsAroundApple" = "Bu enjamdaky DNS profili ýa-da programmasy (AdGuard, NextDNS, 1.1.1.1, mekdep ýa-da iş profili) at soraglaryna Shroudly-den öň jogap berýär, şonuň üçin petiklenen programmalar açylman biler. Ony Sazlamalar → Umumy → VPN we enjamy dolandyrmak bölüminde öçüriň (Mac: Ulgam sazlamalary → Tor → VPN we süzgüçler), soňra Shroudly-ni täzeden başladyň.";
 "dnsAroundTitle" = "Bir zat Shroudly-ni aýlanyp geçýär";

@@ -121,7 +121,6 @@
     <string name="connsRouteTor">Tor</string>
     <string name="connsSearch">Pesquise ou digite um site para bloquear</string>
     <string name="connsSystem">usado pelo Shroudly</string>
-    <string name="connsSystemConfirm">O próprio Shroudly usa {host}. Bloquear pode quebrar o DNS criptografado, as atualizações ou a última saída, e os sites podem parar de abrir. Bloquear mesmo assim?</string>
     <string name="connsTitle">Conexões por site</string>
     <string name="dnsAroundAndroid">Outra coisa neste aparelho responde às buscas de nomes dos apps (DNS privado ou um app de DNS), então apps bloqueados podem não abrir. Em Configurações → Rede → DNS privado, escolha Desativado ou Automático, feche qualquer app de DNS e inicie o Shroudly de novo.</string>
     <string name="dnsErrorEmpty">Digite o endereço do servidor, como {example}.</string>

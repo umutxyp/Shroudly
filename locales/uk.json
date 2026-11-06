@@ -689,7 +689,6 @@
   "connsRefused": "відхилено: {count}",
   "connsOpen": "відкрито: {count}",
   "connsSystem": "використовує Shroudly",
-  "connsSystemConfirm": "Shroudly сам використовує {host}. Блокування може зламати шифрований DNS, оновлення або останній вихід, і сайти можуть перестати відкриватися. Усе одно заблокувати?",
   "connsRouteTechnique": "техніка",
   "connsRouteServer": "власний сервер",
   "connsRouteTor": "Tor",

@@ -46,16 +46,19 @@ struct StatsView: View {
                     .background(Theme.card, in: RoundedRectangle(cornerRadius: 14))
             }
             // The Mac's small window: the four in one row, so a notice fits too.
-            LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 10), count: Self.oneRow ? 4 : 2), spacing: 10) {
-                // Opens Connections by site, with blocking (issue #74).
-                NavigationLink { ConnectionsView() } label: {
-                    Cell(icon: "link", title: tr("connections"), value: on ? number(stats?.active) : "–", sub: on ? totalLine : nil)
+            // A Grid, not a LazyVGrid: the cards of a row are equally tall
+            // (Connections carries a second line), their contents at the top.
+            Grid(horizontalSpacing: 10, verticalSpacing: 10) {
+                if Self.oneRow {
+                    GridRow { connectionsCell; uptimeCell; downCell; upCell }
+                } else {
+                    GridRow { connectionsCell; uptimeCell }
+                    GridRow { downCell; upCell }
                 }
-                .buttonStyle(.plain)
-                Cell(icon: "clock", title: tr("uptime"), value: nil, sub: nil, since: on ? since : nil)
-                Cell(icon: "arrow.down", title: tr("download"), value: on ? bytes(stats?.down) : "–", sub: nil)
-                Cell(icon: "arrow.up", title: tr("upload"), value: on ? bytes(stats?.up) : "–", sub: nil)
             }
+            // Its own height: a row as tall as its tallest card, never more
+            // (an iPad's spare height went into the cards).
+            .fixedSize(horizontal: false, vertical: true)
             if on, let n = stats?.online {
                 Text("\(tr("onlineNow")): \(n.formatted(.number))")
                     .font(.footnote)
@@ -65,6 +68,17 @@ struct StatsView: View {
         }
         .padding(.horizontal, 16)
     }
+
+    // Opens Connections by site, with blocking (issue #74).
+    private var connectionsCell: some View {
+        NavigationLink { ConnectionsView() } label: {
+            Cell(icon: "link", title: tr("connections"), value: on ? number(stats?.active) : "–", sub: on ? totalLine : nil)
+        }
+        .buttonStyle(.plain)
+    }
+    private var uptimeCell: some View { Cell(icon: "clock", title: tr("uptime"), value: nil, sub: nil, since: on ? since : nil) }
+    private var downCell: some View { Cell(icon: "arrow.down", title: tr("download"), value: on ? bytes(stats?.down) : "–", sub: nil) }
+    private var upCell: some View { Cell(icon: "arrow.up", title: tr("upload"), value: on ? bytes(stats?.up) : "–", sub: nil) }
 
     private var totalLine: String? {
         guard let s = stats else { return nil }
@@ -119,7 +133,7 @@ struct StatsView: View {
                         .lineLimit(2)
                 }
             }
-            .frame(maxWidth: .infinity, minHeight: StatsView.oneRow ? 44 : 64, alignment: .topLeading)
+            .frame(maxWidth: .infinity, minHeight: StatsView.oneRow ? 44 : 0, maxHeight: .infinity, alignment: .topLeading)
             .padding(StatsView.oneRow ? 9 : 12)
             .background(Theme.card, in: RoundedRectangle(cornerRadius: 14))
             .accessibilityElement(children: .combine)

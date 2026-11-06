@@ -689,7 +689,6 @@
   "connsRefused": "{count} بار رد شد",
   "connsOpen": "{count} باز",
   "connsSystem": "مورد استفادهٔ Shroudly",
-  "connsSystemConfirm": "خود Shroudly از {host} استفاده می‌کند. مسدود کردنش ممکن است DNS رمزگذاری‌شده، به‌روزرسانی‌ها یا راه آخر را از کار بیندازد و سایت‌ها باز نشوند. باز هم مسدود شود؟",
   "connsRouteTechnique": "روش",
   "connsRouteServer": "سرور خودت",
   "connsRouteTor": "تور",

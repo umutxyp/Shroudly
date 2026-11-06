@@ -40,7 +40,6 @@
 "connsRouteTor" = "Tor";
 "connsSearch" = "Qidiring yoki bloklash uchun sayt yozing";
 "connsSystem" = "Shroudly ishlatadi";
-"connsSystemConfirm" = "Shroudly {host} manzilidan o'zi foydalanadi. Bloklash shifrlangan DNS, yangilanishlar yoki so'nggi yo'lni buzishi, saytlar ochilmay qolishi mumkin. Baribir bloklansinmi?";
 "connsTitle" = "Saytlar bo'yicha ulanishlar";
 "dnsAroundApple" = "Bu qurilmadagi DNS profili yoki ilovasi (AdGuard, NextDNS, 1.1.1.1, maktab yoki ish profili) nom soʻrovlariga Shroudly’dan oldin javob beradi, shuning uchun bloklangan ilovalar ochilmasligi mumkin. Uni Sozlamalar → Umumiy → VPN va qurilma boshqaruvi boʻlimida oʻchiring (Mac: Tizim sozlamalari → Tarmoq → VPN va filtrlar), soʻng Shroudly’ni qayta ishga tushiring.";
 "dnsAroundTitle" = "Nimadir Shroudly’ni chetlab oʻtmoqda";

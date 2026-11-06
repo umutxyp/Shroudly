@@ -136,8 +136,9 @@ struct FollowView: View {
                 Text(tr("followTv")).font(.footnote).foregroundStyle(Theme.secondaryText)
                 #endif
             }
-            Section(tr("followCodeshare")) { rows(Self.codeshare) }
+            // The developer's first: news, new versions and urgent notices go there.
             Section(tr("followDeveloper")) { rows(Self.developer) }
+            Section(tr("followCodeshare")) { rows(Self.codeshare) }
         }
         .navigationTitle(tr("followTitle"))
     }

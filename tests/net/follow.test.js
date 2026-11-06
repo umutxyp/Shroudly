@@ -32,6 +32,14 @@ const F = JSON.parse(read('components', 'follow.json'));
   const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
   t.ok(same(ktList('CODESHARE'), F.codeshare) && same(ktList('DEVELOPER'), F.developer), 'Android carries the same list, in the same order');
   t.ok(same(swList('codeshare'), F.codeshare) && same(swList('developer'), F.developer), 'the Apple apps carry the same list, in the same order');
+  // The developer's accounts first everywhere: news, new versions and urgent
+  // notices are posted there; Codeshare's accounts come after.
+  const ip = read('components', 'InfoPanel.js');
+  const before = (text, a, b) => text.indexOf(a) >= 0 && text.indexOf(a) < text.indexOf(b);
+  t.ok(Object.keys(F)[0] === 'developer' && before(ip, "t('followDeveloper')", "t('followCodeshare')")
+    && before(kt, 'R.string.followDeveloper), DEVELOPER', 'R.string.followCodeshare), CODESHARE')
+    && before(sw, 'Section(tr("followDeveloper"))', 'Section(tr("followCodeshare"))'),
+    'the developer\'s accounts come first on every device, Codeshare\'s after');
 
   const info = read('components', 'InfoPanel.js');
   const page = read('app', 'page.js');

@@ -121,7 +121,6 @@
     <string name="connsRouteTor">Tor</string>
     <string name="connsSearch">Cari atau taip laman untuk disekat</string>
     <string name="connsSystem">digunakan Shroudly</string>
-    <string name="connsSystemConfirm">Shroudly sendiri menggunakan {host}. Menyekatnya boleh merosakkan DNS tersulit, kemas kini atau jalan terakhir, dan laman mungkin berhenti dibuka. Sekat juga?</string>
     <string name="connsTitle">Sambungan mengikut laman</string>
     <string name="dnsAroundAndroid">Ada perkara lain pada peranti ini yang menjawab carian nama aplikasi (DNS Peribadi atau aplikasi DNS), jadi aplikasi yang disekat mungkin tidak dibuka. Dalam Tetapan → Rangkaian → DNS Peribadi pilih Mati atau Automatik, tutup aplikasi DNS, kemudian mulakan semula Shroudly.</string>
     <string name="dnsErrorEmpty">Taip alamat pelayan, contohnya {example}.</string>

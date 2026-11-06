@@ -689,7 +689,6 @@
   "connsRefused": "ปฏิเสธ {count} ครั้ง",
   "connsOpen": "เปิดอยู่ {count}",
   "connsSystem": "Shroudly ใช้",
-  "connsSystemConfirm": "Shroudly ใช้ {host} เอง การบล็อกอาจทำให้ DNS แบบเข้ารหัส การอัปเดต หรือทางออกสุดท้ายใช้ไม่ได้ และเว็บไซต์อาจเปิดไม่ได้ บล็อกต่อหรือไม่",
   "connsRouteTechnique": "เทคนิค",
   "connsRouteServer": "เซิร์ฟเวอร์ของคุณ",
   "connsRouteTor": "Tor",

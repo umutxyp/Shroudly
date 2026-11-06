@@ -1,7 +1,6 @@
 package me.codeshare.shroudly
 
 import android.app.Activity
-import android.app.AlertDialog
 import android.graphics.Typeface
 import android.os.Build
 import android.os.Bundle
@@ -71,7 +70,7 @@ class ConnectionsActivity : Activity() {
         root.addView(search)
         blockTyped = Button(this).apply {
             visibility = View.GONE
-            setOnClickListener { Conns.clean(search.text.toString())?.let { block(it, true, false); search.setText("") } }
+            setOnClickListener { Conns.clean(search.text.toString())?.let { block(it, true); search.setText("") } }
         }
         root.addView(blockTyped, LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT))
         empty = label(13f, R.color.text_faint).apply { setPadding(0, dp(12f), 0, 0) }
@@ -114,20 +113,14 @@ class ConnectionsActivity : Activity() {
         else -> null
     }
 
-    private fun block(host: String, on: Boolean, system: Boolean) {
-        val go = {
-            Conns.setBlocked(this, host, on)
-            // Shown at once; the engine's next list confirms it.
-            Conns.rows = Conns.rows.map { if (it.host == host || it.host.endsWith(".$host")) it.copy(blocked = on, active = if (on) 0 else it.active) else it }
-            render()
-        }
-        if (on && system) {
-            AlertDialog.Builder(this)
-                .setMessage(text(R.string.connsSystemConfirm, "host" to host))
-                .setPositiveButton(R.string.connsBlock) { _, _ -> go() }
-                .setNegativeButton(android.R.string.cancel, null)
-                .show()
-        } else go()
+    /* A name Shroudly itself needs (its DNS, Tor, codeshare.me, the user's own
+     * server) is never blocked: no button is shown for it (row). */
+    private fun block(host: String, on: Boolean) {
+        if (on && Conns.isSystem(host, AppSettings.ownServer(this)?.host)) return
+        Conns.setBlocked(this, host, on)
+        // Shown at once; the engine's next list confirms it.
+        Conns.rows = Conns.rows.map { if (it.host == host || it.host.endsWith(".$host")) it.copy(blocked = on, active = if (on) 0 else it.active) else it }
+        render()
     }
 
     private fun render() {
@@ -137,7 +130,7 @@ class ConnectionsActivity : Activity() {
         val rows = Conns.rows.filter { needle.isEmpty() || it.host.contains(needle) }.take(100)
         val blockedOnly = blocked.filter { b -> Conns.rows.none { it.host == b } && (needle.isEmpty() || b.contains(needle)) }.sorted()
         val typed = Conns.clean(needle)
-        val canBlock = typed != null && typed.contains('.') && typed !in blocked && Conns.rows.none { it.host == typed }
+        val canBlock = typed != null && typed.contains('.') && typed !in blocked && Conns.rows.none { it.host == typed } && !Conns.isSystem(typed, own)
         blockTyped.visibility = if (canBlock) View.VISIBLE else View.GONE
         if (canBlock) blockTyped.text = text(R.string.connsBlockName, "host" to typed!!)
         empty.visibility = if (rows.isEmpty() && blockedOnly.isEmpty() && !canBlock) View.VISIBLE else View.GONE
@@ -166,9 +159,10 @@ class ConnectionsActivity : Activity() {
         texts.addView(label(15f, R.color.text).apply { text = host; textDirection = View.TEXT_DIRECTION_LTR; isSingleLine = true; ellipsize = android.text.TextUtils.TruncateAt.MIDDLE })
         texts.addView(label(12f, if (blocked) R.color.warn else R.color.text_faint).apply { text = sub })
         r.addView(texts, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
-        r.addView(Button(this).apply {
+        // Shroudly's own names: Allow if one was blocked before, never Block.
+        if (blocked || !system) r.addView(Button(this).apply {
             setText(if (blocked) R.string.connsAllow else R.string.connsBlock)
-            setOnClickListener { block(host, !blocked, system) }
+            setOnClickListener { block(host, !blocked) }
         })
         return r
     }

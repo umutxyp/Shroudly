@@ -40,7 +40,6 @@
 "connsRouteTor" = "Tor";
 "connsSearch" = "Suchen oder eine Seite zum Sperren eingeben";
 "connsSystem" = "von Shroudly genutzt";
-"connsSystemConfirm" = "Shroudly nutzt {host} selbst. Eine Sperre kann verschlüsseltes DNS, Updates oder den letzten Ausweg stören, und Seiten öffnen sich womöglich nicht mehr. Trotzdem sperren?";
 "connsTitle" = "Verbindungen nach Seite";
 "dnsAroundApple" = "Ein DNS-Profil oder eine App auf diesem Gerät (AdGuard, NextDNS, 1.1.1.1, ein Schul- oder Arbeitsprofil) beantwortet die Namensabfragen der Apps vor Shroudly, deshalb öffnen sich gesperrte Apps womöglich nicht. Schalte es unter Einstellungen → Allgemein → VPN und Geräteverwaltung aus (Mac: Systemeinstellungen → Netzwerk → VPN und Filter) und starte Shroudly neu.";
 "dnsAroundTitle" = "Etwas umgeht Shroudly";
