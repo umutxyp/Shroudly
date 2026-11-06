@@ -135,7 +135,9 @@ async function closeNoteAhead(page, help) {
 }
 const escape = (x) => x.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 // A sentence with {placeholders} as a pattern: numbers and addresses where they go.
-const pattern = (x) => new RegExp(escape(x).replace(/\\\{(\w+)\\\}/g, (m, k) => (k === 'ip' ? '[0-9A-Fa-f.:]{3,45}' : '[0-9]+')));
+// {ip}: the address, and since 2.6.59 its country after it when Cloudflare
+// says one ("80.174.118.60 · 🇮🇹 Italy", issue #60).
+const pattern = (x) => new RegExp(escape(x).replace(/\\\{(\w+)\\\}/g, (m, k) => (k === 'ip' ? '[0-9A-Fa-f.:]{3,45}(?: · .+?)?' : '[0-9]+')));
 
 const section = (page, title) => page.locator('section.card').filter({ has: page.getByRole('heading', { name: title, exact: true }) });
 
@@ -197,6 +199,7 @@ async function shot(locator, name) {
     ok(!!worked, `a server that reaches the world: tested and in use${failed ? ' (it said it did not work)' : ''}`);
     const said = (await own.locator('p').allInnerTexts()).join(' | ');
     ok(pattern(t.ownServerOkExit).test(said), `the test says which address sites see through it (${said})`);
+    console.log(`  --  its country: ${/ · /.test(said) ? 'shown' : 'not said by Cloudflare here'}`);
     const saved = await app.evaluate(() => global.shroudlyE2E.store.get('ownServer'));
     ok(saved === `socks5://e2e:secret@127.0.0.1:${sp}`, 'saved as typed');
     const inUse = t.ownServerInUse.replace('{server}', `SOCKS5 127.0.0.1:${sp}`);
