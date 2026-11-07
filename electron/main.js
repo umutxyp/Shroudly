@@ -2343,6 +2343,26 @@ function onAppTunnel(host) {
   }
 }
 
+/* Services found to work without Shroudly on this network whose sign-in
+ * takes a proxy amiss go around it entirely, as with no Shroudly at all:
+ * Riot's (a TTNet user got a captcha at every sign-in with Shroudly on,
+ * though every Riot name went through untouched). Checked again with the
+ * network, and back through Shroudly the moment one is found blocked. */
+const DIRECT_WHEN_CLEAR = ['riot'];
+let directSaid = '';
+function applyDirectRoutes() {
+  if (!engine || !engine.proxy || !autopilot) return;
+  const open = DIRECT_WHEN_CLEAR.filter((id) => autopilot.clear.has(id) && !autopilot.blocked.has(id));
+  const names = open.flatMap((id) => Autopilot.OWN[id] || []);
+  if (!engine.proxy.setDirect(names)) return;
+  const said = open.join();
+  if (said === directSaid) return;
+  directSaid = said;
+  addLog('info', open.length
+    ? `${open.map((id) => (id === 'riot' ? 'Riot Games' : id)).join(', ')}: works without Shroudly on this network, so its sign-in and games go straight, around Shroudly`
+    : 'Services that went around Shroudly go through it again');
+}
+
 /* Programs that went through the program proxy this session (Games and apps
  * mode), by name: started while the mode was on, they got its address in
  * their environment, and Windows never takes it out of a program that runs.
@@ -3183,6 +3203,7 @@ function createAutopilot() {
     // Roblox found blocked: its programs that go around Shroudly are seen
     // to at once, not at the next look.
     onBlocked: (id) => { if (id === 'roblox') robloxWatch.warm(); },
+    onRouting: () => applyDirectRoutes(),
     advanced: {
       available: () => !!(advanced && advanced.available()),
       active: () => !!(advanced && advanced.active),

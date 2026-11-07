@@ -164,6 +164,9 @@ class Autopilot {
     this.canConsent = opts.canConsent || null;
     this.admin = null;
     this.onBlocked = opts.onBlocked || (() => {});
+    // What is known blocked or open on this network changed (main.js routes
+    // some open services around the proxy: applyDirectRoutes).
+    this.onRouting = opts.onRouting || (() => {});
     this.now = opts.now || Date.now;
     this.later = opts.later || ((fn, ms) => { const t = setTimeout(fn, ms); if (t.unref) t.unref(); return t; });
     this.blocked = new Map();      // service id -> { how, host, at }
@@ -226,6 +229,7 @@ class Autopilot {
     if (!this.blocked.size && !this.clear.size && !this.unknownAt.size) return;
     this.blocked.clear();
     this.clear.clear();
+    try { this.onRouting(); } catch {}
     this.unknownAt.clear();
     this.failed.clear();
     this.log('info', 'Autopilot: the network changed; services will be checked again');
@@ -307,6 +311,7 @@ class Autopilot {
       if (r.blocked) {
         this.blocked.set(id, { how: r.how, host, at: this.now() });
         this.clear.delete(id);
+        try { this.onRouting(); } catch {}
         this.log('info', `Autopilot: ${id} is blocked on this network (${host}: ${r.how}, ${r.detail}${why ? `; after ${why}` : ''})`);
         await this.consider(id);
         // Not waited for: it may be a permission prompt the user takes a
@@ -317,6 +322,7 @@ class Autopilot {
       }
       this.blocked.delete(id);
       this.clear.set(id, this.now());
+      try { this.onRouting(); } catch {}
       this.log('info', `Autopilot: ${host} works without Shroudly on this network (${r.detail})`);
       return false;
     })();

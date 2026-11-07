@@ -184,6 +184,21 @@ const readState = (file) => { try { return JSON.parse(fs.readFileSync(file, 'utf
 
 (async () => {
   // ── the PAC ─────────────────────────────────────────────────────────
+  // Services found open on this network whose sign-in takes a proxy amiss
+  // (Riot): around Shroudly in either mode; the rest as before.
+  {
+    const sp = new SystemProxy(() => {}, { platform: 'win32', env: {} });
+    sp.mode = 'all';
+    t.ok(sp.setDirect(['riotgames.com', 'leagueoflegends.com', 'bad host']) && !sp.setDirect(['leagueoflegends.com', 'riotgames.com']), 'setDirect: changed once, the same list again is no change');
+    let find = pacEval(sp.pacBody(10808));
+    t.ok(find('auth.riotgames.com') === 'DIRECT' && find('www.leagueoflegends.com') === 'DIRECT' && find('notriotgames.com') === 'PROXY 127.0.0.1:10808' && find('discord.com') === 'PROXY 127.0.0.1:10808',
+      'every site through Shroudly: the open service\'s names go straight, others (and look-alikes) through it');
+    sp.mode = 'listed'; sp.list = ['riotgames.com', 'discord.com'];
+    find = pacEval(sp.pacBody(10808));
+    t.ok(find('auth.riotgames.com') === 'DIRECT' && find('discord.com') === 'PROXY 127.0.0.1:10808', 'listed sites: the same');
+    sp.setDirect([]); sp.mode = 'all';
+    t.ok(pacEval(sp.pacBody(10808))('auth.riotgames.com') === 'PROXY 127.0.0.1:10808', 'found blocked again: through Shroudly');
+  }
   for (const [platform, env] of [['win32', {}], ['linux', { XDG_CURRENT_DESKTOP: 'GNOME' }], ['linux', { XDG_CURRENT_DESKTOP: 'KDE' }], ['darwin', {}]]) {
     const sp = new SystemProxy(() => {}, { platform, env });
     const where = `${platform}${env.XDG_CURRENT_DESKTOP ? `, ${env.XDG_CURRENT_DESKTOP}` : ''}`;

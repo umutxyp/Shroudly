@@ -393,6 +393,7 @@ class SystemProxy {
     this.socksPort = 0;
     this.mode = 'all';   // 'all' | 'listed'
     this.list = [];      // domains routed through the proxy in 'listed' mode
+    this.direct = [];    // domains sent around the proxy in either mode (setDirect)
     this._ownTimer = null;
     this._owned = true;
     this._fight = 0;        // takeovers in a row, each an answer to a set-back (see checkOwnership)
@@ -508,6 +509,17 @@ class SystemProxy {
     return "DIRECT";
   }
   if (host.indexOf(":") !== -1) { return "DIRECT"; }`;
+    // Around the proxy whatever the mode (setDirect), checked once per label.
+    const directTable = {};
+    for (const d of this.direct || []) directTable[d] = 1;
+    const directCheck = (this.direct || []).length ? `
+  var shroudlyD = ("" + host).toLowerCase();
+  while (true) {
+    if (${JSON.stringify(directTable)}.hasOwnProperty(shroudlyD)) return "DIRECT";
+    var shroudlyI = shroudlyD.indexOf(".");
+    if (shroudlyI < 0) break;
+    shroudlyD = shroudlyD.substring(shroudlyI + 1);
+  }` : '';
     if (this.mode === 'listed') {
       // Clean the list to bare domains, dedupe, and embed as a JS array.
       // Anything that is not a plain hostname is dropped rather than embedded:
@@ -566,7 +578,7 @@ function shroudlyInV6(h) {
       const v6check = r6.length ? `  if (host.indexOf(":") !== -1 && shroudlyInV6(host)) { return ${route}; }\n` : '';
       return `var SHROUDLY_LIST = ${JSON.stringify(table)};
 ${v6}function FindProxyForURL(url, host) {
-${v6check}${local}
+${v6check}${local}${directCheck}
   var h = ("" + host).toLowerCase();
   while (true) {
     if (SHROUDLY_LIST.hasOwnProperty(h)) return ${route};
@@ -590,7 +602,7 @@ ${v6check}${local}
       ? `  if (/^\\[?[23][0-9a-fA-F]{0,3}:[0-9a-fA-F:.]*\\]?$/.test(host)) { return ${route}; }\n`
       : '';
     return `function FindProxyForURL(url, host) {
-${v6}${local}
+${v6}${local}${directCheck}
   return ${route};
 }
 `;
@@ -696,6 +708,18 @@ ${v6}${local}
   _parkPacServer() {
     if (this.pacServer && this._envDesktop()) { this.pacText = PAC_DIRECT; return; }
     this.stopPacServer();
+  }
+
+  /* Domains that go around Shroudly whatever the mode: services found to
+   * work without it on this network whose sign-in takes a proxy amiss
+   * (main.js applyDirectRoutes). The PAC at the same address answers with
+   * them; true when that changed anything. */
+  setDirect(list) {
+    const next = [...new Set((Array.isArray(list) ? list : []).map((d) => String(d).trim().toLowerCase()).filter((d) => SystemProxy.isHostname(d)))].sort();
+    if (next.join() === this.direct.join()) return false;
+    this.direct = next;
+    if (this.applied && this.pacServer) this.pacText = this.pacBody(this.socksPort);
+    return true;
   }
 
   /* A new site list while "only listed sites" is applied: the PAC at the same
