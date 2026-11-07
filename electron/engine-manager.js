@@ -1437,7 +1437,8 @@ class EngineManager {
         // once the user has said yes to it (issue #77); until then they are
         // asked (a notification and a card in the window), never Tor by itself.
         if (!msg.ok) {
-          if (!this.tor || !this._torFile || msg.why === 'file unusable' || this.store.get('torLastResort', true) === false) break;
+          // Not for an engine being stopped: a late line must not start Tor.
+          if (!this.active || !this.tor || !this._torFile || msg.why === 'file unusable' || this.store.get('torLastResort', true) === false) break;
           if (this.store.get('torApproved', false) === true) this.tor.need();
           else { try { this.onTorAsk(msg.host || ''); } catch {} }
           break;

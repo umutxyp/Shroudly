@@ -32,6 +32,7 @@ const read = (...p) => fs.readFileSync(path.join(ROOT, ...p), 'utf8');
   const tor = { need: () => { needs++; }, stop: () => {}, status: () => ({ state: 'off' }), noteUse: () => {} };
   const em = new EngineManager(store, { torRoute: tor, onTorAsk: (h) => asked.push(h) });
   em._torFile = '/tmp/tor-route.txt';
+  em.active = true;
   const fallback = (host) => em._onLine(JSON.stringify({ type: 'fallback', ok: 0, why: 'does not answer', host }));
 
   fallback('x.com');
@@ -45,6 +46,13 @@ const read = (...p) => fs.readFileSync(path.join(ROOT, ...p), 'utf8');
   store.set('torLastResort', true); store.set('torApproved', false);
   em._onLine(JSON.stringify({ type: 'fallback', ok: 0, why: 'file unusable' }));
   t.ok(needs === 1 && asked.length === 1, 'an unusable file asks nothing');
+
+  em.active = false;
+  store.set('torApproved', true);
+  fallback('late.example');
+  t.ok(needs === 1, 'an engine being stopped: a late line starts no Tor');
+  store.set('torApproved', false);
+  em.active = true;
 
   const main = read('electron', 'main.js');
   const ask = main.slice(main.indexOf('function askTor('), main.indexOf('function torUsed('));
@@ -65,7 +73,7 @@ const read = (...p) => fs.readFileSync(path.join(ROOT, ...p), 'utf8');
     'Android: a notification on a phone, a message on the screen on a TV, at most every 30 minutes');
   for (const svc of ['ShroudlyVpnService.kt', 'ShroudlyProxyService.kt']) {
     const s = read(...dir, svc);
-    t.ok(/if \(TorRoute\.approved\(this\)\) torRoute\.need\(\) else TorAsk\.ask\(this, ev\.host\)/.test(s) && /"torYes"/.test(s) && /TorAsk\.reset\(\)/.test(s),
+    t.ok(/ev\.why != "file unusable" && active\) \{ if \(TorRoute\.approved\(this\)\) torRoute\.need\(\) else TorAsk\.ask\(this, ev\.host\)/.test(s) && /"torYes"/.test(s) && /TorAsk\.reset\(\)/.test(s),
       `Android ${svc}: asks unless allowed, starts Tor on yes, asks again after a new start`);
   }
   const ma = read(...dir, 'MainActivity.kt');
