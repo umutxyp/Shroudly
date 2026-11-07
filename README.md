@@ -24,11 +24,11 @@
 
   <br/>
 
-  <a href="https://www.youtube.com/watch?v=Mb4Zkq1din8">
-    <img src="https://img.youtube.com/vi/Mb4Zkq1din8/maxresdefault.jpg" alt="Shroudly launch video" width="720"/>
+  <a href="https://youtu.be/MP0l_vBUirE">
+    <img src="https://img.youtube.com/vi/MP0l_vBUirE/maxresdefault.jpg" alt="Shroudly: unblock Discord, YouTube and Telegram without a VPN (video)" width="720"/>
   </a>
 
-  ▶ **[Watch the 2-minute launch video](https://www.youtube.com/watch?v=Mb4Zkq1din8)**
+  ▶ **[Watch the video: unblock Discord, YouTube and Telegram without a VPN (6 min)](https://youtu.be/MP0l_vBUirE)**
 
   ★ **[Follow Shroudly](#follow-shroudly)**: [Instagram](https://instagram.com/umutxyp) · [YouTube](https://youtube.com/@umutxyp) · [TikTok](https://tiktok.com/@umutxyp) · [X](https://x.com/devbayraktar) · [Telegram](https://t.me/umutxyp) · [Discord](https://discord.gg/BhdgVfsFVC)
 
