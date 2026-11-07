@@ -1220,10 +1220,15 @@ you write (50 to 1000 characters on what does not work; if you want, the site
 or app, your internet provider, your country and an email or Telegram name
 for an answer), the app's version, the system and its version, the device
 model and the app's language, and the app's log with what the app shows
-right now: the sites and apps Shroudly handled and how, whether protection
-is on and working, the engine's counters and the settings (switches and
-choices only; never a server's link, an address, a password, messages or
-what you read or type on a site). It goes to `codeshare.me` (Codeshare's
+right now: the sites Shroudly did something to (a technique, Tor, your own
+server) and how, and the connections of common apps (Discord, YouTube,
+Instagram, WhatsApp, Telegram, games and the like) and whether Shroudly
+touched them, but not the other sites you visit; whether protection is on
+and working, what runs beside it and what Shroudly found about the network;
+the engine's counters; and every setting's value, those you never changed
+too (switches and choices only: your own server or DNS only as set or not,
+your lists only as how many entries; never a server's link, an address, a
+password, messages or what you read or type on a site). It goes to `codeshare.me` (Codeshare's
 server), through the protected connection while protection is on, which
 checks it and hands it to our own mail server, which emails it to Shroudly's
 developer and nothing else. It is never written to disk or a database on our

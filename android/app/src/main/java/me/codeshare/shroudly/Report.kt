@@ -202,7 +202,99 @@ object Report {
             } catch (_: Exception) {}
         }
         o.put("settings", settings)
+        // Every setting as it acts, defaults included (one never changed is
+        // not in the files above), and where protection stands now: the same
+        // the desktop's report gives (report-settings.js). Whether a server
+        // or a DNS of one's own is set, never which; lists by how many.
+        o.put("effective", effective(ctx))
+        o.put("state", stateNow(ctx))
         return o.toString(1)
+    }
+
+    private fun JSONObject.safe(k: String, f: () -> Any?): JSONObject {
+        try { put(k, f() ?: JSONObject.NULL) } catch (_: Exception) { put(k, "unknown") }
+        return this
+    }
+
+    fun effective(ctx: Context): JSONObject = JSONObject()
+        .safe("apk") { if (BuildConfig.APK_VARIANT.isEmpty()) "full" else BuildConfig.APK_VARIANT }
+        .safe("mode") { if (AppSettings.proxyOnly(ctx)) "proxy only" else "vpn" }
+        .safe("technique") { AppSettings.strategy(ctx).id }
+        .safe("appsOnly") { AppSettings.appsOnly(ctx) }
+        .safe("appsLeftOut") { AppSettings.excluded(ctx).size }
+        .safe("appsOnlyThese") { AppSettings.included(ctx).size }
+        .safe("ipv6Off") { AppSettings.ipv6Off(ctx) }
+        .safe("quicOff") { AppSettings.quicOff(ctx) }
+        .safe("ownServer") { if (AppSettings.ownServerTyped(ctx).isNotBlank()) "set" else "not set" }
+        .safe("ownDns") { if (AppSettings.customDnsTyped(ctx) != null) "set" else "not set" }
+        .safe("ownDnsOnly") { AppSettings.customDnsStrict(ctx) }
+        .safe("ownDnsProxy") { if (AppSettings.customDnsProxyTyped(ctx).isNotBlank()) "set" else "not set" }
+        .safe("adBlock") { AdBlock.enabled(ctx) }
+        .safe("torInThisApk") { TorRoute.bundled(ctx) }
+        .safe("torLastResort") { TorRoute.enabled(ctx) }
+        .safe("torAllowed") { TorRoute.approved(ctx) }
+        .safe("helpOthers") { Snowflake.enabled(ctx) }
+        .safe("countMeIn") { OnlineCount.enabled(ctx) }
+        .safe("startAtBoot") { AppSettings.startAtBoot(ctx) }
+        .safe("keepOn") { KeepOn.wanted(ctx) }
+        .safe("automationApps") { AppSettings.remoteControl(ctx) }
+        .safe("homeCountry") { AppSettings.homeCountry(ctx) }
+
+    private fun res(ctx: Context, id: Int): String? =
+        if (id == 0) null else try { ctx.resources.getResourceEntryName(id) } catch (_: Exception) { id.toString() }
+
+    fun stateNow(ctx: Context): JSONObject = JSONObject()
+        .safe("protection") { Protection.state.name.lowercase() }
+        .safe("proxyOnlyRunning") { Protection.proxyOnly }
+        .safe("error") { res(ctx, Protection.errorRes) }
+        .safe("trouble") { res(ctx, Protection.troubleRes) }
+        .safe("nationalOnly") { Protection.national }
+        .safe("ownServerDown") { Protection.ownServerDown?.first }
+        .safe("ownServerExitCountry") { Protection.ownServerExitCc }
+        .safe("dnsGoesAround") { Protection.dnsAround }
+        .safe("torAsking") { Protection.torAsk != null }
+        .safe("torNow") { TorRoute.state }
+        .safe("liteOffer") { Protection.liteOffer != null }
+        .safe("alwaysOn") { Protection.alwaysOn }
+        .safe("lockdown") { Protection.lockdown }
+        .safe("ipv6") { Protection.ipv6 }
+        .safe("windowOpen") { Protection.windowVisible }
+
+    /* The apps whose names a report keeps however they went: the engine's
+     * own families (core/src/engine.c SITE_FAMILY), the same list on every
+     * platform (electron/report.js, Report.swift). */
+    val APP_DOMAINS = listOf(
+        "discord.com", "discord.gg", "discordapp.com", "discordapp.net", "discord.media", "discordcdn.com", "discord.co", "youtube.com",
+        "youtu.be", "ytimg.com", "googlevideo.com", "ggpht.com", "youtube-nocookie.com", "x.com", "twitter.com", "twimg.com",
+        "t.co", "instagram.com", "cdninstagram.com", "facebook.com", "fbcdn.net", "fb.com", "fbsbx.com", "messenger.com",
+        "whatsapp.com", "whatsapp.net", "telegram.org", "t.me", "telegram.me", "telesco.pe", "tdesktop.com", "telegra.ph",
+        "roblox.com", "rbxcdn.com", "rbx.com", "rbxinfra.net", "riotgames.com", "leagueoflegends.com", "pvp.net", "riotcdn.net",
+        "playvalorant.com", "lolstatic.com", "rgpub.io", "twitch.tv", "ttvnw.net", "jtvnw.net", "spotify.com", "scdn.co",
+        "spotifycdn.com", "reddit.com", "redd.it", "redditmedia.com", "redditstatic.com", "tiktok.com", "tiktokcdn.com", "tiktokv.com",
+        "signal.org", "whispersystems.org",
+    )
+    fun isApp(host: String): Boolean {
+        val h = host.lowercase().trimEnd('.')
+        return APP_DOMAINS.any { h == it || h.endsWith(".$it") }
+    }
+
+    private val ROUTE_ORDER = mapOf("tor" to 0, "server" to 1, "technique" to 2, "direct" to 3)
+
+    /* The Connections list as lines of the report, as the desktop's
+     * (electron/report.js connsText): the names Shroudly did something to,
+     * and the apps' names however they went; other untouched names (the
+     * user's browsing) left out. Tor first, then techniques, then the
+     * busiest; at most `max`. */
+    fun connsText(rows: List<Conns.Row>, max: Int = 60): String {
+        val list = rows.filter { it.host.isNotEmpty() && (it.route != "direct" || isApp(it.host)) }
+            .sortedWith(compareBy<Conns.Row>({ ROUTE_ORDER[it.route] ?: 3 }, { -it.conns }, { it.host }))
+        if (list.isEmpty()) return "(none)"
+        val lines = list.take(max).map { r ->
+            val extra = listOfNotNull(if (r.blocked) "blocked by the user" else null, if (r.refused > 0) "${r.refused} refused" else null).joinToString(", ")
+            "${r.host.take(120)}  ${r.route}  ${r.conns} conns${if (extra.isNotEmpty()) "  ($extra)" else ""}"
+        }.toMutableList()
+        if (list.size > max) lines += "(+${list.size - max} more)"
+        return lines.joinToString("\n")
     }
 
     /* What the server's answer means. */

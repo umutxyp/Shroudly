@@ -54,4 +54,18 @@ final class ReportTests: XCTestCase {
         let h = Array(SHA256.hash(data: Data("shroudly-report-v1\n\(parts[0])\n\(bh)\n\(parts[1])".utf8)))
         XCTAssertTrue(h[0] == 0 && h[1] == 0 && (h[2] & 0xC0) == 0)
     }
+
+    func testSettingsAsTheyActAndWhatChanged() {
+        var s = AppSettings()
+        var r = Report.settings(s, adBlock: false, countMeIn: true, helpOthers: false)
+        XCTAssertEqual(r.changed, [])
+        XCTAssertTrue(r.line.contains("Tor last resort true") && r.line.contains("own server not set"))
+        s.torLastResort = false
+        s.ownServer = "ss://secret@203.0.113.9:8388"
+        s.dnsServer = "https://dns.example/q"
+        r = Report.settings(s, adBlock: true, countMeIn: false, helpOthers: true)
+        XCTAssertEqual(r.changed, ["ownServer", "dns", "torLastResort", "adBlock", "countMeIn", "helpOthers"])
+        XCTAssertTrue(r.line.contains("own server set") && r.line.contains("(own server set)"))
+        XCTAssertFalse(r.line.contains("secret") || r.line.contains("203.0.113") || r.line.contains("dns.example"))
+    }
 }

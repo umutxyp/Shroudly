@@ -59,6 +59,70 @@ enum Report {
     }
 
     /* Characters as the server counts them (code points). */
+    /* Every setting as it acts, defaults included, and which were changed
+     * from them (as the desktop's and Android's reports): whether a server
+     * or a DNS of one's own is set, never which. */
+    static func settings(_ s: AppSettings, adBlock: Bool, countMeIn: Bool, helpOthers: Bool) -> (line: String, changed: [String]) {
+        let d = AppSettings()
+        var changed: [String] = []
+        func mark(_ k: String, _ diff: Bool) { if diff { changed.append(k) } }
+        mark("technique", s.strategyId != d.strategyId)
+        mark("quicOff", s.quicOff != d.quicOff)
+        mark("ipv6Off", s.ipv6Off != d.ipv6Off)
+        mark("keepOn", s.keepOn != d.keepOn)
+        mark("ownServer", !s.ownServer.isEmpty)
+        mark("dns", s.dnsKind != d.dnsKind || !s.dnsServer.isEmpty)
+        mark("dnsOnly", s.dnsStrict != d.dnsStrict)
+        mark("torLastResort", s.torLastResort != d.torLastResort)
+        mark("adBlock", adBlock)
+        mark("countMeIn", !countMeIn)
+        mark("helpOthers", helpOthers)
+        let line = "technique \(s.strategy.id), QUIC off \(s.quicOff), IPv6 off \(s.ipv6Off), keep on \(s.keepOn), "
+            + "DNS \(s.dnsKind)\(s.dnsServer.isEmpty ? "" : " (own server set)")\(s.dnsStrict ? " (only this server)" : ""), "
+            + "own server \(s.ownServer.isEmpty ? "not set" : "set"), Tor last resort \(s.torLastResort), "
+            + "block ads \(adBlock), count me in \(countMeIn), help others \(helpOthers)"
+        return (line, changed)
+    }
+
+    /* The apps whose names a report keeps however they went: the engine's
+     * own families (core/src/engine.c SITE_FAMILY), the same list on every
+     * platform (electron/report.js, Report.kt). */
+    static let appDomains = [
+        "discord.com", "discord.gg", "discordapp.com", "discordapp.net", "discord.media", "discordcdn.com", "discord.co", "youtube.com",
+        "youtu.be", "ytimg.com", "googlevideo.com", "ggpht.com", "youtube-nocookie.com", "x.com", "twitter.com", "twimg.com",
+        "t.co", "instagram.com", "cdninstagram.com", "facebook.com", "fbcdn.net", "fb.com", "fbsbx.com", "messenger.com",
+        "whatsapp.com", "whatsapp.net", "telegram.org", "t.me", "telegram.me", "telesco.pe", "tdesktop.com", "telegra.ph",
+        "roblox.com", "rbxcdn.com", "rbx.com", "rbxinfra.net", "riotgames.com", "leagueoflegends.com", "pvp.net", "riotcdn.net",
+        "playvalorant.com", "lolstatic.com", "rgpub.io", "twitch.tv", "ttvnw.net", "jtvnw.net", "spotify.com", "scdn.co",
+        "spotifycdn.com", "reddit.com", "redd.it", "redditmedia.com", "redditstatic.com", "tiktok.com", "tiktokcdn.com", "tiktokv.com",
+        "signal.org", "whispersystems.org",
+    ]
+    static func isApp(_ host: String) -> Bool {
+        var h = host.lowercased()
+        if h.hasSuffix(".") { h.removeLast() }
+        return appDomains.contains { h == $0 || h.hasSuffix("." + $0) }
+    }
+
+    /* The Connections list as lines of the report, as the desktop's and
+     * Android's: the names Shroudly did something to, and the apps' names
+     * however they went; other untouched names (the browsing) left out. */
+    static func connsText(_ rows: [ConnRow], max: Int = 60) -> String {
+        let order = ["tor": 0, "server": 1, "technique": 2, "direct": 3]
+        let list = rows.filter { !$0.host.isEmpty && ($0.route != "direct" || isApp($0.host)) }.sorted {
+            let a = order[$0.route] ?? 3, b = order[$1.route] ?? 3
+            if a != b { return a < b }
+            if $0.conns != $1.conns { return $0.conns > $1.conns }
+            return $0.host < $1.host
+        }
+        if list.isEmpty { return "(none)" }
+        var lines = list.prefix(max).map { r -> String in
+            let extra = [r.blocked ? "blocked by the user" : nil, r.refused > 0 ? "\(r.refused) refused" : nil].compactMap { $0 }.joined(separator: ", ")
+            return "\(String(r.host.prefix(120)))  \(r.route)  \(r.conns) conns\(extra.isEmpty ? "" : "  (\(extra))")"
+        }
+        if list.count > max { lines.append("(+\(list.count - max) more)") }
+        return lines.joined(separator: "\n")
+    }
+
     static func chars(_ s: String) -> Int {
         s.trimmingCharacters(in: .whitespacesAndNewlines).unicodeScalars.count
     }

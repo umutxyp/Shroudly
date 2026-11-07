@@ -143,8 +143,25 @@ async function send(request, body, { url = URL_REPORT, timeoutMs = 45000, bits =
  * a sign-in or a game at all. Other names that went through untouched are
  * left out: they would be the user's browsing, which a report does not
  * carry. Those it did something to first, then the busiest; at most `max`. */
+/* The apps whose names a report keeps however they went: the engine's own
+ * families (core/src/engine.c SITE_FAMILY), the same list on every
+ * platform (Report.kt, Report.swift). */
+const APP_DOMAINS = [
+  'discord.com', 'discord.gg', 'discordapp.com', 'discordapp.net', 'discord.media', 'discordcdn.com', 'discord.co', 'youtube.com',
+  'youtu.be', 'ytimg.com', 'googlevideo.com', 'ggpht.com', 'youtube-nocookie.com', 'x.com', 'twitter.com', 'twimg.com',
+  't.co', 'instagram.com', 'cdninstagram.com', 'facebook.com', 'fbcdn.net', 'fb.com', 'fbsbx.com', 'messenger.com',
+  'whatsapp.com', 'whatsapp.net', 'telegram.org', 't.me', 'telegram.me', 'telesco.pe', 'tdesktop.com', 'telegra.ph',
+  'roblox.com', 'rbxcdn.com', 'rbx.com', 'rbxinfra.net', 'riotgames.com', 'leagueoflegends.com', 'pvp.net', 'riotcdn.net',
+  'playvalorant.com', 'lolstatic.com', 'rgpub.io', 'twitch.tv', 'ttvnw.net', 'jtvnw.net', 'spotify.com', 'scdn.co',
+  'spotifycdn.com', 'reddit.com', 'redd.it', 'redditmedia.com', 'redditstatic.com', 'tiktok.com', 'tiktokcdn.com', 'tiktokv.com',
+  'signal.org', 'whispersystems.org',
+];
+function isApp(host) {
+  const h = String(host || '').toLowerCase().replace(/\.$/, '');
+  return APP_DOMAINS.some((d) => h === d || h.endsWith(`.${d}`));
+}
 const ROUTE_ORDER = { tor: 0, server: 1, technique: 2, direct: 3 };
-function connsText(rows, max = 60, apps = () => false) {
+function connsText(rows, max = 60, apps = isApp) {
   const list = (Array.isArray(rows) ? rows : []).filter((r) => r && typeof r.host === 'string' && r.host
     && ((r.route && r.route !== 'direct') || apps(r.host)));
   if (!list.length) return '(none)';
@@ -157,4 +174,4 @@ function connsText(rows, max = 60, apps = () => false) {
   return lines.join('\n');
 }
 
-module.exports = { URL_REPORT, HISTORY_MS, PER_HOUR, PER_DAY, FIELD_MAX, WHAT_MIN, WHAT_MAX, POW_BITS, REF_RE, chars, history, wait, payload, proofOfWork, send, connsText };
+module.exports = { URL_REPORT, HISTORY_MS, PER_HOUR, PER_DAY, FIELD_MAX, WHAT_MIN, WHAT_MAX, POW_BITS, REF_RE, chars, history, wait, payload, proofOfWork, send, connsText, isApp, APP_DOMAINS };

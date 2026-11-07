@@ -17,6 +17,9 @@ import AppKit
  */
 struct ReportView: View {
     @EnvironmentObject private var controller: TunnelController
+    // What the main screen shows about the network (own server down, only
+    // the country's network, the exit country): in the report too.
+    @ObservedObject var watch: NetworkWatch
     @State private var fields = Report.Fields()
     @State private var agree = false
     @State private var sending = false
@@ -141,14 +144,20 @@ struct ReportView: View {
      * server link or address, only whether one is set. */
     private func situation() async -> String {
         let s = SettingsStore().load()
+        let set = Report.settings(s, adBlock: AdBlock.enabled(), countMeIn: OnlineCount.enabled(),
+                                  helpOthers: UserDefaults.standard.bool(forKey: "snowflakeOn"))  // Snowflake.key; no Snowflake on tvOS
         var lines = [
             "== Situation now ==",
             "Protection: \(controller.phase)\(controller.notice.map { "; notice: \($0)" } ?? "")",
             "VPN allowed: \(!controller.vpnNotAllowed)",
-            "Last way out: \(controller.lastResort.map { "\($0.state) \($0.progress)%" } ?? "off")",
-            "Settings: technique \(s.strategy.id), QUIC off \(s.quicOff), IPv6 off \(s.ipv6Off), keep on \(s.keepOn), DNS \(s.dnsKind)\(s.dnsStrict ? " (only this server)" : ""), own server \(s.ownServer.isEmpty ? "no" : "yes"), Tor last resort \(s.torLastResort)",
+            "Last way out: \(controller.lastResort.map { "\($0.state) \($0.progress)%" } ?? "off")\(controller.torAsk.map { "; asking for \($0)" } ?? "")",
+            "Network: own server \(watch.ownServerDown.map { "down (\($0.why))" } ?? "fine or not set"), only the country's network \(watch.national ?? "no"), exit country \(watch.exit ?? "-"), DNS going around \(controller.dnsAround)",
+            "Settings (as they act): \(set.line)",
+            "Changed from the defaults: \(set.changed.isEmpty ? "none" : set.changed.joined(separator: ", "))",
             "Locale: \(Locale.current.identifier), languages \(Locale.preferredLanguages.prefix(3).joined(separator: ","))",
         ]
+        lines.append("== Connections this session ==")
+        lines.append(Report.connsText(await controller.conns()))
         if let st = await controller.stats() {
             lines.append("Stats: active \(st.active), total \(st.total), up \(st.up), down \(st.down), blocked \(st.blocked)")
         }

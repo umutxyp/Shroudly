@@ -53,4 +53,24 @@ class ReportTest {
         val hash = md.digest("shroudly-report-v1\n$at\n$bh\n$nonce".toByteArray())
         assertTrue(hash[0].toInt() == 0 && hash[1].toInt() == 0 && (hash[2].toInt() and 0xc0) == 0)
     }
+
+    @Test
+    fun connectionsAsTheDesktopGivesThem() {
+        val rows = listOf(
+            Conns.Row("auth.riotgames.com", 0, 9, 0, 0, "direct", false, 0),
+            Conns.Row("discord.com", 1, 2, 0, 0, "technique", false, 0),
+            Conns.Row("pulsar.roblox.com", 0, 1, 0, 0, "tor", false, 2),
+            Conns.Row("news.example", 0, 50, 0, 0, "direct", false, 0),
+        )
+        val t = Report.connsText(rows).split("\n")
+        assertEquals(3, t.size)
+        assertTrue(t[0].startsWith("pulsar.roblox.com  tor  1 conns  (2 refused)"))
+        assertTrue(t[1].startsWith("discord.com  technique"))
+        assertTrue(t[2].startsWith("auth.riotgames.com  direct  9 conns"))
+        assertEquals("(none)", Report.connsText(emptyList()))
+        assertTrue(Report.isApp("edge-mqtt.facebook.com") && Report.isApp("G.WhatsApp.NET.") && !Report.isApp("notwhatsapp.net"))
+        // The same list as the desktop's (electron/report.js).
+        val js = java.io.File("../../electron/report.js").readText()
+        for (d in Report.APP_DOMAINS) assertTrue(d, js.contains("'$d'"))
+    }
 }

@@ -153,7 +153,7 @@ struct ContentView: View {
                 }
                 // "Something not working?": always here, under the status
                 // (ReportView).
-                NavigationLink { ReportView() } label: {
+                NavigationLink { ReportView(watch: watch) } label: {
                     Label(tr("reportLink"), systemImage: "exclamationmark.bubble")
                         .font(.callout.weight(.medium))
                         .foregroundStyle(Theme.accent)

@@ -45,6 +45,7 @@ const RobloxApp = require('./roblox-app');
 const RiotApp = require('./riot-app');
 const { RobloxWatch } = require('./roblox-watch');
 const Autopilot = require('./autopilot');
+const ReportSettings = require('./report-settings');
 const AroundWatch = require('./around-watch');
 const Repair = require('./repair');
 const StoreApps = require('./store-apps');
@@ -3562,19 +3563,16 @@ let reportSending = false;
  * the engine's counters, and the settings: switches, numbers and short
  * choices only. Nothing that can hold an address, a password, a server's
  * link or the user's own lists (those only by how many entries they have). */
-const REPORT_PRIVATE = /server|pass|token|auth|key|secret|link|url|dns|proxy|host|ip|addr|path|dir|file|id$|ids$|reports/i;
 function reportSituation() {
-  const settings = {};
   let all = {};
   try { all = { ...store.store }; } catch {}
-  for (const [k, v] of Object.entries(all)) {
-    if (typeof v === 'boolean' || (typeof v === 'number' && Number.isFinite(v))) settings[k] = v;
-    else if (Array.isArray(v)) settings[k] = `[${v.length}]`;
-    else if (typeof v === 'string' && v.length <= 24 && !REPORT_PRIVATE.test(k) && !/[/@:]/.test(v)) settings[k] = v;
-  }
+  // Every setting as it acts, defaults included, and which were changed
+  // (report-settings.js): never a link, an address or a password.
+  const { settings, changed } = ReportSettings.effective(all);
   const a = engine && engine.advice ? engine.advice : {};
   let tor = null;
   try { tor = engine && engine.tor ? engine.tor.status().state : null; } catch {}
+  const safe = (f) => { try { return f(); } catch { return null; } };
   return {
     now: new Date().toISOString(),
     utcOffsetMin: -new Date().getTimezoneOffset(),
@@ -3592,7 +3590,24 @@ function reportSituation() {
       lastResort: tor,
     },
     stats: engine ? engine.getStats() : null,
+    // What runs beside the engine, and why not where it does not.
+    parts: {
+      advanced: safe(() => ({ on: !!(advanced && advanced.active), available: !!(advanced && advanced.available()), why: advanced ? advanced.reasonCode() : 'not loaded' })),
+      discordRelay: safe(() => !!(discordRelay && discordRelay.running)),
+      appProxy: safe(() => !!(appProxy && appProxy.running)),
+      tor: safe(() => (engine && engine.tor ? { here: engine.tor.present(), ...engine.tor.status() } : null)),
+      helpingOthers: safe(() => !!(snowflake && snowflake.on)),
+    },
+    // What the autopilot found on this network: blocked services and how,
+    // and those that work without Shroudly.
+    autopilot: safe(() => (autopilot ? {
+      blocked: Object.fromEntries([...autopilot.blocked].map(([id, b]) => [id, `${b.how} (${b.host})`])),
+      clear: [...autopilot.clear.keys()],
+    } : null)),
+    // The engine's own advice: other VPNs or proxies, a cut, DNS down.
+    advice: safe(() => ({ conflicts: (a.conflicts || []).map((c) => (c && (c.name || c.kind)) || String(c)).slice(0, 10), cut: a.cut ? String(a.cut.kind || 'yes') : null, dnsDown: !!a.dnsDown, security: a.security ? String(a.security.part || 'yes') : null })),
     settings,
+    changed,
   };
 }
 ipcMain.handle('report:info', () => {
@@ -3620,7 +3635,7 @@ ipcMain.handle('report:send', async (_e, fields) => {
       os: st.os,
       device: process.arch,
       lang: i18n.resolveLanguage(store.get('language'), systemLanguages()),
-      log: `${buildReport({ ...st, verb: 'sent' }, systemLogs)}\n== Situation now ==\n${(() => { try { return JSON.stringify(reportSituation(), null, 1); } catch (e) { return `(not available: ${e.message})`; } })()}\n== Connections this session ==\n${Report.connsText(conns, 60, (h) => !!Autopilot.familyOf(h))}\n`,
+      log: `${buildReport({ ...st, verb: 'sent' }, systemLogs)}\n== Situation now ==\n${(() => { try { return JSON.stringify(reportSituation(), null, 1); } catch (e) { return `(not available: ${e.message})`; } })()}\n== Connections this session ==\n${Report.connsText(conns)}\n`,
     });
     const r = await Report.send((o) => require('electron').net.request(o), body);
     if (r.ok) {

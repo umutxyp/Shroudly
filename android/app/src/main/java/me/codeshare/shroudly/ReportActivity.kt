@@ -193,9 +193,14 @@ class ReportActivity : Activity() {
         val ctx = applicationContext
         val platform = if (Tv.isTv(this)) "android-tv" else "android"
         val lang = resources.configuration.locales[0].toLanguageTag()
+        // The Connections list, fresh: asked of the engine, read a moment later.
+        val on = Protection.state == Protection.State.ON
+        if (on) try { Protector.tell(this, ShroudlyVpnService.ACTION_CONNS, "CONNS") } catch (_: Exception) {}
         Thread({
+            if (on) try { Thread.sleep(800) } catch (_: InterruptedException) {}
             val log = try {
-                Diagnostics.report(ctx, true) + "\n== Situation now ==\n" + Report.situation(ctx) + "\n"
+                Diagnostics.report(ctx, true) + "\n== Situation now ==\n" + Report.situation(ctx) + "\n" +
+                    "== Connections this session ==\n" + (if (on) Report.connsText(Conns.rows) else "(protection is off)") + "\n"
             } catch (e: Exception) {
                 "Shroudly ${BuildConfig.VERSION_NAME}: no report ($e)"
             }
