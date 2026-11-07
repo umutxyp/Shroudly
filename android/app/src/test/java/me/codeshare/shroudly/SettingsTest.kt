@@ -72,7 +72,12 @@ class SettingsTest {
     @Test
     fun theMainWindow() {
         val main = File(src, "res/layout/activity_main.xml").readText()
-        assertTrue(main.indexOf("@+id/settingsTop") in 0 until main.indexOf("@+id/toggle"))
+        // The desktop's frame: its top (logo, name, status) and the six tabs,
+        // Settings among them (Chrome.kt), around the tabs' pages.
+        assertTrue(main.indexOf("@+id/headerHost") in 0 until main.indexOf("@+id/pageHome"))
+        assertTrue(main.indexOf("@+id/pageHome") < main.indexOf("@+id/toggle") && main.contains("@+id/bottomHost"))
+        val chrome = File(src, "java/me/codeshare/shroudly/Chrome.kt").readText()
+        assertTrue(chrome.contains("SETTINGS(R.drawable.ic_settings_accent, R.string.navSettings)") && chrome.contains("R.string.footerProduct"))
         // The app's own switches are in Settings now; the live total shows.
         assertFalse(main.contains("@+id/shareOnlineCount") || main.contains("@+id/adBlock\""))
         assertTrue(main.contains("@+id/onlineNow"))

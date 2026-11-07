@@ -5,6 +5,7 @@ import android.app.AlertDialog
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.drawable.Drawable
+import android.graphics.Typeface
 import android.os.Build
 import android.os.Bundle
 import android.text.Editable
@@ -45,6 +46,8 @@ import android.widget.Toolbar
  * screen is not a wall of text (issue #47).
  */
 class SettingsActivity : Activity() {
+    private var pill: TextView? = null
+
     private companion object {
         // How long Advanced takes to unfold or fold.
         const val ADVANCED_ANIM_MS = 220L
@@ -84,10 +87,15 @@ class SettingsActivity : Activity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_settings)
         Tv.rings(window)
-        findViewById<Toolbar>(R.id.toolbar).apply {
-            navigationIcon?.mutate()?.setTint(getColor(R.color.text))
-            setNavigationOnClickListener { finish() }
-        }
+        // The desktop's frame (Chrome): its top and the six tabs, Settings
+        // chosen; the bar with a way back is not needed then.
+        findViewById<Toolbar>(R.id.toolbar).visibility = View.GONE
+        val frame = findViewById<LinearLayout>(R.id.frame)
+        val (header, p) = Chrome.header(this)
+        pill = p
+        frame.addView(header, 0)
+        frame.addView(Chrome.bottomBar(this, Chrome.Tab.SETTINGS) { Chrome.go(this, it) })
+        groupSettings()
         edgeToEdge()
         showAccents()
         showMode()
@@ -1106,6 +1114,108 @@ class SettingsActivity : Activity() {
             .setNegativeButton(android.R.string.cancel, null)
             .show()
     }
+
+    /* The desktop's four tabs of Settings (components/SettingsPanel.js):
+     * General (the language, the apps), Connection (the technique, DNS,
+     * the network: "Advanced"), Server and sharing (your own server,
+     * helping others) and Application (the look, the app's switches). The
+     * sections stay as they are, each in its tab's box; a tab shows its box.
+     * Apple TV keeps one page, for the remote. */
+    private fun groupSettings() {
+        if (Tv.isTv(this)) return
+        val col = findViewById<ScrollView>(R.id.root).getChildAt(0) as LinearLayout
+        val kids = (0 until col.childCount).map { col.getChildAt(it) }
+        if (kids.size < 10) return
+        fun box() = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
+        val general = box(); val connection = box(); val sharing = box(); val app = box()
+        val plan = listOf(general, general, app, app, general, general, app, app, connection, connection)
+        col.removeAllViews()
+        // The boxes in the window first, so the views moved into them are
+        // still found (findViewById) below and by the rest of this screen.
+        val boxes = listOf(general, connection, sharing, app)
+        for (b in boxes) col.addView(b)
+        for ((i, v) in kids.withIndex()) (plan.getOrNull(i) ?: app).addView(v)
+        // Your own server: out of "Advanced", its title and card.
+        val ownCard = findViewById<View>(R.id.ownServer)?.parent as? View
+        val adv = findViewById<LinearLayout>(R.id.advancedBox)
+        if (ownCard != null && ownCard.parent === adv) {
+            val at = adv.indexOfChild(ownCard)
+            val title = if (at > 0) adv.getChildAt(at - 1) else null
+            if (title is TextView) { adv.removeView(title); sharing.addView(title) }
+            adv.removeView(ownCard)
+            sharing.addView(ownCard)
+        }
+        // Helping people in censored countries: out of the app's card.
+        val snow = findViewById<View>(R.id.snowflake)
+        (snow?.parent as? LinearLayout)?.let { card ->
+            card.removeView(snow)
+            // Its line stays where it was (the rest of this screen sets it),
+            // with no height: nothing above it there any more.
+            findViewById<View>(R.id.snowflakeDivider)?.let { d -> d.layoutParams = d.layoutParams.apply { height = 0 } }
+            val c = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL; background = card.background?.constantState?.newDrawable(); setPadding(card.paddingLeft, card.paddingTop, card.paddingRight, card.paddingBottom) }
+            c.addView(snow)
+            sharing.addView(TextView(this, null, 0, R.style.SectionTitle).apply { setText(R.string.snowflake) },
+                LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = dpx(24f) })
+            sharing.addView(c, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT))
+        }
+        // The last way out and ad blocking: the desktop's Connection tab,
+        // in a card of their own above "Advanced" (their lines kept, the
+        // first one with no height).
+        val tor = findViewById<View>(R.id.torLastResort)
+        (tor?.parent as? LinearLayout)?.let { card ->
+            val c = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL; background = card.background?.constantState?.newDrawable(); setPadding(card.paddingLeft, card.paddingTop, card.paddingRight, card.paddingBottom) }
+            for (id in intArrayOf(R.id.torDivider, R.id.torLastResort, R.id.adBlockDivider, R.id.adBlock, R.id.adBlockAllow)) {
+                val v = findViewById<View>(id) ?: continue
+                (v.parent as? LinearLayout)?.removeView(v)
+                c.addView(v)
+            }
+            findViewById<View>(R.id.torDivider)?.let { d -> d.layoutParams = d.layoutParams.apply { height = 0 } }
+            connection.addView(c, 0, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = dpx(20f) })
+        }
+        val names = listOf(R.string.tabGeneral, R.string.tabConnection, R.string.tabSharing, R.string.tabApp)
+        val bar = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            background = getDrawable(R.drawable.card)
+            setPadding(dpx(4f), dpx(4f), dpx(4f), dpx(4f))
+        }
+        val accent = Accent.color(this, R.attr.accentLight)
+        val buttons = names.map { n ->
+            TextView(this).apply {
+                setText(n)
+                gravity = android.view.Gravity.CENTER
+                maxLines = 2
+                minHeight = dpx(44f)
+                setPadding(dpx(3f), dpx(6f), dpx(3f), dpx(6f))
+                // Whole words on a narrow phone, made smaller to fit, never cut.
+                hyphenationFrequency = android.text.Layout.HYPHENATION_FREQUENCY_NONE
+                breakStrategy = android.graphics.text.LineBreaker.BREAK_STRATEGY_SIMPLE
+                setAutoSizeTextTypeUniformWithConfiguration(9, 13, 1, android.util.TypedValue.COMPLEX_UNIT_SP)
+                typeface = Typeface.create("sans-serif-medium", Typeface.NORMAL)
+                isClickable = true
+                isFocusable = true
+            }
+        }
+        fun pick(i: Int) {
+            for ((k, b) in boxes.withIndex()) b.visibility = if (k == i) View.VISIBLE else View.GONE
+            for ((k, t) in buttons.withIndex()) {
+                t.setTextColor(if (k == i) accent else getColor(R.color.text_dim))
+                t.background = if (k == i) android.graphics.drawable.GradientDrawable().apply {
+                    cornerRadius = dpx(11f).toFloat()
+                    setColor((accent and 0x00FFFFFF) or 0x1F000000)
+                    setStroke(dpx(1f), (accent and 0x00FFFFFF) or 0x61000000)
+                } else null
+            }
+            getSharedPreferences("ui", MODE_PRIVATE).edit().putInt("settingsTab", i).apply()
+        }
+        for ((i, b) in buttons.withIndex()) {
+            b.setOnClickListener { pick(i) }
+            bar.addView(b, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
+        }
+        col.addView(bar, 0, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = dpx(14f) })
+        pick(getSharedPreferences("ui", MODE_PRIVATE).getInt("settingsTab", 0).coerceIn(0, 3))
+    }
+
+    private fun dpx(v: Float): Int = android.util.TypedValue.applyDimension(android.util.TypedValue.COMPLEX_UNIT_DIP, v, resources.displayMetrics).toInt()
 
     private fun edgeToEdge() {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) return

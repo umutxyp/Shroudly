@@ -1,10 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- The desktop's Protection screen (components/ControlPanel.js), its
      counters (StatsPanel.js) and About (InfoPanel.js), in one column. -->
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/root"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/frame"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/bg"
+    android:orientation="vertical">
+
+    <!-- The desktop's top (Chrome.header): logo, name, the status pill. -->
+    <FrameLayout
+        android:id="@+id/headerHost"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+<ScrollView
+    android:id="@+id/root"
+    android:layout_width="match_parent"
+    android:layout_height="0dp"
+    android:layout_weight="1"
     android:fillViewport="true">
 
     <me.codeshare.shroudly.Column
@@ -18,56 +32,13 @@
         android:paddingEnd="20dp"
         android:paddingBottom="20dp">
 
-        <!-- ── header ─────────────────────────────────────────────────── -->
+        <!-- The tabs' pages (Chrome.Tab): one shown at a time. -->
         <LinearLayout
+            android:id="@+id/pageHome"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
-
-            <ImageView
-                android:layout_width="38dp"
-                android:layout_height="38dp"
-                android:importantForAccessibility="no"
-                android:src="@drawable/logo" />
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="12dp"
-                android:layout_weight="1"
-                android:orientation="vertical">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:accessibilityHeading="true"
-                    android:fontFamily="sans-serif-medium"
-                    android:text="@string/app_name"
-                    android:textColor="@color/text"
-                    android:textSize="20sp" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/tagline"
-                    android:textColor="@color/text_faint"
-                    android:textSize="12.5sp" />
-            </LinearLayout>
-
-            <!-- Settings, where any app puts them: at the top. -->
-            <ImageView
-                android:id="@+id/settingsTop"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:background="@drawable/pressable"
-                android:clickable="true"
-                android:contentDescription="@string/navSettings"
-                android:focusable="true"
-                android:padding="12dp"
-                android:src="@drawable/ic_settings_accent" />
-        </LinearLayout>
-
+            android:gravity="center_horizontal"
+            android:orientation="vertical">
         <!-- ── the switch: halo, running arc, the circle with the logo ── -->
         <FrameLayout
             android:layout_width="224dp"
@@ -129,32 +100,38 @@
              looks like a link); the switch says it to TalkBack. -->
         <LinearLayout
             android:id="@+id/hint"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="2dp"
-            android:background="@drawable/pressable"
+            android:layout_marginStart="24dp"
+            android:layout_marginTop="14dp"
+            android:layout_marginEnd="24dp"
+            android:background="@drawable/button_accent"
             android:gravity="center"
             android:importantForAccessibility="noHideDescendants"
-            android:minHeight="48dp"
+            android:minHeight="58dp"
             android:orientation="horizontal"
-            android:paddingStart="12dp"
-            android:paddingEnd="12dp">
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp">
 
+            <!-- The desktop's one button (components/ControlPanel.js):
+                 "Start protection" filled in the accent, "Stop protection"
+                 quieter once on (MainActivity.render). -->
             <ImageView
+                android:id="@+id/hintIcon"
                 android:importantForAccessibility="no"
-                android:layout_width="16dp"
-                android:layout_height="16dp"
+                android:layout_width="18dp"
+                android:layout_height="18dp"
                 android:src="@drawable/ic_power"
-                android:tint="?attr/accentLight" />
+                android:tint="@color/on_accent" />
 
             <TextView
                 android:id="@+id/hintLabel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="7dp"
+                android:layout_marginStart="9dp"
                 android:fontFamily="sans-serif-medium"
-                android:textColor="?attr/accentLight"
-                android:textSize="15sp" />
+                android:textColor="@color/on_accent"
+                android:textSize="16sp" />
         </LinearLayout>
 
         <!-- Whole, however long: a warning ends with what to do. -->
@@ -679,12 +656,20 @@
             </LinearLayout>
         </LinearLayout>
 
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/pageStats"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:orientation="vertical"
+            android:visibility="gone">
         <!-- ── the counters ───────────────────────────────────────────── -->
-        <TextView
-            style="@style/SectionTitle"
-            android:layout_marginTop="28dp"
-            android:accessibilityHeading="true"
-            android:text="@string/navStats" />
+        <!-- The tab says it: no title over the counters (the desktop's). -->
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="16dp" />
 
         <LinearLayout
             android:id="@+id/statsHint"
@@ -843,6 +828,14 @@
             android:textSize="12.5sp"
             android:visibility="gone" />
 
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/pageFollowRow"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone">
         <!-- ── follow ───────────────────────────────────────────────────
              Follow Shroudly, a section of its own (not a row deep in About):
              Codeshare's and its developer's accounts (FollowActivity). -->
@@ -876,6 +869,15 @@
             </LinearLayout>
         </LinearLayout>
 
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/pageAbout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:orientation="vertical"
+            android:visibility="gone">
         <!-- ── about ──────────────────────────────────────────────────── -->
         <TextView
             style="@style/SectionTitle"
@@ -1046,5 +1048,68 @@
             android:text="@string/madeBy"
             android:textColor="@color/text_faint"
             android:textSize="12sp" />
+        </LinearLayout>
+
+        <!-- Logs (the desktop's tab): the app's own log, newest last. -->
+        <LinearLayout
+            android:id="@+id/pageLogs"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <TextView
+                android:id="@+id/logsText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/card"
+                android:fontFamily="monospace"
+                android:lineSpacingMultiplier="1.15"
+                android:padding="14dp"
+                android:textColor="@color/text_dim"
+                android:textIsSelectable="true"
+                android:textSize="11.5sp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/logsCount"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:textColor="@color/text_faint"
+                    android:textSize="12.5sp" />
+
+                <Button
+                    android:id="@+id/logsCopy"
+                    style="@android:style/Widget.Material.Button.Borderless"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/copyLogs"
+                    android:textAllCaps="false"
+                    android:textColor="@color/text_dim" />
+
+                <Button
+                    android:id="@+id/logsShare"
+                    style="@android:style/Widget.Material.Button.Borderless"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/androidShareLogs"
+                    android:textAllCaps="false"
+                    android:textColor="@color/text_dim" />
+            </LinearLayout>
+        </LinearLayout>
     </me.codeshare.shroudly.Column>
 </ScrollView>
+
+    <!-- The six tabs and "A Codeshare product" (Chrome.bottomBar). -->
+    <FrameLayout
+        android:id="@+id/bottomHost"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+</LinearLayout>

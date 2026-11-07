@@ -26,6 +26,8 @@
     <!-- Text on a solid accent / royal fill. -->
     <color name="on_accent">#FFFFFFFF</color>
 
+    <!-- Protected: the desktop's ok colour. -->
+    <color name="ok">#FF34D399</color>
     <color name="warn">#FFFBBF24</color>
     <color name="danger">#FFF87171</color>
     <color name="launcher_bg">#FF0B0F17</color>

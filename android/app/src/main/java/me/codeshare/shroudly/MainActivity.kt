@@ -60,6 +60,9 @@ class MainActivity : Activity() {
     private lateinit var detailMore: TextView
     private lateinit var hint: View
     private lateinit var hintLabel: TextView
+    // The desktop's frame (Chrome): the status pill on top, the tab shown.
+    private lateinit var pill: TextView
+    private var tab = Chrome.Tab.PROTECTION
     private lateinit var connections: TextView
     private lateinit var connectionsTotal: TextView
     private lateinit var upload: TextView
@@ -149,6 +152,11 @@ class MainActivity : Activity() {
         super.onCreate(savedInstanceState)
         ShroudlyVpnService.attachLog(this)
         setContentView(R.layout.activity_main)
+        val (header, p) = Chrome.header(this)
+        pill = p
+        findViewById<android.widget.FrameLayout>(R.id.headerHost).addView(header)
+        tab = intent?.getStringExtra(Chrome.EXTRA_TAB)?.let { n -> Chrome.Tab.values().firstOrNull { it.name == n } } ?: Chrome.Tab.PROTECTION
+        showTab(tab)
         edgeToEdge()
         Tv.rings(window)
 
@@ -201,10 +209,14 @@ class MainActivity : Activity() {
         val apk = ApkShare.available(this)
         findViewById<View>(R.id.shareApp).apply { visibility = if (apk) View.VISIBLE else View.GONE; setOnClickListener { ApkShare.share(this@MainActivity) } }
         findViewById<View>(R.id.shareAppDivider).visibility = if (apk) View.VISIBLE else View.GONE
-        // Settings: the gear at the top, and the row under About.
-        val settings = View.OnClickListener { startActivity(Intent(this, SettingsActivity::class.java)) }
-        findViewById<View>(R.id.settings).setOnClickListener(settings)
-        findViewById<View>(R.id.settingsTop).setOnClickListener(settings)
+        // Settings: its tab at the bottom, and the row under About.
+        findViewById<View>(R.id.settings).setOnClickListener { startActivity(Intent(this, SettingsActivity::class.java)) }
+        findViewById<View>(R.id.logsCopy).setOnClickListener {
+            val cm = getSystemService(android.content.ClipboardManager::class.java)
+            cm?.setPrimaryClip(android.content.ClipData.newPlainText("Shroudly", AppLog.snapshot(sites = true).joinToString("\n")))
+            (it as TextView).setText(R.string.logsCopied)
+        }
+        findViewById<View>(R.id.logsShare).setOnClickListener { shareLogs() }
         noticeOpen.setOnClickListener {
             if (noticeShown == R.string.androidBatterySettings) openBatterySettings() else openNotificationSettings()
         }
@@ -289,6 +301,7 @@ class MainActivity : Activity() {
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         setIntent(intent)
+        intent.getStringExtra(Chrome.EXTRA_TAB)?.let { n -> Chrome.Tab.values().firstOrNull { it.name == n } }?.let { showTab(it) }
         handleStart(intent)
         handleInstall(intent)
         handleConfirmStop(intent)
@@ -425,7 +438,7 @@ class MainActivity : Activity() {
             @Suppress("DEPRECATION")
             window.setDecorFitsSystemWindows(false)
         }
-        val root = findViewById<ScrollView>(R.id.root)
+        val root = findViewById<View>(R.id.frame)
         root.setOnApplyWindowInsetsListener { v, insets ->
             val bars = insets.getInsets(WindowInsets.Type.systemBars() or WindowInsets.Type.displayCutout())
             v.setPadding(bars.left, bars.top, bars.right, bars.bottom)
@@ -830,9 +843,16 @@ class MainActivity : Activity() {
             }
         }
 
-        // Under the status, what a tap on the switch does; nothing while it works.
+        // Under the status, the one button; nothing while it works. Filled in
+        // the accent to start, quieter to stop (the desktop's).
         if (!busy) hintLabel.show(getString(if (on) R.string.stop else R.string.start))
         hint.visibility = if (busy) View.INVISIBLE else View.VISIBLE
+        hint.setBackgroundResource(if (on) R.drawable.card else R.drawable.button_accent)
+        val onButton = getColor(if (on) R.color.text else R.color.on_accent)
+        hintLabel.setTextColor(onButton)
+        findViewById<android.widget.ImageView>(R.id.hintIcon).imageTintList = android.content.res.ColorStateList.valueOf(onButton)
+        Chrome.updatePill(this, pill)
+        if (tab == Chrome.Tab.LOGS) renderLogs()
 
         val s = Protection.stats
         if (on && s != null) {
@@ -1142,6 +1162,32 @@ class MainActivity : Activity() {
      * the sites Shroudly handled, with the choice to leave them out: a bare
      * share sheet said neither, and a log with someone's browsing could end
      * up in a public issue. */
+    /* A tab of the bottom bar: Protection, Stats, Logs and About are pages
+     * here; Settings and Follow are screens of their own (Chrome.go). */
+    private fun showTab(t: Chrome.Tab) {
+        if (t == Chrome.Tab.SETTINGS || t == Chrome.Tab.FOLLOW) { Chrome.go(this, t); return }
+        tab = t
+        findViewById<View>(R.id.pageHome).visibility = if (t == Chrome.Tab.PROTECTION) View.VISIBLE else View.GONE
+        findViewById<View>(R.id.pageStats).visibility = if (t == Chrome.Tab.STATS) View.VISIBLE else View.GONE
+        findViewById<View>(R.id.pageLogs).visibility = if (t == Chrome.Tab.LOGS) View.VISIBLE else View.GONE
+        findViewById<View>(R.id.pageAbout).visibility = if (t == Chrome.Tab.ABOUT) View.VISIBLE else View.GONE
+        val host = findViewById<android.widget.FrameLayout>(R.id.bottomHost)
+        host.removeAllViews()
+        host.addView(Chrome.bottomBar(this, t) { showTab(it) })
+        findViewById<ScrollView>(R.id.root).scrollTo(0, 0)
+        if (t == Chrome.Tab.LOGS) {
+            findViewById<TextView>(R.id.logsCopy).setText(R.string.copyLogs)
+            renderLogs()
+        }
+    }
+
+    /* The Logs page: the app's own log, the last 400 lines. */
+    private fun renderLogs() {
+        val lines = AppLog.snapshot(sites = true).takeLast(400)
+        findViewById<TextView>(R.id.logsText).text = if (lines.isEmpty()) getString(R.string.noLogs) else lines.joinToString("\n")
+        findViewById<TextView>(R.id.logsCount).text = text(R.string.logEntries, "count" to lines.size)
+    }
+
     private fun shareLogs() {
         try {
             AlertDialog.Builder(this)
