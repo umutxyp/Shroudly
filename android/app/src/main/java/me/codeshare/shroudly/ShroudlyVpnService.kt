@@ -255,6 +255,8 @@ class ShroudlyVpnService : VpnService() {
     // The notice that protection ended was posted moments ago: not again.
     private var quietNotice = false
     @Volatile private var active = false
+    // The sites that made Tor start, said once each (EngineEvent.Fallback).
+    private val torNeedTold = java.util.Collections.newSetFromMap(java.util.concurrent.ConcurrentHashMap<String, Boolean>())
     // Health: which engine the checks under way are about (a result about an
     // engine replaced meanwhile is dropped).
     private var healthEpoch = 0
@@ -1323,7 +1325,7 @@ class ShroudlyVpnService : VpnService() {
             is EngineEvent.Upstream -> if (!ev.ok) ownServer.down(OwnServer.whyCode(ev.why))
             // Nothing was listening: Tor is started for the next connection.
             // Tor only once the user said yes (issue #77); until then asked.
-            is EngineEvent.Fallback -> if (!ev.ok) { if (ev.why != "file unusable" && active) { if (TorRoute.approved(this)) torRoute.need() else TorAsk.ask(this, ev.host) } } else {
+            is EngineEvent.Fallback -> if (!ev.ok) { if (ev.why != "file unusable" && active) { if (TorRoute.approved(this)) { if (ev.host.isNotEmpty() && torRoute.state != "ready" && torNeedTold.add(ev.host)) ShroudlyVpnService.logSite("${ev.host}: no technique got through; the last way out (Tor) is needed for it"); torRoute.need() } else TorAsk.ask(this, ev.host) } } else {
                 logSite("${ev.host}: no technique got through; opened through the last way out (Tor)")
                 if (ev.host.isNotEmpty()) TorNotice.used(this, ev.host)
             }

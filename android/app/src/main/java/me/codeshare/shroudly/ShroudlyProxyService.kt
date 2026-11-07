@@ -83,6 +83,8 @@ class ShroudlyProxyService : Service() {
     private val adblockCheck = java.util.concurrent.atomic.AtomicReference<java.util.concurrent.CompletableFuture<EngineEvent.AdblockCheck>?>(null)
     private val adblockFetching = java.util.concurrent.atomic.AtomicBoolean(false)
     @Volatile private var active = false
+    // The sites that made Tor start, said once each (EngineEvent.Fallback).
+    private val torNeedTold = java.util.Collections.newSetFromMap(java.util.concurrent.ConcurrentHashMap<String, Boolean>())
     // This session has been counted as a day protection worked (Usage).
     @Volatile private var workedToday = false
     // When the services last looked at the store flag and notice (uptime).
@@ -318,7 +320,7 @@ class ShroudlyProxyService : Service() {
             is EngineEvent.Error -> log("engine: ${ev.message}")
             is EngineEvent.Upstream -> if (!ev.ok) ownServer.down(OwnServer.whyCode(ev.why))
             // Tor only once the user said yes (issue #77); until then asked.
-            is EngineEvent.Fallback -> if (!ev.ok) { if (ev.why != "file unusable" && active) { if (TorRoute.approved(this)) torRoute.need() else TorAsk.ask(this, ev.host) } } else {
+            is EngineEvent.Fallback -> if (!ev.ok) { if (ev.why != "file unusable" && active) { if (TorRoute.approved(this)) { if (ev.host.isNotEmpty() && torRoute.state != "ready" && torNeedTold.add(ev.host)) ShroudlyVpnService.logSite("${ev.host}: no technique got through; the last way out (Tor) is needed for it"); torRoute.need() } else TorAsk.ask(this, ev.host) } } else {
                 ShroudlyVpnService.logSite("${ev.host}: no technique got through; opened through the last way out (Tor)")
                 if (ev.host.isNotEmpty()) TorNotice.used(this, ev.host)
             }

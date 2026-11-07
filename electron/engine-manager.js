@@ -1460,7 +1460,14 @@ class EngineManager {
         if (!msg.ok) {
           // Not for an engine being stopped: a late line must not start Tor.
           if (!this.active || !this.tor || !this._torFile || msg.why === 'file unusable' || this.store.get('torLastResort', true) === false) break;
-          if (this.store.get('torApproved', false) === true) this.tor.need();
+          if (this.store.get('torApproved', false) === true) {
+            // Which site needed it: "starting Tor" alone left a report unable
+            // to tell whether the app in question (Discord) was the one.
+            if (msg.host && this.tor.status().state !== 'ready' && this.logGate.allow('fallback-need', msg.host)) {
+              this.log('info', `${msg.host}: no technique got through; the last way out (Tor) is needed for it`);
+            }
+            this.tor.need();
+          }
           else { try { this.onTorAsk(msg.host || ''); } catch {} }
           break;
         }
