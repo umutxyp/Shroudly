@@ -59,7 +59,7 @@
     <string name="androidPrivacyPolicy">Dasar privasi</string>
     <string name="androidProtectionLost">Perlindungan berhenti kerana ralat, jadi aplikasi anda kini bersambung secara terus. Buka Shroudly untuk memulakannya semula.</string>
     <string name="androidProtectionLostHere">Perlindungan berhenti kerana ralat, jadi aplikasi anda kini bersambung secara terus.</string>
-    <string name="androidProxyNotSet">Tiada proksi Wi-Fi ditetapkan kepada Shroudly, jadi hanya aplikasi dengan proksi sendiri pada 127.0.0.1:{port} melaluinya. Untuk menghantar lebih banyak aplikasi, tetapkan proksi rangkaian Wi-Fi ini kepada hos 127.0.0.1, port {port}.</string>
+    <string name="androidProxyIdleVpn">Proksi sahaja dihidupkan: hanya aplikasi yang ditetapkan untuk menggunakan 127.0.0.1:{port} melalui Shroudly, jadi YouTube dan aplikasi lain dibuka seperti tanpanya. Untuk menghantar semua aplikasi melalui Shroudly, gunakan mod VPN; Android kemudian mematikan aplikasi VPN yang lain. (Atau tetapkan proksi rangkaian Wi-Fi kepada 127.0.0.1, port {port}.)</string>
     <string name="androidProxyOnlyLost">Mod Proksi sahaja berhenti kerana ralat, jadi aplikasi yang ditetapkan untuk menggunakan Shroudly tidak dapat bersambung. Buka Shroudly untuk memulakannya semula.</string>
     <string name="androidProxyOnlyLostHere">Mod Proksi sahaja berhenti kerana ralat, jadi aplikasi yang ditetapkan untuk menggunakan Shroudly tidak dapat bersambung.</string>
     <string name="androidProxyOnlyMoved">Port {taken} digunakan oleh aplikasi lain (contohnya v2rayNG), jadi Shroudly berada di 127.0.0.1:{port}. Tetapkan proksi anda kepada port {port}.</string>
@@ -93,6 +93,7 @@
     <string name="androidUpdateReadyTap">Ketik untuk memulakan semula Shroudly dan menyelesaikan kemas kini. Perlindungan akan hidup semula dengan sendirinya.</string>
     <string name="androidUpdateTap">Ketik untuk memuat turun dan memasangnya.</string>
     <string name="androidUseProxyOnly">Guna Proksi sahaja</string>
+    <string name="androidUseVpnMode">Gunakan mod VPN</string>
     <string name="androidVpnBlocked">Android tidak meminta kebenaran VPN: aplikasi VPN lain ditetapkan sebagai VPN sentiasa hidup, atau telefon ini tidak membenarkan perubahan VPN. Matikan sentiasa hidup untuk aplikasi itu dalam tetapan VPN Android, atau gunakan Proksi sahaja, yang mengekalkan VPN anda yang lain.</string>
     <string name="androidVpnDenied">Shroudly memerlukan kebenaran VPN untuk membawa sambungan aplikasi anda.</string>
     <string name="androidVpnDeniedHere">Shroudly memerlukan kebenaran VPN untuk membawa sambungan aplikasi anda. Ketik bulatan dan pilih OK apabila Android bertanya.</string>

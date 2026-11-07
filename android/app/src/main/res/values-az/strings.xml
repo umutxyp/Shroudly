@@ -59,7 +59,7 @@
     <string name="androidPrivacyPolicy">Məxfilik siyasəti</string>
     <string name="androidProtectionLost">Qoruma xəta səbəbindən dayandı, ona görə tətbiqləriniz indi birbaşa qoşulur. Yenidən başlatmaq üçün Shroudly-ni açın.</string>
     <string name="androidProtectionLostHere">Qoruma xəta səbəbindən dayandı, ona görə tətbiqləriniz indi birbaşa qoşulur.</string>
-    <string name="androidProxyNotSet">Heç bir Wi-Fi proksisi Shroudly-yə ayarlanmayıb, ona görə onun üzərindən yalnız öz proksisi 127.0.0.1:{port} olan tətbiqlər keçir. Daha çox tətbiqi keçirmək üçün bu Wi-Fi şəbəkəsinin proksisini host 127.0.0.1, port {port} edin.</string>
+    <string name="androidProxyIdleVpn">«Yalnız proksi» açıqdır: Shroudly-dən yalnız 127.0.0.1:{port} istifadə etmək üçün qurulmuş tətbiqlər keçir, ona görə YouTube və digər tətbiqlər onsuz kimi açılır. Bütün tətbiqləri Shroudly-dən keçirmək üçün VPN rejimindən istifadə et; Android onda digər VPN tətbiqini söndürür. (Və ya Wi-Fi şəbəkəsinin proksisini 127.0.0.1, port {port} et.)</string>
     <string name="androidProxyOnlyLost">Yalnız proksi xəta səbəbindən dayandı, ona görə Shroudly-dən istifadə etmək üçün ayarlanmış tətbiqlər qoşula bilmir. Yenidən başlatmaq üçün Shroudly-ni açın.</string>
     <string name="androidProxyOnlyLostHere">Yalnız proksi xəta səbəbindən dayandı, ona görə Shroudly-dən istifadə etmək üçün ayarlanmış tətbiqlər qoşula bilmir.</string>
     <string name="androidProxyOnlyMoved">{taken} portunu başqa tətbiq (məsələn, v2rayNG) istifadə edir, ona görə Shroudly 127.0.0.1:{port} ünvanındadır. Proksinizi {port} portuna təyin edin.</string>
@@ -93,6 +93,7 @@
     <string name="androidUpdateReadyTap">Shroudly-ni yenidən başladıb yeniləməni bitirmək üçün toxun. Qoruma özü yenidən açılacaq.</string>
     <string name="androidUpdateTap">Endirib quraşdırmaq üçün toxunun.</string>
     <string name="androidUseProxyOnly">Yalnız proksi istifadə et</string>
+    <string name="androidUseVpnMode">VPN rejimindən istifadə et</string>
     <string name="androidVpnBlocked">Android VPN icazəsi istəmədi: başqa bir VPN tətbiqi həmişə aktiv VPN kimi ayarlanıb, ya da bu telefon VPN dəyişikliklərinə icazə vermir. Android-in VPN ayarlarında o tətbiq üçün həmişə aktiv rejimini söndürün, ya da digər VPN-i saxlayan Yalnız proksi rejimindən istifadə edin.</string>
     <string name="androidVpnDenied">Tətbiqlərinizin bağlantılarını daşımaq üçün Shroudly-yə VPN icazəsi lazımdır.</string>
     <string name="androidVpnDeniedHere">Tətbiqlərinizin bağlantılarını daşımaq üçün Shroudly-yə VPN icazəsi lazımdır. Dairəyə toxunun və Android soruşanda OK seçin.</string>

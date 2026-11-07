@@ -59,7 +59,7 @@
     <string name="androidPrivacyPolicy">Палітыка прыватнасці</string>
     <string name="androidProtectionLost">Абарона спынілася з-за памылкі, таму вашы праграмы цяпер падключаюцца напрамую. Адкрыйце Shroudly, каб запусціць яе зноў.</string>
     <string name="androidProtectionLostHere">Абарона спынілася з-за памылкі, таму вашы праграмы цяпер падключаюцца напрамую.</string>
-    <string name="androidProxyNotSet">Ніводны проксі Wi-Fi не настроены на Shroudly, таму праз яго ідуць толькі праграмы, у якіх уласны проксі 127.0.0.1:{port}. Каб пусціць праз яго больш праграм, задайце проксі гэтай сеткі Wi-Fi: вузел 127.0.0.1, порт {port}.</string>
+    <string name="androidProxyIdleVpn">Уключаны рэжым «Толькі проксі»: праз Shroudly ідуць толькі праграмы, настроеныя на 127.0.0.1:{port}, таму YouTube і іншыя праграмы адкрываюцца як без яго. Каб усе праграмы ішлі праз Shroudly, выкарыстоўвайце рэжым VPN; Android тады выключыць іншую VPN-праграму. (Або ўкажыце проксі сеткі Wi-Fi: 127.0.0.1, порт {port}.)</string>
     <string name="androidProxyOnlyLost">Рэжым «Толькі проксі» спыніўся з-за памылкі, таму праграмы, настроеныя на Shroudly, не могуць падключыцца. Адкрыйце Shroudly, каб запусціць яго зноў.</string>
     <string name="androidProxyOnlyLostHere">Рэжым «Толькі проксі» спыніўся з-за памылкі, таму праграмы, настроеныя на Shroudly, не могуць падключыцца.</string>
     <string name="androidProxyOnlyMoved">Порт {taken} заняты іншай праграмай (напрыклад, v2rayNG), таму Shroudly працуе на 127.0.0.1:{port}. Укажыце ў проксі порт {port}.</string>
@@ -93,6 +93,7 @@
     <string name="androidUpdateReadyTap">Націсніце, каб перазапусціць Shroudly і завяршыць абнаўленне. Абарона ўключыцца сама.</string>
     <string name="androidUpdateTap">Націсніце, каб спампаваць і ўсталяваць.</string>
     <string name="androidUseProxyOnly">Толькі проксі</string>
+    <string name="androidUseVpnMode">Выкарыстаць рэжым VPN</string>
     <string name="androidVpnBlocked">Android не папрасіў дазволу VPN: іншая праграма VPN настроена як заўсёды ўключаны VPN, або гэты тэлефон не дазваляе мяняць VPN. Выключыце «Заўсёды ўключаны» для той праграмы ў наладах VPN Android або выкарыстоўвайце «Толькі проксі», які пакідае іншы VPN.</string>
     <string name="androidVpnDenied">Shroudly патрэбны дазвол VPN, каб прапускаць злучэнні вашых праграм.</string>
     <string name="androidVpnDeniedHere">Shroudly патрэбны дазвол VPN, каб прапускаць злучэнні вашых праграм. Націсніце на круг і выберыце «ОК», калі Android спытае.</string>

@@ -59,7 +59,7 @@
     <string name="androidPrivacyPolicy">د محرمیت تګلاره</string>
     <string name="androidProtectionLost">ساتنه د یوې تېروتنې له امله ودرېده، نو ستاسو اپونه اوس مستقیم نښلي. د بیا پیلولو لپاره Shroudly پرانیزئ.</string>
     <string name="androidProtectionLostHere">ساتنه د یوې تېروتنې له امله ودرېده، نو ستاسو اپونه اوس مستقیم نښلي.</string>
-    <string name="androidProxyNotSet">هېڅ Wi-Fi پراکسي Shroudly ته نه ده ټاکل شوې، نو یوازې هغه اپونه ترې تېرېږي چې خپله پراکسي یې 127.0.0.1:{port} ته ټاکل شوې. د نورو اپونو د تېرولو لپاره، د دې Wi-Fi شبکې پراکسي کوربه 127.0.0.1 او پورټ {port} ته وټاکئ.</string>
+    <string name="androidProxyIdleVpn">یوازې پراکسي روښانه ده: له Shroudly څخه یوازې هغه اپونه تېرېږي چې د 127.0.0.1:{port} کارولو لپاره تنظیم شوي، نو یوټیوب او نور اپونه داسې پرانیستل کېږي لکه پرته له هغه. د دې لپاره چې ټول اپونه له Shroudly تېر شي، د VPN حالت وکاروئ؛ بیا اندروید بل VPN اپ بندوي. (یا د یوې Wi-Fi شبکې پراکسي په 127.0.0.1، پورټ {port} کېږدئ.)</string>
     <string name="androidProxyOnlyLost">«یوازې پراکسي» د یوې تېروتنې له امله ودرېده، نو هغه اپونه چې د Shroudly کارولو ته تنظیم شوي نه شي وصل کېدای. د بیا پیلولو لپاره Shroudly پرانیزئ.</string>
     <string name="androidProxyOnlyLostHere">«یوازې پراکسي» د یوې تېروتنې له امله ودرېده، نو هغه اپونه چې د Shroudly کارولو ته تنظیم شوي نه شي وصل کېدای.</string>
     <string name="androidProxyOnlyMoved">پورټ {taken} بل اپ (لکه v2rayNG) کاروي، نو Shroudly په ‎127.0.0.1:{port}‎ دی. خپله پراکسي پورټ {port} ته وټاکئ.</string>
@@ -93,6 +93,7 @@
     <string name="androidUpdateReadyTap">د Shroudly د بیا پیلولو او اوسمهال د بشپړولو لپاره ټک وکړئ. ساتنه به پخپله بیا چالانه شي.</string>
     <string name="androidUpdateTap">د ښکته کولو او نصبولو لپاره ټک وکړئ.</string>
     <string name="androidUseProxyOnly">یوازې پراکسي وکاروئ</string>
+    <string name="androidUseVpnMode">د VPN حالت وکاروئ</string>
     <string name="androidVpnBlocked">Android د VPN اجازه ونه غوښته: بل VPN اپ د تل چالان VPN په توګه ټاکل شوی، یا دا تلیفون د VPN بدلون ته اجازه نه ورکوي. د Android د VPN په امستنو کې د هغه اپ لپاره «تل چالان» بند کړئ، یا «یوازې پراکسي» وکاروئ چې ستاسو بل VPN ساتي.</string>
     <string name="androidVpnDenied">Shroudly ته د VPN اجازه پکار ده څو ستاسو د اپونو اړیکې ولېږدوي.</string>
     <string name="androidVpnDeniedHere">Shroudly ته د VPN اجازه پکار ده څو ستاسو د اپونو اړیکې ولېږدوي. پر دایره ټک وکړئ او کله چې Android وپوښتي، OK غوره کړئ.</string>

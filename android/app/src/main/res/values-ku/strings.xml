@@ -59,7 +59,7 @@
     <string name="androidPrivacyPolicy">Polîtîkaya nepeniyê</string>
     <string name="androidProtectionLost">Parastin ji ber çewtiyekê rawestiya, ji ber vê yekê sepanên te niha rasterast girêdidin. Ji bo ku tu wê dîsa bidî destpêkirin, Shroudly veke.</string>
     <string name="androidProtectionLostHere">Parastin ji ber çewtiyekê rawestiya, ji ber vê yekê sepanên te niha rasterast girêdidin.</string>
-    <string name="androidProxyNotSet">Tu proksiya Wi-Fi li ser Shroudly nehatiye mîhengkirin, ji ber vê yekê tenê sepanên ku proksiya wan a xwe 127.0.0.1:{port} e di wê re derbas dibin. Ji bo derbaskirina bêtir sepanan, proksiya vê tora Wi-Fi bike host 127.0.0.1, port {port}.</string>
+    <string name="androidProxyIdleVpn">Tenê proksî vekirî ye: tenê sepanên ku ji bo bikaranîna 127.0.0.1:{port} hatine sazkirin di Shroudly re derbas dibin, ji ber vê YouTube û sepanên din wek bêyî wî vedibin. Ji bo ku hemû sepan di Shroudly re derbas bibin, moda VPN bi kar bîne; Android wê demê sepana VPN ya din digire. (An jî proksiya torek Wi-Fi bike 127.0.0.1, port {port}.)</string>
     <string name="androidProxyOnlyLost">Tenê proksî ji ber çewtiyekê rawestiya, ji ber vê yekê sepanên ku ji bo bikaranîna Shroudly hatine mîhengkirin nikarin girê bidin. Ji bo ku tu wê dîsa bidî destpêkirin, Shroudly veke.</string>
     <string name="androidProxyOnlyLostHere">Tenê proksî ji ber çewtiyekê rawestiya, ji ber vê yekê sepanên ku ji bo bikaranîna Shroudly hatine mîhengkirin nikarin girê bidin.</string>
     <string name="androidProxyOnlyMoved">Porta {taken} ji aliyê sepaneke din ve (wek v2rayNG) tê bikaranîn, ji ber vê yekê Shroudly li ser 127.0.0.1:{port} e. Proksiya xwe li porta {port} mîheng bike.</string>
@@ -93,6 +93,7 @@
     <string name="androidUpdateReadyTap">Ji bo ku Shroudly ji nû ve vekî û nûvekirinê biqedînî, bitikîne. Parastin bi xwe dîsa vedibe.</string>
     <string name="androidUpdateTap">Ji bo daxistin û sazkirinê bitikîne.</string>
     <string name="androidUseProxyOnly">Tenê proksî bi kar bîne</string>
+    <string name="androidUseVpnMode">Moda VPN bi kar bîne</string>
     <string name="androidVpnBlocked">Android destûra VPN nexwest: sepaneke VPN ya din wekî VPN-a her dem vekirî hatiye mîhengkirin, an jî ev telefon rê nade guhertinên VPN. Di mîhengên VPN yên Android de \'her dem vekirî\' ji bo wê sepanê bigire, an jî Tenê proksî bi kar bîne, ku VPN-a te ya din diparêze.</string>
     <string name="androidVpnDenied">Shroudly ji bo hilgirtina girêdanên sepanên te destûra VPN hewce dike.</string>
     <string name="androidVpnDeniedHere">Shroudly ji bo hilgirtina girêdanên sepanên te destûra VPN hewce dike. Li ser xelekê bitikîne û gava Android pirsî OK hilbijêre.</string>

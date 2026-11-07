@@ -59,7 +59,7 @@
     <string name="androidPrivacyPolicy">رازداری کی پالیسی</string>
     <string name="androidProtectionLost">ایک خرابی کی وجہ سے تحفظ رک گیا، اس لیے آپ کی ایپس اب براہِ راست جڑ رہی ہیں۔ اسے دوبارہ شروع کرنے کے لیے Shroudly کھولیں۔</string>
     <string name="androidProtectionLostHere">ایک خرابی کی وجہ سے تحفظ رک گیا، اس لیے آپ کی ایپس اب براہِ راست جڑ رہی ہیں۔</string>
-    <string name="androidProxyNotSet">کوئی Wi-Fi پراکسی Shroudly پر سیٹ نہیں، اس لیے اس سے صرف وہ ایپس گزرتی ہیں جن کی اپنی پراکسی 127.0.0.1:{port} پر سیٹ ہے۔ مزید ایپس بھیجنے کے لیے اس Wi-Fi نیٹ ورک کی پراکسی ہوسٹ 127.0.0.1، پورٹ {port} پر سیٹ کریں۔</string>
+    <string name="androidProxyIdleVpn">صرف پراکسی آن ہے: Shroudly سے صرف وہ ایپس گزرتی ہیں جو 127.0.0.1:{port} استعمال کرنے کے لیے سیٹ ہیں، اس لیے YouTube اور دوسری ایپس ایسے کھلتی ہیں جیسے یہ ہے ہی نہیں۔ ہر ایپ کو Shroudly سے گزارنے کے لیے VPN موڈ استعمال کریں؛ Android پھر دوسری VPN ایپ بند کر دیتا ہے۔ (یا کسی Wi-Fi نیٹ ورک کی پراکسی 127.0.0.1، پورٹ {port} پر سیٹ کریں۔)</string>
     <string name="androidProxyOnlyLost">ایک خرابی کی وجہ سے صرف پراکسی رک گئی، اس لیے Shroudly استعمال کرنے کے لیے سیٹ ایپس نہیں جڑ پاتیں۔ اسے دوبارہ شروع کرنے کے لیے Shroudly کھولیں۔</string>
     <string name="androidProxyOnlyLostHere">ایک خرابی کی وجہ سے صرف پراکسی رک گئی، اس لیے Shroudly استعمال کرنے کے لیے سیٹ ایپس نہیں جڑ پاتیں۔</string>
     <string name="androidProxyOnlyMoved">پورٹ {taken} کوئی دوسری ایپ (مثلاً v2rayNG) استعمال کر رہی ہے، اس لیے Shroudly ‏127.0.0.1:{port} پر ہے۔ اپنی پراکسی پورٹ {port} پر سیٹ کریں۔</string>
@@ -93,6 +93,7 @@
     <string name="androidUpdateReadyTap">Shroudly کو دوبارہ شروع کر کے اپ ڈیٹ مکمل کرنے کے لیے تھپتھپائیں۔ تحفظ خود بخود دوبارہ آن ہو جائے گا۔</string>
     <string name="androidUpdateTap">ڈاؤن لوڈ اور انسٹال کرنے کے لیے ٹیپ کریں۔</string>
     <string name="androidUseProxyOnly">صرف پراکسی استعمال کریں</string>
+    <string name="androidUseVpnMode">VPN موڈ استعمال کریں</string>
     <string name="androidVpnBlocked">Android نے VPN کی اجازت نہیں مانگی: کوئی دوسری VPN ایپ ہمیشہ آن VPN کے طور پر سیٹ ہے، یا یہ فون VPN بدلنے کی اجازت نہیں دیتا۔ Android کی VPN سیٹنگز میں اس ایپ کے لیے ہمیشہ آن بند کریں، یا صرف پراکسی استعمال کریں، جو دوسرا VPN برقرار رکھتی ہے۔</string>
     <string name="androidVpnDenied">آپ کی ایپس کے کنکشن لے جانے کے لیے Shroudly کو VPN کی اجازت درکار ہے۔</string>
     <string name="androidVpnDeniedHere">آپ کی ایپس کے کنکشن لے جانے کے لیے Shroudly کو VPN کی اجازت درکار ہے۔ دائرے پر ٹیپ کریں اور Android پوچھے تو ٹھیک ہے منتخب کریں۔</string>

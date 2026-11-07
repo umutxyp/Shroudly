@@ -59,7 +59,7 @@
     <string name="androidPrivacyPolicy">隐私政策</string>
     <string name="androidProtectionLost">保护因出错而停止，你的应用现在直接联网。打开 Shroudly 即可重新开启。</string>
     <string name="androidProtectionLostHere">保护因出错而停止，你的应用现在直接联网。</string>
-    <string name="androidProxyNotSet">没有 Wi-Fi 代理设置为 Shroudly，所以只有自身代理设为 127.0.0.1:{port} 的应用会经过它。要让更多应用经过它，请把这个 Wi-Fi 网络的代理设为主机 127.0.0.1、端口 {port}。</string>
+    <string name="androidProxyIdleVpn">“仅代理”已开启：只有设置为使用 127.0.0.1:{port} 的应用才经过 Shroudly，所以 YouTube 等应用的打开方式和没有它时一样。要让所有应用都经过 Shroudly，请使用 VPN 模式；Android 随后会关闭另一个 VPN 应用。（也可以把某个 Wi-Fi 网络的代理设为 127.0.0.1，端口 {port}。）</string>
     <string name="androidProxyOnlyLost">“仅代理”因出错而停止，设置为使用 Shroudly 的应用现在无法连接。打开 Shroudly 即可重新开启。</string>
     <string name="androidProxyOnlyLostHere">“仅代理”因出错而停止，设置为使用 Shroudly 的应用现在无法连接。</string>
     <string name="androidProxyOnlyMoved">端口 {taken} 已被其他应用（例如 v2rayNG）占用，因此 Shroudly 使用 127.0.0.1:{port}。请把代理端口设为 {port}。</string>
@@ -93,6 +93,7 @@
     <string name="androidUpdateReadyTap">点按即可重启 Shroudly 并完成更新。保护会自动重新开启。</string>
     <string name="androidUpdateTap">轻触即可下载并安装。</string>
     <string name="androidUseProxyOnly">使用仅代理</string>
+    <string name="androidUseVpnMode">使用 VPN 模式</string>
     <string name="androidVpnBlocked">Android 没有请求 VPN 权限：另一个 VPN 应用被设为始终开启的 VPN，或者这部手机不允许更改 VPN。请在 Android 的 VPN 设置中为该应用关闭“始终开启”，或使用会保留其他 VPN 的“仅代理”。</string>
     <string name="androidVpnDenied">Shroudly 需要 VPN 权限才能承载你的应用的连接。</string>
     <string name="androidVpnDeniedHere">Shroudly 需要 VPN 权限才能承载你的应用的连接。轻触圆圈，在 Android 询问时选择“确定”。</string>

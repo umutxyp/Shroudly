@@ -59,7 +59,7 @@
     <string name="androidPrivacyPolicy">Политика конфиденциальности</string>
     <string name="androidProtectionLost">Защита остановилась из-за ошибки, поэтому ваши приложения сейчас подключаются напрямую. Откройте Shroudly, чтобы снова её включить.</string>
     <string name="androidProtectionLostHere">Защита остановилась из-за ошибки, поэтому ваши приложения сейчас подключаются напрямую.</string>
-    <string name="androidProxyNotSet">Ни один прокси Wi-Fi не настроен на Shroudly, поэтому через него идут только приложения с собственным прокси 127.0.0.1:{port}. Чтобы пустить через него больше приложений, задайте прокси этой сети Wi-Fi: узел 127.0.0.1, порт {port}.</string>
+    <string name="androidProxyIdleVpn">Включён режим «Только прокси»: через Shroudly идут только приложения, настроенные на 127.0.0.1:{port}, поэтому YouTube и другие приложения открываются как без него. Чтобы все приложения шли через Shroudly, используйте режим VPN; Android тогда выключит другое VPN-приложение. (Или укажите прокси сети Wi-Fi: 127.0.0.1, порт {port}.)</string>
     <string name="androidProxyOnlyLost">Режим «Только прокси» остановился из-за ошибки, поэтому приложения, настроенные на Shroudly, не могут подключиться. Откройте Shroudly, чтобы снова его включить.</string>
     <string name="androidProxyOnlyLostHere">Режим «Только прокси» остановился из-за ошибки, поэтому приложения, настроенные на Shroudly, не могут подключиться.</string>
     <string name="androidProxyOnlyMoved">Порт {taken} занят другим приложением (например, v2rayNG), поэтому Shroudly работает на 127.0.0.1:{port}. Укажите в прокси порт {port}.</string>
@@ -93,6 +93,7 @@
     <string name="androidUpdateReadyTap">Нажмите, чтобы перезапустить Shroudly и завершить обновление. Защита снова включится сама.</string>
     <string name="androidUpdateTap">Нажмите, чтобы скачать и установить.</string>
     <string name="androidUseProxyOnly">Только прокси</string>
+    <string name="androidUseVpnMode">Использовать режим VPN</string>
     <string name="androidVpnBlocked">Android не запросил разрешение VPN: другое VPN-приложение задано как постоянная VPN, или на этом телефоне нельзя менять VPN. Отключите «Постоянную VPN» для того приложения в настройках VPN Android или используйте «Только прокси», который сохраняет другой VPN.</string>
     <string name="androidVpnDenied">Shroudly нужно разрешение VPN, чтобы пропускать соединения ваших приложений.</string>
     <string name="androidVpnDeniedHere">Shroudly нужно разрешение VPN, чтобы пропускать соединения ваших приложений. Нажмите на круг и выберите «ОК», когда Android спросит.</string>

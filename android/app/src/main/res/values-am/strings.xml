@@ -59,7 +59,7 @@
     <string name="androidPrivacyPolicy">የግላዊነት መመሪያ</string>
     <string name="androidProtectionLost">በስህተት ምክንያት ጥበቃው ቆሟል፤ ስለዚህ መተግበሪያዎችዎ አሁን በቀጥታ ይገናኛሉ። እንደገና ለማስጀመር Shroudlyን ይክፈቱ።</string>
     <string name="androidProtectionLostHere">በስህተት ምክንያት ጥበቃው ቆሟል፤ ስለዚህ መተግበሪያዎችዎ አሁን በቀጥታ ይገናኛሉ።</string>
-    <string name="androidProxyNotSet">ምንም የWi-Fi ፕሮክሲ ወደ Shroudly አልተቀናበረም፤ ስለዚህ በሱ በኩል የሚያልፉት የራሳቸው ፕሮክሲ ወደ 127.0.0.1:{port} የተቀናበረ መተግበሪያዎች ብቻ ናቸው። ተጨማሪ መተግበሪያዎችን ለማሳለፍ የዚህን Wi-Fi አውታረ መረብ ፕሮክሲ ወደ አስተናጋጅ 127.0.0.1፣ ወደብ {port} ያቀናብሩ።</string>
+    <string name="androidProxyIdleVpn">ፕሮክሲ ብቻ በርቷል፦ በShroudly የሚያልፉት 127.0.0.1:{port}ን እንዲጠቀሙ የተዋቀሩ መተግበሪያዎች ብቻ ናቸው፣ ስለዚህ YouTube እና ሌሎች መተግበሪያዎች ያለ እሱ እንደሚከፈቱት ይከፈታሉ። ሁሉንም መተግበሪያዎች በShroudly ለማሳለፍ የVPN ሁነታን ይጠቀሙ፤ ያኔ Android ሌላውን የVPN መተግበሪያ ያጠፋል። (ወይም የWi-Fi አውታረ መረብ ፕሮክሲን ወደ 127.0.0.1፣ ወደብ {port} ያዋቅሩ።)</string>
     <string name="androidProxyOnlyLost">ፕሮክሲ ብቻ በስህተት ምክንያት ቆሟል፤ ስለዚህ Shroudlyን እንዲጠቀሙ የተዘጋጁ መተግበሪያዎች መገናኘት አይችሉም። እንደገና ለማስጀመር Shroudlyን ይክፈቱ።</string>
     <string name="androidProxyOnlyLostHere">ፕሮክሲ ብቻ በስህተት ምክንያት ቆሟል፤ ስለዚህ Shroudlyን እንዲጠቀሙ የተዘጋጁ መተግበሪያዎች መገናኘት አይችሉም።</string>
     <string name="androidProxyOnlyMoved">ወደብ {taken} በሌላ መተግበሪያ (ለምሳሌ v2rayNG) ተይዟል፤ ስለዚህ Shroudly በ127.0.0.1:{port} ላይ ነው። ፕሮክሲዎን ወደ ወደብ {port} ያቀናብሩ።</string>
@@ -93,6 +93,7 @@
     <string name="androidUpdateReadyTap">Shroudlyን ዳግም ለማስጀመር እና ዝማኔውን ለመጨረስ ይንኩ። ጥበቃ በራሱ እንደገና ይበራል።</string>
     <string name="androidUpdateTap">ለማውረድና ለመጫን ይንኩ።</string>
     <string name="androidUseProxyOnly">ፕሮክሲ ብቻ ተጠቀም</string>
+    <string name="androidUseVpnMode">የVPN ሁነታን ይጠቀሙ</string>
     <string name="androidVpnBlocked">Android የVPN ፈቃድ አልጠየቀም፦ ሌላ የVPN መተግበሪያ ሁልጊዜ የበራ VPN ሆኖ ተቀናብሯል፣ ወይም ይህ ስልክ የVPN ለውጦችን አይፈቅድም። በAndroid የVPN ቅንብሮች ውስጥ ለዚያ መተግበሪያ ሁልጊዜ-በርቷልን ያጥፉ፣ ወይም ሌላውን VPN የሚያቆየውን ፕሮክሲ ብቻ ይጠቀሙ።</string>
     <string name="androidVpnDenied">Shroudly የመተግበሪያዎችዎን ግንኙነቶች ለማሳለፍ የVPN ፈቃድ ያስፈልገዋል።</string>
     <string name="androidVpnDeniedHere">Shroudly የመተግበሪያዎችዎን ግንኙነቶች ለማሳለፍ የVPN ፈቃድ ያስፈልገዋል። ክቡን ይንኩና Android ሲጠይቅ «እሺ»ን ይምረጡ።</string>

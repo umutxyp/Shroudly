@@ -59,7 +59,7 @@
     <string name="androidPrivacyPolicy">Құпиялық саясаты</string>
     <string name="androidProtectionLost">Қорғаныс қатеге байланысты тоқтады, сондықтан қолданбаларыңыз қазір тікелей қосылып тұр. Қайта қосу үшін Shroudly-ді ашыңыз.</string>
     <string name="androidProtectionLostHere">Қорғаныс қатеге байланысты тоқтады, сондықтан қолданбаларыңыз қазір тікелей қосылып тұр.</string>
-    <string name="androidProxyNotSet">Ешбір Wi-Fi проксиі Shroudly-ге бапталмаған, сондықтан ол арқылы тек өз проксиі 127.0.0.1:{port} болып бапталған қолданбалар өтеді. Көбірек қолданбаны өткізу үшін осы Wi-Fi желісінің проксиін хост 127.0.0.1, порт {port} етіп қойыңыз.</string>
+    <string name="androidProxyIdleVpn">«Тек прокси» қосулы: Shroudly арқылы тек 127.0.0.1:{port} пайдалануға бапталған қолданбалар өтеді, сондықтан YouTube және басқа қолданбалар онсыз секілді ашылады. Барлық қолданбаны Shroudly арқылы өткізу үшін VPN режимін қолданыңыз; Android сонда басқа VPN қолданбасын өшіреді. (Немесе Wi-Fi желісінің проксиін 127.0.0.1, порт {port} етіп қойыңыз.)</string>
     <string name="androidProxyOnlyLost">«Тек прокси» режимі қатеге байланысты тоқтады, сондықтан Shroudly-ді қолдануға бапталған қолданбалар қосыла алмайды. Қайта қосу үшін Shroudly-ді ашыңыз.</string>
     <string name="androidProxyOnlyLostHere">«Тек прокси» режимі қатеге байланысты тоқтады, сондықтан Shroudly-ді қолдануға бапталған қолданбалар қосыла алмайды.</string>
     <string name="androidProxyOnlyMoved">{taken} портын басқа қолданба (мысалы, v2rayNG) пайдаланып тұр, сондықтан Shroudly 127.0.0.1:{port} мекенжайында. Проксиіңізді {port} портына орнатыңыз.</string>
@@ -93,6 +93,7 @@
     <string name="androidUpdateReadyTap">Shroudly-ді қайта қосып, жаңартуды аяқтау үшін түртіңіз. Қорғау өзі қайта қосылады.</string>
     <string name="androidUpdateTap">Жүктеп алып, орнату үшін түртіңіз.</string>
     <string name="androidUseProxyOnly">«Тек прокси» қолдану</string>
+    <string name="androidUseVpnMode">VPN режимін қолдану</string>
     <string name="androidVpnBlocked">Android VPN рұқсатын сұрамады: басқа VPN қолданбасы әрдайым қосулы VPN ретінде орнатылған немесе бұл телефон VPN өзгертуге рұқсат бермейді. Android-тың VPN баптауларында сол қолданба үшін «Әрдайым қосулы» дегенді өшіріңіз немесе басқа VPN-ді сақтайтын «Тек прокси» режимін қолданыңыз.</string>
     <string name="androidVpnDenied">Қолданбаларыңыздың қосылымдарын өткізу үшін Shroudly-ге VPN рұқсаты керек.</string>
     <string name="androidVpnDeniedHere">Қолданбаларыңыздың қосылымдарын өткізу үшін Shroudly-ге VPN рұқсаты керек. Шеңберді түртіп, Android сұрағанда «OK» таңдаңыз.</string>

@@ -59,7 +59,7 @@
     <string name="androidPrivacyPolicy">Kebijakan privasi</string>
     <string name="androidProtectionLost">Perlindungan berhenti karena terjadi kesalahan, jadi aplikasi Anda kini terhubung langsung. Buka Shroudly untuk memulainya lagi.</string>
     <string name="androidProtectionLostHere">Perlindungan berhenti karena terjadi kesalahan, jadi aplikasi Anda kini terhubung langsung.</string>
-    <string name="androidProxyNotSet">Tidak ada proxy Wi-Fi yang diatur ke Shroudly, jadi hanya aplikasi dengan proxy sendiri di 127.0.0.1:{port} yang melewatinya. Agar lebih banyak aplikasi lewat, atur proxy jaringan Wi-Fi ini ke host 127.0.0.1, port {port}.</string>
+    <string name="androidProxyIdleVpn">Hanya proxy aktif: hanya aplikasi yang diatur memakai 127.0.0.1:{port} yang lewat Shroudly, jadi YouTube dan aplikasi lain terbuka seperti tanpa Shroudly. Agar semua aplikasi lewat Shroudly, pakai mode VPN; Android lalu mematikan aplikasi VPN lain. (Atau atur proxy jaringan Wi-Fi ke 127.0.0.1, port {port}.)</string>
     <string name="androidProxyOnlyLost">Mode Hanya proxy berhenti karena terjadi kesalahan, jadi aplikasi yang diatur untuk memakai Shroudly tidak bisa tersambung. Buka Shroudly untuk memulainya lagi.</string>
     <string name="androidProxyOnlyLostHere">Mode Hanya proxy berhenti karena terjadi kesalahan, jadi aplikasi yang diatur untuk memakai Shroudly tidak bisa tersambung.</string>
     <string name="androidProxyOnlyMoved">Port {taken} dipakai aplikasi lain (misalnya v2rayNG), jadi Shroudly ada di 127.0.0.1:{port}. Atur proxy Anda ke port {port}.</string>
@@ -93,6 +93,7 @@
     <string name="androidUpdateReadyTap">Ketuk untuk memulai ulang Shroudly dan menyelesaikan pembaruan. Perlindungan akan menyala lagi dengan sendirinya.</string>
     <string name="androidUpdateTap">Ketuk untuk mengunduh dan menginstalnya.</string>
     <string name="androidUseProxyOnly">Pakai Hanya proxy</string>
+    <string name="androidUseVpnMode">Pakai mode VPN</string>
     <string name="androidVpnBlocked">Android tidak meminta izin VPN: aplikasi VPN lain diatur sebagai VPN selalu aktif, atau ponsel ini tidak mengizinkan perubahan VPN. Matikan selalu aktif untuk aplikasi itu di setelan VPN Android, atau gunakan Hanya proxy, yang mempertahankan VPN lain Anda.</string>
     <string name="androidVpnDenied">Shroudly memerlukan izin VPN untuk membawa koneksi aplikasi Anda.</string>
     <string name="androidVpnDeniedHere">Shroudly memerlukan izin VPN untuk membawa koneksi aplikasi Anda. Ketuk lingkaran dan pilih OK saat Android bertanya.</string>

@@ -59,7 +59,7 @@
     <string name="androidPrivacyPolicy">গোপনীয়তা নীতি</string>
     <string name="androidProtectionLost">একটি ত্রুটির কারণে সুরক্ষা বন্ধ হয়ে গেছে, তাই আপনার অ্যাপগুলো এখন সরাসরি সংযোগ করছে। আবার চালু করতে Shroudly খুলুন।</string>
     <string name="androidProtectionLostHere">একটি ত্রুটির কারণে সুরক্ষা বন্ধ হয়ে গেছে, তাই আপনার অ্যাপগুলো এখন সরাসরি সংযোগ করছে।</string>
-    <string name="androidProxyNotSet">কোনো Wi-Fi প্রক্সি Shroudly-তে সেট করা নেই, তাই শুধু যেসব অ্যাপের নিজস্ব প্রক্সি 127.0.0.1:{port}-এ সেট আছে সেগুলোই এর মধ্য দিয়ে যায়। আরও অ্যাপ পাঠাতে এই Wi-Fi নেটওয়ার্কের প্রক্সি হোস্ট 127.0.0.1, পোর্ট {port}-এ সেট করুন।</string>
+    <string name="androidProxyIdleVpn">শুধু প্রক্সি চালু: Shroudly দিয়ে কেবল সেই অ্যাপগুলো যায় যেগুলো 127.0.0.1:{port} ব্যবহারের জন্য সেট করা, তাই YouTube ও অন্য অ্যাপ এমনভাবে খোলে যেন এটি নেই। সব অ্যাপ Shroudly দিয়ে পাঠাতে VPN মোড ব্যবহার করুন; তখন Android অন্য VPN অ্যাপটি বন্ধ করে দেয়। (অথবা কোনো Wi-Fi নেটওয়ার্কের প্রক্সি 127.0.0.1, পোর্ট {port} করুন।)</string>
     <string name="androidProxyOnlyLost">একটি ত্রুটির কারণে শুধু প্রক্সি বন্ধ হয়ে গেছে, তাই Shroudly ব্যবহারের জন্য সেট করা অ্যাপগুলো সংযুক্ত হতে পারছে না। আবার চালু করতে Shroudly খুলুন।</string>
     <string name="androidProxyOnlyLostHere">একটি ত্রুটির কারণে শুধু প্রক্সি বন্ধ হয়ে গেছে, তাই Shroudly ব্যবহারের জন্য সেট করা অ্যাপগুলো সংযুক্ত হতে পারছে না।</string>
     <string name="androidProxyOnlyMoved">পোর্ট {taken} অন্য একটি অ্যাপ (যেমন v2rayNG) ব্যবহার করছে, তাই Shroudly 127.0.0.1:{port}-এ চলছে। আপনার প্রক্সি পোর্ট {port}-এ সেট করুন।</string>
@@ -93,6 +93,7 @@
     <string name="androidUpdateReadyTap">Shroudly আবার চালু করে আপডেট শেষ করতে ট্যাপ করুন। সুরক্ষা নিজে থেকেই আবার চালু হবে।</string>
     <string name="androidUpdateTap">ডাউনলোড করে ইনস্টল করতে ট্যাপ করুন।</string>
     <string name="androidUseProxyOnly">শুধু প্রক্সি ব্যবহার করুন</string>
+    <string name="androidUseVpnMode">VPN মোড ব্যবহার করুন</string>
     <string name="androidVpnBlocked">Android VPN-এর অনুমতি চায়নি: অন্য একটি VPN অ্যাপ সর্বদা-চালু VPN হিসেবে সেট আছে, অথবা এই ফোন VPN পরিবর্তনের অনুমতি দেয় না। Android-এর VPN সেটিংসে ওই অ্যাপের সর্বদা-চালু বন্ধ করুন, অথবা শুধু প্রক্সি ব্যবহার করুন, যা অন্য VPN চালু রাখে।</string>
     <string name="androidVpnDenied">আপনার অ্যাপগুলোর সংযোগ বহন করতে Shroudly-এর VPN অনুমতি দরকার।</string>
     <string name="androidVpnDeniedHere">আপনার অ্যাপগুলোর সংযোগ বহন করতে Shroudly-এর VPN অনুমতি দরকার। বৃত্তে ট্যাপ করুন এবং Android জিজ্ঞেস করলে ঠিক আছে বেছে নিন।</string>

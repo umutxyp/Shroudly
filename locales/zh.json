@@ -789,6 +789,8 @@
   "androidContinue": "继续",
   "androidProxyOnlyRunning": "仅代理已开启",
   "androidProxyNotSet": "没有 Wi-Fi 代理设置为 Shroudly，所以只有自身代理设为 127.0.0.1:{port} 的应用会经过它。要让更多应用经过它，请把这个 Wi-Fi 网络的代理设为主机 127.0.0.1、端口 {port}。",
+  "androidProxyIdleVpn": "“仅代理”已开启：只有设置为使用 127.0.0.1:{port} 的应用才经过 Shroudly，所以 YouTube 等应用的打开方式和没有它时一样。要让所有应用都经过 Shroudly，请使用 VPN 模式；Android 随后会关闭另一个 VPN 应用。（也可以把某个 Wi-Fi 网络的代理设为 127.0.0.1，端口 {port}。）",
+  "androidUseVpnMode": "使用 VPN 模式",
   "androidLockdownStop": "Android 设置为阻止不经过 VPN 的连接，因此 Shroudly 关闭期间，应用无法上网。",
   "androidAppsLockdown": "Android 设置为阻止不经过 VPN 的连接，因此不经过 Shroudly 的应用无法上网。",
   "androidNotificationsOff": "通知已关闭，保护停止或需要轻触才能恢复时，Shroudly 无法告诉你。",

@@ -789,6 +789,8 @@
   "androidContinue": "続ける",
   "androidProxyOnlyRunning": "プロキシのみがオン",
   "androidProxyNotSet": "Wi-Fi のプロキシが Shroudly に設定されていないため、Shroudly を通るのは独自のプロキシを 127.0.0.1:{port} に設定したアプリだけです。ほかのアプリも通すには、この Wi-Fi ネットワークのプロキシをホスト 127.0.0.1、ポート {port} に設定してください。",
+  "androidProxyIdleVpn": "「プロキシのみ」がオンです。Shroudly を通るのは 127.0.0.1:{port} を使うよう設定したアプリだけなので、YouTube などのアプリは Shroudly がないのと同じように開きます。すべてのアプリを Shroudly に通すには VPN モードを使ってください。そのとき Android はほかの VPN アプリをオフにします。（または Wi-Fi ネットワークのプロキシを 127.0.0.1、ポート {port} に設定します。）",
+  "androidUseVpnMode": "VPN モードを使う",
   "androidLockdownStop": "Android は VPN なしの接続をブロックするよう設定されているため、Shroudly がオフの間、アプリはインターネットに接続できません。",
   "androidAppsLockdown": "Android は VPN なしの接続をブロックするよう設定されているため、Shroudly を通らないアプリはインターネットに接続できません。",
   "androidNotificationsOff": "通知がオフのため、保護が止まったときや、戻すのにタップが必要なときに Shroudly からお知らせできません。",

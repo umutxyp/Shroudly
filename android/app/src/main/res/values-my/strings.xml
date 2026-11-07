@@ -59,7 +59,7 @@
     <string name="androidPrivacyPolicy">ကိုယ်ရေးအချက်အလက် မူဝါဒ</string>
     <string name="androidProtectionLost">အမှားတစ်ခုကြောင့် ကာကွယ်မှု ရပ်သွားသဖြင့် သင့်အက်ပ်များသည် ယခု တိုက်ရိုက် ချိတ်ဆက်နေပါသည်။ ပြန်စတင်ရန် Shroudly ကို ဖွင့်ပါ။</string>
     <string name="androidProtectionLostHere">အမှားတစ်ခုကြောင့် ကာကွယ်မှု ရပ်သွားသဖြင့် သင့်အက်ပ်များသည် ယခု တိုက်ရိုက် ချိတ်ဆက်နေပါသည်။</string>
-    <string name="androidProxyNotSet">Wi-Fi ပရောက်စီတစ်ခုမှ Shroudly သို့ သတ်မှတ်မထားသဖြင့် ကိုယ်ပိုင်ပရောက်စီကို 127.0.0.1:{port} သို့ သတ်မှတ်ထားသော အက်ပ်များသာ ၎င်းမှတစ်ဆင့် သွားပါသည်။ အက်ပ်ပိုများများ ပို့ရန် ဤ Wi-Fi ကွန်ရက်၏ ပရောက်စီကို host 127.0.0.1၊ port {port} သို့ သတ်မှတ်ပါ။</string>
+    <string name="androidProxyIdleVpn">ပရောက်စီသာ ဖွင့်ထားသည်- 127.0.0.1:{port} ကို သုံးရန် သတ်မှတ်ထားသော အက်ပ်များသာ Shroudly ကို ဖြတ်သွားသဖြင့် YouTube နှင့် အခြားအက်ပ်များသည် ၎င်းမရှိသကဲ့သို့ ပွင့်သည်။ အက်ပ်အားလုံးကို Shroudly မှတစ်ဆင့် ပို့ရန် VPN မုဒ်ကို သုံးပါ၊ ထိုအခါ Android သည် အခြား VPN အက်ပ်ကို ပိတ်မည်။ (သို့မဟုတ် Wi-Fi ကွန်ရက်၏ ပရောက်စီကို 127.0.0.1၊ ပေါ့တ် {port} အဖြစ် သတ်မှတ်ပါ။)</string>
     <string name="androidProxyOnlyLost">အမှားတစ်ခုကြောင့် ပရောက်စီသာ ရပ်သွားသဖြင့် Shroudly ကို သုံးရန် သတ်မှတ်ထားသော အက်ပ်များ ချိတ်ဆက်၍ မရပါ။ ပြန်စတင်ရန် Shroudly ကို ဖွင့်ပါ။</string>
     <string name="androidProxyOnlyLostHere">အမှားတစ်ခုကြောင့် ပရောက်စီသာ ရပ်သွားသဖြင့် Shroudly ကို သုံးရန် သတ်မှတ်ထားသော အက်ပ်များ ချိတ်ဆက်၍ မရပါ။</string>
     <string name="androidProxyOnlyMoved">port {taken} ကို အခြားအက်ပ်တစ်ခု (ဥပမာ v2rayNG) သုံးနေသဖြင့် Shroudly သည် 127.0.0.1:{port} တွင် ရှိနေပါသည်။ သင့်ပရောက်စီကို port {port} သို့ သတ်မှတ်ပါ။</string>
@@ -93,6 +93,7 @@
     <string name="androidUpdateReadyTap">Shroudly ကို ပြန်စတင်ပြီး အပ်ဒိတ်ကို အပြီးသတ်ရန် နှိပ်ပါ။ ကာကွယ်မှုသည် အလိုအလျောက် ပြန်ဖွင့်ပါမည်။</string>
     <string name="androidUpdateTap">ဒေါင်းလုဒ်လုပ်ပြီး ထည့်သွင်းရန် တို့ပါ။</string>
     <string name="androidUseProxyOnly">ပရောက်စီသာ သုံးရန်</string>
+    <string name="androidUseVpnMode">VPN မုဒ်ကို သုံးရန်</string>
     <string name="androidVpnBlocked">Android သည် VPN ခွင့်ပြုချက်ကို မမေးခဲ့ပါ- အခြား VPN အက်ပ်တစ်ခုကို အမြဲဖွင့် VPN အဖြစ် သတ်မှတ်ထားသည်၊ သို့မဟုတ် ဤဖုန်းက VPN ပြောင်းလဲခြင်းကို ခွင့်မပြုပါ။ Android ၏ VPN ဆက်တင်များတွင် ထိုအက်ပ်အတွက် အမြဲဖွင့်ကို ပိတ်ပါ၊ သို့မဟုတ် အခြား VPN ကို ဆက်ထားပေးသော ပရောက်စီသာကို သုံးပါ။</string>
     <string name="androidVpnDenied">သင့်အက်ပ်များ၏ ချိတ်ဆက်မှုများကို သယ်ဆောင်ရန် Shroudly သည် VPN ခွင့်ပြုချက် လိုအပ်သည်။</string>
     <string name="androidVpnDeniedHere">သင့်အက်ပ်များ၏ ချိတ်ဆက်မှုများကို သယ်ဆောင်ရန် Shroudly သည် VPN ခွင့်ပြုချက် လိုအပ်သည်။ စက်ဝိုင်းကို တို့ပြီး Android က မေးသောအခါ OK ကို ရွေးပါ။</string>

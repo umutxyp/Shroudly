@@ -59,7 +59,7 @@
     <string name="androidPrivacyPolicy">Gizlinlik syýasaty</string>
     <string name="androidProtectionLost">Gorag ýalňyşlyk sebäpli togtady, şonuň üçin programmalaryňyz häzir göni birikýär. Ony täzeden işletmek üçin Shroudly-ny açyň.</string>
     <string name="androidProtectionLostHere">Gorag ýalňyşlyk sebäpli togtady, şonuň üçin programmalaryňyz häzir göni birikýär.</string>
-    <string name="androidProxyNotSet">Hiç bir Wi-Fi proksisi Shroudly-a sazlanmandyr, şonuň üçin ol arkaly diňe öz proksisi 127.0.0.1:{port} bolan programmalar geçýär. Has köp programmany geçirmek üçin bu Wi-Fi toruň proksisini host 127.0.0.1, port {port} ediň.</string>
+    <string name="androidProxyIdleVpn">«Diňe proksi» açyk: Shroudly arkaly diňe 127.0.0.1:{port} ulanmaga sazlanan programmalar geçýär, şonuň üçin YouTube we beýleki programmalar onsuz ýaly açylýar. Ähli programmalary Shroudly arkaly geçirmek üçin VPN tertibini ulanyň; Android şonda beýleki VPN programmasyny öçürer. (Ýa-da Wi-Fi ulgamynyň proksisini 127.0.0.1, port {port} ediň.)</string>
     <string name="androidProxyOnlyLost">«Diňe proksi» ýalňyşlyk sebäpli togtady, şonuň üçin Shroudly-ny ulanmaga sazlanan programmalar birigip bilmeýär. Ony täzeden işletmek üçin Shroudly-ny açyň.</string>
     <string name="androidProxyOnlyLostHere">«Diňe proksi» ýalňyşlyk sebäpli togtady, şonuň üçin Shroudly-ny ulanmaga sazlanan programmalar birigip bilmeýär.</string>
     <string name="androidProxyOnlyMoved">{taken} portuny başga programma (meselem, v2rayNG) ulanýar, şonuň üçin Shroudly 127.0.0.1:{port} salgysynda. Proksiňizi {port} portuna sazlaň.</string>
@@ -93,6 +93,7 @@
     <string name="androidUpdateReadyTap">Shroudly-ni täzeden açyp, täzelenmäni tamamlamak üçin basyň. Gorag özi täzeden açylar.</string>
     <string name="androidUpdateTap">Ýükläp, gurnamak üçin basyň.</string>
     <string name="androidUseProxyOnly">Diňe proksi ulan</string>
+    <string name="androidUseVpnMode">VPN tertibini ulan</string>
     <string name="androidVpnBlocked">Android VPN rugsadyny soramady: başga bir VPN programmasy hemişe açyk VPN hökmünde sazlanypdyr ýa-da bu telefon VPN üýtgetmäge rugsat bermeýär. Android-iň VPN sazlamalarynda şol programma üçin hemişe açyk ýagdaýyny öçüriň ýa-da beýleki VPN-i saklaýan «Diňe proksi» düzgünini ulanyň.</string>
     <string name="androidVpnDenied">Programmalaryňyzyň baglanyşyklaryny geçirmek üçin Shroudly-a VPN rugsady gerek.</string>
     <string name="androidVpnDeniedHere">Programmalaryňyzyň baglanyşyklaryny geçirmek üçin Shroudly-a VPN rugsady gerek. Tegelege basyň we Android soranda OK saýlaň.</string>

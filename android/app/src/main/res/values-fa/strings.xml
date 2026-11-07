@@ -59,7 +59,7 @@
     <string name="androidPrivacyPolicy">سیاست حریم خصوصی</string>
     <string name="androidProtectionLost">محافظت به‌دلیل یک خطا متوقف شد، پس برنامه‌هایتان اکنون مستقیم وصل می‌شوند. برای روشن کردن دوباره، Shroudly را باز کنید.</string>
     <string name="androidProtectionLostHere">محافظت به‌دلیل یک خطا متوقف شد، پس برنامه‌هایتان اکنون مستقیم وصل می‌شوند.</string>
-    <string name="androidProxyNotSet">هیچ پراکسی Wi-Fi روی Shroudly تنظیم نشده، پس فقط برنامه‌هایی که پراکسی خودشان روی 127.0.0.1:{port} است از آن عبور می‌کنند. برای عبور برنامه‌های بیشتر، پراکسی این شبکهٔ Wi-Fi را روی میزبان 127.0.0.1 و درگاه {port} بگذارید.</string>
+    <string name="androidProxyIdleVpn">«فقط پروکسی» روشن است: فقط برنامه‌هایی از Shroudly عبور می‌کنند که برای استفاده از 127.0.0.1:{port} تنظیم شده‌اند، برای همین یوتیوب و برنامه‌های دیگر مثل بدون آن باز می‌شوند. برای اینکه همهٔ برنامه‌ها از Shroudly عبور کنند، از حالت VPN استفاده کنید؛ اندروید آن‌وقت برنامهٔ VPN دیگر را خاموش می‌کند. (یا پروکسی یک شبکهٔ Wi-Fi را روی 127.0.0.1، پورت {port} بگذارید.)</string>
     <string name="androidProxyOnlyLost">حالت «فقط پراکسی» به‌دلیل یک خطا متوقف شد، پس برنامه‌هایی که برای استفاده از Shroudly تنظیم شده‌اند نمی‌توانند وصل شوند. برای روشن کردن دوباره، Shroudly را باز کنید.</string>
     <string name="androidProxyOnlyLostHere">حالت «فقط پراکسی» به‌دلیل یک خطا متوقف شد، پس برنامه‌هایی که برای استفاده از Shroudly تنظیم شده‌اند نمی‌توانند وصل شوند.</string>
     <string name="androidProxyOnlyMoved">درگاه {taken} را برنامهٔ دیگری (مثلاً v2rayNG) استفاده می‌کند، برای همین Shroudly روی ‎127.0.0.1:{port}‎ است. پراکسی خود را روی درگاه {port} بگذارید.</string>
@@ -93,6 +93,7 @@
     <string name="androidUpdateReadyTap">برای راه‌اندازی دوبارهٔ Shroudly و پایان به‌روزرسانی ضربه بزنید. محافظت خودش دوباره روشن می‌شود.</string>
     <string name="androidUpdateTap">برای دانلود و نصب آن بزنید.</string>
     <string name="androidUseProxyOnly">استفاده از «فقط پراکسی»</string>
+    <string name="androidUseVpnMode">استفاده از حالت VPN</string>
     <string name="androidVpnBlocked">Android مجوز VPN را درخواست نکرد: یک برنامهٔ VPN دیگر به‌عنوان VPN همیشه روشن تنظیم شده، یا این گوشی اجازهٔ تغییر VPN را نمی‌دهد. در تنظیمات VPN اندروید، «همیشه روشن» را برای آن برنامه خاموش کنید، یا از «فقط پراکسی» استفاده کنید که VPN دیگرتان را نگه می‌دارد.</string>
     <string name="androidVpnDenied">Shroudly برای عبور دادن اتصال‌های برنامه‌هایتان به مجوز VPN نیاز دارد.</string>
     <string name="androidVpnDeniedHere">Shroudly برای عبور دادن اتصال‌های برنامه‌هایتان به مجوز VPN نیاز دارد. روی دایره بزنید و وقتی Android پرسید، «تأیید» را انتخاب کنید.</string>

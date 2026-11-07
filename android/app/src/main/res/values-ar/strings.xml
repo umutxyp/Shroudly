@@ -59,7 +59,7 @@
     <string name="androidPrivacyPolicy">سياسة الخصوصية</string>
     <string name="androidProtectionLost">توقفت الحماية بسبب خطأ، لذا تتصل تطبيقاتك الآن مباشرةً. افتح Shroudly لتشغيلها من جديد.</string>
     <string name="androidProtectionLostHere">توقفت الحماية بسبب خطأ، لذا تتصل تطبيقاتك الآن مباشرةً.</string>
-    <string name="androidProxyNotSet">لا يوجد وكيل Wi-Fi مضبوط على Shroudly، لذا لا يمر عبره إلا التطبيقات التي ضُبط وكيلها الخاص على 127.0.0.1:{port}. لتمرير مزيد من التطبيقات، اضبط وكيل شبكة Wi-Fi هذه على المضيف 127.0.0.1 والمنفذ {port}.</string>
+    <string name="androidProxyIdleVpn">وضع «الوكيل فقط» مفعّل: لا يمر عبر Shroudly إلا التطبيقات المضبوطة لاستخدام 127.0.0.1:{port}، لذلك يفتح YouTube والتطبيقات الأخرى كأنه غير موجود. لتمرير كل التطبيقات عبر Shroudly استخدم وضع VPN؛ وسيوقف Android حينها تطبيق VPN الآخر. (أو اضبط وكيل شبكة Wi-Fi على 127.0.0.1، المنفذ {port}.)</string>
     <string name="androidProxyOnlyLost">توقف وضع «وكيل فقط» بسبب خطأ، لذا لا تستطيع التطبيقات المضبوطة على استخدام Shroudly الاتصال. افتح Shroudly لتشغيله من جديد.</string>
     <string name="androidProxyOnlyLostHere">توقف وضع «وكيل فقط» بسبب خطأ، لذا لا تستطيع التطبيقات المضبوطة على استخدام Shroudly الاتصال.</string>
     <string name="androidProxyOnlyMoved">المنفذ {taken} يستخدمه تطبيق آخر (مثل v2rayNG)، لذا يعمل Shroudly على ‎127.0.0.1:{port}‎. اضبط الوكيل على المنفذ {port}.</string>
@@ -93,6 +93,7 @@
     <string name="androidUpdateReadyTap">اضغط لإعادة تشغيل Shroudly وإكمال التحديث. ستعود الحماية للعمل تلقائيًا.</string>
     <string name="androidUpdateTap">اضغط لتنزيله وتثبيته.</string>
     <string name="androidUseProxyOnly">استخدم «وكيل فقط»</string>
+    <string name="androidUseVpnMode">استخدام وضع VPN</string>
     <string name="androidVpnBlocked">لم يطلب Android إذن VPN: إما أن تطبيق VPN آخر مضبوط كشبكة VPN دائمة التشغيل، أو أن هذا الهاتف لا يسمح بتغيير إعدادات VPN. أوقف خيار «التشغيل الدائم» لذلك التطبيق من إعدادات VPN في Android، أو استخدم وضع «وكيل فقط» الذي يُبقي شبكتك الافتراضية الأخرى.</string>
     <string name="androidVpnDenied">يحتاج Shroudly إلى إذن VPN لنقل اتصالات تطبيقاتك.</string>
     <string name="androidVpnDeniedHere">يحتاج Shroudly إلى إذن VPN لنقل اتصالات تطبيقاتك. اضغط على الدائرة واختر «موافق» عندما يسألك Android.</string>

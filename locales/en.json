@@ -789,6 +789,8 @@
   "androidContinue": "Continue",
   "androidProxyOnlyRunning": "Proxy only is on",
   "androidProxyNotSet": "No Wi-Fi proxy is set to Shroudly, so only apps with their own proxy set to 127.0.0.1:{port} go through it. To send more apps through it, set this Wi-Fi network's proxy to host 127.0.0.1, port {port}.",
+  "androidProxyIdleVpn": "Proxy only is on: only apps set to use 127.0.0.1:{port} go through Shroudly, so YouTube and other apps open as without it. To send every app through Shroudly, use VPN mode; Android then turns the other VPN app off. (Or set a Wi-Fi network's proxy to 127.0.0.1, port {port}.)",
+  "androidUseVpnMode": "Use VPN mode",
   "androidLockdownStop": "Android is set to block connections without a VPN, so while Shroudly is off, apps have no internet.",
   "androidAppsLockdown": "Android is set to block connections without a VPN, so apps left out of Shroudly have no internet.",
   "androidNotificationsOff": "Notifications are off, so Shroudly cannot tell you when protection stops or needs a tap to come back.",

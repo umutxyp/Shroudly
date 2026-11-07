@@ -120,6 +120,8 @@ class MainActivity : Activity() {
     // Android would not ask for the VPN at all (another app's always-on VPN,
     // or VPN changes not allowed on this phone): see onActivityResult.
     private var vpnBlocked = false
+    // "Use VPN mode" pressed while Proxy only ran: started once it is off.
+    private var vpnAfterProxy = false
     // The VPN's consent asked for (uptime), and whether its dialog took the
     // window's focus, as a dialog the user answers does.
     private var consentAskedAt = 0L
@@ -595,6 +597,16 @@ class MainActivity : Activity() {
         if (Protection.state == Protection.State.OFF) startService()
     }
 
+    /* From Proxy only to VPN mode: every app through Shroudly; Android asks
+     * for the VPN (and ends another VPN app's) as at any VPN start. */
+    private fun useVpnMode() {
+        AppSettings.setProxyOnly(this, false)
+        ShroudlyVpnService.log("VPN mode chosen in the window: every app goes through Shroudly")
+        if (Protection.state == Protection.State.OFF) { startWithConsent(); return }
+        vpnAfterProxy = true
+        Protector.stop(this)
+    }
+
     private fun openVpnSettings() {
         for (action in listOf(Settings.ACTION_VPN_SETTINGS, Settings.ACTION_WIRELESS_SETTINGS, Settings.ACTION_SETTINGS)) {
             try { startActivity(Intent(action)); return } catch (_: ActivityNotFoundException) {}
@@ -627,6 +639,7 @@ class MainActivity : Activity() {
 
     @SuppressLint("SetTextI18n")
     private fun render() {
+        if (vpnAfterProxy && Protection.state == Protection.State.OFF) { vpnAfterProxy = false; startWithConsent() }
         val st = Protection.state
         val on = st == Protection.State.ON
         val busy = st == Protection.State.STARTING || st == Protection.State.STOPPING
@@ -734,10 +747,14 @@ class MainActivity : Activity() {
                 detail.show(getString(Protection.troubleRes))
                 detail.setTextColor(getColor(R.color.warn))
             }
+            // Proxy only and no network sent to it: no app but one set up by
+            // hand goes through, so a user who only knows the big button got
+            // nothing (an Iranian report: "how do I open YouTube with it?").
+            // Said plainly, with VPN mode a tap away.
             proxyIdle -> {
-                detail.show(text(R.string.androidProxyNotSet, "port" to Protection.socksPort))
+                detail.show(text(R.string.androidProxyIdleVpn, "port" to Protection.socksPort))
                 detail.setTextColor(getColor(R.color.warn))
-                more = R.string.androidWifiSettings
+                more = R.string.androidUseVpnMode
             }
             error != 0 && off -> {
                 // In the user's language, as the window says it (no "open
@@ -800,6 +817,7 @@ class MainActivity : Activity() {
                 when (more) {
                     R.string.androidVpnSettings -> openVpnSettings()
                     R.string.androidWifiSettings -> openWifiSettings(this)
+                    R.string.androidUseVpnMode -> useVpnMode()
                     R.string.nationalOnlyHelp -> open(NationalNet.guideUrl(resources.configuration.locales[0].language))
                     else -> showDetail()
                 }

@@ -59,7 +59,7 @@
     <string name="androidPrivacyPolicy">Політика конфіденційності</string>
     <string name="androidProtectionLost">Захист зупинився через помилку, тому ваші застосунки зараз підключаються напряму. Відкрийте Shroudly, щоб увімкнути його знову.</string>
     <string name="androidProtectionLostHere">Захист зупинився через помилку, тому ваші застосунки зараз підключаються напряму.</string>
-    <string name="androidProxyNotSet">Жоден проксі Wi-Fi не налаштовано на Shroudly, тож через нього йдуть лише застосунки з власним проксі 127.0.0.1:{port}. Щоб пустити через нього більше застосунків, задайте проксі цієї мережі Wi-Fi: вузол 127.0.0.1, порт {port}.</string>
+    <string name="androidProxyIdleVpn">Увімкнено режим «Лише проксі»: через Shroudly йдуть лише застосунки, налаштовані на 127.0.0.1:{port}, тому YouTube та інші застосунки відкриваються як без нього. Щоб усі застосунки йшли через Shroudly, використовуйте режим VPN; Android тоді вимкне інший VPN-застосунок. (Або вкажіть проксі мережі Wi-Fi: 127.0.0.1, порт {port}.)</string>
     <string name="androidProxyOnlyLost">Режим «Лише проксі» зупинився через помилку, тому застосунки, налаштовані на Shroudly, не можуть під’єднатися. Відкрийте Shroudly, щоб увімкнути його знову.</string>
     <string name="androidProxyOnlyLostHere">Режим «Лише проксі» зупинився через помилку, тому застосунки, налаштовані на Shroudly, не можуть під’єднатися.</string>
     <string name="androidProxyOnlyMoved">Порт {taken} зайнятий іншим застосунком (наприклад, v2rayNG), тому Shroudly працює на 127.0.0.1:{port}. Укажіть у проксі порт {port}.</string>
@@ -93,6 +93,7 @@
     <string name="androidUpdateReadyTap">Торкніться, щоб перезапустити Shroudly й завершити оновлення. Захист знову ввімкнеться сам.</string>
     <string name="androidUpdateTap">Торкніться, щоб завантажити й установити.</string>
     <string name="androidUseProxyOnly">Лише проксі</string>
+    <string name="androidUseVpnMode">Використати режим VPN</string>
     <string name="androidVpnBlocked">Android не запитав дозвіл VPN: інший VPN-застосунок налаштовано як постійну VPN, або на цьому телефоні не можна змінювати VPN. Вимкніть «Постійну VPN» для того застосунку в налаштуваннях VPN Android або скористайтеся «Лише проксі», який зберігає інший VPN.</string>
     <string name="androidVpnDenied">Shroudly потрібен дозвіл VPN, щоб пропускати з’єднання ваших застосунків.</string>
     <string name="androidVpnDeniedHere">Shroudly потрібен дозвіл VPN, щоб пропускати з’єднання ваших застосунків. Торкніться кола й виберіть «OK», коли Android запитає.</string>

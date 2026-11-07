@@ -59,7 +59,7 @@
     <string name="androidPrivacyPolicy">Maxfiylik siyosati</string>
     <string name="androidProtectionLost">Himoya xato tufayli toʻxtadi, shuning uchun ilovalaringiz hozir toʻgʻridan-toʻgʻri ulanmoqda. Uni qayta yoqish uchun Shroudlyʼni oching.</string>
     <string name="androidProtectionLostHere">Himoya xato tufayli toʻxtadi, shuning uchun ilovalaringiz hozir toʻgʻridan-toʻgʻri ulanmoqda.</string>
-    <string name="androidProxyNotSet">Hech bir Wi-Fi proksisi Shroudlyʼga sozlanmagan, shuning uchun u orqali faqat oʻz proksisi 127.0.0.1:{port} boʻlgan ilovalar oʻtadi. Koʻproq ilovani oʻtkazish uchun bu Wi-Fi tarmogʻining proksisini xost 127.0.0.1, port {port} qilib sozlang.</string>
+    <string name="androidProxyIdleVpn">«Faqat proksi» yoqilgan: Shroudly orqali faqat 127.0.0.1:{port} dan foydalanishga sozlangan ilovalar o\'tadi, shuning uchun YouTube va boshqa ilovalar usiz ochilgandek ochiladi. Barcha ilovalarni Shroudly orqali o\'tkazish uchun VPN rejimidan foydalaning; Android shunda boshqa VPN ilovasini o\'chiradi. (Yoki Wi-Fi tarmog\'ining proksisini 127.0.0.1, port {port} qilib qo\'ying.)</string>
     <string name="androidProxyOnlyLost">«Faqat proksi» xato tufayli toʻxtadi, shuning uchun Shroudlyʼdan foydalanishga sozlangan ilovalar ulana olmaydi. Uni qayta yoqish uchun Shroudlyʼni oching.</string>
     <string name="androidProxyOnlyLostHere">«Faqat proksi» xato tufayli toʻxtadi, shuning uchun Shroudlyʼdan foydalanishga sozlangan ilovalar ulana olmaydi.</string>
     <string name="androidProxyOnlyMoved">{taken} portini boshqa ilova (masalan, v2rayNG) ishlatmoqda, shuning uchun Shroudly 127.0.0.1:{port} da ishlayapti. Proksingizni {port} portiga sozlang.</string>
@@ -93,6 +93,7 @@
     <string name="androidUpdateReadyTap">Shroudlyʼni qayta ishga tushirib, yangilanishni yakunlash uchun bosing. Himoya oʻzi qayta yoqiladi.</string>
     <string name="androidUpdateTap">Yuklab olib, oʻrnatish uchun bosing.</string>
     <string name="androidUseProxyOnly">Faqat proksi ishlatish</string>
+    <string name="androidUseVpnMode">VPN rejimidan foydalanish</string>
     <string name="androidVpnBlocked">Android VPN ruxsatini soʻramadi: boshqa VPN ilovasi doimiy VPN qilib sozlangan yoki bu telefon VPN oʻzgartirishga ruxsat bermaydi. Android VPN sozlamalarida oʻsha ilova uchun doimiy rejimni oʻchiring yoki boshqa VPNʼni saqlab qoladigan «Faqat proksi»dan foydalaning.</string>
     <string name="androidVpnDenied">Ilovalaringiz ulanishlarini oʻtkazish uchun Shroudlyʼga VPN ruxsati kerak.</string>
     <string name="androidVpnDeniedHere">Ilovalaringiz ulanishlarini oʻtkazish uchun Shroudlyʼga VPN ruxsati kerak. Doirani bosing va Android soʻraganda OKʼni tanlang.</string>

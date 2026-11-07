@@ -59,7 +59,7 @@
     <string name="androidPrivacyPolicy">Chính sách quyền riêng tư</string>
     <string name="androidProtectionLost">Bảo vệ đã dừng do lỗi, vì vậy các ứng dụng của bạn hiện đang kết nối trực tiếp. Mở Shroudly để bật lại.</string>
     <string name="androidProtectionLostHere">Bảo vệ đã dừng do lỗi, vì vậy các ứng dụng của bạn hiện đang kết nối trực tiếp.</string>
-    <string name="androidProxyNotSet">Chưa có proxy Wi-Fi nào trỏ tới Shroudly, nên chỉ những ứng dụng có proxy riêng đặt là 127.0.0.1:{port} mới đi qua nó. Để có thêm ứng dụng đi qua, hãy đặt proxy của mạng Wi-Fi này là máy chủ 127.0.0.1, cổng {port}.</string>
+    <string name="androidProxyIdleVpn">Chỉ proxy đang bật: chỉ các ứng dụng được đặt dùng 127.0.0.1:{port} mới đi qua Shroudly, nên YouTube và ứng dụng khác mở như khi không có nó. Để mọi ứng dụng đi qua Shroudly, hãy dùng chế độ VPN; khi đó Android sẽ tắt ứng dụng VPN kia. (Hoặc đặt proxy của mạng Wi-Fi là 127.0.0.1, cổng {port}.)</string>
     <string name="androidProxyOnlyLost">Chế độ Chỉ proxy đã dừng do lỗi, nên các ứng dụng được đặt để dùng Shroudly không kết nối được. Mở Shroudly để bật lại.</string>
     <string name="androidProxyOnlyLostHere">Chế độ Chỉ proxy đã dừng do lỗi, nên các ứng dụng được đặt để dùng Shroudly không kết nối được.</string>
     <string name="androidProxyOnlyMoved">Cổng {taken} đang được ứng dụng khác dùng (ví dụ v2rayNG), nên Shroudly chạy ở 127.0.0.1:{port}. Hãy đặt proxy của bạn sang cổng {port}.</string>
@@ -93,6 +93,7 @@
     <string name="androidUpdateReadyTap">Chạm để khởi động lại Shroudly và hoàn tất cập nhật. Bảo vệ sẽ tự bật lại.</string>
     <string name="androidUpdateTap">Chạm để tải xuống và cài đặt.</string>
     <string name="androidUseProxyOnly">Dùng Chỉ proxy</string>
+    <string name="androidUseVpnMode">Dùng chế độ VPN</string>
     <string name="androidVpnBlocked">Android không hỏi quyền VPN: một ứng dụng VPN khác đang được đặt làm VPN luôn bật, hoặc điện thoại này không cho phép thay đổi VPN. Hãy tắt chế độ luôn bật cho ứng dụng đó trong cài đặt VPN của Android, hoặc dùng Chỉ proxy để giữ VPN khác của bạn.</string>
     <string name="androidVpnDenied">Shroudly cần quyền VPN để chuyển tải kết nối của các ứng dụng.</string>
     <string name="androidVpnDeniedHere">Shroudly cần quyền VPN để chuyển tải kết nối của các ứng dụng. Chạm vào vòng tròn và chọn OK khi Android hỏi.</string>

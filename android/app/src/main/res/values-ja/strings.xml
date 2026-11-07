@@ -59,7 +59,7 @@
     <string name="androidPrivacyPolicy">プライバシーポリシー</string>
     <string name="androidProtectionLost">エラーにより保護が停止したため、アプリは現在直接接続しています。もう一度開始するには Shroudly を開いてください。</string>
     <string name="androidProtectionLostHere">エラーにより保護が停止したため、アプリは現在直接接続しています。</string>
-    <string name="androidProxyNotSet">Wi-Fi のプロキシが Shroudly に設定されていないため、Shroudly を通るのは独自のプロキシを 127.0.0.1:{port} に設定したアプリだけです。ほかのアプリも通すには、この Wi-Fi ネットワークのプロキシをホスト 127.0.0.1、ポート {port} に設定してください。</string>
+    <string name="androidProxyIdleVpn">「プロキシのみ」がオンです。Shroudly を通るのは 127.0.0.1:{port} を使うよう設定したアプリだけなので、YouTube などのアプリは Shroudly がないのと同じように開きます。すべてのアプリを Shroudly に通すには VPN モードを使ってください。そのとき Android はほかの VPN アプリをオフにします。（または Wi-Fi ネットワークのプロキシを 127.0.0.1、ポート {port} に設定します。）</string>
     <string name="androidProxyOnlyLost">エラーにより「プロキシのみ」が停止したため、Shroudly を使うように設定したアプリは接続できません。もう一度開始するには Shroudly を開いてください。</string>
     <string name="androidProxyOnlyLostHere">エラーにより「プロキシのみ」が停止したため、Shroudly を使うように設定したアプリは接続できません。</string>
     <string name="androidProxyOnlyMoved">ポート {taken} は別のアプリ（v2rayNG など）が使っているため、Shroudly は 127.0.0.1:{port} で動いています。プロキシのポートを {port} に設定してください。</string>
@@ -93,6 +93,7 @@
     <string name="androidUpdateReadyTap">タップすると Shroudly を再起動してアップデートを完了します。保護は自動的にオンに戻ります。</string>
     <string name="androidUpdateTap">タップしてダウンロードとインストールを行います。</string>
     <string name="androidUseProxyOnly">プロキシのみを使う</string>
+    <string name="androidUseVpnMode">VPN モードを使う</string>
     <string name="androidVpnBlocked">Android が VPN の許可を求めませんでした。ほかの VPN アプリが常時接続 VPN に設定されているか、このスマホでは VPN の変更が許可されていません。Android の VPN 設定でそのアプリの常時接続をオフにするか、ほかの VPN をそのまま使える「プロキシのみ」を使ってください。</string>
     <string name="androidVpnDenied">アプリの通信を中継するには、Shroudly に VPN の許可が必要です。</string>
     <string name="androidVpnDeniedHere">アプリの通信を中継するには、Shroudly に VPN の許可が必要です。円をタップし、Android に確認されたら［OK］を選んでください。</string>

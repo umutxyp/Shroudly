@@ -59,7 +59,7 @@
     <string name="androidPrivacyPolicy">นโยบายความเป็นส่วนตัว</string>
     <string name="androidProtectionLost">การป้องกันหยุดทำงานเนื่องจากเกิดข้อผิดพลาด แอปของคุณจึงเชื่อมต่อโดยตรงอยู่ในขณะนี้ เปิด Shroudly เพื่อเริ่มการป้องกันอีกครั้ง</string>
     <string name="androidProtectionLostHere">การป้องกันหยุดทำงานเนื่องจากเกิดข้อผิดพลาด แอปของคุณจึงเชื่อมต่อโดยตรงอยู่ในขณะนี้</string>
-    <string name="androidProxyNotSet">ไม่มีพร็อกซี Wi-Fi ที่ตั้งไว้ที่ Shroudly จึงมีเพียงแอปที่ตั้งพร็อกซีของตัวเองเป็น 127.0.0.1:{port} เท่านั้นที่ผ่าน หากต้องการให้แอปอื่นผ่านด้วย ให้ตั้งพร็อกซีของเครือข่าย Wi-Fi นี้เป็นโฮสต์ 127.0.0.1 พอร์ต {port}</string>
+    <string name="androidProxyIdleVpn">เปิดพร็อกซีเท่านั้นอยู่: มีเพียงแอปที่ตั้งให้ใช้ 127.0.0.1:{port} ที่ผ่าน Shroudly ดังนั้น YouTube และแอปอื่นจึงเปิดเหมือนไม่มี Shroudly หากต้องการให้ทุกแอปผ่าน Shroudly ให้ใช้โหมด VPN แล้ว Android จะปิดแอป VPN อีกตัว (หรือตั้งพร็อกซีของเครือข่าย Wi-Fi เป็น 127.0.0.1 พอร์ต {port})</string>
     <string name="androidProxyOnlyLost">พร็อกซีเท่านั้นหยุดทำงานเนื่องจากเกิดข้อผิดพลาด แอปที่ตั้งค่าให้ใช้ Shroudly จึงเชื่อมต่อไม่ได้ เปิด Shroudly เพื่อเริ่มอีกครั้ง</string>
     <string name="androidProxyOnlyLostHere">พร็อกซีเท่านั้นหยุดทำงานเนื่องจากเกิดข้อผิดพลาด แอปที่ตั้งค่าให้ใช้ Shroudly จึงเชื่อมต่อไม่ได้</string>
     <string name="androidProxyOnlyMoved">พอร์ต {taken} ถูกแอปอื่นใช้อยู่ (เช่น v2rayNG) Shroudly จึงอยู่ที่ 127.0.0.1:{port} ตั้งค่าพร็อกซีของคุณเป็นพอร์ต {port}</string>
@@ -93,6 +93,7 @@
     <string name="androidUpdateReadyTap">แตะเพื่อเริ่ม Shroudly ใหม่และติดตั้งอัปเดตให้เสร็จ การป้องกันจะเปิดกลับมาเอง</string>
     <string name="androidUpdateTap">แตะเพื่อดาวน์โหลดและติดตั้ง</string>
     <string name="androidUseProxyOnly">ใช้พร็อกซีเท่านั้น</string>
+    <string name="androidUseVpnMode">ใช้โหมด VPN</string>
     <string name="androidVpnBlocked">Android ไม่ได้ขอสิทธิ์ VPN: มีแอป VPN อื่นตั้งเป็น VPN แบบเปิดตลอดเวลา หรือโทรศัพท์นี้ไม่อนุญาตให้เปลี่ยน VPN ปิดเปิดตลอดเวลาของแอปนั้นในการตั้งค่า VPN ของ Android หรือใช้พร็อกซีเท่านั้น ซึ่งจะคง VPN อื่นไว้</string>
     <string name="androidVpnDenied">Shroudly ต้องได้รับสิทธิ์ VPN เพื่อส่งผ่านการเชื่อมต่อของแอปต่างๆ ของคุณ</string>
     <string name="androidVpnDeniedHere">Shroudly ต้องได้รับสิทธิ์ VPN เพื่อส่งผ่านการเชื่อมต่อของแอปต่างๆ ของคุณ แตะวงกลม แล้วเลือกตกลงเมื่อ Android ถาม</string>

@@ -59,7 +59,7 @@
     <string name="androidPrivacyPolicy">Politique de confidentialité</string>
     <string name="androidProtectionLost">La protection s’est arrêtée à cause d’une erreur : vos applis se connectent maintenant directement. Ouvrez Shroudly pour la relancer.</string>
     <string name="androidProtectionLostHere">La protection s’est arrêtée à cause d’une erreur : vos applis se connectent maintenant directement.</string>
-    <string name="androidProxyNotSet">Aucun proxy Wi-Fi n’est réglé sur Shroudly : seules les applis dont le propre proxy est 127.0.0.1:{port} passent par lui. Pour y faire passer plus d’applis, réglez le proxy de ce réseau Wi-Fi sur l’hôte 127.0.0.1, port {port}.</string>
+    <string name="androidProxyIdleVpn">Proxy seul est activé : seules les applis réglées pour utiliser 127.0.0.1:{port} passent par Shroudly, donc YouTube et les autres applis s\'ouvrent comme sans lui. Pour faire passer toutes les applis par Shroudly, utilise le mode VPN ; Android coupe alors l\'autre appli VPN. (Ou règle le proxy d\'un réseau Wi-Fi sur 127.0.0.1, port {port}.)</string>
     <string name="androidProxyOnlyLost">Le mode Proxy seul s’est arrêté à cause d’une erreur : les applis réglées pour utiliser Shroudly ne peuvent pas se connecter. Ouvrez Shroudly pour le relancer.</string>
     <string name="androidProxyOnlyLostHere">Le mode Proxy seul s’est arrêté à cause d’une erreur : les applis réglées pour utiliser Shroudly ne peuvent pas se connecter.</string>
     <string name="androidProxyOnlyMoved">Le port {taken} est utilisé par une autre appli (v2rayNG, par exemple) : Shroudly est donc sur 127.0.0.1:{port}. Réglez votre proxy sur le port {port}.</string>
@@ -93,6 +93,7 @@
     <string name="androidUpdateReadyTap">Touchez pour redémarrer Shroudly et terminer la mise à jour. La protection se réactive d’elle-même.</string>
     <string name="androidUpdateTap">Touchez pour la télécharger et l’installer.</string>
     <string name="androidUseProxyOnly">Utiliser Proxy seul</string>
+    <string name="androidUseVpnMode">Utiliser le mode VPN</string>
     <string name="androidVpnBlocked">Android n’a pas demandé l’autorisation VPN : une autre appli VPN est définie comme VPN permanent, ou ce téléphone n’autorise pas les changements de VPN. Désactivez le VPN permanent pour cette appli dans les réglages VPN d’Android, ou utilisez Proxy seul, qui garde votre autre VPN.</string>
     <string name="androidVpnDenied">Shroudly a besoin de l’autorisation VPN pour faire passer les connexions de vos applis.</string>
     <string name="androidVpnDeniedHere">Shroudly a besoin de l’autorisation VPN pour faire passer les connexions de vos applis. Touchez le cercle et choisissez OK quand Android le demande.</string>

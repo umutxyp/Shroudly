@@ -59,7 +59,7 @@
     <string name="androidPrivacyPolicy">Privacy policy</string>
     <string name="androidProtectionLost">Protection stopped because of an error, so your apps are connecting directly. Open Shroudly to start it again.</string>
     <string name="androidProtectionLostHere">Protection stopped because of an error, so your apps are connecting directly.</string>
-    <string name="androidProxyNotSet">No Wi-Fi proxy is set to Shroudly, so only apps with their own proxy set to 127.0.0.1:{port} go through it. To send more apps through it, set this Wi-Fi network\'s proxy to host 127.0.0.1, port {port}.</string>
+    <string name="androidProxyIdleVpn">Proxy only is on: only apps set to use 127.0.0.1:{port} go through Shroudly, so YouTube and other apps open as without it. To send every app through Shroudly, use VPN mode; Android then turns the other VPN app off. (Or set a Wi-Fi network\'s proxy to 127.0.0.1, port {port}.)</string>
     <string name="androidProxyOnlyLost">Proxy only stopped because of an error, so apps set to use Shroudly cannot connect. Open Shroudly to start it again.</string>
     <string name="androidProxyOnlyLostHere">Proxy only stopped because of an error, so apps set to use Shroudly cannot connect.</string>
     <string name="androidProxyOnlyMoved">Port {taken} is used by another app (v2rayNG, for example), so Shroudly is on 127.0.0.1:{port}. Set your proxy to port {port}.</string>
@@ -93,6 +93,7 @@
     <string name="androidUpdateReadyTap">Tap to restart Shroudly and finish the update. Protection comes back on by itself.</string>
     <string name="androidUpdateTap">Tap to download and install it.</string>
     <string name="androidUseProxyOnly">Use Proxy only</string>
+    <string name="androidUseVpnMode">Use VPN mode</string>
     <string name="androidVpnBlocked">Android did not ask for the VPN permission: another VPN app is set as always-on VPN, or this phone does not allow VPN changes. Turn always-on off for that app in Android\'s VPN settings, or use Proxy only, which keeps the other VPN.</string>
     <string name="androidVpnDenied">Shroudly needs the VPN permission to carry your apps\' connections.</string>
     <string name="androidVpnDeniedHere">Shroudly needs the VPN permission to carry your apps\' connections. Tap the circle and choose OK when Android asks.</string>

@@ -789,6 +789,8 @@
   "androidContinue": "Bidomîne",
   "androidProxyOnlyRunning": "Tenê proksî vekirî ye",
   "androidProxyNotSet": "Tu proksiya Wi-Fi li ser Shroudly nehatiye mîhengkirin, ji ber vê yekê tenê sepanên ku proksiya wan a xwe 127.0.0.1:{port} e di wê re derbas dibin. Ji bo derbaskirina bêtir sepanan, proksiya vê tora Wi-Fi bike host 127.0.0.1, port {port}.",
+  "androidProxyIdleVpn": "Tenê proksî vekirî ye: tenê sepanên ku ji bo bikaranîna 127.0.0.1:{port} hatine sazkirin di Shroudly re derbas dibin, ji ber vê YouTube û sepanên din wek bêyî wî vedibin. Ji bo ku hemû sepan di Shroudly re derbas bibin, moda VPN bi kar bîne; Android wê demê sepana VPN ya din digire. (An jî proksiya torek Wi-Fi bike 127.0.0.1, port {port}.)",
+  "androidUseVpnMode": "Moda VPN bi kar bîne",
   "androidLockdownStop": "Android ji bo astengkirina girêdanên bê VPN hatiye mîhengkirin, ji ber vê yekê heta Shroudly girtî be, sepanan înternet tune.",
   "androidAppsLockdown": "Android ji bo astengkirina girêdanên bê VPN hatiye mîhengkirin, ji ber vê yekê sepanên ku ji Shroudly derve hatine hiştin înternet tune.",
   "androidNotificationsOff": "Agahdarî girtî ne, ji ber vê yekê Shroudly nikare ji te re bibêje dema parastin radiweste an ji bo vegerê tikandinek hewce dike.",

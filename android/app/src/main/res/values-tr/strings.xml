@@ -59,7 +59,7 @@
     <string name="androidPrivacyPolicy">Gizlilik politikası</string>
     <string name="androidProtectionLost">Koruma bir hata nedeniyle durdu, bu yüzden uygulamaların şu anda doğrudan bağlanıyor. Yeniden başlatmak için Shroudly\'yi aç.</string>
     <string name="androidProtectionLostHere">Koruma bir hata nedeniyle durdu, bu yüzden uygulamaların şu anda doğrudan bağlanıyor.</string>
-    <string name="androidProxyNotSet">Hiçbir Wi-Fi proxy\'si Shroudly\'ye ayarlı değil, bu yüzden ondan yalnızca kendi proxy\'si 127.0.0.1:{port} olan uygulamalar geçiyor. Daha fazla uygulamayı geçirmek için bu Wi-Fi ağının proxy\'sini ana makine 127.0.0.1, bağlantı noktası {port} yap.</string>
+    <string name="androidProxyIdleVpn">Yalnızca proxy açık: Shroudly\'den sadece 127.0.0.1:{port} kullanacak şekilde ayarlanmış uygulamalar geçiyor, bu yüzden YouTube ve diğer uygulamalar onsuzmuş gibi açılıyor. Bütün uygulamaları Shroudly\'den geçirmek için VPN modunu kullan; Android o zaman diğer VPN uygulamasını kapatır. (Ya da bir Wi-Fi ağının proxy\'sini 127.0.0.1, port {port} yap.)</string>
     <string name="androidProxyOnlyLost">Yalnızca proxy bir hata nedeniyle durdu, bu yüzden Shroudly\'yi kullanacak şekilde ayarlanan uygulamalar bağlanamıyor. Yeniden başlatmak için Shroudly\'yi aç.</string>
     <string name="androidProxyOnlyLostHere">Yalnızca proxy bir hata nedeniyle durdu, bu yüzden Shroudly\'yi kullanacak şekilde ayarlanan uygulamalar bağlanamıyor.</string>
     <string name="androidProxyOnlyMoved">{taken} portunu başka bir uygulama (örneğin v2rayNG) kullanıyor, bu yüzden Shroudly 127.0.0.1:{port} adresinde. Proxy\'ni {port} portuna ayarla.</string>
@@ -93,6 +93,7 @@
     <string name="androidUpdateReadyTap">Shroudly\'yi yeniden başlatıp güncellemeyi bitirmek için dokun. Koruma kendiliğinden yeniden açılır.</string>
     <string name="androidUpdateTap">İndirip yüklemek için dokun.</string>
     <string name="androidUseProxyOnly">Yalnızca proxy kullan</string>
+    <string name="androidUseVpnMode">VPN modunu kullan</string>
     <string name="androidVpnBlocked">Android VPN izni istemedi: başka bir VPN uygulaması her zaman açık VPN olarak ayarlı ya da bu telefon VPN değişikliklerine izin vermiyor. Android\'in VPN ayarlarında o uygulama için her zaman açık seçeneğini kapat ya da diğer VPN\'i açık tutan Yalnızca proxy\'yi kullan.</string>
     <string name="androidVpnDenied">Shroudly, telefonundaki uygulamaların bağlantılarını taşımak için VPN iznine ihtiyaç duyar.</string>
     <string name="androidVpnDeniedHere">Shroudly, telefonundaki uygulamaların bağlantılarını taşımak için VPN iznine ihtiyaç duyar. Daireye dokun ve Android sorduğunda Tamam\'ı seç.</string>

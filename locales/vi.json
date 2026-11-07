@@ -789,6 +789,8 @@
   "androidContinue": "Tiếp tục",
   "androidProxyOnlyRunning": "Chỉ proxy đang bật",
   "androidProxyNotSet": "Chưa có proxy Wi-Fi nào trỏ tới Shroudly, nên chỉ những ứng dụng có proxy riêng đặt là 127.0.0.1:{port} mới đi qua nó. Để có thêm ứng dụng đi qua, hãy đặt proxy của mạng Wi-Fi này là máy chủ 127.0.0.1, cổng {port}.",
+  "androidProxyIdleVpn": "Chỉ proxy đang bật: chỉ các ứng dụng được đặt dùng 127.0.0.1:{port} mới đi qua Shroudly, nên YouTube và ứng dụng khác mở như khi không có nó. Để mọi ứng dụng đi qua Shroudly, hãy dùng chế độ VPN; khi đó Android sẽ tắt ứng dụng VPN kia. (Hoặc đặt proxy của mạng Wi-Fi là 127.0.0.1, cổng {port}.)",
+  "androidUseVpnMode": "Dùng chế độ VPN",
   "androidLockdownStop": "Android được đặt để chặn kết nối không qua VPN, nên khi Shroudly tắt, các ứng dụng không có Internet.",
   "androidAppsLockdown": "Android được đặt để chặn kết nối không qua VPN, nên các ứng dụng không đi qua Shroudly không có Internet.",
   "androidNotificationsOff": "Thông báo đang tắt, nên Shroudly không thể báo cho bạn khi bảo vệ dừng hoặc cần một lần chạm để bật lại.",

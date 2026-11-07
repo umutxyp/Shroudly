@@ -789,6 +789,8 @@
   "androidContinue": "Davom etish",
   "androidProxyOnlyRunning": "«Faqat proksi» yoqilgan",
   "androidProxyNotSet": "Hech bir Wi-Fi proksisi Shroudlyʼga sozlanmagan, shuning uchun u orqali faqat oʻz proksisi 127.0.0.1:{port} boʻlgan ilovalar oʻtadi. Koʻproq ilovani oʻtkazish uchun bu Wi-Fi tarmogʻining proksisini xost 127.0.0.1, port {port} qilib sozlang.",
+  "androidProxyIdleVpn": "«Faqat proksi» yoqilgan: Shroudly orqali faqat 127.0.0.1:{port} dan foydalanishga sozlangan ilovalar o'tadi, shuning uchun YouTube va boshqa ilovalar usiz ochilgandek ochiladi. Barcha ilovalarni Shroudly orqali o'tkazish uchun VPN rejimidan foydalaning; Android shunda boshqa VPN ilovasini o'chiradi. (Yoki Wi-Fi tarmog'ining proksisini 127.0.0.1, port {port} qilib qo'ying.)",
+  "androidUseVpnMode": "VPN rejimidan foydalanish",
   "androidLockdownStop": "Android VPNʼsiz ulanishlarni bloklashga sozlangan, shuning uchun Shroudly oʻchiq turganda ilovalarda internet boʻlmaydi.",
   "androidAppsLockdown": "Android VPNʼsiz ulanishlarni bloklashga sozlangan, shuning uchun Shroudlyʼdan tashqarida qolgan ilovalarda internet boʻlmaydi.",
   "androidNotificationsOff": "Bildirishnomalar oʻchiq, shuning uchun himoya toʻxtaganda yoki qaytishi uchun bir bosish kerak boʻlganda Shroudly sizga ayta olmaydi.",

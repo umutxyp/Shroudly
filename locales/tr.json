@@ -789,6 +789,8 @@
   "androidContinue": "Devam et",
   "androidProxyOnlyRunning": "Yalnızca proxy açık",
   "androidProxyNotSet": "Hiçbir Wi-Fi proxy'si Shroudly'ye ayarlı değil, bu yüzden ondan yalnızca kendi proxy'si 127.0.0.1:{port} olan uygulamalar geçiyor. Daha fazla uygulamayı geçirmek için bu Wi-Fi ağının proxy'sini ana makine 127.0.0.1, bağlantı noktası {port} yap.",
+  "androidProxyIdleVpn": "Yalnızca proxy açık: Shroudly'den sadece 127.0.0.1:{port} kullanacak şekilde ayarlanmış uygulamalar geçiyor, bu yüzden YouTube ve diğer uygulamalar onsuzmuş gibi açılıyor. Bütün uygulamaları Shroudly'den geçirmek için VPN modunu kullan; Android o zaman diğer VPN uygulamasını kapatır. (Ya da bir Wi-Fi ağının proxy'sini 127.0.0.1, port {port} yap.)",
+  "androidUseVpnMode": "VPN modunu kullan",
   "androidLockdownStop": "Android VPN olmadan bağlantıları engelleyecek şekilde ayarlı, bu yüzden Shroudly kapalıyken uygulamaların interneti olmaz.",
   "androidAppsLockdown": "Android VPN olmadan bağlantıları engelleyecek şekilde ayarlı, bu yüzden Shroudly dışında bırakılan uygulamaların interneti olmaz.",
   "androidNotificationsOff": "Bildirimler kapalı, bu yüzden koruma durduğunda ya da geri gelmesi için bir dokunuş gerektiğinde Shroudly size haber veremez.",

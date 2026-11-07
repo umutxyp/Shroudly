@@ -59,7 +59,7 @@
     <string name="androidPrivacyPolicy">Купуялык саясаты</string>
     <string name="androidProtectionLost">Коргоо катадан улам токтоду, ошондуктан колдонмолоруңуз азыр түз туташып жатат. Кайра иштетүү үчүн Shroudly\'ди ачыңыз.</string>
     <string name="androidProtectionLostHere">Коргоо катадан улам токтоду, ошондуктан колдонмолоруңуз азыр түз туташып жатат.</string>
-    <string name="androidProxyNotSet">Бир да Wi-Fi прокси Shroudly\'ге коюлган эмес, ошондуктан ал аркылуу өз проксиси 127.0.0.1:{port} болгон колдонмолор гана өтөт. Көбүрөөк колдонмону өткөрүү үчүн бул Wi-Fi тармагынын проксисин хост 127.0.0.1, порт {port} кылып коюңуз.</string>
+    <string name="androidProxyIdleVpn">«Прокси гана» күйүк: Shroudly аркылуу 127.0.0.1:{port} колдонууга жөндөлгөн колдонмолор гана өтөт, ошондуктан YouTube жана башка колдонмолор ансыз эле ачылат. Бардык колдонмолорду Shroudly аркылуу өткөрүү үчүн VPN режимин колдонуңуз; Android анда башка VPN колдонмосун өчүрөт. (Же Wi-Fi тармагынын проксисин 127.0.0.1, порт {port} кылып коюңуз.)</string>
     <string name="androidProxyOnlyLost">«Прокси гана» режими катадан улам токтоду, ошондуктан Shroudly\'ди колдонууга жөндөлгөн колдонмолор туташа албайт. Кайра иштетүү үчүн Shroudly\'ди ачыңыз.</string>
     <string name="androidProxyOnlyLostHere">«Прокси гана» режими катадан улам токтоду, ошондуктан Shroudly\'ди колдонууга жөндөлгөн колдонмолор туташа албайт.</string>
     <string name="androidProxyOnlyMoved">{taken} портун башка колдонмо (мисалы, v2rayNG) колдонуп жатат, ошондуктан Shroudly 127.0.0.1:{port} дарегинде иштейт. Проксиңизди {port} портуна коюңуз.</string>
@@ -93,6 +93,7 @@
     <string name="androidUpdateReadyTap">Shroudly\'ни кайра иштетип, жаңыртууну бүтүрүү үчүн басыңыз. Коргоо өзү кайра күйөт.</string>
     <string name="androidUpdateTap">Жүктөп алып, орнотуу үчүн басыңыз.</string>
     <string name="androidUseProxyOnly">«Прокси гана» колдонуу</string>
+    <string name="androidUseVpnMode">VPN режимин колдонуу</string>
     <string name="androidVpnBlocked">Android VPN уруксатын сураган жок: башка VPN колдонмосу дайыма күйүк VPN катары коюлган, же бул телефон VPN өзгөртүүгө уруксат бербейт. Android\'дин VPN жөндөөлөрүндө ал колдонмо үчүн «Дайыма күйүк» дегенди өчүрүңүз, же башка VPN\'ди калтырган «Прокси гана» режимин колдонуңуз.</string>
     <string name="androidVpnDenied">Колдонмолоруңуздун туташууларын өткөрүү үчүн Shroudly\'ге VPN уруксаты керек.</string>
     <string name="androidVpnDeniedHere">Колдонмолоруңуздун туташууларын өткөрүү үчүн Shroudly\'ге VPN уруксаты керек. Тегеректи басып, Android сураганда «OK» тандаңыз.</string>

@@ -789,6 +789,8 @@
   "androidContinue": "Lanjutkan",
   "androidProxyOnlyRunning": "Hanya proxy menyala",
   "androidProxyNotSet": "Tidak ada proxy Wi-Fi yang diatur ke Shroudly, jadi hanya aplikasi dengan proxy sendiri di 127.0.0.1:{port} yang melewatinya. Agar lebih banyak aplikasi lewat, atur proxy jaringan Wi-Fi ini ke host 127.0.0.1, port {port}.",
+  "androidProxyIdleVpn": "Hanya proxy aktif: hanya aplikasi yang diatur memakai 127.0.0.1:{port} yang lewat Shroudly, jadi YouTube dan aplikasi lain terbuka seperti tanpa Shroudly. Agar semua aplikasi lewat Shroudly, pakai mode VPN; Android lalu mematikan aplikasi VPN lain. (Atau atur proxy jaringan Wi-Fi ke 127.0.0.1, port {port}.)",
+  "androidUseVpnMode": "Pakai mode VPN",
   "androidLockdownStop": "Android diatur untuk memblokir koneksi tanpa VPN, jadi selama Shroudly mati, aplikasi tidak punya internet.",
   "androidAppsLockdown": "Android diatur untuk memblokir koneksi tanpa VPN, jadi aplikasi yang tidak melewati Shroudly tidak punya internet.",
   "androidNotificationsOff": "Notifikasi mati, jadi Shroudly tidak bisa memberi tahu Anda saat perlindungan berhenti atau perlu diketuk untuk kembali.",

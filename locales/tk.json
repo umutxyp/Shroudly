@@ -789,6 +789,8 @@
   "androidContinue": "Dowam et",
   "androidProxyOnlyRunning": "Diňe proksi açyk",
   "androidProxyNotSet": "Hiç bir Wi-Fi proksisi Shroudly-a sazlanmandyr, şonuň üçin ol arkaly diňe öz proksisi 127.0.0.1:{port} bolan programmalar geçýär. Has köp programmany geçirmek üçin bu Wi-Fi toruň proksisini host 127.0.0.1, port {port} ediň.",
+  "androidProxyIdleVpn": "«Diňe proksi» açyk: Shroudly arkaly diňe 127.0.0.1:{port} ulanmaga sazlanan programmalar geçýär, şonuň üçin YouTube we beýleki programmalar onsuz ýaly açylýar. Ähli programmalary Shroudly arkaly geçirmek üçin VPN tertibini ulanyň; Android şonda beýleki VPN programmasyny öçürer. (Ýa-da Wi-Fi ulgamynyň proksisini 127.0.0.1, port {port} ediň.)",
+  "androidUseVpnMode": "VPN tertibini ulan",
   "androidLockdownStop": "Android VPN-siz baglanyşyklary petiklemäge sazlanypdyr, şonuň üçin Shroudly öçük wagty programmalarda internet bolmaýar.",
   "androidAppsLockdown": "Android VPN-siz baglanyşyklary petiklemäge sazlanypdyr, şonuň üçin Shroudly-dan daşda galan programmalarda internet bolmaýar.",
   "androidNotificationsOff": "Bildirişler öçük, şonuň üçin gorag togtanda ýa-da yzyna gaýtarmak üçin basmak gerek bolanda Shroudly size aýdyp bilmeýär.",
