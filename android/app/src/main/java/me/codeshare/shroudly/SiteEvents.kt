@@ -21,12 +21,19 @@ object SiteEvents {
         val type = m["type"] as? String ?: return
         if (type !in TYPES) return
         val host = (m["host"] as? String ?: "").take(120)
-        val rest = KEYS.filter { it != "host" && m[it] != null && m[it] != "" }.joinToString(" ") { "$it=${m[it].toString().take(60)}" }
+        val rest = KEYS.filter { it != "host" && m[it] != null && m[it] != "" }.joinToString(" ") { "$it=${shown(m[it]).take(60)}" }
         val t = java.text.SimpleDateFormat("HH:mm:ss", java.util.Locale.ROOT).format(java.util.Date(now))
         synchronized(list) {
             list.addLast("$t $type $host${if (rest.isEmpty()) "" else " $rest"}")
             while (list.size > MAX) list.removeFirst()
         }
+    }
+
+    /* A number as the engine wrote it: 2, not 2.0. */
+    private fun shown(v: Any?): String = when (v) {
+        is Double -> if (v == Math.floor(v) && !v.isInfinite() && Math.abs(v) < 1e15) v.toLong().toString() else v.toString()
+        is Float -> if (v == Math.floor(v.toDouble()).toFloat()) v.toLong().toString() else v.toString()
+        else -> v.toString()
     }
 
     fun section(): String {

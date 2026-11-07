@@ -89,7 +89,7 @@ class ReportTest {
         val lines = SiteEvents.section().split("\n")
         assertEquals("== Recent site events ==", lines[0])
         assertEquals(SiteEvents.MAX + 1, lines.size)
-        assertTrue(lines[1].endsWith("cut h10.example note=stall attempts=2"))
+        assertTrue(lines[1], lines[1].endsWith("cut h10.example attempts=2 note=stall"))
         assertTrue(lines.none { it.contains("bypass") })
         SiteEvents.clear()
         assertTrue(SiteEvents.section().endsWith("(none)"))

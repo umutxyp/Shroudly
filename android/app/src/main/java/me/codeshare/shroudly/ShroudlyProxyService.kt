@@ -320,7 +320,7 @@ class ShroudlyProxyService : Service() {
             is EngineEvent.Error -> log("engine: ${ev.message}")
             is EngineEvent.Upstream -> if (!ev.ok) ownServer.down(OwnServer.whyCode(ev.why))
             // Tor only once the user said yes (issue #77); until then asked.
-            is EngineEvent.Fallback -> if (!ev.ok) { if (ev.why != "file unusable" && active) { if (TorRoute.approved(this)) { if (ev.host.isNotEmpty() && torRoute.state != "ready" && torNeedTold.add(ev.host)) ShroudlyVpnService.logSite("${ev.host}: no technique got through; the last way out (Tor) is needed for it"); torRoute.need() } else TorAsk.ask(this, ev.host) } } else {
+            is EngineEvent.Fallback -> if (!ev.ok) { if (ev.why != "file unusable" && active) { if (TorRoute.approved(this)) { if (ev.host.isNotEmpty() && TorRoute.state != "ready" && torNeedTold.add(ev.host)) ShroudlyVpnService.logSite("${ev.host}: no technique got through; the last way out (Tor) is needed for it"); torRoute.need() } else TorAsk.ask(this, ev.host) } } else {
                 ShroudlyVpnService.logSite("${ev.host}: no technique got through; opened through the last way out (Tor)")
                 if (ev.host.isNotEmpty()) TorNotice.used(this, ev.host)
             }
