@@ -292,7 +292,7 @@
     <string name="upload">העלאה</string>
     <string name="uptime">זמן פעילות</string>
     <string name="versionLabel">גרסה {version}</string>
-    <string name="whatsNewAndroid">גרסה קלה (lite): כשאתר או אפליקציה נשארים חסומים, Shroudly מציע עכשיו את הגרסה המלאה עם Tor שיכולה לפתוח אותם, בהתקנה בנגיעה אחת.\nמשהו לא עובד? ספרו לנו ישר מהמסך הראשי: מה שתכתבו מגיע למפתח יחד עם יומן האפליקציה, ותקבלו מספר הפניה.\nAndroid TV וטלפונים: ההגנה כבר לא נכבית מעצמה ברשתות שלא מעבירות UDP ‏(“the tunnel keeps failing”).\nהגדרות: \"מתקדם\" נפתח עכשיו באנימציה, והעמוד גולל אליו.</string>
+    <string name="whatsNewAndroid">אפליקציות שהרשת מנתקת שוב ושוב (כמו וואטסאפ באיראן) עוברות עכשיו דרך Tor, ועצירה והפעלה מהירות כבר לא מתחילות את Tor מההתחלה.\n\"עצירה\" תמיד מכבה את ההגנה, ו\"פרוקסי בלבד\" אומר בבירור כשאף אפליקציה לא עוברת דרכו, עם מצב VPN בנגיעה אחת.\nפחות שגיאות אישור ב-Roblox ובאפליקציות אחרות.</string>
     <string name="whatsNewOk">הבנתי</string>
     <string name="whatsNewTitle">מה חדש בגרסה {version}</string>
 </resources>

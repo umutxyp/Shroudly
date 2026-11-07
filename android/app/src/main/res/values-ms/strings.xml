@@ -292,7 +292,7 @@
     <string name="upload">Muat naik</string>
     <string name="uptime">Masa aktif</string>
     <string name="versionLabel">Versi {version}</string>
-    <string name="whatsNewAndroid">Versi lite: apabila laman atau aplikasi masih disekat, Shroudly kini menawarkan versi penuh dengan Tor yang boleh membukanya, dipasang dengan satu ketikan.\nAda yang tidak berfungsi? Beritahu kami terus dari skrin utama: apa yang anda tulis dihantar kepada pembangun bersama log aplikasi, dan anda mendapat nombor rujukan.\nAndroid TV dan telefon: perlindungan tidak lagi mati sendiri pada rangkaian yang tidak membenarkan UDP (“the tunnel keeps failing”).\nTetapan: Lanjutan kini dibuka dengan animasi, dan halaman bergerak kepadanya.</string>
+    <string name="whatsNewAndroid">Aplikasi yang sering diputuskan rangkaian (seperti WhatsApp di Iran) kini melalui Tor, dan henti dan mula dengan pantas tidak lagi memulakan Tor dari awal.\nHenti sentiasa mematikan perlindungan, dan Proksi sahaja memberitahu dengan jelas apabila tiada aplikasi melaluinya, dengan mod VPN satu ketikan sahaja.\nKurang ralat sijil dalam Roblox dan aplikasi lain.</string>
     <string name="whatsNewOk">Faham</string>
     <string name="whatsNewTitle">Apa yang baharu dalam {version}</string>
 </resources>

@@ -292,7 +292,7 @@
     <string name="upload">Iberiş</string>
     <string name="uptime">Işlän wagty</string>
     <string name="versionLabel">Wersiýa {version}</string>
-    <string name="whatsNewAndroid">Ýeňil (lite) wersiýa: saýt ýa-da programma petikli galanda, Shroudly indi ony açyp bilýän Tor-ly doly wersiýany hödürleýär, bir basmak bilen gurnalýar.\nBir zat işlemeýärmi? Göni baş ekrandan bize habar beriň: ýazanlaryňyz programmanyň ýazgylary bilen öndürijä gidýär, size bolsa salgylanma belgisi berilýär.\nAndroid TV we telefonlar: UDP geçirmeýän torlarda gorag indi öz-özünden öçmeýär (“the tunnel keeps failing”).\nSazlamalar: Giňişleýin bölüm indi animasiýa bilen açylýar we sahypa oňa süýşýär.</string>
+    <string name="whatsNewAndroid">Ulgamyň yzygiderli kesýän programmalary (meselem, Erandaky WhatsApp) indi Tor arkaly geçýär, çalt öçürip-açmak bolsa Tory başdan başlatmaýar.\n«Duruz» goragy elmydama öçürýär, «Diňe proksi» bolsa ondan hiç bir programma geçmese, muny aýdyň aýdýar — VPN tertibi bir basyşda.\nRoblox we beýleki programmalarda şahadatnama ýalňyşlyklary azaldy.</string>
     <string name="whatsNewOk">Düşnükli</string>
     <string name="whatsNewTitle">{version} wersiýasynda täzelikler</string>
 </resources>

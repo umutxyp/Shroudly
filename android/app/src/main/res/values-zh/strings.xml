@@ -292,7 +292,7 @@
     <string name="upload">上传</string>
     <string name="uptime">运行时长</string>
     <string name="versionLabel">版本 {version}</string>
-    <string name="whatsNewAndroid">精简版：当某个网站或应用一直被封锁时，Shroudly 现在会推荐能打开它的带 Tor 完整版，轻触一下即可安装。\n有什么用不了吗？直接在主界面告诉我们：你写的内容会连同应用日志一起发给开发者，你还会得到一个参考编号。\nAndroid TV 和手机：在不放行 UDP 的网络上，保护不会再自己关闭（“the tunnel keeps failing”）。\n设置：“高级”现在会以动画展开，页面也会滚动过去。</string>
+    <string name="whatsNewAndroid">被网络反复切断的应用（例如伊朗的 WhatsApp）现在会经过 Tor，快速停止再启动也不会再让 Tor 从头开始。\n“停止”总能关闭保护；“仅代理”在没有任何应用经过它时会直接说明，一键即可改用 VPN 模式。\nRoblox 和其他应用中的证书错误更少了。</string>
     <string name="whatsNewOk">知道了</string>
     <string name="whatsNewTitle">{version} 的新内容</string>
 </resources>

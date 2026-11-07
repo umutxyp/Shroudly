@@ -292,7 +292,7 @@
     <string name="upload">መስቀል</string>
     <string name="uptime">የሰራበት ጊዜ</string>
     <string name="versionLabel">ስሪት {version}</string>
-    <string name="whatsNewAndroid">ቀላል (lite) ስሪት፦ አንድ ጣቢያ ወይም መተግበሪያ ታግዶ ሲቀር፣ Shroudly አሁን ሊከፍተው የሚችለውን Tor ያለውን ሙሉ ስሪት ያቀርባል፤ በአንድ ንክኪ ይጫናል።\nየማይሰራ ነገር አለ? በቀጥታ ከዋናው ማያ ገጽ ይንገሩን፦ የሚጽፉት ከመተግበሪያው መዝገብ ጋር ወደ ገንቢው ይሄዳል፣ እርስዎም የማጣቀሻ ቁጥር ያገኛሉ።\nAndroid TV እና ስልኮች፦ UDP በማያሳልፉ አውታረ መረቦች ላይ ጥበቃው ከእንግዲህ በራሱ አይጠፋም (“the tunnel keeps failing”)።\nቅንብሮች፦ የላቀ አሁን በእንቅስቃሴ ይከፈታል፣ ገጹም ወደ እሱ ይሄዳል።</string>
+    <string name="whatsNewAndroid">አውታረ መረቡ ደጋግሞ የሚያቋርጣቸው መተግበሪያዎች (እንደ ኢራን ውስጥ WhatsApp) አሁን በTor ያልፋሉ፣ ፈጣን ማቆምና መጀመርም Torን ከመጀመሪያው አያስጀምርም።\n«አቁም» ሁልጊዜ ጥበቃን ያጠፋል፣ «ፕሮክሲ ብቻ» ደግሞ ምንም መተግበሪያ በእሱ ካላለፈ በግልጽ ይናገራል፣ የVPN ሁነታም በአንድ ንክኪ።\nበRoblox እና በሌሎች መተግበሪያዎች ያነሱ የሰርተፊኬት ስህተቶች።</string>
     <string name="whatsNewOk">ገባኝ</string>
     <string name="whatsNewTitle">በ{version} ውስጥ አዲስ ነገሮች</string>
 </resources>

@@ -292,7 +292,7 @@
     <string name="upload">Tải lên</string>
     <string name="uptime">Thời gian chạy</string>
     <string name="versionLabel">Phiên bản {version}</string>
-    <string name="whatsNewAndroid">Bản lite: khi một trang hoặc ứng dụng vẫn bị chặn, Shroudly giờ đề xuất bản đầy đủ có Tor có thể mở nó, cài đặt chỉ với một chạm.\nCó gì đó không hoạt động? Hãy báo cho chúng tôi ngay từ màn hình chính: nội dung bạn viết sẽ đến nhà phát triển cùng nhật ký của ứng dụng, và bạn nhận được một mã tham chiếu.\nAndroid TV và điện thoại: chế độ bảo vệ không còn tự tắt trên các mạng không cho UDP đi qua (“the tunnel keeps failing”).\nCài đặt: mục Nâng cao giờ mở ra có hiệu ứng, và trang tự cuộn tới đó.</string>
+    <string name="whatsNewAndroid">Các ứng dụng bị mạng ngắt liên tục (như WhatsApp ở Iran) giờ đi qua Tor, và tắt rồi bật nhanh không còn khởi động lại Tor từ đầu.\nDừng luôn tắt bảo vệ, và Chỉ proxy nói rõ khi không có ứng dụng nào đi qua nó, với chế độ VPN chỉ một chạm.\nÍt lỗi chứng chỉ hơn trong Roblox và các ứng dụng khác.</string>
     <string name="whatsNewOk">Đã hiểu</string>
     <string name="whatsNewTitle">Có gì mới trong {version}</string>
 </resources>

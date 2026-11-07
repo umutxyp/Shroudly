@@ -292,7 +292,7 @@
     <string name="upload">Gesendet</string>
     <string name="uptime">Laufzeit</string>
     <string name="versionLabel">Version {version}</string>
-    <string name="whatsNewAndroid">Lite-Version: Bleibt eine Seite oder App gesperrt, bietet Shroudly jetzt die Vollversion mit Tor an, die sie öffnen kann – mit einem Tippen installiert.\nFunktioniert etwas nicht? Sag es uns direkt vom Startbildschirm aus: Was du schreibst, geht mit dem Protokoll der App an den Entwickler, und du bekommst eine Referenznummer.\nAndroid TV und Smartphones: Der Schutz schaltet sich in Netzen, die kein UDP durchlassen, nicht mehr von selbst ab („the tunnel keeps failing“).\nEinstellungen: „Erweitert“ öffnet sich jetzt mit einer Animation, und die Seite scrollt dorthin.</string>
+    <string name="whatsNewAndroid">Apps, die das Netz immer wieder kappt (wie WhatsApp im Iran), laufen jetzt über Tor, und ein kurzes Stoppen und Starten fängt Tor nicht mehr von vorn an.\nStopp schaltet den Schutz immer ab, und „Nur Proxy“ sagt klar, wenn keine App darüber läuft – der VPN-Modus ist einen Tipp entfernt.\nWeniger Zertifikatsfehler in Roblox und anderen Apps.</string>
     <string name="whatsNewOk">Verstanden</string>
     <string name="whatsNewTitle">Neu in {version}</string>
 </resources>

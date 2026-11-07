@@ -292,7 +292,7 @@
     <string name="upload">Barkirin</string>
     <string name="uptime">Dema xebatê</string>
     <string name="versionLabel">Guherto {version}</string>
-    <string name="whatsNewAndroid">Guhertoya sivik (lite): dema malperek an sepanek astengkirî dimîne, Shroudly niha guhertoya tevahî ya bi Tor pêşniyar dike ku dikare wê veke, bi yek tikandinê tê sazkirin.\nTiştek naxebite? Rasterast ji ekrana sereke ji me re bêje: tiştên ku tu dinivîsî bi tomara sepanê re diçin ba pêşdebir, û tu jimareyeke referansê distînî.\nAndroid TV û telefon: parastin êdî li torên ku UDP derbas nakin bi serê xwe nagire (“the tunnel keeps failing”).\nMîheng: Pêşketî niha bi anîmasyonê vedibe û rûpel ber bi wê ve diçe.</string>
+    <string name="whatsNewAndroid">Sepanên ku tor wan dîsa û dîsa qut dike (wek WhatsApp li Îranê) niha di Tor re derbas dibin, û rawestandin û destpêkirina bilez êdî Tor ji nû ve dest pê nake.\n«Rawestîne» her tim parastinê digire, û «Tenê proksî» bi zelalî dibêje dema ku tu sepan di wî re derbas nabe, bi moda VPN bi yek tikandinê.\nDi Roblox û sepanên din de kêmtir xeletiyên sertîfîkayê.</string>
     <string name="whatsNewOk">Baş e</string>
     <string name="whatsNewTitle">Tiştên nû di {version} de</string>
 </resources>

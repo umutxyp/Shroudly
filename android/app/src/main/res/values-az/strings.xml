@@ -292,7 +292,7 @@
     <string name="upload">Göndərmə</string>
     <string name="uptime">İş müddəti</string>
     <string name="versionLabel">Versiya {version}</string>
-    <string name="whatsNewAndroid">Yüngül (lite) versiya: sayt və ya tətbiq bloklanmış qaldıqda Shroudly indi onu aça bilən Tor-lu tam versiyanı təklif edir, bir toxunuşla quraşdırılır.\nNəsə işləmir? Birbaşa əsas ekrandan bizə bildirin: yazdıqlarınız tətbiqin qeydləri ilə birlikdə tərtibatçıya gedir, sizə isə istinad nömrəsi verilir.\nAndroid TV və telefonlar: UDP-yə icazə verməyən şəbəkələrdə qoruma artıq özbaşına sönmür (“the tunnel keeps failing”).\nAyarlar: «Əlavə» bölməsi indi animasiya ilə açılır və səhifə ona sürüşür.</string>
+    <string name="whatsNewAndroid">Şəbəkənin daim kəsdiyi tətbiqlər (məsələn, İranda WhatsApp) artıq Tor-dan keçir, qısa bağla-aç isə Tor-u əvvəldən başlatmır.\nDayandır qorumanı həmişə söndürür, «Yalnız proksi» isə ondan heç bir tətbiq keçmirsə, bunu açıq deyir — VPN rejimi bir toxunuşla.\nRoblox və digər tətbiqlərdə daha az sertifikat xətası.</string>
     <string name="whatsNewOk">Aydındır</string>
     <string name="whatsNewTitle">{version} versiyasında yeniliklər</string>
 </resources>

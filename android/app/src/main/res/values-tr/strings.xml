@@ -292,7 +292,7 @@
     <string name="upload">Yükleme</string>
     <string name="uptime">Çalışma süresi</string>
     <string name="versionLabel">Sürüm {version}</string>
-    <string name="whatsNewAndroid">Hafif (lite) sürüm: bir site ya da uygulama engelli kaldığında Shroudly artık onu açabilen Tor\'lu tam sürümü öneriyor, tek dokunuşla kurulur.\nÇalışmayan bir şey mi var? Doğrudan ana ekrandan bize bildirin: yazdıklarınız uygulamanın kayıtlarıyla birlikte geliştiriciye gider, size de bir referans numarası verilir.\nAndroid TV ve telefonlar: UDP\'ye izin vermeyen ağlarda koruma artık kendiliğinden kapanmıyor (“the tunnel keeps failing”).\nAyarlar: Gelişmiş artık animasyonla açılıyor ve sayfa ona kayıyor.</string>
+    <string name="whatsNewAndroid">Ağın sürekli kestiği uygulamalar (İran\'da WhatsApp gibi) artık Tor\'dan geçiyor; kısa bir kapat-aç Tor\'u baştan başlatmıyor.\nDurdur her zaman korumayı kapatıyor; Yalnızca proxy, hiçbir uygulama geçmiyorsa bunu açıkça söylüyor ve VPN modu tek dokunuşta.\nRoblox ve diğer uygulamalarda daha az sertifika hatası.</string>
     <string name="whatsNewOk">Tamam</string>
     <string name="whatsNewTitle">{version} sürümünde yenilikler</string>
 </resources>
