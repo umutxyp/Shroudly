@@ -171,6 +171,10 @@
     <string name="linkReleases">ملاحظات الإصدار</string>
     <string name="linkSourceCode">الشيفرة المصدرية على GitHub</string>
     <string name="linkWebsite">موقع Codeshare</string>
+    <string name="liteOfferCard">لا تفتح أي تقنية {host} على هذه الشبكة: فالشبكة تحجبه أو تحجب عناوينه حجبًا تامًا. هذه هي النسخة الخفيفة من Shroudly، وهي بلا Tor؛ أما النسخة الكاملة فتفتح مثل هذه المواقع والتطبيقات عبر شبكة Tor (بشكل أبطأ). تُثبَّت فوق هذه النسخة وتبقى إعداداتك كما هي.</string>
+    <string name="liteOfferGet">احصل على النسخة الكاملة</string>
+    <string name="liteOfferNotice">لا تفتح أي تقنية {host} على هذه الشبكة. يمكن لنسخة Shroudly الكاملة، المزوّدة بـ Tor، فتحه. افتح Shroudly للحصول عليها.</string>
+    <string name="liteOfferTitle">{host} لا يزال محجوبًا هنا</string>
     <string name="madeBy">منتج من Codeshare Technology Ltd</string>
     <string name="nationalOnlyBody">الاتصال ببقية العالم مقطوع؛ ولا تزال مواقع داخل البلد تفتح. لا يستطيع أي تطبيق أو VPN تجاوز ذلك. سيتابع Shroudly من تلقاء نفسه عند عودته.</string>
     <string name="nationalOnlyHelp">ما الذي قد يساعد بعد</string>
@@ -287,7 +291,7 @@
     <string name="upload">الرفع</string>
     <string name="uptime">مدة التشغيل</string>
     <string name="versionLabel">الإصدار {version}</string>
-    <string name="whatsNewAndroid">هل هناك شيء لا يعمل؟ أخبرنا مباشرة من الشاشة الرئيسية: يصل ما تكتبه إلى المطوّر مع سجل التطبيق، وتحصل على رقم مرجعي.\nAndroid TV والهواتف: لم تعد الحماية تتوقف من تلقاء نفسها على الشبكات التي لا تسمح بمرور UDP (‏«the tunnel keeps failing»).\nالإعدادات: يُفتح قسم «متقدّم» الآن بحركة واضحة، وتنتقل الصفحة إليه.</string>
+    <string name="whatsNewAndroid">النسخة الخفيفة: عندما يبقى موقع أو تطبيق محجوبًا، يعرض Shroudly الآن النسخة الكاملة المزوّدة بـ Tor القادرة على فتحه، وتُثبَّت بلمسة واحدة.\nهل هناك شيء لا يعمل؟ أخبرنا مباشرة من الشاشة الرئيسية: يصل ما تكتبه إلى المطوّر مع سجل التطبيق، وتحصل على رقم مرجعي.\nAndroid TV والهواتف: لم تعد الحماية تتوقف من تلقاء نفسها على الشبكات التي لا تسمح بمرور UDP (‏«the tunnel keeps failing»).\nالإعدادات: يُفتح قسم «متقدّم» الآن بحركة واضحة، وتنتقل الصفحة إليه.</string>
     <string name="whatsNewOk">حسنًا</string>
     <string name="whatsNewTitle">الجديد في {version}</string>
 </resources>

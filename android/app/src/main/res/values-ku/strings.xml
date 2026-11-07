@@ -171,6 +171,10 @@
     <string name="linkReleases">Notên weşanê</string>
     <string name="linkSourceCode">Koda çavkaniyê li GitHubê</string>
     <string name="linkWebsite">Malpera Codeshare</string>
+    <string name="liteOfferCard">Li ser vê torê tu teknîk {host} venake: tor wê, an navnîşanên wê, bi tevahî asteng dike. Ev guhertoya sivik (lite) ya Shroudly ye, bê Tor; guhertoya tevahî malper û sepanên wiha bi rêya tora Tor vedike (hêdîtir). Ew li ser vê tê sazkirin, û mîhengên te dimînin.</string>
+    <string name="liteOfferGet">Guhertoya tevahî bistîne</string>
+    <string name="liteOfferNotice">Li ser vê torê tu teknîk {host} venake. Guhertoya tevahî ya Shroudly, bi Tor, dikare wê veke. Ji bo wergirtinê Shroudly veke.</string>
+    <string name="liteOfferTitle">{host} li vir hê jî astengkirî ye</string>
     <string name="madeBy">Berhemeke Codeshare Technology Ltd</string>
     <string name="nationalOnlyBody">Girêdana bi cîhana mayî re qut bûye; malperên hundirê welat hîn vedibin. Tu sepan an VPN nikare vê derbas bike. Dema girêdan vegere, Shroudly bi xwe berdewam dike.</string>
     <string name="nationalOnlyHelp">Hîn çi dikare alîkariyê bike</string>
@@ -287,7 +291,7 @@
     <string name="upload">Barkirin</string>
     <string name="uptime">Dema xebatê</string>
     <string name="versionLabel">Guherto {version}</string>
-    <string name="whatsNewAndroid">Tiştek naxebite? Rasterast ji ekrana sereke ji me re bêje: tiştên ku tu dinivîsî bi tomara sepanê re diçin ba pêşdebir, û tu jimareyeke referansê distînî.\nAndroid TV û telefon: parastin êdî li torên ku UDP derbas nakin bi serê xwe nagire (“the tunnel keeps failing”).\nMîheng: Pêşketî niha bi anîmasyonê vedibe û rûpel ber bi wê ve diçe.</string>
+    <string name="whatsNewAndroid">Guhertoya sivik (lite): dema malperek an sepanek astengkirî dimîne, Shroudly niha guhertoya tevahî ya bi Tor pêşniyar dike ku dikare wê veke, bi yek tikandinê tê sazkirin.\nTiştek naxebite? Rasterast ji ekrana sereke ji me re bêje: tiştên ku tu dinivîsî bi tomara sepanê re diçin ba pêşdebir, û tu jimareyeke referansê distînî.\nAndroid TV û telefon: parastin êdî li torên ku UDP derbas nakin bi serê xwe nagire (“the tunnel keeps failing”).\nMîheng: Pêşketî niha bi anîmasyonê vedibe û rûpel ber bi wê ve diçe.</string>
     <string name="whatsNewOk">Baş e</string>
     <string name="whatsNewTitle">Tiştên nû di {version} de</string>
 </resources>

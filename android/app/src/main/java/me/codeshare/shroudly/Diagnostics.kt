@@ -93,11 +93,27 @@ object Diagnostics {
     fun notificationsDue(enabled: Boolean, workedDays: Int, laterAt: Long, now: Long): Boolean =
         !enabled && workedDays > 0 && (laterAt == 0L || now - laterAt !in 0 until NOTICE_AGAIN_MS)
 
+    /* Which APK this is (build.gradle.kts, shroudly.variant). */
+    fun apkKind(variant: String): String = when (variant) {
+        "" -> "full"
+        "lite" -> "lite, without Tor"
+        else -> variant
+    }
+
+    /* Where Tor stands: whether this copy has it, the setting, the user's
+     * yes (TorAsk), what it is doing, and what it carried this session. */
+    fun torLine(bundled: Boolean, enabled: Boolean, approved: Boolean, state: String, progress: Int, carried: Long): String {
+        if (!bundled) return "not in this copy"
+        if (!enabled) return "turned off in Settings"
+        val now = if (state == "starting" && progress > 0) "starting ($progress%)" else state
+        return "on; ${if (approved) "allowed by the user" else "not allowed yet (asked when a site needs it)"}; now $now; $carried connections carried"
+    }
+
     /* sites: false leaves the lines about sites out (Share logs' "Without
      * site names"). */
     fun report(ctx: Context, sites: Boolean = true): String {
         val sb = StringBuilder()
-        val source = try { if (InstallSource.githubUpdates(ctx)) "APK from GitHub" else "Google Play" } catch (_: Exception) { "unknown source" }
+        val source = try { if (InstallSource.githubUpdates(ctx)) "APK from GitHub (${apkKind(BuildConfig.APK_VARIANT)})" else "Google Play" } catch (_: Exception) { "unknown source" }
         sb.append("Shroudly ").append(BuildConfig.VERSION_NAME).append(" (").append(BuildConfig.VERSION_CODE).append(") for Android, ")
             .append(source).append(if (BuildConfig.DEBUG) ", debug build" else "").append('\n')
         sb.append("Android ").append(Build.VERSION.RELEASE).append(" (API ").append(Build.VERSION.SDK_INT).append("), ")
@@ -107,6 +123,8 @@ object Diagnostics {
         val cm = ctx.getSystemService(ConnectivityManager::class.java)
         sb.append("Network: ").append(if (cm != null) Net.describe(cm) else "unknown").append('\n')
         sb.append("Battery: ").append(battery(ctx)).append('\n')
+        sb.append("Tor (the last way out): ").append(torLine(TorRoute.bundled(ctx), TorRoute.enabled(ctx), TorRoute.approved(ctx),
+            TorRoute.state, TorRoute.progress, Protection.stats?.fallback ?: 0L)).append('\n')
         val on = Protection.state == Protection.State.ON && Protection.startedAt > 0
         sb.append(protectionLine(Protection.state.name.lowercase(Locale.ROOT), Protection.errorDetail,
             if (on) android.os.SystemClock.elapsedRealtime() - Protection.startedAt else -1L,

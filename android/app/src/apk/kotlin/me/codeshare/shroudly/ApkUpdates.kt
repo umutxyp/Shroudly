@@ -56,7 +56,7 @@ object ApkUpdates {
 
     // An update asked for while Android did not let Shroudly install apps:
     // taken up again once the user is back from that setting (resume).
-    @Volatile private var pending: Pair<String, String>? = null
+    @Volatile private var pending: Triple<String, String, String>? = null
     @Volatile private var checking = false
 
     fun available(ctx: Context): Boolean = InstallSource.githubUpdates(ctx)
@@ -71,10 +71,17 @@ object ApkUpdates {
         ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit().putString(KEY_NOTIFIED, version).apply()
     }
 
-    fun start(activity: Activity, version: String, url: String) {
+    /* The full APK (with Tor) of this same version in place of the lite one
+     * (LiteOffer): fetched and installed as an update is. */
+    fun startFull(activity: Activity) {
+        val v = BuildConfig.VERSION_NAME
+        start(activity, v, ApkUpdatePolicy.fullApkUrl(v), "")
+    }
+
+    fun start(activity: Activity, version: String, url: String, variant: String = BuildConfig.APK_VARIANT) {
         if (!available(activity) || now?.stage == Stage.DOWNLOADING) return
         if (!activity.packageManager.canRequestPackageInstalls()) {
-            pending = version to url
+            pending = Triple(version, url, variant)
             try {
                 AlertDialog.Builder(activity)
                     .setMessage(R.string.androidUnknownSources)
@@ -95,7 +102,7 @@ object ApkUpdates {
         val port = Protection.socksPort
         val auth = Protection.socksAuth
         set(Now(version, Stage.DOWNLOADING))
-        Thread({ run(app, version, url, port, auth) }, "apk-update").apply { isDaemon = true }.start()
+        Thread({ run(app, version, url, port, auth, variant) }, "apk-update").apply { isDaemon = true }.start()
     }
 
     /* Back from Android's "install unknown apps" page: on, if it was allowed. */
@@ -103,16 +110,16 @@ object ApkUpdates {
         val p = pending ?: return
         if (!activity.packageManager.canRequestPackageInstalls()) return
         pending = null
-        start(activity, p.first, p.second)
+        start(activity, p.first, p.second, p.third)
     }
 
-    private fun run(ctx: Context, version: String, url: String, port: Int, auth: SocksAuth?) {
+    private fun run(ctx: Context, version: String, url: String, port: Int, auth: SocksAuth?, variant: String) {
         val dir = File(ctx.cacheDir, "update").apply { mkdirs() }
         dir.listFiles()?.forEach { it.delete() }
         val file = File(dir, "Shroudly-$version.apk")
         try {
             var fetched = false
-            for (src in ApkUpdatePolicy.sources(url, version)) {
+            for (src in ApkUpdatePolicy.sources(url, version, variant)) {
                 try {
                     ShroudlyVpnService.log("Update $version: downloading from ${URL(src).host}${if (port > 0) " through the engine" else ""}")
                     fetch(src, file, port, auth) { done, total -> if (total > 0) set(Now(version, Stage.DOWNLOADING, (done * 100 / total).toInt())) }
@@ -123,7 +130,7 @@ object ApkUpdates {
                 }
             }
             if (!fetched) { set(Now(version, Stage.FAILED, failed = R.string.updInstallFailed)); return }
-            if (!verified(ctx, file)) {
+            if (!verified(ctx, file, sameVersion = variant != BuildConfig.APK_VARIANT)) {
                 ShroudlyVpnService.log("Update $version: the file is not this app, not newer, or not signed with its certificate; not installed")
                 set(Now(version, Stage.FAILED, failed = R.string.androidUpdateNotSigned))
                 return
@@ -215,12 +222,12 @@ object ApkUpdates {
     private fun code(info: PackageInfo?): Long =
         if (info == null) -1 else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) info.longVersionCode else info.versionCode.toLong()
 
-    private fun verified(ctx: Context, file: File): Boolean {
+    private fun verified(ctx: Context, file: File, sameVersion: Boolean = false): Boolean {
         val pm = ctx.packageManager
         val fileInfo = try { pm.getPackageArchiveInfo(file.path, flags()) } catch (_: Exception) { null }
         val own = try { pm.getPackageInfo(ctx.packageName, flags()) } catch (_: Exception) { null }
         return ApkUpdatePolicy.installable(fileInfo?.packageName, code(fileInfo), ctx.packageName, code(own),
-            ApkUpdatePolicy.sameSigner(signers(own), signers(fileInfo)))
+            ApkUpdatePolicy.sameSigner(signers(own), signers(fileInfo)), sameVersion)
     }
 
     /* To Android's installer, which asks the user (UpdateInstallReceiver). */

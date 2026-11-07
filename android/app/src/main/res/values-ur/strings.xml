@@ -171,6 +171,10 @@
     <string name="linkReleases">ریلیز نوٹس</string>
     <string name="linkSourceCode">GitHub پر سورس کوڈ</string>
     <string name="linkWebsite">Codeshare ویب سائٹ</string>
+    <string name="liteOfferCard">اس نیٹ ورک پر کوئی بھی تکنیک {host} نہیں کھولتی: نیٹ ورک اسے، یا اس کے پتوں کو، پوری طرح بلاک کرتا ہے۔ یہ Shroudly کا لائٹ ورژن ہے، جس میں Tor نہیں؛ مکمل ورژن ایسی سائٹس اور ایپس کو Tor نیٹ ورک کے ذریعے کھولتا ہے (آہستہ)۔ یہ اسی ورژن کے اوپر انسٹال ہوتا ہے، اور آپ کی ترتیبات برقرار رہتی ہیں۔</string>
+    <string name="liteOfferGet">مکمل ورژن حاصل کریں</string>
+    <string name="liteOfferNotice">اس نیٹ ورک پر کوئی بھی تکنیک {host} نہیں کھولتی۔ Tor والا Shroudly کا مکمل ورژن اسے کھول سکتا ہے۔ اسے حاصل کرنے کے لیے Shroudly کھولیں۔</string>
+    <string name="liteOfferTitle">{host} یہاں بلاک ہی رہتا ہے</string>
     <string name="madeBy">Codeshare Technology Ltd کی ایک پروڈکٹ</string>
     <string name="nationalOnlyBody">باقی دنیا سے رابطہ کٹا ہوا ہے؛ ملک کے اندر کی سائٹس اب بھی کھلتی ہیں۔ کوئی ایپ یا VPN اس سے آگے نہیں جا سکتا۔ رابطہ واپس آنے پر Shroudly خود جاری رکھے گا۔</string>
     <string name="nationalOnlyHelp">اب بھی کیا مدد کر سکتا ہے</string>
@@ -287,7 +291,7 @@
     <string name="upload">اپ لوڈ</string>
     <string name="uptime">چلنے کا دورانیہ</string>
     <string name="versionLabel">ورژن {version}</string>
-    <string name="whatsNewAndroid">کچھ کام نہیں کر رہا؟ سیدھا مرکزی اسکرین سے ہمیں بتائیں: آپ جو لکھیں گے وہ ایپ کے لاگز کے ساتھ ڈویلپر تک پہنچے گا، اور آپ کو ایک حوالہ نمبر ملے گا۔\nAndroid TV اور فون: جن نیٹ ورکس پر UDP نہیں گزرتا، وہاں تحفظ اب خود بخود بند نہیں ہوتا (“the tunnel keeps failing”)۔\nسیٹنگز: «اعلیٰ» اب اینیمیشن کے ساتھ کھلتا ہے اور صفحہ اس تک چلا جاتا ہے۔</string>
+    <string name="whatsNewAndroid">لائٹ ورژن: جب کوئی سائٹ یا ایپ بلاک ہی رہے، تو Shroudly اب Tor والا مکمل ورژن پیش کرتا ہے جو اسے کھول سکتا ہے، ایک ٹیپ میں انسٹال۔\nکچھ کام نہیں کر رہا؟ سیدھا مرکزی اسکرین سے ہمیں بتائیں: آپ جو لکھیں گے وہ ایپ کے لاگز کے ساتھ ڈویلپر تک پہنچے گا، اور آپ کو ایک حوالہ نمبر ملے گا۔\nAndroid TV اور فون: جن نیٹ ورکس پر UDP نہیں گزرتا، وہاں تحفظ اب خود بخود بند نہیں ہوتا (“the tunnel keeps failing”)۔\nسیٹنگز: «اعلیٰ» اب اینیمیشن کے ساتھ کھلتا ہے اور صفحہ اس تک چلا جاتا ہے۔</string>
     <string name="whatsNewOk">سمجھ گیا</string>
     <string name="whatsNewTitle">{version} میں نیا کیا ہے</string>
 </resources>

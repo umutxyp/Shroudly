@@ -171,6 +171,10 @@
     <string name="linkReleases">Notes de version</string>
     <string name="linkSourceCode">Code source sur GitHub</string>
     <string name="linkWebsite">Site web de Codeshare</string>
+    <string name="liteOfferCard">Aucune technique n\'ouvre {host} sur ce réseau : le réseau le bloque complètement, lui ou ses adresses. Ceci est la version lite de Shroudly, sans Tor ; la version complète ouvre ces sites et applis via le réseau Tor (plus lentement). Elle s\'installe par-dessus celle-ci, et tes réglages restent.</string>
+    <string name="liteOfferGet">Obtenir la version complète</string>
+    <string name="liteOfferNotice">Aucune technique n\'ouvre {host} sur ce réseau. La version complète de Shroudly, avec Tor, peut l\'ouvrir. Ouvre Shroudly pour l\'obtenir.</string>
+    <string name="liteOfferTitle">{host} reste bloqué ici</string>
     <string name="madeBy">Un produit Codeshare Technology Ltd</string>
     <string name="nationalOnlyBody">La connexion avec le reste du monde est coupée ; les sites du pays s’ouvrent encore. Aucune appli ni aucun VPN ne passe outre. Shroudly reprendra tout seul quand elle reviendra.</string>
     <string name="nationalOnlyHelp">Ce qui peut encore aider</string>
@@ -287,7 +291,7 @@
     <string name="upload">Envoi</string>
     <string name="uptime">Durée d’activité</string>
     <string name="versionLabel">Version {version}</string>
-    <string name="whatsNewAndroid">Quelque chose ne marche pas ? Dites-le-nous depuis l\'écran principal : ce que vous écrivez part au développeur avec le journal de l\'app, et vous recevez un numéro de référence.\nAndroid TV et téléphones : la protection ne se coupe plus d\'elle-même sur les réseaux qui ne laissent pas passer l\'UDP (« the tunnel keeps failing »).\nRéglages : Avancé s\'ouvre maintenant avec une animation, et la page défile jusqu\'à lui.</string>
+    <string name="whatsNewAndroid">Version lite : quand un site ou une appli reste bloqué, Shroudly propose maintenant la version complète avec Tor, qui peut l\'ouvrir, installée en une touche.\nQuelque chose ne marche pas ? Dites-le-nous depuis l\'écran principal : ce que vous écrivez part au développeur avec le journal de l\'app, et vous recevez un numéro de référence.\nAndroid TV et téléphones : la protection ne se coupe plus d\'elle-même sur les réseaux qui ne laissent pas passer l\'UDP (« the tunnel keeps failing »).\nRéglages : Avancé s\'ouvre maintenant avec une animation, et la page défile jusqu\'à lui.</string>
     <string name="whatsNewOk">Compris</string>
     <string name="whatsNewTitle">Nouveautés de la {version}</string>
 </resources>

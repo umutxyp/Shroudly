@@ -325,6 +325,8 @@ class ShroudlyProxyService : Service() {
             if (told.size > 400) told.clear()
             told.add("${ev.kind} ${ev.host}")
         }
+        // The lite APK, a site the full one would take to Tor (LiteOffer).
+        if (!ev.raw && LiteOffer.lite && LiteOffer.wants(ev.kind, ev.alert, ev.stage)) LiteOffer.offer(this, ev.host)
         when (ev.kind) {
             "bypass" -> {
                 val raw = ev.strategy.startsWith("raw-")

@@ -171,6 +171,10 @@
     <string name="linkReleases">রিলিজ নোট</string>
     <string name="linkSourceCode">GitHub-এ সোর্স কোড</string>
     <string name="linkWebsite">Codeshare ওয়েবসাইট</string>
+    <string name="liteOfferCard">এই নেটওয়ার্কে কোনো কৌশলই {host} খুলতে পারছে না: নেটওয়ার্কটি এটিকে বা এর ঠিকানাগুলোকে পুরোপুরি ব্লক করে। এটি Shroudly-র Tor ছাড়া লাইট সংস্করণ; পূর্ণ সংস্করণ এমন সাইট ও অ্যাপ Tor নেটওয়ার্ক দিয়ে খোলে (ধীরে)। এটি এই সংস্করণের ওপরেই ইনস্টল হয়, আর আপনার সেটিংস থেকে যায়।</string>
+    <string name="liteOfferGet">পূর্ণ সংস্করণ নিন</string>
+    <string name="liteOfferNotice">এই নেটওয়ার্কে কোনো কৌশলই {host} খুলতে পারছে না। Tor সহ Shroudly-র পূর্ণ সংস্করণ এটি খুলতে পারে। সেটি পেতে Shroudly খুলুন।</string>
+    <string name="liteOfferTitle">{host} এখানে ব্লকই থেকে যাচ্ছে</string>
     <string name="madeBy">Codeshare Technology Ltd-এর একটি পণ্য</string>
     <string name="nationalOnlyBody">বাকি বিশ্বের সাথে সংযোগ বিচ্ছিন্ন; দেশের ভেতরের সাইটগুলো এখনও খোলে। কোনো অ্যাপ বা VPN এটি পার হতে পারে না। সংযোগ ফিরলে Shroudly নিজে থেকেই চালিয়ে যাবে।</string>
     <string name="nationalOnlyHelp">এখনও কী সাহায্য করতে পারে</string>
@@ -287,7 +291,7 @@
     <string name="upload">আপলোড</string>
     <string name="uptime">চালু থাকার সময়</string>
     <string name="versionLabel">সংস্করণ {version}</string>
-    <string name="whatsNewAndroid">কিছু কাজ করছে না? সরাসরি মূল স্ক্রিন থেকে আমাদের জানান: আপনি যা লিখবেন তা অ্যাপের লগসহ ডেভেলপারের কাছে যাবে, আর আপনি একটি রেফারেন্স নম্বর পাবেন।\nAndroid TV ও ফোন: যেসব নেটওয়ার্কে UDP যায় না, সেখানে সুরক্ষা আর নিজে থেকে বন্ধ হয় না (“the tunnel keeps failing”)।\nসেটিংস: «উন্নত» এখন অ্যানিমেশনসহ খোলে, আর পাতা সেখানে সরে যায়।</string>
+    <string name="whatsNewAndroid">লাইট সংস্করণ: কোনো সাইট বা অ্যাপ ব্লক থেকে গেলে Shroudly এখন Tor সহ পূর্ণ সংস্করণটি দেয়, যা সেটি খুলতে পারে; এক ট্যাপে ইনস্টল হয়।\nকিছু কাজ করছে না? সরাসরি মূল স্ক্রিন থেকে আমাদের জানান: আপনি যা লিখবেন তা অ্যাপের লগসহ ডেভেলপারের কাছে যাবে, আর আপনি একটি রেফারেন্স নম্বর পাবেন।\nAndroid TV ও ফোন: যেসব নেটওয়ার্কে UDP যায় না, সেখানে সুরক্ষা আর নিজে থেকে বন্ধ হয় না (“the tunnel keeps failing”)।\nসেটিংস: «উন্নত» এখন অ্যানিমেশনসহ খোলে, আর পাতা সেখানে সরে যায়।</string>
     <string name="whatsNewOk">বুঝেছি</string>
     <string name="whatsNewTitle">{version}-এ নতুন যা আছে</string>
 </resources>

@@ -171,6 +171,10 @@
     <string name="linkReleases">Versionshinweise</string>
     <string name="linkSourceCode">Quellcode auf GitHub</string>
     <string name="linkWebsite">Codeshare-Website</string>
+    <string name="liteOfferCard">Keine Technik öffnet {host} in diesem Netz: Das Netz sperrt den Zugang oder die Adressen dahinter vollständig. Das ist die Lite-Version von Shroudly, ohne Tor; die Vollversion öffnet solche Seiten und Apps über das Tor-Netzwerk (langsamer). Sie wird über diese installiert, und deine Einstellungen bleiben.</string>
+    <string name="liteOfferGet">Vollversion holen</string>
+    <string name="liteOfferNotice">Keine Technik öffnet {host} in diesem Netz. Die Vollversion von Shroudly mit Tor kann es öffnen. Öffne Shroudly, um sie zu holen.</string>
+    <string name="liteOfferTitle">{host} bleibt hier gesperrt</string>
     <string name="madeBy">Ein Produkt von Codeshare Technology Ltd</string>
     <string name="nationalOnlyBody">Die Verbindung zum Rest der Welt ist gekappt; Seiten im eigenen Land öffnen sich noch. Keine App und kein VPN kommt daran vorbei. Shroudly macht von selbst weiter, sobald sie wieder da ist.</string>
     <string name="nationalOnlyHelp">Was noch helfen kann</string>
@@ -287,7 +291,7 @@
     <string name="upload">Gesendet</string>
     <string name="uptime">Laufzeit</string>
     <string name="versionLabel">Version {version}</string>
-    <string name="whatsNewAndroid">Funktioniert etwas nicht? Sag es uns direkt vom Startbildschirm aus: Was du schreibst, geht mit dem Protokoll der App an den Entwickler, und du bekommst eine Referenznummer.\nAndroid TV und Smartphones: Der Schutz schaltet sich in Netzen, die kein UDP durchlassen, nicht mehr von selbst ab („the tunnel keeps failing“).\nEinstellungen: „Erweitert“ öffnet sich jetzt mit einer Animation, und die Seite scrollt dorthin.</string>
+    <string name="whatsNewAndroid">Lite-Version: Bleibt eine Seite oder App gesperrt, bietet Shroudly jetzt die Vollversion mit Tor an, die sie öffnen kann – mit einem Tippen installiert.\nFunktioniert etwas nicht? Sag es uns direkt vom Startbildschirm aus: Was du schreibst, geht mit dem Protokoll der App an den Entwickler, und du bekommst eine Referenznummer.\nAndroid TV und Smartphones: Der Schutz schaltet sich in Netzen, die kein UDP durchlassen, nicht mehr von selbst ab („the tunnel keeps failing“).\nEinstellungen: „Erweitert“ öffnet sich jetzt mit einer Animation, und die Seite scrollt dorthin.</string>
     <string name="whatsNewOk">Verstanden</string>
     <string name="whatsNewTitle">Neu in {version}</string>
 </resources>

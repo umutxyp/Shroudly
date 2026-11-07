@@ -1302,6 +1302,8 @@ class ShroudlyVpnService : VpnService() {
 
     private fun onHost(ev: EngineEvent.Host) {
         if (ev.raw && (ev.kind == "blocked" || ev.kind == "unreachable")) { onRaw(ev); return }
+        // The lite APK, a site the full one would take to Tor (LiteOffer).
+        if (!ev.raw && LiteOffer.lite && LiteOffer.wants(ev.kind, ev.alert, ev.stage)) LiteOffer.offer(this, ev.host)
         val key = "${ev.kind} ${ev.host}"
         val first = synchronized(told) {
             if (told.size > 400) told.clear()
@@ -1344,7 +1346,9 @@ class ShroudlyVpnService : VpnService() {
                     if (n.kind == RawWatch.Kind.UNREACHABLE) "${n.app} cannot reach its servers ($addrs): the network blocks those addresses themselves; only the app's own proxy setting or a VPN gets around that"
                     else "${n.app}: the network stops its connections ($addrs) and no technique got through; only the app's own proxy setting or a VPN gets around that",
                 )
-                notifyRaw(if (n.kind == RawWatch.Kind.UNREACHABLE) R.string.autoRawUnreachable else R.string.autoRawBlocked, n.app)
+                // The lite APK: the full one's Tor would carry the app's
+                // connections too (LiteOffer); its card says so instead.
+                if (!(LiteOffer.lite && LiteOffer.offer(this, n.app))) notifyRaw(if (n.kind == RawWatch.Kind.UNREACHABLE) R.string.autoRawUnreachable else R.string.autoRawBlocked, n.app)
             }
             RawWatch.Outcome.Nothing -> {}
         }

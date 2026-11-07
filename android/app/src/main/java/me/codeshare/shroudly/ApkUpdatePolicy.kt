@@ -24,8 +24,8 @@ object ApkUpdatePolicy {
      * passes the latest release's files through from GitHub where its
      * addresses are blocked (server/stats, as the desktop's updater uses
      * it). A link from anywhere else is not followed. */
-    fun sources(url: String?, version: String): List<String> {
-        val mirror = "https://${OnlineHttp.HOST}${Versions.mirrorApkPath(version, BuildConfig.APK_VARIANT)}"
+    fun sources(url: String?, version: String, variant: String = BuildConfig.APK_VARIANT): List<String> {
+        val mirror = "https://${OnlineHttp.HOST}${Versions.mirrorApkPath(version, variant)}"
         val own = url?.takeIf { it.startsWith(Versions.DOWNLOADS) || it.startsWith("https://${OnlineHttp.HOST}/dl/") }
         return listOfNotNull(own, mirror).distinct()
     }
@@ -46,7 +46,14 @@ object ApkUpdatePolicy {
         installed.isNotEmpty() && file.isNotEmpty() && installed.map { it.lowercase() }.toSet() == file.map { it.lowercase() }.toSet()
 
     /* A file to hand to Android's installer: this app, a newer version of
-     * it, signed as it is. */
-    fun installable(filePackage: String?, fileCode: Long, ownPackage: String, ownCode: Long, sameSigner: Boolean): Boolean =
-        filePackage == ownPackage && fileCode > ownCode && sameSigner
+     * it, signed as it is. sameVersion: the full APK in place of the lite
+     * one (LiteOffer), where the same version is the point. */
+    fun installable(filePackage: String?, fileCode: Long, ownPackage: String, ownCode: Long, sameSigner: Boolean, sameVersion: Boolean = false): Boolean =
+        filePackage == ownPackage && (fileCode > ownCode || (sameVersion && fileCode == ownCode)) && sameSigner
+
+    /* The full APK of `version` on GitHub (LiteOffer): the release's file. */
+    fun fullApkUrl(version: String): String {
+        val v = Versions.display(version)
+        return "${Versions.DOWNLOADS}v$v/Shroudly-$v-Android.apk"
+    }
 }

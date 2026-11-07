@@ -171,6 +171,10 @@
     <string name="linkReleases">Wersiýa bellikleri</string>
     <string name="linkSourceCode">GitHub-daky çeşme kody</string>
     <string name="linkWebsite">Codeshare web sahypasy</string>
+    <string name="liteOfferCard">Bu ulgamda hiç bir usul {host} üçin işlemeýär: ulgam ony ýa-da onuň salgylaryny doly petikleýär. Bu Shroudly-nyň Tor-syz ýeňil (lite) wersiýasy; doly wersiýa şeýle saýtlary we programmalary Tor ulgamy arkaly açýar (haýalrak). Ol şunuň üstünden gurnalýar, sazlamalaryňyz saklanýar.</string>
+    <string name="liteOfferGet">Doly wersiýany al</string>
+    <string name="liteOfferNotice">Bu ulgamda hiç bir usul {host} üçin işlemeýär. Shroudly-nyň Tor-ly doly wersiýasy ony açyp biler. Ony almak üçin Shroudly-ni açyň.</string>
+    <string name="liteOfferTitle">{host} bu ýerde petikli galýar</string>
     <string name="madeBy">Codeshare Technology Ltd önümi</string>
     <string name="nationalOnlyBody">Dünýäniň galan bölegi bilen baglanyşyk kesildi; ýurduň içindäki saýtlar entek açylýar. Muny hiç bir programma ýa-da VPN aýlanyp geçip bilmez. Baglanyşyk gaýdyp gelende Shroudly özi dowam edýär.</string>
     <string name="nationalOnlyHelp">Ýene näme kömek edip biler</string>
@@ -287,7 +291,7 @@
     <string name="upload">Iberiş</string>
     <string name="uptime">Işlän wagty</string>
     <string name="versionLabel">Wersiýa {version}</string>
-    <string name="whatsNewAndroid">Bir zat işlemeýärmi? Göni baş ekrandan bize habar beriň: ýazanlaryňyz programmanyň ýazgylary bilen öndürijä gidýär, size bolsa salgylanma belgisi berilýär.\nAndroid TV we telefonlar: UDP geçirmeýän torlarda gorag indi öz-özünden öçmeýär (“the tunnel keeps failing”).\nSazlamalar: Giňişleýin bölüm indi animasiýa bilen açylýar we sahypa oňa süýşýär.</string>
+    <string name="whatsNewAndroid">Ýeňil (lite) wersiýa: saýt ýa-da programma petikli galanda, Shroudly indi ony açyp bilýän Tor-ly doly wersiýany hödürleýär, bir basmak bilen gurnalýar.\nBir zat işlemeýärmi? Göni baş ekrandan bize habar beriň: ýazanlaryňyz programmanyň ýazgylary bilen öndürijä gidýär, size bolsa salgylanma belgisi berilýär.\nAndroid TV we telefonlar: UDP geçirmeýän torlarda gorag indi öz-özünden öçmeýär (“the tunnel keeps failing”).\nSazlamalar: Giňişleýin bölüm indi animasiýa bilen açylýar we sahypa oňa süýşýär.</string>
     <string name="whatsNewOk">Düşnükli</string>
     <string name="whatsNewTitle">{version} wersiýasynda täzelikler</string>
 </resources>

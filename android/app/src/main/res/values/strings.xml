@@ -171,6 +171,10 @@
     <string name="linkReleases">Release notes</string>
     <string name="linkSourceCode">Source code on GitHub</string>
     <string name="linkWebsite">Codeshare website</string>
+    <string name="liteOfferCard">No technique opens {host} on this network: the network blocks it, or its addresses, outright. This is Shroudly\'s lite version, without Tor; the full version opens such sites and apps through the Tor network (more slowly). It installs over this one, and your settings stay.</string>
+    <string name="liteOfferGet">Get the full version</string>
+    <string name="liteOfferNotice">No technique opens {host} on this network. Shroudly\'s full version, with Tor, can open it. Open Shroudly to get it.</string>
+    <string name="liteOfferTitle">{host} stays blocked here</string>
     <string name="madeBy">A Codeshare Technology Ltd product</string>
     <string name="nationalOnlyBody">The connection to the rest of the world is cut; sites inside the country still open. No app or VPN gets past that. Shroudly carries on by itself when it is back.</string>
     <string name="nationalOnlyHelp">What can still help</string>
@@ -287,7 +291,7 @@
     <string name="upload">Upload</string>
     <string name="uptime">Uptime</string>
     <string name="versionLabel">Version {version}</string>
-    <string name="whatsNewAndroid">Something not working? Tell us right from the main screen: what you write goes to the developer with the app\'s log, and you get a reference number.\nAndroid TV and phones: protection no longer turns itself off on networks that let no UDP through (“the tunnel keeps failing”).\nSettings: Advanced now opens with an animation, and the page moves to it.</string>
+    <string name="whatsNewAndroid">Lite version: when a site or app stays blocked, Shroudly now offers the full version, whose Tor can open it, installed in one tap.\nSomething not working? Tell us right from the main screen: what you write goes to the developer with the app\'s log, and you get a reference number.\nAndroid TV and phones: protection no longer turns itself off on networks that let no UDP through (“the tunnel keeps failing”).\nSettings: Advanced now opens with an animation, and the page moves to it.</string>
     <string name="whatsNewOk">Got it</string>
     <string name="whatsNewTitle">What\'s new in {version}</string>
 </resources>

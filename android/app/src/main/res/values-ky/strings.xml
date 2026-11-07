@@ -171,6 +171,10 @@
     <string name="linkReleases">Версиялардагы өзгөрүүлөр</string>
     <string name="linkSourceCode">Баштапкы код (GitHub)</string>
     <string name="linkWebsite">Codeshare сайты</string>
+    <string name="liteOfferCard">Бул тармакта эч бир ыкма {host} үчүн иштебейт: тармак аны же анын даректерин толугу менен бөгөттөйт. Бул — Shroudly\'дин Tor\'сүз жеңил (lite) версиясы; толук версия мындай сайттарды жана колдонмолорду Tor тармагы аркылуу ачат (жайыраак). Ал ушул версиянын үстүнө орнотулат, жөндөөлөрүңүз сакталат.</string>
+    <string name="liteOfferGet">Толук версияны алуу</string>
+    <string name="liteOfferNotice">Бул тармакта эч бир ыкма {host} үчүн иштебейт. Shroudly\'дин Tor бар толук версиясы аны ача алат. Аны алуу үчүн Shroudly\'ди ачыңыз.</string>
+    <string name="liteOfferTitle">{host} бул жерде бөгөттөлгөн бойдон калууда</string>
     <string name="madeBy">Codeshare Technology Ltd продуктусу</string>
     <string name="nationalOnlyBody">Дүйнөнүн калган бөлүгү менен байланыш үзүлгөн; өлкө ичиндеги сайттар дагы эле ачылат. Муну эч бир колдонмо же VPN айланып өтө албайт. Байланыш кайтканда Shroudly өзү улантат.</string>
     <string name="nationalOnlyHelp">Дагы эмне жардам берет</string>
@@ -287,7 +291,7 @@
     <string name="upload">Жөнөтүү</string>
     <string name="uptime">Иштөө убактысы</string>
     <string name="versionLabel">Версия {version}</string>
-    <string name="whatsNewAndroid">Бир нерсе иштебей жатабы? Бизге башкы экрандан эле билдириңиз: жазганыңыз колдонмонун журналы менен иштеп чыгуучуга барат, а сиз шилтеме номерин аласыз.\nAndroid TV жана телефондор: UDP өткөрбөгөн тармактарда коргоо мындан ары өзүнөн-өзү өчпөйт («the tunnel keeps failing»).\nЖөндөөлөр: «Кошумча» бөлүмү эми анимация менен ачылат жана барак ага жылат.</string>
+    <string name="whatsNewAndroid">Жеңил (lite) версия: сайт же колдонмо бөгөттөлгөн бойдон калса, Shroudly эми аны ача алган Tor бар толук версияны сунуштайт, бир басуу менен орнотулат.\nБир нерсе иштебей жатабы? Бизге башкы экрандан эле билдириңиз: жазганыңыз колдонмонун журналы менен иштеп чыгуучуга барат, а сиз шилтеме номерин аласыз.\nAndroid TV жана телефондор: UDP өткөрбөгөн тармактарда коргоо мындан ары өзүнөн-өзү өчпөйт («the tunnel keeps failing»).\nЖөндөөлөр: «Кошумча» бөлүмү эми анимация менен ачылат жана барак ага жылат.</string>
     <string name="whatsNewOk">Түшүнүктүү</string>
     <string name="whatsNewTitle">{version} версиясындагы жаңылыктар</string>
 </resources>

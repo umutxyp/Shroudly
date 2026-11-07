@@ -171,6 +171,10 @@
     <string name="linkReleases">版本说明</string>
     <string name="linkSourceCode">GitHub 上的源代码</string>
     <string name="linkWebsite">Codeshare 网站</string>
+    <string name="liteOfferCard">在此网络上，没有任何技术能打开 {host}：网络彻底封锁了它本身或它的地址。这是不含 Tor 的 Shroudly 精简版；完整版可以通过 Tor 网络打开这类网站和应用（速度较慢）。完整版会直接覆盖安装在此版本上，你的设置都会保留。</string>
+    <string name="liteOfferGet">获取完整版</string>
+    <string name="liteOfferNotice">在此网络上，没有任何技术能打开 {host}。带有 Tor 的 Shroudly 完整版可以打开它。打开 Shroudly 即可获取。</string>
+    <string name="liteOfferTitle">{host} 在这里仍被封锁</string>
     <string name="madeBy">Codeshare Technology Ltd 出品</string>
     <string name="nationalOnlyBody">与世界其他地区的连接已被切断；国内网站仍可打开。任何应用或 VPN 都无法绕过。连接恢复后，Shroudly 会自动继续。</string>
     <string name="nationalOnlyHelp">还有什么能帮上忙</string>
@@ -287,7 +291,7 @@
     <string name="upload">上传</string>
     <string name="uptime">运行时长</string>
     <string name="versionLabel">版本 {version}</string>
-    <string name="whatsNewAndroid">有什么用不了吗？直接在主界面告诉我们：你写的内容会连同应用日志一起发给开发者，你还会得到一个参考编号。\nAndroid TV 和手机：在不放行 UDP 的网络上，保护不会再自己关闭（“the tunnel keeps failing”）。\n设置：“高级”现在会以动画展开，页面也会滚动过去。</string>
+    <string name="whatsNewAndroid">精简版：当某个网站或应用一直被封锁时，Shroudly 现在会推荐能打开它的带 Tor 完整版，轻触一下即可安装。\n有什么用不了吗？直接在主界面告诉我们：你写的内容会连同应用日志一起发给开发者，你还会得到一个参考编号。\nAndroid TV 和手机：在不放行 UDP 的网络上，保护不会再自己关闭（“the tunnel keeps failing”）。\n设置：“高级”现在会以动画展开，页面也会滚动过去。</string>
     <string name="whatsNewOk">知道了</string>
     <string name="whatsNewTitle">{version} 的新内容</string>
 </resources>

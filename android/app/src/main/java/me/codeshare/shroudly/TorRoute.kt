@@ -79,6 +79,12 @@ class TorRoute(private val ctx: Context, private val log: (String) -> Unit, priv
         fun setApproved(ctx: Context, yes: Boolean) =
             ctx.getSharedPreferences("settings", Context.MODE_PRIVATE).edit().putBoolean("torApproved", yes).apply()
 
+        /* Tor is in this copy of the app (not in the lite APK). */
+        fun bundled(ctx: Context): Boolean {
+            val lib = File(ctx.applicationInfo.nativeLibraryDir)
+            return File(lib, "libtor.so").exists() && File(lib, "liblyrebird.so").exists()
+        }
+
         /* What the window shows: off, starting, ready, failed. */
         @Volatile var state = "off"
             private set

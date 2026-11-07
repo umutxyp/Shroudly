@@ -171,6 +171,10 @@
     <string name="linkReleases">Тавсифи версияҳо</string>
     <string name="linkSourceCode">Коди манбаъ дар GitHub</string>
     <string name="linkWebsite">Сомонаи Codeshare</string>
+    <string name="liteOfferCard">Дар ин шабака ягон усул {host}-ро намекушояд: шабака худи онро ё суроғаҳояшро пурра мебандад. Ин версияи сабуки (lite) Shroudly аст, бе Tor; версияи пурра чунин сомонаҳо ва барномаҳоро тавассути шабакаи Tor мекушояд (сусттар). Он болои ҳамин версия насб мешавад ва танзимоти шумо боқӣ мемонанд.</string>
+    <string name="liteOfferGet">Гирифтани версияи пурра</string>
+    <string name="liteOfferNotice">Дар ин шабака ягон усул {host}-ро намекушояд. Версияи пурраи Shroudly бо Tor метавонад онро кушояд. Барои гирифтани он Shroudly-ро кушоед.</string>
+    <string name="liteOfferTitle">{host} дар ин ҷо баста мемонад</string>
     <string name="madeBy">Маҳсули Codeshare Technology Ltd</string>
     <string name="nationalOnlyBody">Пайваст бо дигар ҷаҳон бурида шудааст; сайтҳои дохили кишвар ҳоло кушода мешаванд. Ягон барнома ё VPN инро гузашта наметавонад. Вақте пайваст бармегардад, Shroudly худаш идома медиҳад.</string>
     <string name="nationalOnlyHelp">Боз чӣ кӯмак карда метавонад</string>
@@ -287,7 +291,7 @@
     <string name="upload">Ирсол</string>
     <string name="uptime">Вақти кор</string>
     <string name="versionLabel">Версияи {version}</string>
-    <string name="whatsNewAndroid">Чизе кор намекунад? Бевосита аз экрани асосӣ ба мо хабар диҳед: навиштаи шумо якҷо бо сабтҳои барнома ба таҳиягар меравад ва шумо рақами пайгирӣ мегиред.\nAndroid TV ва телефонҳо: дар шабакаҳое, ки UDP-ро намегузаронанд, муҳофизат дигар худ ба худ хомӯш намешавад («the tunnel keeps failing»).\nТанзимот: бахши «Иловагӣ» акнун бо аниматсия кушода мешавад ва саҳифа ба он мегузарад.</string>
+    <string name="whatsNewAndroid">Версияи сабук (lite): вақте ки сомона ё барнома баста мемонад, Shroudly акнун версияи пурра бо Tor-ро пешниҳод мекунад, ки онро кушода метавонад; бо як пахш насб мешавад.\nЧизе кор намекунад? Бевосита аз экрани асосӣ ба мо хабар диҳед: навиштаи шумо якҷо бо сабтҳои барнома ба таҳиягар меравад ва шумо рақами пайгирӣ мегиред.\nAndroid TV ва телефонҳо: дар шабакаҳое, ки UDP-ро намегузаронанд, муҳофизат дигар худ ба худ хомӯш намешавад («the tunnel keeps failing»).\nТанзимот: бахши «Иловагӣ» акнун бо аниматсия кушода мешавад ва саҳифа ба он мегузарад.</string>
     <string name="whatsNewOk">Фаҳмо</string>
     <string name="whatsNewTitle">Навигариҳои {version}</string>
 </resources>

@@ -1134,7 +1134,9 @@ function advancedAtLaunch(r) {
 let lastStartFailed = false;
 
 async function safeStart({ user = false } = {}) {
-  if (user) store.set(PROTECTION_KEY, true);
+  // Said in the log: a report of a stop and a start half a second apart
+  // could not tell the user's own Stop and Start from Shroudly's doing.
+  if (user) { store.set(PROTECTION_KEY, true); addLog('info', 'Start pressed by the user'); }
   try {
     const r = await engine.start();
     lastStartFailed = false;
@@ -1166,7 +1168,7 @@ async function safeStart({ user = false } = {}) {
 }
 
 async function safeStop({ user = false } = {}) {
-  if (user) { store.set(PROTECTION_KEY, false); lastStartFailed = false; }
+  if (user) { store.set(PROTECTION_KEY, false); lastStartFailed = false; addLog('info', 'Stop pressed by the user'); }
   // Nothing of Roblox's is stopped or started once protection is going off.
   robloxWatch.halt();
   // A question about Tor belongs to this session: a new one asks again.
@@ -1310,7 +1312,7 @@ app.whenReady().then(async () => {
   // Started with another version than last time: the main window says once
   // what changed (whats-new.js). Tests see the card only when they ask.
   if (process.env.SHROUDLY_E2E !== '1' || process.env.SHROUDLY_E2E_WHATS_NEW === '1') {
-    WhatsNew.note(store, { current: appVersion(), firstRun: !!settingsOpened.firstRun });
+    WhatsNew.note(store, { current: appVersion(), firstRun: !!settingsOpened.firstRun, text: i18n.strings('en').whatsNewDesktop });
   }
   // Settings that cannot be written (a full disk, a folder not writable):
   // kept for this run instead of ending it (settings-file.js), said once.

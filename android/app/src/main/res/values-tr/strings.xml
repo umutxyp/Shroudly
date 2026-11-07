@@ -171,6 +171,10 @@
     <string name="linkReleases">Sürüm notları</string>
     <string name="linkSourceCode">GitHub’daki kaynak kodu</string>
     <string name="linkWebsite">Codeshare web sitesi</string>
+    <string name="liteOfferCard">Bu ağda hiçbir teknik {host} için işe yaramıyor: ağ onu ya da adreslerini tamamen engelliyor. Bu, Shroudly\'nin Tor\'suz hafif (lite) sürümü; tam sürüm böyle siteleri ve uygulamaları Tor ağı üzerinden açar (daha yavaş). Bunun üzerine kurulur, ayarların kalır.</string>
+    <string name="liteOfferGet">Tam sürümü al</string>
+    <string name="liteOfferNotice">Bu ağda hiçbir teknik {host} için işe yaramıyor. Shroudly\'nin Tor\'lu tam sürümü onu açabilir. Almak için Shroudly\'yi aç.</string>
+    <string name="liteOfferTitle">{host} burada engelli kalıyor</string>
     <string name="madeBy">Bir Codeshare Technology Ltd ürünü</string>
     <string name="nationalOnlyBody">Dünyanın geri kalanıyla bağlantı kesik; ülke içindeki siteler hâlâ açılıyor. Hiçbir uygulama ya da VPN bunu aşamaz. Bağlantı geri geldiğinde Shroudly kendiliğinden devam eder.</string>
     <string name="nationalOnlyHelp">Hâlâ ne işe yarar</string>
@@ -287,7 +291,7 @@
     <string name="upload">Yükleme</string>
     <string name="uptime">Çalışma süresi</string>
     <string name="versionLabel">Sürüm {version}</string>
-    <string name="whatsNewAndroid">Çalışmayan bir şey mi var? Doğrudan ana ekrandan bize bildirin: yazdıklarınız uygulamanın kayıtlarıyla birlikte geliştiriciye gider, size de bir referans numarası verilir.\nAndroid TV ve telefonlar: UDP\'ye izin vermeyen ağlarda koruma artık kendiliğinden kapanmıyor (“the tunnel keeps failing”).\nAyarlar: Gelişmiş artık animasyonla açılıyor ve sayfa ona kayıyor.</string>
+    <string name="whatsNewAndroid">Hafif (lite) sürüm: bir site ya da uygulama engelli kaldığında Shroudly artık onu açabilen Tor\'lu tam sürümü öneriyor, tek dokunuşla kurulur.\nÇalışmayan bir şey mi var? Doğrudan ana ekrandan bize bildirin: yazdıklarınız uygulamanın kayıtlarıyla birlikte geliştiriciye gider, size de bir referans numarası verilir.\nAndroid TV ve telefonlar: UDP\'ye izin vermeyen ağlarda koruma artık kendiliğinden kapanmıyor (“the tunnel keeps failing”).\nAyarlar: Gelişmiş artık animasyonla açılıyor ve sayfa ona kayıyor.</string>
     <string name="whatsNewOk">Tamam</string>
     <string name="whatsNewTitle">{version} sürümünde yenilikler</string>
 </resources>

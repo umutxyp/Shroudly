@@ -19,7 +19,8 @@ object ApkUpdates {
 
     fun available(ctx: Context): Boolean = false
     fun seen(ctx: Context, version: String) {}
-    fun start(activity: Activity, version: String, url: String) {}
+    fun start(activity: Activity, version: String, url: String, variant: String = "") {}
+    fun startFull(activity: Activity) {}
     fun resume(activity: Activity) {}
     fun look(ctx: Context, port: Int, auth: SocksAuth?) {}
 }

@@ -171,6 +171,10 @@
     <string name="linkReleases">Reliz qaydlari</string>
     <string name="linkSourceCode">GitHubdagi manba kodi</string>
     <string name="linkWebsite">Codeshare sayti</string>
+    <string name="liteOfferCard">Bu tarmoqda hech bir usul {host} uchun ishlamayapti: tarmoq uni yoki uning manzillarini butunlay bloklaydi. Bu Shroudly\'ning Tor\'siz yengil (lite) versiyasi; to\'liq versiya bunday sayt va ilovalarni Tor tarmog\'i orqali ochadi (sekinroq). U shu versiya ustidan o\'rnatiladi, sozlamalaringiz saqlanib qoladi.</string>
+    <string name="liteOfferGet">To\'liq versiyani olish</string>
+    <string name="liteOfferNotice">Bu tarmoqda hech bir usul {host} uchun ishlamayapti. Shroudly\'ning Tor bilan to\'liq versiyasi uni ocha oladi. Uni olish uchun Shroudly\'ni oching.</string>
+    <string name="liteOfferTitle">{host} bu yerda bloklangan holda qolmoqda</string>
     <string name="madeBy">Codeshare Technology Ltd mahsuloti</string>
     <string name="nationalOnlyBody">Dunyoning qolgan qismi bilan aloqa uzilgan; mamlakat ichidagi saytlar hali ochilmoqda. Buni hech bir ilova yoki VPN chetlab oʻta olmaydi. Aloqa qaytganda Shroudly oʻzi davom etadi.</string>
     <string name="nationalOnlyHelp">Yana nima yordam berishi mumkin</string>
@@ -287,7 +291,7 @@
     <string name="upload">Yuklash</string>
     <string name="uptime">Ish vaqti</string>
     <string name="versionLabel">Versiya {version}</string>
-    <string name="whatsNewAndroid">Nimadir ishlamayaptimi? Toʻgʻridan-toʻgʻri bosh ekrandan bizga xabar bering: yozganlaringiz ilova jurnali bilan birga dasturchiga boradi, sizga esa maʼlumot raqami beriladi.\nAndroid TV va telefonlar: UDP oʻtkazmaydigan tarmoqlarda himoya endi oʻz-oʻzidan oʻchmaydi (“the tunnel keeps failing”).\nSozlamalar: «Qoʻshimcha» boʻlimi endi animatsiya bilan ochiladi va sahifa unga suriladi.</string>
+    <string name="whatsNewAndroid">Yengil (lite) versiya: sayt yoki ilova bloklangan holda qolsa, Shroudly endi uni ocha oladigan Tor bilan to\'liq versiyani taklif qiladi, bir bosishda o\'rnatiladi.\nNimadir ishlamayaptimi? Toʻgʻridan-toʻgʻri bosh ekrandan bizga xabar bering: yozganlaringiz ilova jurnali bilan birga dasturchiga boradi, sizga esa maʼlumot raqami beriladi.\nAndroid TV va telefonlar: UDP oʻtkazmaydigan tarmoqlarda himoya endi oʻz-oʻzidan oʻchmaydi (“the tunnel keeps failing”).\nSozlamalar: «Qoʻshimcha» boʻlimi endi animatsiya bilan ochiladi va sahifa unga suriladi.</string>
     <string name="whatsNewOk">Tushunarli</string>
     <string name="whatsNewTitle">{version} versiyasida yangiliklar</string>
 </resources>

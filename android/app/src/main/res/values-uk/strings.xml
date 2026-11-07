@@ -171,6 +171,10 @@
     <string name="linkReleases">Примітки до випусків</string>
     <string name="linkSourceCode">Вихідний код на GitHub</string>
     <string name="linkWebsite">Сайт Codeshare</string>
+    <string name="liteOfferCard">Жоден спосіб не відкриває {host} у цій мережі: мережа повністю блокує його самого або його адреси. Це полегшена версія Shroudly, без Tor; повна версія відкриває такі сайти й застосунки через мережу Tor (повільніше). Вона встановлюється поверх цієї, і всі ваші налаштування зберігаються.</string>
+    <string name="liteOfferGet">Отримати повну версію</string>
+    <string name="liteOfferNotice">Жоден спосіб не відкриває {host} у цій мережі. Повна версія Shroudly з Tor може його відкрити. Відкрийте Shroudly, щоб її отримати.</string>
+    <string name="liteOfferTitle">{host} тут лишається заблокованим</string>
     <string name="madeBy">Продукт Codeshare Technology Ltd</string>
     <string name="nationalOnlyBody">Зв’язок із рештою світу відрізано; сайти всередині країни ще відкриваються. Жоден застосунок чи VPN цього не обійде. Коли зв’язок повернеться, Shroudly продовжить сам.</string>
     <string name="nationalOnlyHelp">Що ще може допомогти</string>
@@ -287,7 +291,7 @@
     <string name="upload">Вивантаження</string>
     <string name="uptime">Час роботи</string>
     <string name="versionLabel">Версія {version}</string>
-    <string name="whatsNewAndroid">Щось не працює? Повідомте просто з головного екрана: ваш текст піде розробнику разом із журналом застосунку, а ви отримаєте номер звернення.\nAndroid TV і телефони: захист більше не вимикається сам у мережах, які не пропускають UDP («the tunnel keeps failing»).\nНалаштування: розділ «Додатково» тепер відкривається з анімацією, і сторінка прокручується до нього.</string>
+    <string name="whatsNewAndroid">Полегшена версія: якщо сайт або застосунок лишаються заблокованими, Shroudly тепер пропонує повну версію з Tor, яка може їх відкрити, — встановлюється одним дотиком.\nЩось не працює? Повідомте просто з головного екрана: ваш текст піде розробнику разом із журналом застосунку, а ви отримаєте номер звернення.\nAndroid TV і телефони: захист більше не вимикається сам у мережах, які не пропускають UDP («the tunnel keeps failing»).\nНалаштування: розділ «Додатково» тепер відкривається з анімацією, і сторінка прокручується до нього.</string>
     <string name="whatsNewOk">Зрозуміло</string>
     <string name="whatsNewTitle">Що нового у {version}</string>
 </resources>

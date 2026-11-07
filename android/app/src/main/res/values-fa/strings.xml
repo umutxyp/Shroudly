@@ -171,6 +171,10 @@
     <string name="linkReleases">یادداشت‌های انتشار</string>
     <string name="linkSourceCode">کد منبع در GitHub</string>
     <string name="linkWebsite">وب‌سایت Codeshare</string>
+    <string name="liteOfferCard">هیچ روشی {host} را در این شبکه باز نمی‌کند: این شبکه خودِ آن یا آدرس‌هایش را کاملاً مسدود می‌کند. این نسخهٔ سبک (lite) Shroudly است و Tor ندارد؛ نسخهٔ کامل چنین سایت‌ها و برنامه‌هایی را از طریق شبکهٔ Tor باز می‌کند (کندتر). روی همین نسخه نصب می‌شود و تنظیمات شما می‌ماند.</string>
+    <string name="liteOfferGet">دریافت نسخهٔ کامل</string>
+    <string name="liteOfferNotice">هیچ روشی {host} را در این شبکه باز نمی‌کند. نسخهٔ کامل Shroudly که Tor دارد می‌تواند آن را باز کند. برای دریافتش Shroudly را باز کنید.</string>
+    <string name="liteOfferTitle">{host} اینجا همچنان مسدود است</string>
     <string name="madeBy">محصولی از Codeshare Technology Ltd</string>
     <string name="nationalOnlyBody">ارتباط با بقیهٔ جهان قطع است؛ سایت‌های داخل کشور هنوز باز می‌شوند. هیچ برنامه یا VPNی از این عبور نمی‌کند. وقتی ارتباط برگردد، Shroudly خودش ادامه می‌دهد.</string>
     <string name="nationalOnlyHelp">چه چیزی هنوز کمک می‌کند</string>
@@ -287,7 +291,7 @@
     <string name="upload">آپلود</string>
     <string name="uptime">مدت فعالیت</string>
     <string name="versionLabel">نسخهٔ {version}</string>
-    <string name="whatsNewAndroid">چیزی کار نمی‌کند؟ مستقیم از صفحهٔ اصلی به ما بگویید: آنچه می‌نویسید همراه با گزارش‌های برنامه به دست توسعه‌دهنده می‌رسد و یک شمارهٔ پیگیری می‌گیرید.\nاندروید تی‌وی و گوشی‌ها: در شبکه‌هایی که UDP را عبور نمی‌دهند، محافظت دیگر خودبه‌خود خاموش نمی‌شود («the tunnel keeps failing»).\nتنظیمات: بخش «پیشرفته» حالا با انیمیشن باز می‌شود و صفحه به سمت آن می‌رود.</string>
+    <string name="whatsNewAndroid">نسخهٔ سبک (lite): وقتی سایت یا برنامه‌ای مسدود می‌ماند، Shroudly حالا نسخهٔ کامل با Tor را که می‌تواند آن را باز کند پیشنهاد می‌دهد؛ با یک لمس نصب می‌شود.\nچیزی کار نمی‌کند؟ مستقیم از صفحهٔ اصلی به ما بگویید: آنچه می‌نویسید همراه با گزارش‌های برنامه به دست توسعه‌دهنده می‌رسد و یک شمارهٔ پیگیری می‌گیرید.\nاندروید تی‌وی و گوشی‌ها: در شبکه‌هایی که UDP را عبور نمی‌دهند، محافظت دیگر خودبه‌خود خاموش نمی‌شود («the tunnel keeps failing»).\nتنظیمات: بخش «پیشرفته» حالا با انیمیشن باز می‌شود و صفحه به سمت آن می‌رود.</string>
     <string name="whatsNewOk">متوجه شدم</string>
     <string name="whatsNewTitle">تازه‌های نسخهٔ {version}</string>
 </resources>

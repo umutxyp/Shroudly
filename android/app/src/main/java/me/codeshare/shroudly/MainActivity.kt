@@ -225,6 +225,16 @@ class MainActivity : Activity() {
             Protector.tell(this, ShroudlyVpnService.ACTION_SETTINGS, "torLastResort")
             render()
         }
+        // The lite APK: a site stayed shut that the full APK's Tor could
+        // open (LiteOffer): the full APK installed over this one, or a rest.
+        findViewById<View>(R.id.liteOfferGet).setOnClickListener {
+            ApkUpdates.startFull(this)
+            render()
+        }
+        findViewById<View>(R.id.liteOfferLater).setOnClickListener {
+            LiteOffer.rest(this)
+            render()
+        }
         findViewById<View>(R.id.supportRow).setOnClickListener { openSupport() }
         findViewById<View>(R.id.followRow).setOnClickListener { startActivity(android.content.Intent(this, FollowActivity::class.java)) }
         findViewById<View>(R.id.supportOpen).setOnClickListener { openSupport() }
@@ -629,6 +639,23 @@ class MainActivity : Activity() {
             val h = torAsk.ifEmpty { "…" }
             findViewById<TextView>(R.id.torAskTitle).text = text(R.string.torAskTitle, "host" to h)
             findViewById<TextView>(R.id.torAskText).text = text(R.string.torAskCard, "host" to h)
+        }
+        // The lite APK's offer of the full one (LiteOffer), and how its
+        // download stands once asked for (ApkUpdates, this same version).
+        val lite = if (on && torAsk == null) Protection.liteOffer else null
+        findViewById<View>(R.id.liteOfferCard).visibility = if (lite != null) View.VISIBLE else View.GONE
+        if (lite != null) {
+            val v = BuildConfig.VERSION_NAME
+            val now = ApkUpdates.now?.takeIf { it.version == v }
+            findViewById<TextView>(R.id.liteOfferTitle).text = text(R.string.liteOfferTitle, "host" to lite)
+            findViewById<TextView>(R.id.liteOfferText).text = when (now?.stage) {
+                ApkUpdates.Stage.DOWNLOADING -> text(R.string.updDownloading, "version" to v, "percent" to now.percent)
+                ApkUpdates.Stage.WAITING -> text(R.string.updReady, "version" to v)
+                ApkUpdates.Stage.FAILED -> getString(now.failed)
+                null -> text(R.string.liteOfferCard, "host" to lite)
+            }
+            val busy = now?.stage == ApkUpdates.Stage.DOWNLOADING || now?.stage == ApkUpdates.Stage.WAITING
+            findViewById<View>(R.id.liteOfferGet).visibility = if (busy) View.GONE else View.VISIBLE
         }
 
         val statusText = getString(

@@ -171,6 +171,10 @@
     <string name="linkReleases">Ghi chú phát hành</string>
     <string name="linkSourceCode">Mã nguồn trên GitHub</string>
     <string name="linkWebsite">Trang web Codeshare</string>
+    <string name="liteOfferCard">Không kỹ thuật nào mở được {host} trên mạng này: mạng chặn hẳn nó, hoặc các địa chỉ của nó. Đây là bản lite của Shroudly, không có Tor; bản đầy đủ mở những trang và ứng dụng như vậy qua mạng Tor (chậm hơn). Bản đó cài đè lên bản này, và cài đặt của bạn vẫn giữ nguyên.</string>
+    <string name="liteOfferGet">Tải bản đầy đủ</string>
+    <string name="liteOfferNotice">Không kỹ thuật nào mở được {host} trên mạng này. Bản đầy đủ của Shroudly, có Tor, có thể mở nó. Mở Shroudly để tải bản đó.</string>
+    <string name="liteOfferTitle">{host} vẫn bị chặn ở đây</string>
     <string name="madeBy">Một sản phẩm của Codeshare Technology Ltd</string>
     <string name="nationalOnlyBody">Kết nối với phần còn lại của thế giới đã bị cắt; các trang trong nước vẫn mở được. Không ứng dụng hay VPN nào vượt qua được điều này. Shroudly sẽ tự tiếp tục khi kết nối trở lại.</string>
     <string name="nationalOnlyHelp">Điều gì vẫn có thể giúp</string>
@@ -287,7 +291,7 @@
     <string name="upload">Tải lên</string>
     <string name="uptime">Thời gian chạy</string>
     <string name="versionLabel">Phiên bản {version}</string>
-    <string name="whatsNewAndroid">Có gì đó không hoạt động? Hãy báo cho chúng tôi ngay từ màn hình chính: nội dung bạn viết sẽ đến nhà phát triển cùng nhật ký của ứng dụng, và bạn nhận được một mã tham chiếu.\nAndroid TV và điện thoại: chế độ bảo vệ không còn tự tắt trên các mạng không cho UDP đi qua (“the tunnel keeps failing”).\nCài đặt: mục Nâng cao giờ mở ra có hiệu ứng, và trang tự cuộn tới đó.</string>
+    <string name="whatsNewAndroid">Bản lite: khi một trang hoặc ứng dụng vẫn bị chặn, Shroudly giờ đề xuất bản đầy đủ có Tor có thể mở nó, cài đặt chỉ với một chạm.\nCó gì đó không hoạt động? Hãy báo cho chúng tôi ngay từ màn hình chính: nội dung bạn viết sẽ đến nhà phát triển cùng nhật ký của ứng dụng, và bạn nhận được một mã tham chiếu.\nAndroid TV và điện thoại: chế độ bảo vệ không còn tự tắt trên các mạng không cho UDP đi qua (“the tunnel keeps failing”).\nCài đặt: mục Nâng cao giờ mở ra có hiệu ứng, và trang tự cuộn tới đó.</string>
     <string name="whatsNewOk">Đã hiểu</string>
     <string name="whatsNewTitle">Có gì mới trong {version}</string>
 </resources>

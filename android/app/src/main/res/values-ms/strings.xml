@@ -171,6 +171,10 @@
     <string name="linkReleases">Nota keluaran</string>
     <string name="linkSourceCode">Kod sumber di GitHub</string>
     <string name="linkWebsite">Laman web Codeshare</string>
+    <string name="liteOfferCard">Tiada teknik yang membuka {host} di rangkaian ini: rangkaian menyekatnya, atau alamatnya, sepenuhnya. Ini Shroudly versi lite, tanpa Tor; versi penuh membuka laman dan aplikasi sebegini melalui rangkaian Tor (lebih perlahan). Ia dipasang di atas versi ini, dan tetapan anda kekal.</string>
+    <string name="liteOfferGet">Dapatkan versi penuh</string>
+    <string name="liteOfferNotice">Tiada teknik yang membuka {host} di rangkaian ini. Shroudly versi penuh, dengan Tor, boleh membukanya. Buka Shroudly untuk mendapatkannya.</string>
+    <string name="liteOfferTitle">{host} masih disekat di sini</string>
     <string name="madeBy">Produk Codeshare Technology Ltd</string>
     <string name="nationalOnlyBody">Sambungan ke seluruh dunia terputus; laman dalam negara masih terbuka. Tiada aplikasi atau VPN yang dapat melepasinya. Shroudly akan meneruskan sendiri apabila sambungan kembali.</string>
     <string name="nationalOnlyHelp">Apa yang masih boleh membantu</string>
@@ -287,7 +291,7 @@
     <string name="upload">Muat naik</string>
     <string name="uptime">Masa aktif</string>
     <string name="versionLabel">Versi {version}</string>
-    <string name="whatsNewAndroid">Ada yang tidak berfungsi? Beritahu kami terus dari skrin utama: apa yang anda tulis dihantar kepada pembangun bersama log aplikasi, dan anda mendapat nombor rujukan.\nAndroid TV dan telefon: perlindungan tidak lagi mati sendiri pada rangkaian yang tidak membenarkan UDP (“the tunnel keeps failing”).\nTetapan: Lanjutan kini dibuka dengan animasi, dan halaman bergerak kepadanya.</string>
+    <string name="whatsNewAndroid">Versi lite: apabila laman atau aplikasi masih disekat, Shroudly kini menawarkan versi penuh dengan Tor yang boleh membukanya, dipasang dengan satu ketikan.\nAda yang tidak berfungsi? Beritahu kami terus dari skrin utama: apa yang anda tulis dihantar kepada pembangun bersama log aplikasi, dan anda mendapat nombor rujukan.\nAndroid TV dan telefon: perlindungan tidak lagi mati sendiri pada rangkaian yang tidak membenarkan UDP (“the tunnel keeps failing”).\nTetapan: Lanjutan kini dibuka dengan animasi, dan halaman bergerak kepadanya.</string>
     <string name="whatsNewOk">Faham</string>
     <string name="whatsNewTitle">Apa yang baharu dalam {version}</string>
 </resources>

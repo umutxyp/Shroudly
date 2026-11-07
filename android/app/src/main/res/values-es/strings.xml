@@ -171,6 +171,10 @@
     <string name="linkReleases">Notas de la versión</string>
     <string name="linkSourceCode">Código fuente en GitHub</string>
     <string name="linkWebsite">Sitio web de Codeshare</string>
+    <string name="liteOfferCard">Ninguna técnica abre {host} en esta red: la red lo bloquea por completo, a él o a sus direcciones. Esta es la versión lite de Shroudly, sin Tor; la versión completa abre esos sitios y apps a través de la red Tor (más despacio). Se instala encima de esta y tus ajustes se mantienen.</string>
+    <string name="liteOfferGet">Obtener la versión completa</string>
+    <string name="liteOfferNotice">Ninguna técnica abre {host} en esta red. La versión completa de Shroudly, con Tor, puede abrirlo. Abre Shroudly para conseguirla.</string>
+    <string name="liteOfferTitle">{host} sigue bloqueado aquí</string>
     <string name="madeBy">Un producto de Codeshare Technology Ltd</string>
     <string name="nationalOnlyBody">La conexión con el resto del mundo está cortada; los sitios del país todavía abren. Ninguna app ni VPN puede saltarse eso. Shroudly seguirá por sí mismo cuando vuelva.</string>
     <string name="nationalOnlyHelp">Lo que todavía puede ayudar</string>
@@ -287,7 +291,7 @@
     <string name="upload">Subida</string>
     <string name="uptime">Tiempo activo</string>
     <string name="versionLabel">Versión {version}</string>
-    <string name="whatsNewAndroid">¿Algo no funciona? Cuéntanoslo desde la pantalla principal: lo que escribas llega al desarrollador con el registro de la app y recibes un número de referencia.\nAndroid TV y móviles: la protección ya no se desactiva sola en redes que no dejan pasar UDP («the tunnel keeps failing»).\nAjustes: Avanzado ahora se abre con una animación y la página se desplaza hasta él.</string>
+    <string name="whatsNewAndroid">Versión lite: cuando un sitio o una app sigue bloqueado, Shroudly ahora ofrece la versión completa con Tor, que puede abrirlo, instalada con un toque.\n¿Algo no funciona? Cuéntanoslo desde la pantalla principal: lo que escribas llega al desarrollador con el registro de la app y recibes un número de referencia.\nAndroid TV y móviles: la protección ya no se desactiva sola en redes que no dejan pasar UDP («the tunnel keeps failing»).\nAjustes: Avanzado ahora se abre con una animación y la página se desplaza hasta él.</string>
     <string name="whatsNewOk">Entendido</string>
     <string name="whatsNewTitle">Novedades de la {version}</string>
 </resources>

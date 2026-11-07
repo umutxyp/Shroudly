@@ -171,6 +171,10 @@
     <string name="linkReleases">הערות גרסה</string>
     <string name="linkSourceCode">קוד המקור ב-GitHub</string>
     <string name="linkWebsite">האתר של Codeshare</string>
+    <string name="liteOfferCard">אף שיטה לא פותחת את {host} ברשת הזו: הרשת חוסמת אותו, או את הכתובות שלו, לגמרי. זו הגרסה הקלה (lite) של Shroudly, בלי Tor; הגרסה המלאה פותחת אתרים ואפליקציות כאלה דרך רשת Tor (לאט יותר). היא מותקנת מעל הגרסה הזו, וההגדרות שלכם נשארות.</string>
+    <string name="liteOfferGet">לקבלת הגרסה המלאה</string>
+    <string name="liteOfferNotice">אף שיטה לא פותחת את {host} ברשת הזו. הגרסה המלאה של Shroudly, עם Tor, יכולה לפתוח אותו. פתחו את Shroudly כדי לקבל אותה.</string>
+    <string name="liteOfferTitle">{host} נשאר חסום כאן</string>
     <string name="madeBy">מוצר של Codeshare Technology Ltd</string>
     <string name="nationalOnlyBody">החיבור לשאר העולם מנותק; אתרים בתוך המדינה עדיין נפתחים. אף אפליקציה או VPN לא יכולים לעקוף את זה. Shroudly ימשיך מעצמו כשהחיבור יחזור.</string>
     <string name="nationalOnlyHelp">מה עוד יכול לעזור</string>
@@ -287,7 +291,7 @@
     <string name="upload">העלאה</string>
     <string name="uptime">זמן פעילות</string>
     <string name="versionLabel">גרסה {version}</string>
-    <string name="whatsNewAndroid">משהו לא עובד? ספרו לנו ישר מהמסך הראשי: מה שתכתבו מגיע למפתח יחד עם יומן האפליקציה, ותקבלו מספר הפניה.\nAndroid TV וטלפונים: ההגנה כבר לא נכבית מעצמה ברשתות שלא מעבירות UDP ‏(“the tunnel keeps failing”).\nהגדרות: \"מתקדם\" נפתח עכשיו באנימציה, והעמוד גולל אליו.</string>
+    <string name="whatsNewAndroid">גרסה קלה (lite): כשאתר או אפליקציה נשארים חסומים, Shroudly מציע עכשיו את הגרסה המלאה עם Tor שיכולה לפתוח אותם, בהתקנה בנגיעה אחת.\nמשהו לא עובד? ספרו לנו ישר מהמסך הראשי: מה שתכתבו מגיע למפתח יחד עם יומן האפליקציה, ותקבלו מספר הפניה.\nAndroid TV וטלפונים: ההגנה כבר לא נכבית מעצמה ברשתות שלא מעבירות UDP ‏(“the tunnel keeps failing”).\nהגדרות: \"מתקדם\" נפתח עכשיו באנימציה, והעמוד גולל אליו.</string>
     <string name="whatsNewOk">הבנתי</string>
     <string name="whatsNewTitle">מה חדש בגרסה {version}</string>
 </resources>

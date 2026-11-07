@@ -171,6 +171,10 @@
     <string name="linkReleases">د خپرونو یادښتونه</string>
     <string name="linkSourceCode">په GitHub کې سرچینه کوډ</string>
     <string name="linkWebsite">د Codeshare وېبسایټ</string>
+    <string name="liteOfferCard">په دې شبکه کې هېڅ تخنیک {host} نه پرانیزي: شبکه هغه، یا د هغه پتې، بشپړې بندوي. دا د Shroudly سپکه (lite) نسخه ده، بې له Tor؛ بشپړه نسخه داسې سایټونه او اپونه د Tor شبکې له لارې پرانیزي (ورو). دا د همدې نسخې پر سر نصبېږي، او ستاسو ترتیبات پاتې کېږي.</string>
+    <string name="liteOfferGet">بشپړه نسخه ترلاسه کړئ</string>
+    <string name="liteOfferNotice">په دې شبکه کې هېڅ تخنیک {host} نه پرانیزي. د Shroudly بشپړه نسخه، له Tor سره، کولی شي هغه پرانیزي. د ترلاسه کولو لپاره Shroudly پرانیزئ.</string>
+    <string name="liteOfferTitle">{host} دلته لا هم بند دی</string>
     <string name="madeBy">د Codeshare Technology Ltd محصول</string>
     <string name="nationalOnlyBody">د نړۍ له پاتې برخې سره اړیکه پرې ده؛ د هېواد دننه سایټونه لا خلاصېږي. هېڅ اپ یا VPN له دې نه شي تېرېدای. کله چې اړیکه بېرته راشي، Shroudly پخپله دوام ورکوي.</string>
     <string name="nationalOnlyHelp">نور څه مرسته کولی شي</string>
@@ -287,7 +291,7 @@
     <string name="upload">اپلوډ</string>
     <string name="uptime">د کار موده</string>
     <string name="versionLabel">نسخه {version}</string>
-    <string name="whatsNewAndroid">څه کار نه کوي؟ نېغ له اصلي پردې موږ ته ووایاست: هغه څه چې لیکئ یې د اپ له لاګونو سره پراختیاکوونکي ته ځي، او تاسو د حوالې شمېره ترلاسه کوئ.\nAndroid TV او تلیفونونه: په هغو شبکو کې چې UDP نه پرېږدي، ساتنه نور پخپله نه بندېږي (“the tunnel keeps failing”).\nترتیبات: «پرمختللي» برخه اوس له انیمېشن سره پرانیستل کېږي او پاڼه ورته ښوییږي.</string>
+    <string name="whatsNewAndroid">سپکه (lite) نسخه: کله چې یو سایټ یا اپ بند پاتې شي، Shroudly اوس هغه بشپړه نسخه وړاندې کوي چې Tor لري او هغه پرانیستلی شي؛ په یوه ټک نصبېږي.\nڅه کار نه کوي؟ نېغ له اصلي پردې موږ ته ووایاست: هغه څه چې لیکئ یې د اپ له لاګونو سره پراختیاکوونکي ته ځي، او تاسو د حوالې شمېره ترلاسه کوئ.\nAndroid TV او تلیفونونه: په هغو شبکو کې چې UDP نه پرېږدي، ساتنه نور پخپله نه بندېږي (“the tunnel keeps failing”).\nترتیبات: «پرمختللي» برخه اوس له انیمېشن سره پرانیستل کېږي او پاڼه ورته ښوییږي.</string>
     <string name="whatsNewOk">پوه شوم</string>
     <string name="whatsNewTitle">په {version} کې نوي څه</string>
 </resources>
