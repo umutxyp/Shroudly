@@ -950,6 +950,7 @@
   "liteOfferCard": "在此网络上，没有任何技术能打开 {host}：网络彻底封锁了它本身或它的地址。这是不含 Tor 的 Shroudly 精简版；完整版可以通过 Tor 网络打开这类网站和应用（速度较慢）。完整版会直接覆盖安装在此版本上，你的设置都会保留。",
   "liteOfferNotice": "在此网络上，没有任何技术能打开 {host}。带有 Tor 的 Shroudly 完整版可以打开它。打开 Shroudly 即可获取。",
   "liteOfferGet": "获取完整版",
+  "appUsersRestart": "{apps} 仍在使用 Shroudly 已不存在的地址：请重新启动它们，让它们直接连接。",
   "lastResortAsks": "Shroudly 首次使用它之前会先问你。",
   "reportLink": "有什么用不了吗？",
   "reportTitle": "有什么用不了吗？",

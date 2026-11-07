@@ -950,6 +950,7 @@
   "liteOfferCard": "Tidak ada teknik yang membuka {host} di jaringan ini: jaringan memblokirnya, atau alamatnya, sepenuhnya. Ini Shroudly versi lite, tanpa Tor; versi lengkap membuka situs dan aplikasi seperti itu lewat jaringan Tor (lebih lambat). Versi itu terpasang menimpa yang ini, dan pengaturanmu tetap.",
   "liteOfferNotice": "Tidak ada teknik yang membuka {host} di jaringan ini. Shroudly versi lengkap, dengan Tor, bisa membukanya. Buka Shroudly untuk mendapatkannya.",
   "liteOfferGet": "Dapatkan versi lengkap",
+  "appUsersRestart": "{apps} masih memakai alamat Shroudly yang sudah tidak ada: mulai ulang agar tersambung langsung.",
   "lastResortAsks": "Shroudly bertanya dulu sebelum memakainya pertama kali.",
   "reportLink": "Ada yang tidak berfungsi?",
   "reportTitle": "Ada yang tidak berfungsi?",

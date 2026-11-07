@@ -450,6 +450,55 @@ static int fb_put(const char *h) {
   return !had;
 }
 
+/* ── names the network keeps cutting ─────────────────────────────────────
+ * A name a technique opens but the network cuts each time soon after (in
+ * Iran, WhatsApp's and Instagram's: they connect, then nothing comes back):
+ * another technique is tried for its next connection (hs_on_cut), and once
+ * CUTS_TO_FB of them were cut within CUTS_WIN_MS, while no connection to
+ * the site was answered (report: not site_ok), its next connections go to
+ * the last way out first, where one is set and may be used (fallback_ok).
+ * Not running yet, that is said (fallback, ok 0) with the name, which starts
+ * it or asks the user; the techniques go on meanwhile. Per name, as g_fb. */
+#define CUT_SLOTS   128
+#define CUTS_TO_FB  3
+#define CUTS_WIN_MS (10 * 60 * 1000)
+static struct { char host[256]; int n; uint64_t t; } g_cuts[CUT_SLOTS];
+static mutex_t g_cuts_mx;
+
+static void cuts_note(const char *h) {
+  if (!h || !h[0] || strlen(h) >= sizeof(g_cuts[0].host)) return;
+  mutex_lock(&g_cuts_mx);
+  uint64_t now = now_ms();
+  int slot = 0, had = 0;
+  for (int i = 0; i < CUT_SLOTS; i++) {
+    if (g_cuts[i].host[0] && strcmp(g_cuts[i].host, h) == 0) { slot = i; had = 1; break; }
+    if (g_cuts[i].t < g_cuts[slot].t) slot = i;   /* else the oldest (or an empty one) */
+  }
+  if (!had || age_ms(now, g_cuts[slot].t) >= CUTS_WIN_MS) {
+    snprintf(g_cuts[slot].host, sizeof(g_cuts[slot].host), "%s", h);
+    g_cuts[slot].n = 0;
+  }
+  g_cuts[slot].n++;
+  g_cuts[slot].t = now;
+  mutex_unlock(&g_cuts_mx);
+}
+
+static int cuts_many(const char *h) {
+  int yes = 0;
+  mutex_lock(&g_cuts_mx);
+  uint64_t now = now_ms();
+  for (int i = 0; i < CUT_SLOTS; i++)
+    if (g_cuts[i].host[0] && strcmp(g_cuts[i].host, h) == 0) { yes = g_cuts[i].n >= CUTS_TO_FB && age_ms(now, g_cuts[i].t) < CUTS_WIN_MS; break; }
+  mutex_unlock(&g_cuts_mx);
+  return yes;
+}
+
+static void cuts_forget(void) {
+  mutex_lock(&g_cuts_mx);
+  memset(g_cuts, 0, sizeof(g_cuts));
+  mutex_unlock(&g_cuts_mx);
+}
+
 /* Another name of a site the last way out carries now (issue #77): its
  * ladder is kept short (ATT_BUDGET_FB_MS) where the last way out is up, so
  * a page's images and API names do not each wait out every technique before
@@ -2062,6 +2111,10 @@ static void json_host(char *out, size_t cap, const char *in) {
  * it is a different kind of filter. */
 static void report(const char *ev, const char *host, const char *strat,
                    int attempts, int fam, const char *note) {
+  /* Counted toward the last way out only while the site works nowhere
+   * else: a cut beside its other connections answering (site_ok) is that
+   * server's own way (a request it holds open), not a block. */
+  if (strcmp(ev, "cut") == 0 && !(note && strcmp(note, "site_ok") == 0)) cuts_note(host);
   char h[256];
   json_host(h, sizeof(h), host);
   engine_printf("{\"type\":\"%s\",\"host\":\"%s\",\"strategy\":\"%s\","
@@ -4098,6 +4151,9 @@ static void handle(sock_t client) {
 
   /* The last way out carries this name already (see fb_put). */
   if (!rq.blockpage && fallback_ok(rq.host) && fb_is(rq.host) && via_fallback(client, &rq) == 0) goto done;
+  /* The network keeps cutting it once open (cuts_many): the last way out
+   * first; not running, it is said and the techniques go on. */
+  if (!rq.blockpage && fallback_ok(rq.host) && cuts_many(rq.host) && via_fallback(client, &rq) == 0) goto done;
 
   if (rq.blockpage) {
     /* The client looked the name up itself and the system's DNS answered with
@@ -4619,6 +4675,7 @@ static void engine_init_once(void) {
   mutex_init(&g_win_mx);
   mutex_init(&g_cool_mx);
   mutex_init(&g_fb_mx);
+  mutex_init(&g_cuts_mx);
   conns_init();
   mutex_init(&g_seen_mx);
   mutex_init(&g_raw_mx);
@@ -4672,6 +4729,7 @@ void engine_fallback_forget(void) {
   mutex_lock(&g_fb_mx);
   memset(g_fb, 0, sizeof(g_fb));
   mutex_unlock(&g_fb_mx);
+  cuts_forget();
 }
 
 /* Everything an engine has learned about hosts and resolvers: a start is a
@@ -4692,6 +4750,7 @@ static void engine_forget(void) {
   mutex_lock(&g_fb_mx);
   memset(g_fb, 0, sizeof(g_fb));
   mutex_unlock(&g_fb_mx);
+  cuts_forget();
   dns_way_forget();
   /* The list by name and the user's blocks: the app gives its blocks again
    * after every start. */

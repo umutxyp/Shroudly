@@ -950,6 +950,7 @@
   "liteOfferCard": "Nenhuma técnica abre {host} nesta rede: a rede o bloqueia por completo, ele ou os endereços dele. Esta é a versão lite do Shroudly, sem Tor; a versão completa abre esses sites e apps pela rede Tor (mais devagar). Ela é instalada por cima desta, e seus ajustes continuam.",
   "liteOfferNotice": "Nenhuma técnica abre {host} nesta rede. A versão completa do Shroudly, com Tor, pode abri-lo. Abra o Shroudly para obtê-la.",
   "liteOfferGet": "Obter a versão completa",
+  "appUsersRestart": "{apps} ainda usam o endereço do Shroudly, que não existe mais: reinicie-os para que se conectem diretamente.",
   "lastResortAsks": "O Shroudly pergunta antes de usá-la pela primeira vez.",
   "reportLink": "Algo não está funcionando?",
   "reportTitle": "Algo não está funcionando?",

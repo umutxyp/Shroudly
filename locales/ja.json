@@ -950,6 +950,7 @@
   "liteOfferCard": "このネットワークでは、どの手法でも {host} を開けません。それ自体またはそのアドレスが完全にブロックされています。これは Tor を含まない Shroudly のライト版です。完全版なら、このようなサイトやアプリを Tor ネットワーク経由で開けます（速度は遅くなります）。この版の上にインストールされ、設定はそのまま残ります。",
   "liteOfferNotice": "このネットワークでは、どの手法でも {host} を開けません。Tor を含む Shroudly の完全版なら開けます。Shroudly を開いて入手してください。",
   "liteOfferGet": "完全版を入手",
+  "appUsersRestart": "{apps} は、もう存在しない Shroudly のアドレスをまだ使っています。直接つながるように再起動してください。",
   "lastResortAsks": "初めて使う前に Shroudly が確認します。",
   "reportLink": "うまく動かないものがありますか？",
   "reportTitle": "うまく動かないものがありますか？",

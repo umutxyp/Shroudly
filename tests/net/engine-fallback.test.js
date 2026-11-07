@@ -131,6 +131,34 @@ async function get(P, host, port, timeoutMs = 40000) {
     eng.stop();
   }
 
+  // A site the network lets open and then cuts, every time (Iran's
+  // WhatsApp): after a few, its next connection goes to the last way out.
+  {
+    // A censor in front of a working site: the handshake passes, the request
+    // is answered with a reset.
+    const site = tls.createServer(H.testServerOptions(), (s) => { s.on('error', () => {}); s.on('data', () => {}); });
+    await new Promise((r) => site.listen(0, '127.0.0.1', r));
+    const cutter = net.createServer((c) => {
+      const u = net.connect(site.address().port, '127.0.0.1');
+      const sawRequest = H.requestWatcher();
+      c.on('error', () => {}); u.on('error', () => {});
+      c.on('data', (d) => { if (sawRequest(d)) { c.resetAndDestroy(); u.destroy(); return; } u.write(d); });
+      u.on('data', (d) => { if (!c.destroyed) c.write(d); });
+    });
+    await new Promise((r) => cutter.listen({ port: 0, host: '::1', ipv6Only: true }, r));
+    const cutPort = cutter.address().port;
+    const dns2 = await H.dnsStub({ 'cut.example': { AAAA: ['::1'] } });
+    const P = await H.freePort();
+    const eng = await H.startEngine(P, ['--auto', '--doh', '--doh-port', String(dns2.port), '--ipv6', '--fallback-file', torFile]);
+    const n0 = tor.asked.length;
+    const seen = [];
+    for (let i = 0; i < 4; i++) seen.push(await get(P, 'cut.example', cutPort, 20000));
+    const cuts = (eng.out.match(/"type":"cut","host":"cut\.example"/g) || []).length;
+    t.ok(cuts >= 3 && tor.asked.length > n0 && tor.asked[tor.asked.length - 1].host === 'cut.example' && seen[seen.length - 1] === 'HTTP/1.1 200 OK',
+      `cut once open, again and again (${cuts} cuts): its next connection goes through the last way out (${seen.join(', ')})`);
+    eng.stop(); cutter.close(); site.close(); dns2.close();
+  }
+
   // The user's own server set: it carries everything, the last way out is not used.
   {
     const own = H.socksServer(world.address().port);

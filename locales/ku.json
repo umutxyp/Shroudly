@@ -950,6 +950,7 @@
   "liteOfferCard": "Li ser vê torê tu teknîk {host} venake: tor wê, an navnîşanên wê, bi tevahî asteng dike. Ev guhertoya sivik (lite) ya Shroudly ye, bê Tor; guhertoya tevahî malper û sepanên wiha bi rêya tora Tor vedike (hêdîtir). Ew li ser vê tê sazkirin, û mîhengên te dimînin.",
   "liteOfferNotice": "Li ser vê torê tu teknîk {host} venake. Guhertoya tevahî ya Shroudly, bi Tor, dikare wê veke. Ji bo wergirtinê Shroudly veke.",
   "liteOfferGet": "Guhertoya tevahî bistîne",
+  "appUsersRestart": "{apps} hê jî navnîşana Shroudly ya ku êdî tune ye bi kar tînin: ji nû ve dest pê bike da ku rasterast girê bibin.",
   "lastResortAsks": "Shroudly berî ku cara yekem bi kar bîne ji te dipirse.",
   "reportLink": "Tiştek naxebite?",
   "reportTitle": "Tiştek naxebite?",

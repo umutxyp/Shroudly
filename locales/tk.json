@@ -950,6 +950,7 @@
   "liteOfferCard": "Bu ulgamda hiç bir usul {host} üçin işlemeýär: ulgam ony ýa-da onuň salgylaryny doly petikleýär. Bu Shroudly-nyň Tor-syz ýeňil (lite) wersiýasy; doly wersiýa şeýle saýtlary we programmalary Tor ulgamy arkaly açýar (haýalrak). Ol şunuň üstünden gurnalýar, sazlamalaryňyz saklanýar.",
   "liteOfferNotice": "Bu ulgamda hiç bir usul {host} üçin işlemeýär. Shroudly-nyň Tor-ly doly wersiýasy ony açyp biler. Ony almak üçin Shroudly-ni açyň.",
   "liteOfferGet": "Doly wersiýany al",
+  "appUsersRestart": "{apps} henizem Shroudly-nyň indi ýok salgysyny ulanýar: göni birikmekleri üçin olary täzeden işe giriziň.",
   "lastResortAsks": "Shroudly ony ilkinji gezek ulanmazdan öň sizden soraýar.",
   "reportLink": "Bir zat işlemeýärmi?",
   "reportTitle": "Bir zat işlemeýärmi?",

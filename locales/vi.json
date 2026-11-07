@@ -950,6 +950,7 @@
   "liteOfferCard": "Không kỹ thuật nào mở được {host} trên mạng này: mạng chặn hẳn nó, hoặc các địa chỉ của nó. Đây là bản lite của Shroudly, không có Tor; bản đầy đủ mở những trang và ứng dụng như vậy qua mạng Tor (chậm hơn). Bản đó cài đè lên bản này, và cài đặt của bạn vẫn giữ nguyên.",
   "liteOfferNotice": "Không kỹ thuật nào mở được {host} trên mạng này. Bản đầy đủ của Shroudly, có Tor, có thể mở nó. Mở Shroudly để tải bản đó.",
   "liteOfferGet": "Tải bản đầy đủ",
+  "appUsersRestart": "{apps} vẫn dùng địa chỉ của Shroudly, giờ đã không còn: hãy khởi động lại để chúng kết nối trực tiếp.",
   "lastResortAsks": "Shroudly hỏi bạn trước khi dùng lần đầu.",
   "reportLink": "Có gì đó không hoạt động?",
   "reportTitle": "Có gì đó không hoạt động?",

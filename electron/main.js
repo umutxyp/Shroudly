@@ -52,7 +52,7 @@ const StoreApps = require('./store-apps');
 const BlockCheck = require('./blockcheck');
 const Diagnostics = require('./diagnostics');
 const ProcNet = require('./procnet');
-const { RawWatch } = require('./raw-apps');
+const { RawWatch, programName } = require('./raw-apps');
 const BrowserCheck = require('./browser-check');
 const SiteList = require('./site-list');
 const Updater = require('./updater');
@@ -1808,6 +1808,8 @@ app.on('before-quit', (e) => {
   // Programs started after Shroudly has gone must go straight out again.
   try { if (appEnv && appEnv.applied) appEnv.clearSync(); } catch {}
   try { if (flatpakEnv && flatpakEnv.applied) flatpakEnv.clearSync(); } catch {}
+  // Those started before still have the address: named, to be restarted.
+  tellAppUsers();
   if (appProxy) appProxy.stop();
   // The router's way in for the share is taken away (upnp.js).
   if (share && share.on) share.stop().catch(() => {});
@@ -2341,6 +2343,39 @@ function onAppTunnel(host) {
   }
 }
 
+/* Programs that went through the program proxy this session (Games and apps
+ * mode), by name: started while the mode was on, they got its address in
+ * their environment, and Windows never takes it out of a program that runs.
+ * Once Shroudly quits or the mode goes off they still go to an address with
+ * nothing behind it until they are restarted (issue #80: Steam and the Epic
+ * Games Launcher stopped connecting "when Shroudly was closed"). So the ones
+ * still running then are named, in one notification. Looked at once a
+ * minute, from the connections open at that moment (ProcNet.owner, the
+ * same netstat everything shares). */
+const appUsers = new Map();   // name -> pid
+async function noteAppUsers() {
+  if (!appProxy || !appProxy.running || !appProxy.port) return;
+  const clients = [...appProxy.sockets].filter((s) => s.localPort === appProxy.port && s.remotePort).slice(0, 8);
+  for (const s of clients) {
+    let o = null;
+    try { o = await ProcNet.owner(s.remotePort, appProxy.port); } catch {}
+    const name = o && o.name ? programName(o.name) : null;
+    if (name && o.pid && o.pid !== process.pid && !/^shroudly/i.test(name)) appUsers.set(name, o.pid);
+  }
+}
+{ const h = setInterval(() => { noteAppUsers().catch(() => {}); }, 60 * 1000); if (h.unref) h.unref(); }
+
+/* The ones of them still running: said once, as the address goes. */
+function tellAppUsers() {
+  if (!appUsers.size) return;
+  const alive = [...appUsers].filter(([, pid]) => { try { process.kill(pid, 0); return true; } catch (e) { return e.code === 'EPERM'; } }).map(([n]) => n);
+  appUsers.clear();
+  if (!alive.length) return;
+  const apps = alive.slice(0, 4).join(', ') + (alive.length > 4 ? ', …' : '');
+  addLog('info', `Games and apps: ${alive.join(', ')} still use Shroudly's address until restarted`);
+  try { notify('Shroudly', tr().appUsersRestart.replace('{apps}', apps)); } catch {}
+}
+
 /* The network can be beaten; a service that turns the user away itself (by
  * country, by policy) cannot, since Shroudly never changes the address. When
  * that happens it is said plainly, the same way for every site and country:
@@ -2532,6 +2567,7 @@ async function applyAppModeNow(on) {
   appState.failed = false;
   if (!on) {
     try { appEnv.clearSync(); } catch {}
+    tellAppUsers();
     if (flatpakEnv) { try { await flatpakEnv.clear(); } catch {} }
     appProxy.stop();
     store.set('appMode', false);

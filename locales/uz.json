@@ -950,6 +950,7 @@
   "liteOfferCard": "Bu tarmoqda hech bir usul {host} uchun ishlamayapti: tarmoq uni yoki uning manzillarini butunlay bloklaydi. Bu Shroudly'ning Tor'siz yengil (lite) versiyasi; to'liq versiya bunday sayt va ilovalarni Tor tarmog'i orqali ochadi (sekinroq). U shu versiya ustidan o'rnatiladi, sozlamalaringiz saqlanib qoladi.",
   "liteOfferNotice": "Bu tarmoqda hech bir usul {host} uchun ishlamayapti. Shroudly'ning Tor bilan to'liq versiyasi uni ocha oladi. Uni olish uchun Shroudly'ni oching.",
   "liteOfferGet": "To'liq versiyani olish",
+  "appUsersRestart": "{apps} hali ham Shroudly'ning endi mavjud bo'lmagan manzilidan foydalanmoqda: to'g'ridan-to'g'ri ulanishi uchun ularni qayta ishga tushiring.",
   "lastResortAsks": "Shroudly undan birinchi marta foydalanishdan oldin sizdan so'raydi.",
   "reportLink": "Nimadir ishlamayaptimi?",
   "reportTitle": "Nimadir ishlamayaptimi?",

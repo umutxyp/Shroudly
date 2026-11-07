@@ -950,6 +950,7 @@
   "liteOfferCard": "Bu ağda hiçbir teknik {host} için işe yaramıyor: ağ onu ya da adreslerini tamamen engelliyor. Bu, Shroudly'nin Tor'suz hafif (lite) sürümü; tam sürüm böyle siteleri ve uygulamaları Tor ağı üzerinden açar (daha yavaş). Bunun üzerine kurulur, ayarların kalır.",
   "liteOfferNotice": "Bu ağda hiçbir teknik {host} için işe yaramıyor. Shroudly'nin Tor'lu tam sürümü onu açabilir. Almak için Shroudly'yi aç.",
   "liteOfferGet": "Tam sürümü al",
+  "appUsersRestart": "{apps} hâlâ Shroudly'nin artık olmayan adresini kullanıyor: doğrudan bağlanmaları için onları yeniden başlat.",
   "lastResortAsks": "Shroudly ilk kez kullanmadan önce sana sorar.",
   "reportLink": "Çalışmayan bir şey mi var?",
   "reportTitle": "Çalışmayan bir şey mi var?",
